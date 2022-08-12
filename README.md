@@ -1,1 +1,7 @@
-# qsyn: The tool of quantum circuit compilation. ZX calculus optimization, circuit extraction, logical circuit optimization, physical-aware optimization and Lattice Surgery
+# qsyn: The tool of quantum circuit compilation. 
+## Support functions:
+* ZX calculus optimization
+* Circuit extraction
+* Logical circuit optimization
+* Physical-aware Optimization
+* Lattice Surgery
