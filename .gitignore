@@ -1,8 +1,12 @@
 *.o
 .vscode
 
-bin/qsyn
+qsyn
+
+bin/*
 lib/*
+
+tests/*
 
 !lib/lib.d
 !lib/libcmd-*

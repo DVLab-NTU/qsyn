@@ -17,7 +17,7 @@ using namespace std;
 CmdParser* cmdMgr = new CmdParser("qsyn> ");
 
 extern bool initCommonCmd();
-extern bool initCirCmd();
+// extern bool initCirCmd();
 
 static void
 usage()
@@ -56,7 +56,8 @@ main(int argc, char** argv)
       myexit();
    }
 
-   if (!initCommonCmd() || !initCirCmd())
+//    if (!initCommonCmd() || !initCirCmd())
+   if (!initCommonCmd())
       return 1;
 
    CmdExecStatus status = CMD_EXEC_DONE;

@@ -1,14 +1,17 @@
-REFPKGS  = cmd
-SRCPKGS  = cir sat util
-LIBPKGS  = $(REFPKGS) $(SRCPKGS)
-MAIN     = main
+REFPKGS   = cmd
+SRCPKGS   = util
+LIBPKGS   = $(REFPKGS) $(SRCPKGS)
+MAIN      = main
+TESTMAIN  = test
 
-LIBS     = $(addprefix -l, $(LIBPKGS))
-SRCLIBS  = $(addsuffix .a, $(addprefix lib, $(SRCPKGS)))
+LIBS      = $(addprefix -l, $(LIBPKGS))
+SRCLIBS   = $(addsuffix .a, $(addprefix lib, $(SRCPKGS)))
 
-EXEC     = qsyn
+EXEC      = qsyn
+TESTEXECS = test1 test2
 
-all: libs main
+all:  libs main
+test: libs testmain
 
 libs:
 	@for pkg in $(SRCPKGS); \
@@ -24,6 +27,18 @@ main:
 		make -f make.$(MAIN) --no-print-directory INCLIB="$(LIBS)" EXEC=$(EXEC);
 	@ln -fs bin/$(EXEC) .
 #	@strip bin/$(EXEC)
+
+testmain:
+	@echo "Checking $(TESTMAIN)..."
+	@for testexec in $(TESTEXECS); \
+	do \
+		cd src/$(TESTMAIN); \
+		make -f make.$(TESTMAIN) --no-print-directory INCLIB="$(LIBS)" EXEC=$$testexec; \
+		cd ../../tests; \
+		ln -fs ../bin/$$testexec .; \
+		cd ..; \
+	done
+
 
 clean:
 	@for pkg in $(SRCPKGS); \
