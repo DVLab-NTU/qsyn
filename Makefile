@@ -73,4 +73,3 @@ linux18 linux16 mac:
 	do \
 	        cd lib; ln -sf lib$$pkg-$@.a lib$$pkg.a; cd ../..; \
 	done
-	@cd ref; ln -sf $(EXEC)-$@ $(EXEC);

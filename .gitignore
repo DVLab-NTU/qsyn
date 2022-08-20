@@ -3,11 +3,11 @@
 
 qsyn
 
-bin/*
 lib/*
 
 tests/*
 
+!lib/
 !lib/lib.d
 !lib/libcmd-*
 !lib/libcmd.a
