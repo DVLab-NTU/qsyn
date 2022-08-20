@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ cirMgr.h ]
-  PackageName  [ src/circuit ]
+  PackageName  [ qcir ]
   Synopsis     [ Define quantum circuit manager ]
   Author       [ Chin-Yi Cheng ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]

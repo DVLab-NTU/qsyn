@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ qcirMgr.cpp ]
-  PackageName  [ src/circuit ]
+  PackageName  [ qcir ]
   Synopsis     [ Define qcir manager functions ]
   Author       [ Chin-Yi Cheng ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]

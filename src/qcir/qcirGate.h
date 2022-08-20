@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ qcirGate.h ]
-  PackageName  [ src/circuit ]
+  PackageName  [ qcir ]
   Synopsis     [ Define basic gate data structures ]
   Author       [ Chin-Yi Cheng ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
