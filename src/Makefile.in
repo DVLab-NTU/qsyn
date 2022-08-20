@@ -1,0 +1,61 @@
+CSRCS     = $(wildcard *.cpp) $(wildcard *.c)
+CHDRS     = $(wildcard *.h)
+COBJS     = $(addsuffix .o, $(basename $(CSRCS)))
+
+EXTINCDIR = ../../include
+DEPENDDIR = -I. -I$(EXTINCDIR)
+LIBDIR    = ../../lib
+EXTLINK   = $(PKGNAME).d
+LIBDEPEND = $(LIBDIR)/lib.d
+
+CXX       = g++
+CCC       = gcc
+AR        = ar cr
+ECHO      = /bin/echo
+
+CFLAGS = -O3 -Wall -std=c++17 -DTA_KB_SETTING $(PKGFLAG)
+CFLAGS = -g -Wall -std=c++17 -DTA_KB_SETTING $(PKGFLAG)
+
+.PHONY: depend extheader
+
+%.o : %.cpp
+	@$(ECHO) "> compiling: $<"
+	@$(CXX) $(CFLAGS) -I$(EXTINCDIR) -c -o $@ $<
+
+%.o : %.c
+	@$(ECHO) "> compiling: $<"
+	@$(CCC) $(CFLAGS) -I$(EXTINCDIR) -c -o $@ $<
+
+top: $(EXTLINK) target
+	@$(ECHO) -n
+
+clean:
+	@rm -f $(COBJS)
+
+## Make dependencies
+depend: .depend.mak
+.depend.mak: $(CSRCS) $(CHDRS)
+	@$(ECHO) Making dependencies ...
+	@$(CXX) -MM $(DEPENDDIR) $(CSRCS) > $@
+
+## Linking external headers
+extheader: .extheader.mak
+.extheader.mak: $(EXTHDRS)
+	@$(ECHO) Linking external header files...
+	@rm -f $@
+	@$(ECHO) -n "$(EXTLINK): " > $@
+	@for hdr in $(EXTHDRS); \
+	do \
+		$(ECHO) -n "$(EXTINCDIR)/$$hdr " >> $@; \
+		rm -f $(EXTINCDIR)/$$hdr; \
+	done
+	@$(ECHO) >> $@
+	@for hdr in $(EXTHDRS); \
+	do \
+		$(ECHO) "$(EXTINCDIR)/$$hdr: $$hdr" >> $@; \
+		$(ECHO) "	@rm -f $(EXTINCDIR)/$$hdr" >> $@; \
+		$(ECHO) "	@ln -fs ../src/$(PKGNAME)/$$hdr $(EXTINCDIR)/$$hdr" >> $@; \
+	done
+
+include .depend.mak
+include .extheader.mak
