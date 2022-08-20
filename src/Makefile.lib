@@ -1,0 +1,9 @@
+LIBNAME   = lib$(PKGNAME).a
+TARGET    = $(LIBDIR)/$(LIBNAME)
+
+target: $(TARGET)
+
+$(TARGET): $(COBJS)
+	@echo "Building $(LIBNAME)..."
+	@$(AR) $@ $(COBJS)
+	@touch $(LIBDEPEND)
