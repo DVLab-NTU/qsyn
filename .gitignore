@@ -5,7 +5,6 @@ qsyn
 
 lib/*
 
-tests/
 
 !lib/
 !lib/lib.d
