@@ -18,13 +18,38 @@ using namespace std;
 
 extern QCirMgr *qCirMgr;
 
+void QCirGate::addParent(size_t qubit, QCirGate *p)
+{
+  for (size_t i = 0; i < _qubits.size(); i++)
+  {
+    if (_qubits[i]._qubit == qubit)
+    {
+      _qubits[i]._parent = p;
+      break;
+    }
+  }
+}
+
+void QCirGate::addChild(size_t qubit, QCirGate *c)
+{
+  for (size_t i = 0; i < _qubits.size(); i++)
+  {
+    if (_qubits[i]._qubit == qubit)
+    {
+      _qubits[i]._child = c;
+      break;
+    }
+  }
+}
+
 void QCirGate::printGate() const
 {
-  cout << "Gate " << _id << ": " << _type << " \t"
+  cout << "Gate " << _id << ": " << _type << "   \t"
+       << " Exec Time: " << _time << " \t"
        << " Qubit: ";
-  for (size_t i = 0; i < _pins.size(); i++)
+  for (size_t i = 0; i < _qubits.size(); i++)
   {
-    cout << _pins[i] << " ";
+    cout << _qubits[i]._qubit << " ";
   }
   cout << endl;
 }

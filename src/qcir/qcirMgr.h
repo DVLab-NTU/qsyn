@@ -22,19 +22,26 @@ using namespace std;
 class QCirMgr
 {
 public:
-  QCirMgr() {}
+  QCirMgr()
+  {
+    _nqubit = 0;
+    _qgate.clear();
+    _lastExec.clear();
+    _bitFirst.clear();
+  }
   ~QCirMgr() {}
 
   // Access functions
   // return '0' if "gid" corresponds to an undefined gate.
   QCirGate *getGate(unsigned gid) const { return 0; }
-
+  void initialLastExec();
   // Member functions about circuit construction
   bool parseQASM(string qasm_file);
   void addGate(QCirGate *);
   // Member functions about circuit reporting
   void printGates() const;
   void printSummary() const;
+  void printQubits() const;
   void printNetlist() const;
   void printPIs() const;
   void printPOs() const;
@@ -44,7 +51,10 @@ public:
   void writeGate(ostream &, QCirGate *) const;
 
 private:
+  size_t _nqubit;
   vector<QCirGate *> _qgate;
+  vector<pair<size_t, size_t>> _lastExec; //pair<gate,time>
+  vector<QCirGate *> _bitFirst;
 };
 
 #endif // QCIR_MGR_H

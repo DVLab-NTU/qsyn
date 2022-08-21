@@ -146,6 +146,8 @@ QCirPrintCmd::exec(const string &option)
    else if (myStrNCmp("-FECpairs", token, 4) == 0)
       cout << "Not Support Now" << endl;
    // qCirMgr->printFECPairs();
+   else if (myStrNCmp("-Qubit", token, 2) == 0)
+      qCirMgr->printQubits();
    else
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
 

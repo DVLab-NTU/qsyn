@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <string>
+#include <iomanip>
 #include <fstream>
 #include <iostream>
 #include <algorithm>
@@ -24,7 +25,39 @@ void QCirMgr::printSummary() const
         _qgate[i]->printGate();
     }
 }
+void QCirMgr::printQubits() const
+{
+    for (size_t i = 0; i < _bitFirst.size(); i++)
+    {
+        QCirGate *current = _bitFirst[i];
+        size_t last_time = 0;
+        cout << "Q" << setfill('0') << setw(2) << i << "  ";
 
+        while (current != NULL)
+        {
+            cout << "-";
+            while (last_time < current->getTime())
+            {
+                cout << "----";
+                last_time++;
+            }
+            cout << setfill(' ') << setw(2) << current->getTypeStr().substr(0, 2);
+            last_time = current->getTime() + 1;
+            current = current->getQubit(i)._child;
+            cout << "-";
+        }
+        cout << endl;
+    }
+}
+void QCirMgr::initialLastExec()
+{
+    for (size_t i = 0; i < _nqubit; i++)
+    {
+        pair<size_t, size_t> init(-1, 0);
+        _lastExec.push_back(init);
+        _bitFirst.push_back(NULL);
+    }
+}
 bool QCirMgr::parseQASM(string filename)
 {
     // read file and open
@@ -46,11 +79,9 @@ bool QCirMgr::parseQASM(string filename)
         qasm_file >> str;
     }
     size_t gate_id = 0;
-
     // For netlist
-    // const size_t num_qubits =
-    //     stoi(str.substr(str.find("[") + 1, str.size() - str.find("[") - 3));
-
+    _nqubit = stoi(str.substr(str.find("[") + 1, str.size() - str.find("[") - 3));
+    initialLastExec();
     vector<string> single_list{"x", "sx", "s", "rz", "i", "h", "t", "tdg"};
 
     while (qasm_file >> str)
@@ -69,9 +100,24 @@ bool QCirMgr::parseQASM(string filename)
                 qasm_file >> str;
                 string singleQubitId = str.substr(2, str.size() - 4);
                 size_t q = stoul(singleQubitId);
-                vector<size_t> pin_id;
-                pin_id.push_back(q);
-                QCirGate *temp = new QCirGate(gate_id, type, pin_id);
+
+                // construct data structure
+                QCirGate *temp = new QCirGate(gate_id, type, 1);
+                temp->addQubit(q, true);
+                if (_lastExec[q].first != -1)
+                {
+                    temp->addParent(q, _qgate[_lastExec[q].first]);
+                    _qgate[_lastExec[q].first]->addChild(q, temp);
+                }
+                else
+                {
+                    _bitFirst[q] = temp;
+                }
+                temp->setTime(_lastExec[q].second);
+
+                // update and store
+                _lastExec[q].first = gate_id;
+                _lastExec[q].second++;
                 _qgate.push_back(temp);
                 gate_id++;
             }
@@ -83,13 +129,12 @@ bool QCirMgr::parseQASM(string filename)
                     return false;
                 }
                 else
-                {
                     qasm_file >> str;
-                }
             }
         }
         else
         {
+            // Parse
             qasm_file >> str;
             string delimiter = ",";
             string token = str.substr(0, str.find(delimiter));
@@ -100,9 +145,33 @@ bool QCirMgr::parseQASM(string filename)
             qubit_id = token.substr(2, token.size() - 3);
             size_t q2 = stoul(qubit_id);
             vector<size_t> pin_id;
-            pin_id.push_back(q1);
-            pin_id.push_back(q2);
-            QCirGate *temp = new QCirGate(gate_id, type, pin_id);
+            pin_id.push_back(q1); // ctrl
+            pin_id.push_back(q2); // targ
+            QCirGate *temp = new QCirGate(gate_id, type, 2);
+            // Data Structure
+            size_t max_time = 0;
+            for (size_t k = 0; k < pin_id.size(); k++)
+            {
+                size_t q = pin_id[k];
+                temp->addQubit(q, k == pin_id.size() - 1);
+                if (_lastExec[q].first != -1)
+                {
+                    temp->addParent(q, _qgate[_lastExec[q].first]);
+                    _qgate[_lastExec[q].first]->addChild(q, temp);
+                }
+                else
+                    _bitFirst[q] = temp;
+                if (_lastExec[q].second > max_time)
+                    max_time = _lastExec[q].second;
+                // update and store
+                _lastExec[q].first = gate_id;
+            }
+            for (size_t k = 0; k < pin_id.size(); k++)
+            {
+                _lastExec[pin_id[k]].second = max_time + 1;
+                temp->setTime(max_time);
+            }
+
             _qgate.push_back(temp);
             gate_id++;
         }
