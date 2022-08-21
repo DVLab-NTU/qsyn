@@ -1,5 +1,5 @@
 REFPKGS   = cmd
-SRCPKGS   = util
+SRCPKGS   = qcir util
 LIBPKGS   = $(REFPKGS) $(SRCPKGS)
 MAIN      = main
 TESTMAIN  = test
