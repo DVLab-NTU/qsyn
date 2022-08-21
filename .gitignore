@@ -1,10 +1,7 @@
 *.o
 .vscode
 
-qsyn
-
 lib/*
-
 
 !lib/
 !lib/lib.d
