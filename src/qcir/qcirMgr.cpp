@@ -14,17 +14,29 @@
 #include "qcirMgr.h"
 
 using namespace std;
+QCirMgr *qCirMgr = 0;
 
-void QCirMgr::printGates() const
+void QCirMgr::printSummary() const
 {
+    cout << "Follow QASM file (Topological order)" << endl;
     for (size_t i = 0; i < _qgate.size(); i++)
     {
         _qgate[i]->printGate();
     }
 }
 
-void QCirMgr::parseQASM(fstream &qasm_file)
+bool QCirMgr::parseQASM(string filename)
 {
+    // read file and open
+    fstream qasm_file;
+    string tmp;
+    vector<string> record;
+    qasm_file.open(filename.c_str(), ios::in);
+    if (!qasm_file.is_open())
+    {
+        cerr << "Cannot open QASM \"" << filename << "\"!!" << endl;
+        return false;
+    }
     string str;
     for (int i = 0; i < 6; i++)
     {
@@ -34,8 +46,10 @@ void QCirMgr::parseQASM(fstream &qasm_file)
         qasm_file >> str;
     }
     size_t gate_id = 0;
-    const size_t num_qubits =
-        stoi(str.substr(str.find("[") + 1, str.size() - str.find("[") - 3));
+
+    // For netlist
+    // const size_t num_qubits =
+    //     stoi(str.substr(str.find("[") + 1, str.size() - str.find("[") - 3));
 
     vector<string> single_list{"x", "sx", "s", "rz", "i", "h", "t", "tdg"};
 
@@ -66,7 +80,7 @@ void QCirMgr::parseQASM(fstream &qasm_file)
                 if (type != "creg" && type != "qreg")
                 {
                     cerr << "Unseen Gate " << type << endl;
-                    exit(0);
+                    return false;
                 }
                 else
                 {
@@ -93,4 +107,5 @@ void QCirMgr::parseQASM(fstream &qasm_file)
             gate_id++;
         }
     }
+    return true;
 }

@@ -1,0 +1,13 @@
+*.o
+.vscode
+
+qsyn
+
+lib/*
+
+tests/*
+
+!lib/
+!lib/lib.d
+!lib/libcmd-*
+!lib/libcmd.a

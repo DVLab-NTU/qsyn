@@ -25,23 +25,23 @@ class QCirGate;
 class QCirGate
 {
 public:
-    // size_t id, string type, vector<size_t> pins
-    QCirGate(size_t id, string type, vector<size_t> pins) : _id(id), _type(type), _pins(pins) {}
-    ~QCirGate() {}
+  // size_t id, string type, vector<size_t> pins
+  QCirGate(size_t id, string type, vector<size_t> pins) : _id(id), _type(type), _pins(pins) {}
+  ~QCirGate() {}
 
-    // Basic access method
-    string getTypeStr() const { return _type; }
-    size_t getId() const { return _id; }
-    // Printing functions
-    void printGate() const;
-    void reportGate() const;
-    void reportFanin(int level) const;
-    void reportFanout(int level) const;
+  // Basic access method
+  string getTypeStr() const { return _type; }
+  size_t getId() const { return _id; }
+  // Printing functions
+  void printGate() const;
+  void reportGate() const;
+  void reportFanin(int level) const;
+  void reportFanout(int level) const;
 
 private:
-    vector<size_t> _pins;
-    string _type;
-    size_t _id;
+  size_t _id;
+  string _type;
+  vector<size_t> _pins;
 
 protected:
 };
