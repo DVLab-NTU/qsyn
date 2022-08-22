@@ -1,0 +1,9 @@
+*.o
+.vscode
+
+lib/*
+
+!lib/
+!lib/lib.d
+!lib/libcmd-*
+!lib/libcmd.a
