@@ -8,7 +8,7 @@ LIBS      = $(addprefix -l, $(LIBPKGS))
 SRCLIBS   = $(addsuffix .a, $(addprefix lib, $(SRCPKGS)))
 
 EXEC      = qsyn
-TESTEXECS = test1 test2
+TESTEXECS = testRational test2
 
 all:  libs main
 test: libs testmain
