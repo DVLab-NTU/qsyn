@@ -23,7 +23,7 @@ class ZXGraph;
 //------------------------------------------------------------------------
 class VerType{
     public:
-        VerType(){}
+        VerType(size_t id, int qubit): _id(id), _qubit(qubit) {}
         ~VerType(){}
 
         // Getter and Setter
@@ -40,15 +40,19 @@ class VerType{
 
 class EdgeType{
     public:
-        EdgeType(){}
-        ~EdgeType(){}
+        EdgeType(size_t id, string type): _id(id), _type(type) {}
+        ~EdgeType() {}
 
         // Getter and Setter
         size_t getId() const { return _id; }
         string getType() const { return _type; }
+        pair<VerType, VerType> getEdge() const { return _edge; }
+        VerType getEdgeS() const { return _edge.first; }
+        VerType getEdgeT() const { return _edge.second; }
 
         void setId(size_t id) { _id = id; }
         void setQubit(string type) { _type = type; }
+        void setEdge(pair<VerType, VerType> edge ) { _edge = edge; }
 
     private:
         size_t _id;
@@ -58,10 +62,14 @@ class EdgeType{
 
 class ZXGraph{
     public:
-        ZXGraph(){
-
+        ZXGraph(size_t id) : _id(id){
+            _inputs.clear();
+            _outputs.clear();
+            _vertices.clear();
+            _edges.clear();
+            _qubits.clear();
         }
-        ~ZXGraph(){}
+        ~ZXGraph() {}
 
         // Add and Remove
         void addInput(VerType v);
@@ -73,6 +81,11 @@ class ZXGraph{
         void addOutputs(vector<VerType> vecV);
         void removeOutput(VerType v);
         void removeOutputs(vector<VerType> vecV);
+
+        void addVertex(VerType v);
+        void addVertices(vector<VerType> vecV);
+        void removeVertex(VerType v);
+        void removeVertices(vector<VerType> vecV);
 
         // Getter and Setter
         void setId(size_t id) { _id = id; }
