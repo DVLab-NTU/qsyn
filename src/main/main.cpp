@@ -19,6 +19,7 @@ CmdParser* cmdMgr = new CmdParser("qsyn> ");
 extern bool initCommonCmd();
 // extern bool initCirCmd();
 extern bool initQCirCmd();
+extern bool initZXCmd();
 
 static void
 usage()
@@ -58,7 +59,8 @@ main(int argc, char** argv)
    }
 
    // if (!initCommonCmd() || !initCirCmd() || !initQCirCmd())
-   if (!initCommonCmd() || !initQCirCmd())
+   if (!initCommonCmd() || !initQCirCmd() || !initZXCmd() )
+   // if (!initCommonCmd() || !initQCirCmd() )
       return 1;
 
    CmdExecStatus status = CMD_EXEC_DONE;

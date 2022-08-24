@@ -14,51 +14,70 @@
 #include <string>
 using namespace std;
 
-class VerType;
-class EdgeType;
+class VT;
 class ZXGraph;
 
 //------------------------------------------------------------------------
 //   Define classes
 //------------------------------------------------------------------------
-class VerType{
+struct rationalNumber{};
+enum class VertexType{
+    BOUNDARY,
+    Z,
+    X,
+    H_BOX
+};
+
+enum class EdgeType{
+    SIMPLE,
+    HADAMARD
+};
+
+class VT{
     public:
-        VerType(size_t id, int qubit): _id(id), _qubit(qubit) {}
-        ~VerType(){}
+        VT(size_t id, int qubit): _id(id), _qubit(qubit) {}
+        ~VT(){}
 
         // Getter and Setter
         size_t getId() const { return _id; }
         int getQubit() const { return _qubit; }
+        VertexType getType() const { return _type; }
 
         void setId(size_t id) { _id = id; }
         void setQubit(int q) {_qubit = q; }
+        void setType(VertexType vt) { _type = vt; }
         
     private:
-        size_t      _id;
-        int         _qubit;
+        int                     _qubit;
+        int                     _row;
+        size_t                  _id;
+        VertexType              _type;
+        rationalNumber          _phase;
+        vector<VT*>             _neighbors;
+        vector<EdgeType>        _neighEdgesList;
 };
 
-class EdgeType{
-    public:
-        EdgeType(size_t id, string type): _id(id), _type(type) {}
-        ~EdgeType() {}
+// class EdgeType{
+//     public:
+//         EdgeType(): {}
+//         ~EdgeType() {}
 
-        // Getter and Setter
-        size_t getId() const { return _id; }
-        string getType() const { return _type; }
-        pair<VerType, VerType> getEdge() const { return _edge; }
-        VerType getEdgeS() const { return _edge.first; }
-        VerType getEdgeT() const { return _edge.second; }
+//         // Getter and Setter
+//         size_t getId() const { return _id; }
+//         string getType() const { return _type; }
+//         pair<VT, VT> getEdge() const { return _edge; }
+//         VT getEdgeS() const { return _edge.first; }
+//         VT getEdgeT() const { return _edge.second; }
 
-        void setId(size_t id) { _id = id; }
-        void setQubit(string type) { _type = type; }
-        void setEdge(pair<VerType, VerType> edge ) { _edge = edge; }
+//         void setId(size_t id) { _id = id; }
+//         void setQubit(string type) { _type = type; }
+//         void setEdge(pair<VT, VT> edge ) { _edge = edge; }
 
-    private:
-        size_t _id;
-        string _type; // [ SIMPLE / HADAMARD ]
-        pair<VerType, VerType> _edge;
-};
+//     private:
+//         size_t _id;
+//         string _type; // [ SIMPLE / HADAMARD ]
+//         pair<VT, VT> _edge;
+// };
 
 class ZXGraph{
     public:
@@ -66,66 +85,62 @@ class ZXGraph{
             _inputs.clear();
             _outputs.clear();
             _vertices.clear();
-            _edges.clear();
             _qubits.clear();
         }
         ~ZXGraph() {}
 
         // Add and Remove
-        void addInput(VerType v);
-        void addInputs(vector<VerType> vecV);
-        void removeInput(VerType v);
-        void removeInputs(vector<VerType> vecV);
+        void addInput(VT v);
+        void addInputs(vector<VT> vecV);
+        void removeInput(VT v);
+        void removeInputs(vector<VT> vecV);
 
-        void addOutput(VerType v);
-        void addOutputs(vector<VerType> vecV);
-        void removeOutput(VerType v);
-        void removeOutputs(vector<VerType> vecV);
+        void addOutput(VT v);
+        void addOutputs(vector<VT> vecV);
+        void removeOutput(VT v);
+        void removeOutputs(vector<VT> vecV);
 
-        void addVertex(VerType v);
-        void addVertices(vector<VerType> vecV);
-        void removeVertex(VerType v);
-        void removeVertices(vector<VerType> vecV);
+        void addVertex(VT v);
+        void addVertices(vector<VT> vecV);
+        void removeVertex(VT v);
+        void removeVertices(vector<VT> vecV);
 
         // Getter and Setter
         void setId(size_t id) { _id = id; }
         void setQubitCount(size_t c) { _nqubit = c; }
-        void setInputs(vector<VerType> inputs) { _inputs = inputs; }
-        void setOutputs(vector<VerType> outputs) { _outputs = outputs; }
-        void setVertices(vector<VerType> vertices) { _vertices = vertices; }
-        void setEdges(vector<EdgeType> edges) { _edges = edges; }
+        void setInputs(vector<VT> inputs) { _inputs = inputs; }
+        void setOutputs(vector<VT> outputs) { _outputs = outputs; }
+        void setVertices(vector<VT> vertices) { _vertices = vertices; }
+        // void setEdges(vector<EdgeType> edges) { _edges = edges; }
 
         size_t getId() const { return _id; }
         size_t getQubitCount() const { return _nqubit; }
 
-        vector<VerType> getInputs() const { return _inputs; }
+        vector<VT> getInputs() const { return _inputs; }
         size_t getNumInputs() const { return _inputs.size(); }
 
-        vector<VerType> getOutputs() const { return _outputs; }
+        vector<VT> getOutputs() const { return _outputs; }
         size_t getNumOutputs() const { return _outputs.size(); }
 
-        vector<VerType> getVertices() const { return _vertices; }
+        vector<VT> getVertices() const { return _vertices; }
         size_t getNumVertices() const { return _vertices.size(); }
 
-        vector<EdgeType> getEdges() const { return _edges; }
-        size_t getNumEdges() const { return _edges.size(); }
 
-        vector<pair<VerType, int> > getQubits() const { return _qubits; }
+        vector<pair<VT, int> > getQubits() const { return _qubits; }
 
         // Print functions
         void printInputs() const;
         void printOutputs() const;
         void printVertices() const;
-        void printEdges() const;
+        
 
     private:
-        size_t                                  _id;
-        size_t                                  _nqubit;
-        vector<VerType>                         _inputs;
-        vector<VerType>                         _outputs;
-        vector<VerType>                         _vertices;
-        vector<EdgeType>                        _edges;
-        vector<pair<VerType, int> >             _qubits;
+        size_t                             _id;
+        size_t                             _nqubit;
+        vector<VT>                         _inputs;
+        vector<VT>                         _outputs;
+        vector<VT>                         _vertices;
+        vector<pair<VT, int> >             _qubits;
 
 };
 

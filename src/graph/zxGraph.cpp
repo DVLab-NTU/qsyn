@@ -16,26 +16,20 @@ using namespace std;
 /**************************************/
 
 // Print functions
-void ZXGraph::printInputs() const{
-    for(size_t i = 0; i < _inputs.size(); i++){
-        cout << "Input " << i+1 << ": " << _inputs[i].getId() << endl;
-    }
-}
+// void ZXGraph::printInputs() const{
+//     for(size_t i = 0; i < _inputs.size(); i++){
+//         cout << "Input " << i+1 << ": " << _inputs[i].getId() << endl;
+//     }
+// }
 
-void ZXGraph::printOutputs() const{
-    for(size_t i = 0; i < _outputs.size(); i++){
-        cout << "Output " << i+1 << ": " << _outputs[i].getId() << endl;
-    }
-}
+// void ZXGraph::printOutputs() const{
+//     for(size_t i = 0; i < _outputs.size(); i++){
+//         cout << "Output " << i+1 << ": " << _outputs[i].getId() << endl;
+//     }
+// }
 
-void ZXGraph::printEdges() const{
-    for(size_t i = 0; i < _edges.size(); i++){
-        cout << "Edge " << i+1 << ": (" << _edges[i].getEdgeS().getId() << ", " << _edges[i].getEdgeT().getId() << ")" << endl;
-    }
-}
-
-void ZXGraph::printVertices() const{
-    for(size_t i = 0; i < _vertices.size(); i++){
-        cout << "Vertex " << i+1 << ": " << _vertices[i].getId() << endl;
-    }
-}
+// void ZXGraph::printVertices() const{
+//     for(size_t i = 0; i < _vertices.size(); i++){
+//         cout << "Vertex " << i+1 << ": " << _vertices[i].getId() << endl;
+//     }
+// }
