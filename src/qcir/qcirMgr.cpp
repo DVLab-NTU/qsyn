@@ -31,8 +31,7 @@ void QCirMgr::printQubits() const
     {
         QCirGate *current = _bitFirst[i];
         size_t last_time = 0;
-        cout << "Q" << setfill('0') << setw(2) << i << "  ";
-
+        cout << "Q" << right << setfill(' ') << setw(2) << i << "  ";
         while (current != NULL)
         {
             cout << "-";
@@ -49,9 +48,9 @@ void QCirMgr::printQubits() const
         cout << endl;
     }
 }
-void QCirMgr::initialBit()
+void QCirMgr::addAncilla(size_t num)
 {
-    for (size_t i = 0; i < _nqubit; i++)
+    for (size_t i = 0; i < num; i++)
     {
         _bitLast.push_back(NULL);
         _bitFirst.push_back(NULL);
@@ -104,8 +103,8 @@ bool QCirMgr::parseQASM(string filename)
         qasm_file >> str;
     }
     // For netlist
-    _nqubit = stoi(str.substr(str.find("[") + 1, str.size() - str.find("[") - 3));
-    initialBit();
+    int nqubit = stoi(str.substr(str.find("[") + 1, str.size() - str.find("[") - 3));
+    addAncilla(nqubit);
     vector<string> single_list{"x", "sx", "s", "rz", "i", "h", "t", "tdg"};
 
     while (qasm_file >> str)

@@ -21,8 +21,10 @@ extern int effLimit;
 
 bool initQCirCmd()
 {
-   if (!(cmdMgr->regCmd("QCIRRead", 5, new QCirReadCmd) &&
-         cmdMgr->regCmd("QCIRPrint", 5, new QCirPrintCmd)))
+   if (!(cmdMgr->regCmd("QCRead", 3, new QCirReadCmd) &&
+         cmdMgr->regCmd("QCPrint", 3, new QCirPrintCmd) &&
+         cmdMgr->regCmd("QCAGate", 4, new QCirAppendGateCmd) &&
+         cmdMgr->regCmd("QCAAnci", 4, new QCirAddAncillaCmd)))
    {
       cerr << "Registering \"qcir\" commands fails... exiting" << endl;
       return false;
@@ -42,7 +44,7 @@ enum QCirCmdState
 static QCirCmdState curCmd = QCIRINIT;
 
 //----------------------------------------------------------------------
-//    QCIRRead <(string fileName)> [-Replace]
+//    QCRead <(string fileName)> [-Replace]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirReadCmd::exec(const string &option)
@@ -104,17 +106,17 @@ QCirReadCmd::exec(const string &option)
 
 void QCirReadCmd::usage(ostream &os) const
 {
-   os << "Usage: QCIRRead <(string fileName)> [-Replace]" << endl;
+   os << "Usage: QCRead <(string fileName)> [-Replace]" << endl;
 }
 
 void QCirReadCmd::help() const
 {
-   cout << setw(15) << left << "QCIRRead: "
+   cout << setw(15) << left << "QCRead: "
         << "read in a circuit and construct the netlist" << endl;
 }
 
 //----------------------------------------------------------------------
-//    CIRPrint [-Summary | -Netlist | -PI | -PO | -FLoating | -FECpairs]
+//    QCPrint [-Summary | -Netlist | -PI | -PO | -FLoating | -FECpairs]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirPrintCmd::exec(const string &option)
@@ -156,14 +158,132 @@ QCirPrintCmd::exec(const string &option)
 
 void QCirPrintCmd::usage(ostream &os) const
 {
-   os << "Usage: QCIRPrint [-Summary | -Netlist | -PI | -PO | -FLoating "
+   os << "Usage: QCPrint [-Summary | -Netlist | -PI | -PO | -FLoating "
       << "| -FECpairs]" << endl;
 }
 
 void QCirPrintCmd::help() const
 {
-   cout << setw(15) << left << "QCIRPrint: "
+   cout << setw(15) << left << "QCPrint: "
         << "print quanutm circuit\n";
+}
+
+CmdExecStatus
+QCirAppendGateCmd::exec(const string &option)
+{
+   // check option
+
+   vector<string> options;
+   if (!CmdExec::lexOptions(option, options))
+      return CMD_EXEC_ERROR;
+
+   if (options.empty())
+      return CmdExec::errorOption(CMD_OPT_MISSING, "");
+   if (options.size() == 1)
+      return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
+
+   if (!qCirMgr)
+   {
+      cerr << "Error: no available qubits. Please read a quantum circuit or add ancilla(e)!!" << endl;
+      return CMD_EXEC_ERROR;
+   }
+
+   string type = options[0];
+
+   // Here need to check type //
+   // TODO:
+   /////////////////////////////
+
+   vector<size_t> qubits;
+   for (size_t l = 1; l < options.size(); l++)
+   {
+      int q;
+      bool isNum = myStr2Int(options[l], q);
+      if (!isNum)
+      {
+         cerr << "Error: qubit should be number!!" << endl;
+         return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[l]);
+      }
+      if (q < 0)
+      {
+         cerr << "Error: qubit should be positive!!" << endl;
+         return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[l]);
+      }
+      else
+      {
+         size_t quns = (unsigned int)q;
+         if (qCirMgr->getNQubit() - 1 < quns)
+         {
+            cout << qCirMgr->getNQubit() << " " << quns << endl;
+            cerr << "Error: qubit ID is bigger than current circuit!!" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[l]);
+         }
+         qubits.push_back(q);
+      }
+   }
+   qCirMgr->appendGate(type, qubits);
+   return CMD_EXEC_DONE;
+}
+
+void QCirAppendGateCmd::usage(ostream &os) const
+{
+   os << "Usage: QCAGate <Gate Type> [Control Bits] <Target Bit>" << endl;
+   os << "E.g. : QCAGate cx 0 1" << endl;
+   os << "E.g. : QCAGate x 2" << endl;
+}
+
+void QCirAppendGateCmd::help() const
+{
+   cout << setw(15) << left << "QCAGate: "
+        << "append quantum gate\n";
+}
+
+CmdExecStatus
+QCirAddAncillaCmd::exec(const string &option)
+{
+   // check option
+   string token;
+   if (!CmdExec::lexSingleOption(option, token))
+      return CMD_EXEC_ERROR;
+   if (token.empty())
+   {
+      if (qCirMgr == 0)
+         qCirMgr = new QCirMgr;
+      qCirMgr->addAncilla(1);
+   }
+   else
+   {
+      int num;
+      bool isNum = myStr2Int(token, num);
+      if (!isNum)
+      {
+         cerr << "Error: option should be a number!!" << endl;
+         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+      }
+      if (num < 0)
+      {
+         cerr << "Error: option should be positive!!" << endl;
+         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+      }
+      else
+      {
+         if (qCirMgr == 0)
+            qCirMgr = new QCirMgr;
+         qCirMgr->addAncilla(num);
+      }
+   }
+   return CMD_EXEC_DONE;
+}
+
+void QCirAddAncillaCmd::usage(ostream &os) const
+{
+   os << "Usage: QCAAnci [ ancilla(e) number ] " << endl;
+}
+
+void QCirAddAncillaCmd::help() const
+{
+   cout << setw(15) << left << "QCAAnci: "
+        << "add ancilla bit(s)\n";
 }
 
 // //----------------------------------------------------------------------

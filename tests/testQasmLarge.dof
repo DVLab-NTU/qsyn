@@ -1,5 +1,5 @@
-qcirr benchmark_SABRE/large/root_255.qasm
-qcirp
-qcirp -Q
+qcr benchmark_SABRE/large/root_255.qasm
+qcp
+qcp -Q
 usage
 q -f
