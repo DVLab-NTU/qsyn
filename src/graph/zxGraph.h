@@ -108,25 +108,25 @@ class ZXGraph{
         // Getter and Setter
         void setId(size_t id) { _id = id; }
         void setQubitCount(size_t c) { _nqubit = c; }
-        void setInputs(vector<VT> inputs) { _inputs = inputs; }
-        void setOutputs(vector<VT> outputs) { _outputs = outputs; }
-        void setVertices(vector<VT> vertices) { _vertices = vertices; }
+        void setInputs(vector<VT*> inputs) { _inputs = inputs; }
+        void setOutputs(vector<VT*> outputs) { _outputs = outputs; }
+        void setVertices(vector<VT*> vertices) { _vertices = vertices; }
         // void setEdges(vector<EdgeType> edges) { _edges = edges; }
 
         size_t getId() const { return _id; }
         size_t getQubitCount() const { return _nqubit; }
 
-        vector<VT> getInputs() const { return _inputs; }
+        vector<VT*> getInputs() const { return _inputs; }
         size_t getNumInputs() const { return _inputs.size(); }
 
-        vector<VT> getOutputs() const { return _outputs; }
+        vector<VT*> getOutputs() const { return _outputs; }
         size_t getNumOutputs() const { return _outputs.size(); }
 
-        vector<VT> getVertices() const { return _vertices; }
+        vector<VT*> getVertices() const { return _vertices; }
         size_t getNumVertices() const { return _vertices.size(); }
 
 
-        vector<pair<VT, int> > getQubits() const { return _qubits; }
+        vector<pair<VT*, int> > getQubits() const { return _qubits; }
 
         // Print functions
         void printInputs() const;
@@ -135,12 +135,12 @@ class ZXGraph{
         
 
     private:
-        size_t                             _id;
-        size_t                             _nqubit;
-        vector<VT>                         _inputs;
-        vector<VT>                         _outputs;
-        vector<VT>                         _vertices;
-        vector<pair<VT, int> >             _qubits;
+        size_t                              _id;
+        size_t                              _nqubit;
+        vector<VT*>                         _inputs;
+        vector<VT*>                         _outputs;
+        vector<VT*>                         _vertices;
+        vector<pair<VT*, int> >             _qubits;
 
 };
 
