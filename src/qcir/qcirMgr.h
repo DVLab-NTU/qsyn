@@ -25,8 +25,9 @@ public:
   QCirMgr()
   {
     _nqubit = 0;
+    _gateId = 0;
     _qgate.clear();
-    _lastExec.clear();
+    _bitLast.clear();
     _bitFirst.clear();
   }
   ~QCirMgr() {}
@@ -34,7 +35,8 @@ public:
   // Access functions
   // return '0' if "gid" corresponds to an undefined gate.
   QCirGate *getGate(unsigned gid) const { return 0; }
-  void initialLastExec();
+  void initialBit();
+  void appendGate(string type, vector<size_t> bits);
   // Member functions about circuit construction
   bool parseQASM(string qasm_file);
   void addGate(QCirGate *);
@@ -52,8 +54,9 @@ public:
 
 private:
   size_t _nqubit;
+  size_t _gateId;
   vector<QCirGate *> _qgate;
-  vector<pair<size_t, size_t>> _lastExec; //pair<gate,time>
+  vector<QCirGate *> _bitLast;
   vector<QCirGate *> _bitFirst;
 };
 

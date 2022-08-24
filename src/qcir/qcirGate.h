@@ -34,6 +34,7 @@ public:
   QCirGate(size_t id, string type, size_t nqubit) : _id(id), _type(type), _nqubit(nqubit)
   {
     _qubits.clear();
+    _time = 0;
   }
   ~QCirGate() {}
 
