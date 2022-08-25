@@ -36,7 +36,7 @@ enum ZXCmdState{
 static ZXCmdState curCmd = ZXINIT;
 
 //----------------------------------------------------------------------
-//    ZXTest [-GenerateCNOT]
+//    ZXTest [-GenerateCNOT | -Empty | -Valid]
 //----------------------------------------------------------------------
 
 CmdExecStatus
@@ -46,12 +46,20 @@ ZXTestCmd::exec(const string &option){
    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
    if(token.empty() || myStrNCmp("-GenerateCNOT", token, 2) == 0) zxGraph->generateCNOT();
+   else if(myStrNCmp("-Empty", token, 2) == 0){
+    if(zxGraph->isEmpty()) cout << "This graph is empty!" << endl;
+    else cout << "This graph is not empty!" << endl;
+   }
+   else if(myStrNCmp("-Valid", token, 2) == 0){
+    if(zxGraph->isValid()) cout << "This graph is valid!" << endl;
+    else cout << "This graph is invalid!" << endl;
+   }
    else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    return CMD_EXEC_DONE;
 }
 
 void ZXTestCmd::usage(ostream &os) const{
-    os << "Usage: ZXTest [-GenerateCNOT]" << endl;
+    os << "Usage: ZXTest [-GenerateCNOT | -Empty | -Valid]" << endl;
 }
 
 void ZXTestCmd::help() const{

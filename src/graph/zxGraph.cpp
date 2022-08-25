@@ -8,7 +8,10 @@
 
 #include <iostream>
 #include <vector>
+#include <cassert>
+#include <iomanip>
 #include "zxGraph.h"
+#include "util.h"
 
 using namespace std;
 
@@ -23,7 +26,24 @@ void VT::printVertex() const{
     cout << "VertexType:\t" << _type << "\t";
     cout << "Qubit:\t" << _qubit << "\t";
     cout << "#Neighbors:\t" << _neighbors.size() << "\t";
-    cout << endl;;
+    printNeighbors();
+    // cout << endl;;
+}
+
+void VT::printNeighbors() const{
+    for(size_t i = 0; i < _neighbors.size(); i++){
+        cout << "( " << _neighbors[i].first->getId() << ", " << _neighbors[i].second << " )  " ;
+    }
+    cout << endl;
+}
+
+
+// Test
+bool VT::isNeighbor(VT* v) const{
+    for(size_t i = 0; i < _neighbors.size(); i++){
+        if(_neighbors[i].first == v) return true;
+    }
+    return false;
 }
 
 
@@ -77,11 +97,36 @@ void ZXGraph::generateCNOT(){
         }
     }
     setEdges(edges);
+    setQubitCount(_inputs.size());
+}
+
+bool ZXGraph::isEmpty() const{
+    if(_inputs.empty() && _outputs.empty() && _vertices.empty() && _edges.empty() && _nqubit == 0) return true;
+    return false;
+}
+
+bool ZXGraph::isValid() const{
+    for(size_t i = 0; i < _edges.size(); i++){
+        if(!_edges[i].first.first->isNeighbor(_edges[i].first.second) || 
+           !_edges[i].first.second->isNeighbor(_edges[i].first.first))  return false;
+    }
+    return true;
+}
+
+bool ZXGraph::isConnected(VT* v1, VT* v2) const{
+    if(v1->isNeighbor(v2) && v2->isNeighbor(v1)) return true;
+    return false;
+}
+
+bool ZXGraph::isId(size_t id) const{
+    for(size_t i = 0; i < _vertices.size(); i++){
+        if(_vertices[i]->getId() == id) return true;
+    }
+    return false;
 }
 
 
 // Find functions
-
 VT* ZXGraph::findVertexById(size_t id) const{
     for(size_t i = 0; i < _vertices.size(); i++){
         if(_vertices[i]->getId() == id) return _vertices[i];
@@ -94,33 +139,38 @@ VT* ZXGraph::findVertexById(size_t id) const{
 
 void ZXGraph::printGraph() const{
     cout << "Graph " << _id << endl;
-    cout << "Inputs: \t" << _inputs.size() << endl;
-    cout << "Outputs: \t" << _outputs.size() << endl;
-    cout << "Vertices: \t" << _vertices.size() << endl;
+    cout << setw(15) << left << "Inputs: " << _inputs.size() << endl;
+    cout << setw(15) << left << "Outputs: " << _outputs.size() << endl;
+    cout << setw(15) << left << "Vertices: " << _vertices.size() << endl;
+    cout << setw(15) << left << "Edges: " << _edges.size() << endl;
 }
 
 void ZXGraph::printInputs() const{
     for(size_t i = 0; i < _inputs.size(); i++){
-        cout << "Input " << i+1 << ":\t" << _inputs[i]->getId() << endl;
+        cout << "Input " << i+1 << setw(8) << left << ":" << _inputs[i]->getId() << endl;
     }
+    cout << "Total #Inputs: " << _inputs.size() << endl;
 }
 
 void ZXGraph::printOutputs() const{
     for(size_t i = 0; i < _outputs.size(); i++){
-        cout << "Output " << i+1 << ":\t" << _outputs[i]->getId() << endl;
+        cout << "Output " << i+1 << setw(7) << left << ":" << _outputs[i]->getId() << endl;
     }
+    cout << "Total #Outputs: " << _outputs.size() << endl;
 }
 
 void ZXGraph::printVertices() const{
     for(size_t i = 0; i < _vertices.size(); i++){
-        cout << "Vertex " << i+1 << ":\t";
         _vertices[i]->printVertex();
     }
+    cout << "Total #Vertices: " << _vertices.size() << endl;
 }
 
 void ZXGraph::printEdges() const{
     for(size_t i = 0; i < _edges.size(); i++){
-        cout << "Edge " << i+1 << ":\t";
         cout << "( " << _edges[i].first.first->getId() << ", " <<  _edges[i].first.second->getId() << " )\tType:\t" << _edges[i].second << endl; 
     }
+    cout << "Total #Edges: " << _edges.size() << endl;
 }
+
+

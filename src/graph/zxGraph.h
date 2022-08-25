@@ -57,6 +57,7 @@ class VT{
         int getRow() const { return _row; }
         VertexType getType() const { return _type; }
         rationalNumber getPhase() const { return _phase; }
+        vector<pair<VT*, EdgeType> > getNeighbors() const { return _neighbors; }
 
         void setId(size_t id) { _id = id; }
         void setQubit(int q) {_qubit = q; }
@@ -65,11 +66,17 @@ class VT{
         void setPhase(rationalNumber p) { _phase = p; }
         void setNeighbors(vector<pair<VT*, EdgeType> > neighbors){ _neighbors = neighbors; }
 
+
         // Add and Remove
         void addNeighbor(pair<VT*, EdgeType> neighbor) { _neighbors.push_back(neighbor); }
 
+
         // Print functions
         void printVertex() const;
+        void printNeighbors() const;
+
+        // Test
+        bool isNeighbor(VT* v) const;
         
         
     private:
@@ -81,27 +88,6 @@ class VT{
         vector<pair<VT*, EdgeType> >                _neighbors;
 };
 
-// class EdgeType{
-//     public:
-//         EdgeType(): {}
-//         ~EdgeType() {}
-
-//         // Getter and Setter
-//         size_t getId() const { return _id; }
-//         string getType() const { return _type; }
-//         pair<VT, VT> getEdge() const { return _edge; }
-//         VT getEdgeS() const { return _edge.first; }
-//         VT getEdgeT() const { return _edge.second; }
-
-//         void setId(size_t id) { _id = id; }
-//         void setQubit(string type) { _type = type; }
-//         void setEdge(pair<VT, VT> edge ) { _edge = edge; }
-
-//     private:
-//         size_t _id;
-//         string _type; // [ SIMPLE / HADAMARD ]
-//         pair<VT, VT> _edge;
-// };
 
 class ZXGraph{
     public:
@@ -114,26 +100,6 @@ class ZXGraph{
         }
         ~ZXGraph() {}
 
-        // For testing
-        void generateCNOT();
-
-        // Add and Remove
-        void addInput(VT* v) { _inputs.push_back(v); }
-        void addInputs(vector<VT*> vecV) {
-            for(size_t v = 0; v < vecV.size(); v++) _inputs.push_back(vecV[v]);
-        }
-        void removeInput(VT v);
-        void removeInputs(vector<VT> vecV);
-
-        void addOutput(VT v);
-        void addOutputs(vector<VT> vecV);
-        void removeOutput(VT v);
-        void removeOutputs(vector<VT> vecV);
-
-        void addVertex(VT v);
-        void addVertices(vector<VT> vecV);
-        void removeVertex(VT v);
-        void removeVertices(vector<VT> vecV);
 
         // Getter and Setter
         void setId(size_t id) { _id = id; }
@@ -145,17 +111,28 @@ class ZXGraph{
         
         size_t getId() const { return _id; }
         size_t getQubitCount() const { return _nqubit; }
-
         vector<VT*> getInputs() const { return _inputs; }
         size_t getNumInputs() const { return _inputs.size(); }
-
         vector<VT*> getOutputs() const { return _outputs; }
         size_t getNumOutputs() const { return _outputs.size(); }
-
         vector<VT*> getVertices() const { return _vertices; }
         size_t getNumVertices() const { return _vertices.size(); }
+        vector<pair<pair<VT*, VT*>, EdgeType> > getEdges() const { return _edges; }
+        size_t getNumEdges() const { return _edges.size(); }
 
-        vector<pair<VT*, int> > getQubits() const { return _qubits; }
+
+
+        // For testing
+        void generateCNOT();
+        bool isEmpty() const;
+        bool isValid() const;
+        bool isConnected(VT* v1, VT* v2) const;
+        bool isId(size_t id) const;
+
+
+        // Add and Remove
+        
+
 
         // Find functions
         VT* findVertexById(size_t id) const;

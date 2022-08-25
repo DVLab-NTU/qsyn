@@ -1,0 +1,9 @@
+ZXTest
+ZXTest -e
+ZXTEST -v
+ZXPrint
+ZXPrint -i
+ZXPrint -o
+ZXPrint -e
+ZXPrint -v
+q -f
