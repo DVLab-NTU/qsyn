@@ -22,7 +22,7 @@ class Phase {
 public:
     Phase(int n, int d): _rational(n, d) { normalize(); }
     template <class T>
-    Phase(T f): _rational(f/std::numbers::pi_v<T>) { std::cout << f/std::numbers::pi_v<T> << std::endl; normalize(); }
+    Phase(T f, T eps): _rational(f/std::numbers::pi_v<T>, eps) { std::cout << f/std::numbers::pi_v<T> << std::endl; normalize(); }
 
     friend std::ostream& operator<<(std::ostream& os, const Phase& p);
     Phase& operator+();
@@ -66,9 +66,16 @@ public:
     bool operator!=(const Phase& rhs) const;
     // Operator <, <=, >, >= are are not supported deliberately as they don't make physical sense (Phases are mod 2pi)
 
-    virtual float toFloat();
-    virtual double toDouble();
-    virtual long double toLongDouble();
+    float toFloat();
+    double toDouble();
+    long double toLongDouble();
+
+    template <class T> requires std::floating_point<T>
+    static Phase toPhase(T f, T eps = 1e-4){
+        Phase p(f/std::numbers::pi_v<T>, eps);
+        return p;
+    }
+
     static PhaseUnit getPrintUnit() {
         return _printUnit;
     }
