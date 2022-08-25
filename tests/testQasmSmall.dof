@@ -1,0 +1,5 @@
+qcirr benchmark_SABRE/small/4gt13_92.qasm
+qcirprint
+qcirprint -Q
+usage
+q -f
