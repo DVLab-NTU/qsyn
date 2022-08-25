@@ -27,33 +27,15 @@ void QCirMgr::printSummary() const
 }
 void QCirMgr::printQubits() const
 {
-    for (size_t i = 0; i < _bitFirst.size(); i++)
-    {
-        QCirGate *current = _bitFirst[i];
-        size_t last_time = 0;
-        cout << "Q" << right << setfill(' ') << setw(2) << i << "  ";
-        while (current != NULL)
-        {
-            cout << "-";
-            while (last_time < current->getTime())
-            {
-                cout << "----";
-                last_time++;
-            }
-            cout << setfill(' ') << setw(2) << current->getTypeStr().substr(0, 2);
-            last_time = current->getTime() + 1;
-            current = current->getQubit(i)._child;
-            cout << "-";
-        }
-        cout << endl;
-    }
+    for (size_t i = 0; i < _qubits.size(); i++)
+        _qubits[i]->printBitLine();
 }
 void QCirMgr::addAncilla(size_t num)
 {
     for (size_t i = 0; i < num; i++)
     {
-        _bitLast.push_back(NULL);
-        _bitFirst.push_back(NULL);
+        QCirQubit* temp = new QCirQubit(_qubits.size());
+        _qubits.push_back(temp);
     }
 }
 void QCirMgr::appendGate(string type, vector<size_t> bits)
@@ -64,17 +46,16 @@ void QCirMgr::appendGate(string type, vector<size_t> bits)
     {
         size_t q = bits[k];
         temp->addQubit(q, k == bits.size() - 1);
-        if (_bitLast[q] != NULL)
+        if (_qubits[q]->getLast() != NULL)
         {
-            temp->addParent(q, _bitLast[q]);
-            _bitLast[q]->addChild(q, temp);
-            if ((_bitLast[q]->getTime() + 1) > max_time)
-                max_time = _bitLast[q]->getTime() + 1;
+            temp->addParent(q, _qubits[q]->getLast());
+            _qubits[q]->getLast()->addChild(q, temp);
+            if ((_qubits[q]->getLast()->getTime() + 1) > max_time)
+                max_time = _qubits[q]->getLast()->getTime() + 1;
         }
         else
-            _bitFirst[q] = temp;
-
-        _bitLast[q] = temp;
+            _qubits[q]->setFirst(temp);
+        _qubits[q]->setLast(temp);
     }
     for (size_t k = 0; k < bits.size(); k++)
         temp->setTime(max_time);

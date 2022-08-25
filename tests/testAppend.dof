@@ -4,6 +4,7 @@ qcaa
 qcp -q
 qcag h
 qcag h 0
+qcp -q
 qcag cx 0 1
 qcaa 3
 qcp -q

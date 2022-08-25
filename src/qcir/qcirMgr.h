@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ cirMgr.h ]
+  FileName     [ qcirMgr.h ]
   PackageName  [ qcir ]
   Synopsis     [ Define quantum circuit manager ]
   Author       [ Chin-Yi Cheng ]
@@ -14,6 +14,7 @@
 #include <fstream>
 #include <iostream>
 #include "qcirGate.h"
+#include "qcirQubit.h"
 #include "qcirDef.h"
 
 extern QCirMgr *qCirMgr;
@@ -26,15 +27,14 @@ public:
   {
     _gateId = 0;
     _qgate.clear();
-    _bitLast.clear();
-    _bitFirst.clear();
+    _qubits.clear();
   }
   ~QCirMgr() {}
 
   // Access functions
   // return '0' if "gid" corresponds to an undefined gate.
   // QCirGate *getGate(unsigned gid) const { return 0; }
-  size_t getNQubit() const { return _bitLast.size(); }
+  size_t getNQubit() const { return _qubits.size(); }
   void appendGate(string type, vector<size_t> bits);
   // Member functions about circuit construction
   bool parseQASM(string qasm_file);
@@ -54,8 +54,7 @@ public:
 private:
   size_t _gateId;
   vector<QCirGate *> _qgate;
-  vector<QCirGate *> _bitLast;
-  vector<QCirGate *> _bitFirst;
+  vector<QCirQubit*> _qubits;
 };
 
 #endif // QCIR_MGR_H
