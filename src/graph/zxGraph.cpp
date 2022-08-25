@@ -10,6 +10,7 @@
 #include <vector>
 #include <cassert>
 #include <iomanip>
+#include <algorithm>
 #include "zxGraph.h"
 #include "util.h"
 
@@ -18,6 +19,17 @@ using namespace std;
 /**************************************/
 /*   class VT member functions   */
 /**************************************/
+
+// Add and Remove
+
+void VT::removeNeighbor(pair<VT*, EdgeType> neighbor){
+    if(find(_neighbors.begin(), _neighbors.end(), neighbor) != _neighbors.end()){
+        cout << "Remove " << neighbor.first->getId() << " from " << _id << endl;
+        _neighbors.erase(find(_neighbors.begin(), _neighbors.end(), neighbor));
+    } 
+    else cerr << "Vertex " << neighbor.first->getId() << "is not a neighbor of " << _id << endl;
+}
+
 
 // Print functions
 
@@ -98,6 +110,7 @@ void ZXGraph::generateCNOT(){
     }
     setEdges(edges);
     setQubitCount(_inputs.size());
+    removeVertex(_inputs[0]);
 }
 
 bool ZXGraph::isEmpty() const{
@@ -124,6 +137,50 @@ bool ZXGraph::isId(size_t id) const{
     }
     return false;
 }
+
+
+// Add and Remove
+
+void ZXGraph::removeVertex(VT* v){
+    if(!isId(v->getId())) cerr << "This vertex is not exist!" << endl;
+    else{
+        cout << "Remove ID: " << v->getId() << endl;
+        // Remove all neighbors' records
+        for(size_t i = 0; i < v->getNeighbors().size(); i++){
+            v->getNeighbors()[i].first->removeNeighbor(make_pair(v, v->getNeighbors()[i].second));
+        }
+        // Check if also in _inputs or _outputs
+        if(find(_inputs.begin(), _inputs.end(), v) != _inputs.end()) _inputs.erase(find(_inputs.begin(), _inputs.end(), v));
+        if(find(_outputs.begin(), _outputs.end(), v) != _outputs.end()) _outputs.erase(find(_outputs.begin(), _outputs.end(), v));
+
+        // Check _edges
+        for(size_t i = 0; i < _edges.size();){
+            if(_edges[i].first.first == v || _edges[i].first.second == v) _edges.erase(_edges.begin()+i);
+            else i++;
+        }
+
+        // Check _vertices
+        _vertices.erase(find(_vertices.begin(), _vertices.end(), v));
+
+        // deallocate VT
+        delete v;
+    }
+}
+
+void ZXGraph::removeIsolatedVertices(){
+    for(size_t i = 0; i < _vertices.size(); ){
+        if(_vertices[i]->getNeighbors().empty()){
+            // Check if also in _inputs or _outputs
+            if(find(_inputs.begin(), _inputs.end(), _vertices[i]) != _inputs.end()) _inputs.erase(find(_inputs.begin(), _inputs.end(), _vertices[i]));
+            if(find(_outputs.begin(), _outputs.end(), _vertices[i]) != _outputs.end()) _outputs.erase(find(_outputs.begin(), _outputs.end(), _vertices[i]));
+            cout << "Remove ID: " << _vertices[i]->getId() << endl;
+            _vertices.erase(_vertices.begin()+i);
+            delete _vertices[i];
+        }
+        else i++;
+    }
+}
+
 
 
 // Find functions

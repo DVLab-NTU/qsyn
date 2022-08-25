@@ -69,6 +69,7 @@ class VT{
 
         // Add and Remove
         void addNeighbor(pair<VT*, EdgeType> neighbor) { _neighbors.push_back(neighbor); }
+        void removeNeighbor(pair<VT*, EdgeType> neighbor);
 
 
         // Print functions
@@ -95,7 +96,6 @@ class ZXGraph{
             _inputs.clear();
             _outputs.clear();
             _vertices.clear();
-            _qubits.clear();
             _edges.clear();
         }
         ~ZXGraph() {}
@@ -131,6 +131,8 @@ class ZXGraph{
 
 
         // Add and Remove
+        void removeVertex(VT* v);
+        void removeIsolatedVertices();
         
 
 
@@ -151,7 +153,6 @@ class ZXGraph{
         vector<VT*>                                         _inputs;
         vector<VT*>                                         _outputs;
         vector<VT*>                                         _vertices;
-        vector<pair<VT*, int> >                             _qubits;
         vector<pair<pair<VT*, VT*>, EdgeType> >             _edges;
 
 };
