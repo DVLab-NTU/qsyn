@@ -13,5 +13,6 @@
 #include "cmdParser.h"
 
 CmdClass(ZXPrintCmd);
+CmdClass(ZXTestCmd);
 
 #endif // ZX_CMD_H
