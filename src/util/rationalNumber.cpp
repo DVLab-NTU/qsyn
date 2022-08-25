@@ -91,7 +91,6 @@ bool Rational::operator>=(const Rational& rhs) const{
     return !(*this < rhs);
 }
 
-
 //----------------------------------------
 // Operations specific to rational numbers
 //----------------------------------------
@@ -103,4 +102,8 @@ void Rational::normalize() {
     int gcd = std::gcd(_numer, _denom);
     _numer /= gcd;
     _denom /= gcd;
+}
+
+Rational Rational::mediant(const Rational& lhs, const Rational& rhs){
+    return Rational(lhs._numer + rhs._numer, lhs._denom + rhs._denom);
 }
