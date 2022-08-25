@@ -1,31 +1,34 @@
 /****************************************************************************
   FileName     [ rationalNumber.h ]
   PackageName  [ util ]
-  Synopsis     [ Definition of the Rational Number class]
+  Synopsis     [ Definition of the Rational Number class.]
   Author       [ Mu-Te (Joshua) Lau ]
   Copyright    [ 2022 8 ]
 ****************************************************************************/
 #ifndef RATIONAL_NUM_H
 #define RATIONAL_NUM_H
 
-// TODO: define rational number class
 #include <iostream>
 #include <tuple>
 #include <concepts>
 #include <vector>
 #include <cmath>
 #include <type_traits>
+//--- Rational Numbers ----------------------------------
+// This class maintains the canonicity of stored rational numbers by simplifying the numerator/denominator whenever possible.
+// Rational numbers are not the same as fractions! This class does not support nested fractions or irrational numbers in numerator/denominator.
+// This class implicitly convert floating points to rational approximation when performing arithmetic operations.
+//--- Rational Numbers ----------------------------------
 class Rational {
 public: 
     // Default constructor for two integral type
     Rational(int n, int d): _numer(n), _denom(d) { normalize(); }
     // Implicitly use 1 as denominator
-    Rational(int n): _numer(n), _denom(1) {}
-
     template <class T> requires std::floating_point<T>
-    Rational(T n, T eps = 1e-4) {
-        *this = Rational::toRational(n, eps);
+    Rational(T f, T eps = 1e-4) {
+        *this = Rational::toRational(f, eps);
     }
+    Rational(int n): _numer(n), _denom(1) {}
     Rational(const Rational&) = default;
     virtual ~Rational() = default;
 

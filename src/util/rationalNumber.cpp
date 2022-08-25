@@ -33,10 +33,6 @@ Rational& Rational::operator+=(const Rational& rhs) {
     _denom = new_denom;
     return *this;
 }
-Rational operator+(Rational lhs, const Rational& rhs) {
-    lhs += rhs;
-    return lhs;
-}
 Rational& Rational::operator-=(const Rational& rhs) {
     int new_denom = std::lcm(_denom, rhs._denom);
     int new_numer = _numer * (new_denom / _denom) - rhs._numer * (new_denom / rhs._denom);
@@ -44,19 +40,11 @@ Rational& Rational::operator-=(const Rational& rhs) {
     _denom = new_denom;
     return *this;
 }
-Rational operator-(Rational lhs, const Rational& rhs) {
-    lhs -= rhs;
-    return lhs;
-}
 Rational& Rational::operator*=(const Rational& rhs) {
     _numer *= rhs._numer;
     _denom *= rhs._denom;
     normalize();
     return *this;
-}
-Rational operator*(Rational lhs, const Rational& rhs) {
-    lhs *= rhs;
-    return lhs;
 }
 Rational& Rational::operator/=(const Rational& rhs) {
     if (rhs._numer == 0) {
@@ -66,6 +54,18 @@ Rational& Rational::operator/=(const Rational& rhs) {
     _denom *= rhs._numer;
     normalize();
     return *this;
+}
+Rational operator+(Rational lhs, const Rational& rhs) {
+    lhs += rhs;
+    return lhs;
+}
+Rational operator-(Rational lhs, const Rational& rhs) {
+    lhs -= rhs;
+    return lhs;
+}
+Rational operator*(Rational lhs, const Rational& rhs) {
+    lhs *= rhs;
+    return lhs;
 }
 Rational operator/(Rational lhs, const Rational& rhs) {
     lhs /= rhs;
