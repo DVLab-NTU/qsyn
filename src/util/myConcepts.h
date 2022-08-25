@@ -1,3 +1,11 @@
+/****************************************************************************
+  FileName     [ phase.cpp ]
+  PackageName  [ util ]
+  Synopsis     [ User-defined concepts ]
+  Author       [ Mu-Te (Joshua) Lau ]
+  Copyright    [ 2022 8 ]
+****************************************************************************/
+
 #ifndef MY_CONCEPTS_H
 #define MY_CONCEPTS_H
 
