@@ -43,10 +43,9 @@ template<typename T> ostream& operator<<(typename enable_if<is_enum<T>::value, o
 
 class VT{
     public:
-        VT(size_t id, int qubit, int row, VertexType vt) {
+        VT(size_t id, int qubit, VertexType vt) {
             _id = id;
             _qubit = qubit;
-            _row = row;
             _type = vt;
         }
         ~VT(){}
@@ -54,14 +53,12 @@ class VT{
         // Getter and Setter
         size_t getId() const { return _id; }
         int getQubit() const { return _qubit; }
-        int getRow() const { return _row; }
         VertexType getType() const { return _type; }
         rationalNumber getPhase() const { return _phase; }
         vector<pair<VT*, EdgeType> > getNeighbors() const { return _neighbors; }
 
         void setId(size_t id) { _id = id; }
         void setQubit(int q) {_qubit = q; }
-        void setRow(int row) { _row = row; }
         void setType(VertexType vt) { _type = vt; }
         void setPhase(rationalNumber p) { _phase = p; }
         void setNeighbors(vector<pair<VT*, EdgeType> > neighbors){ _neighbors = neighbors; }
@@ -81,7 +78,6 @@ class VT{
         
         
     private:
-        int                                         _row;
         int                                         _qubit;
         size_t                                      _id;
         VertexType                                  _type;
@@ -131,6 +127,9 @@ class ZXGraph{
 
 
         // Add and Remove
+        void addInput(size_t id, int qubit, VertexType vt);
+        void addOutput(size_t id, int qubit, VertexType vt);
+        void addVertex(size_t id, int qubit, VertexType vt);
         void removeVertex(VT* v);
         void removeVertexById(size_t id);
         void removeIsolatedVertices();
