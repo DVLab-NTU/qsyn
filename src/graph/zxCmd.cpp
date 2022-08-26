@@ -98,9 +98,11 @@ void ZXPrintCmd::help() const{
 }
 
 //------------------------------------------------------------------------------------
-//    ZXEdit [-RMVertex <id> | -ADDVertex <id, qubit, VertexType> 
-//                           | -ADDInput <id, qubit, VertexType> 
-//                           | -ADDOutput <id, qubit, VertexType> ]
+//    ZXEdit -RMVertex <id> 
+//           -ADDVertex <id, qubit, VertexType> 
+//           -ADDInput <id, qubit, VertexType> 
+//           -ADDOutput <id, qubit, VertexType>
+//           -RMEdge <id_s, id_t>
 //------------------------------------------------------------------------------------
 
 CmdExecStatus
@@ -126,6 +128,19 @@ ZXEditCmd::exec(const string &option){
                 else return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[v]);
             }
         }
+    }
+    else if(myStrNCmp("-RMEdge", action, 4) == 0){
+        if(options.size() != 3){
+            cerr << "Error: cmd options are missing / extra" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
+        }
+        int id_s, id_t;
+        bool isNum = myStr2Int(options[1], id_s) && myStr2Int(options[2], id_t);
+        if(!isNum || id_s < 0 || id_t < 0){
+            cerr << "Error: id_s / id_t invalid" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
+        }
+        else zxGraph->removeEdgeById(id_s, id_t);
     }
     else if(myStrNCmp("-ADDVertex", action, 4) == 0){
         if(options.size() != 4){
@@ -187,6 +202,7 @@ ZXEditCmd::exec(const string &option){
 
 void ZXEditCmd::usage(ostream &os) const{
     os << "Usage: ZXEdit -RMVertex <id>" << endl;
+    os << "              -RMEdge <id_s, id_t> " << endl;
     os << "              -ADDInput <id, qubit, VertexType> " << endl;
     os << "              -ADDOutput <id, qubit, VertexType> " << endl;
     os << "              -ADDVertex <id, qubit, VertexType> " << endl;
