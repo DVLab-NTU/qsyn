@@ -97,9 +97,11 @@ void ZXPrintCmd::help() const{
     cout << setw(15) << left << "ZXPrint: " << "print ZX-graph" << endl; 
 }
 
-//----------------------------------------------------------------------
-//    ZXEdit [-RMVertex <id> | -ADDVertex <id>]
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------------
+//    ZXEdit [-RMVertex <id> | -ADDVertex <id, qubit, VertexType> 
+//                           | -ADDInput <id, qubit, VertexType> 
+//                           | -ADDOutput <id, qubit, VertexType> ]
+//------------------------------------------------------------------------------------
 
 CmdExecStatus
 ZXEditCmd::exec(const string &option){
@@ -110,7 +112,7 @@ ZXEditCmd::exec(const string &option){
     if(options.size() == 1) return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
 
     string action = options[0];
-    if (myStrNCmp("-RMVertex", action, 3) == 0){
+    if (myStrNCmp("-RMVertex", action, 4) == 0){
         for(size_t v = 1; v < options.size(); v++){
             int id;
             bool isNum = myStr2Int(options[v], id);
@@ -125,11 +127,68 @@ ZXEditCmd::exec(const string &option){
             }
         }
     }
+    else if(myStrNCmp("-ADDVertex", action, 4) == 0){
+        if(options.size() != 4){
+            cerr << "Error: qubit id invalid" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
+        }
+        int id, q;
+        bool isNum = myStr2Int(options[1], id) && myStr2Int(options[2], q);
+        bool isVertexType = (options[3] == "Z") || (options[3] == "X") || (options[3] == "H_BOX");
+        if(!isNum || id < 0){
+            cerr << "Error: vertex id / qubit invalid" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
+        }
+        else if(!isVertexType){
+            cerr << "Error: vertex type invalid" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
+        }
+        else zxGraph->addVertex(id, q, str2VertexType(options[3]));
+    }
+    else if(myStrNCmp("-ADDInput", action, 4) == 0){
+        if(options.size() != 4){
+            cerr << "Error: qubit id invalid" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
+        }
+        int id, q;
+        bool isNum = myStr2Int(options[1], id) && myStr2Int(options[2], q);
+        bool isBoundary = (options[3] == "BOUNDARY");
+        if(!isNum || id < 0){
+            cerr << "Error: vertex id / qubit invalid" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
+        }
+        else if(!isBoundary){
+            cerr << "Error: Use ADDVertex to add vertex!" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
+        }
+        else zxGraph->addInput(id, q, str2VertexType(options[3]));
+    }
+    else if(myStrNCmp("-ADDOutput", action, 4) == 0){
+        if(options.size() != 4){
+            cerr << "Error: qubit id invalid" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
+        }
+        int id, q;
+        bool isNum = myStr2Int(options[1], id) && myStr2Int(options[2], q);
+        bool isBoundary = (options[3] == "BOUNDARY");
+        if(!isNum || id < 0){
+            cerr << "Error: vertex id / qubit invalid" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
+        }
+        else if(!isBoundary){
+            cerr << "Error: Use ADDVertex to add vertex!" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
+        }
+        else zxGraph->addOutput(id, q, str2VertexType(options[3]));
+    }
     
 }
 
 void ZXEditCmd::usage(ostream &os) const{
-    os << "Usage: ZXEdit [-RMVertex <id> | -ADDVertex <id>]" << endl;
+    os << "Usage: ZXEdit -RMVertex <id>" << endl;
+    os << "              -ADDInput <id, qubit, VertexType> " << endl;
+    os << "              -ADDOutput <id, qubit, VertexType> " << endl;
+    os << "              -ADDVertex <id, qubit, VertexType> " << endl;
 }
 
 void ZXEditCmd::help() const{
