@@ -38,6 +38,8 @@ enum class EdgeType{
     HADAMARD
 };
 
+EdgeType str2EdgeType(string str);
+
 template<typename T> ostream& operator<<(typename enable_if<is_enum<T>::value, ostream>::type& stream, const T& e){
     return stream << static_cast<typename underlying_type<T>::type>(e);
 }
@@ -136,14 +138,13 @@ class ZXGraph{
         void addInput(size_t id, int qubit, VertexType vt);
         void addOutput(size_t id, int qubit, VertexType vt);
         void addVertex(size_t id, int qubit, VertexType vt);
+        void addEdgeById(size_t id_s, size_t id_t, EdgeType et);
         void removeVertex(VT* v);
         void removeVertexById(size_t id);
         void removeIsolatedVertices();
         void removeEdgeById(size_t id_s, size_t id_t);
 
         
-
-
         // Find functions
         VT* findVertexById(size_t id) const;
 

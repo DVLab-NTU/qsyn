@@ -98,11 +98,12 @@ void ZXPrintCmd::help() const{
 }
 
 //------------------------------------------------------------------------------------
-//    ZXEdit -RMVertex <id> 
+//    ZXEdit -RMVertex <id(s)> 
+//           -RMEdge <id_s, id_t>
 //           -ADDVertex <id, qubit, VertexType> 
 //           -ADDInput <id, qubit, VertexType> 
 //           -ADDOutput <id, qubit, VertexType>
-//           -RMEdge <id_s, id_t>
+//           -ADDEdge <id_s, id_t, EdgeType>      
 //------------------------------------------------------------------------------------
 
 CmdExecStatus
@@ -137,7 +138,7 @@ ZXEditCmd::exec(const string &option){
         int id_s, id_t;
         bool isNum = myStr2Int(options[1], id_s) && myStr2Int(options[2], id_t);
         if(!isNum || id_s < 0 || id_t < 0){
-            cerr << "Error: id_s / id_t invalid" << endl;
+            cerr << "Error: id_s / id_t is invalid" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
         }
         else zxGraph->removeEdgeById(id_s, id_t);
@@ -195,6 +196,24 @@ ZXEditCmd::exec(const string &option){
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
         }
         else zxGraph->addOutput(id, q, str2VertexType(options[3]));
+    }
+    else if(myStrNCmp("-ADDEdge", action, 4) == 0){
+        if(options.size() != 4){
+            cerr << "Error: cmd options are missing / extra" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
+        }
+        int id_s, id_t;
+        bool isNum = myStr2Int(options[1], id_s) && myStr2Int(options[2], id_t);
+        bool isEdge = (options[3] == "SIMPLE") || (options[3] == "HADAMARD") ;
+        if(!isNum || id_s < 0 || id_t < 0){
+            cerr << "Error: id_s / id_t is invalid" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
+        }
+        else if(!isEdge){
+            cerr << "Error: EdgeType is invalid" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
+        }
+        else zxGraph->addEdgeById(id_s, id_t, str2EdgeType(options[3]));
     }
     else return CmdExec::errorOption(CMD_OPT_ILLEGAL, action);
     return CMD_EXEC_DONE;

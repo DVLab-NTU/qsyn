@@ -23,6 +23,11 @@ VertexType str2VertexType(string str){
     else if (str == "H_BOX") return VertexType::H_BOX;
 }
 
+EdgeType str2EdgeType(string str){
+    if(str == "SIMPLE") return EdgeType::SIMPLE;
+    else if(str == "HADAMARD") return EdgeType::HADAMARD;
+}
+
 /**************************************/
 /*   class VT member functions   */
 /**************************************/
@@ -60,6 +65,9 @@ void VT::removeNeighborById(size_t id){
         }
     }
 }
+
+
+
 
 // Print functions
 
@@ -199,6 +207,17 @@ void ZXGraph::addVertex(size_t id, int qubit, VertexType vt){
     else{
         VT* v = new VT(id, qubit, vt);
         _vertices.push_back(v);
+    }
+}
+
+void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType et){
+    if(!isId(id_s)) cerr << "Error: id_s provided is not exist!" << endl;
+    else if(!isId(id_t)) cerr << "Error: id_t provided is not exist!" << endl;
+    else{
+        cout << "Add edge ( " << id_s << ", " << id_t << " )" << endl;
+        VT* vs = findVertexById(id_s); VT* vt = findVertexById(id_t);
+        vs->addNeighbor(make_pair(vt, et)); vt->addNeighbor(make_pair(vs, et));
+        _edges.push_back(make_pair(make_pair(vs, vt), et));
     }
 }
 
