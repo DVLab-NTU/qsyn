@@ -38,6 +38,11 @@ void QCirMgr::addAncilla(size_t num)
         _qubits.push_back(temp);
     }
 }
+void QCirMgr::removeAncilla(size_t q)
+{
+    // Delete the ancilla only if whole line is empty
+}
+
 void QCirMgr::appendGate(string type, vector<size_t> bits)
 {
     // QCirGate *temp = new QCirGate(_gateId, 0);
@@ -81,6 +86,12 @@ void QCirMgr::appendGate(string type, vector<size_t> bits)
     _qgate.push_back(temp);
     _gateId++;
 }
+
+void QCirMgr::removeGate(size_t id)
+{
+
+}
+
 bool QCirMgr::parseQASM(string filename)
 {
     // read file and open
@@ -109,7 +120,8 @@ bool QCirMgr::parseQASM(string filename)
     while (qasm_file >> str)
     {
         string space_delimiter = " ";
-        string type = str.substr(0, str.find(" "));
+        string type = str.substr(0, str.find(" ")); 
+        string phase = (str.find("(") != string::npos) ? str.substr(str.find("(")+1, str.length()-str.find("(")-2): "";
         type = str.substr(0, str.find("("));
         string is_CX = type.substr(0, 2);
         string is_CRZ = type.substr(0, 3);

@@ -38,23 +38,20 @@ public:
   
   // Member functions about circuit construction
   void addAncilla(size_t num);
+  void removeAncilla(size_t q);
   void appendGate(string type, vector<size_t> bits);
+  void removeGate(size_t id);
   bool parseQASM(string qasm_file);
   
-  void updateTimeAfter(QCirGate*);
+  void getDFS();
+
   // Member functions about circuit reporting
   void printGates() const;
   void printSummary() const;
   void printQubits() const;
-  void printNetlist() const;
-  void printPIs() const;
-  void printPOs() const;
-  void printFloatGates() const;
-  void printFECPairs() const;
-  void writeAag(ostream &) const;
-  void writeGate(ostream &, QCirGate *) const;
-
+  
 private:
+  void DFS();
   size_t _gateId;
   vector<QCirGate *> _qgate;
   vector<QCirQubit*> _qubits;
