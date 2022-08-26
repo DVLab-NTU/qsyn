@@ -14,5 +14,6 @@
 
 CmdClass(ZXPrintCmd);
 CmdClass(ZXTestCmd);
+CmdClass(ZXEditCmd);
 
 #endif // ZX_CMD_H
