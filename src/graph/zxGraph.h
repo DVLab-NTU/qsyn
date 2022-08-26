@@ -31,6 +31,8 @@ enum class VertexType{
     H_BOX
 };
 
+VertexType str2VertexType(string str);
+
 enum class EdgeType{
     SIMPLE,
     HADAMARD
@@ -56,6 +58,7 @@ class VT{
         VertexType getType() const { return _type; }
         rationalNumber getPhase() const { return _phase; }
         vector<pair<VT*, EdgeType> > getNeighbors() const { return _neighbors; }
+        pair<VT*, EdgeType> getNeighborById(size_t id) const;
 
         void setId(size_t id) { _id = id; }
         void setQubit(int q) {_qubit = q; }
@@ -67,6 +70,7 @@ class VT{
         // Add and Remove
         void addNeighbor(pair<VT*, EdgeType> neighbor) { _neighbors.push_back(neighbor); }
         void removeNeighbor(pair<VT*, EdgeType> neighbor);
+        void removeNeighborById(size_t id);
 
 
         // Print functions
@@ -75,6 +79,7 @@ class VT{
 
         // Test
         bool isNeighbor(VT* v) const;
+        bool isNeighborById(size_t id) const;
         
         
     private:
@@ -126,6 +131,7 @@ class ZXGraph{
         bool isId(size_t id) const;
 
 
+
         // Add and Remove
         void addInput(size_t id, int qubit, VertexType vt);
         void addOutput(size_t id, int qubit, VertexType vt);
@@ -133,6 +139,8 @@ class ZXGraph{
         void removeVertex(VT* v);
         void removeVertexById(size_t id);
         void removeIsolatedVertices();
+        void removeEdgeById(size_t id_s, size_t id_t);
+
         
 
 

@@ -16,9 +16,27 @@
 
 using namespace std;
 
+VertexType str2VertexType(string str){
+    if(str == "BOUNDARY") return VertexType::BOUNDARY;
+    else if (str == "Z") return VertexType::Z;
+    else if (str == "X") return VertexType::X;
+    else if (str == "H_BOX") return VertexType::H_BOX;
+}
+
 /**************************************/
 /*   class VT member functions   */
 /**************************************/
+
+// Getter and Setter
+ pair<VT*, EdgeType> VT::getNeighborById(size_t id) const{
+    if(!isNeighborById(id)) cerr << "Error: Vertex " << id << " is not a neighbor of " << _id << endl;
+    else{
+        for(size_t i = 0; i < _neighbors.size(); i++){
+            if(_neighbors[i].first->getId() == id) return _neighbors[i];
+        }
+    }
+ }
+
 
 // Add and Remove
 
@@ -27,9 +45,21 @@ void VT::removeNeighbor(pair<VT*, EdgeType> neighbor){
         cout << "  * remove " << neighbor.first->getId() << " from " << _id << endl;
         _neighbors.erase(find(_neighbors.begin(), _neighbors.end(), neighbor));
     } 
-    else cerr << "Vertex " << neighbor.first->getId() << "is not a neighbor of " << _id << endl;
+    else cerr << "Vertex " << neighbor.first->getId() << " is not a neighbor of " << _id << endl;
 }
 
+void VT::removeNeighborById(size_t id){
+    if(!isNeighborById(id)) cerr << "Error: Vertex " << id << " is not a neighbor of " << _id << endl;
+    else{
+        for(size_t i = 0; i < _neighbors.size();){
+            if(_neighbors[i].first->getId() == id) {
+                _neighbors.erase(_neighbors.begin()+i);
+                cout << "  * remove " << id << " from " << _id << endl;
+            }
+            else i++;
+        }
+    }
+}
 
 // Print functions
 
@@ -57,6 +87,13 @@ bool VT::isNeighbor(VT* v) const{
     return false;
 }
 
+bool VT::isNeighborById(size_t id) const{
+    for(size_t i = 0; i < _neighbors.size(); i++){
+        if(_neighbors[i].first->getId() == id) return true;
+    }
+    return false;
+}
+
 
 /**************************************/
 /*   class ZXGraph member functions   */
@@ -68,20 +105,20 @@ void ZXGraph::generateCNOT(){
     // Generate Inputs
     vector<VT*> inputs, outputs, vertices;
     for(size_t i = 0; i < 2; i++){
-        VT* input = new VT(vertices.size(), i, i, VertexType::BOUNDARY);
+        VT* input = new VT(vertices.size(), i,  VertexType::BOUNDARY);
         inputs.push_back(input);
         vertices.push_back(input);
     }
 
     // Generate CNOT
-    VT* z_spider = new VT(vertices.size(), 0, 0, VertexType::Z);
+    VT* z_spider = new VT(vertices.size(), 0,  VertexType::Z);
     vertices.push_back(z_spider);
-    VT* x_spider = new VT(vertices.size(), 1, 1, VertexType::X);
+    VT* x_spider = new VT(vertices.size(), 1,  VertexType::X);
     vertices.push_back(x_spider);
 
     // Generate Outputs
     for(size_t i = 0; i < 2; i++){
-        VT* output = new VT(vertices.size(), i, i, VertexType::BOUNDARY);
+        VT* output = new VT(vertices.size(), i,  VertexType::BOUNDARY);
         outputs.push_back(output);
         vertices.push_back(output);
     }
@@ -205,6 +242,22 @@ void ZXGraph::removeIsolatedVertices(){
     }
 }
 
+void ZXGraph::removeEdgeById(size_t id_s, size_t id_t){
+    if(!isId(id_s)) cerr << "Error: id_s provided is not exist!" << endl;
+    else if(!isId(id_t)) cerr << "Error: id_t provided is not exist!" << endl;
+    else if(!isConnected(findVertexById(id_s), findVertexById(id_t))) cerr << "Error: id_s and id_t are not connected!" << endl;
+    else{
+        cout << "Remove edge ( " << id_s << ", " << id_t << " )" << endl;
+        VT* vs = findVertexById(id_s); VT* vt = findVertexById(id_t);
+        vs->removeNeighborById(id_t); vt->removeNeighborById(id_s);
+        for(size_t i = 0; i < _edges.size();){
+            if((_edges[i].first.first == vs && _edges[i].first.second == vt) || (_edges[i].first.first == vt && _edges[i].first.second == vs)){
+                _edges.erase(_edges.begin()+i);
+            } 
+            else i++;
+        }
+    }
+}
 
 
 // Find functions
