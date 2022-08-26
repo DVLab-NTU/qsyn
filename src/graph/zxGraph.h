@@ -132,6 +132,7 @@ class ZXGraph{
 
         // Add and Remove
         void removeVertex(VT* v);
+        void removeVertexById(size_t id);
         void removeIsolatedVertices();
         
 
