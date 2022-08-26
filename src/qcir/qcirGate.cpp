@@ -44,7 +44,7 @@ void QCirGate::addChild(size_t qubit, QCirGate *c)
 
 void QCirGate::printGate() const
 {
-  cout << "Gate " << _id << ": " << _type << "   \t"
+  cout << "Gate " << _id << ": " << getTypeStr() << "   \t"
        << " Exec Time: " << _time << " \t"
        << " Qubit: ";
   for (size_t i = 0; i < _qubits.size(); i++)

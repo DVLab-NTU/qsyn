@@ -40,8 +40,25 @@ void QCirMgr::addAncilla(size_t num)
 }
 void QCirMgr::appendGate(string type, vector<size_t> bits)
 {
-    QCirGate *temp = new QCirGate(_gateId, 0);
-    temp->setTypeStr(type);
+    // QCirGate *temp = new QCirGate(_gateId, 0);
+    QCirGate* temp=NULL;
+    if(type=="h")   temp = new HGate(_gateId);
+    else if(type=="z")   temp = new ZGate(_gateId);
+    else if(type=="s")   temp = new SGate(_gateId);
+    else if(type=="t")   temp = new TGate(_gateId);
+    else if(type=="tdg")   temp = new TDGGate(_gateId);
+    else if(type=="p")   temp = new PGate(_gateId,0);
+    else if(type=="cz")   temp = new CZGate(_gateId);
+    else if(type=="x")   temp = new XGate(_gateId);
+    else if(type=="sx")   temp = new SXGate(_gateId);
+    else if(type=="cx")   temp = new CXGate(_gateId);
+    else if(type=="ccx")   temp = new CCXGate(_gateId);
+    // Note: rz and p has a little difference
+    else if(type=="rz")   temp = new CnRZGate(_gateId,0);
+    else {
+       cerr<<"The gate is not implement";
+    }
+
     size_t max_time = 0;
     for (size_t k = 0; k < bits.size(); k++)
     {

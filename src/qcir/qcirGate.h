@@ -36,10 +36,10 @@ public:
     _qubits.clear();
     _time = 0;
   }
-  virtual ~QCirGate() {}
+  ~QCirGate() {}
 
   // Basic access method
-  string getTypeStr() const { return _type; }
+  virtual string getTypeStr() const = 0;
   size_t getId() const { return _id; }
   size_t getTime() const { return _time; }
   BitInfo getQubit(size_t qubit) const {
@@ -82,21 +82,29 @@ class HGate : public QCirGate
 { 
 public:
   HGate(size_t id): QCirGate(id, 0) {}
-  ~HGate();
+  ~HGate(){};
+  virtual string getTypeStr() const override { return "h"; } 
 };
 
 class CnRZGate : public QCirGate
 { 
 public:
   CnRZGate(size_t id, size_t phase): QCirGate(id, phase) {}
-  ~CnRZGate();
+  ~CnRZGate(){};
+  virtual string getTypeStr() const { 
+    string tmp = "";
+    for(size_t i=0; i<_qubits.size()-1; i++)
+      tmp+="c";
+    tmp +="rz";
+    return tmp; 
+  }
 };
 
 class CnRXGate : public QCirGate
 { 
 public:
   CnRXGate(size_t id, size_t phase): QCirGate(id, phase) {}
-  ~CnRXGate();
+  ~CnRXGate(){};
 };
 
 class ZGate : public CnRZGate
@@ -106,6 +114,7 @@ public:
     _type = "z";
   }
   ~ZGate();
+  virtual string getTypeStr() const { return "z"; }
 };
 
 class SGate : public CnRZGate
@@ -115,68 +124,70 @@ public:
     _type = "s";
   }
   ~SGate();
+  virtual string getTypeStr() const { return "s"; }
 };
 
 class TGate : public CnRZGate
 { 
 public:
-  TGate(size_t id): CnRZGate(id, 45) {
-    _type = "t";
-  }
+  TGate(size_t id): CnRZGate(id, 45) {}
   ~TGate();
+  virtual string getTypeStr() const { return "t"; }
+};
+
+class TDGGate : public CnRZGate
+{ 
+public:
+  TDGGate(size_t id): CnRZGate(id, 315) {}
+  ~TDGGate();
+  virtual string getTypeStr() const { return "td"; }
 };
 
 class PGate : public CnRZGate
 { 
 public:
-  PGate(size_t id, size_t phase): CnRZGate(id, phase) {
-    _type = "p";
-  }
+  PGate(size_t id, size_t phase): CnRZGate(id, phase) {}
   ~PGate();
+  virtual string getTypeStr() const { return "p"; }
 };
 
 class CZGate : public CnRZGate
 { 
 public:
-  CZGate(size_t id): CnRZGate(id, 0) {
-    _type = "cz";
-  }
+  CZGate(size_t id): CnRZGate(id, 0) {}
   ~CZGate();
+  virtual string getTypeStr() const { return "cz"; }
 };
 
 class XGate : public CnRXGate
 { 
 public:
-  XGate(size_t id): CnRXGate(id, 0) {
-    _type = "x";
-  }
+  XGate(size_t id): CnRXGate(id, 0) {}
   ~XGate();
+  virtual string getTypeStr() const { return "x"; }
 };
 
 class SXGate : public CnRXGate
 { 
 public:
-  SXGate(size_t id): CnRXGate(id, 0) {
-    _type = "sx";
-  }
+  SXGate(size_t id): CnRXGate(id, 0) {}
   ~SXGate();
+  virtual string getTypeStr() const { return "sx"; }
 };
 
 class CXGate : public CnRXGate
 { 
 public:
-  CXGate(size_t id): CnRXGate(id, 0) {
-    _type = "cx";
-  }
+  CXGate(size_t id): CnRXGate(id, 0) {}
   ~CXGate();
+  virtual string getTypeStr() const { return "cx"; }
 };
 
 class CCXGate : public CnRXGate
 { 
 public:
-  CCXGate(size_t id): CnRXGate(id, 0) {
-    _type = "cc";
-  }
+  CCXGate(size_t id): CnRXGate(id, 0) {}
   ~CCXGate();
+  virtual string getTypeStr() const { return "ccx"; }
 };
 #endif // QCIR_GATE_H
