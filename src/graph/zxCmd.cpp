@@ -225,6 +225,7 @@ void ZXEditCmd::usage(ostream &os) const{
     os << "              -ADDInput <id, qubit, VertexType> " << endl;
     os << "              -ADDOutput <id, qubit, VertexType> " << endl;
     os << "              -ADDVertex <id, qubit, VertexType> " << endl;
+    os << "              -ADDEdge <id_s, id_t, EdgeType>  " << endl;
 }
 
 void ZXEditCmd::help() const{

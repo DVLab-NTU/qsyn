@@ -67,8 +67,6 @@ void VT::removeNeighborById(size_t id){
 }
 
 
-
-
 // Print functions
 
 void VT::printVertex() const{
@@ -325,5 +323,4 @@ void ZXGraph::printEdges() const{
     }
     cout << "Total #Edges: " << _edges.size() << endl;
 }
-
 
