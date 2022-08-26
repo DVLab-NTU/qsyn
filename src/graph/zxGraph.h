@@ -79,6 +79,7 @@ class VT{
         void printVertex() const;
         void printNeighbors() const;
 
+
         // Test
         bool isNeighbor(VT* v) const;
         bool isNeighborById(size_t id) const;
