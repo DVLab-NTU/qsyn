@@ -35,10 +35,13 @@ public:
   // return '0' if "gid" corresponds to an undefined gate.
   // QCirGate *getGate(unsigned gid) const { return 0; }
   size_t getNQubit() const { return _qubits.size(); }
-  void appendGate(string type, vector<size_t> bits);
+  
   // Member functions about circuit construction
-  bool parseQASM(string qasm_file);
   void addAncilla(size_t num);
+  void appendGate(string type, vector<size_t> bits);
+  bool parseQASM(string qasm_file);
+  
+  void updateTimeAfter(QCirGate*);
   // Member functions about circuit reporting
   void printGates() const;
   void printSummary() const;

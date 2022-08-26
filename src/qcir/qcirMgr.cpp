@@ -40,7 +40,8 @@ void QCirMgr::addAncilla(size_t num)
 }
 void QCirMgr::appendGate(string type, vector<size_t> bits)
 {
-    QCirGate *temp = new QCirGate(_gateId, type, bits.size());
+    QCirGate *temp = new QCirGate(_gateId, 0);
+    temp->setTypeStr(type);
     size_t max_time = 0;
     for (size_t k = 0; k < bits.size(); k++)
     {

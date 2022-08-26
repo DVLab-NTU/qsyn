@@ -43,7 +43,6 @@ private:
   size_t _id;
   QCirGate *_bitLast;
   QCirGate *_bitFirst;
-
 protected:
 };
 
