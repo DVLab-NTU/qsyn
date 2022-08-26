@@ -129,7 +129,7 @@ ZXEditCmd::exec(const string &option){
     }
     else if(myStrNCmp("-ADDVertex", action, 4) == 0){
         if(options.size() != 4){
-            cerr << "Error: qubit id invalid" << endl;
+            cerr << "Error: cmd options are missing / extra" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
         }
         int id, q;
@@ -147,7 +147,7 @@ ZXEditCmd::exec(const string &option){
     }
     else if(myStrNCmp("-ADDInput", action, 4) == 0){
         if(options.size() != 4){
-            cerr << "Error: qubit id invalid" << endl;
+            cerr << "Error: cmd options are missing / extra" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
         }
         int id, q;
@@ -158,14 +158,14 @@ ZXEditCmd::exec(const string &option){
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
         }
         else if(!isBoundary){
-            cerr << "Error: Use ADDVertex to add vertex!" << endl;
+            cerr << "Error: VertexType is invalid" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
         }
         else zxGraph->addInput(id, q, str2VertexType(options[3]));
     }
     else if(myStrNCmp("-ADDOutput", action, 4) == 0){
         if(options.size() != 4){
-            cerr << "Error: qubit id invalid" << endl;
+            cerr << "Error: cmd options are missing / extra" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
         }
         int id, q;
@@ -176,12 +176,13 @@ ZXEditCmd::exec(const string &option){
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
         }
         else if(!isBoundary){
-            cerr << "Error: Use ADDVertex to add vertex!" << endl;
+            cerr << "Error: VertexType is invalid" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
         }
         else zxGraph->addOutput(id, q, str2VertexType(options[3]));
     }
-    
+    else return CmdExec::errorOption(CMD_OPT_ILLEGAL, action);
+    return CMD_EXEC_DONE;
 }
 
 void ZXEditCmd::usage(ostream &os) const{
