@@ -39,7 +39,6 @@ void VT::printVertex() const{
     cout << "Qubit:\t" << _qubit << "\t";
     cout << "#Neighbors:\t" << _neighbors.size() << "\t";
     printNeighbors();
-    // cout << endl;;
 }
 
 void VT::printNeighbors() const{
