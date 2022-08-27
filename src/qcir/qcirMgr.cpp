@@ -12,6 +12,7 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include <cassert>
 #include "qcirMgr.h"
 
 using namespace std;
@@ -34,8 +35,54 @@ void QCirMgr::addAncilla(size_t num)
 {
     for (size_t i = 0; i < num; i++)
     {
-        QCirQubit* temp = new QCirQubit(_qubits.size());
+        QCirQubit *temp = new QCirQubit(_qubits.size());
         _qubits.push_back(temp);
+    }
+}
+void QCirMgr::DFS(QCirGate *currentGate)
+{
+    currentGate->setVisited(_globalDFScounter);
+
+    vector<BitInfo> Info = currentGate->getQubits();
+    for (size_t i = 0; i < Info.size(); i++)
+    {
+        if ((Info[i])._child != NULL)
+        {
+            if (!((Info[i])._child->isVisited(_globalDFScounter)))
+            {
+                DFS((Info[i])._child);
+            }
+        }
+    }
+    _topoOrder.push(currentGate);
+}
+void QCirMgr::updateTopoOrder()
+{
+    _globalDFScounter++;
+    QCirGate* dummy = new HGate(-1);
+    
+    for(size_t i=0; i<_qubits.size(); i++){
+        dummy->addDummyChild(_qubits[i]->getFirst());
+    }
+    DFS(dummy);
+    _topoOrder.pop(); // pop dummy
+    assert(_topoOrder.size()==_qgate.size());
+    
+}
+void QCirMgr::updateGateTime()
+{
+    updateTopoOrder();
+    while (!_topoOrder.empty()){
+        QCirGate* currentGate = _topoOrder.top();
+        vector<BitInfo> Info = currentGate->getQubits();
+        size_t max_time = 0;
+        for(size_t i=0; i<Info.size(); i++){
+            if(Info[i]._parent == NULL) continue;
+            if(Info[i]._parent->getTime()+1 > max_time) 
+                max_time = Info[i]._parent->getTime()+1;
+        }
+        currentGate->setTime(max_time);
+        _topoOrder.pop();
     }
 }
 void QCirMgr::removeAncilla(size_t q)
@@ -45,23 +92,35 @@ void QCirMgr::removeAncilla(size_t q)
 
 void QCirMgr::appendGate(string type, vector<size_t> bits)
 {
-    // QCirGate *temp = new QCirGate(_gateId, 0);
-    QCirGate* temp=NULL;
-    if(type=="h")   temp = new HGate(_gateId);
-    else if(type=="z")   temp = new ZGate(_gateId);
-    else if(type=="s")   temp = new SGate(_gateId);
-    else if(type=="t")   temp = new TGate(_gateId);
-    else if(type=="tdg")   temp = new TDGGate(_gateId);
-    else if(type=="p")   temp = new PGate(_gateId,0);
-    else if(type=="cz")   temp = new CZGate(_gateId);
-    else if(type=="x")   temp = new XGate(_gateId);
-    else if(type=="sx")   temp = new SXGate(_gateId);
-    else if(type=="cx")   temp = new CXGate(_gateId);
-    else if(type=="ccx")   temp = new CCXGate(_gateId);
+    QCirGate *temp = NULL;
+    if (type == "h")
+        temp = new HGate(_gateId);
+    else if (type == "z")
+        temp = new ZGate(_gateId);
+    else if (type == "s")
+        temp = new SGate(_gateId);
+    else if (type == "t")
+        temp = new TGate(_gateId);
+    else if (type == "tdg")
+        temp = new TDGGate(_gateId);
+    else if (type == "p")
+        temp = new PGate(_gateId, 0);
+    else if (type == "cz")
+        temp = new CZGate(_gateId);
+    else if (type == "x")
+        temp = new XGate(_gateId);
+    else if (type == "sx")
+        temp = new SXGate(_gateId);
+    else if (type == "cx")
+        temp = new CXGate(_gateId);
+    else if (type == "ccx")
+        temp = new CCXGate(_gateId);
     // Note: rz and p has a little difference
-    else if(type=="rz")   temp = new CnRZGate(_gateId,0);
-    else {
-       cerr<<"The gate is not implement";
+    else if (type == "rz")
+        temp = new CnRZGate(_gateId, 0);
+    else
+    {
+        cerr << "The gate is not implement";
     }
 
     size_t max_time = 0;
@@ -80,8 +139,8 @@ void QCirMgr::appendGate(string type, vector<size_t> bits)
             _qubits[q]->setFirst(temp);
         _qubits[q]->setLast(temp);
     }
-    for (size_t k = 0; k < bits.size(); k++)
-        temp->setTime(max_time);
+    
+    temp->setTime(max_time);
 
     _qgate.push_back(temp);
     _gateId++;
@@ -89,7 +148,6 @@ void QCirMgr::appendGate(string type, vector<size_t> bits)
 
 void QCirMgr::removeGate(size_t id)
 {
-
 }
 
 bool QCirMgr::parseQASM(string filename)
@@ -120,8 +178,8 @@ bool QCirMgr::parseQASM(string filename)
     while (qasm_file >> str)
     {
         string space_delimiter = " ";
-        string type = str.substr(0, str.find(" ")); 
-        string phase = (str.find("(") != string::npos) ? str.substr(str.find("(")+1, str.length()-str.find("(")-2): "";
+        string type = str.substr(0, str.find(" "));
+        string phase = (str.find("(") != string::npos) ? str.substr(str.find("(") + 1, str.length() - str.find("(") - 2) : "";
         type = str.substr(0, str.find("("));
         string is_CX = type.substr(0, 2);
         string is_CRZ = type.substr(0, 3);

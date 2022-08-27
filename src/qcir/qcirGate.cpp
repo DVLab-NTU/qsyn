@@ -30,6 +30,12 @@ void QCirGate::addParent(size_t qubit, QCirGate *p)
   }
 }
 
+void QCirGate::addDummyChild(QCirGate *c)
+{
+  BitInfo temp = { ._qubit=0, ._parent=NULL, ._child=c, ._isTarget=false}; 
+  _qubits.push_back(temp);
+}
+
 void QCirGate::addChild(size_t qubit, QCirGate *c)
 {
   for (size_t i = 0; i < _qubits.size(); i++)

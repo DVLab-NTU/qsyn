@@ -35,6 +35,7 @@ public:
   {
     _qubits.clear();
     _time = 0;
+    _DFSCounter=0;
   }
   ~QCirGate() {}
 
@@ -51,6 +52,8 @@ public:
     return _qubits[0];
   }
 
+  const vector<BitInfo>& getQubits() const  { return _qubits; }
+
   void addQubit(size_t qubit, bool isTarget)
   {
     BitInfo temp = {._qubit = qubit, ._parent = NULL, ._child = NULL, ._isTarget = isTarget};
@@ -61,6 +64,10 @@ public:
   void addParent(size_t qubit, QCirGate *p);
   void addChild(size_t qubit, QCirGate *c);
   
+  //DFS
+  bool isVisited(unsigned global) { return global == _DFSCounter; }
+  void setVisited(unsigned global) { _DFSCounter = global; }
+  void addDummyChild(QCirGate *c);
   // Printing functions
   void printGate() const;
   void reportGate() const;
@@ -75,6 +82,7 @@ protected:
   size_t _nqubit;
   size_t _time;
   size_t _phase;
+  unsigned _DFSCounter;
   vector<BitInfo> _qubits;
 };
 

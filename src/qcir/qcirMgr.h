@@ -10,6 +10,7 @@
 #define QCIR_MGR_H
 
 #include <vector>
+#include <stack>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -26,8 +27,11 @@ public:
   QCirMgr()
   {
     _gateId = 0;
+    _globalDFScounter = 1;
+    _dirty = false;
     _qgate.clear();
     _qubits.clear();
+    while(!_topoOrder.empty())  _topoOrder.pop();
   }
   ~QCirMgr() {}
 
@@ -43,7 +47,9 @@ public:
   void removeGate(size_t id);
   bool parseQASM(string qasm_file);
   
-  void getDFS();
+  void updateGateTime();
+  // DFS functions
+  void updateTopoOrder();
 
   // Member functions about circuit reporting
   void printGates() const;
@@ -51,10 +57,13 @@ public:
   void printQubits() const;
   
 private:
-  void DFS();
+  void DFS(QCirGate*);
+  bool _dirty;
+  unsigned _globalDFScounter;
   size_t _gateId;
   vector<QCirGate *> _qgate;
   vector<QCirQubit*> _qubits;
+  stack<QCirGate *> _topoOrder;
 };
 
 #endif // QCIR_MGR_H
