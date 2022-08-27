@@ -1,4 +1,4 @@
-qcr benchmark_SABRE/large/root_255.qasm
+qcre benchmark_SABRE/large/root_255.qasm
 qcp
 qcp -Q
 usage

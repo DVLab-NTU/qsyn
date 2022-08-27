@@ -18,7 +18,7 @@ using namespace std;
 
 extern QCirMgr *qCirMgr;
 
-void QCirGate::addParent(size_t qubit, QCirGate *p)
+void QCirGate::setParent(size_t qubit, QCirGate *p)
 {
   for (size_t i = 0; i < _qubits.size(); i++)
   {
@@ -36,7 +36,7 @@ void QCirGate::addDummyChild(QCirGate *c)
   _qubits.push_back(temp);
 }
 
-void QCirGate::addChild(size_t qubit, QCirGate *c)
+void QCirGate::setChild(size_t qubit, QCirGate *c)
 {
   for (size_t i = 0; i < _qubits.size(); i++)
   {

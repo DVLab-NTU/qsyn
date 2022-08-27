@@ -37,14 +37,15 @@ public:
 
   // Access functions
   // return '0' if "gid" corresponds to an undefined gate.
-  // QCirGate *getGate(unsigned gid) const { return 0; }
+  QCirGate *getGate(size_t gid) const;
+  QCirQubit *getQubit(size_t qid) const;
   size_t getNQubit() const { return _qubits.size(); }
   
   // Member functions about circuit construction
   void addAncilla(size_t num);
   void removeAncilla(size_t q);
   void appendGate(string type, vector<size_t> bits);
-  void removeGate(size_t id);
+  bool removeGate(size_t id);
   bool parseQASM(string qasm_file);
   
   void updateGateTime();
@@ -52,9 +53,9 @@ public:
   void updateTopoOrder();
 
   // Member functions about circuit reporting
-  void printGates() const;
+  void printGates();
   void printSummary() const;
-  void printQubits() const;
+  void printQubits();
   
 private:
   void DFS(QCirGate*);

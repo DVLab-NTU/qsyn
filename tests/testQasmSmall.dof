@@ -1,4 +1,4 @@
-qcr benchmark_SABRE/small/4gt13_92.qasm
+qcre benchmark_SABRE/small/4gt13_92.qasm
 qcprint
 qcprint -Q
 qcag cx 1 0

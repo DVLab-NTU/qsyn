@@ -61,8 +61,8 @@ public:
   }
   void setTypeStr(string type) {_type = type;}
   void setTime(size_t time) { _time = time; }
-  void addParent(size_t qubit, QCirGate *p);
-  void addChild(size_t qubit, QCirGate *c);
+  void setParent(size_t qubit, QCirGate *p);
+  void setChild(size_t qubit, QCirGate *c);
   
   //DFS
   bool isVisited(unsigned global) { return global == _DFSCounter; }

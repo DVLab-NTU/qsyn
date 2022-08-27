@@ -18,6 +18,20 @@
 using namespace std;
 QCirMgr *qCirMgr = 0;
 
+QCirGate* QCirMgr::getGate(size_t id) const
+{
+    for(size_t i=0; i<_qgate.size(); i++){
+        if(_qgate[i]->getId()==id) return _qgate[i];
+    }
+    return NULL;
+} 
+QCirQubit* QCirMgr::getQubit(size_t id) const
+{
+    for(size_t i=0; i<_qubits.size(); i++){
+        if(_qubits[i]->getId()==id) return _qubits[i];
+    }
+    return NULL;
+} 
 void QCirMgr::printSummary() const
 {
     cout << "Follow QASM file (Topological order)" << endl;
@@ -26,8 +40,11 @@ void QCirMgr::printSummary() const
         _qgate[i]->printGate();
     }
 }
-void QCirMgr::printQubits() const
+void QCirMgr::printQubits()
 {
+    if(_dirty)
+        updateGateTime();
+
     for (size_t i = 0; i < _qubits.size(); i++)
         _qubits[i]->printBitLine();
 }
@@ -84,6 +101,7 @@ void QCirMgr::updateGateTime()
         currentGate->setTime(max_time);
         _topoOrder.pop();
     }
+    _dirty = false;
 }
 void QCirMgr::removeAncilla(size_t q)
 {
@@ -130,8 +148,8 @@ void QCirMgr::appendGate(string type, vector<size_t> bits)
         temp->addQubit(q, k == bits.size() - 1);
         if (_qubits[q]->getLast() != NULL)
         {
-            temp->addParent(q, _qubits[q]->getLast());
-            _qubits[q]->getLast()->addChild(q, temp);
+            temp->setParent(q, _qubits[q]->getLast());
+            _qubits[q]->getLast()->setChild(q, temp);
             if ((_qubits[q]->getLast()->getTime() + 1) > max_time)
                 max_time = _qubits[q]->getLast()->getTime() + 1;
         }
@@ -146,8 +164,33 @@ void QCirMgr::appendGate(string type, vector<size_t> bits)
     _gateId++;
 }
 
-void QCirMgr::removeGate(size_t id)
+bool QCirMgr::removeGate(size_t id)
 {
+    QCirGate* target = getGate(id);
+    if(target==NULL)
+    {
+        cerr<<"ERROR: id " << id << " not found!!"<<endl;
+        return false;
+    }
+    else
+    {
+        vector<BitInfo> Info = target->getQubits();
+        for(size_t i=0; i<Info.size(); i++){
+            if(Info[i]._parent!=NULL)
+                Info[i]._parent->setChild(Info[i]._qubit, Info[i]._child);
+            else
+                getQubit(Info[i]._qubit)->setFirst(Info[i]._child);
+            if(Info[i]._child!=NULL)
+                Info[i]._child->setParent(Info[i]._qubit, Info[i]._parent);
+            else
+                getQubit(Info[i]._qubit)->setLast(Info[i]._parent);
+            Info[i]._parent=NULL;
+            Info[i]._child=NULL;
+        }
+        _qgate.erase(remove(_qgate.begin(), _qgate.end(), target), _qgate.end());
+        _dirty = true;
+        return true;
+    }
 }
 
 bool QCirMgr::parseQASM(string filename)

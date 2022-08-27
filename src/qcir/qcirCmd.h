@@ -15,6 +15,7 @@ CmdClass(QCirReadCmd);
 CmdClass(QCirPrintCmd);
 CmdClass(QCirAppendGateCmd);
 CmdClass(QCirAddAncillaCmd);
+CmdClass(QCirRemoveGateCmd);
 CmdClass(QCirTestCmd);
 // CmdClass(QCirGateCmd);
 // CmdClass(QCirSweepCmd);

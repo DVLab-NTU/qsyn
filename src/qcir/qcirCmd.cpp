@@ -21,10 +21,11 @@ extern int effLimit;
 
 bool initQCirCmd()
 {
-   if (!(cmdMgr->regCmd("QCRead", 3, new QCirReadCmd) &&
+   if (!(cmdMgr->regCmd("QCREad", 4, new QCirReadCmd) &&
          cmdMgr->regCmd("QCPrint", 3, new QCirPrintCmd) &&
          cmdMgr->regCmd("QCAGate", 4, new QCirAppendGateCmd) &&
          cmdMgr->regCmd("QCAAnci", 4, new QCirAddAncillaCmd) &&
+         cmdMgr->regCmd("QCRGate", 4, new QCirRemoveGateCmd) &&
          cmdMgr->regCmd("QCT", 3, new QCirTestCmd)))
    {
       cerr << "Registering \"qcir\" commands fails... exiting" << endl;
@@ -61,7 +62,7 @@ void QCirTestCmd::help() const
         << "Test what function you want (for developement)" << endl;
 }
 //----------------------------------------------------------------------
-//    QCRead <(string fileName)> [-Replace]
+//    QCREad <(string fileName)> [-Replace]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirReadCmd::exec(const string &option)
@@ -123,12 +124,12 @@ QCirReadCmd::exec(const string &option)
 
 void QCirReadCmd::usage(ostream &os) const
 {
-   os << "Usage: QCRead <(string fileName)> [-Replace]" << endl;
+   os << "Usage: QCREad <(string fileName)> [-Replace]" << endl;
 }
 
 void QCirReadCmd::help() const
 {
-   cout << setw(15) << left << "QCRead: "
+   cout << setw(15) << left << "QCREad: "
         << "read in a circuit and construct the netlist" << endl;
 }
 
@@ -303,6 +304,48 @@ void QCirAddAncillaCmd::help() const
         << "add ancilla bit(s)\n";
 }
 
+CmdExecStatus
+QCirRemoveGateCmd::exec(const string &option)
+{
+   // check option
+   string token;
+   if (!CmdExec::lexSingleOption(option, token))
+      return CMD_EXEC_ERROR;
+   if (!qCirMgr)
+   {
+      cerr << "Error: quantum circuit is not yet constructed!!" << endl;
+      return CMD_EXEC_ERROR;
+   }
+   if (token.empty())
+      return CmdExec::errorOption(CMD_OPT_MISSING, "");
+   int num;
+   bool isNum = myStr2Int(token, num);
+   if (!isNum)
+   {
+      cerr << "Error: option should be a number!!" << endl;
+      return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+   }
+   if (num < 0)
+   {
+      cerr << "Error: option should be positive!!" << endl;
+      return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+   }
+   size_t uns = (unsigned int)num;
+   if(!qCirMgr->removeGate(uns)) 
+      return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+   else return CMD_EXEC_DONE;
+}
+
+void QCirRemoveGateCmd::usage(ostream &os) const
+{
+   os << "Usage: QCRGate <Gate ID> " << endl;
+}
+
+void QCirRemoveGateCmd::help() const
+{
+   cout << setw(15) << left << "QCRGate: "
+        << "remove a gate\n";
+}
 // //----------------------------------------------------------------------
 // //    CIRGate <<(int gateId)> [<-FANIn | -FANOut><(int level)>]>
 // //----------------------------------------------------------------------
