@@ -21,8 +21,8 @@ class Phase {
 
 public:
     Phase(int n, int d): _rational(n, d) { normalize(); }
-    template <class T>
-    Phase(T f, T eps): _rational(f/std::numbers::pi_v<T>, eps) { std::cout << f/std::numbers::pi_v<T> << std::endl; normalize(); }
+    template <class T> requires std::floating_point<T>
+    Phase(T f, T eps = 1e-4): _rational(f/std::numbers::pi_v<T>, eps) { std::cout << f/std::numbers::pi_v<T> << std::endl; normalize(); }
 
     friend std::ostream& operator<<(std::ostream& os, const Phase& p);
     Phase& operator+();
