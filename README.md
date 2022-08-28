@@ -6,6 +6,9 @@
 * Physical-aware Optimization
 * Lattice Surgery
 
+## Support Cmds
+* [qcir](https://www.notion.so/Circuit-Data-Structure-dcf1018d7ac14ff18edd83631fd3fd71#0aa0ceb16d28496d9d5b5eb6d747850b)
+
 ## Compilation
 `qsyn` supports macOS, linux16 and linux18. To compile, first run
 ```
