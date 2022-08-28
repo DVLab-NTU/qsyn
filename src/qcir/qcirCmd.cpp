@@ -26,6 +26,7 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCAGate", 4, new QCirAppendGateCmd) &&
          cmdMgr->regCmd("QCAQubit", 4, new QCirAddQubitCmd) &&
          cmdMgr->regCmd("QCRGate", 4, new QCirRemoveGateCmd) &&
+         cmdMgr->regCmd("QCRQubit", 4, new QCirRemoveQubitCmd) &&
          cmdMgr->regCmd("QCT", 3, new QCirTestCmd)))
    {
       cerr << "Registering \"qcir\" commands fails... exiting" << endl;
@@ -230,10 +231,9 @@ QCirAppendGateCmd::exec(const string &option)
       else
       {
          size_t quns = (unsigned int)q;
-         if (qCirMgr->getNQubit() - 1 < quns)
+         if (qCirMgr->getQubit(quns)==NULL)
          {
-            cout << qCirMgr->getNQubit() << " " << quns << endl;
-            cerr << "Error: qubit ID is bigger than current circuit!!" << endl;
+            cerr << "Error: qubit ID is not in current circuit!!" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[l]);
          }
          qubits.push_back(q);
@@ -345,6 +345,49 @@ void QCirRemoveGateCmd::help() const
 {
    cout << setw(15) << left << "QCRGate: "
         << "remove a gate\n";
+}
+
+CmdExecStatus
+QCirRemoveQubitCmd::exec(const string &option)
+{
+   // check option
+   string token;
+   if (!CmdExec::lexSingleOption(option, token))
+      return CMD_EXEC_ERROR;
+   if (!qCirMgr)
+   {
+      cerr << "Error: quantum circuit is not yet constructed!!" << endl;
+      return CMD_EXEC_ERROR;
+   }
+   if (token.empty())
+      return CmdExec::errorOption(CMD_OPT_MISSING, "");
+   int num;
+   bool isNum = myStr2Int(token, num);
+   if (!isNum)
+   {
+      cerr << "Error: option should be a number!!" << endl;
+      return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+   }
+   if (num < 0)
+   {
+      cerr << "Error: option should be positive!!" << endl;
+      return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+   }
+   size_t uns = (unsigned int)num;
+   if(!qCirMgr->removeQubit(uns)) 
+      return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+   else return CMD_EXEC_DONE;
+}
+
+void QCirRemoveQubitCmd::usage(ostream &os) const
+{
+   os << "Usage: QCRQubit <Qubit ID> " << endl;
+}
+
+void QCirRemoveQubitCmd::help() const
+{
+   cout << setw(15) << left << "QCRQubit: "
+        << "remove an empty qubit\n";
 }
 // //----------------------------------------------------------------------
 // //    CIRGate <<(int gateId)> [<-FANIn | -FANOut><(int level)>]>

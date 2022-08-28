@@ -27,6 +27,7 @@ public:
   QCirMgr()
   {
     _gateId = 0;
+    _qubitId = 0;
     _globalDFScounter = 1;
     _dirty = false;
     _qgate.clear();
@@ -43,7 +44,7 @@ public:
   
   // Member functions about circuit construction
   void addQubit(size_t num);
-  void removeQubit(size_t q);
+  bool removeQubit(size_t q);
   void appendGate(string type, vector<size_t> bits);
   bool removeGate(size_t id);
   bool parseQASM(string qasm_file);
@@ -62,6 +63,7 @@ private:
   bool _dirty;
   unsigned _globalDFScounter;
   size_t _gateId;
+  size_t _qubitId;
   vector<QCirGate *> _qgate;
   vector<QCirQubit*> _qubits;
   stack<QCirGate *> _topoOrder;

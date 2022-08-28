@@ -18,20 +18,24 @@
 using namespace std;
 QCirMgr *qCirMgr = 0;
 
-QCirGate* QCirMgr::getGate(size_t id) const
+QCirGate *QCirMgr::getGate(size_t id) const
 {
-    for(size_t i=0; i<_qgate.size(); i++){
-        if(_qgate[i]->getId()==id) return _qgate[i];
+    for (size_t i = 0; i < _qgate.size(); i++)
+    {
+        if (_qgate[i]->getId() == id)
+            return _qgate[i];
     }
     return NULL;
-} 
-QCirQubit* QCirMgr::getQubit(size_t id) const
+}
+QCirQubit *QCirMgr::getQubit(size_t id) const
 {
-    for(size_t i=0; i<_qubits.size(); i++){
-        if(_qubits[i]->getId()==id) return _qubits[i];
+    for (size_t i = 0; i < _qubits.size(); i++)
+    {
+        if (_qubits[i]->getId() == id)
+            return _qubits[i];
     }
     return NULL;
-} 
+}
 void QCirMgr::printSummary() const
 {
     cout << "Follow QASM file (Topological order)" << endl;
@@ -42,7 +46,7 @@ void QCirMgr::printSummary() const
 }
 void QCirMgr::printQubits()
 {
-    if(_dirty)
+    if (_dirty)
         updateGateTime();
 
     for (size_t i = 0; i < _qubits.size(); i++)
@@ -52,8 +56,9 @@ void QCirMgr::addQubit(size_t num)
 {
     for (size_t i = 0; i < num; i++)
     {
-        QCirQubit *temp = new QCirQubit(_qubits.size());
+        QCirQubit *temp = new QCirQubit(_qubitId);
         _qubits.push_back(temp);
+        _qubitId++;
     }
 }
 void QCirMgr::DFS(QCirGate *currentGate)
@@ -76,36 +81,57 @@ void QCirMgr::DFS(QCirGate *currentGate)
 void QCirMgr::updateTopoOrder()
 {
     _globalDFScounter++;
-    QCirGate* dummy = new HGate(-1);
-    
-    for(size_t i=0; i<_qubits.size(); i++){
+    QCirGate *dummy = new HGate(-1);
+
+    for (size_t i = 0; i < _qubits.size(); i++)
+    {
         dummy->addDummyChild(_qubits[i]->getFirst());
     }
     DFS(dummy);
     _topoOrder.pop(); // pop dummy
-    assert(_topoOrder.size()==_qgate.size());
-    
+    assert(_topoOrder.size() == _qgate.size());
 }
 void QCirMgr::updateGateTime()
 {
     updateTopoOrder();
-    while (!_topoOrder.empty()){
-        QCirGate* currentGate = _topoOrder.top();
+    while (!_topoOrder.empty())
+    {
+        QCirGate *currentGate = _topoOrder.top();
         vector<BitInfo> Info = currentGate->getQubits();
         size_t max_time = 0;
-        for(size_t i=0; i<Info.size(); i++){
-            if(Info[i]._parent == NULL) continue;
-            if(Info[i]._parent->getTime()+1 > max_time) 
-                max_time = Info[i]._parent->getTime()+1;
+        for (size_t i = 0; i < Info.size(); i++)
+        {
+            if (Info[i]._parent == NULL)
+                continue;
+            if (Info[i]._parent->getTime() + 1 > max_time)
+                max_time = Info[i]._parent->getTime() + 1;
         }
         currentGate->setTime(max_time);
         _topoOrder.pop();
     }
     _dirty = false;
 }
-void QCirMgr::removeQubit(size_t q)
+bool QCirMgr::removeQubit(size_t id)
 {
     // Delete the ancilla only if whole line is empty
+    QCirQubit *target = getQubit(id);
+    if (target == NULL)
+    {
+        cerr << "ERROR: id " << id << " not found!!" << endl;
+        return false;
+    }
+    else
+    {
+        if(target->getLast()!=NULL || target->getFirst()!=NULL)
+        {
+            cerr << "ERROR: id " << id << " is not an empty qubit!!" << endl;
+            return false;
+        }
+        else{
+            _qubits.erase(remove(_qubits.begin(), _qubits.end(), target), _qubits.end());
+            return true;
+        }
+    }
 }
 
 void QCirMgr::appendGate(string type, vector<size_t> bits)
@@ -146,18 +172,18 @@ void QCirMgr::appendGate(string type, vector<size_t> bits)
     {
         size_t q = bits[k];
         temp->addQubit(q, k == bits.size() - 1);
-        if (_qubits[q]->getLast() != NULL)
+        QCirQubit* target = getQubit(q);
+        if (target->getLast() != NULL)
         {
-            temp->setParent(q, _qubits[q]->getLast());
-            _qubits[q]->getLast()->setChild(q, temp);
-            if ((_qubits[q]->getLast()->getTime() + 1) > max_time)
-                max_time = _qubits[q]->getLast()->getTime() + 1;
+            temp->setParent(q, target->getLast());
+            target->getLast()->setChild(q, temp);
+            if ((target->getLast()->getTime() + 1) > max_time)
+                max_time = target->getLast()->getTime() + 1;
         }
         else
-            _qubits[q]->setFirst(temp);
-        _qubits[q]->setLast(temp);
+            target->setFirst(temp);
+        target->setLast(temp);
     }
-    
     temp->setTime(max_time);
 
     _qgate.push_back(temp);
@@ -166,26 +192,27 @@ void QCirMgr::appendGate(string type, vector<size_t> bits)
 
 bool QCirMgr::removeGate(size_t id)
 {
-    QCirGate* target = getGate(id);
-    if(target==NULL)
+    QCirGate *target = getGate(id);
+    if (target == NULL)
     {
-        cerr<<"ERROR: id " << id << " not found!!"<<endl;
+        cerr << "ERROR: id " << id << " not found!!" << endl;
         return false;
     }
     else
     {
         vector<BitInfo> Info = target->getQubits();
-        for(size_t i=0; i<Info.size(); i++){
-            if(Info[i]._parent!=NULL)
+        for (size_t i = 0; i < Info.size(); i++)
+        {
+            if (Info[i]._parent != NULL)
                 Info[i]._parent->setChild(Info[i]._qubit, Info[i]._child);
             else
                 getQubit(Info[i]._qubit)->setFirst(Info[i]._child);
-            if(Info[i]._child!=NULL)
+            if (Info[i]._child != NULL)
                 Info[i]._child->setParent(Info[i]._qubit, Info[i]._parent);
             else
                 getQubit(Info[i]._qubit)->setLast(Info[i]._parent);
-            Info[i]._parent=NULL;
-            Info[i]._child=NULL;
+            Info[i]._parent = NULL;
+            Info[i]._child = NULL;
         }
         _qgate.erase(remove(_qgate.begin(), _qgate.end(), target), _qgate.end());
         _dirty = true;

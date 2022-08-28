@@ -16,6 +16,7 @@ CmdClass(QCirPrintCmd);
 CmdClass(QCirAppendGateCmd);
 CmdClass(QCirAddQubitCmd);
 CmdClass(QCirRemoveGateCmd);
+CmdClass(QCirRemoveQubitCmd);
 CmdClass(QCirTestCmd);
 // CmdClass(QCirGateCmd);
 // CmdClass(QCirSweepCmd);

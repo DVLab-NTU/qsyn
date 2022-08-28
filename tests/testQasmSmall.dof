@@ -6,4 +6,13 @@ qcaq 2
 qcag cx 4 6
 qcp -q
 usage
+qcrq 6
+qcrq 5
+qcp -q
+qcag x 5
+qcaq 2
+qcp -q
+qcag cx 7 8
+qcp -q
 q -f
+
