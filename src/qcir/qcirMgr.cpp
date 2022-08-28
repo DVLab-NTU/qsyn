@@ -52,6 +52,21 @@ void QCirMgr::printQubits()
     for (size_t i = 0; i < _qubits.size(); i++)
         _qubits[i]->printBitLine();
 }
+bool QCirMgr::printGateInfo(size_t id, bool showTime)
+{
+    if (getGate(id) != NULL)
+    {
+        if (showTime && _dirty)
+            updateGateTime();
+        getGate(id)->printGateInfo(showTime);
+        return true;
+    }
+    else
+    {
+        cerr << "ERROR: id " << id << " not found!!" << endl;
+        return false;
+    }
+}
 void QCirMgr::addQubit(size_t num)
 {
     for (size_t i = 0; i < num; i++)
@@ -122,12 +137,13 @@ bool QCirMgr::removeQubit(size_t id)
     }
     else
     {
-        if(target->getLast()!=NULL || target->getFirst()!=NULL)
+        if (target->getLast() != NULL || target->getFirst() != NULL)
         {
             cerr << "ERROR: id " << id << " is not an empty qubit!!" << endl;
             return false;
         }
-        else{
+        else
+        {
             _qubits.erase(remove(_qubits.begin(), _qubits.end(), target), _qubits.end());
             return true;
         }
@@ -172,7 +188,7 @@ void QCirMgr::appendGate(string type, vector<size_t> bits)
     {
         size_t q = bits[k];
         temp->addQubit(q, k == bits.size() - 1);
-        QCirQubit* target = getQubit(q);
+        QCirQubit *target = getQubit(q);
         if (target->getLast() != NULL)
         {
             temp->setParent(q, target->getLast());

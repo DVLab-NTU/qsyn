@@ -55,6 +55,7 @@ public:
 
   // Member functions about circuit reporting
   void printGates();
+  bool printGateInfo(size_t,bool);
   void printSummary() const;
   void printQubits();
   

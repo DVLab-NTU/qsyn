@@ -70,6 +70,7 @@ public:
   void addDummyChild(QCirGate *c);
   // Printing functions
   void printGate() const;
+  virtual void printGateInfo(bool) const=0;
   void reportGate() const;
   void reportFanin(int level) const;
   void reportFanout(int level) const;
@@ -91,7 +92,8 @@ class HGate : public QCirGate
 public:
   HGate(size_t id): QCirGate(id, 0) {}
   ~HGate(){};
-  virtual string getTypeStr() const override { return "h"; } 
+  virtual string getTypeStr() const override { return "h"; }
+  virtual void printGateInfo(bool) const; 
 };
 
 class CnRZGate : public QCirGate
@@ -106,6 +108,7 @@ public:
     tmp +="rz";
     return tmp; 
   }
+  virtual void printGateInfo(bool) const;
 };
 
 class CnRXGate : public QCirGate
@@ -113,6 +116,7 @@ class CnRXGate : public QCirGate
 public:
   CnRXGate(size_t id, size_t phase): QCirGate(id, phase) {}
   ~CnRXGate(){};
+  virtual void printGateInfo(bool) const;
 };
 
 class ZGate : public CnRZGate
@@ -123,6 +127,7 @@ public:
   }
   ~ZGate();
   virtual string getTypeStr() const { return "z"; }
+  virtual void printGateInfo(bool) const;
 };
 
 class SGate : public CnRZGate
@@ -133,6 +138,7 @@ public:
   }
   ~SGate();
   virtual string getTypeStr() const { return "s"; }
+  virtual void printGateInfo(bool) const;
 };
 
 class TGate : public CnRZGate
@@ -141,6 +147,7 @@ public:
   TGate(size_t id): CnRZGate(id, 45) {}
   ~TGate();
   virtual string getTypeStr() const { return "t"; }
+  virtual void printGateInfo(bool) const;
 };
 
 class TDGGate : public CnRZGate
@@ -149,6 +156,7 @@ public:
   TDGGate(size_t id): CnRZGate(id, 315) {}
   ~TDGGate();
   virtual string getTypeStr() const { return "td"; }
+  virtual void printGateInfo(bool) const;
 };
 
 class PGate : public CnRZGate
@@ -157,6 +165,7 @@ public:
   PGate(size_t id, size_t phase): CnRZGate(id, phase) {}
   ~PGate();
   virtual string getTypeStr() const { return "p"; }
+  virtual void printGateInfo(bool) const;
 };
 
 class CZGate : public CnRZGate
@@ -165,6 +174,7 @@ public:
   CZGate(size_t id): CnRZGate(id, 0) {}
   ~CZGate();
   virtual string getTypeStr() const { return "cz"; }
+  virtual void printGateInfo(bool) const;
 };
 
 class XGate : public CnRXGate
@@ -173,6 +183,7 @@ public:
   XGate(size_t id): CnRXGate(id, 0) {}
   ~XGate();
   virtual string getTypeStr() const { return "x"; }
+  virtual void printGateInfo(bool) const;
 };
 
 class SXGate : public CnRXGate
@@ -181,6 +192,7 @@ public:
   SXGate(size_t id): CnRXGate(id, 0) {}
   ~SXGate();
   virtual string getTypeStr() const { return "sx"; }
+  virtual void printGateInfo(bool) const;
 };
 
 class CXGate : public CnRXGate
@@ -189,6 +201,7 @@ public:
   CXGate(size_t id): CnRXGate(id, 0) {}
   ~CXGate();
   virtual string getTypeStr() const { return "cx"; }
+  virtual void printGateInfo(bool) const;
 };
 
 class CCXGate : public CnRXGate
@@ -197,5 +210,6 @@ public:
   CCXGate(size_t id): CnRXGate(id, 0) {}
   ~CCXGate();
   virtual string getTypeStr() const { return "ccx"; }
+  virtual void printGateInfo(bool) const;
 };
 #endif // QCIR_GATE_H
