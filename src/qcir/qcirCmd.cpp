@@ -139,7 +139,7 @@ void QCirReadCmd::help() const
 }
 
 //----------------------------------------------------------------------
-//    QGPrint <Gate ID> [-Time]
+//    QGPrint <(size_t gateID)> [-Time]
 //----------------------------------------------------------------------
 CmdExecStatus
 QGatePrintCmd::exec(const string &option)
@@ -196,7 +196,7 @@ QGatePrintCmd::exec(const string &option)
 
 void QGatePrintCmd::usage(ostream &os) const
 {
-   os << "Usage: QGPrint <Gate ID> [-Time]" << endl;
+   os << "Usage: QGPrint <(size_t gateID)> [-Time]" << endl;
 }
 
 void QGatePrintCmd::help() const
@@ -243,7 +243,7 @@ void QCirPrintCmd::help() const
 }
 
 //----------------------------------------------------------------------
-//    QCAGate <Gate Type> <Bits>
+//    QCAGate <(string gateType)> <(size_t bit(s))>
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirAppendGateCmd::exec(const string &option)
@@ -303,7 +303,7 @@ QCirAppendGateCmd::exec(const string &option)
 
 void QCirAppendGateCmd::usage(ostream &os) const
 {
-   os << "Usage: QCAGate <Gate Type> <Bits>" << endl;
+   os << "Usage: QCAGate <(string gateType)> <(size_t bit(s))>" << endl;
    os << "E.g. : QCAGate cx 0 1" << endl;
    os << "E.g. : QCAGate x 2" << endl;
 }
@@ -315,7 +315,7 @@ void QCirAppendGateCmd::help() const
 }
 
 //----------------------------------------------------------------------
-//    QCAQubit [qubit number]
+//    QCAQubit [size_t addNum]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirAddQubitCmd::exec(const string &option)
@@ -356,7 +356,7 @@ QCirAddQubitCmd::exec(const string &option)
 
 void QCirAddQubitCmd::usage(ostream &os) const
 {
-   os << "Usage: QCAQubit [ qubit number ] " << endl;
+   os << "Usage: QCAQubit [size_t addNum] " << endl;
 }
 
 void QCirAddQubitCmd::help() const
@@ -366,7 +366,7 @@ void QCirAddQubitCmd::help() const
 }
 
 //----------------------------------------------------------------------
-//    QCRGate <Gate ID>
+//    QCRGate <(size_t gateID)>
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirRemoveGateCmd::exec(const string &option)
@@ -403,7 +403,7 @@ QCirRemoveGateCmd::exec(const string &option)
 
 void QCirRemoveGateCmd::usage(ostream &os) const
 {
-   os << "Usage: QCRGate <Gate ID> " << endl;
+   os << "Usage: QCRGate <(size_t gateID)> " << endl;
 }
 
 void QCirRemoveGateCmd::help() const
@@ -413,7 +413,7 @@ void QCirRemoveGateCmd::help() const
 }
 
 //----------------------------------------------------------------------
-//    QCRQubit <Qubit ID>
+//    QCRQubit <(size_t qubitID)>
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirRemoveQubitCmd::exec(const string &option)
@@ -450,7 +450,7 @@ QCirRemoveQubitCmd::exec(const string &option)
 
 void QCirRemoveQubitCmd::usage(ostream &os) const
 {
-   os << "Usage: QCRQubit <Qubit ID> " << endl;
+   os << "Usage: QCRQubit <(size_t qubitID)> " << endl;
 }
 
 void QCirRemoveQubitCmd::help() const
