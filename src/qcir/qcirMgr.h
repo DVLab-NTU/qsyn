@@ -42,8 +42,8 @@ public:
   size_t getNQubit() const { return _qubits.size(); }
   
   // Member functions about circuit construction
-  void addAncilla(size_t num);
-  void removeAncilla(size_t q);
+  void addQubit(size_t num);
+  void removeQubit(size_t q);
   void appendGate(string type, vector<size_t> bits);
   bool removeGate(size_t id);
   bool parseQASM(string qasm_file);

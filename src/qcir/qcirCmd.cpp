@@ -24,7 +24,7 @@ bool initQCirCmd()
    if (!(cmdMgr->regCmd("QCREad", 4, new QCirReadCmd) &&
          cmdMgr->regCmd("QCPrint", 3, new QCirPrintCmd) &&
          cmdMgr->regCmd("QCAGate", 4, new QCirAppendGateCmd) &&
-         cmdMgr->regCmd("QCAAnci", 4, new QCirAddAncillaCmd) &&
+         cmdMgr->regCmd("QCAQubit", 4, new QCirAddQubitCmd) &&
          cmdMgr->regCmd("QCRGate", 4, new QCirRemoveGateCmd) &&
          cmdMgr->regCmd("QCT", 3, new QCirTestCmd)))
    {
@@ -202,7 +202,7 @@ QCirAppendGateCmd::exec(const string &option)
 
    if (!qCirMgr)
    {
-      cerr << "Error: no available qubits. Please read a quantum circuit or add ancilla(e)!!" << endl;
+      cerr << "Error: no available qubits. Please read a quantum circuit or add qubit(e)!!" << endl;
       return CMD_EXEC_ERROR;
    }
 
@@ -257,7 +257,7 @@ void QCirAppendGateCmd::help() const
 }
 
 CmdExecStatus
-QCirAddAncillaCmd::exec(const string &option)
+QCirAddQubitCmd::exec(const string &option)
 {
    // check option
    string token;
@@ -267,7 +267,7 @@ QCirAddAncillaCmd::exec(const string &option)
    {
       if (qCirMgr == 0)
          qCirMgr = new QCirMgr;
-      qCirMgr->addAncilla(1);
+      qCirMgr->addQubit(1);
    }
    else
    {
@@ -287,21 +287,21 @@ QCirAddAncillaCmd::exec(const string &option)
       {
          if (qCirMgr == 0)
             qCirMgr = new QCirMgr;
-         qCirMgr->addAncilla(num);
+         qCirMgr->addQubit(num);
       }
    }
    return CMD_EXEC_DONE;
 }
 
-void QCirAddAncillaCmd::usage(ostream &os) const
+void QCirAddQubitCmd::usage(ostream &os) const
 {
-   os << "Usage: QCAAnci [ ancilla(e) number ] " << endl;
+   os << "Usage: QCAAnci [ qubit(e) number ] " << endl;
 }
 
-void QCirAddAncillaCmd::help() const
+void QCirAddQubitCmd::help() const
 {
    cout << setw(15) << left << "QCAAnci: "
-        << "add ancilla bit(s)\n";
+        << "add qubit bit(s)\n";
 }
 
 CmdExecStatus

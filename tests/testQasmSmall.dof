@@ -2,7 +2,7 @@ qcre benchmark_SABRE/small/4gt13_92.qasm
 qcprint
 qcprint -Q
 qcag cx 1 0
-qcaa 2
+qcaq 2
 qcag cx 4 6
 qcp -q
 usage

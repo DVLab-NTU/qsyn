@@ -48,7 +48,7 @@ void QCirMgr::printQubits()
     for (size_t i = 0; i < _qubits.size(); i++)
         _qubits[i]->printBitLine();
 }
-void QCirMgr::addAncilla(size_t num)
+void QCirMgr::addQubit(size_t num)
 {
     for (size_t i = 0; i < num; i++)
     {
@@ -103,7 +103,7 @@ void QCirMgr::updateGateTime()
     }
     _dirty = false;
 }
-void QCirMgr::removeAncilla(size_t q)
+void QCirMgr::removeQubit(size_t q)
 {
     // Delete the ancilla only if whole line is empty
 }
@@ -215,7 +215,7 @@ bool QCirMgr::parseQASM(string filename)
     }
     // For netlist
     int nqubit = stoi(str.substr(str.find("[") + 1, str.size() - str.find("[") - 3));
-    addAncilla(nqubit);
+    addQubit(nqubit);
     vector<string> single_list{"x", "sx", "s", "rz", "i", "h", "t", "tdg"};
 
     while (qasm_file >> str)

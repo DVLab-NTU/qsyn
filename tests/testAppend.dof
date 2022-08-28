@@ -1,12 +1,12 @@
 qcp -q
 qcag cx 0 1
-qcaa
+qcaq
 qcp -q
 qcag h
 qcag h 0
 qcp -q
 qcag cx 0 1
-qcaa 3
+qcaq 3
 qcp -q
 qcag cx 0 2
 qcp -q
