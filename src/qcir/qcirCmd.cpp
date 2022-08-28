@@ -27,8 +27,9 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCAQubit", 4, new QCirAddQubitCmd) &&
          cmdMgr->regCmd("QCRGate", 4, new QCirRemoveGateCmd) &&
          cmdMgr->regCmd("QCRQubit", 4, new QCirRemoveQubitCmd) &&
-         cmdMgr->regCmd("QGPrint", 3, new QGatePrintCmd) &&
-         cmdMgr->regCmd("QCT", 3, new QCirTestCmd)))
+         cmdMgr->regCmd("QGPrint", 3, new QGatePrintCmd)
+         //&& cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
+         ))
    {
       cerr << "Registering \"qcir\" commands fails... exiting" << endl;
       return false;
@@ -47,24 +48,24 @@ enum QCirCmdState
 
 static QCirCmdState curCmd = QCIRINIT;
 
-CmdExecStatus
-QCirTestCmd::exec(const string &option)
-{
-   int num;
-   bool isNum = myStr2Int(option, num);
-   qCirMgr->printGateInfo(num, true);
-   return CMD_EXEC_DONE;
-}
-void QCirTestCmd::usage(ostream &os) const
-{
-   os << "Usage: QCT" << endl;
-}
+// CmdExecStatus
+// QCirTestCmd::exec(const string &option)
+// {
+//    int num;
+//    bool isNum = myStr2Int(option, num);
+//    qCirMgr->printGateInfo(num, true);
+//    return CMD_EXEC_DONE;
+// }
+// void QCirTestCmd::usage(ostream &os) const
+// {
+//    os << "Usage: QCT" << endl;
+// }
 
-void QCirTestCmd::help() const
-{
-   cout << setw(15) << left << "QCT: "
-        << "Test what function you want (for developement)" << endl;
-}
+// void QCirTestCmd::help() const
+// {
+//    cout << setw(15) << left << "QCT: "
+//         << "Test what function you want (for developement)" << endl;
+// }
 //----------------------------------------------------------------------
 //    QCREad <(string fileName)> [-Replace]
 //----------------------------------------------------------------------
@@ -241,6 +242,9 @@ void QCirPrintCmd::help() const
         << "print quanutm circuit\n";
 }
 
+//----------------------------------------------------------------------
+//    QCAGate <Gate Type> <Bits>
+//----------------------------------------------------------------------
 CmdExecStatus
 QCirAppendGateCmd::exec(const string &option)
 {
@@ -310,6 +314,9 @@ void QCirAppendGateCmd::help() const
         << "append quantum gate\n";
 }
 
+//----------------------------------------------------------------------
+//    QCAQubit [qubit number]
+//----------------------------------------------------------------------
 CmdExecStatus
 QCirAddQubitCmd::exec(const string &option)
 {
@@ -349,7 +356,7 @@ QCirAddQubitCmd::exec(const string &option)
 
 void QCirAddQubitCmd::usage(ostream &os) const
 {
-   os << "Usage: QCAAnci [ qubit(e) number ] " << endl;
+   os << "Usage: QCAQubit [ qubit number ] " << endl;
 }
 
 void QCirAddQubitCmd::help() const
@@ -358,6 +365,9 @@ void QCirAddQubitCmd::help() const
         << "add qubit bit(s)\n";
 }
 
+//----------------------------------------------------------------------
+//    QCRGate <Gate ID>
+//----------------------------------------------------------------------
 CmdExecStatus
 QCirRemoveGateCmd::exec(const string &option)
 {
@@ -402,6 +412,9 @@ void QCirRemoveGateCmd::help() const
         << "remove a gate\n";
 }
 
+//----------------------------------------------------------------------
+//    QCRQubit <Qubit ID>
+//----------------------------------------------------------------------
 CmdExecStatus
 QCirRemoveQubitCmd::exec(const string &option)
 {
