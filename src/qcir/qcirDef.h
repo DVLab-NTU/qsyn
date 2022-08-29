@@ -17,6 +17,7 @@ using namespace std;
 // TODO: define your own typedef or enum
 
 class QCirGate;
+class QCirQubit;
 class QCirMgr;
 
 #endif // QCIR_DEF_H
