@@ -32,7 +32,9 @@ class ZXGraphMgr{
 
         // Setter and Getter
         size_t getNextID() const { return _nextID; }
+        ZXGraph* getGraph() const { return _graphList[_gListItr - _graphList.begin()]; }
         void setNextID(size_t id) { _nextID = id; }
+        
 
         // Add and Remove
         void addZXGraph(size_t id);

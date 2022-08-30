@@ -17,7 +17,7 @@
 using namespace std;
 
 extern ZXGraphMgr *zxGraphMgr;
-ZXGraph* zxGraph = new ZXGraph(0);
+// ZXGraph* zxGraph = new ZXGraph(0);
 
 bool initZXCmd(){
     if(!(cmdMgr->regCmd("ZXMode", 3, new ZXModeCmd) && 
@@ -204,10 +204,6 @@ void ZXCheckoutCmd::help() const{
 
 
 
-
-
-
-
 //----------------------------------------------------------------------
 //    ZXTest [-GenerateCNOT | -Empty | -Valid]
 //----------------------------------------------------------------------
@@ -222,13 +218,13 @@ ZXTestCmd::exec(const string &option){
     return CMD_EXEC_ERROR;
    }
 
-   if(token.empty() || myStrNCmp("-GenerateCNOT", token, 2) == 0) zxGraph->generateCNOT();
+   if(token.empty() || myStrNCmp("-GenerateCNOT", token, 2) == 0) zxGraphMgr->getGraph()->generateCNOT();
    else if(myStrNCmp("-Empty", token, 2) == 0){
-    if(zxGraph->isEmpty()) cout << "This graph is empty!" << endl;
+    if(zxGraphMgr->getGraph()->isEmpty()) cout << "This graph is empty!" << endl;
     else cout << "This graph is not empty!" << endl;
    }
    else if(myStrNCmp("-Valid", token, 2) == 0){
-    if(zxGraph->isValid()) cout << "This graph is valid!" << endl;
+    if(zxGraphMgr->getGraph()->isValid()) cout << "This graph is valid!" << endl;
     else cout << "This graph is invalid!" << endl;
    }
    else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
@@ -254,11 +250,11 @@ ZXPrintCmd::exec(const string &option){
    string token;
    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
-   if(token.empty() || myStrNCmp("-Summary", token, 2) == 0) zxGraph->printGraph();
-   else if (myStrNCmp("-Inputs", token, 2) == 0) zxGraph->printInputs();
-   else if (myStrNCmp("-Outputs", token, 2) == 0) zxGraph->printOutputs();
-   else if (myStrNCmp("-Vertices", token, 2) == 0) zxGraph->printVertices();
-   else if (myStrNCmp("-Edges", token, 2) == 0) zxGraph->printEdges();
+   if(token.empty() || myStrNCmp("-Summary", token, 2) == 0) zxGraphMgr->getGraph()->printGraph();
+   else if (myStrNCmp("-Inputs", token, 2) == 0) zxGraphMgr->getGraph()->printInputs();
+   else if (myStrNCmp("-Outputs", token, 2) == 0) zxGraphMgr->getGraph()->printOutputs();
+   else if (myStrNCmp("-Vertices", token, 2) == 0) zxGraphMgr->getGraph()->printVertices();
+   else if (myStrNCmp("-Edges", token, 2) == 0) zxGraphMgr->getGraph()->printEdges();
    else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    return CMD_EXEC_DONE;
 }
@@ -293,13 +289,13 @@ ZXEditCmd::exec(const string &option){
         for(size_t v = 1; v < options.size(); v++){
             int id;
             bool isNum = myStr2Int(options[v], id);
-            if(options[1] == "i" && options.size() == 2) zxGraph->removeIsolatedVertices();
+            if(options[1] == "i" && options.size() == 2) zxGraphMgr->getGraph()->removeIsolatedVertices();
             else if(!isNum || id < 0){
                 cerr << "Error: qubit id invalid" << endl;
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[v]);
             }
             else{
-                if(zxGraph->isId(id)) zxGraph->removeVertexById(id);
+                if(zxGraphMgr->getGraph()->isId(id)) zxGraphMgr->getGraph()->removeVertexById(id);
                 else return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[v]);
             }
         }
@@ -315,7 +311,7 @@ ZXEditCmd::exec(const string &option){
             cerr << "Error: id_s / id_t is invalid" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
         }
-        else zxGraph->removeEdgeById(id_s, id_t);
+        else zxGraphMgr->getGraph()->removeEdgeById(id_s, id_t);
     }
     else if(myStrNCmp("-ADDVertex", action, 4) == 0){
         if(options.size() != 4){
@@ -333,7 +329,7 @@ ZXEditCmd::exec(const string &option){
             cerr << "Error: vertex type invalid" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
         }
-        else zxGraph->addVertex(id, q, str2VertexType(options[3]));
+        else zxGraphMgr->getGraph()->addVertex(id, q, str2VertexType(options[3]));
     }
     else if(myStrNCmp("-ADDInput", action, 4) == 0){
         if(options.size() != 4){
@@ -351,7 +347,7 @@ ZXEditCmd::exec(const string &option){
             cerr << "Error: VertexType is invalid" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
         }
-        else zxGraph->addInput(id, q, str2VertexType(options[3]));
+        else zxGraphMgr->getGraph()->addInput(id, q, str2VertexType(options[3]));
     }
     else if(myStrNCmp("-ADDOutput", action, 4) == 0){
         if(options.size() != 4){
@@ -369,7 +365,7 @@ ZXEditCmd::exec(const string &option){
             cerr << "Error: VertexType is invalid" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
         }
-        else zxGraph->addOutput(id, q, str2VertexType(options[3]));
+        else zxGraphMgr->getGraph()->addOutput(id, q, str2VertexType(options[3]));
     }
     else if(myStrNCmp("-ADDEdge", action, 4) == 0){
         if(options.size() != 4){
@@ -387,7 +383,7 @@ ZXEditCmd::exec(const string &option){
             cerr << "Error: EdgeType is invalid" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
         }
-        else zxGraph->addEdgeById(id_s, id_t, str2EdgeType(options[3]));
+        else zxGraphMgr->getGraph()->addEdgeById(id_s, id_t, str2EdgeType(options[3]));
     }
     else return CmdExec::errorOption(CMD_OPT_ILLEGAL, action);
     return CMD_EXEC_DONE;
