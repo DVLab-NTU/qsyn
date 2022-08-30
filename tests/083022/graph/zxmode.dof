@@ -1,0 +1,17 @@
+zxmode
+zxnew
+zxcheckout
+zxtest
+zxprint
+zxedit
+zxmode -on
+zxmode
+zxtest
+zxprint
+zxedit
+zxnew
+zxtest -generateCNOT
+zxprint
+zxmode -reset
+zxmode
+q -f

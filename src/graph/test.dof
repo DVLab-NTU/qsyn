@@ -1,0 +1,8 @@
+zxmode -on
+zxnew
+zxnew 8
+zxnew 2
+zxcheckout 8
+zxr 8
+zxc 8
+q -f
