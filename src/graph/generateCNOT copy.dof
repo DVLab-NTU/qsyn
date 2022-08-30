@@ -1,0 +1,16 @@
+zxtest -e
+zxedit -addi 0 0 BOUNDARY
+zxedit -addi 1 1 BOUNDARY
+zxedit -addv 2 0 Z
+zxedit -addv 3 1 X
+zxedit -addo 4 0 BOUNDARY
+zxedit -addo 5 1 BOUNDARY
+zxprint -v
+zxedit -adde 0 2 SIMPLE
+zxedit -adde 2 4 SIMPLE
+zxedit -adde 1 3 SIMPLE
+zxedit -adde 2 3 SIMPLE
+zxedit -adde 3 5 SIMPLE
+zxprint -v
+zxprint -e
+q -f

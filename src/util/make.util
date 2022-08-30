@@ -1,0 +1,5 @@
+PKGFLAG   =
+EXTHDRS   = util.h rnGen.h myUsage.h myHashMap.h rationalNumber.h phase.h myConcepts.h
+
+include ../Makefile.in
+include ../Makefile.lib

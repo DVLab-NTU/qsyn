@@ -1,0 +1,10 @@
+zxmode -on
+zxnew
+zxtest -generateCNOT
+zxedit -rmv 0
+zxprint
+zxedit -addi 0
+zxedit -adde 0 1 SIMPLE
+zxprint
+zxedit -addv 8
+q -f
