@@ -11,13 +11,19 @@
 #include <iomanip>
 #include "zxCmd.h"
 #include "zxGraph.h"
+#include "zxGraphMgr.h"
 #include "util.h"
 
 using namespace std;
+
+extern ZXGraphMgr *zxGraphMgr;
 ZXGraph* zxGraph = new ZXGraph(0);
 
 bool initZXCmd(){
-    if(!(cmdMgr->regCmd("ZXPrint", 3, new ZXPrintCmd) && 
+    if(!(cmdMgr->regCmd("ZXMode", 3, new ZXModeCmd) && 
+         cmdMgr->regCmd("ZXNew", 3, new ZXNewCmd) && 
+         cmdMgr->regCmd("ZXRemove", 3, new ZXRemoveCmd) && 
+         cmdMgr->regCmd("ZXPrint", 3, new ZXPrintCmd) && 
          cmdMgr->regCmd("ZXTest", 3, new ZXTestCmd) && 
          cmdMgr->regCmd("ZXEdit", 3, new ZXEditCmd)
          )){
@@ -29,14 +35,139 @@ bool initZXCmd(){
 
 enum ZXCmdState{
     // Order matters! Do not change the order!!
-    ZXINIT,
-    ZXREAD,
-    ZXTEST,
+    ZXOFF,
+    ZXON,
     // dummy end
     ZXCMDTOT
 };
 
-static ZXCmdState curCmd = ZXINIT;
+static ZXCmdState curCmd = ZXOFF;
+
+//----------------------------------------------------------------------
+//    ZXMode [-ON | -OFF | -Reset | -Print]
+//----------------------------------------------------------------------
+
+CmdExecStatus
+ZXModeCmd::exec(const string &option){
+    string token;
+    if(!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    if(zxGraphMgr != 0){}
+    zxGraphMgr = new ZXGraphMgr;
+    if(token.empty() || myStrNCmp("-Print", token, 2) == 0){
+        if(curCmd == ZXON) cout << "ZX ON" << endl;
+        else if (curCmd == ZXOFF) cout << "ZX OFF" << endl;
+        else cout << "Error: curCmd loading fail... exiting" << endl;
+    }
+    else if(myStrNCmp("-ON", token, 3) == 0){
+        if(curCmd == ZXON) cout << "Error: ZXMODE is already ON" << endl;
+        else{
+            curCmd = ZXON;
+            cout << "ZXMODE turn ON!" << endl;
+        }
+    }
+    else if(myStrNCmp("-OFF", token, 4) == 0){
+        if(curCmd == ZXON){
+            curCmd = ZXOFF;
+            delete zxGraphMgr;
+            zxGraphMgr = 0;
+            cout << "ZXMODE turn OFF!" << endl;
+        }
+        else cout << "Error: ZXMODE is already OFF" << endl;
+    }
+    else if(myStrNCmp("-Reset", token, 2) == 0){
+        if(curCmd == ZXON){
+            zxGraphMgr->reset();
+            cout << "ZX is successfully RESET!" << endl;
+        } 
+        else cout << "Error: ZXMODE OFF, turn ON before RESET" << endl;
+    }
+    else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+    return CMD_EXEC_DONE;
+}
+
+void ZXModeCmd::usage(ostream &os) const{
+    os << "Usage: ZXMode [-On | -Off | -Reset | -Print]" << endl;
+}
+
+void ZXModeCmd::help() const{
+    cout << setw(15) << left << "ZXMode: " << "check out to ZX-graph mode" << endl; 
+}
+
+
+//----------------------------------------------------------------------
+//    ZXNew [size_t id]
+//----------------------------------------------------------------------
+
+CmdExecStatus
+ZXNewCmd::exec(const string &option){
+    string token;
+    if(!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    if(curCmd != ZXON){
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXNew" << endl;
+        return CMD_EXEC_ERROR;
+    }
+    if(token.empty()) zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
+    else{
+        int id; bool isNum = myStr2Int(token, id);
+        if(!isNum || id < 0){
+            cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+        }
+        else zxGraphMgr->addZXGraph(id);
+    }
+    return CMD_EXEC_DONE;
+}
+
+void ZXNewCmd::usage(ostream &os) const{
+    os << "Usage: ZXNew [size_t id]" << endl;
+}
+
+void ZXNewCmd::help() const{
+    cout << setw(15) << left << "ZXNew: " << "new ZX-graph to ZXGraphMgr" << endl; 
+}
+
+
+//----------------------------------------------------------------------
+//    ZXRemove <(size_t id)>
+//----------------------------------------------------------------------
+
+CmdExecStatus
+ZXRemoveCmd::exec(const string &option){
+    string token;
+    if(!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    if(curCmd != ZXON){
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXNew" << endl;
+        return CMD_EXEC_ERROR;
+    }
+    if(token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
+    else{
+        int id; bool isNum = myStr2Int(token, id);
+        if(!isNum){
+            cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+        }
+        if(!zxGraphMgr->isID(id)){
+            cerr << "Error: The id provided is not exist!!" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+        }
+        else zxGraphMgr->removeZXGraph(id);
+    }
+    return CMD_EXEC_DONE;
+}
+
+void ZXRemoveCmd::usage(ostream &os) const{
+    os << "Usage: ZXRemove <(size_t id)>" << endl;
+}
+
+void ZXRemoveCmd::help() const{
+    cout << setw(15) << left << "ZXNew: " << "remove ZX-graph from ZXGraphMgr" << endl; 
+}
+
+
+
+
+
+
 
 //----------------------------------------------------------------------
 //    ZXTest [-GenerateCNOT | -Empty | -Valid]
@@ -47,6 +178,10 @@ ZXTestCmd::exec(const string &option){
     // check option
    string token;
    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+   if(curCmd != ZXON){
+    cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXTest" << endl;
+    return CMD_EXEC_ERROR;
+   }
 
    if(token.empty() || myStrNCmp("-GenerateCNOT", token, 2) == 0) zxGraph->generateCNOT();
    else if(myStrNCmp("-Empty", token, 2) == 0){
@@ -231,3 +366,4 @@ void ZXEditCmd::usage(ostream &os) const{
 void ZXEditCmd::help() const{
     cout << setw(15) << left << "ZXEdit: " << "edit ZX-graph" << endl;
 }
+
