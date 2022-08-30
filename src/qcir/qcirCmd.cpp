@@ -21,13 +21,13 @@ extern int effLimit;
 
 bool initQCirCmd()
 {
-   if (!(cmdMgr->regCmd("QCREad", 4, new QCirReadCmd) &&
-         cmdMgr->regCmd("QCPrint", 3, new QCirPrintCmd) &&
-         cmdMgr->regCmd("QCAGate", 4, new QCirAppendGateCmd) &&
-         cmdMgr->regCmd("QCAQubit", 4, new QCirAddQubitCmd) &&
-         cmdMgr->regCmd("QCRGate", 4, new QCirRemoveGateCmd) &&
-         cmdMgr->regCmd("QCRQubit", 4, new QCirRemoveQubitCmd) &&
-         cmdMgr->regCmd("QGPrint", 3, new QGatePrintCmd)
+   if (!(cmdMgr->regCmd("QCCRead", 4, new QCirReadCmd) &&
+         cmdMgr->regCmd("QCCPrint", 4, new QCirPrintCmd) &&
+         cmdMgr->regCmd("QCGAdd", 4, new QCirAppendGateCmd) &&
+         cmdMgr->regCmd("QCBAdd", 4, new QCirAddQubitCmd) &&
+         cmdMgr->regCmd("QCGDelete", 4, new QCirDeleteGateCmd) &&
+         cmdMgr->regCmd("QCBDelete", 4, new QCirDeleteQubitCmd) &&
+         cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd)
          //&& cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
          ))
    {
@@ -66,8 +66,9 @@ static QCirCmdState curCmd = QCIRINIT;
 //    cout << setw(15) << left << "QCT: "
 //         << "Test what function you want (for developement)" << endl;
 // }
+
 //----------------------------------------------------------------------
-//    QCREad <(string fileName)> [-Replace]
+//    QCCRead <(string fileName)> [-Replace]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirReadCmd::exec(const string &option)
@@ -129,20 +130,20 @@ QCirReadCmd::exec(const string &option)
 
 void QCirReadCmd::usage(ostream &os) const
 {
-   os << "Usage: QCREad <(string fileName)> [-Replace]" << endl;
+   os << "Usage: QCCRead <(string fileName)> [-Replace]" << endl;
 }
 
 void QCirReadCmd::help() const
 {
-   cout << setw(15) << left << "QCREad: "
+   cout << setw(15) << left << "QCCRead: "
         << "read in a circuit and construct the netlist" << endl;
 }
 
 //----------------------------------------------------------------------
-//    QGPrint <(size_t gateID)> [-Time]
+//    QCGPrint <(size_t gateID)> [-Time]
 //----------------------------------------------------------------------
 CmdExecStatus
-QGatePrintCmd::exec(const string &option)
+QCirGatePrintCmd::exec(const string &option)
 {
    // check option
    if (!qCirMgr)
@@ -194,19 +195,19 @@ QGatePrintCmd::exec(const string &option)
    return CMD_EXEC_DONE;
 }
 
-void QGatePrintCmd::usage(ostream &os) const
+void QCirGatePrintCmd::usage(ostream &os) const
 {
-   os << "Usage: QGPrint <(size_t gateID)> [-Time]" << endl;
+   os << "Usage: QCGPrint <(size_t gateID)> [-Time]" << endl;
 }
 
-void QGatePrintCmd::help() const
+void QCirGatePrintCmd::help() const
 {
-   cout << setw(15) << left << "QGPrint: "
+   cout << setw(15) << left << "QCGPrint: "
         << "print quanutm gate information\n";
 }
 
 //----------------------------------------------------------------------
-//    QCPrint [-List | -Qubit]
+//    QCCPrint [-List | -Qubit]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirPrintCmd::exec(const string &option)
@@ -233,17 +234,17 @@ QCirPrintCmd::exec(const string &option)
 
 void QCirPrintCmd::usage(ostream &os) const
 {
-   os << "Usage: QCPrint [-List | -Qubit]" << endl;
+   os << "Usage: QCCPrint [-List | -Qubit]" << endl;
 }
 
 void QCirPrintCmd::help() const
 {
-   cout << setw(15) << left << "QCPrint: "
+   cout << setw(15) << left << "QCCPrint: "
         << "print quanutm circuit\n";
 }
 
 //----------------------------------------------------------------------
-//    QCAGate <(string gateType)> <(size_t bit(s))>
+//    QCGAdd <(string gateType)> <(size_t bit(s))>
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirAppendGateCmd::exec(const string &option)
@@ -261,7 +262,7 @@ QCirAppendGateCmd::exec(const string &option)
 
    if (!qCirMgr)
    {
-      cerr << "Error: no available qubits. Please read a quantum circuit or add qubit(e)!!" << endl;
+      cerr << "Error: no available qubits. Please read a quantum circuit or add qubit(s)!!" << endl;
       return CMD_EXEC_ERROR;
    }
 
@@ -303,19 +304,19 @@ QCirAppendGateCmd::exec(const string &option)
 
 void QCirAppendGateCmd::usage(ostream &os) const
 {
-   os << "Usage: QCAGate <(string gateType)> <(size_t bit(s))>" << endl;
-   os << "E.g. : QCAGate cx 0 1" << endl;
-   os << "E.g. : QCAGate x 2" << endl;
+   os << "Usage: QCGAdd <(string gateType)> <(size_t bit(s))>" << endl;
+   os << "E.g. : QCGAdd cx 0 1" << endl;
+   os << "E.g. : QCGAdd x 2" << endl;
 }
 
 void QCirAppendGateCmd::help() const
 {
-   cout << setw(15) << left << "QCAGate: "
+   cout << setw(15) << left << "QCGAdd: "
         << "append quantum gate\n";
 }
 
 //----------------------------------------------------------------------
-//    QCAQubit [size_t addNum]
+//    QCBAdd [size_t addNum]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirAddQubitCmd::exec(const string &option)
@@ -356,20 +357,20 @@ QCirAddQubitCmd::exec(const string &option)
 
 void QCirAddQubitCmd::usage(ostream &os) const
 {
-   os << "Usage: QCAQubit [size_t addNum] " << endl;
+   os << "Usage: QCBAdd [size_t addNum] " << endl;
 }
 
 void QCirAddQubitCmd::help() const
 {
-   cout << setw(15) << left << "QCAAnci: "
+   cout << setw(15) << left << "QCBAdd: "
         << "add qubit bit(s)\n";
 }
 
 //----------------------------------------------------------------------
-//    QCRGate <(size_t gateID)>
+//    QCGDelete <(size_t gateID)>
 //----------------------------------------------------------------------
 CmdExecStatus
-QCirRemoveGateCmd::exec(const string &option)
+QCirDeleteGateCmd::exec(const string &option)
 {
    // check option
    string token;
@@ -401,22 +402,22 @@ QCirRemoveGateCmd::exec(const string &option)
       return CMD_EXEC_DONE;
 }
 
-void QCirRemoveGateCmd::usage(ostream &os) const
+void QCirDeleteGateCmd::usage(ostream &os) const
 {
-   os << "Usage: QCRGate <(size_t gateID)> " << endl;
+   os << "Usage: QCGDelete <(size_t gateID)> " << endl;
 }
 
-void QCirRemoveGateCmd::help() const
+void QCirDeleteGateCmd::help() const
 {
-   cout << setw(15) << left << "QCRGate: "
-        << "remove a gate\n";
+   cout << setw(15) << left << "QCGDelete: "
+        << "delete a gate\n";
 }
 
 //----------------------------------------------------------------------
-//    QCRQubit <(size_t qubitID)>
+//    QCBDelete <(size_t qubitID)>
 //----------------------------------------------------------------------
 CmdExecStatus
-QCirRemoveQubitCmd::exec(const string &option)
+QCirDeleteQubitCmd::exec(const string &option)
 {
    // check option
    string token;
@@ -448,15 +449,15 @@ QCirRemoveQubitCmd::exec(const string &option)
       return CMD_EXEC_DONE;
 }
 
-void QCirRemoveQubitCmd::usage(ostream &os) const
+void QCirDeleteQubitCmd::usage(ostream &os) const
 {
-   os << "Usage: QCRQubit <(size_t qubitID)> " << endl;
+   os << "Usage: QCBDelete <(size_t qubitID)> " << endl;
 }
 
-void QCirRemoveQubitCmd::help() const
+void QCirDeleteQubitCmd::help() const
 {
-   cout << setw(15) << left << "QCRQubit: "
-        << "remove an empty qubit\n";
+   cout << setw(15) << left << "QCBDelete: "
+        << "delete an empty qubit\n";
 }
 // //----------------------------------------------------------------------
 // //    CIRGate <<(int gateId)> [<-FANIn | -FANOut><(int level)>]>
