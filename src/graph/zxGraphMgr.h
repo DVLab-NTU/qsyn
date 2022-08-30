@@ -38,6 +38,9 @@ class ZXGraphMgr{
         void addZXGraph(size_t id);
         void removeZXGraph(size_t id);
 
+        // Action
+        void checkout2ZXGraph(size_t id);
+
     private:
         size_t                          _nextID;
         vector<ZXGraph* >               _graphList;

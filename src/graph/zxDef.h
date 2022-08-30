@@ -14,6 +14,6 @@
 using namespace std;
 
 class ZXGraph;
-class ZXMgr;
+class ZXGraphMgr;
 
-#endif
+#endif // ZX_DEF_H

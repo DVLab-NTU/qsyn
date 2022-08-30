@@ -59,6 +59,20 @@ void ZXGraphMgr::removeZXGraph(size_t id){
 }
 
 
+// Action
+
+void ZXGraphMgr::checkout2ZXGraph(size_t id){
+  for(size_t i = 0; i < _graphList.size(); i++){
+    if(_graphList[i]->getId() == id){
+      _gListItr = _graphList.begin() + i;
+      cout << "Checkout to Graph " << id << endl;
+      return;
+    }
+  }
+  cerr << "Error: The id provided is not exist!!" << endl;
+  return;
+}
+
 
 
 

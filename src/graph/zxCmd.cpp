@@ -23,6 +23,7 @@ bool initZXCmd(){
     if(!(cmdMgr->regCmd("ZXMode", 3, new ZXModeCmd) && 
          cmdMgr->regCmd("ZXNew", 3, new ZXNewCmd) && 
          cmdMgr->regCmd("ZXRemove", 3, new ZXRemoveCmd) && 
+         cmdMgr->regCmd("ZXCheckout", 3, new ZXCheckoutCmd) && 
          cmdMgr->regCmd("ZXPrint", 3, new ZXPrintCmd) && 
          cmdMgr->regCmd("ZXTest", 3, new ZXTestCmd) && 
          cmdMgr->regCmd("ZXEdit", 3, new ZXEditCmd)
@@ -136,7 +137,7 @@ ZXRemoveCmd::exec(const string &option){
     string token;
     if(!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     if(curCmd != ZXON){
-        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXNew" << endl;
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXRemove" << endl;
         return CMD_EXEC_ERROR;
     }
     if(token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
@@ -160,8 +161,46 @@ void ZXRemoveCmd::usage(ostream &os) const{
 }
 
 void ZXRemoveCmd::help() const{
-    cout << setw(15) << left << "ZXNew: " << "remove ZX-graph from ZXGraphMgr" << endl; 
+    cout << setw(15) << left << "ZXRemove: " << "remove ZX-graph from ZXGraphMgr" << endl; 
 }
+
+
+//----------------------------------------------------------------------
+//    ZXCheckout <(size_t id)>
+//----------------------------------------------------------------------
+
+CmdExecStatus
+ZXCheckoutCmd::exec(const string &option){
+    string token;
+    if(!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    if(curCmd != ZXON){
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXCheckout" << endl;
+        return CMD_EXEC_ERROR;
+    }
+    if(token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
+    else{
+        int id; bool isNum = myStr2Int(token, id);
+        if(!isNum){
+            cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+        }
+        if(!zxGraphMgr->isID(id)){
+            cerr << "Error: The id provided is not exist!!" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+        }
+        else zxGraphMgr->checkout2ZXGraph(id);
+    }
+    return CMD_EXEC_DONE;
+}
+
+void ZXCheckoutCmd::usage(ostream &os) const{
+    os << "Usage: ZXCheckout <(size_t id)>" << endl;
+}
+
+void ZXCheckoutCmd::help() const{
+    cout << setw(15) << left << "ZXCheckout: " << "Checkout to Graph <id> in ZXGraphMgr" << endl; 
+}
+
 
 
 
