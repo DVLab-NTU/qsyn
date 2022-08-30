@@ -1,5 +1,5 @@
 REFPKGS   = cmd
-SRCPKGS   = qcir util
+SRCPKGS   = qcir util graph
 LIBPKGS   = $(REFPKGS) $(SRCPKGS)
 MAIN      = main
 TESTMAIN  = test
