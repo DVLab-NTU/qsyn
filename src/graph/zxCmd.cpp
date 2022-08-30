@@ -210,13 +210,14 @@ void ZXCheckoutCmd::help() const{
 
 CmdExecStatus
 ZXTestCmd::exec(const string &option){
+    if(curCmd != ZXON){
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXTest." << endl;
+        return CMD_EXEC_ERROR;
+    }
     // check option
-   string token;
-   if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-   if(curCmd != ZXON){
-    cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXTest." << endl;
-    return CMD_EXEC_ERROR;
-   }
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+   
     // TODO: check existence
    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
     cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXTest." << endl;
@@ -252,9 +253,15 @@ void ZXTestCmd::help() const{
 
 CmdExecStatus
 ZXPrintCmd::exec(const string &option){
-   // check option
-   string token;
-   if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    if(curCmd != ZXON){
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXPrint." << endl;
+        return CMD_EXEC_ERROR;
+    }
+    // check option
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+
+   
 
    // TODO: check existence
    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
@@ -290,11 +297,17 @@ void ZXPrintCmd::help() const{
 
 CmdExecStatus
 ZXEditCmd::exec(const string &option){
+    if(curCmd != ZXON){
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXEdit." << endl;
+        return CMD_EXEC_ERROR;
+    }
     // check option
     vector<string> options;
     if(!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
     if(options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
     if(options.size() == 1) return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
+
+    
 
     // TODO: check existence
    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){

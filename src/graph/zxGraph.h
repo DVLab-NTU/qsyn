@@ -15,7 +15,7 @@
 using namespace std;
 
 
-class VT;
+class ZXVertex;
 class ZXGraph;
 enum class VertexType;
 enum class EdgeType;
@@ -45,33 +45,33 @@ template<typename T> ostream& operator<<(typename enable_if<is_enum<T>::value, o
 }
 
 
-class VT{
+class ZXVertex{
     public:
-        VT(size_t id, int qubit, VertexType vt) {
+        ZXVertex(size_t id, int qubit, VertexType ZXVertex) {
             _id = id;
             _qubit = qubit;
-            _type = vt;
+            _type = ZXVertex;
         }
-        ~VT(){}
+        ~ZXVertex(){}
 
         // Getter and Setter
         size_t getId() const { return _id; }
         int getQubit() const { return _qubit; }
         VertexType getType() const { return _type; }
         rationalNumber getPhase() const { return _phase; }
-        vector<pair<VT*, EdgeType> > getNeighbors() const { return _neighbors; }
-        pair<VT*, EdgeType> getNeighborById(size_t id) const;
+        vector<pair<ZXVertex*, EdgeType> > getNeighbors() const { return _neighbors; }
+        pair<ZXVertex*, EdgeType> getNeighborById(size_t id) const;
 
         void setId(size_t id) { _id = id; }
         void setQubit(int q) {_qubit = q; }
-        void setType(VertexType vt) { _type = vt; }
+        void setType(VertexType ZXVertex) { _type = ZXVertex; }
         void setPhase(rationalNumber p) { _phase = p; }
-        void setNeighbors(vector<pair<VT*, EdgeType> > neighbors){ _neighbors = neighbors; }
+        void setNeighbors(vector<pair<ZXVertex*, EdgeType> > neighbors){ _neighbors = neighbors; }
 
 
         // Add and Remove
-        void addNeighbor(pair<VT*, EdgeType> neighbor) { _neighbors.push_back(neighbor); }
-        void removeNeighbor(pair<VT*, EdgeType> neighbor);
+        void addNeighbor(pair<ZXVertex*, EdgeType> neighbor) { _neighbors.push_back(neighbor); }
+        void removeNeighbor(pair<ZXVertex*, EdgeType> neighbor);
         void removeNeighborById(size_t id);
 
 
@@ -81,7 +81,7 @@ class VT{
 
 
         // Test
-        bool isNeighbor(VT* v) const;
+        bool isNeighbor(ZXVertex* v) const;
         bool isNeighborById(size_t id) const;
         
         
@@ -90,7 +90,7 @@ class VT{
         size_t                                      _id;
         VertexType                                  _type;
         rationalNumber                              _phase;
-        vector<pair<VT*, EdgeType> >                _neighbors;
+        vector<pair<ZXVertex*, EdgeType> >                _neighbors;
 };
 
 
@@ -108,20 +108,20 @@ class ZXGraph{
         // Getter and Setter
         void setId(size_t id) { _id = id; }
         void setQubitCount(size_t c) { _nqubit = c; }
-        void setInputs(vector<VT*> inputs) { _inputs = inputs; }
-        void setOutputs(vector<VT*> outputs) { _outputs = outputs; }
-        void setVertices(vector<VT*> vertices) { _vertices = vertices; }
-        void setEdges(vector<pair<pair<VT*, VT*>, EdgeType> > edges) { _edges = edges; }
+        void setInputs(vector<ZXVertex*> inputs) { _inputs = inputs; }
+        void setOutputs(vector<ZXVertex*> outputs) { _outputs = outputs; }
+        void setVertices(vector<ZXVertex*> vertices) { _vertices = vertices; }
+        void setEdges(vector<pair<pair<ZXVertex*, ZXVertex*>, EdgeType> > edges) { _edges = edges; }
         
         size_t getId() const { return _id; }
         size_t getQubitCount() const { return _nqubit; }
-        vector<VT*> getInputs() const { return _inputs; }
+        vector<ZXVertex*> getInputs() const { return _inputs; }
         size_t getNumInputs() const { return _inputs.size(); }
-        vector<VT*> getOutputs() const { return _outputs; }
+        vector<ZXVertex*> getOutputs() const { return _outputs; }
         size_t getNumOutputs() const { return _outputs.size(); }
-        vector<VT*> getVertices() const { return _vertices; }
+        vector<ZXVertex*> getVertices() const { return _vertices; }
         size_t getNumVertices() const { return _vertices.size(); }
-        vector<pair<pair<VT*, VT*>, EdgeType> > getEdges() const { return _edges; }
+        vector<pair<pair<ZXVertex*, ZXVertex*>, EdgeType> > getEdges() const { return _edges; }
         size_t getNumEdges() const { return _edges.size(); }
 
 
@@ -130,24 +130,24 @@ class ZXGraph{
         void generateCNOT();
         bool isEmpty() const;
         bool isValid() const;
-        bool isConnected(VT* v1, VT* v2) const;
+        bool isConnected(ZXVertex* v1, ZXVertex* v2) const;
         bool isId(size_t id) const;
 
 
 
         // Add and Remove
-        void addInput(size_t id, int qubit, VertexType vt);
-        void addOutput(size_t id, int qubit, VertexType vt);
-        void addVertex(size_t id, int qubit, VertexType vt);
+        void addInput(size_t id, int qubit, VertexType ZXVertex);
+        void addOutput(size_t id, int qubit, VertexType ZXVertex);
+        void addVertex(size_t id, int qubit, VertexType ZXVertex);
         void addEdgeById(size_t id_s, size_t id_t, EdgeType et);
-        void removeVertex(VT* v);
+        void removeVertex(ZXVertex* v);
         void removeVertexById(size_t id);
         void removeIsolatedVertices();
         void removeEdgeById(size_t id_s, size_t id_t);
 
         
         // Find functions
-        VT* findVertexById(size_t id) const;
+        ZXVertex* findVertexById(size_t id) const;
 
         // Print functions
         void printGraph() const;
@@ -160,10 +160,10 @@ class ZXGraph{
     private:
         size_t                                              _id;
         size_t                                              _nqubit;
-        vector<VT*>                                         _inputs;
-        vector<VT*>                                         _outputs;
-        vector<VT*>                                         _vertices;
-        vector<pair<pair<VT*, VT*>, EdgeType> >             _edges;
+        vector<ZXVertex*>                                         _inputs;
+        vector<ZXVertex*>                                         _outputs;
+        vector<ZXVertex*>                                         _vertices;
+        vector<pair<pair<ZXVertex*, ZXVertex*>, EdgeType> >             _edges;
 
 };
 
