@@ -1,0 +1,47 @@
+qsyn> zxmode
+ZX OFF
+
+qsyn> zxnew
+
+qsyn> zxcheckout
+
+qsyn> zxtest
+
+qsyn> zxprint
+
+qsyn> zxedit
+
+qsyn> zxmode -on
+ZXMODE turn ON!
+
+qsyn> zxmode
+ZX ON
+
+qsyn> zxtest
+
+qsyn> zxprint
+
+qsyn> zxedit
+
+qsyn> zxnew
+Successfully generate Graph 0
+Checkout to Graph 0
+
+qsyn> zxtest -generateCNOT
+Generate a 2-qubit CNOT graph for testing
+
+qsyn> zxprint
+Graph 0
+Inputs:        2
+Outputs:       2
+Vertices:      6
+Edges:         5
+
+qsyn> zxmode -reset
+ZX is successfully RESET!
+
+qsyn> zxmode
+ZX ON
+
+qsyn> q -f
+
