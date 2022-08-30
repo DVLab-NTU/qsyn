@@ -1,8 +1,7 @@
 *.o
 .vscode
-
+bin/*
 lib/*
-
 !lib/
 !lib/lib.d
 !lib/libcmd-*
