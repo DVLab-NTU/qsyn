@@ -214,20 +214,26 @@ ZXTestCmd::exec(const string &option){
    string token;
    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
    if(curCmd != ZXON){
-    cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXTest" << endl;
+    cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXTest." << endl;
     return CMD_EXEC_ERROR;
    }
-
-   if(token.empty() || myStrNCmp("-GenerateCNOT", token, 2) == 0) zxGraphMgr->getGraph()->generateCNOT();
-   else if(myStrNCmp("-Empty", token, 2) == 0){
-    if(zxGraphMgr->getGraph()->isEmpty()) cout << "This graph is empty!" << endl;
-    else cout << "This graph is not empty!" << endl;
+    // TODO: check existence
+   if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
+    cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXTest." << endl;
+    return CMD_EXEC_ERROR;
    }
-   else if(myStrNCmp("-Valid", token, 2) == 0){
-    if(zxGraphMgr->getGraph()->isValid()) cout << "This graph is valid!" << endl;
-    else cout << "This graph is invalid!" << endl;
+   else{
+    if(token.empty() || myStrNCmp("-GenerateCNOT", token, 2) == 0) zxGraphMgr->getGraph()->generateCNOT();
+    else if(myStrNCmp("-Empty", token, 2) == 0){
+        if(zxGraphMgr->getGraph()->isEmpty()) cout << "This graph is empty!" << endl;
+        else cout << "This graph is not empty!" << endl;
+    }
+    else if(myStrNCmp("-Valid", token, 2) == 0){
+        if(zxGraphMgr->getGraph()->isValid()) cout << "This graph is valid!" << endl;
+        else cout << "This graph is invalid!" << endl;
+    }
+    else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    }
-   else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    return CMD_EXEC_DONE;
 }
 
@@ -249,6 +255,12 @@ ZXPrintCmd::exec(const string &option){
    // check option
    string token;
    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+
+   // TODO: check existence
+   if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
+    cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXPrint." << endl;
+    return CMD_EXEC_ERROR;
+   }
 
    if(token.empty() || myStrNCmp("-Summary", token, 2) == 0) zxGraphMgr->getGraph()->printGraph();
    else if (myStrNCmp("-Inputs", token, 2) == 0) zxGraphMgr->getGraph()->printInputs();
@@ -283,6 +295,12 @@ ZXEditCmd::exec(const string &option){
     if(!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
     if(options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
     if(options.size() == 1) return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
+
+    // TODO: check existence
+   if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
+    cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXEdit." << endl;
+    return CMD_EXEC_ERROR;
+   }
 
     string action = options[0];
     if (myStrNCmp("-RMVertex", action, 4) == 0){

@@ -17,7 +17,10 @@
 extern ZXGraphMgr *zxGraphMgr;
 using namespace std;
 
+typedef vector<ZXGraph* > ZXGraphList;
+
 class ZXGraphMgr{
+    
     public:
         ZXGraphMgr(){
             _graphList.clear();
@@ -31,6 +34,8 @@ class ZXGraphMgr{
         bool isID(size_t id) const;
 
         // Setter and Getter
+        ZXGraphList getGraphList() const { return _graphList; }
+        ZXGraphList::iterator getgListItr() const { return _gListItr; }
         size_t getNextID() const { return _nextID; }
         ZXGraph* getGraph() const { return _graphList[_gListItr - _graphList.begin()]; }
         void setNextID(size_t id) { _nextID = id; }
@@ -45,12 +50,9 @@ class ZXGraphMgr{
 
     private:
         size_t                          _nextID;
-        vector<ZXGraph* >               _graphList;
-        vector<ZXGraph* >::iterator     _gListItr;
-
+        ZXGraphList                     _graphList;
+        ZXGraphList::iterator           _gListItr;
 };
-
-
 
 
 #endif // ZX_GRAPH_MGR_H
