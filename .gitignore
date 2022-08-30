@@ -6,3 +6,6 @@ lib/*
 !lib/lib.d
 !lib/libcmd-*
 !lib/libcmd.a
+
+src/*/.depend.mak
+src/*/.extheader.mak
