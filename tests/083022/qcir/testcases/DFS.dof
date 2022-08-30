@@ -1,0 +1,24 @@
+qccr benchmark_SABRE/small/3_17_13.qasm
+qccp -q
+qcgp 1 -t
+qccp -q
+qcgp 3 -t
+qcgd 1
+qcgp 3 -t
+qccp -q
+qcgp 33 -t
+qcgd 8
+qcgd 10
+qcba 3
+qccp -q
+qcga cx 0 4
+qcga h 5
+qcbd 3
+qcba 2
+qcgp 36 -t
+qccp -q
+qcga tdg 6
+qcbd 6
+qcbd 7
+qccp -q
+q -f
