@@ -9,6 +9,8 @@
 #include <ctype.h>
 #include <cstring>
 #include <cassert>
+#include <exception>
+#include <iostream>
 
 using namespace std;
 
@@ -78,8 +80,8 @@ myStr2Int(const string& str, int& num)
    return valid;
 }
 
-// Convert string "str" to integer "num". Return false if str does not appear
-// to be a number
+// Convert string "str" to unsigned integer "unsnum". Return false if str does not appear
+// to be an unsigned number
 bool
 myStr2Uns(const string& str, unsigned& unsnum)
 {
@@ -90,6 +92,40 @@ myStr2Uns(const string& str, unsigned& unsnum)
    unsnum = (unsigned int)num;
    return true;
 }
+
+bool
+myStr2Float(const string& str, float& f) {
+    f = 0;
+    try {
+        f = std::stod(str);
+    } catch (const std::exception& e) {
+        return false;
+    }
+    return true;
+}
+
+bool
+myStr2Double(const string& str, double& f) {
+    f = 0;
+    try {
+        f = std::stod(str);
+    } catch (const std::exception& e) {
+        return false;
+    }
+    return true;
+}
+
+bool
+myStr2LongDouble(const string& str, long double& f) {
+    f = 0;
+    try {
+        f = std::stod(str);
+    } catch (const std::exception& e) {
+        return false;
+    }
+    return true;
+}
+
 // Valid var name is ---
 // 1. starts with [a-zA-Z_]
 // 2. others, can only be [a-zA-Z0-9_]

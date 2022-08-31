@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include "phase.h"
+#include "util.h"
 #include <cassert>
 
 PhaseUnit Phase::_printUnit = PhaseUnit::PI;
@@ -67,8 +68,6 @@ long double Phase::toLongDouble() {
 
 void Phase::normalize() {
     Rational factor = (_rational / 2);
-    std::cout << "rational = " << _rational << std::endl;
-    std::cout << "normalize factor = " << factor << std::endl;
     int integralPart = std::floor(factor.toFloat());
     _rational -= (integralPart * 2);
 }
