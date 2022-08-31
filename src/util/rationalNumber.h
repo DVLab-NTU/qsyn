@@ -22,6 +22,7 @@
 class Rational {
 public: 
     // Default constructor for two integral type
+    Rational(): _numer(0), _denom(1) {}
     Rational(int n, int d): _numer(n), _denom(d) { normalize(); }
     // Implicitly use 1 as denominator
     template <class T> requires std::floating_point<T>

@@ -9,6 +9,8 @@
 #include <ctype.h>
 #include <cstring>
 #include <cassert>
+#include <exception>
+#include <iostream>
 
 using namespace std;
 
@@ -76,6 +78,39 @@ myStr2Int(const string& str, int& num)
    }
    num *= sign;
    return valid;
+}
+
+bool
+myStr2Float(const string& str, float& f) {
+    f = 0;
+    try {
+        f = std::stod(str);
+    } catch (const std::exception& e) {
+        return false;
+    }
+    return true;
+}
+
+bool
+myStr2Double(const string& str, double& f) {
+    f = 0;
+    try {
+        f = std::stod(str);
+    } catch (const std::exception& e) {
+        return false;
+    }
+    return true;
+}
+
+bool
+myStr2LongDouble(const string& str, long double& f) {
+    f = 0;
+    try {
+        f = std::stod(str);
+    } catch (const std::exception& e) {
+        return false;
+    }
+    return true;
 }
 
 // Valid var name is ---
