@@ -80,6 +80,19 @@ myStr2Int(const string& str, int& num)
    return valid;
 }
 
+// Convert string "str" to unsigned integer "unsnum". Return false if str does not appear
+// to be an unsigned number
+bool
+myStr2Uns(const string& str, unsigned& unsnum)
+{
+   int num = 0;
+   bool isNum = myStr2Int(str, num);
+   if(!isNum || num < 0)
+      return false;
+   unsnum = (unsigned int)num;
+   return true;
+}
+
 bool
 myStr2Float(const string& str, float& f) {
     f = 0;

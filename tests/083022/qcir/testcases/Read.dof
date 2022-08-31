@@ -1,0 +1,21 @@
+qccr benchmark_SABRE/large/root_255.qasm
+qccp
+qccp -Q
+usage
+qccr benchmark_SABRE/small/4gt13_92.qasm -R
+qccprint
+qccprint -Q
+qcga cx 1 0
+qcba 2
+qcga cx 4 6
+qccp -q
+usage
+qcbd 6
+qcbd 5
+qccp -q
+qcga x 5
+qcba 2
+qccp -q
+qcga cx 7 8
+qccp -q
+q -f

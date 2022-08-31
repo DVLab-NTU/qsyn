@@ -1,9 +1,0 @@
-qcre benchmark_SABRE/small/3_17_13.qasm
-qcp -q
-qgp 1
-qgp 26 -T
-qcrg 24
-qgp 24
-qgp 26
-qgp 26 -T
-q -f

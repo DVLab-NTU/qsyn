@@ -1,7 +1,0 @@
-qcre benchmark_SABRE/small/3_17_13.qasm
-qcp -q
-qct
-qcp -q
-qct
-qcp -q
-q -f

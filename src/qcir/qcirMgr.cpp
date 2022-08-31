@@ -36,8 +36,10 @@ QCirQubit *QCirMgr::getQubit(size_t id) const
     }
     return NULL;
 }
-void QCirMgr::printSummary() const
+void QCirMgr::printSummary()
 {
+    if (_dirty)
+        updateGateTime();
     cout << "Follow QASM file (Topological order)" << endl;
     for (size_t i = 0; i < _qgate.size(); i++)
     {
@@ -150,9 +152,12 @@ bool QCirMgr::removeQubit(size_t id)
     }
 }
 
-void QCirMgr::appendGate(string type, vector<size_t> bits)
+void QCirMgr::addGate(string type, vector<size_t> bits, bool append)
 {
     QCirGate *temp = NULL;
+    for_each(type.begin(), type.end(), [](char & c) {
+        c = ::tolower(c);
+    });
     if (type == "h")
         temp = new HGate(_gateId);
     else if (type == "z")
@@ -177,31 +182,49 @@ void QCirMgr::appendGate(string type, vector<size_t> bits)
         temp = new CCXGate(_gateId);
     // Note: rz and p has a little difference
     else if (type == "rz")
-        temp = new CnRZGate(_gateId, 0);
+        temp = new PGate(_gateId, 0);
     else
     {
         cerr << "The gate is not implement";
+        return;
     }
-
-    size_t max_time = 0;
-    for (size_t k = 0; k < bits.size(); k++)
-    {
-        size_t q = bits[k];
-        temp->addQubit(q, k == bits.size() - 1);
-        QCirQubit *target = getQubit(q);
-        if (target->getLast() != NULL)
+    if(append){
+        size_t max_time = 0;
+        for (size_t k = 0; k < bits.size(); k++)
         {
-            temp->setParent(q, target->getLast());
-            target->getLast()->setChild(q, temp);
-            if ((target->getLast()->getTime() + 1) > max_time)
-                max_time = target->getLast()->getTime() + 1;
+            size_t q = bits[k];
+            temp->addQubit(q, k == bits.size() - 1); // target is the last one
+            QCirQubit *target = getQubit(q);
+            if (target->getLast() != NULL)
+            {
+                temp->setParent(q, target->getLast());
+                target->getLast()->setChild(q, temp);
+                if ((target->getLast()->getTime() + 1) > max_time)
+                    max_time = target->getLast()->getTime() + 1;
+            }
+            else
+                target->setFirst(temp);
+            target->setLast(temp);
         }
-        else
-            target->setFirst(temp);
-        target->setLast(temp);
+        temp->setTime(max_time);
     }
-    temp->setTime(max_time);
-
+    else{
+        for (size_t k = 0; k < bits.size(); k++)
+        {
+            size_t q = bits[k];
+            temp->addQubit(q, k == bits.size() - 1); // target is the last one
+            QCirQubit *target = getQubit(q);
+            if(target->getFirst()!=NULL)
+            {
+                temp->setChild(q, target->getFirst());
+                target->getFirst()->setParent(q, temp);
+            }
+            else
+                target->setLast(temp);
+            target->setFirst(temp);
+        }
+        _dirty = true;
+    }
     _qgate.push_back(temp);
     _gateId++;
 }
@@ -279,7 +302,7 @@ bool QCirMgr::parseQASM(string filename)
                 size_t q = stoul(singleQubitId);
                 vector<size_t> pin_id;
                 pin_id.push_back(q); // targ
-                appendGate(type, pin_id);
+                addGate(type, pin_id, true);
             }
             else
             {
@@ -307,7 +330,7 @@ bool QCirMgr::parseQASM(string filename)
             vector<size_t> pin_id;
             pin_id.push_back(q1); // ctrl
             pin_id.push_back(q2); // targ
-            appendGate(type, pin_id);
+            addGate(type, pin_id, true);
         }
     }
     return true;
