@@ -13,6 +13,7 @@
 #include "qcirGate.h"
 #include "qcirCmd.h"
 #include "util.h"
+#include "phase.h"
 
 using namespace std;
 
@@ -327,6 +328,7 @@ QCirAddGateCmd::exec(const string &option)
       qCirMgr->addGate(type, qubits, appendGate);
    }
    else if (myStrNCmp("-RZ", type, 3) == 0){
+      Phase phase;
       if(options.size()==1){
          cerr << "Error: missing -Phase flag!!" << endl;
          return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
@@ -343,6 +345,11 @@ QCirAddGateCmd::exec(const string &option)
             }
             else{
                // Check Phase Legal
+               if(!phase.fromString(options[2])){
+                  cerr << "Error: not a legal phase!!" << endl;
+                  return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[2]);
+               }
+               cout << "Phase: " <<phase << endl;
             }
          }
       }
