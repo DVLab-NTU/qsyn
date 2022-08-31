@@ -310,7 +310,7 @@ QCirAddGateCmd::exec(const string &option)
          return CmdExec::errorOption(CMD_OPT_MISSING, options[options.size()-1]);
       if (options.size() > 3)
          return CmdExec::errorOption(CMD_OPT_EXTRA, options[3]);
-      for(size_t i=0; i<options.size(); i++){
+      for(size_t i=1; i<options.size(); i++){
          unsigned id;
          if(!myStr2Uns(options[i],id)){
             cerr << "Error: target ID should be a positive integer!!" << endl;

@@ -36,8 +36,10 @@ QCirQubit *QCirMgr::getQubit(size_t id) const
     }
     return NULL;
 }
-void QCirMgr::printSummary() const
+void QCirMgr::printSummary()
 {
+    if (_dirty)
+        updateGateTime();
     cout << "Follow QASM file (Topological order)" << endl;
     for (size_t i = 0; i < _qgate.size(); i++)
     {
@@ -186,26 +188,43 @@ void QCirMgr::addGate(string type, vector<size_t> bits, bool append)
         cerr << "The gate is not implement";
         return;
     }
-
-    size_t max_time = 0;
-    for (size_t k = 0; k < bits.size(); k++)
-    {
-        size_t q = bits[k];
-        temp->addQubit(q, k == bits.size() - 1);
-        QCirQubit *target = getQubit(q);
-        if (target->getLast() != NULL)
+    if(append){
+        size_t max_time = 0;
+        for (size_t k = 0; k < bits.size(); k++)
         {
-            temp->setParent(q, target->getLast());
-            target->getLast()->setChild(q, temp);
-            if ((target->getLast()->getTime() + 1) > max_time)
-                max_time = target->getLast()->getTime() + 1;
+            size_t q = bits[k];
+            temp->addQubit(q, k == bits.size() - 1); // target is the last one
+            QCirQubit *target = getQubit(q);
+            if (target->getLast() != NULL)
+            {
+                temp->setParent(q, target->getLast());
+                target->getLast()->setChild(q, temp);
+                if ((target->getLast()->getTime() + 1) > max_time)
+                    max_time = target->getLast()->getTime() + 1;
+            }
+            else
+                target->setFirst(temp);
+            target->setLast(temp);
         }
-        else
-            target->setFirst(temp);
-        target->setLast(temp);
+        temp->setTime(max_time);
     }
-    temp->setTime(max_time);
-
+    else{
+        for (size_t k = 0; k < bits.size(); k++)
+        {
+            size_t q = bits[k];
+            temp->addQubit(q, k == bits.size() - 1); // target is the last one
+            QCirQubit *target = getQubit(q);
+            if(target->getFirst()!=NULL)
+            {
+                temp->setChild(q, target->getFirst());
+                target->getFirst()->setParent(q, temp);
+            }
+            else
+                target->setLast(temp);
+            target->setFirst(temp);
+        }
+        _dirty = true;
+    }
     _qgate.push_back(temp);
     _gateId++;
 }
