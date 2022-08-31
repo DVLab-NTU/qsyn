@@ -23,7 +23,7 @@ bool initQCirCmd()
 {
    if (!(cmdMgr->regCmd("QCCRead", 4, new QCirReadCmd) &&
          cmdMgr->regCmd("QCCPrint", 4, new QCirPrintCmd) &&
-         cmdMgr->regCmd("QCGAdd", 4, new QCirAppendGateCmd) &&
+         cmdMgr->regCmd("QCGAdd", 4, new QCirAddGateCmd) &&
          cmdMgr->regCmd("QCBAdd", 4, new QCirAddQubitCmd) &&
          cmdMgr->regCmd("QCGDelete", 4, new QCirDeleteGateCmd) &&
          cmdMgr->regCmd("QCBDelete", 4, new QCirDeleteQubitCmd) &&
@@ -176,24 +176,13 @@ QCirGatePrintCmd::exec(const string &option)
    }
    if (strID.size() == 0)
       return CmdExec::errorOption(CMD_OPT_MISSING, "");
-   int g;
-   bool isNum = myStr2Int(strID, g);
-   if (!isNum)
-   {
-      cerr << "Error: qubit should be number!!" << endl;
+   unsigned id;
+   if(!myStr2Uns(strID,id)){
+      cerr << "Error: target ID should be a positive integer!!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
-   }
-   if (g < 0)
-   {
-      cerr << "Error: qubit should be positive!!" << endl;
+   }   
+   if (!qCirMgr->printGateInfo(id, showTime))
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
-   }
-   else
-   {
-      size_t uns = (unsigned int)g;
-      if (!qCirMgr->printGateInfo(uns, showTime))
-         return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
-   }
    return CMD_EXEC_DONE;
 }
 
@@ -252,7 +241,7 @@ void QCirPrintCmd::help() const
 //     QCGAdd <-CRZ> <-Phase (Phase phase_inp)> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]
 //---------------------------------------------------------------------------------------------------
 CmdExecStatus
-QCirAppendGateCmd::exec(const string &option)
+QCirAddGateCmd::exec(const string &option)
 {
    if (!qCirMgr)
    {
@@ -313,11 +302,8 @@ QCirAppendGateCmd::exec(const string &option)
          return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[1]);
       }
       qubits.push_back(id);
-      qubits.push_back(id);
-      if(appendGate)
-         qCirMgr->appendGate(type, qubits);
-      else
-         qCirMgr->prependGate(type, qubits);
+      type = type.erase(0,1);
+      qCirMgr->addGate(type, qubits, appendGate);
    }
    else if (myStrNCmp("-CX", type, 3) == 0){
       if (options.size() < 3)
@@ -337,10 +323,8 @@ QCirAppendGateCmd::exec(const string &option)
          }
          qubits.push_back(id);
       }
-      if(appendGate)
-         qCirMgr->appendGate(type, qubits);
-      else
-         qCirMgr->prependGate(type, qubits);
+      type = type.erase(0,1);
+      qCirMgr->addGate(type, qubits, appendGate);
    }
    else if (myStrNCmp("-RZ", type, 3) == 0){
       if(options.size()==1){
@@ -377,10 +361,8 @@ QCirAppendGateCmd::exec(const string &option)
          return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
       }
       qubits.push_back(id);
-      if(appendGate)
-         qCirMgr->appendGate(type, qubits);
-      else
-         qCirMgr->prependGate(type, qubits);  
+      type = type.erase(0,1);
+      qCirMgr->addGate(type, qubits, appendGate);
    }
    else{
       cerr << "Error: type is not implemented!!" << endl;
@@ -390,14 +372,14 @@ QCirAppendGateCmd::exec(const string &option)
    return CMD_EXEC_DONE;
 }
 
-void QCirAppendGateCmd::usage(ostream &os) const
+void QCirAddGateCmd::usage(ostream &os) const
 {
    os << "QCGAdd <-H | -X | -Z | -TG | -TDg | -S | -V> <(size_t targ)> [-APpend|-PRepend]" << endl;
    os << "QCGAdd <-CX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
    os << "QCGAdd <-RZ> <-Phase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend]" << endl;
 }
 
-void QCirAppendGateCmd::help() const
+void QCirAddGateCmd::help() const
 {
    cout << setw(15) << left << "QCGAdd: "
         << "add quantum gate\n";
@@ -421,23 +403,16 @@ QCirAddQubitCmd::exec(const string &option)
    }
    else
    {
-      int num;
-      bool isNum = myStr2Int(token, num);
-      if (!isNum)
-      {
-         cerr << "Error: option should be a number!!" << endl;
+      unsigned id;
+      if(!myStr2Uns(token,id)){
+         cerr << "Error: target ID should be a positive integer!!" << endl;
          return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-      }
-      if (num < 0)
-      {
-         cerr << "Error: option should be positive!!" << endl;
-         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-      }
+      }   
       else
       {
          if (qCirMgr == 0)
             qCirMgr = new QCirMgr;
-         qCirMgr->addQubit(num);
+         qCirMgr->addQubit(id);
       }
    }
    return CMD_EXEC_DONE;
@@ -471,20 +446,12 @@ QCirDeleteGateCmd::exec(const string &option)
    }
    if (token.empty())
       return CmdExec::errorOption(CMD_OPT_MISSING, "");
-   int num;
-   bool isNum = myStr2Int(token, num);
-   if (!isNum)
-   {
-      cerr << "Error: option should be a number!!" << endl;
+   unsigned id;
+   if(!myStr2Uns(token,id)){
+      cerr << "Error: target ID should be a positive integer!!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-   }
-   if (num < 0)
-   {
-      cerr << "Error: option should be positive!!" << endl;
-      return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-   }
-   size_t uns = (unsigned int)num;
-   if (!qCirMgr->removeGate(uns))
+   }   
+   if (!qCirMgr->removeGate(id))
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    else
       return CMD_EXEC_DONE;
@@ -518,20 +485,12 @@ QCirDeleteQubitCmd::exec(const string &option)
    }
    if (token.empty())
       return CmdExec::errorOption(CMD_OPT_MISSING, "");
-   int num;
-   bool isNum = myStr2Int(token, num);
-   if (!isNum)
-   {
-      cerr << "Error: option should be a number!!" << endl;
+   unsigned id;
+   if(!myStr2Uns(token,id)){
+      cerr << "Error: target ID should be a positive integer!!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-   }
-   if (num < 0)
-   {
-      cerr << "Error: option should be positive!!" << endl;
-      return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-   }
-   size_t uns = (unsigned int)num;
-   if (!qCirMgr->removeQubit(uns))
+   }   
+   if (!qCirMgr->removeQubit(id))
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    else
       return CMD_EXEC_DONE;

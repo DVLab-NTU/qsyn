@@ -150,36 +150,36 @@ bool QCirMgr::removeQubit(size_t id)
     }
 }
 
-void QCirMgr::appendGate(string type, vector<size_t> bits)
+void QCirMgr::addGate(string type, vector<size_t> bits, bool append)
 {
     QCirGate *temp = NULL;
     for_each(type.begin(), type.end(), [](char & c) {
         c = ::tolower(c);
     });
-    if (type == "-h")
+    if (type == "h")
         temp = new HGate(_gateId);
-    else if (type == "-z")
+    else if (type == "z")
         temp = new ZGate(_gateId);
-    else if (type == "-s")
+    else if (type == "s")
         temp = new SGate(_gateId);
-    else if (type == "-t")
+    else if (type == "t")
         temp = new TGate(_gateId);
-    else if (type == "-tdg")
+    else if (type == "tdg")
         temp = new TDGGate(_gateId);
-    else if (type == "-p")
+    else if (type == "p")
         temp = new PGate(_gateId, 0);
-    else if (type == "-cz")
+    else if (type == "cz")
         temp = new CZGate(_gateId);
-    else if (type == "-x")
+    else if (type == "x")
         temp = new XGate(_gateId);
-    else if (type == "-sx")
+    else if (type == "sx")
         temp = new SXGate(_gateId);
-    else if (type == "-cx")
+    else if (type == "cx")
         temp = new CXGate(_gateId);
-    else if (type == "-ccx")
+    else if (type == "ccx")
         temp = new CCXGate(_gateId);
     // Note: rz and p has a little difference
-    else if (type == "-rz")
+    else if (type == "rz")
         temp = new PGate(_gateId, 0);
     else
     {
@@ -283,7 +283,7 @@ bool QCirMgr::parseQASM(string filename)
                 size_t q = stoul(singleQubitId);
                 vector<size_t> pin_id;
                 pin_id.push_back(q); // targ
-                appendGate(type, pin_id);
+                addGate(type, pin_id, true);
             }
             else
             {
@@ -311,7 +311,7 @@ bool QCirMgr::parseQASM(string filename)
             vector<size_t> pin_id;
             pin_id.push_back(q1); // ctrl
             pin_id.push_back(q2); // targ
-            appendGate(type, pin_id);
+            addGate(type, pin_id, true);
         }
     }
     return true;
