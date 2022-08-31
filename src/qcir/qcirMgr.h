@@ -46,6 +46,7 @@ public:
   void addQubit(size_t num);
   bool removeQubit(size_t q);
   void appendGate(string type, vector<size_t> bits);
+  void prependGate(string type, vector<size_t> bits){ cout << "Prepend Gate not support now."; }
   bool removeGate(size_t id);
   bool parseQASM(string qasm_file);
   

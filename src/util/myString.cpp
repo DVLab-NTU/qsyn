@@ -78,6 +78,18 @@ myStr2Int(const string& str, int& num)
    return valid;
 }
 
+// Convert string "str" to integer "num". Return false if str does not appear
+// to be a number
+bool
+myStr2Uns(const string& str, unsigned& unsnum)
+{
+   int num = 0;
+   bool isNum = myStr2Int(str, num);
+   if(!isNum || num < 0)
+      return false;
+   unsnum = (unsigned int)num;
+   return true;
+}
 // Valid var name is ---
 // 1. starts with [a-zA-Z_]
 // 2. others, can only be [a-zA-Z0-9_]

@@ -156,9 +156,9 @@ QCirGatePrintCmd::exec(const string &option)
       return CMD_EXEC_ERROR;
    if (options.empty())
       return CmdExec::errorOption(CMD_OPT_MISSING, "");
-   
+
    bool showTime = false;
-   string strID="";
+   string strID = "";
    for (size_t i = 0, n = options.size(); i < n; ++i)
    {
       if (myStrNCmp("-Time", options[i], 2) == 0)
@@ -174,7 +174,7 @@ QCirGatePrintCmd::exec(const string &option)
          strID = options[i];
       }
    }
-   if (strID.size()==0) 
+   if (strID.size() == 0)
       return CmdExec::errorOption(CMD_OPT_MISSING, "");
    int g;
    bool isNum = myStr2Int(strID, g);
@@ -254,69 +254,153 @@ void QCirPrintCmd::help() const
 CmdExecStatus
 QCirAppendGateCmd::exec(const string &option)
 {
-   // check option
-   vector<string> options;
-   if (!CmdExec::lexOptions(option, options))
-      return CMD_EXEC_ERROR;
-
-   if (options.empty())
-      return CmdExec::errorOption(CMD_OPT_MISSING, "");
-   if (options.size() == 1)
-      return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
-
    if (!qCirMgr)
    {
       cerr << "Error: no available qubits. Please read a quantum circuit or add qubit(s)!!" << endl;
       return CMD_EXEC_ERROR;
    }
+   // check option
+   vector<string> options;
+   if (!CmdExec::lexOptions(option, options))
+      return CMD_EXEC_ERROR;
+   if (options.empty())
+      return CmdExec::errorOption(CMD_OPT_MISSING, "");
 
-   string type = options[0];
-
-   // Here need to check type //
-   // TODO:
-   /////////////////////////////
-
-   vector<size_t> qubits;
-   for (size_t l = 1; l < options.size(); l++)
+   bool flag = false;
+   bool appendGate = true;
+   size_t eraseIndex = 0;
+   for (size_t i = 0, n = options.size(); i < n; ++i)
    {
-      int q;
-      bool isNum = myStr2Int(options[l], q);
-      if (!isNum)
+      if (myStrNCmp("-APpend", options[i], 3) == 0)
       {
-         cerr << "Error: qubit should be number!!" << endl;
-         return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[l]);
+         if (flag)
+            return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
+         flag = true;
+         eraseIndex = i;
       }
-      if (q < 0)
+      else if (myStrNCmp("-PRepend", options[i], 3) == 0)
       {
-         cerr << "Error: qubit should be positive!!" << endl;
-         return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[l]);
-      }
-      else
-      {
-         size_t quns = (unsigned int)q;
-         if (qCirMgr->getQubit(quns) == NULL)
-         {
-            cerr << "Error: qubit ID is not in current circuit!!" << endl;
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[l]);
-         }
-         qubits.push_back(q);
+         if (flag)
+            return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
+         appendGate = false;
+         flag = true;
+         eraseIndex = i;
       }
    }
-   qCirMgr->appendGate(type, qubits);
+   string flagStr = options[eraseIndex];
+   if (flag)
+      options.erase(options.begin() + eraseIndex);
+   if (options.empty())
+      return CmdExec::errorOption(CMD_OPT_MISSING, flagStr);
+   string type = options[0];
+   vector<size_t> qubits;
+   // <-H | -X | -Z | -TG | -TDg | -S | -V>
+   if (myStrNCmp("-H", type, 2) == 0|| myStrNCmp("-X", type, 2) == 0 || myStrNCmp("-Z", type, 2) == 0 || myStrNCmp("-TG", type, 3) == 0 ||
+   myStrNCmp("-TDg", type, 3) == 0 || myStrNCmp("-S", type, 2) == 0 || myStrNCmp("-V", type, 2) == 0)
+   {
+      if (options.size() == 1)
+         return CmdExec::errorOption(CMD_OPT_MISSING, type);
+      if (options.size() > 2)
+         return CmdExec::errorOption(CMD_OPT_EXTRA, options[2]);
+      unsigned id;
+      if(!myStr2Uns(options[1],id)){
+         cerr << "Error: target ID should be a positive integer!!" << endl;
+         return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[1]);
+      }
+      if (qCirMgr->getQubit(id) == NULL)
+      {
+         cerr << "Error: qubit ID is not in current circuit!!" << endl;
+         return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[1]);
+      }
+      qubits.push_back(id);
+      qubits.push_back(id);
+      if(appendGate)
+         qCirMgr->appendGate(type, qubits);
+      else
+         qCirMgr->prependGate(type, qubits);
+   }
+   else if (myStrNCmp("-CX", type, 3) == 0){
+      if (options.size() < 3)
+         return CmdExec::errorOption(CMD_OPT_MISSING, options[options.size()-1]);
+      if (options.size() > 3)
+         return CmdExec::errorOption(CMD_OPT_EXTRA, options[3]);
+      for(size_t i=0; i<options.size(); i++){
+         unsigned id;
+         if(!myStr2Uns(options[i],id)){
+            cerr << "Error: target ID should be a positive integer!!" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
+         }
+         if (qCirMgr->getQubit(id) == NULL)
+         {
+            cerr << "Error: qubit ID is not in current circuit!!" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
+         }
+         qubits.push_back(id);
+      }
+      if(appendGate)
+         qCirMgr->appendGate(type, qubits);
+      else
+         qCirMgr->prependGate(type, qubits);
+   }
+   else if (myStrNCmp("-RZ", type, 3) == 0){
+      if(options.size()==1){
+         cerr << "Error: missing -Phase flag!!" << endl;
+         return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
+      }
+      else{
+         if(myStrNCmp("-Phase", options[1], 2) != 0){
+            cerr << "Error: missing -Phase flag before (" << options[1] <<")!!" << endl;
+            return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
+         }
+         else{
+            if(options.size()==2){
+               cerr << "Error: missing phase after -Phase flag!!" << endl;
+               return CmdExec::errorOption(CMD_OPT_MISSING, options[1]);
+            }
+            else{
+               // Check Phase Legal
+            }
+         }
+      }
+      if (options.size() < 4)
+         return CmdExec::errorOption(CMD_OPT_MISSING, options[2]);
+      if (options.size() > 4)
+         return CmdExec::errorOption(CMD_OPT_EXTRA, options[4]);
+      unsigned id;
+      if(!myStr2Uns(options[3],id)){
+         cerr << "Error: target ID should be a positive integer!!" << endl;
+         return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
+      }
+      if (qCirMgr->getQubit(id) == NULL)
+      {
+         cerr << "Error: qubit ID is not in current circuit!!" << endl;
+         return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
+      }
+      qubits.push_back(id);
+      if(appendGate)
+         qCirMgr->appendGate(type, qubits);
+      else
+         qCirMgr->prependGate(type, qubits);  
+   }
+   else{
+      cerr << "Error: type is not implemented!!" << endl;
+      return CmdExec::errorOption(CMD_OPT_ILLEGAL, type);
+   }
+     
    return CMD_EXEC_DONE;
 }
 
 void QCirAppendGateCmd::usage(ostream &os) const
 {
-   os << "Usage: QCGAdd <(string gateType)> <(size_t bit(s))>" << endl;
-   os << "E.g. : QCGAdd cx 0 1" << endl;
-   os << "E.g. : QCGAdd x 2" << endl;
+   os << "QCGAdd <-H | -X | -Z | -TG | -TDg | -S | -V> <(size_t targ)> [-APpend|-PRepend]" << endl;
+   os << "QCGAdd <-CX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
+   os << "QCGAdd <-RZ> <-Phase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend]" << endl;
 }
 
 void QCirAppendGateCmd::help() const
 {
    cout << setw(15) << left << "QCGAdd: "
-        << "append quantum gate\n";
+        << "add quantum gate\n";
 }
 
 //----------------------------------------------------------------------
