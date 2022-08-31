@@ -154,43 +154,45 @@ QCirGatePrintCmd::exec(const string &option)
    vector<string> options;
    if (!CmdExec::lexOptions(option, options))
       return CMD_EXEC_ERROR;
-
    if (options.empty())
       return CmdExec::errorOption(CMD_OPT_MISSING, "");
+   
+   bool showTime = false;
+   string strID="";
+   for (size_t i = 0, n = options.size(); i < n; ++i)
+   {
+      if (myStrNCmp("-Time", options[i], 2) == 0)
+      {
+         if (showTime)
+            return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
+         showTime = true;
+      }
+      else
+      {
+         if (strID.size())
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
+         strID = options[i];
+      }
+   }
+   if (strID.size()==0) 
+      return CmdExec::errorOption(CMD_OPT_MISSING, "");
    int g;
-   bool isNum = myStr2Int(options[0], g);
+   bool isNum = myStr2Int(strID, g);
    if (!isNum)
    {
       cerr << "Error: qubit should be number!!" << endl;
-      return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
+      return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
    }
    if (g < 0)
    {
       cerr << "Error: qubit should be positive!!" << endl;
-      return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
+      return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
    }
    else
    {
       size_t uns = (unsigned int)g;
-      if (options.size() == 1)
-      {
-         if (!qCirMgr->printGateInfo(uns, false))
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
-      }
-      else
-      {
-         if (options.size() > 2)
-         {
-            return CmdExec::errorOption(CMD_OPT_EXTRA, options[1]);
-         }
-         if (options.size() == 2 && myStrNCmp("-Time", options[1], 2) == 0)
-         {
-            if (!qCirMgr->printGateInfo(uns, true))
-               return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[1]);
-         }
-         else
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[1]);
-      }
+      if (!qCirMgr->printGateInfo(uns, showTime))
+         return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
    }
    return CMD_EXEC_DONE;
 }
@@ -243,14 +245,16 @@ void QCirPrintCmd::help() const
         << "print quanutm circuit\n";
 }
 
-//----------------------------------------------------------------------
-//    QCGAdd <(string gateType)> <(size_t bit(s))>
-//----------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------
+//     QCGAdd <-H | -X | -Z | -TG | -TDg | -S | -V> <(size_t targ)> [-APpend|-PRepend] /
+//     QCGAdd <-CX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend] /
+//     QCGAdd <-RZ> <-Phase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend] /
+//     QCGAdd <-CRZ> <-Phase (Phase phase_inp)> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]
+//---------------------------------------------------------------------------------------------------
 CmdExecStatus
 QCirAppendGateCmd::exec(const string &option)
 {
    // check option
-
    vector<string> options;
    if (!CmdExec::lexOptions(option, options))
       return CMD_EXEC_ERROR;
