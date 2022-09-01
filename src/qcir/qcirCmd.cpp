@@ -236,10 +236,10 @@ void QCirPrintCmd::help() const
 }
 
 //---------------------------------------------------------------------------------------------------
-//     QCGAdd <-H | -X | -Z | -TG | -TDg | -S | -V> <(size_t targ)> [-APpend|-PRepend] /
+//     QCGAdd <-H | -X | -Z | -T | -TDG | -S | -V> <(size_t targ)> [-APpend|-PRepend] /
 //     QCGAdd <-CX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend] /
-//     QCGAdd <-RZ> <-Phase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend] /
-//     QCGAdd <-CRZ> <-Phase (Phase phase_inp)> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]
+//     QCGAdd <-RZ> <-PHase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend] /
+//     QCGAdd <-CRZ> <-PHase (Phase phase_inp)> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]
 //---------------------------------------------------------------------------------------------------
 CmdExecStatus
 QCirAddGateCmd::exec(const string &option)
@@ -285,8 +285,8 @@ QCirAddGateCmd::exec(const string &option)
    string type = options[0];
    vector<size_t> qubits;
    // <-H | -X | -Z | -TG | -TDg | -S | -V>
-   if (myStrNCmp("-H", type, 2) == 0|| myStrNCmp("-X", type, 2) == 0 || myStrNCmp("-Z", type, 2) == 0 || myStrNCmp("-TG", type, 3) == 0 ||
-   myStrNCmp("-TDg", type, 3) == 0 || myStrNCmp("-S", type, 2) == 0 || myStrNCmp("-V", type, 2) == 0)
+   if (myStrNCmp("-H", type, 2) == 0|| myStrNCmp("-X", type, 2) == 0 || myStrNCmp("-Z", type, 2) == 0 || myStrNCmp("-T", type, 2) == 0 ||
+   myStrNCmp("-TDG", type, 4) == 0 || myStrNCmp("-S", type, 2) == 0 || myStrNCmp("-V", type, 2) == 0)
    {
       if (options.size() == 1)
          return CmdExec::errorOption(CMD_OPT_MISSING, type);
@@ -330,17 +330,17 @@ QCirAddGateCmd::exec(const string &option)
    else if (myStrNCmp("-RZ", type, 3) == 0){
       Phase phase;
       if(options.size()==1){
-         cerr << "Error: missing -Phase flag!!" << endl;
+         cerr << "Error: missing -PHase flag!!" << endl;
          return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
       }
       else{
-         if(myStrNCmp("-Phase", options[1], 2) != 0){
-            cerr << "Error: missing -Phase flag before (" << options[1] <<")!!" << endl;
+         if(myStrNCmp("-PHase", options[1], 2) != 0){
+            cerr << "Error: missing -PHase flag before (" << options[1] <<")!!" << endl;
             return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
          }
          else{
             if(options.size()==2){
-               cerr << "Error: missing phase after -Phase flag!!" << endl;
+               cerr << "Error: missing phase after -PHase flag!!" << endl;
                return CmdExec::errorOption(CMD_OPT_MISSING, options[1]);
             }
             else{
@@ -380,9 +380,9 @@ QCirAddGateCmd::exec(const string &option)
 
 void QCirAddGateCmd::usage(ostream &os) const
 {
-   os << "QCGAdd <-H | -X | -Z | -TG | -TDg | -S | -V> <(size_t targ)> [-APpend|-PRepend]" << endl;
+   os << "QCGAdd <-H | -X | -Z | -T | -TDG | -S | -V> <(size_t targ)> [-APpend|-PRepend]" << endl;
    os << "QCGAdd <-CX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
-   os << "QCGAdd <-RZ> <-Phase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend]" << endl;
+   os << "QCGAdd <-RZ> <-PHase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend]" << endl;
 }
 
 void QCirAddGateCmd::help() const

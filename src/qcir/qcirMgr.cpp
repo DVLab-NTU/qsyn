@@ -40,7 +40,7 @@ void QCirMgr::printSummary()
 {
     if (_dirty)
         updateGateTime();
-    cout << "Follow QASM file (Topological order)" << endl;
+    cout << "Listed by gate ID" << endl;
     for (size_t i = 0; i < _qgate.size(); i++)
     {
         _qgate[i]->printGate();
