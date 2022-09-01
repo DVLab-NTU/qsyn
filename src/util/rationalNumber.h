@@ -78,6 +78,17 @@ public:
         f -= integralPart;
         Rational lower(0, 1), upper(1, 1);
         Rational med(1, 2);
+        if constexpr (std::is_same<T, double>::value) {
+            if ((lower.toDouble() + eps) >= f && (lower.toDouble() - eps) <= f) return lower + integralPart;
+            if ((upper.toDouble() + eps) >= f && (upper.toDouble() - eps) <= f) return upper + integralPart;
+        } else if constexpr (std::is_same<T, float>::value) {
+            if ((lower.toFloat() + eps) >= f && (lower.toFloat() - eps) <= f) return lower + integralPart;
+            if ((upper.toFloat() + eps) >= f && (upper.toFloat() - eps) <= f) return upper + integralPart;
+        } else {
+            if ((lower.toLongDouble() + eps) >= f && (lower.toLongDouble() - eps) <= f) return lower + integralPart;
+            if ((upper.toLongDouble() + eps) >= f && (upper.toLongDouble() - eps) <= f) return upper + integralPart;
+        }
+        
         while (true) {
             T med_floatType;
             if constexpr (std::is_same<T, double>::value) {

@@ -69,6 +69,10 @@ int main() {
     p7.fromString<long double>("1.57079632679");
     cout << p7 << endl;
 
+    Phase p8(0.0001), p9(3.14159), p10(6.283);
+    cout << p8 << endl;
+    cout << p9 << endl;
+    cout << p10 << endl;
 
     return 0;
 }
