@@ -304,7 +304,7 @@ QCirAddGateCmd::exec(const string &option)
       }
       qubits.push_back(id);
       type = type.erase(0,1);
-      qCirMgr->addGate(type, qubits, appendGate);
+      qCirMgr->addGate(type, qubits, Phase(0),appendGate);
    }
    else if (myStrNCmp("-CX", type, 3) == 0){
       if (options.size() < 3)
@@ -325,7 +325,7 @@ QCirAddGateCmd::exec(const string &option)
          qubits.push_back(id);
       }
       type = type.erase(0,1);
-      qCirMgr->addGate(type, qubits, appendGate);
+      qCirMgr->addGate(type, qubits, Phase(0),appendGate);
    }
    else if (myStrNCmp("-RZ", type, 3) == 0){
       Phase phase;
@@ -349,7 +349,6 @@ QCirAddGateCmd::exec(const string &option)
                   cerr << "Error: not a legal phase!!" << endl;
                   return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[2]);
                }
-               cout << "Phase: " <<phase << endl;
             }
          }
       }
@@ -369,7 +368,7 @@ QCirAddGateCmd::exec(const string &option)
       }
       qubits.push_back(id);
       type = type.erase(0,1);
-      qCirMgr->addGate(type, qubits, appendGate);
+      qCirMgr->addGate(type, qubits, phase, appendGate);
    }
    else{
       cerr << "Error: type is not implemented!!" << endl;

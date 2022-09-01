@@ -152,7 +152,7 @@ bool QCirMgr::removeQubit(size_t id)
     }
 }
 
-void QCirMgr::addGate(string type, vector<size_t> bits, bool append)
+void QCirMgr::addGate(string type, vector<size_t> bits, Phase phase, bool append)
 {
     QCirGate *temp = NULL;
     for_each(type.begin(), type.end(), [](char & c) {
@@ -169,7 +169,7 @@ void QCirMgr::addGate(string type, vector<size_t> bits, bool append)
     else if (type == "tdg")
         temp = new TDGGate(_gateId);
     else if (type == "p")
-        temp = new PGate(_gateId, 0);
+        temp = new RZGate(_gateId);
     else if (type == "cz")
         temp = new CZGate(_gateId);
     else if (type == "x")
@@ -181,11 +181,14 @@ void QCirMgr::addGate(string type, vector<size_t> bits, bool append)
     else if (type == "ccx")
         temp = new CCXGate(_gateId);
     // Note: rz and p has a little difference
-    else if (type == "rz")
-        temp = new PGate(_gateId, 0);
+    else if (type == "rz"){
+        temp = new RZGate(_gateId);
+        temp->setRotatePhase(phase);
+    }   
+       
     else
     {
-        cerr << "The gate is not implement";
+        cerr << "Error: The gate "<< type << " is not implement!!"<<endl;
         return;
     }
     if(append){
@@ -288,7 +291,7 @@ bool QCirMgr::parseQASM(string filename)
     {
         string space_delimiter = " ";
         string type = str.substr(0, str.find(" "));
-        string phase = (str.find("(") != string::npos) ? str.substr(str.find("(") + 1, str.length() - str.find("(") - 2) : "";
+        string phaseStr = (str.find("(") != string::npos) ? str.substr(str.find("(") + 1, str.length() - str.find("(") - 2) : "0";
         type = str.substr(0, str.find("("));
         string is_CX = type.substr(0, 2);
         string is_CRZ = type.substr(0, 3);
@@ -302,7 +305,9 @@ bool QCirMgr::parseQASM(string filename)
                 size_t q = stoul(singleQubitId);
                 vector<size_t> pin_id;
                 pin_id.push_back(q); // targ
-                addGate(type, pin_id, true);
+                Phase phase;
+                phase.fromString(phaseStr);
+                addGate(type, pin_id, phase,true);
             }
             else
             {
@@ -330,7 +335,7 @@ bool QCirMgr::parseQASM(string filename)
             vector<size_t> pin_id;
             pin_id.push_back(q1); // ctrl
             pin_id.push_back(q2); // targ
-            addGate(type, pin_id, true);
+            addGate(type, pin_id, Phase(0),true);
         }
     }
     return true;

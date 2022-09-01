@@ -17,6 +17,7 @@
 #include "qcirGate.h"
 #include "qcirQubit.h"
 #include "qcirDef.h"
+#include "phase.h"
 
 extern QCirMgr *qCirMgr;
 using namespace std;
@@ -45,7 +46,7 @@ public:
   // Member functions about circuit construction
   void addQubit(size_t num);
   bool removeQubit(size_t q);
-  void addGate(string type, vector<size_t> bits, bool append);
+  void addGate(string type, vector<size_t> bits, Phase phase, bool append);
   void prependGate(string type, vector<size_t> bits){ cout << "Prepend Gate not support now."; }
   bool removeGate(size_t id);
   bool parseQASM(string qasm_file);
