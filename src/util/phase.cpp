@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include "phase.h"
+#include "util.h"
 #include <cassert>
 
 PhaseUnit Phase::_printUnit = PhaseUnit::PI;
@@ -14,8 +15,8 @@ PhaseUnit Phase::_printUnit = PhaseUnit::PI;
 std::ostream& operator<<(std::ostream& os, const Phase& p) {
     if (Phase::getPrintUnit() == PhaseUnit::PI) {
         if (p._rational.numerator() != 1) os << p._rational.numerator();
-        os << "\u03C0";
-        if (p._rational.numerator() != 1) os << "/" << p._rational.denominator();
+        if (p._rational.numerator() != 0) os << "\u03C0";
+        if (p._rational.denominator() != 1) os << "/" << p._rational.denominator();
         return os;
     } else {
         return os << (p._rational.numerator() * std::numbers::pi / p._rational.denominator());
@@ -67,8 +68,6 @@ long double Phase::toLongDouble() {
 
 void Phase::normalize() {
     Rational factor = (_rational / 2);
-    std::cout << "rational = " << _rational << std::endl;
-    std::cout << "normalize factor = " << factor << std::endl;
     int integralPart = std::floor(factor.toFloat());
     _rational -= (integralPart * 2);
 }
