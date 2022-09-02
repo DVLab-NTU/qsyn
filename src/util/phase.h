@@ -96,19 +96,6 @@ public:
         if (!myStr2FloatType<T>(str, f)) {
             return false;
         }
-        // if constexpr (std::is_same<T, double>::value) {
-        //     if (!myStr2Double(str, f)) {
-        //         return false;
-        //     }
-        // } else if constexpr (std::is_same<T, float>::value) {
-        //     if (!myStr2Float(str, f)) {
-        //         return false;
-        //     }
-        // } else {
-        //     if (!myStr2LongDouble(str, f)) {
-        //         return false;
-        //     }
-        // }
         *this = Phase::toPhase(f);
         return true;
     }
