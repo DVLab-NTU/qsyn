@@ -24,6 +24,11 @@ extern int myStrNCmp(const string& s1, const string& s2, unsigned n);
 extern size_t myStrGetTok(const string& str, string& tok, size_t pos = 0,
                           const char del = ' ');
 extern bool myStr2Int(const string& str, int& num);
+extern bool myStr2Uns(const string& str, unsigned& num);
+extern bool myStr2Float(const string& str, float& f);
+extern bool myStr2Double(const string& str, double& f);
+extern bool myStr2LongDouble(const string& str, long double& f);
+
 extern bool isValidVarName(const string& str);
 
 // In myGetChar.cpp

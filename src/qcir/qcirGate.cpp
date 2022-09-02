@@ -195,7 +195,7 @@ void TDGGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
-void PGate::printGateInfo(bool showTime) const
+void RZGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
   string qubitInfo = "Q" + to_string(Info._qubit);
@@ -211,11 +211,12 @@ void PGate::printGateInfo(bool showTime) const
     childInfo = ("G" + to_string(Info._child->getId()));
   for (size_t i = 0; i < parentInfo.size() + qubitInfo.size() + 2; i++)
     cout << " ";
-  cout << " ┌───┐ " << endl;
-  cout << qubitInfo << " " << parentInfo << " ─┤ P ├─ " << childInfo << endl;
+  cout << " ┌────┐ " << endl;
+  cout << qubitInfo << " " << parentInfo << " ─┤ RZ ├─ " << childInfo << endl;
   for (size_t i = 0; i < parentInfo.size() + qubitInfo.size() + 2; i++)
     cout << " ";
-  cout << " └───┘ " << endl;
+  cout << " └────┘ " << endl;
+  cout << "Rotate Phase: " << _rotatePhase << endl;
   if (showTime)
     cout << "Execute at t= " << getTime() << endl;
 }

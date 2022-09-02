@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include "phase.h"
 
 using namespace std;
 
@@ -31,7 +32,7 @@ struct BitInfo
 class QCirGate
 {
 public:
-  QCirGate(size_t id, size_t phase) : _id(id), _phase(phase)
+  QCirGate(size_t id) : _id(id)
   {
     _qubits.clear();
     _time = 0;
@@ -75,6 +76,8 @@ public:
   void reportFanin(int level) const;
   void reportFanout(int level) const;
 
+  virtual void setRotatePhase(Phase p){};
+
 private:
   
 protected:
@@ -82,15 +85,15 @@ protected:
   string _type;
   size_t _nqubit;
   size_t _time;
-  size_t _phase;
   unsigned _DFSCounter;
   vector<BitInfo> _qubits;
+  Phase _rotatePhase;
 };
 
 class HGate : public QCirGate
 { 
 public:
-  HGate(size_t id): QCirGate(id, 0) {}
+  HGate(size_t id): QCirGate(id) {}
   ~HGate(){};
   virtual string getTypeStr() const override { return "h"; }
   virtual void printGateInfo(bool) const; 
@@ -99,7 +102,7 @@ public:
 class CnRZGate : public QCirGate
 { 
 public:
-  CnRZGate(size_t id, size_t phase): QCirGate(id, phase) {}
+  CnRZGate(size_t id): QCirGate(id) {}
   ~CnRZGate(){};
   virtual string getTypeStr() const { 
     string tmp = "";
@@ -114,7 +117,7 @@ public:
 class CnRXGate : public QCirGate
 { 
 public:
-  CnRXGate(size_t id, size_t phase): QCirGate(id, phase) {}
+  CnRXGate(size_t id): QCirGate(id) {}
   ~CnRXGate(){};
   virtual void printGateInfo(bool) const;
 };
@@ -122,7 +125,7 @@ public:
 class ZGate : public CnRZGate
 { 
 public:
-  ZGate(size_t id): CnRZGate(id, 0) {
+  ZGate(size_t id): CnRZGate(id) {
     _type = "z";
   }
   ~ZGate();
@@ -133,7 +136,7 @@ public:
 class SGate : public CnRZGate
 { 
 public:
-  SGate(size_t id): CnRZGate(id, 90) {
+  SGate(size_t id): CnRZGate(id) {
     _type = "s";
   }
   ~SGate();
@@ -144,7 +147,7 @@ public:
 class TGate : public CnRZGate
 { 
 public:
-  TGate(size_t id): CnRZGate(id, 45) {}
+  TGate(size_t id): CnRZGate(id) {}
   ~TGate();
   virtual string getTypeStr() const { return "t"; }
   virtual void printGateInfo(bool) const;
@@ -153,25 +156,26 @@ public:
 class TDGGate : public CnRZGate
 { 
 public:
-  TDGGate(size_t id): CnRZGate(id, 315) {}
+  TDGGate(size_t id): CnRZGate(id) {}
   ~TDGGate();
   virtual string getTypeStr() const { return "td"; }
   virtual void printGateInfo(bool) const;
 };
 
-class PGate : public CnRZGate
+class RZGate : public CnRZGate
 { 
 public:
-  PGate(size_t id, size_t phase): CnRZGate(id, phase) {}
-  ~PGate();
-  virtual string getTypeStr() const { return "p"; }
+  RZGate(size_t id): CnRZGate(id) {}
+  ~RZGate();
+  virtual string getTypeStr() const { return "rz"; }
   virtual void printGateInfo(bool) const;
+  virtual void setRotatePhase(Phase p){ _rotatePhase = p; }
 };
 
 class CZGate : public CnRZGate
 { 
 public:
-  CZGate(size_t id): CnRZGate(id, 0) {}
+  CZGate(size_t id): CnRZGate(id) {}
   ~CZGate();
   virtual string getTypeStr() const { return "cz"; }
   virtual void printGateInfo(bool) const;
@@ -180,7 +184,7 @@ public:
 class XGate : public CnRXGate
 { 
 public:
-  XGate(size_t id): CnRXGate(id, 0) {}
+  XGate(size_t id): CnRXGate(id) {}
   ~XGate();
   virtual string getTypeStr() const { return "x"; }
   virtual void printGateInfo(bool) const;
@@ -189,7 +193,7 @@ public:
 class SXGate : public CnRXGate
 { 
 public:
-  SXGate(size_t id): CnRXGate(id, 0) {}
+  SXGate(size_t id): CnRXGate(id) {}
   ~SXGate();
   virtual string getTypeStr() const { return "sx"; }
   virtual void printGateInfo(bool) const;
@@ -198,7 +202,7 @@ public:
 class CXGate : public CnRXGate
 { 
 public:
-  CXGate(size_t id): CnRXGate(id, 0) {}
+  CXGate(size_t id): CnRXGate(id) {}
   ~CXGate();
   virtual string getTypeStr() const { return "cx"; }
   virtual void printGateInfo(bool) const;
@@ -207,7 +211,7 @@ public:
 class CCXGate : public CnRXGate
 { 
 public:
-  CCXGate(size_t id): CnRXGate(id, 0) {}
+  CCXGate(size_t id): CnRXGate(id) {}
   ~CCXGate();
   virtual string getTypeStr() const { return "ccx"; }
   virtual void printGateInfo(bool) const;

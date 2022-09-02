@@ -57,9 +57,9 @@ Q 3
 Q 4  
 Q 5  
 
-qsyn> qcga cx 0 4
+qsyn> qcga -cx 0 4
 
-qsyn> qcga h 5
+qsyn> qcga -h 5
 
 qsyn> qcbd 3
 
@@ -81,7 +81,7 @@ Q 5  - h(37)-
 Q 6  
 Q 7  
 
-qsyn> qcga tdg 6
+qsyn> qcga -tdg 6
 
 qsyn> qcbd 6
 
