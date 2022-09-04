@@ -28,6 +28,9 @@ public:
     template <class T> requires std::floating_point<T>
     Rational(T f, T eps = 1e-4) {
         *this = Rational::toRational(f, eps);
+        std::cout << "f        " << f << std::endl
+                  << "eps      " << eps << std::endl
+                  << "Rational " << *this << std::endl;
     }
     Rational(int n): _numer(n), _denom(1) {}
     Rational(const Rational&) = default;

@@ -35,9 +35,9 @@ TEST_CASE("Phases numbers are initiated from floating points correctly", "[Phase
     Phase pD1(f1, eps1);
     REQUIRE(pD1.toDouble() == Approx(f1).epsilon(eps1)); 
     Phase pD2(f2, eps2);
-    REQUIRE(pD2.toDouble() == Approx(f2).epsilon(eps2)); 
+    REQUIRE(pD2.toFloat() == Approx(f2).epsilon(eps2)); 
     Phase pD3(f3, eps3);
-    REQUIRE(pD3.toDouble() == Approx(f3).epsilon(eps3)); 
+    REQUIRE(pD3.toLongDouble() == Approx(f3).epsilon(eps3)); 
 }
 
 TEST_CASE("Phase arithmetics works correctly", "[Phase]") {
