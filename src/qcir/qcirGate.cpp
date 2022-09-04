@@ -145,6 +145,31 @@ void SGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+void SDGGate::printGateInfo(bool showTime) const
+{
+  BitInfo Info = getQubits()[0];
+  string qubitInfo = "Q" + to_string(Info._qubit);
+  string parentInfo = "";
+  if (Info._parent == NULL)
+    parentInfo = "Start";
+  else
+    parentInfo = ("G" + to_string(Info._parent->getId()));
+  string childInfo = "";
+  if (Info._child == NULL)
+    childInfo = "End";
+  else
+    childInfo = ("G" + to_string(Info._child->getId()));
+  for (size_t i = 0; i < parentInfo.size() + qubitInfo.size() + 2; i++)
+    cout << " ";
+  cout << " ┌───┐ " << endl;
+  cout << qubitInfo << " " << parentInfo << " ─┤ Sdg ├─ " << childInfo << endl;
+  for (size_t i = 0; i < parentInfo.size() + qubitInfo.size() + 2; i++)
+    cout << " ";
+  cout << " └───┘ " << endl;
+  if (showTime)
+    cout << "Execute at t= " << getTime() << endl;
+}
+
 void TGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];

@@ -49,7 +49,9 @@ public:
   void addGate(string type, vector<size_t> bits, Phase phase, bool append);
   void prependGate(string type, vector<size_t> bits){ cout << "Prepend Gate not support now."; }
   bool removeGate(size_t id);
+  bool parse(string qasm_file);
   bool parseQASM(string qasm_file);
+  bool parseQC(string qasm_file);
   
   void updateGateTime();
   // DFS functions

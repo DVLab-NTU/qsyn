@@ -144,6 +144,17 @@ public:
   virtual void printGateInfo(bool) const;
 };
 
+class SDGGate : public CnRZGate
+{ 
+public:
+  SDGGate(size_t id): CnRZGate(id) {
+    _type = "sdg";
+  }
+  ~SDGGate();
+  virtual string getTypeStr() const { return "sdg"; }
+  virtual void printGateInfo(bool) const;
+};
+
 class TGate : public CnRZGate
 { 
 public:

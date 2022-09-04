@@ -116,7 +116,7 @@ QCirReadCmd::exec(const string &option)
    }
    qCirMgr = new QCirMgr;
 
-   if (!qCirMgr->parseQASM(fileName))
+   if (!qCirMgr->parse(fileName))
    {
       curCmd = QCIRINIT;
       delete qCirMgr;
