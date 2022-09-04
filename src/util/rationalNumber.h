@@ -69,30 +69,42 @@ public:
     }
 
     template <class T> requires std::floating_point<T>
-    T toFloatType() {return ((T) _numer)/ _denom; }
+    T toFloatType() const {return ((T) _numer)/ _denom; }
 
-    float toFloat() { return toFloatType<float>(); }
-    double toDouble() { return toFloatType<double>();}
-    long double toLongDouble() { return toFloatType<long double>(); }
+    float toFloat() const { return toFloatType<float>(); }
+    double toDouble() const { return toFloatType<double>();}
+    long double toLongDouble() const { return toFloatType<long double>(); }
 
     template <class T> requires std::floating_point<T>
     static Rational toRational(T f, T eps = 1e-4){
+        // std::cout << "f        " << f << std::endl
+        //           << "eps      " << eps << std::endl
+        //           << "Allowable range: [" << f - eps << ", " << f + eps << "]" << std::endl; 
+                //   << "Rational " << *this << std::endl;
         int integralPart = (int) floor(f);
         f -= integralPart;
         Rational lower(0, 1), upper(1, 1);
         Rational med(1, 2);
 
-        if ((lower.toFloatType<T>() + eps) >= f && (lower.toFloatType<T>() - eps) <= f) {
+        auto inLowerBound = [&f, &eps](const Rational& q) -> bool {
+            return ((f - eps) <= q.toFloatType<T>());
+        };
+        auto inUpperBound = [&f, &eps](const Rational& q) -> bool {
+            return ((f + eps) >= q.toFloatType<T>());
+        };
+
+        if (inLowerBound(lower) && inUpperBound(lower)) {
             return lower + integralPart;
         }
-        if ((upper.toFloatType<T>() + eps) >= f && (upper.toFloatType<T>() - eps) <= f) {
+        if (inLowerBound(upper) && inUpperBound(upper)) {
             return upper + integralPart;
         }
                 
         while (true) {
-            if ((med.toFloatType<T>() + eps) < f) {
+            // std::cout << med << " = " << med.toFloatType<T>() << std::endl;
+            if (!inLowerBound(med)) {
                 lower = med;
-            } else if ((med.toFloatType<T>() - eps) > f) {
+            } else if (!inUpperBound(med)) {
                 upper = med;
             } else {
                 return med + integralPart;
