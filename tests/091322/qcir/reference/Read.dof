@@ -17181,9 +17181,9 @@ Q14
 Q15  
 
 qsyn> usage
-Period time used : 0.11 seconds
-Total time used  : 0.11 seconds
-Total memory used: 3.539 M Bytes
+Period time used : 0.14 seconds
+Total time used  : 0.14 seconds
+Total memory used: 4.371 M Bytes
 
 qsyn> qccr benchmark_SABRE/small/4gt13_92.qasm -R
 
@@ -17280,8 +17280,8 @@ Q 6  ---------------------------------------------------------------------------
 
 qsyn> usage
 Period time used : 0 seconds
-Total time used  : 0.11 seconds
-Total memory used: 3.551 M Bytes
+Total time used  : 0.14 seconds
+Total memory used: 4.535 M Bytes
 
 qsyn> qcbd 6
 

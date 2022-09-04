@@ -58,9 +58,9 @@ Q 1  -cx( 2)------------------cx( 4)--cx( 8)-
 Q 2  ---------cx( 1)-- t( 3)--cx( 4)--cx( 7)-
 Q 3  -cx( 2)-- x( 5)-- t( 6)----------cx( 7)-
 
-qsyn> qcga -pr -rz -p 0.00001 0
+qsyn> qcga -pr -rz -ph 0.00001 0
 
-qsyn> qcga -pr -rz -p 1.2345 0
+qsyn> qcga -pr -rz -ph 1.2345 0
 
 qsyn> qcgp 10
           ┌────┐ 
