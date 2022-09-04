@@ -195,7 +195,7 @@ void QCirGatePrintCmd::usage(ostream &os) const
 void QCirGatePrintCmd::help() const
 {
    cout << setw(15) << left << "QCGPrint: "
-        << "print quanutm gate information\n";
+        << "print quantum gate information\n";
 }
 
 //----------------------------------------------------------------------
@@ -334,7 +334,7 @@ QCirAddGateCmd::exec(const string &option)
          return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
       }
       else{
-         if(myStrNCmp("-PHase", options[1], 2) != 0){
+         if(myStrNCmp("-PHase", options[1], 3) != 0){
             cerr << "Error: missing -PHase flag before (" << options[1] <<")!!" << endl;
             return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
          }
