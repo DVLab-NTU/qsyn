@@ -167,7 +167,7 @@ class RZGate : public CnRZGate
 public:
   RZGate(size_t id): CnRZGate(id) {}
   ~RZGate();
-  virtual string getTypeStr() const { return "p"; }
+  virtual string getTypeStr() const { return "rz"; }
   virtual void printGateInfo(bool) const;
   virtual void setRotatePhase(Phase p){ _rotatePhase = p; }
 };

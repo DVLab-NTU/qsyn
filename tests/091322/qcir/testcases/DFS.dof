@@ -11,13 +11,13 @@ qcgd 8
 qcgd 10
 qcba 3
 qccp -q
-qcga cx 0 4
-qcga h 5
+qcga -cx 0 4
+qcga -h 5
 qcbd 3
 qcba 2
 qcgp 36 -t
 qccp -q
-qcga tdg 6
+qcga -tdg 6
 qcbd 6
 qcbd 7
 qccp -q
