@@ -71,9 +71,12 @@ public:
         return _denom;
     }
 
-    virtual float toFloat() { return ((float) _numer) / _denom; }
-    virtual double toDouble() { return ((double) _numer) / _denom; }
-    virtual long double toLongDouble() { return ((long double) _numer) / _denom; }
+    template <class T> requires std::floating_point<T>
+    T toFloatType() {return ((T) _numer)/ _denom; }
+
+    float toFloat() { return toFloatType<float>(); }
+    double toDouble() { return toFloatType<double>();}
+    long double toLongDouble() { return toFloatType<long double>(); }
 
     template <class T> requires std::floating_point<T>
     static Rational toRational(T f, T eps = 1e-4){
@@ -81,29 +84,18 @@ public:
         f -= integralPart;
         Rational lower(0, 1), upper(1, 1);
         Rational med(1, 2);
-        if constexpr (std::is_same<T, double>::value) {
-            if ((lower.toDouble() + eps) >= f && (lower.toDouble() - eps) <= f) return lower + integralPart;
-            if ((upper.toDouble() + eps) >= f && (upper.toDouble() - eps) <= f) return upper + integralPart;
-        } else if constexpr (std::is_same<T, float>::value) {
-            if ((lower.toFloat() + eps) >= f && (lower.toFloat() - eps) <= f) return lower + integralPart;
-            if ((upper.toFloat() + eps) >= f && (upper.toFloat() - eps) <= f) return upper + integralPart;
-        } else {
-            if ((lower.toLongDouble() + eps) >= f && (lower.toLongDouble() - eps) <= f) return lower + integralPart;
-            if ((upper.toLongDouble() + eps) >= f && (upper.toLongDouble() - eps) <= f) return upper + integralPart;
+
+        if ((lower.toFloatType<T>() + eps) >= f && (lower.toFloatType<T>() - eps) <= f) {
+            return lower + integralPart;
         }
-        
+        if ((upper.toFloatType<T>() + eps) >= f && (upper.toFloatType<T>() - eps) <= f) {
+            return upper + integralPart;
+        }
+                
         while (true) {
-            T med_floatType;
-            if constexpr (std::is_same<T, double>::value) {
-                med_floatType = med.toDouble();
-            } else if constexpr (std::is_same<T, float>::value) {
-                med_floatType = med.toFloat();
-            } else {
-                med_floatType = med.toLongDouble();
-            }
-            if ((med_floatType + eps) < f) {
+            if ((med.toFloatType<T>() + eps) < f) {
                 lower = med;
-            } else if ((med_floatType - eps > f)) {
+            } else if ((med.toFloatType<T>() - eps) > f) {
                 upper = med;
             } else {
                 return med + integralPart;
