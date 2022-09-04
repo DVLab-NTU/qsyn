@@ -31,17 +31,17 @@ TEST_CASE("Rational numbers are initiated correctly", "[Rational]") {
 
 TEST_CASE("Rational numbers are initiated from floating points correctly", "[Rational]") {
     double      f1 = 1.25003, eps1 = 1e-6;
-    float       f2 = 8.7654321f, eps2 = 1e-2f;
+    float       f2 = 2.7654321f, eps2 = 1e-2f;
     long double f3 = 1.234567890234567890L, eps3 = 1e-10L;
     
     Rational qD0(f1);
-    REQUIRE(qD0.toDouble() == Approx(f1).epsilon(1e-4));
+    REQUIRE(qD0.toDouble() == Approx(f1).margin(1e-4));
     Rational qD1(f1, eps1);
-    REQUIRE(qD1.toDouble() == Approx(f1).epsilon(eps1));
+    REQUIRE(qD1.toDouble() == Approx(f1).margin(eps1));
     Rational qD2(f2, eps2);
-    REQUIRE(qD2.toFloat() == Approx(f2).epsilon(eps2));
+    REQUIRE(qD2.toFloat() == Approx(f2).margin(eps2));
     Rational qD3(f3, eps3);
-    REQUIRE(qD3.toLongDouble() == Approx(f3).epsilon(eps3));
+    REQUIRE(qD3.toLongDouble() == Approx(f3).margin(eps3));
 }
 
 TEST_CASE("Rational number arithmetics works correctly", "[Rational]") {

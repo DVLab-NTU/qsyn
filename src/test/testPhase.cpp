@@ -26,18 +26,19 @@ TEST_CASE("Phases are initiated correctly", "[Phase]") {
 }
 
 TEST_CASE("Phases numbers are initiated from floating points correctly", "[Phase]") {
+    // Give only number between [0, 2pi) for this test.
     double      f1 = 0.500003, eps1 = 1e-6;
-    float       f2 = 8.7654321f, eps2 = 1e-2f;
+    float       f2 = 2.7654321f, eps2 = 1e-2f;
     long double f3 = 1.234567890234567890L, eps3 = 1e-10L;
 
     Phase pD0(f1);
-    REQUIRE(pD0.toDouble() == Approx(f1).epsilon(1e-4)); 
+    REQUIRE(pD0.toDouble() == Approx(f1).margin(1e-4)); 
     Phase pD1(f1, eps1);
-    REQUIRE(pD1.toDouble() == Approx(f1).epsilon(eps1)); 
+    REQUIRE(pD1.toDouble() == Approx(f1).margin(eps1)); 
     Phase pD2(f2, eps2);
-    REQUIRE(pD2.toFloat() == Approx(f2).epsilon(eps2)); 
+    REQUIRE(pD2.toFloat() == Approx(f2).margin(eps2)); 
     Phase pD3(f3, eps3);
-    REQUIRE(pD3.toLongDouble() == Approx(f3).epsilon(eps3)); 
+    REQUIRE(pD3.toLongDouble() == Approx(f3).margin(eps3)); 
 }
 
 TEST_CASE("Phase arithmetics works correctly", "[Phase]") {
