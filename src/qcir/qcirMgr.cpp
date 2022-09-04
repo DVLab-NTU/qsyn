@@ -93,10 +93,11 @@ void QCirMgr::DFS(QCirGate *currentGate)
             }
         }
     }
-    _topoOrder.push(currentGate);
+    _topoOrder.push_back(currentGate);
 }
 void QCirMgr::updateTopoOrder()
 {
+    _topoOrder.clear();
     _globalDFScounter++;
     QCirGate *dummy = new HGate(-1);
 
@@ -105,15 +106,25 @@ void QCirMgr::updateTopoOrder()
         dummy->addDummyChild(_qubits[i]->getFirst());
     }
     DFS(dummy);
-    _topoOrder.pop(); // pop dummy
+    _topoOrder.pop_back(); // pop dummy
+    reverse(_topoOrder.begin(), _topoOrder.end());
     assert(_topoOrder.size() == _qgate.size());
 }
+// An easy checker for lambda function
+bool QCirMgr::printTopoOrder()
+{
+    auto testLambda = [](QCirGate *G)
+    {
+        cout << G->getId() << endl;
+    };
+    topoTraverse(testLambda);
+    return true;
+}
+
 void QCirMgr::updateGateTime()
 {
-    updateTopoOrder();
-    while (!_topoOrder.empty())
+    auto Lambda = [](QCirGate *currentGate)
     {
-        QCirGate *currentGate = _topoOrder.top();
         vector<BitInfo> Info = currentGate->getQubits();
         size_t max_time = 0;
         for (size_t i = 0; i < Info.size(); i++)
@@ -124,9 +135,8 @@ void QCirMgr::updateGateTime()
                 max_time = Info[i]._parent->getTime() + 1;
         }
         currentGate->setTime(max_time);
-        _topoOrder.pop();
-    }
-    _dirty = false;
+    };
+    topoTraverse(Lambda);
 }
 bool QCirMgr::removeQubit(size_t id)
 {
@@ -155,9 +165,8 @@ bool QCirMgr::removeQubit(size_t id)
 void QCirMgr::addGate(string type, vector<size_t> bits, Phase phase, bool append)
 {
     QCirGate *temp = NULL;
-    for_each(type.begin(), type.end(), [](char & c) {
-        c = ::tolower(c);
-    });
+    for_each(type.begin(), type.end(), [](char &c)
+             { c = ::tolower(c); });
     if (type == "h")
         temp = new HGate(_gateId);
     else if (type == "z")
@@ -181,17 +190,19 @@ void QCirMgr::addGate(string type, vector<size_t> bits, Phase phase, bool append
     else if (type == "ccx")
         temp = new CCXGate(_gateId);
     // Note: rz and p has a little difference
-    else if (type == "rz"){
+    else if (type == "rz")
+    {
         temp = new RZGate(_gateId);
         temp->setRotatePhase(phase);
-    }   
-       
+    }
+
     else
     {
-        cerr << "Error: The gate "<< type << " is not implement!!"<<endl;
+        cerr << "Error: The gate " << type << " is not implement!!" << endl;
         return;
     }
-    if(append){
+    if (append)
+    {
         size_t max_time = 0;
         for (size_t k = 0; k < bits.size(); k++)
         {
@@ -211,13 +222,14 @@ void QCirMgr::addGate(string type, vector<size_t> bits, Phase phase, bool append
         }
         temp->setTime(max_time);
     }
-    else{
+    else
+    {
         for (size_t k = 0; k < bits.size(); k++)
         {
             size_t q = bits[k];
             temp->addQubit(q, k == bits.size() - 1); // target is the last one
             QCirQubit *target = getQubit(q);
-            if(target->getFirst()!=NULL)
+            if (target->getFirst() != NULL)
             {
                 temp->setChild(q, target->getFirst());
                 target->getFirst()->setParent(q, temp);
@@ -307,7 +319,7 @@ bool QCirMgr::parseQASM(string filename)
                 pin_id.push_back(q); // targ
                 Phase phase;
                 phase.fromString(phaseStr);
-                addGate(type, pin_id, phase,true);
+                addGate(type, pin_id, phase, true);
             }
             else
             {
@@ -335,7 +347,7 @@ bool QCirMgr::parseQASM(string filename)
             vector<size_t> pin_id;
             pin_id.push_back(q1); // ctrl
             pin_id.push_back(q2); // targ
-            addGate(type, pin_id, Phase(0),true);
+            addGate(type, pin_id, Phase(0), true);
         }
     }
     return true;
