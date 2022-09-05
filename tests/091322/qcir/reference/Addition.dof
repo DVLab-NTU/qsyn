@@ -66,7 +66,7 @@ qsyn> qcgp 10
           ┌────┐ 
 Q0 Start ─┤ RZ ├─ G9
           └────┘ 
-Rotate Phase: 11π/28
+Rotate Phase: 112π/285
 
 qsyn> qcgp 9 -t
         ┌────┐ 
