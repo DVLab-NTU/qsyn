@@ -23,10 +23,10 @@ class Phase {
 
 public:
     Phase(): _rational(0, 1) {}
-    Phase(int n): _rational(n, 1) {}
+    Phase(int n): _rational(n, 1) { normalize(); }
     Phase(int n, int d): _rational(n, d) { normalize(); }
     template <class T> requires std::floating_point<T>
-    Phase(T f, T eps = 1e-4): _rational(f/std::numbers::pi_v<T>, eps) { normalize(); }
+    Phase(T f, T eps = 1e-4): _rational(f/std::numbers::pi_v<T>, eps/std::numbers::pi_v<T>) { normalize(); }
 
     friend std::ostream& operator<<(std::ostream& os, const Phase& p);
     Phase& operator+();
@@ -74,6 +74,10 @@ public:
     double toDouble();
     long double toLongDouble();
 
+    Rational getRational() {
+        return _rational;
+    }
+
     template <class T> requires std::floating_point<T>
     static Phase toPhase(T f, T eps = 1e-4){
         Phase p(f, eps);
@@ -93,18 +97,8 @@ public:
     bool fromString(const std::string& str) {
         *this = 0;
         T f;
-        if constexpr (std::is_same<T, double>::value) {
-            if (!myStr2Double(str, f)) {
-                return false;
-            }
-        } else if constexpr (std::is_same<T, float>::value) {
-            if (!myStr2Float(str, f)) {
-                return false;
-            }
-        } else {
-            if (!myStr2LongDouble(str, f)) {
-                return false;
-            }
+        if (!myStr2FloatType<T>(str, f)) {
+            return false;
         }
         *this = Phase::toPhase(f);
         return true;

@@ -1,6 +1,7 @@
 *.o
 .vscode
 bin/*
+tests/bin/*
 lib/*
 !lib/
 !lib/lib.d

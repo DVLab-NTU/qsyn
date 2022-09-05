@@ -1,10 +1,12 @@
 /****************************************************************************
-  FileName     [ testsMain.cpp ]
+  FileName     [ tests.cpp ]
   PackageName  [ test ]
-  Synopsis     [ Test program for rational number class ]
+  Synopsis     [ Catch2 Main Program. DO NOT MODIFY. ]
   Author       [ Mu-Te (Joshua) Lau ]
   Copyright    [ 2022 8 ]
 ****************************************************************************/
 
+// *** DO NOT MODIFY *** //
 #define CATCH_CONFIG_MAIN
-// #include "catch.hpp"
+#include "catch2/catch.hpp"
+// *** DO NOT MODIFY *** //
