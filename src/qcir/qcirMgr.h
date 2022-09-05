@@ -14,6 +14,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <functional>
 #include "qcirGate.h"
 #include "qcirQubit.h"
 #include "qcirDef.h"
@@ -21,7 +22,7 @@
 
 extern QCirMgr *qCirMgr;
 using namespace std;
-
+// template<typename F>
 class QCirMgr
 {
 public:
@@ -30,10 +31,10 @@ public:
     _gateId = 0;
     _qubitId = 0;
     _globalDFScounter = 1;
-    _dirty = false;
+    _dirty = true;
     _qgate.clear();
     _qubits.clear();
-    while(!_topoOrder.empty())  _topoOrder.pop();
+    _topoOrder.clear();
   }
   ~QCirMgr() {}
 
@@ -52,7 +53,20 @@ public:
   bool parseQASM(string qasm_file);
   
   void updateGateTime();
+
   // DFS functions
+  template<typename F>
+  void topoTraverse(F lambda){
+      if (_dirty){
+        updateTopoOrder();
+        _dirty = false;
+      }
+      for_each(_topoOrder.begin(),_topoOrder.end(),lambda);
+  }
+  bool printTopoOrder();
+  // pass a function F (public functions) into for_each 
+  // lambdaFn such as mappingToZX / updateGateTime
+ 
   void updateTopoOrder();
 
   // Member functions about circuit reporting
@@ -69,7 +83,7 @@ private:
   size_t _qubitId;
   vector<QCirGate *> _qgate;
   vector<QCirQubit*> _qubits;
-  stack<QCirGate *> _topoOrder;
+  vector<QCirGate *> _topoOrder;
 };
 
 #endif // QCIR_MGR_H

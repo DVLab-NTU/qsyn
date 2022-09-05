@@ -19,8 +19,8 @@ qcga -t 3
 qcga -cx 3 2
 qcga -cx 0 1
 qccp -q
-qcga -pr -rz -p 0.00001 0
-qcga -pr -rz -p 1.2345 0
+qcga -pr -rz -ph 0.00001 0
+qcga -pr -rz -ph 1.2345 0
 qcgp 10
 qcgp 9 -t
 qccp -q

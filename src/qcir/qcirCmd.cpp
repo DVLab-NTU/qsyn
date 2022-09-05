@@ -29,7 +29,7 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCGDelete", 4, new QCirDeleteGateCmd) &&
          cmdMgr->regCmd("QCBDelete", 4, new QCirDeleteQubitCmd) &&
          cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd)
-         //&& cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
+         && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
          ))
    {
       cerr << "Registering \"qcir\" commands fails... exiting" << endl;
@@ -49,24 +49,22 @@ enum QCirCmdState
 
 static QCirCmdState curCmd = QCIRINIT;
 
-// CmdExecStatus
-// QCirTestCmd::exec(const string &option)
-// {
-//    int num;
-//    bool isNum = myStr2Int(option, num);
-//    qCirMgr->printGateInfo(num, true);
-//    return CMD_EXEC_DONE;
-// }
-// void QCirTestCmd::usage(ostream &os) const
-// {
-//    os << "Usage: QCT" << endl;
-// }
+CmdExecStatus
+QCirTestCmd::exec(const string &option)
+{
+   qCirMgr->printTopoOrder();
+   return CMD_EXEC_DONE;
+}
+void QCirTestCmd::usage(ostream &os) const
+{
+   os << "Usage: QCT" << endl;
+}
 
-// void QCirTestCmd::help() const
-// {
-//    cout << setw(15) << left << "QCT: "
-//         << "Test what function you want (for developement)" << endl;
-// }
+void QCirTestCmd::help() const
+{
+   cout << setw(15) << left << "QCT: "
+        << "Test what function you want (for developement)" << endl;
+}
 
 //----------------------------------------------------------------------
 //    QCCRead <(string fileName)> [-Replace]
@@ -195,7 +193,7 @@ void QCirGatePrintCmd::usage(ostream &os) const
 void QCirGatePrintCmd::help() const
 {
    cout << setw(15) << left << "QCGPrint: "
-        << "print quanutm gate information\n";
+        << "print quantum gate information\n";
 }
 
 //----------------------------------------------------------------------
@@ -334,7 +332,7 @@ QCirAddGateCmd::exec(const string &option)
          return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
       }
       else{
-         if(myStrNCmp("-PHase", options[1], 2) != 0){
+         if(myStrNCmp("-PHase", options[1], 3) != 0){
             cerr << "Error: missing -PHase flag before (" << options[1] <<")!!" << endl;
             return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
          }
