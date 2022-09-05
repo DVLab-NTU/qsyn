@@ -21,7 +21,7 @@ enum class VertexType;
 enum class EdgeType;
 
 //------------------------------------------------------------------------
-//  Type Definition
+//  Define types
 //------------------------------------------------------------------------
 
 typedef pair<ZXVertex*, EdgeType> NeighborPair;
@@ -35,14 +35,16 @@ enum class VertexType{
     BOUNDARY,
     Z,
     X,
-    H_BOX
+    H_BOX,
+    ERRORTYPE
 };
 
 VertexType str2VertexType(string str);
 
 enum class EdgeType{
     SIMPLE,
-    HADAMARD
+    HADAMARD,
+    ERRORTYPE
 };
 
 EdgeType str2EdgeType(string str);
@@ -108,6 +110,23 @@ class ZXGraph{
             _outputs.clear();
             _vertices.clear();
             _edges.clear();
+        }
+        ZXGraph(const ZXGraph* zxGraph, size_t id){
+            this->_id = id;
+            this->_nqubit = zxGraph->_nqubit;
+            this->_inputs = zxGraph->_inputs;
+            this->_outputs = zxGraph->_outputs;
+            this->_vertices = zxGraph->_vertices;
+            this->_edges = zxGraph->_edges;
+        }
+        ZXGraph& operator=(const ZXGraph* zxGraph){
+                this->_id = zxGraph->_id;
+                this->_nqubit = zxGraph->_nqubit;
+                this->_inputs = zxGraph->_inputs;
+                this->_outputs = zxGraph->_outputs;
+                this->_vertices = zxGraph->_vertices;
+                this->_edges = zxGraph->_edges;
+                return *this;
         }
         ~ZXGraph() {}
 

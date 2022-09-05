@@ -15,7 +15,10 @@
 CmdClass(ZXModeCmd);
 CmdClass(ZXNewCmd);
 CmdClass(ZXRemoveCmd);
-CmdClass(ZXCheckoutCmd);
+CmdClass(ZXCHeckoutCmd);
+CmdClass(ZXPrintCmd);
+CmdClass(ZXCOpyCmd);
+
 CmdClass(ZXGPrintCmd);
 CmdClass(ZXGTestCmd);
 CmdClass(ZXGEditCmd);

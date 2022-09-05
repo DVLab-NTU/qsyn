@@ -21,11 +21,13 @@ VertexType str2VertexType(string str){
     else if (str == "Z") return VertexType::Z;
     else if (str == "X") return VertexType::X;
     else if (str == "H_BOX") return VertexType::H_BOX;
+    return VertexType::ERRORTYPE;
 }
 
 EdgeType str2EdgeType(string str){
     if(str == "SIMPLE") return EdgeType::SIMPLE;
     else if(str == "HADAMARD") return EdgeType::HADAMARD;
+    return EdgeType::ERRORTYPE;
 }
 
 /**************************************/
@@ -33,14 +35,14 @@ EdgeType str2EdgeType(string str){
 /**************************************/
 
 // Getter and Setter
- NeighborPair ZXVertex::getNeighborById(size_t id) const{
-    if(!isNeighborById(id)) cerr << "Error: Vertex " << id << " is not a neighbor of " << _id << endl;
-    else{
-        for(size_t i = 0; i < _neighbors.size(); i++){
-            if(_neighbors[i].first->getId() == id) return _neighbors[i];
-        }
-    }
- }
+NeighborPair ZXVertex::getNeighborById(size_t id) const{
+   if(!isNeighborById(id)) cerr << "Error: Vertex " << id << " is not a neighbor of " << _id << endl;
+   else{
+       for(size_t i = 0; i < _neighbors.size(); i++){
+           if(_neighbors[i].first->getId() == id) return _neighbors[i];
+       }
+   }
+}
 
 
 // Add and Remove
