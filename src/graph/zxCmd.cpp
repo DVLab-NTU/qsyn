@@ -24,9 +24,9 @@ bool initZXCmd(){
          cmdMgr->regCmd("ZXNew", 3, new ZXNewCmd) && 
          cmdMgr->regCmd("ZXRemove", 3, new ZXRemoveCmd) && 
          cmdMgr->regCmd("ZXCheckout", 3, new ZXCheckoutCmd) && 
-         cmdMgr->regCmd("ZXPrint", 3, new ZXPrintCmd) && 
-         cmdMgr->regCmd("ZXTest", 3, new ZXTestCmd) && 
-         cmdMgr->regCmd("ZXEdit", 3, new ZXEditCmd)
+         cmdMgr->regCmd("ZXGPrint", 4, new ZXGPrintCmd) && 
+         cmdMgr->regCmd("ZXGTest", 4, new ZXGTestCmd) && 
+         cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd)
          )){
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
         return false;
@@ -205,11 +205,11 @@ void ZXCheckoutCmd::help() const{
 
 
 //----------------------------------------------------------------------
-//    ZXTest [-GenerateCNOT | -Empty | -Valid]
+//    ZXGTest [-GenerateCNOT | -Empty | -Valid]
 //----------------------------------------------------------------------
 
 CmdExecStatus
-ZXTestCmd::exec(const string &option){
+ZXGTestCmd::exec(const string &option){
     if(curCmd != ZXON){
         cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXTest." << endl;
         return CMD_EXEC_ERROR;
@@ -238,21 +238,21 @@ ZXTestCmd::exec(const string &option){
    return CMD_EXEC_DONE;
 }
 
-void ZXTestCmd::usage(ostream &os) const{
+void ZXGTestCmd::usage(ostream &os) const{
     os << "Usage: ZXTest [-GenerateCNOT | -Empty | -Valid]" << endl;
 }
 
-void ZXTestCmd::help() const{
+void ZXGTestCmd::help() const{
     cout << setw(15) << left << "ZXTest: " << "test ZX-graph structures and functions" << endl; 
 }
 
 
 //----------------------------------------------------------------------
-//    ZXPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges]
+//    ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges]
 //----------------------------------------------------------------------
 
 CmdExecStatus
-ZXPrintCmd::exec(const string &option){
+ZXGPrintCmd::exec(const string &option){
     if(curCmd != ZXON){
         cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXPrint." << endl;
         return CMD_EXEC_ERROR;
@@ -278,11 +278,11 @@ ZXPrintCmd::exec(const string &option){
    return CMD_EXEC_DONE;
 }
 
-void ZXPrintCmd::usage(ostream &os) const{
+void ZXGPrintCmd::usage(ostream &os) const{
     os << "Usage: ZXPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges]" << endl;
 }
 
-void ZXPrintCmd::help() const{
+void ZXGPrintCmd::help() const{
     cout << setw(15) << left << "ZXPrint: " << "print ZX-graph" << endl; 
 }
 
@@ -296,7 +296,7 @@ void ZXPrintCmd::help() const{
 //------------------------------------------------------------------------------------
 
 CmdExecStatus
-ZXEditCmd::exec(const string &option){
+ZXGEditCmd::exec(const string &option){
     if(curCmd != ZXON){
         cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXEdit." << endl;
         return CMD_EXEC_ERROR;
@@ -420,7 +420,7 @@ ZXEditCmd::exec(const string &option){
     return CMD_EXEC_DONE;
 }
 
-void ZXEditCmd::usage(ostream &os) const{
+void ZXGEditCmd::usage(ostream &os) const{
     os << "Usage: ZXEdit -RMVertex <id>" << endl;
     os << "              -RMEdge <id_s, id_t> " << endl;
     os << "              -ADDInput <id, qubit, VertexType> " << endl;
@@ -429,7 +429,7 @@ void ZXEditCmd::usage(ostream &os) const{
     os << "              -ADDEdge <id_s, id_t, EdgeType>  " << endl;
 }
 
-void ZXEditCmd::help() const{
+void ZXGEditCmd::help() const{
     cout << setw(15) << left << "ZXEdit: " << "edit ZX-graph" << endl;
 }
 
