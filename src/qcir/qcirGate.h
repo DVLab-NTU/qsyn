@@ -184,7 +184,7 @@ public:
   CZGate(size_t id): CnRZGate(id) {}
   ~CZGate();
   virtual string getTypeStr() const { return "cz"; }
-  virtual ZXGraph*  getZXform(){ return NULL; };
+  virtual ZXGraph*  getZXform();
   virtual void printGateInfo(bool) const;
 };
 
@@ -214,7 +214,7 @@ public:
   CXGate(size_t id): CnRXGate(id) {}
   ~CXGate();
   virtual string getTypeStr() const { return "cx"; }
-  virtual ZXGraph*  getZXform(){ return NULL; };
+  virtual ZXGraph*  getZXform();
   virtual void printGateInfo(bool) const;
 };
 
