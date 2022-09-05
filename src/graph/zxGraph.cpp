@@ -33,7 +33,7 @@ EdgeType str2EdgeType(string str){
 /**************************************/
 
 // Getter and Setter
- pair<ZXVertex*, EdgeType> ZXVertex::getNeighborById(size_t id) const{
+ NeighborPair ZXVertex::getNeighborById(size_t id) const{
     if(!isNeighborById(id)) cerr << "Error: Vertex " << id << " is not a neighbor of " << _id << endl;
     else{
         for(size_t i = 0; i < _neighbors.size(); i++){
@@ -45,7 +45,7 @@ EdgeType str2EdgeType(string str){
 
 // Add and Remove
 
-void ZXVertex::removeNeighbor(pair<ZXVertex*, EdgeType> neighbor){
+void ZXVertex::removeNeighbor(NeighborPair neighbor){
     if(find(_neighbors.begin(), _neighbors.end(), neighbor) != _neighbors.end()){
         cout << "  * remove " << neighbor.first->getId() << " from " << _id << endl;
         _neighbors.erase(find(_neighbors.begin(), _neighbors.end(), neighbor));
@@ -140,7 +140,7 @@ void ZXGraph::generateCNOT(){
     edgeList.push_back(make_pair(2,4));
     edgeList.push_back(make_pair(3,5));
 
-    vector<pair<pair<ZXVertex*, ZXVertex*>, EdgeType> > edges;
+    vector<EdgePair > edges;
 
     for(size_t i = 0; i < edgeList.size(); i++){
         if(findVertexById(edgeList[i].first) != nullptr && findVertexById(edgeList[i].second) != nullptr){
