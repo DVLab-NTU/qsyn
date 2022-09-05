@@ -62,22 +62,22 @@ class ZXVertex{
         ~ZXVertex(){}
 
         // Getter and Setter
-        size_t getId() const { return _id; }
-        int getQubit() const { return _qubit; }
-        VertexType getType() const { return _type; }
-        rationalNumber getPhase() const { return _phase; }
-        vector<NeighborPair > getNeighbors() const { return _neighbors; }
+        size_t getId() const                                { return _id; }
+        int getQubit() const                                { return _qubit; }
+        VertexType getType() const                          { return _type; }
+        rationalNumber getPhase() const                     { return _phase; }
+        vector<NeighborPair > getNeighbors() const          { return _neighbors; }
         NeighborPair getNeighborById(size_t id) const;
 
-        void setId(size_t id) { _id = id; }
-        void setQubit(int q) {_qubit = q; }
-        void setType(VertexType ZXVertex) { _type = ZXVertex; }
-        void setPhase(rationalNumber p) { _phase = p; }
-        void setNeighbors(vector<NeighborPair > neighbors){ _neighbors = neighbors; }
+        void setId(size_t id)                               { _id = id; }
+        void setQubit(int q)                                {_qubit = q; }
+        void setType(VertexType ZXVertex)                   { _type = ZXVertex; }
+        void setPhase(rationalNumber p)                     { _phase = p; }
+        void setNeighbors(vector<NeighborPair > neighbors)  { _neighbors = neighbors; }
 
 
         // Add and Remove
-        void addNeighbor(NeighborPair neighbor) { _neighbors.push_back(neighbor); }
+        void addNeighbor(NeighborPair neighbor)             { _neighbors.push_back(neighbor); }
         void removeNeighbor(NeighborPair neighbor);
         void removeNeighborById(size_t id);
 
@@ -113,23 +113,23 @@ class ZXGraph{
 
 
         // Getter and Setter
-        void setId(size_t id) { _id = id; }
-        void setQubitCount(size_t c) { _nqubit = c; }
-        void setInputs(vector<ZXVertex*> inputs) { _inputs = inputs; }
-        void setOutputs(vector<ZXVertex*> outputs) { _outputs = outputs; }
-        void setVertices(vector<ZXVertex*> vertices) { _vertices = vertices; }
-        void setEdges(vector<EdgePair > edges) { _edges = edges; }
+        void setId(size_t id)                           { _id = id; }
+        void setQubitCount(size_t c)                    { _nqubit = c; }
+        void setInputs(vector<ZXVertex*> inputs)        { _inputs = inputs; }
+        void setOutputs(vector<ZXVertex*> outputs)      { _outputs = outputs; }
+        void setVertices(vector<ZXVertex*> vertices)    { _vertices = vertices; }
+        void setEdges(vector<EdgePair > edges)          { _edges = edges; }
         
-        size_t getId() const                    { return _id; }
-        size_t getQubitCount() const            { return _nqubit; }
-        vector<ZXVertex*> getInputs() const     { return _inputs; }
-        size_t getNumInputs() const             { return _inputs.size(); }
-        vector<ZXVertex*> getOutputs() const    { return _outputs; }
-        size_t getNumOutputs() const            { return _outputs.size(); }
-        vector<ZXVertex*> getVertices() const   { return _vertices; }
-        size_t getNumVertices() const           { return _vertices.size(); }
-        vector<EdgePair > getEdges() const      { return _edges; }
-        size_t getNumEdges() const              { return _edges.size(); }
+        size_t getId() const                            { return _id; }
+        size_t getQubitCount() const                    { return _nqubit; }
+        vector<ZXVertex*> getInputs() const             { return _inputs; }
+        size_t getNumInputs() const                     { return _inputs.size(); }
+        vector<ZXVertex*> getOutputs() const            { return _outputs; }
+        size_t getNumOutputs() const                    { return _outputs.size(); }
+        vector<ZXVertex*> getVertices() const           { return _vertices; }
+        size_t getNumVertices() const                   { return _vertices.size(); }
+        vector<EdgePair > getEdges() const              { return _edges; }
+        size_t getNumEdges() const                      { return _edges.size(); }
 
 
         // For testing
