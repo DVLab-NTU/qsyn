@@ -26,7 +26,7 @@ ZXGraph* HGate::getZXform()
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(Phase(3.14159)); // pi
-    temp->printVertices();
+    
     return temp;
 }
 
@@ -40,7 +40,7 @@ ZXGraph* XGate::getZXform()
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(Phase(3.14159)); // pi
-    temp->printVertices();
+    
     return temp;
 }
 
@@ -54,7 +54,7 @@ ZXGraph* SXGate::getZXform()
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(Phase(1.57080)); // pi/2
-    temp->printVertices();
+    
     return temp;
 }
 
@@ -76,7 +76,7 @@ ZXGraph* CXGate::getZXform()
     temp->addEdgeById(2,3,EdgeType::SIMPLE);
     temp->findVertexById(2)->setPhase(Phase(0)); // 0
     temp->findVertexById(3)->setPhase(Phase(0)); // 0
-    temp->printVertices();
+    
     return temp;
 }
 
@@ -90,7 +90,7 @@ ZXGraph* ZGate::getZXform()
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(Phase(3.14159)); // pi
-    temp->printVertices();
+    
     return temp;
 }
 
@@ -104,7 +104,7 @@ ZXGraph* SGate::getZXform()
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(Phase(1.57080)); // pi/2
-    temp->printVertices();
+    
     return temp;
 }
 
@@ -118,7 +118,7 @@ ZXGraph* TGate::getZXform()
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(Phase(0.78540)); // pi/4
-    temp->printVertices();
+    
     return temp;
 }
 
@@ -132,7 +132,7 @@ ZXGraph* TDGGate::getZXform()
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(Phase(-0.78540)); // -pi/4
-    temp->printVertices();
+    
     return temp;
 }
 
@@ -146,7 +146,7 @@ ZXGraph* RZGate::getZXform()
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(_rotatePhase); 
-    temp->printVertices();
+    
     return temp;
 }
 
@@ -168,6 +168,6 @@ ZXGraph* CZGate::getZXform()
     temp->addEdgeById(2,3,EdgeType::HADAMARD); // hadamard edge between z z
     temp->findVertexById(2)->setPhase(Phase(0)); // 0
     temp->findVertexById(3)->setPhase(Phase(0)); // 0
-    temp->printVertices();
+    
     return temp;
 }

@@ -53,7 +53,7 @@ public:
   bool parseQASM(string qasm_file);
   
   void updateGateTime();
-
+  void printZXTopoOrder();
   // DFS functions
   template<typename F>
   void topoTraverse(F lambda){

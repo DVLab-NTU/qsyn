@@ -120,7 +120,20 @@ bool QCirMgr::printTopoOrder()
     topoTraverse(testLambda);
     return true;
 }
-
+void QCirMgr::printZXTopoOrder()
+{
+    auto Lambda = [](QCirGate *G)
+    {
+        cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
+        ZXGraph* tmp = G->getZXform();
+        ////////////////////////////
+        // TODO: ZX concatenation //
+        ////////////////////////////
+        tmp->printVertices();
+        cout << endl;
+    };
+    topoTraverse(Lambda);
+}
 void QCirMgr::updateGateTime()
 {
     auto Lambda = [](QCirGate *currentGate)
