@@ -52,7 +52,18 @@ static QCirCmdState curCmd = QCIRINIT;
 CmdExecStatus
 QCirTestCmd::exec(const string &option)
 {
-   qCirMgr->printTopoOrder();
+   vector<string> options;
+   if (!CmdExec::lexOptions(option, options))
+      return CMD_EXEC_ERROR;
+   if (options.empty())
+      return CmdExec::errorOption(CMD_OPT_MISSING, "");
+   cout << options[0] << endl;
+   unsigned id;
+   if(!myStr2Uns(options[0],id)){
+      cerr << "Error: target ID should be a positive integer!!" << endl;
+      return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
+   }
+   qCirMgr->getGate(id)->getZXform();
    return CMD_EXEC_DONE;
 }
 void QCirTestCmd::usage(ostream &os) const
