@@ -101,8 +101,6 @@ void ZXGraphMgr::copy(size_t id){
       copyTarget->setOutputs(getGraph()->getOutputs());
       copyTarget->setVertices(getGraph()->getVertices());
       copyTarget->setQubitCount(getGraph()->getQubitCount());
-      
-      // ZXGraph copyGraph(getGraph(), id);
       _graphList.push_back(copyTarget);
       _gListItr = _graphList.end()-1;
       if(id == _nextID || _nextID < id) _nextID = id + 1;
