@@ -65,7 +65,7 @@ bool QCirMgr::printGateInfo(size_t id, bool showTime)
     }
     else
     {
-        cerr << "ERROR: id " << id << " not found!!" << endl;
+        cerr << "Error: id " << id << " not found!!" << endl;
         return false;
     }
 }

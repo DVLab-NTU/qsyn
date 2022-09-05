@@ -29,7 +29,7 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCGDelete", 4, new QCirDeleteGateCmd) &&
          cmdMgr->regCmd("QCBDelete", 4, new QCirDeleteQubitCmd) &&
          cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd)
-         && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
+         // && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
          ))
    {
       cerr << "Registering \"qcir\" commands fails... exiting" << endl;
@@ -49,34 +49,22 @@ enum QCirCmdState
 
 static QCirCmdState curCmd = QCIRINIT;
 
-CmdExecStatus
-QCirTestCmd::exec(const string &option)
-{
-   qCirMgr->printZXTopoOrder();
-   // vector<string> options;
-   // if (!CmdExec::lexOptions(option, options))
-   //    return CMD_EXEC_ERROR;
-   // if (options.empty())
-   //    return CmdExec::errorOption(CMD_OPT_MISSING, "");
-   // cout << options[0] << endl;
-   // unsigned id;
-   // if(!myStr2Uns(options[0],id)){
-   //    cerr << "Error: target ID should be a positive integer!!" << endl;
-   //    return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
-   // }
-   // qCirMgr->getGate(id)->getZXform();
-   return CMD_EXEC_DONE;
-}
-void QCirTestCmd::usage(ostream &os) const
-{
-   os << "Usage: QCT" << endl;
-}
+// CmdExecStatus
+// QCirTestCmd::exec(const string &option)
+// {
+//    qCirMgr->printZXTopoOrder();
+//    return CMD_EXEC_DONE;
+// }
+// void QCirTestCmd::usage(ostream &os) const
+// {
+//    os << "Usage: QCT" << endl;
+// }
 
-void QCirTestCmd::help() const
-{
-   cout << setw(15) << left << "QCT: "
-        << "Test what function you want (for developement)" << endl;
-}
+// void QCirTestCmd::help() const
+// {
+//    cout << setw(15) << left << "QCT: "
+//         << "Test what function you want (for developement)" << endl;
+// }
 
 //----------------------------------------------------------------------
 //    QCCRead <(string fileName)> [-Replace]
@@ -151,7 +139,7 @@ void QCirReadCmd::help() const
 }
 
 //----------------------------------------------------------------------
-//    QCGPrint <(size_t gateID)> [-Time]
+//    QCGPrint <(size_t gateID)> [-Time | -ZXform]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirGatePrintCmd::exec(const string &option)
@@ -168,15 +156,25 @@ QCirGatePrintCmd::exec(const string &option)
    if (options.empty())
       return CmdExec::errorOption(CMD_OPT_MISSING, "");
 
+   bool hasOption = false;
    bool showTime = false;
+   bool ZXtrans = false;
    string strID = "";
    for (size_t i = 0, n = options.size(); i < n; ++i)
    {
       if (myStrNCmp("-Time", options[i], 2) == 0)
       {
-         if (showTime)
+         if (hasOption)
             return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
          showTime = true;
+         hasOption = true;
+      }
+      else if(myStrNCmp("-ZXform", options[i], 3) == 0)
+      {
+         if (hasOption)
+            return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
+         ZXtrans = true;
+         hasOption = true;
       }
       else
       {
@@ -191,15 +189,25 @@ QCirGatePrintCmd::exec(const string &option)
    if(!myStr2Uns(strID,id)){
       cerr << "Error: target ID should be a positive integer!!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
-   }   
-   if (!qCirMgr->printGateInfo(id, showTime))
-      return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
+   }
+   if (ZXtrans){
+      if(qCirMgr->getGate(id)==NULL){
+         cerr << "Error: id " << id << " not found!!" << endl;
+         return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
+      }
+      qCirMgr->getGate(id)->getZXform()->printVertices();
+   }
+   else{
+      if (!qCirMgr->printGateInfo(id, showTime))
+         return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
+   }
+   
    return CMD_EXEC_DONE;
 }
 
 void QCirGatePrintCmd::usage(ostream &os) const
 {
-   os << "Usage: QCGPrint <(size_t gateID)> [-Time]" << endl;
+   os << "Usage: QCGPrint <(size_t gateID)> [-Time | -ZXform]" << endl;
 }
 
 void QCirGatePrintCmd::help() const
@@ -209,7 +217,7 @@ void QCirGatePrintCmd::help() const
 }
 
 //----------------------------------------------------------------------
-//    QCCPrint [-List | -Qubit]
+//    QCCPrint [-List | -Qubit | -ZXform]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirPrintCmd::exec(const string &option)
@@ -228,6 +236,8 @@ QCirPrintCmd::exec(const string &option)
       qCirMgr->printSummary();
    else if (myStrNCmp("-Qubit", token, 2) == 0)
       qCirMgr->printQubits();
+   else if (myStrNCmp("-ZXform", token, 2) == 0)
+      qCirMgr->printZXTopoOrder();
    else
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
 
@@ -236,7 +246,7 @@ QCirPrintCmd::exec(const string &option)
 
 void QCirPrintCmd::usage(ostream &os) const
 {
-   os << "Usage: QCCPrint [-List | -Qubit]" << endl;
+   os << "Usage: QCCPrint [-List | -Qubit | -ZXform]" << endl;
 }
 
 void QCirPrintCmd::help() const
