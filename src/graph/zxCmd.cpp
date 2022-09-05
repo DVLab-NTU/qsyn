@@ -235,7 +235,7 @@ void ZXPrintCmd::help() const{
 
 
 //----------------------------------------------------------------------
-//    ZXCOpy
+//    ZXCOpy [(size_t id)]
 //----------------------------------------------------------------------
 
 CmdExecStatus
@@ -252,23 +252,18 @@ ZXCOpyCmd::exec(const string &option){
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
             }
             else zxGraphMgr->copy(id);
-            
-            
         }
     }
     return CMD_EXEC_DONE;
 }
 
 void ZXCOpyCmd::usage(ostream &os) const{
-    os << "Usage: ZXCopy" << endl;
+    os << "Usage: ZXCOpy [(size_t id)]" << endl;
 }
 
 void ZXCOpyCmd::help() const{
-    cout << setw(15) << left << "ZXCOpy: " << "copy a ZX-graph and add into ZXGraphMgr" << endl; 
+    cout << setw(15) << left << "ZXCOpy: " << "copy a ZX-graph" << endl; 
 }
-
-
-
 
 
 
