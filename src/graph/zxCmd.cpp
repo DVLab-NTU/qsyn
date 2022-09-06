@@ -480,8 +480,8 @@ void ZXGEditCmd::usage(ostream &os) const{
     os << "Usage: ZXGEdit -RMVertex [i | <(size_t id(s))> ]" << endl;
     os << "               -RMEdge <(size_t id_s), (size_t id_t)>" << endl;
     os << "               -ADDVertex <(size_t id), (size_t qubit), (VertexType vt)> " << endl;
-    os << "               -ADDInput <(size_t id), (size_t qubit), (VertexType vt)> " << endl;
-    os << "               -ADDOutput <(size_t id), (size_t qubit), (VertexType vt)>" << endl;
+    os << "               -ADDInput <(size_t id), (size_t qubit)> " << endl;
+    os << "               -ADDOutput <(size_t id), (size_t qubit)>" << endl;
     os << "               -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>   " << endl;
 }
 
