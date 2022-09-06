@@ -34,6 +34,18 @@ EdgeType str2EdgeType(string str){
 /*   class ZXVertex member functions   */
 /**************************************/
 
+// ZXVertex::ZXVertex(const ZXVertex& zxVertex){
+//     ZXVertex copy = ZXVertex(0, 0, VertexType::ERRORTYPE);
+//     copy._qubit = zxVertex._qubit;
+//     copy._id = zxVertex._id;
+//     copy._type = zxVertex._type;
+//     copy._phase = zxVertex._phase;
+//     for(size_t i = 0; i < zxVertex._neighbors.size(); i++){
+//         copy._neighbors.push_back(zxVertex._neighbors[i]);
+//     }
+//     return &copy;
+// }
+
 // Getter and Setter
 NeighborPair ZXVertex::getNeighborById(size_t id) const{
    if(!isNeighborById(id)) cerr << "Error: Vertex " << id << " is not a neighbor of " << _id << endl;
@@ -287,6 +299,61 @@ ZXVertex* ZXGraph::findVertexById(size_t id) const{
     return nullptr;
 }
 
+size_t ZXGraph::findNextId() const{
+    size_t nextId = 0;
+    for(size_t i = 0; i < _vertices.size(); i++){
+        if(_vertices[i]->getId() >= nextId) nextId = _vertices[i]->getId() + 1;
+    }
+    return nextId;
+}
+
+// Action
+
+ZXGraph* ZXGraph::copy() const{
+    ZXGraph* newGraph = new ZXGraph(0);
+
+    newGraph->setId(getId());
+    newGraph->setQubitCount(getQubitCount());
+
+    vector<ZXVertex*> inputs, outputs, vertices;
+    vector<EdgePair > edges;
+
+    // new Inputs
+    for(size_t i = 0; i < getInputs().size(); i++){
+        ZXVertex* oriVertex = getInputs()[i];
+        ZXVertex* newVertex = new ZXVertex(oriVertex->getId(), oriVertex->getQubit(), oriVertex->getType());
+        inputs.push_back(newVertex);
+        vertices.push_back(newVertex);
+    }
+    newGraph->setInputs(inputs);
+
+    // new Outputs
+    for(size_t i = 0; i < getOutputs().size(); i++){
+        ZXVertex* oriVertex = getOutputs()[i];
+        ZXVertex* newVertex = new ZXVertex(oriVertex->getId(), oriVertex->getQubit(), oriVertex->getType());
+        outputs.push_back(newVertex);
+        vertices.push_back(newVertex);
+    }
+    newGraph->setOutputs(outputs);
+
+    // new Vertices (without I/O)
+    for(size_t i = 0; i < getVertices().size(); i++){
+        if(getVertices()[i]->getType() != VertexType::BOUNDARY){
+            ZXVertex* oriVertex = getVertices()[i];
+            ZXVertex* newVertex = new ZXVertex(oriVertex->getId(), oriVertex->getQubit(), oriVertex->getType());
+            vertices.push_back(newVertex);
+        }
+    }
+    newGraph->setVertices(vertices);
+
+    for(size_t i = 0; i < getEdges().size(); i++){
+        EdgePair oriPair = getEdges()[i];
+        EdgePair newPair = make_pair(make_pair(newGraph->findVertexById(oriPair.first.first->getId()), newGraph->findVertexById(oriPair.first.second->getId())), oriPair.second);
+        edges.push_back(newPair);
+    }
+    newGraph->setEdges(edges);
+    return newGraph;
+}
 
 // Print functions
 

@@ -61,6 +61,7 @@ class ZXVertex{
             _qubit = qubit;
             _type = ZXVertex;
         }
+        ZXVertex(const ZXVertex& zxVertex);
         ~ZXVertex(){}
 
         // Getter and Setter
@@ -111,23 +112,8 @@ class ZXGraph{
             _vertices.clear();
             _edges.clear();
         }
-        ZXGraph(const ZXGraph* zxGraph, size_t id){
-            this->_id = id;
-            this->_nqubit = zxGraph->_nqubit;
-            this->_inputs = zxGraph->_inputs;
-            this->_outputs = zxGraph->_outputs;
-            this->_vertices = zxGraph->_vertices;
-            this->_edges = zxGraph->_edges;
-        }
-        ZXGraph& operator=(const ZXGraph* zxGraph){
-                this->_id = zxGraph->_id;
-                this->_nqubit = zxGraph->_nqubit;
-                this->_inputs = zxGraph->_inputs;
-                this->_outputs = zxGraph->_outputs;
-                this->_vertices = zxGraph->_vertices;
-                this->_edges = zxGraph->_edges;
-                return *this;
-        }
+        // Copy Constructor
+        ZXGraph(const ZXGraph &zxGraph);
         ~ZXGraph() {}
 
 
@@ -172,6 +158,10 @@ class ZXGraph{
         
         // Find functions
         ZXVertex* findVertexById(size_t id) const;
+        size_t findNextId() const;
+
+        // Action
+        ZXGraph* copy() const;
 
 
         // Print functions

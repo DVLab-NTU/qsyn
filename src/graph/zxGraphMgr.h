@@ -55,7 +55,7 @@ class ZXGraphMgr{
         // Action
         void checkout2ZXGraph(size_t id);
         void copy(size_t id);
-        void merge(ZXGraph* zxGraph);
+        void compose(ZXGraph* zxGraph);
         ZXGraph* findZXGraphByID(size_t id) const;
 
 

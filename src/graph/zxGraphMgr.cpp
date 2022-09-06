@@ -106,7 +106,32 @@ void ZXGraphMgr::copy(size_t id){
       if(id == _nextID || _nextID < id) _nextID = id + 1;
       cout << "Successfully copy Graph " << oriGraphID << " to Graph "<< id << endl;
       cout << "Checkout to Graph " << id << endl;
+
+      cout << "Testing" << endl;
+      copyTarget->getInputs()[0]->setId(10000);
+      copyTarget->printInputs();
+
+      getGraph()->printInputs();
+
+
+
     }
+  }
+}
+
+
+void ZXGraphMgr::compose(ZXGraph* zxGraph){
+  ZXGraph* oriGraph = getGraph();
+  if(oriGraph->getNumOutputs() != zxGraph->getNumInputs()) 
+    cerr << "Error: The composing ZX-graph's #input is not equivalent to the original ZX-graph's #output." << endl;
+  else{
+    // Make a deep copy of zxGraph
+    
+    // Overwrite cmpGraph's vertices id so that the ids will not be repeated.
+    
+
+
+
   }
 }
 
