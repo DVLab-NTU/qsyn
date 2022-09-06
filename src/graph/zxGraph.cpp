@@ -183,19 +183,19 @@ bool ZXGraph::isId(size_t id) const{
 
 
 // Add and Remove
-void ZXGraph::addInput(size_t id, int qubit, VertexType vt){
+void ZXGraph::addInput(size_t id, int qubit){
     if(isId(id)) cerr << "Error: This vertex id is already exist!!" << endl;
     else{
-        ZXVertex* v = new ZXVertex(id, qubit, vt);
+        ZXVertex* v = new ZXVertex(id, qubit, VertexType::BOUNDARY);
         _vertices.push_back(v);
         _inputs.push_back(v);
     }
 }
 
-void ZXGraph::addOutput(size_t id, int qubit, VertexType vt){
+void ZXGraph::addOutput(size_t id, int qubit){
     if(isId(id)) cerr << "Error: This vertex id is already exist!!" << endl;
     else{
-        ZXVertex* v = new ZXVertex(id, qubit, vt);
+        ZXVertex* v = new ZXVertex(id, qubit, VertexType::BOUNDARY);
         _vertices.push_back(v);
         _outputs.push_back(v);
     }

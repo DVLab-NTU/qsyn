@@ -160,8 +160,8 @@ class ZXGraph{
 
 
         // Add and Remove
-        void addInput(size_t id, int qubit, VertexType ZXVertex);
-        void addOutput(size_t id, int qubit, VertexType ZXVertex);
+        void addInput(size_t id, int qubit);
+        void addOutput(size_t id, int qubit);
         void addVertex(size_t id, int qubit, VertexType ZXVertex);
         void addEdgeById(size_t id_s, size_t id_t, EdgeType et);
         void removeVertex(ZXVertex* v);

@@ -355,8 +355,8 @@ void ZXGPrintCmd::help() const{
 //    ZXGEdit -RMVertex [i | <(size_t id(s))> ]
 //            -RMEdge <(size_t id_s), (size_t id_t)>
 //            -ADDVertex <(size_t id), (size_t qubit), (VertexType vt)> 
-//            -ADDInput <(size_t id), (size_t qubit), (VertexType vt)> 
-//            -ADDOutput <(size_t id), (size_t qubit), (VertexType vt)>
+//            -ADDInput <(size_t id), (size_t qubit)> 
+//            -ADDOutput <(size_t id), (size_t qubit)>
 //            -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>   
 //------------------------------------------------------------------------------------
 
@@ -428,40 +428,31 @@ ZXGEditCmd::exec(const string &option){
         else zxGraphMgr->getGraph()->addVertex(id, q, str2VertexType(options[3]));
     }
     else if(myStrNCmp("-ADDInput", action, 4) == 0){
-        if(options.size() != 4){
+        if(options.size() != 3){
             cerr << "Error: cmd options are missing / extra" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
         }
         int id, q;
         bool isNum = myStr2Int(options[1], id) && myStr2Int(options[2], q);
-        bool isBoundary = (options[3] == "BOUNDARY");
         if(!isNum || id < 0){
             cerr << "Error: vertex id / qubit invalid" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
         }
-        else if(!isBoundary){
-            cerr << "Error: VertexType is invalid" << endl;
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
-        }
-        else zxGraphMgr->getGraph()->addInput(id, q, str2VertexType(options[3]));
+        else zxGraphMgr->getGraph()->addInput(id, q);
     }
     else if(myStrNCmp("-ADDOutput", action, 4) == 0){
-        if(options.size() != 4){
+        if(options.size() != 3){
             cerr << "Error: cmd options are missing / extra" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
         }
         int id, q;
         bool isNum = myStr2Int(options[1], id) && myStr2Int(options[2], q);
-        bool isBoundary = (options[3] == "BOUNDARY");
+        
         if(!isNum || id < 0){
             cerr << "Error: vertex id / qubit invalid" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
         }
-        else if(!isBoundary){
-            cerr << "Error: VertexType is invalid" << endl;
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
-        }
-        else zxGraphMgr->getGraph()->addOutput(id, q, str2VertexType(options[3]));
+        else zxGraphMgr->getGraph()->addOutput(id, q);
     }
     else if(myStrNCmp("-ADDEdge", action, 4) == 0){
         if(options.size() != 4){
