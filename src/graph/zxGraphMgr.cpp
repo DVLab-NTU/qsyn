@@ -78,43 +78,30 @@ void ZXGraphMgr::checkout2ZXGraph(size_t id){
 void ZXGraphMgr::copy(size_t id){
   if(_graphList.empty()) cerr << "Error: ZXGraphMgr is empty now! Action \"copy\" failed!" << endl;
   else{
-    ZXGraph* copyTarget;
-    if(isID(id)){
-      // Overwrite existed ZXGraph
-      cout << "Overwrite existed Graph " << id << endl;
-      copyTarget = findZXGraphByID(id);
-      copyTarget->setEdges(getGraph()->getEdges());
-      copyTarget->setInputs(getGraph()->getInputs());
-      copyTarget->setOutputs(getGraph()->getOutputs());
-      copyTarget->setVertices(getGraph()->getVertices());
-      copyTarget->setQubitCount(getGraph()->getQubitCount());
-
-      cout << "Successfully copy Graph " << getGraph()->getId() << " to Graph "<< id << endl;
-      checkout2ZXGraph(id);
+    bool existed = false;
+    ZXGraph* copyTarget = getGraph()->copy();
+    copyTarget->setId(id);
+    
+    // Overwrite existed ZXGraph
+    for(size_t i = 0; i < _graphList.size(); i++){
+      if(_graphList[i]->getId() == id){
+        cout << "Overwrite existed Graph " << id << endl;
+        _graphList.erase(_graphList.begin()+i);
+        _graphList.insert(_graphList.begin()+i, copyTarget);
+        cout << "Successfully copy Graph " << getGraph()->getId() << " to Graph "<< id << endl;
+        checkout2ZXGraph(id);
+        existed = true;
+        break;
+      }
     }
-    else{
-      // Create a new ZXGraph
+    // Create a new ZXGraph
+    if(!existed){
       size_t oriGraphID = getGraph()->getId();
-      copyTarget = new ZXGraph(id);
-      copyTarget->setEdges(getGraph()->getEdges());
-      copyTarget->setInputs(getGraph()->getInputs());
-      copyTarget->setOutputs(getGraph()->getOutputs());
-      copyTarget->setVertices(getGraph()->getVertices());
-      copyTarget->setQubitCount(getGraph()->getQubitCount());
       _graphList.push_back(copyTarget);
       _gListItr = _graphList.end()-1;
       if(id == _nextID || _nextID < id) _nextID = id + 1;
       cout << "Successfully copy Graph " << oriGraphID << " to Graph "<< id << endl;
       cout << "Checkout to Graph " << id << endl;
-
-      cout << "Testing" << endl;
-      copyTarget->getInputs()[0]->setId(10000);
-      copyTarget->printInputs();
-
-      getGraph()->printInputs();
-
-
-
     }
   }
 }
