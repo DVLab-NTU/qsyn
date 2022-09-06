@@ -12,7 +12,7 @@
 ## Compilation
 `qsyn` supports macOS, linux16 and linux18. To compile, first run
 ```
-$ make < mac | linux16 | linux18 > 
+$ make < mac | linux18 > 
 ```
 depending on your OS. Then, 
 ```
