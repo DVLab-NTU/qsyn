@@ -375,6 +375,7 @@ bool QCirMgr::parseQC(string filename)
     // ex: qubit_labels = {A,B,C,1,2,3,result}
     //     qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), token));
     vector<string> qubit_labels;
+    qubit_labels.clear();
     string line;
     vector<string> single_list{"X", "Z", "S", "S*", "H", "T", "T*"};
     vector<string> double_list{"cnot" , "cx", "cz"};
@@ -382,8 +383,10 @@ bool QCirMgr::parseQC(string filename)
 
     while ( getline(qc_file, line))
     {
+        // cout << line << endl;
         if (line.find('.')==0) // find initial statement
         {
+            
             // erase .v .i or .o
             line.erase(0, line.find(' '));
             line.erase(0, 1);
@@ -391,21 +394,23 @@ bool QCirMgr::parseQC(string filename)
             while (!line.empty())
             {
                 string token= line.substr(0, line.find(' '));
+                // Fix '\r'
+                token = token[token.size()-1]=='\r' ? token.substr(0,token.size()-1) : token;
                 if ( find(qubit_labels.begin(), qubit_labels.end(), token) == qubit_labels.end())
                 {
                     qubit_labels.push_back(token);
                     n_qubit++;
-                    cerr << "new token = "<< token  << endl;
+                    cerr << "new token = "<< token << endl;
                     cerr << "new id = "<< distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), token))  << endl;
                 }
                 line.erase(0, line.find(' '));
                 line.erase(0, 1);
             }
-
         }
         else if (line.find('#')==0 || line == "") continue;
         else if (line.find("BEGIN")==0)
         {
+            
             cerr << line << "  start" << endl;
             addQubit(n_qubit);
             //cerr << "Qubit number = "<< n_qubit << endl;
@@ -428,28 +433,40 @@ bool QCirMgr::parseQC(string filename)
                 while (!line.empty())
                 {
                     vector<size_t> pin_id;
-                    string qubit_label = line.substr(0, line.find(' '));
-                    //cerr << "Finding " << qubit_label << endl;
+                    bool singleTarget = (line.find(' ') == string::npos);
+                    string qubit_label;
+                    qubit_label =  singleTarget ? line.substr(0,line.size()-1) : line.substr(0, line.find(' '));
+                    
+                    // cerr << "Finding " << qubit_label << endl;
+                    vector<string>::iterator it;
+                    it = find(qubit_labels.begin(), qubit_labels.end(), qubit_label);
+                    if(it == qubit_labels.end()) cout << "Not found "<< qubit_label<<endl;
+                    
                     size_t qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), qubit_label));
-                    //cerr << "Find a single gate " << gate << " on qubit" << qubit_id <<endl;
+                    // cerr << "Find a single gate " << gate << " on qubit" << qubit_id <<endl;
                     //phase phase;
+                    
                     pin_id.push_back(qubit_id);
+                    
                     addGate(gate,pin_id,Phase(0),true);
+                    
                     line.erase(0, line.find(' '));
+                    
                     line.erase(0, 1);
+                    
 
                 }
             }
             else if ( find(double_list.begin(),double_list.end(),gate)!=double_list.end())
             {
                 //add double gate
-
                 vector<size_t> pin_id;
 
                 while (!line.empty())
                 {
-                    
-                    string qubit_label = line.substr(0, line.find(' '));
+                    bool singleTarget = (line.find(' ') == string::npos);
+                    string qubit_label;
+                    qubit_label =  singleTarget ? line.substr(0,line.size()-1) : line.substr(0, line.find(' '));
                     int qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), qubit_label));
                     pin_id.push_back(qubit_id);
                     line.erase(0, line.find(' '));
@@ -469,7 +486,9 @@ bool QCirMgr::parseQC(string filename)
                 while (!line.empty())
                 {
                     
-                    string qubit_label = line.substr(0, line.find(' '));
+                    bool singleTarget = (line.find(' ') == string::npos);
+                    string qubit_label;
+                    qubit_label =  singleTarget ? line.substr(0,line.size()-1) : line.substr(0, line.find(' '));
                     int qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), qubit_label));
                     pin_id.push_back(qubit_id);
                     line.erase(0, line.find(' '));
@@ -484,11 +503,12 @@ bool QCirMgr::parseQC(string filename)
                 else {cerr << "Do not support more than 2 control toffoli " << endl;}
 
             }
-            else{ cerr << "Find a undefined gate: "<< gate << endl;}
+            else{ 
+                // cerr << "Find a undefined gate: "<< gate << endl;
+            }
         }
     }
     //if ()
-
     return true;
     // qccread ./benchmark/qc/Other/grover_5.qc
     
