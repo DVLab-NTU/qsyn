@@ -372,8 +372,8 @@ bool QCirMgr::parseQC(string filename)
         return false;
     }
 
-    // qubit_labels = {A,B,C,1,2,3,result}
-    // qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), token));
+    // ex: qubit_labels = {A,B,C,1,2,3,result}
+    //     qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), token));
     vector<string> qubit_labels;
     string line;
     vector<string> single_list{"X", "Z", "S", "S*", "H", "T", "T*"};
@@ -395,8 +395,8 @@ bool QCirMgr::parseQC(string filename)
                 {
                     qubit_labels.push_back(token);
                     n_qubit++;
-                    //cerr << "new token = "<< token  << endl;
-                    //cerr << "new id = "<< distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), token))  << endl;
+                    cerr << "new token = "<< token  << endl;
+                    cerr << "new id = "<< distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), token))  << endl;
                 }
                 line.erase(0, line.find(' '));
                 line.erase(0, 1);
@@ -406,14 +406,14 @@ bool QCirMgr::parseQC(string filename)
         else if (line.find('#')==0 || line == "") continue;
         else if (line.find("BEGIN")==0)
         {
-            //cerr << line << "  start" << endl;
+            cerr << line << "  start" << endl;
             addQubit(n_qubit);
             //cerr << "Qubit number = "<< n_qubit << endl;
             //for (size_t i=0;i<n_qubit;i++) cerr << qubit_labels[i] << " " ;
         }
         else if (line.find("END")==0)
         {
-            //cerr << line << "  end" << endl;
+            cerr << line << "  end" << endl;
             return true;
 
         }
