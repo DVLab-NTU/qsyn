@@ -9,10 +9,12 @@ on:
 jobs:
   build-and-test:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
 
     steps:
     - uses: actions/checkout@v3
+    
+    - name: configure
       
     - name: Compile main program
       run: make
