@@ -1,0 +1,11 @@
+zxmode -On
+zxprint
+zxnew
+zxgtest -g
+zxgprint -v
+zxgprint -e
+zxnew
+zxcheckout 0
+ZXGEdit -rmv 1
+zxgprint
+q -f
