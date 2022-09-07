@@ -1,18 +1,15 @@
 #!/bin/bash
 
-if [[ $UID != 0 ]]; then
-    echo "Please run this script with sudo:"
-    echo "sudo $0 $*"
-    exit 1
-fi
-
 TMP_NAME="tmp.log"
 ENGINE_INSTALL_PATH="/usr/local"
 
 ENGINES="xtl xtensor xtensor-blas"
+HEADERS="catch2"
 # When appending more engines, please concat this strings. Dependencies should be placed before the package that depends on them. e.g.,
 # ENGINES+="dependency_of_another_engine another_engine"
 
+
+echo "Installing 3rd-party libraries into ${ENGINE_INSTALL_PATH}..."
 cd vendor
 echo | gcc -Wp,-v -x c++ - -fsyntax-only 2> ${TMP_NAME}
 
@@ -42,3 +39,13 @@ for engine in $ENGINES; do
 done
 
 rm -f ${TMP_NAME}
+cd ..
+
+echo "Linking 3rd-party headers..."
+cd include
+for header in $HEADERS; do
+    echo "> Linking vendor/${header}..."
+    rm -f ${header}
+    ln -rs ../vendor/${header} ${header}
+done
+cd ..
