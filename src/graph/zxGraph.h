@@ -12,6 +12,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include "phase.h"
+#include "zxDef.h"
 using namespace std;
 
 
@@ -77,6 +79,7 @@ class ZXVertex{
         void setType(VertexType ZXVertex)                   { _type = ZXVertex; }
         void setPhase(rationalNumber p)                     { _phase = p; }
         void setNeighbors(vector<NeighborPair > neighbors)  { _neighbors = neighbors; }
+
 
 
         // Add and Remove

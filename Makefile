@@ -8,7 +8,7 @@ LIBS      = $(addprefix -l, $(LIBPKGS))
 SRCLIBS   = $(addsuffix .a, $(addprefix lib, $(SRCPKGS)))
 
 EXEC      = qsyn
-TESTEXECS = testRational test2
+TESTEXEC  = tests
 
 all:  libs main
 test: libs testmain
@@ -30,14 +30,8 @@ main:
 
 testmain:
 	@echo "Checking $(TESTMAIN)..."
-	@for testexec in $(TESTEXECS); \
-	do \
-		cd src/$(TESTMAIN); \
-		make -f make.$(TESTMAIN) --no-print-directory INCLIB="$(LIBS)" EXEC=$$testexec; \
-		cd ../../tests; \
-		ln -fs ../bin/$$testexec .; \
-		cd ..; \
-	done
+	@cd src/$(TESTMAIN); \
+		make -f make.$(TESTMAIN) --no-print-directory INCLIB="$(LIBS)" EXEC=$(TESTEXEC);
 
 
 clean:
@@ -68,7 +62,7 @@ ctags:
 	@echo "Tagging $(MAIN)..."
 	@cd src; ctags -a $(MAIN)/*.cpp $(MAIN)/*.h
 
-linux18 linux16 mac:
+linux18 mac:
 	@for pkg in $(REFPKGS); \
 	do \
 	        cd lib; ln -sf lib$$pkg-$@.a lib$$pkg.a; cd ../..; \

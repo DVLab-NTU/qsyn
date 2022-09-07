@@ -409,7 +409,6 @@ ZXGraph* ZXGraph::copy() const{
 }
 
 // Print functions
-
 void ZXGraph::printGraph() const{
     cout << "Graph " << _id << endl;
     cout << setw(15) << left << "Inputs: " << _inputs.size() << endl;

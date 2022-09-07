@@ -1,10 +1,11 @@
 *.o
 .vscode
 bin/*
+tests/bin/*
 lib/*
 !lib/
 !lib/lib.d
 !lib/libcmd-*
-
+qsyn
 src/*/.depend.mak
 src/*/.extheader.mak
