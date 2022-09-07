@@ -87,7 +87,9 @@ void ZXVertex::printVertex() const{
     cout << "ID:\t" << _id << "\t";
     cout << "VertexType:\t" << _type << "\t";
     cout << "Qubit:\t" << _qubit << "\t";
+    cout << "Phase:\t" << _phase << "\t";
     cout << "#Neighbors:\t" << _neighbors.size() << "\t";
+    
     printNeighbors();
 }
 
@@ -235,11 +237,11 @@ void ZXGraph::addOutput(size_t id, int qubit){
     }
 }
 
-void ZXGraph::addVertex(size_t id, int qubit, VertexType vt){
+void ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase){
     if(isId(id)) cerr << "Error: This vertex id is already exist!!" << endl;
     else if(vt == VertexType::BOUNDARY) cerr << "Error: Use ADDInput / ADDOutput to add input vertex or output vertex!!" << endl;
     else{
-        ZXVertex* v = new ZXVertex(id, qubit, vt);
+        ZXVertex* v = new ZXVertex(id, qubit, vt, phase);
         _vertices.push_back(v);
     }
 }

@@ -436,7 +436,7 @@ void ZXGPrintCmd::help() const{
 //------------------------------------------------------------------------------------
 //    ZXGEdit -RMVertex [i | <(size_t id(s))> ]
 //            -RMEdge <(size_t id_s), (size_t id_t)>
-//            -ADDVertex <(size_t id), (size_t qubit), (VertexType vt)> 
+//            -ADDVertex <(size_t id), (size_t qubit), (VertexType vt), [Phase phase]> 
 //            -ADDInput <(size_t id), (size_t qubit)> 
 //            -ADDOutput <(size_t id), (size_t qubit)>
 //            -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>   
@@ -492,7 +492,7 @@ ZXGEditCmd::exec(const string &option){
         else zxGraphMgr->getGraph()->removeEdgeById(id_s, id_t);
     }
     else if(myStrNCmp("-ADDVertex", action, 4) == 0){
-        if(options.size() != 4){
+        if(options.size() != 4 && options.size() != 5){
             cerr << "Error: cmd options are missing / extra" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
         }
@@ -507,7 +507,18 @@ ZXGEditCmd::exec(const string &option){
             cerr << "Error: vertex type invalid" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
         }
-        else zxGraphMgr->getGraph()->addVertex(id, q, str2VertexType(options[3]));
+        else{
+            if(options.size() == 4) zxGraphMgr->getGraph()->addVertex(id, q, str2VertexType(options[3]));
+            else{
+                double phase;
+                bool isDouble = myStr2Double(options[4], phase);
+                if(!isDouble){
+                    cerr << "Error: phase must be `double`." << endl;
+                    return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
+                }
+                zxGraphMgr->getGraph()->addVertex(id, q, str2VertexType(options[3]), Phase(phase));
+            }
+        }
     }
     else if(myStrNCmp("-ADDInput", action, 4) == 0){
         if(options.size() != 3){
@@ -561,10 +572,10 @@ ZXGEditCmd::exec(const string &option){
 void ZXGEditCmd::usage(ostream &os) const{
     os << "Usage: ZXGEdit -RMVertex [i | <(size_t id(s))> ]" << endl;
     os << "               -RMEdge <(size_t id_s), (size_t id_t)>" << endl;
-    os << "               -ADDVertex <(size_t id), (size_t qubit), (VertexType vt)> " << endl;
-    os << "               -ADDInput <(size_t id), (size_t qubit)> " << endl;
+    os << "               -ADDVertex <(size_t id), (size_t qubit), (VertexType vt)> [Phase phase]" << endl;
+    os << "               -ADDInput <(size_t id), (size_t qubit)>" << endl;
     os << "               -ADDOutput <(size_t id), (size_t qubit)>" << endl;
-    os << "               -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>   " << endl;
+    os << "               -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>" << endl;
 }
 
 void ZXGEditCmd::help() const{
