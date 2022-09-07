@@ -1,0 +1,58 @@
+qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+
+qsyn> qccp -q
+Q 0  ---------cx( 1)-- h( 3)-- t( 6)----------cx( 8)--cx( 9)-- t(14)----------cx(15)--cx(16)-- h(18)-- t(20)--cx(23)----------cx(25)--cx(27)--td(28)----------cx(32)--cx(33)-
+Q 1  -----------------cx( 2)-- t( 4)--cx( 7)----------cx( 9)--cx(11)--td(12)----------cx(16)--cx(17)-- t(21)--cx(23)--cx(24)--td(26)--cx(27)--td(29)--cx(31)----------cx(33)--cx(35)-
+Q 2  - x( 0)--cx( 1)--cx( 2)-- t( 5)--cx( 7)--cx( 8)--td(10)--cx(11)--td(13)--cx(15)----------cx(17)-- h(19)-- t(22)--cx(24)--cx(25)-- t(30)----------cx(31)--cx(32)-- h(34)--cx(35)-
+
+qsyn> qcgp 1
+Q0 Start ───■─── G3
+          ┌─┴─┐ 
+Q2 G0    ─┤ X ├─ G2
+          └───┘ 
+
+qsyn> qcgp 26 -T
+        ┌─────┐ 
+Q1 G24 ─┤ Tdg ├─ G27
+        └─────┘ 
+Execute at t= 15
+
+qsyn> qcgd 24
+
+qsyn> qcgp 24
+
+qsyn> qcgp 26
+        ┌─────┐ 
+Q1 G23 ─┤ Tdg ├─ G27
+        └─────┘ 
+
+qsyn> qcgp 26 -ZX
+Add edge ( 0, 1 )
+Add edge ( 1, 2 )
+ID:	0	VertexType:	0	Qubit:	1	#Neighbors:	1	( 1, 0 )  
+ID:	1	VertexType:	1	Qubit:	1	#Neighbors:	2	( 0, 0 )  ( 2, 0 )  
+ID:	2	VertexType:	0	Qubit:	1	#Neighbors:	1	( 1, 0 )  
+Total #Vertices: 3
+
+qsyn> qcgp 26 -T
+        ┌─────┐ 
+Q1 G23 ─┤ Tdg ├─ G27
+        └─────┘ 
+Execute at t= 14
+
+qsyn> qcgp 23 -ZX
+Add edge ( 0, 2 )
+Add edge ( 2, 4 )
+Add edge ( 1, 3 )
+Add edge ( 3, 5 )
+Add edge ( 2, 3 )
+ID:	0	VertexType:	0	Qubit:	1	#Neighbors:	1	( 2, 0 )  
+ID:	1	VertexType:	0	Qubit:	0	#Neighbors:	1	( 3, 0 )  
+ID:	2	VertexType:	1	Qubit:	1	#Neighbors:	3	( 0, 0 )  ( 4, 0 )  ( 3, 0 )  
+ID:	3	VertexType:	2	Qubit:	0	#Neighbors:	3	( 1, 0 )  ( 5, 0 )  ( 2, 0 )  
+ID:	4	VertexType:	0	Qubit:	1	#Neighbors:	1	( 2, 0 )  
+ID:	5	VertexType:	0	Qubit:	1	#Neighbors:	1	( 3, 0 )  
+Total #Vertices: 6
+
+qsyn> q -f
+

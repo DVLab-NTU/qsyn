@@ -8,13 +8,11 @@
 
 #include <vector>
 #include <string>
-#include <string.h>
 #include <iomanip>
 #include <fstream>
 #include <iostream>
 #include <algorithm>
 #include <cassert>
-#include <map>
 #include "qcirMgr.h"
 
 using namespace std;
@@ -122,20 +120,7 @@ bool QCirMgr::printTopoOrder()
     topoTraverse(testLambda);
     return true;
 }
-void QCirMgr::printZXTopoOrder()
-{
-    auto Lambda = [](QCirGate *G)
-    {
-        cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
-        ZXGraph* tmp = G->getZXform();
-        ////////////////////////////
-        // TODO: ZX concatenation //
-        ////////////////////////////
-        tmp->printVertices();
-        cout << endl;
-    };
-    topoTraverse(Lambda);
-}
+
 void QCirMgr::updateGateTime()
 {
     auto Lambda = [](QCirGate *currentGate)
@@ -186,23 +171,21 @@ void QCirMgr::addGate(string type, vector<size_t> bits, Phase phase, bool append
         temp = new HGate(_gateId);
     else if (type == "z")
         temp = new ZGate(_gateId);
-    else if (type == "s" )
+    else if (type == "s")
         temp = new SGate(_gateId);
-    else if (type == "sdg" || type == "s*" )
-        temp = new SDGGate(_gateId);
-    else if (type == "t" )
+    else if (type == "t")
         temp = new TGate(_gateId);
-    else if (type == "tdg" || type == "t*")
+    else if (type == "tdg")
         temp = new TDGGate(_gateId);
     else if (type == "p")
         temp = new RZGate(_gateId);
     else if (type == "cz")
         temp = new CZGate(_gateId);
-    else if (type == "x" || type == "X" || type == "not")
+    else if (type == "x")
         temp = new XGate(_gateId);
     else if (type == "sx")
         temp = new SXGate(_gateId);
-    else if (type == "cx" || type == "cnot")
+    else if (type == "cx")
         temp = new CXGate(_gateId);
     else if (type == "ccx")
         temp = new CCXGate(_gateId);
@@ -303,7 +286,6 @@ bool QCirMgr::parse(string filename)
         return false;    
     }
 }
-
 
 bool QCirMgr::parseQASM(string filename)
 {
