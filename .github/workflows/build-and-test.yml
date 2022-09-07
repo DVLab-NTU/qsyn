@@ -24,6 +24,9 @@ jobs:
       
     - name: Compile main program
       run: make
+      env:
+          CC:   gcc-10
+          CXX:  g++-10
       
     - name: Compile test program
       run: make test
