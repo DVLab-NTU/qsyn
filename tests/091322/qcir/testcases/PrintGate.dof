@@ -1,4 +1,4 @@
-qccr benchmark_SABRE/small/3_17_13.qasm
+qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
 qccp -q
 qcgp 1
 qcgp 26 -T
