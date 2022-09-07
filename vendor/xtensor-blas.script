@@ -1,3 +1,0 @@
-XTENSOR_BLAS_PATH="https://github.com/xtensor-stack/xtensor-blas.git"
-
-git clone ${XTENSOR_BLAS_PATH} engine/xtensor-blas
