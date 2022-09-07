@@ -1,0 +1,24 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ "main", "devt" ]
+  pull_request:
+    branches: [ "main", "devt" ]
+
+jobs:
+  build-and-test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      
+    - name: Compile main program
+      run: make
+      
+    - name: Compile test program
+      run: make test
+      
+    - name: run tests
+      run: ./RUN_ALL_TEST.sh
