@@ -7,6 +7,8 @@ white='\033[0m'
 pass_text="${green}${bold}Passed${normal}${white}"
 fail_text="${red}${bold}Failed${normal}${white}"
 
+return_code=0
+
 echo "> Testing commands..."
 for test_date in tests/*/; do
     tmp=$(basename $test_date)
@@ -26,10 +28,16 @@ for test_date in tests/*/; do
             # print the result
             # grep returns 0 if found matching strings
             status=$?
-            [ $status -eq 0 ] && echo ${pass_text} || echo ${fail_text}
+            if [ $status -eq 0 ]; then 
+                echo ${pass_text};
+            else 
+                echo ${fail_text}; return_code=1;
+            fi
         done
     done
 done
 
 echo "\n> Testing functions..."
 ./tests/bin/tests -r compact
+
+exit ${return_code}

@@ -8,7 +8,19 @@ ZXNew [(size_t id)]
 ZXRemove <(size_t id)>
 
 // Checkout to Graph <id> in ZXGraphMgr
-ZXCheckout <(size_t id)>
+ZXCHeckout <(size_t id)>
+
+// Print info in ZXGraphMgr
+ZXPrint [-Summary | -Focus | -Num]
+
+// Copy a ZX-graph
+ZXCOPy [(size_t id)]
+
+// Compose a ZX-graph
+ZXCOMpose <(size_t id)>
+
+// Tensor a ZX-graph
+ZXTensor <(size_t id)>
 
 // Some testing for ZX-graph
 ZXGTest [-GenerateCNOT | -Empty | -Valid]
