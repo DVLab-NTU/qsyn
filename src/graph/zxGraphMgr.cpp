@@ -106,7 +106,6 @@ void ZXGraphMgr::copy(size_t id){
   }
 }
 
-
 void ZXGraphMgr::compose(ZXGraph* zxGraph){
   ZXGraph* oriGraph = getGraph();
   if(oriGraph->getNumOutputs() != zxGraph->getNumInputs()) 
@@ -120,6 +119,28 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph){
 
 
   }
+}
+
+void ZXGraphMgr::tensor(ZXGraph* zxGraph){
+  ZXGraph* oriGraph = getGraph();
+  ZXGraph* copyGraph = zxGraph->copy();
+
+  // Rewrite all vertices id in copyGraph to avoid repetition
+  size_t nextID = oriGraph->findNextId();
+  for(size_t i = 0; i < copyGraph->getVertices().size(); i++){
+    copyGraph->getVertices()[i]->setId(nextID);
+    nextID++;
+  }
+
+  // Add inputs / outputs / vertices / edges
+  oriGraph->addInputs(copyGraph->getInputs());
+  oriGraph->addOutputs(copyGraph->getOutputs());
+  oriGraph->addVertices(copyGraph->getVertices());
+  oriGraph->addEdges(copyGraph->getEdges());
+
+  // Update _nqubit
+  oriGraph->setQubitCount(oriGraph->getNumInputs());
+  delete copyGraph;
 }
 
 ZXGraph* ZXGraphMgr::findZXGraphByID(size_t id) const{

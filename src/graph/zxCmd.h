@@ -17,8 +17,9 @@ CmdClass(ZXNewCmd);
 CmdClass(ZXRemoveCmd);
 CmdClass(ZXCHeckoutCmd);
 CmdClass(ZXPrintCmd);
-CmdClass(ZXCOpyCmd);
-
+CmdClass(ZXCOPyCmd);
+CmdClass(ZXCOMposeCmd);
+CmdClass(ZXTensorCmd);
 CmdClass(ZXGPrintCmd);
 CmdClass(ZXGTestCmd);
 CmdClass(ZXGEditCmd);

@@ -24,7 +24,9 @@ bool initZXCmd(){
          cmdMgr->regCmd("ZXNew", 3, new ZXNewCmd) && 
          cmdMgr->regCmd("ZXRemove", 3, new ZXRemoveCmd) && 
          cmdMgr->regCmd("ZXCHeckout", 4, new ZXCHeckoutCmd) && 
-         cmdMgr->regCmd("ZXCOpy", 4, new ZXCOpyCmd) && 
+         cmdMgr->regCmd("ZXCOPy", 5, new ZXCOPyCmd) && 
+         cmdMgr->regCmd("ZXCOMpose", 5, new ZXCOMposeCmd) && 
+         cmdMgr->regCmd("ZXTensor", 5, new ZXTensorCmd) && 
          cmdMgr->regCmd("ZXPrint", 3, new ZXPrintCmd) && 
          cmdMgr->regCmd("ZXGPrint", 4, new ZXGPrintCmd) && 
          cmdMgr->regCmd("ZXGTest", 4, new ZXGTestCmd) && 
@@ -235,11 +237,11 @@ void ZXPrintCmd::help() const{
 
 
 //----------------------------------------------------------------------
-//    ZXCOpy [(size_t id)]
+//    ZXCOPy [(size_t id)]
 //----------------------------------------------------------------------
 
 CmdExecStatus
-ZXCOpyCmd::exec(const string &option){
+ZXCOPyCmd::exec(const string &option){
     string token;
     if(!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     if(curCmd != ZXON) cout << "ZXMode: OFF" << endl;
@@ -257,12 +259,92 @@ ZXCOpyCmd::exec(const string &option){
     return CMD_EXEC_DONE;
 }
 
-void ZXCOpyCmd::usage(ostream &os) const{
-    os << "Usage: ZXCOpy [(size_t id)]" << endl;
+void ZXCOPyCmd::usage(ostream &os) const{
+    os << "Usage: ZXCOPy [(size_t id)]" << endl;
 }
 
-void ZXCOpyCmd::help() const{
-    cout << setw(15) << left << "ZXCOpy: " << "copy a ZX-graph" << endl; 
+void ZXCOPyCmd::help() const{
+    cout << setw(15) << left << "ZXCOPy: " << "copy a ZX-graph" << endl; 
+}
+
+
+//----------------------------------------------------------------------
+//    ZXCOMpose <(size_t id)>
+//----------------------------------------------------------------------
+
+CmdExecStatus
+ZXCOMposeCmd::exec(const string &option){
+    string token;
+    if(!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    if(curCmd != ZXON) cout << "ZXMode: OFF" << endl;
+    else{
+        if(token.empty()){
+            cerr << "Error: the ZX-graph id you want to compose must provided!" << endl;
+            return CmdExec::errorOption(CMD_OPT_MISSING, token);
+        }
+        else{
+            int id; bool isNum = myStr2Int(token, id);
+            if(!isNum || id < 0){
+                cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
+                return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+            }
+            else if(!zxGraphMgr->isID(id)){
+                cerr << "Error: The id provided is not exist!!" << endl;
+                return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+
+            }
+            else zxGraphMgr->compose(zxGraphMgr->findZXGraphByID(id));
+        }
+    }
+    return CMD_EXEC_DONE;
+}
+
+void ZXCOMposeCmd::usage(ostream &os) const{
+    os << "Usage: ZXCOMpose <(size_t id)>" << endl;
+}
+
+void ZXCOMposeCmd::help() const{
+    cout << setw(15) << left << "ZXCOMpose: " << "compose a ZX-graph" << endl; 
+}
+
+
+//----------------------------------------------------------------------
+//    ZXTensor <(size_t id)>
+//----------------------------------------------------------------------
+
+CmdExecStatus
+ZXTensorCmd::exec(const string &option){
+    string token;
+    if(!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    if(curCmd != ZXON) cout << "ZXMode: OFF" << endl;
+    else{
+        if(token.empty()){
+            cerr << "Error: the ZX-graph id you want to tensor must provided!" << endl;
+            return CmdExec::errorOption(CMD_OPT_MISSING, token);
+        }
+        else{
+            int id; bool isNum = myStr2Int(token, id);
+            if(!isNum || id < 0){
+                cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
+                return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+            }
+            else if(!zxGraphMgr->isID(id)){
+                cerr << "Error: The id provided is not exist!!" << endl;
+                return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+
+            }
+            else zxGraphMgr->tensor(zxGraphMgr->findZXGraphByID(id));
+        }
+    }
+    return CMD_EXEC_DONE;
+}
+
+void ZXTensorCmd::usage(ostream &os) const{
+    os << "Usage: ZXTensor <(size_t id)>" << endl;
+}
+
+void ZXTensorCmd::help() const{
+    cout << setw(15) << left << "ZXTensor: " << "tensor a ZX-graph" << endl; 
 }
 
 
