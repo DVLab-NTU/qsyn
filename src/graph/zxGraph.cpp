@@ -281,6 +281,12 @@ void ZXGraph::removeVertex(ZXVertex* v){
     }
 }
 
+void ZXGraph::removeVertices(vector<ZXVertex* > vertices){
+    for(size_t i = 0; i < vertices.size(); i++){
+        removeVertex(vertices[i]);
+    }
+}
+
 void ZXGraph::removeVertexById(size_t id){
     if(findVertexById(id) != nullptr) removeVertex(findVertexById(id));
     else cerr << "Error: This vertex id is not exist!!" << endl;
