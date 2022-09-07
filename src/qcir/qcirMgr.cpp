@@ -403,7 +403,7 @@ bool QCirMgr::parseQC(string filename)
                 line.erase(0, 1);
             }
         }
-        else if (line.find('#')==0 || line == "") continue;
+        else if (line.find('#')==0 || line == "" || line=="\r") continue;
         else if (line.find("BEGIN")==0)
         {
             addQubit(n_qubit);
