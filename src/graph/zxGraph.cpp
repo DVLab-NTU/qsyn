@@ -233,6 +233,22 @@ void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType et){
     }
 }
 
+void ZXGraph::addInputs(vector<ZXVertex*> inputs){
+    _inputs.insert(_inputs.end(), inputs.begin(), inputs.end());
+}
+
+void ZXGraph::addOutputs(vector<ZXVertex*> outputs){
+    _outputs.insert(_outputs.end(), outputs.begin(), outputs.end());
+}
+
+void ZXGraph::addVertices(vector<ZXVertex*> vertices){
+    _vertices.insert(_vertices.end(), vertices.begin(), vertices.end());
+}
+
+void ZXGraph::addEdges(vector<EdgePair> edges){
+     _edges.insert(_edges.end(), edges.begin(), edges.end());
+}
+
 void ZXGraph::removeVertex(ZXVertex* v){
     if(!isId(v->getId())) cerr << "This vertex is not exist!" << endl;
     else{

@@ -150,6 +150,11 @@ class ZXGraph{
         void addOutput(size_t id, int qubit);
         void addVertex(size_t id, int qubit, VertexType ZXVertex);
         void addEdgeById(size_t id_s, size_t id_t, EdgeType et);
+        void addInputs(vector<ZXVertex*> inputs);
+        void addOutputs(vector<ZXVertex*> outputs);
+        void addVertices(vector<ZXVertex*> vertices);
+        void addEdges(vector<EdgePair> edges);
+        
         void removeVertex(ZXVertex* v);
         void removeVertexById(size_t id);
         void removeIsolatedVertices();
