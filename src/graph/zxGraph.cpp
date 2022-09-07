@@ -364,8 +364,11 @@ ZXGraph* ZXGraph::copy() const{
 
     for(size_t i = 0; i < getEdges().size(); i++){
         EdgePair oriPair = getEdges()[i];
-        EdgePair newPair = make_pair(make_pair(newGraph->findVertexById(oriPair.first.first->getId()), newGraph->findVertexById(oriPair.first.second->getId())), oriPair.second);
-        edges.push_back(newPair);
+        ZXVertex* s = newGraph->findVertexById(oriPair.first.first->getId());
+        ZXVertex* t = newGraph->findVertexById(oriPair.first.second->getId());
+        s->addNeighbor(make_pair(t, oriPair.second));
+        t->addNeighbor(make_pair(s, oriPair.second));
+        edges.push_back(make_pair(make_pair(s, t), oriPair.second));
     }
     newGraph->setEdges(edges);
     return newGraph;
