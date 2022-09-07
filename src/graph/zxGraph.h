@@ -32,7 +32,6 @@ typedef pair<pair<ZXVertex*, ZXVertex*>, EdgeType> EdgePair;
 //------------------------------------------------------------------------
 //   Define classes
 //------------------------------------------------------------------------
-struct rationalNumber{};
 enum class VertexType{
     BOUNDARY,
     Z,
@@ -70,14 +69,14 @@ class ZXVertex{
         size_t getId() const                                { return _id; }
         int getQubit() const                                { return _qubit; }
         VertexType getType() const                          { return _type; }
-        rationalNumber getPhase() const                     { return _phase; }
+        Phase getPhase() const                              { return _phase; }
         vector<NeighborPair > getNeighbors() const          { return _neighbors; }
         NeighborPair getNeighborById(size_t id) const;
 
         void setId(size_t id)                               { _id = id; }
         void setQubit(int q)                                {_qubit = q; }
         void setType(VertexType ZXVertex)                   { _type = ZXVertex; }
-        void setPhase(rationalNumber p)                     { _phase = p; }
+        void setPhase(Phase p)                              { _phase = p; }
         void setNeighbors(vector<NeighborPair > neighbors)  { _neighbors = neighbors; }
 
 
@@ -106,7 +105,7 @@ class ZXVertex{
         int                                  _qubit;
         size_t                               _id;
         VertexType                           _type;
-        rationalNumber                       _phase;
+        Phase                                _phase;
         vector<NeighborPair >                _neighbors;
 };
 

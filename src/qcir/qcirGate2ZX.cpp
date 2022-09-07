@@ -20,9 +20,9 @@ ZXGraph* HGate::getZXform()
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit, VertexType::BOUNDARY);
+    temp->addInput(0, qubit);
     temp->addVertex(1, qubit, VertexType::H_BOX);
-    temp->addOutput(2, qubit, VertexType::BOUNDARY);
+    temp->addOutput(2, qubit);
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(Phase(3.14159)); // pi
@@ -34,9 +34,9 @@ ZXGraph* XGate::getZXform()
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit, VertexType::BOUNDARY);
+    temp->addInput(0, qubit);
     temp->addVertex(1, qubit, VertexType::X);
-    temp->addOutput(2, qubit, VertexType::BOUNDARY);
+    temp->addOutput(2, qubit);
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(Phase(3.14159)); // pi
@@ -48,9 +48,9 @@ ZXGraph* SXGate::getZXform()
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit, VertexType::BOUNDARY);
+    temp->addInput(0, qubit);
     temp->addVertex(1, qubit, VertexType::X);
-    temp->addOutput(2, qubit, VertexType::BOUNDARY);
+    temp->addOutput(2, qubit);
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(Phase(1.57080)); // pi/2
@@ -63,12 +63,12 @@ ZXGraph* CXGate::getZXform()
     ZXGraph *temp = new ZXGraph(_id);
     size_t ctrl_qubit = _qubits[0]._isTarget ? _qubits[1]._qubit: _qubits[0]._qubit;
     size_t targ_qubit = _qubits[0]._isTarget ? _qubits[0]._qubit: _qubits[1]._qubit;
-    temp->addInput(0, ctrl_qubit, VertexType::BOUNDARY);
-    temp->addInput(1, targ_qubit, VertexType::BOUNDARY);
+    temp->addInput(0, ctrl_qubit);
+    temp->addInput(1, targ_qubit);
     temp->addVertex(2, ctrl_qubit, VertexType::Z);
     temp->addVertex(3, targ_qubit, VertexType::X);
-    temp->addOutput(4, ctrl_qubit, VertexType::BOUNDARY);
-    temp->addOutput(5, ctrl_qubit, VertexType::BOUNDARY);
+    temp->addOutput(4, ctrl_qubit);
+    temp->addOutput(5, ctrl_qubit);
     temp->addEdgeById(0,2,EdgeType::SIMPLE);
     temp->addEdgeById(2,4,EdgeType::SIMPLE);
     temp->addEdgeById(1,3,EdgeType::SIMPLE);
@@ -84,9 +84,9 @@ ZXGraph* ZGate::getZXform()
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit, VertexType::BOUNDARY);
+    temp->addInput(0, qubit);
     temp->addVertex(1, qubit, VertexType::Z);
-    temp->addOutput(2, qubit, VertexType::BOUNDARY);
+    temp->addOutput(2, qubit);
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(Phase(3.14159)); // pi
@@ -98,9 +98,9 @@ ZXGraph* SGate::getZXform()
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit, VertexType::BOUNDARY);
+    temp->addInput(0, qubit);
     temp->addVertex(1, qubit, VertexType::Z);
-    temp->addOutput(2, qubit, VertexType::BOUNDARY);
+    temp->addOutput(2, qubit);
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(Phase(1.57080)); // pi/2
@@ -112,9 +112,9 @@ ZXGraph* TGate::getZXform()
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit, VertexType::BOUNDARY);
+    temp->addInput(0, qubit);
     temp->addVertex(1, qubit, VertexType::Z);
-    temp->addOutput(2, qubit, VertexType::BOUNDARY);
+    temp->addOutput(2, qubit);
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(Phase(0.78540)); // pi/4
@@ -126,9 +126,9 @@ ZXGraph* TDGGate::getZXform()
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit, VertexType::BOUNDARY);
+    temp->addInput(0, qubit);
     temp->addVertex(1, qubit, VertexType::Z);
-    temp->addOutput(2, qubit, VertexType::BOUNDARY);
+    temp->addOutput(2, qubit);
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(Phase(-0.78540)); // -pi/4
@@ -140,9 +140,9 @@ ZXGraph* RZGate::getZXform()
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit, VertexType::BOUNDARY);
+    temp->addInput(0, qubit);
     temp->addVertex(1, qubit, VertexType::Z);
-    temp->addOutput(2, qubit, VertexType::BOUNDARY);
+    temp->addOutput(2, qubit);
     temp->addEdgeById(0,1,EdgeType::SIMPLE);
     temp->addEdgeById(1,2,EdgeType::SIMPLE);
     temp->findVertexById(1)->setPhase(_rotatePhase); 
@@ -155,12 +155,12 @@ ZXGraph* CZGate::getZXform()
     ZXGraph *temp = new ZXGraph(_id);
     size_t ctrl_qubit = _qubits[0]._isTarget ? _qubits[1]._qubit: _qubits[0]._qubit;
     size_t targ_qubit = _qubits[0]._isTarget ? _qubits[0]._qubit: _qubits[1]._qubit;
-    temp->addInput(0, ctrl_qubit, VertexType::BOUNDARY);
-    temp->addInput(1, targ_qubit, VertexType::BOUNDARY);
+    temp->addInput(0, ctrl_qubit);
+    temp->addInput(1, targ_qubit);
     temp->addVertex(2, ctrl_qubit, VertexType::Z);
     temp->addVertex(3, targ_qubit, VertexType::Z);
-    temp->addOutput(4, ctrl_qubit, VertexType::BOUNDARY);
-    temp->addOutput(5, ctrl_qubit, VertexType::BOUNDARY);
+    temp->addOutput(4, ctrl_qubit);
+    temp->addOutput(5, ctrl_qubit);
     temp->addEdgeById(0,2,EdgeType::SIMPLE);
     temp->addEdgeById(2,4,EdgeType::SIMPLE);
     temp->addEdgeById(1,3,EdgeType::SIMPLE);
