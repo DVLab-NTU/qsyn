@@ -68,7 +68,7 @@ ZXGraph* CXGate::getZXform(size_t &baseId)
     temp->addVertex(baseId + 1, ctrl_qubit, VertexType::Z);
     temp->addVertex(baseId + 2, targ_qubit, VertexType::X);
     temp->addOutput(4, ctrl_qubit);
-    temp->addOutput(5, ctrl_qubit);
+    temp->addOutput(5, targ_qubit);
     temp->addEdgeById(0,baseId + 1,EdgeType::SIMPLE);
     temp->addEdgeById(baseId + 1,4,EdgeType::SIMPLE);
     temp->addEdgeById(3,baseId + 2,EdgeType::SIMPLE);
@@ -160,7 +160,7 @@ ZXGraph* CZGate::getZXform(size_t &baseId)
     temp->addVertex(baseId + 1, ctrl_qubit, VertexType::Z);
     temp->addVertex(baseId + 2, targ_qubit, VertexType::Z);
     temp->addOutput(4, ctrl_qubit);
-    temp->addOutput(5, ctrl_qubit);
+    temp->addOutput(5, targ_qubit);
     temp->addEdgeById(0,baseId + 1,EdgeType::SIMPLE);
     temp->addEdgeById(baseId + 1,4,EdgeType::SIMPLE);
     temp->addEdgeById(3,baseId + 2,EdgeType::SIMPLE);

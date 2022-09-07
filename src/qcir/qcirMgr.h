@@ -57,25 +57,10 @@ public:
   bool parseQASM(string qasm_file);
   bool parseQC(string qasm_file);
   void incrementZXId() { _ZXNodeId++; }
-
+  void mapping();
   void updateGateTime();
-  void printZXTopoOrder()
-{
-    auto Lambda = [this](QCirGate *G)
-    {
-        cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
-        // ZXConcatenate();
-        ZXGraph* tmp = G->getZXform(_ZXNodeId);
-        // ZXConcatenate();
-        ////////////////////////////
-        // TODO: ZX concatenation //
-        ////////////////////////////
-        tmp -> printVertices();
-        this -> ZXConcatenate();
-        cout << endl;
-    };
-    topoTraverse(Lambda);
-}
+  void printZXTopoOrder();
+
   // DFS functions
   template<typename F>
   void topoTraverse(F lambda){
@@ -83,12 +68,13 @@ public:
         updateTopoOrder();
         _dirty = false;
       }
+      cout << "Gate num topo: " <<_topoOrder.size() << endl;
       for_each(_topoOrder.begin(),_topoOrder.end(),lambda);
   }
   bool printTopoOrder();
   // pass a function F (public functions) into for_each 
   // lambdaFn such as mappingToZX / updateGateTime
-  void ZXConcatenate();
+  void ZXConcatenate(ZXGraph*);
   void updateTopoOrder();
 
   // Member functions about circuit reporting

@@ -184,6 +184,11 @@ class ZXGraph{
         void printVertices() const;
         void printEdges() const;
         
+        // For mapping
+        ZXVertex* findInputById(size_t id) const;
+        ZXVertex* findOutputById(size_t id) const;
+        vector<ZXVertex*> getNonBoundary();
+        void clearGraph() { _inputs.clear(); _outputs.clear(); _vertices.clear(); _edges.clear(); }
 
     private:
         size_t                            _id;

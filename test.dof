@@ -1,3 +1,0 @@
-qccread ./benchmark/qc/cycle_17_3.qc
-qccp -q
-q -f
