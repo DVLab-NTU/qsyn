@@ -1,4 +1,4 @@
-qsyn> qccr benchmark_SABRE/large/root_255.qasm
+qsyn> qccr benchmark/benchmark_SABRE/large/root_255.qasm
 
 qsyn> qccp
 Listed by gate ID
@@ -17180,7 +17180,7 @@ Q13
 Q14  
 Q15  
 
-qsyn> qccr benchmark_SABRE/small/4gt13_92.qasm -R
+qsyn> qccr benchmark/benchmark_SABRE/small/4gt13_92.qasm -R
 
 qsyn> qccprint
 Listed by gate ID
