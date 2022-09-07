@@ -89,6 +89,10 @@ class ZXVertex{
         void printVertex() const;
         void printNeighbors() const;
 
+        
+        // Action
+        void disconnect(ZXVertex* v);
+
 
         // Test
         bool isNeighbor(ZXVertex* v) const;

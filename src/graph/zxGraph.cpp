@@ -99,6 +99,28 @@ void ZXVertex::printNeighbors() const{
 }
 
 
+// Action
+
+void ZXVertex::disconnect(ZXVertex* v){
+    if(!isNeighbor(v)) cerr << "Error: Vertex " << v->getId() << " is not a neighbor of " << _id << endl;
+    else{
+        
+        for(size_t i = 0; i < _neighbors.size();){
+            if(_neighbors[i].first == v) _neighbors.erase(_neighbors.begin()+i);
+            else i++;
+        }
+        
+        vector<NeighborPair> nList = v->getNeighbors();
+        for(size_t i = 0; i < nList.size();){
+            if(nList[i].first == this) nList.erase(nList.begin()+i);
+            else i++;
+        }
+        v->setNeighbors(nList);
+        cout << "Disconnect " << _id << " and " << v->getId() << endl;
+    }
+}
+
+
 // Test
 bool ZXVertex::isNeighbor(ZXVertex* v) const{
     for(size_t i = 0; i < _neighbors.size(); i++){

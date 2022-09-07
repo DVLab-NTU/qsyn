@@ -112,11 +112,42 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph){
     cerr << "Error: The composing ZX-graph's #input is not equivalent to the original ZX-graph's #output." << endl;
   else{
     // Make a deep copy of zxGraph
+    ZXGraph* copyGraph = zxGraph->copy();
     
-    // Overwrite cmpGraph's vertices id so that the ids will not be repeated.
-    
+    // Rewrite all vertices id in copyGraph to avoid repetition
+    size_t nextID = oriGraph->findNextId();
+    for(size_t i = 0; i < copyGraph->getVertices().size(); i++){
+      copyGraph->getVertices()[i]->setId(nextID);
+      nextID++;
+    }
 
+    // Connect each vertex that originally connected to output of oriGraph to each vertex that originally coneected to input of copyGraph
 
+    for(size_t i = 0; i < oriGraph->getOutputs().size(); i++){
+      ZXVertex* curOut = oriGraph->getOutputs()[i];
+      ZXVertex* cpIn = copyGraph->getInputs()[i];
+      for(size_t s = 0; s < curOut->getNeighbors().size(); s++){
+        for(size_t t = 0; t < cpIn->getNeighbors().size(); t++){
+          ZXVertex* vs = curOut->getNeighbors()[s].first; EdgeType vsType = curOut->getNeighbors()[s].second;
+          ZXVertex* vt = cpIn->getNeighbors()[t].first; EdgeType vtType = cpIn->getNeighbors()[t].second;
+          EdgeType newType;
+          if((vsType == EdgeType::SIMPLE && vtType == EdgeType::SIMPLE) || (vsType == EdgeType::HADAMARD && vtType == EdgeType::HADAMARD)) newType = EdgeType::SIMPLE;
+          else newType = EdgeType::HADAMARD;
+          oriGraph->addEdge(vs, vt, newType);
+          vs->disconnect(curOut);
+          vt->disconnect(cpIn);
+        }
+      }
+    }
+
+    // Remove outputs of oriGraph and inputs of copyGraph
+    oriGraph->removeVertices(oriGraph->getOutputs());
+    copyGraph->removeVertices(copyGraph->getInputs());
+
+    // Update data in oriGraph
+    oriGraph->setOutputs(copyGraph->getOutputs());
+    oriGraph->addVertices(copyGraph->getVertices());
+    oriGraph->addEdges(copyGraph->getEdges());
 
   }
 }
@@ -169,7 +200,4 @@ void ZXGraphMgr::printGListItr() const{
 void ZXGraphMgr::printGraphListSize() const{
   cout << "#Graph: " << _graphList.size() << endl;
 }
-
-
-
 
