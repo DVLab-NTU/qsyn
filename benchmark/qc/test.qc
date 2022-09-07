@@ -1,5 +1,5 @@
 .v a b result c 1
-.i
+.i c a BEGIN
 
 BEGIN
 H 1
