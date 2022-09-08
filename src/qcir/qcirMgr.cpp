@@ -149,6 +149,10 @@ void QCirMgr::printZXTopoOrder()
 }
 void QCirMgr::mapping()
 {
+    updateTopoOrder();
+    // _ZXG->clearPtrs();
+    _ZXG->clearGraph();
+    delete _ZXG;
     _ZXG = new ZXGraph(0);
     _ZXNodeId = 0;
     size_t maxInput = 0;
@@ -166,9 +170,20 @@ void QCirMgr::mapping()
     {
         cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph* tmp = G->getZXform(_ZXNodeId);
+        cout << "+++++++++++++++++++++++++++++++++" << endl;
+        
+        ZXVertex* a = _ZXG -> findVertexById(4);
+        if(a != nullptr) a -> printNeighbors();
+        cout << "+++++++++++++++++++++++++++++++++" << endl;
+        cout << "---------------------------------" << endl;
         this -> ZXConcatenate(tmp);
         cout << "---------------------------------" << endl;
-        // _ZXG -> printVertices();
+         cout << "+++++++++++++++++++++++++++++++++" << endl;
+        
+         a = _ZXG -> findVertexById(4);
+        if(a != nullptr) a -> printNeighbors();
+        cout << "+++++++++++++++++++++++++++++++++" << endl;
+        _ZXG -> printVertices();
     };
     topoTraverse(Lambda);
     _ZXG -> printVertices();

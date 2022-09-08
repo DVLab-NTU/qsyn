@@ -189,6 +189,11 @@ class ZXGraph{
         ZXVertex* findOutputById(size_t id) const;
         vector<ZXVertex*> getNonBoundary();
         void clearGraph() { _inputs.clear(); _outputs.clear(); _vertices.clear(); _edges.clear(); }
+        void clearPtrs() { 
+            for(size_t i=0; i<_inputs.size(); i++) delete _inputs[i];
+            for(size_t i=0; i<_outputs.size(); i++) delete _outputs[i];
+            for(size_t i=0; i<_vertices.size(); i++) delete _vertices[i];
+        }
 
     private:
         size_t                            _id;

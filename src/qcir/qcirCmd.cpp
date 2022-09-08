@@ -28,7 +28,8 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCBAdd", 4, new QCirAddQubitCmd) &&
          cmdMgr->regCmd("QCGDelete", 4, new QCirDeleteGateCmd) &&
          cmdMgr->regCmd("QCBDelete", 4, new QCirDeleteQubitCmd) &&
-         cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd)
+         cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd) &&
+         cmdMgr->regCmd("QCZXMapping", 5, new QCirZXMappingCmd)
          && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
          ))
    {
@@ -533,6 +534,42 @@ void QCirDeleteQubitCmd::help() const
    cout << setw(15) << left << "QCBDelete: "
         << "delete an empty qubit\n";
 }
+
+//----------------------------------------------------------------------
+//    QCZXMapping
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirZXMappingCmd::exec(const string &option)
+{
+   // check option
+   string token;
+   if (!CmdExec::lexSingleOption(option, token))
+      return CMD_EXEC_ERROR;
+
+   if (!qCirMgr)
+   {
+      cerr << "Error: quantum circuit is not yet constructed!!" << endl;
+      return CMD_EXEC_ERROR;
+   }
+   if (!token.empty())
+      return CmdExec::errorOption(CMD_OPT_EXTRA, token);
+   else 
+      qCirMgr -> mapping();
+
+   return CMD_EXEC_DONE;
+}
+
+void QCirZXMappingCmd::usage(ostream &os) const
+{
+   os << "Usage: QCZXMapping" << endl;
+}
+
+void QCirZXMappingCmd::help() const
+{
+   cout << setw(15) << left << "QCZXMapping: "
+        << "mapping to ZX diagram\n";
+}
+
 // //----------------------------------------------------------------------
 // //    CIRGate <<(int gateId)> [<-FANIn | -FANOut><(int level)>]>
 // //----------------------------------------------------------------------
