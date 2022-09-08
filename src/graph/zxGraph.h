@@ -166,6 +166,7 @@ class ZXGraph{
         void removeVertices(vector<ZXVertex* > vertices);
         void removeVertexById(size_t id);
         void removeIsolatedVertices();
+        void removeEdge(ZXVertex* vs, ZXVertex* vt, bool silent = true);
         void removeEdgeById(size_t id_s, size_t id_t);
 
         

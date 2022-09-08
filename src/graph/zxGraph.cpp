@@ -106,7 +106,6 @@ void ZXVertex::printNeighbors() const{
 void ZXVertex::disconnect(ZXVertex* v){
     if(!isNeighbor(v)) cerr << "Error: Vertex " << v->getId() << " is not a neighbor of " << _id << endl;
     else{
-        
         for(size_t i = 0; i < _neighbors.size();){
             if(_neighbors[i].first == v) _neighbors.erase(_neighbors.begin()+i);
             else i++;
@@ -325,20 +324,34 @@ void ZXGraph::removeIsolatedVertices(){
     }
 }
 
-void ZXGraph::removeEdgeById(size_t id_s, size_t id_t){
-    if(!isId(id_s)) cerr << "Error: id_s provided is not exist!" << endl;
-    else if(!isId(id_t)) cerr << "Error: id_t provided is not exist!" << endl;
-    else if(!isConnected(findVertexById(id_s), findVertexById(id_t))) cerr << "Error: id_s and id_t are not connected!" << endl;
+void ZXGraph::removeEdge(ZXVertex* vs, ZXVertex* vt, bool silent){
+    if(!vs->isNeighbor(vt) || !vt->isNeighbor(vs)) cerr << "Error: Vertex "<< vs->getId() << " and " << vt->getId() << " are not connected!" << endl;
     else{
-        cout << "Remove edge ( " << id_s << ", " << id_t << " )" << endl;
-        ZXVertex* vs = findVertexById(id_s); ZXVertex* vt = findVertexById(id_t);
-        vs->removeNeighborById(id_t); vt->removeNeighborById(id_s);
         for(size_t i = 0; i < _edges.size();){
             if((_edges[i].first.first == vs && _edges[i].first.second == vt) || (_edges[i].first.first == vt && _edges[i].first.second == vs)){
                 _edges.erase(_edges.begin()+i);
             } 
             else i++;
         }
+        vs->disconnect(vt);
+    }
+    if(!silent) cout << "Remove edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
+}
+
+void ZXGraph::removeEdgeById(size_t id_s, size_t id_t){
+    if(!isId(id_s)) cerr << "Error: id_s provided is not exist!" << endl;
+    else if(!isId(id_t)) cerr << "Error: id_t provided is not exist!" << endl;
+    // else if(!isConnected(findVertexById(id_s), findVertexById(id_t))) cerr << "Error: id_s and id_t are not connected!" << endl;
+    else{
+        ZXVertex* vs = findVertexById(id_s); ZXVertex* vt = findVertexById(id_t);
+        removeEdge(vs, vt, false);
+        // vs->removeNeighborById(id_t); vt->removeNeighborById(id_s);
+        // for(size_t i = 0; i < _edges.size();){
+        //     if((_edges[i].first.first == vs && _edges[i].first.second == vt) || (_edges[i].first.first == vt && _edges[i].first.second == vs)){
+        //         _edges.erase(_edges.begin()+i);
+        //     } 
+        //     else i++;
+        // }
     }
 }
 
