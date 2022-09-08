@@ -34,46 +34,50 @@ EdgeType str2EdgeType(string str){
 /*   class ZXVertex member functions   */
 /**************************************/
 
-// ZXVertex::ZXVertex(const ZXVertex& zxVertex){
-//     ZXVertex copy = ZXVertex(0, 0, VertexType::ERRORTYPE);
-//     copy._qubit = zxVertex._qubit;
-//     copy._id = zxVertex._id;
-//     copy._type = zxVertex._type;
-//     copy._phase = zxVertex._phase;
-//     for(size_t i = 0; i < zxVertex._neighbors.size(); i++){
-//         copy._neighbors.push_back(zxVertex._neighbors[i]);
-//     }
-//     return &copy;
-// }
 
 // Getter and Setter
-NeighborPair ZXVertex::getNeighborById(size_t id) const{
-   if(!isNeighborById(id)) cerr << "Error: Vertex " << id << " is not a neighbor of " << _id << endl;
-   else{
-       for(size_t i = 0; i < _neighbors.size(); i++){
-           if(_neighbors[i].first->getId() == id) return _neighbors[i];
-       }
-   }
+vector<NeighborPair > ZXVertex::getNeighborById(size_t id) const{
+    vector<NeighborPair > nList;
+    if(!isNeighborById(id)) cerr << "Error: Vertex " << id << " is not a neighbor of " << _id << endl;
+    else{
+         for(size_t i = 0; i < _neighbors.size(); i++){
+             if(_neighbors[i].first->getId() == id) nList.push_back(_neighbors[i]);
+         }
+    }
+    return nList;
 }
 
+vector<NeighborPair > ZXVertex::getNeighborByPointer(ZXVertex* v) const{
+    vector<NeighborPair > nList;
+    if(!isNeighbor(v)) cerr << "Error: Vertex " << v->getId() << " is not a neighbor of " << _id << endl;
+    else{
+         for(size_t i = 0; i < _neighbors.size(); i++){
+             if(_neighbors[i].first == v) nList.push_back(_neighbors[i]);
+         }
+    }
+    return nList;
+}
 
 // Add and Remove
 
-void ZXVertex::removeNeighbor(NeighborPair neighbor){
-    if(find(_neighbors.begin(), _neighbors.end(), neighbor) != _neighbors.end()){
-        cout << "  * remove " << neighbor.first->getId() << " from " << _id << endl;
-        _neighbors.erase(find(_neighbors.begin(), _neighbors.end(), neighbor));
+void ZXVertex::removeNeighbor(NeighborPair neighbor, bool silent){
+    //! Only remove the first find neighbor pair
+    auto findNeighbor = find(_neighbors.begin(), _neighbors.end(), neighbor);
+    if(findNeighbor != _neighbors.end()){
+        if(!silent) cout << "  * remove " << neighbor.first->getId() << " from " << _id << endl;
+        _neighbors.erase(findNeighbor);
     } 
-    else cerr << "Vertex " << neighbor.first->getId() << " is not a neighbor of " << _id << endl;
+    else cerr << "Error: Vertex " << neighbor.first->getId() << " is not a neighbor of " << _id << endl;
 }
 
-void ZXVertex::removeNeighborById(size_t id){
+void ZXVertex::removeNeighborById(size_t id, bool silent){
+    //! Remove all neighbor pair if key == id
     if(!isNeighborById(id)) cerr << "Error: Vertex " << id << " is not a neighbor of " << _id << endl;
     else{
         for(size_t i = 0; i < _neighbors.size();){
             if(_neighbors[i].first->getId() == id) {
                 _neighbors.erase(_neighbors.begin()+i);
-                cout << "  * remove " << id << " from " << _id << endl;
+                if(!silent) cout << "  * remove " << id << " from " << _id << endl;
             }
             else i++;
         }
@@ -89,13 +93,12 @@ void ZXVertex::printVertex() const{
     cout << "Qubit:\t" << _qubit << "\t";
     cout << "Phase:\t" << _phase << "\t";
     cout << "#Neighbors:\t" << _neighbors.size() << "\t";
-    
     printNeighbors();
 }
 
 void ZXVertex::printNeighbors() const{
     for(size_t i = 0; i < _neighbors.size(); i++){
-        cout << "( " << _neighbors[i].first->getId() << ", " << _neighbors[i].second << " )  " ;
+        cout << "(" << _neighbors[i].first->getId() << ", " << _neighbors[i].second << ") " ;
     }
     cout << endl;
 }
@@ -103,7 +106,7 @@ void ZXVertex::printNeighbors() const{
 
 // Action
 
-void ZXVertex::disconnect(ZXVertex* v){
+void ZXVertex::disconnect(ZXVertex* v, bool silent){
     if(!isNeighbor(v)) cerr << "Error: Vertex " << v->getId() << " is not a neighbor of " << _id << endl;
     else{
         for(size_t i = 0; i < _neighbors.size();){
@@ -117,10 +120,42 @@ void ZXVertex::disconnect(ZXVertex* v){
             else i++;
         }
         v->setNeighbors(nList);
-        cout << "Disconnect " << _id << " and " << v->getId() << endl;
+        if(!silent) cout << "Disconnect " << _id << " and " << v->getId() << endl;
     }
 }
 
+void ZXVertex::disconnectById(size_t id, bool silent){
+    if(!isNeighborById(id)) cerr << "Error: Vertex " << id << " is not a neighbor of " << _id << endl;
+    else{
+        ZXVertex* v = nullptr;
+        for(size_t i = 0; i < _neighbors.size();){
+            if(_neighbors[i].first->getId() == id){
+                if(v == nullptr) v = _neighbors[i].first;
+                _neighbors.erase(_neighbors.begin()+i);
+            } 
+            else i++;
+        }
+        vector<NeighborPair> nList = v->getNeighbors();
+        for(size_t i = 0; i < nList.size();){
+            if(nList[i].first == this) nList.erase(nList.begin()+i);
+            else i++;
+        }
+        v->setNeighbors(nList);
+        if(!silent) cout << "Disconnect " << _id << " and " << id << endl;
+    }
+}
+
+void ZXVertex::connect(ZXVertex* v, EdgeType et, bool silent){
+    addNeighbor(make_pair(v, et));
+    rearrange();
+    v->addNeighbor(make_pair(this, et));
+    v->rearrange();
+    if(!silent) cout << _id << " and " << v->getId() << " add each other to _neighbor." << endl;
+}
+
+void ZXVertex::rearrange(){
+    sort(_neighbors.begin(), _neighbors.end());
+}
 
 // Test
 bool ZXVertex::isNeighbor(ZXVertex* v) const{
@@ -171,12 +206,12 @@ void ZXGraph::generateCNOT(){
 
     // Generate edges [(0,2), (1,3), (2,3), (2,4), (3,5)]
     vector<pair<size_t, size_t> > edgeList;
+    edgeList.push_back(make_pair(3,5));
     edgeList.push_back(make_pair(0,2));
     edgeList.push_back(make_pair(1,3));
     edgeList.push_back(make_pair(2,3));
     edgeList.push_back(make_pair(2,4));
-    edgeList.push_back(make_pair(3,5));
-
+    
     vector<EdgePair > edges;
 
     for(size_t i = 0; i < edgeList.size(); i++){
@@ -189,6 +224,9 @@ void ZXGraph::generateCNOT(){
     }
     setEdges(edges);
     setQubitCount(_inputs.size());
+
+    //TODO: rearrange
+    for(size_t i = 0; i < _vertices.size(); i++) _vertices[i]->rearrange();
 }
 
 bool ZXGraph::isEmpty() const{
