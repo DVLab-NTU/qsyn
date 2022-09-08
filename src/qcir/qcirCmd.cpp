@@ -196,7 +196,7 @@ QCirGatePrintCmd::exec(const string &option)
          cerr << "Error: id " << id << " not found!!" << endl;
          return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
       }
-      size_t tmp = 0;
+      size_t tmp = 4;
       qCirMgr->getGate(id)->getZXform(tmp)->printVertices();
    }
    else{

@@ -68,7 +68,6 @@ public:
         updateTopoOrder();
         _dirty = false;
       }
-      cout << "Gate num topo: " <<_topoOrder.size() << endl;
       for_each(_topoOrder.begin(),_topoOrder.end(),lambda);
   }
   bool printTopoOrder();
