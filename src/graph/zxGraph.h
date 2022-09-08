@@ -57,10 +57,11 @@ template<typename T> ostream& operator<<(typename enable_if<is_enum<T>::value, o
 
 class ZXVertex{
     public:
-        ZXVertex(size_t id, int qubit, VertexType ZXVertex) {
+        ZXVertex(size_t id, int qubit, VertexType vt, Phase phase = Phase()) {
             _id = id;
             _qubit = qubit;
-            _type = ZXVertex;
+            _type = vt;
+            _phase = phase;
         }
         ZXVertex(const ZXVertex& zxVertex);
         ~ZXVertex(){}
@@ -78,7 +79,6 @@ class ZXVertex{
         void setType(VertexType ZXVertex)                   { _type = ZXVertex; }
         void setPhase(Phase p)                              { _phase = p; }
         void setNeighbors(vector<NeighborPair > neighbors)  { _neighbors = neighbors; }
-
 
 
         // Add and Remove
@@ -154,7 +154,7 @@ class ZXGraph{
         // Add and Remove
         void addInput(size_t id, int qubit);
         void addOutput(size_t id, int qubit);
-        void addVertex(size_t id, int qubit, VertexType ZXVertex);
+        void addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase());
         void addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
         void addEdgeById(size_t id_s, size_t id_t, EdgeType et);
         void addInputs(vector<ZXVertex*> inputs);
@@ -166,6 +166,7 @@ class ZXGraph{
         void removeVertices(vector<ZXVertex* > vertices);
         void removeVertexById(size_t id);
         void removeIsolatedVertices();
+        void removeEdge(ZXVertex* vs, ZXVertex* vt, bool silent = true);
         void removeEdgeById(size_t id_s, size_t id_t);
 
         
