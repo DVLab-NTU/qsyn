@@ -1,0 +1,14 @@
+zxmode -on
+zxnew
+zxgt
+zxgp -v
+zxge -rmv 0
+zxgp -v
+zxge -rme 2 3
+zxgp -v 
+zxge -addi 0 0
+zxgp -v
+zxge -adde 0 2 SIMPLE
+zxge -adde 2 3 SIMPLE
+zxgp -v
+q -f

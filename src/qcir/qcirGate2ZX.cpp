@@ -16,158 +16,146 @@
 #include "qcirMgr.h"
 #include "zxGraph.h"
 
-ZXGraph* HGate::getZXform()
+ZXGraph* HGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit);
-    temp->addVertex(1, qubit, VertexType::H_BOX);
-    temp->addOutput(2, qubit);
-    temp->addEdgeById(0,1,EdgeType::SIMPLE);
-    temp->addEdgeById(1,2,EdgeType::SIMPLE);
-    temp->findVertexById(1)->setPhase(Phase(3.14159)); // pi
-    
+    temp->addInput(baseId - 1, qubit);
+    temp->addVertex(baseId + 1, qubit, VertexType::H_BOX, Phase(1)); //pi
+    temp->addOutput(baseId - 2, qubit);
+    temp->addEdgeById(baseId - 1,baseId + 1,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId + 1,baseId - 2,EdgeType::SIMPLE);
+    baseId ++;
     return temp;
 }
 
-ZXGraph* XGate::getZXform()
+ZXGraph* XGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit);
-    temp->addVertex(1, qubit, VertexType::X);
-    temp->addOutput(2, qubit);
-    temp->addEdgeById(0,1,EdgeType::SIMPLE);
-    temp->addEdgeById(1,2,EdgeType::SIMPLE);
-    temp->findVertexById(1)->setPhase(Phase(3.14159)); // pi
-    
+    temp->addInput(baseId - 1, qubit);
+    temp->addVertex(baseId + 1, qubit, VertexType::X, Phase(1)); //pi
+    temp->addOutput(baseId - 2, qubit);
+    temp->addEdgeById(baseId - 1,baseId + 1,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId + 1,baseId - 2,EdgeType::SIMPLE);
+    baseId ++;
     return temp;
 }
 
-ZXGraph* SXGate::getZXform()
+ZXGraph* SXGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit);
-    temp->addVertex(1, qubit, VertexType::X);
-    temp->addOutput(2, qubit);
-    temp->addEdgeById(0,1,EdgeType::SIMPLE);
-    temp->addEdgeById(1,2,EdgeType::SIMPLE);
-    temp->findVertexById(1)->setPhase(Phase(1.57080)); // pi/2
-    
+    temp->addInput(baseId - 1, qubit);
+    temp->addVertex(baseId + 1, qubit, VertexType::X, Phase(1,2)); //pi/2
+    temp->addOutput(baseId - 2, qubit);
+    temp->addEdgeById(baseId - 1,baseId + 1,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId + 1,baseId - 2,EdgeType::SIMPLE);
+    baseId ++;
     return temp;
 }
 
-ZXGraph* CXGate::getZXform()
+ZXGraph* CXGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t ctrl_qubit = _qubits[0]._isTarget ? _qubits[1]._qubit: _qubits[0]._qubit;
     size_t targ_qubit = _qubits[0]._isTarget ? _qubits[0]._qubit: _qubits[1]._qubit;
-    temp->addInput(0, ctrl_qubit);
-    temp->addInput(1, targ_qubit);
-    temp->addVertex(2, ctrl_qubit, VertexType::Z);
-    temp->addVertex(3, targ_qubit, VertexType::X);
-    temp->addOutput(4, ctrl_qubit);
-    temp->addOutput(5, ctrl_qubit);
-    temp->addEdgeById(0,2,EdgeType::SIMPLE);
-    temp->addEdgeById(2,4,EdgeType::SIMPLE);
-    temp->addEdgeById(1,3,EdgeType::SIMPLE);
-    temp->addEdgeById(3,5,EdgeType::SIMPLE);
-    temp->addEdgeById(2,3,EdgeType::SIMPLE);
-    temp->findVertexById(2)->setPhase(Phase(0)); // 0
-    temp->findVertexById(3)->setPhase(Phase(0)); // 0
-    
+    temp->addInput(baseId - 1, ctrl_qubit);
+    temp->addInput(baseId - 2, targ_qubit);
+    temp->addVertex(baseId + 1, ctrl_qubit, VertexType::Z, Phase(0));
+    temp->addVertex(baseId + 2, targ_qubit, VertexType::X, Phase(0));
+    temp->addOutput(baseId - 3, ctrl_qubit);
+    temp->addOutput(baseId - 4, targ_qubit);
+    temp->addEdgeById(baseId - 1,baseId + 1,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId + 1,baseId - 3,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId - 2,baseId + 2,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId + 2,baseId - 4,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId + 1, baseId + 2,EdgeType::SIMPLE);
+    baseId +=2;
     return temp;
 }
 
-ZXGraph* ZGate::getZXform()
+ZXGraph* ZGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit);
-    temp->addVertex(1, qubit, VertexType::Z);
-    temp->addOutput(2, qubit);
-    temp->addEdgeById(0,1,EdgeType::SIMPLE);
-    temp->addEdgeById(1,2,EdgeType::SIMPLE);
-    temp->findVertexById(1)->setPhase(Phase(3.14159)); // pi
-    
+    temp->addInput(baseId - 1, qubit);
+    temp->addVertex(baseId + 1, qubit, VertexType::Z, Phase(1));
+    temp->addOutput(baseId - 2, qubit);
+    temp->addEdgeById(baseId - 1,baseId + 1,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId + 1,baseId - 2,EdgeType::SIMPLE);
+    baseId ++;
     return temp;
 }
 
-ZXGraph* SGate::getZXform()
+ZXGraph* SGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit);
-    temp->addVertex(1, qubit, VertexType::Z);
-    temp->addOutput(2, qubit);
-    temp->addEdgeById(0,1,EdgeType::SIMPLE);
-    temp->addEdgeById(1,2,EdgeType::SIMPLE);
-    temp->findVertexById(1)->setPhase(Phase(1.57080)); // pi/2
-    
+    temp->addInput(baseId - 1, qubit);
+    temp->addVertex(baseId + 1, qubit, VertexType::Z, Phase(1,2));
+    temp->addOutput(baseId - 2, qubit);
+    temp->addEdgeById(baseId - 1,baseId + 1,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId + 1,baseId - 2,EdgeType::SIMPLE);
+    baseId ++;
     return temp;
 }
 
-ZXGraph* TGate::getZXform()
+ZXGraph* TGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit);
-    temp->addVertex(1, qubit, VertexType::Z);
-    temp->addOutput(2, qubit);
-    temp->addEdgeById(0,1,EdgeType::SIMPLE);
-    temp->addEdgeById(1,2,EdgeType::SIMPLE);
-    temp->findVertexById(1)->setPhase(Phase(0.78540)); // pi/4
-    
+    temp->addInput(baseId - 1, qubit);
+    temp->addVertex(baseId + 1, qubit, VertexType::Z, Phase(1,4));
+    temp->addOutput(baseId - 2, qubit);
+    temp->addEdgeById(baseId - 1,baseId + 1,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId + 1,baseId - 2,EdgeType::SIMPLE);
+    baseId ++;
     return temp;
 }
 
-ZXGraph* TDGGate::getZXform()
+ZXGraph* TDGGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit);
-    temp->addVertex(1, qubit, VertexType::Z);
-    temp->addOutput(2, qubit);
-    temp->addEdgeById(0,1,EdgeType::SIMPLE);
-    temp->addEdgeById(1,2,EdgeType::SIMPLE);
-    temp->findVertexById(1)->setPhase(Phase(-0.78540)); // -pi/4
-    
+    temp->addInput(baseId - 1, qubit);
+    temp->addVertex(baseId + 1, qubit, VertexType::Z, Phase(-1,4));
+    temp->addOutput(baseId - 2, qubit);
+    temp->addEdgeById(baseId - 1,baseId + 1,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId + 1,baseId - 2,EdgeType::SIMPLE);
+    baseId ++;
     return temp;
 }
 
-ZXGraph* RZGate::getZXform()
+ZXGraph* RZGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    temp->addInput(0, qubit);
-    temp->addVertex(1, qubit, VertexType::Z);
-    temp->addOutput(2, qubit);
-    temp->addEdgeById(0,1,EdgeType::SIMPLE);
-    temp->addEdgeById(1,2,EdgeType::SIMPLE);
-    temp->findVertexById(1)->setPhase(_rotatePhase); 
-    
+    temp->addInput(baseId - 1, qubit);
+    temp->addVertex(baseId + 1, qubit, VertexType::Z, Phase(_rotatePhase));
+    temp->addOutput(baseId - 2, qubit);
+    temp->addEdgeById(baseId - 1,baseId + 1,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId + 1,baseId - 2,EdgeType::SIMPLE);
+    baseId ++;
     return temp;
 }
 
-ZXGraph* CZGate::getZXform()
+ZXGraph* CZGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t ctrl_qubit = _qubits[0]._isTarget ? _qubits[1]._qubit: _qubits[0]._qubit;
     size_t targ_qubit = _qubits[0]._isTarget ? _qubits[0]._qubit: _qubits[1]._qubit;
-    temp->addInput(0, ctrl_qubit);
-    temp->addInput(1, targ_qubit);
-    temp->addVertex(2, ctrl_qubit, VertexType::Z);
-    temp->addVertex(3, targ_qubit, VertexType::Z);
-    temp->addOutput(4, ctrl_qubit);
-    temp->addOutput(5, ctrl_qubit);
-    temp->addEdgeById(0,2,EdgeType::SIMPLE);
-    temp->addEdgeById(2,4,EdgeType::SIMPLE);
-    temp->addEdgeById(1,3,EdgeType::SIMPLE);
-    temp->addEdgeById(3,5,EdgeType::SIMPLE);
-    temp->addEdgeById(2,3,EdgeType::HADAMARD); // hadamard edge between z z
-    temp->findVertexById(2)->setPhase(Phase(0)); // 0
-    temp->findVertexById(3)->setPhase(Phase(0)); // 0
-    
+    temp->addInput(baseId - 1, ctrl_qubit);
+    temp->addInput(baseId - 2, targ_qubit);
+    temp->addVertex(baseId + 1, ctrl_qubit, VertexType::Z, Phase(0));
+    temp->addVertex(baseId + 2, targ_qubit, VertexType::Z, Phase(0));
+    temp->addOutput(baseId - 3, ctrl_qubit);
+    temp->addOutput(baseId - 4, targ_qubit);
+    temp->addEdgeById(baseId - 1,baseId + 1,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId + 1,baseId - 3,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId - 2,baseId + 2,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId + 2,baseId - 4,EdgeType::SIMPLE);
+    temp->addEdgeById(baseId + 1, baseId + 2,EdgeType::HADAMARD);
+    baseId +=2;
     return temp;
 }
