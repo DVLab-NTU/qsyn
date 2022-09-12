@@ -160,8 +160,8 @@ class ZXGraph{
         void addInput(size_t id, int qubit);
         void addOutput(size_t id, int qubit);
         void addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase());
-        void addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
-        void addEdgeById(size_t id_s, size_t id_t, EdgeType et);
+        void addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et, bool silent = true);
+        void addEdgeById(size_t id_s, size_t id_t, EdgeType et, bool silent = true);
         void addInputs(vector<ZXVertex*> inputs);
         void addOutputs(vector<ZXVertex*> outputs);
         void addVertices(vector<ZXVertex*> vertices);

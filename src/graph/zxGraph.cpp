@@ -283,17 +283,17 @@ void ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase){
     }
 }
 
-void ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et){
-    cout << "Add edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
+void ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et, bool silent){
+    if(!silent) cout << "Add edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
     vs->addNeighbor(make_pair(vt, et)); vt->addNeighbor(make_pair(vs, et));
     _edges.push_back(make_pair(make_pair(vs, vt), et));
 }
 
-void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType et){
+void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType et, bool silent){
     if(!isId(id_s)) cerr << "Error: id_s provided is not exist!" << endl;
     else if(!isId(id_t)) cerr << "Error: id_t provided is not exist!" << endl;
     else{
-        cout << "Add edge ( " << id_s << ", " << id_t << " )" << endl;
+        if(!silent) cout << "Add edge ( " << id_s << ", " << id_t << " )" << endl;
         ZXVertex* vs = findVertexById(id_s); ZXVertex* vt = findVertexById(id_t);
         vs->addNeighbor(make_pair(vt, et)); vt->addNeighbor(make_pair(vs, et));
         _edges.push_back(make_pair(make_pair(vs, vt), et));
