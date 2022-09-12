@@ -57,7 +57,7 @@ public:
   bool parseQASM(string qasm_file);
   bool parseQC(string qasm_file);
   void incrementZXId() { _ZXNodeId++; }
-  void mapping();
+  void mapping(bool silent=true);
   void updateGateTime();
   void printZXTopoOrder();
 
@@ -73,7 +73,7 @@ public:
   bool printTopoOrder();
   // pass a function F (public functions) into for_each 
   // lambdaFn such as mappingToZX / updateGateTime
-  void ZXConcatenate(ZXGraph*);
+  void ZXConcatenate(ZXGraph*, bool silent=true);
   void updateTopoOrder();
 
   // Member functions about circuit reporting

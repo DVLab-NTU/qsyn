@@ -147,7 +147,7 @@ void QCirMgr::printZXTopoOrder()
     };
     topoTraverse(Lambda);
 }
-void QCirMgr::mapping()
+void QCirMgr::mapping(bool silent)
 {
     updateTopoOrder();
     _ZXG->clearPtrs();
@@ -162,21 +162,21 @@ void QCirMgr::mapping()
         _ZXG -> addInput( 2*(_qubits[i]->getId()), _qubits[i]->getId());
         _ZXG -> addOutput( 2*(_qubits[i]->getId()) + 1, _qubits[i]->getId());
         _ZXG -> addEdgeById( 2*(_qubits[i]->getId()), 2*(_qubits[i]->getId()) + 1, EdgeType::SIMPLE);
-        cout << "Add Qubit " << _qubits[i]->getId() << " inp: " << 2*(_qubits[i]->getId()) << " oup: " << 2*(_qubits[i]->getId())+1 << endl;
+        if (!silent) cout << "Add Qubit " << _qubits[i]->getId() << " inp: " << 2*(_qubits[i]->getId()) << " oup: " << 2*(_qubits[i]->getId())+1 << endl;
     }
     _ZXNodeId = 2*(maxInput+ 1)-1;
-    cout << "ZXnode start from " << _ZXNodeId << endl << endl;
-    auto Lambda = [this](QCirGate *G)
+    if (!silent) cout << "ZXnode start from " << _ZXNodeId << endl << endl;
+    auto Lambda = [this, silent](QCirGate *G)
     {
-        cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
+        if (!silent)  cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph* tmp = G->getZXform(_ZXNodeId);
-        this -> ZXConcatenate(tmp);
-        cout << "---------------------------------" << endl;
+        this -> ZXConcatenate(tmp, silent);
+        if (!silent)  cout << "---------------------------------" << endl;
     };
     topoTraverse(Lambda);
     _ZXG -> printVertices();
 }
-void QCirMgr::ZXConcatenate(ZXGraph* tmp){
+void QCirMgr::ZXConcatenate(ZXGraph* tmp, bool silent){
     // Add Vertices
     _ZXG -> addVertices( tmp -> getNonBoundary() );
     // Reconnect Input
@@ -188,11 +188,11 @@ void QCirMgr::ZXConcatenate(ZXGraph* tmp){
         // size_t targetInputId = targetInput -> getId();
         ZXVertex* lastVertex = _ZXG -> findOutputById(2*inpQubit+1) ->  getNeighbors()[0].first;
         // size_t lastVertexId = lastVertex -> getId();
-        tmp -> removeEdge(tmpInp[inpId], targetInput); // Remove old edge (disconnect old graph)
-        _ZXG -> removeEdge(lastVertex, _ZXG -> findOutputById(2*inpQubit+1)); // Remove old edge (output and prev-output)
+        tmp -> removeEdge(tmpInp[inpId], targetInput, silent); // Remove old edge (disconnect old graph)
+        _ZXG -> removeEdge(lastVertex, _ZXG -> findOutputById(2*inpQubit+1), silent); // Remove old edge (output and prev-output)
         // tmp -> removeEdgeById(tmpInp[inpId]->getId(), targetInputId); // Remove old edge (disconnect old graph)
         // _ZXG -> removeEdgeById(lastVertexId, 2*inpQubit+1); // Remove old edge (output and prev-output)
-        _ZXG -> addEdge(lastVertex, targetInput, EdgeType::SIMPLE); // Add new edge
+        _ZXG -> addEdge(lastVertex, targetInput, EdgeType::SIMPLE, silent); // Add new edge
         
         delete tmpInp[inpId];
     }
@@ -204,9 +204,9 @@ void QCirMgr::ZXConcatenate(ZXGraph* tmp){
         ZXVertex* ZXOup = _ZXG -> findOutputById(2*oupQubit+1);
         ZXVertex* targetOuput = tmpOup[oupId] -> getNeighbors()[0].first;
         // size_t targetOuputId = targetOuput -> getId();
-        tmp -> removeEdge(tmpOup[oupId], targetOuput); // Remove old edge (disconnect old graph)    
+        tmp -> removeEdge(tmpOup[oupId], targetOuput, silent); // Remove old edge (disconnect old graph)    
         // tmp -> removeEdgeById(tmpOup[oupId]->getId(), targetOuputId); // Remove old edge (disconnect old graph)
-        _ZXG -> addEdge(targetOuput, ZXOup,EdgeType::SIMPLE); // Add new edge
+        _ZXG -> addEdge(targetOuput, ZXOup,EdgeType::SIMPLE, silent); // Add new edge
         
         delete tmpOup[oupId];
     }

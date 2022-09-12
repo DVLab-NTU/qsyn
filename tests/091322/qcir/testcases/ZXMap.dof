@@ -1,9 +1,0 @@
-qcba 2
-qcga -x 0
-qczxm
-qcga -cx -pr 0 1
-qczxm
-qccr -r benchmark/benchmark_SABRE/small/3_17_13.qasm
-qczxm
-qccp -q
-q -f

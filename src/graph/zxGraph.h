@@ -67,24 +67,26 @@ class ZXVertex{
         ~ZXVertex(){}
 
         // Getter and Setter
-        size_t getId() const                                { return _id; }
-        int getQubit() const                                { return _qubit; }
-        VertexType getType() const                          { return _type; }
-        Phase getPhase() const                              { return _phase; }
-        vector<NeighborPair > getNeighbors() const          { return _neighbors; }
-        NeighborPair getNeighborById(size_t id) const;
+        size_t getId() const                                                { return _id; }
+        int getQubit() const                                                { return _qubit; }
+        VertexType getType() const                                          { return _type; }
+        Phase getPhase() const                                              { return _phase; }
+        vector<NeighborPair > getNeighbors() const                          { return _neighbors; }
+        vector<NeighborPair > getNeighborById(size_t id) const;
+        vector<NeighborPair > getNeighborByPointer(ZXVertex* v) const;
+        
 
-        void setId(size_t id)                               { _id = id; }
-        void setQubit(int q)                                {_qubit = q; }
-        void setType(VertexType ZXVertex)                   { _type = ZXVertex; }
-        void setPhase(Phase p)                              { _phase = p; }
-        void setNeighbors(vector<NeighborPair > neighbors)  { _neighbors = neighbors; }
+        void setId(size_t id)                                               { _id = id; }
+        void setQubit(int q)                                                {_qubit = q; }
+        void setType(VertexType ZXVertex)                                   { _type = ZXVertex; }
+        void setPhase(Phase p)                                              { _phase = p; }
+        void setNeighbors(vector<NeighborPair > neighbors)                  { _neighbors = neighbors; }
 
 
         // Add and Remove
-        void addNeighbor(NeighborPair neighbor)             { _neighbors.push_back(neighbor); }
-        void removeNeighbor(NeighborPair neighbor);
-        void removeNeighborById(size_t id);
+        void addNeighbor(NeighborPair neighbor)                             { _neighbors.push_back(neighbor); }
+        void removeNeighbor(NeighborPair neighbor, bool silent = true);
+        void removeNeighborById(size_t id, bool silent = true);
 
 
         // Print functions
@@ -93,7 +95,10 @@ class ZXVertex{
 
         
         // Action
-        void disconnect(ZXVertex* v);
+        void disconnect(ZXVertex* v, bool silent = true);
+        void disconnectById(size_t id, bool silent = true);
+        void connect(ZXVertex* v, EdgeType et, bool silent = true);
+        void rearrange();
 
 
         // Test
@@ -155,8 +160,8 @@ class ZXGraph{
         void addInput(size_t id, int qubit);
         void addOutput(size_t id, int qubit);
         void addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase());
-        void addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
-        void addEdgeById(size_t id_s, size_t id_t, EdgeType et);
+        void addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et, bool silent = true);
+        void addEdgeById(size_t id_s, size_t id_t, EdgeType et, bool silent = true);
         void addInputs(vector<ZXVertex*> inputs);
         void addOutputs(vector<ZXVertex*> outputs);
         void addVertices(vector<ZXVertex*> vertices);
