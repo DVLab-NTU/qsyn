@@ -10,28 +10,38 @@
 
 #include <istream>
 #include <vector>
+#include <concepts>
 #include "rnGen.h"
 #include "myUsage.h"
-
-using namespace std;
 
 // Extern global variable defined in util.cpp
 extern RandomNumGen  rnGen;
 extern MyUsage       myUsage;
 
 // In myString.cpp
-extern int myStrNCmp(const string& s1, const string& s2, unsigned n);
-extern size_t myStrGetTok(const string& str, string& tok, size_t pos = 0,
+extern int myStrNCmp(const std::string& s1, const std::string& s2, unsigned n);
+extern size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos = 0,
                           const char del = ' ');
-extern bool myStr2Int(const string& str, int& num);
-extern bool isValidVarName(const string& str);
+extern bool myStr2Int(const std::string& str, int& num);
+extern bool myStr2Uns(const std::string& str, unsigned& num);
+
+template <class T> requires std::floating_point<T>
+extern bool myStr2FloatType(const std::string& str, T& f);
+
+extern bool myStr2Float(const std::string& str, float& f);
+extern bool myStr2Double(const std::string& str, double& f);
+extern bool myStr2LongDouble(const std::string& str, long double& f);
+
+
+
+extern bool isValidVarName(const std::string& str);
 
 // In myGetChar.cpp
 extern char myGetChar(istream&);
 extern char myGetChar();
 
 // In util.cpp
-extern int listDir(vector<string>&, const string&, const string&);
+extern int listDir(vector<std::string>&, const std::string&, const std::string&);
 extern size_t getHashSize(size_t s);
 
 // Other utility template functions

@@ -22,6 +22,7 @@
 class Rational {
 public: 
     // Default constructor for two integral type
+    Rational(): _numer(0), _denom(1) {}
     Rational(int n, int d): _numer(n), _denom(d) { normalize(); }
     // Implicitly use 1 as denominator
     template <class T> requires std::floating_point<T>
@@ -67,28 +68,43 @@ public:
         return _denom;
     }
 
-    virtual float toFloat() { return ((float) _numer) / _denom; }
-    virtual double toDouble() { return ((double) _numer) / _denom; }
-    virtual long double toLongDouble() { return ((long double) _numer) / _denom; }
+    template <class T> requires std::floating_point<T>
+    T toFloatType() const {return ((T) _numer)/ _denom; }
+
+    float toFloat() const { return toFloatType<float>(); }
+    double toDouble() const { return toFloatType<double>();}
+    long double toLongDouble() const { return toFloatType<long double>(); }
 
     template <class T> requires std::floating_point<T>
     static Rational toRational(T f, T eps = 1e-4){
+        // std::cout << "f        " << f << std::endl
+        //           << "eps      " << eps << std::endl
+        //           << "Allowable range: [" << f - eps << ", " << f + eps << "]" << std::endl; 
+                //   << "Rational " << *this << std::endl;
         int integralPart = (int) floor(f);
         f -= integralPart;
         Rational lower(0, 1), upper(1, 1);
         Rational med(1, 2);
+
+        auto inLowerBound = [&f, &eps](const Rational& q) -> bool {
+            return ((f - eps) <= q.toFloatType<T>());
+        };
+        auto inUpperBound = [&f, &eps](const Rational& q) -> bool {
+            return ((f + eps) >= q.toFloatType<T>());
+        };
+
+        if (inLowerBound(lower) && inUpperBound(lower)) {
+            return lower + integralPart;
+        }
+        if (inLowerBound(upper) && inUpperBound(upper)) {
+            return upper + integralPart;
+        }
+                
         while (true) {
-            T med_floatType;
-            if constexpr (std::is_same<T, double>::value) {
-                med_floatType = med.toDouble();
-            } else if constexpr (std::is_same<T, float>::value) {
-                med_floatType = med.toFloat();
-            } else {
-                med_floatType = med.toLongDouble();
-            }
-            if ((med_floatType + eps) < f) {
+            // std::cout << med << " = " << med.toFloatType<T>() << std::endl;
+            if (!inLowerBound(med)) {
                 lower = med;
-            } else if ((med_floatType - eps > f)) {
+            } else if (!inUpperBound(med)) {
                 upper = med;
             } else {
                 return med + integralPart;

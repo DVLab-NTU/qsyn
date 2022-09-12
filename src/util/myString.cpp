@@ -9,6 +9,9 @@
 #include <ctype.h>
 #include <cstring>
 #include <cassert>
+#include <exception>
+#include <iostream>
+#include <concepts>
 
 using namespace std;
 
@@ -76,6 +79,81 @@ myStr2Int(const string& str, int& num)
    }
    num *= sign;
    return valid;
+}
+
+// Convert string "str" to unsigned integer "unsnum". Return false if str does not appear
+// to be an unsigned number
+bool
+myStr2Uns(const string& str, unsigned& unsnum)
+{
+   int num = 0;
+   bool isNum = myStr2Int(str, num);
+   if(!isNum || num < 0)
+      return false;
+   unsnum = (unsigned int)num;
+   return true;
+}
+
+// A template interface for std::stoXXX(const string& str, size_t* pos = nullptr), 
+// All the dirty compile-time checking happens here.
+template <class T> requires std::floating_point<T>
+T stoFloatType(const std::string& str, size_t* pos) {
+    
+    try {
+        if constexpr (std::is_same<T, double>::value) {
+            return std::stod(str, pos);
+        } else if constexpr (std::is_same<T, float>::value) {
+            return std::stof(str, pos);
+        } else if constexpr (std::is_same<T, long double>::value) {
+            return std::stold(str, pos);
+        } else {
+            throw std::invalid_argument("Not a floating point type");
+        }
+    } catch (const std::invalid_argument& e) {
+        throw std::invalid_argument(e.what());
+    } catch (const std::out_of_range& e) {
+        throw std::out_of_range(e.what());
+    }
+
+    return 0.; // silences compiler warnings
+}
+// Generic template for `myStr2<Float|Double|LongDouble>`
+// If `str` is a string of decimal number, return true and set `f` to the corresponding number.
+// Otherwise return 0 and set `f` to 0.
+template <class T> requires std::floating_point<T>
+bool myStr2FloatType(const std::string& str, T& f) {
+    f = 0;
+    size_t i;
+    try {
+        f = stoFloatType<T>(str, &i);
+    } catch (const std::exception& e) {
+        return false;
+    }
+    // Check if str have un-parsable parts
+    if (i != str.size()) {
+        f = 0;
+        return false;
+    }
+    return true;
+}
+
+template bool myStr2FloatType<float>(const std::string&, float&);
+template bool myStr2FloatType<double>(const std::string&, double&);
+template bool myStr2FloatType<long double>(const std::string&, long double&);
+
+bool
+myStr2Float(const std::string& str, float& f) {
+    return myStr2FloatType<float>(str, f);
+}
+
+bool
+myStr2Double(const std::string& str, double& f) {
+    return myStr2FloatType<double>(str, f);
+}
+
+bool
+myStr2LongDouble(const std::string& str, long double& f) {
+    return myStr2FloatType<long double>(str, f);
 }
 
 // Valid var name is ---

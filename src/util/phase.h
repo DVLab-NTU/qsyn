@@ -11,7 +11,9 @@
 
 #include "rationalNumber.h"
 #include "myConcepts.h"
+#include "util.h"
 #include <numbers>
+#include <string>
 
 enum class PhaseUnit {
     PI, ONE
@@ -20,9 +22,11 @@ enum class PhaseUnit {
 class Phase {
 
 public:
+    Phase(): _rational(0, 1) {}
+    Phase(int n): _rational(n, 1) { normalize(); }
     Phase(int n, int d): _rational(n, d) { normalize(); }
     template <class T> requires std::floating_point<T>
-    Phase(T f, T eps = 1e-4): _rational(f/std::numbers::pi_v<T>, eps) { std::cout << f/std::numbers::pi_v<T> << std::endl; normalize(); }
+    Phase(T f, T eps = 1e-4): _rational(f/std::numbers::pi_v<T>, eps/std::numbers::pi_v<T>) { normalize(); }
 
     friend std::ostream& operator<<(std::ostream& os, const Phase& p);
     Phase& operator+();
@@ -70,9 +74,13 @@ public:
     double toDouble();
     long double toLongDouble();
 
+    Rational getRational() {
+        return _rational;
+    }
+
     template <class T> requires std::floating_point<T>
     static Phase toPhase(T f, T eps = 1e-4){
-        Phase p(f/std::numbers::pi_v<T>, eps);
+        Phase p(f, eps);
         return p;
     }
 
@@ -84,6 +92,17 @@ public:
     }
 
     void normalize();
+
+    template<class T = double> requires std::floating_point<T>
+    bool fromString(const std::string& str) {
+        *this = 0;
+        T f;
+        if (!myStr2FloatType<T>(str, f)) {
+            return false;
+        }
+        *this = Phase::toPhase(f);
+        return true;
+    }
 private:
     Rational _rational;
     static PhaseUnit _printUnit;

@@ -36,9 +36,11 @@ QCirQubit *QCirMgr::getQubit(size_t id) const
     }
     return NULL;
 }
-void QCirMgr::printSummary() const
+void QCirMgr::printSummary()
 {
-    cout << "Follow QASM file (Topological order)" << endl;
+    if (_dirty)
+        updateGateTime();
+    cout << "Listed by gate ID" << endl;
     for (size_t i = 0; i < _qgate.size(); i++)
     {
         _qgate[i]->printGate();
@@ -63,7 +65,7 @@ bool QCirMgr::printGateInfo(size_t id, bool showTime)
     }
     else
     {
-        cerr << "ERROR: id " << id << " not found!!" << endl;
+        cerr << "Error: id " << id << " not found!!" << endl;
         return false;
     }
 }
@@ -91,10 +93,11 @@ void QCirMgr::DFS(QCirGate *currentGate)
             }
         }
     }
-    _topoOrder.push(currentGate);
+    _topoOrder.push_back(currentGate);
 }
 void QCirMgr::updateTopoOrder()
 {
+    _topoOrder.clear();
     _globalDFScounter++;
     QCirGate *dummy = new HGate(-1);
 
@@ -103,15 +106,24 @@ void QCirMgr::updateTopoOrder()
         dummy->addDummyChild(_qubits[i]->getFirst());
     }
     DFS(dummy);
-    _topoOrder.pop(); // pop dummy
+    _topoOrder.pop_back(); // pop dummy
+    reverse(_topoOrder.begin(), _topoOrder.end());
     assert(_topoOrder.size() == _qgate.size());
+}
+// An easy checker for lambda function
+bool QCirMgr::printTopoOrder()
+{
+    auto testLambda = [](QCirGate *G)
+    {
+        cout << G->getId() << endl;
+    };
+    topoTraverse(testLambda);
+    return true;
 }
 void QCirMgr::updateGateTime()
 {
-    updateTopoOrder();
-    while (!_topoOrder.empty())
+    auto Lambda = [](QCirGate *currentGate)
     {
-        QCirGate *currentGate = _topoOrder.top();
         vector<BitInfo> Info = currentGate->getQubits();
         size_t max_time = 0;
         for (size_t i = 0; i < Info.size(); i++)
@@ -122,9 +134,83 @@ void QCirMgr::updateGateTime()
                 max_time = Info[i]._parent->getTime() + 1;
         }
         currentGate->setTime(max_time);
-        _topoOrder.pop();
+    };
+    topoTraverse(Lambda);
+}
+void QCirMgr::printZXTopoOrder()
+{
+    auto Lambda = [this](QCirGate *G)
+    {
+        cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
+        ZXGraph* tmp = G->getZXform(_ZXNodeId);
+        tmp -> printVertices();
+    };
+    topoTraverse(Lambda);
+}
+void QCirMgr::mapping(bool silent)
+{
+    updateTopoOrder();
+    _ZXG->clearPtrs();
+    _ZXG->clearGraph();
+    delete _ZXG;
+    _ZXG = new ZXGraph(0);
+    _ZXNodeId = 0;
+    size_t maxInput = 0;
+    for(size_t i=0; i<_qubits.size(); i++){
+        if (_qubits[i]->getId() > maxInput)
+            maxInput = _qubits[i]->getId();
+        _ZXG -> addInput( 2*(_qubits[i]->getId()), _qubits[i]->getId());
+        _ZXG -> addOutput( 2*(_qubits[i]->getId()) + 1, _qubits[i]->getId());
+        _ZXG -> addEdgeById( 2*(_qubits[i]->getId()), 2*(_qubits[i]->getId()) + 1, EdgeType::SIMPLE);
+        if (!silent) cout << "Add Qubit " << _qubits[i]->getId() << " inp: " << 2*(_qubits[i]->getId()) << " oup: " << 2*(_qubits[i]->getId())+1 << endl;
     }
-    _dirty = false;
+    _ZXNodeId = 2*(maxInput+ 1)-1;
+    if (!silent) cout << "ZXnode start from " << _ZXNodeId << endl << endl;
+    auto Lambda = [this, silent](QCirGate *G)
+    {
+        if (!silent)  cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
+        ZXGraph* tmp = G->getZXform(_ZXNodeId);
+        this -> ZXConcatenate(tmp, silent);
+        if (!silent)  cout << "---------------------------------" << endl;
+    };
+    topoTraverse(Lambda);
+    _ZXG -> printVertices();
+}
+void QCirMgr::ZXConcatenate(ZXGraph* tmp, bool silent){
+    // Add Vertices
+    _ZXG -> addVertices( tmp -> getNonBoundary() );
+    // Reconnect Input
+    vector<ZXVertex*> tmpInp = tmp -> getInputs();
+    for(size_t inpId = 0; inpId < tmpInp.size(); inpId++){
+        size_t inpQubit = tmpInp[inpId]->getQubit();
+        // 2*Qubit = inp, 2*Qubit+1 = oup
+        ZXVertex* targetInput = tmpInp[inpId] -> getNeighbors()[0].first;
+        // size_t targetInputId = targetInput -> getId();
+        ZXVertex* lastVertex = _ZXG -> findOutputById(2*inpQubit+1) ->  getNeighbors()[0].first;
+        // size_t lastVertexId = lastVertex -> getId();
+        tmp -> removeEdge(tmpInp[inpId], targetInput, silent); // Remove old edge (disconnect old graph)
+        _ZXG -> removeEdge(lastVertex, _ZXG -> findOutputById(2*inpQubit+1), silent); // Remove old edge (output and prev-output)
+        // tmp -> removeEdgeById(tmpInp[inpId]->getId(), targetInputId); // Remove old edge (disconnect old graph)
+        // _ZXG -> removeEdgeById(lastVertexId, 2*inpQubit+1); // Remove old edge (output and prev-output)
+        _ZXG -> addEdge(lastVertex, targetInput, EdgeType::SIMPLE, silent); // Add new edge
+        
+        delete tmpInp[inpId];
+    }
+    // Reconnect Output
+    vector<ZXVertex*> tmpOup = tmp -> getOutputs();
+    for(size_t oupId = 0; oupId < tmpOup.size(); oupId++){
+        size_t oupQubit = tmpOup[oupId]->getQubit();
+        // 2*Qubit = inp, 2*Qubit+1 = oup
+        ZXVertex* ZXOup = _ZXG -> findOutputById(2*oupQubit+1);
+        ZXVertex* targetOuput = tmpOup[oupId] -> getNeighbors()[0].first;
+        // size_t targetOuputId = targetOuput -> getId();
+        tmp -> removeEdge(tmpOup[oupId], targetOuput, silent); // Remove old edge (disconnect old graph)    
+        // tmp -> removeEdgeById(tmpOup[oupId]->getId(), targetOuputId); // Remove old edge (disconnect old graph)
+        _ZXG -> addEdge(targetOuput, ZXOup,EdgeType::SIMPLE, silent); // Add new edge
+        
+        delete tmpOup[oupId];
+    }
+    tmp -> clearGraph();
 }
 bool QCirMgr::removeQubit(size_t id)
 {
@@ -132,14 +218,14 @@ bool QCirMgr::removeQubit(size_t id)
     QCirQubit *target = getQubit(id);
     if (target == NULL)
     {
-        cerr << "ERROR: id " << id << " not found!!" << endl;
+        cerr << "Error: id " << id << " not found!!" << endl;
         return false;
     }
     else
     {
         if (target->getLast() != NULL || target->getFirst() != NULL)
         {
-            cerr << "ERROR: id " << id << " is not an empty qubit!!" << endl;
+            cerr << "Error: id " << id << " is not an empty qubit!!" << endl;
             return false;
         }
         else
@@ -150,9 +236,11 @@ bool QCirMgr::removeQubit(size_t id)
     }
 }
 
-void QCirMgr::appendGate(string type, vector<size_t> bits)
+void QCirMgr::addGate(string type, vector<size_t> bits, Phase phase, bool append)
 {
     QCirGate *temp = NULL;
+    for_each(type.begin(), type.end(), [](char &c)
+             { c = ::tolower(c); });
     if (type == "h")
         temp = new HGate(_gateId);
     else if (type == "z")
@@ -164,7 +252,7 @@ void QCirMgr::appendGate(string type, vector<size_t> bits)
     else if (type == "tdg")
         temp = new TDGGate(_gateId);
     else if (type == "p")
-        temp = new PGate(_gateId, 0);
+        temp = new RZGate(_gateId);
     else if (type == "cz")
         temp = new CZGate(_gateId);
     else if (type == "x")
@@ -177,31 +265,55 @@ void QCirMgr::appendGate(string type, vector<size_t> bits)
         temp = new CCXGate(_gateId);
     // Note: rz and p has a little difference
     else if (type == "rz")
-        temp = new CnRZGate(_gateId, 0);
+    {
+        temp = new RZGate(_gateId);
+        temp->setRotatePhase(phase);
+    }
+
     else
     {
-        cerr << "The gate is not implement";
+        cerr << "Error: The gate " << type << " is not implement!!" << endl;
+        return;
     }
-
-    size_t max_time = 0;
-    for (size_t k = 0; k < bits.size(); k++)
+    if (append)
     {
-        size_t q = bits[k];
-        temp->addQubit(q, k == bits.size() - 1);
-        QCirQubit *target = getQubit(q);
-        if (target->getLast() != NULL)
+        size_t max_time = 0;
+        for (size_t k = 0; k < bits.size(); k++)
         {
-            temp->setParent(q, target->getLast());
-            target->getLast()->setChild(q, temp);
-            if ((target->getLast()->getTime() + 1) > max_time)
-                max_time = target->getLast()->getTime() + 1;
+            size_t q = bits[k];
+            temp->addQubit(q, k == bits.size() - 1); // target is the last one
+            QCirQubit *target = getQubit(q);
+            if (target->getLast() != NULL)
+            {
+                temp->setParent(q, target->getLast());
+                target->getLast()->setChild(q, temp);
+                if ((target->getLast()->getTime() + 1) > max_time)
+                    max_time = target->getLast()->getTime() + 1;
+            }
+            else
+                target->setFirst(temp);
+            target->setLast(temp);
         }
-        else
-            target->setFirst(temp);
-        target->setLast(temp);
+        temp->setTime(max_time);
     }
-    temp->setTime(max_time);
-
+    else
+    {
+        for (size_t k = 0; k < bits.size(); k++)
+        {
+            size_t q = bits[k];
+            temp->addQubit(q, k == bits.size() - 1); // target is the last one
+            QCirQubit *target = getQubit(q);
+            if (target->getFirst() != NULL)
+            {
+                temp->setChild(q, target->getFirst());
+                target->getFirst()->setParent(q, temp);
+            }
+            else
+                target->setLast(temp);
+            target->setFirst(temp);
+        }
+        _dirty = true;
+    }
     _qgate.push_back(temp);
     _gateId++;
 }
@@ -236,6 +348,19 @@ bool QCirMgr::removeGate(size_t id)
     }
 }
 
+bool QCirMgr::parse(string filename)
+{
+    string extension = filename.substr(filename.find_last_of('.'), filename.size());
+    if (extension == ".qasm") return parseQASM(filename);
+    else if (extension == ".qc") return parseQC(filename);
+    // else if (extension == ".qsim") parseQUIPPER(filename);
+    else 
+    {
+        cerr << "Do not support the file extension " << extension << endl;
+        return false;    
+    }
+}
+
 bool QCirMgr::parseQASM(string filename)
 {
     // read file and open
@@ -265,7 +390,7 @@ bool QCirMgr::parseQASM(string filename)
     {
         string space_delimiter = " ";
         string type = str.substr(0, str.find(" "));
-        string phase = (str.find("(") != string::npos) ? str.substr(str.find("(") + 1, str.length() - str.find("(") - 2) : "";
+        string phaseStr = (str.find("(") != string::npos) ? str.substr(str.find("(") + 1, str.length() - str.find("(") - 2) : "0";
         type = str.substr(0, str.find("("));
         string is_CX = type.substr(0, 2);
         string is_CRZ = type.substr(0, 3);
@@ -279,7 +404,9 @@ bool QCirMgr::parseQASM(string filename)
                 size_t q = stoul(singleQubitId);
                 vector<size_t> pin_id;
                 pin_id.push_back(q); // targ
-                appendGate(type, pin_id);
+                Phase phase;
+                phase.fromString(phaseStr);
+                addGate(type, pin_id, phase, true);
             }
             else
             {
@@ -307,8 +434,133 @@ bool QCirMgr::parseQASM(string filename)
             vector<size_t> pin_id;
             pin_id.push_back(q1); // ctrl
             pin_id.push_back(q2); // targ
-            appendGate(type, pin_id);
+            addGate(type, pin_id, Phase(0), true);
         }
     }
     return true;
+}
+
+bool QCirMgr::parseQC(string filename)
+{
+    // read file and open
+    fstream qc_file;
+    string tmp;
+    vector<string> record;
+    qc_file.open(filename.c_str(), ios::in);
+    if (!qc_file.is_open())
+    {
+        cerr << "Cannot open QC file \"" << filename << "\"!!" << endl;
+        return false;
+    }
+
+    // ex: qubit_labels = {A,B,C,1,2,3,result}
+    //     qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), token));
+    vector<string> qubit_labels;
+    qubit_labels.clear();
+    string line;
+    vector<string> single_list{"X", "Z", "S", "S*", "H", "T", "T*"};
+    vector<string> double_list{"cnot" , "cx", "cz"};
+    size_t n_qubit=0;
+
+    while ( getline(qc_file, line))
+    {
+        if (line.find('.')==0) // find initial statement
+        {
+            // erase .v .i or .o
+            line.erase(0, line.find(' '));
+            line.erase(0, 1);
+
+            while (!line.empty())
+            {
+                string token= line.substr(0, line.find(' '));
+                // Fix '\r'
+                token = token[token.size()-1]=='\r' ? token.substr(0,token.size()-1) : token;
+                if ( find(qubit_labels.begin(), qubit_labels.end(), token) == qubit_labels.end())
+                {
+                    qubit_labels.push_back(token);
+                    n_qubit++;
+                }
+                line.erase(0, line.find(' '));
+                line.erase(0, 1);
+            }
+        }
+        else if (line.find('#')==0 || line == "" || line=="\r") continue;
+        else if (line.find("BEGIN")==0)
+        {
+            addQubit(n_qubit);
+        }
+        else if (line.find("END")==0)
+        {
+            return true;
+        }
+        else // find a gate
+        {
+            string gate = line.substr(0, line.find(' '));
+            line.erase(0, line.find(' ')+1);
+            //for (string label:qubit_labels) cerr << label << " " ;
+            if ( find(single_list.begin(),single_list.end(),gate)!=single_list.end())
+            {
+                //add single gate
+                while (!line.empty())
+                {
+                    vector<size_t> pin_id;
+                    bool singleTarget = (line.find(' ') == string::npos);
+                    string qubit_label;
+                    qubit_label =  singleTarget ? line.substr(0,line.find('\r')) : line.substr(0, line.find(' '));
+                    size_t qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), qubit_label));
+                    //phase phase;
+                    pin_id.push_back(qubit_id);
+                    addGate(gate,pin_id,Phase(0),true);
+                    line.erase(0, line.find(' '));
+                    line.erase(0, 1);
+                }
+            }
+            else if ( find(double_list.begin(),double_list.end(),gate)!=double_list.end())
+            {
+                //add double gate
+                vector<size_t> pin_id;
+
+                while (!line.empty())
+                {
+                    bool singleTarget = (line.find(' ') == string::npos);
+                    string qubit_label;
+                    qubit_label =  singleTarget ? line.substr(0,line.find('\r')) : line.substr(0, line.find(' '));
+                    int qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), qubit_label));
+                    pin_id.push_back(qubit_id);
+                    line.erase(0, line.find(' '));
+                    line.erase(0, 1);
+
+                }
+                addGate(gate,pin_id,Phase(0),true);
+            }
+            else if (gate == "tof")
+            {
+                //add toffoli (not ,cnot or ccnot)
+                vector<size_t> pin_id;
+
+                while (!line.empty())
+                {
+                    
+                    bool singleTarget = (line.find(' ') == string::npos);
+                    string qubit_label;
+                    qubit_label =  singleTarget ? line.substr(0,line.find('\r')) : line.substr(0, line.find(' '));
+                    int qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), qubit_label));
+                    pin_id.push_back(qubit_id);
+                    line.erase(0, line.find(' '));
+                    line.erase(0, 1);
+
+                }
+
+                if (pin_id.size()==1){addGate("X", pin_id, Phase(0),true);}
+                else if (pin_id.size()==2){addGate("cnot", pin_id, Phase(0),true);}
+                else if (pin_id.size()==3){addGate("ccx", pin_id, Phase(0),true);}
+                else {cerr << "Do not support more than 2 control toffoli " << endl;}
+            }
+            else{ 
+                cerr << "Find a undefined gate: "<< gate << endl;
+            }
+        }
+    }
+    return true;
+    // qccread ./benchmark/qc/Other/grover_5.qc
 }

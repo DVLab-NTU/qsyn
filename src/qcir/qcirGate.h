@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include "phase.h"
+#include "zxGraph.h"
 
 using namespace std;
 
@@ -31,7 +33,7 @@ struct BitInfo
 class QCirGate
 {
 public:
-  QCirGate(size_t id, size_t phase) : _id(id), _phase(phase)
+  QCirGate(size_t id) : _id(id)
   {
     _qubits.clear();
     _time = 0;
@@ -71,10 +73,9 @@ public:
   // Printing functions
   void printGate() const;
   virtual void printGateInfo(bool) const=0;
-  void reportGate() const;
-  void reportFanin(int level) const;
-  void reportFanout(int level) const;
+  virtual ZXGraph*  getZXform(size_t &baseId, bool silent = true){ return NULL; };
 
+  virtual void setRotatePhase(Phase p){};
 private:
   
 protected:
@@ -82,24 +83,25 @@ protected:
   string _type;
   size_t _nqubit;
   size_t _time;
-  size_t _phase;
   unsigned _DFSCounter;
   vector<BitInfo> _qubits;
+  Phase _rotatePhase;
 };
 
 class HGate : public QCirGate
 { 
 public:
-  HGate(size_t id): QCirGate(id, 0) {}
+  HGate(size_t id): QCirGate(id) {}
   ~HGate(){};
   virtual string getTypeStr() const override { return "h"; }
   virtual void printGateInfo(bool) const; 
+  virtual ZXGraph*  getZXform(size_t &baseId, bool silent = true);
 };
 
 class CnRZGate : public QCirGate
 { 
 public:
-  CnRZGate(size_t id, size_t phase): QCirGate(id, phase) {}
+  CnRZGate(size_t id): QCirGate(id) {}
   ~CnRZGate(){};
   virtual string getTypeStr() const { 
     string tmp = "";
@@ -108,108 +110,132 @@ public:
     tmp +="rz";
     return tmp; 
   }
+  virtual ZXGraph*  getZXform(size_t &baseId, bool silent = true){ return NULL; };
   virtual void printGateInfo(bool) const;
 };
 
 class CnRXGate : public QCirGate
 { 
 public:
-  CnRXGate(size_t id, size_t phase): QCirGate(id, phase) {}
+  CnRXGate(size_t id): QCirGate(id) {}
   ~CnRXGate(){};
+  virtual ZXGraph*  getZXform(size_t &baseId, bool silent = true){ return NULL; };
   virtual void printGateInfo(bool) const;
 };
 
 class ZGate : public CnRZGate
 { 
 public:
-  ZGate(size_t id): CnRZGate(id, 0) {
+  ZGate(size_t id): CnRZGate(id) {
     _type = "z";
   }
   ~ZGate();
   virtual string getTypeStr() const { return "z"; }
+  virtual ZXGraph*  getZXform(size_t &baseId, bool silent = true);
   virtual void printGateInfo(bool) const;
 };
 
 class SGate : public CnRZGate
 { 
 public:
-  SGate(size_t id): CnRZGate(id, 90) {
+  SGate(size_t id): CnRZGate(id) {
     _type = "s";
   }
   ~SGate();
   virtual string getTypeStr() const { return "s"; }
+  virtual ZXGraph*  getZXform(size_t &baseId, bool silent = true);
+  virtual void printGateInfo(bool) const;
+};
+
+class SDGGate : public CnRZGate
+{ 
+public:
+  SDGGate(size_t id): CnRZGate(id) {
+    _type = "sdg";
+  }
+  ~SDGGate();
+  virtual string getTypeStr() const { return "sdg"; }
   virtual void printGateInfo(bool) const;
 };
 
 class TGate : public CnRZGate
 { 
 public:
-  TGate(size_t id): CnRZGate(id, 45) {}
+  TGate(size_t id): CnRZGate(id) {}
   ~TGate();
   virtual string getTypeStr() const { return "t"; }
+  virtual ZXGraph*  getZXform(size_t &baseId, bool silent = true);
   virtual void printGateInfo(bool) const;
 };
 
 class TDGGate : public CnRZGate
 { 
 public:
-  TDGGate(size_t id): CnRZGate(id, 315) {}
+  TDGGate(size_t id): CnRZGate(id) {}
   ~TDGGate();
   virtual string getTypeStr() const { return "td"; }
+  virtual ZXGraph*  getZXform(size_t &baseId, bool silent = true);
   virtual void printGateInfo(bool) const;
 };
 
-class PGate : public CnRZGate
+class RZGate : public CnRZGate
 { 
 public:
-  PGate(size_t id, size_t phase): CnRZGate(id, phase) {}
-  ~PGate();
-  virtual string getTypeStr() const { return "p"; }
+  RZGate(size_t id): CnRZGate(id) {}
+  ~RZGate();
+  virtual string getTypeStr() const { return "rz"; }
+  virtual ZXGraph*  getZXform(size_t &baseId, bool silent = true);
   virtual void printGateInfo(bool) const;
+  virtual void setRotatePhase(Phase p){ _rotatePhase = p; }
 };
 
 class CZGate : public CnRZGate
 { 
 public:
-  CZGate(size_t id): CnRZGate(id, 0) {}
+  CZGate(size_t id): CnRZGate(id) {}
   ~CZGate();
   virtual string getTypeStr() const { return "cz"; }
+  virtual ZXGraph*  getZXform(size_t &baseId, bool silent = true);
   virtual void printGateInfo(bool) const;
 };
 
 class XGate : public CnRXGate
 { 
 public:
-  XGate(size_t id): CnRXGate(id, 0) {}
+  XGate(size_t id): CnRXGate(id) {}
   ~XGate();
   virtual string getTypeStr() const { return "x"; }
+  virtual ZXGraph*  getZXform(size_t &baseId, bool silent = true);
   virtual void printGateInfo(bool) const;
 };
 
 class SXGate : public CnRXGate
 { 
 public:
-  SXGate(size_t id): CnRXGate(id, 0) {}
+  SXGate(size_t id): CnRXGate(id) {}
   ~SXGate();
   virtual string getTypeStr() const { return "sx"; }
+  virtual ZXGraph*  getZXform(size_t &baseId, bool silent = true);
   virtual void printGateInfo(bool) const;
 };
 
 class CXGate : public CnRXGate
 { 
 public:
-  CXGate(size_t id): CnRXGate(id, 0) {}
+  CXGate(size_t id): CnRXGate(id) {}
   ~CXGate();
   virtual string getTypeStr() const { return "cx"; }
+  virtual ZXGraph*  getZXform(size_t &baseId, bool silent = true);
   virtual void printGateInfo(bool) const;
 };
 
 class CCXGate : public CnRXGate
 { 
 public:
-  CCXGate(size_t id): CnRXGate(id, 0) {}
+  CCXGate(size_t id): CnRXGate(id) {}
   ~CCXGate();
   virtual string getTypeStr() const { return "ccx"; }
+  virtual ZXGraph*  getZXform(size_t &baseId, bool silent = true){ return NULL; };
   virtual void printGateInfo(bool) const;
 };
 #endif // QCIR_GATE_H

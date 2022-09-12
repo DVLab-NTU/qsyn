@@ -17,10 +17,16 @@
 extern ZXGraphMgr *zxGraphMgr;
 using namespace std;
 
+//------------------------------------------------------------------------
+//  Define types
+//------------------------------------------------------------------------
 typedef vector<ZXGraph* > ZXGraphList;
 
+
+//------------------------------------------------------------------------
+//  Define classes
+//------------------------------------------------------------------------
 class ZXGraphMgr{
-    
     public:
         ZXGraphMgr(){
             _graphList.clear();
@@ -33,12 +39,13 @@ class ZXGraphMgr{
         // Test
         bool isID(size_t id) const;
 
+
         // Setter and Getter
-        ZXGraphList getGraphList() const { return _graphList; }
-        ZXGraphList::iterator getgListItr() const { return _gListItr; }
-        size_t getNextID() const { return _nextID; }
-        ZXGraph* getGraph() const { return _graphList[_gListItr - _graphList.begin()]; }
-        void setNextID(size_t id) { _nextID = id; }
+        ZXGraphList getGraphList() const            { return _graphList; }
+        ZXGraphList::iterator getgListItr() const   { return _gListItr; }
+        size_t getNextID() const                    { return _nextID; }
+        ZXGraph* getGraph() const                   { return _graphList[_gListItr - _graphList.begin()]; }
+        void setNextID(size_t id)                   { _nextID = id; }
         
 
         // Add and Remove
@@ -47,6 +54,16 @@ class ZXGraphMgr{
 
         // Action
         void checkout2ZXGraph(size_t id);
+        void copy(size_t id);
+        void compose(ZXGraph* zxGraph);
+        void tensor(ZXGraph* zxGraph);
+        ZXGraph* findZXGraphByID(size_t id) const;
+
+
+        // Print
+        void printZXGraphMgr() const;
+        void printGListItr() const;
+        void printGraphListSize() const;
 
     private:
         size_t                          _nextID;
