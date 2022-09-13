@@ -108,12 +108,14 @@ void ZXGraphMgr::copy(size_t id){
 
 void ZXGraphMgr::compose(ZXGraph* zxGraph){
   ZXGraph* oriGraph = getGraph();
+  // oriGraph->sortIOByQubit();
   if(oriGraph->getNumOutputs() != zxGraph->getNumInputs()) 
     cerr << "Error: The composing ZX-graph's #input is not equivalent to the original ZX-graph's #output." << endl;
   else{
     // Make a deep copy of zxGraph
     ZXGraph* copyGraph = zxGraph->copy();
-    
+    // copyGraph->sortIOByQubit();
+
     // Rewrite all vertices id in copyGraph to avoid repetition
     size_t nextID = oriGraph->findNextId();
     for(size_t i = 0; i < copyGraph->getVertices().size(); i++){
