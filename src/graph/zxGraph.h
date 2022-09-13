@@ -37,7 +37,7 @@ enum class VertexType{
     Z,
     X,
     H_BOX,
-    ERRORTYPE
+    ERRORTYPE       // Never use this
 };
 
 VertexType str2VertexType(string str);
@@ -45,7 +45,7 @@ VertexType str2VertexType(string str);
 enum class EdgeType{
     SIMPLE,
     HADAMARD,
-    ERRORTYPE
+    ERRORTYPE       // Never use this
 };
 
 EdgeType str2EdgeType(string str);
@@ -154,25 +154,27 @@ class ZXGraph{
         bool isValid() const;
         bool isConnected(ZXVertex* v1, ZXVertex* v2) const;
         bool isId(size_t id) const;
+        bool isInputQubit(int qubit) const;
+        bool isOutputQubit(int qubit) const;
 
 
         // Add and Remove
-        void addInput(size_t id, int qubit);
-        void addOutput(size_t id, int qubit);
-        void addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase());
-        void addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
+        void addInput(size_t id, int qubit, bool silent = true);
+        void addOutput(size_t id, int qubit, bool silent = true);
+        void addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase(), bool silent = true);
+        void addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et, bool silent = true);
         void addEdgeById(size_t id_s, size_t id_t, EdgeType et);
         void addInputs(vector<ZXVertex*> inputs);
         void addOutputs(vector<ZXVertex*> outputs);
         void addVertices(vector<ZXVertex*> vertices);
         void addEdges(vector<EdgePair> edges);
 
-        void removeVertex(ZXVertex* v);
-        void removeVertices(vector<ZXVertex* > vertices);
-        void removeVertexById(size_t id);
-        void removeIsolatedVertices();
+        void removeVertex(ZXVertex* v, bool silent = true);
+        void removeVertices(vector<ZXVertex* > vertices, bool silent = true);
+        void removeVertexById(size_t id, bool silent = true);
+        void removeIsolatedVertices(bool silent = true);
         void removeEdge(ZXVertex* vs, ZXVertex* vt, bool silent = true);
-        void removeEdgeById(size_t id_s, size_t id_t);
+        void removeEdgeById(size_t id_s, size_t id_t, bool silent = true);
 
         
         // Find functions
@@ -181,6 +183,8 @@ class ZXGraph{
 
         // Action
         ZXGraph* copy() const;
+        void sortIOByQubit();
+        void sortVerticeById();
 
 
         // Print functions
