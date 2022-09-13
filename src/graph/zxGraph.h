@@ -176,7 +176,7 @@ class ZXGraph{
         void removeEdge(ZXVertex* vs, ZXVertex* vt, bool silent = true);
         void removeEdgeById(size_t id_s, size_t id_t, bool silent = true);
 
-        
+                
         // Find functions
         ZXVertex* findVertexById(size_t id) const;
         size_t findNextId() const;
