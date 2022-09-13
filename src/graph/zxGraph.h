@@ -190,6 +190,12 @@ class ZXGraph{
         void printVertices() const;
         void printEdges() const;
         
+        // For mapping
+        ZXVertex* findInputById(size_t id) const;
+        ZXVertex* findOutputById(size_t id) const;
+        vector<ZXVertex*> getNonBoundary();
+        void clearGraph() { _inputs.clear(); _outputs.clear(); _vertices.clear(); _edges.clear(); }
+        void clearPtrs() { for(size_t i=0; i<_vertices.size(); i++) delete _vertices[i]; }
 
     private:
         size_t                            _id;

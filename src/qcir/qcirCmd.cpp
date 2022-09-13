@@ -28,8 +28,9 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCBAdd", 4, new QCirAddQubitCmd) &&
          cmdMgr->regCmd("QCGDelete", 4, new QCirDeleteGateCmd) &&
          cmdMgr->regCmd("QCBDelete", 4, new QCirDeleteQubitCmd) &&
-         cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd)
-         // && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
+         cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd) &&
+         cmdMgr->regCmd("QCZXMapping", 5, new QCirZXMappingCmd)
+         && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
          ))
    {
       cerr << "Registering \"qcir\" commands fails... exiting" << endl;
@@ -49,22 +50,22 @@ enum QCirCmdState
 
 static QCirCmdState curCmd = QCIRINIT;
 
-// CmdExecStatus
-// QCirTestCmd::exec(const string &option)
-// {
-//    qCirMgr->printZXTopoOrder();
-//    return CMD_EXEC_DONE;
-// }
-// void QCirTestCmd::usage(ostream &os) const
-// {
-//    os << "Usage: QCT" << endl;
-// }
+CmdExecStatus
+QCirTestCmd::exec(const string &option)
+{
+   qCirMgr->mapping();
+   return CMD_EXEC_DONE;
+}
+void QCirTestCmd::usage(ostream &os) const
+{
+   os << "Usage: QCT" << endl;
+}
 
-// void QCirTestCmd::help() const
-// {
-//    cout << setw(15) << left << "QCT: "
-//         << "Test what function you want (for developement)" << endl;
-// }
+void QCirTestCmd::help() const
+{
+   cout << setw(15) << left << "QCT: "
+        << "Test what function you want (for developement)" << endl;
+}
 
 //----------------------------------------------------------------------
 //    QCCRead <(string fileName)> [-Replace]
@@ -195,7 +196,8 @@ QCirGatePrintCmd::exec(const string &option)
          cerr << "Error: id " << id << " not found!!" << endl;
          return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
       }
-      qCirMgr->getGate(id)->getZXform()->printVertices();
+      size_t tmp = 4;
+      qCirMgr->getGate(id)->getZXform(tmp)->printVertices();
    }
    else{
       if (!qCirMgr->printGateInfo(id, showTime))
@@ -532,6 +534,42 @@ void QCirDeleteQubitCmd::help() const
    cout << setw(15) << left << "QCBDelete: "
         << "delete an empty qubit\n";
 }
+
+//----------------------------------------------------------------------
+//    QCZXMapping
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirZXMappingCmd::exec(const string &option)
+{
+   // check option
+   string token;
+   if (!CmdExec::lexSingleOption(option, token))
+      return CMD_EXEC_ERROR;
+
+   if (!qCirMgr)
+   {
+      cerr << "Error: quantum circuit is not yet constructed!!" << endl;
+      return CMD_EXEC_ERROR;
+   }
+   if (!token.empty())
+      return CmdExec::errorOption(CMD_OPT_EXTRA, token);
+   else 
+      qCirMgr -> mapping();
+
+   return CMD_EXEC_DONE;
+}
+
+void QCirZXMappingCmd::usage(ostream &os) const
+{
+   os << "Usage: QCZXMapping" << endl;
+}
+
+void QCirZXMappingCmd::help() const
+{
+   cout << setw(15) << left << "QCZXMapping: "
+        << "mapping to ZX diagram\n";
+}
+
 // //----------------------------------------------------------------------
 // //    CIRGate <<(int gateId)> [<-FANIn | -FANOut><(int level)>]>
 // //----------------------------------------------------------------------
