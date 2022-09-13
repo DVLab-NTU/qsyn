@@ -37,7 +37,6 @@ qsyn> zxcheckout 0
 Checkout to Graph 0
 
 qsyn> ZXGEdit -rmv 1
-Remove ID: 1
 
 qsyn> zxgprint
 Graph 0
