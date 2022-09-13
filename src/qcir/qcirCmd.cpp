@@ -551,17 +551,19 @@ QCirZXMappingCmd::exec(const string &option)
       cerr << "Error: quantum circuit is not yet constructed!!" << endl;
       return CMD_EXEC_ERROR;
    }
-   if (!token.empty())
-      return CmdExec::errorOption(CMD_OPT_EXTRA, token);
-   else 
+   if (token.empty())
       qCirMgr -> mapping();
+   else if (myStrNCmp("-Log", token, 2) == 0)
+      qCirMgr -> mapping(false);
+   else
+      return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
 
    return CMD_EXEC_DONE;
 }
 
 void QCirZXMappingCmd::usage(ostream &os) const
 {
-   os << "Usage: QCZXMapping" << endl;
+   os << "Usage: QCZXMapping [-Log]" << endl;
 }
 
 void QCirZXMappingCmd::help() const
