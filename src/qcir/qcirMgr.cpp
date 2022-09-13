@@ -178,7 +178,7 @@ void QCirMgr::addGate(string type, vector<size_t> bits, Phase phase, bool append
         temp = new CZGate(_gateId);
     else if (type == "x" || type == "X" || type == "not")
         temp = new XGate(_gateId);
-    else if (type == "sx")
+    else if (type == "sx" || type == "x_1_2")
         temp = new SXGate(_gateId);
     else if (type == "cx" || type == "cnot")
         temp = new CXGate(_gateId);
@@ -271,7 +271,7 @@ bool QCirMgr::parse(string filename)
     string extension = filename.substr(filename.find_last_of('.'), filename.size());
     if (extension == ".qasm") return parseQASM(filename);
     else if (extension == ".qc") return parseQC(filename);
-    // else if (extension == ".qsim") parseQUIPPER(filename);
+    else if (extension == ".qsim") return parseQSIM(filename);
     else 
     {
         cerr << "Do not support the file extension " << extension << endl;
@@ -307,6 +307,7 @@ bool QCirMgr::parseQASM(string filename)
 
     while (qasm_file >> str)
     {
+        cerr << str << endl;
         string space_delimiter = " ";
         string type = str.substr(0, str.find(" "));
         string phaseStr = (str.find("(") != string::npos) ? str.substr(str.find("(") + 1, str.length() - str.find("(") - 2) : "0";
@@ -363,8 +364,6 @@ bool QCirMgr::parseQC(string filename)
 {
     // read file and open
     fstream qc_file;
-    string tmp;
-    vector<string> record;
     qc_file.open(filename.c_str(), ios::in);
     if (!qc_file.is_open())
     {
@@ -414,10 +413,10 @@ bool QCirMgr::parseQC(string filename)
         }
         else // find a gate
         {
-            string gate = line.substr(0, line.find(' '));
+            string type = line.substr(0, line.find(' '));
             line.erase(0, line.find(' ')+1);
             //for (string label:qubit_labels) cerr << label << " " ;
-            if ( find(single_list.begin(),single_list.end(),gate)!=single_list.end())
+            if ( find(single_list.begin(),single_list.end(),type)!=single_list.end())
             {
                 //add single gate
                 while (!line.empty())
@@ -429,12 +428,12 @@ bool QCirMgr::parseQC(string filename)
                     size_t qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), qubit_label));
                     //phase phase;
                     pin_id.push_back(qubit_id);
-                    addGate(gate,pin_id,Phase(0),true);
+                    addGate(type,pin_id,Phase(0),true);
                     line.erase(0, line.find(' '));
                     line.erase(0, 1);
                 }
             }
-            else if ( find(double_list.begin(),double_list.end(),gate)!=double_list.end())
+            else if ( find(double_list.begin(),double_list.end(),type)!=double_list.end())
             {
                 //add double gate
                 vector<size_t> pin_id;
@@ -450,9 +449,9 @@ bool QCirMgr::parseQC(string filename)
                     line.erase(0, 1);
 
                 }
-                addGate(gate,pin_id,Phase(0),true);
+                addGate(type,pin_id,Phase(0),true);
             }
-            else if (gate == "tof")
+            else if (type == "tof")
             {
                 //add toffoli (not ,cnot or ccnot)
                 vector<size_t> pin_id;
@@ -476,10 +475,89 @@ bool QCirMgr::parseQC(string filename)
                 else {cerr << "Do not support more than 2 control toffoli " << endl;}
             }
             else{ 
-                cerr << "Find a undefined gate: "<< gate << endl;
+                cerr << "Find a undefined gate: "<< type << endl;
+                return false;
             }
         }
     }
     return true;
-    // qccread ./benchmark/qc/Other/grover_5.qc
+}
+
+bool QCirMgr::parseQSIM(string filename){
+    // read file and open
+    fstream qsim_file;
+    qsim_file.open(filename.c_str(), ios::in);
+    if (!qsim_file.is_open())
+    {
+        cerr << "Cannot open QSIM file \"" << filename << "\"!!" << endl;
+        return false;
+    }
+
+    string n_qubitStr;
+    string time, type;
+    size_t qubit_control , qubit_target;
+    string phaseStr;
+    vector<string> single_list{"x", "y", "z", "h", "t", "x_1_2", "y_1_2", "rx", "rz", "s"};
+    vector<string> double_list{"cx", "cz"};
+
+
+    // decide qubit number
+    int n_qubit;
+    qsim_file >> n_qubit;
+    //cerr << n_qubit << endl;
+    addQubit(n_qubit);
+
+    // add the gate
+    
+    while (qsim_file >> time >> type)
+    {
+        
+        //cerr << time << type << endl;
+        if ( find(single_list.begin(),single_list.end(),type)!=single_list.end())
+        {
+            // add single qubit gate
+            vector<size_t> pin_id;
+            qsim_file>> qubit_target;
+            pin_id.push_back(qubit_target);
+            //cerr << "Single gate on " << pin_id[0] << "?"<< endl;
+
+            if (type == "rx" || type == "rz")
+            {
+                qsim_file >> phaseStr;
+                Phase phase;
+                phase.fromString(phaseStr);
+                addGate(type , pin_id, phase, true);
+                //cerr << "Add " << type << " on qubit "<< qubit_target << " with phase = " << phaseStr << endl;;
+
+            }
+            else
+            {
+                //cerr << "Add " << type << " on qubit "<< pin_id[0] << endl;
+                addGate(type, pin_id, Phase(0), true);
+                
+            }
+
+            continue;
+        }
+        else if (find(double_list.begin(),double_list.end(),type)!=double_list.end())
+        {
+            // add double qubit gate
+            vector<size_t> pin_id;
+            qsim_file>> qubit_control >>qubit_target;
+            pin_id.push_back(qubit_control);
+            pin_id.push_back(qubit_target);
+            //cerr << "Double gate on " << qubit_control <<qubit_target << endl;
+            addGate(type, pin_id, Phase(0), true);
+            continue;
+        }
+        else
+        {
+            cerr << "Find a undefined gate: "<< type << endl;
+            return false;
+        }
+    }
+    return true;
+
+    // qccr benchmark/qsim/circuits/circuit_q24.qsim
+    // qccr benchmark/qsim/example.qsim
 }

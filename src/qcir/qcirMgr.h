@@ -52,6 +52,7 @@ public:
   bool parse(string qasm_file);
   bool parseQASM(string qasm_file);
   bool parseQC(string qasm_file);
+  bool parseQSIM(string qasm_file);
   
   void updateGateTime();
   // DFS functions
