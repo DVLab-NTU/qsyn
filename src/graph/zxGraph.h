@@ -130,14 +130,12 @@ class ZXGraph{
 
         // Getter and Setter
         void setId(size_t id)                           { _id = id; }
-        void setQubitCount(size_t c)                    { _nqubit = c; }
         void setInputs(vector<ZXVertex*> inputs)        { _inputs = inputs; }
         void setOutputs(vector<ZXVertex*> outputs)      { _outputs = outputs; }
         void setVertices(vector<ZXVertex*> vertices)    { _vertices = vertices; }
         void setEdges(vector<EdgePair > edges)          { _edges = edges; }
         
         size_t getId() const                            { return _id; }
-        size_t getQubitCount() const                    { return _nqubit; }
         vector<ZXVertex*> getInputs() const             { return _inputs; }
         size_t getNumInputs() const                     { return _inputs.size(); }
         vector<ZXVertex*> getOutputs() const            { return _outputs; }
@@ -205,7 +203,6 @@ class ZXGraph{
 
     private:
         size_t                            _id;
-        size_t                            _nqubit;
         vector<ZXVertex*>                 _inputs;
         vector<ZXVertex*>                 _outputs;
         vector<ZXVertex*>                 _vertices;
