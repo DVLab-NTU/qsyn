@@ -455,6 +455,13 @@ size_t ZXGraph::findNextId() const{
 
 
 // Action
+void ZXGraph::reset(){
+    _inputs.clear();
+    _outputs.clear();
+    _vertices.clear();
+    _edges.clear();
+}
+
 ZXGraph* ZXGraph::copy() const{
     ZXGraph* newGraph = new ZXGraph(0);
 

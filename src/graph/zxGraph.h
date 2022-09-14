@@ -182,6 +182,7 @@ class ZXGraph{
         size_t findNextId() const;
 
         // Action
+        void reset();
         ZXGraph* copy() const;
         void sortIOByQubit();
         void sortVerticeById();
@@ -198,7 +199,6 @@ class ZXGraph{
         ZXVertex* findInputById(size_t id) const;
         ZXVertex* findOutputById(size_t id) const;
         vector<ZXVertex*> getNonBoundary();
-        void clearGraph() { _inputs.clear(); _outputs.clear(); _vertices.clear(); _edges.clear(); }
         void clearPtrs() { for(size_t i=0; i<_vertices.size(); i++) delete _vertices[i]; }
 
 
