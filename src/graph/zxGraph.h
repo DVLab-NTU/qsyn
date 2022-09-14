@@ -178,6 +178,8 @@ class ZXGraph{
 
                 
         // Find functions
+        ZXVertex* findInputById(size_t id) const;
+        ZXVertex* findOutputById(size_t id) const;
         ZXVertex* findVertexById(size_t id) const;
         size_t findNextId() const;
 
@@ -195,9 +197,8 @@ class ZXGraph{
         void printVertices() const;
         void printEdges() const;
         
+        
         // For mapping
-        ZXVertex* findInputById(size_t id) const;
-        ZXVertex* findOutputById(size_t id) const;
         vector<ZXVertex*> getNonBoundary();
         void clearPtrs() { for(size_t i=0; i<_vertices.size(); i++) delete _vertices[i]; }
 

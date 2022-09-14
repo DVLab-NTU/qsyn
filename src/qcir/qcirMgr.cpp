@@ -113,10 +113,7 @@ void QCirMgr::updateTopoOrder()
 // An easy checker for lambda function
 bool QCirMgr::printTopoOrder()
 {
-    auto testLambda = [](QCirGate *G)
-    {
-        cout << G->getId() << endl;
-    };
+    auto testLambda = [](QCirGate *G){ cout << G->getId() << endl; };
     topoTraverse(testLambda);
     return true;
 }
