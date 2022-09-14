@@ -154,7 +154,7 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph){
   }
 }
 
-void ZXGraphMgr::tensor(ZXGraph* zxGraph){
+void ZXGraphMgr::tensorProduct(ZXGraph* zxGraph){
   ZXGraph* oriGraph = getGraph();
   ZXGraph* copyGraph = zxGraph->copy();
 

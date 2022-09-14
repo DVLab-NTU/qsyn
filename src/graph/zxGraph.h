@@ -181,6 +181,7 @@ class ZXGraph{
         ZXVertex* findVertexById(size_t id) const;
         size_t findNextId() const;
 
+
         // Action
         void reset();
         ZXGraph* copy() const;
