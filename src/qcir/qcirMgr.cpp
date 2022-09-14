@@ -151,7 +151,7 @@ void QCirMgr::mapping(bool silent)
 {
     updateTopoOrder();
     _ZXG->clearPtrs();
-    _ZXG->clearGraph();
+    _ZXG->reset();
     delete _ZXG;
     _ZXG = new ZXGraph(0);
     _ZXNodeId = 0;
@@ -210,7 +210,7 @@ void QCirMgr::ZXConcatenate(ZXGraph* tmp, bool silent){
         
         delete tmpOup[oupId];
     }
-    tmp -> clearGraph();
+    tmp -> reset();
 }
 bool QCirMgr::removeQubit(size_t id)
 {
