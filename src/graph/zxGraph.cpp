@@ -551,27 +551,3 @@ void ZXGraph::printEdges() const{
     }
     cout << "Total #Edges: " << _edges.size() << endl;
 }
-
-// Mapping functions
-ZXVertex* ZXGraph::findInputById(size_t id) const{
-    for(size_t i = 0; i < _inputs.size(); i++){
-        if(_inputs[i]->getId() == id) return _inputs[i];
-    }
-    return nullptr;
-}
-
-ZXVertex* ZXGraph::findOutputById(size_t id) const{
-    for(size_t i = 0; i < _outputs.size(); i++){
-        if(_outputs[i]->getId() == id) return _outputs[i];
-    }
-    return nullptr;
-}
-
-vector<ZXVertex*> ZXGraph::getNonBoundary() { 
-    vector<ZXVertex*> tmp; tmp.clear(); 
-    for(size_t i=0; i<_vertices.size(); i++){
-        if(_vertices[i]->getType()==VertexType::BOUNDARY) continue;
-        else tmp.push_back(_vertices[i]);
-    }
-    return tmp;
-}

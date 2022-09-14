@@ -73,7 +73,6 @@ public:
   bool printTopoOrder();
   // pass a function F (public functions) into for_each 
   // lambdaFn such as mappingToZX / updateGateTime
-  void ZXConcatenate(ZXGraph*, bool silent=true);
   void updateTopoOrder();
 
   // Member functions about circuit reporting

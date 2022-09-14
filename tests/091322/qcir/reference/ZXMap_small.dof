@@ -9,7 +9,7 @@ ZXnode start from 3
 
 Gate 0 (x)
 Remove edge ( 2, 4 )
-Remove edge ( 0, 1 )
+Disconnect 0 and 1
 0 and 4 add each other to _neighbor.
 Add edge ( 0, 4 )
 Remove edge ( 1, 4 )
@@ -31,24 +31,24 @@ Add Qubit 1 inp: 2 oup: 3
 ZXnode start from 3
 
 Gate 1 (cx)
-Remove edge ( 2, 4 )
-Remove edge ( 0, 1 )
-0 and 4 add each other to _neighbor.
-Add edge ( 0, 4 )
 Remove edge ( 1, 5 )
-Remove edge ( 2, 3 )
+Disconnect 2 and 3
 2 and 5 add each other to _neighbor.
 Add edge ( 2, 5 )
-Remove edge ( 0, 4 )
-4 and 1 add each other to _neighbor.
-Add edge ( 4, 1 )
+Remove edge ( 2, 4 )
+Disconnect 0 and 1
+0 and 4 add each other to _neighbor.
+Add edge ( 0, 4 )
 Remove edge ( 18446744073709551615, 5 )
 5 and 3 add each other to _neighbor.
 Add edge ( 5, 3 )
+Remove edge ( 0, 4 )
+4 and 1 add each other to _neighbor.
+Add edge ( 4, 1 )
 ---------------------------------
 Gate 0 (x)
 Remove edge ( 4, 6 )
-Remove edge ( 4, 1 )
+Disconnect 4 and 1
 4 and 6 add each other to _neighbor.
 Add edge ( 4, 6 )
 Remove edge ( 3, 6 )
@@ -74,7 +74,7 @@ ZXnode start from 5
 
 Gate 0 (x)
 Remove edge ( 4, 6 )
-Remove edge ( 4, 5 )
+Disconnect 4 and 5
 4 and 6 add each other to _neighbor.
 Add edge ( 4, 6 )
 Remove edge ( 3, 6 )
@@ -82,40 +82,40 @@ Remove edge ( 3, 6 )
 Add edge ( 6, 5 )
 ---------------------------------
 Gate 1 (cx)
-Remove edge ( 5, 7 )
-Remove edge ( 0, 1 )
-0 and 7 add each other to _neighbor.
-Add edge ( 0, 7 )
 Remove edge ( 4, 8 )
-Remove edge ( 6, 5 )
+Disconnect 6 and 5
 6 and 8 add each other to _neighbor.
 Add edge ( 6, 8 )
-Remove edge ( 3, 7 )
-7 and 1 add each other to _neighbor.
-Add edge ( 7, 1 )
+Remove edge ( 5, 7 )
+Disconnect 0 and 1
+0 and 7 add each other to _neighbor.
+Add edge ( 0, 7 )
 Remove edge ( 2, 8 )
 8 and 5 add each other to _neighbor.
 Add edge ( 8, 5 )
+Remove edge ( 3, 7 )
+7 and 1 add each other to _neighbor.
+Add edge ( 7, 1 )
 ---------------------------------
 Gate 2 (cx)
-Remove edge ( 7, 9 )
-Remove edge ( 8, 5 )
-8 and 9 add each other to _neighbor.
-Add edge ( 8, 9 )
 Remove edge ( 6, 10 )
-Remove edge ( 2, 3 )
+Disconnect 2 and 3
 2 and 10 add each other to _neighbor.
 Add edge ( 2, 10 )
-Remove edge ( 5, 9 )
-9 and 5 add each other to _neighbor.
-Add edge ( 9, 5 )
+Remove edge ( 7, 9 )
+Disconnect 8 and 5
+8 and 9 add each other to _neighbor.
+Add edge ( 8, 9 )
 Remove edge ( 4, 10 )
 10 and 3 add each other to _neighbor.
 Add edge ( 10, 3 )
+Remove edge ( 5, 9 )
+9 and 5 add each other to _neighbor.
+Add edge ( 9, 5 )
 ---------------------------------
 Gate 4 (t)
 Remove edge ( 9, 11 )
-Remove edge ( 10, 3 )
+Disconnect 10 and 3
 10 and 11 add each other to _neighbor.
 Add edge ( 10, 11 )
 Remove edge ( 8, 11 )
@@ -124,7 +124,7 @@ Add edge ( 11, 3 )
 ---------------------------------
 Gate 5 (t)
 Remove edge ( 10, 12 )
-Remove edge ( 9, 5 )
+Disconnect 9 and 5
 9 and 12 add each other to _neighbor.
 Add edge ( 9, 12 )
 Remove edge ( 9, 12 )
@@ -132,24 +132,24 @@ Remove edge ( 9, 12 )
 Add edge ( 12, 5 )
 ---------------------------------
 Gate 7 (cx)
-Remove edge ( 11, 13 )
-Remove edge ( 12, 5 )
-12 and 13 add each other to _neighbor.
-Add edge ( 12, 13 )
 Remove edge ( 10, 14 )
-Remove edge ( 11, 3 )
+Disconnect 11 and 3
 11 and 14 add each other to _neighbor.
 Add edge ( 11, 14 )
-Remove edge ( 9, 13 )
-13 and 5 add each other to _neighbor.
-Add edge ( 13, 5 )
+Remove edge ( 11, 13 )
+Disconnect 12 and 5
+12 and 13 add each other to _neighbor.
+Add edge ( 12, 13 )
 Remove edge ( 8, 14 )
 14 and 3 add each other to _neighbor.
 Add edge ( 14, 3 )
+Remove edge ( 9, 13 )
+13 and 5 add each other to _neighbor.
+Add edge ( 13, 5 )
 ---------------------------------
 Gate 3 (h)
 Remove edge ( 13, 15 )
-Remove edge ( 7, 1 )
+Disconnect 7 and 1
 7 and 15 add each other to _neighbor.
 Add edge ( 7, 15 )
 Remove edge ( 12, 15 )
@@ -158,7 +158,7 @@ Add edge ( 15, 1 )
 ---------------------------------
 Gate 6 (t)
 Remove edge ( 14, 16 )
-Remove edge ( 15, 1 )
+Disconnect 15 and 1
 15 and 16 add each other to _neighbor.
 Add edge ( 15, 16 )
 Remove edge ( 13, 16 )
@@ -166,24 +166,24 @@ Remove edge ( 13, 16 )
 Add edge ( 16, 1 )
 ---------------------------------
 Gate 8 (cx)
-Remove edge ( 15, 17 )
-Remove edge ( 16, 1 )
-16 and 17 add each other to _neighbor.
-Add edge ( 16, 17 )
 Remove edge ( 14, 18 )
-Remove edge ( 13, 5 )
+Disconnect 13 and 5
 13 and 18 add each other to _neighbor.
 Add edge ( 13, 18 )
-Remove edge ( 13, 17 )
-17 and 1 add each other to _neighbor.
-Add edge ( 17, 1 )
+Remove edge ( 15, 17 )
+Disconnect 16 and 1
+16 and 17 add each other to _neighbor.
+Add edge ( 16, 17 )
 Remove edge ( 12, 18 )
 18 and 5 add each other to _neighbor.
 Add edge ( 18, 5 )
+Remove edge ( 13, 17 )
+17 and 1 add each other to _neighbor.
+Add edge ( 17, 1 )
 ---------------------------------
 Gate 10 (td)
 Remove edge ( 17, 19 )
-Remove edge ( 18, 5 )
+Disconnect 18 and 5
 18 and 19 add each other to _neighbor.
 Add edge ( 18, 19 )
 Remove edge ( 16, 19 )
@@ -191,24 +191,24 @@ Remove edge ( 16, 19 )
 Add edge ( 19, 5 )
 ---------------------------------
 Gate 9 (cx)
-Remove edge ( 18, 20 )
-Remove edge ( 14, 3 )
-14 and 20 add each other to _neighbor.
-Add edge ( 14, 20 )
 Remove edge ( 17, 21 )
-Remove edge ( 17, 1 )
+Disconnect 17 and 1
 17 and 21 add each other to _neighbor.
 Add edge ( 17, 21 )
-Remove edge ( 16, 20 )
-20 and 3 add each other to _neighbor.
-Add edge ( 20, 3 )
+Remove edge ( 18, 20 )
+Disconnect 14 and 3
+14 and 20 add each other to _neighbor.
+Add edge ( 14, 20 )
 Remove edge ( 15, 21 )
 21 and 1 add each other to _neighbor.
 Add edge ( 21, 1 )
+Remove edge ( 16, 20 )
+20 and 3 add each other to _neighbor.
+Add edge ( 20, 3 )
 ---------------------------------
 Gate 14 (t)
 Remove edge ( 20, 22 )
-Remove edge ( 21, 1 )
+Disconnect 21 and 1
 21 and 22 add each other to _neighbor.
 Add edge ( 21, 22 )
 Remove edge ( 19, 22 )
@@ -216,24 +216,24 @@ Remove edge ( 19, 22 )
 Add edge ( 22, 1 )
 ---------------------------------
 Gate 11 (cx)
-Remove edge ( 21, 23 )
-Remove edge ( 20, 3 )
-20 and 23 add each other to _neighbor.
-Add edge ( 20, 23 )
 Remove edge ( 20, 24 )
-Remove edge ( 19, 5 )
+Disconnect 19 and 5
 19 and 24 add each other to _neighbor.
 Add edge ( 19, 24 )
-Remove edge ( 19, 23 )
-23 and 3 add each other to _neighbor.
-Add edge ( 23, 3 )
+Remove edge ( 21, 23 )
+Disconnect 20 and 3
+20 and 23 add each other to _neighbor.
+Add edge ( 20, 23 )
 Remove edge ( 18, 24 )
 24 and 5 add each other to _neighbor.
 Add edge ( 24, 5 )
+Remove edge ( 19, 23 )
+23 and 3 add each other to _neighbor.
+Add edge ( 23, 3 )
 ---------------------------------
 Gate 13 (td)
 Remove edge ( 23, 25 )
-Remove edge ( 24, 5 )
+Disconnect 24 and 5
 24 and 25 add each other to _neighbor.
 Add edge ( 24, 25 )
 Remove edge ( 22, 25 )
@@ -241,24 +241,24 @@ Remove edge ( 22, 25 )
 Add edge ( 25, 5 )
 ---------------------------------
 Gate 15 (cx)
-Remove edge ( 24, 26 )
-Remove edge ( 22, 1 )
-22 and 26 add each other to _neighbor.
-Add edge ( 22, 26 )
 Remove edge ( 23, 27 )
-Remove edge ( 25, 5 )
+Disconnect 25 and 5
 25 and 27 add each other to _neighbor.
 Add edge ( 25, 27 )
-Remove edge ( 22, 26 )
-26 and 1 add each other to _neighbor.
-Add edge ( 26, 1 )
+Remove edge ( 24, 26 )
+Disconnect 22 and 1
+22 and 26 add each other to _neighbor.
+Add edge ( 22, 26 )
 Remove edge ( 21, 27 )
 27 and 5 add each other to _neighbor.
 Add edge ( 27, 5 )
+Remove edge ( 22, 26 )
+26 and 1 add each other to _neighbor.
+Add edge ( 26, 1 )
 ---------------------------------
 Gate 12 (td)
 Remove edge ( 26, 28 )
-Remove edge ( 23, 3 )
+Disconnect 23 and 3
 23 and 28 add each other to _neighbor.
 Add edge ( 23, 28 )
 Remove edge ( 25, 28 )
@@ -266,24 +266,24 @@ Remove edge ( 25, 28 )
 Add edge ( 28, 3 )
 ---------------------------------
 Gate 16 (cx)
-Remove edge ( 27, 29 )
-Remove edge ( 28, 3 )
-28 and 29 add each other to _neighbor.
-Add edge ( 28, 29 )
 Remove edge ( 26, 30 )
-Remove edge ( 26, 1 )
+Disconnect 26 and 1
 26 and 30 add each other to _neighbor.
 Add edge ( 26, 30 )
-Remove edge ( 25, 29 )
-29 and 3 add each other to _neighbor.
-Add edge ( 29, 3 )
+Remove edge ( 27, 29 )
+Disconnect 28 and 3
+28 and 29 add each other to _neighbor.
+Add edge ( 28, 29 )
 Remove edge ( 24, 30 )
 30 and 1 add each other to _neighbor.
 Add edge ( 30, 1 )
+Remove edge ( 25, 29 )
+29 and 3 add each other to _neighbor.
+Add edge ( 29, 3 )
 ---------------------------------
 Gate 18 (h)
 Remove edge ( 29, 31 )
-Remove edge ( 30, 1 )
+Disconnect 30 and 1
 30 and 31 add each other to _neighbor.
 Add edge ( 30, 31 )
 Remove edge ( 28, 31 )
@@ -292,7 +292,7 @@ Add edge ( 31, 1 )
 ---------------------------------
 Gate 20 (t)
 Remove edge ( 30, 32 )
-Remove edge ( 31, 1 )
+Disconnect 31 and 1
 31 and 32 add each other to _neighbor.
 Add edge ( 31, 32 )
 Remove edge ( 29, 32 )
@@ -300,24 +300,24 @@ Remove edge ( 29, 32 )
 Add edge ( 32, 1 )
 ---------------------------------
 Gate 17 (cx)
-Remove edge ( 31, 33 )
-Remove edge ( 27, 5 )
-27 and 33 add each other to _neighbor.
-Add edge ( 27, 33 )
 Remove edge ( 30, 34 )
-Remove edge ( 29, 3 )
+Disconnect 29 and 3
 29 and 34 add each other to _neighbor.
 Add edge ( 29, 34 )
-Remove edge ( 29, 33 )
-33 and 5 add each other to _neighbor.
-Add edge ( 33, 5 )
+Remove edge ( 31, 33 )
+Disconnect 27 and 5
+27 and 33 add each other to _neighbor.
+Add edge ( 27, 33 )
 Remove edge ( 28, 34 )
 34 and 3 add each other to _neighbor.
 Add edge ( 34, 3 )
+Remove edge ( 29, 33 )
+33 and 5 add each other to _neighbor.
+Add edge ( 33, 5 )
 ---------------------------------
 Gate 21 (t)
 Remove edge ( 33, 35 )
-Remove edge ( 34, 3 )
+Disconnect 34 and 3
 34 and 35 add each other to _neighbor.
 Add edge ( 34, 35 )
 Remove edge ( 32, 35 )
@@ -325,24 +325,24 @@ Remove edge ( 32, 35 )
 Add edge ( 35, 3 )
 ---------------------------------
 Gate 23 (cx)
-Remove edge ( 34, 36 )
-Remove edge ( 35, 3 )
-35 and 36 add each other to _neighbor.
-Add edge ( 35, 36 )
 Remove edge ( 33, 37 )
-Remove edge ( 32, 1 )
+Disconnect 32 and 1
 32 and 37 add each other to _neighbor.
 Add edge ( 32, 37 )
-Remove edge ( 32, 36 )
-36 and 3 add each other to _neighbor.
-Add edge ( 36, 3 )
+Remove edge ( 34, 36 )
+Disconnect 35 and 3
+35 and 36 add each other to _neighbor.
+Add edge ( 35, 36 )
 Remove edge ( 31, 37 )
 37 and 1 add each other to _neighbor.
 Add edge ( 37, 1 )
+Remove edge ( 32, 36 )
+36 and 3 add each other to _neighbor.
+Add edge ( 36, 3 )
 ---------------------------------
 Gate 19 (h)
 Remove edge ( 36, 38 )
-Remove edge ( 33, 5 )
+Disconnect 33 and 5
 33 and 38 add each other to _neighbor.
 Add edge ( 33, 38 )
 Remove edge ( 35, 38 )
@@ -351,7 +351,7 @@ Add edge ( 38, 5 )
 ---------------------------------
 Gate 22 (t)
 Remove edge ( 37, 39 )
-Remove edge ( 38, 5 )
+Disconnect 38 and 5
 38 and 39 add each other to _neighbor.
 Add edge ( 38, 39 )
 Remove edge ( 36, 39 )
@@ -359,24 +359,24 @@ Remove edge ( 36, 39 )
 Add edge ( 39, 5 )
 ---------------------------------
 Gate 24 (cx)
-Remove edge ( 38, 40 )
-Remove edge ( 39, 5 )
-39 and 40 add each other to _neighbor.
-Add edge ( 39, 40 )
 Remove edge ( 37, 41 )
-Remove edge ( 36, 3 )
+Disconnect 36 and 3
 36 and 41 add each other to _neighbor.
 Add edge ( 36, 41 )
-Remove edge ( 36, 40 )
-40 and 5 add each other to _neighbor.
-Add edge ( 40, 5 )
+Remove edge ( 38, 40 )
+Disconnect 39 and 5
+39 and 40 add each other to _neighbor.
+Add edge ( 39, 40 )
 Remove edge ( 35, 41 )
 41 and 3 add each other to _neighbor.
 Add edge ( 41, 3 )
+Remove edge ( 36, 40 )
+40 and 5 add each other to _neighbor.
+Add edge ( 40, 5 )
 ---------------------------------
 Gate 26 (td)
 Remove edge ( 40, 42 )
-Remove edge ( 41, 3 )
+Disconnect 41 and 3
 41 and 42 add each other to _neighbor.
 Add edge ( 41, 42 )
 Remove edge ( 39, 42 )
@@ -384,24 +384,24 @@ Remove edge ( 39, 42 )
 Add edge ( 42, 3 )
 ---------------------------------
 Gate 25 (cx)
-Remove edge ( 41, 43 )
-Remove edge ( 37, 1 )
-37 and 43 add each other to _neighbor.
-Add edge ( 37, 43 )
 Remove edge ( 40, 44 )
-Remove edge ( 40, 5 )
+Disconnect 40 and 5
 40 and 44 add each other to _neighbor.
 Add edge ( 40, 44 )
-Remove edge ( 39, 43 )
-43 and 1 add each other to _neighbor.
-Add edge ( 43, 1 )
+Remove edge ( 41, 43 )
+Disconnect 37 and 1
+37 and 43 add each other to _neighbor.
+Add edge ( 37, 43 )
 Remove edge ( 38, 44 )
 44 and 5 add each other to _neighbor.
 Add edge ( 44, 5 )
+Remove edge ( 39, 43 )
+43 and 1 add each other to _neighbor.
+Add edge ( 43, 1 )
 ---------------------------------
 Gate 30 (t)
 Remove edge ( 43, 45 )
-Remove edge ( 44, 5 )
+Disconnect 44 and 5
 44 and 45 add each other to _neighbor.
 Add edge ( 44, 45 )
 Remove edge ( 42, 45 )
@@ -409,24 +409,24 @@ Remove edge ( 42, 45 )
 Add edge ( 45, 5 )
 ---------------------------------
 Gate 27 (cx)
-Remove edge ( 44, 46 )
-Remove edge ( 43, 1 )
-43 and 46 add each other to _neighbor.
-Add edge ( 43, 46 )
 Remove edge ( 43, 47 )
-Remove edge ( 42, 3 )
+Disconnect 42 and 3
 42 and 47 add each other to _neighbor.
 Add edge ( 42, 47 )
-Remove edge ( 42, 46 )
-46 and 1 add each other to _neighbor.
-Add edge ( 46, 1 )
+Remove edge ( 44, 46 )
+Disconnect 43 and 1
+43 and 46 add each other to _neighbor.
+Add edge ( 43, 46 )
 Remove edge ( 41, 47 )
 47 and 3 add each other to _neighbor.
 Add edge ( 47, 3 )
+Remove edge ( 42, 46 )
+46 and 1 add each other to _neighbor.
+Add edge ( 46, 1 )
 ---------------------------------
 Gate 29 (td)
 Remove edge ( 46, 48 )
-Remove edge ( 47, 3 )
+Disconnect 47 and 3
 47 and 48 add each other to _neighbor.
 Add edge ( 47, 48 )
 Remove edge ( 45, 48 )
@@ -434,24 +434,24 @@ Remove edge ( 45, 48 )
 Add edge ( 48, 3 )
 ---------------------------------
 Gate 31 (cx)
-Remove edge ( 47, 49 )
-Remove edge ( 45, 5 )
-45 and 49 add each other to _neighbor.
-Add edge ( 45, 49 )
 Remove edge ( 46, 50 )
-Remove edge ( 48, 3 )
+Disconnect 48 and 3
 48 and 50 add each other to _neighbor.
 Add edge ( 48, 50 )
-Remove edge ( 45, 49 )
-49 and 5 add each other to _neighbor.
-Add edge ( 49, 5 )
+Remove edge ( 47, 49 )
+Disconnect 45 and 5
+45 and 49 add each other to _neighbor.
+Add edge ( 45, 49 )
 Remove edge ( 44, 50 )
 50 and 3 add each other to _neighbor.
 Add edge ( 50, 3 )
+Remove edge ( 45, 49 )
+49 and 5 add each other to _neighbor.
+Add edge ( 49, 5 )
 ---------------------------------
 Gate 28 (td)
 Remove edge ( 49, 51 )
-Remove edge ( 46, 1 )
+Disconnect 46 and 1
 46 and 51 add each other to _neighbor.
 Add edge ( 46, 51 )
 Remove edge ( 48, 51 )
@@ -459,24 +459,24 @@ Remove edge ( 48, 51 )
 Add edge ( 51, 1 )
 ---------------------------------
 Gate 32 (cx)
-Remove edge ( 50, 52 )
-Remove edge ( 51, 1 )
-51 and 52 add each other to _neighbor.
-Add edge ( 51, 52 )
 Remove edge ( 49, 53 )
-Remove edge ( 49, 5 )
+Disconnect 49 and 5
 49 and 53 add each other to _neighbor.
 Add edge ( 49, 53 )
-Remove edge ( 48, 52 )
-52 and 1 add each other to _neighbor.
-Add edge ( 52, 1 )
+Remove edge ( 50, 52 )
+Disconnect 51 and 1
+51 and 52 add each other to _neighbor.
+Add edge ( 51, 52 )
 Remove edge ( 47, 53 )
 53 and 5 add each other to _neighbor.
 Add edge ( 53, 5 )
+Remove edge ( 48, 52 )
+52 and 1 add each other to _neighbor.
+Add edge ( 52, 1 )
 ---------------------------------
 Gate 34 (h)
 Remove edge ( 52, 54 )
-Remove edge ( 53, 5 )
+Disconnect 53 and 5
 53 and 54 add each other to _neighbor.
 Add edge ( 53, 54 )
 Remove edge ( 51, 54 )
@@ -484,36 +484,36 @@ Remove edge ( 51, 54 )
 Add edge ( 54, 5 )
 ---------------------------------
 Gate 33 (cx)
-Remove edge ( 53, 55 )
-Remove edge ( 50, 3 )
-50 and 55 add each other to _neighbor.
-Add edge ( 50, 55 )
 Remove edge ( 52, 56 )
-Remove edge ( 52, 1 )
+Disconnect 52 and 1
 52 and 56 add each other to _neighbor.
 Add edge ( 52, 56 )
-Remove edge ( 51, 55 )
-55 and 3 add each other to _neighbor.
-Add edge ( 55, 3 )
+Remove edge ( 53, 55 )
+Disconnect 50 and 3
+50 and 55 add each other to _neighbor.
+Add edge ( 50, 55 )
 Remove edge ( 50, 56 )
 56 and 1 add each other to _neighbor.
 Add edge ( 56, 1 )
+Remove edge ( 51, 55 )
+55 and 3 add each other to _neighbor.
+Add edge ( 55, 3 )
 ---------------------------------
 Gate 35 (cx)
-Remove edge ( 55, 57 )
-Remove edge ( 55, 3 )
-55 and 57 add each other to _neighbor.
-Add edge ( 55, 57 )
 Remove edge ( 54, 58 )
-Remove edge ( 54, 5 )
+Disconnect 54 and 5
 54 and 58 add each other to _neighbor.
 Add edge ( 54, 58 )
-Remove edge ( 53, 57 )
-57 and 3 add each other to _neighbor.
-Add edge ( 57, 3 )
+Remove edge ( 55, 57 )
+Disconnect 55 and 3
+55 and 57 add each other to _neighbor.
+Add edge ( 55, 57 )
 Remove edge ( 52, 58 )
 58 and 5 add each other to _neighbor.
 Add edge ( 58, 5 )
+Remove edge ( 53, 57 )
+57 and 3 add each other to _neighbor.
+Add edge ( 57, 3 )
 ---------------------------------
 ID:	0	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(7, 0) 
 ID:	1	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(56, 0) 
@@ -523,9 +523,9 @@ ID:	4	VertexType:	0	Qubit:	2	Phase:	0	#Neighbors:	1	(6, 0)
 ID:	5	VertexType:	0	Qubit:	2	Phase:	0	#Neighbors:	1	(58, 0) 
 ID:	6	VertexType:	2	Qubit:	2	Phase:	π	#Neighbors:	2	(4, 0) (8, 0) 
 ID:	7	VertexType:	1	Qubit:	0	Phase:	0	#Neighbors:	3	(0, 0) (8, 0) (15, 0) 
-ID:	8	VertexType:	2	Qubit:	2	Phase:	0	#Neighbors:	3	(9, 0) (6, 0) (7, 0) 
+ID:	8	VertexType:	2	Qubit:	2	Phase:	0	#Neighbors:	3	(6, 0) (9, 0) (7, 0) 
 ID:	9	VertexType:	1	Qubit:	2	Phase:	0	#Neighbors:	3	(12, 0) (10, 0) (8, 0) 
-ID:	10	VertexType:	2	Qubit:	1	Phase:	0	#Neighbors:	3	(2, 0) (11, 0) (9, 0) 
+ID:	10	VertexType:	2	Qubit:	1	Phase:	0	#Neighbors:	3	(11, 0) (2, 0) (9, 0) 
 ID:	11	VertexType:	1	Qubit:	1	Phase:	π/4	#Neighbors:	2	(10, 0) (14, 0) 
 ID:	12	VertexType:	1	Qubit:	2	Phase:	π/4	#Neighbors:	2	(9, 0) (13, 0) 
 ID:	13	VertexType:	1	Qubit:	2	Phase:	0	#Neighbors:	3	(12, 0) (14, 0) (18, 0) 
@@ -535,9 +535,9 @@ ID:	16	VertexType:	1	Qubit:	0	Phase:	π/4	#Neighbors:	2	(15, 0) (17, 0)
 ID:	17	VertexType:	1	Qubit:	0	Phase:	0	#Neighbors:	3	(16, 0) (18, 0) (21, 0) 
 ID:	18	VertexType:	2	Qubit:	2	Phase:	0	#Neighbors:	3	(13, 0) (17, 0) (19, 0) 
 ID:	19	VertexType:	1	Qubit:	2	Phase:	7π/4	#Neighbors:	2	(18, 0) (24, 0) 
-ID:	20	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(23, 0) (14, 0) (21, 0) 
+ID:	20	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(14, 0) (23, 0) (21, 0) 
 ID:	21	VertexType:	2	Qubit:	0	Phase:	0	#Neighbors:	3	(20, 0) (17, 0) (22, 0) 
-ID:	22	VertexType:	1	Qubit:	0	Phase:	π/4	#Neighbors:	2	(26, 0) (21, 0) 
+ID:	22	VertexType:	1	Qubit:	0	Phase:	π/4	#Neighbors:	2	(21, 0) (26, 0) 
 ID:	23	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(20, 0) (24, 0) (28, 0) 
 ID:	24	VertexType:	2	Qubit:	2	Phase:	0	#Neighbors:	3	(23, 0) (19, 0) (25, 0) 
 ID:	25	VertexType:	1	Qubit:	2	Phase:	7π/4	#Neighbors:	2	(24, 0) (27, 0) 
@@ -554,13 +554,13 @@ ID:	35	VertexType:	1	Qubit:	1	Phase:	π/4	#Neighbors:	2	(36, 0) (34, 0)
 ID:	36	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(35, 0) (37, 0) (41, 0) 
 ID:	37	VertexType:	2	Qubit:	0	Phase:	0	#Neighbors:	3	(36, 0) (43, 0) (32, 0) 
 ID:	38	VertexType:	3	Qubit:	2	Phase:	π	#Neighbors:	2	(33, 0) (39, 0) 
-ID:	39	VertexType:	1	Qubit:	2	Phase:	π/4	#Neighbors:	2	(38, 0) (40, 0) 
+ID:	39	VertexType:	1	Qubit:	2	Phase:	π/4	#Neighbors:	2	(40, 0) (38, 0) 
 ID:	40	VertexType:	1	Qubit:	2	Phase:	0	#Neighbors:	3	(39, 0) (41, 0) (44, 0) 
 ID:	41	VertexType:	2	Qubit:	1	Phase:	0	#Neighbors:	3	(36, 0) (40, 0) (42, 0) 
 ID:	42	VertexType:	1	Qubit:	1	Phase:	7π/4	#Neighbors:	2	(41, 0) (47, 0) 
-ID:	43	VertexType:	1	Qubit:	0	Phase:	0	#Neighbors:	3	(46, 0) (37, 0) (44, 0) 
-ID:	44	VertexType:	2	Qubit:	2	Phase:	0	#Neighbors:	3	(43, 0) (40, 0) (45, 0) 
-ID:	45	VertexType:	1	Qubit:	2	Phase:	π/4	#Neighbors:	2	(49, 0) (44, 0) 
+ID:	43	VertexType:	1	Qubit:	0	Phase:	0	#Neighbors:	3	(37, 0) (46, 0) (44, 0) 
+ID:	44	VertexType:	2	Qubit:	2	Phase:	0	#Neighbors:	3	(40, 0) (43, 0) (45, 0) 
+ID:	45	VertexType:	1	Qubit:	2	Phase:	π/4	#Neighbors:	2	(44, 0) (49, 0) 
 ID:	46	VertexType:	1	Qubit:	0	Phase:	0	#Neighbors:	3	(43, 0) (47, 0) (51, 0) 
 ID:	47	VertexType:	2	Qubit:	1	Phase:	0	#Neighbors:	3	(46, 0) (42, 0) (48, 0) 
 ID:	48	VertexType:	1	Qubit:	1	Phase:	7π/4	#Neighbors:	2	(47, 0) (50, 0) 
@@ -569,11 +569,11 @@ ID:	50	VertexType:	2	Qubit:	1	Phase:	0	#Neighbors:	3	(49, 0) (48, 0) (55, 0)
 ID:	51	VertexType:	1	Qubit:	0	Phase:	7π/4	#Neighbors:	2	(46, 0) (52, 0) 
 ID:	52	VertexType:	1	Qubit:	0	Phase:	0	#Neighbors:	3	(51, 0) (53, 0) (56, 0) 
 ID:	53	VertexType:	2	Qubit:	2	Phase:	0	#Neighbors:	3	(49, 0) (52, 0) (54, 0) 
-ID:	54	VertexType:	3	Qubit:	2	Phase:	π	#Neighbors:	2	(58, 0) (53, 0) 
-ID:	55	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(50, 0) (57, 0) (56, 0) 
+ID:	54	VertexType:	3	Qubit:	2	Phase:	π	#Neighbors:	2	(53, 0) (58, 0) 
+ID:	55	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(57, 0) (50, 0) (56, 0) 
 ID:	56	VertexType:	2	Qubit:	0	Phase:	0	#Neighbors:	3	(1, 0) (52, 0) (55, 0) 
 ID:	57	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(3, 0) (55, 0) (58, 0) 
-ID:	58	VertexType:	2	Qubit:	2	Phase:	0	#Neighbors:	3	(5, 0) (54, 0) (57, 0) 
+ID:	58	VertexType:	2	Qubit:	2	Phase:	0	#Neighbors:	3	(5, 0) (57, 0) (54, 0) 
 Total #Vertices: 59
 
 qsyn> qccp -q
