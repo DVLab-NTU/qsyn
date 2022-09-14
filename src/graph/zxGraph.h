@@ -198,16 +198,15 @@ class ZXGraph{
         void printEdges() const;
         
         // For mapping
-        void concatenate(ZXGraph* tmp, bool silent);
+        void concatenate(ZXGraph* tmp, bool remove_imm = false, bool silent = true);
         void setInputHash(size_t q, ZXVertex* V) { _inputList[q] = V; }
         void setOutputHash(size_t q, ZXVertex* V) { _outputList[q] = V; }
         unordered_map<size_t, ZXVertex*> getInputList() const { return _inputList; }
         unordered_map<size_t, ZXVertex*> getOutputList() const { return _outputList; }
         ZXVertex* getInputFromHash(size_t q);
         ZXVertex* getOutputFromHash(size_t q);
-        ZXVertex* findInputById(size_t id) const;
-        ZXVertex* findOutputById(size_t id) const;
         vector<ZXVertex*> getNonBoundary();
+        void cleanRedundantEdges();
         void clearGraph() { _inputs.clear(); _outputs.clear(); _vertices.clear(); _edges.clear(); }
         void clearPtrs() { for(size_t i=0; i<_vertices.size(); i++) delete _vertices[i]; }
 

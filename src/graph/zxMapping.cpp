@@ -23,20 +23,6 @@ using namespace std;
 //     _inputList.clear(); _outputList.clear();
 // }
 
-ZXVertex* ZXGraph::findInputById(size_t id) const{
-    for(size_t i = 0; i < _inputs.size(); i++){
-        if(_inputs[i]->getId() == id) return _inputs[i];
-    }
-    return nullptr;
-}
-
-ZXVertex* ZXGraph::findOutputById(size_t id) const{
-    for(size_t i = 0; i < _outputs.size(); i++){
-        if(_outputs[i]->getId() == id) return _outputs[i];
-    }
-    return nullptr;
-}
-
 vector<ZXVertex*> ZXGraph::getNonBoundary() { 
     vector<ZXVertex*> tmp; tmp.clear(); 
     for(size_t i=0; i<_vertices.size(); i++){
@@ -64,7 +50,7 @@ ZXVertex* ZXGraph::getOutputFromHash(size_t q) {
         return _outputList[q];
 }
 
-void ZXGraph::concatenate(ZXGraph* tmp, bool silent){
+void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm, bool silent){
     // Add Vertices
     this -> addVertices( tmp -> getNonBoundary() );
     // Reconnect Input
@@ -74,7 +60,10 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool silent){
         ZXVertex* targetInput = it ->second -> getNeighbors()[0].first;
         ZXVertex* lastVertex = this -> getOutputFromHash(inpQubit) -> getNeighbors()[0].first;
         tmp -> removeEdge(it->second, targetInput, silent); // Remove old edge (disconnect old graph)
-        this -> removeEdge(lastVertex, this -> getOutputFromHash(inpQubit), silent); // Remove old edge (output and prev-output)
+        if(remove_imm)
+            this -> removeEdge(lastVertex, this -> getOutputFromHash(inpQubit), silent); // Remove old edge (output and prev-output)
+        else
+            lastVertex->disconnect(this -> getOutputFromHash(inpQubit), silent);
         this -> addEdge(lastVertex, targetInput, EdgeType::SIMPLE, silent); // Add new edge
         delete it->second;
     }
@@ -85,10 +74,27 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool silent){
         ZXVertex* targetOutput = it -> second -> getNeighbors()[0].first;
         ZXVertex* ZXOup = this -> getOutputFromHash(oupQubit);
         tmp -> removeEdge(it->second, targetOutput, silent); // Remove old edge (disconnect old graph)    
-        this -> addEdge(targetOutput, ZXOup,EdgeType::SIMPLE, silent); // Add new edge
+        this -> addEdge(targetOutput, ZXOup, EdgeType::SIMPLE, silent); // Add new edge
         delete it->second;
     }
     tmp -> clearGraph();
 }
 
+void ZXGraph::cleanRedundantEdges(){
+    vector<EdgePair> tmp;
+    tmp.clear();
+    for(size_t i=0; i<_edges.size(); i++){
+        ZXVertex* v = _edges[i].first.second;
+        if(v->getType()==VertexType::BOUNDARY){ // is output
+            if(! v->isNeighbor(_edges[i].first.first)){
+                //remove
+                // k++;
+            }
+            else tmp.push_back(_edges[i]);
+        }
+        else tmp.push_back(_edges[i]);
+    }
+    _edges.clear();
+    _edges = tmp;
+}
 

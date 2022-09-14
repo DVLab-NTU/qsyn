@@ -172,10 +172,11 @@ void QCirMgr::mapping(bool silent)
         if (!silent)  cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph* tmp = G->getZXform(_ZXNodeId);
         // this -> ZXConcatenate(tmp, silent);
-        this -> _ZXG -> concatenate(tmp, silent);
+        this -> _ZXG -> concatenate(tmp, false, silent);
         if (!silent)  cout << "---------------------------------" << endl;
     };
     topoTraverse(Lambda);
+    _ZXG -> cleanRedundantEdges();
     _ZXG -> printVertices();
 }
 bool QCirMgr::removeQubit(size_t id)
