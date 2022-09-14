@@ -159,10 +159,10 @@ class ZXGraph{
 
 
         // Add and Remove
-        void addInput(size_t id, int qubit, bool silent = true);
-        void addOutput(size_t id, int qubit, bool silent = true);
-        void addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase(), bool silent = true);
-        void addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et, bool silent = true);
+        ZXVertex* addInput(size_t id, int qubit, bool silent = true);
+        ZXVertex* addOutput(size_t id, int qubit, bool silent = true);
+        ZXVertex* addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase(), bool silent = true);
+        EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et, bool silent = true);
         void addEdgeById(size_t id_s, size_t id_t, EdgeType et, bool silent = true);
         void addInputs(vector<ZXVertex*> inputs);
         void addOutputs(vector<ZXVertex*> outputs);
@@ -201,6 +201,7 @@ class ZXGraph{
         vector<ZXVertex*> getNonBoundary();
         void clearGraph() { _inputs.clear(); _outputs.clear(); _vertices.clear(); _edges.clear(); }
         void clearPtrs() { for(size_t i=0; i<_vertices.size(); i++) delete _vertices[i]; }
+
 
     private:
         size_t                            _id;
