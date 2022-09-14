@@ -176,10 +176,14 @@ void QCirMgr::addGate(string type, vector<size_t> bits, Phase phase, bool append
         temp = new RZGate(_gateId);
     else if (type == "cz")
         temp = new CZGate(_gateId);
-    else if (type == "x" || type == "X" || type == "not")
+    else if (type == "x" || type == "not")
         temp = new XGate(_gateId);
+    else if (type == "y")
+        temp = new YGate(_gateId);
     else if (type == "sx" || type == "x_1_2")
         temp = new SXGate(_gateId);
+    else if (type == "sy" || type == "y_1_2")
+        temp = new SYGate(_gateId);
     else if (type == "cx" || type == "cnot")
         temp = new CXGate(_gateId);
     else if (type == "ccx")
