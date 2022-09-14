@@ -195,6 +195,7 @@ class ZXGraph{
         void printEdges() const;
         
         // For mapping
+        void concatenate(ZXGraph* tmp, bool silent);
         ZXVertex* findInputById(size_t id) const;
         ZXVertex* findOutputById(size_t id) const;
         vector<ZXVertex*> getNonBoundary();

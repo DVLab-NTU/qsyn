@@ -661,3 +661,40 @@ vector<ZXVertex*> ZXGraph::getNonBoundary() {
     }
     return tmp;
 }
+
+void ZXGraph::concatenate(ZXGraph* tmp, bool silent){
+    // Add Vertices
+    this -> addVertices( tmp -> getNonBoundary() );
+    // Reconnect Input
+    vector<ZXVertex*> tmpInp = tmp -> getInputs();
+    for(size_t inpId = 0; inpId < tmpInp.size(); inpId++){
+        size_t inpQubit = tmpInp[inpId]->getQubit();
+        // 2*Qubit = inp, 2*Qubit+1 = oup
+        ZXVertex* targetInput = tmpInp[inpId] -> getNeighbors()[0].first;
+        // size_t targetInputId = targetInput -> getId();
+        ZXVertex* lastVertex = this -> findOutputById(2*inpQubit+1) ->  getNeighbors()[0].first;
+        // size_t lastVertexId = lastVertex -> getId();
+        tmp -> removeEdge(tmpInp[inpId], targetInput, silent); // Remove old edge (disconnect old graph)
+        this -> removeEdge(lastVertex, this -> findOutputById(2*inpQubit+1), silent); // Remove old edge (output and prev-output)
+        // tmp -> removeEdgeById(tmpInp[inpId]->getId(), targetInputId); // Remove old edge (disconnect old graph)
+        // _ZXG -> removeEdgeById(lastVertexId, 2*inpQubit+1); // Remove old edge (output and prev-output)
+        this -> addEdge(lastVertex, targetInput, EdgeType::SIMPLE, silent); // Add new edge
+        
+        delete tmpInp[inpId];
+    }
+    // Reconnect Output
+    vector<ZXVertex*> tmpOup = tmp -> getOutputs();
+    for(size_t oupId = 0; oupId < tmpOup.size(); oupId++){
+        size_t oupQubit = tmpOup[oupId]->getQubit();
+        // 2*Qubit = inp, 2*Qubit+1 = oup
+        ZXVertex* ZXOup = this -> findOutputById(2*oupQubit+1);
+        ZXVertex* targetOuput = tmpOup[oupId] -> getNeighbors()[0].first;
+        // size_t targetOuputId = targetOuput -> getId();
+        tmp -> removeEdge(tmpOup[oupId], targetOuput, silent); // Remove old edge (disconnect old graph)    
+        // tmp -> removeEdgeById(tmpOup[oupId]->getId(), targetOuputId); // Remove old edge (disconnect old graph)
+        this -> addEdge(targetOuput, ZXOup,EdgeType::SIMPLE, silent); // Add new edge
+        
+        delete tmpOup[oupId];
+    }
+    tmp -> clearGraph();
+}
