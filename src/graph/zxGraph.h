@@ -10,6 +10,7 @@
 #define ZX_GRAPH_H
 
 #include <iostream>
+#include <unordered_map>
 #include <vector>
 #include <string>
 #include "phase.h"
@@ -122,6 +123,8 @@ class ZXGraph{
             _outputs.clear();
             _vertices.clear();
             _edges.clear();
+            _inputList.clear();
+            _outputList.clear();
         }
         // Copy Constructor
         ZXGraph(const ZXGraph &zxGraph);
@@ -196,12 +199,17 @@ class ZXGraph{
         
         // For mapping
         void concatenate(ZXGraph* tmp, bool silent);
+        void setInputHash(size_t q, ZXVertex* V) { _inputList[q] = V; }
+        void setOutputHash(size_t q, ZXVertex* V) { _outputList[q] = V; }
+        unordered_map<size_t, ZXVertex*> getInputList() const { return _inputList; }
+        unordered_map<size_t, ZXVertex*> getOutputList() const { return _outputList; }
+        ZXVertex* getInputFromHash(size_t q);
+        ZXVertex* getOutputFromHash(size_t q);
         ZXVertex* findInputById(size_t id) const;
         ZXVertex* findOutputById(size_t id) const;
         vector<ZXVertex*> getNonBoundary();
         void clearGraph() { _inputs.clear(); _outputs.clear(); _vertices.clear(); _edges.clear(); }
         void clearPtrs() { for(size_t i=0; i<_vertices.size(); i++) delete _vertices[i]; }
-
 
     private:
         size_t                            _id;
@@ -210,7 +218,8 @@ class ZXGraph{
         vector<ZXVertex*>                 _outputs;
         vector<ZXVertex*>                 _vertices;
         vector<EdgePair >                 _edges;
-
+        unordered_map<size_t, ZXVertex*>  _inputList;
+        unordered_map<size_t, ZXVertex*>  _outputList;
 };
 
 #endif

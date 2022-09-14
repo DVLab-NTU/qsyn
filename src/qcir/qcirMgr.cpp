@@ -152,6 +152,7 @@ void QCirMgr::mapping(bool silent)
     updateTopoOrder();
     _ZXG->clearPtrs();
     _ZXG->clearGraph();
+    // _ZXG->clearHashes();
     delete _ZXG;
     _ZXG = new ZXGraph(0);
     _ZXNodeId = 0;
@@ -159,8 +160,8 @@ void QCirMgr::mapping(bool silent)
     for(size_t i=0; i<_qubits.size(); i++){
         if (_qubits[i]->getId() > maxInput)
             maxInput = _qubits[i]->getId();
-        _ZXG -> addInput( 2*(_qubits[i]->getId()), _qubits[i]->getId());
-        _ZXG -> addOutput( 2*(_qubits[i]->getId()) + 1, _qubits[i]->getId());
+        _ZXG -> setInputHash(_qubits[i]->getId(), _ZXG -> addInput( 2*(_qubits[i]->getId()), _qubits[i]->getId()));
+        _ZXG -> setOutputHash(_qubits[i]->getId(), _ZXG -> addOutput( 2*(_qubits[i]->getId()) + 1, _qubits[i]->getId()));
         _ZXG -> addEdgeById( 2*(_qubits[i]->getId()), 2*(_qubits[i]->getId()) + 1, EdgeType::SIMPLE);
         if (!silent) cout << "Add Qubit " << _qubits[i]->getId() << " inp: " << 2*(_qubits[i]->getId()) << " oup: " << 2*(_qubits[i]->getId())+1 << endl;
     }
