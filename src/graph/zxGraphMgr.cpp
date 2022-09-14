@@ -171,8 +171,6 @@ void ZXGraphMgr::tensor(ZXGraph* zxGraph){
   oriGraph->addVertices(copyGraph->getVertices());
   oriGraph->addEdges(copyGraph->getEdges());
 
-  // Update _nqubit
-  oriGraph->setQubitCount(oriGraph->getNumInputs());
   delete copyGraph;
 }
 

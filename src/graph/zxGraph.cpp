@@ -223,14 +223,13 @@ void ZXGraph::generateCNOT(){
         }
     }
     setEdges(edges);
-    setQubitCount(_inputs.size());
 
     //TODO: rearrange
     for(size_t i = 0; i < _vertices.size(); i++) _vertices[i]->rearrange();
 }
 
 bool ZXGraph::isEmpty() const{
-    if(_inputs.empty() && _outputs.empty() && _vertices.empty() && _edges.empty() && _nqubit == 0) return true;
+    if(_inputs.empty() && _outputs.empty() && _vertices.empty() && _edges.empty()) return true;
     return false;
 }
 
@@ -466,7 +465,6 @@ ZXGraph* ZXGraph::copy() const{
     ZXGraph* newGraph = new ZXGraph(0);
 
     newGraph->setId(getId());
-    newGraph->setQubitCount(getQubitCount());
 
     vector<ZXVertex*> inputs, outputs, vertices;
     vector<EdgePair > edges;
