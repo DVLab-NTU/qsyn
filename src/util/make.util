@@ -1,5 +1,5 @@
 PKGFLAG   =
-EXTHDRS   = util.h rnGen.h myUsage.h myHashMap.h rationalNumber.h phase.h myConcepts.h
+EXTHDRS   = util.h rnGen.h myUsage.h myHashMap.h rationalNumber.h phase.h myConcepts.h nestedInitializerList.h
 
 include ../Makefile.in
 include ../Makefile.lib

@@ -46,6 +46,6 @@ cd include
 for header in $HEADERS; do
     echo "> Linking vendor/${header}..."
     rm -f ${header}
-    ln -rs ../vendor/${header} ${header}
+    ln -s ../vendor/${header} ${header}
 done
 cd ..
