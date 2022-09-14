@@ -192,8 +192,11 @@ void QCirMgr::addGate(string type, vector<size_t> bits, Phase phase, bool append
     else if (type == "rz"){
         temp = new RZGate(_gateId);
         temp->setRotatePhase(phase);
-    }   
-       
+    }  
+    else if (type == "rx"){
+        temp = new RXGate(_gateId);
+        temp->setRotatePhase(phase);
+    } 
     else
     {
         cerr << "Error: The gate "<< type << " is not implement!!"<<endl;

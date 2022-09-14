@@ -225,6 +225,16 @@ public:
   virtual void printGateInfo(bool) const;
 };
 
+class RXGate : public CnRXGate
+{ 
+public:
+  RXGate(size_t id): CnRXGate(id) {}
+  ~RXGate();
+  virtual string getTypeStr() const { return "rx"; }
+  virtual void printGateInfo(bool) const;
+  virtual void setRotatePhase(Phase p){ _rotatePhase = p; }
+};
+
 class CXGate : public CnRXGate
 { 
 public:
