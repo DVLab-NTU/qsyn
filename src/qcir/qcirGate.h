@@ -122,6 +122,21 @@ public:
   virtual void printGateInfo(bool) const;
 };
 
+class CnRYGate : public QCirGate
+{ 
+public:
+  CnRYGate(size_t id): QCirGate(id) {}
+  ~CnRYGate(){};
+  virtual string getTypeStr() const { 
+    string tmp = "";
+    for(size_t i=0; i<_qubits.size()-1; i++)
+      tmp+="c";
+    tmp +="ry";
+    return tmp; 
+  }
+  virtual void printGateInfo(bool) const;
+};
+
 class ZGate : public CnRZGate
 { 
 public:
@@ -225,6 +240,23 @@ public:
   CCXGate(size_t id): CnRXGate(id) {}
   ~CCXGate();
   virtual string getTypeStr() const { return "ccx"; }
+  virtual void printGateInfo(bool) const;
+};
+class YGate : public CnRYGate
+{ 
+public:
+  YGate(size_t id): CnRYGate(id) {}
+  ~YGate();
+  virtual string getTypeStr() const { return "y"; }
+  virtual void printGateInfo(bool) const;
+};
+
+class SYGate : public CnRYGate
+{ 
+public:
+  SYGate(size_t id): CnRYGate(id) {}
+  ~SYGate();
+  virtual string getTypeStr() const { return "sy"; }
   virtual void printGateInfo(bool) const;
 };
 #endif // QCIR_GATE_H
