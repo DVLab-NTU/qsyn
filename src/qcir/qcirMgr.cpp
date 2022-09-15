@@ -277,11 +277,33 @@ bool QCirMgr::removeGate(size_t id)
 
 bool QCirMgr::parse(string filename)
 {
-    string extension = filename.substr(filename.find_last_of('.'), filename.size());
+    string lastname = filename.substr(filename.find_last_of('/')+1);
+    //cerr << lastname << endl;
+    string extension = (lastname.find('.')!= string::npos) ? lastname.substr(lastname.find_last_of('.')):"";
+    //cerr << extension << endl;
     if (extension == ".qasm") return parseQASM(filename);
     else if (extension == ".qc") return parseQC(filename);
     else if (extension == ".qsim") return parseQSIM(filename);
     else if (extension == ".quipper") return parseQUIPPER(filename);
+    else if (extension == ""){
+        fstream verify;
+        verify.open(filename.c_str(), ios::in);
+        if (!verify.is_open()){
+            cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
+            return false;
+        }
+        string first_item;
+        verify >> first_item;
+        //cerr << first_item << endl;
+
+        if (first_item == "Inputs:") return parseQUIPPER(filename);
+        else if (isdigit(first_item[0])) return parseQSIM(filename);
+        else{
+            cerr << "Do not support the file" << filename << endl;
+            return false;
+        }
+        return true;
+    }
     else 
     {
         cerr << "Do not support the file extension " << extension << endl;
@@ -317,7 +339,7 @@ bool QCirMgr::parseQASM(string filename)
 
     while (qasm_file >> str)
     {
-        cerr << str << endl;
+        //cerr << str << endl;
         string space_delimiter = " ";
         string type = str.substr(0, str.find(" "));
         string phaseStr = (str.find("(") != string::npos) ? str.substr(str.find("(") + 1, str.length() - str.find("(") - 2) : "0";
