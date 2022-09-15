@@ -15,5 +15,6 @@ tar -xf ${ENGINE_NAME}.tar.gz > /dev/null
 
 cd ${ENGINE_NAME}
 cp make.inc.example make.inc
-make -j16
+make lib -j8
+make lapack_install -j8
 sudo cp *.a ${INSTALL_PATH}/lib

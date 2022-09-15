@@ -10,7 +10,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <zarray/zarray.hpp>
 #include <xtensor/xarray.hpp>
 #include <xtensor/xio.hpp>
 #include <xtensor-blas/xlinalg.hpp>
