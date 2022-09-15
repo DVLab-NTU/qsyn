@@ -10,8 +10,8 @@ SRCLIBS   = $(addsuffix .a, $(addprefix lib, $(SRCPKGS)))
 EXEC      = qsyn
 TESTEXEC  = tests
 
-all:  libs main
-test: libs testmain
+all:  main
+test: testmain
 
 libs:
 	@for pkg in $(SRCPKGS); \
@@ -21,14 +21,14 @@ libs:
 		cd ../..; \
 	done
 
-main:
+main: libs
 	@echo "Checking $(MAIN)..."
 	@cd src/$(MAIN); \
 		$(MAKE) -f make.$(MAIN) --no-print-directory INCLIB="$(LIBS)" EXEC=$(EXEC);
 	@ln -fs bin/$(EXEC) .
 #	@strip bin/$(EXEC)
 
-testmain:
+testmain: libs
 	@export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:/usr/local/lib
 	@echo "Checking $(TESTMAIN)..."
 	@cd src/$(TESTMAIN); \
