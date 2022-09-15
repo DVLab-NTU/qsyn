@@ -16,8 +16,6 @@ jobs:
     
     - name: g++-10
       run: | 
-          sudo apt update
-          sudo apt install gcc-10 g++-10 gfortran-10
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 100
           sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-10 100
     
