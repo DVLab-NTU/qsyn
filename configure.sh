@@ -4,7 +4,43 @@ TMP_NAME="tmp.log"
 ENGINE_INSTALL_PATH="/usr/local"
 HEADERS="catch2"
 
-LIBRARIES="lapack blas" # dependencies for xtensor-blas
+# Detect OS
+# https://stackoverflow.com/questions/394230/how-to-detect-the-os-from-a-bash-script
+UNAME_S=$(uname -s)
+OSFLAG=""
+LINUX_FLAG="-DLINUX"
+OSX_FLAG="-DOSX"
+if [[ "$UNAME_S" == "Linux"* ]]; then
+        OSFLAG+="-DLINUX"
+elif [[ "$UNAME_S" == "Darwin"* ]]; then
+        OSFLAG+="-DOSX"
+        # Mac OSX
+# elif [[ "$UNAME_S" == "cygwin" ]]; then
+#         # POSIX compatibility layer and Linux environment emulation for Windows
+# elif [[ "$UNAME_S" == "msys" ]]; then
+#         # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+# elif [[ "$UNAME_S" == "win32" ]]; then
+#         # I'm not sure this can happen.
+# elif [[ "$UNAME_S" == "freebsd"* ]]; then
+#         # ...
+else
+        echo -e "Error:\tUnknown OS type.\n"
+        exit 1
+fi
+
+echo "Linking vendor headers..."
+cd include
+for header in $HEADERS; do
+    echo "> Linking vendor/${header}..."
+    rm -f ${header}
+    ln -s ../vendor/${header} ${header}
+done
+cd ..
+
+LIBRARIES=""
+if [[ "$OSFLAG" == *"$LINUX_FLAG"* ]]; then
+    LIBRARIES+="lapack blas" # dependencies for xtensor-blas
+fi
 
 ENGINES="xtl xtensor"
 ENGINES+=" xtensor-blas"
@@ -51,13 +87,4 @@ for engine in $ENGINES; do
 done
 
 rm -f ${TMP_NAME}
-cd ..
-
-echo "Linking vendor headers..."
-cd include
-for header in $HEADERS; do
-    echo "> Linking vendor/${header}..."
-    rm -f ${header}
-    ln -s ../vendor/${header} ${header}
-done
 cd ..
