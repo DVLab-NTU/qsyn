@@ -8,8 +8,6 @@ fi
 
 INSTALL_PATH=$1
 
-sudo apt install gfortran
-
 rm -rf ${VENDOR_PATH}
 cd engine
 curl -L ${DOWNLOAD_PATH} --output ${ENGINE_NAME}.tar.gz
