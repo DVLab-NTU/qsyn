@@ -17,32 +17,35 @@ libs:
 	@for pkg in $(SRCPKGS); \
 	do \
 		echo "Checking $$pkg..."; \
-		cd src/$$pkg; make -f make.$$pkg --no-print-directory PKGNAME=$$pkg; \
+		cd src/$$pkg; $(MAKE) -f make.$$pkg --no-print-directory PKGNAME=$$pkg; \
 		cd ../..; \
 	done
 
 main:
 	@echo "Checking $(MAIN)..."
 	@cd src/$(MAIN); \
-		make -f make.$(MAIN) --no-print-directory INCLIB="$(LIBS)" EXEC=$(EXEC);
+		$(MAKE) -f make.$(MAIN) --no-print-directory INCLIB="$(LIBS)" EXEC=$(EXEC);
 	@ln -fs bin/$(EXEC) .
 #	@strip bin/$(EXEC)
 
 testmain:
+	@export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:/usr/local/lib
 	@echo "Checking $(TESTMAIN)..."
 	@cd src/$(TESTMAIN); \
-		make -f make.$(TESTMAIN) --no-print-directory INCLIB="$(LIBS)" EXEC=$(TESTEXEC);
+		$(MAKE) -f make.$(TESTMAIN) --no-print-directory INCLIB="$(LIBS)" EXEC=$(TESTEXEC);
 
 
 clean:
 	@for pkg in $(SRCPKGS); \
 	do \
 		echo "Cleaning $$pkg..."; \
-		cd src/$$pkg; make -f make.$$pkg --no-print-directory PKGNAME=$$pkg clean; \
+		cd src/$$pkg; $(MAKE) -f make.$$pkg --no-print-directory PKGNAME=$$pkg clean; \
                 cd ../..; \
 	done
 	@echo "Cleaning $(MAIN)..."
-	@cd src/$(MAIN); make -f make.$(MAIN) --no-print-directory clean
+	@cd src/$(MAIN); $(MAKE) -f make.$(MAIN) --no-print-directory clean
+	@echo "Cleaning $(TESTMAIN)..."
+	@cd src/$(TESTMAIN); $(MAKE) -f make.$(TESTMAIN) --no-print-directory clean
 	@echo "Removing $(SRCLIBS)..."
 	@cd lib; rm -f $(SRCLIBS)
 	@echo "Removing $(EXEC)..."

@@ -2,11 +2,13 @@
 
 TMP_NAME="tmp.log"
 ENGINE_INSTALL_PATH="/usr/local"
-
-ENGINES="xtl xtensor xtensor-blas"
 HEADERS="catch2"
-# When appending more engines, please concat this strings. Dependencies should be placed before the package that depends on them. e.g.,
-# ENGINES+="dependency_of_another_engine another_engine"
+
+LIBRARIES="lapack blas" # dependencies for xtensor-blas
+
+ENGINES="xtl xtensor"
+ENGINES+=" xtensor-blas"
+# ENGINES+=" nlohmann_json zarray"
 
 
 echo "Installing 3rd-party libraries into ${ENGINE_INSTALL_PATH}..."
@@ -28,6 +30,16 @@ if [ $status -ne 0 ]; then
     exit 1; 
 fi
 
+for library in $LIBRARIES; do
+    echo "> Checking vendor/engine/$library..."
+    if [ ! -f ${ENGINE_INSTALL_PATH}/lib/lib${library}.a ]; then
+        echo "    - Engine $library not found; installing at: ${ENGINE_INSTALL_PATH}/lib"
+        ./${library}.sh ${ENGINE_INSTALL_PATH}
+    else 
+        echo "    - Engine $library already installed at: ${ENGINE_INSTALL_PATH}/lib"
+    fi
+done
+
 for engine in $ENGINES; do
     echo "> Checking vendor/engine/$engine..."
     if [ ! -d ${ENGINE_INSTALL_PATH}/include/$engine ]; then 
@@ -41,7 +53,7 @@ done
 rm -f ${TMP_NAME}
 cd ..
 
-echo "Linking 3rd-party headers..."
+echo "Linking vendor headers..."
 cd include
 for header in $HEADERS; do
     echo "> Linking vendor/${header}..."
