@@ -78,6 +78,7 @@ public:
    const string& getOptCmd() const { return _optCmd; }
 
 protected:
+   bool lexNoOption(const string&) const;
    bool lexSingleOption(const string&, string&, bool optional = true) const;
    bool lexOptions(const string&, vector<string>&, size_t nOpts = 0) const;
    CmdExecStatus errorOption(CmdOptionError err, const string& opt) const;
