@@ -17,6 +17,5 @@ tar -xf ${ENGINE_NAME}.tar.gz > /dev/null
 
 cd ${ENGINE_NAME}
 cp make.inc.example make.inc
-make cblaslib
 make -j8
 sudo cp *.a ${INSTALL_PATH}/lib

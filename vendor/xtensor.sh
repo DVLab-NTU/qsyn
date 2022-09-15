@@ -17,5 +17,5 @@ cd ${VENDOR_PATH}
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH}
-make
+make -j8
 sudo make install
