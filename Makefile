@@ -1,5 +1,5 @@
 REFPKGS   = 
-SRCPKGS   = cmd qcir graph tensor util
+SRCPKGS   = qcir graph tensor util cmd
 LIBPKGS   = $(REFPKGS) $(SRCPKGS)
 MAIN      = main
 TESTMAIN  = test
