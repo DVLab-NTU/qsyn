@@ -186,8 +186,10 @@ void QCirMgr::addGate(string type, vector<size_t> bits, Phase phase, bool append
         temp = new SYGate(_gateId);
     else if (type == "cx" || type == "cnot")
         temp = new CXGate(_gateId);
-    else if (type == "ccx")
+    else if (type == "ccx" || type== "ccnot")
         temp = new CCXGate(_gateId);
+    else if (type == "ccz")
+        temp = new CCZGate(_gateId);
     // Note: rz and p has a little difference
     else if (type == "rz"){
         temp = new RZGate(_gateId);
@@ -279,6 +281,7 @@ bool QCirMgr::parse(string filename)
     if (extension == ".qasm") return parseQASM(filename);
     else if (extension == ".qc") return parseQC(filename);
     else if (extension == ".qsim") return parseQSIM(filename);
+    else if (extension == ".quipper") return parseQUIPPER(filename);
     else 
     {
         cerr << "Do not support the file extension " << extension << endl;
@@ -567,4 +570,117 @@ bool QCirMgr::parseQSIM(string filename){
 
     // qccr benchmark/qsim/circuits/circuit_q24.qsim
     // qccr benchmark/qsim/example.qsim
+}
+
+bool QCirMgr::parseQUIPPER(string filename){
+    // read file and open
+    fstream quipper_file;
+    quipper_file.open(filename.c_str(), ios::in);
+    if (!quipper_file.is_open())
+    {
+        cerr << "Cannot open QUIPPER file \"" << filename << "\"!!" << endl;
+        return false;
+    }
+
+    string line;
+    size_t n_qubit;
+    vector<string> single_list{"X", "T", "S", "H", "Z","not"};
+
+    // Count qubit number
+    getline(quipper_file, line);
+    n_qubit = count(line.begin(), line.end(), 'Q');
+    addQubit(n_qubit);
+
+    while (getline(quipper_file, line)){
+
+        if (line.find("QGate")==0){
+            // addgate
+            string type= line.substr(line.find("[")+2,line.find("]")-line.find("[")-3);
+            size_t qubit_target;
+            if (find(single_list.begin(),single_list.end(),type)!=single_list.end()){
+                qubit_target = stoul(line.substr(line.find("(")+1,line.find(")")-line.find("(")-1));
+                vector<size_t> pin_id;
+                //cerr << qubit_target << endl;
+
+                if (line.find("controls=")!= string::npos){
+                    // have control
+                    string ctrls_info;
+                    ctrls_info = line.substr(line.find_last_of("[")+1, line.find_last_of("]")-line.find_last_of("[")-1);
+                    //cerr << ctrls_info << endl;
+
+                    if (ctrls_info.find(to_string(qubit_target))!= string::npos){
+                        cerr << "Error: Control qubit and target are the same." << endl;
+                        return false;
+                    }
+
+                    if (count(line.begin(), line.end(), '+')==1){
+                        // one control
+                        if (type != "not" && type != "X" && type != "Z"){
+                            cerr << "Error: Control gate only support on \'cnot\', \'CX\' and \'CZ\'" << endl;
+                            return false;
+                        }    
+                        size_t qubit_control = stoul(ctrls_info.substr(1));
+                        pin_id.push_back(qubit_control);
+                        pin_id.push_back(qubit_target);
+                        type.insert(0, "C");
+                        addGate(type, pin_id, Phase(0), true);
+                    }
+                    else if (count(line.begin(), line.end(), '+')==2){
+                        // 2 controls
+                        if (type != "not" && type != "X" && type != "Z"){
+                            cerr << "Error: Toffoli gate only support \'ccx\'and \'ccz\'" << endl;
+                            return false;
+                        }
+                        size_t qubit_control1, qubit_control2;
+                        qubit_control1 = stoul(ctrls_info.substr(1,ctrls_info.find(',')-1));
+                        qubit_control2 = stoul(ctrls_info.substr(ctrls_info.find(',')+2));
+                        //cerr << qubit_control1 << endl;
+                        //cerr << qubit_control2 << endl;
+                        pin_id.push_back(qubit_control1);
+                        pin_id.push_back(qubit_control2);
+                        pin_id.push_back(qubit_target);
+                        type.insert(0, "CC");
+                        addGate(type, pin_id, Phase(0), true);
+                    }
+                    else {
+                        cerr << "Error: Unsupport more than 2 controls gate."<< endl;
+                        return false;
+                    }
+                }
+                else{
+                    // without control
+                    pin_id.push_back(qubit_target);
+                    addGate(type, pin_id, Phase(0), true);
+                }
+
+            }
+            else{
+                cerr << "Find a undefined gate: "<< type << endl;
+                return false;
+            }
+            continue;
+        }
+        else if (line.find("Outputs")==0){
+            //cerr << "Done" << endl;
+            return true;
+        }
+        else if (line.find("Comment")==0 || line.find("QTerm0")==0 || line.find("QMeas")==0 || line.find("QDiscard")==0 )
+            continue;
+        else if (line.find("QInit0")==0){
+            cerr << "Unsupported expression: QInit0" << endl;
+            return false;
+        }
+        else if (line.find("QRot")==0){
+            cerr << "Unsupported expression: QRot" << endl;
+            return false;
+        }
+        else{
+            cerr << "Unsupported expression: " << line << endl;
+
+        }
+
+    }
+    //qccr benchmark/quipper/example.quipper
+    // qccr benchmark/quipper/adder_8_before.quipper
+    return true;
 }

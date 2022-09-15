@@ -207,6 +207,15 @@ public:
   virtual void printGateInfo(bool) const;
 };
 
+class CCZGate : public CnRZGate
+{ 
+public:
+  CCZGate(size_t id): CnRZGate(id) {}
+  ~CCZGate();
+  virtual string getTypeStr() const { return "ccz"; }
+  virtual void printGateInfo(bool) const;
+};
+
 class XGate : public CnRXGate
 { 
 public:

@@ -279,6 +279,11 @@ void CZGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+void CCZGate::printGateInfo(bool showTime) const
+{
+  cout << "Not Implement Yet!!" << endl;
+}
+
 void XGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
