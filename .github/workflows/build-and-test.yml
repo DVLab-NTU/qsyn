@@ -2,7 +2,7 @@ name: Makefile CI
 
 on:
   push:
-    branches: [ "main", "devt", "hotfix_compile_test" ]
+    branches: [ "main", "devt" ]
   pull_request:
     branches: [ "main", "devt" ]
 
@@ -16,18 +16,19 @@ jobs:
     
     - name: g++-10
       run: | 
-          sudo apt update
-          sudo apt install gcc-10 g++-10
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 100
+          sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-10 100
     
     - name: configure
-      run: make linux18
+      run:  |
+          ./configure.sh
+          make linux18
       
     - name: Compile main program
-      run: make
+      run: make -j8
       
     - name: Compile test program
-      run: make test
+      run: make test -j8
       
     - name: run tests
       run: ./RUN_ALL_TEST.sh
