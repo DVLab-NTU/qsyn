@@ -22,7 +22,6 @@ jobs:
     - name: configure
       run:  |
           ./configure.sh
-          make linux18
       
     - name: Compile main program
       run: make -j8
