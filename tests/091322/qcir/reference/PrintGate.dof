@@ -27,9 +27,9 @@ Q1 G23 ─┤ Tdg ├─ G27
         └─────┘ 
 
 qsyn> qcgp 26 -ZX
-ID:	3	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(5, 0) 
-ID:	5	VertexType:	1	Qubit:	1	Phase:	7π/4	#Neighbors:	2	(3, 0) (2, 0) 
-ID:	2	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(5, 0) 
+ID:	6	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(5, 0) 
+ID:	5	VertexType:	1	Qubit:	1	Phase:	7π/4	#Neighbors:	2	(6, 0) (7, 0) 
+ID:	7	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(5, 0) 
 Total #Vertices: 3
 
 qsyn> qcgp 26 -T
@@ -39,12 +39,12 @@ Q1 G23 ─┤ Tdg ├─ G27
 Execute at t= 14
 
 qsyn> qcgp 23 -ZX
-ID:	3	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(5, 0) 
-ID:	2	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(6, 0) 
-ID:	5	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(6, 0) (3, 0) (1, 0) 
-ID:	6	VertexType:	2	Qubit:	0	Phase:	0	#Neighbors:	3	(5, 0) (2, 0) (0, 0) 
-ID:	1	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(5, 0) 
-ID:	0	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(6, 0) 
+ID:	7	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(5, 0) 
+ID:	8	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(6, 0) 
+ID:	5	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(6, 0) (7, 0) (9, 0) 
+ID:	6	VertexType:	2	Qubit:	0	Phase:	0	#Neighbors:	3	(5, 0) (8, 0) (10, 0) 
+ID:	9	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(5, 0) 
+ID:	10	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(6, 0) 
 Total #Vertices: 6
 
 qsyn> q -f
