@@ -333,7 +333,7 @@ ZXTensorCmd::exec(const string &option){
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
 
             }
-            else zxGraphMgr->tensor(zxGraphMgr->findZXGraphByID(id));
+            else zxGraphMgr->tensorProduct(zxGraphMgr->findZXGraphByID(id));
         }
     }
     return CMD_EXEC_DONE;

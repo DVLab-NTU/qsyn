@@ -1,4 +1,9 @@
-PKGFLAG   =
+PKGFLAG   = 
+ifneq (,$(findstring -DOSX, $(OSFLAG)))
+    PKGFLAG += -llapack -lblas -DHAVE_CBLAS=1
+else
+    PKGFLAG += -llapack -lblas -lgfortran -DHAVE_CBLAS=1
+endif
 EXTHDRS   = 
 
 include ../Makefile.in
@@ -10,5 +15,5 @@ target: $(TARGET)
 
 $(TARGET): $(COBJS) $(LIBDEPEND)
 	@echo "> building $(EXEC)..."
-	@$(CXX) $(CFLAGS) -I$(EXTINCDIR) $(COBJS) -L$(LIBDIR) $(INCLIB) -o $@
+	@$(CXX) $(COBJS) $(CFLAGS) -I$(EXTINCDIR) -L$(LIBDIR) $(INCLIB) -o $@
 

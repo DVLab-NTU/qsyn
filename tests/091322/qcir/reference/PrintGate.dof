@@ -41,8 +41,8 @@ Execute at t= 14
 qsyn> qcgp 23 -ZX
 ID:	3	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(5, 0) 
 ID:	2	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(6, 0) 
-ID:	5	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(3, 0) (1, 0) (6, 0) 
-ID:	6	VertexType:	2	Qubit:	0	Phase:	0	#Neighbors:	3	(2, 0) (0, 0) (5, 0) 
+ID:	5	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(6, 0) (3, 0) (1, 0) 
+ID:	6	VertexType:	2	Qubit:	0	Phase:	0	#Neighbors:	3	(5, 0) (2, 0) (0, 0) 
 ID:	1	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(5, 0) 
 ID:	0	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(6, 0) 
 Total #Vertices: 6

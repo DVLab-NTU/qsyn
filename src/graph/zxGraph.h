@@ -10,6 +10,7 @@
 #define ZX_GRAPH_H
 
 #include <iostream>
+#include <unordered_map>
 #include <vector>
 #include <string>
 #include "phase.h"
@@ -122,6 +123,8 @@ class ZXGraph{
             _outputs.clear();
             _vertices.clear();
             _edges.clear();
+            _inputList.clear();
+            _outputList.clear();
         }
         // Copy Constructor
         ZXGraph(const ZXGraph &zxGraph);
@@ -130,14 +133,12 @@ class ZXGraph{
 
         // Getter and Setter
         void setId(size_t id)                           { _id = id; }
-        void setQubitCount(size_t c)                    { _nqubit = c; }
         void setInputs(vector<ZXVertex*> inputs)        { _inputs = inputs; }
         void setOutputs(vector<ZXVertex*> outputs)      { _outputs = outputs; }
         void setVertices(vector<ZXVertex*> vertices)    { _vertices = vertices; }
         void setEdges(vector<EdgePair > edges)          { _edges = edges; }
         
         size_t getId() const                            { return _id; }
-        size_t getQubitCount() const                    { return _nqubit; }
         vector<ZXVertex*> getInputs() const             { return _inputs; }
         size_t getNumInputs() const                     { return _inputs.size(); }
         vector<ZXVertex*> getOutputs() const            { return _outputs; }
@@ -159,10 +160,10 @@ class ZXGraph{
 
 
         // Add and Remove
-        void addInput(size_t id, int qubit, bool silent = true);
-        void addOutput(size_t id, int qubit, bool silent = true);
-        void addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase(), bool silent = true);
-        void addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et, bool silent = true);
+        ZXVertex* addInput(size_t id, int qubit, bool silent = true);
+        ZXVertex* addOutput(size_t id, int qubit, bool silent = true);
+        ZXVertex* addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase(), bool silent = true);
+        EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et, bool silent = true);
         void addEdgeById(size_t id_s, size_t id_t, EdgeType et, bool silent = true);
         void addInputs(vector<ZXVertex*> inputs);
         void addOutputs(vector<ZXVertex*> outputs);
@@ -178,10 +179,14 @@ class ZXGraph{
 
                 
         // Find functions
+        ZXVertex* findInputById(size_t id) const;
+        ZXVertex* findOutputById(size_t id) const;
         ZXVertex* findVertexById(size_t id) const;
         size_t findNextId() const;
 
+
         // Action
+        void reset();
         ZXGraph* copy() const;
         void sortIOByQubit();
         void sortVerticeById();
@@ -194,21 +199,27 @@ class ZXGraph{
         void printVertices() const;
         void printEdges() const;
         
+        
         // For mapping
-        ZXVertex* findInputById(size_t id) const;
-        ZXVertex* findOutputById(size_t id) const;
+        void concatenate(ZXGraph* tmp, bool remove_imm = false, bool silent = true);
+        void setInputHash(size_t q, ZXVertex* V) { _inputList[q] = V; }
+        void setOutputHash(size_t q, ZXVertex* V) { _outputList[q] = V; }
+        unordered_map<size_t, ZXVertex*> getInputList() const { return _inputList; }
+        unordered_map<size_t, ZXVertex*> getOutputList() const { return _outputList; }
+        ZXVertex* getInputFromHash(size_t q);
+        ZXVertex* getOutputFromHash(size_t q);
         vector<ZXVertex*> getNonBoundary();
-        void clearGraph() { _inputs.clear(); _outputs.clear(); _vertices.clear(); _edges.clear(); }
+        void cleanRedundantEdges();
         void clearPtrs() { for(size_t i=0; i<_vertices.size(); i++) delete _vertices[i]; }
 
     private:
         size_t                            _id;
-        size_t                            _nqubit;
         vector<ZXVertex*>                 _inputs;
         vector<ZXVertex*>                 _outputs;
         vector<ZXVertex*>                 _vertices;
         vector<EdgePair >                 _edges;
-
+        unordered_map<size_t, ZXVertex*>  _inputList;
+        unordered_map<size_t, ZXVertex*>  _outputList;
 };
 
 #endif

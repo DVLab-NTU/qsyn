@@ -223,14 +223,13 @@ void ZXGraph::generateCNOT(){
         }
     }
     setEdges(edges);
-    setQubitCount(_inputs.size());
 
     //TODO: rearrange
     for(size_t i = 0; i < _vertices.size(); i++) _vertices[i]->rearrange();
 }
 
 bool ZXGraph::isEmpty() const{
-    if(_inputs.empty() && _outputs.empty() && _vertices.empty() && _edges.empty() && _nqubit == 0) return true;
+    if(_inputs.empty() && _outputs.empty() && _vertices.empty() && _edges.empty()) return true;
     return false;
 }
 
@@ -270,152 +269,66 @@ bool ZXGraph::isOutputQubit(int qubit) const{
 
 
 // Add and Remove
-void ZXGraph::addInput(size_t id, int qubit, bool silent){
-    if(isId(id)) cerr << "Error: This vertex id is already existed!!" << endl;
-    else if(isInputQubit(qubit)) cerr << "Error: This qubit's input is already existed!!" << endl;
+ZXVertex* ZXGraph::addInput(size_t id, int qubit, bool silent){
+    if(isId(id)){
+        cerr << "Error: This vertex id is already existed!!" << endl;
+        return nullptr;
+    } 
+    else if(isInputQubit(qubit)){
+        cerr << "Error: This qubit's input is already existed!!" << endl;
+        return nullptr;
+    } 
     else{
         ZXVertex* v = new ZXVertex(id, qubit, VertexType::BOUNDARY);
-
-        // V1: O(1)
         _inputs.push_back(v);
         _vertices.push_back(v);
         if(!silent) cout << "Add input " << id << endl;
-        
-        // V2: O(I+V)
-        // Add to _inputs by qubit
-        // if(_inputs.empty()){
-        //     if(!silent) cout << "Add input " << id << endl;
-        //     _inputs.push_back(v);
-        // }
-        // else{
-        //     for(size_t i = 0; i < _inputs.size(); i++){
-        //         if(i != _inputs.size()-1){
-        //             if(qubit > _inputs[i]->getQubit() && qubit < _inputs[i+1]->getQubit()) {
-        //                 _inputs.insert(_inputs.begin()+i+1, v);
-        //                 if(!silent) cout << "Add input " << id << endl;
-        //                 break;
-        //             }
-        //         }
-        //         else{
-        //             if(!silent) cout << "Add input " << id << endl;
-        //             _inputs.push_back(v);
-        //         } 
-        //     }
-        // }
-        // // Add to _vertices by id
-        // if(_vertices.empty()){
-        //     if(!silent) cout << "Add vertice " << id << endl;
-        //     _vertices.push_back(v);
-        // }
-        // else{
-        //     for(size_t i = 0; i < _vertices.size(); i++){
-        //         if(i != _vertices.size()-1){
-        //             if(id > _vertices[i]->getId() && id < _vertices[i]->getId()){
-        //                 _vertices.insert(_vertices.begin()+i+1, v);
-        //                 if(!silent) cout << "Add vertice " << id << endl;
-        //                 break;
-        //             } 
-        //         }
-        //         else{
-        //             if(!silent) cout << "Add vertice " << id << endl;
-        //             _vertices.push_back(v);
-        //         } 
-        //     }
-        // }
+        return v;
     }
+    
 }
 
-void ZXGraph::addOutput(size_t id, int qubit, bool silent){
-    if(isId(id)) cerr << "Error: This vertex id is already existed!!" << endl;
-    else if(isOutputQubit(qubit)) cerr << "Error: This qubit's output is already existed!!" << endl;
+ZXVertex* ZXGraph::addOutput(size_t id, int qubit, bool silent){
+    if(isId(id)){
+        cerr << "Error: This vertex id is already existed!!" << endl;
+        return nullptr;
+    } 
+    else if(isOutputQubit(qubit)){
+        cerr << "Error: This qubit's output is already existed!!" << endl;
+        return nullptr;
+    } 
     else{
         ZXVertex* v = new ZXVertex(id, qubit, VertexType::BOUNDARY);
-        // V1: O(1)
         _vertices.push_back(v);
         _outputs.push_back(v);
         if(!silent) cout << "Add output " << id << endl;
-
-        // V2: O(O+V)
-        // Add to _outputs by qubit
-        // if(_outputs.empty()){
-        //     if(!silent) cout << "Add output " << id << endl;
-        //     _outputs.push_back(v);
-        // }
-        // else{
-        //     for(size_t i = 0; i < _outputs.size(); i++){
-        //         if(i != _outputs.size()-1){
-        //             if(qubit > _outputs[i]->getQubit() && qubit < _outputs[i+1]->getQubit()){
-        //                 _outputs.insert(_outputs.begin()+i+1, v);
-        //                 if(!silent) cout << "Add output " << id << endl;
-        //                 break;
-        //             } 
-        //         }
-        //         else{
-        //             if(!silent) cout << "Add output " << id << endl;
-        //             _outputs.push_back(v);
-        //         } 
-        //     }
-        // }
-        // // Add to _vertices by id
-        // if(_vertices.empty()){
-        //     if(!silent) cout << "Add vertice " << id << endl;
-        //     _vertices.push_back(v);
-        // }
-        // else{
-        //     for(size_t i = 0; i < _vertices.size(); i++){
-        //         if(i != _vertices.size()-1){
-        //             if(id > _vertices[i]->getId() && id < _vertices[i]->getId()){
-        //                 _vertices.insert(_vertices.begin()+i+1, v);
-        //                 if(!silent) cout << "Add vertice " << id << endl;
-        //                 break;
-        //             } 
-        //         }
-        //         else{
-        //             if(!silent) cout << "Add vertice " << id << endl;
-        //             _vertices.push_back(v);
-        //         } 
-        //     }
-        // }
+        return v;
     }
 }
 
-void ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase, bool silent){
-    if(isId(id)) cerr << "Error: This vertex id is already exist!!" << endl;
-    else if(vt == VertexType::BOUNDARY) cerr << "Error: Use ADDInput / ADDOutput to add input vertex or output vertex!!" << endl;
+ZXVertex* ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase, bool silent){
+    if(isId(id)){
+        cerr << "Error: This vertex id is already exist!!" << endl;
+        return nullptr;
+    } 
+    else if(vt == VertexType::BOUNDARY){
+        cerr << "Error: Use ADDInput / ADDOutput to add input vertex or output vertex!!" << endl;
+        return nullptr;
+    } 
     else{
         ZXVertex* v = new ZXVertex(id, qubit, vt, phase);
-        // V1: O(1)
         _vertices.push_back(v);
         if(!silent) cout << "Add vertice " << id << endl;
-
-        // V2: O(V)
-        // Add to _vertices by id
-        // if(_vertices.empty()){
-        //     if(!silent) cout << "Add vertice " << id << endl;
-        //     _vertices.push_back(v);
-        // }
-        // else{
-        //     for(size_t i = 0; i < _vertices.size(); i++){
-        //         if(i != _vertices.size()-1){
-        //             if(id > _vertices[i]->getId() && id < _vertices[i]->getId()){
-        //                 _vertices.insert(_vertices.begin()+i+1, v);
-        //                 if(!silent) cout << "Add vertice " << id << endl;
-        //                 break;
-        //             } 
-        //         }
-        //         else{
-        //             if(!silent) cout << "Add vertice " << id << endl;
-        //             _vertices.push_back(v);
-        //         } 
-        //     }
-        // }
+        return v;
     }
 }
 
-void ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et, bool silent){
+EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et, bool silent){
     vs->connect(vt, et, silent);
-    _edges.push_back(make_pair(make_pair(vs, vt), et));
+    EdgePair e = make_pair(make_pair(vs, vt), et);
+    _edges.push_back(e);
     if(!silent) cout << "Add edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
+    return e;
 }
 
 void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType et, bool silent){
@@ -541,11 +454,17 @@ size_t ZXGraph::findNextId() const{
 
 
 // Action
+void ZXGraph::reset(){
+    _inputs.clear();
+    _outputs.clear();
+    _vertices.clear();
+    _edges.clear();
+}
+
 ZXGraph* ZXGraph::copy() const{
     ZXGraph* newGraph = new ZXGraph(0);
 
     newGraph->setId(getId());
-    newGraph->setQubitCount(getQubitCount());
 
     vector<ZXVertex*> inputs, outputs, vertices;
     vector<EdgePair > edges;
@@ -636,28 +555,4 @@ void ZXGraph::printEdges() const{
         cout << "( " << _edges[i].first.first->getId() << ", " <<  _edges[i].first.second->getId() << " )\tType:\t" << _edges[i].second << endl; 
     }
     cout << "Total #Edges: " << _edges.size() << endl;
-}
-
-// Mapping functions
-ZXVertex* ZXGraph::findInputById(size_t id) const{
-    for(size_t i = 0; i < _inputs.size(); i++){
-        if(_inputs[i]->getId() == id) return _inputs[i];
-    }
-    return nullptr;
-}
-
-ZXVertex* ZXGraph::findOutputById(size_t id) const{
-    for(size_t i = 0; i < _outputs.size(); i++){
-        if(_outputs[i]->getId() == id) return _outputs[i];
-    }
-    return nullptr;
-}
-
-vector<ZXVertex*> ZXGraph::getNonBoundary() { 
-    vector<ZXVertex*> tmp; tmp.clear(); 
-    for(size_t i=0; i<_vertices.size(); i++){
-        if(_vertices[i]->getType()==VertexType::BOUNDARY) continue;
-        else tmp.push_back(_vertices[i]);
-    }
-    return tmp;
 }

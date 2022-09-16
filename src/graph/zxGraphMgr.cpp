@@ -154,7 +154,7 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph){
   }
 }
 
-void ZXGraphMgr::tensor(ZXGraph* zxGraph){
+void ZXGraphMgr::tensorProduct(ZXGraph* zxGraph){
   ZXGraph* oriGraph = getGraph();
   ZXGraph* copyGraph = zxGraph->copy();
 
@@ -171,8 +171,6 @@ void ZXGraphMgr::tensor(ZXGraph* zxGraph){
   oriGraph->addVertices(copyGraph->getVertices());
   oriGraph->addEdges(copyGraph->getEdges());
 
-  // Update _nqubit
-  oriGraph->setQubitCount(oriGraph->getNumInputs());
   delete copyGraph;
 }
 
