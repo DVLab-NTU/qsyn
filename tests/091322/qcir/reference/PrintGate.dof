@@ -27,6 +27,11 @@ Q1 G23 ─┤ Tdg ├─ G27
         └─────┘ 
 
 qsyn> qcgp 26 -ZX
+Add input 3
+Add vertice 5
+Add output 2
+Add edge ( 3, 5 )
+Add edge ( 5, 2 )
 ID:	3	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(5, 0) 
 ID:	5	VertexType:	1	Qubit:	1	Phase:	7π/4	#Neighbors:	2	(3, 0) (2, 0) 
 ID:	2	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(5, 0) 
@@ -39,6 +44,17 @@ Q1 G23 ─┤ Tdg ├─ G27
 Execute at t= 14
 
 qsyn> qcgp 23 -ZX
+Add input 3
+Add input 2
+Add vertice 5
+Add vertice 6
+Add output 1
+Add output 0
+Add edge ( 3, 5 )
+Add edge ( 5, 1 )
+Add edge ( 2, 6 )
+Add edge ( 6, 0 )
+Add edge ( 5, 6 )
 ID:	3	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(5, 0) 
 ID:	2	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(6, 0) 
 ID:	5	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(6, 0) (3, 0) (1, 0) 
