@@ -157,9 +157,9 @@ void QCirMgr::mapping(bool silent)
     for(size_t i=0; i<_qubits.size(); i++){
         if (_qubits[i]->getId() > maxInput)
             maxInput = _qubits[i]->getId();
-        _ZXG -> setInputHash(_qubits[i]->getId(), _ZXG -> addInput( 2*(_qubits[i]->getId()), _qubits[i]->getId()));
-        _ZXG -> setOutputHash(_qubits[i]->getId(), _ZXG -> addOutput( 2*(_qubits[i]->getId()) + 1, _qubits[i]->getId()));
-        _ZXG -> addEdgeById( 2*(_qubits[i]->getId()), 2*(_qubits[i]->getId()) + 1, EdgeType::SIMPLE);
+        _ZXG -> setInputHash(_qubits[i]->getId(), _ZXG -> addInput( 2*(_qubits[i]->getId()), _qubits[i]->getId(), verbose));
+        _ZXG -> setOutputHash(_qubits[i]->getId(), _ZXG -> addOutput( 2*(_qubits[i]->getId()) + 1, _qubits[i]->getId(), verbose));
+        _ZXG -> addEdgeById( 2*(_qubits[i]->getId()), 2*(_qubits[i]->getId()) + 1, EdgeType::SIMPLE, verbose);
         if (!silent) cout << "Add Qubit " << _qubits[i]->getId() << " inp: " << 2*(_qubits[i]->getId()) << " oup: " << 2*(_qubits[i]->getId())+1 << endl;
     }
     _ZXNodeId = 2*(maxInput+ 1)-1;
@@ -173,7 +173,7 @@ void QCirMgr::mapping(bool silent)
             cerr << "Mapping of gate "<< G->getId()<< " (type: " << G->getTypeStr() << ") not implemented, the mapping result is wrong!!" <<endl;
             return;
         }
-        this -> _ZXG -> concatenate(tmp, false, silent);
+        this -> _ZXG -> concatenate(tmp, verbose, false);
         if (!silent)  cout << "---------------------------------" << endl;
     };
     topoTraverse(Lambda);
