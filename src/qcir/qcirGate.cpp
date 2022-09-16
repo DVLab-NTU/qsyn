@@ -17,6 +17,7 @@
 using namespace std;
 
 extern QCirMgr *qCirMgr;
+extern size_t verbose;
 
 void QCirGate::setParent(size_t qubit, QCirGate *p)
 {

@@ -12,6 +12,7 @@
 using namespace std;
 
 ZXGraphMgr* zxGraphMgr = 0;
+extern size_t verbose;
 
 /*****************************************/
 /*   class ZXGraphMgr member functions   */
