@@ -136,16 +136,16 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph){
           EdgeType newType;
           if((vsType == EdgeType::SIMPLE && vtType == EdgeType::SIMPLE) || (vsType == EdgeType::HADAMARD && vtType == EdgeType::HADAMARD)) newType = EdgeType::SIMPLE;
           else newType = EdgeType::HADAMARD;
-          oriGraph->addEdge(vs, vt, newType);
-          vs->disconnect(curOut);
-          vt->disconnect(cpIn);
+          oriGraph->addEdge(vs, vt, newType, verbose);
+          vs->disconnect(curOut, verbose);
+          vt->disconnect(cpIn, verbose);
         }
       }
     }
 
     // Remove outputs of oriGraph and inputs of copyGraph
-    oriGraph->removeVertices(oriGraph->getOutputs());
-    copyGraph->removeVertices(copyGraph->getInputs());
+    oriGraph->removeVertices(oriGraph->getOutputs(), verbose);
+    copyGraph->removeVertices(copyGraph->getInputs(), verbose);
 
     // Update data in oriGraph
     oriGraph->setOutputs(copyGraph->getOutputs());
@@ -155,7 +155,7 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph){
   }
 }
 
-void ZXGraphMgr::tensor(ZXGraph* zxGraph){
+void ZXGraphMgr::tensorProduct(ZXGraph* zxGraph){
   ZXGraph* oriGraph = getGraph();
   ZXGraph* copyGraph = zxGraph->copy();
 
@@ -172,8 +172,6 @@ void ZXGraphMgr::tensor(ZXGraph* zxGraph){
   oriGraph->addVertices(copyGraph->getVertices());
   oriGraph->addEdges(copyGraph->getEdges());
 
-  // Update _nqubit
-  oriGraph->setQubitCount(oriGraph->getNumInputs());
   delete copyGraph;
 }
 
