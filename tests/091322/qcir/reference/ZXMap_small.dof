@@ -3,8 +3,6 @@ qsyn> qcba 2
 qsyn> qcga -x 0
 
 qsyn> qczxm -l
-<<<<<<< HEAD
-=======
 Add Qubit 0 inp: 0 oup: 1
 Add Qubit 1 inp: 2 oup: 3
 ZXnode start from 3
@@ -24,13 +22,10 @@ ID:	2	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(3, 0)
 ID:	3	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(2, 0) 
 ID:	4	VertexType:	2	Qubit:	0	Phase:	π	#Neighbors:	2	(0, 0) (1, 0) 
 Total #Vertices: 5
->>>>>>> devt
 
 qsyn> qcga -cx -pr 0 1
 
 qsyn> qczxm -l
-<<<<<<< HEAD
-=======
 Add Qubit 0 inp: 0 oup: 1
 Add Qubit 1 inp: 2 oup: 3
 ZXnode start from 3
@@ -68,13 +63,10 @@ ID:	4	VertexType:	1	Qubit:	0	Phase:	0	#Neighbors:	3	(0, 0) (5, 0) (6, 0)
 ID:	5	VertexType:	2	Qubit:	1	Phase:	0	#Neighbors:	3	(3, 0) (2, 0) (4, 0) 
 ID:	6	VertexType:	2	Qubit:	0	Phase:	π	#Neighbors:	2	(1, 0) (4, 0) 
 Total #Vertices: 7
->>>>>>> devt
 
 qsyn> qccr -r benchmark/benchmark_SABRE/small/3_17_13.qasm
 
 qsyn> qczxm -l
-<<<<<<< HEAD
-=======
 Add Qubit 0 inp: 0 oup: 1
 Add Qubit 1 inp: 2 oup: 3
 Add Qubit 2 inp: 4 oup: 5
@@ -559,11 +551,11 @@ ID:	32	VertexType:	1	Qubit:	0	Phase:	π/4	#Neighbors:	2	(31, 0) (37, 0)
 ID:	33	VertexType:	1	Qubit:	2	Phase:	0	#Neighbors:	3	(27, 0) (34, 0) (38, 0) 
 ID:	34	VertexType:	2	Qubit:	1	Phase:	0	#Neighbors:	3	(29, 0) (33, 0) (35, 0) 
 ID:	35	VertexType:	1	Qubit:	1	Phase:	π/4	#Neighbors:	2	(36, 0) (34, 0) 
-ID:	36	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(35, 0) (37, 0) (41, 0) 
+ID:	36	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(41, 0) (35, 0) (37, 0) 
 ID:	37	VertexType:	2	Qubit:	0	Phase:	0	#Neighbors:	3	(36, 0) (43, 0) (32, 0) 
 ID:	38	VertexType:	3	Qubit:	2	Phase:	π	#Neighbors:	2	(33, 0) (39, 0) 
 ID:	39	VertexType:	1	Qubit:	2	Phase:	π/4	#Neighbors:	2	(40, 0) (38, 0) 
-ID:	40	VertexType:	1	Qubit:	2	Phase:	0	#Neighbors:	3	(39, 0) (41, 0) (44, 0) 
+ID:	40	VertexType:	1	Qubit:	2	Phase:	0	#Neighbors:	3	(41, 0) (39, 0) (44, 0) 
 ID:	41	VertexType:	2	Qubit:	1	Phase:	0	#Neighbors:	3	(36, 0) (40, 0) (42, 0) 
 ID:	42	VertexType:	1	Qubit:	1	Phase:	7π/4	#Neighbors:	2	(41, 0) (47, 0) 
 ID:	43	VertexType:	1	Qubit:	0	Phase:	0	#Neighbors:	3	(37, 0) (46, 0) (44, 0) 
@@ -583,7 +575,6 @@ ID:	56	VertexType:	2	Qubit:	0	Phase:	0	#Neighbors:	3	(1, 0) (52, 0) (55, 0)
 ID:	57	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(3, 0) (55, 0) (58, 0) 
 ID:	58	VertexType:	2	Qubit:	2	Phase:	0	#Neighbors:	3	(5, 0) (57, 0) (54, 0) 
 Total #Vertices: 59
->>>>>>> devt
 
 qsyn> qccp -q
 Q 0  ---------cx( 1)-- h( 3)-- t( 6)----------cx( 8)--cx( 9)-- t(14)----------cx(15)--cx(16)-- h(18)-- t(20)--cx(23)----------cx(25)--cx(27)--td(28)----------cx(32)--cx(33)-
