@@ -43,9 +43,15 @@
 
 TEST_CASE("Tensor", "[Tensor]") {
     using DataType = double;
-    Tensor<DataType> a = Tensor<DataType>::zspider(4, Phase(1, 2));
-    
-    std::cout << a << std::endl;
+    Tensor<DataType> a = Tensor<DataType>::zspider(3, 0);
+    Tensor<DataType> b = Tensor<DataType>::xspider(3, 0);
+
+    auto c = Tensor<DataType>::tensordot(a, b, {2}, {0});
+    auto d = c.toMatrix({0, 2}, {1, 3});
+    auto e = Tensor<DataType>::transpose(c, {0, 2, 1, 3});
+    e.reshape({4, 4});
+    std::cout << d << std::endl;
+    std::cout << e << std::endl;
 }
 // nested_initializer_list_t<int, 2> t = {{1, 2, 3}, {4, 5, 6}};
 // Tensor<int> t1(t);
