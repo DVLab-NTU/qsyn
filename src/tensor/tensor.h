@@ -16,7 +16,10 @@
 #include <numeric>
 #include <tuple>
 
-
+class Tensor {
+public:
+    void dummy();
+};
 
 
 
