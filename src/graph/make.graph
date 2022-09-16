@@ -1,5 +1,5 @@
 PKGFLAG   =
-EXTHDRS   = zxGraph.h
+EXTHDRS   = zxGraph.h zxDef.h
 
 include ../Makefile.in
 include ../Makefile.lib

@@ -1,11 +1,11 @@
-
+#!/bin/bash
 bold=$(tput bold)
 normal=$(tput sgr0)
-red='\033[0;31m'
-green='\033[0;32m'
-white='\033[0m'
-pass_text="${green}${bold}Passed${normal}${white}"
-fail_text="${red}${bold}Failed${normal}${white}"
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+white=$(tput sgr0)
+pass_text="${bold}${green}Passed${white}${normal}"
+fail_text="${bold}${red}Failed${white}${normal}"
 
 return_code=0
 
@@ -37,7 +37,7 @@ for test_date in tests/*/; do
     done
 done
 
-echo "\n> Testing functions..."
+printf "\n> Testing functions...\n"
 ./tests/bin/tests -r compact
 
 exit ${return_code}

@@ -53,9 +53,11 @@ public:
   void addGate(string type, vector<size_t> bits, Phase phase, bool append);
   void prependGate(string type, vector<size_t> bits){ cout << "Prepend Gate not support now."; }
   bool removeGate(size_t id);
-  bool parse(string qasm_file);
+  bool parse(string file);
   bool parseQASM(string qasm_file);
-  bool parseQC(string qasm_file);
+  bool parseQC(string qc_file);
+  bool parseQSIM(string qsim_file);
+  bool parseQUIPPER(string quipper_file);
   void incrementZXId() { _ZXNodeId++; }
   void mapping(bool silent=true);
   void updateGateTime();
@@ -73,7 +75,6 @@ public:
   bool printTopoOrder();
   // pass a function F (public functions) into for_each 
   // lambdaFn such as mappingToZX / updateGateTime
-  void ZXConcatenate(ZXGraph*, bool silent=true);
   void updateTopoOrder();
 
   // Member functions about circuit reporting
