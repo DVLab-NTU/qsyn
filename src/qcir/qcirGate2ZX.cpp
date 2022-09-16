@@ -16,6 +16,8 @@
 #include "qcirMgr.h"
 #include "zxGraph.h"
 
+extern size_t verbose;
+
 ZXGraph *HGate::getZXform(size_t &baseId, bool silent)
 {
     ZXGraph *temp = new ZXGraph(_id);

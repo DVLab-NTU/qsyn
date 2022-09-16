@@ -15,6 +15,7 @@
 #include "util.h"
 
 using namespace std;
+extern size_t verbose;
 
 VertexType str2VertexType(string str){
     if(str == "BOUNDARY") return VertexType::BOUNDARY;
