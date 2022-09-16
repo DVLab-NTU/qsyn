@@ -49,10 +49,8 @@ ID:	0	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	0
 Total #Vertices: 6
 
 qsyn> zxge -adde 0 2 SIMPLE
-Add edge ( 0, 2 )
 
 qsyn> zxge -adde 2 3 SIMPLE
-Add edge ( 2, 3 )
 
 qsyn> zxgp -v
 ID:	1	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(3, 0) 
