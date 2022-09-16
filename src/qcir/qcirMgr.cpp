@@ -172,6 +172,10 @@ void QCirMgr::mapping(bool silent)
         if (!silent)  cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph* tmp = G->getZXform(_ZXNodeId);
         // this -> ZXConcatenate(tmp, silent);
+        if(tmp == NULL){
+            cerr << "Mapping of gate "<< G->getId()<< " (type: " << G->getTypeStr() << ") not implemented, the mapping result is wrong!!" <<endl;
+            return;
+        }
         this -> _ZXG -> concatenate(tmp, false, silent);
         if (!silent)  cout << "---------------------------------" << endl;
     };
