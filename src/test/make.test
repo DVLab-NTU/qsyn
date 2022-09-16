@@ -1,9 +1,9 @@
 PKGFLAG   = 
-ifneq (,$(findstring -DOSX, $(OSFLAG)))
-    PKGFLAG += -llapack -lcblas -lblas -DHAVE_CBLAS=1
-else
-    PKGFLAG += -llapack -lcblas -lblas -lgfortran -DHAVE_CBLAS=1
-endif
+# ifneq (,$(findstring -DOSX, $(OSFLAG)))
+#     PKGFLAG += -llapack -lcblas -lblas -DHAVE_CBLAS=1
+# else
+#     PKGFLAG += -llapack -lcblas -lblas -lgfortran -DHAVE_CBLAS=1
+# endif
 EXTHDRS   = 
 
 include ../Makefile.in

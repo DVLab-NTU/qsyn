@@ -56,16 +56,6 @@ bool Phase::operator!= (const Phase& rhs) const{
     return !(*this == rhs);
 }
 
-float Phase::toFloat() { 
-    return (std::numbers::pi_v<float> * _rational.numerator()) / _rational.denominator(); 
-}
-double Phase::toDouble() { 
-    return (std::numbers::pi_v<double> * _rational.numerator()) / _rational.denominator(); 
-}
-long double Phase::toLongDouble() { 
-    return (std::numbers::pi_v<long double> * _rational.numerator()) / _rational.denominator(); 
-}
-
 void Phase::normalize() {
     Rational factor = (_rational / 2);
     int integralPart = std::floor(factor.toFloat());
