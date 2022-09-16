@@ -17,6 +17,7 @@
 
 using namespace std;
 QCirMgr *qCirMgr = 0;
+extern size_t verbose;
 
 QCirGate *QCirMgr::getGate(size_t id) const
 {

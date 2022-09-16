@@ -11,6 +11,7 @@
 #include "cmdCommon.h"
 
 using namespace std;
+extern size_t verbose;
 
 bool
 initCommonCmd()
@@ -19,7 +20,8 @@ initCommonCmd()
          cmdMgr->regCmd("HIStory", 3, new HistoryCmd) &&
          cmdMgr->regCmd("HELp", 3, new HelpCmd) &&
          cmdMgr->regCmd("DOfile", 2, new DofileCmd) &&
-         cmdMgr->regCmd("USAGE", 5, new UsageCmd)
+         cmdMgr->regCmd("USAGE", 5, new UsageCmd) &&
+         cmdMgr->regCmd("VERbose", 3, new VerboseCmd)
       )) {
       cerr << "Registering \"init\" commands fails... exiting" << endl;
       return false;
@@ -240,4 +242,42 @@ UsageCmd::help() const
 {
    cout << setw(15) << left << "USAGE: "
         << "report the runtime and/or memory usage" << endl;
+}
+
+
+//----------------------------------------------------------------------
+//    VERbose <size_t verbose level>
+//----------------------------------------------------------------------
+CmdExecStatus
+VerboseCmd::exec(const string& option)
+{
+   // check option
+   string token;
+   if (!CmdExec::lexSingleOption(option, token, false))
+      return CMD_EXEC_ERROR;
+   unsigned level;
+   if(!myStr2Uns(token, level)){
+      cerr << "Error: target ID should be a positive integer or 0!!" << endl;
+      return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+   }
+   if(level > 9 && level!=353){
+      cerr << "Error: verbose level should be 0-9 !!" << endl;
+      return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+   }
+   cerr << "Note: verbose level is set to " << level << endl;
+   verbose = level;
+   return CMD_EXEC_DONE;
+}
+
+void
+VerboseCmd::usage(ostream& os) const
+{
+   os << "Usage: VERbose <size_t verbose level>" << endl;
+}
+
+void
+VerboseCmd::help() const
+{
+   cout << setw(15) << left << "VERbose: "
+        << "set verbose level (0-9)" << endl;
 }

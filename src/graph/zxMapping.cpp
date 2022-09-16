@@ -15,6 +15,7 @@
 #include "util.h"
 
 using namespace std;
+extern size_t verbose;
 
 // Mapping functions
 // void ZXGraph::clearHashes() {

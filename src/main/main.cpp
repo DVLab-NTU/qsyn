@@ -20,6 +20,7 @@ extern bool initCommonCmd();
 // extern bool initCirCmd();
 extern bool initQCirCmd();
 extern bool initZXCmd();
+size_t verbose = 3; // Default verbose level = 3
 
 static void
 usage()

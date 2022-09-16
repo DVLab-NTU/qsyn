@@ -15,5 +15,5 @@ CmdClass(QuitCmd);
 CmdClass(HistoryCmd);
 CmdClass(DofileCmd);
 CmdClass(UsageCmd);
-
+CmdClass(VerboseCmd);
 #endif // CMD_COMMON_H
