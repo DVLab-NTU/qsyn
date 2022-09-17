@@ -16,62 +16,74 @@
 #include <complex>
 #include <cmath>
 #include "tensor.h"
+#include "util.h"
 
 #include "catch2/catch.hpp"
 // #include "tensor.h"
+using namespace std::literals::complex_literals;
 
-// TEST_CASE("xtensor-blas", "[Tensor]") {
-//     using namespace std::complex_literals;
-//     // Z-spider
-//     xt::xarray<std::complex<double>> a = xt::zeros<std::complex<double>>(std::vector<size_t>(3, 2));
-//     a[std::vector<size_t>(3, 0)] = (1.0 + 0.0i);
-//     a[std::vector<size_t>(3, 1)] = (1.0 + 0.0i);
-//     // X-spider (*sqrt2)
-//     xt::xarray<std::complex<double>> b = xt::zeros<std::complex<double>>(std::vector<size_t>(3, 2));
-//     b(0, 0, 0) = 1.0;
-//     b(0, 1, 1) = 1.0;
-//     b(1, 0, 1) = 1.0;
-//     b(1, 1, 0) = 1.0;
-//     // ZX connection
-//     auto c = xt::linalg::tensordot(a, b, {0}, {0});
-//     // std::cout << c << std::endl;
-//     // matrixfy
-//     xt::xarray<std::complex<double>> d = xt::transpose(c, {0, 2, 1, 3});
-//     auto e = d.reshape({4, 4});
-//     // std::cout << e << std::endl;
-// }
+TEST_CASE("ZSpider initiation", "[Tensor]") {
+    auto n = GENERATE(0, 1, 4, 13);
+    auto m = GENERATE(Phase(0), Phase(1), Phase(1, 4), Phase(0.00000001));
+    Tensor<double> tensor = Tensor<double>::zspider(n, m);
 
-TEST_CASE("Tensor", "[Tensor]") {
+    std::complex<double> all0 = 1.;
+    std::complex<double> all1 = std::exp(1.0i * m.toDouble());
+    if (n == 0) {
+        REQUIRE(tensor() == all0 + all1);
+    } else {
+        for (size_t i = 0; i < intPow(2, n); ++i) {
+            TensorIndex id;
+            for (int j = 0; j < n; ++j) {
+                id.emplace_back((i >> j) % 2);
+            }
+            if (i == 0) {
+                REQUIRE(tensor[id] == all0);
+            }
+            else if (i == (intPow(2, n) - 1)) {
+                REQUIRE(tensor[id] == all1);
+            }
+            else {
+                REQUIRE(tensor[id] == 0.0);
+            }
+        }
+    }
+}
+
+TEST_CASE("XSpider initiation", "[Tensor]") {
+    auto n = GENERATE(0, 1, 4, 13);
+    auto m = GENERATE(Phase(0), Phase(1), Phase(1, 4), Phase(0.00000001));
+    Tensor<double> tensor = Tensor<double>::xspider(n, m);
+    std::complex<double> expm = std::exp(1.0i * m.toDouble());
+    std::complex<double> even = (1. + expm) / std::pow(std::sqrt(2), n);
+    std::complex<double> odd = (1. - expm) / std::pow(std::sqrt(2), n);
+    if (n == 0) {
+        REQUIRE(tensor() == even);
+    } else {
+        for (size_t i = 0; i < intPow(2, n); ++i) {
+            TensorIndex id;
+            for (int j = 0; j < n; ++j) {
+                id.emplace_back((i >> j) % 2);
+            }
+            if (std::accumulate(id.begin(), id.end(), 0) % 2 == 0) {
+                REQUIRE(tensor[id] == even);
+            }
+            else {
+                REQUIRE(tensor[id] == odd);
+            }
+        }
+    }
+}
+
+TEST_CASE("Tensordot", "[Tensor]") {
     using DataType = double;
     Tensor<DataType> a = Tensor<DataType>::zspider(3, 0);
     Tensor<DataType> b = Tensor<DataType>::xspider(3, 0);
 
     auto c = Tensor<DataType>::tensordot(a, b, {2}, {0});
     auto d = c.toMatrix({0, 2}, {1, 3});
-    auto e = Tensor<DataType>::transpose(c, {0, 2, 1, 3});
-    e.reshape({4, 4});
-    std::cout << d << std::endl;
-    std::cout << e << std::endl;
+
+    Tensor<DataType> f = Tensor<DataType>::zspider(4, 0);
+    auto g = Tensor<DataType>::selfTensordot(f, {1}, {3});
+    REQUIRE(g == Tensor<DataType>::zspider(2, 0));
 }
-// nested_initializer_list_t<int, 2> t = {{1, 2, 3}, {4, 5, 6}};
-// Tensor<int> t1(t);
-
-// TEST_CASE("Tensors are initiated correctly", "[Tensor]") {
-//     Tensor t1({2, 3, 4}, 0);
-//     std::cout << t1 << std::endl;
-//     for (size_t i = 0; i < 2; ++i) {
-//         for (size_t j = 0; j < 3; ++j) {
-//             for (size_t k = 0; k < 4; ++k) {
-//                 t1({i, j, k}) = i * 12 + j * 4 + k;
-//             }
-//         }
-//     }
-//     std::cout << t1 << std::endl;
-//     t1.transpose(0, 2);
-//     std::cout << t1 << std::endl;
-//     t1.reshape({4, 6});
-//     std::cout << t1 << std::endl;
-
-//     std::cout << t1.getShapeString() << std::endl;
-//     std::cout << t1.getStridesString() << std::endl;
-// }
