@@ -18,7 +18,7 @@
 
 extern size_t verbose;
 
-ZXGraph *HGate::getZXform(size_t &baseId, bool silent)
+ZXGraph *HGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
@@ -35,7 +35,7 @@ ZXGraph *HGate::getZXform(size_t &baseId, bool silent)
     return temp;
 }
 
-ZXGraph *XGate::getZXform(size_t &baseId, bool silent)
+ZXGraph *XGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
@@ -52,7 +52,7 @@ ZXGraph *XGate::getZXform(size_t &baseId, bool silent)
     return temp;
 }
 
-ZXGraph *SXGate::getZXform(size_t &baseId, bool silent)
+ZXGraph *SXGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
@@ -69,7 +69,7 @@ ZXGraph *SXGate::getZXform(size_t &baseId, bool silent)
     return temp;
 }
 
-ZXGraph *CXGate::getZXform(size_t &baseId, bool silent)
+ZXGraph *CXGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t ctrl_qubit = _qubits[0]._isTarget ? _qubits[1]._qubit : _qubits[0]._qubit;
@@ -95,7 +95,7 @@ ZXGraph *CXGate::getZXform(size_t &baseId, bool silent)
     return temp;
 }
 
-ZXGraph *ZGate::getZXform(size_t &baseId, bool silent)
+ZXGraph *ZGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
@@ -112,7 +112,7 @@ ZXGraph *ZGate::getZXform(size_t &baseId, bool silent)
     return temp;
 }
 
-ZXGraph *SGate::getZXform(size_t &baseId, bool silent)
+ZXGraph *SGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
@@ -129,7 +129,7 @@ ZXGraph *SGate::getZXform(size_t &baseId, bool silent)
     return temp;
 }
 
-ZXGraph *TGate::getZXform(size_t &baseId, bool silent)
+ZXGraph *TGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
@@ -146,7 +146,7 @@ ZXGraph *TGate::getZXform(size_t &baseId, bool silent)
     return temp;
 }
 
-ZXGraph *TDGGate::getZXform(size_t &baseId, bool silent)
+ZXGraph *TDGGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
@@ -163,7 +163,7 @@ ZXGraph *TDGGate::getZXform(size_t &baseId, bool silent)
     return temp;
 }
 
-ZXGraph *RZGate::getZXform(size_t &baseId, bool silent)
+ZXGraph *RZGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
@@ -180,7 +180,7 @@ ZXGraph *RZGate::getZXform(size_t &baseId, bool silent)
     return temp;
 }
 
-ZXGraph *CZGate::getZXform(size_t &baseId, bool silent)
+ZXGraph *CZGate::getZXform(size_t &baseId)
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t ctrl_qubit = _qubits[0]._isTarget ? _qubits[1]._qubit : _qubits[0]._qubit;
