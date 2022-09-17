@@ -145,7 +145,7 @@ void QCirMgr::printZXTopoOrder()
     };
     topoTraverse(Lambda);
 }
-void QCirMgr::mapping(bool silent)
+void QCirMgr::mapping()
 {
     updateTopoOrder();
     _ZXG->clearPtrs();
@@ -184,6 +184,7 @@ void QCirMgr::mapping(bool silent)
     if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE GRAPH ----" << endl;
     topoTraverse(Lambda);
     _ZXG -> cleanRedundantEdges();
+    if(verbose >= 3)  cout << "--------------------------------------" << endl;
     if(verbose >= 3)  cout << "---------------------------------- GRAPH INFORMATION ---------------------------------" << endl;
     _ZXG -> printVertices();
     if(verbose >= 3)  cout << "--------------------------------------------------------------------------------------" << endl;

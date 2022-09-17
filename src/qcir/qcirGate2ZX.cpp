@@ -20,7 +20,6 @@ extern size_t verbose;
 
 ZXGraph *HGate::getZXform(size_t &baseId, bool silent)
 {
-    cerr << verbose << endl;
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
     if(verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;  
