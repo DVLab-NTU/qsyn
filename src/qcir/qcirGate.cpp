@@ -11,12 +11,12 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
-#include "qcirMgr.h"
+#include "qcir.h"
 #include "qcirGate.h"
 
 using namespace std;
 
-extern QCirMgr *qCirMgr;
+extern QCir *qCir;
 extern size_t verbose;
 
 void QCirGate::setParent(size_t qubit, QCirGate *p)

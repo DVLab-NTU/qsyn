@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ qcirMgr.h ]
+  FileName     [ qcir.h ]
   PackageName  [ qcir ]
   Synopsis     [ Define quantum circuit manager ]
   Author       [ Chin-Yi Cheng ]
@@ -21,13 +21,13 @@
 #include "phase.h"
 #include "zxGraph.h"
 
-extern QCirMgr *qCirMgr;
+extern QCir *qCir;
 using namespace std;
 // template<typename F>
-class QCirMgr
+class QCir
 {
 public:
-  QCirMgr()
+  QCir()
   {
     _gateId = 0;
     _qubitId = 0;
@@ -39,7 +39,7 @@ public:
     _topoOrder.clear();
     _ZXG = new ZXGraph(0);
   }
-  ~QCirMgr() {}
+  ~QCir() {}
 
   // Access functions
   // return '0' if "gid" corresponds to an undefined gate.

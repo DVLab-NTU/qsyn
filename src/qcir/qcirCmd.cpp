@@ -9,7 +9,7 @@
 #include <cassert>
 #include <iostream>
 #include <iomanip>
-#include "qcirMgr.h"
+#include "qcir.h"
 #include "qcirGate.h"
 #include "qcirCmd.h"
 #include "util.h"
@@ -17,7 +17,7 @@
 
 using namespace std;
 
-extern QCirMgr *qCirMgr;
+extern QCir *qCir;
 extern size_t verbose;
 extern int effLimit;
 
@@ -54,7 +54,7 @@ static QCirCmdState curCmd = QCIRINIT;
 // CmdExecStatus
 // QCirTestCmd::exec(const string &option)
 // {
-//    qCirMgr->mapping();
+//    qCir->mapping();
 //    return CMD_EXEC_DONE;
 // }
 // void QCirTestCmd::usage(ostream &os) const
@@ -99,14 +99,14 @@ QCirReadCmd::exec(const string &option)
       }
    }
 
-   if (qCirMgr != 0)
+   if (qCir != 0)
    {
       if (doReplace)
       {
          cerr << "Note: original quantum circuit is replaced..." << endl;
          curCmd = QCIRINIT;
-         delete qCirMgr;
-         qCirMgr = 0;
+         delete qCir;
+         qCir = 0;
       }
       else
       {
@@ -114,13 +114,13 @@ QCirReadCmd::exec(const string &option)
          return CMD_EXEC_ERROR;
       }
    }
-   qCirMgr = new QCirMgr;
+   qCir = new QCir;
 
-   if (!qCirMgr->parse(fileName))
+   if (!qCir->parse(fileName))
    {
       curCmd = QCIRINIT;
-      delete qCirMgr;
-      qCirMgr = 0;
+      delete qCir;
+      qCir = 0;
       return CMD_EXEC_ERROR;
    }
 
@@ -147,7 +147,7 @@ CmdExecStatus
 QCirGatePrintCmd::exec(const string &option)
 {
    // check option
-   if (!qCirMgr)
+   if (!qCir)
    {
       cerr << "Error: quantum circuit is not yet constructed!!" << endl;
       return CMD_EXEC_ERROR;
@@ -193,15 +193,15 @@ QCirGatePrintCmd::exec(const string &option)
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
    }
    if (ZXtrans){
-      if(qCirMgr->getGate(id)==NULL){
+      if(qCir->getGate(id)==NULL){
          cerr << "Error: id " << id << " not found!!" << endl;
          return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
       }
       size_t tmp = 4;
-      qCirMgr->getGate(id)->getZXform(tmp)->printVertices();
+      qCir->getGate(id)->getZXform(tmp)->printVertices();
    }
    else{
-      if (!qCirMgr->printGateInfo(id, showTime))
+      if (!qCir->printGateInfo(id, showTime))
          return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
    }
    
@@ -230,17 +230,17 @@ QCirPrintCmd::exec(const string &option)
    if (!CmdExec::lexSingleOption(option, token))
       return CMD_EXEC_ERROR;
 
-   if (!qCirMgr)
+   if (!qCir)
    {
       cerr << "Error: quantum circuit is not yet constructed!!" << endl;
       return CMD_EXEC_ERROR;
    }
    if (token.empty() || myStrNCmp("-List", token, 2) == 0)
-      qCirMgr->printSummary();
+      qCir->printSummary();
    else if (myStrNCmp("-Qubit", token, 2) == 0)
-      qCirMgr->printQubits();
+      qCir->printQubits();
    else if (myStrNCmp("-ZXform", token, 2) == 0)
-      qCirMgr->printZXTopoOrder();
+      qCir->printZXTopoOrder();
    else
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
 
@@ -267,7 +267,7 @@ void QCirPrintCmd::help() const
 CmdExecStatus
 QCirAddGateCmd::exec(const string &option)
 {
-   if (!qCirMgr)
+   if (!qCir)
    {
       cerr << "Error: no available qubits. Please read a quantum circuit or add qubit(s)!!" << endl;
       return CMD_EXEC_ERROR;
@@ -320,14 +320,14 @@ QCirAddGateCmd::exec(const string &option)
          cerr << "Error: target ID should be a positive integer!!" << endl;
          return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[1]);
       }
-      if (qCirMgr->getQubit(id) == NULL)
+      if (qCir->getQubit(id) == NULL)
       {
          cerr << "Error: qubit ID is not in current circuit!!" << endl;
          return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[1]);
       }
       qubits.push_back(id);
       type = type.erase(0,1);
-      qCirMgr->addGate(type, qubits, Phase(0),appendGate);
+      qCir->addGate(type, qubits, Phase(0),appendGate);
    }
    else if (myStrNCmp("-CX", type, 3) == 0){
       if (options.size() < 3)
@@ -340,7 +340,7 @@ QCirAddGateCmd::exec(const string &option)
             cerr << "Error: target ID should be a positive integer!!" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
          }
-         if (qCirMgr->getQubit(id) == NULL)
+         if (qCir->getQubit(id) == NULL)
          {
             cerr << "Error: qubit ID is not in current circuit!!" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
@@ -348,7 +348,7 @@ QCirAddGateCmd::exec(const string &option)
          qubits.push_back(id);
       }
       type = type.erase(0,1);
-      qCirMgr->addGate(type, qubits, Phase(0),appendGate);
+      qCir->addGate(type, qubits, Phase(0),appendGate);
    }
    else if (myStrNCmp("-RZ", type, 3) == 0){
       Phase phase;
@@ -384,14 +384,14 @@ QCirAddGateCmd::exec(const string &option)
          cerr << "Error: target ID should be a positive integer!!" << endl;
          return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
       }
-      if (qCirMgr->getQubit(id) == NULL)
+      if (qCir->getQubit(id) == NULL)
       {
          cerr << "Error: qubit ID is not in current circuit!!" << endl;
          return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
       }
       qubits.push_back(id);
       type = type.erase(0,1);
-      qCirMgr->addGate(type, qubits, phase, appendGate);
+      qCir->addGate(type, qubits, phase, appendGate);
    }
    else{
       cerr << "Error: type is not implemented!!" << endl;
@@ -426,9 +426,9 @@ QCirAddQubitCmd::exec(const string &option)
       return CMD_EXEC_ERROR;
    if (token.empty())
    {
-      if (qCirMgr == 0)
-         qCirMgr = new QCirMgr;
-      qCirMgr->addQubit(1);
+      if (qCir == 0)
+         qCir = new QCir;
+      qCir->addQubit(1);
    }
    else
    {
@@ -439,9 +439,9 @@ QCirAddQubitCmd::exec(const string &option)
       }   
       else
       {
-         if (qCirMgr == 0)
-            qCirMgr = new QCirMgr;
-         qCirMgr->addQubit(id);
+         if (qCir == 0)
+            qCir = new QCir;
+         qCir->addQubit(id);
       }
    }
    return CMD_EXEC_DONE;
@@ -468,7 +468,7 @@ QCirDeleteGateCmd::exec(const string &option)
    string token;
    if (!CmdExec::lexSingleOption(option, token))
       return CMD_EXEC_ERROR;
-   if (!qCirMgr)
+   if (!qCir)
    {
       cerr << "Error: quantum circuit is not yet constructed!!" << endl;
       return CMD_EXEC_ERROR;
@@ -480,7 +480,7 @@ QCirDeleteGateCmd::exec(const string &option)
       cerr << "Error: target ID should be a positive integer!!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    }   
-   if (!qCirMgr->removeGate(id))
+   if (!qCir->removeGate(id))
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    else
       return CMD_EXEC_DONE;
@@ -507,7 +507,7 @@ QCirDeleteQubitCmd::exec(const string &option)
    string token;
    if (!CmdExec::lexSingleOption(option, token))
       return CMD_EXEC_ERROR;
-   if (!qCirMgr)
+   if (!qCir)
    {
       cerr << "Error: quantum circuit is not yet constructed!!" << endl;
       return CMD_EXEC_ERROR;
@@ -519,7 +519,7 @@ QCirDeleteQubitCmd::exec(const string &option)
       cerr << "Error: target ID should be a positive integer!!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    }   
-   if (!qCirMgr->removeQubit(id))
+   if (!qCir->removeQubit(id))
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    else
       return CMD_EXEC_DONE;
@@ -546,12 +546,12 @@ QCirZXMappingCmd::exec(const string &option)
    if (!CmdExec::lexNoOption(option))
       return CMD_EXEC_ERROR;
 
-   if (!qCirMgr)
+   if (!qCir)
    {
       cerr << "Error: quantum circuit is not yet constructed!!" << endl;
       return CMD_EXEC_ERROR;
    }
-   qCirMgr -> mapping();
+   qCir -> mapping();
    return CMD_EXEC_DONE;
 }
 
