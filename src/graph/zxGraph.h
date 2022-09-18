@@ -201,7 +201,7 @@ class ZXGraph{
         
         
         // For mapping
-        void concatenate(ZXGraph* tmp, size_t verbose, bool remove_imm = false);
+        void concatenate(ZXGraph* tmp, bool remove_imm = false);
         void setInputHash(size_t q, ZXVertex* v) { _inputList[q] = v; }
         void setOutputHash(size_t q, ZXVertex* v) { _outputList[q] = v; }
         unordered_map<size_t, ZXVertex*> getInputList() const { return _inputList; }

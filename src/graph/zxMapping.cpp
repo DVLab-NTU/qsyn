@@ -51,7 +51,7 @@ ZXVertex* ZXGraph::getOutputFromHash(size_t q) {
         return _outputList[q];
 }
 
-void ZXGraph::concatenate(ZXGraph* tmp, size_t verbose, bool remove_imm){
+void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm){
     // Add Vertices
     this -> addVertices( tmp -> getNonBoundary() );
     // Reconnect Input

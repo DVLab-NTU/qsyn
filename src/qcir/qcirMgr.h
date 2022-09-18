@@ -59,7 +59,7 @@ public:
   bool parseQSIM(string qsim_file);
   bool parseQUIPPER(string quipper_file);
   void incrementZXId() { _ZXNodeId++; }
-  void mapping(bool silent=true);
+  void mapping();
   void updateGateTime();
   void printZXTopoOrder();
 
