@@ -109,17 +109,21 @@ TEST_CASE("Default Parameters for Tensor generators", "[Tensor]") {
     REQUIRE(Tensor<double>::hbox(n) == Tensor<double>::hbox(n, -1.));
 }
 
-TEST_CASE("Tensordot", "[Tensor]") {
-    Tensor<double> a = Tensor<double>::zspider(3, 0);
-    Tensor<double> b = Tensor<double>::xspider(3, 0);
+// TEST_CASE("Tensordot", "[Tensor]") {
+//     Tensor<double> a = Tensor<double>::zspider(3, 0);
+//     Tensor<double> b = Tensor<double>::xspider(3, 0);
 
-    auto c = Tensor<double>::tensordot(a, b, {2}, {0});
-    auto d = c.toMatrix({0, 2}, {1, 3});
-    // std::cout << d << std::endl;
+//     auto c = Tensor<double>::tensordot(a, b, {2}, {0});
+//     auto d = c.toMatrix({0, 2}, {1, 3});
+//     // std::cout << d << std::endl;
 
-    Tensor<double> f = Tensor<double>::zspider(4, 0);
-    auto g = Tensor<double>::selfTensordot(f, {1}, {3});
-    // std::cout << g - Tensor<double>::zspider(2, 0) << std::endl;
-    
-    // REQUIRE(g == Tensor<double>::zspider(2, 0));
-}
+//     Tensor<double> f = Tensor<double>::zspider(4, 0);
+//     auto g = Tensor<double>::selfTensordot(f, {1}, {3});
+//     std::cout << g - Tensor<double>::zspider(2, 0) << std::endl;
+
+//     REQUIRE(g == Tensor<double>::zspider(2, 0));
+//     Tensor<double> h = Tensor<double>::cnz(2);
+//     std::cout << h.toMatrix({0, 2, 4}, {1, 3, 5}) << std::endl;
+//     Tensor<double> k = Tensor<double>::cnx(2);
+//     std::cout << k.toMatrix({0, 2, 4}, {1, 3, 5}) << std::endl;
+// }
