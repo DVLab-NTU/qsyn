@@ -23,5 +23,5 @@ CmdClass(ZXTensorCmd);
 CmdClass(ZXGPrintCmd);
 CmdClass(ZXGTestCmd);
 CmdClass(ZXGEditCmd);
-
+CmdClass(ZXGTraverseCmd);
 #endif // ZX_CMD_H
