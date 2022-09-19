@@ -1,7 +1,7 @@
 /****************************************************************************
-  FileName     [ zxMapping.cpp ]
+  FileName     [ zxTraverse.cpp ]
   PackageName  [ graph ]
-  Synopsis     [ Mapping function for ZX ]
+  Synopsis     [ Traversal functions for ZX ]
   Author       [ Chin-Yi Cheng ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
