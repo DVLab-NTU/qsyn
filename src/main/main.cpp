@@ -8,7 +8,6 @@
 
 #include "util.h"
 #include "cmdParser.h"
-
 using namespace std;
 
 //----------------------------------------------------------------------

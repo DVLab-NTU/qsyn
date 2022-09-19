@@ -13,10 +13,12 @@
 #include <iostream>
 #include <algorithm>
 #include <cassert>
+#include "zxGraphMgr.h"
 #include "qcir.h"
 
 using namespace std;
 QCir *qCir = 0;
+extern ZXGraphMgr *zxGraphMgr;
 extern size_t verbose;
 
 QCirGate *QCir::getGate(size_t id) const
@@ -147,11 +149,16 @@ void QCir::printZXTopoOrder()
 }
 void QCir::mapping()
 {
+    if(zxGraphMgr == 0){
+        cerr << "Error: ZXMODE is OFF, please turn on before mapping" << endl;
+        return;
+    }
+        
     updateTopoOrder();
-    _ZXG->clearPtrs();
+    // _ZXG->clearPtrs(); Cannot clear ptr since storing in zxGraphMgr
     _ZXG->reset();
-    delete _ZXG;
-    _ZXG = new ZXGraph(0);
+    // delete _ZXG; Cannot clear ptr since storing in zxGraphMgr
+    _ZXG = zxGraphMgr -> addZXGraph(zxGraphMgr->getNextID());
     _ZXNodeId = 0;
     size_t maxInput = 0;
     if(verbose >= 3) cout << "----------- ADD BOUNDARIES -----------" << endl;
@@ -187,7 +194,10 @@ void QCir::mapping()
     if(verbose >= 3)  cout << "--------------------------------------" << endl;
     if(verbose >= 3)  cout << "---------------------------------- GRAPH INFORMATION ---------------------------------" << endl;
     _ZXG -> printVertices();
-    if(verbose >= 3)  cout << "--------------------------------------------------------------------------------------" << endl;
+    if(verbose >= 3)  cout << "--------------------------------------------------------------------------------------" << endl; 
+    if(verbose >= 7) {
+        zxGraphMgr -> printZXGraphMgr();
+    }
 }
 bool QCir::removeQubit(size_t id)
 {
