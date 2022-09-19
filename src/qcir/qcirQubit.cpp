@@ -19,6 +19,7 @@
 using namespace std;
 
 extern QCirMgr *qCirMgr;
+extern size_t verbose;
 
 void QCirQubit::printBitLine() const
 {

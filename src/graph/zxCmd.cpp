@@ -17,6 +17,7 @@
 using namespace std;
 
 extern ZXGraphMgr *zxGraphMgr;
+extern size_t verbose;
 // ZXGraph* zxGraph = new ZXGraph(0);
 
 bool initZXCmd(){
@@ -467,13 +468,13 @@ ZXGEditCmd::exec(const string &option){
         for(size_t v = 1; v < options.size(); v++){
             int id;
             bool isNum = myStr2Int(options[v], id);
-            if(options[1] == "i" && options.size() == 2) zxGraphMgr->getGraph()->removeIsolatedVertices();
+            if(options[1] == "i" && options.size() == 2) zxGraphMgr->getGraph()->removeIsolatedVertices(verbose);
             else if(!isNum || id < 0){
                 cerr << "Error: qubit id invalid" << endl;
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[v]);
             }
             else{
-                if(zxGraphMgr->getGraph()->isId(id)) zxGraphMgr->getGraph()->removeVertexById(id);
+                if(zxGraphMgr->getGraph()->isId(id)) zxGraphMgr->getGraph()->removeVertexById(id, verbose);
                 else return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[v]);
             }
         }
@@ -489,7 +490,7 @@ ZXGEditCmd::exec(const string &option){
             cerr << "Error: id_s / id_t is invalid" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
         }
-        else zxGraphMgr->getGraph()->removeEdgeById(id_s, id_t);
+        else zxGraphMgr->getGraph()->removeEdgeById(id_s, id_t, verbose);
     }
     else if(myStrNCmp("-ADDVertex", action, 4) == 0){
         if(options.size() != 4 && options.size() != 5){
@@ -508,7 +509,7 @@ ZXGEditCmd::exec(const string &option){
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
         }
         else{
-            if(options.size() == 4) zxGraphMgr->getGraph()->addVertex(id, q, str2VertexType(options[3]));
+            if(options.size() == 4) zxGraphMgr->getGraph()->addVertex(id, q, str2VertexType(options[3]), verbose);
             else{
                 double phase;
                 bool isDouble = myStr2Double(options[4], phase);
@@ -516,7 +517,7 @@ ZXGEditCmd::exec(const string &option){
                     cerr << "Error: phase must be `double`." << endl;
                     return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
                 }
-                zxGraphMgr->getGraph()->addVertex(id, q, str2VertexType(options[3]), Phase(phase));
+                zxGraphMgr->getGraph()->addVertex(id, q, str2VertexType(options[3]), verbose, Phase(phase));
             }
         }
     }
@@ -531,7 +532,7 @@ ZXGEditCmd::exec(const string &option){
             cerr << "Error: vertex id / qubit invalid" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
         }
-        else zxGraphMgr->getGraph()->addInput(id, q);
+        else zxGraphMgr->getGraph()->addInput(id, q, verbose);
     }
     else if(myStrNCmp("-ADDOutput", action, 4) == 0){
         if(options.size() != 3){
@@ -545,7 +546,7 @@ ZXGEditCmd::exec(const string &option){
             cerr << "Error: vertex id / qubit invalid" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
         }
-        else zxGraphMgr->getGraph()->addOutput(id, q);
+        else zxGraphMgr->getGraph()->addOutput(id, q, verbose);
     }
     else if(myStrNCmp("-ADDEdge", action, 4) == 0){
         if(options.size() != 4){
@@ -563,7 +564,7 @@ ZXGEditCmd::exec(const string &option){
             cerr << "Error: EdgeType is invalid" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
         }
-        else zxGraphMgr->getGraph()->addEdgeById(id_s, id_t, str2EdgeType(options[3]));
+        else zxGraphMgr->getGraph()->addEdgeById(id_s, id_t, str2EdgeType(options[3]), verbose);
     }
     else return CmdExec::errorOption(CMD_OPT_ILLEGAL, action);
     return CMD_EXEC_DONE;

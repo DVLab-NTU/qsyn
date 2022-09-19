@@ -17,6 +17,7 @@
 
 using namespace std;
 QCirMgr *qCirMgr = 0;
+extern size_t verbose;
 
 QCirGate *QCirMgr::getGate(size_t id) const
 {
@@ -144,7 +145,7 @@ void QCirMgr::printZXTopoOrder()
     };
     topoTraverse(Lambda);
 }
-void QCirMgr::mapping(bool silent)
+void QCirMgr::mapping()
 {
     updateTopoOrder();
     _ZXG->clearPtrs();
@@ -153,31 +154,40 @@ void QCirMgr::mapping(bool silent)
     _ZXG = new ZXGraph(0);
     _ZXNodeId = 0;
     size_t maxInput = 0;
+    if(verbose >= 3) cout << "----------- ADD BOUNDARIES -----------" << endl;
     for(size_t i=0; i<_qubits.size(); i++){
         if (_qubits[i]->getId() > maxInput)
             maxInput = _qubits[i]->getId();
-        _ZXG -> setInputHash(_qubits[i]->getId(), _ZXG -> addInput( 2*(_qubits[i]->getId()), _qubits[i]->getId()));
-        _ZXG -> setOutputHash(_qubits[i]->getId(), _ZXG -> addOutput( 2*(_qubits[i]->getId()) + 1, _qubits[i]->getId()));
-        _ZXG -> addEdgeById( 2*(_qubits[i]->getId()), 2*(_qubits[i]->getId()) + 1, EdgeType::SIMPLE);
-        if (!silent) cout << "Add Qubit " << _qubits[i]->getId() << " inp: " << 2*(_qubits[i]->getId()) << " oup: " << 2*(_qubits[i]->getId())+1 << endl;
+        _ZXG -> setInputHash(_qubits[i]->getId(), _ZXG -> addInput( 2*(_qubits[i]->getId()), _qubits[i]->getId(), verbose));
+        _ZXG -> setOutputHash(_qubits[i]->getId(), _ZXG -> addOutput( 2*(_qubits[i]->getId()) + 1, _qubits[i]->getId(), verbose));
+        _ZXG -> addEdgeById( 2*(_qubits[i]->getId()), 2*(_qubits[i]->getId()) + 1, EdgeType::SIMPLE, verbose);
+        if(verbose >= 3)  cout << "Add Qubit " << _qubits[i]->getId() << " inp: " << 2*(_qubits[i]->getId()) << " oup: " << 2*(_qubits[i]->getId())+1 << endl;
     }
     _ZXNodeId = 2*(maxInput+ 1)-1;
-    if (!silent) cout << "ZXnode start from " << _ZXNodeId << endl << endl;
-    auto Lambda = [this, silent](QCirGate *G)
+    if(verbose >= 5) cout << "ZXnode starts from " << _ZXNodeId << endl;
+    if(verbose >= 3) cout << "--------------------------------------" << endl << endl;
+
+    auto Lambda = [this](QCirGate *G)
     {
-        if (!silent)  cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
+        if(verbose >= 3) cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph* tmp = G->getZXform(_ZXNodeId);
-        // this -> ZXConcatenate(tmp, silent);
         if(tmp == NULL){
             cerr << "Mapping of gate "<< G->getId()<< " (type: " << G->getTypeStr() << ") not implemented, the mapping result is wrong!!" <<endl;
             return;
         }
-        this -> _ZXG -> concatenate(tmp, false, silent);
-        if (!silent)  cout << "---------------------------------" << endl;
+        if(verbose >= 5) cout << "********** CONCATENATION **********" << endl;
+        this -> _ZXG -> concatenate(tmp, false);
+        if(verbose >= 5) cout << "***********************************" << endl;
+        if(verbose >= 3)  cout << "--------------------------------------" << endl;
     };
+
+    if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE GRAPH ----" << endl;
     topoTraverse(Lambda);
     _ZXG -> cleanRedundantEdges();
+    if(verbose >= 3)  cout << "--------------------------------------" << endl;
+    if(verbose >= 3)  cout << "---------------------------------- GRAPH INFORMATION ---------------------------------" << endl;
     _ZXG -> printVertices();
+    if(verbose >= 3)  cout << "--------------------------------------------------------------------------------------" << endl;
 }
 bool QCirMgr::removeQubit(size_t id)
 {
