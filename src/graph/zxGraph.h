@@ -2,7 +2,7 @@
   FileName     [ zxGraph.h ]
   PackageName  [ graph ]
   Synopsis     [ Define ZX-graph structures ]
-  Author       [ Cheng-Hua Lu ]
+  Author       [ Cheng-Hua Lu, Chin-Yi Cheng ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
