@@ -13,7 +13,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cassert>
-#include "qcirMgr.h"
+#include "qcir.h"
 #include "zxGraph.h"
 
 extern size_t verbose;

@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ qcirMgr.cpp ]
+  FileName     [ qcir.cpp ]
   PackageName  [ qcir ]
   Synopsis     [ Define qcir manager functions ]
   Author       [ Chin-Yi Cheng ]
@@ -13,13 +13,15 @@
 #include <iostream>
 #include <algorithm>
 #include <cassert>
-#include "qcirMgr.h"
+#include "zxGraphMgr.h"
+#include "qcir.h"
 
 using namespace std;
-QCirMgr *qCirMgr = 0;
+QCir *qCir = 0;
+extern ZXGraphMgr *zxGraphMgr;
 extern size_t verbose;
 
-QCirGate *QCirMgr::getGate(size_t id) const
+QCirGate *QCir::getGate(size_t id) const
 {
     for (size_t i = 0; i < _qgate.size(); i++)
     {
@@ -28,7 +30,7 @@ QCirGate *QCirMgr::getGate(size_t id) const
     }
     return NULL;
 }
-QCirQubit *QCirMgr::getQubit(size_t id) const
+QCirQubit *QCir::getQubit(size_t id) const
 {
     for (size_t i = 0; i < _qubits.size(); i++)
     {
@@ -37,7 +39,7 @@ QCirQubit *QCirMgr::getQubit(size_t id) const
     }
     return NULL;
 }
-void QCirMgr::printSummary()
+void QCir::printSummary()
 {
     if (_dirty)
         updateGateTime();
@@ -47,7 +49,7 @@ void QCirMgr::printSummary()
         _qgate[i]->printGate();
     }
 }
-void QCirMgr::printQubits()
+void QCir::printQubits()
 {
     if (_dirty)
         updateGateTime();
@@ -55,7 +57,7 @@ void QCirMgr::printQubits()
     for (size_t i = 0; i < _qubits.size(); i++)
         _qubits[i]->printBitLine();
 }
-bool QCirMgr::printGateInfo(size_t id, bool showTime)
+bool QCir::printGateInfo(size_t id, bool showTime)
 {
     if (getGate(id) != NULL)
     {
@@ -70,7 +72,7 @@ bool QCirMgr::printGateInfo(size_t id, bool showTime)
         return false;
     }
 }
-void QCirMgr::addQubit(size_t num)
+void QCir::addQubit(size_t num)
 {
     for (size_t i = 0; i < num; i++)
     {
@@ -79,7 +81,7 @@ void QCirMgr::addQubit(size_t num)
         _qubitId++;
     }
 }
-void QCirMgr::DFS(QCirGate *currentGate)
+void QCir::DFS(QCirGate *currentGate)
 {
     currentGate->setVisited(_globalDFScounter);
 
@@ -96,7 +98,7 @@ void QCirMgr::DFS(QCirGate *currentGate)
     }
     _topoOrder.push_back(currentGate);
 }
-void QCirMgr::updateTopoOrder()
+void QCir::updateTopoOrder()
 {
     _topoOrder.clear();
     _globalDFScounter++;
@@ -112,13 +114,13 @@ void QCirMgr::updateTopoOrder()
     assert(_topoOrder.size() == _qgate.size());
 }
 // An easy checker for lambda function
-bool QCirMgr::printTopoOrder()
+bool QCir::printTopoOrder()
 {
     auto testLambda = [](QCirGate *G){ cout << G->getId() << endl; };
     topoTraverse(testLambda);
     return true;
 }
-void QCirMgr::updateGateTime()
+void QCir::updateGateTime()
 {
     auto Lambda = [](QCirGate *currentGate)
     {
@@ -135,7 +137,7 @@ void QCirMgr::updateGateTime()
     };
     topoTraverse(Lambda);
 }
-void QCirMgr::printZXTopoOrder()
+void QCir::printZXTopoOrder()
 {
     auto Lambda = [this](QCirGate *G)
     {
@@ -145,13 +147,18 @@ void QCirMgr::printZXTopoOrder()
     };
     topoTraverse(Lambda);
 }
-void QCirMgr::mapping()
+void QCir::mapping()
 {
+    if(zxGraphMgr == 0){
+        cerr << "Error: ZXMODE is OFF, please turn on before mapping" << endl;
+        return;
+    }
+        
     updateTopoOrder();
-    _ZXG->clearPtrs();
+    // _ZXG->clearPtrs(); Cannot clear ptr since storing in zxGraphMgr
     _ZXG->reset();
-    delete _ZXG;
-    _ZXG = new ZXGraph(0);
+    // delete _ZXG; Cannot clear ptr since storing in zxGraphMgr
+    _ZXG = zxGraphMgr -> addZXGraph(zxGraphMgr->getNextID());
     _ZXNodeId = 0;
     size_t maxInput = 0;
     if(verbose >= 3) cout << "----------- ADD BOUNDARIES -----------" << endl;
@@ -187,9 +194,12 @@ void QCirMgr::mapping()
     if(verbose >= 3)  cout << "--------------------------------------" << endl;
     if(verbose >= 3)  cout << "---------------------------------- GRAPH INFORMATION ---------------------------------" << endl;
     _ZXG -> printVertices();
-    if(verbose >= 3)  cout << "--------------------------------------------------------------------------------------" << endl;
+    if(verbose >= 3)  cout << "--------------------------------------------------------------------------------------" << endl; 
+    if(verbose >= 7) {
+        zxGraphMgr -> printZXGraphMgr();
+    }
 }
-bool QCirMgr::removeQubit(size_t id)
+bool QCir::removeQubit(size_t id)
 {
     // Delete the ancilla only if whole line is empty
     QCirQubit *target = getQubit(id);
@@ -213,7 +223,7 @@ bool QCirMgr::removeQubit(size_t id)
     }
 }
 
-void QCirMgr::addGate(string type, vector<size_t> bits, Phase phase, bool append)
+void QCir::addGate(string type, vector<size_t> bits, Phase phase, bool append)
 {
     QCirGate *temp = NULL;
     for_each(type.begin(), type.end(), [](char &c)
@@ -304,7 +314,7 @@ void QCirMgr::addGate(string type, vector<size_t> bits, Phase phase, bool append
     _gateId++;
 }
 
-bool QCirMgr::removeGate(size_t id)
+bool QCir::removeGate(size_t id)
 {
     QCirGate *target = getGate(id);
     if (target == NULL)
@@ -334,7 +344,7 @@ bool QCirMgr::removeGate(size_t id)
     }
 }
 
-bool QCirMgr::parse(string filename)
+bool QCir::parse(string filename)
 {
     string lastname = filename.substr(filename.find_last_of('/')+1);
     //cerr << lastname << endl;
@@ -370,7 +380,7 @@ bool QCirMgr::parse(string filename)
     }
 }
 
-bool QCirMgr::parseQASM(string filename)
+bool QCir::parseQASM(string filename)
 {
     // read file and open
     fstream qasm_file;
@@ -450,7 +460,7 @@ bool QCirMgr::parseQASM(string filename)
     return true;
 }
 
-bool QCirMgr::parseQC(string filename)
+bool QCir::parseQC(string filename)
 {
     // read file and open
     fstream qc_file;
@@ -573,7 +583,7 @@ bool QCirMgr::parseQC(string filename)
     return true;
 }
 
-bool QCirMgr::parseQSIM(string filename){
+bool QCir::parseQSIM(string filename){
     // read file and open
     fstream qsim_file;
     qsim_file.open(filename.c_str(), ios::in);
@@ -652,7 +662,7 @@ bool QCirMgr::parseQSIM(string filename){
     // qccr benchmark/qsim/example.qsim
 }
 
-bool QCirMgr::parseQUIPPER(string filename){
+bool QCir::parseQUIPPER(string filename){
     // read file and open
     fstream quipper_file;
     quipper_file.open(filename.c_str(), ios::in);
