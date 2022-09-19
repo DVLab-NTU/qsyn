@@ -86,8 +86,8 @@ class ZXVertex{
 
         // Add and Remove
         void addNeighbor(NeighborPair neighbor)                             { _neighbors.push_back(neighbor); }
-        void removeNeighbor(NeighborPair neighbor, size_t verbose);
-        void removeNeighborById(size_t id, size_t verbose);
+        void removeNeighbor(NeighborPair neighbor);
+        void removeNeighborById(size_t id);
 
 
         // Print functions
@@ -96,9 +96,9 @@ class ZXVertex{
 
         
         // Action
-        void disconnect(ZXVertex* v, size_t verbose);
-        void disconnectById(size_t id, size_t verbose);
-        void connect(ZXVertex* v, EdgeType et, size_t verbose);
+        void disconnect(ZXVertex* v);
+        void disconnectById(size_t id);
+        void connect(ZXVertex* v, EdgeType et);
         void rearrange();
 
 
@@ -160,22 +160,22 @@ class ZXGraph{
 
 
         // Add and Remove
-        ZXVertex* addInput(size_t id, int qubit, size_t verbose);
-        ZXVertex* addOutput(size_t id, int qubit, size_t verbose);
-        ZXVertex* addVertex(size_t id, int qubit, VertexType ZXVertex, size_t verbose, Phase phase = Phase() );
-        EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et, size_t verbose);
-        void addEdgeById(size_t id_s, size_t id_t, EdgeType et, size_t verbose);
+        ZXVertex* addInput(size_t id, int qubit);
+        ZXVertex* addOutput(size_t id, int qubit);
+        ZXVertex* addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase() );
+        EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
+        void addEdgeById(size_t id_s, size_t id_t, EdgeType et);
         void addInputs(vector<ZXVertex*> inputs);
         void addOutputs(vector<ZXVertex*> outputs);
         void addVertices(vector<ZXVertex*> vertices);
         void addEdges(vector<EdgePair> edges);
 
-        void removeVertex(ZXVertex* v, size_t verbose);
-        void removeVertices(vector<ZXVertex* > vertices, size_t verbose);
-        void removeVertexById(size_t id, size_t verbose);
-        void removeIsolatedVertices(size_t verbose);
-        void removeEdge(ZXVertex* vs, ZXVertex* vt, size_t verbose);
-        void removeEdgeById(size_t id_s, size_t id_t, size_t verbose);
+        void removeVertex(ZXVertex* v);
+        void removeVertices(vector<ZXVertex* > vertices);
+        void removeVertexById(size_t id);
+        void removeIsolatedVertices();
+        void removeEdge(ZXVertex* vs, ZXVertex* vt);
+        void removeEdgeById(size_t id_s, size_t id_t);
 
                 
         // Find functions
