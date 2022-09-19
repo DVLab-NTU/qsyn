@@ -18,6 +18,6 @@ using namespace std;
 
 class QCirGate;
 class QCirQubit;
-class QCirMgr;
+class QCir;
 
 #endif // QCIR_DEF_H

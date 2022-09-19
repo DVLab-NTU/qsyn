@@ -12,6 +12,7 @@
 using namespace std;
 
 ZXGraphMgr* zxGraphMgr = 0;
+extern size_t verbose;
 
 /*****************************************/
 /*   class ZXGraphMgr member functions   */
@@ -36,13 +37,14 @@ bool ZXGraphMgr::isID(size_t id) const{
 
 // Add and Remove
 
-void ZXGraphMgr::addZXGraph(size_t id){
+ZXGraph* ZXGraphMgr::addZXGraph(size_t id){
   ZXGraph* zxGraph = new ZXGraph(id);
   _graphList.push_back(zxGraph);
   _gListItr = _graphList.end()-1;
   if(id == _nextID || _nextID < id) _nextID = id + 1;
   cout << "Successfully generate Graph " << id << endl;
   cout << "Checkout to Graph " << id << endl;
+  return zxGraph;
 }
 
 void ZXGraphMgr::removeZXGraph(size_t id){
@@ -154,7 +156,7 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph){
   }
 }
 
-void ZXGraphMgr::tensor(ZXGraph* zxGraph){
+void ZXGraphMgr::tensorProduct(ZXGraph* zxGraph){
   ZXGraph* oriGraph = getGraph();
   ZXGraph* copyGraph = zxGraph->copy();
 
@@ -171,8 +173,6 @@ void ZXGraphMgr::tensor(ZXGraph* zxGraph){
   oriGraph->addVertices(copyGraph->getVertices());
   oriGraph->addEdges(copyGraph->getEdges());
 
-  // Update _nqubit
-  oriGraph->setQubitCount(oriGraph->getNumInputs());
   delete copyGraph;
 }
 

@@ -17,6 +17,7 @@
 using namespace std;
 
 extern ZXGraphMgr *zxGraphMgr;
+extern size_t verbose;
 // ZXGraph* zxGraph = new ZXGraph(0);
 
 bool initZXCmd(){
@@ -333,7 +334,7 @@ ZXTensorCmd::exec(const string &option){
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
 
             }
-            else zxGraphMgr->tensor(zxGraphMgr->findZXGraphByID(id));
+            else zxGraphMgr->tensorProduct(zxGraphMgr->findZXGraphByID(id));
         }
     }
     return CMD_EXEC_DONE;

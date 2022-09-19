@@ -12,13 +12,14 @@
 #include <iomanip>
 #include <iostream>
 #include <algorithm>
-#include "qcirMgr.h"
+#include "qcir.h"
 #include "qcirGate.h"
 #include "qcirQubit.h"
 
 using namespace std;
 
-extern QCirMgr *qCirMgr;
+extern QCir *qCir;
+extern size_t verbose;
 
 void QCirQubit::printBitLine() const
 {

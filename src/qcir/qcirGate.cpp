@@ -11,12 +11,13 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
-#include "qcirMgr.h"
+#include "qcir.h"
 #include "qcirGate.h"
 
 using namespace std;
 
-extern QCirMgr *qCirMgr;
+extern QCir *qCir;
+extern size_t verbose;
 
 void QCirGate::setParent(size_t qubit, QCirGate *p)
 {
@@ -86,6 +87,11 @@ void HGate::printGateInfo(bool showTime) const
 }
 
 void CnRZGate::printGateInfo(bool showTime) const
+{
+  cout << "Not Implement Yet!!" << endl;
+}
+
+void CnRYGate::printGateInfo(bool showTime) const
 {
   cout << "Not Implement Yet!!" << endl;
 }
@@ -274,6 +280,11 @@ void CZGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+void CCZGate::printGateInfo(bool showTime) const
+{
+  cout << "Not Implement Yet!!" << endl;
+}
+
 void XGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
@@ -320,6 +331,32 @@ void SXGate::printGateInfo(bool showTime) const
   for (size_t i = 0; i < parentInfo.size() + qubitInfo.size() + 2; i++)
     cout << " ";
   cout << " └────┘ " << endl;
+  if (showTime)
+    cout << "Execute at t= " << getTime() << endl;
+}
+
+void RXGate::printGateInfo(bool showTime) const
+{
+  BitInfo Info = getQubits()[0];
+  string qubitInfo = "Q" + to_string(Info._qubit);
+  string parentInfo = "";
+  if (Info._parent == NULL)
+    parentInfo = "Start";
+  else
+    parentInfo = ("G" + to_string(Info._parent->getId()));
+  string childInfo = "";
+  if (Info._child == NULL)
+    childInfo = "End";
+  else
+    childInfo = ("G" + to_string(Info._child->getId()));
+  for (size_t i = 0; i < parentInfo.size() + qubitInfo.size() + 2; i++)
+    cout << " ";
+  cout << " ┌────┐ " << endl;
+  cout << qubitInfo << " " << parentInfo << " ─┤ RX ├─ " << childInfo << endl;
+  for (size_t i = 0; i < parentInfo.size() + qubitInfo.size() + 2; i++)
+    cout << " ";
+  cout << " └────┘ " << endl;
+  cout << "Rotate Phase: " << _rotatePhase << endl;
   if (showTime)
     cout << "Execute at t= " << getTime() << endl;
 }
@@ -378,4 +415,54 @@ void CXGate::printGateInfo(bool showTime) const
 void CCXGate::printGateInfo(bool showTime) const
 {
   cout << "Not Implement Yet!!" << endl;
+}
+
+void YGate::printGateInfo(bool showTime) const
+{
+  BitInfo Info = getQubits()[0];
+  string qubitInfo = "Q" + to_string(Info._qubit);
+  string parentInfo = "";
+  if (Info._parent == NULL)
+    parentInfo = "Start";
+  else
+    parentInfo = ("G" + to_string(Info._parent->getId()));
+  string childInfo = "";
+  if (Info._child == NULL)
+    childInfo = "End";
+  else
+    childInfo = ("G" + to_string(Info._child->getId()));
+  for (size_t i = 0; i < parentInfo.size() + qubitInfo.size() + 2; i++)
+    cout << " ";
+  cout << " ┌───┐ " << endl;
+  cout << qubitInfo << " " << parentInfo << " ─┤ Y ├─ " << childInfo << endl;
+  for (size_t i = 0; i < parentInfo.size() + qubitInfo.size() + 2; i++)
+    cout << " ";
+  cout << " └───┘ " << endl;
+  if (showTime)
+    cout << "Execute at t= " << getTime() << endl;
+}
+
+void SYGate::printGateInfo(bool showTime) const
+{
+  BitInfo Info = getQubits()[0];
+  string qubitInfo = "Q" + to_string(Info._qubit);
+  string parentInfo = "";
+  if (Info._parent == NULL)
+    parentInfo = "Start";
+  else
+    parentInfo = ("G" + to_string(Info._parent->getId()));
+  string childInfo = "";
+  if (Info._child == NULL)
+    childInfo = "End";
+  else
+    childInfo = ("G" + to_string(Info._child->getId()));
+  for (size_t i = 0; i < parentInfo.size() + qubitInfo.size() + 2; i++)
+    cout << " ";
+  cout << " ┌────┐ " << endl;
+  cout << qubitInfo << " " << parentInfo << " ─┤ SY ├─ " << childInfo << endl;
+  for (size_t i = 0; i < parentInfo.size() + qubitInfo.size() + 2; i++)
+    cout << " ";
+  cout << " └────┘ " << endl;
+  if (showTime)
+    cout << "Execute at t= " << getTime() << endl;
 }

@@ -49,14 +49,15 @@ class ZXGraphMgr{
         
 
         // Add and Remove
-        void addZXGraph(size_t id);
+        ZXGraph* addZXGraph(size_t id);
         void removeZXGraph(size_t id);
+
 
         // Action
         void checkout2ZXGraph(size_t id);
         void copy(size_t id);
         void compose(ZXGraph* zxGraph);
-        void tensor(ZXGraph* zxGraph);
+        void tensorProduct(ZXGraph* zxGraph);
         ZXGraph* findZXGraphByID(size_t id) const;
 
 
