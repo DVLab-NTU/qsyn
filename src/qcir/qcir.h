@@ -23,7 +23,7 @@
 
 extern QCir *qCir;
 using namespace std;
-// template<typename F>
+
 class QCir
 {
 public:
@@ -42,7 +42,7 @@ public:
   ~QCir() {}
 
   // Access functions
-  // return '0' if "gid" corresponds to an undefined gate.
+  // return 'NULL' if "id" corresponds to an undefined gate/Qubit.
   QCirGate *getGate(size_t gid) const;
   QCirQubit *getQubit(size_t qid) const;
   size_t getNQubit() const { return _qubits.size(); }
@@ -51,7 +51,6 @@ public:
   void addQubit(size_t num);
   bool removeQubit(size_t q);
   void addGate(string type, vector<size_t> bits, Phase phase, bool append);
-  void prependGate(string type, vector<size_t> bits){ cout << "Prepend Gate not support now."; }
   bool removeGate(size_t id);
   bool parse(string file);
   bool parseQASM(string qasm_file);
@@ -79,7 +78,7 @@ public:
 
   // Member functions about circuit reporting
   void printGates();
-  bool printGateInfo(size_t,bool);
+  bool printGateInfo(size_t, bool);
   void printSummary();
   void printQubits();
   
