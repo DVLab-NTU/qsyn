@@ -61,7 +61,7 @@ vector<NeighborPair > ZXVertex::getNeighborByPointer(ZXVertex* v) const{
 
 // Add and Remove
 
-void ZXVertex::removeNeighbor(NeighborPair neighbor, size_t verbose){
+void ZXVertex::removeNeighbor(NeighborPair neighbor){
     //! Only remove the first find neighbor pair
     auto findNeighbor = find(_neighbors.begin(), _neighbors.end(), neighbor);
     if(findNeighbor != _neighbors.end()){
@@ -71,7 +71,7 @@ void ZXVertex::removeNeighbor(NeighborPair neighbor, size_t verbose){
     else cerr << "Error: Vertex " << neighbor.first->getId() << " is not a neighbor of " << _id << endl;
 }
 
-void ZXVertex::removeNeighborById(size_t id, size_t verbose){
+void ZXVertex::removeNeighborById(size_t id){
     //! Remove all neighbor pair if key == id
     if(!isNeighborById(id)) cerr << "Error: Vertex " << id << " is not a neighbor of " << _id << endl;
     else{
@@ -107,7 +107,7 @@ void ZXVertex::printNeighbors() const{
 
 // Action
 
-void ZXVertex::disconnect(ZXVertex* v, size_t verbose){
+void ZXVertex::disconnect(ZXVertex* v){
     if(!isNeighbor(v)) cerr << "Error: Vertex " << v->getId() << " is not a neighbor of " << _id << endl;
     else{
         for(size_t i = 0; i < _neighbors.size();){
@@ -125,7 +125,7 @@ void ZXVertex::disconnect(ZXVertex* v, size_t verbose){
     }
 }
 
-void ZXVertex::disconnectById(size_t id, size_t verbose){
+void ZXVertex::disconnectById(size_t id){
     if(!isNeighborById(id)) cerr << "Error: Vertex " << id << " is not a neighbor of " << _id << endl;
     else{
         ZXVertex* v = nullptr;
@@ -146,7 +146,7 @@ void ZXVertex::disconnectById(size_t id, size_t verbose){
     }
 }
 
-void ZXVertex::connect(ZXVertex* v, EdgeType et, size_t verbose){
+void ZXVertex::connect(ZXVertex* v, EdgeType et){
     addNeighbor(make_pair(v, et));
     rearrange();
     v->addNeighbor(make_pair(this, et));
@@ -270,7 +270,7 @@ bool ZXGraph::isOutputQubit(int qubit) const{
 
 
 // Add and Remove
-ZXVertex* ZXGraph::addInput(size_t id, int qubit, size_t verbose){
+ZXVertex* ZXGraph::addInput(size_t id, int qubit){
     if(isId(id)){
         cerr << "Error: This vertex id is already existed!!" << endl;
         return nullptr;
@@ -289,7 +289,7 @@ ZXVertex* ZXGraph::addInput(size_t id, int qubit, size_t verbose){
     
 }
 
-ZXVertex* ZXGraph::addOutput(size_t id, int qubit, size_t verbose){
+ZXVertex* ZXGraph::addOutput(size_t id, int qubit){
     if(isId(id)){
         cerr << "Error: This vertex id is already existed!!" << endl;
         return nullptr;
@@ -307,7 +307,7 @@ ZXVertex* ZXGraph::addOutput(size_t id, int qubit, size_t verbose){
     }
 }
 
-ZXVertex* ZXGraph::addVertex(size_t id, int qubit, VertexType vt, size_t verbose, Phase phase){
+ZXVertex* ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase){
     if(isId(id)){
         cerr << "Error: This vertex id is already exist!!" << endl;
         return nullptr;
@@ -324,15 +324,15 @@ ZXVertex* ZXGraph::addVertex(size_t id, int qubit, VertexType vt, size_t verbose
     }
 }
 
-EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et, size_t verbose){
-    vs->connect(vt, et, verbose);
+EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et){
+    vs->connect(vt, et);
     EdgePair e = make_pair(make_pair(vs, vt), et);
     _edges.push_back(e);
     if(verbose >= 3) cout << "Add edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
     return e;
 }
 
-void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType et, size_t verbose){
+void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType et){
     if(!isId(id_s)) cerr << "Error: id_s provided is not exist!" << endl;
     else if(!isId(id_t)) cerr << "Error: id_t provided is not exist!" << endl;
     else{
@@ -359,13 +359,13 @@ void ZXGraph::addEdges(vector<EdgePair> edges){
      _edges.insert(_edges.end(), edges.begin(), edges.end());
 }
 
-void ZXGraph::removeVertex(ZXVertex* v, size_t verbose){
+void ZXGraph::removeVertex(ZXVertex* v){
     if(!isId(v->getId())) cerr << "This vertex is not existed!" << endl;
     else{
         if(verbose >= 3) cout << "Remove ID: " << v->getId() << endl;
         // Remove all neighbors' records
         for(size_t i = 0; i < v->getNeighbors().size(); i++){
-            v->getNeighbors()[i].first->removeNeighbor(make_pair(v, v->getNeighbors()[i].second), verbose);
+            v->getNeighbors()[i].first->removeNeighbor(make_pair(v, v->getNeighbors()[i].second));
         }
         // Check if also in _inputs or _outputs
         if(find(_inputs.begin(), _inputs.end(), v) != _inputs.end()) _inputs.erase(find(_inputs.begin(), _inputs.end(), v));
@@ -385,27 +385,27 @@ void ZXGraph::removeVertex(ZXVertex* v, size_t verbose){
     }
 }
 
-void ZXGraph::removeVertices(vector<ZXVertex* > vertices, size_t verbose){
+void ZXGraph::removeVertices(vector<ZXVertex* > vertices){
     for(size_t i = 0; i < vertices.size(); i++){
-        removeVertex(vertices[i], verbose);
+        removeVertex(vertices[i]);
     }
 }
 
-void ZXGraph::removeVertexById(size_t id, size_t verbose){
-    if(findVertexById(id) != nullptr) removeVertex(findVertexById(id), verbose);
+void ZXGraph::removeVertexById(size_t id){
+    if(findVertexById(id) != nullptr) removeVertex(findVertexById(id));
     else cerr << "Error: This vertex id is not existed!!" << endl;
 }
 
-void ZXGraph::removeIsolatedVertices(size_t verbose){
+void ZXGraph::removeIsolatedVertices(){
     for(size_t i = 0; i < _vertices.size(); ){
         if(_vertices[i]->getNeighbors().empty()){
-            removeVertex(_vertices[i], verbose);
+            removeVertex(_vertices[i]);
         }
         else i++;
     }
 }
 
-void ZXGraph::removeEdge(ZXVertex* vs, ZXVertex* vt, size_t verbose){
+void ZXGraph::removeEdge(ZXVertex* vs, ZXVertex* vt){
     if(!vs->isNeighbor(vt) || !vt->isNeighbor(vs)) cerr << "Error: Vertex "<< vs->getId() << " and " << vt->getId() << " are not connected!" << endl;
     else{
         for(size_t i = 0; i < _edges.size();){
@@ -414,18 +414,18 @@ void ZXGraph::removeEdge(ZXVertex* vs, ZXVertex* vt, size_t verbose){
             } 
             else i++;
         }
-        vs->disconnect(vt, verbose);
+        vs->disconnect(vt);
     }
     if(verbose >= 5) cout << "Remove edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
 }
 
-void ZXGraph::removeEdgeById(size_t id_s, size_t id_t, size_t verbose){
+void ZXGraph::removeEdgeById(size_t id_s, size_t id_t){
     if(!isId(id_s)) cerr << "Error: id_s provided is not existed!" << endl;
     else if(!isId(id_t)) cerr << "Error: id_t provided is not existed!" << endl;
     // else if(!isConnected(findVertexById(id_s), findVertexById(id_t))) cerr << "Error: id_s and id_t are not connected!" << endl;
     else{
         ZXVertex* vs = findVertexById(id_s); ZXVertex* vt = findVertexById(id_t);
-        removeEdge(vs, vt, verbose);
+        removeEdge(vs, vt);
         // vs->removeNeighborById(id_t); vt->removeNeighborById(id_s);
         // for(size_t i = 0; i < _edges.size();){
         //     if((_edges[i].first.first == vs && _edges[i].first.second == vt) || (_edges[i].first.first == vt && _edges[i].first.second == vs)){

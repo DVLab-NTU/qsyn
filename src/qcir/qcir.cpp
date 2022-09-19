@@ -165,9 +165,9 @@ void QCir::mapping()
     for(size_t i=0; i<_qubits.size(); i++){
         if (_qubits[i]->getId() > maxInput)
             maxInput = _qubits[i]->getId();
-        _ZXG -> setInputHash(_qubits[i]->getId(), _ZXG -> addInput( 2*(_qubits[i]->getId()), _qubits[i]->getId(), verbose));
-        _ZXG -> setOutputHash(_qubits[i]->getId(), _ZXG -> addOutput( 2*(_qubits[i]->getId()) + 1, _qubits[i]->getId(), verbose));
-        _ZXG -> addEdgeById( 2*(_qubits[i]->getId()), 2*(_qubits[i]->getId()) + 1, EdgeType::SIMPLE, verbose);
+        _ZXG -> setInputHash(_qubits[i]->getId(), _ZXG -> addInput( 2*(_qubits[i]->getId()), _qubits[i]->getId()));
+        _ZXG -> setOutputHash(_qubits[i]->getId(), _ZXG -> addOutput( 2*(_qubits[i]->getId()) + 1, _qubits[i]->getId()));
+        _ZXG -> addEdgeById( 2*(_qubits[i]->getId()), 2*(_qubits[i]->getId()) + 1, EdgeType::SIMPLE);
         if(verbose >= 3)  cout << "Add Qubit " << _qubits[i]->getId() << " inp: " << 2*(_qubits[i]->getId()) << " oup: " << 2*(_qubits[i]->getId())+1 << endl;
     }
     _ZXNodeId = 2*(maxInput+ 1)-1;

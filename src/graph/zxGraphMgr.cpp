@@ -137,16 +137,16 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph){
           EdgeType newType;
           if((vsType == EdgeType::SIMPLE && vtType == EdgeType::SIMPLE) || (vsType == EdgeType::HADAMARD && vtType == EdgeType::HADAMARD)) newType = EdgeType::SIMPLE;
           else newType = EdgeType::HADAMARD;
-          oriGraph->addEdge(vs, vt, newType, verbose);
-          vs->disconnect(curOut, verbose);
-          vt->disconnect(cpIn, verbose);
+          oriGraph->addEdge(vs, vt, newType);
+          vs->disconnect(curOut);
+          vt->disconnect(cpIn);
         }
       }
     }
 
     // Remove outputs of oriGraph and inputs of copyGraph
-    oriGraph->removeVertices(oriGraph->getOutputs(), verbose);
-    copyGraph->removeVertices(copyGraph->getInputs(), verbose);
+    oriGraph->removeVertices(oriGraph->getOutputs());
+    copyGraph->removeVertices(copyGraph->getInputs());
 
     // Update data in oriGraph
     oriGraph->setOutputs(copyGraph->getOutputs());
