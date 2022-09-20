@@ -1,3 +1,7 @@
+zxTraverse.o: zxTraverse.cpp zxGraph.h ../../include/phase.h \
+ ../../include/rationalNumber.h ../../include/myConcepts.h \
+ ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
+ zxDef.h ../../include/myHashMap.h ../../include/util.h
 zxCmd.o: zxCmd.cpp zxCmd.h ../../include/cmdParser.h \
  ../../include/cmdCharDef.h zxGraph.h ../../include/phase.h \
  ../../include/rationalNumber.h ../../include/myConcepts.h \
