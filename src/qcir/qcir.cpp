@@ -595,7 +595,7 @@ bool QCir::parseQSIM(string filename){
 
     string n_qubitStr;
     string time, type;
-    size_t qubit_control , qubit_target;
+    size_t qubit_control, qubit_target;
     string phaseStr;
     vector<string> single_list{"x", "y", "z", "h", "t", "x_1_2", "y_1_2", "rx", "rz", "s"};
     vector<string> double_list{"cx", "cz"};

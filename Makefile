@@ -56,7 +56,6 @@ libs:
 	done
 
 main: libs
-	@echo $(OSFLAG)
 	@echo "Checking $(MAIN)..."
 	@cd src/$(MAIN); \
 		$(MAKE) -f make.$(MAIN) --no-print-directory INCLIB="$(LIBS)" EXEC=$(EXEC) OSFLAG="$(OSFLAG)";

@@ -1,0 +1,21 @@
+Listed by gate ID
+Gate 134: s Exec Time: 0 Qubit: 129
+Gate 182: td Exec Time: 0 Qubit: 181
+Gate 218: x Exec Time: 0 Qubit: 76
+Gate 219: rz Exec Time: 0 Qubit: 192
+Gate 222: x Exec Time: 0 Qubit: 114
+Gate 223: x Exec Time: 0 Qubit: 205
+Gate 225: t Exec Time: 0 Qubit: 138
+Gate 232: s Exec Time: 1 Qubit: 129
+Gate 234: cx Exec Time: 1 Qubit: 191 114
+Gate 236: t Exec Time: 1 Qubit: 138
+Gate 239: s Exec Time: 2 Qubit: 129
+Gate 240: cx Exec Time: 3 Qubit: 129 138
+Gate 241: h Exec Time: 2 Qubit: 114
+Gate 242: s Exec Time: 1 Qubit: 192
+Gate 245: s Exec Time: 0 Qubit: 231
+Gate 248: x Exec Time: 0 Qubit: 113
+Gate 249: h Exec Time: 0 Qubit: 232
+Gate 250: t Exec Time: 0 Qubit: 230
+Gate 251: rz Exec Time: 2 Qubit: 191
+Gate 252: rz Exec Time: 1 Qubit: 76

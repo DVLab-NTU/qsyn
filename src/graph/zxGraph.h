@@ -2,7 +2,7 @@
   FileName     [ zxGraph.h ]
   PackageName  [ graph ]
   Synopsis     [ Define ZX-graph structures ]
-  Author       [ Cheng-Hua Lu ]
+  Author       [ Cheng-Hua Lu, Chin-Yi Cheng ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
@@ -63,6 +63,7 @@ class ZXVertex{
             _qubit = qubit;
             _type = vt;
             _phase = phase;
+            _DFSCounter = 0;
         }
         ZXVertex(const ZXVertex& zxVertex);
         ~ZXVertex(){}
@@ -106,13 +107,17 @@ class ZXVertex{
         bool isNeighbor(ZXVertex* v) const;
         bool isNeighborById(size_t id) const;
         
-        
+        // DFS
+        bool isVisited(unsigned global) { return global == _DFSCounter; }
+        void setVisited(unsigned global) { _DFSCounter = global; }
+
     private:
         int                                  _qubit;
         size_t                               _id;
         VertexType                           _type;
         Phase                                _phase;
         vector<NeighborPair >                _neighbors;
+        unsigned _DFSCounter;
 };
 
 
@@ -125,6 +130,8 @@ class ZXGraph{
             _edges.clear();
             _inputList.clear();
             _outputList.clear();
+            _topoOrder.clear();
+            _globalDFScounter = 1;
         }
         // Copy Constructor
         ZXGraph(const ZXGraph &zxGraph);
@@ -199,7 +206,9 @@ class ZXGraph{
         void printVertices() const;
         void printEdges() const;
         
-        
+        //Traverse
+        void updateTopoOrder();
+
         // For mapping
         void concatenate(ZXGraph* tmp, bool remove_imm = false);
         void setInputHash(size_t q, ZXVertex* v) { _inputList[q] = v; }
@@ -220,6 +229,9 @@ class ZXGraph{
         vector<EdgePair >                 _edges;
         unordered_map<size_t, ZXVertex*>  _inputList;
         unordered_map<size_t, ZXVertex*>  _outputList;
+        vector<ZXVertex*>                 _topoOrder;
+        unsigned                          _globalDFScounter;
+        void DFS(ZXVertex*);
 };
 
 #endif
