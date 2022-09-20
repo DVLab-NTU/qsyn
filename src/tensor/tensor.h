@@ -80,7 +80,7 @@ public:
     static Tensor<T> rx(const Phase& phase = Phase(0));
     static Tensor<T> cnz(const size_t& n);
     static Tensor<T> cnx(const size_t& n);
-    static Tensor<T> ctrln(const size_t& n, const Tensor<T>& t);
+    // static Tensor<T> ctrln(const size_t& n, const Tensor<T>& t);
 
     Tensor<T> adjoint(Tensor<T> t);
 

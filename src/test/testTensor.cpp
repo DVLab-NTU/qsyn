@@ -10,16 +10,12 @@
 #include <sstream>
 #include <string>
 #include <vector>
-// #include <xtensor/xarray.hpp>
-// #include <xtensor/xio.hpp>
-// #include <xtensor-blas/xlinalg.hpp>
 #include <complex>
 #include <cmath>
 #include "tensor.h"
 #include "util.h"
 
 #include "catch2/catch.hpp"
-// #include "tensor.h"
 using namespace std::literals::complex_literals;
 
 TEST_CASE("Z-Spider initiation", "[Tensor]") {
@@ -121,7 +117,7 @@ TEST_CASE("Default Parameters for Tensor generators", "[Tensor]") {
 //     auto g = Tensor<double>::selfTensordot(f, {1}, {3});
 //     std::cout << g - Tensor<double>::zspider(2, 0) << std::endl;
 
-//     REQUIRE(g == Tensor<double>::zspider(2, 0));
+//     REQUIRE(g == Tensor<double>::zs.pider(2, 0));
 //     Tensor<double> h = Tensor<double>::cnz(2);
 //     std::cout << h.toMatrix({0, 2, 4}, {1, 3, 5}) << std::endl;
 //     Tensor<double> k = Tensor<double>::cnx(2);
