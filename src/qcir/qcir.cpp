@@ -158,7 +158,7 @@ void QCir::mapping()
     // _ZXG->clearPtrs(); Cannot clear ptr since storing in zxGraphMgr
     _ZXG->reset();
     // delete _ZXG; Cannot clear ptr since storing in zxGraphMgr
-    _ZXG = zxGraphMgr -> addZXGraph(zxGraphMgr->getNextID());
+    _ZXG = zxGraphMgr -> addZXGraph(zxGraphMgr->getNextID(), (void**)_ZXG);
     _ZXNodeId = 0;
     size_t maxInput = 0;
     if(verbose >= 3) cout << "----------- ADD BOUNDARIES -----------" << endl;
