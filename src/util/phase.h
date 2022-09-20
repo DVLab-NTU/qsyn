@@ -70,9 +70,12 @@ public:
     bool operator!=(const Phase& rhs) const;
     // Operator <, <=, >, >= are are not supported deliberately as they don't make physical sense (Phases are mod 2pi)
 
-    float toFloat();
-    double toDouble();
-    long double toLongDouble();
+    template <class T> requires std::floating_point<T>
+    T toFloatType() const {return std::numbers::pi_v<T> * _rational.toFloatType<T>(); }
+
+    float toFloat() { return toFloatType<float>(); }
+    double toDouble() { return toFloatType<double>(); }
+    long double toLongDouble() { return toFloatType<long double>(); }
 
     Rational getRational() {
         return _rational;
