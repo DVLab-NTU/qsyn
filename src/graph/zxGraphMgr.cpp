@@ -37,24 +37,31 @@ bool ZXGraphMgr::isID(size_t id) const{
 
 // Add and Remove
 
-ZXGraph* ZXGraphMgr::addZXGraph(size_t id){
-  ZXGraph* zxGraph = new ZXGraph(id);
+ZXGraph* ZXGraphMgr::addZXGraph(size_t id, void** ref){
+  ZXGraph* zxGraph = new ZXGraph(id, ref);
   _graphList.push_back(zxGraph);
   _gListItr = _graphList.end()-1;
   if(id == _nextID || _nextID < id) _nextID = id + 1;
-  cout << "Successfully generate Graph " << id << endl;
-  cout << "Checkout to Graph " << id << endl;
+  if(verbose >= 3){
+    cout << "Successfully generate Graph " << id << endl;
+    cout << "Checkout to Graph " << id << endl;
+  }
   return zxGraph;
 }
 
 void ZXGraphMgr::removeZXGraph(size_t id){
   for(size_t i = 0; i < _graphList.size(); i++){
     if(_graphList[i]->getId() == id){
+      ZXGraph* rmGraph = _graphList[i];
+      rmGraph->setRef(NULL);
       _graphList.erase(_graphList.begin() + i);
-      cout << "Successfully remove Graph " << id << endl;
+      delete rmGraph;
+      if(verbose >= 5) cout << "Successfully remove Graph " << id << endl;
       _gListItr = _graphList.begin();
-      if(!_graphList.empty()) cout << "Checkout to Graph " << _graphList[0]->getId() << endl;
-      else cout << "Warning: The graph list is empty now" << endl;
+      if(verbose >= 3){
+        if(!_graphList.empty()) cout << "Checkout to Graph " << _graphList[0]->getId() << endl;
+        else cout << "Warning: The graph list is empty now" << endl;
+      }
       return;
     }
   }
@@ -69,7 +76,7 @@ void ZXGraphMgr::checkout2ZXGraph(size_t id){
   for(size_t i = 0; i < _graphList.size(); i++){
     if(_graphList[i]->getId() == id){
       _gListItr = _graphList.begin() + i;
-      cout << "Checkout to Graph " << id << endl;
+      if(verbose >= 3) cout << "Checkout to Graph " << id << endl;
       return;
     }
   }
@@ -90,7 +97,7 @@ void ZXGraphMgr::copy(size_t id){
         cout << "Overwrite existed Graph " << id << endl;
         _graphList.erase(_graphList.begin()+i);
         _graphList.insert(_graphList.begin()+i, copyTarget);
-        cout << "Successfully copy Graph " << getGraph()->getId() << " to Graph "<< id << endl;
+        if(verbose >= 3) cout << "Successfully copy Graph " << getGraph()->getId() << " to Graph "<< id << endl;
         checkout2ZXGraph(id);
         existed = true;
         break;
@@ -102,8 +109,10 @@ void ZXGraphMgr::copy(size_t id){
       _graphList.push_back(copyTarget);
       _gListItr = _graphList.end()-1;
       if(id == _nextID || _nextID < id) _nextID = id + 1;
-      cout << "Successfully copy Graph " << oriGraphID << " to Graph "<< id << endl;
-      cout << "Checkout to Graph " << id << endl;
+      if(verbose >= 3){
+        cout << "Successfully copy Graph " << oriGraphID << " to Graph "<< id << endl;
+        cout << "Checkout to Graph " << id << endl;
+      }
     }
   }
 }
