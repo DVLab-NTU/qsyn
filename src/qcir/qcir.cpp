@@ -210,7 +210,6 @@ void QCir::mapping()
     if(verbose >= 7) {
         zxGraphMgr -> printZXGraphMgr();
     }
-    _cleanGraph = false;
     _ZXGraphList.push_back(_ZXG);
 }
 bool QCir::removeQubit(size_t id)

@@ -33,7 +33,6 @@ public:
     _qubitId = 0;
     _ZXNodeId = 0;
     _globalDFScounter = 1;
-    _cleanGraph = true;
     _dirty = true;
     _qgate.clear();
     _qubits.clear();
@@ -88,7 +87,6 @@ public:
 private:
   void DFS(QCirGate*);
   bool _dirty;
-  bool _cleanGraph;
   unsigned _globalDFScounter;
   size_t _gateId;
   size_t _ZXNodeId;
