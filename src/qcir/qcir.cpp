@@ -79,6 +79,7 @@ void QCir::addQubit(size_t num)
         QCirQubit *temp = new QCirQubit(_qubitId);
         _qubits.push_back(temp);
         _qubitId++;
+        clearMapping(); 
     }
 }
 void QCir::DFS(QCirGate *currentGate)
@@ -147,18 +148,29 @@ void QCir::printZXTopoOrder()
     };
     topoTraverse(Lambda);
 }
+void QCir::clearMapping()
+{
+    for(size_t i=0; i<_ZXGraphList.size(); i++){
+        cerr << "Note: Graph "<< _ZXGraphList[i]->getId() << " is deleted due to modification(s) !!" << endl;
+        _ZXGraphList[i] -> reset();
+        zxGraphMgr -> removeZXGraph(_ZXGraphList[i] -> getId());
+    }
+    _ZXGraphList.clear();
+}
 void QCir::mapping()
 {
     if(zxGraphMgr == 0){
         cerr << "Error: ZXMODE is OFF, please turn on before mapping" << endl;
         return;
     }
-        
     updateTopoOrder();
     // _ZXG->clearPtrs(); Cannot clear ptr since storing in zxGraphMgr
-    _ZXG->reset();
+    // _ZXG->reset();
     // delete _ZXG; Cannot clear ptr since storing in zxGraphMgr
-    _ZXG = zxGraphMgr -> addZXGraph(zxGraphMgr->getNextID(), (void**)_ZXG);
+    ZXGraph* _ZXG = zxGraphMgr -> addZXGraph(zxGraphMgr->getNextID());
+    _ZXG -> setRef((void**)_ZXG);
+    
+    
     _ZXNodeId = 0;
     size_t maxInput = 0;
     if(verbose >= 3) cout << "----------- ADD BOUNDARIES -----------" << endl;
@@ -174,7 +186,7 @@ void QCir::mapping()
     if(verbose >= 5) cout << "ZXnode starts from " << _ZXNodeId << endl;
     if(verbose >= 3) cout << "--------------------------------------" << endl << endl;
 
-    auto Lambda = [this](QCirGate *G)
+    auto Lambda = [this, _ZXG](QCirGate *G)
     {
         if(verbose >= 3) cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph* tmp = G->getZXform(_ZXNodeId);
@@ -183,7 +195,7 @@ void QCir::mapping()
             return;
         }
         if(verbose >= 5) cout << "********** CONCATENATION **********" << endl;
-        this -> _ZXG -> concatenate(tmp, false);
+        _ZXG -> concatenate(tmp, false);
         if(verbose >= 5) cout << "***********************************" << endl;
         if(verbose >= 3)  cout << "--------------------------------------" << endl;
     };
@@ -198,6 +210,7 @@ void QCir::mapping()
     if(verbose >= 7) {
         zxGraphMgr -> printZXGraphMgr();
     }
+    _ZXGraphList.push_back(_ZXG);
 }
 bool QCir::removeQubit(size_t id)
 {
@@ -218,6 +231,7 @@ bool QCir::removeQubit(size_t id)
         else
         {
             _qubits.erase(remove(_qubits.begin(), _qubits.end(), target), _qubits.end());
+            clearMapping();   
             return true;
         }
     }
@@ -312,6 +326,7 @@ void QCir::addGate(string type, vector<size_t> bits, Phase phase, bool append)
     }
     _qgate.push_back(temp);
     _gateId++;
+    clearMapping(); 
 }
 
 bool QCir::removeGate(size_t id)
@@ -340,6 +355,7 @@ bool QCir::removeGate(size_t id)
         }
         _qgate.erase(remove(_qgate.begin(), _qgate.end(), target), _qgate.end());
         _dirty = true;
+        clearMapping(); 
         return true;
     }
 }

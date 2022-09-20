@@ -37,7 +37,7 @@ public:
     _qgate.clear();
     _qubits.clear();
     _topoOrder.clear();
-    _ZXG = new ZXGraph(0);
+    _ZXGraphList.clear();
   }
   ~QCir() {}
 
@@ -58,7 +58,9 @@ public:
   bool parseQSIM(string qsim_file);
   bool parseQUIPPER(string quipper_file);
   void incrementZXId() { _ZXNodeId++; }
+  
   void mapping();
+  void clearMapping();
   void updateGateTime();
   void printZXTopoOrder();
 
@@ -92,7 +94,7 @@ private:
   vector<QCirGate *> _qgate;
   vector<QCirQubit*> _qubits;
   vector<QCirGate *> _topoOrder;
-  ZXGraph* _ZXG;
+  vector<ZXGraph *>  _ZXGraphList;
 };
 
 #endif // QCIR_MGR_H
