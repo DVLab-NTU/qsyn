@@ -43,6 +43,7 @@ extern char myGetChar();
 // In util.cpp
 extern int listDir(vector<std::string>&, const std::string&, const std::string&);
 extern size_t getHashSize(size_t s);
+extern size_t intPow(size_t base, size_t n);
 
 // Other utility template functions
 template<class T>

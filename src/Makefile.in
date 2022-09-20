@@ -30,7 +30,7 @@ top: $(EXTLINK) target
 	@$(ECHO) -n
 
 clean:
-	@rm -f $(COBJS) .depend.mak .extheader.mak
+	@rm -f $(COBJS)
 
 ## Make dependencies
 depend: .depend.mak

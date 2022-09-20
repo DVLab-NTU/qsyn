@@ -76,3 +76,13 @@ size_t getHashSize(size_t s) {
    return 7000003;
 }
 
+size_t intPow(size_t base, size_t n) {
+    if (n == 0) return 1;
+    if (n == 1) return base;
+    size_t tmp = intPow(base, n / 2);
+    if (n % 2 == 0)
+        return tmp * tmp;
+    else
+        return base * tmp * tmp; 
+}
+
