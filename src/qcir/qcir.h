@@ -33,11 +33,12 @@ public:
     _qubitId = 0;
     _ZXNodeId = 0;
     _globalDFScounter = 1;
+    _cleanGraph = true;
     _dirty = true;
     _qgate.clear();
     _qubits.clear();
     _topoOrder.clear();
-    _ZXG = new ZXGraph(0);
+    _ZXGraphList.clear();
   }
   ~QCir() {}
 
@@ -58,7 +59,9 @@ public:
   bool parseQSIM(string qsim_file);
   bool parseQUIPPER(string quipper_file);
   void incrementZXId() { _ZXNodeId++; }
+  
   void mapping();
+  void clearMapping();
   void updateGateTime();
   void printZXTopoOrder();
 
@@ -85,6 +88,7 @@ public:
 private:
   void DFS(QCirGate*);
   bool _dirty;
+  bool _cleanGraph;
   unsigned _globalDFScounter;
   size_t _gateId;
   size_t _ZXNodeId;
@@ -92,7 +96,7 @@ private:
   vector<QCirGate *> _qgate;
   vector<QCirQubit*> _qubits;
   vector<QCirGate *> _topoOrder;
-  ZXGraph* _ZXG;
+  vector<ZXGraph *>  _ZXGraphList;
 };
 
 #endif // QCIR_MGR_H
