@@ -456,8 +456,8 @@ size_t ZXGraph::findNextId() const{
 
 // Action
 void ZXGraph::reset(){
-    for(size_t i = 0; i < _vertices.size(); i++) delete _vertices[i];
-    for(size_t i = 0; i < _topoOrder.size(); i++) delete _topoOrder[i];
+    // for(size_t i = 0; i < _vertices.size(); i++) delete _vertices[i];
+    // for(size_t i = 0; i < _topoOrder.size(); i++) delete _topoOrder[i];
     _inputs.clear();
     _outputs.clear();
     _vertices.clear();
