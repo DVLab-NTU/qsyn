@@ -49,7 +49,7 @@ class ZXGraphMgr{
         
 
         // Add and Remove
-        ZXGraph* addZXGraph(size_t id);
+        ZXGraph* addZXGraph(size_t id, void** ref);
         void removeZXGraph(size_t id);
 
 
