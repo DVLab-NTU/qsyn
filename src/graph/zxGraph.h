@@ -65,7 +65,6 @@ class ZXVertex{
             _phase = phase;
             _DFSCounter = 0;
         }
-        ZXVertex(const ZXVertex& zxVertex);
         ~ZXVertex(){}
 
         // Getter and Setter
@@ -133,9 +132,11 @@ class ZXGraph{
             _topoOrder.clear();
             _globalDFScounter = 1;
         }
-        // Copy Constructor
-        ZXGraph(const ZXGraph &zxGraph);
-        ~ZXGraph() {}
+        
+        ~ZXGraph() {
+            for(size_t i = 0; i < _vertices.size(); i++) delete _vertices[i];
+            for(size_t i = 0; i < _topoOrder.size(); i++) delete _topoOrder[i];
+        }
 
 
         // Getter and Setter
@@ -219,8 +220,8 @@ class ZXGraph{
         ZXVertex* getOutputFromHash(size_t q);
         vector<ZXVertex*> getNonBoundary();
         void cleanRedundantEdges();
-        void clearPtrs() { for(size_t i = 0; i < _vertices.size(); i++) delete _vertices[i]; }
 
+        
     private:
         size_t                            _id;
         vector<ZXVertex*>                 _inputs;
