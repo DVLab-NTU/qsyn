@@ -5,22 +5,25 @@
   Author       [ Mu-Te (Joshua) Lau ]
   Copyright    [ 2022 8 ]
 ****************************************************************************/
+#include <cmath>
+#include <complex>
 #include <exception>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <complex>
-#include <cmath>
-#include "qtensor.h"
-#include "util.h"
 #include <xtensor/xarray.hpp>
 
+#include "qtensor.h"
+#include "util.h"
+
+// --- Always put catch2/catch.hpp after all other header files ---
 #include "catch2/catch.hpp"
+// ----------------------------------------------------------------
 using namespace std::literals::complex_literals;
 
 TEST_CASE("x", "[Tensor]") {
-    QTensor<double> t1 = {{1.+0.i, 0.+0.i}, {0.+0.i, 1.+0.i}};
+    QTensor<double> t1 = {{1. + 0.i, 0. + 0.i}, {0. + 0.i, 1. + 0.i}};
     REQUIRE(t1 == QTensor<double>::zspider(2, 0));
 }
 TEST_CASE("Z-Spider initiation", "[Tensor]") {
@@ -40,11 +43,9 @@ TEST_CASE("Z-Spider initiation", "[Tensor]") {
             }
             if (i == 0) {
                 REQUIRE(tensor[id] == all0 * std::pow(2, 0.25 * (n - 2)));
-            }
-            else if (i == (intPow(2, n) - 1)) {
+            } else if (i == (intPow(2, n) - 1)) {
                 REQUIRE(tensor[id] == all1 * std::pow(2, 0.25 * (n - 2)));
-            }
-            else {
+            } else {
                 REQUIRE(tensor[id] == 0.0);
             }
         }
@@ -68,8 +69,7 @@ TEST_CASE("X-Spider initiation", "[Tensor]") {
             }
             if (std::accumulate(id.begin(), id.end(), 0) % 2 == 0) {
                 REQUIRE(tensor[id] == even * std::pow(2, 0.25 * (n - 2)));
-            }
-            else {
+            } else {
                 REQUIRE(tensor[id] == odd * std::pow(2, 0.25 * (n - 2)));
             }
         }
@@ -78,9 +78,9 @@ TEST_CASE("X-Spider initiation", "[Tensor]") {
 
 TEST_CASE("H-Box initiation from phase", "[Tensor]") {
     auto n = GENERATE(0, 1, 4, 9);
-    auto m = GENERATE(std::exp(1.0i*Phase(0).toDouble()), 
-                      std::exp(1.0i*Phase(1,4).toDouble()), 
-                      std::exp(1.0i*Phase(0.00000001).toDouble()), 
+    auto m = GENERATE(std::exp(1.0i * Phase(0).toDouble()),
+                      std::exp(1.0i * Phase(1, 4).toDouble()),
+                      std::exp(1.0i * Phase(0.00000001).toDouble()),
                       2.0, -1., 0.00000001 + 0.000000001i);
     QTensor<double> tensor = QTensor<double>::hbox(n, m);
 
@@ -95,8 +95,7 @@ TEST_CASE("H-Box initiation from phase", "[Tensor]") {
             }
             if (i == (intPow(2, n) - 1)) {
                 REQUIRE(tensor[id] == all1 * std::pow(2, -0.25 * n));
-            }
-            else {
+            } else {
                 REQUIRE(tensor[id] == std::pow(2, -0.25 * n));
             }
         }
