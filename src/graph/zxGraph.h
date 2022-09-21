@@ -49,6 +49,8 @@ enum class EdgeType{
     ERRORTYPE       // Never use this
 };
 
+EdgeType toggleEdge(EdgeType et);
+
 EdgeType str2EdgeType(string str);
 
 template<typename T> ostream& operator<<(typename enable_if<is_enum<T>::value, ostream>::type& stream, const T& e){

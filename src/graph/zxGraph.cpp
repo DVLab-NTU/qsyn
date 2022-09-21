@@ -17,6 +17,12 @@
 using namespace std;
 extern size_t verbose;
 
+EdgeType toggleEdge(EdgeType et){
+    if(et == EdgeType::SIMPLE) return EdgeType::HADAMARD;
+    else if(et == EdgeType::HADAMARD) return EdgeType::SIMPLE;
+    else return EdgeType::ERRORTYPE;
+}
+
 VertexType str2VertexType(string str){
     if(str == "BOUNDARY") return VertexType::BOUNDARY;
     else if (str == "Z") return VertexType::Z;
