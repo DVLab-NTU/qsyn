@@ -20,10 +20,9 @@
 using namespace std::literals::complex_literals;
 
 TEST_CASE("x", "[Tensor]") {
-    QTensor<double> t1 = {{1.+0.i, 1.+0.i}, {1.+0.i, -1.+0.i}};
-    std::cout << t1 << std::endl;
+    QTensor<double> t1 = {{1.+0.i, 0.+0.i}, {0.+0.i, 1.+0.i}};
+    REQUIRE(t1 == QTensor<double>::zspider(2, 0));
 }
-
 TEST_CASE("Z-Spider initiation", "[Tensor]") {
     auto n = GENERATE(0, 1, 4, 9);
     auto m = GENERATE(Phase(0), Phase(1), Phase(1, 4), Phase(0.00000001));
@@ -111,21 +110,21 @@ TEST_CASE("Default Parameters for Tensor generators", "[Tensor]") {
     REQUIRE(QTensor<double>::hbox(n) == QTensor<double>::hbox(n, -1.));
 }
 
-TEST_CASE("Tensordot", "[Tensor]") {
-    QTensor<double> a = QTensor<double>::zspider(3, 0);
-    QTensor<double> b = QTensor<double>::xspider(3, 0);
+// TEST_CASE("Tensordot", "[Tensor]") {
+//     QTensor<double> a = QTensor<double>::zspider(3, 0);
+//     QTensor<double> b = QTensor<double>::xspider(3, 0);
 
-    auto c = tensordot(a, b, {2}, {0});
-    auto d = c.toMatrix({0, 2}, {1, 3});
-    // std::cout << d << std::endl;
+//     auto c = tensordot(a, b, {2}, {0});
+//     auto d = c.toMatrix({0, 2}, {1, 3});
+//     // std::cout << d << std::endl;
 
-    QTensor<double> f = QTensor<double>::zspider(4, 0);
-    auto g = f.selfTensordot({1}, {3});
-    std::cout << g - QTensor<double>::zspider(2, 0) << std::endl;
+//     QTensor<double> f = QTensor<double>::zspider(4, 0);
+//     auto g = f.selfTensordot({1}, {3});
+//     std::cout << g - QTensor<double>::zspider(2, 0) << std::endl;
 
-    // REQUIRE(g == QTensor<double>::zspider(2, 0));
-    QTensor<double> h = QTensor<double>::cnz(2);
-    std::cout << h.toMatrix({0, 2, 4}, {1, 3, 5}) << std::endl;
-    QTensor<double> k = QTensor<double>::cnx(2);
-    std::cout << k.toMatrix({0, 2, 4}, {1, 3, 5}) << std::endl;
-}
+//     // REQUIRE(g == QTensor<double>::zspider(2, 0));
+//     QTensor<double> h = QTensor<double>::cnz(2);
+//     std::cout << h.toMatrix({0, 2, 4}, {1, 3, 5}) << std::endl;
+//     QTensor<double> k = QTensor<double>::cnx(2);
+//     std::cout << k.toMatrix({0, 2, 4}, {1, 3, 5}) << std::endl;
+// }
