@@ -16,12 +16,6 @@ ECHO      = /bin/echo
 CFLAGS = -O3 -Wall -std=c++20 -DTA_KB_SETTING $(PKGFLAG)
 CFLAGS = -g -Wall -std=c++20 -DTA_KB_SETTING $(PKGFLAG)
 
-ifneq (,$(findstring -DOSX, $(OSFLAG)))
-    CFLAGS += -llapack -lcblas -lblas -DHAVE_CBLAS=1
-else
-    CFLAGS += -llapack -lcblas -lblas -lgfortran -DHAVE_CBLAS=1
-endif
-
 .PHONY: depend extheader
 
 %.o : %.cpp
