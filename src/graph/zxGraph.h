@@ -2,7 +2,7 @@
   FileName     [ zxGraph.h ]
   PackageName  [ graph ]
   Synopsis     [ Define ZX-graph structures ]
-  Author       [ Cheng-Hua Lu ]
+  Author       [ Cheng-Hua Lu, Chin-Yi Cheng ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
@@ -63,8 +63,8 @@ class ZXVertex{
             _qubit = qubit;
             _type = vt;
             _phase = phase;
+            _DFSCounter = 0;
         }
-        ZXVertex(const ZXVertex& zxVertex);
         ~ZXVertex(){}
 
         // Getter and Setter
@@ -106,39 +106,49 @@ class ZXVertex{
         bool isNeighbor(ZXVertex* v) const;
         bool isNeighborById(size_t id) const;
         
-        
+        // DFS
+        bool isVisited(unsigned global) { return global == _DFSCounter; }
+        void setVisited(unsigned global) { _DFSCounter = global; }
+
     private:
         int                                  _qubit;
         size_t                               _id;
         VertexType                           _type;
         Phase                                _phase;
         vector<NeighborPair >                _neighbors;
+        unsigned _DFSCounter;
 };
 
 
 class ZXGraph{
     public:
-        ZXGraph(size_t id) : _id(id){
+        ZXGraph(size_t id, void** ref = NULL) : _id(id), _ref(ref){
             _inputs.clear();
             _outputs.clear();
             _vertices.clear();
             _edges.clear();
             _inputList.clear();
             _outputList.clear();
+            _topoOrder.clear();
+            _globalDFScounter = 1;
         }
-        // Copy Constructor
-        ZXGraph(const ZXGraph &zxGraph);
-        ~ZXGraph() {}
+        
+        ~ZXGraph() {
+            // for(size_t i = 0; i < _vertices.size(); i++) delete _vertices[i];
+            // for(size_t i = 0; i < _topoOrder.size(); i++) delete _topoOrder[i];
+        }
 
 
         // Getter and Setter
         void setId(size_t id)                           { _id = id; }
+        void setRef(void** ref)                         { _ref = ref; }
         void setInputs(vector<ZXVertex*> inputs)        { _inputs = inputs; }
         void setOutputs(vector<ZXVertex*> outputs)      { _outputs = outputs; }
         void setVertices(vector<ZXVertex*> vertices)    { _vertices = vertices; }
         void setEdges(vector<EdgePair > edges)          { _edges = edges; }
         
         size_t getId() const                            { return _id; }
+        void** getRef() const                           { return _ref; }
         vector<ZXVertex*> getInputs() const             { return _inputs; }
         size_t getNumInputs() const                     { return _inputs.size(); }
         vector<ZXVertex*> getOutputs() const            { return _outputs; }
@@ -199,7 +209,9 @@ class ZXGraph{
         void printVertices() const;
         void printEdges() const;
         
-        
+        //Traverse
+        void updateTopoOrder();
+
         // For mapping
         void concatenate(ZXGraph* tmp, bool remove_imm = false);
         void setInputHash(size_t q, ZXVertex* v) { _inputList[q] = v; }
@@ -210,16 +222,21 @@ class ZXGraph{
         ZXVertex* getOutputFromHash(size_t q);
         vector<ZXVertex*> getNonBoundary();
         void cleanRedundantEdges();
-        void clearPtrs() { for(size_t i = 0; i < _vertices.size(); i++) delete _vertices[i]; }
 
+        
     private:
         size_t                            _id;
+        void**                            _ref;
         vector<ZXVertex*>                 _inputs;
         vector<ZXVertex*>                 _outputs;
         vector<ZXVertex*>                 _vertices;
         vector<EdgePair >                 _edges;
         unordered_map<size_t, ZXVertex*>  _inputList;
         unordered_map<size_t, ZXVertex*>  _outputList;
+        vector<ZXVertex*>                 _topoOrder;
+        unsigned                          _globalDFScounter;
+        void DFS(ZXVertex*);
+
 };
 
 #endif

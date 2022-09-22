@@ -1,0 +1,5 @@
+./test_case/qsyn_out\0_qsyn.out is correct
+./test_case/qsyn_out\1_qsyn.out is correct
+./test_case/qsyn_out\2_qsyn.out is correct
+./test_case/qsyn_out\3_qsyn.out is correct
+./test_case/qsyn_out\4_qsyn.out is correct

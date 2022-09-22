@@ -31,7 +31,8 @@ bool initZXCmd(){
          cmdMgr->regCmd("ZXPrint", 3, new ZXPrintCmd) && 
          cmdMgr->regCmd("ZXGPrint", 4, new ZXGPrintCmd) && 
          cmdMgr->regCmd("ZXGTest", 4, new ZXGTestCmd) && 
-         cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd)
+         cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd) && 
+         cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd)
          )){
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
         return false;
@@ -583,3 +584,21 @@ void ZXGEditCmd::help() const{
     cout << setw(15) << left << "ZXGEdit: " << "edit ZX-graph" << endl;
 }
 
+//----------------------------------------------------------------------
+//    ZXGTRaverse
+//----------------------------------------------------------------------
+CmdExecStatus
+ZXGTraverseCmd::exec(const string &option){
+    string token;
+    if(!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
+    zxGraphMgr->getGraph()->updateTopoOrder();
+    return CMD_EXEC_DONE;
+}
+
+void ZXGTraverseCmd::usage(ostream &os) const{
+    os << "Usage: ZXGTRaverse" << endl;
+}
+
+void ZXGTraverseCmd::help() const{
+    cout << setw(15) << left << "ZXGTRaverse: " << "Traverse ZXGraph and update topological order" << endl; 
+}
