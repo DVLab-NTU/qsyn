@@ -5,27 +5,31 @@
   Author       [ Mu-Te (Joshua) Lau ]
   Copyright    [ 2022 8 ]
 ****************************************************************************/
+#include <cmath>
+#include <complex>
 #include <exception>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
-// #include <xtensor/xarray.hpp>
-// #include <xtensor/xio.hpp>
-// #include <xtensor-blas/xlinalg.hpp>
-#include <complex>
-#include <cmath>
-#include "tensor.h"
+#include <xtensor/xarray.hpp>
+
+#include "qtensor.h"
 #include "util.h"
 
+// --- Always put catch2/catch.hpp after all other header files ---
 #include "catch2/catch.hpp"
-// #include "tensor.h"
+// ----------------------------------------------------------------
 using namespace std::literals::complex_literals;
 
+TEST_CASE("x", "[Tensor]") {
+    QTensor<double> t1 = {{1. + 0.i, 0. + 0.i}, {0. + 0.i, 1. + 0.i}};
+    REQUIRE(t1 == QTensor<double>::zspider(2, 0));
+}
 TEST_CASE("Z-Spider initiation", "[Tensor]") {
     auto n = GENERATE(0, 1, 4, 9);
     auto m = GENERATE(Phase(0), Phase(1), Phase(1, 4), Phase(0.00000001));
-    Tensor<double> tensor = Tensor<double>::zspider(n, m);
+    QTensor<double> tensor = QTensor<double>::zspider(n, m);
 
     std::complex<double> all0 = 1.;
     std::complex<double> all1 = std::exp(1.0i * m.toDouble());
@@ -39,11 +43,9 @@ TEST_CASE("Z-Spider initiation", "[Tensor]") {
             }
             if (i == 0) {
                 REQUIRE(tensor[id] == all0 * std::pow(2, 0.25 * (n - 2)));
-            }
-            else if (i == (intPow(2, n) - 1)) {
+            } else if (i == (intPow(2, n) - 1)) {
                 REQUIRE(tensor[id] == all1 * std::pow(2, 0.25 * (n - 2)));
-            }
-            else {
+            } else {
                 REQUIRE(tensor[id] == 0.0);
             }
         }
@@ -53,7 +55,7 @@ TEST_CASE("Z-Spider initiation", "[Tensor]") {
 TEST_CASE("X-Spider initiation", "[Tensor]") {
     auto n = GENERATE(0, 1, 4, 9);
     auto m = GENERATE(Phase(0), Phase(1), Phase(1, 4), Phase(0.00000001));
-    Tensor<double> tensor = Tensor<double>::xspider(n, m);
+    QTensor<double> tensor = QTensor<double>::xspider(n, m);
     std::complex<double> expm = std::exp(1.0i * m.toDouble());
     std::complex<double> even = (1. + expm) / std::pow(std::sqrt(2), n);
     std::complex<double> odd = (1. - expm) / std::pow(std::sqrt(2), n);
@@ -67,8 +69,7 @@ TEST_CASE("X-Spider initiation", "[Tensor]") {
             }
             if (std::accumulate(id.begin(), id.end(), 0) % 2 == 0) {
                 REQUIRE(tensor[id] == even * std::pow(2, 0.25 * (n - 2)));
-            }
-            else {
+            } else {
                 REQUIRE(tensor[id] == odd * std::pow(2, 0.25 * (n - 2)));
             }
         }
@@ -77,11 +78,11 @@ TEST_CASE("X-Spider initiation", "[Tensor]") {
 
 TEST_CASE("H-Box initiation from phase", "[Tensor]") {
     auto n = GENERATE(0, 1, 4, 9);
-    auto m = GENERATE(std::exp(1.0i*Phase(0).toDouble()), 
-                      std::exp(1.0i*Phase(1,4).toDouble()), 
-                      std::exp(1.0i*Phase(0.00000001).toDouble()), 
+    auto m = GENERATE(std::exp(1.0i * Phase(0).toDouble()),
+                      std::exp(1.0i * Phase(1, 4).toDouble()),
+                      std::exp(1.0i * Phase(0.00000001).toDouble()),
                       2.0, -1., 0.00000001 + 0.000000001i);
-    Tensor<double> tensor = Tensor<double>::hbox(n, m);
+    QTensor<double> tensor = QTensor<double>::hbox(n, m);
 
     std::complex<double> all1 = m;
     if (n == 0) {
@@ -94,8 +95,7 @@ TEST_CASE("H-Box initiation from phase", "[Tensor]") {
             }
             if (i == (intPow(2, n) - 1)) {
                 REQUIRE(tensor[id] == all1 * std::pow(2, -0.25 * n));
-            }
-            else {
+            } else {
                 REQUIRE(tensor[id] == std::pow(2, -0.25 * n));
             }
         }
@@ -104,26 +104,25 @@ TEST_CASE("H-Box initiation from phase", "[Tensor]") {
 
 TEST_CASE("Default Parameters for Tensor generators", "[Tensor]") {
     auto n = GENERATE(0, 1, 4, 9);
-    REQUIRE(Tensor<double>::zspider(n) == Tensor<double>::zspider(n, 0));
-    REQUIRE(Tensor<double>::xspider(n) == Tensor<double>::xspider(n, 0));
-    REQUIRE(Tensor<double>::hbox(n) == Tensor<double>::hbox(n, -1.));
+    REQUIRE(QTensor<double>::zspider(n) == QTensor<double>::zspider(n, 0));
+    REQUIRE(QTensor<double>::xspider(n) == QTensor<double>::xspider(n, 0));
+    REQUIRE(QTensor<double>::hbox(n) == QTensor<double>::hbox(n, -1.));
 }
 
-// TEST_CASE("Tensordot", "[Tensor]") {
-//     Tensor<double> a = Tensor<double>::zspider(3, 0);
-//     Tensor<double> b = Tensor<double>::xspider(3, 0);
+TEST_CASE("Tensordot", "[Tensor]") {
+    // QTensor<double> a = QTensor<double>::zspider(3, 0);
+    // QTensor<double> b = QTensor<double>::xspider(3, 0);
 
-//     auto c = Tensor<double>::tensordot(a, b, {2}, {0});
-//     auto d = c.toMatrix({0, 2}, {1, 3});
-//     // std::cout << d << std::endl;
+    // auto c = tensordot(a, b, {2}, {0});
+    // auto d = c.toMatrix({0, 2}, {1, 3});
+    // // std::cout << d << std::endl;
 
-//     Tensor<double> f = Tensor<double>::zspider(4, 0);
-//     auto g = Tensor<double>::selfTensordot(f, {1}, {3});
-//     std::cout << g - Tensor<double>::zspider(2, 0) << std::endl;
+    // QTensor<double> f = QTensor<double>::zspider(4, 0);
+    // auto g = f.selfTensordot({1}, {3});
+    // std::cout << g - QTensor<double>::zspider(2, 0) << std::endl;
 
-//     REQUIRE(g == Tensor<double>::zspider(2, 0));
-//     Tensor<double> h = Tensor<double>::cnz(2);
-//     std::cout << h.toMatrix({0, 2, 4}, {1, 3, 5}) << std::endl;
-//     Tensor<double> k = Tensor<double>::cnx(2);
-//     std::cout << k.toMatrix({0, 2, 4}, {1, 3, 5}) << std::endl;
-// }
+    // REQUIRE(g == QTensor<double>::zspider(2, 0));
+    QTensor<double> k = QTensor<double>::cny(2);
+    std::cout << k.toMatrix({0, 2, 4}, {1, 3, 5}) << std::endl;
+
+}

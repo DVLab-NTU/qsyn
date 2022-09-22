@@ -12,9 +12,9 @@
 #include <string>
 #include <sstream>
 #include <exception>
-
+// --- Always put catch2/catch.hpp after all other header files ---
 #include "catch2/catch.hpp"
-
+// ----------------------------------------------------------------
 Phase p1, p2(9), p3(3, 2), p4(5, 2), p5(-2, 3);
 
 TEST_CASE("Phases are initiated correctly", "[Phase]") {
