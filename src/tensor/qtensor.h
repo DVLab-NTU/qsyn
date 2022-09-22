@@ -40,10 +40,12 @@ public:
     static QTensor<T> zspider(const size_t& n, const Phase& phase = Phase(0));
     static QTensor<T> xspider(const size_t& n, const Phase& phase = Phase(0));
     static QTensor<T> hbox(const size_t& n, const DataType& a = -1.);
-    static QTensor<T> rz(const Phase& phase = Phase(0));
     static QTensor<T> rx(const Phase& phase = Phase(0));
-    static QTensor<T> cnz(const size_t& n);
+    static QTensor<T> ry(const Phase& phase = Phase(0));
+    static QTensor<T> rz(const Phase& phase = Phase(0));
     static QTensor<T> cnx(const size_t& n);
+    static QTensor<T> cny(const size_t& n);
+    static QTensor<T> cnz(const size_t& n);
 
     QTensor<T> selfTensordot(const TensorAxisList& ax1 = {}, const TensorAxisList& ax2 = {});
 
@@ -107,6 +109,23 @@ QTensor<T> QTensor<T>::hbox(const size_t& n, const QTensor<T>::DataType& a) {
     return t; 
 }
 
+// Generate an tensor that corresponds to a Rx gate.
+// Axis order: <in, out>
+template<typename T>
+QTensor<T> QTensor<T>::rx(const Phase& phase) {
+    return QTensor<T>::xspider(2, phase);
+}
+
+// Generate an tensor that corresponds to a Ry gate.
+// Axis order: <in, out>
+template<typename T>
+QTensor<T> QTensor<T>::ry(const Phase& phase) {
+    auto sdg = QTensor<T>::rz(Phase(-1, 2));
+    auto rx = QTensor<T>::rx(phase);
+    auto s = QTensor<T>::rz(Phase(1, 2));
+    return tensordot(s, tensordot(rx, sdg, {1}, {0}), {1}, {0});
+}
+
 // Generate an tensor that corresponds to a Rz gate.
 // Axis order: <in, out>
 template<typename T>
@@ -114,28 +133,7 @@ QTensor<T> QTensor<T>::rz(const Phase& phase) {
     return QTensor<T>::zspider(2, phase);
 }
 
-// Generate an tensor that corresponds to a Rx gate.
-// Axis order: <in, out>
-template<typename T>
-QTensor<T> QTensor<T>::rx(const Phase& phase) {
-    return QTensor<T>::xspider(2, phase);
-}
-// Generate an tensor that corresponds to a n-controlled Rz gate.
-// Axis order: [c1-in, c1-out, ..., cn-in, cn-out], <t-in, t-out>
-template<typename T>
-QTensor<T> QTensor<T>::cnz(const size_t& n) {
-    if (n == 0) {
-        return QTensor<T>::rz(Phase(1));
-    } else {
-        QTensor<T> t = QTensor<T>::hbox(n + 1);
-        for (size_t i = 0; i <= n; ++i) {
-            t = tensordot(t, QTensor<T>::zspider(3), {0}, {0});
-        }
-        return t;
-    }
-}
-
-// Generate an tensor that corresponds to a n-controlled Rx gate.
+// Generate an tensor that corresponds to a n-controlled X gate.
 // Axis order: [c1-in, c1-out, ..., cn-in, cn-out], <t-in, t-out>
 template<typename T>
 QTensor<T> QTensor<T>::cnx(const size_t& n) {
@@ -151,6 +149,40 @@ QTensor<T> QTensor<T>::cnx(const size_t& n) {
         return t;
     }
 }
+
+// Generate an tensor that corresponds to a n-controlled Y gate.
+// Axis order: [c1-in, c1-out, ..., cn-in, cn-out], <t-in, t-out>
+template<typename T>
+QTensor<T> QTensor<T>::cny(const size_t& n) {
+    auto sdg = QTensor<T>::rz(Phase(-1, 2));
+    auto cnx = QTensor<T>::cnx(n);
+    auto s = QTensor<T>::rz(Phase(1, 2));
+    auto t = tensordot(s, tensordot(cnx, sdg, {2*n+1}, {0}), {1}, {2*n});
+    TensorAxisList ax;
+    for (size_t i = 0; i < n; ++i) {
+        ax.push_back(2 * i + 2);
+        ax.push_back(2 * i + 1);
+    }
+    ax.push_back(0);
+    ax.push_back(2 * n + 1);
+    return t.transpose(ax);
+}
+
+// Generate an tensor that corresponds to a n-controlled Z gate.
+// Axis order: [c1-in, c1-out, ..., cn-in, cn-out], <t-in, t-out>
+template<typename T>
+QTensor<T> QTensor<T>::cnz(const size_t& n) {
+    if (n == 0) {
+        return QTensor<T>::rz(Phase(1));
+    } else {
+        QTensor<T> t = QTensor<T>::hbox(n + 1);
+        for (size_t i = 0; i <= n; ++i) {
+            t = tensordot(t, QTensor<T>::zspider(3), {0}, {0});
+        }
+        return t;
+    }
+}
+
 
 //------------------------------
 // tensor manipulation functions
