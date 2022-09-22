@@ -20,6 +20,7 @@
 #include "qcirDef.h"
 #include "phase.h"
 #include "zxGraph.h"
+#include "qtensor.h"
 
 extern QCir *qCir;
 using namespace std;
@@ -59,7 +60,8 @@ public:
   bool parseQUIPPER(string quipper_file);
   void incrementZXId() { _ZXNodeId++; }
   
-  void mapping();
+  void ZXMapping();
+  void tensorMapping();
   void clearMapping();
   void updateGateTime();
   void printZXTopoOrder();
@@ -95,6 +97,7 @@ private:
   vector<QCirQubit*> _qubits;
   vector<QCirGate *> _topoOrder;
   vector<ZXGraph *>  _ZXGraphList;
+  // QTensor<double>    _tensor;
 };
 
 #endif // QCIR_MGR_H

@@ -551,7 +551,7 @@ QCirZXMappingCmd::exec(const string &option)
       cerr << "Error: quantum circuit is not yet constructed!!" << endl;
       return CMD_EXEC_ERROR;
    }
-   qCir -> mapping();
+   qCir -> ZXMapping();
    return CMD_EXEC_DONE;
 }
 

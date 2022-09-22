@@ -157,7 +157,7 @@ void QCir::clearMapping()
     }
     _ZXGraphList.clear();
 }
-void QCir::mapping()
+void QCir::ZXMapping()
 {
     if(zxGraphMgr == 0){
         cerr << "Error: ZXMODE is OFF, please turn on before mapping" << endl;
@@ -211,6 +211,34 @@ void QCir::mapping()
         zxGraphMgr -> printZXGraphMgr();
     }
     _ZXGraphList.push_back(_ZXG);
+}
+void QCir::tensorMapping()
+{
+    updateTopoOrder();
+    if(verbose >= 3) cout << "----------- ADD BOUNDARIES -----------" << endl;
+    QTensor<double> ts = QTensor<double>::identity(1);
+    for(size_t i=0; i<_qubits.size(); i++){
+        // Setup qubit by calling tensor product
+        // Todo:
+
+        if(verbose >= 3)  cout << "Add Qubit " << _qubits[i]->getId() << " inp: " << 2*(_qubits[i]->getId()) << " oup: " << 2*(_qubits[i]->getId())+1 << endl;
+    }
+    auto Lambda = [this](QCirGate *G)
+    {
+        if(verbose >= 3) cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
+        QTensor<double> tmp = G->getTSform();
+        // if(tmp == NULL){
+        //     cerr << "Mapping of gate "<< G->getId()<< " (type: " << G->getTypeStr() << ") not implemented, the mapping result is wrong!!" <<endl;
+        //     return;
+        // }
+        if(verbose >= 5) cout << "********** CONCATENATION **********" << endl;
+        // tmp -> concatenate(tmp, false);
+        // Tensor product here
+        if(verbose >= 5) cout << "***********************************" << endl;
+        if(verbose >= 3)  cout << "--------------------------------------" << endl;
+    };
+    if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE GRAPH ----" << endl;
+    topoTraverse(Lambda);
 }
 bool QCir::removeQubit(size_t id)
 {
