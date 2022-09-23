@@ -217,7 +217,7 @@ void QCir::tensorMapping()
 {
     updateTopoOrder();
     if(verbose >= 3) cout << "----------- ADD BOUNDARIES -----------" << endl;
-    QTensor<double> ts = QTensor<double>::identity(1);
+    _tensor = (1.+0.i);
     _tensor = tensordot(_tensor, QTensor<double>::identity(_qubits.size()));
     _qubit2pin.clear();
     for(size_t i=0; i<_qubits.size(); i++){
@@ -225,7 +225,6 @@ void QCir::tensorMapping()
         if(verbose >= 3)  cout << "Add Qubit " << _qubits[i]->getId() << " output port: " << 2*i+1 << endl;
     }
     
-    // tesnordot(ori,new,{},{})
     auto Lambda = [this](QCirGate *G)
     {
         if(verbose >= 3) cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
