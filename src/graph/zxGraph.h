@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 #include "phase.h"
+#include "qtensor.h"
 #include "zxDef.h"
 using namespace std;
 
@@ -64,6 +65,7 @@ class ZXVertex{
             _type = vt;
             _phase = phase;
             _DFSCounter = 0;
+            _pin = 0;
         }
         ~ZXVertex(){}
 
@@ -72,15 +74,17 @@ class ZXVertex{
         int getQubit() const                                                { return _qubit; }
         VertexType getType() const                                          { return _type; }
         Phase getPhase() const                                              { return _phase; }
+        size_t getPin() const                                               { return _pin; }
         vector<NeighborPair > getNeighbors() const                          { return _neighbors; }
         vector<NeighborPair > getNeighborById(size_t id) const;
         vector<NeighborPair > getNeighborByPointer(ZXVertex* v) const;
-        
+        QTensor<double>       getTSform() const;
 
         void setId(size_t id)                                               { _id = id; }
-        void setQubit(int q)                                                {_qubit = q; }
+        void setQubit(int q)                                                { _qubit = q; }
         void setType(VertexType ZXVertex)                                   { _type = ZXVertex; }
         void setPhase(Phase p)                                              { _phase = p; }
+        void setPin(size_t p)                                               { _pin = p; }
         void setNeighbors(vector<NeighborPair > neighbors)                  { _neighbors = neighbors; }
 
 
@@ -116,7 +120,8 @@ class ZXVertex{
         VertexType                           _type;
         Phase                                _phase;
         vector<NeighborPair >                _neighbors;
-        unsigned _DFSCounter;
+        unsigned                             _DFSCounter;
+        size_t                               _pin;
 };
 
 

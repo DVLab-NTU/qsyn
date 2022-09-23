@@ -24,6 +24,19 @@ extern size_t verbose;
 //     _inputList.clear(); _outputList.clear();
 // }
 
+QTensor<double>  ZXVertex::getTSform() const {
+    QTensor<double> tensor = (1.+0.i);
+    if(_type == VertexType::H_BOX)
+        tensor = QTensor<double>::hbox(_neighbors.size());
+    else if(_type == VertexType::Z)
+        tensor = QTensor<double>::zspider(_neighbors.size(), _phase);
+    else if(_type == VertexType::X)
+        tensor = QTensor<double>::xspider(_neighbors.size(), _phase);
+    else 
+        cerr << "Vertex " << _id << " type ERROR" << endl;
+    return tensor;
+}
+
 vector<ZXVertex*> ZXGraph::getNonBoundary() { 
     vector<ZXVertex*> tmp; tmp.clear(); 
     for(size_t i=0; i<_vertices.size(); i++){
