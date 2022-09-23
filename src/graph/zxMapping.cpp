@@ -24,8 +24,10 @@ extern size_t verbose;
 //     _inputList.clear(); _outputList.clear();
 // }
 
-QTensor<double>  ZXVertex::getTSform() const {
+QTensor<double> ZXVertex::getTSform() const {
     QTensor<double> tensor = (1.+0.i);
+    if(_type == VertexType::BOUNDARY)
+        tensor = QTensor<double>::identity(_neighbors.size());
     if(_type == VertexType::H_BOX)
         tensor = QTensor<double>::hbox(_neighbors.size());
     else if(_type == VertexType::Z)
@@ -112,3 +114,24 @@ void ZXGraph::cleanRedundantEdges(){
     _edges = tmp;
 }
 
+void ZXGraph::tensorMapping(){
+    updateTopoOrder();
+    if(verbose >= 3) cout << "----------- ADD BOUNDARIES -----------" << endl;
+    _tensor = (1.+0.i);
+    auto Lambda = [this](ZXVertex *V)
+    {
+        if(verbose >= 3) cout << "Vertex " << V->getId() << " (" << V->getType() << ")" << endl;
+        QTensor<double> tmp = V->getTSform();
+        
+        // Todo: Tensor product here
+        _tensor = tensordot(_tensor, tmp, {}, {});
+        if(verbose >= 5) cout << "********* Pin Permutation *********" << endl;
+       
+        // Tensor product here
+        if(verbose >= 5) cout << "***********************************" << endl;
+        if(verbose >= 3) cout << "--------------------------------------" << endl;
+    };
+    if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
+    topoTraverse(Lambda);
+    if(verbose >= 8) cout << _tensor << endl;
+}

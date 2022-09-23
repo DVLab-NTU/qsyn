@@ -127,7 +127,7 @@ class ZXVertex{
 
 class ZXGraph{
     public:
-        ZXGraph(size_t id, void** ref = NULL) : _id(id), _ref(ref){
+        ZXGraph(size_t id, void** ref = NULL) : _id(id), _ref(ref), _tensor(1.+0.i){
             _inputs.clear();
             _outputs.clear();
             _vertices.clear();
@@ -214,10 +214,16 @@ class ZXGraph{
         void printVertices() const;
         void printEdges() const;
         
-        //Traverse
+        // Traverse
         void updateTopoOrder();
+        template<typename F>
+        void topoTraverse(F lambda){
+            updateTopoOrder();
+            for_each(_topoOrder.begin(),_topoOrder.end(),lambda);
+        }
 
         // For mapping
+        void tensorMapping();
         void concatenate(ZXGraph* tmp, bool remove_imm = false);
         void setInputHash(size_t q, ZXVertex* v) { _inputList[q] = v; }
         void setOutputHash(size_t q, ZXVertex* v) { _outputList[q] = v; }
@@ -232,6 +238,7 @@ class ZXGraph{
     private:
         size_t                            _id;
         void**                            _ref;
+        QTensor<double>                   _tensor;
         vector<ZXVertex*>                 _inputs;
         vector<ZXVertex*>                 _outputs;
         vector<ZXVertex*>                 _vertices;
