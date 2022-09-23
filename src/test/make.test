@@ -1,4 +1,4 @@
-PKGFLAG   = 
+PKGFLAG   = -DHAVE_CBLAS=1
 EXTHDRS   = 
 
 include ../Makefile.in

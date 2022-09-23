@@ -62,9 +62,14 @@ private:
 // Note that `n` is the number of qubits, not dimensions
 template<typename T>
 QTensor<T> QTensor<T>::identity(const size_t& n) {
-    InternalType t = xt::eye<DataType>(intPow(2, n));
+    QTensor<T> t(xt::eye<DataType>(intPow(2, n)));
     t.reshape(TensorShape(2*n, 2));
-    return t;
+    TensorAxisList ax;
+    for (size_t i = 0; i < n; ++i) {
+        ax.push_back(i);
+        ax.push_back(i + n);
+    }
+    return t.transpose(ax);
 }
 
 // Generate an tensor that corresponds to a n-qubit Z-spider.
