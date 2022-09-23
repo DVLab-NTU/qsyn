@@ -234,27 +234,26 @@ void QCir::tensorMapping()
         vector<size_t> ori_pin;
         vector<size_t> new_pin;
         ori_pin.clear(); new_pin.clear();
-        if(verbose >= 5) cout << "********** CONCATENATION **********" << endl;
         for(size_t np=0; np<G->getQubits().size(); np++){
             new_pin.push_back(2*np);
             BitInfo info = G->getQubits()[np];
             ori_pin.push_back(_qubit2pin[info._qubit]);
         }
         _tensor = tensordot(_tensor, tmp, ori_pin, new_pin);
+        if(verbose >= 5) cout << "********* Pin Permutation *********" << endl;
         updateTensorPin(G->getQubits());
         // tmp -> concatenate(tmp, false);
         // Tensor product here
         if(verbose >= 5) cout << "***********************************" << endl;
         if(verbose >= 3) cout << "--------------------------------------" << endl;
     };
-    if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE GRAPH ----" << endl;
+    if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
     topoTraverse(Lambda);
     if(verbose >= 8) cout << _tensor << endl;
 }
 void QCir::updateTensorPin(vector<BitInfo> pins)
 {
     // it->first: qubit ID
-    // if(verbose >= 8) cout << "Unmodified pins --------" << endl;
     for ( auto it = _qubit2pin.begin(); it != _qubit2pin.end(); ++it ){
         bool modify = false;
         for(size_t p=0; p<pins.size(); p++){
@@ -263,27 +262,24 @@ void QCir::updateTensorPin(vector<BitInfo> pins)
                 break;
             }
         }
-        
         if(!modify){
-            // if(verbose >= 8) cout << "Qubit: " << it->first << ":" << it->second << " -> ";
+            size_t minus = 0;
             for(size_t p=0; p<pins.size(); p++){
-                if(_qubit2pin[pins[p]._qubit] < it->second){
-                    it->second -= 1; 
-                }
+                if(_qubit2pin[pins[p]._qubit] < it->second)
+                    minus++;
             }
-            // if(verbose >= 8) cout << it->second << endl;
+            it->second -= minus; 
         }
     }
-    // if(verbose >= 8) cout << "Modified pins --------" << endl;
     for ( auto it = _qubit2pin.begin(); it != _qubit2pin.end(); ++it ){
-        if(verbose >= 8)  cout << "Qubit: " << it->first << ":" << " -> ";
+        if(verbose >= 5)  cout << "Qubit: " << it->first << ":" << " -> ";
         for(size_t p=0; p<pins.size(); p++){
             if(pins[p]._qubit == it->first){
                 it->second = 2*_qubit2pin.size()-(pins.size()-p); 
                 break;
             }
         }
-        if(verbose >= 8) cout << it->second << endl;
+        if(verbose >= 5) cout << it->second << endl;
     }
     
 }
