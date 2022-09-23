@@ -30,8 +30,9 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCGDelete", 4, new QCirDeleteGateCmd) &&
          cmdMgr->regCmd("QCBDelete", 4, new QCirDeleteQubitCmd) &&
          cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd) &&
-         cmdMgr->regCmd("QCZXMapping", 5, new QCirZXMappingCmd)
-         && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
+         cmdMgr->regCmd("QCZXMapping", 5, new QCirZXMappingCmd) &&
+         cmdMgr->regCmd("QCTSMapping", 5, new QCirTSMappingCmd)
+         // && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
          ))
    {
       cerr << "Registering \"qcir\" commands fails... exiting" << endl;
@@ -51,22 +52,22 @@ enum QCirCmdState
 
 static QCirCmdState curCmd = QCIRINIT;
 
-CmdExecStatus
-QCirTestCmd::exec(const string &option)
-{
-   qCir->tensorMapping();
-   return CMD_EXEC_DONE;
-}
-void QCirTestCmd::usage(ostream &os) const
-{
-   os << "Usage: QCT" << endl;
-}
+// CmdExecStatus
+// QCirTestCmd::exec(const string &option)
+// {
+//    qCir->tensorMapping();
+//    return CMD_EXEC_DONE;
+// }
+// void QCirTestCmd::usage(ostream &os) const
+// {
+//    os << "Usage: QCT" << endl;
+// }
 
-void QCirTestCmd::help() const
-{
-   cout << setw(15) << left << "QCT: "
-        << "Test what function you want (for developement)" << endl;
-}
+// void QCirTestCmd::help() const
+// {
+//    cout << setw(15) << left << "QCT: "
+//         << "Test what function you want (for developement)" << endl;
+// }
 
 //----------------------------------------------------------------------
 //    QCCRead <(string fileName)> [-Replace]
@@ -564,4 +565,34 @@ void QCirZXMappingCmd::help() const
 {
    cout << setw(15) << left << "QCZXMapping: "
         << "mapping to ZX diagram\n";
+}
+
+//----------------------------------------------------------------------
+//    QCTSMapping
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirTSMappingCmd::exec(const string &option)
+{
+   // check option
+   if (!CmdExec::lexNoOption(option))
+      return CMD_EXEC_ERROR;
+
+   if (!qCir)
+   {
+      cerr << "Error: quantum circuit is not yet constructed!!" << endl;
+      return CMD_EXEC_ERROR;
+   }
+   qCir -> tensorMapping();
+   return CMD_EXEC_DONE;
+}
+
+void QCirTSMappingCmd::usage(ostream &os) const
+{
+   os << "Usage: QCTSMapping" << endl;
+}
+
+void QCirTSMappingCmd::help() const
+{
+   cout << setw(15) << left << "QCTSMapping: "
+        << "mapping to tensor\n";
 }
