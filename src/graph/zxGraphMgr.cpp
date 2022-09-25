@@ -141,11 +141,11 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph){
       ZXVertex* cpIn = copyGraph->getInputs()[i];
       for(size_t s = 0; s < curOut->getNeighbors().size(); s++){
         for(size_t t = 0; t < cpIn->getNeighbors().size(); t++){
-          ZXVertex* vs = curOut->getNeighbors()[s].first; EdgeType vsType = curOut->getNeighbors()[s].second;
-          ZXVertex* vt = cpIn->getNeighbors()[t].first; EdgeType vtType = cpIn->getNeighbors()[t].second;
-          EdgeType newType;
-          if((vsType == EdgeType::SIMPLE && vtType == EdgeType::SIMPLE) || (vsType == EdgeType::HADAMARD && vtType == EdgeType::HADAMARD)) newType = EdgeType::SIMPLE;
-          else newType = EdgeType::HADAMARD;
+          ZXVertex* vs = curOut->getNeighbors()[s].first; EdgeType* vsType = curOut->getNeighbors()[s].second;
+          ZXVertex* vt = cpIn->getNeighbors()[t].first; EdgeType* vtType = cpIn->getNeighbors()[t].second;
+          EdgeType* newType;
+          if((*vsType == EdgeType::SIMPLE && *vtType == EdgeType::SIMPLE) || (*vsType == EdgeType::HADAMARD && *vtType == EdgeType::HADAMARD)) newType = new EdgeType(EdgeType::SIMPLE);
+          else newType = new EdgeType(EdgeType::HADAMARD);
           oriGraph->addEdge(vs, vt, newType);
           vs->disconnect(curOut);
           vt->disconnect(cpIn);

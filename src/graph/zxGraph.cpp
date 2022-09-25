@@ -31,10 +31,23 @@ VertexType str2VertexType(string str){
     return VertexType::ERRORTYPE;
 }
 
-EdgeType str2EdgeType(string str){
-    if(str == "SIMPLE") return EdgeType::SIMPLE;
-    else if(str == "HADAMARD") return EdgeType::HADAMARD;
-    return EdgeType::ERRORTYPE;
+string VertexType2Str(VertexType vt){
+    if(vt == VertexType::X) return "X";
+    if(vt == VertexType::Z) return "Z";
+    if(vt == VertexType::H_BOX) return "H";
+    if(vt == VertexType::BOUNDARY) return "●";
+}
+
+EdgeType* str2EdgeType(string str){
+    if(str == "SIMPLE") return new EdgeType(EdgeType::SIMPLE);
+    else if(str == "HADAMARD") return new EdgeType(EdgeType::HADAMARD);
+    return new EdgeType(EdgeType::ERRORTYPE);
+}
+
+string EdgeType2Str(EdgeType* et){
+    if(*et == EdgeType::SIMPLE) return "-";
+    if(*et == EdgeType::HADAMARD) return "H";
+    return "";
 }
 
 /**************************************/
@@ -96,7 +109,7 @@ void ZXVertex::removeNeighborById(size_t id){
 
 void ZXVertex::printVertex() const{
     cout << "ID:\t" << _id << "\t";
-    cout << "VertexType:\t" << _type << "\t";
+    cout << "VertexType:\t" << VertexType2Str(_type) << "\t";
     cout << "Qubit:\t" << _qubit << "\t";
     cout << "Phase:\t" << _phase << "\t";
     cout << "#Neighbors:\t" << _neighbors.size() << "\t";
@@ -105,7 +118,7 @@ void ZXVertex::printVertex() const{
 
 void ZXVertex::printNeighbors() const{
     for(size_t i = 0; i < _neighbors.size(); i++){
-        cout << "(" << _neighbors[i].first->getId() << ", " << _neighbors[i].second << ") " ;
+        cout << "(" << _neighbors[i].first->getId() << ", " << EdgeType2Str(_neighbors[i].second) << ") " ;
     }
     cout << endl;
 }
@@ -152,7 +165,7 @@ void ZXVertex::disconnectById(size_t id){
     }
 }
 
-void ZXVertex::connect(ZXVertex* v, EdgeType et){
+void ZXVertex::connect(ZXVertex* v, EdgeType* et){
     addNeighbor(make_pair(v, et));
     rearrange();
     v->addNeighbor(make_pair(this, et));
@@ -224,9 +237,11 @@ void ZXGraph::generateCNOT(){
     for(size_t i = 0; i < edgeList.size(); i++){
         if(findVertexById(edgeList[i].first) != nullptr && findVertexById(edgeList[i].second) != nullptr){
             ZXVertex* s = findVertexById(edgeList[i].first); ZXVertex* t = findVertexById(edgeList[i].second);
-            s->addNeighbor(make_pair(t, EdgeType::SIMPLE));
-            t->addNeighbor(make_pair(s, EdgeType::SIMPLE));
-            edges.push_back(make_pair(make_pair(s, t), EdgeType::SIMPLE));
+            EdgeType* et = new EdgeType(EdgeType::SIMPLE);
+            
+            s->addNeighbor(make_pair(t, et));
+            t->addNeighbor(make_pair(s, et));
+            edges.push_back(make_pair(make_pair(s, t), et));
         }
     }
     setEdges(edges);
@@ -330,7 +345,7 @@ ZXVertex* ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase){
     }
 }
 
-EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et){
+EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et){
     vs->connect(vt, et);
     EdgePair e = make_pair(make_pair(vs, vt), et);
     _edges.push_back(e);
@@ -338,7 +353,7 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et){
     return e;
 }
 
-void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType et){
+void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType* et){
     if(!isId(id_s)) cerr << "Error: id_s provided is not exist!" << endl;
     else if(!isId(id_t)) cerr << "Error: id_t provided is not exist!" << endl;
     else{

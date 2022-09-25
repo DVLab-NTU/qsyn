@@ -65,7 +65,7 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm){
             this -> removeEdge(lastVertex, this -> getOutputFromHash(inpQubit)); // Remove old edge (output and prev-output)
         else
             lastVertex->disconnect(this -> getOutputFromHash(inpQubit));
-        this -> addEdge(lastVertex, targetInput, EdgeType::SIMPLE); // Add new edge
+        this -> addEdge(lastVertex, targetInput, new EdgeType(EdgeType::SIMPLE)); // Add new edge
         delete it->second;
     }
     // Reconnect Output
@@ -75,7 +75,7 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm){
         ZXVertex* targetOutput = it -> second -> getNeighbors()[0].first;
         ZXVertex* ZXOup = this -> getOutputFromHash(oupQubit);
         tmp -> removeEdge(it->second, targetOutput); // Remove old edge (disconnect old graph)    
-        this -> addEdge(targetOutput, ZXOup, EdgeType::SIMPLE); // Add new edge
+        this -> addEdge(targetOutput, ZXOup, new EdgeType(EdgeType::SIMPLE)); // Add new edge
         delete it->second;
     }
     tmp -> reset();

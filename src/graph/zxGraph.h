@@ -27,8 +27,8 @@ enum class EdgeType;
 //  Define types
 //------------------------------------------------------------------------
 
-typedef pair<ZXVertex*, EdgeType> NeighborPair;
-typedef pair<pair<ZXVertex*, ZXVertex*>, EdgeType> EdgePair;
+typedef pair<ZXVertex*, EdgeType*> NeighborPair;
+typedef pair<pair<ZXVertex*, ZXVertex*>, EdgeType*> EdgePair;
 
 //------------------------------------------------------------------------
 //   Define classes
@@ -43,6 +43,8 @@ enum class VertexType{
 
 VertexType str2VertexType(string str);
 
+string VertexType2Str(VertexType vt);
+
 enum class EdgeType{
     SIMPLE,
     HADAMARD,
@@ -51,7 +53,9 @@ enum class EdgeType{
 
 EdgeType toggleEdge(EdgeType et);
 
-EdgeType str2EdgeType(string str);
+EdgeType* str2EdgeType(string str);
+
+string EdgeType2Str(EdgeType* et);
 
 template<typename T> ostream& operator<<(typename enable_if<is_enum<T>::value, ostream>::type& stream, const T& e){
     return stream << static_cast<typename underlying_type<T>::type>(e);
@@ -100,7 +104,7 @@ class ZXVertex{
         // Action
         void disconnect(ZXVertex* v);
         void disconnectById(size_t id);
-        void connect(ZXVertex* v, EdgeType et);
+        void connect(ZXVertex* v, EdgeType* et);
         void rearrange();
 
 
@@ -175,8 +179,8 @@ class ZXGraph{
         ZXVertex* addInput(size_t id, int qubit);
         ZXVertex* addOutput(size_t id, int qubit);
         ZXVertex* addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase() );
-        EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
-        void addEdgeById(size_t id_s, size_t id_t, EdgeType et);
+        EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et);
+        void addEdgeById(size_t id_s, size_t id_t, EdgeType* et);
         void addInputs(vector<ZXVertex*> inputs);
         void addOutputs(vector<ZXVertex*> outputs);
         void addVertices(vector<ZXVertex*> vertices);
