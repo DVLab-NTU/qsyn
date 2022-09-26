@@ -12,7 +12,9 @@
 #include <string>
 #include <sstream>
 
+// --- Always put catch2/catch.hpp after all other header files ---
 #include "catch2/catch.hpp"
+// ----------------------------------------------------------------
 
 Rational q1(6, 8), q2(2, 3), q3 = q1, q4, q5(9);
 

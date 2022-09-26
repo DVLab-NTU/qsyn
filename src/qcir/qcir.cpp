@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include <vector>
+#include <unordered_map>
 #include <string>
 #include <iomanip>
 #include <fstream>
@@ -79,6 +80,7 @@ void QCir::addQubit(size_t num)
         QCirQubit *temp = new QCirQubit(_qubitId);
         _qubits.push_back(temp);
         _qubitId++;
+        clearMapping(); 
     }
 }
 void QCir::DFS(QCirGate *currentGate)
@@ -147,18 +149,29 @@ void QCir::printZXTopoOrder()
     };
     topoTraverse(Lambda);
 }
-void QCir::mapping()
+void QCir::clearMapping()
+{
+    for(size_t i=0; i<_ZXGraphList.size(); i++){
+        cerr << "Note: Graph "<< _ZXGraphList[i]->getId() << " is deleted due to modification(s) !!" << endl;
+        _ZXGraphList[i] -> reset();
+        zxGraphMgr -> removeZXGraph(_ZXGraphList[i] -> getId());
+    }
+    _ZXGraphList.clear();
+}
+void QCir::ZXMapping()
 {
     if(zxGraphMgr == 0){
         cerr << "Error: ZXMODE is OFF, please turn on before mapping" << endl;
         return;
     }
-        
     updateTopoOrder();
     // _ZXG->clearPtrs(); Cannot clear ptr since storing in zxGraphMgr
-    _ZXG->reset();
+    // _ZXG->reset();
     // delete _ZXG; Cannot clear ptr since storing in zxGraphMgr
-    _ZXG = zxGraphMgr -> addZXGraph(zxGraphMgr->getNextID(), (void**)_ZXG);
+    ZXGraph* _ZXG = zxGraphMgr -> addZXGraph(zxGraphMgr->getNextID());
+    _ZXG -> setRef((void**)_ZXG);
+    
+    
     _ZXNodeId = 0;
     size_t maxInput = 0;
     if(verbose >= 3) cout << "----------- ADD BOUNDARIES -----------" << endl;
@@ -174,7 +187,7 @@ void QCir::mapping()
     if(verbose >= 5) cout << "ZXnode starts from " << _ZXNodeId << endl;
     if(verbose >= 3) cout << "--------------------------------------" << endl << endl;
 
-    auto Lambda = [this](QCirGate *G)
+    auto Lambda = [this, _ZXG](QCirGate *G)
     {
         if(verbose >= 3) cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph* tmp = G->getZXform(_ZXNodeId);
@@ -183,7 +196,7 @@ void QCir::mapping()
             return;
         }
         if(verbose >= 5) cout << "********** CONCATENATION **********" << endl;
-        this -> _ZXG -> concatenate(tmp, false);
+        _ZXG -> concatenate(tmp, false);
         if(verbose >= 5) cout << "***********************************" << endl;
         if(verbose >= 3)  cout << "--------------------------------------" << endl;
         //! TEST
@@ -202,6 +215,76 @@ void QCir::mapping()
     if(verbose >= 7) {
         zxGraphMgr -> printZXGraphMgr();
     }
+    _ZXGraphList.push_back(_ZXG);
+}
+void QCir::tensorMapping()
+{
+    updateTopoOrder();
+    if(verbose >= 3) cout << "----------- ADD BOUNDARIES -----------" << endl;
+    _tensor = (1.+0.i);
+    _tensor = tensordot(_tensor, QTensor<double>::identity(_qubits.size()));
+    _qubit2pin.clear();
+    for(size_t i=0; i<_qubits.size(); i++){
+        _qubit2pin[_qubits[i]->getId()] = 2*i+1;
+        if(verbose >= 3)  cout << "Add Qubit " << _qubits[i]->getId() << " output port: " << 2*i+1 << endl;
+    }
+    
+    auto Lambda = [this](QCirGate *G)
+    {
+        if(verbose >= 3) cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
+        QTensor<double> tmp = G->getTSform();
+        
+        vector<size_t> ori_pin;
+        vector<size_t> new_pin;
+        ori_pin.clear(); new_pin.clear();
+        for(size_t np=0; np<G->getQubits().size(); np++){
+            new_pin.push_back(2*np);
+            BitInfo info = G->getQubits()[np];
+            ori_pin.push_back(_qubit2pin[info._qubit]);
+        }
+        _tensor = tensordot(_tensor, tmp, ori_pin, new_pin);
+        if(verbose >= 5) cout << "********* Pin Permutation *********" << endl;
+        updateTensorPin(G->getQubits());
+        // tmp -> concatenate(tmp, false);
+        // Tensor product here
+        if(verbose >= 5) cout << "***********************************" << endl;
+        if(verbose >= 3) cout << "--------------------------------------" << endl;
+    };
+    if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
+    topoTraverse(Lambda);
+    if(verbose >= 8) cout << _tensor << endl;
+}
+void QCir::updateTensorPin(vector<BitInfo> pins)
+{
+    // it->first: qubit ID
+    for ( auto it = _qubit2pin.begin(); it != _qubit2pin.end(); ++it ){
+        bool modify = false;
+        for(size_t p=0; p<pins.size(); p++){
+            if(pins[p]._qubit == it->first){
+                modify = true;
+                break;
+            }
+        }
+        if(!modify){
+            size_t minus = 0;
+            for(size_t p=0; p<pins.size(); p++){
+                if(_qubit2pin[pins[p]._qubit] < it->second)
+                    minus++;
+            }
+            it->second -= minus; 
+        }
+    }
+    for ( auto it = _qubit2pin.begin(); it != _qubit2pin.end(); ++it ){
+        if(verbose >= 5)  cout << "Qubit: " << it->first << ":" << " -> ";
+        for(size_t p=0; p<pins.size(); p++){
+            if(pins[p]._qubit == it->first){
+                it->second = 2*_qubit2pin.size()-(pins.size()-p); 
+                break;
+            }
+        }
+        if(verbose >= 5) cout << it->second << endl;
+    }
+    
 }
 bool QCir::removeQubit(size_t id)
 {
@@ -222,6 +305,7 @@ bool QCir::removeQubit(size_t id)
         else
         {
             _qubits.erase(remove(_qubits.begin(), _qubits.end(), target), _qubits.end());
+            clearMapping();   
             return true;
         }
     }
@@ -316,6 +400,7 @@ void QCir::addGate(string type, vector<size_t> bits, Phase phase, bool append)
     }
     _qgate.push_back(temp);
     _gateId++;
+    clearMapping(); 
 }
 
 bool QCir::removeGate(size_t id)
@@ -344,6 +429,7 @@ bool QCir::removeGate(size_t id)
         }
         _qgate.erase(remove(_qgate.begin(), _qgate.end(), target), _qgate.end());
         _dirty = true;
+        clearMapping(); 
         return true;
     }
 }

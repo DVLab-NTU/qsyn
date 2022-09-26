@@ -33,6 +33,15 @@ vector<ZXVertex*> ZXGraph::getNonBoundary() {
     return tmp;
 }
 
+vector<EdgePair> ZXGraph::getInnerEdges() { 
+    vector<EdgePair> tmp; tmp.clear(); 
+    for(size_t i=0; i<_edges.size(); i++){
+        if(_edges[i].first.first->getType() == VertexType::BOUNDARY || _edges[i].first.second->getType() == VertexType::BOUNDARY) continue;
+        else tmp.push_back(_edges[i]);
+    }
+    return tmp;
+}
+
 ZXVertex* ZXGraph::getInputFromHash(size_t q) { 
     if (_inputList.find(q) == _inputList.end()) {
         cerr << "Input qubit id " << q << "not found" << endl;
@@ -54,6 +63,7 @@ ZXVertex* ZXGraph::getOutputFromHash(size_t q) {
 void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm){
     // Add Vertices
     this -> addVertices( tmp -> getNonBoundary() );
+    this -> addEdges( tmp -> getInnerEdges() );
     // Reconnect Input
     unordered_map<size_t, ZXVertex*> tmpInp = tmp -> getInputList();
     for ( auto it = tmpInp.begin(); it != tmpInp.end(); ++it ){

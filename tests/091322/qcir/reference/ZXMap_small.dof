@@ -40,6 +40,7 @@ Total #Vertices: 5
 --------------------------------------------------------------------------------------
 
 qsyn> qcga -cx -pr 0 1
+Warning: The graph list is empty now
 
 qsyn> qczxm
 Successfully generate Graph 1
