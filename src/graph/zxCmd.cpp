@@ -585,6 +585,11 @@ void ZXGEditCmd::help() const{
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGSimpCmd::exec(const string &option){
+    if(curCmd != ZXON){
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXEdit." << endl;
+        return CMD_EXEC_ERROR;
+    }
+    
     string token;
     if(!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
     Simplify s(zxGraphMgr->getGraph());
@@ -593,11 +598,11 @@ ZXGSimpCmd::exec(const string &option){
 }
 
 void ZXGSimpCmd::usage(ostream &os) const{
-    os << "Usage: ZXGSimpCmd" << endl;
+    os << "Usage: ZXGSimp" << endl;
 }
 
 void ZXGSimpCmd::help() const{
-    cout << setw(15) << left << "ZXGSimpCmd: " << "do simplification strategies for ZX-graph" << endl; 
+    cout << setw(15) << left << "ZXGSimp: " << "do simplification strategies for ZX-graph" << endl; 
 }
 
 

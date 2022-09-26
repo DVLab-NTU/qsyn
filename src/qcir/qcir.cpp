@@ -186,6 +186,10 @@ void QCir::mapping()
         this -> _ZXG -> concatenate(tmp, false);
         if(verbose >= 5) cout << "***********************************" << endl;
         if(verbose >= 3)  cout << "--------------------------------------" << endl;
+        //! TEST
+        cout << "\n@@@@@@@@@@@@@@\n";
+        this -> _ZXG ->printEdges();
+        cout << "\n@@@@@@@@@@@@@@\n";
     };
 
     if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE GRAPH ----" << endl;

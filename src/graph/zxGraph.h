@@ -90,7 +90,7 @@ class ZXVertex{
 
 
         // Add and Remove
-        void addNeighbor(NeighborPair neighbor)                             { _neighborMap.insert(neighbor);}
+        void addNeighbor(NeighborPair neighbor)                                         { _neighborMap.insert(neighbor); cout << getId() << ": "; printNeighborMap();  cout << "\n---\n";}
         void removeNeighbor(NeighborPair neighbor);
         void removeNeighborById(size_t id);
 

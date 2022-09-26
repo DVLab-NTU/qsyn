@@ -37,13 +37,18 @@ void Stats::countRewrites(string rule, int n){
 /******************************************/
 
 /**
- * @brief Turns every red node(VertexType::X) into green node(VertexType::Z) by regular edges <--> hadamard edges.
+ * @brief Turns every red node(VertexType::X) into green node(VertexType::Z) by regular simple edges <--> hadamard edges.
  * 
  * @param g ZXGraph*
  */
 void Simplify::to_graph(ZXGraph* g){
     for(size_t i = 0; i < g->getNumVertices(); i++){
-        
-
+      ZXVertex* v = g->getVertices()[i];
+      if(v->getType() == VertexType::X){
+        cout << v->getId() << ": ";
+        v->printNeighborMap();
+        cout << endl;
+        v->setType(VertexType::Z);
+      }
     }
 }
