@@ -45,9 +45,7 @@ void Simplify::to_graph(ZXGraph* g){
     for(size_t i = 0; i < g->getNumVertices(); i++){
       ZXVertex* v = g->getVertices()[i];
       if(v->getType() == VertexType::X){
-        cout << v->getId() << ": ";
-        v->printNeighborMap();
-        cout << endl;
+        for(auto& itr : v->getNeighborMap()) *itr.second = toggleEdge(*itr.second);
         v->setType(VertexType::Z);
       }
     }

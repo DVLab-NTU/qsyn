@@ -82,15 +82,15 @@ class ZXVertex{
         Phase getPhase() const                                              { return _phase; }
         NeighborMap getNeighborMap() const                                  { return _neighborMap; }
 
-        void setId(size_t id)                                                           { _id = id; }
-        void setQubit(int q)                                                            {_qubit = q; }
-        void setType(VertexType ZXVertex)                                               { _type = ZXVertex; }
-        void setPhase(Phase p)                                                          { _phase = p; }
-        void setNeighborMap(NeighborMap neighborMap)                                    { _neighborMap = neighborMap; }
+        void setId(size_t id)                                               { _id = id; }
+        void setQubit(int q)                                                {_qubit = q; }
+        void setType(VertexType ZXVertex)                                   { _type = ZXVertex; }
+        void setPhase(Phase p)                                              { _phase = p; }
+        void setNeighborMap(NeighborMap neighborMap)                        { _neighborMap = neighborMap; }
 
 
         // Add and Remove
-        void addNeighbor(NeighborPair neighbor)                                         { _neighborMap.insert(neighbor); cout << getId() << ": "; printNeighborMap();  cout << "\n---\n";}
+        void addNeighbor(NeighborPair neighbor)                             { _neighborMap.insert(neighbor); }
         void removeNeighbor(NeighborPair neighbor);
         void removeNeighborById(size_t id);
 
