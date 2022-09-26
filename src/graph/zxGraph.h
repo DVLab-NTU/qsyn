@@ -29,6 +29,7 @@ enum class EdgeType;
 
 typedef pair<ZXVertex*, EdgeType*> NeighborPair;
 typedef pair<pair<ZXVertex*, ZXVertex*>, EdgeType*> EdgePair;
+typedef unordered_multimap<ZXVertex*, EdgeType*> NeighborMap;
 
 //------------------------------------------------------------------------
 //   Define classes
@@ -70,6 +71,7 @@ class ZXVertex{
             _type = vt;
             _phase = phase;
             _DFSCounter = 0;
+            _neighborMap.clear();
         }
         ~ZXVertex(){}
 
@@ -78,39 +80,42 @@ class ZXVertex{
         int getQubit() const                                                { return _qubit; }
         VertexType getType() const                                          { return _type; }
         Phase getPhase() const                                              { return _phase; }
-        vector<NeighborPair > getNeighbors() const                          { return _neighbors; }
-        vector<NeighborPair > getNeighborById(size_t id) const;
+        // vector<NeighborPair > getNeighbors() const                          { return _neighbors; }
+        NeighborMap getNeighborMap() const                                  { return _neighborMap; }
+        // vector<NeighborPair > getNeighborById(size_t id) const;
         vector<NeighborPair > getNeighborByPointer(ZXVertex* v) const;
         
 
-        void setId(size_t id)                                               { _id = id; }
-        void setQubit(int q)                                                {_qubit = q; }
-        void setType(VertexType ZXVertex)                                   { _type = ZXVertex; }
-        void setPhase(Phase p)                                              { _phase = p; }
-        void setNeighbors(vector<NeighborPair > neighbors)                  { _neighbors = neighbors; }
+        void setId(size_t id)                                                           { _id = id; }
+        void setQubit(int q)                                                            {_qubit = q; }
+        void setType(VertexType ZXVertex)                                               { _type = ZXVertex; }
+        void setPhase(Phase p)                                                          { _phase = p; }
+        // void setNeighbors(vector<NeighborPair > neighbors)                              { _neighbors = neighbors; }
+        void setNeighborMap(NeighborMap neighborMap)                                    { _neighborMap = neighborMap; }
 
 
         // Add and Remove
-        void addNeighbor(NeighborPair neighbor)                             { _neighbors.push_back(neighbor); }
+        void addNeighbor(NeighborPair neighbor)                             { _neighborMap.insert(neighbor);}
         void removeNeighbor(NeighborPair neighbor);
         void removeNeighborById(size_t id);
 
 
         // Print functions
         void printVertex() const;
-        void printNeighbors() const;
+        // void printNeighbors() const;
+        void printNeighborMap() const;
 
         
         // Action
-        void disconnect(ZXVertex* v);
-        void disconnectById(size_t id);
-        void connect(ZXVertex* v, EdgeType* et);
-        void rearrange();
+        void disconnect(ZXVertex* v, bool checked = false);
+        // void disconnectById(size_t id);
+        // void connect(ZXVertex* v, EdgeType* et);
+        // void rearrange();
 
 
         // Test
         bool isNeighbor(ZXVertex* v) const;
-        bool isNeighborById(size_t id) const;
+        // bool isNeighborById(size_t id) const;
         
         // DFS
         bool isVisited(unsigned global) { return global == _DFSCounter; }
@@ -121,7 +126,8 @@ class ZXVertex{
         size_t                               _id;
         VertexType                           _type;
         Phase                                _phase;
-        vector<NeighborPair >                _neighbors;
+        NeighborMap _neighborMap;
+        // vector<NeighborPair >                _neighbors;
         unsigned _DFSCounter;
 };
 
@@ -186,11 +192,11 @@ class ZXGraph{
         void addVertices(vector<ZXVertex*> vertices);
         void addEdges(vector<EdgePair> edges);
 
-        void removeVertex(ZXVertex* v);
+        void removeVertex(ZXVertex* v, bool checked = false);
         void removeVertices(vector<ZXVertex* > vertices);
         void removeVertexById(size_t id);
         void removeIsolatedVertices();
-        void removeEdge(ZXVertex* vs, ZXVertex* vt);
+        void removeEdge(ZXVertex* vs, ZXVertex* vt, bool checked = false);
         void removeEdgeById(size_t id_s, size_t id_t);
 
                 
