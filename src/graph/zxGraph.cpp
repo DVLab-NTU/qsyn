@@ -51,90 +51,42 @@ string EdgeType2Str(EdgeType* et){
     return "";
 }
 
+
+
 /**************************************/
 /*   class ZXVertex member functions   */
 /**************************************/
 
 
-// Getter and Setter
-// vector<NeighborPair > ZXVertex::getNeighborById(size_t id) const{
-//     vector<NeighborPair > nList;
-//     if(!isNeighborById(id)) cerr << "Error: Vertex " << id << " is not a neighbor of " << _id << endl;
-//     else{
-//          for(size_t i = 0; i < _neighbors.size(); i++){
-//              if(_neighbors[i].first->getId() == id) nList.push_back(_neighbors[i]);
-//          }
-//     }
-//     return nList;
-// }
-
-// vector<NeighborPair > ZXVertex::getNeighborByPointer(ZXVertex* v) const{
-//     vector<NeighborPair > nList;
-//     if(!isNeighbor(v)) cerr << "Error: Vertex " << v->getId() << " is not a neighbor of " << _id << endl;
-//     else{
-//         //! TODO
-//         //  for(size_t i = 0; i < _neighbors.size(); i++){
-//         //      if(_neighbors[i].first == v) nList.push_back(_neighbors[i]);
-//         //  }
-//     }
-//     return nList;
-// }
-
-// Add and Remove
-
-// void ZXVertex::removeNeighbor(NeighborPair neighbor){
-//     //! Only remove the first find neighbor pair
-//     auto findNeighbor = find(_neighbors.begin(), _neighbors.end(), neighbor);
-//     if(findNeighbor != _neighbors.end()){
-//         if(verbose >= 7) cout << "  * remove " << neighbor.first->getId() << " from " << _id << endl;
-//         _neighbors.erase(findNeighbor);
-//     } 
-//     else cerr << "Error: Vertex " << neighbor.first->getId() << " is not a neighbor of " << _id << endl;
-// }
-
-// void ZXVertex::removeNeighborById(size_t id){
-//     //! Remove all neighbor pair if key == id
-//     if(!isNeighborById(id)) cerr << "Error: Vertex " << id << " is not a neighbor of " << _id << endl;
-//     else{
-//         for(size_t i = 0; i < _neighbors.size();){
-//             if(_neighbors[i].first->getId() == id) {
-//                 _neighbors.erase(_neighbors.begin()+i);
-//                 if(verbose >= 7) cout << "  * remove " << id << " from " << _id << endl;
-//             }
-//             else i++;
-//         }
-//     }
-// }
-
-
 // Print functions
 
+/**
+ * @brief Print summary of ZXVertex
+ * 
+ */
 void ZXVertex::printVertex() const{
     cout << "ID:\t" << _id << "\t";
     cout << "VertexType:\t" << VertexType2Str(_type) << "\t";
     cout << "Qubit:\t" << _qubit << "\t";
     cout << "Phase:\t" << _phase << "\t";
-    // cout << "#Neighbors:\t" << _neighbors.size() << "\t";
     cout << "#Neighbors:\t" << _neighborMap.size() << "\t";
-    // printNeighbors();
     printNeighborMap();
 }
 
-// void ZXVertex::printNeighbors() const{
-//     for(size_t i = 0; i < _neighbors.size(); i++){
-//         cout << "(" << _neighbors[i].first->getId() << ", " << EdgeType2Str(_neighbors[i].second) << ") " ;
-//     }
-//     cout << endl;
-// }
-
+/**
+ * @brief Print each element in _neighborMap
+ * 
+ */
 void ZXVertex::printNeighborMap() const{
     for(auto itr = _neighborMap.begin(); itr != _neighborMap.end(); itr++){
-        cout << "(" << itr->first->getId() << ", " << EdgeType2Str(itr->second) << ") " ;
+        cout << "(" << itr->first->getId() << ", " << EdgeType2Str(itr->second) << ") ";
     }
     cout << endl;
 }
 
+
 // Action
+
 /**
  * @brief Remove all the connection between `this` and `v`.
  * 
@@ -156,32 +108,20 @@ void ZXVertex::disconnect(ZXVertex* v, bool checked){
 }
 
 
-
-// void ZXVertex::connect(ZXVertex* v, EdgeType* et){
-//     addNeighbor(make_pair(v, et));
-//     rearrange();
-//     v->addNeighbor(make_pair(this, et));
-//     v->rearrange();
-//     if(verbose >= 7) cout << _id << " and " << v->getId() << " add each other to _neighbor." << endl;
-// }
-
-// void ZXVertex::rearrange(){
-//     sort(_neighbors.begin(), _neighbors.end());
-// }
-
 // Test
+
+/**
+ * @brief Check if `v` is one of the neighbors in ZXVertex
+ * 
+ * @param v 
+ * @return bool
+ */
 bool ZXVertex::isNeighbor(ZXVertex* v) const{
     auto itr = _neighborMap.find(v);
     if(itr != _neighborMap.end()) return true;
     else return false;
 }
 
-// bool ZXVertex::isNeighborById(size_t id) const{
-//     for(size_t i = 0; i < _neighbors.size(); i++){
-//         if(_neighbors[i].first->getId() == id) return true;
-//     }
-//     return false;
-// }
 
 
 /**************************************/
@@ -345,16 +285,10 @@ void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType* et){
     if(!isId(id_s)) cerr << "Error: id_s provided is not exist!" << endl;
     else if(!isId(id_t)) cerr << "Error: id_t provided is not exist!" << endl;
     else{
-        
         if(verbose >= 3) cout << "Add edge ( " << id_s << ", " << id_t << " )" << endl;
         ZXVertex* vs = findVertexById(id_s); ZXVertex* vt = findVertexById(id_t);
-        // NeighborMap mode
         vs->addNeighbor(make_pair(vt, et));
         vt->addNeighbor(make_pair(vs, et));
-
-
-        // Original
-        // vs->addNeighbor(make_pair(vt, et)); vt->addNeighbor(make_pair(vs, et));
         _edges.push_back(make_pair(make_pair(vs, vt), et));
     }
 }
@@ -375,6 +309,12 @@ void ZXGraph::addEdges(vector<EdgePair> edges){
      _edges.insert(_edges.end(), edges.begin(), edges.end());
 }
 
+/**
+ * @brief Remove `v` in ZXGraph and maintain the relationship between each vertex.
+ * 
+ * @param v 
+ * @param checked 
+ */
 void ZXGraph::removeVertex(ZXVertex* v, bool checked){
     if(!checked){
         if(!isId(v->getId())){

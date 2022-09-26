@@ -80,17 +80,12 @@ class ZXVertex{
         int getQubit() const                                                { return _qubit; }
         VertexType getType() const                                          { return _type; }
         Phase getPhase() const                                              { return _phase; }
-        // vector<NeighborPair > getNeighbors() const                          { return _neighbors; }
         NeighborMap getNeighborMap() const                                  { return _neighborMap; }
-        // vector<NeighborPair > getNeighborById(size_t id) const;
-        // vector<NeighborPair > getNeighborByPointer(ZXVertex* v) const;
-        
 
         void setId(size_t id)                                                           { _id = id; }
         void setQubit(int q)                                                            {_qubit = q; }
         void setType(VertexType ZXVertex)                                               { _type = ZXVertex; }
         void setPhase(Phase p)                                                          { _phase = p; }
-        // void setNeighbors(vector<NeighborPair > neighbors)                              { _neighbors = neighbors; }
         void setNeighborMap(NeighborMap neighborMap)                                    { _neighborMap = neighborMap; }
 
 
@@ -102,32 +97,28 @@ class ZXVertex{
 
         // Print functions
         void printVertex() const;
-        // void printNeighbors() const;
         void printNeighborMap() const;
 
         
         // Action
         void disconnect(ZXVertex* v, bool checked = false);
-        // void connect(ZXVertex* v, EdgeType* et);
-        // void rearrange();
 
 
         // Test
         bool isNeighbor(ZXVertex* v) const;
-        // bool isNeighborById(size_t id) const;
+
         
         // DFS
         bool isVisited(unsigned global) { return global == _DFSCounter; }
         void setVisited(unsigned global) { _DFSCounter = global; }
 
     private:
-        int                                  _qubit;
-        size_t                               _id;
-        VertexType                           _type;
-        Phase                                _phase;
-        NeighborMap _neighborMap;
-        // vector<NeighborPair >                _neighbors;
-        unsigned _DFSCounter;
+        int                                     _qubit;
+        size_t                                  _id;
+        Phase                                   _phase;
+        VertexType                              _type;
+        NeighborMap                             _neighborMap;
+        unsigned                                _DFSCounter;
 };
 
 
@@ -225,10 +216,10 @@ class ZXGraph{
 
         // For mapping
         void concatenate(ZXGraph* tmp, bool remove_imm = false);
-        void setInputHash(size_t q, ZXVertex* v) { _inputList[q] = v; }
-        void setOutputHash(size_t q, ZXVertex* v) { _outputList[q] = v; }
-        unordered_map<size_t, ZXVertex*> getInputList() const { return _inputList; }
-        unordered_map<size_t, ZXVertex*> getOutputList() const { return _outputList; }
+        void setInputHash(size_t q, ZXVertex* v)                    { _inputList[q] = v; }
+        void setOutputHash(size_t q, ZXVertex* v)                   { _outputList[q] = v; }
+        unordered_map<size_t, ZXVertex*> getInputList() const       { return _inputList; }
+        unordered_map<size_t, ZXVertex*> getOutputList() const      { return _outputList; }
         ZXVertex* getInputFromHash(size_t q);
         ZXVertex* getOutputFromHash(size_t q);
         vector<ZXVertex*> getNonBoundary();
