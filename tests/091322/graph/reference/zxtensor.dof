@@ -7,6 +7,11 @@ Checkout to Graph 0
 
 qsyn> ZXGTest
 Generate a 2-qubit CNOT graph for testing
+Add edge ( 3, 5 )
+Add edge ( 0, 2 )
+Add edge ( 1, 3 )
+Add edge ( 2, 3 )
+Add edge ( 2, 4 )
 
 qsyn> ZXNew
 Successfully generate Graph 1
@@ -14,6 +19,11 @@ Checkout to Graph 1
 
 qsyn> ZXGTest
 Generate a 2-qubit CNOT graph for testing
+Add edge ( 3, 5 )
+Add edge ( 0, 2 )
+Add edge ( 1, 3 )
+Add edge ( 2, 3 )
+Add edge ( 2, 4 )
 
 qsyn> zxcheckout 0
 Checkout to Graph 0
@@ -21,31 +31,31 @@ Checkout to Graph 0
 qsyn> zxtensor 1
 
 qsyn> zxgprint -e
-( 3, 5 )	Type:	0
-( 0, 2 )	Type:	0
-( 1, 3 )	Type:	0
-( 2, 3 )	Type:	0
-( 2, 4 )	Type:	0
-( 11, 9 )	Type:	0
-( 6, 10 )	Type:	0
-( 7, 11 )	Type:	0
-( 10, 11 )	Type:	0
-( 10, 8 )	Type:	0
+( 3, 5 )	Type:	-
+( 0, 2 )	Type:	-
+( 1, 3 )	Type:	-
+( 2, 3 )	Type:	-
+( 2, 4 )	Type:	-
+( 11, 9 )	Type:	-
+( 6, 10 )	Type:	-
+( 7, 11 )	Type:	-
+( 10, 11 )	Type:	-
+( 10, 8 )	Type:	-
 Total #Edges: 10
 
 qsyn> zxgprint -v
-ID:	0	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(2, 0) 
-ID:	1	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(3, 0) 
-ID:	2	VertexType:	1	Qubit:	0	Phase:	0	#Neighbors:	3	(0, 0) (3, 0) (4, 0) 
-ID:	3	VertexType:	2	Qubit:	1	Phase:	0	#Neighbors:	3	(1, 0) (2, 0) (5, 0) 
-ID:	4	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(2, 0) 
-ID:	5	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(3, 0) 
-ID:	6	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(10, 0) 
-ID:	7	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(11, 0) 
-ID:	8	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(10, 0) 
-ID:	9	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(11, 0) 
-ID:	10	VertexType:	1	Qubit:	0	Phase:	0	#Neighbors:	3	(6, 0) (11, 0) (8, 0) 
-ID:	11	VertexType:	2	Qubit:	1	Phase:	0	#Neighbors:	3	(9, 0) (7, 0) (10, 0) 
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+ID:	2	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (3, -) (0, -) 
+ID:	3	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (1, -) (5, -) 
+ID:	4	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	5	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+ID:	6	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
+ID:	7	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(11, -) 
+ID:	8	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
+ID:	9	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(11, -) 
+ID:	10	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (11, -) (6, -) 
+ID:	11	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(10, -) (7, -) (9, -) 
 Total #Vertices: 12
 
 qsyn> zxgprint -i
@@ -66,20 +76,20 @@ qsyn> zxcheckout 1
 Checkout to Graph 1
 
 qsyn> zxgprint -e
-( 3, 5 )	Type:	0
-( 0, 2 )	Type:	0
-( 1, 3 )	Type:	0
-( 2, 3 )	Type:	0
-( 2, 4 )	Type:	0
+( 3, 5 )	Type:	-
+( 0, 2 )	Type:	-
+( 1, 3 )	Type:	-
+( 2, 3 )	Type:	-
+( 2, 4 )	Type:	-
 Total #Edges: 5
 
 qsyn> zxgprint -v
-ID:	0	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(2, 0) 
-ID:	1	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(3, 0) 
-ID:	2	VertexType:	1	Qubit:	0	Phase:	0	#Neighbors:	3	(0, 0) (3, 0) (4, 0) 
-ID:	3	VertexType:	2	Qubit:	1	Phase:	0	#Neighbors:	3	(1, 0) (2, 0) (5, 0) 
-ID:	4	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(2, 0) 
-ID:	5	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(3, 0) 
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+ID:	2	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (3, -) (0, -) 
+ID:	3	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (1, -) (5, -) 
+ID:	4	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	5	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
 Total #Vertices: 6
 
 qsyn> q -f

@@ -1,0 +1,11 @@
+zxmode -on
+zxnew
+zxgt
+zxgp -v
+zxcopy
+zxgt
+zxge -adde 0 5 HADAMARD
+zxgp -v
+zxcheckout 0
+zxgp -v
+q -f

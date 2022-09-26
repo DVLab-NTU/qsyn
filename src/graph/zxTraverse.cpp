@@ -45,10 +45,18 @@ void ZXGraph::updateTopoOrder()
 void ZXGraph::DFS(ZXVertex *currentVertex)
 {
     currentVertex->setVisited(_globalDFScounter);
-    vector<NeighborPair> neighbors = currentVertex->getNeighbors();
-    for (size_t i = 0; i < neighbors.size(); i++){
-        if (!(neighbors[i].first->isVisited(_globalDFScounter)))
-            DFS(neighbors[i].first);
+    // Original
+    // vector<NeighborPair> neighbors = currentVertex->getNeighbors();
+    // for (size_t i = 0; i < neighbors.size(); i++){
+    //     if (!(neighbors[i].first->isVisited(_globalDFScounter)))
+    //         DFS(neighbors[i].first);
+    // }
+
+    // NeighberMap
+    NeighborMap neighborMap = currentVertex->getNeighborMap();
+    for(auto itr = neighborMap.begin(); itr != neighborMap.end(); itr++){
+        if(!(itr->first->isVisited(_globalDFScounter))) DFS(itr->first);
     }
+
     _topoOrder.push_back(currentVertex);
 }
