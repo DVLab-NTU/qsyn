@@ -36,12 +36,12 @@ Output 3:      6
 Total #Outputs: 3
 
 qsyn> zxgp -v
-ID:	1	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	0	
-ID:	3	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	0	
-ID:	2	VertexType:	0	Qubit:	2	Phase:	0	#Neighbors:	0	
-ID:	4	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	0	
-ID:	5	VertexType:	0	Qubit:	2	Phase:	0	#Neighbors:	0	
-ID:	6	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	0	
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	0	
+ID:	3	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	0	
+ID:	2	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	0	
+ID:	4	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	0	
+ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	0	
+ID:	6	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	0	
 Total #Vertices: 6
 
 qsyn> q -f
