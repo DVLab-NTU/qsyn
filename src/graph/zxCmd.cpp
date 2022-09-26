@@ -369,7 +369,7 @@ ZXGTestCmd::exec(const string &option){
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
    
-    // TODO: check existence
+    
    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
     cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXTest." << endl;
     return CMD_EXEC_ERROR;
@@ -412,9 +412,6 @@ ZXGPrintCmd::exec(const string &option){
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
-   
-
-   // TODO: check existence
    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
     cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXPrint." << endl;
     return CMD_EXEC_ERROR;
@@ -458,9 +455,6 @@ ZXGEditCmd::exec(const string &option){
     if(options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
     if(options.size() == 1) return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
 
-    
-
-    // TODO: check existence
    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
     cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXEdit." << endl;
     return CMD_EXEC_ERROR;

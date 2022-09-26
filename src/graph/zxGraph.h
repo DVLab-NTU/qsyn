@@ -83,7 +83,7 @@ class ZXVertex{
         // vector<NeighborPair > getNeighbors() const                          { return _neighbors; }
         NeighborMap getNeighborMap() const                                  { return _neighborMap; }
         // vector<NeighborPair > getNeighborById(size_t id) const;
-        vector<NeighborPair > getNeighborByPointer(ZXVertex* v) const;
+        // vector<NeighborPair > getNeighborByPointer(ZXVertex* v) const;
         
 
         void setId(size_t id)                                                           { _id = id; }
@@ -108,7 +108,6 @@ class ZXVertex{
         
         // Action
         void disconnect(ZXVertex* v, bool checked = false);
-        // void disconnectById(size_t id);
         // void connect(ZXVertex* v, EdgeType* et);
         // void rearrange();
 
@@ -193,7 +192,7 @@ class ZXGraph{
         void addEdges(vector<EdgePair> edges);
 
         void removeVertex(ZXVertex* v, bool checked = false);
-        void removeVertices(vector<ZXVertex* > vertices);
+        void removeVertices(vector<ZXVertex* > vertices, bool checked = false);
         void removeVertexById(size_t id);
         void removeIsolatedVertices();
         void removeEdge(ZXVertex* vs, ZXVertex* vt, bool checked = false);
