@@ -1,0 +1,166 @@
+qsyn> ver 9
+
+qsyn> qccr benchmark/pseudoSimp/toGraph1.qasm
+
+qsyn> qccp -q
+Q 0  -cx( 0)-- t( 1)--cx( 2)-
+Q 1  -cx( 0)----------cx( 2)-
+
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> qczxm
+Successfully generate Graph 0
+Checkout to Graph 0
+----------- ADD BOUNDARIES -----------
+Add input 0
+Add output 1
+Add edge ( 0, 1 )
+Add Qubit 0 inp: 0 oup: 1
+Add input 2
+Add output 3
+Add edge ( 2, 3 )
+Add Qubit 1 inp: 2 oup: 3
+ZXnode starts from 3
+--------------------------------------
+
+---- TRAVERSE AND BUILD THE GRAPH ----
+Gate 0 (cx)
+**** Generate ZX of Gate 0 (cx) ****
+Add input 6
+Add input 7
+Add vertice 4
+Add vertice 5
+Add output 8
+Add output 9
+6 and 4 add each other to _neighbor.
+Add edge ( 6, 4 )
+4 and 8 add each other to _neighbor.
+Add edge ( 4, 8 )
+7 and 5 add each other to _neighbor.
+Add edge ( 7, 5 )
+5 and 9 add each other to _neighbor.
+Add edge ( 5, 9 )
+4 and 5 add each other to _neighbor.
+Add edge ( 4, 5 )
+***********************************
+********** CONCATENATION **********
+Disconnect 7 and 5
+Remove edge ( 7, 5 )
+Disconnect 2 and 3
+2 and 5 add each other to _neighbor.
+Add edge ( 2, 5 )
+Disconnect 6 and 4
+Remove edge ( 6, 4 )
+Disconnect 0 and 1
+0 and 4 add each other to _neighbor.
+Add edge ( 0, 4 )
+Disconnect 9 and 5
+Remove edge ( 9, 5 )
+5 and 3 add each other to _neighbor.
+Add edge ( 5, 3 )
+Disconnect 8 and 4
+Remove edge ( 8, 4 )
+4 and 1 add each other to _neighbor.
+Add edge ( 4, 1 )
+***********************************
+--------------------------------------
+Gate 1 (t)
+**** Generate ZX of Gate 1 (t) ****
+Add input 7
+Add vertice 6
+Add output 8
+7 and 6 add each other to _neighbor.
+Add edge ( 7, 6 )
+6 and 8 add each other to _neighbor.
+Add edge ( 6, 8 )
+***********************************
+********** CONCATENATION **********
+Disconnect 7 and 6
+Remove edge ( 7, 6 )
+Disconnect 4 and 1
+4 and 6 add each other to _neighbor.
+Add edge ( 4, 6 )
+Disconnect 8 and 6
+Remove edge ( 8, 6 )
+6 and 1 add each other to _neighbor.
+Add edge ( 6, 1 )
+***********************************
+--------------------------------------
+Gate 2 (cx)
+**** Generate ZX of Gate 2 (cx) ****
+Add input 9
+Add input 10
+Add vertice 7
+Add vertice 8
+Add output 11
+Add output 12
+9 and 7 add each other to _neighbor.
+Add edge ( 9, 7 )
+7 and 11 add each other to _neighbor.
+Add edge ( 7, 11 )
+10 and 8 add each other to _neighbor.
+Add edge ( 10, 8 )
+8 and 12 add each other to _neighbor.
+Add edge ( 8, 12 )
+7 and 8 add each other to _neighbor.
+Add edge ( 7, 8 )
+***********************************
+********** CONCATENATION **********
+Disconnect 10 and 8
+Remove edge ( 10, 8 )
+Disconnect 6 and 1
+6 and 8 add each other to _neighbor.
+Add edge ( 6, 8 )
+Disconnect 9 and 7
+Remove edge ( 9, 7 )
+Disconnect 5 and 3
+5 and 7 add each other to _neighbor.
+Add edge ( 5, 7 )
+Disconnect 12 and 8
+Remove edge ( 12, 8 )
+8 and 1 add each other to _neighbor.
+Add edge ( 8, 1 )
+Disconnect 11 and 7
+Remove edge ( 11, 7 )
+7 and 3 add each other to _neighbor.
+Add edge ( 7, 3 )
+***********************************
+--------------------------------------
+--------------------------------------
+---------------------------------- GRAPH INFORMATION ---------------------------------
+ID:	0	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(4, 0) 
+ID:	1	VertexType:	0	Qubit:	0	Phase:	0	#Neighbors:	1	(8, 0) 
+ID:	2	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(5, 0) 
+ID:	3	VertexType:	0	Qubit:	1	Phase:	0	#Neighbors:	1	(7, 0) 
+ID:	4	VertexType:	1	Qubit:	0	Phase:	0	#Neighbors:	3	(0, 0) (5, 0) (6, 0) 
+ID:	5	VertexType:	2	Qubit:	1	Phase:	0	#Neighbors:	3	(2, 0) (7, 0) (4, 0) 
+ID:	6	VertexType:	1	Qubit:	0	Phase:	π/4	#Neighbors:	2	(4, 0) (8, 0) 
+ID:	7	VertexType:	1	Qubit:	1	Phase:	0	#Neighbors:	3	(3, 0) (5, 0) (8, 0) 
+ID:	8	VertexType:	2	Qubit:	0	Phase:	0	#Neighbors:	3	(1, 0) (7, 0) (6, 0) 
+Total #Vertices: 9
+--------------------------------------------------------------------------------------
+-> #Graph: 1
+-> Now focus on: 0
+
+qsyn> zxgp
+Graph 0
+Inputs:        2
+Outputs:       2
+Vertices:      9
+Edges:         9
+
+qsyn> zxgp -e
+( 4, 5 )	Type:	0
+( 2, 5 )	Type:	0
+( 0, 4 )	Type:	0
+( 4, 6 )	Type:	0
+( 7, 8 )	Type:	0
+( 6, 8 )	Type:	0
+( 5, 7 )	Type:	0
+( 8, 1 )	Type:	0
+( 7, 3 )	Type:	0
+Total #Edges: 9
+
+qsyn> q -f
+
