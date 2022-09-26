@@ -49,4 +49,6 @@ void Simplify::to_graph(ZXGraph* g){
         v->setType(VertexType::Z);
       }
     }
+    if(verbose >= 3) g->printVertices();
 }
+
