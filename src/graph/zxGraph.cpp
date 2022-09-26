@@ -508,7 +508,7 @@ ZXGraph* ZXGraph::copy() const{
         ZXVertex* s = newGraph->findVertexById(oriPair.first.first->getId());
         ZXVertex* t = newGraph->findVertexById(oriPair.first.second->getId());
         EdgeType* et = new EdgeType(*oriPair.second);
-        cout << s->getId() << "," << t->getId() << ": " << *et << endl;
+        // cout << s->getId() << "," << t->getId() << ": " << *et << endl;
         s->addNeighbor(make_pair(t, et));
         t->addNeighbor(make_pair(s, et));
         edges.push_back(make_pair(make_pair(s, t), et));
