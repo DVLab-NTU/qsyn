@@ -30,7 +30,19 @@ qsyn> qcgp 26 -ZX
 Add input 6
 Add vertice 5
 Add output 7
+6: (5, -) 
+
+---
+5: (6, -) 
+
+---
 Add edge ( 6, 5 )
+5: (7, -) (6, -) 
+
+---
+7: (5, -) 
+
+---
 Add edge ( 5, 7 )
 ID:	6	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	5	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	7π/4	#Neighbors:	2	(7, -) (6, -) 
@@ -50,10 +62,40 @@ Add vertice 5
 Add vertice 6
 Add output 9
 Add output 10
+7: (5, -) 
+
+---
+5: (7, -) 
+
+---
 Add edge ( 7, 5 )
+5: (9, -) (7, -) 
+
+---
+9: (5, -) 
+
+---
 Add edge ( 5, 9 )
+8: (6, -) 
+
+---
+6: (8, -) 
+
+---
 Add edge ( 8, 6 )
+6: (10, -) (8, -) 
+
+---
+10: (6, -) 
+
+---
 Add edge ( 6, 10 )
+5: (6, -) (9, -) (7, -) 
+
+---
+6: (5, -) (10, -) (8, -) 
+
+---
 Add edge ( 5, 6 )
 ID:	7	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	8	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(6, -) 
