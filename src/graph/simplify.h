@@ -10,11 +10,16 @@
 #ifndef SIMPLIFY_H
 #define SIMPLIFY_H
 
-#include <iostream>
-#include <vector>
-#include "zxGraph.h"
-#include "zxDef.h"
 
+#include <vector>
+#include <iostream>
+#include <unordered_map>
+
+#include "zxDef.h"
+#include "zxGraph.h"
+#include "zxRules.h"
+
+class Stats;
 class Simplify;
 enum class SIMP_STRATEGY;
 
@@ -32,6 +37,18 @@ enum class SIMP_STRATEGY{
 
 };
 
+class Stats{
+    public:
+        Stats(){
+            _rewritesNum.clear();
+        }
+        ~Stats(){}
+        void countRewrites(string rule, int n);
+
+    private:
+        unordered_map<string, int>          _rewritesNum;
+};
+
 class Simplify{
     public:
         Simplify(ZXGraph* g){
@@ -44,6 +61,9 @@ class Simplify{
         void setSimplifyGraph(ZXGraph* g)   { _simplifyGraph = g; }
         ZXGraph* getMasterGraph()           { return _masterGraph; }
         ZXGraph* getSimplifyGraph()         { return _simplifyGraph; }
+
+        // action
+        void to_graph(ZXGraph* g);
 
 
     private:

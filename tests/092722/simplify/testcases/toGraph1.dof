@@ -1,4 +1,4 @@
-ver 9
+ver 2
 qccr benchmark/pseudoSimp/toGraph1.qasm
 qccp -q
 zxm -on

@@ -12,6 +12,7 @@
 #include "zxCmd.h"
 #include "zxGraph.h"
 #include "zxGraphMgr.h"
+#include "simplify.h"
 #include "util.h"
 
 using namespace std;
@@ -32,6 +33,7 @@ bool initZXCmd(){
          cmdMgr->regCmd("ZXGPrint", 4, new ZXGPrintCmd) && 
          cmdMgr->regCmd("ZXGTest", 4, new ZXGTestCmd) && 
          cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd) && 
+         cmdMgr->regCmd("ZXGSimp", 4, new ZXGSimpCmd) && 
          cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd)
          )){
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
@@ -367,7 +369,7 @@ ZXGTestCmd::exec(const string &option){
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
    
-    // TODO: check existence
+    
    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
     cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXTest." << endl;
     return CMD_EXEC_ERROR;
@@ -410,9 +412,6 @@ ZXGPrintCmd::exec(const string &option){
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
-   
-
-   // TODO: check existence
    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
     cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXPrint." << endl;
     return CMD_EXEC_ERROR;
@@ -456,9 +455,6 @@ ZXGEditCmd::exec(const string &option){
     if(options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
     if(options.size() == 1) return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
 
-    
-
-    // TODO: check existence
    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
     cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXEdit." << endl;
     return CMD_EXEC_ERROR;
@@ -583,6 +579,28 @@ void ZXGEditCmd::usage(ostream &os) const{
 void ZXGEditCmd::help() const{
     cout << setw(15) << left << "ZXGEdit: " << "edit ZX-graph" << endl;
 }
+
+//----------------------------------------------------------------------
+//    ZXGSimpCmd
+//----------------------------------------------------------------------
+CmdExecStatus
+ZXGSimpCmd::exec(const string &option){
+    string token;
+    if(!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
+    Simplify s(zxGraphMgr->getGraph());
+    s.to_graph(s.getSimplifyGraph());
+    return CMD_EXEC_DONE;
+}
+
+void ZXGSimpCmd::usage(ostream &os) const{
+    os << "Usage: ZXGSimpCmd" << endl;
+}
+
+void ZXGSimpCmd::help() const{
+    cout << setw(15) << left << "ZXGSimpCmd: " << "do simplification strategies for ZX-graph" << endl; 
+}
+
+
 
 //----------------------------------------------------------------------
 //    ZXGTRaverse

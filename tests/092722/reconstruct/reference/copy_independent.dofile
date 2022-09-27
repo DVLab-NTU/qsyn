@@ -1,0 +1,62 @@
+qsyn> zxmode -on
+ZXMODE turn ON!
+
+qsyn> zxnew
+Successfully generate Graph 0
+Checkout to Graph 0
+
+qsyn> zxgt
+Generate a 2-qubit CNOT graph for testing
+Add edge ( 3, 5 )
+Add edge ( 0, 2 )
+Add edge ( 1, 3 )
+Add edge ( 2, 3 )
+Add edge ( 2, 4 )
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+ID:	2	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (3, -) (4, -) 
+ID:	3	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(1, -) (2, -) (5, -) 
+ID:	4	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	5	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+Total #Vertices: 6
+
+qsyn> zxcopy
+Successfully copy Graph 0 to Graph 1
+Checkout to Graph 1
+
+qsyn> zxgt
+Generate a 2-qubit CNOT graph for testing
+Add edge ( 3, 5 )
+Add edge ( 0, 2 )
+Add edge ( 1, 3 )
+Add edge ( 2, 3 )
+Add edge ( 2, 4 )
+
+qsyn> zxge -adde 0 5 HADAMARD
+Add edge ( 0, 5 )
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	2	(2, -) (5, [1;34mH[0m) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+ID:	2	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (3, -) (4, -) 
+ID:	3	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(1, -) (2, -) (5, -) 
+ID:	4	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	5	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	2	(0, [1;34mH[0m) (3, -) 
+Total #Vertices: 6
+
+qsyn> zxcheckout 0
+Checkout to Graph 0
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+ID:	2	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (3, -) (4, -) 
+ID:	3	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(1, -) (2, -) (5, -) 
+ID:	4	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	5	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+Total #Vertices: 6
+
+qsyn> q -f
+
