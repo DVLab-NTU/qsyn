@@ -5,7 +5,7 @@ zxm -on
 qczxm
 zxgp
 zxgp -e
-zxgsimp
+zxgsimp -tograph
 zxgp -v
 zxgp -e
 q -f
