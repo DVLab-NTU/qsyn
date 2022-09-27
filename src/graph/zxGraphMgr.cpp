@@ -133,29 +133,30 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph){
       copyGraph->getVertices()[i]->setId(nextID);
       nextID++;
     }
-
+    
+    //! TODO
     // Connect each vertex that originally connected to output of oriGraph to each vertex that originally coneected to input of copyGraph
-
+    
     for(size_t i = 0; i < oriGraph->getOutputs().size(); i++){
       ZXVertex* curOut = oriGraph->getOutputs()[i];
       ZXVertex* cpIn = copyGraph->getInputs()[i];
-      for(size_t s = 0; s < curOut->getNeighbors().size(); s++){
-        for(size_t t = 0; t < cpIn->getNeighbors().size(); t++){
-          ZXVertex* vs = curOut->getNeighbors()[s].first; EdgeType vsType = curOut->getNeighbors()[s].second;
-          ZXVertex* vt = cpIn->getNeighbors()[t].first; EdgeType vtType = cpIn->getNeighbors()[t].second;
-          EdgeType newType;
-          if((vsType == EdgeType::SIMPLE && vtType == EdgeType::SIMPLE) || (vsType == EdgeType::HADAMARD && vtType == EdgeType::HADAMARD)) newType = EdgeType::SIMPLE;
-          else newType = EdgeType::HADAMARD;
+      for(auto& s : curOut->getNeighborMap()){
+        ZXVertex* vs = s.first; EdgeType* vsType = s.second;
+        for(auto& t : cpIn->getNeighborMap()){
+          ZXVertex* vt = t.first; EdgeType* vtType = t.second;
+          EdgeType* newType;
+          if((*vsType == EdgeType::SIMPLE && *vtType == EdgeType::SIMPLE) || (*vsType == EdgeType::HADAMARD && *vtType == EdgeType::HADAMARD)) newType = new EdgeType(EdgeType::SIMPLE);
+          else newType = new EdgeType(EdgeType::HADAMARD);
           oriGraph->addEdge(vs, vt, newType);
-          vs->disconnect(curOut);
           vt->disconnect(cpIn);
         }
+        vs->disconnect(curOut);
       }
     }
 
     // Remove outputs of oriGraph and inputs of copyGraph
-    oriGraph->removeVertices(oriGraph->getOutputs());
-    copyGraph->removeVertices(copyGraph->getInputs());
+    oriGraph->removeVertices(oriGraph->getOutputs(), true);
+    copyGraph->removeVertices(copyGraph->getInputs(), true);
 
     // Update data in oriGraph
     oriGraph->setOutputs(copyGraph->getOutputs());

@@ -1,0 +1,15 @@
+zxmode -On
+ZXNew
+ZXGTest
+ZXNew
+ZXGTest
+zxcheckout 0
+zxtensor 1
+zxgprint -e
+zxgprint -v
+zxgprint -i
+zxgprint -o
+zxcheckout 1
+zxgprint -e
+zxgprint -v
+q -f

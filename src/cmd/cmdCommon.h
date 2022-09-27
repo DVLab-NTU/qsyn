@@ -16,4 +16,5 @@ CmdClass(HistoryCmd);
 CmdClass(DofileCmd);
 CmdClass(UsageCmd);
 CmdClass(VerboseCmd);
+CmdClass(SeedCmd);
 #endif // CMD_COMMON_H
