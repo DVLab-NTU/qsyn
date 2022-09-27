@@ -80,6 +80,7 @@ class ZXVertex{
         int getQubit() const                                                { return _qubit; }
         VertexType getType() const                                          { return _type; }
         Phase getPhase() const                                              { return _phase; }
+        vector<ZXVertex*> getNeighbors() const;
         NeighborMap getNeighborMap() const                                  { return _neighborMap; }
 
         void setId(size_t id)                                               { _id = id; }

@@ -64,7 +64,8 @@ class Simplify{
 
 
         // Simplification strategies
-        int simp(ZXGraph* g, Stats stats, );
+        int simp(ZXGraph* g, Stats stats);
+        int hadamard_simp(ZXGraph* g, Stats stats);
 
         // action
         void to_graph(ZXGraph* g);

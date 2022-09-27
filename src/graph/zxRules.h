@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ zxRules.h ]
+  FileName     [ ZXRules.h ]
   PackageName  [ graph ]
   Synopsis     [ ZX Basic Rules ]
   Author       [ Cheng-Hua Lu ]
@@ -15,24 +15,18 @@
 #include "zxDef.h"
 #include "zxGraph.h"
 
-class zxRules{
-  typedef pair<int, int> MatchType;
-  typedef vector<MatchType> MatchTypeVec;
 
+class ZXRules{
     public:
-        zxRules(){}
-        ~zxRules(){}
-
+        ZXRules(){}
+        ~ZXRules(){}
     private:
-
 };
 
-class spiderFusion : public zxRules{
-  typedef pair<ZXVertex*, ZXVertex*> MatchType;
-  typedef vector<MatchType> MatchTypeVec;
-
+class SpiderFusion : public ZXRules{
   public:
-    MatchTypeVec match(ZXGraph* g);
+    vector<pair<ZXVertex*, ZXVertex*> > match(ZXGraph* g);
+    void spiderFuse(ZXGraph* g, vector<pair<ZXVertex*, ZXVertex*> > matches);
     
   private:
 };
@@ -41,26 +35,23 @@ class spiderFusion : public zxRules{
  * @brief 
  * 
  */
-class bialgebra : public zxRules{
+class Bialgebra : public ZXRules{
   public:
+    vector<vector<ZXVertex*> > match(ZXGraph* g);
+    void bialg(ZXGraph* g, vector<vector<ZXVertex*> > matches);
+
   private:
-
-
-
 };
 
 /**
  * @brief Hadamard rule (h)
  * 
  */
-class hadamard : public zxRules{
-  typedef vector<ZXVertex* > MatchTypeVec;
-  typedef vector<pair<EdgePair, ZXVertex*> > RewriteOutputType;
-
-
+class Hadamard : public ZXRules{
   public:
-    MatchTypeVec match(ZXGraph* g);
-    RewriteOutputType hadamard2edge(ZXGraph* g, MatchTypeVec matches);
+    vector<ZXVertex*> match(ZXGraph* g);
+    void hadamard2Edge(ZXGraph* g, vector<ZXVertex*> matches);
+    
   
   private:
 
@@ -70,7 +61,13 @@ class hadamard : public zxRules{
  * @brief Hadamard-cancellation (i2)
  * 
  */
-class hCancel : public zxRules{
+class HCancel : public ZXRules{
+  public:
+    vector<EdgePair> match(ZXGraph* g);
+    void hboxesFuse(ZXGraph* g, vector<ZXVertex*> matches);
+    
+  
+  private:
 
 };
 

@@ -586,20 +586,46 @@ void ZXGEditCmd::help() const{
 CmdExecStatus
 ZXGSimpCmd::exec(const string &option){
     if(curCmd != ZXON){
-        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXEdit." << endl;
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXPrint." << endl;
         return CMD_EXEC_ERROR;
     }
-    
+    // check option
     string token;
-    if(!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
-    Simplify s(zxGraphMgr->getGraph());
-    // s.to_graph(s.getSimplifyGraph());
-    s.to_rgraph(s.getSimplifyGraph());
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+
+    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
+        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXPrint." << endl;
+        return CMD_EXEC_ERROR;
+    }
+    else{
+        Simplify s(zxGraphMgr->getGraph());
+        Stats stats;
+        if(token.empty() || myStrNCmp("-TOGraph", token, 3) == 0){
+            s.to_graph(s.getSimplifyGraph());
+        }
+        else if(myStrNCmp("-TORGraph", token, 4) == 0){
+            s.to_rgraph(s.getSimplifyGraph());
+        }
+        else if(myStrNCmp("-HADAmard", token, 4) == 0){
+            s.hadamard_simp(s.getSimplifyGraph(), stats);
+        }
+        else if(myStrNCmp("-SPIderfusion", token, 3) == 0){
+            cout << "Not finished yet!" << endl;
+        }
+        else if(myStrNCmp("-BIAlgebra", token, 3) == 0){
+            cout << "Not finished yet!" << endl;
+        }
+        else if(myStrNCmp("-PICOPY", token, 6) == 0){
+            cout << "Not finished yet!" << endl;
+        }
+        else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+        zxGraphMgr->setGraph(s.getSimplifyGraph());
+    }
     return CMD_EXEC_DONE;
 }
 
 void ZXGSimpCmd::usage(ostream &os) const{
-    os << "Usage: ZXGSimp" << endl;
+    os << "Usage: ZXGSimp [-TOGraph | -TORGraph | -HADAmard | -SPIderfusion | ]" << endl;
 }
 
 void ZXGSimpCmd::help() const{

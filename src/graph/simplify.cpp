@@ -17,6 +17,7 @@
 #include "util.h"
 #include "simplify.h"
 
+
 using namespace std;
 extern size_t verbose;
 
@@ -35,6 +36,18 @@ void Stats::countRewrites(string rule, int n){
 /******************************************/
 /*     class Simplify member functions    */
 /******************************************/
+
+
+// int Simplify::simp(ZXGraph* g, Stats stats, MatchTypeVec match){}
+
+int Simplify::hadamard_simp(ZXGraph* g, Stats stats){
+  Hadamard rule;
+  vector<ZXVertex*> matches = rule.match(g);
+  rule.hadamard2Edge(g, matches);
+  return matches.size();
+}
+
+
 
 /**
  * @brief Turns every red node(VertexType::X) into green node(VertexType::Z) by regular simple edges <--> hadamard edges.

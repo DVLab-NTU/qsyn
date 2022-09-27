@@ -57,6 +57,12 @@ string EdgeType2Str(EdgeType* et){
 /*   class ZXVertex member functions   */
 /**************************************/
 
+vector<ZXVertex*> ZXVertex::getNeighbors() const{
+    vector<ZXVertex*> neighbors;
+    for(auto& itr : getNeighborMap()) neighbors.push_back(itr.first);
+    return neighbors;
+}
+
 
 // Print functions
 
@@ -266,7 +272,14 @@ ZXVertex* ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase){
         return v;
     }
 }
-
+/**
+ * @brief Add edge (<<vs, vt>, et>)
+ * 
+ * @param vs 
+ * @param vt 
+ * @param et 
+ * @return EdgePair 
+ */
 EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et){
     // NeighborMap mode
     vs->addNeighbor(make_pair(vt, et));
