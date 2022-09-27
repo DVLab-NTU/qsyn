@@ -67,12 +67,12 @@ Total #Outputs: 2
 qsyn> zxgprint -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
-ID:	2	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, -) (3, -) (0, -) 
-ID:	3	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(11, -) (2, -) (1, -) 
+ID:	2	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (3, -) (10, -) 
+ID:	3	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(1, -) (2, -) (11, -) 
 ID:	8	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
 ID:	9	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(11, -) 
-ID:	10	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (2, -) (11, -) 
-ID:	11	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(10, -) (3, -) (9, -) 
+ID:	10	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (8, -) (11, -) 
+ID:	11	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (9, -) (10, -) 
 Total #Vertices: 8
 
 qsyn> zxcheckout 1
@@ -81,8 +81,8 @@ Checkout to Graph 1
 qsyn> zxgprint -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
-ID:	2	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (3, -) (0, -) 
-ID:	3	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (1, -) (5, -) 
+ID:	2	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (3, -) (4, -) 
+ID:	3	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(1, -) (2, -) (5, -) 
 ID:	4	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
 ID:	5	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
 Total #Vertices: 6
@@ -92,7 +92,7 @@ Remove ID: 1
 
 qsyn> zxgprint -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
-ID:	2	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (3, -) (0, -) 
+ID:	2	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (3, -) (4, -) 
 ID:	3	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(2, -) (5, -) 
 ID:	4	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
 ID:	5	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
@@ -104,12 +104,12 @@ Checkout to Graph 0
 qsyn> zxgprint -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
-ID:	2	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, -) (3, -) (0, -) 
-ID:	3	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(11, -) (2, -) (1, -) 
+ID:	2	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (3, -) (10, -) 
+ID:	3	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(1, -) (2, -) (11, -) 
 ID:	8	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
 ID:	9	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(11, -) 
-ID:	10	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (2, -) (11, -) 
-ID:	11	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(10, -) (3, -) (9, -) 
+ID:	10	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (8, -) (11, -) 
+ID:	11	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (9, -) (10, -) 
 Total #Vertices: 8
 
 qsyn> q -f
