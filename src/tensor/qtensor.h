@@ -5,8 +5,8 @@
   Author       [ Mu-Te (Joshua) Lau ]
   Copyright    [ 2022 9 ]
 ****************************************************************************/
-#ifndef TENSOR_H
-#define TENSOR_H
+#ifndef Q_TENSOR_H
+#define Q_TENSOR_H
 
 #include "tensor.h"
 #include "phase.h"
@@ -48,7 +48,6 @@ public:
     static QTensor<T> cnz(const size_t& n);
 
     QTensor<T> selfTensordot(const TensorAxisList& ax1 = {}, const TensorAxisList& ax2 = {});
-
 
 private:
     static DataType nuPow(const int& n);
@@ -222,4 +221,4 @@ QTensor<T>::DataType QTensor<T>::nuPow(const int& n) {
     return std::pow(2., -0.25 * n);
 }
 
-#endif  // TENSOR_H
+#endif  // Q_TENSOR_H
