@@ -62,8 +62,13 @@ class Simplify{
         ZXGraph* getMasterGraph()           { return _masterGraph; }
         ZXGraph* getSimplifyGraph()         { return _simplifyGraph; }
 
+
+        // Simplification strategies
+        int simp(ZXGraph* g, Stats stats, );
+
         // action
         void to_graph(ZXGraph* g);
+        void to_rgraph(ZXGraph* g);
 
 
     private:

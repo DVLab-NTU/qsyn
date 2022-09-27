@@ -593,7 +593,8 @@ ZXGSimpCmd::exec(const string &option){
     string token;
     if(!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
     Simplify s(zxGraphMgr->getGraph());
-    s.to_graph(s.getSimplifyGraph());
+    // s.to_graph(s.getSimplifyGraph());
+    s.to_rgraph(s.getSimplifyGraph());
     return CMD_EXEC_DONE;
 }
 

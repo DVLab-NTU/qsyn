@@ -37,8 +37,40 @@ class spiderFusion : public zxRules{
   private:
 };
 
+/**
+ * @brief 
+ * 
+ */
 class bialgebra : public zxRules{
+  public:
+  private:
 
+
+
+};
+
+/**
+ * @brief Hadamard rule (h)
+ * 
+ */
+class hadamard : public zxRules{
+  typedef vector<ZXVertex* > MatchTypeVec;
+  typedef vector<pair<EdgePair, ZXVertex*> > RewriteOutputType;
+
+
+  public:
+    MatchTypeVec match(ZXGraph* g);
+    RewriteOutputType hadamard2edge(ZXGraph* g, MatchTypeVec matches);
+  
+  private:
+
+};
+
+/**
+ * @brief Hadamard-cancellation (i2)
+ * 
+ */
+class hCancel : public zxRules{
 
 };
 

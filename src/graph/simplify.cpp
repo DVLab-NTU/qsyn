@@ -52,3 +52,19 @@ void Simplify::to_graph(ZXGraph* g){
     if(verbose >= 3) g->printVertices();
 }
 
+/**
+ * @brief Turn green nodes into red nodes by color-changing vertices which greedily reducing the number of Hadamard-edges.
+ * 
+ * @param g 
+ */
+void Simplify::to_rgraph(ZXGraph* g){
+  for(size_t i = 0; i < g->getNumVertices(); i++){
+    ZXVertex* v = g->getVertices()[i];
+    if(v->getType() == VertexType::Z){
+      for(auto& itr : v->getNeighborMap()) *itr.second = toggleEdge(*itr.second);
+      v->setType(VertexType::X);
+    }
+  }
+  if(verbose >= 3) g->printVertices();
+}
+
