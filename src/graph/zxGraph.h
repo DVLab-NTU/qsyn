@@ -223,6 +223,7 @@ class ZXGraph{
         ZXVertex* getInputFromHash(size_t q);
         ZXVertex* getOutputFromHash(size_t q);
         vector<ZXVertex*> getNonBoundary();
+        vector<EdgePair> getInnerEdges();
         void cleanRedundantEdges();
 
         

@@ -44,6 +44,12 @@ else
     endif
 endif
 
+ifneq (,$(findstring -DOSX, $(OSFLAG)))
+    LIBPKGS += lapack cblas blas
+else
+    LIBPKGS += lapack cblas blas gfortran
+endif
+
 all:  main
 test: testmain
 

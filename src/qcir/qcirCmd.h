@@ -19,6 +19,7 @@ CmdClass(QCirDeleteGateCmd);
 CmdClass(QCirDeleteQubitCmd);
 CmdClass(QCirTestCmd);
 CmdClass(QCirZXMappingCmd);
+CmdClass(QCirTSMappingCmd);
 CmdClass(QCirGatePrintCmd);
 
 #endif // QCIR_CMD_H

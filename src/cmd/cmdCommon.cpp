@@ -2,11 +2,12 @@
   FileName     [ cmdCommon.cpp ]
   PackageName  [ cmd ]
   Synopsis     [ Define common commands ]
-  Author       [ Chung-Yang (Ric) Huang ]
+  Author       [ Chung-Yang (Ric) Huang, Chin Yi Cheng ]
   Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #include <iomanip>
 #include <string>
+#include <algorithm>
 #include "util.h"
 #include "cmdCommon.h"
 
@@ -21,7 +22,8 @@ initCommonCmd()
          cmdMgr->regCmd("HELp", 3, new HelpCmd) &&
          cmdMgr->regCmd("DOfile", 2, new DofileCmd) &&
          cmdMgr->regCmd("USAGE", 5, new UsageCmd) &&
-         cmdMgr->regCmd("VERbose", 3, new VerboseCmd)
+         cmdMgr->regCmd("VERbose", 3, new VerboseCmd) &&
+         cmdMgr->regCmd("SEED", 4, new SeedCmd)
       )) {
       cerr << "Registering \"init\" commands fails... exiting" << endl;
       return false;
@@ -257,7 +259,7 @@ VerboseCmd::exec(const string& option)
       return CMD_EXEC_ERROR;
    unsigned level;
    if(!myStr2Uns(token, level)){
-      cerr << "Error: target ID should be a positive integer or 0!!" << endl;
+      cerr << "Error: verbose level should be a positive integer or 0!!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    }
    if(level > 9 && level!=353){
@@ -280,4 +282,43 @@ VerboseCmd::help() const
 {
    cout << setw(15) << left << "VERbose: "
         << "set verbose level (0-9)" << endl;
+}
+
+//----------------------------------------------------------------------
+//    SEED [size_t seed]
+//----------------------------------------------------------------------
+CmdExecStatus
+SeedCmd::exec(const string& option)
+{
+   // check option
+   string token;
+   if (option.size()==0){
+      srand(353);
+      cerr << "Note: seed is set to 353" << endl;
+   }
+   else{
+      if (!CmdExec::lexSingleOption(option, token, false))
+         return CMD_EXEC_ERROR;
+      int seed;
+      if(!myStr2Int(token, seed)){
+         cerr << "Error: Seed should be an integer!!" << endl;
+         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+      }
+      srand(seed);
+      cerr << "Note: seed is set to " << seed << endl;
+      }
+   return CMD_EXEC_DONE;
+}
+
+void
+SeedCmd::usage(ostream& os) const
+{
+   os << "Usage: SEED [size_t seed]" << endl;
+}
+
+void
+SeedCmd::help() const
+{
+   cout << setw(15) << left << "SEED: "
+        << "fix seed" << endl;
 }

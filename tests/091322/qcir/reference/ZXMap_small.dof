@@ -40,6 +40,7 @@ Total #Vertices: 5
 --------------------------------------------------------------------------------------
 
 qsyn> qcga -cx -pr 0 1
+Warning: The graph list is empty now
 
 qsyn> qczxm
 Successfully generate Graph 1
@@ -89,7 +90,7 @@ ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(6, -)
 ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	4	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(6, -) (0, -) (5, -) 
-ID:	5	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (3, -) (4, -) 
+ID:	5	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (2, -) (4, -) 
 ID:	6	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (4, -) 
 Total #Vertices: 7
 --------------------------------------------------------------------------------------
@@ -595,7 +596,7 @@ ID:	14	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(20, -) (11, -) 
 ID:	15	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(16, -) (7, -) 
 ID:	16	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	π/4	#Neighbors:	2	(17, -) (15, -) 
 ID:	17	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(21, -) (16, -) (18, -) 
-ID:	18	VertexType:	[1;31mX[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(19, -) (13, -) (17, -) 
+ID:	18	VertexType:	[1;31mX[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(13, -) (19, -) (17, -) 
 ID:	19	VertexType:	[1;32mZ[0m	Qubit:	2	Phase:	7π/4	#Neighbors:	2	(24, -) (18, -) 
 ID:	20	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(23, -) (14, -) (21, -) 
 ID:	21	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(22, -) (17, -) (20, -) 
@@ -603,11 +604,11 @@ ID:	22	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	π/4	#Neighbors:	2	(26, -) (21, 
 ID:	23	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(28, -) (20, -) (24, -) 
 ID:	24	VertexType:	[1;31mX[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(25, -) (19, -) (23, -) 
 ID:	25	VertexType:	[1;32mZ[0m	Qubit:	2	Phase:	7π/4	#Neighbors:	2	(27, -) (24, -) 
-ID:	26	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(30, -) (27, -) (22, -) 
+ID:	26	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(30, -) (22, -) (27, -) 
 ID:	27	VertexType:	[1;31mX[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(33, -) (25, -) (26, -) 
 ID:	28	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	7π/4	#Neighbors:	2	(29, -) (23, -) 
 ID:	29	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(34, -) (28, -) (30, -) 
-ID:	30	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(26, -) (31, -) (29, -) 
+ID:	30	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(31, -) (26, -) (29, -) 
 ID:	31	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(32, -) (30, -) 
 ID:	32	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	π/4	#Neighbors:	2	(37, -) (31, -) 
 ID:	33	VertexType:	[1;32mZ[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(38, -) (27, -) (34, -) 
@@ -621,7 +622,7 @@ ID:	40	VertexType:	[1;32mZ[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(44, -) (39, -) 
 ID:	41	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(42, -) (36, -) (40, -) 
 ID:	42	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	7π/4	#Neighbors:	2	(47, -) (41, -) 
 ID:	43	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(46, -) (37, -) (44, -) 
-ID:	44	VertexType:	[1;31mX[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(45, -) (43, -) (40, -) 
+ID:	44	VertexType:	[1;31mX[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(45, -) (40, -) (43, -) 
 ID:	45	VertexType:	[1;32mZ[0m	Qubit:	2	Phase:	π/4	#Neighbors:	2	(49, -) (44, -) 
 ID:	46	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(51, -) (43, -) (47, -) 
 ID:	47	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(48, -) (42, -) (46, -) 

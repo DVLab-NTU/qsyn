@@ -195,12 +195,12 @@ ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(11, -)
 ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(18, -) 
 ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(15, -) 
 ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(19, -) 
-ID:	8	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(9, -) (10, -) (0, -) 
+ID:	8	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, -) (9, -) (0, -) 
 ID:	9	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(12, -) (2, -) (8, -) 
 ID:	10	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(14, -) (8, -) (11, -) 
 ID:	11	VertexType:	[1;31mX[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(13, -) (4, -) (10, -) 
 ID:	12	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(16, -) (9, -) (13, -) 
-ID:	13	VertexType:	[1;31mX[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(18, -) (11, -) (12, -) 
+ID:	13	VertexType:	[1;31mX[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(11, -) (18, -) (12, -) 
 ID:	14	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (10, -) (15, -) 
 ID:	15	VertexType:	[1;31mX[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(17, -) (6, -) (14, -) 
 ID:	16	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (12, -) (17, -) 
@@ -214,7 +214,7 @@ Total #Vertices: 20
 
 qsyn> zxgtr
 Topological order from first input: 
-0 8 9 2 12 16 17 19 18 5 13 11 10 14 15 6 1 4 7 3 
+0 8 10 14 15 6 17 19 18 5 13 12 9 2 16 3 11 4 7 1 
 Size of topological order: 20
 
 qsyn> q -f
