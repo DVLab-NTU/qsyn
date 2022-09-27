@@ -1,8 +1,15 @@
-ver 2
+ver 3
 qccr benchmark/pseudoSimp/toGraph2.qasm
 qccp -q
 zxm -on
 qczxm
+zxcopy
 zxgp
 zxgp -e
+zxgp -v
+zxgsimp
+zxgp -v
+zxgp -e
+zxcheckout 0
+zxgp -v
 q -f
