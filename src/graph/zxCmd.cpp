@@ -598,16 +598,20 @@ ZXGSimpCmd::exec(const string &option){
         return CMD_EXEC_ERROR;
     }
     else{
-        Simplify s(zxGraphMgr->getGraph());
-        Stats stats;
+        
+        // Stats stats;
         if(token.empty() || myStrNCmp("-TOGraph", token, 3) == 0){
-            s.to_graph(s.getSimplifyGraph());
+            // s.to_graph(s.getSimplifyGraph());
         }
         else if(myStrNCmp("-TORGraph", token, 4) == 0){
-            s.to_rgraph(s.getSimplifyGraph());
+            // s.to_rgraph(s.getSimplifyGraph());
         }
-        else if(myStrNCmp("-HADAmard", token, 4) == 0){
-            s.hadamard_simp(s.getSimplifyGraph(), stats);
+        else if(myStrNCmp("-HRule", token, 2) == 0){
+            // ZXRule* rule = new HRule();
+            // vector<ZXVertex*> tmp;
+            
+            // Simplifier s(new HRule(tmp), zxGraphMgr->getGraph());
+            // s.simp("Hadamard Rule");
         }
         else if(myStrNCmp("-SPIderfusion", token, 3) == 0){
             cout << "Not finished yet!" << endl;
@@ -619,7 +623,7 @@ ZXGSimpCmd::exec(const string &option){
             cout << "Not finished yet!" << endl;
         }
         else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-        zxGraphMgr->setGraph(s.getSimplifyGraph());
+        // zxGraphMgr->setGraph(s.getSimplifyGraph());
     }
     return CMD_EXEC_DONE;
 }

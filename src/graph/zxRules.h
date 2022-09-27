@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ ZXRules.h ]
+  FileName     [ ZXRule.h ]
   PackageName  [ graph ]
   Synopsis     [ ZX Basic Rules ]
   Author       [ Cheng-Hua Lu ]
@@ -10,66 +10,85 @@
 #ifndef ZX_RULES_H
 #define ZX_RULES_H
 
+#include <tuple>
 #include <vector>
 #include <iostream>
+#include <unordered_map>
+
 #include "zxDef.h"
 #include "zxGraph.h"
 
 
-class ZXRules{
+
+
+class ZXRule{
     public:
-        ZXRules(){}
-        ~ZXRules(){}
-    private:
+      typedef int MatchType;
+      typedef vector<MatchType> MatchTypeVec;
+      
+      ZXRule(){};
+      
+      
+      ~ZXRule(){};
+
+      virtual void match(ZXGraph* g){}
+      virtual void rewrite(ZXGraph* g){}
+
+      // virtual MatchTypeVec getMatchTypeVec() const                                        {}
+      virtual vector<ZXVertex* > getRemoveVertices() const                    { return _removeVertices; }
+      virtual vector<EdgePair> getRemoveEdges() const                         { return _removeEdges; }
+      virtual vector<pair<ZXVertex*, ZXVertex*> > getEdgeTableKeys() const    { return _edgeTableKeys; }
+      virtual vector<pair<int, int> > getEdgeTableValues() const              { return _edgeTableValues; }
+      // virtual void setMatchTypeVec(MatchTypeVec v)                         {  }
+      virtual void setRemoveVertices(vector<ZXVertex* > v)           { _removeVertices = v; }
+      
+      
+      template <typename T> T getMatchTypeVec() const  { return _matchTypeVec; }
+      
+    
+    protected:
+      MatchTypeVec                                  _matchTypeVec;
+      vector<ZXVertex* >                            _removeVertices;
+      vector<EdgePair>                              _removeEdges;
+      vector<pair<ZXVertex*, ZXVertex*> >           _edgeTableKeys;
+      vector<pair<int, int> >                       _edgeTableValues;
+
 };
 
-class SpiderFusion : public ZXRules{
-  public:
-    vector<pair<ZXVertex*, ZXVertex*> > match(ZXGraph* g);
-    void spiderFuse(ZXGraph* g, vector<pair<ZXVertex*, ZXVertex*> > matches);
-    
-  private:
-};
 
 /**
- * @brief 
+ * @brief Hadamard rule (h): H_BOX vertex -> HADAMARD edge (in hrule.cpp)
  * 
  */
-class Bialgebra : public ZXRules{
-  public:
-    vector<vector<ZXVertex*> > match(ZXGraph* g);
-    void bialg(ZXGraph* g, vector<vector<ZXVertex*> > matches);
 
-  private:
-};
-
-/**
- * @brief Hadamard rule (h)
- * 
- */
-class Hadamard : public ZXRules{
+class HRule : public ZXRule{
   public:
-    vector<ZXVertex*> match(ZXGraph* g);
-    void hadamard2Edge(ZXGraph* g, vector<ZXVertex*> matches);
+    typedef ZXVertex* MatchType;
+    typedef vector<MatchType> MatchTypeVec;
+
+    HRule(){
+      _matchTypeVec.clear();
+      _removeVertices.clear();
+      _removeEdges.clear();
+      _edgeTableKeys.clear();
+      _edgeTableValues.clear();
+    }
+    ~HRule(){}
+
     
-  
-  private:
-
-};
-
-/**
- * @brief Hadamard-cancellation (i2)
- * 
- */
-class HCancel : public ZXRules{
-  public:
-    vector<EdgePair> match(ZXGraph* g);
-    void hboxesFuse(ZXGraph* g, vector<ZXVertex*> matches);
+    void match(ZXGraph* g) override; 
+    void rewrite(ZXGraph* g) override;
     
-  
+  protected:
+    
+    // vector<ZXVertex* >                            _removeVertices;
+    // vector<EdgePair>                              _removeEdges;
+    // vector<pair<ZXVertex*, ZXVertex*> >           _edgeTableKeys;
+    // vector<pair<int, int> >                       _edgeTableValues;
   private:
-
+    
 };
+
 
 
 #endif

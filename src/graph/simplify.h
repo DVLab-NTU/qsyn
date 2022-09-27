@@ -20,7 +20,7 @@
 #include "zxRules.h"
 
 class Stats;
-class Simplify;
+class Simplifier;
 enum class SIMP_STRATEGY;
 
 enum class SIMP_STRATEGY{
@@ -49,23 +49,23 @@ class Stats{
         unordered_map<string, int>          _rewritesNum;
 };
 
-class Simplify{
+class Simplifier{
     public:
-        Simplify(ZXGraph* g){
-            _masterGraph = g->copy();
-            _simplifyGraph = g->copy();
+        Simplifier(ZXRule* rule, ZXGraph* g){
+            _rule = rule;
+            _simpGraph = g;
         }
-        ~Simplify(){}
+        ~Simplifier(){}
 
-        void setMasterGraph(ZXGraph* g)     { _masterGraph = g; }
-        void setSimplifyGraph(ZXGraph* g)   { _simplifyGraph = g; }
-        ZXGraph* getMasterGraph()           { return _masterGraph; }
-        ZXGraph* getSimplifyGraph()         { return _simplifyGraph; }
+        // void setMasterGraph(ZXGraph* g)     { _masterGraph = g; }
+        // void setSimplifyGraph(ZXGraph* g)   { _simplifyGraph = g; }
+        // ZXGraph* getMasterGraph()           { return _masterGraph; }
+        // ZXGraph* getSimplifyGraph()         { return _simplifyGraph; }
 
 
         // Simplification strategies
-        int simp(ZXGraph* g, Stats stats);
-        int hadamard_simp(ZXGraph* g, Stats stats);
+        int simp(string rule_name);
+        // int hadamard_simp(ZXGraph* g, Stats stats);
 
         // action
         void to_graph(ZXGraph* g);
@@ -73,8 +73,8 @@ class Simplify{
 
 
     private:
-        ZXGraph*    _masterGraph;
-        ZXGraph*    _simplifyGraph;
+        ZXRule*             _rule;
+        ZXGraph*            _simpGraph;
 };
     
 #endif

@@ -57,6 +57,11 @@ string EdgeType2Str(EdgeType* et){
 /*   class ZXVertex member functions   */
 /**************************************/
 
+ZXVertex* ZXVertex::getNeighbor(size_t idx) const{
+    if(idx > getNeighbors().size()-1 ) return nullptr;
+    return getNeighbors()[idx];
+}
+
 vector<ZXVertex*> ZXVertex::getNeighbors() const{
     vector<ZXVertex*> neighbors;
     for(auto& itr : getNeighborMap()) neighbors.push_back(itr.first);
