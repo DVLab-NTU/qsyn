@@ -33,7 +33,7 @@ Add output 7
 Add edge ( 6, 5 )
 Add edge ( 5, 7 )
 ID:	6	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
-ID:	5	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	7π/4	#Neighbors:	2	(7, -) (6, -) 
+ID:	5	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	7π/4	#Neighbors:	2	(6, -) (7, -) 
 ID:	7	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
 Total #Vertices: 3
 
@@ -57,8 +57,8 @@ Add edge ( 6, 10 )
 Add edge ( 5, 6 )
 ID:	7	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	8	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(6, -) 
-ID:	5	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(6, -) (9, -) (7, -) 
-ID:	6	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(5, -) (10, -) (8, -) 
+ID:	5	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(6, -) (7, -) (9, -) 
+ID:	6	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(5, -) (8, -) (10, -) 
 ID:	9	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	10	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(6, -) 
 Total #Vertices: 6

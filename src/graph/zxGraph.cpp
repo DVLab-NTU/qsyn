@@ -84,8 +84,13 @@ void ZXVertex::printVertex() const{
  * 
  */
 void ZXVertex::printNeighborMap() const{
-    for(auto itr = _neighborMap.begin(); itr != _neighborMap.end(); itr++){
-        cout << "(" << itr->first->getId() << ", " << EdgeType2Str(itr->second) << ") ";
+    vector<pair<ZXVertex*, EdgeType*> > neighborList;
+    for(auto& itr : _neighborMap) neighborList.push_back(make_pair(itr.first, itr.second));
+
+    sort(neighborList.begin(), neighborList.end(), [](pair<ZXVertex*, EdgeType*> a, pair<ZXVertex*, EdgeType*>  b){ return a.first->getId() < b.first->getId(); });
+    
+    for(size_t i = 0; i < neighborList.size(); i++){
+        cout << "(" << neighborList[i].first->getId() << ", " << EdgeType2Str(neighborList[i].second) << ") ";
     }
     cout << endl;
 }

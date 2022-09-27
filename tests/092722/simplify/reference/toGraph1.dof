@@ -30,29 +30,29 @@ qsyn> zxgp -e
 ( 7, 3 )	Type:	-
 Total #Edges: 9
 
-qsyn> zxgsimp
+qsyn> zxgsimp -tograph
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, [1;34mH[0m) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, [1;34mH[0m) 
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
-ID:	4	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(6, -) (5, -) (0, -) 
-ID:	5	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(7, -) (2, -) (4, -) 
-ID:	6	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	π/4	#Neighbors:	2	(8, -) (4, -) 
-ID:	7	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (5, -) (8, -) 
-ID:	8	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (6, -) (7, -) 
+ID:	4	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (5, [1;34mH[0m) (6, -) 
+ID:	5	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, [1;34mH[0m) (4, [1;34mH[0m) (7, [1;34mH[0m) 
+ID:	6	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(4, -) (8, [1;34mH[0m) 
+ID:	7	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (5, [1;34mH[0m) (8, [1;34mH[0m) 
+ID:	8	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, [1;34mH[0m) (6, [1;34mH[0m) (7, [1;34mH[0m) 
 Total #Vertices: 9
 
 qsyn> zxgp -e
-( 4, 5 )	Type:	-
-( 2, 5 )	Type:	-
+( 4, 5 )	Type:	[1;34mH[0m
+( 2, 5 )	Type:	[1;34mH[0m
 ( 0, 4 )	Type:	-
 ( 4, 6 )	Type:	-
-( 7, 8 )	Type:	-
-( 6, 8 )	Type:	-
-( 5, 7 )	Type:	-
-( 8, 1 )	Type:	-
+( 7, 8 )	Type:	[1;34mH[0m
+( 6, 8 )	Type:	[1;34mH[0m
+( 5, 7 )	Type:	[1;34mH[0m
+( 8, 1 )	Type:	[1;34mH[0m
 ( 7, 3 )	Type:	-
 Total #Edges: 9
 
