@@ -20,22 +20,22 @@
 #include "zxRules.h"
 
 class Stats;
-class Simplify;
-enum class SIMP_STRATEGY;
+class Simplifier;
+// enum class SIMP_STRATEGY;
 
-enum class SIMP_STRATEGY{
-    SPIDER_SIMP,        // spider fusion
-    ID_SIMP,            // identity removal
-    COPY_SIMP,          // pi copy
-    BIALG_SIMP,         // bialgebra
-    PHASE_FREE_SIMP,
-    PIVOT_SIMP,
-    PIVOT_GADGET_SIMP,
-    PIVOT_BOUNDARY_SIMP,
-    GADGET_SIMP,
-    LCOMP_SIMP
+// enum class SIMP_STRATEGY{
+//     SPIDER_SIMP,        // spider fusion
+//     ID_SIMP,            // identity removal
+//     COPY_SIMP,          // pi copy
+//     BIALG_SIMP,         // bialgebra
+//     PHASE_FREE_SIMP,
+//     PIVOT_SIMP,
+//     PIVOT_GADGET_SIMP,
+//     PIVOT_BOUNDARY_SIMP,
+//     GADGET_SIMP,
+//     LCOMP_SIMP
 
-};
+// };
 
 class Stats{
     public:
@@ -49,26 +49,33 @@ class Stats{
         unordered_map<string, int>          _rewritesNum;
 };
 
-class Simplify{
+class Simplifier{
     public:
-        Simplify(ZXGraph* g){
-            _masterGraph = g->copy();
-            _simplifyGraph = g->copy();
+        Simplifier(ZXGraph* g){
+            _rule = nullptr;
+            _simpGraph = g;
         }
-        ~Simplify(){}
+        Simplifier(ZXRule* rule, ZXGraph* g){
+            _rule = rule;
+            _simpGraph = g;
+        }
+        ~Simplifier(){}
 
-        void setMasterGraph(ZXGraph* g)     { _masterGraph = g; }
-        void setSimplifyGraph(ZXGraph* g)   { _simplifyGraph = g; }
-        ZXGraph* getMasterGraph()           { return _masterGraph; }
-        ZXGraph* getSimplifyGraph()         { return _simplifyGraph; }
+        void setRule(ZXRule* rule)          { _rule = rule; }
+
+        // Simplification strategies
+        int simp();
+        int hadamard_simp();
+        // int hadamard_simp(ZXGraph* g, Stats stats);
 
         // action
-        void to_graph(ZXGraph* g);
+        void to_graph();
+        void to_rgraph();
 
 
     private:
-        ZXGraph*    _masterGraph;
-        ZXGraph*    _simplifyGraph;
+        ZXRule*             _rule;
+        ZXGraph*            _simpGraph;
 };
     
 #endif

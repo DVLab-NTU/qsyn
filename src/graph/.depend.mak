@@ -1,3 +1,7 @@
+zxRules.o: zxRules.cpp zxRules.h zxDef.h ../../include/myHashMap.h \
+ zxGraph.h ../../include/phase.h ../../include/rationalNumber.h \
+ ../../include/myConcepts.h ../../include/util.h ../../include/rnGen.h \
+ ../../include/myUsage.h
 zxTraverse.o: zxTraverse.cpp zxGraph.h ../../include/phase.h \
  ../../include/rationalNumber.h ../../include/myConcepts.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
@@ -24,3 +28,7 @@ zxGraph.o: zxGraph.cpp zxGraph.h ../../include/phase.h \
  ../../include/rationalNumber.h ../../include/myConcepts.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
  zxDef.h ../../include/myHashMap.h ../../include/util.h
+hrule.o: hrule.cpp zxRules.h zxDef.h ../../include/myHashMap.h zxGraph.h \
+ ../../include/phase.h ../../include/rationalNumber.h \
+ ../../include/myConcepts.h ../../include/util.h ../../include/rnGen.h \
+ ../../include/myUsage.h

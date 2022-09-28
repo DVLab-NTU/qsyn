@@ -4,5 +4,7 @@ qccp -q
 zxm -on
 qczxm
 zxgp
-zxgp -e
+zxgp -v
+zxgsimp -hrule
+zxgp -v
 q -f

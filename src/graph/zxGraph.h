@@ -80,17 +80,19 @@ class ZXVertex{
         int getQubit() const                                                { return _qubit; }
         VertexType getType() const                                          { return _type; }
         Phase getPhase() const                                              { return _phase; }
+        vector<ZXVertex*> getNeighbors() const;
+        ZXVertex* getNeighbor(size_t idx) const;
         NeighborMap getNeighborMap() const                                  { return _neighborMap; }
 
-        void setId(size_t id)                                                           { _id = id; }
-        void setQubit(int q)                                                            {_qubit = q; }
-        void setType(VertexType ZXVertex)                                               { _type = ZXVertex; }
-        void setPhase(Phase p)                                                          { _phase = p; }
-        void setNeighborMap(NeighborMap neighborMap)                                    { _neighborMap = neighborMap; }
+        void setId(size_t id)                                               { _id = id; }
+        void setQubit(int q)                                                {_qubit = q; }
+        void setType(VertexType ZXVertex)                                   { _type = ZXVertex; }
+        void setPhase(Phase p)                                              { _phase = p; }
+        void setNeighborMap(NeighborMap neighborMap)                        { _neighborMap = neighborMap; }
 
 
         // Add and Remove
-        void addNeighbor(NeighborPair neighbor)                             { _neighborMap.insert(neighbor);}
+        void addNeighbor(NeighborPair neighbor)                             { _neighborMap.insert(neighbor); }
         void removeNeighbor(NeighborPair neighbor);
         void removeNeighborById(size_t id);
 
@@ -187,6 +189,7 @@ class ZXGraph{
         void removeVertexById(size_t id);
         void removeIsolatedVertices();
         void removeEdge(ZXVertex* vs, ZXVertex* vt, bool checked = false);
+        void removeEdgeByEdgePair(EdgePair ep);
         void removeEdgeById(size_t id_s, size_t id_t);
 
                 
