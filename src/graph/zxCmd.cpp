@@ -581,7 +581,7 @@ void ZXGEditCmd::help() const{
 }
 
 //----------------------------------------------------------------------
-//    ZXGSimpCmd
+//    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -PICOPY | -HFusion]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGSimpCmd::exec(const string &option){
@@ -622,7 +622,7 @@ ZXGSimpCmd::exec(const string &option){
             s.setRule(new PiCopy());
             s.simp();
         }
-        else if(myStrNCmp("-HFuse", token, 2) == 0){
+        else if(myStrNCmp("-HFusion", token, 2) == 0){
             s.setRule(new HboxFusion());
             s.simp();
         }
@@ -632,7 +632,7 @@ ZXGSimpCmd::exec(const string &option){
 }
 
 void ZXGSimpCmd::usage(ostream &os) const{
-    os << "Usage: ZXGSimp [-TOGraph | -TORGraph | -HADAmard | -SPIderfusion | ]" << endl;
+    os << "Usage: ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -PICOPY | -HFusion]" << endl;
 }
 
 void ZXGSimpCmd::help() const{
