@@ -598,30 +598,35 @@ ZXGSimpCmd::exec(const string &option){
         return CMD_EXEC_ERROR;
     }
     else{
-        
+        Simplifier s(zxGraphMgr->getGraph());
         // Stats stats;
-        if(token.empty() || myStrNCmp("-TOGraph", token, 3) == 0){
-            // s.to_graph(s.getSimplifyGraph());
-        }
-        else if(myStrNCmp("-TORGraph", token, 4) == 0){
-            // s.to_rgraph(s.getSimplifyGraph());
-        }
+        if(token.empty() || myStrNCmp("-TOGraph", token, 3) == 0) s.to_graph();
+        else if(myStrNCmp("-TORGraph", token, 4) == 0) s.to_rgraph();
         else if(myStrNCmp("-HRule", token, 2) == 0){
-            Simplifier s(new HRule(), zxGraphMgr->getGraph());
+            s.setRule(new HRule());
             s.hadamard_simp();
         }
         else if(myStrNCmp("-SPIderfusion", token, 3) == 0){
-            // Simplifier s(new SpiderFusion(), zxGraphMgr->getGraph());
-            // s.simp();
+            s.setRule(new SpiderFusion());
+            s.simp();
         }
         else if(myStrNCmp("-BIAlgebra", token, 3) == 0){
-            cout << "Not finished yet!" << endl;
+            s.setRule(new Bialgebra());
+            s.simp();
+        }
+        else if(myStrNCmp("-IDRemoval", token, 3) == 0){
+            s.setRule(new IdRemoval());
+            s.simp();
         }
         else if(myStrNCmp("-PICOPY", token, 6) == 0){
-            cout << "Not finished yet!" << endl;
+            s.setRule(new PiCopy());
+            s.simp();
+        }
+        else if(myStrNCmp("-HFuse", token, 2) == 0){
+            s.setRule(new HboxFusion());
+            s.simp();
         }
         else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-        // zxGraphMgr->setGraph(s.getSimplifyGraph());
     }
     return CMD_EXEC_DONE;
 }

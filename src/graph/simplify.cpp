@@ -143,15 +143,15 @@ int Simplifier::hadamard_simp(){
  * 
  * @param g ZXGraph*
  */
-void Simplifier::to_graph(ZXGraph* g){
-    for(size_t i = 0; i < g->getNumVertices(); i++){
-      ZXVertex* v = g->getVertices()[i];
+void Simplifier::to_graph(){
+    for(size_t i = 0; i < _simpGraph->getNumVertices(); i++){
+      ZXVertex* v = _simpGraph->getVertices()[i];
       if(v->getType() == VertexType::X){
         for(auto& itr : v->getNeighborMap()) *itr.second = toggleEdge(*itr.second);
         v->setType(VertexType::Z);
       }
     }
-    if(verbose >= 3) g->printVertices();
+    if(verbose >= 3) _simpGraph->printVertices();
 }
 
 /**
@@ -159,14 +159,14 @@ void Simplifier::to_graph(ZXGraph* g){
  * 
  * @param g 
  */
-void Simplifier::to_rgraph(ZXGraph* g){
-  for(size_t i = 0; i < g->getNumVertices(); i++){
-    ZXVertex* v = g->getVertices()[i];
+void Simplifier::to_rgraph(){
+  for(size_t i = 0; i < _simpGraph->getNumVertices(); i++){
+    ZXVertex* v = _simpGraph->getVertices()[i];
     if(v->getType() == VertexType::Z){
       for(auto& itr : v->getNeighborMap()) *itr.second = toggleEdge(*itr.second);
       v->setType(VertexType::X);
     }
   }
-  if(verbose >= 3) g->printVertices();
+  if(verbose >= 3) _simpGraph->printVertices();
 }
 

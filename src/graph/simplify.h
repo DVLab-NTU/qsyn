@@ -51,11 +51,17 @@ class Stats{
 
 class Simplifier{
     public:
+        Simplifier(ZXGraph* g){
+            _rule = nullptr;
+            _simpGraph = g;
+        }
         Simplifier(ZXRule* rule, ZXGraph* g){
             _rule = rule;
             _simpGraph = g;
         }
         ~Simplifier(){}
+
+        void setRule(ZXRule* rule)          { _rule = rule; }
 
         // Simplification strategies
         int simp();
@@ -63,8 +69,8 @@ class Simplifier{
         // int hadamard_simp(ZXGraph* g, Stats stats);
 
         // action
-        void to_graph(ZXGraph* g);
-        void to_rgraph(ZXGraph* g);
+        void to_graph();
+        void to_rgraph();
 
 
     private:

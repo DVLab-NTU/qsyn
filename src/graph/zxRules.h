@@ -91,7 +91,7 @@ class HRule : public ZXRule{
 
 
 /**
- * @brief Spider Fusion (f): Finds non-interacting matchings of the spider fusion rule. (in sfusion.cpp)
+ * @brief Spider Fusion(f): Finds non-interacting matchings of the spider fusion rule. (in sfusion.cpp)
  * 
  */
 class SpiderFusion : public ZXRule{
@@ -212,7 +212,7 @@ class PiCopy : public ZXRule{
 
 
 /**
- * @brief Hadamard Cancellation(i2): Fuses two neighboring H-boxes together. (in hfuse.cpp)
+ * @brief Hadamard Cancellation(i2): Fuses two neighboring H-boxes together. (in hfusion.cpp)
  * 
  */
 class HboxFusion : public ZXRule{
