@@ -85,7 +85,7 @@ class ZXVertex{
             _type = vt;
             _phase = phase;
             _DFSCounter = 0;
-            _pin = 0;
+            _pin = -1;
             _neighborMap.clear();
         }
         ~ZXVertex(){}

@@ -129,24 +129,118 @@ void ZXGraph::cleanRedundantEdges(){
 
 void ZXGraph::tensorMapping(){
     updateTopoOrder();
-    unordered_multimap<EdgePair,size_t> cuttingEdges;
+    // pair<pair<ZXVertex*, ZXVertex*>, EdgeType*> EdgePair;
+    // pair<pair<Done, Not Done>, EdgeType*>
+    // unordered_multimap<EdgePair,size_t> cuttingEdges;
+    using Frontiers = unordered_multimap<EdgePair,size_t>;
+    vector<pair<Frontiers, QTensor<double>>> tensorList; 
+    vector<EdgePair> zeroPins;
 
-    if(verbose >= 3) cout << "----------- ADD BOUNDARIES -----------" << endl;
-    _tensor = (1.+0.i);
-    auto Lambda = [this, &cuttingEdges](ZXVertex *V)
+    auto tensordotVertex = [this, &zeroPins, &tensorList](ZXVertex *V) -> void
     {
+        size_t tensorId = 0;
         if(verbose >= 3) cout << "Vertex " << V->getId() << " (" << V->getType() << ")" << endl;
-        QTensor<double> tmp = V->getTSform();
+        NeighborMap neighborMap = V -> getNeighborMap();
         
-        // Todo: Tensor product here
-        _tensor = tensordot(_tensor, tmp, {}, {});
-        if(verbose >= 5) cout << "********* Pin Permutation *********" << endl;
-       
-        // Tensor product here
-        if(verbose >= 5) cout << "***********************************" << endl;
-        if(verbose >= 3) cout << "--------------------------------------" << endl;
+        // Check if the vertex is from a new subgraph
+        bool newGraph = true;
+        for(auto itr = neighborMap.begin(); itr != neighborMap.end(); itr++){
+            if (V->getPin() != unsigned(-1)){
+                tensorId = V->getPin();
+                newGraph = false;
+                break;
+            }
+        }
+
+        // Initialize subgraph
+        if(newGraph){
+            Frontiers front;
+            QTensor<double> ntensor(1.+0.i);
+            pair<Frontiers, QTensor<double>> tmp(front,ntensor);
+            tensorList.push_back(tmp);
+            tensorId = tensorList.size()-1;
+        }
+
+        // Retrieve information for tensordot
+        vector<size_t> normal_pin;      // Axes that can be tensordotted directly
+        vector<size_t> hadard_pin;      // Axes that should be applied hadamards first
+        vector<EdgePair> remove_edge;   // Old frontiers to be removed
+        vector<EdgePair> add_edge;      // New frontiers to be added
+        
+        if(newGraph){
+            assert(V->getType() == VertexType::BOUNDARY);
+            pair<ZXVertex*, ZXVertex*> vPair(V, neighborMap.begin()->first);
+            EdgePair edgeKey(vPair, neighborMap.begin()->second);
+            QTensor<double> tmp = tensordot(tensorList[tensorId].second, QTensor<double>::identity(neighborMap.size()));
+            tensorList[tensorId].second = tmp;
+            zeroPins.push_back(edgeKey);
+            tensorList[tensorId].first.insert(make_pair(edgeKey, 1));
+        }
+        else {
+            vector<ZXVertex*> alreadyRetrived;
+            for(auto itr = neighborMap.begin(); itr != neighborMap.end(); itr++){
+                pair<ZXVertex*, ZXVertex*> vPair(V, itr->first);
+                if(find(alreadyRetrived.begin(), alreadyRetrived.end(), itr->first) == alreadyRetrived.end()){
+                    alreadyRetrived.push_back(itr->first);
+                
+                    EdgePair edgeKey(vPair, itr->second);
+                    auto result = tensorList[tensorId].first.equal_range(edgeKey);
+                    for (auto jtr = result.first; jtr != result.second; jtr++) {
+                        if ((itr->first->getPin() != unsigned(-1))){    // If the edge is a frontier
+                            if( *(jtr->first.second) == EdgeType::HADAMARD ) hadard_pin.push_back(jtr -> second);
+                            else normal_pin.push_back(jtr -> second);
+                            remove_edge.push_back(edgeKey);
+                        }
+                        else{
+                            add_edge.push_back(edgeKey);
+                        }
+                    }
+                }
+            }
+
+        
+            // Hadamard Edges to Normal Edges
+            // 1. generate hadamard product
+            QTensor<double> HEdge = QTensor<double>::hbox(2);
+            QTensor<double> HTensorProduct = tensorPow(HEdge, hadard_pin.size());
+            // 2. tensor dot
+            vector<size_t> connect_pin;
+            for(size_t t=0; t<hadard_pin.size(); t++) 
+                connect_pin.push_back(2*t);
+            QTensor<double> postHadamardTranspose = tensordot(tensorList[tensorId].second, HTensorProduct, hadard_pin, connect_pin);
+            // 3. update pins
+
+            for(size_t t=0; t<hadard_pin.size(); t++){
+                hadard_pin[t] = postHadamardTranspose.getNewAxisId(tensorList[tensorId].second.dimension() + connect_pin[t] + 1); //dimension of big tensor + 1,3,5,7,9
+            }
+
+            QTensor<double> tmp = V->getTSform();
+
+            // Tensor Dot
+            // 1. Concatenate pins (hadamard and normal)
+            for(size_t i=0; i<hadard_pin.size(); i++)
+                normal_pin.push_back(hadard_pin[i]);
+            // 2. tensor dot
+            connect_pin.clear();
+            for(size_t t=0; t<normal_pin.size(); t++) 
+                connect_pin.push_back(t);
+            tensorList[tensorId].second = tensordot(postHadamardTranspose, tmp, normal_pin, connect_pin);
+            
+            // 3. update pins
+            for(size_t i=0; i<remove_edge.size(); i++)
+                tensorList[tensorId].first.erase(remove_edge[i]);   // Erase old edges
+
+            connect_pin.clear();
+            for(size_t t=0; t<add_edge.size(); t++) 
+                connect_pin.push_back(t);
+            for(size_t t=0; t<add_edge.size(); t++){
+                size_t newId = tensorList[tensorId].second.getNewAxisId(postHadamardTranspose.dimension() + connect_pin[t]);
+                tensorList[tensorId].first.emplace(add_edge[t], newId); //origin pin (neighbot count) + 1,3,5,7,9
+            }
+        }
+        V -> setPin(tensorId);
     };
     if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
-    topoTraverse(Lambda);
+    topoTraverse(tensordotVertex);
     if(verbose >= 8) cout << _tensor << endl;
 }
