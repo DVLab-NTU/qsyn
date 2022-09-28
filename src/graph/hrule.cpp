@@ -12,16 +12,14 @@
 #include "zxRules.h"
 using namespace std;
 
-
 extern size_t verbose;
+
 
 /**
  * @brief Matches all the H-boxes with arity 2 and phase 1, i.e. all the Hadamard gates.
  * 
  * @param g 
- * @return vector<ZXVertex*> 
  */
-
 void HRule::match(ZXGraph* g){
     _matchTypeVec.clear();
     if(verbose >= 7) g->printVertices();
@@ -49,7 +47,13 @@ void HRule::match(ZXGraph* g){
     setMatchTypeVecNum(_matchTypeVec.size());
 }
 
+/**
+ * @brief Convert v in matches to Hadamard edge.
+ * 
+ * @param g 
+ */
 void HRule::rewrite(ZXGraph* g){
+    reset();
     setRemoveVertices(_matchTypeVec);
     vector<ZXVertex*> ns; vector<EdgeType*> ets;
 
@@ -67,18 +71,3 @@ void HRule::rewrite(ZXGraph* g){
     }
 }
 
-/**
- * @brief Convert v in matches to Hadamard edge.
- * 
- * @param g 
- * @param matches 
- */
-// void Hadamard::hadamard2Edge(ZXGraph* g, vector<ZXVertex*> matches){
-//     for(size_t v = 0; v < matches.size(); v++){
-//         ZXVertex* n0 = matches[v]->getNeighbors()[0]; ZXVertex* n1 = matches[v]->getNeighbors()[1];
-//         g->addEdge(n0, n1, new EdgeType(EdgeType::HADAMARD));
-//         g->removeVertex(matches[v]);
-//     }
-//     if(verbose >= 3) cout << "Successfully change all H-boxes to HADAMARD EDGE:\t" << matches.size() << endl;
-//     if(verbose >= 3) g->printVertices();
-// }

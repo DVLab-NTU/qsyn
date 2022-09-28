@@ -15,5 +15,13 @@ using namespace std;
 
 extern size_t verbose;
 
+void ZXRule::reset(){
+  _matchTypeVecNum = 0;
+  _removeVertices.clear();
+  _removeEdges.clear();
+  _edgeTableKeys.clear();
+  _edgeTableValues.clear();
+}
+
 
 

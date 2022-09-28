@@ -30,9 +30,9 @@ class ZXRule{
       typedef vector<MatchType> MatchTypeVec;
       
       ZXRule(){};
-      
-      
       ~ZXRule(){};
+
+      virtual void reset();
 
       virtual void match(ZXGraph* g){}
       virtual void rewrite(ZXGraph* g){}
