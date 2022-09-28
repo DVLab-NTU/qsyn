@@ -183,7 +183,7 @@ void ZXGraphMgr::tensorProduct(ZXGraph* zxGraph){
   oriGraph->addVertices(copyGraph->getVertices());
   oriGraph->addEdges(copyGraph->getEdges());
 
-  delete copyGraph;
+//   delete copyGraph;
 }
 
 ZXGraph* ZXGraphMgr::findZXGraphByID(size_t id) const{
