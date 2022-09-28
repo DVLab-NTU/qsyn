@@ -431,6 +431,42 @@ void ZXGraph::removeEdge(ZXVertex* vs, ZXVertex* vt, bool checked){
 }
 
 /**
+ * @brief 
+ * 
+ * @param ep 
+ * @param checked 
+ */
+void ZXGraph::removeEdgeByEdgePair(EdgePair ep){
+    for(size_t i = 0; i < _edges.size(); i++){
+        if(ep.first.first == _edges[i].first.first && ep.first.second == _edges[i].first.second && ep.second == _edges[i].second){
+            if(verbose >= 3) cout << "Remove (" << ep.first.first->getId() << ", " << ep.first.second->getId() << " )" << endl;
+            for(auto itr = ep.first.first->getNeighborMap().begin(); itr != ep.first.first->getNeighborMap().end(); itr++){
+                if(ep.first.second == itr->first && ep.second == itr->second){
+                    NeighborMap nMap = ep.first.first->getNeighborMap();
+                    nMap.erase(itr);
+                    ep.first.first->setNeighborMap(nMap);
+                    break;
+                } 
+            }
+
+            for(auto itr = ep.first.second->getNeighborMap().begin(); itr != ep.first.second->getNeighborMap().end(); itr++){
+                if(ep.first.first == itr->first && ep.second == itr->second){
+                    NeighborMap nMap = ep.first.second->getNeighborMap();
+                    nMap.erase(itr);
+                    ep.first.second->setNeighborMap(nMap);
+                    break;
+                } 
+            }
+
+            delete ep.second;
+            _edges.erase(_edges.begin() + i);
+            if(verbose >= 5) printVertices();
+            return;
+        }
+    }
+}
+
+/**
  * @brief Remove all edges between `vs` and `vt` by vertex's id.
  * 
  * @param id_s 

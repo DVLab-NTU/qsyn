@@ -607,14 +607,12 @@ ZXGSimpCmd::exec(const string &option){
             // s.to_rgraph(s.getSimplifyGraph());
         }
         else if(myStrNCmp("-HRule", token, 2) == 0){
-            // ZXRule* rule = new HRule();
-            // vector<ZXVertex*> tmp;
-            
-            // Simplifier s(new HRule(tmp), zxGraphMgr->getGraph());
-            // s.simp("Hadamard Rule");
+            Simplifier s(new HRule(), zxGraphMgr->getGraph());
+            s.hadamard_simp();
         }
         else if(myStrNCmp("-SPIderfusion", token, 3) == 0){
-            cout << "Not finished yet!" << endl;
+            // Simplifier s(new SpiderFusion(), zxGraphMgr->getGraph());
+            // s.simp();
         }
         else if(myStrNCmp("-BIAlgebra", token, 3) == 0){
             cout << "Not finished yet!" << endl;

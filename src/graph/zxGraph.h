@@ -189,6 +189,7 @@ class ZXGraph{
         void removeVertexById(size_t id);
         void removeIsolatedVertices();
         void removeEdge(ZXVertex* vs, ZXVertex* vt, bool checked = false);
+        void removeEdgeByEdgePair(EdgePair ep);
         void removeEdgeById(size_t id_s, size_t id_t);
 
                 
