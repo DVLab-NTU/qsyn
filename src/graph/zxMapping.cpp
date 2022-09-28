@@ -129,9 +129,11 @@ void ZXGraph::cleanRedundantEdges(){
 
 void ZXGraph::tensorMapping(){
     updateTopoOrder();
+    unordered_multimap<EdgePair,size_t> cuttingEdges;
+
     if(verbose >= 3) cout << "----------- ADD BOUNDARIES -----------" << endl;
     _tensor = (1.+0.i);
-    auto Lambda = [this](ZXVertex *V)
+    auto Lambda = [this, &cuttingEdges](ZXVertex *V)
     {
         if(verbose >= 3) cout << "Vertex " << V->getId() << " (" << V->getType() << ")" << endl;
         QTensor<double> tmp = V->getTSform();

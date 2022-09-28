@@ -32,6 +32,19 @@ typedef pair<ZXVertex*, EdgeType*> NeighborPair;
 typedef pair<pair<ZXVertex*, ZXVertex*>, EdgeType*> EdgePair;
 typedef unordered_multimap<ZXVertex*, EdgeType*> NeighborMap;
 
+namespace std{
+template <>
+struct hash<EdgePair>
+  {
+    size_t operator()(const EdgePair& k) const
+    {
+      return ((hash<ZXVertex*>()(k.first.first)
+               ^ (hash<ZXVertex*>()(k.first.second) << 1)) >> 1)
+               ^ (hash< EdgeType*>()(k.second) << 1);
+    }
+  };
+}
+
 //------------------------------------------------------------------------
 //   Define classes
 //------------------------------------------------------------------------
