@@ -24,7 +24,8 @@ ID:	8	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (5, -) (9,
 ID:	9	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (7, -) (8, -) 
 Total #Vertices: 10
 
-qsyn> zxgsimp -hada
+qsyn> zxgsimp -hrule
+Hadamard Rule: 1 1 iterations
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
@@ -33,7 +34,7 @@ ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -)
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(8, -) 
 ID:	4	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (5, -) (6, -) 
 ID:	5	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (4, -) (8, -) 
-ID:	6	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(4, -) (9, [1;34mH[0m) 
+ID:	6	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	π/4	#Neighbors:	2	(4, -) (9, [1;34mH[0m) 
 ID:	8	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (5, -) (9, -) 
 ID:	9	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (6, [1;34mH[0m) (8, -) 
 Total #Vertices: 9
