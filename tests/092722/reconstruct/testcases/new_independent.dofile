@@ -1,0 +1,11 @@
+zxmode -on
+zxnew
+zxgt
+zxgp -v
+zxnew
+zxgt
+zxge -addv 8 8 Z
+zxgp -v
+zxcheckout 0
+zxgp -v
+q -f

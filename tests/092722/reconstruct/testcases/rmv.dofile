@@ -1,0 +1,7 @@
+zxmode -on
+zxnew
+zxgt
+zxgp -v
+zxge -rmv 1 2
+zxgp -v
+q -f

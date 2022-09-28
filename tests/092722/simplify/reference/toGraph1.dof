@@ -1,0 +1,44 @@
+qsyn> ver 2
+
+qsyn> qccr benchmark/pseudoSimp/toGraph1.qasm
+
+qsyn> qccp -q
+Q 0  -cx( 0)-- t( 1)--cx( 2)-
+Q 1  -cx( 0)----------cx( 2)-
+
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> qczxm
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	4	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (5, -) (6, -) 
+ID:	5	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (4, -) (7, -) 
+ID:	6	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	π/4	#Neighbors:	2	(4, -) (8, -) 
+ID:	7	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (5, -) (8, -) 
+ID:	8	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (6, -) (7, -) 
+Total #Vertices: 9
+
+qsyn> zxgp
+Graph 0
+Inputs:        2
+Outputs:       2
+Vertices:      9
+Edges:         9
+
+qsyn> zxgp -e
+( 4, 5 )	Type:	-
+( 2, 5 )	Type:	-
+( 0, 4 )	Type:	-
+( 4, 6 )	Type:	-
+( 7, 8 )	Type:	-
+( 6, 8 )	Type:	-
+( 5, 7 )	Type:	-
+( 8, 1 )	Type:	-
+( 7, 3 )	Type:	-
+Total #Edges: 9
+
+qsyn> q -f
+
