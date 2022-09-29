@@ -582,23 +582,62 @@ void ZXGEditCmd::help() const{
 }
 
 //----------------------------------------------------------------------
-//    ZXGSimpCmd
+//    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -PICOPY | -HFusion]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGSimpCmd::exec(const string &option){
+    if(curCmd != ZXON){
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXPrint." << endl;
+        return CMD_EXEC_ERROR;
+    }
+    // check option
     string token;
-    if(!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
-    Simplify s(zxGraphMgr->getGraph());
-    s.to_graph(s.getSimplifyGraph());
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+
+    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
+        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXPrint." << endl;
+        return CMD_EXEC_ERROR;
+    }
+    else{
+        Simplifier s(zxGraphMgr->getGraph());
+        // Stats stats;
+        if(token.empty() || myStrNCmp("-TOGraph", token, 3) == 0) s.to_graph();
+        else if(myStrNCmp("-TORGraph", token, 4) == 0) s.to_rgraph();
+        else if(myStrNCmp("-HRule", token, 2) == 0){
+            s.setRule(new HRule());
+            s.hadamard_simp();
+        }
+        else if(myStrNCmp("-SPIderfusion", token, 3) == 0){
+            s.setRule(new SpiderFusion());
+            s.simp();
+        }
+        else if(myStrNCmp("-BIAlgebra", token, 3) == 0){
+            s.setRule(new Bialgebra());
+            s.simp();
+        }
+        else if(myStrNCmp("-IDRemoval", token, 3) == 0){
+            s.setRule(new IdRemoval());
+            s.simp();
+        }
+        else if(myStrNCmp("-PICOPY", token, 6) == 0){
+            s.setRule(new PiCopy());
+            s.simp();
+        }
+        else if(myStrNCmp("-HFusion", token, 2) == 0){
+            s.setRule(new HboxFusion());
+            s.simp();
+        }
+        else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+    }
     return CMD_EXEC_DONE;
 }
 
 void ZXGSimpCmd::usage(ostream &os) const{
-    os << "Usage: ZXGSimpCmd" << endl;
+    os << "Usage: ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -PICOPY | -HFusion]" << endl;
 }
 
 void ZXGSimpCmd::help() const{
-    cout << setw(15) << left << "ZXGSimpCmd: " << "do simplification strategies for ZX-graph" << endl; 
+    cout << setw(15) << left << "ZXGSimp: " << "do simplification strategies for ZX-graph" << endl; 
 }
 
 
@@ -619,7 +658,7 @@ void ZXGTraverseCmd::usage(ostream &os) const{
 }
 
 void ZXGTraverseCmd::help() const{
-    cout << setw(15) << left << "ZXGTRaverse: " << "traverse ZXGraph and update topological order" << endl; 
+    cout << setw(15) << left << "ZXGTRaverse: " << "Traverse ZXGraph and update topological order" << endl; 
 }
 
 //----------------------------------------------------------------------

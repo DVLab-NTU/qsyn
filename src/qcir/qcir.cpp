@@ -199,6 +199,7 @@ void QCir::ZXMapping()
         _ZXG -> concatenate(tmp, false);
         if(verbose >= 5) cout << "***********************************" << endl;
         if(verbose >= 3)  cout << "--------------------------------------" << endl;
+        
     };
 
     if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE GRAPH ----" << endl;
@@ -206,7 +207,7 @@ void QCir::ZXMapping()
     _ZXG -> cleanRedundantEdges();
     if(verbose >= 3)  cout << "--------------------------------------" << endl;
     if(verbose >= 3)  cout << "---------------------------------- GRAPH INFORMATION ---------------------------------" << endl;
-    _ZXG -> printVertices();
+    if(verbose >= 3)  _ZXG -> printVertices();
     if(verbose >= 3)  cout << "--------------------------------------------------------------------------------------" << endl; 
     if(verbose >= 7) {
         zxGraphMgr -> printZXGraphMgr();
