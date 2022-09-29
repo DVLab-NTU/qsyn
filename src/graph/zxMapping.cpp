@@ -139,19 +139,20 @@ void ZXGraph::tensorMapping(){
     auto tensordotVertex = [this, &zeroPins, &tensorList](ZXVertex *V) -> void
     {
         size_t tensorId = 0;
-        if(verbose >= 3) cout << "Vertex " << V->getId() << " (" << V->getType() << ")" << endl;
+        if(verbose >= 3) cout << "Vertex " << V->getId() << " (" << V->getType() << ")" << _topoOrder.size()<<endl;
         NeighborMap neighborMap = V -> getNeighborMap();
-        
+        cout << "A" << endl;
         // Check if the vertex is from a new subgraph
         bool newGraph = true;
         for(auto itr = neighborMap.begin(); itr != neighborMap.end(); itr++){
-            if (V->getPin() != unsigned(-1)){
-                tensorId = V->getPin();
+            // cout << "B1" << itr->first->getId() <<itr->first->getPin() << endl;
+            if (itr->first->getPin() != unsigned(-1)){
+                tensorId = itr->first->getPin();
                 newGraph = false;
                 break;
             }
         }
-
+        cout << "B" << endl;
         // Initialize subgraph
         if(newGraph){
             Frontiers front;
@@ -160,7 +161,7 @@ void ZXGraph::tensorMapping(){
             tensorList.push_back(tmp);
             tensorId = tensorList.size()-1;
         }
-
+        cout << "C: newGraph = "<< newGraph << endl;
         // Retrieve information for tensordot
         vector<size_t> normal_pin;      // Axes that can be tensordotted directly
         vector<size_t> hadard_pin;      // Axes that should be applied hadamards first
@@ -175,9 +176,16 @@ void ZXGraph::tensorMapping(){
             tensorList[tensorId].second = tmp;
             zeroPins.push_back(edgeKey);
             tensorList[tensorId].first.insert(make_pair(edgeKey, 1));
+            cout << "D: CreateNewGraph" << endl;
         }
         else {
+            if(V->getType()==VertexType::BOUNDARY){
+                cout << "Found Boundary for a graph" << endl;
+                V -> setPin(tensorId);
+                return;
+            }
             vector<ZXVertex*> alreadyRetrived;
+            cout << "D: ConnectOldGraph" << endl;
             for(auto itr = neighborMap.begin(); itr != neighborMap.end(); itr++){
                 pair<ZXVertex*, ZXVertex*> vPair(V, itr->first);
                 if(find(alreadyRetrived.begin(), alreadyRetrived.end(), itr->first) == alreadyRetrived.end()){
@@ -198,24 +206,26 @@ void ZXGraph::tensorMapping(){
                 }
             }
 
-        
+            cout << "E: Finish Retriving" << endl;
             // Hadamard Edges to Normal Edges
             // 1. generate hadamard product
             QTensor<double> HEdge = QTensor<double>::hbox(2);
             QTensor<double> HTensorProduct = tensorPow(HEdge, hadard_pin.size());
             // 2. tensor dot
             vector<size_t> connect_pin;
+            cout << "E1: Finish TSPower" << endl;
             for(size_t t=0; t<hadard_pin.size(); t++) 
                 connect_pin.push_back(2*t);
             QTensor<double> postHadamardTranspose = tensordot(tensorList[tensorId].second, HTensorProduct, hadard_pin, connect_pin);
             // 3. update pins
-
+            cout << "E2: Finish H Trans" << endl;
             for(size_t t=0; t<hadard_pin.size(); t++){
                 hadard_pin[t] = postHadamardTranspose.getNewAxisId(tensorList[tensorId].second.dimension() + connect_pin[t] + 1); //dimension of big tensor + 1,3,5,7,9
             }
-
+            cout << "E3: Finish Updating" << endl;
+            cout << V->getId() << endl;
             QTensor<double> tmp = V->getTSform();
-
+            cout << "F: Tensor Dot" << endl;
             // Tensor Dot
             // 1. Concatenate pins (hadamard and normal)
             for(size_t i=0; i<hadard_pin.size(); i++)
@@ -238,9 +248,11 @@ void ZXGraph::tensorMapping(){
                 tensorList[tensorId].first.emplace(add_edge[t], newId); //origin pin (neighbot count) + 1,3,5,7,9
             }
         }
+        cout << "_________" << endl;
         V -> setPin(tensorId);
+        cout << tensorList[0].second << endl;
     };
     if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
     topoTraverse(tensordotVertex);
-    if(verbose >= 8) cout << _tensor << endl;
+    // if(verbose >= 8) cout << tensorList[0].second << endl;
 }
