@@ -184,28 +184,43 @@ void ZXGraph::tensorMapping(){
                 V -> setPin(tensorId);
                 return;
             }
-            vector<ZXVertex*> alreadyRetrived;
+            NeighborMap frontAlreadyRetrived;
             cout << "D: ConnectOldGraph" << endl;
             for(auto itr = neighborMap.begin(); itr != neighborMap.end(); itr++){
-                pair<ZXVertex*, ZXVertex*> vPair(V, itr->first);
-                if(find(alreadyRetrived.begin(), alreadyRetrived.end(), itr->first) == alreadyRetrived.end()){
-                    alreadyRetrived.push_back(itr->first);
-                
-                    EdgePair edgeKey(vPair, itr->second);
-                    auto result = tensorList[tensorId].first.equal_range(edgeKey);
-                    for (auto jtr = result.first; jtr != result.second; jtr++) {
-                        if ((itr->first->getPin() != unsigned(-1))){    // If the edge is a frontier
+                pair<ZXVertex*, ZXVertex*> vPair;
+                if(itr->first->getId() < V->getId())
+                    vPair = make_pair(itr->first, V); //first, second = small, large
+                else
+                    vPair = make_pair(V, itr->first);
+                EdgePair edgeKey(vPair, itr->second);
+                cout << "@@@@@@ßInside If loop" << V->getId() << " " << itr->first->getId()<<endl;
+
+                if ((itr->first->getPin() != unsigned(-1))){    // If the edge is a frontier
+                    if(!frontAlreadyRetrived.contains(itr->first)){
+                        // EdgePair edgeKey(vPair, itr->second);
+                        auto result = tensorList[tensorId].first.equal_range(edgeKey);
+                        cout << (result.first == tensorList[tensorId].first.end()) << endl;
+                        frontAlreadyRetrived.emplace(itr->first,itr->second);
+                        for (auto jtr = result.first; jtr != result.second; jtr++) {
+                            // FIXME edgekey edgetype
                             if( *(jtr->first.second) == EdgeType::HADAMARD ) hadard_pin.push_back(jtr -> second);
                             else normal_pin.push_back(jtr -> second);
                             remove_edge.push_back(edgeKey);
                         }
-                        else{
-                            add_edge.push_back(edgeKey);
-                        }
                     }
                 }
+                else{
+                    cout << "Hash key "<<itr->first->getId() <<" "<< V->getId() << endl;
+                    add_edge.push_back(edgeKey);
+                }
             }
-
+            for(size_t i=0;i<remove_edge.size();i++){
+                cout << remove_edge[i].first.first->getId()<<" "<< remove_edge[i].first.second->getId() << endl;
+            }
+            cout << "**************" <<endl;
+            for(size_t i=0;i<add_edge.size();i++){
+                cout << add_edge[i].first.first->getId()<<" "<< add_edge[i].first.second->getId() << endl;
+            }
             cout << "E: Finish Retriving" << endl;
             // Hadamard Edges to Normal Edges
             // 1. generate hadamard product
@@ -223,13 +238,16 @@ void ZXGraph::tensorMapping(){
                 hadard_pin[t] = postHadamardTranspose.getNewAxisId(tensorList[tensorId].second.dimension() + connect_pin[t] + 1); //dimension of big tensor + 1,3,5,7,9
             }
             cout << "E3: Finish Updating" << endl;
-            cout << V->getId() << endl;
             QTensor<double> tmp = V->getTSform();
             cout << "F: Tensor Dot" << endl;
             // Tensor Dot
             // 1. Concatenate pins (hadamard and normal)
             for(size_t i=0; i<hadard_pin.size(); i++)
                 normal_pin.push_back(hadard_pin[i]);
+
+            for(size_t i=0; i<normal_pin.size(); i++)
+                cout << (normal_pin[i])<< " ";
+            cout << endl;
             // 2. tensor dot
             connect_pin.clear();
             for(size_t t=0; t<normal_pin.size(); t++) 
@@ -240,19 +258,75 @@ void ZXGraph::tensorMapping(){
             for(size_t i=0; i<remove_edge.size(); i++)
                 tensorList[tensorId].first.erase(remove_edge[i]);   // Erase old edges
 
+            for(auto itr = tensorList[tensorId].first.begin(); itr != tensorList[tensorId].first.end(); ++itr){
+                itr->second = tensorList[tensorId].second.getNewAxisId(itr->second);
+            }
+
             connect_pin.clear();
             for(size_t t=0; t<add_edge.size(); t++) 
-                connect_pin.push_back(t);
+                connect_pin.push_back(normal_pin.size() + t);
+            tensorList[tensorId].second.printAxisHistory();
             for(size_t t=0; t<add_edge.size(); t++){
+                cout << postHadamardTranspose.dimension() + connect_pin[t] << endl;
                 size_t newId = tensorList[tensorId].second.getNewAxisId(postHadamardTranspose.dimension() + connect_pin[t]);
+                
                 tensorList[tensorId].first.emplace(add_edge[t], newId); //origin pin (neighbot count) + 1,3,5,7,9
             }
         }
         cout << "_________" << endl;
         V -> setPin(tensorId);
-        cout << tensorList[0].second << endl;
+        
+        cout << "_________" << endl;
+        cout << "#################" << endl;
+        for(auto itr = tensorList[tensorId].first.begin(); itr != tensorList[tensorId].first.end(); ++itr){
+            cout << itr->first.first.first->getId() <<"--"<< itr->first.first.second->getId() <<": "<<  itr->second << endl;
+        }
+        cout << "#################" << endl;
     };
     if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
     topoTraverse(tensordotVertex);
+    cout << tensorList[0].second << endl;
+
+    for(size_t i=0; i<zeroPins.size(); i++)
+        tensorList[i].first.emplace(zeroPins[i],0);
+
+    vector<size_t> inputId, outputId;
+    inputId.resize(_inputs.size());
+    outputId.resize(_outputs.size());
+    for(auto itr = tensorList[0].first.begin(); itr != tensorList[0].first.end(); ++itr){
+        cout << itr->second << " ";
+    }
+    cout << endl;
+    for(auto itr = _inputList.begin(); itr != _inputList.end(); ++itr){
+        NeighborMap nebs = itr->second->getNeighborMap();
+        ZXVertex* neighbor = nebs.begin()->first;
+        EdgeType* edge = nebs.begin()->second;
+        pair<ZXVertex*, ZXVertex*> vertices;
+        cout << neighbor->getId() << " " << itr->second->getId()<<endl;
+        if(neighbor->getId() > itr->second->getId())
+            vertices = make_pair(itr->second,neighbor);
+        else 
+            vertices = make_pair(neighbor,itr->second);
+        inputId[itr->first] = tensorList[0].first.find(make_pair(vertices,edge))->second;
+        
+        // unordered_multimap<EdgePair,size_t>;
+    }
+    cout << "ININININI" << endl;
+    for(auto itr = _outputList.begin(); itr != _outputList.end(); ++itr){
+        NeighborMap nebs = itr->second->getNeighborMap();
+        ZXVertex* neighbor = nebs.begin()->first;
+        EdgeType* edge = nebs.begin()->second;
+        pair<ZXVertex*, ZXVertex*> vertices;
+        if(neighbor->getId() > itr->second->getId())
+            vertices = make_pair(itr->second,neighbor);
+        else 
+            vertices = make_pair(neighbor,itr->second);
+        outputId[itr->first] = tensorList[0].first.find(make_pair(vertices,edge))->second;
+        // unordered_multimap<EdgePair,size_t>;
+    }
+     cout << "OUTOUTOUTTOUT" << endl;
+    tensorList[0].second = tensorList[0].second.transpose(concatAxisList(inputId, outputId));
+    cout << tensorList[0].second << endl;
+   
     // if(verbose >= 8) cout << tensorList[0].second << endl;
 }
