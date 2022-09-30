@@ -72,6 +72,9 @@ class Simplifier{
         void to_graph();
         void to_rgraph();
 
+        // action
+        void to_graph(ZXGraph* g);
+
 
     private:
         ZXRule*             _rule;

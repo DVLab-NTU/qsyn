@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 #include "phase.h"
+#include "qtensor.h"
 #include "zxDef.h"
 using namespace std;
 
@@ -30,6 +31,19 @@ enum class EdgeType;
 typedef pair<ZXVertex*, EdgeType*> NeighborPair;
 typedef pair<pair<ZXVertex*, ZXVertex*>, EdgeType*> EdgePair;
 typedef unordered_multimap<ZXVertex*, EdgeType*> NeighborMap;
+
+namespace std{
+template <>
+struct hash<EdgePair>
+  {
+    size_t operator()(const EdgePair& k) const
+    {
+      return ((hash<ZXVertex*>()(k.first.first)
+               ^ (hash<ZXVertex*>()(k.first.second) << 1)) >> 1)
+               ^ (hash< EdgeType*>()(k.second) << 1);
+    }
+  };
+}
 
 //------------------------------------------------------------------------
 //   Define classes
@@ -71,6 +85,7 @@ class ZXVertex{
             _type = vt;
             _phase = phase;
             _DFSCounter = 0;
+            _pin = unsigned(-1);
             _neighborMap.clear();
         }
         ~ZXVertex(){}
@@ -80,16 +95,18 @@ class ZXVertex{
         int getQubit() const                                                { return _qubit; }
         VertexType getType() const                                          { return _type; }
         Phase getPhase() const                                              { return _phase; }
+        size_t getPin() const                                               { return _pin; }   
         vector<ZXVertex*> getNeighbors() const;
         ZXVertex* getNeighbor(size_t idx) const;
         NeighborMap getNeighborMap() const                                  { return _neighborMap; }
-
+        QTensor<double>       getTSform() const;
+        
         void setId(size_t id)                                               { _id = id; }
         void setQubit(int q)                                                {_qubit = q; }
         void setType(VertexType ZXVertex)                                   { _type = ZXVertex; }
         void setPhase(Phase p)                                              { _phase = p; }
         void setNeighborMap(NeighborMap neighborMap)                        { _neighborMap = neighborMap; }
-
+        void setPin(size_t p)                                               { _pin = p; }
 
         // Add and Remove
         void addNeighbor(NeighborPair neighbor)                             { _neighborMap.insert(neighbor); }
@@ -115,18 +132,20 @@ class ZXVertex{
         void setVisited(unsigned global) { _DFSCounter = global; }
 
     private:
-        int                                     _qubit;
-        size_t                                  _id;
-        Phase                                   _phase;
-        VertexType                              _type;
-        NeighborMap                             _neighborMap;
-        unsigned                                _DFSCounter;
+        int                                  _qubit;
+        size_t                               _id;
+        VertexType                           _type;
+        Phase                                _phase;
+        NeighborMap                          _neighborMap;
+        unsigned                             _DFSCounter;
+        size_t                               _pin;
+        
 };
 
 
 class ZXGraph{
     public:
-        ZXGraph(size_t id, void** ref = NULL) : _id(id), _ref(ref){
+        ZXGraph(size_t id, void** ref = NULL) : _id(id), _ref(ref), _tensor(1.+0.i){
             _inputs.clear();
             _outputs.clear();
             _vertices.clear();
@@ -214,10 +233,16 @@ class ZXGraph{
         void printVertices() const;
         void printEdges() const;
         
-        //Traverse
+        // Traverse
         void updateTopoOrder();
+        template<typename F>
+        void topoTraverse(F lambda){
+            updateTopoOrder();
+            for_each(_topoOrder.begin(),_topoOrder.end(),lambda);
+        }
 
         // For mapping
+        void tensorMapping();
         void concatenate(ZXGraph* tmp, bool remove_imm = false);
         void setInputHash(size_t q, ZXVertex* v)                    { _inputList[q] = v; }
         void setOutputHash(size_t q, ZXVertex* v)                   { _outputList[q] = v; }
@@ -233,6 +258,7 @@ class ZXGraph{
     private:
         size_t                            _id;
         void**                            _ref;
+        QTensor<double>                   _tensor;
         vector<ZXVertex*>                 _inputs;
         vector<ZXVertex*>                 _outputs;
         vector<ZXVertex*>                 _vertices;
