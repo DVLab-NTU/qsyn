@@ -15,7 +15,7 @@ using namespace std;
 extern size_t verbose;
 
 /**
- * @brief Matches Hadamard-edges that are connected to H-boxes or two eighboring H-boxes
+ * @brief Matches Hadamard-edges that are connected to H-boxes or two neighboring H-boxes
  *        (Check PyZX/pyzx/hrules.py/match_connected_hboxes for more details)
  * 
  * @param g 
@@ -30,18 +30,12 @@ void HboxFusion::match(ZXGraph* g){
     unordered_map<size_t, size_t> id2idx;
     for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
 
+    // Matches Hadamard-edges that are connected to H-boxes
     vector<bool> taken(g->getNumVertices(), false);
-    // vector<bool> inMatches(g->getNumVertices(), false);
-    // typedef pair<pair<ZXVertex*, ZXVertex*>, EdgeType*> EdgePair;
+    vector<bool> inMatches(g->getNumVertices(), false);
     for(size_t i = 0; i < g->getNumEdges(); i++){
-        if(* g->getEdges()[i].second != EdgeType::HADAMARD) {
-            //cout << "Not H-edge." << endl;
-            continue;
-        }
-        else {
-            //cout << "Is H." << endl;
-        }
-
+        if(* g->getEdges()[i].second != EdgeType::HADAMARD) continue;
+ 
         ZXVertex* neighbor_left;
         neighbor_left = g->getEdges()[i].first.first;
         ZXVertex* neighbor_right;
@@ -57,7 +51,9 @@ void HboxFusion::match(ZXGraph* g){
             _matchTypeVec.push_back(neighbor_left);
             taken[n0] = true;
             taken[n1] = true;
-            // missing : 判斷edge == H & next_neighbor == H
+            //inMatches[n0] = true;
+            //inMatches[n1] = true;
+
             vector<ZXVertex*> neighbors = neighbor_left->getNeighbors();
             size_t n2 = id2idx[neighbors[0]->getId()], n3 = id2idx[neighbors[1]->getId()];
             
@@ -71,6 +67,8 @@ void HboxFusion::match(ZXGraph* g){
             _matchTypeVec.push_back(neighbor_right);
             taken[n0] = true;
             taken[n1] = true;
+
+
             vector<ZXVertex*> neighbors = neighbor_right->getNeighbors();
             size_t n2 = id2idx[neighbors[0]->getId()], n3 = id2idx[neighbors[1]->getId()];
             
@@ -80,14 +78,32 @@ void HboxFusion::match(ZXGraph* g){
             else taken[n3]=true;
         }
         else if(neighbor_left->getType() != VertexType::H_BOX || neighbor_right->getType() != VertexType::H_BOX) {
-            //cout << "But No H-box." << endl;
             continue;
         }
         // if(neighbor_left[0]->_phase != 1 && neighbor_right[0]->_phase != 1) continue;
     }
 
-    
+    // two neighbor HADAMARD with SIMPLE edge connected
+    for(size_t i = 0; i < g->getNumEdges(); i++){
+        if(* g->getEdges()[i].second == EdgeType::HADAMARD) continue;
+        
+        ZXVertex* neighbor_left;
+        neighbor_left = g->getEdges()[i].first.first;
+        ZXVertex* neighbor_right;
+        neighbor_right = g->getEdges()[i].first.second;
 
+
+        size_t n0 = id2idx[neighbor_left->getId()], n1 = id2idx[neighbor_right->getId()];
+        if(!taken[n0] && !taken[n1]){
+            if(neighbor_left->getType() == VertexType::H_BOX && neighbor_right->getType() == VertexType::H_BOX){
+                _matchTypeVec.push_back(neighbor_left);
+                _matchTypeVec.push_back(neighbor_right);
+                taken[n0] = true;
+                taken[n1] = true;
+            }
+        }
+
+    }
     if(verbose >= 3) cout << "Find match of hfuse-rule: " << _matchTypeVec.size() << endl;
     setMatchTypeVecNum(_matchTypeVec.size());
 }
