@@ -218,7 +218,7 @@ class PiCopy : public ZXRule{
 class HboxFusion : public ZXRule{
   public:
     //TODO: Check MatchType
-    typedef int MatchType;
+    typedef ZXVertex* MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
     HboxFusion(){
