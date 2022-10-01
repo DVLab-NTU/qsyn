@@ -1,0 +1,17 @@
+ver 9
+zxmode -on
+qcba
+qcga -h 0
+qcga -z 0
+qcga -h 0
+qccp
+qczxm
+zxgp -v
+zxge -rme 0 2
+zxge -rme 3 4
+zxge -adde 0 2 HADAMARD
+zxge -adde 3 4 HADAMARD
+zxgp -v
+zxgsimp -hf
+zxgp -v
+q -f
