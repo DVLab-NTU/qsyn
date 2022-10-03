@@ -248,7 +248,8 @@ void QCir::tensorMapping()
     };
     if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
     topoTraverse(Lambda);
-    if(verbose >= 8) cout << _tensor << endl;
+    if(verbose >= 8) cout << _tensor<< endl;
+    //if(verbose >= 8) cout << _tensor.toMatrix({0,1,2},{4,5,3}) << endl;
 }
 void QCir::updateTensorPin(vector<BitInfo> pins)
 {
