@@ -78,7 +78,7 @@ public:
     template <typename U>
     friend Tensor<U> operator/(Tensor<U> lhs, const Tensor<U>& rhs);
     
-    size_t dimension() { return _tensor.dimension(); }
+    size_t dimension() const { return _tensor.dimension(); }
 
 
     void resetAxisHistory();
