@@ -23,7 +23,7 @@ for test_date in tests/*/; do
             dofile="${test_pkg}testcases/$test_name"
             ref_file="${test_pkg}reference/$test_name"
             # Test the dofile
-            printf "    - Testing %-20s %s" $test_name
+            printf "    - Testing %-30s %s" $test_name
             ./qsyn -f ${dofile} 2>/dev/null | diff ${ref_file} - -rs | grep -q "identical"
             # print the result
             # grep returns 0 if found matching strings

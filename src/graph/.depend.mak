@@ -24,6 +24,13 @@ sfusion.o: sfusion.cpp zxRules.h zxDef.h ../../include/myHashMap.h \
  ../../include/myUsage.h ../../include/qtensor.h ../../include/tensor.h \
  ../../include/tensorDef.h ../../include/tensorUtil.h \
  ../../include/phase.h
+zx2tsMapper.o: zx2tsMapper.cpp zx2tsMapper.h zxGraph.h \
+ ../../include/phase.h ../../include/rationalNumber.h \
+ ../../include/myConcepts.h ../../include/util.h ../../include/rnGen.h \
+ ../../include/myUsage.h ../../include/qtensor.h ../../include/tensor.h \
+ ../../include/tensorDef.h ../../include/tensorUtil.h \
+ ../../include/phase.h zxDef.h ../../include/myHashMap.h \
+ ../../include/util.h
 id.o: id.cpp zxRules.h zxDef.h ../../include/myHashMap.h zxGraph.h \
  ../../include/phase.h ../../include/rationalNumber.h \
  ../../include/myConcepts.h ../../include/util.h ../../include/rnGen.h \
@@ -48,12 +55,12 @@ copy.o: copy.cpp zxRules.h zxDef.h ../../include/myHashMap.h zxGraph.h \
  ../../include/myUsage.h ../../include/qtensor.h ../../include/tensor.h \
  ../../include/tensorDef.h ../../include/tensorUtil.h \
  ../../include/phase.h
-zxMapping.o: zxMapping.cpp zxGraph.h ../../include/phase.h \
+zxMapping.o: zxMapping.cpp ../../include/util.h ../../include/rnGen.h \
+ ../../include/myUsage.h zx2tsMapper.h zxGraph.h ../../include/phase.h \
  ../../include/rationalNumber.h ../../include/myConcepts.h \
- ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
- ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
- ../../include/tensorUtil.h ../../include/phase.h zxDef.h \
- ../../include/myHashMap.h ../../include/util.h
+ ../../include/util.h ../../include/qtensor.h ../../include/tensor.h \
+ ../../include/tensorDef.h ../../include/tensorUtil.h \
+ ../../include/phase.h zxDef.h ../../include/myHashMap.h
 hfusion.o: hfusion.cpp zxRules.h zxDef.h ../../include/myHashMap.h \
  zxGraph.h ../../include/phase.h ../../include/rationalNumber.h \
  ../../include/myConcepts.h ../../include/util.h ../../include/rnGen.h \
