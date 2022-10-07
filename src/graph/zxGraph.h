@@ -94,14 +94,14 @@ class ZXVertex{
         ~ZXVertex(){}
 
         // Getter and Setter
-        size_t getId() const                                                { return _id; }
-        int getQubit() const                                                { return _qubit; }
-        VertexType getType() const                                          { return _type; }
-        Phase getPhase() const                                              { return _phase; }
-        size_t getPin() const                                               { return _pin; }   
+        const size_t& getId() const                                         { return _id; }
+        const int& getQubit() const                                         { return _qubit; }
+        const VertexType& getType() const                                   { return _type; }
+        const Phase& getPhase() const                                       { return _phase; }
+        const size_t& getPin() const                                        { return _pin; }   
         vector<ZXVertex*> getNeighbors() const;
         ZXVertex* getNeighbor(size_t idx) const;
-        NeighborMap getNeighborMap() const                                  { return _neighborMap; }
+        const NeighborMap& getNeighborMap() const                           { return _neighborMap; }
         QTensor<double>       getTSform() const;
         
         void setId(size_t id)                                               { _id = id; }
@@ -173,15 +173,15 @@ class ZXGraph{
         void setVertices(vector<ZXVertex*> vertices)    { _vertices = vertices; }
         void setEdges(vector<EdgePair > edges)          { _edges = edges; }
         
-        size_t getId() const                            { return _id; }
+        const size_t& getId() const                     { return _id; }
         void** getRef() const                           { return _ref; }
-        vector<ZXVertex*> getInputs() const             { return _inputs; }
+        const vector<ZXVertex*>& getInputs() const      { return _inputs; }
         size_t getNumInputs() const                     { return _inputs.size(); }
-        vector<ZXVertex*> getOutputs() const            { return _outputs; }
+        const vector<ZXVertex*>& getOutputs() const     { return _outputs; }
         size_t getNumOutputs() const                    { return _outputs.size(); }
-        vector<ZXVertex*> getVertices() const           { return _vertices; }
+        const vector<ZXVertex*>& getVertices() const    { return _vertices; }
         size_t getNumVertices() const                   { return _vertices.size(); }
-        vector<EdgePair > getEdges() const              { return _edges; }
+        const vector<EdgePair >& getEdges() const       { return _edges; }
         size_t getNumEdges() const                      { return _edges.size(); }
 
 
@@ -199,7 +199,7 @@ class ZXGraph{
         ZXVertex* addInput(size_t id, int qubit);
         ZXVertex* addOutput(size_t id, int qubit);
         ZXVertex* addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase() );
-        EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et);
+        const EdgePair& addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et);
         void addEdgeById(size_t id_s, size_t id_t, EdgeType* et);
         void addInputs(vector<ZXVertex*> inputs);
         void addOutputs(vector<ZXVertex*> outputs);
@@ -247,10 +247,10 @@ class ZXGraph{
         // For mapping
         void tensorMapping();
         void concatenate(ZXGraph* tmp, bool remove_imm = false);
-        void setInputHash(size_t q, ZXVertex* v)                    { _inputList[q] = v; }
-        void setOutputHash(size_t q, ZXVertex* v)                   { _outputList[q] = v; }
-        unordered_map<size_t, ZXVertex*> getInputList() const       { return _inputList; }
-        unordered_map<size_t, ZXVertex*> getOutputList() const      { return _outputList; }
+        void setInputHash(size_t q, ZXVertex* v)                           { _inputList[q] = v; }
+        void setOutputHash(size_t q, ZXVertex* v)                          { _outputList[q] = v; }
+        const unordered_map<size_t, ZXVertex*>& getInputList() const       { return _inputList; }
+        const unordered_map<size_t, ZXVertex*>& getOutputList() const      { return _outputList; }
         ZXVertex* getInputFromHash(size_t q);
         ZXVertex* getOutputFromHash(size_t q);
         vector<ZXVertex*> getNonBoundary();

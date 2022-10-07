@@ -1,0 +1,19 @@
+zxm -on
+zxn
+zxgedit -addi 0 0
+zxgedit -addo 1 0
+zxgedit -addv 2 0 Z 0
+zxgedit -addv 3 0 Z 0
+zxgedit -addv 4 0 X 0
+zxgedit -adde 0 2 SIMPLE
+zxgedit -adde 1 2 SIMPLE
+zxgedit -adde 3 2 SIMPLE
+zxgedit -adde 2 3 SIMPLE
+zxgedit -adde 4 2 HADAMARD
+zxgedit -adde 2 4 SIMPLE
+zxgp -v
+zxgp -e
+zxgsimp -idr
+zxgp -v
+zxgp -e
+q -f
