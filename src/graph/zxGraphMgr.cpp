@@ -140,9 +140,11 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph){
     for(size_t i = 0; i < oriGraph->getOutputs().size(); i++){
       ZXVertex* curOut = oriGraph->getOutputs()[i];
       ZXVertex* cpIn = copyGraph->getInputs()[i];
-      for(auto& s : curOut->getNeighborMap()){
+      NeighborMap curOutNMap = curOut->getNeighborMap();
+      NeighborMap cpInNMap = cpIn->getNeighborMap();
+      for(auto& s : curOutNMap){
         ZXVertex* vs = s.first; EdgeType* vsType = s.second;
-        for(auto& t : cpIn->getNeighborMap()){
+        for(auto& t : cpInNMap){
           ZXVertex* vt = t.first; EdgeType* vtType = t.second;
           EdgeType* newType;
           if((*vsType == EdgeType::SIMPLE && *vtType == EdgeType::SIMPLE) || (*vsType == EdgeType::HADAMARD && *vtType == EdgeType::HADAMARD)) newType = new EdgeType(EdgeType::SIMPLE);
@@ -153,7 +155,6 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph){
         vs->disconnect(curOut);
       }
     }
-
     // Remove outputs of oriGraph and inputs of copyGraph
     oriGraph->removeVertices(oriGraph->getOutputs(), true);
     copyGraph->removeVertices(copyGraph->getInputs(), true);
