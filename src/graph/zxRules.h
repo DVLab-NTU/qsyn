@@ -158,7 +158,7 @@ class Bialgebra : public ZXRule{
 class IdRemoval : public ZXRule{
   public:
     //TODO: Check MatchType
-    typedef int MatchType;
+    typedef tuple<ZXVertex*, ZXVertex*, ZXVertex*, EdgeType> MatchType; // vertex, neighbor0, neighbor1, new edge type
     typedef vector<MatchType> MatchTypeVec;
 
     IdRemoval(){
