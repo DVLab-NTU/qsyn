@@ -28,9 +28,6 @@ void SpiderFusion::match(ZXGraph* g){
   vector<bool> validEdge(g->getNumEdges(), true);
   
   for(size_t i = 0; i < g->getNumEdges(); i++){
-    // for(size_t k=0;k<validEdge.size();k++){
-    //   cout << validEdge[k] << " ";
-    // }
     if(!validEdge[Edge2idx[makeEdgeKey(Edges[i])]]) {
       if(verbose >=7) cout << Edges[i].first.first->getId() << "--" << Edges[i].first.second->getId() << " is discarded." << endl;
       continue;
@@ -52,20 +49,6 @@ void SpiderFusion::match(ZXGraph* g){
     }
   }
   setMatchTypeVecNum(_matchTypeVec.size());
-  // while (num == -1 or i < num) and len(candidates) > 0:
-  //       e = candidates.pop()
-  //       if g.edge_type(e) != EdgeType.SIMPLE: continue
-  //       v0, v1 = g.edge_st(e)
-  //       v0t = types[v0]
-  //       v1t = types[v1]
-  //       if (v0t == v1t and vertex_is_zx(v0t)):
-  //               i += 1
-  //               for v in g.neighbors(v0):
-  //                   for c in g.incident_edges(v): candidates.discard(c)
-  //               for v in g.neighbors(v1):
-  //                   for c in g.incident_edges(v): candidates.discard(c)
-  //               m.append((v0,v1))
-  //   return m
 }
 
 /**
@@ -90,34 +73,45 @@ void SpiderFusion::rewrite(ZXGraph* g){
       ZXVertex* v0 = _matchTypeVec[i].first;
       ZXVertex* v1 = _matchTypeVec[i].second;
       vector<ZXVertex*> v1n = v1->getNeighbors();
+      
       unordered_map<ZXVertex*,bool> done;
       done.clear();
       for(size_t i=0; i < v1n.size(); i++) done[v1n[i]] = false;
       for(size_t i=0; i < v1n.size(); i++){
-        if(done[v1n[i]]) continue;
+        if(done[v1n[i]]) {
+          continue;
+        }
         NeighborMap neighbor = v1->getNeighborMap();
         auto neighborItr = neighbor.equal_range(v1n[i]);
         int hadamardcount = 0;
         int simplecount = 0;
         auto map = v1->getNeighborMap();
-        // for (auto ittr = map.begin(); ittr != map.end(); ittr++){
-        //   cout << ittr->first->getId() << " ** ";
-        // }
-
+        
         for(auto itr = neighborItr.first; itr != neighborItr.second; ++itr){
           if(*(itr->second) == EdgeType::HADAMARD) hadamardcount++;
           if(*(itr->second) == EdgeType::SIMPLE) simplecount++;
-          // cout << "@@@@@@" << endl;
         }
-        _edgeTableKeys.push_back(make_pair(v0, v1n[i]));
-        _edgeTableValues.push_back(make_pair((v1n[i]==v0) ? 0 : simplecount, hadamardcount));
-        _removeVertices.push_back(v1);
-
-        // cout << _removeVertices[0] -> getId() << endl;
+        if(v0->getId()!=v1->getId()){
+          _edgeTableKeys.push_back(make_pair(v0, v1n[i]));
+          _edgeTableValues.push_back(make_pair((v1n[i]==v0) ? 0 : simplecount, hadamardcount));
+        }
         done[v1n[i]] = true;
       }
+      if(v0->getId()!=v1->getId()){
+        _removeVertices.push_back(v1);
+      }
+      else {
+        NeighborMap nb = v0->getNeighborMap();
+        auto neighborItr = nb.equal_range(v1);
+        EdgeType* tmp;
+        for(auto itr = neighborItr.first; itr != neighborItr.second; ++itr){
+          if(*(itr->second) == EdgeType::SIMPLE){
+            tmp = itr->second;
+            _removeEdges.push_back(make_pair(make_pair(v0,v1), tmp));
+          }
+        }
+      }
     }
-
 }
 
 
