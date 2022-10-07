@@ -290,7 +290,7 @@ ZXVertex* ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase){
  * @param et 
  * @return EdgePair 
  */
-EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et){
+const EdgePair& ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et){
     // NeighborMap mode
     vs->addNeighbor(make_pair(vt, et));
     vt->addNeighbor(make_pair(vs, et));
@@ -298,10 +298,9 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et){
 
     // Original
     // vs->connect(vt, et);
-    EdgePair e = make_pair(make_pair(vs, vt), et);
-    _edges.push_back(e);
+    _edges.emplace_back(make_pair(vs, vt), et);
     if(verbose >= 3) cout << "Add edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
-    return e;
+    return _edges.back();
 }
 
 void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType* et){
