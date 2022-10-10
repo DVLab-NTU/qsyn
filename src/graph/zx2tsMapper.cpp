@@ -164,6 +164,17 @@ void ZX2TSMapper::tensorDotVertex(ZXVertex* v) {
     TensorAxisList connect_pin;
     for (size_t t = 0; t < _normalPin.size(); t++)
         connect_pin.push_back(t);
+    
+    // Check self loop
+    size_t hedge = 0, sedge = 0;
+    auto neighborSelf = v->getNeighborMap().equal_range(v);
+    for (auto jtr = neighborSelf.first; jtr != neighborSelf.second; jtr++) {
+        if(*(jtr->second) == EdgeType::HADAMARD) hedge++;
+        else if(*(jtr->second) == EdgeType::SIMPLE) sedge++;
+        else cerr << "Wrong Type!!" << endl;
+    }
+    cout << hedge << " " << sedge << endl;
+    
     currTensor() = tensordot(dehadamarded, v->getTSform(), _normalPin, connect_pin);
 
     // 3. update pins
