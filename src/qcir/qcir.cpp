@@ -222,7 +222,7 @@ void QCir::tensorMapping()
     _tensor = tensordot(_tensor, QTensor<double>::identity(_qubits.size()));
     _qubit2pin.clear();
     for(size_t i=0; i<_qubits.size(); i++){
-        _qubit2pin[_qubits[i]->getId()] = 2*i+1;
+        _qubit2pin[_qubits[i]->getId()] = make_pair(2*i, 2*i+1);
         if(verbose >= 3)  cout << "Add Qubit " << _qubits[i]->getId() << " output port: " << 2*i+1 << endl;
     }
     
@@ -237,50 +237,87 @@ void QCir::tensorMapping()
         for(size_t np=0; np<G->getQubits().size(); np++){
             new_pin.push_back(2*np);
             BitInfo info = G->getQubits()[np];
-            ori_pin.push_back(_qubit2pin[info._qubit]);
+            ori_pin.push_back(_qubit2pin[info._qubit].second);
         }
         _tensor = tensordot(_tensor, tmp, ori_pin, new_pin);
-        if(verbose >= 5) cout << "********* Pin Permutation *********" << endl;
-        updateTensorPin(G->getQubits());
+        if(verbose >= 5) cout << "************ Pin Permutation ************" << endl;
+        
+        updateTensorPin(G->getQubits(), tmp);
         // tmp -> concatenate(tmp, false);
         // Tensor product here
-        if(verbose >= 5) cout << "***********************************" << endl;
-        if(verbose >= 3) cout << "--------------------------------------" << endl;
+        if(verbose >= 5) cout << "*****************************************" << endl;
+        if(verbose >= 3) cout << "--------------------------------------------" << endl;
     };
     if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
     topoTraverse(Lambda);
-    if(verbose >= 8) cout << _tensor << endl;
+
+    if(verbose >= 8) {
+        vector<size_t> input_pin, output_pin;
+        for(size_t i=0; i<_qubits.size(); i++){
+            input_pin.push_back(_qubit2pin[_qubits[i]->getId()].first);
+            output_pin.push_back(_qubit2pin[_qubits[i]->getId()].second);
+        }
+        cout << _tensor.toMatrix(input_pin,output_pin) << endl;
+    }
 }
-void QCir::updateTensorPin(vector<BitInfo> pins)
+void QCir::updateTensorPin(vector<BitInfo> pins, QTensor<double> tmp)
 {
-    // it->first: qubit ID
-    for ( auto it = _qubit2pin.begin(); it != _qubit2pin.end(); ++it ){
-        bool modify = false;
-        for(size_t p=0; p<pins.size(); p++){
-            if(pins[p]._qubit == it->first){
-                modify = true;
+    size_t count_pin_used = 0;
+    for (auto it = _qubit2pin.begin(); it != _qubit2pin.end(); ++it ){
+        if(verbose >= 5)  cout << "Qubit: " << it->first << " input : " << it->second.first << " -> ";
+        it->second.first = _tensor.getNewAxisId(it->second.first);
+        if(verbose >= 5)  cout << it->second.first << " | ";
+        if(verbose >= 5)  cout << " output: " << it->second.second << " -> ";
+        bool connected = false;
+        bool target = false;
+        for(size_t i=0;i<pins.size();i++){
+            if(pins[i]._qubit == it->first){
+                connected = true;
+                if(pins[i]._isTarget) target = true;
                 break;
             }
         }
-        if(!modify){
-            size_t minus = 0;
-            for(size_t p=0; p<pins.size(); p++){
-                if(_qubit2pin[pins[p]._qubit] < it->second)
-                    minus++;
-            }
-            it->second -= minus; 
-        }
-    }
-    for ( auto it = _qubit2pin.begin(); it != _qubit2pin.end(); ++it ){
-        if(verbose >= 5)  cout << "Qubit: " << it->first << ":" << " -> ";
-        for(size_t p=0; p<pins.size(); p++){
-            if(pins[p]._qubit == it->first){
-                it->second = 2*_qubit2pin.size()-(pins.size()-p); 
-                break;
+        if(connected){
+            if(target)
+                it->second.second = _tensor.getNewAxisId(_tensor.dimension() + tmp.dimension()-1);
+            else{
+                it->second.second = _tensor.getNewAxisId(_tensor.dimension() + 2*count_pin_used+1);
+                count_pin_used++;
             }
         }
-        if(verbose >= 5) cout << it->second << endl;
+        else
+            it->second.second = _tensor.getNewAxisId(it->second.second);
+        if(verbose >= 5)  cout << it->second.second << endl;
     }
+    
+    // // it->first: qubit ID
+    // for ( auto it = _qubit2pin.begin(); it != _qubit2pin.end(); ++it ){
+    //     bool modify = false;
+    //     for(size_t p=0; p<pins.size(); p++){
+    //         if(pins[p]._qubit == it->first){
+    //             modify = true;
+    //             break;
+    //         }
+    //     }
+    //     if(!modify){
+    //         size_t minus = 0;
+    //         for(size_t p=0; p<pins.size(); p++){
+    //             if(_qubit2pin[pins[p]._qubit] < it->second)
+    //                 minus++;
+    //         }
+    //         it->second.second -= minus; 
+    //     }
+    // }
+    // for ( auto it = _qubit2pin.begin(); it != _qubit2pin.end(); ++it ){
+    //     if(verbose >= 5)  cout << "Qubit: " << it->first << ":" << " -> ";
+    //     for(size_t p=0; p<pins.size(); p++){
+    //         if(pins[p]._qubit == it->first){
+    //             it->second.second = 2*_qubit2pin.size()-(pins.size()-p); 
+    //             break;
+    //         }
+    //     }
+    //     if(verbose >= 5) cout << it->second.second << endl;
+    // }
     
 }
 bool QCir::removeQubit(size_t id)
