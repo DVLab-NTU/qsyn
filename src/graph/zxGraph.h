@@ -99,7 +99,7 @@ class ZXVertex{
         vector<ZXVertex*> getNeighbors() const;
         ZXVertex* getNeighbor(size_t idx) const;
         const NeighborMap& getNeighborMap() const                           { return _neighborMap; }
-        QTensor<double>       getTSform() const;
+        QTensor<double>       getTSform();
         
         void setId(size_t id)                                               { _id = id; }
         void setQubit(int q)                                                {_qubit = q; }
