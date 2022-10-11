@@ -127,7 +127,7 @@ class SpiderFusion : public ZXRule{
 class Bialgebra : public ZXRule{
   public:
     //TODO: Check MatchType
-    typedef int MatchType;
+    typedef EdgePair MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
     Bialgebra(){
