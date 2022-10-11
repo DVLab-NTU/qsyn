@@ -97,11 +97,11 @@ bool ZX2TSMapper::isFrontier(const pair<ZXVertex*, EdgeType*>& nbr) const {
 }
 
 // Create an EdgePair that is used as the key to the Frontiers
-EdgePair ZX2TSMapper::makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et) {
-    return make_pair(
-        (v2->getId() < v1->getId()) ? make_pair(v2, v1) : make_pair(v1, v2),
-        et);
-}
+// EdgePair ZX2TSMapper::makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et) {
+//     return make_pair(
+//         (v2->getId() < v1->getId()) ? make_pair(v2, v1) : make_pair(v1, v2),
+//         et);
+// }
 
 // Get the order of inputs and outputs
 void ZX2TSMapper::getAxisOrders(TensorAxisList& axList, const std::unordered_map<size_t, ZXVertex*>& ioList) {

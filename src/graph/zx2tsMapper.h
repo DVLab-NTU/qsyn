@@ -74,7 +74,7 @@ private:
     bool isFrontier(const pair<ZXVertex*, EdgeType*>& nbr) const;
 
     void printFrontiers() const;
-    EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et);
+    // EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et);
     void getAxisOrders(TensorAxisList& axList, const std::unordered_map<size_t, ZXVertex *>& ioList);
 };
 #endif //ZX2TS_MAPPER_H

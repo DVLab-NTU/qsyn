@@ -45,6 +45,9 @@ struct hash<EdgePair>
   };
 }
 
+EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et);
+EdgePair makeEdgeKey(EdgePair epair);
+
 //------------------------------------------------------------------------
 //   Define classes
 //------------------------------------------------------------------------
