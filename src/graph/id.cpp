@@ -41,11 +41,6 @@ void IdRemoval::match(ZXGraph* g) {
         EdgeType* etype1;
         if (neigh0 == neigh1) {
             auto result = nmap.equal_range(neigh0);
-            // cout << result.first->first->getId() << EdgeType2Str(result.first->second)  << v->getId() << endl;            // cout << result.second->first << ", " << EdgeType2Str(result.second->second)  << v->getId();
-            // for (auto itr = result.first; itr != result.second; ++itr) {
-            //     cout << itr->first->getId() << EdgeType2Str(itr->second) << v->getId() << ", ";
-            // }
-            // cout << endl;
             auto itr0 = result.first;
             auto itr1 = itr0; itr1++;
             etype0 = itr0->second;

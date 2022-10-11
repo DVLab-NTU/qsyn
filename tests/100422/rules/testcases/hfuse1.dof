@@ -1,0 +1,17 @@
+ver 9
+zxmode -on
+qcba
+qcga -h 0
+qcga -h 0
+qccp
+qczxm
+zxgp -v
+zxgsimp -hr
+zxgp -v
+zxge -addv 2 0 H_BOX 0
+zxge -adde 0 2 HADAMARD
+zxge -adde 1 2 SIMPLE
+zxge -rme 0 1
+zxgp -v
+zxgsimp -hf
+q -f
