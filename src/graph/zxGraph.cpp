@@ -214,17 +214,13 @@ bool ZXGraph::isId(size_t id) const{
 }
 
 bool ZXGraph::isInputQubit(int qubit) const{
-    for(size_t i = 0; i < _inputs.size(); i++){
-        if(_inputs[i]->getQubit() == qubit) return true;
-    }
-    return false;
+    if (_inputList.find(qubit) != _inputList.end()) return true;
+    else return false;
 }
 
 bool ZXGraph::isOutputQubit(int qubit) const{
-    for(size_t i = 0; i < _outputs.size(); i++){
-        if(_outputs[i]->getQubit() == qubit) return true;
-    }
-    return false;
+    if (_outputList.find(qubit) != _outputList.end()) return true;
+    else return false;
 }
 
 
@@ -242,6 +238,7 @@ ZXVertex* ZXGraph::addInput(size_t id, int qubit){
         ZXVertex* v = new ZXVertex(id, qubit, VertexType::BOUNDARY);
         _inputs.push_back(v);
         _vertices.push_back(v);
+        _inputList[qubit] = v;
         if(verbose >= 3) cout << "Add input " << id << endl;
         return v;
     }
@@ -261,6 +258,7 @@ ZXVertex* ZXGraph::addOutput(size_t id, int qubit){
         ZXVertex* v = new ZXVertex(id, qubit, VertexType::BOUNDARY);
         _vertices.push_back(v);
         _outputs.push_back(v);
+        _outputList[qubit] = v;
         if(verbose >= 3) cout << "Add output " << id << endl;
         return v;
     }

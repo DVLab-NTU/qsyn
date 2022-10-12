@@ -41,8 +41,27 @@ void ZX2TSMapper::mapOneVertex(ZXVertex* v) {
         initSubgraph(v);
     } else if (v->getType() == VertexType::BOUNDARY) {
         if (verbose >= 3) cout << "Boundary Node" << endl;
+        // if (verbose >= 7) {
+        //     Frontiers tmp = currFrontiers();
+        //     for(auto it=tmp.begin();it!=tmp.end();it++){
+        //         cout << it->first.first.first->getId() << "--" << it->first.first.second->getId() << endl;
+        //     }
+        // }
     } else {
+        // if (verbose >= 7) {
+        //     Frontiers tmp = currFrontiers();
+        //     for(auto it=tmp.begin();it!=tmp.end();it++){
+        //         cout << it->first.first.first->getId() << "--" << it->first.first.second->getId() << endl;
+        //     }
+        // }
         updatePinsAndFrontiers(v);
+        // if (verbose >= 7) {
+        //     cout << "________________UPDATE______" << endl;
+        //     Frontiers tmp = currFrontiers();
+        //     for(auto it=tmp.begin();it!=tmp.end();it++){
+        //         cout << it->first.first.first->getId() << "--" << it->first.first.second->getId() << endl;
+        //     }
+        // }
         if (verbose >= 7) printFrontiers();
         if (verbose >= 7) cout << "Start tensor dot..." << endl;
         tensorDotVertex(v);
@@ -125,6 +144,19 @@ void ZX2TSMapper::updatePinsAndFrontiers(ZXVertex* v) {
         EdgePair edgeKey = makeEdgeKey(v, neighbor, etype);
         if (!isFrontier(epair) && !frontAlreadyRetrived.contains(neighbor)) {
             frontAlreadyRetrived.emplace(neighbor, etype);
+            // cout << "@@@@@@@@@@@@@@@" << endl;
+            // for(auto jtr=currFrontiers().begin(); jtr!=currFrontiers().end(); jtr++){
+            //     cout << "Now: "<< jtr->first.first.first->getId() << "--" << jtr->first.first.second->getId() << endl;
+            //     if(jtr->first.first == edgeKey.first){
+            //         if (*(epair.second) == EdgeType::HADAMARD)
+            //             _hadamardPin.push_back(jtr->second);
+            //         else
+            //             _normalPin.push_back(jtr->second);
+            //         _removeEdge.push_back(edgeKey);
+            //         cout << "!!!!!!" << edgeKey.first.first->getId() << "--" << edgeKey.first.second->getId() <<" "<< *(edgeKey.second) << endl;
+            //     }
+            // }
+            
             auto result = currFrontiers().equal_range(edgeKey);
             for (auto jtr = result.first; jtr != result.second; jtr++) {
                 auto& [epair, id] = *jtr;
@@ -134,6 +166,7 @@ void ZX2TSMapper::updatePinsAndFrontiers(ZXVertex* v) {
                     _normalPin.push_back(id);
 
                 _removeEdge.push_back(edgeKey);
+                // cout << "!!!!!!" << edgeKey.first.first->getId() << "--" << edgeKey.first.second->getId() <<" "<< *(edgeKey.second) << endl;
             }
         } else {
             _addEdge.push_back(edgeKey);
@@ -160,17 +193,47 @@ QTensor<double> ZX2TSMapper::dehadamardize(const QTensor<double>& ts) {
 
 // tensordot the current tensor to the vertex's tensor form
 void ZX2TSMapper::tensorDotVertex(ZXVertex* v) {
+
+    // if (verbose >= 7) {
+    //         cout << "__________TSDOT VERTEX INIT______" << endl;
+    //         Frontiers tmp = currFrontiers();
+    //         for(auto it=tmp.begin();it!=tmp.end();it++){
+    //             cout << it->first.first.first->getId() << "--" << it->first.first.second->getId() << endl;
+    //         }
+    //     }
+    
     QTensor<double> dehadamarded = dehadamardize(currTensor());
     TensorAxisList connect_pin;
     for (size_t t = 0; t < _normalPin.size(); t++)
         connect_pin.push_back(t);
-    
+    //  if (verbose >= 7) {
+    //         cout << "__________TSDOT VERTEX DEHADA______" << endl;
+    //         Frontiers tmp = currFrontiers();
+    //         for(auto it=tmp.begin();it!=tmp.end();it++){
+    //             cout << it->first.first.first->getId() << "--" << it->first.first.second->getId() << endl;
+    //         }
+    //     }
     currTensor() = tensordot(dehadamarded, v->getTSform(), _normalPin, connect_pin);
-
+    // if (verbose >= 7) {
+    //         cout << "__________TSDOT VERTEX tsdot______" << endl;
+    //         Frontiers tmp = currFrontiers();
+    //         for(auto it=tmp.begin();it!=tmp.end();it++){
+    //             cout << it->first.first.first->getId() << "--" << it->first.first.second->getId() << endl;
+    //         }
+    //     }
     // 3. update pins
-    for (size_t i = 0; i < _removeEdge.size(); i++)
+    
+    for (size_t i = 0; i < _removeEdge.size(); i++){
         currFrontiers().erase(_removeEdge[i]);  // Erase old edges
-
+    }
+        
+    // if (verbose >= 7) {
+    //         cout << "__________TSDOT VERTEX erase______" << endl;
+    //         Frontiers tmp = currFrontiers();
+    //         for(auto it=tmp.begin();it!=tmp.end();it++){
+    //             cout << it->first.first.first->getId() << "--" << it->first.first.second->getId() << endl;
+    //         }
+    //     }
     for (auto& frontier : currFrontiers()) {
         frontier.second = currTensor().getNewAxisId(frontier.second);
     }
