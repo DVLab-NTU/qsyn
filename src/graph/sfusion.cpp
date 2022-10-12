@@ -22,7 +22,33 @@ extern size_t verbose;
  */
 void SpiderFusion::match(ZXGraph* g){
   _matchTypeVec.clear();
-  //TODO: rewrite _matchTypeVec
+  vector<EdgePair> Edges = g->getEdges();
+  unordered_map<EdgePair, size_t> Edge2idx;
+  for(size_t i = 0; i < g->getNumEdges(); i++) Edge2idx[makeEdgeKey(Edges[i])] = i;
+  vector<bool> validEdge(g->getNumEdges(), true);
+  
+  for(size_t i = 0; i < g->getNumEdges(); i++){
+    if(!validEdge[Edge2idx[makeEdgeKey(Edges[i])]]) {
+      if(verbose >=7) cout << Edges[i].first.first->getId() << "--" << Edges[i].first.second->getId() << " is discarded." << endl;
+      continue;
+    }
+    validEdge[Edge2idx[makeEdgeKey(Edges[i])]] = false;
+    if(*(Edges[i].second) != EdgeType::SIMPLE) continue;
+    ZXVertex* v0 = Edges[i].first.first;
+    ZXVertex* v1 = Edges[i].first.second;
+    if( (v0 -> getType() == v1 -> getType()) && (v0 -> getType() == VertexType::X || v0 -> getType() == VertexType::Z)){
+      NeighborMap v0n = v0->getNeighborMap();
+      for(auto itr = v0n.begin(); itr!=v0n.end(); ++itr){
+        validEdge[Edge2idx[makeEdgeKey(v0, itr->first, itr->second)]] = false;
+      }
+      NeighborMap v1n = v1->getNeighborMap();
+      for(auto itr = v1n.begin(); itr!=v1n.end(); ++itr){
+        validEdge[Edge2idx[makeEdgeKey(v1, itr->first, itr->second)]] = false;
+      }
+      _matchTypeVec.push_back(make_pair(v0, v1));
+    }
+  }
+  setMatchTypeVecNum(_matchTypeVec.size());
 }
 
 /**
@@ -39,7 +65,53 @@ void SpiderFusion::rewrite(ZXGraph* g){
     //* (EdgeTable: Key(ZXVertex* vs, ZXVertex* vt), Value(int s, int h))
     //* _edgeTableKeys: A pair of ZXVertex* like (ZXVertex* vs, ZXVertex* vt), which you would like to add #s EdgeType::SIMPLE between them and #h EdgeType::HADAMARD between them
     //* _edgeTableValues: A pair of int like (int s, int h), which means #s EdgeType::SIMPLE and #h EdgeType::HADAMARD
-
+    for(size_t i=0; i<_matchTypeVec.size(); i++){
+      // Merge phase
+      _matchTypeVec[i].first -> setPhase(_matchTypeVec[i].first -> getPhase() + _matchTypeVec[i].second -> getPhase());
+      
+      // Merge
+      ZXVertex* v0 = _matchTypeVec[i].first;
+      ZXVertex* v1 = _matchTypeVec[i].second;
+      vector<ZXVertex*> v1n = v1->getNeighbors();
+      
+      unordered_map<ZXVertex*,bool> done;
+      done.clear();
+      for(size_t i=0; i < v1n.size(); i++) done[v1n[i]] = false;
+      for(size_t i=0; i < v1n.size(); i++){
+        if(done[v1n[i]]) {
+          continue;
+        }
+        NeighborMap neighbor = v1->getNeighborMap();
+        auto neighborItr = neighbor.equal_range(v1n[i]);
+        int hadamardcount = 0;
+        int simplecount = 0;
+        auto map = v1->getNeighborMap();
+        
+        for(auto itr = neighborItr.first; itr != neighborItr.second; ++itr){
+          if(*(itr->second) == EdgeType::HADAMARD) hadamardcount++;
+          if(*(itr->second) == EdgeType::SIMPLE) simplecount++;
+        }
+        if(v0->getId()!=v1->getId()){
+          _edgeTableKeys.push_back(make_pair(v0, v1n[i]));
+          _edgeTableValues.push_back(make_pair((v1n[i]==v0) ? 0 : simplecount, hadamardcount));
+        }
+        done[v1n[i]] = true;
+      }
+      if(v0->getId()!=v1->getId()){
+        _removeVertices.push_back(v1);
+      }
+      else {
+        NeighborMap nb = v0->getNeighborMap();
+        auto neighborItr = nb.equal_range(v1);
+        EdgeType* tmp;
+        for(auto itr = neighborItr.first; itr != neighborItr.second; ++itr){
+          if(*(itr->second) == EdgeType::SIMPLE){
+            tmp = itr->second;
+            _removeEdges.push_back(make_pair(make_pair(v0,v1), tmp));
+          }
+        }
+      }
+    }
 }
 
 

@@ -340,7 +340,7 @@ void ZXGraph::addEdges(vector<EdgePair> edges){
 void ZXGraph::removeVertex(ZXVertex* v, bool checked){
     if(!checked){
         if(!isId(v->getId())){
-            cerr << "This vertex is not existed!" << endl;
+            cerr << "This vertex does not exist!" << endl;
             return;
         } 
     } 
@@ -430,33 +430,32 @@ void ZXGraph::removeEdge(ZXVertex* vs, ZXVertex* vt, bool checked){
 }
 
 /**
- * @brief 
+ * @brief Remove an edge exactly equal to `ep`.
  * 
  * @param ep 
- * @param checked 
  */
 void ZXGraph::removeEdgeByEdgePair(EdgePair ep){
     for(size_t i = 0; i < _edges.size(); i++){
         if(ep.first.first == _edges[i].first.first && ep.first.second == _edges[i].first.second && ep.second == _edges[i].second){
             if(verbose >= 3) cout << "Remove (" << ep.first.first->getId() << ", " << ep.first.second->getId() << " )" << endl;
-            for(auto itr = ep.first.first->getNeighborMap().begin(); itr != ep.first.first->getNeighborMap().end(); itr++){
-                if(ep.first.second == itr->first && ep.second == itr->second){
-                    NeighborMap nMap = ep.first.first->getNeighborMap();
-                    nMap.erase(itr);
-                    ep.first.first->setNeighborMap(nMap);
+            NeighborMap nb = ep.first.first->getNeighborMap();
+            auto neighborItr = nb.equal_range(ep.first.second);
+            for(auto itr = neighborItr.first; itr != neighborItr.second; ++itr){
+                if(itr->second == ep.second){
+                    nb.erase(itr);
+                    ep.first.first->setNeighborMap(nb);
                     break;
-                } 
+                }
             }
-
-            for(auto itr = ep.first.second->getNeighborMap().begin(); itr != ep.first.second->getNeighborMap().end(); itr++){
-                if(ep.first.first == itr->first && ep.second == itr->second){
-                    NeighborMap nMap = ep.first.second->getNeighborMap();
-                    nMap.erase(itr);
-                    ep.first.second->setNeighborMap(nMap);
+            nb = ep.first.second->getNeighborMap();
+            neighborItr = nb.equal_range(ep.first.first);
+            for(auto itr = neighborItr.first; itr != neighborItr.second; ++itr){
+                if(itr->second == ep.second){
+                    nb.erase(itr);
+                    ep.first.second->setNeighborMap(nb);
                     break;
-                } 
+                }
             }
-
             delete ep.second;
             _edges.erase(_edges.begin() + i);
             if(verbose >= 5) printVertices();
@@ -621,4 +620,13 @@ void ZXGraph::printEdges() const{
         cout << "( " << _edges[i].first.first->getId() << ", " <<  _edges[i].first.second->getId() << " )\tType:\t" << EdgeType2Str(_edges[i].second) << endl; 
     }
     cout << "Total #Edges: " << _edges.size() << endl;
+}
+
+EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et) {
+    return make_pair(
+    (v2->getId() < v1->getId()) ? make_pair(v2, v1) : make_pair(v1, v2), et);
+}
+EdgePair makeEdgeKey(EdgePair epair) {
+    return make_pair(
+    (epair.first.second->getId() < epair.first.first->getId()) ? make_pair(epair.first.second, epair.first.first) : make_pair(epair.first.first, epair.first.second), epair.second);
 }
