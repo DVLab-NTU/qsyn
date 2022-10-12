@@ -628,3 +628,13 @@ EdgePair makeEdgeKey(EdgePair epair) {
     return make_pair(
     (epair.first.second->getId() < epair.first.first->getId()) ? make_pair(epair.first.second, epair.first.first) : make_pair(epair.first.first, epair.first.second), epair.second);
 }
+
+EdgeKey makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType et) {
+    return make_pair(
+    (v2->getId() < v1->getId()) ? make_pair(v2, v1) : make_pair(v1, v2), et);
+}
+EdgeKey makeEdgeKey(EdgeKey epair) {
+    return make_pair(
+    (epair.first.second->getId() < epair.first.first->getId()) ? make_pair(epair.first.second, epair.first.first) : make_pair(epair.first.first, epair.first.second), epair.second);
+}
+
