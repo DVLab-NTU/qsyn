@@ -140,6 +140,9 @@ class Bialgebra : public ZXRule{
     void match(ZXGraph* g) override; 
     void rewrite(ZXGraph* g) override;
 
+    // checker
+    bool check_duplicated_vertex(vector<ZXVertex*> vec);
+
     // Getter and Setter
     MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }

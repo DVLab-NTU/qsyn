@@ -20,12 +20,22 @@ extern size_t verbose;
  * 
  * @param g 
  */
+
+bool Bialgebra::check_duplicated_vertex(vector<ZXVertex*> vec){
+    vector<int> appeared={};
+    for (size_t i=0; i<vec.size(); i++){
+        if (find(appeared.begin(), appeared.end(), vec[i]->getId())==appeared.end()){
+            appeared.push_back(vec[i]->getId());
+        }
+        else return true;
+    }
+    return false;
+}
 void Bialgebra::match(ZXGraph* g){
   _matchTypeVec.clear();
   if(verbose >= 7) g->printVertices();
   //TODO: rewrite _matchTypeVec
 
-  // id2idx[id] = order in getVertices()
   unordered_map<size_t, size_t> id2idx;
   for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
   vector<bool> taken(g->getNumVertices(), false);
@@ -46,6 +56,7 @@ void Bialgebra::match(ZXGraph* g){
     if (taken[n0] || taken[n1]) continue;
 
     // Do not consider the phase spider yet
+    // todo: consider the phase
     if ((left->getPhase()!=0) || (right->getPhase()!=0)) continue;
 
     // Verify if the edge is connected by a X and a Z spider.
@@ -53,21 +64,25 @@ void Bialgebra::match(ZXGraph* g){
     
     vector<ZXVertex*> neighbor_of_left = left->getNeighbors(), neighbor_of_right = right->getNeighbors();
 
+    // Check if a vertex has a same neighbor, in other words, two edges to another vertex.
+    if (check_duplicated_vertex(neighbor_of_left)) continue;
+    if (check_duplicated_vertex(neighbor_of_right)) continue;
 
-    // Verify if all neighbors of z are x without phase and all neighbors of x are z without phase.
+    // Check if all neighbors of z are x without phase and all neighbors of x are z without phase.
     if (!all_of(neighbor_of_left.begin(), neighbor_of_left.end(), [right](ZXVertex* v){return (v->getPhase()==0 && v->getType()==right->getType());})) continue;
     if (!all_of(neighbor_of_right.begin(), neighbor_of_right.end(), [left](ZXVertex* v){return (v->getPhase()==0 && v->getType()==left->getType());})) continue;
 
 
     _matchTypeVec.push_back(g->getEdges()[i]);
-    cout << "Find a match " << n0 << " " << n1 << endl;
-    taken[n0] = true;
-    taken[n1] = true;
+    if (verbose>4) cout << "Find a match (" << left->getId() << " " << right->getId() << ")" << endl;
+
+    // set left, right and their neighbors into taken
+    for (size_t j=0; j<neighbor_of_left.size(); j++) { taken[id2idx[neighbor_of_left[j]->getId()]]=true;}
+    for (size_t j=0; j<neighbor_of_right.size(); j++) { taken[id2idx[neighbor_of_right[j]->getId()]]=true;}
     
   }
 setMatchTypeVecNum(_matchTypeVec.size());
-cout << "Match function done." << endl;
-cout << " MatchtypevecNum= " << _matchTypeVec.size() << endl;
+if (verbose>4) cout << "MatchtypevecNum= " << _matchTypeVec.size() << endl;
 
 }
 
@@ -86,11 +101,7 @@ void Bialgebra::rewrite(ZXGraph* g){
     //* _edgeTableKeys: A pair of ZXVertex* like (ZXVertex* vs, ZXVertex* vt), which you would like to add #s EdgeType::SIMPLE between them and #h EdgeType::HADAMARD between them
     //* _edgeTableValues: A pair of int like (int s, int h), which means #s EdgeType::SIMPLE and #h EdgeType::HADAMARD
 
-    cout << "Start rewriting" << endl;
-
-
     for(size_t i = 0; i < _matchTypeVec.size(); i++){
-      cout << "Start rewriting " << i<<endl;
       ZXVertex* left;
       left = _matchTypeVec[i].first.first;
       ZXVertex* right;
