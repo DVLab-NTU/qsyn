@@ -67,8 +67,8 @@ void SpiderFusion::rewrite(ZXGraph* g){
     //* _edgeTableValues: A pair of int like (int s, int h), which means #s EdgeType::SIMPLE and #h EdgeType::HADAMARD
     for(size_t i=0; i<_matchTypeVec.size(); i++){
       // Merge phase
-      _matchTypeVec[i].first -> setPhase(_matchTypeVec[i].first -> getPhase() + _matchTypeVec[i].second -> getPhase());
-      
+      if(_matchTypeVec[i].first!=_matchTypeVec[i].second)
+        _matchTypeVec[i].first -> setPhase(_matchTypeVec[i].first -> getPhase() + _matchTypeVec[i].second -> getPhase());
       // Merge
       ZXVertex* v0 = _matchTypeVec[i].first;
       ZXVertex* v1 = _matchTypeVec[i].second;
@@ -86,14 +86,34 @@ void SpiderFusion::rewrite(ZXGraph* g){
         int hadamardcount = 0;
         int simplecount = 0;
         auto map = v1->getNeighborMap();
-        
+        vector<EdgeType*> selfHadaLoopCandidate;
         for(auto itr = neighborItr.first; itr != neighborItr.second; ++itr){
-          if(*(itr->second) == EdgeType::HADAMARD) hadamardcount++;
+          if(*(itr->second) == EdgeType::HADAMARD) {
+            hadamardcount++;
+            selfHadaLoopCandidate.push_back(itr->second);
+          }
           if(*(itr->second) == EdgeType::SIMPLE) simplecount++;
         }
         if(v0->getId()!=v1->getId()){
           _edgeTableKeys.push_back(make_pair(v0, v1n[i]));
           _edgeTableValues.push_back(make_pair((v1n[i]==v0) ? 0 : simplecount, hadamardcount));
+        }
+        if(v1->getId() == v1n[i] -> getId()){
+          if(v0 != v1){
+            if(verbose>=7) cout << "HADAMARD Self Loop of "<< v1->getId() <<", add phase to " << v0->getId() << " when merged"<< endl;
+            // Keep either one: dehadamardize
+            v0->setPhase(v1->getPhase() + Phase(hadamardcount/2));
+            // Or add hadamard self-loop to the merged vertices
+            // _edgeTableKeys.push_back(make_pair(v0, v0));
+            // _edgeTableValues.push_back(make_pair(0, hadamardcount/2));
+          }
+          else{
+            // Keep either one: dehadamardize
+            v0->setPhase(v0->getPhase() + Phase(hadamardcount/2));
+            for(size_t i=0; i<selfHadaLoopCandidate.size(); i++)
+              _removeEdges.push_back(make_pair(make_pair(v0,v1), selfHadaLoopCandidate[i]));
+            // Or do nothing (Keep hadamard loop)
+          }
         }
         done[v1n[i]] = true;
       }
