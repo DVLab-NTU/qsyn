@@ -17,9 +17,11 @@ void ZX2TSMapper::map() {
     _zxgraph->topoTraverse([this](ZXVertex* v) { mapOneVertex(v); });
     for (size_t i = 0; i < _boundaryEdges.size(); i++)
         _tensorList.frontiers(i).emplace(_boundaryEdges[i], 0);
+    cout << _tensorList.tensor(0) << endl;
     TensorAxisList inputIds, outputIds;
     getAxisOrders(inputIds, _zxgraph->getInputList());
     getAxisOrders(outputIds, _zxgraph->getOutputList());
+
     _tensorList.tensor(0) = _tensorList.tensor(0).transpose(concatAxisList(inputIds, outputIds));
     if (verbose >= 3) cout << _tensorList.tensor(0) << endl;
 }
@@ -45,6 +47,11 @@ void ZX2TSMapper::mapOneVertex(ZXVertex* v) {
         tensorDotVertex(v);
     }
     v->setPin(_tensorId);
+    if (verbose >= 7){
+        for(auto i=currFrontiers().begin(); i!=currFrontiers().end(); i++){
+            cout << i->first.first.first->getId() << "--" << i->first.first.second->getId() << " (" << i->first.second << ") pin id: " << i->second << endl;
+        }
+    }
 }
 
 // Generate a new subgraph for mapping
@@ -103,10 +110,13 @@ bool ZX2TSMapper::isFrontier(const pair<ZXVertex*, EdgeType*>& nbr) const {
 void ZX2TSMapper::getAxisOrders(TensorAxisList& axList, const std::unordered_map<size_t, ZXVertex*>& ioList) {
     axList.resize(ioList.size());
     for (auto& [qubitId, vertex] : ioList) {
+        cout << qubitId << ", " << vertex->getId() << endl;
         NeighborMap nebs = vertex->getNeighborMap();
         auto& [neighbor, etype] = *(nebs.begin());
         EdgeKey edgeKey = makeEdgeKey(vertex, neighbor, *etype);
+        cout << vertex->getId() << ", "<<  neighbor->getId() << endl;
         axList[qubitId] = _tensorList.frontiers(0).find(edgeKey)->second;
+        cout << axList[qubitId] << endl;
     }
 }
 
