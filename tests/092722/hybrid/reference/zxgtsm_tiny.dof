@@ -29,8 +29,8 @@ Size of topological order: 10
     4--7 (-) pin id: 1
 > Mapping vertex 7 ([1;31mX[0m): Tensordot
   - Current frontiers: 
-    7--8 (-) pin id: 2
     6--7 (-) pin id: 3
+    7--8 (-) pin id: 2
     4--5 (-) pin id: 1
 > Mapping vertex 8 ([1;32mZ[0m): Tensordot
   - Current frontiers: 
@@ -42,8 +42,8 @@ Size of topological order: 10
   - Current frontiers: 
     6--9 (-) pin id: 5
     1--8 (-) pin id: 3
-    3--9 (-) pin id: 4
     6--7 (-) pin id: 2
+    3--9 (-) pin id: 4
     4--5 (-) pin id: 1
 > Mapping vertex 6 ([1;32mZ[0m): Tensordot
   - Current frontiers: 
