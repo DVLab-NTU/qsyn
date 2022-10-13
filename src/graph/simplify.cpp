@@ -17,7 +17,6 @@
 #include "util.h"
 #include "simplify.h"
 
-
 using namespace std;
 extern size_t verbose;
 

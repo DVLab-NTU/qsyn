@@ -90,7 +90,7 @@ public:
   
 private:
   void DFS(QCirGate*);
-  void updateTensorPin(vector<BitInfo>);
+  void updateTensorPin(vector<BitInfo>, QTensor<double>);
   bool _dirty;
   unsigned _globalDFScounter;
   size_t _gateId;
@@ -101,7 +101,7 @@ private:
   vector<QCirGate *> _topoOrder;
   vector<ZXGraph *>  _ZXGraphList;
   QTensor<double>    _tensor;
-  unordered_map<size_t, size_t> _qubit2pin;
+  unordered_map<size_t, pair<size_t,size_t>> _qubit2pin;
 };
 
 #endif // QCIR_MGR_H

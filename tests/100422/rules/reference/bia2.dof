@@ -153,10 +153,10 @@ Find a match (9 13)
 MatchtypevecNum= 1
 1 Add edge ( 12, 8 )
 Add edge ( 12, 14 )
-Add edge ( 6, 8 )
-Add edge ( 6, 14 )
 Add edge ( 4, 8 )
 Add edge ( 4, 14 )
+Add edge ( 6, 8 )
+Add edge ( 6, 14 )
 Remove ID: 9
 Remove ID: 13
 . ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
@@ -197,10 +197,10 @@ qsyn> zxgprint -e
 ( 8, 12 )	Type:	-
 ( 12, 8 )	Type:	-
 ( 12, 14 )	Type:	-
-( 6, 8 )	Type:	-
-( 6, 14 )	Type:	-
 ( 4, 8 )	Type:	-
 ( 4, 14 )	Type:	-
+( 6, 8 )	Type:	-
+( 6, 14 )	Type:	-
 Total #Edges: 14
 
 qsyn> q -f
