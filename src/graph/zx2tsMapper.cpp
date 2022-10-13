@@ -71,7 +71,7 @@ void ZX2TSMapper::initSubgraph(ZXVertex* v) {
 // Check if a vertex belongs to a new subgraph that is not traversed
 bool ZX2TSMapper::isOfNewGraph(const ZXVertex* v) {
     for (auto epair : v->getNeighborMap()) {
-        if (!isFrontier(epair)) {
+        if (isFrontier(epair)) {
             _tensorId = epair.first->getPin();
             return false;
         }
@@ -99,7 +99,7 @@ void ZX2TSMapper::printFrontiers() const {
 
 // Check if a pair<ZXVertex*, EdgeType*> is a frontier to some subgraph
 bool ZX2TSMapper::isFrontier(const pair<ZXVertex*, EdgeType*>& nbr) const {
-    return (nbr.first->getPin() == unsigned(-1));
+    return (nbr.first->getPin() != unsigned(-1));
 }
 
 // Create an EdgePair that is used as the key to the Frontiers
@@ -136,7 +136,7 @@ void ZX2TSMapper::updatePinsAndFrontiers(ZXVertex* v) {
             continue;
         } 
         EdgeKey edgeKey = makeEdgeKey(v, neighbor, *etype);
-        if (!isFrontier(epair)) {
+        if (isFrontier(epair)) {
             bool newSeen = find(tmp.begin(),tmp.end(),make_pair(neighbor,*etype))==tmp.end();
             tmp.push_back(make_pair(neighbor,*etype));
             if(newSeen){
