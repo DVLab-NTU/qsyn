@@ -21,8 +21,8 @@ for test_date in tests/*/; do
             dofile="${test_pkg}testcases/$test_name"
             ref_file="${test_pkg}reference/$test_name"
             # Test the dofile
-            printf "    - Updating %-20s %s" $test_name
-            ./qsyn < ${dofile} > ${ref_file}
+            printf "    - Updating %-20s %s\n" $test_name
+            ./qsyn < ${dofile} > ${ref_file} 2> /dev/null
             # print the result
             # grep returns 0 if found matching strings
             # status=$?
