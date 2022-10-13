@@ -32,6 +32,7 @@ typedef pair<ZXVertex*, EdgeType*> NeighborPair;
 typedef pair<pair<ZXVertex*, ZXVertex*>, EdgeType*> EdgePair;
 typedef unordered_multimap<ZXVertex*, EdgeType*> NeighborMap;
 
+
 namespace std{
 template <>
 struct hash<EdgePair>
@@ -48,6 +49,22 @@ struct hash<EdgePair>
 EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et);
 EdgePair makeEdgeKey(EdgePair epair);
 
+typedef pair<pair<ZXVertex*, ZXVertex*>, EdgeType> EdgeKey;
+
+namespace std{
+template <>
+struct hash<EdgeKey>
+  {
+    size_t operator()(const EdgeKey& k) const
+    {
+      return ((hash<ZXVertex*>()(k.first.first)
+               ^ (hash<ZXVertex*>()(k.first.second) << 1)) >> 1)
+               ^ (hash< EdgeType>()(k.second) << 1);
+    }
+  };
+}
+EdgeKey makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType e);
+EdgeKey makeEdgeKey(EdgeKey epair);
 //------------------------------------------------------------------------
 //   Define classes
 //------------------------------------------------------------------------
@@ -102,7 +119,7 @@ class ZXVertex{
         vector<ZXVertex*> getNeighbors() const;
         ZXVertex* getNeighbor(size_t idx) const;
         const NeighborMap& getNeighborMap() const                           { return _neighborMap; }
-        QTensor<double>       getTSform() const;
+        QTensor<double>       getTSform();
         
         void setId(size_t id)                                               { _id = id; }
         void setQubit(int q)                                                {_qubit = q; }
