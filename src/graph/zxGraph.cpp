@@ -17,13 +17,13 @@
 using namespace std;
 extern size_t verbose;
 
-EdgeType toggleEdge(EdgeType et){
+EdgeType toggleEdge(const EdgeType& et){
     if(et == EdgeType::SIMPLE) return EdgeType::HADAMARD;
     else if(et == EdgeType::HADAMARD) return EdgeType::SIMPLE;
     else return EdgeType::ERRORTYPE;
 }
 
-VertexType str2VertexType(string str){
+VertexType str2VertexType(const string& str){
     if(str == "BOUNDARY") return VertexType::BOUNDARY;
     else if (str == "Z") return VertexType::Z;
     else if (str == "X") return VertexType::X;
@@ -31,7 +31,7 @@ VertexType str2VertexType(string str){
     return VertexType::ERRORTYPE;
 }
 
-string VertexType2Str(VertexType vt){
+string VertexType2Str(const VertexType& vt){
     if(vt == VertexType::X) return "\033[1;31mX\033[0m";
     if(vt == VertexType::Z) return "\033[1;32mZ\033[0m";
     if(vt == VertexType::H_BOX) return "\033[1;33mH\033[0m";
@@ -39,13 +39,13 @@ string VertexType2Str(VertexType vt){
     return "";
 }
 
-EdgeType* str2EdgeType(string str){
+EdgeType* str2EdgeType(const string& str){
     if(str == "SIMPLE") return new EdgeType(EdgeType::SIMPLE);
     else if(str == "HADAMARD") return new EdgeType(EdgeType::HADAMARD);
     return new EdgeType(EdgeType::ERRORTYPE);
 }
 
-string EdgeType2Str(EdgeType* et){
+string EdgeType2Str(const EdgeType* et){
     if(*et == EdgeType::SIMPLE) return "-";
     if(*et == EdgeType::HADAMARD) return "\033[1;34mH\033[0m";
     return "";

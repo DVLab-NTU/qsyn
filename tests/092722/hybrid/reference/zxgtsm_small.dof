@@ -11,70 +11,67 @@ qsyn> ver 3
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
-Vertex 0 (0)
-Vertex 7 (1)
-Vertex 15 (3)
-Vertex 16 (1)
-Vertex 17 (1)
-Vertex 21 (2)
-Vertex 22 (1)
-Vertex 26 (1)
-Vertex 30 (2)
-Vertex 31 (3)
-Vertex 32 (1)
-Vertex 37 (2)
-Vertex 43 (1)
-Vertex 46 (1)
-Vertex 51 (1)
-Vertex 52 (1)
-Vertex 56 (2)
-Vertex 55 (1)
-Vertex 57 (1)
-Vertex 58 (2)
-Vertex 54 (3)
-Vertex 53 (2)
-Vertex 49 (1)
-Vertex 45 (1)
-Vertex 44 (2)
-Vertex 40 (1)
-Vertex 39 (1)
-Vertex 38 (3)
-Vertex 33 (1)
-Vertex 27 (2)
-Vertex 25 (1)
-Vertex 24 (2)
-Vertex 23 (1)
-Vertex 20 (1)
-Vertex 14 (2)
-Vertex 11 (1)
-Vertex 10 (2)
-Vertex 9 (1)
-Vertex 8 (2)
-Vertex 6 (2)
-Vertex 4 (0)
-Boundary Node
-Vertex 12 (1)
-Vertex 13 (1)
-Vertex 18 (2)
-Vertex 19 (1)
-Vertex 2 (0)
-Boundary Node
-Vertex 28 (1)
-Vertex 29 (1)
-Vertex 34 (2)
-Vertex 35 (1)
-Vertex 36 (1)
-Vertex 41 (2)
-Vertex 42 (1)
-Vertex 47 (2)
-Vertex 48 (1)
-Vertex 50 (2)
-Vertex 5 (0)
-Boundary Node
-Vertex 3 (0)
-Boundary Node
-Vertex 1 (0)
-Boundary Node
+> Mapping vertex 0 (●): New Subgraph
+> Mapping vertex 7 ([1;32mZ[0m): Tensordot
+> Mapping vertex 15 ([1;33mH[0m): Tensordot
+> Mapping vertex 16 ([1;32mZ[0m): Tensordot
+> Mapping vertex 17 ([1;32mZ[0m): Tensordot
+> Mapping vertex 21 ([1;31mX[0m): Tensordot
+> Mapping vertex 22 ([1;32mZ[0m): Tensordot
+> Mapping vertex 26 ([1;32mZ[0m): Tensordot
+> Mapping vertex 30 ([1;31mX[0m): Tensordot
+> Mapping vertex 31 ([1;33mH[0m): Tensordot
+> Mapping vertex 32 ([1;32mZ[0m): Tensordot
+> Mapping vertex 37 ([1;31mX[0m): Tensordot
+> Mapping vertex 43 ([1;32mZ[0m): Tensordot
+> Mapping vertex 46 ([1;32mZ[0m): Tensordot
+> Mapping vertex 51 ([1;32mZ[0m): Tensordot
+> Mapping vertex 52 ([1;32mZ[0m): Tensordot
+> Mapping vertex 56 ([1;31mX[0m): Tensordot
+> Mapping vertex 55 ([1;32mZ[0m): Tensordot
+> Mapping vertex 57 ([1;32mZ[0m): Tensordot
+> Mapping vertex 58 ([1;31mX[0m): Tensordot
+> Mapping vertex 54 ([1;33mH[0m): Tensordot
+> Mapping vertex 53 ([1;31mX[0m): Tensordot
+> Mapping vertex 49 ([1;32mZ[0m): Tensordot
+> Mapping vertex 45 ([1;32mZ[0m): Tensordot
+> Mapping vertex 44 ([1;31mX[0m): Tensordot
+> Mapping vertex 40 ([1;32mZ[0m): Tensordot
+> Mapping vertex 39 ([1;32mZ[0m): Tensordot
+> Mapping vertex 38 ([1;33mH[0m): Tensordot
+> Mapping vertex 33 ([1;32mZ[0m): Tensordot
+> Mapping vertex 27 ([1;31mX[0m): Tensordot
+> Mapping vertex 25 ([1;32mZ[0m): Tensordot
+> Mapping vertex 24 ([1;31mX[0m): Tensordot
+> Mapping vertex 23 ([1;32mZ[0m): Tensordot
+> Mapping vertex 20 ([1;32mZ[0m): Tensordot
+> Mapping vertex 14 ([1;31mX[0m): Tensordot
+> Mapping vertex 11 ([1;32mZ[0m): Tensordot
+> Mapping vertex 10 ([1;31mX[0m): Tensordot
+> Mapping vertex 9 ([1;32mZ[0m): Tensordot
+> Mapping vertex 8 ([1;31mX[0m): Tensordot
+> Mapping vertex 6 ([1;31mX[0m): Tensordot
+> Mapping vertex 4 (●): Boundary Node
+> Mapping vertex 12 ([1;32mZ[0m): Tensordot
+> Mapping vertex 13 ([1;32mZ[0m): Tensordot
+> Mapping vertex 18 ([1;31mX[0m): Tensordot
+> Mapping vertex 19 ([1;32mZ[0m): Tensordot
+> Mapping vertex 2 (●): Boundary Node
+> Mapping vertex 28 ([1;32mZ[0m): Tensordot
+> Mapping vertex 29 ([1;32mZ[0m): Tensordot
+> Mapping vertex 34 ([1;31mX[0m): Tensordot
+> Mapping vertex 35 ([1;32mZ[0m): Tensordot
+> Mapping vertex 36 ([1;32mZ[0m): Tensordot
+> Mapping vertex 41 ([1;31mX[0m): Tensordot
+> Mapping vertex 42 ([1;32mZ[0m): Tensordot
+> Mapping vertex 47 ([1;31mX[0m): Tensordot
+> Mapping vertex 48 ([1;32mZ[0m): Tensordot
+> Mapping vertex 50 ([1;31mX[0m): Tensordot
+> Mapping vertex 5 (●): Boundary Node
+> Mapping vertex 3 (●): Boundary Node
+> Mapping vertex 1 (●): Boundary Node
+
+The resulting tensor is: 
 {{{{{{ 3.571736e-32+6.123234e-17i, -1.610689e-32+0.000000e+00i},
      {-9.860761e-32-2.355139e-16i,  7.850462e-17+3.925231e-17i}},
     {{-1.848893e-32+6.162976e-33i,  0.000000e+00-3.421139e-49i},

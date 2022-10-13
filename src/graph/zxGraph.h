@@ -76,9 +76,9 @@ enum class VertexType{
     ERRORTYPE       // Never use this
 };
 
-VertexType str2VertexType(string str);
+VertexType str2VertexType(const string& str);
 
-string VertexType2Str(VertexType vt);
+string VertexType2Str(const VertexType& vt);
 
 enum class EdgeType{
     SIMPLE,
@@ -86,11 +86,11 @@ enum class EdgeType{
     ERRORTYPE       // Never use this
 };
 
-EdgeType toggleEdge(EdgeType et);
+EdgeType toggleEdge(const EdgeType& et);
 
-EdgeType* str2EdgeType(string str);
+EdgeType* str2EdgeType(const string& str);
 
-string EdgeType2Str(EdgeType* et);
+string EdgeType2Str(const EdgeType* et);
 
 template<typename T> ostream& operator<<(typename enable_if<is_enum<T>::value, ostream>::type& stream, const T& e){
     return stream << static_cast<typename underlying_type<T>::type>(e);
