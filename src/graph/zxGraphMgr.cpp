@@ -88,24 +88,24 @@ void ZXGraphMgr::copy(size_t id) {
     if (_graphList.empty())
         cerr << "Error: ZXGraphMgr is empty now! Action \"copy\" failed!" << endl;
     else {
-        bool existed = false;
+        bool exists = false;
         ZXGraph* copyTarget = getGraph()->copy();
         copyTarget->setId(id);
 
-        // Overwrite existed ZXGraph
+        // Overwrite existing ZXGraph
         for (size_t i = 0; i < _graphList.size(); i++) {
             if (_graphList[i]->getId() == id) {
-                cout << "Overwrite existed Graph " << id << endl;
+                cout << "Overwrite existing Graph " << id << endl;
                 _graphList.erase(_graphList.begin() + i);
                 _graphList.insert(_graphList.begin() + i, copyTarget);
                 if (verbose >= 3) cout << "Successfully copy Graph " << getGraph()->getId() << " to Graph " << id << endl;
                 checkout2ZXGraph(id);
-                existed = true;
+                exists = true;
                 break;
             }
         }
         // Create a new ZXGraph
-        if (!existed) {
+        if (!exists) {
             size_t oriGraphID = getGraph()->getId();
             _graphList.push_back(copyTarget);
             _gListItr = _graphList.end() - 1;

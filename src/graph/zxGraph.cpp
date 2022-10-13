@@ -229,11 +229,11 @@ bool ZXGraph::isOutputQubit(int qubit) const{
 // Add and Remove
 ZXVertex* ZXGraph::addInput(size_t id, int qubit){
     if(isId(id)){
-        cerr << "Error: This vertex id is already existed!!" << endl;
+        cerr << "Error: This vertex id already exists!!" << endl;
         return nullptr;
     } 
     else if(isInputQubit(qubit)){
-        cerr << "Error: This qubit's input is already existed!!" << endl;
+        cerr << "Error: This qubit's input already exists!!" << endl;
         return nullptr;
     } 
     else{
@@ -249,11 +249,11 @@ ZXVertex* ZXGraph::addInput(size_t id, int qubit){
 
 ZXVertex* ZXGraph::addOutput(size_t id, int qubit){
     if(isId(id)){
-        cerr << "Error: This vertex id is already existed!!" << endl;
+        cerr << "Error: This vertex id already exists!!" << endl;
         return nullptr;
     } 
     else if(isOutputQubit(qubit)){
-        cerr << "Error: This qubit's output is already existed!!" << endl;
+        cerr << "Error: This qubit's output already exists!!" << endl;
         return nullptr;
     } 
     else{
@@ -401,7 +401,7 @@ void ZXGraph::removeVertices(vector<ZXVertex* > vertices, bool checked){
 void ZXGraph::removeVertexById(size_t id){
     auto v = findVertexById(id);
     if(v != nullptr) removeVertex(v, true);
-    else cerr << "Error: This vertex id is not existed!!" << endl;
+    else cerr << "Error: This vertex id does not exist!!" << endl;
 }
 
 /**
@@ -484,8 +484,8 @@ void ZXGraph::removeEdgeByEdgePair(EdgePair ep){
  * @param id_t 
  */
 void ZXGraph::removeEdgeById(size_t id_s, size_t id_t){
-    if(!isId(id_s)) cerr << "Error: id_s provided is not existed!" << endl;
-    else if(!isId(id_t)) cerr << "Error: id_t provided is not existed!" << endl;
+    if(!isId(id_s)) cerr << "Error: id_s provided does not exist!" << endl;
+    else if(!isId(id_t)) cerr << "Error: id_t provided does not exist!" << endl;
     else{
         ZXVertex* vs = findVertexById(id_s); ZXVertex* vt = findVertexById(id_t);
         removeEdge(vs, vt);
