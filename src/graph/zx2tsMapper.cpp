@@ -18,12 +18,17 @@ void ZX2TSMapper::map() {
         _tensorList.frontiers(i).emplace(_boundaryEdges[i], 0);
     // cout << _tensorList.tensor(0) << endl;
     TensorAxisList inputIds, outputIds;
+    QTensor<double> result = 1.+0.i;
+    for (size_t i = 0; i < _tensorList.size(); ++i) {
+        result = tensordot(result, _tensorList.tensor(i));
+    }
+    
     getAxisOrders(inputIds, _zxgraph->getInputList());
     getAxisOrders(outputIds, _zxgraph->getOutputList());
-
-    _tensorList.tensor(0) = _tensorList.tensor(0).transpose(concatAxisList(inputIds, outputIds));
+    
+    result = result.toMatrix(inputIds, outputIds);
     if (verbose >= 3) {
-        cout << "\nThe resulting tensor is: \n"<< _tensorList.tensor(0) << endl;
+        cout << "\nThe resulting tensor is: \n"<< result << endl;
     }
 }
 
@@ -81,16 +86,6 @@ bool ZX2TSMapper::isOfNewGraph(const ZXVertex* v) {
 
 // Print the current and next frontiers
 void ZX2TSMapper::printFrontiers() const {
-    // cout << "**************" << endl;
-    // cout << "Current Frontier Edges: " << endl;
-    // for (size_t i = 0; i < _removeEdge.size(); i++) {
-    //     cout << _removeEdge[i].first.first->getId() << "--" << _removeEdge[i].first.second->getId() << endl;
-    // }
-    // cout << "Next Frontier Edges: " << endl;
-    // for (size_t i = 0; i < _addEdge.size(); i++) {
-    //     cout << _addEdge[i].first.first->getId() << "--" << _addEdge[i].first.second->getId() << endl;
-    // }
-    // cout << "**************" << endl;
     cout << "  - Current frontiers: " << endl;
     for(auto i=currFrontiers().begin(); i!=currFrontiers().end(); i++){
         cout << "    " << i->first.first.first->getId() << "--" << i->first.first.second->getId() << " (" << EdgeType2Str(&(i->first.second)) << ") pin id: " << i->second << endl;
@@ -112,15 +107,21 @@ bool ZX2TSMapper::isFrontier(const pair<ZXVertex*, EdgeType*>& nbr) const {
 // Get the order of inputs and outputs
 void ZX2TSMapper::getAxisOrders(TensorAxisList& axList, const std::unordered_map<size_t, ZXVertex*>& ioList) {
     axList.resize(ioList.size());
-    for (auto& [qubitId, vertex] : ioList) {
-        // cout << qubitId << ", " << vertex->getId() << endl;
-        NeighborMap nebs = vertex->getNeighborMap();
-        auto& [neighbor, etype] = *(nebs.begin());
-        EdgeKey edgeKey = makeEdgeKey(vertex, neighbor, *etype);
-        // cout << vertex->getId() << ", "<<  neighbor->getId() << endl;
-        axList[qubitId] = _tensorList.frontiers(0).find(edgeKey)->second;
-        // cout << axList[qubitId] << endl;
+    size_t accFrontierSizes = 0;
+    for (size_t i = 0; i < _tensorList.size(); ++i) {
+        for (auto& [qubitId, vertex] : ioList) {
+            NeighborMap nebs = vertex->getNeighborMap();
+            auto& [neighbor, etype] = *(nebs.begin());
+
+            EdgeKey edgeKey = makeEdgeKey(vertex, neighbor, *etype);
+            if (_tensorList.frontiers(i).find(edgeKey) != _tensorList.frontiers(i).end()) {
+                axList[qubitId] = _tensorList.frontiers(i).find(edgeKey)->second + accFrontierSizes;
+            }
+        }
+        accFrontierSizes += _tensorList.frontiers(i).size();
     }
+    // for (size_t i = 0; i < _tensorList.size(); ++i) {
+    // }
 }
 
 // update information for the current and next frontiers

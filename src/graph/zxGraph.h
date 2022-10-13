@@ -222,6 +222,9 @@ class ZXGraph{
         void addOutputs(vector<ZXVertex*> outputs);
         void addVertices(vector<ZXVertex*> vertices);
         void addEdges(vector<EdgePair> edges);
+        
+        void mergeInputList(unordered_map<size_t, ZXVertex*> lst);
+        void mergeOutputList(unordered_map<size_t, ZXVertex*> lst);
 
         void removeVertex(ZXVertex* v, bool checked = false);
         void removeVertices(vector<ZXVertex* > vertices, bool checked = false);
@@ -244,6 +247,7 @@ class ZXGraph{
         ZXGraph* copy() const;
         void sortIOByQubit();
         void sortVerticeById();
+        void liftQubit(const size_t& n);
 
 
         // Print functions
@@ -266,6 +270,8 @@ class ZXGraph{
         void concatenate(ZXGraph* tmp, bool remove_imm = false);
         void setInputHash(size_t q, ZXVertex* v)                           { _inputList[q] = v; }
         void setOutputHash(size_t q, ZXVertex* v)                          { _outputList[q] = v; }
+        void setInputList(const unordered_map<size_t, ZXVertex*>& lst)     { _inputList = lst; }
+        void setOutputList(const unordered_map<size_t, ZXVertex*>& lst)    { _outputList = lst; }
         const unordered_map<size_t, ZXVertex*>& getInputList() const       { return _inputList; }
         const unordered_map<size_t, ZXVertex*>& getOutputList() const      { return _outputList; }
         ZXVertex* getInputFromHash(size_t q);

@@ -153,6 +153,7 @@ void ZXGraph::generateCNOT(){
         ZXVertex* input = new ZXVertex(vertices.size(), i,  VertexType::BOUNDARY);
         inputs.push_back(input);
         vertices.push_back(input);
+        _inputList[i] = input;
     }
 
     // Generate CNOT
@@ -166,6 +167,7 @@ void ZXGraph::generateCNOT(){
         ZXVertex* output = new ZXVertex(vertices.size(), i,  VertexType::BOUNDARY);
         outputs.push_back(output);
         vertices.push_back(output);
+        _outputList[i] = output;
     }
     setInputs(inputs);
     setOutputs(outputs);
@@ -329,6 +331,13 @@ void ZXGraph::addEdges(vector<EdgePair> edges){
      _edges.insert(_edges.end(), edges.begin(), edges.end());
 }
 
+void ZXGraph::mergeInputList(unordered_map<size_t, ZXVertex*> lst) {
+    _inputList.merge(lst);
+}
+void ZXGraph::mergeOutputList(unordered_map<size_t, ZXVertex*> lst) {
+    _outputList.merge(lst);
+}
+
 /**
  * @brief Remove `v` in ZXGraph and maintain the relationship between each vertex.
  * 
@@ -346,8 +355,14 @@ void ZXGraph::removeVertex(ZXVertex* v, bool checked){
     if(verbose >= 3) cout << "Remove ID: " << v->getId() << endl;
 
     // Check if also in _inputs or _outputs
-    if(find(_inputs.begin(), _inputs.end(), v) != _inputs.end()) _inputs.erase(find(_inputs.begin(), _inputs.end(), v));
-    if(find(_outputs.begin(), _outputs.end(), v) != _outputs.end()) _outputs.erase(find(_outputs.begin(), _outputs.end(), v));
+    if(auto itr = find(_inputs.begin(), _inputs.end(), v); itr != _inputs.end()) {
+        _inputList.erase(v->getQubit());
+        _inputs.erase(itr); 
+    }
+    if(auto itr = find(_outputs.begin(), _outputs.end(), v); itr != _outputs.end()) {
+        _outputList.erase(v->getQubit());
+        _outputs.erase(itr);
+    }
 
     // Check _edges
     vector<EdgePair> newEdges;
@@ -529,13 +544,13 @@ ZXGraph* ZXGraph::copy() const{
 
     vector<ZXVertex*> inputs, outputs, vertices;
     vector<EdgePair > edges;
-
     // new Inputs
     for(size_t i = 0; i < getInputs().size(); i++){
         ZXVertex* oriVertex = getInputs()[i];
         ZXVertex* newVertex = new ZXVertex(oriVertex->getId(), oriVertex->getQubit(), oriVertex->getType());
         inputs.push_back(newVertex);
         vertices.push_back(newVertex);
+        newGraph->_inputList[newVertex->getQubit()] = newVertex;
     }
     newGraph->setInputs(inputs);
 
@@ -545,6 +560,7 @@ ZXGraph* ZXGraph::copy() const{
         ZXVertex* newVertex = new ZXVertex(oriVertex->getId(), oriVertex->getQubit(), oriVertex->getType());
         outputs.push_back(newVertex);
         vertices.push_back(newVertex);
+        newGraph->_outputList[newVertex->getQubit()] = newVertex;
     }
     newGraph->setOutputs(outputs);
 
@@ -569,6 +585,8 @@ ZXGraph* ZXGraph::copy() const{
         edges.push_back(make_pair(make_pair(s, t), et));
     }
     newGraph->setEdges(edges);
+
+
     return newGraph;
 }
 
@@ -580,7 +598,25 @@ void ZXGraph::sortIOByQubit(){
 void ZXGraph::sortVerticeById(){
     sort(_vertices.begin(), _vertices.end(), [](ZXVertex* a, ZXVertex* b){ return a->getId() < b->getId(); });
 }
+void ZXGraph::liftQubit(const size_t& n){
+    for_each(_vertices.begin(), _vertices.end(), [&n](ZXVertex* v) { v->setQubit(v->getQubit()+n); });
 
+    unordered_map<size_t, ZXVertex*> newInputList, newOutputList;
+
+    for_each(_inputList.begin(), _inputList.end(), 
+        [&n, &newInputList](pair<size_t, ZXVertex*> itr) {
+            newInputList[itr.first + n] = itr.second;
+        } 
+    );
+    for_each(_outputList.begin(), _outputList.end(), 
+        [&n, &newOutputList](pair<size_t, ZXVertex*> itr) {
+            newOutputList[itr.first + n] = itr.second;
+        } 
+    );
+
+    setInputList(newInputList);
+    setOutputList(newOutputList);
+}
 
 
 // Print functions
