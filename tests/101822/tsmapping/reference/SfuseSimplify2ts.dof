@@ -69,12 +69,13 @@ Total #Edges: 9
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
-Vertex 0 (0)
-Vertex 2 (1)
-Vertex 1 (1)
-Vertex 4 (0)
-Boundary Node
-Vertex 3 (1)
+> Mapping vertex 0 (●): New Subgraph
+> Mapping vertex 2 ([1;32mZ[0m): Tensordot
+> Mapping vertex 1 ([1;32mZ[0m): Tensordot
+> Mapping vertex 4 (●): Boundary Node
+> Mapping vertex 3 ([1;32mZ[0m): Tensordot
+
+The resulting tensor is: 
 {{ 4.+0.i,  0.+0.i},
  { 0.+0.i, -4.+0.i}}
 
@@ -101,10 +102,11 @@ Total #Edges: 2
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
-Vertex 0 (0)
-Vertex 1 (1)
-Vertex 4 (0)
-Boundary Node
+> Mapping vertex 0 (●): New Subgraph
+> Mapping vertex 1 ([1;32mZ[0m): Tensordot
+> Mapping vertex 4 (●): Boundary Node
+
+The resulting tensor is: 
 {{ 1.+0.000000e+00i,  0.+0.000000e+00i},
  { 0.+0.000000e+00i, -1.+1.224647e-16i}}
 

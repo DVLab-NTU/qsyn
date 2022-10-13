@@ -13,77 +13,22 @@ ZXMODE turn ON!
 
 qsyn> qczxm
 
-qsyn> ver 8
+qsyn> ver 3
 
 qsyn> zxgtsm
-Topological order from first input: 
-0 4 7 8 9 6 5 2 3 1 
-Size of topological order: 10
 ---- TRAVERSE AND BUILD THE TENSOR ----
-Topological order from first input: 
-0 4 7 8 9 6 5 2 3 1 
-Size of topological order: 10
-Vertex 0 (0)
-Vertex 4 (1)
-**************
-Current Frontier Edges: 
-0--4
-Next Frontier Edges: 
-4--7
-4--5
-**************
-Start tensor dot...
-Vertex 7 (2)
-**************
-Current Frontier Edges: 
-4--7
-Next Frontier Edges: 
-7--8
-6--7
-**************
-Start tensor dot...
-Vertex 8 (1)
-**************
-Current Frontier Edges: 
-7--8
-Next Frontier Edges: 
-1--8
-8--9
-**************
-Start tensor dot...
-Vertex 9 (2)
-**************
-Current Frontier Edges: 
-8--9
-Next Frontier Edges: 
-3--9
-6--9
-**************
-Start tensor dot...
-Vertex 6 (1)
-**************
-Current Frontier Edges: 
-6--9
-6--7
-Next Frontier Edges: 
-5--6
-**************
-Start tensor dot...
-Vertex 5 (2)
-**************
-Current Frontier Edges: 
-5--6
-4--5
-Next Frontier Edges: 
-2--5
-**************
-Start tensor dot...
-Vertex 2 (0)
-Boundary Node
-Vertex 3 (0)
-Boundary Node
-Vertex 1 (0)
-Boundary Node
+> Mapping vertex 0 (●): New Subgraph
+> Mapping vertex 4 ([1;32mZ[0m): Tensordot
+> Mapping vertex 7 ([1;31mX[0m): Tensordot
+> Mapping vertex 8 ([1;32mZ[0m): Tensordot
+> Mapping vertex 9 ([1;31mX[0m): Tensordot
+> Mapping vertex 6 ([1;32mZ[0m): Tensordot
+> Mapping vertex 5 ([1;31mX[0m): Tensordot
+> Mapping vertex 2 (●): Boundary Node
+> Mapping vertex 3 (●): Boundary Node
+> Mapping vertex 1 (●): Boundary Node
+
+The resulting tensor is: 
 {{{{ 1.      +0.i,  0.      +0.i},
    { 0.      +0.i,  0.      +0.i}},
   {{ 0.      +0.i,  0.      +0.i},
