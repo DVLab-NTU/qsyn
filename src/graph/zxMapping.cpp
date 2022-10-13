@@ -151,6 +151,9 @@ void ZXGraph::cleanRedundantEdges() {
 }
 
 void ZXGraph::tensorMapping() {
+    for(size_t i=0; i<_vertices.size(); i++){
+        _vertices[i] -> setPin(unsigned(-1));
+    }
     ZX2TSMapper mapper(this);
     mapper.map();
 }
