@@ -90,7 +90,7 @@ Remove ID: 2
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
-ID:	1	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (4, -) 
+ID:	1	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (4, -) 
 ID:	4	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
 Total #Vertices: 3
 
@@ -98,6 +98,15 @@ qsyn> zxgp -e
 ( 4, 1 )	Type:	-
 ( 1, 0 )	Type:	-
 Total #Edges: 2
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Vertex 0 (0)
+Vertex 1 (1)
+Vertex 4 (0)
+Boundary Node
+{{ 1.+0.000000e+00i,  0.+0.000000e+00i},
+ { 0.+0.000000e+00i, -1.+1.224647e-16i}}
 
 qsyn> q -f
 

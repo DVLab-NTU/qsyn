@@ -20,4 +20,5 @@ zxgtsm
 zxgsimp -spi
 zxgp -v
 zxgp -e
+zxgtsm
 q -f
