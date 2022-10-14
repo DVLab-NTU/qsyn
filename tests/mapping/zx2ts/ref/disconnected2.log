@@ -7,6 +7,12 @@ Checkout to Graph 0
 
 qsyn> zxgtest
 Generate a 2-qubit CNOT graph for testing
+Add input 0
+Add input 1
+Add vertice 2
+Add vertice 3
+Add output 4
+Add output 5
 Add edge ( 3, 5 )
 Add edge ( 0, 2 )
 Add edge ( 1, 3 )
@@ -19,6 +25,12 @@ Checkout to Graph 1
 
 qsyn> zxgtest
 Generate a 2-qubit CNOT graph for testing
+Add input 0
+Add input 1
+Add vertice 2
+Add vertice 3
+Add output 4
+Add output 5
 Add edge ( 3, 5 )
 Add edge ( 0, 2 )
 Add edge ( 1, 3 )
@@ -62,10 +74,10 @@ qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
 > Mapping vertex 6 (●): New Subgraph
 > Mapping vertex 10 ([1;32mZ[0m): Tensordot
-> Mapping vertex 8 (●): Boundary Node
 > Mapping vertex 11 ([1;31mX[0m): Tensordot
 > Mapping vertex 9 (●): Boundary Node
 > Mapping vertex 7 (●): Boundary Node
+> Mapping vertex 8 (●): Boundary Node
 > Mapping vertex 0 (●): New Subgraph
 > Mapping vertex 2 ([1;32mZ[0m): Tensordot
 > Mapping vertex 3 ([1;31mX[0m): Tensordot
