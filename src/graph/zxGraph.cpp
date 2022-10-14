@@ -182,6 +182,12 @@ bool ZXGraph::isEmpty() const {
 }
 
 bool ZXGraph::isValid() const {
+    for (auto v: _inputs) {
+        if (v->getNumNeighbors() != 1) return false;
+    }
+    for (auto v: _outputs) {
+        if (v->getNumNeighbors() != 1) return false;
+    }
     for (size_t i = 0; i < _edges.size(); i++) {
         if (!_edges[i].first.first->isNeighbor(_edges[i].first.second) ||
             !_edges[i].first.second->isNeighbor(_edges[i].first.first)) return false;

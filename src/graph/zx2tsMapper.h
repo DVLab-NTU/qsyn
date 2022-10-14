@@ -44,7 +44,7 @@ public:
         vector<pair<Frontiers, QTensor<double>>> _tensorList; 
     };
     
-    void map();
+    bool map();
 
 private:
     ZXGraph*            _zxgraph;       // The ZX Graph to be mapped
@@ -75,6 +75,6 @@ private:
 
     void printFrontiers() const;
     // EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et);
-    void getAxisOrders(TensorAxisList& axList, const std::unordered_map<size_t, ZXVertex *>& ioList);
+    void getAxisOrders(TensorAxisList& axList, const std::unordered_map<size_t, ZXVertex *>& ioList, bool isOutput = false);
 };
 #endif //ZX2TS_MAPPER_H

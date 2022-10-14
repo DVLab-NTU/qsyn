@@ -1,0 +1,12 @@
+zxm -on
+zxn
+zxgtest
+
+zxgedit -rme 0 2
+
+zxgp -v
+zxgp -e
+
+zxgtsm
+
+q -f

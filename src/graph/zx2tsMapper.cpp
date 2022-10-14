@@ -11,7 +11,11 @@ extern size_t verbose;
 using namespace std;
 
 // map a ZX-diagram to a tensor
-void ZX2TSMapper::map() {
+bool ZX2TSMapper::map() {
+    if (!_zxgraph->isValid()) {
+        cerr << "[Error] The ZX Graph is not valid!!!" << endl;
+        return false;
+    }
     if (verbose >= 3) cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
     _zxgraph->topoTraverse([this](ZXVertex* v) { mapOneVertex(v); });
     for (size_t i = 0; i < _boundaryEdges.size(); i++)
@@ -23,13 +27,15 @@ void ZX2TSMapper::map() {
         result = tensordot(result, _tensorList.tensor(i));
     }
     
-    getAxisOrders(inputIds, _zxgraph->getInputList());
-    getAxisOrders(outputIds, _zxgraph->getOutputList());
-    
+    getAxisOrders(inputIds, _zxgraph->getInputList(), false);
+    getAxisOrders(outputIds, _zxgraph->getOutputList(), true);
+    if (verbose >= 7) printAxisList(inputIds);
+    if (verbose >= 7) printAxisList(outputIds);
     result = result.toMatrix(inputIds, outputIds);
     if (verbose >= 3) {
         cout << "\nThe resulting tensor is: \n"<< result << endl;
     }
+    return true;
 }
 
 // map one vertex
@@ -105,17 +111,23 @@ bool ZX2TSMapper::isFrontier(const pair<ZXVertex*, EdgeType*>& nbr) const {
 // }
 
 // Get the order of inputs and outputs
-void ZX2TSMapper::getAxisOrders(TensorAxisList& axList, const std::unordered_map<size_t, ZXVertex*>& ioList) {
+void ZX2TSMapper::getAxisOrders(TensorAxisList& axList, const std::unordered_map<size_t, ZXVertex*>& ioList, bool isOutput) {
     axList.resize(ioList.size());
     size_t accFrontierSizes = 0;
     for (size_t i = 0; i < _tensorList.size(); ++i) {
         for (auto& [qubitId, vertex] : ioList) {
             NeighborMap nebs = vertex->getNeighborMap();
             auto& [neighbor, etype] = *(nebs.begin());
-
             EdgeKey edgeKey = makeEdgeKey(vertex, neighbor, *etype);
-            if (_tensorList.frontiers(i).find(edgeKey) != _tensorList.frontiers(i).end()) {
+
+            auto result = _tensorList.frontiers(i).equal_range(edgeKey);
+            auto itr = result.first;
+            if (itr != _tensorList.frontiers(i).end()) {
                 axList[qubitId] = _tensorList.frontiers(i).find(edgeKey)->second + accFrontierSizes;
+                ++itr;
+                if (isOutput && itr != result.second) {
+                    axList[qubitId] += 1;
+                }
             }
         }
         accFrontierSizes += _tensorList.frontiers(i).size();

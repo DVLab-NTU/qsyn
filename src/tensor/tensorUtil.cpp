@@ -18,6 +18,13 @@ TensorAxisList concatAxisList(const TensorAxisList& ax1, const TensorAxisList& a
     return ax;
 }
 
+// Print the axis list
+void printAxisList(const TensorAxisList& ax) {
+    std::cout << *ax.begin();
+    std::for_each(ax.begin()+1, ax.end(), [](const size_t& id){ std::cout << " " << id; });
+    std::cout << std::endl;
+}
+
 // Returns true if two axis lists are disjoint
 bool isDisjoint(const TensorAxisList& ax1, const TensorAxisList& ax2) {
     return std::find_first_of(ax1.begin(), ax1.end(), ax2.begin(), ax2.end()) == ax1.end();
