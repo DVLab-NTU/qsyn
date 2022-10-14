@@ -237,11 +237,10 @@ void ZX2TSMapper::tensorDotVertex(ZXVertex* v) {
         connect_pin.push_back(t);
     currTensor() = tensordot(dehadamarded, v->getTSform(), _normalPin, connect_pin);
     // 3. update pins
-    if(v->getType() != VertexType::BOUNDARY){
-        for (size_t i = 0; i < _removeEdge.size(); i++){
-            currFrontiers().erase(_removeEdge[i]);  // Erase old edges
-        }
-    }
+    
+    for (size_t i = 0; i < _removeEdge.size(); i++)
+        currFrontiers().erase(_removeEdge[i]);  // Erase old edges
+
     for (auto& frontier : currFrontiers()) {
         frontier.second = currTensor().getNewAxisId(frontier.second);
     }
