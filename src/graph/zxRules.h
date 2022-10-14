@@ -127,7 +127,7 @@ class SpiderFusion : public ZXRule{
 class Bialgebra : public ZXRule{
   public:
     //TODO: Check MatchType
-    typedef int MatchType;
+    typedef EdgePair MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
     Bialgebra(){
@@ -139,6 +139,9 @@ class Bialgebra : public ZXRule{
     
     void match(ZXGraph* g) override; 
     void rewrite(ZXGraph* g) override;
+
+    // checker
+    bool check_duplicated_vertex(vector<ZXVertex*> vec);
 
     // Getter and Setter
     MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }

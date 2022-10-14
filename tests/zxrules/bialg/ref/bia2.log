@@ -1,0 +1,208 @@
+qsyn> ver 9
+Note: verbose level is set to 9
+
+qsyn> zxmode -on
+ZXMODE turn ON!
+
+qsyn> zxnew 
+Successfully generate Graph 0
+Checkout to Graph 0
+
+qsyn> zxge -addi 0 0
+Add input 0
+
+qsyn> zxge -addo 1 0
+Add output 1
+
+qsyn> zxge -addi 2 1
+Add input 2
+
+qsyn> zxge -addo 3 1
+Add output 3
+
+qsyn> zxge -addv 4 0 X
+Add vertice 4
+
+qsyn> zxge -addv 5 0 Z
+Add vertice 5
+
+qsyn> zxge -addv 6 1 X
+Add vertice 6
+
+qsyn> zxge -addv 7 0 X
+Add vertice 7
+
+qsyn> zxge -addv 8 0 Z
+Add vertice 8
+
+qsyn> zxge -addv 9 1 Z
+Add vertice 9
+
+qsyn> zxge -addv 10 0 X
+Add vertice 10
+
+qsyn> zxge -addv 11 0 Z
+Add vertice 11
+
+qsyn> zxge -addv 12 1 X
+Add vertice 12
+
+qsyn> zxge -addv 13 0 X
+Add vertice 13
+
+qsyn> zxge -addv 14 0 Z
+Add vertice 14
+
+qsyn> zxge -addv 15 0 Z
+Add vertice 15
+
+qsyn> zxge -adde 0 4 SIMPLE
+Add edge ( 0, 4 )
+
+qsyn> zxge -adde 1 14 SIMPLE
+Add edge ( 1, 14 )
+
+qsyn> zxge -adde 2 6 SIMPLE
+Add edge ( 2, 6 )
+
+qsyn> zxge -adde 3 15 SIMPLE
+Add edge ( 3, 15 )
+
+qsyn> zxge -adde 4 5 SIMPLE
+Add edge ( 4, 5 )
+
+qsyn> zxge -adde 5 7 SIMPLE
+Add edge ( 5, 7 )
+
+qsyn> zxge -adde 5 6 SIMPLE
+Add edge ( 5, 6 )
+
+qsyn> zxge -adde 7 8 SIMPLE
+Add edge ( 7, 8 )
+
+qsyn> zxge -adde 7 9 SIMPLE
+Add edge ( 7, 9 )
+
+qsyn> zxge -adde 8 10 SIMPLE
+Add edge ( 8, 10 )
+
+qsyn> zxge -adde 10 9 SIMPLE
+Add edge ( 10, 9 )
+
+qsyn> zxge -adde 10 11 SIMPLE
+Add edge ( 10, 11 )
+
+qsyn> zxge -adde 11 12 SIMPLE
+Add edge ( 11, 12 )
+
+qsyn> zxge -adde 11 13 SIMPLE
+Add edge ( 11, 13 )
+
+qsyn> zxge -adde 14 13 SIMPLE
+Add edge ( 14, 13 )
+
+qsyn> zxge -adde 12 15 SIMPLE
+Add edge ( 12, 15 )
+
+qsyn> zxgsimp -bia
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
+ID:	4	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (5, -) 
+ID:	5	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (6, -) (7, -) 
+ID:	6	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(2, -) (5, -) 
+ID:	7	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(5, -) (8, -) (9, -) 
+ID:	8	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(7, -) (10, -) 
+ID:	9	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(7, -) (10, -) 
+ID:	10	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (9, -) (11, -) 
+ID:	11	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, -) (12, -) (13, -) 
+ID:	12	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(11, -) (15, -) 
+ID:	13	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(11, -) (14, -) 
+ID:	14	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (13, -) 
+ID:	15	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
+Total #Vertices: 16
+Find a match (5 7)
+Find a match (10 11)
+MatchtypevecNum= 2
+Bialgebra Rule: 2 Add edge ( 6, 9 )
+Add edge ( 6, 8 )
+Add edge ( 4, 9 )
+Add edge ( 4, 8 )
+Add edge ( 9, 13 )
+Add edge ( 9, 12 )
+Add edge ( 8, 13 )
+Add edge ( 8, 12 )
+Remove ID: 5
+Remove ID: 7
+Remove ID: 10
+Remove ID: 11
+. ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
+ID:	4	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (8, -) (9, -) 
+ID:	6	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (8, -) (9, -) 
+ID:	8	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(4, -) (6, -) (12, -) (13, -) 
+ID:	9	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(4, -) (6, -) (12, -) (13, -) 
+ID:	12	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(8, -) (9, -) (15, -) 
+ID:	13	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (9, -) (14, -) 
+ID:	14	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (13, -) 
+ID:	15	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
+Total #Vertices: 12
+Find a match (9 13)
+MatchtypevecNum= 1
+1 Add edge ( 12, 8 )
+Add edge ( 12, 14 )
+Add edge ( 4, 8 )
+Add edge ( 4, 14 )
+Add edge ( 6, 8 )
+Add edge ( 6, 14 )
+Remove ID: 9
+Remove ID: 13
+. ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
+ID:	4	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(0, -) (8, -) (8, -) (14, -) 
+ID:	6	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(2, -) (8, -) (8, -) (14, -) 
+ID:	8	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(4, -) (4, -) (6, -) (6, -) (12, -) (12, -) 
+ID:	12	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(8, -) (8, -) (14, -) (15, -) 
+ID:	14	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (4, -) (6, -) (12, -) 
+ID:	15	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
+Total #Vertices: 10
+MatchtypevecNum= 0
+2 iterations
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
+ID:	4	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(0, -) (8, -) (8, -) (14, -) 
+ID:	6	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(2, -) (8, -) (8, -) (14, -) 
+ID:	8	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(4, -) (4, -) (6, -) (6, -) (12, -) (12, -) 
+ID:	12	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(8, -) (8, -) (14, -) (15, -) 
+ID:	14	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (4, -) (6, -) (12, -) 
+ID:	15	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
+Total #Vertices: 10
+
+qsyn> zxgprint -e
+( 0, 4 )	Type:	-
+( 1, 14 )	Type:	-
+( 2, 6 )	Type:	-
+( 3, 15 )	Type:	-
+( 12, 15 )	Type:	-
+( 6, 8 )	Type:	-
+( 4, 8 )	Type:	-
+( 8, 12 )	Type:	-
+( 12, 8 )	Type:	-
+( 12, 14 )	Type:	-
+( 4, 8 )	Type:	-
+( 4, 14 )	Type:	-
+( 6, 8 )	Type:	-
+( 6, 14 )	Type:	-
+Total #Edges: 14
+
+qsyn> q -f
+
