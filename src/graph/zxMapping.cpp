@@ -82,7 +82,7 @@ vector<EdgePair> ZXGraph::getInnerEdges() {
     return tmp;
 }
 
-ZXVertex* ZXGraph::getInputFromHash(size_t q) {
+ZXVertex* ZXGraph::getInputFromHash(const size_t& q) {
     if (_inputList.find(q) == _inputList.end()) {
         cerr << "Input qubit id " << q << "not found" << endl;
         return nullptr;
@@ -90,7 +90,7 @@ ZXVertex* ZXGraph::getInputFromHash(size_t q) {
         return _inputList[q];
 }
 
-ZXVertex* ZXGraph::getOutputFromHash(size_t q) {
+ZXVertex* ZXGraph::getOutputFromHash(const size_t& q) {
     if (_outputList.find(q) == _outputList.end()) {
         cerr << "Output qubit id " << q << "not found" << endl;
         return nullptr;

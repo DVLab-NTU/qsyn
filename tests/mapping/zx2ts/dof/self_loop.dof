@@ -8,6 +8,6 @@ zxgedit -adde 2 1 SIMPLE
 zxgedit -adde 2 2 HADAMARD
 zxgedit -adde 2 2 SIMPLE
 
-ver 3
+ver 7
 zxgtsm
 q -f 

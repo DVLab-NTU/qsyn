@@ -11,20 +11,30 @@ extern size_t verbose;
 using namespace std;
 
 // map a ZX-diagram to a tensor
-void ZX2TSMapper::map() {
+bool ZX2TSMapper::map() {
+    if (!_zxgraph->isValid()) {
+        cerr << "[Error] The ZX Graph is not valid!!!" << endl;
+        return false;
+    }
     if (verbose >= 3) cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
     _zxgraph->topoTraverse([this](ZXVertex* v) { mapOneVertex(v); });
     for (size_t i = 0; i < _boundaryEdges.size(); i++)
         _tensorList.frontiers(i).emplace(_boundaryEdges[i], 0);
     // cout << _tensorList.tensor(0) << endl;
     TensorAxisList inputIds, outputIds;
-    getAxisOrders(inputIds, _zxgraph->getInputList());
-    getAxisOrders(outputIds, _zxgraph->getOutputList());
-
-    _tensorList.tensor(0) = _tensorList.tensor(0).transpose(concatAxisList(inputIds, outputIds));
-    if (verbose >= 3) {
-        cout << "\nThe resulting tensor is: \n"<< _tensorList.tensor(0) << endl;
+    QTensor<double> result = 1.+0.i;
+    for (size_t i = 0; i < _tensorList.size(); ++i) {
+        result = tensordot(result, _tensorList.tensor(i));
     }
+    
+    getAxisOrders(inputIds, _zxgraph->getInputList(), false);
+    getAxisOrders(outputIds, _zxgraph->getOutputList(), true);
+
+    result = result.toMatrix(inputIds, outputIds);
+    if (verbose >= 3) {
+        cout << "\nThe resulting tensor is: \n"<< result << endl;
+    }
+    return true;
 }
 
 // map one vertex
@@ -41,6 +51,9 @@ void ZX2TSMapper::mapOneVertex(ZXVertex* v) {
         initSubgraph(v);
     } else if (v->getType() == VertexType::BOUNDARY) {
         if (verbose >= 3) cout << "Boundary Node" << endl;
+        updatePinsAndFrontiers(v);
+        currTensor() = dehadamardize(currTensor());
+        
     } else {
         if (verbose >= 3) cout << "Tensordot" << endl;
         updatePinsAndFrontiers(v);
@@ -81,19 +94,37 @@ bool ZX2TSMapper::isOfNewGraph(const ZXVertex* v) {
 
 // Print the current and next frontiers
 void ZX2TSMapper::printFrontiers() const {
-    // cout << "**************" << endl;
-    // cout << "Current Frontier Edges: " << endl;
-    // for (size_t i = 0; i < _removeEdge.size(); i++) {
-    //     cout << _removeEdge[i].first.first->getId() << "--" << _removeEdge[i].first.second->getId() << endl;
-    // }
-    // cout << "Next Frontier Edges: " << endl;
-    // for (size_t i = 0; i < _addEdge.size(); i++) {
-    //     cout << _addEdge[i].first.first->getId() << "--" << _addEdge[i].first.second->getId() << endl;
-    // }
-    // cout << "**************" << endl;
+    using Frontier = pair<EdgeKey, size_t>;
+    vector<Frontier> tmp;
+    for_each(currFrontiers().begin(), currFrontiers().end(), 
+        [&tmp](const Frontier& front) { tmp.emplace_back(front.first, front.second); } 
+    );
+    sort(tmp.begin(), tmp.end(), [](const Frontier& a, const Frontier& b) {
+        size_t id_a_s = a.first.first.first->getId();
+        size_t id_a_t = a.first.first.second->getId();
+        size_t id_b_s = b.first.first.first->getId();
+        size_t id_b_t = b.first.first.second->getId();
+        EdgeType etype_a = a.first.second;
+        EdgeType etype_b = b.first.second;
+        size_t axid_a = a.second;
+        size_t axid_b = b.second;
+        if (id_a_s < id_b_s) return true;
+        if (id_a_s > id_b_s) return false;
+        if (id_a_t < id_b_t) return true;
+        if (id_a_t > id_b_t) return false;
+        if (etype_a < etype_b) return true;
+        if (etype_a > etype_b) return false;
+        if (axid_a < axid_b) return true;
+        if (axid_a > axid_b) return false;
+        return false;
+    });
     cout << "  - Current frontiers: " << endl;
-    for(auto i=currFrontiers().begin(); i!=currFrontiers().end(); i++){
-        cout << "    " << i->first.first.first->getId() << "--" << i->first.first.second->getId() << " (" << EdgeType2Str(&(i->first.second)) << ") pin id: " << i->second << endl;
+    for(auto i : tmp){
+        cout << "    " 
+             << i.first.first.first->getId() << "--" 
+             << i.first.first.second->getId() << " (" 
+             << EdgeType2Str(&(i.first.second)) 
+             << ") axis id: " << i.second << endl;
     }
 }
 
@@ -110,17 +141,29 @@ bool ZX2TSMapper::isFrontier(const pair<ZXVertex*, EdgeType*>& nbr) const {
 // }
 
 // Get the order of inputs and outputs
-void ZX2TSMapper::getAxisOrders(TensorAxisList& axList, const std::unordered_map<size_t, ZXVertex*>& ioList) {
+void ZX2TSMapper::getAxisOrders(TensorAxisList& axList, const std::unordered_map<size_t, ZXVertex*>& ioList, bool isOutput) {
     axList.resize(ioList.size());
-    for (auto& [qubitId, vertex] : ioList) {
-        // cout << qubitId << ", " << vertex->getId() << endl;
-        NeighborMap nebs = vertex->getNeighborMap();
-        auto& [neighbor, etype] = *(nebs.begin());
-        EdgeKey edgeKey = makeEdgeKey(vertex, neighbor, *etype);
-        // cout << vertex->getId() << ", "<<  neighbor->getId() << endl;
-        axList[qubitId] = _tensorList.frontiers(0).find(edgeKey)->second;
-        // cout << axList[qubitId] << endl;
+    size_t accFrontierSizes = 0;
+    for (size_t i = 0; i < _tensorList.size(); ++i) {
+        for (auto& [qubitId, vertex] : ioList) {
+            NeighborMap nebs = vertex->getNeighborMap();
+            auto& [neighbor, etype] = *(nebs.begin());
+            EdgeKey edgeKey = makeEdgeKey(vertex, neighbor, *etype);
+
+            auto result = _tensorList.frontiers(i).equal_range(edgeKey);
+            auto itr = result.first;
+            if (itr != _tensorList.frontiers(i).end()) {
+                axList[qubitId] = _tensorList.frontiers(i).find(edgeKey)->second + accFrontierSizes;
+                ++itr;
+                if (isOutput && itr != result.second) {
+                    axList[qubitId] += 1;
+                }
+            }
+        }
+        accFrontierSizes += _tensorList.frontiers(i).size();
     }
+    // for (size_t i = 0; i < _tensorList.size(); ++i) {
+    // }
 }
 
 // update information for the current and next frontiers
@@ -192,24 +235,22 @@ void ZX2TSMapper::tensorDotVertex(ZXVertex* v) {
     TensorAxisList connect_pin;
     for (size_t t = 0; t < _normalPin.size(); t++)
         connect_pin.push_back(t);
-
     currTensor() = tensordot(dehadamarded, v->getTSform(), _normalPin, connect_pin);
-    
     // 3. update pins
-    for (size_t i = 0; i < _removeEdge.size(); i++){
+    
+    for (size_t i = 0; i < _removeEdge.size(); i++)
         currFrontiers().erase(_removeEdge[i]);  // Erase old edges
-    }
+
     for (auto& frontier : currFrontiers()) {
         frontier.second = currTensor().getNewAxisId(frontier.second);
     }
-
     connect_pin.clear();
     for (size_t t = 0; t < _addEdge.size(); t++)
         connect_pin.push_back(_normalPin.size() + t);
-
     
     for (size_t t = 0; t < _addEdge.size(); t++) {
         size_t newId = currTensor().getNewAxisId(dehadamarded.dimension() + connect_pin[t]);
         currFrontiers().emplace(_addEdge[t], newId);  // origin pin (neighbot count) + 1,3,5,7,9
     }
+
 }

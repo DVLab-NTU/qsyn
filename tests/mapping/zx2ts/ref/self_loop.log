@@ -27,14 +27,27 @@ qsyn> zxgedit -adde 2 2 SIMPLE
 Add edge ( 2, 2 )
 
 qsyn> 
-qsyn> ver 3
-Note: verbose level is set to 3
+qsyn> ver 7
+Note: verbose level is set to 7
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
+Topological order from first input: 
+0 2 1 
+Size of topological order: 3
 > Mapping vertex 0 (●): New Subgraph
+  - Current frontiers: 
+    0--2 (-) axis id: 1
 > Mapping vertex 2 ([1;32mZ[0m): Tensordot
+  - Skipping self loop: 2--2 (-)
+  - Skipping self loop: 2--2 (-)
+  - Skipping self loop: 2--2 ([1;34mH[0m)
+  - Skipping self loop: 2--2 ([1;34mH[0m)
+  - Current frontiers: 
+    1--2 (-) axis id: 1
 > Mapping vertex 1 (●): Boundary Node
+  - Current frontiers: 
+    1--2 (-) axis id: 1
 
 The resulting tensor is: 
 {{ 1.+0.000000e+00i,  0.+0.000000e+00i},
