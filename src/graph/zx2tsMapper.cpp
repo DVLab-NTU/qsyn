@@ -51,6 +51,9 @@ void ZX2TSMapper::mapOneVertex(ZXVertex* v) {
         initSubgraph(v);
     } else if (v->getType() == VertexType::BOUNDARY) {
         if (verbose >= 3) cout << "Boundary Node" << endl;
+        updatePinsAndFrontiers(v);
+        currTensor() = dehadamardize(currTensor());
+        
     } else {
         if (verbose >= 3) cout << "Tensordot" << endl;
         updatePinsAndFrontiers(v);
@@ -232,24 +235,23 @@ void ZX2TSMapper::tensorDotVertex(ZXVertex* v) {
     TensorAxisList connect_pin;
     for (size_t t = 0; t < _normalPin.size(); t++)
         connect_pin.push_back(t);
-
     currTensor() = tensordot(dehadamarded, v->getTSform(), _normalPin, connect_pin);
-    
     // 3. update pins
-    for (size_t i = 0; i < _removeEdge.size(); i++){
-        currFrontiers().erase(_removeEdge[i]);  // Erase old edges
+    if(v->getType() != VertexType::BOUNDARY){
+        for (size_t i = 0; i < _removeEdge.size(); i++){
+            currFrontiers().erase(_removeEdge[i]);  // Erase old edges
+        }
     }
     for (auto& frontier : currFrontiers()) {
         frontier.second = currTensor().getNewAxisId(frontier.second);
     }
-
     connect_pin.clear();
     for (size_t t = 0; t < _addEdge.size(); t++)
         connect_pin.push_back(_normalPin.size() + t);
-
     
     for (size_t t = 0; t < _addEdge.size(); t++) {
         size_t newId = currTensor().getNewAxisId(dehadamarded.dimension() + connect_pin[t]);
         currFrontiers().emplace(_addEdge[t], newId);  // origin pin (neighbot count) + 1,3,5,7,9
     }
+
 }
