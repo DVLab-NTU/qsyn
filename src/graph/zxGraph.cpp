@@ -304,8 +304,8 @@ const EdgePair& ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et){
 }
 
 void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType* et){
-    if(!isId(id_s)) cerr << "Error: id_s provided is not exist!" << endl;
-    else if(!isId(id_t)) cerr << "Error: id_t provided is not exist!" << endl;
+    if(!isId(id_s)) cerr << "Error: id_s provided does not exist!" << endl;
+    else if(!isId(id_t)) cerr << "Error: id_t provided does not exist!" << endl;
     else{
         if(verbose >= 3) cout << "Add edge ( " << id_s << ", " << id_t << " )" << endl;
         ZXVertex* vs = findVertexById(id_s); ZXVertex* vt = findVertexById(id_t);

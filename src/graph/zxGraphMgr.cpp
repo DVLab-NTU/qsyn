@@ -66,7 +66,7 @@ void ZXGraphMgr::removeZXGraph(size_t id) {
             return;
         }
     }
-    cerr << "Error: The id provided is not exist!!" << endl;
+    cerr << "Error: The id provided does not exist!!" << endl;
     return;
 }
 
@@ -80,7 +80,7 @@ void ZXGraphMgr::checkout2ZXGraph(size_t id) {
             return;
         }
     }
-    cerr << "Error: The id provided is not exist!!" << endl;
+    cerr << "Error: The id provided does not exist!!" << endl;
     return;
 }
 
@@ -196,7 +196,7 @@ void ZXGraphMgr::tensorProduct(ZXGraph* zxGraph) {
 
 ZXGraph* ZXGraphMgr::findZXGraphByID(size_t id) const {
     if (!isID(id))
-        cerr << "Error: Graph " << id << " is not exist!" << endl;
+        cerr << "Error: Graph " << id << " does not exist!" << endl;
     else {
         for (size_t i = 0; i < _graphList.size(); i++) {
             if (_graphList[i]->getId() == id) return _graphList[i];

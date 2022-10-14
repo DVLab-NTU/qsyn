@@ -390,7 +390,7 @@ void QCir::addGate(string type, vector<size_t> bits, Phase phase, bool append)
     } 
     else
     {
-        cerr << "Error: The gate " << type << " is not implement!!" << endl;
+        cerr << "Error: The gate " << type << " is not implemented!!" << endl;
         return;
     }
     if (append)

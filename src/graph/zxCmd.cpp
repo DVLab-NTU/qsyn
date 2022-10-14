@@ -157,7 +157,7 @@ ZXRemoveCmd::exec(const string &option){
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
         }
         if(!zxGraphMgr->isID(id)){
-            cerr << "Error: The id provided is not exist!!" << endl;
+            cerr << "Error: The id provided does not exist!!" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
         }
         else zxGraphMgr->removeZXGraph(id);
@@ -194,7 +194,7 @@ ZXCHeckoutCmd::exec(const string &option){
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
         }
         if(!zxGraphMgr->isID(id)){
-            cerr << "Error: The id provided is not exist!!" << endl;
+            cerr << "Error: The id provided does not exist!!" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
         }
         else zxGraphMgr->checkout2ZXGraph(id);
@@ -294,7 +294,7 @@ ZXCOMposeCmd::exec(const string &option){
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
             }
             else if(!zxGraphMgr->isID(id)){
-                cerr << "Error: The id provided is not exist!!" << endl;
+                cerr << "Error: The id provided does not exist!!" << endl;
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
 
             }
@@ -334,7 +334,7 @@ ZXTensorCmd::exec(const string &option){
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
             }
             else if(!zxGraphMgr->isID(id)){
-                cerr << "Error: The id provided is not exist!!" << endl;
+                cerr << "Error: The id provided does not exist!!" << endl;
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
 
             }
