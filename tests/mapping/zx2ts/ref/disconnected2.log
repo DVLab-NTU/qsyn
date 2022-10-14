@@ -1,0 +1,204 @@
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> zxn
+Successfully generate Graph 0
+Checkout to Graph 0
+
+qsyn> zxgtest
+Generate a 2-qubit CNOT graph for testing
+Add input 0
+Add input 1
+Add vertice 2
+Add vertice 3
+Add output 4
+Add output 5
+Add edge ( 3, 5 )
+Add edge ( 0, 2 )
+Add edge ( 1, 3 )
+Add edge ( 2, 3 )
+Add edge ( 2, 4 )
+
+qsyn> zxn
+Successfully generate Graph 1
+Checkout to Graph 1
+
+qsyn> zxgtest
+Generate a 2-qubit CNOT graph for testing
+Add input 0
+Add input 1
+Add vertice 2
+Add vertice 3
+Add output 4
+Add output 5
+Add edge ( 3, 5 )
+Add edge ( 0, 2 )
+Add edge ( 1, 3 )
+Add edge ( 2, 3 )
+Add edge ( 2, 4 )
+
+qsyn> zxch 0
+Checkout to Graph 0
+
+qsyn> zxtensor 1
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+ID:	2	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (3, -) (4, -) 
+ID:	3	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(1, -) (2, -) (5, -) 
+ID:	4	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	5	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+ID:	6	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(10, -) 
+ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(11, -) 
+ID:	8	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(10, -) 
+ID:	9	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(11, -) 
+ID:	10	VertexType:	[1;32mZ[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(6, -) (8, -) (11, -) 
+ID:	11	VertexType:	[1;31mX[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(7, -) (9, -) (10, -) 
+Total #Vertices: 12
+
+qsyn> zxgp -e
+( 3, 5 )	Type:	-
+( 0, 2 )	Type:	-
+( 1, 3 )	Type:	-
+( 2, 3 )	Type:	-
+( 2, 4 )	Type:	-
+( 11, 9 )	Type:	-
+( 6, 10 )	Type:	-
+( 7, 11 )	Type:	-
+( 10, 11 )	Type:	-
+( 10, 8 )	Type:	-
+Total #Edges: 10
+
+qsyn> 
+qsyn> ver 7
+Note: verbose level is set to 7
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Topological order from first input: 
+6 10 11 9 7 8 0 2 3 5 1 4 
+Size of topological order: 12
+> Mapping vertex 6 (●): New Subgraph
+  - Current frontiers: 
+    6--10 (-) axis id: 1
+> Mapping vertex 10 ([1;32mZ[0m): Tensordot
+  - Current frontiers: 
+    8--10 (-) axis id: 1
+    10--11 (-) axis id: 2
+> Mapping vertex 11 ([1;31mX[0m): Tensordot
+  - Current frontiers: 
+    7--11 (-) axis id: 2
+    8--10 (-) axis id: 1
+    9--11 (-) axis id: 3
+> Mapping vertex 9 (●): Boundary Node
+  - Current frontiers: 
+    7--11 (-) axis id: 2
+    8--10 (-) axis id: 1
+    9--11 (-) axis id: 3
+> Mapping vertex 7 (●): Boundary Node
+  - Current frontiers: 
+    7--11 (-) axis id: 2
+    8--10 (-) axis id: 1
+    9--11 (-) axis id: 3
+> Mapping vertex 8 (●): Boundary Node
+  - Current frontiers: 
+    7--11 (-) axis id: 2
+    8--10 (-) axis id: 1
+    9--11 (-) axis id: 3
+> Mapping vertex 0 (●): New Subgraph
+  - Current frontiers: 
+    0--2 (-) axis id: 1
+> Mapping vertex 2 ([1;32mZ[0m): Tensordot
+  - Current frontiers: 
+    2--3 (-) axis id: 2
+    2--4 (-) axis id: 1
+> Mapping vertex 3 ([1;31mX[0m): Tensordot
+  - Current frontiers: 
+    1--3 (-) axis id: 2
+    2--4 (-) axis id: 1
+    3--5 (-) axis id: 3
+> Mapping vertex 5 (●): Boundary Node
+  - Current frontiers: 
+    1--3 (-) axis id: 2
+    2--4 (-) axis id: 1
+    3--5 (-) axis id: 3
+> Mapping vertex 1 (●): Boundary Node
+  - Current frontiers: 
+    1--3 (-) axis id: 2
+    2--4 (-) axis id: 1
+    3--5 (-) axis id: 3
+> Mapping vertex 4 (●): Boundary Node
+  - Current frontiers: 
+    1--3 (-) axis id: 2
+    2--4 (-) axis id: 1
+    3--5 (-) axis id: 3
+
+The resulting tensor is: 
+{{ 1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i},
+ { 0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i, 
+   0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   1.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i, 
+   0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i}}
+
+qsyn> q -f
+

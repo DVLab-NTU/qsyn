@@ -17,7 +17,7 @@
 
 class ZX2TSMapper {
 public:
-    using Frontiers = unordered_multimap<EdgePair,size_t>;
+    using Frontiers = unordered_multimap<EdgeKey,size_t>;
 
     ZX2TSMapper(ZXGraph* zxg): _zxgraph(zxg) {}
     class TensorList {
@@ -44,18 +44,18 @@ public:
         vector<pair<Frontiers, QTensor<double>>> _tensorList; 
     };
     
-    void map();
+    bool map();
 
 private:
     ZXGraph*            _zxgraph;       // The ZX Graph to be mapped
-    vector<EdgePair>    _boundaryEdges; // EdgePairs of the boundaries 
+    vector<EdgeKey>    _boundaryEdges; // EdgePairs of the boundaries 
     TensorList          _tensorList;    // The tensor list for each set of frontiers
     size_t              _tensorId;      // Current tensor id for the _tensorId
 
     TensorAxisList      _normalPin;     // Axes that can be tensordotted directly
     TensorAxisList      _hadamardPin;   // Axes that should be applied hadamards first
-    vector<EdgePair>    _removeEdge;    // Old frontiers to be removed
-    vector<EdgePair>    _addEdge;       // New frontiers to be added
+    vector<EdgeKey>    _removeEdge;    // Old frontiers to be removed
+    vector<EdgeKey>    _addEdge;       // New frontiers to be added
     
     Frontiers&             currFrontiers()       { return _tensorList.frontiers(_tensorId); };
     QTensor<double>&       currTensor()          { return _tensorList.tensor(_tensorId); };
@@ -75,6 +75,6 @@ private:
 
     void printFrontiers() const;
     // EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et);
-    void getAxisOrders(TensorAxisList& axList, const std::unordered_map<size_t, ZXVertex *>& ioList);
+    void getAxisOrders(TensorAxisList& axList, const std::unordered_map<size_t, ZXVertex *>& ioList, bool isOutput = false);
 };
 #endif //ZX2TS_MAPPER_H

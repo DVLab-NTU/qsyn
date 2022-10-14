@@ -31,11 +31,11 @@ DOFILEs are located under `tests/<DATE>/<TEST_PACKAGE>/testcases/`.
 
 To run a DOFILE and compare the result to the reference, run
 ```
-$ ./DOFILE.sh -d <path/to/test>
+$ ./DOFILE.sh <path/to/test> -d
 ```
 To update the reference to a dofile, run
 ```
-$ ./DOFILE.sh -u <path/to/test>
+$ ./DOFILE.sh <path/to/test> -up
 ```
 To compile unit test programs, run
 ```
