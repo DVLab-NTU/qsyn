@@ -5,6 +5,6 @@ qcga -cx 1 0
 qcga -cx 0 1
 zxm -on
 qczxm
-ver 3
+ver 7
 zxgtsm
 q -f

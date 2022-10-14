@@ -88,36 +88,34 @@ Topological order from first input:
 Size of topological order: 10
 > Mapping vertex 8 (●): New Subgraph
   - Current frontiers: 
-    8--9 (-) pin id: 1
+    8--9 (-) axis id: 1
 > Mapping vertex 9 (●): Boundary Node
   - Current frontiers: 
-    8--9 (-) pin id: 1
+    8--9 (-) axis id: 1
 > Mapping vertex 6 (●): New Subgraph
   - Current frontiers: 
-    6--7 (-) pin id: 1
+    6--7 (-) axis id: 1
 > Mapping vertex 7 (●): Boundary Node
   - Current frontiers: 
-    6--7 (-) pin id: 1
+    6--7 (-) axis id: 1
 > Mapping vertex 2 (●): New Subgraph
   - Current frontiers: 
-    2--5 (-) pin id: 1
+    2--5 (-) axis id: 1
 > Mapping vertex 5 ([1;32mZ[0m): Tensordot
   - Current frontiers: 
-    3--5 (-) pin id: 1
+    3--5 (-) axis id: 1
 > Mapping vertex 3 (●): Boundary Node
   - Current frontiers: 
-    3--5 (-) pin id: 1
+    3--5 (-) axis id: 1
 > Mapping vertex 0 (●): New Subgraph
   - Current frontiers: 
-    0--4 (-) pin id: 1
+    0--4 (-) axis id: 1
 > Mapping vertex 4 ([1;32mZ[0m): Tensordot
   - Current frontiers: 
-    1--4 (-) pin id: 1
+    1--4 (-) axis id: 1
 > Mapping vertex 1 (●): Boundary Node
   - Current frontiers: 
-    1--4 (-) pin id: 1
-6 4 2 0
-7 5 3 1
+    1--4 (-) axis id: 1
 
 The resulting tensor is: 
 {{ 1.+0.000000e+00i,  0.+0.000000e+00i,  0.+0.000000e+00i, 

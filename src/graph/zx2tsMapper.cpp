@@ -29,8 +29,7 @@ bool ZX2TSMapper::map() {
     
     getAxisOrders(inputIds, _zxgraph->getInputList(), false);
     getAxisOrders(outputIds, _zxgraph->getOutputList(), true);
-    if (verbose >= 7) printAxisList(inputIds);
-    if (verbose >= 7) printAxisList(outputIds);
+
     result = result.toMatrix(inputIds, outputIds);
     if (verbose >= 3) {
         cout << "\nThe resulting tensor is: \n"<< result << endl;
@@ -92,9 +91,37 @@ bool ZX2TSMapper::isOfNewGraph(const ZXVertex* v) {
 
 // Print the current and next frontiers
 void ZX2TSMapper::printFrontiers() const {
+    using Frontier = pair<EdgeKey, size_t>;
+    vector<Frontier> tmp;
+    for_each(currFrontiers().begin(), currFrontiers().end(), 
+        [&tmp](const Frontier& front) { tmp.emplace_back(front.first, front.second); } 
+    );
+    sort(tmp.begin(), tmp.end(), [](const Frontier& a, const Frontier& b) {
+        size_t id_a_s = a.first.first.first->getId();
+        size_t id_a_t = a.first.first.second->getId();
+        size_t id_b_s = b.first.first.first->getId();
+        size_t id_b_t = b.first.first.second->getId();
+        EdgeType etype_a = a.first.second;
+        EdgeType etype_b = b.first.second;
+        size_t axid_a = a.second;
+        size_t axid_b = b.second;
+        if (id_a_s < id_b_s) return true;
+        if (id_a_s > id_b_s) return false;
+        if (id_a_t < id_b_t) return true;
+        if (id_a_t > id_b_t) return false;
+        if (etype_a < etype_b) return true;
+        if (etype_a > etype_b) return false;
+        if (axid_a < axid_b) return true;
+        if (axid_a > axid_b) return false;
+        return false;
+    });
     cout << "  - Current frontiers: " << endl;
-    for(auto i=currFrontiers().begin(); i!=currFrontiers().end(); i++){
-        cout << "    " << i->first.first.first->getId() << "--" << i->first.first.second->getId() << " (" << EdgeType2Str(&(i->first.second)) << ") pin id: " << i->second << endl;
+    for(auto i : tmp){
+        cout << "    " 
+             << i.first.first.first->getId() << "--" 
+             << i.first.first.second->getId() << " (" 
+             << EdgeType2Str(&(i.first.second)) 
+             << ") axis id: " << i.second << endl;
     }
 }
 
