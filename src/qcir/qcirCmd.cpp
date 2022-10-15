@@ -31,8 +31,9 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCBDelete", 4, new QCirDeleteQubitCmd) &&
          cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd) &&
          cmdMgr->regCmd("QCZXMapping", 5, new QCirZXMappingCmd) &&
-         cmdMgr->regCmd("QCTSMapping", 5, new QCirTSMappingCmd)
-         // && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
+         cmdMgr->regCmd("QCTSMapping", 5, new QCirTSMappingCmd) &&
+         cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd)
+         && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
          ))
    {
       cerr << "Registering \"qcir\" commands fails... exiting" << endl;
@@ -52,22 +53,22 @@ enum QCirCmdState
 
 static QCirCmdState curCmd = QCIRINIT;
 
-// CmdExecStatus
-// QCirTestCmd::exec(const string &option)
-// {
-//    qCir->tensorMapping();
-//    return CMD_EXEC_DONE;
-// }
-// void QCirTestCmd::usage(ostream &os) const
-// {
-//    os << "Usage: QCT" << endl;
-// }
+CmdExecStatus
+QCirTestCmd::exec(const string &option)
+{
+   qCir->writeQASM("test.qasm");
+   return CMD_EXEC_DONE;
+}
+void QCirTestCmd::usage(ostream &os) const
+{
+   os << "Usage: QCT" << endl;
+}
 
-// void QCirTestCmd::help() const
-// {
-//    cout << setw(15) << left << "QCT: "
-//         << "Test what function you want (for developement)" << endl;
-// }
+void QCirTestCmd::help() const
+{
+   cout << setw(15) << left << "QCT: "
+        << "Test what function you want (for developement)" << endl;
+}
 
 //----------------------------------------------------------------------
 //    QCCRead <(string fileName)> [-Replace]
@@ -595,4 +596,38 @@ void QCirTSMappingCmd::help() const
 {
    cout << setw(15) << left << "QCTSMapping: "
         << "mapping to tensor\n";
+}
+
+//----------------------------------------------------------------------
+//    QCCWriter
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirWriteCmd::exec(const string &option)
+{
+   // check option
+   string token;
+   if (!CmdExec::lexSingleOption(option, token))
+      return CMD_EXEC_ERROR;
+
+   if (!qCir)
+   {
+      cerr << "Error: quantum circuit is not yet constructed!!" << endl;
+      return CMD_EXEC_ERROR;
+   }
+   if(! qCir -> writeQASM(token)){
+      cerr << "Error: file " << token << " path not found!!" << endl;
+      return CMD_EXEC_ERROR;
+   }
+   return CMD_EXEC_DONE;
+}
+
+void QCirWriteCmd::usage(ostream &os) const
+{
+   os << "Usage: QCCWrite <string Output.qasm>" << endl;
+}
+
+void QCirWriteCmd::help() const
+{
+   cout << setw(15) << left << "QCCWrite: "
+        << "write QASM file\n";
 }
