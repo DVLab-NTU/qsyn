@@ -33,7 +33,7 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCZXMapping", 5, new QCirZXMappingCmd) &&
          cmdMgr->regCmd("QCTSMapping", 5, new QCirTSMappingCmd) &&
          cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd)
-         && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
+         // && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
          ))
    {
       cerr << "Registering \"qcir\" commands fails... exiting" << endl;
@@ -53,22 +53,22 @@ enum QCirCmdState
 
 static QCirCmdState curCmd = QCIRINIT;
 
-CmdExecStatus
-QCirTestCmd::exec(const string &option)
-{
-   qCir->writeQASM("test.qasm");
-   return CMD_EXEC_DONE;
-}
-void QCirTestCmd::usage(ostream &os) const
-{
-   os << "Usage: QCT" << endl;
-}
+// CmdExecStatus
+// QCirTestCmd::exec(const string &option)
+// {
+//    qCir->writeQASM("test.qasm");
+//    return CMD_EXEC_DONE;
+// }
+// void QCirTestCmd::usage(ostream &os) const
+// {
+//    os << "Usage: QCT" << endl;
+// }
 
-void QCirTestCmd::help() const
-{
-   cout << setw(15) << left << "QCT: "
-        << "Test what function you want (for developement)" << endl;
-}
+// void QCirTestCmd::help() const
+// {
+//    cout << setw(15) << left << "QCT: "
+//         << "Test what function you want (for developement)" << endl;
+// }
 
 //----------------------------------------------------------------------
 //    QCCRead <(string fileName)> [-Replace]
