@@ -1,0 +1,57 @@
+i 0 0
+i 1 1
+i 2 2
+o 3 0
+o 4 1
+o 5 2
+v 6 H
+v 7 Z
+v 8 X
+v 9 Z 7*pi/4
+v 10 Z
+v 11 X
+v 12 Z 1*pi/4
+v 13 Z
+v 14 X
+v 15 Z 7*pi/4
+v 16 Z
+v 17 X
+v 18 Z 1*pi/4
+v 19 Z 1*pi/4
+v 20 Z
+v 21 X
+v 22 H
+v 23 Z 1*pi/4
+v 24 Z 7*pi/4
+v 25 Z
+v 26 X
+e 0 10 S
+e 1 7 S
+e 2 6 S
+e 6 8 S
+e 7 8 S
+e 8 9 S
+e 9 11 S
+e 10 11 S
+e 10 16 S
+e 7 13 S
+e 11 12 S
+e 12 14 S
+e 13 14 S
+e 14 15 S
+e 15 17 S
+e 16 17 S
+e 13 18 S
+e 17 19 S
+e 18 21 S
+e 19 22 S
+e 16 20 S
+e 20 23 S
+e 23 25 S
+e 20 21 S
+e 21 24 S
+e 24 26 S
+e 25 26 S
+e 25 3 S
+e 26 4 S
+e 22 5 S
