@@ -5,6 +5,13 @@ qcirGate.o: qcirGate.cpp qcir.h qcirGate.h ../../include/phase.h \
  ../../include/tensorUtil.h ../../include/phase.h ../../include/zxGraph.h \
  ../../include/qtensor.h ../../include/zxDef.h ../../include/myHashMap.h \
  qcirQubit.h qcirDef.h ../../include/myHashMap.h
+reader.o: reader.cpp qcir.h qcirGate.h ../../include/phase.h \
+ ../../include/rationalNumber.h ../../include/myConcepts.h \
+ ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
+ ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
+ ../../include/tensorUtil.h ../../include/phase.h ../../include/zxGraph.h \
+ ../../include/qtensor.h ../../include/zxDef.h ../../include/myHashMap.h \
+ qcirQubit.h qcirDef.h ../../include/myHashMap.h
 qcir.o: qcir.cpp ../../include/zxGraphMgr.h ../../include/zxGraph.h \
  ../../include/phase.h ../../include/rationalNumber.h \
  ../../include/myConcepts.h ../../include/util.h ../../include/rnGen.h \

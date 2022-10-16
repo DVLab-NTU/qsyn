@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ writer.cpp ]
-  PackageName  [ writer ]
+  PackageName  [ qcir ]
   Synopsis     [ Define qcir writer functions ]
   Author       [ Chin-Yi Cheng ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
