@@ -51,6 +51,7 @@ qsyn> zxgtsm
 > Mapping vertex 12 ([1;32mZ[0m): Tensordot
 > Mapping vertex 9 ([1;32mZ[0m): Tensordot
 > Mapping vertex 10 ([1;31mX[0m): Tensordot
+> Mapping vertex 2 (●): Boundary Node
 > Mapping vertex 11 ([1;32mZ[0m): Tensordot
 > Mapping vertex 14 ([1;31mX[0m): Tensordot
 > Mapping vertex 20 ([1;32mZ[0m): Tensordot
@@ -65,7 +66,6 @@ qsyn> zxgtsm
 > Mapping vertex 47 ([1;31mX[0m): Tensordot
 > Mapping vertex 48 ([1;32mZ[0m): Tensordot
 > Mapping vertex 50 ([1;31mX[0m): Tensordot
-> Mapping vertex 2 (●): Boundary Node
 > Mapping vertex 8 ([1;31mX[0m): Tensordot
 > Mapping vertex 6 ([1;31mX[0m): Tensordot
 > Mapping vertex 4 (●): Boundary Node
