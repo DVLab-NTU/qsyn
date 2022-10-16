@@ -32,7 +32,6 @@ bool stripQuotes(const std::string& input, std::string& output) {
         size_t pos = 0;
         pos = output.find_first_of(quote);
         while (pos != 0 && output[pos - 1] == '\\') {
-            cout << pos << endl;
             pos = output.find_first_of(quote, pos + 1);
         }
         return pos;
@@ -51,7 +50,6 @@ bool stripQuotes(const std::string& input, std::string& output) {
 
             if (closingQuote == string::npos) {
                 output = refStr;
-                cerr << "[Error] Missing ending quote '" << delim << "'!!!!" << endl; 
                 return false;
             }
 
@@ -129,7 +127,7 @@ int myStrNCmp(const string& s1, const string& s2, unsigned n) {
 // with delimiter "del". The leading "del" will be skipped.
 // Return "string::npos" if not found. Return the past to the end of "tok"
 // (i.e. "del" or string::npos) if found.
-//
+// This function will not treat '\ ' as a space in the token. That is, "a\ b" is two token ("a\", "b") and not one
 size_t
 myStrGetTok(const string& str, string& tok, size_t pos = 0,
             const char del = ' ') {
@@ -140,13 +138,32 @@ myStrGetTok(const string& str, string& tok, size_t pos = 0,
     }
     size_t end = str.find_first_of(del, begin);
     tok = str.substr(begin, end - begin);
+    return end;
+}
+
+// Parse the string "str" for the token "tok", beginning at position "pos",
+// with delimiter "del". The leading "del" will be skipped.
+// Return "string::npos" if not found. Return the past to the end of "tok"
+// (i.e. "del" or string::npos) if found.
+// This function will treat '\ ' as a space in the token. That is, "a\ b" is one token ("a b") and not two
+size_t
+myStrGetTok2(const string& str, string& tok, size_t pos = 0,
+            const char del = ' ') {
+    size_t begin = str.find_first_not_of(del, pos);
+    if (begin == string::npos) {
+        tok = "";
+        return begin;
+    }
+    size_t end = str.find_first_of(del, begin);
+    tok = str.substr(begin, end - begin);
     if (tok.back() == '\\') {
         string tok2;
-        end = myStrGetTok(str, tok2, end);
+        end = myStrGetTok2(str, tok2, end);
         tok = tok.substr(0, tok.size()-1) + ' ' + tok2;
     }
     return end;
 }
+
 
 // Convert string "str" to integer "num". Return false if str does not appear
 // to be a number

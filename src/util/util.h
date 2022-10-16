@@ -24,6 +24,8 @@ extern string stripQuotationMarksInternal(const std::string& str);
 extern int myStrNCmp(const std::string& s1, const std::string& s2, unsigned n);
 extern size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos = 0,
                           const char del = ' ');
+extern size_t myStrGetTok2(const std::string& str, std::string& tok, size_t pos = 0,
+                           const char del = ' ');
 extern bool myStr2Int(const std::string& str, int& num);
 extern bool myStr2Uns(const std::string& str, unsigned& num);
 

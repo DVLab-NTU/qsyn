@@ -11,10 +11,12 @@
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
+#include <filesystem>
 
 #include "util.h"
 
 using namespace std;
+namespace fs = std::filesystem;
 
 //----------------------------------------------------------------------
 //    External funcitons
@@ -396,17 +398,29 @@ void CmdParser::listCmd(const string& str) {
     ti = bi;
     ++ti;
     if (ti == ei) {  // [case 3] single command; insert ' '
-        string ss = (*bi).first + (*bi).second->getOptCmd();
+        string ss = bi->first + bi->second->getOptCmd();
         for (size_t i = cmd.size(), n = ss.size(); i < n; ++i)
             insertChar(ss[i]);
         insertChar(' ');
     } else {  // [case 2] multiple matches
+        size_t cmdSpacing = 0;
+        size_t cmdsPerLine = 5;
+        for (auto itr = bi; itr != ei; ++itr) {
+            string ss = itr->first + itr->second->getOptCmd();
+            if (ss.size() > cmdSpacing) {
+                cmdSpacing = ss.size();
+            }
+        }
+        while (cmdsPerLine > 1 && cmdsPerLine * (cmdSpacing + 2) > 60) {
+            cmdsPerLine--;
+        }
+        cmdSpacing = 60 / cmdsPerLine;
         size_t count = 0;
-        do {
-            if ((count++ % 5) == 0) cout << endl;
-            string ss = (*bi).first + (*bi).second->getOptCmd();
-            cout << setw(12) << left << ss;
-        } while (++bi != ei);
+        for (auto itr = bi; itr != ei; ++itr) {
+            if ((count++ % cmdsPerLine) == 0) cout << endl;
+            string ss = itr->first + itr->second->getOptCmd();
+            cout << setw(cmdSpacing) << left << ss;
+        }
         reprintCmd();
     }
     _tabPressCount = 0;
@@ -424,19 +438,78 @@ void CmdParser::listCmd(const string& str) {
 // return false if list of files is NOT printed.
 // (i.e. Stay in the same line. Don't call reprintCmd() in listCmd())
 bool CmdParser::listCmdDir(const string& cmd) {
-    size_t bn = cmd.find_last_of(' ');
-    string dirPrefix;
+    assert(cmd[0] != ' ');
+    string tmp;
+    string incompleteQuotes;
+    if (stripQuotes(cmd, tmp)) {
+        incompleteQuotes = "";
+    } else if (stripQuotes(cmd + "\"", tmp)) {
+        incompleteQuotes = "\"";
+    } else if (stripQuotes(cmd + "\'", tmp)) {
+        incompleteQuotes = "\'";
+    } else {
+        cerr << "[Error] Unexpected quote stripping result!!!!" << endl;
+        return false;
+    }
+    // cerr << "tmp = \"" << tmp << "\"" << endl;
+    auto findLastSpace = [](const string& str) -> size_t {
+        size_t pos = string::npos;
+        pos = str.find_last_of(" ");
+        while (pos != string::npos && str[pos-1] == '\\') {
+            pos = str.find_last_of(" ", pos-2);
+        }
+        return pos;
+    };
+
+    // auto countNumSpecialChars = [](const string& str, size_t pos = 0) -> size_t {
+    //     size_t numSpecialChars = 0;
+    //     for (size_t i = pos; i < str.size(); ++i) {
+    //         if (str[i] == '\'' || str[i] == '\"' || str[i] == ' ') {
+    //             numSpecialChars++;
+    //         }
+    //     }
+    //     return numSpecialChars;
+    // };
+    
+    size_t bn = findLastSpace(tmp);
+    string promptname, filename, dirname, basename;
     vector<string> files;
     assert(bn != string::npos);       // must have ' '
-    size_t fLen = cmd.size() - ++bn;  // dirPrefix length
+    size_t fLen = tmp.size() - ++bn;  // promptname length
+    // size_t numSpecial, baseNumSpecial;
     // If (cmd.back() == ' ') ==> fLen = 0
-    if (fLen != 0)
-        dirPrefix = cmd.substr(bn, fLen);
-    listDir(files, dirPrefix, ".");
-    if (files.size() == 0)  // [case 6.5] no matched file
+    if (fLen != 0) {
+        promptname = tmp.substr(bn, fLen);
+
+        // cerr << "Prompt name \"" << promptname << "\"" << endl;
+        if (promptname.back() == '\\') promptname.pop_back();
+
+        size_t pos = promptname.find_last_of("/");
+        if (pos == string::npos) pos = 0;
+
+        if (!myStrGetTok2(promptname, filename)) {
+            return false;
+        }
+        // cerr << "File name   \"" << filename   << "\"" << endl;
+        pos = filename.find_last_of("/");
+        if (pos != string::npos) {
+            dirname = filename.substr(0, pos);
+            basename = filename.substr(pos + 1);
+        } else {
+            dirname = "";
+            basename = filename;
+        }
+        fLen = basename.size();
+    }
+
+    listDir(files, basename, "./" + dirname);
+    if (files.size() == 0) { // [case 6.5] no matched file
         return false;
-    else if (files.size() == 1) {  // [case 6.1.3 & 6.4] singly matched file
-        string ff = files[0].substr(fLen, files[0].size() - fLen);
+    } 
+
+    string ff = files[0].substr(fLen, files[0].size() - fLen);
+    if (files.size() == 1) {  // [case 6.1.3 & 6.4] singly matched file
+        // cerr << "ff = "<< ff << endl;
         // [FIX] 2018/10/20 by Ric for 6.1.3 and 6.4
         // Check if the last part of cmd is ff followed by ' '
         // If yes, DO NOT re-print the last part of the cmd
@@ -448,15 +521,24 @@ bool CmdParser::listCmdDir(const string& cmd) {
                 if (cmdLast == ff) return false;
             }
         }
-        for (size_t i = 0, n = ff.size(); i < n; ++i)
+        for (size_t i = 0, n = ff.size(); i < n; ++i) {
+            if (ff[i] == '\"' || ff[i] == '\'' || ff[i] == ' ') insertChar('\\');
             insertChar(ff[i]);
-        insertChar(' ');
+        }
+        // cerr << ("./" + dirname + "/" + files[0]) << " ";
+        if (fs::is_directory("./" + dirname + "/" + files[0])) {
+            // cerr << "is a dir!!" << endl;
+            insertChar('/');
+        } else {
+            // cerr << "is a file!!" << endl;
+            if (!incompleteQuotes.empty()) insertChar(incompleteQuotes[0]);
+            insertChar(' ');
+        }
         // [FIX] 2018/10/20 by Ric for 6.1.3 and 6.4
         // DO NOT re-print cmd
         return false;
     } else {
         bool doCheck = true, doneInsert = false;
-        string ff = files[0].substr(fLen, files[0].size() - fLen);
         for (size_t i = fLen, n = files[0].size(); i < n; ++i) {
             for (size_t j = 1, m = files.size(); j < m; ++j)
                 if ((i >= files[j].size()) ||
@@ -469,10 +551,21 @@ bool CmdParser::listCmdDir(const string& cmd) {
             doneInsert = true;
         }
         if (!doneInsert) {  // [case 6.2] multiple matched files
-            size_t cc = 0;
-            for (size_t i = 0, n = files.size(); i < n; ++i) {
-                if (cc++ % 5 == 0) cout << endl;
-                cout << setw(16) << left << files[i];
+            size_t fileSpacing = 0;
+            size_t filesPerLine = 5;
+            for (auto file : files) {
+                if (file.size() > fileSpacing) {
+                    fileSpacing = file.size();
+                }
+            }
+            while (filesPerLine > 1 && filesPerLine * (fileSpacing + 2) > 80) {
+                filesPerLine--;
+            }
+            fileSpacing = 80 / filesPerLine;
+            size_t count = 0;
+            for (auto file : files) {
+                if (count++ % filesPerLine == 0) cout << endl;
+                cout << setw(fileSpacing) << left << file;
             }
         }
         // [FIX] 2018/10/21 by Ric; don't change line
@@ -520,7 +613,7 @@ CmdParser::getCmd(string cmd) {
 // return false if option contains an token
 bool CmdExec::lexNoOption(const string& option) const {
     string err;
-    myStrGetTok(option, err);
+    myStrGetTok2(option, err);
     if (err.size()) {
         errorOption(CMD_OPT_EXTRA, err);
         return false;
@@ -533,12 +626,12 @@ bool CmdExec::lexNoOption(const string& option) const {
 // "optional": default = true
 //
 bool CmdExec::lexSingleOption(const string& option, string& token, bool optional) const {
-
     string stripped;
     if (!stripQuotes(option, stripped)) {
+        cerr << "[Error] Missing ending quote!!!!" << endl; 
         return false;
     }
-    size_t n = myStrGetTok(stripped, token);
+    size_t n = myStrGetTok2(stripped, token);
     if (!optional) {
         if (token.size() == 0) {
             errorOption(CMD_OPT_MISSING, "");
@@ -558,12 +651,13 @@ bool CmdExec::lexSingleOption(const string& option, string& token, bool optional
 bool CmdExec::lexOptions(const string& option, vector<string>& tokens, size_t nOpts) const {
     string token, stripped;
     if (!stripQuotes(option, stripped)) {
+        cerr << "[Error] Missing ending quote!!!!" << endl; 
         return false;
     }
-    size_t n = myStrGetTok(stripped, token);
+    size_t n = myStrGetTok2(stripped, token);
     while (token.size()) {
         tokens.push_back(token);
-        n = myStrGetTok(stripped, token, n);
+        n = myStrGetTok2(stripped, token, n);
     }
     if (nOpts != 0) {
         if (tokens.size() < nOpts) {
