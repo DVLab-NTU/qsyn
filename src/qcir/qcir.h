@@ -59,6 +59,7 @@ public:
   bool parseQC(string qc_file);
   bool parseQSIM(string qsim_file);
   bool parseQUIPPER(string quipper_file);
+  bool writeQASM(string qasm_output);
   void incrementZXId() { _ZXNodeId++; }
   
   void ZXMapping();

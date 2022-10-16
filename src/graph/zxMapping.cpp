@@ -26,16 +26,33 @@ extern size_t verbose;
 //     _inputList.clear(); _outputList.clear();
 // }
 
-QTensor<double> ZXVertex::getTSform() const {
+QTensor<double> ZXVertex::getTSform(){
     QTensor<double> tensor = (1. + 0.i);
-    if (_type == VertexType::BOUNDARY)
+    if (_type == VertexType::BOUNDARY){
         tensor = QTensor<double>::identity(_neighborMap.size());
+        return tensor;
+    }
+        
+    // Check self loop
+    size_t hedge = 0, sedge = 0;
+    auto neighborSelf = _neighborMap.equal_range(this);
+    for (auto jtr = neighborSelf.first; jtr != neighborSelf.second; jtr++) {
+        if(*(jtr->second) == EdgeType::HADAMARD) hedge++;
+        else if(*(jtr->second) == EdgeType::SIMPLE) sedge++;
+        else cerr << "Wrong Type!!" << endl;
+    }
+    if(verbose>=9) cout << hedge << " " << sedge << endl;
+    Phase tsPhase = _phase;
+    assert(hedge%2==0); assert(sedge%2==0);
+    for(size_t i=0; i<hedge/2; i++) tsPhase += Phase(1);
+    
+    
     if (_type == VertexType::H_BOX)
-        tensor = QTensor<double>::hbox(_neighborMap.size());
+        tensor = QTensor<double>::hbox(_neighborMap.size()-sedge-hedge);
     else if (_type == VertexType::Z)
-        tensor = QTensor<double>::zspider(_neighborMap.size(), _phase);
+        tensor = QTensor<double>::zspider(_neighborMap.size()-sedge-hedge, tsPhase);
     else if (_type == VertexType::X)
-        tensor = QTensor<double>::xspider(_neighborMap.size(), _phase);
+        tensor = QTensor<double>::xspider(_neighborMap.size()-sedge-hedge, tsPhase);
     else
         cerr << "Vertex " << _id << " type ERROR" << endl;
     return tensor;
@@ -65,7 +82,7 @@ vector<EdgePair> ZXGraph::getInnerEdges() {
     return tmp;
 }
 
-ZXVertex* ZXGraph::getInputFromHash(size_t q) {
+ZXVertex* ZXGraph::getInputFromHash(const size_t& q) {
     if (_inputList.find(q) == _inputList.end()) {
         cerr << "Input qubit id " << q << "not found" << endl;
         return nullptr;
@@ -73,7 +90,7 @@ ZXVertex* ZXGraph::getInputFromHash(size_t q) {
         return _inputList[q];
 }
 
-ZXVertex* ZXGraph::getOutputFromHash(size_t q) {
+ZXVertex* ZXGraph::getOutputFromHash(const size_t& q) {
     if (_outputList.find(q) == _outputList.end()) {
         cerr << "Output qubit id " << q << "not found" << endl;
         return nullptr;
@@ -134,6 +151,9 @@ void ZXGraph::cleanRedundantEdges() {
 }
 
 void ZXGraph::tensorMapping() {
+    for(size_t i=0; i<_vertices.size(); i++){
+        _vertices[i] -> setPin(unsigned(-1));
+    }
     ZX2TSMapper mapper(this);
     mapper.map();
 }

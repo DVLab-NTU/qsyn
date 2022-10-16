@@ -15,6 +15,7 @@ using TensorIndex = std::vector<size_t>;
 using TensorAxisList = std::vector<size_t>;
 
 TensorAxisList concatAxisList(const TensorAxisList& ax1, const TensorAxisList& ax2);
+void printAxisList(const TensorAxisList& ax);
 
 bool isDisjoint(const TensorAxisList& ax1, const TensorAxisList& ax2);
 
