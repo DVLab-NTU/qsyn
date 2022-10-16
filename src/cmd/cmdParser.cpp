@@ -441,6 +441,7 @@ bool CmdParser::listCmdDir(const string& cmd) {
     assert(cmd[0] != ' ');
     string tmp;
     string incompleteQuotes;
+    bool trailingBackslash = false;
     if (stripQuotes(cmd, tmp)) {
         incompleteQuotes = "";
     } else if (stripQuotes(cmd + "\"", tmp)) {
@@ -482,7 +483,10 @@ bool CmdParser::listCmdDir(const string& cmd) {
         promptname = tmp.substr(bn, fLen);
 
         // cerr << "Prompt name \"" << promptname << "\"" << endl;
-        if (promptname.back() == '\\') promptname.pop_back();
+        if (promptname.back() == '\\') {
+            promptname.pop_back();
+            trailingBackslash = true;
+        }
 
         size_t pos = promptname.find_last_of("/");
         if (pos == string::npos) pos = 0;
@@ -509,7 +513,6 @@ bool CmdParser::listCmdDir(const string& cmd) {
 
     string ff = files[0].substr(fLen, files[0].size() - fLen);
     if (files.size() == 1) {  // [case 6.1.3 & 6.4] singly matched file
-        // cerr << "ff = "<< ff << endl;
         // [FIX] 2018/10/20 by Ric for 6.1.3 and 6.4
         // Check if the last part of cmd is ff followed by ' '
         // If yes, DO NOT re-print the last part of the cmd
@@ -521,8 +524,24 @@ bool CmdParser::listCmdDir(const string& cmd) {
                 if (cmdLast == ff) return false;
             }
         }
+        if (incompleteQuotes.empty()) {
+            for (size_t i = 0; i < ff.size(); ++i) {
+                switch (ff[i]) {
+                    case ' ': 
+                    case '\"':
+                    case '\'':
+                        ff.insert(i, "\\");
+                        ++i;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        if (trailingBackslash && ff[0] == '\\') {
+            ff = ff.substr(1);
+        }
         for (size_t i = 0, n = ff.size(); i < n; ++i) {
-            if (ff[i] == '\"' || ff[i] == '\'' || ff[i] == ' ') insertChar('\\');
             insertChar(ff[i]);
         }
         // cerr << ("./" + dirname + "/" + files[0]) << " ";
@@ -553,7 +572,19 @@ bool CmdParser::listCmdDir(const string& cmd) {
         if (!doneInsert) {  // [case 6.2] multiple matched files
             size_t fileSpacing = 0;
             size_t filesPerLine = 5;
-            for (auto file : files) {
+            for (auto& file : files) {
+                for (size_t i = 0; i < file.size(); ++i) {
+                    switch (file[i]) {
+                        case ' ': 
+                        case '\"':
+                        case '\'':
+                            file.insert(i, "\\");
+                            ++i;
+                            break;
+                        default:
+                            break;
+                    }
+                }
                 if (file.size() > fileSpacing) {
                     fileSpacing = file.size();
                 }
@@ -563,7 +594,7 @@ bool CmdParser::listCmdDir(const string& cmd) {
             }
             fileSpacing = 80 / filesPerLine;
             size_t count = 0;
-            for (auto file : files) {
+            for (const auto& file : files) {
                 if (count++ % filesPerLine == 0) cout << endl;
                 cout << setw(fileSpacing) << left << file;
             }
