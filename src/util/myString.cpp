@@ -5,15 +5,101 @@
   Author       [ Chung-Yang (Ric) Huang ]
   Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include <string>
 #include <ctype.h>
-#include <cstring>
+
 #include <cassert>
+#include <concepts>
+#include <cstring>
 #include <exception>
 #include <iostream>
-#include <concepts>
+#include <string>
+#include <vector>
 
 using namespace std;
+
+// Remove quotation marks and replace the ' ' between the quotes to be "\ "
+bool stripQuotes(const std::string& input, std::string& output) {
+    output = input;
+    if (input == "") {
+        return true;
+    }
+
+    const string refStr = input;
+    vector<string> outside;
+    vector<string> inside;
+
+    auto findQuote = [&output](char quote) -> size_t {
+        size_t pos = 0;
+        pos = output.find_first_of(quote);
+        while (pos != 0 && output[pos - 1] == '\\') {
+            cout << pos << endl;
+            pos = output.find_first_of(quote, pos + 1);
+        }
+        return pos;
+    };
+
+    while (output.size()) {
+        size_t doubleQuote = findQuote('\"');
+        size_t singleQuote = findQuote('\'');
+        size_t pos = min(doubleQuote, singleQuote);
+        char delim = output[pos];
+        outside.emplace_back(output.substr(0, pos));
+        if (pos == string::npos) break;
+        output = output.substr(pos + 1);
+        if (pos != string::npos) {
+            size_t closingQuote = findQuote(delim);
+
+            if (closingQuote == string::npos) {
+                output = refStr;
+                cerr << "[Error] Missing ending quote '" << delim << "'!!!!" << endl; 
+                return false;
+            }
+
+            inside.emplace_back(output.substr(0, closingQuote));
+            output = output.substr(closingQuote + 1);
+        }
+    }
+
+    // 2. inside  ' ' --> "\ " 
+    //    both side \' --> ' , \" --> "
+
+    auto deformatQuotes = [](vector<string>& strs) {
+        for (auto& str: strs) {
+            size_t pos = 0;
+            while ((pos = str.find("\\\"", pos)) != string::npos) {
+                str = str.substr(0, pos) + str.substr(pos + 1);
+            }
+            pos = 0;
+            while ((pos = str.find("\\\'", pos)) != string::npos) {
+                str = str.substr(0, pos) + str.substr(pos + 1);
+            }
+
+        }
+    };
+
+    for (auto& str: inside) {
+        for (size_t i = 0; i < str.size(); ++i) {
+            if (str[i] == ' ') {
+                str.insert(i, "\\");
+                i++;
+            }
+        }
+    }
+
+    deformatQuotes(outside);
+    deformatQuotes(inside);
+
+    // 3. recombine
+    output = "";
+    for (size_t i = 0; i < outside.size(); ++i) {
+        output += outside[i];
+        if (i < inside.size()) {
+            output += inside[i];
+        }
+    }
+    
+    return true;
+}
 
 // 1. strlen(s1) must >= n
 // 2. The first n characters of s2 are mandatory, they must be case-
@@ -22,25 +108,22 @@ using namespace std;
 //    Otherwise, perform case-insensitive comparison until non-equal result
 //    presents.
 //
-int
-myStrNCmp(const string& s1, const string& s2, unsigned n)
-{
-   assert(n > 0);
-   unsigned n2 = s2.size();
-   if (n2 == 0) return -1;
-   unsigned n1 = s1.size();
-   assert(n1 >= n);
-   for (unsigned i = 0; i < n1; ++i) {
-      if (i == n2)
-         return (i < n)? 1 : 0;
-      char ch1 = (isupper(s1[i]))? tolower(s1[i]) : s1[i];
-      char ch2 = (isupper(s2[i]))? tolower(s2[i]) : s2[i];
-      if (ch1 != ch2)
-         return (ch1 - ch2);
-   }
-   return (n1 - n2);
+int myStrNCmp(const string& s1, const string& s2, unsigned n) {
+    assert(n > 0);
+    unsigned n2 = s2.size();
+    if (n2 == 0) return -1;
+    unsigned n1 = s1.size();
+    assert(n1 >= n);
+    for (unsigned i = 0; i < n1; ++i) {
+        if (i == n2)
+            return (i < n) ? 1 : 0;
+        char ch1 = (isupper(s1[i])) ? tolower(s1[i]) : s1[i];
+        char ch2 = (isupper(s2[i])) ? tolower(s2[i]) : s2[i];
+        if (ch1 != ch2)
+            return (ch1 - ch2);
+    }
+    return (n1 - n2);
 }
-
 
 // Parse the string "str" for the token "tok", beginning at position "pos",
 // with delimiter "del". The leading "del" will be skipped.
@@ -49,56 +132,61 @@ myStrNCmp(const string& s1, const string& s2, unsigned n)
 //
 size_t
 myStrGetTok(const string& str, string& tok, size_t pos = 0,
-            const char del = ' ')
-{
-   size_t begin = str.find_first_not_of(del, pos);
-   if (begin == string::npos) { tok = ""; return begin; }
-   size_t end = str.find_first_of(del, begin);
-   tok = str.substr(begin, end - begin);
-   return end;
+            const char del = ' ') {
+    size_t begin = str.find_first_not_of(del, pos);
+    if (begin == string::npos) {
+        tok = "";
+        return begin;
+    }
+    size_t end = str.find_first_of(del, begin);
+    tok = str.substr(begin, end - begin);
+    if (tok.back() == '\\') {
+        string tok2;
+        end = myStrGetTok(str, tok2, end);
+        tok = tok.substr(0, tok.size()-1) + ' ' + tok2;
+    }
+    return end;
 }
-
 
 // Convert string "str" to integer "num". Return false if str does not appear
 // to be a number
-bool
-myStr2Int(const string& str, int& num)
-{
-   num = 0;
-   size_t i = 0;
-   int sign = 1;
-   if (str[0] == '-') { sign = -1; i = 1; }
-   bool valid = false;
-   for (; i < str.size(); ++i) {
-      if (isdigit(str[i])) {
-         num *= 10;
-         num += int(str[i] - '0');
-         valid = true;
-      }
-      else return false;
-   }
-   num *= sign;
-   return valid;
+bool myStr2Int(const string& str, int& num) {
+    num = 0;
+    size_t i = 0;
+    int sign = 1;
+    if (str[0] == '-') {
+        sign = -1;
+        i = 1;
+    }
+    bool valid = false;
+    for (; i < str.size(); ++i) {
+        if (isdigit(str[i])) {
+            num *= 10;
+            num += int(str[i] - '0');
+            valid = true;
+        } else
+            return false;
+    }
+    num *= sign;
+    return valid;
 }
 
 // Convert string "str" to unsigned integer "unsnum". Return false if str does not appear
 // to be an unsigned number
-bool
-myStr2Uns(const string& str, unsigned& unsnum)
-{
-   int num = 0;
-   bool isNum = myStr2Int(str, num);
-   if(!isNum || num < 0)
-      return false;
-   unsnum = (unsigned int)num;
-   return true;
+bool myStr2Uns(const string& str, unsigned& unsnum) {
+    int num = 0;
+    bool isNum = myStr2Int(str, num);
+    if (!isNum || num < 0)
+        return false;
+    unsnum = (unsigned int)num;
+    return true;
 }
 
-// A template interface for std::stoXXX(const string& str, size_t* pos = nullptr), 
+// A template interface for std::stoXXX(const string& str, size_t* pos = nullptr),
 // All the dirty compile-time checking happens here.
-template <class T> requires std::floating_point<T>
-T stoFloatType(const std::string& str, size_t* pos) {
-    
+template <class T>
+requires std::floating_point<T>
+    T stoFloatType(const string& str, size_t* pos) {
     try {
         if constexpr (std::is_same<T, double>::value) {
             return std::stod(str, pos);
@@ -115,13 +203,14 @@ T stoFloatType(const std::string& str, size_t* pos) {
         throw std::out_of_range(e.what());
     }
 
-    return 0.; // silences compiler warnings
+    return 0.;  // silences compiler warnings
 }
 // Generic template for `myStr2<Float|Double|LongDouble>`
 // If `str` is a string of decimal number, return true and set `f` to the corresponding number.
 // Otherwise return 0 and set `f` to 0.
-template <class T> requires std::floating_point<T>
-bool myStr2FloatType(const std::string& str, T& f) {
+template <class T>
+requires std::floating_point<T>
+bool myStr2FloatType(const string& str, T& f) {
     f = 0;
     size_t i;
     try {
@@ -137,22 +226,19 @@ bool myStr2FloatType(const std::string& str, T& f) {
     return true;
 }
 
-template bool myStr2FloatType<float>(const std::string&, float&);
-template bool myStr2FloatType<double>(const std::string&, double&);
-template bool myStr2FloatType<long double>(const std::string&, long double&);
+template bool myStr2FloatType<float>(const string&, float&);
+template bool myStr2FloatType<double>(const string&, double&);
+template bool myStr2FloatType<long double>(const string&, long double&);
 
-bool
-myStr2Float(const std::string& str, float& f) {
+bool myStr2Float(const string& str, float& f) {
     return myStr2FloatType<float>(str, f);
 }
 
-bool
-myStr2Double(const std::string& str, double& f) {
+bool myStr2Double(const string& str, double& f) {
     return myStr2FloatType<double>(str, f);
 }
 
-bool
-myStr2LongDouble(const std::string& str, long double& f) {
+bool myStr2LongDouble(const string& str, long double& f) {
     return myStr2FloatType<long double>(str, f);
 }
 
@@ -160,15 +246,13 @@ myStr2LongDouble(const std::string& str, long double& f) {
 // 1. starts with [a-zA-Z_]
 // 2. others, can only be [a-zA-Z0-9_]
 // return false if not a var name
-bool
-isValidVarName(const string& str)
-{
-   size_t n = str.size();
-   if (n == 0) return false;
-   if (!isalpha(str[0]) && str[0] != '_')
-      return false;
-   for (size_t i = 1; i < n; ++i)
-      if (!isalnum(str[i]) && str[i] != '_')
-         return false;
-   return true;
+bool isValidVarName(const string& str) {
+    size_t n = str.size();
+    if (n == 0) return false;
+    if (!isalpha(str[0]) && str[0] != '_')
+        return false;
+    for (size_t i = 1; i < n; ++i)
+        if (!isalnum(str[i]) && str[i] != '_')
+            return false;
+    return true;
 }

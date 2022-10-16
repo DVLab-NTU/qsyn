@@ -5,12 +5,14 @@
   Author       [ Chung-Yang (Ric) Huang ]
   Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include <cassert>
-#include <iostream>
-#include <iomanip>
-#include <cstdlib>
-#include "util.h"
 #include "cmdParser.h"
+
+#include <cassert>
+#include <cstdlib>
+#include <iomanip>
+#include <iostream>
+
+#include "util.h"
 
 using namespace std;
 
@@ -24,142 +26,126 @@ void mybeep();
 //----------------------------------------------------------------------
 // return false if file cannot be opened
 // Please refer to the comments in "DofileCmd::exec", cmdCommon.cpp
-bool
-CmdParser::openDofile(const string& dof)
-{
-   // TODO...
-   if (_dofile != 0)
-      if (!pushDofile()) return false;
-   // Keep this line for TODO's
-   _dofile = new ifstream(dof.c_str());
-   if (!_dofile->is_open()) {
-      closeDofile();
-      return false;
-   }
-   return true;
+bool CmdParser::openDofile(const string& dof) {
+    // TODO...
+    if (_dofile != 0)
+        if (!pushDofile()) return false;
+    // Keep this line for TODO's
+    _dofile = new ifstream(dof.c_str());
+    if (!_dofile->is_open()) {
+        closeDofile();
+        return false;
+    }
+    return true;
 }
 
 // Must make sure _dofile != 0
-void
-CmdParser::closeDofile()
-{
-   assert(_dofile != 0);
-   // TODO...
-   // Keep this line for TODO's
-   delete _dofile;
-   _dofile = 0;
-   popDofile();
+void CmdParser::closeDofile() {
+    assert(_dofile != 0);
+    // TODO...
+    // Keep this line for TODO's
+    delete _dofile;
+    _dofile = 0;
+    popDofile();
 }
 
 // Removed for TODO's
 // return false if stack overflow
-bool
-CmdParser::pushDofile()
-{
+bool CmdParser::pushDofile() {
 #ifdef __APPLE__
-   #define DOFILE_STACK_LIMIT 252
+#define DOFILE_STACK_LIMIT 252
 #else
-   #define DOFILE_STACK_LIMIT 1024
+#define DOFILE_STACK_LIMIT 1024
 #endif
-   if (_dofileStack.size() >= DOFILE_STACK_LIMIT) {
-      cerr << "Error: dofile stack overflow (" << DOFILE_STACK_LIMIT
-           << ")" << endl;
-      return false;
-   }
-   _dofileStack.push(_dofile);
-   _dofile = 0;
-   return true;
+    if (_dofileStack.size() >= DOFILE_STACK_LIMIT) {
+        cerr << "Error: dofile stack overflow (" << DOFILE_STACK_LIMIT
+             << ")" << endl;
+        return false;
+    }
+    _dofileStack.push(_dofile);
+    _dofile = 0;
+    return true;
 }
 
 // Removed for TODO's
 // return false if stack empty
-bool
-CmdParser::popDofile()
-{
-   if (_dofileStack.empty())
-      return false;
-   _dofile = _dofileStack.top();
-   _dofileStack.pop();
-   return true;
+bool CmdParser::popDofile() {
+    if (_dofileStack.empty())
+        return false;
+    _dofile = _dofileStack.top();
+    _dofileStack.pop();
+    return true;
 }
 
 // Return false if registration fails
-bool
-CmdParser::regCmd(const string& cmd, unsigned nCmp, CmdExec* e)
-{
-   // Make sure cmd hasn't been registered and won't cause ambiguity
-   string str = cmd;
-   unsigned s = str.size();
-   if (s < nCmp) return false;
-   while (true) {
-      if (getCmd(str)) return false;
-      if (s == nCmp) break;
-      str.resize(--s);
-   }
+bool CmdParser::regCmd(const string& cmd, unsigned nCmp, CmdExec* e) {
+    // Make sure cmd hasn't been registered and won't cause ambiguity
+    string str = cmd;
+    unsigned s = str.size();
+    if (s < nCmp) return false;
+    while (true) {
+        if (getCmd(str)) return false;
+        if (s == nCmp) break;
+        str.resize(--s);
+    }
 
-   // Change the first nCmp characters to upper case to facilitate
-   //    case-insensitive comparison later.
-   // The strings stored in _cmdMap are all upper case
-   //
-   assert(str.size() == nCmp);  // str is now mandCmd
-   string& mandCmd = str;
-   for (unsigned i = 0; i < nCmp; ++i)
-      mandCmd[i] = toupper(mandCmd[i]);
-   string optCmd = cmd.substr(nCmp);
-   assert(e != 0);
-   e->setOptCmd(optCmd);
+    // Change the first nCmp characters to upper case to facilitate
+    //    case-insensitive comparison later.
+    // The strings stored in _cmdMap are all upper case
+    //
+    assert(str.size() == nCmp);  // str is now mandCmd
+    string& mandCmd = str;
+    for (unsigned i = 0; i < nCmp; ++i)
+        mandCmd[i] = toupper(mandCmd[i]);
+    string optCmd = cmd.substr(nCmp);
+    assert(e != 0);
+    e->setOptCmd(optCmd);
 
-   // insert (mandCmd, e) to _cmdMap; return false if insertion fails.
-   return (_cmdMap.insert(CmdRegPair(mandCmd, e))).second;
+    // insert (mandCmd, e) to _cmdMap; return false if insertion fails.
+    return (_cmdMap.insert(CmdRegPair(mandCmd, e))).second;
 }
 
 // Return false on "quit" or if excetion happens
 CmdExecStatus
-CmdParser::execOneCmd()
-{
-   bool newCmd = false;
-   if (_dofile != 0)
-      newCmd = readCmd(*_dofile);
-   else
-      newCmd = readCmd(cin);
+CmdParser::execOneCmd() {
+    bool newCmd = false;
+    if (_dofile != 0)
+        newCmd = readCmd(*_dofile);
+    else
+        newCmd = readCmd(cin);
 
-   // execute the command
-   if (newCmd) {
-      string option;
-      CmdExec* e = parseCmd(option);
-      if (e != 0)
-         return e->exec(option);
-   }
-   return CMD_EXEC_NOP;
+    // execute the command
+    if (newCmd) {
+        string option;
+        CmdExec* e = parseCmd(option);
+        if (e != 0)
+            return e->exec(option);
+    }
+    return CMD_EXEC_NOP;
 }
 
 // For each CmdExec* in _cmdMap, call its "help()" to print out the help msg.
 // Print an endl at the end.
-void
-CmdParser::printHelps() const
-{
-   // TODO...
-   CmdMap::const_iterator mi;
-   for (mi = _cmdMap.begin(); mi != _cmdMap.end(); ++mi)
-      (*mi).second->help();
-   cout << endl;
+void CmdParser::printHelps() const {
+    // TODO...
+    CmdMap::const_iterator mi;
+    for (mi = _cmdMap.begin(); mi != _cmdMap.end(); ++mi)
+        (*mi).second->help();
+    cout << endl;
 }
 
-void
-CmdParser::printHistory(int nPrint) const
-{
-   assert(_tempCmdStored == false);
-   if (_history.empty()) {
-      cout << "Empty command history!!" << endl;
-      return;
-   }
-   int s = _history.size();
-   if ((nPrint < 0) || (nPrint > s))
-      nPrint = s;
-   for (int i = s - nPrint; i < s; ++i)
-      cout << "   " << i << ": " << _history[i] << endl;
+void CmdParser::printHistory(int nPrint) const {
+    assert(_tempCmdStored == false);
+    if (_history.empty()) {
+        cout << "Empty command history!!" << endl;
+        return;
+    }
+    int s = _history.size();
+    if ((nPrint < 0) || (nPrint > s))
+        nPrint = s;
+    for (int i = s - nPrint; i < s; ++i)
+        cout << "   " << i << ": " << _history[i] << endl;
 }
-
 
 //
 // Parse the command from _history.back();
@@ -177,33 +163,31 @@ CmdParser::printHistory(int nPrint) const
 //    words and beyond) and store them in "option"
 //
 CmdExec*
-CmdParser::parseCmd(string& option)
-{
-   assert(_tempCmdStored == false);
-   assert(!_history.empty());
-   string str = _history.back();
+CmdParser::parseCmd(string& option) {
+    assert(_tempCmdStored == false);
+    assert(!_history.empty());
+    string str = _history.back();
 
-   // TODO...
-   assert(str[0] != 0 && str[0] != ' ');
-   size_t n = str.find(' ');
-   string cmd = str.substr(0, n);
-   CmdExec* e = getCmd(cmd);
-   if (!e) {
-      cerr << "Illegal command!! (" << cmd << ")" << endl;
-   }
-   else if (n != string::npos) {
-      size_t opt = str.find_first_not_of(' ', n);
-      if (opt != string::npos)
-         option = str.substr(opt);
-   }
-   return e;
+    // TODO...
+    assert(str[0] != 0 && str[0] != ' ');
+    size_t n = str.find(' ');
+    string cmd = str.substr(0, n);
+    CmdExec* e = getCmd(cmd);
+    if (!e) {
+        cerr << "Illegal command!! (" << cmd << ")" << endl;
+    } else if (n != string::npos) {
+        size_t opt = str.find_first_not_of(' ', n);
+        if (opt != string::npos)
+            option = str.substr(opt);
+    }
+    return e;
 }
 
 // Remove this function for TODO...
 //
 // This function is called by pressing 'Tab'.
 // It is to list the partially matched commands.
-// "str" is the partial string before current cursor position. It can be 
+// "str" is the partial string before current cursor position. It can be
 // a null string, or begin with ' '. The beginning ' ' will be ignored.
 //
 // Several possibilities after pressing 'Tab'
@@ -314,7 +298,7 @@ CmdParser::parseCmd(string& option)
 //    [After] print out the single file name followed by a ' '
 //    // e.g. in hw3/bin
 //    cmd> help mydb $
-//    ==> If "tab" is pressed again, make a beep sound and DO NOT re-print 
+//    ==> If "tab" is pressed again, make a beep sound and DO NOT re-print
 //        the singly-matched file
 //    --- 6.2 ---
 //    [Before] with a prefix and with mutiple matched files
@@ -337,7 +321,7 @@ CmdParser::parseCmd(string& option)
 //    [TODO] FIXED by Ric @ 10-22-2018
 //    ==> and make a beep sound
 //    cmd> help MustExist.txt $aa
-//    ==> If "tab" is pressed again, make a beep sound and DO NOT re-print 
+//    ==> If "tab" is pressed again, make a beep sound and DO NOT re-print
 //        the singly-matched file
 //    --- 6.5 ---
 //    [Before] with a prefix and NO matched file
@@ -354,76 +338,78 @@ CmdParser::parseCmd(string& option)
 //    [After Tab]
 //    ==> Beep and stay in the same location
 
-void
-CmdParser::listCmd(const string& str)
-{
-   // TODO...
-   CmdMap::const_iterator bi, ei, ti;
-   size_t b = str.find_first_not_of(' ');
-   string cmd;
-   if (b == string::npos) { // [case 1] empty string; list all
-      bi = _cmdMap.begin();
-      ei = _cmdMap.end();
-   }
-   else {
-      cmd = str.substr(b);  // remove leading ' '
-      assert(!cmd.empty());
-      size_t bn = cmd.find_first_of(' ');
-      if (bn != string::npos) { // already has ' '; Cursor NOT on first word
-         CmdExec *e = getCmd(cmd.substr(0, bn)); // first word
-         if (e != 0) {
-            assert(_tabPressCount != 0);
-            if (_tabPressCount == 1) {
-            // [case 5] Singly matched on first tab
-               cout << endl;
-               e->usage(cout);
-            }
-            // [case 6] Singly matched on second+ tab
-            else if (!listCmdDir(cmd)) {
-               mybeep(); return;
-            }
-            reprintCmd();
-         }
-         else mybeep(); // [case 7] no match; cursor not on first word
-         return; // from cases 5, 6, 7
-      }
+void CmdParser::listCmd(const string& str) {
+    // TODO...
+    CmdMap::const_iterator bi, ei, ti;
+    size_t b = str.find_first_not_of(' ');
+    string cmd;
+    if (b == string::npos) {  // [case 1] empty string; list all
+        bi = _cmdMap.begin();
+        ei = _cmdMap.end();
+    } else {
+        cmd = str.substr(b);  // remove leading ' '
+        assert(!cmd.empty());
+        size_t bn = cmd.find_first_of(' ');
+        if (bn != string::npos) {                    // already has ' '; Cursor NOT on first word
+            CmdExec* e = getCmd(cmd.substr(0, bn));  // first word
+            if (e != 0) {
+                assert(_tabPressCount != 0);
+                if (_tabPressCount == 1) {
+                    // [case 5] Singly matched on first tab
+                    cout << endl;
+                    e->usage(cout);
+                }
+                // [case 6] Singly matched on second+ tab
+                else if (!listCmdDir(cmd)) {
+                    mybeep();
+                    return;
+                }
+                reprintCmd();
+            } else
+                mybeep();  // [case 7] no match; cursor not on first word
+            return;        // from cases 5, 6, 7
+        }
 
-      // cursor on first word
-      for (size_t i = 0, n = cmd.size(); i < n; ++i)
-         cmd[i] = toupper(cmd[i]);
-      if (getCmd(cmd)) { // cmd is enough to determine a single cmd
-         bi = _cmdMap.find(cmd);
-         if (bi == _cmdMap.end()) {
-            bi = _cmdMap.lower_bound(cmd); --bi;
-         }
-         ei = bi; ++ei;
-      }
-      else {
-         string cmdN = cmd;
-         cmdN[cmdN.size() - 1] = cmd[cmd.size() -1] + 1;
-         bi = _cmdMap.lower_bound(cmd);
-         ei = _cmdMap.lower_bound(cmdN);
-         if (bi == ei) { mybeep(); return; }  // [case 4] no match in 1st wd
-      }
-   } // end of cmd string processing
-   // cases 1, 2, 3 go here
-   ti = bi; ++ti;
-   if (ti == ei) { // [case 3] single command; insert ' '
-      string ss = (*bi).first + (*bi).second->getOptCmd();
-      for (size_t i = cmd.size(), n = ss.size(); i < n; ++i)
-         insertChar(ss[i]);
-      insertChar(' ');
-   }
-   else { // [case 2] multiple matches
-      size_t count = 0;
-      do {
-         if ((count++ % 5) == 0) cout << endl;
-         string ss = (*bi).first + (*bi).second->getOptCmd();
-         cout << setw(12) << left << ss;
-      } while (++bi != ei);
-      reprintCmd();
-   }
-   _tabPressCount = 0;
+        // cursor on first word
+        for (size_t i = 0, n = cmd.size(); i < n; ++i)
+            cmd[i] = toupper(cmd[i]);
+        if (getCmd(cmd)) {  // cmd is enough to determine a single cmd
+            bi = _cmdMap.find(cmd);
+            if (bi == _cmdMap.end()) {
+                bi = _cmdMap.lower_bound(cmd);
+                --bi;
+            }
+            ei = bi;
+            ++ei;
+        } else {
+            string cmdN = cmd;
+            cmdN[cmdN.size() - 1] = cmd[cmd.size() - 1] + 1;
+            bi = _cmdMap.lower_bound(cmd);
+            ei = _cmdMap.lower_bound(cmdN);
+            if (bi == ei) {
+                mybeep();
+                return;
+            }  // [case 4] no match in 1st wd
+        }
+    }  // end of cmd string processing
+    // cases 1, 2, 3 go here
+    ti = bi;
+    ++ti;
+    if (ti == ei) {  // [case 3] single command; insert ' '
+        string ss = (*bi).first + (*bi).second->getOptCmd();
+        for (size_t i = cmd.size(), n = ss.size(); i < n; ++i)
+            insertChar(ss[i]);
+        insertChar(' ');
+    } else {  // [case 2] multiple matches
+        size_t count = 0;
+        do {
+            if ((count++ % 5) == 0) cout << endl;
+            string ss = (*bi).first + (*bi).second->getOptCmd();
+            cout << setw(12) << left << ss;
+        } while (++bi != ei);
+        reprintCmd();
+    }
+    _tabPressCount = 0;
 }
 
 // Remove this function for TODO...
@@ -435,65 +421,65 @@ CmdParser::listCmd(const string& str)
 //
 // This function is to list the files that match the last word in cmd
 //
-// return false if list of files is NOT printed. 
+// return false if list of files is NOT printed.
 // (i.e. Stay in the same line. Don't call reprintCmd() in listCmd())
-bool
-CmdParser::listCmdDir(const string& cmd)
-{
-   size_t bn = cmd.find_last_of(' ');
-   string dirPrefix;
-   vector<string> files;
-   assert(bn != string::npos); // must have ' '
-   size_t fLen = cmd.size() - ++bn; // dirPrefix length
-   // If (cmd.back() == ' ') ==> fLen = 0
-   if (fLen != 0)
-      dirPrefix = cmd.substr(bn, fLen);
-   listDir(files, dirPrefix, ".");
-   if (files.size() == 0) // [case 6.5] no matched file
-      return false;
-   else if (files.size() == 1) {  // [case 6.1.3 & 6.4] singly matched file
-      string ff = files[0].substr(fLen, files[0].size()-fLen);
-      // [FIX] 2018/10/20 by Ric for 6.1.3 and 6.4
-      // Check if the last part of cmd is ff followed by ' '
-      // If yes, DO NOT re-print the last part of the cmd
-      if (fLen == 0) {  // cmd.back() == ' '
-         assert(cmd.back() == ' ');
-         size_t en = cmd.find_last_not_of(' ');
-         if (en >= ff.size()) {
-            string cmdLast = cmd.substr(en-ff.size()+1, ff.size());
-            if (cmdLast == ff) return false;
-         }
-      }
-      for (size_t i = 0, n = ff.size(); i < n; ++i)
-         insertChar(ff[i]);
-      insertChar(' ');
-      // [FIX] 2018/10/20 by Ric for 6.1.3 and 6.4
-      // DO NOT re-print cmd
-      return false;
-   }
-   else {
-      bool doCheck = true, doneInsert = false;
-      string ff = files[0].substr(fLen, files[0].size()-fLen);
-      for (size_t i=fLen, n=files[0].size(); i<n; ++i) {
-         for (size_t j=1, m=files.size(); j<m; ++j)
-            if ((i >= files[j].size()) ||
-                files[j][i] != files[0][i]) {
-               doCheck = false; break;
+bool CmdParser::listCmdDir(const string& cmd) {
+    size_t bn = cmd.find_last_of(' ');
+    string dirPrefix;
+    vector<string> files;
+    assert(bn != string::npos);       // must have ' '
+    size_t fLen = cmd.size() - ++bn;  // dirPrefix length
+    // If (cmd.back() == ' ') ==> fLen = 0
+    if (fLen != 0)
+        dirPrefix = cmd.substr(bn, fLen);
+    listDir(files, dirPrefix, ".");
+    if (files.size() == 0)  // [case 6.5] no matched file
+        return false;
+    else if (files.size() == 1) {  // [case 6.1.3 & 6.4] singly matched file
+        string ff = files[0].substr(fLen, files[0].size() - fLen);
+        // [FIX] 2018/10/20 by Ric for 6.1.3 and 6.4
+        // Check if the last part of cmd is ff followed by ' '
+        // If yes, DO NOT re-print the last part of the cmd
+        if (fLen == 0) {  // cmd.back() == ' '
+            assert(cmd.back() == ' ');
+            size_t en = cmd.find_last_not_of(' ');
+            if (en >= ff.size()) {
+                string cmdLast = cmd.substr(en - ff.size() + 1, ff.size());
+                if (cmdLast == ff) return false;
             }
-         if (!doCheck) break;
-         insertChar(files[0][i]); doneInsert = true;
-      }
-      if (!doneInsert) {  // [case 6.2] multiple matched files
-         size_t cc = 0;
-         for (size_t i = 0, n = files.size(); i < n; ++i) {
-            if (cc++ % 5 == 0) cout << endl;
-            cout << setw(16) << left << files[i];
-         }
-      }
-      // [FIX] 2018/10/21 by Ric; don't change line
-      else return false;  // [case 6.3] multi-matched and auto complete
-   }
-   return true;
+        }
+        for (size_t i = 0, n = ff.size(); i < n; ++i)
+            insertChar(ff[i]);
+        insertChar(' ');
+        // [FIX] 2018/10/20 by Ric for 6.1.3 and 6.4
+        // DO NOT re-print cmd
+        return false;
+    } else {
+        bool doCheck = true, doneInsert = false;
+        string ff = files[0].substr(fLen, files[0].size() - fLen);
+        for (size_t i = fLen, n = files[0].size(); i < n; ++i) {
+            for (size_t j = 1, m = files.size(); j < m; ++j)
+                if ((i >= files[j].size()) ||
+                    files[j][i] != files[0][i]) {
+                    doCheck = false;
+                    break;
+                }
+            if (!doCheck) break;
+            insertChar(files[0][i]);
+            doneInsert = true;
+        }
+        if (!doneInsert) {  // [case 6.2] multiple matched files
+            size_t cc = 0;
+            for (size_t i = 0, n = files.size(); i < n; ++i) {
+                if (cc++ % 5 == 0) cout << endl;
+                cout << setw(16) << left << files[i];
+            }
+        }
+        // [FIX] 2018/10/21 by Ric; don't change line
+        else
+            return false;  // [case 6.3] multi-matched and auto complete
+    }
+    return true;
 }
 
 // cmd is a copy of the original input
@@ -508,114 +494,112 @@ CmdParser::listCmdDir(const string& cmd)
 // 3. All string comparison are "case-insensitive".
 //
 CmdExec*
-CmdParser::getCmd(string cmd)
-{
-   CmdExec* e = 0;
-   // TODO...
-   // call CmdExec::checkOptCmd(const string&) if needed...
-   for (unsigned i = 0, n = cmd.size(); i < n; ++i) {
-      cmd[i] = toupper(cmd[i]);
-      string check = cmd.substr(0, i+1);
-      if (_cmdMap.find(check) != _cmdMap.end())
-         e = _cmdMap[check];
-      if (e != 0) {
-         string optCheck = cmd.substr(i+1);
-         if (e->checkOptCmd(optCheck))
-            return e;  // match found!!
-         else e = 0;
-      }
-   }
-   return e;
+CmdParser::getCmd(string cmd) {
+    CmdExec* e = 0;
+    // TODO...
+    // call CmdExec::checkOptCmd(const string&) if needed...
+    for (unsigned i = 0, n = cmd.size(); i < n; ++i) {
+        cmd[i] = toupper(cmd[i]);
+        string check = cmd.substr(0, i + 1);
+        if (_cmdMap.find(check) != _cmdMap.end())
+            e = _cmdMap[check];
+        if (e != 0) {
+            string optCheck = cmd.substr(i + 1);
+            if (e->checkOptCmd(optCheck))
+                return e;  // match found!!
+            else
+                e = 0;
+        }
+    }
+    return e;
 }
-
 
 //----------------------------------------------------------------------
 //    Member Function for class CmdExec
 //----------------------------------------------------------------------
 // return false if option contains an token
-bool
-CmdExec::lexNoOption(const string& option) const
-{
-   string err;
-   myStrGetTok(option, err);
-   if (err.size()) {
-      errorOption(CMD_OPT_EXTRA, err);
-      return false;
-   }
-   return true;
+bool CmdExec::lexNoOption(const string& option) const {
+    string err;
+    myStrGetTok(option, err);
+    if (err.size()) {
+        errorOption(CMD_OPT_EXTRA, err);
+        return false;
+    }
+    return true;
 }
 
 // Return false if error options found
 // "optional" = true if the option is optional XD
 // "optional": default = true
 //
-bool
-CmdExec::lexSingleOption
-(const string& option, string& token, bool optional) const
-{
-   size_t n = myStrGetTok(option, token);
-   if (!optional) {
-      if (token.size() == 0) {
-         errorOption(CMD_OPT_MISSING, "");
-         return false;
-      }
-   }
-   if (n != string::npos) {
-      errorOption(CMD_OPT_EXTRA, option.substr(n));
-      return false;
-   }
-   return true;
+bool CmdExec::lexSingleOption(const string& option, string& token, bool optional) const {
+
+    string stripped;
+    if (!stripQuotes(option, stripped)) {
+        return false;
+    }
+    size_t n = myStrGetTok(stripped, token);
+    if (!optional) {
+        if (token.size() == 0) {
+            errorOption(CMD_OPT_MISSING, "");
+            return false;
+        }
+    }
+    if (n != string::npos) {
+        errorOption(CMD_OPT_EXTRA, option.substr(n));
+        return false;
+    }
+    return true;
 }
 
 // if nOpts is specified (!= 0), the number of tokens must be exactly = nOpts
 // Otherwise, return false.
 //
-bool
-CmdExec::lexOptions
-(const string& option, vector<string>& tokens, size_t nOpts) const
-{
-   string token;
-   size_t n = myStrGetTok(option, token);
-   while (token.size()) {
-      tokens.push_back(token);
-      n = myStrGetTok(option, token, n);
-   }
-   if (nOpts != 0) {
-      if (tokens.size() < nOpts) {
-         errorOption(CMD_OPT_MISSING, "");
-         return false;
-      }
-      if (tokens.size() > nOpts) {
-         errorOption(CMD_OPT_EXTRA, tokens[nOpts]);
-         return false;
-      }
-   }
-   return true;
+bool CmdExec::lexOptions(const string& option, vector<string>& tokens, size_t nOpts) const {
+    string token, stripped;
+    if (!stripQuotes(option, stripped)) {
+        return false;
+    }
+    size_t n = myStrGetTok(stripped, token);
+    while (token.size()) {
+        tokens.push_back(token);
+        n = myStrGetTok(stripped, token, n);
+    }
+    if (nOpts != 0) {
+        if (tokens.size() < nOpts) {
+            errorOption(CMD_OPT_MISSING, "");
+            return false;
+        }
+        if (tokens.size() > nOpts) {
+            errorOption(CMD_OPT_EXTRA, tokens[nOpts]);
+            return false;
+        }
+    }
+    return true;
 }
 
 CmdExecStatus
-CmdExec::errorOption(CmdOptionError err, const string& opt) const
-{
-   switch (err) {
-      case CMD_OPT_MISSING:
-         cerr << "Error: Missing option";
-         if (opt.size()) cerr << " after (" << opt << ")";
-         cerr << "!!" << endl;
-      break;
-      case CMD_OPT_EXTRA:
-         cerr << "Error: Extra option!! (" << opt << ")" << endl;
-      break;
-      case CMD_OPT_ILLEGAL:
-         cerr << "Error: Illegal option!! (" << opt << ")" << endl;
-      break;
-      case CMD_OPT_FOPEN_FAIL:
-         cerr << "Error: cannot open file \"" << opt << "\"!!" << endl;
-      break;
-      default:
-         cerr << "Error: Unknown option error type!! (" << err << ")" << endl;
-      exit(-1);
-   }
-   return CMD_EXEC_ERROR;
+CmdExec::errorOption(CmdOptionError err, const string& opt) const {
+    switch (err) {
+        case CMD_OPT_MISSING:
+            cerr << "Error: Missing option";
+            if (opt.size()) cerr << " after (" << opt << ")";
+            cerr << "!!" << endl;
+            break;
+        case CMD_OPT_EXTRA:
+            cerr << "Error: Extra option!! (" << opt << ")" << endl;
+            break;
+        case CMD_OPT_ILLEGAL:
+            cerr << "Error: Illegal option!! (" << opt << ")" << endl;
+            break;
+        case CMD_OPT_FOPEN_FAIL:
+            cerr << "Error: cannot open file \"" << opt << "\"!!" << endl;
+            break;
+        default:
+            cerr << "Error: Unknown option error type!! (" << err << ")" << endl;
+            exit(-1);
+    }
+    return CMD_EXEC_ERROR;
 }
 
 // Remove this function for TODO...
@@ -623,18 +607,16 @@ CmdExec::errorOption(CmdOptionError err, const string& opt) const
 // Called by "getCmd()"
 // Check if "check" is a matched substring of "_optCmd"...
 // if not, return false.
-// 
+//
 // Perform case-insensitive checks
 //
-bool
-CmdExec::checkOptCmd(const string& check) const
-{
-   if (check.size() > _optCmd.size()) return false;
-   for (unsigned i = 0, n = _optCmd.size(); i < n; ++i) {
-      if (!check[i]) return true;
-      char ch1 = tolower(_optCmd[i]);
-      char ch2 = tolower(check[i]);
-      if (ch1 != ch2) return false;
-   }
-   return true;
+bool CmdExec::checkOptCmd(const string& check) const {
+    if (check.size() > _optCmd.size()) return false;
+    for (unsigned i = 0, n = _optCmd.size(); i < n; ++i) {
+        if (!check[i]) return true;
+        char ch1 = tolower(_optCmd[i]);
+        char ch2 = tolower(check[i]);
+        if (ch1 != ch2) return false;
+    }
+    return true;
 }

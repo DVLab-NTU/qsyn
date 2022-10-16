@@ -19,6 +19,8 @@ extern RandomNumGen  rnGen;
 extern MyUsage       myUsage;
 
 // In myString.cpp
+extern bool stripQuotes(const std::string& input, std::string& output);
+extern string stripQuotationMarksInternal(const std::string& str);
 extern int myStrNCmp(const std::string& s1, const std::string& s2, unsigned n);
 extern size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos = 0,
                           const char del = ' ');
