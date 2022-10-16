@@ -105,7 +105,7 @@ bool CmdParser::regCmd(const string& cmd, unsigned nCmp, CmdExec* e) {
     return (_cmdMap.insert(CmdRegPair(mandCmd, e))).second;
 }
 
-// Return false on "quit" or if excetion happens
+// Return false on "quit" or if exception happens
 CmdExecStatus
 CmdParser::execOneCmd() {
     bool newCmd = false;
