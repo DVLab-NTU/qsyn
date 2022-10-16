@@ -527,11 +527,12 @@ bool QCir::parseQASM(string filename)
     // For netlist
     int nqubit = stoi(str.substr(str.find("[") + 1, str.size() - str.find("[") - 3));
     addQubit(nqubit);
+    // cout << "III" << endl;
     vector<string> single_list{"x", "sx", "s", "rz", "i", "h", "t", "tdg"};
 
     while (qasm_file >> str)
     {
-        //cerr << str << endl;
+        // cout << str << endl;
         string space_delimiter = " ";
         string type = str.substr(0, str.find(" "));
         string phaseStr = (str.find("(") != string::npos) ? str.substr(str.find("(") + 1, str.length() - str.find("(") - 2) : "0";
