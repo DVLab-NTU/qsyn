@@ -17,8 +17,6 @@
 
 #include "cmdCharDef.h"
 
-using namespace std;
-
 //----------------------------------------------------------------------
 //    Forward Declaration
 //----------------------------------------------------------------------
@@ -69,22 +67,22 @@ public:
    CmdExec() {}
    virtual ~CmdExec() {}
 
-   virtual CmdExecStatus exec(const string&) = 0;
-   virtual void usage(ostream&) const = 0;
+   virtual CmdExecStatus exec(const std::string&) = 0;
+   virtual void usage(std::ostream&) const = 0;
    virtual void help() const = 0;
 
-   void setOptCmd(const string& str) { _optCmd = str; }
-   bool checkOptCmd(const string& check) const;  // Removed for TODO...
-   const string& getOptCmd() const { return _optCmd; }
+   void setOptCmd(const std::string& str) { _optCmd = str; }
+   bool checkOptCmd(const std::string& check) const;  // Removed for TODO...
+   const std::string& getOptCmd() const { return _optCmd; }
 
 protected:
-   bool lexNoOption(const string&) const;
-   bool lexSingleOption(const string&, string&, bool optional = true) const;
-   bool lexOptions(const string&, vector<string>&, size_t nOpts = 0) const;
-   CmdExecStatus errorOption(CmdOptionError err, const string& opt) const;
+   bool lexNoOption(const std::string&) const;
+   bool lexSingleOption(const std::string&, std::string&, bool optional = true) const;
+   bool lexOptions(const std::string&, std::vector<std::string>&, size_t nOpts = 0) const;
+   CmdExecStatus errorOption(CmdOptionError err, const std::string& opt) const;
 
 private:
-   string            _optCmd;
+   std::string            _optCmd;
 };
 
 #define CmdClass(T)                           \
@@ -93,8 +91,8 @@ class T: public CmdExec                       \
 public:                                       \
    T() {}                                     \
    ~T() {}                                    \
-   CmdExecStatus exec(const string& option);  \
-   void usage(ostream& os) const;             \
+   CmdExecStatus exec(const std::string& option);  \
+   void usage(std::ostream& os) const;             \
    void help() const;                         \
 }
 
@@ -108,25 +106,25 @@ class CmdParser
 #define READ_BUF_SIZE    65536
 #define PG_OFFSET        10
 
-typedef map<const string, CmdExec*>   CmdMap;
-typedef pair<const string, CmdExec*>  CmdRegPair;
+typedef std::map<const std::string, CmdExec*>   CmdMap;
+typedef std::pair<const std::string, CmdExec*>  CmdRegPair;
 
 public:
-   CmdParser(const string& p) : _prompt(p), _dofile(0),
+   CmdParser(const std::string& p) : _prompt(p), _dofile(0),
         _readBufPtr(_readBuf), _readBufEnd(_readBuf),
         _historyIdx(0), _tabPressCount(0), _tempCmdStored(false) {}
    virtual ~CmdParser() {}
 
-   bool openDofile(const string& dof);
+   bool openDofile(const std::string& dof);
    void closeDofile();
 
-   bool regCmd(const string&, unsigned, CmdExec*);
+   bool regCmd(const std::string&, unsigned, CmdExec*);
    CmdExecStatus execOneCmd();
    void printHelps() const;
 
    // public helper functions
    void printHistory(int nPrint = -1) const;
-   CmdExec* getCmd(string);
+   CmdExec* getCmd(std::string);
 
 private:
    // Private member functions
@@ -136,12 +134,12 @@ private:
         _tabPressCount = 0;
         printPrompt();
    }
-   ParseChar getChar(istream&) const;
-   bool readCmd(istream&);
-   CmdExec* parseCmd(string&);
-   void listCmd(const string&);
-   bool listCmdDir(const string&);  // Removed for TODO...
-   void printPrompt() const { cout << _prompt; }
+   ParseChar getChar(std::istream&) const;
+   bool readCmd(std::istream&);
+   CmdExec* parseCmd(std::string&);
+   void listCmd(const std::string&);
+   bool listCmdDir(const std::string&);  // Removed for TODO...
+   void printPrompt() const { std::cout << _prompt; }
    bool pushDofile();  // Removed for TODO's
    bool popDofile();   // Removed for TODO's
 
@@ -159,26 +157,26 @@ private:
    #endif
 
    // Data members
-   const string _prompt;             // command prompt
-   ifstream* _dofile;                // for command script
-   char      _readBuf[READ_BUF_SIZE];// save the current line input
-                                     // be consistent as shown on the screen
-   char*     _readBufPtr;            // point to the cursor position
-                                     // also be the insert and delete point
-   char*     _readBufEnd;            // end of string position of _readBuf
-                                     // make sure *_readBufEnd = 0
-   vector<string>   _history;        // oldest:_history[0],latest:_hist.back()
-   int       _historyIdx;            // (1) Position to insert history string
-                                     //     i.e. _historyIdx = _history.size()
-                                     // (2) When up/down/pgUp/pgDn is pressed,
-                                     //     position to history to retrieve
-   size_t    _tabPressCount;         // The number of tab pressed
-   bool      _tempCmdStored;         // When up/pgUp is pressed, current line
-                                     // will be stored in _history and
-                                     // _tempCmdStored will be true.
-                                     // Reset to false when new command added
-   CmdMap    _cmdMap;                // map from string to command
-   stack<ifstream*> _dofileStack;    // For recursive dofile calling
+   const std::string _prompt;               // command prompt
+   std::ifstream* _dofile;                  // for command script
+   char      _readBuf[READ_BUF_SIZE];       // save the current line input
+                                            // be consistent as shown on the screen
+   char*     _readBufPtr;                   // point to the cursor position
+                                            // also be the insert and delete point
+   char*     _readBufEnd;                   // end of string position of _readBuf
+                                            // make sure *_readBufEnd = 0
+   std::vector<std::string>   _history;     // oldest:_history[0],latest:_hist.back()
+   int       _historyIdx;                   // (1) Position to insert history string
+                                            //     i.e. _historyIdx = _history.size()
+                                            // (2) When up/down/pgUp/pgDn is pressed,
+                                            //     position to history to retrieve
+   size_t    _tabPressCount;                // The number of tab pressed
+   bool      _tempCmdStored;                // When up/pgUp is pressed, current line
+                                            // will be stored in _history and
+                                            // _tempCmdStored will be true.
+                                            // Reset to false when new command added
+   CmdMap    _cmdMap;                       // map from string to command
+   std::stack<std::ifstream*> _dofileStack; // For recursive dofile calling
 };
 
 
