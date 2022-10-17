@@ -355,7 +355,7 @@ void QCir::addGate(string type, vector<size_t> bits, Phase phase, bool append)
         temp = new SGate(_gateId);
     else if (type == "t")
         temp = new TGate(_gateId);
-    else if (type == "tdg")
+    else if (type == "tdg" || type == "td")
         temp = new TDGGate(_gateId);
     else if (type == "p")
         temp = new RZGate(_gateId);
@@ -388,6 +388,7 @@ void QCir::addGate(string type, vector<size_t> bits, Phase phase, bool append)
     else
     {
         cerr << "Error: The gate " << type << " is not implemented!!" << endl;
+        abort();
         return;
     }
     if (append)
