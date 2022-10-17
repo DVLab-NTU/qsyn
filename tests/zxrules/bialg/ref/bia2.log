@@ -21,40 +21,40 @@ qsyn> zxge -addo 3 1
 Add output 3
 
 qsyn> zxge -addv 4 0 X
-Add vertice 4
+Add vertex 4
 
 qsyn> zxge -addv 5 0 Z
-Add vertice 5
+Add vertex 5
 
 qsyn> zxge -addv 6 1 X
-Add vertice 6
+Add vertex 6
 
 qsyn> zxge -addv 7 0 X
-Add vertice 7
+Add vertex 7
 
 qsyn> zxge -addv 8 0 Z
-Add vertice 8
+Add vertex 8
 
 qsyn> zxge -addv 9 1 Z
-Add vertice 9
+Add vertex 9
 
 qsyn> zxge -addv 10 0 X
-Add vertice 10
+Add vertex 10
 
 qsyn> zxge -addv 11 0 Z
-Add vertice 11
+Add vertex 11
 
 qsyn> zxge -addv 12 1 X
-Add vertice 12
+Add vertex 12
 
 qsyn> zxge -addv 13 0 X
-Add vertice 13
+Add vertex 13
 
 qsyn> zxge -addv 14 0 Z
-Add vertice 14
+Add vertex 14
 
 qsyn> zxge -addv 15 0 Z
-Add vertice 15
+Add vertex 15
 
 qsyn> zxge -adde 0 4 SIMPLE
 Add edge ( 0, 4 )
@@ -109,18 +109,18 @@ ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -)
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
 ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
-ID:	4	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (5, -) 
-ID:	5	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (6, -) (7, -) 
-ID:	6	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(2, -) (5, -) 
-ID:	7	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(5, -) (8, -) (9, -) 
-ID:	8	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(7, -) (10, -) 
-ID:	9	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(7, -) (10, -) 
-ID:	10	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (9, -) (11, -) 
-ID:	11	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, -) (12, -) (13, -) 
-ID:	12	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(11, -) (15, -) 
-ID:	13	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(11, -) (14, -) 
-ID:	14	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (13, -) 
-ID:	15	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
+ID:	4	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (5, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (6, -) (7, -) 
+ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(2, -) (5, -) 
+ID:	7	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(5, -) (8, -) (9, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(7, -) (10, -) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(7, -) (10, -) 
+ID:	10	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (9, -) (11, -) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, -) (12, -) (13, -) 
+ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(11, -) (15, -) 
+ID:	13	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(11, -) (14, -) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (13, -) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
 Total #Vertices: 16
 Find a match (5 7)
 Find a match (10 11)
@@ -141,14 +141,14 @@ Remove ID: 11
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
 ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
-ID:	4	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (8, -) (9, -) 
-ID:	6	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (8, -) (9, -) 
-ID:	8	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(4, -) (6, -) (12, -) (13, -) 
-ID:	9	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(4, -) (6, -) (12, -) (13, -) 
-ID:	12	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(8, -) (9, -) (15, -) 
-ID:	13	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (9, -) (14, -) 
-ID:	14	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (13, -) 
-ID:	15	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
+ID:	4	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (8, -) (9, -) 
+ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (8, -) (9, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(4, -) (6, -) (12, -) (13, -) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(4, -) (6, -) (12, -) (13, -) 
+ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(8, -) (9, -) (15, -) 
+ID:	13	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (9, -) (14, -) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (13, -) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
 Total #Vertices: 12
 Find a match (9 13)
 MatchtypevecNum= 1
@@ -164,12 +164,12 @@ Remove ID: 13
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
 ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
-ID:	4	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(0, -) (8, -) (8, -) (14, -) 
-ID:	6	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(2, -) (8, -) (8, -) (14, -) 
-ID:	8	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(4, -) (4, -) (6, -) (6, -) (12, -) (12, -) 
-ID:	12	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(8, -) (8, -) (14, -) (15, -) 
-ID:	14	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (4, -) (6, -) (12, -) 
-ID:	15	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
+ID:	4	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(0, -) (8, -) (8, -) (14, -) 
+ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(2, -) (8, -) (8, -) (14, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(4, -) (4, -) (6, -) (6, -) (12, -) (12, -) 
+ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(8, -) (8, -) (14, -) (15, -) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (4, -) (6, -) (12, -) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
 Total #Vertices: 10
 MatchtypevecNum= 0
 2 iterations
@@ -179,12 +179,12 @@ ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -)
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
 ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
-ID:	4	VertexType:	[1;31mX[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(0, -) (8, -) (8, -) (14, -) 
-ID:	6	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(2, -) (8, -) (8, -) (14, -) 
-ID:	8	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(4, -) (4, -) (6, -) (6, -) (12, -) (12, -) 
-ID:	12	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(8, -) (8, -) (14, -) (15, -) 
-ID:	14	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (4, -) (6, -) (12, -) 
-ID:	15	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
+ID:	4	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(0, -) (8, -) (8, -) (14, -) 
+ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(2, -) (8, -) (8, -) (14, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(4, -) (4, -) (6, -) (6, -) (12, -) (12, -) 
+ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(8, -) (8, -) (14, -) (15, -) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (4, -) (6, -) (12, -) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
 Total #Vertices: 10
 
 qsyn> zxgprint -e

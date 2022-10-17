@@ -72,7 +72,8 @@ zxGraph.o: zxGraph.cpp zxGraph.h ../../include/phase.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
  ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
  ../../include/tensorUtil.h ../../include/phase.h zxDef.h \
- ../../include/myHashMap.h ../../include/util.h
+ ../../include/myHashMap.h ../../include/util.h \
+ ../../include/textFormat.h
 hrule.o: hrule.cpp zxRules.h zxDef.h ../../include/myHashMap.h zxGraph.h \
  ../../include/phase.h ../../include/rationalNumber.h \
  ../../include/myConcepts.h ../../include/util.h ../../include/rnGen.h \

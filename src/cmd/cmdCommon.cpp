@@ -13,6 +13,7 @@
 
 using namespace std;
 extern size_t verbose;
+extern size_t formatLevel;
 
 bool
 initCommonCmd()
@@ -24,7 +25,8 @@ initCommonCmd()
          cmdMgr->regCmd("USAGE", 5, new UsageCmd) &&
          cmdMgr->regCmd("VERbose", 3, new VerboseCmd) &&
          cmdMgr->regCmd("SEED", 4, new SeedCmd) &&
-         cmdMgr->regCmd("//", 2, new CommentCmd)
+         cmdMgr->regCmd("//", 2, new CommentCmd) &&
+         cmdMgr->regCmd("FORMAT", 6, new FormatCmd)
       )) {
       cerr << "Registering \"init\" commands fails... exiting" << endl;
       return false;
@@ -344,4 +346,41 @@ CommentCmd::help() const
 {
    cout << setw(15) << left << "//: "
         << "Comment line" << endl;
+}
+
+//----------------------------------------------------------------------
+//    FORMAT <size_t format level>
+//----------------------------------------------------------------------
+CmdExecStatus
+FormatCmd::exec(const string& option)
+{
+   // check option
+   string token;
+   if (!CmdExec::lexSingleOption(option, token, false))
+      return CMD_EXEC_ERROR;
+   unsigned level;
+   if(!myStr2Uns(token, level)){
+      cerr << "Error: format level should be a positive integer or 0!!" << endl;
+      return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+   }
+   if(level > 1){
+      cerr << "Error: format level should be 0-1 !!" << endl;
+      return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+   }
+   cerr << "Note: format level is set to " << level << endl;
+   formatLevel = level;
+   return CMD_EXEC_DONE;
+}
+
+void
+FormatCmd::usage(ostream& os) const
+{
+   os << "Usage: FORMAT <size_t format level>" << endl;
+}
+
+void
+FormatCmd::help() const
+{
+   cout << setw(15) << left << "FORMAT: "
+        << "set format level (0: none, 1: all)" << endl;
 }

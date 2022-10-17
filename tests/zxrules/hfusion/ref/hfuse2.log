@@ -33,7 +33,7 @@ ZXnode starts from 1
 Gate 0 (h)
 **** Generate ZX of Gate 0 (h) ****
 Add input 3
-Add vertice 2
+Add vertex 2
 Add output 4
 Add edge ( 3, 2 )
 Add edge ( 2, 4 )
@@ -48,7 +48,7 @@ Add edge ( 2, 1 )
 Gate 1 (h)
 **** Generate ZX of Gate 1 (h) ****
 Add input 4
-Add vertice 3
+Add vertex 3
 Add output 5
 Add edge ( 4, 3 )
 Add edge ( 3, 5 )
@@ -63,7 +63,7 @@ Add edge ( 3, 1 )
 Gate 2 (h)
 **** Generate ZX of Gate 2 (h) ****
 Add input 5
-Add vertice 4
+Add vertex 4
 Add output 6
 Add edge ( 5, 4 )
 Add edge ( 4, 6 )
@@ -79,9 +79,9 @@ Add edge ( 4, 1 )
 ---------------------------------- GRAPH INFORMATION ---------------------------------
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	2	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (3, -) 
-ID:	3	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(2, -) (4, -) 
-ID:	4	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (3, -) 
+ID:	2	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (3, -) 
+ID:	3	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(2, -) (4, -) 
+ID:	4	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (3, -) 
 Total #Vertices: 5
 --------------------------------------------------------------------------------------
 -> #Graph: 1
@@ -90,9 +90,9 @@ Total #Vertices: 5
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	2	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (3, -) 
-ID:	3	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(2, -) (4, -) 
-ID:	4	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (3, -) 
+ID:	2	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (3, -) 
+ID:	3	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(2, -) (4, -) 
+ID:	4	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (3, -) 
 Total #Vertices: 5
 
 qsyn> zxge -rme 2 3
@@ -110,32 +110,32 @@ Add edge ( 3, 4 )
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	2	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (3, [1;34mH[0m) 
-ID:	3	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(2, [1;34mH[0m) (4, [1;34mH[0m) 
-ID:	4	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (3, [1;34mH[0m) 
+ID:	2	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (3, [1m[34mH[0m[0m) 
+ID:	3	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(2, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) 
+ID:	4	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (3, [1m[34mH[0m[0m) 
 Total #Vertices: 5
 
 qsyn> zxgsimp -hf
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	2	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (3, [1;34mH[0m) 
-ID:	3	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(2, [1;34mH[0m) (4, [1;34mH[0m) 
-ID:	4	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (3, [1;34mH[0m) 
+ID:	2	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (3, [1m[34mH[0m[0m) 
+ID:	3	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(2, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) 
+ID:	4	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (3, [1m[34mH[0m[0m) 
 Total #Vertices: 5
 Find match of hfuse-rule: 1
 Hadamard Cancellation Rule: 1 Add edge ( 3, 0 )
 Remove ID: 2
 . ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(3, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	3	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (4, [1;34mH[0m) 
-ID:	4	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (3, [1;34mH[0m) 
+ID:	3	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (4, [1m[34mH[0m[0m) 
+ID:	4	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (3, [1m[34mH[0m[0m) 
 Total #Vertices: 4
 Find match of hfuse-rule: 1
 1 Add edge ( 4, 0 )
 Remove ID: 3
 . ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	4	VertexType:	[1;33mH[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (1, -) 
+ID:	4	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (1, -) 
 Total #Vertices: 3
 Find match of hfuse-rule: 0
 2 iterations
