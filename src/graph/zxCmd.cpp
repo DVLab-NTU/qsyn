@@ -35,7 +35,7 @@ bool initZXCmd(){
          cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd) && 
          cmdMgr->regCmd("ZXGSimp", 4, new ZXGSimpCmd) && 
          cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
-         cmdMgr->regCmd("ZXGTSMapping", 6, new ZXGTSMappingCmd)
+         cmdMgr->regCmd("ZXGTSMap", 6, new ZXGTSMappingCmd)
          )){
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
         return false;
