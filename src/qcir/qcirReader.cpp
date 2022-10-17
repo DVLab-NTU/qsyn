@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ reader.cpp ]
+  FileName     [ qcirReader.cpp ]
   PackageName  [ qcir ]
   Synopsis     [ Define qcir reader functions ]
   Author       [ Chin-Yi Cheng ]
