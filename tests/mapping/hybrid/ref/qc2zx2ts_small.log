@@ -1,0 +1,111 @@
+qsyn> ver 2
+Note: verbose level is set to 2
+
+qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> qczxm
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+> Mapping vertex 0 (●): New Subgraph
+> Mapping vertex 7 ([1;32mZ[0m): Tensordot
+> Mapping vertex 15 ([1;33mH[0m): Tensordot
+> Mapping vertex 16 ([1;32mZ[0m): Tensordot
+> Mapping vertex 17 ([1;32mZ[0m): Tensordot
+> Mapping vertex 21 ([1;31mX[0m): Tensordot
+> Mapping vertex 22 ([1;32mZ[0m): Tensordot
+> Mapping vertex 26 ([1;32mZ[0m): Tensordot
+> Mapping vertex 30 ([1;31mX[0m): Tensordot
+> Mapping vertex 31 ([1;33mH[0m): Tensordot
+> Mapping vertex 32 ([1;32mZ[0m): Tensordot
+> Mapping vertex 37 ([1;31mX[0m): Tensordot
+> Mapping vertex 43 ([1;32mZ[0m): Tensordot
+> Mapping vertex 46 ([1;32mZ[0m): Tensordot
+> Mapping vertex 51 ([1;32mZ[0m): Tensordot
+> Mapping vertex 52 ([1;32mZ[0m): Tensordot
+> Mapping vertex 56 ([1;31mX[0m): Tensordot
+> Mapping vertex 55 ([1;32mZ[0m): Tensordot
+> Mapping vertex 57 ([1;32mZ[0m): Tensordot
+> Mapping vertex 58 ([1;31mX[0m): Tensordot
+> Mapping vertex 54 ([1;33mH[0m): Tensordot
+> Mapping vertex 53 ([1;31mX[0m): Tensordot
+> Mapping vertex 49 ([1;32mZ[0m): Tensordot
+> Mapping vertex 45 ([1;32mZ[0m): Tensordot
+> Mapping vertex 44 ([1;31mX[0m): Tensordot
+> Mapping vertex 40 ([1;32mZ[0m): Tensordot
+> Mapping vertex 39 ([1;32mZ[0m): Tensordot
+> Mapping vertex 38 ([1;33mH[0m): Tensordot
+> Mapping vertex 33 ([1;32mZ[0m): Tensordot
+> Mapping vertex 27 ([1;31mX[0m): Tensordot
+> Mapping vertex 25 ([1;32mZ[0m): Tensordot
+> Mapping vertex 24 ([1;31mX[0m): Tensordot
+> Mapping vertex 19 ([1;32mZ[0m): Tensordot
+> Mapping vertex 18 ([1;31mX[0m): Tensordot
+> Mapping vertex 13 ([1;32mZ[0m): Tensordot
+> Mapping vertex 12 ([1;32mZ[0m): Tensordot
+> Mapping vertex 9 ([1;32mZ[0m): Tensordot
+> Mapping vertex 10 ([1;31mX[0m): Tensordot
+> Mapping vertex 2 (●): Boundary Node
+> Mapping vertex 11 ([1;32mZ[0m): Tensordot
+> Mapping vertex 14 ([1;31mX[0m): Tensordot
+> Mapping vertex 20 ([1;32mZ[0m): Tensordot
+> Mapping vertex 23 ([1;32mZ[0m): Tensordot
+> Mapping vertex 28 ([1;32mZ[0m): Tensordot
+> Mapping vertex 29 ([1;32mZ[0m): Tensordot
+> Mapping vertex 34 ([1;31mX[0m): Tensordot
+> Mapping vertex 35 ([1;32mZ[0m): Tensordot
+> Mapping vertex 36 ([1;32mZ[0m): Tensordot
+> Mapping vertex 41 ([1;31mX[0m): Tensordot
+> Mapping vertex 42 ([1;32mZ[0m): Tensordot
+> Mapping vertex 47 ([1;31mX[0m): Tensordot
+> Mapping vertex 48 ([1;32mZ[0m): Tensordot
+> Mapping vertex 50 ([1;31mX[0m): Tensordot
+> Mapping vertex 8 ([1;31mX[0m): Tensordot
+> Mapping vertex 6 ([1;31mX[0m): Tensordot
+> Mapping vertex 4 (●): Boundary Node
+> Mapping vertex 5 (●): Boundary Node
+> Mapping vertex 3 (●): Boundary Node
+> Mapping vertex 1 (●): Boundary Node
+
+The resulting tensor is: 
+{{ 4.085968e-32+6.123234e-17i, -1.682458e-32+0.000000e+00i, 
+  -1.438188e-31-2.524857e-16i,  1.109367e-32-8.291879e-32i, 
+  -1.818993e-32-2.021104e-33i, -1.269328e-48+7.933299e-49i, 
+  -1.016072e-32-1.659372e-16i,  1.000000e+00-1.151369e-15i},
+ { 1.000000e+00-7.285216e-16i,  1.682458e-32+2.747662e-16i, 
+   1.546029e-32-7.859694e-48i,  5.077311e-48+6.792916e-49i, 
+  -3.300713e-17+2.970642e-16i,  1.295606e-32+2.072970e-32i, 
+   1.016072e-32+0.000000e+00i,  6.675163e-32+6.123234e-17i},
+ { 1.698885e-32+2.774489e-16i,  1.000000e+00-1.196867e-15i, 
+  -2.458715e-33+0.000000e+00i,  7.926065e-32+6.123234e-17i, 
+  -1.650356e-17-1.650356e-17i, -1.650356e-17-1.650356e-17i, 
+  -1.010552e-33+1.010552e-33i, -1.010552e-33+1.010552e-33i},
+ {-1.698885e-32+0.000000e+00i,  6.953754e-32+6.123234e-17i, 
+   2.458715e-33+4.015386e-17i,  1.000000e+00-1.355657e-15i, 
+   1.010552e-33-1.010552e-33i,  1.010552e-33-1.010552e-33i, 
+   1.650356e-17+1.650356e-17i,  1.650356e-17+1.650356e-17i},
+ { 1.097636e-31+3.691836e-16i, -8.572850e-32+2.333956e-17i, 
+   5.915869e-32+6.123234e-17i,  1.474425e-33+0.000000e+00i, 
+   1.000000e+00-1.171886e-15i,  7.096103e-34+1.158882e-17i, 
+   4.042207e-33-4.918645e-48i,  1.414773e-32+2.021104e-33i},
+ {-2.260597e-32+5.336866e-48i, -1.429136e-33-5.336866e-48i, 
+   1.000000e+00-1.027367e-15i, -1.474425e-33-2.407918e-17i, 
+   6.800791e-32+6.123234e-17i, -7.096103e-34+0.000000e+00i, 
+  -8.436978e-32-6.601426e-17i,  3.300713e-17-2.310499e-16i},
+ {-5.736108e-34+0.000000e+00i,  4.645431e-34-5.716544e-33i, 
+  -2.379990e-49-3.886818e-33i,  9.335826e-17+1.695434e-17i, 
+   9.290862e-34+5.716544e-33i,  6.156220e-32+6.123234e-17i, 
+   1.000000e+00-1.151369e-15i, -1.016072e-32-1.659372e-16i},
+ { 5.736108e-34+9.367775e-18i, -9.335826e-17-7.586565e-18i, 
+   2.379990e-49+0.000000e+00i, -1.038154e-33+5.716544e-33i, 
+   9.335826e-17-1.517313e-17i,  1.000000e+00-1.066619e-15i, 
+   6.675163e-32+6.123234e-17i,  1.016072e-32+0.000000e+00i}}
+
+qsyn> q -f
+

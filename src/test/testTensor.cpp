@@ -1,7 +1,7 @@
 /****************************************************************************
-  FileName     [ testPhase.cpp ]
+  FileName     [ testTensor.cpp ]
   PackageName  [ test ]
-  Synopsis     [ Test program for Phase class ]
+  Synopsis     [ Test program for QTensor class ]
   Author       [ Mu-Te (Joshua) Lau ]
   Copyright    [ 2022 8 ]
 ****************************************************************************/
@@ -108,21 +108,3 @@ TEST_CASE("Default Parameters for Tensor generators", "[Tensor]") {
     REQUIRE(QTensor<double>::xspider(n) == QTensor<double>::xspider(n, 0));
     REQUIRE(QTensor<double>::hbox(n) == QTensor<double>::hbox(n, -1.));
 }
-
-// TEST_CASE("Tensordot", "[Tensor]") {
-    // QTensor<double> a = QTensor<double>::zspider(3, 0);
-    // QTensor<double> b = QTensor<double>::xspider(3, 0);
-
-    // auto c = tensordot(a, b, {2}, {0});
-    // auto d = c.toMatrix({0, 2}, {1, 3});
-    // // std::cout << d << std::endl;
-
-    // QTensor<double> f = QTensor<double>::zspider(4, 0);
-    // auto g = f.selfTensordot({1}, {3});
-    // std::cout << g - QTensor<double>::zspider(2, 0) << std::endl;
-
-    // REQUIRE(g == QTensor<double>::zspider(2, 0));
-    // QTensor<double> k = QTensor<double>::cny(2);
-    // std::cout << k.toMatrix({0, 2, 4}, {1, 3, 5}) << std::endl;
-
-// }

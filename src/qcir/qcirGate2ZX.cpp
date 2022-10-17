@@ -26,8 +26,8 @@ ZXGraph *HGate::getZXform(size_t &baseId)
     ZXVertex *in = temp->addInput(baseId + 2, qubit);
     ZXVertex *H = temp->addVertex(baseId + 1, qubit, VertexType::H_BOX, Phase(1)); // pi
     ZXVertex *out = temp->addOutput(baseId + 3, qubit);
-    temp->addEdge(in, H, EdgeType::SIMPLE);
-    temp->addEdge(H, out, EdgeType::SIMPLE);
+    temp->addEdge(in, H, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(H, out, new EdgeType(EdgeType::SIMPLE));
     temp->setInputHash(qubit, in);
     temp->setOutputHash(qubit, out);
     if(verbose >= 5) cout << "***********************************" << endl;
@@ -43,8 +43,8 @@ ZXGraph *XGate::getZXform(size_t &baseId)
     ZXVertex *in = temp->addInput(baseId + 2, qubit);
     ZXVertex *X = temp->addVertex(baseId + 1, qubit, VertexType::X, Phase(1)); // pi
     ZXVertex *out = temp->addOutput(baseId + 3, qubit);
-    temp->addEdge(in, X, EdgeType::SIMPLE);
-    temp->addEdge(X, out, EdgeType::SIMPLE);
+    temp->addEdge(in, X, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(X, out, new EdgeType(EdgeType::SIMPLE));
     temp->setInputHash(qubit, in);
     temp->setOutputHash(qubit, out);
     if(verbose >= 5) cout << "***********************************" << endl;
@@ -60,8 +60,8 @@ ZXGraph *SXGate::getZXform(size_t &baseId)
     ZXVertex *in = temp->addInput(baseId + 2, qubit);
     ZXVertex *SX = temp->addVertex(baseId + 1, qubit, VertexType::X, Phase(1, 2)); // pi/2
     ZXVertex *out = temp->addOutput(baseId + 3, qubit);
-    temp->addEdge(in, SX, EdgeType::SIMPLE);
-    temp->addEdge(SX, out, EdgeType::SIMPLE);
+    temp->addEdge(in, SX, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(SX, out, new EdgeType(EdgeType::SIMPLE));
     temp->setInputHash(qubit, in);
     temp->setOutputHash(qubit, out);
     if(verbose >= 5) cout << "***********************************" << endl;
@@ -81,11 +81,11 @@ ZXGraph *CXGate::getZXform(size_t &baseId)
     ZXVertex *targX = temp->addVertex(baseId + 2, targ_qubit, VertexType::X, Phase(0));
     ZXVertex *out_ctrl = temp->addOutput(baseId + 5, ctrl_qubit);
     ZXVertex *out_targ = temp->addOutput(baseId + 6, targ_qubit);
-    temp->addEdge(in_ctrl, ctrl, EdgeType::SIMPLE);
-    temp->addEdge(ctrl, out_ctrl, EdgeType::SIMPLE);
-    temp->addEdge(in_targ, targX, EdgeType::SIMPLE);
-    temp->addEdge(targX, out_targ, EdgeType::SIMPLE);
-    temp->addEdge(ctrl, targX, EdgeType::SIMPLE);
+    temp->addEdge(in_ctrl, ctrl, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(ctrl, out_ctrl, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(in_targ, targX, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(targX, out_targ, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(ctrl, targX, new EdgeType(EdgeType::SIMPLE));
     temp->setInputHash(ctrl_qubit, in_ctrl);
     temp->setOutputHash(ctrl_qubit, out_ctrl);
     temp->setInputHash(targ_qubit, in_targ);
@@ -103,8 +103,8 @@ ZXGraph *ZGate::getZXform(size_t &baseId)
     ZXVertex *in = temp->addInput(baseId + 2, qubit);
     ZXVertex *Z = temp->addVertex(baseId + 1, qubit, VertexType::Z, Phase(1));
     ZXVertex *out = temp->addOutput(baseId + 3, qubit);
-    temp->addEdge(in, Z, EdgeType::SIMPLE);
-    temp->addEdge(Z, out, EdgeType::SIMPLE);
+    temp->addEdge(in, Z, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(Z, out, new EdgeType(EdgeType::SIMPLE));
     temp->setInputHash(qubit, in);
     temp->setOutputHash(qubit, out);
     if(verbose >= 5) cout << "***********************************" << endl;
@@ -120,8 +120,8 @@ ZXGraph *SGate::getZXform(size_t &baseId)
     ZXVertex *in = temp->addInput(baseId + 2, qubit);
     ZXVertex *S = temp->addVertex(baseId + 1, qubit, VertexType::Z, Phase(1, 2));
     ZXVertex *out = temp->addOutput(baseId + 3, qubit);
-    temp->addEdge(in, S, EdgeType::SIMPLE);
-    temp->addEdge(S, out, EdgeType::SIMPLE);
+    temp->addEdge(in, S, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(S, out, new EdgeType(EdgeType::SIMPLE));
     temp->setInputHash(qubit, in);
     temp->setOutputHash(qubit, out);
     if(verbose >= 5) cout << "***********************************" << endl;
@@ -137,8 +137,8 @@ ZXGraph *TGate::getZXform(size_t &baseId)
     ZXVertex *in = temp->addInput(baseId + 2, qubit);
     ZXVertex *T = temp->addVertex(baseId + 1, qubit, VertexType::Z, Phase(1, 4));
     ZXVertex *out = temp->addOutput(baseId + 3, qubit);
-    temp->addEdge(in, T, EdgeType::SIMPLE);
-    temp->addEdge(T, out, EdgeType::SIMPLE);
+    temp->addEdge(in, T, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(T, out, new EdgeType(EdgeType::SIMPLE));
     temp->setInputHash(qubit, in);
     temp->setOutputHash(qubit, out);
     if(verbose >= 5) cout << "***********************************" << endl;
@@ -154,8 +154,8 @@ ZXGraph *TDGGate::getZXform(size_t &baseId)
     ZXVertex *in = temp->addInput(baseId + 2, qubit);
     ZXVertex *TDG = temp->addVertex(baseId + 1, qubit, VertexType::Z, Phase(-1, 4));
     ZXVertex *out = temp->addOutput(baseId + 3, qubit);
-    temp->addEdge(in, TDG, EdgeType::SIMPLE);
-    temp->addEdge(TDG, out, EdgeType::SIMPLE);
+    temp->addEdge(in, TDG, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(TDG, out, new EdgeType(EdgeType::SIMPLE));
     temp->setInputHash(qubit, in);
     temp->setOutputHash(qubit, out);
     if(verbose >= 5) cout << "***********************************" << endl;
@@ -171,8 +171,8 @@ ZXGraph *RZGate::getZXform(size_t &baseId)
     ZXVertex *in = temp->addInput(baseId + 2, qubit);
     ZXVertex *RZ = temp->addVertex(baseId + 1, qubit, VertexType::Z, Phase(_rotatePhase));
     ZXVertex *out = temp->addOutput(baseId + 3, qubit);
-    temp->addEdge(in, RZ, EdgeType::SIMPLE);
-    temp->addEdge(RZ, out, EdgeType::SIMPLE);
+    temp->addEdge(in, RZ, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(RZ, out, new EdgeType(EdgeType::SIMPLE));
     temp->setInputHash(qubit, in);
     temp->setOutputHash(qubit, out);
     if(verbose >= 5) cout << "***********************************" << endl;
@@ -192,11 +192,11 @@ ZXGraph *CZGate::getZXform(size_t &baseId)
     ZXVertex *targZ = temp->addVertex(baseId + 2, targ_qubit, VertexType::Z, Phase(0));
     ZXVertex *out_ctrl = temp->addOutput(baseId + 5, ctrl_qubit);
     ZXVertex *out_targ = temp->addOutput(baseId + 6, targ_qubit);
-    temp->addEdge(in_ctrl, ctrl, EdgeType::SIMPLE);
-    temp->addEdge(ctrl, out_ctrl, EdgeType::SIMPLE);
-    temp->addEdge(in_targ, targZ, EdgeType::SIMPLE);
-    temp->addEdge(targZ, out_targ, EdgeType::SIMPLE);
-    temp->addEdge(ctrl, targZ, EdgeType::HADAMARD);
+    temp->addEdge(in_ctrl, ctrl, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(ctrl, out_ctrl, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(in_targ, targZ, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(targZ, out_targ, new EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(ctrl, targZ, new EdgeType(EdgeType::HADAMARD));
     temp->setInputHash(ctrl_qubit, in_ctrl);
     temp->setOutputHash(ctrl_qubit, out_ctrl);
     temp->setInputHash(targ_qubit, in_targ);

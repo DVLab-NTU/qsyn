@@ -5,8 +5,8 @@
   Author       [ Mu-Te (Joshua) Lau ]
   Copyright    [ 2022 9 ]
 ****************************************************************************/
-#ifndef I_TENSOR_BASE_CLASS_H
-#define I_TENSOR_BASE_CLASS_H
+#ifndef TENSOR_BASE_CLASS_H
+#define TENSOR_BASE_CLASS_H
 
 #include <algorithm>
 #include <cassert>
@@ -16,6 +16,7 @@
 #include <iostream>
 #include <numeric>
 #include <vector>
+#include <unordered_map>
 #include <xtensor-blas/xlinalg.hpp>
 #include <xtensor/xarray.hpp>
 #include <xtensor/xadapt.hpp>
@@ -33,21 +34,21 @@ protected:
 
     
 public:
-    Tensor(xt::nested_initializer_list_t<DT, 0> il): _tensor(il) {}
-    Tensor(xt::nested_initializer_list_t<DT, 1> il): _tensor(il) {}
-    Tensor(xt::nested_initializer_list_t<DT, 2> il): _tensor(il) {}
-    Tensor(xt::nested_initializer_list_t<DT, 3> il): _tensor(il) {}
-    Tensor(xt::nested_initializer_list_t<DT, 4> il): _tensor(il) {}
-    Tensor(xt::nested_initializer_list_t<DT, 5> il): _tensor(il) {}
+    Tensor(xt::nested_initializer_list_t<DT, 0> il): _tensor(il) { resetAxisHistory(); }
+    Tensor(xt::nested_initializer_list_t<DT, 1> il): _tensor(il) { resetAxisHistory(); }
+    Tensor(xt::nested_initializer_list_t<DT, 2> il): _tensor(il) { resetAxisHistory(); }
+    Tensor(xt::nested_initializer_list_t<DT, 3> il): _tensor(il) { resetAxisHistory(); }
+    Tensor(xt::nested_initializer_list_t<DT, 4> il): _tensor(il) { resetAxisHistory(); }
+    Tensor(xt::nested_initializer_list_t<DT, 5> il): _tensor(il) { resetAxisHistory(); }
 
-    Tensor(const TensorShape& shape) : _tensor(shape) {}
-    Tensor(TensorShape&& shape) : _tensor(shape) {}
+    Tensor(const TensorShape& shape) : _tensor(shape) { resetAxisHistory(); }
+    Tensor(TensorShape&& shape) : _tensor(shape) { resetAxisHistory(); }
     template <typename From>
     requires std::convertible_to<From, InternalType>
-    Tensor(const From& internal) : _tensor(internal) {}
+    Tensor(const From& internal) : _tensor(internal) { resetAxisHistory(); }
     template <typename From>
     requires std::convertible_to<From, InternalType>
-    Tensor(From&& internal) : _tensor(internal) {}
+    Tensor(From&& internal) : _tensor(internal) { resetAxisHistory(); }
 
     template <typename... Args>
     DT& operator()(const Args&... args);
@@ -77,9 +78,19 @@ public:
     template <typename U>
     friend Tensor<U> operator/(Tensor<U> lhs, const Tensor<U>& rhs);
     
+    size_t dimension() const { return _tensor.dimension(); }
+
+
+    void resetAxisHistory();
+    void printAxisHistory();
+    size_t getNewAxisId(const size_t& oldId);
+
     template <typename U>
     friend Tensor<U> tensordot(const Tensor<U>& t1, const Tensor<U>& t2,
                                 const TensorAxisList& ax1, const TensorAxisList& ax2);
+    
+    template <typename U>
+    friend Tensor<U> tensorPow(const Tensor<U>& t, size_t n);
 
     template<typename U>
     friend bool isPartition(const Tensor<U>& t, const TensorAxisList& axin, const TensorAxisList& axout);
@@ -88,9 +99,10 @@ public:
 
     void reshape(const TensorShape& shape);
     Tensor<DT> transpose(const TensorAxisList& perm);
+
 protected:
     InternalType _tensor;
-
+    std::unordered_map<size_t, size_t> _axisHistory;
     // static TensorAxisList concatAxisList(const TensorAxisList& ax1, const TensorAxisList& ax2);
 };
 
@@ -178,8 +190,38 @@ Tensor<U> operator/(Tensor<U> lhs, const Tensor<U>& rhs) {
     return lhs;
 }
 
+
+
+// reset the tensor axis history to (0, 0), (1, 1), ..., (n-1, n-1)
+template<typename DT>
+void Tensor<DT>::resetAxisHistory() {
+    _axisHistory.clear();
+    for (size_t i = 0; i < _tensor.dimension(); ++i) {
+        _axisHistory.emplace(i, i);
+    }
+}
+
+// reset the tensor axis history to (0, 0), (1, 1), ..., (n-1, n-1)
+template<typename DT>
+void Tensor<DT>::printAxisHistory() {
+    for (auto it : _axisHistory) {
+        std::cout << "(" << it.first << ", " << it.second << ") ";
+    }
+    std::cout << std::endl;
+}
+
+template<typename DT>
+size_t Tensor<DT>::getNewAxisId(const size_t& oldId) {
+    if (!_axisHistory.contains(oldId)) {
+        return (size_t) -1;
+    } else {
+        return _axisHistory[oldId];
+    }
+}
+
 //------------------------------
-// Tensor manipulation functions
+// Tensor Manipulations:
+// Member functions
 //------------------------------
 
 // Convert the tensor to a matrix, i.e., a 2D tensor according to the two axis lists.
@@ -199,6 +241,18 @@ void Tensor<DT>::reshape(const TensorShape& shape) {
     this->_tensor = this->_tensor.reshape(shape);
 }
 
+
+// Rearrange the order of axes
+template<typename DT>
+Tensor<DT> Tensor<DT>::transpose(const TensorAxisList& perm) {
+    return xt::transpose(_tensor, perm);
+}
+
+//------------------------------
+// Tensor Manipulations:
+// Friend functions
+//------------------------------
+
 // tensor-dot two tensors
 // dots the two tensors along the axes in ax1 and ax2
 template<typename U>
@@ -208,6 +262,18 @@ Tensor<U> tensordot(const Tensor<U>& t1, const Tensor<U>& t2,
         throw std::invalid_argument("The two index orders should contain the same number of indices.");
     }
     Tensor<U> t = xt::linalg::tensordot(t1._tensor, t2._tensor, ax1, ax2);
+    size_t tmpAxisId = 0;
+    t._axisHistory.clear();
+    for (size_t i = 0; i < t1._tensor.dimension(); ++i) {
+        if (std::find(ax1.begin(), ax1.end(), i) != ax1.end()) continue;
+        t._axisHistory.emplace(i, tmpAxisId);
+        ++tmpAxisId;
+    }
+    for (size_t i = 0; i < t2._tensor.dimension(); ++i) {
+        if (std::find(ax2.begin(), ax2.end(), i) != ax2.end()) continue;
+        t._axisHistory.emplace(i + t1._tensor.dimension(), tmpAxisId);
+        ++tmpAxisId;
+    }
     return t;
 }
 
@@ -223,12 +289,6 @@ Tensor<U> tensorPow(const Tensor<U>& t, size_t n) {
         return tensordot(t, tensordot(tmp, tmp));
 }
 
-// Rearrange the order of axes
-template<typename DT>
-Tensor<DT> Tensor<DT>::transpose(const TensorAxisList& perm) {
-    return xt::transpose(_tensor, perm);
-}
-
 // Returns true if two axis lists form a partition spanning axis 0 to n-1, where n is the dimension of the tensor.
 template<typename U>
 bool isPartition(const Tensor<U>& t, const TensorAxisList& axin, const TensorAxisList& axout) {
@@ -237,5 +297,4 @@ bool isPartition(const Tensor<U>& t, const TensorAxisList& axin, const TensorAxi
     return true;
 }
 
-
-#endif //I_TENSOR_BASE_CLASS_H
+#endif //TENSOR_BASE_CLASS_H
