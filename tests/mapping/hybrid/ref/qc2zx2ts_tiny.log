@@ -25,35 +25,35 @@ Size of topological order: 10
 > Mapping vertex 0 (●): New Subgraph
   - Current frontiers: 
     0--4 (-) axis id: 1
-> Mapping vertex 4 ([1;32mZ[0m): Tensordot
+> Mapping vertex 4 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
     4--5 (-) axis id: 2
     4--7 (-) axis id: 1
-> Mapping vertex 7 ([1;31mX[0m): Tensordot
+> Mapping vertex 7 ([1m[31mX[0m[0m): Tensordot
   - Current frontiers: 
     4--5 (-) axis id: 1
     6--7 (-) axis id: 3
     7--8 (-) axis id: 2
-> Mapping vertex 8 ([1;32mZ[0m): Tensordot
+> Mapping vertex 8 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
     1--8 (-) axis id: 3
     4--5 (-) axis id: 1
     6--7 (-) axis id: 2
     8--9 (-) axis id: 4
-> Mapping vertex 9 ([1;31mX[0m): Tensordot
+> Mapping vertex 9 ([1m[31mX[0m[0m): Tensordot
   - Current frontiers: 
     1--8 (-) axis id: 3
     3--9 (-) axis id: 4
     4--5 (-) axis id: 1
     6--7 (-) axis id: 2
     6--9 (-) axis id: 5
-> Mapping vertex 6 ([1;32mZ[0m): Tensordot
+> Mapping vertex 6 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
     1--8 (-) axis id: 2
     3--9 (-) axis id: 3
     4--5 (-) axis id: 1
     5--6 (-) axis id: 4
-> Mapping vertex 5 ([1;31mX[0m): Tensordot
+> Mapping vertex 5 ([1m[31mX[0m[0m): Tensordot
   - Current frontiers: 
     1--8 (-) axis id: 1
     2--5 (-) axis id: 3

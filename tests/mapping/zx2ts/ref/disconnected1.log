@@ -18,10 +18,10 @@ qsyn> zxgedit -addo 3 1
 Add output 3
 
 qsyn> zxgedit -addv 4 0 Z 0
-Add vertice 4
+Add vertex 4
 
 qsyn> zxgedit -addv 5 0 Z 3.14159
-Add vertice 5
+Add vertex 5
 
 qsyn> zxgedit -addi 6 2
 Add input 6
@@ -60,8 +60,8 @@ ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -)
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
 ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
-ID:	4	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (1, -) 
-ID:	5	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(2, -) (3, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (1, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(2, -) (3, -) 
 ID:	6	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(7, -) 
 ID:	7	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(6, -) 
 ID:	8	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(9, -) 
@@ -101,7 +101,7 @@ Size of topological order: 10
 > Mapping vertex 2 (●): New Subgraph
   - Current frontiers: 
     2--5 (-) axis id: 1
-> Mapping vertex 5 ([1;32mZ[0m): Tensordot
+> Mapping vertex 5 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
     3--5 (-) axis id: 1
 > Mapping vertex 3 (●): Boundary Node
@@ -110,7 +110,7 @@ Size of topological order: 10
 > Mapping vertex 0 (●): New Subgraph
   - Current frontiers: 
     0--4 (-) axis id: 1
-> Mapping vertex 4 ([1;32mZ[0m): Tensordot
+> Mapping vertex 4 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
     1--4 (-) axis id: 1
 > Mapping vertex 1 (●): Boundary Node

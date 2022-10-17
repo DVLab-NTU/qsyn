@@ -15,8 +15,10 @@
 #include <vector>
 
 #include "util.h"
+#include "textFormat.h"
 
 using namespace std;
+namespace TF = TextFormat;
 extern size_t verbose;
 
 EdgeType toggleEdge(const EdgeType& et) {
@@ -41,9 +43,9 @@ VertexType str2VertexType(const string& str) {
 }
 
 string VertexType2Str(const VertexType& vt) {
-    if (vt == VertexType::X) return "\033[1;31mX\033[0m";
-    if (vt == VertexType::Z) return "\033[1;32mZ\033[0m";
-    if (vt == VertexType::H_BOX) return "\033[1;33mH\033[0m";
+    if (vt == VertexType::X) return TF::BOLD(TF::RED("X"));
+    if (vt == VertexType::Z) return TF::BOLD(TF::GREEN("Z"));
+    if (vt == VertexType::H_BOX) return TF::BOLD(TF::YELLOW("H"));
     if (vt == VertexType::BOUNDARY) return "●";
     return "";
 }
@@ -58,7 +60,7 @@ EdgeType* str2EdgeType(const string& str) {
 
 string EdgeType2Str(const EdgeType* et) {
     if (*et == EdgeType::SIMPLE) return "-";
-    if (*et == EdgeType::HADAMARD) return "\033[1;34mH\033[0m";
+    if (*et == EdgeType::HADAMARD) return TF::BOLD(TF::BLUE("H"));
     return "";
 }
 
