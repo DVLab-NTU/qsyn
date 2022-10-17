@@ -1,0 +1,12 @@
+ver 8
+qcba 2
+qcga -cx 0 1
+qcga -cx 0 1
+qccp -q
+qctsm
+qcga -cx 0 1
+qcga -cx 1 0
+qcga -cx 0 1
+qccp -q
+qctsm
+q -f

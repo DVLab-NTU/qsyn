@@ -1,5 +1,5 @@
 PKGFLAG   =
-EXTHDRS   =
+EXTHDRS   = qcirDef.h
 
 include ../Makefile.in
 include ../Makefile.lib

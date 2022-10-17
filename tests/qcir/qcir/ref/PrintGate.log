@@ -1,0 +1,69 @@
+qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+
+qsyn> qccp -q
+Q 0  ---------cx( 1)-- h( 3)-- t( 6)----------cx( 8)--cx( 9)-- t(14)----------cx(15)--cx(16)-- h(18)-- t(20)--cx(23)----------cx(25)--cx(27)--td(28)----------cx(32)--cx(33)-
+Q 1  -----------------cx( 2)-- t( 4)--cx( 7)----------cx( 9)--cx(11)--td(12)----------cx(16)--cx(17)-- t(21)--cx(23)--cx(24)--td(26)--cx(27)--td(29)--cx(31)----------cx(33)--cx(35)-
+Q 2  - x( 0)--cx( 1)--cx( 2)-- t( 5)--cx( 7)--cx( 8)--td(10)--cx(11)--td(13)--cx(15)----------cx(17)-- h(19)-- t(22)--cx(24)--cx(25)-- t(30)----------cx(31)--cx(32)-- h(34)--cx(35)-
+
+qsyn> qcgp 1
+Q0 Start ───■─── G3
+          ┌─┴─┐ 
+Q2 G0    ─┤ X ├─ G2
+          └───┘ 
+
+qsyn> qcgp 26 -T
+        ┌─────┐ 
+Q1 G24 ─┤ Tdg ├─ G27
+        └─────┘ 
+Execute at t= 15
+
+qsyn> qcgd 24
+
+qsyn> qcgp 24
+Error: id 24 not found!!
+Error: Illegal option!! (24)
+
+qsyn> qcgp 26
+        ┌─────┐ 
+Q1 G23 ─┤ Tdg ├─ G27
+        └─────┘ 
+
+qsyn> qcgp 26 -ZX
+Add input 6
+Add vertex 5
+Add output 7
+Add edge ( 6, 5 )
+Add edge ( 5, 7 )
+ID:	6	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	7π/4	#Neighbors:	2	(6, -) (7, -) 
+ID:	7	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
+Total #Vertices: 3
+
+qsyn> qcgp 26 -T
+        ┌─────┐ 
+Q1 G23 ─┤ Tdg ├─ G27
+        └─────┘ 
+Execute at t= 14
+
+qsyn> qcgp 23 -ZX
+Add input 7
+Add input 8
+Add vertex 5
+Add vertex 6
+Add output 9
+Add output 10
+Add edge ( 7, 5 )
+Add edge ( 5, 9 )
+Add edge ( 8, 6 )
+Add edge ( 6, 10 )
+Add edge ( 5, 6 )
+ID:	7	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	8	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(6, -) (7, -) (9, -) 
+ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(5, -) (8, -) (10, -) 
+ID:	9	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	10	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(6, -) 
+Total #Vertices: 6
+
+qsyn> q -f
+

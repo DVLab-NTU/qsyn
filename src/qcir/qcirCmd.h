@@ -13,19 +13,14 @@
 
 CmdClass(QCirReadCmd);
 CmdClass(QCirPrintCmd);
+CmdClass(QCirWriteCmd);
 CmdClass(QCirAddGateCmd);
 CmdClass(QCirAddQubitCmd);
 CmdClass(QCirDeleteGateCmd);
 CmdClass(QCirDeleteQubitCmd);
 CmdClass(QCirTestCmd);
 CmdClass(QCirZXMappingCmd);
+CmdClass(QCirTSMappingCmd);
 CmdClass(QCirGatePrintCmd);
-// CmdClass(QCirGateCmd);
-// CmdClass(QCirSweepCmd);
-// CmdClass(QCirOptCmd);
-// CmdClass(QCirStrashCmd);
-// CmdClass(QCirSimCmd);
-// CmdClass(QCirFraigCmd);
-// CmdClass(QCirWriteCmd);
 
 #endif // QCIR_CMD_H

@@ -70,9 +70,12 @@ public:
     bool operator!=(const Phase& rhs) const;
     // Operator <, <=, >, >= are are not supported deliberately as they don't make physical sense (Phases are mod 2pi)
 
-    float toFloat();
-    double toDouble();
-    long double toLongDouble();
+    template <class T> requires std::floating_point<T>
+    T toFloatType() const {return std::numbers::pi_v<T> * _rational.toFloatType<T>(); }
+
+    float toFloat() { return toFloatType<float>(); }
+    double toDouble() { return toFloatType<double>(); }
+    long double toLongDouble() { return toFloatType<long double>(); }
 
     Rational getRational() {
         return _rational;
@@ -97,7 +100,7 @@ public:
     bool fromString(const std::string& str) {
         *this = 0;
         T f;
-        if (!myStr2FloatType<T>(str, f)) {
+        if (!myStrValid<T>(str, f)) {
             return false;
         }
         *this = Phase::toPhase(f);
@@ -121,5 +124,85 @@ public:
 private:
     PhaseUnit _printUnit;
 };
+
+template<class T = double> requires std::floating_point<T>
+bool myStrValid(const std::string &str, T &f)
+{
+    // stack 1
+    vector<char> operators;
+
+    // stack 2
+    vector<string> num_string;
+    vector<T> num_float;
+
+    // put string into stack
+    for(size_t i=0; i<str.length(); i++){
+        if(str[i] == '*'  || str[i] == '/'){
+            operators.push_back(str[i]);
+        }
+        else {
+            size_t j = i;
+            while(j < str.length()){
+                if(str[j] == '*'  || str[j] == '/'){
+                    num_string.push_back(str.substr(i,j-i));
+                    i = j-1;
+                    break;
+                }
+                else if (j == str.length()-1){
+                    num_string.push_back(str.substr(i,j-i+1));
+                    i = j;
+                    break;
+                }
+                else{
+                    j++;
+                }
+            }
+        }
+    }   
+
+    // Error detect
+    if (operators.size() >= num_string.size()){
+        operators.clear();
+        num_string.clear();
+        cout << "Too much Operators!!!!" << endl;
+        return false;
+    }
+
+    // convert num_string to num_float & error detect
+    for (auto &temp : num_string) {
+        T temp_converted;
+        if (temp == "pi" || temp == "PI") {
+            num_float.push_back(3.14159265358979311599796346854);
+        }
+        else if (myStr2FloatType<T>(temp, temp_converted)){
+            num_float.push_back(temp_converted);
+        }
+        else {
+            operators.clear();
+            num_float.clear();
+            num_string.clear();
+            cout << "Can't Identify Number : " << temp << endl;
+            return false;
+        }
+
+    }
+
+    num_string.clear();
+
+    // Calculation
+    f = num_float[0];
+    for (size_t i=0; i<operators.size(); i++){
+        if (operators[i] == '*'){
+            f *= num_float[i+1];
+        }
+        else {
+            f /= num_float[i+1];
+        }
+    }
+
+    operators.clear();
+    num_float.clear();
+    return true;
+}
 
 #endif //PHASE_H

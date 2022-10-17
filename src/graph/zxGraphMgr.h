@@ -41,22 +41,25 @@ class ZXGraphMgr{
 
 
         // Setter and Getter
-        ZXGraphList getGraphList() const            { return _graphList; }
+        const ZXGraphList& getGraphList() const     { return _graphList; }
         ZXGraphList::iterator getgListItr() const   { return _gListItr; }
         size_t getNextID() const                    { return _nextID; }
         ZXGraph* getGraph() const                   { return _graphList[_gListItr - _graphList.begin()]; }
+
+        void setGraph(ZXGraph* g)                   { _graphList[_gListItr - _graphList.begin()] = g; }
         void setNextID(size_t id)                   { _nextID = id; }
         
 
         // Add and Remove
-        void addZXGraph(size_t id);
+        ZXGraph* addZXGraph(size_t id, void** ref = NULL);
         void removeZXGraph(size_t id);
+
 
         // Action
         void checkout2ZXGraph(size_t id);
         void copy(size_t id);
         void compose(ZXGraph* zxGraph);
-        void tensor(ZXGraph* zxGraph);
+        void tensorProduct(ZXGraph* zxGraph);
         ZXGraph* findZXGraphByID(size_t id) const;
 
 

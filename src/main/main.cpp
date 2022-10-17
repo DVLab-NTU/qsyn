@@ -8,7 +8,6 @@
 
 #include "util.h"
 #include "cmdParser.h"
-
 using namespace std;
 
 //----------------------------------------------------------------------
@@ -20,6 +19,8 @@ extern bool initCommonCmd();
 // extern bool initCirCmd();
 extern bool initQCirCmd();
 extern bool initZXCmd();
+size_t verbose = 3; // Default verbose level = 3
+size_t formatLevel = 1;
 
 static void
 usage()
