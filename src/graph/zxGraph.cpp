@@ -260,7 +260,7 @@ ZXVertex* ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase) {
     } else {
         ZXVertex* v = new ZXVertex(id, qubit, vt, phase);
         _vertices.push_back(v);
-        if (verbose >= 3) cout << "Add vertice " << id << endl;
+        if (verbose >= 3) cout << "Add vertex " << id << endl;
         return v;
     }
 }
