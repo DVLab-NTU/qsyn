@@ -7,8 +7,9 @@
 ****************************************************************************/
 #include "textFormat.h"
 
+extern size_t formatLevel;
+
 namespace TextFormat {
-    size_t formatLevel = 1;
 
     std::string SET_FORMAT(const std::string& str, const size_t& code) {
         if (formatLevel >= 1) return "\033[" + std::to_string(code) + "m" + str + "\033[0m";
