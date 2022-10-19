@@ -155,32 +155,59 @@ void Pivot::rewrite(ZXGraph* g){
         }
 
         // 2 - 2
+        vector<int> c(g->getNumVertices() ,0);
         vector<ZXVertex*> n0;
         vector<ZXVertex*> n1;
         vector<ZXVertex*> n2;
         for(auto& x : neighbors[0]->getNeighbors()) {
             if (isBoundary[id2idx[x->getId()]]) continue;
             if (x == neighbors[1]) continue;
-            n0.push_back(x);
+            c[id2idx[x->getId()]]++;
         }
         for(auto& x : neighbors[1]->getNeighbors()) {
             if (isBoundary[id2idx[x->getId()]]) continue;
             if (x == neighbors[0]) continue;
-            n1.push_back(x);
+            c[id2idx[x->getId()]] += 2;
         }
 
         // 3 4  Find n2
-        for (size_t j=0; j<n0.size(); j++){
-            for(size_t k=0; k<n1.size(); k++) {
-                if (n0[j] == n1[k]){
-                    n2.push_back(n0[j]);
-                    n0.erase(n0.begin() + j);
-                    n1.erase(n1.begin() + k);
-                    break;
+        for (size_t a=0; a<g->getNumVertices(); a++){
+            if(c[a] == 1) n0.push_back(g->getVertices()[a]);
+            else if (c[a] == 2) n1.push_back(g->getVertices()[a]);
+            else if (c[a] == 3) n2.push_back(g->getVertices()[a]);
+            else continue;
+        }
+
+
+        for (auto & a: n0){
+            for(auto& b: n2) {
+                if (a == b){
+                    cout << "error1!!!" << endl;
+                    return;
                 }
             }
         }
 
+        for (auto & a: n1){
+            for(auto& b: n2) {
+                if (a == b){
+                    cout << "error2!!!" << endl;
+                    return;
+                }
+            }
+        }
+
+        for (auto & a: n0){
+            for(auto& b: n1) {
+                if (a == b){
+                    cout << "error3!!!" << endl;
+                    return;
+                }
+            }
+        }
+
+
+        
         //// 5: scalar
         
 
@@ -222,5 +249,11 @@ void Pivot::rewrite(ZXGraph* g){
         }
 
     }
+
+    isBoundary.clear();
+    c.clear();
+    n0.clear();
+    n1.clear();
+    n2.clear();
     
 }
