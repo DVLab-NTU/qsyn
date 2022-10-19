@@ -1,21 +1,12 @@
-i 0 0
-i 1 1
-o 2 0
-o 3 1
-v 4 Z 
-v 5 X
-v 6 X
-v 7 Z
-v 8 Z
-v 9 X
-e 0 4 S
-e 1 5 S
-e 4 5 S
-e 4 6 S
-e 5 7 S
-e 6 7 S
-e 6 8 S
-e 7 9 S
-e 8 9 S
-e 8 2 S
-e 9 3 S
+// Comment
+I0 S4 0 
+I1 S5 1
+O2 S8 0
+O3 S9 1
+Z4 S5 S6
+X5 S7 S4 // Comment
+X6 S7 S8
+Z7 S9
+Z8 S9
+X9
+// Comment
