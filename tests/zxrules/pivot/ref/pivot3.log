@@ -1,0 +1,915 @@
+qsyn> ver 9
+Note: verbose level is set to 9
+
+qsyn> zxmode -on
+ZXMODE turn ON!
+
+qsyn> zxnew
+Successfully generate Graph 0
+Checkout to Graph 0
+
+qsyn> zxge -addi 0 0
+Add input 0
+
+qsyn> zxge -addo 1 0
+Add output 1
+
+qsyn> zxge -addi 2 1
+Add input 2
+
+qsyn> zxge -addo 3 1
+Add output 3
+
+qsyn> zxge -addv 4 0 Z 0
+Add vertex 4
+
+qsyn> zxge -addv 5 0 Z 3.14159
+Add vertex 5
+
+qsyn> zxge -adde 4 5 HADAMARD
+Add edge ( 4, 5 )
+
+qsyn> zxge -addv 6 0 Z 0
+Add vertex 6
+
+qsyn> zxge -adde 4 6 HADAMARD
+Add edge ( 4, 6 )
+
+qsyn> zxge -addv 7 0 Z 3.14159
+Add vertex 7
+
+qsyn> zxge -addv 8 0 Z 3.14159
+Add vertex 8
+
+qsyn> zxge -addv 9 0 Z 3.14159
+Add vertex 9
+
+qsyn> zxge -adde 5 7 HADAMARD
+Add edge ( 5, 7 )
+
+qsyn> zxge -adde 5 8 HADAMARD
+Add edge ( 5, 8 )
+
+qsyn> zxge -adde 5 9 HADAMARD
+Add edge ( 5, 9 )
+
+qsyn> zxge -addv 10 0 Z 0
+Add vertex 10
+
+qsyn> zxge -addv 11 0 Z 0
+Add vertex 11
+
+qsyn> zxge -adde 5 10 HADAMARD
+Add edge ( 5, 10 )
+
+qsyn> zxge -adde 5 11 HADAMARD
+Add edge ( 5, 11 )
+
+qsyn> zxge -addv 12 0 Z 3.14159
+Add vertex 12
+
+qsyn> zxge -addv 13 0 Z 3.14159
+Add vertex 13
+
+qsyn> zxge -addv 14 0 Z 3.14159
+Add vertex 14
+
+qsyn> zxge -addv 15 0 Z 3.14159
+Add vertex 15
+
+qsyn> zxge -adde 4 12 HADAMARD
+Add edge ( 4, 12 )
+
+qsyn> zxge -adde 4 13 HADAMARD
+Add edge ( 4, 13 )
+
+qsyn> zxge -adde 4 14 HADAMARD
+Add edge ( 4, 14 )
+
+qsyn> zxge -adde 4 15 HADAMARD
+Add edge ( 4, 15 )
+
+qsyn> zxge -adde 5 12 HADAMARD
+Add edge ( 5, 12 )
+
+qsyn> zxge -adde 5 13 HADAMARD
+Add edge ( 5, 13 )
+
+qsyn> zxge -adde 5 14 HADAMARD
+Add edge ( 5, 14 )
+
+qsyn> zxge -adde 5 15 HADAMARD
+Add edge ( 5, 15 )
+
+qsyn> zxge -addv 16 0 Z 0
+Add vertex 16
+
+qsyn> zxge -addv 17 0 Z 3.14159
+Add vertex 17
+
+qsyn> zxge -adde 16 17 HADAMARD
+Add edge ( 16, 17 )
+
+qsyn> zxge -addv 18 0 Z 0
+Add vertex 18
+
+qsyn> zxge -adde 16 18 HADAMARD
+Add edge ( 16, 18 )
+
+qsyn> zxge -addv 19 0 Z 3.14159
+Add vertex 19
+
+qsyn> zxge -addv 20 0 Z 3.14159
+Add vertex 20
+
+qsyn> zxge -addv 21 0 Z 3.14159
+Add vertex 21
+
+qsyn> zxge -adde 17 19 HADAMARD
+Add edge ( 17, 19 )
+
+qsyn> zxge -adde 17 20 HADAMARD
+Add edge ( 17, 20 )
+
+qsyn> zxge -adde 17 21 HADAMARD
+Add edge ( 17, 21 )
+
+qsyn> zxge -addv 22 0 Z 0
+Add vertex 22
+
+qsyn> zxge -addv 23 0 Z 0
+Add vertex 23
+
+qsyn> zxge -adde 17 22 HADAMARD
+Add edge ( 17, 22 )
+
+qsyn> zxge -adde 17 23 HADAMARD
+Add edge ( 17, 23 )
+
+qsyn> zxge -addv 24 0 Z 3.14159
+Add vertex 24
+
+qsyn> zxge -addv 25 0 Z 3.14159
+Add vertex 25
+
+qsyn> zxge -addv 26 0 Z 3.14159
+Add vertex 26
+
+qsyn> zxge -addv 27 0 Z 3.14159
+Add vertex 27
+
+qsyn> zxge -adde 4 24 HADAMARD
+Add edge ( 4, 24 )
+
+qsyn> zxge -adde 4 25 HADAMARD
+Add edge ( 4, 25 )
+
+qsyn> zxge -adde 4 26 HADAMARD
+Add edge ( 4, 26 )
+
+qsyn> zxge -adde 4 27 HADAMARD
+Add edge ( 4, 27 )
+
+qsyn> zxge -adde 5 24 HADAMARD
+Add edge ( 5, 24 )
+
+qsyn> zxge -adde 5 25 HADAMARD
+Add edge ( 5, 25 )
+
+qsyn> zxge -adde 5 26 HADAMARD
+Add edge ( 5, 26 )
+
+qsyn> zxge -adde 5 27 HADAMARD
+Add edge ( 5, 27 )
+
+qsyn> zxge -adde 16 24 HADAMARD
+Add edge ( 16, 24 )
+
+qsyn> zxge -adde 16 25 HADAMARD
+Add edge ( 16, 25 )
+
+qsyn> zxge -adde 16 26 HADAMARD
+Add edge ( 16, 26 )
+
+qsyn> zxge -adde 16 27 HADAMARD
+Add edge ( 16, 27 )
+
+qsyn> zxge -adde 17 24 HADAMARD
+Add edge ( 17, 24 )
+
+qsyn> zxge -adde 17 25 HADAMARD
+Add edge ( 17, 25 )
+
+qsyn> zxge -adde 17 26 HADAMARD
+Add edge ( 17, 26 )
+
+qsyn> zxge -adde 17 27 HADAMARD
+Add edge ( 17, 27 )
+
+qsyn> zxge -adde 0 5 SIMPLE
+Add edge ( 0, 5 )
+
+qsyn> zxge -adde 2 7 SIMPLE
+Add edge ( 2, 7 )
+
+qsyn> zxge -adde 1 23 SIMPLE
+Add edge ( 1, 23 )
+
+qsyn> zxge -adde 3 23 SIMPLE
+Add edge ( 3, 23 )
+
+qsyn> zxge -addv 28 0 Z 0
+Add vertex 28
+
+qsyn> zxge -adde 6 28 HADAMARD
+Add edge ( 6, 28 )
+
+qsyn> zxge -addv 29 0 Z 0
+Add vertex 29
+
+qsyn> zxge -adde 7 29 HADAMARD
+Add edge ( 7, 29 )
+
+qsyn> zxge -addv 30 0 Z 0
+Add vertex 30
+
+qsyn> zxge -adde 8 30 HADAMARD
+Add edge ( 8, 30 )
+
+qsyn> zxge -addv 31 0 Z 0
+Add vertex 31
+
+qsyn> zxge -adde 9 31 HADAMARD
+Add edge ( 9, 31 )
+
+qsyn> zxge -addv 32 0 Z 0
+Add vertex 32
+
+qsyn> zxge -adde 10 32 HADAMARD
+Add edge ( 10, 32 )
+
+qsyn> zxge -addv 33 0 Z 0
+Add vertex 33
+
+qsyn> zxge -adde 11 33 HADAMARD
+Add edge ( 11, 33 )
+
+qsyn> zxge -addv 34 0 Z 0
+Add vertex 34
+
+qsyn> zxge -adde 12 34 HADAMARD
+Add edge ( 12, 34 )
+
+qsyn> zxge -addv 35 0 Z 0
+Add vertex 35
+
+qsyn> zxge -adde 13 35 HADAMARD
+Add edge ( 13, 35 )
+
+qsyn> zxge -addv 36 0 Z 0
+Add vertex 36
+
+qsyn> zxge -adde 14 36 HADAMARD
+Add edge ( 14, 36 )
+
+qsyn> zxge -addv 37 0 Z 0
+Add vertex 37
+
+qsyn> zxge -adde 15 37 HADAMARD
+Add edge ( 15, 37 )
+
+qsyn> zxge -addv 38 0 Z 0
+Add vertex 38
+
+qsyn> zxge -adde 18 38 HADAMARD
+Add edge ( 18, 38 )
+
+qsyn> zxge -addv 39 0 Z 0
+Add vertex 39
+
+qsyn> zxge -adde 19 39 HADAMARD
+Add edge ( 19, 39 )
+
+qsyn> zxge -addv 40 0 Z 0
+Add vertex 40
+
+qsyn> zxge -adde 20 40 HADAMARD
+Add edge ( 20, 40 )
+
+qsyn> zxge -addv 41 0 Z 0
+Add vertex 41
+
+qsyn> zxge -adde 21 41 HADAMARD
+Add edge ( 21, 41 )
+
+qsyn> zxge -addv 42 0 Z 0
+Add vertex 42
+
+qsyn> zxge -adde 22 42 HADAMARD
+Add edge ( 22, 42 )
+
+qsyn> zxge -addv 43 0 Z 0
+Add vertex 43
+
+qsyn> zxge -adde 23 43 HADAMARD
+Add edge ( 23, 43 )
+
+qsyn> zxge -addv 44 0 Z 0
+Add vertex 44
+
+qsyn> zxge -adde 24 44 HADAMARD
+Add edge ( 24, 44 )
+
+qsyn> zxge -addv 45 0 Z 0
+Add vertex 45
+
+qsyn> zxge -adde 25 45 HADAMARD
+Add edge ( 25, 45 )
+
+qsyn> zxge -addv 46 0 Z 0
+Add vertex 46
+
+qsyn> zxge -adde 26 46 HADAMARD
+Add edge ( 26, 46 )
+
+qsyn> zxge -addv 47 0 Z 0
+Add vertex 47
+
+qsyn> zxge -adde 27 47 HADAMARD
+Add edge ( 27, 47 )
+
+qsyn> zxgs -pivot
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	10	(5, [1m[34mH[0m[0m) (6, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (24, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	15	(0, -) (4, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (24, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(4, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(2, -) (5, [1m[34mH[0m[0m) (29, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(5, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(5, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(5, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(5, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) 
+ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (35, [1m[34mH[0m[0m) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (36, [1m[34mH[0m[0m) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (37, [1m[34mH[0m[0m) 
+ID:	16	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(17, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (24, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	17	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	10	(16, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (20, [1m[34mH[0m[0m) (21, [1m[34mH[0m[0m) (22, [1m[34mH[0m[0m) (23, [1m[34mH[0m[0m) (24, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(16, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
+ID:	19	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(17, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	20	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(17, [1m[34mH[0m[0m) (40, [1m[34mH[0m[0m) 
+ID:	21	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(17, [1m[34mH[0m[0m) (41, [1m[34mH[0m[0m) 
+ID:	22	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(17, [1m[34mH[0m[0m) (42, [1m[34mH[0m[0m) 
+ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (3, -) (17, [1m[34mH[0m[0m) (43, [1m[34mH[0m[0m) 
+ID:	24	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (17, [1m[34mH[0m[0m) (44, [1m[34mH[0m[0m) 
+ID:	25	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (17, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) 
+ID:	26	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (17, [1m[34mH[0m[0m) (46, [1m[34mH[0m[0m) 
+ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (17, [1m[34mH[0m[0m) (47, [1m[34mH[0m[0m) 
+ID:	28	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(6, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(7, [1m[34mH[0m[0m) 
+ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(8, [1m[34mH[0m[0m) 
+ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(9, [1m[34mH[0m[0m) 
+ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(10, [1m[34mH[0m[0m) 
+ID:	33	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
+ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(12, [1m[34mH[0m[0m) 
+ID:	35	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(13, [1m[34mH[0m[0m) 
+ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	37	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(15, [1m[34mH[0m[0m) 
+ID:	38	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(18, [1m[34mH[0m[0m) 
+ID:	39	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(19, [1m[34mH[0m[0m) 
+ID:	40	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(20, [1m[34mH[0m[0m) 
+ID:	41	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(21, [1m[34mH[0m[0m) 
+ID:	42	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(22, [1m[34mH[0m[0m) 
+ID:	43	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(23, [1m[34mH[0m[0m) 
+ID:	44	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(24, [1m[34mH[0m[0m) 
+ID:	45	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(25, [1m[34mH[0m[0m) 
+ID:	46	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(26, [1m[34mH[0m[0m) 
+ID:	47	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
+Total #Vertices: 48
+Find match of pivot-rule: 1
+Pivot Rule: 1 Add edge ( 8, 0 )
+Add edge ( 4, 30 )
+Add edge ( 7, 30 )
+Add edge ( 9, 30 )
+Add edge ( 10, 30 )
+Add edge ( 11, 30 )
+Add edge ( 12, 30 )
+Add edge ( 13, 30 )
+Add edge ( 14, 30 )
+Add edge ( 15, 30 )
+Add edge ( 24, 30 )
+Add edge ( 25, 30 )
+Add edge ( 26, 30 )
+Add edge ( 27, 30 )
+Remove ID: 5
+. ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, [1m[34mH[0m[0m) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	10	(6, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (24, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(4, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (29, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(30, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(30, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(30, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) 
+ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (35, [1m[34mH[0m[0m) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (36, [1m[34mH[0m[0m) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (37, [1m[34mH[0m[0m) 
+ID:	16	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(17, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (24, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	17	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	10	(16, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (20, [1m[34mH[0m[0m) (21, [1m[34mH[0m[0m) (22, [1m[34mH[0m[0m) (23, [1m[34mH[0m[0m) (24, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(16, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
+ID:	19	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(17, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	20	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(17, [1m[34mH[0m[0m) (40, [1m[34mH[0m[0m) 
+ID:	21	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(17, [1m[34mH[0m[0m) (41, [1m[34mH[0m[0m) 
+ID:	22	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(17, [1m[34mH[0m[0m) (42, [1m[34mH[0m[0m) 
+ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (3, -) (17, [1m[34mH[0m[0m) (43, [1m[34mH[0m[0m) 
+ID:	24	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	5	(4, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (17, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (44, [1m[34mH[0m[0m) 
+ID:	25	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	5	(4, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (17, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) 
+ID:	26	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	5	(4, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (17, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (46, [1m[34mH[0m[0m) 
+ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	5	(4, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (17, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (47, [1m[34mH[0m[0m) 
+ID:	28	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(6, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(7, [1m[34mH[0m[0m) 
+ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	14	(4, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (24, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(9, [1m[34mH[0m[0m) 
+ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(10, [1m[34mH[0m[0m) 
+ID:	33	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
+ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(12, [1m[34mH[0m[0m) 
+ID:	35	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(13, [1m[34mH[0m[0m) 
+ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	37	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(15, [1m[34mH[0m[0m) 
+ID:	38	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(18, [1m[34mH[0m[0m) 
+ID:	39	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(19, [1m[34mH[0m[0m) 
+ID:	40	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(20, [1m[34mH[0m[0m) 
+ID:	41	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(21, [1m[34mH[0m[0m) 
+ID:	42	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(22, [1m[34mH[0m[0m) 
+ID:	43	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(23, [1m[34mH[0m[0m) 
+ID:	44	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(24, [1m[34mH[0m[0m) 
+ID:	45	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(25, [1m[34mH[0m[0m) 
+ID:	46	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(26, [1m[34mH[0m[0m) 
+ID:	47	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
+Total #Vertices: 47
+Find match of pivot-rule: 1
+1 Add edge ( 16, 39 )
+Add edge ( 20, 39 )
+Add edge ( 21, 39 )
+Add edge ( 22, 39 )
+Add edge ( 23, 39 )
+Add edge ( 24, 39 )
+Add edge ( 25, 39 )
+Add edge ( 26, 39 )
+Add edge ( 27, 39 )
+Remove ID: 19
+Remove ID: 17
+. ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, [1m[34mH[0m[0m) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	10	(6, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (24, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(4, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (29, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(30, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(30, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(30, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) 
+ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (35, [1m[34mH[0m[0m) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (36, [1m[34mH[0m[0m) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (37, [1m[34mH[0m[0m) 
+ID:	16	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	6	(18, [1m[34mH[0m[0m) (24, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(16, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
+ID:	20	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(39, [1m[34mH[0m[0m) (40, [1m[34mH[0m[0m) 
+ID:	21	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(39, [1m[34mH[0m[0m) (41, [1m[34mH[0m[0m) 
+ID:	22	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(39, [1m[34mH[0m[0m) (42, [1m[34mH[0m[0m) 
+ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(1, -) (3, -) (39, [1m[34mH[0m[0m) (43, [1m[34mH[0m[0m) 
+ID:	24	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(4, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (44, [1m[34mH[0m[0m) 
+ID:	25	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(4, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) 
+ID:	26	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(4, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (46, [1m[34mH[0m[0m) 
+ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(4, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (47, [1m[34mH[0m[0m) 
+ID:	28	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(6, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(7, [1m[34mH[0m[0m) 
+ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	14	(4, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (24, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(9, [1m[34mH[0m[0m) 
+ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(10, [1m[34mH[0m[0m) 
+ID:	33	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
+ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(12, [1m[34mH[0m[0m) 
+ID:	35	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(13, [1m[34mH[0m[0m) 
+ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	37	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(15, [1m[34mH[0m[0m) 
+ID:	38	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(18, [1m[34mH[0m[0m) 
+ID:	39	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	9	(16, [1m[34mH[0m[0m) (20, [1m[34mH[0m[0m) (21, [1m[34mH[0m[0m) (22, [1m[34mH[0m[0m) (23, [1m[34mH[0m[0m) (24, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	40	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(20, [1m[34mH[0m[0m) 
+ID:	41	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(21, [1m[34mH[0m[0m) 
+ID:	42	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(22, [1m[34mH[0m[0m) 
+ID:	43	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(23, [1m[34mH[0m[0m) 
+ID:	44	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(24, [1m[34mH[0m[0m) 
+ID:	45	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(25, [1m[34mH[0m[0m) 
+ID:	46	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(26, [1m[34mH[0m[0m) 
+ID:	47	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
+Total #Vertices: 45
+Find match of pivot-rule: 1
+1 Add edge ( 6, 16 )
+Add edge ( 6, 39 )
+Add edge ( 6, 44 )
+Add edge ( 6, 30 )
+Add edge ( 12, 16 )
+Add edge ( 12, 39 )
+Add edge ( 12, 44 )
+Add edge ( 12, 30 )
+Add edge ( 13, 16 )
+Add edge ( 13, 39 )
+Add edge ( 13, 44 )
+Add edge ( 13, 30 )
+Add edge ( 14, 16 )
+Add edge ( 14, 39 )
+Add edge ( 14, 44 )
+Add edge ( 14, 30 )
+Add edge ( 15, 16 )
+Add edge ( 15, 39 )
+Add edge ( 15, 44 )
+Add edge ( 15, 30 )
+Add edge ( 25, 16 )
+Add edge ( 25, 39 )
+Add edge ( 25, 44 )
+Add edge ( 25, 30 )
+Add edge ( 26, 16 )
+Add edge ( 26, 39 )
+Add edge ( 26, 44 )
+Add edge ( 26, 30 )
+Add edge ( 27, 16 )
+Add edge ( 27, 39 )
+Add edge ( 27, 44 )
+Add edge ( 27, 30 )
+Add edge ( 16, 30 )
+Add edge ( 39, 30 )
+Add edge ( 44, 30 )
+Remove ID: 24
+Remove ID: 4
+. ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, [1m[34mH[0m[0m) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(16, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (44, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (29, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(30, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(30, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(30, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	6	(16, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (44, [1m[34mH[0m[0m) 
+ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	6	(16, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (35, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (44, [1m[34mH[0m[0m) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	6	(16, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (36, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (44, [1m[34mH[0m[0m) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	6	(16, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (37, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (44, [1m[34mH[0m[0m) 
+ID:	16	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	14	(6, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(16, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
+ID:	20	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(39, [1m[34mH[0m[0m) (40, [1m[34mH[0m[0m) 
+ID:	21	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(39, [1m[34mH[0m[0m) (41, [1m[34mH[0m[0m) 
+ID:	22	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(39, [1m[34mH[0m[0m) (42, [1m[34mH[0m[0m) 
+ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(1, -) (3, -) (39, [1m[34mH[0m[0m) (43, [1m[34mH[0m[0m) 
+ID:	25	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	8	(16, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (44, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) 
+ID:	26	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	8	(16, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (44, [1m[34mH[0m[0m) (46, [1m[34mH[0m[0m) 
+ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	8	(16, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (44, [1m[34mH[0m[0m) (47, [1m[34mH[0m[0m) 
+ID:	28	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(6, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(7, [1m[34mH[0m[0m) 
+ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	23	(6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (44, [1m[34mH[0m[0m) 
+ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(9, [1m[34mH[0m[0m) 
+ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(10, [1m[34mH[0m[0m) 
+ID:	33	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
+ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(12, [1m[34mH[0m[0m) 
+ID:	35	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(13, [1m[34mH[0m[0m) 
+ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	37	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(15, [1m[34mH[0m[0m) 
+ID:	38	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(18, [1m[34mH[0m[0m) 
+ID:	39	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	17	(6, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (20, [1m[34mH[0m[0m) (21, [1m[34mH[0m[0m) (22, [1m[34mH[0m[0m) (23, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	40	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(20, [1m[34mH[0m[0m) 
+ID:	41	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(21, [1m[34mH[0m[0m) 
+ID:	42	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(22, [1m[34mH[0m[0m) 
+ID:	43	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(23, [1m[34mH[0m[0m) 
+ID:	44	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	9	(6, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	45	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(25, [1m[34mH[0m[0m) 
+ID:	46	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(26, [1m[34mH[0m[0m) 
+ID:	47	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
+Total #Vertices: 43
+Find match of pivot-rule: 1
+1 Add edge ( 16, 12 )
+Add edge ( 16, 13 )
+Add edge ( 16, 14 )
+Add edge ( 16, 15 )
+Add edge ( 16, 25 )
+Add edge ( 16, 26 )
+Add edge ( 16, 27 )
+Add edge ( 16, 30 )
+Add edge ( 28, 12 )
+Add edge ( 28, 13 )
+Add edge ( 28, 14 )
+Add edge ( 28, 15 )
+Add edge ( 28, 25 )
+Add edge ( 28, 26 )
+Add edge ( 28, 27 )
+Add edge ( 28, 30 )
+Add edge ( 39, 12 )
+Add edge ( 39, 13 )
+Add edge ( 39, 14 )
+Add edge ( 39, 15 )
+Add edge ( 39, 25 )
+Add edge ( 39, 26 )
+Add edge ( 39, 27 )
+Add edge ( 39, 30 )
+Add edge ( 12, 30 )
+Add edge ( 13, 30 )
+Add edge ( 14, 30 )
+Add edge ( 15, 30 )
+Add edge ( 25, 30 )
+Add edge ( 26, 30 )
+Add edge ( 27, 30 )
+Remove ID: 44
+Remove ID: 6
+. ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, [1m[34mH[0m[0m) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (29, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(30, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(30, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(30, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	9	(16, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	9	(16, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (35, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	9	(16, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (36, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	9	(16, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (37, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	16	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	21	(12, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(16, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
+ID:	20	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(39, [1m[34mH[0m[0m) (40, [1m[34mH[0m[0m) 
+ID:	21	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(39, [1m[34mH[0m[0m) (41, [1m[34mH[0m[0m) 
+ID:	22	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(39, [1m[34mH[0m[0m) (42, [1m[34mH[0m[0m) 
+ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(1, -) (3, -) (39, [1m[34mH[0m[0m) (43, [1m[34mH[0m[0m) 
+ID:	25	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	11	(16, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) 
+ID:	26	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	11	(16, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (46, [1m[34mH[0m[0m) 
+ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	11	(16, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (47, [1m[34mH[0m[0m) 
+ID:	28	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	8	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(7, [1m[34mH[0m[0m) 
+ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	31	(7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(9, [1m[34mH[0m[0m) 
+ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(10, [1m[34mH[0m[0m) 
+ID:	33	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
+ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(12, [1m[34mH[0m[0m) 
+ID:	35	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(13, [1m[34mH[0m[0m) 
+ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	37	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(15, [1m[34mH[0m[0m) 
+ID:	38	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(18, [1m[34mH[0m[0m) 
+ID:	39	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	24	(12, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (16, [1m[34mH[0m[0m) (20, [1m[34mH[0m[0m) (21, [1m[34mH[0m[0m) (22, [1m[34mH[0m[0m) (23, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (25, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	40	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(20, [1m[34mH[0m[0m) 
+ID:	41	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(21, [1m[34mH[0m[0m) 
+ID:	42	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(22, [1m[34mH[0m[0m) 
+ID:	43	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(23, [1m[34mH[0m[0m) 
+ID:	45	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(25, [1m[34mH[0m[0m) 
+ID:	46	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(26, [1m[34mH[0m[0m) 
+ID:	47	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
+Total #Vertices: 41
+Find match of pivot-rule: 1
+1 Add edge ( 18, 12 )
+Add edge ( 18, 13 )
+Add edge ( 18, 14 )
+Add edge ( 18, 15 )
+Add edge ( 18, 28 )
+Add edge ( 18, 45 )
+Add edge ( 18, 26 )
+Add edge ( 18, 27 )
+Add edge ( 12, 26 )
+Add edge ( 12, 27 )
+Add edge ( 13, 26 )
+Add edge ( 13, 27 )
+Add edge ( 14, 26 )
+Add edge ( 14, 27 )
+Add edge ( 15, 26 )
+Add edge ( 15, 27 )
+Add edge ( 28, 26 )
+Add edge ( 28, 27 )
+Add edge ( 45, 26 )
+Add edge ( 45, 27 )
+Remove ID: 25
+Remove ID: 16
+. ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, [1m[34mH[0m[0m) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (29, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(30, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(30, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(30, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	10	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	10	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (35, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	10	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (36, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	10	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (37, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	9	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) 
+ID:	20	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(39, [1m[34mH[0m[0m) (40, [1m[34mH[0m[0m) 
+ID:	21	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(39, [1m[34mH[0m[0m) (41, [1m[34mH[0m[0m) 
+ID:	22	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(39, [1m[34mH[0m[0m) (42, [1m[34mH[0m[0m) 
+ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(1, -) (3, -) (39, [1m[34mH[0m[0m) (43, [1m[34mH[0m[0m) 
+ID:	26	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	15	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) (46, [1m[34mH[0m[0m) 
+ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	15	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) (47, [1m[34mH[0m[0m) 
+ID:	28	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	10	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(7, [1m[34mH[0m[0m) 
+ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	26	(7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(9, [1m[34mH[0m[0m) 
+ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(10, [1m[34mH[0m[0m) 
+ID:	33	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
+ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(12, [1m[34mH[0m[0m) 
+ID:	35	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(13, [1m[34mH[0m[0m) 
+ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	37	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(15, [1m[34mH[0m[0m) 
+ID:	38	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(18, [1m[34mH[0m[0m) 
+ID:	39	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	20	(12, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (20, [1m[34mH[0m[0m) (21, [1m[34mH[0m[0m) (22, [1m[34mH[0m[0m) (23, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	40	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(20, [1m[34mH[0m[0m) 
+ID:	41	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(21, [1m[34mH[0m[0m) 
+ID:	42	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(22, [1m[34mH[0m[0m) 
+ID:	43	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(23, [1m[34mH[0m[0m) 
+ID:	45	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	46	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(26, [1m[34mH[0m[0m) 
+ID:	47	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
+Total #Vertices: 39
+Find match of pivot-rule: 1
+1 Add edge ( 30, 0 )
+Remove ID: 8
+. ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(30, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(2, -) (29, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(30, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(30, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(30, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	10	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	10	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (35, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	10	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (36, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	10	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (37, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	9	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) 
+ID:	20	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(39, [1m[34mH[0m[0m) (40, [1m[34mH[0m[0m) 
+ID:	21	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(39, [1m[34mH[0m[0m) (41, [1m[34mH[0m[0m) 
+ID:	22	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(39, [1m[34mH[0m[0m) (42, [1m[34mH[0m[0m) 
+ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(1, -) (3, -) (39, [1m[34mH[0m[0m) (43, [1m[34mH[0m[0m) 
+ID:	26	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	15	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) (46, [1m[34mH[0m[0m) 
+ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	15	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) (47, [1m[34mH[0m[0m) 
+ID:	28	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	10	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(7, [1m[34mH[0m[0m) 
+ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	26	(0, -) (7, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(9, [1m[34mH[0m[0m) 
+ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(10, [1m[34mH[0m[0m) 
+ID:	33	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
+ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(12, [1m[34mH[0m[0m) 
+ID:	35	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(13, [1m[34mH[0m[0m) 
+ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	37	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(15, [1m[34mH[0m[0m) 
+ID:	38	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(18, [1m[34mH[0m[0m) 
+ID:	39	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	20	(12, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (20, [1m[34mH[0m[0m) (21, [1m[34mH[0m[0m) (22, [1m[34mH[0m[0m) (23, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	40	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(20, [1m[34mH[0m[0m) 
+ID:	41	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(21, [1m[34mH[0m[0m) 
+ID:	42	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(22, [1m[34mH[0m[0m) 
+ID:	43	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(23, [1m[34mH[0m[0m) 
+ID:	45	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	46	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(26, [1m[34mH[0m[0m) 
+ID:	47	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
+Total #Vertices: 38
+Find match of pivot-rule: 1
+1 Add edge ( 9, 0 )
+Add edge ( 31, 7 )
+Add edge ( 31, 10 )
+Add edge ( 31, 11 )
+Add edge ( 31, 28 )
+Remove ID: 30
+. ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(9, [1m[34mH[0m[0m) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (29, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(31, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(31, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	7	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	7	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (35, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	7	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (36, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	7	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (37, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) 
+ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	9	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) 
+ID:	20	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(39, [1m[34mH[0m[0m) (40, [1m[34mH[0m[0m) 
+ID:	21	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(39, [1m[34mH[0m[0m) (41, [1m[34mH[0m[0m) 
+ID:	22	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(39, [1m[34mH[0m[0m) (42, [1m[34mH[0m[0m) 
+ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(1, -) (3, -) (39, [1m[34mH[0m[0m) (43, [1m[34mH[0m[0m) 
+ID:	26	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	12	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) (46, [1m[34mH[0m[0m) 
+ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	12	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (39, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) (47, [1m[34mH[0m[0m) 
+ID:	28	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	10	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(7, [1m[34mH[0m[0m) 
+ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(7, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) 
+ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(10, [1m[34mH[0m[0m) 
+ID:	33	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
+ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(12, [1m[34mH[0m[0m) 
+ID:	35	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(13, [1m[34mH[0m[0m) 
+ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	37	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(15, [1m[34mH[0m[0m) 
+ID:	38	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(18, [1m[34mH[0m[0m) 
+ID:	39	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	18	(12, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (20, [1m[34mH[0m[0m) (21, [1m[34mH[0m[0m) (22, [1m[34mH[0m[0m) (23, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	40	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(20, [1m[34mH[0m[0m) 
+ID:	41	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(21, [1m[34mH[0m[0m) 
+ID:	42	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(22, [1m[34mH[0m[0m) 
+ID:	43	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(23, [1m[34mH[0m[0m) 
+ID:	45	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	46	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(26, [1m[34mH[0m[0m) 
+ID:	47	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
+Total #Vertices: 37
+Find match of pivot-rule: 2
+2 Add edge ( 31, 0 )
+Add edge ( 42, 20 )
+Add edge ( 42, 21 )
+Add edge ( 42, 23 )
+Remove ID: 9
+Remove ID: 39
+Remove ID: 22
+. ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(31, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(2, -) (29, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(31, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(31, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) 
+ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (35, [1m[34mH[0m[0m) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (36, [1m[34mH[0m[0m) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (37, [1m[34mH[0m[0m) 
+ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	9	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) 
+ID:	20	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(40, [1m[34mH[0m[0m) (42, [1m[34mH[0m[0m) 
+ID:	21	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(41, [1m[34mH[0m[0m) (42, [1m[34mH[0m[0m) 
+ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (3, -) (42, [1m[34mH[0m[0m) (43, [1m[34mH[0m[0m) 
+ID:	26	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	9	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) (46, [1m[34mH[0m[0m) 
+ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	9	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) (47, [1m[34mH[0m[0m) 
+ID:	28	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	10	(12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(7, [1m[34mH[0m[0m) 
+ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(0, -) (7, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) 
+ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(10, [1m[34mH[0m[0m) 
+ID:	33	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
+ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(12, [1m[34mH[0m[0m) 
+ID:	35	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(13, [1m[34mH[0m[0m) 
+ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	37	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(15, [1m[34mH[0m[0m) 
+ID:	38	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(18, [1m[34mH[0m[0m) 
+ID:	40	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(20, [1m[34mH[0m[0m) 
+ID:	41	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(21, [1m[34mH[0m[0m) 
+ID:	42	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(20, [1m[34mH[0m[0m) (21, [1m[34mH[0m[0m) (23, [1m[34mH[0m[0m) 
+ID:	43	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(23, [1m[34mH[0m[0m) 
+ID:	45	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	46	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(26, [1m[34mH[0m[0m) 
+ID:	47	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
+Total #Vertices: 34
+Find match of pivot-rule: 2
+2 Add edge ( 13, 34 )
+Add edge ( 13, 18 )
+Add edge ( 14, 34 )
+Add edge ( 14, 18 )
+Add edge ( 15, 34 )
+Add edge ( 15, 18 )
+Add edge ( 31, 34 )
+Add edge ( 31, 18 )
+Add edge ( 34, 18 )
+Add edge ( 21, 40 )
+Add edge ( 23, 40 )
+Remove ID: 12
+Remove ID: 28
+Remove ID: 20
+Remove ID: 42
+. ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(31, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(2, -) (29, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(31, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(31, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
+ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(18, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) (35, [1m[34mH[0m[0m) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(18, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) (36, [1m[34mH[0m[0m) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(18, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) (37, [1m[34mH[0m[0m) 
+ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	12	(13, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) 
+ID:	21	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(40, [1m[34mH[0m[0m) (41, [1m[34mH[0m[0m) 
+ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(1, -) (3, -) (40, [1m[34mH[0m[0m) (43, [1m[34mH[0m[0m) 
+ID:	26	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) (46, [1m[34mH[0m[0m) 
+ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (45, [1m[34mH[0m[0m) (47, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(7, [1m[34mH[0m[0m) 
+ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(0, -) (7, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) 
+ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(10, [1m[34mH[0m[0m) 
+ID:	33	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
+ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	5	(13, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
+ID:	35	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(13, [1m[34mH[0m[0m) 
+ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	37	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(15, [1m[34mH[0m[0m) 
+ID:	38	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(18, [1m[34mH[0m[0m) 
+ID:	40	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(21, [1m[34mH[0m[0m) (23, [1m[34mH[0m[0m) 
+ID:	41	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(21, [1m[34mH[0m[0m) 
+ID:	43	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(23, [1m[34mH[0m[0m) 
+ID:	45	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(18, [1m[34mH[0m[0m) (26, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	46	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(26, [1m[34mH[0m[0m) 
+ID:	47	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
+Total #Vertices: 30
+Find match of pivot-rule: 0
+9 iterations
+
+qsyn> q -f
+
