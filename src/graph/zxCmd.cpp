@@ -35,7 +35,8 @@ bool initZXCmd(){
          cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd) && 
          cmdMgr->regCmd("ZXGSimp", 4, new ZXGSimpCmd) && 
          cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
-         cmdMgr->regCmd("ZXGTSMap", 6, new ZXGTSMappingCmd)
+         cmdMgr->regCmd("ZXGTSMap", 6, new ZXGTSMappingCmd) &&
+         cmdMgr->regCmd("ZXGRead", 4, new ZXGReadCmd)
          )){
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
         return false;
@@ -678,4 +679,35 @@ void ZXGTSMappingCmd::usage(ostream &os) const{
 
 void ZXGTSMappingCmd::help() const{
     cout << setw(15) << left << "ZXGTSMapping: " << "get tensor form of ZXGraph" << endl; 
+}
+
+//----------------------------------------------------------------------
+//    ZXGRead
+//----------------------------------------------------------------------
+CmdExecStatus
+ZXGReadCmd::exec(const string &option){
+    if(curCmd != ZXON){
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXEdit." << endl;
+        return CMD_EXEC_ERROR;
+    }
+    // check option
+    vector<string> options;
+    
+    if(!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
+    if(options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
+    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
+        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXEdit." << endl;
+        return CMD_EXEC_ERROR;
+    }
+    zxGraphMgr->getGraph()->reset();
+    zxGraphMgr->getGraph()->readZX(options[0]);
+    return CMD_EXEC_DONE;
+}
+
+void ZXGReadCmd::usage(ostream &os) const{
+    os << "Usage: ZXGRead <string filename>" << endl;
+}
+
+void ZXGReadCmd::help() const{
+    cout << setw(15) << left << "ZXGRead: " << "read a ZXGraph" << endl; 
 }
