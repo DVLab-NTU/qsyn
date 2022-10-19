@@ -40,8 +40,8 @@ Gate 0 (cx)
 **** Generate ZX of Gate 0 (cx) ****
 Add input 10
 Add input 11
-Add vertice 8
-Add vertice 9
+Add vertex 8
+Add vertex 9
 Add output 12
 Add output 13
 Add edge ( 10, 8 )
@@ -65,8 +65,8 @@ Gate 1 (cx)
 **** Generate ZX of Gate 1 (cx) ****
 Add input 12
 Add input 13
-Add vertice 10
-Add vertice 11
+Add vertex 10
+Add vertex 11
 Add output 14
 Add output 15
 Add edge ( 12, 10 )
@@ -90,8 +90,8 @@ Gate 3 (cx)
 **** Generate ZX of Gate 3 (cx) ****
 Add input 14
 Add input 15
-Add vertice 12
-Add vertice 13
+Add vertex 12
+Add vertex 13
 Add output 16
 Add output 17
 Add edge ( 14, 12 )
@@ -115,8 +115,8 @@ Gate 2 (cx)
 **** Generate ZX of Gate 2 (cx) ****
 Add input 16
 Add input 17
-Add vertice 14
-Add vertice 15
+Add vertex 14
+Add vertex 15
 Add output 18
 Add output 19
 Add edge ( 16, 14 )
@@ -140,8 +140,8 @@ Gate 4 (cx)
 **** Generate ZX of Gate 4 (cx) ****
 Add input 18
 Add input 19
-Add vertice 16
-Add vertice 17
+Add vertex 16
+Add vertex 17
 Add output 20
 Add output 21
 Add edge ( 18, 16 )
@@ -165,8 +165,8 @@ Gate 5 (cx)
 **** Generate ZX of Gate 5 (cx) ****
 Add input 20
 Add input 21
-Add vertice 18
-Add vertice 19
+Add vertex 18
+Add vertex 19
 Add output 22
 Add output 23
 Add edge ( 20, 18 )
@@ -196,18 +196,18 @@ ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(11, -)
 ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(18, -) 
 ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(15, -) 
 ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(19, -) 
-ID:	8	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (9, -) (10, -) 
-ID:	9	VertexType:	[1;31mX[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (8, -) (12, -) 
-ID:	10	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (11, -) (14, -) 
-ID:	11	VertexType:	[1;31mX[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(4, -) (10, -) (13, -) 
-ID:	12	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(9, -) (13, -) (16, -) 
-ID:	13	VertexType:	[1;31mX[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(11, -) (12, -) (18, -) 
-ID:	14	VertexType:	[1;32mZ[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (10, -) (15, -) 
-ID:	15	VertexType:	[1;31mX[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(6, -) (14, -) (17, -) 
-ID:	16	VertexType:	[1;32mZ[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (12, -) (17, -) 
-ID:	17	VertexType:	[1;31mX[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(15, -) (16, -) (19, -) 
-ID:	18	VertexType:	[1;32mZ[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(5, -) (13, -) (19, -) 
-ID:	19	VertexType:	[1;31mX[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(7, -) (17, -) (18, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (9, -) (10, -) 
+ID:	9	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (8, -) (12, -) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (11, -) (14, -) 
+ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(4, -) (10, -) (13, -) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(9, -) (13, -) (16, -) 
+ID:	13	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(11, -) (12, -) (18, -) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (10, -) (15, -) 
+ID:	15	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(6, -) (14, -) (17, -) 
+ID:	16	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (12, -) (17, -) 
+ID:	17	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(15, -) (16, -) (19, -) 
+ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(5, -) (13, -) (19, -) 
+ID:	19	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(7, -) (17, -) (18, -) 
 Total #Vertices: 20
 --------------------------------------------------------------------------------------
 -> #Graph: 1

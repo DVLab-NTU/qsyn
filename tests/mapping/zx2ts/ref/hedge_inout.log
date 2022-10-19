@@ -12,7 +12,7 @@ qsyn> zxgedit -addo 1 0
 Add output 1
 
 qsyn> zxgedit -addv 2 0 Z
-Add vertice 2
+Add vertex 2
 
 qsyn> zxgedit -adde 0 2 SIMPLE
 Add edge ( 0, 2 )
@@ -31,12 +31,12 @@ Size of topological order: 3
 > Mapping vertex 0 (●): New Subgraph
   - Current frontiers: 
     0--2 (-) axis id: 1
-> Mapping vertex 2 ([1;32mZ[0m): Tensordot
+> Mapping vertex 2 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
-    1--2 ([1;34mH[0m) axis id: 1
+    1--2 ([1m[34mH[0m[0m) axis id: 1
 > Mapping vertex 1 (●): Boundary Node
   - Current frontiers: 
-    1--2 ([1;34mH[0m) axis id: 1
+    1--2 ([1m[34mH[0m[0m) axis id: 1
 
 The resulting tensor is: 
 {{ 0.707107+0.i,  0.707107+0.i},
@@ -61,7 +61,7 @@ Size of topological order: 3
 > Mapping vertex 0 (●): New Subgraph
   - Current frontiers: 
     0--2 (-) axis id: 1
-> Mapping vertex 2 ([1;32mZ[0m): Tensordot
+> Mapping vertex 2 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
     1--2 (-) axis id: 1
 > Mapping vertex 1 (●): Boundary Node
@@ -90,8 +90,8 @@ Topological order from first input:
 Size of topological order: 3
 > Mapping vertex 0 (●): New Subgraph
   - Current frontiers: 
-    0--2 ([1;34mH[0m) axis id: 1
-> Mapping vertex 2 ([1;32mZ[0m): Tensordot
+    0--2 ([1m[34mH[0m[0m) axis id: 1
+> Mapping vertex 2 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
     1--2 (-) axis id: 1
 > Mapping vertex 1 (●): Boundary Node
@@ -120,13 +120,13 @@ Topological order from first input:
 Size of topological order: 3
 > Mapping vertex 0 (●): New Subgraph
   - Current frontiers: 
-    0--2 ([1;34mH[0m) axis id: 1
-> Mapping vertex 2 ([1;32mZ[0m): Tensordot
+    0--2 ([1m[34mH[0m[0m) axis id: 1
+> Mapping vertex 2 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
-    1--2 ([1;34mH[0m) axis id: 1
+    1--2 ([1m[34mH[0m[0m) axis id: 1
 > Mapping vertex 1 (●): Boundary Node
   - Current frontiers: 
-    1--2 ([1;34mH[0m) axis id: 1
+    1--2 ([1m[34mH[0m[0m) axis id: 1
 
 The resulting tensor is: 
 {{ 1.      +0.i,  0.      +0.i},
