@@ -243,6 +243,31 @@ class HboxFusion : public ZXRule{
     
 };
 
+class Pivot : public ZXRule{
+  public:
+    //TODO: Check MatchType
+    typedef int MatchType;
+    typedef vector<MatchType> MatchTypeVec;
+
+    Pivot(){
+      _matchTypeVec.clear();
+      _name = "Pivot Rule";
+    }
+    ~Pivot(){}
+
+    
+    void match(ZXGraph* g) override; 
+    void rewrite(ZXGraph* g) override;
+
+    // Getter and Setter
+    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
+    
+  protected:
+    MatchTypeVec                                      _matchTypeVec;
+    
+};
+
 
 
 #endif
