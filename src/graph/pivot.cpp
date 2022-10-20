@@ -20,7 +20,6 @@ extern size_t verbose;
  * 
  * @param g 
  */
-//size_t i = 1;
 
 void Pivot::match(ZXGraph* g){
     _matchTypeVec.clear(); //should be an edgeType
@@ -33,9 +32,8 @@ void Pivot::match(ZXGraph* g){
 
     vector<bool> taken(g->getNumVertices(), false);
 
-    // Main match code
+    // traverse edge
     for(size_t i = 0; i < g->getNumEdges(); i++){
-        //// 0
         //// 1
         if(* g->getEdges()[i].second != EdgeType::HADAMARD) continue;
 
@@ -48,7 +46,8 @@ void Pivot::match(ZXGraph* g){
         if(neighbors[0]->getType() != VertexType::Z || neighbors[1]->getType() != VertexType::Z) continue;
 
         //// 3
-        if(neighbors[0]->getPhase() != Phase(1) || neighbors[1]->getPhase() != Phase(1)) continue;
+        if(neighbors[0]->getPhase() != Phase(1) && neighbors[0]->getPhase() != 0) continue;
+        if(neighbors[1]->getPhase() != Phase(1) && neighbors[1]->getPhase() != 0) continue;
 
         //// 4
         bool invalid_edge = false;
@@ -96,9 +95,9 @@ void Pivot::match(ZXGraph* g){
         for(auto& x: mark_v){
             taken[id2idx[x]] = true;
         }
+        taken[i] = true;
 
         //// 6
-        taken[i] = true;
         _matchTypeVec.push_back(i); // id
 
     }
@@ -124,7 +123,6 @@ void Pivot::rewrite(ZXGraph* g){
     //* _edgeTableKeys: A pair of ZXVertex* like (ZXVertex* vs, ZXVertex* vt), which you would like to add #s EdgeType::SIMPLE between them and #h EdgeType::HADAMARD between them
     //* _edgeTableValues: A pair of int like (int s, int h), which means #s EdgeType::SIMPLE and #h EdgeType::HADAMARD
 
-    //_removeEdges = _matchTypeVec;
 
     unordered_map<size_t, size_t> id2idx;
     for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
@@ -136,7 +134,7 @@ void Pivot::rewrite(ZXGraph* g){
         neighbors.push_back(g->getEdges()[i].first.first);
         neighbors.push_back(g->getEdges()[i].first.second);
 
-        // 2 - 1 : boundary find
+        // 2 : boundary find
         for(size_t j=0; j<2; j++){
             bool remove = true;
 
@@ -154,7 +152,7 @@ void Pivot::rewrite(ZXGraph* g){
             if(remove) _removeVertices.push_back(neighbors[1-j]);
         }
 
-        // 2 - 2
+        // 3
         vector<int> c(g->getNumVertices() ,0);
         vector<ZXVertex*> n0;
         vector<ZXVertex*> n1;
@@ -177,36 +175,6 @@ void Pivot::rewrite(ZXGraph* g){
             else if (c[a] == 3) n2.push_back(g->getVertices()[a]);
             else continue;
         }
-
-
-        for (auto & a: n0){
-            for(auto& b: n2) {
-                if (a == b){
-                    cout << "error1!!!" << endl;
-                    return;
-                }
-            }
-        }
-
-        for (auto & a: n1){
-            for(auto& b: n2) {
-                if (a == b){
-                    cout << "error2!!!" << endl;
-                    return;
-                }
-            }
-        }
-
-        for (auto & a: n0){
-            for(auto& b: n1) {
-                if (a == b){
-                    cout << "error3!!!" << endl;
-                    return;
-                }
-            }
-        }
-
-
         
         //// 5: scalar
         
@@ -248,12 +216,14 @@ void Pivot::rewrite(ZXGraph* g){
             }
         }
 
+        neighbors.clear();
+        c.clear();
+        n0.clear();
+        n1.clear();
+        n2.clear();
+
     }
 
     isBoundary.clear();
-    c.clear();
-    n0.clear();
-    n1.clear();
-    n2.clear();
     
 }
