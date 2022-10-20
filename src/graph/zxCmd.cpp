@@ -34,7 +34,8 @@ bool initZXCmd(){
          cmdMgr->regCmd("ZXGTest", 4, new ZXGTestCmd) && 
          cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd) && 
          cmdMgr->regCmd("ZXGSimp", 4, new ZXGSimpCmd) && 
-         cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd)
+         cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
+         cmdMgr->regCmd("ZXGTSMapping", 6, new ZXGTSMappingCmd)
          )){
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
         return false;
@@ -156,7 +157,7 @@ ZXRemoveCmd::exec(const string &option){
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
         }
         if(!zxGraphMgr->isID(id)){
-            cerr << "Error: The id provided is not exist!!" << endl;
+            cerr << "Error: The id provided does not exist!!" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
         }
         else zxGraphMgr->removeZXGraph(id);
@@ -193,7 +194,7 @@ ZXCHeckoutCmd::exec(const string &option){
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
         }
         if(!zxGraphMgr->isID(id)){
-            cerr << "Error: The id provided is not exist!!" << endl;
+            cerr << "Error: The id provided does not exist!!" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
         }
         else zxGraphMgr->checkout2ZXGraph(id);
@@ -293,7 +294,7 @@ ZXCOMposeCmd::exec(const string &option){
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
             }
             else if(!zxGraphMgr->isID(id)){
-                cerr << "Error: The id provided is not exist!!" << endl;
+                cerr << "Error: The id provided does not exist!!" << endl;
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
 
             }
@@ -333,7 +334,7 @@ ZXTensorCmd::exec(const string &option){
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
             }
             else if(!zxGraphMgr->isID(id)){
-                cerr << "Error: The id provided is not exist!!" << endl;
+                cerr << "Error: The id provided does not exist!!" << endl;
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
 
             }
@@ -658,4 +659,23 @@ void ZXGTraverseCmd::usage(ostream &os) const{
 
 void ZXGTraverseCmd::help() const{
     cout << setw(15) << left << "ZXGTRaverse: " << "Traverse ZXGraph and update topological order" << endl; 
+}
+
+//----------------------------------------------------------------------
+//    ZXGTSMapping
+//----------------------------------------------------------------------
+CmdExecStatus
+ZXGTSMappingCmd::exec(const string &option){
+    string token;
+    if(!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
+    zxGraphMgr->getGraph()->tensorMapping();
+    return CMD_EXEC_DONE;
+}
+
+void ZXGTSMappingCmd::usage(ostream &os) const{
+    os << "Usage: ZXGTSMapping" << endl;
+}
+
+void ZXGTSMappingCmd::help() const{
+    cout << setw(15) << left << "ZXGTSMapping: " << "get tensor form of ZXGraph" << endl; 
 }
