@@ -30,8 +30,8 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCGDelete", 4, new QCirDeleteGateCmd) &&
          cmdMgr->regCmd("QCBDelete", 4, new QCirDeleteQubitCmd) &&
          cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd) &&
-         cmdMgr->regCmd("QCZXMapping", 5, new QCirZXMappingCmd) &&
-         cmdMgr->regCmd("QCTSMapping", 5, new QCirTSMappingCmd) &&
+         cmdMgr->regCmd("QCZXMap", 5, new QCirZXMappingCmd) &&
+         cmdMgr->regCmd("QCTSMap", 5, new QCirTSMappingCmd) &&
          cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd)
          // && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
          ))

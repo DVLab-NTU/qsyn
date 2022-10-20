@@ -17,4 +17,6 @@ CmdClass(DofileCmd);
 CmdClass(UsageCmd);
 CmdClass(VerboseCmd);
 CmdClass(SeedCmd);
+CmdClass(CommentCmd);
+CmdClass(FormatCmd);
 #endif // CMD_COMMON_H
