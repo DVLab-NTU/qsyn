@@ -24,7 +24,6 @@ Add edge ( 7, 9 )
 Add edge ( 6, 7 )
 Add edge ( 6, 8 )
 Add edge ( 5, 7 )
-Add edge ( 5, 4 )
 Add edge ( 4, 5 )
 Add edge ( 4, 6 )
 Add edge ( 3, 9 )
@@ -35,8 +34,8 @@ ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -)
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
-ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(0, -) (5, -) (5, -) (6, -) 
-ID:	5	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (4, -) (4, -) (7, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (5, -) (6, -) 
+ID:	5	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (4, -) (7, -) 
 ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (7, -) (8, -) 
 ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(5, -) (6, -) (9, -) 
 ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (6, -) (9, -) 
@@ -47,14 +46,13 @@ Total #Vertices: 10
 ( 6, 7 )	Type:	-
 ( 6, 8 )	Type:	-
 ( 5, 7 )	Type:	-
-( 5, 4 )	Type:	-
 ( 4, 5 )	Type:	-
 ( 4, 6 )	Type:	-
 ( 3, 9 )	Type:	-
 ( 2, 8 )	Type:	-
 ( 1, 5 )	Type:	-
 ( 0, 4 )	Type:	-
-Total #Edges: 12
+Total #Edges: 11
 
 qsyn> zxgr benchmark/zx/tof3.zx
 Error: The ZXGraph is not empty!!
