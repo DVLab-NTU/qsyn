@@ -36,7 +36,8 @@ bool initZXCmd(){
          cmdMgr->regCmd("ZXGSimp", 4, new ZXGSimpCmd) && 
          cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
          cmdMgr->regCmd("ZXGTSMap", 6, new ZXGTSMappingCmd) &&
-         cmdMgr->regCmd("ZXGRead", 4, new ZXGReadCmd)
+         cmdMgr->regCmd("ZXGRead", 4, new ZXGReadCmd) &&
+         cmdMgr->regCmd("ZXGWrite", 4, new ZXGWriteCmd)
          )){
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
         return false;
@@ -682,7 +683,7 @@ void ZXGTSMappingCmd::help() const{
 }
 
 //----------------------------------------------------------------------
-//    ZXGRead
+//    ZXGRead 
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGReadCmd::exec(const string &option){
@@ -715,7 +716,7 @@ ZXGReadCmd::exec(const string &option){
     }
 
     if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
-        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXEdit." << endl;
+        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXRead." << endl;
         return CMD_EXEC_ERROR;
     }
 
@@ -745,9 +746,46 @@ ZXGReadCmd::exec(const string &option){
 }
 
 void ZXGReadCmd::usage(ostream &os) const{
-    os << "Usage: ZXGRead <string filename>" << endl;
+    os << "Usage: ZXGRead <string filename> [-Replace]" << endl;
 }
 
 void ZXGReadCmd::help() const{
     cout << setw(15) << left << "ZXGRead: " << "read a ZXGraph" << endl; 
+}
+
+//----------------------------------------------------------------------
+//    ZXGWrite
+//----------------------------------------------------------------------
+CmdExecStatus
+ZXGWriteCmd::exec(const string &option)
+{
+   // check option
+    if(curCmd != ZXON){
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXEdit." << endl;
+        return CMD_EXEC_ERROR;
+    }
+    string token;
+    if (!CmdExec::lexSingleOption(option, token))
+        return CMD_EXEC_ERROR;
+    
+    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
+        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXWrite." << endl;
+        return CMD_EXEC_ERROR;
+    }
+    if(!zxGraphMgr->getGraph()->writeZX(token)){
+        cerr << "Error: file " << token << " path not found!!" << endl;
+        return CMD_EXEC_ERROR;
+    }
+    return CMD_EXEC_DONE;
+}
+
+void ZXGWriteCmd::usage(ostream &os) const
+{
+   os << "Usage: ZXGWrite <string Output.zx>" << endl;
+}
+
+void ZXGWriteCmd::help() const
+{
+   cout << setw(15) << left << "ZXGWrite: "
+        << "write zx file\n";
 }

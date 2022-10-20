@@ -17,6 +17,10 @@
 #include <unordered_map>
 
 extern size_t verbose;
+
+/// @brief read a zx graph
+/// @param filename 
+/// @return true if correctly consturct the graph
 bool ZXGraph::readZX(string filename){
   fstream ZXFile;
   ZXFile.open(filename.c_str(), ios::in);
@@ -71,7 +75,7 @@ bool ZXGraph::readZX(string filename){
             cerr << "Error: Vertex Id in declaring neighbor " << neighborStr << " is not an unsigned in line " << counter << "!!" << endl;
             return false;
           }
-          else
+          else if(size_t(nid) >= size_t(id))
             tmp.push_back(make_pair(size_t(nid), (neighborStr[0] == 'S') ? EdgeType::SIMPLE : EdgeType::HADAMARD));
         }
         else{
@@ -115,7 +119,7 @@ bool ZXGraph::readZX(string filename){
               cerr << "Error: Vertex Id in declaring neighbor " << neighborStr << " is not an unsigned in line " << counter << "!!" << endl;
               return false;
             }
-            else
+            else if(size_t(nid) >= size_t(id))
               tmp.push_back(make_pair(size_t(nid), (neighborStr[0] == 'S') ? EdgeType::SIMPLE : EdgeType::HADAMARD));
           }
           else{
@@ -157,5 +161,95 @@ bool ZXGraph::readZX(string filename){
   }
   if(verbose>=3) printVertices();
   if(verbose>=3) printEdges();
+  return true;
+}
+
+
+/// @brief write a zxgraph
+/// @param filename 
+/// @return true if correctly write a graph into .zx
+bool ZXGraph::writeZX(string filename){
+  fstream ZXFile;
+  ZXFile.open(filename.c_str(), std::fstream::out);
+  if (!ZXFile.is_open()){
+    cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
+    return false;
+  }
+  ZXFile << "// Input \n";
+  for(size_t i=0; i<_inputs.size(); i++){
+    ZXVertex* v = _inputs[i];
+    ZXFile << "I" << v->getId() << " " << v->getQubit();
+    NeighborMap nbm = v->getNeighborMap();
+    
+    for(auto itr=nbm.begin(); itr!=nbm.end(); itr++){
+      if(itr->first->getId() >= v->getId()){
+        // cout << "VV:::  "<< (itr->second) << endl;
+        cout << "II:::  "<< (itr->second) << endl;
+        ZXFile << " ";
+        if(*(itr->second)==EdgeType::SIMPLE)
+          ZXFile << "S";
+        else if(*(itr->second)==EdgeType::HADAMARD)
+          ZXFile << "H";
+        else{
+          cerr << "Error: The edge type is ERRORTYPE" << endl;
+          // return false;
+        }
+        ZXFile << itr->first->getId();
+      }
+    }
+    ZXFile << "\n";
+  }
+  ZXFile << "// Output \n";
+  for(size_t i=0; i<_outputs.size(); i++){
+    ZXVertex* v = _outputs[i];
+    ZXFile << "O" << v->getId() << " " << v->getQubit();
+    NeighborMap nbm = v->getNeighborMap();
+    
+    for(auto itr=nbm.begin(); itr!=nbm.end(); itr++){
+      if(itr->first->getId() >= v->getId()){
+        cout << "OO:::  "<< (itr->second) << endl;
+        ZXFile << " ";
+        if(*(itr->second)==EdgeType::SIMPLE)
+          ZXFile << "S";
+        else if(*(itr->second)==EdgeType::HADAMARD)
+          ZXFile << "H";
+        else{
+          cerr << "Error: The edge type is ERRORTYPE" << endl;
+          // return false;
+        }
+        ZXFile << itr->first->getId();
+      }
+    }
+    ZXFile << "\n";
+  }
+  for(size_t i=0; i<_vertices.size(); i++){
+    ZXVertex* v = _vertices[i];
+    if(v->getType()==VertexType::BOUNDARY){
+      continue;
+    }
+    if(v->getType()==VertexType::Z) ZXFile << "Z";
+    else if(v->getType()==VertexType::X) ZXFile << "X";
+    else ZXFile << "H";
+    ZXFile << v->getId();
+    NeighborMap nbm = v->getNeighborMap();
+    
+    for(auto itr=nbm.begin(); itr!=nbm.end(); itr++){
+      if(itr->first->getId() >= v->getId()){
+        cout << "VV:::  "<< (itr->second) << endl;
+        ZXFile << " ";
+        if(*(itr->second)==EdgeType::SIMPLE)
+          ZXFile << "S";
+        else if(*(itr->second)==EdgeType::HADAMARD)
+          ZXFile << "H";
+        else{
+          cerr << "Error: The edge type is ERRORTYPE" << endl;
+          // return false;
+        }
+        ZXFile << itr->first->getId();
+      }
+    }
+    if(v->getPhase()!=Phase(0)) ZXFile << " " << v->getPhase();
+    ZXFile << "\n";
+  }
   return true;
 }
