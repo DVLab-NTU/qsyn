@@ -700,7 +700,9 @@ ZXGReadCmd::exec(const string &option){
         return CMD_EXEC_ERROR;
     }
     zxGraphMgr->getGraph()->reset();
-    zxGraphMgr->getGraph()->readZX(options[0]);
+    if(! zxGraphMgr->getGraph()->readZX(options[0])){
+        cerr << "Error: The format in \"" << options[0] << "\" has something wrong!!" << endl;
+    }
     return CMD_EXEC_DONE;
 }
 

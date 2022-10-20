@@ -16,7 +16,7 @@
 #include "zxGraph.h"
 #include <unordered_map>
 
-
+extern size_t verbose;
 bool ZXGraph::readZX(string filename){
   fstream ZXFile;
   ZXFile.open(filename.c_str(), ios::in);
@@ -68,7 +68,7 @@ bool ZXGraph::readZX(string filename){
         if(neighborStr[0] == 'S' || neighborStr[0] == 'H'){
           string nidStr = neighborStr.substr(1);
           if(!myStr2Uns(nidStr, nid)){
-            cerr << "Error: Vertex Id in declaring neighbor" << neighborStr << " is not an unsigned in line " << counter << "!!" << endl;
+            cerr << "Error: Vertex Id in declaring neighbor " << neighborStr << " is not an unsigned in line " << counter << "!!" << endl;
             return false;
           }
           else
@@ -112,7 +112,7 @@ bool ZXGraph::readZX(string filename){
           if(neighborStr[0] == 'S' || neighborStr[0] == 'H'){
             string nidStr = neighborStr.substr(1);
             if(!myStr2Uns(nidStr, nid)){
-              cerr << "Error: Vertex Id in declaring neighbor" << neighborStr << " is not an unsigned in line " << counter << "!!" << endl;
+              cerr << "Error: Vertex Id in declaring neighbor " << neighborStr << " is not an unsigned in line " << counter << "!!" << endl;
               return false;
             }
             else
@@ -139,6 +139,23 @@ bool ZXGraph::readZX(string filename){
     
     counter++;
   }
-  printVertices();
+  
+  for(auto itr = storage.begin(); itr!=storage.end(); itr++){
+    vector<pair<size_t, EdgeType>> neighbor = itr->second;
+    for(size_t nb=0; nb<neighbor.size(); nb++){
+      size_t nbId = neighbor[nb].first;
+      EdgeType edgeType = neighbor[nb].second;
+      if(VertexList[nbId]==nullptr){
+        cerr << "Found a never declared id " << nbId << " in neighbor list of vertex " << itr->first << "!!" << endl;
+        return false;
+      } 
+      else{
+        VertexList[nbId];
+        addEdge(VertexList[itr->first], VertexList[nbId], &edgeType);
+      }
+    }
+  }
+  if(verbose>=3) printVertices();
+  if(verbose>=3) printEdges();
   return true;
 }
