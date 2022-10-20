@@ -754,7 +754,7 @@ void ZXGReadCmd::help() const{
 }
 
 //----------------------------------------------------------------------
-//    ZXGWrite
+//    ZXGWrite <string Output.zx>
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGWriteCmd::exec(const string &option)
@@ -773,7 +773,7 @@ ZXGWriteCmd::exec(const string &option)
         return CMD_EXEC_ERROR;
     }
     if(!zxGraphMgr->getGraph()->writeZX(token)){
-        cerr << "Error: file " << token << " path not found!!" << endl;
+        cerr << "Error: fail to write ZX-Graph to \"" << token << "\"!!" << endl;
         return CMD_EXEC_ERROR;
     }
     return CMD_EXEC_DONE;
