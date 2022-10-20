@@ -148,14 +148,14 @@ bool ZXGraph::readZX(string filename){
     vector<pair<size_t, EdgeType>> neighbor = itr->second;
     for(size_t nb=0; nb<neighbor.size(); nb++){
       size_t nbId = neighbor[nb].first;
-      EdgeType edgeType = neighbor[nb].second;
+      EdgeType* edgeType = new EdgeType(neighbor[nb].second);
       if(VertexList[nbId]==nullptr){
         cerr << "Found a never declared id " << nbId << " in neighbor list of vertex " << itr->first << "!!" << endl;
         return false;
       } 
       else{
         VertexList[nbId];
-        addEdge(VertexList[itr->first], VertexList[nbId], &edgeType);
+        addEdge(VertexList[itr->first], VertexList[nbId], edgeType);
       }
     }
   }
@@ -183,8 +183,6 @@ bool ZXGraph::writeZX(string filename){
     
     for(auto itr=nbm.begin(); itr!=nbm.end(); itr++){
       if(itr->first->getId() >= v->getId()){
-        // cout << "VV:::  "<< (itr->second) << endl;
-        cout << "II:::  "<< (itr->second) << endl;
         ZXFile << " ";
         if(*(itr->second)==EdgeType::SIMPLE)
           ZXFile << "S";
@@ -192,7 +190,7 @@ bool ZXGraph::writeZX(string filename){
           ZXFile << "H";
         else{
           cerr << "Error: The edge type is ERRORTYPE" << endl;
-          // return false;
+          return false;
         }
         ZXFile << itr->first->getId();
       }
@@ -207,7 +205,6 @@ bool ZXGraph::writeZX(string filename){
     
     for(auto itr=nbm.begin(); itr!=nbm.end(); itr++){
       if(itr->first->getId() >= v->getId()){
-        cout << "OO:::  "<< (itr->second) << endl;
         ZXFile << " ";
         if(*(itr->second)==EdgeType::SIMPLE)
           ZXFile << "S";
@@ -215,13 +212,14 @@ bool ZXGraph::writeZX(string filename){
           ZXFile << "H";
         else{
           cerr << "Error: The edge type is ERRORTYPE" << endl;
-          // return false;
+          return false;
         }
         ZXFile << itr->first->getId();
       }
     }
     ZXFile << "\n";
   }
+  ZXFile << "// Non-boundary \n";
   for(size_t i=0; i<_vertices.size(); i++){
     ZXVertex* v = _vertices[i];
     if(v->getType()==VertexType::BOUNDARY){
@@ -235,7 +233,6 @@ bool ZXGraph::writeZX(string filename){
     
     for(auto itr=nbm.begin(); itr!=nbm.end(); itr++){
       if(itr->first->getId() >= v->getId()){
-        cout << "VV:::  "<< (itr->second) << endl;
         ZXFile << " ";
         if(*(itr->second)==EdgeType::SIMPLE)
           ZXFile << "S";
@@ -243,7 +240,7 @@ bool ZXGraph::writeZX(string filename){
           ZXFile << "H";
         else{
           cerr << "Error: The edge type is ERRORTYPE" << endl;
-          // return false;
+          return false;
         }
         ZXFile << itr->first->getId();
       }
