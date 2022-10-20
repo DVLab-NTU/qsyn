@@ -15,14 +15,14 @@ using namespace std;
 extern size_t verbose;
 
 /**
- * @brief Matches Hadamard-edges that are connected to H-boxes or two neighboring H-boxes
- *        (Check PyZX/pyzx/hrules.py/match_connected_hboxes for more details)
+ * @brief Finds matchings of the pivot rule.
+ *        (Check PyZX/pyzx/rules.py/match_pivot_parallel for more details)
  * 
  * @param g 
  */
 
 void Pivot::match(ZXGraph* g){
-    _matchTypeVec.clear(); //should be an edgeType
+    _matchTypeVec.clear(); 
 
     //TODO: rewrite _matchTypeVec
     if(verbose >= 7) g->printVertices();
@@ -34,10 +34,10 @@ void Pivot::match(ZXGraph* g){
 
     // traverse edge
     for(size_t i = 0; i < g->getNumEdges(); i++){
-        //// 1
+        //// 1: Check EdgeType
         if(* g->getEdges()[i].second != EdgeType::HADAMARD) continue;
 
-        //// 2
+        //// 2: Get Neighbors
         vector<ZXVertex*> neighbors;
         neighbors.push_back(g->getEdges()[i].first.first);
         neighbors.push_back(g->getEdges()[i].first.second);
@@ -45,11 +45,11 @@ void Pivot::match(ZXGraph* g){
         if(taken[id2idx[neighbors[0]->getId()]] || taken[id2idx[neighbors[1]->getId()]]) continue;
         if(neighbors[0]->getType() != VertexType::Z || neighbors[1]->getType() != VertexType::Z) continue;
 
-        //// 3
+        //// 3: Check Neighbors Phase 
         if(neighbors[0]->getPhase() != Phase(1) && neighbors[0]->getPhase() != 0) continue;
         if(neighbors[1]->getPhase() != Phase(1) && neighbors[1]->getPhase() != 0) continue;
 
-        //// 4
+        //// 4: Check neighbors of Neighbors
         bool invalid_edge = false;
 
         size_t count_b = 0;
@@ -58,9 +58,7 @@ void Pivot::match(ZXGraph* g){
 
         // v0
         for(auto& x: neighbors[0]->getNeighborMap()){
-            for(auto& itr : x.first->getNeighborMap()){
-                mark_v.push_back(itr.first->getId());
-            }
+            mark_v.push_back(x.first->getId());
 
             if(x.first->getType() == VertexType::Z && * x.second == EdgeType::HADAMARD) continue;
             else if(x.first->getType() == VertexType::BOUNDARY) count_b++;
@@ -75,9 +73,7 @@ void Pivot::match(ZXGraph* g){
 
         // v1
         for(auto& x: neighbors[1]->getNeighborMap()){
-            for(auto& itr : x.first->getNeighborMap()){
-                mark_v.push_back(itr.first->getId());
-            }
+            mark_v.push_back(x.first->getId());
 
             if(x.first->getType() == VertexType::Z && * x.second == EdgeType::HADAMARD) continue;
             else if(x.first->getType() == VertexType::BOUNDARY) count_b++;
@@ -89,18 +85,24 @@ void Pivot::match(ZXGraph* g){
         }
 
         if(invalid_edge) continue;
-        if(count_b > 1) continue;
+        if(count_b > 1) continue;   // skip when Neighbors are all connected to boundary
 
-        //// 5
+        //// 5: taken
         for(auto& x: mark_v){
             taken[id2idx[x]] = true;
         }
-        taken[i] = true;
+        taken[id2idx[neighbors[0]->getId()]] = true;
+        taken[id2idx[neighbors[1]->getId()]] = true;
 
-        //// 6
+        //// 6: add edge id into _matchTypeVec
         _matchTypeVec.push_back(i); // id
 
+        //// 7: clear vector
+        neighbors.clear();
+        mark_v.clear();
+
     }
+    taken.clear();
 
     if(verbose >= 3) cout << "Find match of pivot-rule: " << _matchTypeVec.size() << endl;
 
@@ -129,7 +131,7 @@ void Pivot::rewrite(ZXGraph* g){
     vector<bool> isBoundary(g->getNumVertices(), false);
 
     for (auto& i :  _matchTypeVec){
-        // 1
+        // 1 : get m0 m1
         vector<ZXVertex*> neighbors;
         neighbors.push_back(g->getEdges()[i].first.first);
         neighbors.push_back(g->getEdges()[i].first.second);
@@ -152,7 +154,7 @@ void Pivot::rewrite(ZXGraph* g){
             if(remove) _removeVertices.push_back(neighbors[1-j]);
         }
 
-        // 3
+        // 3 table of c
         vector<int> c(g->getNumVertices() ,0);
         vector<ZXVertex*> n0;
         vector<ZXVertex*> n1;
@@ -168,7 +170,7 @@ void Pivot::rewrite(ZXGraph* g){
             c[id2idx[x->getId()]] += 2;
         }
 
-        // 3 4  Find n2
+        // 4  Find n0 n1 n2
         for (size_t a=0; a<g->getNumVertices(); a++){
             if(c[a] == 1) n0.push_back(g->getVertices()[a]);
             else if (c[a] == 2) n1.push_back(g->getVertices()[a]);
@@ -176,7 +178,7 @@ void Pivot::rewrite(ZXGraph* g){
             else continue;
         }
         
-        //// 5: scalar
+        //// 5: scalar (skip)
         
 
         //// 6:add phase
@@ -192,7 +194,7 @@ void Pivot::rewrite(ZXGraph* g){
             x->setPhase(x->getPhase() + neighbors[1]->getPhase());
         }
 
-        //// 7 
+        //// 7: connect n0 n1 n2
         for(auto& itr : n0){
             if(isBoundary[itr->getId()]) continue;
             for(auto& a: n1){
@@ -216,6 +218,7 @@ void Pivot::rewrite(ZXGraph* g){
             }
         }
 
+        //// 8: clear vector
         neighbors.clear();
         c.clear();
         n0.clear();
