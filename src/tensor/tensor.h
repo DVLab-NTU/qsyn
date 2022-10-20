@@ -86,6 +86,12 @@ public:
     size_t getNewAxisId(const size_t& oldId);
 
     template <typename U>
+    friend double innerProduct(const Tensor<U>& t1, const Tensor<U>& t2); 
+
+    template <typename U>
+    friend double cosineSimilarity(const Tensor<U>& t1, const Tensor<U>& t2); 
+
+    template <typename U>
     friend Tensor<U> tensordot(const Tensor<U>& t1, const Tensor<U>& t2,
                                 const TensorAxisList& ax1, const TensorAxisList& ax2);
     
@@ -252,6 +258,16 @@ Tensor<DT> Tensor<DT>::transpose(const TensorAxisList& perm) {
 // Tensor Manipulations:
 // Friend functions
 //------------------------------
+
+// Calculate the cosine similarity of two tensors
+template <typename U>
+double innerProduct(const Tensor<U>& t1, const Tensor<U>& t2) {
+    return xt::abs(xt::sum(xt::conj(t1._tensor) * t2._tensor))();
+}
+template <typename U>
+double cosineSimilarity(const Tensor<U>& t1, const Tensor<U>& t2) {
+    return innerProduct(t1, t2) / std::sqrt(innerProduct(t1, t1) * innerProduct(t2, t2));
+}
 
 // tensor-dot two tensors
 // dots the two tensors along the axes in ax1 and ax2

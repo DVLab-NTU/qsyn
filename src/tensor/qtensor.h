@@ -49,6 +49,14 @@ public:
 
     QTensor<T> selfTensordot(const TensorAxisList& ax1 = {}, const TensorAxisList& ax2 = {});
 
+    template <typename U>
+    friend std::complex<U> globalScalarFactor(const QTensor<U>& t1, const QTensor<U>& t2);
+
+    template <typename U>
+    U globalNorm(const QTensor<U>& t1, const QTensor<U>& t2);
+
+    template <typename U>
+    Phase globalPhase(const QTensor<U>& t1, const QTensor<U>& t2);
 private:
     static DataType nuPow(const int& n);
 };
@@ -209,6 +217,27 @@ QTensor<T> QTensor<T>::selfTensordot(const TensorAxisList& ax1, const TensorAxis
     QTensor<T> u = tensordot(*this, tmp, concatAxisList(ax1, ax2), tmpOrder);
     u._tensor *= nuPow(2 * ax1.size());
     return u;
+}
+
+// Get the global scalar factor between two QTensors
+// This function is only well defined when the cosine similarity is high between t1, t2
+template <typename U>
+std::complex<U> globalScalarFactor(const QTensor<U>& t1, const QTensor<U>& t2) {
+    return (xt::sum(t2._tensor) / xt::sum(t1._tensor))();
+}
+
+// Get the global norm between two QTensors
+// This function is only well defined when the cosine similarity is high between t1, t2
+template <typename U>
+U globalNorm(const QTensor<U>& t1, const QTensor<U>& t2) {
+    return std::abs(globalScalarFactor(t1, t2));
+}
+
+// Get the global phase between two QTensors
+// This function is only well defined when the cosine similarity is high between t1, t2
+template <typename U>
+Phase globalPhase(const QTensor<U>& t1, const QTensor<U>& t2) {
+    return Phase(std::arg(globalScalarFactor(t1, t2)));
 }
 
 //------------------------------
