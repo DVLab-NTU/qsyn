@@ -695,14 +695,52 @@ ZXGReadCmd::exec(const string &option){
     
     if(!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
     if(options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
+
+    bool doReplace = false;
+    string fileName;
+    for (size_t i = 0, n = options.size(); i < n; ++i)
+    {
+        if (myStrNCmp("-Replace", options[i], 2) == 0)
+        {
+            if (doReplace)
+                return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
+            doReplace = true;
+        }
+        else
+        {
+            if (fileName.size())
+                return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
+            fileName = options[i];
+        }
+    }
+
     if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
         cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXEdit." << endl;
         return CMD_EXEC_ERROR;
     }
-    zxGraphMgr->getGraph()->reset();
-    if(! zxGraphMgr->getGraph()->readZX(options[0])){
-        cerr << "Error: The format in \"" << options[0] << "\" has something wrong!!" << endl;
+
+    if(zxGraphMgr->getGraph()->isEmpty()){
+        if(! zxGraphMgr->getGraph()->readZX(fileName)){
+            cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
+            return CMD_EXEC_ERROR;
+        }
     }
+    else{
+        if (doReplace){
+            cerr << "Note: original zxGraph is replaced..." << endl;
+            zxGraphMgr->getGraph()->reset();
+            if(! zxGraphMgr->getGraph()->readZX(fileName)){
+                cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
+                return CMD_EXEC_ERROR;
+            }
+        }
+        else{
+            cerr << "Error: The ZXGraph is not empty!!" << endl;
+            return CMD_EXEC_ERROR;
+        }
+    }
+    
+    
     return CMD_EXEC_DONE;
 }
 
