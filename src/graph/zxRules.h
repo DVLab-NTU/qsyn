@@ -281,7 +281,7 @@ class LComp : public ZXRule{
 
     LComp(){
       _matchTypeVec.clear();
-      _name = "Pivot Rule";
+      _name = "Local Complementary";
     }
     ~LComp(){}
 
