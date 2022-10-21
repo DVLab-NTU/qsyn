@@ -692,7 +692,7 @@ void ZXGTSMappingCmd::help() const{
 CmdExecStatus
 ZXGReadCmd::exec(const string &option){
     if(curCmd != ZXON){
-        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXEdit." << endl;
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXGRead." << endl;
         return CMD_EXEC_ERROR;
     }
     // check option
@@ -719,19 +719,16 @@ ZXGReadCmd::exec(const string &option){
         }
     }
 
-    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
-        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXRead." << endl;
-        return CMD_EXEC_ERROR;
-    }
-
-    if(zxGraphMgr->getGraph()->isEmpty()){
-        if(! zxGraphMgr->getGraph()->readZX(fileName)){
-            cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
-            return CMD_EXEC_ERROR;
+    if (doReplace){
+        if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
+            cerr << "Note: ZX-graph list is empty now. Create a new one." << endl;
+            zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
+            if(! zxGraphMgr->getGraph()->readZX(fileName)){
+                cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
+                return CMD_EXEC_ERROR;
+            }
         }
-    }
-    else{
-        if (doReplace){
+        else{
             cerr << "Note: original zxGraph is replaced..." << endl;
             zxGraphMgr->getGraph()->reset();
             if(! zxGraphMgr->getGraph()->readZX(fileName)){
@@ -739,13 +736,14 @@ ZXGReadCmd::exec(const string &option){
                 return CMD_EXEC_ERROR;
             }
         }
-        else{
-            cerr << "Error: The ZXGraph is not empty!!" << endl;
+    }
+    else{
+        zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
+        if(! zxGraphMgr->getGraph()->readZX(fileName)){
+            cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
             return CMD_EXEC_ERROR;
         }
     }
-    
-    
     return CMD_EXEC_DONE;
 }
 
