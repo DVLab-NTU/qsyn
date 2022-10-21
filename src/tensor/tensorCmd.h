@@ -1,16 +1,17 @@
 /****************************************************************************
-  FileName     [ tensorMgr.h ]
+  FileName     [ tensorCmd.h ]
   PackageName  [ tensor ]
-  Synopsis     [ Identity Removal Rule Definition ]
+  Synopsis     [ Define tensor commands ]
   Author       [ Mu-Te (Joshua) Lau ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef TENSOR_MGR_H
-#define TENSOR_MGR_H
+#ifndef TENSOR_CMD_H
+#define TENSOR_CMD_H
 
-template <typename DT>
-class TensorMgr {
-    
-};
+#include "cmdParser.h"
 
-#endif // TENSOR_MGR_H
+CmdClass(TSMPrintCmd);
+CmdClass(TSPrintCmd);
+CmdClass(TSEquivalenceCmd);
+
+#endif // TENSOR_CMD_H

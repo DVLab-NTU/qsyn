@@ -259,11 +259,12 @@ Tensor<DT> Tensor<DT>::transpose(const TensorAxisList& perm) {
 // Friend functions
 //------------------------------
 
-// Calculate the cosine similarity of two tensors
+// Calculate the inner products between two tensors
 template <typename U>
 double innerProduct(const Tensor<U>& t1, const Tensor<U>& t2) {
     return xt::abs(xt::sum(xt::conj(t1._tensor) * t2._tensor))();
 }
+// Calculate the cosine similarity of two tensors
 template <typename U>
 double cosineSimilarity(const Tensor<U>& t1, const Tensor<U>& t2) {
     return innerProduct(t1, t2) / std::sqrt(innerProduct(t1, t1) * innerProduct(t2, t2));
