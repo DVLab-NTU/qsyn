@@ -90,6 +90,6 @@ void ZXGSimpCmd::usage(ostream &os) const{
 }
 
 void ZXGSimpCmd::help() const{
-    cout << setw(15) << left << "ZXGSimp: " << "do simplification strategies for ZX-graph" << endl; 
+    cout << setw(15) << left << "ZXGSimp: " << "perform simplification strategies for ZX-graph" << endl; 
 }
 

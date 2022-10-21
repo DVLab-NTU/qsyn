@@ -212,7 +212,7 @@ void ZXCHeckoutCmd::usage(ostream &os) const{
 }
 
 void ZXCHeckoutCmd::help() const{
-    cout << setw(15) << left << "ZXCHeckout: " << "Checkout to Graph <id> in ZXGraphMgr" << endl; 
+    cout << setw(15) << left << "ZXCHeckout: " << "chec kout to Graph <id> in ZXGraphMgr" << endl; 
 }
 
 
@@ -610,7 +610,7 @@ void ZXGTraverseCmd::usage(ostream &os) const{
 }
 
 void ZXGTraverseCmd::help() const{
-    cout << setw(15) << left << "ZXGTRaverse: " << "Traverse ZXGraph and update topological order" << endl; 
+    cout << setw(15) << left << "ZXGTRaverse: " << "traverse ZX-graph and update topological order of vertices" << endl; 
 }
 
 
@@ -631,7 +631,7 @@ void ZXGTSMappingCmd::usage(ostream &os) const{
 }
 
 void ZXGTSMappingCmd::help() const{
-    cout << setw(15) << left << "ZXGTSMapping: " << "get tensor form of ZXGraph" << endl; 
+    cout << setw(15) << left << "ZXGTSMapping: " << "mapping to tensor from ZX-Graph" << endl; 
 }
 
 //----------------------------------------------------------------------
@@ -737,5 +737,5 @@ void ZXGWriteCmd::usage(ostream &os) const
 void ZXGWriteCmd::help() const
 {
    cout << setw(15) << left << "ZXGWrite: "
-        << "write zx file\n";
+        << "write ZXFile\n";
 }

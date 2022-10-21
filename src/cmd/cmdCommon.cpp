@@ -323,7 +323,7 @@ void
 SeedCmd::help() const
 {
    cout << setw(15) << left << "SEED: "
-        << "fix seed" << endl;
+        << "fix the seed" << endl;
 }
 
 //----------------------------------------------------------------------
