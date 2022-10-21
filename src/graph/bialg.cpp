@@ -62,11 +62,13 @@ void Bialgebra::match(ZXGraph* g){
     // Verify if the edge is connected by a X and a Z spider.
     if (!((left->getType() == VertexType::X && right->getType() == VertexType::Z)||(left->getType() == VertexType::Z && right->getType() == VertexType::X))) continue;
     
+    // Check if the vertices is_ground (with only one edge).
+    if ((left->getNumEdges == 1) || (right->getNumEdges == 1)) continue;
+    
     vector<ZXVertex*> neighbor_of_left = left->getNeighbors(), neighbor_of_right = right->getNeighbors();
 
     // Check if a vertex has a same neighbor, in other words, two or more edges to another vertex.
-    if (check_duplicated_vertex(neighbor_of_left)) continue;
-    if (check_duplicated_vertex(neighbor_of_right)) continue;
+    if (check_duplicated_vertex(neighbor_of_left)||check_duplicated_vertex(neighbor_of_right)) continue;
 
     // Check if all neighbors of z are x without phase and all neighbors of x are z without phase.
     if (!all_of(neighbor_of_left.begin(), neighbor_of_left.end(), [right](ZXVertex* v){return (v->getPhase()==0 && v->getType()==right->getType());})) continue;
