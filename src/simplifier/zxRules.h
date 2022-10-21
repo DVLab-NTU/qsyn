@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ ZXRule.h ]
-  PackageName  [ graph ]
+  PackageName  [ simplifier ]
   Synopsis     [ ZX Basic Rules ]
   Author       [ Cheng-Hua Lu ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
