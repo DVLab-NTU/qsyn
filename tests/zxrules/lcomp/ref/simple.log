@@ -6,6 +6,8 @@ Successfully generate Graph 0
 Checkout to Graph 0
 
 qsyn> zxgr benchmark/zx/lcomp_1.zx
+Successfully generate Graph 1
+Checkout to Graph 1
 Add input 0
 Add input 1
 Add output 2
