@@ -133,6 +133,7 @@ void CmdParser::printHelps() const {
     CmdMap::const_iterator mi;
     for (mi = _cmdMap.begin(); mi != _cmdMap.end(); ++mi)
         (*mi).second->help();
+ 
     cout << endl;
 }
 
@@ -417,6 +418,7 @@ void CmdParser::listCmd(const string& str) {
         cmdSpacing = 60 / cmdsPerLine;
         size_t count = 0;
         for (auto itr = bi; itr != ei; ++itr) {
+            if(itr->first == "//") continue;
             if ((count++ % cmdsPerLine) == 0) cout << endl;
             string ss = itr->first + itr->second->getOptCmd();
             cout << setw(cmdSpacing) << left << ss;
