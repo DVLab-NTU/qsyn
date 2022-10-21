@@ -511,13 +511,12 @@ ZXGEditCmd::exec(const string &option){
         else{
             if(options.size() == 4) zxGraphMgr->getGraph()->addVertex(id, q, str2VertexType(options[3]));
             else{
-                double phase;
-                bool isDouble = myStr2Double(options[4], phase);
-                if(!isDouble){
-                    cerr << "Error: phase must be `double`." << endl;
-                    return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
+                Phase phase;
+                if(!phase.fromString(options[4])){
+                    cerr << "Error: not a legal phase!!" << endl;
+                    return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[4]);
                 }
-                zxGraphMgr->getGraph()->addVertex(id, q, str2VertexType(options[3]), Phase(phase));
+                zxGraphMgr->getGraph()->addVertex(id, q, str2VertexType(options[3]), phase);
             }
         }
     }
