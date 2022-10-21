@@ -243,6 +243,10 @@ class HboxFusion : public ZXRule{
     
 };
 
+/**
+ * @brief 
+ * 
+ */
 class Pivot : public ZXRule{
   public:
     //TODO: Check MatchType
@@ -268,6 +272,31 @@ class Pivot : public ZXRule{
     
 };
 
+
+class LComp : public ZXRule{
+  public:
+    //TODO: Check MatchType
+    typedef pair<ZXVertex*, vector<ZXVertex*> > MatchType;
+    typedef vector<MatchType> MatchTypeVec;
+
+    LComp(){
+      _matchTypeVec.clear();
+      _name = "Pivot Rule";
+    }
+    ~LComp(){}
+
+    
+    void match(ZXGraph* g) override; 
+    void rewrite(ZXGraph* g) override;
+
+    // Getter and Setter
+    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
+    
+  protected:
+    MatchTypeVec                                      _matchTypeVec;
+    
+};
 
 
 #endif
