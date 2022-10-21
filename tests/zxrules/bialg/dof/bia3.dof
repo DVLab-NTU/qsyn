@@ -1,0 +1,39 @@
+ver 9
+zxmode -on
+zxnew 
+zxge -addi 0 0
+zxge -addo 1 0
+zxge -addi 2 1
+zxge -addo 3 1
+zxge -addv 4 0 X
+zxge -addv 5 0 Z
+zxge -addv 6 1 X
+zxge -addv 7 0 X
+zxge -addv 8 0 Z
+zxge -addv 9 1 Z
+zxge -addv 10 0 X
+zxge -addv 11 0 Z
+zxge -addv 12 1 X
+zxge -addv 13 0 X
+zxge -addv 14 0 Z
+zxge -addv 15 0 Z
+zxge -adde 0 4 SIMPLE
+zxge -adde 1 14 HADAMARD
+zxge -adde 2 6 SIMPLE
+zxge -adde 3 15 SIMPLE
+zxge -adde 4 5 SIMPLE
+zxge -adde 5 7 SIMPLE
+zxge -adde 5 6 HADAMARD
+zxge -adde 7 8 SIMPLE
+zxge -adde 7 9 SIMPLE
+zxge -adde 8 10 HADAMARD
+zxge -adde 10 9 SIMPLE
+zxge -adde 10 11 SIMPLE
+zxge -adde 11 12 HADAMARD
+zxge -adde 11 13 HADAMARD
+zxge -adde 14 13 SIMPLE
+zxge -adde 12 15 SIMPLE
+zxgsimp -bia
+zxgp -v
+zxgprint -e
+q -f
