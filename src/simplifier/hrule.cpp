@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ hrule.cpp ]
-  PackageName  [ graph ]
+  PackageName  [ simplifier ]
   Synopsis     [ Hadamard Rule Definition ]
   Author       [ Cheng-Hua Lu ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]

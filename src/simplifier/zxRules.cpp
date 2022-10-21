@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ zxRules.cpp ]
-  PackageName  [ graph ]
+  PackageName  [ simplifier ]
   Synopsis     [ Definition for each rules in zxRules.h ]
   Author       [ Cheng-Hua Lu ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]

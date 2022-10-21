@@ -139,7 +139,7 @@ void QCirReadCmd::usage(ostream &os) const
 void QCirReadCmd::help() const
 {
    cout << setw(15) << left << "QCCRead: "
-        << "read in a circuit and construct the netlist" << endl;
+        << "read a circuit and construct corresponding netlist" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -457,7 +457,7 @@ void QCirAddQubitCmd::usage(ostream &os) const
 void QCirAddQubitCmd::help() const
 {
    cout << setw(15) << left << "QCBAdd: "
-        << "add qubit bit(s)\n";
+        << "add qubit(s)\n";
 }
 
 //----------------------------------------------------------------------
@@ -496,7 +496,7 @@ void QCirDeleteGateCmd::usage(ostream &os) const
 void QCirDeleteGateCmd::help() const
 {
    cout << setw(15) << left << "QCGDelete: "
-        << "delete a gate\n";
+        << "delete quantum gate\n";
 }
 
 //----------------------------------------------------------------------
@@ -565,7 +565,7 @@ void QCirZXMappingCmd::usage(ostream &os) const
 void QCirZXMappingCmd::help() const
 {
    cout << setw(15) << left << "QCZXMapping: "
-        << "mapping to ZX diagram\n";
+        << "mapping to ZX-graph from quantum circuit\n";
 }
 
 //----------------------------------------------------------------------
@@ -595,7 +595,7 @@ void QCirTSMappingCmd::usage(ostream &os) const
 void QCirTSMappingCmd::help() const
 {
    cout << setw(15) << left << "QCTSMapping: "
-        << "mapping to tensor\n";
+        << "mapping to tensor from quantum circuit\n";
 }
 
 //----------------------------------------------------------------------

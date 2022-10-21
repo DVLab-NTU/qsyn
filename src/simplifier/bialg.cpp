@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ bialg.cpp ]
-  PackageName  [ graph ]
+  PackageName  [ simplifier ]
   Synopsis     [ Bialgebra Rule Definition ]
   Author       [ Cheng-Hua Lu ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
@@ -62,16 +62,22 @@ void Bialgebra::match(ZXGraph* g){
     // Verify if the edge is connected by a X and a Z spider.
     if (!((left->getType() == VertexType::X && right->getType() == VertexType::Z)||(left->getType() == VertexType::Z && right->getType() == VertexType::X))) continue;
     
+    // Check if the vertices is_ground (with only one edge).
+    if ((left->getNumNeighbors() == 1) || (right->getNumNeighbors() == 1)) continue;
+    
     vector<ZXVertex*> neighbor_of_left = left->getNeighbors(), neighbor_of_right = right->getNeighbors();
 
-    // Check if a vertex has a same neighbor, in other words, two edges to another vertex.
-    if (check_duplicated_vertex(neighbor_of_left)) continue;
-    if (check_duplicated_vertex(neighbor_of_right)) continue;
+    // Check if a vertex has a same neighbor, in other words, two or more edges to another vertex.
+    if (check_duplicated_vertex(neighbor_of_left)||check_duplicated_vertex(neighbor_of_right)) continue;
 
     // Check if all neighbors of z are x without phase and all neighbors of x are z without phase.
     if (!all_of(neighbor_of_left.begin(), neighbor_of_left.end(), [right](ZXVertex* v){return (v->getPhase()==0 && v->getType()==right->getType());})) continue;
     if (!all_of(neighbor_of_right.begin(), neighbor_of_right.end(), [left](ZXVertex* v){return (v->getPhase()==0 && v->getType()==left->getType());})) continue;
 
+    // Check if all the edges are SIMPLE
+    // TODO: Make H edge aware too.
+    if (!all_of(left->getNeighborMap().begin(), left->getNeighborMap().end(), [](pair<ZXVertex*, EdgeType*> edge_pair){return *edge_pair.second==EdgeType::SIMPLE;}))continue;
+    if (!all_of(right->getNeighborMap().begin(), right->getNeighborMap().end(), [](pair<ZXVertex*, EdgeType*> edge_pair){return *edge_pair.second==EdgeType::SIMPLE;})) continue;
 
     _matchTypeVec.push_back(g->getEdges()[i]);
     if (verbose>4) cout << "Find a match (" << left->getId() << " " << right->getId() << ")" << endl;
