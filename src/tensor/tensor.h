@@ -42,13 +42,15 @@ public:
     Tensor(xt::nested_initializer_list_t<DT, 5> il): _tensor(il) { resetAxisHistory(); }
 
     Tensor(const TensorShape& shape) : _tensor(shape) { resetAxisHistory(); }
-    Tensor(TensorShape&& shape) : _tensor(shape) { resetAxisHistory(); }
+    Tensor(TensorShape&& shape) : _tensor(shape)      { resetAxisHistory(); }
     template <typename From>
     requires std::convertible_to<From, InternalType>
-    Tensor(const From& internal) : _tensor(internal) { resetAxisHistory(); }
+    Tensor(const From& internal) : _tensor(internal)  { resetAxisHistory(); }
     template <typename From>
     requires std::convertible_to<From, InternalType>
-    Tensor(From&& internal) : _tensor(internal) { resetAxisHistory(); }
+    Tensor(From&& internal) : _tensor(internal)       { resetAxisHistory(); }
+
+    virtual ~Tensor() {}
 
     template <typename... Args>
     DT& operator()(const Args&... args);

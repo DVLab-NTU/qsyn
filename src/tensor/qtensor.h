@@ -17,6 +17,7 @@ protected:
     using DataType = Tensor<std::complex<T>>::DataType;
     using InternalType = Tensor<std::complex<T>>::InternalType;
 public:
+    QTensor() : Tensor<DataType>(1.+0.i) {}
     QTensor(const Tensor<DataType>& t) : Tensor<DataType>(t) {}
     QTensor(Tensor<DataType>&& t) : Tensor<DataType>(t) {}
 
@@ -35,6 +36,8 @@ public:
     template <typename From>
     requires std::convertible_to<From, InternalType>
     QTensor(From&& internal) : Tensor<DataType>(internal) {}
+
+    virtual ~QTensor() {}
 
     static QTensor<T> identity(const size_t& n);
     static QTensor<T> zspider(const size_t& n, const Phase& phase = Phase(0));

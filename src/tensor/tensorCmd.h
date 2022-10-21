@@ -10,7 +10,7 @@
 
 #include "cmdParser.h"
 
-CmdClass(TSMPrintCmd);
+CmdClass(TSResetCmd);
 CmdClass(TSPrintCmd);
 CmdClass(TSEquivalenceCmd);
 
