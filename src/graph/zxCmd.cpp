@@ -55,6 +55,8 @@ enum ZXCmdState{
 
 static ZXCmdState curCmd = ZXOFF;
 
+
+
 //----------------------------------------------------------------------
 //    ZXMode [-ON | -OFF | -Reset | -Print]
 //----------------------------------------------------------------------
@@ -106,6 +108,7 @@ void ZXModeCmd::help() const{
 }
 
 
+
 //----------------------------------------------------------------------
 //    ZXNew [(size_t id)]
 //----------------------------------------------------------------------
@@ -137,6 +140,7 @@ void ZXNewCmd::usage(ostream &os) const{
 void ZXNewCmd::help() const{
     cout << setw(15) << left << "ZXNew: " << "new ZX-graph to ZXGraphMgr" << endl; 
 }
+
 
 
 //----------------------------------------------------------------------
@@ -176,6 +180,7 @@ void ZXRemoveCmd::help() const{
 }
 
 
+
 //----------------------------------------------------------------------
 //    ZXCHeckout <(size_t id)>
 //----------------------------------------------------------------------
@@ -213,6 +218,7 @@ void ZXCHeckoutCmd::help() const{
 }
 
 
+
 //----------------------------------------------------------------------
 //    ZXPrint [-Summary | -Focus | -Num]
 //----------------------------------------------------------------------
@@ -241,6 +247,7 @@ void ZXPrintCmd::usage(ostream &os) const{
 void ZXPrintCmd::help() const{
     cout << setw(15) << left << "ZXPrint: " << "print info in ZXGraphMgr" << endl; 
 }
+
 
 
 //----------------------------------------------------------------------
@@ -273,6 +280,7 @@ void ZXCOPyCmd::usage(ostream &os) const{
 void ZXCOPyCmd::help() const{
     cout << setw(15) << left << "ZXCOPy: " << "copy a ZX-graph" << endl; 
 }
+
 
 
 //----------------------------------------------------------------------
@@ -315,6 +323,7 @@ void ZXCOMposeCmd::help() const{
 }
 
 
+
 //----------------------------------------------------------------------
 //    ZXTensor <(size_t id)>
 //----------------------------------------------------------------------
@@ -353,8 +362,6 @@ void ZXTensorCmd::usage(ostream &os) const{
 void ZXTensorCmd::help() const{
     cout << setw(15) << left << "ZXTensor: " << "tensor a ZX-graph" << endl; 
 }
-
-
 
 
 
@@ -401,6 +408,7 @@ void ZXGTestCmd::help() const{
 }
 
 
+
 //----------------------------------------------------------------------
 //    ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges]
 //----------------------------------------------------------------------
@@ -436,6 +444,8 @@ void ZXGPrintCmd::usage(ostream &os) const{
 void ZXGPrintCmd::help() const{
     cout << setw(15) << left << "ZXGPrint: " << "print info in ZX-graph" << endl; 
 }
+
+
 
 //------------------------------------------------------------------------------------
 //    ZXGEdit -RMVertex [i | <(size_t id(s))> ]
@@ -582,8 +592,10 @@ void ZXGEditCmd::help() const{
     cout << setw(15) << left << "ZXGEdit: " << "edit ZX-graph" << endl;
 }
 
+
+
 //----------------------------------------------------------------------
-//    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -PICOPY | -HFusion | -PIVot]
+//    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -PICOPY | -HFusion | -PIVOT | -LComp ]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGSimpCmd::exec(const string &option){
@@ -632,13 +644,17 @@ ZXGSimpCmd::exec(const string &option){
             s.setRule(new Pivot());
             s.simp();
         }
+        else if(myStrNCmp("-LComp", token, 2) == 0){
+            s.setRule(new LComp());
+            s.simp();
+        }
         else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     }
     return CMD_EXEC_DONE;
 }
 
 void ZXGSimpCmd::usage(ostream &os) const{
-    os << "Usage: ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -PICOPY | -HFusion | -PIVOT]" << endl;
+    os << "Usage: ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -PICOPY | -HFusion | -PIVOT | -LComp ]" << endl;
 }
 
 void ZXGSimpCmd::help() const{
@@ -665,6 +681,8 @@ void ZXGTraverseCmd::usage(ostream &os) const{
 void ZXGTraverseCmd::help() const{
     cout << setw(15) << left << "ZXGTRaverse: " << "Traverse ZXGraph and update topological order" << endl; 
 }
+
+
 
 //----------------------------------------------------------------------
 //    ZXGTSMapping
