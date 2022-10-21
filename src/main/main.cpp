@@ -19,6 +19,7 @@ extern bool initCommonCmd();
 // extern bool initCirCmd();
 extern bool initQCirCmd();
 extern bool initZXCmd();
+extern bool initSimpCmd();
 size_t verbose = 3; // Default verbose level = 3
 size_t formatLevel = 1;
 
@@ -60,7 +61,7 @@ main(int argc, char** argv)
    }
 
    // if (!initCommonCmd() || !initCirCmd() || !initQCirCmd())
-   if (!initCommonCmd() || !initQCirCmd() || !initZXCmd() )
+   if (!initCommonCmd() || !initQCirCmd() || !initZXCmd() || !initSimpCmd() )
    // if (!initCommonCmd() || !initQCirCmd() )
       return 1;
 
