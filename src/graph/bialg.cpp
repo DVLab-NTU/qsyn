@@ -63,7 +63,7 @@ void Bialgebra::match(ZXGraph* g){
     if (!((left->getType() == VertexType::X && right->getType() == VertexType::Z)||(left->getType() == VertexType::Z && right->getType() == VertexType::X))) continue;
     
     // Check if the vertices is_ground (with only one edge).
-    if ((left->getNumEdges == 1) || (right->getNumEdges == 1)) continue;
+    if ((left->getNumNeighbors() == 1) || (right->getNumNeighbors() == 1)) continue;
     
     vector<ZXVertex*> neighbor_of_left = left->getNeighbors(), neighbor_of_right = right->getNeighbors();
 
