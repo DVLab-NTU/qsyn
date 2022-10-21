@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ simplify.h ]
-  PackageName  [ graph ]
+  PackageName  [ simplifier ]
   Synopsis     [ Simplification strategies ]
   Author       [ Cheng-Hua Lu ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
