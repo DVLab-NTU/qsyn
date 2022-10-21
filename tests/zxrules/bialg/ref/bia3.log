@@ -1,0 +1,184 @@
+qsyn> ver 9
+Note: verbose level is set to 9
+
+qsyn> zxmode -on
+ZXMODE turn ON!
+
+qsyn> zxnew 
+Successfully generate Graph 0
+Checkout to Graph 0
+
+qsyn> zxge -addi 0 0
+Add input 0
+
+qsyn> zxge -addo 1 0
+Add output 1
+
+qsyn> zxge -addi 2 1
+Add input 2
+
+qsyn> zxge -addo 3 1
+Add output 3
+
+qsyn> zxge -addv 4 0 X
+Add vertex 4
+
+qsyn> zxge -addv 5 0 Z
+Add vertex 5
+
+qsyn> zxge -addv 6 1 X
+Add vertex 6
+
+qsyn> zxge -addv 7 0 X
+Add vertex 7
+
+qsyn> zxge -addv 8 0 Z
+Add vertex 8
+
+qsyn> zxge -addv 9 1 Z
+Add vertex 9
+
+qsyn> zxge -addv 10 0 X
+Add vertex 10
+
+qsyn> zxge -addv 11 0 Z
+Add vertex 11
+
+qsyn> zxge -addv 12 1 X
+Add vertex 12
+
+qsyn> zxge -addv 13 0 X
+Add vertex 13
+
+qsyn> zxge -addv 14 0 Z
+Add vertex 14
+
+qsyn> zxge -addv 15 0 Z
+Add vertex 15
+
+qsyn> zxge -adde 0 4 SIMPLE
+Add edge ( 0, 4 )
+
+qsyn> zxge -adde 1 14 HADAMARD
+Add edge ( 1, 14 )
+
+qsyn> zxge -adde 2 6 SIMPLE
+Add edge ( 2, 6 )
+
+qsyn> zxge -adde 3 15 SIMPLE
+Add edge ( 3, 15 )
+
+qsyn> zxge -adde 4 5 SIMPLE
+Add edge ( 4, 5 )
+
+qsyn> zxge -adde 5 7 SIMPLE
+Add edge ( 5, 7 )
+
+qsyn> zxge -adde 5 6 HADAMARD
+Add edge ( 5, 6 )
+
+qsyn> zxge -adde 7 8 SIMPLE
+Add edge ( 7, 8 )
+
+qsyn> zxge -adde 7 9 SIMPLE
+Add edge ( 7, 9 )
+
+qsyn> zxge -adde 8 10 HADAMARD
+Add edge ( 8, 10 )
+
+qsyn> zxge -adde 10 9 SIMPLE
+Add edge ( 10, 9 )
+
+qsyn> zxge -adde 10 11 SIMPLE
+Add edge ( 10, 11 )
+
+qsyn> zxge -adde 11 12 HADAMARD
+Add edge ( 11, 12 )
+
+qsyn> zxge -adde 11 13 HADAMARD
+Add edge ( 11, 13 )
+
+qsyn> zxge -adde 14 13 SIMPLE
+Add edge ( 14, 13 )
+
+qsyn> zxge -adde 12 15 SIMPLE
+Add edge ( 12, 15 )
+
+qsyn> zxgsimp -bia
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
+ID:	4	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (5, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (6, [1m[34mH[0m[0m) (7, -) 
+ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(2, -) (5, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(5, -) (8, -) (9, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(7, -) (10, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(7, -) (10, -) 
+ID:	10	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, [1m[34mH[0m[0m) (9, -) (11, -) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, -) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(11, [1m[34mH[0m[0m) (15, -) 
+ID:	13	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(11, [1m[34mH[0m[0m) (14, -) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, [1m[34mH[0m[0m) (13, -) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
+Total #Vertices: 16
+Find a match (7 9)
+MatchtypevecNum= 1
+Bialgebra Rule: 1 Add edge ( 8, 10 )
+Add edge ( 5, 10 )
+Remove ID: 7
+Remove ID: 9
+. ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
+ID:	4	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (5, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (6, [1m[34mH[0m[0m) (10, -) 
+ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(2, -) (5, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(10, -) (10, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(5, -) (8, -) (8, [1m[34mH[0m[0m) (11, -) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, -) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(11, [1m[34mH[0m[0m) (15, -) 
+ID:	13	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(11, [1m[34mH[0m[0m) (14, -) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, [1m[34mH[0m[0m) (13, -) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
+Total #Vertices: 14
+MatchtypevecNum= 0
+1 iterations
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
+ID:	4	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (5, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (6, [1m[34mH[0m[0m) (10, -) 
+ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(2, -) (5, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(10, -) (10, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(5, -) (8, -) (8, [1m[34mH[0m[0m) (11, -) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, -) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(11, [1m[34mH[0m[0m) (15, -) 
+ID:	13	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(11, [1m[34mH[0m[0m) (14, -) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, [1m[34mH[0m[0m) (13, -) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
+Total #Vertices: 14
+
+qsyn> zxgprint -e
+( 0, 4 )	Type:	-
+( 1, 14 )	Type:	[1m[34mH[0m[0m
+( 2, 6 )	Type:	-
+( 3, 15 )	Type:	-
+( 4, 5 )	Type:	-
+( 5, 6 )	Type:	[1m[34mH[0m[0m
+( 8, 10 )	Type:	[1m[34mH[0m[0m
+( 10, 11 )	Type:	-
+( 11, 12 )	Type:	[1m[34mH[0m[0m
+( 11, 13 )	Type:	[1m[34mH[0m[0m
+( 14, 13 )	Type:	-
+( 12, 15 )	Type:	-
+( 8, 10 )	Type:	-
+( 5, 10 )	Type:	-
+Total #Edges: 14
+
+qsyn> q -f
+
