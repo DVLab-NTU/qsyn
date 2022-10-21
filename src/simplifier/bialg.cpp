@@ -11,7 +11,7 @@
 #include <vector>
 #include "zxRules.h"
 using namespace std;
-Í
+
 extern size_t verbose;
 
 /**
