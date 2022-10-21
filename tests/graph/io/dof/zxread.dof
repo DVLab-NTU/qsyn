@@ -1,0 +1,7 @@
+ver 3
+zxm -on
+zxn
+zxgr benchmark/zx/swap.zx
+zxgr benchmark/zx/tof3.zx
+zxgr -R benchmark/zx/tof3.zx
+q -f
