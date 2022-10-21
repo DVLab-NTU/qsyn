@@ -63,13 +63,12 @@ void HRule::rewrite(ZXGraph* g){
             ns.push_back(itr.first);
             ets.push_back(itr.second);
         } 
-        for(size_t i=0; i<ns.size()/2; i++){
-            _edgeTableKeys.push_back(make_pair(ns[0], ns[1]));
-            if(*ets[0] == *ets[1]) _edgeTableValues.push_back(make_pair(0,1));
-            else _edgeTableValues.push_back(make_pair(1,0));
+        
+        _edgeTableKeys.push_back(make_pair(ns[0], ns[1]));
+        if(*ets[0] == *ets[1]) _edgeTableValues.push_back(make_pair(0,1));
+        else _edgeTableValues.push_back(make_pair(1,0));
 
-            //! TODO Correct for the sqrt(2) difference in H-boxes and H-edges
-        }
+        //! TODO Correct for the sqrt(2) difference in H-boxes and H-edges
     }
 }
 
