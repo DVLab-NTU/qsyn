@@ -280,7 +280,10 @@ class ZXGraph{
         vector<EdgePair> getInnerEdges();
         void cleanRedundantEdges();
 
-        
+        // I/O
+        bool readZX(string);
+        bool writeZX(string);
+
     private:
         size_t                            _id;
         void**                            _ref;

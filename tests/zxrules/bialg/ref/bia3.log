@@ -1,4 +1,5 @@
 qsyn> ver 9
+Note: verbose level is set to 9
 
 qsyn> zxmode -on
 ZXMODE turn ON!

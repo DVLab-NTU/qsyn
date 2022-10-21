@@ -3,7 +3,6 @@ qsyn> qcba
 qsyn> qcga -rz -ph 11*pi/17 0 
 
 qsyn> qcga -rz -ph 1l*pi/17 0 
-Can't Identify Number : 1l
 Error: not a legal phase!!
 Error: Illegal option!! (1l*pi/17)
 
@@ -14,7 +13,6 @@ qsyn> qcga -rz -ph 3*4/PI 0
 qsyn> qcga -rz -ph PI*PI/pi 0
 
 qsyn> qcga -rz -ph PI*3PI/pi 0
-Can't Identify Number : 3PI
 Error: not a legal phase!!
 Error: Illegal option!! (PI*3PI/pi)
 
