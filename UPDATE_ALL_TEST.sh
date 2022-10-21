@@ -1,32 +1,24 @@
+RETURN_CODE=0
 
-bold=$(tput bold)
-normal=$(tput sgr0)
-red='\033[0;31m'
-green='\033[0;32m'
-white='\033[0m'
-pass_text="${green}${bold}Passed${normal}${white}"
-fail_text="${red}${bold}Failed${normal}${white}"
+echo "> Updating all testcases' reference..."
+for TEST_PKG in tests/*/; do
+    DIR_NAME=$(basename $TEST_PKG)
+    if [ "$DIR_NAME" = "bin" ]; then continue; fi
 
-echo "> Updating all testcases ref..."
-for test_date in tests/*/; do
-    tmp=$(basename $test_date)
-    if [ "$tmp" = "bin" ]; then continue; fi
-
-    for test_pkg in ${test_date}*/; do
+    for TEST_SUBPKG in ${TEST_PKG}*/; do
         # Print the package under test
-        relPath=$(realpath --relative-to=${PWD}/tests/ ${PWD}/${test_pkg})
-        printf "> Updating %s...\n" $relPath
-        for test_file in ${test_pkg}testcases/*; do
-            test_name=$(basename $test_file)
-            dofile="${test_pkg}testcases/$test_name"
-            ref_file="${test_pkg}reference/$test_name"
-            # Test the dofile
-            printf "    - Updating %-20s %s" $test_name
-            ./qsyn < ${dofile} > ${ref_file}
-            # print the result
-            # grep returns 0 if found matching strings
-            # status=$?
-            # [ $status -eq 0 ] && echo ${pass_text} || echo ${fail_text}
+        REL_PATH=$(realpath --relative-to=${PWD}/tests/ ${PWD}/${TEST_SUBPKG})
+        printf "> Checking %s...\n" $REL_PATH
+        for TEST_FILE in ${TEST_SUBPKG}dof/*; do
+            # Update the dofile
+            printf "    - "
+            ./DOFILE.sh ${TEST_FILE} -up
+            STATUS=$?
+            if [ $STATUS -ne 0 ]; then 
+                RETURN_CODE=1;
+            fi
         done
     done
 done
+
+exit $RETURN_CODE

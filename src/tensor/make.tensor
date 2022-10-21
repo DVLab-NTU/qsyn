@@ -1,10 +1,5 @@
 PKGFLAG   = 
-ifneq (,$(findstring -DOSX, $(OSFLAG)))
-    PKGFLAG += -llapack -lcblas -lblas -DHAVE_CBLAS=1
-else
-    PKGFLAG += -llapack -lcblas -lblas -lgfortran -DHAVE_CBLAS=1
-endif
-EXTHDRS   = tensor.h
+EXTHDRS   = qtensor.h tensor.h tensorUtil.h
 
 include ../Makefile.in
 include ../Makefile.lib

@@ -20,6 +20,7 @@
 #include "qcirDef.h"
 #include "phase.h"
 #include "zxGraph.h"
+#include "qtensor.h"
 
 extern QCir *qCir;
 using namespace std;
@@ -27,7 +28,7 @@ using namespace std;
 class QCir
 {
 public:
-  QCir()
+  QCir(): _tensor(1.+0.i)
   {
     _gateId = 0;
     _qubitId = 0;
@@ -37,7 +38,8 @@ public:
     _qgate.clear();
     _qubits.clear();
     _topoOrder.clear();
-    _ZXG = new ZXGraph(0);
+    _ZXGraphList.clear();
+    
   }
   ~QCir() {}
 
@@ -57,8 +59,13 @@ public:
   bool parseQC(string qc_file);
   bool parseQSIM(string qsim_file);
   bool parseQUIPPER(string quipper_file);
+  bool writeQASM(string qasm_output);
   void incrementZXId() { _ZXNodeId++; }
-  void mapping();
+  
+  void ZXMapping();
+  void tensorMapping();
+  
+  void clearMapping();
   void updateGateTime();
   void printZXTopoOrder();
 
@@ -84,6 +91,7 @@ public:
   
 private:
   void DFS(QCirGate*);
+  void updateTensorPin(vector<BitInfo>, QTensor<double>);
   bool _dirty;
   unsigned _globalDFScounter;
   size_t _gateId;
@@ -92,7 +100,9 @@ private:
   vector<QCirGate *> _qgate;
   vector<QCirQubit*> _qubits;
   vector<QCirGate *> _topoOrder;
-  ZXGraph* _ZXG;
+  vector<ZXGraph *>  _ZXGraphList;
+  QTensor<double>    _tensor;
+  unordered_map<size_t, pair<size_t,size_t>> _qubit2pin;
 };
 
 #endif // QCIR_MGR_H

@@ -30,7 +30,9 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCGDelete", 4, new QCirDeleteGateCmd) &&
          cmdMgr->regCmd("QCBDelete", 4, new QCirDeleteQubitCmd) &&
          cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd) &&
-         cmdMgr->regCmd("QCZXMapping", 5, new QCirZXMappingCmd)
+         cmdMgr->regCmd("QCZXMap", 5, new QCirZXMappingCmd) &&
+         cmdMgr->regCmd("QCTSMap", 5, new QCirTSMappingCmd) &&
+         cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd)
          // && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
          ))
    {
@@ -54,7 +56,7 @@ static QCirCmdState curCmd = QCIRINIT;
 // CmdExecStatus
 // QCirTestCmd::exec(const string &option)
 // {
-//    qCir->mapping();
+//    qCir->writeQASM("test.qasm");
 //    return CMD_EXEC_DONE;
 // }
 // void QCirTestCmd::usage(ostream &os) const
@@ -551,7 +553,7 @@ QCirZXMappingCmd::exec(const string &option)
       cerr << "Error: quantum circuit is not yet constructed!!" << endl;
       return CMD_EXEC_ERROR;
    }
-   qCir -> mapping();
+   qCir -> ZXMapping();
    return CMD_EXEC_DONE;
 }
 
@@ -564,4 +566,68 @@ void QCirZXMappingCmd::help() const
 {
    cout << setw(15) << left << "QCZXMapping: "
         << "mapping to ZX diagram\n";
+}
+
+//----------------------------------------------------------------------
+//    QCTSMapping
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirTSMappingCmd::exec(const string &option)
+{
+   // check option
+   if (!CmdExec::lexNoOption(option))
+      return CMD_EXEC_ERROR;
+
+   if (!qCir)
+   {
+      cerr << "Error: quantum circuit is not yet constructed!!" << endl;
+      return CMD_EXEC_ERROR;
+   }
+   qCir -> tensorMapping();
+   return CMD_EXEC_DONE;
+}
+
+void QCirTSMappingCmd::usage(ostream &os) const
+{
+   os << "Usage: QCTSMapping" << endl;
+}
+
+void QCirTSMappingCmd::help() const
+{
+   cout << setw(15) << left << "QCTSMapping: "
+        << "mapping to tensor\n";
+}
+
+//----------------------------------------------------------------------
+//    QCCWriter
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirWriteCmd::exec(const string &option)
+{
+   // check option
+   string token;
+   if (!CmdExec::lexSingleOption(option, token))
+      return CMD_EXEC_ERROR;
+
+   if (!qCir)
+   {
+      cerr << "Error: quantum circuit is not yet constructed!!" << endl;
+      return CMD_EXEC_ERROR;
+   }
+   if(! qCir -> writeQASM(token)){
+      cerr << "Error: file " << token << " path not found!!" << endl;
+      return CMD_EXEC_ERROR;
+   }
+   return CMD_EXEC_DONE;
+}
+
+void QCirWriteCmd::usage(ostream &os) const
+{
+   os << "Usage: QCCWrite <string Output.qasm>" << endl;
+}
+
+void QCirWriteCmd::help() const
+{
+   cout << setw(15) << left << "QCCWrite: "
+        << "write QASM file\n";
 }

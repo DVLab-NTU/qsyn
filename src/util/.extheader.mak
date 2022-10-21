@@ -1,4 +1,4 @@
-util.d: ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h ../../include/myHashMap.h ../../include/rationalNumber.h ../../include/phase.h ../../include/myConcepts.h ../../include/nestedInitializerList.h 
+util.d: ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h ../../include/myHashMap.h ../../include/rationalNumber.h ../../include/phase.h ../../include/myConcepts.h ../../include/textFormat.h 
 ../../include/util.h: util.h
 	@rm -f ../../include/util.h
 	@ln -fs ../src/util/util.h ../../include/util.h
@@ -20,6 +20,6 @@ util.d: ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h ../..
 ../../include/myConcepts.h: myConcepts.h
 	@rm -f ../../include/myConcepts.h
 	@ln -fs ../src/util/myConcepts.h ../../include/myConcepts.h
-../../include/nestedInitializerList.h: nestedInitializerList.h
-	@rm -f ../../include/nestedInitializerList.h
-	@ln -fs ../src/util/nestedInitializerList.h ../../include/nestedInitializerList.h
+../../include/textFormat.h: textFormat.h
+	@rm -f ../../include/textFormat.h
+	@ln -fs ../src/util/textFormat.h ../../include/textFormat.h

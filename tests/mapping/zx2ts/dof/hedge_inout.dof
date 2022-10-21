@@ -1,0 +1,25 @@
+zxm -on
+zxn
+zxgedit -addi 0 0
+zxgedit -addo 1 0
+zxgedit -addv 2 0 Z
+zxgedit -adde 0 2 SIMPLE
+zxgedit -adde 2 1 HADAMARD
+ver 7
+zxgtsm
+ver 3
+zxgedit -rme 2 1
+zxgedit -adde 2 1 SIMPLE
+ver 7
+zxgtsm
+ver 3
+zxgedit -rme 0 2
+zxgedit -adde 2 0 HADAMARD
+ver 7
+zxgtsm
+ver 3
+zxgedit -rme 1 2
+zxgedit -adde 2 1 HADAMARD
+ver 7
+zxgtsm
+q -f

@@ -1,0 +1,149 @@
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> zxn
+Successfully generate Graph 0
+Checkout to Graph 0
+
+qsyn> zxgedit -addi 0 0
+Add input 0
+
+qsyn> zxgedit -addo 1 0
+Add output 1
+
+qsyn> zxgedit -addv 2 0 Z 0
+Add vertex 2
+
+qsyn> zxgedit -addv 3 0 Z 0
+Add vertex 3
+
+qsyn> zxgedit -addi 4 1
+Add input 4
+
+qsyn> zxgedit -addo 5 1
+Add output 5
+
+qsyn> zxgedit -addv 6 0 Z 0
+Add vertex 6
+
+qsyn> zxgedit -addv 7 0 X 0
+Add vertex 7
+
+qsyn> zxgedit -addv 8 0 H_BOX 0
+Add vertex 8
+
+qsyn> zxgedit -addv 9 0 X 0
+Add vertex 9
+
+qsyn> zxgedit -addv 10 0 Z 0
+Add vertex 10
+
+qsyn> zxgedit -addv 11 0 Z 1.5708
+Add vertex 11
+
+qsyn> zxgedit -addv 12 0 Z 0
+Add vertex 12
+
+qsyn> 
+qsyn> zxgedit -adde 0 2 SIMPLE
+Add edge ( 0, 2 )
+
+qsyn> zxgedit -adde 2 3 SIMPLE
+Add edge ( 2, 3 )
+
+qsyn> zxgedit -adde 3 1 SIMPLE
+Add edge ( 3, 1 )
+
+qsyn> zxgedit -adde 4 6 HADAMARD
+Add edge ( 4, 6 )
+
+qsyn> zxgedit -adde 6 7 SIMPLE
+Add edge ( 6, 7 )
+
+qsyn> zxgedit -adde 7 8 SIMPLE
+Add edge ( 7, 8 )
+
+qsyn> zxgedit -adde 8 9 HADAMARD
+Add edge ( 8, 9 )
+
+qsyn> zxgedit -adde 9 10 HADAMARD
+Add edge ( 9, 10 )
+
+qsyn> zxgedit -adde 10 11 SIMPLE
+Add edge ( 10, 11 )
+
+qsyn> zxgedit -adde 11 12 SIMPLE
+Add edge ( 11, 12 )
+
+qsyn> zxgedit -adde 12 5 SIMPLE
+Add edge ( 12, 5 )
+
+qsyn> 
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(3, -) 
+ID:	2	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (3, -) 
+ID:	3	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (2, -) 
+ID:	4	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(12, -) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(4, [1m[34mH[0m[0m) (7, -) 
+ID:	7	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(6, -) (8, -) 
+ID:	8	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(7, -) (9, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(8, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(9, [1m[34mH[0m[0m) (11, -) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/2	#Neighbors:	2	(10, -) (12, -) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(5, -) (11, -) 
+Total #Vertices: 13
+
+qsyn> zxgp -e
+( 0, 2 )	Type:	-
+( 2, 3 )	Type:	-
+( 3, 1 )	Type:	-
+( 4, 6 )	Type:	[1m[34mH[0m[0m
+( 6, 7 )	Type:	-
+( 7, 8 )	Type:	-
+( 8, 9 )	Type:	[1m[34mH[0m[0m
+( 9, 10 )	Type:	[1m[34mH[0m[0m
+( 10, 11 )	Type:	-
+( 11, 12 )	Type:	-
+( 12, 5 )	Type:	-
+Total #Edges: 11
+
+qsyn> zxgsimp -idr
+Find match of identity removal rule: 4
+Identity Removal Rule: 4 Add edge ( 3, 0 )
+Add edge ( 7, 4 )
+Add edge ( 10, 8 )
+Add edge ( 5, 11 )
+Remove ID: 2
+Remove ID: 6
+Remove ID: 9
+Remove ID: 12
+. Find match of identity removal rule: 3
+3 Add edge ( 1, 0 )
+Add edge ( 4, 8 )
+Add edge ( 8, 11 )
+Remove ID: 3
+Remove ID: 7
+Remove ID: 10
+. Find match of identity removal rule: 0
+2 iterations
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(0, -) 
+ID:	4	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(8, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(11, -) 
+ID:	8	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(4, [1m[34mH[0m[0m) (11, -) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/2	#Neighbors:	2	(5, -) (8, -) 
+Total #Vertices: 6
+
+qsyn> zxgp -e
+( 5, 11 )	Type:	-
+( 1, 0 )	Type:	-
+( 4, 8 )	Type:	[1m[34mH[0m[0m
+( 8, 11 )	Type:	-
+Total #Edges: 4
+
+qsyn> q -f
+

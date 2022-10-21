@@ -1,0 +1,7 @@
+ver 2
+qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+zxm -on
+qczxm
+ver 3
+zxgtsm
+q -f

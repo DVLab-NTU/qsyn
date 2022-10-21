@@ -1,0 +1,56 @@
+qsyn> ver 2
+Note: verbose level is set to 2
+
+qsyn> qccr benchmark/pseudoSimp/toGraph2.qasm
+
+qsyn> qccp -q
+Q 0  -cx( 0)-- t( 1)-- h( 2)--cx( 3)-
+Q 1  -cx( 0)------------------cx( 3)-
+
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> qczxm
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(9, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (5, -) (6, -) 
+ID:	5	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (4, -) (8, -) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/4	#Neighbors:	2	(4, -) (7, -) 
+ID:	7	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(6, -) (9, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (5, -) (9, -) 
+ID:	9	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (7, -) (8, -) 
+Total #Vertices: 10
+
+qsyn> zxgsimp -hrule
+Hadamard Rule: 1 1 iterations
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(9, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (5, -) (6, -) 
+ID:	5	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (4, -) (8, -) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/4	#Neighbors:	2	(4, -) (9, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (5, -) (9, -) 
+ID:	9	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (6, [1m[34mH[0m[0m) (8, -) 
+Total #Vertices: 9
+
+qsyn> zxgp -e
+( 4, 5 )	Type:	-
+( 2, 5 )	Type:	-
+( 0, 4 )	Type:	-
+( 4, 6 )	Type:	-
+( 8, 9 )	Type:	-
+( 5, 8 )	Type:	-
+( 9, 1 )	Type:	-
+( 8, 3 )	Type:	-
+( 9, 6 )	Type:	[1m[34mH[0m[0m
+Total #Edges: 9
+
+qsyn> q -f
+
