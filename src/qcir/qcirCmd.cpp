@@ -309,9 +309,9 @@ QCirAddGateCmd::exec(const string &option)
       return CmdExec::errorOption(CMD_OPT_MISSING, flagStr);
    string type = options[0];
    vector<size_t> qubits;
-   // <-H | -X | -Z | -TG | -TDg | -S | -V>
+   // <-H | -X | -Z | -TG | -TDg | -S | -V | -Y | -SY>
    if (myStrNCmp("-H", type, 2) == 0|| myStrNCmp("-X", type, 2) == 0 || myStrNCmp("-Z", type, 2) == 0 || myStrNCmp("-T", type, 2) == 0 ||
-   myStrNCmp("-TDG", type, 4) == 0 || myStrNCmp("-S", type, 2) == 0 || myStrNCmp("-V", type, 2) == 0)
+   myStrNCmp("-TDG", type, 4) == 0 || myStrNCmp("-S", type, 2) == 0 || myStrNCmp("-V", type, 2) == 0 || myStrNCmp("-Y", type, 2) == 0 || myStrNCmp("-SY", type, 2) == 0)
    {
       if (options.size() == 1)
          return CmdExec::errorOption(CMD_OPT_MISSING, type);
@@ -405,7 +405,7 @@ QCirAddGateCmd::exec(const string &option)
 
 void QCirAddGateCmd::usage(ostream &os) const
 {
-   os << "QCGAdd <-H | -X | -Z | -T | -TDG | -S | -V> <(size_t targ)> [-APpend|-PRepend]" << endl;
+   os << "QCGAdd <-H | -X | -Z | -T | -TDG | -S | -V | -Y | -SY> <(size_t targ)> [-APpend|-PRepend]" << endl;
    os << "QCGAdd <-CX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
    os << "QCGAdd <-RZ> <-PHase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend]" << endl;
 }
