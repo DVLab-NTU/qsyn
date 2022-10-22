@@ -55,14 +55,15 @@ void HRule::match(ZXGraph* g){
 void HRule::rewrite(ZXGraph* g){
     reset();
     setRemoveVertices(_matchTypeVec);
-    vector<ZXVertex*> ns; vector<EdgeType*> ets;
-
+    
     for(size_t i = 0; i < _matchTypeVec.size(); i++){
         // Only two neighbors which is ensured
+        vector<ZXVertex*> ns; vector<EdgeType*> ets;
         for(auto& itr : _matchTypeVec[i]->getNeighborMap()){
             ns.push_back(itr.first);
             ets.push_back(itr.second);
-        }
+        } 
+        
         _edgeTableKeys.push_back(make_pair(ns[0], ns[1]));
         if(*ets[0] == *ets[1]) _edgeTableValues.push_back(make_pair(0,1));
         else _edgeTableValues.push_back(make_pair(1,0));
