@@ -353,9 +353,11 @@ void QCir::addGate(string type, vector<size_t> bits, Phase phase, bool append)
         temp = new ZGate(_gateId);
     else if (type == "s")
         temp = new SGate(_gateId);
+    else if (type == "s*" || type=="sdg" || type=="sd")
+        temp = new SDGGate(_gateId);
     else if (type == "t")
         temp = new TGate(_gateId);
-    else if (type == "tdg" || type == "td")
+    else if (type == "tdg" || type == "td" || type == "t*")
         temp = new TDGGate(_gateId);
     else if (type == "p")
         temp = new RZGate(_gateId);
