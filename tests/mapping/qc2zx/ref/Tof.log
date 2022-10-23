@@ -164,6 +164,8 @@ qsyn> ZXGTSM
 > Mapping vertex 5 (●): Boundary Node
 > Mapping vertex 3 (●): Boundary Node
 > Mapping vertex 1 (●): Boundary Node
+Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
 
 The resulting tensor is: 
 {{ 1.000000e+00-3.532708e-16i,  0.000000e+00+3.532708e-16i, 
