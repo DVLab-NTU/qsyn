@@ -74,6 +74,7 @@ Total #Vertices: 10
 
 qsyn> 
 qsyn> qccr benchmark/qsim/circuits/circuit_q24 -R
+Note: original quantum circuit is replaced...
 
 qsyn> qczxm
 Successfully generate Graph 1
