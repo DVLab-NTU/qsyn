@@ -161,6 +161,7 @@ Size of topological order: 14
 > Mapping vertex 1 (●): Boundary Node
   - Current frontiers: 
     0--1 (-) axis id: 1
+Successfully added Tensor 0
 
 The resulting tensor is: 
 {{ 1.      +0.i,  0.      +0.i,  0.      +0.i, ...,  0.      +0.i,  0.      +0.i, 

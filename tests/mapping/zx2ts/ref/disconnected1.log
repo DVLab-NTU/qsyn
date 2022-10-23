@@ -116,6 +116,7 @@ Size of topological order: 10
 > Mapping vertex 1 (●): Boundary Node
   - Current frontiers: 
     1--4 (-) axis id: 1
+Successfully added Tensor 0
 
 The resulting tensor is: 
 {{ 1.+0.000000e+00i,  0.+0.000000e+00i,  0.+0.000000e+00i, 

@@ -133,6 +133,7 @@ Size of topological order: 12
     1--3 (-) axis id: 2
     2--4 (-) axis id: 1
     3--5 (-) axis id: 3
+Successfully added Tensor 0
 
 The resulting tensor is: 
 {{ 1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
