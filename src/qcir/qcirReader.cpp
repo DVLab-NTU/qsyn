@@ -203,7 +203,7 @@ bool QCir::parseQC(string filename)
                 }
                 addGate(type,pin_id,Phase(0),true);
             }
-            else if (type == "tof")
+            else if (type == "tof" || type == "Tof")
             {
                 //add toffoli (not ,cnot or ccnot)
                 vector<size_t> pin_id;
