@@ -5,11 +5,7 @@ zxgtsm
 zxgr benchmark/zx/tof3_ZH.zx
 zxgtsm
 ver 3
-tsp
 tsp -l
-tsp -l 1
-tsp 0 -l
-tsp 0
-tsp 1
-tseq 0 1
+tseq 0 1 
+tseq 0 1 -Strict
 q -f

@@ -165,7 +165,7 @@ TSEquivalenceCmd::exec(const string &option) {
     Phase  phase = tensorMgr->getGlobalPhase(ids[0], ids[1]);
 
     if (useStrict) {
-        if (norm <= 1 + epsilon && norm >= 1 - epsilon && phase == Phase(0)) {
+        if (norm > 1 + epsilon || norm < 1 - epsilon || phase != Phase(0)) {
             equiv = false;
         }
     }

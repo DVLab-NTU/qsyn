@@ -117,6 +117,7 @@ Size of topological order: 10
   - Current frontiers: 
     1--4 (-) axis id: 1
 Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
 
 The resulting tensor is: 
 {{ 1.+0.000000e+00i,  0.+0.000000e+00i,  0.+0.000000e+00i, 

@@ -38,6 +38,7 @@ Size of topological order: 3
   - Current frontiers: 
     1--2 ([1m[34mH[0m[0m) axis id: 1
 Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
 
 The resulting tensor is: 
 {{ 0.707107+0.i,  0.707107+0.i},
@@ -69,6 +70,7 @@ Size of topological order: 3
   - Current frontiers: 
     1--2 (-) axis id: 1
 Successfully added Tensor 1
+Stored the resulting tensor as tensor id 1
 
 The resulting tensor is: 
 {{ 1.+0.i,  0.+0.i},
@@ -100,6 +102,7 @@ Size of topological order: 3
   - Current frontiers: 
     1--2 (-) axis id: 1
 Successfully added Tensor 2
+Stored the resulting tensor as tensor id 2
 
 The resulting tensor is: 
 {{ 0.707107+0.i,  0.707107+0.i},
@@ -131,6 +134,7 @@ Size of topological order: 3
   - Current frontiers: 
     1--2 ([1m[34mH[0m[0m) axis id: 1
 Successfully added Tensor 3
+Stored the resulting tensor as tensor id 3
 
 The resulting tensor is: 
 {{ 1.      +0.i,  0.      +0.i},

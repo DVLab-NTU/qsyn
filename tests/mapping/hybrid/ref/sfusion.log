@@ -74,6 +74,7 @@ qsyn> zxgtsm
 > Mapping vertex 1 ([1m[32mZ[0m[0m): Tensordot
 > Mapping vertex 4 (●): Boundary Node
 > Mapping vertex 3 ([1m[32mZ[0m[0m): Tensordot
+Stored the resulting tensor as tensor id 0
 
 The resulting tensor is: 
 {{ 4.+0.i,  0.+0.i},
@@ -105,6 +106,7 @@ qsyn> zxgtsm
 > Mapping vertex 0 (●): New Subgraph
 > Mapping vertex 1 ([1m[32mZ[0m[0m): Tensordot
 > Mapping vertex 4 (●): Boundary Node
+Stored the resulting tensor as tensor id 1
 
 The resulting tensor is: 
 {{ 1.+0.000000e+00i,  0.+0.000000e+00i},

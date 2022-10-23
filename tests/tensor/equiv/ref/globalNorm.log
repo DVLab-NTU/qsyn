@@ -4,12 +4,26 @@ Note: verbose level is set to 2
 qsyn> zxm -on
 ZXMODE turn ON!
 
-qsyn> zxgr benchmark/zx/tof3.zx
+qsyn> zxn
+
+qsyn> zxge -addi 0 0
+
+qsyn> zxge -addo 1 0
+
+qsyn> zxge -addv 2 0 Z 0
+
+qsyn> zxge -addv 3 0 Z 0
+
+qsyn> zxge -adde 0 2 SIMPLE
+
+qsyn> zxge -adde 2 3 SIMPLE
+
+qsyn> zxge -adde 3 1 SIMPLE
 
 qsyn> zxgtsm
 Stored the resulting tensor as tensor id 0
 
-qsyn> zxgr benchmark/zx/tof3_ZH.zx
+qsyn> zxge -adde 2 3 SIMPLE
 
 qsyn> zxgtsm
 Stored the resulting tensor as tensor id 1
@@ -19,12 +33,12 @@ Note: verbose level is set to 3
 
 qsyn> tsp -l
 Tensor    0: #Dim:    2	Info: ZX 0
-Tensor    1: #Dim:    2	Info: ZX 1
+Tensor    1: #Dim:    2	Info: ZX 0
 Total #Tensor: 2
 
-qsyn> tseq 0 1 
+qsyn> tseq 0 1
 [1m[32mEquivalent[0m[0m
-- Global Norm : 1
+- Global Norm : 1.41421
 - Global Phase: 0
 
 qsyn> tseq 0 1 -Strict

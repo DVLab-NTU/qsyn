@@ -25,7 +25,8 @@ bool ZX2TSMapper::map() {
     // cout << _zx2tsList.tensor(0) << endl;
     TensorAxisList inputIds, outputIds;
     if (!tensorMgr) tensorMgr = new TensorMgr();
-    QTensor<double>* result = tensorMgr->addTensor(tensorMgr->nextID(), "ZX " + to_string(_zxgraph->getId()));
+    size_t id = tensorMgr->nextID();
+    QTensor<double>* result = tensorMgr->addTensor(id, "ZX " + to_string(_zxgraph->getId()));
     
     for (size_t i = 0; i < _zx2tsList.size(); ++i) {
         *result = tensordot(*result, _zx2tsList.tensor(i));
@@ -36,7 +37,9 @@ bool ZX2TSMapper::map() {
     getAxisOrders(outputIds, _zxgraph->getOutputList(), true);
 
     *result = result->toMatrix(inputIds, outputIds);
-
+    if (verbose >= 2) {
+        cout << "Stored the resulting tensor as tensor id " << id << endl;
+    }
     if (verbose >= 3) {
         cout << "\nThe resulting tensor is: \n"<< *result << endl;
     }

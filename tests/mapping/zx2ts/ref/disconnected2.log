@@ -134,6 +134,7 @@ Size of topological order: 12
     2--4 (-) axis id: 1
     3--5 (-) axis id: 3
 Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
 
 The resulting tensor is: 
 {{ 1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
