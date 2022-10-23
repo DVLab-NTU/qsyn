@@ -5,7 +5,7 @@ qcga -Sdg 1
 zxmode -on
 qczxm
 
-qccr /home/arttr1521/git/qsyn/benchmark/qsim/circuits/circuit_q24 -R
+qccr benchmark/qsim/circuits/circuit_q24 -R
 qczxm
 
 q -f

@@ -73,7 +73,7 @@ Total #Vertices: 10
 --------------------------------------------------------------------------------------
 
 qsyn> 
-qsyn> qccr /home/arttr1521/git/qsyn/benchmark/qsim/circuits/circuit_q24 -R
+qsyn> qccr benchmark/qsim/circuits/circuit_q24 -R
 
 qsyn> qczxm
 Successfully generate Graph 1
