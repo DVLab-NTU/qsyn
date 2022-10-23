@@ -17,9 +17,10 @@ qcir.o: qcir.cpp ../../include/zxGraphMgr.h ../../include/zxGraph.h \
  ../../include/myConcepts.h ../../include/util.h ../../include/rnGen.h \
  ../../include/myUsage.h ../../include/qtensor.h ../../include/tensor.h \
  ../../include/tensorDef.h ../../include/tensorUtil.h \
- ../../include/zxDef.h ../../include/myHashMap.h qcir.h qcirGate.h \
- ../../include/phase.h ../../include/qtensor.h ../../include/zxGraph.h \
- qcirQubit.h qcirDef.h ../../include/myHashMap.h
+ ../../include/zxDef.h ../../include/myHashMap.h \
+ ../../include/tensorMgr.h qcir.h qcirGate.h ../../include/phase.h \
+ ../../include/qtensor.h ../../include/zxGraph.h qcirQubit.h qcirDef.h \
+ ../../include/myHashMap.h
 qcirReader.o: qcirReader.cpp qcir.h qcirGate.h ../../include/phase.h \
  ../../include/rationalNumber.h ../../include/myConcepts.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
