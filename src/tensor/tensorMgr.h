@@ -42,15 +42,21 @@ public:
     const string& getInfo (const size_t& id) const                 { return _tensorList.at(id).info; }
     
     void setTensor(const size_t& id, QTensor<double>* tensor)      { _tensorList[id].tensor = tensor; }
-    void setInfo (const size_t& id, const std::string& str)        { _tensorList[id].info = str; }
+    void setInfo (const size_t& id, const std::string& str = "")   { _tensorList[id].info = str; }
     
     QTensor<double>* addTensor(const size_t& id, const std::string& str);
     void removeTensor(const size_t& id);
 
     void printTensorMgr() const;
-    void printTensor(const size_t& id) const;
+    void printTensor(const size_t& id, bool brief) const;
 
     size_t nextID();
+    bool hasId(const size_t& id) const                             { return _tensorList.contains(id); }         
+
+    bool isEquivalent(const size_t& id1, const size_t& id2, const double& eps = 1e-6) const;
+
+    double getGlobalNorm(const size_t& id1, const size_t& id2) const;
+    Phase getGlobalPhase(const size_t& id1, const size_t& id2) const;
     
 private:
     TensorList _tensorList;
