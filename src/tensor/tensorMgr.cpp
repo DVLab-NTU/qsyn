@@ -78,6 +78,7 @@ size_t TensorMgr::nextID() {
 // @param id2
 // @param eps: two tensors are deemed equivalent if the cosine similarity is higher than 1 - eps (default to 1e-6)
 bool TensorMgr::isEquivalent(const size_t& id1, const size_t& id2, const double& eps) const {
+    if (getTensor(id1)->shape() != getTensor(id2)->shape()) return false;
     return cosineSimilarity(*getTensor(id1), *getTensor(id2)) >= (1 - eps);
 }
 // @brief Get the global norm of the two tensors. This function is only well-defined when two tensors are high in cosine similarity

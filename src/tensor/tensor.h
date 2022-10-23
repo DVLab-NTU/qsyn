@@ -81,7 +81,7 @@ public:
     friend Tensor<U> operator/(Tensor<U> lhs, const Tensor<U>& rhs);
     
     size_t dimension() const { return _tensor.dimension(); }
-
+    std::vector<size_t> shape() const;
 
     void resetAxisHistory();
     void printAxisHistory();
@@ -198,7 +198,15 @@ Tensor<U> operator/(Tensor<U> lhs, const Tensor<U>& rhs) {
     return lhs;
 }
 
-
+// @brief Returns the shape of the tensor
+template<typename DT>
+std::vector<size_t> Tensor<DT>::shape() const {
+    std::vector<size_t> shape;
+    for (size_t i = 0; i < dimension(); ++i) {
+        shape.push_back(_tensor.shape(i));
+    }
+    return shape;
+}
 
 // reset the tensor axis history to (0, 0), (1, 1), ..., (n-1, n-1)
 template<typename DT>
@@ -264,6 +272,9 @@ Tensor<DT> Tensor<DT>::transpose(const TensorAxisList& perm) {
 // Calculate the inner products between two tensors
 template <typename U>
 double innerProduct(const Tensor<U>& t1, const Tensor<U>& t2) {
+    if (t1.shape() != t1.shape()) {
+        throw std::invalid_argument("The two tensors should have the same shape");
+    }
     return xt::abs(xt::sum(xt::conj(t1._tensor) * t2._tensor))();
 }
 // Calculate the cosine similarity of two tensors

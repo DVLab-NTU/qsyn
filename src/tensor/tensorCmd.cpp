@@ -91,7 +91,7 @@ TSPrintCmd::exec(const string &option) {
     } else {
         if (!tensorMgr->hasId(id)) {
             cerr << "[Error] Can't find tensor with the ID specified!!" << endl;
-            return CMD_EXEC_ERROR;
+            return errorOption(CMD_OPT_ILLEGAL, to_string(id));
         }
         tensorMgr->printTensor(id, list);
     }
@@ -153,13 +153,17 @@ TSEquivalenceCmd::exec(const string &option) {
             if (!myStr2Uns(option, tmp)) {
                 return errorOption(CMD_OPT_ILLEGAL, option);
             }
+            if (!tensorMgr->hasId(tmp)) {
+                cerr << "[Error] Can't find tensor with the ID specified!!" << endl;
+                return errorOption(CMD_OPT_ILLEGAL, to_string(tmp));
+            }
             ids.push_back(tmp);
         }
     }
     if (ids.size() < 2) {
         return errorOption(CMD_OPT_MISSING, "id" + to_string(ids.size() + 1));
     }
-
+    
     bool   equiv = tensorMgr->isEquivalent(ids[0], ids[1], epsilon);
     double norm  = tensorMgr->getGlobalNorm(ids[0], ids[1]);
     Phase  phase = tensorMgr->getGlobalPhase(ids[0], ids[1]);
