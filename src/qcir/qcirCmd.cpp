@@ -312,7 +312,7 @@ QCirAddGateCmd::exec(const string &option)
    // <-H | -X | -Z | -TG | -TDg | -S | -V | -Y | -SY | -SDG>
    if (myStrNCmp("-H", type, 2) == 0|| myStrNCmp("-X", type, 2) == 0 || myStrNCmp("-Z", type, 2) == 0 || myStrNCmp("-T", type, 2) == 0 ||
    myStrNCmp("-TDG", type, 4) == 0 || myStrNCmp("-S", type, 2) == 0 || myStrNCmp("-V", type, 2) == 0 || myStrNCmp("-Y", type, 2) == 0 || 
-   myStrNCmp("-SY", type, 2) == 0 || myStrNCmp("-SDG", type, 2) == 0)
+   myStrNCmp("-SY", type, 3) == 0 || myStrNCmp("-SDG", type, 4) == 0)
    {
       if (options.size() == 1)
          return CmdExec::errorOption(CMD_OPT_MISSING, type);
@@ -396,6 +396,27 @@ QCirAddGateCmd::exec(const string &option)
       type = type.erase(0,1);
       qCir->addGate(type, qubits, phase, appendGate);
    }
+   else if(myStrNCmp("-CCX", type, 4) == 0){
+      if (options.size() < 4)
+         return CmdExec::errorOption(CMD_OPT_MISSING, options[options.size()-1]);
+      if (options.size() > 4)
+         return CmdExec::errorOption(CMD_OPT_EXTRA, options[3]);
+      for(size_t i=1; i<options.size(); i++){
+         unsigned id;
+         if(!myStr2Uns(options[i],id)){
+            cerr << "Error: target ID should be a positive integer!!" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
+         }
+         if (qCir->getQubit(id) == NULL)
+         {
+            cerr << "Error: qubit ID is not in current circuit!!" << endl;
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
+         }
+         qubits.push_back(id);
+      }
+      type = type.erase(0,1);
+      qCir->addGate(type, qubits, Phase(0),appendGate);
+   }
    else{
       cerr << "Error: type is not implemented!!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, type);
@@ -408,6 +429,7 @@ void QCirAddGateCmd::usage(ostream &os) const
 {
    os << "QCGAdd <-H | -X | -Z | -T | -TDG | -S | -SDG | -V | -Y | -SY> <(size_t targ)> [-APpend|-PRepend]" << endl;
    os << "QCGAdd <-CX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
+   os << "QCGAdd <-CCX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
    os << "QCGAdd <-RZ> <-PHase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend]" << endl;
 }
 

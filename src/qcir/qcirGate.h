@@ -285,7 +285,7 @@ public:
   ~CCXGate();
   virtual string getTypeStr() const { return "ccx"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::cnx(2); }
-  virtual ZXGraph*  getZXform(size_t &baseId){ return NULL; };
+  virtual ZXGraph*  getZXform(size_t &baseId);
   virtual void printGateInfo(bool) const;
 };
 class YGate : public CnRYGate
