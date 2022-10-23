@@ -72,6 +72,7 @@ qsyn> zxgtsm
 > Mapping vertex 5 (●): Boundary Node
 > Mapping vertex 3 (●): Boundary Node
 > Mapping vertex 1 (●): Boundary Node
+Stored the resulting tensor as tensor id 0
 
 The resulting tensor is: 
 {{ 4.085968e-32+6.123234e-17i, -1.682458e-32+0.000000e+00i, 

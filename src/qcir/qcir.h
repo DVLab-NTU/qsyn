@@ -28,7 +28,7 @@ using namespace std;
 class QCir
 {
 public:
-  QCir(): _tensor(1.+0.i)
+  QCir(): _tensor(nullptr)
   {
     _gateId = 0;
     _qubitId = 0;
@@ -101,7 +101,7 @@ private:
   vector<QCirQubit*> _qubits;
   vector<QCirGate *> _topoOrder;
   vector<ZXGraph *>  _ZXGraphList;
-  QTensor<double>    _tensor;
+  QTensor<double>*   _tensor;
   unordered_map<size_t, pair<size_t,size_t>> _qubit2pin;
 };
 

@@ -1,0 +1,13 @@
+ver 2
+qcba 2
+qcga -cx 0 1
+qcga -cx 1 0
+qcga -cx 0 1
+qctsm
+zxm -on
+zxgr benchmark/zx/swap.zx
+zxgtsm
+ver 3
+tsp -l
+tseq 0 1 -Strict
+q -f

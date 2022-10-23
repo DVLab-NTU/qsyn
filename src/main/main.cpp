@@ -20,6 +20,7 @@ extern bool initCommonCmd();
 extern bool initQCirCmd();
 extern bool initZXCmd();
 extern bool initSimpCmd();
+extern bool initTensorCmd();
 size_t verbose = 3; // Default verbose level = 3
 size_t formatLevel = 1;
 
@@ -60,9 +61,7 @@ main(int argc, char** argv)
       myexit();
    }
 
-   // if (!initCommonCmd() || !initCirCmd() || !initQCirCmd())
-   if (!initCommonCmd() || !initQCirCmd() || !initZXCmd() || !initSimpCmd() )
-   // if (!initCommonCmd() || !initQCirCmd() )
+   if (!initCommonCmd() || !initQCirCmd() || !initZXCmd() || !initSimpCmd() || !initTensorCmd())
       return 1;
 
    CmdExecStatus status = CMD_EXEC_DONE;

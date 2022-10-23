@@ -10,6 +10,7 @@ Q 2  - x( 0)--cx( 1)--cx( 2)-- t( 5)--cx( 7)--cx( 8)--td(10)--cx(11)--td(13)--cx
 
 qsyn> qctsm
 ----------- ADD BOUNDARIES -----------
+Successfully added Tensor 0
 Add Qubit 0 output port: 1
 Add Qubit 1 output port: 3
 Add Qubit 2 output port: 5
@@ -266,6 +267,9 @@ Qubit: 1 input : 1 -> 1 |  output: 4 -> 4
 Qubit: 0 input : 0 -> 0 |  output: 5 -> 3
 *****************************************
 --------------------------------------------
+Stored the resulting tensor as tensor id 0
+
+The resulting tensor is: 
 {{ 4.466829e-32+6.123234e-17i, -2.505782e-32+0.000000e+00i, 
   -8.715764e-32-1.177569e-16i, -8.715764e-33+0.000000e+00i, 
   -1.961047e-32+1.161173e-47i,  0.000000e+00+0.000000e+00i, 
