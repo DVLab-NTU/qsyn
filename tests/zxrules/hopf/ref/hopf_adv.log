@@ -1,8 +1,8 @@
 qsyn> zxm -on
 ZXMODE turn ON!
 
-qsyn> ver 2
-Note: verbose level is set to 2
+qsyn> ver 1
+Note: verbose level is set to 1
 
 qsyn> zxgr benchmark/zx/hopf_adv.zx
 
@@ -61,9 +61,6 @@ qsyn> zxgp -e
 Total #Edges: 35
 
 qsyn> zxgs -hopf
-Hopf Rule: 7 14
-3 6
-2 iterations
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
@@ -100,7 +97,6 @@ qsyn> zxgp -e
 Total #Edges: 15
 
 qsyn> zxgs -spi
-Spider Fusion: 2 1 2 iterations
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
@@ -130,7 +126,7 @@ qsyn> zxgp -e
 ( 5, 2 )	Type:	-
 Total #Edges: 12
 
-qsyn> // The result should be same arter swapping orders of two rules
+qsyn> // The result should be same after swapping orders of two rules
 
 qsyn> zxgr -R benchmark/zx/hopf_adv.zx
 Note: original zxGraph is replaced...
@@ -190,7 +186,6 @@ qsyn> zxgp -e
 Total #Edges: 35
 
 qsyn> zxgs -spi
-Spider Fusion: 2 1 2 iterations
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
@@ -241,10 +236,6 @@ qsyn> zxgp -e
 Total #Edges: 32
 
 qsyn> zxgs -hopf
-Hopf Rule: 5 12
-2 8
-1 4
-3 iterations
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 

@@ -167,8 +167,7 @@ qsyn> zxgp -e
 Total #Edges: 8
 
 qsyn> zxgs -hopf
-Hopf Rule: 1 4
-Remove (4, 5 )
+Hopf Rule: 1 Remove (4, 5 )
 Remove (4, 5 )
 Remove (4, 5 )
 Remove (4, 5 )

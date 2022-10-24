@@ -118,5 +118,4 @@ void Hopf::rewrite(ZXGraph* g){
       }
     }
   }  
-  cout << _removeEdges.size() << endl;
 }

@@ -1,5 +1,5 @@
 zxm -on
-ver 2
+ver 1
 zxgr benchmark/zx/hopf_adv.zx
 zxgp -v
 zxgp -e
@@ -9,7 +9,7 @@ zxgp -e
 zxgs -spi
 zxgp -v
 zxgp -e
-// The result should be same arter swapping orders of two rules
+// The result should be same after swapping orders of two rules
 zxgr -R benchmark/zx/hopf_adv.zx
 zxgp -v
 zxgp -e

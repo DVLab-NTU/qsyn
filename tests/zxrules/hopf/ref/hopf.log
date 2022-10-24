@@ -44,8 +44,7 @@ qsyn> zxgp -e
 Total #Edges: 6
 
 qsyn> zxgs -hopf
-Hopf Rule: 1 2
-Remove (2, 3 )
+Hopf Rule: 1 Remove (2, 3 )
 Remove (2, 3 )
 . 1 iterations
 
