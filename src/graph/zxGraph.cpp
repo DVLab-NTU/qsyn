@@ -442,7 +442,8 @@ void ZXGraph::removeEdge(ZXVertex* vs, ZXVertex* vt, bool checked) {
  */
 void ZXGraph::removeEdgeByEdgePair(const EdgePair& ep) {
     for (size_t i = 0; i < _edges.size(); i++) {
-        if (ep.first.first == _edges[i].first.first && ep.first.second == _edges[i].first.second && ep.second == _edges[i].second) {
+        if ((ep.first.first == _edges[i].first.first && ep.first.second == _edges[i].first.second && ep.second == _edges[i].second) || 
+             (ep.first.first == _edges[i].first.second && ep.first.second == _edges[i].first.first && ep.second == _edges[i].second)) {
             if (verbose >= 3) cout << "Remove (" << ep.first.first->getId() << ", " << ep.first.second->getId() << " )" << endl;
             NeighborMap nb = ep.first.first->getNeighborMap();
             auto neighborItr = nb.equal_range(ep.first.second);
