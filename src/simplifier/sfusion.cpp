@@ -46,6 +46,13 @@ void SpiderFusion::match(ZXGraph* g){
         validEdge[Edge2idx[makeEdgeKey(v1, itr->first, itr->second)]] = false;
       }
       _matchTypeVec.push_back(make_pair(v0, v1));
+      vector<ZXVertex*> neighborOfv1 = v1->getNeighbors();
+      for(size_t nb=0; nb<neighborOfv1.size(); nb++){
+        auto res = neighborOfv1[nb] -> getNeighborMap();
+        for(auto itr=res.begin(); itr!=res.end(); itr++){
+          validEdge[Edge2idx[makeEdgeKey(neighborOfv1[nb], itr->first, itr->second)]] = false;
+        }
+      }
     }
   }
   setMatchTypeVecNum(_matchTypeVec.size());
