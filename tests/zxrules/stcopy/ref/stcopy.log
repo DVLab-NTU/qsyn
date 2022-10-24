@@ -168,6 +168,7 @@ qsyn> zxgs -stco
 Identity Removal Rule: 1 Add vertex 11
 Add edge ( 11, 1 )
 Add edge ( 7, 11 )
+Remove (7, 1 )
 Remove ID: 8
 Remove ID: 7
 . 1 iterations

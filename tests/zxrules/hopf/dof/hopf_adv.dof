@@ -1,0 +1,21 @@
+zxm -on
+zxgr benchmark/zx/hopf_adv.zx
+zxgp -v
+zxgp -e
+zxgs -hopf
+zxgp -v
+zxgp -e
+zxgs -spi
+zxgp -v
+zxgp -e
+// The result should be same arter swapping orders of two rules
+zxgr -R benchmark/zx/hopf_adv.zx
+zxgp -v
+zxgp -e
+zxgs -spi
+zxgp -v
+zxgp -e
+zxgs -hopf
+zxgp -v
+zxgp -e
+q -f

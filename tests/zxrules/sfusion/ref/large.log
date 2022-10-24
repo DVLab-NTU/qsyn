@@ -92,18 +92,18 @@ qsyn> zxgp -e
 Total #Edges: 12
 
 qsyn> zxgsimp -spi
-Spider Fusion: 2 Add edge ( 3, 6 )
+Spider Fusion: 1 Add edge ( 3, 6 )
 Add edge ( 3, 5 )
 Add edge ( 3, 5 )
 Add edge ( 3, 3 )
-Add edge ( 6, 2 )
-Add edge ( 6, 5 )
 Remove ID: 4
+. 1 Add edge ( 6, 2 )
+Add edge ( 6, 5 )
 Remove ID: 7
 . 1 Add edge ( 3, 6 )
 Add edge ( 3, 2 )
 Remove ID: 5
-. 2 iterations
+. 3 iterations
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(3, -) 
