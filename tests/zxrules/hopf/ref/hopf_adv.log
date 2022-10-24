@@ -416,17 +416,17 @@ Spider Fusion: 2 Add edge ( 11, 9 )
 Add edge ( 11, 9 )
 Add edge ( 11, 11 )
 Add edge ( 11, 11 )
+Add edge ( 5, 5 )
+Add edge ( 5, 5 )
 Add edge ( 5, 2 )
-Add edge ( 5, 5 )
-Add edge ( 5, 5 )
 Add edge ( 5, 9 )
 Add edge ( 5, 8 )
 Add edge ( 5, 8 )
 Remove ID: 12
 Remove ID: 6
-. 1 Add edge ( 8, 11 )
+. 1 Add edge ( 8, 5 )
 Add edge ( 8, 11 )
-Add edge ( 8, 5 )
+Add edge ( 8, 11 )
 Add edge ( 8, 3 )
 Remove ID: 9
 . 2 iterations
@@ -468,14 +468,14 @@ qsyn> zxgp -e
 ( 0, 4 )	Type:	-
 ( 11, 11 )	Type:	[1m[34mH[0m[0m
 ( 11, 11 )	Type:	[1m[34mH[0m[0m
+( 5, 5 )	Type:	[1m[34mH[0m[0m
+( 5, 5 )	Type:	[1m[34mH[0m[0m
 ( 5, 2 )	Type:	-
-( 5, 5 )	Type:	[1m[34mH[0m[0m
-( 5, 5 )	Type:	[1m[34mH[0m[0m
 ( 5, 8 )	Type:	-
 ( 5, 8 )	Type:	-
-( 8, 11 )	Type:	-
-( 8, 11 )	Type:	-
 ( 8, 5 )	Type:	-
+( 8, 11 )	Type:	-
+( 8, 11 )	Type:	-
 ( 8, 3 )	Type:	-
 Total #Edges: 32
 
