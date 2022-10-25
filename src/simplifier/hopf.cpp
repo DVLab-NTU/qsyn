@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ hopf.cpp ]
   PackageName  [ simplifier ]
-  Synopsis     [ State Copy Rule Definition ]
+  Synopsis     [ Hopf Rule Definition ]
   Author       [ Cheng-Hua Lu ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -15,8 +15,8 @@ using namespace std;
 extern size_t verbose;
 
 /**
- * @brief Finds spiders with a 0 or pi phase that have a single neighbor, and copies them through. Assumes that all the spiders are green and maximally fused.
- *        (Check PyZX/pyzx/rules.py/match_copy for more details)
+ * @brief Finds same type (Z or X) spiders with even hadamard edges and cancel the edges; Find different types (Z and X) spiders with even simple edges and cancel them.
+ *        
  * 
  * @param g 
  */
@@ -69,7 +69,7 @@ void Hopf::match(ZXGraph* g){
 
 /**
  * @brief Generate Rewrite format from `_matchTypeVec`
- *        (Check PyZX/pyzx/rules.py/apply_copy for more details)
+ *        
  * 
  * @param g 
  */
