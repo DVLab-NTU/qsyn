@@ -94,6 +94,16 @@ public:
         _printUnit = pu;
     }
 
+    std::string getAsciiString() const {
+        std::string str;
+        if (_rational.numerator() != 1) 
+            str += to_string(_rational.numerator()) + "*";
+        str += "pi";
+        if (_rational.denominator() != 1) 
+            str += "/" + to_string(_rational.denominator());
+        return str;
+    }
+
     void normalize();
 
     template<class T = double> requires std::floating_point<T>

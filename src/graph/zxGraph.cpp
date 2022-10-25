@@ -141,11 +141,7 @@ void ZXVertex::disconnect(ZXVertex* v, bool checked) {
  * @return bool
  */
 bool ZXVertex::isNeighbor(ZXVertex* v) const {
-    auto itr = _neighborMap.find(v);
-    if (itr != _neighborMap.end())
-        return true;
-    else
-        return false;
+    return _neighborMap.contains(v);
 }
 
 /**************************************/
@@ -210,11 +206,11 @@ bool ZXGraph::isId(size_t id) const {
 }
 
 bool ZXGraph::isInputQubit(int qubit) const {
-    return (_inputList.find(qubit) != _inputList.end());
+    return (_inputList.contains(qubit));
 }
 
 bool ZXGraph::isOutputQubit(int qubit) const {
-    return (_outputList.find(qubit) != _outputList.end());
+    return (_outputList.contains(qubit));
 }
 
 // Add and Remove
