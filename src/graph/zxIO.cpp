@@ -23,7 +23,7 @@ extern size_t verbose;
 /// @brief read a zx graph
 /// @param filename
 /// @return true if correctly consturct the graph
-bool ZXGraph::readZX(string filename) {
+bool ZXGraph::readZX(string filename, bool bzx=false) {
     fstream ZXFile;
     ZXFile.open(filename.c_str(), ios::in);
     if (!ZXFile.is_open()) {
@@ -106,7 +106,7 @@ bool ZXGraph::readZX(string filename) {
             }
             vector<pair<size_t, EdgeType>> tmp;
             Phase ph;
-            for (size_t s = 1; s < tokens.size(); s++) {
+            for (size_t s = (bzx ? 2: 1); s < tokens.size(); s++) {
                 string neighborStr = tokens[s];
                 bool checkNeighbor = true;
                 if (s == tokens.size() - 1) {
@@ -128,13 +128,20 @@ bool ZXGraph::readZX(string filename) {
                     }
                 }
             }
+            qid = 0;
+            if(bzx){
+                if (!myStr2Uns(tokens[1], qid)) {
+                    cerr << "Error: Qubit Id " << tokens[1] << " is not an unsigned in line " << counter << "!!" << endl;
+                    return false;
+                }
+            }
             storage[size_t(id)] = tmp;
             if (vertexStr[0] == 'Z')
-                vertexList[size_t(id)] = addVertex(size_t(id), size_t(0), VertexType::Z, ph);
+                vertexList[size_t(id)] = addVertex(size_t(id), size_t(qid), VertexType::Z, ph);
             else if (vertexStr[0] == 'X')
-                vertexList[size_t(id)] = addVertex(size_t(id), size_t(0), VertexType::X, ph);
+                vertexList[size_t(id)] = addVertex(size_t(id), size_t(qid), VertexType::X, ph);
             else
-                vertexList[size_t(id)] = addVertex(size_t(id), size_t(0), VertexType::H_BOX, ph);
+                vertexList[size_t(id)] = addVertex(size_t(id), size_t(qid), VertexType::H_BOX, ph);
         } else {
             cerr << "Error: Unsupported vertex type " << vertexStr[0] << " in line " << counter << "!!" << endl;
             return false;
@@ -161,7 +168,7 @@ bool ZXGraph::readZX(string filename) {
 /// @brief write a zxgraph
 /// @param filename
 /// @return true if correctly write a graph into .zx
-bool ZXGraph::writeZX(string filename) {
+bool ZXGraph::writeZX(string filename, bool bzx=false) {
     fstream ZXFile;
     ZXFile.open(filename.c_str(), std::fstream::out);
     if (!ZXFile.is_open()) {
@@ -211,6 +218,7 @@ bool ZXGraph::writeZX(string filename) {
         else if (v->getType() == VertexType::X) ZXFile << "X";
         else                                    ZXFile << "H";
         ZXFile << v->getId();
+        if (bzx) ZXFile << " " << v->getQubit();
         if (!writeNeighbors(v)) return false;
         
         if (v->getPhase() != Phase(0)) ZXFile << " " << v->getPhase().getAsciiString();
