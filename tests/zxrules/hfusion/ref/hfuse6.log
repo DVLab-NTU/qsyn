@@ -96,14 +96,13 @@ ID:	7	VertexType:	[1m[33mH[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(5, [1m[3
 Total #Vertices: 8
 
 qsyn> zxgsimp -hf
-Hadamard Cancellation Rule: 
-Found 1 match(es)
-Add edge ( 7, 4 )
+Hadamard Rule: 1 Add edge ( 7, 4 )
 Remove ID: 6
-Found 1 match(es)
-Add edge ( 4, 5 )
+. 1 Add edge ( 4, 5 )
 Remove ID: 7
-2 iterations
+. 2 iterations
+Hadamard Cancellation Rule: 
+No matches
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(5, -) 

@@ -1,0 +1,5 @@
+zxm -on 
+zxgread benchmark/zx/tof3.zx
+zxgs -freduce
+zxgp -v
+q -f
