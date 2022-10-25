@@ -1,0 +1,120 @@
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> ver 1
+Note: verbose level is set to 1
+
+qsyn> zxgr benchmark/zx/hopf_adv.zx
+
+qsyn> zxgs -hopf
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+> Mapping vertex 0 (●): New Subgraph
+> Mapping vertex 4 ([1m[32mZ[0m[0m): Tensordot
+> Mapping vertex 7 ([1m[31mX[0m[0m): Tensordot
+> Mapping vertex 8 ([1m[32mZ[0m[0m): Tensordot
+> Mapping vertex 9 ([1m[32mZ[0m[0m): Tensordot
+> Mapping vertex 6 ([1m[31mX[0m[0m): Tensordot
+> Mapping vertex 2 (●): Boundary Node
+> Mapping vertex 5 ([1m[31mX[0m[0m): Tensordot
+> Mapping vertex 3 (●): Boundary Node
+> Mapping vertex 1 (●): Boundary Node
+Stored the resulting tensor as tensor id 0
+
+The resulting tensor is: 
+{{ 0.707107+0.i,  0.707107+0.i,  0.707107+0.i,  0.707107+0.i},
+ { 0.707107+0.i,  0.707107+0.i,  0.707107+0.i,  0.707107+0.i},
+ {-0.707107+0.i, -0.707107+0.i,  0.707107+0.i,  0.707107+0.i},
+ { 0.707107+0.i,  0.707107+0.i, -0.707107+0.i, -0.707107+0.i}}
+
+qsyn> ver 1
+Note: verbose level is set to 1
+
+qsyn> zxgs -spi
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+> Mapping vertex 0 (●): New Subgraph
+> Mapping vertex 4 ([1m[32mZ[0m[0m): Tensordot
+> Mapping vertex 7 ([1m[31mX[0m[0m): Tensordot
+> Mapping vertex 8 ([1m[32mZ[0m[0m): Tensordot
+> Mapping vertex 3 (●): Boundary Node
+> Mapping vertex 5 ([1m[31mX[0m[0m): Tensordot
+> Mapping vertex 2 (●): Boundary Node
+> Mapping vertex 1 (●): Boundary Node
+Stored the resulting tensor as tensor id 1
+
+The resulting tensor is: 
+{{ 0.707107+0.i,  0.707107+0.i,  0.707107+0.i,  0.707107+0.i},
+ { 0.707107+0.i,  0.707107+0.i,  0.707107+0.i,  0.707107+0.i},
+ {-0.707107+0.i, -0.707107+0.i,  0.707107+0.i,  0.707107+0.i},
+ { 0.707107+0.i,  0.707107+0.i, -0.707107+0.i, -0.707107+0.i}}
+
+qsyn> ver 1
+Note: verbose level is set to 1
+
+qsyn> // The result should be same after swapping orders of two rules
+
+qsyn> zxgr -R benchmark/zx/hopf_adv.zx
+Note: original zxGraph is replaced...
+
+qsyn> zxgs -spi
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+> Mapping vertex 0 (●): New Subgraph
+> Mapping vertex 4 ([1m[32mZ[0m[0m): Tensordot
+> Mapping vertex 8 ([1m[32mZ[0m[0m): Tensordot
+> Mapping vertex 11 ([1m[31mX[0m[0m): Tensordot
+> Mapping vertex 10 ([1m[32mZ[0m[0m): Tensordot
+> Mapping vertex 7 ([1m[31mX[0m[0m): Tensordot
+> Mapping vertex 1 (●): Boundary Node
+> Mapping vertex 5 ([1m[31mX[0m[0m): Tensordot
+> Mapping vertex 2 (●): Boundary Node
+> Mapping vertex 3 (●): Boundary Node
+Stored the resulting tensor as tensor id 2
+
+The resulting tensor is: 
+{{ 1.414214+0.i,  1.414214+0.i,  1.414214+0.i,  1.414214+0.i},
+ { 1.414214+0.i,  1.414214+0.i,  1.414214+0.i,  1.414214+0.i},
+ {-1.414214+0.i, -1.414214+0.i,  1.414214+0.i,  1.414214+0.i},
+ { 1.414214+0.i,  1.414214+0.i, -1.414214+0.i, -1.414214+0.i}}
+
+qsyn> ver 1
+Note: verbose level is set to 1
+
+qsyn> zxgs -hopf
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+> Mapping vertex 0 (●): New Subgraph
+> Mapping vertex 4 ([1m[32mZ[0m[0m): Tensordot
+> Mapping vertex 7 ([1m[31mX[0m[0m): Tensordot
+> Mapping vertex 8 ([1m[32mZ[0m[0m): Tensordot
+> Mapping vertex 5 ([1m[31mX[0m[0m): Tensordot
+> Mapping vertex 2 (●): Boundary Node
+> Mapping vertex 3 (●): Boundary Node
+> Mapping vertex 1 (●): Boundary Node
+Stored the resulting tensor as tensor id 3
+
+The resulting tensor is: 
+{{ 0.707107+0.i,  0.707107+0.i,  0.707107+0.i,  0.707107+0.i},
+ { 0.707107+0.i,  0.707107+0.i,  0.707107+0.i,  0.707107+0.i},
+ {-0.707107+0.i, -0.707107+0.i,  0.707107+0.i,  0.707107+0.i},
+ { 0.707107+0.i,  0.707107+0.i, -0.707107+0.i, -0.707107+0.i}}
+
+qsyn> q -f
+

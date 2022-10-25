@@ -40,7 +40,7 @@ void ZXGraph::updateTopoOrder()
         cout << endl;
     if (verbose >= 7)
         cout << "Size of topological order: " << _topoOrder.size() << endl;
-    assert(_topoOrder.size() == _vertices.size());
+    // assert(_topoOrder.size() == _vertices.size());
 }
 void ZXGraph::DFS(ZXVertex *currentVertex)
 {

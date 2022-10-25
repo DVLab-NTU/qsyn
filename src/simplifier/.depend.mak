@@ -32,6 +32,12 @@ sfusion.o: sfusion.cpp zxRules.h ../../include/zxDef.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
  ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
  ../../include/tensorUtil.h ../../include/zxDef.h
+hopf.o: hopf.cpp zxRules.h ../../include/zxDef.h \
+ ../../include/myHashMap.h ../../include/zxGraph.h ../../include/phase.h \
+ ../../include/rationalNumber.h ../../include/myConcepts.h \
+ ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
+ ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
+ ../../include/tensorUtil.h ../../include/zxDef.h
 id.o: id.cpp zxRules.h ../../include/zxDef.h ../../include/myHashMap.h \
  ../../include/zxGraph.h ../../include/phase.h \
  ../../include/rationalNumber.h ../../include/myConcepts.h \
