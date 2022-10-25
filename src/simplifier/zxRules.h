@@ -249,6 +249,67 @@ class IdRemoval : public ZXRule{
 };
 
 
+/**
+ * @brief Finds noninteracting matchings of the local complementation rule.
+ * 
+ */
+class LComp : public ZXRule{
+  public:
+    //TODO: Check MatchType
+    typedef pair<ZXVertex*, vector<ZXVertex*> > MatchType;
+    typedef vector<MatchType> MatchTypeVec;
+
+    LComp(){
+      _matchTypeVec.clear();
+      _name = "Local Complementary";
+    }
+    ~LComp(){}
+
+    
+    void match(ZXGraph* g) override; 
+    void rewrite(ZXGraph* g) override;
+
+    // Getter and Setter
+    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
+    
+  protected:
+    MatchTypeVec                                      _matchTypeVec;
+    
+};
+
+
+
+
+
+/**
+ * @brief Finds non-interacting matchings of the pivot rule.
+ * 
+ */
+class Pivot : public ZXRule{
+  public:
+    //TODO: Check MatchType
+    typedef int MatchType;
+    typedef vector<MatchType> MatchTypeVec;
+
+    Pivot(){
+      _matchTypeVec.clear();
+      _name = "Pivot Rule";
+    }
+    ~Pivot(){}
+
+    
+    void match(ZXGraph* g) override; 
+    void rewrite(ZXGraph* g) override;
+
+    // Getter and Setter
+    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
+    
+  protected:
+    MatchTypeVec                                      _matchTypeVec;
+    
+};
 
 
 /**
@@ -282,61 +343,6 @@ class SpiderFusion : public ZXRule{
 
 
 
-
-/**
- * @brief 
- * 
- */
-class Pivot : public ZXRule{
-  public:
-    //TODO: Check MatchType
-    typedef int MatchType;
-    typedef vector<MatchType> MatchTypeVec;
-
-    Pivot(){
-      _matchTypeVec.clear();
-      _name = "Pivot Rule";
-    }
-    ~Pivot(){}
-
-    
-    void match(ZXGraph* g) override; 
-    void rewrite(ZXGraph* g) override;
-
-    // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
-    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
-    
-  protected:
-    MatchTypeVec                                      _matchTypeVec;
-    
-};
-
-
-class LComp : public ZXRule{
-  public:
-    //TODO: Check MatchType
-    typedef pair<ZXVertex*, vector<ZXVertex*> > MatchType;
-    typedef vector<MatchType> MatchTypeVec;
-
-    LComp(){
-      _matchTypeVec.clear();
-      _name = "Local Complementary";
-    }
-    ~LComp(){}
-
-    
-    void match(ZXGraph* g) override; 
-    void rewrite(ZXGraph* g) override;
-
-    // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
-    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
-    
-  protected:
-    MatchTypeVec                                      _matchTypeVec;
-    
-};
 
 
 #endif

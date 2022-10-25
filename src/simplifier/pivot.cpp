@@ -20,7 +20,6 @@ extern size_t verbose;
  * 
  * @param g 
  */
-
 void Pivot::match(ZXGraph* g){
     _matchTypeVec.clear(); 
 
@@ -107,8 +106,7 @@ void Pivot::match(ZXGraph* g){
 
 /**
  * @brief Generate Rewrite format from `_matchTypeVec`
- *        (Check PyZX/pyzx/hrules.py/fuse_hboxes for more details)
- * 
+ *        
  * @param g 
  */
 void Pivot::rewrite(ZXGraph* g){
