@@ -1,4 +1,6 @@
 #!/bin/bash
+# TODO add verbose-diff mode
+# TODO add no-color mode
 USAGE_STR="Usage:\t./RUN_DOFILE.sh <path/to/dofile> <-Diff|-UPdate>\n\t-d : Compare the result to the reference\n\t-up: Update the reference file\n"
 RETURN_CODE=0
 if [ $# -ne 2 ]; then 

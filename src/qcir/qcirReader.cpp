@@ -145,7 +145,7 @@ bool QCir::parseQC(string filename)
                 string token= line.substr(0, line.find(' '));
                 // Fix '\r'
                 token = token[token.size()-1]=='\r' ? token.substr(0,token.size()-1) : token;
-                if ( find(qubit_labels.begin(), qubit_labels.end(), token) == qubit_labels.end())
+                if (!contains(qubit_labels, token))
                 {
                     qubit_labels.push_back(token);
                     n_qubit++;
