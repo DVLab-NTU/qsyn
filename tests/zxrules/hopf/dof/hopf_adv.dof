@@ -1,5 +1,5 @@
 zxm -on
-ver 9
+ver 3
 zxgr benchmark/zx/hopf_adv.zx
 zxgs -hopf
 zxgp -v

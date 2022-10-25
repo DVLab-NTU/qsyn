@@ -1,85 +1,15 @@
 qsyn> zxm -on
 ZXMODE turn ON!
 
-qsyn> ver 9
-Note: verbose level is set to 9
+qsyn> ver 3
+Note: verbose level is set to 3
 
 qsyn> zxgr benchmark/zx/hopf_adv.zx
 Successfully generated Graph 0
 Checkout to Graph 0
-Add input 0
-Add input 1
-Add output 2
-Add output 3
-Add vertex 4
-Add vertex 5
-Add vertex 6
-Add vertex 7
-Add vertex 8
-Add vertex 9
-Add vertex 10
-Add vertex 11
-Add vertex 12
-Add edge ( 11, 12 )
-Add edge ( 11, 12 )
-Add edge ( 11, 12 )
-Add edge ( 10, 11 )
-Add edge ( 10, 11 )
-Add edge ( 10, 11 )
-Add edge ( 10, 11 )
-Add edge ( 9, 12 )
-Add edge ( 9, 12 )
-Add edge ( 8, 9 )
-Add edge ( 8, 11 )
-Add edge ( 8, 11 )
-Add edge ( 7, 8 )
-Add edge ( 7, 10 )
-Add edge ( 7, 10 )
-Add edge ( 6, 8 )
-Add edge ( 6, 8 )
-Add edge ( 6, 9 )
-Add edge ( 5, 6 )
-Add edge ( 5, 6 )
-Add edge ( 5, 6 )
-Add edge ( 5, 8 )
-Add edge ( 5, 8 )
-Add edge ( 4, 5 )
-Add edge ( 4, 5 )
-Add edge ( 4, 5 )
-Add edge ( 4, 7 )
-Add edge ( 4, 7 )
-Add edge ( 4, 7 )
-Add edge ( 4, 8 )
-Add edge ( 4, 8 )
-Add edge ( 3, 9 )
-Add edge ( 2, 6 )
-Add edge ( 1, 7 )
-Add edge ( 0, 4 )
 
 qsyn> zxgs -hopf
 Hopf Rule: 
-Found 7 match(es)
-Remove (4, 8 )
-Remove (4, 8 )
-Remove (5, 8 )
-Remove (5, 8 )
-Remove (6, 5 )
-Remove (6, 5 )
-Remove (7, 4 )
-Remove (7, 4 )
-Remove (9, 12 )
-Remove (9, 12 )
-Remove (10, 7 )
-Remove (10, 7 )
-Remove (11, 8 )
-Remove (11, 8 )
-Found 3 match(es)
-Remove (6, 8 )
-Remove (6, 8 )
-Remove (10, 11 )
-Remove (10, 11 )
-Remove (12, 11 )
-Remove (12, 11 )
 2 iterations
 
 qsyn> zxgp -v
@@ -100,18 +30,6 @@ Total #Vertices: 13
 
 qsyn> zxgs -spi
 Spider Fusion: 
-Found 2 match(es) of spider fusion rule: 
-Found 2 match(es)
-Add edge ( 8, 3 )
-Add edge ( 8, 6 )
-Remove ID: 12
-Remove ID: 9
-Found 1 match(es) of spider fusion rule: 
-Found 1 match(es)
-Add edge ( 5, 8 )
-Add edge ( 5, 2 )
-Remove ID: 6
-Found 0 match(es) of spider fusion rule: 
 2 iterations
 
 qsyn> zxgp -v
@@ -131,79 +49,9 @@ qsyn> // The result should be same after swapping orders of two rules
 
 qsyn> zxgr -R benchmark/zx/hopf_adv.zx
 Note: original zxGraph is replaced...
-Add input 0
-Add input 1
-Add output 2
-Add output 3
-Add vertex 4
-Add vertex 5
-Add vertex 6
-Add vertex 7
-Add vertex 8
-Add vertex 9
-Add vertex 10
-Add vertex 11
-Add vertex 12
-Add edge ( 11, 12 )
-Add edge ( 11, 12 )
-Add edge ( 11, 12 )
-Add edge ( 10, 11 )
-Add edge ( 10, 11 )
-Add edge ( 10, 11 )
-Add edge ( 10, 11 )
-Add edge ( 9, 12 )
-Add edge ( 9, 12 )
-Add edge ( 8, 9 )
-Add edge ( 8, 11 )
-Add edge ( 8, 11 )
-Add edge ( 7, 8 )
-Add edge ( 7, 10 )
-Add edge ( 7, 10 )
-Add edge ( 6, 8 )
-Add edge ( 6, 8 )
-Add edge ( 6, 9 )
-Add edge ( 5, 6 )
-Add edge ( 5, 6 )
-Add edge ( 5, 6 )
-Add edge ( 5, 8 )
-Add edge ( 5, 8 )
-Add edge ( 4, 5 )
-Add edge ( 4, 5 )
-Add edge ( 4, 5 )
-Add edge ( 4, 7 )
-Add edge ( 4, 7 )
-Add edge ( 4, 7 )
-Add edge ( 4, 8 )
-Add edge ( 4, 8 )
-Add edge ( 3, 9 )
-Add edge ( 2, 6 )
-Add edge ( 1, 7 )
-Add edge ( 0, 4 )
 
 qsyn> zxgs -spi
 Spider Fusion: 
-Found 2 match(es) of spider fusion rule: 
-Found 2 match(es)
-Add edge ( 11, 9 )
-Add edge ( 11, 9 )
-Add edge ( 11, 11 )
-Add edge ( 11, 11 )
-Add edge ( 5, 2 )
-Add edge ( 5, 5 )
-Add edge ( 5, 5 )
-Add edge ( 5, 9 )
-Add edge ( 5, 8 )
-Add edge ( 5, 8 )
-Remove ID: 12
-Remove ID: 6
-Found 1 match(es) of spider fusion rule: 
-Found 1 match(es)
-Add edge ( 8, 5 )
-Add edge ( 8, 11 )
-Add edge ( 8, 11 )
-Add edge ( 8, 3 )
-Remove ID: 9
-Found 0 match(es) of spider fusion rule: 
 2 iterations
 
 qsyn> zxgp -v
@@ -221,29 +69,6 @@ Total #Vertices: 10
 
 qsyn> zxgs -hopf
 Hopf Rule: 
-Found 5 match(es)
-Remove (4, 8 )
-Remove (4, 8 )
-Remove (5, 8 )
-Remove (5, 8 )
-Remove (5, 8 )
-Remove (5, 8 )
-Remove (7, 4 )
-Remove (7, 4 )
-Remove (10, 7 )
-Remove (10, 7 )
-Remove (11, 10 )
-Remove (11, 10 )
-Found 2 match(es)
-Remove (5, 5 )
-Remove (5, 5 )
-Remove (8, 11 )
-Remove (8, 11 )
-Remove (8, 11 )
-Remove (8, 11 )
-Found 1 match(es)
-Remove (11, 11 )
-Remove (11, 11 )
 3 iterations
 
 qsyn> zxgp -v
@@ -261,52 +86,6 @@ Total #Vertices: 10
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
-Topological order from first input: 0 4 7 8 5 2 3 1 
-Size of topological order: 8
-> Mapping vertex 0 (●): New Subgraph
-  - Current frontiers: 
-    0--4 (-) axis id: 1
-> Mapping vertex 4 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    4--5 (-) axis id: 3
-    4--5 ([1m[34mH[0m[0m) axis id: 2
-    4--5 ([1m[34mH[0m[0m) axis id: 4
-    4--7 ([1m[34mH[0m[0m) axis id: 1
-> Mapping vertex 7 ([1m[31mX[0m[0m): Tensordot
-  - Current frontiers: 
-    1--7 (-) axis id: 4
-    4--5 (-) axis id: 2
-    4--5 ([1m[34mH[0m[0m) axis id: 1
-    4--5 ([1m[34mH[0m[0m) axis id: 3
-    7--8 (-) axis id: 5
-> Mapping vertex 8 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    1--7 (-) axis id: 4
-    3--8 (-) axis id: 5
-    4--5 (-) axis id: 2
-    4--5 ([1m[34mH[0m[0m) axis id: 1
-    4--5 ([1m[34mH[0m[0m) axis id: 3
-    5--8 (-) axis id: 6
-> Mapping vertex 5 ([1m[31mX[0m[0m): Tensordot
-  - Current frontiers: 
-    1--7 (-) axis id: 1
-    2--5 (-) axis id: 3
-    3--8 (-) axis id: 2
-> Mapping vertex 2 (●): Boundary Node
-  - Current frontiers: 
-    1--7 (-) axis id: 1
-    2--5 (-) axis id: 3
-    3--8 (-) axis id: 2
-> Mapping vertex 3 (●): Boundary Node
-  - Current frontiers: 
-    1--7 (-) axis id: 1
-    2--5 (-) axis id: 3
-    3--8 (-) axis id: 2
-> Mapping vertex 1 (●): Boundary Node
-  - Current frontiers: 
-    1--7 (-) axis id: 1
-    2--5 (-) axis id: 3
-    3--8 (-) axis id: 2
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
