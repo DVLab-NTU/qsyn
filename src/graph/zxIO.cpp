@@ -159,8 +159,6 @@ bool ZXGraph::readZX(string filename){
       }
     }
   }
-  if(verbose>=3) printVertices();
-  if(verbose>=3) printEdges();
   return true;
 }
 

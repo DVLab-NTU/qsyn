@@ -20,62 +20,14 @@ qsyn> zxmode -on
 ZXMODE turn ON!
 
 qsyn> qczxm
-Successfully generate Graph 0
+Successfully generated Graph 0
 Checkout to Graph 0
------------ ADD BOUNDARIES -----------
-Add input 0
-Add output 1
-Add edge ( 0, 1 )
-Add Qubit 0 inp: 0 oup: 1
---------------------------------------
-
 ---- TRAVERSE AND BUILD THE GRAPH ----
-Gate 0 (rz)
-Add input 3
-Add vertex 2
-Add output 4
-Add edge ( 3, 2 )
-Add edge ( 2, 4 )
-Add edge ( 0, 2 )
-Add edge ( 2, 1 )
---------------------------------------
-Gate 1 (rz)
-Add input 4
-Add vertex 3
-Add output 5
-Add edge ( 4, 3 )
-Add edge ( 3, 5 )
-Add edge ( 2, 3 )
-Add edge ( 3, 1 )
---------------------------------------
-Gate 2 (rz)
-Add input 5
-Add vertex 4
-Add output 6
-Add edge ( 5, 4 )
-Add edge ( 4, 6 )
-Add edge ( 3, 4 )
-Add edge ( 4, 1 )
---------------------------------------
-Gate 3 (rz)
-Add input 6
-Add vertex 5
-Add output 7
-Add edge ( 6, 5 )
-Add edge ( 5, 7 )
-Add edge ( 4, 5 )
-Add edge ( 5, 1 )
 --------------------------------------
 --------------------------------------
----------------------------------- GRAPH INFORMATION ---------------------------------
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(5, -) 
-ID:	2	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	11π/17	#Neighbors:	2	(0, -) (3, -) 
-ID:	3	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	3π/4	#Neighbors:	2	(2, -) (4, -) 
-ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	169π/139	#Neighbors:	2	(3, -) (5, -) 
-ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (4, -) 
-Total #Vertices: 6
---------------------------------------------------------------------------------------
+--------------------------------------
+--------------------------------------
+--------------------------------------
 
 qsyn> q -f
 

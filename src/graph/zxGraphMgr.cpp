@@ -42,7 +42,7 @@ ZXGraph* ZXGraphMgr::addZXGraph(size_t id, void** ref) {
     _gListItr = _graphList.end() - 1;
     if (id == _nextID || _nextID < id) _nextID = id + 1;
     if (verbose >= 3) {
-        cout << "Successfully generate Graph " << id << endl;
+        cout << "Successfully generated Graph " << id << endl;
         cout << "Checkout to Graph " << id << endl;
     }
     return zxGraph;
@@ -55,13 +55,13 @@ void ZXGraphMgr::removeZXGraph(size_t id) {
             rmGraph->setRef(NULL);
             _graphList.erase(_graphList.begin() + i);
             delete rmGraph;
-            if (verbose >= 5) cout << "Successfully remove Graph " << id << endl;
+            if (verbose >= 3) cout << "Successfully removed Graph " << id << endl;
             _gListItr = _graphList.begin();
             if (verbose >= 3) {
                 if (!_graphList.empty())
                     cout << "Checkout to Graph " << _graphList[0]->getId() << endl;
                 else
-                    cout << "Warning: The graph list is empty now" << endl;
+                    cout << "Note: The graph list is empty now" << endl;
             }
             return;
         }
@@ -95,10 +95,10 @@ void ZXGraphMgr::copy(size_t id) {
         // Overwrite existing ZXGraph
         for (size_t i = 0; i < _graphList.size(); i++) {
             if (_graphList[i]->getId() == id) {
-                cout << "Overwrite existing Graph " << id << endl;
+                cout << "Overwrite existing Graph " << id << endl; // TODO guard this action?
                 _graphList.erase(_graphList.begin() + i);
                 _graphList.insert(_graphList.begin() + i, copyTarget);
-                if (verbose >= 3) cout << "Successfully copy Graph " << getGraph()->getId() << " to Graph " << id << endl;
+                if (verbose >= 3) cout << "Successfully copied Graph " << getGraph()->getId() << " to Graph " << id << endl;
                 checkout2ZXGraph(id);
                 exists = true;
                 break;
@@ -111,7 +111,7 @@ void ZXGraphMgr::copy(size_t id) {
             _gListItr = _graphList.end() - 1;
             if (id == _nextID || _nextID < id) _nextID = id + 1;
             if (verbose >= 3) {
-                cout << "Successfully copy Graph " << oriGraphID << " to Graph " << id << endl;
+                cout << "Successfully copied Graph " << oriGraphID << " to Graph " << id << endl;
                 cout << "Checkout to Graph " << id << endl;
             }
         }

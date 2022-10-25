@@ -175,11 +175,9 @@ TSEquivalenceCmd::exec(const string &option) {
     }
 
     if (equiv) {
-        cout << TF::BOLD(TF::GREEN("Equivalent")) << endl;
-        if (verbose >= 3) {
-            cout    << "- Global Norm : " << norm  << endl
-                    << "- Global Phase: " << phase << endl;
-        }
+        cout    << TF::BOLD(TF::GREEN("Equivalent")) << endl
+                << "- Global Norm : " << norm  << endl
+                << "- Global Phase: " << phase << endl;
     } else {
         cout << TF::BOLD(TF::RED("Not Equivalent")) << endl;
     }

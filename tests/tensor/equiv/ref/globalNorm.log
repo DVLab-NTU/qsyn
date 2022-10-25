@@ -21,11 +21,13 @@ qsyn> zxge -adde 2 3 SIMPLE
 qsyn> zxge -adde 3 1 SIMPLE
 
 qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 0
 
 qsyn> zxge -adde 2 3 SIMPLE
 
 qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 1
 
 qsyn> ver 3

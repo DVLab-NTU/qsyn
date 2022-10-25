@@ -1,3 +1,4 @@
+ver 5
 zxm -on
 zxgr benchmark/zx/hopf.zx
 zxgp -v
