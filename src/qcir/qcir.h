@@ -54,7 +54,7 @@ public:
   bool removeQubit(size_t q);
   void addGate(string type, vector<size_t> bits, Phase phase, bool append);
   bool removeGate(size_t id);
-  bool read_Qcir_file(string file);
+  bool readQCirFile(string file);
   bool readQASM(string qasm_file);
   bool readQC(string qc_file);
   bool readQSIM(string qsim_file);

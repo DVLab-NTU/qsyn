@@ -15,7 +15,7 @@
 #include <cassert>
 #include "qcir.h"
 
-bool QCir::read_Qcir_file(string filename)
+bool QCir::readQCirFile(string filename)
 {
     string lastname = filename.substr(filename.find_last_of('/')+1);
     //cerr << lastname << endl;
@@ -132,7 +132,6 @@ bool QCir::readQC(string filename)
 
     while ( getline(qc_file, line))
     {
-        cout << line << endl;
         line = line[line.size()-1]=='\r' ? line.substr(0,line.size()-1) : line;
         
         if (line.find('.')==0) // find initial statement
@@ -149,8 +148,6 @@ bool QCir::readQC(string filename)
                     n_qubit++;
                 }
             }
-            for (string i: qubit_labels) std::cout << i << ' ';
-            cout << endl;
         }
         else if (line.find('#')==0 || line == "") continue;
         else if (line.find("BEGIN")==0)
@@ -215,7 +212,6 @@ bool QCir::readQSIM(string filename){
     // Todo: implentment hz_1_2 gate and fs gate
     
     while (getline(qsim_file, line)){
-        cout << line << endl;
         if (line=="") continue;
         string time, type, phaseStr, qubit_id;
         vector<size_t> pin_id;
@@ -224,7 +220,6 @@ bool QCir::readQSIM(string filename){
         pos = myStrGetTok(line, type, pos);
         if (type == "cx" || type == "cz"){
             //add 2 qubit gate
-            cout << "Double qubit gate " << type << endl;
             pos = myStrGetTok(line, qubit_id, pos);
             pin_id.push_back(stoul(qubit_id));
             pos = myStrGetTok(line, qubit_id, pos);
@@ -233,7 +228,6 @@ bool QCir::readQSIM(string filename){
         }
         else if (type == "rx" || type == "rz"){
             // add phase gate
-            cout << "Phase gate " << type << endl;
             Phase phase;
             pos = myStrGetTok(line, qubit_id, pos);
             pin_id.push_back(stoul(qubit_id));
@@ -243,9 +237,7 @@ bool QCir::readQSIM(string filename){
         }
         else if(count(single_gate_list.begin(), single_gate_list.end(), type)){
             // add single qubit gate
-            cout << "Single qubit gate " << type << endl;
             pos = myStrGetTok(line, qubit_id, pos);
-            cout << qubit_id << endl;
             pin_id.push_back(stoul(qubit_id));
             addGate(type, pin_id, Phase(0), true);
         }

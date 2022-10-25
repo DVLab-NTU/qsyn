@@ -196,9 +196,6 @@ void QCir::ZXMapping()
         if(verbose >= 5) cout << "********** CONCATENATION **********" << endl;
         _ZXG -> concatenate(tmp, false);
         if(verbose >= 5) cout << "***********************************" << endl;
-
-        if(verbose >= 3) cout << "--------------------------------------" << endl;
-        
     };
 
     if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE GRAPH ----" << endl;
