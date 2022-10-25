@@ -29,9 +29,9 @@ bool initSimpCmd(){
     return true;
 }
 
-//----------------------------------------------------------------------
-//    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion | -HOPF | -PIVOT | -LComp ]
-//----------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+//    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion | -HOPF | -PIVOT | -LComp | -INTERClifford ]
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CmdExecStatus
 ZXGSimpCmd::exec(const string &option){
     
@@ -46,44 +46,18 @@ ZXGSimpCmd::exec(const string &option){
     else{
         Simplifier s(zxGraphMgr->getGraph());
         // Stats stats;
-        if(token.empty() || myStrNCmp("-TOGraph", token, 3) == 0) s.to_graph();
-        else if(myStrNCmp("-TORGraph", token, 4) == 0) s.to_rgraph();
-        else if(myStrNCmp("-HRule", token, 2) == 0){
-            s.setRule(new HRule());
-            s.hadamard_simp();
-        }
-        else if(myStrNCmp("-SPIderfusion", token, 3) == 0){
-            s.setRule(new SpiderFusion());
-            s.simp();
-        }
-        else if(myStrNCmp("-BIAlgebra", token, 3) == 0){
-            s.setRule(new Bialgebra());
-            s.simp();
-        }
-        else if(myStrNCmp("-IDRemoval", token, 3) == 0){
-            s.setRule(new IdRemoval());
-            s.simp();
-        }
-        else if(myStrNCmp("-STCOpy", token, 4) == 0){
-            s.setRule(new StateCopy());
-            s.simp();
-        }
-        else if(myStrNCmp("-HFusion", token, 2) == 0){
-            s.setRule(new HboxFusion());
-            s.simp();
-        }
-        else if(myStrNCmp("-HOPF", token, 4) == 0){
-            s.setRule(new Hopf());
-            s.simp();
-        }
-        else if(myStrNCmp("-PIVOT", token, 5) == 0){
-            s.setRule(new Pivot());
-            s.simp();
-        }
-        else if(myStrNCmp("-LComp", token, 2) == 0){
-            s.setRule(new LComp());
-            s.simp();
-        }
+        if(token.empty() || myStrNCmp("-TOGraph", token, 3) == 0)   s.to_graph();
+        else if(myStrNCmp("-TORGraph", token, 4) == 0)              s.to_rgraph();
+        else if(myStrNCmp("-HRule", token, 2) == 0)                 s.hrule_simp();
+        else if(myStrNCmp("-SPIderfusion", token, 3) == 0)          s.sfusion_simp();
+        else if(myStrNCmp("-BIAlgebra", token, 3) == 0)             s.bialg_simp();
+        else if(myStrNCmp("-IDRemoval", token, 3) == 0)             s.id_simp();
+        else if(myStrNCmp("-STCOpy", token, 4) == 0)                s.copy_simp();
+        else if(myStrNCmp("-HFusion", token, 2) == 0)               s.hfusion_simp();
+        else if(myStrNCmp("-HOPF", token, 4) == 0)                  s.hopf_simp();
+        else if(myStrNCmp("-PIVOT", token, 5) == 0)                 s.pivot_simp();
+        else if(myStrNCmp("-LComp", token, 2) == 0)                 s.lcomp_simp();
+        else if(myStrNCmp("-INTERClifford", token, 6) == 0)         s.interior_clifford_simp();
         else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     }
     return CMD_EXEC_DONE;
