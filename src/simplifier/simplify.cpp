@@ -130,6 +130,7 @@ int Simplifier::hadamard_simp() {
 }
 
 
+
 // Basic rules simplification
 
 int Simplifier::bialg_simp(){
@@ -143,6 +144,12 @@ int Simplifier::copy_simp(){
     this->setRule(new StateCopy());
     int i = this->simp();
     return i;
+}
+
+
+int Simplifier::gadget_simp(){
+    // TODO: gadget rule
+    return 0;
 }
 
 
@@ -183,6 +190,19 @@ int Simplifier::lcomp_simp(){
 
 int Simplifier::pivot_simp(){
     this->setRule(new Pivot());
+    int i = this->simp();
+    return i;
+}
+
+
+int Simplifier::pivot_boundary_simp(){
+    // TODO: pivot_boundary rule
+    return 0;
+}
+
+
+int Simplifier::pivot_gadget_simp(){
+    this->setRule(new PivotGadget());
     int i = this->simp();
     return i;
 }
@@ -251,3 +271,29 @@ int Simplifier::interior_clifford_simp(){
     return i;
 }
 
+
+int Simplifier::clifford_simp(){
+    int i = 0;
+    while(true){
+        i += this->interior_clifford_simp();
+        int i2 = this->pivot_boundary_simp();
+        if(i2 == 0) break;
+    }
+    return i;
+}
+
+/**
+ * @brief The main simplification routine of PyZX
+ * 
+ */
+void Simplifier::full_reduce(){
+    this->interior_clifford_simp();
+    this->pivot_gadget_simp();
+    while(true){
+        this->clifford_simp();
+        int i = this->gadget_simp();
+        this->interior_clifford_simp();
+        int j = this->pivot_gadget_simp();
+        if(i+j == 0) break;
+    }
+}

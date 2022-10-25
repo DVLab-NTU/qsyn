@@ -68,7 +68,6 @@ class ZXRule{
  */
 class Bialgebra : public ZXRule{
   public:
-    //TODO: Check MatchType
     typedef EdgePair MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
@@ -102,7 +101,6 @@ class Bialgebra : public ZXRule{
  */
 class StateCopy : public ZXRule{
   public:
-    //TODO: Check MatchType
     typedef tuple<ZXVertex*, ZXVertex*, vector<ZXVertex*>> MatchType; // vertex with a pi,  vertex with a, neighbors
     typedef vector<MatchType> MatchTypeVec;
 
@@ -133,7 +131,6 @@ class StateCopy : public ZXRule{
  */
 class HboxFusion : public ZXRule{
   public:
-    //TODO: Check MatchType
     typedef ZXVertex* MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
@@ -164,7 +161,6 @@ class HboxFusion : public ZXRule{
  */
 class Hopf : public ZXRule{
   public:
-    //TODO: Check MatchType
     typedef pair<ZXVertex*, ZXVertex*> MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
@@ -225,7 +221,6 @@ class HRule : public ZXRule{
  */
 class IdRemoval : public ZXRule{
   public:
-    //TODO: Check MatchType
     typedef tuple<ZXVertex*, ZXVertex*, ZXVertex*, EdgeType> MatchType; // vertex, neighbor0, neighbor1, new edge type
     typedef vector<MatchType> MatchTypeVec;
 
@@ -249,13 +244,13 @@ class IdRemoval : public ZXRule{
 };
 
 
+
 /**
  * @brief Finds noninteracting matchings of the local complementation rule.
  * 
  */
 class LComp : public ZXRule{
   public:
-    //TODO: Check MatchType
     typedef pair<ZXVertex*, vector<ZXVertex*> > MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
@@ -280,6 +275,34 @@ class LComp : public ZXRule{
 
 
 
+/**
+ * @brief Finds non-interacting matchings of the phase gadget rule.
+ * 
+ */
+class PhaseGadget : public ZXRule{
+  public:
+    //TODO: Check MatchType
+    typedef int MatchType;
+    typedef vector<MatchType> MatchTypeVec;
+
+    PhaseGadget(){
+      _matchTypeVec.clear();
+      _name = "Phase Gadget Rule";
+    }
+    ~PhaseGadget(){}
+
+    
+    void match(ZXGraph* g) override; 
+    void rewrite(ZXGraph* g) override;
+
+    // Getter and Setter
+    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
+    
+  protected:
+    MatchTypeVec                                      _matchTypeVec;
+};
+
 
 
 /**
@@ -288,7 +311,6 @@ class LComp : public ZXRule{
  */
 class Pivot : public ZXRule{
   public:
-    //TODO: Check MatchType
     typedef int MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
@@ -310,6 +332,67 @@ class Pivot : public ZXRule{
     MatchTypeVec                                      _matchTypeVec;
     
 };
+
+
+
+/**
+ * @brief Finds non-interacting matchings of the pivot gadget rule.
+ * 
+ */
+class PivotGadget : public ZXRule{
+  public:
+    //TODO: Check MatchType
+    typedef int MatchType;
+    typedef vector<MatchType> MatchTypeVec;
+
+    PivotGadget(){
+      _matchTypeVec.clear();
+      _name = "Pivot Gadget Rule";
+    }
+    ~PivotGadget(){}
+
+    
+    void match(ZXGraph* g) override; 
+    void rewrite(ZXGraph* g) override;
+
+    // Getter and Setter
+    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
+    
+  protected:
+    MatchTypeVec                                      _matchTypeVec;
+};
+
+
+
+/**
+ * @brief Finds non-interacting matchings of the pivot gadget rule.
+ * 
+ */
+class PivotBoundary : public ZXRule{
+  public:
+    //TODO: Check MatchType
+    typedef int MatchType;
+    typedef vector<MatchType> MatchTypeVec;
+
+    PivotBoundary(){
+      _matchTypeVec.clear();
+      _name = "Pivot Boundary Rule";
+    }
+    ~PivotBoundary(){}
+
+    
+    void match(ZXGraph* g) override; 
+    void rewrite(ZXGraph* g) override;
+
+    // Getter and Setter
+    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
+    
+  protected:
+    MatchTypeVec                                      _matchTypeVec;
+};
+
 
 
 /**
@@ -339,9 +422,6 @@ class SpiderFusion : public ZXRule{
     MatchTypeVec                                      _matchTypeVec;
     
 };
-
-
-
 
 
 
