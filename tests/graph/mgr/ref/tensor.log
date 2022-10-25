@@ -2,40 +2,18 @@ qsyn> zxmode -On
 ZXMODE turn ON!
 
 qsyn> ZXNew
-Successfully generate Graph 0
+Successfully generated Graph 0
 Checkout to Graph 0
 
 qsyn> ZXGTest
 Generate a 2-qubit CNOT graph for testing
-Add input 0
-Add input 1
-Add vertex 2
-Add vertex 3
-Add output 4
-Add output 5
-Add edge ( 3, 5 )
-Add edge ( 0, 2 )
-Add edge ( 1, 3 )
-Add edge ( 2, 3 )
-Add edge ( 2, 4 )
 
 qsyn> ZXNew
-Successfully generate Graph 1
+Successfully generated Graph 1
 Checkout to Graph 1
 
 qsyn> ZXGTest
 Generate a 2-qubit CNOT graph for testing
-Add input 0
-Add input 1
-Add vertex 2
-Add vertex 3
-Add output 4
-Add output 5
-Add edge ( 3, 5 )
-Add edge ( 0, 2 )
-Add edge ( 1, 3 )
-Add edge ( 2, 3 )
-Add edge ( 2, 4 )
 
 qsyn> zxcheckout 0
 Checkout to Graph 0

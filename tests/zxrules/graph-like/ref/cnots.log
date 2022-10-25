@@ -2,84 +2,13 @@ qsyn> zxm -on
 ZXMODE turn ON!
 
 qsyn> zxgread benchmark/zx/cnots.zx
-Successfully generate Graph 0
+Successfully generated Graph 0
 Checkout to Graph 0
-Add input 0
-Add input 1
-Add output 2
-Add output 3
-Add vertex 4
-Add vertex 5
-Add vertex 6
-Add vertex 7
-Add vertex 8
-Add vertex 9
-Add vertex 10
-Add vertex 11
-Add edge ( 10, 11 )
-Add edge ( 9, 11 )
-Add edge ( 8, 9 )
-Add edge ( 8, 10 )
-Add edge ( 7, 9 )
-Add edge ( 6, 7 )
-Add edge ( 6, 8 )
-Add edge ( 5, 7 )
-Add edge ( 4, 5 )
-Add edge ( 4, 6 )
-Add edge ( 3, 11 )
-Add edge ( 2, 10 )
-Add edge ( 1, 5 )
-Add edge ( 0, 4 )
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
-ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(11, -) 
-ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (5, -) (6, -) 
-ID:	5	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (4, -) (7, -) 
-ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (7, -) (8, -) 
-ID:	7	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(5, -) (6, -) (9, -) 
-ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(6, -) (9, -) (10, -) 
-ID:	9	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(7, -) (8, -) (11, -) 
-ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (8, -) (11, -) 
-ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, -) (9, -) (10, -) 
-Total #Vertices: 12
-( 10, 11 )	Type:	-
-( 9, 11 )	Type:	-
-( 8, 9 )	Type:	-
-( 8, 10 )	Type:	-
-( 7, 9 )	Type:	-
-( 6, 7 )	Type:	-
-( 6, 8 )	Type:	-
-( 5, 7 )	Type:	-
-( 4, 5 )	Type:	-
-( 4, 6 )	Type:	-
-( 3, 11 )	Type:	-
-( 2, 10 )	Type:	-
-( 1, 5 )	Type:	-
-( 0, 4 )	Type:	-
-Total #Edges: 14
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
-> Mapping vertex 0 (●): New Subgraph
-> Mapping vertex 4 ([1m[32mZ[0m[0m): Tensordot
-> Mapping vertex 6 ([1m[32mZ[0m[0m): Tensordot
-> Mapping vertex 8 ([1m[32mZ[0m[0m): Tensordot
-> Mapping vertex 10 ([1m[32mZ[0m[0m): Tensordot
-> Mapping vertex 11 ([1m[31mX[0m[0m): Tensordot
-> Mapping vertex 9 ([1m[31mX[0m[0m): Tensordot
-> Mapping vertex 7 ([1m[31mX[0m[0m): Tensordot
-> Mapping vertex 5 ([1m[31mX[0m[0m): Tensordot
-> Mapping vertex 1 (●): Boundary Node
-> Mapping vertex 3 (●): Boundary Node
-> Mapping vertex 2 (●): Boundary Node
+Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
-
-The resulting tensor is: 
-{{ 1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i}}
 
 qsyn> zxgs -TOGraph
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
@@ -112,27 +41,8 @@ ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, [1m[
 Total #Vertices: 12
 
 qsyn> zxgs -SPIderfusion
-Spider Fusion: 3 Add edge ( 9, 3 )
-Add edge ( 9, 10 )
-Add edge ( 6, 10 )
-Add edge ( 6, 9 )
-Add edge ( 5, 6 )
-Add edge ( 5, 9 )
-Remove ID: 11
-Remove ID: 8
-Remove ID: 7
-. 1 Add edge ( 4, 5 )
-Add edge ( 4, 10 )
-Add edge ( 4, 9 )
-Remove ID: 6
-. 1 Add edge ( 5, 4 )
-Add edge ( 5, 10 )
-Add edge ( 5, 3 )
-Remove ID: 9
-. 1 Add edge ( 4, 5 )
-Add edge ( 4, 2 )
-Remove ID: 10
-. 4 iterations
+Spider Fusion: 
+4 iterations
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
@@ -144,7 +54,6 @@ ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(1, [1m[3
 Total #Vertices: 6
 
 qsyn> zxgs -HRule
-Find match of hadamard-rule: 0
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
@@ -167,11 +76,8 @@ qsyn> zxgp -e
 Total #Edges: 8
 
 qsyn> zxgs -hopf
-Hopf Rule: 1 Remove (4, 5 )
-Remove (4, 5 )
-Remove (4, 5 )
-Remove (4, 5 )
-. 1 iterations
+Hopf Rule: 
+1 iterations
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
@@ -191,19 +97,8 @@ Total #Edges: 4
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
-> Mapping vertex 1 (●): New Subgraph
-> Mapping vertex 5 ([1m[32mZ[0m[0m): Tensordot
-> Mapping vertex 3 (●): Boundary Node
-> Mapping vertex 0 (●): New Subgraph
-> Mapping vertex 4 ([1m[32mZ[0m[0m): Tensordot
-> Mapping vertex 2 (●): Boundary Node
+Successfully added Tensor 1
 Stored the resulting tensor as tensor id 1
-
-The resulting tensor is: 
-{{ 1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i}}
 
 qsyn> q -f
 

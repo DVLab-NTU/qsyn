@@ -28,7 +28,7 @@ QTensor<double>* TensorMgr::addTensor(const size_t& id, const string& str) {
         return nullptr;
     }
     _tensorList[id] = {new QTensor<double>(), str};
-    if (verbose >= 5) {
+    if (verbose >= 3) {
         cout << "Successfully added Tensor " << id << endl;
     }
     return _tensorList[id].tensor;
@@ -45,7 +45,7 @@ void TensorMgr::removeTensor(const size_t& id) {
     }
     _tensorList.erase(id);
 
-    if (verbose >= 5) cout << "Successfully removed Tensor " << id << endl;
+    if (verbose >= 3) cout << "Successfully removed Tensor " << id << endl;
 
     return;
 }

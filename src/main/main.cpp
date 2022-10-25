@@ -21,7 +21,7 @@ extern bool initQCirCmd();
 extern bool initZXCmd();
 extern bool initSimpCmd();
 extern bool initTensorCmd();
-size_t verbose = 3; // Default verbose level = 3
+size_t verbose = 3; 
 size_t formatLevel = 1;
 
 static void

@@ -18,6 +18,7 @@ ZXMODE turn ON!
 qsyn> zxgr benchmark/zx/swap.zx
 
 qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 1
 
 qsyn> ver 3

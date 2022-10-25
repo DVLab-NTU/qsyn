@@ -18,7 +18,7 @@ bool ZX2TSMapper::map() {
         cerr << "[Error] The ZX Graph is not valid!!!" << endl;
         return false;
     }
-    if (verbose >= 3) cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
+    if (verbose >= 2) cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
     _zxgraph->topoTraverse([this](ZXVertex* v) { mapOneVertex(v); });
     for (size_t i = 0; i < _boundaryEdges.size(); i++)
         _zx2tsList.frontiers(i).emplace(_boundaryEdges[i], 0);
@@ -37,12 +37,8 @@ bool ZX2TSMapper::map() {
     getAxisOrders(outputIds, _zxgraph->getOutputList(), true);
 
     *result = result->toMatrix(inputIds, outputIds);
-    if (verbose >= 2) {
-        cout << "Stored the resulting tensor as tensor id " << id << endl;
-    }
-    if (verbose >= 3) {
-        cout << "\nThe resulting tensor is: \n"<< *result << endl;
-    }
+    cout << "Stored the resulting tensor as tensor id " << id << endl;
+
     return true;
 }
 
@@ -54,23 +50,23 @@ void ZX2TSMapper::mapOneVertex(ZXVertex* v) {
     _addEdge.clear();
     _tensorId = 0;
 
-    if (verbose >= 3) cout << "> Mapping vertex " << v->getId() << " (" << VertexType2Str(v->getType()) << "): ";
+    if (verbose >= 5) cout << "> Mapping vertex " << v->getId() << " (" << VertexType2Str(v->getType()) << "): ";
     if (isOfNewGraph(v)) {
-        if (verbose >= 3) cout << "New Subgraph" << endl;
+        if (verbose >= 5) cout << "New Subgraph" << endl;
         initSubgraph(v);
     } else if (v->getType() == VertexType::BOUNDARY) {
-        if (verbose >= 3) cout << "Boundary Node" << endl;
+        if (verbose >= 5) cout << "Boundary Node" << endl;
         updatePinsAndFrontiers(v);
         currTensor() = dehadamardize(currTensor());
         
     } else {
-        if (verbose >= 3) cout << "Tensordot" << endl;
+        if (verbose >= 5) cout << "Tensordot" << endl;
         updatePinsAndFrontiers(v);
         // if (verbose >= 7) printFrontiers();
         tensorDotVertex(v);
     }
     v->setPin(_tensorId);
-    if (verbose >= 7){
+    if (verbose >= 8){
         printFrontiers();
     }
 }
@@ -184,7 +180,7 @@ void ZX2TSMapper::updatePinsAndFrontiers(ZXVertex* v) {
         ZXVertex* const& neighbor = epair.first;
         EdgeType* const& etype = epair.second;
         if (v == neighbor) { // omit self loops
-            if (verbose >= 7) cout << "  - Skipping self loop: " << v->getId() << "--" << neighbor->getId() << " (" <<  EdgeType2Str(etype) << ")" << endl;
+            if (verbose >= 8) cout << "  - Skipping self loop: " << v->getId() << "--" << neighbor->getId() << " (" <<  EdgeType2Str(etype) << ")" << endl;
             continue;
         } 
         EdgeKey edgeKey = makeEdgeKey(v, neighbor, *etype);

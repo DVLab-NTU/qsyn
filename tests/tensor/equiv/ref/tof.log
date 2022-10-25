@@ -7,11 +7,13 @@ ZXMODE turn ON!
 qsyn> zxgr benchmark/zx/tof3.zx
 
 qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 0
 
 qsyn> zxgr benchmark/zx/tof3_ZH.zx
 
 qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 1
 
 qsyn> ver 3

@@ -30,16 +30,13 @@ void ZXGraph::updateTopoOrder()
             DFS(_outputs[i]);
     }
     reverse(_topoOrder.begin(), _topoOrder.end());
-    if (verbose >= 7)
-        cout << "Topological order from first input: " << endl;
-    for (size_t j = 0; j < _topoOrder.size(); j++){
-        if (verbose >= 7)
+    if (verbose >= 7) {
+        cout << "Topological order from first input: ";
+        for (size_t j = 0; j < _topoOrder.size(); j++){
             cout << _topoOrder[j]->getId() << " ";
+        }
+        cout << "\nSize of topological order: " << _topoOrder.size() << endl;
     }
-    if (verbose >= 7)
-        cout << endl;
-    if (verbose >= 7)
-        cout << "Size of topological order: " << _topoOrder.size() << endl;
     // assert(_topoOrder.size() == _vertices.size());
 }
 void ZXGraph::DFS(ZXVertex *currentVertex)
