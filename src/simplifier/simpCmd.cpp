@@ -30,7 +30,7 @@ bool initSimpCmd(){
 }
 
 //----------------------------------------------------------------------
-//    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -PICOPY | -HFusion | -PIVOT | -LComp ]
+//    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion | -HOPF | -PIVOT | -LComp ]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGSimpCmd::exec(const string &option){
@@ -64,12 +64,16 @@ ZXGSimpCmd::exec(const string &option){
             s.setRule(new IdRemoval());
             s.simp();
         }
-        else if(myStrNCmp("-PICOPY", token, 6) == 0){
-            s.setRule(new PiCopy());
+        else if(myStrNCmp("-STCOpy", token, 4) == 0){
+            s.setRule(new StateCopy());
             s.simp();
         }
         else if(myStrNCmp("-HFusion", token, 2) == 0){
             s.setRule(new HboxFusion());
+            s.simp();
+        }
+        else if(myStrNCmp("-HOPF", token, 4) == 0){
+            s.setRule(new Hopf());
             s.simp();
         }
         else if(myStrNCmp("-PIVOT", token, 5) == 0){

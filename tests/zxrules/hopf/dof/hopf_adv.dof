@@ -1,0 +1,15 @@
+zxm -on
+ver 9
+zxgr benchmark/zx/hopf_adv.zx
+zxgs -hopf
+zxgp -v
+zxgs -spi
+zxgp -v
+// The result should be same after swapping orders of two rules
+zxgr -R benchmark/zx/hopf_adv.zx
+zxgs -spi
+zxgp -v
+zxgs -hopf
+zxgp -v
+zxgtsm
+q -f

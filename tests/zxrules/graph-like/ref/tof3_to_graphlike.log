@@ -2,124 +2,8 @@ qsyn> zxm -on
 ZXMODE turn ON!
 
 qsyn> zxgread benchmark/zx/tof3.zx
-Successfully generate Graph 0
+Successfully generated Graph 0
 Checkout to Graph 0
-Add input 0
-Add input 1
-Add input 2
-Add output 3
-Add output 4
-Add output 5
-Add vertex 6
-Add vertex 7
-Add vertex 8
-Add vertex 9
-Add vertex 10
-Add vertex 11
-Add vertex 12
-Add vertex 13
-Add vertex 14
-Add vertex 15
-Add vertex 16
-Add vertex 17
-Add vertex 18
-Add vertex 19
-Add vertex 20
-Add vertex 21
-Add vertex 22
-Add vertex 23
-Add vertex 24
-Add vertex 25
-Add vertex 26
-Add edge ( 25, 26 )
-Add edge ( 24, 26 )
-Add edge ( 23, 25 )
-Add edge ( 21, 24 )
-Add edge ( 20, 21 )
-Add edge ( 20, 23 )
-Add edge ( 19, 22 )
-Add edge ( 18, 21 )
-Add edge ( 17, 19 )
-Add edge ( 16, 17 )
-Add edge ( 16, 20 )
-Add edge ( 15, 17 )
-Add edge ( 14, 15 )
-Add edge ( 13, 14 )
-Add edge ( 13, 18 )
-Add edge ( 0, 10 )
-Add edge ( 1, 7 )
-Add edge ( 2, 6 )
-Add edge ( 3, 25 )
-Add edge ( 4, 26 )
-Add edge ( 5, 22 )
-Add edge ( 6, 8 )
-Add edge ( 7, 8 )
-Add edge ( 7, 13 )
-Add edge ( 8, 9 )
-Add edge ( 9, 11 )
-Add edge ( 10, 11 )
-Add edge ( 10, 16 )
-Add edge ( 11, 12 )
-Add edge ( 12, 14 )
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
-ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
-ID:	2	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(6, -) 
-ID:	3	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(25, -) 
-ID:	4	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(26, -) 
-ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(22, -) 
-ID:	6	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(2, -) (8, -) 
-ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (8, -) (13, -) 
-ID:	8	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(6, -) (7, -) (9, -) 
-ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	7π/4	#Neighbors:	2	(8, -) (11, -) 
-ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (11, -) (16, -) 
-ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(9, -) (10, -) (12, -) 
-ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/4	#Neighbors:	2	(11, -) (14, -) 
-ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(7, -) (14, -) (18, -) 
-ID:	14	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(12, -) (13, -) (15, -) 
-ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	7π/4	#Neighbors:	2	(14, -) (17, -) 
-ID:	16	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, -) (17, -) (20, -) 
-ID:	17	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(15, -) (16, -) (19, -) 
-ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/4	#Neighbors:	2	(13, -) (21, -) 
-ID:	19	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/4	#Neighbors:	2	(17, -) (22, -) 
-ID:	20	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(16, -) (21, -) (23, -) 
-ID:	21	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(18, -) (20, -) (24, -) 
-ID:	22	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(5, -) (19, -) 
-ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/4	#Neighbors:	2	(20, -) (25, -) 
-ID:	24	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	7π/4	#Neighbors:	2	(21, -) (26, -) 
-ID:	25	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, -) (23, -) (26, -) 
-ID:	26	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (24, -) (25, -) 
-Total #Vertices: 27
-( 25, 26 )	Type:	-
-( 24, 26 )	Type:	-
-( 23, 25 )	Type:	-
-( 21, 24 )	Type:	-
-( 20, 21 )	Type:	-
-( 20, 23 )	Type:	-
-( 19, 22 )	Type:	-
-( 18, 21 )	Type:	-
-( 17, 19 )	Type:	-
-( 16, 17 )	Type:	-
-( 16, 20 )	Type:	-
-( 15, 17 )	Type:	-
-( 14, 15 )	Type:	-
-( 13, 14 )	Type:	-
-( 13, 18 )	Type:	-
-( 0, 10 )	Type:	-
-( 1, 7 )	Type:	-
-( 2, 6 )	Type:	-
-( 3, 25 )	Type:	-
-( 4, 26 )	Type:	-
-( 5, 22 )	Type:	-
-( 6, 8 )	Type:	-
-( 7, 8 )	Type:	-
-( 7, 13 )	Type:	-
-( 8, 9 )	Type:	-
-( 9, 11 )	Type:	-
-( 10, 11 )	Type:	-
-( 10, 16 )	Type:	-
-( 11, 12 )	Type:	-
-( 12, 14 )	Type:	-
-Total #Edges: 30
 
 qsyn> zxgs -TOGraph
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
@@ -152,25 +36,8 @@ ID:	26	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, [1m[
 Total #Vertices: 27
 
 qsyn> zxgs -SPIderfusion
-Spider Fusion: 3 Add edge ( 23, 3 )
-Add edge ( 23, 26 )
-Add edge ( 16, 23 )
-Add edge ( 16, 21 )
-Add edge ( 13, 21 )
-Remove ID: 25
-Remove ID: 20
-Remove ID: 18
-. 2 Add edge ( 7, 21 )
-Add edge ( 7, 14 )
-Add edge ( 10, 21 )
-Add edge ( 10, 23 )
-Add edge ( 10, 17 )
-Remove ID: 13
-Remove ID: 16
-. 1 Add edge ( 10, 26 )
-Add edge ( 10, 3 )
-Remove ID: 23
-. 3 iterations
+Spider Fusion: 
+3 iterations
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
@@ -197,13 +64,7 @@ ID:	26	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, [1m[
 Total #Vertices: 21
 
 qsyn> zxgs -HRule
-Find match of hadamard-rule: 2
-Hadamard Rule: 2 Add edge ( 8, 2 )
-Add edge ( 5, 19 )
-Remove ID: 6
-Remove ID: 22
-. Find match of hadamard-rule: 0
-1 iterations
+Hadamard Rule: 2 . 1 iterations
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 

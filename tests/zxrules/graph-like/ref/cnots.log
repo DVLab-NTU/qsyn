@@ -1,0 +1,104 @@
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> zxgread benchmark/zx/cnots.zx
+Successfully generated Graph 0
+Checkout to Graph 0
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
+
+qsyn> zxgs -TOGraph
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, [1m[34mH[0m[0m) 
+ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (5, [1m[34mH[0m[0m) (6, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (7, -) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (7, [1m[34mH[0m[0m) (8, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(5, -) (6, [1m[34mH[0m[0m) (9, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(6, -) (9, [1m[34mH[0m[0m) (10, -) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(7, -) (8, [1m[34mH[0m[0m) (11, -) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (8, -) (11, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, [1m[34mH[0m[0m) (9, -) (10, [1m[34mH[0m[0m) 
+Total #Vertices: 12
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, [1m[34mH[0m[0m) 
+ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (5, [1m[34mH[0m[0m) (6, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (7, -) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (7, [1m[34mH[0m[0m) (8, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(5, -) (6, [1m[34mH[0m[0m) (9, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(6, -) (9, [1m[34mH[0m[0m) (10, -) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(7, -) (8, [1m[34mH[0m[0m) (11, -) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (8, -) (11, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, [1m[34mH[0m[0m) (9, -) (10, [1m[34mH[0m[0m) 
+Total #Vertices: 12
+
+qsyn> zxgs -SPIderfusion
+Spider Fusion: 
+4 iterations
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, [1m[34mH[0m[0m) 
+ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, [1m[34mH[0m[0m) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(0, -) (2, -) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(1, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) 
+Total #Vertices: 6
+
+qsyn> zxgs -HRule
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, [1m[34mH[0m[0m) 
+ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, [1m[34mH[0m[0m) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(0, -) (2, -) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(1, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) 
+Total #Vertices: 6
+
+qsyn> zxgp -e
+( 4, 5 )	Type:	[1m[34mH[0m[0m
+( 1, 5 )	Type:	[1m[34mH[0m[0m
+( 0, 4 )	Type:	-
+( 4, 5 )	Type:	[1m[34mH[0m[0m
+( 5, 4 )	Type:	[1m[34mH[0m[0m
+( 5, 3 )	Type:	[1m[34mH[0m[0m
+( 4, 5 )	Type:	[1m[34mH[0m[0m
+( 4, 2 )	Type:	-
+Total #Edges: 8
+
+qsyn> zxgs -hopf
+Hopf Rule: 
+1 iterations
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, [1m[34mH[0m[0m) 
+ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, [1m[34mH[0m[0m) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (2, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) 
+Total #Vertices: 6
+
+qsyn> zxgp -e
+( 1, 5 )	Type:	[1m[34mH[0m[0m
+( 0, 4 )	Type:	-
+( 5, 3 )	Type:	[1m[34mH[0m[0m
+( 4, 2 )	Type:	-
+Total #Edges: 4
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Successfully added Tensor 1
+Stored the resulting tensor as tensor id 1
+
+qsyn> q -f
+

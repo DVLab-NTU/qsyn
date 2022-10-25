@@ -41,7 +41,7 @@ QTensor<double> ZXVertex::getTSform(){
         else if(*(jtr->second) == EdgeType::SIMPLE) sedge++;
         else cerr << "Wrong Type!!" << endl;
     }
-    if(verbose>=9) cout << hedge << " " << sedge << endl;
+
     Phase tsPhase = _phase;
     assert(hedge%2==0); assert(sedge%2==0);
     for(size_t i=0; i<hedge/2; i++) tsPhase += Phase(1);
@@ -54,7 +54,7 @@ QTensor<double> ZXVertex::getTSform(){
     else if (_type == VertexType::X)
         tensor = QTensor<double>::xspider(_neighborMap.size()-sedge-hedge, tsPhase);
     else
-        cerr << "Vertex " << _id << " type ERROR" << endl;
+        cerr << "Error: Invalid vertex type!! (" << _id << ")" << endl;
     return tensor;
 }
 
@@ -138,13 +138,11 @@ void ZXGraph::cleanRedundantEdges() {
     for (size_t i = 0; i < _edges.size(); i++) {
         ZXVertex* v = _edges[i].first.second;
         if (v->getType() == VertexType::BOUNDARY) {  // is output
-            if (!v->isNeighbor(_edges[i].first.first)) {
-                // remove
-                //  k++;
-            } else
+            if (v->isNeighbor(_edges[i].first.first)) {
                 tmp.push_back(_edges[i]);
-        } else
-            tmp.push_back(_edges[i]);
+            } 
+        } 
+        else tmp.push_back(_edges[i]);
     }
     _edges.clear();
     _edges = tmp;
