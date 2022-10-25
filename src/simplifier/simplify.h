@@ -66,14 +66,24 @@ class Simplifier{
         // Simplification strategies
         int simp();
         int hadamard_simp();
-        // int hadamard_simp(ZXGraph* g, Stats stats);
+        
+        // Basic rule simplification
+        int bialg_simp();
+        int copy_simp();
+        int hfusion_simp();
+        int hopf_simp();
+        int hrule_simp();
+        int id_simp();
+        int lcomp_simp();
+        int pivot_simp();
+        int sfusion_simp();
+
 
         // action
         void to_graph();
         void to_rgraph();
+        int interior_clifford_simp();
 
-        // action
-        void to_graph(ZXGraph* g);
 
 
     private:
