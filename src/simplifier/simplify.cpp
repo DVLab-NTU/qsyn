@@ -129,6 +129,76 @@ int Simplifier::hadamard_simp() {
     }
 }
 
+
+// Basic rules simplification
+
+int Simplifier::bialg_simp(){
+    this->setRule(new Bialgebra());
+    int i = this->simp();
+    return i;
+}
+
+
+int Simplifier::copy_simp(){
+    this->setRule(new StateCopy());
+    int i = this->simp();
+    return i;
+}
+
+
+int Simplifier::hfusion_simp(){
+    this->setRule(new HboxFusion());
+    int i = this->simp();
+    return i;
+}
+
+
+int Simplifier::hopf_simp(){
+    this->setRule(new Hopf());
+    int i = this->simp();
+    return i;
+}
+
+
+int Simplifier::hrule_simp(){
+    this->setRule(new HRule());
+    int i = this->hadamard_simp();
+    return i;
+}
+
+
+int Simplifier::id_simp(){
+    this->setRule(new IdRemoval());
+    int i = this->simp();
+    return i;
+}
+
+
+int Simplifier::lcomp_simp(){
+    this->setRule(new LComp());
+    int i = this->simp();
+    return i;
+}
+
+
+int Simplifier::pivot_simp(){
+    this->setRule(new Pivot());
+    int i = this->simp();
+    return i;
+}
+
+
+int Simplifier::sfusion_simp(){
+    this->setRule(new SpiderFusion());
+    int i = this->simp();
+    return i;
+}
+
+
+
+
+// action
+
 /**
  * @brief Turns every red node(VertexType::X) into green node(VertexType::Z) by regular simple edges <--> hadamard edges.
  *
@@ -142,7 +212,7 @@ void Simplifier::to_graph() {
             v->setType(VertexType::Z);
         }
     }
-    if (verbose >= 3) _simpGraph->printVertices();
+    this->hrule_simp();
 }
 
 /**
@@ -158,5 +228,26 @@ void Simplifier::to_rgraph() {
             v->setType(VertexType::X);
         }
     }
-    if (verbose >= 3) _simpGraph->printVertices();
 }
+
+/**
+ * @brief Keeps doing the simplifications `id_removal`, `s_fusion`, `pivot`, `lcomp` until none of them can be applied anymore.
+ * 
+ * @return int 
+ */
+int Simplifier::interior_clifford_simp(){
+    this->sfusion_simp();
+    to_graph();
+
+    int i = 0;
+    while(true){
+        int i1 = this->id_simp();
+        int i2 = this->sfusion_simp();
+        int i3 = this->pivot_simp();
+        int i4 = this->lcomp_simp();
+        if(i1+i2+i3+i4 == 0) break;
+        i += 1;
+    }
+    return i;
+}
+
