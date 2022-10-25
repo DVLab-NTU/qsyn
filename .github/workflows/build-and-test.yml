@@ -30,4 +30,4 @@ jobs:
       run: make test -j8
       
     - name: run tests
-      run: ./RUN_ALL_TEST.sh -noc -v
+      run: TERM=dumb ./RUN_ALL_TEST.sh -noc -v
