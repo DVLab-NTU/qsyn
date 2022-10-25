@@ -64,8 +64,8 @@ ZXGSimpCmd::exec(const string &option){
             s.setRule(new IdRemoval());
             s.simp();
         }
-        else if(myStrNCmp("-PICOPY", token, 6) == 0){
-            s.setRule(new PiCopy());
+        else if(myStrNCmp("-STCOpy", token, 4) == 0){
+            s.setRule(new StateCopy());
             s.simp();
         }
         else if(myStrNCmp("-HFusion", token, 2) == 0){

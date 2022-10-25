@@ -188,17 +188,17 @@ class IdRemoval : public ZXRule{
  * @brief Pi copy rule(pi): Finds spiders with a 0 or pi phase that have a single neighbor. (in copy.cpp)
  * 
  */
-class PiCopy : public ZXRule{
+class StateCopy : public ZXRule{
   public:
     //TODO: Check MatchType
-    typedef int MatchType;
+    typedef tuple<ZXVertex*, ZXVertex*, vector<ZXVertex*>> MatchType; // vertex with a pi,  vertex with a, neighbors
     typedef vector<MatchType> MatchTypeVec;
 
-    PiCopy(){
+    StateCopy(){
       _matchTypeVec.clear();
       _name = "Identity Removal Rule";
     }
-    ~PiCopy(){}
+    ~StateCopy(){}
 
     
     void match(ZXGraph* g) override; 
