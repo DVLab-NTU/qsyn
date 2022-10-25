@@ -8,7 +8,7 @@ tof a b
 Z a 1
 X result
 S* a
-cnot result a 
+cnot result a
 cx a b
 tof a b c
 tof 1

@@ -118,7 +118,7 @@ QCirReadCmd::exec(const string &option)
    }
    qCir = new QCir;
 
-   if (!qCir->parse(fileName))
+   if (!qCir->read_Qcir_file(fileName))
    {
       curCmd = QCIRINIT;
       delete qCir;
