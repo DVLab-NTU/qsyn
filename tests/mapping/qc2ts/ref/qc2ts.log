@@ -29,7 +29,7 @@ Qubit: 0 input : 0 -> 0 |  output: 1 -> 1
 --------------------------------------------
 Gate 0 (x)
 ************ Pin Permutation ************
-Qubit: 1 input : 1 -> 1 |  output: 3 -> 2
+Qubit: 1 input : 2 -> 1 |  output: 3 -> 2
 Qubit: 0 input : 0 -> 0 |  output: 1 -> 3
 *****************************************
 --------------------------------------------
@@ -95,7 +95,7 @@ Qubit: 0 input : 0 -> 0 |  output: 1 -> 1
 --------------------------------------------
 Gate 0 (sx)
 ************ Pin Permutation ************
-Qubit: 1 input : 1 -> 1 |  output: 3 -> 2
+Qubit: 1 input : 2 -> 1 |  output: 3 -> 2
 Qubit: 0 input : 0 -> 0 |  output: 1 -> 3
 *****************************************
 --------------------------------------------
@@ -175,7 +175,7 @@ Qubit: 0 input : 0 -> 0 |  output: 1 -> 1
 --------------------------------------------
 Gate 1 (cx)
 ************ Pin Permutation ************
-Qubit: 2 input : 3 -> 3 |  output: 5 -> 5
+Qubit: 2 input : 4 -> 3 |  output: 5 -> 5
 Qubit: 1 input : 2 -> 2 |  output: 3 -> 4
 Qubit: 0 input : 0 -> 0 |  output: 1 -> 1
 *****************************************
@@ -189,8 +189,8 @@ Qubit: 0 input : 0 -> 0 |  output: 1 -> 1
 --------------------------------------------
 Gate 3 (cx)
 ************ Pin Permutation ************
-Qubit: 2 input : 2 -> 2 |  output: 5 -> 5
-Qubit: 1 input : 1 -> 1 |  output: 4 -> 3
+Qubit: 2 input : 3 -> 2 |  output: 5 -> 5
+Qubit: 1 input : 2 -> 1 |  output: 4 -> 3
 Qubit: 0 input : 0 -> 0 |  output: 1 -> 4
 *****************************************
 --------------------------------------------
@@ -286,14 +286,14 @@ Add Qubit 2 output port: 5
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Gate 0 (rz)
 ************ Pin Permutation ************
-Qubit: 2 input : 3 -> 3 |  output: 5 -> 4
-Qubit: 1 input : 1 -> 1 |  output: 3 -> 2
+Qubit: 2 input : 4 -> 3 |  output: 5 -> 4
+Qubit: 1 input : 2 -> 1 |  output: 3 -> 2
 Qubit: 0 input : 0 -> 0 |  output: 1 -> 5
 *****************************************
 --------------------------------------------
 Gate 1 (cx)
 ************ Pin Permutation ************
-Qubit: 2 input : 2 -> 2 |  output: 4 -> 3
+Qubit: 2 input : 3 -> 2 |  output: 4 -> 3
 Qubit: 1 input : 1 -> 1 |  output: 2 -> 4
 Qubit: 0 input : 0 -> 0 |  output: 5 -> 5
 *****************************************
