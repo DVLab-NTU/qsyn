@@ -385,7 +385,6 @@ void CmdParser::listCmd(const string& str) {
             cmd[i] = toupper(cmd[i]);
         
         if (getCmd(cmd)) {  // cmd is enough to determine a single cmd
-            cerr << "enough" << endl;
             bi = _cmdMap.find(cmd);
             if (bi == _cmdMap.end()) {
                 bi = _cmdMap.lower_bound(cmd);
@@ -394,11 +393,8 @@ void CmdParser::listCmd(const string& str) {
             ei = bi;
             ++ei;
         } else {
-            cerr << "not enough" << endl;
             string cmdN = cmd;
             cmdN[cmdN.size() - 1] = cmd[cmd.size() - 1] + 1;
-            cerr << cmd << endl;
-            cerr << cmdN << endl;
             bi = _cmdMap.lower_bound(cmd);
             ei = _cmdMap.lower_bound(cmdN);
             if (bi == ei) {
@@ -408,7 +404,6 @@ void CmdParser::listCmd(const string& str) {
         }
     }  // end of cmd string processing
     // cases 1, 2, 3 go here
-    cerr << bi->first << endl;
     ti = bi;
     ++ti;
     if (ti == ei) {  // [case 3] single command; insert ' '
