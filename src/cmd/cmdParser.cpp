@@ -90,11 +90,19 @@ bool CmdParser::regCmd(const string& cmd, unsigned nCmp, CmdExec* e) {
         if (s == nCmp) break;
         str.resize(--s);
     }
-
     // Change the first nCmp characters to upper case to facilitate
     //    case-insensitive comparison later.
     // The strings stored in _cmdMap are all upper case
     //
+
+    // Guard: mandatory part cannot be subsets to another
+    // Currently turned off (until maybe one day the alias system is in place)
+
+    // for (const auto& [key, _] : _cmdMap) {
+    //     if (key.find(str) != string::npos || str.find(key) != string::npos) {
+    //         return false;
+    //     }
+    // }
     assert(str.size() == nCmp);  // str is now mandCmd
     string& mandCmd = str;
     for (unsigned i = 0; i < nCmp; ++i)
@@ -375,7 +383,9 @@ void CmdParser::listCmd(const string& str) {
         // cursor on first word
         for (size_t i = 0, n = cmd.size(); i < n; ++i)
             cmd[i] = toupper(cmd[i]);
+        
         if (getCmd(cmd)) {  // cmd is enough to determine a single cmd
+            cerr << "enough" << endl;
             bi = _cmdMap.find(cmd);
             if (bi == _cmdMap.end()) {
                 bi = _cmdMap.lower_bound(cmd);
@@ -384,8 +394,11 @@ void CmdParser::listCmd(const string& str) {
             ei = bi;
             ++ei;
         } else {
+            cerr << "not enough" << endl;
             string cmdN = cmd;
             cmdN[cmdN.size() - 1] = cmd[cmd.size() - 1] + 1;
+            cerr << cmd << endl;
+            cerr << cmdN << endl;
             bi = _cmdMap.lower_bound(cmd);
             ei = _cmdMap.lower_bound(cmdN);
             if (bi == ei) {
@@ -395,6 +408,7 @@ void CmdParser::listCmd(const string& str) {
         }
     }  // end of cmd string processing
     // cases 1, 2, 3 go here
+    cerr << bi->first << endl;
     ti = bi;
     ++ti;
     if (ti == ei) {  // [case 3] single command; insert ' '
