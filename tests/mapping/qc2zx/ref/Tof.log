@@ -9,22 +9,18 @@ qsyn> zxmode -on
 ZXMODE turn ON!
 
 qsyn> qczxm
-Successfully generate Graph 0
+Successfully generated Graph 0
 Checkout to Graph 0
 ----------- ADD BOUNDARIES -----------
 Add input 0
 Add output 1
 Add edge ( 0, 1 )
-Add Qubit 0 inp: 0 oup: 1
 Add input 2
 Add output 3
 Add edge ( 2, 3 )
-Add Qubit 1 inp: 2 oup: 3
 Add input 4
 Add output 5
 Add edge ( 4, 5 )
-Add Qubit 2 inp: 4 oup: 5
-ZXnode starts from 5
 --------------------------------------
 
 ---- TRAVERSE AND BUILD THE GRAPH ----
@@ -103,75 +99,36 @@ Remove edge ( 30, 25 )
 Add edge ( 25, 1 )
 ***********************************
 --------------------------------------
---------------------------------------
----------------------------------- GRAPH INFORMATION ---------------------------------
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(25, -) 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(26, -) 
-ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(6, -) 
-ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(22, -) 
-ID:	6	VertexType:	[1m[33mH[0m[0m	Qubit:	2	Phase:	π	#Neighbors:	2	(4, -) (8, -) 
-ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (8, -) (13, -) 
-ID:	8	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(6, -) (7, -) (9, -) 
-ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	7π/4	#Neighbors:	2	(8, -) (11, -) 
-ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (11, -) (16, -) 
-ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(9, -) (10, -) (12, -) 
-ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	π/4	#Neighbors:	2	(11, -) (14, -) 
-ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(7, -) (14, -) (18, -) 
-ID:	14	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(12, -) (13, -) (15, -) 
-ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	7π/4	#Neighbors:	2	(14, -) (17, -) 
-ID:	16	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, -) (17, -) (20, -) 
-ID:	17	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(15, -) (16, -) (19, -) 
-ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	π/4	#Neighbors:	2	(13, -) (21, -) 
-ID:	19	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	π/4	#Neighbors:	2	(17, -) (22, -) 
-ID:	20	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(16, -) (21, -) (23, -) 
-ID:	21	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(18, -) (20, -) (24, -) 
-ID:	22	VertexType:	[1m[33mH[0m[0m	Qubit:	2	Phase:	π	#Neighbors:	2	(5, -) (19, -) 
-ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/4	#Neighbors:	2	(20, -) (25, -) 
-ID:	24	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	7π/4	#Neighbors:	2	(21, -) (26, -) 
-ID:	25	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (23, -) (26, -) 
-ID:	26	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (24, -) (25, -) 
-Total #Vertices: 27
---------------------------------------------------------------------------------------
--> #Graph: 1
--> Now focus on: 0
 
 qsyn> ZXGTSM
 ---- TRAVERSE AND BUILD THE TENSOR ----
-Topological order from first input: 
-0 10 16 20 23 25 26 24 21 18 13 14 12 11 9 8 6 4 7 2 15 17 19 22 5 3 1 
+Topological order from first input: 0 10 16 20 23 25 26 24 21 18 13 14 12 11 9 8 6 4 7 2 15 17 19 22 5 3 1 
 Size of topological order: 27
 > Mapping vertex 0 (●): New Subgraph
   - Current frontiers: 
     0--10 (-) axis id: 1
 > Mapping vertex 10 ([1m[32mZ[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     10--11 (-) axis id: 2
     10--16 (-) axis id: 1
 > Mapping vertex 16 ([1m[32mZ[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     10--11 (-) axis id: 1
     16--17 (-) axis id: 3
     16--20 (-) axis id: 2
 > Mapping vertex 20 ([1m[32mZ[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     10--11 (-) axis id: 1
     16--17 (-) axis id: 2
     20--21 (-) axis id: 4
     20--23 (-) axis id: 3
 > Mapping vertex 23 ([1m[32mZ[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     10--11 (-) axis id: 1
     16--17 (-) axis id: 2
     20--21 (-) axis id: 3
     23--25 (-) axis id: 4
 > Mapping vertex 25 ([1m[32mZ[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 4
     10--11 (-) axis id: 1
@@ -179,7 +136,6 @@ Size of topological order: 27
     20--21 (-) axis id: 3
     25--26 (-) axis id: 5
 > Mapping vertex 26 ([1m[31mX[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 4
     3--26 (-) axis id: 5
@@ -188,7 +144,6 @@ Size of topological order: 27
     20--21 (-) axis id: 3
     24--26 (-) axis id: 6
 > Mapping vertex 24 ([1m[32mZ[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 4
     3--26 (-) axis id: 5
@@ -197,7 +152,6 @@ Size of topological order: 27
     20--21 (-) axis id: 3
     21--24 (-) axis id: 6
 > Mapping vertex 21 ([1m[31mX[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 3
     3--26 (-) axis id: 4
@@ -205,7 +159,6 @@ Size of topological order: 27
     16--17 (-) axis id: 2
     18--21 (-) axis id: 5
 > Mapping vertex 18 ([1m[32mZ[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 3
     3--26 (-) axis id: 4
@@ -213,7 +166,6 @@ Size of topological order: 27
     13--18 (-) axis id: 5
     16--17 (-) axis id: 2
 > Mapping vertex 13 ([1m[32mZ[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 3
     3--26 (-) axis id: 4
@@ -222,7 +174,6 @@ Size of topological order: 27
     13--14 (-) axis id: 5
     16--17 (-) axis id: 2
 > Mapping vertex 14 ([1m[31mX[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 3
     3--26 (-) axis id: 4
@@ -232,7 +183,6 @@ Size of topological order: 27
     14--15 (-) axis id: 6
     16--17 (-) axis id: 2
 > Mapping vertex 12 ([1m[32mZ[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 3
     3--26 (-) axis id: 4
@@ -242,7 +192,6 @@ Size of topological order: 27
     14--15 (-) axis id: 6
     16--17 (-) axis id: 2
 > Mapping vertex 11 ([1m[31mX[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 2
     3--26 (-) axis id: 3
@@ -251,7 +200,6 @@ Size of topological order: 27
     14--15 (-) axis id: 5
     16--17 (-) axis id: 1
 > Mapping vertex 9 ([1m[32mZ[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 2
     3--26 (-) axis id: 3
@@ -260,7 +208,6 @@ Size of topological order: 27
     14--15 (-) axis id: 5
     16--17 (-) axis id: 1
 > Mapping vertex 8 ([1m[31mX[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 2
     3--26 (-) axis id: 3
@@ -270,7 +217,6 @@ Size of topological order: 27
     14--15 (-) axis id: 5
     16--17 (-) axis id: 1
 > Mapping vertex 6 ([1m[33mH[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 2
     3--26 (-) axis id: 3
@@ -289,7 +235,6 @@ Size of topological order: 27
     14--15 (-) axis id: 5
     16--17 (-) axis id: 1
 > Mapping vertex 7 ([1m[32mZ[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 2
     2--7 (-) axis id: 6
@@ -306,7 +251,6 @@ Size of topological order: 27
     14--15 (-) axis id: 4
     16--17 (-) axis id: 1
 > Mapping vertex 15 ([1m[32mZ[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 2
     2--7 (-) axis id: 5
@@ -315,7 +259,6 @@ Size of topological order: 27
     15--17 (-) axis id: 6
     16--17 (-) axis id: 1
 > Mapping vertex 17 ([1m[31mX[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 1
     2--7 (-) axis id: 4
@@ -323,7 +266,6 @@ Size of topological order: 27
     4--6 (-) axis id: 3
     17--19 (-) axis id: 5
 > Mapping vertex 19 ([1m[32mZ[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 1
     2--7 (-) axis id: 4
@@ -331,7 +273,6 @@ Size of topological order: 27
     4--6 (-) axis id: 3
     19--22 (-) axis id: 5
 > Mapping vertex 22 ([1m[33mH[0m[0m): Tensordot
-0 0
   - Current frontiers: 
     1--25 (-) axis id: 1
     2--7 (-) axis id: 4
@@ -361,40 +302,6 @@ Size of topological order: 27
     5--22 (-) axis id: 5
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
-
-The resulting tensor is: 
-{{ 1.000000e+00-3.532708e-16i,  0.000000e+00+3.532708e-16i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
- { 0.000000e+00+3.532708e-16i,  1.000000e+00-3.532708e-16i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
- { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   1.000000e+00-6.800247e-16i,  0.000000e+00+2.651691e-17i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
- { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   0.000000e+00+2.651691e-17i,  1.000000e+00-6.800247e-16i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
- { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   1.000000e+00-6.110826e-16i, -1.110223e-16+1.695434e-17i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
- { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-  -1.110223e-16+1.695434e-17i,  1.000000e+00-6.110826e-16i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
- { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-  -1.110223e-16-2.390763e-16i,  1.000000e+00-5.530948e-16i},
- { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   1.000000e+00-5.530948e-16i, -1.110223e-16-2.390763e-16i}}
 
 qsyn> q -f
 

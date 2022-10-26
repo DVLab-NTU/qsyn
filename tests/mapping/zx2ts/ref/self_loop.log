@@ -2,29 +2,22 @@ qsyn> zxm -on
 ZXMODE turn ON!
 
 qsyn> zxn
-Successfully generate Graph 0
+Successfully generated Graph 0
 Checkout to Graph 0
 
 qsyn> zxgedit -addi 0 0
-Add input 0
 
 qsyn> zxgedit -addo 1 0
-Add output 1
 
 qsyn> zxgedit -addv 2 0 Z 0
-Add vertex 2
 
 qsyn> zxgedit -adde 0 2 SIMPLE
-Add edge ( 0, 2 )
 
 qsyn> zxgedit -adde 2 1 SIMPLE
-Add edge ( 2, 1 )
 
 qsyn> zxgedit -adde 2 2 HADAMARD
-Add edge ( 2, 2 )
 
 qsyn> zxgedit -adde 2 2 SIMPLE
-Add edge ( 2, 2 )
 
 qsyn> 
 qsyn> ver 7
@@ -32,28 +25,13 @@ Note: verbose level is set to 7
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
-Topological order from first input: 
-0 2 1 
+Topological order from first input: 0 2 1 
 Size of topological order: 3
 > Mapping vertex 0 (●): New Subgraph
-  - Current frontiers: 
-    0--2 (-) axis id: 1
 > Mapping vertex 2 ([1m[32mZ[0m[0m): Tensordot
-  - Skipping self loop: 2--2 (-)
-  - Skipping self loop: 2--2 (-)
-  - Skipping self loop: 2--2 ([1m[34mH[0m[0m)
-  - Skipping self loop: 2--2 ([1m[34mH[0m[0m)
-  - Current frontiers: 
-    1--2 (-) axis id: 1
 > Mapping vertex 1 (●): Boundary Node
-  - Current frontiers: 
-    1--2 (-) axis id: 1
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
-
-The resulting tensor is: 
-{{ 1.+0.000000e+00i,  0.+0.000000e+00i},
- { 0.+0.000000e+00i, -1.+1.224647e-16i}}
 
 qsyn> q -f 
 

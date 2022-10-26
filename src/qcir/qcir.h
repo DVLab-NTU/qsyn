@@ -54,11 +54,11 @@ public:
   bool removeQubit(size_t q);
   void addGate(string type, vector<size_t> bits, Phase phase, bool append);
   bool removeGate(size_t id);
-  bool parse(string file);
-  bool parseQASM(string qasm_file);
-  bool parseQC(string qc_file);
-  bool parseQSIM(string qsim_file);
-  bool parseQUIPPER(string quipper_file);
+  bool readQCirFile(string file);
+  bool readQASM(string qasm_file);
+  bool readQC(string qc_file);
+  bool readQSIM(string qsim_file);
+  bool readQUIPPER(string quipper_file);
   bool writeQASM(string qasm_output);
   void incrementZXId() { _ZXNodeId++; }
   
