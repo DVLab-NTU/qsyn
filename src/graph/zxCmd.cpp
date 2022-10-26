@@ -32,6 +32,7 @@ bool initZXCmd(){
          cmdMgr->regCmd("ZXGPrint", 4, new ZXGPrintCmd) && 
          cmdMgr->regCmd("ZXGTest", 4, new ZXGTestCmd) && 
          cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd) && 
+         cmdMgr->regCmd("ZXGASsign", 5, new ZXGAssignCmd) && 
          cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
          cmdMgr->regCmd("ZXGTSMap", 6, new ZXGTSMappingCmd) &&
          cmdMgr->regCmd("ZXGRead", 4, new ZXGReadCmd) &&
@@ -738,4 +739,70 @@ void ZXGWriteCmd::help() const
 {
    cout << setw(15) << left << "ZXGWrite: "
         << "write ZXFile\n";
+}
+
+//----------------------------------------------------------------------
+//    ZXGASsign <size_t qubit> <I|O> <Z|X> <string Phase>
+//----------------------------------------------------------------------
+CmdExecStatus
+ZXGAssignCmd::exec(const string &option)
+{
+   // check option
+    if(curCmd != ZXON){
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXEdit." << endl;
+        return CMD_EXEC_ERROR;
+    }
+    vector<string> tokens;
+    if (!CmdExec::lexOptions(option, tokens))
+        return CMD_EXEC_ERROR;
+    
+    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
+        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXGASsign." << endl;
+        return CMD_EXEC_ERROR;
+    }
+    
+    if(tokens.size()<4)
+        return CmdExec::errorOption(CMD_OPT_MISSING, tokens[tokens.size()-1]);
+    if(tokens.size()>4)
+        return CmdExec::errorOption(CMD_OPT_EXTRA, tokens[4]);
+    unsigned uns;
+    if(!myStr2Uns(tokens[0], uns)){
+        cerr << "Error: qubit is invalid" << endl;
+        return CmdExec::errorOption(CMD_OPT_ILLEGAL, tokens[0]);
+    }
+
+    if(tokens[1]!= "I" && tokens[1]!= "O"){
+        cerr << "Error: the option for boundary option is only \"I\" or \"O\"" << endl;
+        return CmdExec::errorOption(CMD_OPT_ILLEGAL, tokens[1]); 
+    }
+
+    if(!(tokens[1]=="I" ? zxGraphMgr->getGraph()->isInputQubit(uns) : zxGraphMgr->getGraph()->isOutputQubit(uns))){
+        cerr << "Error: the assigned boundary does not exists" << endl;
+        return CmdExec::errorOption(CMD_OPT_ILLEGAL, tokens[1]); 
+    }
+    if(tokens[2]!= "Z" && tokens[2]!= "X"){
+        cerr << "Error: the option for vertex is only \"Z\" or \"X\"" << endl;
+        return CmdExec::errorOption(CMD_OPT_ILLEGAL, tokens[2]); 
+    }
+
+    Phase phase;
+    if(!phase.fromString(tokens[3])){
+        cerr << "Error: not a legal phase!!" << endl;
+        return CmdExec::errorOption(CMD_OPT_ILLEGAL, tokens[3]);
+    }
+
+    VertexType ty = (tokens[2]== "Z") ? VertexType::Z : VertexType::X;
+    zxGraphMgr->getGraph()->assignBoundary(uns, (tokens[1]=="I"), ty, phase);
+    return CMD_EXEC_DONE;
+}
+
+void ZXGAssignCmd::usage(ostream &os) const
+{
+   os << "Usage: ZXGASsign <size_t qubit> <I|O> <Z|X> <string Phase>" << endl;
+}
+
+void ZXGAssignCmd::help() const
+{
+   cout << setw(15) << left << "ZXGASsign: "
+        << "assign an input/output vertex to specific qubit\n";
 }

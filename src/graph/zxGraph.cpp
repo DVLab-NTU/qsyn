@@ -485,6 +485,19 @@ void ZXGraph::removeEdgeById(const size_t& id_s, const size_t& id_t) {
     }
 }
 
+/**
+ * @brief Assign rotation/value to the specified boundary 
+ *
+ * @param qubit
+ * @param input
+ * @param type
+ * @param phase
+ */
+void ZXGraph::assignBoundary(size_t qubit, bool input, VertexType type, Phase phase){
+
+}
+
+
 // Find functions
 
 /**
