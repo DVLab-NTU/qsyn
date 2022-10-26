@@ -108,7 +108,7 @@ class StateCopy : public ZXRule{
 
     StateCopy(){
       _matchTypeVec.clear();
-      _name = "Identity Removal Rule";
+      _name = "State Copy Rule";
     }
     ~StateCopy(){}
 
@@ -262,7 +262,7 @@ class SpiderFusion : public ZXRule{
 
     SpiderFusion(){
       _matchTypeVec.clear();
-      _name = "Spider Fusion";
+      _name = "Spider Fusion Rule";
     }
     ~SpiderFusion(){}
 
@@ -321,7 +321,7 @@ class LComp : public ZXRule{
 
     LComp(){
       _matchTypeVec.clear();
-      _name = "Local Complementary";
+      _name = "Local Complementary Rule";
     }
     ~LComp(){}
 
