@@ -33,7 +33,7 @@ qsyn> zxgp -e
 Total #Edges: 8
 
 qsyn> zxgsimp -lcomp
-Local Complementary: 
+Local Complementary Rule: 
 1 iterations
 
 qsyn> zxgp -v

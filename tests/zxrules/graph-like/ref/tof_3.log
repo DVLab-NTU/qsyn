@@ -6,16 +6,16 @@ Successfully generated Graph 0
 Checkout to Graph 0
 
 qsyn> zxgs -interc
-Spider Fusion: 
+Spider Fusion Rule: 
 3 iterations
 Hadamard Rule: 2 . 1 iterations
 Identity Removal Rule: 
 No matches
-Spider Fusion: 
+Spider Fusion Rule: 
 No matches
 Pivot Rule: 
 No matches
-Local Complementary: 
+Local Complementary Rule: 
 No matches
 
 qsyn> zxgp -v

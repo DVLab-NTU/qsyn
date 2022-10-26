@@ -29,7 +29,7 @@ ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(11, -)
 Total #Vertices: 13
 
 qsyn> zxgs -spi
-Spider Fusion: 
+Spider Fusion Rule: 
 2 iterations
 
 qsyn> zxgp -v
@@ -51,7 +51,7 @@ qsyn> zxgr -R benchmark/zx/hopf_adv.zx
 Note: original zxGraph is replaced...
 
 qsyn> zxgs -spi
-Spider Fusion: 
+Spider Fusion Rule: 
 2 iterations
 
 qsyn> zxgp -v
