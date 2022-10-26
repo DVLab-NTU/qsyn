@@ -417,7 +417,7 @@ bool QCir::removeGate(size_t id)
     QCirGate *target = getGate(id);
     if (target == NULL)
     {
-        cerr << "ERROR: id " << id << " not found!!" << endl;
+        cerr << "Error: id " << id << " not found!!" << endl;
         return false;
     }
     else
