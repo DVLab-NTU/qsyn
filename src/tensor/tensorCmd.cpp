@@ -123,7 +123,7 @@ TSEquivalenceCmd::exec(const string &option) {
     if (!tensorMgr) tensorMgr = new TensorMgr;
 
     bool useEpsilon = false, nextEpsilon = false;
-    double epsilon;
+    double epsilon = 1e-6;
     bool useStrict = false;
     vector<unsigned> ids;
     unsigned tmp;
@@ -186,8 +186,8 @@ TSEquivalenceCmd::exec(const string &option) {
 }
 
 void TSEquivalenceCmd::usage(ostream &os) const {
-    os << "Usage: TSEQuiv <size_t id1> <size_t id2> [<-Epsilon> <double eps>] [-Exact]"
-       << "       -Epsilon: requires cosine similarity between tensors to be higher than (1 - eps) (default to 1e-6)" << endl
+    os << "Usage: TSEQuiv <size_t id1> <size_t id2> [<-Epsilon> <double eps>] [-Exact]\n"
+       << "       -Epsilon: requires cosine similarity between tensors to be higher than (1 - eps) (default to 1e-6)\n"
        << "       -Strict : requires exact equivalence (global scaling factor of 1)" << endl;
 }
 
