@@ -15,6 +15,8 @@ class Tensor;
 template <typename T>
 class QTensor;
 
+class TensorMgr;
+
 // class TensorShape;
 
 #endif //TENSOR_DEF_H

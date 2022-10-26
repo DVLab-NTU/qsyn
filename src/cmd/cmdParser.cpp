@@ -130,9 +130,8 @@ CmdParser::execOneCmd() {
 // Print an endl at the end.
 void CmdParser::printHelps() const {
     // TODO...
-    CmdMap::const_iterator mi;
-    for (mi = _cmdMap.begin(); mi != _cmdMap.end(); ++mi)
-        (*mi).second->help();
+    for (const auto& mi : _cmdMap)
+        mi.second->help();
  
     cout << endl;
 }

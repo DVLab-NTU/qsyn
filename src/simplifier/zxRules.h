@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ ZXRule.h ]
-  PackageName  [ graph ]
+  PackageName  [ simplifier ]
   Synopsis     [ ZX Basic Rules ]
   Author       [ Cheng-Hua Lu ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
@@ -61,64 +61,6 @@ class ZXRule{
 };
 
 
-/**
- * @brief Hadamard rule (h): H_BOX vertex -> HADAMARD edge (in hrule.cpp)
- * @ ZXRule's Derived class
- */
-class HRule : public ZXRule{
-  public:
-    typedef ZXVertex* MatchType;
-    typedef vector<MatchType> MatchTypeVec;
-
-    HRule(){
-      _matchTypeVec.clear();
-      _name = "Hadamard Rule";
-    }
-    ~HRule(){}
-
-    
-    void match(ZXGraph* g) override; 
-    void rewrite(ZXGraph* g) override;
-
-    // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
-    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
-    
-  protected:
-    MatchTypeVec                                      _matchTypeVec;
-    
-};
-
-
-/**
- * @brief Spider Fusion(f): Finds non-interacting matchings of the spider fusion rule. (in sfusion.cpp)
- * 
- */
-class SpiderFusion : public ZXRule{
-  public:
-    typedef pair<ZXVertex*, ZXVertex*> MatchType;
-    typedef vector<MatchType> MatchTypeVec;
-
-    SpiderFusion(){
-      _matchTypeVec.clear();
-      _name = "Spider Fusion";
-    }
-    ~SpiderFusion(){}
-
-    
-    void match(ZXGraph* g) override; 
-    void rewrite(ZXGraph* g) override;
-
-    // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
-    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
-    
-  protected:
-    MatchTypeVec                                      _matchTypeVec;
-    
-};
-
-
 
 /**
  * @brief Bialgebra Rule(b): Finds noninteracting matchings of the bialgebra rule. (in bialg.cpp)
@@ -142,6 +84,129 @@ class Bialgebra : public ZXRule{
 
     // checker
     bool check_duplicated_vertex(vector<ZXVertex*> vec);
+
+    // Getter and Setter
+    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
+    
+  protected:
+    MatchTypeVec                                      _matchTypeVec;
+    
+};
+
+
+
+/**
+ * @brief Pi copy rule(pi): Finds spiders with a 0 or pi phase that have a single neighbor. (in copy.cpp)
+ * 
+ */
+class StateCopy : public ZXRule{
+  public:
+    //TODO: Check MatchType
+    typedef tuple<ZXVertex*, ZXVertex*, vector<ZXVertex*>> MatchType; // vertex with a pi,  vertex with a, neighbors
+    typedef vector<MatchType> MatchTypeVec;
+
+    StateCopy(){
+      _matchTypeVec.clear();
+      _name = "Identity Removal Rule";
+    }
+    ~StateCopy(){}
+
+    
+    void match(ZXGraph* g) override; 
+    void rewrite(ZXGraph* g) override;
+
+    // Getter and Setter
+    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
+    
+  protected:
+    MatchTypeVec                                      _matchTypeVec;
+    
+};
+
+
+
+/**
+ * @brief Hadamard Cancellation(i2): Fuses two neighboring H-boxes together. (in hfusion.cpp)
+ * 
+ */
+class HboxFusion : public ZXRule{
+  public:
+    //TODO: Check MatchType
+    typedef ZXVertex* MatchType;
+    typedef vector<MatchType> MatchTypeVec;
+
+    HboxFusion(){
+      _matchTypeVec.clear();
+      _name = "Hadamard Cancellation Rule";
+    }
+    ~HboxFusion(){}
+
+    
+    void match(ZXGraph* g) override; 
+    void rewrite(ZXGraph* g) override;
+
+    // Getter and Setter
+    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
+    
+  protected:
+    MatchTypeVec                                      _matchTypeVec;
+    
+};
+
+
+
+/**
+ * @brief 
+ * 
+ */
+class Hopf : public ZXRule{
+  public:
+    //TODO: Check MatchType
+    typedef pair<ZXVertex*, ZXVertex*> MatchType;
+    typedef vector<MatchType> MatchTypeVec;
+
+    Hopf(){
+      _matchTypeVec.clear();
+      _name = "Hopf Rule";
+    }
+    ~Hopf(){}
+
+    
+    void match(ZXGraph* g) override; 
+    void rewrite(ZXGraph* g) override;
+
+    // Getter and Setter
+    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
+    
+  protected:
+    MatchTypeVec                                      _matchTypeVec;
+    
+};
+
+
+
+/**
+ * @brief Hadamard rule (h): H_BOX vertex -> HADAMARD edge (in hrule.cpp)
+ * @ ZXRule's Derived class
+ */
+class HRule : public ZXRule{
+  public:
+    typedef ZXVertex* MatchType;
+    typedef vector<MatchType> MatchTypeVec;
+
+    HRule(){
+      _matchTypeVec.clear();
+      _name = "Hadamard Rule";
+    }
+    ~HRule(){}
+
+    
+    void match(ZXGraph* g) override; 
+    void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
     MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
@@ -184,21 +249,22 @@ class IdRemoval : public ZXRule{
 };
 
 
+
+
 /**
- * @brief Pi copy rule(pi): Finds spiders with a 0 or pi phase that have a single neighbor. (in copy.cpp)
+ * @brief Spider Fusion(f): Finds non-interacting matchings of the spider fusion rule. (in sfusion.cpp)
  * 
  */
-class PiCopy : public ZXRule{
+class SpiderFusion : public ZXRule{
   public:
-    //TODO: Check MatchType
-    typedef int MatchType;
+    typedef pair<ZXVertex*, ZXVertex*> MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
-    PiCopy(){
+    SpiderFusion(){
       _matchTypeVec.clear();
-      _name = "Identity Removal Rule";
+      _name = "Spider Fusion";
     }
-    ~PiCopy(){}
+    ~SpiderFusion(){}
 
     
     void match(ZXGraph* g) override; 
@@ -214,34 +280,8 @@ class PiCopy : public ZXRule{
 };
 
 
-/**
- * @brief Hadamard Cancellation(i2): Fuses two neighboring H-boxes together. (in hfusion.cpp)
- * 
- */
-class HboxFusion : public ZXRule{
-  public:
-    //TODO: Check MatchType
-    typedef ZXVertex* MatchType;
-    typedef vector<MatchType> MatchTypeVec;
 
-    HboxFusion(){
-      _matchTypeVec.clear();
-      _name = "Hadamard Cancellation Rule";
-    }
-    ~HboxFusion(){}
 
-    
-    void match(ZXGraph* g) override; 
-    void rewrite(ZXGraph* g) override;
-
-    // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
-    void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
-    
-  protected:
-    MatchTypeVec                                      _matchTypeVec;
-    
-};
 
 /**
  * @brief 

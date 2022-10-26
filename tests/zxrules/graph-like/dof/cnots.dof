@@ -1,0 +1,15 @@
+zxm -on
+zxgread benchmark/zx/cnots.zx
+zxgtsm
+zxgs -TOGraph
+zxgp -v
+zxgs -SPIderfusion
+zxgp -v
+zxgs -HRule
+zxgp -v
+zxgp -e
+zxgs -hopf
+zxgp -v
+zxgp -e
+zxgtsm
+q -f

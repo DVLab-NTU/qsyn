@@ -12,7 +12,6 @@
 #include "zxCmd.h"
 #include "zxGraph.h"
 #include "zxGraphMgr.h"
-#include "simplify.h"
 #include "util.h"
 
 using namespace std;
@@ -33,7 +32,6 @@ bool initZXCmd(){
          cmdMgr->regCmd("ZXGPrint", 4, new ZXGPrintCmd) && 
          cmdMgr->regCmd("ZXGTest", 4, new ZXGTestCmd) && 
          cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd) && 
-         cmdMgr->regCmd("ZXGSimp", 4, new ZXGSimpCmd) && 
          cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
          cmdMgr->regCmd("ZXGTSMap", 6, new ZXGTSMappingCmd) &&
          cmdMgr->regCmd("ZXGRead", 4, new ZXGReadCmd) &&
@@ -214,7 +212,7 @@ void ZXCHeckoutCmd::usage(ostream &os) const{
 }
 
 void ZXCHeckoutCmd::help() const{
-    cout << setw(15) << left << "ZXCHeckout: " << "Checkout to Graph <id> in ZXGraphMgr" << endl; 
+    cout << setw(15) << left << "ZXCHeckout: " << "chec kout to Graph <id> in ZXGraphMgr" << endl; 
 }
 
 
@@ -594,73 +592,6 @@ void ZXGEditCmd::help() const{
 
 
 
-//----------------------------------------------------------------------
-//    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -PICOPY | -HFusion | -PIVOT | -LComp ]
-//----------------------------------------------------------------------
-CmdExecStatus
-ZXGSimpCmd::exec(const string &option){
-    if(curCmd != ZXON){
-        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXPrint." << endl;
-        return CMD_EXEC_ERROR;
-    }
-    // check option
-    string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-
-    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
-        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXPrint." << endl;
-        return CMD_EXEC_ERROR;
-    }
-    else{
-        Simplifier s(zxGraphMgr->getGraph());
-        // Stats stats;
-        if(token.empty() || myStrNCmp("-TOGraph", token, 3) == 0) s.to_graph();
-        else if(myStrNCmp("-TORGraph", token, 4) == 0) s.to_rgraph();
-        else if(myStrNCmp("-HRule", token, 2) == 0){
-            s.setRule(new HRule());
-            s.hadamard_simp();
-        }
-        else if(myStrNCmp("-SPIderfusion", token, 3) == 0){
-            s.setRule(new SpiderFusion());
-            s.simp();
-        }
-        else if(myStrNCmp("-BIAlgebra", token, 3) == 0){
-            s.setRule(new Bialgebra());
-            s.simp();
-        }
-        else if(myStrNCmp("-IDRemoval", token, 3) == 0){
-            s.setRule(new IdRemoval());
-            s.simp();
-        }
-        else if(myStrNCmp("-PICOPY", token, 6) == 0){
-            s.setRule(new PiCopy());
-            s.simp();
-        }
-        else if(myStrNCmp("-HFusion", token, 2) == 0){
-            s.setRule(new HboxFusion());
-            s.simp();
-        }
-        else if(myStrNCmp("-PIVOT", token, 5) == 0){
-            s.setRule(new Pivot());
-            s.simp();
-        }
-        else if(myStrNCmp("-LComp", token, 2) == 0){
-            s.setRule(new LComp());
-            s.simp();
-        }
-        else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    }
-    return CMD_EXEC_DONE;
-}
-
-void ZXGSimpCmd::usage(ostream &os) const{
-    os << "Usage: ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -PICOPY | -HFusion | -PIVOT | -LComp ]" << endl;
-}
-
-void ZXGSimpCmd::help() const{
-    cout << setw(15) << left << "ZXGSimp: " << "do simplification strategies for ZX-graph" << endl; 
-}
-
 
 
 //----------------------------------------------------------------------
@@ -679,7 +610,7 @@ void ZXGTraverseCmd::usage(ostream &os) const{
 }
 
 void ZXGTraverseCmd::help() const{
-    cout << setw(15) << left << "ZXGTRaverse: " << "Traverse ZXGraph and update topological order" << endl; 
+    cout << setw(15) << left << "ZXGTRaverse: " << "traverse ZX-graph and update topological order of vertices" << endl; 
 }
 
 
@@ -700,7 +631,7 @@ void ZXGTSMappingCmd::usage(ostream &os) const{
 }
 
 void ZXGTSMappingCmd::help() const{
-    cout << setw(15) << left << "ZXGTSMapping: " << "get tensor form of ZXGraph" << endl; 
+    cout << setw(15) << left << "ZXGTSMapping: " << "mapping to tensor from ZX-Graph" << endl; 
 }
 
 //----------------------------------------------------------------------
@@ -806,5 +737,5 @@ void ZXGWriteCmd::usage(ostream &os) const
 void ZXGWriteCmd::help() const
 {
    cout << setw(15) << left << "ZXGWrite: "
-        << "write zx file\n";
+        << "write ZXFile\n";
 }

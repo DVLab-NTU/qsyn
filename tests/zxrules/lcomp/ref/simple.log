@@ -2,48 +2,12 @@ qsyn> zxm -on
 ZXMODE turn ON!
 
 qsyn> zxn
-Successfully generate Graph 0
+Successfully generated Graph 0
 Checkout to Graph 0
 
 qsyn> zxgr benchmark/zx/lcomp_1.zx
-Successfully generate Graph 1
+Successfully generated Graph 1
 Checkout to Graph 1
-Add input 0
-Add input 1
-Add output 2
-Add output 3
-Add vertex 4
-Add vertex 5
-Add vertex 6
-Add vertex 7
-Add vertex 8
-Add edge ( 6, 7 )
-Add edge ( 6, 8 )
-Add edge ( 5, 6 )
-Add edge ( 4, 6 )
-Add edge ( 3, 8 )
-Add edge ( 2, 7 )
-Add edge ( 1, 5 )
-Add edge ( 0, 4 )
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
-ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(7, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(8, -) 
-ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/2	#Neighbors:	2	(0, -) (6, [1m[34mH[0m[0m) 
-ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (6, [1m[34mH[0m[0m) 
-ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/2	#Neighbors:	4	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) 
-ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(2, -) (6, [1m[34mH[0m[0m) 
-ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (6, [1m[34mH[0m[0m) 
-Total #Vertices: 9
-( 6, 7 )	Type:	[1m[34mH[0m[0m
-( 6, 8 )	Type:	[1m[34mH[0m[0m
-( 5, 6 )	Type:	[1m[34mH[0m[0m
-( 4, 6 )	Type:	[1m[34mH[0m[0m
-( 3, 8 )	Type:	-
-( 2, 7 )	Type:	-
-( 1, 5 )	Type:	-
-( 0, 4 )	Type:	-
-Total #Edges: 8
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
@@ -69,15 +33,7 @@ qsyn> zxgp -e
 Total #Edges: 8
 
 qsyn> zxgsimp -lcomp
-Find match of local complementary rule: 1
-Local Complementary: 1 Add edge ( 4, 5 )
-Add edge ( 4, 8 )
-Add edge ( 4, 7 )
-Add edge ( 5, 8 )
-Add edge ( 5, 7 )
-Add edge ( 8, 7 )
-Remove ID: 6
-. Find match of local complementary rule: 0
+Local Complementary: 
 1 iterations
 
 qsyn> zxgp -v

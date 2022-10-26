@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ hfusion.cpp ]
-  PackageName  [ graph ]
+  PackageName  [ simplifier ]
   Synopsis     [ Hadamard Cancellation Rule Definition ]
   Author       [ Cheng-Hua Lu ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
@@ -22,9 +22,6 @@ extern size_t verbose;
  */
 void HboxFusion::match(ZXGraph* g){
     _matchTypeVec.clear();
-
-    //TODO: rewrite _matchTypeVec
-    if(verbose >= 7) g->printVertices();
     
     unordered_map<size_t, size_t> id2idx;
     for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
@@ -96,7 +93,6 @@ void HboxFusion::match(ZXGraph* g){
         }
 
     }
-    if(verbose >= 3) cout << "Find match of hfuse-rule: " << _matchTypeVec.size() << endl;
     setMatchTypeVecNum(_matchTypeVec.size());
 }
 

@@ -2,41 +2,30 @@ qsyn> zxm -on
 ZXMODE turn ON!
 
 qsyn> zxn
-Successfully generate Graph 0
+Successfully generated Graph 0
 Checkout to Graph 0
 
 qsyn> zxgedit -addi 0 0
-Add input 0
 
 qsyn> zxgedit -addo 1 0
-Add output 1
 
 qsyn> zxgedit -addv 2 0 Z 0
-Add vertex 2
 
 qsyn> zxgedit -addv 3 0 Z 0
-Add vertex 3
 
 qsyn> zxgedit -addv 4 0 X 0
-Add vertex 4
 
 qsyn> zxgedit -adde 0 2 SIMPLE
-Add edge ( 0, 2 )
 
 qsyn> zxgedit -adde 1 2 SIMPLE
-Add edge ( 1, 2 )
 
 qsyn> zxgedit -adde 3 2 SIMPLE
-Add edge ( 3, 2 )
 
 qsyn> zxgedit -adde 2 3 SIMPLE
-Add edge ( 2, 3 )
 
 qsyn> zxgedit -adde 4 2 HADAMARD
-Add edge ( 4, 2 )
 
 qsyn> zxgedit -adde 2 4 SIMPLE
-Add edge ( 2, 4 )
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
@@ -56,12 +45,7 @@ qsyn> zxgp -e
 Total #Edges: 6
 
 qsyn> zxgsimp -idr
-Find match of identity removal rule: 2
-Identity Removal Rule: 2 Add edge ( 2, 2 )
-Add edge ( 2, 2 )
-Remove ID: 3
-Remove ID: 4
-. Find match of identity removal rule: 0
+Identity Removal Rule: 
 1 iterations
 
 qsyn> zxgp -v

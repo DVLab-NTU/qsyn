@@ -1,0 +1,9 @@
+ver 5
+zxm -on
+zxgr benchmark/zx/hopf.zx
+zxgp -v
+zxgp -e
+zxgs -hopf
+zxgp -v
+zxgp -e
+q -f

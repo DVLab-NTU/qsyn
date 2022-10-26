@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ id.cpp ]
-  PackageName  [ graph ]
+  PackageName  [ simplifier ]
   Synopsis     [ Identity Removal Rule Definition ]
   Author       [ Cheng-Hua Lu ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
@@ -57,7 +57,6 @@ void IdRemoval::match(ZXGraph* g) {
         valid[id2idx[neigh0->getId()]] = false;
         valid[id2idx[neigh1->getId()]] = false;
     }
-    if(verbose >= 3) cout << "Find match of identity removal rule: " << _matchTypeVec.size() << endl;
     setMatchTypeVecNum(_matchTypeVec.size());
 }
 
