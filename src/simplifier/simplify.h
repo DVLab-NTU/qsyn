@@ -54,6 +54,7 @@ class Simplifier{
         Simplifier(ZXGraph* g){
             _rule = nullptr;
             _simpGraph = g;
+            hrule_simp();
         }
         Simplifier(ZXRule* rule, ZXGraph* g){
             _rule = rule;
@@ -88,7 +89,6 @@ class Simplifier{
         int interior_clifford_simp();
         int clifford_simp();
         void full_reduce();
-
 
 
     private:

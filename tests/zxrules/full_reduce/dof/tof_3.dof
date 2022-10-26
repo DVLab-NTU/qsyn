@@ -1,5 +1,10 @@
+verb 5
 zxm -on 
 zxgread benchmark/zx/tof3.zx
-zxgs -freduce
+zxgp -v
+zxgs -spiderfusion
+zxgs -tograph
+zxgp -v
+zxgs -pivotgadget
 zxgp -v
 q -f

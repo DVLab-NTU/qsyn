@@ -53,7 +53,7 @@ int Simplifier::simp() {
                 if(verbose >= 5) cout << "Found " << _rule->getMatchTypeVecNum() << " match(es)" << endl;
                 _rule->rewrite(_simpGraph);
                 // add_edge_table
-                //! TODO add_edge_table
+                // TODO add_edge_table
                 for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
                     for (int j = 0; j < _rule->getEdgeTableValues()[e].first; j++)
                         _simpGraph->addEdge(_rule->getEdgeTableKeys()[e].first, _rule->getEdgeTableKeys()[e].second, new EdgeType(EdgeType::SIMPLE));
@@ -69,7 +69,7 @@ int Simplifier::simp() {
                 // remove isolated vertices
                 _simpGraph->removeIsolatedVertices();
                 new_matches = true;
-                //! TODO check stats
+                // TODO check stats
             }
         }
         if (verbose >= 2) { 
@@ -148,8 +148,10 @@ int Simplifier::copy_simp(){
 
 
 int Simplifier::gadget_simp(){
-    // TODO: gadget rule
-    return 0;
+    // TODO: phase gadget rule
+    this->setRule(new PhaseGadget());
+    int i = this->simp();
+    return i;
 }
 
 
@@ -232,7 +234,6 @@ void Simplifier::to_graph() {
             v->setType(VertexType::Z);
         }
     }
-    this->hrule_simp();
 }
 
 /**

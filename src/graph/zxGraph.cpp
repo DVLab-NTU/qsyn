@@ -334,6 +334,7 @@ void ZXGraph::addEdges(vector<EdgePair> edges) {
 void ZXGraph::mergeInputList(unordered_map<size_t, ZXVertex*> lst) {
     _inputList.merge(lst);
 }
+
 void ZXGraph::mergeOutputList(unordered_map<size_t, ZXVertex*> lst) {
     _outputList.merge(lst);
 }
@@ -602,6 +603,7 @@ void ZXGraph::sortIOByQubit() {
 void ZXGraph::sortVerticeById() {
     sort(_vertices.begin(), _vertices.end(), [](ZXVertex* a, ZXVertex* b) { return a->getId() < b->getId(); });
 }
+
 void ZXGraph::liftQubit(const size_t& n) {
     for_each(_vertices.begin(), _vertices.end(), [&n](ZXVertex* v) { v->setQubit(v->getQubit() + n); });
 
@@ -666,6 +668,7 @@ EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et) {
     return make_pair(
         (v2->getId() < v1->getId()) ? make_pair(v2, v1) : make_pair(v1, v2), et);
 }
+
 EdgePair makeEdgeKey(EdgePair epair) {
     return make_pair(
         (epair.first.second->getId() < epair.first.first->getId()) ? make_pair(epair.first.second, epair.first.first) : make_pair(epair.first.first, epair.first.second), epair.second);
@@ -675,6 +678,7 @@ EdgeKey makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType et) {
     return make_pair(
         (v2->getId() < v1->getId()) ? make_pair(v2, v1) : make_pair(v1, v2), et);
 }
+
 EdgeKey makeEdgeKey(EdgeKey epair) {
     return make_pair(
         (epair.first.second->getId() < epair.first.first->getId()) ? make_pair(epair.first.second, epair.first.first) : make_pair(epair.first.first, epair.first.second), epair.second);
