@@ -342,7 +342,7 @@ class Pivot : public ZXRule{
 class PivotGadget : public ZXRule{
   public:
     //TODO: Check MatchType
-    typedef pair<EdgePair, ZXVertex*> MatchType;    // edge pair, new vertex
+    typedef vector<ZXVertex* > MatchType;    // vs, vt(need to remove), newVertex
     typedef vector<MatchType> MatchTypeVec;
 
     PivotGadget(){

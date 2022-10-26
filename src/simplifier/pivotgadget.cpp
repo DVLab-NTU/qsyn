@@ -22,6 +22,7 @@ extern size_t verbose;
  */
 void PivotGadget::match(ZXGraph* g){
     _matchTypeVec.clear(); 
+    if(verbose >= 5) cout << "> match...\n";
 
     unordered_map<size_t, size_t> id2idx;
     for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
@@ -32,10 +33,12 @@ void PivotGadget::match(ZXGraph* g){
 
     // traverse edge
     for(size_t i = 0; i < g->getNumEdges(); i++){
-        if(discardEdges[i]) continue;
+        // if(discardEdges[i]) continue;
         EdgePair e = g->getEdges()[i];
         ZXVertex* vs = e.first.first; ZXVertex* vt = e.first.second;
         Phase vsp = vs->getPhase(); Phase vtp = vt->getPhase();
+
+        if(taken[id2idx[vs->getId()]] || taken[id2idx[vt->getId()]]) continue;
         
         if(verbose == 9) cout << "\n-----------\n\n" <<
                                  "Edge " << i << ": " << vs->getId() << " " << vt->getId() << "\n";
@@ -59,7 +62,7 @@ void PivotGadget::match(ZXGraph* g){
 
         vector<ZXVertex*> vsn = vs->getNeighbors();
         vector<ZXVertex*> vtn = vt->getNeighbors();
-        if(vtn.size() == 1) continue;   // It is phase gadget
+        if(vtn.size() == 1) continue;   // It is a phase gadget
 
         //SECTION - Start from line 375
         
@@ -78,18 +81,18 @@ void PivotGadget::match(ZXGraph* g){
                     bad_match = true;
                     break;
                 }
-                for(size_t nei = 0; nei < ne.size(); nei++){
-                    for(size_t t = 0; t < g->getNumEdges(); t++){
-                        if(g->getEdges()[t] == ne[nei]){
-                            if(verbose == 9){
-                                cout << "> discard edges:\n";
-                                g->printEdge(t);
-                            } 
-                            discardEdges[t] = true;
-                            break;
-                        }
-                    }
-                }
+                // for(size_t nei = 0; nei < ne.size(); nei++){
+                //     for(size_t t = 0; t < g->getNumEdges(); t++){
+                //         if(g->getEdges()[t] == ne[nei]){
+                //             if(verbose == 9){
+                //                 cout << "> discard edges:\n";
+                //                 g->printEdge(t);
+                //             } 
+                //             discardEdges[t] = true;
+                //             break;
+                //         }
+                //     }
+                // }
             
             }
             if(bad_match) break;
@@ -119,16 +122,25 @@ void PivotGadget::match(ZXGraph* g){
         // Both vs and vt are interior
         if(verbose >= 5) cout << "Edge vs and vt are both interior: " << vs->getId() << " " << vt->getId() << endl;
 
+        for(auto& v : vsn) taken[id2idx[v->getId()]] = true;
+        for(auto& v : vtn) taken[id2idx[v->getId()]] = true;
+        
+
         ZXVertex* newVertex = g->addVertex(g->findNextId(), -2, VertexType::Z, vtp);
         vt->setPhase(Phase(0));
         vs->setQubit(-1);
         newEdges.push_back(make_pair(make_pair(newVertex, vt),new EdgeType(EdgeType::SIMPLE)));
-        _matchTypeVec.push_back(make_pair(e, newVertex));
+        vector<ZXVertex*> match{vs, vt, newVertex};
+
+        _matchTypeVec.emplace_back(match);
 
         i += 1;
     }
-    g->addEdges(newEdges);
+
+    for(auto& e : newEdges) g->addEdge(e.first.first, e.first.second, e.second);
+    
     newEdges.clear();
+    
     setMatchTypeVecNum(_matchTypeVec.size());
 }
 
@@ -147,109 +159,96 @@ void PivotGadget::rewrite(ZXGraph* g){
     //* _edgeTableKeys: A pair of ZXVertex* like (ZXVertex* vs, ZXVertex* vt), which you would like to add #s EdgeType::SIMPLE between them and #h EdgeType::HADAMARD between them
     //* _edgeTableValues: A pair of int like (int s, int h), which means #s EdgeType::SIMPLE and #h EdgeType::HADAMARD
 
-
-    unordered_map<size_t, size_t> id2idx;
-    for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
-    vector<bool> isBoundary(g->getNumVertices(), false);
-
     for (auto& m :  _matchTypeVec){
-        cout << m.first.first.first->getId() << " " << m.first.first.second->getId() << " " << m.second->getId() << endl;
-        // 1 : get m0 m1
-        // vector<ZXVertex*> neighbors;
-        // neighbors.push_back(m.first.first.first);
-        // neighbors.push_back(m.first.first.second);
 
-        // 2 : boundary find
-        // for(size_t j=0; j<2; j++){
-        //     bool remove = true;
+        if(verbose >= 5){
+            cout << "> rewrite...\n";
+            cout << "vs: " << m[0]->getId() << "\tvt: " << m[1]->getId() << "\tv_gadget: " << m[2]->getId() << endl;
+        } 
+        vector<ZXVertex*> n0 = m[0]->getNeighbors();
+        vector<ZXVertex*> n1 = m[1]->getNeighbors();
+        // cout << n0.size() << ' ' << n1.size() << endl;
 
-        //     for(auto& itr : neighbors[j]->getNeighborMap()){
-        //         if(itr.first->getType() == VertexType::BOUNDARY){
-        //             _edgeTableKeys.push_back(make_pair(neighbors[1-j], itr.first));
-        //             if( * itr.second == EdgeType::SIMPLE)_edgeTableValues.push_back(make_pair(0,1));
-        //             else _edgeTableValues.push_back(make_pair(1,0));
-        //             remove = false;
-        //             isBoundary[id2idx[itr.first->getId()]] = true;
-        //             break;
-        //         }
-        //     }
+        for(auto itr = n0.begin(); itr != n0.end();){
+            if(n0[itr-n0.begin()] == m[1]){
+                n0.erase(itr);
+            }
+            else itr++;
+        }
 
-        //     if(remove) _removeVertices.push_back(neighbors[1-j]);
-        // }
+        for(auto itr = n1.begin(); itr != n1.end();){
+            if(n1[itr-n1.begin()] == m[0] || n1[itr-n1.begin()] == m[2]){
+                n1.erase(itr);
+            }
+            else itr++;
+        }
 
-        // 3 table of c
-        // vector<int> c(g->getNumVertices() ,0);
-        // vector<ZXVertex*> n0;
-        // vector<ZXVertex*> n1;
-        // vector<ZXVertex*> n2;
-        // for(auto& x : neighbors[0]->getNeighbors()) {
-        //     if (isBoundary[id2idx[x->getId()]]) continue;
-        //     if (x == neighbors[1]) continue;
-        //     c[id2idx[x->getId()]]++;
-        // }
-        // for(auto& x : neighbors[1]->getNeighbors()) {
-        //     if (isBoundary[id2idx[x->getId()]]) continue;
-        //     if (x == neighbors[0]) continue;
-        //     c[id2idx[x->getId()]] += 2;
-        // }
+        // cout << n0.size() << ' ' << n1.size() << endl;
 
-        // // 4  Find n0 n1 n2
-        // for (size_t a=0; a<g->getNumVertices(); a++){
-        //     if(c[a] == 1) n0.push_back(g->getVertices()[a]);
-        //     else if (c[a] == 2) n1.push_back(g->getVertices()[a]);
-        //     else if (c[a] == 3) n2.push_back(g->getVertices()[a]);
-        //     else continue;
-        // }
-        
-        // //// 5: scalar (skip)
-        
+        vector<ZXVertex*> n2;
+        set_intersection(n0.begin(), n0.end(), n1.begin(), n1.end(), back_inserter(n2));
 
-        // //// 6:add phase
-        // for(auto& x: n2){
-        //     x->setPhase(x->getPhase() + Phase(1) + neighbors[0]->getPhase() + neighbors[1]->getPhase());
-        // }
+        vector<ZXVertex*> n3, n4;
+        set_difference(n0.begin(), n0.end(), n2.begin(), n2.end(), back_inserter(n3));
+        set_difference(n1.begin(), n1.end(), n2.begin(), n2.end(), back_inserter(n4));
+        n0 = n3; n1 = n4;
+        n3.clear();n4.clear();
 
-        // for(auto& x: n1){
-        //     x->setPhase(x->getPhase() + neighbors[0]->getPhase());
-        // }
+        // Add edge table
+        for(auto& s : n0){
+            for(auto& t : n1){
+                _edgeTableKeys.push_back(make_pair(s, t));
+                _edgeTableValues.push_back(make_pair(0,1));
+            }
+            for(auto& t : n2){
+                _edgeTableKeys.push_back(make_pair(s, t));
+                _edgeTableValues.push_back(make_pair(0,1));
+            }
+        }
+        for(auto& s : n1){
+            for(auto& t : n2){
+                _edgeTableKeys.push_back(make_pair(s, t));
+                _edgeTableValues.push_back(make_pair(0,1));
+            }
+        }
 
-        // for(auto& x: n0){
-        //     x->setPhase(x->getPhase() + neighbors[1]->getPhase());
-        // }
+        int k0 = n0.size(), k1 = n1.size(), k2 = n2.size();
 
-        // //// 7: connect n0 n1 n2
-        // for(auto& itr : n0){
-        //     if(isBoundary[itr->getId()]) continue;
-        //     for(auto& a: n1){
-        //         if(isBoundary[id2idx[a->getId()]]) continue;
-        //         _edgeTableKeys.push_back(make_pair(itr, a));
-        //         _edgeTableValues.push_back(make_pair(0,1));
-        //     }
-        //     for(auto& b: n2){
-        //         if(isBoundary[id2idx[b->getId()]]) continue;
-        //         _edgeTableKeys.push_back(make_pair(itr, b));
-        //         _edgeTableValues.push_back(make_pair(0,1));
-        //     }
-        // }
+        for(auto& v : n2){
+            // REVIEW - check if not ground
+            v->setPhase(v->getPhase()+1);
+        }
 
-        // for(auto& itr : n1){
-        //     if(isBoundary[id2idx[itr->getId()]]) continue;
-        //     for(auto& a: n2){
-        //         if(isBoundary[id2idx[a->getId()]]) continue;
-        //         _edgeTableKeys.push_back(make_pair(itr, a));
-        //         _edgeTableValues.push_back(make_pair(0,1));
-        //     }
-        // }
+        // REVIEW - scalar add power
 
-        // //// 8: clear vector
-        // neighbors.clear();
-        // c.clear();
-        // n0.clear();
-        // n1.clear();
-        // n2.clear();
 
+        for(int i = 0; i < 2; i++){
+            Phase a = m[i]->getPhase();
+            vector<ZXVertex*> target;
+            target = (i == 0) ? n1 : n0;
+            if(a != Phase(0)){
+                for(auto& t : target){
+                    // REVIEW - check if not ground
+                    t->setPhase(t->getPhase()+a);
+                }
+                for(auto& t : n2){
+                    // REVIEW - check if not ground
+                    t->setPhase(t->getPhase()+a);
+                }
+            }
+
+            if(i == 0) _removeVertices.push_back(m[1]);
+            if(i == 1) {
+                EdgePair e = g->getIncidentEdges(m[2])[0];
+                _edgeTableKeys.push_back(make_pair(m[0], m[2]));
+                if(*e.second == EdgeType::SIMPLE){
+                    _edgeTableValues.push_back(make_pair(0, 1));
+                }
+                else{
+                    _edgeTableValues.push_back(make_pair(1, 0));
+                }
+                _removeEdges.push_back(e);
+            }
+        }
     }
-
-    // isBoundary.clear();
-    
 }

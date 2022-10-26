@@ -7,4 +7,8 @@ zxgs -tograph
 zxgp -v
 zxgs -pivotgadget
 zxgp -v
+zxgs -idr
+zxgp -v
+zxgs -hopf
+zxgp -v
 q -f
