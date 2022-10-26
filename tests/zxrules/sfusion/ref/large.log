@@ -72,7 +72,7 @@ qsyn> zxgp -e
 Total #Edges: 12
 
 qsyn> zxgsimp -spi
-Spider Fusion: 
+Spider Fusion Rule: 
 3 iterations
 
 qsyn> zxgp -v

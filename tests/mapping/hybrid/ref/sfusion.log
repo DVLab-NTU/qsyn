@@ -59,7 +59,7 @@ Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
 qsyn> zxgsimp -spi
-Spider Fusion: 
+Spider Fusion Rule: 
 2 iterations
 
 qsyn> zxgp -v

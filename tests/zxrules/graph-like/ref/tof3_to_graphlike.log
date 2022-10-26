@@ -9,7 +9,7 @@ qsyn> zxgs -TOGraph
 Hadamard Rule: 2 . 1 iterations
 
 qsyn> zxgs -SPIderfusion
-Spider Fusion: 
+Spider Fusion Rule: 
 3 iterations
 
 qsyn> zxgp -v
