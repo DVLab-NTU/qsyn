@@ -489,12 +489,18 @@ void ZXGraph::removeEdgeById(const size_t& id_s, const size_t& id_t) {
  * @brief Assign rotation/value to the specified boundary 
  *
  * @param qubit
- * @param input
- * @param type
+ * @param isInput
+ * @param ty
  * @param phase
  */
-void ZXGraph::assignBoundary(size_t qubit, bool input, VertexType type, Phase phase){
-
+void ZXGraph::assignBoundary(size_t qubit, bool isInput, VertexType ty, Phase phase){
+    ZXVertex* v = addVertex(findNextId(), qubit, ty, phase);
+    ZXVertex* boundary = isInput ? _inputList[qubit] : _outputList[qubit];
+    EdgeType e = *(boundary -> getNeighborMap().begin()->second);
+    ZXVertex* nebBound = boundary->getNeighbor(0);
+    removeVertex(boundary);
+    // removeEdge(boundary, nebBound);
+    addEdge(v, nebBound, new EdgeType(e));
 }
 
 
