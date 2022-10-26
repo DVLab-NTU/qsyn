@@ -18,7 +18,7 @@ extern size_t formatLevel;
 bool
 initCommonCmd()
 {
-   if (!(cmdMgr->regCmd("Quit", 1, new QuitCmd) &&
+   if (!(cmdMgr->regCmd("Q", 1, new QuitCmd) &&
          cmdMgr->regCmd("HIStory", 3, new HistoryCmd) &&
          cmdMgr->regCmd("HELp", 3, new HelpCmd) &&
          cmdMgr->regCmd("DOfile", 2, new DofileCmd) &&
