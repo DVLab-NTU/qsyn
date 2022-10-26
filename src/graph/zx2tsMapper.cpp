@@ -11,6 +11,7 @@
 extern size_t verbose;
 extern TensorMgr* tensorMgr;
 
+#include <map>
 using namespace std;
 
 // map a ZX-diagram to a tensor
@@ -35,6 +36,9 @@ bool ZX2TSMapper::map() {
 
     getAxisOrders(inputIds, _zxgraph->getInputList(), false);
     getAxisOrders(outputIds, _zxgraph->getOutputList(), true);
+
+    // printAxisList(inputIds);
+    // printAxisList(outputIds);
 
     *result = result->toMatrix(inputIds, outputIds);
     cout << "Stored the resulting tensor as tensor id " << id << endl;
@@ -147,6 +151,22 @@ bool ZX2TSMapper::isFrontier(const pair<ZXVertex*, EdgeType*>& nbr) const {
 // Get the order of inputs and outputs
 void ZX2TSMapper::getAxisOrders(TensorAxisList& axList, const std::unordered_map<size_t, ZXVertex*>& ioList, bool isOutput) {
     axList.resize(ioList.size());
+    std::map<size_t, size_t> table;
+
+    for (const auto& [qubitId, _] : ioList) {
+        table[qubitId] = 0;
+    }
+    size_t count = 0;
+    for (const auto& [qubitId, _] : table) {
+        table[qubitId] = count;
+        count++;
+    }
+    // size_t count = 0;
+    // for (auto itr = ioList.begin(); itr!= ioList.end(); itr++){
+    //     table[itr->first] = count;
+    //     cout << itr->first << " " << count << endl;
+    //     count++;
+    // }
     size_t accFrontierSizes = 0;
     for (size_t i = 0; i < _zx2tsList.size(); ++i) {
         for (auto& [qubitId, vertex] : ioList) {
@@ -157,10 +177,10 @@ void ZX2TSMapper::getAxisOrders(TensorAxisList& axList, const std::unordered_map
             auto result = _zx2tsList.frontiers(i).equal_range(edgeKey);
             auto itr = result.first;
             if (itr != _zx2tsList.frontiers(i).end()) {
-                axList[qubitId] = _zx2tsList.frontiers(i).find(edgeKey)->second + accFrontierSizes;
+                axList[table[qubitId]] = _zx2tsList.frontiers(i).find(edgeKey)->second + accFrontierSizes;
                 ++itr;
                 if (isOutput && itr != result.second) {
-                    axList[qubitId] += 1;
+                    axList[table[qubitId]] += 1;
                 }
             }
         }
