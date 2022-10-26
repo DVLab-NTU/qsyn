@@ -148,6 +148,20 @@ bool ZXVertex::isNeighbor(ZXVertex* v) const {
 /*   class ZXGraph member functions   */
 /**************************************/
 
+// Getter and setter
+
+vector<EdgePair> ZXGraph::getIncidentEdges(ZXVertex* v) const{
+    // cout << "Find incident of " << v->getId() << endl; 
+    vector<EdgePair> incidentEdges;
+    for(size_t e = 0; e < _edges.size(); e++){
+        if(_edges[e].first.first == v || _edges[e].first.second == v){
+            // cout << _edges[e].first.first->getId() << " " << _edges[e].first.second->getId() << endl;
+            incidentEdges.push_back(_edges[e]);
+        }
+    }
+    return incidentEdges;
+}
+
 // For testing
 void ZXGraph::generateCNOT() {
     cout << "Generate a 2-qubit CNOT graph for testing" << endl;
@@ -641,6 +655,11 @@ void ZXGraph::printEdges() const {
         cout << "( " << _edges[i].first.first->getId() << ", " << _edges[i].first.second->getId() << " )\tType:\t" << EdgeType2Str(_edges[i].second) << endl;
     }
     cout << "Total #Edges: " << _edges.size() << endl;
+}
+
+void ZXGraph::printEdge(size_t idx) const{
+    if(idx < _edges.size())
+        cout << "( " << _edges[idx].first.first->getId() << ", " << _edges[idx].first.second->getId() << " )\tType:\t" << EdgeType2Str(_edges[idx].second) << endl;
 }
 
 EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et) {
