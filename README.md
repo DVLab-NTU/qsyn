@@ -122,23 +122,7 @@ You may also perform all DOFILE- and unit-tests by running
 | ZXRemove      | remove ZX-graph from ZXGraphMgr				                    |             |
 | ZXTensor      | tensor a ZX-graph				                                    |             |
 
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-:  
-   
-   
-   
-   
-   
-   
+
 
 ### Tensor
 | Cmd          | Description                                         | Options     |
@@ -147,6 +131,3 @@ You may also perform all DOFILE- and unit-tests by running
 | TSPrint	   | Print information about stored tensors	             |             |
 | TSReset	   | Reset the tensor manager	                         |             |
 
-:       
-:       
-:       
