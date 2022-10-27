@@ -1,10 +1,5 @@
-# qsyn: The tool of quantum circuit compilation. 
-## Support functions:
-* ZX calculus optimization
-* Circuit extraction
-* Logical circuit optimization
-* Physical-aware Optimization
-* Lattice Surgery
+# Qsyn: An end-to-end quantum compilation framework
+## Introduction
 
 ## Support Cmds
 * [qcir](https://www.notion.so/Circuit-Data-Structure-dcf1018d7ac14ff18edd83631fd3fd71#0aa0ceb16d28496d9d5b5eb6d747850b)
