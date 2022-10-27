@@ -206,6 +206,7 @@ int Simplifier::pivot_boundary_simp(){
 int Simplifier::pivot_gadget_simp(){
     this->setRule(new PivotGadget());
     int i = this->simp();
+    hopf_simp();
     return i;
 }
 
