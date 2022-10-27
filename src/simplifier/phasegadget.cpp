@@ -23,29 +23,78 @@ extern size_t verbose;
  */
 void PhaseGadget::match(ZXGraph* g){
     _matchTypeVec.clear(); 
-
+    if (verbose>=8)
+        g->printVertices();
     unordered_map<size_t, size_t> id2idx;
     for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
 
     vector<bool> taken(g->getNumVertices(), false);
 
-    map<ZXVertex*, ZXVertex*> gadgets; // (v, the only neighbor)
+    unordered_map<ZXVertex*, ZXVertex*> gadgets; // (v, the only neighbor)
+    unordered_multimap<vector<ZXVertex*>, ZXVertex*> groups;
 
     for(size_t i = 0; i < g->getNumVertices(); i++){
         ZXVertex* v = g->getVertices()[i];
-        if(v->getPhase() != Phase(0) && v->getPhase() != Phase(2) && v->getPhase() != Phase(2) && v->getNumNeighbors() == 1){
+        if(v->getPhase() != Phase(0) && v->getPhase() != Phase(1) && v->getNumNeighbors() == 1){
             ZXVertex* neighbor = v->getNeighbors()[0];
             if(neighbor->getPhase() != Phase(0) and neighbor->getPhase() != Phase(1)) continue;
             if(neighbor->getType() == VertexType::BOUNDARY) continue;
-            if(taken[id2idx[neighbor->getId()]]) continue;
-            gadgets[v] = neighbor;
-            // start from line 718 in PYZX/rules.py
+            if(gadgets.contains(neighbor)) continue;
+            // if(taken[id2idx[neighbor->getId()]]) continue;
+            vector<ZXVertex*> nebsOfNeighbor = neighbor->getNeighbors();
+            nebsOfNeighbor.erase(remove(nebsOfNeighbor.begin(),nebsOfNeighbor.end(),v), nebsOfNeighbor.end());
             
-
+            sort(nebsOfNeighbor.begin(), nebsOfNeighbor.end());
+            
+            gadgets[neighbor] = v;
+            if(nebsOfNeighbor.size()>0)
+                groups.insert(make_pair(nebsOfNeighbor,neighbor));
+            
+            if(verbose >=8){
+                for(size_t k=0;k<nebsOfNeighbor.size(); k++){
+                    cout << nebsOfNeighbor[k]->getId() << " ";
+                }
+                cout << " axel added: "<<neighbor->getId() << endl;
+            }
         }
     }
-
+    // `(axel,leaf, total combined phase, other axels with same targets, other leafs)
+    vector<ZXVertex*> axels;
+    vector<ZXVertex*> leaves;
+    if(verbose>=8){
+        for(auto itr=groups.begin(); itr!=groups.end(); itr++){
+            vector<ZXVertex*> key = itr->first;
+            for(size_t o=0;o<key.size();o++){
+                cout << key[o]->getId() << " ";
+            }
+            cout << " ||||| ";
+            auto gadgetList = groups.equal_range(itr->first);
+            for(auto gad = gadgetList.first; gad!= gadgetList.second; gad++){
+                cout << gad->second->getId() << " ";
+            }
+            cout << endl;
+        }
+    }
     
+
+    for(auto itr=groups.begin(); itr!=groups.end(); itr++){
+        auto gadgetList = groups.equal_range(itr->first);
+        
+        Phase tot = Phase(0);
+        for(auto gad = gadgetList.first; gad!= gadgetList.second; gad++){
+            if(gad->second->getPhase()==Phase(1)){
+                gad->second->setPhase(Phase(0));
+                tot = tot + (-1) * gadgets[gad->second]->getPhase();
+            }
+            else{
+                tot = tot + gadgets[gad->second]->getPhase();
+            }
+            axels.push_back(gad->second);
+            leaves.push_back(gadgets[gad->second]);
+        }
+        if(leaves.size()>1)
+            _matchTypeVec.emplace_back(tot, axels, leaves);
+    }
     setMatchTypeVecNum(_matchTypeVec.size());
 }
 
@@ -63,109 +112,20 @@ void PhaseGadget::rewrite(ZXGraph* g){
     //* (EdgeTable: Key(ZXVertex* vs, ZXVertex* vt), Value(int s, int h))
     //* _edgeTableKeys: A pair of ZXVertex* like (ZXVertex* vs, ZXVertex* vt), which you would like to add #s EdgeType::SIMPLE between them and #h EdgeType::HADAMARD between them
     //* _edgeTableValues: A pair of int like (int s, int h), which means #s EdgeType::SIMPLE and #h EdgeType::HADAMARD
-
-
-    // unordered_map<size_t, size_t> id2idx;
-    // for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
-    // vector<bool> isBoundary(g->getNumVertices(), false);
-
-    // for (auto& i :  _matchTypeVec){
-    //     // 1 : get m0 m1
-    //     vector<ZXVertex*> neighbors;
-    //     neighbors.push_back(g->getEdges()[i].first.first);
-    //     neighbors.push_back(g->getEdges()[i].first.second);
-
-    //     // 2 : boundary find
-    //     for(size_t j=0; j<2; j++){
-    //         bool remove = true;
-
-    //         for(auto& itr : neighbors[j]->getNeighborMap()){
-    //             if(itr.first->getType() == VertexType::BOUNDARY){
-    //                 _edgeTableKeys.push_back(make_pair(neighbors[1-j], itr.first));
-    //                 if( * itr.second == EdgeType::SIMPLE)_edgeTableValues.push_back(make_pair(0,1));
-    //                 else _edgeTableValues.push_back(make_pair(1,0));
-    //                 remove = false;
-    //                 isBoundary[id2idx[itr.first->getId()]] = true;
-    //                 break;
-    //             }
-    //         }
-
-    //         if(remove) _removeVertices.push_back(neighbors[1-j]);
-    //     }
-
-    //     // 3 table of c
-    //     vector<int> c(g->getNumVertices() ,0);
-    //     vector<ZXVertex*> n0;
-    //     vector<ZXVertex*> n1;
-    //     vector<ZXVertex*> n2;
-    //     for(auto& x : neighbors[0]->getNeighbors()) {
-    //         if (isBoundary[id2idx[x->getId()]]) continue;
-    //         if (x == neighbors[1]) continue;
-    //         c[id2idx[x->getId()]]++;
-    //     }
-    //     for(auto& x : neighbors[1]->getNeighbors()) {
-    //         if (isBoundary[id2idx[x->getId()]]) continue;
-    //         if (x == neighbors[0]) continue;
-    //         c[id2idx[x->getId()]] += 2;
-    //     }
-
-    //     // 4  Find n0 n1 n2
-    //     for (size_t a=0; a<g->getNumVertices(); a++){
-    //         if(c[a] == 1) n0.push_back(g->getVertices()[a]);
-    //         else if (c[a] == 2) n1.push_back(g->getVertices()[a]);
-    //         else if (c[a] == 3) n2.push_back(g->getVertices()[a]);
-    //         else continue;
-    //     }
-        
-    //     //// 5: scalar (skip)
-        
-
-    //     //// 6:add phase
-    //     for(auto& x: n2){
-    //         x->setPhase(x->getPhase() + Phase(1) + neighbors[0]->getPhase() + neighbors[1]->getPhase());
-    //     }
-
-    //     for(auto& x: n1){
-    //         x->setPhase(x->getPhase() + neighbors[0]->getPhase());
-    //     }
-
-    //     for(auto& x: n0){
-    //         x->setPhase(x->getPhase() + neighbors[1]->getPhase());
-    //     }
-
-    //     //// 7: connect n0 n1 n2
-    //     for(auto& itr : n0){
-    //         if(isBoundary[itr->getId()]) continue;
-    //         for(auto& a: n1){
-    //             if(isBoundary[id2idx[a->getId()]]) continue;
-    //             _edgeTableKeys.push_back(make_pair(itr, a));
-    //             _edgeTableValues.push_back(make_pair(0,1));
-    //         }
-    //         for(auto& b: n2){
-    //             if(isBoundary[id2idx[b->getId()]]) continue;
-    //             _edgeTableKeys.push_back(make_pair(itr, b));
-    //             _edgeTableValues.push_back(make_pair(0,1));
-    //         }
-    //     }
-
-    //     for(auto& itr : n1){
-    //         if(isBoundary[id2idx[itr->getId()]]) continue;
-    //         for(auto& a: n2){
-    //             if(isBoundary[id2idx[a->getId()]]) continue;
-    //             _edgeTableKeys.push_back(make_pair(itr, a));
-    //             _edgeTableValues.push_back(make_pair(0,1));
-    //         }
-    //     }
-
-    //     //// 8: clear vector
-    //     neighbors.clear();
-    //     c.clear();
-    //     n0.clear();
-    //     n1.clear();
-    //     n2.clear();
-
-    // }
-
-    // isBoundary.clear();
     
+    // for(size_t i=0; i<_matchTypeVec.size(); i++){
+    //     ZXVertex* leaf = get<0>(_matchTypeVec[i]);
+    //     cout << leaf->getId() << endl;
+    // }
+    for(size_t i=0; i<_matchTypeVec.size(); i++){
+        // ZXVertex* axel = get<0>(_matchTypeVec[i]);
+        ZXVertex* leaf = get<2>(_matchTypeVec[i])[0];
+        leaf -> setPhase(get<0>(_matchTypeVec[i]));
+        vector<ZXVertex*> rm_axels = get<1>(_matchTypeVec[i]);
+        vector<ZXVertex*> rm_leaves = get<2>(_matchTypeVec[i]);
+        for(size_t j=1; j<rm_axels.size(); j++)
+            _removeVertices.push_back(rm_axels[j]);
+        for(size_t j=1; j<rm_leaves.size(); j++)
+            _removeVertices.push_back(rm_leaves[j]);
+    }
 }
