@@ -15,7 +15,7 @@ jobs:
     - uses: actions/checkout@v3
     
     - name: g++-10
-      run: | 
+      run: |
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 100
           sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-10 100
     
@@ -30,4 +30,4 @@ jobs:
       run: make test -j8
       
     - name: run tests
-      run: ./RUN_ALL_TEST.sh
+      run: TERM=dumb ./RUN_ALL_TEST.sh -noc -v

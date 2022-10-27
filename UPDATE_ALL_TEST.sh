@@ -1,24 +1,43 @@
+#!/bin/bash
+source qsyn_testing_code/BASH_UTIL.sh
+
 RETURN_CODE=0
 
-echo "> Updating all testcases' reference..."
-for TEST_PKG in tests/*/; do
-    DIR_NAME=$(basename $TEST_PKG)
-    if [ "$DIR_NAME" = "bin" ]; then continue; fi
+function USAGE () {
+    printf "%s\t%s\n" "Usage:" "./UPDATE_ALL_TEST.sh" 
+    printf "\t%-9s%-2s%-12s\n" "-Help" ":" "Print this help message"
+    exit 1
+} >&2
 
-    for TEST_SUBPKG in ${TEST_PKG}*/; do
-        # Print the package under test
-        REL_PATH=$(realpath --relative-to=${PWD}/tests/ ${PWD}/${TEST_SUBPKG})
-        printf "> Checking %s...\n" $REL_PATH
-        for TEST_FILE in ${TEST_SUBPKG}dof/*; do
-            # Update the dofile
-            printf "    - "
-            ./DOFILE.sh ${TEST_FILE} -up
-            STATUS=$?
-            if [ $STATUS -ne 0 ]; then 
-                RETURN_CODE=1;
-            fi
-        done
-    done
+if (( $# > 2 )); then 
+    USAGE
+fi
+
+for TOKEN in "$@"; do
+    if [[ $(MATCH_STR "$TOKEN" "-help" 2) == 1 ]]; then 
+        USAGE
+    else 
+        printf "Error: illegal option (%s)!!\n" $TOKEN
+        exit 1
+    fi
 done
+TAGS="-up -q"
+DOCOLOR=1
 
-exit $RETURN_CODE
+
+echo "> Updating all dofiles' references..."
+ALL_TEST_INTERNAL $TAGS
+STATUS=$?
+if [ $STATUS -ne 0 ]; then 
+    RETURN_CODE=1;
+fi
+# if [[ $DOCOLOR == 1 ]]; then 
+#     if [[ $STATUS == 0 ]]; then
+#         RESULT_TXT="${BOLD}${GREEN}Passed all ${N_FILES} dofiles.${WHITE}${NORMAL}"
+#     else 
+#         RESULT_TXT="${BOLD}${RED}${STATUS} out of ${N_FILES} dofiles failed.${WHITE}${NORMAL}"
+#     fi
+# fi
+# echo -e $RESULT_TXT
+
+exit ${RETURN_CODE}

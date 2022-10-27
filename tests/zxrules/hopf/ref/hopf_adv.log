@@ -1,0 +1,93 @@
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxgr benchmark/zx/hopf_adv.zx
+Successfully generated Graph 0
+Checkout to Graph 0
+
+qsyn> zxgs -hopf
+Hopf Rule: 
+2 iterations
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	5	(0, -) (5, [1m[34mH[0m[0m) (5, -) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(4, [1m[34mH[0m[0m) (4, -) (4, [1m[34mH[0m[0m) (6, -) 
+ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (5, -) (9, -) 
+ID:	7	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (4, [1m[34mH[0m[0m) (8, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(7, -) (9, -) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, -) (6, -) (8, -) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(11, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (12, -) 
+ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(11, -) 
+Total #Vertices: 13
+
+qsyn> zxgs -spi
+Spider Fusion Rule: 
+2 iterations
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	5	(0, -) (5, [1m[34mH[0m[0m) (5, -) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	5	(2, -) (4, [1m[34mH[0m[0m) (4, -) (4, [1m[34mH[0m[0m) (8, -) 
+ID:	7	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (4, [1m[34mH[0m[0m) (8, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, -) (5, -) (7, -) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(11, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(10, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
+Total #Vertices: 10
+
+qsyn> // The result should be same after swapping orders of two rules
+
+qsyn> zxgr -R benchmark/zx/hopf_adv.zx
+Note: original zxGraph is replaced...
+
+qsyn> zxgs -spi
+Spider Fusion Rule: 
+2 iterations
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	9	(0, -) (5, [1m[34mH[0m[0m) (5, -) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (7, -) (7, -) (8, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	13	(2, -) (4, [1m[34mH[0m[0m) (4, -) (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (8, -) (8, -) (8, -) (8, -) (8, -) 
+ID:	7	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	7	(1, -) (4, [1m[34mH[0m[0m) (4, -) (4, -) (8, -) (10, -) (10, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	13	(3, -) (4, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (5, -) (5, -) (5, -) (5, -) (5, -) (7, -) (11, -) (11, -) (11, -) (11, -) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(7, -) (7, -) (11, -) (11, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (11, -) 
+ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	12	(8, -) (8, -) (8, -) (8, -) (10, -) (10, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (10, -) (11, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
+Total #Vertices: 10
+
+qsyn> zxgs -hopf
+Hopf Rule: 
+3 iterations
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	5	(0, -) (5, [1m[34mH[0m[0m) (5, -) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	5	(2, -) (4, [1m[34mH[0m[0m) (4, -) (4, [1m[34mH[0m[0m) (8, -) 
+ID:	7	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (4, [1m[34mH[0m[0m) (8, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, -) (5, -) (7, -) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(11, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(10, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
+Total #Vertices: 10
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
+
+qsyn> q -f
+

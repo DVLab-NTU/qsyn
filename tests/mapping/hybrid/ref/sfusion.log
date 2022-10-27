@@ -2,50 +2,36 @@ qsyn> zxm -on
 ZXMODE turn ON!
 
 qsyn> zxn
-Successfully generate Graph 0
+Successfully generated Graph 0
 Checkout to Graph 0
 
 qsyn> zxgedit -addi 0 0
-Add input 0
 
 qsyn> zxgedit -addv 1 0 Z 0
-Add vertex 1
 
 qsyn> zxgedit -addo 4 0
-Add output 4
 
 qsyn> zxgedit -addv 2 0 Z 0
-Add vertex 2
 
 qsyn> zxgedit -addv 3 0 Z 0
-Add vertex 3
 
 qsyn> zxgedit -adde 2 3 SIMPLE
-Add edge ( 2, 3 )
 
 qsyn> zxgedit -adde 1 2 SIMPLE
-Add edge ( 1, 2 )
 
 qsyn> zxgedit -adde 2 3 SIMPLE
-Add edge ( 2, 3 )
 
 qsyn> zxgedit -adde 2 3 SIMPLE
-Add edge ( 2, 3 )
 
 qsyn> zxgedit -adde 3 2 HADAMARD
-Add edge ( 3, 2 )
 
 qsyn> zxgedit -adde 3 2 SIMPLE
-Add edge ( 3, 2 )
 
 qsyn> zxgedit -adde 2 0 SIMPLE
-Add edge ( 2, 0 )
 
 qsyn> zxgedit -adde 3 1 SIMPLE
-Add edge ( 3, 1 )
 
 qsyn> zxgedit -adde 4 1 SIMPLE
-Add edge ( 4, 1 )
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
@@ -69,25 +55,12 @@ Total #Edges: 9
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
-> Mapping vertex 0 (●): New Subgraph
-> Mapping vertex 2 ([1m[32mZ[0m[0m): Tensordot
-> Mapping vertex 1 ([1m[32mZ[0m[0m): Tensordot
-> Mapping vertex 4 (●): Boundary Node
-> Mapping vertex 3 ([1m[32mZ[0m[0m): Tensordot
-
-The resulting tensor is: 
-{{ 4.+0.i,  0.+0.i},
- { 0.+0.i, -4.+0.i}}
+Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
 
 qsyn> zxgsimp -spi
-Spider Fusion: 1 Add edge ( 2, 1 )
-Add edge ( 2, 2 )
-Remove ID: 3
-. 1 Add edge ( 1, 2 )
-Add edge ( 1, 2 )
-Add edge ( 1, 0 )
-Remove ID: 2
-. 2 iterations
+Spider Fusion Rule: 
+2 iterations
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
@@ -102,13 +75,8 @@ Total #Edges: 2
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
-> Mapping vertex 0 (●): New Subgraph
-> Mapping vertex 1 ([1m[32mZ[0m[0m): Tensordot
-> Mapping vertex 4 (●): Boundary Node
-
-The resulting tensor is: 
-{{ 1.+0.000000e+00i,  0.+0.000000e+00i},
- { 0.+0.000000e+00i, -1.+1.224647e-16i}}
+Successfully added Tensor 1
+Stored the resulting tensor as tensor id 1
 
 qsyn> q -f
 

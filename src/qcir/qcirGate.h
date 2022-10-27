@@ -175,6 +175,7 @@ public:
   ~SDGGate();
   virtual string getTypeStr() const { return "sd"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::rz(Phase(-1,2)); }
+  virtual ZXGraph*  getZXform(size_t &baseId);
   virtual void printGateInfo(bool) const;
 };
 
@@ -284,7 +285,7 @@ public:
   ~CCXGate();
   virtual string getTypeStr() const { return "ccx"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::cnx(2); }
-  virtual ZXGraph*  getZXform(size_t &baseId){ return NULL; };
+  virtual ZXGraph*  getZXform(size_t &baseId);
   virtual void printGateInfo(bool) const;
 };
 class YGate : public CnRYGate
@@ -293,6 +294,7 @@ public:
   YGate(size_t id): CnRYGate(id) {}
   ~YGate();
   virtual string getTypeStr() const { return "y"; }
+  virtual ZXGraph*  getZXform(size_t &baseId);
   virtual void printGateInfo(bool) const;
 };
 
@@ -302,6 +304,7 @@ public:
   SYGate(size_t id): CnRYGate(id) {}
   ~SYGate();
   virtual string getTypeStr() const { return "sy"; }
+  virtual ZXGraph*  getZXform(size_t &baseId);
   virtual void printGateInfo(bool) const;
 };
 #endif // QCIR_GATE_H

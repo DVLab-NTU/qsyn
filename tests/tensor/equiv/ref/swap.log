@@ -1,0 +1,38 @@
+qsyn> ver 2
+Note: verbose level is set to 2
+
+qsyn> qcba 2
+
+qsyn> qcga -cx 0 1
+
+qsyn> qcga -cx 1 0
+
+qsyn> qcga -cx 0 1
+
+qsyn> qctsm
+Stored the resulting tensor as tensor id 0
+
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> zxgr benchmark/zx/swap.zx
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Stored the resulting tensor as tensor id 1
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> tsp -l
+Tensor    0: #Dim:    2	Info: QC
+Tensor    1: #Dim:    2	Info: ZX 0
+Total #Tensor: 2
+
+qsyn> tseq 0 1 -Strict
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> q -f
+

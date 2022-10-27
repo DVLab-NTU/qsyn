@@ -12,11 +12,13 @@
 #include <algorithm>
 #include <cassert>
 #include "zxGraphMgr.h"
+#include "tensorMgr.h"
 #include "qcir.h"
 
 using namespace std;
 QCir *qCir = 0;
 extern ZXGraphMgr *zxGraphMgr;
+extern TensorMgr *tensorMgr;
 extern size_t verbose;
 
 QCirGate *QCir::getGate(size_t id) const
@@ -171,63 +173,56 @@ void QCir::ZXMapping()
     
     _ZXNodeId = 0;
     size_t maxInput = 0;
-    if(verbose >= 3) cout << "----------- ADD BOUNDARIES -----------" << endl;
+    if(verbose >= 5) cout << "----------- ADD BOUNDARIES -----------" << endl;
     for(size_t i=0; i<_qubits.size(); i++){
         if (_qubits[i]->getId() > maxInput)
             maxInput = _qubits[i]->getId();
         _ZXG -> setInputHash(_qubits[i]->getId(), _ZXG -> addInput( 2*(_qubits[i]->getId()), _qubits[i]->getId()));
         _ZXG -> setOutputHash(_qubits[i]->getId(), _ZXG -> addOutput( 2*(_qubits[i]->getId()) + 1, _qubits[i]->getId()));
         _ZXG -> addEdgeById( 2*(_qubits[i]->getId()), 2*(_qubits[i]->getId()) + 1, new EdgeType(EdgeType::SIMPLE));
-        if(verbose >= 3)  cout << "Add Qubit " << _qubits[i]->getId() << " inp: " << 2*(_qubits[i]->getId()) << " oup: " << 2*(_qubits[i]->getId())+1 << endl;
     }
     _ZXNodeId = 2*(maxInput+ 1)-1;
-    if(verbose >= 5) cout << "ZXnode starts from " << _ZXNodeId << endl;
-    if(verbose >= 3) cout << "--------------------------------------" << endl << endl;
+    if(verbose >= 5) cout << "--------------------------------------" << endl << endl;
 
     auto Lambda = [this, _ZXG](QCirGate *G)
     {
-        if(verbose >= 3) cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
+        if(verbose >= 5) cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph* tmp = G->getZXform(_ZXNodeId);
         if(tmp == NULL){
             cerr << "Mapping of gate "<< G->getId()<< " (type: " << G->getTypeStr() << ") not implemented, the mapping result is wrong!!" <<endl;
             return;
         }
+        
         if(verbose >= 5) cout << "********** CONCATENATION **********" << endl;
         _ZXG -> concatenate(tmp, false);
         if(verbose >= 5) cout << "***********************************" << endl;
-        if(verbose >= 3)  cout << "--------------------------------------" << endl;
-        
     };
 
     if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE GRAPH ----" << endl;
     topoTraverse(Lambda);
     _ZXG -> cleanRedundantEdges();
     if(verbose >= 3)  cout << "--------------------------------------" << endl;
-    if(verbose >= 3)  cout << "---------------------------------- GRAPH INFORMATION ---------------------------------" << endl;
-    if(verbose >= 3)  _ZXG -> printVertices();
-    if(verbose >= 3)  cout << "--------------------------------------------------------------------------------------" << endl; 
-    if(verbose >= 7) {
-        zxGraphMgr -> printZXGraphMgr();
-    }
+    
     _ZXGraphList.push_back(_ZXG);
 }
 void QCir::tensorMapping()
 {
     updateTopoOrder();
     if(verbose >= 3) cout << "----------- ADD BOUNDARIES -----------" << endl;
-    _tensor = (1.+0.i);
-    _tensor = tensordot(_tensor, QTensor<double>::identity(_qubits.size()));
+    if (!tensorMgr) tensorMgr = new TensorMgr();
+    size_t id = tensorMgr->nextID();
+    _tensor = tensorMgr->addTensor(id, "QC");
+    *_tensor = tensordot(*_tensor, QTensor<double>::identity(_qubits.size()));
     _qubit2pin.clear();
     for(size_t i=0; i<_qubits.size(); i++){
         _qubit2pin[_qubits[i]->getId()] = make_pair(2*i, 2*i+1);
-        if(verbose >= 3)  cout << "Add Qubit " << _qubits[i]->getId() << " output port: " << 2*i+1 << endl;
+        if(verbose >= 8)  cout << "Add Qubit " << _qubits[i]->getId() << " output port: " << 2*i+1 << endl;
     }
     
     auto Lambda = [this](QCirGate *G)
     {
-        if(verbose >= 3) cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
+        if(verbose >= 5) cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         QTensor<double> tmp = G->getTSform();
-        
         vector<size_t> ori_pin;
         vector<size_t> new_pin;
         ori_pin.clear(); new_pin.clear();
@@ -236,86 +231,67 @@ void QCir::tensorMapping()
             BitInfo info = G->getQubits()[np];
             ori_pin.push_back(_qubit2pin[info._qubit].second);
         }
-        _tensor = tensordot(_tensor, tmp, ori_pin, new_pin);
-        if(verbose >= 5) cout << "************ Pin Permutation ************" << endl;
-        
+        *_tensor = tensordot(*_tensor, tmp, ori_pin, new_pin);
         updateTensorPin(G->getQubits(), tmp);
         // tmp -> concatenate(tmp, false);
         // Tensor product here
-        if(verbose >= 5) cout << "*****************************************" << endl;
-        if(verbose >= 3) cout << "--------------------------------------------" << endl;
+        if (verbose >= 3) cout << "--------------------------------------------" << endl;
     };
-    if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
-    topoTraverse(Lambda);
 
-    if(verbose >= 8) {
-        vector<size_t> input_pin, output_pin;
-        for(size_t i=0; i<_qubits.size(); i++){
-            input_pin.push_back(_qubit2pin[_qubits[i]->getId()].first);
-            output_pin.push_back(_qubit2pin[_qubits[i]->getId()].second);
-        }
-        cout << _tensor.toMatrix(input_pin,output_pin) << endl;
+    if (verbose >= 3) cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
+    topoTraverse(Lambda);
+    if (verbose >= 3) cout << "---------------------------------------" << endl;
+
+    vector<size_t> input_pin, output_pin;
+    for (size_t i=0; i<_qubits.size(); i++){
+        input_pin.push_back(_qubit2pin[_qubits[i]->getId()].first);
+        output_pin.push_back(_qubit2pin[_qubits[i]->getId()].second);
     }
+    *_tensor = _tensor->toMatrix(input_pin,output_pin);
+    cout << "Stored the resulting tensor as tensor id " << id << endl;
 }
 void QCir::updateTensorPin(vector<BitInfo> pins, QTensor<double> tmp)
 {
-    size_t count_pin_used = 0;
+    // size_t count_pin_used = 0;
+    // unordered_map<size_t, size_t> table; // qid to pin (pin0 = ctrl 0 pin1 = ctrl 1)
+    if(verbose >= 8) cout << "************ Pin Permutation ************" << endl;
     for (auto it = _qubit2pin.begin(); it != _qubit2pin.end(); ++it ){
-        if(verbose >= 5)  cout << "Qubit: " << it->first << " input : " << it->second.first << " -> ";
-        it->second.first = _tensor.getNewAxisId(it->second.first);
-        if(verbose >= 5)  cout << it->second.first << " | ";
-        if(verbose >= 5)  cout << " output: " << it->second.second << " -> ";
+        if(verbose >= 8) {
+            cout << "Qubit: " << it->first << " input : " << it->second.first << " -> ";
+        }
+        it->second.first = _tensor->getNewAxisId(it->second.first);
+        if(verbose >= 8) {
+            cout << it->second.first << " | ";
+            cout << " output: " << it->second.second << " -> ";
+        }
+
         bool connected = false;
         bool target = false;
+        size_t ithCtrl = 0;
         for(size_t i=0;i<pins.size();i++){
             if(pins[i]._qubit == it->first){
                 connected = true;
                 if(pins[i]._isTarget) target = true;
+                else ithCtrl=i;
                 break;
             }
         }
         if(connected){
             if(target)
-                it->second.second = _tensor.getNewAxisId(_tensor.dimension() + tmp.dimension()-1);
-            else{
-                it->second.second = _tensor.getNewAxisId(_tensor.dimension() + 2*count_pin_used+1);
-                count_pin_used++;
-            }
+                it->second.second = _tensor->getNewAxisId(_tensor->dimension() + tmp.dimension()-1);
+                
+            else
+                it->second.second = _tensor->getNewAxisId(_tensor->dimension() + 2*ithCtrl+1);
         }
-        else
-            it->second.second = _tensor.getNewAxisId(it->second.second);
-        if(verbose >= 5)  cout << it->second.second << endl;
+        else it->second.second = _tensor->getNewAxisId(it->second.second);
+
+        if(verbose >= 8) {
+            cout << it->second.second << endl;
+        }
     }
-    
-    // // it->first: qubit ID
-    // for ( auto it = _qubit2pin.begin(); it != _qubit2pin.end(); ++it ){
-    //     bool modify = false;
-    //     for(size_t p=0; p<pins.size(); p++){
-    //         if(pins[p]._qubit == it->first){
-    //             modify = true;
-    //             break;
-    //         }
-    //     }
-    //     if(!modify){
-    //         size_t minus = 0;
-    //         for(size_t p=0; p<pins.size(); p++){
-    //             if(_qubit2pin[pins[p]._qubit] < it->second)
-    //                 minus++;
-    //         }
-    //         it->second.second -= minus; 
-    //     }
-    // }
-    // for ( auto it = _qubit2pin.begin(); it != _qubit2pin.end(); ++it ){
-    //     if(verbose >= 5)  cout << "Qubit: " << it->first << ":" << " -> ";
-    //     for(size_t p=0; p<pins.size(); p++){
-    //         if(pins[p]._qubit == it->first){
-    //             it->second.second = 2*_qubit2pin.size()-(pins.size()-p); 
-    //             break;
-    //         }
-    //     }
-    //     if(verbose >= 5) cout << it->second.second << endl;
-    // }
-    
+    if(verbose >= 8) {
+        cout << "*****************************************" << endl;
+    }
 }
 bool QCir::removeQubit(size_t id)
 {
@@ -353,9 +329,11 @@ void QCir::addGate(string type, vector<size_t> bits, Phase phase, bool append)
         temp = new ZGate(_gateId);
     else if (type == "s")
         temp = new SGate(_gateId);
+    else if (type == "s*" || type=="sdg" || type=="sd")
+        temp = new SDGGate(_gateId);
     else if (type == "t")
         temp = new TGate(_gateId);
-    else if (type == "tdg" || type == "td")
+    else if (type == "tdg" || type == "td" || type == "t*")
         temp = new TDGGate(_gateId);
     else if (type == "p")
         temp = new RZGate(_gateId);
@@ -440,7 +418,7 @@ bool QCir::removeGate(size_t id)
     QCirGate *target = getGate(id);
     if (target == NULL)
     {
-        cerr << "ERROR: id " << id << " not found!!" << endl;
+        cerr << "Error: id " << id << " not found!!" << endl;
         return false;
     }
     else

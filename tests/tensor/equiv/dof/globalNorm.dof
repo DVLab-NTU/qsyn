@@ -1,0 +1,18 @@
+ver 2
+zxm -on
+zxn
+zxge -addi 0 0
+zxge -addo 1 0
+zxge -addv 2 0 Z 0
+zxge -addv 3 0 Z 0
+zxge -adde 0 2 SIMPLE
+zxge -adde 2 3 SIMPLE
+zxge -adde 3 1 SIMPLE
+zxgtsm
+zxge -adde 2 3 SIMPLE
+zxgtsm
+ver 3
+tsp -l
+tseq 0 1
+tseq 0 1 -Strict
+q -f

@@ -1,0 +1,197 @@
+/****************************************************************************
+  FileName     [ tensorCmd.h ]
+  PackageName  [ tensor ]
+  Synopsis     [ Define tensor commands ]
+  Author       [ Mu-Te (Joshua) Lau ]
+  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
+
+#include "tensorCmd.h"
+#include "tensorMgr.h"
+
+#include <vector>
+
+#include "qtensor.h"
+#include "textFormat.h"
+
+using namespace std;
+namespace TF = TextFormat;
+
+extern TensorMgr* tensorMgr;
+extern size_t     verbose;
+
+bool initTensorCmd() {
+    if (!(
+            cmdMgr->regCmd("TSReset", 3, new TSResetCmd) &&
+            cmdMgr->regCmd("TSPrint", 3, new TSPrintCmd) &&
+            cmdMgr->regCmd("TSEQuiv", 4, new TSEquivalenceCmd))) {
+        cerr << "Registering \"tensor\" commands fails... exiting" << endl;
+        return false;
+    }
+    return true;
+}
+
+//----------------------------------------------------------------------
+//    TSReset 
+//----------------------------------------------------------------------
+CmdExecStatus
+TSResetCmd::exec(const string &option) {
+    if (!lexNoOption(option)) {
+        return CMD_EXEC_ERROR;
+    }
+    if (!tensorMgr) tensorMgr = new TensorMgr; 
+    else tensorMgr->reset();
+    
+
+    return CMD_EXEC_DONE;
+}
+
+void TSResetCmd::usage(ostream &os) const {
+    os << "Usage: TSReset" << endl;
+}
+
+void TSResetCmd::help() const {
+    cout << setw(15) << left << "TSReset: "
+         << "Reset the tensor manager" << endl;
+}
+
+//----------------------------------------------------------------------
+//    TSPrint [-List] [size_t id]
+//----------------------------------------------------------------------
+CmdExecStatus
+TSPrintCmd::exec(const string &option) {
+    vector<string> options;
+    if (!lexOptions(option, options)) {
+        return CMD_EXEC_ERROR;
+    }
+
+    if (!tensorMgr) tensorMgr = new TensorMgr;
+
+    bool list = false;
+    bool useId = false;
+    unsigned id;
+    for (const auto& option : options) {
+        if (myStrNCmp("-List", option, 2) == 0) {
+            if (list) {
+                return errorOption(CMD_OPT_EXTRA, option);
+            }
+            list = true;
+        } else {
+            if (useId) {
+                return errorOption(CMD_OPT_EXTRA, option);
+            }
+            if (!myStr2Uns(option, id)) {
+                return errorOption(CMD_OPT_ILLEGAL, option);
+            }
+            useId = true;
+        }
+    }
+    if (!useId) {
+        tensorMgr->printTensorMgr();
+    } else {
+        if (!tensorMgr->hasId(id)) {
+            cerr << "[Error] Can't find tensor with the ID specified!!" << endl;
+            return errorOption(CMD_OPT_ILLEGAL, to_string(id));
+        }
+        tensorMgr->printTensor(id, list);
+    }
+    return CMD_EXEC_DONE;
+}
+
+void TSPrintCmd::usage(ostream &os) const {
+    os << "Usage: TSPrint [-List] [size_t id]" << endl
+       << "       -List: List infos only" << endl
+       << "       id   : Print the tensor with the id specified" << endl
+       << "       If no argument is given, list infos of all stored tensors. " << endl;
+}
+
+void TSPrintCmd::help() const {
+    cout << setw(15) << left << "TSPrint: "
+         << "Print information about stored tensors" << endl;
+}
+
+//----------------------------------------------------------------------
+//    TSEQuiv <size_t tensorId1> <size_t tensorId2> [<-Epsilon> <double eps>] [-Strict]
+//----------------------------------------------------------------------
+CmdExecStatus
+TSEquivalenceCmd::exec(const string &option) {
+    vector<string> options;
+    if (!lexOptions(option, options)) {
+        return CMD_EXEC_ERROR;
+    }
+
+    if (!tensorMgr) tensorMgr = new TensorMgr;
+
+    bool useEpsilon = false, nextEpsilon = false;
+    double epsilon = 1e-6;
+    bool useStrict = false;
+    vector<unsigned> ids;
+    unsigned tmp;
+    ids.reserve(2);
+
+    for (const auto& option : options) {
+        if (nextEpsilon) {
+            if (!myStr2Double(option, epsilon)) {
+                return errorOption(CMD_OPT_ILLEGAL, option);
+            }
+            useEpsilon = true;
+            nextEpsilon = false;
+        } else if (myStrNCmp("-Epsilon", option, 2) == 0) {
+            if (useEpsilon) {
+                return errorOption(CMD_OPT_EXTRA, option);
+            } 
+            nextEpsilon = true;
+        } else if (myStrNCmp("-Strict", option, 2) == 0) {
+            if (useStrict) {
+                return errorOption(CMD_OPT_EXTRA, option);
+            }
+            useStrict = true;
+        } else {
+            if (ids.size() >= 2) {
+                return errorOption(CMD_OPT_EXTRA, option);
+            }
+            if (!myStr2Uns(option, tmp)) {
+                return errorOption(CMD_OPT_ILLEGAL, option);
+            }
+            if (!tensorMgr->hasId(tmp)) {
+                cerr << "[Error] Can't find tensor with the ID specified!!" << endl;
+                return errorOption(CMD_OPT_ILLEGAL, to_string(tmp));
+            }
+            ids.push_back(tmp);
+        }
+    }
+    if (ids.size() < 2) {
+        return errorOption(CMD_OPT_MISSING, "id" + to_string(ids.size() + 1));
+    }
+    
+    bool   equiv = tensorMgr->isEquivalent(ids[0], ids[1], epsilon);
+    double norm  = tensorMgr->getGlobalNorm(ids[0], ids[1]);
+    Phase  phase = tensorMgr->getGlobalPhase(ids[0], ids[1]);
+
+    if (useStrict) {
+        if (norm > 1 + epsilon || norm < 1 - epsilon || phase != Phase(0)) {
+            equiv = false;
+        }
+    }
+
+    if (equiv) {
+        cout    << TF::BOLD(TF::GREEN("Equivalent")) << endl
+                << "- Global Norm : " << norm  << endl
+                << "- Global Phase: " << phase << endl;
+    } else {
+        cout << TF::BOLD(TF::RED("Not Equivalent")) << endl;
+    }
+
+    return CMD_EXEC_DONE;
+}
+
+void TSEquivalenceCmd::usage(ostream &os) const {
+    os << "Usage: TSEQuiv <size_t id1> <size_t id2> [<-Epsilon> <double eps>] [-Exact]\n"
+       << "       -Epsilon: requires cosine similarity between tensors to be higher than (1 - eps) (default to 1e-6)\n"
+       << "       -Strict : requires exact equivalence (global scaling factor of 1)" << endl;
+}
+
+void TSEquivalenceCmd::help() const {
+    cout << setw(15) << left << "TSEQuiv: "
+         << "Compare the equivalency of two stored tensors" << endl;
+}

@@ -94,6 +94,16 @@ public:
         _printUnit = pu;
     }
 
+    std::string getAsciiString() const {
+        std::string str;
+        if (_rational.numerator() != 1) 
+            str += to_string(_rational.numerator()) + "*";
+        str += "pi";
+        if (_rational.denominator() != 1) 
+            str += "/" + to_string(_rational.denominator());
+        return str;
+    }
+
     void normalize();
 
     template<class T = double> requires std::floating_point<T>
@@ -164,7 +174,7 @@ bool myStrValid(const std::string &str, T &f)
     if (operators.size() >= num_string.size()){
         operators.clear();
         num_string.clear();
-        cout << "Too much Operators!!!!" << endl;
+        // cout << "Too much Operators!!!!" << endl;
         return false;
     }
 
@@ -181,7 +191,7 @@ bool myStrValid(const std::string &str, T &f)
             operators.clear();
             num_float.clear();
             num_string.clear();
-            cout << "Can't Identify Number : " << temp << endl;
+            // cout << "Can't Identify Number : " << temp << endl;
             return false;
         }
 

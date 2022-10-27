@@ -90,11 +90,19 @@ bool CmdParser::regCmd(const string& cmd, unsigned nCmp, CmdExec* e) {
         if (s == nCmp) break;
         str.resize(--s);
     }
-
     // Change the first nCmp characters to upper case to facilitate
     //    case-insensitive comparison later.
     // The strings stored in _cmdMap are all upper case
     //
+
+    // Guard: mandatory part cannot be subsets to another
+    // Currently turned off (until maybe one day the alias system is in place)
+
+    // for (const auto& [key, _] : _cmdMap) {
+    //     if (key.find(str) != string::npos || str.find(key) != string::npos) {
+    //         return false;
+    //     }
+    // }
     assert(str.size() == nCmp);  // str is now mandCmd
     string& mandCmd = str;
     for (unsigned i = 0; i < nCmp; ++i)
@@ -130,9 +138,9 @@ CmdParser::execOneCmd() {
 // Print an endl at the end.
 void CmdParser::printHelps() const {
     // TODO...
-    CmdMap::const_iterator mi;
-    for (mi = _cmdMap.begin(); mi != _cmdMap.end(); ++mi)
-        (*mi).second->help();
+    for (const auto& mi : _cmdMap)
+        mi.second->help();
+ 
     cout << endl;
 }
 
@@ -375,6 +383,7 @@ void CmdParser::listCmd(const string& str) {
         // cursor on first word
         for (size_t i = 0, n = cmd.size(); i < n; ++i)
             cmd[i] = toupper(cmd[i]);
+        
         if (getCmd(cmd)) {  // cmd is enough to determine a single cmd
             bi = _cmdMap.find(cmd);
             if (bi == _cmdMap.end()) {
@@ -417,6 +426,7 @@ void CmdParser::listCmd(const string& str) {
         cmdSpacing = 60 / cmdsPerLine;
         size_t count = 0;
         for (auto itr = bi; itr != ei; ++itr) {
+            if(itr->first == "//") continue;
             if ((count++ % cmdsPerLine) == 0) cout << endl;
             string ss = itr->first + itr->second->getOptCmd();
             cout << setw(cmdSpacing) << left << ss;
@@ -449,7 +459,7 @@ bool CmdParser::listCmdDir(const string& cmd) {
     } else if (stripQuotes(cmd + "\'", tmp)) {
         incompleteQuotes = "\'";
     } else {
-        cerr << "[Error] Unexpected quote stripping result!!!!" << endl;
+        cerr << "Error: unexpected quote stripping result!!" << endl;
         return false;
     }
     // cerr << "tmp = \"" << tmp << "\"" << endl;
@@ -510,14 +520,13 @@ bool CmdParser::listCmdDir(const string& cmd) {
     if (files.size() == 0) { // [case 6.5] no matched file
         return false;
     } 
-
     string ff = files[0].substr(fLen, files[0].size() - fLen);
     if (files.size() == 1) {  // [case 6.1.3 & 6.4] singly matched file
         // [FIX] 2018/10/20 by Ric for 6.1.3 and 6.4
         // Check if the last part of cmd is ff followed by ' '
         // If yes, DO NOT re-print the last part of the cmd
         if (fLen == 0) {  // cmd.back() == ' '
-            assert(cmd.back() == ' ');
+            assert(cmd.back() == ' ' || cmd.back() == '/');
             size_t en = cmd.find_last_not_of(' ');
             if (en >= ff.size()) {
                 string cmdLast = cmd.substr(en - ff.size() + 1, ff.size());
