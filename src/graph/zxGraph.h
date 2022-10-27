@@ -285,8 +285,8 @@ class ZXGraph{
         void cleanRedundantEdges();
 
         // I/O
-        bool readZX(string);
-        bool writeZX(string);
+        bool readZX(string, bool bzx);
+        bool writeZX(string, bool bzx);
 
     private:
         size_t                            _id;

@@ -636,7 +636,7 @@ void ZXGTSMappingCmd::help() const{
 }
 
 //----------------------------------------------------------------------
-//    ZXGRead 
+//    ZXGRead <string Input.(b)zx> [-BZX] [-Replace]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGReadCmd::exec(const string &option){
@@ -650,7 +650,11 @@ ZXGReadCmd::exec(const string &option){
     if(!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
     if(options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
 
+
     bool doReplace = false;
+    bool doBZX = false;
+    size_t eraseIndexReplace = 0;
+    size_t eraseIndexBZX = 0;
     string fileName;
     for (size_t i = 0, n = options.size(); i < n; ++i)
     {
@@ -659,6 +663,89 @@ ZXGReadCmd::exec(const string &option){
             if (doReplace)
                 return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
             doReplace = true;
+            eraseIndexReplace = i;
+        }
+        else if (myStrNCmp("-BZX", options[i], 4) == 0)
+        {
+            if (doBZX)
+                return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
+            doBZX = true;
+            eraseIndexBZX = i;
+        }
+        else{
+            if (fileName.size())
+                return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
+            fileName = options[i];
+        }
+    }
+    string replaceStr = options[eraseIndexReplace];
+    string bzxStr = options[eraseIndexBZX];
+    if (doReplace)
+        options.erase(std::remove(options.begin(), options.end(), replaceStr), options.end());
+    if (doBZX)
+        options.erase(std::remove(options.begin(), options.end(), bzxStr), options.end());
+    if (options.empty())
+        return CmdExec::errorOption(CMD_OPT_MISSING, (eraseIndexBZX > eraseIndexReplace) ? bzxStr : replaceStr);
+
+    if (doReplace){
+        if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
+            cerr << "Note: ZX-graph list is empty now. Create a new one." << endl;
+            zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
+            if(! zxGraphMgr->getGraph()->readZX(fileName, doBZX)){
+                cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
+                return CMD_EXEC_ERROR;
+            }
+        }
+        else{
+            cerr << "Note: original zxGraph is replaced..." << endl;
+            zxGraphMgr->getGraph()->reset();
+            if(! zxGraphMgr->getGraph()->readZX(fileName, doBZX)){
+                cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
+                return CMD_EXEC_ERROR;
+            }
+        }
+    }
+    else{
+        zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
+        if(! zxGraphMgr->getGraph()->readZX(fileName, doBZX)){
+            cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
+            return CMD_EXEC_ERROR;
+        }
+    }
+    return CMD_EXEC_DONE;
+}
+
+void ZXGReadCmd::usage(ostream &os) const{
+    os << "Usage: ZXGRead <string Input.(b)zx> [-BZX] [-Replace]" << endl;
+}
+
+void ZXGReadCmd::help() const{
+    cout << setw(15) << left << "ZXGRead: " << "read a ZXGraph" << endl; 
+}
+
+//----------------------------------------------------------------------
+//    ZXGWrite <string Output.(b)zx> [-BZX]
+//----------------------------------------------------------------------
+CmdExecStatus
+ZXGWriteCmd::exec(const string &option)
+{
+    // check option
+    if(curCmd != ZXON){
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXEdit." << endl;
+        return CMD_EXEC_ERROR;
+    }
+    vector<string> options;
+    if(!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
+        
+    bool doBZX = false;
+    string fileName;
+    for (size_t i = 0, n = options.size(); i < n; ++i)
+    {
+        if (myStrNCmp("-BZX", options[i], 4) == 0)
+        {
+            if (doBZX)
+                return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
+            doBZX = true;
         }
         else
         {
@@ -668,63 +755,12 @@ ZXGReadCmd::exec(const string &option){
         }
     }
 
-    if (doReplace){
-        if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
-            cerr << "Note: ZX-graph list is empty now. Create a new one." << endl;
-            zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
-            if(! zxGraphMgr->getGraph()->readZX(fileName)){
-                cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
-                return CMD_EXEC_ERROR;
-            }
-        }
-        else{
-            cerr << "Note: original zxGraph is replaced..." << endl;
-            zxGraphMgr->getGraph()->reset();
-            if(! zxGraphMgr->getGraph()->readZX(fileName)){
-                cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
-                return CMD_EXEC_ERROR;
-            }
-        }
-    }
-    else{
-        zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
-        if(! zxGraphMgr->getGraph()->readZX(fileName)){
-            cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
-            return CMD_EXEC_ERROR;
-        }
-    }
-    return CMD_EXEC_DONE;
-}
-
-void ZXGReadCmd::usage(ostream &os) const{
-    os << "Usage: ZXGRead <string filename> [-Replace]" << endl;
-}
-
-void ZXGReadCmd::help() const{
-    cout << setw(15) << left << "ZXGRead: " << "read a ZXGraph" << endl; 
-}
-
-//----------------------------------------------------------------------
-//    ZXGWrite <string Output.zx>
-//----------------------------------------------------------------------
-CmdExecStatus
-ZXGWriteCmd::exec(const string &option)
-{
-   // check option
-    if(curCmd != ZXON){
-        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXEdit." << endl;
-        return CMD_EXEC_ERROR;
-    }
-    string token;
-    if (!CmdExec::lexSingleOption(option, token))
-        return CMD_EXEC_ERROR;
-    
     if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
         cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXWrite." << endl;
         return CMD_EXEC_ERROR;
     }
-    if(!zxGraphMgr->getGraph()->writeZX(token)){
-        cerr << "Error: fail to write ZX-Graph to \"" << token << "\"!!" << endl;
+    if(!zxGraphMgr->getGraph()->writeZX(fileName, doBZX)){
+        cerr << "Error: fail to write ZX-Graph to \"" << fileName << "\"!!" << endl;
         return CMD_EXEC_ERROR;
     }
     return CMD_EXEC_DONE;
@@ -732,7 +768,7 @@ ZXGWriteCmd::exec(const string &option)
 
 void ZXGWriteCmd::usage(ostream &os) const
 {
-   os << "Usage: ZXGWrite <string Output.zx>" << endl;
+   os << "Usage: ZXGWrite <string Output.(b)zx> [-BZX]" << endl;
 }
 
 void ZXGWriteCmd::help() const
