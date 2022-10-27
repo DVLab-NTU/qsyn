@@ -212,7 +212,7 @@ void PivotGadget::rewrite(ZXGraph* g){
             }
         }
 
-        int k0 = n0.size(), k1 = n1.size(), k2 = n2.size();
+        // int k0 = n0.size(), k1 = n1.size(), k2 = n2.size();
 
         for(auto& v : n2){
             // REVIEW - check if not ground
