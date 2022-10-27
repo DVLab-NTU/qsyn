@@ -182,7 +182,10 @@ bool myStrValid(const std::string &str, T &f)
     for (auto &temp : num_string) {
         T temp_converted;
         if (temp == "pi" || temp == "PI") {
-            num_float.push_back(3.14159265358979311599796346854);
+            num_float.push_back(std::numbers::pi_v<T>);
+        }
+        else if (temp == "-pi" || temp == "-PI") {
+            num_float.push_back(-std::numbers::pi_v<T>);
         }
         else if (myStr2FloatType<T>(temp, temp_converted)){
             num_float.push_back(temp_converted);
