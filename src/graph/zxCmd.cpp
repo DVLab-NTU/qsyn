@@ -33,6 +33,7 @@ bool initZXCmd(){
          cmdMgr->regCmd("ZXGTest", 4, new ZXGTestCmd) && 
          cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd) && 
          cmdMgr->regCmd("ZXGASsign", 5, new ZXGAssignCmd) && 
+         cmdMgr->regCmd("ZXGISGraphlike", 6, new ZXGIsGraphLikeCmd) && 
          cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
          cmdMgr->regCmd("ZXGTSMap", 6, new ZXGTSMappingCmd) &&
          cmdMgr->regCmd("ZXGRead", 4, new ZXGReadCmd) &&
@@ -591,10 +592,6 @@ void ZXGEditCmd::help() const{
     cout << setw(15) << left << "ZXGEdit: " << "edit ZX-graph" << endl;
 }
 
-
-
-
-
 //----------------------------------------------------------------------
 //    ZXGTRaverse
 //----------------------------------------------------------------------
@@ -841,4 +838,23 @@ void ZXGAssignCmd::help() const
 {
    cout << setw(15) << left << "ZXGASsign: "
         << "assign an input/output vertex to specific qubit\n";
+}
+
+//----------------------------------------------------------------------
+//    ZXGISGraphlike
+//----------------------------------------------------------------------
+CmdExecStatus
+ZXGIsGraphLikeCmd::exec(const string &option){
+    string token;
+    if(!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
+    zxGraphMgr->getGraph()->isGraphLike();
+    return CMD_EXEC_DONE;
+}
+
+void ZXGIsGraphLikeCmd::usage(ostream &os) const{
+    os << "Usage: ZXGISGraphlike" << endl;
+}
+
+void ZXGIsGraphLikeCmd::help() const{
+    cout << setw(15) << left << "ZXGISGraphlike: " << "check if ZXGraph is graph-like" << endl; 
 }
