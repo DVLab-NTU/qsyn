@@ -161,9 +161,12 @@ TSEquivalenceCmd::exec(const string &option) {
         }
     }
     if (ids.size() < 2) {
-        return errorOption(CMD_OPT_MISSING, "id" + to_string(ids.size() + 1));
+        cerr << "Please give two tensor ids to compare!!" << endl;
+        return CMD_EXEC_ERROR;
     }
-    
+    if (nextEpsilon) {
+        return errorOption(CMD_OPT_MISSING, options.back());
+    }
     bool   equiv = tensorMgr->isEquivalent(ids[0], ids[1], epsilon);
     double norm  = tensorMgr->getGlobalNorm(ids[0], ids[1]);
     Phase  phase = tensorMgr->getGlobalPhase(ids[0], ids[1]);

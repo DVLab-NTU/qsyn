@@ -27,5 +27,6 @@ CmdClass(ZXGTraverseCmd);
 CmdClass(ZXGTSMappingCmd);
 CmdClass(ZXGReadCmd);
 CmdClass(ZXGWriteCmd);
+CmdClass(ZXGAdjointCmd);
 CmdClass(ZXGAssignCmd);
 #endif // ZX_CMD_H

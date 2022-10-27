@@ -37,8 +37,12 @@ bool ZX2TSMapper::map() {
     getAxisOrders(inputIds, _zxgraph->getInputList(), false);
     getAxisOrders(outputIds, _zxgraph->getOutputList(), true);
 
-    // printAxisList(inputIds);
-    // printAxisList(outputIds);
+    if (verbose >= 8) {
+        cout << "Input  axis ids: ";
+        printAxisList(inputIds);
+        cout << "Output axis ids: ";
+        printAxisList(outputIds);
+    }
 
     *result = result->toMatrix(inputIds, outputIds);
     cout << "Stored the resulting tensor as tensor id " << id << endl;

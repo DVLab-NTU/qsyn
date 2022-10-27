@@ -166,6 +166,7 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph) {
 
         // Update data in oriGraph
         oriGraph->setOutputs(copyGraph->getOutputs());
+        oriGraph->setOutputList(copyGraph->getOutputList());
         oriGraph->addVertices(copyGraph->getVertices());
         oriGraph->addEdges(copyGraph->getEdges());
     }
