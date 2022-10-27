@@ -1,4 +1,4 @@
-# Qsyn: An end-to-end quantum compilation framework
+
 ![license](https://img.shields.io/github/license/ric2k1/qsyn?style=plastic)
 ![stars](https://img.shields.io/github/stars/ric2k1/qsyn?style=plastic)
 ![contributors](https://img.shields.io/github/contributors/ric2k1/qsyn?style=plastic)
@@ -6,10 +6,14 @@
 ![g++-10](https://img.shields.io/badge/g++-≥10-blue?style=plastic)
 ![gfortran-10](https://img.shields.io/badge/gfortran-≥10-blueviolet?style=plastic)
 
-![example branch parameter](https://github.com/ric2k1/qsyn/actions/workflows/build-and-test.yml/badge.svg)
-
+# Qsyn: An end-to-end quantum compilation framework
+<!-- ![example branch parameter](https://github.com/ric2k1/qsyn/actions/workflows/build-and-test.yml/badge.svg)
+ -->
 
 ## Introduction
+Qsyn is a C++ based growing software system for synthesis, optimization and verification of quantum circuits appearing in quantum computers. Qsyn combines scalable quantum circuits optimization by implementing ZX-Calculus and technology mapping.
+
+Qsyn provides an experimental implementation of optimization algorithms and a programming envirnoment for simulation or building similar applications. Future development will focus on enhancing the algorithms ,visualization of ZX-Graphs and implementation of lattice surgery for error correction codes.
 
 ## Getting Start
 ### Installation
@@ -34,9 +38,60 @@ To build up the executable.
 
 ### Run
 
-```shell!
-./qsyn
-```
+* To run in command-line mode:
+    ```shell!
+    ./qsyn
+    ```
+
+* To run the demo program, give it a file contains cmds. For example:
+    ```shell!
+    ❯ ./qsyn < tests/demo/demo/dof/tof_3.dof
+    qsyn> verb 0
+    Note: verbose level is set to 0
+
+    qsyn> zxm -on 
+    ZXMODE turn ON!
+
+    qsyn> zxgread benchmark/zx/tof3.zx
+
+    qsyn> zxgs -freduce
+
+    qsyn> zxgp
+    Graph 0
+    Inputs:        3
+    Outputs:       3
+    Vertices:      17
+    Edges:         19
+
+    qsyn> q -f
+    ```
+
+* The same result can be produced by running in the command-line mode:
+    ```shell!
+    ❯ ./qsyn
+    qsyn> dofile tests/demo/demo/dof/tof_3.dof
+
+    qsyn> verb 0
+    Note: verbose level is set to 0
+
+    qsyn> zxm -on 
+    ZXMODE turn ON!
+
+    qsyn> zxgread benchmark/zx/tof3.zx
+
+    qsyn> zxgs -freduce
+
+    qsyn> zxgp
+    Graph 0
+    Inputs:        3
+    Outputs:       3
+    Vertices:      17
+    Edges:         19
+
+    qsyn> q -f
+    ```
+
+
 
 ### Testing
 There are two types of tests:
