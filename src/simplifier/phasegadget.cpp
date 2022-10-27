@@ -32,7 +32,7 @@ void PhaseGadget::match(ZXGraph* g){
 
     unordered_map<ZXVertex*, ZXVertex*> gadgets; // (v, the only neighbor)
     unordered_multimap<vector<ZXVertex*>, ZXVertex*> groups;
-
+    unordered_map<vector<ZXVertex*>, bool> done;
     for(size_t i = 0; i < g->getNumVertices(); i++){
         ZXVertex* v = g->getVertices()[i];
         if(v->getPhase() != Phase(0) && v->getPhase() != Phase(1) && v->getNumNeighbors() == 1){
@@ -47,8 +47,11 @@ void PhaseGadget::match(ZXGraph* g){
             sort(nebsOfNeighbor.begin(), nebsOfNeighbor.end());
             
             gadgets[neighbor] = v;
-            if(nebsOfNeighbor.size()>0)
+            if(nebsOfNeighbor.size()>0){
+                done[nebsOfNeighbor] = false;
                 groups.insert(make_pair(nebsOfNeighbor,neighbor));
+            }
+                
             
             if(verbose >=8){
                 for(size_t k=0;k<nebsOfNeighbor.size(); k++){
@@ -77,6 +80,8 @@ void PhaseGadget::match(ZXGraph* g){
     
     
     for(auto itr=groups.begin(); itr!=groups.end(); itr++){
+        if(done[itr->first]) continue;
+        else done[itr->first]= true;
         auto gadgetList = groups.equal_range(itr->first);
         vector<ZXVertex*> axels;
         vector<ZXVertex*> leaves;
@@ -84,17 +89,23 @@ void PhaseGadget::match(ZXGraph* g){
         for(auto gad = gadgetList.first; gad!= gadgetList.second; gad++){
             if(gad->second->getPhase()==Phase(1)){
                 gad->second->setPhase(Phase(0));
+                // cout << gad->second->getId() <<" PHa " << tot << " addi " << gadgets[gad->second]->getPhase() << endl;
                 tot = tot + (-1) * gadgets[gad->second]->getPhase();
+                // cout << "PHa " << tot << endl;
             }
             else{
+                // cout << gad->second->getId() <<" PHa " << tot << " addi " << gadgets[gad->second]->getPhase() << endl;
                 tot = tot + gadgets[gad->second]->getPhase();
+                // cout << "PHa " << tot << endl;
             }
             axels.push_back(gad->second);
             // cout << "!!!! "<<gad->second->getId() << endl;
             leaves.push_back(gadgets[gad->second]);
         }
-        if(leaves.size()>1)
+        if(leaves.size()>1){
             _matchTypeVec.emplace_back(tot, axels, leaves);
+        }
+            
     }
     setMatchTypeVecNum(_matchTypeVec.size());
 }

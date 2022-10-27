@@ -73,8 +73,12 @@ int Simplifier::simp() {
             }
         }
         if (verbose >= 2) { 
-            if (i > 0) cout << i << " iterations" << endl;
+            if (i > 0) {
+                cout << i << " iterations" << endl;
+                _simpGraph->printVertices();
+            }
             else       cout << "No matches" << endl;
+            
         }
         return i;
     }
