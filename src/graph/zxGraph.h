@@ -183,23 +183,24 @@ class ZXGraph{
 
 
         // Getter and Setter
-        void setId(size_t id)                           { _id = id; }
-        void setRef(void** ref)                         { _ref = ref; }
-        void setInputs(vector<ZXVertex*> inputs)        { _inputs = inputs; }
-        void setOutputs(vector<ZXVertex*> outputs)      { _outputs = outputs; }
-        void setVertices(vector<ZXVertex*> vertices)    { _vertices = vertices; }
-        void setEdges(vector<EdgePair > edges)          { _edges = edges; }
+        void setId(size_t id)                                           { _id = id; }
+        void setRef(void** ref)                                         { _ref = ref; }
+        void setInputs(vector<ZXVertex*> inputs)                        { _inputs = inputs; }
+        void setOutputs(vector<ZXVertex*> outputs)                      { _outputs = outputs; }
+        void setVertices(vector<ZXVertex*> vertices)                    { _vertices = vertices; }
+        void setEdges(vector<EdgePair > edges)                          { _edges = edges; }
         
-        const size_t& getId() const                     { return _id; }
-        void** getRef() const                           { return _ref; }
-        const vector<ZXVertex*>& getInputs() const      { return _inputs; }
-        size_t getNumInputs() const                     { return _inputs.size(); }
-        const vector<ZXVertex*>& getOutputs() const     { return _outputs; }
-        size_t getNumOutputs() const                    { return _outputs.size(); }
-        const vector<ZXVertex*>& getVertices() const    { return _vertices; }
-        size_t getNumVertices() const                   { return _vertices.size(); }
-        const vector<EdgePair >& getEdges() const       { return _edges; }
-        size_t getNumEdges() const                      { return _edges.size(); }
+        const size_t& getId() const                                     { return _id; }
+        void** getRef() const                                           { return _ref; }
+        const vector<ZXVertex*>& getInputs() const                      { return _inputs; }
+        size_t getNumInputs() const                                     { return _inputs.size(); }
+        const vector<ZXVertex*>& getOutputs() const                     { return _outputs; }
+        size_t getNumOutputs() const                                    { return _outputs.size(); }
+        const vector<ZXVertex*>& getVertices() const                    { return _vertices; }
+        size_t getNumVertices() const                                   { return _vertices.size(); }
+        const vector<EdgePair >& getEdges() const                       { return _edges; }
+        vector<EdgePair> getIncidentEdges(ZXVertex* v) const;
+        size_t getNumEdges() const                                      { return _edges.size(); }
 
 
         // For testing
@@ -258,6 +259,7 @@ class ZXGraph{
         void printOutputs() const;
         void printVertices() const;
         void printEdges() const;
+        void printEdge(size_t idx) const;
         
         // Traverse
         void updateTopoOrder();

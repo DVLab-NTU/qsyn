@@ -148,6 +148,20 @@ bool ZXVertex::isNeighbor(ZXVertex* v) const {
 /*   class ZXGraph member functions   */
 /**************************************/
 
+// Getter and setter
+
+vector<EdgePair> ZXGraph::getIncidentEdges(ZXVertex* v) const{
+    // cout << "Find incident of " << v->getId() << endl; 
+    vector<EdgePair> incidentEdges;
+    for(size_t e = 0; e < _edges.size(); e++){
+        if(_edges[e].first.first == v || _edges[e].first.second == v){
+            // cout << _edges[e].first.first->getId() << " " << _edges[e].first.second->getId() << endl;
+            incidentEdges.push_back(_edges[e]);
+        }
+    }
+    return incidentEdges;
+}
+
 // For testing
 void ZXGraph::generateCNOT() {
     cout << "Generate a 2-qubit CNOT graph for testing" << endl;
@@ -320,6 +334,7 @@ void ZXGraph::addEdges(vector<EdgePair> edges) {
 void ZXGraph::mergeInputList(unordered_map<size_t, ZXVertex*> lst) {
     _inputList.merge(lst);
 }
+
 void ZXGraph::mergeOutputList(unordered_map<size_t, ZXVertex*> lst) {
     _outputList.merge(lst);
 }
@@ -607,6 +622,7 @@ void ZXGraph::sortIOByQubit() {
 void ZXGraph::sortVerticeById() {
     sort(_vertices.begin(), _vertices.end(), [](ZXVertex* a, ZXVertex* b) { return a->getId() < b->getId(); });
 }
+
 void ZXGraph::liftQubit(const size_t& n) {
     for_each(_vertices.begin(), _vertices.end(), [&n](ZXVertex* v) { v->setQubit(v->getQubit() + n); });
 
@@ -662,10 +678,16 @@ void ZXGraph::printEdges() const {
     cout << "Total #Edges: " << _edges.size() << endl;
 }
 
+void ZXGraph::printEdge(size_t idx) const{
+    if(idx < _edges.size())
+        cout << "( " << _edges[idx].first.first->getId() << ", " << _edges[idx].first.second->getId() << " )\tType:\t" << EdgeType2Str(_edges[idx].second) << endl;
+}
+
 EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et) {
     return make_pair(
         (v2->getId() < v1->getId()) ? make_pair(v2, v1) : make_pair(v1, v2), et);
 }
+
 EdgePair makeEdgeKey(EdgePair epair) {
     return make_pair(
         (epair.first.second->getId() < epair.first.first->getId()) ? make_pair(epair.first.second, epair.first.first) : make_pair(epair.first.first, epair.first.second), epair.second);
@@ -675,6 +697,7 @@ EdgeKey makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType et) {
     return make_pair(
         (v2->getId() < v1->getId()) ? make_pair(v2, v1) : make_pair(v1, v2), et);
 }
+
 EdgeKey makeEdgeKey(EdgeKey epair) {
     return make_pair(
         (epair.first.second->getId() < epair.first.first->getId()) ? make_pair(epair.first.second, epair.first.first) : make_pair(epair.first.first, epair.first.second), epair.second);

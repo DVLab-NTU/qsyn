@@ -53,7 +53,7 @@ int Simplifier::simp() {
                 if(verbose >= 5) cout << "Found " << _rule->getMatchTypeVecNum() << " match(es)" << endl;
                 _rule->rewrite(_simpGraph);
                 // add_edge_table
-                //! TODO add_edge_table
+                // TODO add_edge_table
                 for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
                     for (int j = 0; j < _rule->getEdgeTableValues()[e].first; j++)
                         _simpGraph->addEdge(_rule->getEdgeTableKeys()[e].first, _rule->getEdgeTableKeys()[e].second, new EdgeType(EdgeType::SIMPLE));
@@ -69,7 +69,7 @@ int Simplifier::simp() {
                 // remove isolated vertices
                 _simpGraph->removeIsolatedVertices();
                 new_matches = true;
-                //! TODO check stats
+                // TODO check stats
             }
         }
         if (verbose >= 2) { 
@@ -130,6 +130,7 @@ int Simplifier::hadamard_simp() {
 }
 
 
+
 // Basic rules simplification
 
 int Simplifier::bialg_simp(){
@@ -141,6 +142,14 @@ int Simplifier::bialg_simp(){
 
 int Simplifier::copy_simp(){
     this->setRule(new StateCopy());
+    int i = this->simp();
+    return i;
+}
+
+
+int Simplifier::gadget_simp(){
+    // TODO: phase gadget rule
+    this->setRule(new PhaseGadget());
     int i = this->simp();
     return i;
 }
@@ -188,6 +197,19 @@ int Simplifier::pivot_simp(){
 }
 
 
+int Simplifier::pivot_boundary_simp(){
+    // TODO: pivot_boundary rule
+    return 0;
+}
+
+
+int Simplifier::pivot_gadget_simp(){
+    this->setRule(new PivotGadget());
+    int i = this->simp();
+    return i;
+}
+
+
 int Simplifier::sfusion_simp(){
     this->setRule(new SpiderFusion());
     int i = this->simp();
@@ -212,7 +234,6 @@ void Simplifier::to_graph() {
             v->setType(VertexType::Z);
         }
     }
-    this->hrule_simp();
 }
 
 /**
@@ -251,3 +272,29 @@ int Simplifier::interior_clifford_simp(){
     return i;
 }
 
+
+int Simplifier::clifford_simp(){
+    int i = 0;
+    while(true){
+        i += this->interior_clifford_simp();
+        int i2 = this->pivot_boundary_simp();
+        if(i2 == 0) break;
+    }
+    return i;
+}
+
+/**
+ * @brief The main simplification routine of PyZX
+ * 
+ */
+void Simplifier::full_reduce(){
+    this->interior_clifford_simp();
+    this->pivot_gadget_simp();
+    while(true){
+        this->clifford_simp();
+        int i = this->gadget_simp();
+        this->interior_clifford_simp();
+        int j = this->pivot_gadget_simp();
+        if(i+j == 0) break;
+    }
+}

@@ -1,0 +1,14 @@
+verb 5
+zxm -on 
+zxgread benchmark/zx/tof3.zx
+zxgp -v
+zxgs -spiderfusion
+zxgs -tograph
+zxgp -v
+zxgs -pivotgadget
+zxgp -v
+zxgs -idr
+zxgp -v
+zxgs -hopf
+zxgp -v
+q -f

@@ -269,7 +269,7 @@ VerboseCmd::exec(const string& option)
       cerr << "Error: verbose level should be 0-9 !!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    }
-   cerr << "Note: verbose level is set to " << level << endl;
+   cout << "Note: verbose level is set to " << level << endl;
    verbose = level;
    return CMD_EXEC_DONE;
 }

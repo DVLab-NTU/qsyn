@@ -29,9 +29,10 @@ bool initSimpCmd(){
     return true;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-//    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion | -HOPF | -PIVOT | -LComp | -INTERClifford ]
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+//    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion | 
+//             -HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | PIVOTBoundary | -CLIFford | -FReduce ]
+//------------------------------------------------------------------------------------------------------------------
 CmdExecStatus
 ZXGSimpCmd::exec(const string &option){
     
@@ -46,25 +47,32 @@ ZXGSimpCmd::exec(const string &option){
     else{
         Simplifier s(zxGraphMgr->getGraph());
         // Stats stats;
-        if(token.empty() || myStrNCmp("-TOGraph", token, 3) == 0)   s.to_graph();
-        else if(myStrNCmp("-TORGraph", token, 4) == 0)              s.to_rgraph();
-        else if(myStrNCmp("-HRule", token, 2) == 0)                 s.hrule_simp();
-        else if(myStrNCmp("-SPIderfusion", token, 3) == 0)          s.sfusion_simp();
+        if(token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
         else if(myStrNCmp("-BIAlgebra", token, 3) == 0)             s.bialg_simp();
-        else if(myStrNCmp("-IDRemoval", token, 3) == 0)             s.id_simp();
         else if(myStrNCmp("-STCOpy", token, 4) == 0)                s.copy_simp();
         else if(myStrNCmp("-HFusion", token, 2) == 0)               s.hfusion_simp();
         else if(myStrNCmp("-HOPF", token, 4) == 0)                  s.hopf_simp();
-        else if(myStrNCmp("-PIVOT", token, 5) == 0)                 s.pivot_simp();
+        else if(myStrNCmp("-HRule", token, 2) == 0)                 s.hrule_simp();
+        else if(myStrNCmp("-IDRemoval", token, 3) == 0)             s.id_simp();
         else if(myStrNCmp("-LComp", token, 2) == 0)                 s.lcomp_simp();
+        else if(myStrNCmp("-PIVOT", token, 5) == 0)                 s.pivot_simp();
+        else if(myStrNCmp("-PIVOTBoundary", token, 6) == 0)         s.pivot_boundary_simp();
+        else if(myStrNCmp("-PIVOTGadget", token, 6) == 0)           s.pivot_gadget_simp();
+        else if(myStrNCmp("-SPIderfusion", token, 3) == 0)          s.sfusion_simp();
+
+        else if(myStrNCmp("-TOGraph", token, 3) == 0)               s.to_graph();
+        else if(myStrNCmp("-TORGraph", token, 4) == 0)              s.to_rgraph();
         else if(myStrNCmp("-INTERClifford", token, 6) == 0)         s.interior_clifford_simp();
+        else if(myStrNCmp("-CLIFford", token, 4) == 0)              s.clifford_simp();
+        else if(myStrNCmp("-FReduce", token, 2) == 0)               s.full_reduce();
         else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     }
     return CMD_EXEC_DONE;
 }
 
 void ZXGSimpCmd::usage(ostream &os) const{
-    os << "Usage: ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion | -PIVOT | -LComp ]" << endl;
+    os << "Usage: ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion | \n"
+                       << "-HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | PIVOTBoundary | -CLIFford | -FReduce ]" << endl;
 }
 
 void ZXGSimpCmd::help() const{

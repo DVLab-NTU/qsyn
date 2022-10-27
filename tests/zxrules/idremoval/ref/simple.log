@@ -90,30 +90,29 @@ qsyn> zxgp -e
 Total #Edges: 16
 
 qsyn> zxgsimp -idr
+Hadamard Rule: 1 . 1 iterations
 Identity Removal Rule: 
 1 iterations
 
 qsyn> zxgp -v
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	8	(1, -) (1, [1m[34mH[0m[0m) (1, [1m[34mH[0m[0m) (1, -) (1, -) (7, -) (8, -) (9, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	8	(0, -) (0, [1m[34mH[0m[0m) (0, [1m[34mH[0m[0m) (0, -) (0, -) (7, -) (8, -) (9, -) 
-ID:	7	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (1, -) 
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	8	(1, -) (1, [1m[34mH[0m[0m) (1, [1m[34mH[0m[0m) (1, -) (1, -) (1, [1m[34mH[0m[0m) (8, -) (9, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	8	(0, -) (0, [1m[34mH[0m[0m) (0, [1m[34mH[0m[0m) (0, -) (0, -) (0, [1m[34mH[0m[0m) (8, -) (9, -) 
 ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/2	#Neighbors:	2	(0, -) (1, -) 
 ID:	9	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	π/2	#Neighbors:	2	(0, -) (1, -) 
-Total #Vertices: 5
+Total #Vertices: 4
 
 qsyn> zxgp -e
-( 0, 7 )	Type:	-
-( 1, 7 )	Type:	-
 ( 0, 8 )	Type:	-
 ( 1, 8 )	Type:	-
 ( 0, 9 )	Type:	-
 ( 1, 9 )	Type:	-
+( 1, 0 )	Type:	[1m[34mH[0m[0m
 ( 1, 0 )	Type:	-
 ( 1, 0 )	Type:	-
 ( 1, 0 )	Type:	[1m[34mH[0m[0m
 ( 1, 0 )	Type:	[1m[34mH[0m[0m
 ( 1, 0 )	Type:	-
-Total #Edges: 11
+Total #Edges: 10
 
 qsyn> q -f
 
