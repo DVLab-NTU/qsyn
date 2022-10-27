@@ -40,49 +40,49 @@ Total #Vertices: 27
 
 qsyn> zxgs -freduce
 Hadamard Rule: 2 . 1 iterations
-Spider Fusion: 
+Spider Fusion Rule: 
 3 iterations
 Identity Removal Rule: 
 No matches
-Spider Fusion: 
+Spider Fusion Rule: 
 No matches
 Pivot Rule: 
 No matches
-Local Complementary: 
+Local Complementary Rule: 
 No matches
 Pivot Gadget Rule: 
 2 iterations
 Hopf Rule: 
 1 iterations
-Spider Fusion: 
+Spider Fusion Rule: 
 No matches
 Identity Removal Rule: 
 1 iterations
-Spider Fusion: 
+Spider Fusion Rule: 
 No matches
 Pivot Rule: 
 No matches
-Local Complementary: 
+Local Complementary Rule: 
 No matches
 Identity Removal Rule: 
 No matches
-Spider Fusion: 
+Spider Fusion Rule: 
 No matches
 Pivot Rule: 
 No matches
-Local Complementary: 
+Local Complementary Rule: 
 No matches
 Phase Gadget Rule: 
 No matches
-Spider Fusion: 
+Spider Fusion Rule: 
 No matches
 Identity Removal Rule: 
 No matches
-Spider Fusion: 
+Spider Fusion Rule: 
 No matches
 Pivot Rule: 
 No matches
-Local Complementary: 
+Local Complementary Rule: 
 No matches
 Pivot Gadget Rule: 
 No matches
