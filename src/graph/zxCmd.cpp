@@ -32,6 +32,7 @@ bool initZXCmd(){
          cmdMgr->regCmd("ZXGPrint", 4, new ZXGPrintCmd) && 
          cmdMgr->regCmd("ZXGTest", 4, new ZXGTestCmd) && 
          cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd) && 
+         cmdMgr->regCmd("ZXGADJoint", 6, new ZXGAdjointCmd) &&
          cmdMgr->regCmd("ZXGASsign", 5, new ZXGAssignCmd) && 
          cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
          cmdMgr->regCmd("ZXGTSMap", 6, new ZXGTSMappingCmd) &&
@@ -841,4 +842,27 @@ void ZXGAssignCmd::help() const
 {
    cout << setw(15) << left << "ZXGASsign: "
         << "assign an input/output vertex to specific qubit\n";
+}
+
+//----------------------------------------------------------------------
+//    ZXGADJoint
+//----------------------------------------------------------------------
+CmdExecStatus
+ZXGAdjointCmd::exec(const string &option)
+{
+    // check option
+    if (!lexNoOption(option)) return CMD_EXEC_ERROR;
+    zxGraphMgr->getGraph()->adjoint();
+    return CMD_EXEC_DONE;
+}
+
+void ZXGAdjointCmd::usage(ostream &os) const
+{
+   os << "Usage: ZXGADJoint" << endl;
+}
+
+void ZXGAdjointCmd::help() const
+{
+   cout << setw(15) << left << "ZXGADJoint: "
+        << "Adjoint the current ZXGraph.\n";
 }
