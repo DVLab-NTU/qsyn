@@ -101,7 +101,7 @@ Add edge ( 5, 19 )
 Remove ID: 6
 Remove ID: 22
 . 1 iterations
-Spider Fusion: 
+Spider Fusion Rule: 
 Found 3 match(es) of spider fusion rule: 
 Found 3 match(es)
 Add edge ( 23, 3 )
@@ -168,13 +168,10 @@ Add edge ( 29, 9 )
 Found 3 match(es)
 > rewrite...
 vs: 21	vt: 24	v_gadget: 27
-2 1 0
 > rewrite...
 vs: 17	vt: 15	v_gadget: 28
-2 1 0
 > rewrite...
 vs: 11	vt: 9	v_gadget: 29
-2 1 0
 Add edge ( 10, 26 )
 Add edge ( 7, 26 )
 Add edge ( 21, 27 )
@@ -197,7 +194,6 @@ Add edge ( 30, 12 )
 Found 1 match(es)
 > rewrite...
 vs: 14	vt: 12	v_gadget: 30
-3 2 0
 Add edge ( 19, 8 )
 Add edge ( 19, 11 )
 Add edge ( 10, 8 )

@@ -19,7 +19,7 @@ Add Qubit 1 output port: 3
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Gate 0 (cx)
 ************ Pin Permutation ************
-Qubit: 1 input : 1 -> 1 |  output: 3 -> 3
+Qubit: 1 input : 2 -> 1 |  output: 3 -> 3
 Qubit: 0 input : 0 -> 0 |  output: 1 -> 2
 *****************************************
 --------------------------------------------
@@ -50,7 +50,7 @@ Add Qubit 1 output port: 3
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Gate 0 (cx)
 ************ Pin Permutation ************
-Qubit: 1 input : 1 -> 1 |  output: 3 -> 3
+Qubit: 1 input : 2 -> 1 |  output: 3 -> 3
 Qubit: 0 input : 0 -> 0 |  output: 1 -> 2
 *****************************************
 --------------------------------------------

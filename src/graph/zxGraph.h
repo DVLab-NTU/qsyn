@@ -235,6 +235,8 @@ class ZXGraph{
         void removeEdgeByEdgePair(const EdgePair& ep);
         void removeEdgeById(const size_t& id_s, const size_t& id_t);
 
+        void assignBoundary(size_t qubit, bool input, VertexType type, Phase phase);
+
                 
         // Find functions
         ZXVertex* findInputById(const size_t& id) const; // not defined!

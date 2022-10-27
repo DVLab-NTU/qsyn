@@ -28,7 +28,7 @@ ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, [1m[
 Total #Vertices: 12
 
 qsyn> zxgs -SPIderfusion
-Spider Fusion: 
+Spider Fusion Rule: 
 4 iterations
 
 qsyn> zxgp -v

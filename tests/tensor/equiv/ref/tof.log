@@ -30,7 +30,9 @@ qsyn> tseq 0 1
 - Global Phase: 0
 
 qsyn> tseq 0 1 -Strict
-[1m[31mNot Equivalent[0m[0m
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
 
 qsyn> q -f
 

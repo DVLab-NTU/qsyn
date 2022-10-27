@@ -223,7 +223,6 @@ void QCir::tensorMapping()
     {
         if(verbose >= 5) cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         QTensor<double> tmp = G->getTSform();
-        
         vector<size_t> ori_pin;
         vector<size_t> new_pin;
         ori_pin.clear(); new_pin.clear();
@@ -233,7 +232,6 @@ void QCir::tensorMapping()
             ori_pin.push_back(_qubit2pin[info._qubit].second);
         }
         *_tensor = tensordot(*_tensor, tmp, ori_pin, new_pin);
-        
         updateTensorPin(G->getQubits(), tmp);
         // tmp -> concatenate(tmp, false);
         // Tensor product here
@@ -249,38 +247,41 @@ void QCir::tensorMapping()
         input_pin.push_back(_qubit2pin[_qubits[i]->getId()].first);
         output_pin.push_back(_qubit2pin[_qubits[i]->getId()].second);
     }
-
     *_tensor = _tensor->toMatrix(input_pin,output_pin);
     cout << "Stored the resulting tensor as tensor id " << id << endl;
 }
 void QCir::updateTensorPin(vector<BitInfo> pins, QTensor<double> tmp)
 {
-    size_t count_pin_used = 0;
+    // size_t count_pin_used = 0;
+    // unordered_map<size_t, size_t> table; // qid to pin (pin0 = ctrl 0 pin1 = ctrl 1)
     if(verbose >= 8) cout << "************ Pin Permutation ************" << endl;
     for (auto it = _qubit2pin.begin(); it != _qubit2pin.end(); ++it ){
-        it->second.first = _tensor->getNewAxisId(it->second.first);
         if(verbose >= 8) {
             cout << "Qubit: " << it->first << " input : " << it->second.first << " -> ";
+        }
+        it->second.first = _tensor->getNewAxisId(it->second.first);
+        if(verbose >= 8) {
             cout << it->second.first << " | ";
             cout << " output: " << it->second.second << " -> ";
         }
 
         bool connected = false;
         bool target = false;
+        size_t ithCtrl = 0;
         for(size_t i=0;i<pins.size();i++){
             if(pins[i]._qubit == it->first){
                 connected = true;
                 if(pins[i]._isTarget) target = true;
+                else ithCtrl=i;
                 break;
             }
         }
         if(connected){
             if(target)
                 it->second.second = _tensor->getNewAxisId(_tensor->dimension() + tmp.dimension()-1);
-            else{
-                it->second.second = _tensor->getNewAxisId(_tensor->dimension() + 2*count_pin_used+1);
-                count_pin_used++;
-            }
+                
+            else
+                it->second.second = _tensor->getNewAxisId(_tensor->dimension() + 2*ithCtrl+1);
         }
         else it->second.second = _tensor->getNewAxisId(it->second.second);
 
@@ -417,7 +418,7 @@ bool QCir::removeGate(size_t id)
     QCirGate *target = getGate(id);
     if (target == NULL)
     {
-        cerr << "ERROR: id " << id << " not found!!" << endl;
+        cerr << "Error: id " << id << " not found!!" << endl;
         return false;
     }
     else
