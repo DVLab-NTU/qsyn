@@ -236,6 +236,8 @@ class ZXGraph{
         void removeEdgeByEdgePair(const EdgePair& ep);
         void removeEdgeById(const size_t& id_s, const size_t& id_t);
 
+        // Operation on graph
+        void adjoint();
         void assignBoundary(size_t qubit, bool input, VertexType type, Phase phase);
 
                 

@@ -19,6 +19,24 @@
 #include "zxGraph.h"
 
 
+namespace std{
+template <>
+struct hash<vector<ZXVertex*>>
+  {
+    size_t operator()(const vector<ZXVertex*>& k) const
+    {
+      size_t ret = hash<ZXVertex*>()(k[0]);
+      for(size_t i=1; i<k.size(); i++){
+        ret ^= hash<ZXVertex*>()(k[i]);
+      }
+      // size_t ret = hash<ZXVertex*>()(k[0]);
+      // for(size_t i=1; i<k.size(); i++){
+      //   ret ^= hash<ZXVertex*>()(k[i]) + 0x9e3779b9 + (ret << 6) + (ret >> 2);
+      // }
+      return ret;
+    }
+  };
+}
 
 /**
  * @brief ZXRule: Base class
@@ -282,7 +300,7 @@ class LComp : public ZXRule{
 class PhaseGadget : public ZXRule{
   public:
     //TODO: Check MatchType
-    typedef int MatchType;
+    typedef tuple<Phase, vector<ZXVertex*>, vector<ZXVertex*>> MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
     PhaseGadget(){

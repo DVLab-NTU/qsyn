@@ -49,10 +49,14 @@ extern int listDir(vector<std::string>&, const std::string&, const std::string&)
 extern size_t getHashSize(size_t s);
 extern size_t intPow(size_t base, size_t n);
 
-
 template <typename T>
 bool contains(const std::vector<T>& vec, const T& t) {
     return (std::find(vec.begin(), vec.end(), t) != vec.end());
+}
+
+template <typename T>
+size_t findIndex(const std::vector<T>& vec, const T& t) {
+    return std::find(vec.begin(), vec.end(), t) - vec.begin();
 }
 
 // Other utility template functions

@@ -32,6 +32,7 @@ bool initZXCmd(){
          cmdMgr->regCmd("ZXGPrint", 4, new ZXGPrintCmd) && 
          cmdMgr->regCmd("ZXGTest", 4, new ZXGTestCmd) && 
          cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd) && 
+         cmdMgr->regCmd("ZXGADJoint", 6, new ZXGAdjointCmd) &&
          cmdMgr->regCmd("ZXGASsign", 5, new ZXGAssignCmd) && 
          cmdMgr->regCmd("ZXGISGraphlike", 6, new ZXGIsGraphLikeCmd) && 
          cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
@@ -841,6 +842,29 @@ void ZXGAssignCmd::help() const
 }
 
 //----------------------------------------------------------------------
+//    ZXGADJoint
+//----------------------------------------------------------------------
+CmdExecStatus
+ZXGAdjointCmd::exec(const string &option)
+{
+    // check option
+    if (!lexNoOption(option)) return CMD_EXEC_ERROR;
+    zxGraphMgr->getGraph()->adjoint();
+    return CMD_EXEC_DONE;
+}
+
+void ZXGAdjointCmd::usage(ostream &os) const
+{
+   os << "Usage: ZXGADJoint" << endl;
+}
+
+void ZXGAdjointCmd::help() const
+{
+   cout << setw(15) << left << "ZXGADJoint: "
+        << "Adjoint the current ZXGraph.\n";
+}
+
+//----------------------------------------------------------------------
 //    ZXGISGraphlike
 //----------------------------------------------------------------------
 CmdExecStatus
@@ -858,3 +882,4 @@ void ZXGIsGraphLikeCmd::usage(ostream &os) const{
 void ZXGIsGraphLikeCmd::help() const{
     cout << setw(15) << left << "ZXGISGraphlike: " << "check if ZXGraph is graph-like" << endl; 
 }
+

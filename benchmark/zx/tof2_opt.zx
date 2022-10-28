@@ -8,7 +8,7 @@ Z6 S8 S9 S13 pi/4
 Z7 S8 pi/4
 X8 S11 S17
 X9 S10 S11
-Z10 7*pi/4
+Z10 -pi/4
 Z11 S14 pi/4
 Z12 S13 7*pi/4
 X13 S17

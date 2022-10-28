@@ -302,6 +302,8 @@ Size of topological order: 27
     4--6 (-) axis id: 3
     5--22 (-) axis id: 5
 Successfully added Tensor 0
+Input  axis ids: 0 4 3
+Output axis ids: 1 2 5
 Stored the resulting tensor as tensor id 0
 
 qsyn> q -f

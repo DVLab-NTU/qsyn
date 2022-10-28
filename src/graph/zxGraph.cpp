@@ -557,6 +557,16 @@ void ZXGraph::removeEdgeById(const size_t& id_s, const size_t& id_t) {
 }
 
 /**
+ * @brief adjoint the zxgraph
+ * 
+ */
+void ZXGraph::adjoint() {
+    swap(_inputs, _outputs);
+    swap(_inputList, _outputList);
+    for (auto& v : _vertices) v->setPhase(-1*v->getPhase());
+}
+
+/**
  * @brief Assign rotation/value to the specified boundary 
  *
  * @param qubit
