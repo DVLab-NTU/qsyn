@@ -61,16 +61,16 @@ ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -)
 ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(8, -) 
 ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	9	(0, -) (5, [1m[34mH[0m[0m) (5, -) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (7, -) (7, -) (8, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) 
-ID:	5	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	13	(2, -) (4, [1m[34mH[0m[0m) (4, -) (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (8, -) (8, -) (8, -) (8, -) (8, -) 
+ID:	5	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	5	(2, -) (4, [1m[34mH[0m[0m) (4, -) (4, [1m[34mH[0m[0m) (8, -) 
 ID:	7	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	7	(1, -) (4, [1m[34mH[0m[0m) (4, -) (4, -) (8, -) (10, -) (10, -) 
-ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	13	(3, -) (4, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (5, -) (5, -) (5, -) (5, -) (5, -) (7, -) (11, -) (11, -) (11, -) (11, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	7	(3, -) (4, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (5, -) (7, -) (11, -) (11, -) 
 ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(7, -) (7, -) (11, -) (11, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (11, -) 
-ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	12	(8, -) (8, -) (8, -) (8, -) (10, -) (10, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (10, -) (11, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(8, -) (8, -) (10, -) (10, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (10, -) 
 Total #Vertices: 10
 
 qsyn> zxgs -hopf
 Hopf Rule: 
-3 iterations
+2 iterations
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 

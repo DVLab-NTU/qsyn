@@ -121,14 +121,15 @@ Remove ID: 7
 Remove ID: 10
 Remove ID: 11
 Found 1 match(es)
-Add edge ( 12, 8 )
+Remove (12, 8 )
 Add edge ( 12, 14 )
-Add edge ( 4, 8 )
+Remove (4, 8 )
 Add edge ( 4, 14 )
-Add edge ( 6, 8 )
+Remove (6, 8 )
 Add edge ( 6, 14 )
 Remove ID: 9
 Remove ID: 13
+Remove ID: 8
 2 iterations
 
 qsyn> zxgp -v
@@ -136,13 +137,12 @@ ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -)
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
 ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
-ID:	4	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(0, -) (8, -) (8, -) (14, -) 
-ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(2, -) (8, -) (8, -) (14, -) 
-ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(4, -) (4, -) (6, -) (6, -) (12, -) (12, -) 
-ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(8, -) (8, -) (14, -) (15, -) 
+ID:	4	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (14, -) 
+ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(2, -) (14, -) 
+ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(14, -) (15, -) 
 ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (4, -) (6, -) (12, -) 
 ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
-Total #Vertices: 10
+Total #Vertices: 9
 
 qsyn> zxgprint -e
 ( 0, 4 )	Type:	-
@@ -150,16 +150,67 @@ qsyn> zxgprint -e
 ( 2, 6 )	Type:	-
 ( 3, 15 )	Type:	-
 ( 12, 15 )	Type:	-
-( 6, 8 )	Type:	-
-( 4, 8 )	Type:	-
-( 8, 12 )	Type:	-
-( 12, 8 )	Type:	-
 ( 12, 14 )	Type:	-
-( 4, 8 )	Type:	-
 ( 4, 14 )	Type:	-
-( 6, 8 )	Type:	-
 ( 6, 14 )	Type:	-
-Total #Edges: 14
+Total #Edges: 8
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Topological order from first input: 0 4 14 1 12 15 3 6 2 
+Size of topological order: 9
+> Mapping vertex 0 (●): New Subgraph
+  - Current frontiers: 
+    0--4 (-) axis id: 1
+> Mapping vertex 4 ([1m[31mX[0m[0m): Tensordot
+  - Current frontiers: 
+    4--14 (-) axis id: 1
+> Mapping vertex 14 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--14 (-) axis id: 3
+    6--14 (-) axis id: 1
+    12--14 (-) axis id: 2
+> Mapping vertex 1 (●): Boundary Node
+  - Current frontiers: 
+    1--14 (-) axis id: 3
+    6--14 (-) axis id: 1
+    12--14 (-) axis id: 2
+> Mapping vertex 12 ([1m[31mX[0m[0m): Tensordot
+  - Current frontiers: 
+    1--14 (-) axis id: 2
+    6--14 (-) axis id: 1
+    12--15 (-) axis id: 3
+> Mapping vertex 15 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--14 (-) axis id: 2
+    3--15 (-) axis id: 3
+    6--14 (-) axis id: 1
+> Mapping vertex 3 (●): Boundary Node
+  - Current frontiers: 
+    1--14 (-) axis id: 2
+    3--15 (-) axis id: 3
+    6--14 (-) axis id: 1
+> Mapping vertex 6 ([1m[31mX[0m[0m): Tensordot
+  - Current frontiers: 
+    1--14 (-) axis id: 1
+    2--6 (-) axis id: 3
+    3--15 (-) axis id: 2
+> Mapping vertex 2 (●): Boundary Node
+  - Current frontiers: 
+    1--14 (-) axis id: 1
+    2--6 (-) axis id: 3
+    3--15 (-) axis id: 2
+Successfully added Tensor 0
+Input  axis ids: 0 3
+Output axis ids: 1 2
+Stored the resulting tensor as tensor id 0
+
+qsyn> tsp 0
+{{ 1.414214+0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  1.414214+0.i}}
+#Dim:    2	Info: ZX 0
 
 qsyn> q -f
 

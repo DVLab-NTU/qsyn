@@ -37,8 +37,8 @@ ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -)
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, [1m[34mH[0m[0m) 
 ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, [1m[34mH[0m[0m) 
-ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(0, -) (2, -) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) 
-ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(1, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (2, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) 
 Total #Vertices: 6
 
 qsyn> zxgs -HRule
@@ -48,24 +48,20 @@ ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -)
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, [1m[34mH[0m[0m) 
 ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, [1m[34mH[0m[0m) 
-ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(0, -) (2, -) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) 
-ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(1, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (2, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) 
 Total #Vertices: 6
 
 qsyn> zxgp -e
-( 4, 5 )	Type:	[1m[34mH[0m[0m
 ( 1, 5 )	Type:	[1m[34mH[0m[0m
 ( 0, 4 )	Type:	-
-( 4, 5 )	Type:	[1m[34mH[0m[0m
-( 5, 4 )	Type:	[1m[34mH[0m[0m
 ( 5, 3 )	Type:	[1m[34mH[0m[0m
-( 4, 5 )	Type:	[1m[34mH[0m[0m
 ( 4, 2 )	Type:	-
-Total #Edges: 8
+Total #Edges: 4
 
 qsyn> zxgs -hopf
 Hopf Rule: 
-1 iterations
+No matches
 
 qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
