@@ -98,7 +98,7 @@ ID:	83	VertexType:	[1m[33mH[0m[0m	Qubit:	4	Phase:	π	#Neighbors:	2	(78, -) (
 ID:	84	VertexType:	[1m[33mH[0m[0m	Qubit:	4	Phase:	π	#Neighbors:	2	(9, -) (83, -) 
 Total #Vertices: 85
 
-qsyn> zxgisg
+qsyn> zxgt -GL
 False: Type (0) of edge 10--11 is invalid!!
 
 qsyn> zxgsimp -FR
@@ -194,7 +194,7 @@ No matches
 Hopf Rule: 
 No matches
 
-qsyn> zxgisg
+qsyn> zxgt -GL
 [1m[32mTrue: The graph is graph-like[0m[0m
 
 qsyn> q -f
