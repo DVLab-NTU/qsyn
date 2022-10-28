@@ -36,4 +36,6 @@ zxge -adde 12 15 SIMPLE
 zxgsimp -bia
 zxgp -v
 zxgprint -e
+zxgtsm
+tsp 0
 q -f

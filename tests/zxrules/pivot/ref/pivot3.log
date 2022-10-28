@@ -1,6 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.3.0
-qsyn> ver 9
-Note: verbose level is set to 9
+qsyn> ver 3
+Note: verbose level is set to 3
 
 qsyn> zxmode -on
 ZXMODE turn ON!
@@ -10,557 +10,251 @@ Successfully generated Graph 0
 Checkout to Graph 0
 
 qsyn> zxge -addi 0 0
-Add input 0
 
 qsyn> zxge -addo 1 0
-Add output 1
 
 qsyn> zxge -addi 2 1
-Add input 2
 
 qsyn> zxge -addo 3 1
-Add output 3
 
 qsyn> zxge -addv 4 0 Z 0
-Add vertex 4
 
 qsyn> zxge -addv 5 0 Z 3.14159
-Add vertex 5
 
 qsyn> zxge -adde 4 5 HADAMARD
-Add edge ( 4, 5 )
 
 qsyn> zxge -addv 6 0 Z 0
-Add vertex 6
 
 qsyn> zxge -adde 4 6 HADAMARD
-Add edge ( 4, 6 )
 
 qsyn> zxge -addv 7 0 Z 3.14159
-Add vertex 7
 
 qsyn> zxge -addv 8 0 Z 3.14159
-Add vertex 8
 
 qsyn> zxge -addv 9 0 Z 3.14159
-Add vertex 9
 
 qsyn> zxge -adde 5 7 HADAMARD
-Add edge ( 5, 7 )
 
 qsyn> zxge -adde 5 8 HADAMARD
-Add edge ( 5, 8 )
 
 qsyn> zxge -adde 5 9 HADAMARD
-Add edge ( 5, 9 )
 
 qsyn> zxge -addv 10 0 Z 0
-Add vertex 10
 
 qsyn> zxge -addv 11 0 Z 0
-Add vertex 11
 
 qsyn> zxge -adde 5 10 HADAMARD
-Add edge ( 5, 10 )
 
 qsyn> zxge -adde 5 11 HADAMARD
-Add edge ( 5, 11 )
 
 qsyn> zxge -addv 12 0 Z 3.14159
-Add vertex 12
 
 qsyn> zxge -addv 13 0 Z 3.14159
-Add vertex 13
 
 qsyn> zxge -addv 14 0 Z 3.14159
-Add vertex 14
 
 qsyn> zxge -addv 15 0 Z 3.14159
-Add vertex 15
 
 qsyn> zxge -adde 4 12 HADAMARD
-Add edge ( 4, 12 )
 
 qsyn> zxge -adde 4 13 HADAMARD
-Add edge ( 4, 13 )
 
 qsyn> zxge -adde 4 14 HADAMARD
-Add edge ( 4, 14 )
 
 qsyn> zxge -adde 4 15 HADAMARD
-Add edge ( 4, 15 )
 
 qsyn> zxge -adde 5 12 HADAMARD
-Add edge ( 5, 12 )
 
 qsyn> zxge -adde 5 13 HADAMARD
-Add edge ( 5, 13 )
 
 qsyn> zxge -adde 5 14 HADAMARD
-Add edge ( 5, 14 )
 
 qsyn> zxge -adde 5 15 HADAMARD
-Add edge ( 5, 15 )
 
 qsyn> zxge -addv 16 0 Z 0
-Add vertex 16
 
 qsyn> zxge -addv 17 0 Z 3.14159
-Add vertex 17
 
 qsyn> zxge -adde 16 17 HADAMARD
-Add edge ( 16, 17 )
 
 qsyn> zxge -addv 18 0 Z 0
-Add vertex 18
 
 qsyn> zxge -adde 16 18 HADAMARD
-Add edge ( 16, 18 )
 
 qsyn> zxge -addv 19 0 Z 3.14159
-Add vertex 19
 
 qsyn> zxge -addv 20 0 Z 3.14159
-Add vertex 20
 
 qsyn> zxge -addv 21 0 Z 3.14159
-Add vertex 21
 
 qsyn> zxge -adde 17 19 HADAMARD
-Add edge ( 17, 19 )
 
 qsyn> zxge -adde 17 20 HADAMARD
-Add edge ( 17, 20 )
 
 qsyn> zxge -adde 17 21 HADAMARD
-Add edge ( 17, 21 )
 
 qsyn> zxge -addv 22 0 Z 0
-Add vertex 22
 
 qsyn> zxge -addv 23 0 Z 0
-Add vertex 23
 
 qsyn> zxge -adde 17 22 HADAMARD
-Add edge ( 17, 22 )
 
 qsyn> zxge -adde 17 23 HADAMARD
-Add edge ( 17, 23 )
 
 qsyn> zxge -addv 24 0 Z 3.14159
-Add vertex 24
 
 qsyn> zxge -addv 25 0 Z 3.14159
-Add vertex 25
 
 qsyn> zxge -addv 26 0 Z 3.14159
-Add vertex 26
 
 qsyn> zxge -addv 27 0 Z 3.14159
-Add vertex 27
 
 qsyn> zxge -adde 4 24 HADAMARD
-Add edge ( 4, 24 )
 
 qsyn> zxge -adde 4 25 HADAMARD
-Add edge ( 4, 25 )
 
 qsyn> zxge -adde 4 26 HADAMARD
-Add edge ( 4, 26 )
 
 qsyn> zxge -adde 4 27 HADAMARD
-Add edge ( 4, 27 )
 
 qsyn> zxge -adde 5 24 HADAMARD
-Add edge ( 5, 24 )
 
 qsyn> zxge -adde 5 25 HADAMARD
-Add edge ( 5, 25 )
 
 qsyn> zxge -adde 5 26 HADAMARD
-Add edge ( 5, 26 )
 
 qsyn> zxge -adde 5 27 HADAMARD
-Add edge ( 5, 27 )
 
 qsyn> zxge -adde 16 24 HADAMARD
-Add edge ( 16, 24 )
 
 qsyn> zxge -adde 16 25 HADAMARD
-Add edge ( 16, 25 )
 
 qsyn> zxge -adde 16 26 HADAMARD
-Add edge ( 16, 26 )
 
 qsyn> zxge -adde 16 27 HADAMARD
-Add edge ( 16, 27 )
 
 qsyn> zxge -adde 17 24 HADAMARD
-Add edge ( 17, 24 )
 
 qsyn> zxge -adde 17 25 HADAMARD
-Add edge ( 17, 25 )
 
 qsyn> zxge -adde 17 26 HADAMARD
-Add edge ( 17, 26 )
 
 qsyn> zxge -adde 17 27 HADAMARD
-Add edge ( 17, 27 )
 
 qsyn> zxge -adde 0 5 SIMPLE
-Add edge ( 0, 5 )
 
 qsyn> zxge -adde 2 7 SIMPLE
-Add edge ( 2, 7 )
 
 qsyn> zxge -adde 1 23 SIMPLE
-Add edge ( 1, 23 )
 
 qsyn> zxge -adde 3 23 SIMPLE
-Add edge ( 3, 23 )
 
 qsyn> zxge -addv 28 0 Z 0
-Add vertex 28
 
 qsyn> zxge -adde 6 28 HADAMARD
-Add edge ( 6, 28 )
 
 qsyn> zxge -addv 29 0 Z 0
-Add vertex 29
 
 qsyn> zxge -adde 7 29 HADAMARD
-Add edge ( 7, 29 )
 
 qsyn> zxge -addv 30 0 Z 0
-Add vertex 30
 
 qsyn> zxge -adde 8 30 HADAMARD
-Add edge ( 8, 30 )
 
 qsyn> zxge -addv 31 0 Z 0
-Add vertex 31
 
 qsyn> zxge -adde 9 31 HADAMARD
-Add edge ( 9, 31 )
 
 qsyn> zxge -addv 32 0 Z 0
-Add vertex 32
 
 qsyn> zxge -adde 10 32 HADAMARD
-Add edge ( 10, 32 )
 
 qsyn> zxge -addv 33 0 Z 0
-Add vertex 33
 
 qsyn> zxge -adde 11 33 HADAMARD
-Add edge ( 11, 33 )
 
 qsyn> zxge -addv 34 0 Z 0
-Add vertex 34
 
 qsyn> zxge -adde 12 34 HADAMARD
-Add edge ( 12, 34 )
 
 qsyn> zxge -addv 35 0 Z 0
-Add vertex 35
 
 qsyn> zxge -adde 13 35 HADAMARD
-Add edge ( 13, 35 )
 
 qsyn> zxge -addv 36 0 Z 0
-Add vertex 36
 
 qsyn> zxge -adde 14 36 HADAMARD
-Add edge ( 14, 36 )
 
 qsyn> zxge -addv 37 0 Z 0
-Add vertex 37
 
 qsyn> zxge -adde 15 37 HADAMARD
-Add edge ( 15, 37 )
 
 qsyn> zxge -addv 38 0 Z 0
-Add vertex 38
 
 qsyn> zxge -adde 18 38 HADAMARD
-Add edge ( 18, 38 )
 
 qsyn> zxge -addv 39 0 Z 0
-Add vertex 39
 
 qsyn> zxge -adde 19 39 HADAMARD
-Add edge ( 19, 39 )
 
 qsyn> zxge -addv 40 0 Z 0
-Add vertex 40
 
 qsyn> zxge -adde 20 40 HADAMARD
-Add edge ( 20, 40 )
 
 qsyn> zxge -addv 41 0 Z 0
-Add vertex 41
 
 qsyn> zxge -adde 21 41 HADAMARD
-Add edge ( 21, 41 )
 
 qsyn> zxge -addv 42 0 Z 0
-Add vertex 42
 
 qsyn> zxge -adde 22 42 HADAMARD
-Add edge ( 22, 42 )
 
 qsyn> zxge -addv 43 0 Z 0
-Add vertex 43
 
 qsyn> zxge -adde 23 43 HADAMARD
-Add edge ( 23, 43 )
 
 qsyn> zxge -addv 44 0 Z 0
-Add vertex 44
 
 qsyn> zxge -adde 24 44 HADAMARD
-Add edge ( 24, 44 )
 
 qsyn> zxge -addv 45 0 Z 0
-Add vertex 45
 
 qsyn> zxge -adde 25 45 HADAMARD
-Add edge ( 25, 45 )
 
 qsyn> zxge -addv 46 0 Z 0
-Add vertex 46
 
 qsyn> zxge -adde 26 46 HADAMARD
-Add edge ( 26, 46 )
 
 qsyn> zxge -addv 47 0 Z 0
-Add vertex 47
 
 qsyn> zxge -adde 27 47 HADAMARD
-Add edge ( 27, 47 )
 
 qsyn> zxgs -pivot
 Pivot Rule: 
-Found 2 match(es)
-Add edge ( 4, 0 )
-Add edge ( 6, 7 )
-Add edge ( 6, 8 )
-Add edge ( 6, 9 )
-Add edge ( 6, 10 )
-Add edge ( 6, 11 )
-Add edge ( 6, 12 )
-Add edge ( 6, 13 )
-Add edge ( 6, 14 )
-Add edge ( 6, 15 )
-Add edge ( 6, 24 )
-Add edge ( 6, 25 )
-Add edge ( 6, 26 )
-Add edge ( 6, 27 )
-Add edge ( 7, 12 )
-Add edge ( 7, 13 )
-Add edge ( 7, 14 )
-Add edge ( 7, 15 )
-Add edge ( 7, 24 )
-Add edge ( 7, 25 )
-Add edge ( 7, 26 )
-Add edge ( 7, 27 )
-Add edge ( 8, 12 )
-Add edge ( 8, 13 )
-Add edge ( 8, 14 )
-Add edge ( 8, 15 )
-Add edge ( 8, 24 )
-Add edge ( 8, 25 )
-Add edge ( 8, 26 )
-Add edge ( 8, 27 )
-Add edge ( 9, 12 )
-Add edge ( 9, 13 )
-Add edge ( 9, 14 )
-Add edge ( 9, 15 )
-Add edge ( 9, 24 )
-Add edge ( 9, 25 )
-Add edge ( 9, 26 )
-Add edge ( 9, 27 )
-Add edge ( 10, 12 )
-Add edge ( 10, 13 )
-Add edge ( 10, 14 )
-Add edge ( 10, 15 )
-Add edge ( 10, 24 )
-Add edge ( 10, 25 )
-Add edge ( 10, 26 )
-Add edge ( 10, 27 )
-Add edge ( 11, 12 )
-Add edge ( 11, 13 )
-Add edge ( 11, 14 )
-Add edge ( 11, 15 )
-Add edge ( 11, 24 )
-Add edge ( 11, 25 )
-Add edge ( 11, 26 )
-Add edge ( 11, 27 )
-Add edge ( 18, 19 )
-Add edge ( 18, 20 )
-Add edge ( 18, 21 )
-Add edge ( 18, 22 )
-Add edge ( 18, 23 )
-Add edge ( 18, 24 )
-Add edge ( 18, 25 )
-Add edge ( 18, 26 )
-Add edge ( 18, 27 )
-Add edge ( 19, 24 )
-Add edge ( 19, 25 )
-Add edge ( 19, 26 )
-Add edge ( 19, 27 )
-Add edge ( 20, 24 )
-Add edge ( 20, 25 )
-Add edge ( 20, 26 )
-Add edge ( 20, 27 )
-Add edge ( 21, 24 )
-Add edge ( 21, 25 )
-Add edge ( 21, 26 )
-Add edge ( 21, 27 )
-Add edge ( 22, 24 )
-Add edge ( 22, 25 )
-Add edge ( 22, 26 )
-Add edge ( 22, 27 )
-Add edge ( 23, 24 )
-Add edge ( 23, 25 )
-Add edge ( 23, 26 )
-Add edge ( 23, 27 )
-Remove ID: 5
-Remove ID: 17
-Remove ID: 16
-Found 2 match(es)
-Add edge ( 6, 0 )
-Add edge ( 7, 12 )
-Add edge ( 7, 13 )
-Add edge ( 7, 14 )
-Add edge ( 7, 15 )
-Add edge ( 7, 24 )
-Add edge ( 7, 25 )
-Add edge ( 7, 26 )
-Add edge ( 7, 27 )
-Add edge ( 8, 12 )
-Add edge ( 8, 13 )
-Add edge ( 8, 14 )
-Add edge ( 8, 15 )
-Add edge ( 8, 24 )
-Add edge ( 8, 25 )
-Add edge ( 8, 26 )
-Add edge ( 8, 27 )
-Add edge ( 9, 12 )
-Add edge ( 9, 13 )
-Add edge ( 9, 14 )
-Add edge ( 9, 15 )
-Add edge ( 9, 24 )
-Add edge ( 9, 25 )
-Add edge ( 9, 26 )
-Add edge ( 9, 27 )
-Add edge ( 10, 12 )
-Add edge ( 10, 13 )
-Add edge ( 10, 14 )
-Add edge ( 10, 15 )
-Add edge ( 10, 24 )
-Add edge ( 10, 25 )
-Add edge ( 10, 26 )
-Add edge ( 10, 27 )
-Add edge ( 11, 12 )
-Add edge ( 11, 13 )
-Add edge ( 11, 14 )
-Add edge ( 11, 15 )
-Add edge ( 11, 24 )
-Add edge ( 11, 25 )
-Add edge ( 11, 26 )
-Add edge ( 11, 27 )
-Add edge ( 28, 12 )
-Add edge ( 28, 13 )
-Add edge ( 28, 14 )
-Add edge ( 28, 15 )
-Add edge ( 28, 24 )
-Add edge ( 28, 25 )
-Add edge ( 28, 26 )
-Add edge ( 28, 27 )
-Remove ID: 4
-Remove ID: 38
-Remove ID: 18
-Found 5 match(es)
-Add edge ( 28, 0 )
-Add edge ( 7, 12 )
-Add edge ( 7, 13 )
-Add edge ( 7, 14 )
-Add edge ( 7, 15 )
-Add edge ( 7, 24 )
-Add edge ( 7, 25 )
-Add edge ( 7, 26 )
-Add edge ( 7, 27 )
-Add edge ( 8, 12 )
-Add edge ( 8, 13 )
-Add edge ( 8, 14 )
-Add edge ( 8, 15 )
-Add edge ( 8, 24 )
-Add edge ( 8, 25 )
-Add edge ( 8, 26 )
-Add edge ( 8, 27 )
-Add edge ( 9, 12 )
-Add edge ( 9, 13 )
-Add edge ( 9, 14 )
-Add edge ( 9, 15 )
-Add edge ( 9, 24 )
-Add edge ( 9, 25 )
-Add edge ( 9, 26 )
-Add edge ( 9, 27 )
-Add edge ( 10, 12 )
-Add edge ( 10, 13 )
-Add edge ( 10, 14 )
-Add edge ( 10, 15 )
-Add edge ( 10, 24 )
-Add edge ( 10, 25 )
-Add edge ( 10, 26 )
-Add edge ( 10, 27 )
-Add edge ( 11, 12 )
-Add edge ( 11, 13 )
-Add edge ( 11, 14 )
-Add edge ( 11, 15 )
-Add edge ( 11, 24 )
-Add edge ( 11, 25 )
-Add edge ( 11, 26 )
-Add edge ( 11, 27 )
-Remove ID: 6
-Remove ID: 39
-Remove ID: 19
-Remove ID: 40
-Remove ID: 20
-Remove ID: 41
-Remove ID: 21
-Remove ID: 42
-Remove ID: 22
-Found 5 match(es)
-Add edge ( 29, 2 )
-Remove ID: 7
-Remove ID: 30
-Remove ID: 8
-Remove ID: 31
-Remove ID: 9
-Remove ID: 32
-Remove ID: 10
-Remove ID: 33
-Remove ID: 11
-Found 8 match(es)
-Remove ID: 34
-Remove ID: 12
-Remove ID: 35
-Remove ID: 13
-Remove ID: 36
-Remove ID: 14
-Remove ID: 37
-Remove ID: 15
-Remove ID: 44
-Remove ID: 24
-Remove ID: 45
-Remove ID: 25
-Remove ID: 46
-Remove ID: 26
-Remove ID: 47
-Remove ID: 27
 5 iterations
+
+qsyn> zxgp -v
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(28, [1m[34mH[0m[0m) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(29, [1m[34mH[0m[0m) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (3, -) (43, [1m[34mH[0m[0m) 
+ID:	28	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(0, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(2, [1m[34mH[0m[0m) 
+ID:	43	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(23, [1m[34mH[0m[0m) 
+Total #Vertices: 8
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
+
+qsyn> tsp 0
+{{ 2.+0.i,  0.+0.i,  0.+0.i,  0.+0.i},
+ { 0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i},
+ { 0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i},
+ { 0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i}}
+#Dim:    2	Info: ZX 0
 
 qsyn> q -f
 

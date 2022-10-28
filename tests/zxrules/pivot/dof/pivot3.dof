@@ -1,4 +1,4 @@
-ver 9
+ver 3
 zxmode -on
 zxnew
 zxge -addi 0 0
@@ -112,4 +112,7 @@ zxge -adde 26 46 HADAMARD
 zxge -addv 47 0 Z 0
 zxge -adde 27 47 HADAMARD
 zxgs -pivot
+zxgp -v
+zxgtsm
+tsp 0
 q -f

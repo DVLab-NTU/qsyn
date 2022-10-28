@@ -1,28 +1,44 @@
-qccr benchmark/pseudoSimp/tof2.qasm
+// qccr benchmark/pseudoSimp/tof2.qasm
+// zxm -on
+// qczxm
+// zxgas 1 I X pi
+// zxgas 1 O X pi
+// zxgtsm
+// tsp 0
+// zxgp -v
+// zxgs -fr
+// zxgp -v
+// zxgs -stco
+// zxgp -v
+// zxgtsm
+// tsp 1
+// qccr -R benchmark/pseudoSimp/tof2.qasm
+// qczxm
+// zxgas 1 I X 0
+// zxgas 1 O X 0
+// zxgtsm
+// tsp 2
+// zxgp -v
+// zxgs -fr
+// zxgp -v
+// zxgs -stco
+// zxgp -v
+// zxgtsm
+// tsp 3
+qccr -R benchmark/pseudoSimp/tof2.qasm
 zxm -on
 qczxm
 zxgas 1 I X pi
 zxgas 1 O X pi
+zxgas 0 I X pi
+zxgas 0 O X pi
 zxgtsm
 tsp 0
 zxgp -v
-zxgs -fr
+zxgs -FR
 zxgp -v
 zxgs -stco
 zxgp -v
 zxgtsm
 tsp 1
-qccr -R benchmark/pseudoSimp/tof2.qasm
-qczxm
-zxgas 1 I X 0
-zxgas 1 O X 0
-zxgtsm
-tsp 2
-zxgp -v
-zxgs -fr
-zxgp -v
-zxgs -stco
-zxgp -v
-zxgtsm
-tsp 3
 q -f
