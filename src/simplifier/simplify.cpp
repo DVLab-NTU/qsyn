@@ -116,7 +116,7 @@ int Simplifier::simp() {
             else       cout << "No matches" << endl;
         }
         if(verbose >= 5) cout << "\n";
-        if(verbose == 9) _simpGraph->printVertices();
+        if(verbose >= 6) _simpGraph->printVertices();
         return i;
     }
     

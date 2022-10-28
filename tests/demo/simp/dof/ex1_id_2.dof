@@ -1,6 +1,9 @@
-ver 9
+ver 2
 zxm -on
 zxgr -bzx benchmark/demo/simp/ex1_id_2.bzx
+zxgp -v
+zxgs -fr
+zxgp -v
 zxgtsm
 zxgr -bzx benchmark/demo/simp/id_2.bzx
 zxgtsm

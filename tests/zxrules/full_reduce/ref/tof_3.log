@@ -10,6 +10,7 @@ Successfully generated Graph 0
 Checkout to Graph 0
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
 ID:	2	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(6, -) 
@@ -38,6 +39,7 @@ ID:	24	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	7π/4	#Neighbors:	2	(21, -
 ID:	25	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, -) (23, -) (26, -) 
 ID:	26	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (24, -) (25, -) 
 Total #Vertices: 27
+
 
 qsyn> zxgs -freduce
 Hadamard Rule: 2 . 1 iterations
@@ -91,6 +93,7 @@ Hopf Rule:
 No matches
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
 ID:	2	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(19, [1m[34mH[0m[0m) 
@@ -109,6 +112,7 @@ ID:	28	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(17, 
 ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
 ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
 Total #Vertices: 17
+
 
 qsyn> q -f
 

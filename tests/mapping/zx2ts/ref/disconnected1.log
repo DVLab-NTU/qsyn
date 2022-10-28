@@ -41,6 +41,7 @@ qsyn> zxgedit -adde 8 9 SIMPLE
 
 qsyn> 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
 ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
@@ -52,6 +53,7 @@ ID:	7	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(6, -)
 ID:	8	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(9, -) 
 ID:	9	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(8, -) 
 Total #Vertices: 10
+
 
 qsyn> zxgp -e
 ( 0, 4 )	Type:	-

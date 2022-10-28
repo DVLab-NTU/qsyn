@@ -22,6 +22,8 @@ extern size_t verbose;
  */
 void PivotGadget::match(ZXGraph* g){
     _matchTypeVec.clear(); 
+    if(verbose >= 8) g->printVertices();
+    
     if(verbose >= 5) cout << "> match...\n";
 
     unordered_map<size_t, size_t> id2idx;
