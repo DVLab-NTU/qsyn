@@ -59,7 +59,7 @@ ZXGSimpCmd::exec(const string &option){
         else if(myStrNCmp("-PIVOTBoundary", token, 6) == 0)         s.pivot_boundary_simp();
         else if(myStrNCmp("-PIVOTGadget", token, 6) == 0)           s.pivot_gadget_simp();
         else if(myStrNCmp("-SPIderfusion", token, 3) == 0)          s.sfusion_simp();
-        
+
         else if(myStrNCmp("-TOGraph", token, 3) == 0)               s.to_graph();
         else if(myStrNCmp("-TORGraph", token, 4) == 0)              s.to_rgraph();
         else if(myStrNCmp("-INTERClifford", token, 6) == 0)         s.interior_clifford_simp();
