@@ -92,6 +92,9 @@ void Hopf::rewrite(ZXGraph* g) {
                 if (*(itr->second) == EdgeType::HADAMARD) {
                     n++;
                     if (n % 2 == 0) {
+                        if(_matchTypeVec[i].first == _matchTypeVec[i].second){
+                            _matchTypeVec[i].first->setPhase(_matchTypeVec[i].first->getPhase() + Phase(1));
+                        }
                         _removeEdges.push_back(make_pair(make_pair(_matchTypeVec[i].first, _matchTypeVec[i].second), tmp));
                         _removeEdges.push_back(make_pair(make_pair(_matchTypeVec[i].first, _matchTypeVec[i].second), itr->second));
                     }
