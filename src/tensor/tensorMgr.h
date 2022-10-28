@@ -57,6 +57,8 @@ public:
 
     double getGlobalNorm(const size_t& id1, const size_t& id2) const;
     Phase getGlobalPhase(const size_t& id1, const size_t& id2) const;
+
+    void adjoint(const size_t& id); 
     
 private:
     TensorList _tensorList;

@@ -24,6 +24,7 @@ bool initTensorCmd() {
     if (!(
             cmdMgr->regCmd("TSReset", 3, new TSResetCmd) &&
             cmdMgr->regCmd("TSPrint", 3, new TSPrintCmd) &&
+            cmdMgr->regCmd("TSADJoint", 3, new TSAdjointCmd) &&
             cmdMgr->regCmd("TSEQuiv", 4, new TSEquivalenceCmd))) {
         cerr << "Registering \"tensor\" commands fails... exiting" << endl;
         return false;
@@ -197,4 +198,37 @@ void TSEquivalenceCmd::usage(ostream &os) const {
 void TSEquivalenceCmd::help() const {
     cout << setw(15) << left << "TSEQuiv: "
          << "compare the equivalency of two stored tensors" << endl;
+}
+
+//----------------------------------------------------------------------
+//    TSAdjoint <size_t id>
+//----------------------------------------------------------------------
+CmdExecStatus
+TSAdjointCmd::exec(const string &option) {
+    string token;
+    if (!lexSingleOption(option, token, false)) {
+        return errorOption(CMD_OPT_MISSING, "");
+    }
+    unsigned id;
+    if (!myStr2Uns(token, id)) {
+        return errorOption(CMD_OPT_ILLEGAL, token);
+    }
+
+    if (!tensorMgr) tensorMgr = new TensorMgr;
+    if (!tensorMgr->hasId(id)) {
+        cerr << "[Error] Can't find tensor with the ID specified!!" << endl;
+        return errorOption(CMD_OPT_ILLEGAL, to_string(id));
+    }
+
+    tensorMgr->adjoint(id);
+    return CMD_EXEC_DONE;
+}
+
+void TSAdjointCmd::usage(ostream &os) const {
+    os << "Usage: TSAdjoint <size_t id>" << endl;
+}
+
+void TSAdjointCmd::help() const {
+    cout << setw(15) << left << "TSADJoint: "
+         << "Adjoint the specified tensor" << endl;
 }

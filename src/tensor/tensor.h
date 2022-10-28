@@ -79,6 +79,9 @@ public:
     friend Tensor<U> operator*(Tensor<U> lhs, const Tensor<U>& rhs);
     template <typename U>
     friend Tensor<U> operator/(Tensor<U> lhs, const Tensor<U>& rhs);
+
+    // template <typename U>
+    // Tensor<U> conj(const Tensor<U>& t);
     
     size_t dimension() const { return _tensor.dimension(); }
     std::vector<size_t> shape() const;
@@ -107,6 +110,7 @@ public:
 
     void reshape(const TensorShape& shape);
     Tensor<DT> transpose(const TensorAxisList& perm);
+    Tensor<DT> adjoint();
 
 protected:
     InternalType _tensor;
@@ -264,6 +268,11 @@ Tensor<DT> Tensor<DT>::transpose(const TensorAxisList& perm) {
     return xt::transpose(_tensor, perm);
 }
 
+template<typename DT>
+Tensor<DT> Tensor<DT>::adjoint() {
+    assert(dimension() == 2);
+    return xt::conj(xt::transpose(_tensor, {1, 0}));
+}
 //------------------------------
 // Tensor Manipulations:
 // Friend functions
