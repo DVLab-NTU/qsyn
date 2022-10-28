@@ -15,6 +15,20 @@ qsyn> zxgas 1 I X 0
 
 qsyn> zxgas 2 I X 0
 
+qsyn> zxgtsm
+Stored the resulting tensor as tensor id 0
+
+qsyn> tsp 0
+{{ 1.681793+0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i},
+ { 0.      +0.i,  1.681793+0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+   0.      +0.i}}
+#Dim:    2	Info: ZX 0
+
 qsyn> zxgp -v
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(16, -) 
@@ -39,6 +53,8 @@ ID:	22	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	1	(11, -)
 Total #Vertices: 20
 
 qsyn> zxgs -SR
+False: Boundary vertex 6 has a boundary neighbor!!7 !!
+False: Boundary vertex 6 has a boundary neighbor!!7 !!
 
 qsyn> zxgp -v
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
@@ -52,9 +68,9 @@ ID:	22	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	1	(5, [1m[
 Total #Vertices: 8
 
 qsyn> zxgtsm
-Stored the resulting tensor as tensor id 0
+Stored the resulting tensor as tensor id 1
 
-qsyn> tsp 0
+qsyn> tsp 1
 {{ 1.681793+0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
    0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
    0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
@@ -64,6 +80,11 @@ qsyn> tsp 0
    0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
    0.      +0.i}}
 #Dim:    2	Info: ZX 0
+
+qsyn> tseq 0 1
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
 
 qsyn> q -f
 

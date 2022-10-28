@@ -12,4 +12,5 @@ zxgs -SR
 zxgp -v
 zxgtsm
 tsp 1
+tseq 0 1
 q -f

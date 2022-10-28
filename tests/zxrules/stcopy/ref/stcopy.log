@@ -34,6 +34,7 @@ qsyn> zxgp -e
 Total #Edges: 10
 
 qsyn> zxgs -stco
+[1m[32mTrue: The graph is graph-like[0m[0m
 State Copy Rule: 
 1 iterations
 
@@ -85,6 +86,7 @@ qsyn> zxgp -e
 Total #Edges: 8
 
 qsyn> zxgs -stco
+[1m[32mTrue: The graph is graph-like[0m[0m
 State Copy Rule: 
 1 iterations
 
