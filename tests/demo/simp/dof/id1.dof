@@ -1,0 +1,4 @@
+zxm -on
+zxgr benchmark/demo/simp/id1.bzx
+zxgp -v
+q -f
