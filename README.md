@@ -52,7 +52,7 @@ cd qsyn
     
    ```shell!
     ❯ ./qsyn
-    DV Lab, NTUEE, Qsyn 0.3.0, compiled Fri Oct 28 12:11:33 2022
+    DV Lab, NTUEE, Qsyn 0.3.0
     qsyn> 
    ```
 
@@ -60,6 +60,7 @@ cd qsyn
 * To run the demo program, you can provide a file contains cmds. For example:
     ```shell!
     ❯ ./qsyn < tests/demo/demo/dof/tof_3.dof
+    DV Lab, NTUEE, Qsyn 0.3.0
     qsyn> verb 0
     Note: verbose level is set to 0
 
@@ -83,6 +84,7 @@ cd qsyn
 * The same result can be produced by running in the command-line mode:
     ```shell!
     ❯ ./qsyn
+    DV Lab, NTUEE, Qsyn 0.3.0
     qsyn> dofile tests/demo/demo/dof/tof_3.dof
 
     qsyn> verb 0
