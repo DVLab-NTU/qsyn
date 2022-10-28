@@ -23,25 +23,35 @@ cd qsyn
 ```
 
 ### Compilation
-`qsyn` requires at least `g++-10` and `gfortran-10` to compile. The two compilers should also be on the same version.
+`Qsyn` requires at least `g++-10` and `gfortran-10` to compile. The two compilers should also be on the same version.
 
-To compile, first install the dependencies by
+1. Install the dependencies by `configure.sh`, which will check for lacking dependencies and install them automatically. 
 
-```shell!
-./configure.sh
-```
-This script will check for lacking dependencies and install it automatically. Then, run
-```shell!
-make -j8
-```
-To build up the executable. 
+	```shell!
+	./configure.sh
+	```
+2. Run `Makefile` using the command below, which will build up the executable.
+	```shell!
+	make -j8
+	```
+3. If the compilation process ends successfully, you will get
+    ```shell!
+    Checking main...
+    > compiling: main.cpp
+    > building qsyn...
+    ~/qsyn$ _
+    ```
+4. If you want to delete all intrmediate files created in the compilation process, please type
+    ```shell!
+	make clean
+	```
 
 ### Run
 
-* To run in command-line mode:
-    ```shell!
-    ./qsyn
-    ```
+* After successful compilation, you can call the command line interpreter of `Qsyn` where you can execute commands implemented into `Qsyn`.
+    
+    ![](https://i.imgur.com/3oBCcrV.png)
+
 
 * To run the demo program, give it a file contains cmds. For example:
     ```shell!
