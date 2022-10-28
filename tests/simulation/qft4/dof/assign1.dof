@@ -5,9 +5,11 @@ qczxm
 zxgas 0 I X 0
 zxgas 1 I X 0
 zxgas 2 I X 0
+zxgtsm
+tsp 0
 zxgp -v
 zxgs -SR
 zxgp -v
 zxgtsm
-tsp 0
+tsp 1
 q -f
