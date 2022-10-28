@@ -48,24 +48,25 @@ ZXGSimpCmd::exec(const string &option){
         Simplifier s(zxGraphMgr->getGraph());
         // Stats stats;
         if(token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
-        else if(myStrNCmp("-BIAlgebra", token, 3) == 0)             s.bialg_simp();
-        else if(myStrNCmp("-STCOpy", token, 4) == 0)                s.copy_simp();
-        else if(myStrNCmp("-HFusion", token, 2) == 0)               s.hfusion_simp();
-        else if(myStrNCmp("-HOPF", token, 4) == 0)                  s.hopf_simp();
-        else if(myStrNCmp("-HRule", token, 2) == 0)                 s.hrule_simp();
-        else if(myStrNCmp("-IDRemoval", token, 3) == 0)             s.id_simp();
-        else if(myStrNCmp("-LComp", token, 2) == 0)                 s.lcomp_simp();
-        else if(myStrNCmp("-PIVOT", token, 5) == 0)                 s.pivot_simp();
-        else if(myStrNCmp("-PIVOTBoundary", token, 6) == 0)         s.pivot_boundary_simp();
-        else if(myStrNCmp("-PIVOTGadget", token, 6) == 0)           s.pivot_gadget_simp();
-        else if(myStrNCmp("-SPIderfusion", token, 3) == 0)          s.sfusion_simp();
+        else if(myStrNCmp("-BIAlgebra", token, 4) == 0)             s.bialg_simp();
+        else if(myStrNCmp("-STCOpy", token, 5) == 0)                s.copy_simp();
+        else if(myStrNCmp("-HFusion", token, 3) == 0)               s.hfusion_simp();
+        else if(myStrNCmp("-HOPF", token, 5) == 0)                  s.hopf_simp();
+        else if(myStrNCmp("-HRule", token, 3) == 0)                 s.hrule_simp();
+        else if(myStrNCmp("-IDRemoval", token, 4) == 0)             s.id_simp();
+        else if(myStrNCmp("-LComp", token, 3) == 0)                 s.lcomp_simp();
+       
+        else if(myStrNCmp("-PIVOTBoundary", token, 7) == 0)         s.pivot_boundary_simp();
+        else if(myStrNCmp("-PIVOTGadget", token, 7) == 0)           s.pivot_gadget_simp();
+        else if(myStrNCmp("-PIVOT", token, 6) == 0)                 s.pivot_simp();
+        else if(myStrNCmp("-SPIderfusion", token, 4) == 0)          s.sfusion_simp();
 
-        else if(myStrNCmp("-TOGraph", token, 3) == 0)               s.to_graph();
-        else if(myStrNCmp("-TORGraph", token, 4) == 0)              s.to_rgraph();
-        else if(myStrNCmp("-INTERClifford", token, 6) == 0)         s.interior_clifford_simp();
-        else if(myStrNCmp("-CLIFford", token, 4) == 0)              s.clifford_simp();
-        else if(myStrNCmp("-FReduce", token, 2) == 0)               s.full_reduce();
-        else if(myStrNCmp("-SReduce", token, 2) == 0)               s.simulated_reduce();
+        else if(myStrNCmp("-TOGraph", token, 4) == 0)               s.to_graph();
+        else if(myStrNCmp("-TORGraph", token, 5) == 0)              s.to_rgraph();
+        else if(myStrNCmp("-INTERClifford", token,7) == 0)         s.interior_clifford_simp();
+        else if(myStrNCmp("-CLIFford", token, 5) == 0)              s.clifford_simp();
+        else if(myStrNCmp("-FReduce", token, 3) == 0)               s.full_reduce();
+        else if(myStrNCmp("-SReduce", token, 3) == 0)               s.simulated_reduce();
         else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     }
     return CMD_EXEC_DONE;

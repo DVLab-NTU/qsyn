@@ -55,10 +55,46 @@ int Simplifier::simp() {
                 // add_edge_table
                 // TODO add_edge_table
                 for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
-                    for (int j = 0; j < _rule->getEdgeTableValues()[e].first; j++)
-                        _simpGraph->addEdge(_rule->getEdgeTableKeys()[e].first, _rule->getEdgeTableKeys()[e].second, new EdgeType(EdgeType::SIMPLE));
-                    for (int j = 0; j < _rule->getEdgeTableValues()[e].second; j++)
-                        _simpGraph->addEdge(_rule->getEdgeTableKeys()[e].first, _rule->getEdgeTableKeys()[e].second, new EdgeType(EdgeType::HADAMARD));
+                    for (int j = 0; j < _rule->getEdgeTableValues()[e].first; j++){
+                        bool found=false;
+                        if((_rule->getEdgeTableKeys()[e].first->getType()==VertexType::Z && _rule->getEdgeTableKeys()[e].second->getType()==VertexType::X) ||
+                            (_rule->getEdgeTableKeys()[e].first->getType()==VertexType::X && _rule->getEdgeTableKeys()[e].second->getType()==VertexType::Z)
+                        ){
+                            ZXVertex* v = _rule->getEdgeTableKeys()[e].first;
+                            ZXVertex* v_n = _rule->getEdgeTableKeys()[e].second;
+                            auto candidates = v->getNeighborMap().equal_range(_rule->getEdgeTableKeys()[e].second);
+                            for(auto itr = candidates.first; itr!=candidates.second; itr++){
+                                if ((*itr->second)==EdgeType::SIMPLE){
+                                    _simpGraph->removeEdgeByEdgePair(make_pair(make_pair(v,v_n), itr->second));
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if(!found)
+                            _simpGraph->addEdge(_rule->getEdgeTableKeys()[e].first, _rule->getEdgeTableKeys()[e].second, new EdgeType(EdgeType::SIMPLE));
+                    }
+                       
+                    for (int j = 0; j < _rule->getEdgeTableValues()[e].second; j++){
+                        bool found=false;
+                        if((_rule->getEdgeTableKeys()[e].first->getType()==VertexType::Z && _rule->getEdgeTableKeys()[e].second->getType()==VertexType::Z) ||
+                            (_rule->getEdgeTableKeys()[e].first->getType()==VertexType::X && _rule->getEdgeTableKeys()[e].second->getType()==VertexType::X)
+                        ){
+                            ZXVertex* v = _rule->getEdgeTableKeys()[e].first;
+                            ZXVertex* v_n = _rule->getEdgeTableKeys()[e].second;
+                            auto candidates = v->getNeighborMap().equal_range(_rule->getEdgeTableKeys()[e].second);
+                            for(auto itr = candidates.first; itr!=candidates.second; itr++){
+                                if ((*itr->second)==EdgeType::HADAMARD){
+                                    _simpGraph->removeEdgeByEdgePair(make_pair(make_pair(v,v_n), itr->second));
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if(!found)
+                            _simpGraph->addEdge(_rule->getEdgeTableKeys()[e].first, _rule->getEdgeTableKeys()[e].second, new EdgeType(EdgeType::HADAMARD));
+                    }
+                       
                 }
                 // remove edges
                 for (size_t e = 0; e < _rule->getRemoveEdges().size(); e++) {
@@ -310,13 +346,13 @@ void Simplifier::full_reduce(){
 void Simplifier::simulated_reduce(){
     this->interior_clifford_simp();
     this->pivot_gadget_simp();
-    this->copy_simp();
-    while(true){
-        this->clifford_simp();
-        int i = this->gadget_simp();
-        this->interior_clifford_simp();
-        int j = this->pivot_gadget_simp();
-        this->copy_simp();
-        if(i+j == 0) break;
-    }
+    // this->copy_simp();
+    // while(true){
+    //     this->clifford_simp();
+    //     int i = this->gadget_simp();
+    //     this->interior_clifford_simp();
+    //     int j = this->pivot_gadget_simp();
+    //     this->copy_simp();
+    //     if(i+j == 0) break;
+    // }
 }
