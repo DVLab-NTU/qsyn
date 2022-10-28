@@ -29,7 +29,7 @@ size_t formatLevel = 1;
 static void
 usage()
 {
-   cout << "Usage: cirTest [ -File < doFile > ]" << endl;
+   cout << "Usage: ./qsyn [ -File < doFile > ]" << endl;
 }
 
 static void

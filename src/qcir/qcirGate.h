@@ -75,7 +75,7 @@ public:
   void printGate() const;
   virtual void printGateInfo(bool) const=0;
   virtual ZXGraph*  getZXform(size_t &baseId){ return NULL; };
-  virtual QTensor<double>  getTSform(){ return QTensor<double>::zspider(0, 0); };
+  virtual QTensor<double>  getTSform() = 0;
   virtual void setRotatePhase(Phase p){};
 private:
   
@@ -294,6 +294,7 @@ public:
   YGate(size_t id): CnRYGate(id) {}
   ~YGate();
   virtual string getTypeStr() const { return "y"; }
+  virtual QTensor<double>  getTSform() { return QTensor<double>::ry(Phase(1)); }
   virtual ZXGraph*  getZXform(size_t &baseId);
   virtual void printGateInfo(bool) const;
 };
@@ -304,6 +305,7 @@ public:
   SYGate(size_t id): CnRYGate(id) {}
   ~SYGate();
   virtual string getTypeStr() const { return "sy"; }
+  virtual QTensor<double>  getTSform() { return QTensor<double>::ry(Phase(1, 2)); }
   virtual ZXGraph*  getZXform(size_t &baseId);
   virtual void printGateInfo(bool) const;
 };
