@@ -1,4 +1,8 @@
+ver 9
 zxm -on
-zxgr benchmark/demo/simp/id1.bzx
-zxgp -v
+zxgr -bzx benchmark/demo/simp/ex1_id_2.bzx
+zxgtsm
+zxgr -bzx benchmark/demo/simp/id_2.bzx
+zxgtsm
+tseq 0 1
 q -f

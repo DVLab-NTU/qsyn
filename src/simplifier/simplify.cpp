@@ -40,7 +40,8 @@ int Simplifier::simp() {
     if (_rule->getName() == "Hadamard Rule") {
         cerr << "Error: Please use `hadamard_simp` when using HRule." << endl;
         return 0;
-    } else {
+    } 
+    else {
         int i = 0;
         bool new_matches = true;
         if (verbose >= 2) cout << _rule->getName() << ": \n";
@@ -77,10 +78,12 @@ int Simplifier::simp() {
                 cout << i << " iterations" << endl;
             }
             else       cout << "No matches" << endl;
-            
         }
+        if(verbose >= 5) cout << "\n";
+        if(verbose == 9) _simpGraph->printVertices();
         return i;
     }
+    
 }
 
 /**
