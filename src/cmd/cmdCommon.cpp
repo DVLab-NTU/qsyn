@@ -345,7 +345,7 @@ void
 CommentCmd::help() const
 {
    cout << setw(15) << left << "//: "
-        << "Comment line" << endl;
+        << "comment line" << endl;
 }
 
 //----------------------------------------------------------------------
