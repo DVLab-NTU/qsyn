@@ -29,4 +29,5 @@ CmdClass(ZXGReadCmd);
 CmdClass(ZXGWriteCmd);
 CmdClass(ZXGAdjointCmd);
 CmdClass(ZXGAssignCmd);
+CmdClass(ZXGIsGraphLikeCmd);
 #endif // ZX_CMD_H

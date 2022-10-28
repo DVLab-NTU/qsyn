@@ -89,7 +89,7 @@ class Simplifier{
         int interior_clifford_simp();
         int clifford_simp();
         void full_reduce();
-
+        void simulated_reduce();
 
     private:
         ZXRule*             _rule;

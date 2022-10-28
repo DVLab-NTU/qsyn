@@ -1,0 +1,20 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> verb 0
+Note: verbose level is set to 0
+
+qsyn> zxm -on 
+ZXMODE turn ON!
+
+qsyn> zxgread benchmark/zx/tof3.zx
+
+qsyn> zxgs -freduce
+
+qsyn> zxgp
+Graph 0
+Inputs:        3
+Outputs:       3
+Vertices:      17
+Edges:         19
+
+qsyn> q -f
+

@@ -20,8 +20,10 @@ TensorAxisList concatAxisList(const TensorAxisList& ax1, const TensorAxisList& a
 
 // Print the axis list
 void printAxisList(const TensorAxisList& ax) {
-    std::cout << *ax.begin();
-    std::for_each(ax.begin()+1, ax.end(), [](const size_t& id){ std::cout << " " << id; });
+    if (!ax.empty()) {
+        std::cout << *ax.begin();
+        std::for_each(ax.begin()+1, ax.end(), [](const size_t& id){ std::cout << " " << id; });
+    }
     std::cout << std::endl;
 }
 

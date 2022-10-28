@@ -1,0 +1,21 @@
+zxm -on
+zxn
+zxge -addi 0 0
+zxge -addo 1 0
+zxge -addi 2 1
+zxge -addo 3 1
+zxge -addv 4 0 Z
+zxge -addv 5 0 Z
+zxge -addv 6 0 Z
+zxge -addv 7 0 Z
+zxge -adde 0 4 SIMPLE
+zxge -adde 1 4 SIMPLE
+zxge -adde 2 5 HADAMARD
+zxge -adde 3 5 HADAMARD
+zxge -adde 6 5 HADAMARD
+zxge -adde 6 4 HADAMARD
+zxge -adde 6 7 HADAMARD
+ver 8
+zxgtsm
+tsp 0
+q -f 
