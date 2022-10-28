@@ -299,3 +299,21 @@ void Simplifier::full_reduce(){
         if(i+j == 0) break;
     }
 }
+
+/**
+ * @brief The main simplification routine of PyZX
+ * 
+ */
+void Simplifier::simulated_reduce(){
+    this->interior_clifford_simp();
+    this->pivot_gadget_simp();
+    this->copy_simp();
+    while(true){
+        this->clifford_simp();
+        int i = this->gadget_simp();
+        this->interior_clifford_simp();
+        int j = this->pivot_gadget_simp();
+        this->copy_simp();
+        if(i+j == 0) break;
+    }
+}

@@ -209,6 +209,7 @@ class ZXGraph{
         bool isValid() const;
         bool isConnected(ZXVertex* v1, ZXVertex* v2) const;
         bool isId(size_t id) const;
+        bool isGraphLike() const;
         bool isInputQubit(int qubit) const;
         bool isOutputQubit(int qubit) const;
 

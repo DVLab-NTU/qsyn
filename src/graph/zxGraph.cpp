@@ -144,6 +144,62 @@ bool ZXVertex::isNeighbor(ZXVertex* v) const {
     return _neighborMap.contains(v);
 }
 
+/**
+ * @brief Check if ZXGraph is graph-like, report first error
+ *
+ * @param
+ * @return bool
+ */
+bool ZXGraph::isGraphLike() const {
+    
+    // 2. all Hedge or Bedge
+    for(size_t i=0; i < _edges.size(); i++){
+        if((*_edges[i].second)== EdgeType::HADAMARD) continue;
+        else{
+            if(_edges[i].first.first->getType()== VertexType::BOUNDARY || _edges[i].first.second->getType()== VertexType::BOUNDARY) continue;
+            else{
+                cout << "False: Type (" << *_edges[i].second << ") of edge " << _edges[i].first.first->getId() << "--" << _edges[i].first.second->getId() << " is invalid!!" << endl;
+                return false;
+            }
+        }
+    }
+    // 4. B-Z-B and B has only an edge
+    for(size_t i=0; i<_inputs.size(); i++){
+        if(_inputs[i] -> getNumNeighbors() != 1){
+            cout << "False: Boundary vertex " << _inputs[i]->getId() << " has invalid number of neighbors!!" << endl;
+            return false;
+        }
+        if(_inputs[i] -> getNeighbor(0) -> getType() == VertexType::BOUNDARY){
+            cout << "False: Boundary vertex " << _inputs[i]->getId() << " has a boundary neighbor!!" << _inputs[i] -> getNeighbor(0) -> getId() << " !!" << endl;
+            return false;
+        }
+    }
+    // 1. all Z or B  3. no parallel, no selfloop (vertex neighbor)
+    for(size_t i=0; i < _vertices.size(); i++){
+        if(_vertices[i]->getType()!=VertexType::BOUNDARY && _vertices[i]->getType()!=VertexType::Z){
+            cout << "False: Type (" << _vertices[i]->getType() << ") of vertex " << _vertices[i]->getId() << " is invalid!!" << endl;
+            return false;
+        }
+        vector<ZXVertex* > neighbors = _vertices[i]->getNeighbors();
+        vector<ZXVertex* > found;
+        for(size_t j=0; j<neighbors.size(); j++){
+            if(neighbors[j] == _vertices[i]){
+                cout << "False: Vertex "<< _vertices[i]->getId() << " has selfloop(s)!!" << endl;
+                return false;
+            }
+            else{
+                if(find(found.begin(), found.end(), neighbors[j]) != found.end()){
+                    cout << "False: Vertices " << _vertices[i]->getId() << " and " << neighbors[j]->getId() << " have parallel edges!!" << endl;
+                    return false;
+                }
+                found.push_back(neighbors[j]);
+            }
+        }
+    }
+    cout << TF::BOLD(TF::GREEN("True: The graph is graph-like")) << endl;
+    return true;
+}
+
 /**************************************/
 /*   class ZXGraph member functions   */
 /**************************************/
