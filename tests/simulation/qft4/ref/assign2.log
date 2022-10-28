@@ -41,6 +41,8 @@ Total #Vertices: 20
 
 
 qsyn> zxgs -SR
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
 
 qsyn> zxgp -v
 

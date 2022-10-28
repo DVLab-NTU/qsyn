@@ -46,7 +46,7 @@ bool ZX2TSMapper::map() {
 
     *result = result->toMatrix(inputIds, outputIds);
     cout << "Stored the resulting tensor as tensor id " << id << endl;
-
+    
     return true;
 }
 
