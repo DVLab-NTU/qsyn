@@ -2,7 +2,7 @@ zxm -on
 qccr benchmark/pseudoSimp/tof_3.qasm
 qczxm
 zxgp -v
-zxgisg
+zxgt -GL
 zxgsimp -FR
-zxgisg
+zxgt -GL
 q -f
