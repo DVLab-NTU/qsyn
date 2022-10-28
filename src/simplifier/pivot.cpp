@@ -122,7 +122,6 @@ void Pivot::rewrite(ZXGraph* g){
     unordered_map<size_t, size_t> id2idx;
     for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
     vector<bool> isBoundary(g->getNumVertices(), false);
-
     for (auto& i :  _matchTypeVec){
         // 1 : get m0 m1
         vector<ZXVertex*> neighbors;
@@ -146,7 +145,6 @@ void Pivot::rewrite(ZXGraph* g){
 
             if(remove) _removeVertices.push_back(neighbors[1-j]);
         }
-
         // 3 table of c
         vector<int> c(g->getNumVertices() ,0);
         vector<ZXVertex*> n0;
@@ -162,7 +160,6 @@ void Pivot::rewrite(ZXGraph* g){
             if (x == neighbors[0]) continue;
             c[id2idx[x->getId()]] += 2;
         }
-
         // 4  Find n0 n1 n2
         for (size_t a=0; a<g->getNumVertices(); a++){
             if(c[a] == 1) n0.push_back(g->getVertices()[a]);
@@ -172,24 +169,34 @@ void Pivot::rewrite(ZXGraph* g){
         }
         
         //// 5: scalar (skip)
+        Phase adjustPhases[2];
+        for(size_t nb = 0; nb<2; nb++){
+            NeighborMap nbm = neighbors[nb]->getNeighborMap();
+            auto result = nbm.equal_range(neighbors[nb]);
+            size_t cnt = 0;
+            for(auto itr = result.first; itr!=result.second; itr++){
+                if(*(itr->second) == EdgeType::HADAMARD) cnt++;
+            }
+            adjustPhases[nb] = neighbors[nb]->getPhase() + Phase(cnt/2);
+        }
         
 
         //// 6:add phase
         for(auto& x: n2){
-            x->setPhase(x->getPhase() + Phase(1) + neighbors[0]->getPhase() + neighbors[1]->getPhase());
+            x->setPhase(x->getPhase() + Phase(1) + adjustPhases[0] + adjustPhases[1]);
         }
 
         for(auto& x: n1){
-            x->setPhase(x->getPhase() + neighbors[0]->getPhase());
+            x->setPhase(x->getPhase() + adjustPhases[0]);
         }
 
         for(auto& x: n0){
-            x->setPhase(x->getPhase() + neighbors[1]->getPhase());
+            x->setPhase(x->getPhase() + adjustPhases[1]);
         }
 
         //// 7: connect n0 n1 n2
         for(auto& itr : n0){
-            if(isBoundary[itr->getId()]) continue;
+            if(isBoundary[id2idx[itr->getId()]]) continue;
             for(auto& a: n1){
                 if(isBoundary[id2idx[a->getId()]]) continue;
                 _edgeTableKeys.push_back(make_pair(itr, a));

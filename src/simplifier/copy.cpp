@@ -90,11 +90,12 @@ void StateCopy::rewrite(ZXGraph* g){
         
         // new to Boundary
         _edgeTableKeys.push_back(make_pair(newV, neighbors[i]));
-        _edgeTableValues.push_back(make_pair(1,0));
+        _edgeTableValues.push_back(simpleEdge ? make_pair(0,1): make_pair(1,0));
 
         // a to new
         _edgeTableKeys.push_back(make_pair(a, newV));
-        _edgeTableValues.push_back(simpleEdge ? make_pair(1,0): make_pair(0,1));
+        _edgeTableValues.push_back(make_pair(0,1));
+        
       }
       else{
         neighbors[i]->setPhase(npi->getPhase()+neighbors[i]->getPhase());

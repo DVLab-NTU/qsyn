@@ -79,7 +79,6 @@ void SpiderFusion::rewrite(ZXGraph* g) {
         ZXVertex* v0 = _matchTypeVec[i].first;
         ZXVertex* v1 = _matchTypeVec[i].second;
         vector<ZXVertex*> v1n = v1->getNeighbors();
-
         unordered_map<ZXVertex*, bool> done;
         done.clear();
         for (size_t i = 0; i < v1n.size(); i++) done[v1n[i]] = false;
@@ -95,12 +94,19 @@ void SpiderFusion::rewrite(ZXGraph* g) {
             vector<EdgeType*> selfHadaLoopCandidate;
             for (auto itr = neighborItr.first; itr != neighborItr.second; ++itr) {
                 if (*(itr->second) == EdgeType::HADAMARD) {
-                    hadamardcount++;
+                    // if(v1n[i] == itr->first) 
+                    //     v0->setPhase(v0->getPhase() + Phase(1)); // a--b and b merge to a, remove a's self loop and add pi
+                    // else
+                        hadamardcount++;
                     selfHadaLoopCandidate.push_back(itr->second);
                 }
                 if (*(itr->second) == EdgeType::SIMPLE) simplecount++;
             }
             if (v0->getId() != v1->getId()) {
+                // if(v1n[i] != v0){
+                //      _edgeTableKeys.push_back(make_pair(v0, v1n[i]));
+                //     _edgeTableValues.push_back(make_pair(simplecount, hadamardcount));
+                // }
                 _edgeTableKeys.push_back(make_pair(v0, v1n[i]));
                 _edgeTableValues.push_back(make_pair((v1n[i] == v0) ? 0 : simplecount, hadamardcount));
             }
