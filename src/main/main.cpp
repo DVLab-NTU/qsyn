@@ -6,8 +6,10 @@
   Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <ctime>
 #include "util.h"
 #include "cmdParser.h"
+
 using namespace std;
 
 //----------------------------------------------------------------------
@@ -65,6 +67,8 @@ main(int argc, char** argv)
       return 1;
 
    CmdExecStatus status = CMD_EXEC_DONE;
+   time_t result = time(nullptr);
+   cerr << "DV Lab, NTUEE, Qsyn 0.3.0, compiled " << ctime(&result);
    while (status != CMD_EXEC_QUIT) {  // until "quit" or command error
       status = cmdMgr->execOneCmd();
       cout << endl;  // a blank line between each command
