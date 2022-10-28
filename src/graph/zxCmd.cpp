@@ -34,7 +34,6 @@ bool initZXCmd(){
          cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd) && 
          cmdMgr->regCmd("ZXGADJoint", 6, new ZXGAdjointCmd) &&
          cmdMgr->regCmd("ZXGASsign", 5, new ZXGAssignCmd) && 
-         cmdMgr->regCmd("ZXGISGraphlike", 6, new ZXGIsGraphLikeCmd) && 
          cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
          cmdMgr->regCmd("ZXGTSMap", 6, new ZXGTSMappingCmd) &&
          cmdMgr->regCmd("ZXGRead", 4, new ZXGReadCmd) &&
@@ -367,7 +366,7 @@ void ZXTensorCmd::help() const{
 
 
 //----------------------------------------------------------------------
-//    ZXGTest [-GenerateCNOT | -Empty | -Valid]
+//    ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike]
 //----------------------------------------------------------------------
 
 CmdExecStatus
@@ -394,6 +393,9 @@ ZXGTestCmd::exec(const string &option){
     else if(myStrNCmp("-Valid", token, 2) == 0){
         if(zxGraphMgr->getGraph()->isValid()) cout << "This graph is valid!" << endl;
         else cout << "This graph is invalid!" << endl;
+    }
+    else if(myStrNCmp("-GLike", token, 3) == 0){
+        zxGraphMgr->getGraph()->isGraphLike();
     }
     else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    }
@@ -863,23 +865,3 @@ void ZXGAdjointCmd::help() const
    cout << setw(15) << left << "ZXGADJoint: "
         << "Adjoint the current ZXGraph.\n";
 }
-
-//----------------------------------------------------------------------
-//    ZXGISGraphlike
-//----------------------------------------------------------------------
-CmdExecStatus
-ZXGIsGraphLikeCmd::exec(const string &option){
-    string token;
-    if(!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
-    zxGraphMgr->getGraph()->isGraphLike();
-    return CMD_EXEC_DONE;
-}
-
-void ZXGIsGraphLikeCmd::usage(ostream &os) const{
-    os << "Usage: ZXGISGraphlike" << endl;
-}
-
-void ZXGIsGraphLikeCmd::help() const{
-    cout << setw(15) << left << "ZXGISGraphlike: " << "check if ZXGraph is graph-like" << endl; 
-}
-

@@ -1,3 +1,4 @@
+DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> zxm -on
 ZXMODE turn ON!
 
@@ -97,7 +98,7 @@ ID:	83	VertexType:	[1m[33mH[0m[0m	Qubit:	4	Phase:	π	#Neighbors:	2	(78, -) (
 ID:	84	VertexType:	[1m[33mH[0m[0m	Qubit:	4	Phase:	π	#Neighbors:	2	(9, -) (83, -) 
 Total #Vertices: 85
 
-qsyn> zxgisg
+qsyn> zxgt -GL
 False: Type (0) of edge 10--11 is invalid!!
 
 qsyn> zxgsimp -FR
@@ -143,6 +144,42 @@ No matches
 Local Complementary Rule: 
 No matches
 Phase Gadget Rule: 
+This vertex does not exist!
+This vertex does not exist!
+1 iterations
+Spider Fusion Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementary Rule: 
+2 iterations
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementary Rule: 
+No matches
+Pivot Gadget Rule: 
+No matches
+Hopf Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementary Rule: 
+No matches
+Phase Gadget Rule: 
 No matches
 Spider Fusion Rule: 
 No matches
@@ -159,7 +196,7 @@ No matches
 Hopf Rule: 
 No matches
 
-qsyn> zxgisg
+qsyn> zxgt -GL
 [1m[32mTrue: The graph is graph-like[0m[0m
 
 qsyn> q -f
