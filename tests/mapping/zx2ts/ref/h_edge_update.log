@@ -1,0 +1,97 @@
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> zxn
+Successfully generated Graph 0
+Checkout to Graph 0
+
+qsyn> zxge -addi 0 0
+
+qsyn> zxge -addo 1 0
+
+qsyn> zxge -addi 2 1
+
+qsyn> zxge -addo 3 1
+
+qsyn> zxge -addv 4 0 Z
+
+qsyn> zxge -addv 5 0 Z
+
+qsyn> zxge -addv 6 0 Z
+
+qsyn> zxge -addv 7 0 Z
+
+qsyn> zxge -adde 0 4 SIMPLE
+
+qsyn> zxge -adde 1 4 SIMPLE
+
+qsyn> zxge -adde 2 5 HADAMARD
+
+qsyn> zxge -adde 3 5 HADAMARD
+
+qsyn> zxge -adde 6 5 HADAMARD
+
+qsyn> zxge -adde 6 4 HADAMARD
+
+qsyn> zxge -adde 6 7 HADAMARD
+
+qsyn> ver 8
+Note: verbose level is set to 8
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Topological order from first input: 0 4 1 6 5 2 3 7 
+Size of topological order: 8
+> Mapping vertex 0 (●): New Subgraph
+  - Current frontiers: 
+    0--4 (-) axis id: 1
+> Mapping vertex 4 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--4 (-) axis id: 2
+    4--6 ([1m[34mH[0m[0m) axis id: 1
+> Mapping vertex 1 (●): Boundary Node
+  - Current frontiers: 
+    1--4 (-) axis id: 2
+    4--6 ([1m[34mH[0m[0m) axis id: 1
+> Mapping vertex 6 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--4 (-) axis id: 1
+    5--6 ([1m[34mH[0m[0m) axis id: 3
+    6--7 ([1m[34mH[0m[0m) axis id: 2
+> Mapping vertex 5 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--4 (-) axis id: 1
+    2--5 ([1m[34mH[0m[0m) axis id: 4
+    3--5 ([1m[34mH[0m[0m) axis id: 3
+    6--7 ([1m[34mH[0m[0m) axis id: 2
+> Mapping vertex 2 (●): Boundary Node
+  - Current frontiers: 
+    1--4 (-) axis id: 1
+    2--5 ([1m[34mH[0m[0m) axis id: 4
+    3--5 ([1m[34mH[0m[0m) axis id: 3
+    6--7 ([1m[34mH[0m[0m) axis id: 2
+> Mapping vertex 3 (●): Boundary Node
+  - Current frontiers: 
+    1--4 (-) axis id: 1
+    2--5 ([1m[34mH[0m[0m) axis id: 3
+    3--5 ([1m[34mH[0m[0m) axis id: 4
+    6--7 ([1m[34mH[0m[0m) axis id: 2
+> Mapping vertex 7 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--4 (-) axis id: 1
+    2--5 ([1m[34mH[0m[0m) axis id: 2
+    3--5 ([1m[34mH[0m[0m) axis id: 3
+Successfully added Tensor 0
+Input  axis ids: 0 2
+Output axis ids: 1 3
+Stored the resulting tensor as tensor id 0
+
+qsyn> tsp 0
+{{ 1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
+ { 0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i}}
+#Dim:    2	Info: ZX 0
+
+qsyn> q -f 
+

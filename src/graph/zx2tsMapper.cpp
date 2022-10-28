@@ -8,11 +8,13 @@
 #include "zx2tsMapper.h"
 
 #include "tensorMgr.h"
+#include "textFormat.h"
 extern size_t verbose;
 extern TensorMgr* tensorMgr;
 
 #include <map>
 using namespace std;
+namespace TF = TextFormat;
 
 // map a ZX-diagram to a tensor
 bool ZX2TSMapper::map() {
@@ -36,6 +38,15 @@ bool ZX2TSMapper::map() {
 
     getAxisOrders(inputIds, _zxgraph->getInputList(), false);
     getAxisOrders(outputIds, _zxgraph->getOutputList(), true);
+
+    // cout << "IList" << endl;
+    // for (const auto& [k, v]: _zxgraph->getInputList()) {
+    //     cout << k << " " << v->getId() << endl;
+    // }
+    // cout << "OList" << endl;
+    // for (const auto& [k, v]: _zxgraph->getOutputList()) {
+    //     cout << k << " " << v->getId() << endl;
+    // }
 
     if (verbose >= 8) {
         cout << "Input  axis ids: ";
@@ -66,7 +77,6 @@ void ZX2TSMapper::mapOneVertex(ZXVertex* v) {
         if (verbose >= 5) cout << "Boundary Node" << endl;
         updatePinsAndFrontiers(v);
         currTensor() = dehadamardize(currTensor());
-
     } else {
         if (verbose >= 5) cout << "Tensordot" << endl;
         updatePinsAndFrontiers(v);
@@ -75,6 +85,7 @@ void ZX2TSMapper::mapOneVertex(ZXVertex* v) {
     }
     v->setPin(_tensorId);
     if (verbose >= 8) {
+        // cout << TF::BOLD(TF::CYAN("----------- Result ----------")) << endl;
         printFrontiers();
     }
 }
@@ -165,12 +176,6 @@ void ZX2TSMapper::getAxisOrders(TensorAxisList& axList, const std::unordered_map
         table[qubitId] = count;
         count++;
     }
-    // size_t count = 0;
-    // for (auto itr = ioList.begin(); itr!= ioList.end(); itr++){
-    //     table[itr->first] = count;
-    //     cout << itr->first << " " << count << endl;
-    //     count++;
-    // }
     size_t accFrontierSizes = 0;
     for (size_t i = 0; i < _zx2tsList.size(); ++i) {
         for (auto& [qubitId, vertex] : ioList) {
@@ -208,7 +213,7 @@ void ZX2TSMapper::updatePinsAndFrontiers(ZXVertex* v) {
         }
         EdgeKey edgeKey = makeEdgeKey(v, neighbor, *etype);
         if (isFrontier(epair)) {
-            auto tmpPair = make_pair(neighbor, *etype);
+            const pair<ZXVertex*, EdgeType> tmpPair = make_pair(neighbor, *etype);
             bool newSeen = !contains(tmp, tmpPair);
             tmp.push_back(make_pair(neighbor, *etype));
             if (newSeen) {
@@ -230,6 +235,7 @@ void ZX2TSMapper::updatePinsAndFrontiers(ZXVertex* v) {
 
 // Convert hadamard edges to normal edges and returns a corresponding tensor
 QTensor<double> ZX2TSMapper::dehadamardize(const QTensor<double>& ts) {
+
     QTensor<double> HTensorProduct = tensorPow(
         QTensor<double>::hbox(2), _hadamardPin.size());
 
@@ -237,20 +243,24 @@ QTensor<double> ZX2TSMapper::dehadamardize(const QTensor<double>& ts) {
     for (size_t t = 0; t < _hadamardPin.size(); t++)
         connect_pin.push_back(2 * t);
     QTensor<double> tmp = tensordot(ts, HTensorProduct, _hadamardPin, connect_pin);
-    // All edges shoud be updated here
+    // All edges should be updated here
     for (auto& [_, axisId] : currFrontiers()) {
-        if (!contains(_normalPin, axisId) && !contains(_hadamardPin, axisId)) {
+        if (!contains(_hadamardPin, axisId)) {
             axisId = tmp.getNewAxisId(axisId);
+        } else {
+            size_t id = findIndex(_hadamardPin, axisId);
+            axisId = tmp.getNewAxisId(ts.dimension() + connect_pin[id] + 1);
         }
     }
-    ////////////////////////////////////
-    for (size_t t = 0; t < _hadamardPin.size(); t++)
+
+    // update _normalPin and _hadamardPin
+    for (size_t t = 0; t < _hadamardPin.size(); t++) {
         _hadamardPin[t] = tmp.getNewAxisId(ts.dimension() + connect_pin[t] + 1);  // dimension of big tensor + 1,3,5,7,9
-    // Normal Edges also
+    }
     for (size_t t = 0; t < _normalPin.size(); t++)
         _normalPin[t] = tmp.getNewAxisId(_normalPin[t]);
-    _normalPin = concatAxisList(_hadamardPin, _normalPin);
 
+    _normalPin = concatAxisList(_hadamardPin, _normalPin);
     return tmp;
 }
 
