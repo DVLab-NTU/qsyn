@@ -50,10 +50,14 @@ cd qsyn
 
 * After successful compilation, you can call the command line interpreter of `Qsyn` where you can execute commands implemented into `Qsyn`.
     
-    ![](https://i.imgur.com/3oBCcrV.png)
+   ```shell!
+    ❯ ./qsyn
+    DV Lab, NTUEE, Qsyn 0.3.0, compiled Fri Oct 28 12:11:33 2022
+    qsyn> 
+   ```
 
 
-* To run the demo program, give it a file contains cmds. For example:
+* To run the demo program, you can provide a file contains cmds. For example:
     ```shell!
     ❯ ./qsyn < tests/demo/demo/dof/tof_3.dof
     qsyn> verb 0
@@ -104,29 +108,28 @@ cd qsyn
 
 
 ### Testing
-There are two types of tests:
-1. DOFILEs, which automatically run a sequence of commands;
-2. unit tests, which checks the validity of selected functions.
+There are two types of testing approaches:
+1. DOFILEs, which automatically run a sequence of commands. (Located under `tests/<section>/<subsection>/dof/`)
 
-DOFILEs are located under `tests/<DATE>/<TEST_PACKAGE>/testcases/`. 
-
-To run a DOFILE and compare the result to the reference, run
-```shell!
-./DOFILE.sh <path/to/test> -d
-```
-To update the reference to a dofile, run
-```shell!
-./DOFILE.sh <path/to/test> -up
-```
-To compile unit test programs, run
-```shell!
-make test -j8
-```
-Then, run the test by 
-```shell!
-./tests/bin/tests -r compact
-```
-You may also perform all DOFILE- and unit-tests by running
+    * To run a DOFILE and compare the result to the reference, type
+		```shell!
+		./DOFILE.sh <path/to/test> -d
+		```
+    * To update the reference to a dofile, type
+		```shell!
+		./DOFILE.sh <path/to/test> -up
+		```
+2. Unit tests, which checks the validity of selected functions.
+	
+    * To compile unit test programs, type
+		```shell!
+		make test -j8
+		```
+	* Then, run the test by 
+		```shell!
+		./tests/bin/tests -r compact
+		```
+You may also perform all DOFILEs and unit-tests by running
 ```bash!
 ./RUN_ALL_TEST.sh
 ```
