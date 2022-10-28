@@ -32,7 +32,7 @@ void PhaseGadget::match(ZXGraph* g){
 
     unordered_map<ZXVertex*, ZXVertex*> gadgets; // (v, the only neighbor)
     unordered_multimap<vector<ZXVertex*>, ZXVertex*> groups;
-
+    unordered_map<vector<ZXVertex*>, bool> done;
     for(size_t i = 0; i < g->getNumVertices(); i++){
         ZXVertex* v = g->getVertices()[i];
         if(v->getPhase() != Phase(0) && v->getPhase() != Phase(1) && v->getNumNeighbors() == 1){
@@ -47,10 +47,12 @@ void PhaseGadget::match(ZXGraph* g){
             sort(nebsOfNeighbor.begin(), nebsOfNeighbor.end());
             
             gadgets[neighbor] = v;
-            if(nebsOfNeighbor.size()>0)
+            if(nebsOfNeighbor.size()>0){
+                done[nebsOfNeighbor] = false;
                 groups.insert(make_pair(nebsOfNeighbor,neighbor));
-            
-            if(verbose >=8){
+            }
+                
+            if(verbose >=9){
                 for(size_t k=0;k<nebsOfNeighbor.size(); k++){
                     cout << nebsOfNeighbor[k]->getId() << " ";
                 }
@@ -58,25 +60,10 @@ void PhaseGadget::match(ZXGraph* g){
             }
         }
     }
-    // `(axel,leaf, total combined phase, other axels with same targets, other leafs)
-    
-    if(verbose>=8){
-        for(auto itr=groups.begin(); itr!=groups.end(); itr++){
-            vector<ZXVertex*> key = itr->first;
-            for(size_t o=0;o<key.size();o++){
-                cout << key[o]->getId() << " ";
-            }
-            cout << " ||||| ";
-            auto gadgetList = groups.equal_range(itr->first);
-            for(auto gad = gadgetList.first; gad!= gadgetList.second; gad++){
-                cout << gad->second->getId() << " ";
-            }
-            cout << endl;
-        }
-    }
-    
     
     for(auto itr=groups.begin(); itr!=groups.end(); itr++){
+        if(done[itr->first]) continue;
+        else done[itr->first]= true;
         auto gadgetList = groups.equal_range(itr->first);
         vector<ZXVertex*> axels;
         vector<ZXVertex*> leaves;
@@ -85,16 +72,18 @@ void PhaseGadget::match(ZXGraph* g){
             if(gad->second->getPhase()==Phase(1)){
                 gad->second->setPhase(Phase(0));
                 tot = tot + (-1) * gadgets[gad->second]->getPhase();
+                gadgets[gad->second] -> setPhase((-1) * gadgets[gad->second]->getPhase());
             }
             else{
                 tot = tot + gadgets[gad->second]->getPhase();
             }
             axels.push_back(gad->second);
-            // cout << "!!!! "<<gad->second->getId() << endl;
             leaves.push_back(gadgets[gad->second]);
         }
-        if(leaves.size()>1)
+        if(leaves.size()>1){
             _matchTypeVec.emplace_back(tot, axels, leaves);
+        }
+            
     }
     setMatchTypeVecNum(_matchTypeVec.size());
 }
@@ -126,14 +115,9 @@ void PhaseGadget::rewrite(ZXGraph* g){
         vector<ZXVertex*> rm_leaves = get<2>(_matchTypeVec[i]);
         for(size_t j=1; j<rm_axels.size(); j++){
             _removeVertices.push_back(rm_axels[j]);
-            // cout << rm_axels[j]->getId() << " & ";
         }
-        // cout << endl;
         for(size_t j=1; j<rm_leaves.size(); j++){
             _removeVertices.push_back(rm_leaves[j]);
-            // cout << rm_leaves[j]->getId() << " & ";
         }
-        // cout << endl;
-            
     }
 }
