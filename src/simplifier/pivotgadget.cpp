@@ -197,18 +197,33 @@ void PivotGadget::rewrite(ZXGraph* g){
         // Add edge table
         for(auto& s : n0){
             for(auto& t : n1){
-                _edgeTableKeys.push_back(make_pair(s, t));
-                _edgeTableValues.push_back(make_pair(0,1));
+                if(s->getId()==t->getId()) {
+                    s->setPhase(s->getPhase()+Phase(1));
+                }
+                else{
+                    _edgeTableKeys.push_back(make_pair(s, t));
+                    _edgeTableValues.push_back(make_pair(0,1));
+                }
             }
             for(auto& t : n2){
-                _edgeTableKeys.push_back(make_pair(s, t));
-                _edgeTableValues.push_back(make_pair(0,1));
+                if(s->getId()==t->getId()) {
+                    s->setPhase(s->getPhase()+Phase(1));
+                }
+                else{
+                    _edgeTableKeys.push_back(make_pair(s, t));
+                    _edgeTableValues.push_back(make_pair(0,1));
+                }
             }
         }
         for(auto& s : n1){
             for(auto& t : n2){
-                _edgeTableKeys.push_back(make_pair(s, t));
-                _edgeTableValues.push_back(make_pair(0,1));
+                if(s->getId()==t->getId()) {
+                    s->setPhase(s->getPhase()+Phase(1));
+                }
+                else{
+                    _edgeTableKeys.push_back(make_pair(s, t));
+                    _edgeTableValues.push_back(make_pair(0,1));
+                }
             }
         }
 
