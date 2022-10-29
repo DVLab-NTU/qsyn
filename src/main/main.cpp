@@ -67,7 +67,7 @@ main(int argc, char** argv)
       return 1;
 
    CmdExecStatus status = CMD_EXEC_DONE;
-   time_t result = time(nullptr);
+   // time_t result = time(nullptr);
    cerr << "DV Lab, NTUEE, Qsyn 0.3.0\n";
    // cerr << "DV Lab, NTUEE, Qsyn 0.3.0, compiled " << ctime(&result);
    while (status != CMD_EXEC_QUIT) {  // until "quit" or command error

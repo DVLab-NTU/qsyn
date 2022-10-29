@@ -11,6 +11,7 @@ Successfully generated Graph 1
 Checkout to Graph 1
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(7, -) 
@@ -21,6 +22,7 @@ ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/2	#Neighbors:	4	(4, [1m
 ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(2, -) (6, [1m[34mH[0m[0m) 
 ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (6, [1m[34mH[0m[0m) 
 Total #Vertices: 9
+
 
 qsyn> zxgp -e
 ( 6, 7 )	Type:	[1m[34mH[0m[0m
@@ -38,6 +40,7 @@ Local Complementary Rule:
 1 iterations
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(7, -) 
@@ -47,6 +50,7 @@ ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	3π/2	#Neighbors:	4	(1, -) 
 ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	3π/2	#Neighbors:	4	(2, -) (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) 
 ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	3π/2	#Neighbors:	4	(3, -) (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
 Total #Vertices: 8
+
 
 qsyn> zxgp -e
 ( 3, 8 )	Type:	-

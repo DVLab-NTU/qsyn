@@ -14,6 +14,7 @@ Hopf Rule:
 2 iterations
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
 ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(6, -) 
@@ -29,11 +30,13 @@ ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, [1m
 ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(11, -) 
 Total #Vertices: 13
 
+
 qsyn> zxgs -spi
 Spider Fusion Rule: 
 2 iterations
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
 ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(5, -) 
@@ -46,6 +49,7 @@ ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(11, [1m
 ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(10, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
 Total #Vertices: 10
 
+
 qsyn> // The result should be same after swapping orders of two rules
 
 qsyn> zxgr -R benchmark/zx/hopf_adv.zx
@@ -56,6 +60,7 @@ Spider Fusion Rule:
 2 iterations
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
 ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(5, -) 
@@ -68,11 +73,13 @@ ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(7, -) (7,
 ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(8, -) (8, -) (10, -) (10, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (10, -) 
 Total #Vertices: 10
 
+
 qsyn> zxgs -hopf
 Hopf Rule: 
 2 iterations
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
 ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(5, -) 
@@ -84,6 +91,7 @@ ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, -) (5, 
 ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(11, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
 ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(10, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
 Total #Vertices: 10
+
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----

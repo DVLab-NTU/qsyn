@@ -22,6 +22,7 @@ Stored the resulting tensor as tensor id 0
 qsyn> // tsp 0
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(25, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(6, -) 
@@ -50,6 +51,7 @@ ID:	26	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(24, -) (2
 ID:	27	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	π	#Neighbors:	1	(7, -) 
 ID:	28	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	π	#Neighbors:	1	(26, -) 
 Total #Vertices: 27
+
 
 qsyn> zxgs -fr
 Hadamard Rule: 2 . 1 iterations
@@ -137,6 +139,7 @@ Hopf Rule:
 No matches
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(31, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(31, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(19, [1m[34mH[0m[0m) 
@@ -147,12 +150,14 @@ ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	0	#Neighbors:	3	(0, -) (1
 ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
 Total #Vertices: 8
 
+
 qsyn> zxgs -stco
 [1m[32mTrue: The graph is graph-like[0m[0m
 State Copy Rule: 
 1 iterations
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(31, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(31, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(19, [1m[34mH[0m[0m) 
@@ -160,6 +165,7 @@ ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(19, [1m[34mH[0m[0m)
 ID:	19	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
 ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	0	#Neighbors:	3	(0, -) (1, -) (19, [1m[34mH[0m[0m) 
 Total #Vertices: 6
+
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
@@ -189,6 +195,7 @@ Stored the resulting tensor as tensor id 2
 qsyn> // tsp 2
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(25, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(6, -) 
@@ -217,6 +224,7 @@ ID:	26	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(24, -) (2
 ID:	27	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
 ID:	28	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	1	(26, -) 
 Total #Vertices: 27
+
 
 qsyn> zxgs -fr
 Hadamard Rule: 2 . 1 iterations
@@ -320,6 +328,7 @@ Hopf Rule:
 No matches
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(0, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(5, -) 
@@ -327,11 +336,13 @@ ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(4, -)
 ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(30, [1m[34mH[0m[0m) 
 ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
 Total #Vertices: 6
+
 
 qsyn> zxgs -stco
 False: Boundary vertex 0 has a boundary neighbor!!1 !!
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(0, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(5, -) 
@@ -339,6 +350,7 @@ ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(4, -)
 ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(30, [1m[34mH[0m[0m) 
 ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
 Total #Vertices: 6
+
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
@@ -375,6 +387,7 @@ Stored the resulting tensor as tensor id 4
 qsyn> // tsp 4
 
 qsyn> zxgp -v
+
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(6, -) 
 ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(22, -) 
 ID:	6	VertexType:	[1m[33mH[0m[0m	Qubit:	2	Phase:	π	#Neighbors:	2	(4, -) (8, -) 
@@ -403,6 +416,7 @@ ID:	28	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	π	#Neighbors:	1	(26, -)
 ID:	29	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	1	(10, -) 
 ID:	30	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	1	(25, -) 
 Total #Vertices: 27
+
 
 qsyn> zxgs -FR
 Hadamard Rule: 2 . 1 iterations
@@ -490,6 +504,7 @@ Hopf Rule:
 No matches
 
 qsyn> zxgp -v
+
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(36, [1m[34mH[0m[0m) 
 ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(36, [1m[34mH[0m[0m) 
 ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(31, [1m[34mH[0m[0m) 
@@ -501,16 +516,19 @@ ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(27, 
 ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π	#Neighbors:	2	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) 
 Total #Vertices: 9
 
+
 qsyn> zxgs -stco
 [1m[32mTrue: The graph is graph-like[0m[0m
 State Copy Rule: 
 1 iterations
 
 qsyn> zxgp -v
+
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(36, [1m[34mH[0m[0m) 
 ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(36, [1m[34mH[0m[0m) 
 ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π	#Neighbors:	2	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) 
 Total #Vertices: 3
+
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----

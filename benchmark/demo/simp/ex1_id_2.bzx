@@ -1,0 +1,12 @@
+// Identity 1
+I0 0 S2
+I1 1 S4
+X2 0 S3 pi
+Z3 0 S4 S5
+X4 1 S6
+X5 0 S7 pi
+X6 1 S8 pi
+Z7 0 S8 S9
+X8 1 S10
+O9 0
+O10 1

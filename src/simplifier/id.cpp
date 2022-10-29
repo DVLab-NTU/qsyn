@@ -22,6 +22,8 @@ extern size_t verbose;
  */
 void IdRemoval::match(ZXGraph* g) {
     _matchTypeVec.clear();
+    if(verbose >= 8) g->printVertices();
+
     unordered_map<size_t, size_t> id2idx;
     for (size_t i = 0; i < g->getVertices().size(); ++i) {
         id2idx[g->getVertices()[i]->getId()] = i;

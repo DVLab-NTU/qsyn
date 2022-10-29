@@ -168,6 +168,7 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(22, -) 
 ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(24, -) 
@@ -175,6 +176,7 @@ ID:	22	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(0, -)
 ID:	23	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(2, -) 
 ID:	24	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(4, -) 
 Total #Vertices: 6
+
 
 qsyn> zxch   2
 Error: The id provided does not exist!!
@@ -197,6 +199,7 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(28, -) 
 ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(29, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(30, -) 
@@ -204,6 +207,7 @@ ID:	28	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(0, -)
 ID:	29	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(2, -) 
 ID:	30	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(4, -) 
 Total #Vertices: 6
+
 
 qsyn> q -f
 

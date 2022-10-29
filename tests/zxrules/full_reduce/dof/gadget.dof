@@ -1,0 +1,19 @@
+qccr benchmark/pseudoSimp/tof2.qasm
+zxm -on
+qczxm
+zxgas 1 I X pi
+zxgas 1 O X pi
+zxgtsm
+tsp 0
+zxgp -v
+zxgs -spiderf
+zxgp -v
+zxgs -idr
+zxgp -v
+zxgs -tog
+verb 9
+zxgs -pivotg
+zxgp -v
+zxgs -idr
+zxgp -v
+q -f

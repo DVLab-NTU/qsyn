@@ -7,6 +7,7 @@ Successfully generated Graph 0
 Checkout to Graph 0
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(3, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(4, [1m[34mH[0m[0m) 
 ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
@@ -19,6 +20,7 @@ ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	1	(7, [1m[
 ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	7π/8	#Neighbors:	2	(7, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
 ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(2, -) (9, [1m[34mH[0m[0m) 
 Total #Vertices: 11
+
 
 qsyn> zxgp -e
 ( 9, 10 )	Type:	[1m[34mH[0m[0m
@@ -39,6 +41,7 @@ State Copy Rule:
 1 iterations
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(3, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(4, [1m[34mH[0m[0m) 
 ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
@@ -49,6 +52,7 @@ ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	11π/6	#Neighbors:	1	(4, [
 ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	15π/8	#Neighbors:	1	(10, [1m[34mH[0m[0m) 
 ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(2, -) (9, [1m[34mH[0m[0m) 
 Total #Vertices: 9
+
 
 qsyn> zxgp -e
 ( 9, 10 )	Type:	[1m[34mH[0m[0m
@@ -63,6 +67,7 @@ qsyn> zxgr -r benchmark/zx/stcopy_boundary.zx
 Note: original zxGraph is replaced...
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(3, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, [1m[34mH[0m[0m) 
 ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
@@ -73,6 +78,7 @@ ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	1	(7, [1m[
 ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	7π/8	#Neighbors:	2	(7, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
 ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(2, -) (9, [1m[34mH[0m[0m) 
 Total #Vertices: 9
+
 
 qsyn> zxgp -e
 ( 9, 10 )	Type:	[1m[34mH[0m[0m
@@ -91,6 +97,7 @@ State Copy Rule:
 1 iterations
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(3, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(11, -) 
 ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
@@ -100,6 +107,7 @@ ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	15π/8	#Neighbors:	1	(10, 
 ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(2, -) (9, [1m[34mH[0m[0m) 
 ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	π	#Neighbors:	1	(1, -) 
 Total #Vertices: 8
+
 
 qsyn> zxgp -e
 ( 9, 10 )	Type:	[1m[34mH[0m[0m
