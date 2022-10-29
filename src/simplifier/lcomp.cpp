@@ -26,7 +26,7 @@ void LComp::match(ZXGraph* g){
     unordered_map<size_t, size_t> id2idx;
     for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
 
-    // Find all Z vertices that connect to all neighbors with H edge.
+    // Find all Z vertices that connect to all neighb ors with H edge.
     vector<bool> taken(g->getNumVertices(), false);
     vector<bool> inMatches(g->getNumVertices(), false);
     for(size_t i = 0; i < g->getNumVertices(); i++){
@@ -66,7 +66,13 @@ void LComp::rewrite(ZXGraph* g){
     
     for(size_t i = 0; i < _matchTypeVec.size(); i++){
         _removeVertices.push_back(_matchTypeVec[i].first);
-        Phase p = _matchTypeVec[i].first->getPhase();
+        size_t hEdgeCount = 0;
+        for (auto& [nb, etype] : _matchTypeVec[i].first->getNeighborMap()) {
+            if (nb == _matchTypeVec[i].first && *etype == EdgeType::HADAMARD) {
+                hEdgeCount++;
+            }
+        }
+        Phase p = _matchTypeVec[i].first->getPhase() + Phase(hEdgeCount/2);
         //! TODO global scalar ignored
         for(size_t n = 0; n < _matchTypeVec[i].second.size(); n++){
             _matchTypeVec[i].second[n]->setPhase(_matchTypeVec[i].second[n]->getPhase()-p);
