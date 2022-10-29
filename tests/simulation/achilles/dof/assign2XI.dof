@@ -7,8 +7,9 @@ zxgas 1 I X pi
 zxgas 1 O X pi
 zxgas 0 I X pi
 zxgas 0 O X pi
+ver 1
 zxgs -sr
-zxgp -v
+ver 3
 zxgtsm
 qccr -R benchmark/pseudoSimp/achilles.qasm
 zxm -on
@@ -19,8 +20,9 @@ zxgas 1 I X pi
 zxgas 1 O X pi
 zxgas 2 I X pi
 zxgas 2 O X pi
+ver 1
 zxgs -sr
-zxgp -v
+ver 3
 zxgtsm
 qccr -R benchmark/pseudoSimp/achilles.qasm
 zxm -on
@@ -31,8 +33,9 @@ zxgas 2 I X pi
 zxgas 2 O X pi
 zxgas 0 I X pi
 zxgas 0 O X pi
+ver 1
 zxgs -sr
-zxgp -v
+ver 3
 zxgtsm
 tseq 0 1
 tseq 0 2

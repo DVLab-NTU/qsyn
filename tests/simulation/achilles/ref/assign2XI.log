@@ -22,177 +22,17 @@ qsyn> zxgas 0 I X pi
 
 qsyn> zxgas 0 O X pi
 
-qsyn> zxgs -sr
-Hadamard Rule: 9 . 3 . 2 iterations
-Spider Fusion Rule: 
-6 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-1 iterations
-Local Complementary Rule: 
-2 iterations
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-1 iterations
-Local Complementary Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-2 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Pivot Gadget Rule: 
-6 iterations
-Hopf Rule: 
-No matches
-[1m[32mTrue: The graph is graph-like[0m[0m
-State Copy Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-4 iterations
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-4 iterations
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Phase Gadget Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Pivot Gadget Rule: 
-1 iterations
-Hopf Rule: 
-No matches
-[1m[32mTrue: The graph is graph-like[0m[0m
-State Copy Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Phase Gadget Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-2 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Pivot Gadget Rule: 
-No matches
-Hopf Rule: 
-No matches
-[1m[32mTrue: The graph is graph-like[0m[0m
-State Copy Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Phase Gadget Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Pivot Gadget Rule: 
-No matches
-Hopf Rule: 
-No matches
-[1m[32mTrue: The graph is graph-like[0m[0m
-State Copy Rule: 
-No matches
+qsyn> ver 1
+Note: verbose level is set to 1
 
-qsyn> zxgp -v
-ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(32, -) 
-ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(32, -) 
-ID:	8	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(165, [1m[34mH[0m[0m) 
-ID:	9	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(165, [1m[34mH[0m[0m) 
-ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(4, -) (5, -) (165, [1m[34mH[0m[0m) 
-ID:	165	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π	#Neighbors:	3	(8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) 
-Total #Vertices: 6
+qsyn> zxgs -sr
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+
+qsyn> ver 3
+Note: verbose level is set to 3
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
@@ -223,140 +63,16 @@ qsyn> zxgas 2 I X pi
 
 qsyn> zxgas 2 O X pi
 
-qsyn> zxgs -sr
-Hadamard Rule: 9 . 3 . 2 iterations
-Spider Fusion Rule: 
-6 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-1 iterations
-Local Complementary Rule: 
-2 iterations
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-1 iterations
-Local Complementary Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-2 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Pivot Gadget Rule: 
-5 iterations
-Hopf Rule: 
-No matches
-[1m[32mTrue: The graph is graph-like[0m[0m
-State Copy Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-4 iterations
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Phase Gadget Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-2 iterations
-Pivot Rule: 
-1 iterations
-Local Complementary Rule: 
-3 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-1 iterations
-Local Complementary Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Pivot Gadget Rule: 
-No matches
-Hopf Rule: 
-No matches
-[1m[32mTrue: The graph is graph-like[0m[0m
-State Copy Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Phase Gadget Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Pivot Gadget Rule: 
-No matches
-Hopf Rule: 
-No matches
-[1m[32mTrue: The graph is graph-like[0m[0m
-State Copy Rule: 
-No matches
+qsyn> ver 1
+Note: verbose level is set to 1
 
-qsyn> zxgp -v
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(155, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(155, -) 
-ID:	8	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(167, [1m[34mH[0m[0m) 
-ID:	9	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(167, [1m[34mH[0m[0m) 
-ID:	155	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	0	#Neighbors:	3	(0, -) (1, -) (167, [1m[34mH[0m[0m) 
-ID:	167	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π	#Neighbors:	3	(8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (155, [1m[34mH[0m[0m) 
-Total #Vertices: 6
+qsyn> zxgs -sr
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+
+qsyn> ver 3
+Note: verbose level is set to 3
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
@@ -387,132 +103,16 @@ qsyn> zxgas 0 I X pi
 
 qsyn> zxgas 0 O X pi
 
-qsyn> zxgs -sr
-Hadamard Rule: 9 . 3 . 2 iterations
-Spider Fusion Rule: 
-6 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-1 iterations
-Local Complementary Rule: 
-2 iterations
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-1 iterations
-Local Complementary Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Pivot Gadget Rule: 
-5 iterations
-Hopf Rule: 
-No matches
-[1m[32mTrue: The graph is graph-like[0m[0m
-State Copy Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-4 iterations
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Phase Gadget Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-2 iterations
-Pivot Rule: 
-1 iterations
-Local Complementary Rule: 
-5 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Pivot Gadget Rule: 
-No matches
-Hopf Rule: 
-No matches
-[1m[32mTrue: The graph is graph-like[0m[0m
-State Copy Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Phase Gadget Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementary Rule: 
-No matches
-Pivot Gadget Rule: 
-No matches
-Hopf Rule: 
-No matches
-[1m[32mTrue: The graph is graph-like[0m[0m
-State Copy Rule: 
-No matches
+qsyn> ver 1
+Note: verbose level is set to 1
 
-qsyn> zxgp -v
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(11, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(11, -) 
-ID:	8	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(167, [1m[34mH[0m[0m) 
-ID:	9	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(167, [1m[34mH[0m[0m) 
-ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (3, -) (167, [1m[34mH[0m[0m) 
-ID:	167	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π	#Neighbors:	3	(8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
-Total #Vertices: 6
+qsyn> zxgs -sr
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+
+qsyn> ver 3
+Note: verbose level is set to 3
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
