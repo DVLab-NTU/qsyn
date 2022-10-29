@@ -11,6 +11,7 @@ Checkout to Graph 0
 --------------------------------------
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(18, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(81, -) 
 ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
@@ -98,6 +99,7 @@ ID:	83	VertexType:	[1m[33mH[0m[0m	Qubit:	4	Phase:	π	#Neighbors:	2	(78, -) (
 ID:	84	VertexType:	[1m[33mH[0m[0m	Qubit:	4	Phase:	π	#Neighbors:	2	(9, -) (83, -) 
 Total #Vertices: 85
 
+
 qsyn> zxgas 0 I X pi
 
 qsyn> zxgas 0 O X pi
@@ -115,6 +117,7 @@ qsyn> zxgas 4 I X 0
 qsyn> zxgas 4 O X 0
 
 qsyn> zxgp -v
+
 ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(12, -) 
 ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(59, -) 
 ID:	10	VertexType:	[1m[33mH[0m[0m	Qubit:	4	Phase:	π	#Neighbors:	2	(11, -) (91, -) 
@@ -202,6 +205,7 @@ ID:	91	VertexType:	[1m[31mX[0m[0m	Qubit:	4	Phase:	0	#Neighbors:	1	(10, -)
 ID:	92	VertexType:	[1m[31mX[0m[0m	Qubit:	4	Phase:	0	#Neighbors:	1	(84, -) 
 Total #Vertices: 85
 
+
 qsyn> zxgs -fr
 Hadamard Rule: 6 . 6 . 6 . 3 iterations
 Spider Fusion Rule: 
@@ -225,7 +229,7 @@ No matches
 Pivot Gadget Rule: 
 4 iterations
 Hopf Rule: 
-1 iterations
+No matches
 Spider Fusion Rule: 
 No matches
 Identity Removal Rule: 
@@ -312,6 +316,7 @@ Hopf Rule:
 No matches
 
 qsyn> zxgp -v
+
 ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m) 
 ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m) 
 ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(96, [1m[34mH[0m[0m) 
@@ -327,16 +332,19 @@ ID:	100	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(87, 
 ID:	102	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(88, [1m[34mH[0m[0m) 
 Total #Vertices: 13
 
+
 qsyn> zxgs -stco
 [1m[32mTrue: The graph is graph-like[0m[0m
 State Copy Rule: 
 1 iterations
 
 qsyn> zxgp -v
+
 ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m) 
 ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m) 
 ID:	50	VertexType:	[1m[32mZ[0m[0m	Qubit:	3	Phase:	π	#Neighbors:	2	(6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
 Total #Vertices: 3
+
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----

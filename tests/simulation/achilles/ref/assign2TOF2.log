@@ -1,0 +1,213 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> qccr benchmark/pseudoSimp/achilles.qasm
+
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> qczxm
+Successfully generated Graph 0
+Checkout to Graph 0
+---- TRAVERSE AND BUILD THE GRAPH ----
+--------------------------------------
+
+qsyn> zxgas 3 I X 0
+
+qsyn> zxgas 3 O X 0
+
+qsyn> zxgas 1 I X 0
+
+qsyn> zxgas 1 O X 0
+
+qsyn> ver 1
+Note: verbose level is set to 1
+
+qsyn> zxgs -sr
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
+
+qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
+Note: original quantum circuit is replaced...
+
+qsyn> zxm -on
+Error: ZXMODE is already ON
+
+qsyn> qczxm
+Successfully generated Graph 0
+Checkout to Graph 0
+---- TRAVERSE AND BUILD THE GRAPH ----
+--------------------------------------
+
+qsyn> zxgas 3 I X 0
+
+qsyn> zxgas 3 O X 0
+
+qsyn> zxgas 2 I X 0
+
+qsyn> zxgas 2 O X 0
+
+qsyn> ver 1
+Note: verbose level is set to 1
+
+qsyn> zxgs -sr
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Successfully added Tensor 1
+Stored the resulting tensor as tensor id 1
+
+qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
+Note: original quantum circuit is replaced...
+
+qsyn> zxm -on
+Error: ZXMODE is already ON
+
+qsyn> qczxm
+Successfully generated Graph 0
+Checkout to Graph 0
+---- TRAVERSE AND BUILD THE GRAPH ----
+--------------------------------------
+
+qsyn> zxgas 3 I X 0
+
+qsyn> zxgas 3 O X 0
+
+qsyn> zxgas 0 I X 0
+
+qsyn> zxgas 0 O X 0
+
+qsyn> ver 1
+Note: verbose level is set to 1
+
+qsyn> zxgs -sr
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Successfully added Tensor 2
+Stored the resulting tensor as tensor id 2
+
+qsyn> tseq 0 1
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> tseq 0 2
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> tseq 1 2
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> // Test if equivalence (with ZX tof2_opt)
+
+qsyn> zxgr benchmark/zx/tof2_opt.zx
+Successfully generated Graph 1
+Checkout to Graph 1
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Successfully added Tensor 3
+Stored the resulting tensor as tensor id 3
+
+qsyn> tseq 0 3
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> // Test structural equivalence of the three results
+
+qsyn> zxch   0
+Checkout to Graph 0
+
+qsyn> zxcopy 4
+Successfully copied Graph 0 to Graph 4
+Checkout to Graph 4
+
+qsyn> zxgadj
+
+qsyn> zxch   1
+Checkout to Graph 1
+
+qsyn> zxcopy 5
+Successfully copied Graph 1 to Graph 5
+Checkout to Graph 5
+
+qsyn> zxcompose 4
+
+qsyn> ver 1
+Note: verbose level is set to 1
+
+qsyn> zxgs -sr
+False: Boundary vertex 0 has a boundary neighbor!!22 !!
+False: Boundary vertex 0 has a boundary neighbor!!22 !!
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxgp -v
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(22, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(24, -) 
+ID:	22	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(0, -) 
+ID:	23	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	24	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(4, -) 
+Total #Vertices: 6
+
+
+qsyn> zxch   2
+Error: The id provided does not exist!!
+Error: Illegal option!! (2)
+
+qsyn> zxcopy 6
+Successfully copied Graph 5 to Graph 6
+Checkout to Graph 6
+
+qsyn> zxcompose 4
+
+qsyn> ver 1
+Note: verbose level is set to 1
+
+qsyn> zxgs -sr
+False: Boundary vertex 0 has a boundary neighbor!!28 !!
+False: Boundary vertex 0 has a boundary neighbor!!28 !!
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxgp -v
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(28, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(29, -) 
+ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(30, -) 
+ID:	28	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(0, -) 
+ID:	29	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	30	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(4, -) 
+Total #Vertices: 6
+
+
+qsyn> q -f
+

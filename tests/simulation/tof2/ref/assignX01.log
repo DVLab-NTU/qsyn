@@ -19,18 +19,10 @@ qsyn> zxgtsm
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
-qsyn> tsp 0
-{{ 1.414214e+00-1.012105e-15i, -5.222227e-33-8.528544e-17i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
- {-5.222227e-33-8.528544e-17i,  1.414214e+00-1.012105e-15i, 
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
- { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   1.320285e-16-3.161367e-16i,  1.414214e+00-8.695236e-16i},
- { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i, 
-   1.414214e+00-8.695236e-16i,  1.320285e-16-3.161367e-16i}}
-#Dim:    2	Info: ZX 0
+qsyn> // tsp 0
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(25, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(6, -) 
@@ -59,6 +51,7 @@ ID:	26	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(24, -) (2
 ID:	27	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	π	#Neighbors:	1	(7, -) 
 ID:	28	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	π	#Neighbors:	1	(26, -) 
 Total #Vertices: 27
+
 
 qsyn> zxgs -fr
 Hadamard Rule: 2 . 1 iterations
@@ -146,6 +139,7 @@ Hopf Rule:
 No matches
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(31, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(31, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(19, [1m[34mH[0m[0m) 
@@ -156,12 +150,14 @@ ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	0	#Neighbors:	3	(0, -) (1
 ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
 Total #Vertices: 8
 
+
 qsyn> zxgs -stco
 [1m[32mTrue: The graph is graph-like[0m[0m
 State Copy Rule: 
 1 iterations
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(31, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(31, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(19, [1m[34mH[0m[0m) 
@@ -170,17 +166,13 @@ ID:	19	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(4, [1m[
 ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	0	#Neighbors:	3	(0, -) (1, -) (19, [1m[34mH[0m[0m) 
 Total #Vertices: 6
 
+
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Successfully added Tensor 1
 Stored the resulting tensor as tensor id 1
 
-qsyn> tsp 1
-{{ 1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i},
- { 0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i}}
-#Dim:    2	Info: ZX 0
+qsyn> // tsp 1
 
 qsyn> qccr -R benchmark/pseudoSimp/tof2.qasm
 Note: original quantum circuit is replaced...
@@ -200,18 +192,10 @@ qsyn> zxgtsm
 Successfully added Tensor 2
 Stored the resulting tensor as tensor id 2
 
-qsyn> tsp 2
-{{ 1.414214-4.201122e-16i,  0.      +4.201122e-16i, 
-   0.      +0.000000e+00i,  0.      +0.000000e+00i},
- { 0.      +4.201122e-16i,  1.414214-4.201122e-16i, 
-   0.      +0.000000e+00i,  0.      +0.000000e+00i},
- { 0.      +0.000000e+00i,  0.      +0.000000e+00i, 
-   1.414214-9.378190e-16i,  0.      -4.236457e-18i},
- { 0.      +0.000000e+00i,  0.      +0.000000e+00i, 
-   0.      -4.236457e-18i,  1.414214-9.378190e-16i}}
-#Dim:    2	Info: ZX 1
+qsyn> // tsp 2
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(25, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(6, -) 
@@ -240,6 +224,7 @@ ID:	26	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(24, -) (2
 ID:	27	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
 ID:	28	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	1	(26, -) 
 Total #Vertices: 27
+
 
 qsyn> zxgs -fr
 Hadamard Rule: 2 . 1 iterations
@@ -343,6 +328,7 @@ Hopf Rule:
 No matches
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(0, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(5, -) 
@@ -350,11 +336,13 @@ ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(4, -)
 ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(30, [1m[34mH[0m[0m) 
 ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
 Total #Vertices: 6
+
 
 qsyn> zxgs -stco
 False: Boundary vertex 0 has a boundary neighbor!!1 !!
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(0, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(5, -) 
@@ -362,18 +350,14 @@ ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(4, -)
 ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(30, [1m[34mH[0m[0m) 
 ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
 Total #Vertices: 6
+
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Successfully added Tensor 3
 Stored the resulting tensor as tensor id 3
 
-qsyn> tsp 3
-{{ 1.+0.i,  0.+0.i,  0.+0.i,  0.+0.i},
- { 0.+0.i,  1.+0.i,  0.+0.i,  0.+0.i},
- { 0.+0.i,  0.+0.i,  1.+0.i,  0.+0.i},
- { 0.+0.i,  0.+0.i,  0.+0.i,  1.+0.i}}
-#Dim:    2	Info: ZX 1
+qsyn> // tsp 3
 
 qsyn> qccr -R benchmark/pseudoSimp/tof2.qasm
 Note: original quantum circuit is replaced...
@@ -400,10 +384,7 @@ qsyn> zxgtsm
 Successfully added Tensor 4
 Stored the resulting tensor as tensor id 4
 
-qsyn> tsp 4
-{{ 0.      -5.231863e-16i,  2.      -1.151223e-15i},
- { 2.      -1.151223e-15i,  0.      -5.231863e-16i}}
-#Dim:    2	Info: ZX 0
+qsyn> // tsp 4
 
 qsyn> zxgp -v
 
@@ -523,21 +504,16 @@ Hopf Rule:
 No matches
 
 qsyn> zxgp -v
-<<<<<<< HEAD
 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(36, [1m[34mH[0m[0m) 
 ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(36, [1m[34mH[0m[0m) 
-=======
-ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(35, [1m[34mH[0m[0m) 
-ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(35, [1m[34mH[0m[0m) 
->>>>>>> devt
 ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(31, [1m[34mH[0m[0m) 
 ID:	21	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(33, [1m[34mH[0m[0m) 
 ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(34, [1m[34mH[0m[0m) 
 ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
 ID:	33	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(21, [1m[34mH[0m[0m) 
 ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
-ID:	35	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π	#Neighbors:	2	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) 
+ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π	#Neighbors:	2	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) 
 Total #Vertices: 9
 
 
@@ -547,9 +523,10 @@ State Copy Rule:
 1 iterations
 
 qsyn> zxgp -v
-ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(35, [1m[34mH[0m[0m) 
-ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(35, [1m[34mH[0m[0m) 
-ID:	35	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π	#Neighbors:	2	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) 
+
+ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(36, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(36, [1m[34mH[0m[0m) 
+ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π	#Neighbors:	2	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) 
 Total #Vertices: 3
 
 
@@ -558,10 +535,7 @@ qsyn> zxgtsm
 Successfully added Tensor 5
 Stored the resulting tensor as tensor id 5
 
-qsyn> tsp 5
-{{ 0.      +6.123234e-17i,  1.      -6.123234e-17i},
- { 1.      -6.123234e-17i,  0.      +6.123234e-17i}}
-#Dim:    2	Info: ZX 0
+qsyn> // tsp 5
 
 qsyn> q -f
 

@@ -11,6 +11,7 @@ Checkout to Graph 0
 --------------------------------------
 
 qsyn> zxgp -v
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(18, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(81, -) 
 ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
@@ -98,6 +99,7 @@ ID:	83	VertexType:	[1m[33mH[0m[0m	Qubit:	4	Phase:	π	#Neighbors:	2	(78, -) (
 ID:	84	VertexType:	[1m[33mH[0m[0m	Qubit:	4	Phase:	π	#Neighbors:	2	(9, -) (83, -) 
 Total #Vertices: 85
 
+
 qsyn> zxgas 0 I X pi
 
 qsyn> zxgas 0 O X pi
@@ -111,6 +113,7 @@ qsyn> zxgas 4 I X 0
 qsyn> zxgas 4 O X 0
 
 qsyn> zxgp -v
+
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(41, -) 
 ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(56, -) 
 ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(12, -) 
@@ -198,6 +201,7 @@ ID:	89	VertexType:	[1m[31mX[0m[0m	Qubit:	4	Phase:	0	#Neighbors:	1	(10, -)
 ID:	90	VertexType:	[1m[31mX[0m[0m	Qubit:	4	Phase:	0	#Neighbors:	1	(84, -) 
 Total #Vertices: 85
 
+
 qsyn> zxgs -fr
 Hadamard Rule: 6 . 6 . 6 . 3 iterations
 Spider Fusion Rule: 
@@ -221,7 +225,7 @@ No matches
 Pivot Gadget Rule: 
 4 iterations
 Hopf Rule: 
-1 iterations
+No matches
 Spider Fusion Rule: 
 No matches
 Identity Removal Rule: 
@@ -343,6 +347,7 @@ State Copy Rule:
 1 iterations
 
 qsyn> zxgp -v
+
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(92, -) 
 ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(92, -) 
 ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m) 
@@ -350,6 +355,7 @@ ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m)
 ID:	50	VertexType:	[1m[32mZ[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (92, [1m[34mH[0m[0m) 
 ID:	92	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	0	#Neighbors:	3	(4, -) (5, -) (50, [1m[34mH[0m[0m) 
 Total #Vertices: 6
+
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
