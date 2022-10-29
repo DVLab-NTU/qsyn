@@ -350,12 +350,12 @@ State Copy Rule:
 No matches
 
 qsyn> zxgp -v
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(155, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(155, -) 
 ID:	8	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(167, [1m[34mH[0m[0m) 
 ID:	9	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(167, [1m[34mH[0m[0m) 
-ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (1, -) (167, [1m[34mH[0m[0m) 
-ID:	167	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π	#Neighbors:	3	(8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) 
+ID:	155	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	0	#Neighbors:	3	(0, -) (1, -) (167, [1m[34mH[0m[0m) 
+ID:	167	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π	#Neighbors:	3	(8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (155, [1m[34mH[0m[0m) 
 Total #Vertices: 6
 
 qsyn> zxgtsm
@@ -459,7 +459,7 @@ Spider Fusion Rule:
 Pivot Rule: 
 1 iterations
 Local Complementary Rule: 
-4 iterations
+5 iterations
 Identity Removal Rule: 
 No matches
 Spider Fusion Rule: 
