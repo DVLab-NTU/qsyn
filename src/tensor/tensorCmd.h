@@ -13,5 +13,6 @@
 CmdClass(TSResetCmd);
 CmdClass(TSPrintCmd);
 CmdClass(TSEquivalenceCmd);
+CmdClass(TSAdjointCmd);
 
 #endif // TENSOR_CMD_H

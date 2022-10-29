@@ -23,12 +23,11 @@ std::ostream& operator<<(std::ostream& os, const Phase& p) {
     }
 }
 
-Phase& Phase::operator+() {
+Phase Phase::operator+() const {
     return *this;
 }
-Phase& Phase::operator-() {
-    this->_rational = -this->_rational;
-    return *this;
+Phase Phase::operator-() const {
+    return Phase(-_rational.numerator(), _rational.denominator());
 }
 
 Phase& Phase::operator+=(const Phase& rhs) {

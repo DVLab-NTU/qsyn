@@ -17,10 +17,10 @@ std::ostream& operator<< (std::ostream& os, const Rational& q) {
     return os;
 }
 
-Rational Rational::operator+() const{
+Rational Rational::operator+() const {
     return Rational(_numer, _denom);
 }
-Rational Rational::operator-() const{
+Rational Rational::operator-() const {
     return Rational(-_numer, _denom);
 }
 

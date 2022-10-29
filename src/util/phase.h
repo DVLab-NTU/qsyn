@@ -29,8 +29,8 @@ public:
     Phase(T f, T eps = 1e-4): _rational(f/std::numbers::pi_v<T>, eps/std::numbers::pi_v<T>) { normalize(); }
 
     friend std::ostream& operator<<(std::ostream& os, const Phase& p);
-    Phase& operator+();
-    Phase& operator-();
+    Phase operator+() const;
+    Phase operator-() const;
 
     // Addition and subtraction are mod 2pi
     Phase& operator+=(const Phase& rhs);
