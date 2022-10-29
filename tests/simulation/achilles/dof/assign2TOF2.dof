@@ -8,7 +8,6 @@ zxgas 1 O X 0
 zxgs -sr
 zxgp -v
 zxgtsm
-tsp 0
 qccr -R benchmark/pseudoSimp/achilles.qasm
 zxm -on
 qczxm
@@ -19,7 +18,6 @@ zxgas 2 O X 0
 zxgs -sr
 zxgp -v
 zxgtsm
-tsp 1
 qccr -R benchmark/pseudoSimp/achilles.qasm
 zxm -on
 qczxm
@@ -30,8 +28,11 @@ zxgas 0 O X 0
 zxgs -sr
 zxgp -v
 zxgtsm
-tsp 2
 tseq 0 1
 tseq 0 2
 tseq 1 2
+// Test if equivalence (with ZX tof2_opt)
+zxgr benchmark/zx/tof2_opt.zx
+zxgtsm
+tseq 0 3
 q -f
