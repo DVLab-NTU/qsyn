@@ -38,7 +38,7 @@ extern size_t verbose;
  */
 int Simplifier::simp() {
     if (_rule->getName() == "Hadamard Rule") {
-        cerr << "Error: Please use `hadamard_simp` when using HRule." << endl;
+        cerr << "Error: Please use `hadamardSimp` when using HRule." << endl;
         return 0;
     } 
     else {
@@ -109,6 +109,9 @@ int Simplifier::simp() {
                 // TODO check stats
             }
         }
+        if (verbose == 1 && i != 0) {
+            _recipe.emplace_back(_rule->getName(), i);
+        }
         if (verbose >= 2) { 
             if (i > 0) {
                 cout << i << " iterations" << endl;
@@ -130,9 +133,9 @@ int Simplifier::simp() {
  * @param rule_name
  * @return int
  */
-int Simplifier::hadamard_simp() {
+int Simplifier::hadamardSimp() {
     if (_rule->getName() != "Hadamard Rule") {
-        cerr << "Error: `hadamard_simp` is only for HRule." << endl;
+        cerr << "Error: `hadamardSimp` is only for HRule." << endl;
         return 0;
     } else {
         int i = 0;
@@ -175,14 +178,14 @@ int Simplifier::hadamard_simp() {
 
 // Basic rules simplification
 
-int Simplifier::bialg_simp(){
+int Simplifier::bialgSimp(){
     this->setRule(new Bialgebra());
     int i = this->simp();
     return i;
 }
 
 
-int Simplifier::copy_simp(){
+int Simplifier::copySimp(){
     if(!_simpGraph->isGraphLike()) return 0;
     
     this->setRule(new StateCopy());
@@ -191,7 +194,7 @@ int Simplifier::copy_simp(){
 }
 
 
-int Simplifier::gadget_simp(){
+int Simplifier::gadgetSimp(){
     // TODO: phase gadget rule
     this->setRule(new PhaseGadget());
     int i = this->simp();
@@ -199,63 +202,63 @@ int Simplifier::gadget_simp(){
 }
 
 
-int Simplifier::hfusion_simp(){
+int Simplifier::hfusionSimp(){
     this->setRule(new HboxFusion());
     int i = this->simp();
     return i;
 }
 
 
-int Simplifier::hopf_simp(){
+int Simplifier::hopfSimp(){
     this->setRule(new Hopf());
     int i = this->simp();
     return i;
 }
 
 
-int Simplifier::hrule_simp(){
+int Simplifier::hruleSimp(){
     this->setRule(new HRule());
-    int i = this->hadamard_simp();
+    int i = this->hadamardSimp();
     return i;
 }
 
 
-int Simplifier::id_simp(){
+int Simplifier::idSimp(){
     this->setRule(new IdRemoval());
     int i = this->simp();
     return i;
 }
 
 
-int Simplifier::lcomp_simp(){
+int Simplifier::lcompSimp(){
     this->setRule(new LComp());
     int i = this->simp();
     return i;
 }
 
 
-int Simplifier::pivot_simp(){
+int Simplifier::pivotSimp(){
     this->setRule(new Pivot());
     int i = this->simp();
     return i;
 }
 
 
-int Simplifier::pivot_boundary_simp(){
+int Simplifier::pivotBoundarySimp(){
     // TODO: pivot_boundary rule
     return 0;
 }
 
 
-int Simplifier::pivot_gadget_simp(){
+int Simplifier::pivotGadgetSimp(){
     this->setRule(new PivotGadget());
     int i = this->simp();
-    hopf_simp();
+    hopfSimp();
     return i;
 }
 
 
-int Simplifier::sfusion_simp(){
+int Simplifier::sfusionSimp(){
     this->setRule(new SpiderFusion());
     int i = this->simp();
     return i;
@@ -271,7 +274,7 @@ int Simplifier::sfusion_simp(){
  *
  * @param g ZXGraph*
  */
-void Simplifier::to_graph() {
+void Simplifier::toGraph() {
     for (size_t i = 0; i < _simpGraph->getNumVertices(); i++) {
         ZXVertex* v = _simpGraph->getVertices()[i];
         if (v->getType() == VertexType::X) {
@@ -286,7 +289,7 @@ void Simplifier::to_graph() {
  *
  * @param g
  */
-void Simplifier::to_rgraph() {
+void Simplifier::toRGraph() {
     for (size_t i = 0; i < _simpGraph->getNumVertices(); i++) {
         ZXVertex* v = _simpGraph->getVertices()[i];
         if (v->getType() == VertexType::Z) {
@@ -301,16 +304,16 @@ void Simplifier::to_rgraph() {
  * 
  * @return int 
  */
-int Simplifier::interior_clifford_simp(){
-    this->sfusion_simp();
-    to_graph();
+int Simplifier::interiorCliffordSimp(){
+    this->sfusionSimp();
+    toGraph();
 
     int i = 0;
     while(true){
-        int i1 = this->id_simp();
-        int i2 = this->sfusion_simp();
-        int i3 = this->pivot_simp();
-        int i4 = this->lcomp_simp();
+        int i1 = this->idSimp();
+        int i2 = this->sfusionSimp();
+        int i3 = this->pivotSimp();
+        int i4 = this->lcompSimp();
         if(i1+i2+i3+i4 == 0) break;
         i += 1;
     }
@@ -318,11 +321,11 @@ int Simplifier::interior_clifford_simp(){
 }
 
 
-int Simplifier::clifford_simp(){
+int Simplifier::cliffordSimp(){
     int i = 0;
     while(true){
-        i += this->interior_clifford_simp();
-        int i2 = this->pivot_boundary_simp();
+        i += this->interiorCliffordSimp();
+        int i2 = this->pivotBoundarySimp();
         if(i2 == 0) break;
     }
     return i;
@@ -332,32 +335,46 @@ int Simplifier::clifford_simp(){
  * @brief The main simplification routine of PyZX
  * 
  */
-void Simplifier::full_reduce(){
-    this->interior_clifford_simp();
-    this->pivot_gadget_simp();
+void Simplifier::fullReduce(){
+    this->interiorCliffordSimp();
+    this->pivotGadgetSimp();
     while(true){
-        this->clifford_simp();
-        int i = this->gadget_simp();
-        this->interior_clifford_simp();
-        int j = this->pivot_gadget_simp();
+        this->cliffordSimp();
+        int i = this->gadgetSimp();
+        this->interiorCliffordSimp();
+        int j = this->pivotGadgetSimp();
         if(i+j == 0) break;
     }
+    this->printRecipe();
 }
 
 /**
  * @brief The main simplification routine of PyZX
  * 
  */
-void Simplifier::simulated_reduce(){
-    this->interior_clifford_simp();
-    this->pivot_gadget_simp();
-    this->copy_simp();
+void Simplifier::simulatedReduce(){
+    this->interiorCliffordSimp();
+    this->pivotGadgetSimp();
+    this->copySimp();
     while(true){
-        this->clifford_simp();
-        int i = this->gadget_simp();
-        this->interior_clifford_simp();
-        int j = this->pivot_gadget_simp();
-        this->copy_simp();
+        this->cliffordSimp();
+        int i = this->gadgetSimp();
+        this->interiorCliffordSimp();
+        int j = this->pivotGadgetSimp();
+        this->copySimp();
         if(i+j == 0) break;
+    }
+}
+
+
+
+
+// print function
+void Simplifier::printRecipe(){
+    if(verbose == 1){
+        for(auto& [rule_name, num] : _recipe){
+            string rule = rule_name+": ";
+            cout << setw(30) << left << rule << num << " iterator(s)\n";
+        }
     }
 }

@@ -54,7 +54,7 @@ class Simplifier{
         Simplifier(ZXGraph* g){
             _rule = nullptr;
             _simpGraph = g;
-            hrule_simp();
+            hruleSimp();
         }
         Simplifier(ZXRule* rule, ZXGraph* g){
             _rule = rule;
@@ -66,34 +66,39 @@ class Simplifier{
 
         // Simplification strategies
         int simp();
-        int hadamard_simp();
+        int hadamardSimp();
         
         // Basic rules simplification
-        int bialg_simp();
-        int copy_simp();
-        int gadget_simp();
-        int hfusion_simp();
-        int hopf_simp();
-        int hrule_simp();
-        int id_simp();
-        int lcomp_simp();
-        int pivot_simp();
-        int pivot_boundary_simp();
-        int pivot_gadget_simp();
-        int sfusion_simp();
+        int bialgSimp();
+        int copySimp();
+        int gadgetSimp();
+        int hfusionSimp();
+        int hopfSimp();
+        int hruleSimp();
+        int idSimp();
+        int lcompSimp();
+        int pivotSimp();
+        int pivotBoundarySimp();
+        int pivotGadgetSimp();
+        int sfusionSimp();
 
 
         // action
-        void to_graph();
-        void to_rgraph();
-        int interior_clifford_simp();
-        int clifford_simp();
-        void full_reduce();
-        void simulated_reduce();
+        void toGraph();
+        void toRGraph();
+        int interiorCliffordSimp();
+        int cliffordSimp();
+        void fullReduce();
+        void simulatedReduce();
+
+
+        // print function
+        void printRecipe();
 
     private:
-        ZXRule*             _rule;
-        ZXGraph*            _simpGraph;
+        ZXRule*                         _rule;
+        ZXGraph*                        _simpGraph;
+        vector<tuple<string, int> >     _recipe;
 };
     
 #endif
