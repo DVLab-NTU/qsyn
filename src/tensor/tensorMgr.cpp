@@ -94,3 +94,7 @@ double TensorMgr::getGlobalNorm(const size_t& id1, const size_t& id2) const {
 Phase TensorMgr::getGlobalPhase(const size_t& id1, const size_t& id2) const {
     return globalPhase(*getTensor(id1), *getTensor(id2));
 }
+
+void TensorMgr::adjoint(const size_t& id) { 
+    *_tensorList[id].tensor = _tensorList[id].tensor->adjoint();
+}
