@@ -234,6 +234,7 @@ class ZXGraph{
         void removeIsolatedVertices();
         void removeEdge(ZXVertex* vs, ZXVertex* vt, bool checked = false);
         void removeEdgeByEdgePair(const EdgePair& ep);
+        void removeEdgesByEdgePairs(const vector<EdgePair>& eps);
         void removeEdgeById(const size_t& id_s, const size_t& id_t);
 
         // Operation on graph

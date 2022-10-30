@@ -232,12 +232,12 @@ Add edge ( 11, 29 )
 Add edge ( 7, 17 )
 Add edge ( 12, 17 )
 Add edge ( 14, 30 )
-Remove (10, 28 )
 Add edge ( 7, 28 )
 Add edge ( 21, 31 )
 Remove (29, 9 )
 Remove (30, 15 )
 Remove (31, 24 )
+Remove (10, 28 )
 Remove ID: 9
 Remove ID: 15
 Remove ID: 24
@@ -444,14 +444,14 @@ Add edge ( 33, 12 )
 Found 1 match(es)
 > rewrite...
 vs: 17	vt: 12	v_gadget: 33
-Remove (10, 8 )
 Add edge ( 10, 14 )
-Remove (10, 11 )
 Add edge ( 19, 8 )
 Add edge ( 19, 14 )
 Add edge ( 19, 11 )
 Add edge ( 17, 33 )
 Remove (33, 12 )
+Remove (8, 10 )
+Remove (10, 11 )
 Remove ID: 12
 
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 

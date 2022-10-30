@@ -503,32 +503,18 @@ No matches
 Hopf Rule: 
 No matches
 
-qsyn> zxgp -v
+qsyn> // commenting due to output instability
 
-ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(36, [1m[34mH[0m[0m) 
-ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(36, [1m[34mH[0m[0m) 
-ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(31, [1m[34mH[0m[0m) 
-ID:	21	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(33, [1m[34mH[0m[0m) 
-ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(34, [1m[34mH[0m[0m) 
-ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
-ID:	33	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(21, [1m[34mH[0m[0m) 
-ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(27, [1m[34mH[0m[0m) 
-ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π	#Neighbors:	2	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) 
-Total #Vertices: 9
-
+qsyn> // zxgp -v
 
 qsyn> zxgs -stco
 [1m[32mTrue: The graph is graph-like[0m[0m
 State Copy Rule: 
 1 iterations
 
-qsyn> zxgp -v
+qsyn> // commenting due to output instability
 
-ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(36, [1m[34mH[0m[0m) 
-ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(36, [1m[34mH[0m[0m) 
-ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π	#Neighbors:	2	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) 
-Total #Vertices: 3
-
+qsyn> // zxgp -v
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
