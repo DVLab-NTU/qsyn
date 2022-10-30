@@ -1,0 +1,22 @@
+format 0
+ver 2
+zxm -on
+qccread benchmark/benchmark_SABRE/large/urf1_149.qasm
+usage
+qczxm
+usage
+qczxm
+usage
+zxgadjoint
+usage
+zxcompose 0
+usage
+zxgprint
+usage
+zxgs -fr
+usage
+zxgp
+usage
+zxgp -v
+usage
+q -f
