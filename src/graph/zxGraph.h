@@ -215,9 +215,9 @@ class ZXGraph{
 
 
         // Add and Remove
-        ZXVertex* addInput(size_t id, int qubit);
-        ZXVertex* addOutput(size_t id, int qubit);
-        ZXVertex* addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase() );
+        ZXVertex* addInput(size_t id, int qubit, bool checked = false);
+        ZXVertex* addOutput(size_t id, int qubit, bool checked = false);
+        ZXVertex* addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase(), bool checked = false);
         EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et);
         void addEdgeById(size_t id_s, size_t id_t, EdgeType* et);
         void addInputs(vector<ZXVertex*> inputs);
