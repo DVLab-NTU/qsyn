@@ -16,6 +16,7 @@
 
 #include "util.h"
 #include "textFormat.h"
+#include <chrono>
 
 using namespace std;
 namespace TF = TextFormat;
@@ -284,53 +285,57 @@ bool ZXGraph::isOutputQubit(int qubit) const {
 }
 
 // Add and Remove
-ZXVertex* ZXGraph::addInput(size_t id, int qubit) {
-    if (isId(id)) {
-        cerr << "Error: This vertex id already exists!!" << endl;
-        return nullptr;
-    } else if (isInputQubit(qubit)) {
-        cerr << "Error: This qubit's input already exists!!" << endl;
-        return nullptr;
-    } else {
-        ZXVertex* v = new ZXVertex(id, qubit, VertexType::BOUNDARY);
-        _inputs.push_back(v);
-        _vertices.push_back(v);
-        setInputHash(qubit, v);
-        if (verbose >= 5) cout << "Add input " << id << endl;
-        return v;
+ZXVertex* ZXGraph::addInput(size_t id, int qubit, bool checked) {
+    if (!checked) {
+        if (isId(id)) {
+            cerr << "Error: This vertex id already exists!!" << endl;
+            return nullptr;
+        } else if (isInputQubit(qubit)) {
+            cerr << "Error: This qubit's input already exists!!" << endl;
+            return nullptr;
+        }
     }
+    ZXVertex* v = new ZXVertex(id, qubit, VertexType::BOUNDARY);
+    _inputs.push_back(v);
+    _vertices.push_back(v);
+    setInputHash(qubit, v);
+    if (verbose >= 5) cout << "Add input " << id << endl;
+    return v;
 }
 
-ZXVertex* ZXGraph::addOutput(size_t id, int qubit) {
-    if (isId(id)) {
-        cerr << "Error: This vertex id already exists!!" << endl;
-        return nullptr;
-    } else if (isOutputQubit(qubit)) {
-        cerr << "Error: This qubit's output already exists!!" << endl;
-        return nullptr;
-    } else {
-        ZXVertex* v = new ZXVertex(id, qubit, VertexType::BOUNDARY);
-        _vertices.push_back(v);
-        _outputs.push_back(v);
-        setOutputHash(qubit, v);
-        if (verbose >= 5) cout << "Add output " << id << endl;
-        return v;
+ZXVertex* ZXGraph::addOutput(size_t id, int qubit, bool checked) {
+    if (!checked) {
+        if (isId(id)) {
+            cerr << "Error: This vertex id already exists!!" << endl;
+            return nullptr;
+        } else if (isOutputQubit(qubit)) {
+            cerr << "Error: This qubit's output already exists!!" << endl;
+            return nullptr;
+        } 
     }
+    ZXVertex* v = new ZXVertex(id, qubit, VertexType::BOUNDARY);
+    _vertices.push_back(v);
+    _outputs.push_back(v);
+    setOutputHash(qubit, v);
+    if (verbose >= 5) cout << "Add output " << id << endl;
+    return v;
+    
 }
 
-ZXVertex* ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase) {
-    if (isId(id)) {
-        cerr << "Error: This vertex id is already exist!!" << endl;
-        return nullptr;
-    } else if (vt == VertexType::BOUNDARY) {
-        cerr << "Error: Use ADDInput / ADDOutput to add input vertex or output vertex!!" << endl;
-        return nullptr;
-    } else {
-        ZXVertex* v = new ZXVertex(id, qubit, vt, phase);
-        _vertices.push_back(v);
-        if (verbose >= 5) cout << "Add vertex " << id << endl;
-        return v;
+ZXVertex* ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase, bool checked) {
+    if (!checked) {
+        if (isId(id)) {
+            cerr << "Error: This vertex id is already exist!!" << endl;
+            return nullptr;
+        } else if (vt == VertexType::BOUNDARY) {
+            cerr << "Error: Use ADDInput / ADDOutput to add input vertex or output vertex!!" << endl;
+            return nullptr;
+        }
     }
+    ZXVertex* v = new ZXVertex(id, qubit, vt, phase);
+    _vertices.push_back(v);
+    if (verbose >= 5) cout << "Add vertex " << id << endl;
+    return v;
 }
 /**
  * @brief Add edge (<<vs, vt>, et>)
@@ -629,54 +634,40 @@ void ZXGraph::reset() {
 
 ZXGraph* ZXGraph::copy() const {
     //! Check if EdgeType change simultaneously
+    
     ZXGraph* newGraph = new ZXGraph(0);
-
+    unordered_map<size_t, ZXVertex*> id2vertex;
     newGraph->setId(getId());
 
-    vector<ZXVertex*> inputs, outputs, vertices;
-    vector<EdgePair> edges;
+    newGraph->_inputs.reserve(this->getNumInputs());
+    newGraph->_inputList.reserve(this->getNumInputs());
+    newGraph->_outputs.reserve(this->getNumOutputs());
+    newGraph->_outputList.reserve(this->getNumOutputs());
+    newGraph->_vertices.reserve(this->getNumVertices());
+    id2vertex.reserve(this->getNumVertices());
+    newGraph->_edges.reserve(this->getNumEdges());
     // new Inputs
-    for (size_t i = 0; i < getInputs().size(); i++) {
-        ZXVertex* oriVertex = getInputs()[i];
-        ZXVertex* newVertex = new ZXVertex(oriVertex->getId(), oriVertex->getQubit(), oriVertex->getType());
-        inputs.push_back(newVertex);
-        vertices.push_back(newVertex);
-        newGraph->_inputList[newVertex->getQubit()] = newVertex;
+    for (const auto& v : this->getInputs()) {
+        id2vertex[v->getId()] = newGraph->addInput(v->getId(), v->getQubit(), true);
+        
     }
-    newGraph->setInputs(inputs);
 
     // new Outputs
-    for (size_t i = 0; i < getOutputs().size(); i++) {
-        ZXVertex* oriVertex = getOutputs()[i];
-        ZXVertex* newVertex = new ZXVertex(oriVertex->getId(), oriVertex->getQubit(), oriVertex->getType());
-        outputs.push_back(newVertex);
-        vertices.push_back(newVertex);
-        newGraph->_outputList[newVertex->getQubit()] = newVertex;
+    for (const auto& v : this->getOutputs()) {
+        id2vertex[v->getId()] = newGraph->addOutput(v->getId(), v->getQubit(), true);
     }
-    newGraph->setOutputs(outputs);
 
     // new Vertices (without I/O)
-    for (size_t i = 0; i < getVertices().size(); i++) {
-        if (getVertices()[i]->getType() != VertexType::BOUNDARY) {
-            ZXVertex* oriVertex = getVertices()[i];
-            ZXVertex* newVertex = new ZXVertex(oriVertex->getId(), oriVertex->getQubit(), oriVertex->getType());
-            vertices.push_back(newVertex);
+    for (const auto& v : this->getVertices()) {
+        if (v->getType() != VertexType::BOUNDARY) {
+            id2vertex[v->getId()] = newGraph->addVertex(v->getId(), v->getQubit(), v->getType(), v->getPhase(), true);
         }
     }
-    newGraph->setVertices(vertices);
 
-    for (size_t i = 0; i < getEdges().size(); i++) {
-        EdgePair oriPair = getEdges()[i];
-        ZXVertex* s = newGraph->findVertexById(oriPair.first.first->getId());
-        ZXVertex* t = newGraph->findVertexById(oriPair.first.second->getId());
-        EdgeType* et = new EdgeType(*oriPair.second);
-        // cout << s->getId() << "," << t->getId() << ": " << *et << endl;
-        s->addNeighbor(make_pair(t, et));
-        t->addNeighbor(make_pair(s, et));
-        edges.push_back(make_pair(make_pair(s, t), et));
+    for (const auto& [vpair, etype]: this->getEdges()) {
+        newGraph->addEdge(id2vertex[vpair.first->getId()], id2vertex[vpair.second->getId()], new EdgeType(*etype));
     }
-    newGraph->setEdges(edges);
-
+    
     return newGraph;
 }
 

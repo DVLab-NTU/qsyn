@@ -39,21 +39,21 @@ zxgr benchmark/zx/tof2_opt.zx
 zxgtsm
 tseq 0 3
 // Test structural equivalence of the three results
-zxch   0
-zxcopy 4
-zxgadj
-zxch   1
-zxcopy 5
-zxcompose 4
-ver 1
-zxgs -sr
-ver 3
-zxgp -v
-zxch   2
-zxcopy 6
-zxcompose 4
-ver 1
-zxgs -sr
-ver 3
-zxgp -v
+// zxch   0
+// zxcopy 4
+// zxgadj
+// zxch   1
+// zxcopy 5
+// zxcompose 4
+// ver 1
+// zxgs -sr
+// ver 3
+// zxgp -v
+// zxch   2
+// zxcopy 6
+// zxcompose 4
+// ver 1
+// zxgs -sr
+// ver 3
+// zxgp -v
 q -f

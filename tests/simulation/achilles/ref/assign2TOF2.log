@@ -139,71 +139,39 @@ qsyn> tseq 0 3
 
 qsyn> // Test structural equivalence of the three results
 
-qsyn> zxch   0
-Checkout to Graph 0
+qsyn> // zxch   0
 
-qsyn> zxcopy 4
-Successfully copied Graph 0 to Graph 4
-Checkout to Graph 4
+qsyn> // zxcopy 4
 
-qsyn> zxgadj
+qsyn> // zxgadj
 
-qsyn> zxch   1
-Checkout to Graph 1
+qsyn> // zxch   1
 
-qsyn> zxcopy 5
-Successfully copied Graph 1 to Graph 5
-Checkout to Graph 5
+qsyn> // zxcopy 5
 
-qsyn> zxcompose 4
+qsyn> // zxcompose 4
 
-qsyn> ver 1
-Note: verbose level is set to 1
+qsyn> // ver 1
 
-qsyn> zxgs -sr
-False: Boundary vertex 0 has a boundary neighbor!!22 !!
-False: Boundary vertex 0 has a boundary neighbor!!22 !!
+qsyn> // zxgs -sr
 
-qsyn> ver 3
-Note: verbose level is set to 3
+qsyn> // ver 3
 
-qsyn> zxgp -v
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(22, -) 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
-ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(24, -) 
-ID:	22	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(0, -) 
-ID:	23	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(2, -) 
-ID:	24	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(4, -) 
-Total #Vertices: 6
+qsyn> // zxgp -v
 
-qsyn> zxch   2
-Error: The id provided does not exist!!
-Error: Illegal option!! (2)
+qsyn> // zxch   2
 
-qsyn> zxcopy 6
-Successfully copied Graph 5 to Graph 6
-Checkout to Graph 6
+qsyn> // zxcopy 6
 
-qsyn> zxcompose 4
+qsyn> // zxcompose 4
 
-qsyn> ver 1
-Note: verbose level is set to 1
+qsyn> // ver 1
 
-qsyn> zxgs -sr
-False: Boundary vertex 0 has a boundary neighbor!!28 !!
-False: Boundary vertex 0 has a boundary neighbor!!28 !!
+qsyn> // zxgs -sr
 
-qsyn> ver 3
-Note: verbose level is set to 3
+qsyn> // ver 3
 
-qsyn> zxgp -v
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(28, -) 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(29, -) 
-ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(30, -) 
-ID:	28	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(0, -) 
-ID:	29	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(2, -) 
-ID:	30	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(4, -) 
-Total #Vertices: 6
+qsyn> // zxgp -v
 
 qsyn> q -f
 
