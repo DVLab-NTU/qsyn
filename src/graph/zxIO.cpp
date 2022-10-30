@@ -88,11 +88,11 @@ bool ZXGraph::readZX(string filename, bool bzx=false) {
             }
             storage[size_t(id)] = tmp;
             if (vertexStr[0] == 'I') {
-                vertexList[size_t(id)] = addInput(size_t(id), size_t(qid));
+                vertexList[size_t(id)] = addInput(size_t(id), size_t(qid), true);
             }
 
             else
-                vertexList[size_t(id)] = addOutput(size_t(id), size_t(qid));
+                vertexList[size_t(id)] = addOutput(size_t(id), size_t(qid), true);
         } else if (vertexStr[0] == 'Z' || vertexStr[0] == 'X' || vertexStr[0] == 'H') {
             string idStr = vertexStr.substr(1);
 
@@ -137,11 +137,11 @@ bool ZXGraph::readZX(string filename, bool bzx=false) {
             }
             storage[size_t(id)] = tmp;
             if (vertexStr[0] == 'Z')
-                vertexList[size_t(id)] = addVertex(size_t(id), size_t(qid), VertexType::Z, ph);
+                vertexList[size_t(id)] = addVertex(size_t(id), size_t(qid), VertexType::Z, ph, true);
             else if (vertexStr[0] == 'X')
-                vertexList[size_t(id)] = addVertex(size_t(id), size_t(qid), VertexType::X, ph);
+                vertexList[size_t(id)] = addVertex(size_t(id), size_t(qid), VertexType::X, ph, true);
             else
-                vertexList[size_t(id)] = addVertex(size_t(id), size_t(qid), VertexType::H_BOX, ph);
+                vertexList[size_t(id)] = addVertex(size_t(id), size_t(qid), VertexType::H_BOX, ph, true);
         } else {
             cerr << "Error: Unsupported vertex type " << vertexStr[0] << " in line " << counter << "!!" << endl;
             return false;
