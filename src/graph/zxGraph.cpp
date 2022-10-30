@@ -722,10 +722,12 @@ void ZXGraph::printOutputs() const {
 }
 
 void ZXGraph::printVertices() const {
+    cout << "\n";
     for (size_t i = 0; i < _vertices.size(); i++) {
         _vertices[i]->printVertex();
     }
     cout << "Total #Vertices: " << _vertices.size() << endl;
+    cout << "\n";
 }
 
 void ZXGraph::printEdges() const {

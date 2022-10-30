@@ -22,6 +22,7 @@ qsyn> zxgas 1 O X 0
 qsyn> zxgas 2 O X 0
 
 qsyn> zxgp -v
+
 ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(15, -) 
 ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(19, -) 
 ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(9, -) (10, -) (20, -) 
@@ -44,12 +45,15 @@ ID:	24	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	1	(16, -)
 ID:	25	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	1	(18, -) 
 Total #Vertices: 20
 
+
 qsyn> zxgs -FR
 
 qsyn> zxgp -v
+
 ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(7, -) 
 ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(6, -) 
 Total #Vertices: 2
+
 
 qsyn> zxgtsm
 Stored the resulting tensor as tensor id 0

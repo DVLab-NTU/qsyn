@@ -22,6 +22,8 @@ extern size_t verbose;
  */
 void SpiderFusion::match(ZXGraph* g) {
     _matchTypeVec.clear();
+    if(verbose >= 8) g->printVertices();
+    
     vector<EdgePair> Edges = g->getEdges();
     unordered_map<EdgePair, size_t> Edge2idx;
     for (size_t i = 0; i < g->getNumEdges(); i++) Edge2idx[makeEdgeKey(Edges[i])] = i;

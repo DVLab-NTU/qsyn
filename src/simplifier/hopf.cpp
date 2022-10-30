@@ -23,6 +23,8 @@ extern size_t verbose;
 void Hopf::match(ZXGraph* g) {
     // Should be run in graph-like
     _matchTypeVec.clear();
+    if(verbose >= 8) g->printVertices();
+    
     vector<ZXVertex*> Vertices = g->getVertices();
     unordered_map<ZXVertex*, size_t> Vertex2idx;
     for (size_t i = 0; i < Vertices.size(); i++) Vertex2idx[Vertices[i]] = i;
