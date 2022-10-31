@@ -5,29 +5,27 @@ zxgas 3 I X 0
 zxgas 3 O X 0
 zxgas 1 I X 0
 zxgas 1 O X 0
-ver 1
+ver 0
 zxgs -sr
 ver 3
 zxgtsm
 qccr -R benchmark/pseudoSimp/achilles.qasm
-zxm -on
 qczxm
 zxgas 3 I X 0
 zxgas 3 O X 0
 zxgas 2 I X 0
 zxgas 2 O X 0
-ver 1
+ver 0
 zxgs -sr
 ver 3
 zxgtsm
 qccr -R benchmark/pseudoSimp/achilles.qasm
-zxm -on
 qczxm
 zxgas 3 I X 0
 zxgas 3 O X 0
 zxgas 0 I X 0
 zxgas 0 O X 0
-ver 1
+ver 0
 zxgs -sr
 ver 3
 zxgtsm

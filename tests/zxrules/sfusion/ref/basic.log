@@ -58,7 +58,7 @@ qsyn> zxgp -v
 
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	2	(2, -) (2, -) 
-ID:	2	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(0, -) (1, -) (1, -) 
+ID:	2	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	5	(0, -) (1, -) (1, -) (2, [1m[34mH[0m[0m) (2, [1m[34mH[0m[0m) 
 Total #Vertices: 3
 
 
@@ -66,7 +66,8 @@ qsyn> zxgp -e
 ( 1, 2 )	Type:	-
 ( 2, 0 )	Type:	-
 ( 2, 1 )	Type:	-
-Total #Edges: 3
+( 2, 2 )	Type:	[1m[34mH[0m[0m
+Total #Edges: 4
 
 qsyn> q -f
 

@@ -212,7 +212,7 @@ Spider Fusion Rule:
 1 iterations
 Pivot Rule: 
 1 iterations
-Local Complementary Rule: 
+Local Complementation Rule: 
 2 iterations
 Identity Removal Rule: 
 No matches
@@ -220,7 +220,7 @@ Spider Fusion Rule:
 No matches
 Pivot Rule: 
 No matches
-Local Complementary Rule: 
+Local Complementation Rule: 
 No matches
 Pivot Gadget Rule: 
 4 iterations
@@ -234,7 +234,7 @@ Spider Fusion Rule:
 1 iterations
 Pivot Rule: 
 No matches
-Local Complementary Rule: 
+Local Complementation Rule: 
 No matches
 Identity Removal Rule: 
 No matches
@@ -242,7 +242,7 @@ Spider Fusion Rule:
 No matches
 Pivot Rule: 
 No matches
-Local Complementary Rule: 
+Local Complementation Rule: 
 No matches
 Phase Gadget Rule: 
 1 iterations
@@ -254,7 +254,7 @@ Spider Fusion Rule:
 2 iterations
 Pivot Rule: 
 No matches
-Local Complementary Rule: 
+Local Complementation Rule: 
 4 iterations
 Identity Removal Rule: 
 No matches
@@ -262,7 +262,7 @@ Spider Fusion Rule:
 No matches
 Pivot Rule: 
 No matches
-Local Complementary Rule: 
+Local Complementation Rule: 
 No matches
 Pivot Gadget Rule: 
 No matches
@@ -276,7 +276,7 @@ Spider Fusion Rule:
 No matches
 Pivot Rule: 
 No matches
-Local Complementary Rule: 
+Local Complementation Rule: 
 No matches
 Phase Gadget Rule: 
 No matches
@@ -288,7 +288,7 @@ Spider Fusion Rule:
 No matches
 Pivot Rule: 
 No matches
-Local Complementary Rule: 
+Local Complementation Rule: 
 No matches
 Pivot Gadget Rule: 
 No matches

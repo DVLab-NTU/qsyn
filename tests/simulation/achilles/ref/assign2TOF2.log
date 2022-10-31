@@ -18,8 +18,8 @@ qsyn> zxgas 1 I X 0
 
 qsyn> zxgas 1 O X 0
 
-qsyn> ver 1
-Note: verbose level is set to 1
+qsyn> ver 0
+Note: verbose level is set to 0
 
 qsyn> zxgs -sr
 [1m[32mTrue: The graph is graph-like[0m[0m
@@ -37,12 +37,9 @@ Stored the resulting tensor as tensor id 0
 qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
 Note: original quantum circuit is replaced...
 
-qsyn> zxm -on
-Error: ZXMODE is already ON
-
 qsyn> qczxm
-Successfully generated Graph 0
-Checkout to Graph 0
+Successfully generated Graph 1
+Checkout to Graph 1
 ---- TRAVERSE AND BUILD THE GRAPH ----
 --------------------------------------
 
@@ -54,8 +51,8 @@ qsyn> zxgas 2 I X 0
 
 qsyn> zxgas 2 O X 0
 
-qsyn> ver 1
-Note: verbose level is set to 1
+qsyn> ver 0
+Note: verbose level is set to 0
 
 qsyn> zxgs -sr
 [1m[32mTrue: The graph is graph-like[0m[0m
@@ -73,12 +70,9 @@ Stored the resulting tensor as tensor id 1
 qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
 Note: original quantum circuit is replaced...
 
-qsyn> zxm -on
-Error: ZXMODE is already ON
-
 qsyn> qczxm
-Successfully generated Graph 0
-Checkout to Graph 0
+Successfully generated Graph 2
+Checkout to Graph 2
 ---- TRAVERSE AND BUILD THE GRAPH ----
 --------------------------------------
 
@@ -90,8 +84,8 @@ qsyn> zxgas 0 I X 0
 
 qsyn> zxgas 0 O X 0
 
-qsyn> ver 1
-Note: verbose level is set to 1
+qsyn> ver 0
+Note: verbose level is set to 0
 
 qsyn> zxgs -sr
 [1m[32mTrue: The graph is graph-like[0m[0m
@@ -124,8 +118,8 @@ qsyn> tseq 1 2
 qsyn> // Test if equivalence (with ZX tof2_opt)
 
 qsyn> zxgr benchmark/zx/tof2_opt.zx
-Successfully generated Graph 1
-Checkout to Graph 1
+Successfully generated Graph 3
+Checkout to Graph 3
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
