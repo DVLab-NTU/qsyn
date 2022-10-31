@@ -198,7 +198,7 @@ class ZXGraph{
         size_t getNumOutputs() const                                    { return _outputs.size(); }
         const vector<ZXVertex*>& getVertices() const                    { return _vertices; }
         size_t getNumVertices() const                                   { return _vertices.size(); }
-        const vector<EdgePair >& getEdges() const                       { return _edges; }
+        const vector<EdgePair>& getEdges() const                       { return _edges; }
         vector<EdgePair> getIncidentEdges(ZXVertex* v) const;
         size_t getNumEdges() const                                      { return _edges.size(); }
 
