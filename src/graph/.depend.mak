@@ -1,0 +1,46 @@
+zxTraverse.o: zxTraverse.cpp zxGraph.h ../../include/phase.h \
+ ../../include/rationalNumber.h ../../include/myConcepts.h \
+ ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
+ ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
+ ../../include/tensorUtil.h ../../include/phase.h zxDef.h \
+ ../../include/myHashMap.h ../../include/util.h
+zx2tsMapper.o: zx2tsMapper.cpp zx2tsMapper.h zxGraph.h \
+ ../../include/phase.h ../../include/rationalNumber.h \
+ ../../include/myConcepts.h ../../include/util.h ../../include/rnGen.h \
+ ../../include/myUsage.h ../../include/qtensor.h ../../include/tensor.h \
+ ../../include/tensorDef.h ../../include/tensorUtil.h \
+ ../../include/phase.h zxDef.h ../../include/myHashMap.h \
+ ../../include/util.h ../../include/tensorMgr.h ../../include/qtensor.h \
+ ../../include/textFormat.h
+zxCmd.o: zxCmd.cpp zxCmd.h ../../include/cmdParser.h \
+ ../../include/cmdCharDef.h zxGraph.h ../../include/phase.h \
+ ../../include/rationalNumber.h ../../include/myConcepts.h \
+ ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
+ ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
+ ../../include/tensorUtil.h ../../include/phase.h zxDef.h \
+ ../../include/myHashMap.h zxGraphMgr.h ../../include/util.h
+zxIO.o: zxIO.cpp ../../include/util.h ../../include/rnGen.h \
+ ../../include/myUsage.h zxGraph.h ../../include/phase.h \
+ ../../include/rationalNumber.h ../../include/myConcepts.h \
+ ../../include/util.h ../../include/qtensor.h ../../include/tensor.h \
+ ../../include/tensorDef.h ../../include/tensorUtil.h \
+ ../../include/phase.h zxDef.h ../../include/myHashMap.h
+zxGraphMgr.o: zxGraphMgr.cpp zxGraphMgr.h zxGraph.h ../../include/phase.h \
+ ../../include/rationalNumber.h ../../include/myConcepts.h \
+ ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
+ ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
+ ../../include/tensorUtil.h ../../include/phase.h zxDef.h \
+ ../../include/myHashMap.h
+zxMapping.o: zxMapping.cpp ../../include/util.h ../../include/rnGen.h \
+ ../../include/myUsage.h zx2tsMapper.h zxGraph.h ../../include/phase.h \
+ ../../include/rationalNumber.h ../../include/myConcepts.h \
+ ../../include/util.h ../../include/qtensor.h ../../include/tensor.h \
+ ../../include/tensorDef.h ../../include/tensorUtil.h \
+ ../../include/phase.h zxDef.h ../../include/myHashMap.h
+zxGraph.o: zxGraph.cpp zxGraph.h ../../include/phase.h \
+ ../../include/rationalNumber.h ../../include/myConcepts.h \
+ ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
+ ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
+ ../../include/tensorUtil.h ../../include/phase.h zxDef.h \
+ ../../include/myHashMap.h ../../include/util.h \
+ ../../include/textFormat.h

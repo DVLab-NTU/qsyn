@@ -53,7 +53,7 @@ void TSResetCmd::usage(ostream &os) const {
 
 void TSResetCmd::help() const {
     cout << setw(15) << left << "TSReset: "
-         << "Reset the tensor manager" << endl;
+         << "reset the tensor manager" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -108,7 +108,7 @@ void TSPrintCmd::usage(ostream &os) const {
 
 void TSPrintCmd::help() const {
     cout << setw(15) << left << "TSPrint: "
-         << "Print information about stored tensors" << endl;
+         << "print information about stored tensors" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -230,5 +230,5 @@ void TSAdjointCmd::usage(ostream &os) const {
 
 void TSAdjointCmd::help() const {
     cout << setw(15) << left << "TSADJoint: "
-         << "Adjoint the specified tensor" << endl;
+         << "adjoint the specified tensor" << endl;
 }

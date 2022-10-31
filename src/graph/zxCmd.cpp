@@ -863,5 +863,5 @@ void ZXGAdjointCmd::usage(ostream &os) const
 void ZXGAdjointCmd::help() const
 {
    cout << setw(15) << left << "ZXGADJoint: "
-        << "Adjoint the current ZXGraph.\n";
+        << "adjoint the current ZX-graph.\n";
 }
