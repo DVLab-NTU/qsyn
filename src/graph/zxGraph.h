@@ -198,7 +198,7 @@ class ZXGraph{
         size_t getNumOutputs() const                                    { return _outputs.size(); }
         const vector<ZXVertex*>& getVertices() const                    { return _vertices; }
         size_t getNumVertices() const                                   { return _vertices.size(); }
-        const vector<EdgePair >& getEdges() const                       { return _edges; }
+        const vector<EdgePair>& getEdges() const                       { return _edges; }
         vector<EdgePair> getIncidentEdges(ZXVertex* v) const;
         size_t getNumEdges() const                                      { return _edges.size(); }
 
@@ -218,7 +218,7 @@ class ZXGraph{
         ZXVertex* addInput(size_t id, int qubit, bool checked = false);
         ZXVertex* addOutput(size_t id, int qubit, bool checked = false);
         ZXVertex* addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase(), bool checked = false);
-        EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et);
+        EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et, bool allowSelfLoop = false);
         void addEdgeById(size_t id_s, size_t id_t, EdgeType* et);
         void addInputs(vector<ZXVertex*> inputs);
         void addOutputs(vector<ZXVertex*> outputs);
@@ -234,6 +234,7 @@ class ZXGraph{
         void removeIsolatedVertices();
         void removeEdge(ZXVertex* vs, ZXVertex* vt, bool checked = false);
         void removeEdgeByEdgePair(const EdgePair& ep);
+        void removeEdgesByEdgePairs(const vector<EdgePair>& eps);
         void removeEdgeById(const size_t& id_s, const size_t& id_t);
 
         // Operation on graph
