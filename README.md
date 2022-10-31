@@ -9,13 +9,14 @@
 # Qsyn: An end-to-end quantum compilation framework
 <!-- ![example branch parameter](https://github.com/ric2k1/qsyn/actions/workflows/build-and-test.yml/badge.svg)
  -->
+ ![](https://i.imgur.com/ZXCkcvc.png)
 
 ## Introduction
 Qsyn is a C++ based growing software system for synthesis, optimization and verification of quantum circuits appearing in quantum computers. Qsyn combines scalable quantum circuits optimization by implementing ZX-Calculus and technology mapping.
 
-Qsyn provides an experimental implementation of optimization algorithms and a programming envirnoment for simulation or building similar applications. Future development will focus on enhancing the algorithms ,visualization of ZX-Graphs and implementation of lattice surgery for error correction codes.
+Qsyn provides an experimental implementation of optimization algorithms and a programming envirnoment for simulation or building similar applications. Future development will focus on enhancing the algorithms, visualization of ZX-Graphs and implementation of lattice surgery for error correction codes.
 
-## Getting Start
+## Getting Started
 ### Installation
 ```shell!
 git clone https://github.com/ric2k1/qsyn.git
@@ -30,7 +31,7 @@ cd qsyn
 	```shell!
 	./configure.sh
 	```
-2. Run `Makefile` using the command below, which will build up the executable.
+2. Run `Makefile` using the command below builds up the executable.
 	```shell!
 	make -j8
 	```
@@ -41,7 +42,7 @@ cd qsyn
     > building qsyn...
     ~/qsyn$ _
     ```
-4. If you want to delete all intrmediate files created in the compilation process, please type
+4. If you want to delete all intermediate files created in the compilation process, please type
     ```shell!
 	make clean
 	```
@@ -174,10 +175,11 @@ You may also perform all DOFILEs and unit-tests by running
 
 | Cmd           | Description                         								| Options     |
 | --------      | --------                            								| --------    |
-| ZXCHeckout    | chec kout to Graph <id> in ZXGraphMgr                				|             |
+| ZXCHeckout    | checkout to Graph <id> in ZXGraphMgr                				|             |
 | ZXCOMpose     | compose a ZX-graph				                                |             |
 | ZXCOPy        | copy a ZX-graph				                                    |             |
 | ZXGASsign     | assign an input/output vertex to specific qubit					|             |
+| ZXGADJoint    | adjoint the current ZXGraph | |
 | ZXGEdit       | edit ZX-graph    			                                        |             |
 | ZXGPrint      | print info in ZX-graph    			                            |             |
 | ZXGRead       | read a ZXGraph    			                                    |             |
@@ -197,7 +199,8 @@ You may also perform all DOFILEs and unit-tests by running
 ### Tensor
 | Cmd          | Description                                         | Options     |
 | --------     | --------                                            | --------    |
+| TSADJoint        | adjoint the specified tensor | |
 | TSEQuiv	   | compare the equivalency of two stored tensors	     |             |
-| TSPrint	   | Print information about stored tensors	             |             |
-| TSReset	   | Reset the tensor manager	                         |             |
+| TSPrint	   | print information about stored tensors	             |             |
+| TSReset	   | reset the tensor manager	                         |             |
 
