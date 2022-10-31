@@ -189,7 +189,7 @@ You may also perform all DOFILEs and unit-tests by running
 | ZXGTSMapping  | mapping to tensor from ZX-Graph    			                    |             |
 | ZXGWrite      | write ZXFile    			                                        |             |
 | ZXMode        | check out to ZX-graph mode    			                        |             |
-| ZXNew         | new ZX-graph to ZXGraphMgr        			                    |             |
+| ZXNew         | new ZX-graph to ZXGraphMgr        			                     |             |
 | ZXPrint       | print info in ZXGraphMgr	    			                        |             |
 | ZXRemove      | remove ZX-graph from ZXGraphMgr				                    |             |
 | ZXTensor      | tensor a ZX-graph				                                    |             |
