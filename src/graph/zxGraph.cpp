@@ -363,7 +363,7 @@ ZXVertex* ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase, b
  * @param et
  * @return EdgePair
  */
-EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et) {
+EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et, bool allowSelfloop) {
     // if (vs->getType() == VertexType::BOUNDARY && vs->getNumNeighbors() >= 1) {
     //     cerr << "Boundary vertex " << vs->getId() << " must not have more than one neighbor." << endl;
     // } else if (vt->getType() == VertexType::BOUNDARY && vt->getNumNeighbors() >= 1) {
@@ -372,13 +372,22 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et) {
     //     cerr << "Boundary vertex " << vs->getId() << " must not have self loop" << endl;
     // } else {
         // NeighborMap mode
-    vs->addNeighbor(make_pair(vt, et));
-    vt->addNeighbor(make_pair(vs, et));
-    _edges.emplace_back(make_pair(vs, vt), et);
-    if (verbose >= 5) {
-        cout << "Add edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
+    if(vt == vs && (!allowSelfloop)){
+        if (*et == EdgeType::HADAMARD){
+            vt->setPhase(vt->getPhase() + Phase(1));
+            if (verbose >= 5) cout << "Add phase Pi to " << vt->getId() << " due to hadamard selfloop" << endl;
+        }
+        else if (verbose >= 5) cout << "Neglect simple selfloop on " << vt->getId() << endl;
+        return make_pair(make_pair(nullptr, nullptr), nullptr);
     }
-    return _edges.back();
+    else{
+        vs->addNeighbor(make_pair(vt, et));
+        vt->addNeighbor(make_pair(vs, et));
+        _edges.emplace_back(make_pair(vs, vt), et);
+        if (verbose >= 5) cout << "Add edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
+        return _edges.back();
+    }
+    
     // }
 
     // return make_pair(make_pair(nullptr, nullptr), nullptr);

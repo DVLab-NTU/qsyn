@@ -220,7 +220,7 @@ class ZXGraph{
         ZXVertex* addInput(size_t id, int qubit, bool checked = false);
         ZXVertex* addOutput(size_t id, int qubit, bool checked = false);
         ZXVertex* addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase(), bool checked = false);
-        EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et);
+        EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et, bool allowSelfLoop = false);
         void addEdgeById(size_t id_s, size_t id_t, EdgeType* et);
         void addInputs(vector<ZXVertex*> inputs);
         void addOutputs(vector<ZXVertex*> outputs);
