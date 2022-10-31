@@ -78,24 +78,18 @@ void PivotGadget::match(ZXGraph* g){
                     bad_match = true;
                     break;
                 }
-                vector<EdgePair> ne = g->getIncidentEdges(vnList[vn][n]);
-                if(vn == 0 && ne.size() == 1 && ne[0] != e){
+                // vector<EdgePair> ne = g->getIncidentEdges(vnList[vn][n]);
+                // if( vn == 0 && 
+                //     ne.size() == 1 && 
+                //     ne[0] != e
+                // ){
+                if( vn == 0 && 
+                    g->getNumIncidentEdges(vnList[vn][n]) == 1 && 
+                    g->getFirstIncidentEdge(vnList[vn][n]) != e
+                ){
                     bad_match = true;
                     break;
-                }
-                // for(size_t nei = 0; nei < ne.size(); nei++){
-                //     for(size_t t = 0; t < g->getNumEdges(); t++){
-                //         if(g->getEdges()[t] == ne[nei]){
-                //             if(verbose == 9){
-                //                 cout << "> discard edges:\n";
-                //                 g->printEdge(t);
-                //             } 
-                //             discardEdges[t] = true;
-                //             break;
-                //         }
-                //     }
-                // }
-            
+                }            
             }
             if(bad_match) break;
         }
@@ -256,7 +250,8 @@ void PivotGadget::rewrite(ZXGraph* g){
 
             if(i == 0) _removeVertices.push_back(m[1]);
             if(i == 1) {
-                EdgePair e = g->getIncidentEdges(m[2])[0];
+                // EdgePair e = g->getIncidentEdges(m[2])[0];
+                EdgePair e = g->getFirstIncidentEdge(m[2]);
                 _edgeTableKeys.push_back(make_pair(m[0], m[2]));
                 if(*e.second == EdgeType::SIMPLE){
                     _edgeTableValues.push_back(make_pair(0, 1));

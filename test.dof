@@ -1,0 +1,22 @@
+zxm -on
+zxn
+zxgedit -addi 0 0
+zxgedit -addi 1 1
+zxgedit -addo 2 0
+zxgedit -addv 3 0 Z 0
+zxgedit -addv 4 0 Z 0
+zxgedit -addv 5 0 Z 0
+zxgedit -addv 6 0 X 0
+zxgedit -addv 7 0 X 0
+zxgedit -adde 0 3 SIMPLE
+zxgedit -adde 1 3 SIMPLE
+zxgedit -adde 3 4 SIMPLE
+zxgedit -adde 3 4 HADAMARD
+zxgedit -adde 3 6 HADAMARD
+zxgedit -adde 4 5 SIMPLE
+zxgedit -adde 4 5 SIMPLE
+zxgedit -adde 4 6 SIMPLE
+zxgedit -adde 5 7 HADAMARD
+zxgedit -adde 6 7 SIMPLE
+zxgedit -adde 5 2 SIMPLE
+zxgedit -adde 7 2 SIMPLE
