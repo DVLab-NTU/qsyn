@@ -1,0 +1,29 @@
+format 0
+ver 3
+zxm -on
+qccread benchmark/benchmark_SABRE/large/ham15_107.qasm
+usage
+qczxm
+usage
+qczxm
+usage
+zxgadjoint
+usage
+zxcompose 0
+usage
+zxgprint
+usage
+zxgs -interc
+usage
+zxgs -pivotg
+usage
+zxgs -clif
+usage
+zxgs -gad
+usage
+zxgs -interc
+usage
+zxgs -pivotg
+usage
+q -f
+
