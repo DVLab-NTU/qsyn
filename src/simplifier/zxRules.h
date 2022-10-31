@@ -56,12 +56,12 @@ class ZXRule{
       virtual void rewrite(ZXGraph* g){}
 
       // Getter and Setter
-      virtual int getMatchTypeVecNum() const                                  { return _matchTypeVecNum; }
-      virtual string getName() const                                          { return _name; }       
-      virtual vector<ZXVertex* > getRemoveVertices() const                    { return _removeVertices; }
-      virtual vector<EdgePair> getRemoveEdges() const                         { return _removeEdges; }
-      virtual vector<pair<ZXVertex*, ZXVertex*> > getEdgeTableKeys() const    { return _edgeTableKeys; }
-      virtual vector<pair<int, int> > getEdgeTableValues() const              { return _edgeTableValues; }
+      virtual const int& getMatchTypeVecNum() const                                  { return _matchTypeVecNum; }
+      virtual const string& getName() const                                          { return _name; }       
+      virtual const vector<ZXVertex* >& getRemoveVertices() const                    { return _removeVertices; }
+      virtual const vector<EdgePair>& getRemoveEdges() const                         { return _removeEdges; }
+      virtual const vector<pair<ZXVertex*, ZXVertex*> >& getEdgeTableKeys() const    { return _edgeTableKeys; }
+      virtual const vector<pair<int, int> >& getEdgeTableValues() const              { return _edgeTableValues; }
       
       virtual void setMatchTypeVecNum(int n)                                  { _matchTypeVecNum = n; }
       virtual void setRemoveVertices(vector<ZXVertex* > v)                    { _removeVertices = v; }
@@ -105,7 +105,7 @@ class Bialgebra : public ZXRule{
     bool check_duplicated_vertex(vector<ZXVertex*> vec);
 
     // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    const MatchTypeVec& getMatchTypeVec() const     { return _matchTypeVec; }
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
@@ -135,7 +135,7 @@ class StateCopy : public ZXRule{
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    const MatchTypeVec& getMatchTypeVec() const     { return _matchTypeVec; }
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
@@ -165,7 +165,7 @@ class HboxFusion : public ZXRule{
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    const MatchTypeVec& getMatchTypeVec() const     { return _matchTypeVec; }
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
@@ -195,7 +195,7 @@ class Hopf : public ZXRule{
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    const MatchTypeVec& getMatchTypeVec() const     { return _matchTypeVec; }
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
@@ -225,7 +225,7 @@ class HRule : public ZXRule{
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    const MatchTypeVec& getMatchTypeVec() const     { return _matchTypeVec; }
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
@@ -255,7 +255,7 @@ class IdRemoval : public ZXRule{
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    const MatchTypeVec& getMatchTypeVec() const     { return _matchTypeVec; }
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
@@ -285,7 +285,7 @@ class LComp : public ZXRule{
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    const MatchTypeVec& getMatchTypeVec() const     { return _matchTypeVec; }
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
@@ -316,7 +316,7 @@ class PhaseGadget : public ZXRule{
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    const MatchTypeVec& getMatchTypeVec() const     { return _matchTypeVec; }
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
@@ -345,7 +345,7 @@ class Pivot : public ZXRule{
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    const MatchTypeVec& getMatchTypeVec() const     { return _matchTypeVec; }
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
@@ -376,7 +376,7 @@ class PivotGadget : public ZXRule{
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    const MatchTypeVec& getMatchTypeVec() const     { return _matchTypeVec; }
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
@@ -406,7 +406,7 @@ class PivotBoundary : public ZXRule{
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    const MatchTypeVec& getMatchTypeVec() const     { return _matchTypeVec; }
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
@@ -435,7 +435,7 @@ class SpiderFusion : public ZXRule{
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
-    MatchTypeVec getMatchTypeVec() const            { return _matchTypeVec; }
+    const MatchTypeVec& getMatchTypeVec() const     { return _matchTypeVec; }
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
