@@ -29,7 +29,7 @@ Vertices:      17428
 Edges:         22708
 
 qsyn> usage
-Period time used : 0.25 seconds
-Total time used  : 0.25 seconds
-Total memory used: 21.39 M Bytes
+Period time used : 0.27 seconds
+Total time used  : 0.27 seconds
+Total memory used: 21.38 M Bytes
 

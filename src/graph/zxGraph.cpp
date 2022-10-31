@@ -355,21 +355,21 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et, bool allowSe
     //     cerr << "Boundary vertex " << vs->getId() << " must not have self loop" << endl;
     // } else {
         // NeighborMap mode
-    if(vt == vs && (!allowSelfloop)){
-        if (*et == EdgeType::HADAMARD){
-            vt->setPhase(vt->getPhase() + Phase(1));
-            if (verbose >= 5) cout << "Add phase Pi to " << vt->getId() << " due to hadamard selfloop" << endl;
-        }
-        else if (verbose >= 5) cout << "Neglect simple selfloop on " << vt->getId() << endl;
-        return make_pair(make_pair(nullptr, nullptr), nullptr);
-    }
-    else{
+    // if(vt == vs && (!allowSelfloop)){
+    //     if (*et == EdgeType::HADAMARD){
+    //         vt->setPhase(vt->getPhase() + Phase(1));
+    //         if (verbose >= 5) cout << "Add phase Pi to " << vt->getId() << " due to hadamard selfloop" << endl;
+    //     }
+    //     else if (verbose >= 5) cout << "Neglect simple selfloop on " << vt->getId() << endl;
+    //     return make_pair(make_pair(nullptr, nullptr), nullptr);
+    // }
+    // else{
         vs->addNeighbor(make_pair(vt, et));
         vt->addNeighbor(make_pair(vs, et));
         _edges.emplace_back(make_pair(vs, vt), et);
         if (verbose >= 5) cout << "Add edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
         return _edges.back();
-    }
+    // }
     
     // }
 
