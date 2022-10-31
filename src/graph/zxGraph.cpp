@@ -17,6 +17,7 @@
 
 #include "util.h"
 #include "textFormat.h"
+#include <ranges>
 #include <chrono>
 
 using namespace std;
@@ -208,7 +209,23 @@ bool ZXGraph::isGraphLike() const {
 
 // Getter and setter
 
-vector<EdgePair> ZXGraph::getIncidentEdges(ZXVertex* v) const{
+size_t ZXGraph::getNumIncidentEdges(ZXVertex* v) const {
+    // cout << "Find incident of " << v->getId() << endl; 
+    size_t count = 0;
+    for(const auto& edge : _edges){
+        if(edge.first.first == v || edge.first.second == v) count++;
+    }
+    return count;
+}
+
+EdgePair ZXGraph::getFirstIncidentEdge(ZXVertex* v) const {
+    for(const auto& edge : _edges){
+        if(edge.first.first == v || edge.first.second == v) return edge;
+    }
+    return make_pair(make_pair(nullptr, nullptr), nullptr);
+}
+
+vector<EdgePair> ZXGraph::getIncidentEdges(ZXVertex* v) const {
     // cout << "Find incident of " << v->getId() << endl; 
     vector<EdgePair> incidentEdges;
     for(size_t e = 0; e < _edges.size(); e++){

@@ -1,0 +1,521 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> format 0
+Note: format level is set to 0
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> qccread benchmark/benchmark_SABRE/large/9symml_195.qasm
+
+qsyn> usage
+Period time used : 0.24 seconds
+Total time used  : 0.24 seconds
+Total memory used: 0 M Bytes
+
+qsyn> qczxm
+Successfully generated Graph 0
+Checkout to Graph 0
+---- TRAVERSE AND BUILD THE GRAPH ----
+--------------------------------------
+
+qsyn> usage
+Period time used : 0.83 seconds
+Total time used  : 1.07 seconds
+Total memory used: 0 M Bytes
+
+qsyn> qczxm
+Successfully generated Graph 1
+Checkout to Graph 1
+---- TRAVERSE AND BUILD THE GRAPH ----
+--------------------------------------
+
+qsyn> usage
+Period time used : 0.83 seconds
+Total time used  : 1.9 seconds
+Total memory used: 24.88 M Bytes
+
+qsyn> zxgadjoint
+
+qsyn> usage
+Period time used : 0.01 seconds
+Total time used  : 1.91 seconds
+Total memory used: 24.88 M Bytes
+
+qsyn> zxcompose 0
+
+qsyn> usage
+Period time used : 0.16 seconds
+Total time used  : 2.07 seconds
+Total memory used: 47.38 M Bytes
+
+qsyn> zxgprint
+Graph 1
+Inputs:        16
+Outputs:       16
+Vertices:      100258
+Edges:         130706
+
+qsyn> usage
+Period time used : 0 seconds
+Total time used  : 2.07 seconds
+Total memory used: 47.38 M Bytes
+
+qsyn> zxgs -fr
+Hadamard Rule: 6730 . 1974 . 2 iterations
+#Add Edge   : 8704
+#rm  Edge   : 0
+#rm  Vertex : 1974
+Time used   : 6seconds
+Spider Fusion Rule: 
+3 iterations
+#Add Edge   : 54395
+#rm  Edge   : 0
+#rm  Vertex : 28277
+Time used   : 468seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 5
+#rm  Edge   : 0
+#rm  Vertex : 5
+Time used   : 0seconds
+Spider Fusion Rule: 
+1 iterations
+#Add Edge   : 5100
+#rm  Edge   : 4
+#rm  Vertex : 2553
+Time used   : 9seconds
+Pivot Rule: 
+2 iterations
+#Add Edge   : 9095
+#rm  Edge   : 5
+#rm  Vertex : 4544
+Time used   : 19seconds
+Local Complementary Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 5
+#rm  Edge   : 0
+#rm  Vertex : 5
+Time used   : 0seconds
+Spider Fusion Rule: 
+1 iterations
+#Add Edge   : 18
+#rm  Edge   : 1
+#rm  Vertex : 5
+Time used   : 0seconds
+Pivot Rule: 
+2 iterations
+#Add Edge   : 52
+#rm  Edge   : 6
+#rm  Vertex : 10
+Time used   : 0seconds
+Local Complementary Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 0seconds
+Spider Fusion Rule: 
+1 iterations
+#Add Edge   : 5
+#rm  Edge   : 2
+#rm  Vertex : 3
+Time used   : 0seconds
+Pivot Rule: 
+1 iterations
+#Add Edge   : 1
+#rm  Edge   : 1
+#rm  Vertex : 2
+Time used   : 0seconds
+Local Complementary Rule: 
+2 iterations
+#Add Edge   : 109
+#rm  Edge   : 74
+#rm  Vertex : 2
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 0seconds
+Spider Fusion Rule: 
+2 iterations
+#Add Edge   : 4
+#rm  Edge   : 4
+#rm  Vertex : 3
+Time used   : 0seconds
+Pivot Rule: 
+1 iterations
+#Add Edge   : 19
+#rm  Edge   : 4
+#rm  Vertex : 6
+Time used   : 0seconds
+Local Complementary Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 2
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 0seconds
+Spider Fusion Rule: 
+1 iterations
+#Add Edge   : 2
+#rm  Edge   : 1
+#rm  Vertex : 2
+Time used   : 0seconds
+Pivot Rule: 
+1 iterations
+#Add Edge   : 10
+#rm  Edge   : 5
+#rm  Vertex : 4
+Time used   : 0seconds
+Local Complementary Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 1
+#rm  Edge   : 0
+#rm  Vertex : 1
+Time used   : 0seconds
+Spider Fusion Rule: 
+1 iterations
+#Add Edge   : 0
+#rm  Edge   : 1
+#rm  Vertex : 1
+Time used   : 0seconds
+Pivot Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Local Complementary Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 2
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 0seconds
+Spider Fusion Rule: 
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 3
+#rm  Vertex : 2
+Time used   : 0seconds
+Pivot Rule: 
+1 iterations
+#Add Edge   : 7
+#rm  Edge   : 2
+#rm  Vertex : 4
+Time used   : 0seconds
+Local Complementary Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 0seconds
+Spider Fusion Rule: 
+1 iterations
+#Add Edge   : 6
+#rm  Edge   : 1
+#rm  Vertex : 3
+Time used   : 0seconds
+Pivot Rule: 
+2 iterations
+#Add Edge   : 15
+#rm  Edge   : 5
+#rm  Vertex : 6
+Time used   : 0seconds
+Local Complementary Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 0seconds
+Spider Fusion Rule: 
+1 iterations
+#Add Edge   : 8
+#rm  Edge   : 3
+#rm  Vertex : 3
+Time used   : 0seconds
+Pivot Rule: 
+1 iterations
+#Add Edge   : 13
+#rm  Edge   : 1
+#rm  Vertex : 2
+Time used   : 0seconds
+Local Complementary Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 2
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 0seconds
+Spider Fusion Rule: 
+1 iterations
+#Add Edge   : 1
+#rm  Edge   : 4
+#rm  Vertex : 2
+Time used   : 0seconds
+Pivot Rule: 
+1 iterations
+#Add Edge   : 17
+#rm  Edge   : 4
+#rm  Vertex : 4
+Time used   : 0seconds
+Local Complementary Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 0seconds
+Spider Fusion Rule: 
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 3
+#rm  Vertex : 3
+Time used   : 0seconds
+Pivot Rule: 
+1 iterations
+#Add Edge   : 14
+#rm  Edge   : 3
+#rm  Vertex : 6
+Time used   : 0seconds
+Local Complementary Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 1
+#rm  Edge   : 0
+#rm  Vertex : 1
+Time used   : 0seconds
+Spider Fusion Rule: 
+1 iterations
+#Add Edge   : 2
+#rm  Edge   : 1
+#rm  Vertex : 1
+Time used   : 0seconds
+Pivot Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Local Complementary Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 2
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 0seconds
+Spider Fusion Rule: 
+2 iterations
+#Add Edge   : 3
+#rm  Edge   : 5
+#rm  Vertex : 2
+Time used   : 0seconds
+Pivot Rule: 
+1 iterations
+#Add Edge   : 7
+#rm  Edge   : 2
+#rm  Vertex : 4
+Time used   : 0seconds
+Local Complementary Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 0seconds
+Spider Fusion Rule: 
+1 iterations
+#Add Edge   : 6
+#rm  Edge   : 2
+#rm  Vertex : 3
+Time used   : 0seconds
+Pivot Rule: 
+2 iterations
+#Add Edge   : 16
+#rm  Edge   : 2
+#rm  Vertex : 6
+Time used   : 0seconds
+Local Complementary Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 0seconds
+Spider Fusion Rule: 
+1 iterations
+#Add Edge   : 6
+#rm  Edge   : 2
+#rm  Vertex : 3
+Time used   : 0seconds
+Pivot Rule: 
+1 iterations
+#Add Edge   : 17
+#rm  Edge   : 3
+#rm  Vertex : 4
+Time used   : 0seconds
+Local Complementary Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 0seconds
+Spider Fusion Rule: 
+1 iterations
+#Add Edge   : 6
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 0seconds
+Pivot Rule: 
+1 iterations
+#Add Edge   : 20
+#rm  Edge   : 4
+#rm  Vertex : 4
+Time used   : 0seconds
+Local Complementary Rule: 
+2 iterations
+#Add Edge   : 125
+#rm  Edge   : 86
+#rm  Vertex : 2
+Time used   : 0seconds
+Identity Removal Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Spider Fusion Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Pivot Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Local Complementary Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Pivot Gadget Rule: 
+11 iterations
+#Add Edge   : 204110
+#rm  Edge   : 83359
+#rm  Vertex : 25613
+Time used   : 3192seconds
+Hopf Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Spider Fusion Rule: 
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 0seconds
+Identity Removal Rule: 
+1 iterations
+#Add Edge   : 6211
+#rm  Edge   : 0
+#rm  Vertex : 6211
+Time used   : 7seconds
+Spider Fusion Rule: 
+468 iterations
+#Add Edge   : 40959
+#rm  Edge   : 0
+#rm  Vertex : 6197
+Time used   : 201seconds
+Pivot Rule: 
+4 iterations
+#Add Edge   : 33335
+#rm  Edge   : 2517
+#rm  Vertex : 569
+Time used   : 84seconds

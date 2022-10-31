@@ -53,9 +53,6 @@ int Simplifier::simp() {
     bool new_matches = true;
     if (verbose >= 2) cout << _rule->getName() << ": \n";
     while (new_matches) {
-        size_t adde_actual = 0;
-        size_t  rme_actual = 0;
-        size_t  rmv_actual = 0;
         new_matches = false;
         timer = chrono::steady_clock::now();
         _rule->match(_simpGraph);
@@ -104,7 +101,6 @@ int Simplifier::simp() {
                 if(!found) {
                     _simpGraph->addEdge(v, v_n, new EdgeType(EdgeType::SIMPLE));
                     addEdgeCount++;
-                    adde_actual++;
                 }
             }
             // t_simp += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
@@ -128,19 +124,17 @@ int Simplifier::simp() {
                 }
                 if(!found) {
                     _simpGraph->addEdge(v, v_n, new EdgeType(EdgeType::HADAMARD));
-                    adde_actual++;
+                    addEdgeCount++;
                 }
             }
         }     
 
         _simpGraph->removeEdgesByEdgePairs(_rule->getRemoveEdges());
         rmEdgeCount += _rule->getRemoveEdges().size();
-        rme_actual += _rule->getRemoveEdges().size();
 
         // remove vertices
         _simpGraph->removeVertices(_rule->getRemoveVertices(), checked);
         rmVertexCount += _rule->getRemoveVertices().size();
-        rmv_actual += _rule->getRemoveEdges().size();
 
         // remove isolated vertices
         _simpGraph->removeIsolatedVertices();
@@ -148,10 +142,10 @@ int Simplifier::simp() {
         timer = chrono::steady_clock::now();
         new_matches = true;
         // TODO check stats
-        // cout << "Round " << i << endl;
-        // cout << "  - Add edges    : " << ((double)   t_match.count() / 1000) << " ms / " << adde_actual << endl;
-        // cout << "  - rm  edges    : " << ((double) t_rewrite.count() / 1000) << " ms / " <<  rme_actual << endl;
-        // cout << "  - rm  vertices : " << ((double)   t_apply.count() / 1000) << " ms / " <<  rmv_actual << endl;
+        cout << "Round " << i << endl;
+        cout << "  - match    : " << ((double)   t_match.count() / 1000) << " ms" << endl;
+        cout << "  - rewrite  : " << ((double) t_rewrite.count() / 1000) << " ms" << endl;
+        cout << "  - apply    : " << ((double)   t_apply.count() / 1000) << " ms" << endl;
     }
 
     if (verbose == 1 && i != 0) {
@@ -165,10 +159,10 @@ int Simplifier::simp() {
     }
     if(verbose >= 5) cout << "\n";
     if(verbose >= 6) _simpGraph->printVertices();
-    // cout << "#Add Edge   : " << addEdgeCount << endl;
-    // cout << "#rm  Edge   : " << rmEdgeCount << endl;
-    // cout << "#rm  Vertex : " << rmVertexCount << endl;
-    // cout << "Time used   : " << chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - t_start).count() << " ms\n" << endl;
+    cout << "#Add Edge   : " << addEdgeCount << endl;
+    cout << "#rm  Edge   : " << rmEdgeCount << endl;
+    cout << "#rm  Vertex : " << rmVertexCount << endl;
+    cout << "Time used   : " << chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - t_start).count() << " ms\n" << endl;
     return i;
     
 }
@@ -193,9 +187,6 @@ int Simplifier::hadamardSimp() {
     }
     int i = 0;
     while (true) {
-        size_t adde_actual = 0;
-        size_t  rme_actual = 0;
-        size_t  rmv_actual = 0;
         size_t vcount = _simpGraph->getNumVertices();
 
         timer = chrono::steady_clock::now();
@@ -224,39 +215,35 @@ int Simplifier::hadamardSimp() {
             for (int j = 0; j < numSimpleEdges; j++) {
                 _simpGraph->addEdge(v, v_n, new EdgeType(EdgeType::SIMPLE));
                 addEdgeCount++;
-                adde_actual++;
             }
             for (int j = 0; j < numHadamardEdges; j++) {
                 _simpGraph->addEdge(v, v_n, new EdgeType(EdgeType::HADAMARD));
                 addEdgeCount++;
-                adde_actual++;
             }
         }
         // remove edges
         _simpGraph->removeEdgesByEdgePairs(_rule->getRemoveEdges());
         rmEdgeCount += _rule->getRemoveEdges().size();
-        rme_actual += _rule->getRemoveEdges().size();
 
         // remove vertices
         _simpGraph->removeVertices(_rule->getRemoveVertices(), checked);
         rmVertexCount += _rule->getRemoveVertices().size();
-        rmv_actual += _rule->getRemoveVertices().size();
         // remove isolated vertices
         _simpGraph->removeIsolatedVertices();
         t_apply += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
         timer = chrono::steady_clock::now();
         if (verbose >= 3) cout << ". ";
-        // cout << "Round " << i << endl;
-        // cout << "  - Add edges    : " << ((double)   t_match.count() / 1000) << " ms / " << adde_actual << endl;
-        // cout << "  - rm  edges    : " << ((double) t_rewrite.count() / 1000) << " ms / " <<  rme_actual << endl;
-        // cout << "  - rm  vertices : " << ((double)   t_apply.count() / 1000) << " ms / " <<  rmv_actual << endl;
+        cout << "Round " << i << endl;
+        cout << "  - match    : " << ((double)   t_match.count() / 1000) << " ms" << endl;
+        cout << "  - rewrite  : " << ((double) t_rewrite.count() / 1000) << " ms" << endl;
+        cout << "  - apply    : " << ((double)   t_apply.count() / 1000) << " ms" << endl;
         if (_simpGraph->getNumVertices() >= vcount) break;
     }
     if (verbose >= 2 && i > 0) cout << i << " iterations" << endl;
-    // cout << "#Add Edge   : " << addEdgeCount << endl;
-    // cout << "#rm  Edge   : " << rmEdgeCount << endl;
-    // cout << "#rm  Vertex : " << rmVertexCount << endl;
-    // cout << "Time used   : " << chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - t_start).count() << " ms" << endl;
+    cout << "#Add Edge   : " << addEdgeCount << endl;
+    cout << "#rm  Edge   : " << rmEdgeCount << endl;
+    cout << "#rm  Vertex : " << rmVertexCount << endl;
+    cout << "Time used   : " << chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - t_start).count() << " ms" << endl;
     return i;
 }
 

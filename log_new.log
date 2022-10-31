@@ -1,0 +1,744 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> format 0
+Note: format level is set to 0
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> qccread benchmark/benchmark_SABRE/large/9symml_195.qasm
+
+qsyn> usage
+Period time used : 0.25 seconds
+Total time used  : 0.25 seconds
+Total memory used: 0 M Bytes
+
+qsyn> qczxm
+Successfully generated Graph 0
+Checkout to Graph 0
+---- TRAVERSE AND BUILD THE GRAPH ----
+--------------------------------------
+
+qsyn> usage
+Period time used : 0.89 seconds
+Total time used  : 1.14 seconds
+Total memory used: 0 M Bytes
+
+qsyn> qczxm
+Successfully generated Graph 1
+Checkout to Graph 1
+---- TRAVERSE AND BUILD THE GRAPH ----
+--------------------------------------
+
+qsyn> usage
+Period time used : 0.88 seconds
+Total time used  : 2.02 seconds
+Total memory used: 28.04 M Bytes
+
+qsyn> zxgadjoint
+
+qsyn> usage
+Period time used : 0.01 seconds
+Total time used  : 2.03 seconds
+Total memory used: 28.04 M Bytes
+
+qsyn> zxcompose 0
+
+qsyn> usage
+Period time used : 0.2 seconds
+Total time used  : 2.23 seconds
+Total memory used: 50.54 M Bytes
+
+qsyn> zxgprint
+Graph 1
+Inputs:        16
+Outputs:       16
+Vertices:      100258
+Edges:         130706
+
+qsyn> usage
+Period time used : 0 seconds
+Total time used  : 2.23 seconds
+Total memory used: 50.54 M Bytes
+
+qsyn> zxgs -fr
+  - Match   time : 78 ms
+Hadamard Rule: 6730   - Rewrite time : 89 ms
+.   - Apply   time : 5026 ms
+  - Match   time : 80 ms
+1974   - Rewrite time : 5110 ms
+.   - Apply   time : 5690 ms
+  - Match   time : 75 ms
+2 iterations
+#Add Edge   : 8704
+#rm  Edge   : 0
+#rm  Vertex : 8704
+Time used   : 5766 ms
+Spider Fusion Rule: 
+  - Match   time : 377 ms
+  - Rewrite time : 565 ms
+  - Apply   time : 262075 ms
+  - Match   time : 222 ms
+  - Rewrite time : 262363 ms
+  - Apply   time : 296078 ms
+  - Match   time : 234 ms
+  - Rewrite time : 296361 ms
+  - Apply   time : 313294 ms
+  - Match   time : 175 ms
+3 iterations
+#Add Edge   : 54395
+#rm  Edge   : 0
+#rm  Vertex : 28277
+Time used   : 313470 ms
+Identity Removal Rule: 
+  - Match   time : 139 ms
+  - Rewrite time : 139 ms
+  - Apply   time : 271 ms
+  - Match   time : 136 ms
+1 iterations
+#Add Edge   : 5
+#rm  Edge   : 0
+#rm  Vertex : 5
+Time used   : 408 ms
+Spider Fusion Rule: 
+  - Match   time : 211 ms
+  - Rewrite time : 244 ms
+  - Apply   time : 6272 ms
+  - Match   time : 149 ms
+1 iterations
+#Add Edge   : 5100
+#rm  Edge   : 0
+#rm  Vertex : 2553
+Time used   : 6422 ms
+Pivot Rule: 
+  - Match   time : 168 ms
+  - Rewrite time : 2409 ms
+  - Apply   time : 10829 ms
+  - Match   time : 158 ms
+  - Rewrite time : 11029 ms
+  - Apply   time : 11154 ms
+  - Match   time : 155 ms
+2 iterations
+#Add Edge   : 9095
+#rm  Edge   : 0
+#rm  Vertex : 4544
+Time used   : 11309 ms
+Local Complementary Rule: 
+  - Match   time : 60 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 60 ms
+Identity Removal Rule: 
+  - Match   time : 114 ms
+  - Rewrite time : 114 ms
+  - Apply   time : 230 ms
+  - Match   time : 119 ms
+1 iterations
+#Add Edge   : 5
+#rm  Edge   : 0
+#rm  Vertex : 5
+Time used   : 350 ms
+Spider Fusion Rule: 
+  - Match   time : 142 ms
+  - Rewrite time : 142 ms
+  - Apply   time : 261 ms
+  - Match   time : 151 ms
+1 iterations
+#Add Edge   : 18
+#rm  Edge   : 0
+#rm  Vertex : 5
+Time used   : 413 ms
+Pivot Rule: 
+  - Match   time : 168 ms
+  - Rewrite time : 213 ms
+  - Apply   time : 346 ms
+  - Match   time : 163 ms
+  - Rewrite time : 548 ms
+  - Apply   time : 663 ms
+  - Match   time : 166 ms
+2 iterations
+#Add Edge   : 52
+#rm  Edge   : 0
+#rm  Vertex : 10
+Time used   : 830 ms
+Local Complementary Rule: 
+  - Match   time : 62 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 63 ms
+Identity Removal Rule: 
+  - Match   time : 119 ms
+  - Rewrite time : 119 ms
+  - Apply   time : 235 ms
+  - Match   time : 122 ms
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 358 ms
+Spider Fusion Rule: 
+  - Match   time : 140 ms
+  - Rewrite time : 141 ms
+  - Apply   time : 263 ms
+  - Match   time : 140 ms
+1 iterations
+#Add Edge   : 5
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 403 ms
+Pivot Rule: 
+  - Match   time : 168 ms
+  - Rewrite time : 206 ms
+  - Apply   time : 323 ms
+  - Match   time : 159 ms
+1 iterations
+#Add Edge   : 1
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 482 ms
+Local Complementary Rule: 
+  - Match   time : 60 ms
+  - Rewrite time : 61 ms
+  - Apply   time : 171 ms
+  - Match   time : 62 ms
+  - Rewrite time : 233 ms
+  - Apply   time : 349 ms
+  - Match   time : 61 ms
+2 iterations
+#Add Edge   : 109
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 410 ms
+Identity Removal Rule: 
+  - Match   time : 116 ms
+  - Rewrite time : 116 ms
+  - Apply   time : 235 ms
+  - Match   time : 119 ms
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 355 ms
+Spider Fusion Rule: 
+  - Match   time : 149 ms
+  - Rewrite time : 149 ms
+  - Apply   time : 262 ms
+  - Match   time : 139 ms
+  - Rewrite time : 401 ms
+  - Apply   time : 518 ms
+  - Match   time : 153 ms
+2 iterations
+#Add Edge   : 4
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 671 ms
+Pivot Rule: 
+  - Match   time : 159 ms
+  - Rewrite time : 200 ms
+  - Apply   time : 321 ms
+  - Match   time : 165 ms
+1 iterations
+#Add Edge   : 19
+#rm  Edge   : 0
+#rm  Vertex : 6
+Time used   : 487 ms
+Local Complementary Rule: 
+  - Match   time : 62 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 62 ms
+Identity Removal Rule: 
+  - Match   time : 115 ms
+  - Rewrite time : 115 ms
+  - Apply   time : 227 ms
+  - Match   time : 116 ms
+1 iterations
+#Add Edge   : 2
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 343 ms
+Spider Fusion Rule: 
+  - Match   time : 145 ms
+  - Rewrite time : 145 ms
+  - Apply   time : 259 ms
+  - Match   time : 135 ms
+1 iterations
+#Add Edge   : 2
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 395 ms
+Pivot Rule: 
+  - Match   time : 159 ms
+  - Rewrite time : 199 ms
+  - Apply   time : 322 ms
+  - Match   time : 161 ms
+1 iterations
+#Add Edge   : 10
+#rm  Edge   : 0
+#rm  Vertex : 4
+Time used   : 484 ms
+Local Complementary Rule: 
+  - Match   time : 61 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 61 ms
+Identity Removal Rule: 
+  - Match   time : 118 ms
+  - Rewrite time : 118 ms
+  - Apply   time : 229 ms
+  - Match   time : 122 ms
+1 iterations
+#Add Edge   : 1
+#rm  Edge   : 0
+#rm  Vertex : 1
+Time used   : 351 ms
+Spider Fusion Rule: 
+  - Match   time : 139 ms
+  - Rewrite time : 139 ms
+  - Apply   time : 254 ms
+  - Match   time : 146 ms
+1 iterations
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 1
+Time used   : 401 ms
+Pivot Rule: 
+  - Match   time : 167 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 167 ms
+Local Complementary Rule: 
+  - Match   time : 60 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 60 ms
+Identity Removal Rule: 
+  - Match   time : 117 ms
+  - Rewrite time : 117 ms
+  - Apply   time : 231 ms
+  - Match   time : 123 ms
+1 iterations
+#Add Edge   : 2
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 354 ms
+Spider Fusion Rule: 
+  - Match   time : 140 ms
+  - Rewrite time : 140 ms
+  - Apply   time : 256 ms
+  - Match   time : 137 ms
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 394 ms
+Pivot Rule: 
+  - Match   time : 161 ms
+  - Rewrite time : 200 ms
+  - Apply   time : 319 ms
+  - Match   time : 158 ms
+1 iterations
+#Add Edge   : 7
+#rm  Edge   : 0
+#rm  Vertex : 4
+Time used   : 477 ms
+Local Complementary Rule: 
+  - Match   time : 71 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 71 ms
+Identity Removal Rule: 
+  - Match   time : 126 ms
+  - Rewrite time : 126 ms
+  - Apply   time : 243 ms
+  - Match   time : 119 ms
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 362 ms
+Spider Fusion Rule: 
+  - Match   time : 139 ms
+  - Rewrite time : 139 ms
+  - Apply   time : 257 ms
+  - Match   time : 146 ms
+1 iterations
+#Add Edge   : 6
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 404 ms
+Pivot Rule: 
+  - Match   time : 171 ms
+  - Rewrite time : 213 ms
+  - Apply   time : 335 ms
+  - Match   time : 163 ms
+  - Rewrite time : 540 ms
+  - Apply   time : 655 ms
+  - Match   time : 168 ms
+2 iterations
+#Add Edge   : 15
+#rm  Edge   : 0
+#rm  Vertex : 6
+Time used   : 824 ms
+Local Complementary Rule: 
+  - Match   time : 62 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 62 ms
+Identity Removal Rule: 
+  - Match   time : 116 ms
+  - Rewrite time : 116 ms
+  - Apply   time : 231 ms
+  - Match   time : 116 ms
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 348 ms
+Spider Fusion Rule: 
+  - Match   time : 135 ms
+  - Rewrite time : 135 ms
+  - Apply   time : 253 ms
+  - Match   time : 145 ms
+1 iterations
+#Add Edge   : 8
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 398 ms
+Pivot Rule: 
+  - Match   time : 170 ms
+  - Rewrite time : 210 ms
+  - Apply   time : 326 ms
+  - Match   time : 160 ms
+1 iterations
+#Add Edge   : 13
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 486 ms
+Local Complementary Rule: 
+  - Match   time : 62 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 62 ms
+Identity Removal Rule: 
+  - Match   time : 116 ms
+  - Rewrite time : 116 ms
+  - Apply   time : 231 ms
+  - Match   time : 121 ms
+1 iterations
+#Add Edge   : 2
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 353 ms
+Spider Fusion Rule: 
+  - Match   time : 136 ms
+  - Rewrite time : 137 ms
+  - Apply   time : 255 ms
+  - Match   time : 136 ms
+1 iterations
+#Add Edge   : 1
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 391 ms
+Pivot Rule: 
+  - Match   time : 159 ms
+  - Rewrite time : 199 ms
+  - Apply   time : 320 ms
+  - Match   time : 156 ms
+1 iterations
+#Add Edge   : 17
+#rm  Edge   : 0
+#rm  Vertex : 4
+Time used   : 477 ms
+Local Complementary Rule: 
+  - Match   time : 55 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 56 ms
+Identity Removal Rule: 
+  - Match   time : 111 ms
+  - Rewrite time : 112 ms
+  - Apply   time : 220 ms
+  - Match   time : 114 ms
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 334 ms
+Spider Fusion Rule: 
+  - Match   time : 140 ms
+  - Rewrite time : 140 ms
+  - Apply   time : 252 ms
+  - Match   time : 131 ms
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 384 ms
+Pivot Rule: 
+  - Match   time : 168 ms
+  - Rewrite time : 207 ms
+  - Apply   time : 324 ms
+  - Match   time : 152 ms
+1 iterations
+#Add Edge   : 14
+#rm  Edge   : 0
+#rm  Vertex : 6
+Time used   : 477 ms
+Local Complementary Rule: 
+  - Match   time : 56 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 56 ms
+Identity Removal Rule: 
+  - Match   time : 111 ms
+  - Rewrite time : 111 ms
+  - Apply   time : 217 ms
+  - Match   time : 115 ms
+1 iterations
+#Add Edge   : 1
+#rm  Edge   : 0
+#rm  Vertex : 1
+Time used   : 333 ms
+Spider Fusion Rule: 
+  - Match   time : 138 ms
+  - Rewrite time : 138 ms
+  - Apply   time : 246 ms
+  - Match   time : 138 ms
+1 iterations
+#Add Edge   : 2
+#rm  Edge   : 0
+#rm  Vertex : 1
+Time used   : 385 ms
+Pivot Rule: 
+  - Match   time : 162 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 162 ms
+Local Complementary Rule: 
+  - Match   time : 59 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 59 ms
+Identity Removal Rule: 
+  - Match   time : 108 ms
+  - Rewrite time : 109 ms
+  - Apply   time : 215 ms
+  - Match   time : 112 ms
+1 iterations
+#Add Edge   : 2
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 327 ms
+Spider Fusion Rule: 
+  - Match   time : 130 ms
+  - Rewrite time : 130 ms
+  - Apply   time : 238 ms
+  - Match   time : 128 ms
+  - Rewrite time : 367 ms
+  - Apply   time : 473 ms
+  - Match   time : 132 ms
+2 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 606 ms
+Pivot Rule: 
+  - Match   time : 154 ms
+  - Rewrite time : 192 ms
+  - Apply   time : 304 ms
+  - Match   time : 165 ms
+1 iterations
+#Add Edge   : 7
+#rm  Edge   : 0
+#rm  Vertex : 4
+Time used   : 469 ms
+Local Complementary Rule: 
+  - Match   time : 58 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 58 ms
+Identity Removal Rule: 
+  - Match   time : 111 ms
+  - Rewrite time : 111 ms
+  - Apply   time : 220 ms
+  - Match   time : 114 ms
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 335 ms
+Spider Fusion Rule: 
+  - Match   time : 138 ms
+  - Rewrite time : 138 ms
+  - Apply   time : 255 ms
+  - Match   time : 134 ms
+1 iterations
+#Add Edge   : 6
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 390 ms
+Pivot Rule: 
+  - Match   time : 155 ms
+  - Rewrite time : 193 ms
+  - Apply   time : 306 ms
+  - Match   time : 165 ms
+  - Rewrite time : 510 ms
+  - Apply   time : 619 ms
+  - Match   time : 162 ms
+2 iterations
+#Add Edge   : 16
+#rm  Edge   : 0
+#rm  Vertex : 6
+Time used   : 782 ms
+Local Complementary Rule: 
+  - Match   time : 59 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 59 ms
+Identity Removal Rule: 
+  - Match   time : 113 ms
+  - Rewrite time : 114 ms
+  - Apply   time : 225 ms
+  - Match   time : 117 ms
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 342 ms
+Spider Fusion Rule: 
+  - Match   time : 135 ms
+  - Rewrite time : 136 ms
+  - Apply   time : 254 ms
+  - Match   time : 137 ms
+1 iterations
+#Add Edge   : 6
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 391 ms
+Pivot Rule: 
+  - Match   time : 159 ms
+  - Rewrite time : 200 ms
+  - Apply   time : 320 ms
+  - Match   time : 154 ms
+1 iterations
+#Add Edge   : 17
+#rm  Edge   : 0
+#rm  Vertex : 4
+Time used   : 474 ms
+Local Complementary Rule: 
+  - Match   time : 57 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 57 ms
+Identity Removal Rule: 
+  - Match   time : 116 ms
+  - Rewrite time : 116 ms
+  - Apply   time : 233 ms
+  - Match   time : 117 ms
+1 iterations
+#Add Edge   : 3
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 351 ms
+Spider Fusion Rule: 
+  - Match   time : 135 ms
+  - Rewrite time : 135 ms
+  - Apply   time : 250 ms
+  - Match   time : 132 ms
+1 iterations
+#Add Edge   : 6
+#rm  Edge   : 0
+#rm  Vertex : 3
+Time used   : 382 ms
+Pivot Rule: 
+  - Match   time : 153 ms
+  - Rewrite time : 191 ms
+  - Apply   time : 305 ms
+  - Match   time : 149 ms
+1 iterations
+#Add Edge   : 20
+#rm  Edge   : 0
+#rm  Vertex : 4
+Time used   : 454 ms
+Local Complementary Rule: 
+  - Match   time : 57 ms
+  - Rewrite time : 58 ms
+  - Apply   time : 164 ms
+  - Match   time : 60 ms
+  - Rewrite time : 224 ms
+  - Apply   time : 338 ms
+  - Match   time : 62 ms
+2 iterations
+#Add Edge   : 125
+#rm  Edge   : 0
+#rm  Vertex : 2
+Time used   : 400 ms
+Identity Removal Rule: 
+  - Match   time : 121 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 121 ms
+Spider Fusion Rule: 
+  - Match   time : 136 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 136 ms
+Pivot Rule: 
+  - Match   time : 152 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 152 ms
+Local Complementary Rule: 
+  - Match   time : 56 ms
+No matches
+#Add Edge   : 0
+#rm  Edge   : 0
+#rm  Vertex : 0
+Time used   : 57 ms
+Pivot Gadget Rule: 
+  - Match   time : 75766 ms
+  - Rewrite time : 86207 ms
+  - Apply   time : 462302 ms
+  - Match   time : 51919 ms
+  - Rewrite time : 519900 ms
