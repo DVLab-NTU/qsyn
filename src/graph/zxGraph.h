@@ -183,23 +183,26 @@ class ZXGraph{
 
 
         // Getter and Setter
-        void setId(size_t id)                           { _id = id; }
-        void setRef(void** ref)                         { _ref = ref; }
-        void setInputs(vector<ZXVertex*> inputs)        { _inputs = inputs; }
-        void setOutputs(vector<ZXVertex*> outputs)      { _outputs = outputs; }
-        void setVertices(vector<ZXVertex*> vertices)    { _vertices = vertices; }
-        void setEdges(vector<EdgePair > edges)          { _edges = edges; }
+        void setId(size_t id)                                           { _id = id; }
+        void setRef(void** ref)                                         { _ref = ref; }
+        void setInputs(vector<ZXVertex*> inputs)                        { _inputs = inputs; }
+        void setOutputs(vector<ZXVertex*> outputs)                      { _outputs = outputs; }
+        void setVertices(vector<ZXVertex*> vertices)                    { _vertices = vertices; }
+        void setEdges(vector<EdgePair > edges)                          { _edges = edges; }
         
-        const size_t& getId() const                     { return _id; }
-        void** getRef() const                           { return _ref; }
-        const vector<ZXVertex*>& getInputs() const      { return _inputs; }
-        size_t getNumInputs() const                     { return _inputs.size(); }
-        const vector<ZXVertex*>& getOutputs() const     { return _outputs; }
-        size_t getNumOutputs() const                    { return _outputs.size(); }
-        const vector<ZXVertex*>& getVertices() const    { return _vertices; }
-        size_t getNumVertices() const                   { return _vertices.size(); }
-        const vector<EdgePair >& getEdges() const       { return _edges; }
-        size_t getNumEdges() const                      { return _edges.size(); }
+        const size_t& getId() const                                     { return _id; }
+        void** getRef() const                                           { return _ref; }
+        const vector<ZXVertex*>& getInputs() const                      { return _inputs; }
+        size_t getNumInputs() const                                     { return _inputs.size(); }
+        const vector<ZXVertex*>& getOutputs() const                     { return _outputs; }
+        size_t getNumOutputs() const                                    { return _outputs.size(); }
+        const vector<ZXVertex*>& getVertices() const                    { return _vertices; }
+        size_t getNumVertices() const                                   { return _vertices.size(); }
+        const vector<EdgePair>& getEdges() const                        { return _edges; }
+        size_t getNumIncidentEdges(ZXVertex* v) const;
+        EdgePair getFirstIncidentEdge(ZXVertex* v) const;
+        vector<EdgePair> getIncidentEdges(ZXVertex* v) const;
+        size_t getNumEdges() const                                      { return _edges.size(); }
 
 
         // For testing
@@ -208,15 +211,16 @@ class ZXGraph{
         bool isValid() const;
         bool isConnected(ZXVertex* v1, ZXVertex* v2) const;
         bool isId(size_t id) const;
+        bool isGraphLike() const;
         bool isInputQubit(int qubit) const;
         bool isOutputQubit(int qubit) const;
 
 
         // Add and Remove
-        ZXVertex* addInput(size_t id, int qubit);
-        ZXVertex* addOutput(size_t id, int qubit);
-        ZXVertex* addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase() );
-        EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et);
+        ZXVertex* addInput(size_t id, int qubit, bool checked = false);
+        ZXVertex* addOutput(size_t id, int qubit, bool checked = false);
+        ZXVertex* addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase(), bool checked = false);
+        EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et, bool allowSelfLoop = false);
         void addEdgeById(size_t id_s, size_t id_t, EdgeType* et);
         void addInputs(vector<ZXVertex*> inputs);
         void addOutputs(vector<ZXVertex*> outputs);
@@ -232,7 +236,12 @@ class ZXGraph{
         void removeIsolatedVertices();
         void removeEdge(ZXVertex* vs, ZXVertex* vt, bool checked = false);
         void removeEdgeByEdgePair(const EdgePair& ep);
+        void removeEdgesByEdgePairs(const vector<EdgePair>& eps);
         void removeEdgeById(const size_t& id_s, const size_t& id_t);
+
+        // Operation on graph
+        void adjoint();
+        void assignBoundary(size_t qubit, bool input, VertexType type, Phase phase);
 
                 
         // Find functions
@@ -256,6 +265,7 @@ class ZXGraph{
         void printOutputs() const;
         void printVertices() const;
         void printEdges() const;
+        void printEdge(size_t idx) const;
         
         // Traverse
         void updateTopoOrder();
@@ -280,7 +290,10 @@ class ZXGraph{
         vector<EdgePair> getInnerEdges();
         void cleanRedundantEdges();
 
-        
+        // I/O
+        bool readZX(string, bool bzx);
+        bool writeZX(string, bool bzx);
+
     private:
         size_t                            _id;
         void**                            _ref;

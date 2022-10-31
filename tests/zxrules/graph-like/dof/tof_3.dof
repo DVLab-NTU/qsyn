@@ -1,0 +1,6 @@
+zxm -on 
+zxgread benchmark/zx/tof3.zx
+zxgs -interc
+zxgp -v
+zxgw benchmark/zx/tof3_op.zx
+q -f

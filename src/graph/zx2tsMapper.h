@@ -20,47 +20,47 @@ public:
     using Frontiers = unordered_multimap<EdgeKey,size_t>;
 
     ZX2TSMapper(ZXGraph* zxg): _zxgraph(zxg) {}
-    class TensorList {
+    class ZX2TSList {
     public:
         const Frontiers& frontiers(const size_t& id) const {
-            return _tensorList[id].first;
+            return _zx2tsList[id].first;
         }
         const QTensor<double>& tensor(const size_t& id) const {
-            return _tensorList[id].second;
+            return _zx2tsList[id].second;
         }
         Frontiers& frontiers(const size_t& id) {
-            return _tensorList[id].first;
+            return _zx2tsList[id].first;
         }
         QTensor<double>& tensor(const size_t& id) {
-            return _tensorList[id].second;
+            return _zx2tsList[id].second;
         }
         void append(const Frontiers& f, const QTensor<double>& q) {
-            _tensorList.emplace_back(f, q);
+            _zx2tsList.emplace_back(f, q);
         }
         size_t size() {
-            return _tensorList.size();
+            return _zx2tsList.size();
         }
     private:
-        vector<pair<Frontiers, QTensor<double>>> _tensorList; 
+        vector<pair<Frontiers, QTensor<double>>> _zx2tsList; 
     };
     
     bool map();
 
 private:
     ZXGraph*            _zxgraph;       // The ZX Graph to be mapped
-    vector<EdgeKey>    _boundaryEdges; // EdgePairs of the boundaries 
-    TensorList          _tensorList;    // The tensor list for each set of frontiers
+    vector<EdgeKey>     _boundaryEdges; // EdgePairs of the boundaries 
+    ZX2TSList           _zx2tsList;     // The tensor list for each set of frontiers
     size_t              _tensorId;      // Current tensor id for the _tensorId
 
-    TensorAxisList      _normalPin;     // Axes that can be tensordotted directly
-    TensorAxisList      _hadamardPin;   // Axes that should be applied hadamards first
-    vector<EdgeKey>    _removeEdge;    // Old frontiers to be removed
-    vector<EdgeKey>    _addEdge;       // New frontiers to be added
+    TensorAxisList      _simplePins;     // Axes that can be tensordotted directly
+    TensorAxisList      _hadamardPins;   // Axes that should be applied hadamards first
+    vector<EdgeKey>     _removeEdges;    // Old frontiers to be removed
+    vector<EdgeKey>     _addEdges;       // New frontiers to be added
     
-    Frontiers&             currFrontiers()       { return _tensorList.frontiers(_tensorId); };
-    QTensor<double>&       currTensor()          { return _tensorList.tensor(_tensorId); };
-    const Frontiers&       currFrontiers() const { return _tensorList.frontiers(_tensorId); };
-    const QTensor<double>& currTensor()    const { return _tensorList.tensor(_tensorId); };
+    Frontiers&             currFrontiers()       { return _zx2tsList.frontiers(_tensorId); }
+    QTensor<double>&       currTensor()          { return _zx2tsList.tensor(_tensorId); }
+    const Frontiers&       currFrontiers() const { return _zx2tsList.frontiers(_tensorId); }
+    const QTensor<double>& currTensor()    const { return _zx2tsList.tensor(_tensorId); }
 
     void mapOneVertex(ZXVertex* v);
 
@@ -71,7 +71,7 @@ private:
     void tensorDotVertex(ZXVertex* v);
 
     bool isOfNewGraph(const ZXVertex* v);
-    bool isFrontier(const pair<ZXVertex*, EdgeType*>& nbr) const;
+    bool isFrontier(const pair<ZXVertex*, EdgeType*>& nbr) const { return (nbr.first->getPin() != unsigned(-1)); }
 
     void printFrontiers() const;
     // EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et);

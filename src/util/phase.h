@@ -29,8 +29,8 @@ public:
     Phase(T f, T eps = 1e-4): _rational(f/std::numbers::pi_v<T>, eps/std::numbers::pi_v<T>) { normalize(); }
 
     friend std::ostream& operator<<(std::ostream& os, const Phase& p);
-    Phase& operator+();
-    Phase& operator-();
+    Phase operator+() const;
+    Phase operator-() const;
 
     // Addition and subtraction are mod 2pi
     Phase& operator+=(const Phase& rhs);
@@ -94,6 +94,16 @@ public:
         _printUnit = pu;
     }
 
+    std::string getAsciiString() const {
+        std::string str;
+        if (_rational.numerator() != 1) 
+            str += to_string(_rational.numerator()) + "*";
+        str += "pi";
+        if (_rational.denominator() != 1) 
+            str += "/" + to_string(_rational.denominator());
+        return str;
+    }
+
     void normalize();
 
     template<class T = double> requires std::floating_point<T>
@@ -132,24 +142,24 @@ bool myStrValid(const std::string &str, T &f)
     vector<char> operators;
 
     // stack 2
-    vector<string> num_string;
-    vector<T> num_float;
+    vector<string> num_strings;
+    vector<T> num_floats;
 
     // put string into stack
     for(size_t i=0; i<str.length(); i++){
-        if(str[i] == '*'  || str[i] == '/'){
+        if(str[i] == '*' || str[i] == '/'){
             operators.push_back(str[i]);
         }
         else {
             size_t j = i;
             while(j < str.length()){
-                if(str[j] == '*'  || str[j] == '/'){
-                    num_string.push_back(str.substr(i,j-i));
+                if(str[j] == '*' || str[j] == '/'){
+                    num_strings.push_back(str.substr(i,j-i));
                     i = j-1;
                     break;
                 }
                 else if (j == str.length()-1){
-                    num_string.push_back(str.substr(i,j-i+1));
+                    num_strings.push_back(str.substr(i,j-i+1));
                     i = j;
                     break;
                 }
@@ -161,47 +171,35 @@ bool myStrValid(const std::string &str, T &f)
     }   
 
     // Error detect
-    if (operators.size() >= num_string.size()){
-        operators.clear();
-        num_string.clear();
-        cout << "Too much Operators!!!!" << endl;
-        return false;
-    }
+    if (operators.size() >= num_strings.size()) return false;
 
-    // convert num_string to num_float & error detect
-    for (auto &temp : num_string) {
+    // convert num_strings to num_floats & error detect
+    for (auto &str : num_strings) {
         T temp_converted;
-        if (temp == "pi" || temp == "PI") {
-            num_float.push_back(3.14159265358979311599796346854);
+        if (str == "pi" || str == "PI") {
+            num_floats.push_back(std::numbers::pi_v<T>);
         }
-        else if (myStr2FloatType<T>(temp, temp_converted)){
-            num_float.push_back(temp_converted);
+        else if (str == "-pi" || str == "-PI") {
+            num_floats.push_back(-std::numbers::pi_v<T>);
+        }
+        else if (myStr2FloatType<T>(str, temp_converted)){
+            num_floats.push_back(temp_converted);
         }
         else {
-            operators.clear();
-            num_float.clear();
-            num_string.clear();
-            cout << "Can't Identify Number : " << temp << endl;
             return false;
         }
 
     }
 
-    num_string.clear();
+    num_strings.clear();
 
     // Calculation
-    f = num_float[0];
+    f = num_floats[0];
     for (size_t i=0; i<operators.size(); i++){
-        if (operators[i] == '*'){
-            f *= num_float[i+1];
-        }
-        else {
-            f /= num_float[i+1];
-        }
+        if (operators[i] == '*') f *= num_floats[i+1];
+        else                     f /= num_floats[i+1];
     }
 
-    operators.clear();
-    num_float.clear();
     return true;
 }
 

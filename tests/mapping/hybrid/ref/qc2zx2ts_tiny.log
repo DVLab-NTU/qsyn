@@ -1,3 +1,4 @@
+DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> ver 2
 Note: verbose level is set to 2
 
@@ -19,66 +20,20 @@ Note: verbose level is set to 7
 
 qsyn> zxgtsm
 ---- TRAVERSE AND BUILD THE TENSOR ----
-Topological order from first input: 
-0 4 7 8 9 6 5 2 3 1 
+Topological order from first input: 0 4 7 8 9 6 5 2 3 1 
 Size of topological order: 10
 > Mapping vertex 0 (●): New Subgraph
-  - Current frontiers: 
-    0--4 (-) axis id: 1
 > Mapping vertex 4 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    4--5 (-) axis id: 2
-    4--7 (-) axis id: 1
 > Mapping vertex 7 ([1m[31mX[0m[0m): Tensordot
-  - Current frontiers: 
-    4--5 (-) axis id: 1
-    6--7 (-) axis id: 3
-    7--8 (-) axis id: 2
 > Mapping vertex 8 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    1--8 (-) axis id: 3
-    4--5 (-) axis id: 1
-    6--7 (-) axis id: 2
-    8--9 (-) axis id: 4
 > Mapping vertex 9 ([1m[31mX[0m[0m): Tensordot
-  - Current frontiers: 
-    1--8 (-) axis id: 3
-    3--9 (-) axis id: 4
-    4--5 (-) axis id: 1
-    6--7 (-) axis id: 2
-    6--9 (-) axis id: 5
 > Mapping vertex 6 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    1--8 (-) axis id: 2
-    3--9 (-) axis id: 3
-    4--5 (-) axis id: 1
-    5--6 (-) axis id: 4
 > Mapping vertex 5 ([1m[31mX[0m[0m): Tensordot
-  - Current frontiers: 
-    1--8 (-) axis id: 1
-    2--5 (-) axis id: 3
-    3--9 (-) axis id: 2
 > Mapping vertex 2 (●): Boundary Node
-  - Current frontiers: 
-    1--8 (-) axis id: 1
-    2--5 (-) axis id: 3
-    3--9 (-) axis id: 2
 > Mapping vertex 3 (●): Boundary Node
-  - Current frontiers: 
-    1--8 (-) axis id: 1
-    2--5 (-) axis id: 3
-    3--9 (-) axis id: 2
 > Mapping vertex 1 (●): Boundary Node
-  - Current frontiers: 
-    1--8 (-) axis id: 1
-    2--5 (-) axis id: 3
-    3--9 (-) axis id: 2
-
-The resulting tensor is: 
-{{ 1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i},
- { 0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i}}
+Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
 
 qsyn> q -f
 

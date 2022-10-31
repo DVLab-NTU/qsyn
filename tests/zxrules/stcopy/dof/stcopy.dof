@@ -1,0 +1,14 @@
+zxm -on
+zxgr benchmark/zx/stcopy.zx
+zxgp -v
+zxgp -e
+zxgs -stco
+zxgp -v
+zxgp -e
+zxgr -r benchmark/zx/stcopy_boundary.zx
+zxgp -v
+zxgp -e
+zxgs -stco
+zxgp -v
+zxgp -e
+q -f

@@ -1,0 +1,8 @@
+zxm -on 
+zxgread benchmark/zx/tof3.zx
+zxgs -TOGraph
+zxgs -SPIderfusion
+zxgp -v
+zxgs -HRule
+zxgp -v
+q -f

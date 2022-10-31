@@ -1,0 +1,69 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> zxn
+Successfully generated Graph 0
+Checkout to Graph 0
+
+qsyn> zxgr benchmark/zx/lcomp_1.zx
+Successfully generated Graph 1
+Checkout to Graph 1
+
+qsyn> zxgp -v
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/2	#Neighbors:	2	(0, -) (6, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (6, [1m[34mH[0m[0m) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/2	#Neighbors:	4	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(2, -) (6, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (6, [1m[34mH[0m[0m) 
+Total #Vertices: 9
+
+
+qsyn> zxgp -e
+( 6, 7 )	Type:	[1m[34mH[0m[0m
+( 6, 8 )	Type:	[1m[34mH[0m[0m
+( 5, 6 )	Type:	[1m[34mH[0m[0m
+( 4, 6 )	Type:	[1m[34mH[0m[0m
+( 3, 8 )	Type:	-
+( 2, 7 )	Type:	-
+( 1, 5 )	Type:	-
+( 0, 4 )	Type:	-
+Total #Edges: 8
+
+qsyn> zxgsimp -lcomp
+Local Complementation Rule: 
+1 iterations
+
+qsyn> zxgp -v
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(0, -) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	3π/2	#Neighbors:	4	(1, -) (4, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	3π/2	#Neighbors:	4	(2, -) (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	3π/2	#Neighbors:	4	(3, -) (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+Total #Vertices: 8
+
+
+qsyn> zxgp -e
+( 3, 8 )	Type:	-
+( 2, 7 )	Type:	-
+( 1, 5 )	Type:	-
+( 0, 4 )	Type:	-
+( 4, 5 )	Type:	[1m[34mH[0m[0m
+( 4, 8 )	Type:	[1m[34mH[0m[0m
+( 4, 7 )	Type:	[1m[34mH[0m[0m
+( 5, 8 )	Type:	[1m[34mH[0m[0m
+( 5, 7 )	Type:	[1m[34mH[0m[0m
+( 8, 7 )	Type:	[1m[34mH[0m[0m
+Total #Edges: 10
+
+qsyn> q -f
+

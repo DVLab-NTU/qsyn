@@ -17,27 +17,25 @@ std::ostream& operator<< (std::ostream& os, const Rational& q) {
     return os;
 }
 
-Rational Rational::operator+() const{
+Rational Rational::operator+() const {
     return Rational(_numer, _denom);
 }
-Rational Rational::operator-() const{
+Rational Rational::operator-() const {
     return Rational(-_numer, _denom);
 }
 
-// a/b + c/d  = (a*lcm(b, d)/b + c*lcm(b, d)/d)/lcm(b,d)
+// a/b + c/d  = (ad + bc) / bd
 // We adopt for this more complex expression (instead of (ad + bc / bd)) so as to minimize the risk of overflow when multiplying numbers 
 Rational& Rational::operator+=(const Rational& rhs) {
-    int new_denom = std::lcm(_denom, rhs._denom);
-    int new_numer = _numer * (new_denom / _denom) + rhs._numer * (new_denom / rhs._denom);
-    _numer = new_numer;
-    _denom = new_denom;
+    _numer = _numer * rhs._denom + _denom * rhs._numer;
+    _denom = _denom * rhs._denom;
+    normalize();
     return *this;
 }
 Rational& Rational::operator-=(const Rational& rhs) {
-    int new_denom = std::lcm(_denom, rhs._denom);
-    int new_numer = _numer * (new_denom / _denom) - rhs._numer * (new_denom / rhs._denom);
-    _numer = new_numer;
-    _denom = new_denom;
+    _numer = _numer * rhs._denom - _denom * rhs._numer;
+    _denom = _denom * rhs._denom;
+    normalize();
     return *this;
 }
 Rational& Rational::operator*=(const Rational& rhs) {

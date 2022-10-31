@@ -1,3 +1,4 @@
+DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
 
 qsyn> qccp -q
@@ -29,15 +30,12 @@ Q1 G23 ─┤ Tdg ├─ G27
         └─────┘ 
 
 qsyn> qcgp 26 -ZX
-Add input 6
-Add vertex 5
-Add output 7
-Add edge ( 6, 5 )
-Add edge ( 5, 7 )
+
 ID:	6	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	7π/4	#Neighbors:	2	(6, -) (7, -) 
 ID:	7	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
 Total #Vertices: 3
+
 
 qsyn> qcgp 26 -T
         ┌─────┐ 
@@ -46,17 +44,7 @@ Q1 G23 ─┤ Tdg ├─ G27
 Execute at t= 14
 
 qsyn> qcgp 23 -ZX
-Add input 7
-Add input 8
-Add vertex 5
-Add vertex 6
-Add output 9
-Add output 10
-Add edge ( 7, 5 )
-Add edge ( 5, 9 )
-Add edge ( 8, 6 )
-Add edge ( 6, 10 )
-Add edge ( 5, 6 )
+
 ID:	7	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	8	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(6, -) 
 ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(6, -) (7, -) (9, -) 
@@ -64,6 +52,7 @@ ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(5, -) (8, 
 ID:	9	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	10	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(6, -) 
 Total #Vertices: 6
+
 
 qsyn> q -f
 

@@ -1,0 +1,11 @@
+ver 2
+zxm -on
+zxgr benchmark/zx/tof3.zx
+zxgtsm
+zxgr benchmark/zx/tof3_ZH.zx
+zxgtsm
+ver 3
+tsp -l
+tseq 0 1 
+tseq 0 1 -Strict
+q -f

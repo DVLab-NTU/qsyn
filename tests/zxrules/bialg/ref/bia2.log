@@ -1,3 +1,4 @@
+DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> ver 9
 Note: verbose level is set to 9
 
@@ -5,7 +6,7 @@ qsyn> zxmode -on
 ZXMODE turn ON!
 
 qsyn> zxnew 
-Successfully generate Graph 0
+Successfully generated Graph 0
 Checkout to Graph 0
 
 qsyn> zxge -addi 0 0
@@ -105,6 +106,7 @@ qsyn> zxge -adde 12 15 SIMPLE
 Add edge ( 12, 15 )
 
 qsyn> zxgsimp -bia
+
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
 ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
@@ -122,10 +124,29 @@ ID:	13	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(11, -) (1
 ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (13, -) 
 ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
 Total #Vertices: 16
-Find a match (5 7)
-Find a match (10 11)
-MatchtypevecNum= 2
-Bialgebra Rule: 2 Add edge ( 6, 9 )
+
+Bialgebra Rule: 
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
+ID:	4	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (5, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (6, -) (7, -) 
+ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(2, -) (5, -) 
+ID:	7	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(5, -) (8, -) (9, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(7, -) (10, -) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(7, -) (10, -) 
+ID:	10	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (9, -) (11, -) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, -) (12, -) (13, -) 
+ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(11, -) (15, -) 
+ID:	13	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(11, -) (14, -) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (13, -) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
+Total #Vertices: 16
+
+Found 2 match(es)
+Add edge ( 6, 9 )
 Add edge ( 6, 8 )
 Add edge ( 4, 9 )
 Add edge ( 4, 8 )
@@ -137,7 +158,8 @@ Remove ID: 5
 Remove ID: 7
 Remove ID: 10
 Remove ID: 11
-. ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
 ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
@@ -150,42 +172,57 @@ ID:	13	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (9,
 ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (13, -) 
 ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
 Total #Vertices: 12
-Find a match (9 13)
-MatchtypevecNum= 1
-1 Add edge ( 12, 8 )
+
+Found 1 match(es)
 Add edge ( 12, 14 )
-Add edge ( 4, 8 )
 Add edge ( 4, 14 )
-Add edge ( 6, 8 )
 Add edge ( 6, 14 )
+Remove (8, 12 )
+Remove (4, 8 )
+Remove (6, 8 )
 Remove ID: 9
 Remove ID: 13
-. ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
-ID:	4	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(0, -) (8, -) (8, -) (14, -) 
-ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(2, -) (8, -) (8, -) (14, -) 
-ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(4, -) (4, -) (6, -) (6, -) (12, -) (12, -) 
-ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(8, -) (8, -) (14, -) (15, -) 
-ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (4, -) (6, -) (12, -) 
-ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
-Total #Vertices: 10
-MatchtypevecNum= 0
-2 iterations
+Remove ID: 8
 
-qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
 ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
 ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
-ID:	4	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(0, -) (8, -) (8, -) (14, -) 
-ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(2, -) (8, -) (8, -) (14, -) 
-ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	6	(4, -) (4, -) (6, -) (6, -) (12, -) (12, -) 
-ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	4	(8, -) (8, -) (14, -) (15, -) 
+ID:	4	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (14, -) 
+ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(2, -) (14, -) 
+ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(14, -) (15, -) 
 ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (4, -) (6, -) (12, -) 
 ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
-Total #Vertices: 10
+Total #Vertices: 9
+
+2 iterations
+
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
+ID:	4	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (14, -) 
+ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(2, -) (14, -) 
+ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(14, -) (15, -) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (4, -) (6, -) (12, -) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
+Total #Vertices: 9
+
+
+qsyn> zxgp -v
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
+ID:	4	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (14, -) 
+ID:	6	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(2, -) (14, -) 
+ID:	12	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(14, -) (15, -) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (4, -) (6, -) (12, -) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (12, -) 
+Total #Vertices: 9
+
 
 qsyn> zxgprint -e
 ( 0, 4 )	Type:	-
@@ -193,16 +230,67 @@ qsyn> zxgprint -e
 ( 2, 6 )	Type:	-
 ( 3, 15 )	Type:	-
 ( 12, 15 )	Type:	-
-( 6, 8 )	Type:	-
-( 4, 8 )	Type:	-
-( 8, 12 )	Type:	-
-( 12, 8 )	Type:	-
 ( 12, 14 )	Type:	-
-( 4, 8 )	Type:	-
 ( 4, 14 )	Type:	-
-( 6, 8 )	Type:	-
 ( 6, 14 )	Type:	-
-Total #Edges: 14
+Total #Edges: 8
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Topological order from first input: 0 4 14 1 12 15 3 6 2 
+Size of topological order: 9
+> Mapping vertex 0 (●): New Subgraph
+  - Current frontiers: 
+    0--4 (-) axis id: 1
+> Mapping vertex 4 ([1m[31mX[0m[0m): Tensordot
+  - Current frontiers: 
+    4--14 (-) axis id: 1
+> Mapping vertex 14 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--14 (-) axis id: 3
+    6--14 (-) axis id: 1
+    12--14 (-) axis id: 2
+> Mapping vertex 1 (●): Boundary Node
+  - Current frontiers: 
+    1--14 (-) axis id: 3
+    6--14 (-) axis id: 1
+    12--14 (-) axis id: 2
+> Mapping vertex 12 ([1m[31mX[0m[0m): Tensordot
+  - Current frontiers: 
+    1--14 (-) axis id: 2
+    6--14 (-) axis id: 1
+    12--15 (-) axis id: 3
+> Mapping vertex 15 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--14 (-) axis id: 2
+    3--15 (-) axis id: 3
+    6--14 (-) axis id: 1
+> Mapping vertex 3 (●): Boundary Node
+  - Current frontiers: 
+    1--14 (-) axis id: 2
+    3--15 (-) axis id: 3
+    6--14 (-) axis id: 1
+> Mapping vertex 6 ([1m[31mX[0m[0m): Tensordot
+  - Current frontiers: 
+    1--14 (-) axis id: 1
+    2--6 (-) axis id: 3
+    3--15 (-) axis id: 2
+> Mapping vertex 2 (●): Boundary Node
+  - Current frontiers: 
+    1--14 (-) axis id: 1
+    2--6 (-) axis id: 3
+    3--15 (-) axis id: 2
+Successfully added Tensor 0
+Input  axis ids: 0 3
+Output axis ids: 1 2
+Stored the resulting tensor as tensor id 0
+
+qsyn> tsp 0
+{{ 1.414214+0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  1.414214+0.i}}
+#Dim:    2	Info: ZX 0
 
 qsyn> q -f
 

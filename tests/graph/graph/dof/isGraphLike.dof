@@ -1,0 +1,8 @@
+zxm -on
+qccr benchmark/pseudoSimp/tof_3.qasm
+qczxm
+zxgp -v
+zxgt -GL
+zxgsimp -FR
+zxgt -GL
+q -f

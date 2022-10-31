@@ -1,0 +1,50 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> ver 2
+Note: verbose level is set to 2
+
+qsyn> qcba
+
+qsyn> qctsm
+Stored the resulting tensor as tensor id 0
+
+qsyn> qcga -rz -ph 0.001 0
+
+qsyn> qctsm
+Stored the resulting tensor as tensor id 1
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> tsp 0
+{{ 1.+0.i,  0.+0.i},
+ { 0.+0.i,  1.+0.i}}
+#Dim:    2	Info: QC
+
+qsyn> tsp 1
+{{ 1.      +0.i      ,  0.      +0.i      },
+ { 0.      +0.i      ,  0.999999+0.0011i  }}
+#Dim:    2	Info: QC
+
+qsyn> tseq 0 1 -Eps 1e-2
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: π/4834
+
+qsyn> tseq 0 1 -Eps 1e-4
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: π/4834
+
+qsyn> tseq 0 1 -Eps 1e-6
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: π/4834
+
+qsyn> tseq 0 1 -Eps 1e-8
+[1m[31mNot Equivalent[0m[0m
+
+qsyn> tseq 0 1 -Eps 1e-10
+[1m[31mNot Equivalent[0m[0m
+
+qsyn> q -f
+

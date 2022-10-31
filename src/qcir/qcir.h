@@ -28,7 +28,7 @@ using namespace std;
 class QCir
 {
 public:
-  QCir(): _tensor(1.+0.i)
+  QCir(): _tensor(nullptr)
   {
     _gateId = 0;
     _qubitId = 0;
@@ -54,11 +54,11 @@ public:
   bool removeQubit(size_t q);
   void addGate(string type, vector<size_t> bits, Phase phase, bool append);
   bool removeGate(size_t id);
-  bool parse(string file);
-  bool parseQASM(string qasm_file);
-  bool parseQC(string qc_file);
-  bool parseQSIM(string qsim_file);
-  bool parseQUIPPER(string quipper_file);
+  bool readQCirFile(string file);
+  bool readQASM(string qasm_file);
+  bool readQC(string qc_file);
+  bool readQSIM(string qsim_file);
+  bool readQUIPPER(string quipper_file);
   bool writeQASM(string qasm_output);
   void incrementZXId() { _ZXNodeId++; }
   
@@ -101,7 +101,7 @@ private:
   vector<QCirQubit*> _qubits;
   vector<QCirGate *> _topoOrder;
   vector<ZXGraph *>  _ZXGraphList;
-  QTensor<double>    _tensor;
+  QTensor<double>*   _tensor;
   unordered_map<size_t, pair<size_t,size_t>> _qubit2pin;
 };
 

@@ -1,0 +1,31 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> qcba 2
+
+qsyn> qcga -Y 0
+
+qsyn> qcga -SY 1
+
+qsyn> qcga -Sdg 1
+
+qsyn> zxmode -on
+ZXMODE turn ON!
+
+qsyn> qczxm
+Successfully generated Graph 0
+Checkout to Graph 0
+---- TRAVERSE AND BUILD THE GRAPH ----
+--------------------------------------
+
+qsyn> 
+qsyn> qccr benchmark/qsim/circuits/circuit_q24 -R
+Note: original quantum circuit is replaced...
+
+qsyn> qczxm
+Successfully generated Graph 1
+Checkout to Graph 1
+---- TRAVERSE AND BUILD THE GRAPH ----
+--------------------------------------
+
+qsyn> 
+qsyn> q -f
+

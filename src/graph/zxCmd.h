@@ -23,7 +23,10 @@ CmdClass(ZXTensorCmd);
 CmdClass(ZXGPrintCmd);
 CmdClass(ZXGTestCmd);
 CmdClass(ZXGEditCmd);
-CmdClass(ZXGSimpCmd);
 CmdClass(ZXGTraverseCmd);
 CmdClass(ZXGTSMappingCmd);
+CmdClass(ZXGReadCmd);
+CmdClass(ZXGWriteCmd);
+CmdClass(ZXGAdjointCmd);
+CmdClass(ZXGAssignCmd);
 #endif // ZX_CMD_H

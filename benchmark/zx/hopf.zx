@@ -1,0 +1,5 @@
+// Hopf basic testcase
+I0 0 S2
+O1 0 S3
+Z2 H3 H3 H3 S3
+Z3

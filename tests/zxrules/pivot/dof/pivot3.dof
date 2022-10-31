@@ -1,0 +1,118 @@
+ver 3
+zxmode -on
+zxnew
+zxge -addi 0 0
+zxge -addo 1 0
+zxge -addi 2 1
+zxge -addo 3 1
+zxge -addv 4 0 Z 0
+zxge -addv 5 0 Z 3.14159
+zxge -adde 4 5 HADAMARD
+zxge -addv 6 0 Z 0
+zxge -adde 4 6 HADAMARD
+zxge -addv 7 0 Z 3.14159
+zxge -addv 8 0 Z 3.14159
+zxge -addv 9 0 Z 3.14159
+zxge -adde 5 7 HADAMARD
+zxge -adde 5 8 HADAMARD
+zxge -adde 5 9 HADAMARD
+zxge -addv 10 0 Z 0
+zxge -addv 11 0 Z 0
+zxge -adde 5 10 HADAMARD
+zxge -adde 5 11 HADAMARD
+zxge -addv 12 0 Z 3.14159
+zxge -addv 13 0 Z 3.14159
+zxge -addv 14 0 Z 3.14159
+zxge -addv 15 0 Z 3.14159
+zxge -adde 4 12 HADAMARD
+zxge -adde 4 13 HADAMARD
+zxge -adde 4 14 HADAMARD
+zxge -adde 4 15 HADAMARD
+zxge -adde 5 12 HADAMARD
+zxge -adde 5 13 HADAMARD
+zxge -adde 5 14 HADAMARD
+zxge -adde 5 15 HADAMARD
+zxge -addv 16 0 Z 0
+zxge -addv 17 0 Z 3.14159
+zxge -adde 16 17 HADAMARD
+zxge -addv 18 0 Z 0
+zxge -adde 16 18 HADAMARD
+zxge -addv 19 0 Z 3.14159
+zxge -addv 20 0 Z 3.14159
+zxge -addv 21 0 Z 3.14159
+zxge -adde 17 19 HADAMARD
+zxge -adde 17 20 HADAMARD
+zxge -adde 17 21 HADAMARD
+zxge -addv 22 0 Z 0
+zxge -addv 23 0 Z 0
+zxge -adde 17 22 HADAMARD
+zxge -adde 17 23 HADAMARD
+zxge -addv 24 0 Z 3.14159
+zxge -addv 25 0 Z 3.14159
+zxge -addv 26 0 Z 3.14159
+zxge -addv 27 0 Z 3.14159
+zxge -adde 4 24 HADAMARD
+zxge -adde 4 25 HADAMARD
+zxge -adde 4 26 HADAMARD
+zxge -adde 4 27 HADAMARD
+zxge -adde 5 24 HADAMARD
+zxge -adde 5 25 HADAMARD
+zxge -adde 5 26 HADAMARD
+zxge -adde 5 27 HADAMARD
+zxge -adde 16 24 HADAMARD
+zxge -adde 16 25 HADAMARD
+zxge -adde 16 26 HADAMARD
+zxge -adde 16 27 HADAMARD
+zxge -adde 17 24 HADAMARD
+zxge -adde 17 25 HADAMARD
+zxge -adde 17 26 HADAMARD
+zxge -adde 17 27 HADAMARD
+zxge -adde 0 5 SIMPLE
+zxge -adde 2 7 SIMPLE
+zxge -adde 1 23 SIMPLE
+zxge -adde 3 23 SIMPLE
+zxge -addv 28 0 Z 0
+zxge -adde 6 28 HADAMARD
+zxge -addv 29 0 Z 0
+zxge -adde 7 29 HADAMARD
+zxge -addv 30 0 Z 0
+zxge -adde 8 30 HADAMARD
+zxge -addv 31 0 Z 0
+zxge -adde 9 31 HADAMARD
+zxge -addv 32 0 Z 0
+zxge -adde 10 32 HADAMARD
+zxge -addv 33 0 Z 0
+zxge -adde 11 33 HADAMARD
+zxge -addv 34 0 Z 0
+zxge -adde 12 34 HADAMARD
+zxge -addv 35 0 Z 0
+zxge -adde 13 35 HADAMARD
+zxge -addv 36 0 Z 0
+zxge -adde 14 36 HADAMARD
+zxge -addv 37 0 Z 0
+zxge -adde 15 37 HADAMARD
+zxge -addv 38 0 Z 0
+zxge -adde 18 38 HADAMARD
+zxge -addv 39 0 Z 0
+zxge -adde 19 39 HADAMARD
+zxge -addv 40 0 Z 0
+zxge -adde 20 40 HADAMARD
+zxge -addv 41 0 Z 0
+zxge -adde 21 41 HADAMARD
+zxge -addv 42 0 Z 0
+zxge -adde 22 42 HADAMARD
+zxge -addv 43 0 Z 0
+zxge -adde 23 43 HADAMARD
+zxge -addv 44 0 Z 0
+zxge -adde 24 44 HADAMARD
+zxge -addv 45 0 Z 0
+zxge -adde 25 45 HADAMARD
+zxge -addv 46 0 Z 0
+zxge -adde 26 46 HADAMARD
+zxge -addv 47 0 Z 0
+zxge -adde 27 47 HADAMARD
+zxgs -pivot
+zxgp -v
+zxgtsm
+tsp 0
+q -f

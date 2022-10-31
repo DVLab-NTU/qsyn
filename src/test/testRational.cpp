@@ -16,7 +16,7 @@
 #include "catch2/catch.hpp"
 // ----------------------------------------------------------------
 
-Rational q1(6, 8), q2(2, 3), q3 = q1, q4, q5(9);
+Rational q1(6, 8), q2(2, 3), q3 = q1, q4, q5(9), q6(1, 4);
 
 TEST_CASE("Rational numbers are initiated correctly", "[Rational]") {
     REQUIRE(q1.numerator() == 3);
@@ -53,6 +53,7 @@ TEST_CASE("Rational number arithmetics works correctly", "[Rational]") {
     REQUIRE((q1 / q2) == Rational(9, 8));
     REQUIRE((q1 / 2)  == Rational(3, 8));
     REQUIRE_THROWS_AS((q3 / 0), std::overflow_error);
+    REQUIRE((q1 - q6) == Rational(1, 2));
 }
 
 TEST_CASE("Rational number comparisons work correctly", "[Rational]") {

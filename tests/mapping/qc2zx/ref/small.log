@@ -1,3 +1,4 @@
+DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> ver 8
 Note: verbose level is set to 8
 
@@ -13,26 +14,21 @@ qsyn> zxm -on
 ZXMODE turn ON!
 
 qsyn> qczxm
-Successfully generate Graph 0
+Successfully generated Graph 0
 Checkout to Graph 0
 ----------- ADD BOUNDARIES -----------
 Add input 0
 Add output 1
 Add edge ( 0, 1 )
-Add Qubit 0 inp: 0 oup: 1
 Add input 2
 Add output 3
 Add edge ( 2, 3 )
-Add Qubit 1 inp: 2 oup: 3
 Add input 4
 Add output 5
 Add edge ( 4, 5 )
-Add Qubit 2 inp: 4 oup: 5
 Add input 6
 Add output 7
 Add edge ( 6, 7 )
-Add Qubit 3 inp: 6 oup: 7
-ZXnode starts from 7
 --------------------------------------
 
 ---- TRAVERSE AND BUILD THE GRAPH ----
@@ -60,7 +56,6 @@ Add edge ( 9, 3 )
 Remove edge ( 12, 8 )
 Add edge ( 8, 1 )
 ***********************************
---------------------------------------
 Gate 1 (cx)
 **** Generate ZX of Gate 1 (cx) ****
 Add input 12
@@ -85,7 +80,6 @@ Add edge ( 11, 5 )
 Remove edge ( 14, 10 )
 Add edge ( 10, 1 )
 ***********************************
---------------------------------------
 Gate 3 (cx)
 **** Generate ZX of Gate 3 (cx) ****
 Add input 14
@@ -110,7 +104,6 @@ Add edge ( 13, 5 )
 Remove edge ( 16, 12 )
 Add edge ( 12, 3 )
 ***********************************
---------------------------------------
 Gate 2 (cx)
 **** Generate ZX of Gate 2 (cx) ****
 Add input 16
@@ -135,7 +128,6 @@ Add edge ( 15, 7 )
 Remove edge ( 18, 14 )
 Add edge ( 14, 1 )
 ***********************************
---------------------------------------
 Gate 4 (cx)
 **** Generate ZX of Gate 4 (cx) ****
 Add input 18
@@ -160,7 +152,6 @@ Add edge ( 17, 7 )
 Remove edge ( 20, 16 )
 Add edge ( 16, 3 )
 ***********************************
---------------------------------------
 Gate 5 (cx)
 **** Generate ZX of Gate 5 (cx) ****
 Add input 20
@@ -186,36 +177,9 @@ Remove edge ( 22, 18 )
 Add edge ( 18, 5 )
 ***********************************
 --------------------------------------
---------------------------------------
----------------------------------- GRAPH INFORMATION ---------------------------------
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(16, -) 
-ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(11, -) 
-ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(18, -) 
-ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(15, -) 
-ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(19, -) 
-ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (9, -) (10, -) 
-ID:	9	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (8, -) (12, -) 
-ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (11, -) (14, -) 
-ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(4, -) (10, -) (13, -) 
-ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(9, -) (13, -) (16, -) 
-ID:	13	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(11, -) (12, -) (18, -) 
-ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (10, -) (15, -) 
-ID:	15	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(6, -) (14, -) (17, -) 
-ID:	16	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (12, -) (17, -) 
-ID:	17	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(15, -) (16, -) (19, -) 
-ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(5, -) (13, -) (19, -) 
-ID:	19	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(7, -) (17, -) (18, -) 
-Total #Vertices: 20
---------------------------------------------------------------------------------------
--> #Graph: 1
--> Now focus on: 0
 
 qsyn> zxgtr
-Topological order from first input: 
-0 8 10 14 15 6 17 19 18 13 12 9 2 16 3 11 4 5 7 1 
+Topological order from first input: 0 8 10 14 15 6 17 19 18 13 12 9 2 16 3 11 4 5 7 1 
 Size of topological order: 20
 
 qsyn> q -f

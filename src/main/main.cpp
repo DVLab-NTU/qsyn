@@ -6,8 +6,10 @@
   Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <ctime>
 #include "util.h"
 #include "cmdParser.h"
+
 using namespace std;
 
 //----------------------------------------------------------------------
@@ -19,13 +21,15 @@ extern bool initCommonCmd();
 // extern bool initCirCmd();
 extern bool initQCirCmd();
 extern bool initZXCmd();
-size_t verbose = 3; // Default verbose level = 3
+extern bool initSimpCmd();
+extern bool initTensorCmd();
+size_t verbose = 3; 
 size_t formatLevel = 1;
 
 static void
 usage()
 {
-   cout << "Usage: cirTest [ -File < doFile > ]" << endl;
+   cout << "Usage: ./qsyn [ -File < doFile > ]" << endl;
 }
 
 static void
@@ -59,12 +63,13 @@ main(int argc, char** argv)
       myexit();
    }
 
-   // if (!initCommonCmd() || !initCirCmd() || !initQCirCmd())
-   if (!initCommonCmd() || !initQCirCmd() || !initZXCmd() )
-   // if (!initCommonCmd() || !initQCirCmd() )
+   if (!initCommonCmd() || !initQCirCmd() || !initZXCmd() || !initSimpCmd() || !initTensorCmd())
       return 1;
 
    CmdExecStatus status = CMD_EXEC_DONE;
+   // time_t result = time(nullptr);
+   cerr << "DV Lab, NTUEE, Qsyn 0.3.0\n";
+   // cerr << "DV Lab, NTUEE, Qsyn 0.3.0, compiled " << ctime(&result);
    while (status != CMD_EXEC_QUIT) {  // until "quit" or command error
       status = cmdMgr->execOneCmd();
       cout << endl;  // a blank line between each command

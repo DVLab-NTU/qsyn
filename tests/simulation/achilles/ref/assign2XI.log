@@ -1,0 +1,143 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> qccr benchmark/pseudoSimp/achilles.qasm
+
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> qczxm
+Successfully generated Graph 0
+Checkout to Graph 0
+---- TRAVERSE AND BUILD THE GRAPH ----
+--------------------------------------
+
+qsyn> zxgas 3 I X 0
+
+qsyn> zxgas 3 O X 0
+
+qsyn> zxgas 1 I X pi
+
+qsyn> zxgas 1 O X pi
+
+qsyn> zxgas 0 I X pi
+
+qsyn> zxgas 0 O X pi
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> zxgs -sr
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
+
+qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
+Note: original quantum circuit is replaced...
+
+qsyn> qczxm
+Successfully generated Graph 1
+Checkout to Graph 1
+---- TRAVERSE AND BUILD THE GRAPH ----
+--------------------------------------
+
+qsyn> zxgas 3 I X 0
+
+qsyn> zxgas 3 O X 0
+
+qsyn> zxgas 1 I X pi
+
+qsyn> zxgas 1 O X pi
+
+qsyn> zxgas 2 I X pi
+
+qsyn> zxgas 2 O X pi
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> zxgs -sr
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Successfully added Tensor 1
+Stored the resulting tensor as tensor id 1
+
+qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
+Note: original quantum circuit is replaced...
+
+qsyn> qczxm
+Successfully generated Graph 2
+Checkout to Graph 2
+---- TRAVERSE AND BUILD THE GRAPH ----
+--------------------------------------
+
+qsyn> zxgas 3 I X 0
+
+qsyn> zxgas 3 O X 0
+
+qsyn> zxgas 2 I X pi
+
+qsyn> zxgas 2 O X pi
+
+qsyn> zxgas 0 I X pi
+
+qsyn> zxgas 0 O X pi
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> zxgs -sr
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+[1m[32mTrue: The graph is graph-like[0m[0m
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxgtsm
+---- TRAVERSE AND BUILD THE TENSOR ----
+Successfully added Tensor 2
+Stored the resulting tensor as tensor id 2
+
+qsyn> tseq 0 1
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> tseq 0 2
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> tseq 1 2
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> tsp 0
+{{ 0.      +6.123234e-17i,  1.      -6.123234e-17i, 
+   0.      +0.000000e+00i,  0.      +0.000000e+00i},
+ { 1.      -6.123234e-17i,  0.      +6.123234e-17i, 
+   0.      +0.000000e+00i,  0.      +0.000000e+00i},
+ { 0.      +0.000000e+00i,  0.      +0.000000e+00i, 
+   1.      -6.123234e-17i,  0.      +6.123234e-17i},
+ { 0.      +0.000000e+00i,  0.      +0.000000e+00i, 
+   0.      +6.123234e-17i,  1.      -6.123234e-17i}}
+#Dim:    2	Info: ZX 0
+
+qsyn> q -f
+
