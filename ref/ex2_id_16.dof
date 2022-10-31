@@ -1,6 +1,6 @@
-ver 3
+ver 1
 zxm -on
-qccread benchmark/benchmark_SABRE/large/ham15_107.qasm
+qccread benchmark/benchmark_SABRE/large/adr4_197.qasm
 qczxm
 zxgp
 zxcopy
@@ -10,5 +10,5 @@ zxgprint
 zxgs -fr
 zxgp
 zxgp -v
-usage
+// usage
 q -f

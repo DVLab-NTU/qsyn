@@ -156,6 +156,7 @@ int Simplifier::simp() {
 
     if (verbose == 1 && i != 0) {
         _recipe.emplace_back(_rule->getName(), i);
+        cout << setw(30) << left << _rule->getName() << i << " iteration(s)\n";
     }
     if (verbose >= 2) { 
         if (i > 0) {
@@ -431,7 +432,7 @@ void Simplifier::fullReduce(){
         int j = this->pivotGadgetSimp();
         if(i+j == 0) break;
     }
-    this->printRecipe();
+    // this->printRecipe();
 }
 
 /**
@@ -460,7 +461,7 @@ void Simplifier::printRecipe(){
     if(verbose == 1){
         for(auto& [rule_name, num] : _recipe){
             string rule = rule_name+": ";
-            cout << setw(30) << left << rule << num << " iterator(s)\n";
+            cout << setw(30) << left << rule << num << " iteration(s)\n";
         }
     }
 }

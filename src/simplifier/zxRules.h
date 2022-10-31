@@ -276,7 +276,7 @@ class LComp : public ZXRule{
 
     LComp(){
       _matchTypeVec.clear();
-      _name = "Local Complementary Rule";
+      _name = "Local Complementation Rule";
     }
     ~LComp(){}
 
