@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
+#include <unordered_set>
 
 #include "util.h"
 #include "textFormat.h"
@@ -357,7 +358,9 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et) {
     vs->addNeighbor(make_pair(vt, et));
     vt->addNeighbor(make_pair(vs, et));
     _edges.emplace_back(make_pair(vs, vt), et);
-    if (verbose >= 5) cout << "Add edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
+    if (verbose >= 5) {
+        cout << "Add edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
+    }
     return _edges.back();
     // }
 
@@ -451,8 +454,65 @@ void ZXGraph::removeVertex(ZXVertex* v, bool checked) {
  * @param checked
  */
 void ZXGraph::removeVertices(vector<ZXVertex*> vertices, bool checked) {
-    for (size_t i = 0; i < vertices.size(); i++) {
-        removeVertex(vertices[i], checked);
+
+    unordered_set<ZXVertex*> removing;
+    for (const auto& v : vertices) {
+        if (!checked) {
+            if (!isId(v->getId())) {
+                cerr << "Vertex " << v->getId() << " does not exist!" << endl;
+                continue;
+            }
+        }
+        if (verbose >= 5) cout << "Remove ID: " << v->getId() << endl;
+        removing.insert(v);
+    }
+
+    // Check if also in _inputs or _outputs
+    vector<ZXVertex*> newInputs;
+    unordered_map<size_t, ZXVertex*> newInputList;
+    for (const auto& v : _inputs) {
+        if (!removing.contains(v)) {
+            newInputs.push_back(v);
+            newInputList[v->getQubit()] = v;
+        }
+    }
+    setInputs(newInputs);
+    setInputList(newInputList);
+
+    vector<ZXVertex*> newOutputs;
+    unordered_map<size_t, ZXVertex*> newOutputList;
+    for (const auto& v : _outputs) {
+        if (!removing.contains(v)) {
+            newOutputs.push_back(v);
+            newOutputList[v->getQubit()] = v;
+        }
+    }
+    setOutputs(newOutputs);
+    setOutputList(newOutputList);
+
+    vector<EdgePair> newEdges;
+
+    // Check _edges
+    for (const auto& edge : _edges) {
+        if (removing.contains(edge.first.first) || removing.contains(edge.first.second)) {
+            edge.first.first->disconnect(edge.first.second, true);
+        } else {
+            newEdges.push_back(edge);
+        }
+    }
+    setEdges(newEdges);
+    // Check _vertices
+    vector<ZXVertex*> newVertices;
+    for (const auto& v : _vertices) {
+        if (!removing.contains(v)) {
+            newVertices.push_back(v);
+        }
+    }
+    setVertices(newVertices);
+
+    // deallocate ZXVertex
+    for (const auto& v : removing) {
+        delete v;
     }
 }
 
@@ -474,12 +534,13 @@ void ZXGraph::removeVertexById(const size_t& id) {
  *
  */
 void ZXGraph::removeIsolatedVertices() {
-    for (size_t i = 0; i < _vertices.size();) {
-        if (_vertices[i]->getNeighborMap().empty()) {
-            removeVertex(_vertices[i], true);
-        } else
-            i++;
+    vector<ZXVertex*> removing;
+    for (const auto& v : _vertices) {
+        if (v->getNeighborMap().empty()) {
+            removing.push_back(v);
+        }
     }
+    removeVertices(removing);
 }
 
 /**
@@ -541,6 +602,47 @@ void ZXGraph::removeEdgeByEdgePair(const EdgePair& ep) {
             return;
         }
     }
+}
+
+void ZXGraph::removeEdgesByEdgePairs(const vector<EdgePair>& eps) {
+    unordered_set<EdgePair> removing;
+    for (const auto& ep : eps) {
+        removing.insert(ep);
+        if (verbose >= 5) {
+            cout << "Remove (" << ep.first.first->getId() << ", " << ep.first.second->getId() << " )" << endl;
+        }
+
+        NeighborMap nbm = ep.first.first->getNeighborMap();
+        auto result = nbm.equal_range(ep.first.second);
+        for (auto& itr = result.first; itr != result.second; ++itr) {
+            if (itr->second == ep.second) {
+                nbm.erase(itr);
+                ep.first.first->setNeighborMap(nbm);
+                break;
+            }
+        }
+
+        nbm = ep.first.second->getNeighborMap();
+        result = nbm.equal_range(ep.first.first);
+        for (auto& itr = result.first; itr != result.second; ++itr) {
+            if (itr->second == ep.second) {
+                nbm.erase(itr);
+                ep.first.second->setNeighborMap(nbm);
+                break;
+            }
+        }
+    }
+
+    vector<EdgePair> newEdges;
+
+    for (const auto& edge : _edges) {
+        if (!removing.contains(edge) && !removing.contains(
+            make_pair(make_pair(edge.first.second, edge.first.first), edge.second)
+        )) {
+            newEdges.push_back(edge);
+        }
+    } 
+    setEdges(newEdges);
 }
 
 /**

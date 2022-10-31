@@ -36,9 +36,11 @@ zxgtsm
 // tsp 4
 zxgp -v
 zxgs -FR
-zxgp -v
+// commenting due to output instability
+// zxgp -v
 zxgs -stco
-zxgp -v
+// commenting due to output instability
+// zxgp -v
 zxgtsm
 // tsp 5
 q -f

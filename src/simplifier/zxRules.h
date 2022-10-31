@@ -66,6 +66,8 @@ class ZXRule{
       virtual void setMatchTypeVecNum(int n)                                  { _matchTypeVecNum = n; }
       virtual void setRemoveVertices(vector<ZXVertex* > v)                    { _removeVertices = v; }
       virtual void setName(string name)                                       { _name = name; }
+
+      virtual void pushRemoveEdge(const EdgePair& ep)                         { _removeEdges.push_back(ep); }
       
       
     protected:
