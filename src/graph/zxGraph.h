@@ -169,12 +169,13 @@ using ZXVertexList  = unordered_set<ZXVertex*>;
 
 class ZXGraph{
     public:
-        ZXGraph(size_t id, void** ref = NULL) : _id(id), _ref(ref), _tensor(1.+0.i){
+        ZXGraph(size_t id, void** ref = NULL) : _id(id), _ref(ref), _currentVertexId(0), _tensor(1.+0.i){
             _globalDFScounter = 1;
         }
         
         ~ZXGraph() {
             for(size_t i = 0; i < _vertices.size(); i++) delete _vertices[i];
+            for(const auto& ver: _Vertices) delete ver;
         }
 
 
@@ -184,20 +185,37 @@ class ZXGraph{
         
         //! REVIEW SHOULD PASS BY CONST REF
         void setInputs(vector<ZXVertex*> inputs)                        { _inputs = inputs; }
+        void SetInputs(const ZXVertexList& inputs)                      { _Inputs = inputs; }
+
         void setOutputs(vector<ZXVertex*> outputs)                      { _outputs = outputs; }
+        void SetOutputs(const ZXVertexList& outputs)                    { _Outputs = outputs; }
+        
         void setVertices(vector<ZXVertex*> vertices)                    { _vertices = vertices; }
         void SetVertices(const ZXVertexList& vertices)                  { _Vertices = vertices; }
+        
         void setEdges(vector<EdgePair > edges)                          { _edges = edges; }
         
         const size_t& getId() const                                     { return _id; }
         void** getRef() const                                           { return _ref; }
+        
         const vector<ZXVertex*>& getInputs() const                      { return _inputs; }
+        const ZXVertexList& GetInputs() const                           { return _Inputs; }
+
         size_t getNumInputs() const                                     { return _inputs.size(); }
+        size_t GetNumInputs() const                                     { return _Inputs.size(); }
+        
         const vector<ZXVertex*>& getOutputs() const                     { return _outputs; }
+        const ZXVertexList& GetOutputs() const                          { return _Outputs; }
+        
         size_t getNumOutputs() const                                    { return _outputs.size(); }
+        size_t GetNumOutputs() const                                    { return _Outputs.size(); }
+        
         const vector<ZXVertex*>& getVertices() const                    { return _vertices; }
         const ZXVertexList& GetVertices() const                         { return _Vertices; }
+        
         size_t getNumVertices() const                                   { return _vertices.size(); }
+        size_t GetNumVertices() const                                   { return _Vertices.size(); }
+        
         const vector<EdgePair>& getEdges() const                        { return _edges; }
         size_t getNumIncidentEdges(ZXVertex* v) const;
         EdgePair getFirstIncidentEdge(ZXVertex* v) const;
@@ -218,13 +236,26 @@ class ZXGraph{
 
         // Add and Remove
         ZXVertex* addInput(size_t id, int qubit, bool checked = false);
+        ZXVertex* AddInput(int qubit, bool checked = false);
+
         ZXVertex* addOutput(size_t id, int qubit, bool checked = false);
+        ZXVertex* AddOutput(int qubit, bool checked = false);
+
         ZXVertex* addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase(), bool checked = false);
+        ZXVertex* AddVertex(int qubit, VertexType ZXVertex, Phase phase = Phase(), bool checked = false);
+        
+        void addInputs(vector<ZXVertex*> inputs);
+        void AddInputs(const ZXVertexList& inputs);
+
+        void addOutputs(vector<ZXVertex*> outputs);
+        void AddOutputs(const ZXVertexList& outputs);
+
+        void addVertices(vector<ZXVertex*> vertices);
+        void AddVertices(const ZXVertexList& vertices);
+
         EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et, bool allowSelfLoop = false);
         void addEdgeById(size_t id_s, size_t id_t, EdgeType* et);
-        void addInputs(vector<ZXVertex*> inputs);
-        void addOutputs(vector<ZXVertex*> outputs);
-        void addVertices(vector<ZXVertex*> vertices);
+        
         void addEdges(vector<EdgePair> edges);
         
         void mergeInputList(unordered_map<size_t, ZXVertex*> lst);
@@ -297,6 +328,7 @@ class ZXGraph{
     private:
         size_t                            _id;
         void**                            _ref;
+        size_t                            _currentVertexId; // keep the index
         QTensor<double>                   _tensor;
         vector<ZXVertex*>                 _inputs;
         vector<ZXVertex*>                 _outputs;
@@ -307,6 +339,8 @@ class ZXGraph{
         vector<ZXVertex*>                 _topoOrder;
         unsigned                          _globalDFScounter;
         ZXVertexList                      _Vertices; // captical for reconstruction
+        ZXVertexList                      _Inputs;   // captical for reconstruction
+        ZXVertexList                      _Outputs;  // captical for reconstruction
         void DFS(ZXVertex*);
 
 };
