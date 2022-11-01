@@ -353,7 +353,7 @@ ZXVertex* ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase, b
     ZXVertex* v = new ZXVertex(id, qubit, vt, phase);
     _vertices.push_back(v);
     // ZXNeighborMap nbm{{v, EdgeType::SIMPLE}};
-    _adjList.emplace(v, ZXNeighborMap{});
+    _Vertices.emplace(v);
     if (verbose >= 5) cout << "Add vertex " << id << endl;
     return v;
 }
@@ -448,7 +448,7 @@ void ZXGraph::removeVertex(ZXVertex* v, bool checked) {
     if (verbose >= 5) cout << "Remove ID: " << v->getId() << endl;
 
     //! REVIEW remove neighbors
-    _adjList.erase(v);
+    _Vertices.erase(v);
 
 
     // Check if also in _inputs or _outputs
@@ -857,16 +857,15 @@ void ZXGraph::printOutputs() const {
 
 void ZXGraph::printVertices() const {
     cout << "\n";
-    using kvpair = pair<ZXVertex*, ZXNeighborMap>;
-    vector<kvpair> vs;
+    vector<ZXVertex*> vs;
     //! REVIEW print efficiency?
-    for_each(_adjList.begin(), _adjList.end(), [&vs](const kvpair& nb) {
+    for_each(_Vertices.begin(), _Vertices.end(), [&vs](ZXVertex* const& nb) {
         vs.push_back(nb);
     });
-    sort(vs.begin(), vs.end(), [](const kvpair& lhs, const kvpair& rhs){
-        return lhs.first->getId() < rhs.first->getId();
+    sort(vs.begin(), vs.end(), [](ZXVertex* const& lhs, ZXVertex* const& rhs){
+        return lhs->getId() < rhs->getId();
     });
-    for (const auto& v : views::keys(vs) ) {
+    for (const auto& v : vs) {
         v->printVertex();
     }
     cout << "Total #Vertices: " << _vertices.size() << endl;

@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <string>
 #include "phase.h"
@@ -164,7 +165,7 @@ class ZXVertex{
 };
 
 using ZXNeighborMap = unordered_map<ZXVertex*, EdgeType>;
-using ZXAdjList     = unordered_map<ZXVertex*, ZXNeighborMap>;
+using ZXVertexList  = unordered_set<ZXVertex*>;
 
 class ZXGraph{
     public:
@@ -180,9 +181,12 @@ class ZXGraph{
         // Getter and Setter
         void setId(size_t id)                                           { _id = id; }
         void setRef(void** ref)                                         { _ref = ref; }
+        
+        //! REVIEW SHOULD PASS BY CONST REF
         void setInputs(vector<ZXVertex*> inputs)                        { _inputs = inputs; }
         void setOutputs(vector<ZXVertex*> outputs)                      { _outputs = outputs; }
         void setVertices(vector<ZXVertex*> vertices)                    { _vertices = vertices; }
+        void SetVertices(const ZXVertexList& vertices)                  { _Vertices = vertices; }
         void setEdges(vector<EdgePair > edges)                          { _edges = edges; }
         
         const size_t& getId() const                                     { return _id; }
@@ -192,6 +196,7 @@ class ZXGraph{
         const vector<ZXVertex*>& getOutputs() const                     { return _outputs; }
         size_t getNumOutputs() const                                    { return _outputs.size(); }
         const vector<ZXVertex*>& getVertices() const                    { return _vertices; }
+        const ZXVertexList& GetVertices() const                         { return _Vertices; }
         size_t getNumVertices() const                                   { return _vertices.size(); }
         const vector<EdgePair>& getEdges() const                        { return _edges; }
         size_t getNumIncidentEdges(ZXVertex* v) const;
@@ -301,7 +306,7 @@ class ZXGraph{
         unordered_map<size_t, ZXVertex*>  _outputList;
         vector<ZXVertex*>                 _topoOrder;
         unsigned                          _globalDFScounter;
-        ZXAdjList                         _adjList;
+        ZXVertexList                      _Vertices; // captical for reconstruction
         void DFS(ZXVertex*);
 
 };

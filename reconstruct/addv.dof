@@ -1,0 +1,15 @@
+ver 5
+zxm -on
+zxn 
+zxge -addv 0 0 Z 0
+zxge -addv 0 0 X pi
+zxge -addv 1 0 X pi
+zxge -addv 2 0 X pi/3
+zxge -addi 3 0
+zxge -addo 4 0
+zxge -addo 5 0
+zxge -addo 5 1
+zxgp -v
+zxge -rmv  1
+zxgp -v
+q -f
