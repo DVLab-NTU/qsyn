@@ -163,17 +163,12 @@ class ZXVertex{
         
 };
 
+using ZXNeighborMap = unordered_map<ZXVertex*, EdgeType>;
+using ZXAdjList     = unordered_map<ZXVertex*, ZXNeighborMap>;
 
 class ZXGraph{
     public:
         ZXGraph(size_t id, void** ref = NULL) : _id(id), _ref(ref), _tensor(1.+0.i){
-            _inputs.clear();
-            _outputs.clear();
-            _vertices.clear();
-            _edges.clear();
-            _inputList.clear();
-            _outputList.clear();
-            _topoOrder.clear();
             _globalDFScounter = 1;
         }
         
@@ -306,6 +301,7 @@ class ZXGraph{
         unordered_map<size_t, ZXVertex*>  _outputList;
         vector<ZXVertex*>                 _topoOrder;
         unsigned                          _globalDFScounter;
+        ZXAdjList                         _adjList;
         void DFS(ZXVertex*);
 
 };

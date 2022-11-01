@@ -313,9 +313,9 @@ ZXVertex* ZXGraph::addInput(size_t id, int qubit, bool checked) {
             return nullptr;
         }
     }
-    ZXVertex* v = new ZXVertex(id, qubit, VertexType::BOUNDARY);
+    ZXVertex* v = addVertex(id, qubit, VertexType::BOUNDARY, Phase(), true);
+
     _inputs.push_back(v);
-    _vertices.push_back(v);
     setInputHash(qubit, v);
     if (verbose >= 5) cout << "Add input " << id << endl;
     return v;
@@ -331,8 +331,8 @@ ZXVertex* ZXGraph::addOutput(size_t id, int qubit, bool checked) {
             return nullptr;
         } 
     }
-    ZXVertex* v = new ZXVertex(id, qubit, VertexType::BOUNDARY);
-    _vertices.push_back(v);
+    ZXVertex* v = addVertex(id, qubit, VertexType::BOUNDARY, Phase(), true);
+    
     _outputs.push_back(v);
     setOutputHash(qubit, v);
     if (verbose >= 5) cout << "Add output " << id << endl;
@@ -352,6 +352,8 @@ ZXVertex* ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase, b
     }
     ZXVertex* v = new ZXVertex(id, qubit, vt, phase);
     _vertices.push_back(v);
+    // ZXNeighborMap nbm{{v, EdgeType::SIMPLE}};
+    _adjList.emplace(v, ZXNeighborMap{});
     if (verbose >= 5) cout << "Add vertex " << id << endl;
     return v;
 }
@@ -442,8 +444,12 @@ void ZXGraph::removeVertex(ZXVertex* v, bool checked) {
             return;
         }
     }
-
+    
     if (verbose >= 5) cout << "Remove ID: " << v->getId() << endl;
+
+    //! REVIEW remove neighbors
+    _adjList.erase(v);
+
 
     // Check if also in _inputs or _outputs
     if (auto itr = find(_inputs.begin(), _inputs.end(), v); itr != _inputs.end()) {
@@ -851,8 +857,17 @@ void ZXGraph::printOutputs() const {
 
 void ZXGraph::printVertices() const {
     cout << "\n";
-    for (size_t i = 0; i < _vertices.size(); i++) {
-        _vertices[i]->printVertex();
+    using kvpair = pair<ZXVertex*, ZXNeighborMap>;
+    vector<kvpair> vs;
+    //! REVIEW print efficiency?
+    for_each(_adjList.begin(), _adjList.end(), [&vs](const kvpair& nb) {
+        vs.push_back(nb);
+    });
+    sort(vs.begin(), vs.end(), [](const kvpair& lhs, const kvpair& rhs){
+        return lhs.first->getId() < rhs.first->getId();
+    });
+    for (const auto& v : views::keys(vs) ) {
+        v->printVertex();
     }
     cout << "Total #Vertices: " << _vertices.size() << endl;
     cout << "\n";
