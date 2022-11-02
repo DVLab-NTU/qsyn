@@ -32,6 +32,21 @@ enum class EdgeType;
 typedef pair<ZXVertex*, EdgeType*> NeighborPair;
 typedef pair<pair<ZXVertex*, ZXVertex*>, EdgeType*> EdgePair;
 typedef unordered_multimap<ZXVertex*, EdgeType*> NeighborMap;
+typedef unordered_set<pair<ZXVertex*, EdgeType>> Neighbors;
+
+typedef pair<ZXVertex*, EdgeType> NeighborP;
+
+namespace std{
+template <>
+struct hash<NeighborP>
+  {
+    size_t operator()(const NeighborP& k) const
+    {
+      return ((hash<ZXVertex*>()(k.first)
+               ^ (hash<EdgeType>()(k.second) << 1)) >> 1);
+    }
+  };
+}
 
 
 namespace std{
@@ -108,6 +123,7 @@ class ZXVertex{
             _DFSCounter = 0;
             _pin = unsigned(-1);
             _neighborMap.clear();
+            _neighbors.clear();
         }
         ~ZXVertex(){}
 
@@ -117,7 +133,10 @@ class ZXVertex{
         const VertexType& getType() const                                   { return _type; }
         const Phase& getPhase() const                                       { return _phase; }
         const size_t& getPin() const                                        { return _pin; }   
+        
         vector<ZXVertex*> getNeighbors() const;
+        const Neighbors& GetNeighbors() const                               { return _neighbors; }
+
         ZXVertex* getNeighbor(size_t idx) const;
         const NeighborMap& getNeighborMap() const                           { return _neighborMap; }
         size_t getNumNeighbors() const                                      { return _neighborMap.size(); }
@@ -143,10 +162,12 @@ class ZXVertex{
         
         // Action
         void disconnect(ZXVertex* v, bool checked = false);
-
+        void Disconnect(ZXVertex* v, bool checked = false);
+        void DisconnectByType(NeighborP, bool checked = false);
 
         // Test
         bool isNeighbor(ZXVertex* v) const;
+        bool IsNeighbor(ZXVertex* v) const;
 
         
         // DFS
@@ -159,6 +180,7 @@ class ZXVertex{
         VertexType                           _type;
         Phase                                _phase;
         NeighborMap                          _neighborMap;
+        Neighbors                            _neighbors;
         unsigned                             _DFSCounter;
         size_t                               _pin;
         
@@ -174,7 +196,7 @@ class ZXGraph{
         }
         
         ~ZXGraph() {
-            for(size_t i = 0; i < _vertices.size(); i++) delete _vertices[i];
+            // for(size_t i = 0; i < _vertices.size(); i++) delete _vertices[i];
             for(const auto& ver: _Vertices) delete ver;
         }
 
@@ -262,6 +284,8 @@ class ZXGraph{
         void mergeOutputList(unordered_map<size_t, ZXVertex*> lst);
 
         void removeVertex(ZXVertex* v, bool checked = false);
+        void RemoveVertex(ZXVertex* v, bool checked = false);
+
         void removeVertices(vector<ZXVertex* > vertices, bool checked = false);
         void removeVertexById(const size_t& id);
         void removeIsolatedVertices();
@@ -278,7 +302,10 @@ class ZXGraph{
         // Find functions
         ZXVertex* findInputById(const size_t& id) const; // not defined!
         ZXVertex* findOutputById(const size_t& id) const; // not defined!
+        
         ZXVertex* findVertexById(const size_t& id) const;
+        ZXVertex* FindVertexById(const size_t& id) const;
+
         size_t findNextId() const;
 
 

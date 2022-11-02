@@ -116,36 +116,47 @@ extern size_t verbose;
 // Action
 
 /**
- * @brief Remove all the connection between `this` and `v`.
+ * @brief Remove all the connection between `this` and `v`. (Overhauled)
  *
  * @param v
  * @param checked
  */
-// void ZXVertex::disconnect(ZXVertex* v, bool checked) {
-//     if (!checked) {
-//         if (!isNeighbor(v)) {
-//             cerr << "Error: Vertex " << v->getId() << " is not a neighbor of " << _id << endl;
-//             return;
-//         }
-//     }
+void ZXVertex::Disconnect(ZXVertex* v, bool checked) {
+    if (!checked) {
+        if (!IsNeighbor(v)) {
+            cerr << "Error: Vertex " << v->getId() << " is not a neighbor of " << _id << endl;
+            return;
+        }
+    }
+    NeighborP target = make_pair(v, EdgeType::SIMPLE);
+    if(_neighbors.contains(target))
+        _neighbors.erase(target);
+    target = make_pair(v, EdgeType::HADAMARD);
+    if(_neighbors.contains(target))
+        _neighbors.erase(target);
+}
 
-//     _neighborMap.erase(v);
-//     NeighborMap nMap = v->getNeighborMap();
-//     nMap.erase(this);
-//     v->setNeighborMap(nMap);
-// }
-
+void ZXVertex::DisconnectByType(NeighborP neighborPair, bool checked) {
+    if (!checked) {
+        if (!IsNeighbor(neighborPair.first)) {
+            cerr << "Error: Vertex " << neighborPair.first->getId() << " is not a neighbor of " << _id << endl;
+            return;
+        }
+    }
+    if(_neighbors.contains(neighborPair))
+        _neighbors.erase(neighborPair);
+}
 // Test
 
 /**
- * @brief Check if `v` is one of the neighbors in ZXVertex
+ * @brief Check if `v` is one of the neighbors in ZXVertex (Overhauled)
  *
  * @param v
  * @return bool
  */
-// bool ZXVertex::isNeighbor(ZXVertex* v) const {
-//     return _neighborMap.contains(v);
-// }
+bool ZXVertex::IsNeighbor(ZXVertex* v) const {
+    return _neighbors.contains(make_pair(v, EdgeType::SIMPLE)) || _neighbors.contains(make_pair(v, EdgeType::HADAMARD));
+}
 
 /**
  * @brief Check if ZXGraph is graph-like, report first error
@@ -439,52 +450,45 @@ void ZXGraph::AddVertices(const ZXVertexList& vertices) {
 // }
 
 /**
- * @brief Remove `v` in ZXGraph and maintain the relationship between each vertex.
+ * @brief Remove `v` in ZXGraph and maintain the relationship between each vertex. (Overhauled)
  *
  * @param v
  * @param checked
  */
-// void ZXGraph::removeVertex(ZXVertex* v, bool checked) {
-//     if (!checked) {
-//         if (!isId(v->getId())) {
-//             cerr << "This vertex does not exist!" << endl;
-//             return;
-//         }
-//     }
+void ZXGraph::RemoveVertex(ZXVertex* v, bool checked) {
+    if (!checked) {
+        if (!_Vertices.contains(v)) {
+            cerr << "This vertex does not exist!" << endl;
+            return;
+        }
+    }
     
-//     if (verbose >= 5) cout << "Remove ID: " << v->getId() << endl;
+    if (verbose >= 5) cout << "Remove ID: " << v->getId() << endl;
 
-//     //! REVIEW remove neighbors
-//     _Vertices.erase(v);
+    //! REVIEW Erase neighbors
+    Neighbors vNeighbors = v->GetNeighbors();
+    for(const auto& n: vNeighbors) {
+        v -> DisconnectByType(n);
+        ZXVertex* nv = n.first;
+        EdgeType ne = n.second;
+        nv -> DisconnectByType(make_pair(v, ne));
+    }
+    //! REVIEW remove neighbors
+    _Vertices.erase(v);
 
 
-//     // Check if also in _inputs or _outputs
-//     if (auto itr = find(_inputs.begin(), _inputs.end(), v); itr != _inputs.end()) {
-//         _inputList.erase(v->getQubit());
-//         _inputs.erase(itr);
-//     }
-//     if (auto itr = find(_outputs.begin(), _outputs.end(), v); itr != _outputs.end()) {
-//         _outputList.erase(v->getQubit());
-//         _outputs.erase(itr);
-//     }
-
-//     // Check _edges
-//     vector<EdgePair> newEdges;
-//     for (size_t i = 0; i < _edges.size(); i++) {
-//         if (_edges[i].first.first == v || _edges[i].first.second == v)
-//             _edges[i].first.first->disconnect(_edges[i].first.second, true);
-//         else {
-//             newEdges.push_back(_edges[i]);
-//         }
-//     }
-//     setEdges(newEdges);
-
-//     // Check _vertices
-//     _vertices.erase(find(_vertices.begin(), _vertices.end(), v));
-
-//     // deallocate ZXVertex
-//     delete v;
-// }
+    // Check if also in _inputs or _outputs
+    if(_Inputs.contains(v)){
+        _inputList.erase(v->getQubit());
+        _Inputs.erase(v);
+    }
+    if (_Outputs.contains(v)) {
+        _outputList.erase(v->getQubit());
+        _Outputs.erase(v);
+    }
+    // deallocate ZXVertex
+    delete v;
+}
 
 /**
  * @brief Remove all vertex in vertices by calling `removeVertex(ZXVertex* v, bool checked)`
@@ -739,12 +743,12 @@ void ZXGraph::AddVertices(const ZXVertexList& vertices) {
  * @param id
  * @return ZXVertex*
  */
-// ZXVertex* ZXGraph::findVertexById(const size_t& id) const {
-//     for (size_t i = 0; i < _vertices.size(); i++) {
-//         if (_vertices[i]->getId() == id) return _vertices[i];
-//     }
-//     return nullptr;
-// }
+ZXVertex* ZXGraph::FindVertexById(const size_t& id) const {
+    for(const auto& ver: _Vertices){
+        if(ver->getId() == id) return ver;
+    }
+    return nullptr;
+}
 
 /**
  * @brief Find the next id that is never been used.
