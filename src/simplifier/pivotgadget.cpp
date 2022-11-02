@@ -22,21 +22,21 @@ extern size_t verbose;
  */
 void PivotGadget::match(ZXGraph* g){
     _matchTypeVec.clear(); 
-    if(verbose >= 8) g->printVertices();
+    if(verbose >= 8) g->printVertices_depr();
     
     if(verbose >= 5) cout << "> match...\n";
 
     unordered_map<size_t, size_t> id2idx;
-    for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
+    for(size_t i = 0; i < g->getNumVertices_depr(); i++) id2idx[g->getVertices_depr()[i]->getId()] = i;
 
-    vector<bool> taken(g->getNumVertices(), false);
-    vector<bool> discardEdges(g->getNumEdges(), false);
-    vector<EdgePair> newEdges;
+    vector<bool> taken(g->getNumVertices_depr(), false);
+    vector<bool> discardEdges(g->getNumEdges_depr(), false);
+    vector<EdgePair_depr> newEdges;
 
     // traverse edge
-    for(size_t i = 0; i < g->getNumEdges(); i++){
+    for(size_t i = 0; i < g->getNumEdges_depr(); i++){
         // if(discardEdges[i]) continue;
-        EdgePair e = g->getEdges()[i];
+        EdgePair_depr e = g->getEdges()[i];
         ZXVertex* vs = e.first.first; ZXVertex* vt = e.first.second;
         Phase vsp = vs->getPhase(); Phase vtp = vt->getPhase();
 
@@ -62,8 +62,8 @@ void PivotGadget::match(ZXGraph* g){
 
         //REVIEW - check  if(is_ground(vs)) continues;
 
-        vector<ZXVertex*> vsn = vs->getNeighbors();
-        vector<ZXVertex*> vtn = vt->getNeighbors();
+        vector<ZXVertex*> vsn = vs->getNeighbors_depr();
+        vector<ZXVertex*> vtn = vt->getNeighbors_depr();
         if(vtn.size() == 1) continue;   // It is a phase gadget
 
         //SECTION - Start from line 375
@@ -84,8 +84,8 @@ void PivotGadget::match(ZXGraph* g){
                 //     ne[0] != e
                 // ){
                 if( vn == 0 && 
-                    g->getNumIncidentEdges(vnList[vn][n]) == 1 && 
-                    g->getFirstIncidentEdge(vnList[vn][n]) != e
+                    g->getNumIncidentEdges_depr(vnList[vn][n]) == 1 && 
+                    g->getFirstIncidentEdge_depr(vnList[vn][n]) != e
                 ){
                     bad_match = true;
                     break;
@@ -122,7 +122,7 @@ void PivotGadget::match(ZXGraph* g){
         for(auto& v : vtn) taken[id2idx[v->getId()]] = true;
         
 
-        ZXVertex* newVertex = g->addVertex(g->findNextId(), -2, VertexType::Z, vtp);
+        ZXVertex* newVertex = g->addVertex_depr(g->findNextId(), -2, VertexType::Z, vtp);
         vt->setPhase(Phase(0));
         vs->setQubit(-1);
         newEdges.push_back(make_pair(make_pair(newVertex, vt),new EdgeType(EdgeType::SIMPLE)));
@@ -133,7 +133,7 @@ void PivotGadget::match(ZXGraph* g){
         i += 1;
     }
 
-    for(auto& e : newEdges) g->addEdge(e.first.first, e.first.second, e.second);
+    for(auto& e : newEdges) g->addEdge_depr(e.first.first, e.first.second, e.second);
     
     newEdges.clear();
     
@@ -161,8 +161,8 @@ void PivotGadget::rewrite(ZXGraph* g){
             cout << "> rewrite...\n";
             cout << "vs: " << m[0]->getId() << "\tvt: " << m[1]->getId() << "\tv_gadget: " << m[2]->getId() << endl;
         } 
-        vector<ZXVertex*> n0 = m[0]->getNeighbors();
-        vector<ZXVertex*> n1 = m[1]->getNeighbors();
+        vector<ZXVertex*> n0 = m[0]->getNeighbors_depr();
+        vector<ZXVertex*> n1 = m[1]->getNeighbors_depr();
         // cout << n0.size() << ' ' << n1.size() << endl;
 
         for(auto itr = n0.begin(); itr != n0.end();){
@@ -251,7 +251,7 @@ void PivotGadget::rewrite(ZXGraph* g){
             if(i == 0) _removeVertices.push_back(m[1]);
             if(i == 1) {
                 // EdgePair e = g->getIncidentEdges(m[2])[0];
-                EdgePair e = g->getFirstIncidentEdge(m[2]);
+                EdgePair_depr e = g->getFirstIncidentEdge_depr(m[2]);
                 _edgeTableKeys.push_back(make_pair(m[0], m[2]));
                 if(*e.second == EdgeType::SIMPLE){
                     _edgeTableValues.push_back(make_pair(0, 1));

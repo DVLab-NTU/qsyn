@@ -22,15 +22,15 @@ extern size_t verbose;
  */
 void LComp::match(ZXGraph* g){
     _matchTypeVec.clear();
-    if(verbose >= 8) g->printVertices();
+    if(verbose >= 8) g->printVertices_depr();
     
     unordered_map<size_t, size_t> id2idx;
-    for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
+    for(size_t i = 0; i < g->getNumVertices_depr(); i++) id2idx[g->getVertices_depr()[i]->getId()] = i;
 
     // Find all Z vertices that connect to all neighb ors with H edge.
-    vector<bool> taken(g->getNumVertices(), false);
-    vector<bool> inMatches(g->getNumVertices(), false);
-    for(const auto& v : g->getVertices()){
+    vector<bool> taken(g->getNumVertices_depr(), false);
+    vector<bool> inMatches(g->getNumVertices_depr(), false);
+    for(const auto& v : g->getVertices_depr()){
         if(v->getType() == VertexType::Z && (v->getPhase() == Phase(1,2) || v->getPhase() == Phase(3,2)) ){
             bool matchCondition = true;
             size_t vIdx = id2idx[v->getId()];

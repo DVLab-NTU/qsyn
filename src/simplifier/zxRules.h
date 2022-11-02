@@ -59,7 +59,7 @@ class ZXRule{
       virtual const int& getMatchTypeVecNum() const                                  { return _matchTypeVecNum; }
       virtual const string& getName() const                                          { return _name; }       
       virtual const vector<ZXVertex* >& getRemoveVertices() const                    { return _removeVertices; }
-      virtual const vector<EdgePair>& getRemoveEdges() const                         { return _removeEdges; }
+      virtual const vector<EdgePair_depr>& getRemoveEdges() const                         { return _removeEdges; }
       virtual const vector<pair<ZXVertex*, ZXVertex*> >& getEdgeTableKeys() const    { return _edgeTableKeys; }
       virtual const vector<pair<int, int> >& getEdgeTableValues() const              { return _edgeTableValues; }
       
@@ -67,14 +67,14 @@ class ZXRule{
       virtual void setRemoveVertices(vector<ZXVertex* > v)                    { _removeVertices = v; }
       virtual void setName(string name)                                       { _name = name; }
 
-      virtual void pushRemoveEdge(const EdgePair& ep)                         { _removeEdges.push_back(ep); }
+      virtual void pushRemoveEdge(const EdgePair_depr& ep)                         { _removeEdges.push_back(ep); }
       
       
     protected:
       int                                                                      _matchTypeVecNum;
       string                                                                   _name;
       vector<ZXVertex* >                                                       _removeVertices;
-      vector<EdgePair>                                                         _removeEdges;
+      vector<EdgePair_depr>                                                         _removeEdges;
       vector<pair<ZXVertex*, ZXVertex*> >                                      _edgeTableKeys;
       vector<pair<int, int> >                                                  _edgeTableValues;
 
@@ -88,7 +88,7 @@ class ZXRule{
  */
 class Bialgebra : public ZXRule{
   public:
-    typedef EdgePair MatchType;
+    typedef EdgePair_depr MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
     Bialgebra(){

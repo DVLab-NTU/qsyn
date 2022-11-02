@@ -121,7 +121,7 @@ void ZXGraphMgr::copy(size_t id) {
 void ZXGraphMgr::compose(ZXGraph* zxGraph) {
     ZXGraph* oriGraph = getGraph();
     // oriGraph->sortIOByQubit();
-    if (oriGraph->getNumOutputs() != zxGraph->getNumInputs())
+    if (oriGraph->getNumOutputs_depr() != zxGraph->getNumInputs_depr())
         cerr << "Error: The composing ZX-graph's #input is not equivalent to the original ZX-graph's #output." << endl;
     else {
         // Make a deep copy of zxGraph
@@ -130,19 +130,19 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph) {
 
         // Rewrite all vertices id in copyGraph to avoid repetition
         size_t nextID = oriGraph->findNextId();
-        for (size_t i = 0; i < copyGraph->getVertices().size(); i++) {
-            copyGraph->getVertices()[i]->setId(nextID);
+        for (size_t i = 0; i < copyGraph->getVertices_depr().size(); i++) {
+            copyGraph->getVertices_depr()[i]->setId(nextID);
             nextID++;
         }
 
         //! TODO
         // Connect each vertex that originally connected to output of oriGraph to each vertex that originally coneected to input of copyGraph
 
-        for (size_t i = 0; i < oriGraph->getOutputs().size(); i++) {
-            ZXVertex* curOut = oriGraph->getOutputs()[i];
-            ZXVertex* cpIn = copyGraph->getInputs()[i];
-            NeighborMap curOutNMap = curOut->getNeighborMap();
-            NeighborMap cpInNMap = cpIn->getNeighborMap();
+        for (size_t i = 0; i < oriGraph->getOutputs_depr().size(); i++) {
+            ZXVertex* curOut = oriGraph->getOutputs_depr()[i];
+            ZXVertex* cpIn = copyGraph->getInputs_depr()[i];
+            NeighborMap_depr curOutNMap = curOut->getNeighborMap();
+            NeighborMap_depr cpInNMap = cpIn->getNeighborMap();
             for (auto& s : curOutNMap) {
                 ZXVertex* vs = s.first;
                 EdgeType* vsType = s.second;
@@ -154,20 +154,20 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph) {
                         newType = new EdgeType(EdgeType::SIMPLE);
                     else
                         newType = new EdgeType(EdgeType::HADAMARD);
-                    oriGraph->addEdge(vs, vt, newType);
-                    vt->disconnect(cpIn);
+                    oriGraph->addEdge_depr(vs, vt, newType);
+                    vt->disconnect_depr(cpIn);
                 }
-                vs->disconnect(curOut);
+                vs->disconnect_depr(curOut);
             }
         }
         // Remove outputs of oriGraph and inputs of copyGraph
-        oriGraph->removeVertices(oriGraph->getOutputs(), true);
-        copyGraph->removeVertices(copyGraph->getInputs(), true);
+        oriGraph->removeVertices(oriGraph->getOutputs_depr(), true);
+        copyGraph->removeVertices(copyGraph->getInputs_depr(), true);
 
         // Update data in oriGraph
-        oriGraph->setOutputs(copyGraph->getOutputs());
+        oriGraph->setOutputs(copyGraph->getOutputs_depr());
         oriGraph->setOutputList(copyGraph->getOutputList());
-        oriGraph->addVertices(copyGraph->getVertices());
+        oriGraph->addVertices_depr(copyGraph->getVertices_depr());
         oriGraph->addEdges(copyGraph->getEdges());
     }
 }
@@ -175,20 +175,20 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph) {
 void ZXGraphMgr::tensorProduct(ZXGraph* zxGraph) {
     ZXGraph* oriGraph = getGraph();
     ZXGraph* copyGraph = zxGraph->copy();
-    size_t liftNum = max(oriGraph->getNumInputs(), oriGraph->getNumOutputs());
+    size_t liftNum = max(oriGraph->getNumInputs_depr(), oriGraph->getNumOutputs_depr());
     copyGraph->liftQubit(liftNum);    
 
     // Rewrite all vertices id in copyGraph to avoid repetition
     size_t nextID = oriGraph->findNextId();
-    for (size_t i = 0; i < copyGraph->getVertices().size(); i++) {
-        copyGraph->getVertices()[i]->setId(nextID);
+    for (size_t i = 0; i < copyGraph->getVertices_depr().size(); i++) {
+        copyGraph->getVertices_depr()[i]->setId(nextID);
         nextID++;
     }
 
     // Add inputs / outputs / vertices / edges
-    oriGraph->addInputs(copyGraph->getInputs());
-    oriGraph->addOutputs(copyGraph->getOutputs());
-    oriGraph->addVertices(copyGraph->getVertices());
+    oriGraph->addInputs_depr(copyGraph->getInputs_depr());
+    oriGraph->addOutputs_depr(copyGraph->getOutputs_depr());
+    oriGraph->addVertices_depr(copyGraph->getVertices_depr());
     oriGraph->addEdges(copyGraph->getEdges());
     oriGraph->mergeInputList(copyGraph->getInputList());
     oriGraph->mergeOutputList(copyGraph->getOutputList());

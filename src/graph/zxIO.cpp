@@ -88,11 +88,11 @@ bool ZXGraph::readZX(string filename, bool bzx=false) {
             }
             storage[size_t(id)] = tmp;
             if (vertexStr[0] == 'I') {
-                vertexList[size_t(id)] = addInput(size_t(id), size_t(qid), true);
+                vertexList[size_t(id)] = addInput_depr(size_t(id), size_t(qid), true);
             }
 
             else
-                vertexList[size_t(id)] = addOutput(size_t(id), size_t(qid), true);
+                vertexList[size_t(id)] = addOutput_depr(size_t(id), size_t(qid), true);
         } else if (vertexStr[0] == 'Z' || vertexStr[0] == 'X' || vertexStr[0] == 'H') {
             string idStr = vertexStr.substr(1);
 
@@ -137,11 +137,11 @@ bool ZXGraph::readZX(string filename, bool bzx=false) {
             }
             storage[size_t(id)] = tmp;
             if (vertexStr[0] == 'Z')
-                vertexList[size_t(id)] = addVertex(size_t(id), size_t(qid), VertexType::Z, ph, true);
+                vertexList[size_t(id)] = addVertex_depr(size_t(id), size_t(qid), VertexType::Z, ph, true);
             else if (vertexStr[0] == 'X')
-                vertexList[size_t(id)] = addVertex(size_t(id), size_t(qid), VertexType::X, ph, true);
+                vertexList[size_t(id)] = addVertex_depr(size_t(id), size_t(qid), VertexType::X, ph, true);
             else
-                vertexList[size_t(id)] = addVertex(size_t(id), size_t(qid), VertexType::H_BOX, ph, true);
+                vertexList[size_t(id)] = addVertex_depr(size_t(id), size_t(qid), VertexType::H_BOX, ph, true);
         } else {
             cerr << "Error: Unsupported vertex type " << vertexStr[0] << " in line " << counter << "!!" << endl;
             return false;
@@ -158,7 +158,7 @@ bool ZXGraph::readZX(string filename, bool bzx=false) {
                 cerr << "Found a never declared id " << nbId << " in neighbor list of vertex " << vertexId << "!!" << endl;
                 return false;
             } else {
-                addEdge(vertexList[vertexId], vertexList[nbId], new EdgeType(nbEdgeType));
+                addEdge_depr(vertexList[vertexId], vertexList[nbId], new EdgeType(nbEdgeType));
             }
         }
     }
@@ -196,22 +196,22 @@ bool ZXGraph::writeZX(string filename, bool bzx=false) {
         return true;
     };
     ZXFile << "// Input \n";
-    for (size_t i = 0; i < _inputs.size(); i++) {
-        ZXVertex* v = _inputs[i];
+    for (size_t i = 0; i < _inputs_depr.size(); i++) {
+        ZXVertex* v = _inputs_depr[i];
         ZXFile << "I" << v->getId() << " " << v->getQubit();
         if (!writeNeighbors(v)) return false;
         ZXFile << "\n";
     }
     ZXFile << "// Output \n";
-    for (size_t i = 0; i < _outputs.size(); i++) {
-        ZXVertex* v = _outputs[i];
+    for (size_t i = 0; i < _outputs_depr.size(); i++) {
+        ZXVertex* v = _outputs_depr[i];
         ZXFile << "O" << v->getId() << " " << v->getQubit();
         if (!writeNeighbors(v)) return false;
         ZXFile << "\n";
     }
     ZXFile << "// Non-boundary \n";
-    for (size_t i = 0; i < _vertices.size(); i++) {
-        ZXVertex* v = _vertices[i];
+    for (size_t i = 0; i < _vertices_depr.size(); i++) {
+        ZXVertex* v = _vertices_depr[i];
         if (v->getType() == VertexType::BOUNDARY) continue;
 
         if      (v->getType() == VertexType::Z) ZXFile << "Z";

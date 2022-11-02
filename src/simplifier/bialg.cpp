@@ -33,12 +33,12 @@ bool Bialgebra::check_duplicated_vertex(vector<ZXVertex*> vec) {
 }
 void Bialgebra::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    if(verbose >= 8) g->printVertices();
+    if(verbose >= 8) g->printVertices_depr();
     unordered_map<size_t, size_t> id2idx;
-    for (size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
-    vector<bool> taken(g->getNumVertices(), false);
+    for (size_t i = 0; i < g->getNumVertices_depr(); i++) id2idx[g->getVertices_depr()[i]->getId()] = i;
+    vector<bool> taken(g->getNumVertices_depr(), false);
 
-    for (size_t i = 0; i < g->getNumEdges(); i++) {
+    for (size_t i = 0; i < g->getNumEdges_depr(); i++) {
         // Verify if the edge is a SIMPLE edge
         if (!(*g->getEdges()[i].second == EdgeType::SIMPLE)) continue;
 
@@ -60,9 +60,9 @@ void Bialgebra::match(ZXGraph* g) {
         if (!((left->getType() == VertexType::X && right->getType() == VertexType::Z) || (left->getType() == VertexType::Z && right->getType() == VertexType::X))) continue;
 
         // Check if the vertices is_ground (with only one edge).
-        if ((left->getNumNeighbors() == 1) || (right->getNumNeighbors() == 1)) continue;
+        if ((left->getNumNeighbors_depr() == 1) || (right->getNumNeighbors_depr() == 1)) continue;
 
-        vector<ZXVertex*> neighbor_of_left = left->getNeighbors(), neighbor_of_right = right->getNeighbors();
+        vector<ZXVertex*> neighbor_of_left = left->getNeighbors_depr(), neighbor_of_right = right->getNeighbors_depr();
 
         // Check if a vertex has a same neighbor, in other words, two or more edges to another vertex.
         if (check_duplicated_vertex(neighbor_of_left) || check_duplicated_vertex(neighbor_of_right)) continue;
@@ -110,7 +110,7 @@ void Bialgebra::rewrite(ZXGraph* g) {
         ZXVertex* right;
         right = _matchTypeVec[i].first.second;
 
-        vector<ZXVertex*> neighbor_of_left = left->getNeighbors(), neighbor_of_right = right->getNeighbors();
+        vector<ZXVertex*> neighbor_of_left = left->getNeighbors_depr(), neighbor_of_right = right->getNeighbors_depr();
 
         /* g->removeVertex(left);
         g->removeVertex(right); */

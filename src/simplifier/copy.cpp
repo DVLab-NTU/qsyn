@@ -23,13 +23,13 @@ extern size_t verbose;
 void StateCopy::match(ZXGraph* g){
   // Should be run in graph-like
   _matchTypeVec.clear();
-  if(verbose >= 8) g->printVertices();
+  if(verbose >= 8) g->printVertices_depr();
   
-  vector<ZXVertex*> Vertices = g->getVertices();
+  vector<ZXVertex*> Vertices = g->getVertices_depr();
   unordered_map<ZXVertex* , size_t> Vertex2idx;
   for(size_t i = 0; i < Vertices.size(); i++) Vertex2idx[Vertices[i]] = i;
   vector<bool> validVertex(Vertices.size(), true);
-  for(size_t i=0; i<g->getNumVertices(); i++){
+  for(size_t i=0; i<g->getNumVertices_depr(); i++){
     if(!validVertex[Vertex2idx[Vertices[i]]]) continue;
     if(Vertices[i]->getType() != VertexType::Z){
       validVertex[Vertex2idx[Vertices[i]]] = false;
@@ -39,16 +39,16 @@ void StateCopy::match(ZXGraph* g){
       validVertex[Vertex2idx[Vertices[i]]] = false;
       continue;
     }
-    if(Vertices[i]->getNumNeighbors()!=1){
+    if(Vertices[i]->getNumNeighbors_depr()!=1){
       validVertex[Vertex2idx[Vertices[i]]] = false;
       continue;
     }
-    ZXVertex* PiNeighbor = Vertices[i]->getNeighbor(0);
+    ZXVertex* PiNeighbor = Vertices[i]->getNeighbor_depr(0);
     if(PiNeighbor->getType() != VertexType::Z){
       validVertex[Vertex2idx[Vertices[i]]] = false;
       continue;
     }
-    vector<ZXVertex*> allNeighbors = PiNeighbor->getNeighbors();
+    vector<ZXVertex*> allNeighbors = PiNeighbor->getNeighbors_depr();
     vector<ZXVertex*> applyNeighbors;
     for(size_t j=0; j<allNeighbors.size(); j++){
       if(allNeighbors[j]!=Vertices[i])
@@ -84,7 +84,7 @@ void StateCopy::rewrite(ZXGraph* g){
     _removeVertices.push_back(a);
     for(size_t i=0; i<neighbors.size(); i++){
       if(neighbors[i]->getType()==VertexType::BOUNDARY){
-        ZXVertex* newV = g->addVertex(g->findNextId(), neighbors[i]->getQubit(), VertexType::Z, npi->getPhase());
+        ZXVertex* newV = g->addVertex_depr(g->findNextId(), neighbors[i]->getQubit(), VertexType::Z, npi->getPhase());
         bool simpleEdge = false;
         if(*(neighbors[i]->getNeighborMap().begin()->second) == EdgeType::SIMPLE)
           simpleEdge = true;

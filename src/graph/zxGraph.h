@@ -17,10 +17,14 @@
 #include "phase.h"
 #include "qtensor.h"
 #include "zxDef.h"
+#include <iterator>
 using namespace std;
 
 class ZXVertex{
     public:
+        class EdgeIterator;
+        friend class EdgeIterator;
+
         ZXVertex(size_t id, int qubit, VertexType vt, Phase phase = Phase()) {
             _id = id;
             _qubit = qubit;
@@ -28,7 +32,7 @@ class ZXVertex{
             _phase = phase;
             _DFSCounter = 0;
             _pin = unsigned(-1);
-            _neighborMap.clear();
+            _neighborMap_depr.clear();
             _neighbors.clear();
         }
         ~ZXVertex(){}
@@ -40,52 +44,59 @@ class ZXVertex{
         const Phase& getPhase() const                                       { return _phase; }
         const size_t& getPin() const                                        { return _pin; }   
         
-        vector<ZXVertex*> getNeighbors() const;
-        const Neighbors& GetNeighbors() const                               { return _neighbors; }
+        vector<ZXVertex*> getNeighbors_depr() const;
+        const Neighbors& getNeighbors() const                               { return _neighbors; }
 
-        ZXVertex* getNeighbor(size_t idx) const;
-        const NeighborMap& getNeighborMap() const                           { return _neighborMap; }
-        size_t getNumNeighbors() const                                      { return _neighborMap.size(); }
+        ZXVertex* getNeighbor_depr(size_t idx) const;
+        const NeighborMap_depr& getNeighborMap() const                           { return _neighborMap_depr; }
+        size_t getNumNeighbors_depr() const                                      { return _neighborMap_depr.size(); }
+        size_t getNumNeighbors() const                                           { return _neighbors.size(); }
         QTensor<double> getTSform();
         
         void setId(const size_t& id)                                        { _id = id; }
         void setQubit(const int& q)                                         { _qubit = q; }
         void setType(const VertexType& ZXVertex)                            { _type = ZXVertex; }
         void setPhase(const Phase& p)                                       { _phase = p; }
-        void setNeighborMap(const NeighborMap& neighborMap)                 { _neighborMap = neighborMap; }
+        void setNeighborMap(const NeighborMap_depr& neighborMap)            { _neighborMap_depr = neighborMap; }
         void setPin(const size_t& p)                                        { _pin = p; }
 
         // Add and Remove
-        void addNeighbor(const NeighborPair& neighbor)                      { _neighborMap.insert(neighbor); }
-        void removeNeighbor(const NeighborPair& neighbor); // not defined
-        void removeNeighborById(const size_t& id); // not defined!
+        void addNeighbor_depr(const NeighborPair_depr& nb)                  { _neighborMap_depr.insert(nb); }
+        void addNeighbor(const NeighborPair& nb)                            { _neighbors.insert(nb); }
+        void removeNeighbor(const NeighborPair& nb)                         { _neighbors.erase(nb); }
 
 
         // Print functions
+        void printVertex_depr() const;
         void printVertex() const;
-        void printNeighborMap() const;
+        void printNeighborMap_depr() const;
+        void printNeighbors() const;
 
         
         // Action
+        void disconnect_depr(ZXVertex* v, bool checked = false);
         void disconnect(ZXVertex* v, bool checked = false);
-        void Disconnect(ZXVertex* v, bool checked = false);
-        void DisconnectByType(NeighborP, bool checked = false);
 
         // Test
+        bool isNeighbor_depr(ZXVertex* v) const;
         bool isNeighbor(ZXVertex* v) const;
-        bool IsNeighbor(ZXVertex* v) const;
-
+        bool isNeighbor(const NeighborPair& nb) const { return _neighbors.contains(nb); }
+        bool isZ()        const { return getType() == VertexType::Z; }
+        bool isX()        const { return getType() == VertexType::X; }
+        bool isHBox()     const { return getType() == VertexType::H_BOX; }
+        bool isBoundary() const { return getType() == VertexType::BOUNDARY; }
         
         // DFS
         bool isVisited(unsigned global) { return global == _DFSCounter; }
         void setVisited(unsigned global) { _DFSCounter = global; }
+        static bool idLessThan(ZXVertex* a, ZXVertex* b) { return a->getId() < b->getId(); }
 
     private:
         int                                  _qubit;
         size_t                               _id;
         VertexType                           _type;
         Phase                                _phase;
-        NeighborMap                          _neighborMap;
+        NeighborMap_depr                     _neighborMap_depr;
         Neighbors                            _neighbors;
         unsigned                             _DFSCounter;
         size_t                               _pin;
@@ -103,7 +114,7 @@ class ZXGraph{
         
         ~ZXGraph() {
             // for(size_t i = 0; i < _vertices.size(); i++) delete _vertices[i];
-            for(const auto& ver: _Vertices) delete ver;
+            for(const auto& ver: _vertices) delete ver;
         }
 
 
@@ -112,50 +123,56 @@ class ZXGraph{
         void setRef(void** ref)                                         { _ref = ref; }
         
         //! REVIEW SHOULD PASS BY CONST REF
-        void setInputs(vector<ZXVertex*> inputs)                        { _inputs = inputs; }
-        void SetInputs(const ZXVertexList& inputs)                      { _Inputs = inputs; }
+        void setInputs_depr(vector<ZXVertex*> inputs)                   { _inputs_depr = inputs; }
+        void setInputs(const ZXVertexList& inputs)                      { _inputs = inputs; }
 
-        void setOutputs(vector<ZXVertex*> outputs)                      { _outputs = outputs; }
-        void SetOutputs(const ZXVertexList& outputs)                    { _Outputs = outputs; }
+        void setOutputs(vector<ZXVertex*> outputs)                      { _outputs_depr = outputs; }
+        void SetOutputs(const ZXVertexList& outputs)                    { _outputs = outputs; }
         
-        void setVertices(vector<ZXVertex*> vertices)                    { _vertices = vertices; }
-        void SetVertices(const ZXVertexList& vertices)                  { _Vertices = vertices; }
+        void setVertices(vector<ZXVertex*> vertices)                    { _vertices_depr = vertices; }
+        void SetVertices(const ZXVertexList& vertices)                  { _vertices = vertices; }
         
-        void setEdges(vector<EdgePair > edges)                          { _edges = edges; }
+        void setEdges(vector<EdgePair_depr > edges)                     { _edges_depr = edges; }
         
         const size_t& getId() const                                     { return _id; }
         void** getRef() const                                           { return _ref; }
         
-        const vector<ZXVertex*>& getInputs() const                      { return _inputs; }
-        const ZXVertexList& GetInputs() const                           { return _Inputs; }
+        const vector<ZXVertex*>& getInputs_depr() const                      { return _inputs_depr; }
+        const ZXVertexList& getInputs() const                           { return _inputs; }
 
+        size_t getNumInputs_depr() const                                     { return _inputs_depr.size(); }
         size_t getNumInputs() const                                     { return _inputs.size(); }
-        size_t GetNumInputs() const                                     { return _Inputs.size(); }
         
-        const vector<ZXVertex*>& getOutputs() const                     { return _outputs; }
-        const ZXVertexList& GetOutputs() const                          { return _Outputs; }
+        const vector<ZXVertex*>& getOutputs_depr() const                     { return _outputs_depr; }
+        const ZXVertexList& getOutputs() const                          { return _outputs; }
         
+        size_t getNumOutputs_depr() const                                    { return _outputs_depr.size(); }
         size_t getNumOutputs() const                                    { return _outputs.size(); }
-        size_t GetNumOutputs() const                                    { return _Outputs.size(); }
         
-        const vector<ZXVertex*>& getVertices() const                    { return _vertices; }
-        const ZXVertexList& GetVertices() const                         { return _Vertices; }
+        const vector<ZXVertex*>& getVertices_depr() const                    { return _vertices_depr; }
+        const ZXVertexList& getVertices() const                         { return _vertices; }
         
+        size_t getNumVertices_depr() const                                   { return _vertices_depr.size(); }
         size_t getNumVertices() const                                   { return _vertices.size(); }
-        size_t GetNumVertices() const                                   { return _Vertices.size(); }
         
-        const vector<EdgePair>& getEdges() const                        { return _edges; }
-        size_t getNumIncidentEdges(ZXVertex* v) const;
-        EdgePair getFirstIncidentEdge(ZXVertex* v) const;
-        vector<EdgePair> getIncidentEdges(ZXVertex* v) const;
-        size_t getNumEdges() const                                      { return _edges.size(); }
-
+        //REVIEW - delete: implement edge iterator instead
+        const vector<EdgePair_depr>& getEdges() const                        { return _edges_depr; }
+        //REVIEW - delete: identical to v->getNumNeighbors();
+        size_t getNumIncidentEdges_depr(ZXVertex* v) const;
+        //REVIEW - delete: now a member function of ZXVertex
+        EdgePair_depr getFirstIncidentEdge_depr(ZXVertex* v) const;
+        //REVIEW - delete: now a iterator of ZXVertex
+        vector<EdgePair_depr> getIncidentEdges_depr(ZXVertex* v) const;
+        
+        size_t getNumEdges_depr() const                                      { return _edges_depr.size(); }
+        size_t getNumEdges() const;
 
         // For testing
         void generateCNOT();
         bool isEmpty() const;
         bool isValid() const;
         bool isConnected(ZXVertex* v1, ZXVertex* v2) const;
+        bool isId_depr(size_t id) const;
         bool isId(size_t id) const;
         bool isGraphLike() const;
         bool isInputQubit(int qubit) const;
@@ -163,42 +180,52 @@ class ZXGraph{
 
 
         // Add and Remove
-        ZXVertex* addInput(size_t id, int qubit, bool checked = false);
-        ZXVertex* AddInput(int qubit, bool checked = false);
+        ZXVertex* addInput_depr(size_t id, int qubit, bool checked = false);
+        ZXVertex* addInput(int qubit, bool checked = false);
 
-        ZXVertex* addOutput(size_t id, int qubit, bool checked = false);
-        ZXVertex* AddOutput(int qubit, bool checked = false);
+        ZXVertex* addOutput_depr(size_t id, int qubit, bool checked = false);
+        ZXVertex* addOutput(int qubit, bool checked = false);
 
-        ZXVertex* addVertex(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase(), bool checked = false);
-        ZXVertex* AddVertex(int qubit, VertexType ZXVertex, Phase phase = Phase(), bool checked = false);
+        ZXVertex* addVertex_depr(size_t id, int qubit, VertexType ZXVertex, Phase phase = Phase(), bool checked = false);
+        ZXVertex* addVertex(int qubit, VertexType ZXVertex, Phase phase = Phase(), bool checked = false);
         
-        void addInputs(vector<ZXVertex*> inputs);
-        void AddInputs(const ZXVertexList& inputs);
+        void addInputs_depr(vector<ZXVertex*> inputs);
+        void addInputs(const ZXVertexList& inputs);
 
-        void addOutputs(vector<ZXVertex*> outputs);
-        void AddOutputs(const ZXVertexList& outputs);
+        void addOutputs_depr(vector<ZXVertex*> outputs);
+        void addOutputs(const ZXVertexList& outputs);
 
-        void addVertices(vector<ZXVertex*> vertices);
-        void AddVertices(const ZXVertexList& vertices);
+        void addVertices_depr(vector<ZXVertex*> vertices);
+        void addVertices(const ZXVertexList& vertices);
 
-        EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et, bool allowSelfLoop = false);
-        void addEdgeById(size_t id_s, size_t id_t, EdgeType* et);
-        
-        void addEdges(vector<EdgePair> edges);
+        EdgePair_depr addEdge_depr(ZXVertex* vs, ZXVertex* vt, EdgeType* et, bool allowSelfLoop = false);
+        //FIXME - 
+        EdgePair addEdge_depr(ZXVertex* vs, ZXVertex* vt, EdgeType et);
+        EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
+        //FIXME - 
+        void addEdgeById_depr(size_t id_s, size_t id_t, EdgeType* et);
+        void addEdgeById(size_t id_s, size_t id_t, EdgeType et);
+        //FIXME - 
+        void addEdges(vector<EdgePair_depr> edges);
         
         void mergeInputList(unordered_map<size_t, ZXVertex*> lst);
         void mergeOutputList(unordered_map<size_t, ZXVertex*> lst);
 
+        void removeVertex_depr(ZXVertex* v, bool checked = false);
         void removeVertex(ZXVertex* v, bool checked = false);
-        void RemoveVertex(ZXVertex* v, bool checked = false);
 
+        //FIXME - 
         void removeVertices(vector<ZXVertex* > vertices, bool checked = false);
         void removeVertexById(const size_t& id);
-        void removeIsolatedVertices();
-        void removeEdge(ZXVertex* vs, ZXVertex* vt, bool checked = false);
-        void removeEdgeByEdgePair(const EdgePair& ep);
-        void removeEdgesByEdgePairs(const vector<EdgePair>& eps);
-        void removeEdgeById(const size_t& id_s, const size_t& id_t);
+        //FIXME - 
+        void removeIsolatedVertices_depr();
+        //FIXME - 
+        void removeEdge_depr(ZXVertex* vs, ZXVertex* vt, bool checked = false);
+        void removeAllEdgeBetween(ZXVertex* vs, ZXVertex* vt, bool checked = false);
+        void removeEdgeByEdgePair_depr(const EdgePair_depr& ep);
+        void removeEdge(const EdgePair& ep);
+        void removeEdgesByEdgePairs_depr(const vector<EdgePair_depr>& eps);
+        void removeEdgeById(const size_t& id_s, const size_t& id_t, EdgeType etype = EdgeType::ERRORTYPE);
 
         // Operation on graph
         void adjoint();
@@ -206,11 +233,8 @@ class ZXGraph{
 
                 
         // Find functions
-        ZXVertex* findInputById(const size_t& id) const; // not defined!
-        ZXVertex* findOutputById(const size_t& id) const; // not defined!
-        
+        ZXVertex* findVertexById_depr(const size_t& id) const;
         ZXVertex* findVertexById(const size_t& id) const;
-        ZXVertex* FindVertexById(const size_t& id) const;
 
         size_t findNextId() const;
 
@@ -224,12 +248,18 @@ class ZXGraph{
 
 
         // Print functions
+        void printGraph_depr() const;
         void printGraph() const;
+        void printInputs_depr() const;
         void printInputs() const;
+        void printOutputs_depr() const;
         void printOutputs() const;
+        void printVertices_depr() const;
         void printVertices() const;
+        void printEdges_depr() const;
         void printEdges() const;
-        void printEdge(size_t idx) const;
+        //REVIEW - unused function
+        void printEdge_depr(size_t idx) const;
         
         // Traverse
         void updateTopoOrder();
@@ -237,6 +267,14 @@ class ZXGraph{
         void topoTraverse(F lambda){
             updateTopoOrder();
             for_each(_topoOrder.begin(),_topoOrder.end(),lambda);
+        }
+        template<typename F>
+        void forEachEdge(F lambda) const {
+            for (auto v : _vertices) {
+                for (auto [nb, etype] : v->getNeighbors()) {
+                    lambda(makeEdgePair(v, nb, etype));
+                }
+            }
         }
 
         // For mapping
@@ -251,7 +289,7 @@ class ZXGraph{
         ZXVertex* getInputFromHash(const size_t& q);
         ZXVertex* getOutputFromHash(const size_t& q);
         vector<ZXVertex*> getNonBoundary();
-        vector<EdgePair> getInnerEdges();
+        vector<EdgePair_depr> getInnerEdges();
         void cleanRedundantEdges();
 
         // I/O
@@ -263,19 +301,42 @@ class ZXGraph{
         void**                            _ref;
         size_t                            _currentVertexId; // keep the index
         QTensor<double>                   _tensor;
-        vector<ZXVertex*>                 _inputs;
-        vector<ZXVertex*>                 _outputs;
-        vector<ZXVertex*>                 _vertices;
-        vector<EdgePair >                 _edges;
+        vector<ZXVertex*>                 _inputs_depr;
+        vector<ZXVertex*>                 _outputs_depr;
+        vector<ZXVertex*>                 _vertices_depr;
+        vector<EdgePair_depr >                 _edges_depr;
         unordered_map<size_t, ZXVertex*>  _inputList;
         unordered_map<size_t, ZXVertex*>  _outputList;
         vector<ZXVertex*>                 _topoOrder;
         unsigned                          _globalDFScounter;
-        ZXVertexList                      _Vertices; // captical for reconstruction
-        ZXVertexList                      _Inputs;   // captical for reconstruction
-        ZXVertexList                      _Outputs;  // captical for reconstruction
+        ZXVertexList                      _vertices; // captical for reconstruction
+        ZXVertexList                      _inputs;   // captical for reconstruction
+        ZXVertexList                      _outputs;  // captical for reconstruction
         void DFS(ZXVertex*);
 
 };
+
+VertexType  str2VertexType(const string& str);
+string      VertexType2Str(const VertexType& vt);
+EdgeType    str2EdgeType(const string& str);
+string      EdgeType2Str(const EdgeType& et);
+EdgeType    toggleEdge(const EdgeType& et);
+
+
+EdgeType*   str2EdgeType_depr(const string& str);
+string      EdgeType2Str_depr(const EdgeType* et);
+
+template <typename T>
+ostream& operator<<(typename enable_if<is_enum<T>::value, ostream>::type& stream, const T& e) {
+    return stream << static_cast<typename underlying_type<T>::type>(e);
+}
+
+
+EdgePair makeEdgePair(ZXVertex* v1, ZXVertex* v2, EdgeType et);
+EdgePair makeEdgePair(EdgePair epair);
+EdgePair makeEdgePairDummy();
+
+EdgePair_depr makeEdgeKey_depr(ZXVertex* v1, ZXVertex* v2, EdgeType* et);
+EdgePair_depr makeEdgeKey_depr(EdgePair_depr epair);
 
 #endif

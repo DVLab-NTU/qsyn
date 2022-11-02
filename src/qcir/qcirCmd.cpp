@@ -200,7 +200,7 @@ QCirGatePrintCmd::exec(const string &option)
          return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
       }
       size_t tmp = 4;
-      qCir->getGate(id)->getZXform(tmp)->printVertices();
+      qCir->getGate(id)->getZXform(tmp)->printVertices_depr();
    }
    else{
       if (!qCir->printGateInfo(id, showTime))

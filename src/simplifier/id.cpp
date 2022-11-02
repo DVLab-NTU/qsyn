@@ -22,23 +22,23 @@ extern size_t verbose;
  */
 void IdRemoval::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    if(verbose >= 8) g->printVertices();
+    if(verbose >= 8) g->printVertices_depr();
 
     unordered_map<size_t, size_t> id2idx;
-    for (size_t i = 0; i < g->getVertices().size(); ++i) {
-        id2idx[g->getVertices()[i]->getId()] = i;
+    for (size_t i = 0; i < g->getVertices_depr().size(); ++i) {
+        id2idx[g->getVertices_depr()[i]->getId()] = i;
     }
-    vector<bool> valid(g->getVertices().size(), true);
-    for (size_t i = 0; i < g->getVertices().size(); ++i) {
+    vector<bool> valid(g->getVertices_depr().size(), true);
+    for (size_t i = 0; i < g->getVertices_depr().size(); ++i) {
         if (!valid[i]) continue;
-        ZXVertex* v = g->getVertices()[i];
-        NeighborMap nmap = v->getNeighborMap();
+        ZXVertex* v = g->getVertices_depr()[i];
+        NeighborMap_depr nmap = v->getNeighborMap();
         if (v->getPhase() != Phase(0)) continue;
         if (v->getType() != VertexType::Z && v->getType() != VertexType::X) continue;
         if (nmap.size() != 2) continue;
     
-        ZXVertex* neigh0 = v->getNeighbor(0);
-        ZXVertex* neigh1 = v->getNeighbor(1);
+        ZXVertex* neigh0 = v->getNeighbor_depr(0);
+        ZXVertex* neigh1 = v->getNeighbor_depr(1);
         EdgeType* etype0;
         EdgeType* etype1;
         if (neigh0 == neigh1) {

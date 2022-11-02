@@ -22,15 +22,15 @@ extern size_t verbose;
  */
 void HboxFusion::match(ZXGraph* g){
     _matchTypeVec.clear();
-    if(verbose >= 8) g->printVertices();
+    if(verbose >= 8) g->printVertices_depr();
     
 
     unordered_map<size_t, size_t> id2idx;
-    for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
+    for(size_t i = 0; i < g->getNumVertices_depr(); i++) id2idx[g->getVertices_depr()[i]->getId()] = i;
 
     // Matches Hadamard-edges that are connected to H-boxes
-    vector<bool> taken(g->getNumVertices(), false);
-    for(size_t i = 0; i < g->getNumEdges(); i++){
+    vector<bool> taken(g->getNumVertices_depr(), false);
+    for(size_t i = 0; i < g->getNumEdges_depr(); i++){
         if(* g->getEdges()[i].second != EdgeType::HADAMARD) continue;
  
         ZXVertex* neighbor_left;
@@ -49,7 +49,7 @@ void HboxFusion::match(ZXGraph* g){
             taken[n0] = true;
             taken[n1] = true;
 
-            vector<ZXVertex*> neighbors = neighbor_left->getNeighbors();
+            vector<ZXVertex*> neighbors = neighbor_left->getNeighbors_depr();
             size_t n2 = id2idx[neighbors[0]->getId()], n3 = id2idx[neighbors[1]->getId()];
             
             if (n2 != n0) taken[n2]=true;
@@ -62,7 +62,7 @@ void HboxFusion::match(ZXGraph* g){
             taken[n1] = true;
 
 
-            vector<ZXVertex*> neighbors = neighbor_right->getNeighbors();
+            vector<ZXVertex*> neighbors = neighbor_right->getNeighbors_depr();
             size_t n2 = id2idx[neighbors[0]->getId()], n3 = id2idx[neighbors[1]->getId()];
             
             if (n2 != n0) taken[n2]=true;
@@ -75,7 +75,7 @@ void HboxFusion::match(ZXGraph* g){
     }
 
     // two neighbor HADAMARD with SIMPLE edge connected
-    for(size_t i = 0; i < g->getNumEdges(); i++){
+    for(size_t i = 0; i < g->getNumEdges_depr(); i++){
         if(* g->getEdges()[i].second == EdgeType::HADAMARD) continue;
         
         ZXVertex* neighbor_left;

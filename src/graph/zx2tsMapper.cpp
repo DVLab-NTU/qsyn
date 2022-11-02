@@ -79,12 +79,12 @@ void ZX2TSMapper::mapOneVertex(ZXVertex* v) {
 
 // Generate a new subgraph for mapping
 void ZX2TSMapper::initSubgraph(ZXVertex* v) {
-    NeighborMap neighborMap = v->getNeighborMap();
+    NeighborMap_depr neighborMap = v->getNeighborMap();
 
     _zx2tsList.append(Frontiers(), QTensor<double>(1. + 0.i));
     _tensorId = _zx2tsList.size() - 1;
     assert(v->getType() == VertexType::BOUNDARY);
-    EdgeKey edgeKey = makeEdgeKey(v, neighborMap.begin()->first, *(neighborMap.begin()->second));
+    EdgePair edgeKey = makeEdgePair(v, neighborMap.begin()->first, *(neighborMap.begin()->second));
     currTensor() = tensordot(currTensor(), QTensor<double>::identity(neighborMap.size()));
     _boundaryEdges.push_back(edgeKey);
     currFrontiers().emplace(edgeKey, 1);
@@ -105,7 +105,7 @@ bool ZX2TSMapper::isOfNewGraph(const ZXVertex* v) {
 
 // Print the current and next frontiers
 void ZX2TSMapper::printFrontiers() const {
-    using Frontier = pair<EdgeKey, size_t>;
+    using Frontier = pair<EdgePair, size_t>;
     vector<Frontier> tmp;
     for_each(currFrontiers().begin(), currFrontiers().end(),
              [&tmp](const Frontier& front) { tmp.emplace_back(front.first, front.second); });
@@ -133,7 +133,7 @@ void ZX2TSMapper::printFrontiers() const {
         cout << "    "
              << i.first.first.first->getId() << "--"
              << i.first.first.second->getId() << " ("
-             << EdgeType2Str(&(i.first.second))
+             << EdgeType2Str_depr(&(i.first.second))
              << ") axis id: " << i.second << endl;
     }
 }
@@ -154,9 +154,9 @@ void ZX2TSMapper::getAxisOrders(TensorAxisList& axList, const std::unordered_map
     size_t accFrontierSizes = 0;
     for (size_t i = 0; i < _zx2tsList.size(); ++i) {
         for (auto& [qubitId, vertex] : ioList) {
-            NeighborMap nebs = vertex->getNeighborMap();
+            NeighborMap_depr nebs = vertex->getNeighborMap();
             auto& [neighbor, etype] = *(nebs.begin());
-            EdgeKey edgeKey = makeEdgeKey(vertex, neighbor, *etype);
+            EdgePair edgeKey = makeEdgePair(vertex, neighbor, *etype);
 
             auto result = _zx2tsList.frontiers(i).equal_range(edgeKey);
             auto itr = result.first;
@@ -176,8 +176,8 @@ void ZX2TSMapper::getAxisOrders(TensorAxisList& axList, const std::unordered_map
 
 // update information for the current and next frontiers
 void ZX2TSMapper::updatePinsAndFrontiers(ZXVertex* v) {
-    NeighborMap neighborMap = v->getNeighborMap();
-    NeighborMap frontAlreadyRetrived;
+    NeighborMap_depr neighborMap = v->getNeighborMap();
+    NeighborMap_depr frontAlreadyRetrived;
     vector<pair<ZXVertex*, EdgeType>> seenFrontiers;
     for (auto& epair : neighborMap) {
         auto& [neighbor, etype] = epair;
@@ -186,12 +186,12 @@ void ZX2TSMapper::updatePinsAndFrontiers(ZXVertex* v) {
         if (v == neighbor) {  
             if (verbose >= 8) {
                 cout << "  - Skipping self loop: " << v->getId() << "--" << neighbor->getId() 
-                     << " (" << EdgeType2Str(etype) << ")" << endl;
+                     << " (" << EdgeType2Str_depr(etype) << ")" << endl;
             }
             continue;
         }
 
-        EdgeKey edgeKey = makeEdgeKey(v, neighbor, *etype);
+        EdgePair edgeKey = makeEdgePair(v, neighbor, *etype);
         if (isFrontier(epair)) {
             const pair<ZXVertex*, EdgeType> tmpPair = make_pair(neighbor, *etype);
             if (!contains(seenFrontiers, tmpPair)) {

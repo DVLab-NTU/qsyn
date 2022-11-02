@@ -13,12 +13,12 @@ zx2tsMapper.o: zx2tsMapper.cpp zx2tsMapper.h zxGraph.h \
  ../../include/util.h ../../include/tensorMgr.h ../../include/qtensor.h \
  ../../include/textFormat.h
 zxCmd.o: zxCmd.cpp zxCmd.h ../../include/cmdParser.h \
- ../../include/cmdCharDef.h zxGraph.h ../../include/phase.h \
+ ../../include/cmdCharDef.h ../../include/util.h ../../include/rnGen.h \
+ ../../include/myUsage.h zxGraph.h ../../include/phase.h \
  ../../include/rationalNumber.h ../../include/myConcepts.h \
- ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
- ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
- ../../include/tensorUtil.h ../../include/phase.h zxDef.h \
- ../../include/myHashMap.h zxGraphMgr.h ../../include/util.h
+ ../../include/util.h ../../include/qtensor.h ../../include/tensor.h \
+ ../../include/tensorDef.h ../../include/tensorUtil.h \
+ ../../include/phase.h zxDef.h ../../include/myHashMap.h zxGraphMgr.h
 zxIO.o: zxIO.cpp ../../include/util.h ../../include/rnGen.h \
  ../../include/myUsage.h zxGraph.h ../../include/phase.h \
  ../../include/rationalNumber.h ../../include/myConcepts.h \

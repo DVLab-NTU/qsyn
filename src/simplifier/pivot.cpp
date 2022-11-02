@@ -22,15 +22,15 @@ extern size_t verbose;
  */
 void Pivot::match(ZXGraph* g){
     _matchTypeVec.clear(); 
-    if(verbose >= 8) g->printVertices();
+    if(verbose >= 8) g->printVertices_depr();
 
     unordered_map<size_t, size_t> id2idx;
-    for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
+    for(size_t i = 0; i < g->getNumVertices_depr(); i++) id2idx[g->getVertices_depr()[i]->getId()] = i;
 
-    vector<bool> taken(g->getNumVertices(), false);
+    vector<bool> taken(g->getNumVertices_depr(), false);
 
     // traverse edge
-    for(size_t i = 0; i < g->getNumEdges(); i++){
+    for(size_t i = 0; i < g->getNumEdges_depr(); i++){
         //// 1: Check EdgeType
         if(* g->getEdges()[i].second != EdgeType::HADAMARD) continue;
 
@@ -121,8 +121,8 @@ void Pivot::rewrite(ZXGraph* g){
 
 
     unordered_map<size_t, size_t> id2idx;
-    for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
-    vector<bool> isBoundary(g->getNumVertices(), false);
+    for(size_t i = 0; i < g->getNumVertices_depr(); i++) id2idx[g->getVertices_depr()[i]->getId()] = i;
+    vector<bool> isBoundary(g->getNumVertices_depr(), false);
     for (auto& i :  _matchTypeVec){
         // 1 : get m0 m1
         vector<ZXVertex*> neighbors;
@@ -147,32 +147,32 @@ void Pivot::rewrite(ZXGraph* g){
             if(remove) _removeVertices.push_back(neighbors[1-j]);
         }
         // 3 table of c
-        vector<int> c(g->getNumVertices() ,0);
+        vector<int> c(g->getNumVertices_depr() ,0);
         vector<ZXVertex*> n0;
         vector<ZXVertex*> n1;
         vector<ZXVertex*> n2;
-        for(auto& x : neighbors[0]->getNeighbors()) {
+        for(auto& x : neighbors[0]->getNeighbors_depr()) {
             if (isBoundary[id2idx[x->getId()]]) continue;
             if (x == neighbors[1]) continue;
             c[id2idx[x->getId()]]++;
         }
-        for(auto& x : neighbors[1]->getNeighbors()) {
+        for(auto& x : neighbors[1]->getNeighbors_depr()) {
             if (isBoundary[id2idx[x->getId()]]) continue;
             if (x == neighbors[0]) continue;
             c[id2idx[x->getId()]] += 2;
         }
         // 4  Find n0 n1 n2
-        for (size_t a=0; a<g->getNumVertices(); a++){
-            if(c[a] == 1) n0.push_back(g->getVertices()[a]);
-            else if (c[a] == 2) n1.push_back(g->getVertices()[a]);
-            else if (c[a] == 3) n2.push_back(g->getVertices()[a]);
+        for (size_t a=0; a<g->getNumVertices_depr(); a++){
+            if(c[a] == 1) n0.push_back(g->getVertices_depr()[a]);
+            else if (c[a] == 2) n1.push_back(g->getVertices_depr()[a]);
+            else if (c[a] == 3) n2.push_back(g->getVertices_depr()[a]);
             else continue;
         }
         
         //// 5: scalar (skip)
         Phase adjustPhases[2];
         for(size_t nb = 0; nb<2; nb++){
-            NeighborMap nbm = neighbors[nb]->getNeighborMap();
+            NeighborMap_depr nbm = neighbors[nb]->getNeighborMap();
             auto result = nbm.equal_range(neighbors[nb]);
             size_t cnt = 0;
             for(auto itr = result.first; itr!=result.second; itr++){

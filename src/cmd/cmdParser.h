@@ -79,6 +79,7 @@ protected:
    bool lexNoOption(const std::string&) const;
    bool lexSingleOption(const std::string&, std::string&, bool optional = true) const;
    bool lexOptions(const std::string&, std::vector<std::string>&, size_t nOpts = 0) const;
+   
    CmdExecStatus errorOption(CmdOptionError err, const std::string& opt) const;
 
 private:

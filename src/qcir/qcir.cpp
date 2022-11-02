@@ -144,7 +144,7 @@ void QCir::printZXTopoOrder()
     {
         cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph* tmp = G->getZXform(_ZXNodeId);
-        tmp -> printVertices();
+        tmp -> printVertices_depr();
     };
     topoTraverse(Lambda);
 }
@@ -177,9 +177,9 @@ void QCir::ZXMapping()
     for(size_t i=0; i<_qubits.size(); i++){
         if (_qubits[i]->getId() > maxInput)
             maxInput = _qubits[i]->getId();
-        _ZXG -> setInputHash(_qubits[i]->getId(), _ZXG -> addInput( 2*(_qubits[i]->getId()), _qubits[i]->getId()));
-        _ZXG -> setOutputHash(_qubits[i]->getId(), _ZXG -> addOutput( 2*(_qubits[i]->getId()) + 1, _qubits[i]->getId()));
-        _ZXG -> addEdgeById( 2*(_qubits[i]->getId()), 2*(_qubits[i]->getId()) + 1, new EdgeType(EdgeType::SIMPLE));
+        _ZXG -> setInputHash(_qubits[i]->getId(), _ZXG -> addInput_depr( 2*(_qubits[i]->getId()), _qubits[i]->getId()));
+        _ZXG -> setOutputHash(_qubits[i]->getId(), _ZXG -> addOutput_depr( 2*(_qubits[i]->getId()) + 1, _qubits[i]->getId()));
+        _ZXG -> addEdgeById_depr( 2*(_qubits[i]->getId()), 2*(_qubits[i]->getId()) + 1, new EdgeType(EdgeType::SIMPLE));
     }
     _ZXNodeId = 2*(maxInput+ 1)-1;
     if(verbose >= 5) cout << "--------------------------------------" << endl << endl;

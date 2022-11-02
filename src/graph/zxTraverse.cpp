@@ -21,13 +21,13 @@ void ZXGraph::updateTopoOrder()
 {
     _topoOrder.clear();
     _globalDFScounter++;
-    for (size_t i = 0; i < _inputs.size(); i++){
-        if (!_inputs[i]->isVisited(_globalDFScounter))
-            DFS(_inputs[i]);
+    for (size_t i = 0; i < _inputs_depr.size(); i++){
+        if (!_inputs_depr[i]->isVisited(_globalDFScounter))
+            DFS(_inputs_depr[i]);
     }
-    for (size_t i = 0; i < _outputs.size(); i++){
-        if (!_outputs[i]->isVisited(_globalDFScounter))
-            DFS(_outputs[i]);
+    for (size_t i = 0; i < _outputs_depr.size(); i++){
+        if (!_outputs_depr[i]->isVisited(_globalDFScounter))
+            DFS(_outputs_depr[i]);
     }
     reverse(_topoOrder.begin(), _topoOrder.end());
     if (verbose >= 7) {
@@ -43,14 +43,14 @@ void ZXGraph::DFS(ZXVertex *currentVertex)
 {
     currentVertex->setVisited(_globalDFScounter);
     // Original
-    // vector<NeighborPair> neighbors = currentVertex->getNeighbors();
+    // vector<NeighborPair_depr> neighbors = currentVertex->getNeighbors();
     // for (size_t i = 0; i < neighbors.size(); i++){
     //     if (!(neighbors[i].first->isVisited(_globalDFScounter)))
     //         DFS(neighbors[i].first);
     // }
 
     // NeighberMap
-    NeighborMap neighborMap = currentVertex->getNeighborMap();
+    NeighborMap_depr neighborMap = currentVertex->getNeighborMap();
     for(auto itr = neighborMap.begin(); itr != neighborMap.end(); itr++){
         if(!(itr->first->isVisited(_globalDFScounter))) DFS(itr->first);
     }

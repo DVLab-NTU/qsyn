@@ -23,25 +23,25 @@ extern size_t verbose;
  */
 void PhaseGadget::match(ZXGraph* g){
     _matchTypeVec.clear(); 
-    if(verbose >= 8) g->printVertices();
+    if(verbose >= 8) g->printVertices_depr();
     
     unordered_map<size_t, size_t> id2idx;
-    for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
+    for(size_t i = 0; i < g->getNumVertices_depr(); i++) id2idx[g->getVertices_depr()[i]->getId()] = i;
 
-    vector<bool> taken(g->getNumVertices(), false);
+    vector<bool> taken(g->getNumVertices_depr(), false);
 
     unordered_map<ZXVertex*, ZXVertex*> gadgets; // (v, the only neighbor)
     unordered_multimap<vector<ZXVertex*>, ZXVertex*> groups;
     unordered_map<vector<ZXVertex*>, bool> done;
-    for(size_t i = 0; i < g->getNumVertices(); i++){
-        ZXVertex* v = g->getVertices()[i];
-        if(v->getPhase() != Phase(0) && v->getPhase() != Phase(1) && v->getNumNeighbors() == 1){
-            ZXVertex* neighbor = v->getNeighbors()[0];
+    for(size_t i = 0; i < g->getNumVertices_depr(); i++){
+        ZXVertex* v = g->getVertices_depr()[i];
+        if(v->getPhase() != Phase(0) && v->getPhase() != Phase(1) && v->getNumNeighbors_depr() == 1){
+            ZXVertex* neighbor = v->getNeighbors_depr()[0];
             if(neighbor->getPhase() != Phase(0) and neighbor->getPhase() != Phase(1)) continue;
             if(neighbor->getType() == VertexType::BOUNDARY) continue;
             if(gadgets.contains(neighbor)) continue;
             // if(taken[id2idx[neighbor->getId()]]) continue;
-            vector<ZXVertex*> nebsOfNeighbor = neighbor->getNeighbors();
+            vector<ZXVertex*> nebsOfNeighbor = neighbor->getNeighbors_depr();
             nebsOfNeighbor.erase(remove(nebsOfNeighbor.begin(),nebsOfNeighbor.end(),v), nebsOfNeighbor.end());
             
             sort(nebsOfNeighbor.begin(), nebsOfNeighbor.end());

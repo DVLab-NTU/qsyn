@@ -23,22 +23,22 @@ extern size_t verbose;
 void Hopf::match(ZXGraph* g) {
     // Should be run in graph-like
     _matchTypeVec.clear();
-    if(verbose >= 8) g->printVertices();
+    if(verbose >= 8) g->printVertices_depr();
     
-    vector<ZXVertex*> Vertices = g->getVertices();
+    vector<ZXVertex*> Vertices = g->getVertices_depr();
     unordered_map<ZXVertex*, size_t> Vertex2idx;
     for (size_t i = 0; i < Vertices.size(); i++) Vertex2idx[Vertices[i]] = i;
     vector<bool> validVertex(Vertices.size(), true);
 
-    for (size_t i = 0; i < g->getNumVertices(); i++) {
+    for (size_t i = 0; i < g->getNumVertices_depr(); i++) {
         ZXVertex* v = Vertices[i];
         if (v->getType() == VertexType::BOUNDARY) {
             validVertex[Vertex2idx[v]] = false;
             continue;
         }
         if (!validVertex[Vertex2idx[v]]) continue;
-        vector<ZXVertex*> neighbors = v->getNeighbors();
-        NeighborMap nbm = Vertices[i]->getNeighborMap();
+        vector<ZXVertex*> neighbors = v->getNeighbors_depr();
+        NeighborMap_depr nbm = Vertices[i]->getNeighborMap();
 
         for (size_t j = 0; j < neighbors.size(); j++) {
             if (neighbors[j]->getType() == VertexType::BOUNDARY) continue;
@@ -86,7 +86,7 @@ void Hopf::rewrite(ZXGraph* g) {
     for (size_t i = 0; i < _matchTypeVec.size(); i++) {
         bool sameColor = _matchTypeVec[i].first->getType() == _matchTypeVec[i].second->getType();
         if (sameColor) {
-            NeighborMap nbm = _matchTypeVec[i].first->getNeighborMap();
+            NeighborMap_depr nbm = _matchTypeVec[i].first->getNeighborMap();
             auto results = nbm.equal_range(_matchTypeVec[i].second);
             EdgeType* tmp = nullptr;
             size_t n = 0;
@@ -104,7 +104,7 @@ void Hopf::rewrite(ZXGraph* g) {
                 }
             }
         } else {
-            NeighborMap nbm = _matchTypeVec[i].first->getNeighborMap();
+            NeighborMap_depr nbm = _matchTypeVec[i].first->getNeighborMap();
             auto results = nbm.equal_range(_matchTypeVec[i].second);
             EdgeType* tmp = nullptr;
             size_t n = 0;
