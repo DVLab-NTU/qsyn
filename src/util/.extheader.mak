@@ -1,4 +1,4 @@
-util.d: ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h ../../include/myHashMap.h ../../include/rationalNumber.h ../../include/phase.h ../../include/myConcepts.h ../../include/textFormat.h 
+util.d: ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h ../../include/myHashMap.h ../../include/rationalNumber.h ../../include/phase.h ../../include/myConcepts.h ../../include/textFormat.h ../../include/orderedHashmap.h 
 ../../include/util.h: util.h
 	@rm -f ../../include/util.h
 	@ln -fs ../src/util/util.h ../../include/util.h
@@ -23,3 +23,6 @@ util.d: ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h ../..
 ../../include/textFormat.h: textFormat.h
 	@rm -f ../../include/textFormat.h
 	@ln -fs ../src/util/textFormat.h ../../include/textFormat.h
+../../include/orderedHashmap.h: orderedHashmap.h
+	@rm -f ../../include/orderedHashmap.h
+	@ln -fs ../src/util/orderedHashmap.h ../../include/orderedHashmap.h
