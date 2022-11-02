@@ -55,6 +55,43 @@ TEST_CASE("omap", "[OMap]") {
     REQUIRE(omap.at(6) == 6);
     REQUIRE_THROWS_AS(omap.at(7), std::out_of_range);
 
+    omap.erase(1);
+    omap.erase(5);
+
+    omap.printMap();
+
+
 }
+
+TEST_CASE("omap2", "[OMap]") {
+    OrderedHashmap<int, int> omap;
+    char op;
+    int key, val;
+    
+    cout << "> ";
+    while (cin >> op) {
+        if (op == 'a') {
+            cin >> key >> val;
+            omap.emplace(key, val);
+        } else if (op == 'r') {
+            cin >> key;
+            omap.erase(key);
+        } else if (op == 'p') {
+            omap.printMap();
+        } else if (op == 'f') {
+            cin >> key;
+            try {
+                cout << key << " : " << omap.at(key) << endl;
+            } catch (std::out_of_range& e) {
+                cout << "No match" << endl;
+            }
+        }
+        
+        cout << "> ";
+    }
+
+
+}
+
 
 

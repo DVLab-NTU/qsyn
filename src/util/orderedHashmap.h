@@ -16,6 +16,7 @@
 #include <optional>
 #include <stdexcept>
 #include <exception>
+#include <ranges>
 
 template <
     typename Key, 
@@ -38,7 +39,7 @@ public:
     using pointer         = std::allocator_traits<Allocator>::pointer;
     using const_pointer   = std::allocator_traits<Allocator>::const_pointer;
 
-    OrderedHashmap() {}
+    OrderedHashmap(): _size(0) {}
     OrderedHashmap(const std::initializer_list<value_type>& il): _size(il.size()) {
         for (const value_type& item : il) {
             _key2id.emplace(item.first, _data.size());
@@ -88,15 +89,23 @@ public:
 
     //REVIEW - return iterator and bool
     void insert(value_type&& value) {
-        if (_key2id.contains(value.first)) {
+        emplace(std::move(value));
+    }
+    template <typename... Args>
+    void emplace(Args&&... args) {
+        _data.emplace_back(value_type(std::forward<Args>(args)...));
+        if (_key2id.contains(_data.back().value().first)) {
+            std::cout << "key collision" << std::endl;
+            _data.pop_back();
             return;
         }
-        _key2id.emplace(value.first, _data.size());
-        _data.emplace_back(value);
+        _key2id.emplace(_data.back().value().first, _data.size() - 1);
+        std::cout << "inserted " << _data.back().value().first << " : " << _data.back().value().second << std::endl;
         _size++;
-        std::cout << "inserted " << value.first << " : " << value.second << std::endl;
     }
 
+
+    
     //REVIEW - add iterator version
     /**
      * @brief Erase the value with the key. This function perform lazy deletion.
@@ -105,7 +114,12 @@ public:
      * @return size_type 
      */
     size_type erase(const Key& key) {
-        if (!_key2id.contains(key) || _data[_key2id.at(key)] == std::nullopt) {
+        if (!_key2id.contains(key)) {
+            std::cout << "not in map" << std::endl;
+            return 0;
+        }
+        if (_data[_key2id.at(key)] == std::nullopt) {
+            std::cout << "nullopt" << std::endl;
             return 0;
         }
         
@@ -114,11 +128,36 @@ public:
         std::cout << "erased " << key << std::endl;
         _size -= 1;
         //REVIEW - batch deletion
+        if (_data.size() >= (_size << 1) ) {
+            auto hasValue = [](const std::optional<value_type>& value) -> bool {
+                return value != std::nullopt;
+            };
+            std::vector<std::optional<value_type>> newData;
+            size_t count = 0;
+            for (size_t i = 0; i < _data.size(); ++i) {
+                if (hasValue(_data[i])) {
+                    newData.emplace_back(_data[i]);
+                    _key2id.at(_data[i].value().first) = count;
+                    count++;
+                }
+            }
+            _data.clear();
+            for (const auto& value : newData) {
+                _data.push_back(value);
+            }
+            std::cout << "Triggered batch deletion" << std::endl;
+        }
         return 1;
     }
 
     // test
     void printMap() {
+
+        std::cout << "----  umap  ----" << std::endl;
+        for (const auto& [k, v] : _key2id) {
+            std::cout << k << " : " << v << std::endl;
+        }
+        std::cout << "---- vector ----" << std::endl;
         for (const auto& item : _data) {
             if (item == std::nullopt) {
                 std::cout << "None" << std::endl; 
