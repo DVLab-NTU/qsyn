@@ -9,85 +9,57 @@
 #ifndef ORDERED_HASHMAP_H
 #define ORDERED_HASHMAP_H
 
+#include <exception>
 #include <iostream>
+#include <optional>
+#include <ranges>
+#include <stdexcept>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
-#include <tuple>
-#include <optional>
-#include <stdexcept>
-#include <exception>
-#include <ranges>
 
 template <
-    typename Key, 
-    typename T, 
-    typename Hash      = std::hash<Key>,
-    typename KeyEqual  = std::equal_to<Key>,
-    typename Allocator = std::allocator<std::pair<const Key, T>>
-> 
+    typename Key,
+    typename T,
+    typename Hash = std::hash<Key>,
+    typename KeyEqual = std::equal_to<Key>,
+    typename Allocator = std::allocator<std::pair<const Key, T>>>
 class OrderedHashmap {
-
 public:
-    using key_type        = Key;
-    using mapped_type     = T;
-    using value_type      = std::pair<const Key, T>;
-    using size_type       = size_t;
+    using key_type = Key;
+    using mapped_type = T;
+    using value_type = std::pair<const Key, T>;
+    using stored_type = std::optional<std::pair<Key, T>>;
+    using size_type = size_t;
     using difference_type = std::ptrdiff_t;
-    using hasher          = Hash;
-    using key_equal       = KeyEqual;
-    using allocator_type  = Allocator;
-    using pointer         = std::allocator_traits<Allocator>::pointer;
-    using const_pointer   = std::allocator_traits<Allocator>::const_pointer;
+    using hasher = Hash;
+    using key_equal = KeyEqual;
+    using allocator_type = Allocator;
+    using pointer = std::allocator_traits<Allocator>::pointer;
+    using const_pointer = std::allocator_traits<Allocator>::const_pointer;
 
-    OrderedHashmap(): _size(0) {}
-    OrderedHashmap(const std::initializer_list<value_type>& il): _size(il.size()) {
+    OrderedHashmap() : _size(0) {}
+    OrderedHashmap(const std::initializer_list<value_type>& il) : _size(il.size()) {
         for (const value_type& item : il) {
             _key2id.emplace(item.first, _data.size());
             _data.emplace_back(item);
         }
     }
 
-    OrderedHashmap(const OrderedHashmap& omap) = default;
-    OrderedHashmap(OrderedHashmap&& omap) = default;
+    // OrderedHashmap(const OrderedHashmap& omap) = default;
+    // OrderedHashmap(OrderedHashmap&& omap) = default;
 
+    // properties
     size_t size() { return _size; }
-
-    /**
-     * @brief return the value corresponding to the key. 
-     *        Throws `std::out_of_range error` if no values are found.
-     * 
-     * @param key 
-     * @return T&
-     */
-    T& at(const Key& key) {
-        if (!_key2id.contains(key) || _data[_key2id[key]] == std::nullopt) {
-            throw std::out_of_range("no value corresponding to the key");
-        }
-        return _data[_key2id[key]].value().second;
-        // try {
-        // } catch (std::out_of_range &e) {
-        //     throw std::out_of_range("no value corresponding to the key");
-        // }
+    bool empty() { return (size() == 0); }
+    bool operator==(const OrderedHashmap& rhs) {
+        return _data = rhs->_data;
     }
-    /**
-     * @brief return the value corresponding to the key. 
-     * Throws `std::out_of_range error` if no values are found.
-     * 
-     * @param key 
-     * @return const T& 
-     */
-    const T& at(const Key& key) const {
-        if (!_key2id.contains(key) || _data[_key2id[key]] == std::nullopt) {
-            throw std::out_of_range("no value corresponding to the key");
-        }
-        return _data[_key2id[key]];
-        // try { 
-        // } catch (std::out_of_range &e) {
-        //     throw std::out_of_range("no value corresponding to the key");
-        // }
+    bool operator!=(const OrderedHashmap& rhs) {
+        return !(*this == rhs);
     }
 
-    //REVIEW - return iterator and bool
+    // REVIEW - return iterator and bool
     void insert(value_type&& value) {
         emplace(std::move(value));
     }
@@ -104,14 +76,12 @@ public:
         _size++;
     }
 
-
-    
-    //REVIEW - add iterator version
+    // REVIEW - add iterator version
     /**
      * @brief Erase the value with the key. This function perform lazy deletion.
-     * 
-     * @param key 
-     * @return size_type 
+     *
+     * @param key
+     * @return size_type
      */
     size_type erase(const Key& key) {
         if (!_key2id.contains(key)) {
@@ -122,17 +92,17 @@ public:
             std::cout << "nullopt" << std::endl;
             return 0;
         }
-        
+
         _data[_key2id[key]] = std::nullopt;
         _key2id.erase(key);
         std::cout << "erased " << key << std::endl;
         _size -= 1;
-        //REVIEW - batch deletion
-        if (_data.size() >= (_size << 1) ) {
-            auto hasValue = [](const std::optional<value_type>& value) -> bool {
+        // REVIEW - batch deletion
+        if (_data.size() >= (_size << 1)) {
+            auto hasValue = [](const stored_type& value) -> bool {
                 return value != std::nullopt;
             };
-            std::vector<std::optional<value_type>> newData;
+            std::vector<stored_type> newData;
             size_t count = 0;
             for (size_t i = 0; i < _data.size(); ++i) {
                 if (hasValue(_data[i])) {
@@ -150,9 +120,66 @@ public:
         return 1;
     }
 
+    // look-up
+
+    bool contains(const Key& key) const {
+        return (_key2id.contains(key) && _data[_key2id.at(key)] != std::nullopt);
+    }
+    /**
+     * @brief return the value corresponding to the key.
+     *        Throws `std::out_of_range error` if no values are found.
+     *
+     * @param key
+     * @return T&
+     */
+    T& at(const Key& key) {
+        if (!contains(key)) {
+            throw std::out_of_range("no value corresponding to the key");
+        }
+        return _data[_key2id[key]].value().second;
+        // try {
+        // } catch (std::out_of_range &e) {
+        //     throw std::out_of_range("no value corresponding to the key");
+        // }
+    }
+    /**
+     * @brief return the value corresponding to the key.
+     * Throws `std::out_of_range error` if no values are found.
+     *
+     * @param key
+     * @return const T&
+     */
+    const T& at(const Key& key) const {
+        if (!contains(key)) {
+            throw std::out_of_range("no value corresponding to the key");
+        }
+        return _data[_key2id[key]];
+        // try {
+        // } catch (std::out_of_range &e) {
+        //     throw std::out_of_range("no value corresponding to the key");
+        // }
+    }
+
+    T& operator[](const Key& key) {
+        try {
+            return at(key);
+        } catch (std::out_of_range& e) {
+            emplace(key, T());
+            return at(key);
+        }
+    }
+
+    T& operator[](Key&& key) {
+        try {
+            return at(key);
+        } catch (std::out_of_range& e) {
+            emplace(key, T());
+            return at(key);
+        }
+    }
+
     // test
     void printMap() {
-
         std::cout << "----  umap  ----" << std::endl;
         for (const auto& [k, v] : _key2id) {
             std::cout << k << " : " << v << std::endl;
@@ -160,7 +187,7 @@ public:
         std::cout << "---- vector ----" << std::endl;
         for (const auto& item : _data) {
             if (item == std::nullopt) {
-                std::cout << "None" << std::endl; 
+                std::cout << "None" << std::endl;
                 continue;
             }
             std::cout << item.value().first << " : " << item.value().second << std::endl;
@@ -173,8 +200,8 @@ public:
 
 private:
     std::unordered_map<Key, size_t> _key2id;
-    std::vector<std::optional<value_type>> _data;
+    std::vector<stored_type> _data;
     size_t _size;
 };
 
-#endif //ORDERED_HASHMAP_H
+#endif  // ORDERED_HASHMAP_H

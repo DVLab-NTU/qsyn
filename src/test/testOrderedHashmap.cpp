@@ -13,7 +13,7 @@ using namespace std;
 #include "catch2/catch.hpp"
 // ----------------------------------------------------------------
 
-TEST_CASE("omap", "[OMap]") {
+TEST_CASE("omap_insert_and_erase", "[OMap]") {
     OrderedHashmap<int, int> omap{{1, 1}, {2, 2}, {3, 3}};
 
     omap.printMap();
@@ -29,13 +29,11 @@ TEST_CASE("omap", "[OMap]") {
     REQUIRE(omap.at(5) == 5);
     REQUIRE(omap.at(6) == 6);
 
-
     omap.erase(4);
     omap.printMap();
-    // REQUIRE_THROWS_AS(omap.at(4), std::out_of_range);
+    REQUIRE_THROWS_AS(omap.at(4), std::out_of_range);
     omap.erase(2);
     REQUIRE_THROWS_AS(omap.at(2), std::out_of_range);
-    
 
     omap.printMap();
     omap.insert({2, 2});
@@ -59,15 +57,39 @@ TEST_CASE("omap", "[OMap]") {
     omap.erase(5);
 
     omap.printMap();
-
-
 }
 
-TEST_CASE("omap2", "[OMap]") {
+TEST_CASE("omap_copy", "[OMap]") {
+    OrderedHashmap<int, int> omap1{{1, 1}, {2, 2}, {3, 3}};
+    OrderedHashmap<int, int> omap2{{4, 4}, {2, 2}, {7, 7}};
+
+    omap2 = omap1;
+
+    REQUIRE(omap2.at(1) == omap1.at(1));
+    REQUIRE(omap2.at(2) == omap1.at(2));
+    REQUIRE(omap2.at(3) == omap1.at(3));
+    REQUIRE_THROWS_AS(omap2.at(4), out_of_range);
+    REQUIRE_THROWS_AS(omap2.at(7), out_of_range);
+}
+
+TEST_CASE("omap_modify", "[OMap]") {
+    OrderedHashmap<int, int> omap{{1, 1}, {2, 2}, {3, 3}};
+
+    omap.at(1) = 2;
+    REQUIRE(omap.at(1) == 2);
+    REQUIRE_THROWS_AS(omap.at(4) = 4, out_of_range);
+    omap[4] = 4;
+    REQUIRE(omap.at(4) == 4);
+    omap[4] = 0;
+    REQUIRE(omap.at(4) == 0);
+
+}  
+
+TEST_CASE("omap_playground", "[OMap]") {
     OrderedHashmap<int, int> omap;
     char op;
     int key, val;
-    
+
     cout << "> ";
     while (cin >> op) {
         if (op == 'a') {
@@ -86,12 +108,7 @@ TEST_CASE("omap2", "[OMap]") {
                 cout << "No match" << endl;
             }
         }
-        
+
         cout << "> ";
     }
-
-
 }
-
-
-
