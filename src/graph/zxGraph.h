@@ -308,14 +308,14 @@ class ZXGraph{
         vector<ZXVertex*>                 _inputs_depr;
         vector<ZXVertex*>                 _outputs_depr;
         vector<ZXVertex*>                 _vertices_depr;
-        vector<EdgePair_depr >                 _edges_depr;
+        vector<EdgePair_depr >            _edges_depr;
         unordered_map<size_t, ZXVertex*>  _inputList;
         unordered_map<size_t, ZXVertex*>  _outputList;
         vector<ZXVertex*>                 _topoOrder;
         unsigned                          _globalDFScounter;
-        ZXVertexList                      _vertices; // captical for reconstruction
-        ZXVertexList                      _inputs;   // captical for reconstruction
-        ZXVertexList                      _outputs;  // captical for reconstruction
+        ZXVertexList                      _vertices;
+        ZXVertexList                      _inputs;
+        ZXVertexList                      _outputs;
         void DFS(ZXVertex*);
 
 };
