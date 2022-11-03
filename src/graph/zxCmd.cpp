@@ -784,27 +784,46 @@ ZXGWriteCmd::exec(const string &option) {
         return CMD_EXEC_ERROR;
     }
     vector<string> options;
-    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
 
+    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
+    if (options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
+
+    bool doComplete = false;
     bool doBZX = false;
+    size_t eraseIndexComplete = 0;
+    size_t eraseIndexBZX = 0;
     string fileName;
     for (size_t i = 0, n = options.size(); i < n; ++i) {
-        if (myStrNCmp("-BZX", options[i], 4) == 0) {
+        if (myStrNCmp("-Complete", options[i], 2) == 0) {
+            if (doComplete)
+                return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
+            doComplete = true;
+            eraseIndexComplete = i;
+        } else if (myStrNCmp("-BZX", options[i], 4) == 0) {
             if (doBZX)
                 return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
             doBZX = true;
+            eraseIndexBZX = i;
         } else {
             if (fileName.size())
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
             fileName = options[i];
         }
     }
+    string completeStr = options[eraseIndexComplete];
+    string bzxStr = options[eraseIndexBZX];
+    if (doComplete)
+        options.erase(std::remove(options.begin(), options.end(), completeStr), options.end());
+    if (doBZX)
+        options.erase(std::remove(options.begin(), options.end(), bzxStr), options.end());
+    if (options.empty())
+        return CmdExec::errorOption(CMD_OPT_MISSING, (eraseIndexBZX > eraseIndexComplete) ? bzxStr : completeStr);
 
     if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
         cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXWrite." << endl;
         return CMD_EXEC_ERROR;
     }
-    if (!zxGraphMgr->getGraph()->writeZX(fileName, doBZX)) {
+    if (!zxGraphMgr->getGraph()->writeZX(fileName, doComplete, doBZX)) {
         cerr << "Error: fail to write ZX-Graph to \"" << fileName << "\"!!" << endl;
         return CMD_EXEC_ERROR;
     }

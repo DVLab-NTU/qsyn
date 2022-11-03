@@ -23,7 +23,7 @@ extern size_t verbose;
 /// @brief read a zx graph
 /// @param filename
 /// @return true if correctly consturct the graph
-bool ZXGraph::readZX(string filename, bool bzx=false) {
+bool ZXGraph::readZX(string filename, bool bzx) {
     fstream ZXFile;
     ZXFile.open(filename.c_str(), ios::in);
     if (!ZXFile.is_open()) {
@@ -88,11 +88,11 @@ bool ZXGraph::readZX(string filename, bool bzx=false) {
             }
             storage[size_t(id)] = tmp;
             if (vertexStr[0] == 'I') {
-                vertexList[size_t(id)] = addInput_depr(size_t(id), size_t(qid), true);
+                vertexList[size_t(id)] = addInput(size_t(qid), true);
             }
 
             else
-                vertexList[size_t(id)] = addOutput_depr(size_t(id), size_t(qid), true);
+                vertexList[size_t(id)] = addOutput(size_t(qid), true);
         } else if (vertexStr[0] == 'Z' || vertexStr[0] == 'X' || vertexStr[0] == 'H') {
             string idStr = vertexStr.substr(1);
 
@@ -137,11 +137,11 @@ bool ZXGraph::readZX(string filename, bool bzx=false) {
             }
             storage[size_t(id)] = tmp;
             if (vertexStr[0] == 'Z')
-                vertexList[size_t(id)] = addVertex_depr(size_t(id), size_t(qid), VertexType::Z, ph, true);
+                vertexList[size_t(id)] = addVertex(size_t(qid), VertexType::Z, ph, true);
             else if (vertexStr[0] == 'X')
-                vertexList[size_t(id)] = addVertex_depr(size_t(id), size_t(qid), VertexType::X, ph, true);
+                vertexList[size_t(id)] = addVertex(size_t(qid), VertexType::X, ph, true);
             else
-                vertexList[size_t(id)] = addVertex_depr(size_t(id), size_t(qid), VertexType::H_BOX, ph, true);
+                vertexList[size_t(id)] = addVertex(size_t(qid), VertexType::H_BOX, ph, true);
         } else {
             cerr << "Error: Unsupported vertex type " << vertexStr[0] << " in line " << counter << "!!" << endl;
             return false;
@@ -158,7 +158,7 @@ bool ZXGraph::readZX(string filename, bool bzx=false) {
                 cerr << "Found a never declared id " << nbId << " in neighbor list of vertex " << vertexId << "!!" << endl;
                 return false;
             } else {
-                addEdge_depr(vertexList[vertexId], vertexList[nbId], new EdgeType(nbEdgeType));
+                addEdge(vertexList[vertexId], vertexList[nbId], EdgeType(nbEdgeType));
             }
         }
     }
@@ -168,18 +168,25 @@ bool ZXGraph::readZX(string filename, bool bzx=false) {
 /// @brief write a zxgraph
 /// @param filename
 /// @return true if correctly write a graph into .zx
-bool ZXGraph::writeZX(string filename, bool bzx=false) {
+bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
     fstream ZXFile;
     ZXFile.open(filename.c_str(), std::fstream::out);
     if (!ZXFile.is_open()) {
         cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
         return false;
     }
-    auto writeNeighbors = [&ZXFile](ZXVertex* v){
-        for (auto& [nb, etype] : v->getNeighborMap()) {
-            if (nb->getId() >= v->getId()) {
+    auto writeNeighbors = [&ZXFile](ZXVertex* v, bool complete=false){
+        Neighbors neb = v->getNeighbors();
+        vector<NeighborPair> sortedNeighbors;
+        for (auto& nbp : v->getNeighbors()) 
+            sortedNeighbors.push_back(nbp);
+        sort(sortedNeighbors.begin(), sortedNeighbors.end(), [](NeighborPair a, NeighborPair b){ 
+            return (a.first)->getId() < (b.first)->getId();
+        });
+        for (auto& [nb, etype] : sortedNeighbors) {
+            if ((complete) || (nb->getId() >= v->getId())) {
                 ZXFile << " ";
-                switch (*etype) {
+                switch (etype) {
                     case EdgeType::SIMPLE: 
                         ZXFile << "S"; 
                         break;
@@ -196,22 +203,29 @@ bool ZXGraph::writeZX(string filename, bool bzx=false) {
         return true;
     };
     ZXFile << "// Input \n";
-    for (size_t i = 0; i < _inputs_depr.size(); i++) {
-        ZXVertex* v = _inputs_depr[i];
+    vector<ZXVertex*> inputs = getSortedListFromSet(_inputs);
+    for (size_t i = 0; i < inputs.size(); i++) {
+        ZXVertex* v = inputs[i];
         ZXFile << "I" << v->getId() << " " << v->getQubit();
-        if (!writeNeighbors(v)) return false;
+        if (!writeNeighbors(v, complete)) return false;
         ZXFile << "\n";
     }
+
     ZXFile << "// Output \n";
-    for (size_t i = 0; i < _outputs_depr.size(); i++) {
-        ZXVertex* v = _outputs_depr[i];
+    vector<ZXVertex*> outputs = getSortedListFromSet(_outputs);
+    
+    for (size_t i = 0; i < outputs.size(); i++) {
+        ZXVertex* v = outputs[i];
         ZXFile << "O" << v->getId() << " " << v->getQubit();
-        if (!writeNeighbors(v)) return false;
+        if (!writeNeighbors(v, complete)) return false;
         ZXFile << "\n";
     }
+
     ZXFile << "// Non-boundary \n";
-    for (size_t i = 0; i < _vertices_depr.size(); i++) {
-        ZXVertex* v = _vertices_depr[i];
+    vector<ZXVertex*> vertices = getSortedListFromSet(_vertices);
+
+    for (size_t i = 0; i < vertices.size(); i++) {
+        ZXVertex* v = vertices[i];
         if (v->getType() == VertexType::BOUNDARY) continue;
 
         if      (v->getType() == VertexType::Z) ZXFile << "Z";
@@ -219,7 +233,7 @@ bool ZXGraph::writeZX(string filename, bool bzx=false) {
         else                                    ZXFile << "H";
         ZXFile << v->getId();
         if (bzx) ZXFile << " " << v->getQubit();
-        if (!writeNeighbors(v)) return false;
+        if (!writeNeighbors(v, complete)) return false;
         
         if (v->getPhase() != Phase(0)) ZXFile << " " << v->getPhase().getAsciiString();
         ZXFile << "\n";

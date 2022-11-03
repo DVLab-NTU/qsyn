@@ -212,6 +212,14 @@ size_t ZXGraph::getNumEdges() const {
     return accumulate(sizes.begin(), sizes.end(), 0);
 }
 
+
+vector<ZXVertex*> ZXGraph::getSortedListFromSet(const ZXVertexList& set) const {
+    vector<ZXVertex*> result;
+    for(const auto& item: set)
+        result.push_back(item);
+    sort(result.begin(), result.end(), [](ZXVertex* a, ZXVertex* b){ return a->getId() < b->getId();});
+    return result;
+}
 // For testing
 // void ZXGraph::generateCNOT() {
 //     cout << "Generate a 2-qubit CNOT graph for testing" << endl;

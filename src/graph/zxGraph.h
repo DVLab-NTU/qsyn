@@ -52,7 +52,7 @@ class ZXVertex{
         size_t getNumNeighbors_depr() const                                      { return _neighborMap_depr.size(); }
         size_t getNumNeighbors() const                                           { return _neighbors.size(); }
         QTensor<double> getTSform();
-        
+
         void setId(const size_t& id)                                        { _id = id; }
         void setQubit(const int& q)                                         { _qubit = q; }
         void setType(const VertexType& ZXVertex)                            { _type = ZXVertex; }
@@ -122,7 +122,7 @@ class ZXGraph{
         void setId(size_t id)                                           { _id = id; }
         void setRef(void** ref)                                         { _ref = ref; }
         
-        //! REVIEW SHOULD PASS BY CONST REF
+        //REVIEW - SHOULD PASS BY CONST REF
         void setInputs_depr(vector<ZXVertex*> inputs)                   { _inputs_depr = inputs; }
         void setInputs(const ZXVertexList& inputs)                      { _inputs = inputs; }
 
@@ -166,6 +166,9 @@ class ZXGraph{
         
         size_t getNumEdges_depr() const                                      { return _edges_depr.size(); }
         size_t getNumEdges() const;
+
+        //REVIEW - add: new function
+        vector<ZXVertex*> getSortedListFromSet(const ZXVertexList& set) const;
 
         // For testing
         void generateCNOT();
@@ -293,8 +296,9 @@ class ZXGraph{
         void cleanRedundantEdges();
 
         // I/O
-        bool readZX(string, bool bzx);
-        bool writeZX(string, bool bzx);
+        //REVIEW - overhauled: add complete mode (print all neighbors) to write
+        bool readZX(string, bool bzx = false);
+        bool writeZX(string, bool complete = false, bool bzx = false);
 
     private:
         size_t                            _id;
