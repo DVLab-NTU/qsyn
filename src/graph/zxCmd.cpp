@@ -22,6 +22,8 @@ extern ZXGraphMgr *zxGraphMgr;
 extern size_t verbose;
 // ZXGraph* zxGraph = new ZXGraph(0);
 
+
+
 bool initZXCmd() {
     if (!(cmdMgr->regCmd("ZXMode", 3, new ZXModeCmd) &&
           cmdMgr->regCmd("ZXNew", 3, new ZXNewCmd) &&
@@ -480,12 +482,9 @@ ZXGEditCmd::exec(const string &option) {
     if (!CmdExec::lexOptions(option, options)) {
         return CMD_EXEC_ERROR;
     }
-    if (options.empty()) {
-        return errorOption(CMD_OPT_MISSING, "");
-    }
-    if (options.size() == 1) {
-        return errorOption(CMD_OPT_MISSING, options[0]);
-    }
+
+    CMD_N_OPTS_AT_LEAST_OR_RETURN(options, 2);
+
     if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
         cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXEdit." << endl;
         return CMD_EXEC_ERROR;
@@ -503,10 +502,7 @@ ZXGEditCmd::exec(const string &option) {
         //         or just skip the non-existent ones
         for (size_t v = 1; v < options.size(); v++) {
             unsigned id;
-            if (!myStr2Uns(options[v], id)) {
-                cerr << "Error: invalid qubit id!!" << endl;
-                return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[v]);
-            } 
+            ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[v], id);
 
             if (!zxGraphMgr->getGraph()->isId(id)) {
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[v]);
@@ -516,24 +512,16 @@ ZXGEditCmd::exec(const string &option) {
         return CMD_EXEC_DONE;
     } 
 
-    //FIXME - restructure pertaining functions
+    //TODO - restructure pertaining functions
     if (myStrNCmp("-RMEdge", action, 4) == 0) {
-        if (options.size() < 3) {
-            return errorOption(CMD_OPT_MISSING, options.back());
-        }
-        if (options.size() > 3) {
-            return errorOption(CMD_OPT_EXTRA, options[3]);
-        }
+        CMD_N_OPTS_BETWEEN_OR_RETURN(options, 3, 4);
 
         unsigned id_s, id_t;
-        if (!myStr2Uns(options[1], id_s)) {
-            cerr << "Error: id_s is invalid!!" << endl;
-            return errorOption(CMD_OPT_ILLEGAL, options[1]);
-        }
-        
-        if (!myStr2Uns(options[2], id_t)) {
-            cerr << "Error: id_t is invalid!!" << endl;
-            return errorOption(CMD_OPT_ILLEGAL, options[2]);
+        EdgeType etype;
+        ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[1], id_s);
+        ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[2], id_t);
+        if (options.size() == 4) {
+            ZX_CMD_EDGE_TYPE_VALID_OR_RETURN(options[3], etype);
         }
 
         zxGraphMgr->getGraph()->removeEdgeById(id_s, id_t);
@@ -541,95 +529,49 @@ ZXGEditCmd::exec(const string &option) {
     } 
     
     if (myStrNCmp("-ADDVertex", action, 4) == 0) {
-        if (options.size() < 3) {
-            return errorOption(CMD_OPT_MISSING, options.back());
-        }
-        if (options.size() > 4) {
-            return errorOption(CMD_OPT_EXTRA, options[4]);
-        }
+        CMD_N_OPTS_BETWEEN_OR_RETURN(options, 3, 4);
 
         int qid;
-        if (!myStr2Int(options[1], qid)) {
-            cerr << "Error: invalid qubit number!!" << endl;
-            return errorOption(CMD_OPT_ILLEGAL, options[0]);
-        }
+        VertexType vt;
+        Phase phase;
 
-        VertexType vt = str2VertexType(options[2]);
-        if (vt == VertexType::ERRORTYPE) {
-            cerr << "Error: invalid vertex type!!" << endl;
-            return errorOption(CMD_OPT_ILLEGAL, options[3]);
-        }
-
-        Phase phase{0};
-        if (options.size() == 4) {
-            if (!phase.fromString(options[3])) {
-                cerr << "Error: not a legal phase!!" << endl;
-                return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
-            }
-        }
+        ZX_CMD_QUBIT_ID_VALID_OR_RETURN(options[1], qid);
+        ZX_CMD_VERTEX_TYPE_VALID_OR_RETURN(options[2], vt);
+        if (options.size() == 4) 
+            ZX_CMD_PHASE_VALID_OR_RETURN(options[3], phase);
+        
         zxGraphMgr->getGraph()->addVertex(qid, vt, phase);
         return CMD_EXEC_DONE;
     } 
     
     if (myStrNCmp("-ADDInput", action, 4) == 0) {
-        if (options.size() < 2) {
-            return errorOption(CMD_OPT_MISSING, options.back());
-        }
-        if (options.size() > 2) {
-            return errorOption(CMD_OPT_EXTRA, options[2]);
-        }
+        CMD_N_OPTS_EQUAL_OR_RETURN(options, 2);
+        
         int qid;
-        if (!myStr2Int(options[1], qid)) {
-            cerr << "Error: invalid qubit id!!" << endl;
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[0]);
-        } 
+        ZX_CMD_QUBIT_ID_VALID_OR_RETURN(options[1], qid);
+
         zxGraphMgr->getGraph()->addInput(qid);
         return CMD_EXEC_DONE;
     } 
     
     if (myStrNCmp("-ADDOutput", action, 4) == 0) {
-        if (options.size() < 2) {
-            return errorOption(CMD_OPT_MISSING, options.back());
-        }
-        if (options.size() > 2) {
-            return errorOption(CMD_OPT_EXTRA, options[2]);
-        }
+        CMD_N_OPTS_EQUAL_OR_RETURN(options, 2);
 
         int qid;
-        if (!myStr2Int(options[1], qid)) {
-            cerr << "invalid qubit id!!" << endl;
-            return errorOption(CMD_OPT_ILLEGAL, options[0]);
-        } else {
-            zxGraphMgr->getGraph()->addOutput(qid);
-        }
+        ZX_CMD_QUBIT_ID_VALID_OR_RETURN(options[1], qid);
+
+        zxGraphMgr->getGraph()->addOutput(qid);
         return CMD_EXEC_DONE;
     } 
     
     if (myStrNCmp("-ADDEdge", action, 4) == 0) {
-        if (options.size() < 4) {
-            return errorOption(CMD_OPT_MISSING, options.back());
-        }
-        if (options.size() > 4) {
-            return errorOption(CMD_OPT_EXTRA, options[4]);
-        }
+        CMD_N_OPTS_EQUAL_OR_RETURN(options, 4);
 
         unsigned id_s, id_t;
-        if (!myStr2Uns(options[1], id_s)) {
-            cerr << "Error: id_s is invalid!!" << endl;
-            return errorOption(CMD_OPT_ILLEGAL, options[1]);
-        }
-        
-        if (!myStr2Uns(options[2], id_t)) {
-            cerr << "Error: id_t is invalid!!" << endl;
-            return errorOption(CMD_OPT_ILLEGAL, options[2]);
-        }
-
-        EdgeType etype = str2EdgeType(options[3]);
-
-        if (etype == EdgeType::ERRORTYPE) {
-            cerr << "Error: invalid edge type!!" << endl;
-            return errorOption(CMD_OPT_ILLEGAL, options[3]);
-        } 
+        EdgeType etype;
+        ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[1], id_s);
+        ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[2], id_t);
+        ZX_CMD_EDGE_TYPE_VALID_OR_RETURN(options[3], etype);
         
         zxGraphMgr->getGraph()->addEdgeById(id_s, id_t, etype);
         return CMD_EXEC_DONE;

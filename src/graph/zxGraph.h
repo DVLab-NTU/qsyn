@@ -217,12 +217,12 @@ class ZXGraph{
         void removeVertex_depr(ZXVertex* v, bool checked = false);
         void removeVertex(ZXVertex* v, bool checked = false);
 
-        //FIXME - 
+        //TODO - 
         void removeVertices(vector<ZXVertex* > vertices, bool checked = false);
         void removeVertexById(const size_t& id);
-        //FIXME - 
+        //TODO - 
         void removeIsolatedVertices_depr();
-        //FIXME - 
+        //TODO - 
         void removeEdge_depr(ZXVertex* vs, ZXVertex* vt, bool checked = false);
         void removeAllEdgeBetween(ZXVertex* vs, ZXVertex* vt, bool checked = false);
         void removeEdgeByEdgePair_depr(const EdgePair_depr& ep);
