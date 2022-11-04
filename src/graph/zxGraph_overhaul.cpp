@@ -417,9 +417,9 @@ void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType et) {
     }
 }
 
-void ZXGraph::addEdges(vector<EdgePair> edges) {
-    _edges.insert(_edges.end(), edges.begin(), edges.end());
-}
+// void ZXGraph::addEdges(vector<EdgePair> edges) {
+//     _edges.insert(_edges.end(), edges.begin(), edges.end());
+// }
 
 // void ZXGraph::mergeInputList(unordered_map<size_t, ZXVertex*> lst) {
 //     _inputList.merge(lst);
