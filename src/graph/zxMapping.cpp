@@ -58,26 +58,12 @@ QTensor<double> ZXVertex::getTSform(){
     return tensor;
 }
 
-vector<ZXVertex*> ZXGraph::getNonBoundary() {
-    vector<ZXVertex*> tmp;
+ZXVertexList ZXGraph::getNonBoundary() {
+    ZXVertexList tmp;
     tmp.clear();
-    for (size_t i = 0; i < _vertices_depr.size(); i++) {
-        if (_vertices_depr[i]->getType() == VertexType::BOUNDARY)
-            continue;
-        else
-            tmp.push_back(_vertices_depr[i]);
-    }
-    return tmp;
-}
-
-vector<EdgePair_depr> ZXGraph::getInnerEdges() {
-    vector<EdgePair_depr> tmp;
-    tmp.clear();
-    for (size_t i = 0; i < _edges_depr.size(); i++) {
-        if (_edges_depr[i].first.first->getType() == VertexType::BOUNDARY || _edges_depr[i].first.second->getType() == VertexType::BOUNDARY)
-            continue;
-        else
-            tmp.push_back(_edges_depr[i]);
+    for(const auto& ver: _vertices){
+        if (ver->getType() != VertexType::BOUNDARY)
+            tmp.emplace(ver);
     }
     return tmp;
 }
@@ -100,22 +86,20 @@ ZXVertex* ZXGraph::getOutputFromHash(const size_t& q) {
 
 void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
     // Add Vertices
-    this->addVertices_depr(tmp->getNonBoundary());
-    this->addEdges_depr(tmp->getInnerEdges());
+    this->addVertices(tmp->getNonBoundary(), true);
     // Reconnect Input
     unordered_map<size_t, ZXVertex*> tmpInp = tmp->getInputList();
     for (auto it = tmpInp.begin(); it != tmpInp.end(); ++it) {
         size_t inpQubit = it->first;
         // ZXVertex* targetInput = it ->second->getNeighbors()[0].first;
-        ZXVertex* targetInput = it->second->getNeighborMap().begin()->first;
+        ZXVertex* targetInput = it->second->getNeighbors().begin()->first;
         // ZXVertex* lastVertex = this->getOutputFromHash(inpQubit)->getNeighbors()[0].first;
-        ZXVertex* lastVertex = this->getOutputFromHash(inpQubit)->getNeighborMap().begin()->first;
-        tmp->removeEdge_depr(it->second, targetInput);  // Remove old edge (disconnect old graph)
-        if (remove_imm)
-            this->removeEdge_depr(lastVertex, this->getOutputFromHash(inpQubit));  // Remove old edge (output and prev-output)
-        else
-            lastVertex->disconnect_depr(this->getOutputFromHash(inpQubit));
-        this->addEdge_depr(lastVertex, targetInput, new EdgeType(EdgeType::SIMPLE));  // Add new edge
+        ZXVertex* lastVertex = this->getOutputFromHash(inpQubit)->getNeighbors().begin()->first;
+        tmp->removeEdge(make_pair(make_pair(it->second, targetInput), EdgeType(EdgeType::SIMPLE)));  // Remove old edge (disconnect old graph)
+        
+        lastVertex->disconnect(this->getOutputFromHash(inpQubit));
+
+        this->addEdge(lastVertex, targetInput, EdgeType(EdgeType::SIMPLE));  // Add new edge
         delete it->second;
     }
     // Reconnect Output
@@ -123,10 +107,10 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
     for (auto it = tmpOup.begin(); it != tmpOup.end(); ++it) {
         size_t oupQubit = it->first;
         // ZXVertex* targetOutput = it->second->getNeighbors()[0].first;
-        ZXVertex* targetOutput = it->second->getNeighborMap().begin()->first;
+        ZXVertex* targetOutput = it->second->getNeighbors().begin()->first;
         ZXVertex* ZXOup = this->getOutputFromHash(oupQubit);
-        tmp->removeEdge_depr(it->second, targetOutput);                           // Remove old edge (disconnect old graph)
-        this->addEdge_depr(targetOutput, ZXOup, new EdgeType(EdgeType::SIMPLE));  // Add new edge
+        tmp->removeEdge(make_pair(make_pair(it->second, targetOutput), EdgeType(EdgeType::SIMPLE)));                           // Remove old edge (disconnect old graph)
+        this->addEdge(targetOutput, ZXOup, EdgeType(EdgeType::SIMPLE));  // Add new edge
         delete it->second;
     }
     tmp->reset();

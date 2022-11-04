@@ -143,7 +143,7 @@ void QCir::printZXTopoOrder()
     auto Lambda = [this](QCirGate *G)
     {
         cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
-        ZXGraph* tmp = G->getZXform(_ZXNodeId);
+        ZXGraph* tmp = G->getZXform();
         tmp -> printVertices_depr();
     };
     topoTraverse(Lambda);
@@ -170,24 +170,18 @@ void QCir::ZXMapping()
     ZXGraph* _ZXG = zxGraphMgr -> addZXGraph(zxGraphMgr->getNextID());
     _ZXG -> setRef((void**)_ZXG);
     
-    
-    _ZXNodeId = 0;
-    size_t maxInput = 0;
     if(verbose >= 5) cout << "----------- ADD BOUNDARIES -----------" << endl;
     for(size_t i=0; i<_qubits.size(); i++){
-        if (_qubits[i]->getId() > maxInput)
-            maxInput = _qubits[i]->getId();
-        _ZXG -> setInputHash(_qubits[i]->getId(), _ZXG -> addInput_depr( 2*(_qubits[i]->getId()), _qubits[i]->getId()));
-        _ZXG -> setOutputHash(_qubits[i]->getId(), _ZXG -> addOutput_depr( 2*(_qubits[i]->getId()) + 1, _qubits[i]->getId()));
-        _ZXG -> addEdgeById_depr( 2*(_qubits[i]->getId()), 2*(_qubits[i]->getId()) + 1, new EdgeType(EdgeType::SIMPLE));
+        ZXVertex* input = _ZXG -> addInput(_qubits[i]->getId());
+        ZXVertex* output = _ZXG -> addOutput(_qubits[i]->getId());
+        _ZXG -> addEdge(input, output, EdgeType(EdgeType::SIMPLE));
     }
-    _ZXNodeId = 2*(maxInput+ 1)-1;
     if(verbose >= 5) cout << "--------------------------------------" << endl << endl;
 
     auto Lambda = [this, _ZXG](QCirGate *G)
     {
         if(verbose >= 5) cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
-        ZXGraph* tmp = G->getZXform(_ZXNodeId);
+        ZXGraph* tmp = G->getZXform();
         if(tmp == NULL){
             cerr << "Mapping of gate "<< G->getId()<< " (type: " << G->getTypeStr() << ") not implemented, the mapping result is wrong!!" <<endl;
             return;
@@ -200,7 +194,7 @@ void QCir::ZXMapping()
 
     if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE GRAPH ----" << endl;
     topoTraverse(Lambda);
-    _ZXG -> cleanRedundantEdges();
+    // _ZXG -> cleanRedundantEdges();
     if(verbose >= 3)  cout << "--------------------------------------" << endl;
     
     _ZXGraphList.push_back(_ZXG);

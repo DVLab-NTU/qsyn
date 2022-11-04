@@ -74,7 +74,7 @@ public:
   // Printing functions
   void printGate() const;
   virtual void printGateInfo(bool) const=0;
-  virtual ZXGraph*  getZXform(size_t &baseId){ return NULL; };
+  virtual ZXGraph*  getZXform(){ return NULL; };
   virtual QTensor<double>  getTSform() = 0;
   virtual void setRotatePhase(Phase p){};
 private:
@@ -97,7 +97,7 @@ public:
   virtual string getTypeStr() const override { return "h"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::hbox(2); }
   virtual void printGateInfo(bool) const; 
-  virtual ZXGraph*  getZXform(size_t &baseId);
+  virtual ZXGraph*  getZXform();
 };
 
 class CnRZGate : public QCirGate
@@ -112,7 +112,7 @@ public:
     tmp +="rz";
     return tmp; 
   }
-  virtual ZXGraph*  getZXform(size_t &baseId){ return NULL; };
+  virtual ZXGraph*  getZXform(){ return NULL; };
   virtual void printGateInfo(bool) const;
 };
 
@@ -121,7 +121,7 @@ class CnRXGate : public QCirGate
 public:
   CnRXGate(size_t id): QCirGate(id) {}
   ~CnRXGate(){};
-  virtual ZXGraph*  getZXform(size_t &baseId){ return NULL; };
+  virtual ZXGraph*  getZXform(){ return NULL; };
   virtual void printGateInfo(bool) const;
 };
 
@@ -149,7 +149,7 @@ public:
   ~ZGate();
   virtual string getTypeStr() const { return "z"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::rz(Phase(1)); }
-  virtual ZXGraph*  getZXform(size_t &baseId);
+  virtual ZXGraph*  getZXform();
   virtual void printGateInfo(bool) const;
 };
 
@@ -162,7 +162,7 @@ public:
   ~SGate();
   virtual string getTypeStr() const { return "s"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::rz(Phase(1,2)); }
-  virtual ZXGraph*  getZXform(size_t &baseId);
+  virtual ZXGraph*  getZXform();
   virtual void printGateInfo(bool) const;
 };
 
@@ -175,7 +175,7 @@ public:
   ~SDGGate();
   virtual string getTypeStr() const { return "sd"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::rz(Phase(-1,2)); }
-  virtual ZXGraph*  getZXform(size_t &baseId);
+  virtual ZXGraph*  getZXform();
   virtual void printGateInfo(bool) const;
 };
 
@@ -186,7 +186,7 @@ public:
   ~TGate();
   virtual string getTypeStr() const { return "t"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::rz(Phase(1,4)); }
-  virtual ZXGraph*  getZXform(size_t &baseId);
+  virtual ZXGraph*  getZXform();
   virtual void printGateInfo(bool) const;
 };
 
@@ -197,7 +197,7 @@ public:
   ~TDGGate();
   virtual string getTypeStr() const { return "td"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::rz(Phase(-1,4)); }
-  virtual ZXGraph*  getZXform(size_t &baseId);
+  virtual ZXGraph*  getZXform();
   virtual void printGateInfo(bool) const;
 };
 
@@ -208,7 +208,7 @@ public:
   ~RZGate();
   virtual string getTypeStr() const { return "rz"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::rz(_rotatePhase); }
-  virtual ZXGraph*  getZXform(size_t &baseId);
+  virtual ZXGraph*  getZXform();
   virtual void printGateInfo(bool) const;
   virtual void setRotatePhase(Phase p){ _rotatePhase = p; }
 };
@@ -220,7 +220,7 @@ public:
   ~CZGate();
   virtual string getTypeStr() const { return "cz"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::cnz(1); }
-  virtual ZXGraph*  getZXform(size_t &baseId);
+  virtual ZXGraph*  getZXform();
   virtual void printGateInfo(bool) const;
 };
 
@@ -241,7 +241,7 @@ public:
   ~XGate();
   virtual string getTypeStr() const { return "x"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::rx(Phase(1)); }
-  virtual ZXGraph*  getZXform(size_t &baseId);
+  virtual ZXGraph*  getZXform();
   virtual void printGateInfo(bool) const;
 };
 
@@ -252,7 +252,7 @@ public:
   ~SXGate();
   virtual string getTypeStr() const { return "sx"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::rx(Phase(1,2)); }
-  virtual ZXGraph*  getZXform(size_t &baseId);
+  virtual ZXGraph*  getZXform();
   virtual void printGateInfo(bool) const;
 };
 
@@ -274,7 +274,7 @@ public:
   ~CXGate();
   virtual string getTypeStr() const { return "cx"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::cnx(1); }
-  virtual ZXGraph*  getZXform(size_t &baseId);
+  virtual ZXGraph*  getZXform();
   virtual void printGateInfo(bool) const;
 };
 
@@ -285,7 +285,7 @@ public:
   ~CCXGate();
   virtual string getTypeStr() const { return "ccx"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::cnx(2); }
-  virtual ZXGraph*  getZXform(size_t &baseId);
+  virtual ZXGraph*  getZXform();
   virtual void printGateInfo(bool) const;
 };
 class YGate : public CnRYGate
@@ -295,7 +295,7 @@ public:
   ~YGate();
   virtual string getTypeStr() const { return "y"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::ry(Phase(1)); }
-  virtual ZXGraph*  getZXform(size_t &baseId);
+  virtual ZXGraph*  getZXform();
   virtual void printGateInfo(bool) const;
 };
 
@@ -306,7 +306,7 @@ public:
   ~SYGate();
   virtual string getTypeStr() const { return "sy"; }
   virtual QTensor<double>  getTSform() { return QTensor<double>::ry(Phase(1, 2)); }
-  virtual ZXGraph*  getZXform(size_t &baseId);
+  virtual ZXGraph*  getZXform();
   virtual void printGateInfo(bool) const;
 };
 #endif // QCIR_GATE_H

@@ -101,6 +101,10 @@ void ZXVertex::disconnect(ZXVertex* v, bool checked) {
     }
     _neighbors.erase(make_pair(v, EdgeType::SIMPLE));
     _neighbors.erase(make_pair(v, EdgeType::HADAMARD));
+    
+    //REVIEW - Need to disconnect another side
+    v->removeNeighbor(make_pair(this, EdgeType::SIMPLE));
+    v->removeNeighbor(make_pair(this, EdgeType::HADAMARD));
 }
 
 // Test
@@ -357,7 +361,14 @@ void ZXGraph::addOutputs(const ZXVertexList&  outputs) {
 
 /// @brief Add a set of vertices (Overhauled)
 /// @param vertices
-void ZXGraph::addVertices(const ZXVertexList& vertices) {
+void ZXGraph::addVertices(const ZXVertexList& vertices, bool reordered) {
+    //REVIEW - Reordered Id
+    if(reordered){
+        for(const auto& ver: vertices) {
+            ver->setId(_currentVertexId);
+            _currentVertexId++;
+        }
+    }
     _vertices.insert(vertices.begin(), vertices.end());
 }
 

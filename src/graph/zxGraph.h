@@ -199,7 +199,7 @@ class ZXGraph{
         void addOutputs(const ZXVertexList& outputs);
 
         void addVertices_depr(vector<ZXVertex*> vertices);
-        void addVertices(const ZXVertexList& vertices);
+        void addVertices(const ZXVertexList& vertices, bool reordered = false);
 
         EdgePair_depr addEdge_depr(ZXVertex* vs, ZXVertex* vt, EdgeType* et, bool allowSelfLoop = false);
         EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
@@ -293,8 +293,7 @@ class ZXGraph{
         const unordered_map<size_t, ZXVertex*>& getOutputList() const      { return _outputList; }
         ZXVertex* getInputFromHash(const size_t& q);
         ZXVertex* getOutputFromHash(const size_t& q);
-        vector<ZXVertex*> getNonBoundary();
-        vector<EdgePair_depr> getInnerEdges();
+        ZXVertexList getNonBoundary();
         void cleanRedundantEdges();
 
         // I/O
