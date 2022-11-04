@@ -17,7 +17,8 @@ pivotgadget.o: pivotgadget.cpp zxRules.h ../../include/zxDef.h \
  ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
  ../../include/tensorUtil.h ../../include/zxDef.h
 simpCmd.o: simpCmd.cpp simpCmd.h ../../include/cmdParser.h \
- ../../include/cmdCharDef.h ../../include/zxGraph.h ../../include/phase.h \
+ ../../include/cmdCharDef.h ../../include/cmdMacros.h \
+ ../../include/zxGraph.h ../../include/phase.h \
  ../../include/rationalNumber.h ../../include/myConcepts.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
  ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \

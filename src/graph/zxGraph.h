@@ -122,17 +122,17 @@ class ZXGraph{
         void setId(size_t id)                                           { _id = id; }
         void setRef(void** ref)                                         { _ref = ref; }
         
-        //REVIEW - SHOULD PASS BY CONST REF
         void setInputs_depr(vector<ZXVertex*> inputs)                   { _inputs_depr = inputs; }
         void setInputs(const ZXVertexList& inputs)                      { _inputs = inputs; }
 
-        void setOutputs(vector<ZXVertex*> outputs)                      { _outputs_depr = outputs; }
-        void SetOutputs(const ZXVertexList& outputs)                    { _outputs = outputs; }
+        void setOutputs_depr(vector<ZXVertex*> outputs)                      { _outputs_depr = outputs; }
+        void setOutputs(const ZXVertexList& outputs)                    { _outputs = outputs; }
         
-        void setVertices(vector<ZXVertex*> vertices)                    { _vertices_depr = vertices; }
-        void SetVertices(const ZXVertexList& vertices)                  { _vertices = vertices; }
+        void setVertices_depr(vector<ZXVertex*> vertices)                    { _vertices_depr = vertices; }
+        void setVertices(const ZXVertexList& vertices)                  { _vertices = vertices; }
         
-        void setEdges(vector<EdgePair_depr > edges)                     { _edges_depr = edges; }
+        // REVIEW - rendered useless in the new data structure?
+        void setEdges_depr(vector<EdgePair_depr > edges)                     { _edges_depr = edges; }
         
         const size_t& getId() const                                     { return _id; }
         void** getRef() const                                           { return _ref; }
@@ -202,14 +202,13 @@ class ZXGraph{
         void addVertices(const ZXVertexList& vertices);
 
         EdgePair_depr addEdge_depr(ZXVertex* vs, ZXVertex* vt, EdgeType* et, bool allowSelfLoop = false);
-        //FIXME - 
-        EdgePair addEdge_depr(ZXVertex* vs, ZXVertex* vt, EdgeType et);
         EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
-        //FIXME - 
+
         void addEdgeById_depr(size_t id_s, size_t id_t, EdgeType* et);
         void addEdgeById(size_t id_s, size_t id_t, EdgeType et);
-        //FIXME - 
-        void addEdges(vector<EdgePair_depr> edges);
+        
+        //REVIEW - rendered useless by the new data structure?
+        void addEdges_depr(vector<EdgePair_depr> edges);
         
         void mergeInputList(unordered_map<size_t, ZXVertex*> lst);
         void mergeOutputList(unordered_map<size_t, ZXVertex*> lst);
@@ -217,17 +216,20 @@ class ZXGraph{
         void removeVertex_depr(ZXVertex* v, bool checked = false);
         void removeVertex(ZXVertex* v, bool checked = false);
 
-        //TODO - 
+        void removeVertices_depr(vector<ZXVertex* > vertices, bool checked = false);
         void removeVertices(vector<ZXVertex* > vertices, bool checked = false);
         void removeVertexById(const size_t& id);
-        //TODO - 
+
         void removeIsolatedVertices_depr();
-        //TODO - 
+        void removeIsolatedVertices();
+
         void removeEdge_depr(ZXVertex* vs, ZXVertex* vt, bool checked = false);
-        void removeAllEdgeBetween(ZXVertex* vs, ZXVertex* vt, bool checked = false);
         void removeEdgeByEdgePair_depr(const EdgePair_depr& ep);
-        void removeEdge(const EdgePair& ep);
         void removeEdgesByEdgePairs_depr(const vector<EdgePair_depr>& eps);
+
+        void removeAllEdgesBetween(ZXVertex* vs, ZXVertex* vt, bool checked = false);
+        void removeEdge(const EdgePair& ep);
+        void removeEdges(const vector<EdgePair>& eps);
         void removeEdgeById(const size_t& id_s, const size_t& id_t, EdgeType etype = EdgeType::ERRORTYPE);
 
         // Operation on graph
@@ -251,6 +253,7 @@ class ZXGraph{
 
 
         // Print functions
+        //REVIEW provides filters?
         void printGraph_depr() const;
         void printGraph() const;
         void printInputs_depr() const;
@@ -261,8 +264,7 @@ class ZXGraph{
         void printVertices() const;
         void printEdges_depr() const;
         void printEdges() const;
-        //REVIEW - unused function
-        void printEdge_depr(size_t idx) const;
+
         
         // Traverse
         void updateTopoOrder();

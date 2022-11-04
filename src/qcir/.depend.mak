@@ -43,7 +43,7 @@ qcirCmd.o: qcirCmd.cpp qcir.h qcirGate.h ../../include/phase.h \
  ../../include/qtensor.h ../../include/zxDef.h ../../include/myHashMap.h \
  qcirQubit.h qcirDef.h ../../include/myHashMap.h qcirCmd.h \
  ../../include/cmdParser.h ../../include/cmdCharDef.h \
- ../../include/util.h
+ ../../include/cmdMacros.h ../../include/util.h
 qcirGate2ZX.o: qcirGate2ZX.cpp qcir.h qcirGate.h ../../include/phase.h \
  ../../include/rationalNumber.h ../../include/myConcepts.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \

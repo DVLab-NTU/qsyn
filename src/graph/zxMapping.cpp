@@ -101,7 +101,7 @@ ZXVertex* ZXGraph::getOutputFromHash(const size_t& q) {
 void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
     // Add Vertices
     this->addVertices_depr(tmp->getNonBoundary());
-    this->addEdges(tmp->getInnerEdges());
+    this->addEdges_depr(tmp->getInnerEdges());
     // Reconnect Input
     unordered_map<size_t, ZXVertex*> tmpInp = tmp->getInputList();
     for (auto it = tmpInp.begin(); it != tmpInp.end(); ++it) {

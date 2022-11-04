@@ -422,7 +422,7 @@ void ZXGTestCmd::help() const {
 //----------------------------------------------------------------------
 //    ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges]
 //----------------------------------------------------------------------
-
+//REVIEW provides filters?
 CmdExecStatus
 ZXGPrintCmd::exec(const string &option) {
     if (curCmd != ZXON) {
@@ -464,7 +464,7 @@ void ZXGPrintCmd::help() const {
 
 //------------------------------------------------------------------------------------
 //    ZXGEdit -RMVertex [i | <(size_t id(s))> ]
-//            -RMEdge <(size_t id_s), (size_t id_t)> <-all | SIMPLE | HADAMARD >
+//            -RMEdge <(size_t id_s), (size_t id_t)> [ SIMPLE | HADAMARD ]
 //            -ADDVertex <(size_t id), (size_t qubit), (VertexType vt), [Phase phase]>
 //            -ADDInput <(size_t id), (size_t qubit)>
 //            -ADDOutput <(size_t id), (size_t qubit)>
@@ -493,7 +493,7 @@ ZXGEditCmd::exec(const string &option) {
     string action = options[0];
     if (myStrNCmp("-RMVertex", action, 4) == 0) {
         if (options[1] == "i" && options.size() == 2) {
-            zxGraphMgr->getGraph()->removeIsolatedVertices_depr();
+            zxGraphMgr->getGraph()->removeIsolatedVertices();
             return CMD_EXEC_DONE; 
         }
         //REVIEW - consider `zxge -rmv 0 87 42`, where 87 is not a valid id,
@@ -524,7 +524,7 @@ ZXGEditCmd::exec(const string &option) {
             ZX_CMD_EDGE_TYPE_VALID_OR_RETURN(options[3], etype);
         }
 
-        zxGraphMgr->getGraph()->removeEdgeById(id_s, id_t);
+        zxGraphMgr->getGraph()->removeEdgeById(id_s, id_t, etype);
         return CMD_EXEC_DONE;
     } 
     
@@ -582,7 +582,7 @@ ZXGEditCmd::exec(const string &option) {
 
 void ZXGEditCmd::usage(ostream &os) const {
     os << "Usage: ZXGEdit -RMVertex [i | <(size_t id(s))> ]" << endl;
-    os << "               -RMEdge <(size_t id_s), (size_t id_t)>" << endl;
+    os << "               -RMEdge <(size_t id_s), (size_t id_t)> [EdgeType et]" << endl;
     os << "               -ADDVertex <(size_t qubit), (VertexType vt)> [Phase phase]" << endl;
     os << "               -ADDInput <(size_t qubit)>" << endl;
     os << "               -ADDOutput <(size_t qubit)>" << endl;

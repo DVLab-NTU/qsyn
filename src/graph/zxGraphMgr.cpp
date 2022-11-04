@@ -161,14 +161,14 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph) {
             }
         }
         // Remove outputs of oriGraph and inputs of copyGraph
-        oriGraph->removeVertices(oriGraph->getOutputs_depr(), true);
-        copyGraph->removeVertices(copyGraph->getInputs_depr(), true);
+        oriGraph->removeVertices_depr(oriGraph->getOutputs_depr(), true);
+        copyGraph->removeVertices_depr(copyGraph->getInputs_depr(), true);
 
         // Update data in oriGraph
-        oriGraph->setOutputs(copyGraph->getOutputs_depr());
+        oriGraph->setOutputs_depr(copyGraph->getOutputs_depr());
         oriGraph->setOutputList(copyGraph->getOutputList());
         oriGraph->addVertices_depr(copyGraph->getVertices_depr());
-        oriGraph->addEdges(copyGraph->getEdges());
+        oriGraph->addEdges_depr(copyGraph->getEdges());
     }
 }
 
@@ -189,7 +189,7 @@ void ZXGraphMgr::tensorProduct(ZXGraph* zxGraph) {
     oriGraph->addInputs_depr(copyGraph->getInputs_depr());
     oriGraph->addOutputs_depr(copyGraph->getOutputs_depr());
     oriGraph->addVertices_depr(copyGraph->getVertices_depr());
-    oriGraph->addEdges(copyGraph->getEdges());
+    oriGraph->addEdges_depr(copyGraph->getEdges());
     oriGraph->mergeInputList(copyGraph->getInputList());
     oriGraph->mergeOutputList(copyGraph->getOutputList());
     

@@ -356,7 +356,7 @@ void ZXGraph::addVertices_depr(vector<ZXVertex*> vertices) {
     _vertices_depr.insert(_vertices_depr.end(), vertices.begin(), vertices.end());
 }
 
-void ZXGraph::addEdges(vector<EdgePair_depr> edges) {
+void ZXGraph::addEdges_depr(vector<EdgePair_depr> edges) {
     _edges_depr.insert(_edges_depr.end(), edges.begin(), edges.end());
 }
 
@@ -407,7 +407,7 @@ void ZXGraph::removeVertex_depr(ZXVertex* v, bool checked) {
             newEdges.push_back(_edges_depr[i]);
         }
     }
-    setEdges(newEdges);
+    setEdges_depr(newEdges);
 
     // Check _vertices
     _vertices_depr.erase(find(_vertices_depr.begin(), _vertices_depr.end(), v));
@@ -422,7 +422,7 @@ void ZXGraph::removeVertex_depr(ZXVertex* v, bool checked) {
  * @param vertices
  * @param checked
  */
-void ZXGraph::removeVertices(vector<ZXVertex*> vertices, bool checked) {
+void ZXGraph::removeVertices_depr(vector<ZXVertex*> vertices, bool checked) {
 
     unordered_set<ZXVertex*> removing;
     for (const auto& v : vertices) {
@@ -456,7 +456,7 @@ void ZXGraph::removeVertices(vector<ZXVertex*> vertices, bool checked) {
             newOutputList[v->getQubit()] = v;
         }
     }
-    setOutputs(newOutputs);
+    setOutputs_depr(newOutputs);
     setOutputList(newOutputList);
 
     vector<EdgePair_depr> newEdges;
@@ -469,7 +469,7 @@ void ZXGraph::removeVertices(vector<ZXVertex*> vertices, bool checked) {
             newEdges.push_back(edge);
         }
     }
-    setEdges(newEdges);
+    setEdges_depr(newEdges);
     // Check _vertices
     vector<ZXVertex*> newVertices;
     for (const auto& v : _vertices_depr) {
@@ -477,7 +477,7 @@ void ZXGraph::removeVertices(vector<ZXVertex*> vertices, bool checked) {
             newVertices.push_back(v);
         }
     }
-    setVertices(newVertices);
+    setVertices_depr(newVertices);
 
     // deallocate ZXVertex
     for (const auto& v : removing) {
@@ -509,7 +509,7 @@ void ZXGraph::removeIsolatedVertices_depr() {
             removing.push_back(v);
         }
     }
-    removeVertices(removing);
+    removeVertices_depr(removing);
 }
 
 /**
@@ -611,7 +611,7 @@ void ZXGraph::removeEdgesByEdgePairs_depr(const vector<EdgePair_depr>& eps) {
             newEdges.push_back(edge);
         }
     } 
-    setEdges(newEdges);
+    setEdges_depr(newEdges);
 }
 
 /**
@@ -634,7 +634,7 @@ void ZXGraph::removeEdgeById(const size_t& id_s, const size_t& id_t, EdgeType et
     }
     
     if (etype == EdgeType::ERRORTYPE) {
-        removeAllEdgeBetween(vs, vt);
+        removeAllEdgesBetween(vs, vt);
     } else {
         removeEdge(makeEdgePair(vs, vt, etype));
     }
@@ -824,11 +824,11 @@ void ZXGraph::printEdges_depr() const {
     cout << "Total #Edges: " << _edges_depr.size() << endl;
 }
 
-//REVIEW - unused function
-void ZXGraph::printEdge_depr(size_t idx) const{
-    if(idx < _edges_depr.size())
-        cout << "( " << _edges_depr[idx].first.first->getId() << ", " << _edges_depr[idx].first.second->getId() << " )\tType:\t" << EdgeType2Str_depr(_edges_depr[idx].second) << endl;
-}
+// unused function
+// void ZXGraph::printEdge_depr(size_t idx) const{
+//     if(idx < _edges_depr.size())
+//         cout << "( " << _edges_depr[idx].first.first->getId() << ", " << _edges_depr[idx].first.second->getId() << " )\tType:\t" << EdgeType2Str_depr(_edges_depr[idx].second) << endl;
+// }
 
 EdgeType toggleEdge(const EdgeType& et) {
     if (et == EdgeType::SIMPLE)

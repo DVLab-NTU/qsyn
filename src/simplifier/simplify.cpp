@@ -133,7 +133,7 @@ int Simplifier::simp() {
         rmEdgeCount += _rule->getRemoveEdges().size();
 
         // remove vertices
-        _simpGraph->removeVertices(_rule->getRemoveVertices(), checked);
+        _simpGraph->removeVertices_depr(_rule->getRemoveVertices(), checked);
         rmVertexCount += _rule->getRemoveVertices().size();
 
         // remove isolated vertices
@@ -227,7 +227,7 @@ int Simplifier::hadamardSimp() {
         rmEdgeCount += _rule->getRemoveEdges().size();
 
         // remove vertices
-        _simpGraph->removeVertices(_rule->getRemoveVertices(), checked);
+        _simpGraph->removeVertices_depr(_rule->getRemoveVertices(), checked);
         rmVertexCount += _rule->getRemoveVertices().size();
         // remove isolated vertices
         _simpGraph->removeIsolatedVertices_depr();

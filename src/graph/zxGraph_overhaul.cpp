@@ -415,9 +415,9 @@ void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType et) {
     }
 }
 
-// void ZXGraph::addEdges(vector<EdgePair> edges) {
-//     _edges.insert(_edges.end(), edges.begin(), edges.end());
-// }
+void ZXGraph::addEdges(vector<EdgePair> edges) {
+    _edges.insert(_edges.end(), edges.begin(), edges.end());
+}
 
 // void ZXGraph::mergeInputList(unordered_map<size_t, ZXVertex*> lst) {
 //     _inputList.merge(lst);
@@ -474,82 +474,40 @@ void ZXGraph::removeVertex(ZXVertex* v, bool checked) {
  * @param vertices
  * @param checked
  */
-// void ZXGraph::removeVertices(vector<ZXVertex*> vertices, bool checked) {
-
-//     unordered_set<ZXVertex*> removing;
-//     for (const auto& v : vertices) {
-//         if (!checked) {
-//             if (!isId(v->getId())) {
-//                 cerr << "Vertex " << v->getId() << " does not exist!" << endl;
-//                 continue;
-//             }
-//         }
-//         if (verbose >= 5) cout << "Remove ID: " << v->getId() << endl;
-//         removing.insert(v);
-//     }
-
-//     // Check if also in _inputs or _outputs
-//     vector<ZXVertex*> newInputs;
-//     unordered_map<size_t, ZXVertex*> newInputList;
-//     for (const auto& v : _inputs) {
-//         if (!removing.contains(v)) {
-//             newInputs.push_back(v);
-//             newInputList[v->getQubit()] = v;
-//         }
-//     }
-//     setInputs(newInputs);
-//     setInputList(newInputList);
-
-//     vector<ZXVertex*> newOutputs;
-//     unordered_map<size_t, ZXVertex*> newOutputList;
-//     for (const auto& v : _outputs) {
-//         if (!removing.contains(v)) {
-//             newOutputs.push_back(v);
-//             newOutputList[v->getQubit()] = v;
-//         }
-//     }
-//     setOutputs(newOutputs);
-//     setOutputList(newOutputList);
-
-//     vector<EdgePair> newEdges;
-
-//     // Check _edges
-//     for (const auto& edge : _edges) {
-//         if (removing.contains(edge.first.first) || removing.contains(edge.first.second)) {
-//             edge.first.first->disconnect(edge.first.second, true);
-//         } else {
-//             newEdges.push_back(edge);
-//         }
-//     }
-//     setEdges(newEdges);
-//     // Check _vertices
-//     vector<ZXVertex*> newVertices;
-//     for (const auto& v : _vertices) {
-//         if (!removing.contains(v)) {
-//             newVertices.push_back(v);
-//         }
-//     }
-//     setVertices(newVertices);
-
-//     // deallocate ZXVertex
-//     for (const auto& v : removing) {
-//         delete v;
-//     }
-// }
+void ZXGraph::removeVertices(vector<ZXVertex*> vertices, bool checked) {
+    if (!checked) {
+        vector<ZXVertex*> removing;
+        for (const auto& v: vertices) {
+            if (_vertices.contains(v)) {
+                removing.push_back(v);
+            } else {
+                cerr << "Warning: Vertex " << v->getId() << " does not exist!" << endl;
+            }
+        }
+        for (const auto& v : removing) {
+            _vertices.erase(v);
+        }
+    } else {
+        for (const auto& v : vertices) {
+            _vertices.erase(v);
+        }
+    }
+    
+}
 
 /**
  * @brief Remove all vertices with no neighbor.
  *
  */
-// void ZXGraph::removeIsolatedVertices() {
-//     vector<ZXVertex*> removing;
-//     for (const auto& v : _vertices) {
-//         if (v->getNeighborMap().empty()) {
-//             removing.push_back(v);
-//         }
-//     }
-//     removeVertices(removing);
-// }
+void ZXGraph::removeIsolatedVertices() {
+    vector<ZXVertex*> removing;
+    for (const auto& v : _vertices) {
+        if (v->getNumNeighbors() == 0) {
+            removing.push_back(v);
+        }
+    }
+    removeVertices(removing, true);
+}
 
 /**
  * @brief Remove all edges between `vs` and `vt` by pointer.
@@ -558,7 +516,7 @@ void ZXGraph::removeVertex(ZXVertex* v, bool checked) {
  * @param vt
  * @param checked
  */
-void ZXGraph::removeAllEdgeBetween(ZXVertex* vs, ZXVertex* vt, bool checked) {
+void ZXGraph::removeAllEdgesBetween(ZXVertex* vs, ZXVertex* vt, bool checked) {
     if (!checked) {
         if (!vs->isNeighbor(vt) || !vt->isNeighbor(vs)) {
             cerr << "Error: Vertex " << vs->getId() << " and " << vt->getId() << " are not connected!" << endl;
@@ -586,46 +544,11 @@ void ZXGraph::removeEdge(const EdgePair& ep) {
     if (verbose >= 5) cout << "Remove edge ( " << vs->getId() << ", " << vt->getId() << " ), type: " << EdgeType2Str(et) << endl;
 }
 
-// void ZXGraph::removeEdgesByEdgePairs(const vector<EdgePair>& eps) {
-//     unordered_set<EdgePair> removing;
-//     for (const auto& ep : eps) {
-//         removing.insert(ep);
-//         if (verbose >= 5) {
-//             cout << "Remove (" << ep.first.first->getId() << ", " << ep.first.second->getId() << " )" << endl;
-//         }
-
-//         NeighborMap nbm = ep.first.first->getNeighborMap();
-//         auto result = nbm.equal_range(ep.first.second);
-//         for (auto& itr = result.first; itr != result.second; ++itr) {
-//             if (itr->second == ep.second) {
-//                 nbm.erase(itr);
-//                 ep.first.first->setNeighborMap(nbm);
-//                 break;
-//             }
-//         }
-
-//         nbm = ep.first.second->getNeighborMap();
-//         result = nbm.equal_range(ep.first.first);
-//         for (auto& itr = result.first; itr != result.second; ++itr) {
-//             if (itr->second == ep.second) {
-//                 nbm.erase(itr);
-//                 ep.first.second->setNeighborMap(nbm);
-//                 break;
-//             }
-//         }
-//     }
-
-//     vector<EdgePair> newEdges;
-
-//     for (const auto& edge : _edges) {
-//         if (!removing.contains(edge) && !removing.contains(
-//             make_pair(make_pair(edge.first.second, edge.first.first), edge.second)
-//         )) {
-//             newEdges.push_back(edge);
-//         }
-//     } 
-//     setEdges(newEdges);
-// }
+void ZXGraph::removeEdges(const vector<EdgePair>& eps) {
+    for (const auto& ep : eps) {
+        removeEdge(ep);
+    }
+}
 
 /**
  * @brief adjoint the zxgraph
