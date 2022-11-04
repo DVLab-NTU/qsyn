@@ -212,7 +212,9 @@ size_t ZXGraph::getNumEdges() const {
     return accumulate(sizes.begin(), sizes.end(), 0);
 }
 
-
+/// @brief get sorted list (id small to big) from set
+/// @param set 
+/// @return 
 vector<ZXVertex*> ZXGraph::getSortedListFromSet(const ZXVertexList& set) const {
     vector<ZXVertex*> result;
     for(const auto& item: set)
