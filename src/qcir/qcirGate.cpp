@@ -19,6 +19,20 @@ using namespace std;
 extern QCir *qCir;
 extern size_t verbose;
 
+const BitInfo QCirGate::getQubit(size_t qubit) const {
+  for (size_t i = 0; i < _qubits.size(); i++){
+    if(_qubits[i]._qubit==qubit)
+      return _qubits[i];
+  }
+  cerr << "Not Found" << endl;
+  return _qubits[0];
+}
+
+void QCirGate::addQubit(size_t qubit, bool isTarget){
+  BitInfo temp = {._qubit = qubit, ._parent = NULL, ._child = NULL, ._isTarget = isTarget};
+  _qubits.push_back(temp);
+}
+
 void QCirGate::setParent(size_t qubit, QCirGate *p)
 {
   for (size_t i = 0; i < _qubits.size(); i++)

@@ -30,7 +30,7 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCGDelete", 4, new QCirDeleteGateCmd) &&
          cmdMgr->regCmd("QCBDelete", 4, new QCirDeleteQubitCmd) &&
          cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd) &&
-         cmdMgr->regCmd("QCZXMap", 5, new QCirZXMappingCmd) &&
+         cmdMgr->regCmd("QC2ZX", 5, new QCirZXMappingCmd) &&
          cmdMgr->regCmd("QCTSMap", 5, new QCirTSMappingCmd) &&
          cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd)
          // && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
@@ -561,7 +561,7 @@ void QCirDeleteQubitCmd::help() const
 }
 
 //----------------------------------------------------------------------
-//    QCZXMapping
+//    QC2ZX
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirZXMappingCmd::exec(const string &option)
@@ -581,12 +581,12 @@ QCirZXMappingCmd::exec(const string &option)
 
 void QCirZXMappingCmd::usage(ostream &os) const
 {
-   os << "Usage: QCZXMapping" << endl;
+   os << "Usage: QC2ZX" << endl;
 }
 
 void QCirZXMappingCmd::help() const
 {
-   cout << setw(15) << left << "QCZXMapping: "
+   cout << setw(15) << left << "QC2ZX: "
         << "mapping to ZX-graph from quantum circuit\n";
 }
 

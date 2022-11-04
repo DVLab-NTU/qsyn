@@ -46,22 +46,10 @@ public:
   virtual string getTypeStr() const = 0;
   size_t getId() const { return _id; }
   size_t getTime() const { return _time; }
-  BitInfo getQubit(size_t qubit) const {
-    for (size_t i = 0; i < _qubits.size(); i++)
-    {
-      if(_qubits[i]._qubit==qubit) return _qubits[i];
-    }
-    cerr << "Not Found" << endl;
-    return _qubits[0];
-  }
-
+  const BitInfo getQubit(size_t qubit) const;
   const vector<BitInfo>& getQubits() const  { return _qubits; }
 
-  void addQubit(size_t qubit, bool isTarget)
-  {
-    BitInfo temp = {._qubit = qubit, ._parent = NULL, ._child = NULL, ._isTarget = isTarget};
-    _qubits.push_back(temp);
-  }
+  void addQubit(size_t qubit, bool isTarget);
   void setTypeStr(string type) {_type = type;}
   void setTime(size_t time) { _time = time; }
   void setParent(size_t qubit, QCirGate *p);
@@ -87,6 +75,8 @@ protected:
   unsigned _DFSCounter;
   vector<BitInfo> _qubits;
   Phase _rotatePhase;
+
+  ZXGraph *mapSingleQubitGate(VertexType, Phase);
 };
 
 class HGate : public QCirGate
