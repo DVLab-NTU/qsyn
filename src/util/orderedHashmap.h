@@ -56,10 +56,10 @@
  *
  * Caveats:
  *     As OrderedHashmap automatically manages the size of its internal stor-
- * age, iterators may be invalidated upon insertion/deletion. Consequently,
- * one should not perform insertion/deletion during traversal. If this must
- * be done, it is suggested to collect the keys to another container, then
- * perform the insertion/deletion during traversal of the other container.
+ * age, iterators may be invalidated upon insertion/deletion. Consequently, one 
+ * should not perform insertion/deletion during traversal. If this must be done, 
+ * it is suggested to collect the keys to another containers, and then perform 
+ * the insertion/deletion during traversal of another container.
  *
  ****************************************************************************/
 
@@ -75,13 +75,7 @@
 #include <unordered_map>
 #include <vector>
 
-template <
-    typename Key,
-    typename T,
-    typename Hash = std::hash<Key>,
-    typename KeyEqual = std::equal_to<Key>
-    // typename Allocator = std::allocator<std::pair<const Key, T>>
-    >
+template <typename Key, typename T, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
 class OrderedHashmap {
 public:
     class iterator;
@@ -93,11 +87,8 @@ public:
     using difference_type = std::ptrdiff_t;
     using hasher = Hash;
     using key_equal = KeyEqual;
-    // using allocator_type = Allocator;
     using iterator = OrderedHashmap::iterator;
     using const_iterator = const iterator;
-    // using pointer = std::allocator_traits<Allocator>::pointer;
-    // using const_pointer = std::allocator_traits<Allocator>::const_pointer;
 
     class iterator {
     public:
@@ -117,27 +108,14 @@ public:
             return tmp;
         }
 
-        bool operator==(const iterator& rhs) const noexcept {
-            return this->_itr == rhs._itr;
-        }
+        bool operator==(const iterator& rhs) const noexcept { return this->_itr == rhs._itr; }
+        bool operator!=(const iterator& rhs) const noexcept { return !(*this == rhs); }
 
-        bool operator!=(const iterator& rhs) const noexcept {
-            return !(*this == rhs);
-        }
+        value_type& operator*() noexcept { return (value_type&)this->_itr->value(); }
+        const value_type& operator*() const noexcept { return (value_type&)this->_itr->value(); }
 
-        value_type& operator*() noexcept {
-            return (value_type&)this->_itr->value();
-        }
-        const value_type& operator*() const noexcept {
-            return (value_type&)this->_itr->value();
-        }
-
-        value_type* operator->() noexcept {
-            return (value_type*)&(this->_itr->value());
-        }
-        value_type const* operator->() const noexcept {
-            return (value_type*)&(this->_itr->value());
-        }
+        value_type* operator->() noexcept { return (value_type*)&(this->_itr->value()); }
+        value_type const* operator->() const noexcept { return (value_type*)&(this->_itr->value()); }
 
     private:
         std::vector<stored_type>::iterator _itr;
@@ -179,12 +157,12 @@ public:
 
     iterator begin() noexcept { return iterator(_data.begin(), _data.end()); }
     iterator end() noexcept { return iterator(_data.end(), _data.end()); }
-    const iterator begin() const noexcept { return iterator(_data.begin(), _data.end()); }
-    const iterator end() const noexcept { return iterator(_data.end(), _data.end()); }
-    const iterator cbegin() const noexcept { return iterator(_data.begin(), _data.end()); }
-    const iterator cend() const noexcept { return iterator(_data.end(), _data.end()); }
+    const_iterator begin() const noexcept { return iterator(_data.begin(), _data.end()); }
+    const_iterator end() const noexcept { return iterator(_data.end(), _data.end()); }
+    const_iterator cbegin() const noexcept { return iterator(_data.begin(), _data.end()); }
+    const_iterator cend() const noexcept { return iterator(_data.end(), _data.end()); }
     iterator find(const Key& key) { return iterator(_data.begin() + this->id(key), _data.end()); }
-    const iterator find(const Key& key) const { return iterator(_data.begin() + id(key), _data.end()); }
+    const_iterator find(const Key& key) const { return iterator(_data.begin() + id(key), _data.end()); }
 
     size_t id(const Key& key);
     bool contains(const Key& key) const;
