@@ -83,7 +83,40 @@ TEST_CASE("omap_modify", "[OMap]") {
     omap[4] = 0;
     REQUIRE(omap.at(4) == 0);
 
-}  
+}
+
+TEST_CASE("omap_iterator", "[OMap]") {
+    OrderedHashmap<int, int> omap{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
+
+    omap.erase(2);
+    omap.erase(5);
+    vector<int> ref;
+    for (auto& [k, v] : omap) {
+        ref.push_back(k);
+        ref.push_back(v);
+    }
+    REQUIRE(ref.size() == 6);
+    REQUIRE(ref[0] == 1);
+    REQUIRE(ref[1] == 1);
+    REQUIRE(ref[2] == 3);
+    REQUIRE(ref[3] == 3);
+    REQUIRE(ref[4] == 4);
+    REQUIRE(ref[5] == 4);
+
+    ref.clear();
+    omap.insert({6, 6});
+    for (auto itr = omap.find(3); itr != omap.end(); ++itr) {
+        ref.push_back(itr->first);
+        ref.push_back(itr->second);
+    }
+    REQUIRE(ref[0] == 3);
+    REQUIRE(ref[1] == 3);
+    REQUIRE(ref[2] == 4);
+    REQUIRE(ref[3] == 4);
+    REQUIRE(ref[4] == 6);
+    REQUIRE(ref[5] == 6);
+
+}
 
 TEST_CASE("omap_playground", "[OMap]") {
     OrderedHashmap<int, int> omap;
@@ -106,6 +139,10 @@ TEST_CASE("omap_playground", "[OMap]") {
                 cout << key << " : " << omap.at(key) << endl;
             } catch (std::out_of_range& e) {
                 cout << "No match" << endl;
+            }
+        } else if (op == 'i') {
+            for (auto& [k, v] : omap) {
+                cout << k << " : " << v << endl;
             }
         }
 
