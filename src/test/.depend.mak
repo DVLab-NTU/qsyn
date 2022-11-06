@@ -7,8 +7,8 @@ testTensor.o: testTensor.cpp ../../include/qtensor.h \
 testRational.o: testRational.cpp ../../include/rationalNumber.h \
  ../../include/catch2/catch.hpp
 testOrderedHashmap.o: testOrderedHashmap.cpp \
- ../../include/orderedHashmap.h ../../include/util.h \
- ../../include/rnGen.h ../../include/myUsage.h \
+ ../../include/ordered_hashmap.h ../../include/ordered_hashtable.h \
+ ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
  ../../include/catch2/catch.hpp
 testTensor2.o: testTensor2.cpp ../../include/qtensor.h \
  ../../include/tensor.h ../../include/tensorDef.h ../../include/util.h \
@@ -21,3 +21,4 @@ testPhase.o: testPhase.cpp ../../include/phase.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
  ../../include/catch2/catch.hpp
 tests.o: tests.cpp ../../include/catch2/catch.hpp
+testVecConst.o: testVecConst.cpp
