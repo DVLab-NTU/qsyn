@@ -118,34 +118,34 @@ TEST_CASE("omap_iterator", "[OMap]") {
 
 }
 
-TEST_CASE("omap_playground", "[OMap]") {
-    ordered_hashmap<int, int> omap;
-    char op;
-    int key, val;
+// TEST_CASE("omap_playground", "[OMap]") {
+//     ordered_hashmap<int, int> omap;
+//     char op;
+//     int key, val;
 
-    cout << "> ";
-    while (cin >> op) {
-        if (op == 'a') {
-            cin >> key >> val;
-            omap.emplace(key, val);
-        } else if (op == 'r') {
-            cin >> key;
-            omap.erase(key);
-        } else if (op == 'p') {
-            omap.printMap();
-        } else if (op == 'f') {
-            cin >> key;
-            try {
-                cout << key << " : " << omap.at(key) << endl;
-            } catch (std::out_of_range& e) {
-                cout << "No match" << endl;
-            }
-        } else if (op == 'i') {
-            for (auto& [k, v] : omap) {
-                cout << k << " : " << v << endl;
-            }
-        }
+//     cout << "> ";
+//     while (cin >> op) {
+//         if (op == 'a') {
+//             cin >> key >> val;
+//             omap.emplace(key, val);
+//         } else if (op == 'r') {
+//             cin >> key;
+//             omap.erase(key);
+//         } else if (op == 'p') {
+//             omap.printMap();
+//         } else if (op == 'f') {
+//             cin >> key;
+//             try {
+//                 cout << key << " : " << omap.at(key) << endl;
+//             } catch (std::out_of_range& e) {
+//                 cout << "No match" << endl;
+//             }
+//         } else if (op == 'i') {
+//             for (auto& [k, v] : omap) {
+//                 cout << k << " : " << v << endl;
+//             }
+//         }
 
-        cout << "> ";
-    }
-}
+//         cout << "> ";
+//     }
+// }

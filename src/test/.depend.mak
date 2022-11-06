@@ -20,5 +20,9 @@ testPhase.o: testPhase.cpp ../../include/phase.h \
  ../../include/rationalNumber.h ../../include/myConcepts.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
  ../../include/catch2/catch.hpp
+testPlayground.o: testPlayground.cpp
 tests.o: tests.cpp ../../include/catch2/catch.hpp
-testVecConst.o: testVecConst.cpp
+testOrderedHashset.o: testOrderedHashset.cpp \
+ ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
+ ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
+ ../../include/catch2/catch.hpp

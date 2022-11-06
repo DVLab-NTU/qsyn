@@ -5,6 +5,19 @@
   Author       [ Mu-Te Lau ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
+
+/********************** Summary of this data structure **********************
+ *
+ *     ordered_hashtable is the common interface of ordered_hashmap and 
+ * ordered_hashset. The data structure works like std::unordered_[map, set], 
+ * except that the elements are ordered. 
+ * 
+ * For more details, please see the descriptions in 
+ *     - src/util/ordered_hashmap.h
+ *     - src/util/ordered_hashset.h
+ *
+ ****************************************************************************/
+
 #ifndef ORDERED_HASHTABLE_H
 #define ORDERED_HASHTABLE_H
 

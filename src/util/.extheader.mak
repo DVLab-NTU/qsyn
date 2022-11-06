@@ -1,4 +1,4 @@
-util.d: ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h ../../include/myHashMap.h ../../include/rationalNumber.h ../../include/phase.h ../../include/myConcepts.h ../../include/textFormat.h ../../include/ordered_hashmap.h ../../include/ordered_hashtable.h 
+util.d: ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h ../../include/myHashMap.h ../../include/rationalNumber.h ../../include/phase.h ../../include/myConcepts.h ../../include/textFormat.h ../../include/ordered_hashmap.h ../../include/ordered_hashset.h ../../include/ordered_hashtable.h 
 ../../include/util.h: util.h
 	@rm -f ../../include/util.h
 	@ln -fs ../src/util/util.h ../../include/util.h
@@ -26,6 +26,9 @@ util.d: ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h ../..
 ../../include/ordered_hashmap.h: ordered_hashmap.h
 	@rm -f ../../include/ordered_hashmap.h
 	@ln -fs ../src/util/ordered_hashmap.h ../../include/ordered_hashmap.h
+../../include/ordered_hashset.h: ordered_hashset.h
+	@rm -f ../../include/ordered_hashset.h
+	@ln -fs ../src/util/ordered_hashset.h ../../include/ordered_hashset.h
 ../../include/ordered_hashtable.h: ordered_hashtable.h
 	@rm -f ../../include/ordered_hashtable.h
 	@ln -fs ../src/util/ordered_hashtable.h ../../include/ordered_hashtable.h
