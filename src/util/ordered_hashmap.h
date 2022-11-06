@@ -8,8 +8,8 @@
 
 /********************** Summary of this data structure **********************
  *
- *     OrderedHashmap is designed to behave like a c++ unordered_map, except
- * that the elements are ordered. In other words, OrderedHashmap behave like
+ *     ordered_hashmap is designed to behave like a c++ unordered_map, except
+ * that the elements are ordered. In other words, ordered_hashmap behave like
  * Python 3.7+ `dict`.
  *
  * Important features:
@@ -18,8 +18,8 @@
  * - O(1) lookup/update
  * - Elements are stored in the order of insertion.
  *
- * How does OrderedHashmap work?
- *     OrderedHashmap is composed of a linear storage of key-value pairs and
+ * How does ordered_hashmap work?
+ *     ordered_hashmap is composed of a linear storage of key-value pairs and
  * a vanilla hash map that keeps tracks of the correspondence between key and
  * storage id. In our implementation, these two containers are implemented us-
  * ing std::vector and std::unordered_map.
@@ -55,10 +55,10 @@
  * sweep the linear storage, so that the traversal stays efficient.
  *
  * Caveats:
- *     As OrderedHashmap automatically manages the size of its internal stor-
- * age, iterators may be invalidated upon insertion/deletion. Consequently, one 
- * should not perform insertion/deletion during traversal. If this must be done, 
- * it is suggested to collect the keys to another containers, and then perform 
+ *     As ordered_hashmap automatically manages the size of its internal stor-
+ * age, iterators may be invalidated upon insertion/deletion. Consequently, one
+ * should not perform insertion/deletion during traversal. If this must be done,
+ * it is suggested to collect the keys to another containers, and then perform
  * the insertion/deletion during traversal of another container.
  *
  ****************************************************************************/
@@ -76,18 +76,18 @@
 #include <vector>
 
 template <typename Key, typename T, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
-class OrderedHashmap {
+class ordered_hashmap {
 public:
     class iterator;
     using key_type = Key;
-    using mapped_type = T;
-    using value_type = std::pair<const Key, T>;
-    using stored_type = std::optional<std::pair<Key, T>>;
+    using mapped_type = T;                                 // REVIEW - change for OrderedHashSet
+    using value_type = std::pair<const Key, T>;            // REVIEW - change for OrderedHashSet
+    using stored_type = std::optional<std::pair<Key, T>>;  // REVIEW - change for OrderedHashSet
     using size_type = size_t;
     using difference_type = std::ptrdiff_t;
     using hasher = Hash;
     using key_equal = KeyEqual;
-    using iterator = OrderedHashmap::iterator;
+    using iterator = ordered_hashmap::iterator;
     using const_iterator = const iterator;
 
     class iterator {
@@ -124,8 +124,8 @@ public:
 
     friend class iterator;
 
-    OrderedHashmap() noexcept : _size(0) {}
-    OrderedHashmap(const std::initializer_list<value_type>& il) noexcept : _size(il.size()) {
+    ordered_hashmap() noexcept : _size(0) {}
+    ordered_hashmap(const std::initializer_list<value_type>& il) noexcept : _size(il.size()) {
         for (const value_type& item : il) {
             _key2id.emplace(item.first, _data.size());
             _data.emplace_back(item);
@@ -136,8 +136,8 @@ public:
 
     size_t size() { return _size; }
     bool empty() { return (this->size() == 0); }
-    bool operator==(const OrderedHashmap& rhs) { return _data = rhs->_data; }
-    bool operator!=(const OrderedHashmap& rhs) { return !(*this == rhs); }
+    bool operator==(const ordered_hashmap& rhs) { return _data = rhs->_data; }
+    bool operator!=(const ordered_hashmap& rhs) { return !(*this == rhs); }
 
     // container manipulation
 
@@ -193,8 +193,8 @@ private:
  * @param value
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
-std::pair<typename OrderedHashmap<Key, T, Hash, KeyEqual>::iterator, bool>
-OrderedHashmap<Key, T, Hash, KeyEqual>::insert(value_type&& value) {
+std::pair<typename ordered_hashmap<Key, T, Hash, KeyEqual>::iterator, bool>
+ordered_hashmap<Key, T, Hash, KeyEqual>::insert(value_type&& value) {
     return emplace(std::move(value));
 }
 
@@ -210,8 +210,8 @@ OrderedHashmap<Key, T, Hash, KeyEqual>::insert(value_type&& value) {
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
 template <typename... Args>
-std::pair<typename OrderedHashmap<Key, T, Hash, KeyEqual>::iterator, bool>
-OrderedHashmap<Key, T, Hash, KeyEqual>::emplace(Args&&... args) {
+std::pair<typename ordered_hashmap<Key, T, Hash, KeyEqual>::iterator, bool>
+ordered_hashmap<Key, T, Hash, KeyEqual>::emplace(Args&&... args) { // REVIEW - change for OrderedHashset
     _data.emplace_back(value_type(std::forward<Args>(args)...));
     if (_key2id.contains(_data.back().value().first)) {
         // std::cout << "key collision" << std::endl;
@@ -229,7 +229,7 @@ OrderedHashmap<Key, T, Hash, KeyEqual>::emplace(Args&&... args) {
  *
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
-void OrderedHashmap<Key, T, Hash, KeyEqual>::sweep() {
+void ordered_hashmap<Key, T, Hash, KeyEqual>::sweep() { 
     auto hasValue = [](const stored_type& value) -> bool {
         return value != std::nullopt;
     };
@@ -254,7 +254,7 @@ void OrderedHashmap<Key, T, Hash, KeyEqual>::sweep() {
  * @return size_t : the number of element deleted
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
-size_t OrderedHashmap<Key, T, Hash, KeyEqual>::erase(const Key& key) {
+size_t ordered_hashmap<Key, T, Hash, KeyEqual>::erase(const Key& key) { // REVIEW - change for OrderedHashset
     if (!this->contains(key)) return 0;
 
     _data[this->id(key)] = std::nullopt;
@@ -277,7 +277,7 @@ size_t OrderedHashmap<Key, T, Hash, KeyEqual>::erase(const Key& key) {
  * @return size_t : the number of element deleted
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
-size_t OrderedHashmap<Key, T, Hash, KeyEqual>::erase(const typename OrderedHashmap<Key, T, Hash, KeyEqual>::iterator& itr) {
+size_t ordered_hashmap<Key, T, Hash, KeyEqual>::erase(const typename ordered_hashmap<Key, T, Hash, KeyEqual>::iterator& itr) { // REVIEW - change for OrderedHashset
     return erase(itr->first);
 }
 /**
@@ -286,7 +286,7 @@ size_t OrderedHashmap<Key, T, Hash, KeyEqual>::erase(const typename OrderedHashm
  *
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
-void OrderedHashmap<Key, T, Hash, KeyEqual>::clear() {
+void ordered_hashmap<Key, T, Hash, KeyEqual>::clear() {
     _key2id.clear();
     _data.clear();
     _size = 0;
@@ -306,7 +306,7 @@ void OrderedHashmap<Key, T, Hash, KeyEqual>::clear() {
  * @return size_type
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
-size_t OrderedHashmap<Key, T, Hash, KeyEqual>::id(const Key& key) {
+size_t ordered_hashmap<Key, T, Hash, KeyEqual>::id(const Key& key) {
     return _key2id[key];
 }
 
@@ -317,7 +317,7 @@ size_t OrderedHashmap<Key, T, Hash, KeyEqual>::id(const Key& key) {
  * @return bool
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
-bool OrderedHashmap<Key, T, Hash, KeyEqual>::contains(const Key& key) const {
+bool ordered_hashmap<Key, T, Hash, KeyEqual>::contains(const Key& key) const {
     return (_key2id.contains(key) && _data[_key2id.at(key)] != std::nullopt);
 }
 
@@ -329,7 +329,7 @@ bool OrderedHashmap<Key, T, Hash, KeyEqual>::contains(const Key& key) const {
  * @return T&
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
-T& OrderedHashmap<Key, T, Hash, KeyEqual>::at(const Key& key) {
+T& ordered_hashmap<Key, T, Hash, KeyEqual>::at(const Key& key) {
     if (!this->contains(key)) {
         throw std::out_of_range("no value corresponding to the key");
     }
@@ -344,7 +344,7 @@ T& OrderedHashmap<Key, T, Hash, KeyEqual>::at(const Key& key) {
  * @return cosnt T&
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
-const T& OrderedHashmap<Key, T, Hash, KeyEqual>::at(const Key& key) const {
+const T& ordered_hashmap<Key, T, Hash, KeyEqual>::at(const Key& key) const {
     if (!this->contains(key)) {
         throw std::out_of_range("no value corresponding to the key");
     }
@@ -359,7 +359,7 @@ const T& OrderedHashmap<Key, T, Hash, KeyEqual>::at(const Key& key) const {
  * @return T&
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
-T& OrderedHashmap<Key, T, Hash, KeyEqual>::operator[](const Key& key) {
+T& ordered_hashmap<Key, T, Hash, KeyEqual>::operator[](const Key& key) {
     if (!this->contains(key)) emplace(key, T());
     return at(key);
 }
@@ -372,7 +372,7 @@ T& OrderedHashmap<Key, T, Hash, KeyEqual>::operator[](const Key& key) {
  * @return T&
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
-T& OrderedHashmap<Key, T, Hash, KeyEqual>::operator[](Key&& key) {
+T& ordered_hashmap<Key, T, Hash, KeyEqual>::operator[](Key&& key) {
     if (!this->contains(key)) emplace(key, T());
     return at(key);
 }
@@ -386,7 +386,7 @@ T& OrderedHashmap<Key, T, Hash, KeyEqual>::operator[](Key&& key) {
  *
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
-void OrderedHashmap<Key, T, Hash, KeyEqual>::printMap() {
+void ordered_hashmap<Key, T, Hash, KeyEqual>::printMap() {
     std::cout << "----  umap  ----" << std::endl;
     for (const auto& [k, v] : _key2id) {
         std::cout << k << " : " << v << std::endl;

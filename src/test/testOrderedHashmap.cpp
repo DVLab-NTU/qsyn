@@ -5,7 +5,7 @@
   Author       [ Mu-Te (Joshua) Lau ]
   Copyright    [ 2022 8 ]
 ****************************************************************************/
-#include "orderedHashmap.h"
+#include "ordered_hashmap.h"
 #include "util.h"
 
 using namespace std;
@@ -14,7 +14,7 @@ using namespace std;
 // ----------------------------------------------------------------
 
 TEST_CASE("omap_insert_and_erase", "[OMap]") {
-    OrderedHashmap<int, int> omap{{1, 1}, {2, 2}, {3, 3}};
+    ordered_hashmap<int, int> omap{{1, 1}, {2, 2}, {3, 3}};
 
     omap.printMap();
 
@@ -60,8 +60,8 @@ TEST_CASE("omap_insert_and_erase", "[OMap]") {
 }
 
 TEST_CASE("omap_copy", "[OMap]") {
-    OrderedHashmap<int, int> omap1{{1, 1}, {2, 2}, {3, 3}};
-    OrderedHashmap<int, int> omap2{{4, 4}, {2, 2}, {7, 7}};
+    ordered_hashmap<int, int> omap1{{1, 1}, {2, 2}, {3, 3}};
+    ordered_hashmap<int, int> omap2{{4, 4}, {2, 2}, {7, 7}};
 
     omap2 = omap1;
 
@@ -73,7 +73,7 @@ TEST_CASE("omap_copy", "[OMap]") {
 }
 
 TEST_CASE("omap_modify", "[OMap]") {
-    OrderedHashmap<int, int> omap{{1, 1}, {2, 2}, {3, 3}};
+    ordered_hashmap<int, int> omap{{1, 1}, {2, 2}, {3, 3}};
 
     omap.at(1) = 2;
     REQUIRE(omap.at(1) == 2);
@@ -86,7 +86,7 @@ TEST_CASE("omap_modify", "[OMap]") {
 }
 
 TEST_CASE("omap_iterator", "[OMap]") {
-    OrderedHashmap<int, int> omap{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
+    ordered_hashmap<int, int> omap{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}};
 
     omap.erase(2);
     omap.erase(5);
@@ -119,7 +119,7 @@ TEST_CASE("omap_iterator", "[OMap]") {
 }
 
 TEST_CASE("omap_playground", "[OMap]") {
-    OrderedHashmap<int, int> omap;
+    ordered_hashmap<int, int> omap;
     char op;
     int key, val;
 
