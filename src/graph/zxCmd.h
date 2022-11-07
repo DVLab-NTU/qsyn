@@ -38,11 +38,11 @@ if (!myStr2Int((option), (qid))) { \
 
 #define ZX_CMD_VERTEX_TYPE_VALID_OR_RETURN(option, vt) {\
 (vt) = VertexType::ERRORTYPE; \
-if (myStrNCmp("Z", (option), 1)) { \
+if (myStrNCmp("Z", (option), 1) == 0) { \
     (vt) = VertexType::Z; \
-} else if (myStrNCmp("X", (option), 1)) { \
+} else if (myStrNCmp("X", (option), 1) == 0) { \
     (vt) = VertexType::X; \
-} else if (myStrNCmp("H_BOX", (option), 1) || myStrNCmp("HBOX", (option), 1)) { \
+} else if (myStrNCmp("H_BOX", (option), 1) == 0 || myStrNCmp("HBOX", (option), 1) == 0) { \
     (vt) = VertexType::H_BOX; \
 } else { \
     cerr << "Error: invalid vertex type!!" << endl; \
@@ -51,9 +51,9 @@ if (myStrNCmp("Z", (option), 1)) { \
 
 #define ZX_CMD_EDGE_TYPE_VALID_OR_RETURN(option, et) {\
 (et) = EdgeType::ERRORTYPE; \
-if (myStrNCmp("SIMPLE", (option), 1)) {\
+if (myStrNCmp("SIMPLE", (option), 1) == 0) {\
     (et) = EdgeType::SIMPLE; \
-} else if (myStrNCmp("HADAMARD", (option), 1)){\
+} else if (myStrNCmp("HADAMARD", (option), 1) == 0){\
     (et) = EdgeType::HADAMARD; \
 } else { \
     cerr << "Error: invalid edge type!!" << endl; \

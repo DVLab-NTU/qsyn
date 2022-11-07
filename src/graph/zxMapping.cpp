@@ -61,9 +61,9 @@ QTensor<double> ZXVertex::getTSform(){
 ZXVertexList ZXGraph::getNonBoundary() {
     ZXVertexList tmp;
     tmp.clear();
-    for(const auto& ver: _vertices){
-        if (ver->getType() != VertexType::BOUNDARY)
-            tmp.emplace(ver);
+    for(const auto& v: _vertices.range()){
+        if (!v->isBoundary())
+            tmp.emplace(v);
     }
     return tmp;
 }
@@ -92,9 +92,9 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
     for (auto it = tmpInp.begin(); it != tmpInp.end(); ++it) {
         size_t inpQubit = it->first;
         // ZXVertex* targetInput = it ->second->getNeighbors()[0].first;
-        ZXVertex* targetInput = it->second->getNeighbors().begin()->first;
+        ZXVertex* targetInput = it->second->getNeighbors().begin()->value().first;
         // ZXVertex* lastVertex = this->getOutputFromHash(inpQubit)->getNeighbors()[0].first;
-        ZXVertex* lastVertex = this->getOutputFromHash(inpQubit)->getNeighbors().begin()->first;
+        ZXVertex* lastVertex = this->getOutputFromHash(inpQubit)->getNeighbors().begin()->value().first;
         tmp->removeEdge(make_pair(make_pair(it->second, targetInput), EdgeType(EdgeType::SIMPLE)));  // Remove old edge (disconnect old graph)
         
         lastVertex->disconnect(this->getOutputFromHash(inpQubit));
@@ -107,7 +107,7 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
     for (auto it = tmpOup.begin(); it != tmpOup.end(); ++it) {
         size_t oupQubit = it->first;
         // ZXVertex* targetOutput = it->second->getNeighbors()[0].first;
-        ZXVertex* targetOutput = it->second->getNeighbors().begin()->first;
+        ZXVertex* targetOutput = it->second->getNeighbors().begin()->value().first;
         ZXVertex* ZXOup = this->getOutputFromHash(oupQubit);
         tmp->removeEdge(make_pair(make_pair(it->second, targetOutput), EdgeType(EdgeType::SIMPLE)));                           // Remove old edge (disconnect old graph)
         this->addEdge(targetOutput, ZXOup, EdgeType(EdgeType::SIMPLE));  // Add new edge

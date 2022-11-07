@@ -18,6 +18,7 @@
 #include "qtensor.h"
 #include "zxDef.h"
 #include <iterator>
+#include "ordered_hashset.h"
 using namespace std;
 
 class ZXVertex{
@@ -45,7 +46,7 @@ class ZXVertex{
         const size_t& getPin() const                                        { return _pin; }   
         
         vector<ZXVertex*> getNeighbors_depr() const;
-        const Neighbors& getNeighbors() const                               { return _neighbors; }
+        const Neighbors& getNeighbors() const                                    { return _neighbors; }
 
         ZXVertex* getNeighbor_depr(size_t idx) const;
         const NeighborMap_depr& getNeighborMap() const                           { return _neighborMap_depr; }
@@ -89,7 +90,6 @@ class ZXVertex{
         // DFS
         bool isVisited(unsigned global) { return global == _DFSCounter; }
         void setVisited(unsigned global) { _DFSCounter = global; }
-        static bool idLessThan(ZXVertex* a, ZXVertex* b) { return a->getId() < b->getId(); }
 
     private:
         int                                  _qubit;
@@ -103,8 +103,8 @@ class ZXVertex{
         
 };
 
-using ZXNeighborMap = unordered_map<ZXVertex*, EdgeType>;
-using ZXVertexList  = unordered_set<ZXVertex*>;
+// using ZXVertexList  = unordered_set<ZXVertex*>;
+
 
 class ZXGraph{
     public:
@@ -114,7 +114,7 @@ class ZXGraph{
         
         ~ZXGraph() {
             // for(size_t i = 0; i < _vertices.size(); i++) delete _vertices[i];
-            for(const auto& ver: _vertices) delete ver;
+            for(const auto& ver: _vertices.range()) delete ver;
         }
 
 
@@ -275,8 +275,8 @@ class ZXGraph{
         }
         template<typename F>
         void forEachEdge(F lambda) const {
-            for (auto v : _vertices) {
-                for (auto [nb, etype] : v->getNeighbors()) {
+            for (auto v : _vertices.range()) {
+                for (auto [nb, etype] : v->getNeighbors().range()) {
                     lambda(makeEdgePair(v, nb, etype));
                 }
             }

@@ -175,15 +175,8 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
         cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
         return false;
     }
-    auto writeNeighbors = [&ZXFile](ZXVertex* v, bool complete=false){
-        Neighbors neb = v->getNeighbors();
-        vector<NeighborPair> sortedNeighbors;
-        for (auto& nbp : v->getNeighbors()) 
-            sortedNeighbors.push_back(nbp);
-        sort(sortedNeighbors.begin(), sortedNeighbors.end(), [](NeighborPair a, NeighborPair b){ 
-            return (a.first)->getId() < (b.first)->getId();
-        });
-        for (auto& [nb, etype] : sortedNeighbors) {
+    auto writeNeighbors = [&ZXFile](ZXVertex* v, bool complete=false){        
+        for (const auto& [nb, etype] : v->getNeighbors().range()) {
             if ((complete) || (nb->getId() >= v->getId())) {
                 ZXFile << " ";
                 switch (etype) {
@@ -203,34 +196,27 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
         return true;
     };
     ZXFile << "// Input \n";
-    vector<ZXVertex*> inputs = getSortedListFromSet(_inputs);
-    for (size_t i = 0; i < inputs.size(); i++) {
-        ZXVertex* v = inputs[i];
-        ZXFile << "I" << v->getId() << " " << v->getQubit();
+    for (auto& v : _inputs.range()) {
+        ZXFile << "I" << _inputs.id(v) << " " << v->getQubit();
         if (!writeNeighbors(v, complete)) return false;
         ZXFile << "\n";
     }
 
     ZXFile << "// Output \n";
-    vector<ZXVertex*> outputs = getSortedListFromSet(_outputs);
     
-    for (size_t i = 0; i < outputs.size(); i++) {
-        ZXVertex* v = outputs[i];
-        ZXFile << "O" << v->getId() << " " << v->getQubit();
+    for (auto& v : _outputs.range()) {
+        ZXFile << "O" << _outputs.id(v) << " " << v->getQubit();
         if (!writeNeighbors(v, complete)) return false;
         ZXFile << "\n";
     }
 
     ZXFile << "// Non-boundary \n";
-    vector<ZXVertex*> vertices = getSortedListFromSet(_vertices);
+    for (ZXVertex* const& v : _vertices.range()) {
+        if (v->isBoundary()) continue;
 
-    for (size_t i = 0; i < vertices.size(); i++) {
-        ZXVertex* v = vertices[i];
-        if (v->getType() == VertexType::BOUNDARY) continue;
-
-        if      (v->getType() == VertexType::Z) ZXFile << "Z";
-        else if (v->getType() == VertexType::X) ZXFile << "X";
-        else                                    ZXFile << "H";
+        if      (v->isZ()) ZXFile << "Z";
+        else if (v->isX()) ZXFile << "X";
+        else               ZXFile << "H";
         ZXFile << v->getId();
         if (bzx) ZXFile << " " << v->getQubit();
         if (!writeNeighbors(v, complete)) return false;

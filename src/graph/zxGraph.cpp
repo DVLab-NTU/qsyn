@@ -309,7 +309,6 @@ ZXVertex* ZXGraph::addVertex_depr(size_t id, int qubit, VertexType vt, Phase pha
     }
     ZXVertex* v = new ZXVertex(id, qubit, vt, phase);
     _vertices_depr.push_back(v);
-    // ZXNeighborMap nbm{{v, EdgeType::SIMPLE}};
     _vertices.emplace(v);
     if (verbose >= 5) cout << "Add vertex " << id << endl;
     return v;
@@ -802,15 +801,7 @@ void ZXGraph::printOutputs_depr() const {
 
 void ZXGraph::printVertices_depr() const {
     cout << "\n";
-    vector<ZXVertex*> vs;
-    //! REVIEW print efficiency?
-    for_each(_vertices.begin(), _vertices.end(), [&vs](ZXVertex* const& nb) {
-        vs.push_back(nb);
-    });
-    sort(vs.begin(), vs.end(), [](ZXVertex* const& lhs, ZXVertex* const& rhs){
-        return lhs->getId() < rhs->getId();
-    });
-    for (const auto& v : vs) {
+    for (const auto& v : _vertices_depr) {
         v->printVertex_depr();
     }
     cout << "Total #Vertices: " << _vertices_depr.size() << endl;

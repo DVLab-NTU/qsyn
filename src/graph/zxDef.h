@@ -12,6 +12,7 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include "ordered_hashset.h"
 #include "myHashMap.h"
 using namespace std;
 
@@ -37,9 +38,10 @@ enum class EdgeType{
 //  Define types
 //------------------------------------------------------------------------
 
+using ZXVertexList = ordered_hashset<ZXVertex*>;
 using EdgePair     = pair<pair<ZXVertex*, ZXVertex*>, EdgeType> ;
 using NeighborPair = pair<ZXVertex*, EdgeType>;
-using Neighbors    = unordered_set<pair<ZXVertex*, EdgeType>>;
+using Neighbors    = ordered_hashset<NeighborPair>;
 
 using EdgePair_depr     = pair<pair<ZXVertex*, ZXVertex*>, EdgeType*> ;
 using NeighborPair_depr = pair<ZXVertex*, EdgeType*> ;

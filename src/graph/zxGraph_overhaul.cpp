@@ -71,15 +71,9 @@ void ZXVertex::printVertex() const {
  *
  */
 void ZXVertex::printNeighbors() const {
-    vector<NeighborPair> nbVec;
-    for (const auto& [nb, etype] : _neighbors) nbVec.push_back(make_pair(nb, etype));
-
-    ranges::sort(nbVec, [] (const NeighborPair& a, const NeighborPair& b) -> bool { 
-        return a.first->getId() < b.first->getId();
-    });
-
-    for (const auto& [nb, etype]: nbVec) {
-        cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
+    for (const auto& nbpair: _neighbors.range()) {
+        //REVIEW - id dependency
+        cout << "(" << nbpair.first->getId() << ", " << EdgeType2Str(nbpair.second) << ") ";
     }
     cout << endl;
 }
@@ -210,22 +204,25 @@ bool ZXVertex::isNeighbor(ZXVertex* v) const {
 // }
 
 size_t ZXGraph::getNumEdges() const {
-    auto sizes = views::transform(_vertices, [](ZXVertex* const& v) { 
-        return v->getNumNeighbors(); 
-    });
-    return accumulate(sizes.begin(), sizes.end(), 0);
+    size_t n = 0;
+    for (auto& v: _vertices.range()) {
+        n += v->getNumNeighbors(); 
+
+    }
+    
+    return n;
 }
 
 /// @brief get sorted list (id small to big) from set
 /// @param set 
 /// @return 
-vector<ZXVertex*> ZXGraph::getSortedListFromSet(const ZXVertexList& set) const {
-    vector<ZXVertex*> result;
-    for(const auto& item: set)
-        result.push_back(item);
-    sort(result.begin(), result.end(), [](ZXVertex* a, ZXVertex* b){ return a->getId() < b->getId();});
-    return result;
-}
+// vector<ZXVertex*> ZXGraph::getSortedListFromSet(const ZXVertexList& set) const {
+//     vector<ZXVertex*> result;
+//     for(const auto& item: set)
+//         result.push_back(item);
+//     sort(result.begin(), result.end(), [](ZXVertex* a, ZXVertex* b){ return a->getId() < b->getId();});
+//     return result;
+// }
 // For testing
 // void ZXGraph::generateCNOT() {
 //     cout << "Generate a 2-qubit CNOT graph for testing" << endl;
@@ -277,7 +274,7 @@ vector<ZXVertex*> ZXGraph::getSortedListFromSet(const ZXVertexList& set) const {
 // }
 
 bool ZXGraph::isId(size_t id) const {
-    for (auto v : _vertices) {
+    for (auto v : _vertices.range()) {
         if (v->getId() == id) return true;
     }
     return false;
@@ -364,8 +361,8 @@ void ZXGraph::addOutputs(const ZXVertexList&  outputs) {
 void ZXGraph::addVertices(const ZXVertexList& vertices, bool reordered) {
     //REVIEW - Reordered Id
     if(reordered){
-        for(const auto& ver: vertices) {
-            ver->setId(_currentVertexId);
+        for(const auto& v: vertices.range()) {
+            v->setId(_currentVertexId);
             _currentVertexId++;
         }
     }
@@ -457,8 +454,8 @@ void ZXGraph::removeVertex(ZXVertex* v, bool checked) {
     if (verbose >= 5) cout << "Remove ID: " << v->getId() << endl;
 
     //! REVIEW Erase neighbors
-    Neighbors vNeighbors = v->getNeighbors();
-    for(const auto& n: vNeighbors) {
+    auto vNeighbors = v->getNeighbors();
+    for(const auto& n: vNeighbors.range()) {
         v -> removeNeighbor(n);
         ZXVertex* nv = n.first;
         EdgeType ne = n.second;
@@ -514,7 +511,7 @@ void ZXGraph::removeVertices(vector<ZXVertex*> vertices, bool checked) {
  */
 void ZXGraph::removeIsolatedVertices() {
     vector<ZXVertex*> removing;
-    for (const auto& v : _vertices) {
+    for (const auto& v : _vertices.range()) {
         if (v->getNumNeighbors() == 0) {
             removing.push_back(v);
         }
@@ -601,8 +598,8 @@ void ZXGraph::removeEdges(const vector<EdgePair>& eps) {
  * @return ZXVertex*
  */
 ZXVertex* ZXGraph::findVertexById(const size_t& id) const {
-    for(const auto& ver: _vertices){
-        if(ver->getId() == id) return ver;
+    for(const auto& v: _vertices.range()){
+        if(v->getId() == id) return v;
     }
     return nullptr;
 }
@@ -710,35 +707,27 @@ void ZXGraph::printGraph() const {
 }
 
 void ZXGraph::printInputs() const {
-    vector<ZXVertex*> vs;
-    for (const auto& v : _inputs) vs.push_back(v);
-
-    ranges::sort(vs, ZXVertex::idLessThan);
-    for (size_t i = 0; i < vs.size(); i++) {
-        cout << "Input " << i + 1 << setw(8) << left << ":" << vs[i]->getId() << endl;
+    for (const auto& v : _inputs.range()) {
+        cout << "Input " << _inputs.id(v) + 1 << setw(8) << left << ":" << v->getId() << endl;
     }
     cout << "Total #Inputs: " << getNumInputs() << endl;
 }
 
 void ZXGraph::printOutputs() const {
-    vector<ZXVertex*> vs;
-    for (const auto& v : _inputs) vs.push_back(v);
-
-    ranges::sort(vs, ZXVertex::idLessThan);
-    for (size_t i = 0; i < vs.size(); i++) {
-        cout << "Output " << i + 1 << setw(7) << left << ":" << vs[i]->getId() << endl;
+    for (const auto& v : _outputs.range()) {
+        cout << "Output " << _outputs.id(v) + 1 << setw(7) << left << ":" << v->getId() << endl;
     }
     cout << "Total #Outputs: " << getNumOutputs() << endl;
 }
 
 void ZXGraph::printVertices() const {
     cout << "\n";
-    vector<ZXVertex*> vs;
+    // vector<ZXVertex*> vs;
     //! REVIEW print efficiency?
-    for (const auto& v : _vertices) vs.push_back(v);
+    // for (const auto& v : _vertices) vs.push_back(v);
     
-    ranges::sort(vs, ZXVertex::idLessThan);
-    for (const auto& v : vs) {
+    // ranges::sort(vs, ZXVertex::idLessThan);
+    for (const auto& v : _vertices.range()) {
         v->printVertex();
     }
     cout << "Total #Vertices: " << getNumVertices() << endl;
