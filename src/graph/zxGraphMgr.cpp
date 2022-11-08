@@ -85,113 +85,113 @@ void ZXGraphMgr::checkout2ZXGraph(size_t id) {
 }
 
 void ZXGraphMgr::copy(size_t id) {
-    if (_graphList.empty())
-        cerr << "Error: ZXGraphMgr is empty now! Action \"copy\" failed!" << endl;
-    else {
-        bool exists = false;
-        ZXGraph* copyTarget = getGraph()->copy();
-        copyTarget->setId(id);
+    // if (_graphList.empty())
+    //     cerr << "Error: ZXGraphMgr is empty now! Action \"copy\" failed!" << endl;
+    // else {
+    //     bool exists = false;
+    //     ZXGraph* copyTarget = getGraph()->copy();
+    //     copyTarget->setId(id);
 
-        // Overwrite existing ZXGraph
-        for (size_t i = 0; i < _graphList.size(); i++) {
-            if (_graphList[i]->getId() == id) {
-                cout << "Overwrite existing Graph " << id << endl; // TODO guard this action?
-                _graphList.erase(_graphList.begin() + i);
-                _graphList.insert(_graphList.begin() + i, copyTarget);
-                if (verbose >= 3) cout << "Successfully copied Graph " << getGraph()->getId() << " to Graph " << id << endl;
-                checkout2ZXGraph(id);
-                exists = true;
-                break;
-            }
-        }
-        // Create a new ZXGraph
-        if (!exists) {
-            size_t oriGraphID = getGraph()->getId();
-            _graphList.push_back(copyTarget);
-            _gListItr = _graphList.end() - 1;
-            if (id == _nextID || _nextID < id) _nextID = id + 1;
-            if (verbose >= 3) {
-                cout << "Successfully copied Graph " << oriGraphID << " to Graph " << id << endl;
-                cout << "Checkout to Graph " << id << endl;
-            }
-        }
-    }
+    //     // Overwrite existing ZXGraph
+    //     for (size_t i = 0; i < _graphList.size(); i++) {
+    //         if (_graphList[i]->getId() == id) {
+    //             cout << "Overwrite existing Graph " << id << endl; // TODO guard this action?
+    //             _graphList.erase(_graphList.begin() + i);
+    //             _graphList.insert(_graphList.begin() + i, copyTarget);
+    //             if (verbose >= 3) cout << "Successfully copied Graph " << getGraph()->getId() << " to Graph " << id << endl;
+    //             checkout2ZXGraph(id);
+    //             exists = true;
+    //             break;
+    //         }
+    //     }
+    //     // Create a new ZXGraph
+    //     if (!exists) {
+    //         size_t oriGraphID = getGraph()->getId();
+    //         _graphList.push_back(copyTarget);
+    //         _gListItr = _graphList.end() - 1;
+    //         if (id == _nextID || _nextID < id) _nextID = id + 1;
+    //         if (verbose >= 3) {
+    //             cout << "Successfully copied Graph " << oriGraphID << " to Graph " << id << endl;
+    //             cout << "Checkout to Graph " << id << endl;
+    //         }
+    //     }
+    // }
 }
 
 void ZXGraphMgr::compose(ZXGraph* zxGraph) {
-    ZXGraph* oriGraph = getGraph();
-    // oriGraph->sortIOByQubit();
-    if (oriGraph->getNumOutputs_depr() != zxGraph->getNumInputs_depr())
-        cerr << "Error: The composing ZX-graph's #input is not equivalent to the original ZX-graph's #output." << endl;
-    else {
-        // Make a deep copy of zxGraph
-        ZXGraph* copyGraph = zxGraph->copy();
-        // copyGraph->sortIOByQubit();
+    // ZXGraph* oriGraph = getGraph();
+    // // oriGraph->sortIOByQubit();
+    // if (oriGraph->getNumOutputs_depr() != zxGraph->getNumInputs_depr())
+    //     cerr << "Error: The composing ZX-graph's #input is not equivalent to the original ZX-graph's #output." << endl;
+    // else {
+    //     // Make a deep copy of zxGraph
+    //     ZXGraph* copyGraph = zxGraph->copy();
+    //     // copyGraph->sortIOByQubit();
 
-        // Rewrite all vertices id in copyGraph to avoid repetition
-        size_t nextID = oriGraph->findNextId();
-        for (size_t i = 0; i < copyGraph->getVertices_depr().size(); i++) {
-            copyGraph->getVertices_depr()[i]->setId(nextID);
-            nextID++;
-        }
+    //     // Rewrite all vertices id in copyGraph to avoid repetition
+    //     size_t nextID = oriGraph->findNextId();
+    //     for (size_t i = 0; i < copyGraph->getVertices_depr().size(); i++) {
+    //         copyGraph->getVertices_depr()[i]->setId(nextID);
+    //         nextID++;
+    //     }
 
-        //! TODO
-        // Connect each vertex that originally connected to output of oriGraph to each vertex that originally coneected to input of copyGraph
+    //     //! TODO
+    //     // Connect each vertex that originally connected to output of oriGraph to each vertex that originally coneected to input of copyGraph
 
-        for (size_t i = 0; i < oriGraph->getOutputs_depr().size(); i++) {
-            ZXVertex* curOut = oriGraph->getOutputs_depr()[i];
-            ZXVertex* cpIn = copyGraph->getInputs_depr()[i];
-            NeighborMap_depr curOutNMap = curOut->getNeighborMap();
-            NeighborMap_depr cpInNMap = cpIn->getNeighborMap();
-            for (auto& s : curOutNMap) {
-                ZXVertex* vs = s.first;
-                EdgeType* vsType = s.second;
-                for (auto& t : cpInNMap) {
-                    ZXVertex* vt = t.first;
-                    EdgeType* vtType = t.second;
-                    EdgeType* newType;
-                    if ((*vsType == EdgeType::SIMPLE && *vtType == EdgeType::SIMPLE) || (*vsType == EdgeType::HADAMARD && *vtType == EdgeType::HADAMARD))
-                        newType = new EdgeType(EdgeType::SIMPLE);
-                    else
-                        newType = new EdgeType(EdgeType::HADAMARD);
-                    oriGraph->addEdge_depr(vs, vt, newType);
-                    vt->disconnect_depr(cpIn);
-                }
-                vs->disconnect_depr(curOut);
-            }
-        }
-        // Remove outputs of oriGraph and inputs of copyGraph
-        oriGraph->removeVertices_depr(oriGraph->getOutputs_depr(), true);
-        copyGraph->removeVertices_depr(copyGraph->getInputs_depr(), true);
+    //     for (size_t i = 0; i < oriGraph->getOutputs_depr().size(); i++) {
+    //         ZXVertex* curOut = oriGraph->getOutputs_depr()[i];
+    //         ZXVertex* cpIn = copyGraph->getInputs_depr()[i];
+    //         NeighborMap_depr curOutNMap = curOut->getNeighborMap();
+    //         NeighborMap_depr cpInNMap = cpIn->getNeighborMap();
+    //         for (auto& s : curOutNMap) {
+    //             ZXVertex* vs = s.first;
+    //             EdgeType* vsType = s.second;
+    //             for (auto& t : cpInNMap) {
+    //                 ZXVertex* vt = t.first;
+    //                 EdgeType* vtType = t.second;
+    //                 EdgeType* newType;
+    //                 if ((*vsType == EdgeType::SIMPLE && *vtType == EdgeType::SIMPLE) || (*vsType == EdgeType::HADAMARD && *vtType == EdgeType::HADAMARD))
+    //                     newType = new EdgeType(EdgeType::SIMPLE);
+    //                 else
+    //                     newType = new EdgeType(EdgeType::HADAMARD);
+    //                 oriGraph->addEdge_depr(vs, vt, newType);
+    //                 vt->disconnect_depr(cpIn);
+    //             }
+    //             vs->disconnect_depr(curOut);
+    //         }
+    //     }
+    //     // Remove outputs of oriGraph and inputs of copyGraph
+    //     oriGraph->removeVertices_depr(oriGraph->getOutputs_depr(), true);
+    //     copyGraph->removeVertices_depr(copyGraph->getInputs_depr(), true);
 
-        // Update data in oriGraph
-        oriGraph->setOutputs_depr(copyGraph->getOutputs_depr());
-        oriGraph->setOutputList(copyGraph->getOutputList());
-        oriGraph->addVertices_depr(copyGraph->getVertices_depr());
-        oriGraph->addEdges_depr(copyGraph->getEdges());
-    }
+    //     // Update data in oriGraph
+    //     oriGraph->setOutputs_depr(copyGraph->getOutputs_depr());
+    //     oriGraph->setOutputList(copyGraph->getOutputList());
+    //     oriGraph->addVertices_depr(copyGraph->getVertices_depr());
+    //     oriGraph->addEdges_depr(copyGraph->getEdges());
+    // }
 }
 
 void ZXGraphMgr::tensorProduct(ZXGraph* zxGraph) {
-    ZXGraph* oriGraph = getGraph();
-    ZXGraph* copyGraph = zxGraph->copy();
-    size_t liftNum = max(oriGraph->getNumInputs_depr(), oriGraph->getNumOutputs_depr());
-    copyGraph->liftQubit(liftNum);    
+    // ZXGraph* oriGraph = getGraph();
+    // ZXGraph* copyGraph = zxGraph->copy();
+    // size_t liftNum = max(oriGraph->getNumInputs_depr(), oriGraph->getNumOutputs_depr());
+    // copyGraph->liftQubit(liftNum);    
 
-    // Rewrite all vertices id in copyGraph to avoid repetition
-    size_t nextID = oriGraph->findNextId();
-    for (size_t i = 0; i < copyGraph->getVertices_depr().size(); i++) {
-        copyGraph->getVertices_depr()[i]->setId(nextID);
-        nextID++;
-    }
+    // // Rewrite all vertices id in copyGraph to avoid repetition
+    // size_t nextID = oriGraph->findNextId();
+    // for (size_t i = 0; i < copyGraph->getVertices_depr().size(); i++) {
+    //     copyGraph->getVertices_depr()[i]->setId(nextID);
+    //     nextID++;
+    // }
 
-    // Add inputs / outputs / vertices / edges
-    oriGraph->addInputs_depr(copyGraph->getInputs_depr());
-    oriGraph->addOutputs_depr(copyGraph->getOutputs_depr());
-    oriGraph->addVertices_depr(copyGraph->getVertices_depr());
-    oriGraph->addEdges_depr(copyGraph->getEdges());
-    oriGraph->mergeInputList(copyGraph->getInputList());
-    oriGraph->mergeOutputList(copyGraph->getOutputList());
+    // // Add inputs / outputs / vertices / edges
+    // oriGraph->addInputs_depr(copyGraph->getInputs_depr());
+    // oriGraph->addOutputs_depr(copyGraph->getOutputs_depr());
+    // oriGraph->addVertices_depr(copyGraph->getVertices_depr());
+    // oriGraph->addEdges_depr(copyGraph->getEdges());
+    // oriGraph->mergeInputList(copyGraph->getInputList());
+    // oriGraph->mergeOutputList(copyGraph->getOutputList());
     
 }
 

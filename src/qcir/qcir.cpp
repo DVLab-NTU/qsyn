@@ -144,7 +144,7 @@ void QCir::printZXTopoOrder()
     {
         cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph* tmp = G->getZXform();
-        tmp -> printVertices_depr();
+        tmp -> printVertices();
     };
     topoTraverse(Lambda);
 }
@@ -194,7 +194,6 @@ void QCir::ZXMapping()
 
     if(verbose >= 3)  cout << "---- TRAVERSE AND BUILD THE GRAPH ----" << endl;
     topoTraverse(Lambda);
-    // _ZXG -> cleanRedundantEdges();
     if(verbose >= 3)  cout << "--------------------------------------" << endl;
     
     _ZXGraphList.push_back(_ZXG);
