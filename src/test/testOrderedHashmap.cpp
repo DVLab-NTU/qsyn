@@ -15,12 +15,8 @@ using namespace std;
 
 TEST_CASE("omap_insert_and_erase", "[OMap]") {
     ordered_hashmap<int, int> omap{{1, 1}, {2, 2}, {3, 3}};
-
-    omap.printMap();
-
-    omap.insert({3, 4});
-
-    omap.printMap();
+    REQUIRE(omap.insert({3, 4}).second == false);
+    
 
     omap.insert({4, 4});
     omap.insert({5, 5});
@@ -30,20 +26,14 @@ TEST_CASE("omap_insert_and_erase", "[OMap]") {
     REQUIRE(omap.at(6) == 6);
 
     omap.erase(4);
-    omap.printMap();
     REQUIRE_THROWS_AS(omap.at(4), std::out_of_range);
     omap.erase(2);
     REQUIRE_THROWS_AS(omap.at(2), std::out_of_range);
 
-    omap.printMap();
     omap.insert({2, 2});
     REQUIRE(omap.at(2) == 2);
 
-    omap.printMap();
-
     omap.erase(4);
-
-    omap.printMap();
 
     REQUIRE(omap.at(1) == 1);
     REQUIRE(omap.at(2) == 2);
@@ -53,10 +43,8 @@ TEST_CASE("omap_insert_and_erase", "[OMap]") {
     REQUIRE(omap.at(6) == 6);
     REQUIRE_THROWS_AS(omap.at(7), std::out_of_range);
 
-    omap.erase(1);
-    omap.erase(5);
-
-    omap.printMap();
+    REQUIRE(omap.erase(1) == 1);
+    REQUIRE(omap.erase(5) == 1);
 }
 
 TEST_CASE("omap_copy", "[OMap]") {
@@ -106,6 +94,7 @@ TEST_CASE("omap_iterator", "[OMap]") {
     ref.clear();
     omap.insert({6, 6});
     for (auto itr = omap.find(3); itr != omap.end(); ++itr) {
+    // for (const auto & [k, v] : omap.range(omap.find(3), omap.end())) {
         ref.push_back(itr->first);
         ref.push_back(itr->second);
     }
@@ -116,6 +105,31 @@ TEST_CASE("omap_iterator", "[OMap]") {
     REQUIRE(ref[4] == 6);
     REQUIRE(ref[5] == 6);
 
+}
+
+TEST_CASE("omap_sort", "[OMap]") {
+    ordered_hashmap<int, int> omap{{2, 2}, {3, 3}, {-3, -3}, {1, 1}, {4, 4}, {-2, -2}, {0, 0}, {5, 5}, {6, 6}, {8, 8}, {-1, -1}};
+
+    omap.erase(0);
+    omap.erase(-1);
+    omap.erase(-2);
+    omap.erase(-3);
+    // omap.printMap();
+    omap.sort([](const ordered_hashmap<int, int>::value_type& a, const ordered_hashmap<int, int>::value_type& b) {
+        return a.first < b.first;
+    });
+    // omap.printMap();
+    vector<int> ref;
+    for (auto& [k, v] : omap) {
+        ref.push_back(k);
+    }
+    REQUIRE(ref[0] < ref[1]);
+    REQUIRE(ref[1] < ref[2]);
+    REQUIRE(ref[2] < ref[3]);
+    REQUIRE(ref[3] < ref[4]);
+    REQUIRE(ref[4] < ref[5]);
+    REQUIRE(ref[5] < ref[6]);
+    
 }
 
 // TEST_CASE("omap_playground", "[OMap]") {

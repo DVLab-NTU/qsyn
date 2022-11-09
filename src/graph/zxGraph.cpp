@@ -49,7 +49,7 @@ void ZXVertex::printVertex() const {
  *
  */
 void ZXVertex::printNeighbors() const {
-    for (const auto& nbpair: _neighbors.range()) {
+    for (const auto& nbpair: _neighbors) {
         //REVIEW - id dependency
         cout << "(" << nbpair.first->getId() << ", " << EdgeType2Str(nbpair.second) << ") ";
     }
@@ -98,7 +98,7 @@ bool ZXVertex::isNeighbor(ZXVertex* v) const {
 
 size_t ZXGraph::getNumEdges() const {
     size_t n = 0;
-    for (auto& v: _vertices.range()) {
+    for (auto& v: _vertices) {
         n += v->getNumNeighbors(); 
 
     }
@@ -107,13 +107,14 @@ size_t ZXGraph::getNumEdges() const {
 }
 
 bool ZXGraph::isId(size_t id) const {
-    for (auto v : _vertices.range()) {
+    for (auto v : _vertices) {
         if (v->getId() == id) return true;
     }
     return false;
 }
 
 // For testing
+// FIXME - ZXGTest
 void ZXGraph::generateCNOT() {
     // cout << "Generate a 2-qubit CNOT graph for testing" << endl;
     // // Generate Inputs
@@ -145,6 +146,7 @@ void ZXGraph::generateCNOT() {
  * @param
  * @return bool
  */
+// FIXME - ZXGTest
 bool ZXGraph::isGraphLike() const {
     
     // // 2. all Hedge or Bedge
@@ -195,11 +197,13 @@ bool ZXGraph::isGraphLike() const {
     return true;
 }
 
+// FIXME - ZXGTest
 bool ZXGraph::isEmpty() const {
     if (_inputs_depr.empty() && _outputs_depr.empty() && _vertices_depr.empty() && _edges_depr.empty()) return true;
     return false;
 }
 
+// FIXME - ZXGTest
 bool ZXGraph::isValid() const {
     // for (auto v: _inputs_depr) {
     //     if (v->getNumNeighbors_depr() != 1) return false;
@@ -214,6 +218,7 @@ bool ZXGraph::isValid() const {
     return true;
 }
 
+// FIXME - ZXGTest
 bool ZXGraph::isConnected(ZXVertex* v1, ZXVertex* v2) const {
     // if (v1->isNeighbor_depr(v2) && v2->isNeighbor_depr(v1)) return true;
     // return false;
@@ -320,7 +325,7 @@ void ZXGraph::addOutputs(const ZXVertexList&  outputs) {
 void ZXGraph::addVertices(const ZXVertexList& vertices, bool reordered) {
     //REVIEW - Reordered Id
     if(reordered){
-        for(const auto& v: vertices.range()) {
+        for(const auto& v: vertices) {
             v->setId(_currentVertexId);
             _currentVertexId++;
         }
@@ -417,7 +422,7 @@ void ZXGraph::removeVertex(ZXVertex* v, bool checked) {
 
     //! REVIEW Erase neighbors
     auto vNeighbors = v->getNeighbors();
-    for(const auto& n: vNeighbors.range()) {
+    for(const auto& n: vNeighbors) {
         v -> removeNeighbor(n);
         ZXVertex* nv = n.first;
         EdgeType ne = n.second;
@@ -486,7 +491,7 @@ void ZXGraph::removeVertexById(const size_t& id) {
  */
 void ZXGraph::removeIsolatedVertices() {
     vector<ZXVertex*> removing;
-    for (const auto& v : _vertices.range()) {
+    for (const auto& v : _vertices) {
         if (v->getNumNeighbors() == 0) {
             removing.push_back(v);
         }
@@ -569,7 +574,7 @@ void ZXGraph::removeEdgeById(const size_t& id_s, const size_t& id_t, EdgeType et
 void ZXGraph::adjoint() {
     swap(_inputs, _outputs);
     swap(_inputList, _outputList);
-    for (ZXVertex* const& v : _vertices.range()) v->setPhase(-v->getPhase());
+    for (ZXVertex* const& v : _vertices) v->setPhase(-v->getPhase());
 }
 
 /**
@@ -595,13 +600,13 @@ void ZXGraph::assignBoundary(size_t qubit, bool isInput, VertexType ty, Phase ph
 
 /**
  * @brief Find the next id that is never been used.
- *
+ *`
  * @return size_t
  */
 size_t ZXGraph::findNextId() const {
     size_t nextId = 0;
-    for (size_t i = 0; i < _vertices_depr.size(); i++) {
-        if (_vertices_depr[i]->getId() >= nextId) nextId = _vertices_depr[i]->getId() + 1;
+    for (auto& v : _vertices) {
+        if (v->getId() >= nextId) nextId = v->getId() + 1;
     }
     return nextId;
 }
@@ -613,7 +618,7 @@ size_t ZXGraph::findNextId() const {
  * @return ZXVertex*
  */
 ZXVertex* ZXGraph::findVertexById(const size_t& id) const {
-    for(const auto& v: _vertices.range()){
+    for(const auto& v: _vertices){
         if(v->getId() == id) return v;
     }
     return nullptr;
@@ -670,6 +675,7 @@ ZXGraph* ZXGraph::copy() const {
     return newGraph;
 }
 
+// REVIEW unused functions
 void ZXGraph::sortIOByQubit() {
     // sort(_inputs_depr.begin(), _inputs_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
     // sort(_outputs_depr.begin(), _outputs_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
@@ -707,14 +713,14 @@ void ZXGraph::printGraph() const {
 }
 
 void ZXGraph::printInputs() const {
-    for (const auto& v : _inputs.range()) {
+    for (const auto& v : _inputs) {
         cout << "Input " << _inputs.id(v) + 1 << setw(8) << left << ":" << v->getId() << endl;
     }
     cout << "Total #Inputs: " << getNumInputs() << endl;
 }
 
 void ZXGraph::printOutputs() const {
-    for (const auto& v : _outputs.range()) {
+    for (const auto& v : _outputs) {
         cout << "Output " << _outputs.id(v) + 1 << setw(7) << left << ":" << v->getId() << endl;
     }
     cout << "Total #Outputs: " << getNumOutputs() << endl;
@@ -722,7 +728,7 @@ void ZXGraph::printOutputs() const {
 
 void ZXGraph::printVertices() const {
     cout << "\n";
-    for (const auto& v : _vertices.range()) {
+    for (const auto& v : _vertices) {
         v->printVertex();
     }
     cout << "Total #Vertices: " << getNumVertices() << endl;

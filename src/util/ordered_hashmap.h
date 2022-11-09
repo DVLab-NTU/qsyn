@@ -17,6 +17,7 @@
  * - O(1) deletion  (amortized)
  * - O(1) lookup/update
  * - Elements are stored in the order of insertion.
+ * - bidirectional iterator
  *
  * How does ordered_hashmap work?
  *     ordered_hashmap is composed of a linear storage of key-value pairs and
@@ -55,11 +56,14 @@
  * sweep the linear storage, so that the traversal stays efficient.
  *
  * Caveats:
- *     As ordered_hashmap automatically manages the size of its internal stor-
- * age, iterators may be invalidated upon insertion/deletion. Consequently, one
- * should not perform insertion/deletion during traversal. If this must be done,
- * it is suggested to collect the keys to another containers, and then perform
- * the insertion/deletion during traversal of another container.
+ * 1.  As ordered_hashset automatically manages the size of its internal stor-
+ *     age, iterators may be invalidated upon insertion/deletion. Consequently, 
+ *     one should not perform insertion/deletion during traversal. If this must 
+ *     be done, it is suggested to collect the keys to another containers, and 
+ *     then perform the insertion/deletion during traversal of another container.
+ * 
+ * 2.  As ordered_hashset::iterator is not random access iterator, it cannot be
+ *     sorted using std::sort; please use ordered_hashset::sort.
  *
  ****************************************************************************/
 

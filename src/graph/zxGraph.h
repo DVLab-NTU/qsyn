@@ -90,8 +90,6 @@ class ZXVertex{
         
 };
 
-// using ZXVertexList  = unordered_set<ZXVertex*>;
-
 
 class ZXGraph{
     public:
@@ -100,8 +98,7 @@ class ZXGraph{
         }
         
         ~ZXGraph() {
-            // for(size_t i = 0; i < _vertices.size(); i++) delete _vertices[i];
-            for(const auto& ver: _vertices.range()) delete ver;
+            for(const auto& v: _vertices) delete v;
         }
 
 
@@ -122,9 +119,6 @@ class ZXGraph{
         size_t getNumOutputs() const                                    { return _outputs.size(); }
         size_t getNumVertices() const                                   { return _vertices.size(); }
         size_t getNumEdges() const;
-
-        //REVIEW - add: new function
-        vector<ZXVertex*> getSortedListFromSet(const ZXVertexList& set) const;
 
         // For testing
         void generateCNOT();
@@ -177,8 +171,8 @@ class ZXGraph{
         // Action
         void reset();
         ZXGraph* copy() const;
-        void sortIOByQubit();
-        void sortVerticeById();
+        void sortIOByQubit(); //REVIEW 
+        void sortVerticeById(); //REVIEW unused function; rendered useless in new version?
         void liftQubit(const size_t& n);
 
 
@@ -200,8 +194,8 @@ class ZXGraph{
         // }
         template<typename F>
         void forEachEdge(F lambda) const {
-            for (auto v : _vertices.range()) {
-                for (auto [nb, etype] : v->getNeighbors().range()) {
+            for (auto v : _vertices) {
+                for (auto [nb, etype] : v->getNeighbors()) {
                     lambda(makeEdgePair(v, nb, etype));
                 }
             }
@@ -251,9 +245,6 @@ EdgeType    str2EdgeType(const string& str);
 string      EdgeType2Str(const EdgeType& et);
 EdgeType    toggleEdge(const EdgeType& et);
 
-
-EdgeType*   str2EdgeType_depr(const string& str);
-string      EdgeType2Str_depr(const EdgeType* et);
 
 template <typename T>
 ostream& operator<<(typename enable_if<is_enum<T>::value, ostream>::type& stream, const T& e) {

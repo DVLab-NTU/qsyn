@@ -16,6 +16,7 @@
  * - O(1) deletion  (amortized)
  * - O(1) lookup
  * - Elements are stored in the order of insertion.
+ * - bidirectional iterator
  *
  * How does ordered_hashset work?
  *     ordered_hashset is composed of a linear storage of items anda vanilla 
@@ -54,11 +55,14 @@
  * sweep the linear storage, so that the traversal stays efficient.
  *
  * Caveats:
- *     As ordered_hashset automatically manages the size of its internal stor-
- * age, iterators may be invalidated upon insertion/deletion. Consequently, one
- * should not perform insertion/deletion during traversal. If this must be done,
- * it is suggested to collect the keys to another containers, and then perform
- * the insertion/deletion during traversal of another container.
+ * 1.  As ordered_hashset automatically manages the size of its internal stor-
+ *     age, iterators may be invalidated upon insertion/deletion. Consequently, 
+ *     one should not perform insertion/deletion during traversal. If this must 
+ *     be done, it is suggested to collect the keys to another containers, and 
+ *     then perform the insertion/deletion during traversal of another container.
+ * 
+ * 2.  As ordered_hashset::iterator is not random access iterator, it cannot be
+ *     sorted using std::sort; please use ordered_hashset::sort.
  *
  ****************************************************************************/
 
@@ -107,7 +111,7 @@ public:
  */
 template <typename Key, typename Hash, typename KeyEqual>
 void ordered_hashset<Key, Hash, KeyEqual>::printSet() {
-    std::cout << "----  uset  ----" << std::endl;
+    std::cout << "----  umap  ----" << std::endl;
     for (const auto& [k, v] : this->_key2id) {
         std::cout << k << " : " << v << std::endl;
     }

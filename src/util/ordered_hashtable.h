@@ -43,98 +43,90 @@ public:
     using hasher = Hash;
     using key_equal = KeyEqual;
 
-    // template <typename VecIterType>
-    // class OTableIterator;
+    template <typename VecIterType>
+    class OTableIterator;
 
-    // using iterator = OTableIterator<typename std::vector<stored_type>::iterator>;
-    // using const_iterator = OTableIterator<typename std::vector<stored_type>::const_iterator>;
-    using iterator = std::vector<stored_type>::iterator;
-    using const_iterator = std::vector<stored_type>::const_iterator;
+    using iterator = OTableIterator<typename std::vector<stored_type>::iterator>;
+    using const_iterator = OTableIterator<typename std::vector<stored_type>::const_iterator>;
 
-    // template <typename VecIterType>
-    // class OTableIterator {
-    // public:
-    //     using value_type = Value;
-    //     using difference_type = std::ptrdiff_t;
-    //     using iterator_category = std::forward_iterator_tag;
-    //     OTableIterator() {}
-    //     OTableIterator(const VecIterType& itr) : _itr(itr) {}
-    //     OTableIterator(const OTableIterator<VecIterType>& o_itr) = default;
+    template <typename VecIterType>
+    class OTableIterator {
+    public:
+        using value_type = Value;
+        using difference_type = std::ptrdiff_t;
+        using iterator_category = std::bidirectional_iterator_tag;
+        OTableIterator() {}
+        OTableIterator(const VecIterType& itr, const VecIterType& begin, const VecIterType& end) : _itr(itr),_begin(begin), _end(end) {}
+        OTableIterator(const OTableIterator<VecIterType>& o_itr) = default;
 
-    //     OTableIterator& operator++() noexcept {
-    //         ++_itr;
-    //         return *this;
-    //     }
+        OTableIterator& operator++() noexcept {
+            do {
+                ++_itr;
+            } while (_itr != _end && !_itr->has_value());
+            return *this;
+        }
 
-    //     OTableIterator operator++(int) const noexcept {
-    //         OTableIterator tmp = *this;
-    //         ++*this;
-    //         return tmp;
-    //     }
+        OTableIterator operator++(int) const noexcept {
+            OTableIterator tmp = *this;
+            ++*this;
+            return tmp;
+        }
 
-    //     bool operator==(const OTableIterator& rhs) const noexcept { return this->_itr == rhs._itr; }
-    //     bool operator!=(const OTableIterator& rhs) const noexcept { return !(*this == rhs); }
+        OTableIterator& operator--() noexcept {
+            do {
+                --_itr;
+            } while (_itr != _begin && !_itr->has_value());
+            return *this;
+        }
 
-    //     bool isValid() const noexcept { return *(this->_itr) != std::nullopt; }
+        OTableIterator operator--(int) const noexcept {
+            OTableIterator tmp = *this;
+            --*this;
+            return tmp;
+        }
 
-    //     value_type& operator*() noexcept { return (value_type&)this->_itr->value(); }
-    //     const value_type& operator*() const noexcept { return (value_type&)this->_itr->value(); }
+        bool operator==(const OTableIterator& rhs) const noexcept { return this->_itr == rhs._itr; }
+        bool operator!=(const OTableIterator& rhs) const noexcept { return !(*this == rhs); }
 
-    //     value_type* operator->() noexcept { return (value_type*)&(this->_itr->value()); }
-    //     value_type const* operator->() const noexcept { return (value_type*)&(this->_itr->value()); }
+        bool isValid() const noexcept { return *(this->_itr) != std::nullopt; }
 
-    // private:
-    //     VecIterType _itr;
-    // };
+        value_type& operator*() noexcept { return (value_type&)this->_itr->value(); }
+        const value_type& operator*() const noexcept { return (value_type&)this->_itr->value(); }
+
+        value_type* operator->() noexcept { return (value_type*)&(this->_itr->value()); }
+        value_type const* operator->() const noexcept { return (value_type*)&(this->_itr->value()); }
+
+    private:
+        VecIterType _itr;
+        VecIterType _begin;
+        VecIterType _end;
+    };
+
+    // static_assert(std::bidirectional_iterator<iterator>);
+    // static_assert(std::bidirectional_iterator<const_iterator>);
 
     ordered_hashtable(): _size(0) {}
 
     // iterators
-    iterator begin() noexcept { return this->_data.begin(); }
-    iterator end() noexcept { return this->_data.end(); }
-    const_iterator begin() const noexcept { return this->_data.begin(); }
-    const_iterator end() const noexcept { return this->_data.end(); }
-    const_iterator cbegin() const noexcept { return this->_data.cbegin(); }
-    const_iterator cend() const noexcept { return this->_data.cend(); }
-    
+    iterator begin() noexcept { return iterator(this->_data.begin(), this->_data.begin(), this->_data.end()); }
+    iterator end() noexcept { return iterator(this->_data.end(), this->_data.begin(), this->_data.end()); }
+    const_iterator begin() const noexcept { return const_iterator(this->_data.begin(), this->_data.begin(), this->_data.end()); }
+    const_iterator end() const noexcept { return const_iterator(this->_data.end(), this->_data.begin(), this->_data.end()); }
+    const_iterator cbegin() const noexcept { return const_iterator(this->_data.cbegin(), this->_data.begin(), this->_data.cend()); }
+    const_iterator cend() const noexcept { return const_iterator(this->_data.cend(), this->_data.begin(), this->_data.cend()); }
     
     // lookup
-    iterator find(const Key& key) { return this->_data.begin() + this->id(key); }
-    const_iterator find(const Key& key) const { return this->_data.begin() + this->id(key); }
+    iterator find(const Key& key) { return iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()); }
+    const_iterator find(const Key& key) const { return const_iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()); }
     size_type id (const Key& key) const;
     bool contains(const Key& key) const;
-    // virtual Key& key(const value_type& value) = 0;
     virtual const Key& key(const value_type& value) const = 0;
 
-    // static_assert(std::forward_iterator<iterator>);
-    // static_assert(std::forward_iterator<const_iterator>);
     // properties
-
     size_t size() const { return _size; }
     bool empty() const { return (this->size() == 0); }
     bool operator==(const ordered_hashtable& rhs) const { return _data = rhs->_data; }
     bool operator!=(const ordered_hashtable& rhs) const { return !(*this == rhs); }
-
-    // traversal
-    // auto range(const iterator& first, const iterator& last) { 
-    //     return (std::ranges::subrange(first, last) | std::views::filter([this](const stored_type& value) { return this->at(key(value)) != std::nullopt; })); 
-    // }
-    const auto range(const const_iterator& first, const const_iterator& last) const { 
-        return (std::ranges::subrange(first, last) | 
-                std::views::filter([this](const stored_type& value) { 
-                    return value.has_value();
-                }) | 
-                std::views::transform([this](const stored_type& value) -> value_type& {
-                    return value.value();
-                })
-        ); 
-    }
-    auto range() const { 
-        return this->range(this->begin(), this->end());
-    }
-    // auto range(const const_iterator& first = begin(), const const_iterator& last = end() ) const { 
-    //     return (std::ranges::subrange(first, last) | std::views::filter([this](const stored_type& value) { return this->isValid(value); })); 
-    // }
 
     // container manipulation
     void clear();
@@ -151,6 +143,9 @@ public:
 
     size_t erase(const Key& key);
     size_t erase(const iterator& itr);
+
+    template <typename F>
+    void sort(F lambda);
 
 
 protected:
@@ -221,7 +216,7 @@ template <typename Key, typename Value, typename StoredType, typename Hash, type
 template <typename InputIt>
 void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::insert(const InputIt& first, const InputIt& last) {
     for (auto itr = first; itr != last; ++itr) {
-        if (itr->has_value()) emplace(std::move(itr->value()));
+        emplace(std::move(*itr));
     }
 }
 
@@ -311,6 +306,22 @@ size_t ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::erase(
     return erase(key(*itr));
 }
 
+template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
+template <typename F>
+void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sort(F lambda) {
+    std::sort(this->_data.begin(), this->_data.end(), [&lambda](const stored_type& a, const stored_type& b) {
+        if (!a.has_value()) return false;
+        if (!b.has_value()) return true;
+        return lambda(a.value(), b.value());
+    });
+
+    // update key2id
+    for (size_t i = 0; i < _data.size(); ++i) {
+        if (_data[i].has_value()) {
+            this->_key2id[this->key(this->_data[i].value())] = i;
+        }
+    }
+}
 
 
 #endif // ORDERED_HASHTABLE_H

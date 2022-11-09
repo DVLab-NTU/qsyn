@@ -176,7 +176,7 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
         return false;
     }
     auto writeNeighbors = [&ZXFile](ZXVertex* v, bool complete=false){        
-        for (const auto& [nb, etype] : v->getNeighbors().range()) {
+        for (const auto& [nb, etype] : v->getNeighbors()) {
             if ((complete) || (nb->getId() >= v->getId())) {
                 ZXFile << " ";
                 switch (etype) {
@@ -196,7 +196,7 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
         return true;
     };
     ZXFile << "// Input \n";
-    for (auto& v : _inputs.range()) {
+    for (auto& v : _inputs) {
         ZXFile << "I" << _inputs.id(v) << " " << v->getQubit();
         if (!writeNeighbors(v, complete)) return false;
         ZXFile << "\n";
@@ -204,14 +204,14 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
 
     ZXFile << "// Output \n";
     
-    for (auto& v : _outputs.range()) {
+    for (auto& v : _outputs) {
         ZXFile << "O" << _outputs.id(v) << " " << v->getQubit();
         if (!writeNeighbors(v, complete)) return false;
         ZXFile << "\n";
     }
 
     ZXFile << "// Non-boundary \n";
-    for (ZXVertex* const& v : _vertices.range()) {
+    for (ZXVertex* const& v : _vertices) {
         if (v->isBoundary()) continue;
 
         if      (v->isZ()) ZXFile << "Z";
