@@ -301,7 +301,6 @@
 //  */
 // class PhaseGadget : public ZXRule{
 //   public:
-//     //TODO: Check MatchType
 //     typedef tuple<Phase, vector<ZXVertex*>, vector<ZXVertex*>> MatchType;
 //     typedef vector<MatchType> MatchTypeVec;
 
@@ -361,7 +360,6 @@
 //  */
 // class PivotGadget : public ZXRule{
 //   public:
-//     //TODO: Check MatchType
 //     typedef vector<ZXVertex* > MatchType;    // vs, vt(need to remove), newVertex
 //     typedef vector<MatchType> MatchTypeVec;
 
@@ -391,7 +389,6 @@
 //  */
 // class PivotBoundary : public ZXRule{
 //   public:
-//     //TODO: Check MatchType
 //     typedef int MatchType;
 //     typedef vector<MatchType> MatchTypeVec;
 

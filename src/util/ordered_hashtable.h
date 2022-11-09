@@ -233,7 +233,7 @@ void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::insert(const Inp
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
 template <typename... Args>
 std::pair<typename ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::iterator, bool>
-ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::emplace(Args&&... args) { // REVIEW - change for OrderedHashset
+ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::emplace(Args&&... args) { 
     this->_data.emplace_back(value_type(std::forward<Args>(args)...));
     const key_type key = this->key(this->_data.back().value());
     bool hasItem = this->_key2id.contains(key);
@@ -277,7 +277,7 @@ void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sweep() {
  * @return size_t : the number of element deleted
  */
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
-size_t ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::erase(const Key& key) { // REVIEW - change for OrderedHashset
+size_t ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::erase(const Key& key) { 
     if (!this->contains(key)) return 0;
 
     this->_data[this->id(key)] = std::nullopt;

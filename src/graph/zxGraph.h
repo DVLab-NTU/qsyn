@@ -121,10 +121,11 @@ class ZXGraph{
         size_t getNumEdges() const;
 
         // For testing
+        // FIXME - reimplement these functions and pertaining cmds
         void generateCNOT();
         bool isEmpty() const;
         bool isValid() const;
-        bool isConnected(ZXVertex* v1, ZXVertex* v2) const;
+        bool isConnected(ZXVertex* v1, ZXVertex* v2) const; // REVIEW unused
         bool isId(size_t id) const;
         bool isGraphLike() const;
         bool isInputQubit(int qubit) const;
@@ -171,7 +172,7 @@ class ZXGraph{
         // Action
         void reset();
         ZXGraph* copy() const;
-        void sortIOByQubit(); //REVIEW 
+        void sortIOByQubit(); 
         void sortVerticeById(); //REVIEW unused function; rendered useless in new version?
         void liftQubit(const size_t& n);
 
@@ -215,7 +216,6 @@ class ZXGraph{
         ZXVertexList getNonBoundary();
 
         // I/O
-        //REVIEW - overhauled: add complete mode (print all neighbors) to write
         bool readZX(string, bool bzx = false);
         bool writeZX(string, bool complete = false, bool bzx = false);
 

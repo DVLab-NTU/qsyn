@@ -49,9 +49,8 @@ void ZXVertex::printVertex() const {
  *
  */
 void ZXVertex::printNeighbors() const {
-    for (const auto& nbpair: _neighbors) {
-        //REVIEW - id dependency
-        cout << "(" << nbpair.first->getId() << ", " << EdgeType2Str(nbpair.second) << ") ";
+    for (const auto& [nb, etype]: _neighbors) {
+        cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
     }
     cout << endl;
 }
@@ -218,7 +217,7 @@ bool ZXGraph::isValid() const {
     return true;
 }
 
-// FIXME - ZXGTest
+// REVIEW unused 
 bool ZXGraph::isConnected(ZXVertex* v1, ZXVertex* v2) const {
     // if (v1->isNeighbor_depr(v2) && v2->isNeighbor_depr(v1)) return true;
     // return false;
@@ -585,14 +584,13 @@ void ZXGraph::adjoint() {
  * @param ty
  * @param phase
  */
-void ZXGraph::assignBoundary(size_t qubit, bool isInput, VertexType ty, Phase phase){
-    // ZXVertex* v = addVertex_depr(findNextId(), qubit, ty, phase);
-    // ZXVertex* boundary = isInput ? _inputList[qubit] : _outputList[qubit];
-    // EdgeType e = *(boundary -> getNeighborMap().begin()->second);
-    // ZXVertex* nebBound = boundary->getNeighbor_depr(0);
-    // removeVertex_depr(boundary);
-    // // removeEdge(boundary, nebBound);
-    // addEdge_depr(v, nebBound, new EdgeType(e));
+void ZXGraph::assignBoundary(size_t qubit, bool isInput, VertexType vt, Phase phase){
+    ZXVertex* v = addVertex(qubit, vt, phase);
+    ZXVertex* boundary = isInput ? _inputList[qubit] : _outputList[qubit];
+    for (auto& [nb, etype] : boundary->getNeighbors()) {
+        addEdge(v, nb, etype);
+    }
+    removeVertex(boundary);
 }
 
 
@@ -675,7 +673,7 @@ ZXGraph* ZXGraph::copy() const {
     return newGraph;
 }
 
-// REVIEW unused functions
+// NOTE - when re-implementing, notice that to sort ordered_hashset, use the member function (oset.sort()) instead of std::sort()
 void ZXGraph::sortIOByQubit() {
     // sort(_inputs_depr.begin(), _inputs_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
     // sort(_outputs_depr.begin(), _outputs_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });

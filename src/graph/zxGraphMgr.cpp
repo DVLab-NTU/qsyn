@@ -95,7 +95,7 @@ void ZXGraphMgr::copy(size_t id) {
     //     // Overwrite existing ZXGraph
     //     for (size_t i = 0; i < _graphList.size(); i++) {
     //         if (_graphList[i]->getId() == id) {
-    //             cout << "Overwrite existing Graph " << id << endl; // TODO guard this action?
+    //             cout << "Overwrite existing Graph " << id << endl; // REVIEW - Maybe move this message to cmd level and guard it using -Replace tag?
     //             _graphList.erase(_graphList.begin() + i);
     //             _graphList.insert(_graphList.begin() + i, copyTarget);
     //             if (verbose >= 3) cout << "Successfully copied Graph " << getGraph()->getId() << " to Graph " << id << endl;
@@ -118,6 +118,7 @@ void ZXGraphMgr::copy(size_t id) {
     // }
 }
 
+// NOTE - restructure as function of ZXGraph
 void ZXGraphMgr::compose(ZXGraph* zxGraph) {
     // ZXGraph* oriGraph = getGraph();
     // // oriGraph->sortIOByQubit();
@@ -172,6 +173,7 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph) {
     // }
 }
 
+// NOTE - restructure as function of ZXGraph
 void ZXGraphMgr::tensorProduct(ZXGraph* zxGraph) {
     // ZXGraph* oriGraph = getGraph();
     // ZXGraph* copyGraph = zxGraph->copy();

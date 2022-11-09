@@ -496,10 +496,7 @@ ZXGEditCmd::exec(const string &option) {
             zxGraphMgr->getGraph()->removeIsolatedVertices();
             return CMD_EXEC_DONE; 
         }
-        //REVIEW - consider `zxge -rmv 0 87 42`, where 87 is not a valid id,
-        //         the program will remove 0, and return an error at 87.
-        //         Is this normal? I'd expect either don't remove all three,
-        //         or just skip the non-existent ones
+        //FIXME  - If removing many vertices, some valid, some not, then remove all valid ones and warn for the invalid ones
         for (size_t v = 1; v < options.size(); v++) {
             unsigned id;
             ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[v], id);
@@ -512,7 +509,7 @@ ZXGEditCmd::exec(const string &option) {
         return CMD_EXEC_DONE;
     } 
 
-    //TODO - restructure pertaining functions
+    //REVIEW - mandatory ALL tag to remove all edge between?
     if (myStrNCmp("-RMEdge", action, 4) == 0) {
         CMD_N_OPTS_BETWEEN_OR_RETURN(options, 3, 4);
 
@@ -782,61 +779,55 @@ void ZXGWriteCmd::help() const {
 }
 
 //----------------------------------------------------------------------
-//    ZXGASsign <size_t qubit> <I|O> <Z|X> <string Phase>
+//    ZXGASsign <size_t qubit> <I|O> <VertexType vt> <string Phase>
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGAssignCmd::exec(const string &option) {
-    // // check option
-    // if (curCmd != ZXON) {
-    //     cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXEdit." << endl;
-    //     return CMD_EXEC_ERROR;
-    // }
-    // vector<string> tokens;
-    // if (!CmdExec::lexOptions(option, tokens))
-    //     return CMD_EXEC_ERROR;
+    // check option
+    if (curCmd != ZXON) {
+        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXEdit." << endl;
+        return CMD_EXEC_ERROR;
+    }
+    vector<string> options;
+    if (!CmdExec::lexOptions(option, options))
+        return CMD_EXEC_ERROR;
 
-    // if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
-    //     cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXGASsign." << endl;
-    //     return CMD_EXEC_ERROR;
-    // }
+    if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
+        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXGASsign." << endl;
+        return CMD_EXEC_ERROR;
+    }
 
-    // if (tokens.size() < 4)
-    //     return CmdExec::errorOption(CMD_OPT_MISSING, tokens[tokens.size() - 1]);
-    // if (tokens.size() > 4)
-    //     return CmdExec::errorOption(CMD_OPT_EXTRA, tokens[4]);
-    // unsigned uns;
-    // if (!myStr2Uns(tokens[0], uns)) {
-    //     cerr << "Error: qubit is invalid" << endl;
-    //     return CmdExec::errorOption(CMD_OPT_ILLEGAL, tokens[0]);
-    // }
+    CMD_N_OPTS_EQUAL_OR_RETURN(options, 4);
+    int qid;
+    ZX_CMD_QUBIT_ID_VALID_OR_RETURN(options[0], qid);
 
-    // if (tokens[1] != "I" && tokens[1] != "O") {
-    //     cerr << "Error: the option for boundary option is only \"I\" or \"O\"" << endl;
-    //     return CmdExec::errorOption(CMD_OPT_ILLEGAL, tokens[1]);
-    // }
+    bool isInput;
+    if (options[1] == "I") {
+        isInput = true;
+    } else if (options[1] == "O") {
+        isInput = false;
+    } else {
+        cerr << "Error: a boundary must be either \"I\" or \"O\"!!" << endl;
+        return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[1]);
+    }
 
-    // if (!(tokens[1] == "I" ? zxGraphMgr->getGraph()->isInputQubit(uns) : zxGraphMgr->getGraph()->isOutputQubit(uns))) {
-    //     cerr << "Error: the assigned boundary does not exists" << endl;
-    //     return CmdExec::errorOption(CMD_OPT_ILLEGAL, tokens[1]);
-    // }
-    // if (tokens[2] != "Z" && tokens[2] != "X") {
-    //     cerr << "Error: the option for vertex is only \"Z\" or \"X\"" << endl;
-    //     return CmdExec::errorOption(CMD_OPT_ILLEGAL, tokens[2]);
-    // }
+    if (!(isInput ? zxGraphMgr->getGraph()->isInputQubit(qid) : zxGraphMgr->getGraph()->isOutputQubit(qid))) {
+        cerr << "Error: the specified boundary does not exist!!" << endl;
+        return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[1]);
+    }
 
-    // Phase phase;
-    // if (!phase.fromString(tokens[3])) {
-    //     cerr << "Error: not a legal phase!!" << endl;
-    //     return CmdExec::errorOption(CMD_OPT_ILLEGAL, tokens[3]);
-    // }
+    VertexType vt;
+    ZX_CMD_VERTEX_TYPE_VALID_OR_RETURN(options[2], vt);
 
-    // VertexType ty = (tokens[2] == "Z") ? VertexType::Z : VertexType::X;
-    // zxGraphMgr->getGraph()->assignBoundary(uns, (tokens[1] == "I"), ty, phase);
+    Phase phase;
+    ZX_CMD_PHASE_VALID_OR_RETURN(options[3], phase);
+
+    zxGraphMgr->getGraph()->assignBoundary(qid, (options[1] == "I"), vt, phase);
     return CMD_EXEC_DONE;
 }
 
 void ZXGAssignCmd::usage(ostream &os) const {
-    os << "Usage: ZXGASsign <size_t qubit> <I|O> <Z|X> <string Phase>" << endl;
+    os << "Usage: ZXGASsign <size_t qubit> <I|O> <VertexType vt> <string Phase>" << endl;
 }
 
 void ZXGAssignCmd::help() const {
@@ -849,9 +840,8 @@ void ZXGAssignCmd::help() const {
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGAdjointCmd::exec(const string &option) {
-    // check option
-    // if (!lexNoOption(option)) return CMD_EXEC_ERROR;
-    // zxGraphMgr->getGraph()->adjoint();
+    if (!lexNoOption(option)) return CMD_EXEC_ERROR;
+    zxGraphMgr->getGraph()->adjoint();
     return CMD_EXEC_DONE;
 }
 
