@@ -39,7 +39,6 @@ extern size_t verbose;
  * @return int
  */
 int Simplifier::simp() {
-    bool checked = true; // for efficiency; you may want to change this to `false` if debugging a new rule
     chrono::steady_clock::time_point t_start, timer;
     chrono::microseconds t_match{0}, t_rewrite{0}, t_apply{0};
     t_start = chrono::steady_clock::now();
@@ -98,7 +97,7 @@ int Simplifier::simp() {
         rmEdgeCount += _rule->getRemoveEdges().size();
 
         // remove vertices
-        _simpGraph->removeVertices(_rule->getRemoveVertices(), checked);
+        _simpGraph->removeVertices(_rule->getRemoveVertices());
         rmVertexCount += _rule->getRemoveVertices().size();
 
         // remove isolated vertices
@@ -142,7 +141,6 @@ int Simplifier::simp() {
  * @return int
  */
 int Simplifier::hadamardSimp() {
-    bool checked = true; // for efficiency; you may want to change this to `false` if debugging a new rule
     chrono::steady_clock::time_point t_start, timer;
     chrono::microseconds t_match{0}, t_rewrite{0}, t_apply{0};
     t_start = chrono::steady_clock::now();
@@ -192,7 +190,7 @@ int Simplifier::hadamardSimp() {
         rmEdgeCount += _rule->getRemoveEdges().size();
 
         // remove vertices
-        _simpGraph->removeVertices(_rule->getRemoveVertices(), checked);
+        _simpGraph->removeVertices(_rule->getRemoveVertices());
         rmVertexCount += _rule->getRemoveVertices().size();
         // remove isolated vertices
         _simpGraph->removeIsolatedVertices();

@@ -30,6 +30,12 @@ CmdClass(ZXGWriteCmd);
 CmdClass(ZXGAdjointCmd);
 CmdClass(ZXGAssignCmd);
 
+#define ZX_CMD_ZXMODE_ON_OR_RETURN \
+if (curCmd != ZXON) {\
+    cerr << "Error: ZXMODE is OFF now. Please turn ON before using ZX commands" << endl;\
+    return CMD_EXEC_ERROR;\
+}
+
 #define ZX_CMD_QUBIT_ID_VALID_OR_RETURN(option, qid) {\
 if (!myStr2Int((option), (qid))) { \
     cerr << "Error: invalid qubit number!!" << endl; \
@@ -64,6 +70,12 @@ if (myStrNCmp("SIMPLE", (option), 1) == 0) {\
 if (!myStr2Uns((option), (id))) { \
     cerr << "Error: invalid vertex ID!!" << endl; \
     return errorOption(CMD_OPT_ILLEGAL, (option)); \
+}}
+#define ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id, v) {\
+(v) = zxGraphMgr->getGraph()->findVertexById((id)); \
+if (!(v)) {\
+    cerr << "Error: Cannot find vertex with id " << (id) << " in the graph!!" << endl; \
+    return CMD_EXEC_ERROR;\
 }}
 
 #define ZX_CMD_PHASE_VALID_OR_RETURN(option, phase) {\
