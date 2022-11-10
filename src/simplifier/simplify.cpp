@@ -316,8 +316,10 @@ int Simplifier::sfusionSimp(){
 void Simplifier::toGraph() {
     //REVIEW - Check whether the logic is correct
     for(auto& v:  _simpGraph->getVertices()){
-        if (v->getType() == VertexType::X)
+        if (v->getType() == VertexType::X){
             _simpGraph->toggleEdges(v);
+            v->setType(VertexType::Z);
+        }
     }
 }
 
@@ -329,8 +331,10 @@ void Simplifier::toGraph() {
 void Simplifier::toRGraph() {
     //REVIEW - Check whether the logic is correct
     for(auto& v:  _simpGraph->getVertices()){
-        if (v->getType() == VertexType::Z)
+        if (v->getType() == VertexType::Z){
             _simpGraph->toggleEdges(v);
+            v->setType(VertexType::X);
+        }
     }
 }
 

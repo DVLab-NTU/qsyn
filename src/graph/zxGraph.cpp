@@ -642,7 +642,6 @@ void ZXGraph::toggleEdges(ZXVertex* v){
         itr.first->addNeighbor(make_pair(v, toggleEdge(itr.second)));
     }
     v->setNeighbors(toggledNeighbors);
-    v->setType(VertexType::X);
 }
 ZXGraph* ZXGraph::copy() const {
     //! Check if EdgeType change simultaneously
