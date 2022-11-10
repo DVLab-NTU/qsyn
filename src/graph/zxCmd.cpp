@@ -15,6 +15,9 @@
 #include "util.h"
 #include "zxGraph.h"
 #include "zxGraphMgr.h"
+#include "textFormat.h"
+
+namespace TF = TextFormat;
 
 using namespace std;
 
@@ -398,31 +401,48 @@ ZXGTestCmd::exec(const string &option) {
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
     if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
-        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXTest." << endl;
+        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXGTest." << endl;
         return CMD_EXEC_ERROR;
-    } else {
-        if (token.empty() || myStrNCmp("-GenerateCNOT", token, 2) == 0)
-            zxGraphMgr->getGraph()->generateCNOT();
-        else if (myStrNCmp("-Empty", token, 2) == 0) {
-            if (zxGraphMgr->getGraph()->isEmpty())
-                cout << "This graph is empty!" << endl;
-            else
-                cout << "This graph is not empty!" << endl;
-        } else if (myStrNCmp("-Valid", token, 2) == 0) {
-            if (zxGraphMgr->getGraph()->isValid())
-                cout << "This graph is valid!" << endl;
-            else
-                cout << "This graph is invalid!" << endl;
-        } else if (myStrNCmp("-GLike", token, 3) == 0) {
-            zxGraphMgr->getGraph()->isGraphLike();
-        } else
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+    } 
+
+    if (token.empty() || myStrNCmp("-GenerateCNOT", token, 2) == 0) {
+        zxGraphMgr->getGraph()->generateCNOT();
+        return CMD_EXEC_DONE;
     }
-    return CMD_EXEC_DONE;
+
+    if (myStrNCmp("-Empty", token, 2) == 0) {
+        if (zxGraphMgr->getGraph()->isEmpty()) {
+            cout << "The graph is empty!" << endl;
+        } else {
+            cout << "The graph is not empty!" << endl;
+        }
+        return CMD_EXEC_DONE;
+    }
+    
+    if (myStrNCmp("-Valid", token, 2) == 0) {
+        if (zxGraphMgr->getGraph()->isValid()) {
+            cout << "The graph is valid!" << endl;
+        } else {
+            cout << "The graph is invalid!" << endl;
+        }
+        return CMD_EXEC_DONE;
+    } 
+    
+    if (myStrNCmp("-GLike", token, 3) == 0) {
+        if (zxGraphMgr->getGraph()->isGraphLike()) {
+            cout << "The graph is graph-like!" << endl;
+        } else {
+            cout << "The graph is not graph-like!" << endl;
+        }
+        return CMD_EXEC_DONE;
+    } 
+    
+    return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+    
 }
 
 void ZXGTestCmd::usage(ostream &os) const {
-    os << "Usage: ZXGTest [-GenerateCNOT | -Empty | -Valid]" << endl;
+    os << "Usage: ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike]" << endl;
 }
 
 void ZXGTestCmd::help() const {

@@ -112,8 +112,10 @@ bool ZXGraph::isId(size_t id) const {
     return false;
 }
 
-// For testing
-// FIXME - ZXGTest
+/**
+ * @brief Generate a CNOT subgraph to the ZXGraph (testing)
+ * 
+ */
 void ZXGraph::generateCNOT() {
     cout << "Generate a 2-qubit CNOT graph for testing" << endl;
     ZXVertex* i0 = addInput(0);
@@ -136,84 +138,75 @@ void ZXGraph::generateCNOT() {
  * @param
  * @return bool
  */
-// FIXME - ZXGTest
 bool ZXGraph::isGraphLike() const {
     
-    // // 2. all Hedge or Bedge
-    // for(size_t i=0; i < _edges_depr.size(); i++){
-    //     if((*_edges_depr[i].second)== EdgeType::HADAMARD) continue;
-    //     else{
-    //         if(_edges_depr[i].first.first->getType()== VertexType::BOUNDARY || _edges_depr[i].first.second->getType()== VertexType::BOUNDARY) continue;
-    //         else{
-    //             cout << "False: Type (" << *_edges_depr[i].second << ") of edge " << _edges_depr[i].first.first->getId() << "--" << _edges_depr[i].first.second->getId() << " is invalid!!" << endl;
-    //             return false;
-    //         }
-    //     }
-    // }
-    // // 4. B-Z-B and B has only an edge
-    // for(size_t i=0; i<_inputs_depr.size(); i++){
-    //     if(_inputs_depr[i] -> getNumNeighbors_depr() != 1){
-    //         cout << "False: Boundary vertex " << _inputs_depr[i]->getId() << " has invalid number of neighbors!!" << endl;
-    //         return false;
-    //     }
-    //     if(_inputs_depr[i] -> getNeighbor_depr(0) -> getType() == VertexType::BOUNDARY){
-    //         cout << "False: Boundary vertex " << _inputs_depr[i]->getId() << " has a boundary neighbor!!" << _inputs_depr[i] -> getNeighbor_depr(0) -> getId() << " !!" << endl;
-    //         return false;
-    //     }
-    // }
-    // // 1. all Z or B  3. no parallel, no selfloop (vertex neighbor)
-    // for(size_t i=0; i < _vertices_depr.size(); i++){
-    //     if(_vertices_depr[i]->getType()!=VertexType::BOUNDARY && _vertices_depr[i]->getType()!=VertexType::Z){
-    //         cout << "False: Type (" << _vertices_depr[i]->getType() << ") of vertex " << _vertices_depr[i]->getId() << " is invalid!!" << endl;
-    //         return false;
-    //     }
-    //     vector<ZXVertex* > neighbors = _vertices_depr[i]->getNeighbors_depr();
-    //     vector<ZXVertex* > found;
-    //     for(size_t j=0; j<neighbors.size(); j++){
-    //         if(neighbors[j] == _vertices_depr[i]){
-    //             cout << "False: Vertex "<< _vertices_depr[i]->getId() << " has selfloop(s)!!" << endl;
-    //             return false;
-    //         }
-    //         else{
-    //             if(find(found.begin(), found.end(), neighbors[j]) != found.end()){
-    //                 cout << "False: Vertices " << _vertices_depr[i]->getId() << " and " << neighbors[j]->getId() << " have parallel edges!!" << endl;
-    //                 return false;
-    //             }
-    //             found.push_back(neighbors[j]);
-    //         }
-    //     }
-    // }
-    // cout << TF::BOLD(TF::GREEN("True: The graph is graph-like")) << endl;
+    // all internal edges are hadamard edges
+    for (const auto& v : _vertices) {
+        if (!v->isZ() || !v->isBoundary()) {
+            if (verbose >= 5) {
+                cout << "Note: vertex " << v->getId() << " is of type " << VertexType2Str(v->getType()) << endl;
+            }
+        }
+        for (const auto& [nb, etype] : v->getNeighbors()) {
+            if (v->isBoundary() || nb->isBoundary()) continue;
+            if (etype != EdgeType::HADAMARD) {
+                if (verbose >= 5) {
+                    cout << "Note: internal simple edge (" << v->getId() << ", " << nb->getId() << ")" << endl;
+                }
+                return false;
+            }
+        }
+    }
+
+    // 4. B-Z-B and B has only an edge
+    for (const auto& v : _inputs) {
+        if (v->getNumNeighbors() != 1) {
+            if (verbose >= 5) {
+                cout << "Note: boundary " << v->getId() << " has " 
+                     << v->getNumNeighbors() << " neighbors; expected 1" << endl;
+            }
+            return false;
+        }
+    }
+    for (const auto& v : _outputs) {
+        if (v->getNumNeighbors() != 1) {
+            if (verbose >= 5) {
+                cout << "Note: boundary " << v->getId() << " has " 
+                     << v->getNumNeighbors() << " neighbors; expected 1" << endl;
+            }
+            return false;
+        }
+    }
+    
+    // guard B-B edge?
     return true;
 }
 
-// FIXME - ZXGTest
 bool ZXGraph::isEmpty() const {
-    if (_inputs_depr.empty() && _outputs_depr.empty() && _vertices_depr.empty() && _edges_depr.empty()) return true;
-    return false;
+    return (_inputs.empty() && _outputs.empty() && _vertices.empty());
 }
 
-// FIXME - ZXGTest
 bool ZXGraph::isValid() const {
-    // for (auto v: _inputs_depr) {
-    //     if (v->getNumNeighbors_depr() != 1) return false;
-    // }
-    // for (auto v: _outputs_depr) {
-    //     if (v->getNumNeighbors_depr() != 1) return false;
-    // }
-    // for (size_t i = 0; i < _edges_depr.size(); i++) {
-    //     if (!_edges_depr[i].first.first->isNeighbor_depr(_edges_depr[i].first.second) ||
-    //         !_edges_depr[i].first.second->isNeighbor_depr(_edges_depr[i].first.first)) return false;
-    // }
+    for (auto& v: _inputs) {
+        if (v->getNumNeighbors() != 1) return false;
+    }
+    for (auto& v: _outputs) {
+        if (v->getNumNeighbors() != 1) return false;
+    }
+    for (auto& v: _vertices) {
+        for (auto& [nb, etype]: v->getNeighbors()) {
+            if (!nb->getNeighbors().contains(make_pair(v, etype))) return false;
+        }
+    }
     return true;
 }
 
 // REVIEW unused 
-bool ZXGraph::isConnected(ZXVertex* v1, ZXVertex* v2) const {
-    // if (v1->isNeighbor_depr(v2) && v2->isNeighbor_depr(v1)) return true;
-    // return false;
-    return true;
-}
+// bool ZXGraph::isConnected(ZXVertex* v1, ZXVertex* v2) const {
+//     // if (v1->isNeighbor_depr(v2) && v2->isNeighbor_depr(v1)) return true;
+//     // return false;
+//     return true;
+// }
 
 bool ZXGraph::isInputQubit(int qubit) const {
     return (_inputList.contains(qubit));

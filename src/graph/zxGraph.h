@@ -122,12 +122,12 @@ class ZXGraph{
         size_t getNumVertices() const                                   { return _vertices.size(); }
         size_t getNumEdges() const;
 
-        // For testing
-        // FIXME - reimplement these functions and pertaining cmds
+        // For testings
         void generateCNOT();
         bool isEmpty() const;
         bool isValid() const;
-        bool isConnected(ZXVertex* v1, ZXVertex* v2) const; // REVIEW unused
+        // REVIEW unused
+        // bool isConnected(ZXVertex* v1, ZXVertex* v2) const; 
         bool isId(size_t id) const;
         bool isGraphLike() const;
         bool isInputQubit(int qubit) const;
