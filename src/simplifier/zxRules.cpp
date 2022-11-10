@@ -7,21 +7,21 @@
 // ****************************************************************************/
 
 
-// #include <iostream>
-// #include <vector>
-// #include <unordered_map>
-// #include "zxRules.h"
-// using namespace std;
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include "zxRules.h"
+using namespace std;
 
-// extern size_t verbose;
+extern size_t verbose;
 
-// void ZXRule::reset(){
-//   _matchTypeVecNum = 0;
-//   _removeVertices.clear();
-//   _removeEdges.clear();
-//   _edgeTableKeys.clear();
-//   _edgeTableValues.clear();
-// }
+void ZXRule::reset(){
+  _matchTypeVecNum = 0;
+  _removeVertices.clear();
+  _removeEdges.clear();
+  _edgeTableKeys.clear();
+  _edgeTableValues.clear();
+}
 
 
 
