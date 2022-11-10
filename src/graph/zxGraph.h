@@ -175,7 +175,7 @@ class ZXGraph{
         void sortIOByQubit(); 
         void sortVerticeById(); //REVIEW unused function; rendered useless in new version?
         void liftQubit(const size_t& n);
-
+        void toggleEdges(ZXVertex* v);
 
         // Print functions
         //REVIEW provides filters?

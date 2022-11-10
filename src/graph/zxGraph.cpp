@@ -634,6 +634,16 @@ void ZXGraph::reset() {
     _globalDFScounter = 1;
 }
 
+void ZXGraph::toggleEdges(ZXVertex* v){
+    Neighbors  toggledNeighbors;
+    for (auto& itr : v->getNeighbors()){
+        toggledNeighbors.insert(make_pair(itr.first, toggleEdge(itr.second)));
+        itr.first->removeNeighbor(make_pair(v, itr.second));
+        itr.first->addNeighbor(make_pair(v, toggleEdge(itr.second)));
+    }
+    v->setNeighbors(toggledNeighbors);
+    v->setType(VertexType::X);
+}
 ZXGraph* ZXGraph::copy() const {
     //! Check if EdgeType change simultaneously
     

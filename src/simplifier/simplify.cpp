@@ -316,24 +316,9 @@ int Simplifier::sfusionSimp(){
 void Simplifier::toGraph() {
     //REVIEW - Check whether the logic is correct
     for(auto& v:  _simpGraph->getVertices()){
-        if (v->getType() == VertexType::X) {
-            Neighbors  toggledNeighbors;
-            for (auto& itr : v->getNeighbors()){
-                toggledNeighbors.insert(make_pair(itr.first, toggleEdge(itr.second)));
-                itr.first->removeNeighbor(make_pair(v, itr.second));
-                itr.first->addNeighbor(make_pair(v, toggleEdge(itr.second)));
-            }
-            v->setNeighbors(toggledNeighbors);
-            v->setType(VertexType::Z);
-        }
+        if (v->getType() == VertexType::X)
+            _simpGraph->toggleEdges(v);
     }
-    // for (size_t i = 0; i < _simpGraph->getNumVertices(); i++) {
-    //     ZXVertex* v = _simpGraph->getVertices_depr()[i];
-    //     if (v->getType() == VertexType::X) {
-    //         for (auto& itr : v->getNeighborMap()) *itr.second = toggleEdge(*itr.second);
-    //         v->setType(VertexType::Z);
-    //     }
-    // }
 }
 
 /**
@@ -344,16 +329,8 @@ void Simplifier::toGraph() {
 void Simplifier::toRGraph() {
     //REVIEW - Check whether the logic is correct
     for(auto& v:  _simpGraph->getVertices()){
-        if (v->getType() == VertexType::Z) {
-            Neighbors  toggledNeighbors;
-            for (auto& itr : v->getNeighbors()){
-                toggledNeighbors.insert(make_pair(itr.first, toggleEdge(itr.second)));
-                itr.first->removeNeighbor(make_pair(v, itr.second));
-                itr.first->addNeighbor(make_pair(v, toggleEdge(itr.second)));
-            }
-            v->setNeighbors(toggledNeighbors);
-            v->setType(VertexType::X);
-        }
+        if (v->getType() == VertexType::Z)
+            _simpGraph->toggleEdges(v);
     }
 }
 
