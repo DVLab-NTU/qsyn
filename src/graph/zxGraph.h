@@ -53,7 +53,7 @@ class ZXVertex{
         void setType(const VertexType& ZXVertex)                            { _type = ZXVertex; }
         void setPhase(const Phase& p)                                       { _phase = p; }
         void setPin(const size_t& p)                                        { _pin = p; }
-
+        void setNeighbors(const Neighbors& n)                               { _neighbors = n; }
         // Add and Remove
         void addNeighbor(const NeighborPair& nb)                            { _neighbors.insert(nb); }
         void removeNeighbor(const NeighborPair& nb)                         { _neighbors.erase(nb); }
@@ -175,7 +175,7 @@ class ZXGraph{
         void sortIOByQubit(); 
         void sortVerticeById(); //REVIEW unused function; rendered useless in new version?
         void liftQubit(const size_t& n);
-
+        void toggleEdges(ZXVertex* v);
 
         // Print functions
         //REVIEW provides filters?
