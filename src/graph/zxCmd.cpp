@@ -117,12 +117,13 @@ void ZXModeCmd::help() const {
 
 CmdExecStatus
 ZXNewCmd::exec(const string &option) {
+
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
+
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    if (curCmd != ZXON) {
-        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXNew" << endl;
-        return CMD_EXEC_ERROR;
-    }
+
+
     if (token.empty())
         zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
     else {
@@ -152,6 +153,8 @@ void ZXNewCmd::help() const {
 
 CmdExecStatus
 ZXRemoveCmd::exec(const string &option) {
+
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
     // string token;
     // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     // if (curCmd != ZXON) {
@@ -191,6 +194,8 @@ void ZXRemoveCmd::help() const {
 
 CmdExecStatus
 ZXCHeckoutCmd::exec(const string &option) {
+
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
     // string token;
     // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     // if (curCmd != ZXON) {
@@ -230,6 +235,8 @@ void ZXCHeckoutCmd::help() const {
 
 CmdExecStatus
 ZXPrintCmd::exec(const string &option) {
+
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
     // string token;
     // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     // if (curCmd != ZXON)
@@ -263,6 +270,8 @@ void ZXPrintCmd::help() const {
 
 CmdExecStatus
 ZXCOPyCmd::exec(const string &option) {
+
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
     // string token;
     // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     // if (curCmd != ZXON)
@@ -298,6 +307,8 @@ void ZXCOPyCmd::help() const {
 
 CmdExecStatus
 ZXCOMposeCmd::exec(const string &option) {
+
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
     // string token;
     // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     // if (curCmd != ZXON)
@@ -338,6 +349,8 @@ void ZXCOMposeCmd::help() const {
 
 CmdExecStatus
 ZXTensorCmd::exec(const string &option) {
+
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
     // string token;
     // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     // if (curCmd != ZXON)
@@ -378,35 +391,33 @@ void ZXTensorCmd::help() const {
 
 CmdExecStatus
 ZXGTestCmd::exec(const string &option) {
-    // if (curCmd != ZXON) {
-    //     cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXTest." << endl;
-    //     return CMD_EXEC_ERROR;
-    // }
-    // // check option
-    // string token;
-    // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
-    // if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
-    //     cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXTest." << endl;
-    //     return CMD_EXEC_ERROR;
-    // } else {
-    //     if (token.empty() || myStrNCmp("-GenerateCNOT", token, 2) == 0)
-    //         zxGraphMgr->getGraph()->generateCNOT();
-    //     else if (myStrNCmp("-Empty", token, 2) == 0) {
-    //         if (zxGraphMgr->getGraph()->isEmpty())
-    //             cout << "This graph is empty!" << endl;
-    //         else
-    //             cout << "This graph is not empty!" << endl;
-    //     } else if (myStrNCmp("-Valid", token, 2) == 0) {
-    //         if (zxGraphMgr->getGraph()->isValid())
-    //             cout << "This graph is valid!" << endl;
-    //         else
-    //             cout << "This graph is invalid!" << endl;
-    //     } else if (myStrNCmp("-GLike", token, 3) == 0) {
-    //         zxGraphMgr->getGraph()->isGraphLike();
-    //     } else
-    //         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    // }
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
+    // check option
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+
+    if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
+        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXTest." << endl;
+        return CMD_EXEC_ERROR;
+    } else {
+        if (token.empty() || myStrNCmp("-GenerateCNOT", token, 2) == 0)
+            zxGraphMgr->getGraph()->generateCNOT();
+        else if (myStrNCmp("-Empty", token, 2) == 0) {
+            if (zxGraphMgr->getGraph()->isEmpty())
+                cout << "This graph is empty!" << endl;
+            else
+                cout << "This graph is not empty!" << endl;
+        } else if (myStrNCmp("-Valid", token, 2) == 0) {
+            if (zxGraphMgr->getGraph()->isValid())
+                cout << "This graph is valid!" << endl;
+            else
+                cout << "This graph is invalid!" << endl;
+        } else if (myStrNCmp("-GLike", token, 3) == 0) {
+            zxGraphMgr->getGraph()->isGraphLike();
+        } else
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+    }
     return CMD_EXEC_DONE;
 }
 
@@ -425,10 +436,8 @@ void ZXGTestCmd::help() const {
 //REVIEW provides filters?
 CmdExecStatus
 ZXGPrintCmd::exec(const string &option) {
-    if (curCmd != ZXON) {
-        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXPrint." << endl;
-        return CMD_EXEC_ERROR;
-    }
+
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
     // check option
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
@@ -463,20 +472,18 @@ void ZXGPrintCmd::help() const {
 }
 
 //------------------------------------------------------------------------------------
-//    ZXGEdit -RMVertex [i | <(size_t id(s))> ]
-//            -RMEdge <(size_t id_s), (size_t id_t)> [ SIMPLE | HADAMARD ]
-//            -ADDVertex <(size_t id), (size_t qubit), (VertexType vt), [Phase phase]>
-//            -ADDInput <(size_t id), (size_t qubit)>
-//            -ADDOutput <(size_t id), (size_t qubit)>
+//    ZXGEdit -RMVertex <-Isolated | (size_t id)... >
+//            -RMEdge <(size_t id_s), (size_t id_t)> <-ALL | (EdgeType et)>
+//            -ADDVertex <(size_t qubit), (VertexType vt), [Phase phase]>
+//            -ADDInput <(size_t qubit)>
+//            -ADDOutput <(size_t qubit)>
 //            -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>
 //------------------------------------------------------------------------------------
 
 CmdExecStatus
 ZXGEditCmd::exec(const string &option) {
-    if (curCmd != ZXON) {
-        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXEdit." << endl;
-        return CMD_EXEC_ERROR;
-    }
+
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
     // check option
     vector<string> options;
     if (!CmdExec::lexOptions(option, options)) {
@@ -492,36 +499,48 @@ ZXGEditCmd::exec(const string &option) {
 
     string action = options[0];
     if (myStrNCmp("-RMVertex", action, 4) == 0) {
-        if (options[1] == "i" && options.size() == 2) {
+        if (myStrNCmp("-Isolated", options[1], 2)) {
+            CMD_N_OPTS_AT_MOST_OR_RETURN(options, 2);
             zxGraphMgr->getGraph()->removeIsolatedVertices();
             return CMD_EXEC_DONE; 
         }
-        //FIXME  - If removing many vertices, some valid, some not, then remove all valid ones and warn for the invalid ones
-        for (size_t v = 1; v < options.size(); v++) {
+        
+        for (size_t i = 1; i < options.size(); i++) {
             unsigned id;
-            ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[v], id);
-
-            if (!zxGraphMgr->getGraph()->isId(id)) {
-                return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[v]);
+            if (!myStr2Uns(options[i], id)) {
+                cerr << "Warning: invalid vertex ID (" << options[i] <<")!!" << endl;
+                continue;
             }
-            zxGraphMgr->getGraph()->removeVertexById(id);
+            ZXVertex* v = zxGraphMgr->getGraph()->findVertexById(id);
+            if (!v) {
+                cerr << "Warning: Cannot find vertex with id " << id << " in the graph!!" << endl;
+                continue;
+            } 
+            zxGraphMgr->getGraph()->removeVertex(v);
         }
         return CMD_EXEC_DONE;
     } 
 
-    //REVIEW - mandatory ALL tag to remove all edge between?
     if (myStrNCmp("-RMEdge", action, 4) == 0) {
-        CMD_N_OPTS_BETWEEN_OR_RETURN(options, 3, 4);
+        CMD_N_OPTS_EQUAL_OR_RETURN(options, 4);
 
         unsigned id_s, id_t;
+        ZXVertex* vs;
+        ZXVertex* vt;
         EdgeType etype;
+
         ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[1], id_s);
         ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[2], id_t);
-        if (options.size() == 4) {
+        ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_s, vs);
+        ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_t, vt);
+
+        if (myStrNCmp("-ALL", options[3], 4) == 0) {
+            zxGraphMgr->getGraph()->removeAllEdgesBetween(vs, vt);
+        } else {
             ZX_CMD_EDGE_TYPE_VALID_OR_RETURN(options[3], etype);
+            zxGraphMgr->getGraph()->removeEdge(vs, vt, etype);
         }
 
-        zxGraphMgr->getGraph()->removeEdgeById(id_s, id_t, etype);
         return CMD_EXEC_DONE;
     } 
     
@@ -565,12 +584,19 @@ ZXGEditCmd::exec(const string &option) {
         CMD_N_OPTS_EQUAL_OR_RETURN(options, 4);
 
         unsigned id_s, id_t;
+        ZXVertex* vs;
+        ZXVertex* vt;
         EdgeType etype;
+
         ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[1], id_s);
         ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[2], id_t);
+
+        ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_s, vs);
+        ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_t, vt);
+
         ZX_CMD_EDGE_TYPE_VALID_OR_RETURN(options[3], etype);
         
-        zxGraphMgr->getGraph()->addEdgeById(id_s, id_t, etype);
+        zxGraphMgr->getGraph()->addEdge(vs, vt, etype);
         return CMD_EXEC_DONE;
     } 
         
@@ -578,9 +604,9 @@ ZXGEditCmd::exec(const string &option) {
 }
 
 void ZXGEditCmd::usage(ostream &os) const {
-    os << "Usage: ZXGEdit -RMVertex [i | <(size_t id(s))> ]" << endl;
-    os << "               -RMEdge <(size_t id_s), (size_t id_t)> [EdgeType et]" << endl;
-    os << "               -ADDVertex <(size_t qubit), (VertexType vt)> [Phase phase]" << endl;
+    os << "Usage: ZXGEdit -RMVertex <-Isolated | (size_t id)... >" << endl;
+    os << "               -RMEdge <(size_t id_s), (size_t id_t)> <-ALL | (EdgeType et)>" << endl;
+    os << "               -ADDVertex <(size_t qubit), (VertexType vt), [Phase phase]>" << endl;
     os << "               -ADDInput <(size_t qubit)>" << endl;
     os << "               -ADDOutput <(size_t qubit)>" << endl;
     os << "               -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>" << endl;
@@ -596,9 +622,10 @@ void ZXGEditCmd::help() const {
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGTraverseCmd::exec(const string &option) {
-    // string token;
-    // if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
-    // zxGraphMgr->getGraph()->updateTopoOrder();
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
+    string token;
+    if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
+    zxGraphMgr->getGraph()->updateTopoOrder();
     return CMD_EXEC_DONE;
 }
 
@@ -616,6 +643,7 @@ void ZXGTraverseCmd::help() const {
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGTSMappingCmd::exec(const string &option) {
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
     // string token;
     // if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
     // zxGraphMgr->getGraph()->tensorMapping();
@@ -636,10 +664,7 @@ void ZXGTSMappingCmd::help() const {
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGReadCmd::exec(const string &option) {
-    if (curCmd != ZXON) {
-        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXGRead." << endl;
-        return CMD_EXEC_ERROR;
-    }
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
     // check option
     vector<string> options;
 
@@ -717,11 +742,7 @@ void ZXGReadCmd::help() const {
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGWriteCmd::exec(const string &option) {
-    // check option
-    if (curCmd != ZXON) {
-        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXEdit." << endl;
-        return CMD_EXEC_ERROR;
-    }
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
     vector<string> options;
 
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
@@ -784,10 +805,8 @@ void ZXGWriteCmd::help() const {
 CmdExecStatus
 ZXGAssignCmd::exec(const string &option) {
     // check option
-    if (curCmd != ZXON) {
-        cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXEdit." << endl;
-        return CMD_EXEC_ERROR;
-    }
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
+
     vector<string> options;
     if (!CmdExec::lexOptions(option, options))
         return CMD_EXEC_ERROR;
@@ -840,6 +859,7 @@ void ZXGAssignCmd::help() const {
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGAdjointCmd::exec(const string &option) {
+    ZX_CMD_ZXMODE_ON_OR_RETURN;
     if (!lexNoOption(option)) return CMD_EXEC_ERROR;
     zxGraphMgr->getGraph()->adjoint();
     return CMD_EXEC_DONE;

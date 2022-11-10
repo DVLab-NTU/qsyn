@@ -44,8 +44,8 @@ class ZXVertex{
         const Phase& getPhase() const                                       { return _phase; }
         const size_t& getPin() const                                        { return _pin; }   
         
-        const Neighbors& getNeighbors() const                                    { return _neighbors; }
-        size_t getNumNeighbors() const                                           { return _neighbors.size(); }
+        const Neighbors& getNeighbors() const                               { return _neighbors; }
+        size_t getNumNeighbors() const                                      { return _neighbors.size(); }
         // QTensor<double> getTSform();
 
         void setId(const size_t& id)                                        { _id = id; }
@@ -56,7 +56,8 @@ class ZXVertex{
         void setNeighbors(const Neighbors& n)                               { _neighbors = n; }
         // Add and Remove
         void addNeighbor(const NeighborPair& nb)                            { _neighbors.insert(nb); }
-        void removeNeighbor(const NeighborPair& nb)                         { _neighbors.erase(nb); }
+        size_t removeNeighbor(const NeighborPair& nb)                       { return _neighbors.erase(nb); }
+        size_t removeNeighbor(ZXVertex* v, EdgeType etype)                  { return removeNeighbor(make_pair(v, etype)); }
 
 
         // Print functions
@@ -70,6 +71,7 @@ class ZXVertex{
         // Test
         bool isNeighbor(ZXVertex* v) const;
         bool isNeighbor(const NeighborPair& nb) const { return _neighbors.contains(nb); }
+        bool isNeighbor(ZXVertex* v, EdgeType etype) const { return isNeighbor(make_pair(v, etype)); }
         bool isZ()        const { return getType() == VertexType::Z; }
         bool isX()        const { return getType() == VertexType::X; }
         bool isHBox()     const { return getType() == VertexType::H_BOX; }
@@ -141,22 +143,26 @@ class ZXGraph{
         void addOutputs(const ZXVertexList& outputs);
         void addVertices(const ZXVertexList& vertices, bool reordered = false);
         EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
-        void addEdgeById(size_t id_s, size_t id_t, EdgeType et);
+        // REVIEW unused
+        // void addEdgeById(size_t id_s, size_t id_t, EdgeType et);
         
         void mergeInputList(unordered_map<size_t, ZXVertex*> lst);
         void mergeOutputList(unordered_map<size_t, ZXVertex*> lst);
 
-        void removeVertex(ZXVertex* v, bool checked = false);
+        size_t removeVertex(ZXVertex* v);
 
-        void removeVertices(vector<ZXVertex* > vertices, bool checked = false);
-        void removeVertexById(const size_t& id);
+        size_t removeVertices(vector<ZXVertex* > vertices);
+        //REVIEW unused
+        // size_t removeVertexById(const size_t& id);
 
-        void removeIsolatedVertices();
+        size_t removeIsolatedVertices();
 
-        void removeAllEdgesBetween(ZXVertex* vs, ZXVertex* vt, bool checked = false);
-        void removeEdge(const EdgePair& ep);
-        void removeEdges(const vector<EdgePair>& eps);
-        void removeEdgeById(const size_t& id_s, const size_t& id_t, EdgeType etype = EdgeType::ERRORTYPE);
+        size_t removeAllEdgesBetween(ZXVertex* vs, ZXVertex* vt, bool checked = false);
+        size_t removeEdge(ZXVertex* vs, ZXVertex* vt, EdgeType etype);
+        size_t removeEdge(const EdgePair& ep);
+        size_t removeEdges(const vector<EdgePair>& eps);
+        //REVIEW unused
+        // void removeEdgeById(const size_t& id_s, const size_t& id_t, EdgeType etype = EdgeType::ERRORTYPE); 
 
         // Operation on graph
         void adjoint();
