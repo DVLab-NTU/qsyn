@@ -499,9 +499,10 @@ ZXGEditCmd::exec(const string &option) {
 
     string action = options[0];
     if (myStrNCmp("-RMVertex", action, 4) == 0) {
-        if (myStrNCmp("-Isolated", options[1], 2)) {
+        if (myStrNCmp("-Isolated", options[1], 2) == 0) {
             CMD_N_OPTS_AT_MOST_OR_RETURN(options, 2);
             zxGraphMgr->getGraph()->removeIsolatedVertices();
+            cout << "Note: removing isolated vertices..." << endl;
             return CMD_EXEC_DONE; 
         }
         

@@ -401,7 +401,7 @@ void ZXGraph::mergeOutputList(unordered_map<size_t, ZXVertex*> lst) {
  */
 size_t ZXGraph::removeVertex(ZXVertex* v) {
     if (!_vertices.contains(v)) return 0;
-
+    
     auto vNeighbors = v->getNeighbors();
     for(const auto& n: vNeighbors) {
         v -> removeNeighbor(n);
