@@ -187,12 +187,12 @@ class ZXGraph{
 
         
         // Traverse
-        // void updateTopoOrder();
-        // template<typename F>
-        // void topoTraverse(F lambda){
-        //     updateTopoOrder();
-        //     for_each(_topoOrder.begin(),_topoOrder.end(),lambda);
-        // }
+        void updateTopoOrder();
+        template<typename F>
+        void topoTraverse(F lambda){
+            updateTopoOrder();
+            for_each(_topoOrder.begin(),_topoOrder.end(),lambda);
+        }
         template<typename F>
         void forEachEdge(F lambda) const {
             for (auto v : _vertices) {
@@ -235,7 +235,7 @@ class ZXGraph{
         ZXVertexList                      _vertices;
         ZXVertexList                      _inputs;
         ZXVertexList                      _outputs;
-        // void DFS(ZXVertex*);
+        void DFS(ZXVertex*);
 
 };
 
