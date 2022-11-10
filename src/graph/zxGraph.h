@@ -46,7 +46,7 @@ class ZXVertex{
         
         const Neighbors& getNeighbors() const                               { return _neighbors; }
         size_t getNumNeighbors() const                                      { return _neighbors.size(); }
-        // QTensor<double> getTSform();
+        QTensor<double> getTSform();
 
         void setId(const size_t& id)                                        { _id = id; }
         void setQubit(const int& q)                                         { _qubit = q; }

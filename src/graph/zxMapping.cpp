@@ -26,37 +26,24 @@ extern size_t verbose;
 //     _inputList.clear(); _outputList.clear();
 // }
 
-// QTensor<double> ZXVertex::getTSform(){
-//     QTensor<double> tensor = (1. + 0.i);
-//     if (_type == VertexType::BOUNDARY){
-//         tensor = QTensor<double>::identity(_neighborMap_depr.size());
-//         return tensor;
-//     }
-        
-//     // Check self loop
-//     size_t hedge = 0, sedge = 0;
-//     auto neighborSelf = _neighborMap_depr.equal_range(this);
-//     for (auto jtr = neighborSelf.first; jtr != neighborSelf.second; jtr++) {
-//         if(*(jtr->second) == EdgeType::HADAMARD) hedge++;
-//         else if(*(jtr->second) == EdgeType::SIMPLE) sedge++;
-//         else cerr << "Wrong Type!!" << endl;
-//     }
-
-//     Phase tsPhase = _phase;
-//     assert(hedge%2==0); assert(sedge%2==0);
-//     for(size_t i=0; i<hedge/2; i++) tsPhase += Phase(1);
+QTensor<double> ZXVertex::getTSform(){
+    QTensor<double> tensor = (1. + 0.i);
+    if (isBoundary()){
+        tensor = QTensor<double>::identity(_neighbors.size());
+        return tensor;
+    }
     
     
-//     if (_type == VertexType::H_BOX)
-//         tensor = QTensor<double>::hbox(_neighborMap_depr.size()-sedge-hedge);
-//     else if (_type == VertexType::Z)
-//         tensor = QTensor<double>::zspider(_neighborMap_depr.size()-sedge-hedge, tsPhase);
-//     else if (_type == VertexType::X)
-//         tensor = QTensor<double>::xspider(_neighborMap_depr.size()-sedge-hedge, tsPhase);
-//     else
-//         cerr << "Error: Invalid vertex type!! (" << _id << ")" << endl;
-//     return tensor;
-// }
+    if (isHBox())
+        tensor = QTensor<double>::hbox(_neighbors.size());
+    else if (isZ())
+        tensor = QTensor<double>::zspider(_neighbors.size());
+    else if (isX())
+        tensor = QTensor<double>::xspider(_neighbors.size());
+    else
+        cerr << "Error: Invalid vertex type!! (" << _id << ")" << endl;
+    return tensor;
+}
 
 ZXVertexList ZXGraph::getNonBoundary() {
     ZXVertexList tmp;
@@ -116,26 +103,12 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
     tmp->reset();
 }
 
-// void ZXGraph::cleanRedundantEdges() {
-//     vector<EdgePair_depr> tmp;
-//     tmp.clear();
-//     for (size_t i = 0; i < _edges_depr.size(); i++) {
-//         ZXVertex* v = _edges_depr[i].first.second;
-//         if (v->getType() == VertexType::BOUNDARY) {  // is output
-//             if (v->isNeighbor_depr(_edges_depr[i].first.first)) {
-//                 tmp.push_back(_edges_depr[i]);
-//             } 
-//         } 
-//         else tmp.push_back(_edges_depr[i]);
-//     }
-//     _edges_depr.clear();
-//     _edges_depr = tmp;
-// }
 
-// void ZXGraph::tensorMapping() {
-//     for(size_t i=0; i<_vertices_depr.size(); i++){
-//         _vertices_depr[i] -> setPin(unsigned(-1));
-//     }
-//     ZX2TSMapper mapper(this);
-//     mapper.map();
-// }
+void ZXGraph::tensorMapping() {
+    for (auto& v : _vertices) {
+        v->setPin(unsigned(-1));
+    }
+    
+    ZX2TSMapper mapper(this);
+    mapper.mapping();
+}

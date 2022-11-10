@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ zxMapping.cpp ]
+  FileName     [ zx2tsMapper.h ]
   PackageName  [ graph ]
   Synopsis     [ Mapper class for ZX-to-Tensor mapping ]
   Author       [ Chin-Yi Cheng, Mu-Te Joshua Lau ]
@@ -14,10 +14,11 @@
 #include <algorithm>
 #include "zxGraph.h"
 #include "util.h"
+#include "ordered_hashmap.h"
 
 class ZX2TSMapper {
 public:
-    using Frontiers = unordered_multimap<EdgePair,size_t>;
+    using Frontiers = ordered_hashmap<EdgePair,size_t>;
 
     ZX2TSMapper(ZXGraph* zxg): _zxgraph(zxg) {}
     class ZX2TSList {
@@ -44,18 +45,18 @@ public:
         vector<pair<Frontiers, QTensor<double>>> _zx2tsList; 
     };
     
-    bool map();
+    bool mapping();
 
 private:
     ZXGraph*            _zxgraph;       // The ZX Graph to be mapped
-    vector<EdgePair>     _boundaryEdges; // EdgePairs of the boundaries 
+    vector<EdgePair>    _boundaryEdges; // EdgePairs of the boundaries 
     ZX2TSList           _zx2tsList;     // The tensor list for each set of frontiers
     size_t              _tensorId;      // Current tensor id for the _tensorId
 
     TensorAxisList      _simplePins;     // Axes that can be tensordotted directly
     TensorAxisList      _hadamardPins;   // Axes that should be applied hadamards first
-    vector<EdgePair>     _removeEdges;    // Old frontiers to be removed
-    vector<EdgePair>     _addEdges;       // New frontiers to be added
+    vector<EdgePair>    _removeEdges;    // Old frontiers to be removed
+    vector<EdgePair>    _addEdges;       // New frontiers to be added
     
     Frontiers&             currFrontiers()       { return _zx2tsList.frontiers(_tensorId); }
     QTensor<double>&       currTensor()          { return _zx2tsList.tensor(_tensorId); }
@@ -71,7 +72,7 @@ private:
     void tensorDotVertex(ZXVertex* v);
 
     bool isOfNewGraph(const ZXVertex* v);
-    bool isFrontier(const pair<ZXVertex*, EdgeType*>& nbr) const { return (nbr.first->getPin() != unsigned(-1)); }
+    bool isFrontier(const Neighbor& nbr) const { return (nbr.first->getPin() != unsigned(-1)); }
 
     void printFrontiers() const;
     // EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et);
