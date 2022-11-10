@@ -14,7 +14,7 @@ zxCmd.o: zxCmd.cpp zxCmd.h ../../include/cmdParser.h \
  ../../include/tensor.h ../../include/tensorDef.h \
  ../../include/tensorUtil.h ../../include/phase.h zxDef.h \
  ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
- ../../include/myHashMap.h zxGraphMgr.h
+ ../../include/myHashMap.h zxGraphMgr.h ../../include/textFormat.h
 zxIO.o: zxIO.cpp ../../include/util.h ../../include/rnGen.h \
  ../../include/myUsage.h zxGraph.h ../../include/phase.h \
  ../../include/rationalNumber.h ../../include/myConcepts.h \
