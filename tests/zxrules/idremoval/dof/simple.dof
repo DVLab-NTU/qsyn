@@ -1,15 +1,15 @@
 zxm -on
 zxn
-zxgedit -addi 0 0
-zxgedit -addo 1 0
-zxgedit -addv 2 0 Z 0
-zxgedit -addv 3 0 X 0
-zxgedit -addv 4 0 Z 0
-zxgedit -addv 5 0 Z 0
-zxgedit -addv 6 0 Z 0
-zxgedit -addv 7 0 H_BOX 0
-zxgedit -addv 8 0 Z 1.5708
-zxgedit -addv 9 0 X 1.5708
+zxgedit -addi 0
+zxgedit -addo 0
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 X 0
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 H_BOX 0
+zxgedit -addv 0 Z 1.5708
+zxgedit -addv 0 X 1.5708
 zxgedit -adde 0 2 SIMPLE
 zxgedit -adde 1 2 SIMPLE
 zxgedit -adde 0 3 SIMPLE
