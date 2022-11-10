@@ -429,7 +429,8 @@ size_t ZXGraph::removeVertex(ZXVertex* v) {
 size_t ZXGraph::removeVertices(vector<ZXVertex*> vertices) {
     size_t count = 0;
     for (const auto& v : vertices) {
-        count += _vertices.erase(v);
+        //REVIEW should call removeVertex
+        count += removeVertex(v);
     }
     return count;
 }

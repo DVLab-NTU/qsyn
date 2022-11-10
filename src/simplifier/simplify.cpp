@@ -253,11 +253,11 @@ int Simplifier::hadamardSimp() {
 // }
 
 
-// int Simplifier::hruleSimp(){
-//     this->setRule(new HRule());
-//     int i = this->hadamardSimp();
-//     return i;
-// }
+int Simplifier::hruleSimp(){
+    this->setRule(new HRule());
+    int i = this->hadamardSimp();
+    return i;
+}
 
 
 int Simplifier::idSimp(){

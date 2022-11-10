@@ -54,7 +54,7 @@ class Simplifier{
         Simplifier(ZXGraph* g){
             _rule = nullptr;
             _simpGraph = g;
-            // hruleSimp();
+            hruleSimp();
         }
         Simplifier(ZXRule* rule, ZXGraph* g){
             _rule = rule;
