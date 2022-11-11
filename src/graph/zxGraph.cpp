@@ -122,8 +122,8 @@ void ZXGraph::generateCNOT() {
     ZXVertex* i1 = addInput(1);
     ZXVertex* vz = addVertex(0, VertexType::Z);
     ZXVertex* vx = addVertex(1, VertexType::X);
-    ZXVertex* o0 = addInput(0);
-    ZXVertex* o1 = addInput(1);
+    ZXVertex* o0 = addOutput(0);
+    ZXVertex* o1 = addOutput(1);
 
     addEdge(i0, vz, EdgeType::SIMPLE);
     addEdge(i1, vx, EdgeType::SIMPLE);
