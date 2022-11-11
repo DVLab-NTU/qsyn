@@ -203,7 +203,8 @@ class ZXGraph{
         void forEachEdge(F lambda) const {
             for (auto v : _vertices) {
                 for (auto [nb, etype] : v->getNeighbors()) {
-                    lambda(makeEdgePair(v, nb, etype));
+                    if(nb->getId() > v->getId())
+                        lambda(makeEdgePair(v, nb, etype));
                 }
             }
         }

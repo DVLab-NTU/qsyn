@@ -99,10 +99,8 @@ size_t ZXGraph::getNumEdges() const {
     size_t n = 0;
     for (auto& v: _vertices) {
         n += v->getNumNeighbors(); 
-
     }
-    
-    return n;
+    return n/2;
 }
 
 bool ZXGraph::isId(size_t id) const {
