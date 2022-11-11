@@ -108,9 +108,9 @@ public:
     ordered_hashtable(): _size(0) {}
 
     // iterators
-    iterator begin() noexcept { auto itr = _data.begin(); while (!itr->has_value()) ++itr; return iterator(itr, this->_data.begin(), this->_data.end()); }
+    iterator begin() noexcept { auto itr = _data.begin(); while (itr != _data.end() && !itr->has_value()) ++itr; return iterator(itr, this->_data.begin(), this->_data.end()); }
     iterator end() noexcept { return iterator(this->_data.end(), this->_data.begin(), this->_data.end()); }
-    const_iterator begin() const noexcept { auto itr = _data.begin(); while (!itr->has_value()) ++itr;  return const_iterator(itr, this->_data.begin(), this->_data.end()); }
+    const_iterator begin() const noexcept { auto itr = _data.begin(); while (itr != _data.end() && !itr->has_value()) ++itr;  return const_iterator(itr, this->_data.begin(), this->_data.end()); }
     const_iterator end() const noexcept { return const_iterator(this->_data.end(), this->_data.begin(), this->_data.end()); }
     const_iterator cbegin() const noexcept { return const_iterator(this->_data.cbegin(), this->_data.begin(), this->_data.cend()); }
     const_iterator cend() const noexcept { return const_iterator(this->_data.cend(), this->_data.begin(), this->_data.cend()); }
