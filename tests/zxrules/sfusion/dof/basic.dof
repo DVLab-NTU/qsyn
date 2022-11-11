@@ -1,9 +1,9 @@
 zxm -on
 zxn
-zxgedit -addi 0 0
-zxgedit -addo 1 0
-zxgedit -addv 2 0 Z 0
-zxgedit -addv 3 0 Z 0
+zxgedit -addi 0
+zxgedit -addo 0
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 Z 0
 zxgedit -adde 2 3 SIMPLE
 zxgedit -adde 1 2 SIMPLE
 zxgedit -adde 2 3 SIMPLE

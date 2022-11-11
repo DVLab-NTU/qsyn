@@ -47,10 +47,10 @@ void IdRemoval::match(ZXGraph* g) {
         NeighborPair nbp0 = *(nebs.begin());
         NeighborPair nbp1 = *next(nebs.begin());
 
-        if (nbp0.first == nbp1.first) {
-            //REVIEW - A B with h and s edge should not be removed
-            continue;
-        }
+        // if (nbp0.first == nbp1.first) {
+        //     //REVIEW - A B with h and s edge should not be removed
+        //     continue;
+        // }
         EdgeType  etype  = (nbp0.second == nbp1.second) ? EdgeType::SIMPLE : EdgeType::HADAMARD;
 
         _matchTypeVec.emplace_back(v, nbp0.first, nbp1.first, etype);
@@ -109,7 +109,12 @@ void IdRemoval::rewrite(ZXGraph* g) {
     //* _edgeTableKeys: A pair of ZXVertex* like (ZXVertex* vs, ZXVertex* vt), which you would like to add #s EdgeType::SIMPLE between them and #h EdgeType::HADAMARD between them
     //* _edgeTableValues: A pair of int like (int s, int h), which means #s EdgeType::SIMPLE and #h EdgeType::HADAMARD
     for (const auto& [v, n0, n1, et] : _matchTypeVec) {
+        
         _removeVertices.push_back(v);
+        if(n0 == n1){
+            n0 -> setPhase( n0->getPhase() + Phase(1));
+            continue;
+        }
         _edgeTableKeys.emplace_back(n0, n1);
         if (et == EdgeType::SIMPLE) {
             _edgeTableValues.emplace_back(1, 0); 

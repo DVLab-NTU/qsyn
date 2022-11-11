@@ -49,6 +49,7 @@ void ZXVertex::printVertex() const {
  *
  */
 void ZXVertex::printNeighbors() const {
+    if(_neighbors.size()==0) return;
     for (const auto& [nb, etype]: _neighbors) {
         cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
     }
@@ -99,10 +100,8 @@ size_t ZXGraph::getNumEdges() const {
     size_t n = 0;
     for (auto& v: _vertices) {
         n += v->getNumNeighbors(); 
-
     }
-    
-    return n;
+    return n/2;
 }
 
 bool ZXGraph::isId(size_t id) const {

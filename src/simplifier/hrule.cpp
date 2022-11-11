@@ -75,7 +75,7 @@ void HRule::rewrite(ZXGraph* g){
     setRemoveVertices(_matchTypeVec);
     
     for(size_t i = 0; i < _matchTypeVec.size(); i++){
-        // Only two neighbors which is ensured
+        //NOTE - Only two neighbors which is ensured
         vector<ZXVertex*> ns; vector<EdgeType> ets;
 
         for(auto& itr : _matchTypeVec[i]->getNeighbors()){
@@ -86,8 +86,7 @@ void HRule::rewrite(ZXGraph* g){
         _edgeTableKeys.push_back(make_pair(ns[0], ns[1]));
         if(ets[0] == ets[1]) _edgeTableValues.push_back(make_pair(0,1));
         else _edgeTableValues.push_back(make_pair(1,0));
-
-        //! TODO Correct for the sqrt(2) difference in H-boxes and H-edges
+        //TODO - Correct for the sqrt(2) difference in H-boxes and H-edges
     }
 }
 

@@ -4,14 +4,15 @@ qcba
 qcga -h 0
 qcga -h 0
 qccp
-qczxm
+qc2zx
 zxgp -v
 zxgsimp -hr
 zxgp -v
-zxge -addv 2 0 H_BOX 0
-zxge -adde 0 2 HADAMARD
-zxge -adde 1 2 SIMPLE
-zxge -rme 0 1
+q -f
+zxge -addv 0 H_BOX 0
+zxge -adde 0 4 HADAMARD
+zxge -adde 1 4 SIMPLE
+zxge -rme 0 1 -ALL
 zxgp -v
 zxgsimp -hf
 q -f

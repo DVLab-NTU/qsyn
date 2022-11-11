@@ -50,9 +50,9 @@ ZXGSimpCmd::exec(const string &option){
         if(token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
         // else if(myStrNCmp("-BIAlgebra", token, 4) == 0)             s.bialgSimp();
         // else if(myStrNCmp("-STCOpy", token, 5) == 0)                s.copySimp();
-        // else if(myStrNCmp("-HFusion", token, 3) == 0)               s.hfusionSimp();
+        else if(myStrNCmp("-HFusion", token, 3) == 0)               s.hfusionSimp();
         // else if(myStrNCmp("-HOPF", token, 5) == 0)                  s.hopfSimp();
-        // else if(myStrNCmp("-HRule", token, 3) == 0)                 s.hruleSimp();
+        else if(myStrNCmp("-HRule", token, 3) == 0)                 s.hruleSimp();
         else if(myStrNCmp("-IDRemoval", token, 4) == 0)             s.idSimp();
         // else if(myStrNCmp("-LComp", token, 3) == 0)                 s.lcompSimp();
 
@@ -60,7 +60,7 @@ ZXGSimpCmd::exec(const string &option){
         // else if(myStrNCmp("-PIVOTGadget", token, 7) == 0)           s.pivotGadgetSimp();
         // else if(myStrNCmp("-PIVOT", token, 6) == 0)                 s.pivotSimp();
         // else if(myStrNCmp("-GADgetfusion", token, 4) == 0)          s.gadgetSimp();
-        // else if(myStrNCmp("-SPIderfusion", token, 4) == 0)          s.sfusionSimp();
+        else if(myStrNCmp("-SPIderfusion", token, 4) == 0)          s.sfusionSimp();
 
         else if(myStrNCmp("-TOGraph", token, 4) == 0)               s.toGraph();
         else if(myStrNCmp("-TORGraph", token, 5) == 0)              s.toRGraph();
