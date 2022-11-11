@@ -60,7 +60,7 @@ ZXGSimpCmd::exec(const string &option){
         // else if(myStrNCmp("-PIVOTGadget", token, 7) == 0)           s.pivotGadgetSimp();
         // else if(myStrNCmp("-PIVOT", token, 6) == 0)                 s.pivotSimp();
         // else if(myStrNCmp("-GADgetfusion", token, 4) == 0)          s.gadgetSimp();
-        // else if(myStrNCmp("-SPIderfusion", token, 4) == 0)          s.sfusionSimp();
+        else if(myStrNCmp("-SPIderfusion", token, 4) == 0)          s.sfusionSimp();
 
         else if(myStrNCmp("-TOGraph", token, 4) == 0)               s.toGraph();
         else if(myStrNCmp("-TORGraph", token, 5) == 0)              s.toRGraph();

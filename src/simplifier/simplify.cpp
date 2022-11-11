@@ -295,11 +295,11 @@ int Simplifier::idSimp(){
 // }
 
 
-// int Simplifier::sfusionSimp(){
-//     this->setRule(new SpiderFusion());
-//     int i = this->simp();
-//     return i;
-// }
+int Simplifier::sfusionSimp(){
+    this->setRule(new SpiderFusion());
+    int i = this->simp();
+    return i;
+}
 
 
 
