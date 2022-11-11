@@ -5,12 +5,12 @@ qcga -h 0
 qcga -h 0
 qcga -h 0
 qccp
-qczxm
+qc2zx
 zxgp -v
-zxge -rme 0 2
-zxge -rme 2 3
-zxge -rme 3 4
-zxge -rme 4 1
+zxge -rme 0 2 SIMPLE
+zxge -rme 2 3 SIMPLE
+zxge -rme 3 4 SIMPLE
+zxge -rme 4 1 SIMPLE
 zxge -adde 0 2 HADAMARD
 zxge -adde 2 3 HADAMARD
 zxge -adde 3 4 HADAMARD

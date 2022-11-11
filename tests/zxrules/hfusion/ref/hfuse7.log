@@ -28,98 +28,98 @@ Gate 3: h   	 Exec Time: 3 	 Qubit: 0
 Gate 4: h   	 Exec Time: 4 	 Qubit: 0 
 Gate 5: z   	 Exec Time: 5 	 Qubit: 0 
 
-qsyn> qczxm
+qsyn> qc2zx
 Successfully generated Graph 0
 Checkout to Graph 0
 ----------- ADD BOUNDARIES -----------
-Add input 0
-Add output 1
+Add vertex (●)0
+Add vertex (●)1
 Add edge ( 0, 1 )
 --------------------------------------
 
 ---- TRAVERSE AND BUILD THE GRAPH ----
 Gate 0 (h)
 **** Generate ZX of Gate 0 (h) ****
-Add input 3
-Add vertex 2
-Add output 4
-Add edge ( 3, 2 )
-Add edge ( 2, 4 )
+Add vertex (●)0
+Add vertex ([1m[33mH[0m[0m)1
+Add vertex (●)2
+Add edge ( 0, 1 )
+Add edge ( 1, 2 )
 ***********************************
 ********** CONCATENATION **********
-Remove edge ( 3, 2 )
+Remove edge ( 0, 2 ), type: -
 Add edge ( 0, 2 )
-Remove edge ( 4, 2 )
+Remove edge ( 2, 2 ), type: -
 Add edge ( 2, 1 )
 ***********************************
 Gate 1 (h)
 **** Generate ZX of Gate 1 (h) ****
-Add input 4
-Add vertex 3
-Add output 5
-Add edge ( 4, 3 )
-Add edge ( 3, 5 )
+Add vertex (●)0
+Add vertex ([1m[33mH[0m[0m)1
+Add vertex (●)2
+Add edge ( 0, 1 )
+Add edge ( 1, 2 )
 ***********************************
 ********** CONCATENATION **********
-Remove edge ( 4, 3 )
+Remove edge ( 0, 3 ), type: -
 Add edge ( 2, 3 )
-Remove edge ( 5, 3 )
+Remove edge ( 2, 3 ), type: -
 Add edge ( 3, 1 )
 ***********************************
 Gate 2 (z)
 **** Generate ZX of Gate 2 (z) ****
-Add input 5
-Add vertex 4
-Add output 6
-Add edge ( 5, 4 )
-Add edge ( 4, 6 )
+Add vertex (●)0
+Add vertex ([1m[32mZ[0m[0m)1
+Add vertex (●)2
+Add edge ( 0, 1 )
+Add edge ( 1, 2 )
 ***********************************
 ********** CONCATENATION **********
-Remove edge ( 5, 4 )
+Remove edge ( 0, 4 ), type: -
 Add edge ( 3, 4 )
-Remove edge ( 6, 4 )
+Remove edge ( 2, 4 ), type: -
 Add edge ( 4, 1 )
 ***********************************
 Gate 3 (h)
 **** Generate ZX of Gate 3 (h) ****
-Add input 6
-Add vertex 5
-Add output 7
-Add edge ( 6, 5 )
-Add edge ( 5, 7 )
+Add vertex (●)0
+Add vertex ([1m[33mH[0m[0m)1
+Add vertex (●)2
+Add edge ( 0, 1 )
+Add edge ( 1, 2 )
 ***********************************
 ********** CONCATENATION **********
-Remove edge ( 6, 5 )
+Remove edge ( 0, 5 ), type: -
 Add edge ( 4, 5 )
-Remove edge ( 7, 5 )
+Remove edge ( 2, 5 ), type: -
 Add edge ( 5, 1 )
 ***********************************
 Gate 4 (h)
 **** Generate ZX of Gate 4 (h) ****
-Add input 7
-Add vertex 6
-Add output 8
-Add edge ( 7, 6 )
-Add edge ( 6, 8 )
+Add vertex (●)0
+Add vertex ([1m[33mH[0m[0m)1
+Add vertex (●)2
+Add edge ( 0, 1 )
+Add edge ( 1, 2 )
 ***********************************
 ********** CONCATENATION **********
-Remove edge ( 7, 6 )
+Remove edge ( 0, 6 ), type: -
 Add edge ( 5, 6 )
-Remove edge ( 8, 6 )
+Remove edge ( 2, 6 ), type: -
 Add edge ( 6, 1 )
 ***********************************
 Gate 5 (z)
 **** Generate ZX of Gate 5 (z) ****
-Add input 8
-Add vertex 7
-Add output 9
-Add edge ( 8, 7 )
-Add edge ( 7, 9 )
+Add vertex (●)0
+Add vertex ([1m[32mZ[0m[0m)1
+Add vertex (●)2
+Add edge ( 0, 1 )
+Add edge ( 1, 2 )
 ***********************************
 ********** CONCATENATION **********
-Remove edge ( 8, 7 )
+Remove edge ( 0, 7 ), type: -
 Add edge ( 6, 7 )
-Remove edge ( 9, 7 )
+Remove edge ( 2, 7 ), type: -
 Add edge ( 7, 1 )
 ***********************************
 --------------------------------------
@@ -133,18 +133,18 @@ ID:	3	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(2, -) (4,
 ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(3, -) (5, -) 
 ID:	5	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(4, -) (6, -) 
 ID:	6	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(5, -) (7, -) 
-ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (6, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(6, -) (1, -) 
 Total #Vertices: 8
 
 
-qsyn> zxge -rme 2 3
-Remove edge ( 2, 3 )
+qsyn> zxge -rme 2 3 SIMPLE
+Remove edge ( 2, 3 ), type: -
 
 qsyn> zxge -adde 2 3 HADAMARD
 Add edge ( 2, 3 )
 
-qsyn> zxge -rme 4 5
-Remove edge ( 4, 5 )
+qsyn> zxge -rme 4 5 SIMPLE
+Remove edge ( 4, 5 ), type: -
 
 qsyn> zxge -adde 4 5 HADAMARD
 Add edge ( 4, 5 )
@@ -154,11 +154,11 @@ qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(7, -) 
 ID:	2	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (3, [1m[34mH[0m[0m) 
-ID:	3	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(2, [1m[34mH[0m[0m) (4, -) 
+ID:	3	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(4, -) (2, [1m[34mH[0m[0m) 
 ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(3, -) (5, [1m[34mH[0m[0m) 
-ID:	5	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(4, [1m[34mH[0m[0m) (6, -) 
+ID:	5	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(6, -) (4, [1m[34mH[0m[0m) 
 ID:	6	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(5, -) (7, -) 
-ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (6, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(6, -) (1, -) 
 Total #Vertices: 8
 
 
@@ -167,37 +167,37 @@ qsyn> zxgsimp -hf
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(7, -) 
 ID:	2	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (3, [1m[34mH[0m[0m) 
-ID:	3	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(2, [1m[34mH[0m[0m) (4, -) 
+ID:	3	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(4, -) (2, [1m[34mH[0m[0m) 
 ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(3, -) (5, [1m[34mH[0m[0m) 
-ID:	5	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(4, [1m[34mH[0m[0m) (6, -) 
+ID:	5	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(6, -) (4, [1m[34mH[0m[0m) 
 ID:	6	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(5, -) (7, -) 
-ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (6, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(6, -) (1, -) 
 Total #Vertices: 8
 
-Hadamard Rule: 2 Add edge ( 3, 0 )
-Add edge ( 4, 6 )
+Hadamard Rule: 2 Add edge ( 0, 3 )
+Add edge ( 6, 4 )
 Remove ID: 2
 Remove ID: 5
 . 
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(3, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(7, -) 
-ID:	3	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (4, -) 
+ID:	3	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(4, -) (0, -) 
 ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(3, -) (6, -) 
-ID:	6	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(4, -) (7, -) 
-ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (6, -) 
+ID:	6	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(7, -) (4, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(6, -) (1, -) 
 Total #Vertices: 6
 
-1 Add edge ( 0, 4 )
+1 Add edge ( 4, 0 )
 Remove ID: 3
 . 
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, [1m[34mH[0m[0m) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(7, -) 
-ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(0, [1m[34mH[0m[0m) (6, -) 
-ID:	6	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(4, -) (7, -) 
-ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(1, -) (6, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(6, -) (0, [1m[34mH[0m[0m) 
+ID:	6	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(7, -) (4, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(6, -) (1, -) 
 Total #Vertices: 5
 
-1 Add edge ( 4, 7 )
+1 Add edge ( 7, 4 )
 Remove ID: 6
 . 
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, [1m[34mH[0m[0m) 

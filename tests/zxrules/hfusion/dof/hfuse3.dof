@@ -4,11 +4,11 @@ qcba
 qcga -h 0
 qcga -h 0
 qccp
-qczxm
+qc2zx
 zxgp -v
-zxge -rme 0 2
-zxge -rme 2 3
-zxge -rme 3 1
+zxge -rme 0 2 -ALL
+zxge -rme 2 3 -ALL
+zxge -rme 3 1 -ALL
 zxge -adde 0 2 HADAMARD
 zxge -adde 2 3 HADAMARD
 zxge -adde 3 1 HADAMARD

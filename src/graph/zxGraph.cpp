@@ -49,6 +49,7 @@ void ZXVertex::printVertex() const {
  *
  */
 void ZXVertex::printNeighbors() const {
+    // if(_neighbors.size()==0) return;
     for (const auto& [nb, etype]: _neighbors) {
         cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
     }
@@ -99,10 +100,8 @@ size_t ZXGraph::getNumEdges() const {
     size_t n = 0;
     for (auto& v: _vertices) {
         n += v->getNumNeighbors(); 
-
     }
-    
-    return n;
+    return n/2;
 }
 
 bool ZXGraph::isId(size_t id) const {
@@ -122,8 +121,8 @@ void ZXGraph::generateCNOT() {
     ZXVertex* i1 = addInput(1);
     ZXVertex* vz = addVertex(0, VertexType::Z);
     ZXVertex* vx = addVertex(1, VertexType::X);
-    ZXVertex* o0 = addInput(0);
-    ZXVertex* o1 = addInput(1);
+    ZXVertex* o0 = addOutput(0);
+    ZXVertex* o1 = addOutput(1);
 
     addEdge(i0, vz, EdgeType::SIMPLE);
     addEdge(i1, vx, EdgeType::SIMPLE);
