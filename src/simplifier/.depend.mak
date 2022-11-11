@@ -44,7 +44,13 @@ id.o: id.cpp zxRules.h ../../include/zxDef.h \
  ../../include/tensorUtil.h ../../include/zxDef.h
 pivotboundary.o: pivotboundary.cpp
 copy.o: copy.cpp
-hfusion.o: hfusion.cpp
+hfusion.o: hfusion.cpp zxRules.h ../../include/zxDef.h \
+ ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
+ ../../include/myHashMap.h ../../include/zxGraph.h ../../include/phase.h \
+ ../../include/rationalNumber.h ../../include/myConcepts.h \
+ ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
+ ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
+ ../../include/tensorUtil.h ../../include/zxDef.h
 hrule.o: hrule.cpp zxRules.h ../../include/zxDef.h \
  ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
  ../../include/myHashMap.h ../../include/zxGraph.h ../../include/phase.h \

@@ -239,11 +239,11 @@ int Simplifier::hadamardSimp() {
 // }
 
 
-// int Simplifier::hfusionSimp(){
-//     this->setRule(new HboxFusion());
-//     int i = this->simp();
-//     return i;
-// }
+int Simplifier::hfusionSimp(){
+    this->setRule(new HboxFusion());
+    int i = this->simp();
+    return i;
+}
 
 
 // int Simplifier::hopfSimp(){
