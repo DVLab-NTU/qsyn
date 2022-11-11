@@ -429,7 +429,8 @@ size_t ZXGraph::removeVertex(ZXVertex* v) {
 size_t ZXGraph::removeVertices(vector<ZXVertex*> vertices) {
     size_t count = 0;
     for (const auto& v : vertices) {
-        count += _vertices.erase(v);
+        //REVIEW should call removeVertex
+        count += removeVertex(v);
     }
     return count;
 }
@@ -600,6 +601,16 @@ void ZXGraph::reset() {
     _outputList.clear();
     _topoOrder.clear();
     _globalDFScounter = 1;
+}
+
+void ZXGraph::toggleEdges(ZXVertex* v){
+    Neighbors  toggledNeighbors;
+    for (auto& itr : v->getNeighbors()){
+        toggledNeighbors.insert(make_pair(itr.first, toggleEdge(itr.second)));
+        itr.first->removeNeighbor(make_pair(v, itr.second));
+        itr.first->addNeighbor(make_pair(v, toggleEdge(itr.second)));
+    }
+    v->setNeighbors(toggledNeighbors);
 }
 
 ZXGraph* ZXGraph::copy() const {
