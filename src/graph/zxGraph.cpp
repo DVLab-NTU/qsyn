@@ -49,6 +49,7 @@ void ZXVertex::printVertex() const {
  *
  */
 void ZXVertex::printNeighbors() const {
+    if(_neighbors.size()==0) return;
     for (const auto& [nb, etype]: _neighbors) {
         cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
     }
