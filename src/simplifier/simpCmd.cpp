@@ -54,7 +54,7 @@ ZXGSimpCmd::exec(const string &option){
         // else if(myStrNCmp("-HOPF", token, 5) == 0)                  s.hopfSimp();
         else if(myStrNCmp("-HRule", token, 3) == 0)                 s.hruleSimp();
         else if(myStrNCmp("-IDRemoval", token, 4) == 0)             s.idSimp();
-        // else if(myStrNCmp("-LComp", token, 3) == 0)                 s.lcompSimp();
+        else if(myStrNCmp("-LComp", token, 3) == 0)                 s.lcompSimp();
 
         // else if(myStrNCmp("-PIVOTBoundary", token, 7) == 0)         s.pivotBoundarySimp();
         // else if(myStrNCmp("-PIVOTGadget", token, 7) == 0)           s.pivotGadgetSimp();

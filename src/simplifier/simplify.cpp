@@ -267,11 +267,11 @@ int Simplifier::idSimp(){
 }
 
 
-// int Simplifier::lcompSimp(){
-//     this->setRule(new LComp());
-//     int i = this->simp();
-//     return i;
-// }
+int Simplifier::lcompSimp(){
+    this->setRule(new LComp());
+    int i = this->simp();
+    return i;
+}
 
 
 // int Simplifier::pivotSimp(){
