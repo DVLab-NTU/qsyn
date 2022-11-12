@@ -57,14 +57,14 @@ ZXGSimpCmd::exec(const string &option){
         else if(myStrNCmp("-LComp", token, 3) == 0)                 s.lcompSimp();
 
         // else if(myStrNCmp("-PIVOTBoundary", token, 7) == 0)         s.pivotBoundarySimp();
-        // else if(myStrNCmp("-PIVOTGadget", token, 7) == 0)           s.pivotGadgetSimp();
+        else if(myStrNCmp("-PIVOTGadget", token, 7) == 0)           s.pivotGadgetSimp();
         // else if(myStrNCmp("-PIVOT", token, 6) == 0)                 s.pivotSimp();
-        // else if(myStrNCmp("-GADgetfusion", token, 4) == 0)          s.gadgetSimp();
+        else if(myStrNCmp("-GADgetfusion", token, 4) == 0)          s.gadgetSimp();
         else if(myStrNCmp("-SPIderfusion", token, 4) == 0)          s.sfusionSimp();
 
         else if(myStrNCmp("-TOGraph", token, 4) == 0)               s.toGraph();
         else if(myStrNCmp("-TORGraph", token, 5) == 0)              s.toRGraph();
-        // else if(myStrNCmp("-INTERClifford", token,7) == 0)          s.interiorCliffordSimp();
+        // else if(myStrNCmp("-INTERClifford", token, 7) == 0)          s.interiorCliffordSimp();
         // else if(myStrNCmp("-CLIFford", token, 5) == 0)              s.cliffordSimp();
         // else if(myStrNCmp("-FReduce", token, 3) == 0)               s.fullReduce();
         // else if(myStrNCmp("-SReduce", token, 3) == 0)               s.simulatedReduce();

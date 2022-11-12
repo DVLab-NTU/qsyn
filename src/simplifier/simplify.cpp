@@ -231,12 +231,11 @@ int Simplifier::hadamardSimp() {
 // }
 
 
-// int Simplifier::gadgetSimp(){
-//     // TODO: phase gadget rule
-//     this->setRule(new PhaseGadget());
-//     int i = this->simp();
-//     return i;
-// }
+int Simplifier::gadgetSimp(){
+    this->setRule(new PhaseGadget());
+    int i = this->simp();
+    return i;
+}
 
 
 int Simplifier::hfusionSimp(){
@@ -287,12 +286,13 @@ int Simplifier::lcompSimp(){
 // }
 
 
-// int Simplifier::pivotGadgetSimp(){
-//     this->setRule(new PivotGadget());
-//     int i = this->simp();
-//     hopfSimp();
-//     return i;
-// }
+int Simplifier::pivotGadgetSimp(){
+    this->setRule(new PivotGadget());
+    int i = this->simp();
+    //REVIEW - Hopf is useless (It should be)
+    // hopfSimp();
+    return i;
+}
 
 
 int Simplifier::sfusionSimp(){

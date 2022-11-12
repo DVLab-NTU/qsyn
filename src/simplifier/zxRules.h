@@ -378,6 +378,7 @@ class PivotGadget : public ZXRule{
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
+    bool checkBadMatch(const Neighbors&, EdgePair, bool);
     MatchTypeVec                                      _matchTypeVec;
 };
 
