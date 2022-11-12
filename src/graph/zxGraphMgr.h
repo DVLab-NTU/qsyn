@@ -69,9 +69,9 @@ class ZXGraphMgr{
         void printGraphListSize() const;
 
     private:
-        size_t                          _nextID;
-        ZXGraphList                     _graphList;
-        ZXGraphList::iterator           _gListItr;
+        size_t                                  _nextID;
+        ZXGraphList                             _graphList;
+        ZXGraphList::iterator                   _gListItr;
 };
 
 
