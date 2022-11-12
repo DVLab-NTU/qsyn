@@ -205,16 +205,7 @@ ZXCHeckoutCmd::exec(const string &option) {
     else {
         unsigned id;
         ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
-        // bool isNum = myStr2Int(token, id);
-        // if (!isNum) {
-        //     cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
-        //     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-        // }
         ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id);
-        // if (!zxGraphMgr->isID(id)) {
-        //     cerr << "Error: The id provided does not exist!!" << endl;
-        //     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-        // } else
         zxGraphMgr->checkout2ZXGraph(id);
     }
     return CMD_EXEC_DONE;
@@ -555,8 +546,8 @@ ZXGEditCmd::exec(const string &option) {
         ZXVertex* vt;
         EdgeType etype;
 
-        ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[1], id_s);
-        ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[2], id_t);
+        ZX_CMD_ID_VALID_OR_RETURN(options[1], id_s, "Vertex");
+        ZX_CMD_ID_VALID_OR_RETURN(options[2], id_t, "Vertex");
         ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_s, vs);
         ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_t, vt);
 
@@ -614,8 +605,8 @@ ZXGEditCmd::exec(const string &option) {
         ZXVertex* vt;
         EdgeType etype;
 
-        ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[1], id_s);
-        ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[2], id_t);
+        ZX_CMD_ID_VALID_OR_RETURN(options[1], id_s, "Vertex");
+        ZX_CMD_ID_VALID_OR_RETURN(options[2], id_t, "Vertex");
 
         ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_s, vs);
         ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_t, vt);

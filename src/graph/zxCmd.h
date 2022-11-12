@@ -66,12 +66,6 @@ if (myStrNCmp("SIMPLE", (option), 1) == 0) {\
     return errorOption(CMD_OPT_ILLEGAL, (option)); \
 }}
 
-#define ZX_CMD_VERTEX_ID_VALID_OR_RETURN(option, id) {\
-if (!myStr2Uns((option), (id))) { \
-    cerr << "Error: invalid vertex ID!!" << endl; \
-    return errorOption(CMD_OPT_ILLEGAL, (option)); \
-}}
-
 #define ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id, v) {\
 (v) = zxGraphMgr->getGraph()->findVertexById((id)); \
 if (!(v)) {\
@@ -109,7 +103,6 @@ if (!myStr2Uns((option), (id))) { \
     cerr << "Error: invalid " << str << " ID!!\n"; \
     return errorOption(CMD_OPT_ILLEGAL, (option)); \
 }}
-
 
 
 
