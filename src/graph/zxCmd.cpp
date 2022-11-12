@@ -42,7 +42,7 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXGADJoint", 6, new ZXGAdjointCmd) &&
           cmdMgr->regCmd("ZXGASsign", 5, new ZXGAssignCmd) &&
           cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
-          cmdMgr->regCmd("ZX2TS", 6, new ZXTSMappingCmd) &&
+          cmdMgr->regCmd("ZX2TS", 5, new ZXTSMappingCmd) &&
           cmdMgr->regCmd("ZXGRead", 4, new ZXGReadCmd) &&
           cmdMgr->regCmd("ZXGWrite", 4, new ZXGWriteCmd))) {
         cerr << "Registering \"zx\" commands fails... exiting" << endl;

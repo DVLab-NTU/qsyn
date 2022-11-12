@@ -74,8 +74,8 @@ private:
     bool isOfNewGraph(const ZXVertex* v);
     bool isFrontier(const NeighborPair& nbr) const { return (nbr.first->getPin() != unsigned(-1)); }
 
-    void printFrontiers() const;
+    void printFrontiers(size_t id) const;
     // EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et);
-    void getAxisOrders(TensorAxisList& axList, const std::unordered_map<size_t, ZXVertex *>& ioList, bool isOutput = false);
+    void getAxisOrders(TensorAxisList& inputAxisList, TensorAxisList& outputAxisList);
 };
 #endif //ZX2TS_MAPPER_H

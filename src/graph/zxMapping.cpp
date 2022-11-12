@@ -37,9 +37,9 @@ QTensor<double> ZXVertex::getTSform(){
     if (isHBox())
         tensor = QTensor<double>::hbox(_neighbors.size());
     else if (isZ())
-        tensor = QTensor<double>::zspider(_neighbors.size());
+        tensor = QTensor<double>::zspider(_neighbors.size(), _phase);
     else if (isX())
-        tensor = QTensor<double>::xspider(_neighbors.size());
+        tensor = QTensor<double>::xspider(_neighbors.size(), _phase);
     else
         cerr << "Error: Invalid vertex type!! (" << _id << ")" << endl;
     return tensor;
