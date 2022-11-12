@@ -8,11 +8,11 @@ qcga -h 0
 qcga -h 0
 qcga -z 0
 qccp
-qczxm
+qc2zx
 zxgp -v
-zxge -rme 2 3
+zxge -rme 2 3 SIMPLE
 zxge -adde 2 3 HADAMARD
-zxge -rme 4 5
+zxge -rme 4 5 SIMPLE
 zxge -adde 4 5 HADAMARD
 zxgp -v
 zxgsimp -hf
