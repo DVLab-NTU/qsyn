@@ -90,6 +90,8 @@ bool ZXVertex::isNeighbor(ZXVertex* v) const {
     return _neighbors.contains(make_pair(v, EdgeType::SIMPLE)) || _neighbors.contains(make_pair(v, EdgeType::HADAMARD));
 }
 
+
+
 /**************************************/
 /*   class ZXGraph member functions   */
 /**************************************/
@@ -613,7 +615,6 @@ void ZXGraph::toggleEdges(ZXVertex* v){
 }
 
 ZXGraph* ZXGraph::copy() const {
-    //! Check if EdgeType change simultaneously
     
     ZXGraph* newGraph = new ZXGraph(0);
     // unordered_map<size_t, ZXVertex*> id2vertex;
