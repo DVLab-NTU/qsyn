@@ -49,7 +49,7 @@ ZXGSimpCmd::exec(const string &option){
         // Stats stats;
         if(token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
         // else if(myStrNCmp("-BIAlgebra", token, 4) == 0)             s.bialgSimp();
-        // else if(myStrNCmp("-STCOpy", token, 5) == 0)                s.copySimp();
+        else if(myStrNCmp("-STCOpy", token, 5) == 0)                s.copySimp();
         else if(myStrNCmp("-HFusion", token, 3) == 0)               s.hfusionSimp();
         // else if(myStrNCmp("-HOPF", token, 5) == 0)                  s.hopfSimp();
         else if(myStrNCmp("-HRule", token, 3) == 0)                 s.hruleSimp();

@@ -222,13 +222,12 @@ int Simplifier::hadamardSimp() {
 // }
 
 
-// int Simplifier::copySimp(){
-//     if(!_simpGraph->isGraphLike()) return 0;
-    
-//     this->setRule(new StateCopy());
-//     int i = this->simp();
-//     return i;
-// }
+int Simplifier::copySimp(){
+    if(!_simpGraph->isGraphLike()) return 0;
+    this->setRule(new StateCopy());
+    int i = this->simp();
+    return i;
+}
 
 
 int Simplifier::gadgetSimp(){
