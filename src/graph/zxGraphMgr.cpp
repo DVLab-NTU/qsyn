@@ -19,14 +19,27 @@ extern size_t verbose;
 /*   class ZXGraphMgr member functions   */
 /*****************************************/
 
+/**
+ * @brief reset ZXGraphMgr
+ * 
+ */
 void ZXGraphMgr::reset() {
     _graphList.clear();
     _gListItr = _graphList.begin();
     _nextID = 0;
 }
 
+
+
 // Test
 
+/**
+ * @brief Check if `id` is an existed ID in ZXGraphMgr
+ * 
+ * @param id 
+ * @return true 
+ * @return false 
+ */
 bool ZXGraphMgr::isID(size_t id) const {
     for (size_t i = 0; i < _graphList.size(); i++) {
         if (_graphList[i]->getId() == id) return true;
@@ -34,8 +47,17 @@ bool ZXGraphMgr::isID(size_t id) const {
     return false;
 }
 
+
+
 // Add and Remove
 
+/**
+ * @brief Add a ZX-graph to 
+ * 
+ * @param id 
+ * @param ref 
+ * @return ZXGraph* 
+ */
 ZXGraph* ZXGraphMgr::addZXGraph(size_t id, void** ref) {
     ZXGraph* zxGraph = new ZXGraph(id, ref);
     _graphList.push_back(zxGraph);
@@ -70,8 +92,8 @@ void ZXGraphMgr::removeZXGraph(size_t id) {
     return;
 }
 
-// Action
 
+// Action
 void ZXGraphMgr::checkout2ZXGraph(size_t id) {
     for (size_t i = 0; i < _graphList.size(); i++) {
         if (_graphList[i]->getId() == id) {
@@ -85,6 +107,7 @@ void ZXGraphMgr::checkout2ZXGraph(size_t id) {
 }
 
 void ZXGraphMgr::copy(size_t id, bool toNew) {
+    //TODO - copy
     // Prerequisite: _graphList not empty
     cout << id << " " << toNew << endl;
     // if (_graphList.empty())
@@ -122,6 +145,7 @@ void ZXGraphMgr::copy(size_t id, bool toNew) {
 
 // NOTE - restructure as function of ZXGraph
 void ZXGraphMgr::compose(ZXGraph* zxGraph) {
+    //TODO - compose
     // ZXGraph* oriGraph = getGraph();
     // // oriGraph->sortIOByQubit();
     // if (oriGraph->getNumOutputs_depr() != zxGraph->getNumInputs_depr())
@@ -177,6 +201,7 @@ void ZXGraphMgr::compose(ZXGraph* zxGraph) {
 
 // NOTE - restructure as function of ZXGraph
 void ZXGraphMgr::tensorProduct(ZXGraph* zxGraph) {
+    //TODO - tensorProduct
     // ZXGraph* oriGraph = getGraph();
     // ZXGraph* copyGraph = zxGraph->copy();
     // size_t liftNum = max(oriGraph->getNumInputs_depr(), oriGraph->getNumOutputs_depr());
@@ -209,6 +234,8 @@ ZXGraph* ZXGraphMgr::findZXGraphByID(size_t id) const {
     }
     return nullptr;
 }
+
+
 
 // Print
 void ZXGraphMgr::printZXGraphMgr() const {

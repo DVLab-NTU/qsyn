@@ -156,37 +156,35 @@ CmdExecStatus
 ZXRemoveCmd::exec(const string &option) {
     //TODO - ZXRemove   
     ZX_CMD_ZXMODE_ON_OR_RETURN;
-    // string token;
-    // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    // if (curCmd != ZXON) {
-    //     cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXRemove" << endl;
-    //     return CMD_EXEC_ERROR;
-    // }
-    // if (token.empty())
-    //     return CmdExec::errorOption(CMD_OPT_MISSING, "");
-    // else {
-    //     int id;
-    //     bool isNum = myStr2Int(token, id);
-    //     if (!isNum) {
-    //         cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
-    //         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    //     }
-    //     if (!zxGraphMgr->isID(id)) {
-    //         cerr << "Error: The id provided does not exist!!" << endl;
-    //         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    //     } else
-    //         zxGraphMgr->removeZXGraph(id);
-    // }
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    
+    if (token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
+    else {
+        unsigned id;
+        ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
+        // bool isNum = myStr2Int(token, id);
+        // if (!isNum) {
+        //     cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
+        //     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+        // }
+        ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id);
+        // if (!zxGraphMgr->isID(id)) {
+        //     cerr << "Error: The id provided does not exist!!" << endl;
+        //     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+        // } else
+        zxGraphMgr->removeZXGraph(id);
+    }
     return CMD_EXEC_DONE;
 }
 
 void ZXRemoveCmd::usage(ostream &os) const {
-    os << "Usage: ZXRemove <(size_t id)>" << endl;
+    os << "Usage: ZXRemove <size_t id>" << endl;
 }
 
 void ZXRemoveCmd::help() const {
     cout << setw(15) << left << "ZXRemove: "
-         << "remove ZX-graph from ZXGraphMgr" << endl;
+         << "remove a ZX-graph from ZXGraphMgr" << endl;
 }
 
 
@@ -196,7 +194,6 @@ void ZXRemoveCmd::help() const {
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXCHeckoutCmd::exec(const string &option) {
-    //TODO - ZXCHeckout
     ZX_CMD_ZXMODE_ON_OR_RETURN;
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
