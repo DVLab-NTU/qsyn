@@ -72,7 +72,7 @@ private:
     void tensorDotVertex(ZXVertex* v);
 
     bool isOfNewGraph(const ZXVertex* v);
-    bool isFrontier(const Neighbor& nbr) const { return (nbr.first->getPin() != unsigned(-1)); }
+    bool isFrontier(const NeighborPair& nbr) const { return (nbr.first->getPin() != unsigned(-1)); }
 
     void printFrontiers() const;
     // EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et);

@@ -28,7 +28,6 @@ bool ZX2TSMapper::mapping() {
     for (size_t i = 0; i < _boundaryEdges.size(); i++)
         _zx2tsList.frontiers(i).emplace(_boundaryEdges[i], 0);
 
-    TensorAxisList inputIds, outputIds;
     if (!tensorMgr) tensorMgr = new TensorMgr();
     size_t id = tensorMgr->nextID();
     QTensor<double>* result = tensorMgr->addTensor(id, "ZX " + to_string(_zxgraph->getId()));
@@ -37,6 +36,7 @@ bool ZX2TSMapper::mapping() {
         *result = tensordot(*result, _zx2tsList.tensor(i));
     }
 
+    TensorAxisList inputIds, outputIds;
     getAxisOrders(inputIds, _zxgraph->getInputList(), false);
     getAxisOrders(outputIds, _zxgraph->getOutputList(), true);
 
@@ -84,7 +84,7 @@ void ZX2TSMapper::initSubgraph(ZXVertex* v) {
 
     _zx2tsList.append(Frontiers(), QTensor<double>(1. + 0.i));
     _tensorId = _zx2tsList.size() - 1;
-    assert(v->getType() == VertexType::BOUNDARY);
+    assert(v->isBoundary());
     EdgePair edgeKey = makeEdgePair(v, nbrs.begin()->first, nbrs.begin()->second);
     currTensor() = tensordot(currTensor(), QTensor<double>::identity(nbrs.size()));
     _boundaryEdges.push_back(edgeKey);
@@ -136,8 +136,7 @@ void ZX2TSMapper::getAxisOrders(TensorAxisList& axList, const std::unordered_map
 
             auto result = _zx2tsList.frontiers(i).find(edgeKey);
             if (result != _zx2tsList.frontiers(i).end()) {
-                axList[table[qid]] = _zx2tsList.frontiers(i).find(edgeKey)->second + accFrontierSizes;
-                ++itr;
+                axList[table[qid]] = result->second + accFrontierSizes;
                 if (isOutput && itr != result.second) {
                     axList[table[qid]] += 1;
                 }
