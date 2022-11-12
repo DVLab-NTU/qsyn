@@ -84,7 +84,9 @@ void ZXGraphMgr::checkout2ZXGraph(size_t id) {
     return;
 }
 
-void ZXGraphMgr::copy(size_t id) {
+void ZXGraphMgr::copy(size_t id, bool toNew) {
+    // Prerequisite: _graphList not empty
+    cout << id << " " << toNew << endl;
     // if (_graphList.empty())
     //     cerr << "Error: ZXGraphMgr is empty now! Action \"copy\" failed!" << endl;
     // else {
