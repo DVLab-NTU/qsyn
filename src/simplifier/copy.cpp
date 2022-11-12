@@ -24,7 +24,7 @@ void StateCopy::match(ZXGraph* g){
     // Should be run in graph-like
     _matchTypeVec.clear();
     if(verbose >= 8) g->printVertices();
-    
+
     unordered_map<ZXVertex* , size_t> Vertex2idx;
 
     unordered_map<size_t, size_t> id2idx;
@@ -52,7 +52,7 @@ void StateCopy::match(ZXGraph* g){
             continue;
         }
         
-        ZXVertex* PiNeighbor = (*(v->getNeighbors().begin())).first;
+        ZXVertex* PiNeighbor = v->getFirstNeighbor().first;
         if(PiNeighbor->getType() != VertexType::Z){
             validVertex[Vertex2idx[v]] = false;
             continue;
@@ -94,9 +94,9 @@ void StateCopy::rewrite(ZXGraph* g){
             if(neighbors[i]->getType()==VertexType::BOUNDARY){
                 ZXVertex* newV = g->addVertex(neighbors[i]->getQubit(), VertexType::Z, npi->getPhase());
                 bool simpleEdge = false;
-                if((neighbors[i]->getNeighbors().begin()->second) == EdgeType::SIMPLE)
+                if((neighbors[i]->getFirstNeighbor().second) == EdgeType::SIMPLE)
                 simpleEdge = true;
-                _removeEdges.push_back(make_pair(make_pair(a ,neighbors[i]), neighbors[i]->getNeighbors().begin()->second));
+                _removeEdges.push_back(make_pair(make_pair(a ,neighbors[i]), neighbors[i]->getFirstNeighbor().second));
                 
                 // new to Boundary
                 _edgeTableKeys.push_back(make_pair(newV, neighbors[i]));

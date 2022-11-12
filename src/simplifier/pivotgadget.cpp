@@ -18,7 +18,7 @@ bool PivotGadget::checkBadMatch(const Neighbors& nebs, EdgePair e, bool isVsNeig
     for(const auto& [v, et]: nebs){
         if(v->getType() != VertexType::Z)
             return true;
-        NeighborPair nbp = *(v->getNeighbors().begin());
+        NeighborPair nbp = v->getFirstNeighbor();
         if( isVsNeighbor && v->getNumNeighbors()==1 && makeEdgePair(v, nbp.first, nbp.second) != e)
             return true;     
     }
@@ -344,7 +344,7 @@ void PivotGadget::rewrite(ZXGraph* g){
             if(i == 0) _removeVertices.push_back(m[1]);
             if(i == 1) {
                 // EdgePair e = g->getIncidentEdges(m[2])[0];
-                NeighborPair ep = *(m[2]->getNeighbors().begin());
+                NeighborPair ep = m[2]->getFirstNeighbor();
                 EdgePair e = makeEdgePair(m[2], ep.first, ep.second);
                 // EdgePair_depr e = g->getFirstIncidentEdge_depr(m[2]);
                 _edgeTableKeys.push_back(make_pair(m[0], m[2]));

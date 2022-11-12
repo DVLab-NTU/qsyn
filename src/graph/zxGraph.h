@@ -45,6 +45,9 @@ class ZXVertex{
         const size_t& getPin() const                                        { return _pin; }   
         
         const Neighbors& getNeighbors() const                               { return _neighbors; }
+        const NeighborPair& getFirstNeighbor() const                        { return *(_neighbors.begin()); }
+        const NeighborPair& getSecondNeighbor() const                       { return *next((_neighbors.begin())); }
+
         vector<ZXVertex*> getCopiedNeighbors();                              
         size_t getNumNeighbors() const                                      { return _neighbors.size(); }
         // QTensor<double> getTSform();
