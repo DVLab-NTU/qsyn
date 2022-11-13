@@ -25,7 +25,7 @@ namespace TF = TextFormat;
 extern size_t verbose;
 
 /**************************************/
-/*   class ZXVertex member functions   */
+/*   class ZXVertex member functions  */
 /**************************************/
 
 
@@ -586,7 +586,13 @@ ZXVertex* ZXGraph::findVertexById(const size_t& id) const {
     return nullptr;
 }
 
-// Action
+
+
+/**************************************/
+/*   class ZXGraph Action functions   */
+/**************************************/
+
+
 void ZXGraph::reset() {
     _inputs_depr.clear();
     _outputs_depr.clear();
@@ -628,10 +634,16 @@ ZXGraph* ZXGraph::copy() const {
         }
     }
 
-    forEachEdge([](const EdgePair& epair){
+    unordered_map<size_t, ZXVertex*> id2VertexMap = newGraph->id2VertexMap();
+
+    forEachEdge([&id2VertexMap, newGraph](const EdgePair& epair){
         size_t vs_id = epair.first.first->getId();
         size_t vt_id = epair.first.second->getId();
-        ZXVertex* vs = newGraph->getVertices()[vs_id];
+        newGraph->addEdge(id2VertexMap[vs_id], id2VertexMap[vt_id], epair.second);
+
+        
+        //STUB - stock here for a id2idx
+        // ZXVertex* vs = newGraph->getVertices()[vs_id];
         
     });
 
@@ -673,8 +685,9 @@ ZXGraph* ZXGraph::copy() const {
     return newGraph;
 }
 
-// NOTE - when re-implementing, notice that to sort ordered_hashset, use the member function (oset.sort()) instead of std::sort()
+
 void ZXGraph::sortIOByQubit() {
+    // NOTE - when re-implementing, notice that to sort ordered_hashset, use the member function (oset.sort()) instead of std::sort()
     // sort(_inputs_depr.begin(), _inputs_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
     // sort(_outputs_depr.begin(), _outputs_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
 }
@@ -701,7 +714,24 @@ void ZXGraph::liftQubit(const size_t& n) {
     // setOutputList(newOutputList);
 }
 
-// Print functions
+
+/**
+ * @brief Generate a id-2-ZXVertex* map
+ * 
+ * @return unordered_map<size_t, ZXVertex*> 
+ */
+unordered_map<size_t, ZXVertex*> ZXGraph::id2VertexMap() const{
+    unordered_map<size_t, ZXVertex*> id2VertexMap;
+    for(const auto& v : _vertices) id2VertexMap[v->getId()] = v;
+    return id2VertexMap;
+}
+
+
+
+/**************************************/
+/*   class ZXGraph Print functions    */
+/**************************************/
+
 void ZXGraph::printGraph() const {
     cout << "Graph " << _id << endl;
     cout << setw(15) << left << "Inputs: " << getNumInputs() << endl;
