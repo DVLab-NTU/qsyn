@@ -88,7 +88,7 @@ class ZXRule{
  */
 class Bialgebra : public ZXRule{
   public:
-    typedef EdgePair_depr MatchType;
+    typedef EdgePair MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
     Bialgebra(){
