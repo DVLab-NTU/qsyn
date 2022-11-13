@@ -29,6 +29,14 @@ extern size_t verbose;
 /**************************************/
 
 
+vector<ZXVertex*> ZXVertex::getCopiedNeighbors(){
+    vector<ZXVertex*> storage;
+    for (const auto& neighbor: _neighbors) {
+        storage.push_back(neighbor.first);
+        // cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
+    }
+    return storage;
+}
 // Print functions
 
 /**
@@ -50,7 +58,15 @@ void ZXVertex::printVertex() const {
  */
 void ZXVertex::printNeighbors() const {
     // if(_neighbors.size()==0) return;
-    for (const auto& [nb, etype]: _neighbors) {
+    vector<NeighborPair> storage;
+    for (const auto& neighbor: _neighbors) {
+        storage.push_back(neighbor);
+        // cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
+    }
+    sort(begin(storage), end(storage), [](NeighborPair a, NeighborPair b) { return a.second < b.second; });
+    sort(begin(storage), end(storage), [](NeighborPair a, NeighborPair b) { return a.first->getId() < b.first->getId(); });
+    
+    for (const auto& [nb, etype]: storage) {
         cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
     }
     cout << endl;
