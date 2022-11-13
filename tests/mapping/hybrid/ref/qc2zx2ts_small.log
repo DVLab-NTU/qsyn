@@ -7,12 +7,12 @@ qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
 qsyn> zxm -on
 ZXMODE turn ON!
 
-qsyn> qczxm
+qsyn> qc2zx
 
 qsyn> ver 3
 Note: verbose level is set to 3
 
-qsyn> zxgtsm
+qsyn> zx2ts
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0

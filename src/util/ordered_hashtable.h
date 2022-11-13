@@ -116,8 +116,8 @@ public:
     const_iterator cend() const noexcept { return const_iterator(this->_data.cend(), this->_data.begin(), this->_data.cend()); }
     
     // lookup
-    iterator find(const Key& key) { return iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()); }
-    const_iterator find(const Key& key) const { return const_iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()); }
+    iterator find(const Key& key) { if (this->contains(key)) return iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()); else return this->end(); }
+    const_iterator find(const Key& key) const { if (this->contains(key)) return const_iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()); else return this->end(); }
     size_type id (const Key& key) const;
     bool contains(const Key& key) const;
     virtual const Key& key(const value_type& value) const = 0;

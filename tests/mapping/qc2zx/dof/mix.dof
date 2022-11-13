@@ -1,10 +1,10 @@
 zxm -on
 qcba 2
 qcga -x 0
-qczxm
+qc2zx
 qcga -cx -pr 0 1
-qczxm
+qc2zx
 qccr -r benchmark/benchmark_SABRE/small/3_17_13.qasm
-qczxm
+qc2zx
 qccp -q
 q -f

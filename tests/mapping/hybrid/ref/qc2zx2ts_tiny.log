@@ -13,25 +13,25 @@ qsyn> qcga -cx 0 1
 qsyn> zxm -on
 ZXMODE turn ON!
 
-qsyn> qczxm
+qsyn> qc2zx
 
 qsyn> ver 7
 Note: verbose level is set to 7
 
-qsyn> zxgtsm
+qsyn> zx2ts
 ---- TRAVERSE AND BUILD THE TENSOR ----
-Topological order from first input: 0 4 7 8 9 6 5 2 3 1 
+Topological order from first input: 0 4 5 6 7 8 1 9 3 2 
 Size of topological order: 10
 > Mapping vertex 0 (●): New Subgraph
 > Mapping vertex 4 ([1m[32mZ[0m[0m): Tensordot
+> Mapping vertex 5 ([1m[31mX[0m[0m): Tensordot
+> Mapping vertex 6 ([1m[32mZ[0m[0m): Tensordot
 > Mapping vertex 7 ([1m[31mX[0m[0m): Tensordot
 > Mapping vertex 8 ([1m[32mZ[0m[0m): Tensordot
-> Mapping vertex 9 ([1m[31mX[0m[0m): Tensordot
-> Mapping vertex 6 ([1m[32mZ[0m[0m): Tensordot
-> Mapping vertex 5 ([1m[31mX[0m[0m): Tensordot
-> Mapping vertex 2 (●): Boundary Node
-> Mapping vertex 3 (●): Boundary Node
 > Mapping vertex 1 (●): Boundary Node
+> Mapping vertex 9 ([1m[31mX[0m[0m): Tensordot
+> Mapping vertex 3 (●): Boundary Node
+> Mapping vertex 2 (●): Boundary Node
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 

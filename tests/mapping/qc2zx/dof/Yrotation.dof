@@ -3,9 +3,9 @@ qcga -Y 0
 qcga -SY 1
 qcga -Sdg 1
 zxmode -on
-qczxm
+qc2zx
 
 qccr benchmark/qsim/circuits/circuit_q24 -R
-qczxm
+qc2zx
 
 q -f

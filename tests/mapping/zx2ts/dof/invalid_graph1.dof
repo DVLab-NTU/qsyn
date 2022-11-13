@@ -8,6 +8,6 @@ zxgp -v
 zxgp -e
 
 // should fail because vertex 0 is a boundary with more than 1 neighbors...
-zxgtsm
+zx2ts
 
 q -f
