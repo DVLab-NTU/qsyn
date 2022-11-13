@@ -330,7 +330,7 @@ class PhaseGadget : public ZXRule{
  */
 class Pivot : public ZXRule{
   public:
-    typedef int MatchType;
+    typedef EdgePair MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
     Pivot(){

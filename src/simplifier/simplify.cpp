@@ -272,11 +272,11 @@ int Simplifier::lcompSimp(){
 }
 
 
-// int Simplifier::pivotSimp(){
-//     this->setRule(new Pivot());
-//     int i = this->simp();
-//     return i;
-// }
+int Simplifier::pivotSimp(){
+    this->setRule(new Pivot());
+    int i = this->simp();
+    return i;
+}
 
 
 // int Simplifier::pivotBoundarySimp(){
