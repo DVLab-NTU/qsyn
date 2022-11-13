@@ -210,7 +210,7 @@ class ZXGraph{
         }
 
         // For mapping
-        void tensorMapping();
+        void toTensor();
         void concatenate(ZXGraph* tmp, bool remove_imm = false);
         void setInputHash(const size_t& q, ZXVertex* v)                    { _inputList[q] = v; }
         void setOutputHash(const size_t& q, ZXVertex* v)                   { _outputList[q] = v; }

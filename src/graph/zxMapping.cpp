@@ -20,30 +20,8 @@ using namespace std;
 extern size_t verbose;
 
 // Mapping functions
-// void ZXGraph::clearHashes() {
-//     for ( auto it = _inputList.begin(); it != _inputList.end(); ++it ) delete it->second;
-//     for ( auto it = _outputList.begin(); it != _outputList.end(); ++it ) delete it->second;
-//     _inputList.clear(); _outputList.clear();
-// }
 
-QTensor<double> ZXVertex::getTSform(){
-    QTensor<double> tensor = (1. + 0.i);
-    if (isBoundary()){
-        tensor = QTensor<double>::identity(_neighbors.size());
-        return tensor;
-    }
-    
-    
-    if (isHBox())
-        tensor = QTensor<double>::hbox(_neighbors.size());
-    else if (isZ())
-        tensor = QTensor<double>::zspider(_neighbors.size(), _phase);
-    else if (isX())
-        tensor = QTensor<double>::xspider(_neighbors.size(), _phase);
-    else
-        cerr << "Error: Invalid vertex type!! (" << _id << ")" << endl;
-    return tensor;
-}
+
 
 ZXVertexList ZXGraph::getNonBoundary() {
     ZXVertexList tmp;
@@ -78,9 +56,7 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
     unordered_map<size_t, ZXVertex*> tmpInp = tmp->getInputList();
     for (auto it = tmpInp.begin(); it != tmpInp.end(); ++it) {
         size_t inpQubit = it->first;
-        // ZXVertex* targetInput = it ->second->getNeighbors()[0].first;
         ZXVertex* targetInput = it->second->getNeighbors().begin()->first;
-        // ZXVertex* lastVertex = this->getOutputFromHash(inpQubit)->getNeighbors()[0].first;
         ZXVertex* lastVertex = this->getOutputFromHash(inpQubit)->getNeighbors().begin()->first;
         tmp->removeEdge(make_pair(make_pair(it->second, targetInput), EdgeType(EdgeType::SIMPLE)));  // Remove old edge (disconnect old graph)
         
@@ -103,12 +79,31 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
     tmp->reset();
 }
 
+// Tensor mapping
 
-void ZXGraph::tensorMapping() {
+QTensor<double> ZXVertex::getTSform(){
+    QTensor<double> tensor = (1. + 0.i);
+    if (isBoundary()){
+        tensor = QTensor<double>::identity(_neighbors.size());
+        return tensor;
+    }
+    
+    if (isHBox())
+        tensor = QTensor<double>::hbox(_neighbors.size());
+    else if (isZ())
+        tensor = QTensor<double>::zspider(_neighbors.size(), _phase);
+    else if (isX())
+        tensor = QTensor<double>::xspider(_neighbors.size(), _phase);
+    else
+        cerr << "Error: Invalid vertex type!! (" << _id << ")" << endl;
+    return tensor;
+}
+
+
+void ZXGraph::toTensor() {
     for (auto& v : _vertices) {
         v->setPin(unsigned(-1));
     }
-    
     ZX2TSMapper mapper(this);
     mapper.mapping();
 }

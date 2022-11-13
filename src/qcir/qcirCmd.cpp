@@ -30,8 +30,8 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCGDelete", 4, new QCirDeleteGateCmd) &&
          cmdMgr->regCmd("QCBDelete", 4, new QCirDeleteQubitCmd) &&
          cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd) &&
-         cmdMgr->regCmd("QC2ZX", 5, new QCirZXMappingCmd) &&
-         cmdMgr->regCmd("QCTSMap", 5, new QCirTSMappingCmd) &&
+         cmdMgr->regCmd("QC2ZX", 5, new QCir2ZXCmd) &&
+         cmdMgr->regCmd("QC2TS", 5, new QCir2TSCmd) &&
          cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd)
          // && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
          ))
@@ -564,7 +564,7 @@ void QCirDeleteQubitCmd::help() const
 //    QC2ZX
 //----------------------------------------------------------------------
 CmdExecStatus
-QCirZXMappingCmd::exec(const string &option)
+QCir2ZXCmd::exec(const string &option)
 {
    // check option
    if (!CmdExec::lexNoOption(option))
@@ -579,22 +579,22 @@ QCirZXMappingCmd::exec(const string &option)
    return CMD_EXEC_DONE;
 }
 
-void QCirZXMappingCmd::usage(ostream &os) const
+void QCir2ZXCmd::usage(ostream &os) const
 {
    os << "Usage: QC2ZX" << endl;
 }
 
-void QCirZXMappingCmd::help() const
+void QCir2ZXCmd::help() const
 {
    cout << setw(15) << left << "QC2ZX: "
         << "mapping to ZX-graph from quantum circuit\n";
 }
 
 //----------------------------------------------------------------------
-//    QCTSMapping
+//    QC2TS
 //----------------------------------------------------------------------
 CmdExecStatus
-QCirTSMappingCmd::exec(const string &option)
+QCir2TSCmd::exec(const string &option)
 {
    // check option
    if (!CmdExec::lexNoOption(option))
@@ -609,19 +609,19 @@ QCirTSMappingCmd::exec(const string &option)
    return CMD_EXEC_DONE;
 }
 
-void QCirTSMappingCmd::usage(ostream &os) const
+void QCir2TSCmd::usage(ostream &os) const
 {
-   os << "Usage: QCTSMapping" << endl;
+   os << "Usage: QC2TS" << endl;
 }
 
-void QCirTSMappingCmd::help() const
+void QCir2TSCmd::help() const
 {
-   cout << setw(15) << left << "QCTSMapping: "
+   cout << setw(15) << left << "QC2TS: "
         << "mapping to tensor from quantum circuit\n";
 }
 
 //----------------------------------------------------------------------
-//    QCCWriter
+//    QCCWrite
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirWriteCmd::exec(const string &option)

@@ -42,7 +42,7 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXGADJoint", 6, new ZXGAdjointCmd) &&
           cmdMgr->regCmd("ZXGASsign", 5, new ZXGAssignCmd) &&
           cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
-          cmdMgr->regCmd("ZX2TS", 5, new ZXTSMappingCmd) &&
+          cmdMgr->regCmd("ZX2TS", 5, new ZX2TSCmd) &&
           cmdMgr->regCmd("ZXGRead", 4, new ZXGReadCmd) &&
           cmdMgr->regCmd("ZXGWrite", 4, new ZXGWriteCmd))) {
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
@@ -663,19 +663,19 @@ void ZXGTraverseCmd::help() const {
 //    ZX2TS
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXTSMappingCmd::exec(const string &option) {
+ZX2TSCmd::exec(const string &option) {
     ZX_CMD_ZXMODE_ON_OR_RETURN;
     
     if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
-    zxGraphMgr->getGraph()->tensorMapping();
+    zxGraphMgr->getGraph()->toTensor();
     return CMD_EXEC_DONE;
 }
 
-void ZXTSMappingCmd::usage(ostream &os) const {
+void ZX2TSCmd::usage(ostream &os) const {
     os << "Usage: ZX2TS" << endl;
 }
 
-void ZXTSMappingCmd::help() const {
+void ZX2TSCmd::help() const {
     cout << setw(15) << left << "ZX2TS: "
          << "convert the ZX-graph to its corresponding tensor" << endl;
 }
