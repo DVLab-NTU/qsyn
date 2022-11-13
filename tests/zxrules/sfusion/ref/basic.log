@@ -19,15 +19,12 @@ qsyn> zxgedit -adde 2 3 SIMPLE
 qsyn> zxgedit -adde 1 2 SIMPLE
 
 qsyn> zxgedit -adde 2 3 SIMPLE
-Note: Redundant edge; merging into existing edge...
 
 qsyn> zxgedit -adde 2 3 SIMPLE
-Note: Redundant edge; merging into existing edge...
 
 qsyn> zxgedit -adde 3 2 HADAMARD
 
 qsyn> zxgedit -adde 3 2 SIMPLE
-Note: Redundant edge; merging into existing edge...
 
 qsyn> zxgedit -adde 2 0 SIMPLE
 

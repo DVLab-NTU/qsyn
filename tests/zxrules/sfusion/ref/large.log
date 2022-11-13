@@ -35,7 +35,6 @@ qsyn> zxgedit -adde 3 6 HADAMARD
 qsyn> zxgedit -adde 4 5 SIMPLE
 
 qsyn> zxgedit -adde 4 5 SIMPLE
-Note: Redundant edge; merging into existing edge...
 
 qsyn> zxgedit -adde 4 6 SIMPLE
 
@@ -76,7 +75,6 @@ Total #Edges: 11
 
 qsyn> zxgsimp -spi
 Spider Fusion Rule: 
-Note: Redundant edge; merging into existing edge...
 3 iterations
 
 qsyn> zxgp -v
