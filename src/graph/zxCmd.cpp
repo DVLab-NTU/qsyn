@@ -163,16 +163,7 @@ ZXRemoveCmd::exec(const string &option) {
     else {
         unsigned id;
         ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
-        // bool isNum = myStr2Int(token, id);
-        // if (!isNum) {
-        //     cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
-        //     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-        // }
         ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id);
-        // if (!zxGraphMgr->isID(id)) {
-        //     cerr << "Error: The id provided does not exist!!" << endl;
-        //     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-        // } else
         zxGraphMgr->removeZXGraph(id);
     }
     return CMD_EXEC_DONE;

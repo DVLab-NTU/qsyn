@@ -209,13 +209,7 @@ bool ZXGraph::isValid() const {
 //     return true;
 // }
 
-bool ZXGraph::isInputQubit(int qubit) const {
-    return (_inputList.contains(qubit));
-}
 
-bool ZXGraph::isOutputQubit(int qubit) const {
-    return (_outputList.contains(qubit));
-}
 
 // Add and Remove
 
@@ -614,9 +608,36 @@ void ZXGraph::toggleEdges(ZXVertex* v){
     v->setNeighbors(toggledNeighbors);
 }
 
+/**
+ * @brief Copy an identitcal ZX-graph
+ * 
+ * @return ZXGraph* 
+ */
 ZXGraph* ZXGraph::copy() const {
-    
     ZXGraph* newGraph = new ZXGraph(0);
+
+    // Copy all vertices (included i/o) first
+    for(const auto& v : _vertices) {
+        if(v->getType() == VertexType::BOUNDARY){
+            if(_inputs.contains(v)) newGraph->addInput(v->getQubit());
+            else newGraph->addOutput(v->getQubit());
+
+        }
+        else if(v->getType() == VertexType::Z || v->getType() == VertexType::X || v->getType() == VertexType::H_BOX){
+            newGraph->addVertex(v->getQubit(), v->getType(), v->getPhase());
+        }
+    }
+
+    forEachEdge([](const EdgePair& epair){
+        size_t vs_id = epair.first.first->getId();
+        size_t vt_id = epair.first.second->getId();
+        ZXVertex* vs = newGraph->getVertices()[vs_id];
+        
+    });
+
+    // Link all edges
+
+
     // unordered_map<size_t, ZXVertex*> id2vertex;
     // newGraph->setId(getId());
 

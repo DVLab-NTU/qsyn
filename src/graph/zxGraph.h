@@ -130,8 +130,8 @@ class ZXGraph{
         // bool isConnected(ZXVertex* v1, ZXVertex* v2) const; 
         bool isId(size_t id) const;
         bool isGraphLike() const;
-        bool isInputQubit(int qubit) const;
-        bool isOutputQubit(int qubit) const;
+        bool isInputQubit(int qubit) const                              { return (_inputList.contains(qubit)); }
+        bool isOutputQubit(int qubit) const                             { return (_outputList.contains(qubit)); }
 
 
         // Add and Remove
@@ -143,19 +143,17 @@ class ZXGraph{
         void addOutputs(const ZXVertexList& outputs);
         void addVertices(const ZXVertexList& vertices, bool reordered = false);
         EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
+        
         // REVIEW unused
         // void addEdgeById(size_t id_s, size_t id_t, EdgeType et);
         
-        void mergeInputList(unordered_map<size_t, ZXVertex*> lst);
-        void mergeOutputList(unordered_map<size_t, ZXVertex*> lst);
+        
 
         size_t removeVertex(ZXVertex* v);
-
+        size_t removeIsolatedVertices();
         size_t removeVertices(vector<ZXVertex* > vertices);
         //REVIEW unused
         // size_t removeVertexById(const size_t& id);
-
-        size_t removeIsolatedVertices();
 
         size_t removeAllEdgesBetween(ZXVertex* vs, ZXVertex* vt, bool checked = false);
         size_t removeEdge(ZXVertex* vs, ZXVertex* vt, EdgeType etype);
@@ -180,8 +178,11 @@ class ZXGraph{
         ZXGraph* copy() const;
         void sortIOByQubit(); 
         void sortVerticeById(); //REVIEW unused function; rendered useless in new version?
-        void liftQubit(const size_t& n);
         void toggleEdges(ZXVertex* v);
+        void liftQubit(const size_t& n);
+        void mergeInputList(unordered_map<size_t, ZXVertex*> lst);
+        void mergeOutputList(unordered_map<size_t, ZXVertex*> lst);
+        unordered_map<size_t, ZXVertex*> id2VertexMap() const;
 
         // Print functions
         //REVIEW provides filters?
@@ -208,6 +209,8 @@ class ZXGraph{
                 }
             }
         }
+
+        
 
         // For mapping
         void tensorMapping();

@@ -108,39 +108,33 @@ void ZXGraphMgr::checkout2ZXGraph(size_t id) {
 
 void ZXGraphMgr::copy(size_t id, bool toNew) {
     //TODO - copy
-    // Prerequisite: _graphList not empty
-    cout << id << " " << toNew << endl;
-    // if (_graphList.empty())
-    //     cerr << "Error: ZXGraphMgr is empty now! Action \"copy\" failed!" << endl;
-    // else {
-    //     bool exists = false;
-    //     ZXGraph* copyTarget = getGraph()->copy();
-    //     copyTarget->setId(id);
-
-    //     // Overwrite existing ZXGraph
-    //     for (size_t i = 0; i < _graphList.size(); i++) {
-    //         if (_graphList[i]->getId() == id) {
-    //             cout << "Overwrite existing Graph " << id << endl; // REVIEW - Maybe move this message to cmd level and guard it using -Replace tag?
-    //             _graphList.erase(_graphList.begin() + i);
-    //             _graphList.insert(_graphList.begin() + i, copyTarget);
-    //             if (verbose >= 3) cout << "Successfully copied Graph " << getGraph()->getId() << " to Graph " << id << endl;
-    //             checkout2ZXGraph(id);
-    //             exists = true;
-    //             break;
-    //         }
-    //     }
-    //     // Create a new ZXGraph
-    //     if (!exists) {
-    //         size_t oriGraphID = getGraph()->getId();
-    //         _graphList.push_back(copyTarget);
-    //         _gListItr = _graphList.end() - 1;
-    //         if (id == _nextID || _nextID < id) _nextID = id + 1;
-    //         if (verbose >= 3) {
-    //             cout << "Successfully copied Graph " << oriGraphID << " to Graph " << id << endl;
-    //             cout << "Checkout to Graph " << id << endl;
-    //         }
-    //     }
-    // }
+    if(_graphList.empty()) cerr << "Error: ZXGraphMgr is empty now! Action \"copy\" failed!" << endl;
+    else{
+        size_t oriGraphID = getGraph()->getId();
+        ZXGraph* copiedGraph = getGraph()->copy();
+        copiedGraph->setId(id);
+        copiedGraph->printGraph();
+        if(toNew){
+            _graphList.push_back(copiedGraph);
+            _gListItr = _graphList.end() -1;
+            if(_nextID <= id) _nextID = id + 1;
+            if(verbose >= 3){
+                cout << "Successfully copied Graph " << oriGraphID << " to Graph " << id << "\n";
+                cout << "Checkout to Graph " << id << "\n";
+            }
+        }
+        else{
+            for(size_t i = 0; i < _graphList.size(); i++){
+                if(_graphList[i]->getId() == id){
+                    _graphList.erase(_graphList.begin() + i);
+                    _graphList.insert(_graphList.begin() + i, copiedGraph);
+                    if (verbose >= 3) cout << "Successfully copied Graph " << oriGraphID << " to Graph " << id << endl;
+                    checkout2ZXGraph(id);
+                    break;
+                }
+            }
+        }
+    }
 }
 
 // NOTE - restructure as function of ZXGraph
