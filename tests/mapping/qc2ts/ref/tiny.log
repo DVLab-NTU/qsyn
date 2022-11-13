@@ -12,7 +12,7 @@ qsyn> qccp -q
 Q 0  -cx( 0)--cx( 1)-
 Q 1  -cx( 0)--cx( 1)-
 
-qsyn> qctsm
+qsyn> qc2ts
 ----------- ADD BOUNDARIES -----------
 Successfully added Tensor 0
 Add Qubit 0 output port: 1
@@ -43,7 +43,7 @@ qsyn> qccp -q
 Q 0  -cx( 0)--cx( 1)--cx( 2)--cx( 3)--cx( 4)-
 Q 1  -cx( 0)--cx( 1)--cx( 2)--cx( 3)--cx( 4)-
 
-qsyn> qctsm
+qsyn> qc2ts
 ----------- ADD BOUNDARIES -----------
 Successfully added Tensor 1
 Add Qubit 0 output port: 1

@@ -45,7 +45,7 @@ public:
         vector<pair<Frontiers, QTensor<double>>> _zx2tsList; 
     };
     
-    bool mapping();
+    bool map();
 
 private:
     ZXGraph*            _zxgraph;       // The ZX Graph to be mapped

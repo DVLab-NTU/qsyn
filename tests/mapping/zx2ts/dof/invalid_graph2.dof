@@ -1,12 +1,12 @@
 zxm -on
 zxn
 zxgtest
-zxgedit -rme 0 2
+zxgedit -rme 0 2 -ALL
 
 zxgp -v
 zxgp -e
 
 // should fail because vertex 0 is a boundary with no neighbors...
-zxgtsm
+zx2ts
 
 q -f

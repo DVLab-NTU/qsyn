@@ -9,7 +9,7 @@ Checkout to Graph 0
 qsyn> zxgtest
 Generate a 2-qubit CNOT graph for testing
 
-qsyn> zxgedit -rme 0 2
+qsyn> zxgedit -rme 0 2 -ALL
 
 qsyn> 
 qsyn> zxgp -v
@@ -24,17 +24,17 @@ Total #Vertices: 6
 
 
 qsyn> zxgp -e
-( 3, 5 )	Type:	-
 ( 1, 3 )	Type:	-
 ( 2, 3 )	Type:	-
 ( 2, 4 )	Type:	-
+( 3, 5 )	Type:	-
 Total #Edges: 4
 
 qsyn> 
 qsyn> // should fail because vertex 0 is a boundary with no neighbors...
 
-qsyn> zxgtsm
-[Error] The ZX Graph is not valid!!!
+qsyn> zx2ts
+Error: The ZX-Graph is not valid!!
 
 qsyn> 
 qsyn> q -f

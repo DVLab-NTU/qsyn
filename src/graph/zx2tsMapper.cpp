@@ -18,7 +18,7 @@ using namespace std;
 namespace TF = TextFormat;
 
 // map a ZX-diagram to a tensor
-bool ZX2TSMapper::mapping() {
+bool ZX2TSMapper::map() {
     if (!_zxgraph->isValid()) {
         cerr << "Error: The ZX-Graph is not valid!!" << endl;
         return false;
@@ -122,7 +122,7 @@ void ZX2TSMapper::printFrontiers(size_t id) const {
 void ZX2TSMapper::getAxisOrders(TensorAxisList& inputAxisList, TensorAxisList& outputAxisList) {
     inputAxisList.resize(_zxgraph->getNumInputs());
     outputAxisList.resize(_zxgraph->getNumOutputs());
-    map<int, size_t> inputTable, outputTable;
+    std::map<int, size_t> inputTable, outputTable; // std:: to avoid name collision with ZX2TSMapper::map
     for (auto v : _zxgraph->getInputs()) {
         inputTable[v->getQubit()] = 0;
     }
@@ -142,8 +142,8 @@ void ZX2TSMapper::getAxisOrders(TensorAxisList& inputAxisList, TensorAxisList& o
     }
     size_t accFrontierSize = 0;
     for (size_t i = 0; i < _zx2tsList.size(); ++i) {
-        cout << "> Tensor " << i << endl;
-        printFrontiers(i);
+        // cout << "> Tensor " << i << endl;
+        // printFrontiers(i);
         bool hasB2BEdge = false;
         for (auto& [epair, axid] : _zx2tsList.frontiers(i)) {
             const auto& [v1, v2] = epair.first;

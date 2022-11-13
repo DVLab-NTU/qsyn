@@ -105,5 +105,5 @@ void ZXGraph::toTensor() {
         v->setPin(unsigned(-1));
     }
     ZX2TSMapper mapper(this);
-    mapper.mapping();
+    mapper.map();
 }
