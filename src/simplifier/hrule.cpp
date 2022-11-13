@@ -37,8 +37,8 @@ void HRule::match(ZXGraph* g){
 
     for(const auto& v: g->getVertices()){
         if(v->getType() == VertexType::H_BOX && v->getNumNeighbors() == 2){
-            NeighborPair nbp0 = *(v->getNeighbors().begin());
-            NeighborPair nbp1 = *next(v->getNeighbors().begin());
+            NeighborPair nbp0 = v -> getFirstNeighbor();
+            NeighborPair nbp1 = v -> getSecondNeighbor();
             size_t n0 = id2idx[nbp0.first->getId()], n1 = id2idx[nbp1.first->getId()];
             if(taken[n0] || taken[n1]) continue;
             if(!inMatches[n0] && !inMatches[n1]){

@@ -2,29 +2,29 @@
 ver 9
 zxmode -on
 zxnew
-zxge -addi 0 0
-zxge -addo 1 0
-zxge -addi 2 1
-zxge -addo 3 1
-zxge -addv 4 0 Z 0
-zxge -addv 5 0 Z 3.14159
+zxge -addi 0
+zxge -addo 0
+zxge -addi 1
+zxge -addo 1
+zxge -addv 0 Z 0
+zxge -addv 0 Z 3.14159
 zxge -adde 4 5 HADAMARD
-zxge -addv 6 0 Z 0
+zxge -addv 0 Z 0
 zxge -adde 4 6 HADAMARD
-zxge -addv 7 0 Z 3.14159
-zxge -addv 8 0 Z 3.14159
-zxge -addv 9 0 Z 3.14159
+zxge -addv 0 Z 3.14159
+zxge -addv 0 Z 3.14159
+zxge -addv 0 Z 3.14159
 zxge -adde 5 7 HADAMARD
 zxge -adde 5 8 HADAMARD
 zxge -adde 5 9 HADAMARD
-zxge -addv 10 0 Z 0
-zxge -addv 11 0 Z 0
+zxge -addv 0 Z 0
+zxge -addv 0 Z 0
 zxge -adde 5 10 HADAMARD
 zxge -adde 5 11 HADAMARD
-zxge -addv 12 0 Z 3.14159
-zxge -addv 13 0 Z 3.14159
-zxge -addv 14 0 Z 3.14159
-zxge -addv 15 0 Z 3.14159
+zxge -addv 0 Z 3.14159
+zxge -addv 0 Z 3.14159
+zxge -addv 0 Z 3.14159
+zxge -addv 0 Z 3.14159
 zxge -adde 4 12 HADAMARD
 zxge -adde 4 13 HADAMARD
 zxge -adde 4 14 HADAMARD
@@ -37,25 +37,27 @@ zxge -adde 0 10 SIMPLE
 zxge -adde 2 7 SIMPLE
 zxge -adde 1 11 SIMPLE
 zxge -adde 3 11 SIMPLE
-zxge -addv 16 0 Z 0
+zxge -addv 0 Z 0
 zxge -adde 6 16 SIMPLE
-zxge -addv 17 0 X 0
+zxge -addv 0 X 0
 zxge -adde 7 17 SIMPLE
-zxge -addv 18 0 Z 0
+zxge -addv 0 Z 0
 zxge -adde 8 18 SIMPLE
-zxge -addv 19 0 X 0
+zxge -addv 0 X 0
 zxge -adde 9 19 SIMPLE
-zxge -addv 20 0 Z 0
+zxge -addv 0 Z 0
 zxge -adde 10 20 SIMPLE
-zxge -addv 21 0 X 0
+zxge -addv 0 X 0
 zxge -adde 11 21 SIMPLE
-zxge -addv 22 0 Z 0
+zxge -addv 0 Z 0
 zxge -adde 12 22 SIMPLE
-zxge -addv 23 0 X 0
+zxge -addv 0 X 0
 zxge -adde 13 23 SIMPLE
-zxge -addv 24 0 Z 0
+zxge -addv 0 Z 0
 zxge -adde 14 24 SIMPLE
-zxge -addv 25 0 X 0
+zxge -addv 0 X 0
 zxge -adde 15 25 SIMPLE
 zxgs -pivot
+zxgp -v
+zxgp -e
 q -f

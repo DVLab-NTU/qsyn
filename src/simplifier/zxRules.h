@@ -88,7 +88,7 @@ class ZXRule{
  */
 class Bialgebra : public ZXRule{
   public:
-    typedef EdgePair_depr MatchType;
+    typedef EdgePair MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
     Bialgebra(){
@@ -330,7 +330,7 @@ class PhaseGadget : public ZXRule{
  */
 class Pivot : public ZXRule{
   public:
-    typedef int MatchType;
+    typedef EdgePair MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
     Pivot(){
@@ -378,6 +378,7 @@ class PivotGadget : public ZXRule{
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
+    bool checkBadMatch(const Neighbors&, EdgePair, bool);
     MatchTypeVec                                      _matchTypeVec;
 };
 

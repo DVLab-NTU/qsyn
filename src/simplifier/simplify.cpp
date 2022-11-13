@@ -215,28 +215,26 @@ int Simplifier::hadamardSimp() {
 
 // Basic rules simplification
 
-// int Simplifier::bialgSimp(){
-//     this->setRule(new Bialgebra());
-//     int i = this->simp();
-//     return i;
-// }
+int Simplifier::bialgSimp(){
+    this->setRule(new Bialgebra());
+    int i = this->simp();
+    return i;
+}
 
 
-// int Simplifier::copySimp(){
-//     if(!_simpGraph->isGraphLike()) return 0;
-    
-//     this->setRule(new StateCopy());
-//     int i = this->simp();
-//     return i;
-// }
+int Simplifier::copySimp(){
+    if(!_simpGraph->isGraphLike()) return 0;
+    this->setRule(new StateCopy());
+    int i = this->simp();
+    return i;
+}
 
 
-// int Simplifier::gadgetSimp(){
-//     // TODO: phase gadget rule
-//     this->setRule(new PhaseGadget());
-//     int i = this->simp();
-//     return i;
-// }
+int Simplifier::gadgetSimp(){
+    this->setRule(new PhaseGadget());
+    int i = this->simp();
+    return i;
+}
 
 
 int Simplifier::hfusionSimp(){
@@ -267,32 +265,33 @@ int Simplifier::idSimp(){
 }
 
 
-// int Simplifier::lcompSimp(){
-//     this->setRule(new LComp());
-//     int i = this->simp();
-//     return i;
-// }
+int Simplifier::lcompSimp(){
+    this->setRule(new LComp());
+    int i = this->simp();
+    return i;
+}
 
 
-// int Simplifier::pivotSimp(){
-//     this->setRule(new Pivot());
-//     int i = this->simp();
-//     return i;
-// }
+int Simplifier::pivotSimp(){
+    this->setRule(new Pivot());
+    int i = this->simp();
+    return i;
+}
 
 
-// int Simplifier::pivotBoundarySimp(){
-//     // TODO: pivot_boundary rule
-//     return 0;
-// }
+int Simplifier::pivotBoundarySimp(){
+    // TODO: pivot_boundary rule
+    return 0;
+}
 
 
-// int Simplifier::pivotGadgetSimp(){
-//     this->setRule(new PivotGadget());
-//     int i = this->simp();
-//     hopfSimp();
-//     return i;
-// }
+int Simplifier::pivotGadgetSimp(){
+    this->setRule(new PivotGadget());
+    int i = this->simp();
+    //REVIEW - Hopf is useless (It should be)
+    // hopfSimp();
+    return i;
+}
 
 
 int Simplifier::sfusionSimp(){
@@ -341,67 +340,67 @@ void Simplifier::toRGraph() {
  * 
  * @return int 
  */
-// int Simplifier::interiorCliffordSimp(){
-//     this->sfusionSimp();
-//     toGraph();
+int Simplifier::interiorCliffordSimp(){
+    this->sfusionSimp();
+    toGraph();
 
-//     int i = 0;
-//     while(true){
-//         int i1 = this->idSimp();
-//         int i2 = this->sfusionSimp();
-//         int i3 = this->pivotSimp();
-//         int i4 = this->lcompSimp();
-//         if(i1+i2+i3+i4 == 0) break;
-//         i += 1;
-//     }
-//     return i;
-// }
+    int i = 0;
+    while(true){
+        int i1 = this->idSimp();
+        int i2 = this->sfusionSimp();
+        int i3 = this->pivotSimp();
+        int i4 = this->lcompSimp();
+        if(i1+i2+i3+i4 == 0) break;
+        i += 1;
+    }
+    return i;
+}
 
 
-// int Simplifier::cliffordSimp(){
-//     int i = 0;
-//     while(true){
-//         i += this->interiorCliffordSimp();
-//         int i2 = this->pivotBoundarySimp();
-//         if(i2 == 0) break;
-//     }
-//     return i;
-// }
-
-/**
- * @brief The main simplification routine of PyZX
- * 
- */
-// void Simplifier::fullReduce(){
-//     this->interiorCliffordSimp();
-//     this->pivotGadgetSimp();
-//     while(true){
-//         this->cliffordSimp();
-//         int i = this->gadgetSimp();
-//         this->interiorCliffordSimp();
-//         int j = this->pivotGadgetSimp();
-//         if(i+j == 0) break;
-//     }
-//     // this->printRecipe();
-// }
+int Simplifier::cliffordSimp(){
+    int i = 0;
+    while(true){
+        i += this->interiorCliffordSimp();
+        int i2 = this->pivotBoundarySimp();
+        if(i2 == 0) break;
+    }
+    return i;
+}
 
 /**
  * @brief The main simplification routine of PyZX
  * 
  */
-// void Simplifier::simulatedReduce(){
-//     this->interiorCliffordSimp();
-//     this->pivotGadgetSimp();
-//     this->copySimp();
-//     while(true){
-//         this->cliffordSimp();
-//         int i = this->gadgetSimp();
-//         this->interiorCliffordSimp();
-//         int j = this->pivotGadgetSimp();
-//         this->copySimp();
-//         if(i+j == 0) break;
-//     }
-// }
+void Simplifier::fullReduce(){
+    this->interiorCliffordSimp();
+    this->pivotGadgetSimp();
+    while(true){
+        this->cliffordSimp();
+        int i = this->gadgetSimp();
+        this->interiorCliffordSimp();
+        int j = this->pivotGadgetSimp();
+        if(i+j == 0) break;
+    }
+    // this->printRecipe();
+}
+
+/**
+ * @brief The main simplification routine of PyZX
+ * 
+ */
+void Simplifier::simulatedReduce(){
+    this->interiorCliffordSimp();
+    this->pivotGadgetSimp();
+    this->copySimp();
+    while(true){
+        this->cliffordSimp();
+        int i = this->gadgetSimp();
+        this->interiorCliffordSimp();
+        int j = this->pivotGadgetSimp();
+        this->copySimp();
+        if(i+j == 0) break;
+    }
+}
 
 
 
