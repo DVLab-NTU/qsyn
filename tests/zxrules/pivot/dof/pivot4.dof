@@ -1,5 +1,5 @@
 // might match (4, 5)
-ver 3
+ver 9
 zxmode -on
 zxnew
 zxge -addi 0

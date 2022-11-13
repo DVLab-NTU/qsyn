@@ -1,4 +1,7 @@
 DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> ver 9
+Note: verbose level is set to 9
+
 qsyn> zxmode -on
 ZXMODE turn ON!
 
@@ -7,46 +10,134 @@ Successfully generated Graph 0
 Checkout to Graph 0
 
 qsyn> zxge -addi 0
+Add vertex (●)0
 
 qsyn> zxge -addo 0
+Add vertex (●)1
 
 qsyn> zxge -addi 1
+Add vertex (●)2
 
 qsyn> zxge -addo 1
+Add vertex (●)3
 
 qsyn> zxge -addv 0 Z 0
+Add vertex ([1m[32mZ[0m[0m)4
 
 qsyn> zxge -addv 0 Z 0
+Add vertex ([1m[32mZ[0m[0m)5
 
 qsyn> zxge -addv 0 Z 3.14159
+Add vertex ([1m[32mZ[0m[0m)6
 
 qsyn> zxge -addv 0 Z 3.14159
+Add vertex ([1m[32mZ[0m[0m)7
 
 qsyn> zxge -addv 0 Z 0
+Add vertex ([1m[32mZ[0m[0m)8
 
 qsyn> zxge -addv 0 Z 0
+Add vertex ([1m[32mZ[0m[0m)9
 
 qsyn> zxge -adde 4 6 HADAMARD
+Add edge ( 4, 6 )
 
 qsyn> zxge -adde 5 6 HADAMARD
+Add edge ( 5, 6 )
 
 qsyn> zxge -adde 6 7 HADAMARD
+Add edge ( 6, 7 )
 
 qsyn> zxge -adde 7 8 HADAMARD
+Add edge ( 7, 8 )
 
 qsyn> zxge -adde 7 9 HADAMARD
+Add edge ( 7, 9 )
 
 qsyn> zxge -adde 0 4 SIMPLE
+Add edge ( 0, 4 )
 
 qsyn> zxge -adde 2 5 SIMPLE
+Add edge ( 2, 5 )
 
 qsyn> zxge -adde 1 8 SIMPLE
+Add edge ( 1, 8 )
 
 qsyn> zxge -adde 3 9 SIMPLE
+Add edge ( 3, 9 )
 
 qsyn> zxgs -pivot
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (6, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(2, -) (6, [1m[34mH[0m[0m) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(6, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (7, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (7, [1m[34mH[0m[0m) 
+Total #Vertices: 10
+
 Pivot Rule: 
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (6, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(2, -) (6, [1m[34mH[0m[0m) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(6, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (7, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (7, [1m[34mH[0m[0m) 
+Total #Vertices: 10
+
+Found 1 match(es)
+Add edge ( 6, 0 )
+Remove ID: 4
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(6, [1m[34mH[0m[0m) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(2, -) (6, [1m[34mH[0m[0m) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(0, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(6, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (7, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (7, [1m[34mH[0m[0m) 
+Total #Vertices: 9
+
+Found 1 match(es)
+Add edge ( 7, 0 )
+Add edge ( 5, 8 )
+Add edge ( 5, 9 )
+Remove ID: 6
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(2, -) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(0, -) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(1, -) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(3, -) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+Total #Vertices: 8
+
 2 iterations
+
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(2, -) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(0, -) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(1, -) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(3, -) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+Total #Vertices: 8
+
 
 qsyn> zxgp -v
 
