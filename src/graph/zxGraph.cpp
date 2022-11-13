@@ -342,7 +342,7 @@ void ZXGraph::addVertices(const ZXVertexList& vertices, bool reordered) {
 EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
     if (vs == vt) {
         Phase phase = (et == EdgeType::HADAMARD) ? Phase(1) : Phase(0);
-        cout << "Note: converting this self-loop to phase " << phase << " on vertex " << vs->getId() <<"..." << endl;
+        if(verbose >=5) cout << "Note: converting this self-loop to phase " << phase << " on vertex " << vs->getId() <<"..." << endl;
         vs->setPhase(vs->getPhase() + phase);
         return makeEdgePairDummy();
     }
@@ -354,14 +354,14 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
             (vs->isZ() && vt->isZ() && et == EdgeType::SIMPLE)   ||
             (vs->isX() && vt->isX() && et == EdgeType::SIMPLE)   
         ) {
-            cout << "Note: Redundant edge; merging into existing edge..." << endl;
+            if(verbose >=5) cout << "Note: Redundant edge; merging into existing edge..." << endl;
         } else if (
             (vs->isZ() && vt->isX() && et == EdgeType::SIMPLE  ) ||
             (vs->isX() && vt->isZ() && et == EdgeType::SIMPLE  ) ||
             (vs->isZ() && vt->isZ() && et == EdgeType::HADAMARD) ||
             (vs->isX() && vt->isX() && et == EdgeType::HADAMARD)   
         ) {
-            cout << "Note: Hopf edge; cancalling out with existing edge..." << endl;
+            if(verbose >=5) cout << "Note: Hopf edge; cancelling out with existing edge..." << endl;
             vs->removeNeighbor(make_pair(vt, et));
             vt->removeNeighbor(make_pair(vs, et));
         }
