@@ -180,8 +180,8 @@ class ZXGraph{
         void sortVerticeById(); //REVIEW unused function; rendered useless in new version?
         void toggleEdges(ZXVertex* v);
         void liftQubit(const size_t& n);
-        void mergeInputList(unordered_map<size_t, ZXVertex*> lst);
-        void mergeOutputList(unordered_map<size_t, ZXVertex*> lst);
+        void mergeInputList(unordered_map<size_t, ZXVertex*> lst)    { _inputList.merge(lst); }
+        void mergeOutputList(unordered_map<size_t, ZXVertex*> lst)   { _outputList.merge(lst); }
         unordered_map<size_t, ZXVertex*> id2VertexMap() const;
 
         // Print functions

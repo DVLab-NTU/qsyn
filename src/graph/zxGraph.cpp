@@ -92,12 +92,15 @@ bool ZXVertex::isNeighbor(ZXVertex* v) const {
 
 
 
-/**************************************/
-/*   class ZXGraph member functions   */
-/**************************************/
+/*****************************************************/
+/*   class ZXGraph Getter and setter functions       */
+/*****************************************************/
 
-// Getter and setter
-
+/**
+ * @brief Get the number of edges in ZX-graph
+ * 
+ * @return size_t 
+ */
 size_t ZXGraph::getNumEdges() const {
     size_t n = 0;
     for (auto& v: _vertices) {
@@ -106,6 +109,19 @@ size_t ZXGraph::getNumEdges() const {
     return n/2;
 }
 
+
+
+/*****************************************************/
+/*   class ZXGraph Testing functions                 */
+/*****************************************************/
+
+/**
+ * @brief Check if `id` is an existed vertex id
+ * 
+ * @param id 
+ * @return true 
+ * @return false 
+ */
 bool ZXGraph::isId(size_t id) const {
     for (auto v : _vertices) {
         if (v->getId() == id) return true;
@@ -183,10 +199,22 @@ bool ZXGraph::isGraphLike() const {
     return true;
 }
 
+/**
+ * @brief Check if the ZX-graph is an empty one (no vertice)
+ * 
+ * @return true 
+ * @return false 
+ */
 bool ZXGraph::isEmpty() const {
     return (_inputs.empty() && _outputs.empty() && _vertices.empty());
 }
 
+/**
+ * @brief Check if the ZX-graph is valid (i/o connected to 1 vertex, each neighbor matches)
+ * 
+ * @return true 
+ * @return false 
+ */
 bool ZXGraph::isValid() const {
     for (auto& v: _inputs) {
         if (v->getNumNeighbors() != 1) return false;
@@ -202,16 +230,11 @@ bool ZXGraph::isValid() const {
     return true;
 }
 
-// REVIEW unused 
-// bool ZXGraph::isConnected(ZXVertex* v1, ZXVertex* v2) const {
-//     // if (v1->isNeighbor_depr(v2) && v2->isNeighbor_depr(v1)) return true;
-//     // return false;
-//     return true;
-// }
 
 
-
-// Add and Remove
+/*****************************************************/
+/*   class ZXGraph Add and Remove functions          */
+/*****************************************************/
 
 /**
  * @brief Add input to ZXVertexList
@@ -355,32 +378,6 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
     return makeEdgePair(vs, vt, et);
 }
 
-/**
- * @brief add an edge to ZX-graph by the vertices' ids
- * 
- * @param id_s 
- * @param id_t 
- * @param et 
- */
-// void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType et) {
-//     ZXVertex* vs = findVertexById(id_s);
-//     ZXVertex* vt = findVertexById(id_t);
-//     if (!vs)
-//         cerr << "Error: id_s provided does not exist!" << endl;
-//     else if (!vt)
-//         cerr << "Error: id_t provided does not exist!" << endl;
-//     else {
-//         addEdge(vs, vt, et);
-//     }
-// }
-
-void ZXGraph::mergeInputList(unordered_map<size_t, ZXVertex*> lst) {
-    _inputList.merge(lst);
-}
-
-void ZXGraph::mergeOutputList(unordered_map<size_t, ZXVertex*> lst) {
-    _outputList.merge(lst);
-}
 
 /**
  * @brief Remove `v` in ZXGraph and maintain the relationship between each vertex.
@@ -588,9 +585,9 @@ ZXVertex* ZXGraph::findVertexById(const size_t& id) const {
 
 
 
-/**************************************/
-/*   class ZXGraph Action functions   */
-/**************************************/
+/*****************************************************/
+/*   class ZXGraph Action functions                  */
+/*****************************************************/
 
 
 void ZXGraph::reset() {
@@ -644,15 +641,15 @@ ZXGraph* ZXGraph::copy() const {
 }
 
 
-void ZXGraph::sortIOByQubit() {
-    // NOTE - when re-implementing, notice that to sort ordered_hashset, use the member function (oset.sort()) instead of std::sort()
-    // sort(_inputs_depr.begin(), _inputs_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
-    // sort(_outputs_depr.begin(), _outputs_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
-}
+// void ZXGraph::sortIOByQubit() {
+//     // NOTE - when re-implementing, notice that to sort ordered_hashset, use the member function (oset.sort()) instead of std::sort()
+//     // sort(_inputs_depr.begin(), _inputs_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
+//     // sort(_outputs_depr.begin(), _outputs_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
+// }
 
-void ZXGraph::sortVerticeById() {
-    // sort(_vertices_depr.begin(), _vertices_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getId() < b->getId(); });
-}
+// void ZXGraph::sortVerticeById() {
+//     // sort(_vertices_depr.begin(), _vertices_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getId() < b->getId(); });
+// }
 
 void ZXGraph::liftQubit(const size_t& n) {
     // for_each(_vertices_depr.begin(), _vertices_depr.end(), [&n](ZXVertex* v) { v->setQubit(v->getQubit() + n); });
@@ -673,6 +670,8 @@ void ZXGraph::liftQubit(const size_t& n) {
 }
 
 
+
+
 /**
  * @brief Generate a id-2-ZXVertex* map
  * 
@@ -686,9 +685,9 @@ unordered_map<size_t, ZXVertex*> ZXGraph::id2VertexMap() const{
 
 
 
-/**************************************/
-/*   class ZXGraph Print functions    */
-/**************************************/
+/*****************************************************/
+/*   class ZXGraph Print functions                   */
+/*****************************************************/
 
 void ZXGraph::printGraph() const {
     cout << "Graph " << _id << endl;
@@ -729,7 +728,11 @@ void ZXGraph::printEdges() const {
 }
 
 
-// Vertex Type & Edge Type functions
+
+
+/*****************************************************/
+/*   Vertex Type & Edge Type functions               */
+/*****************************************************/
 
 EdgeType toggleEdge(const EdgeType& et) {
     if (et == EdgeType::SIMPLE)
