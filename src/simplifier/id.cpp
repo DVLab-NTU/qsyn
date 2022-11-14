@@ -39,7 +39,7 @@ void IdRemoval::match(ZXGraph* g) {
     for(const auto& v: g->getVertices()){
         if (!valid[id2idx[v->getId()]]) continue;
         
-        Neighbors nebs = v->getNeighbors();
+        const Neighbors& nebs = v->getNeighbors();
         if (v->getPhase() != Phase(0)) continue;
         if (v->getType() != VertexType::Z && v->getType() != VertexType::X) continue;
         if (nebs.size() != 2) continue;

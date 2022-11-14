@@ -45,8 +45,8 @@ void SpiderFusion::match(ZXGraph* g) {
 
         //NOTE - Both X or Both Z
         if ((v0->getType() == v1->getType()) && (v0->getType() == VertexType::X || v0->getType() == VertexType::Z)) {
-            Neighbors v0n = v0->getNeighbors();
-            Neighbors v1n = v1->getNeighbors();
+            const Neighbors& v0n = v0->getNeighbors();
+            const Neighbors& v1n = v1->getNeighbors();
             //NOTE - Cannot choose the vertex connected to the vertices that will be merged
             for (auto itr = v0n.begin(); itr != v0n.end(); ++itr) {
                 validEdge[Edge2idx[makeEdgePair(v0, itr->first, itr->second)]] = false;
