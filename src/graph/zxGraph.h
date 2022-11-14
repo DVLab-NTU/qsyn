@@ -153,7 +153,7 @@ class ZXGraph{
         size_t removeVertex(ZXVertex* v);
         size_t removeIsolatedVertices();
         size_t removeVertices(vector<ZXVertex* > vertices);
-        //REVIEW unused
+        // REVIEW unused
         // size_t removeVertexById(const size_t& id);
 
         size_t removeAllEdgesBetween(ZXVertex* vs, ZXVertex* vt, bool checked = false);

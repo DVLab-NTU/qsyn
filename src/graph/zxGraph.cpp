@@ -658,9 +658,18 @@ ZXGraph* ZXGraph::copy() const {
  */
 ZXGraph* ZXGraph::compose(ZXGraph* target){
     // Check ori-outputNum == target-inputNum
-    if(this->getNumOutputs() != target->getNumInputs()) cerr << "";
+    if(this->getNumOutputs() != target->getNumInputs())
+        cerr << "Error: The composing ZX-graph's #input is not equivalent to the original ZX-graph's #output." << endl;
     else{
         ZXGraph* copiedGraph = target->copy();
+        // Update Id of copiedGraph to make them unique to the original graph
+        for(const auto& v : copiedGraph->getVertices()){
+            v->setId(_nextVId);
+            _nextVId++;
+        }
+        // Sort ori-output and copy-input
+
+
     }
     return this;
 }
