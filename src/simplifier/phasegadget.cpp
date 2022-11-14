@@ -94,61 +94,6 @@ void PhaseGadget::match(ZXGraph* g){
             
     }
     setMatchTypeVecNum(_matchTypeVec.size());
-
-
-    // for(size_t i = 0; i < g->getNumVertices(); i++){
-    //     ZXVertex* v = g->getVertices_depr()[i];
-    //     if(v->getPhase() != Phase(0) && v->getPhase() != Phase(1) && v->getNumNeighbors_depr() == 1){
-    //         ZXVertex* neighbor = v->getNeighbors_depr()[0];
-    //         if(neighbor->getPhase() != Phase(0) and neighbor->getPhase() != Phase(1)) continue;
-    //         if(neighbor->getType() == VertexType::BOUNDARY) continue;
-    //         if(gadgets.contains(neighbor)) continue;
-    //         // if(taken[id2idx[neighbor->getId()]]) continue;
-    //         vector<ZXVertex*> nebsOfNeighbor = neighbor->getNeighbors_depr();
-    //         nebsOfNeighbor.erase(remove(nebsOfNeighbor.begin(),nebsOfNeighbor.end(),v), nebsOfNeighbor.end());
-            
-    //         sort(nebsOfNeighbor.begin(), nebsOfNeighbor.end());
-            
-    //         gadgets[neighbor] = v;
-    //         if(nebsOfNeighbor.size()>0){
-    //             done[nebsOfNeighbor] = false;
-    //             groups.insert(make_pair(nebsOfNeighbor,neighbor));
-    //         }
-                
-    //         if(verbose >=9){
-    //             for(size_t k=0;k<nebsOfNeighbor.size(); k++){
-    //                 cout << nebsOfNeighbor[k]->getId() << " ";
-    //             }
-    //             cout << " axel added: "<<neighbor->getId() << endl;
-    //         }
-    //     }
-    // }
-    
-    // for(auto itr=groups.begin(); itr!=groups.end(); itr++){
-    //     if(done[itr->first]) continue;
-    //     else done[itr->first]= true;
-    //     auto gadgetList = groups.equal_range(itr->first);
-    //     vector<ZXVertex*> axels;
-    //     vector<ZXVertex*> leaves;
-    //     Phase tot = Phase(0);
-    //     for(auto gad = gadgetList.first; gad!= gadgetList.second; gad++){
-    //         if(gad->second->getPhase()==Phase(1)){
-    //             gad->second->setPhase(Phase(0));
-    //             tot = tot + (-1) * gadgets[gad->second]->getPhase();
-    //             gadgets[gad->second] -> setPhase((-1) * gadgets[gad->second]->getPhase());
-    //         }
-    //         else{
-    //             tot = tot + gadgets[gad->second]->getPhase();
-    //         }
-    //         axels.push_back(gad->second);
-    //         leaves.push_back(gadgets[gad->second]);
-    //     }
-    //     if(leaves.size()>1){
-    //         _matchTypeVec.emplace_back(tot, axels, leaves);
-    //     }
-            
-    // }
-    // setMatchTypeVecNum(_matchTypeVec.size());
 }
 
 
@@ -159,12 +104,6 @@ void PhaseGadget::match(ZXGraph* g){
  */
 void PhaseGadget::rewrite(ZXGraph* g){
     reset();
-    //TODO: Rewrite _removeVertices, _removeEdges, _edgeTableKeys, _edgeTableValues
-    //* _removeVertices: all ZXVertex* must be removed from ZXGraph this cycle.
-    //* _removeEdges: all EdgePair must be removed from ZXGraph this cycle.
-    //* (EdgeTable: Key(ZXVertex* vs, ZXVertex* vt), Value(int s, int h))
-    //* _edgeTableKeys: A pair of ZXVertex* like (ZXVertex* vs, ZXVertex* vt), which you would like to add #s EdgeType::SIMPLE between them and #h EdgeType::HADAMARD between them
-    //* _edgeTableValues: A pair of int like (int s, int h), which means #s EdgeType::SIMPLE and #h EdgeType::HADAMARD
     
     for(size_t i=0; i<_matchTypeVec.size(); i++){
         ZXVertex* leaf = get<2>(_matchTypeVec[i])[0];

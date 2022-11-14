@@ -33,7 +33,6 @@ void Pivot::match(ZXGraph* g){
 
     vector<bool> taken(g->getNumVertices(), false);
 
-    // traverse edge
     g -> forEachEdge([&g, &cnt, &id2idx, &taken, this](const EdgePair& epair) {
         //// 1: Check EdgeType
         //NOTE - Only Hadamard

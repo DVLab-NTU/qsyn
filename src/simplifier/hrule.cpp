@@ -49,19 +49,7 @@ void HRule::match(ZXGraph* g){
             }
         }
     }
-    // for(size_t i = 0; i < g->getNumVertices_depr(); i++){
-    //     if(g->getVertices_depr()[i]->getType() == VertexType::H_BOX && g->getVertices_depr()[i]->getNumNeighbors_depr() == 2){
-    //         vector<ZXVertex*> neighbors = g->getVertices_depr()[i]->getNeighbors_depr();
-    //         size_t n0 = id2idx[neighbors[0]->getId()], n1 = id2idx[neighbors[1]->getId()];
-    //         if(taken[n0] || taken[n1]) continue;
-    //         if(!inMatches[n0] && !inMatches[n1]){
-    //             _matchTypeVec.push_back(g->getVertices_depr()[i]);
-    //             inMatches[id2idx[g->getVertices_depr()[i]->getId()]] = true;
-    //             taken[n0] = true;
-    //             taken[n1] = true;
-    //         }
-    //     }
-    // }
+    
     setMatchTypeVecNum(_matchTypeVec.size());
 }
 

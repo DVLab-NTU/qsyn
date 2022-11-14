@@ -74,12 +74,6 @@ void SpiderFusion::match(ZXGraph* g) {
  */
 void SpiderFusion::rewrite(ZXGraph* g) {
     reset();
-    // TODO: Rewrite _removeVertices, _removeEdges, _edgeTableKeys, _edgeTableValues
-    //* _removeVertices: all ZXVertex* must be removed from ZXGraph this cycle.
-    //* _removeEdges: all EdgePair must be removed from ZXGraph this cycle.
-    //* (EdgeTable: Key(ZXVertex* vs, ZXVertex* vt), Value(int s, int h))
-    //* _edgeTableKeys: A pair of ZXVertex* like (ZXVertex* vs, ZXVertex* vt), which you would like to add #s EdgeType::SIMPLE between them and #h EdgeType::HADAMARD between them
-    //* _edgeTableValues: A pair of int like (int s, int h), which means #s EdgeType::SIMPLE and #h EdgeType::HADAMARD
     
     for (size_t i = 0; i < _matchTypeVec.size(); i++) {
 
