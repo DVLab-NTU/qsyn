@@ -1,0 +1,33 @@
+qsyn> zxmode -on
+ZXMODE turn ON!
+
+qsyn> ZXNew
+Successfully generated Graph 0
+Checkout to Graph 0
+
+qsyn> zxgt
+Generate a 2-qubit CNOT graph for testing
+
+qsyn> zxgp
+Graph 0( 2 inputs, 2 outputs, 6 vertices, 5 edges )
+
+qsyn> zxcopy
+Successfully copied Graph 0 to Graph 1
+Checkout to Graph 1
+
+qsyn> zxgp
+Graph 1( 2 inputs, 2 outputs, 6 vertices, 5 edges )
+
+qsyn> zxge -rmv 1
+
+qsyn> zxgp
+Graph 1( 1 inputs, 2 outputs, 5 vertices, 4 edges )
+
+qsyn> zxch 0
+Checkout to Graph 0
+
+qsyn> zxgp
+Graph 0( 2 inputs, 2 outputs, 6 vertices, 5 edges )
+
+qsyn> q -f
+

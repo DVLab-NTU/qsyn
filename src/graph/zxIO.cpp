@@ -197,7 +197,7 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
     };
     ZXFile << "// Input \n";
     for (auto& v : _inputs) {
-        ZXFile << "I" << _inputs.id(v) << " " << v->getQubit();
+        ZXFile << "I" << v->getId() << " " << v->getQubit();
         if (!writeNeighbors(v, complete)) return false;
         ZXFile << "\n";
     }
@@ -205,7 +205,7 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
     ZXFile << "// Output \n";
     
     for (auto& v : _outputs) {
-        ZXFile << "O" << _outputs.id(v) << " " << v->getQubit();
+        ZXFile << "O" << v->getId() << " " << v->getQubit();
         if (!writeNeighbors(v, complete)) return false;
         ZXFile << "\n";
     }

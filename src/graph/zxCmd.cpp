@@ -34,7 +34,7 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXCHeckout", 4, new ZXCHeckoutCmd) &&
           cmdMgr->regCmd("ZXCOPy", 5, new ZXCOPyCmd) &&
           cmdMgr->regCmd("ZXCOMpose", 5, new ZXCOMposeCmd) &&
-          cmdMgr->regCmd("ZXTensor", 5, new ZXTensorCmd) &&
+          cmdMgr->regCmd("ZXTensor", 3, new ZXTensorCmd) &&
           cmdMgr->regCmd("ZXPrint", 3, new ZXPrintCmd) &&
           cmdMgr->regCmd("ZXGPrint", 4, new ZXGPrintCmd) &&
           cmdMgr->regCmd("ZXGTest", 4, new ZXGTestCmd) &&
@@ -61,10 +61,11 @@ enum ZXCmdState {
 
 static ZXCmdState curCmd = ZXOFF;
 
+
+
 //----------------------------------------------------------------------
 //    ZXMode [-ON | -OFF | -Reset | -Print]
 //----------------------------------------------------------------------
-
 CmdExecStatus
 ZXModeCmd::exec(const string &option) {
     string token;
@@ -114,10 +115,11 @@ void ZXModeCmd::help() const {
          << "check out to ZX-graph mode" << endl;
 }
 
+
+
 //----------------------------------------------------------------------
 //    ZXNew [(size_t id)]
 //----------------------------------------------------------------------
-
 CmdExecStatus
 ZXNewCmd::exec(const string &option) {
 
@@ -126,17 +128,12 @@ ZXNewCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
-
     if (token.empty())
         zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
     else {
-        int id;
-        bool isNum = myStr2Int(token, id);
-        if (!isNum || id < 0) {
-            cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-        } else
-            zxGraphMgr->addZXGraph(id);
+        unsigned id;
+        ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
+        zxGraphMgr->addZXGraph(id);
     }
     return CMD_EXEC_DONE;
 }
@@ -150,76 +147,55 @@ void ZXNewCmd::help() const {
          << "new ZX-graph to ZXGraphMgr" << endl;
 }
 
+
+
 //----------------------------------------------------------------------
 //    ZXRemove <(size_t id)>
 //----------------------------------------------------------------------
-
 CmdExecStatus
 ZXRemoveCmd::exec(const string &option) {
-
+    //TODO - ZXRemove   
     ZX_CMD_ZXMODE_ON_OR_RETURN;
-    // string token;
-    // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    // if (curCmd != ZXON) {
-    //     cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXRemove" << endl;
-    //     return CMD_EXEC_ERROR;
-    // }
-    // if (token.empty())
-    //     return CmdExec::errorOption(CMD_OPT_MISSING, "");
-    // else {
-    //     int id;
-    //     bool isNum = myStr2Int(token, id);
-    //     if (!isNum) {
-    //         cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
-    //         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    //     }
-    //     if (!zxGraphMgr->isID(id)) {
-    //         cerr << "Error: The id provided does not exist!!" << endl;
-    //         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    //     } else
-    //         zxGraphMgr->removeZXGraph(id);
-    // }
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    
+    if (token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
+    else {
+        unsigned id;
+        ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
+        ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id);
+        zxGraphMgr->removeZXGraph(id);
+    }
     return CMD_EXEC_DONE;
 }
 
 void ZXRemoveCmd::usage(ostream &os) const {
-    os << "Usage: ZXRemove <(size_t id)>" << endl;
+    os << "Usage: ZXRemove <size_t id>" << endl;
 }
 
 void ZXRemoveCmd::help() const {
     cout << setw(15) << left << "ZXRemove: "
-         << "remove ZX-graph from ZXGraphMgr" << endl;
+         << "remove a ZX-graph from ZXGraphMgr" << endl;
 }
+
+
 
 //----------------------------------------------------------------------
 //    ZXCHeckout <(size_t id)>
 //----------------------------------------------------------------------
-
 CmdExecStatus
 ZXCHeckoutCmd::exec(const string &option) {
-
     ZX_CMD_ZXMODE_ON_OR_RETURN;
-    // string token;
-    // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    // if (curCmd != ZXON) {
-    //     cerr << "Error: ZXMODE is OFF now. Please turn ON before ZXCHeckout" << endl;
-    //     return CMD_EXEC_ERROR;
-    // }
-    // if (token.empty())
-    //     return CmdExec::errorOption(CMD_OPT_MISSING, "");
-    // else {
-    //     int id;
-    //     bool isNum = myStr2Int(token, id);
-    //     if (!isNum) {
-    //         cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
-    //         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    //     }
-    //     if (!zxGraphMgr->isID(id)) {
-    //         cerr << "Error: The id provided does not exist!!" << endl;
-    //         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    //     } else
-    //         zxGraphMgr->checkout2ZXGraph(id);
-    // }
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    
+    if (token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
+    else {
+        unsigned id;
+        ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
+        ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id);
+        zxGraphMgr->checkout2ZXGraph(id);
+    }
     return CMD_EXEC_DONE;
 }
 
@@ -232,29 +208,23 @@ void ZXCHeckoutCmd::help() const {
          << "chec kout to Graph <id> in ZXGraphMgr" << endl;
 }
 
+
+
 //----------------------------------------------------------------------
 //    ZXPrint [-Summary | -Focus | -Num]
 //----------------------------------------------------------------------
-
 CmdExecStatus
 ZXPrintCmd::exec(const string &option) {
-
     ZX_CMD_ZXMODE_ON_OR_RETURN;
-    // string token;
-    // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    // if (curCmd != ZXON)
-    //     cout << "ZXMode: OFF" << endl;
-    // else {
-    //     if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) {
-    //         cout << "ZXMode: ON" << endl;
-    //         zxGraphMgr->printZXGraphMgr();
-    //     } else if (myStrNCmp("-Focus", token, 2) == 0)
-    //         zxGraphMgr->printGListItr();
-    //     else if (myStrNCmp("-Num", token, 2) == 0)
-    //         zxGraphMgr->printGraphListSize();
-    //     else
-    //         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    // }
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) {
+        cout << "ZXMode: ON" << endl;
+        zxGraphMgr->printZXGraphMgr();
+    } 
+    else if (myStrNCmp("-Focus", token, 2) == 0) zxGraphMgr->printGListItr();
+    else if (myStrNCmp("-Num", token, 2) == 0) zxGraphMgr->printGraphListSize();
+    else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     return CMD_EXEC_DONE;
 }
 
@@ -267,36 +237,51 @@ void ZXPrintCmd::help() const {
          << "print info in ZXGraphMgr" << endl;
 }
 
+
+
 //----------------------------------------------------------------------
 //    ZXCOPy [(size_t id)]
 //----------------------------------------------------------------------
-
 CmdExecStatus
 ZXCOPyCmd::exec(const string &option) {
-
     ZX_CMD_ZXMODE_ON_OR_RETURN;
-    // string token;
-    // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    // if (curCmd != ZXON)
-    //     cout << "ZXMode: OFF" << endl;
-    // else {
-    //     if (token.empty())
-    //         zxGraphMgr->copy(zxGraphMgr->getNextID());
-    //     else {
-    //         int id;
-    //         bool isNum = myStr2Int(token, id);
-    //         if (!isNum || id < 0) {
-    //             cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
-    //             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    //         } else
-    //             zxGraphMgr->copy(id);
-    //     }
-    // }
+    // check option
+    vector<string> options;
+    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
+    
+    CMD_N_OPTS_AT_MOST_OR_RETURN(options, 2);
+    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXCOPy");
+
+    if(options.size() == 2){
+        bool doReplace = false;
+        size_t id_idx = 0;
+        for(size_t i = 0; i < options.size(); i++){
+            if(myStrNCmp("-Replace", options[i], 2) == 0){
+                doReplace = true;
+                id_idx = 1 - i;
+                break;
+            } 
+        }
+        if(!doReplace) return CmdExec::errorOption(CMD_OPT_MISSING, "-Replace");
+        unsigned id_g;
+        ZX_CMD_ID_VALID_OR_RETURN(options[id_idx], id_g, "Graph");
+        ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id_g);
+        zxGraphMgr->copy(id_g, false);
+    }
+    else if(options.size() == 1){
+        unsigned id_g;
+        ZX_CMD_ID_VALID_OR_RETURN(options[0], id_g, "Graph");
+        ZX_CMD_GRAPH_ID_NOT_EXISTED_OR_RETURN(id_g);
+        zxGraphMgr->copy(id_g);
+    }
+    else{
+        zxGraphMgr->copy(zxGraphMgr->getNextID());
+    }
     return CMD_EXEC_DONE;
 }
 
 void ZXCOPyCmd::usage(ostream &os) const {
-    os << "Usage: ZXCOPy [(size_t id)]" << endl;
+    os << "Usage: ZXCOPy <size_t id> [-Replace]" << endl;
 }
 
 void ZXCOPyCmd::help() const {
@@ -304,41 +289,31 @@ void ZXCOPyCmd::help() const {
          << "copy a ZX-graph" << endl;
 }
 
-//----------------------------------------------------------------------
-//    ZXCOMpose <(size_t id)>
-//----------------------------------------------------------------------
 
+
+//----------------------------------------------------------------------
+//    ZXCOMpose <size_t id>
+//----------------------------------------------------------------------
 CmdExecStatus
 ZXCOMposeCmd::exec(const string &option) {
-
+    //TODO - ZXCOMpose
     ZX_CMD_ZXMODE_ON_OR_RETURN;
-    // string token;
-    // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    // if (curCmd != ZXON)
-    //     cout << "ZXMode: OFF" << endl;
-    // else {
-    //     if (token.empty()) {
-    //         cerr << "Error: the ZX-graph id you want to compose must provided!" << endl;
-    //         return CmdExec::errorOption(CMD_OPT_MISSING, token);
-    //     } else {
-    //         int id;
-    //         bool isNum = myStr2Int(token, id);
-    //         if (!isNum || id < 0) {
-    //             cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
-    //             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    //         } else if (!zxGraphMgr->isID(id)) {
-    //             cerr << "Error: The id provided does not exist!!" << endl;
-    //             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-
-    //         } else
-    //             zxGraphMgr->compose(zxGraphMgr->findZXGraphByID(id));
-    //     }
-    // }
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    if (token.empty()) {
+        cerr << "Error: the ZX-graph id you want to compose must provided!" << endl;
+        return CmdExec::errorOption(CMD_OPT_MISSING, token);
+    } else {
+        unsigned id;
+        ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
+        ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id);
+        zxGraphMgr->getGraph()->compose(zxGraphMgr->findZXGraphByID(id));
+    }
     return CMD_EXEC_DONE;
 }
 
 void ZXCOMposeCmd::usage(ostream &os) const {
-    os << "Usage: ZXCOMpose <(size_t id)>" << endl;
+    os << "Usage: ZXCOMpose <size_t id>" << endl;
 }
 
 void ZXCOMposeCmd::help() const {
@@ -346,41 +321,34 @@ void ZXCOMposeCmd::help() const {
          << "compose a ZX-graph" << endl;
 }
 
-//----------------------------------------------------------------------
-//    ZXTensor <(size_t id)>
-//----------------------------------------------------------------------
 
+
+//----------------------------------------------------------------------
+//    ZXTensor <size_t id>
+//----------------------------------------------------------------------
 CmdExecStatus
 ZXTensorCmd::exec(const string &option) {
-
+    //TODO - ZXTensor
     ZX_CMD_ZXMODE_ON_OR_RETURN;
-    // string token;
-    // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    // if (curCmd != ZXON)
-    //     cout << "ZXMode: OFF" << endl;
-    // else {
-    //     if (token.empty()) {
-    //         cerr << "Error: the ZX-graph id you want to tensor must provided!" << endl;
-    //         return CmdExec::errorOption(CMD_OPT_MISSING, token);
-    //     } else {
-    //         int id;
-    //         bool isNum = myStr2Int(token, id);
-    //         if (!isNum || id < 0) {
-    //             cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
-    //             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    //         } else if (!zxGraphMgr->isID(id)) {
-    //             cerr << "Error: The id provided does not exist!!" << endl;
-    //             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+        if (token.empty()) {
+            cerr << "Error: the ZX-graph id you want to tensor must provided!" << endl;
+            return CmdExec::errorOption(CMD_OPT_MISSING, token);
+        } 
+        else {
+            unsigned id;
+            ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
+            ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id);
+            zxGraphMgr->getGraph()->tensorProduct(zxGraphMgr->findZXGraphByID(id));
+    
+        }
 
-    //         } else
-    //             zxGraphMgr->tensorProduct(zxGraphMgr->findZXGraphByID(id));
-    //     }
-    // }
     return CMD_EXEC_DONE;
 }
 
 void ZXTensorCmd::usage(ostream &os) const {
-    os << "Usage: ZXTensor <(size_t id)>" << endl;
+    os << "Usage: ZXTensor <size_t id>" << endl;
 }
 
 void ZXTensorCmd::help() const {
@@ -388,10 +356,11 @@ void ZXTensorCmd::help() const {
          << "tensor a ZX-graph" << endl;
 }
 
+
+
 //----------------------------------------------------------------------
 //    ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike]
 //----------------------------------------------------------------------
-
 CmdExecStatus
 ZXGTestCmd::exec(const string &option) {
 
@@ -399,12 +368,8 @@ ZXGTestCmd::exec(const string &option) {
     // check option
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-
-    if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
-        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXGTest." << endl;
-        return CMD_EXEC_ERROR;
-    } 
-
+    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGTest");
+    
     if (token.empty() || myStrNCmp("-GenerateCNOT", token, 2) == 0) {
         zxGraphMgr->getGraph()->generateCNOT();
         return CMD_EXEC_DONE;
@@ -450,35 +415,50 @@ void ZXGTestCmd::help() const {
          << "test ZX-graph structures and functions" << endl;
 }
 
-//----------------------------------------------------------------------
-//    ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges]
-//----------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------------------
+//    ZXGPrint [-Summary | -Inputs | -Outputs | -IO | -Vertices | -Edges ]
+//--------------------------------------------------------------------------------
 //REVIEW provides filters?
 CmdExecStatus
 ZXGPrintCmd::exec(const string &option) {
 
     ZX_CMD_ZXMODE_ON_OR_RETURN;
     // check option
-    string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    vector<string> options;
+    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
+    // string token;
+    // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
-    if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
-        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXPrint." << endl;
-        return CMD_EXEC_ERROR;
+    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGPrint");
+    
+    if (options.empty() || myStrNCmp("-Summary", options[0], 2) == 0) zxGraphMgr->getGraph()->printGraph();
+    else if (myStrNCmp("-Inputs", options[0], 2) == 0) zxGraphMgr->getGraph()->printInputs();
+    else if (myStrNCmp("-Outputs", options[0], 2) == 0) zxGraphMgr->getGraph()->printOutputs();
+    else if (myStrNCmp("-IO", options[0], 3) == 0) zxGraphMgr->getGraph()->printIO();
+    else if (myStrNCmp("-Vertices", options[0], 2) == 0){
+        if(options.size() == 1) zxGraphMgr->getGraph()->printVertices();
+        else{
+            vector<unsigned> candidates;
+            for(size_t i = 1; i < options.size(); i++){
+                unsigned id;
+                if(myStr2Uns(options[i], id)) candidates.push_back(id);
+            }
+            zxGraphMgr->getGraph()->printVertices(candidates);
+        }
+    } 
+    else if (myStrNCmp("-Edges", options[0], 2) == 0) zxGraphMgr->getGraph()->printEdges();
+    else if (myStrNCmp("-Qubits", options[0], 2) == 0){
+        vector<unsigned> candidates;
+        for(size_t i = 1; i < options.size(); i++){
+            unsigned id;
+            if(myStr2Uns(options[i], id)) candidates.push_back(id);
+        }
+        zxGraphMgr->getGraph()->printQubits(candidates);
     }
-
-    if (token.empty() || myStrNCmp("-Summary", token, 2) == 0)
-        zxGraphMgr->getGraph()->printGraph();
-    else if (myStrNCmp("-Inputs", token, 2) == 0)
-        zxGraphMgr->getGraph()->printInputs();
-    else if (myStrNCmp("-Outputs", token, 2) == 0)
-        zxGraphMgr->getGraph()->printOutputs();
-    else if (myStrNCmp("-Vertices", token, 2) == 0)
-        zxGraphMgr->getGraph()->printVertices();
-    else if (myStrNCmp("-Edges", token, 2) == 0)
-        zxGraphMgr->getGraph()->printEdges();
-    else
-        return errorOption(CMD_OPT_ILLEGAL, token);
+    
+    else return errorOption(CMD_OPT_ILLEGAL, options[0]);
     return CMD_EXEC_DONE;
 }
 
@@ -491,6 +471,8 @@ void ZXGPrintCmd::help() const {
          << "print info in ZX-graph" << endl;
 }
 
+
+
 //------------------------------------------------------------------------------------
 //    ZXGEdit -RMVertex <-Isolated | (size_t id)... >
 //            -RMEdge <(size_t id_s), (size_t id_t)> <-ALL | (EdgeType et)>
@@ -499,23 +481,16 @@ void ZXGPrintCmd::help() const {
 //            -ADDOutput <(size_t qubit)>
 //            -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>
 //------------------------------------------------------------------------------------
-
 CmdExecStatus
 ZXGEditCmd::exec(const string &option) {
 
     ZX_CMD_ZXMODE_ON_OR_RETURN;
     // check option
     vector<string> options;
-    if (!CmdExec::lexOptions(option, options)) {
-        return CMD_EXEC_ERROR;
-    }
-
+    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
+    
     CMD_N_OPTS_AT_LEAST_OR_RETURN(options, 2);
-
-    if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
-        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXEdit." << endl;
-        return CMD_EXEC_ERROR;
-    }
+    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGEdit");
 
     string action = options[0];
     if (myStrNCmp("-RMVertex", action, 4) == 0) {
@@ -550,8 +525,8 @@ ZXGEditCmd::exec(const string &option) {
         ZXVertex* vt;
         EdgeType etype;
 
-        ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[1], id_s);
-        ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[2], id_t);
+        ZX_CMD_ID_VALID_OR_RETURN(options[1], id_s, "Vertex");
+        ZX_CMD_ID_VALID_OR_RETURN(options[2], id_t, "Vertex");
         ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_s, vs);
         ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_t, vt);
 
@@ -609,8 +584,8 @@ ZXGEditCmd::exec(const string &option) {
         ZXVertex* vt;
         EdgeType etype;
 
-        ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[1], id_s);
-        ZX_CMD_VERTEX_ID_VALID_OR_RETURN(options[2], id_t);
+        ZX_CMD_ID_VALID_OR_RETURN(options[1], id_s, "Vertex");
+        ZX_CMD_ID_VALID_OR_RETURN(options[2], id_t, "Vertex");
 
         ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_s, vs);
         ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_t, vt);
@@ -638,6 +613,8 @@ void ZXGEditCmd::help() const {
          << "edit ZX-graph" << endl;
 }
 
+
+
 //----------------------------------------------------------------------
 //    ZXGTRaverse
 //----------------------------------------------------------------------
@@ -646,6 +623,7 @@ ZXGTraverseCmd::exec(const string &option) {
     ZX_CMD_ZXMODE_ON_OR_RETURN;
     string token;
     if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
+    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGTraverse");
     zxGraphMgr->getGraph()->updateTopoOrder();
     return CMD_EXEC_DONE;
 }
@@ -658,6 +636,8 @@ void ZXGTraverseCmd::help() const {
     cout << setw(15) << left << "ZXGTRaverse: "
          << "traverse ZX-graph and update topological order of vertices" << endl;
 }
+
+
 
 //----------------------------------------------------------------------
 //    ZX2TS
@@ -679,6 +659,8 @@ void ZX2TSCmd::help() const {
     cout << setw(15) << left << "ZX2TS: "
          << "convert the ZX-graph to its corresponding tensor" << endl;
 }
+
+
 
 //----------------------------------------------------------------------
 //    ZXGRead <string Input.(b)zx> [-BZX] [-Replace]
@@ -725,7 +707,8 @@ ZXGReadCmd::exec(const string &option) {
 
     if (doReplace) {
         if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
-            cerr << "Note: ZX-graph list is empty now. Create a new one." << endl;
+            //FIXME - Use `ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN`
+            cout << "Note: ZX-graph list is empty now. Create a new one." << endl;
             zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
             if (!zxGraphMgr->getGraph()->readZX(fileName, doBZX)) {
                 cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
@@ -757,6 +740,8 @@ void ZXGReadCmd::help() const {
     cout << setw(15) << left << "ZXGRead: "
          << "read a ZXGraph" << endl;
 }
+
+
 
 //----------------------------------------------------------------------
 //    ZXGWrite <string Output.(b)zx> [-Complete] [-BZX]
@@ -799,11 +784,9 @@ ZXGWriteCmd::exec(const string &option) {
         options.erase(std::remove(options.begin(), options.end(), bzxStr), options.end());
     if (options.empty())
         return CmdExec::errorOption(CMD_OPT_MISSING, (eraseIndexBZX > eraseIndexComplete) ? bzxStr : completeStr);
-
-    if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
-        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXWrite." << endl;
-        return CMD_EXEC_ERROR;
-    }
+    
+    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXWrite");
+    
     if (!zxGraphMgr->getGraph()->writeZX(fileName, doComplete, doBZX)) {
         cerr << "Error: fail to write ZX-Graph to \"" << fileName << "\"!!" << endl;
         return CMD_EXEC_ERROR;
@@ -820,6 +803,8 @@ void ZXGWriteCmd::help() const {
          << "write ZXFile\n";
 }
 
+
+
 //----------------------------------------------------------------------
 //    ZXGASsign <size_t qubit> <I|O> <VertexType vt> <string Phase>
 //----------------------------------------------------------------------
@@ -832,11 +817,8 @@ ZXGAssignCmd::exec(const string &option) {
     if (!CmdExec::lexOptions(option, options))
         return CMD_EXEC_ERROR;
 
-    if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
-        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXGASsign." << endl;
-        return CMD_EXEC_ERROR;
-    }
-
+    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGASsign");
+    
     CMD_N_OPTS_EQUAL_OR_RETURN(options, 4);
     int qid;
     ZX_CMD_QUBIT_ID_VALID_OR_RETURN(options[0], qid);
@@ -875,6 +857,8 @@ void ZXGAssignCmd::help() const {
          << "assign an input/output vertex to specific qubit\n";
 }
 
+
+
 //----------------------------------------------------------------------
 //    ZXGADJoint
 //----------------------------------------------------------------------
@@ -882,6 +866,8 @@ CmdExecStatus
 ZXGAdjointCmd::exec(const string &option) {
     ZX_CMD_ZXMODE_ON_OR_RETURN;
     if (!lexNoOption(option)) return CMD_EXEC_ERROR;
+    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGAdjoint");
+    
     zxGraphMgr->getGraph()->adjoint();
     return CMD_EXEC_DONE;
 }
@@ -894,3 +880,4 @@ void ZXGAdjointCmd::help() const {
     cout << setw(15) << left << "ZXGADJoint: "
          << "adjoint the current ZX-graph.\n";
 }
+

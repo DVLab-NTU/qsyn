@@ -66,11 +66,6 @@ if (myStrNCmp("SIMPLE", (option), 1) == 0) {\
     return errorOption(CMD_OPT_ILLEGAL, (option)); \
 }}
 
-#define ZX_CMD_VERTEX_ID_VALID_OR_RETURN(option, id) {\
-if (!myStr2Uns((option), (id))) { \
-    cerr << "Error: invalid vertex ID!!" << endl; \
-    return errorOption(CMD_OPT_ILLEGAL, (option)); \
-}}
 #define ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id, v) {\
 (v) = zxGraphMgr->getGraph()->findVertexById((id)); \
 if (!(v)) {\
@@ -84,5 +79,32 @@ if (!(phase).fromString(option)) {\
     cerr << "Error: not a legal phase!!" << endl;\
     return CmdExec::errorOption(CMD_OPT_ILLEGAL, option);\
 }}
+
+#define ZX_CMD_GRAPH_ID_NOT_EXISTED_OR_RETURN(id) {\
+if (zxGraphMgr->isID(id)) {\
+    cerr << "Error: Graph " << (id) << " is already existed!! Add `-Replace` if you want to overwrite it.\n"; \
+    return CMD_EXEC_ERROR;\
+}}
+
+#define ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id) {\
+if (!(zxGraphMgr->isID(id))) {\
+    cerr << "Error: Graph " << (id) << " is not existed!!\n"; \
+    return CMD_EXEC_ERROR;\
+}}
+
+#define ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN(str) {\
+if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {\
+    cerr << "Error: ZX-graph list is empty now. Please ZXNew before " << str << ".\n";\
+    return CMD_EXEC_ERROR;\
+}}
+
+#define ZX_CMD_ID_VALID_OR_RETURN(option, id, str) {\
+if (!myStr2Uns((option), (id))) { \
+    cerr << "Error: invalid " << str << " ID!!\n"; \
+    return errorOption(CMD_OPT_ILLEGAL, (option)); \
+}}
+
+
+
 
 #endif // ZX_CMD_H
