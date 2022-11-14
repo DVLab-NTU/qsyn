@@ -443,7 +443,7 @@ void ZXGTestCmd::help() const {
 
 
 //----------------------------------------------------------------------
-//    ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges]
+//    ZXGPrint [-Summary | -Inputs | -Outputs | -IO | -Vertices | -Edges]
 //----------------------------------------------------------------------
 //REVIEW provides filters?
 CmdExecStatus
@@ -456,16 +456,12 @@ ZXGPrintCmd::exec(const string &option) {
 
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGPrint");
     
-    if (token.empty() || myStrNCmp("-Summary", token, 2) == 0)
-        zxGraphMgr->getGraph()->printGraph();
-    else if (myStrNCmp("-Inputs", token, 2) == 0)
-        zxGraphMgr->getGraph()->printInputs();
-    else if (myStrNCmp("-Outputs", token, 2) == 0)
-        zxGraphMgr->getGraph()->printOutputs();
-    else if (myStrNCmp("-Vertices", token, 2) == 0)
-        zxGraphMgr->getGraph()->printVertices();
-    else if (myStrNCmp("-Edges", token, 2) == 0)
-        zxGraphMgr->getGraph()->printEdges();
+    if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) zxGraphMgr->getGraph()->printGraph();
+    else if (myStrNCmp("-Inputs", token, 2) == 0) zxGraphMgr->getGraph()->printInputs();
+    else if (myStrNCmp("-Outputs", token, 2) == 0) zxGraphMgr->getGraph()->printOutputs();
+    else if (myStrNCmp("-IO", token, 3) == 0) zxGraphMgr->getGraph()->printIO();
+    else if (myStrNCmp("-Vertices", token, 2) == 0) zxGraphMgr->getGraph()->printVertices();
+    else if (myStrNCmp("-Edges", token, 2) == 0) zxGraphMgr->getGraph()->printEdges();
     else
         return errorOption(CMD_OPT_ILLEGAL, token);
     return CMD_EXEC_DONE;

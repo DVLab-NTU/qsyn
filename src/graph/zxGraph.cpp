@@ -681,9 +681,7 @@ ZXGraph* ZXGraph::tensorProduct(ZXGraph* target){
         if(i->getQubit() < copiedMinQubit) copiedMinQubit = i->getQubit();
     }
     size_t liftQ = (oriMaxQubit-oriMinQubit+1) - copiedMinQubit;
-    cout << liftQ << endl;
     copiedGraph->liftQubit(liftQ);
-    copiedGraph->printVertices();
 
     // Update Id of copiedGraph to make them unique to the original graph
     for(const auto& v : copiedGraph->getVertices()){
@@ -712,7 +710,7 @@ ZXGraph* ZXGraph::tensorProduct(ZXGraph* target){
 // }
 
 /**
- * @brief Lift each qubit in ZX-graph with `n`.
+ * @brief Lift each vertex's qubit in ZX-graph with `n`.
  *        Ex: origin: 0 -> after lifting: n
  * 
  * @param n 
@@ -734,9 +732,6 @@ void ZXGraph::liftQubit(const size_t& n) {
     setInputList(newInputList);
     setOutputList(newOutputList);
 }
-
-
-
 
 /**
  * @brief Generate a id-2-ZXVertex* map
@@ -768,17 +763,27 @@ void ZXGraph::printGraph() const {
 }
 
 void ZXGraph::printInputs() const {
-    for (const auto& v : _inputs) {
-        cout << "Input " << _inputs.id(v) + 1 << setw(8) << left << ":" << v->getId() << endl;
-    }
-    cout << "Total #Inputs: " << getNumInputs() << endl;
+    cout << "Input ( ";
+    for (const auto& v : _inputs) cout << v->getId() << " ";
+    cout << ")\nTotal #Inputs: " << getNumInputs() << endl;
 }
 
 void ZXGraph::printOutputs() const {
-    for (const auto& v : _outputs) {
-        cout << "Output " << _outputs.id(v) + 1 << setw(7) << left << ":" << v->getId() << endl;
-    }
-    cout << "Total #Outputs: " << getNumOutputs() << endl;
+    cout << "Output ( ";
+    for (const auto& v : _outputs) cout << v->getId() << " ";
+    cout << ")\nTotal #Outputs: " << getNumOutputs() << endl;
+}
+
+/**
+ * @brief Print Inputs and Outputs of ZX-graph
+ * 
+ */
+void ZXGraph::printIO() const {
+    cout << "Input ( ";
+    for (const auto& v : _inputs) cout << v->getId() << " ";
+    cout << ")\nOutput ( ";
+    for (const auto& v : _outputs) cout << v->getId() << " ";
+    cout << ")\nTotal #(I,O): (" << getNumInputs() << "," << getNumOutputs() << ")\n";
 }
 
 void ZXGraph::printVertices() const {

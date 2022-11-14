@@ -192,6 +192,7 @@ class ZXGraph{
         void printGraph() const;
         void printInputs() const;
         void printOutputs() const;
+        void printIO() const;
         void printVertices() const;
         void printEdges() const;
 
