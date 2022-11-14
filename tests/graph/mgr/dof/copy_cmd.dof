@@ -6,6 +6,6 @@ zxcopy
 zxgp
 zxge -rmv 1
 zxgp
-zxch 0
+zxcop -r 0
 zxgp
-q -f
+
