@@ -1,15 +1,15 @@
 zxm -on
 zxn
-zxgedit -addi 0 0
-zxgedit -addo 1 0
-zxgedit -addi 2 1
-zxgedit -addo 3 1
-zxgedit -addv 4 0 Z 0
-zxgedit -addv 5 0 Z 3.14159
-zxgedit -addi 6 2
-zxgedit -addo 7 2
-zxgedit -addi 8 3
-zxgedit -addo 9 3
+zxgedit -addi 0
+zxgedit -addo 0
+zxgedit -addi 1
+zxgedit -addo 1
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 Z pi
+zxgedit -addi 2
+zxgedit -addo 2
+zxgedit -addi 3
+zxgedit -addo 3
 
 zxgedit -adde 0 4 SIMPLE
 zxgedit -adde 4 1 SIMPLE
@@ -21,7 +21,7 @@ zxgedit -adde 8 9 SIMPLE
 zxgp -v
 zxgp -e
 
-ver 7
-zxgtsm
+ver 8
+zx2ts
 
 q -f

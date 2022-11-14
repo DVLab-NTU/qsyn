@@ -7,7 +7,7 @@ ZXMODE turn ON!
 
 qsyn> qccr benchmark/benchmark_SABRE/small/qft_4.qasm
 
-qsyn> qczxm
+qsyn> qc2zx
 
 qsyn> zxgas 0 I X 0
 
@@ -55,7 +55,7 @@ ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(6, -)
 Total #Vertices: 2
 
 
-qsyn> zxgtsm
+qsyn> zx2ts
 Stored the resulting tensor as tensor id 0
 
 qsyn> tsp 0

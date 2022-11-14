@@ -4,7 +4,7 @@ qsyn> qccr benchmark/pseudoSimp/tof_3.qasm
 qsyn> zxm -on
 ZXMODE turn ON!
 
-qsyn> qczxm
+qsyn> qc2zx
 Successfully generated Graph 0
 Checkout to Graph 0
 ---- TRAVERSE AND BUILD THE GRAPH ----
@@ -228,8 +228,6 @@ Local Complementation Rule:
 No matches
 Pivot Gadget Rule: 
 4 iterations
-Hopf Rule: 
-No matches
 Spider Fusion Rule: 
 No matches
 Identity Removal Rule: 
@@ -269,11 +267,11 @@ No matches
 Local Complementation Rule: 
 2 iterations
 Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
 1 iterations
+Spider Fusion Rule: 
+1 iterations
+Pivot Rule: 
+No matches
 Local Complementation Rule: 
 No matches
 Identity Removal Rule: 
@@ -285,8 +283,6 @@ No matches
 Local Complementation Rule: 
 No matches
 Pivot Gadget Rule: 
-No matches
-Hopf Rule: 
 No matches
 Spider Fusion Rule: 
 No matches
@@ -311,30 +307,27 @@ No matches
 Local Complementation Rule: 
 No matches
 Pivot Gadget Rule: 
-No matches
-Hopf Rule: 
 No matches
 
 qsyn> zxgp -v
 
 ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m) 
 ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m) 
-ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(96, [1m[34mH[0m[0m) 
-ID:	42	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(92, [1m[34mH[0m[0m) 
+ID:	22	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(93, [1m[34mH[0m[0m) 
+ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(99, [1m[34mH[0m[0m) 
+ID:	48	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(100, [1m[34mH[0m[0m) 
 ID:	50	VertexType:	[1m[32mZ[0m[0m	Qubit:	3	Phase:	π	#Neighbors:	2	(6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
-ID:	77	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(98, [1m[34mH[0m[0m) 
-ID:	87	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(100, [1m[34mH[0m[0m) 
-ID:	88	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(102, [1m[34mH[0m[0m) 
-ID:	92	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(42, [1m[34mH[0m[0m) 
-ID:	96	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(34, [1m[34mH[0m[0m) 
-ID:	98	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(77, [1m[34mH[0m[0m) 
-ID:	100	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(87, [1m[34mH[0m[0m) 
-ID:	102	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(88, [1m[34mH[0m[0m) 
+ID:	70	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(97, [1m[34mH[0m[0m) 
+ID:	77	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(101, [1m[34mH[0m[0m) 
+ID:	93	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(22, [1m[34mH[0m[0m) 
+ID:	97	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(70, [1m[34mH[0m[0m) 
+ID:	99	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(34, [1m[34mH[0m[0m) 
+ID:	100	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(48, [1m[34mH[0m[0m) 
+ID:	101	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(77, [1m[34mH[0m[0m) 
 Total #Vertices: 13
 
 
 qsyn> zxgs -stco
-[1m[32mTrue: The graph is graph-like[0m[0m
 State Copy Rule: 
 1 iterations
 
@@ -346,7 +339,7 @@ ID:	50	VertexType:	[1m[32mZ[0m[0m	Qubit:	3	Phase:	π	#Neighbors:	2	(6, [1m
 Total #Vertices: 3
 
 
-qsyn> zxgtsm
+qsyn> zx2ts
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0

@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ zxGraph.h ]
+  FileName     [ zxGraph.cpp ]
   PackageName  [ graph ]
   Synopsis     [ Define class ZXGraph member functions ]
   Author       [ Cheng-Hua Lu ]
@@ -24,9 +24,23 @@ using namespace std;
 namespace TF = TextFormat;
 extern size_t verbose;
 
-/*****************************************************/
-/*   class ZXVertex member functions                 */
-/*****************************************************/
+/**************************************/
+/*   class ZXVertex member functions   */
+/**************************************/
+
+/**
+ * @brief return a vector of neighbor vertices
+ * 
+ * @return vector<ZXVertex*> 
+ */
+vector<ZXVertex*> ZXVertex::getCopiedNeighbors(){
+    vector<ZXVertex*> storage;
+    for (const auto& neighbor: _neighbors) {
+        storage.push_back(neighbor.first);
+        // cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
+    }
+    return storage;
+}
 
 /**
  * @brief Print summary of ZXVertex
@@ -47,7 +61,15 @@ void ZXVertex::printVertex() const {
  */
 void ZXVertex::printNeighbors() const {
     // if(_neighbors.size()==0) return;
-    for (const auto& [nb, etype]: _neighbors) {
+    vector<NeighborPair> storage;
+    for (const auto& neighbor: _neighbors) {
+        storage.push_back(neighbor);
+        // cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
+    }
+    sort(begin(storage), end(storage), [](NeighborPair a, NeighborPair b) { return a.second < b.second; });
+    sort(begin(storage), end(storage), [](NeighborPair a, NeighborPair b) { return a.first->getId() < b.first->getId(); });
+    
+    for (const auto& [nb, etype]: storage) {
         cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
     }
     cout << endl;
@@ -318,7 +340,7 @@ void ZXGraph::addOutputs(const ZXVertexList&  outputs) {
 EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
     if (vs == vt) {
         Phase phase = (et == EdgeType::HADAMARD) ? Phase(1) : Phase(0);
-        cout << "Note: converting this self-loop to phase " << phase << " on vertex " << vs->getId() <<"..." << endl;
+        if(verbose >=5) cout << "Note: converting this self-loop to phase " << phase << " on vertex " << vs->getId() <<"..." << endl;
         vs->setPhase(vs->getPhase() + phase);
         return makeEdgePairDummy();
     }
@@ -330,14 +352,14 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
             (vs->isZ() && vt->isZ() && et == EdgeType::SIMPLE)   ||
             (vs->isX() && vt->isX() && et == EdgeType::SIMPLE)   
         ) {
-            cout << "Note: Redundant edge; merging into existing edge..." << endl;
+            if(verbose >=5) cout << "Note: Redundant edge; merging into existing edge..." << endl;
         } else if (
             (vs->isZ() && vt->isX() && et == EdgeType::SIMPLE  ) ||
             (vs->isX() && vt->isZ() && et == EdgeType::SIMPLE  ) ||
             (vs->isZ() && vt->isZ() && et == EdgeType::HADAMARD) ||
             (vs->isX() && vt->isX() && et == EdgeType::HADAMARD)   
         ) {
-            cout << "Note: Hopf edge; cancalling out with existing edge..." << endl;
+            if(verbose >=5) cout << "Note: Hopf edge; cancelling out with existing edge..." << endl;
             vs->removeNeighbor(make_pair(vt, et));
             vt->removeNeighbor(make_pair(vs, et));
         }

@@ -1,7 +1,7 @@
 ver 0
 zxm -on
 qccr benchmark/benchmark_SABRE/small/qft_4.qasm
-qczxm
+qc2zx
 zxgas 0 I X 0
 zxgas 1 I X 0
 zxgas 2 I X 0
@@ -11,6 +11,6 @@ zxgas 2 O X 0
 zxgp -v
 zxgs -FR
 zxgp -v
-zxgtsm
+zx2ts
 tsp 0
 q -f

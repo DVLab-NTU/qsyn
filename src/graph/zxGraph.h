@@ -45,10 +45,15 @@ class ZXVertex{
         const Phase& getPhase() const                                       { return _phase; }
         const VertexType& getType() const                                   { return _type; }
         const Neighbors& getNeighbors() const                               { return _neighbors; }
+        const NeighborPair& getFirstNeighbor() const                        { return *(_neighbors.begin()); }
+        const NeighborPair& getSecondNeighbor() const                       { return *next((_neighbors.begin())); }
+
+        vector<ZXVertex*> getCopiedNeighbors();                              
         size_t getNumNeighbors() const                                      { return _neighbors.size(); }
-        // QTensor<double> getTSform();
-        void setQubit(const int& q)                                         { _qubit = q; }
+        QTensor<double> getTSform();
+
         void setId(const size_t& id)                                        { _id = id; }
+        void setQubit(const int& q)                                         { _qubit = q; }
         void setPin(const size_t& p)                                        { _pin = p; }
         void setPhase(const Phase& p)                                       { _phase = p; }
         void setType(const VertexType& vt)                                  { _type = vt; }
@@ -199,7 +204,7 @@ class ZXGraph{
         
 
         // For mapping (in zxMapping.cpp)
-        void tensorMapping();
+        void toTensor();
         ZXVertexList getNonBoundary();
         ZXVertex* getInputFromHash(const size_t& q);
         ZXVertex* getOutputFromHash(const size_t& q);

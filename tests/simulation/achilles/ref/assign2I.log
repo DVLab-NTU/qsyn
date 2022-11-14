@@ -4,7 +4,7 @@ qsyn> qccr benchmark/pseudoSimp/achilles.qasm
 qsyn> zxm -on
 ZXMODE turn ON!
 
-qsyn> qczxm
+qsyn> qc2zx
 Successfully generated Graph 0
 Checkout to Graph 0
 ---- TRAVERSE AND BUILD THE GRAPH ----
@@ -22,151 +22,13 @@ qsyn> zxgas 0 I X 0
 
 qsyn> zxgas 0 O X 0
 
+qsyn> ver 0
+Note: verbose level is set to 0
+
 qsyn> zxgs -sr
-Hadamard Rule: 9 . 3 . 2 iterations
-Spider Fusion Rule: 
-6 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-1 iterations
-Local Complementation Rule: 
-2 iterations
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-1 iterations
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-2 iterations
-Pivot Rule: 
-3 iterations
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-1 iterations
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-2 iterations
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Gadget Rule: 
-3 iterations
-Hopf Rule: 
-No matches
-[1m[32mTrue: The graph is graph-like[0m[0m
-State Copy Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Phase Gadget Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-1 iterations
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Gadget Rule: 
-No matches
-Hopf Rule: 
-No matches
-False: Boundary vertex 2 has a boundary neighbor!!3 !!
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Phase Gadget Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Gadget Rule: 
-No matches
-Hopf Rule: 
-No matches
-False: Boundary vertex 2 has a boundary neighbor!!3 !!
+
+qsyn> ver 3
+Note: verbose level is set to 3
 
 qsyn> zxgp -v
 
@@ -177,7 +39,7 @@ ID:	9	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(8, -)
 Total #Vertices: 4
 
 
-qsyn> zxgtsm
+qsyn> zx2ts
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0

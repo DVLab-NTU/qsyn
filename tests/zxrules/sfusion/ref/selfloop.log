@@ -21,13 +21,10 @@ qsyn> zxgedit -adde 1 3 SIMPLE
 qsyn> zxgedit -adde 2 3 SIMPLE
 
 qsyn> zxgedit -adde 3 3 SIMPLE
-Note: converting this self-loop to phase 0 on vertex 3...
 
 qsyn> zxgedit -adde 3 3 SIMPLE
-Note: converting this self-loop to phase 0 on vertex 3...
 
 qsyn> zxgedit -adde 3 3 HADAMARD
-Note: converting this self-loop to phase π on vertex 3...
 
 qsyn> zxgp -v
 
