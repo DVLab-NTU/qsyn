@@ -662,14 +662,28 @@ ZXGraph* ZXGraph::compose(ZXGraph* target){
         cerr << "Error: The composing ZX-graph's #input is not equivalent to the original ZX-graph's #output." << endl;
     else{
         ZXGraph* copiedGraph = target->copy();
+
         // Update Id of copiedGraph to make them unique to the original graph
         for(const auto& v : copiedGraph->getVertices()){
             v->setId(_nextVId);
             _nextVId++;
         }
+        ;
         // Sort ori-output and copy-input
-
-
+        this->sortIOByQubit();
+        copiedGraph->sortIOByQubit();
+        
+        // Change ori-output and copy-inputs' vt to Z and link them respectively
+        auto itr_ori = _outputs.begin();
+        auto itr_cop = copiedGraph->getInputs().begin();
+        for(; itr_ori != _outputs.end(); ++itr_ori, ++itr_cop){
+            (*itr_ori)->setType(VertexType::Z);
+            (*itr_cop)->setType(VertexType::Z);
+            this->addEdge((*itr_ori), (*itr_cop), EdgeType::SIMPLE);
+        }
+        this->setOutputs(copiedGraph->getOutputs());
+        this->addVertices(copiedGraph->getVertices());
+        this->setOutputList(copiedGraph->getOutputList());
     }
     return this;
 }
@@ -720,11 +734,10 @@ ZXGraph* ZXGraph::tensorProduct(ZXGraph* target){
     return this;
 }
 
-// void ZXGraph::sortIOByQubit() {
-//     // NOTE - when re-implementing, notice that to sort ordered_hashset, use the member function (oset.sort()) instead of std::sort()
-//     // sort(_inputs_depr.begin(), _inputs_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
-//     // sort(_outputs_depr.begin(), _outputs_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
-// }
+void ZXGraph::sortIOByQubit() {
+    _inputs.sort([](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
+    _outputs.sort([](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
+}
 
 // void ZXGraph::sortVerticeById() {
 //     // sort(_vertices_depr.begin(), _vertices_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getId() < b->getId(); });

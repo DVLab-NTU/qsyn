@@ -58,8 +58,6 @@ class ZXGraphMgr{
         // Action
         void checkout2ZXGraph(size_t id);
         void copy(size_t id, bool toNew = true);
-        void compose(ZXGraph* zxGraph);
-        void tensorProduct(ZXGraph* zxGraph);
         ZXGraph* findZXGraphByID(size_t id) const;
 
 

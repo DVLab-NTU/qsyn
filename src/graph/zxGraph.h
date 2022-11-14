@@ -179,7 +179,7 @@ class ZXGraph{
         ZXGraph* copy() const;
         ZXGraph* compose(ZXGraph* target);
         ZXGraph* tensorProduct(ZXGraph* target);
-        // void sortIOByQubit(); 
+        void sortIOByQubit(); 
         // void sortVerticeById(); //REVIEW unused function; rendered useless in new version?
         void toggleEdges(ZXVertex* v);
         void liftQubit(const size_t& n);
