@@ -1,6 +1,6 @@
 ver 1
 zxm -on
-qccread benchmark/benchmark_SABRE/large/qft_10.qasm
+qccread benchmark/benchmark_SABRE/large/urf1_149.qasm
 qc2zx
 zxgp
 zxcopy

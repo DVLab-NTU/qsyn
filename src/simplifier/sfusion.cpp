@@ -54,7 +54,6 @@ void SpiderFusion::match(ZXGraph* g) {
             for (auto itr = v1n.begin(); itr != v1n.end(); ++itr) {
                 validEdge[Edge2idx[makeEdgePair(v1, itr->first, itr->second)]] = false;
                 //NOTE - Cannot choose the vertex connected to the that will be deleted
-                auto res = (itr->first) -> getNeighbors();
                 for (auto& jtr : (itr->first) -> getNeighbors()) {
                     validEdge[Edge2idx[makeEdgePair((itr->first), jtr.first, jtr.second)]] = false;
                 }
