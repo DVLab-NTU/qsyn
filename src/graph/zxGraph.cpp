@@ -619,23 +619,22 @@ void ZXGraph::toggleEdges(ZXVertex* v){
 ZXGraph* ZXGraph::copy() const {
     ZXGraph* newGraph = new ZXGraph(0);
     // Copy all vertices (included i/o) first
+    unordered_map<ZXVertex*, ZXVertex*> oldV2newVMap;
     for(const auto& v : _vertices) {
         if(v->getType() == VertexType::BOUNDARY){
-            if(_inputs.contains(v)) newGraph->addInput(v->getQubit());
-            else newGraph->addOutput(v->getQubit());
+            if(_inputs.contains(v)) oldV2newVMap[v] = newGraph->addInput(v->getQubit());
+            else oldV2newVMap[v] = newGraph->addOutput(v->getQubit());
 
         }
         else if(v->getType() == VertexType::Z || v->getType() == VertexType::X || v->getType() == VertexType::H_BOX){
-            newGraph->addVertex(v->getQubit(), v->getType(), v->getPhase());
+            oldV2newVMap[v] = newGraph->addVertex(v->getQubit(), v->getType(), v->getPhase());
         }
     }
     // Link all edges
     // cout << "Link all edges" << endl;
-    unordered_map<size_t, ZXVertex*> id2VertexMap = newGraph->id2VertexMap();
-    forEachEdge([&id2VertexMap, newGraph](const EdgePair& epair){
-        size_t vs_id = epair.first.first->getId();
-        size_t vt_id = epair.first.second->getId();
-        newGraph->addEdge(id2VertexMap[vs_id], id2VertexMap[vt_id], epair.second);
+    // unordered_map<size_t, ZXVertex*> id2VertexMap = newGraph->id2VertexMap();
+    forEachEdge([&oldV2newVMap, newGraph](const EdgePair& epair){
+        newGraph->addEdge(oldV2newVMap[epair.first.first], oldV2newVMap[epair.first.second], epair.second);
     });
     return newGraph;
 }
