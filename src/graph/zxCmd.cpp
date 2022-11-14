@@ -292,7 +292,7 @@ void ZXCOPyCmd::help() const {
 
 
 //----------------------------------------------------------------------
-//    ZXCOMpose <(size_t id)>
+//    ZXCOMpose <size_t id>
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXCOMposeCmd::exec(const string &option) {
@@ -300,8 +300,6 @@ ZXCOMposeCmd::exec(const string &option) {
     ZX_CMD_ZXMODE_ON_OR_RETURN;
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-
-
     if (token.empty()) {
         cerr << "Error: the ZX-graph id you want to compose must provided!" << endl;
         return CmdExec::errorOption(CMD_OPT_MISSING, token);
@@ -310,24 +308,12 @@ ZXCOMposeCmd::exec(const string &option) {
         ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
         ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id);
         zxGraphMgr->getGraph()->compose(zxGraphMgr->findZXGraphByID(id));
-    //         int id;
-    //         bool isNum = myStr2Int(token, id);
-    //         if (!isNum || id < 0) {
-    //             cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
-    //             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    //         } else if (!zxGraphMgr->isID(id)) {
-    //             cerr << "Error: The id provided does not exist!!" << endl;
-    //             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-
-    //         } else
-    //             zxGraphMgr->compose(zxGraphMgr->findZXGraphByID(id));
     }
-
     return CMD_EXEC_DONE;
 }
 
 void ZXCOMposeCmd::usage(ostream &os) const {
-    os << "Usage: ZXCOMpose <(size_t id)>" << endl;
+    os << "Usage: ZXCOMpose <size_t id>" << endl;
 }
 
 void ZXCOMposeCmd::help() const {
@@ -338,7 +324,7 @@ void ZXCOMposeCmd::help() const {
 
 
 //----------------------------------------------------------------------
-//    ZXTensor <(size_t id)>
+//    ZXTensor <size_t id>
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXTensorCmd::exec(const string &option) {
@@ -346,7 +332,6 @@ ZXTensorCmd::exec(const string &option) {
     ZX_CMD_ZXMODE_ON_OR_RETURN;
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-
         if (token.empty()) {
             cerr << "Error: the ZX-graph id you want to tensor must provided!" << endl;
             return CmdExec::errorOption(CMD_OPT_MISSING, token);
@@ -356,24 +341,14 @@ ZXTensorCmd::exec(const string &option) {
             ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
             ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id);
             zxGraphMgr->getGraph()->tensorProduct(zxGraphMgr->findZXGraphByID(id));
-    //         int id;
-    //         bool isNum = myStr2Int(token, id);
-    //         if (!isNum || id < 0) {
-    //             cerr << "Error: ZX-graph's id must be a nonnegative integer!!" << endl;
-    //             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    //         } else if (!zxGraphMgr->isID(id)) {
-    //             cerr << "Error: The id provided does not exist!!" << endl;
-    //             return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-
-    //         } else
-    //             zxGraphMgr->tensorProduct(zxGraphMgr->findZXGraphByID(id));
+    
         }
 
     return CMD_EXEC_DONE;
 }
 
 void ZXTensorCmd::usage(ostream &os) const {
-    os << "Usage: ZXTensor <(size_t id)>" << endl;
+    os << "Usage: ZXTensor <size_t id>" << endl;
 }
 
 void ZXTensorCmd::help() const {
@@ -442,28 +417,48 @@ void ZXGTestCmd::help() const {
 
 
 
-//----------------------------------------------------------------------
-//    ZXGPrint [-Summary | -Inputs | -Outputs | -IO | -Vertices | -Edges]
-//----------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//    ZXGPrint [-Summary | -Inputs | -Outputs | -IO | -Vertices | -Edges ]
+//--------------------------------------------------------------------------------
 //REVIEW provides filters?
 CmdExecStatus
 ZXGPrintCmd::exec(const string &option) {
 
     ZX_CMD_ZXMODE_ON_OR_RETURN;
     // check option
-    string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    vector<string> options;
+    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
+    // string token;
+    // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGPrint");
     
-    if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) zxGraphMgr->getGraph()->printGraph();
-    else if (myStrNCmp("-Inputs", token, 2) == 0) zxGraphMgr->getGraph()->printInputs();
-    else if (myStrNCmp("-Outputs", token, 2) == 0) zxGraphMgr->getGraph()->printOutputs();
-    else if (myStrNCmp("-IO", token, 3) == 0) zxGraphMgr->getGraph()->printIO();
-    else if (myStrNCmp("-Vertices", token, 2) == 0) zxGraphMgr->getGraph()->printVertices();
-    else if (myStrNCmp("-Edges", token, 2) == 0) zxGraphMgr->getGraph()->printEdges();
-    else
-        return errorOption(CMD_OPT_ILLEGAL, token);
+    if (options.empty() || myStrNCmp("-Summary", options[0], 2) == 0) zxGraphMgr->getGraph()->printGraph();
+    else if (myStrNCmp("-Inputs", options[0], 2) == 0) zxGraphMgr->getGraph()->printInputs();
+    else if (myStrNCmp("-Outputs", options[0], 2) == 0) zxGraphMgr->getGraph()->printOutputs();
+    else if (myStrNCmp("-IO", options[0], 3) == 0) zxGraphMgr->getGraph()->printIO();
+    else if (myStrNCmp("-Vertices", options[0], 2) == 0){
+        if(options.size() == 1) zxGraphMgr->getGraph()->printVertices();
+        else{
+            vector<unsigned> candidates;
+            for(size_t i = 1; i < options.size(); i++){
+                unsigned id;
+                if(myStr2Uns(options[i], id)) candidates.push_back(id);
+            }
+            zxGraphMgr->getGraph()->printVertices(candidates);
+        }
+    } 
+    else if (myStrNCmp("-Edges", options[0], 2) == 0) zxGraphMgr->getGraph()->printEdges();
+    else if (myStrNCmp("-Qubits", options[0], 2) == 0){
+        vector<unsigned> candidates;
+        for(size_t i = 1; i < options.size(); i++){
+            unsigned id;
+            if(myStr2Uns(options[i], id)) candidates.push_back(id);
+        }
+        zxGraphMgr->getGraph()->printQubits(candidates);
+    }
+    
+    else return errorOption(CMD_OPT_ILLEGAL, options[0]);
     return CMD_EXEC_DONE;
 }
 
