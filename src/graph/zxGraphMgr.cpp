@@ -114,6 +114,7 @@ void ZXGraphMgr::copy(size_t id, bool toNew) {
         ZXGraph* copiedGraph = getGraph()->copy();
         copiedGraph->setId(id);
         copiedGraph->printGraph();
+        
         if(toNew){
             _graphList.push_back(copiedGraph);
             _gListItr = _graphList.end() -1;
@@ -126,8 +127,7 @@ void ZXGraphMgr::copy(size_t id, bool toNew) {
         else{
             for(size_t i = 0; i < _graphList.size(); i++){
                 if(_graphList[i]->getId() == id){
-                    _graphList.erase(_graphList.begin() + i);
-                    _graphList.insert(_graphList.begin() + i, copiedGraph);
+                    _graphList[i] = copiedGraph;
                     if (verbose >= 3) cout << "Successfully copied Graph " << oriGraphID << " to Graph " << id << endl;
                     checkout2ZXGraph(id);
                     break;

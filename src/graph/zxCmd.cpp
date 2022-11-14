@@ -249,20 +249,17 @@ ZXCOPyCmd::exec(const string &option) {
     // check option
     vector<string> options;
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
-    // if (options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
-
+    
     CMD_N_OPTS_AT_MOST_OR_RETURN(options, 2);
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXCOPy");
-    // unsigned id_g;
-    // ZX_CMD_ID_VALID_OR_RETURN(options[0], id_g, "Graph");
 
     if(options.size() == 2){
         bool doReplace = false;
         size_t id_idx = 0;
         for(size_t i = 0; i < options.size(); i++){
-            if(myStrNCmp("-Replace", options[i], 2)){
+            if(myStrNCmp("-Replace", options[i], 2) == 0){
                 doReplace = true;
-                id_idx = !i;
+                id_idx = 1 - i;
                 break;
             } 
         }
@@ -494,10 +491,8 @@ ZXGEditCmd::exec(const string &option) {
     ZX_CMD_ZXMODE_ON_OR_RETURN;
     // check option
     vector<string> options;
-    if (!CmdExec::lexOptions(option, options)) {
-        return CMD_EXEC_ERROR;
-    }
-
+    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
+    
     CMD_N_OPTS_AT_LEAST_OR_RETURN(options, 2);
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGEdit");
 

@@ -621,7 +621,6 @@ void ZXGraph::toggleEdges(ZXVertex* v){
  */
 ZXGraph* ZXGraph::copy() const {
     ZXGraph* newGraph = new ZXGraph(0);
-
     // Copy all vertices (included i/o) first
     for(const auto& v : _vertices) {
         if(v->getType() == VertexType::BOUNDARY){
@@ -633,55 +632,14 @@ ZXGraph* ZXGraph::copy() const {
             newGraph->addVertex(v->getQubit(), v->getType(), v->getPhase());
         }
     }
-
+    // Link all edges
+    // cout << "Link all edges" << endl;
     unordered_map<size_t, ZXVertex*> id2VertexMap = newGraph->id2VertexMap();
-
     forEachEdge([&id2VertexMap, newGraph](const EdgePair& epair){
         size_t vs_id = epair.first.first->getId();
         size_t vt_id = epair.first.second->getId();
         newGraph->addEdge(id2VertexMap[vs_id], id2VertexMap[vt_id], epair.second);
-
-        
-        //STUB - stock here for a id2idx
-        // ZXVertex* vs = newGraph->getVertices()[vs_id];
-        
     });
-
-    // Link all edges
-
-
-    // unordered_map<size_t, ZXVertex*> id2vertex;
-    // newGraph->setId(getId());
-
-    // newGraph->_inputs_depr.reserve(this->getNumInputs_depr());
-    // newGraph->_inputList.reserve(this->getNumInputs_depr());
-    // newGraph->_outputs_depr.reserve(this->getNumOutputs_depr());
-    // newGraph->_outputList.reserve(this->getNumOutputs_depr());
-    // newGraph->_vertices_depr.reserve(this->getNumVertices_depr());
-    // id2vertex.reserve(this->getNumVertices_depr());
-    // newGraph->_edges_depr.reserve(this->getNumEdges_depr());
-    // // new Inputs
-    // for (const auto& v : this->getInputs_depr()) {
-    //     id2vertex[v->getId()] = newGraph->addInput_depr(v->getId(), v->getQubit(), true);
-        
-    // }
-
-    // // new Outputs
-    // for (const auto& v : this->getOutputs_depr()) {
-    //     id2vertex[v->getId()] = newGraph->addOutput_depr(v->getId(), v->getQubit(), true);
-    // }
-
-    // // new Vertices (without I/O)
-    // for (const auto& v : this->getVertices_depr()) {
-    //     if (v->getType() != VertexType::BOUNDARY) {
-    //         id2vertex[v->getId()] = newGraph->addVertex_depr(v->getId(), v->getQubit(), v->getType(), v->getPhase(), true);
-    //     }
-    // }
-
-    // for (const auto& [vpair, etype]: this->getEdges()) {
-    //     newGraph->addEdge_depr(id2vertex[vpair.first->getId()], id2vertex[vpair.second->getId()], new EdgeType(*etype));
-    // }
-    
     return newGraph;
 }
 
