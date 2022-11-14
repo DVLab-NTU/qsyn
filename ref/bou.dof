@@ -2,11 +2,11 @@ format 1
 ver 1
 zxm -on
 qccr -r benchmark/demo/small.qasm
-qczxm
+qc2zx
 zxgas 3 I X 0
 zxgas 3 O X 0
 zxgp -v
-qczxm
+qc2zx
 zxgas 3 I X 0
 zxgas 3 O X 0
 zxgp -v

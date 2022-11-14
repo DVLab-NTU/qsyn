@@ -1,7 +1,7 @@
 ver 1
 zxm -on
 qccread benchmark/benchmark_SABRE/large/ham15_107.qasm
-qczxm
+qc2zx
 zxgp
 zxcopy
 zxgadjoint
@@ -9,6 +9,6 @@ zxcompose 0
 zxgprint
 zxgs -fr
 zxgp
-zxgp -v
+zxgp -q
 usage
 q -f

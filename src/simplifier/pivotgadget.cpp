@@ -43,7 +43,6 @@ void PivotGadget::match(ZXGraph* g){
     }
 
     vector<bool> taken(g->getNumVertices(), false);
-    vector<bool> discardEdges(g->getNumEdges(), false);
     vector<EdgePair> newEdges;
     cnt = 0;
     g -> forEachEdge([&g, &cnt, &id2idx, &taken, &newEdges, this](const EdgePair& epair) {
@@ -71,27 +70,27 @@ void PivotGadget::match(ZXGraph* g){
         if(verbose == 9) cout << "(2) phase pass\n";
 
         //REVIEW - check  if(is_ground(vs)) continues;
-        Neighbors vsn = vs->getNeighbors();
-        Neighbors vtn = vt->getNeighbors();
-        if(vtn.size() == 1) return;   // It is a phase gadget
+        // Neighbors vsn = vs->getNeighbors();
+        // Neighbors vtn = vt->getNeighbors();
+        if(vt->getNumNeighbors() == 1) return;   // It is a phase gadget
 
         //SECTION - Start from line 375
-        if(checkBadMatch(vsn, epair, true))
+        if(checkBadMatch(vs->getNeighbors(), epair, true))
             return;
-        if(checkBadMatch(vtn, epair, false))
+        if(checkBadMatch(vt->getNeighbors(), epair, false))
             return;
 
         if(verbose == 9) cout << "(3) Not a bad match\n";
         
         bool no_interior = false;
-        for(const auto& [v, et]: vsn){
+        for(const auto& [v, et]: vs->getNeighbors()){
             if(v->getType() != VertexType::Z){
                 no_interior = true;
                 break;
             }
         }
         if(no_interior) return;
-        for(const auto& [v, et]: vtn){
+        for(const auto& [v, et]: vt->getNeighbors()){
             if(v->getType() != VertexType::Z){
                 no_interior = true;
                 break;
@@ -102,8 +101,8 @@ void PivotGadget::match(ZXGraph* g){
         // Both vs and vt are interior
         if(verbose >= 5) cout << "Edge vs and vt are both interior: " << vs->getId() << " " << vt->getId() << endl;
 
-        for(auto& [v, _] : vsn) taken[id2idx[v->getId()]] = true;
-        for(auto& [v, _] : vtn) taken[id2idx[v->getId()]] = true;
+        for(auto& [v, _] : vs->getNeighbors()) taken[id2idx[v->getId()]] = true;
+        for(auto& [v, _] : vt->getNeighbors()) taken[id2idx[v->getId()]] = true;
         
 
         ZXVertex* newVertex = g->addVertex(-2, VertexType::Z, vtp);

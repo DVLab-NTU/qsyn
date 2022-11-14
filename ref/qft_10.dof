@@ -1,0 +1,10 @@
+ver 1
+zxm -on
+qccread benchmark/benchmark_SABRE/large/qft_10.qasm
+usage
+qc2zx
+zxgp
+zxgs -fr
+zxgp -v
+usage
+q -f
