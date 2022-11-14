@@ -34,7 +34,7 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXCHeckout", 4, new ZXCHeckoutCmd) &&
           cmdMgr->regCmd("ZXCOPy", 5, new ZXCOPyCmd) &&
           cmdMgr->regCmd("ZXCOMpose", 5, new ZXCOMposeCmd) &&
-          cmdMgr->regCmd("ZXTensor", 5, new ZXTensorCmd) &&
+          cmdMgr->regCmd("ZXTensor", 3, new ZXTensorCmd) &&
           cmdMgr->regCmd("ZXPrint", 3, new ZXPrintCmd) &&
           cmdMgr->regCmd("ZXGPrint", 4, new ZXGPrintCmd) &&
           cmdMgr->regCmd("ZXGTest", 4, new ZXGTestCmd) &&
@@ -244,7 +244,6 @@ void ZXPrintCmd::help() const {
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXCOPyCmd::exec(const string &option) {
-    //TODO - ZXCOPy
     ZX_CMD_ZXMODE_ON_OR_RETURN;
     // check option
     vector<string> options;
@@ -299,15 +298,18 @@ CmdExecStatus
 ZXCOMposeCmd::exec(const string &option) {
     //TODO - ZXCOMpose
     ZX_CMD_ZXMODE_ON_OR_RETURN;
-    // string token;
-    // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    // if (curCmd != ZXON)
-    //     cout << "ZXMode: OFF" << endl;
-    // else {
-    //     if (token.empty()) {
-    //         cerr << "Error: the ZX-graph id you want to compose must provided!" << endl;
-    //         return CmdExec::errorOption(CMD_OPT_MISSING, token);
-    //     } else {
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+
+
+    if (token.empty()) {
+        cerr << "Error: the ZX-graph id you want to compose must provided!" << endl;
+        return CmdExec::errorOption(CMD_OPT_MISSING, token);
+    } else {
+        unsigned id;
+        ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
+        ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id);
+        zxGraphMgr->getGraph()->compose(zxGraphMgr->findZXGraphByID(id));
     //         int id;
     //         bool isNum = myStr2Int(token, id);
     //         if (!isNum || id < 0) {
@@ -319,8 +321,8 @@ ZXCOMposeCmd::exec(const string &option) {
 
     //         } else
     //             zxGraphMgr->compose(zxGraphMgr->findZXGraphByID(id));
-    //     }
-    // }
+    }
+
     return CMD_EXEC_DONE;
 }
 
@@ -342,15 +344,18 @@ CmdExecStatus
 ZXTensorCmd::exec(const string &option) {
     //TODO - ZXTensor
     ZX_CMD_ZXMODE_ON_OR_RETURN;
-    // string token;
-    // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    // if (curCmd != ZXON)
-    //     cout << "ZXMode: OFF" << endl;
-    // else {
-    //     if (token.empty()) {
-    //         cerr << "Error: the ZX-graph id you want to tensor must provided!" << endl;
-    //         return CmdExec::errorOption(CMD_OPT_MISSING, token);
-    //     } else {
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+
+        if (token.empty()) {
+            cerr << "Error: the ZX-graph id you want to tensor must provided!" << endl;
+            return CmdExec::errorOption(CMD_OPT_MISSING, token);
+        } 
+        else {
+            unsigned id;
+            ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
+            ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id);
+            zxGraphMgr->getGraph()->tensorProduct(zxGraphMgr->findZXGraphByID(id));
     //         int id;
     //         bool isNum = myStr2Int(token, id);
     //         if (!isNum || id < 0) {
@@ -362,8 +367,8 @@ ZXTensorCmd::exec(const string &option) {
 
     //         } else
     //             zxGraphMgr->tensorProduct(zxGraphMgr->findZXGraphByID(id));
-    //     }
-    // }
+        }
+
     return CMD_EXEC_DONE;
 }
 

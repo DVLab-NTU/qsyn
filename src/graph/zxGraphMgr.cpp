@@ -107,13 +107,11 @@ void ZXGraphMgr::checkout2ZXGraph(size_t id) {
 }
 
 void ZXGraphMgr::copy(size_t id, bool toNew) {
-    //TODO - copy
     if(_graphList.empty()) cerr << "Error: ZXGraphMgr is empty now! Action \"copy\" failed!" << endl;
     else{
         size_t oriGraphID = getGraph()->getId();
         ZXGraph* copiedGraph = getGraph()->copy();
         copiedGraph->setId(id);
-        copiedGraph->printGraph();
         
         if(toNew){
             _graphList.push_back(copiedGraph);

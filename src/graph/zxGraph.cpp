@@ -292,10 +292,10 @@ ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, bool checked
             return nullptr;
         }
     }
-    ZXVertex* v = new ZXVertex(_currentVertexId, qubit, vt, phase);
+    ZXVertex* v = new ZXVertex(_nextVId, qubit, vt, phase);
     _vertices.emplace(v);
-    if (verbose >= 5) cout << "Add vertex (" << VertexType2Str(vt) << ")" << _currentVertexId << endl;
-    _currentVertexId++;
+    if (verbose >= 5) cout << "Add vertex (" << VertexType2Str(vt) << ")" << _nextVId << endl;
+    _nextVId++;
     return v;
 }
 
@@ -327,8 +327,8 @@ void ZXGraph::addVertices(const ZXVertexList& vertices, bool reordered) {
     //REVIEW - Reordered Id
     if(reordered){
         for(const auto& v: vertices) {
-            v->setId(_currentVertexId);
-            _currentVertexId++;
+            v->setId(_nextVId);
+            _nextVId++;
         }
     }
     _vertices.insert(vertices.begin(), vertices.end());
@@ -555,7 +555,9 @@ void ZXGraph::assignBoundary(size_t qubit, bool isInput, VertexType vt, Phase ph
 }
 
 
-// Find functions
+/*****************************************************/
+/*   class ZXGraph Find functions.                   */
+/*****************************************************/
 
 /**
  * @brief Find the next id that is never been used.
@@ -640,6 +642,65 @@ ZXGraph* ZXGraph::copy() const {
 }
 
 
+/**
+ * @brief Compose `target` to the original ZX-graph (horizontal concat)
+ * 
+ * @param target 
+ * @return ZXGraph* 
+ */
+ZXGraph* ZXGraph::compose(ZXGraph* target){
+    return this;
+}
+
+
+/**
+ * @brief Tensor `target` to the original ZX-graph (vertical concat)
+ * 
+ * @param target 
+ * @return ZXGraph* 
+ */
+ZXGraph* ZXGraph::tensorProduct(ZXGraph* target){
+    ZXGraph* copiedGraph = target->copy();
+
+    // Lift Qubit
+    int oriMaxQubit = INT_MIN, oriMinQubit = INT_MAX;
+    int copiedMinQubit = INT_MAX;
+    for(const auto& i : getInputs()){
+        if(i->getQubit() > oriMaxQubit) oriMaxQubit = i->getQubit();
+        if(i->getQubit() < oriMinQubit) oriMinQubit = i->getQubit();
+    }
+    for(const auto& i : getOutputs()){
+        if(i->getQubit() > oriMaxQubit) oriMaxQubit = i->getQubit();
+        if(i->getQubit() < oriMinQubit) oriMinQubit = i->getQubit();
+    }
+
+    for(const auto& i : copiedGraph->getInputs()){
+        if(i->getQubit() < copiedMinQubit) copiedMinQubit = i->getQubit();
+    }
+    for(const auto& i : copiedGraph->getOutputs()){
+        if(i->getQubit() < copiedMinQubit) copiedMinQubit = i->getQubit();
+    }
+    size_t liftQ = (oriMaxQubit-oriMinQubit+1) - copiedMinQubit;
+    cout << liftQ << endl;
+    copiedGraph->liftQubit(liftQ);
+    copiedGraph->printVertices();
+
+    // Update Id of copiedGraph to make them unique to the original graph
+    for(const auto& v : copiedGraph->getVertices()){
+        v->setId(_nextVId);
+        _nextVId++;
+    }
+    
+    // Merge copiedGraph to original graph
+    this->addInputs(copiedGraph->getInputs());
+    this->addOutputs(copiedGraph->getOutputs());
+    this->addVertices(copiedGraph->getVertices());
+    this->mergeInputList(copiedGraph->getInputList());
+    this->mergeOutputList(copiedGraph->getOutputList());
+
+    return this;
+}
+
 // void ZXGraph::sortIOByQubit() {
 //     // NOTE - when re-implementing, notice that to sort ordered_hashset, use the member function (oset.sort()) instead of std::sort()
 //     // sort(_inputs_depr.begin(), _inputs_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
@@ -650,22 +711,28 @@ ZXGraph* ZXGraph::copy() const {
 //     // sort(_vertices_depr.begin(), _vertices_depr.end(), [](ZXVertex* a, ZXVertex* b) { return a->getId() < b->getId(); });
 // }
 
+/**
+ * @brief Lift each qubit in ZX-graph with `n`.
+ *        Ex: origin: 0 -> after lifting: n
+ * 
+ * @param n 
+ */
 void ZXGraph::liftQubit(const size_t& n) {
-    // for_each(_vertices_depr.begin(), _vertices_depr.end(), [&n](ZXVertex* v) { v->setQubit(v->getQubit() + n); });
+    for(const auto& v : _vertices){ v->setQubit(v->getQubit() + n); }
 
-    // unordered_map<size_t, ZXVertex*> newInputList, newOutputList;
+    unordered_map<size_t, ZXVertex*> newInputList, newOutputList;
 
-    // for_each(_inputList.begin(), _inputList.end(),
-    //          [&n, &newInputList](pair<size_t, ZXVertex*> itr) {
-    //              newInputList[itr.first + n] = itr.second;
-    //          });
-    // for_each(_outputList.begin(), _outputList.end(),
-    //          [&n, &newOutputList](pair<size_t, ZXVertex*> itr) {
-    //              newOutputList[itr.first + n] = itr.second;
-    //          });
+    for_each(_inputList.begin(), _inputList.end(),
+             [&n, &newInputList](pair<size_t, ZXVertex*> itr) {
+                 newInputList[itr.first + n] = itr.second;
+             });
+    for_each(_outputList.begin(), _outputList.end(),
+             [&n, &newOutputList](pair<size_t, ZXVertex*> itr) {
+                 newOutputList[itr.first + n] = itr.second;
+             });
 
-    // setInputList(newInputList);
-    // setOutputList(newOutputList);
+    setInputList(newInputList);
+    setOutputList(newOutputList);
 }
 
 
@@ -689,11 +756,15 @@ unordered_map<size_t, ZXVertex*> ZXGraph::id2VertexMap() const{
 /*****************************************************/
 
 void ZXGraph::printGraph() const {
-    cout << "Graph " << _id << endl;
-    cout << setw(15) << left << "Inputs: " << getNumInputs() << endl;
-    cout << setw(15) << left << "Outputs: " << getNumOutputs() << endl;
-    cout << setw(15) << left << "Vertices: " << getNumVertices() << endl;
-    cout << setw(15) << left << "Edges: " << getNumEdges() << endl;
+    cout << "Graph " << _id << "( "
+         << getNumInputs() << " inputs, "
+         << getNumOutputs() << " outputs, "
+         << getNumVertices() << " vertices, "
+         << getNumEdges() << " edges )\n";
+    // cout << setw(15) << left << "Inputs: " << getNumInputs() << endl;
+    // cout << setw(15) << left << "Outputs: " << getNumOutputs() << endl;
+    // cout << setw(15) << left << "Vertices: " << getNumVertices() << endl;
+    // cout << setw(15) << left << "Edges: " << getNumEdges() << endl;
 }
 
 void ZXGraph::printInputs() const {

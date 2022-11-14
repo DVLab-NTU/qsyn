@@ -95,7 +95,7 @@ class ZXVertex{
 
 class ZXGraph{
     public:
-        ZXGraph(size_t id, void** ref = NULL) : _id(id), _ref(ref), _currentVertexId(0), _tensor(1.+0.i){
+        ZXGraph(size_t id, void** ref = NULL) : _id(id), _ref(ref), _nextVId(0), _tensor(1.+0.i){
             _globalDFScounter = 1;
         }
         
@@ -113,6 +113,7 @@ class ZXGraph{
         void setVertices(const ZXVertexList& vertices)                  { _vertices = vertices; }
         
         const size_t& getId() const                                     { return _id; }
+        const size_t& getNextVId() const                                { return _nextVId; }
         void** getRef() const                                           { return _ref; }
         const ZXVertexList& getInputs() const                           { return _inputs; }
         const ZXVertexList& getOutputs() const                          { return _outputs; }
@@ -176,6 +177,8 @@ class ZXGraph{
         // Action
         void reset();
         ZXGraph* copy() const;
+        ZXGraph* compose(ZXGraph* target);
+        ZXGraph* tensorProduct(ZXGraph* target);
         // void sortIOByQubit(); 
         // void sortVerticeById(); //REVIEW unused function; rendered useless in new version?
         void toggleEdges(ZXVertex* v);
@@ -232,7 +235,7 @@ class ZXGraph{
     private:
         size_t                            _id;
         void**                            _ref;
-        size_t                            _currentVertexId; // keep the index
+        size_t                            _nextVId;
         QTensor<double>                   _tensor;
         vector<ZXVertex*>                 _inputs_depr;
         vector<ZXVertex*>                 _outputs_depr;
