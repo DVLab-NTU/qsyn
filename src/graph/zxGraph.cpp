@@ -591,7 +591,10 @@ ZXVertex* ZXGraph::findVertexById(const size_t& id) const {
 /*   class ZXGraph Action functions                  */
 /*****************************************************/
 
-
+/**
+ * @brief Reset a ZX-graph (make empty)
+ * 
+ */
 void ZXGraph::reset() {
     _inputs_depr.clear();
     _outputs_depr.clear();
@@ -603,8 +606,14 @@ void ZXGraph::reset() {
     _globalDFScounter = 1;
 }
 
+/**
+ * @brief Toggle EdgeType that connected to `v`. ( H -> S / S -> H)
+ *        Ex: [(3, S), (4, H), (5, S)] -> [(3, H), (4, S), (5, H)]
+ * 
+ * @param v 
+ */
 void ZXGraph::toggleEdges(ZXVertex* v){
-    Neighbors  toggledNeighbors;
+    Neighbors toggledNeighbors;
     for (auto& itr : v->getNeighbors()){
         toggledNeighbors.insert(make_pair(itr.first, toggleEdge(itr.second)));
         itr.first->removeNeighbor(make_pair(v, itr.second));
@@ -641,7 +650,6 @@ ZXGraph* ZXGraph::copy() const {
     return newGraph;
 }
 
-
 /**
  * @brief Compose `target` to the original ZX-graph (horizontal concat)
  * 
@@ -649,9 +657,13 @@ ZXGraph* ZXGraph::copy() const {
  * @return ZXGraph* 
  */
 ZXGraph* ZXGraph::compose(ZXGraph* target){
+    // Check ori-outputNum == target-inputNum
+    if(this->getNumOutputs() != target->getNumInputs()) cerr << "";
+    else{
+        ZXGraph* copiedGraph = target->copy();
+    }
     return this;
 }
-
 
 /**
  * @brief Tensor `target` to the original ZX-graph (vertical concat)
@@ -750,6 +762,10 @@ unordered_map<size_t, ZXVertex*> ZXGraph::id2VertexMap() const{
 /*   class ZXGraph Print functions                   */
 /*****************************************************/
 
+/**
+ * @brief Print information of ZX-graph
+ * 
+ */
 void ZXGraph::printGraph() const {
     cout << "Graph " << _id << "( "
          << getNumInputs() << " inputs, "
@@ -762,12 +778,20 @@ void ZXGraph::printGraph() const {
     // cout << setw(15) << left << "Edges: " << getNumEdges() << endl;
 }
 
+/**
+ * @brief Print Inputs of ZX-graph
+ * 
+ */
 void ZXGraph::printInputs() const {
     cout << "Input ( ";
     for (const auto& v : _inputs) cout << v->getId() << " ";
     cout << ")\nTotal #Inputs: " << getNumInputs() << endl;
 }
 
+/**
+ * @brief Print Outputs of ZX-graph
+ * 
+ */
 void ZXGraph::printOutputs() const {
     cout << "Output ( ";
     for (const auto& v : _outputs) cout << v->getId() << " ";
@@ -786,6 +810,10 @@ void ZXGraph::printIO() const {
     cout << ")\nTotal #(I,O): (" << getNumInputs() << "," << getNumOutputs() << ")\n";
 }
 
+/**
+ * @brief Print Vertices of ZX-graph
+ * 
+ */
 void ZXGraph::printVertices() const {
     cout << "\n";
     for (const auto& v : _vertices) {
@@ -795,13 +823,16 @@ void ZXGraph::printVertices() const {
     cout << "\n";
 }
 
+/**
+ * @brief Print Edges of ZX-graph
+ * 
+ */
 void ZXGraph::printEdges() const {
     forEachEdge([](const EdgePair& epair) {
         cout << "( " << epair.first.first->getId() << ", " << epair.first.second->getId() << " )\tType:\t" << EdgeType2Str(epair.second) << endl;
     });
     cout << "Total #Edges: " << getNumEdges() << endl;
 }
-
 
 
 
