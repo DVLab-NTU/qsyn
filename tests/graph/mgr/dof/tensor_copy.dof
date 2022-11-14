@@ -1,8 +1,7 @@
 zxmode -On
 ZXNew
 ZXGTest
-ZXNew
-ZXGTest
+zxcopy
 zxcheckout 0
 zxtensor 1
 zxgprint -e
