@@ -176,8 +176,8 @@ class ZXGraph{
         // Action
         void reset();
         ZXGraph* copy() const;
-        void sortIOByQubit(); 
-        void sortVerticeById(); //REVIEW unused function; rendered useless in new version?
+        // void sortIOByQubit(); 
+        // void sortVerticeById(); //REVIEW unused function; rendered useless in new version?
         void toggleEdges(ZXVertex* v);
         void liftQubit(const size_t& n);
         void mergeInputList(unordered_map<size_t, ZXVertex*> lst)    { _inputList.merge(lst); }
