@@ -108,13 +108,6 @@
 //  */
 // void PivotBoundary::rewrite(ZXGraph* g){
 //     reset();
-//     //TODO: Rewrite _removeVertices, _removeEdges, _edgeTableKeys, _edgeTableValues
-//     //* _removeVertices: all ZXVertex* must be removed from ZXGraph this cycle.
-//     //* _removeEdges: all EdgePair must be removed from ZXGraph this cycle.
-//     //* (EdgeTable: Key(ZXVertex* vs, ZXVertex* vt), Value(int s, int h))
-//     //* _edgeTableKeys: A pair of ZXVertex* like (ZXVertex* vs, ZXVertex* vt), which you would like to add #s EdgeType::SIMPLE between them and #h EdgeType::HADAMARD between them
-//     //* _edgeTableValues: A pair of int like (int s, int h), which means #s EdgeType::SIMPLE and #h EdgeType::HADAMARD
-
 
 //     unordered_map<size_t, size_t> id2idx;
 //     for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;

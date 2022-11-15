@@ -288,8 +288,6 @@ int Simplifier::pivotBoundarySimp(){
 int Simplifier::pivotGadgetSimp(){
     this->setRule(new PivotGadget());
     int i = this->simp();
-    //REVIEW - Hopf is useless (It should be)
-    // hopfSimp();
     return i;
 }
 
@@ -311,7 +309,6 @@ int Simplifier::sfusionSimp(){
  * @param
  */
 void Simplifier::toGraph() {
-    //REVIEW - Check whether the logic is correct
     for(auto& v:  _simpGraph->getVertices()){
         if (v->getType() == VertexType::X){
             _simpGraph->toggleEdges(v);
@@ -326,7 +323,6 @@ void Simplifier::toGraph() {
  * @param
  */
 void Simplifier::toRGraph() {
-    //REVIEW - Check whether the logic is correct
     for(auto& v:  _simpGraph->getVertices()){
         if (v->getType() == VertexType::Z){
             _simpGraph->toggleEdges(v);

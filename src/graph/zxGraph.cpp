@@ -379,7 +379,6 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
  * @param reordered 
  */
 void ZXGraph::addVertices(const ZXVertexList& vertices, bool reordered) {
-    //REVIEW - Reordered Id
     if(reordered){
         for(const auto& v: vertices) {
             v->setId(_nextVId);
@@ -451,7 +450,6 @@ size_t ZXGraph::removeVertex(ZXVertex* v) {
 size_t ZXGraph::removeVertices(vector<ZXVertex*> vertices) {
     size_t count = 0;
     for (const auto& v : vertices) {
-        //REVIEW should call removeVertex
         count += removeVertex(v);
     }
     return count;

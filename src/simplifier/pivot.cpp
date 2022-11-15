@@ -1,10 +1,10 @@
-// /****************************************************************************
-//   FileName     [ pivot.cpp ]
-//   PackageName  [ simplifier ]
-//   Synopsis     [ Pivot Rule Definition ]
-//   Author       [ Cheng-Hua Lu ]
-//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-// ****************************************************************************/
+/****************************************************************************
+  FileName     [ pivot.cpp ]
+  PackageName  [ simplifier ]
+  Synopsis     [ Pivot Rule Definition ]
+  Author       [ Cheng-Hua Lu ]
+  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
 
 #include <iostream>
 #include <vector>
@@ -34,11 +34,11 @@ void Pivot::match(ZXGraph* g){
     vector<bool> taken(g->getNumVertices(), false);
 
     g -> forEachEdge([&g, &cnt, &id2idx, &taken, this](const EdgePair& epair) {
-        //// 1: Check EdgeType
+        // 1: Check EdgeType
         //NOTE - Only Hadamard
         if(epair.second != EdgeType::HADAMARD) return;
 
-        //// 2: Get Neighbors
+        // 2: Get Neighbors
         vector<ZXVertex*> neighbors;
         neighbors.push_back(epair.first.first);
         neighbors.push_back(epair.first.second);
@@ -46,11 +46,11 @@ void Pivot::match(ZXGraph* g){
         if(taken[id2idx[neighbors[0]->getId()]] || taken[id2idx[neighbors[1]->getId()]]) return;
         if(neighbors[0]->getType() != VertexType::Z || neighbors[1]->getType() != VertexType::Z) return;
 
-        //// 3: Check Neighbors Phase 
+        // 3: Check Neighbors Phase 
         if(neighbors[0]->getPhase() != Phase(1) && neighbors[0]->getPhase() != 0) return;
         if(neighbors[1]->getPhase() != Phase(1) && neighbors[1]->getPhase() != 0) return;
 
-        //// 4: Check neighbors of Neighbors
+        // 4: Check neighbors of Neighbors
         size_t count_boundary = 0;
 
         vector<int> mark_v;
@@ -67,18 +67,17 @@ void Pivot::match(ZXGraph* g){
 
         if(count_boundary > 1) return;   // skip when Neighbors are all connected to boundary
 
-        //// 5: taken
+        // 5: taken
         for(auto& x: mark_v){
             taken[id2idx[x]] = true;
         }
         taken[id2idx[neighbors[0]->getId()]] = true;
         taken[id2idx[neighbors[1]->getId()]] = true;
 
-        //NOTE - Add Edgepair Directly
-        //// 6: add Epair into _matchTypeVec
+        // 6: add Epair into _matchTypeVec
         _matchTypeVec.push_back(epair);
 
-        //// 7: clear vector
+        // 7: clear vector
         neighbors.clear();
         mark_v.clear();
     });
@@ -141,15 +140,14 @@ void Pivot::rewrite(ZXGraph* g){
         n0 = n3; n1 = n4;
         n3.clear();n4.clear();
 
-        //// 5: scalar (skip)
-        //REVIEW - No selfloops
+        // 5: scalar (skip)
         
-        //// 6:add phase
+        // 6:add phase
         for(auto& x: n2)    x->setPhase(x->getPhase() + Phase(1) + neighbors[0]->getPhase() + neighbors[1]->getPhase());
         for(auto& x: n1)    x->setPhase(x->getPhase() + neighbors[0]->getPhase());
         for(auto& x: n0)    x->setPhase(x->getPhase() + neighbors[1]->getPhase());
 
-        //// 7:connect n0 n1 n2
+        // 7:connect n0 n1 n2
         for(auto& itr : n0){
             if(itr->getType() == VertexType::BOUNDARY) continue;
             for(auto& a: n1){
@@ -173,7 +171,7 @@ void Pivot::rewrite(ZXGraph* g){
             }
         }
 
-        //// 8: clear vector
+        // 8: clear vector
         neighbors.clear();
         c.clear();
         n0.clear();
