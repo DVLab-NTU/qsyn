@@ -17,6 +17,7 @@
 using namespace std;
 extern size_t verbose;
 
+/// @brief Update Topological Order
 void ZXGraph::updateTopoOrder()
 {
     _topoOrder.clear();
@@ -38,6 +39,9 @@ void ZXGraph::updateTopoOrder()
         cout << "\nSize of topological order: " << _topoOrder.size() << endl;
     }
 }
+
+/// @brief Performing DFS from currentVertex 
+/// @param currentVertex 
 void ZXGraph::DFS(ZXVertex *currentVertex)
 {
     currentVertex->setVisited(_globalDFScounter);

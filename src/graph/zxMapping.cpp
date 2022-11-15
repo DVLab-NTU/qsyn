@@ -19,10 +19,10 @@
 using namespace std;
 extern size_t verbose;
 
-// Mapping functions
 
 
-
+/// @brief Get nonBoundary vertices
+/// @return
 ZXVertexList ZXGraph::getNonBoundary() {
     ZXVertexList tmp;
     tmp.clear();
@@ -33,6 +33,9 @@ ZXVertexList ZXGraph::getNonBoundary() {
     return tmp;
 }
 
+/// @brief Get input vertex of qubit q
+/// @param q 
+/// @return
 ZXVertex* ZXGraph::getInputFromHash(const size_t& q) {
     if (!_inputList.contains(q)) {
         cerr << "Input qubit id " << q << "not found" << endl;
@@ -41,6 +44,9 @@ ZXVertex* ZXGraph::getInputFromHash(const size_t& q) {
         return _inputList[q];
 }
 
+/// @brief Get output vertex of qubit q
+/// @param q 
+/// @return 
 ZXVertex* ZXGraph::getOutputFromHash(const size_t& q) {
     if (!_outputList.contains(q)) {
         cerr << "Output qubit id " << q << "not found" << endl;
@@ -49,6 +55,9 @@ ZXVertex* ZXGraph::getOutputFromHash(const size_t& q) {
         return _outputList[q];
 }
 
+/// @brief Concatenate a ZX-graph of a gate to the ZX-graph of big circuit
+/// @param tmp 
+/// @param remove_imm 
 void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
     // Add Vertices
     this->addVertices(tmp->getNonBoundary(), true);
@@ -79,8 +88,8 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
     tmp->reset();
 }
 
-// Tensor mapping
-
+/// @brief Get Tensor form of Z, X spider, or H box
+/// @return 
 QTensor<double> ZXVertex::getTSform(){
     QTensor<double> tensor = (1. + 0.i);
     if (isBoundary()){
@@ -99,7 +108,7 @@ QTensor<double> ZXVertex::getTSform(){
     return tensor;
 }
 
-
+/// @brief Generate tensor form of ZX-graph
 void ZXGraph::toTensor() {
     for (auto& v : _vertices) {
         v->setPin(unsigned(-1));
