@@ -252,14 +252,11 @@ ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::emplace(Args&&... arg
  */
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
 void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sweep() { 
-    auto hasValue = [](const stored_type& value) -> bool {
-        return value != std::nullopt;
-    };
     
     std::vector<stored_type> newData;
     size_t count = 0;
     for (size_t i = 0; i < this->_data.size(); ++i) {
-        if (hasValue(this->_data[i])) {
+        if (this->_data[i].has_value()) {
             newData.emplace_back(this->_data[i]);
             this->_key2id.at(this->key(this->_data[i].value())) = count;
             count++;
