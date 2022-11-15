@@ -2,6 +2,6 @@ zxmode -on
 zxnew
 zxgt
 zxgp -v
-zxge -rme 2 3
+zxge -rme 2 3 SIMPLE
 zxgp -v
 q -f

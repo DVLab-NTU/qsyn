@@ -17,17 +17,18 @@
 using namespace std;
 extern size_t verbose;
 
+/// @brief Update Topological Order
 void ZXGraph::updateTopoOrder()
 {
     _topoOrder.clear();
     _globalDFScounter++;
-    for (size_t i = 0; i < _inputs.size(); i++){
-        if (!_inputs[i]->isVisited(_globalDFScounter))
-            DFS(_inputs[i]);
+    for(const auto& v: _inputs){
+      if(!(v->isVisited(_globalDFScounter))) 
+        DFS(v);
     }
-    for (size_t i = 0; i < _outputs.size(); i++){
-        if (!_outputs[i]->isVisited(_globalDFScounter))
-            DFS(_outputs[i]);
+    for(const auto& v: _outputs){
+      if(!(v->isVisited(_globalDFScounter))) 
+        DFS(v);
     }
     reverse(_topoOrder.begin(), _topoOrder.end());
     if (verbose >= 7) {
@@ -37,22 +38,17 @@ void ZXGraph::updateTopoOrder()
         }
         cout << "\nSize of topological order: " << _topoOrder.size() << endl;
     }
-    // assert(_topoOrder.size() == _vertices.size());
 }
+
+/// @brief Performing DFS from currentVertex 
+/// @param currentVertex 
 void ZXGraph::DFS(ZXVertex *currentVertex)
 {
     currentVertex->setVisited(_globalDFScounter);
-    // Original
-    // vector<NeighborPair> neighbors = currentVertex->getNeighbors();
-    // for (size_t i = 0; i < neighbors.size(); i++){
-    //     if (!(neighbors[i].first->isVisited(_globalDFScounter)))
-    //         DFS(neighbors[i].first);
-    // }
 
-    // NeighberMap
-    NeighborMap neighborMap = currentVertex->getNeighborMap();
-    for(auto itr = neighborMap.begin(); itr != neighborMap.end(); itr++){
-        if(!(itr->first->isVisited(_globalDFScounter))) DFS(itr->first);
+    Neighbors neighbors = currentVertex->getNeighbors();
+    for(const auto& v: neighbors){
+       if(!(v.first->isVisited(_globalDFScounter))) DFS(v.first);
     }
 
     _topoOrder.push_back(currentVertex);

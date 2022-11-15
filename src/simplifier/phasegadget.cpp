@@ -22,26 +22,34 @@ extern size_t verbose;
  * @param g 
  */
 void PhaseGadget::match(ZXGraph* g){
+
+    //REVIEW - NO TESTCASES FOR GADGET!! CHECK AFTER ALL RULES ARE FINISHED
     _matchTypeVec.clear(); 
     if(verbose >= 8) g->printVertices();
     
     unordered_map<size_t, size_t> id2idx;
-    for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
+    size_t cnt = 0;
+    for(const auto& v: g->getVertices()){
+        id2idx[v->getId()] = cnt;
+        cnt++;
+    }
 
     vector<bool> taken(g->getNumVertices(), false);
 
     unordered_map<ZXVertex*, ZXVertex*> gadgets; // (v, the only neighbor)
     unordered_multimap<vector<ZXVertex*>, ZXVertex*> groups;
     unordered_map<vector<ZXVertex*>, bool> done;
-    for(size_t i = 0; i < g->getNumVertices(); i++){
-        ZXVertex* v = g->getVertices()[i];
+    for(const auto& v : g->getVertices()){
         if(v->getPhase() != Phase(0) && v->getPhase() != Phase(1) && v->getNumNeighbors() == 1){
-            ZXVertex* neighbor = v->getNeighbors()[0];
+            ZXVertex* neighbor = v->getFirstNeighbor().first;
             if(neighbor->getPhase() != Phase(0) and neighbor->getPhase() != Phase(1)) continue;
             if(neighbor->getType() == VertexType::BOUNDARY) continue;
             if(gadgets.contains(neighbor)) continue;
             // if(taken[id2idx[neighbor->getId()]]) continue;
-            vector<ZXVertex*> nebsOfNeighbor = neighbor->getNeighbors();
+            vector<ZXVertex*> nebsOfNeighbor;
+            for(const auto& nbp : neighbor->getNeighbors()){
+                nebsOfNeighbor.push_back(nbp.first);
+            }
             nebsOfNeighbor.erase(remove(nebsOfNeighbor.begin(),nebsOfNeighbor.end(),v), nebsOfNeighbor.end());
             
             sort(nebsOfNeighbor.begin(), nebsOfNeighbor.end());
@@ -60,7 +68,7 @@ void PhaseGadget::match(ZXGraph* g){
             }
         }
     }
-    
+
     for(auto itr=groups.begin(); itr!=groups.end(); itr++){
         if(done[itr->first]) continue;
         else done[itr->first]= true;
@@ -96,19 +104,8 @@ void PhaseGadget::match(ZXGraph* g){
  */
 void PhaseGadget::rewrite(ZXGraph* g){
     reset();
-    //TODO: Rewrite _removeVertices, _removeEdges, _edgeTableKeys, _edgeTableValues
-    //* _removeVertices: all ZXVertex* must be removed from ZXGraph this cycle.
-    //* _removeEdges: all EdgePair must be removed from ZXGraph this cycle.
-    //* (EdgeTable: Key(ZXVertex* vs, ZXVertex* vt), Value(int s, int h))
-    //* _edgeTableKeys: A pair of ZXVertex* like (ZXVertex* vs, ZXVertex* vt), which you would like to add #s EdgeType::SIMPLE between them and #h EdgeType::HADAMARD between them
-    //* _edgeTableValues: A pair of int like (int s, int h), which means #s EdgeType::SIMPLE and #h EdgeType::HADAMARD
     
-    // for(size_t i=0; i<_matchTypeVec.size(); i++){
-    //     ZXVertex* leaf = get<0>(_matchTypeVec[i]);
-    //     cout << leaf->getId() << endl;
-    // }
     for(size_t i=0; i<_matchTypeVec.size(); i++){
-        // ZXVertex* axel = get<0>(_matchTypeVec[i]);
         ZXVertex* leaf = get<2>(_matchTypeVec[i])[0];
         leaf -> setPhase(get<0>(_matchTypeVec[i]));
         vector<ZXVertex*> rm_axels = get<1>(_matchTypeVec[i]);

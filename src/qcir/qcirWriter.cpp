@@ -18,6 +18,10 @@
 
 using namespace std;
 
+/// @brief Write QASM
+/// @param filename 
+/// @return true if successfully write
+/// @return false if path or file not found
 bool QCir::writeQASM(string filename){
     updateTopoOrder();
     fstream file;

@@ -1,10 +1,10 @@
-/****************************************************************************
-  FileName     [ simplify.h ]
-  PackageName  [ simplifier ]
-  Synopsis     [ Simplification strategies ]
-  Author       [ Cheng-Hua Lu ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-****************************************************************************/
+// /****************************************************************************
+//   FileName     [ simplify.h ]
+//   PackageName  [ simplifier ]
+//   Synopsis     [ Simplification strategies ]
+//   Author       [ Cheng-Hua Lu ]
+//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+// ****************************************************************************/
 
 
 #ifndef SIMPLIFY_H
@@ -19,7 +19,7 @@
 #include "zxGraph.h"
 #include "zxRules.h"
 
-class Stats;
+// class Stats;
 class Simplifier;
 // enum class SIMP_STRATEGY;
 
@@ -37,17 +37,17 @@ class Simplifier;
 
 // };
 
-class Stats{
-    public:
-        Stats(){
-            _rewritesNum.clear();
-        }
-        ~Stats(){}
-        void countRewrites(string rule, int n);
+// class Stats{
+//     public:
+//         Stats(){
+//             _rewritesNum.clear();
+//         }
+//         ~Stats(){}
+//         void countRewrites(string rule, int n);
 
-    private:
-        unordered_map<string, int>          _rewritesNum;
-};
+//     private:
+//         unordered_map<string, int>          _rewritesNum;
+// };
 
 class Simplifier{
     public:

@@ -1,0 +1,16 @@
+ver 1
+zxm -on
+qccread benchmark/benchmark_SABRE/large/root_255.qasm
+qc2zx
+zxgp
+zxcopy
+zxgadjoint
+zxcompose 0
+zxgprint
+usage
+zxgs -fr
+usage
+zxgp
+zxgp -q
+usage
+q -f

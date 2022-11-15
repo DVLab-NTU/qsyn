@@ -1,6 +1,6 @@
 zxm -on
 zxgread benchmark/zx/cnots.zx
-zxgtsm
+zx2ts
 zxgs -TOGraph
 zxgp -v
 zxgs -SPIderfusion
@@ -8,8 +8,7 @@ zxgp -v
 zxgs -HRule
 zxgp -v
 zxgp -e
-zxgs -hopf
-zxgp -v
-zxgp -e
-zxgtsm
+zx2ts
+tsp 1
+tseq 0 1
 q -f

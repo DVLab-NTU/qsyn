@@ -25,7 +25,11 @@ void LComp::match(ZXGraph* g){
     if(verbose >= 8) g->printVertices();
     
     unordered_map<size_t, size_t> id2idx;
-    for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
+    size_t cnt = 0;
+    for(const auto& v: g->getVertices()){
+        id2idx[v->getId()] = cnt;
+        cnt++;
+    }
 
     // Find all Z vertices that connect to all neighb ors with H edge.
     vector<bool> taken(g->getNumVertices(), false);
@@ -36,16 +40,16 @@ void LComp::match(ZXGraph* g){
             size_t vIdx = id2idx[v->getId()];
             if(taken[vIdx]) continue;
             // EdgeType = H ; VertexType = Z ; not in taken or inMatches
-            //! TODO: self loop avoidance
-            for(const auto& [nb, etype] : v->getNeighborMap()){
-                if(*(etype) != EdgeType::HADAMARD || nb->getType() != VertexType::Z || taken[id2idx[nb->getId()]] || inMatches[id2idx[nb->getId()]]){
+
+            for(const auto& [nb, etype] : v->getNeighbors()){
+                if(etype != EdgeType::HADAMARD || nb->getType() != VertexType::Z || taken[id2idx[nb->getId()]] || inMatches[id2idx[nb->getId()]]){
                     matchCondition = false;
                     break;
                 }
             }
             if (matchCondition) {
                 vector<ZXVertex* > neighbors;
-                for(const auto& [nb, _] : v->getNeighborMap()){
+                for(const auto& [nb, _] : v->getNeighbors()){
                     if (v == nb) continue;
                     neighbors.push_back(nb);
                     taken[id2idx[nb->getId()]] = true;
@@ -69,13 +73,13 @@ void LComp::rewrite(ZXGraph* g){
     for(const auto& [v, neighbors] : _matchTypeVec){
         _removeVertices.push_back(v);
         size_t hEdgeCount = 0;
-        for (auto& [nb, etype] : v->getNeighborMap()) {
-            if (nb == v && *etype == EdgeType::HADAMARD) {
+        for (auto& [nb, etype] : v->getNeighbors()) {
+            if (nb == v && etype == EdgeType::HADAMARD) {
                 hEdgeCount++;
             }
         }
         Phase p = v->getPhase() + Phase(hEdgeCount/2);
-        //! TODO global scalar ignored
+        //TODO - global scalar ignored
         for(size_t n = 0; n < neighbors.size(); n++){
             neighbors[n]->setPhase(neighbors[n]->getPhase()-p);
             for(size_t j = n+1; j < neighbors.size(); j++){

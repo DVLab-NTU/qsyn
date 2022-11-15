@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ zxGraph.h ]
+  FileName     [ zxGraph.cpp ]
   PackageName  [ graph ]
   Synopsis     [ Define class ZXGraph member functions ]
   Author       [ Cheng-Hua Lu ]
@@ -24,65 +24,22 @@ using namespace std;
 namespace TF = TextFormat;
 extern size_t verbose;
 
-EdgeType toggleEdge(const EdgeType& et) {
-    if (et == EdgeType::SIMPLE)
-        return EdgeType::HADAMARD;
-    else if (et == EdgeType::HADAMARD)
-        return EdgeType::SIMPLE;
-    else
-        return EdgeType::ERRORTYPE;
-}
-
-VertexType str2VertexType(const string& str) {
-    if (str == "BOUNDARY")
-        return VertexType::BOUNDARY;
-    else if (str == "Z")
-        return VertexType::Z;
-    else if (str == "X")
-        return VertexType::X;
-    else if (str == "H_BOX")
-        return VertexType::H_BOX;
-    return VertexType::ERRORTYPE;
-}
-
-string VertexType2Str(const VertexType& vt) {
-    if (vt == VertexType::X) return TF::BOLD(TF::RED("X"));
-    if (vt == VertexType::Z) return TF::BOLD(TF::GREEN("Z"));
-    if (vt == VertexType::H_BOX) return TF::BOLD(TF::YELLOW("H"));
-    if (vt == VertexType::BOUNDARY) return "●";
-    return "";
-}
-
-EdgeType* str2EdgeType(const string& str) {
-    if (str == "SIMPLE")
-        return new EdgeType(EdgeType::SIMPLE);
-    else if (str == "HADAMARD")
-        return new EdgeType(EdgeType::HADAMARD);
-    return new EdgeType(EdgeType::ERRORTYPE);
-}
-
-string EdgeType2Str(const EdgeType* et) {
-    if (*et == EdgeType::SIMPLE) return "-";
-    if (*et == EdgeType::HADAMARD) return TF::BOLD(TF::BLUE("H"));
-    return "";
-}
-
 /**************************************/
 /*   class ZXVertex member functions   */
 /**************************************/
 
-ZXVertex* ZXVertex::getNeighbor(size_t idx) const {
-    if (idx > getNeighbors().size() - 1) return nullptr;
-    return getNeighbors()[idx];
+/**
+ * @brief return a vector of neighbor vertices
+ * 
+ * @return vector<ZXVertex*> 
+ */
+vector<ZXVertex*> ZXVertex::getCopiedNeighbors(){
+    vector<ZXVertex*> storage;
+    for (const auto& neighbor: _neighbors) {
+        storage.push_back(neighbor.first);
+    }
+    return storage;
 }
-
-vector<ZXVertex*> ZXVertex::getNeighbors() const {
-    vector<ZXVertex*> neighbors;
-    for (auto& itr : getNeighborMap()) neighbors.push_back(itr.first);
-    return neighbors;
-}
-
-// Print functions
 
 /**
  * @brief Print summary of ZXVertex
@@ -93,30 +50,32 @@ void ZXVertex::printVertex() const {
     cout << "VertexType:\t" << VertexType2Str(_type) << "\t";
     cout << "Qubit:\t" << _qubit << "\t";
     cout << "Phase:\t" << _phase << "\t";
-    cout << "#Neighbors:\t" << _neighborMap.size() << "\t";
-    printNeighborMap();
+    cout << "#Neighbors:\t" << _neighbors.size() << "\t";
+    printNeighbors();
 }
 
 /**
  * @brief Print each element in _neighborMap
  *
  */
-void ZXVertex::printNeighborMap() const {
-    vector<pair<ZXVertex*, EdgeType*> > neighborList;
-    for (auto& itr : _neighborMap) neighborList.push_back(make_pair(itr.first, itr.second));
-
-    sort(neighborList.begin(), neighborList.end(), [](pair<ZXVertex*, EdgeType*> a, pair<ZXVertex*, EdgeType*> b) { return a.first->getId() < b.first->getId(); });
-
-    for (size_t i = 0; i < neighborList.size(); i++) {
-        cout << "(" << neighborList[i].first->getId() << ", " << EdgeType2Str(neighborList[i].second) << ") ";
+void ZXVertex::printNeighbors() const {
+    // if(_neighbors.size()==0) return;
+    vector<NeighborPair> storage;
+    for (const auto& neighbor: _neighbors) {
+        storage.push_back(neighbor);
+        // cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
+    }
+    sort(begin(storage), end(storage), [](NeighborPair a, NeighborPair b) { return a.second < b.second; });
+    sort(begin(storage), end(storage), [](NeighborPair a, NeighborPair b) { return a.first->getId() < b.first->getId(); });
+    
+    for (const auto& [nb, etype]: storage) {
+        cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
     }
     cout << endl;
 }
 
-// Action
-
 /**
- * @brief Remove all the connection between `this` and `v`.
+ * @brief Remove all the connection between `this` and `v`. (Overhauled)
  *
  * @param v
  * @param checked
@@ -128,23 +87,107 @@ void ZXVertex::disconnect(ZXVertex* v, bool checked) {
             return;
         }
     }
-
-    _neighborMap.erase(v);
-    NeighborMap nMap = v->getNeighborMap();
-    nMap.erase(this);
-    v->setNeighborMap(nMap);
+    _neighbors.erase(make_pair(v, EdgeType::SIMPLE));
+    _neighbors.erase(make_pair(v, EdgeType::HADAMARD));
+    v->removeNeighbor(make_pair(this, EdgeType::SIMPLE));
+    v->removeNeighbor(make_pair(this, EdgeType::HADAMARD));
 }
 
-// Test
+
+
+
+
+/*****************************************************/
+/*   class ZXGraph Getter and setter functions       */
+/*****************************************************/
 
 /**
- * @brief Check if `v` is one of the neighbors in ZXVertex
- *
- * @param v
- * @return bool
+ * @brief Get the number of edges in ZX-graph
+ * 
+ * @return size_t 
  */
-bool ZXVertex::isNeighbor(ZXVertex* v) const {
-    return _neighborMap.contains(v);
+size_t ZXGraph::getNumEdges() const {
+    size_t n = 0;
+    for (auto& v: _vertices) {
+        n += v->getNumNeighbors(); 
+    }
+    return n/2;
+}
+
+
+
+/*****************************************************/
+/*   class ZXGraph Testing functions                 */
+/*****************************************************/
+
+/**
+ * @brief Check if the ZX-graph is an empty one (no vertice)
+ * 
+ * @return true 
+ * @return false 
+ */
+bool ZXGraph::isEmpty() const {
+    return (_inputs.empty() && _outputs.empty() && _vertices.empty());
+}
+
+/**
+ * @brief Check if the ZX-graph is valid (i/o connected to 1 vertex, each neighbor matches)
+ * 
+ * @return true 
+ * @return false 
+ */
+bool ZXGraph::isValid() const {
+    for (auto& v: _inputs) {
+        if (v->getNumNeighbors() != 1) return false;
+    }
+    for (auto& v: _outputs) {
+        if (v->getNumNeighbors() != 1) return false;
+    }
+    for (auto& v: _vertices) {
+        for (auto& [nb, etype]: v->getNeighbors()) {
+            if (!nb->getNeighbors().contains(make_pair(v, etype))) return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * @brief Generate a CNOT subgraph to the ZXGraph (testing)
+ * 
+ */
+void ZXGraph::generateCNOT() {
+    if(isEmpty()){
+        if(verbose >= 5) cout << "Generate a 2-qubit CNOT graph for testing\n";
+        ZXVertex* i0 = addInput(0);
+        ZXVertex* i1 = addInput(1);
+        ZXVertex* vz = addVertex(0, VertexType::Z);
+        ZXVertex* vx = addVertex(1, VertexType::X);
+        ZXVertex* o0 = addOutput(0);
+        ZXVertex* o1 = addOutput(1);
+
+        addEdge(i0, vz, EdgeType::SIMPLE);
+        addEdge(i1, vx, EdgeType::SIMPLE);
+        addEdge(vz, vx, EdgeType::SIMPLE);
+        addEdge(o0, vz, EdgeType::SIMPLE);
+        addEdge(o1, vx, EdgeType::SIMPLE);
+    }
+    else{
+        if(verbose >= 3) cout << "Note: The graph is not empty! Generation failed!\n";
+    }
+}
+
+/**
+ * @brief Check if `id` is an existed vertex id
+ * 
+ * @param id 
+ * @return true 
+ * @return false 
+ */
+bool ZXGraph::isId(size_t id) const {
+    for (auto v : _vertices) {
+        if (v->getId() == id) return true;
+    }
+    return false;
 }
 
 /**
@@ -155,206 +198,136 @@ bool ZXVertex::isNeighbor(ZXVertex* v) const {
  */
 bool ZXGraph::isGraphLike() const {
     
-    // 2. all Hedge or Bedge
-    for(size_t i=0; i < _edges.size(); i++){
-        if((*_edges[i].second)== EdgeType::HADAMARD) continue;
-        else{
-            if(_edges[i].first.first->getType()== VertexType::BOUNDARY || _edges[i].first.second->getType()== VertexType::BOUNDARY) continue;
-            else{
-                cout << "False: Type (" << *_edges[i].second << ") of edge " << _edges[i].first.first->getId() << "--" << _edges[i].first.second->getId() << " is invalid!!" << endl;
-                return false;
+    // all internal edges are hadamard edges
+    for (const auto& v : _vertices) {
+        if (!v->isZ() || !v->isBoundary()) {
+            if (verbose >= 5) {
+                cout << "Note: vertex " << v->getId() << " is of type " << VertexType2Str(v->getType()) << endl;
             }
         }
-    }
-    // 4. B-Z-B and B has only an edge
-    for(size_t i=0; i<_inputs.size(); i++){
-        if(_inputs[i] -> getNumNeighbors() != 1){
-            cout << "False: Boundary vertex " << _inputs[i]->getId() << " has invalid number of neighbors!!" << endl;
-            return false;
-        }
-        if(_inputs[i] -> getNeighbor(0) -> getType() == VertexType::BOUNDARY){
-            cout << "False: Boundary vertex " << _inputs[i]->getId() << " has a boundary neighbor!!" << _inputs[i] -> getNeighbor(0) -> getId() << " !!" << endl;
-            return false;
-        }
-    }
-    // 1. all Z or B  3. no parallel, no selfloop (vertex neighbor)
-    for(size_t i=0; i < _vertices.size(); i++){
-        if(_vertices[i]->getType()!=VertexType::BOUNDARY && _vertices[i]->getType()!=VertexType::Z){
-            cout << "False: Type (" << _vertices[i]->getType() << ") of vertex " << _vertices[i]->getId() << " is invalid!!" << endl;
-            return false;
-        }
-        vector<ZXVertex* > neighbors = _vertices[i]->getNeighbors();
-        vector<ZXVertex* > found;
-        for(size_t j=0; j<neighbors.size(); j++){
-            if(neighbors[j] == _vertices[i]){
-                cout << "False: Vertex "<< _vertices[i]->getId() << " has selfloop(s)!!" << endl;
-                return false;
-            }
-            else{
-                if(find(found.begin(), found.end(), neighbors[j]) != found.end()){
-                    cout << "False: Vertices " << _vertices[i]->getId() << " and " << neighbors[j]->getId() << " have parallel edges!!" << endl;
-                    return false;
+        for (const auto& [nb, etype] : v->getNeighbors()) {
+            if (v->isBoundary() || nb->isBoundary()) continue;
+            if (etype != EdgeType::HADAMARD) {
+                if (verbose >= 5) {
+                    cout << "Note: internal simple edge (" << v->getId() << ", " << nb->getId() << ")" << endl;
                 }
-                found.push_back(neighbors[j]);
+                return false;
             }
         }
     }
-    cout << TF::BOLD(TF::GREEN("True: The graph is graph-like")) << endl;
-    return true;
-}
 
-/**************************************/
-/*   class ZXGraph member functions   */
-/**************************************/
-
-// Getter and setter
-
-size_t ZXGraph::getNumIncidentEdges(ZXVertex* v) const {
-    // cout << "Find incident of " << v->getId() << endl; 
-    size_t count = 0;
-    for(const auto& edge : _edges){
-        if(edge.first.first == v || edge.first.second == v) count++;
-    }
-    return count;
-}
-
-EdgePair ZXGraph::getFirstIncidentEdge(ZXVertex* v) const {
-    for(const auto& edge : _edges){
-        if(edge.first.first == v || edge.first.second == v) return edge;
-    }
-    return make_pair(make_pair(nullptr, nullptr), nullptr);
-}
-
-vector<EdgePair> ZXGraph::getIncidentEdges(ZXVertex* v) const {
-    // cout << "Find incident of " << v->getId() << endl; 
-    vector<EdgePair> incidentEdges;
-    for(size_t e = 0; e < _edges.size(); e++){
-        if(_edges[e].first.first == v || _edges[e].first.second == v){
-            // cout << _edges[e].first.first->getId() << " " << _edges[e].first.second->getId() << endl;
-            incidentEdges.push_back(_edges[e]);
+    // 4. B-Z-B and B has only an edge
+    for (const auto& v : _inputs) {
+        if (v->getNumNeighbors() != 1) {
+            if (verbose >= 5) {
+                cout << "Note: boundary " << v->getId() << " has " 
+                     << v->getNumNeighbors() << " neighbors; expected 1" << endl;
+            }
+            return false;
         }
     }
-    return incidentEdges;
-}
-
-// For testing
-void ZXGraph::generateCNOT() {
-    cout << "Generate a 2-qubit CNOT graph for testing" << endl;
-    // Generate Inputs
-    vector<ZXVertex*> inputs, outputs, vertices;
-    for (size_t i = 0; i < 2; i++) {
-        addInput(findNextId(), i);
+    for (const auto& v : _outputs) {
+        if (v->getNumNeighbors() != 1) {
+            if (verbose >= 5) {
+                cout << "Note: boundary " << v->getId() << " has " 
+                     << v->getNumNeighbors() << " neighbors; expected 1" << endl;
+            }
+            return false;
+        }
     }
-
-    // Generate CNOT
-    addVertex(findNextId(), 0, VertexType::Z);
-    addVertex(findNextId(), 1, VertexType::X);
-
-    // Generate Outputs
-    for (size_t i = 0; i < 2; i++) {
-        addOutput(findNextId(), i);
-    }
-
-    // Generate edges [(0,2), (1,3), (2,3), (2,4), (3,5)]
-    addEdgeById(3, 5, new EdgeType(EdgeType::SIMPLE));
-    addEdgeById(0, 2, new EdgeType(EdgeType::SIMPLE));
-    addEdgeById(1, 3, new EdgeType(EdgeType::SIMPLE));
-    addEdgeById(2, 3, new EdgeType(EdgeType::SIMPLE));
-    addEdgeById(2, 4, new EdgeType(EdgeType::SIMPLE));
-}
-
-bool ZXGraph::isEmpty() const {
-    if (_inputs.empty() && _outputs.empty() && _vertices.empty() && _edges.empty()) return true;
-    return false;
-}
-
-bool ZXGraph::isValid() const {
-    for (auto v: _inputs) {
-        if (v->getNumNeighbors() != 1) return false;
-    }
-    for (auto v: _outputs) {
-        if (v->getNumNeighbors() != 1) return false;
-    }
-    for (size_t i = 0; i < _edges.size(); i++) {
-        if (!_edges[i].first.first->isNeighbor(_edges[i].first.second) ||
-            !_edges[i].first.second->isNeighbor(_edges[i].first.first)) return false;
-    }
+    
+    // guard B-B edge?
     return true;
 }
 
-bool ZXGraph::isConnected(ZXVertex* v1, ZXVertex* v2) const {
-    if (v1->isNeighbor(v2) && v2->isNeighbor(v1)) return true;
-    return false;
-}
 
-bool ZXGraph::isId(size_t id) const {
-    for (size_t i = 0; i < _vertices.size(); i++) {
-        if (_vertices[i]->getId() == id) return true;
-    }
-    return false;
-}
 
-bool ZXGraph::isInputQubit(int qubit) const {
-    return (_inputList.contains(qubit));
-}
 
-bool ZXGraph::isOutputQubit(int qubit) const {
-    return (_outputList.contains(qubit));
-}
+/*****************************************************/
+/*   class ZXGraph Add functions                     */
+/*****************************************************/
 
-// Add and Remove
-ZXVertex* ZXGraph::addInput(size_t id, int qubit, bool checked) {
+/**
+ * @brief Add input to ZXVertexList
+ * 
+ * @param qubit 
+ * @param checked 
+ * @return ZXVertex* 
+ */
+ZXVertex* ZXGraph::addInput(int qubit, bool checked) {
     if (!checked) {
-        if (isId(id)) {
-            cerr << "Error: This vertex id already exists!!" << endl;
-            return nullptr;
-        } else if (isInputQubit(qubit)) {
+        if (isInputQubit(qubit)) {
             cerr << "Error: This qubit's input already exists!!" << endl;
             return nullptr;
         }
     }
-    ZXVertex* v = new ZXVertex(id, qubit, VertexType::BOUNDARY);
-    _inputs.push_back(v);
-    _vertices.push_back(v);
+    ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), true);
+    _inputs.emplace(v);
     setInputHash(qubit, v);
-    if (verbose >= 5) cout << "Add input " << id << endl;
     return v;
 }
 
-ZXVertex* ZXGraph::addOutput(size_t id, int qubit, bool checked) {
+/**
+ * @brief Add output to ZXVertexList
+ * 
+ * @param qubit 
+ * @param checked 
+ * @return ZXVertex* 
+ */
+ZXVertex* ZXGraph::addOutput(int qubit, bool checked) {
     if (!checked) {
-        if (isId(id)) {
-            cerr << "Error: This vertex id already exists!!" << endl;
-            return nullptr;
-        } else if (isOutputQubit(qubit)) {
+        if (isOutputQubit(qubit)) {
             cerr << "Error: This qubit's output already exists!!" << endl;
             return nullptr;
-        } 
+        }
     }
-    ZXVertex* v = new ZXVertex(id, qubit, VertexType::BOUNDARY);
-    _vertices.push_back(v);
-    _outputs.push_back(v);
+    ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), true);
+    _outputs.emplace(v);
     setOutputHash(qubit, v);
-    if (verbose >= 5) cout << "Add output " << id << endl;
     return v;
-    
 }
 
-ZXVertex* ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase, bool checked) {
+/**
+ * @brief Add vertex to ZXVertexList
+ * 
+ * @param qubit 
+ * @param vt 
+ * @param phase 
+ * @param checked 
+ * @return ZXVertex* 
+ */
+ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, bool checked) {
     if (!checked) {
-        if (isId(id)) {
-            cerr << "Error: This vertex id is already exist!!" << endl;
-            return nullptr;
-        } else if (vt == VertexType::BOUNDARY) {
+        if (vt == VertexType::BOUNDARY) {
             cerr << "Error: Use ADDInput / ADDOutput to add input vertex or output vertex!!" << endl;
             return nullptr;
         }
     }
-    ZXVertex* v = new ZXVertex(id, qubit, vt, phase);
-    _vertices.push_back(v);
-    if (verbose >= 5) cout << "Add vertex " << id << endl;
+    ZXVertex* v = new ZXVertex(_nextVId, qubit, vt, phase);
+    _vertices.emplace(v);
+    if (verbose >= 5) cout << "Add vertex (" << VertexType2Str(vt) << ")" << _nextVId << endl;
+    _nextVId++;
     return v;
 }
+
+/**
+ * @brief Add a set of inputs
+ * 
+ * @param inputs 
+ */
+void ZXGraph::addInputs(const ZXVertexList&  inputs) {
+    _inputs.insert(inputs.begin(), inputs.end());
+}
+
+/**
+ * @brief Add a set of outputs
+ * 
+ * @param outputs 
+ */
+void ZXGraph::addOutputs(const ZXVertexList&  outputs) {
+    _outputs.insert(outputs.begin(), outputs.end());
+}
+
 /**
  * @brief Add edge (<<vs, vt>, et>)
  *
@@ -363,210 +336,164 @@ ZXVertex* ZXGraph::addVertex(size_t id, int qubit, VertexType vt, Phase phase, b
  * @param et
  * @return EdgePair
  */
-EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType* et, bool allowSelfloop) {
-    // if (vs->getType() == VertexType::BOUNDARY && vs->getNumNeighbors() >= 1) {
-    //     cerr << "Boundary vertex " << vs->getId() << " must not have more than one neighbor." << endl;
-    // } else if (vt->getType() == VertexType::BOUNDARY && vt->getNumNeighbors() >= 1) {
-    //     cerr << "Boundary vertex " << vt->getId() << " must not have more than one neighbor." << endl;
-    // } else if (vs == vt && vs->getType() == VertexType::BOUNDARY) {
-    //     cerr << "Boundary vertex " << vs->getId() << " must not have self loop" << endl;
-    // } else {
-        // NeighborMap mode
-    // if(vt == vs && (!allowSelfloop)){
-    //     if (*et == EdgeType::HADAMARD){
-    //         vt->setPhase(vt->getPhase() + Phase(1));
-    //         if (verbose >= 5) cout << "Add phase Pi to " << vt->getId() << " due to hadamard selfloop" << endl;
-    //     }
-    //     else if (verbose >= 5) cout << "Neglect simple selfloop on " << vt->getId() << endl;
-    //     return make_pair(make_pair(nullptr, nullptr), nullptr);
-    // }
-    // else{
+EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
+    if (vs == vt) {
+        Phase phase = (et == EdgeType::HADAMARD) ? Phase(1) : Phase(0);
+        if(verbose >=5) cout << "Note: converting this self-loop to phase " << phase << " on vertex " << vs->getId() <<"..." << endl;
+        vs->setPhase(vs->getPhase() + phase);
+        return makeEdgePairDummy();
+    }
+
+    if (vs->isNeighbor(vt, et)) {
+        if ( 
+            (vs->isZ() && vt->isX() && et == EdgeType::HADAMARD) ||
+            (vs->isX() && vt->isZ() && et == EdgeType::HADAMARD) ||
+            (vs->isZ() && vt->isZ() && et == EdgeType::SIMPLE)   ||
+            (vs->isX() && vt->isX() && et == EdgeType::SIMPLE)   
+        ) {
+            if(verbose >=5) cout << "Note: Redundant edge; merging into existing edge..." << endl;
+        } else if (
+            (vs->isZ() && vt->isX() && et == EdgeType::SIMPLE  ) ||
+            (vs->isX() && vt->isZ() && et == EdgeType::SIMPLE  ) ||
+            (vs->isZ() && vt->isZ() && et == EdgeType::HADAMARD) ||
+            (vs->isX() && vt->isX() && et == EdgeType::HADAMARD)   
+        ) {
+            if(verbose >=5) cout << "Note: Hopf edge; cancelling out with existing edge..." << endl;
+            vs->removeNeighbor(make_pair(vt, et));
+            vt->removeNeighbor(make_pair(vs, et));
+        }
+        //REVIEW - similar conditions for H-Boxes and boundaries?
+    } else {
         vs->addNeighbor(make_pair(vt, et));
         vt->addNeighbor(make_pair(vs, et));
-        _edges.emplace_back(make_pair(vs, vt), et);
         if (verbose >= 5) cout << "Add edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
-        return _edges.back();
-    // }
-    
-    // }
-
-    // return make_pair(make_pair(nullptr, nullptr), nullptr);
-}
-
-void ZXGraph::addEdgeById(size_t id_s, size_t id_t, EdgeType* et) {
-    if (!isId(id_s))
-        cerr << "Error: id_s provided does not exist!" << endl;
-    else if (!isId(id_t))
-        cerr << "Error: id_t provided does not exist!" << endl;
-    else {
-        ZXVertex* vs = findVertexById(id_s);
-        ZXVertex* vt = findVertexById(id_t);
-        addEdge(vs, vt, et);
     }
+    
+    return makeEdgePair(vs, vt, et);
 }
 
-void ZXGraph::addInputs(vector<ZXVertex*> inputs) {
-    _inputs.insert(_inputs.end(), inputs.begin(), inputs.end());
+/**
+ * @brief Add a set of vertices
+ * 
+ * @param vertices 
+ * @param reordered 
+ */
+void ZXGraph::addVertices(const ZXVertexList& vertices, bool reordered) {
+    if(reordered){
+        for(const auto& v: vertices) {
+            v->setId(_nextVId);
+            _nextVId++;
+        }
+    }
+    _vertices.insert(vertices.begin(), vertices.end());
 }
 
-void ZXGraph::addOutputs(vector<ZXVertex*> outputs) {
-    _outputs.insert(_outputs.end(), outputs.begin(), outputs.end());
-}
 
-void ZXGraph::addVertices(vector<ZXVertex*> vertices) {
-    _vertices.insert(_vertices.end(), vertices.begin(), vertices.end());
-}
 
-void ZXGraph::addEdges(vector<EdgePair> edges) {
-    _edges.insert(_edges.end(), edges.begin(), edges.end());
-}
+/*****************************************************/
+/*   class ZXGraph Remove functions                  */
+/*****************************************************/
 
-void ZXGraph::mergeInputList(unordered_map<size_t, ZXVertex*> lst) {
-    _inputList.merge(lst);
-}
-
-void ZXGraph::mergeOutputList(unordered_map<size_t, ZXVertex*> lst) {
-    _outputList.merge(lst);
+/**
+ * @brief Remove all vertices with no neighbor.
+ *
+ */
+size_t ZXGraph::removeIsolatedVertices() {
+    vector<ZXVertex*> removing;
+    for (const auto& v : _vertices) {
+        if (v->getNumNeighbors() == 0) {
+            removing.push_back(v);
+        }
+    }
+    return removeVertices(removing);
 }
 
 /**
  * @brief Remove `v` in ZXGraph and maintain the relationship between each vertex.
  *
  * @param v
- * @param checked
  */
-void ZXGraph::removeVertex(ZXVertex* v, bool checked) {
-    if (!checked) {
-        if (!isId(v->getId())) {
-            cerr << "This vertex does not exist!" << endl;
-            return;
-        }
+size_t ZXGraph::removeVertex(ZXVertex* v) {
+    if (!_vertices.contains(v)) return 0;
+    
+    auto vNeighbors = v->getNeighbors();
+    for(const auto& n: vNeighbors) {
+        v -> removeNeighbor(n);
+        ZXVertex* nv = n.first;
+        EdgeType ne = n.second;
+        nv -> removeNeighbor(make_pair(v, ne));
+    }
+    _vertices.erase(v);
+
+
+    // Check if also in _inputs or _outputs
+    if(_inputs.contains(v)){
+        _inputList.erase(v->getQubit());
+        _inputs.erase(v);
+    }
+    if (_outputs.contains(v)) {
+        _outputList.erase(v->getQubit());
+        _outputs.erase(v);
     }
 
     if (verbose >= 5) cout << "Remove ID: " << v->getId() << endl;
-
-    // Check if also in _inputs or _outputs
-    if (auto itr = find(_inputs.begin(), _inputs.end(), v); itr != _inputs.end()) {
-        _inputList.erase(v->getQubit());
-        _inputs.erase(itr);
-    }
-    if (auto itr = find(_outputs.begin(), _outputs.end(), v); itr != _outputs.end()) {
-        _outputList.erase(v->getQubit());
-        _outputs.erase(itr);
-    }
-
-    // Check _edges
-    vector<EdgePair> newEdges;
-    for (size_t i = 0; i < _edges.size(); i++) {
-        if (_edges[i].first.first == v || _edges[i].first.second == v)
-            _edges[i].first.first->disconnect(_edges[i].first.second, true);
-        else {
-            newEdges.push_back(_edges[i]);
-        }
-    }
-    setEdges(newEdges);
-
-    // Check _vertices
-    _vertices.erase(find(_vertices.begin(), _vertices.end(), v));
-
     // deallocate ZXVertex
     delete v;
+    return 1;
 }
 
 /**
  * @brief Remove all vertex in vertices by calling `removeVertex(ZXVertex* v, bool checked)`
  *
  * @param vertices
- * @param checked
  */
-void ZXGraph::removeVertices(vector<ZXVertex*> vertices, bool checked) {
-
-    unordered_set<ZXVertex*> removing;
+size_t ZXGraph::removeVertices(vector<ZXVertex*> vertices) {
+    size_t count = 0;
     for (const auto& v : vertices) {
-        if (!checked) {
-            if (!isId(v->getId())) {
-                cerr << "Vertex " << v->getId() << " does not exist!" << endl;
-                continue;
-            }
-        }
-        if (verbose >= 5) cout << "Remove ID: " << v->getId() << endl;
-        removing.insert(v);
+        count += removeVertex(v);
     }
-
-    // Check if also in _inputs or _outputs
-    vector<ZXVertex*> newInputs;
-    unordered_map<size_t, ZXVertex*> newInputList;
-    for (const auto& v : _inputs) {
-        if (!removing.contains(v)) {
-            newInputs.push_back(v);
-            newInputList[v->getQubit()] = v;
-        }
-    }
-    setInputs(newInputs);
-    setInputList(newInputList);
-
-    vector<ZXVertex*> newOutputs;
-    unordered_map<size_t, ZXVertex*> newOutputList;
-    for (const auto& v : _outputs) {
-        if (!removing.contains(v)) {
-            newOutputs.push_back(v);
-            newOutputList[v->getQubit()] = v;
-        }
-    }
-    setOutputs(newOutputs);
-    setOutputList(newOutputList);
-
-    vector<EdgePair> newEdges;
-
-    // Check _edges
-    for (const auto& edge : _edges) {
-        if (removing.contains(edge.first.first) || removing.contains(edge.first.second)) {
-            edge.first.first->disconnect(edge.first.second, true);
-        } else {
-            newEdges.push_back(edge);
-        }
-    }
-    setEdges(newEdges);
-    // Check _vertices
-    vector<ZXVertex*> newVertices;
-    for (const auto& v : _vertices) {
-        if (!removing.contains(v)) {
-            newVertices.push_back(v);
-        }
-    }
-    setVertices(newVertices);
-
-    // deallocate ZXVertex
-    for (const auto& v : removing) {
-        delete v;
-    }
+    return count;
 }
 
 /**
- * @brief Remove vertex by vertex's id. (Used in ZXCmd.cpp)
+ * @brief Remove an edge exactly equal to `ep`.
  *
- * @param id
+ * @param ep
  */
-void ZXGraph::removeVertexById(const size_t& id) {
-    auto v = findVertexById(id);
-    if (v != nullptr)
-        removeVertex(v, true);
-    else
-        cerr << "Error: This vertex id does not exist!!" << endl;
+size_t ZXGraph::removeEdge(const EdgePair& ep) {
+    return removeEdge(ep.first.first, ep.first.second, ep.second);
 }
 
 /**
- * @brief Remove all vertices with no neighbor.
- *
+ * @brief Remove an edge between `vs` and `vt`, with EdgeType `etype`
+ * 
+ * @param vs
+ * @param vt
+ * @param etype
  */
-void ZXGraph::removeIsolatedVertices() {
-    vector<ZXVertex*> removing;
-    for (const auto& v : _vertices) {
-        if (v->getNeighborMap().empty()) {
-            removing.push_back(v);
-        }
+size_t ZXGraph::removeEdge(ZXVertex* vs, ZXVertex* vt, EdgeType etype) {
+    size_t count = vs->removeNeighbor(vt, etype) + vt->removeNeighbor(vs, etype);
+    if (count == 1) {
+        throw out_of_range("Graph connection error in " + to_string(vs->getId()) + " and " + to_string(vt->getId()));
     }
-    removeVertices(removing);
+    if (count == 2) {
+        if (verbose >= 5) cout << "Remove edge ( " << vs->getId() << ", " << vt->getId() << " ), type: " << EdgeType2Str(etype) << endl;
+    }
+    return count / 2;
+}
+
+/**
+ * @brief Remove each ep in `eps` by calling `ZXGraph::removeEdge`
+ * 
+ * @param eps 
+ * @return size_t 
+ */
+size_t ZXGraph::removeEdges(const vector<EdgePair>& eps) {
+    size_t count = 0;
+    for (const auto& ep : eps) {
+        count += removeEdge(ep);
+    }
+    return count;
 }
 
 /**
@@ -576,118 +503,15 @@ void ZXGraph::removeIsolatedVertices() {
  * @param vt
  * @param checked
  */
-void ZXGraph::removeEdge(ZXVertex* vs, ZXVertex* vt, bool checked) {
-    if (!checked) {
-        if (!vs->isNeighbor(vt) || !vt->isNeighbor(vs)) {
-            cerr << "Error: Vertex " << vs->getId() << " and " << vt->getId() << " are not connected!" << endl;
-            return;
-        }
-    }
-    for (size_t i = 0; i < _edges.size();) {
-        if ((_edges[i].first.first == vs && _edges[i].first.second == vt) || (_edges[i].first.first == vt && _edges[i].first.second == vs)) {
-            _edges.erase(_edges.begin() + i);
-        } else
-            i++;
-    }
-    vs->disconnect(vt, true);
-
-    if (verbose >= 5) cout << "Remove edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
+size_t ZXGraph::removeAllEdgesBetween(ZXVertex* vs, ZXVertex* vt, bool checked) {
+    return removeEdge(vs, vt, EdgeType::SIMPLE) + removeEdge(vs, vt, EdgeType::HADAMARD);
 }
 
-/**
- * @brief Remove an edge exactly equal to `ep`.
- *
- * @param ep
- */
-void ZXGraph::removeEdgeByEdgePair(const EdgePair& ep) {
-    for (size_t i = 0; i < _edges.size(); i++) {
-        if ((ep.first.first == _edges[i].first.first && ep.first.second == _edges[i].first.second && ep.second == _edges[i].second) || 
-             (ep.first.first == _edges[i].first.second && ep.first.second == _edges[i].first.first && ep.second == _edges[i].second)) {
-            if (verbose >= 5) cout << "Remove (" << ep.first.first->getId() << ", " << ep.first.second->getId() << " )" << endl;
-            NeighborMap nb = ep.first.first->getNeighborMap();
-            auto neighborItr = nb.equal_range(ep.first.second);
-            for (auto itr = neighborItr.first; itr != neighborItr.second; ++itr) {
-                if (itr->second == ep.second) {
-                    nb.erase(itr);
-                    ep.first.first->setNeighborMap(nb);
-                    break;
-                }
-            }
-            nb = ep.first.second->getNeighborMap();
-            neighborItr = nb.equal_range(ep.first.first);
-            for (auto itr = neighborItr.first; itr != neighborItr.second; ++itr) {
-                if (itr->second == ep.second) {
-                    nb.erase(itr);
-                    ep.first.second->setNeighborMap(nb);
-                    break;
-                }
-            }
-            delete ep.second;
-            _edges.erase(_edges.begin() + i);
 
-            return;
-        }
-    }
-}
 
-void ZXGraph::removeEdgesByEdgePairs(const vector<EdgePair>& eps) {
-    unordered_set<EdgePair> removing;
-    for (const auto& ep : eps) {
-        removing.insert(ep);
-        if (verbose >= 5) {
-            cout << "Remove (" << ep.first.first->getId() << ", " << ep.first.second->getId() << " )" << endl;
-        }
-
-        NeighborMap nbm = ep.first.first->getNeighborMap();
-        auto result = nbm.equal_range(ep.first.second);
-        for (auto& itr = result.first; itr != result.second; ++itr) {
-            if (itr->second == ep.second) {
-                nbm.erase(itr);
-                ep.first.first->setNeighborMap(nbm);
-                break;
-            }
-        }
-
-        nbm = ep.first.second->getNeighborMap();
-        result = nbm.equal_range(ep.first.first);
-        for (auto& itr = result.first; itr != result.second; ++itr) {
-            if (itr->second == ep.second) {
-                nbm.erase(itr);
-                ep.first.second->setNeighborMap(nbm);
-                break;
-            }
-        }
-    }
-
-    vector<EdgePair> newEdges;
-
-    for (const auto& edge : _edges) {
-        if (!removing.contains(edge) && !removing.contains(
-            make_pair(make_pair(edge.first.second, edge.first.first), edge.second)
-        )) {
-            newEdges.push_back(edge);
-        }
-    } 
-    setEdges(newEdges);
-}
-
-/**
- * @brief Remove all edges between `vs` and `vt` by vertex's id.
- *
- * @param id_s
- * @param id_t
- */
-void ZXGraph::removeEdgeById(const size_t& id_s, const size_t& id_t) {
-    if (!isId(id_s))
-        cerr << "Error: id_s provided does not exist!" << endl;
-    else if (!isId(id_t))
-        cerr << "Error: id_t provided does not exist!" << endl;
-    else {
-        ZXVertex* vs = findVertexById(id_s);
-        ZXVertex* vt = findVertexById(id_t);
-        removeEdge(vs, vt);
-    }
-}
+/*****************************************************/
+/*   class ZXGraph Operation on graph functions.     */
+/*****************************************************/
 
 /**
  * @brief adjoint the zxgraph
@@ -696,7 +520,7 @@ void ZXGraph::removeEdgeById(const size_t& id_s, const size_t& id_t) {
 void ZXGraph::adjoint() {
     swap(_inputs, _outputs);
     swap(_inputList, _outputList);
-    for (auto& v : _vertices) v->setPhase(-v->getPhase());
+    for (ZXVertex* const& v : _vertices) v->setPhase(-v->getPhase());
 }
 
 /**
@@ -707,18 +531,33 @@ void ZXGraph::adjoint() {
  * @param ty
  * @param phase
  */
-void ZXGraph::assignBoundary(size_t qubit, bool isInput, VertexType ty, Phase phase){
-    ZXVertex* v = addVertex(findNextId(), qubit, ty, phase);
+void ZXGraph::assignBoundary(size_t qubit, bool isInput, VertexType vt, Phase phase){
+    ZXVertex* v = addVertex(qubit, vt, phase);
     ZXVertex* boundary = isInput ? _inputList[qubit] : _outputList[qubit];
-    EdgeType e = *(boundary -> getNeighborMap().begin()->second);
-    ZXVertex* nebBound = boundary->getNeighbor(0);
+    for (auto& [nb, etype] : boundary->getNeighbors()) {
+        addEdge(v, nb, etype);
+    }
     removeVertex(boundary);
-    // removeEdge(boundary, nebBound);
-    addEdge(v, nebBound, new EdgeType(e));
 }
 
 
-// Find functions
+
+/*****************************************************/
+/*   class ZXGraph Find functions.                   */
+/*****************************************************/
+
+/**
+ * @brief Find the next id that is never been used.
+ *`
+ * @return size_t
+ */
+size_t ZXGraph::findNextId() const {
+    size_t nextId = 0;
+    for (auto& v : _vertices) {
+        if (v->getId() >= nextId) nextId = v->getId() + 1;
+    }
+    return nextId;
+}
 
 /**
  * @brief Find Vertex by vertex's id.
@@ -727,89 +566,92 @@ void ZXGraph::assignBoundary(size_t qubit, bool isInput, VertexType ty, Phase ph
  * @return ZXVertex*
  */
 ZXVertex* ZXGraph::findVertexById(const size_t& id) const {
-    for (size_t i = 0; i < _vertices.size(); i++) {
-        if (_vertices[i]->getId() == id) return _vertices[i];
+    for(const auto& v: _vertices){
+        if(v->getId() == id) return v;
     }
     return nullptr;
 }
 
-/**
- * @brief Find the next id that is never been used.
- *
- * @return size_t
- */
-size_t ZXGraph::findNextId() const {
-    size_t nextId = 0;
-    for (size_t i = 0; i < _vertices.size(); i++) {
-        if (_vertices[i]->getId() >= nextId) nextId = _vertices[i]->getId() + 1;
-    }
-    return nextId;
-}
 
-// Action
+
+/*****************************************************/
+/*   class ZXGraph Action functions                  */
+/*****************************************************/
+
+/**
+ * @brief Reset a ZX-graph (make empty)
+ * 
+ */
 void ZXGraph::reset() {
-    // for(size_t i = 0; i < _vertices.size(); i++) delete _vertices[i];
-    // for(size_t i = 0; i < _topoOrder.size(); i++) delete _topoOrder[i];
-    _inputs.clear();
-    _outputs.clear();
-    _vertices.clear();
-    _edges.clear();
     _inputList.clear();
     _outputList.clear();
     _topoOrder.clear();
+    _vertices.clear();
+    _nextVId = 0;
     _globalDFScounter = 1;
 }
 
+/**
+ * @brief Sort graph's _inputs and _outputs by qubit (ascending)
+ * 
+ */
+void ZXGraph::sortIOByQubit() {
+    _inputs.sort([](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
+    _outputs.sort([](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
+}
+
+/**
+ * @brief Copy an identitcal ZX-graph
+ * 
+ * @return ZXGraph* 
+ */
 ZXGraph* ZXGraph::copy() const {
-    //! Check if EdgeType change simultaneously
-    
     ZXGraph* newGraph = new ZXGraph(0);
-    unordered_map<size_t, ZXVertex*> id2vertex;
-    newGraph->setId(getId());
+    // Copy all vertices (included i/o) first
+    unordered_map<ZXVertex*, ZXVertex*> oldV2newVMap;
+    for(const auto& v : _vertices) {
+        if(v->getType() == VertexType::BOUNDARY){
+            if(_inputs.contains(v)) oldV2newVMap[v] = newGraph->addInput(v->getQubit());
+            else oldV2newVMap[v] = newGraph->addOutput(v->getQubit());
 
-    newGraph->_inputs.reserve(this->getNumInputs());
-    newGraph->_inputList.reserve(this->getNumInputs());
-    newGraph->_outputs.reserve(this->getNumOutputs());
-    newGraph->_outputList.reserve(this->getNumOutputs());
-    newGraph->_vertices.reserve(this->getNumVertices());
-    id2vertex.reserve(this->getNumVertices());
-    newGraph->_edges.reserve(this->getNumEdges());
-    // new Inputs
-    for (const auto& v : this->getInputs()) {
-        id2vertex[v->getId()] = newGraph->addInput(v->getId(), v->getQubit(), true);
-        
-    }
-
-    // new Outputs
-    for (const auto& v : this->getOutputs()) {
-        id2vertex[v->getId()] = newGraph->addOutput(v->getId(), v->getQubit(), true);
-    }
-
-    // new Vertices (without I/O)
-    for (const auto& v : this->getVertices()) {
-        if (v->getType() != VertexType::BOUNDARY) {
-            id2vertex[v->getId()] = newGraph->addVertex(v->getId(), v->getQubit(), v->getType(), v->getPhase(), true);
+        }
+        else if(v->getType() == VertexType::Z || v->getType() == VertexType::X || v->getType() == VertexType::H_BOX){
+            oldV2newVMap[v] = newGraph->addVertex(v->getQubit(), v->getType(), v->getPhase());
         }
     }
-
-    for (const auto& [vpair, etype]: this->getEdges()) {
-        newGraph->addEdge(id2vertex[vpair.first->getId()], id2vertex[vpair.second->getId()], new EdgeType(*etype));
-    }
-    
+    // Link all edges
+    // cout << "Link all edges" << endl;
+    // unordered_map<size_t, ZXVertex*> id2VertexMap = newGraph->id2VertexMap();
+    forEachEdge([&oldV2newVMap, newGraph](const EdgePair& epair){
+        newGraph->addEdge(oldV2newVMap[epair.first.first], oldV2newVMap[epair.first.second], epair.second);
+    });
     return newGraph;
 }
 
-void ZXGraph::sortIOByQubit() {
-    sort(_inputs.begin(), _inputs.end(), [](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
-    sort(_outputs.begin(), _outputs.end(), [](ZXVertex* a, ZXVertex* b) { return a->getQubit() < b->getQubit(); });
+/**
+ * @brief Toggle EdgeType that connected to `v`. ( H -> S / S -> H)
+ *        Ex: [(3, S), (4, H), (5, S)] -> [(3, H), (4, S), (5, H)]
+ * 
+ * @param v 
+ */
+void ZXGraph::toggleEdges(ZXVertex* v){
+    Neighbors toggledNeighbors;
+    for (auto& itr : v->getNeighbors()){
+        toggledNeighbors.insert(make_pair(itr.first, toggleEdge(itr.second)));
+        itr.first->removeNeighbor(make_pair(v, itr.second));
+        itr.first->addNeighbor(make_pair(v, toggleEdge(itr.second)));
+    }
+    v->setNeighbors(toggledNeighbors);
 }
 
-void ZXGraph::sortVerticeById() {
-    sort(_vertices.begin(), _vertices.end(), [](ZXVertex* a, ZXVertex* b) { return a->getId() < b->getId(); });
-}
-
+/**
+ * @brief Lift each vertex's qubit in ZX-graph with `n`.
+ *        Ex: origin: 0 -> after lifting: n
+ * 
+ * @param n 
+ */
 void ZXGraph::liftQubit(const size_t& n) {
-    for_each(_vertices.begin(), _vertices.end(), [&n](ZXVertex* v) { v->setQubit(v->getQubit() + n); });
+    for(const auto& v : _vertices){ v->setQubit(v->getQubit() + n); }
 
     unordered_map<size_t, ZXVertex*> newInputList, newOutputList;
 
@@ -826,66 +668,333 @@ void ZXGraph::liftQubit(const size_t& n) {
     setOutputList(newOutputList);
 }
 
-// Print functions
+/**
+ * @brief Compose `target` to the original ZX-graph (horizontal concat)
+ * 
+ * @param target 
+ * @return ZXGraph* 
+ */
+ZXGraph* ZXGraph::compose(ZXGraph* target){
+    // Check ori-outputNum == target-inputNum
+    if(this->getNumOutputs() != target->getNumInputs())
+        cerr << "Error: The composing ZX-graph's #input is not equivalent to the original ZX-graph's #output." << endl;
+    else{
+        ZXGraph* copiedGraph = target->copy();
+
+        // Update Id of copiedGraph to make them unique to the original graph
+        for(const auto& v : copiedGraph->getVertices()){
+            v->setId(_nextVId);
+            _nextVId++;
+        }
+        // Sort ori-output and copy-input
+        this->sortIOByQubit();
+        copiedGraph->sortIOByQubit();
+        
+        // Change ori-output and copy-inputs' vt to Z and link them respectively
+        auto itr_ori = _outputs.begin();
+        auto itr_cop = copiedGraph->getInputs().begin();
+        for(; itr_ori != _outputs.end(); ++itr_ori, ++itr_cop){
+            (*itr_ori)->setType(VertexType::Z);
+            (*itr_cop)->setType(VertexType::Z);
+            this->addEdge((*itr_ori), (*itr_cop), EdgeType::SIMPLE);
+        }
+        this->setOutputs(copiedGraph->getOutputs());
+        this->addVertices(copiedGraph->getVertices());
+        this->setOutputList(copiedGraph->getOutputList());
+    }
+    return this;
+}
+
+/**
+ * @brief Tensor `target` to the original ZX-graph (vertical concat)
+ * 
+ * @param target 
+ * @return ZXGraph* 
+ */
+ZXGraph* ZXGraph::tensorProduct(ZXGraph* target){
+    ZXGraph* copiedGraph = target->copy();
+
+    // Lift Qubit
+    int oriMaxQubit = INT_MIN, oriMinQubit = INT_MAX;
+    int copiedMinQubit = INT_MAX;
+    for(const auto& i : getInputs()){
+        if(i->getQubit() > oriMaxQubit) oriMaxQubit = i->getQubit();
+        if(i->getQubit() < oriMinQubit) oriMinQubit = i->getQubit();
+    }
+    for(const auto& i : getOutputs()){
+        if(i->getQubit() > oriMaxQubit) oriMaxQubit = i->getQubit();
+        if(i->getQubit() < oriMinQubit) oriMinQubit = i->getQubit();
+    }
+
+    for(const auto& i : copiedGraph->getInputs()){
+        if(i->getQubit() < copiedMinQubit) copiedMinQubit = i->getQubit();
+    }
+    for(const auto& i : copiedGraph->getOutputs()){
+        if(i->getQubit() < copiedMinQubit) copiedMinQubit = i->getQubit();
+    }
+    size_t liftQ = (oriMaxQubit-oriMinQubit+1) - copiedMinQubit;
+    copiedGraph->liftQubit(liftQ);
+
+    // Update Id of copiedGraph to make them unique to the original graph
+    for(const auto& v : copiedGraph->getVertices()){
+        v->setId(_nextVId);
+        _nextVId++;
+    }
+    
+    // Merge copiedGraph to original graph
+    this->addInputs(copiedGraph->getInputs());
+    this->addOutputs(copiedGraph->getOutputs());
+    this->addVertices(copiedGraph->getVertices());
+    this->mergeInputList(copiedGraph->getInputList());
+    this->mergeOutputList(copiedGraph->getOutputList());
+
+    return this;
+}
+
+/**
+ * @brief Generate a id-2-ZXVertex* map
+ * 
+ * @return unordered_map<size_t, ZXVertex*> 
+ */
+unordered_map<size_t, ZXVertex*> ZXGraph::id2VertexMap() const{
+    unordered_map<size_t, ZXVertex*> id2VertexMap;
+    for(const auto& v : _vertices) id2VertexMap[v->getId()] = v;
+    return id2VertexMap;
+}
+
+
+
+/*****************************************************/
+/*   class ZXGraph Print functions                   */
+/*****************************************************/
+
+/**
+ * @brief Print information of ZX-graph
+ * 
+ */
 void ZXGraph::printGraph() const {
-    cout << "Graph " << _id << endl;
-    cout << setw(15) << left << "Inputs: " << _inputs.size() << endl;
-    cout << setw(15) << left << "Outputs: " << _outputs.size() << endl;
-    cout << setw(15) << left << "Vertices: " << _vertices.size() << endl;
-    cout << setw(15) << left << "Edges: " << _edges.size() << endl;
+    cout << "Graph " << _id << "( "
+         << getNumInputs() << " inputs, "
+         << getNumOutputs() << " outputs, "
+         << getNumVertices() << " vertices, "
+         << getNumEdges() << " edges )\n";
+    // cout << setw(15) << left << "Inputs: " << getNumInputs() << endl;
+    // cout << setw(15) << left << "Outputs: " << getNumOutputs() << endl;
+    // cout << setw(15) << left << "Vertices: " << getNumVertices() << endl;
+    // cout << setw(15) << left << "Edges: " << getNumEdges() << endl;
 }
 
+/**
+ * @brief Print Inputs of ZX-graph
+ * 
+ */
 void ZXGraph::printInputs() const {
-    for (size_t i = 0; i < _inputs.size(); i++) {
-        cout << "Input " << i + 1 << setw(8) << left << ":" << _inputs[i]->getId() << endl;
-    }
-    cout << "Total #Inputs: " << _inputs.size() << endl;
+    cout << "Input ( ";
+    for (const auto& v : _inputs) cout << v->getId() << " ";
+    cout << ")\nTotal #Inputs: " << getNumInputs() << endl;
 }
 
+/**
+ * @brief Print Outputs of ZX-graph
+ * 
+ */
 void ZXGraph::printOutputs() const {
-    for (size_t i = 0; i < _outputs.size(); i++) {
-        cout << "Output " << i + 1 << setw(7) << left << ":" << _outputs[i]->getId() << endl;
-    }
-    cout << "Total #Outputs: " << _outputs.size() << endl;
+    cout << "Output ( ";
+    for (const auto& v : _outputs) cout << v->getId() << " ";
+    cout << ")\nTotal #Outputs: " << getNumOutputs() << endl;
 }
 
+/**
+ * @brief Print Inputs and Outputs of ZX-graph
+ * 
+ */
+void ZXGraph::printIO() const {
+    cout << "Input ( ";
+    for (const auto& v : _inputs) cout << v->getId() << " ";
+    cout << ")\nOutput ( ";
+    for (const auto& v : _outputs) cout << v->getId() << " ";
+    cout << ")\nTotal #(I,O): (" << getNumInputs() << "," << getNumOutputs() << ")\n";
+}
+
+/**
+ * @brief Print Vertices of ZX-graph
+ * 
+ */
 void ZXGraph::printVertices() const {
     cout << "\n";
-    for (size_t i = 0; i < _vertices.size(); i++) {
-        _vertices[i]->printVertex();
+    for (const auto& v : _vertices) {
+        v->printVertex();
     }
-    cout << "Total #Vertices: " << _vertices.size() << endl;
+    cout << "Total #Vertices: " << getNumVertices() << endl;
     cout << "\n";
 }
 
-void ZXGraph::printEdges() const {
-    for (size_t i = 0; i < _edges.size(); i++) {
-        cout << "( " << _edges[i].first.first->getId() << ", " << _edges[i].first.second->getId() << " )\tType:\t" << EdgeType2Str(_edges[i].second) << endl;
+/**
+ * @brief Print Vertices of ZX-graph in `cand`.
+ * 
+ * @param cand 
+ */
+void ZXGraph::printVertices(vector<unsigned> cand) const{
+    unordered_map<size_t, ZXVertex*> id2Vmap = id2VertexMap();
+    
+    cout << "\n";
+    for(size_t i = 0; i < cand.size(); i++){
+        if(isId(cand[i])) id2Vmap[((size_t)cand[i])]->printVertex();
     }
-    cout << "Total #Edges: " << _edges.size() << endl;
+    cout << "\n";
 }
 
-void ZXGraph::printEdge(size_t idx) const{
-    if(idx < _edges.size())
-        cout << "( " << _edges[idx].first.first->getId() << ", " << _edges[idx].first.second->getId() << " )\tType:\t" << EdgeType2Str(_edges[idx].second) << endl;
+/**
+ * @brief Print Vertices of ZX-graph in `cand` by qubit.
+ * 
+ * @param cand 
+ */
+void ZXGraph::printQubits(vector<unsigned> cand) const{
+    unordered_map<size_t, vector<ZXVertex*> > q2Vmap;
+    for(const auto& v : _vertices){
+        if(q2Vmap.find(v->getQubit()) == q2Vmap.end()){
+            vector<ZXVertex*> tmp(1, v);
+            q2Vmap[v->getQubit()] = tmp;
+        }
+        else q2Vmap[v->getQubit()].push_back(v);
+    }
+    if(cand.empty()){
+        for(const auto& [key, vec] : q2Vmap){
+            cout << "\n";
+            for(const auto& v : vec){ v->printVertex(); } 
+            cout << "\n";
+        }
+    }
+    else{
+        for(size_t i = 0; i < cand.size(); i++){
+            if(q2Vmap.find(((size_t)cand[i])) != q2Vmap.end()){
+                cout << "\n";
+                for(const auto& v : q2Vmap[((size_t)cand[i])]) v->printVertex();
+            }
+            cout << "\n";
+        }
+    }
+    
 }
 
-EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et) {
+/**
+ * @brief Print Edges of ZX-graph
+ * 
+ */
+void ZXGraph::printEdges() const {
+    forEachEdge([](const EdgePair& epair) {
+        cout << "( " << epair.first.first->getId() << ", " << epair.first.second->getId() << " )\tType:\t" << EdgeType2Str(epair.second) << endl;
+    });
+    cout << "Total #Edges: " << getNumEdges() << endl;
+}
+
+
+
+/*****************************************************/
+/*   Vertex Type & Edge Type functions               */
+/*****************************************************/
+
+/**
+ * @brief Return toggled EdgeType of `et`
+ *        Ex: et = SIMPLE, return HADAMARD
+ * 
+ * @param et 
+ * @return EdgeType 
+ */
+EdgeType toggleEdge(const EdgeType& et) {
+    if (et == EdgeType::SIMPLE) return EdgeType::HADAMARD;
+    else if (et == EdgeType::HADAMARD) return EdgeType::SIMPLE;
+    else return EdgeType::ERRORTYPE;
+}
+
+/**
+ * @brief Convert string to `VertexType`
+ * 
+ * @param str 
+ * @return VertexType 
+ */
+VertexType str2VertexType(const string& str) {
+    if (str == "BOUNDARY")
+        return VertexType::BOUNDARY;
+    else if (str == "Z")
+        return VertexType::Z;
+    else if (str == "X")
+        return VertexType::X;
+    else if (str == "H_BOX")
+        return VertexType::H_BOX;
+    return VertexType::ERRORTYPE;
+}
+
+/**
+ * @brief Convert `VertexType` to string 
+ * 
+ * @param vt 
+ * @return string 
+ */
+string VertexType2Str(const VertexType& vt) {
+    if (vt == VertexType::X) return TF::BOLD(TF::RED("X"));
+    if (vt == VertexType::Z) return TF::BOLD(TF::GREEN("Z"));
+    if (vt == VertexType::H_BOX) return TF::BOLD(TF::YELLOW("H"));
+    if (vt == VertexType::BOUNDARY) return "●";
+    return "";
+}
+
+/**
+ * @brief Convert string to `EdgeType`
+ * 
+ * @param str 
+ * @return EdgeType 
+ */
+EdgeType str2EdgeType(const string& str) {
+    if      (str == "SIMPLE"  ) return EdgeType::SIMPLE;
+    else if (str == "HADAMARD") return EdgeType::HADAMARD;
+    return EdgeType::ERRORTYPE;
+}
+
+/**
+ * @brief Convert `EdgeType` to string 
+ * 
+ * @param et 
+ * @return string 
+ */
+string EdgeType2Str(const EdgeType& et) {
+    if (et == EdgeType::SIMPLE)   return "-";
+    if (et == EdgeType::HADAMARD) return TF::BOLD(TF::BLUE("H"));
+    return "";
+}
+
+/**
+ * @brief Make `EdgePair` and make sure that source's id is not greater than target's id.
+ * 
+ * @param v1 
+ * @param v2 
+ * @param et 
+ * @return EdgePair 
+ */
+EdgePair makeEdgePair(ZXVertex* v1, ZXVertex* v2, EdgeType et) {
     return make_pair(
-        (v2->getId() < v1->getId()) ? make_pair(v2, v1) : make_pair(v1, v2), et);
+        (v1->getId() < v2->getId()) ? make_pair(v1, v2) : make_pair(v2, v1),
+        et);
 }
 
-EdgePair makeEdgeKey(EdgePair epair) {
+/**
+ * @brief Make `EdgePair` and make sure that source's id is not greater than target's id.
+ * 
+ * @param epair 
+ * @return EdgePair 
+ */
+EdgePair makeEdgePair(EdgePair epair) {
     return make_pair(
-        (epair.first.second->getId() < epair.first.first->getId()) ? make_pair(epair.first.second, epair.first.first) : make_pair(epair.first.first, epair.first.second), epair.second);
+        (epair.first.first->getId() < epair.first.second->getId()) ? make_pair(epair.first.first, epair.first.second) : make_pair(epair.first.second, epair.first.first),
+        epair.second);
 }
 
-EdgeKey makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType et) {
-    return make_pair(
-        (v2->getId() < v1->getId()) ? make_pair(v2, v1) : make_pair(v1, v2), et);
+/**
+ * @brief Make dummy `EdgePair`
+ * 
+ * @return EdgePair 
+ */
+EdgePair makeEdgePairDummy() {
+    return make_pair(make_pair(nullptr, nullptr), EdgeType::ERRORTYPE);
 }
 
-EdgeKey makeEdgeKey(EdgeKey epair) {
-    return make_pair(
-        (epair.first.second->getId() < epair.first.first->getId()) ? make_pair(epair.first.second, epair.first.first) : make_pair(epair.first.first, epair.first.second), epair.second);
-}

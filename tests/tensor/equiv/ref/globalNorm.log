@@ -7,13 +7,13 @@ ZXMODE turn ON!
 
 qsyn> zxn
 
-qsyn> zxge -addi 0 0
+qsyn> zxge -addi 0
 
-qsyn> zxge -addo 1 0
+qsyn> zxge -addo 0
 
-qsyn> zxge -addv 2 0 Z 0
+qsyn> zxge -addv 0 Z 0
 
-qsyn> zxge -addv 3 0 Z 0
+qsyn> zxge -addv 0 Z 0
 
 qsyn> zxge -adde 0 2 SIMPLE
 
@@ -21,13 +21,13 @@ qsyn> zxge -adde 2 3 SIMPLE
 
 qsyn> zxge -adde 3 1 SIMPLE
 
-qsyn> zxgtsm
+qsyn> zx2ts
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 0
 
 qsyn> zxge -adde 2 3 SIMPLE
 
-qsyn> zxgtsm
+qsyn> zx2ts
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 1
 
@@ -41,11 +41,13 @@ Total #Tensor: 2
 
 qsyn> tseq 0 1
 [1m[32mEquivalent[0m[0m
-- Global Norm : 1.41421
+- Global Norm : 1
 - Global Phase: 0
 
 qsyn> tseq 0 1 -Strict
-[1m[31mNot Equivalent[0m[0m
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
 
 qsyn> q -f
 

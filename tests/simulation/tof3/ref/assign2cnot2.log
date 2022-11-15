@@ -4,7 +4,7 @@ qsyn> qccr benchmark/pseudoSimp/tof_3.qasm
 qsyn> zxm -on
 ZXMODE turn ON!
 
-qsyn> qczxm
+qsyn> qc2zx
 Successfully generated Graph 0
 Checkout to Graph 0
 ---- TRAVERSE AND BUILD THE GRAPH ----
@@ -223,9 +223,7 @@ No matches
 Local Complementation Rule: 
 No matches
 Pivot Gadget Rule: 
-4 iterations
-Hopf Rule: 
-No matches
+3 iterations
 Spider Fusion Rule: 
 No matches
 Identity Removal Rule: 
@@ -266,8 +264,6 @@ Local Complementation Rule:
 No matches
 Pivot Gadget Rule: 
 1 iterations
-Hopf Rule: 
-No matches
 Spider Fusion Rule: 
 No matches
 Identity Removal Rule: 
@@ -300,8 +296,6 @@ Local Complementation Rule:
 No matches
 Pivot Gadget Rule: 
 No matches
-Hopf Rule: 
-No matches
 Spider Fusion Rule: 
 No matches
 Identity Removal Rule: 
@@ -325,11 +319,9 @@ No matches
 Local Complementation Rule: 
 No matches
 Pivot Gadget Rule: 
-No matches
-Hopf Rule: 
 No matches
 
-qsyn> zxgtsm
+qsyn> zx2ts
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
@@ -342,22 +334,21 @@ qsyn> tsp 0
 #Dim:    2	Info: ZX 0
 
 qsyn> zxgs -stco
-[1m[32mTrue: The graph is graph-like[0m[0m
 State Copy Rule: 
 1 iterations
 
 qsyn> zxgp -v
 
-ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(92, -) 
-ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(92, -) 
+ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(41, -) 
+ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(41, -) 
 ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m) 
 ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m) 
-ID:	50	VertexType:	[1m[32mZ[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (92, [1m[34mH[0m[0m) 
-ID:	92	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	0	#Neighbors:	3	(4, -) (5, -) (50, [1m[34mH[0m[0m) 
+ID:	41	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(4, -) (5, -) (50, [1m[34mH[0m[0m) 
+ID:	50	VertexType:	[1m[32mZ[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (41, [1m[34mH[0m[0m) 
 Total #Vertices: 6
 
 
-qsyn> zxgtsm
+qsyn> zx2ts
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Successfully added Tensor 1
 Stored the resulting tensor as tensor id 1

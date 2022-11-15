@@ -15,12 +15,17 @@
 #include <cassert>
 #include "qcir.h"
 
+/// @brief Read QCir file
+/// @param filename 
+/// @return true if successfully read
+/// @return false if error in file or not found
+
 bool QCir::readQCirFile(string filename)
 {
     string lastname = filename.substr(filename.find_last_of('/')+1);
-    //cerr << lastname << endl;
+    
     string extension = (lastname.find('.')!= string::npos) ? lastname.substr(lastname.find_last_of('.')):"";
-    //cerr << extension << endl;
+    
     if (extension == ".qasm") return readQASM(filename);
     else if (extension == ".qc") return readQC(filename);
     else if (extension == ".qsim") return readQSIM(filename);
@@ -34,7 +39,6 @@ bool QCir::readQCirFile(string filename)
         }
         string first_item;
         verify >> first_item;
-        //cerr << first_item << endl;
 
         if (first_item == "Inputs:") return readQUIPPER(filename);
         else if (isdigit(first_item[0])) return readQSIM(filename);
@@ -51,6 +55,10 @@ bool QCir::readQCirFile(string filename)
     }
 }
 
+/// @brief Read QASM
+/// @param filename 
+/// @return true if successfully read
+/// @return false if error in file or not found
 bool QCir::readQASM(string filename)
 {
     // read file and open
@@ -112,6 +120,10 @@ bool QCir::readQASM(string filename)
     return true;
 }
 
+/// @brief Read QC
+/// @param filename 
+/// @return true if successfully read
+/// @return false if error in file or not found
 bool QCir::readQC(string filename)
 {
     // read file and open
@@ -190,6 +202,10 @@ bool QCir::readQC(string filename)
     return true;
 }
 
+/// @brief Read QSIM
+/// @param filename 
+/// @return true if successfully read
+/// @return false if error in file or not found
 bool QCir::readQSIM(string filename){
     // read file and open
     fstream qsim_file;
@@ -249,6 +265,10 @@ bool QCir::readQSIM(string filename){
     return true;
 }
 
+/// @brief Read QUIPPER
+/// @param filename 
+/// @return true if successfully read
+/// @return false if error in file or not found
 bool QCir::readQUIPPER(string filename){
     // read file and open
     fstream quipper_file;

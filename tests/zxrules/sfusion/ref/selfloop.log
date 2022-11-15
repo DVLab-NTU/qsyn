@@ -6,13 +6,13 @@ qsyn> zxn
 Successfully generated Graph 0
 Checkout to Graph 0
 
-qsyn> zxgedit -addi 0 0
+qsyn> zxgedit -addi 0
 
-qsyn> zxgedit -addi 1 1
+qsyn> zxgedit -addi 1
 
-qsyn> zxgedit -addo 2 0
+qsyn> zxgedit -addo 0
 
-qsyn> zxgedit -addv 3 0 Z 0
+qsyn> zxgedit -addv 0 Z 0
 
 qsyn> zxgedit -adde 0 3 SIMPLE
 
@@ -31,7 +31,7 @@ qsyn> zxgp -v
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(3, -) 
 ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
 ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(3, -) 
-ID:	3	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	9	(0, -) (1, -) (2, -) (3, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) (3, -) (3, -) (3, -) (3, -) 
+ID:	3	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(0, -) (1, -) (2, -) 
 Total #Vertices: 4
 
 
@@ -39,14 +39,11 @@ qsyn> zxgp -e
 ( 0, 3 )	Type:	-
 ( 1, 3 )	Type:	-
 ( 2, 3 )	Type:	-
-( 3, 3 )	Type:	-
-( 3, 3 )	Type:	-
-( 3, 3 )	Type:	[1m[34mH[0m[0m
-Total #Edges: 6
+Total #Edges: 3
 
 qsyn> zxgsimp -spi
 Spider Fusion Rule: 
-1 iterations
+No matches
 
 qsyn> zxgp -v
 

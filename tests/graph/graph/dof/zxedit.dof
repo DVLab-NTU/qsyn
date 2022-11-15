@@ -4,11 +4,11 @@ zxgt
 zxgp -v
 zxge -rmv 0
 zxgp -v
-zxge -rme 2 3
+zxge -rme 2 3 SIMPLE
 zxgp -v 
-zxge -addi 0 0
+zxge -addi 0
 zxgp -v
-zxge -adde 0 2 SIMPLE
+zxge -adde 6 2 SIMPLE
 zxge -adde 2 3 SIMPLE
 zxgp -v
 q -f

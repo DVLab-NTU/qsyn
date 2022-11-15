@@ -15,9 +15,17 @@ qsyn> zxgadj
 qsyn> zxcomp 0
 
 qsyn> zxgsimp -fr
-Hadamard Rule: 2 . 1 . 1 . 3 iterations
+Hadamard Rule: 2 . 2 . 2 iterations
+Spider Fusion Rule: 
+2 iterations
+Identity Removal Rule: 
+1 iterations
 Spider Fusion Rule: 
 1 iterations
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
 Identity Removal Rule: 
 No matches
 Spider Fusion Rule: 
@@ -27,8 +35,6 @@ No matches
 Local Complementation Rule: 
 No matches
 Pivot Gadget Rule: 
-No matches
-Hopf Rule: 
 No matches
 Spider Fusion Rule: 
 No matches
@@ -70,8 +76,6 @@ Local Complementation Rule:
 No matches
 Pivot Gadget Rule: 
 No matches
-Hopf Rule: 
-No matches
 Spider Fusion Rule: 
 No matches
 Identity Removal Rule: 
@@ -95,29 +99,27 @@ No matches
 Local Complementation Rule: 
 No matches
 Pivot Gadget Rule: 
-No matches
-Hopf Rule: 
 No matches
 
 qsyn> zxgp -v
 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(22, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(20, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(22, -) 
 ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(24, -) 
-ID:	22	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
-ID:	23	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+ID:	20	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
+ID:	22	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
 ID:	24	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(5, -) 
 Total #Vertices: 6
 
 
-qsyn> zxgtsm
+qsyn> zx2ts
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
 qsyn> qcba 3
 
-qsyn> qctsm
+qsyn> qc2ts
 ----------- ADD BOUNDARIES -----------
 Successfully added Tensor 1
 ---- TRAVERSE AND BUILD THE TENSOR ----

@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ zxMapping.cpp ]
+  FileName     [ zx2tsMapper.cpp ]
   PackageName  [ graph ]
   Synopsis     [ Mapper class for ZX-to-Tensor mapping ]
   Author       [ Chin-Yi Cheng, Mu-Te Joshua Lau ]
@@ -9,6 +9,7 @@
 
 #include "tensorMgr.h"
 #include "textFormat.h"
+#include "ordered_hashset.h"
 extern size_t verbose;
 extern TensorMgr* tensorMgr;
 
@@ -19,15 +20,12 @@ namespace TF = TextFormat;
 // map a ZX-diagram to a tensor
 bool ZX2TSMapper::map() {
     if (!_zxgraph->isValid()) {
-        cerr << "[Error] The ZX Graph is not valid!!!" << endl;
+        cerr << "Error: The ZX-Graph is not valid!!" << endl;
         return false;
     }
     if (verbose >= 2) cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
     _zxgraph->topoTraverse([this](ZXVertex* v) { mapOneVertex(v); });
-    for (size_t i = 0; i < _boundaryEdges.size(); i++)
-        _zx2tsList.frontiers(i).emplace(_boundaryEdges[i], 0);
 
-    TensorAxisList inputIds, outputIds;
     if (!tensorMgr) tensorMgr = new TensorMgr();
     size_t id = tensorMgr->nextID();
     QTensor<double>* result = tensorMgr->addTensor(id, "ZX " + to_string(_zxgraph->getId()));
@@ -36,8 +34,13 @@ bool ZX2TSMapper::map() {
         *result = tensordot(*result, _zx2tsList.tensor(i));
     }
 
-    getAxisOrders(inputIds, _zxgraph->getInputList(), false);
-    getAxisOrders(outputIds, _zxgraph->getOutputList(), true);
+    for (size_t i = 0; i < _boundaryEdges.size(); ++i) {
+        // Don't care whether key collision happen: getAxisOrders takes care of such cases
+        _zx2tsList.frontiers(i).emplace(_boundaryEdges[i], 0); 
+    }
+
+    TensorAxisList inputIds, outputIds;
+    getAxisOrders(inputIds, outputIds);
 
     if (verbose >= 8) {
         cout << "Input  axis ids: "; printAxisList(inputIds);
@@ -73,30 +76,30 @@ void ZX2TSMapper::mapOneVertex(ZXVertex* v) {
     }
     v->setPin(_tensorId);
     if (verbose >= 8) {
-        printFrontiers();
+        printFrontiers(_tensorId);
     }
 }
 
 // Generate a new subgraph for mapping
 void ZX2TSMapper::initSubgraph(ZXVertex* v) {
-    NeighborMap neighborMap = v->getNeighborMap();
+    auto [nb, etype] = *(v->getNeighbors().begin());
 
     _zx2tsList.append(Frontiers(), QTensor<double>(1. + 0.i));
     _tensorId = _zx2tsList.size() - 1;
-    assert(v->getType() == VertexType::BOUNDARY);
-    EdgeKey edgeKey = makeEdgeKey(v, neighborMap.begin()->first, *(neighborMap.begin()->second));
-    currTensor() = tensordot(currTensor(), QTensor<double>::identity(neighborMap.size()));
+    assert(v->isBoundary());
+    
+    EdgePair edgeKey = makeEdgePair(v, nb, etype);
+    currTensor() = tensordot(currTensor(), QTensor<double>::identity(v->getNumNeighbors()));
     _boundaryEdges.push_back(edgeKey);
     currFrontiers().emplace(edgeKey, 1);
-
-    return;
 }
 
 // Check if a vertex belongs to a new subgraph that is not traversed
+// if not, set the _tensorId to the current tensor
 bool ZX2TSMapper::isOfNewGraph(const ZXVertex* v) {
-    for (auto epair : v->getNeighborMap()) {
-        if (isFrontier(epair)) {
-            _tensorId = epair.first->getPin();
+    for (auto nbr : v->getNeighbors()) {
+        if (isFrontier(nbr)) {
+            _tensorId = nbr.first->getPin();
             return false;
         }
     }
@@ -104,111 +107,93 @@ bool ZX2TSMapper::isOfNewGraph(const ZXVertex* v) {
 }
 
 // Print the current and next frontiers
-void ZX2TSMapper::printFrontiers() const {
-    using Frontier = pair<EdgeKey, size_t>;
-    vector<Frontier> tmp;
-    for_each(currFrontiers().begin(), currFrontiers().end(),
-             [&tmp](const Frontier& front) { tmp.emplace_back(front.first, front.second); });
-    sort(tmp.begin(), tmp.end(), [](const Frontier& a, const Frontier& b) {
-        size_t   id_a_s  = a.first.first.first->getId();
-        size_t   id_a_t  = a.first.first.second->getId();
-        size_t   id_b_s  = b.first.first.first->getId();
-        size_t   id_b_t  = b.first.first.second->getId();
-        EdgeType etype_a = a.first.second;
-        EdgeType etype_b = b.first.second;
-        size_t   axid_a  = a.second;
-        size_t   axid_b  = b.second;
-        if ( id_a_s <  id_b_s) return true;
-        if ( id_a_s >  id_b_s) return false;
-        if ( id_a_t <  id_b_t) return true;
-        if ( id_a_t >  id_b_t) return false;
-        if (etype_a < etype_b) return true;
-        if (etype_a > etype_b) return false;
-        if ( axid_a <  axid_b) return true;
-        if ( axid_a >  axid_b) return false;
-        return false;
-    });
+void ZX2TSMapper::printFrontiers(size_t id) const {
     cout << "  - Current frontiers: " << endl;
-    for (auto i : tmp) {
+    for (auto [epair, axid] : _zx2tsList.frontiers(id)) {
         cout << "    "
-             << i.first.first.first->getId() << "--"
-             << i.first.first.second->getId() << " ("
-             << EdgeType2Str(&(i.first.second))
-             << ") axis id: " << i.second << endl;
-    }
+             << epair.first.first->getId() << "--"
+             << epair.first.second->getId() << " ("
+             << EdgeType2Str(epair.second)
+             << ") axis id: " << axid << endl;
+    } 
 }
 
 // Get the order of inputs and outputs
-void ZX2TSMapper::getAxisOrders(TensorAxisList& axList, const std::unordered_map<size_t, ZXVertex*>& ioList, bool isOutput) {
-    axList.resize(ioList.size());
-    std::map<size_t, size_t> table;
-
-    for (const auto& [qubitId, _] : ioList) {
-        table[qubitId] = 0;
+void ZX2TSMapper::getAxisOrders(TensorAxisList& inputAxisList, TensorAxisList& outputAxisList) {
+    inputAxisList.resize(_zxgraph->getNumInputs());
+    outputAxisList.resize(_zxgraph->getNumOutputs());
+    std::map<int, size_t> inputTable, outputTable; // std:: to avoid name collision with ZX2TSMapper::map
+    for (auto v : _zxgraph->getInputs()) {
+        inputTable[v->getQubit()] = 0;
     }
     size_t count = 0;
-    for (const auto& [qubitId, _] : table) {
-        table[qubitId] = count;
-        count++;
+    for (auto [qid, _] : inputTable) {
+        inputTable[qid] = count;
+        ++count;
     }
-    size_t accFrontierSizes = 0;
-    for (size_t i = 0; i < _zx2tsList.size(); ++i) {
-        for (auto& [qubitId, vertex] : ioList) {
-            NeighborMap nebs = vertex->getNeighborMap();
-            auto& [neighbor, etype] = *(nebs.begin());
-            EdgeKey edgeKey = makeEdgeKey(vertex, neighbor, *etype);
 
-            auto result = _zx2tsList.frontiers(i).equal_range(edgeKey);
-            auto itr = result.first;
-            if (itr != _zx2tsList.frontiers(i).end()) {
-                axList[table[qubitId]] = _zx2tsList.frontiers(i).find(edgeKey)->second + accFrontierSizes;
-                ++itr;
-                if (isOutput && itr != result.second) {
-                    axList[table[qubitId]] += 1;
-                }
+    for (auto v : _zxgraph->getOutputs()) {
+        outputTable[v->getQubit()] = 0;
+    }
+    count = 0;
+    for (auto [qid, _] : outputTable) {
+        outputTable[qid] = count;
+        ++count;
+    }
+    size_t accFrontierSize = 0;
+    for (size_t i = 0; i < _zx2tsList.size(); ++i) {
+        // cout << "> Tensor " << i << endl;
+        // printFrontiers(i);
+        bool hasB2BEdge = false;
+        for (auto& [epair, axid] : _zx2tsList.frontiers(i)) {
+            const auto& [v1, v2] = epair.first;
+            bool v1IsInput  = _zxgraph->getInputs().contains(v1);
+            bool v2IsInput  = _zxgraph->getInputs().contains(v2);
+            bool v1IsOutput = _zxgraph->getOutputs().contains(v1);
+            bool v2IsOutput = _zxgraph->getOutputs().contains(v2);
+
+            if (v1IsInput)   inputAxisList[ inputTable[v1->getQubit()]] = axid + accFrontierSize;
+            if (v2IsInput)   inputAxisList[ inputTable[v2->getQubit()]] = axid + accFrontierSize;
+            if (v1IsOutput) outputAxisList[outputTable[v1->getQubit()]] = axid + accFrontierSize;
+            if (v2IsOutput) outputAxisList[outputTable[v2->getQubit()]] = axid + accFrontierSize;
+            assert (!(v1IsInput && v1IsOutput));
+            assert (!(v2IsInput && v2IsOutput));
+
+            // If seeing boundary-to-boundary edge, decrease one of the axis id by one to avoid id collision
+            if (v1IsInput  && (v2IsInput || v2IsOutput)) { 
+                assert(_zx2tsList.frontiers(i).size() == 1);  
+                inputAxisList[ inputTable[v1->getQubit()]]--; 
+                hasB2BEdge = true;
+            }
+            if (v1IsOutput && (v2IsInput || v2IsOutput)) { 
+                assert(_zx2tsList.frontiers(i).size() == 1); 
+                outputAxisList[outputTable[v1->getQubit()]]--; 
+                hasB2BEdge = true;
             }
         }
-        accFrontierSizes += _zx2tsList.frontiers(i).size();
+        accFrontierSize += _zx2tsList.frontiers(i).size() + (hasB2BEdge ? 1 : 0);
     }
-    // for (size_t i = 0; i < _zx2tsList.size(); ++i) {
-    // }
 }
 
 // update information for the current and next frontiers
 void ZX2TSMapper::updatePinsAndFrontiers(ZXVertex* v) {
-    NeighborMap neighborMap = v->getNeighborMap();
-    NeighborMap frontAlreadyRetrived;
-    vector<pair<ZXVertex*, EdgeType>> seenFrontiers;
-    for (auto& epair : neighborMap) {
-        auto& [neighbor, etype] = epair;
+    Neighbors nbrs = v->getNeighbors();
+    
+    // unordered_set<NeighborPair> seenFrontiers; // only for look-up
+    for (auto& nbr : nbrs) {
+        auto& [nb, etype] = nbr;
 
-        // skip self loops
-        if (v == neighbor) {  
-            if (verbose >= 8) {
-                cout << "  - Skipping self loop: " << v->getId() << "--" << neighbor->getId() 
-                     << " (" << EdgeType2Str(etype) << ")" << endl;
-            }
-            continue;
-        }
-
-        EdgeKey edgeKey = makeEdgeKey(v, neighbor, *etype);
-        if (isFrontier(epair)) {
-            const pair<ZXVertex*, EdgeType> tmpPair = make_pair(neighbor, *etype);
-            if (!contains(seenFrontiers, tmpPair)) {
-                seenFrontiers.push_back(tmpPair);
-                auto result = currFrontiers().equal_range(edgeKey);
-                
-                for (auto jtr = result.first; jtr != result.second; jtr++) {
-                    auto& [epair, id] = *jtr;
-                    if ((epair.second) == EdgeType::HADAMARD)
-                        _hadamardPins.push_back(id);
-                    else
-                        _simplePins.push_back(id);
-                    _removeEdges.push_back(edgeKey);
-                }
-            }
-        } else {
+        EdgePair edgeKey = makeEdgePair(v, nb, etype);
+        if (!isFrontier(nbr)) {
             _addEdges.push_back(edgeKey);
+        } else {
+            auto& [front, axid] = *(currFrontiers().find(edgeKey));
+            if ((front.second) == EdgeType::HADAMARD) {
+                _hadamardPins.push_back(axid);
+            } else {
+                _simplePins.push_back(axid);
+            }
+            _removeEdges.push_back(edgeKey);
         }
     }
 }

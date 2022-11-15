@@ -25,82 +25,63 @@ void Pivot::match(ZXGraph* g){
     if(verbose >= 8) g->printVertices();
 
     unordered_map<size_t, size_t> id2idx;
-    for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
+    size_t cnt = 0;
+    for(const auto& v: g->getVertices()){
+        id2idx[v->getId()] = cnt;
+        cnt++;
+    }
 
     vector<bool> taken(g->getNumVertices(), false);
 
-    // traverse edge
-    for(size_t i = 0; i < g->getNumEdges(); i++){
-        //// 1: Check EdgeType
-        if(* g->getEdges()[i].second != EdgeType::HADAMARD) continue;
+    g -> forEachEdge([&g, &cnt, &id2idx, &taken, this](const EdgePair& epair) {
+        // 1: Check EdgeType
+        //NOTE - Only Hadamard
+        if(epair.second != EdgeType::HADAMARD) return;
 
-        //// 2: Get Neighbors
+        // 2: Get Neighbors
         vector<ZXVertex*> neighbors;
-        neighbors.push_back(g->getEdges()[i].first.first);
-        neighbors.push_back(g->getEdges()[i].first.second);
+        neighbors.push_back(epair.first.first);
+        neighbors.push_back(epair.first.second);
 
-        if(taken[id2idx[neighbors[0]->getId()]] || taken[id2idx[neighbors[1]->getId()]]) continue;
-        if(neighbors[0]->getType() != VertexType::Z || neighbors[1]->getType() != VertexType::Z) continue;
+        if(taken[id2idx[neighbors[0]->getId()]] || taken[id2idx[neighbors[1]->getId()]]) return;
+        if(neighbors[0]->getType() != VertexType::Z || neighbors[1]->getType() != VertexType::Z) return;
 
-        //// 3: Check Neighbors Phase 
-        if(neighbors[0]->getPhase() != Phase(1) && neighbors[0]->getPhase() != 0) continue;
-        if(neighbors[1]->getPhase() != Phase(1) && neighbors[1]->getPhase() != 0) continue;
+        // 3: Check Neighbors Phase 
+        if(neighbors[0]->getPhase() != Phase(1) && neighbors[0]->getPhase() != 0) return;
+        if(neighbors[1]->getPhase() != Phase(1) && neighbors[1]->getPhase() != 0) return;
 
-        //// 4: Check neighbors of Neighbors
-        bool invalid_edge = false;
-
-        size_t count_b = 0;
+        // 4: Check neighbors of Neighbors
+        size_t count_boundary = 0;
 
         vector<int> mark_v;
 
-        // v0
-        for(auto& x: neighbors[0]->getNeighborMap()){
-            mark_v.push_back(x.first->getId());
-
-            if(x.first->getType() == VertexType::Z && * x.second == EdgeType::HADAMARD) continue;
-            else if(x.first->getType() == VertexType::BOUNDARY) count_b++;
-            else {
-                invalid_edge = true;
-                break;
+        //REVIEW - Squeeze into a for loop
+        for(auto& neighbor: neighbors){
+            for(auto& [v, et]: neighbor->getNeighbors()){
+                mark_v.push_back(v->getId());
+                if(v->getType() == VertexType::Z && et == EdgeType::HADAMARD) continue;
+                else if(v->getType() == VertexType::BOUNDARY) count_boundary++;
+                else return;
             }
-
         }
 
-        if(invalid_edge) continue;
+        if(count_boundary > 1) return;   // skip when Neighbors are all connected to boundary
 
-        // v1
-        for(auto& x: neighbors[1]->getNeighborMap()){
-            mark_v.push_back(x.first->getId());
-
-            if(x.first->getType() == VertexType::Z && * x.second == EdgeType::HADAMARD) continue;
-            else if(x.first->getType() == VertexType::BOUNDARY) count_b++;
-            else {
-                invalid_edge = true;
-                break;
-            }
-
-        }
-
-        if(invalid_edge) continue;
-        if(count_b > 1) continue;   // skip when Neighbors are all connected to boundary
-
-        //// 5: taken
+        // 5: taken
         for(auto& x: mark_v){
             taken[id2idx[x]] = true;
         }
         taken[id2idx[neighbors[0]->getId()]] = true;
         taken[id2idx[neighbors[1]->getId()]] = true;
 
-        //// 6: add edge id into _matchTypeVec
-        _matchTypeVec.push_back(i); // id
+        // 6: add Epair into _matchTypeVec
+        _matchTypeVec.push_back(epair);
 
-        //// 7: clear vector
+        // 7: clear vector
         neighbors.clear();
         mark_v.clear();
-
-    }
+    });
     taken.clear();
-
     setMatchTypeVecNum(_matchTypeVec.size());
 }
 
@@ -112,122 +93,89 @@ void Pivot::match(ZXGraph* g){
  */
 void Pivot::rewrite(ZXGraph* g){
     reset();
-    //TODO: Rewrite _removeVertices, _removeEdges, _edgeTableKeys, _edgeTableValues
-    //* _removeVertices: all ZXVertex* must be removed from ZXGraph this cycle.
-    //* _removeEdges: all EdgePair must be removed from ZXGraph this cycle.
-    //* (EdgeTable: Key(ZXVertex* vs, ZXVertex* vt), Value(int s, int h))
-    //* _edgeTableKeys: A pair of ZXVertex* like (ZXVertex* vs, ZXVertex* vt), which you would like to add #s EdgeType::SIMPLE between them and #h EdgeType::HADAMARD between them
-    //* _edgeTableValues: A pair of int like (int s, int h), which means #s EdgeType::SIMPLE and #h EdgeType::HADAMARD
 
-
-    unordered_map<size_t, size_t> id2idx;
-    for(size_t i = 0; i < g->getNumVertices(); i++) id2idx[g->getVertices()[i]->getId()] = i;
-    vector<bool> isBoundary(g->getNumVertices(), false);
-    for (auto& i :  _matchTypeVec){
+    for (auto& epair :  _matchTypeVec){
         // 1 : get m0 m1
         vector<ZXVertex*> neighbors;
-        neighbors.push_back(g->getEdges()[i].first.first);
-        neighbors.push_back(g->getEdges()[i].first.second);
+        neighbors.push_back(epair.first.first);
+        neighbors.push_back(epair.first.second);
 
         // 2 : boundary find
         for(size_t j=0; j<2; j++){
             bool remove = true;
-
-            for(auto& itr : neighbors[j]->getNeighborMap()){
-                if(itr.first->getType() == VertexType::BOUNDARY){
-                    _edgeTableKeys.push_back(make_pair(neighbors[1-j], itr.first));
-                    if( * itr.second == EdgeType::SIMPLE)_edgeTableValues.push_back(make_pair(0,1));
+            for(auto& [v, et] : neighbors[j]->getNeighbors()){
+                if(v->getType() == VertexType::BOUNDARY){
+                    _edgeTableKeys.push_back(make_pair(neighbors[1-j], v));
+                    if( et == EdgeType::SIMPLE) _edgeTableValues.push_back(make_pair(0,1));
                     else _edgeTableValues.push_back(make_pair(1,0));
                     remove = false;
-                    isBoundary[id2idx[itr.first->getId()]] = true;
                     break;
                 }
             }
 
             if(remove) _removeVertices.push_back(neighbors[1-j]);
         }
-        // 3 table of c
+
+        // 3 4 grouping
+        //REVIEW - Big Rewrite
         vector<int> c(g->getNumVertices() ,0);
         vector<ZXVertex*> n0;
         vector<ZXVertex*> n1;
+        for(auto& [v, et] : neighbors[0]->getNeighbors()) {
+            if (v->getType() == VertexType::BOUNDARY) continue;
+            if (v == neighbors[1]) continue;
+            n0.push_back(v);
+        }
+        for(auto& [v, et] : neighbors[1]->getNeighbors()) {
+            if (v->getType() == VertexType::BOUNDARY) continue;
+            if (v == neighbors[0]) continue;
+            n1.push_back(v);
+        }
         vector<ZXVertex*> n2;
-        for(auto& x : neighbors[0]->getNeighbors()) {
-            if (isBoundary[id2idx[x->getId()]]) continue;
-            if (x == neighbors[1]) continue;
-            c[id2idx[x->getId()]]++;
-        }
-        for(auto& x : neighbors[1]->getNeighbors()) {
-            if (isBoundary[id2idx[x->getId()]]) continue;
-            if (x == neighbors[0]) continue;
-            c[id2idx[x->getId()]] += 2;
-        }
-        // 4  Find n0 n1 n2
-        for (size_t a=0; a<g->getNumVertices(); a++){
-            if(c[a] == 1) n0.push_back(g->getVertices()[a]);
-            else if (c[a] == 2) n1.push_back(g->getVertices()[a]);
-            else if (c[a] == 3) n2.push_back(g->getVertices()[a]);
-            else continue;
-        }
+        set_intersection(n0.begin(), n0.end(), n1.begin(), n1.end(), back_inserter(n2));
+
+        vector<ZXVertex*> n3, n4;
+        set_difference(n0.begin(), n0.end(), n2.begin(), n2.end(), back_inserter(n3));
+        set_difference(n1.begin(), n1.end(), n2.begin(), n2.end(), back_inserter(n4));
+        n0 = n3; n1 = n4;
+        n3.clear();n4.clear();
+
+        // 5: scalar (skip)
         
-        //// 5: scalar (skip)
-        Phase adjustPhases[2];
-        for(size_t nb = 0; nb<2; nb++){
-            NeighborMap nbm = neighbors[nb]->getNeighborMap();
-            auto result = nbm.equal_range(neighbors[nb]);
-            size_t cnt = 0;
-            for(auto itr = result.first; itr!=result.second; itr++){
-                if(*(itr->second) == EdgeType::HADAMARD) cnt++;
-            }
-            adjustPhases[nb] = neighbors[nb]->getPhase() + Phase(cnt/2);
-        }
-        
+        // 6:add phase
+        for(auto& x: n2)    x->setPhase(x->getPhase() + Phase(1) + neighbors[0]->getPhase() + neighbors[1]->getPhase());
+        for(auto& x: n1)    x->setPhase(x->getPhase() + neighbors[0]->getPhase());
+        for(auto& x: n0)    x->setPhase(x->getPhase() + neighbors[1]->getPhase());
 
-        //// 6:add phase
-        for(auto& x: n2){
-            x->setPhase(x->getPhase() + Phase(1) + adjustPhases[0] + adjustPhases[1]);
-        }
-
-        for(auto& x: n1){
-            x->setPhase(x->getPhase() + adjustPhases[0]);
-        }
-
-        for(auto& x: n0){
-            x->setPhase(x->getPhase() + adjustPhases[1]);
-        }
-
-        //// 7: connect n0 n1 n2
+        // 7:connect n0 n1 n2
         for(auto& itr : n0){
-            if(isBoundary[id2idx[itr->getId()]]) continue;
+            if(itr->getType() == VertexType::BOUNDARY) continue;
             for(auto& a: n1){
-                if(isBoundary[id2idx[a->getId()]]) continue;
+                if(a->getType() == VertexType::BOUNDARY) continue;
                 _edgeTableKeys.push_back(make_pair(itr, a));
                 _edgeTableValues.push_back(make_pair(0,1));
             }
             for(auto& b: n2){
-                if(isBoundary[id2idx[b->getId()]]) continue;
+                if(b->getType() == VertexType::BOUNDARY) continue;
                 _edgeTableKeys.push_back(make_pair(itr, b));
                 _edgeTableValues.push_back(make_pair(0,1));
             }
         }
 
         for(auto& itr : n1){
-            if(isBoundary[id2idx[itr->getId()]]) continue;
+            if(itr->getType() == VertexType::BOUNDARY) continue;
             for(auto& a: n2){
-                if(isBoundary[id2idx[a->getId()]]) continue;
+                if(a->getType() == VertexType::BOUNDARY) continue;
                 _edgeTableKeys.push_back(make_pair(itr, a));
                 _edgeTableValues.push_back(make_pair(0,1));
             }
         }
 
-        //// 8: clear vector
+        // 8: clear vector
         neighbors.clear();
         c.clear();
         n0.clear();
         n1.clear();
         n2.clear();
-
     }
-
-    isBoundary.clear();
-    
 }
