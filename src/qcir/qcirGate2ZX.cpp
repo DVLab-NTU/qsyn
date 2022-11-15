@@ -40,14 +40,21 @@ ZXGraph *QCirGate::mapSingleQubitGate(VertexType vt, Phase ph){
 
 // Single Qubit Gate X/Z
 //REVIEW - Rewrite
+
+/// @brief get ZX-graph
+/// @return 
 ZXGraph *HGate::getZXform(){
     return mapSingleQubitGate(VertexType::H_BOX, Phase(1));
 }
 
+/// @brief get ZX-graph
+/// @return 
 ZXGraph *XGate::getZXform(){
     return mapSingleQubitGate(VertexType::X, Phase(1));
 }
 
+/// @brief get ZX-graph
+/// @return 
 ZXGraph *SXGate::getZXform(){
     return mapSingleQubitGate(VertexType::X, Phase(1, 2));
 }
@@ -56,28 +63,41 @@ ZXGraph *ZGate::getZXform(){
     return mapSingleQubitGate(VertexType::Z, Phase(1));
 }
 
+/// @brief get ZX-graph
+/// @return 
 ZXGraph *SGate::getZXform(){
     return mapSingleQubitGate(VertexType::Z, Phase(1, 2));
 }
 
+/// @brief get ZX-graph
+/// @return 
 ZXGraph *SDGGate::getZXform(){
     return mapSingleQubitGate(VertexType::Z, Phase(-1, 2));
 }
 
+/// @brief get ZX-graph
+/// @return 
 ZXGraph *TGate::getZXform(){
     return mapSingleQubitGate(VertexType::Z, Phase(1, 4));
 }
 
+/// @brief get ZX-graph
+/// @return 
 ZXGraph *TDGGate::getZXform(){
     return mapSingleQubitGate(VertexType::Z, Phase(-1, 4));
 }
 
+/// @brief get ZX-graph
+/// @return 
 ZXGraph *RZGate::getZXform(){
     return mapSingleQubitGate(VertexType::Z, Phase(_rotatePhase));
 }
 
 // Double or More Qubit Gate
 //NOTE - Not necessary to rewrite
+
+/// @brief get ZX-graph
+/// @return 
 ZXGraph *CXGate::getZXform()
 {
     ZXGraph *temp = new ZXGraph(_id);
@@ -103,6 +123,8 @@ ZXGraph *CXGate::getZXform()
     return temp;
 }
 
+/// @brief get ZX-graph
+/// @return 
 ZXGraph *CCXGate::getZXform() // Decomposed into 21 vertices (6X + 6Z + 4T + 3Tdg + 2H)
 {
     ZXGraph *temp = new ZXGraph(_id);
@@ -152,6 +174,8 @@ ZXGraph *CCXGate::getZXform() // Decomposed into 21 vertices (6X + 6Z + 4T + 3Td
     return temp;
 }
 
+/// @brief get ZX-graph
+/// @return 
 ZXGraph *CZGate::getZXform()
 {
     ZXGraph *temp = new ZXGraph(_id);
@@ -179,6 +203,9 @@ ZXGraph *CZGate::getZXform()
 
 // Y Gate
 //NOTE - Cannot use mapSingleQubitGate
+
+/// @brief get ZX-graph
+/// @return 
 ZXGraph *YGate::getZXform() // Y = iXZ
 {
     ZXGraph *temp = new ZXGraph(_id);
@@ -197,6 +224,8 @@ ZXGraph *YGate::getZXform() // Y = iXZ
     return temp;
 }
 
+/// @brief get ZX-graph
+/// @return 
 ZXGraph *SYGate::getZXform() // SY = S。SX。Sdg
   {  
     ZXGraph *temp = new ZXGraph(_id);

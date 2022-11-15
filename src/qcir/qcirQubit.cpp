@@ -21,6 +21,7 @@ using namespace std;
 extern QCir *qCir;
 extern size_t verbose;
 
+/// @brief Print qubit info
 void QCirQubit::printBitLine() const
 {
   QCirGate *current = _bitFirst;

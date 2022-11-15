@@ -21,6 +21,12 @@ extern ZXGraphMgr *zxGraphMgr;
 extern TensorMgr *tensorMgr;
 extern size_t verbose;
 
+/**
+ * @brief Get Gate.
+ *
+ * @param id
+ * @return QCirGate*
+ */
 QCirGate *QCir::getGate(size_t id) const
 {
     for (size_t i = 0; i < _qgate.size(); i++)
@@ -30,6 +36,13 @@ QCirGate *QCir::getGate(size_t id) const
     }
     return NULL;
 }
+
+/**
+ * @brief Get Qubit.
+ *
+ * @param id
+ * @return QCirQubit
+ */
 QCirQubit *QCir::getQubit(size_t id) const
 {
     for (size_t i = 0; i < _qubits.size(); i++)
@@ -39,6 +52,10 @@ QCirQubit *QCir::getQubit(size_t id) const
     }
     return NULL;
 }
+
+/**
+ * @brief Print QCir Summary
+ */
 void QCir::printSummary()
 {
     if (_dirty)
@@ -49,6 +66,10 @@ void QCir::printSummary()
         _qgate[i]->printGate();
     }
 }
+
+/**
+ * @brief Print Qubits
+ */
 void QCir::printQubits()
 {
     if (_dirty)
@@ -57,6 +78,13 @@ void QCir::printQubits()
     for (size_t i = 0; i < _qubits.size(); i++)
         _qubits[i]->printBitLine();
 }
+
+/**
+ * @brief Print Gate information
+ *
+ * @param id
+ * @param showTime
+ */
 bool QCir::printGateInfo(size_t id, bool showTime)
 {
     if (getGate(id) != NULL)
@@ -72,6 +100,12 @@ bool QCir::printGateInfo(size_t id, bool showTime)
         return false;
     }
 }
+
+/**
+ * @brief Add Qubit.
+ *
+ * @param num
+ */
 void QCir::addQubit(size_t num)
 {
     for (size_t i = 0; i < num; i++)
@@ -82,6 +116,12 @@ void QCir::addQubit(size_t num)
         clearMapping(); 
     }
 }
+
+/**
+ * @brief Perform DFS from currentGate
+ *
+ * @param currentGate
+ */
 void QCir::DFS(QCirGate *currentGate)
 {
     currentGate->setVisited(_globalDFScounter);
@@ -99,6 +139,10 @@ void QCir::DFS(QCirGate *currentGate)
     }
     _topoOrder.push_back(currentGate);
 }
+
+/**
+ * @brief Update Topological Order
+ */
 void QCir::updateTopoOrder()
 {
     _topoOrder.clear();
@@ -114,13 +158,20 @@ void QCir::updateTopoOrder()
     reverse(_topoOrder.begin(), _topoOrder.end());
     assert(_topoOrder.size() == _qgate.size());
 }
-// An easy checker for lambda function
+
+/**
+ * @brief Print topological order
+ */
 bool QCir::printTopoOrder()
 {
     auto testLambda = [](QCirGate *G){ cout << G->getId() << endl; };
     topoTraverse(testLambda);
     return true;
 }
+
+/**
+ * @brief Update execution time of gates
+ */
 void QCir::updateGateTime()
 {
     auto Lambda = [](QCirGate *currentGate)
@@ -138,6 +189,10 @@ void QCir::updateGateTime()
     };
     topoTraverse(Lambda);
 }
+
+/**
+ * @brief Print ZX-graph of gate following the topological order
+ */
 void QCir::printZXTopoOrder()
 {
     auto Lambda = [this](QCirGate *G)
@@ -148,6 +203,10 @@ void QCir::printZXTopoOrder()
     };
     topoTraverse(Lambda);
 }
+
+/**
+ * @brief Clear mapping
+ */
 void QCir::clearMapping()
 {
     for(size_t i=0; i<_ZXGraphList.size(); i++){
@@ -157,6 +216,10 @@ void QCir::clearMapping()
     }
     _ZXGraphList.clear();
 }
+
+/**
+ * @brief Mapping QCir to ZX-graph
+ */
 void QCir::ZXMapping()
 {
     if(zxGraphMgr == 0){
@@ -198,6 +261,10 @@ void QCir::ZXMapping()
     
     _ZXGraphList.push_back(_ZXG);
 }
+
+/**
+ * @brief Convert QCir to tensor
+ */
 void QCir::tensorMapping()
 {
     updateTopoOrder();
@@ -243,6 +310,13 @@ void QCir::tensorMapping()
     *_tensor = _tensor->toMatrix(input_pin,output_pin);
     cout << "Stored the resulting tensor as tensor id " << id << endl;
 }
+
+/**
+ * @brief Update tensor pin
+ *
+ * @param pins
+ * @param tmp
+ */
 void QCir::updateTensorPin(vector<BitInfo> pins, QTensor<double> tmp)
 {
     // size_t count_pin_used = 0;
@@ -286,6 +360,14 @@ void QCir::updateTensorPin(vector<BitInfo> pins, QTensor<double> tmp)
         cout << "*****************************************" << endl;
     }
 }
+
+/**
+ * @brief Remove Qubit with specific id
+ *
+ * @param id
+ * @return true if succcessfully removed
+ * @return false if not found or the qubit is not empty
+ */
 bool QCir::removeQubit(size_t id)
 {
     // Delete the ancilla only if whole line is empty
@@ -311,6 +393,14 @@ bool QCir::removeQubit(size_t id)
     }
 }
 
+/**
+ * @brief Add Gate
+ *
+ * @param type
+ * @param bits
+ * @param phase
+ * @param append
+ */
 void QCir::addGate(string type, vector<size_t> bits, Phase phase, bool append)
 {
     QCirGate *temp = NULL;

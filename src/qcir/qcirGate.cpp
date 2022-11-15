@@ -19,6 +19,12 @@ using namespace std;
 extern QCir *qCir;
 extern size_t verbose;
 
+/**
+ * @brief Get Qubit.
+ *
+ * @param qubit
+ * @return BitInfo
+ */
 const BitInfo QCirGate::getQubit(size_t qubit) const {
   for (size_t i = 0; i < _qubits.size(); i++){
     if(_qubits[i]._qubit==qubit)
@@ -28,11 +34,23 @@ const BitInfo QCirGate::getQubit(size_t qubit) const {
   return _qubits[0];
 }
 
+/**
+ * @brief Adc qubit to a gate
+ *
+ * @param qubit
+ * @param isTarget
+ */
 void QCirGate::addQubit(size_t qubit, bool isTarget){
   BitInfo temp = {._qubit = qubit, ._parent = NULL, ._child = NULL, ._isTarget = isTarget};
   _qubits.push_back(temp);
 }
 
+/**
+ * @brief Set parent to the gate on qubit.
+ *
+ * @param qubit
+ * @param p
+ */
 void QCirGate::setParent(size_t qubit, QCirGate *p)
 {
   for (size_t i = 0; i < _qubits.size(); i++)
@@ -45,12 +63,23 @@ void QCirGate::setParent(size_t qubit, QCirGate *p)
   }
 }
 
+/**
+ * @brief Add dummy child c to gate
+ *
+ * @param c
+ */
 void QCirGate::addDummyChild(QCirGate *c)
 {
   BitInfo temp = {._qubit = 0, ._parent = NULL, ._child = c, ._isTarget = false};
   _qubits.push_back(temp);
 }
 
+/**
+ * @brief Set child to gate on qubit.
+ *
+ * @param qubit
+ * @param c
+ */
 void QCirGate::setChild(size_t qubit, QCirGate *c)
 {
   for (size_t i = 0; i < _qubits.size(); i++)
@@ -63,6 +92,9 @@ void QCirGate::setChild(size_t qubit, QCirGate *c)
   }
 }
 
+/**
+ * @brief Print Gate brief information
+ */
 void QCirGate::printGate() const
 {
   cout << "Gate " << _id << ": " << getTypeStr() << "   \t"
@@ -75,6 +107,11 @@ void QCirGate::printGate() const
   cout << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void HGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
@@ -100,21 +137,41 @@ void HGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void CnRZGate::printGateInfo(bool showTime) const
 {
   cout << "Not Implement Yet!!" << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void CnRYGate::printGateInfo(bool showTime) const
 {
   cout << "Not Implement Yet!!" << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void CnRXGate::printGateInfo(bool showTime) const
 {
   cout << "Not Implement Yet!!" << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void ZGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
@@ -140,6 +197,11 @@ void ZGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void SGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
@@ -165,6 +227,11 @@ void SGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void SDGGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
@@ -190,6 +257,11 @@ void SDGGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void TGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
@@ -215,6 +287,11 @@ void TGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void TDGGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
@@ -240,6 +317,11 @@ void TDGGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void RZGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
@@ -266,6 +348,11 @@ void RZGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void CZGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
@@ -294,11 +381,21 @@ void CZGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void CCZGate::printGateInfo(bool showTime) const
 {
   cout << "Not Implement Yet!!" << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void XGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
@@ -324,6 +421,11 @@ void XGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void SXGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
@@ -349,6 +451,11 @@ void SXGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void RXGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
@@ -375,6 +482,11 @@ void RXGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void CXGate::printGateInfo(bool showTime) const
 {
   string qubit;
@@ -426,11 +538,21 @@ void CXGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void CCXGate::printGateInfo(bool showTime) const
 {
   cout << "Not Implement Yet!!" << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void YGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
@@ -456,6 +578,11 @@ void YGate::printGateInfo(bool showTime) const
     cout << "Execute at t= " << getTime() << endl;
 }
 
+/**
+ * @brief Print gate detailed information
+ * 
+ * @param showTime
+ */
 void SYGate::printGateInfo(bool showTime) const
 {
   BitInfo Info = getQubits()[0];
