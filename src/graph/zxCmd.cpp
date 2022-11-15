@@ -23,7 +23,6 @@ using namespace std;
 
 extern ZXGraphMgr *zxGraphMgr;
 extern size_t verbose;
-// ZXGraph* zxGraph = new ZXGraph(0);
 
 
 

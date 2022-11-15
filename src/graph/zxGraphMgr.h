@@ -41,13 +41,13 @@ class ZXGraphMgr{
 
 
         // Setter and Getter
-        const ZXGraphList& getGraphList() const             { return _graphList; }
-        ZXGraphList::iterator getgListItr() const           { return _gListItr; }
         size_t getNextID() const                            { return _nextID; }
         ZXGraph* getGraph() const                           { return _graphList[_gListItr - _graphList.begin()]; }
+        const ZXGraphList& getGraphList() const             { return _graphList; }
+        ZXGraphList::iterator getgListItr() const           { return _gListItr; }
 
-        void setGraph(ZXGraph* g)                           { _graphList[_gListItr - _graphList.begin()] = g; }
         void setNextID(size_t id)                           { _nextID = id; }
+        void setGraph(ZXGraph* g)                           { _graphList[_gListItr - _graphList.begin()] = g; }
         
 
         // Add and Remove

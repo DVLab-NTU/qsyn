@@ -20,9 +20,14 @@
 
 extern size_t verbose;
 
-/// @brief read a zx graph
-/// @param filename
-/// @return true if correctly consturct the graph
+/**
+ * @brief read a zx graph
+ * 
+ * @param filename 
+ * @param bzx 
+ * @return true if correctly consturct the graph
+ * @return false 
+ */
 bool ZXGraph::readZX(string filename, bool bzx) {
     fstream ZXFile;
     ZXFile.open(filename.c_str(), ios::in);
@@ -165,9 +170,15 @@ bool ZXGraph::readZX(string filename, bool bzx) {
     return true;
 }
 
-/// @brief write a zxgraph
-/// @param filename
-/// @return true if correctly write a graph into .zx
+/**
+ * @brief write a zxgraph
+ * 
+ * @param filename 
+ * @param complete 
+ * @param bzx 
+ * @return true if correctly write a graph into .zx
+ * @return false 
+ */
 bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
     fstream ZXFile;
     ZXFile.open(filename.c_str(), std::fstream::out);

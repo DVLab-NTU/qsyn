@@ -67,9 +67,9 @@ private:
 
     // mapOneVertex Subroutines
     void initSubgraph(ZXVertex* v);
+    void tensorDotVertex(ZXVertex* v);
     void updatePinsAndFrontiers(ZXVertex* v);
     QTensor<double> dehadamardize(const QTensor<double>& ts);
-    void tensorDotVertex(ZXVertex* v);
 
     bool isOfNewGraph(const ZXVertex* v);
     bool isFrontier(const NeighborPair& nbr) const { return (nbr.first->getPin() != unsigned(-1)); }

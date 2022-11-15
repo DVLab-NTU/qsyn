@@ -37,7 +37,6 @@ vector<ZXVertex*> ZXVertex::getCopiedNeighbors(){
     vector<ZXVertex*> storage;
     for (const auto& neighbor: _neighbors) {
         storage.push_back(neighbor.first);
-        // cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
     }
     return storage;
 }
