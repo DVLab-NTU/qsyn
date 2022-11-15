@@ -63,7 +63,7 @@ qsyn> zxgp -e
 Total #Edges: 6
 
 qsyn> zxgr -r benchmark/zx/stcopy_boundary.zx
-Note: original zxGraph is replaced...
+Note: original ZX-graph is replaced...
 
 qsyn> zxgp -v
 
