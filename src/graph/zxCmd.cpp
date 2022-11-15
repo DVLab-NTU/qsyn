@@ -153,7 +153,6 @@ void ZXNewCmd::help() const {
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXRemoveCmd::exec(const string &option) {
-    //TODO - ZXRemove   
     ZX_CMD_ZXMODE_ON_OR_RETURN;
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
@@ -295,7 +294,6 @@ void ZXCOPyCmd::help() const {
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXCOMposeCmd::exec(const string &option) {
-    //TODO - ZXCOMpose
     ZX_CMD_ZXMODE_ON_OR_RETURN;
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
@@ -327,7 +325,6 @@ void ZXCOMposeCmd::help() const {
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXTensorCmd::exec(const string &option) {
-    //TODO - ZXTensor
     ZX_CMD_ZXMODE_ON_OR_RETURN;
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
@@ -419,7 +416,6 @@ void ZXGTestCmd::help() const {
 //--------------------------------------------------------------------------------
 //    ZXGPrint [-Summary | -Inputs | -Outputs | -IO | -Vertices | -Edges ]
 //--------------------------------------------------------------------------------
-//REVIEW provides filters?
 CmdExecStatus
 ZXGPrintCmd::exec(const string &option) {
 
@@ -706,7 +702,6 @@ ZXGReadCmd::exec(const string &option) {
 
     if (doReplace) {
         if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
-            //FIXME - Use `ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN`
             cout << "Note: ZX-graph list is empty now. Create a new one." << endl;
             zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
             if (!zxGraphMgr->getGraph()->readZX(fileName, doBZX)) {
@@ -714,7 +709,7 @@ ZXGReadCmd::exec(const string &option) {
                 return CMD_EXEC_ERROR;
             }
         } else {
-            cerr << "Note: original zxGraph is replaced..." << endl;
+            cout << "Note: original ZX-graph is replaced..." << endl;
             zxGraphMgr->getGraph()->reset();
             if (!zxGraphMgr->getGraph()->readZX(fileName, doBZX)) {
                 cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;

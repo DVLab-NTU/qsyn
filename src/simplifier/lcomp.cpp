@@ -1,10 +1,10 @@
-// /****************************************************************************
-//   FileName     [ lcomp.cpp ]
-//   PackageName  [ simplifier ]
-//   Synopsis     [ Local Complementary Rule Definition ]
-//   Author       [ Cheng-Hua Lu ]
-//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-// ****************************************************************************/
+/****************************************************************************
+  FileName     [ lcomp.cpp ]
+  PackageName  [ simplifier ]
+  Synopsis     [ Local Complementary Rule Definition ]
+  Author       [ Cheng-Hua Lu ]
+  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
 
 
 #include <iostream>
@@ -40,7 +40,6 @@ void LComp::match(ZXGraph* g){
             size_t vIdx = id2idx[v->getId()];
             if(taken[vIdx]) continue;
             // EdgeType = H ; VertexType = Z ; not in taken or inMatches
-            //REVIEW - No selfloop
 
             for(const auto& [nb, etype] : v->getNeighbors()){
                 if(etype != EdgeType::HADAMARD || nb->getType() != VertexType::Z || taken[id2idx[nb->getId()]] || inMatches[id2idx[nb->getId()]]){
