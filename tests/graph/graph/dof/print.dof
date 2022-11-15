@@ -1,0 +1,7 @@
+zxm -on
+zxnew
+zxgt
+zxgp -v 1 0
+zxgp -v 1 0 d 9
+zxgp -q 1 2
+q -f
