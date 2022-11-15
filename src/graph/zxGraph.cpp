@@ -589,6 +589,8 @@ void ZXGraph::reset() {
     _inputList.clear();
     _outputList.clear();
     _topoOrder.clear();
+    _vertices.clear();
+    _nextVId = 0;
     _globalDFScounter = 1;
 }
 

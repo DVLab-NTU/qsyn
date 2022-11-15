@@ -4,8 +4,8 @@ zxgr -bzx benchmark/demo/simp/ex1_id_2.bzx
 zxgp -v
 zxgs -fr
 zxgp -v
-zxgtsm
+zx2ts
 zxgr -bzx benchmark/demo/simp/id_2.bzx
-zxgtsm
+zx2ts
 tseq 0 1
 q -f

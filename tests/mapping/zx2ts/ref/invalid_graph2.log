@@ -7,7 +7,6 @@ Successfully generated Graph 0
 Checkout to Graph 0
 
 qsyn> zxgtest
-Generate a 2-qubit CNOT graph for testing
 
 qsyn> zxgedit -rme 0 2 -ALL
 

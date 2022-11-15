@@ -1,15 +1,15 @@
 zxm -on
 qccr benchmark/pseudoSimp/tof2.qasm
-qctsm
+qc2ts
 tsp 0
-qczxm
+qc2zx
 zxgp -v
-zxgtsm
+zx2ts
 tsp 1
 zxgp -v
 zxgas 0 I X pi
 zxgas 0 O X pi
 zxgp -v
-zxgtsm
+zx2ts
 tsp 2
 q -f

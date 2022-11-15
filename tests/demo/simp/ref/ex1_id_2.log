@@ -52,8 +52,6 @@ Local Complementation Rule:
 No matches
 Pivot Gadget Rule: 
 No matches
-Hopf Rule: 
-No matches
 Spider Fusion Rule: 
 No matches
 Identity Removal Rule: 
@@ -78,8 +76,6 @@ Local Complementation Rule:
 No matches
 Pivot Gadget Rule: 
 No matches
-Hopf Rule: 
-No matches
 
 qsyn> zxgp -v
 
@@ -90,13 +86,13 @@ ID:	10	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(1, -)
 Total #Vertices: 4
 
 
-qsyn> zxgtsm
+qsyn> zx2ts
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 0
 
 qsyn> zxgr -bzx benchmark/demo/simp/id_2.bzx
 
-qsyn> zxgtsm
+qsyn> zx2ts
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 1
 

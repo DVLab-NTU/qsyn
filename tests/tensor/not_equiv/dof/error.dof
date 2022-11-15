@@ -1,8 +1,8 @@
 ver 2
 qcba
-qctsm
+qc2ts
 qcga -rz -ph 0.001 0
-qctsm
+qc2ts
 ver 3
 tsp 0
 tsp 1

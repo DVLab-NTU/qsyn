@@ -5,8 +5,8 @@ zxgadj
 zxcomp 0
 zxgsimp -fr
 zxgp -v
-zxgtsm
+zx2ts
 qcba 3
-qctsm
+qc2ts
 tseq 0 1 -Strict
 q -f
