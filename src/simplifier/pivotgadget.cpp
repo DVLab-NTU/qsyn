@@ -14,6 +14,15 @@ using namespace std;
 
 extern size_t verbose;
 
+/**
+ * @brief Check whether the match is a bad match
+ * 
+ * @param nebs 
+ * @param e
+ * @param isVsNeighbor
+ * @return true if is a bad match
+ * @return false if is a good match
+ */
 bool PivotGadget::checkBadMatch(const Neighbors& nebs, EdgePair e, bool isVsNeighbor){
     for(const auto& [v, et]: nebs){
         if(v->getType() != VertexType::Z)
@@ -24,6 +33,7 @@ bool PivotGadget::checkBadMatch(const Neighbors& nebs, EdgePair e, bool isVsNeig
     }
     return false;
 }
+
 /**
  * @brief Determines which phase gadgets act on the same vertices, so that they can be fused together.
  *        (Check PyZX/pyzx/rules.py/match_phase_gadgets for more details)

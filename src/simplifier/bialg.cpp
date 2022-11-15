@@ -14,7 +14,13 @@ using namespace std;
 
 extern size_t verbose;
 
-
+/**
+ * @brief Finds if the vertex is duplicated
+ *
+ * @param vec
+ * @return true if found
+ * @return false if not
+ */
 bool Bialgebra::check_duplicated_vertex(vector<ZXVertex*> vec) {
     vector<int> appeared = {};
     for (size_t i = 0; i < vec.size(); i++) {
