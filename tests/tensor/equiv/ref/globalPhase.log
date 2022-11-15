@@ -4,7 +4,7 @@ Note: verbose level is set to 2
 
 qsyn> qcba
 
-qsyn> qctsm 
+qsyn> qc2ts 
 Stored the resulting tensor as tensor id 0
 
 qsyn> qcga -t 0
@@ -15,7 +15,7 @@ qsyn> qcga -t 0
 
 qsyn> qcga -x 0
 
-qsyn> qctsm
+qsyn> qc2ts
 Stored the resulting tensor as tensor id 1
 
 qsyn> ver 3

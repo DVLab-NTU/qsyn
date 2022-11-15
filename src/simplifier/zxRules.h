@@ -1,10 +1,10 @@
-/****************************************************************************
-  FileName     [ ZXRule.h ]
-  PackageName  [ simplifier ]
-  Synopsis     [ ZX Basic Rules ]
-  Author       [ Cheng-Hua Lu ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-****************************************************************************/
+// /****************************************************************************
+//   FileName     [ ZXRule.h ]
+//   PackageName  [ simplifier ]
+//   Synopsis     [ ZX Basic Rules ]
+//   Author       [ Cheng-Hua Lu ]
+//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+// ****************************************************************************/
 
 
 #ifndef ZX_RULES_H
@@ -58,7 +58,7 @@ class ZXRule{
       // Getter and Setter
       virtual const int& getMatchTypeVecNum() const                                  { return _matchTypeVecNum; }
       virtual const string& getName() const                                          { return _name; }       
-      virtual const vector<ZXVertex* >& getRemoveVertices() const                    { return _removeVertices; }
+      virtual const vector<ZXVertex*>& getRemoveVertices() const                     { return _removeVertices; }
       virtual const vector<EdgePair>& getRemoveEdges() const                         { return _removeEdges; }
       virtual const vector<pair<ZXVertex*, ZXVertex*> >& getEdgeTableKeys() const    { return _edgeTableKeys; }
       virtual const vector<pair<int, int> >& getEdgeTableValues() const              { return _edgeTableValues; }
@@ -301,7 +301,6 @@ class LComp : public ZXRule{
  */
 class PhaseGadget : public ZXRule{
   public:
-    //TODO: Check MatchType
     typedef tuple<Phase, vector<ZXVertex*>, vector<ZXVertex*>> MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
@@ -331,7 +330,7 @@ class PhaseGadget : public ZXRule{
  */
 class Pivot : public ZXRule{
   public:
-    typedef int MatchType;
+    typedef EdgePair MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
     Pivot(){
@@ -361,7 +360,6 @@ class Pivot : public ZXRule{
  */
 class PivotGadget : public ZXRule{
   public:
-    //TODO: Check MatchType
     typedef vector<ZXVertex* > MatchType;    // vs, vt(need to remove), newVertex
     typedef vector<MatchType> MatchTypeVec;
 
@@ -380,6 +378,7 @@ class PivotGadget : public ZXRule{
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
+    bool checkBadMatch(const Neighbors&, EdgePair, bool);
     MatchTypeVec                                      _matchTypeVec;
 };
 
@@ -391,7 +390,6 @@ class PivotGadget : public ZXRule{
  */
 class PivotBoundary : public ZXRule{
   public:
-    //TODO: Check MatchType
     typedef int MatchType;
     typedef vector<MatchType> MatchTypeVec;
 

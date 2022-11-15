@@ -1,0 +1,32 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> zxnew
+Successfully generated Graph 0
+Checkout to Graph 0
+
+qsyn> zxgt
+
+qsyn> zxgp -v 1 0
+
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+
+
+qsyn> zxgp -v 1 0 d 9
+
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+
+
+qsyn> zxgp -q 1 2
+
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+ID:	3	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(1, -) (2, -) (5, -) 
+ID:	5	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+
+
+
+qsyn> q -f
+

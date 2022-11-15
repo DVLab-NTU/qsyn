@@ -1,10 +1,10 @@
-/****************************************************************************
-  FileName     [ simplify.cpp ]
-  PackageName  [ simplifier ]
-  Synopsis     [ Define class Stats, Simplify member functions ]
-  Author       [ Cheng-Hua Lu ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-****************************************************************************/
+// /****************************************************************************
+//   FileName     [ simplify.cpp ]
+//   PackageName  [ simplifier ]
+//   Synopsis     [ Define class Stats, Simplify member functions ]
+//   Author       [ Cheng-Hua Lu ]
+//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+// ****************************************************************************/
 
 #include "simplify.h"
 
@@ -39,7 +39,6 @@ extern size_t verbose;
  * @return int
  */
 int Simplifier::simp() {
-    bool checked = true; // for efficiency; you may want to change this to `false` if debugging a new rule
     chrono::steady_clock::time_point t_start, timer;
     chrono::microseconds t_match{0}, t_rewrite{0}, t_apply{0};
     t_start = chrono::steady_clock::now();
@@ -74,7 +73,7 @@ int Simplifier::simp() {
 
 
         timer = chrono::steady_clock::now();
-        unordered_set<EdgePair> redundantEdges;
+        unordered_set<EdgePair_depr> redundantEdges;
         for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
             ZXVertex* v                = _rule->getEdgeTableKeys()[e].first;
             ZXVertex* v_n              = _rule->getEdgeTableKeys()[e].second;
@@ -82,58 +81,23 @@ int Simplifier::simp() {
             int       numHadamardEdges = _rule->getEdgeTableValues()[e].second;
             
             for (int j = 0; j < numSimpleEdges; j++){
-                bool found = false;
-                if((v->getType()==VertexType::Z && v_n->getType()==VertexType::X) ||
-                    (v->getType()==VertexType::X && v_n->getType()==VertexType::Z)
-                ){
-                    auto candidates = v->getNeighborMap().equal_range(v_n);
-                    for(auto itr = candidates.first; itr!=candidates.second; itr++){
-
-                        EdgePair tmp = (v->getId() < v_n->getId()) ? make_pair(make_pair(v,v_n), itr->second) : make_pair(make_pair(v_n,v), itr->second);
-                        if ((*itr->second)==EdgeType::SIMPLE && !redundantEdges.contains(tmp)) {
-                            redundantEdges.insert(tmp);
-                            _rule->pushRemoveEdge(tmp);
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-                if(!found) {
-                    _simpGraph->addEdge(v, v_n, new EdgeType(EdgeType::SIMPLE));
-                    addEdgeCount++;
-                }
+                _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::SIMPLE));
+                addEdgeCount++;
             }
             // t_simp += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
             // timer = chrono::steady_clock::now();
 
             for (int j = 0; j < numHadamardEdges; j++){
-                bool found = false;
-                if((v->getType()==VertexType::Z && v_n->getType()==VertexType::Z) ||
-                    (v->getType()==VertexType::X && v_n->getType()==VertexType::X)
-                ){
-                    auto candidates = v->getNeighborMap().equal_range(v_n);
-                    for(auto itr = candidates.first; itr!=candidates.second; itr++){
-                        EdgePair tmp = (v->getId() < v_n->getId()) ? make_pair(make_pair(v,v_n), itr->second) : make_pair(make_pair(v_n,v), itr->second);
-                        if ((*itr->second)==EdgeType::HADAMARD && !redundantEdges.contains(tmp)) {
-                            redundantEdges.insert(tmp);
-                            _rule->pushRemoveEdge(tmp);
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-                if(!found) {
-                    _simpGraph->addEdge(v, v_n, new EdgeType(EdgeType::HADAMARD));
-                    addEdgeCount++;
-                }
+                _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::HADAMARD));
+                addEdgeCount++;
             }
         }     
 
-        _simpGraph->removeEdgesByEdgePairs(_rule->getRemoveEdges());
+        _simpGraph->removeEdges(_rule->getRemoveEdges());
         rmEdgeCount += _rule->getRemoveEdges().size();
 
         // remove vertices
-        _simpGraph->removeVertices(_rule->getRemoveVertices(), checked);
+        _simpGraph->removeVertices(_rule->getRemoveVertices());
         rmVertexCount += _rule->getRemoveVertices().size();
 
         // remove isolated vertices
@@ -177,7 +141,6 @@ int Simplifier::simp() {
  * @return int
  */
 int Simplifier::hadamardSimp() {
-    bool checked = true; // for efficiency; you may want to change this to `false` if debugging a new rule
     chrono::steady_clock::time_point t_start, timer;
     chrono::microseconds t_match{0}, t_rewrite{0}, t_apply{0};
     t_start = chrono::steady_clock::now();
@@ -214,20 +177,20 @@ int Simplifier::hadamardSimp() {
             int numSimpleEdges = _rule->getEdgeTableValues()[e].first;
             int numHadamardEdges = _rule->getEdgeTableValues()[e].second;
             for (int j = 0; j < numSimpleEdges; j++) {
-                _simpGraph->addEdge(v, v_n, new EdgeType(EdgeType::SIMPLE));
+                _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::SIMPLE));
                 addEdgeCount++;
             }
             for (int j = 0; j < numHadamardEdges; j++) {
-                _simpGraph->addEdge(v, v_n, new EdgeType(EdgeType::HADAMARD));
+                _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::HADAMARD));
                 addEdgeCount++;
             }
         }
         // remove edges
-        _simpGraph->removeEdgesByEdgePairs(_rule->getRemoveEdges());
+        _simpGraph->removeEdges(_rule->getRemoveEdges());
         rmEdgeCount += _rule->getRemoveEdges().size();
 
         // remove vertices
-        _simpGraph->removeVertices(_rule->getRemoveVertices(), checked);
+        _simpGraph->removeVertices(_rule->getRemoveVertices());
         rmVertexCount += _rule->getRemoveVertices().size();
         // remove isolated vertices
         _simpGraph->removeIsolatedVertices();
@@ -261,7 +224,6 @@ int Simplifier::bialgSimp(){
 
 int Simplifier::copySimp(){
     if(!_simpGraph->isGraphLike()) return 0;
-    
     this->setRule(new StateCopy());
     int i = this->simp();
     return i;
@@ -269,7 +231,6 @@ int Simplifier::copySimp(){
 
 
 int Simplifier::gadgetSimp(){
-    // TODO: phase gadget rule
     this->setRule(new PhaseGadget());
     int i = this->simp();
     return i;
@@ -283,11 +244,11 @@ int Simplifier::hfusionSimp(){
 }
 
 
-int Simplifier::hopfSimp(){
-    this->setRule(new Hopf());
-    int i = this->simp();
-    return i;
-}
+// int Simplifier::hopfSimp(){
+//     this->setRule(new Hopf());
+//     int i = this->simp();
+//     return i;
+// }
 
 
 int Simplifier::hruleSimp(){
@@ -327,7 +288,6 @@ int Simplifier::pivotBoundarySimp(){
 int Simplifier::pivotGadgetSimp(){
     this->setRule(new PivotGadget());
     int i = this->simp();
-    hopfSimp();
     return i;
 }
 
@@ -346,13 +306,12 @@ int Simplifier::sfusionSimp(){
 /**
  * @brief Turns every red node(VertexType::X) into green node(VertexType::Z) by regular simple edges <--> hadamard edges.
  *
- * @param g ZXGraph*
+ * @param
  */
 void Simplifier::toGraph() {
-    for (size_t i = 0; i < _simpGraph->getNumVertices(); i++) {
-        ZXVertex* v = _simpGraph->getVertices()[i];
-        if (v->getType() == VertexType::X) {
-            for (auto& itr : v->getNeighborMap()) *itr.second = toggleEdge(*itr.second);
+    for(auto& v:  _simpGraph->getVertices()){
+        if (v->getType() == VertexType::X){
+            _simpGraph->toggleEdges(v);
             v->setType(VertexType::Z);
         }
     }
@@ -361,13 +320,12 @@ void Simplifier::toGraph() {
 /**
  * @brief Turn green nodes into red nodes by color-changing vertices which greedily reducing the number of Hadamard-edges.
  *
- * @param g
+ * @param
  */
 void Simplifier::toRGraph() {
-    for (size_t i = 0; i < _simpGraph->getNumVertices(); i++) {
-        ZXVertex* v = _simpGraph->getVertices()[i];
-        if (v->getType() == VertexType::Z) {
-            for (auto& itr : v->getNeighborMap()) *itr.second = toggleEdge(*itr.second);
+    for(auto& v:  _simpGraph->getVertices()){
+        if (v->getType() == VertexType::Z){
+            _simpGraph->toggleEdges(v);
             v->setType(VertexType::X);
         }
     }

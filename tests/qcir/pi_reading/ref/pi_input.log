@@ -20,7 +20,7 @@ Error: Illegal option!! (PI*3PI/pi)
 qsyn> zxmode -on
 ZXMODE turn ON!
 
-qsyn> qczxm
+qsyn> qc2zx
 Successfully generated Graph 0
 Checkout to Graph 0
 ---- TRAVERSE AND BUILD THE GRAPH ----

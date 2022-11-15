@@ -6,7 +6,7 @@ qsyn> qcba 2
 
 qsyn> qcga -x 0
 
-qsyn> qczxm
+qsyn> qc2zx
 Successfully generated Graph 0
 Checkout to Graph 0
 ---- TRAVERSE AND BUILD THE GRAPH ----
@@ -17,7 +17,7 @@ Note: Graph 0 is deleted due to modification(s) !!
 Successfully removed Graph 0
 Note: The graph list is empty now
 
-qsyn> qczxm
+qsyn> qc2zx
 Successfully generated Graph 1
 Checkout to Graph 1
 ---- TRAVERSE AND BUILD THE GRAPH ----
@@ -26,7 +26,7 @@ Checkout to Graph 1
 qsyn> qccr -r benchmark/benchmark_SABRE/small/3_17_13.qasm
 Note: original quantum circuit is replaced...
 
-qsyn> qczxm
+qsyn> qc2zx
 Successfully generated Graph 2
 Checkout to Graph 2
 ---- TRAVERSE AND BUILD THE GRAPH ----

@@ -15,7 +15,7 @@ Successfully generated Graph 1
 Checkout to Graph 1
 
 qsyn> zxgr -R benchmark/zx/tof3.zx
-Note: original zxGraph is replaced...
+Note: original ZX-graph is replaced...
 
 qsyn> q -f
 

@@ -10,7 +10,7 @@ qsyn> qcga -cx 1 0
 
 qsyn> qcga -cx 0 1
 
-qsyn> qctsm
+qsyn> qc2ts
 Stored the resulting tensor as tensor id 0
 
 qsyn> zxm -on
@@ -18,7 +18,7 @@ ZXMODE turn ON!
 
 qsyn> zxgr benchmark/zx/swap.zx
 
-qsyn> zxgtsm
+qsyn> zx2ts
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 1
 

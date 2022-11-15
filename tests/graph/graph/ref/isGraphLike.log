@@ -4,7 +4,7 @@ ZXMODE turn ON!
 
 qsyn> qccr benchmark/pseudoSimp/tof_3.qasm
 
-qsyn> qczxm
+qsyn> qc2zx
 Successfully generated Graph 0
 Checkout to Graph 0
 ---- TRAVERSE AND BUILD THE GRAPH ----
@@ -101,7 +101,7 @@ Total #Vertices: 85
 
 
 qsyn> zxgt -GL
-False: Type (0) of edge 10--11 is invalid!!
+The graph is not graph-like!
 
 qsyn> zxgsimp -FR
 Hadamard Rule: 6 . 6 . 6 . 3 iterations
@@ -125,8 +125,6 @@ Local Complementation Rule:
 No matches
 Pivot Gadget Rule: 
 3 iterations
-Hopf Rule: 
-No matches
 Spider Fusion Rule: 
 No matches
 Identity Removal Rule: 
@@ -167,8 +165,6 @@ Local Complementation Rule:
 No matches
 Pivot Gadget Rule: 
 No matches
-Hopf Rule: 
-No matches
 Spider Fusion Rule: 
 No matches
 Identity Removal Rule: 
@@ -193,11 +189,9 @@ Local Complementation Rule:
 No matches
 Pivot Gadget Rule: 
 No matches
-Hopf Rule: 
-No matches
 
 qsyn> zxgt -GL
-[1m[32mTrue: The graph is graph-like[0m[0m
+The graph is graph-like!
 
 qsyn> q -f
 

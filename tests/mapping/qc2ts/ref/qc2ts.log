@@ -4,7 +4,7 @@ Note: verbose level is set to 8
 
 qsyn> qccr benchmark/qc2ts/circuit/control_z.qasm
 
-qsyn> qctsm
+qsyn> qc2ts
 ----------- ADD BOUNDARIES -----------
 Successfully added Tensor 0
 Add Qubit 0 output port: 1
@@ -70,7 +70,7 @@ Stored the resulting tensor as tensor id 0
 qsyn> qccr benchmark/qc2ts/circuit/control_h.qasm -R
 Note: original quantum circuit is replaced...
 
-qsyn> qctsm
+qsyn> qc2ts
 ----------- ADD BOUNDARIES -----------
 Successfully added Tensor 1
 Add Qubit 0 output port: 1
@@ -160,7 +160,7 @@ Stored the resulting tensor as tensor id 1
 qsyn> qccr benchmark/qc2ts/circuit/toffoli_dec.qasm -R
 Note: original quantum circuit is replaced...
 
-qsyn> qctsm
+qsyn> qc2ts
 ----------- ADD BOUNDARIES -----------
 Successfully added Tensor 2
 Add Qubit 0 output port: 1
@@ -278,7 +278,7 @@ Stored the resulting tensor as tensor id 2
 qsyn> qccr benchmark/qc2ts/circuit/toffoli_qiskit.qasm -R
 Note: original quantum circuit is replaced...
 
-qsyn> qctsm
+qsyn> qc2ts
 ----------- ADD BOUNDARIES -----------
 Successfully added Tensor 3
 Add Qubit 0 output port: 1

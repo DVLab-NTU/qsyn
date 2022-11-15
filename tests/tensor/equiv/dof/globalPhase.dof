@@ -1,11 +1,11 @@
 ver 2
 qcba
-qctsm 
+qc2ts 
 qcga -t 0
 qcga -x 0
 qcga -t 0
 qcga -x 0
-qctsm
+qc2ts
 ver 3
 tsp -l
 tseq 0 1

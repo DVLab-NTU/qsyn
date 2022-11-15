@@ -1,6 +1,6 @@
 zxm -on
 qccr benchmark/pseudoSimp/tof_3.qasm
-qczxm
+qc2zx
 zxgp -v
 zxgt -GL
 zxgsimp -FR

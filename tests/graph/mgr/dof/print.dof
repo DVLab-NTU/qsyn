@@ -1,0 +1,7 @@
+zxmode -on
+ZXNew
+ZXNew
+ZXPrint
+ZXPrint -f
+ZXPrint -n
+q -f

@@ -59,6 +59,7 @@ size_t findIndex(const std::vector<T>& vec, const T& t) {
     return std::find(vec.begin(), vec.end(), t) - vec.begin();
 }
 
+
 // Other utility template functions
 template<class T>
 void clearList(T& l)

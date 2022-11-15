@@ -4,7 +4,7 @@ qsyn> qccr benchmark/pseudoSimp/achilles.qasm
 qsyn> zxm -on
 ZXMODE turn ON!
 
-qsyn> qczxm
+qsyn> qc2zx
 Successfully generated Graph 0
 Checkout to Graph 0
 ---- TRAVERSE AND BUILD THE GRAPH ----
@@ -26,15 +26,11 @@ qsyn> ver 0
 Note: verbose level is set to 0
 
 qsyn> zxgs -sr
-[1m[32mTrue: The graph is graph-like[0m[0m
-[1m[32mTrue: The graph is graph-like[0m[0m
-[1m[32mTrue: The graph is graph-like[0m[0m
-[1m[32mTrue: The graph is graph-like[0m[0m
 
 qsyn> ver 3
 Note: verbose level is set to 3
 
-qsyn> zxgtsm
+qsyn> zx2ts
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
@@ -42,7 +38,7 @@ Stored the resulting tensor as tensor id 0
 qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
 Note: original quantum circuit is replaced...
 
-qsyn> qczxm
+qsyn> qc2zx
 Successfully generated Graph 1
 Checkout to Graph 1
 ---- TRAVERSE AND BUILD THE GRAPH ----
@@ -64,14 +60,11 @@ qsyn> ver 0
 Note: verbose level is set to 0
 
 qsyn> zxgs -sr
-[1m[32mTrue: The graph is graph-like[0m[0m
-[1m[32mTrue: The graph is graph-like[0m[0m
-[1m[32mTrue: The graph is graph-like[0m[0m
 
 qsyn> ver 3
 Note: verbose level is set to 3
 
-qsyn> zxgtsm
+qsyn> zx2ts
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Successfully added Tensor 1
 Stored the resulting tensor as tensor id 1
@@ -79,7 +72,7 @@ Stored the resulting tensor as tensor id 1
 qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
 Note: original quantum circuit is replaced...
 
-qsyn> qczxm
+qsyn> qc2zx
 Successfully generated Graph 2
 Checkout to Graph 2
 ---- TRAVERSE AND BUILD THE GRAPH ----
@@ -101,14 +94,11 @@ qsyn> ver 0
 Note: verbose level is set to 0
 
 qsyn> zxgs -sr
-[1m[32mTrue: The graph is graph-like[0m[0m
-[1m[32mTrue: The graph is graph-like[0m[0m
-[1m[32mTrue: The graph is graph-like[0m[0m
 
 qsyn> ver 3
 Note: verbose level is set to 3
 
-qsyn> zxgtsm
+qsyn> zx2ts
 ---- TRAVERSE AND BUILD THE TENSOR ----
 Successfully added Tensor 2
 Stored the resulting tensor as tensor id 2

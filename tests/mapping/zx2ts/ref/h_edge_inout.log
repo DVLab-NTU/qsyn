@@ -1,0 +1,133 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> zxn
+Successfully generated Graph 0
+Checkout to Graph 0
+
+qsyn> zxgedit -addi 0
+
+qsyn> zxgedit -addo 0
+
+qsyn> zxgedit -addv 0 Z
+
+qsyn> // out-edge are H-edge
+
+qsyn> zxgedit -adde 0 2 SIMPLE
+
+qsyn> zxgedit -adde 2 1 HADAMARD
+
+qsyn> ver 8
+Note: verbose level is set to 8
+
+qsyn> zx2ts
+---- TRAVERSE AND BUILD THE TENSOR ----
+Topological order from first input: 0 2 1 
+Size of topological order: 3
+> Mapping vertex 0 (●): New Subgraph
+  - Current frontiers: 
+    0--2 (-) axis id: 1
+> Mapping vertex 2 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--2 ([1m[34mH[0m[0m) axis id: 1
+> Mapping vertex 1 (●): Boundary Node
+  - Current frontiers: 
+    1--2 ([1m[34mH[0m[0m) axis id: 1
+Successfully added Tensor 0
+Input  axis ids: 0
+Output axis ids: 1
+Stored the resulting tensor as tensor id 0
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> // both edges are S-edge
+
+qsyn> zxgedit -rme 2 1 -ALL
+
+qsyn> zxgedit -adde 2 1 SIMPLE
+
+qsyn> ver 8
+Note: verbose level is set to 8
+
+qsyn> zx2ts
+---- TRAVERSE AND BUILD THE TENSOR ----
+Topological order from first input: 0 2 1 
+Size of topological order: 3
+> Mapping vertex 0 (●): New Subgraph
+  - Current frontiers: 
+    0--2 (-) axis id: 1
+> Mapping vertex 2 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--2 (-) axis id: 1
+> Mapping vertex 1 (●): Boundary Node
+  - Current frontiers: 
+    1--2 (-) axis id: 1
+Successfully added Tensor 1
+Input  axis ids: 0
+Output axis ids: 1
+Stored the resulting tensor as tensor id 1
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> // in-edge are H-edge
+
+qsyn> zxgedit -rme 0 2 -ALL
+
+qsyn> zxgedit -adde 2 0 HADAMARD
+
+qsyn> ver 8
+Note: verbose level is set to 8
+
+qsyn> zx2ts
+---- TRAVERSE AND BUILD THE TENSOR ----
+Topological order from first input: 0 2 1 
+Size of topological order: 3
+> Mapping vertex 0 (●): New Subgraph
+  - Current frontiers: 
+    0--2 ([1m[34mH[0m[0m) axis id: 1
+> Mapping vertex 2 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--2 (-) axis id: 1
+> Mapping vertex 1 (●): Boundary Node
+  - Current frontiers: 
+    1--2 (-) axis id: 1
+Successfully added Tensor 2
+Input  axis ids: 0
+Output axis ids: 1
+Stored the resulting tensor as tensor id 2
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> // Both edges are H-edge
+
+qsyn> zxgedit -rme 1 2 -ALL
+
+qsyn> zxgedit -adde 2 1 HADAMARD
+
+qsyn> ver 8
+Note: verbose level is set to 8
+
+qsyn> zx2ts
+---- TRAVERSE AND BUILD THE TENSOR ----
+Topological order from first input: 0 2 1 
+Size of topological order: 3
+> Mapping vertex 0 (●): New Subgraph
+  - Current frontiers: 
+    0--2 ([1m[34mH[0m[0m) axis id: 1
+> Mapping vertex 2 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--2 ([1m[34mH[0m[0m) axis id: 1
+> Mapping vertex 1 (●): Boundary Node
+  - Current frontiers: 
+    1--2 ([1m[34mH[0m[0m) axis id: 1
+Successfully added Tensor 3
+Input  axis ids: 0
+Output axis ids: 1
+Stored the resulting tensor as tensor id 3
+
+qsyn> q -f
+
