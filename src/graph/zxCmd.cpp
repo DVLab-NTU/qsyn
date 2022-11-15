@@ -355,7 +355,7 @@ void ZXTensorCmd::help() const {
 
 
 //----------------------------------------------------------------------
-//    ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike]
+//    ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike | -TCount | -NClifford | -NCT | -Analysi]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGTestCmd::exec(const string &option) {
@@ -398,12 +398,34 @@ ZXGTestCmd::exec(const string &option) {
         return CMD_EXEC_DONE;
     } 
     
+    if (myStrNCmp("-TCount", token, 3) == 0) {
+        cout << "#T-gate: " << zxGraphMgr->getGraph()->TCount() << "\n";
+        return CMD_EXEC_DONE;
+    } 
+
+    if (myStrNCmp("-NClifford", token, 3) == 0) {
+        cout << "#Non-Clifford-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(true) << "\n";
+        return CMD_EXEC_DONE;
+    }
+
+    if (myStrNCmp("-NCT", token, 4) == 0) {
+        cout << "#Non-(Clifford+T)-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(false) << "\n";
+        return CMD_EXEC_DONE;
+    }
+
+    if (myStrNCmp("-Analysis", token, 2) == 0) {
+        cout << "#T-gate: " << zxGraphMgr->getGraph()->TCount() << "\n";
+        cout << "#Non-Clifford-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(true) << "\n";
+        cout << "#Non-(Clifford+T)-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(false) << "\n";
+        return CMD_EXEC_DONE;
+    }
+
     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     
 }
 
 void ZXGTestCmd::usage(ostream &os) const {
-    os << "Usage: ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike]" << endl;
+    os << "Usage: ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike | -TCount | -NClifford | -NCT | -Analysis]" << endl;
 }
 
 void ZXGTestCmd::help() const {

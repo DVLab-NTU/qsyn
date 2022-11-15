@@ -140,6 +140,8 @@ class ZXGraph{
         bool isGraphLike() const;
         bool isInputQubit(int qubit) const                              { return (_inputList.contains(qubit)); }
         bool isOutputQubit(int qubit) const                             { return (_outputList.contains(qubit)); }
+        int TCount() const;
+        int nonCliffordCount(bool includeT = false) const;
 
 
         // Add and Remove
