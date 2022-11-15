@@ -136,8 +136,6 @@ class ZXGraph{
         bool isEmpty() const;
         bool isValid() const;
         void generateCNOT();
-        // REVIEW unused
-        // bool isConnected(ZXVertex* v1, ZXVertex* v2) const; 
         bool isId(size_t id) const;
         bool isGraphLike() const;
         bool isInputQubit(int qubit) const                              { return (_inputList.contains(qubit)); }
@@ -191,7 +189,6 @@ class ZXGraph{
 
 
         // Print functions
-        //REVIEW provides filters?
         void printGraph() const;
         void printInputs() const;
         void printOutputs() const;
