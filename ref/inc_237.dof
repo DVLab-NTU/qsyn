@@ -7,4 +7,8 @@ zxcopy
 zxgadjoint
 zxcompose 0
 zxgprint
-
+zxgs -fr
+zxgp 
+zxgp -q 
+usage
+q -f
