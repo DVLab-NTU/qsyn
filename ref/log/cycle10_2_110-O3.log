@@ -2417,9 +2417,9 @@ ID:	8755	VertexType:	●	Qubit:	12	Phase:	0	#Neighbors:	1	(25, -)
 
 
 qsyn> usage
-Period time used : 18.11 seconds
-Total time used  : 18.11 seconds
-Total memory used: 72.85 M Bytes
+Period time used : 14.3 seconds
+Total time used  : 14.3 seconds
+Total memory used: 71.42 M Bytes
 
 qsyn> q -f
 

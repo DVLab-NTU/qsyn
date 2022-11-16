@@ -1,0 +1,24 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> ver 1
+Note: verbose level is set to 1
+
+qsyn> zxm -on
+ZXMODE turn ON!
+
+qsyn> qccread benchmark/benchmark_SABRE/large/inc_237.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgp
+Graph 0( 16 inputs, 16 outputs, 15287 vertices, 19907 edges )
+
+qsyn> zxcopy
+
+qsyn> zxgadjoint
+
+qsyn> zxcompose 0
+
+qsyn> zxgprint
+Graph 1( 16 inputs, 16 outputs, 30574 vertices, 39830 edges )
+
+Segmentation fault (core dumped)
