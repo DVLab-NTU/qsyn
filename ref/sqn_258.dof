@@ -7,7 +7,9 @@ zxcopy
 zxgadjoint
 zxcompose 0
 zxgprint
-zxgs -fr
+zxgs -interc
+ver 9
+zxgs -pivotg
 zxgp
 zxgp -q
 usage

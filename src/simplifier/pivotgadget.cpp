@@ -54,8 +54,9 @@ void PivotGadget::match(ZXGraph* g){
 
     vector<bool> taken(g->getNumVertices(), false);
     vector<EdgePair> newEdges;
+    vector<ZXVertex*> newVertices;
     cnt = 0;
-    g -> forEachEdge([&g, &cnt, &id2idx, &taken, &newEdges, this](const EdgePair& epair) {
+    g -> forEachEdge([&g, &cnt, &id2idx, &taken, &newVertices, &newEdges, this](const EdgePair& epair) {
         ZXVertex* vs = epair.first.first; ZXVertex* vt = epair.first.second;
         Phase vsp = vs->getPhase(); Phase vtp = vt->getPhase();
 
