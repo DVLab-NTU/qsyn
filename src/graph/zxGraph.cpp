@@ -248,7 +248,7 @@ bool ZXGraph::isGraphLike() const {
 int ZXGraph::TCount() const {
     int num = 0;
     for(const auto& v : _vertices){
-        if(v->getPhase() == Phase(7,4) || v->getPhase() == Phase(1,4) || v->getPhase() == Phase(3,4) || v->getPhase() == Phase(5,4)) num++;
+        if(v->getPhase().getRational().denominator() == 4) num++;
     }
     return num;
 }
@@ -258,13 +258,15 @@ int ZXGraph::nonCliffordCount(bool includeT) const {
     int num = 0;
     if(includeT){
         for(const auto& v : _vertices){
-            if(!(v->getPhase() == Phase(0) || v->getPhase() == Phase(1) || v->getPhase() == Phase(1,2) || v->getPhase() == Phase(3,2))) num++;
+            if(v->getPhase().getRational().denominator() != 1 && 
+               v->getPhase().getRational().denominator() != 2) num++;
         }
     }
     else{
         for(const auto& v : _vertices){
-            if(!(v->getPhase() == Phase(7,4) || v->getPhase() == Phase(1,4) || v->getPhase() == Phase(3,4) || v->getPhase() == Phase(5,4)
-              || v->getPhase() == Phase(0) || v->getPhase() == Phase(1) || v->getPhase() == Phase(1,2) || v->getPhase() == Phase(3,2))) num++;
+            if(v->getPhase().getRational().denominator() != 1 && 
+               v->getPhase().getRational().denominator() != 2 && 
+               v->getPhase().getRational().denominator() != 4) num++;
         }
     }
     return num;
