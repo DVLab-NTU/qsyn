@@ -474,13 +474,27 @@ ZXGPrintCmd::exec(const string &option) {
         }
         zxGraphMgr->getGraph()->printQubits(candidates);
     }
+    else if (myStrNCmp("-Neighbors", options[0], 2) == 0) {
+        CMD_N_OPTS_EQUAL_OR_RETURN(options, 2);
+
+        unsigned id;
+        ZXVertex* v;
+        ZX_CMD_ID_VALID_OR_RETURN(options[1], id, "Vertex");
+        ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id, v);
+
+        v->printVertex();
+        cout << "----- Neighbors -----" << endl;
+        for (auto [nb, _] : v->getNeighbors()) {
+            nb->printVertex();
+        }
+    }
     
     else return errorOption(CMD_OPT_ILLEGAL, options[0]);
     return CMD_EXEC_DONE;
 }
 
 void ZXGPrintCmd::usage(ostream &os) const {
-    os << "Usage: ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges]" << endl;
+    os << "Usage: ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors]" << endl;
 }
 
 void ZXGPrintCmd::help() const {
