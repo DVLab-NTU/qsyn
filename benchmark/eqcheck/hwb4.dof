@@ -1,0 +1,18 @@
+ver 0
+zxm -on
+qccr -r ../revlib/clifford_rz/hwb4_49.qasm
+qc2zx
+zxgp
+qc2ts
+qccr -r ../revlib/clifford_rz/hwb4_52.qasm
+qc2zx
+zxgp
+qc2ts
+zxgadj
+zxcheckout 0
+zxcompose 1
+zxgp
+zxgsimp -fr
+zxgp 
+tseq 0 1
+// q -f
