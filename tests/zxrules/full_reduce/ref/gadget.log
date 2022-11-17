@@ -197,7 +197,6 @@ Edge 0: 7 14
 (2) phase pass
 (3) Not a bad match
 Edge vs and vt are both interior: 14 7
-Add vertex ([1m[32mZ[0m[0m)29
 
 -----------
 
@@ -206,7 +205,6 @@ Edge 1: 9 11
 (2) phase pass
 (3) Not a bad match
 Edge vs and vt are both interior: 11 9
-Add vertex ([1m[32mZ[0m[0m)30
 
 -----------
 
@@ -221,6 +219,8 @@ Edge 2: 24 26
 (2) phase pass
 (3) Not a bad match
 Edge vs and vt are both interior: 26 24
+Add vertex ([1m[32mZ[0m[0m)29
+Add vertex ([1m[32mZ[0m[0m)30
 Add vertex ([1m[32mZ[0m[0m)31
 Add edge ( 29, 7 )
 Add edge ( 30, 9 )
@@ -344,7 +344,6 @@ Edge 0: 12 21
 (2) phase pass
 (3) Not a bad match
 Edge vs and vt are both interior: 21 12
-Add vertex ([1m[32mZ[0m[0m)32
 
 -----------
 
@@ -357,6 +356,7 @@ Edge 1: 17 19
 Edge 1: 26 31
 (1) type pass
 (2) phase pass
+Add vertex ([1m[32mZ[0m[0m)32
 Add edge ( 32, 12 )
 Found 1 match(es)
 > rewrite...
@@ -461,13 +461,13 @@ Edge 0: 15 17
 (2) phase pass
 (3) Not a bad match
 Edge vs and vt are both interior: 17 15
-Add vertex ([1m[32mZ[0m[0m)33
 
 -----------
 
 Edge 1: 26 31
 (1) type pass
 (2) phase pass
+Add vertex ([1m[32mZ[0m[0m)33
 Add edge ( 33, 15 )
 Found 1 match(es)
 > rewrite...
