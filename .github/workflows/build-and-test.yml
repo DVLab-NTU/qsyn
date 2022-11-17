@@ -26,8 +26,8 @@ jobs:
     - name: Compile main program
       run: make -j8
       
-    - name: Compile test program
-      run: make test -j8
+    # - name: Compile test program
+    #   run: make test -j8
       
     - name: run tests
-      run: TERM=dumb ./RUN_ALL_TEST.sh -noc -v
+      run: TERM=dumb ./RUN_ALL_TEST.sh -v
