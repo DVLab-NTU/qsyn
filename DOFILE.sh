@@ -4,12 +4,11 @@ source qsyn_testing_code/BASH_UTIL.sh
 RETURN_CODE=0
 
 function USAGE () {
-    printf "%s\t%-12s%-17s%-16s%-9s%s\n" "Usage:" "./DOFILE.sh" "<path/to/dofile>" "[-Diff|-UPdate]" "[-Quiet]" "[-NOColor]" 
+    printf "%s\t%-12s%-17s%-16s%-9s%s\n" "Usage:" "./DOFILE.sh" "<path/to/dofile>" "[-Diff|-UPdate]" "[-Quiet]" 
     printf "\t%-9s%-2s%-12s\n" "-Diff" ":" "Compare the result to the reference"
     printf "\t%-9s%-2s%-12s\n" "-UPdate" ":" "Update the reference file"
     printf "\t%-9s%-2s%-12s\n" "" "" "If neither -Diff or -UPdate is specified, default to -Diff mode."
     printf "\t%-9s%-2s%-12s\n" "-Quiet " ":" "Don't print diff message"
-    printf "\t%-9s%-2s%-12s\n" "-NOColor" ":" "Turn off colored output"
     printf "\t%-9s%-2s%-12s\n" "-Help" ":" "Print this help message"
     exit 1
 } >&2
@@ -22,7 +21,6 @@ fi
 DODIFF=0
 DOUPDATE=0
 DOQUIET=0
-DOCOLOR=1
 DOHELP=0
 
 for TOKEN in "$@"; do
@@ -58,12 +56,6 @@ for TOKEN in "$@"; do
             exit 1
         fi 
         DOQUIET=1
-    elif [[ $(MATCH_STR "$TOKEN" "-nocolor" 4) == 1 ]]; then
-        if [[ $DOCOLOR == 0 ]]; then
-            printf "Error: Extra Option (%s)!!\n" $TOKEN
-            exit 1
-        fi 
-        DOCOLOR=0
     elif [ -f $TOKEN ]; then
         FILE_PATH=$TOKEN
     else 
@@ -83,12 +75,10 @@ FAIL_TEXT="Failed"
 DIFF_HEAD="------------------- Differences --------------------"
 DIFF_FOOT="----------------------------------------------------"
 
-if [[ $DOCOLOR == 1 ]]; then
-    PASS_TEXT="${BOLD}${GREEN}${PASS_TEXT}${WHITE}${NORMAL}"
-    FAIL_TEXT="${BOLD}${RED}${FAIL_TEXT}${WHITE}${NORMAL}"
-    DIFF_HEAD="${BOLD}${RED}${DIFF_HEAD}${WHITE}${NORMAL}"
-    DIFF_FOOT="${BOLD}${RED}${DIFF_FOOT}${WHITE}${NORMAL}"
-fi
+PASS_TEXT="${BOLD}${GREEN}${PASS_TEXT}${WHITE}${NORMAL}"
+FAIL_TEXT="${BOLD}${RED}${FAIL_TEXT}${WHITE}${NORMAL}"
+DIFF_HEAD="${BOLD}${RED}${DIFF_HEAD}${WHITE}${NORMAL}"
+DIFF_FOOT="${BOLD}${RED}${DIFF_FOOT}${WHITE}${NORMAL}"
 
 if [[ $DODIFF == 1 ]]; then
     printf "Testing %-30s" ${DOFILE}

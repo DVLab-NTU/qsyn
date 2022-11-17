@@ -22,7 +22,7 @@
 // ----------------------------------------------------------------
 using namespace std::literals::complex_literals;
 
-TEST_CASE("x", "[Tensor]") {
+TEST_CASE("Brace Initialization", "[Tensor]") {
     QTensor<double> t1 = {{1. + 0.i, 0. + 0.i}, {0. + 0.i, 1. + 0.i}};
     REQUIRE(t1 == QTensor<double>::zspider(2, 0));
 }
