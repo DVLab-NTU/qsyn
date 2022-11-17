@@ -396,6 +396,7 @@ void Simplifier::simulatedReduce(){
         this->copySimp();
         if(i+j == 0) break;
     }
+    this->toRGraph();
 }
 
 
