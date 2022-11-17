@@ -9,7 +9,7 @@
 # Qsyn: An End-to-End Quantum Program Compilation Framework
 <!-- ![example branch parameter](https://github.com/ric2k1/qsyn/actions/workflows/build-and-test.yml/badge.svg)
  -->
- ![](https://i.imgur.com/ZXCkcvc.png)
+ ![](https://i.imgur.com/x2lKZXb.png)
 
 ## Introduction
 Qsyn is a C++ based growing software system for synthesis, optimization and verification of quantum circuits appearing in quantum computers. Qsyn combines scalable quantum circuits optimization by implementing ZX-Calculus and qubit mapping.
@@ -158,8 +158,8 @@ You may also perform all DOFILEs and unit-tests by running
 
 | Cmd          | Description                         					| Options     |
 | --------     | --------                            					| --------    |
-| QC2TS        | mapping to tensor from quantum circuit				    |             |
-| QC2ZX        | mapping to ZX-graph from quantum circuit				|             |
+| QC2TS        | convert the quantum circuit to tensor				    |             |
+| QC2ZX        | convert the quantum circuit to ZX-graph				|             |
 | QCBAdd       | add qubit(s)					                		|             |
 | QCBDelete    | delete an empty qubit					        		|             |
 | QCCPrint     | print quanutm circuit					        		|             |
@@ -176,7 +176,7 @@ You may also perform all DOFILEs and unit-tests by running
 
 | Cmd           | Description                         								| Options     |
 | --------      | --------                            								| --------    |
-| ZX2TS         | mapping to tensor from ZX-Graph    			                    |             |
+| ZX2TS         | convert the ZX-graph to tensor    			                    |             |
 | ZXCHeckout    | checkout to Graph <id> in ZXGraphMgr                				|             |
 | ZXCOMpose     | compose a ZX-graph				                                |             |
 | ZXCOPy        | copy a ZX-graph				                                    |             |
