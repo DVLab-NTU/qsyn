@@ -1,5 +1,5 @@
 #!/bin/bash
-source qsyn_testing_code/BASH_UTIL.sh
+source benchmark/qsyn_testing_code/BASH_UTIL.sh
 
 RETURN_CODE=0
 
