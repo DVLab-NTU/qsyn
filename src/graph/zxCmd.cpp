@@ -467,10 +467,13 @@ ZXGPrintCmd::exec(const string &option) {
     } 
     else if (myStrNCmp("-Edges", options[0], 2) == 0) zxGraphMgr->getGraph()->printEdges();
     else if (myStrNCmp("-Qubits", options[0], 2) == 0){
-        vector<unsigned> candidates;
+        vector<int> candidates;
         for(size_t i = 1; i < options.size(); i++){
-            unsigned id;
-            if(myStr2Uns(options[i], id)) candidates.push_back(id);
+            int qid;
+            if(myStr2Int(options[i], qid)) candidates.push_back(qid); 
+            else {
+                cout << "Warning: " << options[i] << " is not a valid qubit ID!!" << endl;
+            }
         }
         zxGraphMgr->getGraph()->printQubits(candidates);
     }

@@ -880,8 +880,8 @@ void ZXGraph::printVertices(vector<unsigned> cand) const{
  * 
  * @param cand 
  */
-void ZXGraph::printQubits(vector<unsigned> cand) const{
-    unordered_map<size_t, vector<ZXVertex*> > q2Vmap;
+void ZXGraph::printQubits(vector<int> cand) const{
+    unordered_map<int, vector<ZXVertex*> > q2Vmap;
     for(const auto& v : _vertices){
         if(q2Vmap.find(v->getQubit()) == q2Vmap.end()){
             vector<ZXVertex*> tmp(1, v);
@@ -892,15 +892,15 @@ void ZXGraph::printQubits(vector<unsigned> cand) const{
     if(cand.empty()){
         for(const auto& [key, vec] : q2Vmap){
             cout << "\n";
-            for(const auto& v : vec){ v->printVertex(); } 
+            for(const auto& v : vec) v->printVertex(); 
             cout << "\n";
         }
     }
     else{
         for(size_t i = 0; i < cand.size(); i++){
-            if(q2Vmap.find(((size_t)cand[i])) != q2Vmap.end()){
+            if(q2Vmap.find(cand[i]) != q2Vmap.end()){
                 cout << "\n";
-                for(const auto& v : q2Vmap[((size_t)cand[i])]) v->printVertex();
+                for(const auto& v : q2Vmap[cand[i]]) v->printVertex();
             }
             cout << "\n";
         }
