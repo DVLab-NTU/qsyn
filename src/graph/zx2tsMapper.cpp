@@ -23,7 +23,7 @@ bool ZX2TSMapper::map() {
         cerr << "Error: The ZX-Graph is not valid!!" << endl;
         return false;
     }
-    if (verbose >= 2) cout << "---- TRAVERSE AND BUILD THE TENSOR ----" << endl;
+    if (verbose >= 3) cout << "Traverse and build the tensor... " << endl;
     _zxgraph->topoTraverse([this](ZXVertex* v) { mapOneVertex(v); });
 
     if (!tensorMgr) tensorMgr = new TensorMgr();

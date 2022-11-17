@@ -53,4 +53,4 @@ zxGraph.o: zxGraph.cpp zxGraph.h zxDef.h ../../include/ordered_hashset.h \
  ../../include/myConcepts.h ../../include/util.h ../../include/rnGen.h \
  ../../include/myUsage.h ../../include/qtensor.h ../../include/tensor.h \
  ../../include/tensorDef.h ../../include/tensorUtil.h \
- ../../include/phase.h ../../include/util.h ../../include/textFormat.h
+ ../../include/phase.h ../../include/textFormat.h ../../include/util.h

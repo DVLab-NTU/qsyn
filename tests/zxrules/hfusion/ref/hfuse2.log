@@ -20,16 +20,14 @@ Gate 1: h   	 Exec Time: 1 	 Qubit: 0
 Gate 2: h   	 Exec Time: 2 	 Qubit: 0 
 
 qsyn> qc2zx
+Traverse and build the graph... 
 Successfully generated Graph 0
 Checkout to Graph 0
------------ ADD BOUNDARIES -----------
+> Add boundaries
 Add vertex (●)0
 Add vertex (●)1
 Add edge ( 0, 1 )
---------------------------------------
-
----- TRAVERSE AND BUILD THE GRAPH ----
-Gate 0 (h)
+> Gate 0 (h)
 **** Generate ZX of Gate 0 (h) ****
 Add vertex (●)0
 Add vertex ([1m[33mH[0m[0m)1
@@ -37,13 +35,11 @@ Add vertex (●)2
 Add edge ( 0, 1 )
 Add edge ( 1, 2 )
 ***********************************
-********** CONCATENATION **********
 Remove edge ( 0, 2 ), type: -
 Add edge ( 0, 2 )
 Remove edge ( 2, 2 ), type: -
 Add edge ( 2, 1 )
-***********************************
-Gate 1 (h)
+> Gate 1 (h)
 **** Generate ZX of Gate 1 (h) ****
 Add vertex (●)0
 Add vertex ([1m[33mH[0m[0m)1
@@ -51,13 +47,11 @@ Add vertex (●)2
 Add edge ( 0, 1 )
 Add edge ( 1, 2 )
 ***********************************
-********** CONCATENATION **********
 Remove edge ( 0, 3 ), type: -
 Add edge ( 2, 3 )
 Remove edge ( 2, 3 ), type: -
 Add edge ( 3, 1 )
-***********************************
-Gate 2 (h)
+> Gate 2 (h)
 **** Generate ZX of Gate 2 (h) ****
 Add vertex (●)0
 Add vertex ([1m[33mH[0m[0m)1
@@ -65,13 +59,10 @@ Add vertex (●)2
 Add edge ( 0, 1 )
 Add edge ( 1, 2 )
 ***********************************
-********** CONCATENATION **********
 Remove edge ( 0, 4 ), type: -
 Add edge ( 3, 4 )
 Remove edge ( 2, 4 ), type: -
 Add edge ( 4, 1 )
-***********************************
---------------------------------------
 
 qsyn> zxgp -v
 

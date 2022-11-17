@@ -5,11 +5,8 @@ ZXMODE turn ON!
 qsyn> qccr benchmark/pseudoSimp/tof2.qasm
 
 qsyn> qc2ts
------------ ADD BOUNDARIES -----------
+Traverse and build the tensor... 
 Successfully added Tensor 0
----- TRAVERSE AND BUILD THE TENSOR ----
---------------------------------------------
----------------------------------------
 Stored the resulting tensor as tensor id 0
 
 qsyn> tsp 0
@@ -32,10 +29,9 @@ qsyn> tsp 0
 #Dim:    2	Info: QC
 
 qsyn> qc2zx
+Traverse and build the graph... 
 Successfully generated Graph 0
 Checkout to Graph 0
----- TRAVERSE AND BUILD THE GRAPH ----
---------------------------------------
 
 qsyn> zxgp -v
 
@@ -70,7 +66,7 @@ Total #Vertices: 27
 
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 1
 Stored the resulting tensor as tensor id 1
 
@@ -178,7 +174,7 @@ Total #Vertices: 27
 
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 2
 Stored the resulting tensor as tensor id 2
 

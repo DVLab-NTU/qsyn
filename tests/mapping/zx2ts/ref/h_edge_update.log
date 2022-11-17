@@ -40,7 +40,7 @@ qsyn> ver 8
 Note: verbose level is set to 8
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Topological order from first input: 0 4 6 7 5 3 2 1 
 Size of topological order: 8
 > Mapping vertex 0 (●): New Subgraph

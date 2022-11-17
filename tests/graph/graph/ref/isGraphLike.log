@@ -5,10 +5,9 @@ ZXMODE turn ON!
 qsyn> qccr benchmark/pseudoSimp/tof_3.qasm
 
 qsyn> qc2zx
+Traverse and build the graph... 
 Successfully generated Graph 0
 Checkout to Graph 0
----- TRAVERSE AND BUILD THE GRAPH ----
---------------------------------------
 
 qsyn> zxgp -v
 

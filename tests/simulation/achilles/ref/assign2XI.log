@@ -5,10 +5,9 @@ qsyn> zxm -on
 ZXMODE turn ON!
 
 qsyn> qc2zx
+Traverse and build the graph... 
 Successfully generated Graph 0
 Checkout to Graph 0
----- TRAVERSE AND BUILD THE GRAPH ----
---------------------------------------
 
 qsyn> zxgas 3 I X 0
 
@@ -31,7 +30,7 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
@@ -39,10 +38,9 @@ qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
 Note: original quantum circuit is replaced...
 
 qsyn> qc2zx
+Traverse and build the graph... 
 Successfully generated Graph 1
 Checkout to Graph 1
----- TRAVERSE AND BUILD THE GRAPH ----
---------------------------------------
 
 qsyn> zxgas 3 I X 0
 
@@ -65,7 +63,7 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 1
 Stored the resulting tensor as tensor id 1
 
@@ -73,10 +71,9 @@ qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
 Note: original quantum circuit is replaced...
 
 qsyn> qc2zx
+Traverse and build the graph... 
 Successfully generated Graph 2
 Checkout to Graph 2
----- TRAVERSE AND BUILD THE GRAPH ----
---------------------------------------
 
 qsyn> zxgas 3 I X 0
 
@@ -99,7 +96,7 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 2
 Stored the resulting tensor as tensor id 2
 
