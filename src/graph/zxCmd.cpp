@@ -203,7 +203,7 @@ void ZXCHeckoutCmd::usage(ostream &os) const {
 
 void ZXCHeckoutCmd::help() const {
     cout << setw(15) << left << "ZXCHeckout: "
-         << "chec kout to Graph <id> in ZXGraphMgr" << endl;
+         << "checkout to Graph <id> in ZXGraphMgr" << endl;
 }
 
 
@@ -691,7 +691,7 @@ void ZX2TSCmd::usage(ostream &os) const {
 
 void ZX2TSCmd::help() const {
     cout << setw(15) << left << "ZX2TS: "
-         << "convert the ZX-graph to its corresponding tensor" << endl;
+         << "convert the ZX-graph to tensor" << endl;
 }
 
 

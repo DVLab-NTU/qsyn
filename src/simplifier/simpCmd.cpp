@@ -31,7 +31,7 @@ bool initSimpCmd(){
 
 //------------------------------------------------------------------------------------------------------------------
 //    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion | 
-//             -HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | PIVOTBoundary | -CLIFford | -FReduce | -SReduce]
+//             -HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -PIVOTBoundary | -CLIFford | -FReduce | -SReduce]
 //------------------------------------------------------------------------------------------------------------------
 CmdExecStatus
 ZXGSimpCmd::exec(const string &option){
@@ -67,15 +67,17 @@ ZXGSimpCmd::exec(const string &option){
         else if(myStrNCmp("-INTERClifford", token, 7) == 0)          s.interiorCliffordSimp();
         else if(myStrNCmp("-CLIFford", token, 5) == 0)              s.cliffordSimp();
         else if(myStrNCmp("-FReduce", token, 3) == 0)               s.fullReduce();
-        else if(myStrNCmp("-SReduce", token, 3) == 0)               s.simulatedReduce();
+        else if(myStrNCmp("-SReduce", token, 3) == 0)               s.symbolicReduce();
         else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     }
     return CMD_EXEC_DONE;
 }
 
 void ZXGSimpCmd::usage(ostream &os) const{
+    // os << "Usage: ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion | \n"
+    //                    << "-HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -PIVOTBoundary | -CLIFford | -FReduce | -SReduce]" << endl;
     os << "Usage: ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion | \n"
-                       << "-HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | PIVOTBoundary | -CLIFford | -FReduce | -SReduce]" << endl;
+                       << "-HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -CLIFford | -FReduce | -SReduce]" << endl;
 }
 
 void ZXGSimpCmd::help() const{

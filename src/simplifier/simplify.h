@@ -89,7 +89,7 @@ class Simplifier{
         int interiorCliffordSimp();
         int cliffordSimp();
         void fullReduce();
-        void simulatedReduce();
+        void symbolicReduce();
 
 
         // print function

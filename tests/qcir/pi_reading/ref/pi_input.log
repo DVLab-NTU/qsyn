@@ -21,10 +21,9 @@ qsyn> zxmode -on
 ZXMODE turn ON!
 
 qsyn> qc2zx
+Traverse and build the graph... 
 Successfully generated Graph 0
 Checkout to Graph 0
----- TRAVERSE AND BUILD THE GRAPH ----
---------------------------------------
 
 qsyn> q -f
 

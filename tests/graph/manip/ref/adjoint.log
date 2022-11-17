@@ -113,17 +113,15 @@ Total #Vertices: 6
 
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
 qsyn> qcba 3
 
 qsyn> qc2ts
------------ ADD BOUNDARIES -----------
+Traverse and build the tensor... 
 Successfully added Tensor 1
----- TRAVERSE AND BUILD THE TENSOR ----
----------------------------------------
 Stored the resulting tensor as tensor id 1
 
 qsyn> tseq 0 1 -Strict

@@ -10,9 +10,10 @@ qsyn> zxmode -on
 ZXMODE turn ON!
 
 qsyn> qc2zx
+Traverse and build the graph... 
 Successfully generated Graph 0
 Checkout to Graph 0
------------ ADD BOUNDARIES -----------
+> Add boundaries
 Add vertex (●)0
 Add vertex (●)1
 Add edge ( 0, 1 )
@@ -22,10 +23,7 @@ Add edge ( 2, 3 )
 Add vertex (●)4
 Add vertex (●)5
 Add edge ( 4, 5 )
---------------------------------------
-
----- TRAVERSE AND BUILD THE GRAPH ----
-Gate 0 (ccx)
+> Gate 0 (ccx)
 **** Generate ZX of Gate 0 (ccx) ****
 Add vertex (●)0
 Add vertex (●)1
@@ -85,7 +83,6 @@ Add edge ( 18, 21 )
 Add edge ( 21, 23 )
 Add edge ( 22, 23 )
 ***********************************
-********** CONCATENATION **********
 Remove edge ( 2, 6 ), type: -
 Add edge ( 4, 6 )
 Remove edge ( 1, 7 ), type: -
@@ -98,11 +95,9 @@ Remove edge ( 25, 26 ), type: -
 Add edge ( 26, 3 )
 Remove edge ( 24, 25 ), type: -
 Add edge ( 25, 1 )
-***********************************
---------------------------------------
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Topological order from first input: 0 10 11 9 8 7 2 13 14 15 17 19 22 5 16 20 21 24 26 3 25 1 23 18 12 6 4 
 Size of topological order: 27
 > Mapping vertex 0 (●): New Subgraph

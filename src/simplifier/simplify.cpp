@@ -384,7 +384,7 @@ void Simplifier::fullReduce(){
  * @brief The main simplification routine of PyZX
  * 
  */
-void Simplifier::simulatedReduce(){
+void Simplifier::symbolicReduce(){
     this->interiorCliffordSimp();
     this->pivotGadgetSimp();
     this->copySimp();
