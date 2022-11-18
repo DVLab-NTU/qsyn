@@ -1,0 +1,22 @@
+ver 1
+zxm -on
+qccr benchmark/benchmark_SABRE/small/qft_4.qasm
+qc2zx
+zxgas 0 I X pi
+zxgas 1 I X 0
+zxgas 2 I X pi
+zxgas 3 I X 0
+zxgp -v
+zx2ts
+zxgs -tog
+zxgp -v
+zxgs -spi
+zxgp -v
+zxgs -pivot
+zxgp -v
+zxgs -torg
+zxgp -v
+zx2ts
+tsp 1
+tseq 0 1
+q -f
