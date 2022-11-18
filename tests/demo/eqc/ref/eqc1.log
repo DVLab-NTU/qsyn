@@ -275,16 +275,16 @@ No matches
 
 qsyn> zxgp -q
 
-ID:	36	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(70, -) 
-ID:	70	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(36, -) 
+ID:	34	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(68, -) 
+ID:	68	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(34, -) 
 
 
 ID:	35	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(69, -) 
 ID:	69	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(35, -) 
 
 
-ID:	34	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(68, -) 
-ID:	68	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(34, -) 
+ID:	36	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(70, -) 
+ID:	70	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(36, -) 
 
 
 qsyn> zxgt -v

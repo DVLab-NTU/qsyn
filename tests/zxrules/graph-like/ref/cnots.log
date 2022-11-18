@@ -7,7 +7,7 @@ Successfully generated Graph 0
 Checkout to Graph 0
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
@@ -66,7 +66,7 @@ qsyn> zxgp -e
 Total #Edges: 4
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 1
 Stored the resulting tensor as tensor id 1
 

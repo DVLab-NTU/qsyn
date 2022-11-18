@@ -587,7 +587,7 @@ void QCir2ZXCmd::usage(ostream &os) const
 void QCir2ZXCmd::help() const
 {
    cout << setw(15) << left << "QC2ZX: "
-        << "mapping to ZX-graph from quantum circuit\n";
+        << "convert the quantum circuit to ZX-graph\n";
 }
 
 //----------------------------------------------------------------------
@@ -617,7 +617,7 @@ void QCir2TSCmd::usage(ostream &os) const
 void QCir2TSCmd::help() const
 {
    cout << setw(15) << left << "QC2TS: "
-        << "mapping to tensor from quantum circuit\n";
+        << "convert the quantum circuit to tensor\n";
 }
 
 //----------------------------------------------------------------------

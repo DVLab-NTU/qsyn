@@ -122,6 +122,10 @@ There are two types of testing approaches:
 		```shell!
 		./DOFILE.sh <path/to/test> -up
 		```
+    You may also run all DOFILEs by running
+    ```bash!
+    ./RUN_ALL_TEST.sh
+    ```
 2. Unit tests, which checks the validity of selected functions.
 	
     * To compile unit test programs, type
@@ -132,10 +136,6 @@ There are two types of testing approaches:
 		```shell!
 		./tests/bin/tests -r compact
 		```
-You may also perform all DOFILEs and unit-tests by running
-```bash!
-./RUN_ALL_TEST.sh
-```
 
 
 ## Commands List

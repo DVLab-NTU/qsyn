@@ -87,13 +87,11 @@ Total #Vertices: 4
 
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 0
 
 qsyn> zxgr -bzx benchmark/demo/simp/id_2.bzx
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 1
 
 qsyn> tseq 0 1

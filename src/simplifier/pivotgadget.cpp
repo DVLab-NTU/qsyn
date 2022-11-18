@@ -53,9 +53,13 @@ void PivotGadget::match(ZXGraph* g){
     }
 
     vector<bool> taken(g->getNumVertices(), false);
+    vector<Phase> verticesStorage;
+    vector<pair<size_t, ZXVertex*>> edgesStorage;
+    vector<pair<pair<ZXVertex*, ZXVertex*>, size_t>> matchesStorage;
     vector<EdgePair> newEdges;
+    vector<ZXVertex*> newVertices;
     cnt = 0;
-    g -> forEachEdge([&g, &cnt, &id2idx, &taken, &newEdges, this](const EdgePair& epair) {
+    g -> forEachEdge([&cnt, &id2idx, &taken, &verticesStorage, &edgesStorage, &matchesStorage, this](const EdgePair& epair) {
         ZXVertex* vs = epair.first.first; ZXVertex* vt = epair.first.second;
         Phase vsp = vs->getPhase(); Phase vtp = vt->getPhase();
 
@@ -114,14 +118,20 @@ void PivotGadget::match(ZXGraph* g){
         for(auto& [v, _] : vs->getNeighbors()) taken[id2idx[v->getId()]] = true;
         for(auto& [v, _] : vt->getNeighbors()) taken[id2idx[v->getId()]] = true;
         
-
-        ZXVertex* newVertex = g->addVertex(-2, VertexType::Z, vtp);
+        //NOTE - ZXVertex*:  vtp []
+        //NOTE - Edge: newV, vt
+        //NOTE - match: vs vt newV
+        size_t addId = verticesStorage.size();
+        verticesStorage.push_back(vtp);
+        edgesStorage.push_back(make_pair(addId, vt));
+        matchesStorage.push_back(make_pair(make_pair(vs, vt), addId));
+        // ZXVertex* newVertex = g->addVertex(-2, VertexType::Z, vtp);
         vt->setPhase(Phase(0));
         vs->setQubit(-1);
-        newEdges.push_back(make_pair(make_pair(newVertex, vt), EdgeType(EdgeType::SIMPLE)));
-        vector<ZXVertex*> match{vs, vt, newVertex};
+        // newEdges.push_back(make_pair(make_pair(newVertex, vt), EdgeType(EdgeType::SIMPLE)));
+        // vector<ZXVertex*> match{vs, vt, newVertex};
 
-        _matchTypeVec.emplace_back(match);
+        // _matchTypeVec.emplace_back(match);
 
         //REVIEW - Not sure why additional ++ is needed
         // cnt += 1;
@@ -129,9 +139,20 @@ void PivotGadget::match(ZXGraph* g){
         cnt++;
     });
 
+    unordered_map<size_t, ZXVertex*> table;
+    for(size_t i=0; i<verticesStorage.size(); i++) {
+        table[i] = g->addVertex(-2, VertexType::Z, verticesStorage[i]);
+    }
+    for(auto& [idx, vt]: edgesStorage){
+        g->addEdge(table[idx], vt, EdgeType(EdgeType::SIMPLE));
+    }
+    for(auto& [vpairs, idx]: matchesStorage){
+        vector<ZXVertex*> match{vpairs.first, vpairs.second, table[idx]};
+        _matchTypeVec.emplace_back(match);
+    }
     for(auto& e : newEdges) g->addEdge(e.first.first, e.first.second, e.second);
     
-    newEdges.clear();
+    // newEdges.clear();
     
     setMatchTypeVecNum(_matchTypeVec.size());
 }

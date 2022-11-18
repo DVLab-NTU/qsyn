@@ -1,0 +1,25 @@
+ver 0
+zxm -on
+qccr -r benchmark/pseudoSimp/a(b+c).qasm
+qc2zx
+zxgassign 3 I X 0
+zxgassign 3 O X 0
+zxgp
+// zx2ts
+qccr -r benchmark/pseudoSimp/ab+ac.qasm
+qc2zx
+zxgassign 3 I X 0
+zxgassign 3 O X 0
+zxgassign 4 I X 0
+zxgassign 4 O X 0
+zxgp
+zxgsimp -fr
+// zx2ts
+zxgadj
+zxcheckout 0
+zxcompose 1
+zxgp
+zxgsimp -fr
+zxgp 
+// tseq 0 1
+// q -f

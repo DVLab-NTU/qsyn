@@ -5,10 +5,9 @@ qsyn> zxm -on
 ZXMODE turn ON!
 
 qsyn> qc2zx
+Traverse and build the graph... 
 Successfully generated Graph 0
 Checkout to Graph 0
----- TRAVERSE AND BUILD THE GRAPH ----
---------------------------------------
 
 qsyn> zxgp -v
 
@@ -326,7 +325,7 @@ Total #Vertices: 6
 
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 

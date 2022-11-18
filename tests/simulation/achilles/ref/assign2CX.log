@@ -5,10 +5,9 @@ qsyn> zxm -on
 ZXMODE turn ON!
 
 qsyn> qc2zx
+Traverse and build the graph... 
 Successfully generated Graph 0
 Checkout to Graph 0
----- TRAVERSE AND BUILD THE GRAPH ----
---------------------------------------
 
 qsyn> zxgas 3 I X 0
 
@@ -29,12 +28,12 @@ qsyn> zxgs -sr
 
 qsyn> zxgp -v
 
-ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(32, -) 
-ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(32, -) 
-ID:	8	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(107, [1m[34mH[0m[0m) 
-ID:	9	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(107, [1m[34mH[0m[0m) 
-ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(4, -) (5, -) (107, [1m[34mH[0m[0m) 
-ID:	107	VertexType:	[1m[32mZ[0m[0m	Qubit:	4	Phase:	0	#Neighbors:	3	(8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) 
+ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(32, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(32, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(107, -) 
+ID:	9	VertexType:	●	Qubit:	4	Phase:	0	#Neighbors:	1	(107, -) 
+ID:	32	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (107, [1m[34mH[0m[0m) 
+ID:	107	VertexType:	[1m[31mX[0m[0m	Qubit:	4	Phase:	0	#Neighbors:	3	(8, -) (9, -) (32, [1m[34mH[0m[0m) 
 Total #Vertices: 6
 
 
@@ -42,7 +41,7 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 

@@ -40,7 +40,7 @@ void PhaseGadget::match(ZXGraph* g){
     unordered_multimap<vector<ZXVertex*>, ZXVertex*> groups;
     unordered_map<vector<ZXVertex*>, bool> done;
     for(const auto& v : g->getVertices()){
-        if(v->getPhase() != Phase(0) && v->getPhase() != Phase(1) && v->getNumNeighbors() == 1){
+        if(v->getPhase().getRational().denominator() > 2 && v->getNumNeighbors() == 1){
             ZXVertex* neighbor = v->getFirstNeighbor().first;
             if(neighbor->getPhase() != Phase(0) and neighbor->getPhase() != Phase(1)) continue;
             if(neighbor->getType() == VertexType::BOUNDARY) continue;

@@ -203,7 +203,7 @@ void ZXCHeckoutCmd::usage(ostream &os) const {
 
 void ZXCHeckoutCmd::help() const {
     cout << setw(15) << left << "ZXCHeckout: "
-         << "chec kout to Graph <id> in ZXGraphMgr" << endl;
+         << "checkout to Graph <id> in ZXGraphMgr" << endl;
 }
 
 
@@ -467,12 +467,29 @@ ZXGPrintCmd::exec(const string &option) {
     } 
     else if (myStrNCmp("-Edges", options[0], 2) == 0) zxGraphMgr->getGraph()->printEdges();
     else if (myStrNCmp("-Qubits", options[0], 2) == 0){
-        vector<unsigned> candidates;
+        vector<int> candidates;
         for(size_t i = 1; i < options.size(); i++){
-            unsigned id;
-            if(myStr2Uns(options[i], id)) candidates.push_back(id);
+            int qid;
+            if(myStr2Int(options[i], qid)) candidates.push_back(qid); 
+            else {
+                cout << "Warning: " << options[i] << " is not a valid qubit ID!!" << endl;
+            }
         }
         zxGraphMgr->getGraph()->printQubits(candidates);
+    }
+    else if (myStrNCmp("-Neighbors", options[0], 2) == 0) {
+        CMD_N_OPTS_EQUAL_OR_RETURN(options, 2);
+
+        unsigned id;
+        ZXVertex* v;
+        ZX_CMD_ID_VALID_OR_RETURN(options[1], id, "Vertex");
+        ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id, v);
+
+        v->printVertex();
+        cout << "----- Neighbors -----" << endl;
+        for (auto [nb, _] : v->getNeighbors()) {
+            nb->printVertex();
+        }
     }
     
     else return errorOption(CMD_OPT_ILLEGAL, options[0]);
@@ -480,7 +497,7 @@ ZXGPrintCmd::exec(const string &option) {
 }
 
 void ZXGPrintCmd::usage(ostream &os) const {
-    os << "Usage: ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges]" << endl;
+    os << "Usage: ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors]" << endl;
 }
 
 void ZXGPrintCmd::help() const {
@@ -674,7 +691,7 @@ void ZX2TSCmd::usage(ostream &os) const {
 
 void ZX2TSCmd::help() const {
     cout << setw(15) << left << "ZX2TS: "
-         << "convert the ZX-graph to its corresponding tensor" << endl;
+         << "convert the ZX-graph to tensor" << endl;
 }
 
 
