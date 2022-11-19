@@ -42,16 +42,16 @@ class QCirMgr{
 
         // Setter and Getter
         size_t getNextID() const                         { return _nextID; }
-        QCir* getGraph() const                           { return _circuitList[_cListItr - _circuitList.begin()]; }
-        const QCirList& getGraphList() const             { return _circuitList; }
-        QCirList::iterator getgListItr() const           { return _cListItr; }
+        QCir* getQCircuit() const                           { return _circuitList[_cListItr - _circuitList.begin()]; }
+        const QCirList& getQCircuitList() const             { return _circuitList; }
+        QCirList::iterator getcListItr() const           { return _cListItr; }
 
         void setNextID(size_t id)                        { _nextID = id; }
-        void setGraph(QCir* g)                           { _circuitList[_cListItr - _circuitList.begin()] = g; }
+        void setQCircuit(QCir* g)                           { _circuitList[_cListItr - _circuitList.begin()] = g; }
         
 
         // Add and Remove
-        QCir* addQCir(size_t id, void** ref = NULL);
+        QCir* addQCir(size_t id);
         void removeQCir(size_t id);
 
 
@@ -63,8 +63,8 @@ class QCirMgr{
 
         // Print
         void printQCirMgr() const;
-        void printGListItr() const;
-        void printGraphListSize() const;
+        void printCListItr() const;
+        void printQCircuitListSize() const;
 
     private:
         size_t                               _nextID;
