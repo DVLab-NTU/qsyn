@@ -47,6 +47,14 @@ zxGraphMgr.o: zxGraphMgr.cpp zxGraphMgr.h zxGraph.h zxDef.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
  ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
  ../../include/tensorUtil.h ../../include/phase.h
+zxVertex.o: zxVertex.cpp zxGraph.h zxDef.h \
+ ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
+ ../../include/myHashMap.h ../../include/phase.h \
+ ../../include/rationalNumber.h ../../include/myConcepts.h \
+ ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
+ ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
+ ../../include/tensorUtil.h ../../include/phase.h \
+ ../../include/textFormat.h ../../include/util.h
 zxMapping.o: zxMapping.cpp ../../include/util.h ../../include/rnGen.h \
  ../../include/myUsage.h zx2tsMapper.h zxGraph.h zxDef.h \
  ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \

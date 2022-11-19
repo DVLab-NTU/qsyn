@@ -12,9 +12,10 @@
 
 #include "cmdParser.h"
 
-CmdClass(ZXModeCmd);
+
 CmdClass(ZXNewCmd);
-CmdClass(ZXRemoveCmd);
+CmdClass(ZXResetCmd);
+CmdClass(ZXDeleteCmd);
 CmdClass(ZXCHeckoutCmd);
 CmdClass(ZXPrintCmd);
 CmdClass(ZXCOPyCmd);

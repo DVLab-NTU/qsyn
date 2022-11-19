@@ -27,9 +27,10 @@ extern size_t verbose;
 
 
 bool initZXCmd() {
-    if (!(cmdMgr->regCmd("ZXMode", 3, new ZXModeCmd) &&
-          cmdMgr->regCmd("ZXNew", 3, new ZXNewCmd) &&
-          cmdMgr->regCmd("ZXRemove", 3, new ZXRemoveCmd) &&
+    zxGraphMgr = new ZXGraphMgr;
+    if (!(cmdMgr->regCmd("ZXNew", 3, new ZXNewCmd) &&
+          cmdMgr->regCmd("ZXReset", 3, new ZXResetCmd) &&
+          cmdMgr->regCmd("ZXDelete", 3, new ZXDeleteCmd) &&
           cmdMgr->regCmd("ZXCHeckout", 4, new ZXCHeckoutCmd) &&
           cmdMgr->regCmd("ZXCOPy", 5, new ZXCOPyCmd) &&
           cmdMgr->regCmd("ZXCOMpose", 5, new ZXCOMposeCmd) &&
@@ -52,67 +53,13 @@ bool initZXCmd() {
 
 enum ZXCmdState {
     // Order matters! Do not change the order!!
-    ZXOFF,
     ZXON,
     // dummy end
     ZXCMDTOT
 };
 
-static ZXCmdState curCmd = ZXOFF;
+static ZXCmdState curCmd = ZXON;
 
-
-
-//----------------------------------------------------------------------
-//    ZXMode [-ON | -OFF | -Reset | -Print]
-//----------------------------------------------------------------------
-CmdExecStatus
-ZXModeCmd::exec(const string &option) {
-    string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    if (zxGraphMgr != 0) {
-    }
-    zxGraphMgr = new ZXGraphMgr;
-    if (token.empty() || myStrNCmp("-Print", token, 2) == 0) {
-        if (curCmd == ZXON)
-            cout << "ZX ON" << endl;
-        else if (curCmd == ZXOFF)
-            cout << "ZX OFF" << endl;
-        else
-            cout << "Error: curCmd loading fail... exiting" << endl;
-    } else if (myStrNCmp("-ON", token, 3) == 0) {
-        if (curCmd == ZXON)
-            cout << "Error: ZXMODE is already ON" << endl;
-        else {
-            curCmd = ZXON;
-            cout << "ZXMODE turn ON!" << endl;
-        }
-    } else if (myStrNCmp("-OFF", token, 4) == 0) {
-        if (curCmd == ZXON) {
-            curCmd = ZXOFF;
-            delete zxGraphMgr;
-            zxGraphMgr = 0;
-            cout << "ZXMODE turn OFF!" << endl;
-        } else
-            cout << "Error: ZXMODE is already OFF" << endl;
-    } else if (myStrNCmp("-Reset", token, 2) == 0) {
-        if (curCmd == ZXON) {
-            zxGraphMgr->reset();
-            cout << "ZX is successfully RESET!" << endl;
-        } else
-            cout << "Error: ZXMODE OFF, turn ON before RESET" << endl;
-    } else
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    return CMD_EXEC_DONE;
-}
-
-void ZXModeCmd::usage(ostream &os) const {
-    os << "Usage: ZXMode [-On | -Off | -Reset | -Print]" << endl;
-}
-
-void ZXModeCmd::help() const {
-    cout << setw(15) << left << "ZXMode: "
-         << "check out to ZX-graph mode" << endl;
-}
 
 
 
@@ -149,10 +96,32 @@ void ZXNewCmd::help() const {
 
 
 //----------------------------------------------------------------------
-//    ZXRemove <(size_t id)>
+//    ZXReset
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXRemoveCmd::exec(const string &option) {
+ZXResetCmd::exec(const string &option) {
+    if(!lexNoOption(option)) return CMD_EXEC_ERROR;
+    if(!zxGraphMgr) zxGraphMgr = new ZXGraphMgr;
+    else zxGraphMgr->reset();
+    return CMD_EXEC_DONE;
+}
+
+void ZXResetCmd::usage(ostream &os) const {
+    os << "Usage: ZXReset" << endl;
+}
+
+void ZXResetCmd::help() const {
+    cout << setw(15) << left << "ZXReset: "
+         << "reset ZXGraphMgr" << endl;
+}
+
+
+
+//----------------------------------------------------------------------
+//    ZXDelete <(size_t id)>
+//----------------------------------------------------------------------
+CmdExecStatus
+ZXDeleteCmd::exec(const string &option) {
     ZX_CMD_ZXMODE_ON_OR_RETURN;
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
@@ -167,12 +136,12 @@ ZXRemoveCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXRemoveCmd::usage(ostream &os) const {
-    os << "Usage: ZXRemove <size_t id>" << endl;
+void ZXDeleteCmd::usage(ostream &os) const {
+    os << "Usage: ZXDelete <size_t id>" << endl;
 }
 
-void ZXRemoveCmd::help() const {
-    cout << setw(15) << left << "ZXRemove: "
+void ZXDeleteCmd::help() const {
+    cout << setw(15) << left << "ZXDelete: "
          << "remove a ZX-graph from ZXGraphMgr" << endl;
 }
 
