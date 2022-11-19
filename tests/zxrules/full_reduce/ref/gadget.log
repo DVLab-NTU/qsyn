@@ -1,5 +1,8 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> qccr benchmark/pseudoSimp/tof2.qasm
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
 
 qsyn> zxm -on
 ZXMODE turn ON!

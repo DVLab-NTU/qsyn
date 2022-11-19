@@ -3,6 +3,9 @@ qsyn> ver 8
 Note: verbose level is set to 8
 
 qsyn> qccr benchmark/qc2ts/circuit/control_z.qasm
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
 
 qsyn> qc2ts
 Traverse and build the tensor... 
@@ -49,7 +52,7 @@ Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
 qsyn> qccr benchmark/qc2ts/circuit/control_h.qasm -R
-Note: original quantum circuit is replaced...
+Note: original QCir is replaced...
 
 qsyn> qc2ts
 Traverse and build the tensor... 
@@ -112,7 +115,7 @@ Successfully added Tensor 1
 Stored the resulting tensor as tensor id 1
 
 qsyn> qccr benchmark/qc2ts/circuit/toffoli_dec.qasm -R
-Note: original quantum circuit is replaced...
+Note: original QCir is replaced...
 
 qsyn> qc2ts
 Traverse and build the tensor... 
@@ -199,7 +202,7 @@ Successfully added Tensor 2
 Stored the resulting tensor as tensor id 2
 
 qsyn> qccr benchmark/qc2ts/circuit/toffoli_qiskit.qasm -R
-Note: original quantum circuit is replaced...
+Note: original QCir is replaced...
 
 qsyn> qc2ts
 Traverse and build the tensor... 

@@ -6,6 +6,9 @@ qsyn> zxmode -on
 ZXMODE turn ON!
 
 qsyn> qcba
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
 
 qsyn> qcga -h 0
 

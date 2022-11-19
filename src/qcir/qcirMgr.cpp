@@ -63,8 +63,8 @@ QCir* QCirMgr::addQCir(size_t id) {
     _cListItr = _circuitList.end() - 1;
     if (id == _nextID || _nextID < id) _nextID = id + 1;
     if (verbose >= 3) {
-        cout << "Successfully generated QCircuit " << id << endl;
-        cout << "Checkout to QCircuit " << id << endl;
+        cout << "Successfully generated QCir " << id << endl;
+        cout << "Checkout to QCir " << id << endl;
     }
     return qcir;
 }
@@ -75,13 +75,13 @@ void QCirMgr::removeQCir(size_t id) {
             QCir* rmCircuit = _circuitList[i];
             _circuitList.erase(_circuitList.begin() + i);
             delete rmCircuit;
-            if (verbose >= 3) cout << "Successfully removed Graph " << id << endl;
+            if (verbose >= 3) cout << "Successfully removed QCir " << id << endl;
             _cListItr = _circuitList.begin();
             if (verbose >= 3) {
                 if (!_circuitList.empty())
-                    cout << "Checkout to Graph " << _circuitList[0]->getId() << endl;
+                    cout << "Checkout to QCir " << _circuitList[0]->getId() << endl;
                 else
-                    cout << "Note: The graph list is empty now" << endl;
+                    cout << "Note: The QCir list is empty now" << endl;
             }
             return;
         }
@@ -96,7 +96,7 @@ void QCirMgr::checkout2QCir(size_t id) {
     for (size_t i = 0; i < _circuitList.size(); i++) {
         if (_circuitList[i]->getId() == id) {
             _cListItr = _circuitList.begin() + i;
-            if (verbose >= 3) cout << "Checkout to QCircuit " << id << endl;
+            if (verbose >= 3) cout << "Checkout to QCir " << id << endl;
             return;
         }
     }
@@ -116,15 +116,15 @@ void QCirMgr::copy(size_t id, bool toNew) {
             _cListItr = _circuitList.end() -1;
             if(_nextID <= id) _nextID = id + 1;
             if(verbose >= 3){
-                cout << "Successfully copied QCircuit " << oriCircuitID << " to QCircuit " << id << "\n";
-                cout << "Checkout to QCircuit " << id << "\n";
+                cout << "Successfully copied QCir " << oriCircuitID << " to QCir " << id << "\n";
+                cout << "Checkout to QCir " << id << "\n";
             }
         }
         else{
             for(size_t i = 0; i < _circuitList.size(); i++){
                 if(_circuitList[i]->getId() == id){
                     _circuitList[i] = copiedCircuit;
-                    if (verbose >= 3) cout << "Successfully copied QCircuit " << oriCircuitID << " to QCircuit " << id << endl;
+                    if (verbose >= 3) cout << "Successfully copied QCir " << oriCircuitID << " to QCir " << id << endl;
                     checkout2QCir(id);
                     break;
                 }
@@ -137,7 +137,7 @@ void QCirMgr::copy(size_t id, bool toNew) {
 
 QCir* QCirMgr::findQCirByID(size_t id) const {
     if (!isID(id))
-        cerr << "Error: Graph " << id << " does not exist!" << endl;
+        cerr << "Error: QCir " << id << " does not exist!" << endl;
     else {
         for (size_t i = 0; i < _circuitList.size(); i++) {
             if (_circuitList[i]->getId() == id) return _circuitList[i];
@@ -150,7 +150,7 @@ QCir* QCirMgr::findQCirByID(size_t id) const {
 
 // Print
 void QCirMgr::printQCirMgr() const {
-    cout << "-> #QCircuit: " << _circuitList.size() << endl;
+    cout << "-> #QCir: " << _circuitList.size() << endl;
     if (!_circuitList.empty()) cout << "-> Now focus on: " << getQCircuit()->getId() << endl;
 }
 
@@ -162,5 +162,5 @@ void QCirMgr::printCListItr() const {
 }
 
 void QCirMgr::printQCircuitListSize() const {
-    cout << "#QCircuit: " << _circuitList.size() << endl;
+    cout << "#QCir: " << _circuitList.size() << endl;
 }

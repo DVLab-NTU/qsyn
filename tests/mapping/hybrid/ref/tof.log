@@ -3,6 +3,9 @@ qsyn> ver 9
 Note: verbose level is set to 9
 
 qsyn> qcba 3
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
 
 qsyn> qcga -CCX 0 1 2
 

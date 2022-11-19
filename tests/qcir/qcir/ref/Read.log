@@ -1,5 +1,8 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> qccr benchmark/benchmark_SABRE/large/root_255.qasm
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
 
 qsyn> qccp
 Listed by gate ID
@@ -17182,7 +17185,7 @@ Q14
 Q15  
 
 qsyn> qccr benchmark/benchmark_SABRE/small/4gt13_92.qasm -R
-Note: original quantum circuit is replaced...
+Note: original QCir is replaced...
 
 qsyn> qccprint
 Listed by gate ID

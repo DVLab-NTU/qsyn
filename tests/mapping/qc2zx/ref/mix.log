@@ -3,6 +3,9 @@ qsyn> zxm -on
 ZXMODE turn ON!
 
 qsyn> qcba 2
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
 
 qsyn> qcga -x 0
 
@@ -22,7 +25,7 @@ Successfully generated Graph 1
 Checkout to Graph 1
 
 qsyn> qccr -r benchmark/benchmark_SABRE/small/3_17_13.qasm
-Note: original quantum circuit is replaced...
+Note: original QCir is replaced...
 
 qsyn> qc2zx
 Traverse and build the graph... 
