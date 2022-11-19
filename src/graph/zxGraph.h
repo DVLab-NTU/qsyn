@@ -23,6 +23,7 @@
 using namespace std;
 
 class ZXVertex{
+    // See `zxVertex.cpp` for details
     public:
         class EdgeIterator;
         friend class EdgeIterator;
@@ -39,32 +40,32 @@ class ZXVertex{
         ~ZXVertex(){}
 
         // Getter and Setter
-        const size_t& getId() const                                         { return _id; }
-        const int& getQubit() const                                         { return _qubit; }
-        const size_t& getPin() const                                        { return _pin; }
-        const Phase& getPhase() const                                       { return _phase; }
-        const VertexType& getType() const                                   { return _type; }
-        const Neighbors& getNeighbors() const                               { return _neighbors; }
-        const NeighborPair& getFirstNeighbor() const                        { return *(_neighbors.begin()); }
-        const NeighborPair& getSecondNeighbor() const                       { return *next((_neighbors.begin())); }
+        const size_t& getId() const                            { return _id; }
+        const int& getQubit() const                            { return _qubit; }
+        const size_t& getPin() const                           { return _pin; }
+        const Phase& getPhase() const                          { return _phase; }
+        const VertexType& getType() const                      { return _type; }
+        const Neighbors& getNeighbors() const                  { return _neighbors; }
+        const NeighborPair& getFirstNeighbor() const           { return *(_neighbors.begin()); }
+        const NeighborPair& getSecondNeighbor() const          { return *next((_neighbors.begin())); }
 
         vector<ZXVertex*> getCopiedNeighbors();                              
-        size_t getNumNeighbors() const                                      { return _neighbors.size(); }
+        size_t getNumNeighbors() const                         { return _neighbors.size(); }
         QTensor<double> getTSform();
 
-        void setId(const size_t& id)                                        { _id = id; }
-        void setQubit(const int& q)                                         { _qubit = q; }
-        void setPin(const size_t& p)                                        { _pin = p; }
-        void setPhase(const Phase& p)                                       { _phase = p; }
-        void setType(const VertexType& vt)                                  { _type = vt; }
-        void setNeighbors(const Neighbors& n)                               { _neighbors = n; }
+        void setId(const size_t& id)                           { _id = id; }
+        void setQubit(const int& q)                            { _qubit = q; }
+        void setPin(const size_t& p)                           { _pin = p; }
+        void setPhase(const Phase& p)                          { _phase = p; }
+        void setType(const VertexType& vt)                     { _type = vt; }
+        void setNeighbors(const Neighbors& n)                  { _neighbors = n; }
         
         
         
         // Add and Remove
-        void addNeighbor(const NeighborPair& n)                             { _neighbors.insert(n); }
-        size_t removeNeighbor(const NeighborPair& n)                        { return _neighbors.erase(n); }
-        size_t removeNeighbor(ZXVertex* v, EdgeType et)                     { return removeNeighbor(make_pair(v, et)); }
+        void addNeighbor(const NeighborPair& n)                { _neighbors.insert(n); }
+        size_t removeNeighbor(const NeighborPair& n)           { return _neighbors.erase(n); }
+        size_t removeNeighbor(ZXVertex* v, EdgeType et)        { return removeNeighbor(make_pair(v, et)); }
 
 
 
@@ -76,6 +77,7 @@ class ZXVertex{
 
         // Action
         void disconnect(ZXVertex* v, bool checked = false);
+
 
 
         // Test
@@ -90,8 +92,8 @@ class ZXVertex{
         
 
         // DFS
-        bool isVisited(unsigned global) { return global == _DFSCounter; }
-        void setVisited(unsigned global) { _DFSCounter = global; }
+        bool isVisited(unsigned global)                 { return global == _DFSCounter; }
+        void setVisited(unsigned global)                { _DFSCounter = global; }
 
     private:
         int                                  _qubit;
@@ -176,7 +178,7 @@ class ZXGraph{
 
 
 
-        // Action
+        // Action functions (zxGraphAction.cpp)
         void reset();
         void sortIOByQubit(); 
         ZXGraph* copy() const;
@@ -190,7 +192,7 @@ class ZXGraph{
 
 
 
-        // Print functions
+        // Print functions (zxGraphPrint.cpp)
         void printGraph() const;
         void printInputs() const;
         void printOutputs() const;
@@ -257,6 +259,8 @@ class ZXGraph{
 
 };
 
+
+// See `zxVertex.cpp` for details
 EdgeType    str2EdgeType(const string& str);
 VertexType  str2VertexType(const string& str);
 string      EdgeType2Str(const EdgeType& et);
