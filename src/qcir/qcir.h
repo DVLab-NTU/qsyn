@@ -6,8 +6,8 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef QCIR_MGR_H
-#define QCIR_MGR_H
+#ifndef QCIR_H
+#define QCIR_H
 
 #include <vector>
 #include <stack>
@@ -28,40 +28,34 @@ using namespace std;
 class QCir
 {
 public:
-  QCir(): _tensor(nullptr)
-  {
-    _gateId = 0;
-    _qubitId = 0;
-    _ZXNodeId = 0;
-    _globalDFScounter = 1;
+  QCir(size_t id): _id(id), _gateId(0), _ZXNodeId(0), _qubitId(0), _tensor(nullptr) {
     _dirty = true;
-    _qgate.clear();
-    _qubits.clear();
-    _topoOrder.clear();
-    _ZXGraphList.clear();
-    
+    _globalDFScounter = 0;
   }
   ~QCir() {}
 
   // Access functions
-  // return 'NULL' if "id" corresponds to an undefined gate/Qubit.
+  size_t getId() const                                          { return _id; };
+  size_t getZXId() const                                        { return _ZXNodeId; }
+  size_t getNQubit() const                                      { return _qubits.size(); }
   QCirGate *getGate(size_t gid) const;
   QCirQubit *getQubit(size_t qid) const;
-  size_t getNQubit() const { return _qubits.size(); }
-  size_t getZXId() const { return _ZXNodeId; }
+  void incrementZXId()                                          { _ZXNodeId++; }
+
   // Member functions about circuit construction
   void addQubit(size_t num);
   bool removeQubit(size_t q);
-  void addGate(string type, vector<size_t> bits, Phase phase, bool append);
+  void addGate(string, vector<size_t>, Phase, bool);
   bool removeGate(size_t id);
+
   bool readQCirFile(string file);
-  bool readQASM(string qasm_file);
   bool readQC(string qc_file);
+  bool readQASM(string qasm_file);
   bool readQSIM(string qsim_file);
   bool readQUIPPER(string quipper_file);
+
   bool writeQASM(string qasm_output);
-  void incrementZXId() { _ZXNodeId++; }
-  
+
   void ZXMapping();
   void tensorMapping();
   
@@ -78,7 +72,9 @@ public:
       }
       for_each(_topoOrder.begin(),_topoOrder.end(),lambda);
   }
+
   bool printTopoOrder();
+
   // pass a function F (public functions) into for_each 
   // lambdaFn such as mappingToZX / updateGateTime
   void updateTopoOrder();
@@ -92,16 +88,19 @@ public:
 private:
   void DFS(QCirGate*);
   void updateTensorPin(vector<BitInfo>, QTensor<double>);
-  bool _dirty;
-  unsigned _globalDFScounter;
+  
+  size_t _id;
   size_t _gateId;
   size_t _ZXNodeId;
   size_t _qubitId;
+  bool _dirty;
+  unsigned _globalDFScounter;
+  QTensor<double>*   _tensor;
+
   vector<QCirGate *> _qgate;
   vector<QCirQubit*> _qubits;
   vector<QCirGate *> _topoOrder;
   vector<ZXGraph *>  _ZXGraphList;
-  QTensor<double>*   _tensor;
   unordered_map<size_t, pair<size_t,size_t>> _qubit2pin;
 };
 

@@ -11,6 +11,7 @@
 #include <iomanip>
 #include "qcir.h"
 #include "qcirGate.h"
+#include "qcirMgr.h"
 #include "qcirCmd.h"
 #include "util.h"
 #include "phase.h"
@@ -116,7 +117,7 @@ QCirReadCmd::exec(const string &option)
          return CMD_EXEC_ERROR;
       }
    }
-   qCir = new QCir;
+   qCir = new QCir(0);
 
    if (!qCir->readQCirFile(fileName))
    {
@@ -451,7 +452,7 @@ QCirAddQubitCmd::exec(const string &option)
    if (token.empty())
    {
       if (qCir == 0)
-         qCir = new QCir;
+         qCir = new QCir(0);
       qCir->addQubit(1);
    }
    else
@@ -464,7 +465,7 @@ QCirAddQubitCmd::exec(const string &option)
       else
       {
          if (qCir == 0)
-            qCir = new QCir;
+            qCir = new QCir(0);
          qCir->addQubit(id);
       }
    }
