@@ -41,7 +41,9 @@ public:
   QCirGate *getGate(size_t gid) const;
   QCirQubit *getQubit(size_t qid) const;
   void incrementZXId()                                          { _ZXNodeId++; }
+  void setId(size_t id)                                         { _id = id; }
 
+  QCir* copy();
   // Member functions about circuit construction
   void addQubit(size_t num);
   bool removeQubit(size_t q);
