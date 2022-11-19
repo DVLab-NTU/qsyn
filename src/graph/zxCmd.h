@@ -31,11 +31,6 @@ CmdClass(ZXGWriteCmd);
 CmdClass(ZXGAdjointCmd);
 CmdClass(ZXGAssignCmd);
 
-#define ZX_CMD_ZXMODE_ON_OR_RETURN \
-if (curCmd != ZXON) {\
-    cerr << "Error: ZXMODE is OFF now. Please turn ON before using ZX commands" << endl;\
-    return CMD_EXEC_ERROR;\
-}
 
 #define ZX_CMD_QUBIT_ID_VALID_OR_RETURN(option, qid) {\
 if (!myStr2Int((option), (qid))) { \
