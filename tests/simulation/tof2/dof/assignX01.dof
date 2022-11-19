@@ -17,8 +17,6 @@ zxgas 1 I X 0
 zxgas 1 O X 0
 zx2ts
 // tsp 2
-qccr -R benchmark/pseudoSimp/tof2.qasm
-qc2zx
 zxgp -v
 zxgs -fr
 zxgp -v
