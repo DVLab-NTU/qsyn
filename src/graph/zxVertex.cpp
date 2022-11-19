@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ zxVertex.cpp ]
   PackageName  [ graph ]
-  Synopsis     [ Define class ZXVertex member functions ]
+  Synopsis     [ Define class ZXVertex member functions and VT/ET functions]
   Author       [ Cheng-Hua Lu ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
