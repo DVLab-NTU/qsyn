@@ -1,4 +1,3 @@
-zxm -on
 zxgread -bzx benchmark/bzx/eqc2-1.bzx
 zxgp -v
 zxgread -bzx benchmark/bzx/eqc2-2.bzx

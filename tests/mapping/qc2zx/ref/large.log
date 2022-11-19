@@ -22,9 +22,6 @@ Q13
 Q14  
 Q15  
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> qc2zx
 
 qsyn> zxgtr

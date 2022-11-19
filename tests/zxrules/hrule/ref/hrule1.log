@@ -8,9 +8,6 @@ qsyn> qccp -q
 Q 0  -cx( 0)-- t( 1)-- h( 2)--cx( 3)-
 Q 1  -cx( 0)------------------cx( 3)-
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> qc2zx
 
 qsyn> zxgp -v

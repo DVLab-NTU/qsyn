@@ -2,9 +2,6 @@ DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> ver 9
 Note: verbose level is set to 9
 
-qsyn> zxmode -on
-ZXMODE turn ON!
-
 qsyn> zxnew
 Successfully generated Graph 0
 Checkout to Graph 0

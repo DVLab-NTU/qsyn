@@ -1,4 +1,3 @@
-zxm -on
 zxgr benchmark/zx/stcopy.zx
 zxgp -v
 zxgp -e

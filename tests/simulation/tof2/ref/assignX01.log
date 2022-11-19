@@ -1,9 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> qccr benchmark/pseudoSimp/tof2.qasm
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> qc2zx
 Traverse and build the graph... 
 Successfully generated Graph 0
@@ -185,14 +182,24 @@ Stored the resulting tensor as tensor id 2
 
 qsyn> // tsp 2
 
+qsyn> qccr -R benchmark/pseudoSimp/tof2.qasm
+Note: original quantum circuit is replaced...
+
+qsyn> qc2zx
+Traverse and build the graph... 
+Successfully generated Graph 2
+Checkout to Graph 2
+
 qsyn> zxgp -v
 
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(25, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(26, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(6, -) 
 ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(22, -) 
 ID:	6	VertexType:	[1m[33mH[0m[0m	Qubit:	2	Phase:	π	#Neighbors:	2	(4, -) (8, -) 
-ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(8, -) (13, -) (27, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (8, -) (13, -) 
 ID:	8	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(6, -) (7, -) (9, -) 
 ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	7π/4	#Neighbors:	2	(8, -) (11, -) 
 ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (11, -) (16, -) 
@@ -211,9 +218,7 @@ ID:	22	VertexType:	[1m[33mH[0m[0m	Qubit:	2	Phase:	π	#Neighbors:	2	(5, -) (1
 ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/4	#Neighbors:	2	(20, -) (25, -) 
 ID:	24	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	7π/4	#Neighbors:	2	(21, -) (26, -) 
 ID:	25	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (23, -) (26, -) 
-ID:	26	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(24, -) (25, -) (28, -) 
-ID:	27	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
-ID:	28	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	1	(26, -) 
+ID:	26	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (24, -) (25, -) 
 Total #Vertices: 27
 
 
@@ -222,14 +227,6 @@ Hadamard Rule: 2 . 1 iterations
 Spider Fusion Rule: 
 3 iterations
 Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
 No matches
 Spider Fusion Rule: 
 No matches
@@ -238,36 +235,8 @@ No matches
 Local Complementation Rule: 
 No matches
 Pivot Gadget Rule: 
-3 iterations
+2 iterations
 Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Phase Gadget Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-1 iterations
-Local Complementation Rule: 
 No matches
 Identity Removal Rule: 
 1 iterations
@@ -276,18 +245,6 @@ No matches
 Pivot Rule: 
 No matches
 Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Gadget Rule: 
-No matches
-Spider Fusion Rule: 
 No matches
 Identity Removal Rule: 
 No matches
@@ -314,26 +271,50 @@ No matches
 
 qsyn> zxgp -v
 
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(0, -) 
-ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(5, -) 
-ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(29, [1m[34mH[0m[0m) 
-ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
-Total #Vertices: 6
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(19, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(19, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	π/4	#Neighbors:	5	(2, -) (3, -) (11, [1m[34mH[0m[0m) (17, [1m[34mH[0m[0m) (21, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/4	#Neighbors:	5	(0, -) (1, -) (14, [1m[34mH[0m[0m) (17, [1m[34mH[0m[0m) (21, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	3	(7, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	3	(10, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) 
+ID:	17	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	4	(7, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	19	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	π/4	#Neighbors:	5	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (17, [1m[34mH[0m[0m) 
+ID:	21	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	3	(7, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (29, [1m[34mH[0m[0m) 
+ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
+ID:	28	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(21, [1m[34mH[0m[0m) 
+ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(17, [1m[34mH[0m[0m) 
+Total #Vertices: 17
 
 
 qsyn> zxgs -stco
 State Copy Rule: 
-1 iterations
+No matches
 
 qsyn> zxgp -v
 
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(0, -) 
-ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(5, -) 
-ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(4, -) 
-Total #Vertices: 4
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(19, [1m[34mH[0m[0m) 
+ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(19, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	π/4	#Neighbors:	5	(2, -) (3, -) (11, [1m[34mH[0m[0m) (17, [1m[34mH[0m[0m) (21, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/4	#Neighbors:	5	(0, -) (1, -) (14, [1m[34mH[0m[0m) (17, [1m[34mH[0m[0m) (21, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	3	(7, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (27, [1m[34mH[0m[0m) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	3	(10, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (28, [1m[34mH[0m[0m) 
+ID:	17	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	4	(7, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) 
+ID:	19	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	π/4	#Neighbors:	5	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) (17, [1m[34mH[0m[0m) 
+ID:	21	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	3	(7, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (29, [1m[34mH[0m[0m) 
+ID:	27	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
+ID:	28	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(21, [1m[34mH[0m[0m) 
+ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(17, [1m[34mH[0m[0m) 
+Total #Vertices: 17
 
 
 qsyn> zx2ts
@@ -346,13 +327,10 @@ qsyn> // tsp 3
 qsyn> qccr -R benchmark/pseudoSimp/tof2.qasm
 Note: original quantum circuit is replaced...
 
-qsyn> zxm -on
-Error: ZXMODE is already ON
-
 qsyn> qc2zx
 Traverse and build the graph... 
-Successfully generated Graph 0
-Checkout to Graph 0
+Successfully generated Graph 3
+Checkout to Graph 3
 
 qsyn> zxgas 1 I X pi
 
@@ -500,7 +478,7 @@ Stored the resulting tensor as tensor id 5
 qsyn> tsp 5
 {{ 0.      +6.123234e-17i,  1.      -6.123234e-17i},
  { 1.      -6.123234e-17i,  0.      +6.123234e-17i}}
-#Dim:    2	Info: ZX 0
+#Dim:    2	Info: ZX 3
 
 qsyn> q -f
 

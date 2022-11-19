@@ -1,9 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> qccr benchmark/pseudoSimp/tof_3.qasm
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> qc2zx
 Traverse and build the graph... 
 Successfully generated Graph 0

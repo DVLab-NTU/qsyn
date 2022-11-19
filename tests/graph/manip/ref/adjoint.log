@@ -1,7 +1,4 @@
 DV Lab, NTUEE, Qsyn 0.3.0
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> zxgr benchmark/zx/tof2_opt.zx
 Successfully generated Graph 0
 Checkout to Graph 0

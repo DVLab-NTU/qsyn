@@ -2,9 +2,6 @@ DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> ver 3
 Note: verbose level is set to 3
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> zxgr -R benchmark/zx/swap.zx
 Note: ZX-graph list is empty now. Create a new one.
 Successfully generated Graph 0

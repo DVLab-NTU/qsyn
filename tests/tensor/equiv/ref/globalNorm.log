@@ -2,9 +2,6 @@ DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> ver 2
 Note: verbose level is set to 2
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> zxn
 
 qsyn> zxge -addi 0

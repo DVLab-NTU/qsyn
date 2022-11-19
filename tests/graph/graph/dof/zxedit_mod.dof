@@ -1,4 +1,3 @@
-zxmode -on
 zxnew
 zxge -addi 1
 zxge -addi 0

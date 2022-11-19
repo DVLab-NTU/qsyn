@@ -1,5 +1,4 @@
 qccr benchmark/pseudoSimp/tof2.qasm
-zxm -on
 qc2zx
 zxgas 1 I X pi
 zxgas 1 O X pi
@@ -18,6 +17,8 @@ zxgas 1 I X 0
 zxgas 1 O X 0
 zx2ts
 // tsp 2
+qccr -R benchmark/pseudoSimp/tof2.qasm
+qc2zx
 zxgp -v
 zxgs -fr
 zxgp -v
@@ -26,7 +27,6 @@ zxgp -v
 zx2ts
 // tsp 3
 qccr -R benchmark/pseudoSimp/tof2.qasm
-zxm -on
 qc2zx
 zxgas 1 I X pi
 zxgas 1 O X pi

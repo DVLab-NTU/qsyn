@@ -4,7 +4,6 @@ qcga -cx 0 1
 qcga -cx 1 0
 qcga -cx 0 1
 qc2ts
-zxm -on
 zxgr benchmark/zx/swap.zx
 zx2ts
 ver 3

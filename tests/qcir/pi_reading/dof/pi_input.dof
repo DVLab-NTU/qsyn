@@ -5,6 +5,5 @@ qcga -rz -ph 3*3*PI/4/3 0
 qcga -rz -ph 3*4/PI 0
 qcga -rz -ph PI*PI/pi 0
 qcga -rz -ph PI*3PI/pi 0
-zxmode -on
 qc2zx
 q -f

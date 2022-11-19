@@ -10,9 +10,6 @@ Q 1  -cx( 0)----------cx( 3)--cx( 4)-
 Q 2  ---------cx( 1)--cx( 3)----------cx( 5)-
 Q 3  -----------------cx( 2)--cx( 4)--cx( 5)-
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> qc2zx
 Traverse and build the graph... 
 Successfully generated Graph 0

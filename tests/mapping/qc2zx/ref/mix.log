@@ -1,7 +1,4 @@
 DV Lab, NTUEE, Qsyn 0.3.0
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> qcba 2
 
 qsyn> qcga -x 0

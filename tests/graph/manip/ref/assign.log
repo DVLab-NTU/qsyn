@@ -1,7 +1,4 @@
 DV Lab, NTUEE, Qsyn 0.3.0
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> qccr benchmark/pseudoSimp/tof2.qasm
 
 qsyn> qc2ts

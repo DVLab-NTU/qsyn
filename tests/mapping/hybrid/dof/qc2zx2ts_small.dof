@@ -1,6 +1,5 @@
 ver 2
 qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
-zxm -on
 qc2zx
 ver 3
 zx2ts

@@ -7,9 +7,6 @@ qsyn> qcga -SY 1
 
 qsyn> qcga -Sdg 1
 
-qsyn> zxmode -on
-ZXMODE turn ON!
-
 qsyn> qc2zx
 Traverse and build the graph... 
 Successfully generated Graph 0
