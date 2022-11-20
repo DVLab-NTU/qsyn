@@ -1,5 +1,4 @@
 ver 0
-zxm -on
 qccr benchmark/benchmark_SABRE/small/qft_4.qasm
 qc2zx
 zxgas 0 I X pi

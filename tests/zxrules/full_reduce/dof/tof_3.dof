@@ -1,5 +1,4 @@
 verb 3
-zxm -on 
 zxgread benchmark/zx/tof3.zx
 zxgp -v
 zxgs -freduce

@@ -1,4 +1,3 @@
-zxm -on
 zxgr benchmark/zx/tof2_opt.zx
 zxcopy 1
 zxgadj

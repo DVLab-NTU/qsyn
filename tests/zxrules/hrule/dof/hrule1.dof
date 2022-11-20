@@ -1,7 +1,6 @@
 ver 2
 qccr benchmark/pseudoSimp/toGraph2.qasm
 qccp -q
-zxm -on
 qc2zx
 zxgp -v
 zxgs -hrule

@@ -1,9 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> qccr benchmark/pseudoSimp/tof2.qasm
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> qc2zx
 Traverse and build the graph... 
 Successfully generated Graph 0
@@ -346,13 +343,10 @@ qsyn> // tsp 3
 qsyn> qccr -R benchmark/pseudoSimp/tof2.qasm
 Note: original quantum circuit is replaced...
 
-qsyn> zxm -on
-Error: ZXMODE is already ON
-
 qsyn> qc2zx
 Traverse and build the graph... 
-Successfully generated Graph 0
-Checkout to Graph 0
+Successfully generated Graph 2
+Checkout to Graph 2
 
 qsyn> zxgas 1 I X pi
 
@@ -500,7 +494,7 @@ Stored the resulting tensor as tensor id 5
 qsyn> tsp 5
 {{ 0.      +6.123234e-17i,  1.      -6.123234e-17i},
  { 1.      -6.123234e-17i,  0.      +6.123234e-17i}}
-#Dim:    2	Info: ZX 0
+#Dim:    2	Info: ZX 2
 
 qsyn> q -f
 

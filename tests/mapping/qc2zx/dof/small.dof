@@ -1,7 +1,6 @@
 ver 8
 qccr benchmark/benchmark_SABRE/small/qft_4.qasm
 qccp -q
-zxm -on
 qc2zx
 zxgtr
 q -f

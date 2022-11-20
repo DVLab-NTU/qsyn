@@ -2,9 +2,6 @@ DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> ver 2
 Note: verbose level is set to 2
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> zxgr benchmark/zx/tof3.zx
 
 qsyn> zx2ts

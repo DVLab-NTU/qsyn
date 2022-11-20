@@ -1,5 +1,4 @@
 ver 2
-zxm -on
 zxgr benchmark/zx/tof3.zx
 zx2ts
 zxgr benchmark/zx/tof3_ZH.zx

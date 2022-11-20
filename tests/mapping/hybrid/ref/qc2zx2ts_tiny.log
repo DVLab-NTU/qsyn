@@ -10,9 +10,6 @@ qsyn> qcga -cx 1 0
 
 qsyn> qcga -cx 0 1
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> qc2zx
 
 qsyn> ver 7

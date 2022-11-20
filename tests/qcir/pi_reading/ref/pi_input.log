@@ -17,9 +17,6 @@ qsyn> qcga -rz -ph PI*3PI/pi 0
 Error: not a legal phase!!
 Error: Illegal option!! (PI*3PI/pi)
 
-qsyn> zxmode -on
-ZXMODE turn ON!
-
 qsyn> qc2zx
 Traverse and build the graph... 
 Successfully generated Graph 0

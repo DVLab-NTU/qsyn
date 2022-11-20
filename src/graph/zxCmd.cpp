@@ -27,9 +27,10 @@ extern size_t verbose;
 
 
 bool initZXCmd() {
-    if (!(cmdMgr->regCmd("ZXMode", 3, new ZXModeCmd) &&
-          cmdMgr->regCmd("ZXNew", 3, new ZXNewCmd) &&
-          cmdMgr->regCmd("ZXRemove", 3, new ZXRemoveCmd) &&
+    zxGraphMgr = new ZXGraphMgr;
+    if (!(cmdMgr->regCmd("ZXNew", 3, new ZXNewCmd) &&
+          cmdMgr->regCmd("ZXReset", 3, new ZXResetCmd) &&
+          cmdMgr->regCmd("ZXDelete", 3, new ZXDeleteCmd) &&
           cmdMgr->regCmd("ZXCHeckout", 4, new ZXCHeckoutCmd) &&
           cmdMgr->regCmd("ZXCOPy", 5, new ZXCOPyCmd) &&
           cmdMgr->regCmd("ZXCOMpose", 5, new ZXCOMposeCmd) &&
@@ -50,70 +51,6 @@ bool initZXCmd() {
     return true;
 }
 
-enum ZXCmdState {
-    // Order matters! Do not change the order!!
-    ZXOFF,
-    ZXON,
-    // dummy end
-    ZXCMDTOT
-};
-
-static ZXCmdState curCmd = ZXOFF;
-
-
-
-//----------------------------------------------------------------------
-//    ZXMode [-ON | -OFF | -Reset | -Print]
-//----------------------------------------------------------------------
-CmdExecStatus
-ZXModeCmd::exec(const string &option) {
-    string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    if (zxGraphMgr != 0) {
-    }
-    zxGraphMgr = new ZXGraphMgr;
-    if (token.empty() || myStrNCmp("-Print", token, 2) == 0) {
-        if (curCmd == ZXON)
-            cout << "ZX ON" << endl;
-        else if (curCmd == ZXOFF)
-            cout << "ZX OFF" << endl;
-        else
-            cout << "Error: curCmd loading fail... exiting" << endl;
-    } else if (myStrNCmp("-ON", token, 3) == 0) {
-        if (curCmd == ZXON)
-            cout << "Error: ZXMODE is already ON" << endl;
-        else {
-            curCmd = ZXON;
-            cout << "ZXMODE turn ON!" << endl;
-        }
-    } else if (myStrNCmp("-OFF", token, 4) == 0) {
-        if (curCmd == ZXON) {
-            curCmd = ZXOFF;
-            delete zxGraphMgr;
-            zxGraphMgr = 0;
-            cout << "ZXMODE turn OFF!" << endl;
-        } else
-            cout << "Error: ZXMODE is already OFF" << endl;
-    } else if (myStrNCmp("-Reset", token, 2) == 0) {
-        if (curCmd == ZXON) {
-            zxGraphMgr->reset();
-            cout << "ZX is successfully RESET!" << endl;
-        } else
-            cout << "Error: ZXMODE OFF, turn ON before RESET" << endl;
-    } else
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    return CMD_EXEC_DONE;
-}
-
-void ZXModeCmd::usage(ostream &os) const {
-    os << "Usage: ZXMode [-On | -Off | -Reset | -Print]" << endl;
-}
-
-void ZXModeCmd::help() const {
-    cout << setw(15) << left << "ZXMode: "
-         << "check out to ZX-graph mode" << endl;
-}
-
 
 
 //----------------------------------------------------------------------
@@ -121,9 +58,6 @@ void ZXModeCmd::help() const {
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXNewCmd::exec(const string &option) {
-
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
-
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
@@ -149,12 +83,32 @@ void ZXNewCmd::help() const {
 
 
 //----------------------------------------------------------------------
-//    ZXRemove <(size_t id)>
+//    ZXReset
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXRemoveCmd::exec(const string &option) {
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
-    string token;
+ZXResetCmd::exec(const string &option) {
+    if(!lexNoOption(option)) return CMD_EXEC_ERROR;
+    if(!zxGraphMgr) zxGraphMgr = new ZXGraphMgr;
+    else zxGraphMgr->reset();
+    return CMD_EXEC_DONE;
+}
+
+void ZXResetCmd::usage(ostream &os) const {
+    os << "Usage: ZXReset" << endl;
+}
+
+void ZXResetCmd::help() const {
+    cout << setw(15) << left << "ZXReset: "
+         << "reset ZXGraphMgr" << endl;
+}
+
+
+
+//----------------------------------------------------------------------
+//    ZXDelete <(size_t id)>
+//----------------------------------------------------------------------
+CmdExecStatus
+ZXDeleteCmd::exec(const string &option) {    string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     
     if (token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
@@ -167,12 +121,12 @@ ZXRemoveCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXRemoveCmd::usage(ostream &os) const {
-    os << "Usage: ZXRemove <size_t id>" << endl;
+void ZXDeleteCmd::usage(ostream &os) const {
+    os << "Usage: ZXDelete <size_t id>" << endl;
 }
 
-void ZXRemoveCmd::help() const {
-    cout << setw(15) << left << "ZXRemove: "
+void ZXDeleteCmd::help() const {
+    cout << setw(15) << left << "ZXDelete: "
          << "remove a ZX-graph from ZXGraphMgr" << endl;
 }
 
@@ -182,9 +136,7 @@ void ZXRemoveCmd::help() const {
 //    ZXCHeckout <(size_t id)>
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXCHeckoutCmd::exec(const string &option) {
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
-    string token;
+ZXCHeckoutCmd::exec(const string &option) {    string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     
     if (token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
@@ -212,9 +164,7 @@ void ZXCHeckoutCmd::help() const {
 //    ZXPrint [-Summary | -Focus | -Num]
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXPrintCmd::exec(const string &option) {
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
-    string token;
+ZXPrintCmd::exec(const string &option) {    string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) {
         cout << "ZXMode: ON" << endl;
@@ -241,9 +191,7 @@ void ZXPrintCmd::help() const {
 //    ZXCOPy [(size_t id)]
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXCOPyCmd::exec(const string &option) {
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
-    // check option
+ZXCOPyCmd::exec(const string &option) {    // check option
     vector<string> options;
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
     
@@ -293,9 +241,7 @@ void ZXCOPyCmd::help() const {
 //    ZXCOMpose <size_t id>
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXCOMposeCmd::exec(const string &option) {
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
-    string token;
+ZXCOMposeCmd::exec(const string &option) {    string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     if (token.empty()) {
         cerr << "Error: the ZX-graph id you want to compose must provided!" << endl;
@@ -324,9 +270,7 @@ void ZXCOMposeCmd::help() const {
 //    ZXTensor <size_t id>
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXTensorCmd::exec(const string &option) {
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
-    string token;
+ZXTensorCmd::exec(const string &option) {    string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
         if (token.empty()) {
             cerr << "Error: the ZX-graph id you want to tensor must provided!" << endl;
@@ -359,8 +303,6 @@ void ZXTensorCmd::help() const {
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGTestCmd::exec(const string &option) {
-
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
     // check option
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
@@ -440,8 +382,6 @@ void ZXGTestCmd::help() const {
 //--------------------------------------------------------------------------------
 CmdExecStatus
 ZXGPrintCmd::exec(const string &option) {
-
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
     // check option
     vector<string> options;
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
@@ -517,8 +457,6 @@ void ZXGPrintCmd::help() const {
 //------------------------------------------------------------------------------------
 CmdExecStatus
 ZXGEditCmd::exec(const string &option) {
-
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
     // check option
     vector<string> options;
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
@@ -653,9 +591,7 @@ void ZXGEditCmd::help() const {
 //    ZXGTRaverse
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGTraverseCmd::exec(const string &option) {
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
-    string token;
+ZXGTraverseCmd::exec(const string &option) {    string token;
     if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGTraverse");
     zxGraphMgr->getGraph()->updateTopoOrder();
@@ -677,9 +613,7 @@ void ZXGTraverseCmd::help() const {
 //    ZX2TS
 //----------------------------------------------------------------------
 CmdExecStatus
-ZX2TSCmd::exec(const string &option) {
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
-    
+ZX2TSCmd::exec(const string &option) {    
     if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
     zxGraphMgr->getGraph()->toTensor();
     return CMD_EXEC_DONE;
@@ -700,9 +634,7 @@ void ZX2TSCmd::help() const {
 //    ZXGRead <string Input.(b)zx> [-BZX] [-Replace]
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGReadCmd::exec(const string &option) {
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
-    // check option
+ZXGReadCmd::exec(const string &option) {    // check option
     vector<string> options;
 
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
@@ -780,9 +712,7 @@ void ZXGReadCmd::help() const {
 //    ZXGWrite <string Output.(b)zx> [-Complete] [-BZX]
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGWriteCmd::exec(const string &option) {
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
-    vector<string> options;
+ZXGWriteCmd::exec(const string &option) {    vector<string> options;
 
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
     if (options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
@@ -844,8 +774,6 @@ void ZXGWriteCmd::help() const {
 CmdExecStatus
 ZXGAssignCmd::exec(const string &option) {
     // check option
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
-
     vector<string> options;
     if (!CmdExec::lexOptions(option, options))
         return CMD_EXEC_ERROR;
@@ -896,9 +824,7 @@ void ZXGAssignCmd::help() const {
 //    ZXGADJoint
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGAdjointCmd::exec(const string &option) {
-    ZX_CMD_ZXMODE_ON_OR_RETURN;
-    if (!lexNoOption(option)) return CMD_EXEC_ERROR;
+ZXGAdjointCmd::exec(const string &option) {    if (!lexNoOption(option)) return CMD_EXEC_ERROR;
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGAdjoint");
     
     zxGraphMgr->getGraph()->adjoint();
