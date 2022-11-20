@@ -46,15 +46,24 @@ QCirQubit *QCir::getQubit(size_t id) const {
 }
 
 /**
- * @brief Print QCir Summary
+ * @brief Print QCir Gates
  */
-void QCir::printSummary() {
+void QCir::printGates() {
     if (_dirty)
         updateGateTime();
     cout << "Listed by gate ID" << endl;
     for (size_t i = 0; i < _qgates.size(); i++) {
         _qgates[i]->printGate();
     }
+}
+
+/**
+ * @brief Print QCir Summary
+ */
+void QCir::printSummary() {
+    cout << "QCir " << _id << "( "
+         << _qubits.size() << " qubits, "
+         << _qgates.size() << " gates)\n";
 }
 
 /**
@@ -84,6 +93,19 @@ bool QCir::printGateInfo(size_t id, bool showTime) {
         cerr << "Error: id " << id << " not found!!" << endl;
         return false;
     }
+}
+
+/**
+ * @brief Add single Qubit.
+ *
+ * @param num
+ */
+QCirQubit* QCir::addSingleQubit() {
+    QCirQubit *temp = new QCirQubit(_qubitId);
+    _qubits.push_back(temp);
+    _qubitId++;
+    clearMapping();
+    return temp;
 }
 
 /**

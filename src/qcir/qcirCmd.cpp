@@ -435,7 +435,7 @@ void QCirGatePrintCmd::help() const
 }
 
 //----------------------------------------------------------------------
-//    QCCPrint [-List | -Qubit | -ZXform]
+//    QCCPrint [-Summary | -List | -Qubit | -ZXform]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirPrintCmd::exec(const string &option)
@@ -447,11 +447,13 @@ QCirPrintCmd::exec(const string &option)
 
    QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCCPrint");
 
-   if (token.empty() || myStrNCmp("-List", token, 2) == 0)
+   if (token.empty() || myStrNCmp("-Summary", token, 2) == 0)
       qcirMgr->getQCircuit()->printSummary();
+   else if (myStrNCmp("-List", token, 2) == 0)
+      qcirMgr->getQCircuit()->printGates();
    else if (myStrNCmp("-Qubit", token, 2) == 0)
       qcirMgr->getQCircuit()->printQubits();
-   else if (myStrNCmp("-ZXform", token, 2) == 0)
+   else if (myStrNCmp("-ZXform", token, 3) == 0)
       qcirMgr->getQCircuit()->printZXTopoOrder();
    else
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);

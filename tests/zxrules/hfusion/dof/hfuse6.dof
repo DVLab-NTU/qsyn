@@ -3,7 +3,7 @@ qcba
 qcba 
 qcga -z 0
 qcga -z 1
-qccp
+qccp -l
 qc2zx
 zxgp -v
 zxge -addv 0 H_BOX 0

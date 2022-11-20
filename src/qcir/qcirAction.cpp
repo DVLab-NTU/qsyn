@@ -61,8 +61,22 @@ QCir* QCir::compose(QCir* target){
 }
 
 QCir* QCir::tensorProduct(QCir* target){
-    cerr << "Tensor is not provided yet!!";
-    return nullptr;
+    QCir* copiedQCir = target->copy();
+   
+    unordered_map<size_t, QCirQubit*> oldQ2NewQ;
+    vector<QCirQubit*>targQubits = copiedQCir->getQubits();
+    for(auto& qubit: targQubits){
+        oldQ2NewQ[qubit->getId()] = addSingleQubit();
+    }
+    copiedQCir->updateTopoOrder();
+    for(auto& targGate: copiedQCir->getTopoOrderdGates()){
+        vector<size_t> bits;
+        for(const auto& b: targGate->getQubits()){
+            bits.push_back(oldQ2NewQ[b._qubit]->getId());
+        }
+        addGate(targGate->getTypeStr(), bits, targGate->getPhase(), true);
+    }
+    return this;
 }
 
 /**

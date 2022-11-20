@@ -39,6 +39,7 @@ public:
   size_t getZXId() const                                        { return _ZXNodeId; }
   size_t getNQubit() const                                      { return _qubits.size(); }
   const vector<QCirQubit*>& getQubits() const                   { return _qubits; }
+  const vector<QCirGate*>& getTopoOrderdGates() const           { return _topoOrder; }
   QCirGate *getGate(size_t gid) const;
   QCirQubit *getQubit(size_t qid) const;
   void incrementZXId()                                          { _ZXNodeId++; }
@@ -52,6 +53,7 @@ public:
   QCir* compose(QCir* target);
   QCir* tensorProduct(QCir* target);
   // Member functions about circuit construction
+  QCirQubit* addSingleQubit();
   void addQubit(size_t num);
   bool removeQubit(size_t q);
   QCirGate *addGate(string, vector<size_t>, Phase, bool);

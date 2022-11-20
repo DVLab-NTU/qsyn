@@ -13,7 +13,7 @@ qsyn> qcga -h 0
 
 qsyn> qcga -h 0
 
-qsyn> qccp
+qsyn> qccp -l
 Listed by gate ID
 Gate 0: h   	 Exec Time: 0 	 Qubit: 0 
 Gate 1: h   	 Exec Time: 1 	 Qubit: 0 
