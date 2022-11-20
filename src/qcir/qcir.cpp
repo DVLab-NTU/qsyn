@@ -109,6 +109,24 @@ QCirQubit* QCir::addSingleQubit() {
 }
 
 /**
+ * @brief insert single Qubit.
+ *
+ * @param num
+ */
+QCirQubit* QCir::insertSingleQubit(size_t id) {
+    assert(getQubit(id) == NULL);
+    QCirQubit *temp = new QCirQubit(id);
+    size_t cnt = 0;
+    for(size_t i=0; i<_qubits.size(); i++){
+        if(_qubits[i]->getId()<id) cnt++;
+        else break;
+    }
+    _qubits.insert(_qubits.begin() + cnt, temp);
+    clearMapping();
+    return temp;
+}
+
+/**
  * @brief Add Qubit.
  *
  * @param num

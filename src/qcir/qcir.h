@@ -54,6 +54,7 @@ public:
   QCir* tensorProduct(QCir* target);
   // Member functions about circuit construction
   QCirQubit* addSingleQubit();
+  QCirQubit* insertSingleQubit(size_t);
   void addQubit(size_t num);
   bool removeQubit(size_t q);
   QCirGate *addGate(string, vector<size_t>, Phase, bool);

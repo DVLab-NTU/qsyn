@@ -32,7 +32,7 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCNew", 4, new QCirNewCmd) &&
          cmdMgr->regCmd("QCCOPy", 5, new QCirCopyCmd) &&
          cmdMgr->regCmd("QCCOMpose", 5, new QCirComposeCmd) &&
-         cmdMgr->regCmd("QCTensor", 4, new QCirTensorCmd) &&
+         cmdMgr->regCmd("QCTensor", 3, new QCirTensorCmd) &&
          cmdMgr->regCmd("QCCRead", 4, new QCirReadCmd) &&
          cmdMgr->regCmd("QCCPrint", 4, new QCirPrintCmd) &&
          cmdMgr->regCmd("QCGAdd", 4, new QCirAddGateCmd) &&

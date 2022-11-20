@@ -55,11 +55,30 @@ QCir* QCir::copy(){
     return newCircuit;
 }
 
+/// @brief Compose QCir (append the target to current QCir)
+/// @param target 
+/// @return QCir*
 QCir* QCir::compose(QCir* target){
-    cerr << "Compose is not provided yet!!";
-    return nullptr;
+    QCir* copiedQCir = target->copy();
+    vector<QCirQubit*>targQubits = copiedQCir->getQubits();
+    for(auto& qubit: targQubits){
+        if(getQubit(qubit->getId()) == NULL)
+            insertSingleQubit(qubit->getId());
+    }
+    copiedQCir->updateTopoOrder();
+    for(auto& targGate: copiedQCir->getTopoOrderdGates()){
+        vector<size_t> bits;
+        for(const auto& b: targGate->getQubits()){
+            bits.push_back(b._qubit);
+        }
+        addGate(targGate->getTypeStr(), bits, targGate->getPhase(), true);
+    }
+    return this;
 }
 
+/// @brief Tensor QCir (tensor the target to current QCir)
+/// @param target 
+/// @return QCir*
 QCir* QCir::tensorProduct(QCir* target){
     QCir* copiedQCir = target->copy();
    
@@ -154,6 +173,7 @@ void QCir::printZXTopoOrder() {
     topoTraverse(Lambda);
 }
 
+/// @brief Reset QCirMgr
 void QCir::reset(){
     _qgates.clear();
     _qubits.clear();
