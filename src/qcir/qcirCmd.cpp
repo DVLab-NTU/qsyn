@@ -30,7 +30,7 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCReset", 3, new QCirResetCmd) &&
          cmdMgr->regCmd("QCDelete", 3, new QCirDeleteCmd) &&
          cmdMgr->regCmd("QCNew", 4, new QCirNewCmd) &&
-         // cmdMgr->regCmd("QCCOPy", 5, new QCirCopyCmd) &&
+         cmdMgr->regCmd("QCCOPy", 5, new QCirCopyCmd) &&
          // cmdMgr->regCmd("QCCOMpose", 5, new QCirComposeCmd) &&
          // cmdMgr->regCmd("QCTensor", 4, new QCirTensorCmd) &&
          cmdMgr->regCmd("QCCRead", 4, new QCirReadCmd) &&
@@ -181,6 +181,56 @@ void QCirNewCmd::help() const {
     cout << setw(15) << left << "QCNew: "
          << "new QCir to QCirMgr" << endl;
 }
+
+//----------------------------------------------------------------------
+//    QCCOPy [(size_t id)]
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirCopyCmd::exec(const string &option) {    // check option
+    vector<string> options;
+    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
+    
+    CMD_N_OPTS_AT_MOST_OR_RETURN(options, 2);
+    QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCCOPy");
+
+    if(options.size() == 2){
+        bool doReplace = false;
+        size_t id_idx = 0;
+        for(size_t i = 0; i < options.size(); i++){
+            if(myStrNCmp("-Replace", options[i], 2) == 0){
+                doReplace = true;
+                id_idx = 1 - i;
+                break;
+            } 
+        }
+        if(!doReplace) return CmdExec::errorOption(CMD_OPT_MISSING, "-Replace");
+        unsigned id_g;
+        QC_CMD_ID_VALID_OR_RETURN(options[id_idx], id_g, "QCir");
+        QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id_g);
+        qcirMgr->copy(id_g, false);
+    }
+    else if(options.size() == 1){
+        unsigned id_g;
+        QC_CMD_ID_VALID_OR_RETURN(options[0], id_g, "QCir");
+        QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id_g);
+        qcirMgr->copy(id_g);
+    }
+    else{
+        qcirMgr->copy(qcirMgr->getNextID());
+    }
+    return CMD_EXEC_DONE;
+}
+
+void QCirCopyCmd::usage(ostream &os) const {
+    os << "Usage: ZXCOPy <size_t id> [-Replace]" << endl;
+}
+
+void QCirCopyCmd::help() const {
+    cout << setw(15) << left << "ZXCOPy: "
+         << "copy a ZX-graph" << endl;
+}
+
+
 
 //----------------------------------------------------------------------
 //    QCCRead <(string fileName)> [-Replace]

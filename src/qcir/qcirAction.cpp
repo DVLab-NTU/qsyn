@@ -17,6 +17,43 @@
 using namespace std;
 extern size_t verbose;
 
+/// @brief copy a circuit
+/// @return QCir*
+QCir* QCir::copy(){
+    updateTopoOrder();
+    QCir* newCircuit = new QCir(0);
+    unordered_map<QCirQubit*, QCirQubit*> oldQ2newQ;
+    unordered_map<QCirGate*, QCirGate*> oldG2newG;
+    newCircuit->addQubit(_qubits.size());
+    
+    size_t biggestQubit = 0;
+    size_t biggestGate = 0;
+
+    for(size_t i=0; i<_qubits.size(); i++){
+        oldQ2newQ[_qubits[i]] = newCircuit->getQubits()[i];
+        //NOTE - Update Id
+        if(_qubits[i]->getId() > biggestQubit)  biggestQubit = _qubits[i]->getId();
+        oldQ2newQ[_qubits[i]]->setId(_qubits[i]->getId());
+    }
+    
+    for(const auto& gate: _topoOrder){
+        string type = gate->getTypeStr();
+        vector<size_t> bits;
+        for(const auto& b: gate->getQubits()){
+            bits.push_back(b._qubit);
+        }
+        oldG2newG[gate] = newCircuit->addGate(gate->getTypeStr(), bits, gate->getPhase(), true);
+    }
+
+    //NOTE - Update Id
+    for(const auto& [oldG, newG]: oldG2newG){
+        if(oldG->getId() > biggestGate)  biggestGate = oldG->getId();
+        newG->setId(oldG->getId());
+    }
+    newCircuit->setNextGateId(biggestGate+1);
+    newCircuit->setNextQubitId(biggestQubit+1);
+    return newCircuit;
+}
 /**
  * @brief Perform DFS from currentGate
  *
@@ -50,7 +87,7 @@ void QCir::updateTopoOrder() {
     DFS(dummy);
     _topoOrder.pop_back();  // pop dummy
     reverse(_topoOrder.begin(), _topoOrder.end());
-    assert(_topoOrder.size() == _qgate.size());
+    assert(_topoOrder.size() == _qgates.size());
 }
 
 /**
@@ -93,7 +130,7 @@ void QCir::printZXTopoOrder() {
 }
 
 void QCir::reset(){
-    _qgate.clear();
+    _qgates.clear();
     _qubits.clear();
     _topoOrder.clear();
     _ZXGraphList.clear();

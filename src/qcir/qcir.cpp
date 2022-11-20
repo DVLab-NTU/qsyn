@@ -24,9 +24,9 @@ extern size_t verbose;
  * @return QCirGate*
  */
 QCirGate *QCir::getGate(size_t id) const {
-    for (size_t i = 0; i < _qgate.size(); i++) {
-        if (_qgate[i]->getId() == id)
-            return _qgate[i];
+    for (size_t i = 0; i < _qgates.size(); i++) {
+        if (_qgates[i]->getId() == id)
+            return _qgates[i];
     }
     return NULL;
 }
@@ -52,8 +52,8 @@ void QCir::printSummary() {
     if (_dirty)
         updateGateTime();
     cout << "Listed by gate ID" << endl;
-    for (size_t i = 0; i < _qgate.size(); i++) {
-        _qgate[i]->printGate();
+    for (size_t i = 0; i < _qgates.size(); i++) {
+        _qgates[i]->printGate();
     }
 }
 
@@ -132,8 +132,10 @@ bool QCir::removeQubit(size_t id) {
  * @param bits
  * @param phase
  * @param append
+ * 
+ * @return QCirGate*
  */
-void QCir::addGate(string type, vector<size_t> bits, Phase phase, bool append) {
+QCirGate * QCir::addGate(string type, vector<size_t> bits, Phase phase, bool append) {
     QCirGate *temp = NULL;
     for_each(type.begin(), type.end(), [](char &c) { c = ::tolower(c); });
     if (type == "h")
@@ -176,7 +178,7 @@ void QCir::addGate(string type, vector<size_t> bits, Phase phase, bool append) {
     } else {
         cerr << "Error: The gate " << type << " is not implemented!!" << endl;
         abort();
-        return;
+        return nullptr;
     }
     if (append) {
         size_t max_time = 0;
@@ -208,9 +210,10 @@ void QCir::addGate(string type, vector<size_t> bits, Phase phase, bool append) {
         }
         _dirty = true;
     }
-    _qgate.push_back(temp);
+    _qgates.push_back(temp);
     _gateId++;
     clearMapping();
+    return temp;
 }
 
 bool QCir::removeGate(size_t id) {
@@ -232,7 +235,7 @@ bool QCir::removeGate(size_t id) {
             Info[i]._parent = NULL;
             Info[i]._child = NULL;
         }
-        _qgate.erase(remove(_qgate.begin(), _qgate.end(), target), _qgate.end());
+        _qgates.erase(remove(_qgates.begin(), _qgates.end(), target), _qgates.end());
         _dirty = true;
         clearMapping();
         return true;

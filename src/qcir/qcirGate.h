@@ -44,27 +44,31 @@ public:
 
   // Basic access method
   virtual string getTypeStr() const = 0;
-  size_t getId() const { return _id; }
-  size_t getTime() const { return _time; }
+  size_t getId() const                              { return _id; }
+  size_t getTime() const                            { return _time; }
+  Phase getPhase() const                            { return _rotatePhase; }
+  const vector<BitInfo>& getQubits() const          { return _qubits; }
   const BitInfo getQubit(size_t qubit) const;
-  const vector<BitInfo>& getQubits() const  { return _qubits; }
 
-  void addQubit(size_t qubit, bool isTarget);
-  void setTypeStr(string type) {_type = type;}
-  void setTime(size_t time) { _time = time; }
-  void setParent(size_t qubit, QCirGate *p);
+  void setId(size_t id)                             { _id = id; }
+  void setTime(size_t time)                         { _time = time; }
+  void setTypeStr(string type)                      { _type = type; }
   void setChild(size_t qubit, QCirGate *c);
+  void setParent(size_t qubit, QCirGate *p);
+  
+  void addQubit(size_t qubit, bool isTarget);
+  
   
   //DFS
-  bool isVisited(unsigned global) { return global == _DFSCounter; }
-  void setVisited(unsigned global) { _DFSCounter = global; }
+  bool isVisited(unsigned global)                   { return global == _DFSCounter; }
+  void setVisited(unsigned global)                  { _DFSCounter = global; }
   void addDummyChild(QCirGate *c);
   // Printing functions
   void printGate() const;
   virtual void printGateInfo(bool) const=0;
-  virtual ZXGraph*  getZXform(){ return NULL; };
-  virtual QTensor<double>  getTSform() = 0;
-  virtual void setRotatePhase(Phase p){};
+  virtual ZXGraph*  getZXform()                     { return NULL; }
+  virtual QTensor<double> getTSform() = 0;
+  virtual void setRotatePhase(Phase p)              {};
 private:
   
 protected:

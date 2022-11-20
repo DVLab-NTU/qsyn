@@ -35,19 +35,24 @@ public:
   ~QCir() {}
 
   // Access functions
-  size_t getId() const                                          { return _id; };
+  size_t getId() const                                          { return _id; }
   size_t getZXId() const                                        { return _ZXNodeId; }
   size_t getNQubit() const                                      { return _qubits.size(); }
+  const vector<QCirQubit*>& getQubits() const                   { return _qubits; }
   QCirGate *getGate(size_t gid) const;
   QCirQubit *getQubit(size_t qid) const;
   void incrementZXId()                                          { _ZXNodeId++; }
   void setId(size_t id)                                         { _id = id; }
+  // For Copy
+  void setNextGateId(size_t id)                                 { _gateId = id; }
+  void setNextQubitId(size_t id)                                { _qubitId = id; }
+  //
   void reset();
-  QCir* copy(){return nullptr;}
+  QCir* copy();
   // Member functions about circuit construction
   void addQubit(size_t num);
   bool removeQubit(size_t q);
-  void addGate(string, vector<size_t>, Phase, bool);
+  QCirGate *addGate(string, vector<size_t>, Phase, bool);
   bool removeGate(size_t id);
 
   bool readQCirFile(string file);
@@ -99,7 +104,7 @@ private:
   unsigned _globalDFScounter;
   QTensor<double>*   _tensor;
 
-  vector<QCirGate *> _qgate;
+  vector<QCirGate *> _qgates;
   vector<QCirQubit*> _qubits;
   vector<QCirGate *> _topoOrder;
   vector<ZXGraph *>  _ZXGraphList;
