@@ -26,7 +26,14 @@ extern int effLimit;
 bool initQCirCmd()
 {
    qcirMgr = new QCirMgr;
-   if (!(cmdMgr->regCmd("QCCRead", 4, new QCirReadCmd) &&
+   if (!(cmdMgr->regCmd("QCCHeckout", 4, new QCirCheckoutCmd) &&
+         cmdMgr->regCmd("QCReset", 3, new QCirResetCmd) &&
+         cmdMgr->regCmd("QCDelete", 3, new QCirDeleteCmd) &&
+         cmdMgr->regCmd("QCNew", 4, new QCirNewCmd) &&
+         // cmdMgr->regCmd("QCCOPy", 5, new QCirCopyCmd) &&
+         // cmdMgr->regCmd("QCCOMpose", 5, new QCirComposeCmd) &&
+         // cmdMgr->regCmd("QCTensor", 4, new QCirTensorCmd) &&
+         cmdMgr->regCmd("QCCRead", 4, new QCirReadCmd) &&
          cmdMgr->regCmd("QCCPrint", 4, new QCirPrintCmd) &&
          cmdMgr->regCmd("QCGAdd", 4, new QCirAddGateCmd) &&
          cmdMgr->regCmd("QCBAdd", 4, new QCirAddQubitCmd) &&
@@ -72,6 +79,108 @@ static QCirCmdState curCmd = QCIRINIT;
 //    cout << setw(15) << left << "QCT: "
 //         << "Test what function you want (for developement)" << endl;
 // }
+
+//----------------------------------------------------------------------
+//    QCCHeckout <(size_t id)>
+//----------------------------------------------------------------------
+
+CmdExecStatus
+QCirCheckoutCmd::exec(const string &option) {    
+   string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    
+    if (token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
+    else {
+        unsigned id;
+        QC_CMD_ID_VALID_OR_RETURN(token, id, "QCir");
+        QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id);
+        qcirMgr->checkout2QCir(id);
+    }
+    return CMD_EXEC_DONE;
+}
+
+void QCirCheckoutCmd::usage(ostream &os) const {
+    os << "Usage: QCCHeckout <(size_t id)>" << endl;
+}
+
+void QCirCheckoutCmd::help() const {
+    cout << setw(15) << left << "QCCHeckout: "
+         << "checkout to QCir <id> in QCirMgr" << endl;
+}
+
+//----------------------------------------------------------------------
+//    QCReset
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirResetCmd::exec(const string &option) {
+    if(!lexNoOption(option)) return CMD_EXEC_ERROR;
+    if(!qcirMgr) qcirMgr = new QCirMgr;
+    else qcirMgr->reset();
+    return CMD_EXEC_DONE;
+}
+
+void QCirResetCmd::usage(ostream &os) const {
+    os << "Usage: QCReset" << endl;
+}
+
+void QCirResetCmd::help() const {
+    cout << setw(15) << left << "QCReset: "
+         << "reset QCirMgr" << endl;
+}
+
+//----------------------------------------------------------------------
+//    QCDelete <(size_t id)>
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirDeleteCmd::exec(const string &option) {    
+   string token;
+   if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    
+   if (token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
+   else {
+      unsigned id;
+      QC_CMD_ID_VALID_OR_RETURN(token, id, "QCir");
+      QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id);
+      qcirMgr->removeQCir(id);
+   }
+   return CMD_EXEC_DONE;
+}
+
+void QCirDeleteCmd::usage(ostream &os) const {
+    os << "Usage: QCDelete <size_t id>" << endl;
+}
+
+void QCirDeleteCmd::help() const {
+    cout << setw(15) << left << "QCDelete: "
+         << "remove a QCir from QCirMgr" << endl;
+}
+
+//----------------------------------------------------------------------
+//    QCNew [(size_t id)]
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirNewCmd::exec(const string &option) {
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+
+    if (token.empty())
+        qcirMgr->addQCir(qcirMgr->getNextID());
+    else {
+        unsigned id;
+        QC_CMD_ID_VALID_OR_RETURN(token, id, "QCir");
+        qcirMgr->addQCir(id);
+    }
+    return CMD_EXEC_DONE;
+}
+
+void QCirNewCmd::usage(ostream &os) const {
+    os << "Usage: QCNew [size_t id]" << endl;
+}
+
+void QCirNewCmd::help() const {
+    cout << setw(15) << left << "QCNew: "
+         << "new QCir to QCirMgr" << endl;
+}
 
 //----------------------------------------------------------------------
 //    QCCRead <(string fileName)> [-Replace]

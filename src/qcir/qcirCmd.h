@@ -11,6 +11,14 @@
 
 #include "cmdParser.h"
 
+CmdClass(QCirCheckoutCmd);
+CmdClass(QCirResetCmd);
+CmdClass(QCirDeleteCmd);
+CmdClass(QCirNewCmd);
+CmdClass(QCirCopyCmd);
+CmdClass(QCirComposeCmd);
+CmdClass(QCirTensorCmd);
+
 CmdClass(QCirReadCmd);
 CmdClass(QCirPrintCmd);
 CmdClass(QCirWriteCmd);
@@ -27,6 +35,18 @@ CmdClass(QCirGatePrintCmd);
 if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end()) {\
     cerr << "Error: QCir list is empty now. Please QCNEW/QCCRead/QCBAdd before " << str << ".\n";\
     return CMD_EXEC_ERROR;\
+}}
+
+#define QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id) {\
+if (!(qcirMgr->isID(id))) {\
+    cerr << "Error: Graph " << (id) << " is not existed!!\n"; \
+    return CMD_EXEC_ERROR;\
+}}
+
+#define QC_CMD_ID_VALID_OR_RETURN(option, id, str) {\
+if (!myStr2Uns((option), (id))) { \
+    cerr << "Error: invalid " << str << " ID!!\n"; \
+    return errorOption(CMD_OPT_ILLEGAL, (option)); \
 }}
 
 #endif // QCIR_CMD_H
