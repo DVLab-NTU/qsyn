@@ -140,6 +140,7 @@ void QCir::updateTopoOrder() {
     _topoOrder.pop_back();  // pop dummy
     reverse(_topoOrder.begin(), _topoOrder.end());
     assert(_topoOrder.size() == _qgate.size());
+    delete dummy;
 }
 
 /**
@@ -217,6 +218,7 @@ void QCir::ZXMapping() {
     
     topoTraverse([this, _ZXG](QCirGate *G) {
         if (verbose >= 5) cout << "> Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
+        //REVIEW - Check mem leak problem
         ZXGraph *tmp = G->getZXform();
         if (tmp == NULL) {
             //TODO cleanup when conversion fails

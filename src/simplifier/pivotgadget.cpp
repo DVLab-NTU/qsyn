@@ -17,20 +17,19 @@ extern size_t verbose;
 /**
  * @brief Check whether the match is a bad match
  * 
- * @param nebs 
+ * @param nbrs 
  * @param e
  * @param isVsNeighbor
  * @return true if is a bad match
  * @return false if is a good match
  */
-bool PivotGadget::checkBadMatch(const Neighbors& nebs, EdgePair e, bool isVsNeighbor){
-    for(const auto& [v, et]: nebs){
-        if(v->getType() != VertexType::Z)
-            return true;
-        NeighborPair nbp = v->getFirstNeighbor();
-        if( isVsNeighbor && v->getNumNeighbors()==1 && makeEdgePair(v, nbp.first, nbp.second) != e)
-            return true;     
-    }
+bool PivotGadget::isBadMatch(const Neighbors& nbrs, EdgePair e, bool isVsNeighbor){
+    // for(const auto& [v, et]: nbrs){
+    //     NeighborPair nbp = v->getFirstNeighbor();
+    //     //REVIEW -  (2) (vs, v) is part of a phase gadget
+    //     if( isVsNeighbor && v->getNumNeighbors()==1 && makeEdgePair(v, nbp.first, nbp.second) != e)
+    //         return true;     
+    // }
     return false;
 }
 
@@ -45,84 +44,86 @@ void PivotGadget::match(ZXGraph* g){
     if(verbose >= 8) g->printVertices();
     if(verbose >= 5) cout << "> match...\n";
 
-    unordered_map<size_t, size_t> id2idx;
+    // unordered_map<size_t, size_t> id2idx;
     size_t cnt = 0;
-    for(const auto& v: g->getVertices()){
-        id2idx[v->getId()] = cnt;
-        cnt++;
-    }
-
-    vector<bool> taken(g->getNumVertices(), false);
+    // for(const auto& v: g->getVertices()){
+    //     id2idx[v->getId()] = cnt;
+    //     cnt++;
+    // }
+    unordered_set<ZXVertex*> taken;
+    // vector<bool> taken(g->getNumVertices(), false);
     vector<Phase> verticesStorage;
     vector<pair<size_t, ZXVertex*>> edgesStorage;
     vector<pair<pair<ZXVertex*, ZXVertex*>, size_t>> matchesStorage;
     vector<EdgePair> newEdges;
     vector<ZXVertex*> newVertices;
     cnt = 0;
-    g -> forEachEdge([&cnt, &id2idx, &taken, &verticesStorage, &edgesStorage, &matchesStorage, this](const EdgePair& epair) {
-        ZXVertex* vs = epair.first.first; ZXVertex* vt = epair.first.second;
-        Phase vsp = vs->getPhase(); Phase vtp = vt->getPhase();
+    g -> forEachEdge([&cnt, &taken, &verticesStorage, &edgesStorage, &matchesStorage, this](const EdgePair& epair) {
+        ZXVertex* vs = epair.first.first; 
+        ZXVertex* vt = epair.first.second;
 
-        if(taken[id2idx[vs->getId()]] || taken[id2idx[vt->getId()]]) return;
+        if(taken.contains(vs) || taken.contains(vt)) return;
 
         if(verbose == 9) cout << "\n-----------\n\n" <<
                                  "Edge " << cnt << ": " << vs->getId() << " " << vt->getId() << "\n";
 
-        if(vs->getType() != VertexType::Z || vt->getType() != VertexType::Z) return;
+        if(!vs->isZ()) {
+            taken.insert(vs);
+            return;
+        } 
+        if (!vt->isZ()) {
+            taken.insert(vt);
+            return;
+        }
 
         if(verbose == 9) cout << "(1) type pass\n";
 
-        if(vsp != Phase(0) && vsp != Phase(1)){
-            if(vtp == Phase(0) || vtp == Phase(1)){
-                vs = epair.first.second; vt = epair.first.first;
-                vsp = vs->getPhase(); vtp = vt->getPhase();
-            }
-            else return;
-        }
-        else if(vtp == Phase(0) || vtp == Phase(1)) return;
+        bool vsIsNPi = (vs->getPhase().getRational().denominator() == 1);
+        bool vtIsNPi = (vt->getPhase().getRational().denominator() == 1);
+        
+        // if both n*pi --> ordinary pivot rules
+        // if both not, --> maybe pivot double-boundary 
+        if (vsIsNPi == vtIsNPi) return;
+
+        // if vs is not n*pi but vt is, should extract vs as gadget instead
+        if (!vsIsNPi && vtIsNPi) swap(vs, vt);
 
         if(verbose == 9) cout << "(2) phase pass\n";
 
-        //REVIEW - check  if(is_ground(vs)) continues;
-        // Neighbors vsn = vs->getNeighbors();
-        // Neighbors vtn = vt->getNeighbors();
-        if(vt->getNumNeighbors() == 1) return;   // It is a phase gadget
+        //REVIEW - check ground conditions
 
-        //SECTION - Start from line 375
-        if(checkBadMatch(vs->getNeighbors(), epair, true))
+        // early return: (vs, vt) is a phase gadget
+        if (vt->getNumNeighbors() == 1) {
+            taken.insert(vs);
+            taken.insert(vt);
             return;
-        if(checkBadMatch(vt->getNeighbors(), epair, false))
-            return;
+        }
 
-        if(verbose == 9) cout << "(3) Not a bad match\n";
-        
-        bool no_interior = false;
-        for(const auto& [v, et]: vs->getNeighbors()){
-            if(v->getType() != VertexType::Z){
-                no_interior = true;
-                break;
+        for(const auto& [v, _]: vs->getNeighbors()){
+            if(!v->isZ()) return; // vs is not internal or not graph-like
+            if(v->getNumNeighbors() == 1) { // (vs, v) is a phase gadget
+                taken.insert(vs);
+                taken.insert(v);
+                return; 
             }
         }
-        if(no_interior) return;
-        for(const auto& [v, et]: vt->getNeighbors()){
-            if(v->getType() != VertexType::Z){
-                no_interior = true;
-                break;
-            }
+        for(const auto& [v, _]: vt->getNeighbors()){
+            if(!v->isZ()) return; // vt is not internal or not graph-like
         }
-        if(no_interior) return;
+
+        if(verbose == 9) cout << "(3) good match\n";
         
         // Both vs and vt are interior
-        if(verbose >= 5) cout << "Edge vs and vt are both interior: " << vs->getId() << " " << vt->getId() << endl;
+        if(verbose >= 5) cout << "Both vertices are both interior: " << vs->getId() << " " << vt->getId() << endl;
 
-        for(auto& [v, _] : vs->getNeighbors()) taken[id2idx[v->getId()]] = true;
-        for(auto& [v, _] : vt->getNeighbors()) taken[id2idx[v->getId()]] = true;
+        for(auto& [v, _] : vs->getNeighbors()) taken.insert(v);
+        for(auto& [v, _] : vt->getNeighbors()) taken.insert(v);
         
         //NOTE - ZXVertex*:  vtp []
         //NOTE - Edge: newV, vt
         //NOTE - match: vs vt newV
         size_t addId = verticesStorage.size();
-        verticesStorage.push_back(vtp);
+        verticesStorage.push_back(vt->getPhase());
         edgesStorage.push_back(make_pair(addId, vt));
         matchesStorage.push_back(make_pair(make_pair(vs, vt), addId));
         // ZXVertex* newVertex = g->addVertex(-2, VertexType::Z, vtp);
@@ -133,8 +134,6 @@ void PivotGadget::match(ZXGraph* g){
 
         // _matchTypeVec.emplace_back(match);
 
-        //REVIEW - Not sure why additional ++ is needed
-        // cnt += 1;
 
         cnt++;
     });
@@ -151,8 +150,6 @@ void PivotGadget::match(ZXGraph* g){
         _matchTypeVec.emplace_back(match);
     }
     for(auto& e : newEdges) g->addEdge(e.first.first, e.first.second, e.second);
-    
-    // newEdges.clear();
     
     setMatchTypeVecNum(_matchTypeVec.size());
 }
@@ -174,7 +171,6 @@ void PivotGadget::rewrite(ZXGraph* g){
         } 
         vector<ZXVertex*> n0 = m[0]->getCopiedNeighbors();
         vector<ZXVertex*> n1 = m[1]->getCopiedNeighbors();
-        // cout << n0.size() << ' ' << n1.size() << endl;
 
         for(auto itr = n0.begin(); itr != n0.end();){
             if(n0[itr-n0.begin()] == m[1]){

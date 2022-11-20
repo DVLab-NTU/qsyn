@@ -118,7 +118,6 @@ void Pivot::rewrite(ZXGraph* g){
 
         // 3 4 grouping
         //REVIEW - Big Rewrite
-        vector<int> c(g->getNumVertices() ,0);
         vector<ZXVertex*> n0;
         vector<ZXVertex*> n1;
         for(auto& [v, et] : neighbors[0]->getNeighbors()) {
@@ -173,7 +172,6 @@ void Pivot::rewrite(ZXGraph* g){
 
         // 8: clear vector
         neighbors.clear();
-        c.clear();
         n0.clear();
         n1.clear();
         n2.clear();

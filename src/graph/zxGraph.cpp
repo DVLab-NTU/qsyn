@@ -475,13 +475,50 @@ void ZXGraph::adjoint() {
  * @param ty
  * @param phase
  */
-void ZXGraph::assignBoundary(size_t qubit, bool isInput, VertexType vt, Phase phase) {
+void ZXGraph::assignBoundary(int qubit, bool isInput, VertexType vt, Phase phase) {
     ZXVertex* v = addVertex(qubit, vt, phase);
     ZXVertex* boundary = isInput ? _inputList[qubit] : _outputList[qubit];
     for (auto& [nb, etype] : boundary->getNeighbors()) {
         addEdge(v, nb, etype);
     }
     removeVertex(boundary);
+}
+
+/**
+ * @brief transfer the phase of the specified vertex to a unary gadget. This function does nothing
+ *        if the target vertex is not a Z-spider.
+ * 
+ * @param v 
+ * @param keepPhase if specified, keep this amount of phase on the vertex and only transfer the rest.
+ */
+void ZXGraph::transferPhase(ZXVertex* v, const Phase& keepPhase) {
+    if (!v->isZ()) return;
+    ZXVertex* leaf = this->addVertex(-2, VertexType::Z, v->getPhase() - keepPhase, true);
+    ZXVertex* buffer = this->addVertex(-1, VertexType::Z, Phase(0), true);
+    v->setPhase(keepPhase);
+
+    this->addEdge(leaf, buffer, EdgeType::HADAMARD);
+    this->addEdge(buffer, v, EdgeType::HADAMARD);
+}
+
+//REVIEW - Probably needs better name and description. Helps are appreciated.
+/**
+ * @brief Add a Z-spider to buffer a vertex from another vertex, so that they don't come in 
+ *        contact with each other on the edge with specified edge type. If such edge does not 
+ *        exists, this function does nothing. 
+ * 
+ * @param toProtect the vertex to protect
+ * @param fromVertex the vertex to buffer from
+ * @param etype the edgetype the buffer should be added on
+ */
+void ZXGraph::addBuffer(ZXVertex* toProtect, ZXVertex* fromVertex, EdgeType etype) {
+    if (!toProtect->isNeighbor(fromVertex, etype)) return;
+
+    ZXVertex* bufferVertex = this->addVertex(toProtect->getQubit(), VertexType::Z, true);
+
+    this->addEdge(toProtect, bufferVertex, toggleEdge(etype));
+    this->addEdge(bufferVertex, fromVertex, EdgeType::HADAMARD);
+    this->removeEdge(toProtect, fromVertex, etype);
 }
 
 /*****************************************************/
@@ -513,5 +550,3 @@ ZXVertex* ZXGraph::findVertexById(const size_t& id) const {
     }
     return nullptr;
 }
-
-

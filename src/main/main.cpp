@@ -68,7 +68,7 @@ main(int argc, char** argv)
 
    CmdExecStatus status = CMD_EXEC_DONE;
    // time_t result = time(nullptr);
-   cerr << "DV Lab, NTUEE, Qsyn 0.3.0\n";
+   cout << "DV Lab, NTUEE, Qsyn 0.3.0" << endl;
    // cerr << "DV Lab, NTUEE, Qsyn 0.3.0, compiled " << ctime(&result);
    while (status != CMD_EXEC_QUIT) {  // until "quit" or command error
       status = cmdMgr->execOneCmd();

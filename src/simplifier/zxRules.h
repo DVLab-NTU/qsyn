@@ -47,8 +47,8 @@ class ZXRule{
       typedef int MatchType;
       typedef vector<MatchType> MatchTypeVec;
       
-      ZXRule(){};
-      ~ZXRule(){};
+      ZXRule(){}
+      virtual ~ZXRule(){ reset(); }
 
       virtual void reset();
 
@@ -95,7 +95,7 @@ class Bialgebra : public ZXRule{
       _matchTypeVec.clear();
       _name = "Bialgebra Rule";
     }
-    ~Bialgebra(){}
+    virtual ~Bialgebra() { _matchTypeVec.clear(); }
 
     
     void match(ZXGraph* g) override; 
@@ -128,7 +128,7 @@ class StateCopy : public ZXRule{
       _matchTypeVec.clear();
       _name = "State Copy Rule";
     }
-    ~StateCopy(){}
+    virtual ~StateCopy(){ _matchTypeVec.clear(); }
 
     
     void match(ZXGraph* g) override; 
@@ -158,7 +158,7 @@ class HboxFusion : public ZXRule{
       _matchTypeVec.clear();
       _name = "Hadamard Cancellation Rule";
     }
-    ~HboxFusion(){}
+    virtual ~HboxFusion() { _matchTypeVec.clear(); }
 
     
     void match(ZXGraph* g) override; 
@@ -188,7 +188,7 @@ class Hopf : public ZXRule{
       _matchTypeVec.clear();
       _name = "Hopf Rule";
     }
-    ~Hopf(){}
+    virtual ~Hopf() { _matchTypeVec.clear(); }
 
     
     void match(ZXGraph* g) override; 
@@ -218,7 +218,7 @@ class HRule : public ZXRule{
       _matchTypeVec.clear();
       _name = "Hadamard Rule";
     }
-    ~HRule(){}
+    virtual ~HRule() { _matchTypeVec.clear(); }
 
     
     void match(ZXGraph* g) override; 
@@ -248,7 +248,7 @@ class IdRemoval : public ZXRule{
       _matchTypeVec.clear();
       _name = "Identity Removal Rule";
     }
-    ~IdRemoval(){}
+    virtual ~IdRemoval() { _matchTypeVec.clear(); }
 
     
     void match(ZXGraph* g) override; 
@@ -278,7 +278,7 @@ class LComp : public ZXRule{
       _matchTypeVec.clear();
       _name = "Local Complementation Rule";
     }
-    ~LComp(){}
+    virtual ~LComp() { _matchTypeVec.clear(); }
 
     
     void match(ZXGraph* g) override; 
@@ -308,7 +308,7 @@ class PhaseGadget : public ZXRule{
       _matchTypeVec.clear();
       _name = "Phase Gadget Rule";
     }
-    ~PhaseGadget(){}
+    virtual ~PhaseGadget() { _matchTypeVec.clear(); }
 
     
     void match(ZXGraph* g) override; 
@@ -337,7 +337,7 @@ class Pivot : public ZXRule{
       _matchTypeVec.clear();
       _name = "Pivot Rule";
     }
-    ~Pivot(){}
+    virtual ~Pivot() { _matchTypeVec.clear(); }
 
     
     void match(ZXGraph* g) override; 
@@ -360,14 +360,14 @@ class Pivot : public ZXRule{
  */
 class PivotGadget : public ZXRule{
   public:
-    typedef vector<ZXVertex* > MatchType;    // vs, vt(need to remove), newVertex
+    typedef vector<ZXVertex* > MatchType;    // vs, vt(need to remove)
     typedef vector<MatchType> MatchTypeVec;
 
     PivotGadget(){
       _matchTypeVec.clear();
       _name = "Pivot Gadget Rule";
     }
-    ~PivotGadget(){}
+    virtual ~PivotGadget() { _matchTypeVec.clear(); }
 
     
     void match(ZXGraph* g) override; 
@@ -378,7 +378,7 @@ class PivotGadget : public ZXRule{
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
-    bool checkBadMatch(const Neighbors&, EdgePair, bool);
+    bool isBadMatch(const Neighbors&, EdgePair, bool);
     MatchTypeVec                                      _matchTypeVec;
 };
 
@@ -397,7 +397,7 @@ class PivotBoundary : public ZXRule{
       _matchTypeVec.clear();
       _name = "Pivot Boundary Rule";
     }
-    ~PivotBoundary(){}
+    virtual ~PivotBoundary() { _matchTypeVec.clear(); }
 
     
     void match(ZXGraph* g) override; 
@@ -408,6 +408,7 @@ class PivotBoundary : public ZXRule{
     void setMatchTypeVec(MatchTypeVec v)            { _matchTypeVec = v; }
     
   protected:
+    bool checkBadMatch(const Neighbors&, EdgePair, bool);
     MatchTypeVec                                      _matchTypeVec;
 };
 
@@ -426,7 +427,7 @@ class SpiderFusion : public ZXRule{
       _matchTypeVec.clear();
       _name = "Spider Fusion Rule";
     }
-    ~SpiderFusion(){}
+    virtual ~SpiderFusion() { _matchTypeVec.clear(); }
 
     
     void match(ZXGraph* g) override; 
