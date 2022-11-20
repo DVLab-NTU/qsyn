@@ -54,6 +54,17 @@ QCir* QCir::copy(){
     newCircuit->setNextQubitId(biggestQubit+1);
     return newCircuit;
 }
+
+QCir* QCir::compose(QCir* target){
+    cerr << "Compose is not provided yet!!";
+    return nullptr;
+}
+
+QCir* QCir::tensorProduct(QCir* target){
+    cerr << "Tensor is not provided yet!!";
+    return nullptr;
+}
+
 /**
  * @brief Perform DFS from currentGate
  *

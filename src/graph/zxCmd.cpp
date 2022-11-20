@@ -244,7 +244,7 @@ CmdExecStatus
 ZXCOMposeCmd::exec(const string &option) {    string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     if (token.empty()) {
-        cerr << "Error: the ZX-graph id you want to compose must provided!" << endl;
+        cerr << "Error: the ZX-graph id you want to compose must be provided!" << endl;
         return CmdExec::errorOption(CMD_OPT_MISSING, token);
     } else {
         unsigned id;
@@ -273,7 +273,7 @@ CmdExecStatus
 ZXTensorCmd::exec(const string &option) {    string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
         if (token.empty()) {
-            cerr << "Error: the ZX-graph id you want to tensor must provided!" << endl;
+            cerr << "Error: the ZX-graph id you want to tensor must be provided!" << endl;
             return CmdExec::errorOption(CMD_OPT_MISSING, token);
         } 
         else {

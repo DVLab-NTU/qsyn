@@ -49,6 +49,8 @@ public:
   //
   void reset();
   QCir* copy();
+  QCir* compose(QCir* target);
+  QCir* tensorProduct(QCir* target);
   // Member functions about circuit construction
   void addQubit(size_t num);
   bool removeQubit(size_t q);

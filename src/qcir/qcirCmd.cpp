@@ -31,8 +31,8 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCDelete", 3, new QCirDeleteCmd) &&
          cmdMgr->regCmd("QCNew", 4, new QCirNewCmd) &&
          cmdMgr->regCmd("QCCOPy", 5, new QCirCopyCmd) &&
-         // cmdMgr->regCmd("QCCOMpose", 5, new QCirComposeCmd) &&
-         // cmdMgr->regCmd("QCTensor", 4, new QCirTensorCmd) &&
+         cmdMgr->regCmd("QCCOMpose", 5, new QCirComposeCmd) &&
+         cmdMgr->regCmd("QCTensor", 4, new QCirTensorCmd) &&
          cmdMgr->regCmd("QCCRead", 4, new QCirReadCmd) &&
          cmdMgr->regCmd("QCCPrint", 4, new QCirPrintCmd) &&
          cmdMgr->regCmd("QCGAdd", 4, new QCirAddGateCmd) &&
@@ -222,15 +222,72 @@ QCirCopyCmd::exec(const string &option) {    // check option
 }
 
 void QCirCopyCmd::usage(ostream &os) const {
-    os << "Usage: ZXCOPy <size_t id> [-Replace]" << endl;
+   os << "Usage: ZXCOPy <size_t id> [-Replace]" << endl;
 }
 
 void QCirCopyCmd::help() const {
-    cout << setw(15) << left << "ZXCOPy: "
+   cout << setw(15) << left << "ZXCOPy: "
          << "copy a ZX-graph" << endl;
 }
 
+//----------------------------------------------------------------------
+//    QCCOMpose <size_t id>
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirComposeCmd::exec(const string &option) {    
+   string token;
+   if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+   if (token.empty()) {
+      cerr << "Error: the QCir id you want to compose must be provided!" << endl;
+      return CmdExec::errorOption(CMD_OPT_MISSING, token);
+   } 
+   else {
+      unsigned id;
+      QC_CMD_ID_VALID_OR_RETURN(token, id, "QCir");
+      QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id);
+      qcirMgr->getQCircuit()->compose(qcirMgr->findQCirByID(id));
+   }
+   return CMD_EXEC_DONE;
+}
 
+void QCirComposeCmd::usage(ostream &os) const {
+   os << "Usage: QCCOMpose <size_t id>" << endl;
+}
+
+void QCirComposeCmd::help() const {
+   cout << setw(15) << left << "QCCOMpose: "
+         << "compose a QCir" << endl;
+}
+
+//----------------------------------------------------------------------
+//    QCTensor <size_t id>
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirTensorCmd::exec(const string &option) {    
+   string token;
+   if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+   if (token.empty()) {
+      cerr << "Error: the QCir id you want to tensor must be provided!" << endl;
+      return CmdExec::errorOption(CMD_OPT_MISSING, token);
+   } 
+   else {
+      unsigned id;
+      QC_CMD_ID_VALID_OR_RETURN(token, id, "QCir");
+      QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id);
+      qcirMgr->getQCircuit()->tensorProduct(qcirMgr->findQCirByID(id));
+   }
+
+   return CMD_EXEC_DONE;
+}
+
+void QCirTensorCmd::usage(ostream &os) const {
+    os << "Usage: QCTensor <size_t id>" << endl;
+}
+
+void QCirTensorCmd::help() const {
+    cout << setw(15) << left << "QCTensor: "
+         << "tensor a QCir" << endl;
+}
 
 //----------------------------------------------------------------------
 //    QCCRead <(string fileName)> [-Replace]
