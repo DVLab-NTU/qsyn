@@ -3,6 +3,7 @@ qsyn> ver 2
 Note: verbose level is set to 2
 
 qsyn> qccr benchmark/pseudoSimp/toGraph2.qasm
+Note: QCir list is empty now. Create a new one.
 
 qsyn> qccp -q
 Q 0  -cx( 0)-- t( 1)-- h( 2)--cx( 3)-

@@ -3,6 +3,7 @@ qsyn> ver 2
 Note: verbose level is set to 2
 
 qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+Note: QCir list is empty now. Create a new one.
 
 qsyn> qc2zx
 

@@ -3,6 +3,9 @@ qsyn> ver 8
 Note: verbose level is set to 8
 
 qsyn> qccr benchmark/benchmark_SABRE/small/qft_4.qasm
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
 
 qsyn> qccp -q
 Q 0  -cx( 0)--cx( 1)--cx( 2)-

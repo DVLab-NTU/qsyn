@@ -1,5 +1,8 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> qcba 2
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
 
 qsyn> qcga -Y 0
 
@@ -14,7 +17,7 @@ Checkout to Graph 0
 
 qsyn> 
 qsyn> qccr benchmark/qsim/circuits/circuit_q24 -R
-Note: original quantum circuit is replaced...
+Note: original QCir is replaced...
 
 qsyn> qc2zx
 Traverse and build the graph... 

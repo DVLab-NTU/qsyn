@@ -462,3 +462,18 @@ bool QCir::removeGate(size_t id) {
         return true;
     }
 }
+
+void QCir::reset(){
+    _qgate.clear();
+    _qubits.clear();
+    _topoOrder.clear();
+    _ZXGraphList.clear();
+    _qubit2pin.clear();
+    
+    _gateId = 0;
+    _ZXNodeId = 0;
+    _qubitId = 0;
+    _dirty = true;
+    _globalDFScounter = 1;
+    _tensor = nullptr;
+}

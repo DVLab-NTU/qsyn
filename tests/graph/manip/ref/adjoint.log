@@ -115,6 +115,9 @@ Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
 qsyn> qcba 3
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
 
 qsyn> qc2ts
 Traverse and build the tensor... 
