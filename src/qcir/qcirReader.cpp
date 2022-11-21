@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ qcirReader.cpp ]
   PackageName  [ qcir ]
-  Synopsis     [ Define qcir reader functions ]
+  Synopsis     [ Define QCir Reader functions ]
   Author       [ Chin-Yi Cheng ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

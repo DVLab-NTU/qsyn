@@ -2,7 +2,7 @@ ver 9
 qcba
 qcga -h 0
 qcga -h 0
-qccp
+qccp -l
 qc2zx
 zxgp -v
 zxge -rme 0 2 -ALL

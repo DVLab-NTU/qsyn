@@ -26,7 +26,15 @@ extern int effLimit;
 bool initQCirCmd()
 {
    qcirMgr = new QCirMgr;
-   if (!(cmdMgr->regCmd("QCCRead", 4, new QCirReadCmd) &&
+   if (!(cmdMgr->regCmd("QCCHeckout", 4, new QCirCheckoutCmd) &&
+         cmdMgr->regCmd("QCReset", 3, new QCirResetCmd) &&
+         cmdMgr->regCmd("QCDelete", 3, new QCirDeleteCmd) &&
+         cmdMgr->regCmd("QCNew", 3, new QCirNewCmd) &&
+         cmdMgr->regCmd("QCCOPy", 5, new QCirCopyCmd) &&
+         cmdMgr->regCmd("QCCOMpose", 5, new QCirComposeCmd) &&
+         cmdMgr->regCmd("QCTensor", 3, new QCirTensorCmd) &&
+         cmdMgr->regCmd("QCPrint", 3, new QCPrintCmd) &&
+         cmdMgr->regCmd("QCCRead", 4, new QCirReadCmd) &&
          cmdMgr->regCmd("QCCPrint", 4, new QCirPrintCmd) &&
          cmdMgr->regCmd("QCGAdd", 4, new QCirAddGateCmd) &&
          cmdMgr->regCmd("QCBAdd", 4, new QCirAddQubitCmd) &&
@@ -36,7 +44,6 @@ bool initQCirCmd()
          cmdMgr->regCmd("QC2ZX", 5, new QCir2ZXCmd) &&
          cmdMgr->regCmd("QC2TS", 5, new QCir2TSCmd) &&
          cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd)
-         // && cmdMgr->regCmd("QCT", 3, new QCirTestCmd)
          ))
    {
       cerr << "Registering \"qcir\" commands fails... exiting" << endl;
@@ -56,22 +63,239 @@ enum QCirCmdState
 
 static QCirCmdState curCmd = QCIRINIT;
 
-// CmdExecStatus
-// QCirTestCmd::exec(const string &option)
-// {
-//    
-//    return CMD_EXEC_DONE;
-// }
-// void QCirTestCmd::usage(ostream &os) const
-// {
-//    os << "Usage: QCT" << endl;
-// }
+//----------------------------------------------------------------------
+//    QCCHeckout <(size_t id)>
+//----------------------------------------------------------------------
 
-// void QCirTestCmd::help() const
-// {
-//    cout << setw(15) << left << "QCT: "
-//         << "Test what function you want (for developement)" << endl;
-// }
+CmdExecStatus
+QCirCheckoutCmd::exec(const string &option) {    
+   string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    
+    if (token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
+    else {
+        unsigned id;
+        QC_CMD_ID_VALID_OR_RETURN(token, id, "QCir");
+        QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id);
+        qcirMgr->checkout2QCir(id);
+    }
+    return CMD_EXEC_DONE;
+}
+
+void QCirCheckoutCmd::usage(ostream &os) const {
+    os << "Usage: QCCHeckout <(size_t id)>" << endl;
+}
+
+void QCirCheckoutCmd::help() const {
+    cout << setw(15) << left << "QCCHeckout: "
+         << "checkout to QCir <id> in QCirMgr" << endl;
+}
+
+//----------------------------------------------------------------------
+//    QCReset
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirResetCmd::exec(const string &option) {
+    if(!lexNoOption(option)) return CMD_EXEC_ERROR;
+    if(!qcirMgr) qcirMgr = new QCirMgr;
+    else qcirMgr->reset();
+    return CMD_EXEC_DONE;
+}
+
+void QCirResetCmd::usage(ostream &os) const {
+    os << "Usage: QCReset" << endl;
+}
+
+void QCirResetCmd::help() const {
+    cout << setw(15) << left << "QCReset: "
+         << "reset QCirMgr" << endl;
+}
+
+//----------------------------------------------------------------------
+//    QCDelete <(size_t id)>
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirDeleteCmd::exec(const string &option) {    
+   string token;
+   if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    
+   if (token.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
+   else {
+      unsigned id;
+      QC_CMD_ID_VALID_OR_RETURN(token, id, "QCir");
+      QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id);
+      qcirMgr->removeQCir(id);
+   }
+   return CMD_EXEC_DONE;
+}
+
+void QCirDeleteCmd::usage(ostream &os) const {
+    os << "Usage: QCDelete <size_t id>" << endl;
+}
+
+void QCirDeleteCmd::help() const {
+    cout << setw(15) << left << "QCDelete: "
+         << "remove a QCir from QCirMgr" << endl;
+}
+
+//----------------------------------------------------------------------
+//    QCNew [(size_t id)]
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirNewCmd::exec(const string &option) {
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+
+    if (token.empty())
+        qcirMgr->addQCir(qcirMgr->getNextID());
+    else {
+        unsigned id;
+        QC_CMD_ID_VALID_OR_RETURN(token, id, "QCir");
+        qcirMgr->addQCir(id);
+    }
+    return CMD_EXEC_DONE;
+}
+
+void QCirNewCmd::usage(ostream &os) const {
+    os << "Usage: QCNew [size_t id]" << endl;
+}
+
+void QCirNewCmd::help() const {
+    cout << setw(15) << left << "QCNew: "
+         << "new QCir to QCirMgr" << endl;
+}
+
+//----------------------------------------------------------------------
+//    QCCOPy [(size_t id)]
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirCopyCmd::exec(const string &option) {    // check option
+    vector<string> options;
+    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
+    
+    CMD_N_OPTS_AT_MOST_OR_RETURN(options, 2);
+    QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCCOPy");
+
+    if(options.size() == 2){
+        bool doReplace = false;
+        size_t id_idx = 0;
+        for(size_t i = 0; i < options.size(); i++){
+            if(myStrNCmp("-Replace", options[i], 2) == 0){
+                doReplace = true;
+                id_idx = 1 - i;
+                break;
+            } 
+        }
+        if(!doReplace) return CmdExec::errorOption(CMD_OPT_MISSING, "-Replace");
+        unsigned id_g;
+        QC_CMD_ID_VALID_OR_RETURN(options[id_idx], id_g, "QCir");
+        QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id_g);
+        qcirMgr->copy(id_g, false);
+    }
+    else if(options.size() == 1){
+        unsigned id_g;
+        QC_CMD_ID_VALID_OR_RETURN(options[0], id_g, "QCir");
+        QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id_g);
+        qcirMgr->copy(id_g);
+    }
+    else{
+        qcirMgr->copy(qcirMgr->getNextID());
+    }
+    return CMD_EXEC_DONE;
+}
+
+void QCirCopyCmd::usage(ostream &os) const {
+   os << "Usage: ZXCOPy <size_t id> [-Replace]" << endl;
+}
+
+void QCirCopyCmd::help() const {
+   cout << setw(15) << left << "ZXCOPy: "
+         << "copy a ZX-graph" << endl;
+}
+
+//----------------------------------------------------------------------
+//    QCCOMpose <size_t id>
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirComposeCmd::exec(const string &option) {    
+   string token;
+   if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+   if (token.empty()) {
+      cerr << "Error: the QCir id you want to compose must be provided!" << endl;
+      return CmdExec::errorOption(CMD_OPT_MISSING, token);
+   } 
+   else {
+      unsigned id;
+      QC_CMD_ID_VALID_OR_RETURN(token, id, "QCir");
+      QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id);
+      qcirMgr->getQCircuit()->compose(qcirMgr->findQCirByID(id));
+   }
+   return CMD_EXEC_DONE;
+}
+
+void QCirComposeCmd::usage(ostream &os) const {
+   os << "Usage: QCCOMpose <size_t id>" << endl;
+}
+
+void QCirComposeCmd::help() const {
+   cout << setw(15) << left << "QCCOMpose: "
+         << "compose a QCir" << endl;
+}
+
+//----------------------------------------------------------------------
+//    QCTensor <size_t id>
+//----------------------------------------------------------------------
+CmdExecStatus
+QCirTensorCmd::exec(const string &option) {    
+   string token;
+   if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+   if (token.empty()) {
+      cerr << "Error: the QCir id you want to tensor must be provided!" << endl;
+      return CmdExec::errorOption(CMD_OPT_MISSING, token);
+   } 
+   else {
+      unsigned id;
+      QC_CMD_ID_VALID_OR_RETURN(token, id, "QCir");
+      QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id);
+      qcirMgr->getQCircuit()->tensorProduct(qcirMgr->findQCirByID(id));
+   }
+
+   return CMD_EXEC_DONE;
+}
+
+void QCirTensorCmd::usage(ostream &os) const {
+    os << "Usage: QCTensor <size_t id>" << endl;
+}
+
+void QCirTensorCmd::help() const {
+    cout << setw(15) << left << "QCTensor: "
+         << "tensor a QCir" << endl;
+}
+
+//----------------------------------------------------------------------
+//    QCPrint [-Summary | -Focus | -Num]
+//----------------------------------------------------------------------
+CmdExecStatus
+QCPrintCmd::exec(const string &option) {    
+   string token;
+   if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+   if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) {
+      qcirMgr->printQCirMgr();
+   } 
+   else if (myStrNCmp("-Focus", token, 2) == 0) qcirMgr->printCListItr();
+   else if (myStrNCmp("-Num", token, 2) == 0) qcirMgr->printQCircuitListSize();
+   else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+   return CMD_EXEC_DONE;
+}
+
+void QCPrintCmd::usage(ostream &os) const {
+    os << "Usage: QCPrint [-Summary | -Focus | -Num]" << endl;
+}
+
+void QCPrintCmd::help() const {
+    cout << setw(15) << left << "QCPrint: "
+         << "print info in QCirMgr" << endl;
+}
 
 //----------------------------------------------------------------------
 //    QCCRead <(string fileName)> [-Replace]
@@ -219,7 +443,7 @@ void QCirGatePrintCmd::help() const
 }
 
 //----------------------------------------------------------------------
-//    QCCPrint [-List | -Qubit | -ZXform]
+//    QCCPrint [-Summary | -List | -Qubit | -ZXform]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirPrintCmd::exec(const string &option)
@@ -231,11 +455,13 @@ QCirPrintCmd::exec(const string &option)
 
    QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCCPrint");
 
-   if (token.empty() || myStrNCmp("-List", token, 2) == 0)
+   if (token.empty() || myStrNCmp("-Summary", token, 2) == 0)
       qcirMgr->getQCircuit()->printSummary();
+   else if (myStrNCmp("-List", token, 2) == 0)
+      qcirMgr->getQCircuit()->printGates();
    else if (myStrNCmp("-Qubit", token, 2) == 0)
       qcirMgr->getQCircuit()->printQubits();
-   else if (myStrNCmp("-ZXform", token, 2) == 0)
+   else if (myStrNCmp("-ZXform", token, 3) == 0)
       qcirMgr->getQCircuit()->printZXTopoOrder();
    else
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);

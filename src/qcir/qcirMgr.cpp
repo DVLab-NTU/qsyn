@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ qcirMgrhMgr.cpp ]
+  FileName     [ qcirMgr.cpp ]
   PackageName  [ qcir ]
   Synopsis     [ Define QCir manager ]
   Author       [ Chin-Yi Cheng ]

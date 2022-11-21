@@ -1,0 +1,93 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> qcba 3
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
+
+qsyn> qcga -cx 0 2
+
+qsyn> qcga -rz -ph pi 0
+
+qsyn> qcbd 1
+
+qsyn> qccp -q
+Q 0  -cx( 0)--rz( 1)-
+Q 2  -cx( 0)-
+
+qsyn> qcnew
+Successfully generated QCir 1
+Checkout to QCir 1
+
+qsyn> qcba 4
+
+qsyn> qcga -cx 1 2
+
+qsyn> qcga -cx 0 3
+
+qsyn> qcga -cx 0 2
+
+qsyn> qccp -q
+Q 0  -cx( 1)--cx( 2)-
+Q 1  -cx( 0)-
+Q 2  -cx( 0)--cx( 2)-
+Q 3  -cx( 1)-
+
+qsyn> qcch 0
+Checkout to QCir 0
+
+qsyn> qccp -q
+Q 0  -cx( 0)--rz( 1)-
+Q 2  -cx( 0)-
+
+qsyn> qccompose 1
+
+qsyn> qccp -q
+Q 0  -cx( 0)--rz( 1)--cx( 3)--cx( 4)-
+Q 1  ---------cx( 2)-
+Q 2  -cx( 0)--cx( 2)----------cx( 4)-
+Q 3  -----------------cx( 3)-
+
+qsyn> qc2zx
+Traverse and build the graph... 
+Successfully generated Graph 0
+Checkout to Graph 0
+
+qsyn> zxgp -v
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(15, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(10, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(10, -) 
+ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(9, -) 
+ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(16, -) 
+ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(14, -) 
+ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(14, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (9, -) (12, -) 
+ID:	9	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(4, -) (8, -) (11, -) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (3, -) (11, -) 
+ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(9, -) (10, -) (16, -) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(8, -) (13, -) 
+ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(12, -) (14, -) (15, -) 
+ID:	14	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(6, -) (7, -) (13, -) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (13, -) (16, -) 
+ID:	16	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(5, -) (11, -) (15, -) 
+Total #Vertices: 17
+
+
+qsyn> qc2ts
+Traverse and build the tensor... 
+Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
+
+qsyn> zx2ts
+Traverse and build the tensor... 
+Successfully added Tensor 1
+Stored the resulting tensor as tensor id 1
+
+qsyn> tseq 0 1
+[1m[32mEquivalent[0m[0m
+- Global Norm : 0.933898
+- Global Phase: 45π/218
+
+qsyn> q -f
+
