@@ -23,65 +23,55 @@ extern size_t verbose;
 void Pivot::match(ZXGraph* g){
     _matchTypeVec.clear(); 
     if(verbose >= 8) g->printVertices();
-
-    unordered_map<size_t, size_t> id2idx;
+    
     size_t cnt = 0;
-    for(const auto& v: g->getVertices()){
-        id2idx[v->getId()] = cnt;
-        cnt++;
-    }
+    unordered_set<ZXVertex*> taken;
 
-    vector<bool> taken(g->getNumVertices(), false);
-
-    g -> forEachEdge([&g, &cnt, &id2idx, &taken, this](const EdgePair& epair) {
-        // 1: Check EdgeType
-        //NOTE - Only Hadamard
+    g -> forEachEdge([&cnt, &taken, this](const EdgePair& epair) {
         if(epair.second != EdgeType::HADAMARD) return;
 
         // 2: Get Neighbors
-        vector<ZXVertex*> neighbors;
-        neighbors.push_back(epair.first.first);
-        neighbors.push_back(epair.first.second);
+        ZXVertex* vs = epair.first.first;
+        ZXVertex* vt = epair.first.second;
 
-        if(taken[id2idx[neighbors[0]->getId()]] || taken[id2idx[neighbors[1]->getId()]]) return;
-        if(neighbors[0]->getType() != VertexType::Z || neighbors[1]->getType() != VertexType::Z) return;
+        if(taken.contains(vs) || taken.contains(vt)) return;
+        if(!vs->isZ() || !vt->isZ()) return;
 
         // 3: Check Neighbors Phase 
-        if(neighbors[0]->getPhase() != Phase(1) && neighbors[0]->getPhase() != 0) return;
-        if(neighbors[1]->getPhase() != Phase(1) && neighbors[1]->getPhase() != 0) return;
+        bool vsIsNPi = (vs->getPhase().getRational().denominator() == 1);
+        bool vtIsNPi = (vt->getPhase().getRational().denominator() == 1);
+
+        if (!vsIsNPi || !vtIsNPi) return;
 
         // 4: Check neighbors of Neighbors
         size_t count_boundary = 0;
 
-        vector<int> mark_v;
-
         //REVIEW - Squeeze into a for loop
-        for(auto& neighbor: neighbors){
-            for(auto& [v, et]: neighbor->getNeighbors()){
-                mark_v.push_back(v->getId());
-                if(v->getType() == VertexType::Z && et == EdgeType::HADAMARD) continue;
-                else if(v->getType() == VertexType::BOUNDARY) count_boundary++;
-                else return;
-            }
+        for(auto& [v, et]: vs->getNeighbors()){
+            if(v->isZ() && et == EdgeType::HADAMARD) continue;
+            else if(v->isBoundary()) count_boundary++;
+            else return;
+        }
+        for(auto& [v, et]: vt->getNeighbors()){
+            if(v->isZ() && et == EdgeType::HADAMARD) continue;
+            else if(v->isBoundary()) count_boundary++;
+            else return;
         }
 
         if(count_boundary > 1) return;   // skip when Neighbors are all connected to boundary
 
         // 5: taken
-        for(auto& x: mark_v){
-            taken[id2idx[x]] = true;
-        }
-        taken[id2idx[neighbors[0]->getId()]] = true;
-        taken[id2idx[neighbors[1]->getId()]] = true;
+        taken.insert(vs);
+        taken.insert(vt);
+        for (auto& [v, _] : vs->getNeighbors()) taken.insert(v);
+        for (auto& [v, _] : vt->getNeighbors()) taken.insert(v);
 
         // 6: add Epair into _matchTypeVec
-        _matchTypeVec.push_back(epair);
+        _matchTypeVec.push_back({vs, vt});
 
         // 7: clear vector
-        neighbors.clear();
-        mark_v.clear();
     });
-    taken.clear();
+
     setMatchTypeVecNum(_matchTypeVec.size());
 }
 
@@ -94,11 +84,11 @@ void Pivot::match(ZXGraph* g){
 void Pivot::rewrite(ZXGraph* g){
     reset();
 
-    for (auto& epair :  _matchTypeVec){
+    for (auto& m :  _matchTypeVec){
         // 1 : get m0 m1
         vector<ZXVertex*> neighbors;
-        neighbors.push_back(epair.first.first);
-        neighbors.push_back(epair.first.second);
+        neighbors.push_back(m[0]);
+        neighbors.push_back(m[1]);
 
         // 2 : boundary find
         for(size_t j=0; j<2; j++){

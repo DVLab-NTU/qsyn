@@ -304,7 +304,7 @@ protected:
  */
 class Pivot : public ZXRule {
 public:
-    typedef EdgePair MatchType;
+    typedef vector<ZXVertex*> MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
     Pivot() {
