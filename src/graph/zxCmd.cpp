@@ -299,7 +299,7 @@ void ZXTensorCmd::help() const {
 
 
 //----------------------------------------------------------------------
-//    ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike | -TCount | -NClifford | -NCT | -Analysi]
+//    ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike ]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGTestCmd::exec(const string &option) {
@@ -340,28 +340,6 @@ ZXGTestCmd::exec(const string &option) {
         return CMD_EXEC_DONE;
     } 
     
-    if (myStrNCmp("-TCount", token, 3) == 0) {
-        cout << "#T-gate: " << zxGraphMgr->getGraph()->TCount() << "\n";
-        return CMD_EXEC_DONE;
-    } 
-
-    if (myStrNCmp("-NClifford", token, 3) == 0) {
-        cout << "#Non-Clifford-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(true) << "\n";
-        return CMD_EXEC_DONE;
-    }
-
-    if (myStrNCmp("-NCT", token, 4) == 0) {
-        cout << "#Non-(Clifford+T)-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(false) << "\n";
-        return CMD_EXEC_DONE;
-    }
-
-    if (myStrNCmp("-Analysis", token, 2) == 0) {
-        cout << "#T-gate: " << zxGraphMgr->getGraph()->TCount() << "\n";
-        cout << "#Non-Clifford-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(true) << "\n";
-        cout << "#Non-(Clifford+T)-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(false) << "\n";
-        return CMD_EXEC_DONE;
-    }
-
     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     
 }
@@ -378,7 +356,7 @@ void ZXGTestCmd::help() const {
 
 
 //--------------------------------------------------------------------------------
-//    ZXGPrint [-Summary | -Inputs | -Outputs | -IO | -Vertices | -Edges ]
+//    ZXGPrint [-Summary | -Inputs | -Outputs | -IO | -Vertices | -Edges | -Analysis ]
 //--------------------------------------------------------------------------------
 CmdExecStatus
 ZXGPrintCmd::exec(const string &option) {
@@ -431,7 +409,13 @@ ZXGPrintCmd::exec(const string &option) {
             nb->printVertex();
         }
     }
-    
+    else if (myStrNCmp("-Analysis", options[0], 2) == 0) {
+        cout << setw(30) << left << "#T-gate: " << zxGraphMgr->getGraph()->TCount() << "\n";
+        cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(false) << "\n";
+        cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(true) << "\n";
+        return CMD_EXEC_DONE;
+    }
+
     else return errorOption(CMD_OPT_ILLEGAL, options[0]);
     return CMD_EXEC_DONE;
 }
