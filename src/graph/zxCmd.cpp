@@ -115,7 +115,7 @@ ZXDeleteCmd::exec(const string &option) {    string token;
     else {
         unsigned id;
         ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
-        ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id);
+        ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
         zxGraphMgr->removeZXGraph(id);
     }
     return CMD_EXEC_DONE;
@@ -143,7 +143,7 @@ ZXCHeckoutCmd::exec(const string &option) {    string token;
     else {
         unsigned id;
         ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
-        ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id);
+        ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
         zxGraphMgr->checkout2ZXGraph(id);
     }
     return CMD_EXEC_DONE;
@@ -211,13 +211,13 @@ ZXCOPyCmd::exec(const string &option) {    // check option
         if(!doReplace) return CmdExec::errorOption(CMD_OPT_MISSING, "-Replace");
         unsigned id_g;
         ZX_CMD_ID_VALID_OR_RETURN(options[id_idx], id_g, "Graph");
-        ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id_g);
+        ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id_g);
         zxGraphMgr->copy(id_g, false);
     }
     else if(options.size() == 1){
         unsigned id_g;
         ZX_CMD_ID_VALID_OR_RETURN(options[0], id_g, "Graph");
-        ZX_CMD_GRAPH_ID_NOT_EXISTED_OR_RETURN(id_g);
+        ZX_CMD_GRAPH_ID_NOT_EXIST_OR_RETURN(id_g);
         zxGraphMgr->copy(id_g);
     }
     else{
@@ -249,7 +249,7 @@ ZXCOMposeCmd::exec(const string &option) {    string token;
     } else {
         unsigned id;
         ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
-        ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id);
+        ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
         zxGraphMgr->getGraph()->compose(zxGraphMgr->findZXGraphByID(id));
     }
     return CMD_EXEC_DONE;
@@ -279,7 +279,7 @@ ZXTensorCmd::exec(const string &option) {    string token;
         else {
             unsigned id;
             ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
-            ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id);
+            ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
             zxGraphMgr->getGraph()->tensorProduct(zxGraphMgr->findZXGraphByID(id));
     
         }
