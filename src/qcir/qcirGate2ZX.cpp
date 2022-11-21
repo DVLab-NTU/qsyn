@@ -245,3 +245,24 @@ ZXGraph *SYGate::getZXform() // SY = S。SX。Sdg
     if(verbose >= 5) cout << "***********************************" << endl;
     return temp;
 }
+
+/// @brief get ZX-graph of cnrz
+/// @return 
+ZXGraph *CnRZGate::getZXform(){
+    ZXGraph *temp = new ZXGraph(_id);
+    //NOTE -  _qubits can get the qubit id, only the last one is the target
+
+    //FIXME - below creates n idendities.
+    if(verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;  
+    for(const auto bitinfo:_qubits){
+        size_t qubit = bitinfo._qubit;
+        ZXVertex* in = temp->addInput(qubit);
+        ZXVertex* gate = temp->addVertex(qubit, VertexType::Z, Phase(0));
+        ZXVertex* out = temp->addOutput(qubit);
+        temp->addEdge(in, gate, EdgeType(EdgeType::SIMPLE));
+        temp->addEdge(gate, out, EdgeType(EdgeType::SIMPLE));
+        temp->setInputHash(qubit, in);
+        temp->setOutputHash(qubit, out);
+    }
+    return temp;
+}

@@ -106,7 +106,8 @@ public:
     tmp +="rz";
     return tmp; 
   }
-  virtual ZXGraph*  getZXform(){ return NULL; };
+  virtual ZXGraph* getZXform();
+  virtual QTensor<double>  getTSform() { return QTensor<double>::cnz(_qubits.size()-1); }
   virtual void printGateInfo(bool) const;
 };
 
