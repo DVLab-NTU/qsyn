@@ -302,10 +302,10 @@ protected:
  * @brief Finds non-interacting matchings of the pivot rule.
  *
  */
-class Pivot : public ZXRule {
+class Pivot : public PivotInterface {
 public:
-    typedef vector<ZXVertex*> MatchType;
-    typedef vector<MatchType> MatchTypeVec;
+    typedef PivotInterface::MatchType MatchType;  // vs, vt(need to remove)
+    typedef PivotInterface::MatchTypeVec MatchTypeVec;
 
     Pivot() {
         _name = "Pivot Rule";
@@ -313,14 +313,15 @@ public:
     virtual ~Pivot() {}
 
     void match(ZXGraph* g) override;
-    void rewrite(ZXGraph* g) override;
+    // void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
-    const MatchTypeVec& getMatchTypeVec() const { return _matchTypeVec; }
-    void setMatchTypeVec(MatchTypeVec v) { _matchTypeVec = v; }
+    // const MatchTypeVec& getMatchTypeVec() const { return _matchTypeVec; }
+    // void setMatchTypeVec(MatchTypeVec v) { _matchTypeVec = v; }
 protected:
-    // void preprocess(ZXGraph* g) override;
-    MatchTypeVec _matchTypeVec;
+    void preprocess(ZXGraph* g) override;
+    vector<ZXVertex*> _boundaries;
+    // MatchTypeVec _matchTypeVec;
 };
 
 /**

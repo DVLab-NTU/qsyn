@@ -22,8 +22,8 @@ extern size_t verbose;
  */
 void PivotInterface::rewrite(ZXGraph* g) {
     reset();
-
     preprocess(g);
+    
     
     for (auto& m : _matchTypeVec) {
         if (verbose >= 5) {

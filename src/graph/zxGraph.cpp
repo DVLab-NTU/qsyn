@@ -384,6 +384,7 @@ size_t ZXGraph::removeVertex(ZXVertex* v) {
 
     if (verbose >= 5) cout << "Remove ID: " << v->getId() << endl;
     // deallocate ZXVertex
+    if (v->isBoundary()) cout << ">>>> Deleting boundary <<<<" << endl;
     delete v;
     return 1;
 }
@@ -514,7 +515,7 @@ void ZXGraph::transferPhase(ZXVertex* v, const Phase& keepPhase) {
 void ZXGraph::addBuffer(ZXVertex* toProtect, ZXVertex* fromVertex, EdgeType etype) {
     if (!toProtect->isNeighbor(fromVertex, etype)) return;
 
-    ZXVertex* bufferVertex = this->addVertex(toProtect->getQubit(), VertexType::Z, true);
+    ZXVertex* bufferVertex = this->addVertex(toProtect->getQubit(), VertexType::Z, Phase(0), true);
 
     this->addEdge(toProtect, bufferVertex, toggleEdge(etype));
     this->addEdge(bufferVertex, fromVertex, EdgeType::HADAMARD);
