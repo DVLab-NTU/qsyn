@@ -345,7 +345,7 @@ ZXGTestCmd::exec(const string &option) {
 }
 
 void ZXGTestCmd::usage(ostream &os) const {
-    os << "Usage: ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike | -TCount | -NClifford | -NCT | -Analysis]" << endl;
+    os << "Usage: ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike ]" << endl;
 }
 
 void ZXGTestCmd::help() const {
@@ -355,9 +355,9 @@ void ZXGTestCmd::help() const {
 
 
 
-//--------------------------------------------------------------------------------
-//    ZXGPrint [-Summary | -Inputs | -Outputs | -IO | -Vertices | -Edges | -Analysis ]
-//--------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+//    ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis]
+//-----------------------------------------------------------------------------------------------------------
 CmdExecStatus
 ZXGPrintCmd::exec(const string &option) {
     // check option
@@ -421,7 +421,7 @@ ZXGPrintCmd::exec(const string &option) {
 }
 
 void ZXGPrintCmd::usage(ostream &os) const {
-    os << "Usage: ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors]" << endl;
+    os << "Usage: ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis]" << endl;
 }
 
 void ZXGPrintCmd::help() const {
@@ -496,7 +496,16 @@ ZXGEditCmd::exec(const string &option) {
         return CMD_EXEC_DONE;
     } 
     
-    if (myStrNCmp("-ADDVertex", action, 4) == 0) {
+    if (myStrNCmp("-RMGadget", action, 4) == 0){
+        CMD_N_OPTS_EQUAL_OR_RETURN(options, 2);
+        unsigned id; ZXVertex* v;
+        ZX_CMD_ID_VALID_OR_RETURN(options[1], id, "Vertex");
+        ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id, v);
+        zxGraphMgr->getGraph()->removeGadget(v);
+        return CMD_EXEC_DONE;
+    }
+
+    if (myStrNCmp("-ADDVertex", action, 5) == 0) {
         CMD_N_OPTS_BETWEEN_OR_RETURN(options, 3, 4);
 
         int qid;
@@ -512,7 +521,7 @@ ZXGEditCmd::exec(const string &option) {
         return CMD_EXEC_DONE;
     } 
     
-    if (myStrNCmp("-ADDInput", action, 4) == 0) {
+    if (myStrNCmp("-ADDInput", action, 5) == 0) {
         CMD_N_OPTS_EQUAL_OR_RETURN(options, 2);
         
         int qid;
@@ -522,7 +531,7 @@ ZXGEditCmd::exec(const string &option) {
         return CMD_EXEC_DONE;
     } 
     
-    if (myStrNCmp("-ADDOutput", action, 4) == 0) {
+    if (myStrNCmp("-ADDOutput", action, 5) == 0) {
         CMD_N_OPTS_EQUAL_OR_RETURN(options, 2);
 
         int qid;
@@ -532,7 +541,7 @@ ZXGEditCmd::exec(const string &option) {
         return CMD_EXEC_DONE;
     } 
     
-    if (myStrNCmp("-ADDEdge", action, 4) == 0) {
+    if (myStrNCmp("-ADDEdge", action, 5) == 0) {
         CMD_N_OPTS_EQUAL_OR_RETURN(options, 4);
 
         unsigned id_s, id_t;
@@ -551,6 +560,22 @@ ZXGEditCmd::exec(const string &option) {
         zxGraphMgr->getGraph()->addEdge(vs, vt, etype);
         return CMD_EXEC_DONE;
     } 
+
+    if (myStrNCmp("-ADDGadget", action, 5) == 0){
+        CMD_N_OPTS_AT_LEAST_OR_RETURN(options, 3);
+        Phase phase;
+        ZX_CMD_PHASE_VALID_OR_RETURN(options[1], phase);
+
+        vector<ZXVertex* > verVec;
+        for(size_t i = 2; i < options.size(); i++){
+            unsigned id; ZXVertex* v;
+            ZX_CMD_ID_VALID_OR_RETURN(options[i], id, "Vertex");
+            ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id, v);
+            verVec.push_back(v);
+        }
+        zxGraphMgr->getGraph()->addGadget(phase, verVec);
+        return CMD_EXEC_DONE;
+    }
         
     return errorOption(CMD_OPT_ILLEGAL, action);
 }

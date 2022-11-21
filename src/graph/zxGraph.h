@@ -186,6 +186,8 @@ class ZXGraph{
         void liftQubit(const size_t& n);
         ZXGraph* compose(ZXGraph* target);
         ZXGraph* tensorProduct(ZXGraph* target);
+        void addGadget(Phase p, const vector<ZXVertex*>& verVec);
+        void removeGadget(ZXVertex* v);
         unordered_map<size_t, ZXVertex*> id2VertexMap() const;
         void mergeInputList(unordered_map<size_t, ZXVertex*> lst)    { _inputList.merge(lst); }
         void mergeOutputList(unordered_map<size_t, ZXVertex*> lst)   { _outputList.merge(lst); }
