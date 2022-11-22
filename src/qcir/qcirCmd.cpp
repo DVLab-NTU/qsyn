@@ -43,7 +43,8 @@ bool initQCirCmd()
          cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd) &&
          cmdMgr->regCmd("QC2ZX", 5, new QCir2ZXCmd) &&
          cmdMgr->regCmd("QC2TS", 5, new QCir2TSCmd) &&
-         cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd)
+         cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd) &&
+         cmdMgr->regCmd("QCGMAdd", 5, new QCirAddMultipleCmd)
          ))
    {
       cerr << "Registering \"qcir\" commands fails... exiting" << endl;
@@ -546,7 +547,7 @@ QCirAddGateCmd::exec(const string &option)
       }
       qubits.push_back(id);
       type = type.erase(0,1);
-      qcirMgr->getQCircuit()->addGate(type, qubits, Phase(0),appendGate);
+      qcirMgr->getQCircuit()->addGate(type, qubits, Phase(0), appendGate);
    }
    else if (myStrNCmp("-CX", type, 3) == 0){
       if (options.size() < 3)
@@ -855,4 +856,38 @@ void QCirWriteCmd::help() const
 {
    cout << setw(15) << left << "QCCWrite: "
         << "write QASM file\n";
+}
+
+CmdExecStatus
+QCirAddMultipleCmd::exec(const string &option){
+   QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCGMAdd");
+   // check option
+   vector<string> options;
+   if (!CmdExec::lexOptions(option, options))
+      return CMD_EXEC_ERROR;
+   vector<size_t> qids;
+   for(size_t i=0; i< options.size(); i++){
+      unsigned id;
+      if(!myStr2Uns(options[i], id)){
+         cerr << "Error: target ID should be a positive integer!!" << endl;
+         return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
+      }
+      qids.push_back(id);
+   }
+
+     
+   qcirMgr->getQCircuit()->addGate("mcz", qids, Phase(0), true);
+   // qcirMgr->getQCircuit()->addGate("mcx", qids, Phase(0), true);
+   return CMD_EXEC_DONE;
+}
+
+void QCirAddMultipleCmd::usage(ostream &os) const
+{
+   os << "Usage: QCGMAdd 0 1 2 3 4" << endl;
+}
+
+void QCirAddMultipleCmd::help() const
+{
+   cout << setw(15) << left << "QCGMAdd: "
+      << "add multiple control\n";
 }
