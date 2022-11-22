@@ -109,6 +109,10 @@ public:
   virtual ZXGraph* getZXform();
   virtual QTensor<double>  getTSform() { return QTensor<double>::cnz(_qubits.size()-1); }
   virtual void printGateInfo(bool) const;
+
+  vector<vector<ZXVertex* > > makeCombi(vector<ZXVertex* > verVec, int k);
+  void makeCombiUtil(vector<vector<ZXVertex* > >& comb, vector<ZXVertex* >& tmp, vector<ZXVertex* > verVec, int left, int k);
+
 };
 
 class CnRXGate : public QCirGate
@@ -116,8 +120,10 @@ class CnRXGate : public QCirGate
 public:
   CnRXGate(size_t id): QCirGate(id) {}
   ~CnRXGate(){};
+  
   virtual ZXGraph*  getZXform(){ return NULL; };
   virtual void printGateInfo(bool) const;
+  
 };
 
 class CnRYGate : public QCirGate
