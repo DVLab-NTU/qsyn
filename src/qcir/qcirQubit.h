@@ -33,11 +33,12 @@ public:
   ~QCirQubit() {}
 
   // Basic access method
-  void setLast(QCirGate * l) { _bitLast = l; }
-  void setFirst(QCirGate * f) { _bitFirst = f; }
-  size_t getId() const { return _id; }
-  QCirGate* getLast() const { return _bitLast; }
-  QCirGate* getFirst() const { return _bitFirst; }
+  void setId(size_t id)                 { _id = id;}
+  void setLast(QCirGate * l)            { _bitLast = l; }
+  void setFirst(QCirGate * f)           { _bitFirst = f; }
+  size_t getId() const                  { return _id; }
+  QCirGate* getLast() const             { return _bitLast; }
+  QCirGate* getFirst() const            { return _bitFirst; }
   // Printing functions
   void printBitLine() const;
 private:

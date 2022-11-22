@@ -30,74 +30,59 @@ ZXGraph *QCirGate::mapSingleQubitGate(VertexType vt, Phase ph){
     ZXVertex* in = g->addInput(qubit);
     ZXVertex* gate = g->addVertex(qubit, vt, ph);
     ZXVertex* out = g->addOutput(qubit);
-    g->addEdge(in, gate, EdgeType(EdgeType::SIMPLE));
-    g->addEdge(gate, out, EdgeType(EdgeType::SIMPLE));
+    g->addEdge(in, gate, EdgeType::SIMPLE);
+    g->addEdge(gate, out, EdgeType::SIMPLE);
     g->setInputHash(qubit, in);
     g->setOutputHash(qubit, out);
     if(verbose >= 5) cout << "***********************************" << endl;
     return g;
 }
 
-// Single Qubit Gate X/Z
-//REVIEW - Rewrite
-
-/// @brief get ZX-graph
-/// @return 
-ZXGraph *HGate::getZXform(){
-    return mapSingleQubitGate(VertexType::H_BOX, Phase(1));
+/**
+ * @brief Make combination of `k` from `verVec`
+ * 
+ * @param verVec 
+ * @param k 
+ * @return vector<vector<ZXVertex* > > 
+ */
+vector<vector<ZXVertex* > > QCirGate::makeCombi(vector<ZXVertex* > verVec, int k){
+    vector<vector<ZXVertex* > > comb;
+    vector<ZXVertex* > tmp;
+    makeCombiUtil(comb, tmp, verVec, 0, k);
+    return comb;
 }
 
-/// @brief get ZX-graph
-/// @return 
-ZXGraph *XGate::getZXform(){
-    return mapSingleQubitGate(VertexType::X, Phase(1));
+/**
+ * @brief Make combination of `k` from `verVec`. 
+ *        Function that will be called in `makeCombi`
+ * 
+ * @param comb 
+ * @param tmp 
+ * @param verVec 
+ * @param left 
+ * @param k 
+ */
+void QCirGate::makeCombiUtil(vector<vector<ZXVertex* > >& comb, vector<ZXVertex* >& tmp, vector<ZXVertex* > verVec, int left, int k){
+    if(k == 0){
+        comb.push_back(tmp);
+        return;
+    }
+    for(int i = left; i < (int)verVec.size(); ++i){
+        tmp.push_back(verVec[i]);
+        makeCombiUtil(comb, tmp, verVec, i+1, k-1);
+        tmp.pop_back();
+    }
 }
 
-/// @brief get ZX-graph
-/// @return 
-ZXGraph *SXGate::getZXform(){
-    return mapSingleQubitGate(VertexType::X, Phase(1, 2));
-}
 
-ZXGraph *ZGate::getZXform(){
-    return mapSingleQubitGate(VertexType::Z, Phase(1));
-}
-
-/// @brief get ZX-graph
-/// @return 
-ZXGraph *SGate::getZXform(){
-    return mapSingleQubitGate(VertexType::Z, Phase(1, 2));
-}
-
-/// @brief get ZX-graph
-/// @return 
-ZXGraph *SDGGate::getZXform(){
-    return mapSingleQubitGate(VertexType::Z, Phase(-1, 2));
-}
-
-/// @brief get ZX-graph
-/// @return 
-ZXGraph *TGate::getZXform(){
-    return mapSingleQubitGate(VertexType::Z, Phase(1, 4));
-}
-
-/// @brief get ZX-graph
-/// @return 
-ZXGraph *TDGGate::getZXform(){
-    return mapSingleQubitGate(VertexType::Z, Phase(-1, 4));
-}
-
-/// @brief get ZX-graph
-/// @return 
-ZXGraph *RZGate::getZXform(){
-    return mapSingleQubitGate(VertexType::Z, Phase(_rotatePhase));
-}
 
 // Double or More Qubit Gate
-//NOTE - Not necessary to rewrite
 
-/// @brief get ZX-graph
-/// @return 
+/**
+ * @brief get ZX-graph of CX
+ * 
+ * @return ZXGraph* 
+ */
 ZXGraph *CXGate::getZXform()
 {
     ZXGraph *temp = new ZXGraph(_id);
@@ -110,11 +95,11 @@ ZXGraph *CXGate::getZXform()
     ZXVertex *targX = temp->addVertex(targ_qubit, VertexType::X, Phase(0));
     ZXVertex *out_ctrl = temp->addOutput(ctrl_qubit);
     ZXVertex *out_targ = temp->addOutput(targ_qubit);
-    temp->addEdge(in_ctrl, ctrl, EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(ctrl, out_ctrl, EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(in_targ, targX, EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(targX, out_targ, EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(ctrl, targX, EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(in_ctrl, ctrl, EdgeType::SIMPLE);
+    temp->addEdge(ctrl, out_ctrl, EdgeType::SIMPLE);
+    temp->addEdge(in_targ, targX, EdgeType::SIMPLE);
+    temp->addEdge(targX, out_targ, EdgeType::SIMPLE);
+    temp->addEdge(ctrl, targX, EdgeType::SIMPLE);
     temp->setInputHash(ctrl_qubit, in_ctrl);
     temp->setOutputHash(ctrl_qubit, out_ctrl);
     temp->setInputHash(targ_qubit, in_targ);
@@ -123,9 +108,14 @@ ZXGraph *CXGate::getZXform()
     return temp;
 }
 
-/// @brief get ZX-graph
-/// @return 
-ZXGraph *CCXGate::getZXform() // Decomposed into 21 vertices (6X + 6Z + 4T + 3Tdg + 2H)
+
+/**
+ * @brief get ZX-graph of CCX
+ *        Decomposed into 21 vertices (6X + 6Z + 4T + 3Tdg + 2H)
+ * 
+ * @return ZXGraph* 
+ */
+ZXGraph *CCXGate::getZXform() // 
 {
     ZXGraph *temp = new ZXGraph(_id);
     
@@ -156,13 +146,13 @@ ZXGraph *CCXGate::getZXform() // Decomposed into 21 vertices (6X + 6Z + 4T + 3Td
     ZXVertex *out_ctrl_2 = temp->addOutput(ctrl_qubit_2);
     ZXVertex *out_targ = temp->addOutput(targ_qubit);
 
-    temp->addEdge(in_ctrl_1 , Vertices_list[4] , EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(in_ctrl_2 , Vertices_list[1] , EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(in_targ   , Vertices_list[0] , EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(out_ctrl_1, Vertices_list[19], EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(out_ctrl_2, Vertices_list[20], EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(out_targ  , Vertices_list[16], EdgeType(EdgeType::SIMPLE));
-    for (size_t i=0; i<adj_pair.size(); i++) {temp->addEdge(Vertices_list[adj_pair[i].first], Vertices_list[adj_pair[i].second], EdgeType(EdgeType::SIMPLE));}
+    temp->addEdge(in_ctrl_1 , Vertices_list[4] , EdgeType::SIMPLE);
+    temp->addEdge(in_ctrl_2 , Vertices_list[1] , EdgeType::SIMPLE);
+    temp->addEdge(in_targ   , Vertices_list[0] , EdgeType::SIMPLE);
+    temp->addEdge(out_ctrl_1, Vertices_list[19], EdgeType::SIMPLE);
+    temp->addEdge(out_ctrl_2, Vertices_list[20], EdgeType::SIMPLE);
+    temp->addEdge(out_targ  , Vertices_list[16], EdgeType::SIMPLE);
+    for (size_t i=0; i<adj_pair.size(); i++) {temp->addEdge(Vertices_list[adj_pair[i].first], Vertices_list[adj_pair[i].second], EdgeType::SIMPLE);}
     
     temp->setInputHash(ctrl_qubit_1, in_ctrl_1);
     temp->setOutputHash(ctrl_qubit_1, out_ctrl_1);
@@ -174,8 +164,13 @@ ZXGraph *CCXGate::getZXform() // Decomposed into 21 vertices (6X + 6Z + 4T + 3Td
     return temp;
 }
 
-/// @brief get ZX-graph
-/// @return 
+
+/**
+ * @brief get ZX-graph of CZ
+ *        Decomposed into 21 vertices (6X + 6Z + 4T + 3Tdg + 2H)
+ * 
+ * @return ZXGraph* 
+ */
 ZXGraph *CZGate::getZXform()
 {
     ZXGraph *temp = new ZXGraph(_id);
@@ -188,10 +183,10 @@ ZXGraph *CZGate::getZXform()
     ZXVertex *targZ = temp->addVertex(targ_qubit, VertexType::Z, Phase(0));
     ZXVertex *out_ctrl = temp->addOutput(ctrl_qubit);
     ZXVertex *out_targ = temp->addOutput(targ_qubit);
-    temp->addEdge(in_ctrl, ctrl, EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(ctrl, out_ctrl, EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(in_targ, targZ, EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(targZ, out_targ, EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(in_ctrl, ctrl, EdgeType::SIMPLE);
+    temp->addEdge(ctrl, out_ctrl, EdgeType::SIMPLE);
+    temp->addEdge(in_targ, targZ, EdgeType::SIMPLE);
+    temp->addEdge(targZ, out_targ, EdgeType::SIMPLE);
     temp->addEdge(ctrl, targZ, EdgeType(EdgeType::HADAMARD));
     temp->setInputHash(ctrl_qubit, in_ctrl);
     temp->setOutputHash(ctrl_qubit, out_ctrl);
@@ -204,9 +199,13 @@ ZXGraph *CZGate::getZXform()
 // Y Gate
 //NOTE - Cannot use mapSingleQubitGate
 
-/// @brief get ZX-graph
-/// @return 
-ZXGraph *YGate::getZXform() // Y = iXZ
+
+/**
+ * @brief get ZX-graph of Y = iXZ
+ * 
+ * @return ZXGraph* 
+ */
+ZXGraph *YGate::getZXform()
 {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
@@ -215,18 +214,22 @@ ZXGraph *YGate::getZXform() // Y = iXZ
     ZXVertex *X = temp->addVertex(qubit, VertexType::X, Phase(1));
     ZXVertex *Z = temp->addVertex(qubit, VertexType::Z, Phase(1));
     ZXVertex *out = temp->addOutput(qubit);
-    temp->addEdge(in, X, EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(X, Z, EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(Z, out, EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(in, X, EdgeType::SIMPLE);
+    temp->addEdge(X, Z, EdgeType::SIMPLE);
+    temp->addEdge(Z, out, EdgeType::SIMPLE);
     temp->setInputHash(qubit, in);
     temp->setOutputHash(qubit, out);
     if(verbose >= 5) cout << "***********************************" << endl;
     return temp;
 }
 
-/// @brief get ZX-graph
-/// @return 
-ZXGraph *SYGate::getZXform() // SY = S。SX。Sdg
+
+/**
+ * @brief get ZX-graph of SY = S。SX。Sdg
+ * 
+ * @return ZXGraph* 
+ */
+ZXGraph *SYGate::getZXform()
   {  
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
@@ -236,12 +239,88 @@ ZXGraph *SYGate::getZXform() // SY = S。SX。Sdg
     ZXVertex *SX = temp->addVertex(qubit, VertexType::X, Phase(1, 2));
     ZXVertex *Sdg = temp->addVertex(qubit, VertexType::Z, Phase(-1, 2));
     ZXVertex *out = temp->addOutput(qubit);
-    temp->addEdge(in, S, EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(S, SX, EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(SX, Sdg, EdgeType(EdgeType::SIMPLE));
-    temp->addEdge(Sdg, out, EdgeType(EdgeType::SIMPLE));
+    temp->addEdge(in, S, EdgeType::SIMPLE);
+    temp->addEdge(S, SX, EdgeType::SIMPLE);
+    temp->addEdge(SX, Sdg, EdgeType::SIMPLE);
+    temp->addEdge(Sdg, out, EdgeType::SIMPLE);
     temp->setInputHash(qubit, in);
     temp->setOutputHash(qubit, out);
     if(verbose >= 5) cout << "***********************************" << endl;
     return temp;
 }
+
+
+/**
+ * @brief get ZX-graph of cnrz
+ * 
+ * @return ZXGraph* 
+ */
+ZXGraph *CnRZGate::getZXform(){
+    ZXGraph *temp = new ZXGraph(_id);
+    Phase phase = Phase(1, pow(2, _qubits.size()-1));
+    if(verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl; 
+    vector<ZXVertex*> verVec; 
+    for(const auto bitinfo : _qubits){
+        size_t qubit = bitinfo._qubit;
+        ZXVertex* in = temp->addInput(qubit);
+        ZXVertex* v = temp->addVertex(qubit, VertexType::Z, phase);
+        ZXVertex* out = temp->addOutput(qubit);
+        temp->addEdge(in, v, EdgeType::SIMPLE);
+        temp->addEdge(v, out, EdgeType::SIMPLE);
+        temp->setInputHash(qubit, in);
+        temp->setOutputHash(qubit, out);
+        verVec.push_back(v);
+    }
+    
+    for(size_t k = 2; k <= verVec.size(); k++){
+        vector<vector<ZXVertex* > > comb = makeCombi(verVec, k);
+        for(size_t i = 0; i < comb.size(); i++){
+            if(k%2) temp->addGadget(phase, comb[i]);
+            else temp->addGadget(-phase, comb[i]);
+        }
+    }
+    return temp;
+}
+
+
+/**
+ * @brief get ZX-graph of CnRX
+ * 
+ * @return ZXGraph* 
+ */
+ZXGraph *CnRXGate::getZXform(){
+    ZXGraph *temp = new ZXGraph(_id);
+    Phase phase = Phase(1, pow(2, _qubits.size()-1));
+    if(verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl; 
+    vector<ZXVertex*> verVec; 
+    size_t targetQubit = _qubits[_qubits.size()-1]._qubit;
+    for(const auto bitinfo : _qubits){
+        size_t qubit = bitinfo._qubit;
+        ZXVertex* in = temp->addInput(qubit);
+        ZXVertex* v = temp->addVertex(qubit, VertexType::Z, phase);
+        ZXVertex* out = temp->addOutput(qubit);
+        if(qubit != targetQubit){
+            temp->addEdge(in, v, EdgeType::SIMPLE);
+            temp->addEdge(v, out, EdgeType::SIMPLE);
+        }
+        else{
+            temp->addEdge(in, v, EdgeType::HADAMARD);
+            temp->addEdge(v, out, EdgeType::HADAMARD);
+        }
+        temp->setInputHash(qubit, in);
+        temp->setOutputHash(qubit, out);
+        verVec.push_back(v);
+    }
+
+    for(size_t k = 2; k <= verVec.size(); k++){
+        vector<vector<ZXVertex* > > comb = makeCombi(verVec, k);
+        for(size_t i = 0; i < comb.size(); i++){
+            if(k%2) temp->addGadget(phase, comb[i]);
+            else temp->addGadget(-phase, comb[i]);
+        }
+    }
+    return temp;
+}
+
+
+
