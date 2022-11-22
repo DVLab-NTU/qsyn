@@ -32,6 +32,7 @@ bool Bialgebra::check_duplicated_vertex(vector<ZXVertex*> vec) {
     return false;
 }
 
+
 /**
  * @brief Finds noninteracting matchings of the bialgebra rule.
  *        (Check PyZX/pyzx/rules.py/match_bialg_parallel for more details)
@@ -48,6 +49,8 @@ void Bialgebra::match(ZXGraph* g) {
         cnt++;
     }
 
+    //FIXME - performance: replace unordered_map<size_t, size_t> id2idx; and vector<bool> taken(g->getNumVertices(), false); with a single 
+    // unordered_set<ZXVertex*> taken; Not fixing at the moment as bialg is not used in full reduce
     vector<bool> taken(g->getNumVertices(), false);
     g -> forEachEdge([&id2idx, &taken, this](const EdgePair& epair) {
         if (epair.second != EdgeType::SIMPLE) return;

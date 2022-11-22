@@ -60,7 +60,13 @@ id.o: id.cpp zxRules.h ../../include/zxDef.h \
  ../../include/myConcepts.h ../../include/util.h ../../include/rnGen.h \
  ../../include/myUsage.h ../../include/qtensor.h ../../include/tensor.h \
  ../../include/tensorDef.h ../../include/tensorUtil.h
-pivotboundary.o: pivotboundary.cpp
+pivotboundary.o: pivotboundary.cpp zxRules.h ../../include/zxDef.h \
+ ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
+ ../../include/myHashMap.h ../../include/zxGraph.h ../../include/zxDef.h \
+ ../../include/phase.h ../../include/rationalNumber.h \
+ ../../include/myConcepts.h ../../include/util.h ../../include/rnGen.h \
+ ../../include/myUsage.h ../../include/qtensor.h ../../include/tensor.h \
+ ../../include/tensorDef.h ../../include/tensorUtil.h
 copy.o: copy.cpp zxRules.h ../../include/zxDef.h \
  ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
  ../../include/myHashMap.h ../../include/zxGraph.h ../../include/zxDef.h \
@@ -76,6 +82,13 @@ hfusion.o: hfusion.cpp zxRules.h ../../include/zxDef.h \
  ../../include/myUsage.h ../../include/qtensor.h ../../include/tensor.h \
  ../../include/tensorDef.h ../../include/tensorUtil.h
 hrule.o: hrule.cpp zxRules.h ../../include/zxDef.h \
+ ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
+ ../../include/myHashMap.h ../../include/zxGraph.h ../../include/zxDef.h \
+ ../../include/phase.h ../../include/rationalNumber.h \
+ ../../include/myConcepts.h ../../include/util.h ../../include/rnGen.h \
+ ../../include/myUsage.h ../../include/qtensor.h ../../include/tensor.h \
+ ../../include/tensorDef.h ../../include/tensorUtil.h
+pivotInterface.o: pivotInterface.cpp zxRules.h ../../include/zxDef.h \
  ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
  ../../include/myHashMap.h ../../include/zxGraph.h ../../include/zxDef.h \
  ../../include/phase.h ../../include/rationalNumber.h \

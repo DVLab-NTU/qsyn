@@ -22,40 +22,40 @@ extern size_t verbose;
  */
 void SpiderFusion::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    if(verbose >= 8) g->printVertices();
+    if (verbose >= 8) g->printVertices();
 
-    unordered_map<EdgePair, size_t> Edge2idx;
-    size_t i = 0;
-    g -> forEachEdge([&Edge2idx, &i](const EdgePair& epair) {
-        Edge2idx[epair] = i;
-        i++;
-    });
+    unordered_set<EdgePair> taken;
+    // unordered_map<EdgePair, size_t> Edge2idx;
+    // size_t i = 0;
+    // g -> forEachEdge([&Edge2idx, &i](const EdgePair& epair) {
+    //     Edge2idx[epair] = i;
+    //     i++;
+    // });
 
-    vector<bool> validEdge(g->getNumEdges(), true);
+    // vector<bool> validEdge(g->getNumEdges(), true);
 
-    g -> forEachEdge([&Edge2idx, &validEdge, this](const EdgePair& epair) {
-        
-        if (!validEdge[Edge2idx[epair]]) return;
-        validEdge[Edge2idx[epair]] = false;
+    g->forEachEdge([&taken, this](const EdgePair& epair) {
+        if (taken.contains(epair)) return;
+        taken.insert(epair);
 
-        //NOTE - Skip Hadamard Edges
+        // NOTE - Skip Hadamard Edges
         if (epair.second != EdgeType::SIMPLE) return;
         ZXVertex* v0 = epair.first.first;
         ZXVertex* v1 = epair.first.second;
 
-        //NOTE - Both X or Both Z
+        // NOTE - Both X or Both Z
         if ((v0->getType() == v1->getType()) && (v0->getType() == VertexType::X || v0->getType() == VertexType::Z)) {
             const Neighbors& v0n = v0->getNeighbors();
             const Neighbors& v1n = v1->getNeighbors();
-            //NOTE - Cannot choose the vertex connected to the vertices that will be merged
-            for (auto itr = v0n.begin(); itr != v0n.end(); ++itr) {
-                validEdge[Edge2idx[makeEdgePair(v0, itr->first, itr->second)]] = false;
+            // NOTE - Cannot choose the vertex connected to the vertices that will be merged
+            for (auto& [nb, etype] : v0n) {
+                taken.insert(makeEdgePair(v0, nb, etype));
             }
-            for (auto itr = v1n.begin(); itr != v1n.end(); ++itr) {
-                validEdge[Edge2idx[makeEdgePair(v1, itr->first, itr->second)]] = false;
-                //NOTE - Cannot choose the vertex connected to the that will be deleted
-                for (auto& jtr : (itr->first) -> getNeighbors()) {
-                    validEdge[Edge2idx[makeEdgePair((itr->first), jtr.first, jtr.second)]] = false;
+            for (auto& [nb, etype] : v1n) {
+                taken.insert(makeEdgePair(v1, nb, etype));
+                // NOTE - Cannot choose the vertex connected to the that will be deleted
+                for (auto& [nb2, etype2] : nb->getNeighbors()) {
+                    taken.insert(makeEdgePair(nb, nb2, etype2));
                 }
             }
             _matchTypeVec.push_back(make_pair(v0, v1));
@@ -74,10 +74,9 @@ void SpiderFusion::match(ZXGraph* g) {
  */
 void SpiderFusion::rewrite(ZXGraph* g) {
     reset();
-    
-    for (size_t i = 0; i < _matchTypeVec.size(); i++) {
 
-        //NOTE - No selfloops, directly merge the phase
+    for (size_t i = 0; i < _matchTypeVec.size(); i++) {
+        // NOTE - No selfloops, directly merge the phase
         _matchTypeVec[i].first->setPhase(_matchTypeVec[i].first->getPhase() + _matchTypeVec[i].second->getPhase());
 
         ZXVertex* v0 = _matchTypeVec[i].first;
@@ -85,22 +84,21 @@ void SpiderFusion::rewrite(ZXGraph* g) {
         Neighbors v1n = v1->getNeighbors();
         unordered_map<ZXVertex*, bool> done;
         // for(const auto& v: v1n) done[v.first] = false;
-        
-        for(auto& nbp: v1n){
+
+        for (auto& nbp : v1n) {
             // if(done[nbp.first]) continue;
-            //NOTE - No more selfloops
-            //NOTE - Will become selfloop after merged, only considered hadamard
-            if(nbp.first == v0){
-                if(nbp.second == EdgeType::HADAMARD)
+            // NOTE - No more selfloops
+            // NOTE - Will become selfloop after merged, only considered hadamard
+            if (nbp.first == v0) {
+                if (nbp.second == EdgeType::HADAMARD)
                     v0->setPhase(v0->getPhase() + Phase(1));
-                //NOTE - No need to remove edges since v1 will be removed
-            }
-            else{
+                // NOTE - No need to remove edges since v1 will be removed
+            } else {
                 _edgeTableKeys.push_back(make_pair(v0, nbp.first));
-                _edgeTableValues.push_back(nbp.second == EdgeType::SIMPLE ? make_pair(1,0): make_pair(0,1));
+                _edgeTableValues.push_back(nbp.second == EdgeType::SIMPLE ? make_pair(1, 0) : make_pair(0, 1));
             }
         }
-        //NOTE - No selfloops, directly delete v1
+        // NOTE - No selfloops, directly delete v1
         _removeVertices.push_back(v1);
     }
 }

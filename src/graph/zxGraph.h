@@ -112,7 +112,7 @@ class ZXGraph{
             _globalDFScounter = 1;
         }
         
-        ~ZXGraph() { for(const auto& v: _vertices) delete v; }
+        ~ZXGraph() { for (const auto& v: _vertices) delete v; }
 
 
         // Getter and Setter
@@ -168,7 +168,11 @@ class ZXGraph{
 
         // Operation on graph
         void adjoint();
-        void assignBoundary(size_t qubit, bool input, VertexType type, Phase phase);
+        void assignBoundary(int qubit, bool input, VertexType type, Phase phase);
+        
+        // helper functions for simplifiers
+        void transferPhase(ZXVertex* v, const Phase& keepPhase = Phase(0));
+        void addBuffer(ZXVertex* toProtect, ZXVertex* fromVertex, EdgeType etype);
 
 
 
@@ -279,8 +283,5 @@ ostream& operator<<(typename enable_if<is_enum<T>::value, ostream>::type& stream
 EdgePair makeEdgePair(ZXVertex* v1, ZXVertex* v2, EdgeType et);
 EdgePair makeEdgePair(EdgePair epair);
 EdgePair makeEdgePairDummy();
-
-EdgePair_depr makeEdgeKey_depr(ZXVertex* v1, ZXVertex* v2, EdgeType* et);
-EdgePair_depr makeEdgeKey_depr(EdgePair_depr epair);
 
 #endif

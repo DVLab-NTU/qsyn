@@ -76,15 +76,15 @@ if (!(phase).fromString(option)) {\
     return CmdExec::errorOption(CMD_OPT_ILLEGAL, option);\
 }}
 
-#define ZX_CMD_GRAPH_ID_NOT_EXISTED_OR_RETURN(id) {\
+#define ZX_CMD_GRAPH_ID_NOT_EXIST_OR_RETURN(id) {\
 if (zxGraphMgr->isID(id)) {\
-    cerr << "Error: Graph " << (id) << " is already existed!! Add `-Replace` if you want to overwrite it.\n"; \
+    cerr << "Error: Graph " << (id) << " already exists!! Add `-Replace` if you want to overwrite it.\n"; \
     return CMD_EXEC_ERROR;\
 }}
 
-#define ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id) {\
+#define ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id) {\
 if (!(zxGraphMgr->isID(id))) {\
-    cerr << "Error: Graph " << (id) << " is not existed!!\n"; \
+    cerr << "Error: Graph " << (id) << " does not exist!!\n"; \
     return CMD_EXEC_ERROR;\
 }}
 
