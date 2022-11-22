@@ -14,6 +14,7 @@ using namespace std;
 
 extern size_t verbose;
 
+// FIXME - Seems buggy. Not fixing this as it is not in full reduce
 /**
  * @brief Matches Hadamard-edges that are connected to H-boxes or two neighboring H-boxes
  *        (Check PyZX/pyzx/hrules.py/match_connected_hboxes for more details)

@@ -13,8 +13,8 @@ CCC       = gcc
 AR        = ar cr
 ECHO      = /bin/echo
 
-CFLAGS = -O3 -Wall -std=c++20 -DTA_KB_SETTING $(PKGFLAG)
 CFLAGS = -g -Wall -std=c++20 -DTA_KB_SETTING $(PKGFLAG)
+CFLAGS = -O3 -Wall -std=c++20 -DTA_KB_SETTING $(PKGFLAG)
 
 .PHONY: depend extheader
 

@@ -384,7 +384,6 @@ size_t ZXGraph::removeVertex(ZXVertex* v) {
 
     if (verbose >= 5) cout << "Remove ID: " << v->getId() << endl;
     // deallocate ZXVertex
-    if (v->isBoundary()) cout << ">>>> Deleting boundary <<<<" << endl;
     delete v;
     return 1;
 }
