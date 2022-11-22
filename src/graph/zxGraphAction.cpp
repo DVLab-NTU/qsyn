@@ -217,7 +217,7 @@ void ZXGraph::addGadget(Phase p, const vector<ZXVertex*>& verVec){
 
     addEdge(axel, leaf, EdgeType::HADAMARD);
     for(const auto& v : verVec) addEdge(v, axel, EdgeType::HADAMARD);
-    if(verbose >= 3) cout << "Add phase gadget (" << leaf->getId() << ") to graph!" << endl;
+    if(verbose >= 5) cout << "Add phase gadget (" << leaf->getId() << ") to graph!" << endl;
 }
 
 /**
