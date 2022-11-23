@@ -182,7 +182,7 @@ ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::id(const Key& key) co
  */
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
 bool ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::contains(const Key& key) const {
-    return (this->_key2id.contains(key) && this->_data[id(key)] != std::nullopt);
+    return (this->_key2id.contains(key) && this->_data[id(key)].has_value());
 }
 
 //------------------------------------------------------
@@ -252,17 +252,12 @@ ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::emplace(Args&&... arg
  */
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
 void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sweep() { 
-    
-    std::vector<stored_type> newData;
-    size_t count = 0;
-    for (size_t i = 0; i < this->_data.size(); ++i) {
-        if (this->_data[i].has_value()) {
-            newData.emplace_back(this->_data[i]);
-            this->_key2id.at(this->key(this->_data[i].value())) = count;
-            count++;
-        }
+    auto newEnd = std::remove_if(_data.begin(), _data.end(), [](const stored_type& v){return !v.has_value();});
+    _data.erase(newEnd, _data.end());
+
+    for (size_t i = 0; i < _data.size(); ++i) {
+        _key2id[this->key(_data[i].value())] = i;
     }
-    this->_data.swap(newData);
 }
 
 /**

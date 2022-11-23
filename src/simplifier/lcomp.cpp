@@ -23,26 +23,17 @@ extern size_t verbose;
 void LComp::match(ZXGraph* g){
     _matchTypeVec.clear();
     if(verbose >= 8) g->printVertices();
-    
-    unordered_map<size_t, size_t> id2idx;
-    size_t cnt = 0;
-    for(const auto& v: g->getVertices()){
-        id2idx[v->getId()] = cnt;
-        cnt++;
-    }
 
     // Find all Z vertices that connect to all neighb ors with H edge.
-    vector<bool> taken(g->getNumVertices(), false);
-    vector<bool> inMatches(g->getNumVertices(), false);
+    unordered_set<ZXVertex*> taken;
+
     for(const auto& v : g->getVertices()){
         if(v->getType() == VertexType::Z && (v->getPhase() == Phase(1,2) || v->getPhase() == Phase(3,2)) ){
             bool matchCondition = true;
-            size_t vIdx = id2idx[v->getId()];
-            if(taken[vIdx]) continue;
-            // EdgeType = H ; VertexType = Z ; not in taken or inMatches
+            if(taken.contains(v)) continue;
 
             for(const auto& [nb, etype] : v->getNeighbors()){
-                if(etype != EdgeType::HADAMARD || nb->getType() != VertexType::Z || taken[id2idx[nb->getId()]] || inMatches[id2idx[nb->getId()]]){
+                if(etype != EdgeType::HADAMARD || nb->getType() != VertexType::Z || taken.contains(nb)){
                     matchCondition = false;
                     break;
                 }
@@ -52,9 +43,9 @@ void LComp::match(ZXGraph* g){
                 for(const auto& [nb, _] : v->getNeighbors()){
                     if (v == nb) continue;
                     neighbors.push_back(nb);
-                    taken[id2idx[nb->getId()]] = true;
+                    taken.insert(nb);
                 }
-                inMatches[id2idx[v->getId()]] = true;
+                taken.insert(v);
                 _matchTypeVec.push_back(make_pair(v, neighbors));
             }
         }

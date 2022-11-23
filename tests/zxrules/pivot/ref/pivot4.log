@@ -234,6 +234,8 @@ ID:	25	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(15, -)
 Total #Vertices: 26
 
 Found 1 match(es)
+> rewrite...
+vs: 4	vt: 5
 Add edge ( 6, 7 )
 Add edge ( 6, 8 )
 Add edge ( 6, 9 )
@@ -263,8 +265,8 @@ Add edge ( 11, 12 )
 Add edge ( 11, 13 )
 Add edge ( 11, 14 )
 Add edge ( 11, 15 )
-Remove ID: 5
 Remove ID: 4
+Remove ID: 5
 
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(11, -) 

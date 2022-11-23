@@ -250,9 +250,9 @@ Identity Removal Rule:
 Spider Fusion Rule: 
 1 iterations
 Pivot Rule: 
-No matches
+1 iterations
 Local Complementation Rule: 
-3 iterations
+2 iterations
 Identity Removal Rule: 
 No matches
 Spider Fusion Rule: 
@@ -298,15 +298,17 @@ No matches
 
 qsyn> zxgp -v
 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(117, [1m[34mH[0m[0m) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(118, [1m[34mH[0m[0m) 
 ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m) 
 ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m) 
-ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (3, -) (50, [1m[34mH[0m[0m) 
-ID:	48	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(97, [1m[34mH[0m[0m) 
-ID:	50	VertexType:	[1m[32mZ[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) 
-ID:	97	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(48, [1m[34mH[0m[0m) 
-Total #Vertices: 8
+ID:	50	VertexType:	[1m[32mZ[0m[0m	Qubit:	3	Phase:	π/2	#Neighbors:	3	(6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (112, [1m[34mH[0m[0m) 
+ID:	103	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(104, [1m[34mH[0m[0m) 
+ID:	104	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(103, [1m[34mH[0m[0m) 
+ID:	112	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	3	(50, [1m[34mH[0m[0m) (117, [1m[34mH[0m[0m) (118, [1m[34mH[0m[0m) 
+ID:	117	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	3π/2	#Neighbors:	3	(2, [1m[34mH[0m[0m) (112, [1m[34mH[0m[0m) (118, [1m[34mH[0m[0m) 
+ID:	118	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	3π/2	#Neighbors:	3	(3, [1m[34mH[0m[0m) (112, [1m[34mH[0m[0m) (117, [1m[34mH[0m[0m) 
+Total #Vertices: 10
 
 
 qsyn> zxgs -stco
@@ -315,13 +317,15 @@ State Copy Rule:
 
 qsyn> zxgp -v
 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(15, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(117, [1m[34mH[0m[0m) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(118, [1m[34mH[0m[0m) 
 ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m) 
 ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m) 
-ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (3, -) (50, [1m[34mH[0m[0m) 
-ID:	50	VertexType:	[1m[32mZ[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (15, [1m[34mH[0m[0m) 
-Total #Vertices: 6
+ID:	50	VertexType:	[1m[32mZ[0m[0m	Qubit:	3	Phase:	π/2	#Neighbors:	3	(6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (112, [1m[34mH[0m[0m) 
+ID:	112	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	3	(50, [1m[34mH[0m[0m) (117, [1m[34mH[0m[0m) (118, [1m[34mH[0m[0m) 
+ID:	117	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	3π/2	#Neighbors:	3	(2, [1m[34mH[0m[0m) (112, [1m[34mH[0m[0m) (118, [1m[34mH[0m[0m) 
+ID:	118	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	3π/2	#Neighbors:	3	(3, [1m[34mH[0m[0m) (112, [1m[34mH[0m[0m) (117, [1m[34mH[0m[0m) 
+Total #Vertices: 8
 
 
 qsyn> zx2ts
@@ -330,10 +334,14 @@ Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
 qsyn> tsp 0
-{{ 1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i},
- { 0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i}}
+{{ 1.000000e+00-1.473140e-16i, -7.850462e-17+7.276606e-18i, 
+   1.110223e-16+7.001869e-17i, -7.850462e-17+7.001869e-17i},
+ {-7.850462e-17+7.276606e-18i,  1.000000e+00-1.473140e-16i, 
+  -7.850462e-17+7.001869e-17i,  1.110223e-16+7.001869e-17i},
+ {-7.850462e-17+7.001869e-17i,  1.110223e-16+7.001869e-17i, 
+  -7.850462e-17+7.276606e-18i,  1.000000e+00-1.473140e-16i},
+ { 1.110223e-16+7.001869e-17i, -7.850462e-17+7.001869e-17i, 
+   1.000000e+00-1.473140e-16i, -7.850462e-17+7.276606e-18i}}
 #Dim:    2	Info: ZX 0
 
 qsyn> q -f

@@ -281,6 +281,8 @@ int Simplifier::pivotSimp(){
 
 int Simplifier::pivotBoundarySimp(){
     // TODO: pivot_boundary rule
+    // this->setRule(new PivotBoundary());
+    // int i = this->simp();
     return 0;
 }
 

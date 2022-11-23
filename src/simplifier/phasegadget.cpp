@@ -7,9 +7,11 @@
 ****************************************************************************/
 
 #include <iostream>
-#include <vector>
-#include <numbers>
 #include <map>
+#include <numbers>
+#include <vector>
+#include <ranges>
+
 #include "zxRules.h"
 using namespace std;
 
@@ -18,103 +20,88 @@ extern size_t verbose;
 /**
  * @brief Determines which phase gadgets act on the same vertices, so that they can be fused together.
  *        (Check PyZX/pyzx/rules.py/match_phase_gadgets for more details)
- * 
- * @param g 
+ *
+ * @param g
  */
-void PhaseGadget::match(ZXGraph* g){
+void PhaseGadget::match(ZXGraph* g) {
+    _matchTypeVec.clear();
+    if (verbose >= 8) g->printVertices();
 
-    //REVIEW - NO TESTCASES FOR GADGET!! CHECK AFTER ALL RULES ARE FINISHED
-    _matchTypeVec.clear(); 
-    if(verbose >= 8) g->printVertices();
-    
-    unordered_map<size_t, size_t> id2idx;
-    size_t cnt = 0;
-    for(const auto& v: g->getVertices()){
-        id2idx[v->getId()] = cnt;
-        cnt++;
-    }
+    unordered_map<ZXVertex*, ZXVertex*> axel2leaf; 
+    unordered_multimap<vector<ZXVertex*>, ZXVertex*> group2axel;
+    unordered_set<vector<ZXVertex*>> done;
 
-    vector<bool> taken(g->getNumVertices(), false);
+    vector<ZXVertex*> axels;
+    vector<ZXVertex*> leaves;
+    for (const auto& v : g->getVertices()) {
+        if (v->getPhase().getRational().denominator() <= 2 || v->getNumNeighbors() != 1) continue;
 
-    unordered_map<ZXVertex*, ZXVertex*> gadgets; // (v, the only neighbor)
-    unordered_multimap<vector<ZXVertex*>, ZXVertex*> groups;
-    unordered_map<vector<ZXVertex*>, bool> done;
-    for(const auto& v : g->getVertices()){
-        if(v->getPhase().getRational().denominator() > 2 && v->getNumNeighbors() == 1){
-            ZXVertex* neighbor = v->getFirstNeighbor().first;
-            if(neighbor->getPhase() != Phase(0) and neighbor->getPhase() != Phase(1)) continue;
-            if(neighbor->getType() == VertexType::BOUNDARY) continue;
-            if(gadgets.contains(neighbor)) continue;
-            // if(taken[id2idx[neighbor->getId()]]) continue;
-            vector<ZXVertex*> nebsOfNeighbor;
-            for(const auto& nbp : neighbor->getNeighbors()){
-                nebsOfNeighbor.push_back(nbp.first);
+        ZXVertex* nb = v->getFirstNeighbor().first;
+        
+        if (nb->getPhase().getRational().denominator() != 1) continue;
+        if (nb->isBoundary()) continue;
+        if (axel2leaf.contains(nb)) continue;
+
+        axel2leaf[nb] = v;
+
+        vector<ZXVertex*> group;
+
+        for (auto& [nb2, _] : nb->getNeighbors()) {
+            if (nb2 != v) group.push_back(nb2);
+        }
+
+        if (group.size() > 0) {
+            sort(group.begin(), group.end());
+            group2axel.emplace(group, nb);
+        }
+
+        if (verbose >= 9) {
+            for (auto& vertex : group) {
+                cout << vertex->getId() << " ";
             }
-            nebsOfNeighbor.erase(remove(nebsOfNeighbor.begin(),nebsOfNeighbor.end(),v), nebsOfNeighbor.end());
-            
-            sort(nebsOfNeighbor.begin(), nebsOfNeighbor.end());
-            
-            gadgets[neighbor] = v;
-            if(nebsOfNeighbor.size()>0){
-                done[nebsOfNeighbor] = false;
-                groups.insert(make_pair(nebsOfNeighbor,neighbor));
-            }
-                
-            if(verbose >=9){
-                for(size_t k=0;k<nebsOfNeighbor.size(); k++){
-                    cout << nebsOfNeighbor[k]->getId() << " ";
-                }
-                cout << " axel added: "<<neighbor->getId() << endl;
-            }
+            cout << " axel added: " << nb->getId() << endl;
         }
     }
+    auto itr = group2axel.begin();
+    while (itr != group2axel.end()) {
+        auto [groupBegin, groupEnd] = group2axel.equal_range(itr->first);
+        itr = groupEnd;
+        
+        axels.clear(); leaves.clear();
 
-    for(auto itr=groups.begin(); itr!=groups.end(); itr++){
-        if(done[itr->first]) continue;
-        else done[itr->first]= true;
-        auto gadgetList = groups.equal_range(itr->first);
-        vector<ZXVertex*> axels;
-        vector<ZXVertex*> leaves;
-        Phase tot = Phase(0);
-        for(auto gad = gadgetList.first; gad!= gadgetList.second; gad++){
-            if(gad->second->getPhase()==Phase(1)){
-                gad->second->setPhase(Phase(0));
-                tot = tot + (-1) * gadgets[gad->second]->getPhase();
-                gadgets[gad->second] -> setPhase((-1) * gadgets[gad->second]->getPhase());
-            }
-            else{
-                tot = tot + gadgets[gad->second]->getPhase();
-            }
-            axels.push_back(gad->second);
-            leaves.push_back(gadgets[gad->second]);
+        Phase totalPhase = Phase(0);
+        for (auto& [_, axel] : ranges::subrange(groupBegin, groupEnd)) {
+            ZXVertex* const& leaf = axel2leaf[axel];
+            if (axel->getPhase() == Phase(1)) {
+                axel->setPhase(Phase(0));
+                leaf->setPhase((-1) * axel2leaf[axel]->getPhase());
+            } 
+            totalPhase += axel2leaf[axel]->getPhase();
+            axels.push_back(axel);
+            leaves.push_back(axel2leaf[axel]);
         }
-        if(leaves.size()>1){
-            _matchTypeVec.emplace_back(tot, axels, leaves);
+        if (leaves.size() > 1) {
+            _matchTypeVec.emplace_back(totalPhase, axels, leaves);
         }
-            
     }
     setMatchTypeVecNum(_matchTypeVec.size());
 }
 
-
 /**
  * @brief Generate Rewrite format from `_matchTypeVec`
- *        
- * @param g 
+ *
+ * @param g
  */
-void PhaseGadget::rewrite(ZXGraph* g){
+void PhaseGadget::rewrite(ZXGraph* g) {
     reset();
-    
-    for(size_t i=0; i<_matchTypeVec.size(); i++){
-        ZXVertex* leaf = get<2>(_matchTypeVec[i])[0];
-        leaf -> setPhase(get<0>(_matchTypeVec[i]));
-        vector<ZXVertex*> rm_axels = get<1>(_matchTypeVec[i]);
-        vector<ZXVertex*> rm_leaves = get<2>(_matchTypeVec[i]);
-        for(size_t j=1; j<rm_axels.size(); j++){
-            _removeVertices.push_back(rm_axels[j]);
-        }
-        for(size_t j=1; j<rm_leaves.size(); j++){
-            _removeVertices.push_back(rm_leaves[j]);
-        }
+
+    for (auto& m : _matchTypeVec) {
+        const Phase& newPhase = get<0>(m);
+        const vector<ZXVertex*>& rmAxels = get<1>(m);
+        const vector<ZXVertex*>& rmLeaves = get<2>(m);
+        ZXVertex* leaf = rmLeaves[0];
+        leaf->setPhase(newPhase);
+        _removeVertices.insert(_removeVertices.end(), rmAxels.begin() + 1, rmAxels.end());
+        _removeVertices.insert(_removeVertices.end(), rmLeaves.begin() + 1, rmLeaves.end());
     }
 }
