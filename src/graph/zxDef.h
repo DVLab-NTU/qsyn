@@ -43,10 +43,6 @@ using EdgePair     = pair<pair<ZXVertex*, ZXVertex*>, EdgeType> ;
 using NeighborPair = pair<ZXVertex*, EdgeType>;
 using Neighbors    = ordered_hashset<NeighborPair>;
 
-using EdgePair_depr     = pair<pair<ZXVertex*, ZXVertex*>, EdgeType*> ;
-using NeighborPair_depr = pair<ZXVertex*, EdgeType*> ;
-using NeighborMap_depr  = unordered_multimap<ZXVertex*, EdgeType*>;
-
 //------------------------------------------------------------------------
 //   Define hashes
 //------------------------------------------------------------------------
@@ -62,16 +58,7 @@ struct hash<NeighborPair> {
     }
 };
 
-template <>
-struct hash<EdgePair_depr> {
-    size_t operator()(const EdgePair_depr& k) const {
-        return (
-            (hash<ZXVertex*>()(k.first.first) ^ 
-            (hash<ZXVertex*>()(k.first.second) << 1)) >> 1) ^ 
-            (hash<EdgeType*>()(k.second) << 1
-        );
-    }
-};
+
 
 template <>
 struct hash<EdgePair> {

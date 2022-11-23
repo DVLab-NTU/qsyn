@@ -165,7 +165,7 @@ void PivotBoundary::rewrite(ZXGraph* g) {
     //             // EdgePair e = g->getIncidentEdges(m[2])[0];
     //             NeighborPair ep = m[2]->getFirstNeighbor();
     //             EdgePair e = makeEdgePair(m[2], ep.first, ep.second);
-    //             // EdgePair_depr e = g->getFirstIncidentEdge_depr(m[2]);
+    
     //             _edgeTableKeys.push_back(make_pair(m[0], m[2]));
     //             if (e.second == EdgeType::SIMPLE) {
     //                 _edgeTableValues.push_back(make_pair(0, 1));
