@@ -4,15 +4,15 @@ Note: QCir list is empty now. Create a new one.
 Successfully generated QCir 0
 Checkout to QCir 0
 
-qsyn> qcga -cnrx -ph pi 0 2 10 9
+qsyn> qcga -mcrx -ph pi 0 2 10 9
 
-qsyn> qcga -cnrz -ph pi 0 2 6 4 10 3 7
+qsyn> qcga -mcrz -ph pi 0 2 6 4 10 3 7
 
 qsyn> qcga -cx 8 1
 
 qsyn> qcga -ccx 9 4 5
 
-qsyn> qcga -cnrz -ph pi 8
+qsyn> qcga -mcrz -ph pi 8
 
 qsyn> qccp -q
 Q 0  -cc( 0)--cc( 1)-

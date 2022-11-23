@@ -98,7 +98,7 @@ public:
 
 class CnRZGate : public QCirGate {
 public:
-  CnRZGate(size_t id): QCirGate(id)               { _type = "cnrz"; }
+  CnRZGate(size_t id): QCirGate(id)               { _type = "mcrz"; }
   virtual ~CnRZGate(){};
   virtual string getTypeStr() const { string tmp = "";
     for(size_t i = 0; i < _qubits.size() - 1; i++) tmp += "c";
@@ -114,7 +114,7 @@ public:
 
 class CnRXGate : public QCirGate {
 public:
-  CnRXGate(size_t id): QCirGate(id)               { _type = "cnrx"; }
+  CnRXGate(size_t id): QCirGate(id)               { _type = "mcrx"; }
   virtual ~CnRXGate(){};
   
   virtual string getTypeStr() const { string tmp = "";
@@ -130,7 +130,7 @@ public:
 
 class CnRYGate : public QCirGate {
 public:
-  CnRYGate(size_t id): QCirGate(id)               { _type = "cnry"; }
+  CnRYGate(size_t id): QCirGate(id)               { _type = "mcry"; }
   virtual ~CnRYGate(){};
   virtual string getTypeStr() const { string tmp = "";
     for(size_t i = 0; i < _qubits.size() - 1; i++) tmp+="c";

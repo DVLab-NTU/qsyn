@@ -486,8 +486,8 @@ void QCirPrintCmd::help() const
 //     QCGAdd <-CX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend] /
 //     QCGAdd <-RZ> <-PHase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend] /
 //     QCGAdd <-CRZ> <-PHase (Phase phase_inp)> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]
-// .   QCGAdd <-CNRX> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]
-// .   QCGAdd <-CNRZ> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]
+// .   QCGAdd <-MCRX> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]
+// .   QCGAdd <-MCRZ> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]
 //-------------------------------------------------------------------------------------------------------------------------------
 CmdExecStatus
 QCirAddGateCmd::exec(const string &option)
@@ -615,7 +615,7 @@ QCirAddGateCmd::exec(const string &option)
       type = type.erase(0,1);
       qcirMgr->getQCircuit()->addGate(type, qubits, phase, appendGate);
    }
-   else if(myStrNCmp("-CNRX", type, 5) == 0 || myStrNCmp("-CNRZ", type, 5) == 0){
+   else if(myStrNCmp("-MCRX", type, 5) == 0 || myStrNCmp("-MCRZ", type, 5) == 0){
       Phase phase;
       if(options.size()==1){
          cerr << "Error: missing -PHase flag!!" << endl;
@@ -656,7 +656,7 @@ QCirAddGateCmd::exec(const string &option)
          qubits.push_back(id);
       }
       if(qubits.size() == 1)  {
-         if( myStrNCmp("-CNRX", type, 5) == 0)
+         if( myStrNCmp("-MCRX", type, 5) == 0)
             qcirMgr->getQCircuit()->addGate("rx", qubits, phase, appendGate);
          else
             qcirMgr->getQCircuit()->addGate("rz", qubits, phase, appendGate);
@@ -931,7 +931,7 @@ QCirAddMultipleCmd::exec(const string &option){
    }
 
      
-   qcirMgr->getQCircuit()->addGate("cnrz", qids, Phase(1), true);
+   qcirMgr->getQCircuit()->addGate("mcrz", qids, Phase(1), true);
    // qcirMgr->getQCircuit()->addGate("mcx", qids, Phase(0), true);
    return CMD_EXEC_DONE;
 }
