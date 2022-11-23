@@ -931,7 +931,7 @@ QCirAddMultipleCmd::exec(const string &option){
    }
 
      
-   qcirMgr->getQCircuit()->addGate("cnrz", qids, Phase(0), true);
+   qcirMgr->getQCircuit()->addGate("cnrz", qids, Phase(1), true);
    // qcirMgr->getQCircuit()->addGate("mcx", qids, Phase(0), true);
    return CMD_EXEC_DONE;
 }
