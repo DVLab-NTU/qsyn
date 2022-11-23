@@ -9,10 +9,11 @@ def decomposeH(w, ID):
 
 
 def decomposeCRZ(w, ang, ctrl, targ):
-    w.write("rz(-pi/{ang}) q[{targ}];\n".format(ang=ang * 2, targ=targ))
-    w.write("cx q[{ctrl}],q[{targ}];\n".format(ctrl=ctrl, targ=targ))
     w.write("rz(pi/{ang}) q[{ctrl}];\n".format(ang=format(ang * 2), ctrl=ctrl))
     w.write("rz(pi/{ang}) q[{targ}];\n".format(ang=format(ang * 2), targ=targ))
+    w.write("cx q[{ctrl}],q[{targ}];\n".format(ctrl=ctrl, targ=targ))
+    w.write("rz(-pi/{ang}) q[{targ}];\n".format(ang=ang * 2, targ=targ))
+    w.write("cx q[{ctrl}],q[{targ}];\n".format(ctrl=ctrl, targ=targ))
 
 
 def main(args):
