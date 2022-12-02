@@ -13,13 +13,34 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <bitset>
+#include <assert.h>
 
 using namespace std;
 
 class M2;
+class Row;
 //------------------------------------------------------------------------
 //   Define classes
 //------------------------------------------------------------------------
+
+//REVIEW - Change if bit > 64
+class Row
+{
+public:
+    Row(size_t id): _id(id) {}
+    ~Row() {}
+    const bitset<64>& getRow()            { return _row; }
+    void setRow(bitset<64> row)           { _row = row; }
+
+    size_t size()                         { return _row.size(); }
+    bool isSingular()                     { return _row.count() == 1; }
+    
+    Row &operator+=(const Row& rhs);
+private:
+    size_t _id;
+    bitset<64> _row;
+};
 
 class M2
 {
@@ -27,17 +48,30 @@ public:
     M2()  {}
     ~M2() {}
 
-    const vector<BitStr>& const getMatrix()     { return _matrix; }
-    const vector<Oper>& const getOpers()        { return _opStorage; }
-    const BitStr& const getRow(size_t r)        { return _matrix[r]; }
-    void xorOper(size_t ctrl, size_t targ);
+    //NOTE - Initializer
+    bool fromZXVertices();
+
+    const vector<Row>& getMatrix()          { return _matrix; }
+    const vector<Oper>& getOpers()          { return _opStorage; }
+    const Row getRow(size_t r)              { return _matrix[r]; }
+    void xorOper(size_t ctrl, size_t targ)  { _matrix[targ] += _matrix[ctrl]; }
     void gaussianElim();
     bool isIdentity();
 
 private:
-    vector<BitStr>      _matrix; 
+    vector<Row>         _matrix; 
     vector<Oper>        _opStorage;
 
 };
 
+Row operator+(Row& lhs, const Row& rhs){
+  lhs += rhs;
+  return lhs;
+}
+
+Row &Row::operator+=(const Row& rhs) {
+    assert( _row.size() == rhs._row.size());
+    _row ^= rhs._row;
+    return *this;
+}
 #endif // M2_H
