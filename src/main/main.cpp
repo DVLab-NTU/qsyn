@@ -21,6 +21,7 @@ extern bool initQCirCmd();
 extern bool initZXCmd();
 extern bool initSimpCmd();
 extern bool initTensorCmd();
+extern bool initM2Cmd();
 size_t verbose = 3; 
 size_t formatLevel = 1;
 
@@ -61,7 +62,7 @@ main(int argc, char** argv)
       myexit();
    }
 
-   if (!initCommonCmd() || !initQCirCmd() || !initZXCmd() || !initSimpCmd() || !initTensorCmd())
+   if (!initCommonCmd() || !initQCirCmd() || !initZXCmd() || !initSimpCmd() || !initTensorCmd() || !initM2Cmd())
       return 1;
 
    CmdExecStatus status = CMD_EXEC_DONE;

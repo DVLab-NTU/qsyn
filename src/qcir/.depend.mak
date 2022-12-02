@@ -65,8 +65,7 @@ qcirCmd.o: qcirCmd.cpp qcirMgr.h qcir.h qcirGate.h ../../include/phase.h \
  ../../include/ordered_hashtable.h ../../include/myHashMap.h \
  ../../include/qtensor.h qcirQubit.h qcirDef.h ../../include/myHashMap.h \
  qcirCmd.h ../../include/cmdParser.h ../../include/cmdCharDef.h \
- ../../include/cmdMacros.h ../../include/util.h ../../include/m2.h \
- ../../include/m2Def.h
+ ../../include/cmdMacros.h ../../include/util.h
 qcirGate2ZX.o: qcirGate2ZX.cpp qcir.h qcirGate.h ../../include/phase.h \
  ../../include/rationalNumber.h ../../include/myConcepts.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \

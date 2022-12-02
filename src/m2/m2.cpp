@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include "m2.h"
+
 extern size_t verbose;
 using namespace std;
 
@@ -117,4 +118,14 @@ bool M2::isIdentity(){
     if(!row.isSingular()) return false;
   }
   return true;
+}
+
+
+bool M2::fromZXVertices(const vector<ZXVertex*>& frontier, const vector<ZXVertex*>& neighbors){
+  assert(frontier.size() == neighbors.size());
+  //FIXME - TODO
+  //NOTE - Sort Frontier by qubits
+  //NOTE - assign row by calculating a neighbor's connecting status to Frontier, e.g. 10010 = connect to qubit 0 and 3.
+  
+  return false;
 }

@@ -15,6 +15,7 @@
 #include <iostream>
 #include <bitset>
 #include <assert.h>
+#include "zxGraph.h"
 
 using namespace std;
 
@@ -52,7 +53,7 @@ public:
 
     //NOTE - Initializer
     void defaultInit();
-    bool fromZXVertices();
+    bool fromZXVertices(const vector<ZXVertex*>&, const vector<ZXVertex*>&);
     bool fromBitsets(vector<bitset<16>>);
     const vector<Row>& getMatrix()          { return _matrix; }
     const vector<Oper>& getOpers()          { return _opStorage; }
