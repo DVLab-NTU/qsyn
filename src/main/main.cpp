@@ -9,7 +9,6 @@
 #include <ctime>
 #include "util.h"
 #include "cmdParser.h"
-
 using namespace std;
 
 //----------------------------------------------------------------------
@@ -18,7 +17,6 @@ using namespace std;
 CmdParser* cmdMgr = new CmdParser("qsyn> ");
 
 extern bool initCommonCmd();
-// extern bool initCirCmd();
 extern bool initQCirCmd();
 extern bool initZXCmd();
 extern bool initSimpCmd();

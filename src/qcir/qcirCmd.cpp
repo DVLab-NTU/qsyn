@@ -16,6 +16,7 @@
 #include "qcirCmd.h"
 #include "util.h"
 #include "phase.h"
+#include "m2.h"
 
 using namespace std;
 
@@ -44,7 +45,8 @@ bool initQCirCmd()
          cmdMgr->regCmd("QC2ZX", 5, new QCir2ZXCmd) &&
          cmdMgr->regCmd("QC2TS", 5, new QCir2TSCmd) &&
          cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd) &&
-         cmdMgr->regCmd("QCGMAdd", 5, new QCirAddMultipleCmd)
+         cmdMgr->regCmd("QCGMAdd", 5, new QCirAddMultipleCmd) 
+         && cmdMgr->regCmd("QCTEST", 6, new QCirTestCmd)
          ))
    {
       cerr << "Registering \"qcir\" commands fails... exiting" << endl;
@@ -64,6 +66,31 @@ enum QCirCmdState
 
 static QCirCmdState curCmd = QCIRINIT;
 
+CmdExecStatus
+QCirTestCmd::exec(const string &option) {    
+   string token;
+   M2 m2(3);
+   m2.defaultInit();
+   m2.printMatrix();
+   m2.xorOper(1, 0);
+   m2.printMatrix();
+   m2.xorOper(2, 1);
+   m2.printMatrix();
+   m2.xorOper(3, 1);
+   cout << m2.isIdentity() << endl;
+   return CMD_EXEC_DONE;
+}
+
+void QCirTestCmd::usage(ostream &os) const {
+   //  os << "Usage: QCCHeckout <(size_t id)>" << endl;
+}
+
+void QCirTestCmd::help() const {
+   //  cout << setw(15) << left << "QCCHeckout: "
+   //       << "checkout to QCir <id> in QCirMgr" << endl;
+}
+   
+   
 //----------------------------------------------------------------------
 //    QCCHeckout <(size_t id)>
 //----------------------------------------------------------------------
