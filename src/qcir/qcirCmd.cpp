@@ -72,12 +72,10 @@ QCirTestCmd::exec(const string &option) {
    M2 m2(3);
    m2.defaultInit();
    m2.printMatrix();
-   m2.xorOper(1, 0);
+   m2.gaussianElim(true);
+   cout << "Is Idendity? " <<m2.isIdentity() << endl;
    m2.printMatrix();
-   m2.xorOper(2, 1);
-   m2.printMatrix();
-   m2.xorOper(3, 1);
-   cout << m2.isIdentity() << endl;
+   m2.printTrack();
    return CMD_EXEC_DONE;
 }
 

@@ -7,7 +7,7 @@
 ****************************************************************************/
 
 #include "m2.h"
-
+extern size_t verbose;
 using namespace std;
 
 Row operator+(Row& lhs, const Row& rhs){
@@ -36,15 +36,27 @@ void M2::printMatrix() const {
   cout << endl;
 }
 
-void M2::defaultInit(){
-  _size = 3;
-
-  _matrix.push_back(Row(0, 3, bitset<16>{"111"}));
-  _matrix.push_back(Row(1, 3, bitset<16>{"110"}));
-  _matrix.push_back(Row(2, 3, bitset<16>{"100"}));
+/// @brief 
+void M2::printTrack() const {
+  cout << "Track:" << endl;
+  for(size_t i=0; i < _opStorage.size(); i++){
+    cout << "Step " << i+1 << ": " << _opStorage[i].first << " to " << _opStorage[i].second << endl;
+  }
+  cout << endl;
 }
 
-bool M2::xorOper(size_t ctrl, size_t targ)  { 
+void M2::defaultInit(){
+  _size = 6;
+
+  _matrix.push_back(Row(0, 6, bitset<16>{"101101"}));
+  _matrix.push_back(Row(1, 6, bitset<16>{"001110"}));
+  _matrix.push_back(Row(2, 6, bitset<16>{"010110"}));
+  _matrix.push_back(Row(3, 6, bitset<16>{"011001"}));
+  _matrix.push_back(Row(4, 6, bitset<16>{"011011"}));
+  _matrix.push_back(Row(5, 6, bitset<16>{"101000"}));
+}
+
+bool M2::xorOper(size_t ctrl, size_t targ, bool track)  { 
   if( ctrl >= _size ) {
     cerr << "Error: wrong dimension " << ctrl << endl;
     return false;
@@ -54,11 +66,48 @@ bool M2::xorOper(size_t ctrl, size_t targ)  {
     return false;
   }
   _matrix[targ] += _matrix[ctrl]; 
+  if(track) _opStorage.emplace_back(ctrl, targ);
   return true;
 }
 /// @brief 
-void M2::gaussianElim(){
-
+void M2::gaussianElim(bool track){
+    if(verbose>=3) cout << "Performing Gaussian Elimination..." << endl;
+    if(verbose>=8) printMatrix();
+    _opStorage.clear();
+    for(size_t i=0; i < _size - 1; i++){
+      if(_matrix[i].getRow()[i] == 0){
+        bool noSol = true; 
+        for(size_t j=i+1; j<_size; j++){
+          if(_matrix[j].getRow()[i] ==1){
+            xorOper(j, i, track);
+            if(verbose>=8) {
+              cout << "Diag Add " << j << " to "<< i << endl;
+              printMatrix();
+            }
+            noSol = false;
+          }
+          break;
+        }
+        if(noSol) { cout << "No Solution" << endl; return;}
+		  }
+		  for(size_t j=i+1; j < _size; j++){
+        if(_matrix[j].getRow()[i] ==1 && _matrix[i].getRow()[i] ==1){
+          xorOper(i, j, track);
+          if(verbose>=8) {
+            cout << "Add " << i << " to "<< j << endl;
+            printMatrix();
+          }
+        }
+		  }
+	  }
+    for(size_t i = 0; i < _size; i++){
+		  for(size_t j=_size-i; j < _size; j++){
+        if(_matrix[_size-i-1].getRow()[j] ==1){
+          xorOper(j, _size-i-1, track);
+          if(verbose>=8) printMatrix();
+        }
+		  }
+	  }
 }
 
 /// @brief 

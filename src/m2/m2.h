@@ -57,10 +57,11 @@ public:
     const vector<Row>& getMatrix()          { return _matrix; }
     const vector<Oper>& getOpers()          { return _opStorage; }
     const Row getRow(size_t r)              { return _matrix[r]; }
-    bool xorOper(size_t ctrl, size_t targ);
-    void gaussianElim();
+    bool xorOper(size_t ctrl, size_t targ, bool track=false);
+    void gaussianElim(bool track=false);
     bool isIdentity();
     void printMatrix() const;
+    void printTrack() const;
 
 private:
     size_t              _size;
