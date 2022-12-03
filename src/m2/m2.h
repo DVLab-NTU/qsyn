@@ -68,7 +68,7 @@ private:
     size_t              _size;
     vector<Row>         _matrix; 
     vector<Oper>        _opStorage;
-
+    bool inFrontier(ZXVertex*, const vector<ZXVertex*>&);
 };
 
 #endif // M2_H

@@ -50,9 +50,15 @@ M2GaussEliCmd::exec(const string &option) {
     }
     string token;
     M2 m2(6);
+    sort(frontier.begin(), frontier.end(), [](const ZXVertex* a, const ZXVertex* b){ 
+        return a->getQubit() < b->getQubit(); 
+    });
     m2.fromZXVertices(frontier, nebsOfFrontier);
-    // m2.printMatrix();
-
+    m2.printMatrix();
+    m2.gaussianElim(true);
+    cout << "Is Idendity? " <<m2.isIdentity() << endl;
+    m2.printMatrix();
+    m2.printTrack();
     return CMD_EXEC_DONE;
 }
 

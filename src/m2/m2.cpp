@@ -123,9 +123,26 @@ bool M2::isIdentity(){
 
 bool M2::fromZXVertices(const vector<ZXVertex*>& frontier, const vector<ZXVertex*>& neighbors){
   assert(frontier.size() == neighbors.size());
-  //FIXME - TODO
-  //NOTE - Sort Frontier by qubits
+  if(frontier.size() != _size) _size = frontier.size();
+  
   //NOTE - assign row by calculating a neighbor's connecting status to Frontier, e.g. 10010 = connect to qubit 0 and 3.
   
+  for(auto v:neighbors){
+    string storage (_size, '0');
+    for(auto [vt,et]: v->getNeighbors()){
+      if(inFrontier(vt, frontier)){
+        //REVIEW - Assume no space in #qubit (0,2,3,4,5 is not allowed)
+        storage[_size - 1 - vt->getQubit()] = '1';
+        // in Frontier
+      }
+    }
+    _matrix.push_back(Row(_matrix.size(), _size, bitset<16>{storage}));
+  }
+
   return false;
+}
+
+bool M2::inFrontier(ZXVertex* v, const vector<ZXVertex*>& f){
+  if(find(f.begin(), f.end(), v) != f.end()) return true;
+  else return false;
 }
