@@ -54,7 +54,7 @@ public:
     //NOTE - Initializer
     void defaultInit();
     bool fromZXVertices(const vector<ZXVertex*>&, const vector<ZXVertex*>&);
-    bool fromBitsets(vector<bitset<16>>);
+    bool fromBitsets(const vector<bitset<16>>&);
     const vector<Row>& getMatrix()          { return _matrix; }
     const vector<Oper>& getOpers()          { return _opStorage; }
     const Row getRow(size_t r)              { return _matrix[r]; }

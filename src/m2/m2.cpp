@@ -22,13 +22,15 @@ Row &Row::operator+=(const Row& rhs) {
     return *this;
 }
 
+/// @brief Print row
 void Row::printRow() const {
   for(size_t i=0; i< _size; i++){
     cout << _row[i] << " ";
   }
   cout << endl;
 }
-/// @brief 
+
+/// @brief Print matrix
 void M2::printMatrix() const {
   cout << "M2 matrix:" << endl;
   for(const auto row: _matrix){
@@ -37,7 +39,7 @@ void M2::printMatrix() const {
   cout << endl;
 }
 
-/// @brief 
+/// @brief Print the operations
 void M2::printTrack() const {
   cout << "Track:" << endl;
   for(size_t i=0; i < _opStorage.size(); i++){
@@ -57,6 +59,11 @@ void M2::defaultInit(){
   _matrix.push_back(Row(5, 6, bitset<16>{"101000"}));
 }
 
+/// @brief Perform XOR operation
+/// @param ctrl 
+/// @param targ (the target)
+/// @param track 
+/// @return true if successfully XORed, false if not
 bool M2::xorOper(size_t ctrl, size_t targ, bool track)  { 
   if( ctrl >= _size ) {
     cerr << "Error: wrong dimension " << ctrl << endl;
@@ -70,7 +77,8 @@ bool M2::xorOper(size_t ctrl, size_t targ, bool track)  {
   if(track) _opStorage.emplace_back(ctrl, targ);
   return true;
 }
-/// @brief 
+
+/// @brief Perform Gaussian Elimination
 void M2::gaussianElim(bool track){
     if(verbose>=3) cout << "Performing Gaussian Elimination..." << endl;
     if(verbose>=8) printMatrix();
@@ -111,18 +119,35 @@ void M2::gaussianElim(bool track){
 	  }
 }
 
-/// @brief 
+/// @brief Check m2 is identity
 /// @return 
 bool M2::isIdentity(){
+  //REVIEW - Only check one 1 in a row
   for(auto row: _matrix){
     if(!row.isSingular()) return false;
   }
   return true;
 }
 
+/// @brief Build matrix from bitsets
+/// @param bitsets 
+/// @return true
+bool M2::fromBitsets(const vector<bitset<16>>& bitsets){
+  for(auto bitset: bitsets){
+    _matrix.push_back(Row(_matrix.size(), _size, bitset));
+  }
+  return true;
+}
 
+/// @brief Build matrix from ZX-graph
+/// @param frontier 
+/// @param neighbors 
+/// @return true if successfully built, false if not
 bool M2::fromZXVertices(const vector<ZXVertex*>& frontier, const vector<ZXVertex*>& neighbors){
-  assert(frontier.size() == neighbors.size());
+  if(frontier.size() != neighbors.size()){
+    cout << "Numbers of elements in frontier and neighbors mismatch!" << endl;
+    return false;
+  }
   if(frontier.size() != _size) _size = frontier.size();
   
   //NOTE - assign row by calculating a neighbor's connecting status to Frontier, e.g. 10010 = connect to qubit 0 and 3.
@@ -139,9 +164,13 @@ bool M2::fromZXVertices(const vector<ZXVertex*>& frontier, const vector<ZXVertex
     _matrix.push_back(Row(_matrix.size(), _size, bitset<16>{storage}));
   }
 
-  return false;
+  return true;
 }
 
+/// @brief Check vertex in frontier
+/// @param v 
+/// @param f 
+/// @return true if in, false if not
 bool M2::inFrontier(ZXVertex* v, const vector<ZXVertex*>& f){
   if(find(f.begin(), f.end(), v) != f.end()) return true;
   else return false;
