@@ -56,16 +56,17 @@ qcirQubit.o: qcirQubit.cpp qcir.h qcirGate.h ../../include/phase.h \
  ../../include/zxDef.h ../../include/ordered_hashset.h \
  ../../include/ordered_hashtable.h ../../include/myHashMap.h \
  ../../include/qtensor.h qcirQubit.h qcirDef.h ../../include/myHashMap.h
-qcirCmd.o: qcirCmd.cpp qcirMgr.h qcir.h qcirGate.h ../../include/phase.h \
- ../../include/rationalNumber.h ../../include/myConcepts.h \
- ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
- ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
+qcirCmd.o: qcirCmd.cpp qcirCmd.h ../../include/cmdParser.h \
+ ../../include/cmdCharDef.h ../../include/cmdMacros.h \
+ ../../include/phase.h ../../include/rationalNumber.h \
+ ../../include/myConcepts.h ../../include/util.h ../../include/rnGen.h \
+ ../../include/myUsage.h qcir.h qcirGate.h ../../include/qtensor.h \
+ ../../include/tensor.h ../../include/tensorDef.h \
  ../../include/tensorUtil.h ../../include/phase.h ../../include/zxGraph.h \
  ../../include/zxDef.h ../../include/ordered_hashset.h \
  ../../include/ordered_hashtable.h ../../include/myHashMap.h \
  ../../include/qtensor.h qcirQubit.h qcirDef.h ../../include/myHashMap.h \
- qcirCmd.h ../../include/cmdParser.h ../../include/cmdCharDef.h \
- ../../include/cmdMacros.h ../../include/util.h
+ qcirMgr.h ../../include/util.h
 qcirGate2ZX.o: qcirGate2ZX.cpp qcir.h qcirGate.h ../../include/phase.h \
  ../../include/rationalNumber.h ../../include/myConcepts.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \

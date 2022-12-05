@@ -24,6 +24,7 @@ extern size_t verbose;
  * 
  */
 void QCirMgr::reset() {
+    for (auto& qcir : _circuitList) delete qcir;
     _circuitList.clear();
     _cListItr = _circuitList.begin();
     _nextID = 0;

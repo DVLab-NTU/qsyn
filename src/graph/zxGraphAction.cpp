@@ -30,6 +30,9 @@ extern size_t verbose;
  *
  */
 void ZXGraph::reset() {
+    for (auto& v : _vertices) delete v;
+    _inputs.clear();
+    _outputs.clear();
     _inputList.clear();
     _outputList.clear();
     _topoOrder.clear();

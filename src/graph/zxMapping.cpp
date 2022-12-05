@@ -88,7 +88,7 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
         this->addEdge(targetOutput, ZXOup, etype);  // Add new edge
         delete it->second;
     }
-    tmp->reset();
+    tmp->disownVertices();
 }
 
 /// @brief Get Tensor form of Z, X spider, or H box
