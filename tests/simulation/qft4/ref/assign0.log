@@ -2,10 +2,8 @@ DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> ver 0
 Note: verbose level is set to 0
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> qccr benchmark/benchmark_SABRE/small/qft_4.qasm
+Note: QCir list is empty now. Create a new one.
 
 qsyn> qc2zx
 

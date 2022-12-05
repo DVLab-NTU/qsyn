@@ -73,7 +73,7 @@ int Simplifier::simp() {
 
 
         timer = chrono::steady_clock::now();
-        unordered_set<EdgePair_depr> redundantEdges;
+        
         for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
             ZXVertex* v                = _rule->getEdgeTableKeys()[e].first;
             ZXVertex* v_n              = _rule->getEdgeTableKeys()[e].second;
@@ -280,8 +280,9 @@ int Simplifier::pivotSimp(){
 
 
 int Simplifier::pivotBoundarySimp(){
-    // TODO: pivot_boundary rule
-    return 0;
+    this->setRule(new PivotBoundary());
+    int i = this->simp();
+    return i;
 }
 
 
@@ -384,7 +385,7 @@ void Simplifier::fullReduce(){
  * @brief The main simplification routine of PyZX
  * 
  */
-void Simplifier::simulatedReduce(){
+void Simplifier::symbolicReduce(){
     this->interiorCliffordSimp();
     this->pivotGadgetSimp();
     this->copySimp();
@@ -396,6 +397,7 @@ void Simplifier::simulatedReduce(){
         this->copySimp();
         if(i+j == 0) break;
     }
+    this->toRGraph();
 }
 
 

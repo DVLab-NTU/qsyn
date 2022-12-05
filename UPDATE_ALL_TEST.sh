@@ -31,13 +31,5 @@ STATUS=$?
 if [ $STATUS -ne 0 ]; then 
     RETURN_CODE=1;
 fi
-# if [[ $DOCOLOR == 1 ]]; then 
-#     if [[ $STATUS == 0 ]]; then
-#         RESULT_TXT="${BOLD}${GREEN}Passed all ${N_FILES} dofiles.${WHITE}${NORMAL}"
-#     else 
-#         RESULT_TXT="${BOLD}${RED}${STATUS} out of ${N_FILES} dofiles failed.${WHITE}${NORMAL}"
-#     fi
-# fi
-# echo -e $RESULT_TXT
 
 exit ${RETURN_CODE}

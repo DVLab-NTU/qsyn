@@ -25,7 +25,7 @@ void HRule::match(ZXGraph* g){
     if(verbose >= 8) g->printVertices();
     
     unordered_map<size_t, size_t> id2idx;
-    // for(size_t i = 0; i < g->getNumVertices_depr(); i++) id2idx[g->getVertices_depr()[i]->getId()] = i;
+    
     size_t cnt = 0;
     for(const auto& v: g->getVertices()){
         id2idx[v->getId()] = cnt;

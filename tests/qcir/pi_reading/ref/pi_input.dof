@@ -14,9 +14,6 @@ qsyn> qcga -rz -ph PI*PI/pi 0
 qsyn> qcga -rz -ph PI*3PI/pi 0
 Can't Identify Number : 3PI
 
-qsyn> zxmode -on
-ZXMODE turn ON!
-
 qsyn> qczxm
 Successfully generate Graph 0
 Checkout to Graph 0

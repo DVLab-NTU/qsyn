@@ -1,14 +1,13 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> qccr benchmark/pseudoSimp/tof_3.qasm
-
-qsyn> zxm -on
-ZXMODE turn ON!
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
 
 qsyn> qc2zx
+Traverse and build the graph... 
 Successfully generated Graph 0
 Checkout to Graph 0
----- TRAVERSE AND BUILD THE GRAPH ----
---------------------------------------
 
 qsyn> zxgp -v
 
@@ -254,6 +253,8 @@ Pivot Rule:
 No matches
 Local Complementation Rule: 
 No matches
+Pivot Boundary Rule: 
+No matches
 Phase Gadget Rule: 
 1 iterations
 Spider Fusion Rule: 
@@ -265,15 +266,7 @@ Spider Fusion Rule:
 Pivot Rule: 
 No matches
 Local Complementation Rule: 
-2 iterations
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
+4 iterations
 Identity Removal Rule: 
 No matches
 Spider Fusion Rule: 
@@ -293,6 +286,8 @@ No matches
 Pivot Rule: 
 No matches
 Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
 No matches
 Phase Gadget Rule: 
 No matches
@@ -313,17 +308,17 @@ qsyn> zxgp -v
 
 ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m) 
 ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(50, [1m[34mH[0m[0m) 
-ID:	22	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(93, [1m[34mH[0m[0m) 
-ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(99, [1m[34mH[0m[0m) 
-ID:	48	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(100, [1m[34mH[0m[0m) 
 ID:	50	VertexType:	[1m[32mZ[0m[0m	Qubit:	3	Phase:	π	#Neighbors:	2	(6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
-ID:	70	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(97, [1m[34mH[0m[0m) 
-ID:	77	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(101, [1m[34mH[0m[0m) 
-ID:	93	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(22, [1m[34mH[0m[0m) 
-ID:	97	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(70, [1m[34mH[0m[0m) 
-ID:	99	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(34, [1m[34mH[0m[0m) 
-ID:	100	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(48, [1m[34mH[0m[0m) 
-ID:	101	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(77, [1m[34mH[0m[0m) 
+ID:	93	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(94, [1m[34mH[0m[0m) 
+ID:	94	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(93, [1m[34mH[0m[0m) 
+ID:	101	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(102, [1m[34mH[0m[0m) 
+ID:	102	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(101, [1m[34mH[0m[0m) 
+ID:	105	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(106, [1m[34mH[0m[0m) 
+ID:	106	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(105, [1m[34mH[0m[0m) 
+ID:	107	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(108, [1m[34mH[0m[0m) 
+ID:	108	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(107, [1m[34mH[0m[0m) 
+ID:	109	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	7π/4	#Neighbors:	1	(110, [1m[34mH[0m[0m) 
+ID:	110	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(109, [1m[34mH[0m[0m) 
 Total #Vertices: 13
 
 
@@ -340,7 +335,7 @@ Total #Vertices: 3
 
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 

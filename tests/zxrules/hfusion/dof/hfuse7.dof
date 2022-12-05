@@ -1,5 +1,4 @@
 ver 9
-zxmode -on
 qcba
 qcga -h 0
 qcga -h 0
@@ -7,7 +6,7 @@ qcga -z 0
 qcga -h 0
 qcga -h 0
 qcga -z 0
-qccp
+qccp -l
 qc2zx
 zxgp -v
 zxge -rme 2 3 SIMPLE

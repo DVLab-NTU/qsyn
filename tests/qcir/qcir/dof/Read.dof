@@ -1,8 +1,8 @@
 qccr benchmark/benchmark_SABRE/large/root_255.qasm
-qccp
+qccp -l
 qccp -Q
 qccr benchmark/benchmark_SABRE/small/4gt13_92.qasm -R
-qccprint
+qccprint -l
 qccprint -Q
 qcga -cx 1 0
 qcba 2

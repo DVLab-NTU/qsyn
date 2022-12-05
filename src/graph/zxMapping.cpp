@@ -66,12 +66,14 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
     for (auto it = tmpInp.begin(); it != tmpInp.end(); ++it) {
         size_t inpQubit = it->first;
         ZXVertex* targetInput = it->second->getFirstNeighbor().first;
+        EdgeType gateEtype = it->second->getFirstNeighbor().second;
         ZXVertex* lastVertex = this->getOutputFromHash(inpQubit)->getFirstNeighbor().first;
-        tmp->removeEdge(make_pair(make_pair(it->second, targetInput), EdgeType(EdgeType::SIMPLE)));  // Remove old edge (disconnect old graph)
+        EdgeType circuitEtype = this->getOutputFromHash(inpQubit)->getFirstNeighbor().second;
+        tmp->removeEdge(make_pair(make_pair(it->second, targetInput), gateEtype));  // Remove old edge (disconnect old graph)
         
         lastVertex->disconnect(this->getOutputFromHash(inpQubit));
 
-        this->addEdge(lastVertex, targetInput, EdgeType(EdgeType::SIMPLE));  // Add new edge
+        this->addEdge(lastVertex, targetInput, (circuitEtype == EdgeType::HADAMARD) ? toggleEdge(gateEtype): gateEtype);  // Add new edge
         delete it->second;
     }
     // Reconnect Output
@@ -80,12 +82,13 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
         size_t oupQubit = it->first;
         // ZXVertex* targetOutput = it->second->getNeighbors()[0].first;
         ZXVertex* targetOutput = it->second->getFirstNeighbor().first;
+        EdgeType etype = it->second->getFirstNeighbor().second;
         ZXVertex* ZXOup = this->getOutputFromHash(oupQubit);
-        tmp->removeEdge(make_pair(make_pair(it->second, targetOutput), EdgeType(EdgeType::SIMPLE)));                           // Remove old edge (disconnect old graph)
-        this->addEdge(targetOutput, ZXOup, EdgeType(EdgeType::SIMPLE));  // Add new edge
+        tmp->removeEdge(make_pair(make_pair(it->second, targetOutput), etype));                           // Remove old edge (disconnect old graph)
+        this->addEdge(targetOutput, ZXOup, etype);  // Add new edge
         delete it->second;
     }
-    tmp->reset();
+    tmp->disownVertices();
 }
 
 /// @brief Get Tensor form of Z, X spider, or H box

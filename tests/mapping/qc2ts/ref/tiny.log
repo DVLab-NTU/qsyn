@@ -3,6 +3,9 @@ qsyn> ver 8
 Note: verbose level is set to 8
 
 qsyn> qcba 2
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
 
 qsyn> qcga -cx 0 1
 
@@ -13,24 +16,19 @@ Q 0  -cx( 0)--cx( 1)-
 Q 1  -cx( 0)--cx( 1)-
 
 qsyn> qc2ts
------------ ADD BOUNDARIES -----------
+Traverse and build the tensor... 
+> Add boundary
 Successfully added Tensor 0
-Add Qubit 0 output port: 1
-Add Qubit 1 output port: 3
----- TRAVERSE AND BUILD THE TENSOR ----
-Gate 0 (cx)
-************ Pin Permutation ************
-Qubit: 1 input : 2 -> 1 |  output: 3 -> 3
-Qubit: 0 input : 0 -> 0 |  output: 1 -> 2
-*****************************************
---------------------------------------------
-Gate 1 (cx)
-************ Pin Permutation ************
-Qubit: 1 input : 1 -> 1 |  output: 3 -> 3
-Qubit: 0 input : 0 -> 0 |  output: 2 -> 2
-*****************************************
---------------------------------------------
----------------------------------------
+  - Add Qubit 0 output port: 1
+  - Add Qubit 1 output port: 3
+> Gate 0 (cx)
+> Pin Permutation
+  - Qubit: 1 input : 2 -> 1 |  output: 3 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 1 -> 2
+> Gate 1 (cx)
+> Pin Permutation
+  - Qubit: 1 input : 1 -> 1 |  output: 3 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 2 -> 2
 Stored the resulting tensor as tensor id 0
 
 qsyn> qcga -cx 0 1
@@ -44,42 +42,31 @@ Q 0  -cx( 0)--cx( 1)--cx( 2)--cx( 3)--cx( 4)-
 Q 1  -cx( 0)--cx( 1)--cx( 2)--cx( 3)--cx( 4)-
 
 qsyn> qc2ts
------------ ADD BOUNDARIES -----------
+Traverse and build the tensor... 
+> Add boundary
 Successfully added Tensor 1
-Add Qubit 0 output port: 1
-Add Qubit 1 output port: 3
----- TRAVERSE AND BUILD THE TENSOR ----
-Gate 0 (cx)
-************ Pin Permutation ************
-Qubit: 1 input : 2 -> 1 |  output: 3 -> 3
-Qubit: 0 input : 0 -> 0 |  output: 1 -> 2
-*****************************************
---------------------------------------------
-Gate 1 (cx)
-************ Pin Permutation ************
-Qubit: 1 input : 1 -> 1 |  output: 3 -> 3
-Qubit: 0 input : 0 -> 0 |  output: 2 -> 2
-*****************************************
---------------------------------------------
-Gate 2 (cx)
-************ Pin Permutation ************
-Qubit: 1 input : 1 -> 1 |  output: 3 -> 3
-Qubit: 0 input : 0 -> 0 |  output: 2 -> 2
-*****************************************
---------------------------------------------
-Gate 3 (cx)
-************ Pin Permutation ************
-Qubit: 1 input : 1 -> 1 |  output: 3 -> 2
-Qubit: 0 input : 0 -> 0 |  output: 2 -> 3
-*****************************************
---------------------------------------------
-Gate 4 (cx)
-************ Pin Permutation ************
-Qubit: 1 input : 1 -> 1 |  output: 2 -> 3
-Qubit: 0 input : 0 -> 0 |  output: 3 -> 2
-*****************************************
---------------------------------------------
----------------------------------------
+  - Add Qubit 0 output port: 1
+  - Add Qubit 1 output port: 3
+> Gate 0 (cx)
+> Pin Permutation
+  - Qubit: 1 input : 2 -> 1 |  output: 3 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 1 -> 2
+> Gate 1 (cx)
+> Pin Permutation
+  - Qubit: 1 input : 1 -> 1 |  output: 3 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 2 -> 2
+> Gate 2 (cx)
+> Pin Permutation
+  - Qubit: 1 input : 1 -> 1 |  output: 3 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 2 -> 2
+> Gate 3 (cx)
+> Pin Permutation
+  - Qubit: 1 input : 1 -> 1 |  output: 3 -> 2
+  - Qubit: 0 input : 0 -> 0 |  output: 2 -> 3
+> Gate 4 (cx)
+> Pin Permutation
+  - Qubit: 1 input : 1 -> 1 |  output: 2 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 3 -> 2
 Stored the resulting tensor as tensor id 1
 
 qsyn> q -f

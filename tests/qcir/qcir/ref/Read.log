@@ -1,7 +1,10 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> qccr benchmark/benchmark_SABRE/large/root_255.qasm
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
 
-qsyn> qccp
+qsyn> qccp -l
 Listed by gate ID
 Gate 0: h   	 Exec Time: 0 	 Qubit: 3 
 Gate 1: t   	 Exec Time: 0 	 Qubit: 12 
@@ -17182,9 +17185,9 @@ Q14
 Q15  
 
 qsyn> qccr benchmark/benchmark_SABRE/small/4gt13_92.qasm -R
-Note: original quantum circuit is replaced...
+Note: original QCir is replaced...
 
-qsyn> qccprint
+qsyn> qccprint -l
 Listed by gate ID
 Gate 0: cx   	 Exec Time: 0 	 Qubit: 4 0 
 Gate 1: h   	 Exec Time: 1 	 Qubit: 0 

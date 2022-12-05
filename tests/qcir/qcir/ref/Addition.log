@@ -1,11 +1,14 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> qccp -q
-Error: quantum circuit is not yet constructed!!
+Error: QCir list is empty now. Please QCNEW/QCCRead/QCBAdd before QCCPrint.
 
 qsyn> qcga -cx 0 1
-Error: no available qubits. Please read a quantum circuit or add qubit(s)!!
+Error: QCir list is empty now. Please QCNEW/QCCRead/QCBAdd before QCGAdd.
 
 qsyn> qcba
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
 
 qsyn> qccp -q
 Q 0  

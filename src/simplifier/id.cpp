@@ -23,18 +23,12 @@ extern size_t verbose;
 void IdRemoval::match(ZXGraph* g) {
     _matchTypeVec.clear();
     if(verbose >= 8) g->printVertices();
-
-    unordered_map<size_t, size_t> id2idx;
-    size_t cnt = 0;
-    for(const auto& v: g->getVertices()){
-        id2idx[v->getId()] = cnt;
-        cnt++;
-    }
+    // size_t cnt = 0;
     
-    vector<bool> valid(g->getVertices().size(), true);
+    unordered_set<ZXVertex*> taken;
     
     for(const auto& v: g->getVertices()){
-        if (!valid[id2idx[v->getId()]]) continue;
+        if (taken.contains(v)) continue;
         
         const Neighbors& nebs = v->getNeighbors();
         if (v->getPhase() != Phase(0)) continue;
@@ -47,10 +41,9 @@ void IdRemoval::match(ZXGraph* g) {
         EdgeType  etype  = (nbp0.second == nbp1.second) ? EdgeType::SIMPLE : EdgeType::HADAMARD;
 
         _matchTypeVec.emplace_back(v, nbp0.first, nbp1.first, etype);
-
-        valid[id2idx[     v->getId()]] = false;
-        valid[id2idx[nbp0.first->getId()]] = false;
-        valid[id2idx[nbp1.first->getId()]] = false;
+        taken.insert(v);
+        taken.insert(nbp0.first);
+        taken.insert(nbp1.first);
     }
     setMatchTypeVecNum(_matchTypeVec.size());
 }

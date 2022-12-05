@@ -1,4 +1,3 @@
-zxm -on
 zxgread benchmark/zx/cnots.zx
 zx2ts
 zxgs -TOGraph

@@ -1,0 +1,11 @@
+zxgread -bzx benchmark/bzx/eqc1-1.bzx
+zxgp -v
+zxgread -bzx benchmark/bzx/eqc1-2.bzx
+zxgp -v
+zxgadj
+zxcomp 0
+zxgp -v
+zxgs -fr
+zxgp -q
+zxgt -v
+q -f

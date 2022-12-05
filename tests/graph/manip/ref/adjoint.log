@@ -1,7 +1,4 @@
 DV Lab, NTUEE, Qsyn 0.3.0
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> zxgr benchmark/zx/tof2_opt.zx
 Successfully generated Graph 0
 Checkout to Graph 0
@@ -46,6 +43,8 @@ Pivot Rule:
 No matches
 Local Complementation Rule: 
 No matches
+Pivot Boundary Rule: 
+No matches
 Phase Gadget Rule: 
 1 iterations
 Spider Fusion Rule: 
@@ -85,6 +84,8 @@ No matches
 Pivot Rule: 
 No matches
 Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
 No matches
 Phase Gadget Rule: 
 No matches
@@ -113,17 +114,18 @@ Total #Vertices: 6
 
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
 qsyn> qcba 3
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
 
 qsyn> qc2ts
------------ ADD BOUNDARIES -----------
+Traverse and build the tensor... 
 Successfully added Tensor 1
----- TRAVERSE AND BUILD THE TENSOR ----
----------------------------------------
 Stored the resulting tensor as tensor id 1
 
 qsyn> tseq 0 1 -Strict

@@ -1,21 +1,20 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> qccr benchmark/pseudoSimp/tof2.qasm
-
-qsyn> zxm -on
-ZXMODE turn ON!
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
 
 qsyn> qc2zx
+Traverse and build the graph... 
 Successfully generated Graph 0
 Checkout to Graph 0
----- TRAVERSE AND BUILD THE GRAPH ----
---------------------------------------
 
 qsyn> zxgas 1 I X pi
 
 qsyn> zxgas 1 O X pi
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
@@ -85,6 +84,8 @@ Pivot Rule:
 No matches
 Local Complementation Rule: 
 No matches
+Pivot Boundary Rule: 
+No matches
 Phase Gadget Rule: 
 1 iterations
 Spider Fusion Rule: 
@@ -117,6 +118,8 @@ Pivot Rule:
 No matches
 Local Complementation Rule: 
 No matches
+Pivot Boundary Rule: 
+No matches
 Phase Gadget Rule: 
 No matches
 Spider Fusion Rule: 
@@ -139,9 +142,9 @@ ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -)
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(19, [1m[34mH[0m[0m) 
 ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(19, [1m[34mH[0m[0m) 
 ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (1, -) (19, [1m[34mH[0m[0m) 
-ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(29, [1m[34mH[0m[0m) 
 ID:	19	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
-ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(30, [1m[34mH[0m[0m) 
+ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	π	#Neighbors:	1	(29, [1m[34mH[0m[0m) 
 Total #Vertices: 8
 
 
@@ -161,27 +164,26 @@ Total #Vertices: 6
 
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 1
 Stored the resulting tensor as tensor id 1
 
 qsyn> // tsp 1
 
 qsyn> qccr -R benchmark/pseudoSimp/tof2.qasm
-Note: original quantum circuit is replaced...
+Note: original QCir is replaced...
 
 qsyn> qc2zx
+Traverse and build the graph... 
 Successfully generated Graph 1
 Checkout to Graph 1
----- TRAVERSE AND BUILD THE GRAPH ----
---------------------------------------
 
 qsyn> zxgas 1 I X 0
 
 qsyn> zxgas 1 O X 0
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 2
 Stored the resulting tensor as tensor id 2
 
@@ -259,6 +261,8 @@ Pivot Rule:
 No matches
 Local Complementation Rule: 
 No matches
+Pivot Boundary Rule: 
+No matches
 Phase Gadget Rule: 
 1 iterations
 Spider Fusion Rule: 
@@ -298,6 +302,8 @@ No matches
 Pivot Rule: 
 No matches
 Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
 No matches
 Phase Gadget Rule: 
 No matches
@@ -320,8 +326,8 @@ ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -)
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(0, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(29, [1m[34mH[0m[0m) 
-ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(30, [1m[34mH[0m[0m) 
+ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(29, [1m[34mH[0m[0m) 
 Total #Vertices: 6
 
 
@@ -339,23 +345,19 @@ Total #Vertices: 4
 
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 3
 Stored the resulting tensor as tensor id 3
 
 qsyn> // tsp 3
 
 qsyn> qccr -R benchmark/pseudoSimp/tof2.qasm
-Note: original quantum circuit is replaced...
-
-qsyn> zxm -on
-Error: ZXMODE is already ON
+Note: original QCir is replaced...
 
 qsyn> qc2zx
-Successfully generated Graph 0
-Checkout to Graph 0
----- TRAVERSE AND BUILD THE GRAPH ----
---------------------------------------
+Traverse and build the graph... 
+Successfully generated Graph 2
+Checkout to Graph 2
 
 qsyn> zxgas 1 I X pi
 
@@ -366,7 +368,7 @@ qsyn> zxgas 0 I X pi
 qsyn> zxgas 0 O X pi
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 4
 Stored the resulting tensor as tensor id 4
 
@@ -436,6 +438,8 @@ Pivot Rule:
 No matches
 Local Complementation Rule: 
 No matches
+Pivot Boundary Rule: 
+No matches
 Phase Gadget Rule: 
 1 iterations
 Spider Fusion Rule: 
@@ -467,6 +471,8 @@ No matches
 Pivot Rule: 
 No matches
 Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
 No matches
 Phase Gadget Rule: 
 No matches
@@ -496,14 +502,14 @@ qsyn> // commenting due to output instability
 qsyn> // zxgp -v
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Successfully added Tensor 5
 Stored the resulting tensor as tensor id 5
 
 qsyn> tsp 5
 {{ 0.      +6.123234e-17i,  1.      -6.123234e-17i},
  { 1.      -6.123234e-17i,  0.      +6.123234e-17i}}
-#Dim:    2	Info: ZX 0
+#Dim:    2	Info: ZX 2
 
 qsyn> q -f
 

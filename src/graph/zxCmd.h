@@ -12,9 +12,10 @@
 
 #include "cmdParser.h"
 
-CmdClass(ZXModeCmd);
+
 CmdClass(ZXNewCmd);
-CmdClass(ZXRemoveCmd);
+CmdClass(ZXResetCmd);
+CmdClass(ZXDeleteCmd);
 CmdClass(ZXCHeckoutCmd);
 CmdClass(ZXPrintCmd);
 CmdClass(ZXCOPyCmd);
@@ -30,11 +31,6 @@ CmdClass(ZXGWriteCmd);
 CmdClass(ZXGAdjointCmd);
 CmdClass(ZXGAssignCmd);
 
-#define ZX_CMD_ZXMODE_ON_OR_RETURN \
-if (curCmd != ZXON) {\
-    cerr << "Error: ZXMODE is OFF now. Please turn ON before using ZX commands" << endl;\
-    return CMD_EXEC_ERROR;\
-}
 
 #define ZX_CMD_QUBIT_ID_VALID_OR_RETURN(option, qid) {\
 if (!myStr2Int((option), (qid))) { \
@@ -80,15 +76,15 @@ if (!(phase).fromString(option)) {\
     return CmdExec::errorOption(CMD_OPT_ILLEGAL, option);\
 }}
 
-#define ZX_CMD_GRAPH_ID_NOT_EXISTED_OR_RETURN(id) {\
+#define ZX_CMD_GRAPH_ID_NOT_EXIST_OR_RETURN(id) {\
 if (zxGraphMgr->isID(id)) {\
-    cerr << "Error: Graph " << (id) << " is already existed!! Add `-Replace` if you want to overwrite it.\n"; \
+    cerr << "Error: Graph " << (id) << " already exists!! Add `-Replace` if you want to overwrite it.\n"; \
     return CMD_EXEC_ERROR;\
 }}
 
-#define ZX_CMD_GRAPH_ID_EXISTED_OR_RETURN(id) {\
+#define ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id) {\
 if (!(zxGraphMgr->isID(id))) {\
-    cerr << "Error: Graph " << (id) << " is not existed!!\n"; \
+    cerr << "Error: Graph " << (id) << " does not exist!!\n"; \
     return CMD_EXEC_ERROR;\
 }}
 

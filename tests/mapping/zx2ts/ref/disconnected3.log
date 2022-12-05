@@ -1,7 +1,4 @@
 DV Lab, NTUEE, Qsyn 0.3.0
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> zxn
 Successfully generated Graph 0
 Checkout to Graph 0
@@ -111,7 +108,7 @@ qsyn> ver 8
 Note: verbose level is set to 8
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Topological order from first input: 15 17 3 11 14 16 8 13 9 7 4 12 6 5 2 10 0 1 
 Size of topological order: 18
 > Mapping vertex 15 (●): New Subgraph

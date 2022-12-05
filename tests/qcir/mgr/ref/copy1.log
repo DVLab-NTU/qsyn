@@ -1,0 +1,197 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> qccr benchmark/benchmark_SABRE/small/rd32-v1_68.qasm
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
+
+qsyn> qccp -q
+Q 0  - t( 3)--cx( 5)----------cx( 6)--td( 8)--cx( 9)--td(11)--cx(13)----------cx(15)--cx(17)-
+Q 1  - t( 2)--cx( 5)------------------cx( 7)--cx( 9)--td(10)----------cx(14)--cx(15)--cx(17)-- t(20)--cx(22)--cx(23)--td(25)--cx(26)--td(28)--cx(30)----------cx(32)--cx(35)-
+Q 2  - t(19)------------------------------------------------------------------------------------------cx(22)----------cx(24)--cx(26)--td(27)----------cx(31)--cx(32)--cx(35)-
+Q 3  - x( 0)-- h( 1)-- t( 4)--cx( 6)--cx( 7)-- t(12)----------cx(13)--cx(14)-- h(16)-- h(18)-- t(21)----------cx(23)--cx(24)-- t(29)----------cx(30)--cx(31)-- h(33)-- x(34)-
+
+qsyn> qccop
+Successfully copied QCir 0 to QCir 1
+Checkout to QCir 1
+
+qsyn> qccp -q
+Q 0  - t( 3)--cx( 5)----------cx( 6)--td( 8)--cx( 9)--td(11)--cx(13)----------cx(15)--cx(17)-
+Q 1  - t( 2)--cx( 5)------------------cx( 7)--cx( 9)--td(10)----------cx(14)--cx(15)--cx(17)-- t(20)--cx(22)--cx(23)--td(25)--cx(26)--td(28)--cx(30)----------cx(32)--cx(35)-
+Q 2  - t(19)------------------------------------------------------------------------------------------cx(22)----------cx(24)--cx(26)--td(27)----------cx(31)--cx(32)--cx(35)-
+Q 3  - x( 0)-- h( 1)-- t( 4)--cx( 6)--cx( 7)-- t(12)----------cx(13)--cx(14)-- h(16)-- h(18)-- t(21)----------cx(23)--cx(24)-- t(29)----------cx(30)--cx(31)-- h(33)-- x(34)-
+
+qsyn> qccr benchmark/benchmark_SABRE/small/qft_4.qasm
+Successfully generated QCir 2
+Checkout to QCir 2
+
+qsyn> qc2zx
+Traverse and build the graph... 
+Successfully generated Graph 0
+Checkout to Graph 0
+
+qsyn> qccp -q
+Q 0  -cx( 0)--cx( 1)--cx( 2)-
+Q 1  -cx( 0)----------cx( 3)--cx( 4)-
+Q 2  ---------cx( 1)--cx( 3)----------cx( 5)-
+Q 3  -----------------cx( 2)--cx( 4)--cx( 5)-
+
+qsyn> qccop 0 -R
+Successfully copied QCir 2 to QCir 0
+Checkout to QCir 0
+
+qsyn> qccp -q
+Q 0  -cx( 0)--cx( 1)--cx( 2)-
+Q 1  -cx( 0)----------cx( 3)--cx( 4)-
+Q 2  ---------cx( 1)--cx( 3)----------cx( 5)-
+Q 3  -----------------cx( 2)--cx( 4)--cx( 5)-
+
+qsyn> qc2zx
+Traverse and build the graph... 
+Successfully generated Graph 1
+Checkout to Graph 1
+
+qsyn> zxgp -v
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(16, -) 
+ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(11, -) 
+ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(18, -) 
+ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(15, -) 
+ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(19, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (9, -) (10, -) 
+ID:	9	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (8, -) (12, -) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (11, -) (14, -) 
+ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(4, -) (10, -) (13, -) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(9, -) (13, -) (16, -) 
+ID:	13	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(11, -) (12, -) (18, -) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (10, -) (15, -) 
+ID:	15	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(6, -) (14, -) (17, -) 
+ID:	16	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (12, -) (17, -) 
+ID:	17	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(15, -) (16, -) (19, -) 
+ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(5, -) (13, -) (19, -) 
+ID:	19	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(7, -) (17, -) (18, -) 
+Total #Vertices: 20
+
+
+qsyn> zxgadjoint
+
+qsyn> zxcompose 0
+
+qsyn> zxgp -v
+
+ID:	0	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(8, -) (20, -) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
+ID:	2	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(9, -) (22, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(16, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	2	(11, -) (24, -) 
+ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(18, -) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	2	(15, -) (26, -) 
+ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(19, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (9, -) (10, -) 
+ID:	9	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (8, -) (12, -) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (11, -) (14, -) 
+ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(4, -) (10, -) (13, -) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(9, -) (13, -) (16, -) 
+ID:	13	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(11, -) (12, -) (18, -) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (10, -) (15, -) 
+ID:	15	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(6, -) (14, -) (17, -) 
+ID:	16	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(3, -) (12, -) (17, -) 
+ID:	17	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(15, -) (16, -) (19, -) 
+ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(5, -) (13, -) (19, -) 
+ID:	19	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(7, -) (17, -) (18, -) 
+ID:	20	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (28, -) 
+ID:	21	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(34, -) 
+ID:	22	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(2, -) (29, -) 
+ID:	23	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(36, -) 
+ID:	24	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	2	(4, -) (31, -) 
+ID:	25	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(38, -) 
+ID:	26	VertexType:	[1m[32mZ[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	2	(6, -) (35, -) 
+ID:	27	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(39, -) 
+ID:	28	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(20, -) (29, -) (30, -) 
+ID:	29	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(22, -) (28, -) (32, -) 
+ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(28, -) (31, -) (34, -) 
+ID:	31	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(24, -) (30, -) (33, -) 
+ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(29, -) (33, -) (36, -) 
+ID:	33	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(31, -) (32, -) (38, -) 
+ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(21, -) (30, -) (35, -) 
+ID:	35	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(26, -) (34, -) (37, -) 
+ID:	36	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(23, -) (32, -) (37, -) 
+ID:	37	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(35, -) (36, -) (39, -) 
+ID:	38	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(25, -) (33, -) (39, -) 
+ID:	39	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(27, -) (37, -) (38, -) 
+Total #Vertices: 40
+
+
+qsyn> zxgs -fr
+Spider Fusion Rule: 
+5 iterations
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+1 iterations
+Pivot Rule: 
+2 iterations
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+2 iterations
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Pivot Gadget Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
+No matches
+Phase Gadget Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Pivot Gadget Rule: 
+No matches
+
+qsyn> zxgp -v
+
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(21, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(23, -) 
+ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(25, -) 
+ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(27, -) 
+ID:	21	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
+ID:	23	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+ID:	25	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	27	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(7, -) 
+Total #Vertices: 8
+
+
+qsyn> q -f
+

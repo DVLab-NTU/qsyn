@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ qcirReader.cpp ]
   PackageName  [ qcir ]
-  Synopsis     [ Define qcir reader functions ]
+  Synopsis     [ Define QCir Reader functions ]
   Author       [ Chin-Yi Cheng ]
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -82,7 +82,7 @@ bool QCir::readQASM(string filename)
     // For netlist
     string tok;
     
-    int nqubit = stoi(str.substr(str.find("[") + 1, str.size() - str.find("[") - 3));
+    size_t nqubit = stoul(str.substr(str.find("[") + 1, str.size() - str.find("[") - 3));
     addQubit(nqubit);
     getline(qasm_file, str);
     while (getline(qasm_file, str))
@@ -107,7 +107,10 @@ bool QCir::readQASM(string filename)
 
             myStrGetTok(tmp, qub, myStrGetTok(tmp, qub, 0, '[')+1, ']');
             unsigned qub_n;
-            if(!myStr2Uns(qub, qub_n)) cerr << "Error line: " << str << endl;
+            if(!myStr2Uns(qub, qub_n) || qub_n >= nqubit) {
+                cerr << "Error line: " << str << endl;
+                return false;
+            }
             pin_id.push_back(qub_n);
             n = myStrGetTok(str, tmp, n, ',');
         }

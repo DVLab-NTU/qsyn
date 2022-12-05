@@ -77,7 +77,7 @@ public:
     double toDouble() { return toFloatType<double>(); }
     long double toLongDouble() { return toFloatType<long double>(); }
 
-    Rational getRational() {
+    Rational getRational() const {
         return _rational;
     }
 

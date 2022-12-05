@@ -2,9 +2,6 @@ DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> ver 2
 Note: verbose level is set to 2
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> zxn
 
 qsyn> zxge -addi 0
@@ -22,13 +19,11 @@ qsyn> zxge -adde 2 3 SIMPLE
 qsyn> zxge -adde 3 1 SIMPLE
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 0
 
 qsyn> zxge -adde 2 3 SIMPLE
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 1
 
 qsyn> ver 3

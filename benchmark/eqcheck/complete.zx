@@ -1,0 +1,8 @@
+//Input
+I0 0 H2
+O1 0 H3
+//Vertex
+Z2 H3 H4 H5 -1*pi/2
+Z3 H4 H5 -1*pi/2
+Z4 H5 -1*pi/2
+Z5 -1*pi/2

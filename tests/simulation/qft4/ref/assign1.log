@@ -2,10 +2,8 @@ DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> ver 0
 Note: verbose level is set to 0
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> qccr benchmark/benchmark_SABRE/small/qft_4.qasm
+Note: QCir list is empty now. Create a new one.
 
 qsyn> qc2zx
 
@@ -19,13 +17,13 @@ qsyn> zx2ts
 Stored the resulting tensor as tensor id 0
 
 qsyn> tsp 0
-{{ 1.681793+0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
-   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
-   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+{{ 1.681793+0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
    0.      +0.i},
- { 0.      +0.i,  1.681793+0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
-   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
-   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+ { 0.      +0.i,  1.681793+0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
    0.      +0.i}}
 #Dim:    2	Info: ZX 0
 
@@ -58,14 +56,14 @@ qsyn> zxgs -SR
 
 qsyn> zxgp -v
 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(23, [1m[34mH[0m[0m) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(24, [1m[34mH[0m[0m) 
-ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
+ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(24, -) 
+ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(25, -) 
+ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(23, -) 
 ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(7, -) 
 ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(6, -) 
-ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	1	(5, [1m[34mH[0m[0m) 
-ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(1, [1m[34mH[0m[0m) 
-ID:	24	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	1	(3, [1m[34mH[0m[0m) 
+ID:	23	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	24	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
+ID:	25	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
 Total #Vertices: 8
 
 
@@ -73,13 +71,13 @@ qsyn> zx2ts
 Stored the resulting tensor as tensor id 1
 
 qsyn> tsp 1
-{{ 1.681793+0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
-   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
-   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+{{ 1.681793+0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
    0.      +0.i},
- { 0.      +0.i,  1.681793+0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
-   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
-   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i, 
+ { 0.      +0.i,  1.681793+0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
+   0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
    0.      +0.i}}
 #Dim:    2	Info: ZX 0
 

@@ -60,9 +60,9 @@ class Simplifier{
             _rule = rule;
             _simpGraph = g;
         }
-        ~Simplifier(){}
+        ~Simplifier(){ delete _rule; }
 
-        void setRule(ZXRule* rule)          { _rule = rule; }
+        void setRule(ZXRule* rule)          { if (_rule != nullptr) delete _rule; _rule = rule; }
 
         // Simplification strategies
         int simp();
@@ -89,7 +89,7 @@ class Simplifier{
         int interiorCliffordSimp();
         int cliffordSimp();
         void fullReduce();
-        void simulatedReduce();
+        void symbolicReduce();
 
 
         // print function

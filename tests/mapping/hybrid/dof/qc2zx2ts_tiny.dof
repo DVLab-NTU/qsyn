@@ -3,7 +3,6 @@ qcba 2
 qcga -cx 0 1
 qcga -cx 1 0
 qcga -cx 0 1
-zxm -on
 qc2zx
 ver 7
 zx2ts

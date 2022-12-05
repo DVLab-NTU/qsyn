@@ -2,9 +2,6 @@ DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> ver 2
 Note: verbose level is set to 2
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> zxgr -bzx benchmark/demo/simp/ex1_id_2.bzx
 
 qsyn> zxgp -v
@@ -62,6 +59,8 @@ Pivot Rule:
 No matches
 Local Complementation Rule: 
 No matches
+Pivot Boundary Rule: 
+No matches
 Phase Gadget Rule: 
 No matches
 Spider Fusion Rule: 
@@ -87,13 +86,11 @@ Total #Vertices: 4
 
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 0
 
 qsyn> zxgr -bzx benchmark/demo/simp/id_2.bzx
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 1
 
 qsyn> tseq 0 1

@@ -3,6 +3,7 @@ qsyn> ver 2
 Note: verbose level is set to 2
 
 qsyn> qcba 2
+Note: QCir list is empty now. Create a new one.
 
 qsyn> qcga -cx 0 1
 
@@ -13,13 +14,9 @@ qsyn> qcga -cx 0 1
 qsyn> qc2ts
 Stored the resulting tensor as tensor id 0
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> zxgr benchmark/zx/swap.zx
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
 Stored the resulting tensor as tensor id 1
 
 qsyn> ver 3

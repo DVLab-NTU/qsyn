@@ -3,6 +3,7 @@ qsyn> ver 2
 Note: verbose level is set to 2
 
 qsyn> qcba 2
+Note: QCir list is empty now. Create a new one.
 
 qsyn> qcga -cx 0 1
 
@@ -10,16 +11,13 @@ qsyn> qcga -cx 1 0
 
 qsyn> qcga -cx 0 1
 
-qsyn> zxm -on
-ZXMODE turn ON!
-
 qsyn> qc2zx
 
 qsyn> ver 7
 Note: verbose level is set to 7
 
 qsyn> zx2ts
----- TRAVERSE AND BUILD THE TENSOR ----
+Traverse and build the tensor... 
 Topological order from first input: 0 4 5 6 7 8 1 9 3 2 
 Size of topological order: 10
 > Mapping vertex 0 (●): New Subgraph

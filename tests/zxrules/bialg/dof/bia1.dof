@@ -1,5 +1,4 @@
 ver 9
-zxmode -on
 zxnew 10
 zxge -addi 0
 zxge -addo 0

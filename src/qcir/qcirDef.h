@@ -17,5 +17,6 @@ using namespace std;
 class QCirGate;
 class QCirQubit;
 class QCir;
+class QCirMgr;
 
 #endif // QCIR_DEF_H

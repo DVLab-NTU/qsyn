@@ -47,7 +47,7 @@ class ZXGraphMgr{
         ZXGraphList::iterator getgListItr() const           { return _gListItr; }
 
         void setNextID(size_t id)                           { _nextID = id; }
-        void setGraph(ZXGraph* g)                           { _graphList[_gListItr - _graphList.begin()] = g; }
+        void setGraph(ZXGraph* g)                           { delete _graphList[_gListItr - _graphList.begin()]; _graphList[_gListItr - _graphList.begin()] = g; g->setId(_gListItr - _graphList.begin()); }
         
 
         // Add and Remove
