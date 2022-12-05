@@ -40,7 +40,7 @@ if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end()) {\
 
 #define QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id) {\
 if (!(qcirMgr->isID(id))) {\
-    cerr << "Error: Graph " << (id) << " is not existed!!\n"; \
+    cerr << "Error: QCir " << (id) << " does not exist!!\n"; \
     return CMD_EXEC_ERROR;\
 }}
 
