@@ -1,0 +1,1695 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> qccr benchmark/qc/Adder32_pyzx.qc
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
+
+qsyn> qccp -l
+Listed by gate ID
+Gate 0: z   	 Exec Time: 0 	 Qubit: 1 
+Gate 1: z   	 Exec Time: 0 	 Qubit: 3 
+Gate 2: z   	 Exec Time: 0 	 Qubit: 6 
+Gate 3: z   	 Exec Time: 0 	 Qubit: 7 
+Gate 4: z   	 Exec Time: 0 	 Qubit: 9 
+Gate 5: z   	 Exec Time: 0 	 Qubit: 11 
+Gate 6: z   	 Exec Time: 0 	 Qubit: 12 
+Gate 7: z   	 Exec Time: 0 	 Qubit: 15 
+Gate 8: z   	 Exec Time: 0 	 Qubit: 16 
+Gate 9: z   	 Exec Time: 0 	 Qubit: 17 
+Gate 10: z   	 Exec Time: 0 	 Qubit: 22 
+Gate 11: z   	 Exec Time: 0 	 Qubit: 29 
+Gate 12: s   	 Exec Time: 0 	 Qubit: 31 
+Gate 13: h   	 Exec Time: 0 	 Qubit: 32 
+Gate 14: z   	 Exec Time: 1 	 Qubit: 0 32 
+Gate 15: cx   	 Exec Time: 1 	 Qubit: 1 33 
+Gate 16: cx   	 Exec Time: 0 	 Qubit: 2 34 
+Gate 17: cx   	 Exec Time: 1 	 Qubit: 3 35 
+Gate 18: cx   	 Exec Time: 0 	 Qubit: 4 36 
+Gate 19: cx   	 Exec Time: 0 	 Qubit: 5 37 
+Gate 20: cx   	 Exec Time: 1 	 Qubit: 6 38 
+Gate 21: cx   	 Exec Time: 1 	 Qubit: 7 39 
+Gate 22: cx   	 Exec Time: 0 	 Qubit: 8 40 
+Gate 23: cx   	 Exec Time: 1 	 Qubit: 9 41 
+Gate 24: cx   	 Exec Time: 0 	 Qubit: 10 42 
+Gate 25: cx   	 Exec Time: 1 	 Qubit: 11 43 
+Gate 26: cx   	 Exec Time: 1 	 Qubit: 12 44 
+Gate 27: cx   	 Exec Time: 0 	 Qubit: 13 45 
+Gate 28: cx   	 Exec Time: 0 	 Qubit: 14 46 
+Gate 29: cx   	 Exec Time: 1 	 Qubit: 15 47 
+Gate 30: cx   	 Exec Time: 1 	 Qubit: 16 48 
+Gate 31: cx   	 Exec Time: 1 	 Qubit: 17 49 
+Gate 32: cx   	 Exec Time: 0 	 Qubit: 18 50 
+Gate 33: cx   	 Exec Time: 0 	 Qubit: 19 51 
+Gate 34: cx   	 Exec Time: 0 	 Qubit: 20 52 
+Gate 35: cx   	 Exec Time: 0 	 Qubit: 21 53 
+Gate 36: cx   	 Exec Time: 1 	 Qubit: 22 54 
+Gate 37: cx   	 Exec Time: 0 	 Qubit: 23 55 
+Gate 38: cx   	 Exec Time: 0 	 Qubit: 24 56 
+Gate 39: cx   	 Exec Time: 0 	 Qubit: 25 57 
+Gate 40: cx   	 Exec Time: 0 	 Qubit: 26 58 
+Gate 41: cx   	 Exec Time: 0 	 Qubit: 27 59 
+Gate 42: cx   	 Exec Time: 0 	 Qubit: 28 60 
+Gate 43: cx   	 Exec Time: 1 	 Qubit: 29 61 
+Gate 44: cx   	 Exec Time: 0 	 Qubit: 30 62 
+Gate 45: cx   	 Exec Time: 1 	 Qubit: 31 63 
+Gate 46: sd   	 Exec Time: 2 	 Qubit: 63 
+Gate 47: z   	 Exec Time: 3 	 Qubit: 63 64 
+Gate 48: h   	 Exec Time: 4 	 Qubit: 64 
+Gate 49: t   	 Exec Time: 5 	 Qubit: 64 
+Gate 50: cx   	 Exec Time: 6 	 Qubit: 31 64 
+Gate 51: td   	 Exec Time: 7 	 Qubit: 64 
+Gate 52: cx   	 Exec Time: 8 	 Qubit: 63 64 
+Gate 53: td   	 Exec Time: 9 	 Qubit: 64 
+Gate 54: cx   	 Exec Time: 10 	 Qubit: 31 64 
+Gate 55: t   	 Exec Time: 11 	 Qubit: 64 
+Gate 56: h   	 Exec Time: 12 	 Qubit: 64 
+Gate 57: cx   	 Exec Time: 13 	 Qubit: 64 62 
+Gate 58: s   	 Exec Time: 14 	 Qubit: 64 
+Gate 59: z   	 Exec Time: 1 	 Qubit: 30 65 
+Gate 60: z   	 Exec Time: 2 	 Qubit: 29 66 
+Gate 61: z   	 Exec Time: 1 	 Qubit: 25 70 
+Gate 62: z   	 Exec Time: 1 	 Qubit: 24 71 
+Gate 63: z   	 Exec Time: 1 	 Qubit: 20 75 
+Gate 64: z   	 Exec Time: 1 	 Qubit: 19 76 
+Gate 65: z   	 Exec Time: 2 	 Qubit: 17 78 
+Gate 66: z   	 Exec Time: 2 	 Qubit: 16 79 
+Gate 67: z   	 Exec Time: 2 	 Qubit: 15 80 
+Gate 68: z   	 Exec Time: 1 	 Qubit: 14 81 
+Gate 69: z   	 Exec Time: 2 	 Qubit: 11 84 
+Gate 70: z   	 Exec Time: 1 	 Qubit: 8 87 
+Gate 71: z   	 Exec Time: 2 	 Qubit: 6 89 
+Gate 72: z   	 Exec Time: 1 	 Qubit: 4 91 
+Gate 73: z   	 Exec Time: 2 	 Qubit: 1 94 
+Gate 74: z   	 Exec Time: 14 	 Qubit: 62 65 
+Gate 75: h   	 Exec Time: 15 	 Qubit: 65 
+Gate 76: td   	 Exec Time: 16 	 Qubit: 65 
+Gate 77: cx   	 Exec Time: 17 	 Qubit: 62 65 
+Gate 78: cx   	 Exec Time: 18 	 Qubit: 30 65 
+Gate 79: cx   	 Exec Time: 19 	 Qubit: 64 65 
+Gate 80: sd   	 Exec Time: 20 	 Qubit: 65 
+Gate 81: cx   	 Exec Time: 21 	 Qubit: 30 65 
+Gate 82: t   	 Exec Time: 22 	 Qubit: 65 
+Gate 83: cx   	 Exec Time: 23 	 Qubit: 64 65 
+Gate 84: sd   	 Exec Time: 24 	 Qubit: 65 
+Gate 85: cx   	 Exec Time: 25 	 Qubit: 30 65 
+Gate 86: s   	 Exec Time: 26 	 Qubit: 65 
+Gate 87: cx   	 Exec Time: 27 	 Qubit: 62 65 
+Gate 88: cx   	 Exec Time: 26 	 Qubit: 30 64 
+Gate 89: sd   	 Exec Time: 27 	 Qubit: 64 
+Gate 90: cx   	 Exec Time: 28 	 Qubit: 30 64 
+Gate 91: cx   	 Exec Time: 29 	 Qubit: 64 65 
+Gate 92: td   	 Exec Time: 30 	 Qubit: 65 
+Gate 93: cx   	 Exec Time: 31 	 Qubit: 64 65 
+Gate 94: s   	 Exec Time: 32 	 Qubit: 65 
+Gate 95: cx   	 Exec Time: 33 	 Qubit: 62 65 
+Gate 96: t   	 Exec Time: 34 	 Qubit: 65 
+Gate 97: h   	 Exec Time: 35 	 Qubit: 65 
+Gate 98: cx   	 Exec Time: 36 	 Qubit: 65 61 
+Gate 99: cx   	 Exec Time: 34 	 Qubit: 62 64 
+Gate 100: s   	 Exec Time: 35 	 Qubit: 64 
+Gate 101: cx   	 Exec Time: 36 	 Qubit: 62 64 
+Gate 102: s   	 Exec Time: 37 	 Qubit: 64 
+Gate 103: z   	 Exec Time: 38 	 Qubit: 63 64 
+Gate 104: z   	 Exec Time: 37 	 Qubit: 61 66 
+Gate 105: h   	 Exec Time: 38 	 Qubit: 66 
+Gate 106: td   	 Exec Time: 39 	 Qubit: 66 
+Gate 107: cx   	 Exec Time: 40 	 Qubit: 29 66 
+Gate 108: cx   	 Exec Time: 41 	 Qubit: 61 66 
+Gate 109: s   	 Exec Time: 42 	 Qubit: 66 
+Gate 110: cx   	 Exec Time: 43 	 Qubit: 65 66 
+Gate 111: cx   	 Exec Time: 44 	 Qubit: 29 66 
+Gate 112: t   	 Exec Time: 45 	 Qubit: 66 
+Gate 113: cx   	 Exec Time: 46 	 Qubit: 65 66 
+Gate 114: sd   	 Exec Time: 47 	 Qubit: 66 
+Gate 115: cx   	 Exec Time: 48 	 Qubit: 29 66 
+Gate 116: cx   	 Exec Time: 49 	 Qubit: 65 66 
+Gate 117: sd   	 Exec Time: 50 	 Qubit: 66 
+Gate 118: cx   	 Exec Time: 51 	 Qubit: 61 66 
+Gate 119: td   	 Exec Time: 52 	 Qubit: 66 
+Gate 120: cx   	 Exec Time: 53 	 Qubit: 65 66 
+Gate 121: s   	 Exec Time: 54 	 Qubit: 66 
+Gate 122: cx   	 Exec Time: 55 	 Qubit: 61 66 
+Gate 123: t   	 Exec Time: 56 	 Qubit: 66 
+Gate 124: h   	 Exec Time: 57 	 Qubit: 66 
+Gate 125: cx   	 Exec Time: 58 	 Qubit: 66 60 
+Gate 126: s   	 Exec Time: 59 	 Qubit: 66 
+Gate 127: z   	 Exec Time: 59 	 Qubit: 60 67 
+Gate 128: h   	 Exec Time: 60 	 Qubit: 67 
+Gate 129: s   	 Exec Time: 61 	 Qubit: 67 
+Gate 130: cx   	 Exec Time: 62 	 Qubit: 28 67 
+Gate 131: td   	 Exec Time: 63 	 Qubit: 67 
+Gate 132: cx   	 Exec Time: 64 	 Qubit: 60 67 
+Gate 133: cx   	 Exec Time: 65 	 Qubit: 66 67 
+Gate 134: t   	 Exec Time: 66 	 Qubit: 67 
+Gate 135: cx   	 Exec Time: 67 	 Qubit: 66 67 
+Gate 136: sd   	 Exec Time: 68 	 Qubit: 67 
+Gate 137: cx   	 Exec Time: 69 	 Qubit: 28 67 
+Gate 138: s   	 Exec Time: 70 	 Qubit: 67 
+Gate 139: cx   	 Exec Time: 70 	 Qubit: 28 66 
+Gate 140: sd   	 Exec Time: 71 	 Qubit: 66 
+Gate 141: cx   	 Exec Time: 72 	 Qubit: 28 66 
+Gate 142: cx   	 Exec Time: 73 	 Qubit: 66 67 
+Gate 143: sd   	 Exec Time: 74 	 Qubit: 67 
+Gate 144: cx   	 Exec Time: 75 	 Qubit: 60 67 
+Gate 145: td   	 Exec Time: 76 	 Qubit: 67 
+Gate 146: cx   	 Exec Time: 77 	 Qubit: 66 67 
+Gate 147: cx   	 Exec Time: 78 	 Qubit: 60 67 
+Gate 148: t   	 Exec Time: 79 	 Qubit: 67 
+Gate 149: h   	 Exec Time: 80 	 Qubit: 67 
+Gate 150: cx   	 Exec Time: 81 	 Qubit: 67 59 
+Gate 151: s   	 Exec Time: 82 	 Qubit: 67 
+Gate 152: cx   	 Exec Time: 79 	 Qubit: 60 66 
+Gate 153: s   	 Exec Time: 80 	 Qubit: 66 
+Gate 154: cx   	 Exec Time: 81 	 Qubit: 60 66 
+Gate 155: s   	 Exec Time: 82 	 Qubit: 66 
+Gate 156: z   	 Exec Time: 83 	 Qubit: 65 66 
+Gate 157: z   	 Exec Time: 82 	 Qubit: 59 68 
+Gate 158: h   	 Exec Time: 83 	 Qubit: 68 
+Gate 159: s   	 Exec Time: 84 	 Qubit: 68 
+Gate 160: cx   	 Exec Time: 85 	 Qubit: 27 68 
+Gate 161: td   	 Exec Time: 86 	 Qubit: 68 
+Gate 162: cx   	 Exec Time: 87 	 Qubit: 59 68 
+Gate 163: sd   	 Exec Time: 88 	 Qubit: 68 
+Gate 164: cx   	 Exec Time: 89 	 Qubit: 27 68 
+Gate 165: t   	 Exec Time: 90 	 Qubit: 68 
+Gate 166: cx   	 Exec Time: 91 	 Qubit: 67 68 
+Gate 167: sd   	 Exec Time: 92 	 Qubit: 68 
+Gate 168: cx   	 Exec Time: 93 	 Qubit: 27 68 
+Gate 169: t   	 Exec Time: 94 	 Qubit: 68 
+Gate 170: cx   	 Exec Time: 95 	 Qubit: 67 68 
+Gate 171: cx   	 Exec Time: 96 	 Qubit: 27 68 
+Gate 172: s   	 Exec Time: 97 	 Qubit: 68 
+Gate 173: cx   	 Exec Time: 98 	 Qubit: 67 68 
+Gate 174: cx   	 Exec Time: 99 	 Qubit: 59 68 
+Gate 175: td   	 Exec Time: 100 	 Qubit: 68 
+Gate 176: h   	 Exec Time: 101 	 Qubit: 68 
+Gate 177: cx   	 Exec Time: 102 	 Qubit: 68 58 
+Gate 178: z   	 Exec Time: 103 	 Qubit: 67 68 
+Gate 179: z   	 Exec Time: 104 	 Qubit: 59 68 
+Gate 180: s   	 Exec Time: 105 	 Qubit: 68 
+Gate 181: z   	 Exec Time: 103 	 Qubit: 58 69 
+Gate 182: h   	 Exec Time: 104 	 Qubit: 69 
+Gate 183: s   	 Exec Time: 105 	 Qubit: 69 
+Gate 184: cx   	 Exec Time: 106 	 Qubit: 26 69 
+Gate 185: td   	 Exec Time: 107 	 Qubit: 69 
+Gate 186: cx   	 Exec Time: 108 	 Qubit: 58 69 
+Gate 187: sd   	 Exec Time: 109 	 Qubit: 69 
+Gate 188: cx   	 Exec Time: 110 	 Qubit: 26 69 
+Gate 189: t   	 Exec Time: 111 	 Qubit: 69 
+Gate 190: cx   	 Exec Time: 112 	 Qubit: 68 69 
+Gate 191: cx   	 Exec Time: 113 	 Qubit: 26 69 
+Gate 192: t   	 Exec Time: 114 	 Qubit: 69 
+Gate 193: cx   	 Exec Time: 115 	 Qubit: 68 69 
+Gate 194: cx   	 Exec Time: 116 	 Qubit: 26 69 
+Gate 195: s   	 Exec Time: 117 	 Qubit: 69 
+Gate 196: cx   	 Exec Time: 118 	 Qubit: 68 69 
+Gate 197: sd   	 Exec Time: 119 	 Qubit: 69 
+Gate 198: cx   	 Exec Time: 117 	 Qubit: 26 58 
+Gate 199: sd   	 Exec Time: 118 	 Qubit: 58 
+Gate 200: cx   	 Exec Time: 119 	 Qubit: 26 58 
+Gate 201: cx   	 Exec Time: 120 	 Qubit: 58 69 
+Gate 202: td   	 Exec Time: 121 	 Qubit: 69 
+Gate 203: h   	 Exec Time: 122 	 Qubit: 69 
+Gate 204: cx   	 Exec Time: 123 	 Qubit: 69 57 
+Gate 205: z   	 Exec Time: 124 	 Qubit: 68 69 
+Gate 206: z   	 Exec Time: 125 	 Qubit: 58 69 
+Gate 207: s   	 Exec Time: 126 	 Qubit: 69 
+Gate 208: cx   	 Exec Time: 126 	 Qubit: 58 68 
+Gate 209: s   	 Exec Time: 127 	 Qubit: 68 
+Gate 210: cx   	 Exec Time: 128 	 Qubit: 58 68 
+Gate 211: s   	 Exec Time: 129 	 Qubit: 68 
+Gate 212: z   	 Exec Time: 124 	 Qubit: 57 70 
+Gate 213: h   	 Exec Time: 125 	 Qubit: 70 
+Gate 214: td   	 Exec Time: 126 	 Qubit: 70 
+Gate 215: cx   	 Exec Time: 127 	 Qubit: 57 70 
+Gate 216: cx   	 Exec Time: 128 	 Qubit: 25 70 
+Gate 217: t   	 Exec Time: 129 	 Qubit: 70 
+Gate 218: cx   	 Exec Time: 130 	 Qubit: 69 70 
+Gate 219: cx   	 Exec Time: 131 	 Qubit: 25 70 
+Gate 220: t   	 Exec Time: 132 	 Qubit: 70 
+Gate 221: cx   	 Exec Time: 133 	 Qubit: 69 70 
+Gate 222: sd   	 Exec Time: 134 	 Qubit: 70 
+Gate 223: cx   	 Exec Time: 135 	 Qubit: 25 70 
+Gate 224: cx   	 Exec Time: 136 	 Qubit: 69 70 
+Gate 225: sd   	 Exec Time: 137 	 Qubit: 70 
+Gate 226: cx   	 Exec Time: 138 	 Qubit: 57 70 
+Gate 227: td   	 Exec Time: 139 	 Qubit: 70 
+Gate 228: cx   	 Exec Time: 140 	 Qubit: 69 70 
+Gate 229: s   	 Exec Time: 141 	 Qubit: 70 
+Gate 230: cx   	 Exec Time: 142 	 Qubit: 57 70 
+Gate 231: s   	 Exec Time: 143 	 Qubit: 70 
+Gate 232: h   	 Exec Time: 144 	 Qubit: 70 
+Gate 233: cx   	 Exec Time: 145 	 Qubit: 70 56 
+Gate 234: s   	 Exec Time: 146 	 Qubit: 70 
+Gate 235: z   	 Exec Time: 146 	 Qubit: 56 71 
+Gate 236: h   	 Exec Time: 147 	 Qubit: 71 
+Gate 237: td   	 Exec Time: 148 	 Qubit: 71 
+Gate 238: cx   	 Exec Time: 149 	 Qubit: 56 71 
+Gate 239: sd   	 Exec Time: 150 	 Qubit: 71 
+Gate 240: cx   	 Exec Time: 151 	 Qubit: 24 71 
+Gate 241: t   	 Exec Time: 152 	 Qubit: 71 
+Gate 242: cx   	 Exec Time: 153 	 Qubit: 70 71 
+Gate 243: sd   	 Exec Time: 154 	 Qubit: 71 
+Gate 244: cx   	 Exec Time: 155 	 Qubit: 24 71 
+Gate 245: t   	 Exec Time: 156 	 Qubit: 71 
+Gate 246: cx   	 Exec Time: 157 	 Qubit: 70 71 
+Gate 247: cx   	 Exec Time: 158 	 Qubit: 24 71 
+Gate 248: cx   	 Exec Time: 159 	 Qubit: 24 56 
+Gate 249: sd   	 Exec Time: 160 	 Qubit: 56 
+Gate 250: cx   	 Exec Time: 161 	 Qubit: 24 56 
+Gate 251: cx   	 Exec Time: 162 	 Qubit: 24 70 
+Gate 252: sd   	 Exec Time: 163 	 Qubit: 70 
+Gate 253: cx   	 Exec Time: 164 	 Qubit: 24 70 
+Gate 254: s   	 Exec Time: 165 	 Qubit: 70 
+Gate 255: cx   	 Exec Time: 166 	 Qubit: 70 71 
+Gate 256: cx   	 Exec Time: 167 	 Qubit: 56 71 
+Gate 257: td   	 Exec Time: 168 	 Qubit: 71 
+Gate 258: cx   	 Exec Time: 169 	 Qubit: 70 71 
+Gate 259: s   	 Exec Time: 170 	 Qubit: 71 
+Gate 260: cx   	 Exec Time: 171 	 Qubit: 56 71 
+Gate 261: s   	 Exec Time: 172 	 Qubit: 71 
+Gate 262: h   	 Exec Time: 173 	 Qubit: 71 
+Gate 263: cx   	 Exec Time: 174 	 Qubit: 71 55 
+Gate 264: s   	 Exec Time: 175 	 Qubit: 71 
+Gate 265: cx   	 Exec Time: 172 	 Qubit: 56 70 
+Gate 266: s   	 Exec Time: 173 	 Qubit: 70 
+Gate 267: cx   	 Exec Time: 174 	 Qubit: 56 70 
+Gate 268: z   	 Exec Time: 175 	 Qubit: 69 70 
+Gate 269: z   	 Exec Time: 175 	 Qubit: 55 72 
+Gate 270: h   	 Exec Time: 176 	 Qubit: 72 
+Gate 271: s   	 Exec Time: 177 	 Qubit: 72 
+Gate 272: cx   	 Exec Time: 178 	 Qubit: 23 72 
+Gate 273: td   	 Exec Time: 179 	 Qubit: 72 
+Gate 274: cx   	 Exec Time: 180 	 Qubit: 55 72 
+Gate 275: sd   	 Exec Time: 181 	 Qubit: 72 
+Gate 276: cx   	 Exec Time: 182 	 Qubit: 23 72 
+Gate 277: t   	 Exec Time: 183 	 Qubit: 72 
+Gate 278: cx   	 Exec Time: 184 	 Qubit: 71 72 
+Gate 279: sd   	 Exec Time: 185 	 Qubit: 72 
+Gate 280: cx   	 Exec Time: 186 	 Qubit: 23 72 
+Gate 281: t   	 Exec Time: 187 	 Qubit: 72 
+Gate 282: cx   	 Exec Time: 188 	 Qubit: 71 72 
+Gate 283: cx   	 Exec Time: 189 	 Qubit: 23 72 
+Gate 284: s   	 Exec Time: 190 	 Qubit: 72 
+Gate 285: cx   	 Exec Time: 191 	 Qubit: 71 72 
+Gate 286: cx   	 Exec Time: 192 	 Qubit: 55 72 
+Gate 287: td   	 Exec Time: 193 	 Qubit: 72 
+Gate 288: h   	 Exec Time: 194 	 Qubit: 72 
+Gate 289: cx   	 Exec Time: 195 	 Qubit: 72 54 
+Gate 290: z   	 Exec Time: 196 	 Qubit: 71 72 
+Gate 291: z   	 Exec Time: 197 	 Qubit: 55 72 
+Gate 292: cx   	 Exec Time: 198 	 Qubit: 55 71 
+Gate 293: s   	 Exec Time: 199 	 Qubit: 71 
+Gate 294: cx   	 Exec Time: 200 	 Qubit: 55 71 
+Gate 295: s   	 Exec Time: 201 	 Qubit: 71 
+Gate 296: z   	 Exec Time: 196 	 Qubit: 54 73 
+Gate 297: h   	 Exec Time: 197 	 Qubit: 73 
+Gate 298: s   	 Exec Time: 198 	 Qubit: 73 
+Gate 299: cx   	 Exec Time: 199 	 Qubit: 22 73 
+Gate 300: td   	 Exec Time: 200 	 Qubit: 73 
+Gate 301: cx   	 Exec Time: 201 	 Qubit: 54 73 
+Gate 302: sd   	 Exec Time: 202 	 Qubit: 73 
+Gate 303: cx   	 Exec Time: 203 	 Qubit: 72 73 
+Gate 304: t   	 Exec Time: 204 	 Qubit: 73 
+Gate 305: cx   	 Exec Time: 205 	 Qubit: 72 73 
+Gate 306: cx   	 Exec Time: 206 	 Qubit: 22 73 
+Gate 307: s   	 Exec Time: 207 	 Qubit: 73 
+Gate 308: cx   	 Exec Time: 208 	 Qubit: 72 73 
+Gate 309: sd   	 Exec Time: 209 	 Qubit: 73 
+Gate 310: cx   	 Exec Time: 207 	 Qubit: 22 54 
+Gate 311: s   	 Exec Time: 208 	 Qubit: 54 
+Gate 312: cx   	 Exec Time: 209 	 Qubit: 22 54 
+Gate 313: cx   	 Exec Time: 210 	 Qubit: 54 73 
+Gate 314: td   	 Exec Time: 211 	 Qubit: 73 
+Gate 315: cx   	 Exec Time: 212 	 Qubit: 72 73 
+Gate 316: cx   	 Exec Time: 213 	 Qubit: 54 73 
+Gate 317: t   	 Exec Time: 214 	 Qubit: 73 
+Gate 318: h   	 Exec Time: 215 	 Qubit: 73 
+Gate 319: cx   	 Exec Time: 216 	 Qubit: 73 53 
+Gate 320: s   	 Exec Time: 217 	 Qubit: 73 
+Gate 321: z   	 Exec Time: 217 	 Qubit: 53 74 
+Gate 322: h   	 Exec Time: 218 	 Qubit: 74 
+Gate 323: s   	 Exec Time: 219 	 Qubit: 74 
+Gate 324: cx   	 Exec Time: 220 	 Qubit: 21 74 
+Gate 325: td   	 Exec Time: 221 	 Qubit: 74 
+Gate 326: cx   	 Exec Time: 222 	 Qubit: 53 74 
+Gate 327: cx   	 Exec Time: 223 	 Qubit: 21 74 
+Gate 328: cx   	 Exec Time: 224 	 Qubit: 73 74 
+Gate 329: sd   	 Exec Time: 225 	 Qubit: 74 
+Gate 330: cx   	 Exec Time: 226 	 Qubit: 21 74 
+Gate 331: t   	 Exec Time: 227 	 Qubit: 74 
+Gate 332: cx   	 Exec Time: 228 	 Qubit: 73 74 
+Gate 333: sd   	 Exec Time: 229 	 Qubit: 74 
+Gate 334: cx   	 Exec Time: 230 	 Qubit: 21 74 
+Gate 335: s   	 Exec Time: 231 	 Qubit: 74 
+Gate 336: cx   	 Exec Time: 232 	 Qubit: 53 74 
+Gate 337: cx   	 Exec Time: 231 	 Qubit: 21 73 
+Gate 338: sd   	 Exec Time: 232 	 Qubit: 73 
+Gate 339: cx   	 Exec Time: 233 	 Qubit: 21 73 
+Gate 340: cx   	 Exec Time: 234 	 Qubit: 73 74 
+Gate 341: td   	 Exec Time: 235 	 Qubit: 74 
+Gate 342: cx   	 Exec Time: 236 	 Qubit: 73 74 
+Gate 343: cx   	 Exec Time: 237 	 Qubit: 53 74 
+Gate 344: t   	 Exec Time: 238 	 Qubit: 74 
+Gate 345: h   	 Exec Time: 239 	 Qubit: 74 
+Gate 346: cx   	 Exec Time: 240 	 Qubit: 74 52 
+Gate 347: z   	 Exec Time: 241 	 Qubit: 52 75 
+Gate 348: h   	 Exec Time: 242 	 Qubit: 75 
+Gate 349: td   	 Exec Time: 243 	 Qubit: 75 
+Gate 350: cx   	 Exec Time: 244 	 Qubit: 52 75 
+Gate 351: sd   	 Exec Time: 245 	 Qubit: 75 
+Gate 352: cx   	 Exec Time: 246 	 Qubit: 74 75 
+Gate 353: t   	 Exec Time: 247 	 Qubit: 75 
+Gate 354: cx   	 Exec Time: 248 	 Qubit: 74 75 
+Gate 355: cx   	 Exec Time: 249 	 Qubit: 20 75 
+Gate 356: t   	 Exec Time: 250 	 Qubit: 75 
+Gate 357: cx   	 Exec Time: 250 	 Qubit: 20 74 
+Gate 358: sd   	 Exec Time: 251 	 Qubit: 74 
+Gate 359: cx   	 Exec Time: 252 	 Qubit: 20 74 
+Gate 360: s   	 Exec Time: 253 	 Qubit: 74 
+Gate 361: cx   	 Exec Time: 254 	 Qubit: 74 75 
+Gate 362: sd   	 Exec Time: 255 	 Qubit: 75 
+Gate 363: cx   	 Exec Time: 256 	 Qubit: 52 75 
+Gate 364: td   	 Exec Time: 257 	 Qubit: 75 
+Gate 365: cx   	 Exec Time: 258 	 Qubit: 74 75 
+Gate 366: s   	 Exec Time: 259 	 Qubit: 75 
+Gate 367: cx   	 Exec Time: 260 	 Qubit: 52 75 
+Gate 368: s   	 Exec Time: 261 	 Qubit: 75 
+Gate 369: h   	 Exec Time: 262 	 Qubit: 75 
+Gate 370: cx   	 Exec Time: 263 	 Qubit: 75 51 
+Gate 371: z   	 Exec Time: 264 	 Qubit: 51 76 
+Gate 372: h   	 Exec Time: 265 	 Qubit: 76 
+Gate 373: td   	 Exec Time: 266 	 Qubit: 76 
+Gate 374: cx   	 Exec Time: 267 	 Qubit: 19 76 
+Gate 375: cx   	 Exec Time: 268 	 Qubit: 75 76 
+Gate 376: cx   	 Exec Time: 269 	 Qubit: 51 76 
+Gate 377: sd   	 Exec Time: 270 	 Qubit: 76 
+Gate 378: cx   	 Exec Time: 271 	 Qubit: 19 76 
+Gate 379: t   	 Exec Time: 272 	 Qubit: 76 
+Gate 380: cx   	 Exec Time: 273 	 Qubit: 75 76 
+Gate 381: sd   	 Exec Time: 274 	 Qubit: 76 
+Gate 382: cx   	 Exec Time: 275 	 Qubit: 19 76 
+Gate 383: s   	 Exec Time: 276 	 Qubit: 76 
+Gate 384: cx   	 Exec Time: 276 	 Qubit: 19 51 
+Gate 385: sd   	 Exec Time: 277 	 Qubit: 51 
+Gate 386: cx   	 Exec Time: 278 	 Qubit: 19 51 
+Gate 387: cx   	 Exec Time: 279 	 Qubit: 19 75 
+Gate 388: sd   	 Exec Time: 280 	 Qubit: 75 
+Gate 389: cx   	 Exec Time: 281 	 Qubit: 19 75 
+Gate 390: s   	 Exec Time: 282 	 Qubit: 75 
+Gate 391: cx   	 Exec Time: 283 	 Qubit: 75 76 
+Gate 392: cx   	 Exec Time: 284 	 Qubit: 51 76 
+Gate 393: td   	 Exec Time: 285 	 Qubit: 76 
+Gate 394: cx   	 Exec Time: 286 	 Qubit: 75 76 
+Gate 395: s   	 Exec Time: 287 	 Qubit: 76 
+Gate 396: cx   	 Exec Time: 288 	 Qubit: 51 76 
+Gate 397: t   	 Exec Time: 289 	 Qubit: 76 
+Gate 398: h   	 Exec Time: 290 	 Qubit: 76 
+Gate 399: cx   	 Exec Time: 291 	 Qubit: 76 50 
+Gate 400: s   	 Exec Time: 292 	 Qubit: 76 
+Gate 401: z   	 Exec Time: 292 	 Qubit: 50 77 
+Gate 402: h   	 Exec Time: 293 	 Qubit: 77 
+Gate 403: s   	 Exec Time: 294 	 Qubit: 77 
+Gate 404: cx   	 Exec Time: 295 	 Qubit: 18 77 
+Gate 405: td   	 Exec Time: 296 	 Qubit: 77 
+Gate 406: cx   	 Exec Time: 297 	 Qubit: 50 77 
+Gate 407: cx   	 Exec Time: 298 	 Qubit: 76 77 
+Gate 408: t   	 Exec Time: 299 	 Qubit: 77 
+Gate 409: cx   	 Exec Time: 300 	 Qubit: 76 77 
+Gate 410: sd   	 Exec Time: 301 	 Qubit: 77 
+Gate 411: cx   	 Exec Time: 302 	 Qubit: 18 77 
+Gate 412: t   	 Exec Time: 303 	 Qubit: 77 
+Gate 413: cx   	 Exec Time: 303 	 Qubit: 18 76 
+Gate 414: sd   	 Exec Time: 304 	 Qubit: 76 
+Gate 415: cx   	 Exec Time: 305 	 Qubit: 18 76 
+Gate 416: cx   	 Exec Time: 306 	 Qubit: 76 77 
+Gate 417: sd   	 Exec Time: 307 	 Qubit: 77 
+Gate 418: cx   	 Exec Time: 308 	 Qubit: 50 77 
+Gate 419: td   	 Exec Time: 309 	 Qubit: 77 
+Gate 420: cx   	 Exec Time: 310 	 Qubit: 76 77 
+Gate 421: cx   	 Exec Time: 311 	 Qubit: 50 77 
+Gate 422: s   	 Exec Time: 312 	 Qubit: 77 
+Gate 423: h   	 Exec Time: 313 	 Qubit: 77 
+Gate 424: cx   	 Exec Time: 314 	 Qubit: 77 49 
+Gate 425: cx   	 Exec Time: 312 	 Qubit: 50 76 
+Gate 426: s   	 Exec Time: 313 	 Qubit: 76 
+Gate 427: cx   	 Exec Time: 314 	 Qubit: 50 76 
+Gate 428: s   	 Exec Time: 315 	 Qubit: 76 
+Gate 429: z   	 Exec Time: 316 	 Qubit: 75 76 
+Gate 430: z   	 Exec Time: 315 	 Qubit: 49 78 
+Gate 431: h   	 Exec Time: 316 	 Qubit: 78 
+Gate 432: td   	 Exec Time: 317 	 Qubit: 78 
+Gate 433: cx   	 Exec Time: 318 	 Qubit: 49 78 
+Gate 434: sd   	 Exec Time: 319 	 Qubit: 78 
+Gate 435: cx   	 Exec Time: 320 	 Qubit: 17 78 
+Gate 436: cx   	 Exec Time: 321 	 Qubit: 77 78 
+Gate 437: sd   	 Exec Time: 322 	 Qubit: 78 
+Gate 438: cx   	 Exec Time: 323 	 Qubit: 17 78 
+Gate 439: t   	 Exec Time: 324 	 Qubit: 78 
+Gate 440: cx   	 Exec Time: 325 	 Qubit: 77 78 
+Gate 441: cx   	 Exec Time: 326 	 Qubit: 17 78 
+Gate 442: t   	 Exec Time: 327 	 Qubit: 78 
+Gate 443: cx   	 Exec Time: 328 	 Qubit: 77 78 
+Gate 444: cx   	 Exec Time: 329 	 Qubit: 49 78 
+Gate 445: td   	 Exec Time: 330 	 Qubit: 78 
+Gate 446: cx   	 Exec Time: 331 	 Qubit: 77 78 
+Gate 447: s   	 Exec Time: 332 	 Qubit: 78 
+Gate 448: cx   	 Exec Time: 333 	 Qubit: 49 78 
+Gate 449: s   	 Exec Time: 334 	 Qubit: 78 
+Gate 450: h   	 Exec Time: 335 	 Qubit: 78 
+Gate 451: cx   	 Exec Time: 336 	 Qubit: 78 48 
+Gate 452: z   	 Exec Time: 337 	 Qubit: 48 79 
+Gate 453: h   	 Exec Time: 338 	 Qubit: 79 
+Gate 454: td   	 Exec Time: 339 	 Qubit: 79 
+Gate 455: cx   	 Exec Time: 340 	 Qubit: 48 79 
+Gate 456: sd   	 Exec Time: 341 	 Qubit: 79 
+Gate 457: cx   	 Exec Time: 342 	 Qubit: 16 79 
+Gate 458: cx   	 Exec Time: 343 	 Qubit: 78 79 
+Gate 459: sd   	 Exec Time: 344 	 Qubit: 79 
+Gate 460: cx   	 Exec Time: 345 	 Qubit: 16 79 
+Gate 461: t   	 Exec Time: 346 	 Qubit: 79 
+Gate 462: cx   	 Exec Time: 347 	 Qubit: 78 79 
+Gate 463: cx   	 Exec Time: 348 	 Qubit: 16 79 
+Gate 464: t   	 Exec Time: 349 	 Qubit: 79 
+Gate 465: cx   	 Exec Time: 350 	 Qubit: 78 79 
+Gate 466: cx   	 Exec Time: 351 	 Qubit: 48 79 
+Gate 467: td   	 Exec Time: 352 	 Qubit: 79 
+Gate 468: cx   	 Exec Time: 353 	 Qubit: 78 79 
+Gate 469: s   	 Exec Time: 354 	 Qubit: 79 
+Gate 470: cx   	 Exec Time: 355 	 Qubit: 48 79 
+Gate 471: s   	 Exec Time: 356 	 Qubit: 79 
+Gate 472: h   	 Exec Time: 357 	 Qubit: 79 
+Gate 473: cx   	 Exec Time: 358 	 Qubit: 79 47 
+Gate 474: z   	 Exec Time: 359 	 Qubit: 47 80 
+Gate 475: h   	 Exec Time: 360 	 Qubit: 80 
+Gate 476: td   	 Exec Time: 361 	 Qubit: 80 
+Gate 477: cx   	 Exec Time: 362 	 Qubit: 47 80 
+Gate 478: sd   	 Exec Time: 363 	 Qubit: 80 
+Gate 479: cx   	 Exec Time: 364 	 Qubit: 15 80 
+Gate 480: t   	 Exec Time: 365 	 Qubit: 80 
+Gate 481: cx   	 Exec Time: 366 	 Qubit: 79 80 
+Gate 482: sd   	 Exec Time: 367 	 Qubit: 80 
+Gate 483: cx   	 Exec Time: 368 	 Qubit: 15 80 
+Gate 484: t   	 Exec Time: 369 	 Qubit: 80 
+Gate 485: cx   	 Exec Time: 370 	 Qubit: 15 80 
+Gate 486: cx   	 Exec Time: 371 	 Qubit: 15 47 
+Gate 487: s   	 Exec Time: 372 	 Qubit: 47 
+Gate 488: cx   	 Exec Time: 373 	 Qubit: 15 47 
+Gate 489: cx   	 Exec Time: 374 	 Qubit: 47 80 
+Gate 490: td   	 Exec Time: 375 	 Qubit: 80 
+Gate 491: cx   	 Exec Time: 376 	 Qubit: 79 80 
+Gate 492: s   	 Exec Time: 377 	 Qubit: 80 
+Gate 493: cx   	 Exec Time: 378 	 Qubit: 47 80 
+Gate 494: s   	 Exec Time: 379 	 Qubit: 80 
+Gate 495: h   	 Exec Time: 380 	 Qubit: 80 
+Gate 496: cx   	 Exec Time: 381 	 Qubit: 80 46 
+Gate 497: s   	 Exec Time: 382 	 Qubit: 80 
+Gate 498: z   	 Exec Time: 382 	 Qubit: 46 81 
+Gate 499: h   	 Exec Time: 383 	 Qubit: 81 
+Gate 500: td   	 Exec Time: 384 	 Qubit: 81 
+Gate 501: cx   	 Exec Time: 385 	 Qubit: 46 81 
+Gate 502: cx   	 Exec Time: 386 	 Qubit: 14 81 
+Gate 503: t   	 Exec Time: 387 	 Qubit: 81 
+Gate 504: cx   	 Exec Time: 388 	 Qubit: 80 81 
+Gate 505: cx   	 Exec Time: 389 	 Qubit: 14 81 
+Gate 506: t   	 Exec Time: 390 	 Qubit: 81 
+Gate 507: cx   	 Exec Time: 391 	 Qubit: 80 81 
+Gate 508: sd   	 Exec Time: 392 	 Qubit: 81 
+Gate 509: cx   	 Exec Time: 393 	 Qubit: 14 81 
+Gate 510: cx   	 Exec Time: 394 	 Qubit: 80 81 
+Gate 511: sd   	 Exec Time: 395 	 Qubit: 81 
+Gate 512: cx   	 Exec Time: 396 	 Qubit: 46 81 
+Gate 513: td   	 Exec Time: 397 	 Qubit: 81 
+Gate 514: cx   	 Exec Time: 398 	 Qubit: 80 81 
+Gate 515: s   	 Exec Time: 399 	 Qubit: 81 
+Gate 516: cx   	 Exec Time: 400 	 Qubit: 46 81 
+Gate 517: s   	 Exec Time: 401 	 Qubit: 81 
+Gate 518: h   	 Exec Time: 402 	 Qubit: 81 
+Gate 519: cx   	 Exec Time: 403 	 Qubit: 81 45 
+Gate 520: s   	 Exec Time: 404 	 Qubit: 81 
+Gate 521: cx   	 Exec Time: 401 	 Qubit: 46 80 
+Gate 522: s   	 Exec Time: 402 	 Qubit: 80 
+Gate 523: cx   	 Exec Time: 403 	 Qubit: 46 80 
+Gate 524: s   	 Exec Time: 404 	 Qubit: 80 
+Gate 525: z   	 Exec Time: 404 	 Qubit: 45 82 
+Gate 526: h   	 Exec Time: 405 	 Qubit: 82 
+Gate 527: s   	 Exec Time: 406 	 Qubit: 82 
+Gate 528: cx   	 Exec Time: 407 	 Qubit: 13 82 
+Gate 529: td   	 Exec Time: 408 	 Qubit: 82 
+Gate 530: cx   	 Exec Time: 409 	 Qubit: 45 82 
+Gate 531: cx   	 Exec Time: 410 	 Qubit: 81 82 
+Gate 532: t   	 Exec Time: 411 	 Qubit: 82 
+Gate 533: cx   	 Exec Time: 412 	 Qubit: 81 82 
+Gate 534: sd   	 Exec Time: 413 	 Qubit: 82 
+Gate 535: cx   	 Exec Time: 414 	 Qubit: 13 82 
+Gate 536: s   	 Exec Time: 415 	 Qubit: 82 
+Gate 537: cx   	 Exec Time: 415 	 Qubit: 13 45 
+Gate 538: sd   	 Exec Time: 416 	 Qubit: 45 
+Gate 539: cx   	 Exec Time: 417 	 Qubit: 13 45 
+Gate 540: cx   	 Exec Time: 418 	 Qubit: 13 81 
+Gate 541: sd   	 Exec Time: 419 	 Qubit: 81 
+Gate 542: cx   	 Exec Time: 420 	 Qubit: 13 81 
+Gate 543: cx   	 Exec Time: 421 	 Qubit: 81 82 
+Gate 544: sd   	 Exec Time: 422 	 Qubit: 82 
+Gate 545: cx   	 Exec Time: 423 	 Qubit: 45 82 
+Gate 546: td   	 Exec Time: 424 	 Qubit: 82 
+Gate 547: cx   	 Exec Time: 425 	 Qubit: 81 82 
+Gate 548: cx   	 Exec Time: 426 	 Qubit: 45 82 
+Gate 549: t   	 Exec Time: 427 	 Qubit: 82 
+Gate 550: h   	 Exec Time: 428 	 Qubit: 82 
+Gate 551: cx   	 Exec Time: 429 	 Qubit: 82 44 
+Gate 552: cx   	 Exec Time: 427 	 Qubit: 45 81 
+Gate 553: s   	 Exec Time: 428 	 Qubit: 81 
+Gate 554: cx   	 Exec Time: 429 	 Qubit: 45 81 
+Gate 555: s   	 Exec Time: 430 	 Qubit: 81 
+Gate 556: z   	 Exec Time: 431 	 Qubit: 80 81 
+Gate 557: z   	 Exec Time: 430 	 Qubit: 44 83 
+Gate 558: h   	 Exec Time: 431 	 Qubit: 83 
+Gate 559: s   	 Exec Time: 432 	 Qubit: 83 
+Gate 560: cx   	 Exec Time: 433 	 Qubit: 12 83 
+Gate 561: td   	 Exec Time: 434 	 Qubit: 83 
+Gate 562: cx   	 Exec Time: 435 	 Qubit: 44 83 
+Gate 563: cx   	 Exec Time: 436 	 Qubit: 12 83 
+Gate 564: s   	 Exec Time: 437 	 Qubit: 83 
+Gate 565: cx   	 Exec Time: 438 	 Qubit: 82 83 
+Gate 566: cx   	 Exec Time: 439 	 Qubit: 12 83 
+Gate 567: t   	 Exec Time: 440 	 Qubit: 83 
+Gate 568: cx   	 Exec Time: 441 	 Qubit: 82 83 
+Gate 569: sd   	 Exec Time: 442 	 Qubit: 83 
+Gate 570: cx   	 Exec Time: 443 	 Qubit: 12 83 
+Gate 571: cx   	 Exec Time: 444 	 Qubit: 82 83 
+Gate 572: sd   	 Exec Time: 445 	 Qubit: 83 
+Gate 573: cx   	 Exec Time: 444 	 Qubit: 12 44 
+Gate 574: s   	 Exec Time: 445 	 Qubit: 44 
+Gate 575: cx   	 Exec Time: 446 	 Qubit: 12 44 
+Gate 576: cx   	 Exec Time: 447 	 Qubit: 44 83 
+Gate 577: td   	 Exec Time: 448 	 Qubit: 83 
+Gate 578: cx   	 Exec Time: 449 	 Qubit: 82 83 
+Gate 579: cx   	 Exec Time: 450 	 Qubit: 44 83 
+Gate 580: t   	 Exec Time: 451 	 Qubit: 83 
+Gate 581: h   	 Exec Time: 452 	 Qubit: 83 
+Gate 582: cx   	 Exec Time: 453 	 Qubit: 83 43 
+Gate 583: z   	 Exec Time: 454 	 Qubit: 43 84 
+Gate 584: h   	 Exec Time: 455 	 Qubit: 84 
+Gate 585: td   	 Exec Time: 456 	 Qubit: 84 
+Gate 586: cx   	 Exec Time: 457 	 Qubit: 43 84 
+Gate 587: sd   	 Exec Time: 458 	 Qubit: 84 
+Gate 588: cx   	 Exec Time: 459 	 Qubit: 11 84 
+Gate 589: s   	 Exec Time: 460 	 Qubit: 84 
+Gate 590: cx   	 Exec Time: 461 	 Qubit: 83 84 
+Gate 591: sd   	 Exec Time: 462 	 Qubit: 84 
+Gate 592: cx   	 Exec Time: 463 	 Qubit: 11 84 
+Gate 593: t   	 Exec Time: 464 	 Qubit: 84 
+Gate 594: cx   	 Exec Time: 465 	 Qubit: 11 84 
+Gate 595: cx   	 Exec Time: 466 	 Qubit: 11 43 
+Gate 596: s   	 Exec Time: 467 	 Qubit: 43 
+Gate 597: cx   	 Exec Time: 468 	 Qubit: 11 43 
+Gate 598: cx   	 Exec Time: 469 	 Qubit: 43 84 
+Gate 599: td   	 Exec Time: 470 	 Qubit: 84 
+Gate 600: cx   	 Exec Time: 471 	 Qubit: 83 84 
+Gate 601: s   	 Exec Time: 472 	 Qubit: 84 
+Gate 602: cx   	 Exec Time: 473 	 Qubit: 43 84 
+Gate 603: t   	 Exec Time: 474 	 Qubit: 84 
+Gate 604: h   	 Exec Time: 475 	 Qubit: 84 
+Gate 605: cx   	 Exec Time: 476 	 Qubit: 84 42 
+Gate 606: z   	 Exec Time: 477 	 Qubit: 42 85 
+Gate 607: h   	 Exec Time: 478 	 Qubit: 85 
+Gate 608: s   	 Exec Time: 479 	 Qubit: 85 
+Gate 609: cx   	 Exec Time: 480 	 Qubit: 10 85 
+Gate 610: td   	 Exec Time: 481 	 Qubit: 85 
+Gate 611: cx   	 Exec Time: 482 	 Qubit: 84 85 
+Gate 612: cx   	 Exec Time: 483 	 Qubit: 42 85 
+Gate 613: t   	 Exec Time: 484 	 Qubit: 85 
+Gate 614: cx   	 Exec Time: 485 	 Qubit: 84 85 
+Gate 615: sd   	 Exec Time: 486 	 Qubit: 85 
+Gate 616: cx   	 Exec Time: 487 	 Qubit: 10 85 
+Gate 617: t   	 Exec Time: 488 	 Qubit: 85 
+Gate 618: cx   	 Exec Time: 488 	 Qubit: 10 42 
+Gate 619: sd   	 Exec Time: 489 	 Qubit: 42 
+Gate 620: cx   	 Exec Time: 490 	 Qubit: 10 42 
+Gate 621: cx   	 Exec Time: 491 	 Qubit: 10 84 
+Gate 622: sd   	 Exec Time: 492 	 Qubit: 84 
+Gate 623: cx   	 Exec Time: 493 	 Qubit: 10 84 
+Gate 624: s   	 Exec Time: 494 	 Qubit: 84 
+Gate 625: cx   	 Exec Time: 495 	 Qubit: 84 85 
+Gate 626: sd   	 Exec Time: 496 	 Qubit: 85 
+Gate 627: cx   	 Exec Time: 497 	 Qubit: 42 85 
+Gate 628: td   	 Exec Time: 498 	 Qubit: 85 
+Gate 629: cx   	 Exec Time: 499 	 Qubit: 84 85 
+Gate 630: cx   	 Exec Time: 500 	 Qubit: 42 85 
+Gate 631: s   	 Exec Time: 501 	 Qubit: 85 
+Gate 632: h   	 Exec Time: 502 	 Qubit: 85 
+Gate 633: cx   	 Exec Time: 503 	 Qubit: 85 41 
+Gate 634: z   	 Exec Time: 504 	 Qubit: 41 86 
+Gate 635: h   	 Exec Time: 505 	 Qubit: 86 
+Gate 636: s   	 Exec Time: 506 	 Qubit: 86 
+Gate 637: cx   	 Exec Time: 507 	 Qubit: 9 86 
+Gate 638: td   	 Exec Time: 508 	 Qubit: 86 
+Gate 639: cx   	 Exec Time: 509 	 Qubit: 41 86 
+Gate 640: sd   	 Exec Time: 510 	 Qubit: 86 
+Gate 641: cx   	 Exec Time: 511 	 Qubit: 9 86 
+Gate 642: t   	 Exec Time: 512 	 Qubit: 86 
+Gate 643: cx   	 Exec Time: 513 	 Qubit: 85 86 
+Gate 644: sd   	 Exec Time: 514 	 Qubit: 86 
+Gate 645: cx   	 Exec Time: 515 	 Qubit: 9 86 
+Gate 646: t   	 Exec Time: 516 	 Qubit: 86 
+Gate 647: cx   	 Exec Time: 517 	 Qubit: 9 86 
+Gate 648: cx   	 Exec Time: 518 	 Qubit: 9 41 
+Gate 649: s   	 Exec Time: 519 	 Qubit: 41 
+Gate 650: cx   	 Exec Time: 520 	 Qubit: 9 41 
+Gate 651: cx   	 Exec Time: 521 	 Qubit: 41 86 
+Gate 652: td   	 Exec Time: 522 	 Qubit: 86 
+Gate 653: cx   	 Exec Time: 523 	 Qubit: 85 86 
+Gate 654: cx   	 Exec Time: 524 	 Qubit: 41 86 
+Gate 655: s   	 Exec Time: 525 	 Qubit: 86 
+Gate 656: h   	 Exec Time: 526 	 Qubit: 86 
+Gate 657: cx   	 Exec Time: 527 	 Qubit: 86 40 
+Gate 658: cx   	 Exec Time: 525 	 Qubit: 41 85 
+Gate 659: sd   	 Exec Time: 526 	 Qubit: 85 
+Gate 660: cx   	 Exec Time: 527 	 Qubit: 41 85 
+Gate 661: z   	 Exec Time: 528 	 Qubit: 40 87 
+Gate 662: h   	 Exec Time: 529 	 Qubit: 87 
+Gate 663: td   	 Exec Time: 530 	 Qubit: 87 
+Gate 664: cx   	 Exec Time: 531 	 Qubit: 40 87 
+Gate 665: sd   	 Exec Time: 532 	 Qubit: 87 
+Gate 666: cx   	 Exec Time: 533 	 Qubit: 86 87 
+Gate 667: t   	 Exec Time: 534 	 Qubit: 87 
+Gate 668: cx   	 Exec Time: 535 	 Qubit: 86 87 
+Gate 669: cx   	 Exec Time: 536 	 Qubit: 8 87 
+Gate 670: s   	 Exec Time: 537 	 Qubit: 87 
+Gate 671: cx   	 Exec Time: 537 	 Qubit: 8 40 
+Gate 672: sd   	 Exec Time: 538 	 Qubit: 40 
+Gate 673: cx   	 Exec Time: 539 	 Qubit: 8 40 
+Gate 674: cx   	 Exec Time: 540 	 Qubit: 8 86 
+Gate 675: sd   	 Exec Time: 541 	 Qubit: 86 
+Gate 676: cx   	 Exec Time: 542 	 Qubit: 8 86 
+Gate 677: s   	 Exec Time: 543 	 Qubit: 86 
+Gate 678: cx   	 Exec Time: 544 	 Qubit: 86 87 
+Gate 679: sd   	 Exec Time: 545 	 Qubit: 87 
+Gate 680: cx   	 Exec Time: 546 	 Qubit: 40 87 
+Gate 681: td   	 Exec Time: 547 	 Qubit: 87 
+Gate 682: cx   	 Exec Time: 548 	 Qubit: 86 87 
+Gate 683: s   	 Exec Time: 549 	 Qubit: 87 
+Gate 684: cx   	 Exec Time: 550 	 Qubit: 40 87 
+Gate 685: t   	 Exec Time: 551 	 Qubit: 87 
+Gate 686: h   	 Exec Time: 552 	 Qubit: 87 
+Gate 687: cx   	 Exec Time: 553 	 Qubit: 87 39 
+Gate 688: cx   	 Exec Time: 551 	 Qubit: 40 86 
+Gate 689: s   	 Exec Time: 552 	 Qubit: 86 
+Gate 690: cx   	 Exec Time: 553 	 Qubit: 40 86 
+Gate 691: s   	 Exec Time: 554 	 Qubit: 86 
+Gate 692: z   	 Exec Time: 555 	 Qubit: 85 86 
+Gate 693: z   	 Exec Time: 556 	 Qubit: 41 86 
+Gate 694: z   	 Exec Time: 554 	 Qubit: 39 88 
+Gate 695: h   	 Exec Time: 555 	 Qubit: 88 
+Gate 696: s   	 Exec Time: 556 	 Qubit: 88 
+Gate 697: cx   	 Exec Time: 557 	 Qubit: 7 88 
+Gate 698: td   	 Exec Time: 558 	 Qubit: 88 
+Gate 699: cx   	 Exec Time: 559 	 Qubit: 39 88 
+Gate 700: sd   	 Exec Time: 560 	 Qubit: 88 
+Gate 701: cx   	 Exec Time: 561 	 Qubit: 7 88 
+Gate 702: t   	 Exec Time: 562 	 Qubit: 88 
+Gate 703: cx   	 Exec Time: 563 	 Qubit: 87 88 
+Gate 704: cx   	 Exec Time: 564 	 Qubit: 7 88 
+Gate 705: t   	 Exec Time: 565 	 Qubit: 88 
+Gate 706: cx   	 Exec Time: 566 	 Qubit: 7 88 
+Gate 707: sd   	 Exec Time: 567 	 Qubit: 88 
+Gate 708: cx   	 Exec Time: 567 	 Qubit: 7 39 
+Gate 709: s   	 Exec Time: 568 	 Qubit: 39 
+Gate 710: cx   	 Exec Time: 569 	 Qubit: 7 39 
+Gate 711: cx   	 Exec Time: 570 	 Qubit: 39 88 
+Gate 712: td   	 Exec Time: 571 	 Qubit: 88 
+Gate 713: cx   	 Exec Time: 572 	 Qubit: 87 88 
+Gate 714: cx   	 Exec Time: 573 	 Qubit: 39 88 
+Gate 715: s   	 Exec Time: 574 	 Qubit: 88 
+Gate 716: h   	 Exec Time: 575 	 Qubit: 88 
+Gate 717: cx   	 Exec Time: 576 	 Qubit: 88 38 
+Gate 718: cx   	 Exec Time: 574 	 Qubit: 39 87 
+Gate 719: sd   	 Exec Time: 575 	 Qubit: 87 
+Gate 720: cx   	 Exec Time: 576 	 Qubit: 39 87 
+Gate 721: z   	 Exec Time: 577 	 Qubit: 38 89 
+Gate 722: h   	 Exec Time: 578 	 Qubit: 89 
+Gate 723: td   	 Exec Time: 579 	 Qubit: 89 
+Gate 724: cx   	 Exec Time: 580 	 Qubit: 38 89 
+Gate 725: sd   	 Exec Time: 581 	 Qubit: 89 
+Gate 726: cx   	 Exec Time: 582 	 Qubit: 6 89 
+Gate 727: cx   	 Exec Time: 583 	 Qubit: 88 89 
+Gate 728: sd   	 Exec Time: 584 	 Qubit: 89 
+Gate 729: cx   	 Exec Time: 585 	 Qubit: 6 89 
+Gate 730: t   	 Exec Time: 586 	 Qubit: 89 
+Gate 731: cx   	 Exec Time: 587 	 Qubit: 88 89 
+Gate 732: cx   	 Exec Time: 588 	 Qubit: 6 89 
+Gate 733: s   	 Exec Time: 589 	 Qubit: 89 
+Gate 734: cx   	 Exec Time: 590 	 Qubit: 88 89 
+Gate 735: cx   	 Exec Time: 589 	 Qubit: 6 38 
+Gate 736: s   	 Exec Time: 590 	 Qubit: 38 
+Gate 737: cx   	 Exec Time: 591 	 Qubit: 6 38 
+Gate 738: cx   	 Exec Time: 592 	 Qubit: 38 89 
+Gate 739: td   	 Exec Time: 593 	 Qubit: 89 
+Gate 740: cx   	 Exec Time: 594 	 Qubit: 88 89 
+Gate 741: s   	 Exec Time: 595 	 Qubit: 89 
+Gate 742: cx   	 Exec Time: 596 	 Qubit: 38 89 
+Gate 743: t   	 Exec Time: 597 	 Qubit: 89 
+Gate 744: h   	 Exec Time: 598 	 Qubit: 89 
+Gate 745: cx   	 Exec Time: 599 	 Qubit: 89 37 
+Gate 746: s   	 Exec Time: 600 	 Qubit: 89 
+Gate 747: z   	 Exec Time: 600 	 Qubit: 37 90 
+Gate 748: h   	 Exec Time: 601 	 Qubit: 90 
+Gate 749: s   	 Exec Time: 602 	 Qubit: 90 
+Gate 750: cx   	 Exec Time: 603 	 Qubit: 5 90 
+Gate 751: z   	 Exec Time: 604 	 Qubit: 90 
+Gate 752: t   	 Exec Time: 605 	 Qubit: 90 
+Gate 753: h   	 Exec Time: 606 	 Qubit: 90 
+Gate 754: sd   	 Exec Time: 607 	 Qubit: 90 
+Gate 755: cx   	 Exec Time: 608 	 Qubit: 37 90 
+Gate 756: s   	 Exec Time: 609 	 Qubit: 90 
+Gate 757: z   	 Exec Time: 610 	 Qubit: 5 90 
+Gate 758: z   	 Exec Time: 611 	 Qubit: 89 90 
+Gate 759: h   	 Exec Time: 612 	 Qubit: 90 
+Gate 760: sd   	 Exec Time: 613 	 Qubit: 90 
+Gate 761: cx   	 Exec Time: 614 	 Qubit: 5 90 
+Gate 762: t   	 Exec Time: 615 	 Qubit: 90 
+Gate 763: cx   	 Exec Time: 616 	 Qubit: 89 90 
+Gate 764: cx   	 Exec Time: 617 	 Qubit: 5 90 
+Gate 765: t   	 Exec Time: 618 	 Qubit: 90 
+Gate 766: cx   	 Exec Time: 619 	 Qubit: 89 90 
+Gate 767: cx   	 Exec Time: 620 	 Qubit: 37 90 
+Gate 768: td   	 Exec Time: 621 	 Qubit: 90 
+Gate 769: cx   	 Exec Time: 622 	 Qubit: 89 90 
+Gate 770: cx   	 Exec Time: 623 	 Qubit: 37 90 
+Gate 771: s   	 Exec Time: 624 	 Qubit: 90 
+Gate 772: h   	 Exec Time: 625 	 Qubit: 90 
+Gate 773: cx   	 Exec Time: 626 	 Qubit: 90 36 
+Gate 774: s   	 Exec Time: 627 	 Qubit: 90 
+Gate 775: z   	 Exec Time: 627 	 Qubit: 36 91 
+Gate 776: h   	 Exec Time: 628 	 Qubit: 91 
+Gate 777: td   	 Exec Time: 629 	 Qubit: 91 
+Gate 778: cx   	 Exec Time: 630 	 Qubit: 36 91 
+Gate 779: cx   	 Exec Time: 631 	 Qubit: 4 91 
+Gate 780: cx   	 Exec Time: 632 	 Qubit: 90 91 
+Gate 781: sd   	 Exec Time: 633 	 Qubit: 91 
+Gate 782: cx   	 Exec Time: 634 	 Qubit: 4 91 
+Gate 783: t   	 Exec Time: 635 	 Qubit: 91 
+Gate 784: cx   	 Exec Time: 636 	 Qubit: 90 91 
+Gate 785: sd   	 Exec Time: 637 	 Qubit: 91 
+Gate 786: cx   	 Exec Time: 638 	 Qubit: 4 91 
+Gate 787: t   	 Exec Time: 639 	 Qubit: 91 
+Gate 788: cx   	 Exec Time: 640 	 Qubit: 90 91 
+Gate 789: cx   	 Exec Time: 639 	 Qubit: 4 36 
+Gate 790: sd   	 Exec Time: 640 	 Qubit: 36 
+Gate 791: cx   	 Exec Time: 641 	 Qubit: 4 36 
+Gate 792: cx   	 Exec Time: 642 	 Qubit: 36 91 
+Gate 793: td   	 Exec Time: 643 	 Qubit: 91 
+Gate 794: cx   	 Exec Time: 644 	 Qubit: 90 91 
+Gate 795: s   	 Exec Time: 645 	 Qubit: 91 
+Gate 796: cx   	 Exec Time: 646 	 Qubit: 36 91 
+Gate 797: s   	 Exec Time: 647 	 Qubit: 91 
+Gate 798: h   	 Exec Time: 648 	 Qubit: 91 
+Gate 799: cx   	 Exec Time: 649 	 Qubit: 91 35 
+Gate 800: z   	 Exec Time: 650 	 Qubit: 35 92 
+Gate 801: h   	 Exec Time: 651 	 Qubit: 92 
+Gate 802: s   	 Exec Time: 652 	 Qubit: 92 
+Gate 803: cx   	 Exec Time: 653 	 Qubit: 3 92 
+Gate 804: td   	 Exec Time: 654 	 Qubit: 92 
+Gate 805: cx   	 Exec Time: 655 	 Qubit: 35 92 
+Gate 806: sd   	 Exec Time: 656 	 Qubit: 92 
+Gate 807: cx   	 Exec Time: 657 	 Qubit: 91 92 
+Gate 808: t   	 Exec Time: 658 	 Qubit: 92 
+Gate 809: cx   	 Exec Time: 659 	 Qubit: 91 92 
+Gate 810: cx   	 Exec Time: 660 	 Qubit: 3 92 
+Gate 811: t   	 Exec Time: 661 	 Qubit: 92 
+Gate 812: cx   	 Exec Time: 662 	 Qubit: 91 92 
+Gate 813: sd   	 Exec Time: 663 	 Qubit: 92 
+Gate 814: cx   	 Exec Time: 664 	 Qubit: 35 92 
+Gate 815: td   	 Exec Time: 665 	 Qubit: 92 
+Gate 816: cx   	 Exec Time: 666 	 Qubit: 91 92 
+Gate 817: cx   	 Exec Time: 667 	 Qubit: 35 92 
+Gate 818: s   	 Exec Time: 668 	 Qubit: 92 
+Gate 819: h   	 Exec Time: 669 	 Qubit: 92 
+Gate 820: cx   	 Exec Time: 670 	 Qubit: 92 34 
+Gate 821: s   	 Exec Time: 671 	 Qubit: 92 
+Gate 822: cx   	 Exec Time: 668 	 Qubit: 35 91 
+Gate 823: sd   	 Exec Time: 669 	 Qubit: 91 
+Gate 824: cx   	 Exec Time: 670 	 Qubit: 35 91 
+Gate 825: z   	 Exec Time: 671 	 Qubit: 34 93 
+Gate 826: h   	 Exec Time: 672 	 Qubit: 93 
+Gate 827: s   	 Exec Time: 673 	 Qubit: 93 
+Gate 828: cx   	 Exec Time: 674 	 Qubit: 2 93 
+Gate 829: td   	 Exec Time: 675 	 Qubit: 93 
+Gate 830: cx   	 Exec Time: 676 	 Qubit: 34 93 
+Gate 831: sd   	 Exec Time: 677 	 Qubit: 93 
+Gate 832: cx   	 Exec Time: 678 	 Qubit: 2 93 
+Gate 833: t   	 Exec Time: 679 	 Qubit: 93 
+Gate 834: cx   	 Exec Time: 680 	 Qubit: 92 93 
+Gate 835: cx   	 Exec Time: 681 	 Qubit: 2 93 
+Gate 836: t   	 Exec Time: 682 	 Qubit: 93 
+Gate 837: cx   	 Exec Time: 683 	 Qubit: 92 93 
+Gate 838: cx   	 Exec Time: 684 	 Qubit: 2 93 
+Gate 839: cx   	 Exec Time: 685 	 Qubit: 2 34 
+Gate 840: sd   	 Exec Time: 686 	 Qubit: 34 
+Gate 841: cx   	 Exec Time: 687 	 Qubit: 2 34 
+Gate 842: cx   	 Exec Time: 688 	 Qubit: 2 92 
+Gate 843: sd   	 Exec Time: 689 	 Qubit: 92 
+Gate 844: cx   	 Exec Time: 690 	 Qubit: 2 92 
+Gate 845: cx   	 Exec Time: 691 	 Qubit: 92 93 
+Gate 846: sd   	 Exec Time: 692 	 Qubit: 93 
+Gate 847: cx   	 Exec Time: 693 	 Qubit: 34 93 
+Gate 848: td   	 Exec Time: 694 	 Qubit: 93 
+Gate 849: cx   	 Exec Time: 695 	 Qubit: 92 93 
+Gate 850: cx   	 Exec Time: 696 	 Qubit: 34 93 
+Gate 851: s   	 Exec Time: 697 	 Qubit: 93 
+Gate 852: h   	 Exec Time: 698 	 Qubit: 93 
+Gate 853: cx   	 Exec Time: 699 	 Qubit: 93 33 
+Gate 854: z   	 Exec Time: 700 	 Qubit: 33 94 
+Gate 855: h   	 Exec Time: 701 	 Qubit: 94 
+Gate 856: td   	 Exec Time: 702 	 Qubit: 94 
+Gate 857: cx   	 Exec Time: 703 	 Qubit: 1 94 
+Gate 858: cx   	 Exec Time: 704 	 Qubit: 33 94 
+Gate 859: t   	 Exec Time: 705 	 Qubit: 94 
+Gate 860: cx   	 Exec Time: 706 	 Qubit: 93 94 
+Gate 861: cx   	 Exec Time: 707 	 Qubit: 1 94 
+Gate 862: t   	 Exec Time: 708 	 Qubit: 94 
+Gate 863: cx   	 Exec Time: 709 	 Qubit: 93 94 
+Gate 864: sd   	 Exec Time: 710 	 Qubit: 94 
+Gate 865: cx   	 Exec Time: 711 	 Qubit: 1 94 
+Gate 866: cx   	 Exec Time: 712 	 Qubit: 93 94 
+Gate 867: sd   	 Exec Time: 713 	 Qubit: 94 
+Gate 868: cx   	 Exec Time: 714 	 Qubit: 33 94 
+Gate 869: td   	 Exec Time: 715 	 Qubit: 94 
+Gate 870: cx   	 Exec Time: 716 	 Qubit: 93 94 
+Gate 871: s   	 Exec Time: 717 	 Qubit: 94 
+Gate 872: cx   	 Exec Time: 718 	 Qubit: 33 94 
+Gate 873: s   	 Exec Time: 719 	 Qubit: 94 
+Gate 874: h   	 Exec Time: 720 	 Qubit: 94 
+Gate 875: z   	 Exec Time: 721 	 Qubit: 32 94 
+Gate 876: z   	 Exec Time: 722 	 Qubit: 93 94 
+Gate 877: z   	 Exec Time: 723 	 Qubit: 33 94 
+Gate 878: h   	 Exec Time: 724 	 Qubit: 94 
+Gate 879: td   	 Exec Time: 725 	 Qubit: 94 
+Gate 880: cx   	 Exec Time: 726 	 Qubit: 93 94 
+Gate 881: s   	 Exec Time: 727 	 Qubit: 94 
+Gate 882: cx   	 Exec Time: 728 	 Qubit: 33 94 
+Gate 883: h   	 Exec Time: 722 	 Qubit: 32 
+Gate 884: cx   	 Exec Time: 729 	 Qubit: 33 93 
+Gate 885: sd   	 Exec Time: 730 	 Qubit: 93 
+Gate 886: cx   	 Exec Time: 731 	 Qubit: 33 93 
+Gate 887: cx   	 Exec Time: 732 	 Qubit: 93 94 
+Gate 888: sd   	 Exec Time: 733 	 Qubit: 94 
+Gate 889: cx   	 Exec Time: 734 	 Qubit: 1 94 
+Gate 890: t   	 Exec Time: 735 	 Qubit: 94 
+Gate 891: cx   	 Exec Time: 736 	 Qubit: 93 94 
+Gate 892: sd   	 Exec Time: 737 	 Qubit: 94 
+Gate 893: cx   	 Exec Time: 738 	 Qubit: 1 94 
+Gate 894: t   	 Exec Time: 739 	 Qubit: 94 
+Gate 895: cx   	 Exec Time: 740 	 Qubit: 33 94 
+Gate 896: cx   	 Exec Time: 741 	 Qubit: 1 94 
+Gate 897: td   	 Exec Time: 742 	 Qubit: 94 
+Gate 898: cx   	 Exec Time: 743 	 Qubit: 33 94 
+Gate 899: cx   	 Exec Time: 744 	 Qubit: 1 94 
+Gate 900: s   	 Exec Time: 745 	 Qubit: 94 
+Gate 901: h   	 Exec Time: 746 	 Qubit: 94 
+Gate 902: cx   	 Exec Time: 745 	 Qubit: 1 33 
+Gate 903: s   	 Exec Time: 746 	 Qubit: 33 
+Gate 904: cx   	 Exec Time: 747 	 Qubit: 1 33 
+Gate 905: cx   	 Exec Time: 748 	 Qubit: 1 93 
+Gate 906: sd   	 Exec Time: 749 	 Qubit: 93 
+Gate 907: cx   	 Exec Time: 750 	 Qubit: 1 93 
+Gate 908: z   	 Exec Time: 751 	 Qubit: 92 93 
+Gate 909: h   	 Exec Time: 752 	 Qubit: 93 
+Gate 910: sd   	 Exec Time: 753 	 Qubit: 93 
+Gate 911: cx   	 Exec Time: 754 	 Qubit: 34 93 
+Gate 912: td   	 Exec Time: 755 	 Qubit: 93 
+Gate 913: cx   	 Exec Time: 756 	 Qubit: 92 93 
+Gate 914: cx   	 Exec Time: 757 	 Qubit: 34 93 
+Gate 915: t   	 Exec Time: 758 	 Qubit: 93 
+Gate 916: cx   	 Exec Time: 759 	 Qubit: 2 93 
+Gate 917: cx   	 Exec Time: 758 	 Qubit: 34 92 
+Gate 918: s   	 Exec Time: 759 	 Qubit: 92 
+Gate 919: cx   	 Exec Time: 760 	 Qubit: 34 92 
+Gate 920: s   	 Exec Time: 761 	 Qubit: 92 
+Gate 921: z   	 Exec Time: 762 	 Qubit: 91 92 
+Gate 922: cx   	 Exec Time: 763 	 Qubit: 92 93 
+Gate 923: t   	 Exec Time: 764 	 Qubit: 93 
+Gate 924: cx   	 Exec Time: 765 	 Qubit: 92 93 
+Gate 925: sd   	 Exec Time: 766 	 Qubit: 93 
+Gate 926: cx   	 Exec Time: 767 	 Qubit: 2 93 
+Gate 927: cx   	 Exec Time: 768 	 Qubit: 34 93 
+Gate 928: s   	 Exec Time: 769 	 Qubit: 93 
+Gate 929: cx   	 Exec Time: 770 	 Qubit: 2 93 
+Gate 930: td   	 Exec Time: 771 	 Qubit: 93 
+Gate 931: cx   	 Exec Time: 772 	 Qubit: 34 93 
+Gate 932: cx   	 Exec Time: 773 	 Qubit: 2 93 
+Gate 933: s   	 Exec Time: 774 	 Qubit: 93 
+Gate 934: h   	 Exec Time: 775 	 Qubit: 93 
+Gate 935: h   	 Exec Time: 766 	 Qubit: 92 
+Gate 936: sd   	 Exec Time: 767 	 Qubit: 92 
+Gate 937: cx   	 Exec Time: 768 	 Qubit: 35 92 
+Gate 938: td   	 Exec Time: 769 	 Qubit: 92 
+Gate 939: cx   	 Exec Time: 770 	 Qubit: 91 92 
+Gate 940: cx   	 Exec Time: 771 	 Qubit: 35 92 
+Gate 941: t   	 Exec Time: 772 	 Qubit: 92 
+Gate 942: cx   	 Exec Time: 773 	 Qubit: 91 92 
+Gate 943: cx   	 Exec Time: 774 	 Qubit: 3 92 
+Gate 944: t   	 Exec Time: 775 	 Qubit: 92 
+Gate 945: cx   	 Exec Time: 776 	 Qubit: 91 92 
+Gate 946: sd   	 Exec Time: 777 	 Qubit: 92 
+Gate 947: cx   	 Exec Time: 778 	 Qubit: 3 92 
+Gate 948: cx   	 Exec Time: 779 	 Qubit: 35 92 
+Gate 949: s   	 Exec Time: 780 	 Qubit: 92 
+Gate 950: cx   	 Exec Time: 781 	 Qubit: 3 92 
+Gate 951: td   	 Exec Time: 782 	 Qubit: 92 
+Gate 952: cx   	 Exec Time: 783 	 Qubit: 35 92 
+Gate 953: cx   	 Exec Time: 784 	 Qubit: 3 92 
+Gate 954: s   	 Exec Time: 785 	 Qubit: 92 
+Gate 955: h   	 Exec Time: 786 	 Qubit: 92 
+Gate 956: cx   	 Exec Time: 785 	 Qubit: 3 35 
+Gate 957: s   	 Exec Time: 786 	 Qubit: 35 
+Gate 958: cx   	 Exec Time: 787 	 Qubit: 3 35 
+Gate 959: cx   	 Exec Time: 788 	 Qubit: 3 91 
+Gate 960: sd   	 Exec Time: 789 	 Qubit: 91 
+Gate 961: cx   	 Exec Time: 790 	 Qubit: 3 91 
+Gate 962: z   	 Exec Time: 791 	 Qubit: 90 91 
+Gate 963: z   	 Exec Time: 792 	 Qubit: 36 91 
+Gate 964: h   	 Exec Time: 793 	 Qubit: 91 
+Gate 965: td   	 Exec Time: 794 	 Qubit: 91 
+Gate 966: cx   	 Exec Time: 795 	 Qubit: 90 91 
+Gate 967: cx   	 Exec Time: 796 	 Qubit: 36 91 
+Gate 968: t   	 Exec Time: 797 	 Qubit: 91 
+Gate 969: cx   	 Exec Time: 797 	 Qubit: 36 90 
+Gate 970: s   	 Exec Time: 798 	 Qubit: 90 
+Gate 971: cx   	 Exec Time: 799 	 Qubit: 36 90 
+Gate 972: s   	 Exec Time: 800 	 Qubit: 90 
+Gate 973: cx   	 Exec Time: 801 	 Qubit: 90 91 
+Gate 974: sd   	 Exec Time: 802 	 Qubit: 91 
+Gate 975: cx   	 Exec Time: 803 	 Qubit: 4 91 
+Gate 976: t   	 Exec Time: 804 	 Qubit: 91 
+Gate 977: cx   	 Exec Time: 805 	 Qubit: 90 91 
+Gate 978: cx   	 Exec Time: 806 	 Qubit: 4 91 
+Gate 979: cx   	 Exec Time: 807 	 Qubit: 36 91 
+Gate 980: s   	 Exec Time: 808 	 Qubit: 91 
+Gate 981: cx   	 Exec Time: 809 	 Qubit: 4 91 
+Gate 982: td   	 Exec Time: 810 	 Qubit: 91 
+Gate 983: cx   	 Exec Time: 811 	 Qubit: 36 91 
+Gate 984: sd   	 Exec Time: 812 	 Qubit: 91 
+Gate 985: cx   	 Exec Time: 813 	 Qubit: 4 91 
+Gate 986: s   	 Exec Time: 814 	 Qubit: 91 
+Gate 987: h   	 Exec Time: 815 	 Qubit: 91 
+Gate 988: cx   	 Exec Time: 814 	 Qubit: 4 90 
+Gate 989: sd   	 Exec Time: 815 	 Qubit: 90 
+Gate 990: cx   	 Exec Time: 816 	 Qubit: 4 90 
+Gate 991: z   	 Exec Time: 817 	 Qubit: 89 90 
+Gate 992: h   	 Exec Time: 818 	 Qubit: 90 
+Gate 993: sd   	 Exec Time: 819 	 Qubit: 90 
+Gate 994: cx   	 Exec Time: 820 	 Qubit: 37 90 
+Gate 995: td   	 Exec Time: 821 	 Qubit: 90 
+Gate 996: cx   	 Exec Time: 822 	 Qubit: 89 90 
+Gate 997: s   	 Exec Time: 823 	 Qubit: 90 
+Gate 998: cx   	 Exec Time: 824 	 Qubit: 37 90 
+Gate 999: t   	 Exec Time: 825 	 Qubit: 90 
+Gate 1000: cx   	 Exec Time: 826 	 Qubit: 5 90 
+Gate 1001: cx   	 Exec Time: 825 	 Qubit: 37 89 
+Gate 1002: s   	 Exec Time: 826 	 Qubit: 89 
+Gate 1003: cx   	 Exec Time: 827 	 Qubit: 37 89 
+Gate 1004: s   	 Exec Time: 828 	 Qubit: 89 
+Gate 1005: cx   	 Exec Time: 829 	 Qubit: 89 90 
+Gate 1006: t   	 Exec Time: 830 	 Qubit: 90 
+Gate 1007: cx   	 Exec Time: 831 	 Qubit: 89 90 
+Gate 1008: cx   	 Exec Time: 832 	 Qubit: 37 90 
+Gate 1009: td   	 Exec Time: 833 	 Qubit: 90 
+Gate 1010: cx   	 Exec Time: 834 	 Qubit: 37 90 
+Gate 1011: sd   	 Exec Time: 835 	 Qubit: 90 
+Gate 1012: cx   	 Exec Time: 836 	 Qubit: 5 90 
+Gate 1013: s   	 Exec Time: 837 	 Qubit: 90 
+Gate 1014: h   	 Exec Time: 838 	 Qubit: 90 
+Gate 1015: cx   	 Exec Time: 837 	 Qubit: 5 37 
+Gate 1016: sd   	 Exec Time: 838 	 Qubit: 37 
+Gate 1017: cx   	 Exec Time: 839 	 Qubit: 5 37 
+Gate 1018: cx   	 Exec Time: 840 	 Qubit: 5 89 
+Gate 1019: sd   	 Exec Time: 841 	 Qubit: 89 
+Gate 1020: cx   	 Exec Time: 842 	 Qubit: 5 89 
+Gate 1021: z   	 Exec Time: 843 	 Qubit: 88 89 
+Gate 1022: z   	 Exec Time: 844 	 Qubit: 38 89 
+Gate 1023: h   	 Exec Time: 845 	 Qubit: 89 
+Gate 1024: td   	 Exec Time: 846 	 Qubit: 89 
+Gate 1025: cx   	 Exec Time: 847 	 Qubit: 88 89 
+Gate 1026: cx   	 Exec Time: 848 	 Qubit: 38 89 
+Gate 1027: t   	 Exec Time: 849 	 Qubit: 89 
+Gate 1028: cx   	 Exec Time: 849 	 Qubit: 38 88 
+Gate 1029: sd   	 Exec Time: 850 	 Qubit: 88 
+Gate 1030: cx   	 Exec Time: 851 	 Qubit: 38 88 
+Gate 1031: cx   	 Exec Time: 852 	 Qubit: 88 89 
+Gate 1032: sd   	 Exec Time: 853 	 Qubit: 89 
+Gate 1033: cx   	 Exec Time: 854 	 Qubit: 6 89 
+Gate 1034: t   	 Exec Time: 855 	 Qubit: 89 
+Gate 1035: cx   	 Exec Time: 856 	 Qubit: 88 89 
+Gate 1036: sd   	 Exec Time: 857 	 Qubit: 89 
+Gate 1037: cx   	 Exec Time: 858 	 Qubit: 6 89 
+Gate 1038: cx   	 Exec Time: 859 	 Qubit: 38 89 
+Gate 1039: s   	 Exec Time: 860 	 Qubit: 89 
+Gate 1040: cx   	 Exec Time: 861 	 Qubit: 6 89 
+Gate 1041: td   	 Exec Time: 862 	 Qubit: 89 
+Gate 1042: cx   	 Exec Time: 863 	 Qubit: 38 89 
+Gate 1043: cx   	 Exec Time: 864 	 Qubit: 6 89 
+Gate 1044: s   	 Exec Time: 865 	 Qubit: 89 
+Gate 1045: h   	 Exec Time: 866 	 Qubit: 89 
+Gate 1046: cx   	 Exec Time: 865 	 Qubit: 6 88 
+Gate 1047: sd   	 Exec Time: 866 	 Qubit: 88 
+Gate 1048: cx   	 Exec Time: 867 	 Qubit: 6 88 
+Gate 1049: z   	 Exec Time: 868 	 Qubit: 87 88 
+Gate 1050: h   	 Exec Time: 869 	 Qubit: 88 
+Gate 1051: sd   	 Exec Time: 870 	 Qubit: 88 
+Gate 1052: cx   	 Exec Time: 871 	 Qubit: 39 88 
+Gate 1053: td   	 Exec Time: 872 	 Qubit: 88 
+Gate 1054: cx   	 Exec Time: 873 	 Qubit: 87 88 
+Gate 1055: s   	 Exec Time: 874 	 Qubit: 88 
+Gate 1056: cx   	 Exec Time: 875 	 Qubit: 39 88 
+Gate 1057: t   	 Exec Time: 876 	 Qubit: 88 
+Gate 1058: cx   	 Exec Time: 877 	 Qubit: 87 88 
+Gate 1059: cx   	 Exec Time: 878 	 Qubit: 7 88 
+Gate 1060: t   	 Exec Time: 879 	 Qubit: 88 
+Gate 1061: cx   	 Exec Time: 880 	 Qubit: 87 88 
+Gate 1062: cx   	 Exec Time: 881 	 Qubit: 39 88 
+Gate 1063: td   	 Exec Time: 882 	 Qubit: 88 
+Gate 1064: cx   	 Exec Time: 883 	 Qubit: 39 88 
+Gate 1065: sd   	 Exec Time: 884 	 Qubit: 88 
+Gate 1066: cx   	 Exec Time: 885 	 Qubit: 7 88 
+Gate 1067: s   	 Exec Time: 886 	 Qubit: 88 
+Gate 1068: h   	 Exec Time: 887 	 Qubit: 88 
+Gate 1069: cx   	 Exec Time: 886 	 Qubit: 7 87 
+Gate 1070: sd   	 Exec Time: 887 	 Qubit: 87 
+Gate 1071: cx   	 Exec Time: 888 	 Qubit: 7 87 
+Gate 1072: z   	 Exec Time: 889 	 Qubit: 86 87 
+Gate 1073: h   	 Exec Time: 890 	 Qubit: 87 
+Gate 1074: sd   	 Exec Time: 891 	 Qubit: 87 
+Gate 1075: cx   	 Exec Time: 892 	 Qubit: 40 87 
+Gate 1076: td   	 Exec Time: 893 	 Qubit: 87 
+Gate 1077: cx   	 Exec Time: 894 	 Qubit: 40 87 
+Gate 1078: cx   	 Exec Time: 895 	 Qubit: 8 87 
+Gate 1079: t   	 Exec Time: 896 	 Qubit: 87 
+Gate 1080: cx   	 Exec Time: 897 	 Qubit: 86 87 
+Gate 1081: sd   	 Exec Time: 898 	 Qubit: 87 
+Gate 1082: cx   	 Exec Time: 899 	 Qubit: 8 87 
+Gate 1083: t   	 Exec Time: 900 	 Qubit: 87 
+Gate 1084: cx   	 Exec Time: 901 	 Qubit: 40 87 
+Gate 1085: s   	 Exec Time: 902 	 Qubit: 87 
+Gate 1086: cx   	 Exec Time: 903 	 Qubit: 8 87 
+Gate 1087: td   	 Exec Time: 904 	 Qubit: 87 
+Gate 1088: cx   	 Exec Time: 905 	 Qubit: 40 87 
+Gate 1089: cx   	 Exec Time: 906 	 Qubit: 8 87 
+Gate 1090: s   	 Exec Time: 907 	 Qubit: 87 
+Gate 1091: h   	 Exec Time: 908 	 Qubit: 87 
+Gate 1092: h   	 Exec Time: 898 	 Qubit: 86 
+Gate 1093: td   	 Exec Time: 899 	 Qubit: 86 
+Gate 1094: cx   	 Exec Time: 900 	 Qubit: 85 86 
+Gate 1095: s   	 Exec Time: 901 	 Qubit: 86 
+Gate 1096: cx   	 Exec Time: 902 	 Qubit: 41 86 
+Gate 1097: t   	 Exec Time: 903 	 Qubit: 86 
+Gate 1098: cx   	 Exec Time: 904 	 Qubit: 85 86 
+Gate 1099: sd   	 Exec Time: 905 	 Qubit: 86 
+Gate 1100: cx   	 Exec Time: 906 	 Qubit: 9 86 
+Gate 1101: t   	 Exec Time: 907 	 Qubit: 86 
+Gate 1102: cx   	 Exec Time: 908 	 Qubit: 85 86 
+Gate 1103: sd   	 Exec Time: 909 	 Qubit: 86 
+Gate 1104: cx   	 Exec Time: 910 	 Qubit: 41 86 
+Gate 1105: td   	 Exec Time: 911 	 Qubit: 86 
+Gate 1106: cx   	 Exec Time: 912 	 Qubit: 41 86 
+Gate 1107: cx   	 Exec Time: 913 	 Qubit: 9 86 
+Gate 1108: s   	 Exec Time: 914 	 Qubit: 86 
+Gate 1109: h   	 Exec Time: 915 	 Qubit: 86 
+Gate 1110: cx   	 Exec Time: 914 	 Qubit: 9 85 
+Gate 1111: sd   	 Exec Time: 915 	 Qubit: 85 
+Gate 1112: cx   	 Exec Time: 916 	 Qubit: 9 85 
+Gate 1113: z   	 Exec Time: 917 	 Qubit: 84 85 
+Gate 1114: h   	 Exec Time: 918 	 Qubit: 85 
+Gate 1115: sd   	 Exec Time: 919 	 Qubit: 85 
+Gate 1116: cx   	 Exec Time: 920 	 Qubit: 42 85 
+Gate 1117: td   	 Exec Time: 921 	 Qubit: 85 
+Gate 1118: cx   	 Exec Time: 922 	 Qubit: 84 85 
+Gate 1119: s   	 Exec Time: 923 	 Qubit: 85 
+Gate 1120: cx   	 Exec Time: 924 	 Qubit: 42 85 
+Gate 1121: t   	 Exec Time: 925 	 Qubit: 85 
+Gate 1122: cx   	 Exec Time: 926 	 Qubit: 10 85 
+Gate 1123: cx   	 Exec Time: 925 	 Qubit: 42 84 
+Gate 1124: s   	 Exec Time: 926 	 Qubit: 84 
+Gate 1125: cx   	 Exec Time: 927 	 Qubit: 42 84 
+Gate 1126: s   	 Exec Time: 928 	 Qubit: 84 
+Gate 1127: z   	 Exec Time: 929 	 Qubit: 83 84 
+Gate 1128: cx   	 Exec Time: 930 	 Qubit: 84 85 
+Gate 1129: t   	 Exec Time: 931 	 Qubit: 85 
+Gate 1130: cx   	 Exec Time: 932 	 Qubit: 84 85 
+Gate 1131: sd   	 Exec Time: 933 	 Qubit: 85 
+Gate 1132: cx   	 Exec Time: 934 	 Qubit: 42 85 
+Gate 1133: td   	 Exec Time: 935 	 Qubit: 85 
+Gate 1134: cx   	 Exec Time: 936 	 Qubit: 42 85 
+Gate 1135: cx   	 Exec Time: 937 	 Qubit: 10 85 
+Gate 1136: s   	 Exec Time: 938 	 Qubit: 85 
+Gate 1137: h   	 Exec Time: 939 	 Qubit: 85 
+Gate 1138: h   	 Exec Time: 933 	 Qubit: 84 
+Gate 1139: sd   	 Exec Time: 934 	 Qubit: 84 
+Gate 1140: cx   	 Exec Time: 935 	 Qubit: 43 84 
+Gate 1141: td   	 Exec Time: 936 	 Qubit: 84 
+Gate 1142: cx   	 Exec Time: 937 	 Qubit: 83 84 
+Gate 1143: cx   	 Exec Time: 938 	 Qubit: 43 84 
+Gate 1144: cx   	 Exec Time: 939 	 Qubit: 11 84 
+Gate 1145: cx   	 Exec Time: 939 	 Qubit: 43 83 
+Gate 1146: sd   	 Exec Time: 940 	 Qubit: 83 
+Gate 1147: cx   	 Exec Time: 941 	 Qubit: 43 83 
+Gate 1148: cx   	 Exec Time: 942 	 Qubit: 83 84 
+Gate 1149: t   	 Exec Time: 943 	 Qubit: 84 
+Gate 1150: cx   	 Exec Time: 944 	 Qubit: 83 84 
+Gate 1151: sd   	 Exec Time: 945 	 Qubit: 84 
+Gate 1152: cx   	 Exec Time: 946 	 Qubit: 11 84 
+Gate 1153: t   	 Exec Time: 947 	 Qubit: 84 
+Gate 1154: cx   	 Exec Time: 948 	 Qubit: 43 84 
+Gate 1155: s   	 Exec Time: 949 	 Qubit: 84 
+Gate 1156: cx   	 Exec Time: 950 	 Qubit: 11 84 
+Gate 1157: td   	 Exec Time: 951 	 Qubit: 84 
+Gate 1158: cx   	 Exec Time: 952 	 Qubit: 43 84 
+Gate 1159: cx   	 Exec Time: 953 	 Qubit: 11 84 
+Gate 1160: s   	 Exec Time: 954 	 Qubit: 84 
+Gate 1161: h   	 Exec Time: 955 	 Qubit: 84 
+Gate 1162: cx   	 Exec Time: 954 	 Qubit: 11 83 
+Gate 1163: sd   	 Exec Time: 955 	 Qubit: 83 
+Gate 1164: cx   	 Exec Time: 956 	 Qubit: 11 83 
+Gate 1165: z   	 Exec Time: 957 	 Qubit: 82 83 
+Gate 1166: h   	 Exec Time: 958 	 Qubit: 83 
+Gate 1167: sd   	 Exec Time: 959 	 Qubit: 83 
+Gate 1168: cx   	 Exec Time: 960 	 Qubit: 44 83 
+Gate 1169: td   	 Exec Time: 961 	 Qubit: 83 
+Gate 1170: cx   	 Exec Time: 962 	 Qubit: 82 83 
+Gate 1171: s   	 Exec Time: 963 	 Qubit: 83 
+Gate 1172: cx   	 Exec Time: 964 	 Qubit: 44 83 
+Gate 1173: t   	 Exec Time: 965 	 Qubit: 83 
+Gate 1174: cx   	 Exec Time: 966 	 Qubit: 12 83 
+Gate 1175: cx   	 Exec Time: 965 	 Qubit: 44 82 
+Gate 1176: sd   	 Exec Time: 966 	 Qubit: 82 
+Gate 1177: cx   	 Exec Time: 967 	 Qubit: 44 82 
+Gate 1178: cx   	 Exec Time: 968 	 Qubit: 82 83 
+Gate 1179: t   	 Exec Time: 969 	 Qubit: 83 
+Gate 1180: cx   	 Exec Time: 970 	 Qubit: 82 83 
+Gate 1181: cx   	 Exec Time: 971 	 Qubit: 44 83 
+Gate 1182: td   	 Exec Time: 972 	 Qubit: 83 
+Gate 1183: cx   	 Exec Time: 973 	 Qubit: 44 83 
+Gate 1184: sd   	 Exec Time: 974 	 Qubit: 83 
+Gate 1185: cx   	 Exec Time: 975 	 Qubit: 12 83 
+Gate 1186: s   	 Exec Time: 976 	 Qubit: 83 
+Gate 1187: h   	 Exec Time: 977 	 Qubit: 83 
+Gate 1188: cx   	 Exec Time: 976 	 Qubit: 12 82 
+Gate 1189: sd   	 Exec Time: 977 	 Qubit: 82 
+Gate 1190: cx   	 Exec Time: 978 	 Qubit: 12 82 
+Gate 1191: z   	 Exec Time: 979 	 Qubit: 81 82 
+Gate 1192: h   	 Exec Time: 980 	 Qubit: 82 
+Gate 1193: sd   	 Exec Time: 981 	 Qubit: 82 
+Gate 1194: cx   	 Exec Time: 982 	 Qubit: 45 82 
+Gate 1195: td   	 Exec Time: 983 	 Qubit: 82 
+Gate 1196: cx   	 Exec Time: 984 	 Qubit: 81 82 
+Gate 1197: cx   	 Exec Time: 985 	 Qubit: 45 82 
+Gate 1198: t   	 Exec Time: 986 	 Qubit: 82 
+Gate 1199: cx   	 Exec Time: 987 	 Qubit: 81 82 
+Gate 1200: cx   	 Exec Time: 988 	 Qubit: 13 82 
+Gate 1201: t   	 Exec Time: 989 	 Qubit: 82 
+Gate 1202: cx   	 Exec Time: 990 	 Qubit: 81 82 
+Gate 1203: sd   	 Exec Time: 991 	 Qubit: 82 
+Gate 1204: cx   	 Exec Time: 992 	 Qubit: 13 82 
+Gate 1205: cx   	 Exec Time: 993 	 Qubit: 45 82 
+Gate 1206: s   	 Exec Time: 994 	 Qubit: 82 
+Gate 1207: cx   	 Exec Time: 995 	 Qubit: 13 82 
+Gate 1208: td   	 Exec Time: 996 	 Qubit: 82 
+Gate 1209: cx   	 Exec Time: 997 	 Qubit: 45 82 
+Gate 1210: cx   	 Exec Time: 998 	 Qubit: 13 82 
+Gate 1211: s   	 Exec Time: 999 	 Qubit: 82 
+Gate 1212: h   	 Exec Time: 1000 	 Qubit: 82 
+Gate 1213: h   	 Exec Time: 991 	 Qubit: 81 
+Gate 1214: sd   	 Exec Time: 992 	 Qubit: 81 
+Gate 1215: cx   	 Exec Time: 993 	 Qubit: 46 81 
+Gate 1216: td   	 Exec Time: 994 	 Qubit: 81 
+Gate 1217: cx   	 Exec Time: 995 	 Qubit: 80 81 
+Gate 1218: cx   	 Exec Time: 996 	 Qubit: 46 81 
+Gate 1219: t   	 Exec Time: 997 	 Qubit: 81 
+Gate 1220: cx   	 Exec Time: 998 	 Qubit: 80 81 
+Gate 1221: cx   	 Exec Time: 999 	 Qubit: 14 81 
+Gate 1222: t   	 Exec Time: 1000 	 Qubit: 81 
+Gate 1223: cx   	 Exec Time: 1001 	 Qubit: 80 81 
+Gate 1224: cx   	 Exec Time: 1002 	 Qubit: 14 81 
+Gate 1225: cx   	 Exec Time: 1003 	 Qubit: 46 81 
+Gate 1226: s   	 Exec Time: 1004 	 Qubit: 81 
+Gate 1227: cx   	 Exec Time: 1005 	 Qubit: 14 81 
+Gate 1228: td   	 Exec Time: 1006 	 Qubit: 81 
+Gate 1229: cx   	 Exec Time: 1007 	 Qubit: 46 81 
+Gate 1230: sd   	 Exec Time: 1008 	 Qubit: 81 
+Gate 1231: cx   	 Exec Time: 1009 	 Qubit: 14 81 
+Gate 1232: s   	 Exec Time: 1010 	 Qubit: 81 
+Gate 1233: h   	 Exec Time: 1011 	 Qubit: 81 
+Gate 1234: cx   	 Exec Time: 1010 	 Qubit: 14 46 
+Gate 1235: sd   	 Exec Time: 1011 	 Qubit: 46 
+Gate 1236: cx   	 Exec Time: 1012 	 Qubit: 14 46 
+Gate 1237: cx   	 Exec Time: 1013 	 Qubit: 14 80 
+Gate 1238: sd   	 Exec Time: 1014 	 Qubit: 80 
+Gate 1239: cx   	 Exec Time: 1015 	 Qubit: 14 80 
+Gate 1240: z   	 Exec Time: 1016 	 Qubit: 79 80 
+Gate 1241: h   	 Exec Time: 1017 	 Qubit: 80 
+Gate 1242: sd   	 Exec Time: 1018 	 Qubit: 80 
+Gate 1243: cx   	 Exec Time: 1019 	 Qubit: 47 80 
+Gate 1244: td   	 Exec Time: 1020 	 Qubit: 80 
+Gate 1245: cx   	 Exec Time: 1021 	 Qubit: 79 80 
+Gate 1246: cx   	 Exec Time: 1022 	 Qubit: 47 80 
+Gate 1247: cx   	 Exec Time: 1023 	 Qubit: 15 80 
+Gate 1248: cx   	 Exec Time: 1023 	 Qubit: 47 79 
+Gate 1249: sd   	 Exec Time: 1024 	 Qubit: 79 
+Gate 1250: cx   	 Exec Time: 1025 	 Qubit: 47 79 
+Gate 1251: cx   	 Exec Time: 1026 	 Qubit: 79 80 
+Gate 1252: t   	 Exec Time: 1027 	 Qubit: 80 
+Gate 1253: cx   	 Exec Time: 1028 	 Qubit: 79 80 
+Gate 1254: cx   	 Exec Time: 1029 	 Qubit: 15 80 
+Gate 1255: t   	 Exec Time: 1030 	 Qubit: 80 
+Gate 1256: cx   	 Exec Time: 1031 	 Qubit: 47 80 
+Gate 1257: s   	 Exec Time: 1032 	 Qubit: 80 
+Gate 1258: cx   	 Exec Time: 1033 	 Qubit: 15 80 
+Gate 1259: td   	 Exec Time: 1034 	 Qubit: 80 
+Gate 1260: cx   	 Exec Time: 1035 	 Qubit: 47 80 
+Gate 1261: sd   	 Exec Time: 1036 	 Qubit: 80 
+Gate 1262: cx   	 Exec Time: 1037 	 Qubit: 15 80 
+Gate 1263: s   	 Exec Time: 1038 	 Qubit: 80 
+Gate 1264: h   	 Exec Time: 1039 	 Qubit: 80 
+Gate 1265: cx   	 Exec Time: 1038 	 Qubit: 15 79 
+Gate 1266: sd   	 Exec Time: 1039 	 Qubit: 79 
+Gate 1267: cx   	 Exec Time: 1040 	 Qubit: 15 79 
+Gate 1268: z   	 Exec Time: 1041 	 Qubit: 78 79 
+Gate 1269: z   	 Exec Time: 1042 	 Qubit: 48 79 
+Gate 1270: h   	 Exec Time: 1043 	 Qubit: 79 
+Gate 1271: td   	 Exec Time: 1044 	 Qubit: 79 
+Gate 1272: cx   	 Exec Time: 1045 	 Qubit: 78 79 
+Gate 1273: cx   	 Exec Time: 1046 	 Qubit: 48 79 
+Gate 1274: t   	 Exec Time: 1047 	 Qubit: 79 
+Gate 1275: cx   	 Exec Time: 1047 	 Qubit: 48 78 
+Gate 1276: sd   	 Exec Time: 1048 	 Qubit: 78 
+Gate 1277: cx   	 Exec Time: 1049 	 Qubit: 48 78 
+Gate 1278: cx   	 Exec Time: 1050 	 Qubit: 78 79 
+Gate 1279: sd   	 Exec Time: 1051 	 Qubit: 79 
+Gate 1280: cx   	 Exec Time: 1052 	 Qubit: 16 79 
+Gate 1281: t   	 Exec Time: 1053 	 Qubit: 79 
+Gate 1282: cx   	 Exec Time: 1054 	 Qubit: 78 79 
+Gate 1283: sd   	 Exec Time: 1055 	 Qubit: 79 
+Gate 1284: cx   	 Exec Time: 1056 	 Qubit: 16 79 
+Gate 1285: cx   	 Exec Time: 1057 	 Qubit: 48 79 
+Gate 1286: s   	 Exec Time: 1058 	 Qubit: 79 
+Gate 1287: cx   	 Exec Time: 1059 	 Qubit: 16 79 
+Gate 1288: td   	 Exec Time: 1060 	 Qubit: 79 
+Gate 1289: cx   	 Exec Time: 1061 	 Qubit: 48 79 
+Gate 1290: cx   	 Exec Time: 1062 	 Qubit: 16 79 
+Gate 1291: s   	 Exec Time: 1063 	 Qubit: 79 
+Gate 1292: h   	 Exec Time: 1064 	 Qubit: 79 
+Gate 1293: cx   	 Exec Time: 1063 	 Qubit: 16 48 
+Gate 1294: s   	 Exec Time: 1064 	 Qubit: 48 
+Gate 1295: cx   	 Exec Time: 1065 	 Qubit: 16 48 
+Gate 1296: cx   	 Exec Time: 1066 	 Qubit: 16 78 
+Gate 1297: sd   	 Exec Time: 1067 	 Qubit: 78 
+Gate 1298: cx   	 Exec Time: 1068 	 Qubit: 16 78 
+Gate 1299: z   	 Exec Time: 1069 	 Qubit: 77 78 
+Gate 1300: h   	 Exec Time: 1070 	 Qubit: 78 
+Gate 1301: sd   	 Exec Time: 1071 	 Qubit: 78 
+Gate 1302: cx   	 Exec Time: 1072 	 Qubit: 49 78 
+Gate 1303: td   	 Exec Time: 1073 	 Qubit: 78 
+Gate 1304: cx   	 Exec Time: 1074 	 Qubit: 77 78 
+Gate 1305: cx   	 Exec Time: 1075 	 Qubit: 49 78 
+Gate 1306: t   	 Exec Time: 1076 	 Qubit: 78 
+Gate 1307: cx   	 Exec Time: 1077 	 Qubit: 17 78 
+Gate 1308: cx   	 Exec Time: 1076 	 Qubit: 49 77 
+Gate 1309: sd   	 Exec Time: 1077 	 Qubit: 77 
+Gate 1310: cx   	 Exec Time: 1078 	 Qubit: 49 77 
+Gate 1311: cx   	 Exec Time: 1079 	 Qubit: 77 78 
+Gate 1312: t   	 Exec Time: 1080 	 Qubit: 78 
+Gate 1313: cx   	 Exec Time: 1081 	 Qubit: 77 78 
+Gate 1314: cx   	 Exec Time: 1082 	 Qubit: 17 78 
+Gate 1315: cx   	 Exec Time: 1083 	 Qubit: 49 78 
+Gate 1316: s   	 Exec Time: 1084 	 Qubit: 78 
+Gate 1317: cx   	 Exec Time: 1085 	 Qubit: 17 78 
+Gate 1318: td   	 Exec Time: 1086 	 Qubit: 78 
+Gate 1319: cx   	 Exec Time: 1087 	 Qubit: 49 78 
+Gate 1320: sd   	 Exec Time: 1088 	 Qubit: 78 
+Gate 1321: cx   	 Exec Time: 1089 	 Qubit: 17 78 
+Gate 1322: s   	 Exec Time: 1090 	 Qubit: 78 
+Gate 1323: h   	 Exec Time: 1091 	 Qubit: 78 
+Gate 1324: cx   	 Exec Time: 1090 	 Qubit: 17 49 
+Gate 1325: s   	 Exec Time: 1091 	 Qubit: 49 
+Gate 1326: cx   	 Exec Time: 1092 	 Qubit: 17 49 
+Gate 1327: cx   	 Exec Time: 1093 	 Qubit: 17 77 
+Gate 1328: sd   	 Exec Time: 1094 	 Qubit: 77 
+Gate 1329: cx   	 Exec Time: 1095 	 Qubit: 17 77 
+Gate 1330: z   	 Exec Time: 1096 	 Qubit: 76 77 
+Gate 1331: h   	 Exec Time: 1097 	 Qubit: 77 
+Gate 1332: sd   	 Exec Time: 1098 	 Qubit: 77 
+Gate 1333: cx   	 Exec Time: 1099 	 Qubit: 50 77 
+Gate 1334: td   	 Exec Time: 1100 	 Qubit: 77 
+Gate 1335: cx   	 Exec Time: 1101 	 Qubit: 50 77 
+Gate 1336: cx   	 Exec Time: 1102 	 Qubit: 18 77 
+Gate 1337: t   	 Exec Time: 1103 	 Qubit: 77 
+Gate 1338: cx   	 Exec Time: 1104 	 Qubit: 76 77 
+Gate 1339: sd   	 Exec Time: 1105 	 Qubit: 77 
+Gate 1340: cx   	 Exec Time: 1106 	 Qubit: 18 77 
+Gate 1341: t   	 Exec Time: 1107 	 Qubit: 77 
+Gate 1342: cx   	 Exec Time: 1108 	 Qubit: 50 77 
+Gate 1343: s   	 Exec Time: 1109 	 Qubit: 77 
+Gate 1344: cx   	 Exec Time: 1110 	 Qubit: 18 77 
+Gate 1345: td   	 Exec Time: 1111 	 Qubit: 77 
+Gate 1346: cx   	 Exec Time: 1112 	 Qubit: 50 77 
+Gate 1347: cx   	 Exec Time: 1113 	 Qubit: 18 77 
+Gate 1348: s   	 Exec Time: 1114 	 Qubit: 77 
+Gate 1349: h   	 Exec Time: 1115 	 Qubit: 77 
+Gate 1350: cx   	 Exec Time: 1114 	 Qubit: 18 50 
+Gate 1351: sd   	 Exec Time: 1115 	 Qubit: 50 
+Gate 1352: cx   	 Exec Time: 1116 	 Qubit: 18 50 
+Gate 1353: h   	 Exec Time: 1105 	 Qubit: 76 
+Gate 1354: sd   	 Exec Time: 1106 	 Qubit: 76 
+Gate 1355: cx   	 Exec Time: 1107 	 Qubit: 51 76 
+Gate 1356: td   	 Exec Time: 1108 	 Qubit: 76 
+Gate 1357: cx   	 Exec Time: 1109 	 Qubit: 75 76 
+Gate 1358: s   	 Exec Time: 1110 	 Qubit: 76 
+Gate 1359: cx   	 Exec Time: 1111 	 Qubit: 51 76 
+Gate 1360: t   	 Exec Time: 1112 	 Qubit: 76 
+Gate 1361: cx   	 Exec Time: 1113 	 Qubit: 19 76 
+Gate 1362: cx   	 Exec Time: 1112 	 Qubit: 51 75 
+Gate 1363: s   	 Exec Time: 1113 	 Qubit: 75 
+Gate 1364: cx   	 Exec Time: 1114 	 Qubit: 51 75 
+Gate 1365: s   	 Exec Time: 1115 	 Qubit: 75 
+Gate 1366: z   	 Exec Time: 1116 	 Qubit: 74 75 
+Gate 1367: cx   	 Exec Time: 1117 	 Qubit: 75 76 
+Gate 1368: t   	 Exec Time: 1118 	 Qubit: 76 
+Gate 1369: cx   	 Exec Time: 1119 	 Qubit: 75 76 
+Gate 1370: sd   	 Exec Time: 1120 	 Qubit: 76 
+Gate 1371: cx   	 Exec Time: 1121 	 Qubit: 51 76 
+Gate 1372: td   	 Exec Time: 1122 	 Qubit: 76 
+Gate 1373: cx   	 Exec Time: 1123 	 Qubit: 51 76 
+Gate 1374: cx   	 Exec Time: 1124 	 Qubit: 19 76 
+Gate 1375: s   	 Exec Time: 1125 	 Qubit: 76 
+Gate 1376: h   	 Exec Time: 1126 	 Qubit: 76 
+Gate 1377: h   	 Exec Time: 1120 	 Qubit: 75 
+Gate 1378: sd   	 Exec Time: 1121 	 Qubit: 75 
+Gate 1379: cx   	 Exec Time: 1122 	 Qubit: 52 75 
+Gate 1380: td   	 Exec Time: 1123 	 Qubit: 75 
+Gate 1381: cx   	 Exec Time: 1124 	 Qubit: 74 75 
+Gate 1382: s   	 Exec Time: 1125 	 Qubit: 75 
+Gate 1383: cx   	 Exec Time: 1126 	 Qubit: 52 75 
+Gate 1384: t   	 Exec Time: 1127 	 Qubit: 75 
+Gate 1385: cx   	 Exec Time: 1128 	 Qubit: 20 75 
+Gate 1386: cx   	 Exec Time: 1127 	 Qubit: 52 74 
+Gate 1387: s   	 Exec Time: 1128 	 Qubit: 74 
+Gate 1388: cx   	 Exec Time: 1129 	 Qubit: 52 74 
+Gate 1389: s   	 Exec Time: 1130 	 Qubit: 74 
+Gate 1390: z   	 Exec Time: 1131 	 Qubit: 73 74 
+Gate 1391: cx   	 Exec Time: 1132 	 Qubit: 74 75 
+Gate 1392: t   	 Exec Time: 1133 	 Qubit: 75 
+Gate 1393: cx   	 Exec Time: 1134 	 Qubit: 74 75 
+Gate 1394: cx   	 Exec Time: 1135 	 Qubit: 52 75 
+Gate 1395: td   	 Exec Time: 1136 	 Qubit: 75 
+Gate 1396: cx   	 Exec Time: 1137 	 Qubit: 52 75 
+Gate 1397: sd   	 Exec Time: 1138 	 Qubit: 75 
+Gate 1398: cx   	 Exec Time: 1139 	 Qubit: 20 75 
+Gate 1399: s   	 Exec Time: 1140 	 Qubit: 75 
+Gate 1400: h   	 Exec Time: 1141 	 Qubit: 75 
+Gate 1401: cx   	 Exec Time: 1140 	 Qubit: 20 52 
+Gate 1402: sd   	 Exec Time: 1141 	 Qubit: 52 
+Gate 1403: cx   	 Exec Time: 1142 	 Qubit: 20 52 
+Gate 1404: h   	 Exec Time: 1135 	 Qubit: 74 
+Gate 1405: sd   	 Exec Time: 1136 	 Qubit: 74 
+Gate 1406: cx   	 Exec Time: 1137 	 Qubit: 53 74 
+Gate 1407: td   	 Exec Time: 1138 	 Qubit: 74 
+Gate 1408: cx   	 Exec Time: 1139 	 Qubit: 73 74 
+Gate 1409: cx   	 Exec Time: 1140 	 Qubit: 53 74 
+Gate 1410: cx   	 Exec Time: 1141 	 Qubit: 21 74 
+Gate 1411: cx   	 Exec Time: 1141 	 Qubit: 53 73 
+Gate 1412: s   	 Exec Time: 1142 	 Qubit: 73 
+Gate 1413: cx   	 Exec Time: 1143 	 Qubit: 53 73 
+Gate 1414: s   	 Exec Time: 1144 	 Qubit: 73 
+Gate 1415: z   	 Exec Time: 1145 	 Qubit: 72 73 
+Gate 1416: cx   	 Exec Time: 1146 	 Qubit: 73 74 
+Gate 1417: t   	 Exec Time: 1147 	 Qubit: 74 
+Gate 1418: cx   	 Exec Time: 1148 	 Qubit: 73 74 
+Gate 1419: cx   	 Exec Time: 1149 	 Qubit: 21 74 
+Gate 1420: t   	 Exec Time: 1150 	 Qubit: 74 
+Gate 1421: cx   	 Exec Time: 1151 	 Qubit: 53 74 
+Gate 1422: s   	 Exec Time: 1152 	 Qubit: 74 
+Gate 1423: cx   	 Exec Time: 1153 	 Qubit: 21 74 
+Gate 1424: td   	 Exec Time: 1154 	 Qubit: 74 
+Gate 1425: cx   	 Exec Time: 1155 	 Qubit: 53 74 
+Gate 1426: sd   	 Exec Time: 1156 	 Qubit: 74 
+Gate 1427: cx   	 Exec Time: 1157 	 Qubit: 21 74 
+Gate 1428: s   	 Exec Time: 1158 	 Qubit: 74 
+Gate 1429: h   	 Exec Time: 1159 	 Qubit: 74 
+Gate 1430: cx   	 Exec Time: 1158 	 Qubit: 21 53 
+Gate 1431: sd   	 Exec Time: 1159 	 Qubit: 53 
+Gate 1432: cx   	 Exec Time: 1160 	 Qubit: 21 53 
+Gate 1433: h   	 Exec Time: 1149 	 Qubit: 73 
+Gate 1434: sd   	 Exec Time: 1150 	 Qubit: 73 
+Gate 1435: cx   	 Exec Time: 1151 	 Qubit: 54 73 
+Gate 1436: td   	 Exec Time: 1152 	 Qubit: 73 
+Gate 1437: cx   	 Exec Time: 1153 	 Qubit: 72 73 
+Gate 1438: s   	 Exec Time: 1154 	 Qubit: 73 
+Gate 1439: cx   	 Exec Time: 1155 	 Qubit: 54 73 
+Gate 1440: cx   	 Exec Time: 1156 	 Qubit: 22 73 
+Gate 1441: cx   	 Exec Time: 1156 	 Qubit: 54 72 
+Gate 1442: sd   	 Exec Time: 1157 	 Qubit: 72 
+Gate 1443: cx   	 Exec Time: 1158 	 Qubit: 54 72 
+Gate 1444: cx   	 Exec Time: 1159 	 Qubit: 72 73 
+Gate 1445: t   	 Exec Time: 1160 	 Qubit: 73 
+Gate 1446: cx   	 Exec Time: 1161 	 Qubit: 72 73 
+Gate 1447: sd   	 Exec Time: 1162 	 Qubit: 73 
+Gate 1448: cx   	 Exec Time: 1163 	 Qubit: 22 73 
+Gate 1449: t   	 Exec Time: 1164 	 Qubit: 73 
+Gate 1450: cx   	 Exec Time: 1165 	 Qubit: 54 73 
+Gate 1451: cx   	 Exec Time: 1166 	 Qubit: 22 73 
+Gate 1452: td   	 Exec Time: 1167 	 Qubit: 73 
+Gate 1453: cx   	 Exec Time: 1168 	 Qubit: 54 73 
+Gate 1454: cx   	 Exec Time: 1169 	 Qubit: 22 73 
+Gate 1455: s   	 Exec Time: 1170 	 Qubit: 73 
+Gate 1456: h   	 Exec Time: 1171 	 Qubit: 73 
+Gate 1457: cx   	 Exec Time: 1170 	 Qubit: 22 72 
+Gate 1458: sd   	 Exec Time: 1171 	 Qubit: 72 
+Gate 1459: cx   	 Exec Time: 1172 	 Qubit: 22 72 
+Gate 1460: z   	 Exec Time: 1173 	 Qubit: 71 72 
+Gate 1461: z   	 Exec Time: 1174 	 Qubit: 55 72 
+Gate 1462: h   	 Exec Time: 1175 	 Qubit: 72 
+Gate 1463: td   	 Exec Time: 1176 	 Qubit: 72 
+Gate 1464: cx   	 Exec Time: 1177 	 Qubit: 71 72 
+Gate 1465: s   	 Exec Time: 1178 	 Qubit: 72 
+Gate 1466: cx   	 Exec Time: 1179 	 Qubit: 55 72 
+Gate 1467: t   	 Exec Time: 1180 	 Qubit: 72 
+Gate 1468: cx   	 Exec Time: 1181 	 Qubit: 71 72 
+Gate 1469: sd   	 Exec Time: 1182 	 Qubit: 72 
+Gate 1470: cx   	 Exec Time: 1183 	 Qubit: 23 72 
+Gate 1471: t   	 Exec Time: 1184 	 Qubit: 72 
+Gate 1472: cx   	 Exec Time: 1185 	 Qubit: 71 72 
+Gate 1473: cx   	 Exec Time: 1186 	 Qubit: 55 72 
+Gate 1474: td   	 Exec Time: 1187 	 Qubit: 72 
+Gate 1475: cx   	 Exec Time: 1188 	 Qubit: 55 72 
+Gate 1476: sd   	 Exec Time: 1189 	 Qubit: 72 
+Gate 1477: cx   	 Exec Time: 1190 	 Qubit: 23 72 
+Gate 1478: s   	 Exec Time: 1191 	 Qubit: 72 
+Gate 1479: h   	 Exec Time: 1192 	 Qubit: 72 
+Gate 1480: cx   	 Exec Time: 1191 	 Qubit: 23 55 
+Gate 1481: sd   	 Exec Time: 1192 	 Qubit: 55 
+Gate 1482: cx   	 Exec Time: 1193 	 Qubit: 23 55 
+Gate 1483: cx   	 Exec Time: 1194 	 Qubit: 23 71 
+Gate 1484: sd   	 Exec Time: 1195 	 Qubit: 71 
+Gate 1485: cx   	 Exec Time: 1196 	 Qubit: 23 71 
+Gate 1486: z   	 Exec Time: 1197 	 Qubit: 70 71 
+Gate 1487: z   	 Exec Time: 1198 	 Qubit: 56 71 
+Gate 1488: h   	 Exec Time: 1199 	 Qubit: 71 
+Gate 1489: td   	 Exec Time: 1200 	 Qubit: 71 
+Gate 1490: cx   	 Exec Time: 1201 	 Qubit: 70 71 
+Gate 1491: s   	 Exec Time: 1202 	 Qubit: 71 
+Gate 1492: cx   	 Exec Time: 1203 	 Qubit: 56 71 
+Gate 1493: cx   	 Exec Time: 1204 	 Qubit: 70 71 
+Gate 1494: sd   	 Exec Time: 1205 	 Qubit: 71 
+Gate 1495: cx   	 Exec Time: 1206 	 Qubit: 24 71 
+Gate 1496: t   	 Exec Time: 1207 	 Qubit: 71 
+Gate 1497: cx   	 Exec Time: 1208 	 Qubit: 70 71 
+Gate 1498: cx   	 Exec Time: 1209 	 Qubit: 24 71 
+Gate 1499: t   	 Exec Time: 1210 	 Qubit: 71 
+Gate 1500: cx   	 Exec Time: 1211 	 Qubit: 56 71 
+Gate 1501: cx   	 Exec Time: 1212 	 Qubit: 24 71 
+Gate 1502: td   	 Exec Time: 1213 	 Qubit: 71 
+Gate 1503: cx   	 Exec Time: 1214 	 Qubit: 56 71 
+Gate 1504: sd   	 Exec Time: 1215 	 Qubit: 71 
+Gate 1505: cx   	 Exec Time: 1216 	 Qubit: 24 71 
+Gate 1506: s   	 Exec Time: 1217 	 Qubit: 71 
+Gate 1507: h   	 Exec Time: 1218 	 Qubit: 71 
+Gate 1508: h   	 Exec Time: 1209 	 Qubit: 70 
+Gate 1509: sd   	 Exec Time: 1210 	 Qubit: 70 
+Gate 1510: cx   	 Exec Time: 1211 	 Qubit: 57 70 
+Gate 1511: td   	 Exec Time: 1212 	 Qubit: 70 
+Gate 1512: cx   	 Exec Time: 1213 	 Qubit: 69 70 
+Gate 1513: s   	 Exec Time: 1214 	 Qubit: 70 
+Gate 1514: cx   	 Exec Time: 1215 	 Qubit: 57 70 
+Gate 1515: cx   	 Exec Time: 1216 	 Qubit: 25 70 
+Gate 1516: cx   	 Exec Time: 1216 	 Qubit: 57 69 
+Gate 1517: s   	 Exec Time: 1217 	 Qubit: 69 
+Gate 1518: cx   	 Exec Time: 1218 	 Qubit: 57 69 
+Gate 1519: s   	 Exec Time: 1219 	 Qubit: 69 
+Gate 1520: cx   	 Exec Time: 1220 	 Qubit: 69 70 
+Gate 1521: t   	 Exec Time: 1221 	 Qubit: 70 
+Gate 1522: cx   	 Exec Time: 1222 	 Qubit: 69 70 
+Gate 1523: sd   	 Exec Time: 1223 	 Qubit: 70 
+Gate 1524: cx   	 Exec Time: 1224 	 Qubit: 25 70 
+Gate 1525: t   	 Exec Time: 1225 	 Qubit: 70 
+Gate 1526: cx   	 Exec Time: 1226 	 Qubit: 57 70 
+Gate 1527: cx   	 Exec Time: 1227 	 Qubit: 25 70 
+Gate 1528: td   	 Exec Time: 1228 	 Qubit: 70 
+Gate 1529: cx   	 Exec Time: 1229 	 Qubit: 57 70 
+Gate 1530: cx   	 Exec Time: 1230 	 Qubit: 25 70 
+Gate 1531: s   	 Exec Time: 1231 	 Qubit: 70 
+Gate 1532: h   	 Exec Time: 1232 	 Qubit: 70 
+Gate 1533: cx   	 Exec Time: 1231 	 Qubit: 25 57 
+Gate 1534: sd   	 Exec Time: 1232 	 Qubit: 57 
+Gate 1535: cx   	 Exec Time: 1233 	 Qubit: 25 57 
+Gate 1536: cx   	 Exec Time: 1234 	 Qubit: 25 69 
+Gate 1537: sd   	 Exec Time: 1235 	 Qubit: 69 
+Gate 1538: cx   	 Exec Time: 1236 	 Qubit: 25 69 
+Gate 1539: z   	 Exec Time: 1237 	 Qubit: 68 69 
+Gate 1540: h   	 Exec Time: 1238 	 Qubit: 69 
+Gate 1541: sd   	 Exec Time: 1239 	 Qubit: 69 
+Gate 1542: cx   	 Exec Time: 1240 	 Qubit: 58 69 
+Gate 1543: td   	 Exec Time: 1241 	 Qubit: 69 
+Gate 1544: cx   	 Exec Time: 1242 	 Qubit: 68 69 
+Gate 1545: s   	 Exec Time: 1243 	 Qubit: 69 
+Gate 1546: cx   	 Exec Time: 1244 	 Qubit: 58 69 
+Gate 1547: cx   	 Exec Time: 1245 	 Qubit: 68 69 
+Gate 1548: cx   	 Exec Time: 1246 	 Qubit: 26 69 
+Gate 1549: t   	 Exec Time: 1247 	 Qubit: 69 
+Gate 1550: cx   	 Exec Time: 1248 	 Qubit: 68 69 
+Gate 1551: sd   	 Exec Time: 1249 	 Qubit: 69 
+Gate 1552: cx   	 Exec Time: 1250 	 Qubit: 26 69 
+Gate 1553: t   	 Exec Time: 1251 	 Qubit: 69 
+Gate 1554: cx   	 Exec Time: 1252 	 Qubit: 58 69 
+Gate 1555: cx   	 Exec Time: 1253 	 Qubit: 26 69 
+Gate 1556: td   	 Exec Time: 1254 	 Qubit: 69 
+Gate 1557: cx   	 Exec Time: 1255 	 Qubit: 58 69 
+Gate 1558: cx   	 Exec Time: 1256 	 Qubit: 26 69 
+Gate 1559: s   	 Exec Time: 1257 	 Qubit: 69 
+Gate 1560: h   	 Exec Time: 1258 	 Qubit: 69 
+Gate 1561: cx   	 Exec Time: 1257 	 Qubit: 26 68 
+Gate 1562: sd   	 Exec Time: 1258 	 Qubit: 68 
+Gate 1563: cx   	 Exec Time: 1259 	 Qubit: 26 68 
+Gate 1564: z   	 Exec Time: 1260 	 Qubit: 67 68 
+Gate 1565: h   	 Exec Time: 1261 	 Qubit: 68 
+Gate 1566: sd   	 Exec Time: 1262 	 Qubit: 68 
+Gate 1567: cx   	 Exec Time: 1263 	 Qubit: 59 68 
+Gate 1568: td   	 Exec Time: 1264 	 Qubit: 68 
+Gate 1569: cx   	 Exec Time: 1265 	 Qubit: 67 68 
+Gate 1570: cx   	 Exec Time: 1266 	 Qubit: 59 68 
+Gate 1571: cx   	 Exec Time: 1267 	 Qubit: 27 68 
+Gate 1572: cx   	 Exec Time: 1267 	 Qubit: 59 67 
+Gate 1573: s   	 Exec Time: 1268 	 Qubit: 67 
+Gate 1574: cx   	 Exec Time: 1269 	 Qubit: 59 67 
+Gate 1575: s   	 Exec Time: 1270 	 Qubit: 67 
+Gate 1576: cx   	 Exec Time: 1271 	 Qubit: 67 68 
+Gate 1577: t   	 Exec Time: 1272 	 Qubit: 68 
+Gate 1578: cx   	 Exec Time: 1273 	 Qubit: 67 68 
+Gate 1579: sd   	 Exec Time: 1274 	 Qubit: 68 
+Gate 1580: cx   	 Exec Time: 1275 	 Qubit: 27 68 
+Gate 1581: t   	 Exec Time: 1276 	 Qubit: 68 
+Gate 1582: cx   	 Exec Time: 1277 	 Qubit: 59 68 
+Gate 1583: s   	 Exec Time: 1278 	 Qubit: 68 
+Gate 1584: cx   	 Exec Time: 1279 	 Qubit: 27 68 
+Gate 1585: td   	 Exec Time: 1280 	 Qubit: 68 
+Gate 1586: cx   	 Exec Time: 1281 	 Qubit: 59 68 
+Gate 1587: cx   	 Exec Time: 1282 	 Qubit: 27 68 
+Gate 1588: s   	 Exec Time: 1283 	 Qubit: 68 
+Gate 1589: h   	 Exec Time: 1284 	 Qubit: 68 
+Gate 1590: cx   	 Exec Time: 1283 	 Qubit: 27 59 
+Gate 1591: sd   	 Exec Time: 1284 	 Qubit: 59 
+Gate 1592: cx   	 Exec Time: 1285 	 Qubit: 27 59 
+Gate 1593: cx   	 Exec Time: 1286 	 Qubit: 27 67 
+Gate 1594: sd   	 Exec Time: 1287 	 Qubit: 67 
+Gate 1595: cx   	 Exec Time: 1288 	 Qubit: 27 67 
+Gate 1596: z   	 Exec Time: 1289 	 Qubit: 66 67 
+Gate 1597: z   	 Exec Time: 1290 	 Qubit: 60 67 
+Gate 1598: h   	 Exec Time: 1291 	 Qubit: 67 
+Gate 1599: td   	 Exec Time: 1292 	 Qubit: 67 
+Gate 1600: cx   	 Exec Time: 1293 	 Qubit: 66 67 
+Gate 1601: s   	 Exec Time: 1294 	 Qubit: 67 
+Gate 1602: cx   	 Exec Time: 1295 	 Qubit: 60 67 
+Gate 1603: t   	 Exec Time: 1296 	 Qubit: 67 
+Gate 1604: cx   	 Exec Time: 1297 	 Qubit: 66 67 
+Gate 1605: sd   	 Exec Time: 1298 	 Qubit: 67 
+Gate 1606: cx   	 Exec Time: 1299 	 Qubit: 28 67 
+Gate 1607: t   	 Exec Time: 1300 	 Qubit: 67 
+Gate 1608: cx   	 Exec Time: 1301 	 Qubit: 66 67 
+Gate 1609: sd   	 Exec Time: 1302 	 Qubit: 67 
+Gate 1610: cx   	 Exec Time: 1303 	 Qubit: 60 67 
+Gate 1611: td   	 Exec Time: 1304 	 Qubit: 67 
+Gate 1612: cx   	 Exec Time: 1305 	 Qubit: 60 67 
+Gate 1613: cx   	 Exec Time: 1306 	 Qubit: 28 67 
+Gate 1614: s   	 Exec Time: 1307 	 Qubit: 67 
+Gate 1615: h   	 Exec Time: 1308 	 Qubit: 67 
+Gate 1616: cx   	 Exec Time: 1307 	 Qubit: 28 60 
+Gate 1617: sd   	 Exec Time: 1308 	 Qubit: 60 
+Gate 1618: cx   	 Exec Time: 1309 	 Qubit: 28 60 
+Gate 1619: h   	 Exec Time: 1302 	 Qubit: 66 
+Gate 1620: sd   	 Exec Time: 1303 	 Qubit: 66 
+Gate 1621: cx   	 Exec Time: 1304 	 Qubit: 61 66 
+Gate 1622: td   	 Exec Time: 1305 	 Qubit: 66 
+Gate 1623: cx   	 Exec Time: 1306 	 Qubit: 65 66 
+Gate 1624: s   	 Exec Time: 1307 	 Qubit: 66 
+Gate 1625: cx   	 Exec Time: 1308 	 Qubit: 61 66 
+Gate 1626: cx   	 Exec Time: 1309 	 Qubit: 29 66 
+Gate 1627: cx   	 Exec Time: 1309 	 Qubit: 61 65 
+Gate 1628: sd   	 Exec Time: 1310 	 Qubit: 65 
+Gate 1629: cx   	 Exec Time: 1311 	 Qubit: 61 65 
+Gate 1630: cx   	 Exec Time: 1312 	 Qubit: 65 66 
+Gate 1631: t   	 Exec Time: 1313 	 Qubit: 66 
+Gate 1632: cx   	 Exec Time: 1314 	 Qubit: 65 66 
+Gate 1633: sd   	 Exec Time: 1315 	 Qubit: 66 
+Gate 1634: cx   	 Exec Time: 1316 	 Qubit: 29 66 
+Gate 1635: t   	 Exec Time: 1317 	 Qubit: 66 
+Gate 1636: cx   	 Exec Time: 1318 	 Qubit: 61 66 
+Gate 1637: cx   	 Exec Time: 1319 	 Qubit: 29 66 
+Gate 1638: td   	 Exec Time: 1320 	 Qubit: 66 
+Gate 1639: cx   	 Exec Time: 1321 	 Qubit: 61 66 
+Gate 1640: cx   	 Exec Time: 1322 	 Qubit: 29 66 
+Gate 1641: s   	 Exec Time: 1323 	 Qubit: 66 
+Gate 1642: h   	 Exec Time: 1324 	 Qubit: 66 
+Gate 1643: cx   	 Exec Time: 1323 	 Qubit: 29 61 
+Gate 1644: s   	 Exec Time: 1324 	 Qubit: 61 
+Gate 1645: cx   	 Exec Time: 1325 	 Qubit: 29 61 
+Gate 1646: cx   	 Exec Time: 1326 	 Qubit: 29 65 
+Gate 1647: sd   	 Exec Time: 1327 	 Qubit: 65 
+Gate 1648: cx   	 Exec Time: 1328 	 Qubit: 29 65 
+Gate 1649: z   	 Exec Time: 1329 	 Qubit: 64 65 
+Gate 1650: z   	 Exec Time: 1330 	 Qubit: 62 65 
+Gate 1651: h   	 Exec Time: 1331 	 Qubit: 65 
+Gate 1652: td   	 Exec Time: 1332 	 Qubit: 65 
+Gate 1653: cx   	 Exec Time: 1333 	 Qubit: 64 65 
+Gate 1654: s   	 Exec Time: 1334 	 Qubit: 65 
+Gate 1655: cx   	 Exec Time: 1335 	 Qubit: 62 65 
+Gate 1656: t   	 Exec Time: 1336 	 Qubit: 65 
+Gate 1657: cx   	 Exec Time: 1337 	 Qubit: 64 65 
+Gate 1658: sd   	 Exec Time: 1338 	 Qubit: 65 
+Gate 1659: cx   	 Exec Time: 1339 	 Qubit: 30 65 
+Gate 1660: t   	 Exec Time: 1340 	 Qubit: 65 
+Gate 1661: cx   	 Exec Time: 1341 	 Qubit: 64 65 
+Gate 1662: sd   	 Exec Time: 1342 	 Qubit: 65 
+Gate 1663: cx   	 Exec Time: 1343 	 Qubit: 62 65 
+Gate 1664: td   	 Exec Time: 1344 	 Qubit: 65 
+Gate 1665: cx   	 Exec Time: 1345 	 Qubit: 62 65 
+Gate 1666: cx   	 Exec Time: 1346 	 Qubit: 30 65 
+Gate 1667: s   	 Exec Time: 1347 	 Qubit: 65 
+Gate 1668: h   	 Exec Time: 1348 	 Qubit: 65 
+Gate 1669: cx   	 Exec Time: 1347 	 Qubit: 30 62 
+Gate 1670: sd   	 Exec Time: 1348 	 Qubit: 62 
+Gate 1671: cx   	 Exec Time: 1349 	 Qubit: 30 62 
+Gate 1672: h   	 Exec Time: 1342 	 Qubit: 64 
+Gate 1673: t   	 Exec Time: 1343 	 Qubit: 64 
+Gate 1674: cx   	 Exec Time: 1344 	 Qubit: 31 64 
+Gate 1675: td   	 Exec Time: 1345 	 Qubit: 64 
+Gate 1676: cx   	 Exec Time: 1346 	 Qubit: 63 64 
+Gate 1677: td   	 Exec Time: 1347 	 Qubit: 64 
+Gate 1678: cx   	 Exec Time: 1348 	 Qubit: 31 64 
+Gate 1679: t   	 Exec Time: 1349 	 Qubit: 64 
+Gate 1680: h   	 Exec Time: 1350 	 Qubit: 64 
+Gate 1681: cx   	 Exec Time: 1349 	 Qubit: 31 63 
+Gate 1682: s   	 Exec Time: 1350 	 Qubit: 63 
+Gate 1683: cx   	 Exec Time: 1351 	 Qubit: 31 63 
+
+qsyn> q -f
+

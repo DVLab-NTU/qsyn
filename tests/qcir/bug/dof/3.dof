@@ -1,0 +1,12 @@
+qccr benchmark/qc/Adder32_pyzx.qc
+qcn 1
+qcch 0
+qccp
+qccop 1
+qccp
+qcch 0
+qccp
+qcch 1
+qccp
+qcp
+q -f
