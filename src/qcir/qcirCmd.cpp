@@ -197,7 +197,7 @@ QCirCopyCmd::exec(const string &option) {    // check option
     else if(options.size() == 1){
         unsigned id_g;
         QC_CMD_ID_VALID_OR_RETURN(options[0], id_g, "QCir");
-        QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id_g);
+        QC_CMD_QCIR_ID_NOT_EXIST_OR_RETURN(id_g);
         qcirMgr->copy(id_g);
     }
     else{

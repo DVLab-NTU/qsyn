@@ -1,0 +1,76 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> format 0
+Note: format level is set to 0
+
+qsyn> qcn
+Successfully generated QCir 0
+Checkout to QCir 0
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -h 0
+
+qsyn> qcga -x 1
+
+qsyn> qcga -cx 0 1
+
+qsyn> qcga -h 0
+
+qsyn> qcga -z 1
+
+qsyn> qccp -q
+Q 0  - h( 0)--cx( 2)-- h( 3)-
+Q 1  - x( 1)--cx( 2)-- z( 4)-
+
+qsyn> qcten 0
+
+qsyn> qccp -q
+Q 0  - h( 0)--cx( 2)-- h( 3)-
+Q 1  - x( 1)--cx( 2)-- z( 4)-
+Q 2  - h( 6)--cx( 7)-- h( 9)-
+Q 3  - x( 5)--cx( 7)-- z( 8)-
+
+qsyn> qccp -zx
+Gate 1 (x)
+
+ID:	0	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(1, -) 
+ID:	1	VertexType:	X	Qubit:	1	Phase:	π	#Neighbors:	2	(0, -) (2, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(1, -) 
+Total #Vertices: 3
+
+Gate 0 (h)
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
+ID:	1	VertexType:	H	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (2, -) 
+ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
+Total #Vertices: 3
+
+Gate 2 (cx)
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+ID:	2	VertexType:	Z	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (3, -) (4, -) 
+ID:	3	VertexType:	X	Qubit:	1	Phase:	0	#Neighbors:	3	(1, -) (2, -) (5, -) 
+ID:	4	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -) 
+ID:	5	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(3, -) 
+Total #Vertices: 6
+
+Gate 4 (z)
+
+ID:	0	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(1, -) 
+ID:	1	VertexType:	Z	Qubit:	1	Phase:	π	#Neighbors:	2	(0, -) (2, -) 
+ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(1, -) 
+Total #Vertices: 3
+
+Gate 3 (h)
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
+ID:	1	VertexType:	H	Qubit:	0	Phase:	π	#Neighbors:	2	(0, -) (2, -) 
+ID:	2	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -) 
+Total #Vertices: 3
+
+
+qsyn> q -f
+
