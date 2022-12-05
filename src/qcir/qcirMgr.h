@@ -47,7 +47,7 @@ class QCirMgr{
         QCirList::iterator getcListItr() const           { return _cListItr; }
 
         void setNextID(size_t id)                        { _nextID = id; }
-        void setQCircuit(QCir* g)                           { _circuitList[_cListItr - _circuitList.begin()] = g; }
+        void setQCircuit(QCir* g)                           { delete _circuitList[_cListItr - _circuitList.begin()]; _circuitList[_cListItr - _circuitList.begin()] = g; g->setId(_cListItr - _circuitList.begin()); }
         
 
         // Add and Remove

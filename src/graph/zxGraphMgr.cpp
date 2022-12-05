@@ -24,6 +24,9 @@ extern size_t verbose;
  * 
  */
 void ZXGraphMgr::reset() {
+    for (auto& graph : _graphList) {
+        delete graph;
+    }
     _graphList.clear();
     _gListItr = _graphList.begin();
     _nextID = 0;
