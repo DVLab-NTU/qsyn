@@ -151,6 +151,8 @@ ZXGraph* ZXGraph::compose(ZXGraph* target) {
         this->setOutputs(copiedGraph->getOutputs());
         this->addVertices(copiedGraph->getVertices());
         this->setOutputList(copiedGraph->getOutputList());
+        copiedGraph->disownVertices();
+        delete copiedGraph;
     }
     return this;
 }
@@ -197,6 +199,9 @@ ZXGraph* ZXGraph::tensorProduct(ZXGraph* target) {
     this->addVertices(copiedGraph->getVertices());
     this->mergeInputList(copiedGraph->getInputList());
     this->mergeOutputList(copiedGraph->getOutputList());
+
+    copiedGraph->disownVertices();
+    delete copiedGraph;
 
     return this;
 }
@@ -248,5 +253,19 @@ unordered_map<size_t, ZXVertex*> ZXGraph::id2VertexMap() const {
     unordered_map<size_t, ZXVertex*> id2VertexMap;
     for (const auto& v : _vertices) id2VertexMap[v->getId()] = v;
     return id2VertexMap;
+}
+
+/**
+ * @brief Disown the vertices in a graph, so that they are no longer referenced by this ZXGraph.
+ *        This function is used to change ownership of ZXVertices after composing/tensoring ZXGraphs. 
+ * 
+ */
+void ZXGraph::disownVertices() {
+    _inputs.clear();
+    _outputs.clear();
+    _vertices.clear();
+    _topoOrder.clear();
+    _inputList.clear();
+    _outputList.clear();
 }
 

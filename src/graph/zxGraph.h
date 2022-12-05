@@ -196,6 +196,7 @@ class ZXGraph{
         unordered_map<size_t, ZXVertex*> id2VertexMap() const;
         void mergeInputList(unordered_map<size_t, ZXVertex*> lst)    { _inputList.merge(lst); }
         void mergeOutputList(unordered_map<size_t, ZXVertex*> lst)   { _outputList.merge(lst); }
+        void disownVertices();
 
 
 
