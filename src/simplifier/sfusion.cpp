@@ -24,39 +24,22 @@ void SpiderFusion::match(ZXGraph* g) {
     _matchTypeVec.clear();
     if (verbose >= 8) g->printVertices();
 
-    unordered_set<EdgePair> taken;
-    // unordered_map<EdgePair, size_t> Edge2idx;
-    // size_t i = 0;
-    // g -> forEachEdge([&Edge2idx, &i](const EdgePair& epair) {
-    //     Edge2idx[epair] = i;
-    //     i++;
-    // });
-
-    // vector<bool> validEdge(g->getNumEdges(), true);
+    unordered_set<ZXVertex*> taken;
 
     g->forEachEdge([&taken, this](const EdgePair& epair) {
-        if (taken.contains(epair)) return;
-        taken.insert(epair);
-
-        // NOTE - Skip Hadamard Edges
         if (epair.second != EdgeType::SIMPLE) return;
-        ZXVertex* v0 = epair.first.first;
-        ZXVertex* v1 = epair.first.second;
+        ZXVertex* v0 = epair.first.first;  
+        ZXVertex* v1 = epair.first.second; // to be merged to v0
 
-        // NOTE - Both X or Both Z
-        if ((v0->getType() == v1->getType()) && (v0->getType() == VertexType::X || v0->getType() == VertexType::Z)) {
-            const Neighbors& v0n = v0->getNeighbors();
+        if (taken.contains(v0) || taken.contains(v1)) return;
+
+        if ((v0->getType() == v1->getType()) && (v0->isX() || v0->isZ())) {
+            taken.insert(v0);
+            taken.insert(v1);
             const Neighbors& v1n = v1->getNeighbors();
             // NOTE - Cannot choose the vertex connected to the vertices that will be merged
-            for (auto& [nb, etype] : v0n) {
-                taken.insert(makeEdgePair(v0, nb, etype));
-            }
             for (auto& [nb, etype] : v1n) {
-                taken.insert(makeEdgePair(v1, nb, etype));
-                // NOTE - Cannot choose the vertex connected to the that will be deleted
-                for (auto& [nb2, etype2] : nb->getNeighbors()) {
-                    taken.insert(makeEdgePair(nb, nb2, etype2));
-                }
+                taken.insert(nb);
             }
             _matchTypeVec.push_back(make_pair(v0, v1));
         }
@@ -76,18 +59,14 @@ void SpiderFusion::rewrite(ZXGraph* g) {
     reset();
 
     for (size_t i = 0; i < _matchTypeVec.size(); i++) {
-        // NOTE - No selfloops, directly merge the phase
         _matchTypeVec[i].first->setPhase(_matchTypeVec[i].first->getPhase() + _matchTypeVec[i].second->getPhase());
 
         ZXVertex* v0 = _matchTypeVec[i].first;
         ZXVertex* v1 = _matchTypeVec[i].second;
         Neighbors v1n = v1->getNeighbors();
         unordered_map<ZXVertex*, bool> done;
-        // for(const auto& v: v1n) done[v.first] = false;
 
         for (auto& nbp : v1n) {
-            // if(done[nbp.first]) continue;
-            // NOTE - No more selfloops
             // NOTE - Will become selfloop after merged, only considered hadamard
             if (nbp.first == v0) {
                 if (nbp.second == EdgeType::HADAMARD)
@@ -98,7 +77,6 @@ void SpiderFusion::rewrite(ZXGraph* g) {
                 _edgeTableValues.push_back(nbp.second == EdgeType::SIMPLE ? make_pair(1, 0) : make_pair(0, 1));
             }
         }
-        // NOTE - No selfloops, directly delete v1
         _removeVertices.push_back(v1);
     }
 }
