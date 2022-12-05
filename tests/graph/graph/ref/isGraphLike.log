@@ -142,6 +142,20 @@ Pivot Rule:
 No matches
 Local Complementation Rule: 
 No matches
+Pivot Boundary Rule: 
+1 iterations
+Spider Fusion Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
+No matches
 Phase Gadget Rule: 
 1 iterations
 Spider Fusion Rule: 
@@ -154,14 +168,6 @@ Pivot Rule:
 No matches
 Local Complementation Rule: 
 2 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-2 iterations
-Local Complementation Rule: 
-No matches
 Identity Removal Rule: 
 No matches
 Spider Fusion Rule: 
@@ -181,6 +187,8 @@ No matches
 Pivot Rule: 
 No matches
 Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
 No matches
 Phase Gadget Rule: 
 No matches

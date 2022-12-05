@@ -75,7 +75,8 @@ void Pivot::match(ZXGraph* g){
             }
         }
 
-        if(b0.size() > 0 && b1.size() > 0) return;   // skip when Neighbors are all connected to boundary
+        // if(b0.size() > 0 && b1.size() > 0) return;   // skip when Neighbors are all connected to boundary
+        if(b0.size() + b1.size() > 1) return;   // skip when Neighbors are all connected to boundary
         // 5: taken
         taken.insert(vs);
         taken.insert(vt);

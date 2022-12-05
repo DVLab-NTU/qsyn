@@ -176,7 +176,7 @@ Identity Removal Rule:
 Spider Fusion Rule: 
 1 iterations
 Pivot Rule: 
-6 iterations
+3 iterations
 Local Complementation Rule: 
 No matches
 Identity Removal Rule: 
@@ -238,6 +238,8 @@ No matches
 Pivot Rule: 
 No matches
 Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
 No matches
 Phase Gadget Rule: 
 No matches

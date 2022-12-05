@@ -62,26 +62,22 @@ void PivotBoundary::match(ZXGraph* g) {
 
         // check vs is only connected to boundary, or connected to Z-spider by H-edge
         for (auto& [nb, etype] : vs->getNeighbors()) {
-            if (nb->isZ() && etype == EdgeType::HADAMARD) continue;
-            else if (nb->isBoundary()) {
+            if (nb->isBoundary()) {
                 b0.push_back(nb);
+                continue;
             }
-            else return;
+            if (!nb->isZ() || etype != EdgeType::HADAMARD) return;
         }
         // check vt is only connected to Z-spider by H-edge
         for (auto& [nb, etype] : vt->getNeighbors()) {
-            if (nb->isZ() && etype == EdgeType::HADAMARD) continue;
-            else return;
+            if (!nb->isZ() || etype != EdgeType::HADAMARD) return;
         }
+        if (b0.size() > 1) return;
 
         taken.insert(vs);
         taken.insert(vt);
-        for (auto& [v, _] : vs->getNeighbors()) {
-            taken.insert(v);
-        }
-        for (auto& [v, _] : vt->getNeighbors()) {
-            taken.insert(v);
-        }
+        for (auto& [nb, _] : vs->getNeighbors()) taken.insert(nb);
+        for (auto& [nb, _] : vt->getNeighbors()) taken.insert(nb);
 
         this->_matchTypeVec.push_back({vs, vt});
         this->_boundaries.insert(this->_boundaries.end(), b0.begin(), b0.end());
