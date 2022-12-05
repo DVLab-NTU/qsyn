@@ -66,6 +66,8 @@ void QCir::ZXMapping() {
         }
 
         _ZXG->concatenate(tmp, false);
+        tmp->disownVertices();
+        delete tmp;
     });
 
     _ZXGraphList.push_back(_ZXG);
