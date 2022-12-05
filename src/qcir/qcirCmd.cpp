@@ -15,6 +15,7 @@
 #include "phase.h"
 #include "qcir.h"
 #include "qcirGate.h"
+#include "qcirMgr.h"
 #include "qcirCmd.h"
 #include "util.h"
 
