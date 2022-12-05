@@ -80,7 +80,7 @@ QCirCheckoutCmd::exec(const string &option) {
     else {
         unsigned id;
         QC_CMD_ID_VALID_OR_RETURN(token, id, "QCir");
-        QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id);
+        QC_CMD_QCIR_ID_EXISTS_OR_RETURN(id);
         qcirMgr->checkout2QCir(id);
     }
     return CMD_EXEC_DONE;
@@ -130,7 +130,7 @@ QCirDeleteCmd::exec(const string &option) {
     else {
         unsigned id;
         QC_CMD_ID_VALID_OR_RETURN(token, id, "QCir");
-        QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id);
+        QC_CMD_QCIR_ID_EXISTS_OR_RETURN(id);
         qcirMgr->removeQCir(id);
     }
     return CMD_EXEC_DONE;
@@ -196,7 +196,7 @@ QCirCopyCmd::exec(const string &option) {  // check option
         if (!doReplace) return CmdExec::errorOption(CMD_OPT_MISSING, "-Replace");
         unsigned id_g;
         QC_CMD_ID_VALID_OR_RETURN(options[id_idx], id_g, "QCir");
-        QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id_g);
+        QC_CMD_QCIR_ID_EXISTS_OR_RETURN(id_g);
         qcirMgr->copy(id_g, false);
     } else if (options.size() == 1) {
         unsigned id_g;
@@ -231,7 +231,7 @@ QCirComposeCmd::exec(const string &option) {
     } else {
         unsigned id;
         QC_CMD_ID_VALID_OR_RETURN(token, id, "QCir");
-        QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id);
+        QC_CMD_QCIR_ID_EXISTS_OR_RETURN(id);
         qcirMgr->getQCircuit()->compose(qcirMgr->findQCirByID(id));
     }
     return CMD_EXEC_DONE;
@@ -259,7 +259,7 @@ QCirTensorCmd::exec(const string &option) {
     } else {
         unsigned id;
         QC_CMD_ID_VALID_OR_RETURN(token, id, "QCir");
-        QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id);
+        QC_CMD_QCIR_ID_EXISTS_OR_RETURN(id);
         qcirMgr->getQCircuit()->tensorProduct(qcirMgr->findQCirByID(id));
     }
 
