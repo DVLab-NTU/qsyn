@@ -301,7 +301,7 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
             (vs->isX() && vt->isZ() && et == EdgeType::HADAMARD) ||
             (vs->isZ() && vt->isZ() && et == EdgeType::SIMPLE) ||
             (vs->isX() && vt->isX() && et == EdgeType::SIMPLE)) {
-            if (verbose >= 5) cout << "Note: Redundant edge; merging into existing edge..." << endl;
+            if (verbose >= 5) cout << "Note: redundant edge; merging into existing edge..." << endl;
         } else if (
             (vs->isZ() && vt->isX() && et == EdgeType::SIMPLE) ||
             (vs->isX() && vt->isZ() && et == EdgeType::SIMPLE) ||

@@ -48,86 +48,6 @@ Identity Removal Rule:
 Spider Fusion Rule: 
 4 iterations
 Pivot Rule: 
-2 iterations
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-5 iterations
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-1 iterations
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-1 iterations
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-1 iterations
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-1 iterations
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
 1 iterations
 Local Complementation Rule: 
 No matches
@@ -140,11 +60,83 @@ Pivot Rule:
 Local Complementation Rule: 
 No matches
 Identity Removal Rule: 
-2 iterations
+1 iterations
 Spider Fusion Rule: 
 1 iterations
 Pivot Rule: 
-2 iterations
+No matches
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+1 iterations
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+1 iterations
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+1 iterations
+Pivot Rule: 
+1 iterations
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+1 iterations
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+1 iterations
+Pivot Rule: 
+1 iterations
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+1 iterations
+Pivot Rule: 
+1 iterations
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+1 iterations
+Pivot Rule: 
+1 iterations
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+1 iterations
+Pivot Rule: 
+1 iterations
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+1 iterations
+Pivot Rule: 
+1 iterations
 Local Complementation Rule: 
 No matches
 Identity Removal Rule: 
@@ -160,7 +152,15 @@ Identity Removal Rule:
 Spider Fusion Rule: 
 1 iterations
 Pivot Rule: 
+1 iterations
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
 2 iterations
+Spider Fusion Rule: 
+1 iterations
+Pivot Rule: 
+1 iterations
 Local Complementation Rule: 
 No matches
 Identity Removal Rule: 
@@ -190,6 +190,8 @@ No matches
 Pivot Rule: 
 No matches
 Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
 No matches
 Phase Gadget Rule: 
 No matches
