@@ -42,7 +42,7 @@ if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end()) {\
 
 #define QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id) {\
 if (!(qcirMgr->isID(id))) {\
-    cerr << "Error: Graph " << (id) << " is not existed!!\n"; \
+    cerr << "Error: QCir " << (id) << " is not existed!!\n"; \
     return CMD_EXEC_ERROR;\
 }}
 
@@ -50,6 +50,12 @@ if (!(qcirMgr->isID(id))) {\
 if (!myStr2Uns((option), (id))) { \
     cerr << "Error: invalid " << str << " ID!!\n"; \
     return errorOption(CMD_OPT_ILLEGAL, (option)); \
+}}
+
+#define QC_CMD_QCIR_ID_NOT_EXIST_OR_RETURN(id) {\
+if (qcirMgr->isID(id)) {\
+    cerr << "Error: QCir " << (id) << " already exists!! Add `-Replace` if you want to overwrite it.\n"; \
+    return CMD_EXEC_ERROR;\
 }}
 
 #endif // QCIR_CMD_H

@@ -15,6 +15,12 @@ qsyn> qccp
 QCir 0( 95 qubits, 1684 gates)
 
 qsyn> qccop 1
+Error: QCir 1 already exists!! Add `-Replace` if you want to overwrite it.
+
+qsyn> qccp
+QCir 0( 95 qubits, 1684 gates)
+
+qsyn> qccop 1 -r
 Successfully copied QCir 0 to QCir 1
 Checkout to QCir 1
 
@@ -31,10 +37,10 @@ qsyn> qcch 1
 Checkout to QCir 1
 
 qsyn> qccp
-QCir 1( 0 qubits, 0 gates)
+QCir 1( 95 qubits, 1684 gates)
 
 qsyn> qcp
--> #QCir: 3
+-> #QCir: 2
 -> Now focus on: 1
 
 qsyn> q -f

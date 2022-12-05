@@ -3,6 +3,7 @@ qsyn> qccr benchmark/zx/cnots.zx
 Note: QCir list is empty now. Create a new one.
 Successfully generated QCir 0
 Checkout to QCir 0
+Do not support the file extension .zx
 
 qsyn> q -f
 
