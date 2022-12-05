@@ -258,6 +258,8 @@ ZXGraph *SYGate::getZXform()
 ZXGraph *CnRZGate::getZXform(){
     ZXGraph *temp = new ZXGraph(_id);
     Phase phase = Phase(1, pow(2, _qubits.size()-1));
+    Rational ratio = _rotatePhase / Phase(1);
+    phase = phase * ratio;
     if(verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl; 
     vector<ZXVertex*> verVec; 
     for(const auto bitinfo : _qubits){
@@ -291,6 +293,8 @@ ZXGraph *CnRZGate::getZXform(){
 ZXGraph *CnRXGate::getZXform(){
     ZXGraph *temp = new ZXGraph(_id);
     Phase phase = Phase(1, pow(2, _qubits.size()-1));
+    Rational ratio = _rotatePhase / Phase(1);
+    phase = phase * ratio;
     if(verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl; 
     vector<ZXVertex*> verVec; 
     size_t targetQubit = _qubits[_qubits.size()-1]._qubit;

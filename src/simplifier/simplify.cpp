@@ -73,7 +73,7 @@ int Simplifier::simp() {
 
 
         timer = chrono::steady_clock::now();
-        unordered_set<EdgePair_depr> redundantEdges;
+        
         for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
             ZXVertex* v                = _rule->getEdgeTableKeys()[e].first;
             ZXVertex* v_n              = _rule->getEdgeTableKeys()[e].second;

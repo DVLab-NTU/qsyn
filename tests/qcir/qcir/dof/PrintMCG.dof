@@ -1,0 +1,13 @@
+qcba 11
+qcga -mcrx -ph pi 0 2 10 9
+qcga -mcrz -ph pi 0 2 6 4 10 3 7
+qcga -cx 8 1
+qcga -ccx 9 4 5
+qcga -mcrz -ph pi 8
+qccp -q
+qcgp 0
+qcgp 1
+qcgp 2
+qcgp 3
+qcgp 4
+q -f
