@@ -351,7 +351,7 @@ FormatCmd::exec(const string& option)
       cerr << "Error: format level should be 0-1 !!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    }
-   cerr << "Note: format level is set to " << level << endl;
+   cout << "Note: format level is set to " << level << endl;
    formatLevel = level;
    return CMD_EXEC_DONE;
 }
