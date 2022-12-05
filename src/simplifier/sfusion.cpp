@@ -64,7 +64,6 @@ void SpiderFusion::rewrite(ZXGraph* g) {
         ZXVertex* v0 = _matchTypeVec[i].first;
         ZXVertex* v1 = _matchTypeVec[i].second;
         Neighbors v1n = v1->getNeighbors();
-        unordered_map<ZXVertex*, bool> done;
 
         for (auto& nbp : v1n) {
             // NOTE - Will become selfloop after merged, only considered hadamard

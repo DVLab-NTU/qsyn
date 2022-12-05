@@ -313,15 +313,10 @@ public:
     virtual ~Pivot() {}
 
     void match(ZXGraph* g) override;
-    // void rewrite(ZXGraph* g) override;
 
-    // Getter and Setter
-    // const MatchTypeVec& getMatchTypeVec() const { return _matchTypeVec; }
-    // void setMatchTypeVec(MatchTypeVec v) { _matchTypeVec = v; }
 protected:
     void preprocess(ZXGraph* g) override;
     vector<ZXVertex*> _boundaries;
-    // MatchTypeVec _matchTypeVec;
 };
 
 /**
@@ -330,7 +325,7 @@ protected:
  */
 class PivotGadget : public PivotInterface {
 public:
-    typedef PivotInterface::MatchType MatchType;  // vs, vt(need to remove)
+    typedef PivotInterface::MatchType MatchType; 
     typedef PivotInterface::MatchTypeVec MatchTypeVec;
 
     PivotGadget() {
@@ -348,10 +343,10 @@ protected:
  * @brief Finds non-interacting matchings of the pivot gadget rule.
  *
  */
-class PivotBoundary : public ZXRule {
+class PivotBoundary : public PivotInterface {
 public:
-    typedef int MatchType;
-    typedef vector<MatchType> MatchTypeVec;
+    typedef PivotInterface::MatchType MatchType; 
+    typedef PivotInterface::MatchTypeVec MatchTypeVec;
 
     PivotBoundary() {
         _name = "Pivot Boundary Rule";
@@ -359,15 +354,10 @@ public:
     virtual ~PivotBoundary() {}
 
     void match(ZXGraph* g) override;
-    void rewrite(ZXGraph* g) override;
-
-    // Getter and Setter
-    const MatchTypeVec& getMatchTypeVec() const { return _matchTypeVec; }
-    void setMatchTypeVec(MatchTypeVec v) { _matchTypeVec = v; }
 
 protected:
-    bool checkBadMatch(const Neighbors&, EdgePair, bool);
-    MatchTypeVec _matchTypeVec;
+    void preprocess(ZXGraph* g) override;
+    vector<ZXVertex*> _boundaries;
 };
 
 /**
