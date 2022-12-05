@@ -12,7 +12,6 @@
 #include "qcirMgr.h"
 #include "qcir.h"
 #include "qcirGate.h"
-#include "qcirMgr.h"
 #include "qcirCmd.h"
 #include "util.h"
 #include "phase.h"
@@ -44,7 +43,8 @@ bool initQCirCmd()
          cmdMgr->regCmd("QC2ZX", 5, new QCir2ZXCmd) &&
          cmdMgr->regCmd("QC2TS", 5, new QCir2TSCmd) &&
          cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd) &&
-         cmdMgr->regCmd("QCGMAdd", 5, new QCirAddMultipleCmd)
+         cmdMgr->regCmd("QCGMAdd", 5, new QCirAddMultipleCmd) 
+         // && cmdMgr->regCmd("QCTEST", 6, new QCirTestCmd)
          ))
    {
       cerr << "Registering \"qcir\" commands fails... exiting" << endl;
@@ -63,7 +63,8 @@ enum QCirCmdState
 };
 
 static QCirCmdState curCmd = QCIRINIT;
-
+   
+   
 //----------------------------------------------------------------------
 //    QCCHeckout <(size_t id)>
 //----------------------------------------------------------------------
