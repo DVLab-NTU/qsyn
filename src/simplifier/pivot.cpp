@@ -32,10 +32,9 @@ void Pivot::match(ZXGraph* g){
     this->_boundaries.clear();
     if(verbose >= 8) g->printVertices();
     
-    size_t cnt = 0;
     unordered_set<ZXVertex*> taken;
     vector<ZXVertex*> b0, b1;
-    g -> forEachEdge([&cnt, &taken, &b0, &b1, this](const EdgePair& epair) {
+    g -> forEachEdge([&taken, &b0, &b1, this](const EdgePair& epair) {
         b0.clear(); b1.clear();
         if(epair.second != EdgeType::HADAMARD) return;
 
@@ -47,8 +46,8 @@ void Pivot::match(ZXGraph* g){
         if(!vs->isZ() || !vt->isZ()) return;
 
         // 3: Check Neighbors Phase 
-        bool vsIsNPi = (vs->getPhase().getRational().denominator() == 1);
-        bool vtIsNPi = (vt->getPhase().getRational().denominator() == 1);
+        bool vsIsNPi = vs->hasNPiPhase();
+        bool vtIsNPi = vt->hasNPiPhase();
 
         if (!vsIsNPi || !vtIsNPi) return;
 
@@ -60,17 +59,24 @@ void Pivot::match(ZXGraph* g){
             else if(v->isBoundary()) {
                 b0.push_back(v);
             }
-            else return;
+            else {
+                taken.insert(v);
+                return;
+            }
         }
         for(auto& [v, et]: vt->getNeighbors()){
             if(v->isZ() && et == EdgeType::HADAMARD) continue;
             else if(v->isBoundary()) {
                 b1.push_back(v);
             }
-            else return;
+            else {
+                taken.insert(v);
+                return;
+            }
         }
 
-        if(b0.size() > 0 && b1.size() > 0) return;   // skip when Neighbors are all connected to boundary
+        // if(b0.size() > 0 && b1.size() > 0) return;   // skip when Neighbors are all connected to boundary
+        if(b0.size() + b1.size() > 1) return;   // skip when Neighbors are all connected to boundary
         // 5: taken
         taken.insert(vs);
         taken.insert(vt);
@@ -82,11 +88,9 @@ void Pivot::match(ZXGraph* g){
         }
         // 6: add Epair into _matchTypeVec
         this->_matchTypeVec.push_back({vs, vt});
-        for (auto v : b0) _boundaries.push_back(v);
-        for (auto v : b1) _boundaries.push_back(v);
+        this->_boundaries.insert(this->_boundaries.end(), b0.begin(), b0.end());
+        this->_boundaries.insert(this->_boundaries.end(), b1.begin(), b1.end());
 
-
-        // 7: clear vector
     });
     setMatchTypeVecNum(this->_matchTypeVec.size());
 }

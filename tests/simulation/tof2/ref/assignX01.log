@@ -84,6 +84,8 @@ Pivot Rule:
 No matches
 Local Complementation Rule: 
 No matches
+Pivot Boundary Rule: 
+No matches
 Phase Gadget Rule: 
 1 iterations
 Spider Fusion Rule: 
@@ -115,6 +117,8 @@ No matches
 Pivot Rule: 
 No matches
 Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
 No matches
 Phase Gadget Rule: 
 No matches
@@ -226,7 +230,7 @@ Identity Removal Rule:
 Spider Fusion Rule: 
 1 iterations
 Pivot Rule: 
-1 iterations
+No matches
 Local Complementation Rule: 
 No matches
 Identity Removal Rule: 
@@ -238,21 +242,13 @@ No matches
 Local Complementation Rule: 
 No matches
 Pivot Gadget Rule: 
-2 iterations
+3 iterations
 Spider Fusion Rule: 
 No matches
 Identity Removal Rule: 
 1 iterations
 Spider Fusion Rule: 
 1 iterations
-Pivot Rule: 
-1 iterations
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-2 iterations
-Spider Fusion Rule: 
-No matches
 Pivot Rule: 
 No matches
 Local Complementation Rule: 
@@ -264,6 +260,50 @@ No matches
 Pivot Rule: 
 No matches
 Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
+No matches
+Phase Gadget Rule: 
+1 iterations
+Spider Fusion Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+1 iterations
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Pivot Gadget Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
 No matches
 Phase Gadget Rule: 
 No matches
@@ -286,8 +326,8 @@ ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(1, -)
 ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(0, -) 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(5, -) 
 ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	31	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(32, [1m[34mH[0m[0m) 
-ID:	32	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(31, [1m[34mH[0m[0m) 
+ID:	29	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/4	#Neighbors:	1	(30, [1m[34mH[0m[0m) 
+ID:	30	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	1	(29, [1m[34mH[0m[0m) 
 Total #Vertices: 6
 
 
@@ -398,6 +438,8 @@ Pivot Rule:
 No matches
 Local Complementation Rule: 
 No matches
+Pivot Boundary Rule: 
+No matches
 Phase Gadget Rule: 
 1 iterations
 Spider Fusion Rule: 
@@ -429,6 +471,8 @@ No matches
 Pivot Rule: 
 No matches
 Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
 No matches
 Phase Gadget Rule: 
 No matches
