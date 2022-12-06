@@ -287,7 +287,7 @@ void CmdParser::moveToHistory(int index) {
 bool CmdParser::addHistory() {
     char* tmp = _readBuf;
 
-    char* _cmdEnd = _readBufEnd;
+    char* _cmdEnd = _readBufEnd - 1;
 
     // find the first '//' 
     while (tmp < _readBufEnd - 1) {
