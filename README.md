@@ -144,7 +144,7 @@ There are two types of testing approaches:
 | Cmd          | Description                         			| Options     |
 | --------     | --------                            			| --------    |
 | DOfile       | execute the commands in the dofile  			|             |
-| FORMAT       | set format level (0: none, 1: all)  			|             |
+| COLOR        | set color of ZXvertices (0: grayscale, 1:color)|             |
 | HELp         | print this help message             			|             |
 | HIStory      | print command history               			|             |
 | Quit         | quit the execution                  			|             |
