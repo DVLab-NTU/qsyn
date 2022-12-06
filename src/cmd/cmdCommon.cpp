@@ -344,14 +344,14 @@ ColorCmd::exec(const string& option)
       return CMD_EXEC_ERROR;
    unsigned level;
    if(!myStr2Uns(token, level)){
-      cerr << "Error: color level should be a positive integer or 0!!" << endl;
+      cerr << "Error: colored should be a positive integer or 0!!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    }
    if(level > 1){
-      cerr << "Error: color level should be 0-1 !!" << endl;
+      cerr << "Error: colored should be 0-1 !!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    }
-   cout << "Note: color level is set to " << level << endl;
+   cout << "Note: colored is set to " << level << endl;
    colorLevel = level;
    return CMD_EXEC_DONE;
 }
@@ -359,12 +359,12 @@ ColorCmd::exec(const string& option)
 void
 ColorCmd::usage(ostream& os) const
 {
-   os << "Usage: COLOR <size_t colorLevel>" << endl;
+   os << "Usage: COLOR <bool colored>" << endl;
 }
 
 void
 ColorCmd::help() const
 {
    cout << setw(15) << left << "COLOR: "  
-        << "set color of ZXvertices (0: grayscale, 1: color)" << endl;
+        << "command line printing mode (0: grayscale, 1: color)" << endl;
 }
