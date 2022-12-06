@@ -10,7 +10,6 @@ qsyn> zxgedit -addo 0
 qsyn> zxgedit -addv 0 Z
 
 qsyn> // out-edge are H-edge
-
 qsyn> zxgedit -adde 0 2 SIMPLE
 
 qsyn> zxgedit -adde 2 1 HADAMARD
@@ -40,7 +39,6 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> // both edges are S-edge
-
 qsyn> zxgedit -rme 2 1 -ALL
 
 qsyn> zxgedit -adde 2 1 SIMPLE
@@ -70,7 +68,6 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> // in-edge are H-edge
-
 qsyn> zxgedit -rme 0 2 -ALL
 
 qsyn> zxgedit -adde 2 0 HADAMARD
@@ -100,7 +97,6 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> // Both edges are H-edge
-
 qsyn> zxgedit -rme 1 2 -ALL
 
 qsyn> zxgedit -adde 2 1 HADAMARD
