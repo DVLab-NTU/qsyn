@@ -23,7 +23,7 @@ extern bool initSimpCmd();
 extern bool initTensorCmd();
 extern bool initM2Cmd();
 size_t verbose = 3; 
-size_t formatLevel = 1;
+size_t colorLevel = 1;
 
 static void
 usage()

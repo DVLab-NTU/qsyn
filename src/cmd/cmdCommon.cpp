@@ -13,7 +13,7 @@
 
 using namespace std;
 extern size_t verbose;
-extern size_t formatLevel;
+extern size_t colorLevel;
 
 bool
 initCommonCmd()
@@ -26,7 +26,7 @@ initCommonCmd()
          cmdMgr->regCmd("VERbose", 3, new VerboseCmd) &&
          cmdMgr->regCmd("SEED", 4, new SeedCmd) &&
          cmdMgr->regCmd("//", 2, new CommentCmd) &&
-         cmdMgr->regCmd("FORMAT", 6, new FormatCmd)
+         cmdMgr->regCmd("COLOR", 5, new ColorCmd)
       )) {
       cerr << "Registering \"init\" commands fails... exiting" << endl;
       return false;
@@ -333,10 +333,10 @@ CommentCmd::help() const
 }
 
 //----------------------------------------------------------------------
-//    FORMAT <size_t format level>
+//    COLOR <size_t color level>
 //----------------------------------------------------------------------
 CmdExecStatus
-FormatCmd::exec(const string& option)
+ColorCmd::exec(const string& option)
 {
    // check option
    string token;
@@ -344,27 +344,27 @@ FormatCmd::exec(const string& option)
       return CMD_EXEC_ERROR;
    unsigned level;
    if(!myStr2Uns(token, level)){
-      cerr << "Error: format level should be a positive integer or 0!!" << endl;
+      cerr << "Error: color level should be a positive integer or 0!!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    }
    if(level > 1){
-      cerr << "Error: format level should be 0-1 !!" << endl;
+      cerr << "Error: color level should be 0-1 !!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    }
-   cout << "Note: format level is set to " << level << endl;
-   formatLevel = level;
+   cout << "Note: color level is set to " << level << endl;
+   colorLevel = level;
    return CMD_EXEC_DONE;
 }
 
 void
-FormatCmd::usage(ostream& os) const
+ColorCmd::usage(ostream& os) const
 {
-   os << "Usage: FORMAT <size_t format level>" << endl;
+   os << "Usage: COLOR <size_t colorLevel>" << endl;
 }
 
 void
-FormatCmd::help() const
+ColorCmd::help() const
 {
-   cout << setw(15) << left << "FORMAT: "
-        << "set format level (0: none, 1: all)" << endl;
+   cout << setw(15) << left << "COLOR: "  
+        << "set color of ZXvertices (0: grayscale, 1: color)" << endl;
 }
