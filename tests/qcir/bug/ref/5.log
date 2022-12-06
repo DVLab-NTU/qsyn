@@ -1,6 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.3.0
-qsyn> format 0
-Note: format level is set to 0
+qsyn> color 0
+Note: color level is set to 0
 
 qsyn> qcn
 Successfully generated QCir 0
