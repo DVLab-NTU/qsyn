@@ -457,7 +457,7 @@ void QCirPrintCmd::usage(ostream &os) const {
 
 void QCirPrintCmd::help() const {
     cout << setw(15) << left << "QCCPrint: "
-         << "print quanutm circuit\n";
+         << "print quantum circuit\n";
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------

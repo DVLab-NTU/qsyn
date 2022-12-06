@@ -707,7 +707,7 @@ void ZXGReadCmd::usage(ostream &os) const {
 
 void ZXGReadCmd::help() const {
     cout << setw(15) << left << "ZXGRead: "
-         << "read a ZXGraph" << endl;
+         << "read a ZX-graph" << endl;
 }
 
 
@@ -767,7 +767,7 @@ void ZXGWriteCmd::usage(ostream &os) const {
 
 void ZXGWriteCmd::help() const {
     cout << setw(15) << left << "ZXGWrite: "
-         << "write ZXFile\n";
+         << "write a ZX-graph to file\n";
 }
 
 
