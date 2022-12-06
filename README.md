@@ -6,15 +6,15 @@
 ![g++-10](https://img.shields.io/badge/g++-≥10-blue?style=plastic)
 ![gfortran-10](https://img.shields.io/badge/gfortran-≥10-blueviolet?style=plastic)
 
-# Qsyn: An end-to-end quantum compilation framework
+# Qsyn: An End-to-End Quantum Program Compilation Framework
 <!-- ![example branch parameter](https://github.com/ric2k1/qsyn/actions/workflows/build-and-test.yml/badge.svg)
  -->
- ![](https://i.imgur.com/ZXCkcvc.png)
+ ![](https://i.imgur.com/x2lKZXb.png)
 
 ## Introduction
-Qsyn is a C++ based growing software system for synthesis, optimization and verification of quantum circuits appearing in quantum computers. Qsyn combines scalable quantum circuits optimization by implementing ZX-Calculus and technology mapping.
+Qsyn is a C++ based growing software system for synthesis, optimization and verification of quantum circuits appearing in quantum computers. Qsyn combines scalable quantum circuits optimization by implementing ZX-Calculus and qubit mapping.
 
-Qsyn provides an experimental implementation of optimization algorithms and a programming envirnoment for simulation or building similar applications. Future development will focus on enhancing the algorithms, visualization of ZX-Graphs and implementation of lattice surgery for error correction codes.
+Qsyn provides an experimental implementation of optimization algorithms and a programming environment for simulation or building similar applications. Future development will focus on enhancing the algorithms, visualization of ZX-Graphs and implementation of lattice surgery for error correction codes.
 
 ## Getting Started
 ### Installation
@@ -49,7 +49,7 @@ cd qsyn
 
 ### Run
 
-* After successful compilation, you can call the command line interpreter of `Qsyn` where you can execute commands implemented into `Qsyn`.
+* After successful compilation, you can run `Qsyn` interactively by
     
    ```shell!
     ❯ ./qsyn
@@ -58,7 +58,7 @@ cd qsyn
    ```
 
 
-* To run the demo program, you can provide a file contains cmds. For example:
+* To run the demo program, you can provide a file containing commands. For example,
     ```shell!
     ❯ ./qsyn < tests/demo/demo/dof/tof_3.dof
     DV Lab, NTUEE, Qsyn 0.3.0
@@ -158,6 +158,8 @@ There are two types of testing approaches:
 
 | Cmd          | Description                         					| Options     |
 | --------     | --------                            					| --------    |
+| QC2TS        | convert the quantum circuit to tensor				    |             |
+| QC2ZX        | convert the quantum circuit to ZX-graph				|             |
 | QCBAdd       | add qubit(s)					                		|             |
 | QCBDelete    | delete an empty qubit					        		|             |
 | QCCPrint     | print quanutm circuit					        		|             |
@@ -166,8 +168,7 @@ There are two types of testing approaches:
 | QCGAdd       | add quantum gate					                    |             |
 | QCGDelete    | delete quantum gate				                    |             |
 | QCGPrint     | print quantum gate information				            |             |
-| QCTSMapping  | mapping to tensor from quantum circuit				    |             |
-| QCZXMapping  | mapping to ZX-graph from quantum circuit				|             |
+
 
 
 
@@ -175,6 +176,7 @@ There are two types of testing approaches:
 
 | Cmd           | Description                         								| Options     |
 | --------      | --------                            								| --------    |
+| ZX2TS         | convert the ZX-graph to tensor    			                    |             |
 | ZXCHeckout    | checkout to Graph <id> in ZXGraphMgr                				|             |
 | ZXCOMpose     | compose a ZX-graph				                                |             |
 | ZXCOPy        | copy a ZX-graph				                                    |             |
@@ -186,7 +188,6 @@ There are two types of testing approaches:
 | ZXGSimp       | perform simplification strategies for ZX-graph        			|             |
 | ZXGTest       | test ZX-graph structures and functions	    			        |             |
 | ZXGTRaverse   | traverse ZX-graph and update topological order of vertices	    |             |
-| ZXGTSMapping  | mapping to tensor from ZX-Graph    			                    |             |
 | ZXGWrite      | write ZXFile    			                                        |             |
 | ZXMode        | check out to ZX-graph mode    			                        |             |
 | ZXNew         | new ZX-graph to ZXGraphMgr        			                     |             |
@@ -199,7 +200,7 @@ There are two types of testing approaches:
 ### Tensor
 | Cmd          | Description                                         | Options     |
 | --------     | --------                                            | --------    |
-| TSADJoint        | adjoint the specified tensor | |
+| TSADJoint    | adjoint the specified tensor | |
 | TSEQuiv	   | compare the equivalency of two stored tensors	     |             |
 | TSPrint	   | print information about stored tensors	             |             |
 | TSReset	   | reset the tensor manager	                         |             |

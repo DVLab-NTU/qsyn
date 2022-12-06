@@ -197,7 +197,7 @@ void TSEquivalenceCmd::usage(ostream &os) const {
 
 void TSEquivalenceCmd::help() const {
     cout << setw(15) << left << "TSEQuiv: "
-         << "compare the equivalency of two stored tensors" << endl;
+         << "check the equivalency of two stored tensors" << endl;
 }
 
 //----------------------------------------------------------------------
