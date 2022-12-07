@@ -68,5 +68,5 @@ ID:	6	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(2, -)
 Total #Vertices: 6
 
 
-qsyn> q -f
+qsyn> qq -f
 

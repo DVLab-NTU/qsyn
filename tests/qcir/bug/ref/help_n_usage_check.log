@@ -7,7 +7,6 @@ HELp:          print this help message
 HIStory:       print command history
 M2GAUE:        perform Gaussian elimination
 M2TEST:        test funct.
-Quit:          quit the execution
 QC2TS:         convert the QCir to tensor
 QC2ZX:         convert the QCir to ZX-graph
 QCBAdd:        add qubit(s)
@@ -27,6 +26,7 @@ QCNew:         new QCir to QCirMgr
 QCPrint:       print info in QCirMgr
 QCReset:       reset QCirMgr
 QCTensor:      tensor a QCir
+QQuit:         quit the execution
 SEED:          fix the seed
 TSADJoint:     adjoint the specified tensor
 TSEQuiv:       check the equivalency of two stored tensors
@@ -75,8 +75,8 @@ Usage: M2GAUE
 qsyn> help M2TEST      
 Usage: M2TEST
 
-qsyn> help Q
-Usage: Quit [-Force]
+qsyn> help QQ
+Usage: QQuit [-Force]
 
 qsyn> help QC2TS       
 Usage: QC2TS
@@ -226,5 +226,5 @@ Usage: ZXReset
 qsyn> help ZXTensor    
 Usage: ZXTensor <size_t id>
 
-qsyn> q -f
+qsyn> qq -f
 

@@ -11,4 +11,4 @@ tseq 0 1 -Eps 1e-4
 tseq 0 1 -Eps 1e-6
 tseq 0 1 -Eps 1e-8
 tseq 0 1 -Eps 1e-10
-q -f
+qq -f

@@ -11,4 +11,4 @@ qccp -q
 qcten 0
 qccp -q
 qccp -zx
-q -f
+qq -f

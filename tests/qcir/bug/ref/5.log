@@ -35,5 +35,5 @@ Q 3  - x( 5)--cx( 7)-- z( 8)-
 qsyn> qccp -zx
 Error: Illegal option!! (-zx)
 
-qsyn> q -f
+qsyn> qq -f
 

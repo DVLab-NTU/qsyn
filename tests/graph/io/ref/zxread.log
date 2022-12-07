@@ -14,5 +14,5 @@ Checkout to Graph 1
 qsyn> zxgr -R benchmark/zx/tof3.zx
 Note: original ZX-graph is replaced...
 
-qsyn> q -f
+qsyn> qq -f
 

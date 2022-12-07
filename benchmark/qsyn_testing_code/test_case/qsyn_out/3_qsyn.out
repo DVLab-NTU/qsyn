@@ -1974,5 +1974,5 @@ Gate 250: td   	 Exec Time: 0 	 Qubit: 141
 Gate 254: rz   	 Exec Time: 1 	 Qubit: 179 
 Gate 255: s   	 Exec Time: 0 	 Qubit: 199 
 
-qsyn> q -f
+qsyn> qq -f
 

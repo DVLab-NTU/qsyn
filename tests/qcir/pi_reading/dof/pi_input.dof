@@ -6,4 +6,4 @@ qcga -rz -ph 3*4/PI 0
 qcga -rz -ph PI*PI/pi 0
 qcga -rz -ph PI*3PI/pi 0
 qc2zx
-q -f
+qq -f

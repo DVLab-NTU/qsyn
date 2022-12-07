@@ -79,7 +79,7 @@ cd qsyn
     Vertices:      17
     Edges:         19
 
-    qsyn> q -f
+    qsyn> qq -f
     ```
 
 * The same result can be produced by running in the command-line mode:
@@ -105,7 +105,7 @@ cd qsyn
     Vertices:      17
     Edges:         19
 
-    qsyn> q -f
+    qsyn> qq -f
     ```
 
 

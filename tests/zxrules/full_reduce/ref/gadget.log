@@ -750,5 +750,5 @@ qsyn> tseq 0 1
 - Global Norm : 0.707107
 - Global Phase: 7π/4
 
-qsyn> q -f
+qsyn> qq -f
 

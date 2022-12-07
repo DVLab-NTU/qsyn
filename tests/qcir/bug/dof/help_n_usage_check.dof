@@ -6,7 +6,7 @@ help HELp
 help HIStory
 help M2GAUE
 help M2TEST      
-help Q
+help QQ
 help QC2TS       
 help QC2ZX       
 help QCBAdd      
@@ -51,4 +51,4 @@ help ZXNew
 help ZXPrint     
 help ZXReset     
 help ZXTensor    
-q -f
+qq -f

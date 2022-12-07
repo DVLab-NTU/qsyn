@@ -39,4 +39,4 @@ qcga -pr -rz -ph 1.2345 0
 qccp -q
 qc2zx
 zxgp
-q -f
+qq -f

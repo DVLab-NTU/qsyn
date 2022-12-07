@@ -399,5 +399,5 @@ qsyn> zxgp -e
 ( 15, 25 )	Type:	-
 Total #Edges: 43
 
-qsyn> q -f
+qsyn> qq -f
 

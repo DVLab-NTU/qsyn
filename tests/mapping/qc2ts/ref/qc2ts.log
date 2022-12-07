@@ -388,5 +388,5 @@ Successfully added Tensor 3
   - Qubit: 0 input : 0 -> 0 |  output: 5 -> 5
 Stored the resulting tensor as tensor id 3
 
-qsyn> q -f
+qsyn> qq -f
 

@@ -18,7 +18,7 @@ extern size_t colorLevel;
 bool
 initCommonCmd()
 {
-   if (!(cmdMgr->regCmd("Q", 1, new QuitCmd) &&
+   if (!(cmdMgr->regCmd("QQuit", 2, new QuitCmd) &&
          cmdMgr->regCmd("HIStory", 3, new HistoryCmd) &&
          cmdMgr->regCmd("HELp", 3, new HelpCmd) &&
          cmdMgr->regCmd("DOfile", 2, new DofileCmd) &&
@@ -69,7 +69,7 @@ HelpCmd::help() const
 }
 
 //----------------------------------------------------------------------
-//    Quit [-Force]
+//    QQuit [-Force]
 //----------------------------------------------------------------------
 CmdExecStatus
 QuitCmd::exec(const string& option)
@@ -101,13 +101,13 @@ QuitCmd::exec(const string& option)
 void
 QuitCmd::usage(ostream& os) const
 {
-   os << "Usage: Quit [-Force]" << endl;
+   os << "Usage: QQuit [-Force]" << endl;
 }
 
 void
 QuitCmd::help() const
 {
-   cout << setw(15) << left << "Quit: "
+   cout << setw(15) << left << "QQuit: "
         << "quit the execution" << endl;
 }
 

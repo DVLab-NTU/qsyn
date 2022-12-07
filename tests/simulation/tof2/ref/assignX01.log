@@ -511,5 +511,5 @@ qsyn> tsp 5
  { 1.      -6.123234e-17i,  0.      +6.123234e-17i}}
 #Dim:    2	Info: ZX 2
 
-qsyn> q -f
+qsyn> qq -f
 

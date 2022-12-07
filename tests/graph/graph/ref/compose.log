@@ -30,5 +30,5 @@ ID:	11	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -)
 Total #Vertices: 12
 
 
-qsyn> q -f
+qsyn> qq -f
 

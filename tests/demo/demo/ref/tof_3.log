@@ -9,5 +9,5 @@ qsyn> zxgs -freduce
 qsyn> zxgp
 Graph 0( 3 inputs, 3 outputs, 17 vertices, 19 edges )
 
-qsyn> q -f
+qsyn> qq -f
 

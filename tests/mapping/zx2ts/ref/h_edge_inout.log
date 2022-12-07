@@ -126,5 +126,5 @@ Input  axis ids: 0
 Output axis ids: 1
 Stored the resulting tensor as tensor id 3
 
-qsyn> q -f
+qsyn> qq -f
 

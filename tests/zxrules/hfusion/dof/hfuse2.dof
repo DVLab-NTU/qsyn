@@ -12,4 +12,4 @@ zxge -adde 2 3 HADAMARD
 zxge -adde 3 4 HADAMARD
 zxgp -v
 zxgsimp -hf
-q -f
+qq -f

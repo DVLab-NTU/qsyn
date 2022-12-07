@@ -98,5 +98,5 @@ ID:	66	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	π/16	#Neighbors:	1	(65, 
 Total #Vertices: 67
 
 
-qsyn> q -f
+qsyn> qq -f
 

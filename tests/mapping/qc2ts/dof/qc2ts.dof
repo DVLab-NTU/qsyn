@@ -7,4 +7,4 @@ qccr benchmark/qc2ts/circuit/toffoli_dec.qasm -R
 qc2ts
 qccr benchmark/qc2ts/circuit/toffoli_qiskit.qasm -R
 qc2ts
-q -f
+qq -f
