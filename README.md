@@ -147,7 +147,7 @@ There are two types of testing approaches:
 | COLOR        | cmd line printing mode (0: grayscale, 1:color) |             |
 | HELp         | print this help message             			|             |
 | HIStory      | print command history               			|             |
-| Quit         | quit the execution                  			|             |
+| QQuit        | quit the execution                  			|             |
 | SEED         | fix the seed                        			|             |
 | USAGE        | report the runtime and/or memory usage         |             |
 | VERbose      | set verbose level (0-9)                        |             |
