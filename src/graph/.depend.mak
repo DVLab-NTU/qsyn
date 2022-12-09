@@ -1,3 +1,10 @@
+zxGFlow.o: zxGFlow.cpp zxGFlow.h zxGraph.h zxDef.h \
+ ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
+ ../../include/myHashMap.h ../../include/phase.h \
+ ../../include/rationalNumber.h ../../include/myConcepts.h \
+ ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
+ ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
+ ../../include/tensorUtil.h ../../include/phase.h
 zxTraverse.o: zxTraverse.cpp zxGraph.h zxDef.h \
  ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
  ../../include/myHashMap.h ../../include/phase.h \
