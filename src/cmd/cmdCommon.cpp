@@ -25,7 +25,6 @@ initCommonCmd()
          cmdMgr->regCmd("USAGE", 5, new UsageCmd) &&
          cmdMgr->regCmd("VERbose", 3, new VerboseCmd) &&
          cmdMgr->regCmd("SEED", 4, new SeedCmd) &&
-         cmdMgr->regCmd("//", 2, new CommentCmd) &&
          cmdMgr->regCmd("FORMAT", 6, new FormatCmd)
       )) {
       cerr << "Registering \"init\" commands fails... exiting" << endl;
@@ -308,28 +307,6 @@ SeedCmd::help() const
 {
    cout << setw(15) << left << "SEED: "
         << "fix the seed" << endl;
-}
-
-//----------------------------------------------------------------------
-//    // [whatever] [comments] [you'd] [like] [to] [type...]
-//----------------------------------------------------------------------
-CmdExecStatus
-CommentCmd::exec(const string& option)
-{
-    return CMD_EXEC_DONE;
-}
-
-void
-CommentCmd::usage(ostream& os) const
-{
-   os << "Usage: // [whatever] [comments] [you'd] [like] [to] [type...]" << endl;
-}
-
-void
-CommentCmd::help() const
-{
-   cout << setw(15) << left << "//: "
-        << "comment line" << endl;
 }
 
 //----------------------------------------------------------------------

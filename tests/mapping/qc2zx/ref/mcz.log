@@ -1,15 +1,12 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> // Create 10 qubits
-
 qsyn> qcba 10
 Note: QCir list is empty now. Create a new one.
 Successfully generated QCir 0
 Checkout to QCir 0
 
 qsyn> // Add multiple-control qubit gate (CnZ)
-
 qsyn> // 5 is the target
-
 qsyn> qcgma 1 2 3 4 5
 
 qsyn> qccp -q
@@ -25,7 +22,6 @@ Q 8
 Q 9  
 
 qsyn> // qcgp gateNumber -zx would print the ZX-graph of gate
-
 qsyn> qcgp 0 -zx
 
 ID:	0	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(1, -) 
