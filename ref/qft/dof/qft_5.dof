@@ -1,6 +1,4 @@
-qccread benchmark/qft/qft_5dec.qasm
-qccp
-qc2zx
+zxgread benchmark/bzx/qft_5.bzx -bzx
 zxgp
 zxgp -a
 zxgs -fr
