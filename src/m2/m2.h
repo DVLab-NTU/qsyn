@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 #include <bitset>
 #include <assert.h>
 #include "zxGraph.h"
@@ -29,12 +30,12 @@ class Row;
 class Row
 {
 public:
-    Row(size_t id, size_t l, bitset<16> r): _id(id), _size(l), _row(r) {}
+    Row(size_t id, size_t l, const vector<unsigned char>& r): _id(id), _size(l), _row(r) { reverse(_row.begin(), _row.end()); }
     ~Row() {}
-    const bitset<16>& getRow()            { return _row; }
-    void setRow(bitset<16> row)           { _row = row; }
-    size_t size()                         { return _size; }
-    bool isSingular()                     { return _row.count() == 1; }
+    const vector<unsigned char>& getRow()               { return _row; }
+    void setRow(vector<unsigned char> row)              { _row = row; }
+    size_t size()                                       { return _size; }
+    bool isOneHot();
 
     void printRow() const;
 
@@ -42,7 +43,7 @@ public:
 private:
     size_t _id;
     size_t _size;
-    bitset<16> _row;
+    vector<unsigned char> _row;
 };
 
 class M2
@@ -54,7 +55,6 @@ public:
     //NOTE - Initializer
     void defaultInit();
     bool fromZXVertices(const vector<ZXVertex*>&, const vector<ZXVertex*>&);
-    bool fromBitsets(const vector<bitset<16>>&);
     const vector<Row>& getMatrix()          { return _matrix; }
     const vector<Oper>& getOpers()          { return _opStorage; }
     const Row getRow(size_t r)              { return _matrix[r]; }
