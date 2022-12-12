@@ -55,7 +55,8 @@ bool ZXGraph::readZX(string filename, bool bzx) {
             tokens.push_back(token);
             n = myStrGetTok(line, token, n);
         }
-        unsigned id, qid, nid;
+        unsigned id, nid;
+        int qid;
         string vertexStr = tokens[0];
         if (vertexStr[0] == 'I' || vertexStr[0] == 'O') {
             string idStr = vertexStr.substr(1);
@@ -72,8 +73,8 @@ bool ZXGraph::readZX(string filename, bool bzx) {
                 cerr << "Error: Missing qubit Id after I/O declaration in line " << counter << "!!" << endl;
                 return false;
             }
-            if (!myStr2Uns(tokens[1], qid)) {
-                cerr << "Error: Qubit Id " << tokens[1] << " is not an unsigned in line " << counter << "!!" << endl;
+            if (!myStr2Int(tokens[1], qid)) {
+                cerr << "Error: Qubit Id " << tokens[1] << " is not an integer in line " << counter << "!!" << endl;
                 return false;
             }
             vector<pair<size_t, EdgeType>> tmp;
@@ -135,8 +136,8 @@ bool ZXGraph::readZX(string filename, bool bzx) {
             }
             qid = 0;
             if(bzx){
-                if (!myStr2Uns(tokens[1], qid)) {
-                    cerr << "Error: Qubit Id " << tokens[1] << " is not an unsigned in line " << counter << "!!" << endl;
+                if (!myStr2Int(tokens[1], qid)) {
+                    cerr << "Error: Qubit Id " << tokens[1] << " is not an integer in line " << counter << "!!" << endl;
                     return false;
                 }
             }
