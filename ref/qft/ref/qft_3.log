@@ -1,0 +1,256 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> zxgread benchmark/bzx/qft_3.bzx -bzx
+Successfully generated Graph 0
+Checkout to Graph 0
+
+qsyn> zxgp -v
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(3, [1m[34mH[0m[0m) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	2	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(12, -) 
+ID:	3	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, [1m[34mH[0m[0m) (4, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/4	#Neighbors:	2	(3, -) (5, -) 
+ID:	5	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(4, -) (6, -) (7, -) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(1, -) (5, -) (9, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	7π/4	#Neighbors:	2	(5, -) (8, -) 
+ID:	8	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(7, -) (9, -) (10, -) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(6, -) (8, -) (16, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/8	#Neighbors:	2	(8, -) (11, -) 
+ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, -) (12, -) (13, -) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(2, -) (11, -) (15, -) 
+ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	15π/8	#Neighbors:	2	(11, -) (14, -) 
+ID:	14	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(13, -) (15, -) (24, -) 
+ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(12, -) (14, -) (19, -) 
+ID:	16	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(9, [1m[34mH[0m[0m) (17, -) 
+ID:	17	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	π/4	#Neighbors:	2	(16, -) (18, -) 
+ID:	18	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(17, -) (19, -) (20, -) 
+ID:	19	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(15, -) (18, -) (22, -) 
+ID:	20	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	7π/4	#Neighbors:	2	(18, -) (21, -) 
+ID:	21	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(20, -) (22, -) (25, -) 
+ID:	22	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(19, -) (21, -) (23, [1m[34mH[0m[0m) 
+ID:	23	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	2	(22, [1m[34mH[0m[0m) (26, -) 
+ID:	24	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
+ID:	25	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(21, -) 
+ID:	26	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(23, -) 
+Total #Vertices: 27
+
+
+qsyn> zxgp -a
+#T-gate:                      4
+#Non-(Clifford+T)-gate:       2
+#Non-Clifford-gate:           6
+
+qsyn> zxgs -fr
+Spider Fusion Rule: 
+3 iterations
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+1 iterations
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+1 iterations
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Pivot Gadget Rule: 
+1 iterations
+Spider Fusion Rule: 
+No matches
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
+No matches
+Phase Gadget Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Pivot Gadget Rule: 
+No matches
+
+qsyn> zxgp
+Graph 0( 3 inputs, 3 outputs, 16 vertices, 20 edges )
+
+qsyn> zxgp -a
+#T-gate:                      3
+#Non-(Clifford+T)-gate:       2
+#Non-Clifford-gate:           5
+
+qsyn> qccread benchmark/qft/qft_3.qasm
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
+
+qsyn> qc2zx
+Traverse and build the graph... 
+Successfully generated Graph 1
+Checkout to Graph 1
+
+qsyn> zxgadj
+
+qsyn> zxgp -a
+#T-gate:                      6
+#Non-(Clifford+T)-gate:       3
+#Non-Clifford-gate:           9
+
+qsyn> zxcompose 0
+
+qsyn> zxgp -a
+#T-gate:                      9
+#Non-(Clifford+T)-gate:       5
+#Non-Clifford-gate:           14
+
+qsyn> zxgs -fr
+Hadamard Rule: 3 . 1 iterations
+Spider Fusion Rule: 
+3 iterations
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+1 iterations
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Pivot Gadget Rule: 
+1 iterations
+Spider Fusion Rule: 
+No matches
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+1 iterations
+Pivot Rule: 
+1 iterations
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
+1 iterations
+Spider Fusion Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
+No matches
+Phase Gadget Rule: 
+1 iterations
+Spider Fusion Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+1 iterations
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+1 iterations
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Pivot Gadget Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Pivot Boundary Rule: 
+No matches
+Phase Gadget Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Identity Removal Rule: 
+No matches
+Spider Fusion Rule: 
+No matches
+Pivot Rule: 
+No matches
+Local Complementation Rule: 
+No matches
+Pivot Gadget Rule: 
+No matches
+
+qsyn> zxgp -a
+#T-gate:                      5
+#Non-(Clifford+T)-gate:       1
+#Non-Clifford-gate:           6
+
+qsyn> q -f
+
