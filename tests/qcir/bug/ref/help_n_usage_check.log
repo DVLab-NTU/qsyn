@@ -1,6 +1,5 @@
 DV Lab, NTUEE, Qsyn 0.3.0
-qsyn> help
-//:            comment line
+qsyn> help        
 COLOR:         command line printing mode (0: grayscale, 1: color)
 DOfile:        execute the commands in the dofile
 HELp:          print this help message
@@ -53,9 +52,6 @@ ZXPrint:       print info in ZXGraphMgr
 ZXReset:       reset ZXGraphMgr
 ZXTensor:      tensor a ZX-graph
 
-
-qsyn> help //          
-Usage: // [whatever] [comments] [you'd] [like] [to] [type...]
 
 qsyn> help COLOR       
 Usage: COLOR <bool colored>
