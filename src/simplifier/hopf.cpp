@@ -1,10 +1,10 @@
-// /****************************************************************************
-//   FileName     [ hopf.cpp ]
-//   PackageName  [ simplifier ]
-//   Synopsis     [ Hopf Rule Definition ]
-//   Author       [ Cheng-Hua Lu ]
-//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-// ****************************************************************************/
+/****************************************************************************
+  FileName     [ hopf.cpp ]
+  PackageName  [ simplifier ]
+  Synopsis     [ Hopf Rule Definition ]
+  Author       [ Cheng-Hua Lu ]
+  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
 
 // #include <iostream>
 // #include <vector>

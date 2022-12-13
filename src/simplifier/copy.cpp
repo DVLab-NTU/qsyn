@@ -1,10 +1,10 @@
-// /****************************************************************************
-//   FileName     [ copy.cpp ]
-//   PackageName  [ simplifier ]
-//   Synopsis     [ State Copy Rule Definition ]
-//   Author       [ Cheng-Hua Lu ]
-//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-// ****************************************************************************/
+/****************************************************************************
+  FileName     [ copy.cpp ]
+  PackageName  [ simplifier ]
+  Synopsis     [ State Copy Rule Definition ]
+  Author       [ Cheng-Hua Lu ]
+  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
 
 
 #include <iostream>

@@ -1,10 +1,10 @@
-// /****************************************************************************
-//   FileName     [ simpCmd.cpp ]
-//   PackageName  [ simplifier ]
-//   Synopsis     [ Define simplifier package commands ]
-//   Author       [ Cheng-Hua Lu ]
-//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-// ****************************************************************************/
+/****************************************************************************
+  FileName     [ simpCmd.cpp ]
+  PackageName  [ simplifier ]
+  Synopsis     [ Define simplifier package commands ]
+  Author       [ Cheng-Hua Lu ]
+  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
 
 #include <cassert>
 #include <iostream>

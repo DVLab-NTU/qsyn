@@ -1,10 +1,10 @@
-// /****************************************************************************
-//   FileName     [ pivotgadget.cpp ]
-//   PackageName  [ simplifier ]
-//   Synopsis     [ Pivot Gadget Rule Definition ]
-//   Author       [ Cheng-Hua Lu ]
-//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-// ****************************************************************************/
+/****************************************************************************
+  FileName     [ pivotgadget.cpp ]
+  PackageName  [ simplifier ]
+  Synopsis     [ Pivot Gadget Rule Definition ]
+  Author       [ Cheng-Hua Lu ]
+  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
 
 #include <iostream>
 #include <numbers>
