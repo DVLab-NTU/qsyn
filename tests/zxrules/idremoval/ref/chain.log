@@ -62,5 +62,5 @@ qsyn> zxgp -e
 ( 2, 3 )	Type:	-
 Total #Edges: 3
 
-qsyn> q -f
+qsyn> qq -f
 

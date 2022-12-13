@@ -147,5 +147,5 @@ qsyn> zxgp -e
 ( 6, 9 )	Type:	-
 Total #Edges: 8
 
-qsyn> q -f
+qsyn> qq -f
 

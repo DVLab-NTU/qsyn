@@ -59,4 +59,4 @@ zxge -adde 15 25 SIMPLE
 zxgs -pivot
 zxgp -v
 zxgp -e
-q -f
+qq -f

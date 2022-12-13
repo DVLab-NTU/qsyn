@@ -2,4 +2,4 @@ ver 8
 qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
 qccp -q
 qc2ts
-q -f
+qq -f

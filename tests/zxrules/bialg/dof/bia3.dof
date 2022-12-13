@@ -35,4 +35,4 @@ zxge -adde 12 15 SIMPLE
 zxgsimp -bia
 zxgp -v
 zxgp -e
-q -f
+qq -f

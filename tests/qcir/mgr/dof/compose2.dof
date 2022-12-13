@@ -5,4 +5,4 @@ qccompose 1
 qccp -q
 qccompose 0
 qccp -q
-q -f
+qq -f

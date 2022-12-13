@@ -78,5 +78,5 @@ qsyn> zxgp -a
 #Non-(Clifford+T)-gate:       12
 #Non-Clifford-gate:           18
 
-qsyn> q -f
+qsyn> qq -f
 

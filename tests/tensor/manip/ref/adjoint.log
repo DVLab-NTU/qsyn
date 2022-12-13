@@ -36,5 +36,5 @@ qsyn> tseq 0 1 -Strict
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> q -f
+qsyn> qq -f
 

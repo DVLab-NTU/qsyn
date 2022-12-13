@@ -1905,5 +1905,5 @@ qsyn> qcbd 242
 qsyn> qccp
 Listed by gate ID
 
-qsyn> q -f
+qsyn> qq -f
 

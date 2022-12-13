@@ -94,7 +94,7 @@ def generate_test_case(num, case_idx, in_path, out_path):
 			f.write(e)
 			f.write("\n")
 		f.write("qccp\n")
-		f.write("q -f\n")
+		f.write("qq -f\n")
 
 	with open(os.path.join(out_path, f"{case_idx}.out"), "w") as f:
 		f.write("Listed by gate ID\n")

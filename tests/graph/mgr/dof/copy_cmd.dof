@@ -7,4 +7,4 @@ zxge -rmv 1
 zxgp
 zxcop -r 0
 zxgp
-q -f
+qq -f

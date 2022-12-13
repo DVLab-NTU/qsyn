@@ -340,5 +340,5 @@ Input  axis ids: 0 1 5
 Output axis ids: 4 3 2
 Stored the resulting tensor as tensor id 0
 
-qsyn> q -f
+qsyn> qq -f
 

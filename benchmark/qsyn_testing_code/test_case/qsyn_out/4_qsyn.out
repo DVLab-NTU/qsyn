@@ -1987,5 +1987,5 @@ Gate 257: t   	 Exec Time: 1 	 Qubit: 119
 Gate 259: t   	 Exec Time: 1 	 Qubit: 208 
 Gate 260: z   	 Exec Time: 2 	 Qubit: 181 
 
-qsyn> q -f
+qsyn> qq -f
 

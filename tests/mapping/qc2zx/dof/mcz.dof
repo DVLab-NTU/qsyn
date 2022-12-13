@@ -6,4 +6,4 @@ qcgma 1 2 3 4 5
 qccp -q
 // qcgp gateNumber -zx would print the ZX-graph of gate
 qcgp 0 -zx
-q -f
+qq -f

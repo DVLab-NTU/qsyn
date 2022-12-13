@@ -1534,5 +1534,5 @@ Total #Vertices: 32
 
 qsyn> // usage
 
-qsyn> q -f
+qsyn> qq -f
 

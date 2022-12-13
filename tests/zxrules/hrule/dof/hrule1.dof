@@ -6,4 +6,4 @@ zxgp -v
 zxgs -hrule
 zxgp -v
 zxgp -e
-q -f
+qq -f

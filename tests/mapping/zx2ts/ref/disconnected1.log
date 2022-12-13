@@ -105,5 +105,5 @@ Output axis ids: 7 5 3 1
 Stored the resulting tensor as tensor id 0
 
 qsyn> 
-qsyn> q -f
+qsyn> qq -f
 

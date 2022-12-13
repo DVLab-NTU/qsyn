@@ -53,4 +53,4 @@ tseq 0 3
 // zxgs -sr
 // ver 3
 // zxgp -v
-q -f
+qq -f

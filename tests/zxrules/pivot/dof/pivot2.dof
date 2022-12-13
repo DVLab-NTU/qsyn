@@ -22,4 +22,4 @@ zxge -adde 3 9 SIMPLE
 zxgs -pivot
 zxgp -v
 zxgp -e
-q -f
+qq -f

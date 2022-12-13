@@ -17,4 +17,4 @@ zxge -adde 4 1 HADAMARD
 zxgp -v
 zxgsimp -hf
 zxgp -v
-q -f
+qq -f

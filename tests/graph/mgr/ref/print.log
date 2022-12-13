@@ -18,5 +18,5 @@ Now focus on: 1
 qsyn> ZXPrint -n
 #Graph: 2
 
-qsyn> q -f
+qsyn> qq -f
 

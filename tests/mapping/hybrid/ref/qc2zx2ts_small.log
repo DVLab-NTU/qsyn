@@ -15,5 +15,5 @@ Traverse and build the tensor...
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
-qsyn> q -f
+qsyn> qq -f
 

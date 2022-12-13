@@ -426,7 +426,7 @@ void QCirGatePrintCmd::help() const {
 }
 
 //----------------------------------------------------------------------
-//    QCCPrint [-Summary | -List | -Qubit | -ZXform]
+//    QCCPrint [-Summary | -List | -Qubit]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirPrintCmd::exec(const string &option) {
@@ -443,8 +443,6 @@ QCirPrintCmd::exec(const string &option) {
         qcirMgr->getQCircuit()->printGates();
     else if (myStrNCmp("-Qubit", token, 2) == 0)
         qcirMgr->getQCircuit()->printQubits();
-    else if (myStrNCmp("-ZXform", token, 3) == 0)
-        qcirMgr->getQCircuit()->printZXTopoOrder();
     else
         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
 
@@ -452,12 +450,12 @@ QCirPrintCmd::exec(const string &option) {
 }
 
 void QCirPrintCmd::usage(ostream &os) const {
-    os << "Usage: QCCPrint [-List | -Qubit | -ZXform]" << endl;
+    os << "Usage: QCCPrint [-Summary | -List | -Qubit]" << endl;
 }
 
 void QCirPrintCmd::help() const {
     cout << setw(15) << left << "QCCPrint: "
-         << "print quanutm circuit\n";
+         << "print quantum circuit\n";
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
