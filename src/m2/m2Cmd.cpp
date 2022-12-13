@@ -34,25 +34,29 @@ bool initM2Cmd()
 CmdExecStatus
 M2GaussEliCmd::exec(const string &option) {    
     unordered_map<size_t, ZXVertex *> outputList = zxGraphMgr->getGraph()->getOutputList();
-    vector<ZXVertex *> frontier;
+    vector<ZXVertex*> front;
+    ZXVertexList frontier;
     for(auto [q,v]: outputList){
-        frontier.push_back(v->getFirstNeighbor().first);
+        front.push_back(v->getFirstNeighbor().first);
     }
-    vector<ZXVertex *> nebsOfFrontier;
+    sort(front.begin(), front.end(), [](const ZXVertex* a, const ZXVertex* b){ 
+        return a->getQubit() < b->getQubit(); 
+    });
+    for(auto v: front){
+        frontier.emplace(v);
+    }
+    ZXVertexList nebsOfFrontier;
     for(auto v: frontier){
         vector<ZXVertex *> cands = v->getCopiedNeighbors();
-        for(auto c: cands){
+        for(auto [c, _]: v->getNeighbors()){
             if(c->getType()==VertexType::BOUNDARY) continue;
             if(find(nebsOfFrontier.begin(), nebsOfFrontier.end(), c) == nebsOfFrontier.end()) {
-                nebsOfFrontier.push_back(c);
+                nebsOfFrontier.insert(c);
             }
         }
     }
     string token;
-    M2 m2(6);
-    sort(frontier.begin(), frontier.end(), [](const ZXVertex* a, const ZXVertex* b){ 
-        return a->getQubit() < b->getQubit(); 
-    });
+    M2 m2;
     m2.fromZXVertices(frontier, nebsOfFrontier);
     m2.printMatrix();
     m2.gaussianElim(true);
@@ -75,7 +79,7 @@ void M2GaussEliCmd::help() const {
 CmdExecStatus
 M2TestCmd::exec(const string &option) {    
    string token;
-   M2 m2(3);
+   M2 m2;
    m2.defaultInit();
    m2.printMatrix();
    m2.gaussianElim(true);
