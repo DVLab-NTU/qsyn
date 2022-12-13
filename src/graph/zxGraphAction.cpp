@@ -209,6 +209,18 @@ ZXGraph* ZXGraph::tensorProduct(ZXGraph* target) {
     return this;
 }
 
+bool ZXGraph::isGadget(ZXVertex* v){
+    if(v->getType() != VertexType::Z || v->getNumNeighbors() != 1){
+        if(verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
+        return false;
+    }  
+    if(v->getFirstNeighbor().first->getType() != VertexType::Z && v->getFirstNeighbor().first->getPhase() != 0 && v->getFirstNeighbor().first->getPhase() != 1){
+        if(verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
+        return false;
+    }
+    return true;
+}
+
 /**
  * @brief Add phase gadget of phase `p` for each vertex in `verVec`.
  * 
@@ -234,14 +246,7 @@ void ZXGraph::addGadget(Phase p, const vector<ZXVertex*>& verVec){
  * @param v 
  */
 void ZXGraph::removeGadget(ZXVertex* v){
-    if(v->getType() != VertexType::Z || v->getNumNeighbors() != 1){
-        if(verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
-        return;
-    }  
-    if(v->getFirstNeighbor().first->getType() != VertexType::Z && v->getFirstNeighbor().first->getPhase() != 0 && v->getFirstNeighbor().first->getPhase() != 1){
-        if(verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
-        return;
-    }
+    if(! isGadget(v)) return;
     ZXVertex* axel = v->getFirstNeighbor().first;
     removeVertex(axel);
     removeVertex(v);

@@ -30,11 +30,11 @@ class Row;
 class Row
 {
 public:
-    Row(size_t id, size_t l, const vector<unsigned char>& r): _id(id), _size(l), _row(r) { reverse(_row.begin(), _row.end()); }
+    Row(size_t id, const vector<unsigned char>& r): _id(id), _row(r) {}
     ~Row() {}
     const vector<unsigned char>& getRow()               { return _row; }
     void setRow(vector<unsigned char> row)              { _row = row; }
-    size_t size()                                       { return _size; }
+    size_t size()                                       { return _row.size(); }
     bool isOneHot();
 
     void printRow() const;
@@ -42,19 +42,18 @@ public:
     Row &operator+=(const Row& rhs);
 private:
     size_t _id;
-    size_t _size;
     vector<unsigned char> _row;
 };
 
 class M2
 {
 public:
-    M2(size_t n): _size(n) {}
+    M2() {}
     ~M2() {}
 
     //NOTE - Initializer
     void defaultInit();
-    bool fromZXVertices(const vector<ZXVertex*>&, const vector<ZXVertex*>&);
+    bool fromZXVertices(const ZXVertexList&, const ZXVertexList&);
     const vector<Row>& getMatrix()          { return _matrix; }
     const vector<Oper>& getOpers()          { return _opStorage; }
     const Row getRow(size_t r)              { return _matrix[r]; }
@@ -68,7 +67,7 @@ private:
     size_t              _size;
     vector<Row>         _matrix; 
     vector<Oper>        _opStorage;
-    bool inFrontier(ZXVertex*, const vector<ZXVertex*>&);
+    bool inNeighbors(ZXVertex*, const ZXVertexList&);
 };
 
 #endif // M2_H

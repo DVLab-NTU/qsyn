@@ -191,6 +191,7 @@ class ZXGraph{
         void liftQubit(const size_t& n);
         ZXGraph* compose(ZXGraph* target);
         ZXGraph* tensorProduct(ZXGraph* target);
+        bool isGadget(ZXVertex*);
         void addGadget(Phase p, const vector<ZXVertex*>& verVec);
         void removeGadget(ZXVertex* v);
         unordered_map<size_t, ZXVertex*> id2VertexMap() const;
