@@ -79,7 +79,7 @@ cd qsyn
     Vertices:      17
     Edges:         19
 
-    qsyn> q -f
+    qsyn> qq -f
     ```
 
 * The same result can be produced by running in the command-line mode:
@@ -105,7 +105,7 @@ cd qsyn
     Vertices:      17
     Edges:         19
 
-    qsyn> q -f
+    qsyn> qq -f
     ```
 
 
@@ -144,10 +144,10 @@ There are two types of testing approaches:
 | Cmd          | Description                         			| Options     |
 | --------     | --------                            			| --------    |
 | DOfile       | execute the commands in the dofile  			|             |
-| FORMAT       | set format level (0: none, 1: all)  			|             |
+| COLOR        | cmd line printing mode (0: grayscale, 1:color) |             |
 | HELp         | print this help message             			|             |
 | HIStory      | print command history               			|             |
-| Quit         | quit the execution                  			|             |
+| QQuit        | quit the execution                  			|             |
 | SEED         | fix the seed                        			|             |
 | USAGE        | report the runtime and/or memory usage         |             |
 | VERbose      | set verbose level (0-9)                        |             |

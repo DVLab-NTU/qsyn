@@ -1,2 +1,2 @@
 qccr benchmark/zx/cnots.zx
-q -f
+qq -f

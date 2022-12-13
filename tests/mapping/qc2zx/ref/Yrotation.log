@@ -25,5 +25,5 @@ Successfully generated Graph 1
 Checkout to Graph 1
 
 qsyn> 
-qsyn> q -f
+qsyn> qq -f
 

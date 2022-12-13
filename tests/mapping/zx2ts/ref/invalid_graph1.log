@@ -35,5 +35,5 @@ qsyn> zx2ts
 Error: The ZX-Graph is not valid!!
 
 qsyn> 
-qsyn> q -f
+qsyn> qq -f
 

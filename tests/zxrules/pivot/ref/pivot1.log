@@ -200,5 +200,5 @@ qsyn> zxgp -e
 ( 11, 12 )	Type:	[1m[34mH[0m[0m
 Total #Edges: 11
 
-qsyn> q -f
+qsyn> qq -f
 

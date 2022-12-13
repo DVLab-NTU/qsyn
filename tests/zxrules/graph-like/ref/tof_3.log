@@ -42,5 +42,5 @@ Total #Vertices: 19
 
 qsyn> zxgw benchmark/zx/tof3_op.zx
 
-qsyn> q -f
+qsyn> qq -f
 

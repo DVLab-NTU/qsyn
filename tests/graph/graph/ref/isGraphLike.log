@@ -208,5 +208,5 @@ No matches
 qsyn> zxgt -GL
 The graph is graph-like!
 
-qsyn> q -f
+qsyn> qq -f
 

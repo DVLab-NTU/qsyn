@@ -69,5 +69,5 @@ Successfully added Tensor 1
   - Qubit: 0 input : 0 -> 0 |  output: 3 -> 2
 Stored the resulting tensor as tensor id 1
 
-qsyn> q -f
+qsyn> qq -f
 

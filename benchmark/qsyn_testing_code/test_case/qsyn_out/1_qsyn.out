@@ -1951,5 +1951,5 @@ Gate 253: t   	 Exec Time: 0 	 Qubit: 206
 Gate 254: x   	 Exec Time: 2 	 Qubit: 113 
 Gate 255: t   	 Exec Time: 0 	 Qubit: 241 
 
-qsyn> q -f
+qsyn> qq -f
 

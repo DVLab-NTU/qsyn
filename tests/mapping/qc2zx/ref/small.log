@@ -167,5 +167,5 @@ qsyn> zxgtr
 Topological order from first input: 0 8 9 12 13 11 4 10 14 1 15 17 19 7 18 5 16 3 6 2 
 Size of topological order: 20
 
-qsyn> q -f
+qsyn> qq -f
 

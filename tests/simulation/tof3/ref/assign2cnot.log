@@ -332,5 +332,5 @@ qsyn> tsp 0
  { 0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i}}
 #Dim:    2	Info: ZX 0
 
-qsyn> q -f
+qsyn> qq -f
 
