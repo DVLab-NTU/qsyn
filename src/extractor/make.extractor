@@ -1,0 +1,5 @@
+PKGFLAG   = 
+EXTHDRS   = extract.h
+
+include ../Makefile.in
+include ../Makefile.lib
