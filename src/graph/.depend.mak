@@ -37,11 +37,7 @@ zxCmd.o: zxCmd.cpp zxCmd.h ../../include/cmdParser.h \
  ../../include/phase.h ../../include/myConcepts.h \
  ../../include/rationalNumber.h ../../include/util.h \
  ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
-<<<<<<< HEAD
  ../../include/tensorUtil.h ../../include/phase.h zxGraphMgr.h zxGFlow.h \
-=======
- ../../include/tensorUtil.h ../../include/phase.h zxGraphMgr.h \
->>>>>>> devt
  ../../include/textFormat.h
 zxIO.o: zxIO.cpp ../../include/util.h ../../include/rnGen.h \
  ../../include/myUsage.h zxGraph.h zxDef.h \
