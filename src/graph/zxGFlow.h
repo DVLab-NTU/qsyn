@@ -13,18 +13,19 @@
 #include <unordered_map>
 
 class ZXGFlow {
-
 public:
-    ZXGFlow(ZXGraph* g): _zxg(g), _levels(), _currLevel(0) {}
+    using Levels = std::vector<std::vector<ZXVertex*>>;
+    
+    ZXGFlow(ZXGraph* g): _zxgraph(g) {}
 
     void calculate();
 
-    std::vector<std::vector<ZXVertex*>> dump();
+    const Levels& getLevels() { return _levels; }
+
 
 private:
-    ZXGraph* _zxg;
-    std::unordered_map<ZXVertex*, size_t> _levels;
-    size_t _currLevel;
+    ZXGraph* _zxgraph;
+    Levels _levels;
 };
 
 #endif // ZX_GFLOW_H

@@ -8,12 +8,34 @@
 
 #include "zxGFlow.h"
 
+using namespace std;
+/**
+ * @brief calculate the GFlow to the ZXGraph
+ * 
+ */
 void ZXGFlow::calculate() {
+    _levels.clear();
 
-}
+    std::vector<ZXVertex*> vertexList;
+    unordered_set<ZXVertex*> taken;
+    
+    auto visitOneVertex = [&vertexList, &taken](ZXVertex* v) {
+        vertexList.push_back(v);
+        taken.insert(v);
+    };
+    
+    for (auto& v : _zxgraph->getOutputs()) visitOneVertex(v);
+    
+    while (vertexList.size()) {
+        _levels.push_back(vertexList);
+        vertexList.clear();
 
-std::vector<std::vector<ZXVertex*>> ZXGFlow::dump() {
-
-    return std::vector<std::vector<ZXVertex*>>();
+        for (auto& v : _levels.back()) {
+            for (auto& [nb, _] : v->getNeighbors()) {
+                if (taken.contains(nb)) continue;
+                visitOneVertex(nb);
+            }
+        }
+    }
 }
 

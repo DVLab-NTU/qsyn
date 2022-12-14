@@ -43,6 +43,7 @@ ZXDelete:      remove a ZX-graph from ZXGraphMgr
 ZXGADJoint:    adjoint the current ZX-graph.
 ZXGASsign:     assign an input/output vertex to specific qubit
 ZXGEdit:       edit ZX-graph
+ZXGGFlow:      calculate the generalized flow of current ZX-graph.
 ZXGPrint:      print info in ZX-graph
 ZXGRead:       read a ZX-graph
 ZXGSimp:       perform simplification strategies for ZX-graph
