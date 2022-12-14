@@ -43,7 +43,8 @@ ExtractCmd::exec(const string &option) {
     else{
         zxGraphMgr->copy(zxGraphMgr->getNextID());
         Extractor ext(zxGraphMgr->getGraph());
-        ext.removeGadget();
+        ext.cleanFrontier();
+        // ext.removeGadget();
     }
     return CMD_EXEC_DONE;
 }

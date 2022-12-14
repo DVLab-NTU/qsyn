@@ -19,7 +19,7 @@
 #include "zxGraph.h"
 #include "zxRules.h"
 #include "simplify.h"
-#include "qcirDef.h"
+#include "qcir.h"
 #include "m2.h"
 #include "ordered_hashset.h"
 
@@ -29,6 +29,7 @@ class Extractor{
     public:
         Extractor(ZXGraph* g){
             _graph = g;
+            _circuit = new QCir(-1);
             initialize();
         }
         ~Extractor(){ }
@@ -37,7 +38,10 @@ class Extractor{
         void extract(){}
         bool removeGadget();
         void gaussianElimination();
-        void updateFrontiers(){}
+
+        void extractSingles();
+        void extractCZs(size_t=0);
+        void cleanFrontier();
         void updateNeighbors();
         
         void printFroniters();
@@ -47,10 +51,10 @@ class Extractor{
     private:
         ZXGraph*            _graph;
         QCir*               _circuit;
-
-        ZXVertexList        _frontiers;
+        ZXVertexList        _frontier;
         ZXVertexList        _neighbors;   
-        ZXVertexList        _axels;           
+        ZXVertexList        _axels;   
+        unordered_map<size_t, size_t> _qubitMap;        
 };
     
 #endif

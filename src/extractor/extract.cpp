@@ -9,13 +9,19 @@
 #include "extract.h"
 extern size_t verbose;
 void Extractor::initialize(){
-    vector<ZXVertex*> tmp;
+    size_t cnt = 0;
     for(auto o: _graph -> getOutputs()){
-        _frontiers.emplace(o->getFirstNeighbor().first);
+        o->getFirstNeighbor().first->setQubit(o->getQubit());
+        _frontier.emplace(o->getFirstNeighbor().first);
     }
-    _frontiers.sort([](const ZXVertex* a, const ZXVertex* b) {
+    _frontier.sort([](const ZXVertex* a, const ZXVertex* b) {
         return a->getQubit() < b->getQubit();
     });
+    for(auto o: _frontier){
+        _qubitMap[o->getQubit()] = cnt;
+        _circuit->addQubit(1);
+        cnt+=1;
+    }
     updateNeighbors();
 
     for(auto v: _graph -> getVertices()){
@@ -23,8 +29,66 @@ void Extractor::initialize(){
             _axels.emplace(v->getFirstNeighbor().first);
         }
     }
-    // printFroniters();
-    // printNeighbors();
+    if(verbose >=8){
+        printFroniters();
+        printNeighbors();
+        _circuit -> printQubits();
+    }
+}
+
+void Extractor::cleanFrontier(){
+    //NOTE - Edge and Phase
+    extractSingles();
+    //NOTE - CZs
+    extractCZs();
+}
+
+void Extractor::extractSingles(){
+    vector<pair<ZXVertex*, ZXVertex*>> toggleList;
+    for(ZXVertex* o: _graph->getOutputs()){
+        if(o->getFirstNeighbor().second == EdgeType::HADAMARD){
+            _circuit -> addGate("H", {_qubitMap[o->getQubit()]}, Phase(0), false);
+            toggleList.emplace_back(o, o->getFirstNeighbor().first);
+        }
+        Phase ph = o->getFirstNeighbor().first -> getPhase();
+        if(ph != Phase(0)){
+            _circuit -> addSingleRZ(_qubitMap[o->getQubit()], ph, false);
+            o->getFirstNeighbor().first -> setPhase(Phase(0));
+        }
+    }
+    for(auto [s,t]: toggleList){
+        _graph -> addEdge(s, t, EdgeType::SIMPLE);
+        _graph -> removeEdge(s, t, EdgeType::HADAMARD);
+    }
+
+    if(verbose>=8){
+        _circuit -> printQubits();
+        _graph -> printQubits({});
+    }
+}
+
+void Extractor::extractCZs(size_t strategy){
+    vector<pair<ZXVertex*, ZXVertex*>> removeList;
+    _frontier.sort([](const ZXVertex* a, const ZXVertex* b) {
+        return a->getQubit() < b->getQubit();
+    });
+    for(auto itr = _frontier.begin(); itr != _frontier.end(); itr++){
+        for(auto jtr = next(itr); jtr != _frontier.end(); jtr++){
+            if((*itr)->isNeighbor((*jtr))){
+                removeList.emplace_back((*itr),(*jtr));
+            }
+        }
+    }
+    for(const auto [s,t]: removeList){
+        _graph -> removeEdge(s, t, EdgeType::HADAMARD);
+        _circuit -> addGate("cz",{_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1), false);
+    }
+
+    //REVIEW - Other Strategies
+    if(verbose>=8){
+        _circuit -> printQubits();
+        _graph -> printQubits({});
+    }
 }
 
 bool Extractor::removeGadget(){
@@ -42,7 +106,7 @@ bool Extractor::removeGadget(){
             continue;
         }
         for(auto [candidate, _]: n->getNeighbors()){
-            if(_frontiers.contains(candidate)){
+            if(_frontier.contains(candidate)){
                 vector<ZXVertex*> match;
                 vector<vector<ZXVertex*>> matches;
                 match.push_back(n);
@@ -60,7 +124,7 @@ bool Extractor::removeGadget(){
                     }
                 }
                 _axels.erase(n);
-                _frontiers.erase(candidate);
+                _frontier.erase(candidate);
 
                 pivotBoundaryRule->rewrite(_graph);
                 simp.amend();
@@ -68,7 +132,7 @@ bool Extractor::removeGadget(){
                 
                 // n->setQubit(candidate->getQubit());
                 if(targetBoundary != nullptr)
-                    _frontiers.emplace(targetBoundary->getFirstNeighbor().first);
+                    _frontier.emplace(targetBoundary->getFirstNeighbor().first);
                 //REVIEW - qubit_map
                 gadgetRemoved = true;
                 break;
@@ -85,17 +149,17 @@ bool Extractor::removeGadget(){
 
 void Extractor::gaussianElimination(){
     M2 biAdjacency;
-    biAdjacency.fromZXVertices(_frontiers, _neighbors);
+    biAdjacency.fromZXVertices(_frontier, _neighbors);
     biAdjacency.gaussianElim(true);
     vector<Oper> cnots = biAdjacency.getOpers();
 }
 
 void Extractor::updateNeighbors(){
     _neighbors.clear();
-    for(auto f: _frontiers){
+    for(auto f: _frontier){
         for(auto [n, _]: f->getNeighbors()){
             if(n->getType() == VertexType::BOUNDARY) continue;
-            if((! _neighbors.contains(n)) && (! _frontiers.contains(n))) 
+            if((! _neighbors.contains(n)) && (! _frontier.contains(n))) 
                 _neighbors.emplace(n);
         }
     }
@@ -103,7 +167,7 @@ void Extractor::updateNeighbors(){
 
 void Extractor::printFroniters(){
     cout << "Frontiers:" << endl;
-    for(auto f: _frontiers)
+    for(auto f: _frontier)
         cout << "Qubit:" << f->getQubit() << ": " << f->getId() << endl;
     cout << endl;
 }

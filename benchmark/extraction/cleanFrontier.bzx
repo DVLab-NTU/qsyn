@@ -1,0 +1,25 @@
+//NOTE - Input
+I0 0 S12
+I1 1 S13
+I2 2 S14
+I3 3 H18
+I4 4 S19
+I5 5 S20
+//NOTE - Output
+O6 0 S17
+O7 1 H16
+O8 2 H15
+O9 3 S18
+O10 4 S19
+O11 5 H20
+//NOTE - Neighbors
+Z12 0 H17 3*pi/4
+Z13 1 H16 5*pi/4
+Z14 2 H15 7*pi/4
+//NOTE - Frontier
+Z15 2 H16 H17 H19 3*pi/4
+Z16 1 H20 5*pi/4
+Z17 0 7*pi/4
+Z18 3 H19 6*pi/4
+Z19 4 2*pi/4
+Z20 5 pi/4
