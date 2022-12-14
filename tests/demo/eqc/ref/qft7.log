@@ -238,5 +238,5 @@ ID:	13	VertexType:	●	Qubit:	6	Phase:	0	#Neighbors:	1	(195, -)
 ID:	195	VertexType:	●	Qubit:	6	Phase:	0	#Neighbors:	1	(13, -) 
 
 
-qsyn> q -f
+qsyn> qq -f
 

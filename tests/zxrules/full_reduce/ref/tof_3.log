@@ -109,5 +109,5 @@ ID:	34	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	4	(7, [1m
 Total #Vertices: 17
 
 
-qsyn> q -f
+qsyn> qq -f
 

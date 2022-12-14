@@ -162,5 +162,5 @@ ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	3	(0, -) (1,
 Total #Vertices: 6
 
 
-qsyn> q -f
+qsyn> qq -f
 

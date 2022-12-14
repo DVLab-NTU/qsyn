@@ -1,0 +1,951 @@
+qcba
+qcbd 0
+qcba
+qcbd 1
+qcba
+qcbd 2
+qcba
+qcbd 3
+qcba
+qcba
+qcga -x 4
+qcba
+qcba
+qcbd 5
+qcbd 7
+qcbd 6
+qcba
+qcgd 0
+qcga -cx 8 4
+qcga -x 4
+qcga -cx 8 4
+qcgd 3
+qcba
+qcgd 1
+qcgd 2
+qcga -rz -ph 1.2578279212072274 4
+qcgd 4
+qcba
+qcbd 8
+qcbd 10
+qcbd 9
+qcbd 4
+qcba
+qcba
+qcba
+qcba
+qcba
+qcba
+qcba
+qcba
+qcba
+qcbd 12
+qcbd 16
+qcbd 18
+qcga -tdg 13
+qcgd 5
+qcba
+qcbd 13
+qcga -z 15
+qcga -tdg 17
+qcga -cx 11 19
+qcgd 7
+qcgd 6
+qcgd 8
+qcbd 17
+qcbd 19
+qcga -t 14
+qcba
+qcbd 15
+qcba
+qcba
+qcga -h 11
+qcba
+qcbd 24
+qcgd 9
+qcga -t 20
+qcbd 22
+qcbd 21
+qcba
+qcbd 25
+qcbd 14
+qcbd 23
+qcga -h 20
+qcga -s 11
+qcgd 13
+qcgd 10
+qcba
+qcga -h 26
+qcga -cx 26 11
+qcga -rz -ph 2.8673638398909596 26
+qcgd 12
+qcba
+qcga -tdg 27
+qcgd 11
+qcgd 16
+qcbd 20
+qcgd 15
+qcga -z 26
+qcga -tdg 26
+qcba
+qcba
+qcga -h 29
+qcga -rz -ph 2.493787140394945 27
+qcba
+qcbd 11
+qcbd 28
+qcba
+qcgd 18
+qcgd 19
+qcbd 31
+qcbd 30
+qcga -t 27
+qcgd 22
+qcga -h 26
+qcba
+qcba
+qcgd 14
+qcba
+qcbd 34
+qcba
+qcga -z 26
+qcga -cx 35 33
+qcba
+qcga -t 33
+qcgd 23
+qcba
+qcbd 32
+qcba
+qcgd 17
+qcga -cx 27 33
+qcba
+qcgd 25
+qcba
+qcba
+qcgd 26
+qcgd 20
+qcbd 41
+qcbd 39
+qcgd 21
+qcba
+qcba
+qcbd 35
+qcgd 24
+qcga -z 29
+qcgd 27
+qcbd 27
+qcba
+qcga -z 38
+qcbd 43
+qcga -rz -ph 0.8481166576282574 44
+qcbd 37
+qcbd 42
+qcbd 33
+qcga -cx 44 40
+qcgd 31
+qcbd 40
+qcgd 29
+qcgd 28
+qcba
+qcba
+qcga -s 46
+qcba
+qcga -h 26
+qcba
+qcga -rz -ph 1.6697049771839507 36
+qcga -x 38
+qcba
+qcba
+qcba
+qcga -x 50
+qcba
+qcba
+qcgd 35
+qcga -t 50
+qcbd 51
+qcgd 36
+qcbd 38
+qcbd 48
+qcbd 29
+qcbd 45
+qcga -tdg 36
+qcga -tdg 50
+qcbd 53
+qcbd 52
+qcgd 32
+qcga -z 46
+qcga -rz -ph 2.869231471781276 49
+qcbd 47
+qcgd 41
+qcgd 39
+qcba
+qcgd 30
+qcbd 54
+qcba
+qcba
+qcbd 49
+qcgd 37
+qcba
+qcbd 55
+qcgd 33
+qcgd 40
+qcba
+qcgd 38
+qcba
+qcga -x 26
+qcbd 59
+qcga -rz -ph 3.131677047542341 26
+qcgd 43
+qcbd 57
+qcga -tdg 36
+qcga -tdg 58
+qcga -x 44
+qcgd 34
+qcbd 56
+qcgd 46
+qcba
+qcba
+qcga -h 61
+qcgd 47
+qcgd 44
+qcga -rz -ph 0.034220020365466855 61
+qcga -t 44
+qcba
+qcbd 62
+qcba
+qcgd 45
+qcbd 60
+qcga -t 36
+qcba
+qcga -s 64
+qcga -cx 63 58
+qcgd 48
+qcga -cx 46 61
+qcbd 50
+qcga -tdg 26
+qcba
+qcba
+qcba
+qcgd 42
+qcgd 51
+qcba
+qcbd 65
+qcga -tdg 67
+qcbd 66
+qcgd 52
+qcgd 54
+qcga -h 64
+qcbd 68
+qcba
+qcba
+qcbd 26
+qcba
+qcbd 63
+qcbd 58
+qcbd 71
+qcba
+qcba
+qcgd 49
+qcgd 55
+qcba
+qcga -z 61
+qcbd 69
+qcba
+qcba
+qcbd 73
+qcgd 50
+qcgd 57
+qcga -s 61
+qcbd 74
+qcga -tdg 72
+qcga -rz -ph 0.0005053853063558756 36
+qcgd 59
+qcbd 67
+qcgd 60
+qcba
+qcga -x 75
+qcga -cx 75 76
+qcbd 72
+qcbd 70
+qcga -z 77
+qcgd 61
+qcba
+qcga -t 36
+qcba
+qcbd 79
+qcga -s 36
+qcba
+qcbd 80
+qcba
+qcbd 81
+qcga -t 46
+qcba
+qcba
+qcbd 83
+qcba
+qcga -z 36
+qcbd 44
+qcgd 67
+qcba
+qcbd 82
+qcba
+qcbd 78
+qcga -t 64
+qcgd 58
+qcga -z 61
+qcgd 66
+qcba
+qcgd 68
+qcga -s 76
+qcba
+qcgd 65
+qcgd 63
+qcga -s 36
+qcbd 88
+qcgd 53
+qcga -cx 76 84
+qcba
+qcgd 56
+qcgd 72
+qcbd 86
+qcga -rz -ph 2.8273589455310155 89
+qcba
+qcga -rz -ph 2.9147531486688676 90
+qcga -tdg 87
+qcbd 64
+qcgd 64
+qcga -x 89
+qcgd 69
+qcba
+qcga -z 89
+qcbd 77
+qcbd 91
+qcgd 77
+qcga -cx 84 90
+qcga -rz -ph 0.3455996058792113 76
+qcbd 85
+qcga -tdg 90
+qcbd 61
+qcga -rz -ph 1.0336660876514476 89
+qcba
+qcba
+qcbd 46
+qcgd 80
+qcga -z 92
+qcbd 93
+qcga -cx 76 36
+qcgd 82
+qcba
+qcga -rz -ph 1.5928031263062132 75
+qcbd 92
+qcbd 94
+qcga -h 87
+qcgd 74
+qcgd 81
+qcga -cx 76 75
+qcba
+qcgd 62
+qcbd 95
+qcgd 73
+qcba
+qcba
+qcga -tdg 97
+qcba
+qcbd 96
+qcgd 79
+qcbd 98
+qcga -t 76
+qcgd 84
+qcba
+qcga -rz -ph 1.4576291028986434 76
+qcba
+qcga -x 97
+qcga -t 75
+qcgd 75
+qcga -h 100
+qcbd 99
+qcba
+qcba
+qcbd 101
+qcba
+qcbd 103
+qcga -rz -ph 2.8693545304494443 76
+qcga -tdg 100
+qcbd 102
+qcba
+qcba
+qcgd 93
+qcga -tdg 97
+qcgd 88
+qcbd 104
+qcgd 86
+qcba
+qcbd 105
+qcgd 83
+qcba
+qcba
+qcbd 107
+qcgd 92
+qcbd 106
+qcga -z 36
+qcga -tdg 100
+qcgd 96
+qcga -cx 100 97
+qcgd 94
+qcgd 76
+qcga -s 100
+qcgd 71
+qcba
+qcga -s 36
+qcgd 89
+qcba
+qcba
+qcbd 108
+qcgd 70
+qcga -rz -ph 1.8185949415289084 76
+qcbd 109
+qcga -x 100
+qcbd 89
+qcbd 111
+qcbd 110
+qcgd 97
+qcgd 99
+qcga -cx 36 84
+qcba
+qcgd 91
+qcgd 95
+qcbd 112
+qcgd 90
+qcbd 75
+qcba
+qcga -h 97
+qcga -cx 113 76
+qcba
+qcba
+qcga -cx 114 97
+qcga -h 115
+qcgd 107
+qcgd 98
+qcba
+qcga -h 76
+qcga -rz -ph 3.1252773815719532 90
+qcga -t 87
+qcbd 115
+qcga -z 76
+qcgd 87
+qcga -cx 36 76
+qcga -t 36
+qcbd 116
+qcgd 100
+qcba
+qcgd 113
+qcba
+qcgd 111
+qcba
+qcbd 119
+qcga -t 97
+qcga -cx 113 97
+qcga -rz -ph 0.4958159359524682 100
+qcga -s 113
+qcba
+qcgd 104
+qcga -x 97
+qcbd 118
+qcba
+qcba
+qcga -rz -ph 0.2873979251204964 97
+qcga -z 84
+qcba
+qcgd 110
+qcbd 121
+qcba
+qcga -tdg 84
+qcbd 122
+qcba
+qcba
+qcgd 118
+qcbd 123
+qcbd 117
+qcbd 124
+qcba
+qcga -tdg 76
+qcbd 125
+qcgd 105
+qcbd 126
+qcba
+qcga -h 113
+qcba
+qcba
+qcgd 109
+qcbd 128
+qcba
+qcga -s 120
+qcbd 131
+qcga -tdg 113
+qcba
+qcga -tdg 113
+qcba
+qcbd 132
+qcgd 119
+qcba
+qcga -tdg 84
+qcga -t 84
+qcga -cx 100 129
+qcgd 78
+qcgd 127
+qcga -x 90
+qcbd 134
+qcbd 133
+qcba
+qcbd 127
+qcga -s 97
+qcbd 130
+qcba
+qcgd 126
+qcbd 135
+qcbd 136
+qcgd 123
+qcga -rz -ph 1.882274196935569 90
+qcgd 130
+qcga -t 129
+qcga -s 129
+qcba
+qcba
+qcga -x 129
+qcba
+qcga -x 76
+qcbd 139
+qcba
+qcga -cx 87 140
+qcga -cx 97 137
+qcgd 132
+qcba
+qcgd 103
+qcba
+qcga -tdg 140
+qcgd 121
+qcgd 137
+qcgd 120
+qcgd 85
+qcba
+qcgd 129
+qcga -h 100
+qcga -tdg 129
+qcba
+qcga -z 143
+qcba
+qcga -rz -ph 2.6277978397208197 84
+qcbd 142
+qcga -tdg 140
+qcba
+qcba
+qcgd 112
+qcgd 116
+qcga -z 138
+qcbd 36
+qcbd 144
+qcga -z 146
+qcga -t 138
+qcbd 145
+qcbd 90
+qcgd 102
+qcbd 147
+qcga -z 114
+qcgd 139
+qcgd 114
+qcba
+qcbd 148
+qcga -h 129
+qcga -rz -ph 0.7154748588883678 141
+qcga -rz -ph 0.8812885498507016 84
+qcgd 133
+qcga -rz -ph 0.5944189261125435 76
+qcbd 87
+qcga -t 137
+qcga -h 120
+qcgd 136
+qcga -cx 137 84
+qcba
+qcbd 149
+qcgd 128
+qcba
+qcba
+qcga -x 113
+qcba
+qcba
+qcba
+qcgd 155
+qcbd 150
+qcgd 122
+qcga -h 129
+qcga -s 114
+qcbd 152
+qcba
+qcgd 158
+qcgd 151
+qcgd 140
+qcba
+qcga -cx 76 156
+qcgd 108
+qcgd 157
+qcba
+qcbd 153
+qcga -x 155
+qcgd 146
+qcbd 157
+qcba
+qcgd 138
+qcba
+qcgd 142
+qcga -h 76
+qcgd 141
+qcgd 117
+qcga -x 151
+qcgd 115
+qcgd 124
+qcba
+qcba
+qcba
+qcbd 143
+qcgd 135
+qcba
+qcbd 162
+qcbd 158
+qcga -t 114
+qcga -cx 151 76
+qcga -tdg 113
+qcgd 160
+qcba
+qcbd 100
+qcbd 163
+qcbd 146
+qcba
+qcgd 148
+qcbd 154
+qcbd 160
+qcgd 149
+qcbd 165
+qcba
+qcga -tdg 166
+qcbd 164
+qcga -h 137
+qcbd 159
+qcbd 161
+qcba
+qcga -h 114
+qcgd 165
+qcgd 152
+qcbd 155
+qcga -tdg 113
+qcba
+qcga -tdg 76
+qcga -h 137
+qcga -h 113
+qcbd 168
+qcba
+qcba
+qcba
+qcbd 171
+qcga -s 137
+qcga -h 166
+qcba
+qcbd 169
+qcba
+qcba
+qcga -cx 137 140
+qcbd 173
+qcgd 168
+qcba
+qcgd 167
+qcbd 170
+qcba
+qcgd 174
+qcbd 174
+qcba
+qcba
+qcga -cx 176 172
+qcbd 178
+qcgd 101
+qcgd 170
+qcba
+qcba
+qcgd 175
+qcga -s 172
+qcbd 180
+qcgd 163
+qcga -tdg 179
+qcgd 171
+qcbd 167
+qcgd 162
+qcgd 145
+qcbd 175
+qcga -tdg 76
+qcba
+qcbd 177
+qcga -cx 84 140
+qcgd 172
+qcba
+qcga -s 137
+qcgd 177
+qcga -tdg 181
+qcbd 182
+qcga -h 114
+qcba
+qcga -rz -ph 1.9306121636562084 76
+qcbd 183
+qcba
+qcba
+qcgd 161
+qcgd 176
+qcba
+qcga -rz -ph 2.7480684119856327 137
+qcgd 166
+qcgd 156
+qcga -h 166
+qcba
+qcga -s 138
+qcbd 185
+qcbd 186
+qcba
+qcbd 187
+qcga -tdg 184
+qcga -x 113
+qcgd 150
+qcgd 186
+qcba
+qcgd 143
+qcbd 188
+qcba
+qcba
+qcga -t 137
+qcbd 176
+qcgd 159
+qcgd 178
+qcba
+qcba
+qcga -rz -ph 0.2189965732052366 190
+qcgd 144
+qcgd 191
+qcga -s 193
+qcga -h 138
+qcba
+qcga -rz -ph 2.9838562402513533 137
+qcgd 184
+qcgd 169
+qcba
+qcgd 183
+qcga -rz -ph 2.9957722514504073 179
+qcgd 125
+qcba
+qcgd 185
+qcga -s 141
+qcgd 180
+qcbd 195
+qcba
+qcgd 179
+qcga -x 179
+qcba
+qcba
+qcgd 154
+qcba
+qcgd 195
+qcbd 166
+qcga -rz -ph 2.6612441250147887 196
+qcbd 156
+qcba
+qcgd 196
+qcbd 197
+qcba
+qcgd 193
+qcba
+qcbd 189
+qcga -s 138
+qcbd 203
+qcbd 194
+qcgd 187
+qcgd 194
+qcba
+qcgd 131
+qcbd 140
+qcbd 201
+qcbd 198
+qcba
+qcga -tdg 120
+qcga -rz -ph 1.4483121361896103 192
+qcga -tdg 179
+qcga -cx 204 84
+qcga -x 179
+qcbd 141
+qcgd 192
+qcga -h 191
+qcga -h 199
+qcga -cx 179 205
+qcga -cx 181 84
+qcba
+qcga -t 191
+qcga -h 129
+qcga -rz -ph 1.971707306243238 181
+qcbd 200
+qcga -tdg 199
+qcba
+qcbd 190
+qcga -t 191
+qcba
+qcba
+qcbd 202
+qcbd 209
+qcbd 172
+qcbd 208
+qcbd 207
+qcga -rz -ph 0.24906638158445465 204
+qcgd 210
+qcgd 198
+qcba
+qcgd 188
+qcba
+qcbd 184
+qcga -z 97
+qcba
+qcbd 196
+qcgd 202
+qcga -z 113
+qcgd 203
+qcbd 193
+qcgd 204
+qcga -tdg 210
+qcgd 213
+qcbd 212
+qcga -x 76
+qcgd 147
+qcgd 206
+qcba
+qcgd 189
+qcgd 205
+qcbd 211
+qcbd 213
+qcbd 206
+qcba
+qcga -rz -ph 0.31375497988619844 192
+qcbd 214
+qcga -z 84
+qcga -z 97
+qcba
+qcgd 207
+qcga -x 114
+qcga -x 205
+qcga -x 137
+qcbd 215
+qcba
+qcga -t 138
+qcbd 216
+qcgd 200
+qcgd 153
+qcbd 120
+qcga -s 192
+qcgd 181
+qcgd 208
+qcba
+qcba
+qcgd 211
+qcgd 201
+qcga -h 218
+qcgd 227
+qcgd 221
+qcba
+qcga -cx 205 97
+qcbd 218
+qcga -tdg 205
+qcba
+qcbd 217
+qcba
+qcga -t 129
+qcgd 173
+qcbd 221
+qcgd 230
+qcbd 219
+qcbd 220
+qcga -z 84
+qcga -s 129
+qcba
+qcba
+qcga -cx 129 97
+qcba
+qcga -cx 191 114
+qcgd 229
+qcgd 224
+qcga -rz -ph 1.9705515549644665 84
+qcga -t 138
+qcbd 224
+qcgd 190
+qcga -tdg 223
+qcbd 222
+qcbd 137
+qcba
+qcbd 225
+qcga -t 204
+qcga -s 129
+qcga -cx 129 138
+qcgd 235
+qcgd 199
+qcba
+qcba
+qcba
+qcbd 227
+qcga -h 114
+qcba
+qcga -s 192
+qcbd 228
+qcbd 226
+qcgd 217
+qcga -rz -ph 2.0730540187619595 76
+qcgd 233
+qcba
+qcga -h 138
+qcba
+qcba
+qcgd 220
+qcgd 231
+qcgd 243
+qcgd 214
+qcbd 84
+qcga -s 231
+qcbd 229
+qcgd 238
+qcba
+qcgd 215
+qcba
+qcbd 234
+qcga -x 181
+qcbd 204
+qcba
+qcba
+qcba
+qcga -t 232
+qcga -x 113
+qcgd 209
+qcgd 164
+qcgd 106
+qcgd 247
+qcgd 216
+qcgd 244
+qcbd 235
+qcbd 233
+qcga -h 232
+qcbd 210
+qcgd 226
+qcga -t 230
+qcgd 212
+qcba
+qcbd 236
+qcbd 238
+qcga -rz -ph 2.887752015025683 191
+qcgd 237
+qcga -rz -ph 2.898949760707867 76
+qcgd 197
+qcba
+qcbd 239
+qcgd 246
+qcgd 228
+qcbd 151
+qccp
+qq -f

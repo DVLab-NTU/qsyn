@@ -1,0 +1,11 @@
+zxgread benchmark/bzx/qft_3.bzx -bzx
+zxcopy
+zxgs -fr
+zxgp
+zxgp -a
+zxgadj
+zxcompose 0
+zxgs -fr
+zxgp
+zxgp -a
+q -f

@@ -19,7 +19,6 @@ Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
 qsyn> // tsp 0
-
 qsyn> zxgp -v
 
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
@@ -169,7 +168,6 @@ Successfully added Tensor 1
 Stored the resulting tensor as tensor id 1
 
 qsyn> // tsp 1
-
 qsyn> qccr -R benchmark/pseudoSimp/tof2.qasm
 Note: original QCir is replaced...
 
@@ -188,7 +186,6 @@ Successfully added Tensor 2
 Stored the resulting tensor as tensor id 2
 
 qsyn> // tsp 2
-
 qsyn> zxgp -v
 
 ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(10, -) 
@@ -350,7 +347,6 @@ Successfully added Tensor 3
 Stored the resulting tensor as tensor id 3
 
 qsyn> // tsp 3
-
 qsyn> qccr -R benchmark/pseudoSimp/tof2.qasm
 Note: original QCir is replaced...
 
@@ -373,7 +369,6 @@ Successfully added Tensor 4
 Stored the resulting tensor as tensor id 4
 
 qsyn> // tsp 4
-
 qsyn> zxgp -v
 
 ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(6, -) 
@@ -490,17 +485,13 @@ Pivot Gadget Rule:
 No matches
 
 qsyn> // commenting due to output instability
-
 qsyn> // zxgp -v
-
 qsyn> zxgs -stco
 State Copy Rule: 
 1 iterations
 
 qsyn> // commenting due to output instability
-
 qsyn> // zxgp -v
-
 qsyn> zx2ts
 Traverse and build the tensor... 
 Successfully added Tensor 5
@@ -511,5 +502,5 @@ qsyn> tsp 5
  { 1.      -6.123234e-17i,  0.      +6.123234e-17i}}
 #Dim:    2	Info: ZX 2
 
-qsyn> q -f
+qsyn> qq -f
 

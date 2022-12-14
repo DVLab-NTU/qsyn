@@ -1,0 +1,1978 @@
+qsyn> qcba
+
+qsyn> qcbd 0
+
+qsyn> qcba
+
+qsyn> qcbd 1
+
+qsyn> qcba
+
+qsyn> qcga -h 2
+
+qsyn> qcba
+
+qsyn> qcbd 3
+
+qsyn> qcgd 0
+
+qsyn> qcba
+
+qsyn> qcbd 4
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcbd 5
+
+qsyn> qcbd 2
+
+qsyn> qcga -x 6
+
+qsyn> qcba
+
+qsyn> qcga -cx 6 7
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcgd 1
+
+qsyn> qcba
+
+qsyn> qcgd 2
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -x 7
+
+qsyn> qcgd 3
+
+qsyn> qcbd 6
+
+qsyn> qcbd 11
+
+qsyn> qcga -tdg 10
+
+qsyn> qcba
+
+qsyn> qcbd 13
+
+qsyn> qcba
+
+qsyn> qcbd 9
+
+qsyn> qcbd 8
+
+qsyn> qcgd 4
+
+qsyn> qcba
+
+qsyn> qcbd 14
+
+qsyn> qcga -cx 12 15
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcbd 7
+
+qsyn> qcgd 5
+
+qsyn> qcbd 17
+
+qsyn> qcba
+
+qsyn> qcbd 15
+
+qsyn> qcbd 18
+
+qsyn> qcga -x 12
+
+qsyn> qcgd 6
+
+qsyn> qcba
+
+qsyn> qcbd 16
+
+qsyn> qcga -tdg 10
+
+qsyn> qcbd 12
+
+qsyn> qcba
+
+qsyn> qcga -z 19
+
+qsyn> qcbd 20
+
+qsyn> qcga -h 19
+
+qsyn> qcba
+
+qsyn> qcgd 9
+
+qsyn> qcba
+
+qsyn> qcga -tdg 22
+
+qsyn> qcgd 8
+
+qsyn> qcga -s 21
+
+qsyn> qcga -rz -ph 1.5578588649559482 19
+
+qsyn> qcba
+
+qsyn> qcga -rz -ph 0.36135002947324535 10
+
+qsyn> qcgd 11
+
+qsyn> qcbd 21
+
+qsyn> qcbd 23
+
+qsyn> qcga -t 10
+
+qsyn> qcga -t 22
+
+qsyn> qcgd 14
+
+qsyn> qcga -h 10
+
+qsyn> qcgd 7
+
+qsyn> qcba
+
+qsyn> qcbd 24
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcgd 13
+
+qsyn> qcgd 15
+
+qsyn> qcgd 16
+
+qsyn> qcga -h 27
+
+qsyn> qcgd 10
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -tdg 26
+
+qsyn> qcbd 25
+
+qsyn> qcga -rz -ph 2.744633740795725 22
+
+qsyn> qcba
+
+qsyn> qcgd 19
+
+qsyn> qcba
+
+qsyn> qcgd 18
+
+qsyn> qcbd 29
+
+qsyn> qcga -t 26
+
+qsyn> qcgd 20
+
+qsyn> qcbd 26
+
+qsyn> qcbd 28
+
+qsyn> qcbd 30
+
+qsyn> qcga -s 22
+
+qsyn> qcga -z 27
+
+qsyn> qcga -t 32
+
+qsyn> qcba
+
+qsyn> qcgd 23
+
+qsyn> qcga -cx 32 33
+
+qsyn> qcga -cx 33 32
+
+qsyn> qcbd 31
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -t 19
+
+qsyn> qcgd 21
+
+qsyn> qcgd 17
+
+qsyn> qcga -s 27
+
+qsyn> qcgd 24
+
+qsyn> qcba
+
+qsyn> qcgd 12
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -h 38
+
+qsyn> qcbd 10
+
+qsyn> qcbd 37
+
+qsyn> qcgd 25
+
+qsyn> qcga -s 22
+
+qsyn> qcga -z 39
+
+qsyn> qcbd 40
+
+qsyn> qcba
+
+qsyn> qcga -cx 35 27
+
+qsyn> qcga -tdg 19
+
+qsyn> qcgd 26
+
+qsyn> qcba
+
+qsyn> qcbd 36
+
+qsyn> qcga -s 41
+
+qsyn> qcba
+
+qsyn> qcgd 31
+
+qsyn> qcgd 28
+
+qsyn> qcgd 27
+
+qsyn> qcba
+
+qsyn> qcga -h 27
+
+qsyn> qcga -x 27
+
+qsyn> qcga -x 19
+
+qsyn> qcgd 22
+
+qsyn> qcbd 34
+
+qsyn> qcga -rz -ph 2.5668591369305402 43
+
+qsyn> qcga -z 38
+
+qsyn> qcga -rz -ph 0.20191580524211908 42
+
+qsyn> qcga -rz -ph 2.558722501429278 39
+
+qsyn> qcga -s 42
+
+qsyn> qcgd 33
+
+qsyn> qcba
+
+qsyn> qcga -cx 45 43
+
+qsyn> qcga -rz -ph 1.4533596037352605 39
+
+qsyn> qcba
+
+qsyn> qcga -rz -ph 3.052327165771483 44
+
+qsyn> qcgd 41
+
+qsyn> qcgd 39
+
+qsyn> qcbd 35
+
+qsyn> qcba
+
+qsyn> qcgd 32
+
+qsyn> qcba
+
+qsyn> qcga -s 22
+
+qsyn> qcba
+
+qsyn> qcga -x 19
+
+qsyn> qcba
+
+qsyn> qcga -rz -ph 0.5490266221872633 39
+
+qsyn> qcgd 42
+
+qsyn> qcgd 46
+
+qsyn> qcgd 30
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcgd 35
+
+qsyn> qcgd 29
+
+qsyn> qcgd 43
+
+qsyn> qcga -z 50
+
+qsyn> qcga -x 42
+
+qsyn> qcga -t 27
+
+qsyn> qcbd 46
+
+qsyn> qcbd 32
+
+qsyn> qcgd 47
+
+qsyn> qcbd 33
+
+qsyn> qcgd 37
+
+qsyn> qcgd 36
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcbd 43
+
+qsyn> qcba
+
+qsyn> qcga -s 50
+
+qsyn> qcba
+
+qsyn> qcbd 49
+
+qsyn> qcba
+
+qsyn> qcgd 38
+
+qsyn> qcga -cx 55 48
+
+qsyn> qcga -rz -ph 0.8650206744239539 53
+
+qsyn> qcgd 44
+
+qsyn> qcgd 50
+
+qsyn> qcga -cx 56 38
+
+qsyn> qcbd 19
+
+qsyn> qcbd 51
+
+qsyn> qcgd 52
+
+qsyn> qcba
+
+qsyn> qcbd 57
+
+qsyn> qcbd 54
+
+qsyn> qcgd 40
+
+qsyn> qcga -t 56
+
+qsyn> qcbd 45
+
+qsyn> qcbd 47
+
+qsyn> qcga -rz -ph 0.7722093533882677 50
+
+qsyn> qcgd 48
+
+qsyn> qcgd 49
+
+qsyn> qcga -tdg 53
+
+qsyn> qcgd 57
+
+qsyn> qcga -t 56
+
+qsyn> qcba
+
+qsyn> qcgd 34
+
+qsyn> qcba
+
+qsyn> qcga -t 55
+
+qsyn> qcga -cx 41 52
+
+qsyn> qcba
+
+qsyn> qcbd 60
+
+qsyn> qcgd 54
+
+qsyn> qcbd 59
+
+qsyn> qcga -x 50
+
+qsyn> qcba
+
+qsyn> qcbd 38
+
+qsyn> qcbd 48
+
+qsyn> qcba
+
+qsyn> qcbd 58
+
+qsyn> qcbd 61
+
+qsyn> qcgd 51
+
+qsyn> qcbd 42
+
+qsyn> qcbd 44
+
+qsyn> qcbd 27
+
+qsyn> qcgd 53
+
+qsyn> qcgd 59
+
+qsyn> qcgd 45
+
+qsyn> qcba
+
+qsyn> qcbd 22
+
+qsyn> qcba
+
+qsyn> qcga -cx 53 62
+
+qsyn> qcbd 63
+
+qsyn> qcba
+
+qsyn> qcgd 58
+
+qsyn> qcga -h 62
+
+qsyn> qcgd 56
+
+qsyn> qcga -x 53
+
+qsyn> qcba
+
+qsyn> qcgd 64
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -tdg 68
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcbd 39
+
+qsyn> qcga -t 69
+
+qsyn> qcbd 66
+
+qsyn> qcgd 61
+
+qsyn> qcga -x 52
+
+qsyn> qcga -tdg 55
+
+qsyn> qcbd 67
+
+qsyn> qcbd 64
+
+qsyn> qcga -cx 68 41
+
+qsyn> qcgd 65
+
+qsyn> qcba
+
+qsyn> qcga -x 62
+
+qsyn> qcba
+
+qsyn> qcbd 72
+
+qsyn> qcga -h 73
+
+qsyn> qcba
+
+qsyn> qcbd 74
+
+qsyn> qcbd 50
+
+qsyn> qcgd 67
+
+qsyn> qcgd 68
+
+qsyn> qcbd 70
+
+qsyn> qcba
+
+qsyn> qcga -t 56
+
+qsyn> qcba
+
+qsyn> qcgd 55
+
+qsyn> qcba
+
+qsyn> qcgd 72
+
+qsyn> qcga -t 56
+
+qsyn> qcgd 71
+
+qsyn> qcbd 65
+
+qsyn> qcba
+
+qsyn> qcbd 78
+
+qsyn> qcbd 71
+
+qsyn> qcgd 63
+
+qsyn> qcba
+
+qsyn> qcgd 73
+
+qsyn> qcgd 62
+
+qsyn> qcba
+
+qsyn> qcbd 56
+
+qsyn> qcba
+
+qsyn> qcgd 66
+
+qsyn> qcbd 80
+
+qsyn> qcga -tdg 53
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcgd 74
+
+qsyn> qcbd 82
+
+qsyn> qcbd 81
+
+qsyn> qcba
+
+qsyn> qcbd 73
+
+qsyn> qcba
+
+qsyn> qcbd 75
+
+qsyn> qcba
+
+qsyn> qcgd 60
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcbd 79
+
+qsyn> qcbd 85
+
+qsyn> qcga -t 77
+
+qsyn> qcga -x 53
+
+qsyn> qcgd 75
+
+qsyn> qcgd 70
+
+qsyn> qcbd 87
+
+qsyn> qcga -rz -ph 2.614519593987348 68
+
+qsyn> qcgd 77
+
+qsyn> qcgd 69
+
+qsyn> qcga -z 86
+
+qsyn> qcga -cx 53 41
+
+qsyn> qcbd 76
+
+qsyn> qcbd 62
+
+qsyn> qcba
+
+qsyn> qcbd 55
+
+qsyn> qcbd 84
+
+qsyn> qcba
+
+qsyn> qcbd 90
+
+qsyn> qcba
+
+qsyn> qcgd 76
+
+qsyn> qcba
+
+qsyn> qcbd 52
+
+qsyn> qcga -z 89
+
+qsyn> qcgd 79
+
+qsyn> qcgd 80
+
+qsyn> qcga -x 88
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -h 69
+
+qsyn> qcga -t 86
+
+qsyn> qcbd 93
+
+qsyn> qcbd 83
+
+qsyn> qcga -rz -ph 0.5557179234764624 41
+
+qsyn> qcbd 68
+
+qsyn> qcba
+
+qsyn> qcbd 91
+
+qsyn> qcga -t 41
+
+qsyn> qcga -h 92
+
+qsyn> qcba
+
+qsyn> qcbd 53
+
+qsyn> qcba
+
+qsyn> qcgd 86
+
+qsyn> qcgd 85
+
+qsyn> qcgd 83
+
+qsyn> qcbd 97
+
+qsyn> qcbd 96
+
+qsyn> qcbd 89
+
+qsyn> qcga -h 88
+
+qsyn> qcbd 94
+
+qsyn> qcga -z 69
+
+qsyn> qcga -x 92
+
+qsyn> qcgd 87
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -rz -ph 0.29536501045111535 69
+
+qsyn> qcga -s 95
+
+qsyn> qcba
+
+qsyn> qcgd 90
+
+qsyn> qcba
+
+qsyn> qcbd 77
+
+qsyn> qcbd 100
+
+qsyn> qcga -rz -ph 2.7854443252360386 86
+
+qsyn> qcga -tdg 101
+
+qsyn> qcba
+
+qsyn> qcga -h 69
+
+qsyn> qcba
+
+qsyn> qcgd 89
+
+qsyn> qcgd 88
+
+qsyn> qcgd 82
+
+qsyn> qcbd 103
+
+qsyn> qcbd 92
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -cx 104 41
+
+qsyn> qcgd 95
+
+qsyn> qcga -h 105
+
+qsyn> qcgd 81
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcgd 78
+
+qsyn> qcga -cx 101 41
+
+qsyn> qcba
+
+qsyn> qcgd 93
+
+qsyn> qcba
+
+qsyn> qcga -h 108
+
+qsyn> qcgd 91
+
+qsyn> qcbd 88
+
+qsyn> qcba
+
+qsyn> qcgd 97
+
+qsyn> qcgd 84
+
+qsyn> qcgd 94
+
+qsyn> qcbd 95
+
+qsyn> qcga -x 104
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -x 69
+
+qsyn> qcbd 101
+
+qsyn> qcba
+
+qsyn> qcgd 100
+
+qsyn> qcba
+
+qsyn> qcbd 112
+
+qsyn> qcgd 98
+
+qsyn> qcgd 92
+
+qsyn> qcba
+
+qsyn> qcgd 99
+
+qsyn> qcga -cx 104 102
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcbd 98
+
+qsyn> qcgd 101
+
+qsyn> qcgd 96
+
+qsyn> qcbd 111
+
+qsyn> qcbd 108
+
+qsyn> qcga -rz -ph 0.31083988793585954 107
+
+qsyn> qcbd 86
+
+qsyn> qcgd 102
+
+qsyn> qcbd 110
+
+qsyn> qcbd 105
+
+qsyn> qcba
+
+qsyn> qcga -cx 69 109
+
+qsyn> qcga -s 113
+
+qsyn> qcbd 102
+
+qsyn> qcbd 104
+
+qsyn> qcgd 103
+
+qsyn> qcga -s 109
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcgd 105
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -t 41
+
+qsyn> qcga -x 113
+
+qsyn> qcgd 107
+
+qsyn> qcbd 69
+
+qsyn> qcga -tdg 109
+
+qsyn> qcba
+
+qsyn> qcgd 104
+
+qsyn> qcga -z 120
+
+qsyn> qcbd 99
+
+qsyn> qcba
+
+qsyn> qcbd 125
+
+qsyn> qcba
+
+qsyn> qcbd 119
+
+qsyn> qcbd 121
+
+qsyn> qcgd 108
+
+qsyn> qcgd 106
+
+qsyn> qcgd 109
+
+qsyn> qcba
+
+qsyn> qcbd 122
+
+qsyn> qcbd 109
+
+qsyn> qcba
+
+qsyn> qcga -h 126
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -z 127
+
+qsyn> qcbd 117
+
+qsyn> qcga -h 115
+
+qsyn> qcga -rz -ph 2.9741602314028457 129
+
+qsyn> qcga -tdg 129
+
+qsyn> qcbd 113
+
+qsyn> qcga -z 106
+
+qsyn> qcga -t 114
+
+qsyn> qcba
+
+qsyn> qcbd 130
+
+qsyn> qcbd 123
+
+qsyn> qcbd 131
+
+qsyn> qcgd 111
+
+qsyn> qcbd 128
+
+qsyn> qcga -z 114
+
+qsyn> qcgd 115
+
+qsyn> qcba
+
+qsyn> qcbd 107
+
+qsyn> qcba
+
+qsyn> qcbd 106
+
+qsyn> qcga -z 127
+
+qsyn> qcba
+
+qsyn> qcga -cx 115 129
+
+qsyn> qcgd 112
+
+qsyn> qcba
+
+qsyn> qcga -z 118
+
+qsyn> qcgd 114
+
+qsyn> qcgd 116
+
+qsyn> qcba
+
+qsyn> qcgd 120
+
+qsyn> qcga -t 136
+
+qsyn> qcgd 117
+
+qsyn> qcba
+
+qsyn> qcbd 114
+
+qsyn> qcbd 135
+
+qsyn> qcba
+
+qsyn> qcga -x 116
+
+qsyn> qcba
+
+qsyn> qcgd 110
+
+qsyn> qcbd 134
+
+qsyn> qcga -x 137
+
+qsyn> qcgd 121
+
+qsyn> qcba
+
+qsyn> qcga -cx 136 140
+
+qsyn> qcga -h 129
+
+qsyn> qcba
+
+qsyn> qcgd 122
+
+qsyn> qcba
+
+qsyn> qcgd 125
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -cx 140 116
+
+qsyn> qcgd 124
+
+qsyn> qcga -z 133
+
+qsyn> qcga -cx 129 140
+
+qsyn> qcgd 123
+
+qsyn> qcba
+
+qsyn> qcgd 118
+
+qsyn> qcga -t 141
+
+qsyn> qcba
+
+qsyn> qcbd 118
+
+qsyn> qcbd 137
+
+qsyn> qcga -t 141
+
+qsyn> qcgd 119
+
+qsyn> qcgd 130
+
+qsyn> qcba
+
+qsyn> qcga -rz -ph 0.7340292331071235 144
+
+qsyn> qcga -t 138
+
+qsyn> qcbd 147
+
+qsyn> qcga -s 127
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcgd 131
+
+qsyn> qcbd 142
+
+qsyn> qcbd 136
+
+qsyn> qcgd 132
+
+qsyn> qcgd 133
+
+qsyn> qcga -t 116
+
+qsyn> qcga -rz -ph 1.3039068516892907 127
+
+qsyn> qcba
+
+qsyn> qcga -z 148
+
+qsyn> qcga -cx 140 133
+
+qsyn> qcbd 144
+
+qsyn> qcgd 137
+
+qsyn> qcbd 120
+
+qsyn> qcba
+
+qsyn> qcgd 113
+
+qsyn> qcgd 128
+
+qsyn> qcbd 143
+
+qsyn> qcbd 124
+
+qsyn> qcga -tdg 138
+
+qsyn> qcga -x 148
+
+qsyn> qcga -z 149
+
+qsyn> qcba
+
+qsyn> qcga -z 146
+
+qsyn> qcba
+
+qsyn> qcgd 138
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcgd 135
+
+qsyn> qcbd 150
+
+qsyn> qcba
+
+qsyn> qcbd 126
+
+qsyn> qcbd 138
+
+qsyn> qcgd 126
+
+qsyn> qcba
+
+qsyn> qcga -t 155
+
+qsyn> qcba
+
+qsyn> qcga -z 132
+
+qsyn> qcba
+
+qsyn> qcga -h 148
+
+qsyn> qcga -cx 149 157
+
+qsyn> qcgd 127
+
+qsyn> qcba
+
+qsyn> qcbd 127
+
+qsyn> qcga -x 160
+
+qsyn> qcgd 134
+
+qsyn> qcgd 145
+
+qsyn> qcbd 157
+
+qsyn> qcga -z 141
+
+qsyn> qcgd 141
+
+qsyn> qcba
+
+qsyn> qcbd 115
+
+qsyn> qcga -t 140
+
+qsyn> qcga -s 141
+
+qsyn> qcba
+
+qsyn> qcgd 140
+
+qsyn> qcba
+
+qsyn> qcgd 143
+
+qsyn> qcga -t 133
+
+qsyn> qcbd 132
+
+qsyn> qcga -t 116
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcgd 147
+
+qsyn> qcbd 159
+
+qsyn> qcba
+
+qsyn> qcga -rz -ph 1.409248075049191 160
+
+qsyn> qcgd 136
+
+qsyn> qcba
+
+qsyn> qcbd 161
+
+qsyn> qcbd 129
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcgd 142
+
+qsyn> qcbd 168
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcbd 145
+
+qsyn> qcgd 151
+
+qsyn> qcba
+
+qsyn> qcga -cx 171 163
+
+qsyn> qcgd 148
+
+qsyn> qcgd 149
+
+qsyn> qcga -rz -ph 1.7438249876047311 154
+
+qsyn> qcbd 140
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -h 146
+
+qsyn> qcba
+
+qsyn> qcgd 146
+
+qsyn> qcga -x 149
+
+qsyn> qcgd 153
+
+qsyn> qcbd 116
+
+qsyn> qcgd 129
+
+qsyn> qcba
+
+qsyn> qcga -h 166
+
+qsyn> qcbd 155
+
+qsyn> qcga -t 146
+
+qsyn> qcbd 176
+
+qsyn> qcbd 139
+
+qsyn> qcba
+
+qsyn> qcbd 178
+
+qsyn> qcgd 158
+
+qsyn> qcga -z 154
+
+qsyn> qcbd 172
+
+qsyn> qcba
+
+qsyn> qcga -t 141
+
+qsyn> qcgd 144
+
+qsyn> qcgd 156
+
+qsyn> qcga -x 167
+
+qsyn> qcbd 175
+
+qsyn> qcbd 162
+
+qsyn> qcba
+
+qsyn> qcga -x 180
+
+qsyn> qcga -s 160
+
+qsyn> qcba
+
+qsyn> qcgd 152
+
+qsyn> qcga -s 169
+
+qsyn> qcga -z 181
+
+qsyn> qcba
+
+qsyn> qcgd 139
+
+qsyn> qcga -s 180
+
+qsyn> qcba
+
+qsyn> qcbd 173
+
+qsyn> qcgd 162
+
+qsyn> qcgd 163
+
+qsyn> qcga -h 154
+
+qsyn> qcgd 159
+
+qsyn> qcbd 156
+
+qsyn> qcgd 161
+
+qsyn> qcga -t 152
+
+qsyn> qcgd 157
+
+qsyn> qcgd 150
+
+qsyn> qcba
+
+qsyn> qcgd 154
+
+qsyn> qcga -z 141
+
+qsyn> qcgd 164
+
+qsyn> qcbd 174
+
+qsyn> qcgd 160
+
+qsyn> qcga -cx 179 165
+
+qsyn> qcbd 167
+
+qsyn> qcba
+
+qsyn> qcgd 170
+
+qsyn> qcga -x 181
+
+qsyn> qcbd 153
+
+qsyn> qcba
+
+qsyn> qcgd 171
+
+qsyn> qcgd 168
+
+qsyn> qcbd 41
+
+qsyn> qcgd 166
+
+qsyn> qcba
+
+qsyn> qcgd 165
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcgd 169
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -tdg 146
+
+qsyn> qcba
+
+qsyn> qcga -t 179
+
+qsyn> qcba
+
+qsyn> qcbd 163
+
+qsyn> qcga -rz -ph 2.7265701891158267 187
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcgd 174
+
+qsyn> qcgd 173
+
+qsyn> qcga -rz -ph 0.6930381944583027 171
+
+qsyn> qcbd 182
+
+qsyn> qcba
+
+qsyn> qcga -s 166
+
+qsyn> qcba
+
+qsyn> qcbd 194
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcgd 175
+
+qsyn> qcgd 172
+
+qsyn> qcga -tdg 193
+
+qsyn> qcgd 176
+
+qsyn> qcga -tdg 169
+
+qsyn> qcgd 178
+
+qsyn> qcga -h 180
+
+qsyn> qcga -tdg 171
+
+qsyn> qcba
+
+qsyn> qcga -h 200
+
+qsyn> qcbd 133
+
+qsyn> qcba
+
+qsyn> qcgd 179
+
+qsyn> qcga -tdg 197
+
+qsyn> qcgd 181
+
+qsyn> qcga -cx 177 187
+
+qsyn> qcga -t 166
+
+qsyn> qcba
+
+qsyn> qcgd 155
+
+qsyn> qcgd 183
+
+qsyn> qcbd 177
+
+qsyn> qcbd 148
+
+qsyn> qcbd 187
+
+qsyn> qcga -x 170
+
+qsyn> qcbd 164
+
+qsyn> qcga -x 195
+
+qsyn> qcga -tdg 199
+
+qsyn> qcba
+
+qsyn> qcga -rz -ph 2.287764840183932 184
+
+qsyn> qcbd 185
+
+qsyn> qcgd 187
+
+qsyn> qcba
+
+qsyn> qcga -rz -ph 1.580269938170599 149
+
+qsyn> qcba
+
+qsyn> qcga -x 141
+
+qsyn> qcgd 189
+
+qsyn> qcgd 177
+
+qsyn> qcga -tdg 188
+
+qsyn> qcga -s 165
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcbd 198
+
+qsyn> qcga -rz -ph 0.5372315228086848 180
+
+qsyn> qcga -s 190
+
+qsyn> qcgd 192
+
+qsyn> qcga -tdg 146
+
+qsyn> qcgd 180
+
+qsyn> qcgd 193
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -x 201
+
+qsyn> qcba
+
+qsyn> qcbd 207
+
+qsyn> qcga -x 201
+
+qsyn> qcgd 182
+
+qsyn> qcbd 204
+
+qsyn> qcgd 197
+
+qsyn> qcgd 196
+
+qsyn> qcbd 193
+
+qsyn> qcba
+
+qsyn> qcbd 169
+
+qsyn> qcba
+
+qsyn> qcgd 186
+
+qsyn> qcbd 149
+
+qsyn> qcga -tdg 171
+
+qsyn> qcbd 151
+
+qsyn> qcga -cx 141 211
+
+qsyn> qcgd 185
+
+qsyn> qcgd 190
+
+qsyn> qcba
+
+qsyn> qcgd 184
+
+qsyn> qcbd 181
+
+qsyn> qcga -tdg 195
+
+qsyn> qcbd 191
+
+qsyn> qcba
+
+qsyn> qcbd 200
+
+qsyn> qcbd 152
+
+qsyn> qcba
+
+qsyn> qcga -cx 212 196
+
+qsyn> qcbd 206
+
+qsyn> qcbd 183
+
+qsyn> qcgd 167
+
+qsyn> qcbd 197
+
+qsyn> qcgd 199
+
+qsyn> qcga -z 202
+
+qsyn> qcba
+
+qsyn> qcbd 158
+
+qsyn> qcga -x 201
+
+qsyn> qcga -z 165
+
+qsyn> qcbd 210
+
+qsyn> qcbd 209
+
+qsyn> qcba
+
+qsyn> qcgd 200
+
+qsyn> qcbd 205
+
+qsyn> qcba
+
+qsyn> qcgd 204
+
+qsyn> qcgd 201
+
+qsyn> qcbd 166
+
+qsyn> qcga -s 188
+
+qsyn> qcga -cx 189 219
+
+qsyn> qcga -s 202
+
+qsyn> qcbd 218
+
+qsyn> qcba
+
+qsyn> qcgd 194
+
+qsyn> qcbd 213
+
+qsyn> qcga -tdg 192
+
+qsyn> qcba
+
+qsyn> qcga -t 186
+
+qsyn> qcgd 203
+
+qsyn> qcgd 191
+
+qsyn> qcga -tdg 211
+
+qsyn> qcgd 188
+
+qsyn> qcgd 198
+
+qsyn> qcba
+
+qsyn> qcgd 209
+
+qsyn> qcgd 202
+
+qsyn> qcgd 207
+
+qsyn> qcga -s 189
+
+qsyn> qcbd 195
+
+qsyn> qcga -tdg 202
+
+qsyn> qcba
+
+qsyn> qcgd 208
+
+qsyn> qcbd 208
+
+qsyn> qcga -x 216
+
+qsyn> qcbd 221
+
+qsyn> qcba
+
+qsyn> qcga -cx 220 188
+
+qsyn> qcbd 192
+
+qsyn> qcga -z 186
+
+qsyn> qcga -h 199
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcbd 214
+
+qsyn> qcbd 217
+
+qsyn> qcbd 180
+
+qsyn> qcgd 215
+
+qsyn> qcga -rz -ph 0.8650604417104732 220
+
+qsyn> qcba
+
+qsyn> qcga -rz -ph 0.3532713395842249 179
+
+qsyn> qcgd 213
+
+qsyn> qcga -tdg 184
+
+qsyn> qcgd 219
+
+qsyn> qcga -x 216
+
+qsyn> qcba
+
+qsyn> qcga -h 212
+
+qsyn> qcga -cx 201 189
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcbd 186
+
+qsyn> qcbd 171
+
+qsyn> qcba
+
+qsyn> qcgd 212
+
+qsyn> qcga -tdg 160
+
+qsyn> qcga -x 201
+
+qsyn> qcga -h 219
+
+qsyn> qcgd 217
+
+qsyn> qcgd 210
+
+qsyn> qcbd 190
+
+qsyn> qcgd 220
+
+qsyn> qcga -cx 188 179
+
+qsyn> qcbd 202
+
+qsyn> qcga -tdg 223
+
+qsyn> qcga -z 225
+
+qsyn> qcga -tdg 220
+
+qsyn> qcga -z 225
+
+qsyn> qcgd 222
+
+qsyn> qcga -cx 225 227
+
+qsyn> qcgd 227
+
+qsyn> qcbd 170
+
+qsyn> qcba
+
+qsyn> qcbd 224
+
+qsyn> qcgd 206
+
+qsyn> qcgd 205
+
+qsyn> qcgd 226
+
+qsyn> qcbd 230
+
+qsyn> qcga -t 165
+
+qsyn> qcbd 231
+
+qsyn> qcga -h 229
+
+qsyn> qcba
+
+qsyn> qcga -z 141
+
+qsyn> qcga -s 232
+
+qsyn> qcga -s 219
+
+qsyn> qcbd 215
+
+qsyn> qcga -x 226
+
+qsyn> qcgd 229
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcgd 235
+
+qsyn> qcgd 232
+
+qsyn> qcgd 234
+
+qsyn> qcga -s 216
+
+qsyn> qcba
+
+qsyn> qcbd 165
+
+qsyn> qcga -t 160
+
+qsyn> qcgd 218
+
+qsyn> qcga -tdg 141
+
+qsyn> qcgd 211
+
+qsyn> qcgd 238
+
+qsyn> qcbd 222
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcbd 238
+
+qsyn> qcga -tdg 196
+
+qsyn> qcba
+
+qsyn> qcga -h 234
+
+qsyn> qcbd 233
+
+qsyn> qcgd 237
+
+qsyn> qcga -t 223
+
+qsyn> qcba
+
+qsyn> qcga -tdg 220
+
+qsyn> qcgd 216
+
+qsyn> qcga -s 219
+
+qsyn> qcga -t 239
+
+qsyn> qcga -z 220
+
+qsyn> qcbd 235
+
+qsyn> qcga -h 240
+
+qsyn> qcga -s 179
+
+qsyn> qcba
+
+qsyn> qcga -tdg 141
+
+qsyn> qcbd 216
+
+qsyn> qcga -h 228
+
+qsyn> qcgd 244
+
+qsyn> qcgd 248
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -cx 146 189
+
+qsyn> qcga -tdg 237
+
+qsyn> qcbd 243
+
+qsyn> qcba
+
+qsyn> qcgd 224
+
+qsyn> qcgd 228
+
+qsyn> qcba
+
+qsyn> qcgd 195
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcbd 240
+
+qsyn> qcba
+
+qsyn> qcbd 247
+
+qsyn> qcba
+
+qsyn> qcgd 253
+
+qsyn> qcbd 226
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcgd 241
+
+qsyn> qcgd 221
+
+qsyn> qcbd 196
+
+qsyn> qcgd 252
+
+qsyn> qcba
+
+qsyn> qcgd 251
+
+qsyn> qcgd 245
+
+qsyn> qcbd 241
+
+qsyn> qcgd 225
+
+qsyn> qcbd 236
+
+qsyn> qcga -rz -ph 1.8295190202355915 179
+
+qsyn> qcbd 254
+
+qsyn> qcbd 203
+
+qsyn> qcga -s 199
+
+qsyn> qcba
+
+qsyn> qcbd 251
+
+qsyn> qcbd 244
+
+qsyn> qcgd 240
+
+qsyn> qccp
+Listed by gate ID
+Gate 214: cx   	 Exec Time: 0 	 Qubit: 220 188 
+Gate 223: td   	 Exec Time: 0 	 Qubit: 160 
+Gate 230: z   	 Exec Time: 0 	 Qubit: 225 
+Gate 231: cx   	 Exec Time: 1 	 Qubit: 225 227 
+Gate 233: h   	 Exec Time: 0 	 Qubit: 229 
+Gate 236: s   	 Exec Time: 0 	 Qubit: 219 
+Gate 239: t   	 Exec Time: 1 	 Qubit: 160 
+Gate 242: h   	 Exec Time: 0 	 Qubit: 234 
+Gate 243: t   	 Exec Time: 0 	 Qubit: 223 
+Gate 246: t   	 Exec Time: 0 	 Qubit: 239 
+Gate 247: z   	 Exec Time: 1 	 Qubit: 220 
+Gate 249: s   	 Exec Time: 0 	 Qubit: 179 
+Gate 250: td   	 Exec Time: 0 	 Qubit: 141 
+Gate 254: rz   	 Exec Time: 1 	 Qubit: 179 
+Gate 255: s   	 Exec Time: 0 	 Qubit: 199 
+
+qsyn> qq -f
+

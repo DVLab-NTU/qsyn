@@ -18,16 +18,32 @@ Row operator+(Row& lhs, const Row& rhs){
 
 Row &Row::operator+=(const Row& rhs) {
     assert( _row.size() == rhs._row.size());
-    _row ^= rhs._row;
+    for(size_t i=0; i<_row.size(); i++){
+      _row[i] = (_row[i] + rhs._row[i])%2; 
+    }
     return *this;
 }
 
 /// @brief Print row
 void Row::printRow() const {
-  for(size_t i=0; i< _size; i++){
-    cout << _row[i] << " ";
+  for(auto e: _row){
+    cout << unsigned(e) << " ";
   }
   cout << endl;
+}
+
+/// @brief Check is one hot
+/// @return 
+bool Row::isOneHot() {
+  size_t cnt = 0;
+  for(auto i: _row){
+    if(i==1){
+      if(cnt==1) return false;
+      cnt += 1;
+    }
+  }
+  if(cnt!=1) return false;
+  else return true;
 }
 
 /// @brief Print matrix
@@ -49,14 +65,12 @@ void M2::printTrack() const {
 }
 
 void M2::defaultInit(){
-  _size = 6;
-
-  _matrix.push_back(Row(0, 6, bitset<16>{"101101"}));
-  _matrix.push_back(Row(1, 6, bitset<16>{"001110"}));
-  _matrix.push_back(Row(2, 6, bitset<16>{"010110"}));
-  _matrix.push_back(Row(3, 6, bitset<16>{"011001"}));
-  _matrix.push_back(Row(4, 6, bitset<16>{"011011"}));
-  _matrix.push_back(Row(5, 6, bitset<16>{"101000"}));
+  _matrix.push_back(Row(0, vector<unsigned char>{1,0,1,1,0,1}));
+  _matrix.push_back(Row(1, vector<unsigned char>{0,1,1,1,0,0}));
+  _matrix.push_back(Row(2, vector<unsigned char>{0,1,1,0,1,0}));
+  _matrix.push_back(Row(3, vector<unsigned char>{1,0,0,1,1,0}));
+  _matrix.push_back(Row(4, vector<unsigned char>{1,1,0,1,1,0}));
+  _matrix.push_back(Row(5, vector<unsigned char>{0,0,0,1,0,1}));
 }
 
 /// @brief Perform XOR operation
@@ -65,11 +79,11 @@ void M2::defaultInit(){
 /// @param track 
 /// @return true if successfully XORed, false if not
 bool M2::xorOper(size_t ctrl, size_t targ, bool track)  { 
-  if( ctrl >= _size ) {
+  if( ctrl >= _matrix.size() ) {
     cerr << "Error: wrong dimension " << ctrl << endl;
     return false;
   }
-  if( targ >= _size ) {
+  if( targ >= _matrix.size() ) {
     cerr << "Error: wrong dimension " << targ << endl;
     return false;
   }
@@ -83,10 +97,10 @@ void M2::gaussianElim(bool track){
     if(verbose>=3) cout << "Performing Gaussian Elimination..." << endl;
     if(verbose>=8) printMatrix();
     _opStorage.clear();
-    for(size_t i=0; i < _size - 1; i++){
+    for(size_t i=0; i < _matrix.size() - 1; i++){
       if(_matrix[i].getRow()[i] == 0){
         bool noSol = true; 
-        for(size_t j=i+1; j<_size; j++){
+        for(size_t j=i+1; j<_matrix.size(); j++){
           if(_matrix[j].getRow()[i] ==1){
             xorOper(j, i, track);
             if(verbose>=8) {
@@ -99,7 +113,7 @@ void M2::gaussianElim(bool track){
         }
         if(noSol) { cout << "No Solution" << endl; return;}
 		  }
-		  for(size_t j=i+1; j < _size; j++){
+		  for(size_t j=i+1; j < _matrix.size(); j++){
         if(_matrix[j].getRow()[i] ==1 && _matrix[i].getRow()[i] ==1){
           xorOper(i, j, track);
           if(verbose>=8) {
@@ -109,10 +123,10 @@ void M2::gaussianElim(bool track){
         }
 		  }
 	  }
-    for(size_t i = 0; i < _size; i++){
-		  for(size_t j=_size-i; j < _size; j++){
-        if(_matrix[_size-i-1].getRow()[j] ==1){
-          xorOper(j, _size-i-1, track);
+    for(size_t i = 0; i < _matrix.size(); i++){
+		  for(size_t j=_matrix.size()-i; j < _matrix.size(); j++){
+        if(_matrix[_matrix.size()-i-1].getRow()[j] ==1){
+          xorOper(j, _matrix.size()-i-1, track);
           if(verbose>=8) printMatrix();
         }
 		  }
@@ -124,44 +138,49 @@ void M2::gaussianElim(bool track){
 bool M2::isIdentity(){
   //REVIEW - Only check one 1 in a row
   for(auto row: _matrix){
-    if(!row.isSingular()) return false;
+    if(!row.isOneHot()) return false;
   }
   return true;
 }
 
-/// @brief Build matrix from bitsets
-/// @param bitsets 
-/// @return true
-bool M2::fromBitsets(const vector<bitset<16>>& bitsets){
-  for(auto bitset: bitsets){
-    _matrix.push_back(Row(_matrix.size(), _size, bitset));
-  }
-  return true;
-}
+// /// @brief Build matrix from bitsets
+// /// @param bitsets 
+// /// @return true
+// bool M2::fromBitsets(const vector<bitset<16>>& bitsets){
+//   for(auto bitset: bitsets){
+//     _matrix.push_back(Row(_matrix.size(), _size, bitset));
+//   }
+//   return true;
+// }
 
-/// @brief Build matrix from ZX-graph
+/// @brief Build matrix from ZX-graph (according to the given order)
 /// @param frontier 
 /// @param neighbors 
 /// @return true if successfully built, false if not
-bool M2::fromZXVertices(const vector<ZXVertex*>& frontier, const vector<ZXVertex*>& neighbors){
+bool M2::fromZXVertices(const ZXVertexList& frontier, const ZXVertexList& neighbors){
   if(frontier.size() != neighbors.size()){
     cout << "Numbers of elements in frontier and neighbors mismatch!" << endl;
     return false;
   }
-  if(frontier.size() != _size) _size = frontier.size();
+  //NOTE - assign row by calculating a Frontier's connecting status to Neighbors, e.g. 10010 = connect to qubit 0 and 3.
   
-  //NOTE - assign row by calculating a neighbor's connecting status to Frontier, e.g. 10010 = connect to qubit 0 and 3.
-  
+  unordered_map<ZXVertex*, size_t> table;
+  size_t cnt = 0;
   for(auto v:neighbors){
-    string storage (_size, '0');
+    table[v] = cnt;
+    cnt++;
+  }
+  for(auto v:frontier){
+    vector<unsigned char> storage = vector<unsigned char>(neighbors.size(), 0);
     for(auto [vt,et]: v->getNeighbors()){
-      if(inFrontier(vt, frontier)){
+      if(inNeighbors(vt, neighbors)){
         //REVIEW - Assume no space in #qubit (0,2,3,4,5 is not allowed)
-        storage[_size - 1 - vt->getQubit()] = '1';
-        // in Frontier
+        storage[table[vt]] = 1;
+        // in Neighbors
       }
     }
-    _matrix.push_back(Row(_matrix.size(), _size, bitset<16>{storage}));
+    _matrix.push_back(Row(1, storage));
+    printMatrix();
   }
 
   return true;
@@ -171,7 +190,7 @@ bool M2::fromZXVertices(const vector<ZXVertex*>& frontier, const vector<ZXVertex
 /// @param v 
 /// @param f 
 /// @return true if in, false if not
-bool M2::inFrontier(ZXVertex* v, const vector<ZXVertex*>& f){
-  if(find(f.begin(), f.end(), v) != f.end()) return true;
+bool M2::inNeighbors(ZXVertex* v, const ZXVertexList& n){
+  if(n.contains(v)) return true;
   else return false;
 }

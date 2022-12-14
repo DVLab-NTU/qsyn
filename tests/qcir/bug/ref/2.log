@@ -1691,5 +1691,5 @@ Gate 1681: cx   	 Exec Time: 1349 	 Qubit: 31 63
 Gate 1682: s   	 Exec Time: 1350 	 Qubit: 63 
 Gate 1683: cx   	 Exec Time: 1351 	 Qubit: 31 63 
 
-qsyn> q -f
+qsyn> qq -f
 

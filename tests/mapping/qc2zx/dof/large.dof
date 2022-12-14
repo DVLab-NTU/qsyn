@@ -3,4 +3,4 @@ qccr benchmark/benchmark_SABRE/large/9symml_195.qasm
 qccp -q
 qc2zx
 zxgtr
-q -f
+qq -f

@@ -43,5 +43,5 @@ qsyn> qcp
 -> #QCir: 2
 -> Now focus on: 1
 
-qsyn> q -f
+qsyn> qq -f
 

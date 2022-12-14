@@ -25,4 +25,4 @@ zxgedit -rme 1 2 -ALL
 zxgedit -adde 2 1 HADAMARD
 ver 8
 zx2ts
-q -f
+qq -f

@@ -3,5 +3,5 @@ qsyn> qccr benchmark/zx/cnots.zx
 Do not support the file extension .zx
 Error: The format in "benchmark/zx/cnots.zx" has something wrong!!
 
-qsyn> q -f
+qsyn> qq -f
 

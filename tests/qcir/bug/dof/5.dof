@@ -1,4 +1,4 @@
-format 0
+color 0
 qcn
 qcba
 qcba
@@ -11,4 +11,4 @@ qccp -q
 qcten 0
 qccp -q
 qccp -zx
-q -f
+qq -f

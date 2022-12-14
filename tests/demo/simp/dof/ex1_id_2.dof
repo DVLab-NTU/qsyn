@@ -7,4 +7,4 @@ zx2ts
 zxgr -bzx benchmark/demo/simp/id_2.bzx
 zx2ts
 tseq 0 1
-q -f
+qq -f

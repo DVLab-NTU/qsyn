@@ -10,4 +10,4 @@ zxgp -e
 zxgs -stco
 zxgp -v
 zxgp -e
-q -f
+qq -f

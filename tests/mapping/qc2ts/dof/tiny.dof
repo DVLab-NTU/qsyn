@@ -9,4 +9,4 @@ qcga -cx 1 0
 qcga -cx 0 1
 qccp -q
 qc2ts
-q -f
+qq -f
