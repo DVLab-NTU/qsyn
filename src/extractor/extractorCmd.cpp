@@ -21,7 +21,8 @@ extern ZXGraphMgr *zxGraphMgr;
 
 bool initExtractCmd()
 {
-   if (!(cmdMgr->regCmd("EXTract", 3, new ExtractCmd)
+   if (!(cmdMgr->regCmd("EXTRact", 4, new ExtractCmd) && 
+         cmdMgr->regCmd("EXTStep", 4, new ExtractStepCmd)
          ))
    {
       cerr << "Registering \"extract\" commands fails... exiting" << endl;
@@ -32,28 +33,61 @@ bool initExtractCmd()
 
 CmdExecStatus
 ExtractCmd::exec(const string &option) {    
+    if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
+
+    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
+        cerr << "Error: ZX-graph list is empty now. Please ZXNew before EXTRact." << endl;
+        return CMD_EXEC_ERROR;
+    }
+    else{
+        zxGraphMgr->copy(zxGraphMgr->getNextID());
+        Extractor ext(zxGraphMgr->getGraph());
+        ext.extract();
+    }
+    return CMD_EXEC_DONE;
+}
+
+void ExtractCmd::usage(ostream &os) const {
+    os << "Usage: EXTRact" << endl;
+}
+
+void ExtractCmd::help() const {
+    cout << setw(15) << left << "EXTRact: "
+         << "extract the circuit from the ZX-graph" << endl;
+}
+
+CmdExecStatus
+ExtractStepCmd::exec(const string &option) {    
     string token;
-    // check option
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
     if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
         cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXPrint." << endl;
         return CMD_EXEC_ERROR;
     }
-    else{
+    
+    if (myStrNCmp("-CLFrontier", token, 4) == 0){
         zxGraphMgr->copy(zxGraphMgr->getNextID());
         Extractor ext(zxGraphMgr->getGraph());
         ext.cleanFrontier();
-        // ext.removeGadget();
+    }   
+    else if (myStrNCmp("-RMGadget", token, 4) == 0){
+        zxGraphMgr->copy(zxGraphMgr->getNextID());
+        Extractor ext(zxGraphMgr->getGraph());
+        ext.removeGadget();
+    }
+    else {
+        cout << "Error: unsupported option " << token << " !!"  << endl;
+        return CMD_EXEC_ERROR;
     }
     return CMD_EXEC_DONE;
 }
 
-void ExtractCmd::usage(ostream &os) const {
-    os << "Usage: EXTract" << endl;
+void ExtractStepCmd::usage(ostream &os) const {
+    os << "Usage: EXTStep <-CLFrontier | -RMGadget >" << endl;
 }
 
-void ExtractCmd::help() const {
-    cout << setw(15) << left << "EXTract: "
-         << "extract the circuit from the ZX-graph" << endl;
+void ExtractStepCmd::help() const {
+    cout << setw(15) << left << "EXTStep: "
+         << "perform a step in extraction" << endl;
 }

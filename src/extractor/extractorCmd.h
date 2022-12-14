@@ -12,4 +12,5 @@
 #include "cmdParser.h"
 
 CmdClass(ExtractCmd);
+CmdClass(ExtractStepCmd);
 #endif //EXTRACTOR_CMD_H

@@ -1,0 +1,183 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> zxgr -bzx benchmark/extraction/rmGadget.bzx
+Successfully generated Graph 0
+Checkout to Graph 0
+
+qsyn> zxgp -q
+
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	3π/4	#Neighbors:	1	(10, [1m[34mH[0m[0m) 
+
+
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	3	(7, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) 
+
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	3	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(11, -) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	3π/4	#Neighbors:	3	(0, -) (11, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (6, [1m[34mH[0m[0m) 
+
+
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	4	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(12, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	5π/4	#Neighbors:	4	(1, -) (10, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(4, -) (7, [1m[34mH[0m[0m) 
+
+
+ID:	2	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(13, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	7π/4	#Neighbors:	2	(2, -) (13, [1m[34mH[0m[0m) 
+ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	5	(5, -) (6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
+
+
+qsyn> ver 8
+Note: verbose level is set to 8
+
+qsyn> exts -rmg
+Add vertex (●)0
+Add vertex (●)1
+Add vertex (●)2
+Add vertex (●)3
+Add vertex (●)4
+Add vertex (●)5
+Add vertex ([1m[32mZ[0m[0m)6
+Add vertex ([1m[32mZ[0m[0m)7
+Add vertex ([1m[32mZ[0m[0m)8
+Add vertex ([1m[32mZ[0m[0m)9
+Add vertex ([1m[32mZ[0m[0m)10
+Add vertex ([1m[32mZ[0m[0m)11
+Add vertex ([1m[32mZ[0m[0m)12
+Add vertex ([1m[32mZ[0m[0m)13
+Add edge ( 0, 6 )
+Add edge ( 1, 7 )
+Add edge ( 2, 8 )
+Add edge ( 3, 11 )
+Add edge ( 4, 12 )
+Add edge ( 5, 13 )
+Add edge ( 6, 11 )
+Add edge ( 6, 13 )
+Add edge ( 7, 10 )
+Add edge ( 7, 12 )
+Add edge ( 7, 13 )
+Add edge ( 8, 13 )
+Add edge ( 9, 10 )
+Add edge ( 10, 13 )
+Successfully copied Graph 0 to Graph 1
+Checkout to Graph 1
+Note: (0) is not a gadget vertex!
+Note: (1) is not a gadget vertex!
+Note: (2) is not a gadget vertex!
+Note: (3) is not a gadget vertex!
+Note: (4) is not a gadget vertex!
+Note: (5) is not a gadget vertex!
+Note: (6) is not a gadget vertex!
+Note: (7) is not a gadget vertex!
+Note: (8) is not a gadget vertex!
+Note: (10) is not a gadget vertex!
+Note: (11) is not a gadget vertex!
+Note: (12) is not a gadget vertex!
+Note: (13) is not a gadget vertex!
+Frontiers:
+Qubit:0: 11
+Qubit:1: 12
+Qubit:2: 13
+
+Neighbors:
+6
+7
+8
+10
+
+Q 0  
+Q 1  
+Q 2  
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	2	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	3	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(11, -) 
+ID:	4	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(12, -) 
+ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(13, -) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	3π/4	#Neighbors:	3	(0, -) (11, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	5π/4	#Neighbors:	4	(1, -) (10, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	7π/4	#Neighbors:	2	(2, -) (13, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	3π/4	#Neighbors:	1	(10, [1m[34mH[0m[0m) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	-1	Phase:	0	#Neighbors:	3	(7, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (6, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(4, -) (7, [1m[34mH[0m[0m) 
+ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	5	(5, -) (6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
+Total #Vertices: 14
+
+Frontiers:
+Qubit:0: 11
+Qubit:1: 12
+Qubit:2: 13
+
+Axels:
+10 (phase gadget: Note: (7) is not a gadget vertex!
+9)
+Note: (13) is not a gadget vertex!
+
+Add vertex ([1m[32mZ[0m[0m)14
+Add edge ( 5, 14 )
+Add edge ( 14, 13 )
+Remove edge ( 5, 13 ), type: -
+> rewrite...
+vs: 10	vt: 13
+Add edge ( 9, 6 )
+Add edge ( 9, 8 )
+Add edge ( 9, 14 )
+Add edge ( 9, 7 )
+Add edge ( 6, 7 )
+Add edge ( 8, 7 )
+Add edge ( 14, 7 )
+Remove ID: 10
+Remove ID: 13
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	2	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	3	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(11, -) 
+ID:	4	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(12, -) 
+ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	3π/4	#Neighbors:	4	(0, -) (7, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	π/4	#Neighbors:	6	(1, -) (6, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	7π/4	#Neighbors:	3	(2, -) (7, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) 
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	3π/4	#Neighbors:	4	(6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (6, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(4, -) (7, [1m[34mH[0m[0m) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) 
+Total #Vertices: 13
+
+Frontiers:
+Qubit:0: 11
+Qubit:1: 12
+Qubit:2: 14
+
+Axels:
+
+
+qsyn> zxgp -q
+
+ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	-2	Phase:	3π/4	#Neighbors:	4	(6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) 
+
+
+ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	3	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(11, -) 
+ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	3π/4	#Neighbors:	4	(0, -) (7, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
+ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(3, -) (6, [1m[34mH[0m[0m) 
+
+
+ID:	1	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	4	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(12, -) 
+ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	π/4	#Neighbors:	6	(1, -) (6, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) (14, [1m[34mH[0m[0m) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(4, -) (7, [1m[34mH[0m[0m) 
+
+
+ID:	2	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(14, [1m[34mH[0m[0m) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	7π/4	#Neighbors:	3	(2, -) (7, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) 
+
+
+qsyn> qq -f
+
