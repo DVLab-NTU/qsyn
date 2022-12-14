@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "util.h"
-#include <chrono>
 
 using namespace std;
 extern size_t verbose;
@@ -39,10 +38,6 @@ extern size_t verbose;
  * @return int
  */
 int Simplifier::simp() {
-    chrono::steady_clock::time_point t_start, timer;
-    chrono::microseconds t_match{0}, t_rewrite{0}, t_apply{0};
-    t_start = chrono::steady_clock::now();
-    size_t addEdgeCount = 0, rmEdgeCount = 0, rmVertexCount = 0;
 
     if (_rule->getName() == "Hadamard Rule") {
         cerr << "Error: Please use `hadamardSimp` when using HRule." << endl;
@@ -53,63 +48,20 @@ int Simplifier::simp() {
     if (verbose >= 2) cout << _rule->getName() << ": \n";
     while (new_matches) {
         new_matches = false;
-        timer = chrono::steady_clock::now();
+        
         _rule->match(_simpGraph);
-        t_match += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
-        timer = chrono::steady_clock::now();
+       
 
         if (_rule->getMatchTypeVecNum() <= 0) break;
 
         i += 1;
         if(verbose >= 5) cout << "Found " << _rule->getMatchTypeVecNum() << " match(es)" << endl;
         
-        timer = chrono::steady_clock::now();
         _rule->rewrite(_simpGraph);
-        t_rewrite += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
-        timer = chrono::steady_clock::now();
-
-        // add_edge_table
-        // TODO add_edge_table
-
-
-        timer = chrono::steady_clock::now();
+       
+        amend();
         
-        for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
-            ZXVertex* v                = _rule->getEdgeTableKeys()[e].first;
-            ZXVertex* v_n              = _rule->getEdgeTableKeys()[e].second;
-            int       numSimpleEdges   = _rule->getEdgeTableValues()[e].first;
-            int       numHadamardEdges = _rule->getEdgeTableValues()[e].second;
-            
-            for (int j = 0; j < numSimpleEdges; j++){
-                _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::SIMPLE));
-                addEdgeCount++;
-            }
-            // t_simp += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
-            // timer = chrono::steady_clock::now();
-
-            for (int j = 0; j < numHadamardEdges; j++){
-                _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::HADAMARD));
-                addEdgeCount++;
-            }
-        }     
-
-        _simpGraph->removeEdges(_rule->getRemoveEdges());
-        rmEdgeCount += _rule->getRemoveEdges().size();
-
-        // remove vertices
-        _simpGraph->removeVertices(_rule->getRemoveVertices());
-        rmVertexCount += _rule->getRemoveVertices().size();
-
-        // remove isolated vertices
-        _simpGraph->removeIsolatedVertices();
-        t_apply += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
-        timer = chrono::steady_clock::now();
         new_matches = true;
-        // TODO check stats
-        // cout << "Round " << i << endl;
-        // cout << "  - match    : " << ((double)   t_match.count() / 1000) << " ms" << endl;
-        // cout << "  - rewrite  : " << ((double) t_rewrite.count() / 1000) << " ms" << endl;
-        // cout << "  - apply    : " << ((double)   t_apply.count() / 1000) << " ms" << endl;
     }
 
     if (verbose == 1 && i != 0) {
@@ -124,10 +76,7 @@ int Simplifier::simp() {
     }
     if(verbose >= 5) cout << "\n";
     if(verbose >= 6) _simpGraph->printVertices();
-    // cout << "#Add Edge   : " << addEdgeCount << endl;
-    // cout << "#rm  Edge   : " << rmEdgeCount << endl;
-    // cout << "#rm  Vertex : " << rmVertexCount << endl;
-    // cout << "Time used   : " << chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - t_start).count() << " ms\n" << endl;
+    
     return i;
     
 }
@@ -141,10 +90,7 @@ int Simplifier::simp() {
  * @return int
  */
 int Simplifier::hadamardSimp() {
-    chrono::steady_clock::time_point t_start, timer;
-    chrono::microseconds t_match{0}, t_rewrite{0}, t_apply{0};
-    t_start = chrono::steady_clock::now();
-    size_t addEdgeCount = 0, rmEdgeCount = 0, rmVertexCount = 0;
+    
     if (_rule->getName() != "Hadamard Rule") {
         cerr << "Error: `hadamardSimp` is only for HRule." << endl;
         return 0;
@@ -153,65 +99,46 @@ int Simplifier::hadamardSimp() {
     while (true) {
         size_t vcount = _simpGraph->getNumVertices();
 
-        timer = chrono::steady_clock::now();
         _rule->match(_simpGraph);
-        t_match += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
-        timer = chrono::steady_clock::now();
         
         if (_rule->getMatchTypeVecNum() == 0) break;
         i += 1;
         if (i == 1 && verbose >= 2) cout << _rule->getName() << ": ";
         if (verbose >= 2) cout << _rule->getMatchTypeVecNum() << " ";
 
-        timer = chrono::steady_clock::now();
         _rule->rewrite(_simpGraph);
-        t_rewrite += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
-        timer = chrono::steady_clock::now();
-        // add_edge_table
-        //! TODO add_edge_table
+        
+        amend();
 
-        timer = chrono::steady_clock::now();
-        for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
-            ZXVertex* v = _rule->getEdgeTableKeys()[e].first;
-            ZXVertex* v_n = _rule->getEdgeTableKeys()[e].second;
-            int numSimpleEdges = _rule->getEdgeTableValues()[e].first;
-            int numHadamardEdges = _rule->getEdgeTableValues()[e].second;
-            for (int j = 0; j < numSimpleEdges; j++) {
-                _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::SIMPLE));
-                addEdgeCount++;
-            }
-            for (int j = 0; j < numHadamardEdges; j++) {
-                _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::HADAMARD));
-                addEdgeCount++;
-            }
-        }
-        // remove edges
-        _simpGraph->removeEdges(_rule->getRemoveEdges());
-        rmEdgeCount += _rule->getRemoveEdges().size();
-
-        // remove vertices
-        _simpGraph->removeVertices(_rule->getRemoveVertices());
-        rmVertexCount += _rule->getRemoveVertices().size();
-        // remove isolated vertices
-        _simpGraph->removeIsolatedVertices();
-        t_apply += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
-        timer = chrono::steady_clock::now();
         if (verbose >= 3) cout << ". ";
-        // cout << "Round " << i << endl;
-        // cout << "  - match    : " << ((double)   t_match.count() / 1000) << " ms" << endl;
-        // cout << "  - rewrite  : " << ((double) t_rewrite.count() / 1000) << " ms" << endl;
-        // cout << "  - apply    : " << ((double)   t_apply.count() / 1000) << " ms" << endl;
+        
         if (_simpGraph->getNumVertices() >= vcount) break;
     }
     if (verbose >= 2 && i > 0) cout << i << " iterations" << endl;
-    // cout << "#Add Edge   : " << addEdgeCount << endl;
-    // cout << "#rm  Edge   : " << rmEdgeCount << endl;
-    // cout << "#rm  Vertex : " << rmVertexCount << endl;
-    // cout << "Time used   : " << chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - t_start).count() << " ms" << endl;
     return i;
 }
 
+/**
+ * @brief apply rule
+ */
+void Simplifier::amend(){
+    for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
+        ZXVertex* v                = _rule->getEdgeTableKeys()[e].first;
+        ZXVertex* v_n              = _rule->getEdgeTableKeys()[e].second;
+        int       numSimpleEdges   = _rule->getEdgeTableValues()[e].first;
+        int       numHadamardEdges = _rule->getEdgeTableValues()[e].second;
+            
+        for (int j = 0; j < numSimpleEdges; j++)
+            _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::SIMPLE));       
 
+        for (int j = 0; j < numHadamardEdges; j++)
+            _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::HADAMARD));
+    }
+    _simpGraph->removeEdges(_rule->getRemoveEdges());
+    _simpGraph->removeVertices(_rule->getRemoveVertices());
+
+    _simpGraph->removeIsolatedVertices();
+}
 
 // Basic rules simplification
 
