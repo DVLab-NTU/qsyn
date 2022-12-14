@@ -1,0 +1,226 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> help        
+COLOR:         command line printing mode (0: grayscale, 1: color)
+DOfile:        execute the commands in the dofile
+HELp:          print this help message
+HIStory:       print command history
+M2GAUE:        perform Gaussian elimination
+M2TEST:        test funct.
+QC2TS:         convert the QCir to tensor
+QC2ZX:         convert the QCir to ZX-graph
+QCBAdd:        add qubit(s)
+QCBDelete:     delete an empty qubit
+QCCHeckout:    checkout to QCir <id> in QCirMgr
+QCCOMpose:     compose a QCir
+ZXCOPy:        copy a ZX-graph
+QCCPrint:      print quantum circuit
+QCCRead:       read a circuit and construct corresponding netlist
+QCCWrite:      write QASM file
+QCDelete:      remove a QCir from QCirMgr
+QCGAdd:        add quantum gate
+QCGDelete:     delete quantum gate
+QCGMAdd:       add multiple control
+QCGPrint:      print quantum gate information
+QCNew:         new QCir to QCirMgr
+QCPrint:       print info in QCirMgr
+QCReset:       reset QCirMgr
+QCTensor:      tensor a QCir
+QQuit:         quit the execution
+SEED:          fix the seed
+TSADJoint:     adjoint the specified tensor
+TSEQuiv:       check the equivalency of two stored tensors
+TSPrint:       print information about stored tensors
+TSReset:       reset the tensor manager
+USAGE:         report the runtime and/or memory usage
+VERbose:       set verbose level (0-9)
+ZX2TS:         convert the ZX-graph to tensor
+ZXCHeckout:    checkout to Graph <id> in ZXGraphMgr
+ZXCOMpose:     compose a ZX-graph
+ZXCOPy:        copy a ZX-graph
+ZXDelete:      remove a ZX-graph from ZXGraphMgr
+ZXGADJoint:    adjoint the current ZX-graph.
+ZXGASsign:     assign an input/output vertex to specific qubit
+ZXGEdit:       edit ZX-graph
+ZXGPrint:      print info in ZX-graph
+ZXGRead:       read a ZX-graph
+ZXGSimp:       perform simplification strategies for ZX-graph
+ZXGTest:       test ZX-graph structures and functions
+ZXGTRaverse:   traverse ZX-graph and update topological order of vertices
+ZXGWrite:      write a ZX-graph to file
+ZXNew:         new ZX-graph to ZXGraphMgr
+ZXPrint:       print info in ZXGraphMgr
+ZXReset:       reset ZXGraphMgr
+ZXTensor:      tensor a ZX-graph
+
+
+qsyn> help COLOR       
+Usage: COLOR <bool colored>
+
+qsyn> help DOfile      
+Usage: DOfile <(string file)>
+
+qsyn> help HELp        
+Usage: HELp [(string cmd)]
+
+qsyn> help HIStory
+Usage: HIStory [(int nPrint)]
+
+qsyn> help M2GAUE
+Usage: M2GAUE
+
+qsyn> help M2TEST      
+Usage: M2TEST
+
+qsyn> help QQ
+Usage: QQuit [-Force]
+
+qsyn> help QC2TS       
+Usage: QC2TS
+
+qsyn> help QC2ZX       
+Usage: QC2ZX
+
+qsyn> help QCBAdd      
+Usage: QCBAdd [size_t addNum] 
+
+qsyn> help QCBDelete   
+Usage: QCBDelete <(size_t qubitID)> 
+
+qsyn> help QCCHeckout  
+Usage: QCCHeckout <(size_t id)>
+
+qsyn> help QCCOMpose   
+Usage: QCCOMpose <size_t id>
+
+qsyn> help ZXCOPy
+Usage: ZXCOPy <size_t id> [-Replace]
+
+qsyn> help QCCPrint    
+Usage: QCCPrint [-Summary | -List | -Qubit]
+
+qsyn> help QCCRead     
+Usage: QCCRead <(string fileName)> [-Replace]
+
+qsyn> help QCCWrite    
+Usage: QCCWrite <string Output.qasm>
+
+qsyn> help QCDelete    
+Usage: QCDelete <size_t id>
+
+qsyn> help QCGAdd      
+QCGAdd <-H | -X | -Z | -T | -TDG | -S | -SDG | -V | -Y | -SY> <(size_t targ)> [-APpend|-PRepend]
+QCGAdd <-CX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]
+QCGAdd <-CCX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]
+QCGAdd <-RZ> <-PHase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend]
+QCGAdd <-MCRX> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]
+QCGAdd <-MCRZ> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]
+
+qsyn> help QCGDelete   
+Usage: QCGDelete <(size_t gateID)> 
+
+qsyn> help QCGMAdd     
+Usage: QCGMAdd 0 1 2 3 4
+
+qsyn> help QCGPrint    
+Usage: QCGPrint <(size_t gateID)> [-Time | -ZXform]
+
+qsyn> help QCNew       
+Usage: QCNew [size_t id]
+
+qsyn> help QCPrint     
+Usage: QCPrint [-Summary | -Focus | -Num]
+
+qsyn> help QCReset     
+Usage: QCReset
+
+qsyn> help QCTensor    
+Usage: QCTensor <size_t id>
+
+qsyn> help SEED        
+Usage: SEED [size_t seed]
+
+qsyn> help TSADJoint   
+Usage: TSAdjoint <size_t id>
+
+qsyn> help TSEQuiv     
+Usage: TSEQuiv <size_t id1> <size_t id2> [<-Epsilon> <double eps>] [-Exact]
+       -Epsilon: requires cosine similarity between tensors to be higher than (1 - eps) (default to 1e-6)
+       -Strict : requires exact equivalence (global scaling factor of 1)
+
+qsyn> help TSPrint     
+Usage: TSPrint [-List] [size_t id]
+       -List: List infos only
+       id   : Print the tensor with the id specified
+       If no argument is given, list infos of all stored tensors. 
+
+qsyn> help TSReset     
+Usage: TSReset
+
+qsyn> help USAGE       
+Usage: USAGE [-All | -Time | -Memory]
+
+qsyn> help VERbose     
+Usage: VERbose <size_t verbose level>
+
+qsyn> help ZX2TS       
+Usage: ZX2TS
+
+qsyn> help ZXCHeckout  
+Usage: ZXCHeckout <(size_t id)>
+
+qsyn> help ZXCOMpose   
+Usage: ZXCOMpose <size_t id>
+
+qsyn> help ZXCOPy      
+Usage: ZXCOPy <size_t id> [-Replace]
+
+qsyn> help ZXDelete    
+Usage: ZXDelete <size_t id>
+
+qsyn> help ZXGADJoint  
+Usage: ZXGADJoint
+
+qsyn> help ZXGASsign   
+Usage: ZXGASsign <size_t qubit> <I|O> <VertexType vt> <string Phase>
+
+qsyn> help ZXGEdit     
+Usage: ZXGEdit -RMVertex <-Isolated | (size_t id)... >
+               -RMEdge <(size_t id_s), (size_t id_t)> <-ALL | (EdgeType et)>
+               -ADDVertex <(size_t qubit), (VertexType vt), [Phase phase]>
+               -ADDInput <(size_t qubit)>
+               -ADDOutput <(size_t qubit)>
+               -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>
+
+qsyn> help ZXGPrint    
+Usage: ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis]
+
+qsyn> help ZXGRead     
+Usage: ZXGRead <string Input.(b)zx> [-BZX] [-Replace]
+
+qsyn> help ZXGSimp     
+Usage: ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion | 
+-HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -CLIFford | -FReduce | -SReduce]
+
+qsyn> help ZXGTest     
+Usage: ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike ]
+
+qsyn> help ZXGTRaverse 
+Usage: ZXGTRaverse
+
+qsyn> help ZXGWrite    
+Usage: ZXGWrite <string Output.(b)zx> [-Complete] [-BZX]
+
+qsyn> help ZXNew       
+Usage: ZXNew [size_t id]
+
+qsyn> help ZXPrint     
+Usage: ZXPrint [-Summary | -Focus | -Num]
+
+qsyn> help ZXReset     
+Usage: ZXReset
+
+qsyn> help ZXTensor    
+Usage: ZXTensor <size_t id>
+
+qsyn> qq -f
+

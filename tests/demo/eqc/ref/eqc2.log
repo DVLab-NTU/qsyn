@@ -289,5 +289,5 @@ ID:	70	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(36, -)
 qsyn> zxgt -v
 The graph is valid!
 
-qsyn> q -f
+qsyn> qq -f
 

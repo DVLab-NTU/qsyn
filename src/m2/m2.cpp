@@ -18,16 +18,32 @@ Row operator+(Row& lhs, const Row& rhs){
 
 Row &Row::operator+=(const Row& rhs) {
     assert( _row.size() == rhs._row.size());
-    _row ^= rhs._row;
+    for(size_t i=0; i<_row.size(); i++){
+      _row[i] = (_row[i] + rhs._row[i])%2; 
+    }
     return *this;
 }
 
 /// @brief Print row
 void Row::printRow() const {
   for(size_t i=0; i< _size; i++){
-    cout << _row[i] << " ";
+    cout << unsigned(_row[i]) << " ";
   }
   cout << endl;
+}
+
+/// @brief Check is one hot
+/// @return 
+bool Row::isOneHot() {
+  size_t cnt = 0;
+  for(auto i: _row){
+    if(i==1){
+      if(cnt==1) return false;
+      cnt += 1;
+    }
+  }
+  if(cnt!=1) return false;
+  else return true;
 }
 
 /// @brief Print matrix
@@ -50,13 +66,12 @@ void M2::printTrack() const {
 
 void M2::defaultInit(){
   _size = 6;
-
-  _matrix.push_back(Row(0, 6, bitset<16>{"101101"}));
-  _matrix.push_back(Row(1, 6, bitset<16>{"001110"}));
-  _matrix.push_back(Row(2, 6, bitset<16>{"010110"}));
-  _matrix.push_back(Row(3, 6, bitset<16>{"011001"}));
-  _matrix.push_back(Row(4, 6, bitset<16>{"011011"}));
-  _matrix.push_back(Row(5, 6, bitset<16>{"101000"}));
+  _matrix.push_back(Row(0, 6, vector<unsigned char>{1,0,1,1,0,1}));
+  _matrix.push_back(Row(1, 6, vector<unsigned char>{0,0,1,1,1,0}));
+  _matrix.push_back(Row(2, 6, vector<unsigned char>{0,1,0,1,1,0}));
+  _matrix.push_back(Row(3, 6, vector<unsigned char>{0,1,1,0,0,1}));
+  _matrix.push_back(Row(4, 6, vector<unsigned char>{0,1,1,0,1,1}));
+  _matrix.push_back(Row(5, 6, vector<unsigned char>{1,0,1,0,0,0}));
 }
 
 /// @brief Perform XOR operation
@@ -124,20 +139,20 @@ void M2::gaussianElim(bool track){
 bool M2::isIdentity(){
   //REVIEW - Only check one 1 in a row
   for(auto row: _matrix){
-    if(!row.isSingular()) return false;
+    if(!row.isOneHot()) return false;
   }
   return true;
 }
 
-/// @brief Build matrix from bitsets
-/// @param bitsets 
-/// @return true
-bool M2::fromBitsets(const vector<bitset<16>>& bitsets){
-  for(auto bitset: bitsets){
-    _matrix.push_back(Row(_matrix.size(), _size, bitset));
-  }
-  return true;
-}
+// /// @brief Build matrix from bitsets
+// /// @param bitsets 
+// /// @return true
+// bool M2::fromBitsets(const vector<bitset<16>>& bitsets){
+//   for(auto bitset: bitsets){
+//     _matrix.push_back(Row(_matrix.size(), _size, bitset));
+//   }
+//   return true;
+// }
 
 /// @brief Build matrix from ZX-graph
 /// @param frontier 
@@ -153,15 +168,15 @@ bool M2::fromZXVertices(const vector<ZXVertex*>& frontier, const vector<ZXVertex
   //NOTE - assign row by calculating a neighbor's connecting status to Frontier, e.g. 10010 = connect to qubit 0 and 3.
   
   for(auto v:neighbors){
-    string storage (_size, '0');
+    vector<unsigned char> storage = vector<unsigned char>(_size, 0);
     for(auto [vt,et]: v->getNeighbors()){
       if(inFrontier(vt, frontier)){
         //REVIEW - Assume no space in #qubit (0,2,3,4,5 is not allowed)
-        storage[_size - 1 - vt->getQubit()] = '1';
+        storage[_size - 1 - vt->getQubit()] = 1;
         // in Frontier
       }
     }
-    _matrix.push_back(Row(_matrix.size(), _size, bitset<16>{storage}));
+    _matrix.push_back(Row(_matrix.size(), _size, storage));
   }
 
   return true;

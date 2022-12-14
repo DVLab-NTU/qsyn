@@ -31,10 +31,9 @@ Total #Edges: 6
 
 qsyn> 
 qsyn> // should fail because vertex 0 is a boundary with more than 1 neighbors...
-
 qsyn> zx2ts
 Error: The ZX-Graph is not valid!!
 
 qsyn> 
-qsyn> q -f
+qsyn> qq -f
 

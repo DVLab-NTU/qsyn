@@ -193,5 +193,5 @@ ID:	27	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(7, -)
 Total #Vertices: 8
 
 
-qsyn> q -f
+qsyn> qq -f
 

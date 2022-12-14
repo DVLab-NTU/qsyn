@@ -201,5 +201,5 @@ Successfully added Tensor 0
   - Qubit: 0 input : 0 -> 0 |  output: 5 -> 3
 Stored the resulting tensor as tensor id 0
 
-qsyn> q -f
+qsyn> qq -f
 

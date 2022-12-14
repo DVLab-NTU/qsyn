@@ -104,7 +104,6 @@ qsyn> tseq 1 2
 - Global Phase: 0
 
 qsyn> // Test if equivalence (with ZX tof2_opt)
-
 qsyn> zxgr benchmark/zx/tof2_opt.zx
 Successfully generated Graph 3
 Checkout to Graph 3
@@ -120,40 +119,22 @@ qsyn> tseq 0 3
 - Global Phase: 0
 
 qsyn> // Test structural equivalence of the three results
-
 qsyn> // zxch   0
-
 qsyn> // zxcopy 4
-
 qsyn> // zxgadj
-
 qsyn> // zxch   1
-
 qsyn> // zxcopy 5
-
 qsyn> // zxcompose 4
-
 qsyn> // ver 1
-
 qsyn> // zxgs -sr
-
 qsyn> // ver 3
-
 qsyn> // zxgp -v
-
 qsyn> // zxch   2
-
 qsyn> // zxcopy 6
-
 qsyn> // zxcompose 4
-
 qsyn> // ver 1
-
 qsyn> // zxgs -sr
-
 qsyn> // ver 3
-
 qsyn> // zxgp -v
-
-qsyn> q -f
+qsyn> qq -f
 

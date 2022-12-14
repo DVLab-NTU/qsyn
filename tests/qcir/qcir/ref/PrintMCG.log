@@ -67,5 +67,5 @@ Q8 G2 ─┤ RZ ├─ End
        └────┘ 
 Rotate Phase: π
 
-qsyn> q -f
+qsyn> qq -f
 

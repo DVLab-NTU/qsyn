@@ -40,5 +40,5 @@ qsyn> ZXGEdit -rmv 1
 qsyn> zxgprint
 Graph 0( 1 inputs, 2 outputs, 5 vertices, 4 edges )
 
-qsyn> q -f
+qsyn> qq -f
 

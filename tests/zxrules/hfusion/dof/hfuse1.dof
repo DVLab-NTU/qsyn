@@ -7,11 +7,11 @@ qc2zx
 zxgp -v
 zxgsimp -hr
 zxgp -v
-q -f
+qq -f
 zxge -addv 0 H_BOX 0
 zxge -adde 0 4 HADAMARD
 zxge -adde 1 4 SIMPLE
 zxge -rme 0 1 -ALL
 zxgp -v
 zxgsimp -hf
-q -f
+qq -f

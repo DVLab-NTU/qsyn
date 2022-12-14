@@ -47,5 +47,5 @@ qsyn> tseq 0 1 -Eps 1e-8
 qsyn> tseq 0 1 -Eps 1e-10
 [1m[31mNot Equivalent[0m[0m
 
-qsyn> q -f
+qsyn> qq -f
 

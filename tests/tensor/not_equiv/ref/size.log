@@ -27,5 +27,5 @@ qsyn> tseq 0 1
 qsyn> tseq 0 1 -Strict
 [1m[31mNot Equivalent[0m[0m
 
-qsyn> q -f
+qsyn> qq -f
 

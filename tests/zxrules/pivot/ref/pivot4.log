@@ -1,6 +1,5 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> // might match (4, 5)
-
 qsyn> ver 9
 Note: verbose level is set to 9
 
@@ -399,5 +398,5 @@ qsyn> zxgp -e
 ( 15, 25 )	Type:	-
 Total #Edges: 43
 
-qsyn> q -f
+qsyn> qq -f
 
