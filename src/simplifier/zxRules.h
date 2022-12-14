@@ -354,6 +354,7 @@ public:
     virtual ~PivotBoundary() {}
 
     void match(ZXGraph* g) override;
+    void addBoudary(ZXVertex* v)  { _boundaries.push_back(v); }
 
 protected:
     void preprocess(ZXGraph* g) override;
