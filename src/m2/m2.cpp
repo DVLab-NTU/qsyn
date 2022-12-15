@@ -52,6 +52,10 @@ bool Row::isOneHot() const {
     return (cnt == 1);
 }
 
+void M2::reset(){
+    _matrix.clear();
+    _opStorage.clear();
+}
 /**
  * @brief @brief Print matrix
  *
@@ -188,12 +192,12 @@ bool M2::isIdentity() const {
  * @return false if not
  */
 bool M2::fromZXVertices(const ZXVertexList& frontier, const ZXVertexList& neighbors) {
-    if (frontier.size() != neighbors.size()) {
-        cout << "Numbers of elements in frontier and neighbors mismatch!" << endl;
-        return false;
-    }
+    // if (frontier.size() != neighbors.size()) {
+    //     cout << "Numbers of elements in frontier and neighbors mismatch!" << endl;
+    //     return false;
+    // }
     // NOTE - assign row by calculating a Frontier's connecting status to Neighbors, e.g. 10010 = connect to qubit 0 and 3.
-
+    reset();
     unordered_map<ZXVertex*, size_t> table;
     size_t cnt = 0;
     for (auto& v : neighbors) {

@@ -2,6 +2,8 @@ DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> help        
 COLOR:         command line printing mode (0: grayscale, 1: color)
 DOfile:        execute the commands in the dofile
+EXTRact:       extract the circuit from the ZX-graph
+EXTStep:       perform a step in extraction
 HELp:          print this help message
 HIStory:       print command history
 M2GAUE:        perform Gaussian elimination

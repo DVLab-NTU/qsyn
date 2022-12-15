@@ -60,6 +60,7 @@ public:
     ~M2() {}
 
     // NOTE - Initializer
+    void reset();
     void defaultInit();
     bool fromZXVertices(const ZXVertexList&, const ZXVertexList&);
     const vector<Row>& getMatrix() { return _matrix; }
@@ -72,7 +73,6 @@ public:
     void printTrack() const;
 
 private:
-    size_t _size;
     vector<Row> _matrix;
     vector<Oper> _opStorage;
 };

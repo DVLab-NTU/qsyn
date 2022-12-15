@@ -165,6 +165,17 @@ bool QCir::removeQubit(size_t id) {
     }
 }
 
+QCirGate * QCir::addSingleRZ(size_t bit, Phase phase, bool append) {
+    vector<size_t> qubit;
+    qubit.push_back(bit);
+    if(phase == Phase(1,4))         return addGate("t", qubit, phase, append);  
+    else if(phase == Phase(1,2))    return addGate("s", qubit, phase, append);
+    else if(phase == Phase(1))      return addGate("z", qubit, phase, append);
+    else if(phase == Phase(3,2))    return addGate("sdg", qubit, phase, append);
+    else if(phase == Phase(7,4))    return addGate("tdg", qubit, phase, append);
+    else                            return addGate("rz", qubit, phase, append);
+
+}
 /**
  * @brief Add Gate
  *
