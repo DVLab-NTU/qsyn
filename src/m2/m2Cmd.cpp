@@ -60,7 +60,7 @@ M2GaussEliCmd::exec(const string &option) {
     m2.fromZXVertices(frontier, nebsOfFrontier);
     m2.printMatrix();
     m2.gaussianElim(true);
-    cout << "Is Idendity? " <<m2.isIdentity() << endl;
+    cout << "Is Idendity? " <<m2.isSolvedForm() << endl;
     m2.printMatrix();
     m2.printTrack();
     return CMD_EXEC_DONE;
@@ -83,7 +83,7 @@ M2TestCmd::exec(const string &option) {
    m2.defaultInit();
    m2.printMatrix();
    m2.gaussianElim(true);
-   cout << "Is Idendity? " <<m2.isIdentity() << endl;
+   cout << "Is Idendity? " <<m2.isSolvedForm() << endl;
    m2.printMatrix();
    m2.printTrack();
    return CMD_EXEC_DONE;

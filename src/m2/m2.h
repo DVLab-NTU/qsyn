@@ -36,9 +36,13 @@ public:
     const vector<unsigned char>& getRow() const { return _row; }
     void setRow(vector<unsigned char> row) { _row = row; }
     size_t size() const { return _row.size(); }
-    bool isOneHot() const;
+    unsigned char& back() { return _row.back(); }
+    const unsigned char& back() const { return _row.back(); }
 
+    bool isOneHot() const;
     void printRow() const;
+
+    void push_back(unsigned char i) { _row.push_back(i); }
 
     Row& operator+=(const Row& rhs);
 
@@ -62,15 +66,30 @@ public:
     // NOTE - Initializer
     void reset();
     void defaultInit();
-    bool fromZXVertices(const ZXVertexList&, const ZXVertexList&);
+    bool fromZXVertices(const ZXVertexList& frontier, const ZXVertexList& neighbors);
     const vector<Row>& getMatrix() { return _matrix; }
     const vector<Oper>& getOpers() { return _opStorage; }
     const Row& getRow(size_t r) { return _matrix[r]; }
+
+    size_t numRows() const { return _matrix.size(); }
+    size_t numCols() const { return _matrix[0].size(); }
+    
+    void clear() { _matrix.clear(); _opStorage.clear(); }
+
     bool xorOper(size_t ctrl, size_t targ, bool track = false);
     void gaussianElim(bool track = false);
-    bool isIdentity() const;
+    bool isSolvedForm() const;
     void printMatrix() const;
     void printTrack() const;
+    void appendOneHot(size_t idx);
+
+    Row& operator[](const size_t& i) {
+        return _matrix[i];
+    }
+    const Row& operator[](const size_t& i) const {
+        return _matrix[i];
+    }
+
 
 private:
     vector<Row> _matrix;

@@ -7,7 +7,7 @@
 ****************************************************************************/
 
 #include "m2.h"
-
+#include <cmath>
 extern size_t verbose;
 using namespace std;
 
@@ -172,12 +172,20 @@ void M2::gaussianElim(bool track) {
     }
 }
 
-/// @brief Check m2 is identity
-/// @return
-bool M2::isIdentity() const {
-    // REVIEW - Only check one 1 in a row
-    for (const auto& row : _matrix) {
-        if (!row.isOneHot()) return false;
+/**
+ * @brief check if the matrix is of solved form. That is, 
+ *        (1) an identity matrix,
+ *        (2) an identity matrix with an arbitrary matrix on the right, or 
+ *        (3) an identity matrix with an zero matrix on the bottom.
+ * 
+ * @return true or false 
+ */
+bool M2::isSolvedForm() const {
+    for (size_t i = 0; i < numRows(); ++i) {
+        for (size_t j = 0; j < min(numRows(), numCols()); ++j) {
+            if (i == j && _matrix[i][j] != 1) return false;
+            if (i != j && _matrix[i][j] != 0) return false;
+        }
     }
 
     return true;
@@ -218,4 +226,11 @@ bool M2::fromZXVertices(const ZXVertexList& frontier, const ZXVertexList& neighb
     }
 
     return true;
+}
+
+void M2::appendOneHot(size_t idx) {
+    assert(idx < _matrix.size());
+    for (size_t i = 0; i < _matrix.size(); ++i) {
+        _matrix[i].push_back((i == idx) ? 1 : 0);
+    }
 }

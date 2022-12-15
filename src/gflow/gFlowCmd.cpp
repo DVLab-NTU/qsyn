@@ -42,7 +42,7 @@ ZXGGFlowCmd::exec(const string &option) {
     GFlow gflow(zxGraphMgr->getGraph());
 
     gflow.calculate();
-
+    
     if (token.empty() || myStrNCmp("-All", token, 2) == 0) {
         gflow.print();
     } else if (myStrNCmp("-Level", token, 2) == 0) {
