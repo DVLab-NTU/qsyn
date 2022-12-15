@@ -148,10 +148,8 @@ bool Extractor::removeGadget(){
 }
 
 void Extractor::gaussianElimination(){
-    M2 biAdjacency;
-    biAdjacency.fromZXVertices(_frontier, _neighbors);
-    biAdjacency.gaussianElim(true);
-    vector<Oper> cnots = biAdjacency.getOpers();
+    _biAdjacency.fromZXVertices(_frontier, _neighbors);
+    _biAdjacency.gaussianElim(true);
 }
 
 void Extractor::updateNeighbors(){

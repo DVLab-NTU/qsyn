@@ -49,12 +49,14 @@ class Extractor{
         void printAxels();
 
     private:
-        ZXGraph*            _graph;
-        QCir*               _circuit;
-        ZXVertexList        _frontier;
-        ZXVertexList        _neighbors;   
-        ZXVertexList        _axels;   
-        unordered_map<size_t, size_t> _qubitMap;        
+        ZXGraph*                        _graph;
+        QCir*                           _circuit;
+        ZXVertexList                    _frontier;
+        ZXVertexList                    _neighbors;   
+        ZXVertexList                    _axels;   
+        unordered_map<size_t, size_t>   _qubitMap;  
+
+        M2                              _biAdjacency;    
 };
     
 #endif
