@@ -35,7 +35,7 @@ class Extractor{
         ~Extractor(){ }
         
         void initialize();
-        void extract(){}
+        bool extract();
 
         bool removeGadget();
         void gaussianElimination();

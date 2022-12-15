@@ -214,7 +214,6 @@ bool M2::fromZXVertices(const ZXVertexList& frontier, const ZXVertexList& neighb
             }
         }
         _matrix.push_back(Row(1, storage));
-        printMatrix();
     }
 
     return true;

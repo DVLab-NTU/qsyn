@@ -44,6 +44,53 @@ void Extractor::initialize(){
     }
 }
 
+bool Extractor::extract(){
+    while(true){
+        cleanFrontier();
+        if(removeGadget()){
+            if(verbose >=5) cout << "Gadget(s) are removed." << endl;
+            if(verbose >=8){
+                printFroniter();
+                _graph->printQubits({});
+                _circuit -> printQubits();
+            }
+            continue;
+        }
+        updateNeighbors();
+        if(_frontier.size() == 0){
+            cout << "Finish extracting!" << endl;
+            _circuit->printQubits();
+            _graph->printQubits({});
+            break;
+        }
+        if(!containSingleNeighbor()){
+            if(verbose >=5) cout << "Perform Gaussian Elimination." << endl;
+            gaussianElimination();
+            extractCXs();
+        }
+        else{
+            if(verbose >=5) cout << "Construct an easy matrix." << endl;
+            _biAdjacency.fromZXVertices(_frontier, _neighbors);
+        }
+        if(extractHsFromM2() == 0){
+            cerr << "Error: No Candidate Found!!" << endl; 
+            _circuit->printQubits();
+            _graph->printQubits({});
+            return false;
+        }
+        _biAdjacency.reset();
+        _cnots.clear();
+
+        if(verbose >=8){
+            printFroniter();
+            printNeighbors();
+            _graph -> printQubits({});
+            _circuit -> printQubits();
+        }
+    }
+    return true;
+}
+
 /**
  * @brief Clean frontier. which contains extract singles and CZs. Used in extract.
  * 
@@ -157,7 +204,7 @@ size_t Extractor::extractHsFromM2(){
     for(auto& row: _biAdjacency.getMatrix()){
         if(row.isOneHot()){
             for(size_t col=0; col<row.size(); col++){
-                if(row[col] == '1'){
+                if(row[col] == 1){
                     frontNeighPairs.emplace_back(frontId2Vertex[row_cnt], neighId2Vertex[row_cnt]);
                     break;
                 }
@@ -270,6 +317,48 @@ void Extractor::updateFrontier(bool sort){
  */
 void Extractor::updateNeighbors(){
     _neighbors.clear();
+    vector<ZXVertex*> rmVs;
+    
+    for(auto& f: _frontier){
+        size_t hasBound = 0;
+        for(auto [n, _]: f->getNeighbors()){
+            if(n->getType() == VertexType::BOUNDARY){
+                hasBound++;
+            }
+        }
+
+        if(hasBound == 2){
+            if(f->getNumNeighbors() == 2){
+                //NOTE - Remove
+                
+                for(auto [b, ep]: f->getNeighbors()){
+                    if(_graph->getInputs().contains(b)){
+                        if(ep == EdgeType::HADAMARD)
+                            _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
+                        break;
+                    }
+                }
+                rmVs.push_back(f);
+            }
+            else{
+                for(auto [b, ep]: f->getNeighbors()){
+                    if(_graph->getInputs().contains(b)){
+                        ZXVertex* nV = _graph->addVertex(b->getQubit(), VertexType::Z, Phase(0));
+                        _graph->addEdge(nV, f, EdgeType::HADAMARD);
+                        _graph->addEdge(nV, b, toggleEdge(ep));
+                        _graph->removeEdge(b, f, ep);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    for(auto& v: rmVs){
+        if(verbose>=8) cout << "Remove " << v->getId() << " (q" << v->getQubit() << ") from frontiers." << endl; 
+        _frontier.erase(v);
+        _graph->removeVertex(v);
+    }
+
     for(auto& f: _frontier){
         for(auto [n, _]: f->getNeighbors()){
             if(n->getType() == VertexType::BOUNDARY) continue;
