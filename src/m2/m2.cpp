@@ -122,7 +122,7 @@ bool M2::xorOper(size_t ctrl, size_t targ, bool track) {
  * @param track if true, record the process to operation track
  */
 void M2::gaussianElim(bool track) {
-    if (verbose >= 3) cout << "Performing Gaussian Elimination..." << endl;
+    if (verbose >= 5) cout << "Performing Gaussian Elimination..." << endl;
     if (verbose >= 8) printMatrix();
     _opStorage.clear();
     for (size_t i = 0; i < _matrix.size() - 1; i++) {

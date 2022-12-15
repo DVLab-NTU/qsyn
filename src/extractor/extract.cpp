@@ -40,6 +40,7 @@ void Extractor::initialize(){
     if(verbose >=8){
         printFroniter();
         printNeighbors();
+        _graph -> printQubits({});
         _circuit -> printQubits();
     }
 }
@@ -61,6 +62,8 @@ bool Extractor::extract(){
             cout << "Finish extracting!" << endl;
             _circuit->printQubits();
             _graph->printQubits({});
+            _circuit->ZXMapping();
+            // _circuit->tensorMapping();
             break;
         }
         if(!containSingleNeighbor()){
@@ -96,6 +99,7 @@ bool Extractor::extract(){
  * 
  */
 void Extractor::cleanFrontier(){
+    if(verbose>=5) cout << "Clean Frontier" << endl;
     //NOTE - Edge and Phase
     extractSingles();
     //NOTE - CZs
@@ -107,6 +111,7 @@ void Extractor::cleanFrontier(){
  * 
  */
 void Extractor::extractSingles(){
+    if(verbose>=5) cout << "Extract Singles" << endl;
     vector<pair<ZXVertex*, ZXVertex*>> toggleList;
     for(ZXVertex* o: _graph->getOutputs()){
         if(o->getFirstNeighbor().second == EdgeType::HADAMARD){
@@ -123,7 +128,6 @@ void Extractor::extractSingles(){
         _graph -> addEdge(s, t, EdgeType::SIMPLE);
         _graph -> removeEdge(s, t, EdgeType::HADAMARD);
     }
-
     if(verbose>=8){
         _circuit -> printQubits();
         _graph -> printQubits({});
@@ -136,6 +140,7 @@ void Extractor::extractSingles(){
  * @param strategy (0: directly extract) 
  */
 void Extractor::extractCZs(size_t strategy){
+    if(verbose>=5) cout << "Extract CZs" << endl;
     vector<pair<ZXVertex*, ZXVertex*>> removeList;
     _frontier.sort([](const ZXVertex* a, const ZXVertex* b) {
         return a->getQubit() < b->getQubit();
@@ -165,6 +170,7 @@ void Extractor::extractCZs(size_t strategy){
  * @param strategy (0: directly by result of Gaussian Elimination) 
  */
 void Extractor::extractCXs(size_t strategy){
+    if(verbose>=5) cout << "Extract CXs" << endl;
     unordered_map<size_t, ZXVertex*> frontId2Vertex;
     size_t cnt = 0;
     for(auto& f: _frontier){
@@ -185,6 +191,7 @@ void Extractor::extractCXs(size_t strategy){
  * @return size_t 
  */
 size_t Extractor::extractHsFromM2(){
+    if(verbose>=5) cout << "Extract Hs" << endl;
     unordered_map<size_t, ZXVertex*> frontId2Vertex;
     unordered_map<size_t, ZXVertex*> neighId2Vertex;
     size_t cnt = 0;
@@ -205,7 +212,7 @@ size_t Extractor::extractHsFromM2(){
         if(row.isOneHot()){
             for(size_t col=0; col<row.size(); col++){
                 if(row[col] == 1){
-                    frontNeighPairs.emplace_back(frontId2Vertex[row_cnt], neighId2Vertex[row_cnt]);
+                    frontNeighPairs.emplace_back(frontId2Vertex[row_cnt], neighId2Vertex[col]);
                     break;
                 }
             }
@@ -242,6 +249,7 @@ size_t Extractor::extractHsFromM2(){
  * @return false if not
  */
 bool Extractor::removeGadget(){
+    if(verbose>=5) cout << "Remove Gadget" << endl;
     PivotBoundary* pivotBoundaryRule = new PivotBoundary();
     Simplifier simp(pivotBoundaryRule, _graph);
     if(verbose >=8) _graph->printVertices();
@@ -249,7 +257,6 @@ bool Extractor::removeGadget(){
         printFroniter();
         printAxels();
     }
-    
     bool gadgetRemoved = false;
     for(auto n: _neighbors){
         if(! _axels.contains(n)) {
@@ -279,7 +286,7 @@ bool Extractor::removeGadget(){
                 pivotBoundaryRule->rewrite(_graph);
                 simp.amend();
                
-                
+                pivotBoundaryRule->clearBoundary();
                 // n->setQubit(candidate->getQubit());
                 if(targetBoundary != nullptr)
                     _frontier.emplace(targetBoundary->getFirstNeighbor().first);
@@ -356,6 +363,7 @@ void Extractor::updateNeighbors(){
     for(auto& v: rmVs){
         if(verbose>=8) cout << "Remove " << v->getId() << " (q" << v->getQubit() << ") from frontiers." << endl; 
         _frontier.erase(v);
+        _graph->addEdge(v->getFirstNeighbor().first, v->getSecondNeighbor().first, EdgeType::SIMPLE);
         _graph->removeVertex(v);
     }
 
