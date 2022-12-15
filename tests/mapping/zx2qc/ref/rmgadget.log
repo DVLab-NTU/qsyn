@@ -76,7 +76,7 @@ Note: (10) is not a gadget vertex!
 Note: (11) is not a gadget vertex!
 Note: (12) is not a gadget vertex!
 Note: (13) is not a gadget vertex!
-Frontiers:
+Frontier:
 Qubit:0: 11
 Qubit:1: 12
 Qubit:2: 13
@@ -107,7 +107,7 @@ ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(4, -) (7,
 ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	5	(5, -) (6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
 Total #Vertices: 14
 
-Frontiers:
+Frontier:
 Qubit:0: 11
 Qubit:1: 12
 Qubit:2: 13
@@ -148,7 +148,7 @@ ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	2	(4, -) (7,
 ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) 
 Total #Vertices: 13
 
-Frontiers:
+Frontier:
 Qubit:0: 11
 Qubit:1: 12
 Qubit:2: 14

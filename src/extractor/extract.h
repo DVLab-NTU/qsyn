@@ -36,15 +36,21 @@ class Extractor{
         
         void initialize();
         void extract(){}
+
         bool removeGadget();
         void gaussianElimination();
-
         void extractSingles();
         void extractCZs(size_t=0);
+        void extractCXs(size_t=0);
+        size_t extractHsFromM2();
         void cleanFrontier();
+
+        void updateFrontier(bool=true);
         void updateNeighbors();
-        
-        void printFroniters();
+        void updateGraphByMatrix(EdgeType = EdgeType::HADAMARD);
+
+        bool containSingleNeighbor();
+        void printFroniter();
         void printNeighbors();
         void printAxels();
 
@@ -54,9 +60,10 @@ class Extractor{
         ZXVertexList                    _frontier;
         ZXVertexList                    _neighbors;   
         ZXVertexList                    _axels;   
-        unordered_map<size_t, size_t>   _qubitMap;  
+        unordered_map<size_t, size_t>   _qubitMap;  //zx to qc
 
-        M2                              _biAdjacency;    
+        M2                              _biAdjacency;
+        vector<Oper>                    _cnots;
 };
     
 #endif
