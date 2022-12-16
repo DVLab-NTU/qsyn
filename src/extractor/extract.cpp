@@ -15,9 +15,15 @@ extern size_t verbose;
  */
 void Extractor::initialize(){
     if(verbose >=5 ) cout << "Initialize" << endl;
+    size_t cnt = 0;
     for(auto o: _graph -> getOutputs()){
-        o->getFirstNeighbor().first->setQubit(o->getQubit());
-        _frontier.emplace(o->getFirstNeighbor().first);
+        if(o->getFirstNeighbor().first->getType() != VertexType::BOUNDARY){
+            o->getFirstNeighbor().first->setQubit(o->getQubit());
+            _frontier.emplace(o->getFirstNeighbor().first);
+        }
+        _qubitMap[o->getQubit()] = cnt;
+        _circuit->addQubit(1);
+        cnt+=1; 
     }
 
     //NOTE - get zx to qc qubit mapping
@@ -25,12 +31,6 @@ void Extractor::initialize(){
         return a->getQubit() < b->getQubit();
     });
 
-    size_t cnt = 0;
-    for(auto o: _frontier){
-        _qubitMap[o->getQubit()] = cnt;
-        _circuit->addQubit(1);
-        cnt+=1;
-    }
     updateNeighbors();
     for(auto v: _graph -> getVertices()){
         if(_graph->isGadget(v)){
@@ -65,6 +65,7 @@ QCir* Extractor::extract(){
         if(!containSingleNeighbor()){
             if(verbose >=5) cout << "Perform Gaussian Elimination." << endl;
             gaussianElimination();
+            updateGraphByMatrix();
             extractCXs();
         }
         else{
@@ -73,8 +74,7 @@ QCir* Extractor::extract(){
         }
         if(extractHsFromM2() == 0){
             cerr << "Error: No Candidate Found!!" << endl; 
-            _circuit->printQubits();
-            _graph->printQubits({});
+            _biAdjacency.printMatrix();
             return nullptr;
         }
         _biAdjacency.reset();
@@ -427,10 +427,11 @@ void Extractor::updateNeighbors(){
  */
 void Extractor::updateGraphByMatrix(EdgeType et){
     size_t rowcnt = 0;
+    if(verbose>=5) cout << "Update Graph by Matrix" << endl;
     for(auto rowItr = _frontier.begin(); rowItr!= _frontier.end(); rowItr++){
         size_t colcnt = 0;
         for(auto colItr = _neighbors.begin(); colItr!= _neighbors.end(); colItr++){
-            if(_biAdjacency.getMatrix()[rowcnt].getRow()[colcnt] == '1'){
+            if(_biAdjacency.getMatrix()[rowcnt].getRow()[colcnt] == 1){
                 //NOTE - Should Connect
                 if(!(*rowItr)->isNeighbor(*colItr)){
                     //NOTE - But Not Connect
@@ -439,7 +440,7 @@ void Extractor::updateGraphByMatrix(EdgeType et){
             }
             else{
                 //NOTE - Should Not Connect
-                if(!(*rowItr)->isNeighbor(*colItr)){
+                if((*rowItr)->isNeighbor(*colItr)){
                     //NOTE - But Connect
                     _graph->removeEdge(*rowItr, *colItr, et);
                 }
