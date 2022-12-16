@@ -28,7 +28,7 @@ bool initGFlowCmd() {
 }
 
 //----------------------------------------------------------------------
-//    ZXGGFlow [-All | -Level]
+//    ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGGFlowCmd::exec(const string &option) {  
@@ -85,7 +85,7 @@ ZXGGFlowCmd::exec(const string &option) {
 }
 
 void ZXGGFlowCmd::usage(ostream &os) const {
-    os << "Usage: ZXGGFlow [-All | -Level]" << endl;
+    os << "Usage: ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets]" << endl;
 }
 
 void ZXGGFlowCmd::help() const {
