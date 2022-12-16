@@ -14,6 +14,7 @@ extern size_t verbose;
  * 
  */
 void Extractor::initialize(){
+    if(verbose >=5 ) cout << "Initialize" << endl;
     for(auto o: _graph -> getOutputs()){
         o->getFirstNeighbor().first->setQubit(o->getQubit());
         _frontier.emplace(o->getFirstNeighbor().first);
@@ -30,7 +31,6 @@ void Extractor::initialize(){
         _circuit->addQubit(1);
         cnt+=1;
     }
-
     updateNeighbors();
     for(auto v: _graph -> getVertices()){
         if(_graph->isGadget(v)){
@@ -45,9 +45,10 @@ void Extractor::initialize(){
     }
 }
 
-bool Extractor::extract(){
+QCir* Extractor::extract(){
     while(true){
         cleanFrontier();
+        updateNeighbors();
         if(removeGadget()){
             if(verbose >=5) cout << "Gadget(s) are removed." << endl;
             if(verbose >=8){
@@ -59,11 +60,6 @@ bool Extractor::extract(){
         }
         updateNeighbors();
         if(_frontier.size() == 0){
-            cout << "Finish extracting!" << endl;
-            _circuit->printQubits();
-            _graph->printQubits({});
-            _circuit->ZXMapping();
-            // _circuit->tensorMapping();
             break;
         }
         if(!containSingleNeighbor()){
@@ -79,7 +75,7 @@ bool Extractor::extract(){
             cerr << "Error: No Candidate Found!!" << endl; 
             _circuit->printQubits();
             _graph->printQubits({});
-            return false;
+            return nullptr;
         }
         _biAdjacency.reset();
         _cnots.clear();
@@ -91,7 +87,18 @@ bool Extractor::extract(){
             _circuit -> printQubits();
         }
     }
-    return true;
+    cout << "Finish extracting!" << endl;
+    if(verbose >=8) {
+        _circuit->printQubits();
+        _graph->printQubits({});
+    }
+    permuteQubit();
+    if(verbose >=8) {
+        _circuit->printQubits();
+        _graph->printQubits({});
+    }
+    
+    return _circuit;
 }
 
 /**
@@ -181,6 +188,7 @@ void Extractor::extractCXs(size_t strategy){
         //NOTE - targ and ctrl are opposite here
         size_t ctrl = _qubitMap[frontId2Vertex[c] -> getQubit()];
         size_t targ = _qubitMap[frontId2Vertex[t] -> getQubit()];
+        if(verbose >= 5) cout << "Add CX: " << ctrl << " " << targ << endl;
         _circuit -> addGate("cx", {ctrl,targ}, Phase(0), false);
     }
 }
@@ -312,6 +320,42 @@ void Extractor::gaussianElimination(){
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
     _biAdjacency.gaussianElim(true);
     _cnots = _biAdjacency.getOpers();
+}
+
+/**
+ * @brief Permute qubit if input and output are not match
+ * 
+ */
+void Extractor::permuteQubit(){
+    if(verbose>=5) cout << "Permute Qubit" << endl;
+    unordered_map<size_t, size_t> swapMap; // o to i
+    unordered_map<size_t, size_t> swapInvMap; // i to o
+    bool unmatched = false;
+    for(auto& o: _graph -> getOutputs()){
+        ZXVertex* i = o -> getFirstNeighbor().first;
+        assert(_graph -> getInputs().contains(i));
+        if(i->getQubit() != o->getQubit()){
+            unmatched = true;
+        }
+        swapMap[o->getQubit()] = i->getQubit();
+    }
+    if(unmatched){
+        for(auto& [o,i]: swapMap){
+            swapInvMap[i] = o;
+        }
+        for(auto& [o,i]: swapMap){
+            if(o == i) continue;
+            size_t t1 = i;
+            size_t t2 = swapInvMap[o];
+            //NOTE - SWAP
+            _circuit -> addGate("cx",{_qubitMap[o], _qubitMap[t2]},Phase(0),false);
+            _circuit -> addGate("cx",{_qubitMap[t2], _qubitMap[o]},Phase(0),false);
+            _circuit -> addGate("cx",{_qubitMap[o], _qubitMap[t2]},Phase(0),false);
+            //swaps.append((o,t2))
+            swapMap[t2] = t1;
+            swapInvMap[t1] = t2;
+        }
+    }
 }
 
 void Extractor::updateFrontier(bool sort){

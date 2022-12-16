@@ -35,7 +35,7 @@ class Extractor{
         ~Extractor(){ }
         
         void initialize();
-        bool extract();
+        QCir* extract();
 
         bool removeGadget();
         void gaussianElimination();
@@ -44,6 +44,7 @@ class Extractor{
         void extractCXs(size_t=0);
         size_t extractHsFromM2();
         void cleanFrontier();
+        void permuteQubit();
 
         void updateFrontier(bool=true);
         void updateNeighbors();

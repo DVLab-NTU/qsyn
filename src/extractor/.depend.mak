@@ -11,7 +11,8 @@ extractorCmd.o: extractorCmd.cpp ../../include/util.h \
  ../../include/zxGraph.h ../../include/simplify.h ../../include/zxRules.h \
  ../../include/qcir.h ../../include/qcirGate.h ../../include/qcirQubit.h \
  ../../include/qcirDef.h ../../include/m2.h ../../include/m2Def.h \
- ../../include/ordered_hashset.h ../../include/zxGraphMgr.h
+ ../../include/ordered_hashset.h ../../include/zxGraphMgr.h \
+ ../../include/qcirMgr.h ../../include/qcir.h
 extract.o: extract.cpp extract.h ../../include/zxDef.h \
  ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
  ../../include/myHashMap.h ../../include/zxGraph.h ../../include/zxDef.h \
