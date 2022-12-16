@@ -15,7 +15,6 @@
 #include "util.h"
 #include "zxGraph.h"
 #include "zxGraphMgr.h"
-#include "zxGFlow.h"
 #include "textFormat.h"
 
 namespace TF = TextFormat;
@@ -42,7 +41,6 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd) &&
           cmdMgr->regCmd("ZXGADJoint", 6, new ZXGAdjointCmd) &&
           cmdMgr->regCmd("ZXGASsign", 5, new ZXGAssignCmd) &&
-          cmdMgr->regCmd("ZXGGFlow", 5, new ZXGGFlowCmd) &&
           cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
           cmdMgr->regCmd("ZX2TS", 5, new ZX2TSCmd) &&
           cmdMgr->regCmd("ZXGRead", 4, new ZXGReadCmd) &&
@@ -844,34 +842,5 @@ void ZXGAdjointCmd::usage(ostream &os) const {
 void ZXGAdjointCmd::help() const {
     cout << setw(15) << left << "ZXGADJoint: "
          << "adjoint the current ZX-graph.\n";
-}
-
-//----------------------------------------------------------------------
-//    ZXGGFlow
-//----------------------------------------------------------------------
-CmdExecStatus
-ZXGGFlowCmd::exec(const string &option) {    if (!lexNoOption(option)) return CMD_EXEC_ERROR;
-    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGGFlow");
-    ZXGFlow gflow(zxGraphMgr->getGraph());
-    gflow.calculate();
-    
-    ZXGFlow::Levels levels = gflow.getLevels();
-
-    for (size_t i = 0; i < levels.size(); ++i) {
-        cout << "Level " << i << endl;
-        for (auto& v : levels[i]) {
-            cout << "  - " << v->getId() << endl;
-        }
-    }
-    return CMD_EXEC_DONE;
-}
-
-void ZXGGFlowCmd::usage(ostream &os) const {
-    os << "Usage: ZXGGFlow" << endl;
-}
-
-void ZXGGFlowCmd::help() const {
-    cout << setw(15) << left << "ZXGGFlow: "
-         << "calculate the generalized flow of current ZX-graph.\n";
 }
 

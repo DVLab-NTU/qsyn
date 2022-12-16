@@ -6,46 +6,12 @@ Checkout to Graph 0
 qsyn> m2gaue
 M2 matrix:
 1 1 1 0 0 0 
-
-M2 matrix:
-1 1 1 0 0 0 
-0 0 1 1 1 0 
-
-M2 matrix:
-1 1 1 0 0 0 
-0 0 1 1 1 0 
-1 0 0 1 1 0 
-
-M2 matrix:
-1 1 1 0 0 0 
-0 0 1 1 1 0 
-1 0 0 1 1 0 
-1 1 1 1 0 1 
-
-M2 matrix:
-1 1 1 0 0 0 
-0 0 1 1 1 0 
-1 0 0 1 1 0 
-1 1 1 1 0 1 
-0 1 1 0 1 0 
-
-M2 matrix:
-1 1 1 0 0 0 
 0 0 1 1 1 0 
 1 0 0 1 1 0 
 1 1 1 1 0 1 
 0 1 1 0 1 0 
 1 0 0 0 0 1 
 
-M2 matrix:
-1 1 1 0 0 0 
-0 0 1 1 1 0 
-1 0 0 1 1 0 
-1 1 1 1 0 1 
-0 1 1 0 1 0 
-1 0 0 0 0 1 
-
-Performing Gaussian Elimination...
 Is Idendity? 1
 M2 matrix:
 1 0 0 0 0 0 
