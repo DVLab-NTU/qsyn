@@ -77,8 +77,9 @@ public:
     void clear() { _matrix.clear(); _opStorage.clear(); }
 
     bool xorOper(size_t ctrl, size_t targ, bool track = false);
-    void gaussianElim(bool track = false);
+    bool gaussianElim(bool track = false, bool isAugmentedMatrix = false);
     bool isSolvedForm() const;
+    bool isAugmentedSolvedForm() const;
     void printMatrix() const;
     void printTrack() const;
     void appendOneHot(size_t idx);

@@ -32,6 +32,9 @@ bool initGFlowCmd() {
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGGFlowCmd::exec(const string &option) {  
+    enum class GFLOW_PRINT_MODE {
+        ALL, LEVELS, CORRECTION_SETS, SUMMARY, ERROR
+    };
     string token;  
     if (!lexSingleOption(option, token, true)) return CMD_EXEC_ERROR;
 
@@ -41,14 +44,41 @@ ZXGGFlowCmd::exec(const string &option) {
     }
     GFlow gflow(zxGraphMgr->getGraph());
 
-    gflow.calculate();
-    
-    if (token.empty() || myStrNCmp("-All", token, 2) == 0) {
-        gflow.print();
-    } else if (myStrNCmp("-Level", token, 2) == 0) {
-        gflow.printLevels();
+    GFLOW_PRINT_MODE mode = GFLOW_PRINT_MODE::ERROR;
+    if (myStrNCmp("-All", token, 2) == 0) {
+        mode = GFLOW_PRINT_MODE::ALL;
+    } else if (myStrNCmp("-Levels", token, 2) == 0) {
+        mode = GFLOW_PRINT_MODE::LEVELS;
+    } else if (myStrNCmp("-Correctionsets", token, 2) == 0) {
+        mode = GFLOW_PRINT_MODE::CORRECTION_SETS;
+    } else if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) {
+        mode = GFLOW_PRINT_MODE::SUMMARY;
     } else {
         return errorOption(CMD_OPT_ILLEGAL, token);
+    }
+    gflow.calculate();
+    
+    switch (mode) {
+        case GFLOW_PRINT_MODE::ALL:
+            gflow.print();
+            gflow.printSummary();
+            if (!gflow.isValid()) gflow.printFailedVertices();
+            break;
+        case GFLOW_PRINT_MODE::LEVELS:
+            gflow.printLevels();
+            gflow.printSummary();
+            if (!gflow.isValid()) gflow.printFailedVertices();
+            break;
+        case GFLOW_PRINT_MODE::CORRECTION_SETS:
+            gflow.printCorrectionSets();
+            gflow.printSummary();
+            break;
+        case GFLOW_PRINT_MODE::SUMMARY:
+            gflow.printSummary();
+            if (!gflow.isValid()) gflow.printFailedVertices();
+            break;
+        default:
+            break;
     }
     
     return CMD_EXEC_DONE;

@@ -18,16 +18,20 @@ public:
     using Levels = std::vector<ZXVertexList>;
     using CorrectionSets = std::unordered_map<ZXVertex*, ZXVertexList>;
     
-    GFlow(ZXGraph* g): _zxgraph(g), _dirty(true) {}
+    GFlow(ZXGraph* g): _zxgraph(g) {}
 
     void reset();
     bool calculate();
 
     const Levels& getLevels() { return _levels; }
-    bool isDirty() const { return _dirty; }
+    bool isValid() const { return _valid; }
 
     void print() const;
     void printLevels() const;
+    void printCorrectionSets() const;
+    void printCorrectionSet(ZXVertex* v) const;
+    void printSummary() const;
+    void printFailedVertices() const;
 
 private:
     ZXGraph* _zxgraph;
@@ -35,7 +39,6 @@ private:
     CorrectionSets _correctionSets;
 
     bool _valid;
-    bool _dirty;
 
     // helper members
     ZXVertexList _frontier;
@@ -50,7 +53,9 @@ private:
     void setCorrectionSetFromMatrix(ZXVertex* v, const M2& matrix);
     void updateFrontier();
 
-    void printFlagInfo() const;
+    void printFrontier() const;
+    void printNeighbors() const;
+    
 };
 
 #endif // GFLOW_H

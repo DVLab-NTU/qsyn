@@ -15,4 +15,4 @@ gFlow.o: gFlow.cpp gFlow.h ../../include/zxGraph.h ../../include/zxDef.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
  ../../include/qtensor.h ../../include/tensor.h ../../include/tensorDef.h \
  ../../include/tensorUtil.h ../../include/m2.h ../../include/m2Def.h \
- ../../include/zxGraph.h
+ ../../include/zxGraph.h ../../include/textFormat.h

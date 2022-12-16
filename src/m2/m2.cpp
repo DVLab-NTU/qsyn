@@ -121,33 +121,42 @@ bool M2::xorOper(size_t ctrl, size_t targ, bool track) {
  *
  * @param track if true, record the process to operation track
  */
-void M2::gaussianElim(bool track) {
-    if (verbose >= 3) cout << "Performing Gaussian Elimination..." << endl;
+bool M2::gaussianElim(bool track, bool isAugmentedMatrix) {
+    if (verbose >= 5) cout << "Performing Gaussian Elimination..." << endl;
     if (verbose >= 8) printMatrix();
     _opStorage.clear();
-    for (size_t i = 0; i < _matrix.size() - 1; i++) {
-        // If a number on main diagonal is zero, greedily perform row operations to make them 1
-        if (_matrix[i][i] == 0) {
-            bool noSol = true;
-            for (size_t j = i + 1; j < _matrix.size(); j++) {
-                if (_matrix[j][i] == 1) {
-                    xorOper(j, i, track);
-                    if (verbose >= 8) {
-                        cout << "Diag Add " << j << " to " << i << endl;
-                        printMatrix();
-                    }
-                    noSol = false;
-                    break;
+    
+    size_t numVariables = numCols() - ((isAugmentedMatrix) ? 1 : 0);
+
+    /**
+     * @brief If _matrix[i][i] is 0, greedily perform row operations 
+     * to make the number 1
+     * 
+     * @return true on success, false on failures
+     */
+    auto makeMainDiagonalOne = [this, &track](size_t i) -> bool {
+        if (_matrix[i][i] == 1) return true;
+        for (size_t j = i + 1; j < numRows(); j++) {
+            if (_matrix[j][i] == 1) {
+                xorOper(j, i, track);
+                if (verbose >= 8) {
+                    cout << "Diag Add " << j << " to " << i << endl;
+                    printMatrix();
                 }
-            }
-            if (noSol) {
-                cout << "No Solution" << endl;
-                return;
+                return true;
             }
         }
+        return false;
+    };
 
-        // convert to upper-triangle matrix
-        for (size_t j = i + 1; j < _matrix.size(); j++) {
+    // convert to upper-triangle matrix
+    for (size_t i = 0; i < min(numRows() - 1, numVariables); i++) {
+        
+        // the system of equation is not solvable if the 
+        // main diagonal cannot be made 1
+        if (!makeMainDiagonalOne(i)) return false;
+
+        for (size_t j = i + 1; j < numRows(); j++) {
             if (_matrix[j][i] == 1 && _matrix[i][i] == 1) {
                 xorOper(i, j, track);
                 if (verbose >= 8) {
@@ -157,19 +166,28 @@ void M2::gaussianElim(bool track) {
             }
         }
     }
+    
+    // for augmented matrix, if any rows looks like [0 ... 0 1],
+    // the system has no solution
+    if (isAugmentedMatrix) {
+        for (size_t i = numVariables; i < numRows(); ++i) {
+            if (_matrix[i].back() == 1) return false;
+        }
+    }
 
-    // convert to identity matrix on the leftmost _matrix.size() matrix
-    for (size_t i = 0; i < _matrix.size(); i++) {
-        for (size_t j = _matrix.size() - i; j < _matrix.size(); j++) {
-            if (_matrix[_matrix.size() - i - 1][j] == 1) {
-                xorOper(j, _matrix.size() - i - 1, track);
+    // convert to identity matrix on the leftmost numRows() matrix
+    for (size_t i = 0; i < numRows(); i++) {
+        for (size_t j = numRows() - i; j < numRows(); j++) {
+            if (_matrix[numRows() - i - 1][j] == 1) {
+                xorOper(j, numRows() - i - 1, track);
                 if (verbose >= 8) {
-                    cout << "Add " << j << " to " << _matrix.size() - i - 1 << endl;
+                    cout << "Add " << j << " to " << numRows() - i - 1 << endl;
                     printMatrix();
                 }
             }
         }
     }
+    return true;
 }
 
 /**
@@ -185,6 +203,30 @@ bool M2::isSolvedForm() const {
         for (size_t j = 0; j < min(numRows(), numCols()); ++j) {
             if (i == j && _matrix[i][j] != 1) return false;
             if (i != j && _matrix[i][j] != 0) return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * @brief check if the augmented matrix is of solved form. That is, 
+ *        an identity matrix with an arbitrary matrix on the right, and possibly 
+ *        an identity matrix with an zero matrix on the bottom.
+ * 
+ * @return true or false 
+ */
+bool M2::isAugmentedSolvedForm() const {
+    size_t n = min(numRows(), numCols() - 1);
+    for (size_t i = 0; i < n; ++i) {
+        for (size_t j = 0; j < n; ++j) {
+            if (i == j && _matrix[i][j] != 1) return false;
+            if (i != j && _matrix[i][j] != 0) return false;
+        }
+    }
+    for (size_t i = n; i < numRows(); ++i) {
+        for (size_t j = 0; j < numCols(); ++j) {
+            if (_matrix[i][j] != 0) return false;
         }
     }
 
@@ -222,7 +264,6 @@ bool M2::fromZXVertices(const ZXVertexList& frontier, const ZXVertexList& neighb
             }
         }
         _matrix.push_back(Row(1, storage));
-        printMatrix();
     }
 
     return true;
