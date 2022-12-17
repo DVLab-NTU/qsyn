@@ -47,6 +47,7 @@ void ZXVertex::printVertex() const {
     cout << "ID:\t" << _id << "\t";
     cout << "VertexType:\t" << VertexType2Str(_type) << "\t";
     cout << "Qubit:\t" << _qubit << "\t";
+    cout << "Column:\t" << _column << "\t";
     cout << "Phase:\t" << _phase << "\t";
     cout << "#Neighbors:\t" << _neighbors.size() << "\t";
     printNeighbors();

@@ -28,20 +28,14 @@ class ZXVertex{
         class EdgeIterator;
         friend class EdgeIterator;
 
-        ZXVertex(size_t id, int qubit, VertexType vt, Phase phase = Phase()) {
-            _id = id;
-            _type = vt;
-            _qubit = qubit;
-            _phase = phase;
-            _DFSCounter = 0;
-            _pin = unsigned(-1);
-            _neighbors.clear();
-        }
+        ZXVertex(size_t id, int qubit, VertexType vt, Phase phase = Phase(), int col = 0): 
+            _id(id), _qubit(qubit), _column(col), _pin(unsigned(-1)), _phase(phase), _DFSCounter(0), _type(vt) {}
         ~ZXVertex(){}
 
         // Getter and Setter
         const size_t& getId() const                            { return _id; }
         const int& getQubit() const                            { return _qubit; }
+        const int& getColumn() const                           { return _column; }
         const size_t& getPin() const                           { return _pin; }
         const Phase& getPhase() const                          { return _phase; }
         const VertexType& getType() const                      { return _type; }
@@ -55,6 +49,7 @@ class ZXVertex{
 
         void setId(const size_t& id)                           { _id = id; }
         void setQubit(const int& q)                            { _qubit = q; }
+        void setColumn(const int& col)                         { _column = col; }
         void setPin(const size_t& p)                           { _pin = p; }
         void setPhase(const Phase& p)                          { _phase = p; }
         void setType(const VertexType& vt)                     { _type = vt; }
@@ -97,10 +92,11 @@ class ZXVertex{
         void setVisited(unsigned global)                { _DFSCounter = global; }
 
     private:
-        int                                  _qubit;
-        Phase                                _phase;
         size_t                               _id;
+        int                                  _qubit;
+        int                                  _column;
         size_t                               _pin;
+        Phase                                _phase;
         unsigned                             _DFSCounter;
         Neighbors                            _neighbors;
         VertexType                           _type;

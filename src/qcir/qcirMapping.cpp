@@ -39,6 +39,7 @@ void QCir::clearMapping() {
  */
 void QCir::ZXMapping() {
     if (zxGraphMgr == 0) {
+        //FIXME - ZXMode obsolete
         cerr << "Error: ZXMODE is OFF, please turn on before mapping" << endl;
         return;
     }
@@ -52,6 +53,7 @@ void QCir::ZXMapping() {
     for (size_t i = 0; i < _qubits.size(); i++) {
         ZXVertex *input = _ZXG->addInput(_qubits[i]->getId());
         ZXVertex *output = _ZXG->addOutput(_qubits[i]->getId());
+        input->setColumn(0);
         _ZXG->addEdge(input, output, EdgeType(EdgeType::SIMPLE));
     }
 
@@ -59,6 +61,10 @@ void QCir::ZXMapping() {
     topoTraverse([this, _ZXG](QCirGate *G) {
         if (verbose >= 5) cout << "> Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph *tmp = G->getZXform();
+
+        for (auto& v : tmp->getVertices()) {
+            v->setColumn(v->getColumn() + G->getTime() + 1);
+        }
         if (tmp == NULL) {
             //TODO cleanup when conversion fails
             cerr << "Gate " << G->getId() << " (type: " << G->getTypeStr() << ") is not implemented, the conversion result is wrong!!" << endl;
@@ -69,6 +75,10 @@ void QCir::ZXMapping() {
         tmp->disownVertices();
         delete tmp;
     });
+
+    for (auto& v : _ZXG->getOutputs()) {
+        v->setColumn(_topoOrder.back()->getTime() + 2);
+    }
 
     _ZXGraphList.push_back(_ZXG);
 }
