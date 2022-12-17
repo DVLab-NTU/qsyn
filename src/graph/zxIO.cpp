@@ -57,6 +57,7 @@ bool ZXGraph::readZX(string filename, bool bzx) {
         }
         unsigned id, nid;
         int qid;
+        int column = 0;
         string vertexStr = tokens[0];
         if (vertexStr[0] == 'I' || vertexStr[0] == 'O') {
             string idStr = vertexStr.substr(1);
@@ -87,6 +88,12 @@ bool ZXGraph::readZX(string filename, bool bzx) {
                         return false;
                     } else if (size_t(nid) >= size_t(id))
                         tmp.push_back(make_pair(size_t(nid), (neighborStr[0] == 'S') ? EdgeType::SIMPLE : EdgeType::HADAMARD));
+                } else if (neighborStr[0] == 'C') {
+                    string colStr = neighborStr.substr(1);
+                    if (!myStr2Int(colStr, column)) {
+                        cerr << "Error: Column " << neighborStr << " is not an int in line " << counter << "!!" << endl;
+                        return false;
+                    }
                 } else {
                     cerr << "Error: Unsupported edge type " << neighborStr[0] << " in line " << counter << "!!" << endl;
                     return false;
@@ -97,8 +104,9 @@ bool ZXGraph::readZX(string filename, bool bzx) {
                 vertexList[size_t(id)] = addInput(size_t(qid), true);
             }
 
-            else
+            else {
                 vertexList[size_t(id)] = addOutput(size_t(qid), true);
+            }
         } else if (vertexStr[0] == 'Z' || vertexStr[0] == 'X' || vertexStr[0] == 'H') {
             string idStr = vertexStr.substr(1);
 
@@ -128,6 +136,12 @@ bool ZXGraph::readZX(string filename, bool bzx) {
                             return false;
                         } else if (size_t(nid) >= size_t(id))
                             tmp.push_back(make_pair(size_t(nid), (neighborStr[0] == 'S') ? EdgeType::SIMPLE : EdgeType::HADAMARD));
+                    } else if (neighborStr[0] == 'C') {
+                        string colStr = neighborStr.substr(1);
+                        if (!myStr2Int(colStr, column)) {
+                            cerr << "Error: Column " << neighborStr << " is not an int in line " << counter << "!!" << endl;
+                            return false;
+                        }
                     } else {
                         cerr << "Error: Unsupported edge type " << neighborStr[0] << " in line " << counter << "!!" << endl;
                         return false;
@@ -152,6 +166,7 @@ bool ZXGraph::readZX(string filename, bool bzx) {
             cerr << "Error: Unsupported vertex type " << vertexStr[0] << " in line " << counter << "!!" << endl;
             return false;
         }
+        vertexList[size_t(id)]->setColumn(column);
 
         counter++;
     }
@@ -210,6 +225,7 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
     ZXFile << "// Input \n";
     for (auto& v : _inputs) {
         ZXFile << "I" << v->getId() << " " << v->getQubit();
+        ZXFile << " C" << v->getColumn();
         if (!writeNeighbors(v, complete)) return false;
         ZXFile << "\n";
     }
@@ -218,6 +234,7 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
     
     for (auto& v : _outputs) {
         ZXFile << "O" << v->getId() << " " << v->getQubit();
+        ZXFile << " C" << v->getColumn();
         if (!writeNeighbors(v, complete)) return false;
         ZXFile << "\n";
     }
@@ -231,6 +248,7 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
         else               ZXFile << "H";
         ZXFile << v->getId();
         if (bzx) ZXFile << " " << v->getQubit();
+        ZXFile << " C" << v->getColumn();
         if (!writeNeighbors(v, complete)) return false;
         
         if (v->getPhase() != Phase(0)) ZXFile << " " << v->getPhase().getAsciiString();
