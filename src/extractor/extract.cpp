@@ -7,6 +7,8 @@
 // ****************************************************************************/
 
 #include "extract.h"
+#include <algorithm>
+#include <iterator>
 extern size_t verbose;
 
 /**
@@ -313,11 +315,173 @@ bool Extractor::removeGadget(){
 }
 
 /**
+ * @brief 
+ * 
+ */
+void Extractor::columnOptimalSwap(){
+    //NOTE - Swap columns of matrix and order of neighbors
+    
+    _rowInfo.clear();
+    _colInfo.clear();
+    
+    size_t rowCnt = _biAdjacency.numRows();
+    
+    size_t colCnt = _biAdjacency.numCols();
+    set<size_t> emptySet;
+    
+    for(size_t i=0; i<rowCnt; i++){
+        _rowInfo[i] = emptySet;
+    }
+    for(size_t i=0; i<colCnt; i++){
+        _colInfo[i] = emptySet;
+    }
+
+    for(size_t i=0; i<rowCnt; i++){
+       
+        for(size_t j=0; j<colCnt; j++){
+            
+            if(_biAdjacency.getMatrix()[i].getRow()[j] == 1){
+                _rowInfo[i].emplace(j);
+                _colInfo[j].emplace(i);
+            }
+        }
+        
+    }
+    
+    Target target;
+    target = findColumnSwap(target);
+
+    set<size_t> colSet, left, right, targKey, targVal;
+    for(size_t i=0; i<colCnt; i++) colSet.emplace(i);
+    for(auto& [k,v]: target){
+        targKey.emplace(k);
+        targVal.emplace(v);
+    }
+
+    set_difference(colSet.begin(), colSet.end(), targVal.begin(), targVal.end(), inserter(left, left.end()));
+    set_difference(colSet.begin(), colSet.end(), targKey.begin(), targKey.end(), inserter(right, right.end()));
+    vector<size_t> lvec(left.begin(), left.end());
+    vector<size_t> rvec(right.begin(), right.end());
+    for(size_t i=0; i<lvec.size(); i++){
+        target[rvec[i]] = lvec[i];
+    }
+    Target perm;
+    for(auto& [k, v]: target){
+        perm[v] = k;
+    }
+    vector<ZXVertex*> nebVec(_neighbors.begin(), _neighbors.end());
+    vector<ZXVertex*> newNebVec = nebVec;
+    for(size_t i=0; i<nebVec.size(); i++){
+        newNebVec[i] = nebVec[perm[i]];
+    }
+    _neighbors.clear();
+    for(auto& v: newNebVec) _neighbors.emplace(v);
+}
+
+Target Extractor::findColumnSwap(Target target){
+    //REVIEW - No need to copy in cpp
+    size_t rowCnt = _rowInfo.size();
+    size_t colCnt = _colInfo.size();
+
+    set<size_t> claimedCols;
+    set<size_t> claimedRows;
+    for(auto& [key,value]: target){
+        claimedCols.emplace(key);
+        claimedRows.emplace(value);
+    }
+
+    while(true){
+        int min_index = -1;
+        set<size_t> min_options;
+        for(size_t i=0; i<1000; i++) min_options.emplace(i);
+        bool foundCol = false;
+        for(size_t i=0; i<rowCnt; i++){
+            if(claimedRows.contains(i)) continue;
+            set<size_t> freeCols;
+            //NOTE - find the free columns
+            set_difference(_rowInfo[i].begin(), _rowInfo[i].end(), claimedCols.begin(), claimedCols.end(), inserter(freeCols, freeCols.end()));
+            if(freeCols.size() == 1){
+                //NOTE - pop the only element
+                size_t j = *(freeCols.begin());
+                freeCols.erase(j);
+
+                target[j] = i;
+                claimedCols.emplace(j);
+                claimedRows.emplace(i);
+                foundCol = true;
+                break;
+            }
+                
+            if(freeCols.size() == 0) {
+                cout << "No Free Column!!" << endl;
+                Target t;
+                return t; //NOTE - Contradiction
+            }
+
+            for(auto& j: freeCols){
+                set<size_t> freeRows;
+                set_difference(_colInfo[j].begin(), _colInfo[j].end(), claimedRows.begin(), claimedRows.end(), inserter(freeRows, freeRows.end()));
+                if(freeRows.size() == 1){
+                    target[j] = i; //NOTE - j can only be connected to i
+                    claimedCols.emplace(j);
+                    claimedRows.emplace(i);
+                    foundCol = true;
+                    break;
+                }  
+            }     
+            if(foundCol) break;
+            if(freeCols.size() < min_options.size()){
+                min_index = i;
+                min_options = freeCols;
+            }
+        }
+
+        if(!foundCol){
+            bool done = true;
+            for(auto& [r, _]: _rowInfo){
+                if(!claimedRows.contains(r)){
+                    done = false;
+                    break;
+                }
+            }
+            if(done){
+                return target;
+            }
+            if(min_index == -1){
+                cerr << "Error: this shouldn't happen ever" << endl;
+                assert(false);
+            }
+            //NOTE -  depth-first search
+            //REVIEW - no need to copy in cpp -> pass by value
+            Target copiedTarget = target;
+            // tgt = target.copy()
+            if(verbose >=8) cout << "Backtracking on " << min_index << endl;
+
+            for(auto& idx: min_options){
+                if(verbose >=8) cout << "> trying option" << idx << endl;
+                copiedTarget[idx] = min_index;
+                Target newTarget = findColumnSwap(copiedTarget);
+                if (newTarget.size()>0)
+                    return newTarget;
+            }
+            if(verbose >=8) cout << "Unsuccessful" << endl;
+            return target;
+        }
+    }
+}
+
+
+/**
  * @brief Perform Gaussian Elimination
  * 
  */
 void Extractor::gaussianElimination(){
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
+    //_biAdjacency.printMatrix();
+    //cout << "----- columnOptimalSwap -----" << endl;
+    columnOptimalSwap();
+    _biAdjacency.fromZXVertices(_frontier, _neighbors);
+    //_biAdjacency.printMatrix();
     _biAdjacency.gaussianElim(true);
     _cnots = _biAdjacency.getOpers();
 }

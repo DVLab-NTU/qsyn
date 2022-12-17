@@ -154,7 +154,8 @@ bool M2::gaussianElim(bool track, bool isAugmentedMatrix) {
         
         // the system of equation is not solvable if the 
         // main diagonal cannot be made 1
-        if (!makeMainDiagonalOne(i)) return false;
+        //REVIEW - I comment out this line since no routine in Gaussian do this?
+        //if (!makeMainDiagonalOne(i)) return false;
 
         for (size_t j = i + 1; j < numRows(); j++) {
             if (_matrix[j][i] == 1 && _matrix[i][i] == 1) {
