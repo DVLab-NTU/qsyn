@@ -301,13 +301,13 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
             (vs->isX() && vt->isZ() && et == EdgeType::HADAMARD) ||
             (vs->isZ() && vt->isZ() && et == EdgeType::SIMPLE) ||
             (vs->isX() && vt->isX() && et == EdgeType::SIMPLE)) {
-            if (verbose >= 5) cout << "Note: redundant edge; merging into existing edge..." << endl;
+            if (verbose >= 5) cout << "Note: redundant edge; merging into existing edge ("<<vs->getId()<<", "<< vt->getId()<<")..." << endl;
         } else if (
             (vs->isZ() && vt->isX() && et == EdgeType::SIMPLE) ||
             (vs->isX() && vt->isZ() && et == EdgeType::SIMPLE) ||
             (vs->isZ() && vt->isZ() && et == EdgeType::HADAMARD) ||
             (vs->isX() && vt->isX() && et == EdgeType::HADAMARD)) {
-            if (verbose >= 5) cout << "Note: Hopf edge; cancelling out with existing edge..." << endl;
+            if (verbose >= 5) cout << "Note: Hopf edge; cancelling out with existing edge ("<<vs->getId()<<", "<< vt->getId()<<")..." << endl;
             vs->removeNeighbor(make_pair(vt, et));
             vt->removeNeighbor(make_pair(vs, et));
         }

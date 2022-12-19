@@ -13,11 +13,13 @@
 #include "extractorCmd.h"
 #include "extract.h"
 #include "zxGraphMgr.h"
+#include "qcirMgr.h"
 
 using namespace std;
 extern size_t verbose;
 extern int effLimit;
 extern ZXGraphMgr *zxGraphMgr;
+extern QCirMgr *qcirMgr;
 
 bool initExtractCmd()
 {
@@ -32,8 +34,16 @@ bool initExtractCmd()
 }
 
 CmdExecStatus
-ExtractCmd::exec(const string &option) {    
-    if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
+ExtractCmd::exec(const string &option) {  
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    unsigned id = qcirMgr->getNextID();
+    if (! token.empty()){
+        if (!myStr2Uns(option, id)) {
+            cerr << "Error: invalid QCir ID!!\n";
+            return errorOption(CMD_OPT_ILLEGAL, (option));
+        }
+    }
 
     if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
         cerr << "Error: ZX-graph list is empty now. Please ZXNew before EXTRact." << endl;
@@ -42,7 +52,11 @@ ExtractCmd::exec(const string &option) {
     else{
         zxGraphMgr->copy(zxGraphMgr->getNextID());
         Extractor ext(zxGraphMgr->getGraph());
-        ext.extract();
+        QCir* result = ext.extract();
+        if(result != nullptr){
+            qcirMgr->addQCir(id);
+            qcirMgr->setQCircuit(result);
+        }
     }
     return CMD_EXEC_DONE;
 }
