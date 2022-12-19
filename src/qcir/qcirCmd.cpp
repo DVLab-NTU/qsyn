@@ -426,7 +426,7 @@ void QCirGatePrintCmd::help() const {
 }
 
 //----------------------------------------------------------------------
-//    QCCPrint [-Summary | -List | -Qubit]
+//    QCCPrint [-Summary | -Analysis | -Detail | -List | -Qubit]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCirPrintCmd::exec(const string &option) {
@@ -443,6 +443,10 @@ QCirPrintCmd::exec(const string &option) {
         qcirMgr->getQCircuit()->printGates();
     else if (myStrNCmp("-Qubit", token, 2) == 0)
         qcirMgr->getQCircuit()->printQubits();
+    else if (myStrNCmp("-Detail", token, 2) == 0)
+        qcirMgr->getQCircuit()->analysis(true);
+    else if (myStrNCmp("-Analysis", token, 2) == 0)
+        qcirMgr->getQCircuit()->analysis();
     else
         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
 
@@ -450,7 +454,7 @@ QCirPrintCmd::exec(const string &option) {
 }
 
 void QCirPrintCmd::usage(ostream &os) const {
-    os << "Usage: QCCPrint [-Summary | -List | -Qubit]" << endl;
+    os << "Usage: QCCPrint [-Summary | -Analysis | -Detail | -List | -Qubit]" << endl;
 }
 
 void QCirPrintCmd::help() const {

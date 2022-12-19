@@ -11,11 +11,11 @@ qsyn> qcgma 1 2 3 4 5
 
 qsyn> qccp -q
 Q 0  
-Q 1  -cc( 0)-
-Q 2  -cc( 0)-
-Q 3  -cc( 0)-
-Q 4  -cc( 0)-
-Q 5  -cc( 0)-
+Q 1  -mc( 0)-
+Q 2  -mc( 0)-
+Q 3  -mc( 0)-
+Q 4  -mc( 0)-
+Q 5  -mc( 0)-
 Q 6  
 Q 7  
 Q 8  
