@@ -69,6 +69,7 @@ public:
 
   bool writeQASM(string qasm_output);
 
+  void analysis(bool=false);
   void ZXMapping();
   void tensorMapping();
   

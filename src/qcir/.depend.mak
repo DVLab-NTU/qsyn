@@ -29,7 +29,8 @@ qcir.o: qcir.cpp qcir.h qcirGate.h ../../include/phase.h \
  ../../include/tensorUtil.h ../../include/phase.h ../../include/zxGraph.h \
  ../../include/zxDef.h ../../include/ordered_hashset.h \
  ../../include/ordered_hashtable.h ../../include/myHashMap.h \
- ../../include/qtensor.h qcirQubit.h qcirDef.h ../../include/myHashMap.h
+ ../../include/qtensor.h qcirQubit.h qcirDef.h ../../include/myHashMap.h \
+ ../../include/textFormat.h
 qcirReader.o: qcirReader.cpp qcir.h qcirGate.h ../../include/phase.h \
  ../../include/myConcepts.h ../../include/rationalNumber.h \
  ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h \
