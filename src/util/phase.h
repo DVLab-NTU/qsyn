@@ -108,6 +108,16 @@ public:
         return str;
     }
 
+    std::string getPrintString() const {
+        if (Phase::getPrintUnit() == PhaseUnit::PI) {
+            return ((_rational.numerator() != 1) ? std::to_string(_rational.numerator()) : "")
+                 + ((_rational.numerator() != 0) ? "\u03C0" : "")
+                 + ((_rational.denominator() != 1) ? ("/" + std::to_string(_rational.denominator())) : "");
+        } else {
+            return std::to_string(_rational.numerator() * std::numbers::pi / _rational.denominator());
+        }
+    }
+
     void normalize();
 
     template <class T = double>
