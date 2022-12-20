@@ -459,8 +459,8 @@ void QCir::analysis(bool detail){
         cout << "│   │   ├── X   : " << x << endl;
         cout << "│   │   ├── SX  : " << sx << endl;
         cout << "│   │   └── RX  : " << rx << endl;
-        cout << "│   └── Y-family: " << singleX << endl;
-        cout << "│       ├── Y   : " << x << endl;
+        cout << "│   └── Y-family: " << singleY << endl;
+        cout << "│       ├── Y   : " << y << endl;
         cout << "│       ├── SY  : " << sy << endl;
         cout << "│       └── RY  : " << ry << endl;
         cout << "└── Multiple-qubit gate: " << mcrz+cz+ccz+mcrx+cx+ccx+mcry << endl;

@@ -11,6 +11,20 @@
 extern size_t verbose;
 using namespace std;
 
+namespace std {
+    template <>
+    struct hash<vector<unsigned char>> {
+        size_t operator()(const vector<unsigned char>& k) const {
+            size_t ret = hash<unsigned char>()(k[0]);
+            for (size_t i = 1; i < k.size(); i++) {
+                ret ^= hash<unsigned char>()(k[i] << (i % sizeof(size_t)));
+            }
+
+            return ret;
+        }
+    };
+}
+
 Row operator+(Row& lhs, const Row& rhs) {
     lhs += rhs;
     return lhs;
@@ -52,6 +66,14 @@ bool Row::isOneHot() const {
     return (cnt == 1);
 }
 
+bool Row::isZeros() const {
+    for (auto& i : _row) {
+        if (i == 1) {
+            return false;
+        }
+    }
+    return true;
+}
 void M2::reset(){
     _matrix.clear();
     _opStorage.clear();
@@ -116,6 +138,71 @@ bool M2::xorOper(size_t ctrl, size_t targ, bool track) {
     return true;
 }
 
+bool M2::gaussianElimPyZX(bool track){
+    vector<size_t> pivot_cols, pivot_cols_backup;
+    size_t pivot_row = 0;
+    unordered_map<vector<unsigned char>, size_t> duplicated;
+    for(size_t i=0; i<numRows(); i++){
+        if(_matrix[i].isZeros()) continue;
+        if(duplicated.contains(_matrix[i].getRow())){
+            xorOper(duplicated[_matrix[i].getRow()], i, track);
+        }
+        else{
+            duplicated[_matrix[i].getRow()] = i;
+        }
+    }
+    // cout << "HERE" << endl;
+    size_t p = 0;
+    while(p < numRows()){
+        for(size_t r0 = pivot_row; r0 < numRows(); r0++){
+            if(_matrix[r0].getRow()[p] != 0){
+                if(r0 != pivot_row){
+                    xorOper(r0, pivot_row, track);
+                }
+
+                for(size_t r1 = pivot_row+1; r1 < numRows(); r1++){
+                    if(_matrix[r1].getRow()[p] != 0){
+                        xorOper(pivot_row, r1, track);
+                    }
+                }
+                pivot_cols.push_back(p);
+                pivot_row ++;
+                break;
+            }
+        }
+        p++;
+    }
+    // cout << "HERE175" << endl;
+    pivot_row--;
+    pivot_cols_backup = pivot_cols;
+
+    duplicated.clear();
+    for(size_t i=pivot_row; i>0; i--){
+        // cout << i << " " <<numRows() << endl;
+        if(_matrix[i].isZeros()) continue;
+        if(duplicated.contains(_matrix[i].getRow())){
+            xorOper(duplicated[_matrix[i].getRow()], i, track);
+        }
+        else{
+            duplicated[_matrix[i].getRow()] = i;
+        }
+    }
+    // cout << "HERE189" << endl;
+    //NOTE - 0 <= pivot_cols_backup[i] < numRows() is true
+    while(pivot_cols_backup.size() > 0){
+        size_t pcol = pivot_cols_backup[pivot_cols_backup.size()-1];
+        pivot_cols_backup.pop_back();
+        for(size_t r = 0; r < pivot_row; r++){
+            if(_matrix[r].getRow()[pcol] != 0){
+                xorOper(pivot_row, r, track);
+            }
+        }
+        pivot_row--;
+    }
+
+    return true;
+}
+
 /**
  * @brief Perform Gaussian Elimination
  *
@@ -155,7 +242,7 @@ bool M2::gaussianElim(bool track, bool isAugmentedMatrix) {
         // the system of equation is not solvable if the 
         // main diagonal cannot be made 1
         //REVIEW - I comment out this line since no routine in Gaussian do this?
-        //if (!makeMainDiagonalOne(i)) return false;
+        // if (!makeMainDiagonalOne(i)) return false;
 
         for (size_t j = i + 1; j < numRows(); j++) {
             if (_matrix[j][i] == 1 && _matrix[i][i] == 1) {
