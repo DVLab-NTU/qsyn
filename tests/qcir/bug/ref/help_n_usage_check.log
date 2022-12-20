@@ -99,7 +99,7 @@ qsyn> help ZXCOPy
 Usage: ZXCOPy <size_t id> [-Replace]
 
 qsyn> help QCCPrint    
-Usage: QCCPrint [-Summary | -List | -Qubit]
+Usage: QCCPrint [-Summary | -Analysis | -Detail | -List | -Qubit]
 
 qsyn> help QCCRead     
 Usage: QCCRead <(string fileName)> [-Replace]
