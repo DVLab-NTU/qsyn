@@ -50,7 +50,6 @@ class Extractor{
         void cleanFrontier();
         void permuteQubit();
 
-        void updateFrontier(bool=true);
         void updateNeighbors();
         void updateGraphByMatrix(EdgeType = EdgeType::HADAMARD);
 

@@ -47,6 +47,11 @@ void Extractor::initialize(){
     }
 }
 
+/**
+ * @brief Extract the graph into circuit
+ * 
+ * @return QCir* 
+ */
 QCir* Extractor::extract(){
     while(true){
         cleanFrontier();
@@ -316,7 +321,7 @@ bool Extractor::removeGadget(){
 }
 
 /**
- * @brief 
+ * @brief Swap columns (neighbor order) in order to put most of them on the diagonal
  * 
  */
 void Extractor::columnOptimalSwap(){
@@ -379,6 +384,12 @@ void Extractor::columnOptimalSwap(){
     for(auto& v: newNebVec) _neighbors.emplace(v);
 }
 
+/**
+ * @brief Find the swap target. Used in function columnOptimalSwap
+ * 
+ * @param target 
+ * @return Target 
+ */
 Target Extractor::findColumnSwap(Target target){
     //REVIEW - No need to copy in cpp
     size_t rowCnt = _rowInfo.size();
@@ -478,13 +489,9 @@ Target Extractor::findColumnSwap(Target target){
  */
 void Extractor::gaussianElimination(){
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
-    //_biAdjacency.printMatrix();
-    //cout << "----- columnOptimalSwap -----" << endl;
     columnOptimalSwap();
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
-    //_biAdjacency.printMatrix();
-    _biAdjacency.gaussianElimPyZX();
-    //_biAdjacency.gaussianElim(true);
+    _biAdjacency.gaussianElimSkip();
     _cnots = _biAdjacency.getOpers();
 }
 
@@ -522,10 +529,6 @@ void Extractor::permuteQubit(){
             swapInvMap[t1] = t2;
         }
     }
-}
-
-void Extractor::updateFrontier(bool sort){
-    
 }
 
 /**

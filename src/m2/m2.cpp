@@ -138,41 +138,38 @@ bool M2::xorOper(size_t ctrl, size_t targ, bool track) {
     return true;
 }
 
-bool M2::gaussianElimPyZX(bool track){
+/**
+ * @brief Perform Gaussian Elimination. Skip the column if it is dupicated.
+ * 
+ * @param track 
+ * @return true 
+ * @return false 
+ */
+bool M2::gaussianElimSkip(bool track){
     vector<size_t> pivot_cols, pivot_cols_backup;
     size_t pivot_row = 0;
     unordered_map<vector<unsigned char>, size_t> duplicated;
-    // cout << "Initial: " << endl;
-    //         this->printMatrix();
     for(size_t i=0; i<numRows(); i++){
         if(_matrix[i].isZeros()) continue;
         if(duplicated.contains(_matrix[i].getRow())){
             xorOper(duplicated[_matrix[i].getRow()], i, track);
-            // cout << "Forward Eliminate: " << duplicated[_matrix[i].getRow()] << " "<< i << endl;
-            // this->printMatrix();
         }
         else{
             duplicated[_matrix[i].getRow()] = i;
         }
     }
-    // cout << "HERE" << endl;
     size_t p = 0;
     while(p < numCols()){
         for(size_t r0 = pivot_row; r0 < numRows(); r0++){
-            // cout << r0 << " " <<  numRows() << " " << p << endl;
+            
             if(_matrix[r0].getRow()[p] != 0){
                 if(r0 != pivot_row){
                     xorOper(r0, pivot_row, track);
-                    // cout << "Forward Row Add Pivot: " << r0 << " "<< pivot_row << endl;
-                    // this->printMatrix();
-                    
                 }
 
                 for(size_t r1 = pivot_row+1; r1 < numRows(); r1++){
                     if(_matrix[r1].getRow()[p] != 0){
                         xorOper(pivot_row, r1, track);
-                        // cout << "Forward Row Add: " << pivot_row << " "<< r1 << endl;
-                        // this->printMatrix();
                     }
                 }
                 pivot_cols.push_back(p);
@@ -182,24 +179,20 @@ bool M2::gaussianElimPyZX(bool track){
         }
         p++;
     }
-    // cout << "HERE175" << endl;
+    
     pivot_row--;
     pivot_cols_backup = pivot_cols;
 
     duplicated.clear();
     for(size_t i=pivot_row; i>0; i--){
-        // cout << i << " " <<numRows() << endl;
         if(_matrix[i].isZeros()) continue;
         if(duplicated.contains(_matrix[i].getRow())){
             xorOper(duplicated[_matrix[i].getRow()], i, track);
-            // cout << "Backward Eliminate: " << duplicated[_matrix[i].getRow()] << " "<< i << endl;
-            // this->printMatrix();
         }
         else{
             duplicated[_matrix[i].getRow()] = i;
         }
     }
-    // cout << "HERE189" << endl;
     //NOTE - 0 <= pivot_cols_backup[i] < numRows() is true
     while(pivot_cols_backup.size() > 0){
         size_t pcol = pivot_cols_backup[pivot_cols_backup.size()-1];
@@ -207,8 +200,6 @@ bool M2::gaussianElimPyZX(bool track){
         for(size_t r = 0; r < pivot_row; r++){
             if(_matrix[r].getRow()[pcol] != 0){
                 xorOper(pivot_row, r, track);
-                // cout << "Backward Row Add: " << pivot_row << " "<< r << endl;
-                // this->printMatrix();
             }
         }
         pivot_row--;
