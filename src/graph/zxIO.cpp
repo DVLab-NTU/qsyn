@@ -57,6 +57,7 @@ bool ZXGraph::readZX(string filename, bool bzx) {
         }
         unsigned id, nid, cid = 0;
         int qid;
+        int column = 0;
         string vertexStr = tokens[0];
         if (vertexStr[0] == 'I' || vertexStr[0] == 'O') {
             string idStr = vertexStr.substr(1);
@@ -132,6 +133,12 @@ bool ZXGraph::readZX(string filename, bool bzx) {
                             return false;
                         } else if (size_t(nid) >= size_t(id))
                             tmp.push_back(make_pair(size_t(nid), (neighborStr[0] == 'S') ? EdgeType::SIMPLE : EdgeType::HADAMARD));
+                    } else if (neighborStr[0] == 'C') {
+                        string colStr = neighborStr.substr(1);
+                        if (!myStr2Int(colStr, column)) {
+                            cerr << "Error: Column " << neighborStr << " is not an int in line " << counter << "!!" << endl;
+                            return false;
+                        }
                     } else {
                         cerr << "Error: Unsupported edge type " << neighborStr[0] << " in line " << counter << "!!" << endl;
                         return false;

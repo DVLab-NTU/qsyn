@@ -103,11 +103,10 @@ class ZXVertex{
         void setVisited(unsigned global)                { _DFSCounter = global; }
 
     private:
-        
-        int                                  _qubit;
-        Phase                                _phase;
         size_t                               _id;
+        int                                  _qubit;
         size_t                               _pin;
+        Phase                                _phase;
         unsigned                             _DFSCounter;
         Neighbors                            _neighbors;
         VertexType                           _type;
