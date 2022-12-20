@@ -1,6 +1,0 @@
-zxgread benchmark/bzx/qft_16.bzx -bzx
-zxgp
-zxgp -a
-zxgs -fr
-zxgp -a
-q -f
