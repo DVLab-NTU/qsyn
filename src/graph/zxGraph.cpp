@@ -165,6 +165,24 @@ bool ZXGraph::isGraphLike() const {
 }
 
 /**
+ * @brief Check if graph is identity
+ * 
+ * @return true if graph is identity
+ * @return false if not
+ */
+bool ZXGraph::isIdentity() const {
+    for(auto& i: _inputs){
+        if(i -> getNumNeighbors() != 1) 
+            return false;
+        if(! _outputs.contains(i -> getFirstNeighbor().first)) 
+            return false;
+        if((i -> getFirstNeighbor().first)->getQubit() != i -> getQubit()) 
+            return false;
+    }
+    return true;
+}
+
+/**
  * @brief Return the number of T-gate in the ZX-graph
  *
  * @return int

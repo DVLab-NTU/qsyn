@@ -299,7 +299,7 @@ void ZXTensorCmd::help() const {
 
 
 //----------------------------------------------------------------------
-//    ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike ]
+//    ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike | -Identity ]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGTestCmd::exec(const string &option) {
@@ -338,7 +338,16 @@ ZXGTestCmd::exec(const string &option) {
             cout << "The graph is not graph-like!" << endl;
         }
         return CMD_EXEC_DONE;
-    } 
+    }
+
+    if (myStrNCmp("-Idendity", token, 3) == 0) {
+        if (zxGraphMgr->getGraph()->isIdentity()) {
+            cout << "The graph is an identity!" << endl;
+        } else {
+            cout << "The graph is not an identity!" << endl;
+        }
+        return CMD_EXEC_DONE;
+    }
     
     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     
