@@ -21,26 +21,26 @@ qsyn> zxgas 2 O X 0
 
 qsyn> zxgp -v
 
-ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(15, -) 
-ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(19, -) 
-ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(9, -) (10, -) (20, -) 
-ID:	9	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(8, -) (12, -) (21, -) 
-ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(8, -) (11, -) (14, -) 
-ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(10, -) (13, -) (22, -) 
-ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(9, -) (13, -) (16, -) 
-ID:	13	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(11, -) (12, -) (18, -) 
-ID:	14	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(10, -) (15, -) (23, -) 
-ID:	15	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(6, -) (14, -) (17, -) 
-ID:	16	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(12, -) (17, -) (24, -) 
-ID:	17	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(15, -) (16, -) (19, -) 
-ID:	18	VertexType:	[1m[32mZ[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(13, -) (19, -) (25, -) 
-ID:	19	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(7, -) (17, -) (18, -) 
-ID:	20	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
-ID:	21	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
-ID:	22	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	1	(11, -) 
-ID:	23	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	1	(14, -) 
-ID:	24	VertexType:	[1m[31mX[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	1	(16, -) 
-ID:	25	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	1	(18, -) 
+ID:	6	VertexType:	●	(Qubit,Col):	(3, 0)	Phase:	0	#Neighbors:	1	(15, -) 
+ID:	7	VertexType:	●	(Qubit,Col):	(3, 0)	Phase:	0	#Neighbors:	1	(19, -) 
+ID:	8	VertexType:	[1m[32mZ[0m[0m	(Qubit,Col):	(0, 0)	Phase:	0	#Neighbors:	3	(9, -) (10, -) (20, -) 
+ID:	9	VertexType:	[1m[31mX[0m[0m	(Qubit,Col):	(1, 0)	Phase:	0	#Neighbors:	3	(8, -) (12, -) (21, -) 
+ID:	10	VertexType:	[1m[32mZ[0m[0m	(Qubit,Col):	(0, 0)	Phase:	0	#Neighbors:	3	(8, -) (11, -) (14, -) 
+ID:	11	VertexType:	[1m[31mX[0m[0m	(Qubit,Col):	(2, 0)	Phase:	0	#Neighbors:	3	(10, -) (13, -) (22, -) 
+ID:	12	VertexType:	[1m[32mZ[0m[0m	(Qubit,Col):	(1, 0)	Phase:	0	#Neighbors:	3	(9, -) (13, -) (16, -) 
+ID:	13	VertexType:	[1m[31mX[0m[0m	(Qubit,Col):	(2, 0)	Phase:	0	#Neighbors:	3	(11, -) (12, -) (18, -) 
+ID:	14	VertexType:	[1m[32mZ[0m[0m	(Qubit,Col):	(0, 0)	Phase:	0	#Neighbors:	3	(10, -) (15, -) (23, -) 
+ID:	15	VertexType:	[1m[31mX[0m[0m	(Qubit,Col):	(3, 0)	Phase:	0	#Neighbors:	3	(6, -) (14, -) (17, -) 
+ID:	16	VertexType:	[1m[32mZ[0m[0m	(Qubit,Col):	(1, 0)	Phase:	0	#Neighbors:	3	(12, -) (17, -) (24, -) 
+ID:	17	VertexType:	[1m[31mX[0m[0m	(Qubit,Col):	(3, 0)	Phase:	0	#Neighbors:	3	(15, -) (16, -) (19, -) 
+ID:	18	VertexType:	[1m[32mZ[0m[0m	(Qubit,Col):	(2, 0)	Phase:	0	#Neighbors:	3	(13, -) (19, -) (25, -) 
+ID:	19	VertexType:	[1m[31mX[0m[0m	(Qubit,Col):	(3, 0)	Phase:	0	#Neighbors:	3	(7, -) (17, -) (18, -) 
+ID:	20	VertexType:	[1m[31mX[0m[0m	(Qubit,Col):	(0, 0)	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	21	VertexType:	[1m[31mX[0m[0m	(Qubit,Col):	(1, 0)	Phase:	0	#Neighbors:	1	(9, -) 
+ID:	22	VertexType:	[1m[31mX[0m[0m	(Qubit,Col):	(2, 0)	Phase:	0	#Neighbors:	1	(11, -) 
+ID:	23	VertexType:	[1m[31mX[0m[0m	(Qubit,Col):	(0, 0)	Phase:	0	#Neighbors:	1	(14, -) 
+ID:	24	VertexType:	[1m[31mX[0m[0m	(Qubit,Col):	(1, 0)	Phase:	0	#Neighbors:	1	(16, -) 
+ID:	25	VertexType:	[1m[31mX[0m[0m	(Qubit,Col):	(2, 0)	Phase:	0	#Neighbors:	1	(18, -) 
 Total #Vertices: 20
 
 
@@ -48,8 +48,8 @@ qsyn> zxgs -FR
 
 qsyn> zxgp -v
 
-ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(7, -) 
-ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	6	VertexType:	●	(Qubit,Col):	(3, 0)	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	7	VertexType:	●	(Qubit,Col):	(3, 0)	Phase:	0	#Neighbors:	1	(6, -) 
 Total #Vertices: 2
 
 

@@ -39,16 +39,16 @@ qsyn> zxgedit -adde 8 9 SIMPLE
 qsyn> 
 qsyn> zxgp -v
 
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
-ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (1, -) 
-ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(2, -) (3, -) 
-ID:	6	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(7, -) 
-ID:	7	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(6, -) 
-ID:	8	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(9, -) 
-ID:	9	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(8, -) 
+ID:	0	VertexType:	●	(Qubit,Col):	(0, 0)	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	1	VertexType:	●	(Qubit,Col):	(0, 0)	Phase:	0	#Neighbors:	1	(4, -) 
+ID:	2	VertexType:	●	(Qubit,Col):	(1, 0)	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	3	VertexType:	●	(Qubit,Col):	(1, 0)	Phase:	0	#Neighbors:	1	(5, -) 
+ID:	4	VertexType:	[1m[32mZ[0m[0m	(Qubit,Col):	(0, 0)	Phase:	0	#Neighbors:	2	(0, -) (1, -) 
+ID:	5	VertexType:	[1m[32mZ[0m[0m	(Qubit,Col):	(0, 0)	Phase:	π	#Neighbors:	2	(2, -) (3, -) 
+ID:	6	VertexType:	●	(Qubit,Col):	(2, 0)	Phase:	0	#Neighbors:	1	(7, -) 
+ID:	7	VertexType:	●	(Qubit,Col):	(2, 0)	Phase:	0	#Neighbors:	1	(6, -) 
+ID:	8	VertexType:	●	(Qubit,Col):	(3, 0)	Phase:	0	#Neighbors:	1	(9, -) 
+ID:	9	VertexType:	●	(Qubit,Col):	(3, 0)	Phase:	0	#Neighbors:	1	(8, -) 
 Total #Vertices: 10
 
 
