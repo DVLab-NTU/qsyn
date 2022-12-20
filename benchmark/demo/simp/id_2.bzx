@@ -1,5 +1,5 @@
 // 2 qubits Identity
-I0 0 S1
-O1 0
-I2 1 S3
-O3 1
+I0 0 0 S1
+O1 0 0
+I2 1 1 S3
+O3 1 1
