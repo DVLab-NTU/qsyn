@@ -2,7 +2,6 @@ DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> help        
 COLOR:         command line printing mode (0: grayscale, 1: color)
 DOfile:        execute the commands in the dofile
-EXTRact:       extract the circuit from the ZX-graph
 EXTStep:       perform a step in extraction
 HELp:          print this help message
 HIStory:       print command history
@@ -35,6 +34,7 @@ TSPrint:       print information about stored tensors
 TSReset:       reset the tensor manager
 USAGE:         report the runtime and/or memory usage
 VERbose:       set verbose level (0-9)
+ZX2QC:         extract the circuit from the ZX-graph
 ZX2TS:         convert the ZX-graph to tensor
 ZXCHeckout:    checkout to Graph <id> in ZXGraphMgr
 ZXCOMpose:     compose a ZX-graph
@@ -205,7 +205,7 @@ Usage: ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -ID
 -HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -CLIFford | -FReduce | -SReduce]
 
 qsyn> help ZXGTest     
-Usage: ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike ]
+Usage: ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike | -IDentity ]
 
 qsyn> help ZXGTRaverse 
 Usage: ZXGTRaverse
