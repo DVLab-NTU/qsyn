@@ -148,6 +148,7 @@ class ZXGraph{
         void generateCNOT();
         bool isId(size_t id) const;
         bool isGraphLike() const;
+        bool isIdentity() const;
         bool isInputQubit(int qubit) const                              { return (_inputList.contains(qubit)); }
         bool isOutputQubit(int qubit) const                             { return (_outputList.contains(qubit)); }
         int TCount() const;
