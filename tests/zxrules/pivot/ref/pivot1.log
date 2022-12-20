@@ -80,32 +80,32 @@ Add edge ( 3, 9 )
 
 qsyn> zxgs -pivot
 
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
-ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (6, [1m[34mH[0m[0m) 
-ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (6, [1m[34mH[0m[0m) (10, -) 
-ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
-ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(6, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
-ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (7, [1m[34mH[0m[0m) 
-ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, -) (7, [1m[34mH[0m[0m) (10, -) 
-ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(5, -) (6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (9, -) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (8, -) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (9, -) 
+ID:   4 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (6, [1m[34mH[0m[0m) 
+ID:   5 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (2, -) (6, [1m[34mH[0m[0m) (10, -) 
+ID:   6 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
+ID:   7 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (6, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
+ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (1, -) (7, [1m[34mH[0m[0m) 
+ID:   9 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (3, -) (7, [1m[34mH[0m[0m) (10, -) 
+ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (5, -) (6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (9, -) 
 Total #Vertices: 11
 
 Pivot Rule: 
 
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(4, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
-ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (6, [1m[34mH[0m[0m) 
-ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (6, [1m[34mH[0m[0m) (10, -) 
-ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
-ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(6, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
-ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (7, [1m[34mH[0m[0m) 
-ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, -) (7, [1m[34mH[0m[0m) (10, -) 
-ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(5, -) (6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (9, -) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (8, -) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (9, -) 
+ID:   4 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (6, [1m[34mH[0m[0m) 
+ID:   5 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (2, -) (6, [1m[34mH[0m[0m) (10, -) 
+ID:   6 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
+ID:   7 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (6, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
+ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (1, -) (7, [1m[34mH[0m[0m) 
+ID:   9 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (3, -) (7, [1m[34mH[0m[0m) (10, -) 
+ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (5, -) (6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (9, -) 
 Total #Vertices: 11
 
 Found 1 match(es)
@@ -121,16 +121,16 @@ Add edge ( 11, 10 )
 Remove ID: 4
 Remove ID: 6
 
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
-ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (10, -) (11, [1m[34mH[0m[0m) 
-ID:	7	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
-ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(1, -) (7, [1m[34mH[0m[0m) 
-ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, -) (7, [1m[34mH[0m[0m) (10, -) 
-ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(5, -) (7, [1m[34mH[0m[0m) (9, -) (11, [1m[34mH[0m[0m) 
-ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(0, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (11, [1m[34mH[0m[0m) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (8, -) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (9, -) 
+ID:   5 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (2, -) (10, -) (11, [1m[34mH[0m[0m) 
+ID:   7 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
+ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (1, -) (7, [1m[34mH[0m[0m) 
+ID:   9 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (3, -) (7, [1m[34mH[0m[0m) (10, -) 
+ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (5, -) (7, [1m[34mH[0m[0m) (9, -) (11, [1m[34mH[0m[0m) 
+ID:  11 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (0, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
 Total #Vertices: 10
 
 Found 1 match(es)
@@ -146,43 +146,43 @@ Add edge ( 11, 12 )
 Remove ID: 7
 Remove ID: 8
 
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(12, [1m[34mH[0m[0m) 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
-ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (10, -) (11, [1m[34mH[0m[0m) 
-ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, -) (10, -) (12, [1m[34mH[0m[0m) 
-ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(5, -) (9, -) (11, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) 
-ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(0, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) 
-ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(1, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (11, [1m[34mH[0m[0m) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (12, [1m[34mH[0m[0m) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (9, -) 
+ID:   5 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (2, -) (10, -) (11, [1m[34mH[0m[0m) 
+ID:   9 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (3, -) (10, -) (12, [1m[34mH[0m[0m) 
+ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (5, -) (9, -) (11, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) 
+ID:  11 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (0, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) 
+ID:  12 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (1, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
 Total #Vertices: 9
 
 2 iterations
 
 
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(12, [1m[34mH[0m[0m) 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
-ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (10, -) (11, [1m[34mH[0m[0m) 
-ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, -) (10, -) (12, [1m[34mH[0m[0m) 
-ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(5, -) (9, -) (11, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) 
-ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(0, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) 
-ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(1, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (11, [1m[34mH[0m[0m) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (12, [1m[34mH[0m[0m) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (9, -) 
+ID:   5 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (2, -) (10, -) (11, [1m[34mH[0m[0m) 
+ID:   9 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (3, -) (10, -) (12, [1m[34mH[0m[0m) 
+ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (5, -) (9, -) (11, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) 
+ID:  11 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (0, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) 
+ID:  12 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (1, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
 Total #Vertices: 9
 
 
 qsyn> zxgp -v
 
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(11, [1m[34mH[0m[0m) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(12, [1m[34mH[0m[0m) 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(5, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(9, -) 
-ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(2, -) (10, -) (11, [1m[34mH[0m[0m) 
-ID:	9	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(3, -) (10, -) (12, [1m[34mH[0m[0m) 
-ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	4	(5, -) (9, -) (11, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) 
-ID:	11	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(0, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) 
-ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	4	(1, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (11, [1m[34mH[0m[0m) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (12, [1m[34mH[0m[0m) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (9, -) 
+ID:   5 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (2, -) (10, -) (11, [1m[34mH[0m[0m) 
+ID:   9 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (3, -) (10, -) (12, [1m[34mH[0m[0m) 
+ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (5, -) (9, -) (11, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) 
+ID:  11 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (0, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (12, [1m[34mH[0m[0m) 
+ID:  12 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (1, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
 Total #Vertices: 9
 
 

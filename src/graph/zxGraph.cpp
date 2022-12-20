@@ -84,12 +84,12 @@ bool ZXGraph::isValid() const {
 void ZXGraph::generateCNOT() {
     if (isEmpty()) {
         if (verbose >= 5) cout << "Generate a 2-qubit CNOT graph for testing\n";
-        ZXVertex* i0 = addInput(0);
-        ZXVertex* i1 = addInput(1);
-        ZXVertex* vz = addVertex(0, VertexType::Z);
-        ZXVertex* vx = addVertex(1, VertexType::X);
-        ZXVertex* o0 = addOutput(0);
-        ZXVertex* o1 = addOutput(1);
+        ZXVertex* i0 = addInput(0,0,0);
+        ZXVertex* i1 = addInput(1,0,0);
+        ZXVertex* vz = addVertex(0, VertexType::Z, Phase(), 0, 1);
+        ZXVertex* vx = addVertex(1, VertexType::X, Phase(), 0, 1);
+        ZXVertex* o0 = addOutput(0,0,2);
+        ZXVertex* o1 = addOutput(1,0,2);
 
         addEdge(i0, vz, EdgeType::SIMPLE);
         addEdge(i1, vx, EdgeType::SIMPLE);
@@ -200,19 +200,20 @@ int ZXGraph::nonCliffordCount(bool includeT) const {
 
 /**
  * @brief Add input to ZXVertexList
- *
- * @param qubit
- * @param checked
- * @return ZXVertex*
+ * 
+ * @param qubit 
+ * @param checked 
+ * @param col 
+ * @return ZXVertex* 
  */
-ZXVertex* ZXGraph::addInput(int qubit, bool checked) {
+ZXVertex* ZXGraph::addInput(int qubit, bool checked, unsigned int col) {
     if (!checked) {
         if (isInputQubit(qubit)) {
             cerr << "Error: This qubit's input already exists!!" << endl;
             return nullptr;
         }
     }
-    ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), true);
+    ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), true, col);
     _inputs.emplace(v);
     setInputHash(qubit, v);
     return v;
@@ -225,14 +226,14 @@ ZXVertex* ZXGraph::addInput(int qubit, bool checked) {
  * @param checked
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::addOutput(int qubit, bool checked) {
+ZXVertex* ZXGraph::addOutput(int qubit, bool checked, unsigned int col) {
     if (!checked) {
         if (isOutputQubit(qubit)) {
             cerr << "Error: This qubit's output already exists!!" << endl;
             return nullptr;
         }
     }
-    ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), true);
+    ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), true, col);
     _outputs.emplace(v);
     setOutputHash(qubit, v);
     return v;
@@ -247,14 +248,14 @@ ZXVertex* ZXGraph::addOutput(int qubit, bool checked) {
  * @param checked
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, bool checked) {
+ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, bool checked, unsigned int col) {
     if (!checked) {
         if (vt == VertexType::BOUNDARY) {
             cerr << "Error: Use ADDInput / ADDOutput to add input vertex or output vertex!!" << endl;
             return nullptr;
         }
     }
-    ZXVertex* v = new ZXVertex(_nextVId, qubit, vt, phase);
+    ZXVertex* v = new ZXVertex(_nextVId, qubit, vt, phase, col);
     _vertices.emplace(v);
     if (verbose >= 5) cout << "Add vertex (" << VertexType2Str(vt) << ")" << _nextVId << endl;
     _nextVId++;

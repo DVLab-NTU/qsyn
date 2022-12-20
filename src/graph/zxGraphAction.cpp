@@ -62,12 +62,12 @@ ZXGraph* ZXGraph::copy() const {
     for (const auto& v : _vertices) {
         if (v->getType() == VertexType::BOUNDARY) {
             if (_inputs.contains(v))
-                oldV2newVMap[v] = newGraph->addInput(v->getQubit());
+                oldV2newVMap[v] = newGraph->addInput(v->getQubit(), true, v->getCol());
             else
-                oldV2newVMap[v] = newGraph->addOutput(v->getQubit());
+                oldV2newVMap[v] = newGraph->addOutput(v->getQubit(), true, v->getCol());
 
         } else if (v->getType() == VertexType::Z || v->getType() == VertexType::X || v->getType() == VertexType::H_BOX) {
-            oldV2newVMap[v] = newGraph->addVertex(v->getQubit(), v->getType(), v->getPhase());
+            oldV2newVMap[v] = newGraph->addVertex(v->getQubit(), v->getType(), v->getPhase(), true, v->getCol());
         }
     }
     // Link all edges
@@ -134,11 +134,19 @@ ZXGraph* ZXGraph::compose(ZXGraph* target) {
     else {
         ZXGraph* copiedGraph = target->copy();
 
-        // Update Id of copiedGraph to make them unique to the original graph
+        // Get maximum column in `this`
+        unsigned maxCol = 0;
+        for(const auto& o : this->getOutputs()){
+            if(o->getCol() > maxCol) maxCol = o->getCol();
+        }
+
+        // Update `_id` and `_col` of copiedGraph to make them unique to the original graph
         for (const auto& v : copiedGraph->getVertices()) {
             v->setId(_nextVId);
+            v->setCol(v->getCol() + maxCol + 1);
             _nextVId++;
         }
+        
         // Sort ori-output and copy-input
         this->sortIOByQubit();
         copiedGraph->sortIOByQubit();
