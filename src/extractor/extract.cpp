@@ -382,7 +382,7 @@ void Extractor::columnOptimalSwap(){
 Target Extractor::findColumnSwap(Target target){
     //REVIEW - No need to copy in cpp
     size_t rowCnt = _rowInfo.size();
-    size_t colCnt = _colInfo.size();
+    // size_t colCnt = _colInfo.size();
 
     set<size_t> claimedCols;
     set<size_t> claimedRows;
@@ -483,8 +483,8 @@ void Extractor::gaussianElimination(){
     columnOptimalSwap();
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
     //_biAdjacency.printMatrix();
-    // _biAdjacency.gaussianElimPyZX();
-    _biAdjacency.gaussianElim(true);
+    _biAdjacency.gaussianElimPyZX();
+    //_biAdjacency.gaussianElim(true);
     _cnots = _biAdjacency.getOpers();
 }
 

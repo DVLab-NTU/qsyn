@@ -142,10 +142,14 @@ bool M2::gaussianElimPyZX(bool track){
     vector<size_t> pivot_cols, pivot_cols_backup;
     size_t pivot_row = 0;
     unordered_map<vector<unsigned char>, size_t> duplicated;
+    // cout << "Initial: " << endl;
+    //         this->printMatrix();
     for(size_t i=0; i<numRows(); i++){
         if(_matrix[i].isZeros()) continue;
         if(duplicated.contains(_matrix[i].getRow())){
             xorOper(duplicated[_matrix[i].getRow()], i, track);
+            // cout << "Forward Eliminate: " << duplicated[_matrix[i].getRow()] << " "<< i << endl;
+            // this->printMatrix();
         }
         else{
             duplicated[_matrix[i].getRow()] = i;
@@ -153,16 +157,22 @@ bool M2::gaussianElimPyZX(bool track){
     }
     // cout << "HERE" << endl;
     size_t p = 0;
-    while(p < numRows()){
+    while(p < numCols()){
         for(size_t r0 = pivot_row; r0 < numRows(); r0++){
+            // cout << r0 << " " <<  numRows() << " " << p << endl;
             if(_matrix[r0].getRow()[p] != 0){
                 if(r0 != pivot_row){
                     xorOper(r0, pivot_row, track);
+                    // cout << "Forward Row Add Pivot: " << r0 << " "<< pivot_row << endl;
+                    // this->printMatrix();
+                    
                 }
 
                 for(size_t r1 = pivot_row+1; r1 < numRows(); r1++){
                     if(_matrix[r1].getRow()[p] != 0){
                         xorOper(pivot_row, r1, track);
+                        // cout << "Forward Row Add: " << pivot_row << " "<< r1 << endl;
+                        // this->printMatrix();
                     }
                 }
                 pivot_cols.push_back(p);
@@ -182,6 +192,8 @@ bool M2::gaussianElimPyZX(bool track){
         if(_matrix[i].isZeros()) continue;
         if(duplicated.contains(_matrix[i].getRow())){
             xorOper(duplicated[_matrix[i].getRow()], i, track);
+            // cout << "Backward Eliminate: " << duplicated[_matrix[i].getRow()] << " "<< i << endl;
+            // this->printMatrix();
         }
         else{
             duplicated[_matrix[i].getRow()] = i;
@@ -195,6 +207,8 @@ bool M2::gaussianElimPyZX(bool track){
         for(size_t r = 0; r < pivot_row; r++){
             if(_matrix[r].getRow()[pcol] != 0){
                 xorOper(pivot_row, r, track);
+                // cout << "Backward Row Add: " << pivot_row << " "<< r << endl;
+                // this->printMatrix();
             }
         }
         pivot_row--;
@@ -242,7 +256,7 @@ bool M2::gaussianElim(bool track, bool isAugmentedMatrix) {
         // the system of equation is not solvable if the 
         // main diagonal cannot be made 1
         //REVIEW - I comment out this line since no routine in Gaussian do this?
-        // if (!makeMainDiagonalOne(i)) return false;
+        if (!makeMainDiagonalOne(i)) return false;
 
         for (size_t j = i + 1; j < numRows(); j++) {
             if (_matrix[j][i] == 1 && _matrix[i][i] == 1) {
