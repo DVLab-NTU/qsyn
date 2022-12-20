@@ -299,7 +299,7 @@ void ZXTensorCmd::help() const {
 
 
 //----------------------------------------------------------------------
-//    ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike | -Identity ]
+//    ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike | -IDentity]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGTestCmd::exec(const string &option) {
@@ -340,7 +340,7 @@ ZXGTestCmd::exec(const string &option) {
         return CMD_EXEC_DONE;
     }
 
-    if (myStrNCmp("-Idendity", token, 3) == 0) {
+    if (myStrNCmp("-IDentity", token, 3) == 0) {
         if (zxGraphMgr->getGraph()->isIdentity()) {
             cout << "The graph is an identity!" << endl;
         } else {
@@ -354,7 +354,7 @@ ZXGTestCmd::exec(const string &option) {
 }
 
 void ZXGTestCmd::usage(ostream &os) const {
-    os << "Usage: ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike ]" << endl;
+    os << "Usage: ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike | -IDentity ]" << endl;
 }
 
 void ZXGTestCmd::help() const {
