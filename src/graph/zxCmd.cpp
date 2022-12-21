@@ -299,7 +299,7 @@ void ZXTensorCmd::help() const {
 
 
 //----------------------------------------------------------------------
-//    ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike | -IDentity]
+//    ZXGTest [-GCX | -Empty | -Valid | -GLike | -IDentity]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGTestCmd::exec(const string &option) {
@@ -308,7 +308,7 @@ ZXGTestCmd::exec(const string &option) {
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGTest");
     
-    if (token.empty() || myStrNCmp("-GenerateCNOT", token, 2) == 0) {
+    if (token.empty() || myStrNCmp("-GCX", token, 4) == 0) {
         zxGraphMgr->getGraph()->generateCNOT();
         return CMD_EXEC_DONE;
     }
@@ -354,7 +354,7 @@ ZXGTestCmd::exec(const string &option) {
 }
 
 void ZXGTestCmd::usage(ostream &os) const {
-    os << "Usage: ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike | -IDentity ]" << endl;
+    os << "Usage: ZXGTest [-GCX | -Empty | -Valid | -GLike | -IDentity ]" << endl;
 }
 
 void ZXGTestCmd::help() const {
