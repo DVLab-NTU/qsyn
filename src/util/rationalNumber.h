@@ -14,6 +14,7 @@
 #include <vector>
 #include <cmath>
 #include <type_traits>
+#include <cassert>
 //--- Rational Numbers ----------------------------------
 // This class maintains the canonicity of stored rational numbers by simplifying the numerator/denominator whenever possible.
 // Rational numbers are not the same as fractions! This class does not support nested fractions or irrational numbers in numerator/denominator.
@@ -23,7 +24,7 @@ class Rational {
 public: 
     // Default constructor for two integral type
     Rational(): _numer(0), _denom(1) {}
-    Rational(int n, int d): _numer(n), _denom(d) { normalize(); }
+    Rational(int n, int d): _numer(n), _denom(d) { assert(d != 0); normalize(); }
     // Implicitly use 1 as denominator
     template <class T> requires std::floating_point<T>
     Rational(T f, T eps = 1e-4) {

@@ -29,18 +29,21 @@ Rational Rational::operator-() const {
 Rational& Rational::operator+=(const Rational& rhs) {
     _numer = _numer * rhs._denom + _denom * rhs._numer;
     _denom = _denom * rhs._denom;
+    assert(_denom != 0);
     normalize();
     return *this;
 }
 Rational& Rational::operator-=(const Rational& rhs) {
     _numer = _numer * rhs._denom - _denom * rhs._numer;
     _denom = _denom * rhs._denom;
+    assert(_denom != 0);
     normalize();
     return *this;
 }
 Rational& Rational::operator*=(const Rational& rhs) {
     _numer *= rhs._numer;
     _denom *= rhs._denom;
+    assert(_denom != 0);
     normalize();
     return *this;
 }
@@ -50,6 +53,7 @@ Rational& Rational::operator/=(const Rational& rhs) {
     }
     _numer *= rhs._denom;
     _denom *= rhs._numer;
+    assert(_denom != 0);
     normalize();
     return *this;
 }
