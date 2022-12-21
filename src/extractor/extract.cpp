@@ -9,6 +9,8 @@
 #include "extract.h"
 #include <algorithm>
 #include <iterator>
+#include <array>
+#include <ranges>
 extern size_t verbose;
 
 /**
@@ -16,10 +18,10 @@ extern size_t verbose;
  * 
  */
 void Extractor::initialize(){
-    if(verbose >=5 ) cout << "Initialize" << endl;
+    if(verbose >= 5) cout << "Initialize" << endl;
     size_t cnt = 0;
-    for(auto o: _graph -> getOutputs()){
-        if(o->getFirstNeighbor().first->getType() != VertexType::BOUNDARY){
+    for(auto& o: _graph -> getOutputs()){
+        if(!o->getFirstNeighbor().first->isBoundary()){
             o->getFirstNeighbor().first->setQubit(o->getQubit());
             _frontier.emplace(o->getFirstNeighbor().first);
         }
@@ -34,15 +36,15 @@ void Extractor::initialize(){
     });
 
     updateNeighbors();
-    for(auto v: _graph -> getVertices()){
+    for(auto& v: _graph -> getVertices()){
         if(_graph->isGadget(v)){
             _axels.emplace(v->getFirstNeighbor().first);
         }
     }
     if(verbose >=8){
-        printFroniter();
+        printFrontier();
         printNeighbors();
-        _graph -> printQubits({});
+        _graph -> printQubits();
         _circuit -> printQubits();
     }
 }
@@ -56,29 +58,28 @@ QCir* Extractor::extract(){
     while(true){
         cleanFrontier();
         updateNeighbors();
-        if(_frontier.size() == 0){
-            break;
-        }
+
+        if(_frontier.empty()) break;
+
         if(removeGadget()){
             if(verbose >=5) cout << "Gadget(s) are removed." << endl;
             if(verbose >=8){
-                printFroniter();
-                _graph->printQubits({});
+                printFrontier();
+                _graph->printQubits();
                 _circuit -> printQubits();
             }
             continue;
         }
-        updateNeighbors();
         
-        if(!containSingleNeighbor()){
+        if(containSingleNeighbor()){
+            if(verbose >= 5) cout << "Construct an easy matrix." << endl;
+            _biAdjacency.fromZXVertices(_frontier, _neighbors);
+        }
+        else{
             if(verbose >=5) cout << "Perform Gaussian Elimination." << endl;
             gaussianElimination();
             updateGraphByMatrix();
             extractCXs();
-        }
-        else{
-            if(verbose >=5) cout << "Construct an easy matrix." << endl;
-            _biAdjacency.fromZXVertices(_frontier, _neighbors);
         }
         if(extractHsFromM2() == 0){
             cerr << "Error: No Candidate Found!!" << endl; 
@@ -89,21 +90,21 @@ QCir* Extractor::extract(){
         _cnots.clear();
 
         if(verbose >=8){
-            printFroniter();
+            printFrontier();
             printNeighbors();
-            _graph -> printQubits({});
+            _graph -> printQubits();
             _circuit -> printQubits();
         }
     }
     cout << "Finish extracting!" << endl;
     if(verbose >=8) {
         _circuit->printQubits();
-        _graph->printQubits({});
+        _graph->printQubits();
     }
     permuteQubit();
     if(verbose >=8) {
         _circuit->printQubits();
-        _graph->printQubits({});
+        _graph->printQubits();
     }
     
     return _circuit;
@@ -139,13 +140,13 @@ void Extractor::extractSingles(){
             o->getFirstNeighbor().first -> setPhase(Phase(0));
         }
     }
-    for(auto [s,t]: toggleList){
+    for(auto& [s,t]: toggleList){
         _graph -> addEdge(s, t, EdgeType::SIMPLE);
         _graph -> removeEdge(s, t, EdgeType::HADAMARD);
     }
     if(verbose>=8){
         _circuit -> printQubits();
-        _graph -> printQubits({});
+        _graph -> printQubits();
     }
 }
 
@@ -160,6 +161,7 @@ void Extractor::extractCZs(size_t strategy){
     _frontier.sort([](const ZXVertex* a, const ZXVertex* b) {
         return a->getQubit() < b->getQubit();
     });
+
     for(auto itr = _frontier.begin(); itr != _frontier.end(); itr++){
         for(auto jtr = next(itr); jtr != _frontier.end(); jtr++){
             if((*itr)->isNeighbor((*jtr))){
@@ -167,7 +169,7 @@ void Extractor::extractCZs(size_t strategy){
             }
         }
     }
-    for(const auto [s,t]: removeList){
+    for(const auto& [s,t]: removeList){
         _graph -> removeEdge(s, t, EdgeType::HADAMARD);
         _circuit -> addGate("cz",{_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1), false);
     }
@@ -175,7 +177,7 @@ void Extractor::extractCZs(size_t strategy){
     //REVIEW - Other Strategies
     if(verbose>=8){
         _circuit -> printQubits();
-        _graph -> printQubits({});
+        _graph -> printQubits();
     }
 }
 
@@ -223,17 +225,16 @@ size_t Extractor::extractHsFromM2(){
 
     //NOTE - Store pairs to be modified
     vector<pair<ZXVertex*, ZXVertex*>> frontNeighPairs;
-    size_t row_cnt = 0;
-    for(auto& row: _biAdjacency.getMatrix()){
-        if(row.isOneHot()){
-            for(size_t col=0; col<row.size(); col++){
-                if(row[col] == 1){
-                    frontNeighPairs.emplace_back(frontId2Vertex[row_cnt], neighId2Vertex[col]);
-                    break;
-                }
+
+    for(size_t row = 0; row < _biAdjacency.numRows(); ++row){
+        if(!_biAdjacency[row].isOneHot()) continue;
+
+        for(size_t col=0; col < _biAdjacency.numCols(); col++){
+            if(_biAdjacency[row][col] == 1){
+                frontNeighPairs.emplace_back(frontId2Vertex[row], neighId2Vertex[col]);
+                break;
             }
         }
-        row_cnt++;
     }
 
     for(auto& [f, n]: frontNeighPairs){
@@ -244,8 +245,7 @@ size_t Extractor::extractHsFromM2(){
 
         //NOTE - Connect edge between boundary and neighbor
         for(auto& [bound, ep]: f->getNeighbors()){
-            if(bound -> getType() != VertexType::BOUNDARY) continue;
-            else{
+            if(bound->isBoundary()) {
                 _graph -> addEdge(bound, n, ep);
                 break;
             }
@@ -270,28 +270,25 @@ bool Extractor::removeGadget(){
     Simplifier simp(pivotBoundaryRule, _graph);
     if(verbose >=8) _graph->printVertices();
     if(verbose >=5){
-        printFroniter();
+        printFrontier();
         printAxels();
     }
     bool gadgetRemoved = false;
-    for(auto n: _neighbors){
+    for(auto& n: _neighbors){
         if(! _axels.contains(n)) {
             continue;
         }
-        for(auto [candidate, _]: n->getNeighbors()){
+        for(auto& [candidate, _]: n->getNeighbors()){
             if(_frontier.contains(candidate)){
-                vector<ZXVertex*> match;
-                vector<vector<ZXVertex*>> matches;
-                match.push_back(n);
-                match.push_back(candidate);
-                matches.push_back(match);
+                PivotBoundary::MatchTypeVec matches;
+                matches.push_back({n, candidate});
                 
                 pivotBoundaryRule->setMatchTypeVec(matches);
                 
                 ZXVertex* targetBoundary = nullptr;
-                for(auto [boundary, _]: candidate->getNeighbors()){
-                    if(boundary->getType() == VertexType::BOUNDARY){
-                        pivotBoundaryRule->addBoudary(boundary);
+                for(auto& [boundary, _]: candidate->getNeighbors()){
+                    if(boundary->isBoundary()){
+                        pivotBoundaryRule->addBoundary(boundary);
                         targetBoundary = boundary;
                         break;
                     }
@@ -314,7 +311,7 @@ bool Extractor::removeGadget(){
     }
     if(verbose >=8) _graph->printVertices();
     if(verbose >=5){
-        printFroniter();
+        printFrontier();
         printAxels();
     }
     return gadgetRemoved;
@@ -333,20 +330,12 @@ void Extractor::columnOptimalSwap(){
     size_t rowCnt = _biAdjacency.numRows();
     
     size_t colCnt = _biAdjacency.numCols();
-    set<size_t> emptySet;
-    
-    for(size_t i=0; i<rowCnt; i++){
-        _rowInfo[i] = emptySet;
-    }
-    for(size_t i=0; i<colCnt; i++){
-        _colInfo[i] = emptySet;
-    }
+    _rowInfo.resize(rowCnt);
+    _colInfo.resize(colCnt);
 
     for(size_t i=0; i<rowCnt; i++){
-       
         for(size_t j=0; j<colCnt; j++){
-            
-            if(_biAdjacency.getMatrix()[i].getRow()[j] == 1){
+            if(_biAdjacency[i][j] == 1){
                 _rowInfo[i].emplace(j);
                 _colInfo[j].emplace(i);
             }
@@ -390,7 +379,7 @@ void Extractor::columnOptimalSwap(){
  * @param target 
  * @return Target 
  */
-Target Extractor::findColumnSwap(Target target){
+Extractor::Target Extractor::findColumnSwap(Target target){
     //REVIEW - No need to copy in cpp
     size_t rowCnt = _rowInfo.size();
     // size_t colCnt = _colInfo.size();
@@ -449,8 +438,8 @@ Target Extractor::findColumnSwap(Target target){
         }
 
         if(!foundCol){
-            bool done = true;
-            for(auto& [r, _]: _rowInfo){
+            bool done = true;   
+            for(size_t r = 0; r < rowCnt; ++r){
                 if(!claimedRows.contains(r)){
                     done = false;
                     break;
@@ -466,14 +455,13 @@ Target Extractor::findColumnSwap(Target target){
             //NOTE -  depth-first search
             //REVIEW - no need to copy in cpp -> pass by value
             Target copiedTarget = target;
-            // tgt = target.copy()
             if(verbose >=8) cout << "Backtracking on " << min_index << endl;
 
             for(auto& idx: min_options){
                 if(verbose >=8) cout << "> trying option" << idx << endl;
                 copiedTarget[idx] = min_index;
                 Target newTarget = findColumnSwap(copiedTarget);
-                if (newTarget.size()>0)
+                if (!newTarget.empty())
                     return newTarget;
             }
             if(verbose >=8) cout << "Unsuccessful" << endl;
@@ -501,33 +489,34 @@ void Extractor::gaussianElimination(){
  */
 void Extractor::permuteQubit(){
     if(verbose>=3) cout << "Permute Qubit" << endl;
+    // REVIEW - ordered_hashmap?
     unordered_map<size_t, size_t> swapMap; // o to i
     unordered_map<size_t, size_t> swapInvMap; // i to o
-    bool unmatched = false;
+    bool matched = true;
     for(auto& o: _graph -> getOutputs()){
         ZXVertex* i = o -> getFirstNeighbor().first;
         assert(_graph -> getInputs().contains(i));
         if(i->getQubit() != o->getQubit()){
-            unmatched = true;
+            matched = false;
         }
         swapMap[o->getQubit()] = i->getQubit();
     }
-    if(unmatched){
-        for(auto& [o,i]: swapMap){
-            swapInvMap[i] = o;
-        }
-        for(auto& [o,i]: swapMap){
-            if(o == i) continue;
-            size_t t1 = i;
-            size_t t2 = swapInvMap[o];
-            //NOTE - SWAP
-            _circuit -> addGate("cx",{_qubitMap[o], _qubitMap[t2]},Phase(0),false);
-            _circuit -> addGate("cx",{_qubitMap[t2], _qubitMap[o]},Phase(0),false);
-            _circuit -> addGate("cx",{_qubitMap[o], _qubitMap[t2]},Phase(0),false);
-            //swaps.append((o,t2))
-            swapMap[t2] = t1;
-            swapInvMap[t1] = t2;
-        }
+
+    if (matched) return;
+
+    for(auto& [o,i]: swapMap){
+        swapInvMap[i] = o;
+    }
+    for(auto& [o,i]: swapMap){
+        if(o == i) continue;
+        size_t t2 = swapInvMap.at(o);
+        //NOTE - SWAP
+        _circuit -> addGate("cx",{_qubitMap[o], _qubitMap[t2]},Phase(0),false);
+        _circuit -> addGate("cx",{_qubitMap[t2], _qubitMap[o]},Phase(0),false);
+        _circuit -> addGate("cx",{_qubitMap[o], _qubitMap[t2]},Phase(0),false);
+        //swaps.append((o,t2))
+        swapMap[t2] = i;
+        swapInvMap[i] = t2;
     }
 }
 
@@ -540,39 +529,36 @@ void Extractor::updateNeighbors(){
     vector<ZXVertex*> rmVs;
     
     for(auto& f: _frontier){
-        size_t hasBound = 0;
-        for(auto [n, _]: f->getNeighbors()){
-            if(n->getType() == VertexType::BOUNDARY){
-                hasBound++;
+        size_t numBoundaries = count_if(
+            f->getNeighbors().begin(),
+            f->getNeighbors().end(),
+            [](const NeighborPair& nbp) { return nbp.first->isBoundary(); }
+        );
+
+        if (numBoundaries != 2) continue;
+
+        if(f->getNumNeighbors() == 2){
+            //NOTE - Remove
+            for(auto& [b, ep]: f->getNeighbors()){
+                if(_graph->getInputs().contains(b)){
+                    if(ep == EdgeType::HADAMARD)
+                        _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
+                    break;
+                }
+            }
+            rmVs.push_back(f);
+        }
+        else{
+            for(auto [b, ep]: f->getNeighbors()){ //The pass-by-copy is deliberate. Pass by ref will cause segfault
+                if(_graph->getInputs().contains(b)){
+                    _graph->addBuffer(b, f, ep);
+                    break;
+                }
             }
         }
 
-        if(hasBound == 2){
-            if(f->getNumNeighbors() == 2){
-                //NOTE - Remove
-                
-                for(auto [b, ep]: f->getNeighbors()){
-                    if(_graph->getInputs().contains(b)){
-                        if(ep == EdgeType::HADAMARD)
-                            _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
-                        break;
-                    }
-                }
-                rmVs.push_back(f);
-            }
-            else{
-                for(auto [b, ep]: f->getNeighbors()){
-                    if(_graph->getInputs().contains(b)){
-                        ZXVertex* nV = _graph->addVertex(b->getQubit(), VertexType::Z, Phase(0));
-                        _graph->addEdge(nV, f, EdgeType::HADAMARD);
-                        _graph->addEdge(nV, b, toggleEdge(ep));
-                        _graph->removeEdge(b, f, ep);
-                        break;
-                    }
-                }
-            }
-        }
     }
+
     for(auto& v: rmVs){
         if(verbose>=8) cout << "Remove " << v->getId() << " (q" << v->getQubit() << ") from frontiers." << endl; 
         _frontier.erase(v);
@@ -581,9 +567,8 @@ void Extractor::updateNeighbors(){
     }
 
     for(auto& f: _frontier){
-        for(auto [n, _]: f->getNeighbors()){
-            if(n->getType() == VertexType::BOUNDARY) continue;
-            if((! _neighbors.contains(n)) && (! _frontier.contains(n))) 
+        for(auto& [n, _]: f->getNeighbors()){
+            if(!n->isBoundary() && ! _frontier.contains(n)) 
                 _neighbors.emplace(n);
         }
     }
@@ -595,28 +580,20 @@ void Extractor::updateNeighbors(){
  * @param et EdgeType, default: EdgeType::HADAMARD
  */
 void Extractor::updateGraphByMatrix(EdgeType et){
-    size_t rowcnt = 0;
+    size_t r = 0;
     if(verbose>=3) cout << "Update Graph by Matrix" << endl;
-    for(auto rowItr = _frontier.begin(); rowItr!= _frontier.end(); rowItr++){
-        size_t colcnt = 0;
-        for(auto colItr = _neighbors.begin(); colItr!= _neighbors.end(); colItr++){
-            if(_biAdjacency.getMatrix()[rowcnt].getRow()[colcnt] == 1){
-                //NOTE - Should Connect
-                if(!(*rowItr)->isNeighbor(*colItr)){
-                    //NOTE - But Not Connect
-                    _graph->addEdge(*rowItr, *colItr, et);
-                }
+    for(auto& f : _frontier){
+        size_t c = 0;
+        for(auto& nb : _neighbors){
+            if(_biAdjacency[r][c] == 1 && !f->isNeighbor(nb)){ //NOTE - Should connect but not connected
+                _graph->addEdge(f, nb, et);
             }
-            else{
-                //NOTE - Should Not Connect
-                if((*rowItr)->isNeighbor(*colItr)){
-                    //NOTE - But Connect
-                    _graph->removeEdge(*rowItr, *colItr, et);
-                }
+            else if(_biAdjacency[r][c] == 0 && f->isNeighbor(nb)){ //NOTE - Should not connect but connected
+                _graph->removeEdge(f, nb, et);
             }
-            colcnt++;
+            c++;
         }
-        rowcnt++;
+        r++;
     }
 }
 
@@ -634,25 +611,25 @@ bool Extractor::containSingleNeighbor(){
     return false;
 }
 
-void Extractor::printFroniter(){
+void Extractor::printFrontier(){
     cout << "Frontier:" << endl;
-    for(auto f: _frontier)
+    for(auto& f: _frontier)
         cout << "Qubit:" << f->getQubit() << ": " << f->getId() << endl;
     cout << endl;
 }
 
 void Extractor::printNeighbors(){
     cout << "Neighbors:" << endl;
-    for(auto n: _neighbors)
+    for(auto& n: _neighbors)
         cout << n->getId() << endl;
     cout << endl;
 }
 
 void Extractor::printAxels(){
     cout << "Axels:" << endl;
-    for(auto n: _axels){
+    for(auto& n: _axels){
         cout << n->getId() << " (phase gadget: ";
-        for(auto [pg, _]: n->getNeighbors()){
+        for(auto& [pg, _]: n->getNeighbors()){
             if(_graph->isGadget(pg))
                 cout << pg->getId() << ")" << endl;
         }

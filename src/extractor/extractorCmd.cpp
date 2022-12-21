@@ -49,14 +49,13 @@ ExtractCmd::exec(const string &option) {
         cerr << "Error: ZX-graph list is empty now. Please ZXNew before EXTRact." << endl;
         return CMD_EXEC_ERROR;
     }
-    else{
-        zxGraphMgr->copy(zxGraphMgr->getNextID());
-        Extractor ext(zxGraphMgr->getGraph());
-        QCir* result = ext.extract();
-        if(result != nullptr){
-            qcirMgr->addQCir(id);
-            qcirMgr->setQCircuit(result);
-        }
+
+    zxGraphMgr->copy(zxGraphMgr->getNextID());
+    Extractor ext(zxGraphMgr->getGraph());
+    QCir* result = ext.extract();
+    if(result != nullptr){
+        qcirMgr->addQCir(id);
+        qcirMgr->setQCircuit(result);
     }
     return CMD_EXEC_DONE;
 }

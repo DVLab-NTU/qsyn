@@ -77,7 +77,6 @@ void PivotBoundary::match(ZXGraph* g) {
 
         taken.insert(vs);
         taken.insert(vt);
-        cout << vs->getId() << ", " << vt->getId() << endl;
         
         for (auto& [nb, _] : vs->getNeighbors()) taken.insert(nb);
         for (auto& [nb, _] : vt->getNeighbors()) taken.insert(nb);

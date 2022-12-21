@@ -34,7 +34,6 @@ extern size_t verbose;
 /**
  * @brief Helper method for constructing simplification strategies based on the rules.
  *
- * @param rule_name
  * @return int
  */
 int Simplifier::simp() {
@@ -44,7 +43,9 @@ int Simplifier::simp() {
         return 0;
     } 
     int i = 0;
-    bool new_matches = true;
+    
+    bool new_matches = true; // FIXME - useless flag
+    // _simpGraph->writeZX("./ref/qft3/0.bzx", false, true);
     if (verbose >= 2) cout << _rule->getName() << ": \n";
     while (new_matches) {
         new_matches = false;
@@ -60,6 +61,7 @@ int Simplifier::simp() {
         _rule->rewrite(_simpGraph);
        
         amend();
+        // _simpGraph->writeZX("./ref/qft3/" + to_string(i) + ".bzx", false, true);
         
         new_matches = true;
     }
@@ -82,11 +84,13 @@ int Simplifier::simp() {
 }
 
 /**
+ * 
  * @brief Converts as many Hadamards represented by H-boxes to Hadamard-edges.
  *        We can't use the regular simp function, because removing H-nodes could lead to an infinite loop,
- *        since sometimes g.add_edge_table() decides that we can't change an H-box into an H-edge.
+ *        since sometimes g.add_edge_table() decides that we can't change an H-box into an H-edge. 
+ * 
+ * //FIXME - weird function brief
  *
- * @param rule_name
  * @return int
  */
 int Simplifier::hadamardSimp() {
@@ -127,7 +131,8 @@ void Simplifier::amend(){
         ZXVertex* v_n              = _rule->getEdgeTableKeys()[e].second;
         int       numSimpleEdges   = _rule->getEdgeTableValues()[e].first;
         int       numHadamardEdges = _rule->getEdgeTableValues()[e].second;
-            
+        
+        if (v->getId() > v_n->getId()) swap(v, v_n);
         for (int j = 0; j < numSimpleEdges; j++)
             _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::SIMPLE));       
 

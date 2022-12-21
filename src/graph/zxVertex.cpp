@@ -115,6 +115,7 @@ bool ZXVertex::isGadgetAxel() const {
 EdgeType toggleEdge(const EdgeType& et) {
     if (et == EdgeType::SIMPLE)
         return EdgeType::HADAMARD;
+    // FIXME - code quality : unnecessary else
     else if (et == EdgeType::HADAMARD)
         return EdgeType::SIMPLE;
     else
@@ -130,6 +131,7 @@ EdgeType toggleEdge(const EdgeType& et) {
 VertexType str2VertexType(const string& str) {
     if (str == "BOUNDARY")
         return VertexType::BOUNDARY;
+    // FIXME - code quality : unnecessary else
     else if (str == "Z")
         return VertexType::Z;
     else if (str == "X")
@@ -162,6 +164,7 @@ string VertexType2Str(const VertexType& vt) {
 EdgeType str2EdgeType(const string& str) {
     if (str == "SIMPLE")
         return EdgeType::SIMPLE;
+    // FIXME - code quality : unnecessary else
     else if (str == "HADAMARD")
         return EdgeType::HADAMARD;
     return EdgeType::ERRORTYPE;

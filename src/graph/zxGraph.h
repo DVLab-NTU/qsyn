@@ -217,7 +217,7 @@ class ZXGraph{
         void printIO() const;
         void printVertices() const;
         void printVertices(vector<unsigned> cand) const;
-        void printQubits(vector<int> cand) const;
+        void printQubits(vector<int> cand = vector<int>{}) const;
         void printEdges() const;
 
         
