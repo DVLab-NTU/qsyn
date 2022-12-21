@@ -117,7 +117,7 @@ ID:   5 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   
 ID:   7 ([1m[33mH[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (4, -) (5, [1m[34mH[0m[0m) 
 Total #Vertices: 7
 
-1 Add edge ( 5, 4 )
+1 Add edge ( 4, 5 )
 Remove ID: 7
 . 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (5, -) 

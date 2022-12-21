@@ -24,12 +24,12 @@
 #include "m2.h"
 #include "ordered_hashset.h"
 
-using Target = unordered_map<size_t, size_t>;
-using ConnectInfo = unordered_map<size_t, set<size_t>>;
 class Extractor;
 
 class Extractor{
     public:
+        using Target = unordered_map<size_t, size_t>;
+        using ConnectInfo = vector<set<size_t>>;
         Extractor(ZXGraph* g){
             _graph = g;
             _circuit = new QCir(-1);
@@ -54,7 +54,7 @@ class Extractor{
         void updateGraphByMatrix(EdgeType = EdgeType::HADAMARD);
 
         bool containSingleNeighbor();
-        void printFroniter();
+        void printFrontier();
         void printNeighbors();
         void printAxels();
 

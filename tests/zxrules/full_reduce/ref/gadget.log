@@ -225,17 +225,17 @@ vs: 14	vt: 7
 vs: 11	vt: 9
 > rewrite...
 vs: 26	vt: 24
-Add edge ( 12, 8 )
+Add edge ( 8, 12 )
 Add edge ( 12, 21 )
 Add edge ( 12, 27 )
 Add edge ( 12, 30 )
-Add edge ( 15, 8 )
+Add edge ( 8, 15 )
 Add edge ( 15, 21 )
 Add edge ( 15, 27 )
 Add edge ( 15, 30 )
-Add edge ( 10, 8 )
+Add edge ( 8, 10 )
 Add edge ( 10, 32 )
-Note: Hopf edge; cancelling out with existing edge (12, 8)...
+Note: Hopf edge; cancelling out with existing edge (8, 12)...
 Add edge ( 12, 32 )
 Note: Hopf edge; cancelling out with existing edge (10, 21)...
 Add edge ( 10, 34 )
@@ -405,14 +405,14 @@ Add edge ( 37, 38 )
 Add edge ( 38, 15 )
 > rewrite...
 vs: 17	vt: 15
-Add edge ( 19, 8 )
-Add edge ( 19, 32 )
-Add edge ( 19, 36 )
-Add edge ( 19, 38 )
-Note: Hopf edge; cancelling out with existing edge (10, 8)...
+Note: Hopf edge; cancelling out with existing edge (8, 10)...
 Note: Hopf edge; cancelling out with existing edge (10, 32)...
 Add edge ( 10, 36 )
 Add edge ( 10, 38 )
+Add edge ( 8, 19 )
+Add edge ( 19, 32 )
+Add edge ( 19, 36 )
+Add edge ( 19, 38 )
 Remove ID: 17
 Remove ID: 15
 
