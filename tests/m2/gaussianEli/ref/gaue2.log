@@ -8,7 +8,6 @@ M2 matrix:
 1 1 0 1 1 0 
 0 0 0 1 0 1 
 
-Performing Gaussian Elimination...
 Is Idendity? 1
 M2 matrix:
 1 0 0 0 0 0 
@@ -39,5 +38,5 @@ Step 17: 3 to 0
 Step 18: 5 to 0
 
 
-qsyn> q -f    
+qsyn> qq -f    
 

@@ -40,9 +40,9 @@ if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end()) {\
     return CMD_EXEC_ERROR;\
 }}
 
-#define QC_CMD_QCIR_ID_EXISTED_OR_RETURN(id) {\
+#define QC_CMD_QCIR_ID_EXISTS_OR_RETURN(id) {\
 if (!(qcirMgr->isID(id))) {\
-    cerr << "Error: QCir " << (id) << " is not existed!!\n"; \
+    cerr << "Error: QCir " << (id) << " does not exist!!\n"; \
     return CMD_EXEC_ERROR;\
 }}
 

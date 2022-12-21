@@ -1,0 +1,70 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/hwb8_113.qasm
+Note: QCir list is empty now. Create a new one.
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 39042
+└── CX: 30372
+T-family: 30338
+Others  : 0
+
+
+qsyn> qc2zx
+
+qsyn> zxgs -fr
+
+qsyn> usage
+Period time used : 33.54 seconds
+Total time used  : 33.54 seconds
+Total memory used: 724.5 M Bytes
+
+qsyn> zx2qc
+Error: No Candidate Found!!
+M2 matrix:
+1 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 
+0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 
+0 0 1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 
+0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 
+0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 
+0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1 
+0 0 0 0 0 0 1 0 0 0 0 0 0 1 1 1 0 0 
+0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 
+0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+
+
+qsyn> usage
+Period time used : 0.1 seconds
+Total time used  : 33.64 seconds
+Total memory used: 724.5 M Bytes
+
+qsyn> qcp
+-> #QCir: 1
+-> Now focus on: 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 39042
+└── CX: 30372
+T-family: 30338
+Others  : 0
+
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+

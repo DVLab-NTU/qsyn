@@ -1,0 +1,39 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qcn
+Successfully generated QCir 0
+Checkout to QCir 0
+
+qsyn> qcba
+
+qsyn> qcba
+
+qsyn> qcga -h 0
+
+qsyn> qcga -x 1
+
+qsyn> qcga -cx 0 1
+
+qsyn> qcga -h 0
+
+qsyn> qcga -z 1
+
+qsyn> qccp -q
+Q 0  - h( 0)--cx( 2)-- h( 3)-
+Q 1  - x( 1)--cx( 2)-- z( 4)-
+
+qsyn> qcten 0
+
+qsyn> qccp -q
+Q 0  - h( 0)--cx( 2)-- h( 3)-
+Q 1  - x( 1)--cx( 2)-- z( 4)-
+Q 2  - h( 6)--cx( 7)-- h( 9)-
+Q 3  - x( 5)--cx( 7)-- z( 8)-
+
+qsyn> qccp -zx
+Error: Illegal option!! (-zx)
+
+qsyn> qq -f
+

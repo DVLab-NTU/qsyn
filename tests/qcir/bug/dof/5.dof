@@ -1,0 +1,14 @@
+color 0
+qcn
+qcba
+qcba
+qcga -h 0
+qcga -x 1
+qcga -cx 0 1
+qcga -h 0
+qcga -z 1
+qccp -q
+qcten 0
+qccp -q
+qccp -zx
+qq -f

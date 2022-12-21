@@ -54,23 +54,23 @@ Checkout to Graph 0
 
 qsyn> zxgp -v
 
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(8, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	1	(15, -) 
-ID:	2	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(10, -) 
-ID:	3	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	1	(10, -) 
-ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(9, -) 
-ID:	5	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	1	(16, -) 
-ID:	6	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(14, -) 
-ID:	7	VertexType:	●	Qubit:	3	Phase:	0	#Neighbors:	1	(14, -) 
-ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(0, -) (9, -) (12, -) 
-ID:	9	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(4, -) (8, -) (11, -) 
-ID:	10	VertexType:	[1m[32mZ[0m[0m	Qubit:	1	Phase:	0	#Neighbors:	3	(2, -) (3, -) (11, -) 
-ID:	11	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(9, -) (10, -) (16, -) 
-ID:	12	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π	#Neighbors:	2	(8, -) (13, -) 
-ID:	13	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(12, -) (14, -) (15, -) 
-ID:	14	VertexType:	[1m[31mX[0m[0m	Qubit:	3	Phase:	0	#Neighbors:	3	(6, -) (7, -) (13, -) 
-ID:	15	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	3	(1, -) (13, -) (16, -) 
-ID:	16	VertexType:	[1m[31mX[0m[0m	Qubit:	2	Phase:	0	#Neighbors:	3	(5, -) (11, -) (15, -) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (8, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 5)	  #Neighbors:   1     (15, -) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (10, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 5)	  #Neighbors:   1     (10, -) 
+ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (9, -) 
+ID:   5 (●, 0)           (Qubit, Col): (2, 5)	  #Neighbors:   1     (16, -) 
+ID:   6 (●, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   1     (14, -) 
+ID:   7 (●, 0)           (Qubit, Col): (3, 5)	  #Neighbors:   1     (14, -) 
+ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 1)	  #Neighbors:   3     (0, -) (9, -) (12, -) 
+ID:   9 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 1)	  #Neighbors:   3     (4, -) (8, -) (11, -) 
+ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 2)	  #Neighbors:   3     (2, -) (3, -) (11, -) 
+ID:  11 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 2)	  #Neighbors:   3     (9, -) (10, -) (16, -) 
+ID:  12 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (8, -) (13, -) 
+ID:  13 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   3     (12, -) (14, -) (15, -) 
+ID:  14 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 3)	  #Neighbors:   3     (6, -) (7, -) (13, -) 
+ID:  15 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   3     (1, -) (13, -) (16, -) 
+ID:  16 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 4)	  #Neighbors:   3     (5, -) (11, -) (15, -) 
 Total #Vertices: 17
 
 
@@ -89,5 +89,5 @@ qsyn> tseq 0 1
 - Global Norm : 0.933898
 - Global Phase: 45π/218
 
-qsyn> q -f
+qsyn> qq -f
 

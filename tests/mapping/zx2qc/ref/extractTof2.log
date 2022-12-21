@@ -1,0 +1,405 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> zxgread benchmark/bzx/tof3.bzx -bzx
+Successfully generated Graph 0
+Checkout to Graph 0
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -q
+
+ID:  27 (Z, 7π/4)        (Qubit, Col): (-2, 0)	  #Neighbors:   1     (28, H) 
+ID:  29 (Z, 7π/4)        (Qubit, Col): (-2, 0)	  #Neighbors:   1     (30, H) 
+ID:  31 (Z, 7π/4)        (Qubit, Col): (-2, 0)	  #Neighbors:   1     (32, H) 
+ID:  33 (Z, π/4)         (Qubit, Col): (-2, 0)	  #Neighbors:   1     (34, H) 
+
+
+ID:  28 (Z, 0)           (Qubit, Col): (-1, 0)	  #Neighbors:   3     (7, H) (19, H) (27, H) 
+ID:  30 (Z, 0)           (Qubit, Col): (-1, 0)	  #Neighbors:   3     (10, H) (19, H) (29, H) 
+ID:  32 (Z, 0)           (Qubit, Col): (-1, 0)	  #Neighbors:   3     (7, H) (10, H) (31, H) 
+ID:  34 (Z, 0)           (Qubit, Col): (-1, 0)	  #Neighbors:   4     (7, H) (10, H) (19, H) (33, H) 
+
+
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, -) 
+ID:   3 (●, 0)           (Qubit, Col): (0, 11)	  #Neighbors:   1     (10, -) 
+ID:  10 (Z, π/4)         (Qubit, Col): (0, 1)	  #Neighbors:   5     (0, -) (3, -) (30, H) (32, H) (34, H) 
+
+
+ID:   1 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (7, -) 
+ID:   4 (●, 0)           (Qubit, Col): (1, 11)	  #Neighbors:   1     (7, -) 
+ID:   7 (Z, π/4)         (Qubit, Col): (1, 1)	  #Neighbors:   5     (1, -) (4, -) (28, H) (32, H) (34, H) 
+
+
+ID:   2 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (19, H) 
+ID:   5 (●, 0)           (Qubit, Col): (2, 11)	  #Neighbors:   1     (19, H) 
+ID:  19 (Z, π/4)         (Qubit, Col): (2, 9)	  #Neighbors:   5     (2, H) (5, H) (28, H) (30, H) (34, H) 
+
+
+qsyn> ver 5
+Note: verbose level is set to 5
+
+qsyn> zx2qc
+Add vertex (●)0
+Add vertex (●)1
+Add vertex (●)2
+Add vertex (●)3
+Add vertex (●)4
+Add vertex (●)5
+Add vertex (Z)6
+Add vertex (Z)7
+Add vertex (Z)8
+Add vertex (Z)9
+Add vertex (Z)10
+Add vertex (Z)11
+Add vertex (Z)12
+Add vertex (Z)13
+Add vertex (Z)14
+Add vertex (Z)15
+Add vertex (Z)16
+Add edge ( 0, 7 )
+Add edge ( 1, 6 )
+Add edge ( 2, 8 )
+Add edge ( 3, 7 )
+Add edge ( 4, 6 )
+Add edge ( 5, 8 )
+Add edge ( 6, 14 )
+Add edge ( 6, 10 )
+Add edge ( 6, 16 )
+Add edge ( 7, 14 )
+Add edge ( 7, 12 )
+Add edge ( 7, 16 )
+Add edge ( 8, 10 )
+Add edge ( 8, 12 )
+Add edge ( 8, 16 )
+Add edge ( 9, 10 )
+Add edge ( 11, 12 )
+Add edge ( 13, 14 )
+Add edge ( 15, 16 )
+Successfully copied Graph 0 to Graph 1
+Checkout to Graph 1
+Initialize
+Add vertex (Z)17
+Add edge ( 17, 7 )
+Add edge ( 17, 0 )
+Remove edge ( 0, 7 ), type: -
+Add vertex (Z)18
+Add edge ( 18, 6 )
+Add edge ( 18, 1 )
+Remove edge ( 1, 6 ), type: -
+Add vertex (Z)19
+Add edge ( 19, 8 )
+Add edge ( 19, 2 )
+Remove edge ( 2, 8 ), type: H
+Note: (0) is not a gadget vertex!
+Note: (1) is not a gadget vertex!
+Note: (2) is not a gadget vertex!
+Note: (3) is not a gadget vertex!
+Note: (4) is not a gadget vertex!
+Note: (5) is not a gadget vertex!
+Note: (6) is not a gadget vertex!
+Note: (7) is not a gadget vertex!
+Note: (8) is not a gadget vertex!
+Note: (10) is not a gadget vertex!
+Note: (12) is not a gadget vertex!
+Note: (14) is not a gadget vertex!
+Note: (16) is not a gadget vertex!
+Note: (17) is not a gadget vertex!
+Note: (18) is not a gadget vertex!
+Note: (19) is not a gadget vertex!
+Clean Frontier
+Extract Singles
+Add edge ( 5, 8 )
+Remove edge ( 5, 8 ), type: H
+Extract CZs
+Remove Gadget
+Frontier:
+Qubit:0: 7
+Qubit:1: 6
+Qubit:2: 8
+
+Axels:
+10 (phase gadget: Note: (6) is not a gadget vertex!
+Note: (8) is not a gadget vertex!
+9)
+12 (phase gadget: Note: (7) is not a gadget vertex!
+Note: (8) is not a gadget vertex!
+11)
+14 (phase gadget: Note: (6) is not a gadget vertex!
+Note: (7) is not a gadget vertex!
+13)
+16 (phase gadget: Note: (6) is not a gadget vertex!
+Note: (7) is not a gadget vertex!
+Note: (8) is not a gadget vertex!
+15)
+
+Add vertex (Z)20
+Add edge ( 4, 20 )
+Add edge ( 20, 6 )
+Remove edge ( 4, 6 ), type: -
+> rewrite...
+vs: 14	vt: 6
+Add edge ( 7, 10 )
+Note: Hopf edge; cancelling out with existing edge (7, 16)...
+Add edge ( 7, 18 )
+Add edge ( 7, 20 )
+Add edge ( 13, 10 )
+Add edge ( 13, 16 )
+Add edge ( 13, 18 )
+Add edge ( 13, 20 )
+Remove ID: 14
+Remove ID: 6
+Add vertex (Z)21
+Add edge ( 3, 21 )
+Add edge ( 21, 7 )
+Remove edge ( 3, 7 ), type: -
+> rewrite...
+vs: 12	vt: 7
+Add edge ( 8, 17 )
+Note: Hopf edge; cancelling out with existing edge (8, 10)...
+Add edge ( 8, 18 )
+Add edge ( 8, 20 )
+Add edge ( 8, 21 )
+Add edge ( 11, 17 )
+Add edge ( 11, 10 )
+Add edge ( 11, 18 )
+Add edge ( 11, 20 )
+Add edge ( 11, 21 )
+Remove ID: 12
+Remove ID: 7
+Add vertex (Z)22
+Add edge ( 5, 22 )
+Add edge ( 22, 8 )
+Remove edge ( 5, 8 ), type: -
+> rewrite...
+vs: 16	vt: 8
+Add edge ( 15, 19 )
+Add edge ( 15, 17 )
+Add edge ( 15, 18 )
+Add edge ( 15, 20 )
+Add edge ( 15, 21 )
+Add edge ( 15, 22 )
+Add edge ( 13, 19 )
+Add edge ( 13, 17 )
+Note: Hopf edge; cancelling out with existing edge (13, 18)...
+Note: Hopf edge; cancelling out with existing edge (13, 20)...
+Add edge ( 13, 21 )
+Add edge ( 13, 22 )
+Remove ID: 16
+Remove ID: 8
+Frontier:
+Qubit:1: 20
+Qubit:0: 21
+Qubit:2: 22
+
+Axels:
+10 (phase gadget: 9)
+Note: (13) is not a gadget vertex!
+Note: (11) is not a gadget vertex!
+
+Gadget(s) are removed.
+Clean Frontier
+Extract Singles
+Add edge ( 3, 21 )
+Remove edge ( 3, 21 ), type: H
+Add edge ( 4, 20 )
+Remove edge ( 4, 20 ), type: H
+Add edge ( 5, 22 )
+Remove edge ( 5, 22 ), type: H
+Extract CZs
+Remove Gadget
+Frontier:
+Qubit:0: 21
+Qubit:1: 20
+Qubit:2: 22
+
+Axels:
+10 (phase gadget: 9)
+Note: (13) is not a gadget vertex!
+Note: (11) is not a gadget vertex!
+
+Frontier:
+Qubit:0: 21
+Qubit:1: 20
+Qubit:2: 22
+
+Axels:
+10 (phase gadget: 9)
+Note: (13) is not a gadget vertex!
+Note: (11) is not a gadget vertex!
+
+Perform Gaussian Elimination.
+Update Graph by Matrix
+Remove edge ( 21, 11 ), type: H
+Remove edge ( 21, 13 ), type: H
+Remove edge ( 20, 15 ), type: H
+Remove edge ( 22, 15 ), type: H
+Extract CXs
+Add CX: 1 0
+Add CX: 2 0
+Add CX: 1 2
+Add CX: 2 1
+Add CX: 0 2
+Add CX: 1 2
+Add CX: 0 1
+Extract Hs
+Add edge ( 3, 15 )
+Remove ID: 21
+Add edge ( 4, 11 )
+Remove ID: 20
+Add edge ( 5, 13 )
+Remove ID: 22
+Clean Frontier
+Extract Singles
+Extract CZs
+Remove Gadget
+Frontier:
+Qubit:0: 15
+Qubit:1: 11
+Qubit:2: 13
+
+Axels:
+10 (phase gadget: 9)
+Note: (13) is not a gadget vertex!
+Note: (11) is not a gadget vertex!
+
+Add vertex (Z)23
+Add edge ( 5, 23 )
+Add edge ( 23, 13 )
+Remove edge ( 5, 13 ), type: -
+> rewrite...
+vs: 10	vt: 13
+Add edge ( 9, 19 )
+Add edge ( 9, 17 )
+Add edge ( 9, 23 )
+Add edge ( 11, 19 )
+Note: Hopf edge; cancelling out with existing edge (11, 17)...
+Add edge ( 11, 23 )
+Remove ID: 10
+Remove ID: 13
+Frontier:
+Qubit:0: 15
+Qubit:1: 11
+Qubit:2: 23
+
+Axels:
+
+Gadget(s) are removed.
+Clean Frontier
+Extract Singles
+Add edge ( 5, 23 )
+Remove edge ( 5, 23 ), type: H
+Extract CZs
+Remove edge ( 11, 23 ), type: H
+Remove Gadget
+Frontier:
+Qubit:0: 15
+Qubit:1: 11
+Qubit:2: 23
+
+Axels:
+
+Frontier:
+Qubit:0: 15
+Qubit:1: 11
+Qubit:2: 23
+
+Axels:
+
+Construct an easy matrix.
+Extract Hs
+Add edge ( 5, 9 )
+Remove ID: 23
+Clean Frontier
+Extract Singles
+Extract CZs
+Remove Gadget
+Frontier:
+Qubit:0: 15
+Qubit:1: 11
+Qubit:2: 9
+
+Axels:
+
+Frontier:
+Qubit:0: 15
+Qubit:1: 11
+Qubit:2: 9
+
+Axels:
+
+Perform Gaussian Elimination.
+Update Graph by Matrix
+Remove edge ( 15, 19 ), type: H
+Remove edge ( 15, 17 ), type: H
+Remove edge ( 11, 18 ), type: H
+Remove edge ( 9, 19 ), type: H
+Extract CXs
+Add CX: 1 0
+Add CX: 1 2
+Add CX: 2 1
+Add CX: 0 2
+Add CX: 0 1
+Extract Hs
+Add edge ( 3, 18 )
+Remove ID: 15
+Add edge ( 4, 19 )
+Remove ID: 11
+Add edge ( 5, 17 )
+Remove ID: 9
+Clean Frontier
+Extract Singles
+Extract CZs
+Add edge ( 1, 3 )
+Remove ID: 18
+Add edge ( 2, 4 )
+Remove ID: 19
+Add edge ( 0, 5 )
+Remove ID: 17
+Finish extracting!
+Permute Qubit
+Successfully generated QCir 0
+Checkout to QCir 0
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> qc2zx 
+
+qsyn> zxgadj 
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr    
+
+qsyn> zxgp -q
+
+ID:   1 (●, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   1     (68, -) 
+ID:  68 (●, 0)           (Qubit, Col): (0, 12)	  #Neighbors:   1     (1, -) 
+
+
+ID:   3 (●, 0)           (Qubit, Col): (1, 2)	  #Neighbors:   1     (69, -) 
+ID:  69 (●, 0)           (Qubit, Col): (1, 12)	  #Neighbors:   1     (3, -) 
+
+
+ID:   5 (●, 0)           (Qubit, Col): (2, 2)	  #Neighbors:   1     (70, -) 
+ID:  70 (●, 0)           (Qubit, Col): (2, 12)	  #Neighbors:   1     (5, -) 
+
+
+qsyn> qccp
+QCir 0( 3 qubits, 40 gates)
+
+qsyn> qccp -q
+Q 0  -cx(39)--cx(38)--cx(37)-- h(32)-- h(29)--cx(28)--cx(27)--cx(24)-- t(17)-- h(14)--cx(13)--cx(11)--cx( 8)--cx( 7)-- h( 4)-- t( 0)-
+Q 1  -cx(39)--cx(38)--cx(37)--cx(36)--cx(35)--cx(34)-- h(30)--cx(28)--cx(26)--cx(25)--cx(24)--cz(21)--td(18)-- h(15)--cx(13)--cx(12)--cx(10)--cx( 9)--cx( 7)-- h( 5)-- t( 1)-
+Q 2  -cx(36)--cx(35)--cx(34)-- h(33)-- h(31)--cx(27)--cx(26)--cx(25)--td(23)-- h(22)--cz(21)-- h(20)--td(19)-- h(16)--cx(12)--cx(11)--cx(10)--cx( 9)--cx( 8)-- h( 6)-- t( 3)-- h( 2)-
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+

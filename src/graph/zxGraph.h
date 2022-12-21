@@ -28,11 +28,12 @@ class ZXVertex{
         class EdgeIterator;
         friend class EdgeIterator;
 
-        ZXVertex(size_t id, int qubit, VertexType vt, Phase phase = Phase()) {
+        ZXVertex(size_t id, int qubit, VertexType vt, Phase phase = Phase(), unsigned int col = 0) {
             _id = id;
             _type = vt;
             _qubit = qubit;
             _phase = phase;
+            _col = col;
             _DFSCounter = 0;
             _pin = unsigned(-1);
             _neighbors.clear();
@@ -40,11 +41,13 @@ class ZXVertex{
         ~ZXVertex(){}
 
         // Getter and Setter
+        
         const size_t& getId() const                            { return _id; }
         const int& getQubit() const                            { return _qubit; }
         const size_t& getPin() const                           { return _pin; }
         const Phase& getPhase() const                          { return _phase; }
         const VertexType& getType() const                      { return _type; }
+        const unsigned int& getCol() const                     { return _col; }
         const Neighbors& getNeighbors() const                  { return _neighbors; }
         const NeighborPair& getFirstNeighbor() const           { return *(_neighbors.begin()); }
         const NeighborPair& getSecondNeighbor() const          { return *next((_neighbors.begin())); }
@@ -53,12 +56,15 @@ class ZXVertex{
         size_t getNumNeighbors() const                         { return _neighbors.size(); }
         QTensor<double> getTSform();
 
+
         void setId(const size_t& id)                           { _id = id; }
         void setQubit(const int& q)                            { _qubit = q; }
         void setPin(const size_t& p)                           { _pin = p; }
         void setPhase(const Phase& p)                          { _phase = p; }
+        void setCol(const unsigned int& c)                     { _col = c; }
         void setType(const VertexType& vt)                     { _type = vt; }
         void setNeighbors(const Neighbors& n)                  { _neighbors = n; }
+        
         
         
         
@@ -97,13 +103,14 @@ class ZXVertex{
         void setVisited(unsigned global)                { _DFSCounter = global; }
 
     private:
-        int                                  _qubit;
-        Phase                                _phase;
         size_t                               _id;
+        int                                  _qubit;
         size_t                               _pin;
+        Phase                                _phase;
         unsigned                             _DFSCounter;
         Neighbors                            _neighbors;
         VertexType                           _type;
+        unsigned int                         _col;
 };
 
 
@@ -141,6 +148,7 @@ class ZXGraph{
         void generateCNOT();
         bool isId(size_t id) const;
         bool isGraphLike() const;
+        bool isIdentity() const;
         bool isInputQubit(int qubit) const                              { return (_inputList.contains(qubit)); }
         bool isOutputQubit(int qubit) const                             { return (_outputList.contains(qubit)); }
         int TCount() const;
@@ -148,9 +156,9 @@ class ZXGraph{
 
 
         // Add and Remove
-        ZXVertex* addInput(int qubit, bool checked = false);
-        ZXVertex* addOutput(int qubit, bool checked = false);
-        ZXVertex* addVertex(int qubit, VertexType ZXVertex, Phase phase = Phase(), bool checked = false);
+        ZXVertex* addInput(int qubit, bool checked = false, unsigned int col = 0);
+        ZXVertex* addOutput(int qubit, bool checked = false, unsigned int col = 0);
+        ZXVertex* addVertex(int qubit, VertexType ZXVertex, Phase phase = Phase(), bool checked = false, unsigned int col = 0);
 
         void addInputs(const ZXVertexList& inputs);
         void addOutputs(const ZXVertexList& outputs);
@@ -191,11 +199,13 @@ class ZXGraph{
         void liftQubit(const size_t& n);
         ZXGraph* compose(ZXGraph* target);
         ZXGraph* tensorProduct(ZXGraph* target);
+        bool isGadget(ZXVertex*);
         void addGadget(Phase p, const vector<ZXVertex*>& verVec);
         void removeGadget(ZXVertex* v);
         unordered_map<size_t, ZXVertex*> id2VertexMap() const;
         void mergeInputList(unordered_map<size_t, ZXVertex*> lst)    { _inputList.merge(lst); }
         void mergeOutputList(unordered_map<size_t, ZXVertex*> lst)   { _outputList.merge(lst); }
+        void disownVertices();
 
 
 

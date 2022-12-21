@@ -1,10 +1,10 @@
 zxprint
 zxnew
-zxgtest -g
+zxgtest -gcx
 zxgprint -v
 zxgprint -e
 zxnew
 zxcheckout 0
 ZXGEdit -rmv 1
 zxgprint
-q -f
+qq -f

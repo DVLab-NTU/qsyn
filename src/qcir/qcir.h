@@ -58,6 +58,7 @@ public:
   void addQubit(size_t num);
   bool removeQubit(size_t q);
   QCirGate *addGate(string, vector<size_t>, Phase, bool);
+  QCirGate *addSingleRZ(size_t, Phase, bool);
   bool removeGate(size_t id);
 
   bool readQCirFile(string file);
@@ -68,6 +69,7 @@ public:
 
   bool writeQASM(string qasm_output);
 
+  void analysis(bool=false);
   void ZXMapping();
   void tensorMapping();
   

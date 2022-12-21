@@ -3489,5 +3489,5 @@ Period time used : 42.23 seconds
 Total time used  : 42.23 seconds
 Total memory used: 380 M Bytes
 
-qsyn> q -f
+qsyn> qq -f
 

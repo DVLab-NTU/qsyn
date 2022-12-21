@@ -299,7 +299,7 @@ void ZXTensorCmd::help() const {
 
 
 //----------------------------------------------------------------------
-//    ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike ]
+//    ZXGTest [-GCX | -Empty | -Valid | -GLike | -IDentity]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGTestCmd::exec(const string &option) {
@@ -308,7 +308,7 @@ ZXGTestCmd::exec(const string &option) {
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGTest");
     
-    if (token.empty() || myStrNCmp("-GenerateCNOT", token, 2) == 0) {
+    if (token.empty() || myStrNCmp("-GCX", token, 4) == 0) {
         zxGraphMgr->getGraph()->generateCNOT();
         return CMD_EXEC_DONE;
     }
@@ -338,14 +338,23 @@ ZXGTestCmd::exec(const string &option) {
             cout << "The graph is not graph-like!" << endl;
         }
         return CMD_EXEC_DONE;
-    } 
+    }
+
+    if (myStrNCmp("-IDentity", token, 3) == 0) {
+        if (zxGraphMgr->getGraph()->isIdentity()) {
+            cout << "The graph is an identity!" << endl;
+        } else {
+            cout << "The graph is not an identity!" << endl;
+        }
+        return CMD_EXEC_DONE;
+    }
     
     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     
 }
 
 void ZXGTestCmd::usage(ostream &os) const {
-    os << "Usage: ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike ]" << endl;
+    os << "Usage: ZXGTest [-GCX | -Empty | -Valid | -GLike | -IDentity ]" << endl;
 }
 
 void ZXGTestCmd::help() const {
@@ -679,30 +688,25 @@ ZXGReadCmd::exec(const string &option) {    // check option
         options.erase(std::remove(options.begin(), options.end(), bzxStr), options.end());
     if (options.empty())
         return CmdExec::errorOption(CMD_OPT_MISSING, (eraseIndexBZX > eraseIndexReplace) ? bzxStr : replaceStr);
-
+    
+    ZXGraph* bufferGraph = new ZXGraph(0);
+    if (!bufferGraph->readZX(fileName, doBZX)) {
+        cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
+        delete bufferGraph;
+        return CMD_EXEC_ERROR;
+    }
+    
     if (doReplace) {
         if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
             cout << "Note: ZX-graph list is empty now. Create a new one." << endl;
             zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
-            if (!zxGraphMgr->getGraph()->readZX(fileName, doBZX)) {
-                cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
-                return CMD_EXEC_ERROR;
-            }
         } else {
             cout << "Note: original ZX-graph is replaced..." << endl;
-            zxGraphMgr->getGraph()->reset();
-            if (!zxGraphMgr->getGraph()->readZX(fileName, doBZX)) {
-                cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
-                return CMD_EXEC_ERROR;
-            }
         }
     } else {
         zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
-        if (!zxGraphMgr->getGraph()->readZX(fileName, doBZX)) {
-            cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
-            return CMD_EXEC_ERROR;
-        }
     }
+    zxGraphMgr->setGraph(bufferGraph);
     return CMD_EXEC_DONE;
 }
 
@@ -712,7 +716,7 @@ void ZXGReadCmd::usage(ostream &os) const {
 
 void ZXGReadCmd::help() const {
     cout << setw(15) << left << "ZXGRead: "
-         << "read a ZXGraph" << endl;
+         << "read a ZX-graph" << endl;
 }
 
 
@@ -772,7 +776,7 @@ void ZXGWriteCmd::usage(ostream &os) const {
 
 void ZXGWriteCmd::help() const {
     cout << setw(15) << left << "ZXGWrite: "
-         << "write ZXFile\n";
+         << "write a ZX-graph to file\n";
 }
 
 

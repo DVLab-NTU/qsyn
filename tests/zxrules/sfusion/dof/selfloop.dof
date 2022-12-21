@@ -14,4 +14,4 @@ zxgp -e
 zxgsimp -spi
 zxgp -v
 zxgp -e
-q -f
+qq -f

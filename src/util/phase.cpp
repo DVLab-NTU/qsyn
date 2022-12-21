@@ -13,14 +13,7 @@
 PhaseUnit Phase::_printUnit = PhaseUnit::PI;
 
 std::ostream& operator<<(std::ostream& os, const Phase& p) {
-    if (Phase::getPrintUnit() == PhaseUnit::PI) {
-        if (p._rational.numerator() != 1) os << p._rational.numerator();
-        if (p._rational.numerator() != 0) os << "\u03C0";
-        if (p._rational.denominator() != 1) os << "/" << p._rational.denominator();
-        return os;
-    } else {
-        return os << (p._rational.numerator() * std::numbers::pi / p._rational.denominator());
-    }
+    return os << p.getPrintString();
 }
 
 Phase Phase::operator+() const {

@@ -66,7 +66,7 @@ public:
             return *this;
         }
 
-        OTableIterator operator++(int) const noexcept {
+        OTableIterator operator++(int) noexcept {
             OTableIterator tmp = *this;
             ++*this;
             return tmp;
@@ -79,7 +79,7 @@ public:
             return *this;
         }
 
-        OTableIterator operator--(int) const noexcept {
+        OTableIterator operator--(int) noexcept {
             OTableIterator tmp = *this;
             --*this;
             return tmp;

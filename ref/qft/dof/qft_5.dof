@@ -1,8 +1,0 @@
-qccread benchmark/qft/qft_5dec.qasm
-qccp
-qc2zx
-zxgp
-zxgp -a
-zxgs -fr
-zxgp -a
-q -f

@@ -13,20 +13,19 @@
 
 using namespace std;
 extern size_t verbose;
-extern size_t formatLevel;
+extern size_t colorLevel;
 
 bool
 initCommonCmd()
 {
-   if (!(cmdMgr->regCmd("Q", 1, new QuitCmd) &&
+   if (!(cmdMgr->regCmd("QQuit", 2, new QuitCmd) &&
          cmdMgr->regCmd("HIStory", 3, new HistoryCmd) &&
          cmdMgr->regCmd("HELp", 3, new HelpCmd) &&
          cmdMgr->regCmd("DOfile", 2, new DofileCmd) &&
          cmdMgr->regCmd("USAGE", 5, new UsageCmd) &&
          cmdMgr->regCmd("VERbose", 3, new VerboseCmd) &&
          cmdMgr->regCmd("SEED", 4, new SeedCmd) &&
-         cmdMgr->regCmd("//", 2, new CommentCmd) &&
-         cmdMgr->regCmd("FORMAT", 6, new FormatCmd)
+         cmdMgr->regCmd("COLOR", 5, new ColorCmd)
       )) {
       cerr << "Registering \"init\" commands fails... exiting" << endl;
       return false;
@@ -69,7 +68,7 @@ HelpCmd::help() const
 }
 
 //----------------------------------------------------------------------
-//    Quit [-Force]
+//    QQuit [-Force]
 //----------------------------------------------------------------------
 CmdExecStatus
 QuitCmd::exec(const string& option)
@@ -101,13 +100,13 @@ QuitCmd::exec(const string& option)
 void
 QuitCmd::usage(ostream& os) const
 {
-   os << "Usage: Quit [-Force]" << endl;
+   os << "Usage: QQuit [-Force]" << endl;
 }
 
 void
 QuitCmd::help() const
 {
-   cout << setw(15) << left << "Quit: "
+   cout << setw(15) << left << "QQuit: "
         << "quit the execution" << endl;
 }
 
@@ -311,32 +310,12 @@ SeedCmd::help() const
 }
 
 //----------------------------------------------------------------------
-//    // [whatever] [comments] [you'd] [like] [to] [type...]
+
+//----------------------------------------------------------------------
+//    COLOR <size_t color level>
 //----------------------------------------------------------------------
 CmdExecStatus
-CommentCmd::exec(const string& option)
-{
-    return CMD_EXEC_DONE;
-}
-
-void
-CommentCmd::usage(ostream& os) const
-{
-   os << "Usage: // [whatever] [comments] [you'd] [like] [to] [type...]" << endl;
-}
-
-void
-CommentCmd::help() const
-{
-   cout << setw(15) << left << "//: "
-        << "comment line" << endl;
-}
-
-//----------------------------------------------------------------------
-//    FORMAT <size_t format level>
-//----------------------------------------------------------------------
-CmdExecStatus
-FormatCmd::exec(const string& option)
+ColorCmd::exec(const string& option)
 {
    // check option
    string token;
@@ -344,27 +323,27 @@ FormatCmd::exec(const string& option)
       return CMD_EXEC_ERROR;
    unsigned level;
    if(!myStr2Uns(token, level)){
-      cerr << "Error: format level should be a positive integer or 0!!" << endl;
+      cerr << "Error: colored should be a positive integer or 0!!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    }
    if(level > 1){
-      cerr << "Error: format level should be 0-1 !!" << endl;
+      cerr << "Error: colored should be 0-1 !!" << endl;
       return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
    }
-   cerr << "Note: format level is set to " << level << endl;
-   formatLevel = level;
+   cout << "Note: colored is set to " << level << endl;
+   colorLevel = level;
    return CMD_EXEC_DONE;
 }
 
 void
-FormatCmd::usage(ostream& os) const
+ColorCmd::usage(ostream& os) const
 {
-   os << "Usage: FORMAT <size_t format level>" << endl;
+   os << "Usage: COLOR <bool colored>" << endl;
 }
 
 void
-FormatCmd::help() const
+ColorCmd::help() const
 {
-   cout << setw(15) << left << "FORMAT: "
-        << "set format level (0: none, 1: all)" << endl;
+   cout << setw(15) << left << "COLOR: "  
+        << "command line printing mode (0: grayscale, 1: color)" << endl;
 }

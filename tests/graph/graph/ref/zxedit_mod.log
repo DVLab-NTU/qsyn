@@ -25,14 +25,14 @@ Total #Outputs: 3
 
 qsyn> zxgp -v
 
-ID:	0	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	0	
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	0	
-ID:	2	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	0	
-ID:	3	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	0	
-ID:	4	VertexType:	●	Qubit:	2	Phase:	0	#Neighbors:	0	
-ID:	5	VertexType:	●	Qubit:	1	Phase:	0	#Neighbors:	0	
+ID:   0 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   0     
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   0     
+ID:   2 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   0     
+ID:   3 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   0     
+ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   0     
+ID:   5 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   0     
 Total #Vertices: 6
 
 
-qsyn> q -f
+qsyn> qq -f
 

@@ -132,6 +132,7 @@ void QCir::updateTopoOrder() {
     _topoOrder.pop_back();  // pop dummy
     reverse(_topoOrder.begin(), _topoOrder.end());
     assert(_topoOrder.size() == _qgates.size());
+    delete dummy;
 }
 
 /**

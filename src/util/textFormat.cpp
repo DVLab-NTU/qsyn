@@ -7,12 +7,12 @@
 ****************************************************************************/
 #include "textFormat.h"
 
-extern size_t formatLevel;
+extern size_t colorLevel;
 
 namespace TextFormat {
 
     std::string SET_FORMAT(const std::string& str, const size_t& code) {
-        if (formatLevel >= 1) return "\033[" + std::to_string(code) + "m" + str + "\033[0m";
+        if (colorLevel >= 1) return "\033[" + std::to_string(code) + "m" + str + "\033[0m";
         else return str;
     }
 

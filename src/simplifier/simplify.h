@@ -64,6 +64,7 @@ class Simplifier{
 
         void setRule(ZXRule* rule)          { if (_rule != nullptr) delete _rule; _rule = rule; }
 
+        void amend();
         // Simplification strategies
         int simp();
         int hadamardSimp();

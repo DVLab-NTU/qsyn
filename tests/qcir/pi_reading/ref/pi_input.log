@@ -25,5 +25,5 @@ Traverse and build the graph...
 Successfully generated Graph 0
 Checkout to Graph 0
 
-qsyn> q -f
+qsyn> qq -f
 

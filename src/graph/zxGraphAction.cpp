@@ -30,6 +30,9 @@ extern size_t verbose;
  *
  */
 void ZXGraph::reset() {
+    for (auto& v : _vertices) delete v;
+    _inputs.clear();
+    _outputs.clear();
     _inputList.clear();
     _outputList.clear();
     _topoOrder.clear();
@@ -59,12 +62,12 @@ ZXGraph* ZXGraph::copy() const {
     for (const auto& v : _vertices) {
         if (v->getType() == VertexType::BOUNDARY) {
             if (_inputs.contains(v))
-                oldV2newVMap[v] = newGraph->addInput(v->getQubit());
+                oldV2newVMap[v] = newGraph->addInput(v->getQubit(), true, v->getCol());
             else
-                oldV2newVMap[v] = newGraph->addOutput(v->getQubit());
+                oldV2newVMap[v] = newGraph->addOutput(v->getQubit(), true, v->getCol());
 
         } else if (v->getType() == VertexType::Z || v->getType() == VertexType::X || v->getType() == VertexType::H_BOX) {
-            oldV2newVMap[v] = newGraph->addVertex(v->getQubit(), v->getType(), v->getPhase());
+            oldV2newVMap[v] = newGraph->addVertex(v->getQubit(), v->getType(), v->getPhase(), true, v->getCol());
         }
     }
     // Link all edges
@@ -131,11 +134,19 @@ ZXGraph* ZXGraph::compose(ZXGraph* target) {
     else {
         ZXGraph* copiedGraph = target->copy();
 
-        // Update Id of copiedGraph to make them unique to the original graph
+        // Get maximum column in `this`
+        unsigned maxCol = 0;
+        for(const auto& o : this->getOutputs()){
+            if(o->getCol() > maxCol) maxCol = o->getCol();
+        }
+
+        // Update `_id` and `_col` of copiedGraph to make them unique to the original graph
         for (const auto& v : copiedGraph->getVertices()) {
             v->setId(_nextVId);
+            v->setCol(v->getCol() + maxCol + 1);
             _nextVId++;
         }
+        
         // Sort ori-output and copy-input
         this->sortIOByQubit();
         copiedGraph->sortIOByQubit();
@@ -151,6 +162,8 @@ ZXGraph* ZXGraph::compose(ZXGraph* target) {
         this->setOutputs(copiedGraph->getOutputs());
         this->addVertices(copiedGraph->getVertices());
         this->setOutputList(copiedGraph->getOutputList());
+        copiedGraph->disownVertices();
+        delete copiedGraph;
     }
     return this;
 }
@@ -198,7 +211,22 @@ ZXGraph* ZXGraph::tensorProduct(ZXGraph* target) {
     this->mergeInputList(copiedGraph->getInputList());
     this->mergeOutputList(copiedGraph->getOutputList());
 
+    copiedGraph->disownVertices();
+    delete copiedGraph;
+
     return this;
+}
+
+bool ZXGraph::isGadget(ZXVertex* v){
+    if(v->getType() != VertexType::Z || v->getNumNeighbors() != 1){
+        if(verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
+        return false;
+    }  
+    if(v->getFirstNeighbor().first->getType() != VertexType::Z && v->getFirstNeighbor().first->getPhase() != 0 && v->getFirstNeighbor().first->getPhase() != 1){
+        if(verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -226,14 +254,7 @@ void ZXGraph::addGadget(Phase p, const vector<ZXVertex*>& verVec){
  * @param v 
  */
 void ZXGraph::removeGadget(ZXVertex* v){
-    if(v->getType() != VertexType::Z || v->getNumNeighbors() != 1){
-        if(verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
-        return;
-    }  
-    if(v->getFirstNeighbor().first->getType() != VertexType::Z && v->getFirstNeighbor().first->getPhase() != 0 && v->getFirstNeighbor().first->getPhase() != 1){
-        if(verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
-        return;
-    }
+    if(! isGadget(v)) return;
     ZXVertex* axel = v->getFirstNeighbor().first;
     removeVertex(axel);
     removeVertex(v);
@@ -248,5 +269,19 @@ unordered_map<size_t, ZXVertex*> ZXGraph::id2VertexMap() const {
     unordered_map<size_t, ZXVertex*> id2VertexMap;
     for (const auto& v : _vertices) id2VertexMap[v->getId()] = v;
     return id2VertexMap;
+}
+
+/**
+ * @brief Disown the vertices in a graph, so that they are no longer referenced by this ZXGraph.
+ *        This function is used to change ownership of ZXVertices after composing/tensoring ZXGraphs. 
+ * 
+ */
+void ZXGraph::disownVertices() {
+    _inputs.clear();
+    _outputs.clear();
+    _vertices.clear();
+    _topoOrder.clear();
+    _inputList.clear();
+    _outputList.clear();
 }
 
