@@ -1,0 +1,207 @@
+Circuit: 3_17_13.qasm
+Init:
+OrderedDict([(1, 6), (2, 19), (3, 34)])
+Average= 2.47
+After full reduce
+OrderedDict([(1, 13), (3, 6), (4, 2), (5, 2), (6, 3), (7, 1), (8, 1), (11, 2), (12, 1)])
+Average= 3.74
+
+
+Circuit: 4gt11_82.qasm
+Init:
+OrderedDict([(1, 10), (2, 9), (3, 36)])
+Average= 2.47
+After full reduce
+OrderedDict([(1, 14), (3, 3), (4, 1), (5, 1), (6, 2)])
+Average= 2.10
+
+
+Circuit: 4gt11_84.qasm
+Init:
+OrderedDict([(1, 10), (2, 9), (3, 18)])
+Average= 2.22
+After full reduce
+OrderedDict([(1, 14), (3, 5), (4, 3), (5, 1), (6, 1), (8, 1)])
+Average= 2.40
+
+
+Circuit: 4gt13_92.qasm
+Init:
+OrderedDict([(1, 10), (2, 36), (3, 60)])
+Average= 2.47
+After full reduce
+OrderedDict([(1, 21), (3, 9), (4, 4), (5, 2), (6, 2), (7, 1), (8, 2), (10, 1), (11, 1), (12, 1)])
+Average= 3.23
+
+
+Circuit: 4mod5-v0_19.qasm
+Init:
+OrderedDict([(1, 10), (2, 19), (3, 32)])
+Average= 2.36
+After full reduce
+OrderedDict([(1, 15), (3, 4), (4, 2), (5, 4), (7, 1), (8, 1)])
+Average= 2.59
+
+
+Circuit: 4mod5-v0_20.qasm
+Init:
+OrderedDict([(1, 10), (2, 10), (3, 20)])
+Average= 2.25
+After full reduce
+OrderedDict([(1, 14), (2, 1), (3, 7), (4, 3), (5, 1), (6, 1), (8, 1)])
+Average= 2.43
+
+
+Circuit: 4mod5-v1_22.qasm
+Init:
+OrderedDict([(1, 10), (2, 10), (3, 22)])
+Average= 2.29
+After full reduce
+OrderedDict([(1, 14), (3, 6), (4, 2), (5, 1), (6, 2), (9, 1)])
+Average= 2.54
+
+
+Circuit: 4mod5-v1_24.qasm
+Init:
+OrderedDict([(1, 10), (2, 20), (3, 32)])
+Average= 2.35
+After full reduce
+OrderedDict([(1, 18), (3, 9), (4, 5), (5, 1), (6, 1), (7, 1), (9, 3)])
+Average= 2.89
+
+
+Circuit: alu-v0_27.qasm
+Init:
+OrderedDict([(1, 10), (2, 19), (3, 34)])
+Average= 2.38
+After full reduce
+OrderedDict([(1, 18), (3, 9), (4, 5), (5, 2), (6, 2), (8, 1), (10, 1), (11, 1)])
+Average= 2.97
+
+
+Circuit: alu-v1_28.qasm
+Init:
+OrderedDict([(1, 10), (2, 19), (3, 36)])
+Average= 2.40
+After full reduce
+OrderedDict([(1, 18), (3, 9), (4, 7), (5, 1), (6, 1), (9, 1), (10, 1), (11, 3)])
+Average= 3.32
+
+
+Circuit: alu-v1_29.qasm
+Init:
+OrderedDict([(1, 10), (2, 20), (3, 34)])
+Average= 2.38
+After full reduce
+OrderedDict([(1, 18), (3, 10), (4, 5), (5, 3), (8, 1), (9, 1), (10, 2), (11, 1), (13, 1)])
+Average= 3.43
+
+
+Circuit: alu-v2_33.qasm
+Init:
+OrderedDict([(1, 10), (2, 20), (3, 34)])
+Average= 2.38
+After full reduce
+OrderedDict([(1, 18), (3, 9), (4, 5), (5, 3), (6, 1), (7, 1), (8, 1), (11, 1)])
+Average= 2.87
+
+
+Circuit: alu-v3_34.qasm
+Init:
+OrderedDict([(1, 10), (2, 28), (3, 48)])
+Average= 2.44
+After full reduce
+OrderedDict([(1, 22), (3, 11), (4, 8), (5, 1), (6, 1), (7, 1), (9, 3), (10, 1), (11, 1), (15, 1)])
+Average= 3.36
+
+
+Circuit: alu-v3_35.qasm
+Init:
+OrderedDict([(1, 10), (2, 19), (3, 36)])
+Average= 2.40
+After full reduce
+OrderedDict([(1, 18), (3, 7), (4, 7), (5, 2), (6, 2), (8, 1), (10, 1), (11, 1)])
+Average= 3.03
+
+
+Circuit: alu-v4_37.qasm
+Init:
+OrderedDict([(1, 10), (2, 19), (3, 36)])
+Average= 2.40
+After full reduce
+OrderedDict([(1, 18), (3, 7), (4, 7), (5, 2), (6, 2), (8, 1), (10, 1), (11, 1)])
+Average= 3.03
+
+
+Circuit: ex-1_166.qasm
+Init:
+OrderedDict([(1, 6), (2, 10), (3, 18)])
+Average= 2.35
+After full reduce
+OrderedDict([(1, 10), (3, 3), (4, 5), (5, 1), (7, 2)])
+Average= 2.76
+
+
+Circuit: ham3_102.qasm
+Init:
+OrderedDict([(1, 6), (2, 9), (3, 22)])
+Average= 2.43
+After full reduce
+OrderedDict([(1, 10), (3, 6), (4, 2), (5, 3), (9, 1)])
+Average= 2.73
+
+
+Circuit: miller_11.qasm
+Init:
+OrderedDict([(1, 6), (2, 27), (3, 46)])
+Average= 2.51
+After full reduce
+OrderedDict([(1, 18), (3, 14), (4, 4), (5, 2), (6, 4), (14, 1)])
+Average= 2.88
+
+
+Circuit: mod5d1_63.qasm
+Init:
+OrderedDict([(1, 10), (2, 9), (3, 26)])
+Average= 2.36
+After full reduce
+OrderedDict([(1, 14), (3, 3), (4, 5), (5, 2), (6, 1), (7, 1), (10, 1)])
+Average= 2.81
+
+
+Circuit: mod5mils_65.qasm
+Init:
+OrderedDict([(1, 10), (2, 19), (3, 32)])
+Average= 2.36
+After full reduce
+OrderedDict([(1, 15), (3, 5), (4, 2), (5, 3), (6, 1), (7, 1)])
+Average= 2.44
+
+
+Circuit: qft_4.qasm
+Init:
+OrderedDict([(1, 8), (3, 12)])
+Average= 2.20
+After full reduce
+OrderedDict([(1, 8), (3, 2), (4, 2), (5, 2)])
+Average= 2.29
+
+
+Circuit: rd32-v0_66.qasm
+Init:
+OrderedDict([(1, 8), (2, 18), (3, 32)])
+Average= 2.41
+After full reduce
+OrderedDict([(1, 13), (3, 6), (4, 2), (5, 1), (6, 3), (8, 1)])
+Average= 2.69
+
+
+Circuit: rd32-v1_68.qasm
+Init:
+OrderedDict([(1, 8), (2, 20), (3, 32)])
+Average= 2.40
+After full reduce
+OrderedDict([(1, 13), (3, 6), (4, 2), (5, 1), (6, 3), (8, 1)])
+Average= 2.69
+
+
