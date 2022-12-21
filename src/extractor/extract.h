@@ -13,6 +13,7 @@
 
 #include <vector>
 #include <iostream>
+#include <set>
 #include <unordered_map>
 
 #include "zxDef.h"
@@ -23,6 +24,8 @@
 #include "m2.h"
 #include "ordered_hashset.h"
 
+using Target = unordered_map<size_t, size_t>;
+using ConnectInfo = unordered_map<size_t, set<size_t>>;
 class Extractor;
 
 class Extractor{
@@ -39,6 +42,7 @@ class Extractor{
 
         bool removeGadget();
         void gaussianElimination();
+        void columnOptimalSwap();
         void extractSingles();
         void extractCZs(size_t=0);
         void extractCXs(size_t=0);
@@ -46,7 +50,6 @@ class Extractor{
         void cleanFrontier();
         void permuteQubit();
 
-        void updateFrontier(bool=true);
         void updateNeighbors();
         void updateGraphByMatrix(EdgeType = EdgeType::HADAMARD);
 
@@ -65,6 +68,11 @@ class Extractor{
 
         M2                              _biAdjacency;
         vector<Oper>                    _cnots;
+
+        //NOTE - Use only in column optimal swap
+        Target findColumnSwap(Target);
+        ConnectInfo _rowInfo;
+        ConnectInfo _colInfo;
 };
     
 #endif

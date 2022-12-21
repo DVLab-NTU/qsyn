@@ -4,7 +4,7 @@ ver 0
 zxgs -fr
 zxgp -q
 ver 5
-extract
+zx2qc
 ver 0
 qc2zx 
 zxgadj 
@@ -13,4 +13,5 @@ zxgs -fr
 zxgp -q
 qccp
 qccp -q
+zxgt -id
 qq -f

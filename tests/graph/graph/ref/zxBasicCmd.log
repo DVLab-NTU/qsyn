@@ -7,7 +7,7 @@ qsyn> zxnew
 Successfully generated Graph 0
 Checkout to Graph 0
 
-qsyn> zxgtest -g
+qsyn> zxgtest -gcx
 
 qsyn> zxgprint -v
 

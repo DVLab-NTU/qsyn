@@ -23,7 +23,7 @@ extern QCirMgr *qcirMgr;
 
 bool initExtractCmd()
 {
-   if (!(cmdMgr->regCmd("EXTRact", 4, new ExtractCmd) && 
+   if (!(cmdMgr->regCmd("ZX2QC", 5, new ExtractCmd) && 
          cmdMgr->regCmd("EXTStep", 4, new ExtractStepCmd)
          ))
    {
@@ -62,11 +62,11 @@ ExtractCmd::exec(const string &option) {
 }
 
 void ExtractCmd::usage(ostream &os) const {
-    os << "Usage: EXTRact" << endl;
+    os << "Usage: ZX2QC" << endl;
 }
 
 void ExtractCmd::help() const {
-    cout << setw(15) << left << "EXTRact: "
+    cout << setw(15) << left << "ZX2QC: "
          << "extract the circuit from the ZX-graph" << endl;
 }
 
