@@ -40,6 +40,7 @@ public:
     const unsigned char& back() const { return _row.back(); }
 
     bool isOneHot() const;
+    bool isZeros() const;
     void printRow() const;
 
     void push_back(unsigned char i) { _row.push_back(i); }
@@ -77,6 +78,7 @@ public:
     void clear() { _matrix.clear(); _opStorage.clear(); }
 
     bool xorOper(size_t ctrl, size_t targ, bool track = false);
+    bool gaussianElimSkip(bool track = true);
     bool gaussianElim(bool track = false, bool isAugmentedMatrix = false);
     bool isSolvedForm() const;
     bool isAugmentedSolvedForm() const;

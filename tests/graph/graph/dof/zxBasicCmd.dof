@@ -1,6 +1,6 @@
 zxprint
 zxnew
-zxgtest -g
+zxgtest -gcx
 zxgprint -v
 zxgprint -e
 zxnew

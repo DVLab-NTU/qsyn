@@ -1,0 +1,18 @@
+color 0
+ver 0
+qccr ../../benchmark/benchmark_SABRE/large/cycle10_2_110.qasm
+qccp -a
+qc2zx
+zxgs -fr
+usage
+zx2qc
+usage
+qcp
+qccp -a
+qc2zx
+zxgadj
+zxcomp 0
+zxgs -fr
+usage
+zxgt -id 
+qq -f

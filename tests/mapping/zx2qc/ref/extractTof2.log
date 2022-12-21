@@ -43,7 +43,7 @@ ID:  19 (Z, π/4)         (Qubit, Col): (2, 9)	  #Neighbors:   5     (2, H) (5, 
 qsyn> ver 5
 Note: verbose level is set to 5
 
-qsyn> extract
+qsyn> zx2qc
 Add vertex (●)0
 Add vertex (●)1
 Add vertex (●)2
@@ -233,22 +233,23 @@ Note: (13) is not a gadget vertex!
 Note: (11) is not a gadget vertex!
 
 Perform Gaussian Elimination.
-Performing Gaussian Elimination...
 Update Graph by Matrix
-Remove edge ( 21, 15 ), type: H
+Remove edge ( 21, 11 ), type: H
 Remove edge ( 21, 13 ), type: H
-Remove edge ( 20, 11 ), type: H
+Remove edge ( 20, 15 ), type: H
 Remove edge ( 22, 15 ), type: H
 Extract CXs
 Add CX: 1 0
+Add CX: 2 0
 Add CX: 1 2
 Add CX: 2 1
-Add CX: 0 1
 Add CX: 0 2
+Add CX: 1 2
+Add CX: 0 1
 Extract Hs
-Add edge ( 3, 11 )
+Add edge ( 3, 15 )
 Remove ID: 21
-Add edge ( 4, 15 )
+Add edge ( 4, 11 )
 Remove ID: 20
 Add edge ( 5, 13 )
 Remove ID: 22
@@ -257,8 +258,8 @@ Extract Singles
 Extract CZs
 Remove Gadget
 Frontier:
-Qubit:0: 11
-Qubit:1: 15
+Qubit:0: 15
+Qubit:1: 11
 Qubit:2: 13
 
 Axels:
@@ -281,8 +282,8 @@ Add edge ( 11, 23 )
 Remove ID: 10
 Remove ID: 13
 Frontier:
-Qubit:0: 11
-Qubit:1: 15
+Qubit:0: 15
+Qubit:1: 11
 Qubit:2: 23
 
 Axels:
@@ -296,15 +297,15 @@ Extract CZs
 Remove edge ( 11, 23 ), type: H
 Remove Gadget
 Frontier:
-Qubit:0: 11
-Qubit:1: 15
+Qubit:0: 15
+Qubit:1: 11
 Qubit:2: 23
 
 Axels:
 
 Frontier:
-Qubit:0: 11
-Qubit:1: 15
+Qubit:0: 15
+Qubit:1: 11
 Qubit:2: 23
 
 Axels:
@@ -318,36 +319,36 @@ Extract Singles
 Extract CZs
 Remove Gadget
 Frontier:
-Qubit:0: 11
-Qubit:1: 15
+Qubit:0: 15
+Qubit:1: 11
 Qubit:2: 9
 
 Axels:
 
 Frontier:
-Qubit:0: 11
-Qubit:1: 15
+Qubit:0: 15
+Qubit:1: 11
 Qubit:2: 9
 
 Axels:
 
 Perform Gaussian Elimination.
-Performing Gaussian Elimination...
 Update Graph by Matrix
-Remove edge ( 11, 19 ), type: H
-Remove edge ( 15, 18 ), type: H
+Remove edge ( 15, 19 ), type: H
 Remove edge ( 15, 17 ), type: H
+Remove edge ( 11, 18 ), type: H
 Remove edge ( 9, 19 ), type: H
 Extract CXs
 Add CX: 1 0
 Add CX: 1 2
 Add CX: 2 1
+Add CX: 0 2
 Add CX: 0 1
 Extract Hs
 Add edge ( 3, 18 )
-Remove ID: 11
-Add edge ( 4, 19 )
 Remove ID: 15
+Add edge ( 4, 19 )
+Remove ID: 11
 Add edge ( 5, 17 )
 Remove ID: 9
 Clean Frontier
@@ -359,15 +360,6 @@ Add edge ( 2, 4 )
 Remove ID: 19
 Add edge ( 0, 5 )
 Remove ID: 17
-Remove Gadget
-Frontier:
-
-Axels:
-
-Frontier:
-
-Axels:
-
 Finish extracting!
 Permute Qubit
 Successfully generated QCir 0
@@ -386,25 +378,28 @@ qsyn> zxgs -fr
 
 qsyn> zxgp -q
 
-ID:   1 (●, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   1     (62, -) 
-ID:  62 (●, 0)           (Qubit, Col): (0, 12)	  #Neighbors:   1     (1, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   1     (68, -) 
+ID:  68 (●, 0)           (Qubit, Col): (0, 12)	  #Neighbors:   1     (1, -) 
 
 
-ID:   3 (●, 0)           (Qubit, Col): (1, 2)	  #Neighbors:   1     (63, -) 
-ID:  63 (●, 0)           (Qubit, Col): (1, 12)	  #Neighbors:   1     (3, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 2)	  #Neighbors:   1     (69, -) 
+ID:  69 (●, 0)           (Qubit, Col): (1, 12)	  #Neighbors:   1     (3, -) 
 
 
-ID:   5 (●, 0)           (Qubit, Col): (2, 2)	  #Neighbors:   1     (64, -) 
-ID:  64 (●, 0)           (Qubit, Col): (2, 12)	  #Neighbors:   1     (5, -) 
+ID:   5 (●, 0)           (Qubit, Col): (2, 2)	  #Neighbors:   1     (70, -) 
+ID:  70 (●, 0)           (Qubit, Col): (2, 12)	  #Neighbors:   1     (5, -) 
 
 
 qsyn> qccp
-QCir 0( 3 qubits, 37 gates)
+QCir 0( 3 qubits, 40 gates)
 
 qsyn> qccp -q
-Q 0  -cx(36)--cx(35)--cx(34)-- h(29)-- h(26)--cx(25)--cx(22)--cz(19)--td(15)-- h(12)--cx(11)--cx(10)--cx( 7)-- h( 4)-- t( 0)-
-Q 1  -cx(36)--cx(35)--cx(34)--cx(33)--cx(32)--cx(31)-- h(27)--cx(25)--cx(24)--cx(23)--cx(22)-- t(16)-- h(13)--cx(10)--cx( 9)--cx( 8)--cx( 7)-- h( 5)-- t( 1)-
-Q 2  -cx(33)--cx(32)--cx(31)-- h(30)-- h(28)--cx(24)--cx(23)--td(21)-- h(20)--cz(19)-- h(18)--td(17)-- h(14)--cx(11)--cx( 9)--cx( 8)-- h( 6)-- t( 3)-- h( 2)-
+Q 0  -cx(39)--cx(38)--cx(37)-- h(32)-- h(29)--cx(28)--cx(27)--cx(24)-- t(17)-- h(14)--cx(13)--cx(11)--cx( 8)--cx( 7)-- h( 4)-- t( 0)-
+Q 1  -cx(39)--cx(38)--cx(37)--cx(36)--cx(35)--cx(34)-- h(30)--cx(28)--cx(26)--cx(25)--cx(24)--cz(21)--td(18)-- h(15)--cx(13)--cx(12)--cx(10)--cx( 9)--cx( 7)-- h( 5)-- t( 1)-
+Q 2  -cx(36)--cx(35)--cx(34)-- h(33)-- h(31)--cx(27)--cx(26)--cx(25)--td(23)-- h(22)--cz(21)-- h(20)--td(19)-- h(16)--cx(12)--cx(11)--cx(10)--cx( 9)--cx( 8)-- h( 6)-- t( 3)-- h( 2)-
+
+qsyn> zxgt -id
+The graph is an identity!
 
 qsyn> qq -f
 
