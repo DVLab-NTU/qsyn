@@ -21,12 +21,12 @@ qsyn> qcga -z 0
 
 qsyn> qccp -l
 Listed by gate ID
-Gate 0: h   	 Exec Time: 0 	 Qubit: 0 
-Gate 1: h   	 Exec Time: 1 	 Qubit: 0 
-Gate 2: z   	 Exec Time: 2 	 Qubit: 0 
-Gate 3: h   	 Exec Time: 3 	 Qubit: 0 
-Gate 4: h   	 Exec Time: 4 	 Qubit: 0 
-Gate 5: z   	 Exec Time: 5 	 Qubit: 0 
+ID:   0 (  h)      Time:    0     Qubit:   0 
+ID:   1 (  h)      Time:    1     Qubit:   0 
+ID:   2 (  z)      Time:    2     Qubit:   0 
+ID:   3 (  h)      Time:    3     Qubit:   0 
+ID:   4 (  h)      Time:    4     Qubit:   0 
+ID:   5 (  z)      Time:    5     Qubit:   0 
 
 qsyn> qc2zx
 Traverse and build the graph... 

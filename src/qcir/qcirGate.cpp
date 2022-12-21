@@ -96,12 +96,13 @@ void QCirGate::setChild(size_t qubit, QCirGate *c)
  */
 void QCirGate::printGate() const
 {
-  cout << "Gate " << _id << ": " << getTypeStr() << "   \t"
-       << " Exec Time: " << _time << " \t"
-       << " Qubit: ";
+  cout << "ID:" << right << setw(4) << _id;
+  cout << " (" << right << setw(3) << getTypeStr() << ") ";
+  // cout << "Gate " << _id << ": " << getTypeStr() << "   \t"
+  cout << "     Time: " << right << setw(4) << _time << "     Qubit: ";
   for (size_t i = 0; i < _qubits.size(); i++)
   {
-    cout << _qubits[i]._qubit << " ";
+    cout << right << setw(3) << _qubits[i]._qubit << " ";
   }
   cout << endl;
 }
