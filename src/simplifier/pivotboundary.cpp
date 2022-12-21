@@ -55,6 +55,7 @@ void PivotBoundary::match(ZXGraph* g) {
             if (nb->isBoundary()) continue;
             if (!nb->hasNPiPhase()) continue;
             if (etype != EdgeType::HADAMARD) continue;
+            if (nb->isGadgetAxel()) continue; // nb is the axel of a phase gadget
             vt = nb;
             break;
         }
@@ -76,6 +77,8 @@ void PivotBoundary::match(ZXGraph* g) {
 
         taken.insert(vs);
         taken.insert(vt);
+        cout << vs->getId() << ", " << vt->getId() << endl;
+        
         for (auto& [nb, _] : vs->getNeighbors()) taken.insert(nb);
         for (auto& [nb, _] : vt->getNeighbors()) taken.insert(nb);
 

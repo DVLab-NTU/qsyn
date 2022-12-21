@@ -95,6 +95,7 @@ class ZXVertex{
         bool isNeighbor(const NeighborPair& n)          const { return _neighbors.contains(n); }
         bool isNeighbor(ZXVertex* v, EdgeType et)       const { return isNeighbor(make_pair(v, et)); }
         bool hasNPiPhase()                              const { return _phase.getRational().denominator() == 1; }
+        bool isGadgetAxel() const;
         
         
 

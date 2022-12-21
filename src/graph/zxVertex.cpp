@@ -90,6 +90,16 @@ void ZXVertex::disconnect(ZXVertex* v, bool checked) {
     v->removeNeighbor(make_pair(this, EdgeType::HADAMARD));
 }
 
+bool ZXVertex::isGadgetAxel() const {
+    return any_of(
+        _neighbors.begin(), 
+        _neighbors.end(), 
+        [](const NeighborPair& nbp){ 
+            return nbp.first->getNumNeighbors() == 1;
+        }
+    );
+}
+
 
 /*****************************************************/
 /*   Vertex Type & Edge Type functions               */
