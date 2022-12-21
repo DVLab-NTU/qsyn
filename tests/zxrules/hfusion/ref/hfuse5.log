@@ -105,7 +105,7 @@ ID:   3 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   
 ID:   4 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (1, -) (3, [1m[34mH[0m[0m) 
 Total #Vertices: 5
 
-Hadamard Rule: 1 Add edge ( 3, 0 )
+Hadamard Rule: 1 Add edge ( 0, 3 )
 Remove ID: 2
 . 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (3, -) 

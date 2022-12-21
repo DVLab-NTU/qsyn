@@ -149,13 +149,13 @@ Add edge ( 14, 13 )
 Remove edge ( 5, 13 ), type: -
 > rewrite...
 vs: 10	vt: 13
-Add edge ( 9, 6 )
-Add edge ( 9, 8 )
+Add edge ( 6, 9 )
+Add edge ( 8, 9 )
 Add edge ( 9, 14 )
-Add edge ( 9, 7 )
+Add edge ( 7, 9 )
 Add edge ( 6, 7 )
-Add edge ( 8, 7 )
-Add edge ( 14, 7 )
+Add edge ( 7, 8 )
+Add edge ( 7, 14 )
 Remove ID: 10
 Remove ID: 13
 
