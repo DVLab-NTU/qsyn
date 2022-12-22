@@ -1,0 +1,17 @@
+color 0
+zxgread benchmark/bzx/tof3.bzx -bzx
+ver 0
+zxgs -fr
+zxgp -q
+ver 5
+zx2qc
+ver 0
+qc2zx 
+zxgadj 
+zxcomp 0
+zxgs -fr    
+zxgp -q
+qccp
+qccp -q
+zxgt -id
+qq -f

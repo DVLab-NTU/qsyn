@@ -1,0 +1,71 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/rd73_252.qasm
+Note: QCir list is empty now. Create a new one.
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 3004
+└── CX: 2319
+T-family: 2317
+Others  : 0
+
+
+qsyn> qc2zx
+
+qsyn> zxgs -fr
+
+qsyn> usage
+Period time used : 0.48 seconds
+Total time used  : 0.48 seconds
+Total memory used: 27.12 M Bytes
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 0.76 seconds
+Total time used  : 1.24 seconds
+Total memory used: 27.12 M Bytes
+
+qsyn> qcp
+-> #QCir: 2
+-> Now focus on: 1
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 6845
+└── CX: 4719
+T-family: 1045
+Others  : 0
+
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> usage
+Period time used : 2.59 seconds
+Total time used  : 3.83 seconds
+Total memory used: 27.5 M Bytes
+
+qsyn> zxgt -id 
+The graph is an identity!
+
+qsyn> qq -f
+

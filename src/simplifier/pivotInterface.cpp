@@ -38,10 +38,17 @@ void PivotInterface::rewrite(ZXGraph* g) {
         tmp0.erase(std::find(tmp0.begin(), tmp0.end(), m[1]));
         tmp1.erase(std::find(tmp1.begin(), tmp1.end(), m[0]));
 
-        set_intersection(tmp0.begin(), tmp0.end(), tmp1.begin(), tmp1.end(), back_inserter(n2));
+        auto vidLessThan = [](ZXVertex* const& a, ZXVertex* const& b){
+            return a->getId() < b->getId();
+        };
 
-        set_difference(tmp0.begin(), tmp0.end(), n2.begin(), n2.end(), back_inserter(n0));
-        set_difference(tmp1.begin(), tmp1.end(), n2.begin(), n2.end(), back_inserter(n1));
+        std::sort(tmp0.begin(), tmp0.end(), vidLessThan);
+        std::sort(tmp1.begin(), tmp1.end(), vidLessThan);
+        set_intersection(tmp0.begin(), tmp0.end(), tmp1.begin(), tmp1.end(), back_inserter(n2), vidLessThan);
+
+        std::sort(n2.begin(), n2.end(), vidLessThan);
+        set_difference(tmp0.begin(), tmp0.end(), n2.begin(), n2.end(), back_inserter(n0), vidLessThan);
+        set_difference(tmp1.begin(), tmp1.end(), n2.begin(), n2.end(), back_inserter(n1), vidLessThan);
 
         tmp0.clear();
         tmp1.clear();
@@ -49,16 +56,19 @@ void PivotInterface::rewrite(ZXGraph* g) {
         // Add edge table
         for (const auto& s : n0) {
             for (const auto& t : n1) {
+                assert(s->getId() != t->getId());
                 _edgeTableKeys.push_back(make_pair(s, t));
                 _edgeTableValues.push_back(make_pair(0, 1));
             }
             for (const auto& t : n2) {
+                assert(s->getId() != t->getId());
                 _edgeTableKeys.push_back(make_pair(s, t));
                 _edgeTableValues.push_back(make_pair(0, 1));
             }
         }
         for (const auto& s : n1) {
             for (const auto& t : n2) {
+                assert(s->getId() != t->getId());
                 _edgeTableKeys.push_back(make_pair(s, t));
                 _edgeTableValues.push_back(make_pair(0, 1));
             }

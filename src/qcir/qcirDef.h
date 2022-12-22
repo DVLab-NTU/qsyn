@@ -11,7 +11,6 @@
 
 #include <vector>
 #include "myHashMap.h"
-
 using namespace std;
 
 class QCirGate;

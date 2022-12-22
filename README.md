@@ -9,7 +9,7 @@
 # Qsyn: An End-to-End Quantum Program Compilation Framework
 <!-- ![example branch parameter](https://github.com/ric2k1/qsyn/actions/workflows/build-and-test.yml/badge.svg)
  -->
- ![](https://i.imgur.com/x2lKZXb.png)
+ ![](https://i.imgur.com/NxJvxaL.png)
 
 ## Introduction
 Qsyn is a C++ based growing software system for synthesis, optimization and verification of quantum circuits appearing in quantum computers. Qsyn combines scalable quantum circuits optimization by implementing ZX-Calculus and qubit mapping.

@@ -44,11 +44,10 @@ vector<ZXVertex*> ZXVertex::getCopiedNeighbors() {
  *
  */
 void ZXVertex::printVertex() const {
-    cout << "ID:\t" << _id << "\t";
-    cout << "VertexType:\t" << VertexType2Str(_type) << "\t";
-    cout << "Qubit:\t" << _qubit << "\t";
-    cout << "Phase:\t" << _phase << "\t";
-    cout << "#Neighbors:\t" << _neighbors.size() << "\t";
+    cout << "ID:" << right << setw(4) << _id;
+    cout << " (" << VertexType2Str(_type) << ", " << left << setw(12 - ((_phase == 0) ? 1 : 0)) << (_phase.getPrintString() + ")");
+    cout << "  (Qubit, Col): (" << _qubit << ", " << _col << ")\t"
+         << "  #Neighbors: " << right << setw(3) << _neighbors.size() << "     ";
     printNeighbors();
 }
 
@@ -91,6 +90,16 @@ void ZXVertex::disconnect(ZXVertex* v, bool checked) {
     v->removeNeighbor(make_pair(this, EdgeType::HADAMARD));
 }
 
+bool ZXVertex::isGadgetAxel() const {
+    return any_of(
+        _neighbors.begin(), 
+        _neighbors.end(), 
+        [](const NeighborPair& nbp){ 
+            return nbp.first->getNumNeighbors() == 1;
+        }
+    );
+}
+
 
 /*****************************************************/
 /*   Vertex Type & Edge Type functions               */
@@ -106,6 +115,7 @@ void ZXVertex::disconnect(ZXVertex* v, bool checked) {
 EdgeType toggleEdge(const EdgeType& et) {
     if (et == EdgeType::SIMPLE)
         return EdgeType::HADAMARD;
+    // FIXME - code quality : unnecessary else
     else if (et == EdgeType::HADAMARD)
         return EdgeType::SIMPLE;
     else
@@ -121,6 +131,7 @@ EdgeType toggleEdge(const EdgeType& et) {
 VertexType str2VertexType(const string& str) {
     if (str == "BOUNDARY")
         return VertexType::BOUNDARY;
+    // FIXME - code quality : unnecessary else
     else if (str == "Z")
         return VertexType::Z;
     else if (str == "X")
@@ -153,6 +164,7 @@ string VertexType2Str(const VertexType& vt) {
 EdgeType str2EdgeType(const string& str) {
     if (str == "SIMPLE")
         return EdgeType::SIMPLE;
+    // FIXME - code quality : unnecessary else
     else if (str == "HADAMARD")
         return EdgeType::HADAMARD;
     return EdgeType::ERRORTYPE;

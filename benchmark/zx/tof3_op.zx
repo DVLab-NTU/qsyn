@@ -1,11 +1,11 @@
 // Input 
-I0 0 S10
-I1 1 S7
-I2 2 S8
+I0 0 0 S10
+I1 1 0 S7
+I2 2 0 S8
 // Output 
-O3 0 S10
-O4 1 H26
-O5 2 H19
+O3 0 0 S10
+O4 1 0 H26
+O5 2 0 H19
 // Non-boundary 
 Z7 H8 H14 H21 pi/4
 Z8 H9

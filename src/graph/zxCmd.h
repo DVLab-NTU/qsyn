@@ -32,6 +32,7 @@ CmdClass(ZXGAdjointCmd);
 CmdClass(ZXGAssignCmd);
 
 
+
 #define ZX_CMD_QUBIT_ID_VALID_OR_RETURN(option, qid) {\
 if (!myStr2Int((option), (qid))) { \
     cerr << "Error: invalid qubit number!!" << endl; \

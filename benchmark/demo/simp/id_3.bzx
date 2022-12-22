@@ -1,7 +1,0 @@
-// 3 qubits Identity
-I0 0 S1
-O1 0
-I2 1 S3
-O3 1
-I4 2 S5
-O5 2

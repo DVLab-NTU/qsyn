@@ -167,8 +167,7 @@ ZXGraph *CCXGate::getZXform() //
 
 /**
  * @brief get ZX-graph of CZ
- *        Decomposed into 21 vertices (6X + 6Z + 4T + 3Tdg + 2H)
- * 
+ *        
  * @return ZXGraph* 
  */
 ZXGraph *CZGate::getZXform()

@@ -59,10 +59,11 @@ void SpiderFusion::rewrite(ZXGraph* g) {
     reset();
 
     for (size_t i = 0; i < _matchTypeVec.size(); i++) {
-        _matchTypeVec[i].first->setPhase(_matchTypeVec[i].first->getPhase() + _matchTypeVec[i].second->getPhase());
 
         ZXVertex* v0 = _matchTypeVec[i].first;
         ZXVertex* v1 = _matchTypeVec[i].second;
+
+        v0->setPhase(v0->getPhase() + v1->getPhase());
         Neighbors v1n = v1->getNeighbors();
 
         for (auto& nbp : v1n) {

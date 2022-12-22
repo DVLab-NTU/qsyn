@@ -299,7 +299,7 @@ void ZXTensorCmd::help() const {
 
 
 //----------------------------------------------------------------------
-//    ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike ]
+//    ZXGTest [-GCX | -Empty | -Valid | -GLike | -IDentity]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGTestCmd::exec(const string &option) {
@@ -308,7 +308,7 @@ ZXGTestCmd::exec(const string &option) {
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGTest");
     
-    if (token.empty() || myStrNCmp("-GenerateCNOT", token, 2) == 0) {
+    if (token.empty() || myStrNCmp("-GCX", token, 4) == 0) {
         zxGraphMgr->getGraph()->generateCNOT();
         return CMD_EXEC_DONE;
     }
@@ -338,14 +338,23 @@ ZXGTestCmd::exec(const string &option) {
             cout << "The graph is not graph-like!" << endl;
         }
         return CMD_EXEC_DONE;
-    } 
+    }
+
+    if (myStrNCmp("-IDentity", token, 3) == 0) {
+        if (zxGraphMgr->getGraph()->isIdentity()) {
+            cout << "The graph is an identity!" << endl;
+        } else {
+            cout << "The graph is not an identity!" << endl;
+        }
+        return CMD_EXEC_DONE;
+    }
     
     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     
 }
 
 void ZXGTestCmd::usage(ostream &os) const {
-    os << "Usage: ZXGTest [-GenerateCNOT | -Empty | -Valid | -GLike ]" << endl;
+    os << "Usage: ZXGTest [-GCX | -Empty | -Valid | -GLike | -IDentity ]" << endl;
 }
 
 void ZXGTestCmd::help() const {
