@@ -25,6 +25,7 @@ extern bool initTensorCmd();
 extern bool initExtractCmd();
 extern bool initM2Cmd();
 extern bool initGFlowCmd();
+extern bool initLTCmd();
 size_t verbose = 3;
 size_t colorLevel = 1;
 
@@ -67,7 +68,8 @@ int main(int argc, char** argv) {
         !initTensorCmd() || 
         !initM2Cmd() || 
         !initExtractCmd() ||
-        !initGFlowCmd()
+        !initGFlowCmd() ||
+        !initLTCmd()
     ) {
         return 1;
     }
