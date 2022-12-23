@@ -182,7 +182,7 @@ void LTContainer::generateLTC(ZXGraph* g){
         }
 
         // Start mapping to LTC
-        resize(end.size()+2, start.size()+2);
+        resize(end.size()+1, start.size()+1);
         unordered_map<string, pair<int, int> > set;
         int count = 0;
         for(auto itr = start.begin(); itr != start.end(); itr++){
@@ -248,16 +248,13 @@ void LTContainer::generateLTC(ZXGraph* g){
         }
         
         // Compensate horizontally
-        printLTC();
         addCol2Right(-1);
-        printLTC();
         for(auto& s : eCand){
             s.second.second++;
             cout << s.first << ": (" << s.second.first << "," << s.second.second << ")\n";
             size_t p = s.first.find_first_of(",",0);
             int qs = stoi(s.first.substr(0, p));
             int qe = stoi(s.first.substr(p+1, s.first.size()-p-1));
-            // qEnd must be the same
             for(size_t x = 1; x < _container[0].size(); x++){
                 if(_container[s.second.second][x]->getQStart() != -3 && _container[s.second.second][x]->getQEnd() != -3){
                     _container[s.second.second][x-1]->setQStart(qs);
@@ -266,9 +263,6 @@ void LTContainer::generateLTC(ZXGraph* g){
                 }
             }
         }
-        // for(auto & s : set){
-        //     cout << s.first << ": (" << s.second.first << "," << s.second.second << ")\n";
-        // }
     }
 }
 
