@@ -67,7 +67,7 @@ void LTContainer::updateRC(){
 
 void LTContainer::addCol2Right(int c){
     _nCol++;
-    if(c >= _nCol-1){
+    if(c >= (int)_nCol-1){
         // Add to the right of the container
         for(size_t r = 0; r < _nRow; r++){
             Lattice* l = new Lattice(r, _nCol-1);
@@ -77,7 +77,7 @@ void LTContainer::addCol2Right(int c){
     else if(c < 0){
         // Add to the left of the container
         for(size_t r = 0; r < _nRow; r++){
-            Lattice* l = new Lattice(r, _nCol-1);
+            Lattice* l = new Lattice(r, 0);
             _container[r].insert(_container[r].begin(), l);
         }
         updateRC();
@@ -104,7 +104,7 @@ void LTContainer::addRow2Bottom(int r){
         _container.insert(_container.begin(), tmp);
         updateRC();
     }
-    else if(r >= _nRow-1){
+    else if(r >= (int)_nRow-1){
         // Add at the bottom of the container
         vector<Lattice* > tmp;
         for(size_t i = 0; i < _nCol; i++){
@@ -216,6 +216,7 @@ void LTContainer::generateLTC(ZXGraph* g){
         }
         
         // Compensate vertically
+        addRow2Bottom(-1);
         for(auto& s : sCand){
             if(verbose > 3) cout << s.first << ": (" << s.second.first << "," << s.second.second << ")\n";
             if(_container[0][s.second.first]->getQStart() == -3 && _container[0][s.second.first]->getQEnd() == -3){
@@ -247,34 +248,24 @@ void LTContainer::generateLTC(ZXGraph* g){
         }
         
         // Compensate horizontally
-        // for(auto& s : eCand){
-        //     cout << s.first << ": (" << s.second.first << "," << s.second.second << ")\n";
-        //     size_t p = s.first.find_first_of(",",0);
-        //     int qs = stoi(s.first.substr(0, p));
-        //     int qe = stoi(s.first.substr(p+1, s.first.size()-p-1));
-        //     // qEnd must be the same
-            
-            
-        //     for(size_t x = 0; x < _container[0].size(); x++){
-        //         if(_container[s.second.second][x]->getQEnd() == qe){
-        //             if(_container[s.second.second][x-1]->getQEnd() == -3){
-        //                 _container[s.second.second][x-1]->setQStart(qs);
-        //                 _container[s.second.second][x-1]->setQEnd(qe);
-        //                 break;
-        //             }
-        //             else{
-        //                 cout << "add: " << x-1 << endl;
-        //                 addCol2Right(x-1);
-        //                 _container[s.second.second][x-1]->setQStart(qs);
-        //                 _container[s.second.second][x-1]->setQEnd(qe);
-        //                 break;
-        //             }
-        //         }
-        //     }
-        // }
-
-
-
+        printLTC();
+        addCol2Right(-1);
+        printLTC();
+        for(auto& s : eCand){
+            s.second.second++;
+            cout << s.first << ": (" << s.second.first << "," << s.second.second << ")\n";
+            size_t p = s.first.find_first_of(",",0);
+            int qs = stoi(s.first.substr(0, p));
+            int qe = stoi(s.first.substr(p+1, s.first.size()-p-1));
+            // qEnd must be the same
+            for(size_t x = 1; x < _container[0].size(); x++){
+                if(_container[s.second.second][x]->getQStart() != -3 && _container[s.second.second][x]->getQEnd() != -3){
+                    _container[s.second.second][x-1]->setQStart(qs);
+                    _container[s.second.second][x-1]->setQEnd(qe);
+                    break;
+                }
+            }
+        }
         // for(auto & s : set){
         //     cout << s.first << ": (" << s.second.first << "," << s.second.second << ")\n";
         // }

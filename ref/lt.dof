@@ -1,4 +1,4 @@
-verb 4
+verb 2
 zxgread benchmark/bczx/lattice7.bzx -bzx
 zxgp -v
 lts
