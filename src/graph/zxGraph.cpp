@@ -531,7 +531,7 @@ void ZXGraph::transferPhase(ZXVertex* v, const Phase& keepPhase) {
  * @param etype the edgetype the buffer should be added on
  */
 ZXVertex* ZXGraph::addBuffer(ZXVertex* toProtect, ZXVertex* fromVertex, EdgeType etype) {
-    if (!toProtect->isNeighbor(fromVertex, etype)) return;
+    if (!toProtect->isNeighbor(fromVertex, etype)) return nullptr;
 
     ZXVertex* bufferVertex = this->addVertex(toProtect->getQubit(), VertexType::Z, Phase(0), true);
 

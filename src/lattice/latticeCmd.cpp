@@ -60,6 +60,6 @@ void LTCmd::usage(ostream &os) const{
 }
 
 void LTCmd::help() const{
-    cout << setw(15) << left << "ZXGSimp: " << "perform simplification strategies for ZX-graph" << endl; 
+    cout << setw(15) << left << "LTS: " << "perform mapping from ZX-graph to corresponding lattice surgery" << endl; 
 }
 

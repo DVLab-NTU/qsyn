@@ -16,4 +16,5 @@ lattice.o: lattice.cpp lattice.h ../../include/zxDef.h \
  ../../include/rationalNumber.h ../../include/util.h \
  ../../include/rnGen.h ../../include/myUsage.h ../../include/qtensor.h \
  ../../include/tensor.h ../../include/tensorDef.h \
- ../../include/tensorUtil.h ../../include/textFormat.h
+ ../../include/tensorUtil.h ../../include/gFlow.h ../../include/zxGraph.h \
+ ../../include/m2.h ../../include/m2Def.h ../../include/textFormat.h

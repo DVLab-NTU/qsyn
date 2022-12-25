@@ -73,7 +73,7 @@ public:
     const Row& getRow(size_t r) { return _matrix[r]; }
 
     size_t numRows() const { return _matrix.size(); }
-    size_t numCols() const { return _matrix[0].size(); }
+    size_t numCols() const { return _matrix.empty() ? 0 : _matrix[0].size(); }
     
     void clear() { _matrix.clear(); _opStorage.clear(); }
 

@@ -32,10 +32,10 @@ class Lattice{
         void setCol(unsigned c)                 { _col = c; }
         void setQStart(size_t qs)               { _qStart = qs; }
         void setQEnd(size_t qe)                 { _qEnd = qe; }
-        unsigned getRow()                       { return _row; }
-        unsigned getCol()                       { return _col; }
-        int getQStart()                         { return _qStart; }
-        int getQEnd()                           { return _qEnd; }
+        unsigned getRow() const                 { return _row; }
+        unsigned getCol() const                 { return _col; }
+        int getQStart() const                   { return _qStart; }
+        int getQEnd() const                     { return _qEnd; }
 
         void printLT() const;
 
@@ -48,14 +48,12 @@ class Lattice{
 
 class LTContainer{
     public:
-        LTContainer(unsigned nr, unsigned nc): _nRow(nr), _nCol(nc){
+        LTContainer(unsigned nr, unsigned nc) {
             for(size_t r = 0; r < nr; r++){
-                vector<Lattice*> rL;
+                _container.push_back(vector<Lattice>());
                 for(size_t c = 0; c < nc; c++){
-                    Lattice* l = new Lattice(r, c);
-                    rL.push_back(l);
+                    _container.back().emplace_back(r, c);
                 }
-                _container.push_back(rL);
             }
         }
         ~LTContainer(){}
@@ -67,11 +65,25 @@ class LTContainer{
         void generateLTC(ZXGraph* g);
         void addCol2Right(int c);
         void addRow2Bottom(int r);
+
+        size_t numRows() const { return _container.size(); }
+        size_t numCols() const { return (_container.empty()) ? 0 : _container[0].size(); }
     private:
-        unsigned _nRow;
-        unsigned _nCol;
-        vector<vector<Lattice* > > _container;
+        vector<vector<Lattice>> _container;
 
 };
+
+namespace std {
+template <>
+struct hash<pair<int, int>> {
+    size_t operator()(const pair<int, int>& k) const {
+        return (
+            (hash<int>()(k.first) ^ 
+            (hash<int>()(k.second) << 1)) >> 1
+        );
+    }
+};
+
+}
 
 #endif

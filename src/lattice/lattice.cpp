@@ -6,9 +6,12 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include "lattice.h"
+
 #include <iomanip>
 #include <unordered_set>
-#include "lattice.h"
+
+#include "gFlow.h"
 #include "textFormat.h"
 
 namespace TF = TextFormat;
@@ -16,132 +19,140 @@ namespace TF = TextFormat;
 using namespace std;
 extern size_t verbose;
 
-
-void printMap(unordered_map<int, unordered_set<int>> map){
-    for(auto& s : map){
+void printMap(unordered_map<int, unordered_set<int>> map) {
+    for (auto& s : map) {
         cout << s.first << ": ";
-        for(auto& v : s.second) cout << v << ", ";
+        for (auto& v : s.second) cout << v << ", ";
         cout << endl;
     }
 }
 
-void Lattice::printLT() const{
+void Lattice::printLT() const {
     cout << "( " << _row << ", " << _col << " ): " << _qStart << "/" << _qEnd << endl;
 }
 
-void LTContainer::resize(unsigned r, unsigned c){
-    _nRow = r; _nCol = c;
-    for(size_t r = 0; r < _nRow; r++){
-        vector<Lattice*> rL;
-        for(size_t c = 0; c < _nCol; c++){
-            Lattice* l = new Lattice(r, c);
-            rL.push_back(l);
+void LTContainer::resize(unsigned r, unsigned c) {
+    _container.clear();
+    for (size_t i = 0; i < r; i++) {
+        _container.push_back(vector<Lattice>());
+        for (size_t j = 0; j < c; j++) {
+            _container.back().emplace_back(i, j);
         }
-        _container.push_back(rL);
     }
 }
 
 void LTContainer::printLTC() const {
-    for(size_t c = 0; c < _nCol; c++){
-        if(c != _nCol-1) cout << setw(5) << right << c << setw(5) << right << "|";
-        else cout << setw(5) << right << c << setw(5) << right << "|" << endl;
-    } 
-    for(size_t r = 0; r < _nRow; r++){
-        for(size_t c = 0; c < _nCol; c++){
-            if(c != _nCol-1) cout << setw(4) << right << ((_container[r][c] -> getQStart() == -3) ? "-" : to_string(_container[r][c] -> getQStart())) << "/" << ((_container[r][c] -> getQEnd() == -3) ? "-" : to_string(_container[r][c] -> getQEnd())) << setw(4) << right << "|";
-            else cout << setw(4) << right << ((_container[r][c] -> getQStart() == -3) ? "-" : to_string(_container[r][c] -> getQStart())) << "/" << ((_container[r][c] -> getQEnd() == -3)? "-" : to_string(_container[r][c] -> getQEnd())) << setw(4) << right << "|" << endl;
+    for (size_t c = 0; c < numCols(); c++) {
+        cout << setw(5) << right << c << setw(5) << right << "|";
+    }
+    cout << endl;
+    for (auto& row : _container) {
+        for (auto& lattice : row) {
+            cout << setw(4) << right << ((lattice.getQStart() == -3) ? "-" : to_string(lattice.getQStart())) << "/"
+                 << ((lattice.getQEnd() == -3) ? "-" : to_string(lattice.getQEnd())) << setw(4) << right << "|";
+        }
+        cout << endl;
+    }
+}
+
+void LTContainer::updateRC() {
+    for (size_t i = 0; i < numRows(); i++) {
+        for (size_t j = 0; j < numCols(); j++) {
+            _container[i][j].setRow(i);
+            _container[i][j].setCol(j);
         }
     }
 }
 
-
-
-void LTContainer::updateRC(){
-    for(size_t i = 0; i < _container.size(); i++){
-        for(size_t j = 0; j < _container[i].size(); j++){
-            _container[i][j]->setRow(i);
-            _container[i][j]->setCol(j);
-        }
+void LTContainer::addCol2Right(int c) {
+    size_t iterOffset;
+    if (c < 0) {
+        iterOffset = 0;
+    } else if (size_t(c) >= numCols()) {
+        iterOffset = numCols();
+    } else {
+        iterOffset = c + 1;
     }
-}
 
-void LTContainer::addCol2Right(int c){
-    _nCol++;
-    if(c >= (int)_nCol-1){
-        // Add to the right of the container
-        for(size_t r = 0; r < _nRow; r++){
-            Lattice* l = new Lattice(r, _nCol-1);
-            _container[r].push_back(l);
-        }
+    for (size_t r = 0; r < numRows(); r++) {
+        _container[r].emplace(_container[r].begin() + iterOffset, r, iterOffset);
     }
-    else if(c < 0){
-        // Add to the left of the container
-        for(size_t r = 0; r < _nRow; r++){
-            Lattice* l = new Lattice(r, 0);
-            _container[r].insert(_container[r].begin(), l);
-        }
-        updateRC();
-    }
-    else{
-        // Add in the middle of the container (right of the original `c`)
-        for(size_t r = 0; r < _nRow; r++){
-            Lattice* l = new Lattice(r, _nCol-1);
-            _container[r].insert(_container[r].begin() + c + 1, l);
-        }
+
+    if (iterOffset < numCols() - 1) {
         updateRC();
     }
 }
 
-void LTContainer::addRow2Bottom(int r){
-    _nRow++;
-    if(r < 0){
-        // Add at the top of the container
-        vector<Lattice* > tmp;
-        for(size_t i = 0; i < _nCol; i++){
-            Lattice* l = new Lattice(0, i);
-            tmp.push_back(l);
-        }
-        _container.insert(_container.begin(), tmp);
-        updateRC();
+void LTContainer::addRow2Bottom(int r) {
+    size_t iterOffset = 0;
+    if (r < 0) {
+        iterOffset = 0;
+    } else if (size_t(r) >= numRows()) {
+        iterOffset = numRows();
+    } else {
+        iterOffset = r + 1;
     }
-    else if(r >= (int)_nRow-1){
-        // Add at the bottom of the container
-        vector<Lattice* > tmp;
-        for(size_t i = 0; i < _nCol; i++){
-            Lattice* l = new Lattice(_nRow-1, i);
-            tmp.push_back(l);
-        }
-        _container.push_back(tmp);
+
+    auto nc = numCols(); 
+
+    auto itr = _container.insert(_container.begin() + iterOffset, vector<Lattice>());
+    for (size_t i = 0; i < nc; i++) {
+        itr->emplace_back(iterOffset, i);
     }
-    else{
-        // Add in the middle of the container
-        vector<Lattice* > tmp;
-        for(size_t i = 0; i < _nCol; i++){
-            Lattice* l = new Lattice(_nRow-1, i);
-            tmp.push_back(l);
-        }
-        _container.insert(_container.begin()+r+1,tmp);
+    printLTC();
+    
+    if (iterOffset < numRows() - 1) {
         updateRC();
     }
 }
 
-void LTContainer::generateLTC(ZXGraph* g){
+void LTContainer::generateLTC(ZXGraph* g) {
     // Prerequisite:
     // Input col: 0
     // Output col: all equivalent and be the max col in `g`
     // Odd col: X , Even col: Z -> Col[1,2] as a unit
-    // Not allow empty cols 
+    // Not allow empty cols
     // `g` is consisted of several pairs of unit's composition
 
-    vector<vector<ZXVertex*> > colGroup;
+    using lsCoord = pair<int, int>;
+    using qStartEnd = pair<int, int>;
+
+    // ZXGraph* copyGraph = g->copy();
+
+    // GFlow gflow(copyGraph);
+
+    // gflow.calculate();
+
+    // GFlow::Levels levels = gflow.getLevels();  // gflow levels are reversed to the measurement order
+    // reverse(levels.begin(), levels.end());     // reverse to match measurement order
+    // // set column
+    // for (size_t i = 0; i < levels.size(); ++i) {
+    //     for (auto& v : levels[i]) {
+    //         v->setCol(i);
+    //     }
+    // }
+
+    // for (size_t i = 0; i < levels.size() - 1; ++i) {
+    //     for (auto& v : levels[i]) {
+    //         for (auto [nb, etype] : v->getNeighbors()) {  // deliberately copy to avoid iterator invalidation
+    //             if (nb->getCol() > i + 1) {
+    //                 ZXVertex* buffer = g->addBuffer(nb, v, etype);
+    //                 buffer->setCol(i + 1);
+    //                 levels[i + 1].insert(buffer);
+    //             }
+    //         }
+    //     }
+    // }
+
+    vector<vector<ZXVertex*>> colGroup;
     unsigned int maxCol = 0;
-    for(auto & o : g->getOutputs()){
-        if(o->getCol() > maxCol) maxCol = o->getCol();
+    for (auto& o : g->getOutputs()) {
+        if (o->getCol() > maxCol) maxCol = o->getCol();
     }
     cout << "MaxCol: " << maxCol << endl;
 
-    colGroup.resize(maxCol+1);
-    for(auto & v: g->getVertices()){
+    colGroup.resize(maxCol + 1);
+    for (auto& v : g->getVertices()) {
         colGroup[v->getCol()].push_back(v);
     }
     // Print
@@ -152,29 +163,27 @@ void LTContainer::generateLTC(ZXGraph* g){
     //     }
     //     cout << endl;
     // }
-    if(!(maxCol % 2)) return;
-    for(unsigned int i = 1; i <= maxCol/2; i++){
+    if (!(maxCol % 2)) return;
+    for (unsigned int i = 1; i <= maxCol / 2; i++) {
         unordered_map<int, unordered_set<int>> start, end;
-        
+
         // Generate start
-        for(auto& v : colGroup[2*i-1]){
-            unordered_set<int> tmp;
-            start[v->getQubit()] = tmp;
-            for(auto& n : v->getNeighbors()){
-                if(n.first->getCol() > v->getCol()) start[v->getQubit()].insert(n.first->getQubit());
+        for (auto& v : colGroup[2 * i - 1]) {
+            start[v->getQubit()] = unordered_set<int>();
+            for (auto& n : v->getNeighbors()) {
+                if (n.first->getCol() > v->getCol()) start[v->getQubit()].insert(n.first->getQubit());
             }
         }
 
         // Generate End
-        for(auto& v : colGroup[2*i]){
-            unordered_set<int> tmp;
-            end[v->getQubit()] = tmp;
-            for(auto& n : v->getNeighbors()){
-                if(n.first->getCol() < v->getCol()) end[v->getQubit()].insert(n.first->getQubit());
+        for (auto& v : colGroup[2 * i]) {
+            end[v->getQubit()] = unordered_set<int>();
+            for (auto& n : v->getNeighbors()) {
+                if (n.first->getCol() < v->getCol()) end[v->getQubit()].insert(n.first->getQubit());
             }
         }
 
-        if(verbose > 3){
+        if (verbose > 3) {
             cout << "Start:" << endl;
             printMap(start);
             cout << "End:" << endl;
@@ -182,88 +191,86 @@ void LTContainer::generateLTC(ZXGraph* g){
         }
 
         // Start mapping to LTC
-        resize(end.size()+1, start.size()+1);
-        unordered_map<string, pair<int, int> > set;
+        resize(end.size() + 1, start.size() + 1);
+ 
+        unordered_map<qStartEnd, lsCoord> set;  // (qs, qe) -> (row, col)
         int count = 0;
-        for(auto itr = start.begin(); itr != start.end(); itr++){
-            cout << itr->first << endl;
-            for(auto& item : itr->second){
-                string str = to_string(itr->first) +","+to_string(item);
-                set[str] = make_pair(count, -1);
+        for (auto& [start_i, start_set] : start) {
+            cout << "Start i: " << start_i << endl;
+            for (auto& end_j : start_set) {
+                set[make_pair(start_i, end_j)] = make_pair(count, -1);
             }
             count++;
         }
         count = 0;
-        for(auto& e : end){
-            for(auto& s : e.second){
-                string str = to_string(s)+","+to_string(e.first);
-                if(set.find(str) != set.end()) set[str].second = count;
-                else set[str] = make_pair(-1, count);
+        
+        for (auto& [end_i, end_set] : end) {
+            for (auto& start_j : end_set) {
+                auto key = make_pair(start_j, end_i);
+                if (set.contains(key))
+                    set[key].second = count;
+                else
+                    set[key] = make_pair(-1, count);
             }
             count++;
         }
-        vector<pair<string, pair<int, int> > > sCand, eCand;
-        for(auto& s : set){
-            if(s.second.first != -1 && s.second.second != -1){
-                size_t p = s.first.find_first_of(",",0);
-                int x = stoi(s.first.substr(0, p));
-                int y = stoi(s.first.substr(p+1, s.first.size()-p-1));
-                _container[s.second.second][s.second.first]->setQStart(x);
-                _container[s.second.second][s.second.first]->setQEnd(y);
-            } 
-            else if(s.second.first == -1) eCand.push_back(s);
-            else if(s.second.second == -1) sCand.push_back(s);
+        
+        vector<pair<qStartEnd, lsCoord>> sCand, eCand;
+        for (auto& [key, value] : set) {
+            auto& [qStart, qEnd] = key;
+            auto& [lsCol, lsRow] = value;
+            if (lsCol != -1 && lsRow != -1) {
+                _container[lsRow][lsCol].setQStart(qStart);
+                _container[lsRow][lsCol].setQEnd(qEnd);
+            } else if (lsCol == -1)
+                eCand.emplace_back(key, value);
+            else if (lsRow == -1)
+                sCand.emplace_back(key, value);
         }
         
         // Compensate vertically
         addRow2Bottom(-1);
-        for(auto& s : sCand){
-            if(verbose > 3) cout << s.first << ": (" << s.second.first << "," << s.second.second << ")\n";
-            if(_container[0][s.second.first]->getQStart() == -3 && _container[0][s.second.first]->getQEnd() == -3){
+        for (auto& [key, value] : sCand) {
+            auto& [qStart, qEnd] = key;
+            auto& [lsCol, lsRow] = value;
+            if (verbose > 3) cout << qStart << "," << qEnd << ": (" << lsCol << "," << lsRow << ")\n";
+            if (_container[0][lsCol].getQStart() == -3 && _container[0][lsCol].getQEnd() == -3) {
                 // Find first not (-3, -3)
-                for(size_t x = 1; x < _container.size(); x++){
-                    if(_container[x][s.second.first]->getQStart() != -3 && _container[x][s.second.first]->getQEnd() != -3){
-                        size_t p = s.first.find_first_of(",",0);
-                        int qs = stoi(s.first.substr(0, p));
-                        int qe = stoi(s.first.substr(p+1, s.first.size()-p-1));
-                        _container[x-1][s.second.first]->setQStart(qs);
-                        _container[x-1][s.second.first]->setQEnd(qe);
+                for (size_t x = 1; x < numRows(); x++) {
+                    if (_container[x][lsCol].getQStart() != -3 && _container[x][lsCol].getQEnd() != -3) {
+                        _container[x - 1][lsCol].setQStart(qStart);
+                        _container[x - 1][lsCol].setQEnd(qEnd);
                         break;
                     }
                 }
-            }
-            else{
+            } else {
                 // Find first (-3, -3)
-                for(size_t x = 1; x < _container.size(); x++){
-                    if(_container[x][s.second.first]->getQStart() == -3 && _container[x][s.second.first]->getQEnd() == -3){
-                        size_t p = s.first.find_first_of(",",0);
-                        int qs = stoi(s.first.substr(0, p));
-                        int qe = stoi(s.first.substr(p+1, s.first.size()-p-1));
-                        _container[x][s.second.first]->setQStart(qs);
-                        _container[x][s.second.first]->setQEnd(qe);
+                for (size_t x = 1; x < numRows(); x++) {
+                    if (_container[x][lsCol].getQStart() == -3 && _container[x][lsCol].getQEnd() == -3) {
+                        _container[x][lsCol].setQStart(qStart);
+                        _container[x][lsCol].setQEnd(qEnd);
                         break;
                     }
                 }
             }
         }
+
         
+
         // Compensate horizontally
         addCol2Right(-1);
-        for(auto& s : eCand){
-            s.second.second++;
-            cout << s.first << ": (" << s.second.first << "," << s.second.second << ")\n";
-            size_t p = s.first.find_first_of(",",0);
-            int qs = stoi(s.first.substr(0, p));
-            int qe = stoi(s.first.substr(p+1, s.first.size()-p-1));
-            for(size_t x = 1; x < _container[0].size(); x++){
-                if(_container[s.second.second][x]->getQStart() != -3 && _container[s.second.second][x]->getQEnd() != -3){
-                    _container[s.second.second][x-1]->setQStart(qs);
-                    _container[s.second.second][x-1]->setQEnd(qe);
+        for (auto& [key, value] : eCand) {
+            auto& [qStart, qEnd] = key;
+            auto& [lsCol, lsRow] = value;
+            lsRow++;
+            cout << qStart << "," << qEnd << ": (" << lsCol << "," << lsRow << ")\n";
+            for (size_t x = 1; x < numCols(); x++) {
+                if (_container[lsRow][x].getQStart() != -3 && _container[lsRow][x].getQEnd() != -3) {
+                    _container[lsRow][x - 1].setQStart(qStart);
+                    _container[lsRow][x - 1].setQEnd(qEnd);
                     break;
                 }
             }
         }
     }
 }
-
-
