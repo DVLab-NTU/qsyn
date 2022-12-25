@@ -29,6 +29,7 @@ void GFlow::reset() {
  *
  */
 bool GFlow::calculate() {
+    //REVIEW - exclude boundary nodes
     reset();
 
     calculateZerothLayer();
