@@ -36,7 +36,7 @@ enum class GateType{
     RZ,Z,S,SDG,T,TDG,
     RX,X,SX,
     RY,Y,SY,
-    MCRZ,CZ,CCZ,
+    MCP,CRZ,CZ,CCZ,
     MCRX,CX,CCX,
     MCRY,
     ERRORTYPE       // Never use this
@@ -109,17 +109,31 @@ public:
   virtual void printGateInfo(bool st) const       { printSingleQubitGate("H", st); } 
 };
 
-class CnRZGate : public QCirGate {
+class CnPGate : public QCirGate {
 public:
-  CnRZGate(size_t id): QCirGate(id)               { _type = "mcrz"; }
-  virtual ~CnRZGate(){};
-  virtual string getTypeStr() const               { return _qubits.size() > 2 ? _type : "crz";}
-  virtual GateType getType() const                { return GateType::MCRZ; }
+  CnPGate(size_t id): QCirGate(id)               { _type = "mcp"; }
+  virtual ~CnPGate(){};
+  virtual string getTypeStr() const               { return _qubits.size() > 2 ? _type : "cp";}
+  virtual GateType getType() const                { return GateType::MCP; }
 
   virtual ZXGraph* getZXform();
   virtual QTensor<double> getTSform() const       { return QTensor<double>::cnz(_qubits.size()-1); }
   virtual void printGateInfo(bool st) const       { printMultipleQubitsGate(" RZ", true, st); } 
   
+  virtual void setRotatePhase(Phase p)            { _rotatePhase = p; }
+};
+
+class CrzGate : public CnPGate {
+public:
+  CrzGate(size_t id): CnPGate(id)                  { _type = "crz"; }
+  virtual ~CrzGate(){}
+  virtual string getTypeStr() const               { return "crz"; }
+  virtual GateType getType() const                { return GateType::CRZ; }
+  virtual ZXGraph* getZXform();                  
+  // todo: implentment the correct TSform
+  virtual QTensor<double> getTSform() const       { return QTensor<double>::cnz(_qubits.size()-1); }
+  virtual void printGateInfo(bool st) const       { printMultipleQubitsGate(" RZ", true, st); } 
+
   virtual void setRotatePhase(Phase p)            { _rotatePhase = p; }
 };
 
@@ -148,9 +162,9 @@ public:
   virtual void setRotatePhase(Phase p)            { _rotatePhase = p; }
 };
 
-class ZGate : public CnRZGate {
+class ZGate : public CnPGate {
 public:
-  ZGate(size_t id): CnRZGate(id)                  { _type = "z"; }
+  ZGate(size_t id): CnPGate(id)                  { _type = "z"; }
   virtual ~ZGate(){}
   virtual string getTypeStr() const               { return "z"; }
   virtual GateType getType() const                { return GateType::Z; }
@@ -159,9 +173,9 @@ public:
   virtual void printGateInfo(bool st) const       { printSingleQubitGate("Z", st); }
 };
 
-class SGate : public CnRZGate {
+class SGate : public CnPGate {
 public:
-  SGate(size_t id): CnRZGate(id)                  { _type = "s"; }
+  SGate(size_t id): CnPGate(id)                  { _type = "s"; }
   virtual ~SGate(){}
   virtual string getTypeStr() const               { return "s"; }
   virtual GateType getType() const                { return GateType::S; }
@@ -170,9 +184,9 @@ public:
   virtual void printGateInfo(bool st) const       { printSingleQubitGate("S", st); } 
 };
 
-class SDGGate : public CnRZGate {
+class SDGGate : public CnPGate {
 public:
-  SDGGate(size_t id): CnRZGate(id)                { _type = "sdg"; }
+  SDGGate(size_t id): CnPGate(id)                { _type = "sdg"; }
   virtual ~SDGGate(){}
   virtual string getTypeStr() const               { return "sd"; }
   virtual GateType getType() const                { return GateType::SDG; }
@@ -181,9 +195,9 @@ public:
   virtual void printGateInfo(bool st) const       { printSingleQubitGate("Sdg", st); } 
 };
 
-class TGate : public CnRZGate {
+class TGate : public CnPGate {
 public:
-  TGate(size_t id): CnRZGate(id)                  { _type = "t"; }
+  TGate(size_t id): CnPGate(id)                  { _type = "t"; }
   virtual ~TGate(){}
   virtual string getTypeStr() const               { return "t"; }
   virtual GateType getType() const                { return GateType::T; }
@@ -192,9 +206,9 @@ public:
   virtual void printGateInfo(bool st) const       { printSingleQubitGate("T", st); } 
 };
 
-class TDGGate : public CnRZGate {
+class TDGGate : public CnPGate {
 public:
-  TDGGate(size_t id): CnRZGate(id)                { _type = "tdg"; }
+  TDGGate(size_t id): CnPGate(id)                { _type = "tdg"; }
   virtual ~TDGGate(){}
   virtual string getTypeStr() const               { return "td"; }
   virtual GateType getType() const                { return GateType::TDG; }
@@ -203,9 +217,9 @@ public:
   virtual void printGateInfo(bool st) const       { printSingleQubitGate("Tdg", st); } 
 };
 
-class RZGate : public CnRZGate {
+class RZGate : public CnPGate {
 public:
-  RZGate(size_t id): CnRZGate(id)                 { _type = "rz"; }
+  RZGate(size_t id): CnPGate(id)                 { _type = "rz"; }
   virtual ~RZGate(){}
   virtual string getTypeStr() const               { return "rz"; }
   virtual GateType getType() const                { return GateType::RZ; }
@@ -214,9 +228,9 @@ public:
   virtual void printGateInfo(bool st) const       { printSingleQubitGate("RZ", st); } 
 };
 
-class CZGate : public CnRZGate {
+class CZGate : public CnPGate {
 public:
-  CZGate(size_t id): CnRZGate(id)                 { _type = "cz"; }
+  CZGate(size_t id): CnPGate(id)                 { _type = "cz"; }
   virtual ~CZGate(){}
   virtual string getTypeStr() const               { return "cz"; }
   virtual GateType getType() const                { return GateType::CZ; }
@@ -225,9 +239,9 @@ public:
   virtual void printGateInfo(bool st) const       { printMultipleQubitsGate("Z", false, st); } 
 };
 
-class CCZGate : public CnRZGate {
+class CCZGate : public CnPGate {
 public:
-  CCZGate(size_t id): CnRZGate(id)                { _type = "ccz"; }
+  CCZGate(size_t id): CnPGate(id)                { _type = "ccz"; }
   virtual ~CCZGate(){}
   virtual string getTypeStr() const               { return "ccz"; }
   virtual GateType getType() const                { return GateType::CCZ; }
