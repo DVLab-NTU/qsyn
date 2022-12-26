@@ -24,4 +24,4 @@ jobs:
           exclude: './vender ./tests'
           extensions: 'h,cpp'
           clangFormatVersion: 14
-          style: '.clang-format'
+          # style: '.clang-format'
