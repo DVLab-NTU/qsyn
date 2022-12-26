@@ -236,8 +236,11 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
     } else if (type == "rx") {
         temp = new RXGate(_gateId);
         temp->setRotatePhase(phase);
-    } else if (type == "mcrz" || type == "crz" || type == "cp") {
-        temp = new CnRZGate(_gateId);
+    } else if (type == "mcp" || type == "cp") {
+        temp = new CnPGate(_gateId);
+        temp->setRotatePhase(phase);
+    } else if (type == "crz") {
+        temp = new CrzGate(_gateId);
         temp->setRotatePhase(phase);
     } else if (type == "mcrx" || type == "crx") {
         temp = new CnRXGate(_gateId);
@@ -328,9 +331,10 @@ void QCir::analysis(bool detail) {
     size_t y = 0;
     size_t sy = 0;
 
-    size_t mcrz = 0;
+    size_t mcp = 0;
     size_t cz = 0;
     size_t ccz = 0;
+    size_t crz = 0;
     size_t mcrx = 0;
     size_t cx = 0;
     size_t ccx = 0;
@@ -429,9 +433,21 @@ void QCir::analysis(bool detail) {
                 sy++;
                 clifford++;
                 break;
-            case GateType::MCRZ:
-                mcrz++;
+            case GateType::MCP:
+                mcp++;
                 analysisMCR(g);
+                break;
+            case GateType::CRZ:
+                crz++;
+                // NOTE - CXs
+                clifford += 2;
+                // NOTE - RZs
+                if (g->getPhase().getRational().denominator() == 1)
+                    clifford += 2;
+                else if (g->getPhase().getRational().denominator() == 2)
+                    tfamily += 2;
+                else
+                    nct += 2;
                 break;
             case GateType::CZ:
                 cz++;           // --C--
@@ -477,7 +493,7 @@ void QCir::analysis(bool detail) {
         cout << "├── Single-qubit gate: " << h + singleZ + singleX + singleY << endl;
         cout << "│   ├── H: " << h << endl;
         cout << "│   ├── Z-family: " << singleZ << endl;
-        cout << "│   │   ├── Z   : " << rz << endl;
+        cout << "│   │   ├── Z   : " << z << endl;
         cout << "│   │   ├── S   : " << s << endl;
         cout << "│   │   ├── S†  : " << sdg << endl;
         cout << "│   │   ├── T   : " << t << endl;
@@ -491,11 +507,12 @@ void QCir::analysis(bool detail) {
         cout << "│       ├── Y   : " << y << endl;
         cout << "│       ├── SY  : " << sy << endl;
         cout << "│       └── RY  : " << ry << endl;
-        cout << "└── Multiple-qubit gate: " << mcrz + cz + ccz + mcrx + cx + ccx + mcry << endl;
-        cout << "    ├── Z-family: " << cz + ccz + mcrz << endl;
+        cout << "└── Multiple-qubit gate: " << crz + mcp + cz + ccz + mcrx + cx + ccx + mcry << endl;
+        cout << "    ├── Z-family: " << cz + ccz + crz + mcp << endl;
         cout << "    │   ├── CZ  : " << cz << endl;
         cout << "    │   ├── CCZ : " << ccz << endl;
-        cout << "    │   └── MCRZ: " << mcrz << endl;
+        cout << "    │   ├── CRZ : " << crz << endl;
+        cout << "    │   └── MCP : " << mcp << endl;
         cout << "    ├── X-family: " << cx + ccx + mcrx << endl;
         cout << "    │   ├── CX  : " << cx << endl;
         cout << "    │   ├── CCX : " << ccx << endl;

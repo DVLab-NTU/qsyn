@@ -44,8 +44,7 @@ bool initQCirCmd() {
           cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd) &&
           cmdMgr->regCmd("QC2ZX", 5, new QCir2ZXCmd) &&
           cmdMgr->regCmd("QC2TS", 5, new QCir2TSCmd) &&
-          cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd) &&
-          cmdMgr->regCmd("QCGMAdd", 5, new QCirAddMultipleCmd)
+          cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd)
           // && cmdMgr->regCmd("QCTEST", 6, new QCirTestCmd)
           )) {
         cerr << "Registering \"qcir\" commands fails... exiting" << endl;
@@ -465,7 +464,7 @@ void QCirPrintCmd::help() const {
 //     QCGAdd <-RZ> <-PHase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend] /
 //     QCGAdd <-CRZ> <-PHase (Phase phase_inp)> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]
 // .   QCGAdd <-MCRX> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]
-// .   QCGAdd <-MCRZ> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]
+// .   QCGAdd <-MCP> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]
 //-------------------------------------------------------------------------------------------------------------------------------
 CmdExecStatus
 QCirAddGateCmd::exec(const string &option) {
@@ -578,7 +577,7 @@ QCirAddGateCmd::exec(const string &option) {
         qubits.push_back(id);
         type = type.erase(0, 1);
         qcirMgr->getQCircuit()->addGate(type, qubits, phase, appendGate);
-    } else if (myStrNCmp("-MCRX", type, 5) == 0 || myStrNCmp("-MCRZ", type, 5) == 0) {
+    } else if (myStrNCmp("-MCRX", type, 5) == 0 || myStrNCmp("-CRZ", type, 4) == 0 || myStrNCmp("-MCP", type, 4) == 0) {
         Phase phase;
         if (options.size() == 1) {
             cerr << "Error: missing -PHase flag!!" << endl;
@@ -617,8 +616,10 @@ QCirAddGateCmd::exec(const string &option) {
         if (qubits.size() == 1) {
             if (myStrNCmp("-MCRX", type, 5) == 0)
                 qcirMgr->getQCircuit()->addGate("rx", qubits, phase, appendGate);
-            else
+            else if (myStrNCmp("-CRZ", type, 4) == 0) {
                 qcirMgr->getQCircuit()->addGate("rz", qubits, phase, appendGate);
+            } else
+                qcirMgr->getQCircuit()->addGate("p", qubits, phase, appendGate);
         } else {
             type = type.erase(0, 1);
             qcirMgr->getQCircuit()->addGate(type, qubits, phase, appendGate);
@@ -656,7 +657,8 @@ void QCirAddGateCmd::usage(ostream &os) const {
     os << "QCGAdd <-CCX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
     os << "QCGAdd <-RZ> <-PHase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend]" << endl;
     os << "QCGAdd <-MCRX> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]" << endl;
-    os << "QCGAdd <-MCRZ> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]" << endl;
+    os << "QCGAdd <-MCP> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]" << endl;
+    os << "QCGAdd <-CRZ> <-PHase (Phase phase_inp)> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
 }
 
 void QCirAddGateCmd::help() const {
@@ -841,28 +843,6 @@ void QCirWriteCmd::usage(ostream &os) const {
 void QCirWriteCmd::help() const {
     cout << setw(15) << left << "QCCWrite: "
          << "write QASM file\n";
-}
-
-CmdExecStatus
-QCirAddMultipleCmd::exec(const string &option) {
-    QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCGMAdd");
-    // check option
-    vector<string> options;
-    if (!CmdExec::lexOptions(option, options))
-        return CMD_EXEC_ERROR;
-    vector<size_t> qids;
-    for (size_t i = 0; i < options.size(); i++) {
-        unsigned id;
-        if (!myStr2Uns(options[i], id)) {
-            cerr << "Error: target ID should be a positive integer!!" << endl;
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
-        }
-        qids.push_back(id);
-    }
-
-    qcirMgr->getQCircuit()->addGate("mcrz", qids, Phase(1), true);
-    // qcirMgr->getQCircuit()->addGate("mcx", qids, Phase(0), true);
-    return CMD_EXEC_DONE;
 }
 
 void QCirAddMultipleCmd::usage(ostream &os) const {
