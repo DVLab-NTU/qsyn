@@ -99,7 +99,6 @@ void LTContainer::addRow2Bottom(int r) {
     for (size_t i = 0; i < nc; i++) {
         itr->emplace_back(iterOffset, i);
     }
-    printLTC();
     
     if (iterOffset < numRows() - 1) {
         updateRC();
@@ -117,26 +116,26 @@ void LTContainer::generateLTC(ZXGraph* g) {
     using lsCoord = pair<int, int>;
     using qStartEnd = pair<int, int>;
 
-    // ZXGraph* copyGraph = g->copy();
+    ZXGraph* copyGraph = g->copy();
 
-    // GFlow gflow(copyGraph);
+    GFlow gflow(copyGraph);
 
-    // gflow.calculate();
+    gflow.calculate(true);
 
-    // GFlow::Levels levels = gflow.getLevels();  // gflow levels are reversed to the measurement order
-    // reverse(levels.begin(), levels.end());     // reverse to match measurement order
-    // // set column
-    // for (size_t i = 0; i < levels.size(); ++i) {
-    //     for (auto& v : levels[i]) {
-    //         v->setCol(i);
-    //     }
-    // }
+    GFlow::Levels levels = gflow.getLevels();  // gflow levels are reversed to the measurement order
+    reverse(levels.begin(), levels.end());     // reverse to match measurement order
+    // set column
+    for (size_t i = 0; i < levels.size(); ++i) {
+        for (auto& v : levels[i]) {
+            v->setCol(i);
+        }
+    }
 
     // for (size_t i = 0; i < levels.size() - 1; ++i) {
     //     for (auto& v : levels[i]) {
     //         for (auto [nb, etype] : v->getNeighbors()) {  // deliberately copy to avoid iterator invalidation
     //             if (nb->getCol() > i + 1) {
-    //                 ZXVertex* buffer = g->addBuffer(nb, v, etype);
+    //                 ZXVertex* buffer = copyGraph->addBuffer(nb, v, etype);
     //                 buffer->setCol(i + 1);
     //                 levels[i + 1].insert(buffer);
     //             }
@@ -144,31 +143,12 @@ void LTContainer::generateLTC(ZXGraph* g) {
     //     }
     // }
 
-    vector<vector<ZXVertex*>> colGroup;
-    unsigned int maxCol = 0;
-    for (auto& o : g->getOutputs()) {
-        if (o->getCol() > maxCol) maxCol = o->getCol();
-    }
-    cout << "MaxCol: " << maxCol << endl;
-
-    colGroup.resize(maxCol + 1);
-    for (auto& v : g->getVertices()) {
-        colGroup[v->getCol()].push_back(v);
-    }
-    // Print
-    // for(size_t i = 0; i < colGroup.size(); i++){
-    //     cout << "Col " << i << ": ";
-    //     for(size_t j = 0; j < colGroup[i].size(); j++){
-    //         cout << colGroup[i][j]->getId() << " ";
-    //     }
-    //     cout << endl;
-    // }
-    if (!(maxCol % 2)) return;
-    for (unsigned int i = 1; i <= maxCol / 2; i++) {
+    for (unsigned int i = 1; i < levels.size() - 2; i++) {
         unordered_map<int, unordered_set<int>> start, end;
 
         // Generate start
-        for (auto& v : colGroup[2 * i - 1]) {
+        for (auto& v : levels[i]) {
+            if (v->isBoundary()) continue;
             start[v->getQubit()] = unordered_set<int>();
             for (auto& n : v->getNeighbors()) {
                 if (n.first->getCol() > v->getCol()) start[v->getQubit()].insert(n.first->getQubit());
@@ -176,7 +156,8 @@ void LTContainer::generateLTC(ZXGraph* g) {
         }
 
         // Generate End
-        for (auto& v : colGroup[2 * i]) {
+        for (auto& v : levels[i+1]) {
+            if (v->isBoundary()) continue;
             end[v->getQubit()] = unordered_set<int>();
             for (auto& n : v->getNeighbors()) {
                 if (n.first->getCol() < v->getCol()) end[v->getQubit()].insert(n.first->getQubit());
@@ -196,7 +177,7 @@ void LTContainer::generateLTC(ZXGraph* g) {
         unordered_map<qStartEnd, lsCoord> set;  // (qs, qe) -> (row, col)
         int count = 0;
         for (auto& [start_i, start_set] : start) {
-            cout << "Start i: " << start_i << endl;
+            // cout << "Start i: " << start_i << endl;
             for (auto& end_j : start_set) {
                 set[make_pair(start_i, end_j)] = make_pair(count, -1);
             }
@@ -207,14 +188,15 @@ void LTContainer::generateLTC(ZXGraph* g) {
         for (auto& [end_i, end_set] : end) {
             for (auto& start_j : end_set) {
                 auto key = make_pair(start_j, end_i);
-                if (set.contains(key))
+                if (set.contains(key)) {
                     set[key].second = count;
-                else
+                } else {
                     set[key] = make_pair(-1, count);
+                }
             }
             count++;
         }
-        
+
         vector<pair<qStartEnd, lsCoord>> sCand, eCand;
         for (auto& [key, value] : set) {
             auto& [qStart, qEnd] = key;
@@ -227,13 +209,13 @@ void LTContainer::generateLTC(ZXGraph* g) {
             else if (lsRow == -1)
                 sCand.emplace_back(key, value);
         }
-        
+
         // Compensate vertically
         addRow2Bottom(-1);
         for (auto& [key, value] : sCand) {
             auto& [qStart, qEnd] = key;
             auto& [lsCol, lsRow] = value;
-            if (verbose > 3) cout << qStart << "," << qEnd << ": (" << lsCol << "," << lsRow << ")\n";
+            // if (verbose > 3) cout << qStart << "," << qEnd << ": (" << lsCol << "," << lsRow << ")\n";
             if (_container[0][lsCol].getQStart() == -3 && _container[0][lsCol].getQEnd() == -3) {
                 // Find first not (-3, -3)
                 for (size_t x = 1; x < numRows(); x++) {
@@ -263,7 +245,7 @@ void LTContainer::generateLTC(ZXGraph* g) {
             auto& [qStart, qEnd] = key;
             auto& [lsCol, lsRow] = value;
             lsRow++;
-            cout << qStart << "," << qEnd << ": (" << lsCol << "," << lsRow << ")\n";
+            // cout << qStart << "," << qEnd << ": (" << lsCol << "," << lsRow << ")\n";
             for (size_t x = 1; x < numCols(); x++) {
                 if (_container[lsRow][x].getQStart() != -3 && _container[lsRow][x].getQEnd() != -3) {
                     _container[lsRow][x - 1].setQStart(qStart);
@@ -272,5 +254,16 @@ void LTContainer::generateLTC(ZXGraph* g) {
                 }
             }
         }
+        printLTC();
+        cout << endl;
     }
+    size_t volume = 0;
+    copyGraph->forEachEdge([&volume](const EdgePair& epair) {
+        unsigned col1 = epair.first.first->getCol();
+        unsigned col2 = epair.first.second->getCol();
+        volume += (col1 > col2) ? col1 - col2 : col2 - col1;
+    });
+    cout << "Resource Estimate: " << endl;
+    cout << "> " << "Depth         : " << levels.size() - 2 << endl;
+    cout << "> " << "Quantum Volume: " << volume << " d^3" << endl;
 }

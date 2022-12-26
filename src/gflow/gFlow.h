@@ -21,7 +21,7 @@ public:
     GFlow(ZXGraph* g): _zxgraph(g), _valid(false) {}
 
     void reset();
-    bool calculate();
+    bool calculate(bool disjointNeighbors = false);
 
     const Levels& getLevels() const { return _levels; }
     bool isValid() const { return _valid; }
