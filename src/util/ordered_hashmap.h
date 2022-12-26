@@ -57,11 +57,11 @@
  *
  * Caveats:
  * 1.  As ordered_hashset automatically manages the size of its internal stor-
- *     age, iterators may be invalidated upon insertion/deletion. Consequently, 
- *     one should not perform insertion/deletion during traversal. If this must 
- *     be done, it is suggested to collect the keys to another containers, and 
+ *     age, iterators may be invalidated upon insertion/deletion. Consequently,
+ *     one should not perform insertion/deletion during traversal. If this must
+ *     be done, it is suggested to collect the keys to another containers, and
  *     then perform the insertion/deletion during traversal of another container.
- * 
+ *
  * 2.  As ordered_hashset::iterator is not random access iterator, it cannot be
  *     sorted using std::sort; please use ordered_hashset::sort.
  *
@@ -73,20 +73,20 @@
 #include "ordered_hashtable.h"
 
 template <typename Key, typename T, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
-class ordered_hashmap : public ordered_hashtable<Key, std::pair<const Key, T>, std::pair<Key, T>, Hash, KeyEqual>  {
+class ordered_hashmap : public ordered_hashtable<Key, std::pair<const Key, T>, std::pair<Key, T>, Hash, KeyEqual> {
     using __OrderedHashTable = ordered_hashtable<Key, std::pair<const Key, T>, std::pair<Key, T>, Hash, KeyEqual>;
+
 public:
     using key_type = __OrderedHashTable::key_type;
-    using mapped_type = T;                                 
-    using value_type = __OrderedHashTable::value_type;     
-    using stored_type = __OrderedHashTable::stored_type;   
+    using mapped_type = T;
+    using value_type = __OrderedHashTable::value_type;
+    using stored_type = __OrderedHashTable::stored_type;
     using size_type = __OrderedHashTable::size_type;
     using difference_type = __OrderedHashTable::difference_type;
     using hasher = __OrderedHashTable::hasher;
     using key_equal = __OrderedHashTable::key_equal;
     using iterator = __OrderedHashTable::iterator;
     using const_iterator = __OrderedHashTable::const_iterator;
-
 
     ordered_hashmap() noexcept : __OrderedHashTable() {}
     ordered_hashmap(const std::initializer_list<value_type>& il) noexcept : __OrderedHashTable() {
@@ -104,7 +104,7 @@ public:
     const T& at(const Key& key) const;
 
     T& operator[](const Key& key);
-    T& operator[](Key&& key);    
+    T& operator[](Key&& key);
 
     // test
 

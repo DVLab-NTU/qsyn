@@ -8,33 +8,34 @@
 #ifndef Q_TENSOR_H
 #define Q_TENSOR_H
 
-#include "tensor.h"
 #include "phase.h"
+#include "tensor.h"
 
 template <typename T>
-class QTensor : public Tensor<std::complex<T>>{
+class QTensor : public Tensor<std::complex<T>> {
 protected:
     using DataType = Tensor<std::complex<T>>::DataType;
     using InternalType = Tensor<std::complex<T>>::InternalType;
+
 public:
-    QTensor() : Tensor<DataType>(1.+0.i) {}
+    QTensor() : Tensor<DataType>(1. + 0.i) {}
     QTensor(const Tensor<DataType>& t) : Tensor<DataType>(t) {}
     QTensor(Tensor<DataType>&& t) : Tensor<DataType>(t) {}
 
-    QTensor(xt::nested_initializer_list_t<DataType, 0> il): Tensor<DataType>(il) {}
-    QTensor(xt::nested_initializer_list_t<DataType, 1> il): Tensor<DataType>(il) {}
-    QTensor(xt::nested_initializer_list_t<DataType, 2> il): Tensor<DataType>(il) {}
-    QTensor(xt::nested_initializer_list_t<DataType, 3> il): Tensor<DataType>(il) {}
-    QTensor(xt::nested_initializer_list_t<DataType, 4> il): Tensor<DataType>(il) {}
-    QTensor(xt::nested_initializer_list_t<DataType, 5> il): Tensor<DataType>(il) {}
+    QTensor(xt::nested_initializer_list_t<DataType, 0> il) : Tensor<DataType>(il) {}
+    QTensor(xt::nested_initializer_list_t<DataType, 1> il) : Tensor<DataType>(il) {}
+    QTensor(xt::nested_initializer_list_t<DataType, 2> il) : Tensor<DataType>(il) {}
+    QTensor(xt::nested_initializer_list_t<DataType, 3> il) : Tensor<DataType>(il) {}
+    QTensor(xt::nested_initializer_list_t<DataType, 4> il) : Tensor<DataType>(il) {}
+    QTensor(xt::nested_initializer_list_t<DataType, 5> il) : Tensor<DataType>(il) {}
 
     QTensor(const TensorShape& shape) : Tensor<DataType>(shape) {}
     QTensor(TensorShape&& shape) : Tensor<DataType>(shape) {}
     template <typename From>
-    requires std::convertible_to<From, InternalType>
+        requires std::convertible_to<From, InternalType>
     QTensor(const From& internal) : Tensor<DataType>(internal) {}
     template <typename From>
-    requires std::convertible_to<From, InternalType>
+        requires std::convertible_to<From, InternalType>
     QTensor(From&& internal) : Tensor<DataType>(internal) {}
 
     virtual ~QTensor() {}
@@ -60,6 +61,7 @@ public:
 
     template <typename U>
     Phase globalPhase(const QTensor<U>& t1, const QTensor<U>& t2);
+
 private:
     static DataType nuPow(const int& n);
 };
@@ -70,10 +72,10 @@ private:
 
 // @brief Generate an tensor that corresponds to a n-qubit identity gate.
 // @param n number of qubits
-template<typename T>
+template <typename T>
 QTensor<T> QTensor<T>::identity(const size_t& n) {
     QTensor<T> t(xt::eye<DataType>(intPow(2, n)));
-    t.reshape(TensorShape(2*n, 2));
+    t.reshape(TensorShape(2 * n, 2));
     TensorAxisList ax;
     for (size_t i = 0; i < n; ++i) {
         ax.push_back(i);
@@ -85,7 +87,7 @@ QTensor<T> QTensor<T>::identity(const size_t& n) {
 // @brief Generate an tensor that corresponds to a n-qubit Z-spider.
 // @param n
 // @param phase
-template<typename T>
+template <typename T>
 QTensor<T> QTensor<T>::zspider(const size_t& n, const Phase& phase) {
     QTensor<T> t = xt::zeros<DataType>(TensorShape(n, 2));
     if (n == 0) {
@@ -101,7 +103,7 @@ QTensor<T> QTensor<T>::zspider(const size_t& n, const Phase& phase) {
 // @brief Generate an tensor that corresponds to a n-qubit X-spider.
 // @param n
 // @param phase
-template<typename T>
+template <typename T>
 QTensor<T> QTensor<T>::xspider(const size_t& n, const Phase& phase) {
     QTensor<T> t = xt::ones<QTensor<T>::DataType>(TensorShape(n, 2));
     QTensor<T> ketMinus(TensorShape{2});
@@ -117,7 +119,7 @@ QTensor<T> QTensor<T>::xspider(const size_t& n, const Phase& phase) {
 // @brief Generate an tensor that corresponds to a n-qubit H-box.
 // @param n
 // @param a t(1, ..., 1) (default to -1)
-template<typename T>
+template <typename T>
 QTensor<T> QTensor<T>::hbox(const size_t& n, const QTensor<T>::DataType& a) {
     QTensor<T> t = xt::ones<QTensor<T>::DataType>(TensorShape(n, 2));
     if (n == 0) {
@@ -126,13 +128,13 @@ QTensor<T> QTensor<T>::hbox(const size_t& n, const QTensor<T>::DataType& a) {
         t[TensorIndex(n, 1)] = a;
     }
     t._tensor *= nuPow(n);
-    return t; 
+    return t;
 }
 
 // @brief Generate an tensor that corresponds to a Rx gate.
 //        Axis order: <in, out>
 // @param phase
-template<typename T>
+template <typename T>
 QTensor<T> QTensor<T>::rx(const Phase& phase) {
     return QTensor<T>::xspider(2, phase);
 }
@@ -140,7 +142,7 @@ QTensor<T> QTensor<T>::rx(const Phase& phase) {
 // @brief Generate an tensor that corresponds to a Ry gate.
 //        Axis order: <in, out>
 // @param phase
-template<typename T>
+template <typename T>
 QTensor<T> QTensor<T>::ry(const Phase& phase) {
     auto sdg = QTensor<T>::rz(Phase(-1, 2));
     auto rx = QTensor<T>::rx(phase);
@@ -151,7 +153,7 @@ QTensor<T> QTensor<T>::ry(const Phase& phase) {
 // @brief Generate an tensor that corresponds to a Rz gate.
 //        Axis order: <in, out>
 // @param phase
-template<typename T>
+template <typename T>
 QTensor<T> QTensor<T>::rz(const Phase& phase) {
     return QTensor<T>::zspider(2, phase);
 }
@@ -159,7 +161,7 @@ QTensor<T> QTensor<T>::rz(const Phase& phase) {
 // @brief Generate an tensor that corresponds to a n-controlled X gate.
 //        Axis order: [c1-in, c1-out, ..., cn-in, cn-out], <t-in, t-out>
 // @param n
-template<typename T>
+template <typename T>
 QTensor<T> QTensor<T>::cnx(const size_t& n) {
     if (n == 0) {
         return QTensor<T>::rx(Phase(1));
@@ -177,12 +179,12 @@ QTensor<T> QTensor<T>::cnx(const size_t& n) {
 // @brief Generate an tensor that corresponds to a n-controlled Y gate.
 //        Axis order: [c1-in, c1-out, ..., cn-in, cn-out], <t-in, t-out>
 // @param n
-template<typename T>
+template <typename T>
 QTensor<T> QTensor<T>::cny(const size_t& n) {
     auto sdg = QTensor<T>::rz(Phase(-1, 2));
     auto cnx = QTensor<T>::cnx(n);
     auto s = QTensor<T>::rz(Phase(1, 2));
-    auto t = tensordot(s, tensordot(cnx, sdg, {2*n+1}, {0}), {1}, {2*n});
+    auto t = tensordot(s, tensordot(cnx, sdg, {2 * n + 1}, {0}), {1}, {2 * n});
     TensorAxisList ax;
     for (size_t i = 0; i < n; ++i) {
         ax.push_back(2 * i + 2);
@@ -196,7 +198,7 @@ QTensor<T> QTensor<T>::cny(const size_t& n) {
 // @brief Generate an tensor that corresponds to a n-controlled Z gate.
 //        Axis order: [c1-in, c1-out, ..., cn-in, cn-out], <t-in, t-out>
 // @param n
-template<typename T>
+template <typename T>
 QTensor<T> QTensor<T>::cnz(const size_t& n) {
     if (n == 0) {
         return QTensor<T>::rz(Phase(1));
@@ -209,7 +211,6 @@ QTensor<T> QTensor<T>::cnz(const size_t& n) {
     }
 }
 
-
 //------------------------------
 // tensor manipulation functions
 //------------------------------
@@ -217,7 +218,7 @@ QTensor<T> QTensor<T>::cnz(const size_t& n) {
 // @brief tensor-dot a tensor between pairs of axes
 // @param ax1 the first set of axes
 // @param ax2 the second set of axes
-template<typename T>
+template <typename T>
 QTensor<T> QTensor<T>::selfTensordot(const TensorAxisList& ax1, const TensorAxisList& ax2) {
     if (ax1.size() != ax2.size()) {
         throw std::invalid_argument("The two index orders should contain the same number of indices.");
@@ -236,16 +237,16 @@ QTensor<T> QTensor<T>::selfTensordot(const TensorAxisList& ax1, const TensorAxis
 
 // @brief Get the global scalar factor between two QTensors.
 //        This function is only well defined when the cosine similarity is high between t1, t2
-// @param t1 
+// @param t1
 // @param t2
 template <typename U>
 std::complex<U> globalScalarFactor(const QTensor<U>& t1, const QTensor<U>& t2) {
     return (xt::sum(t2._tensor) / xt::sum(t1._tensor))();
 }
 
-// @brief Get the global norm between two QTensors. 
+// @brief Get the global norm between two QTensors.
 //        This function is only well defined when the cosine similarity is high between t1, t2
-// @param t1 
+// @param t1
 // @param t2
 template <typename U>
 U globalNorm(const QTensor<U>& t1, const QTensor<U>& t2) {
@@ -254,7 +255,7 @@ U globalNorm(const QTensor<U>& t1, const QTensor<U>& t2) {
 
 // @brief Get the global phase between two QTensors
 //        This function is only well defined when the cosine similarity is high between t1, t2
-// @param t1 
+// @param t1
 // @param t2
 template <typename U>
 Phase globalPhase(const QTensor<U>& t1, const QTensor<U>& t2) {
@@ -267,7 +268,7 @@ Phase globalPhase(const QTensor<U>& t1, const QTensor<U>& t2) {
 
 // @brief Calculate (2^(1/4))^n
 // @param n
-template<typename T>
+template <typename T>
 QTensor<T>::DataType QTensor<T>::nuPow(const int& n) {
     return std::pow(2., -0.25 * n);
 }

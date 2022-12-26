@@ -14,9 +14,9 @@
 
 #include "phase.h"
 #include "qcir.h"
+#include "qcirCmd.h"
 #include "qcirGate.h"
 #include "qcirMgr.h"
-#include "qcirCmd.h"
 #include "util.h"
 
 using namespace std;
@@ -25,35 +25,33 @@ extern QCirMgr *qcirMgr;
 extern size_t verbose;
 extern int effLimit;
 
-bool initQCirCmd()
-{
-   qcirMgr = new QCirMgr;
-   if (!(cmdMgr->regCmd("QCCHeckout", 4, new QCirCheckoutCmd) &&
-         cmdMgr->regCmd("QCReset", 3, new QCirResetCmd) &&
-         cmdMgr->regCmd("QCDelete", 3, new QCirDeleteCmd) &&
-         cmdMgr->regCmd("QCNew", 3, new QCirNewCmd) &&
-         cmdMgr->regCmd("QCCOPy", 5, new QCirCopyCmd) &&
-         cmdMgr->regCmd("QCCOMpose", 5, new QCirComposeCmd) &&
-         cmdMgr->regCmd("QCTensor", 3, new QCirTensorCmd) &&
-         cmdMgr->regCmd("QCPrint", 3, new QCPrintCmd) &&
-         cmdMgr->regCmd("QCCRead", 4, new QCirReadCmd) &&
-         cmdMgr->regCmd("QCCPrint", 4, new QCirPrintCmd) &&
-         cmdMgr->regCmd("QCGAdd", 4, new QCirAddGateCmd) &&
-         cmdMgr->regCmd("QCBAdd", 4, new QCirAddQubitCmd) &&
-         cmdMgr->regCmd("QCGDelete", 4, new QCirDeleteGateCmd) &&
-         cmdMgr->regCmd("QCBDelete", 4, new QCirDeleteQubitCmd) &&
-         cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd) &&
-         cmdMgr->regCmd("QC2ZX", 5, new QCir2ZXCmd) &&
-         cmdMgr->regCmd("QC2TS", 5, new QCir2TSCmd) &&
-         cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd) &&
-         cmdMgr->regCmd("QCGMAdd", 5, new QCirAddMultipleCmd) 
-         // && cmdMgr->regCmd("QCTEST", 6, new QCirTestCmd)
-         ))
-   {
-      cerr << "Registering \"qcir\" commands fails... exiting" << endl;
-      return false;
-   }
-   return true;
+bool initQCirCmd() {
+    qcirMgr = new QCirMgr;
+    if (!(cmdMgr->regCmd("QCCHeckout", 4, new QCirCheckoutCmd) &&
+          cmdMgr->regCmd("QCReset", 3, new QCirResetCmd) &&
+          cmdMgr->regCmd("QCDelete", 3, new QCirDeleteCmd) &&
+          cmdMgr->regCmd("QCNew", 3, new QCirNewCmd) &&
+          cmdMgr->regCmd("QCCOPy", 5, new QCirCopyCmd) &&
+          cmdMgr->regCmd("QCCOMpose", 5, new QCirComposeCmd) &&
+          cmdMgr->regCmd("QCTensor", 3, new QCirTensorCmd) &&
+          cmdMgr->regCmd("QCPrint", 3, new QCPrintCmd) &&
+          cmdMgr->regCmd("QCCRead", 4, new QCirReadCmd) &&
+          cmdMgr->regCmd("QCCPrint", 4, new QCirPrintCmd) &&
+          cmdMgr->regCmd("QCGAdd", 4, new QCirAddGateCmd) &&
+          cmdMgr->regCmd("QCBAdd", 4, new QCirAddQubitCmd) &&
+          cmdMgr->regCmd("QCGDelete", 4, new QCirDeleteGateCmd) &&
+          cmdMgr->regCmd("QCBDelete", 4, new QCirDeleteQubitCmd) &&
+          cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd) &&
+          cmdMgr->regCmd("QC2ZX", 5, new QCir2ZXCmd) &&
+          cmdMgr->regCmd("QC2TS", 5, new QCir2TSCmd) &&
+          cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd) &&
+          cmdMgr->regCmd("QCGMAdd", 5, new QCirAddMultipleCmd)
+          // && cmdMgr->regCmd("QCTEST", 6, new QCirTestCmd)
+          )) {
+        cerr << "Registering \"qcir\" commands fails... exiting" << endl;
+        return false;
+    }
+    return true;
 }
 
 enum QCirCmdState {
@@ -65,8 +63,7 @@ enum QCirCmdState {
 };
 
 static QCirCmdState curCmd = QCIRINIT;
-   
-   
+
 //----------------------------------------------------------------------
 //    QCCHeckout <(size_t id)>
 //----------------------------------------------------------------------
@@ -345,7 +342,7 @@ QCirReadCmd::exec(const string &option) {
         }
     }
     qcirMgr->setQCircuit(bufferQCir);
-    
+
     curCmd = QCIRREAD;
 
     return CMD_EXEC_DONE;

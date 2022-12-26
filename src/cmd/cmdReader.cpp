@@ -281,7 +281,7 @@ void CmdParser::moveToHistory(int index) {
 
 /**
  * @brief Add the command in buffer to _history. This function trim the comment, leading/trailing whitespace of the entered comments
- * 
+ *
  * @return `true` if a new command is added to _history, `false` if not
  */
 bool CmdParser::addHistory() {
@@ -289,10 +289,10 @@ bool CmdParser::addHistory() {
 
     char* _cmdEnd = _readBufEnd - 1;
 
-    // find the first '//' 
+    // find the first '//'
     while (tmp < _readBufEnd - 1) {
         if (*tmp == '/' && *(tmp + 1) == '/') {
-            *tmp = ' '; // replace with space so for easier trimming later
+            *tmp = ' ';  // replace with space so for easier trimming later
             _cmdEnd = tmp;
             break;
         } else {
@@ -303,7 +303,7 @@ bool CmdParser::addHistory() {
     // trim trailing whitespace
     tmp = _cmdEnd;
     while ((tmp >= _readBuf) && (*tmp == ' ')) *(tmp--) = 0;
-    
+
     // trim leading whitespace
     tmp = _readBuf;
     while (*tmp == ' ') ++tmp;

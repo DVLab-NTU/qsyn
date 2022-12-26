@@ -31,8 +31,8 @@ TEST_CASE("Tensordot", "[Tensor]") {
     // c.printAxisHistory();
     REQUIRE(c.getNewAxisId(0) == 0);
     REQUIRE(c.getNewAxisId(1) == 1);
-    REQUIRE(c.getNewAxisId(2) == (size_t) -1);
-    REQUIRE(c.getNewAxisId(3) == (size_t) -1);
+    REQUIRE(c.getNewAxisId(2) == (size_t)-1);
+    REQUIRE(c.getNewAxisId(3) == (size_t)-1);
     REQUIRE(c.getNewAxisId(4) == 2);
     REQUIRE(c.getNewAxisId(5) == 3);
     c.resetAxisHistory();
@@ -44,21 +44,25 @@ TEST_CASE("Tensordot", "[Tensor]") {
     QTensor<double> f = QTensor<double>::zspider(4, 0);
     auto g = f.selfTensordot({1}, {3});
     REQUIRE(g.getNewAxisId(0) == 0);
-    REQUIRE(g.getNewAxisId(1) == (size_t) -1);
+    REQUIRE(g.getNewAxisId(1) == (size_t)-1);
     REQUIRE(g.getNewAxisId(2) == 1);
-    REQUIRE(g.getNewAxisId(3) == (size_t) -1);
+    REQUIRE(g.getNewAxisId(3) == (size_t)-1);
 }
 
 TEST_CASE("Tensor comparison", "[Tensor]") {
     QTensor<double> a = QTensor<double>::hbox(2);
-    QTensor<double> b = {{1.i, 1.i,}, {1.i, -1.i}};
-    QTensor<double> c = {{1.+0.i, -1.i}, {1.+0.i, 1.i}};
+    QTensor<double> b = {{
+                             1.i,
+                             1.i,
+                         },
+                         {1.i, -1.i}};
+    QTensor<double> c = {{1. + 0.i, -1.i}, {1. + 0.i, 1.i}};
 
     REQUIRE(cosineSimilarity(a, b) == Approx(1.0));
     REQUIRE(globalNorm(a, b) == Approx(std::sqrt(2)));
     REQUIRE(globalPhase(a, b) == Phase(1, 2));
 
-    REQUIRE(cosineSimilarity(a, c) == Approx(1/std::sqrt(2)));
+    REQUIRE(cosineSimilarity(a, c) == Approx(1 / std::sqrt(2)));
     REQUIRE(globalNorm(a, c) == Approx(std::sqrt(2)));
     REQUIRE(globalPhase(a, c) == Phase(0));
 
@@ -71,5 +75,3 @@ TEST_CASE("Tensor comparison", "[Tensor]") {
     REQUIRE(globalNorm(d, g) == Approx(1.0));
     REQUIRE(globalPhase(d, g) == Phase(0));
 }
-
-

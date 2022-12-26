@@ -6,12 +6,14 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cassert>
-#include <iostream>
-#include <iomanip>
-#include "util.h"
 #include "m2Cmd.h"
+
+#include <cassert>
+#include <iomanip>
+#include <iostream>
+
 #include "m2.h"
+#include "util.h"
 #include "zxGraphMgr.h"
 
 using namespace std;
@@ -19,38 +21,34 @@ extern size_t verbose;
 extern int effLimit;
 extern ZXGraphMgr *zxGraphMgr;
 
-bool initM2Cmd()
-{
-   if (!(cmdMgr->regCmd("M2GAUE", 6, new M2GaussEliCmd)
-         && cmdMgr->regCmd("M2TEST", 6, new M2TestCmd)
-         ))
-   {
-      cerr << "Registering \"m2\" commands fails... exiting" << endl;
-      return false;
-   }
-   return true;
+bool initM2Cmd() {
+    if (!(cmdMgr->regCmd("M2GAUE", 6, new M2GaussEliCmd) && cmdMgr->regCmd("M2TEST", 6, new M2TestCmd))) {
+        cerr << "Registering \"m2\" commands fails... exiting" << endl;
+        return false;
+    }
+    return true;
 }
 
 CmdExecStatus
-M2GaussEliCmd::exec(const string &option) {    
+M2GaussEliCmd::exec(const string &option) {
     unordered_map<size_t, ZXVertex *> outputList = zxGraphMgr->getGraph()->getOutputList();
-    vector<ZXVertex*> front;
+    vector<ZXVertex *> front;
     ZXVertexList frontier;
-    for(auto [q,v]: outputList){
+    for (auto [q, v] : outputList) {
         front.push_back(v->getFirstNeighbor().first);
     }
-    sort(front.begin(), front.end(), [](const ZXVertex* a, const ZXVertex* b){ 
-        return a->getQubit() < b->getQubit(); 
+    sort(front.begin(), front.end(), [](const ZXVertex *a, const ZXVertex *b) {
+        return a->getQubit() < b->getQubit();
     });
-    for(auto v: front){
+    for (auto v : front) {
         frontier.emplace(v);
     }
     ZXVertexList nebsOfFrontier;
-    for(auto v: frontier){
+    for (auto v : frontier) {
         vector<ZXVertex *> cands = v->getCopiedNeighbors();
-        for(auto [c, _]: v->getNeighbors()){
-            if(c->getType()==VertexType::BOUNDARY) continue;
-            if(find(nebsOfFrontier.begin(), nebsOfFrontier.end(), c) == nebsOfFrontier.end()) {
+        for (auto [c, _] : v->getNeighbors()) {
+            if (c->getType() == VertexType::BOUNDARY) continue;
+            if (find(nebsOfFrontier.begin(), nebsOfFrontier.end(), c) == nebsOfFrontier.end()) {
                 nebsOfFrontier.insert(c);
             }
         }
@@ -74,17 +72,16 @@ void M2GaussEliCmd::help() const {
          << "perform Gaussian elimination" << endl;
 }
 
-
 CmdExecStatus
-M2TestCmd::exec(const string &option) {    
-   string token;
-   M2 m2;
-   m2.defaultInit();
-   m2.printMatrix();
-   cout << "Is Idendity? " << m2.gaussianElim(true) << endl;
-   m2.printMatrix();
-   m2.printTrack();
-   return CMD_EXEC_DONE;
+M2TestCmd::exec(const string &option) {
+    string token;
+    M2 m2;
+    m2.defaultInit();
+    m2.printMatrix();
+    cout << "Is Idendity? " << m2.gaussianElim(true) << endl;
+    m2.printMatrix();
+    m2.printTrack();
+    return CMD_EXEC_DONE;
 }
 
 void M2TestCmd::usage(ostream &os) const {

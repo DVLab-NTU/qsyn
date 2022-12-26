@@ -110,9 +110,7 @@ public:
 
     std::string getPrintString() const {
         if (Phase::getPrintUnit() == PhaseUnit::PI) {
-            return ((_rational.numerator() != 1) ? std::to_string(_rational.numerator()) : "")
-                 + ((_rational.numerator() != 0) ? "\u03C0" : "")
-                 + ((_rational.denominator() != 1) ? ("/" + std::to_string(_rational.denominator())) : "");
+            return ((_rational.numerator() != 1) ? std::to_string(_rational.numerator()) : "") + ((_rational.numerator() != 0) ? "\u03C0" : "") + ((_rational.denominator() != 1) ? ("/" + std::to_string(_rational.denominator())) : "");
         } else {
             return std::to_string(_rational.numerator() * std::numbers::pi / _rational.denominator());
         }
@@ -151,7 +149,6 @@ private:
 template <class T = double>
     requires std::floating_point<T> bool
 myStrValid(const std::string& str, Phase& p) {
-
     vector<string> numberStrings;
     vector<char> operators;
 
@@ -210,7 +207,7 @@ myStrValid(const std::string& str, Phase& p) {
         }
     }
 
-    Rational tempRational(tempFloat * std::pow(std::numbers::pi_v<T>, numOfPis - 1), 1e-4/std::numbers::pi_v<T>);
+    Rational tempRational(tempFloat * std::pow(std::numbers::pi_v<T>, numOfPis - 1), 1e-4 / std::numbers::pi_v<T>);
 
     p = Phase(numerator, denominator) * tempRational;
 

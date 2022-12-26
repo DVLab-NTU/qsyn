@@ -58,11 +58,11 @@ bool stripQuotes(const std::string& input, std::string& output) {
         }
     }
 
-    // 2. inside  ' ' --> "\ " 
+    // 2. inside  ' ' --> "\ "
     //    both side \' --> ' , \" --> "
 
     auto deformatQuotes = [](vector<string>& strs) {
-        for (auto& str: strs) {
+        for (auto& str : strs) {
             size_t pos = 0;
             while ((pos = str.find("\\\"", pos)) != string::npos) {
                 str = str.substr(0, pos) + str.substr(pos + 1);
@@ -71,11 +71,10 @@ bool stripQuotes(const std::string& input, std::string& output) {
             while ((pos = str.find("\\\'", pos)) != string::npos) {
                 str = str.substr(0, pos) + str.substr(pos + 1);
             }
-
         }
     };
 
-    for (auto& str: inside) {
+    for (auto& str : inside) {
         for (size_t i = 0; i < str.size(); ++i) {
             if (str[i] == ' ') {
                 str.insert(i, "\\");
@@ -95,7 +94,7 @@ bool stripQuotes(const std::string& input, std::string& output) {
             output += inside[i];
         }
     }
-    
+
     return true;
 }
 
@@ -148,7 +147,7 @@ myStrGetTok(const string& str, string& tok, size_t pos = 0,
 // This function will treat '\ ' as a space in the token. That is, "a\ b" is one token ("a b") and not two
 size_t
 myStrGetTok2(const string& str, string& tok, size_t pos = 0,
-            const char del = ' ') {
+             const char del = ' ') {
     size_t begin = str.find_first_not_of(del, pos);
     if (begin == string::npos) {
         tok = "";
@@ -159,11 +158,10 @@ myStrGetTok2(const string& str, string& tok, size_t pos = 0,
     if (tok.back() == '\\') {
         string tok2;
         end = myStrGetTok2(str, tok2, end);
-        tok = tok.substr(0, tok.size()-1) + ' ' + tok2;
+        tok = tok.substr(0, tok.size() - 1) + ' ' + tok2;
     }
     return end;
 }
-
 
 // Convert string "str" to integer "num". Return false if str does not appear
 // to be a number
@@ -202,8 +200,8 @@ bool myStr2Uns(const string& str, unsigned& unsnum) {
 // A template interface for std::stoXXX(const string& str, size_t* pos = nullptr),
 // All the dirty compile-time checking happens here.
 template <class T>
-requires std::floating_point<T>
-    T stoFloatType(const string& str, size_t* pos) {
+    requires std::floating_point<T>
+T stoFloatType(const string& str, size_t* pos) {
     try {
         if constexpr (std::is_same<T, double>::value) {
             return std::stod(str, pos);
@@ -226,8 +224,8 @@ requires std::floating_point<T>
 // If `str` is a string of decimal number, return true and set `f` to the corresponding number.
 // Otherwise return 0 and set `f` to 0.
 template <class T>
-requires std::floating_point<T>
-bool myStr2FloatType(const string& str, T& f) {
+    requires std::floating_point<T> bool
+myStr2FloatType(const string& str, T& f) {
     f = 0;
     size_t i;
     try {

@@ -16,7 +16,6 @@ using namespace std;
 TEST_CASE("omap_insert_and_erase", "[OMap]") {
     ordered_hashmap<int, int> omap{{1, 1}, {2, 2}, {3, 3}};
     REQUIRE(omap.insert({3, 4}).second == false);
-    
 
     omap.insert({4, 4});
     omap.insert({5, 5});
@@ -70,7 +69,6 @@ TEST_CASE("omap_modify", "[OMap]") {
     REQUIRE(omap.at(4) == 4);
     omap[4] = 0;
     REQUIRE(omap.at(4) == 0);
-
 }
 
 TEST_CASE("omap_iterator", "[OMap]") {
@@ -94,7 +92,7 @@ TEST_CASE("omap_iterator", "[OMap]") {
     ref.clear();
     omap.insert({6, 6});
     for (auto itr = omap.find(3); itr != omap.end(); ++itr) {
-    // for (const auto & [k, v] : omap.range(omap.find(3), omap.end())) {
+        // for (const auto & [k, v] : omap.range(omap.find(3), omap.end())) {
         ref.push_back(itr->first);
         ref.push_back(itr->second);
     }
@@ -104,7 +102,6 @@ TEST_CASE("omap_iterator", "[OMap]") {
     REQUIRE(ref[3] == 4);
     REQUIRE(ref[4] == 6);
     REQUIRE(ref[5] == 6);
-
 }
 
 TEST_CASE("omap_sort", "[OMap]") {
@@ -129,7 +126,6 @@ TEST_CASE("omap_sort", "[OMap]") {
     REQUIRE(ref[3] < ref[4]);
     REQUIRE(ref[4] < ref[5]);
     REQUIRE(ref[5] < ref[6]);
-    
 }
 
 // TEST_CASE("omap_playground", "[OMap]") {
