@@ -36,7 +36,7 @@ enum class GateType{
     RZ,Z,S,SDG,T,TDG,
     RX,X,SX,
     RY,Y,SY,
-    CRZ,CZ,CCZ,MCP,
+    MCP,CRZ,CZ,CCZ,
     MCRX,CX,CCX,
     MCRY,
     ERRORTYPE       // Never use this
