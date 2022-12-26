@@ -229,10 +229,14 @@ QCirGate * QCir::addGate(string type, vector<size_t> bits, Phase phase, bool app
     } else if (type == "rx") {
         temp = new RXGate(_gateId);
         temp->setRotatePhase(phase);
-    } else if (type == "mcrz" || type == "crz" || type == "cp"){
-        temp = new CnRZGate(_gateId);
+    } else if (type == "mcp" || type == "cp"){
+        temp = new CnPGate(_gateId);
         temp->setRotatePhase(phase);
-    } 
+    }
+    // else if (type == "mcrz" || type == "crz" ){
+    //     temp = new CnRZGate(_gateId);
+    //     temp->setRotatePhase(phase);
+    // }  
     else if (type == "mcrx" || type == "crx"){
         temp = new CnRXGate(_gateId);
         temp->setRotatePhase(phase);

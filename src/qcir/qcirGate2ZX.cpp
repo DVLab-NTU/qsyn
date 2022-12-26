@@ -250,11 +250,11 @@ ZXGraph *SYGate::getZXform()
 
 
 /**
- * @brief get ZX-graph of cnrz
+ * @brief get ZX-graph of cnp
  * 
  * @return ZXGraph* 
  */
-ZXGraph *CnRZGate::getZXform(){
+ZXGraph *CnPGate::getZXform(){
     ZXGraph *temp = new ZXGraph(_id);
     Phase phase = Phase(1, pow(2, _qubits.size()-1));
     Rational ratio = _rotatePhase / Phase(1);
@@ -282,7 +282,6 @@ ZXGraph *CnRZGate::getZXform(){
     }
     return temp;
 }
-
 
 /**
  * @brief get ZX-graph of CnRX

@@ -581,7 +581,7 @@ QCirAddGateCmd::exec(const string &option) {
         qubits.push_back(id);
         type = type.erase(0, 1);
         qcirMgr->getQCircuit()->addGate(type, qubits, phase, appendGate);
-    } else if (myStrNCmp("-MCRX", type, 5) == 0 || myStrNCmp("-MCRZ", type, 5) == 0) {
+    } else if (myStrNCmp("-MCRX", type, 5) == 0 || myStrNCmp("-MCRZ", type, 5) == 0 || myStrNCmp("-MCP", type, 4) == 0) {
         Phase phase;
         if (options.size() == 1) {
             cerr << "Error: missing -PHase flag!!" << endl;
@@ -620,8 +620,12 @@ QCirAddGateCmd::exec(const string &option) {
         if (qubits.size() == 1) {
             if (myStrNCmp("-MCRX", type, 5) == 0)
                 qcirMgr->getQCircuit()->addGate("rx", qubits, phase, appendGate);
-            else
+            else if (myStrNCmp("-MCRZ", type, 5) == 0)
+            {
                 qcirMgr->getQCircuit()->addGate("rz", qubits, phase, appendGate);
+            }
+            else
+                qcirMgr->getQCircuit()->addGate("p", qubits, phase, appendGate);
         } else {
             type = type.erase(0, 1);
             qcirMgr->getQCircuit()->addGate(type, qubits, phase, appendGate);
@@ -659,7 +663,7 @@ void QCirAddGateCmd::usage(ostream &os) const {
     os << "QCGAdd <-CCX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
     os << "QCGAdd <-RZ> <-PHase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend]" << endl;
     os << "QCGAdd <-MCRX> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]" << endl;
-    os << "QCGAdd <-MCRZ> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]" << endl;
+    os << "QCGAdd <-MCP> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]" << endl;
 }
 
 void QCirAddGateCmd::help() const {
