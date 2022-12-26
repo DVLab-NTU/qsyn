@@ -233,10 +233,10 @@ QCirGate * QCir::addGate(string type, vector<size_t> bits, Phase phase, bool app
         temp = new CnPGate(_gateId);
         temp->setRotatePhase(phase);
     }
-    // else if (type == "mcrz" || type == "crz" ){
-    //     temp = new CnRZGate(_gateId);
-    //     temp->setRotatePhase(phase);
-    // }  
+    else if (type == "crz" ){
+        temp = new CrzGate(_gateId);
+        temp->setRotatePhase(phase);
+    }  
     else if (type == "mcrx" || type == "crx"){
         temp = new CnRXGate(_gateId);
         temp->setRotatePhase(phase);
@@ -405,7 +405,7 @@ void QCir::analysis(bool detail){
                 sy++;
                 clifford++;
                 break;
-            case GateType::MCRZ: 
+            case GateType::MCP: 
                 mcrz++;
                 analysisMCR(g);
                 break;

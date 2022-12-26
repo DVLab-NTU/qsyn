@@ -1,14 +1,14 @@
 color 0
-qcba 3
-qcgadd -mcp -phase pi/4 0 1 2
+qcba 2
+qcgadd -mcp -phase pi/2 0 1 
 qcgp 0 -t
 qc2zx
 zxgp -v
 zx2ts
 tsp 0
 qcnew
-qcba 3
-qcgadd -mcrz -phase pi/4 0 1 2
+qcba 2
+qcgadd -crz -phase pi/2 0 1
 qcgp 0 -t
 qc2zx
 zxgp -v

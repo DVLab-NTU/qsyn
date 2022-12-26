@@ -284,6 +284,40 @@ ZXGraph *CnPGate::getZXform(){
 }
 
 /**
+ * @brief get ZX-graph of crz
+ * 
+ * @return ZXGraph* 
+ */
+ZXGraph *CrzGate::getZXform(){
+    ZXGraph *temp = new ZXGraph(_id);
+    Phase phase = Phase(1, pow(2, _qubits.size()-1));
+    Rational ratio = _rotatePhase / Phase(1);
+    phase = phase * ratio;
+    if(verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl; 
+    vector<ZXVertex*> verVec; 
+    for(const auto bitinfo : _qubits){
+        size_t qubit = bitinfo._qubit;
+        ZXVertex* in = temp->addInput(qubit);
+        ZXVertex* v = temp->addVertex(qubit, VertexType::Z, bitinfo._isTarget?phase:Phase(0));
+        ZXVertex* out = temp->addOutput(qubit);
+        temp->addEdge(in, v, EdgeType::SIMPLE);
+        temp->addEdge(v, out, EdgeType::SIMPLE);
+        temp->setInputHash(qubit, in);
+        temp->setOutputHash(qubit, out);
+        verVec.push_back(v);
+    }
+    
+    for(size_t k = 2; k <= verVec.size(); k++){
+        vector<vector<ZXVertex* > > comb = makeCombi(verVec, k);
+        for(size_t i = 0; i < comb.size(); i++){
+            if(k%2) temp->addGadget(phase, comb[i]);
+            else temp->addGadget(-phase, comb[i]);
+        }
+    }
+    return temp;
+}
+
+/**
  * @brief get ZX-graph of CnRX
  * 
  * @return ZXGraph* 

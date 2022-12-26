@@ -36,7 +36,7 @@ enum class GateType{
     RZ,Z,S,SDG,T,TDG,
     RX,X,SX,
     RY,Y,SY,
-    MCRZ,CZ,CCZ,MCP,
+    CRZ,CZ,CCZ,MCP,
     MCRX,CX,CCX,
     MCRY,
     ERRORTYPE       // Never use this
@@ -120,6 +120,20 @@ public:
   virtual QTensor<double> getTSform() const       { return QTensor<double>::cnz(_qubits.size()-1); }
   virtual void printGateInfo(bool st) const       { printMultipleQubitsGate(" RZ", true, st); } 
   
+  virtual void setRotatePhase(Phase p)            { _rotatePhase = p; }
+};
+
+class CrzGate : public CnPGate {
+public:
+  CrzGate(size_t id): CnPGate(id)                  { _type = "crz"; }
+  virtual ~CrzGate(){}
+  virtual string getTypeStr() const               { return "crz"; }
+  virtual GateType getType() const                { return GateType::CRZ; }
+  virtual ZXGraph* getZXform();                  
+  // todo: implentment the correct TSform
+  virtual QTensor<double> getTSform() const       { return QTensor<double>::cnz(_qubits.size()-1); }
+  virtual void printGateInfo(bool st) const       { printMultipleQubitsGate(" RZ", true, st); } 
+
   virtual void setRotatePhase(Phase p)            { _rotatePhase = p; }
 };
 
