@@ -43,10 +43,10 @@ public:
     Tensor(const TensorShape& shape) : _tensor(shape) { resetAxisHistory(); }
     Tensor(TensorShape&& shape) : _tensor(shape) { resetAxisHistory(); }
     template <typename From>
-        requires std::convertible_to<From, InternalType>
+    requires std::convertible_to<From, InternalType>
     Tensor(const From& internal) : _tensor(internal) { resetAxisHistory(); }
     template <typename From>
-        requires std::convertible_to<From, InternalType>
+    requires std::convertible_to<From, InternalType>
     Tensor(From&& internal) : _tensor(internal) { resetAxisHistory(); }
 
     virtual ~Tensor() {}

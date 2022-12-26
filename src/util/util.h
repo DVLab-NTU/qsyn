@@ -31,7 +31,7 @@ extern bool myStr2Int(const std::string& str, int& num);
 extern bool myStr2Uns(const std::string& str, unsigned& num);
 
 template <class T>
-    requires std::floating_point<T>
+requires std::floating_point<T>
 extern bool myStr2FloatType(const std::string& str, T& f);
 
 extern bool myStr2Float(const std::string& str, float& f);

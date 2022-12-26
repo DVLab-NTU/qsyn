@@ -27,7 +27,7 @@ public:
     Phase(int n) : _rational(n, 1) { normalize(); }
     Phase(int n, int d) : _rational(n, d) { normalize(); }
     template <class T>
-        requires std::floating_point<T>
+    requires std::floating_point<T>
     Phase(T f, T eps = 1e-4) : _rational(f / std::numbers::pi_v<T>, eps / std::numbers::pi_v<T>) { normalize(); }
 
     friend std::ostream& operator<<(std::ostream& os, const Phase& p);
@@ -73,8 +73,9 @@ public:
     // Operator <, <=, >, >= are are not supported deliberately as they don't make physical sense (Phases are mod 2pi)
 
     template <class T>
-        requires std::floating_point<T>
-    T toFloatType() const { return std::numbers::pi_v<T> * _rational.toFloatType<T>(); }
+    requires std::floating_point<T>
+        T toFloatType() 
+    const { return std::numbers::pi_v<T> * _rational.toFloatType<T>(); }
 
     float toFloat() { return toFloatType<float>(); }
     double toDouble() { return toFloatType<double>(); }
@@ -85,7 +86,7 @@ public:
     }
 
     template <class T>
-        requires std::floating_point<T>
+    requires std::floating_point<T>
     static Phase toPhase(T f, T eps = 1e-4) {
         Phase p(f, eps);
         return p;
@@ -119,7 +120,8 @@ public:
     void normalize();
 
     template <class T = double>
-        requires std::floating_point<T> bool
+    requires std::floating_point<T>
+    bool
     fromString(const std::string& str) {
         if (!myStrValid<T>(str, *this)) {
             *this = 0;
@@ -147,8 +149,8 @@ private:
 };
 
 template <class T = double>
-    requires std::floating_point<T> bool
-myStrValid(const std::string& str, Phase& p) {
+requires std::floating_point<T> 
+bool myStrValid(const std::string& str, Phase& p) {
     vector<string> numberStrings;
     vector<char> operators;
 
