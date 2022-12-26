@@ -75,7 +75,7 @@ public:
 
     template <class T>
     requires std::floating_point<T>
-        T toFloatType() 
+        T toFloatType()
     const { return ((T)_numer) / _denom; }
 
     float toFloat() const { return toFloatType<float>(); }

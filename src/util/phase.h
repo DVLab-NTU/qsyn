@@ -74,7 +74,7 @@ public:
 
     template <class T>
     requires std::floating_point<T>
-        T toFloatType() 
+        T toFloatType()
     const { return std::numbers::pi_v<T> * _rational.toFloatType<T>(); }
 
     float toFloat() { return toFloatType<float>(); }
@@ -149,7 +149,7 @@ private:
 };
 
 template <class T = double>
-requires std::floating_point<T> 
+requires std::floating_point<T>
 bool myStrValid(const std::string& str, Phase& p) {
     vector<string> numberStrings;
     vector<char> operators;
