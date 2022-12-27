@@ -13,4 +13,4 @@
 
 CmdClass(ZXGSimpCmd);
 
-#endif // SIMP_CMD_H
+#endif  // SIMP_CMD_H

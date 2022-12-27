@@ -6,8 +6,6 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "zxGraph.h"
-
 #include <algorithm>
 #include <cassert>
 #include <chrono>
@@ -19,12 +17,11 @@
 
 #include "textFormat.h"
 #include "util.h"
+#include "zxGraph.h"
 
 using namespace std;
 namespace TF = TextFormat;
 extern size_t verbose;
-
-
 
 /**
  * @brief return a vector of neighbor vertices
@@ -92,14 +89,12 @@ void ZXVertex::disconnect(ZXVertex* v, bool checked) {
 
 bool ZXVertex::isGadgetAxel() const {
     return any_of(
-        _neighbors.begin(), 
-        _neighbors.end(), 
-        [](const NeighborPair& nbp){ 
+        _neighbors.begin(),
+        _neighbors.end(),
+        [](const NeighborPair& nbp) {
             return nbp.first->getNumNeighbors() == 1;
-        }
-    );
+        });
 }
-
 
 /*****************************************************/
 /*   Vertex Type & Edge Type functions               */
@@ -216,4 +211,3 @@ EdgePair makeEdgePair(EdgePair epair) {
 EdgePair makeEdgePairDummy() {
     return make_pair(make_pair(nullptr, nullptr), EdgeType::ERRORTYPE);
 }
-

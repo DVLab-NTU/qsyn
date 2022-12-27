@@ -21,7 +21,7 @@ extern size_t verbose;
 
 /**
  * @brief reset QCirMgr
- * 
+ *
  */
 void QCirMgr::reset() {
     for (auto& qcir : _circuitList) delete qcir;
@@ -30,16 +30,14 @@ void QCirMgr::reset() {
     _nextID = 0;
 }
 
-
-
 // Test
 
 /**
  * @brief Check if `id` is an existed ID in QCirMgr
- * 
- * @param id 
- * @return true 
- * @return false 
+ *
+ * @param id
+ * @return true
+ * @return false
  */
 bool QCirMgr::isID(size_t id) const {
     for (size_t i = 0; i < _circuitList.size(); i++) {
@@ -48,15 +46,13 @@ bool QCirMgr::isID(size_t id) const {
     return false;
 }
 
-
-
 // Add and Remove
 
 /**
- * @brief Add a quantum circuit to 
- * 
- * @param id 
- * @return QCir* 
+ * @brief Add a quantum circuit to
+ *
+ * @param id
+ * @return QCir*
  */
 QCir* QCirMgr::addQCir(size_t id) {
     QCir* qcir = new QCir(id);
@@ -91,7 +87,6 @@ void QCirMgr::removeQCir(size_t id) {
     return;
 }
 
-
 // Action
 void QCirMgr::checkout2QCir(size_t id) {
     for (size_t i = 0; i < _circuitList.size(); i++) {
@@ -106,24 +101,24 @@ void QCirMgr::checkout2QCir(size_t id) {
 }
 
 void QCirMgr::copy(size_t id, bool toNew) {
-    if(_circuitList.empty()) cerr << "Error: QCirMgr is empty now! Action \"copy\" failed!" << endl;
-    else{
+    if (_circuitList.empty())
+        cerr << "Error: QCirMgr is empty now! Action \"copy\" failed!" << endl;
+    else {
         size_t oriCircuitID = getQCircuit()->getId();
         QCir* copiedCircuit = getQCircuit()->copy();
         copiedCircuit->setId(id);
-        
-        if(toNew){
+
+        if (toNew) {
             _circuitList.push_back(copiedCircuit);
-            _cListItr = _circuitList.end() -1;
-            if(_nextID <= id) _nextID = id + 1;
-            if(verbose >= 3){
+            _cListItr = _circuitList.end() - 1;
+            if (_nextID <= id) _nextID = id + 1;
+            if (verbose >= 3) {
                 cout << "Successfully copied QCir " << oriCircuitID << " to QCir " << id << "\n";
                 cout << "Checkout to QCir " << id << "\n";
             }
-        }
-        else{
-            for(size_t i = 0; i < _circuitList.size(); i++){
-                if(_circuitList[i]->getId() == id){
+        } else {
+            for (size_t i = 0; i < _circuitList.size(); i++) {
+                if (_circuitList[i]->getId() == id) {
                     _circuitList[i] = copiedCircuit;
                     if (verbose >= 3) cout << "Successfully copied QCir " << oriCircuitID << " to QCir " << id << endl;
                     checkout2QCir(id);
@@ -133,8 +128,6 @@ void QCirMgr::copy(size_t id, bool toNew) {
         }
     }
 }
-
-
 
 QCir* QCirMgr::findQCirByID(size_t id) const {
     if (!isID(id))
@@ -146,8 +139,6 @@ QCir* QCirMgr::findQCirByID(size_t id) const {
     }
     return nullptr;
 }
-
-
 
 // Print
 void QCirMgr::printQCirMgr() const {

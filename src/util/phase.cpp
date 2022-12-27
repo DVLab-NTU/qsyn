@@ -7,8 +7,10 @@
 ****************************************************************************/
 
 #include "phase.h"
-#include "util.h"
+
 #include <cassert>
+
+#include "util.h"
 
 PhaseUnit Phase::_printUnit = PhaseUnit::PI;
 
@@ -41,10 +43,10 @@ Phase operator-(Phase lhs, const Phase& rhs) {
     lhs -= rhs;
     return lhs;
 }
-bool Phase::operator== (const Phase& rhs) const{
+bool Phase::operator==(const Phase& rhs) const {
     return _rational == rhs._rational;
 }
-bool Phase::operator!= (const Phase& rhs) const{
+bool Phase::operator!=(const Phase& rhs) const {
     return !(*this == rhs);
 }
 
@@ -55,6 +57,6 @@ void Phase::normalize() {
 }
 
 std::ostream& operator<<(std::ostream& os, const setPhaseUnit& pu) {
-    Phase::setPrintUnit(pu._printUnit); 
+    Phase::setPrintUnit(pu._printUnit);
     return os;
 }

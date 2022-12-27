@@ -6,13 +6,13 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-
 #include "gFlowCmd.h"
-#include "gFlow.h"
 
+#include <iomanip>
+
+#include "gFlow.h"
 #include "zxGraph.h"
 #include "zxGraphMgr.h"
-#include <iomanip>
 
 using namespace std;
 
@@ -31,9 +31,13 @@ bool initGFlowCmd() {
 //    ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets] [-Disjoint]
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGGFlowCmd::exec(const string &option) {  
+ZXGGFlowCmd::exec(const string &option) {
     enum class GFLOW_PRINT_MODE {
-        ALL, LEVELS, CORRECTION_SETS, SUMMARY, ERROR
+        ALL,
+        LEVELS,
+        CORRECTION_SETS,
+        SUMMARY,
+        ERROR
     };
     vector<string> options;  
     if (!lexOptions(option, options)) return CMD_EXEC_ERROR;
@@ -99,7 +103,7 @@ ZXGGFlowCmd::exec(const string &option) {
         default:
             break;
     }
-    
+
     return CMD_EXEC_DONE;
 }
 

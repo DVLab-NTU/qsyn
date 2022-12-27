@@ -61,12 +61,12 @@ int main(int argc, char** argv) {
     }
 
     if (
-        !initCommonCmd() || 
-        !initQCirCmd() || 
-        !initZXCmd() || 
-        !initSimpCmd() || 
-        !initTensorCmd() || 
-        !initM2Cmd() || 
+        !initCommonCmd() ||
+        !initQCirCmd() ||
+        !initZXCmd() ||
+        !initSimpCmd() ||
+        !initTensorCmd() ||
+        !initM2Cmd() ||
         !initExtractCmd() ||
         !initGFlowCmd() ||
         !initLTCmd()

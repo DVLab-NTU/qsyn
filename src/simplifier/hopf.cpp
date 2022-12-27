@@ -24,7 +24,7 @@
 //     // Should be run in graph-like
 //     _matchTypeVec.clear();
 //     if(verbose >= 8) g->printVertices_depr();
-    
+
 //     vector<ZXVertex*> Vertices = g->getVertices_depr();
 //     unordered_map<ZXVertex*, size_t> Vertex2idx;
 //     for (size_t i = 0; i < Vertices.size(); i++) Vertex2idx[Vertices[i]] = i;

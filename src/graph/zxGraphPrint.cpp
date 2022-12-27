@@ -6,8 +6,6 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "zxGraph.h"
-
 #include <algorithm>
 #include <cassert>
 #include <chrono>
@@ -19,12 +17,11 @@
 
 #include "textFormat.h"
 #include "util.h"
+#include "zxGraph.h"
 
 using namespace std;
 namespace TF = TextFormat;
 extern size_t verbose;
-
-
 
 /**
  * @brief Print information of ZX-graph
@@ -143,4 +140,3 @@ void ZXGraph::printEdges() const {
     });
     cout << "Total #Edges: " << getNumEdges() << endl;
 }
-

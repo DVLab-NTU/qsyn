@@ -32,7 +32,6 @@ bool Bialgebra::check_duplicated_vertex(vector<ZXVertex*> vec) {
     return false;
 }
 
-
 /**
  * @brief Finds noninteracting matchings of the bialgebra rule.
  *        (Check PyZX/pyzx/rules.py/match_bialg_parallel for more details)
@@ -41,18 +40,18 @@ bool Bialgebra::check_duplicated_vertex(vector<ZXVertex*> vec) {
  */
 void Bialgebra::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    if(verbose >= 8) g->printVertices();
+    if (verbose >= 8) g->printVertices();
     unordered_map<size_t, size_t> id2idx;
     size_t cnt = 0;
-    for(const auto& v: g->getVertices()){
+    for (const auto& v : g->getVertices()) {
         id2idx[v->getId()] = cnt;
         cnt++;
     }
 
-    //FIXME - performance: replace unordered_map<size_t, size_t> id2idx; and vector<bool> taken(g->getNumVertices(), false); with a single 
-    // unordered_set<ZXVertex*> taken; Not fixing at the moment as bialg is not used in full reduce
+    // FIXME - performance: replace unordered_map<size_t, size_t> id2idx; and vector<bool> taken(g->getNumVertices(), false); with a single
+    //  unordered_set<ZXVertex*> taken; Not fixing at the moment as bialg is not used in full reduce
     vector<bool> taken(g->getNumVertices(), false);
-    g -> forEachEdge([&id2idx, &taken, this](const EdgePair& epair) {
+    g->forEachEdge([&id2idx, &taken, this](const EdgePair& epair) {
         if (epair.second != EdgeType::SIMPLE) return;
         ZXVertex* left = epair.first.first;
         ZXVertex* right = epair.first.second;

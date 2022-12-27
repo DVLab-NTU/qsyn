@@ -6,14 +6,16 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cassert>
-#include <iostream>
-#include <iomanip>
-#include "util.h"
 #include "extractorCmd.h"
+
+#include <cassert>
+#include <iomanip>
+#include <iostream>
+
 #include "extract.h"
-#include "zxGraphMgr.h"
 #include "qcirMgr.h"
+#include "util.h"
+#include "zxGraphMgr.h"
 
 using namespace std;
 extern size_t verbose;
@@ -21,39 +23,36 @@ extern int effLimit;
 extern ZXGraphMgr *zxGraphMgr;
 extern QCirMgr *qcirMgr;
 
-bool initExtractCmd()
-{
-   if (!(cmdMgr->regCmd("ZX2QC", 5, new ExtractCmd) && 
-         cmdMgr->regCmd("EXTStep", 4, new ExtractStepCmd)
-         ))
-   {
-      cerr << "Registering \"extract\" commands fails... exiting" << endl;
-      return false;
-   }
-   return true;
+bool initExtractCmd() {
+    if (!(cmdMgr->regCmd("ZX2QC", 5, new ExtractCmd) &&
+          cmdMgr->regCmd("EXTStep", 4, new ExtractStepCmd))) {
+        cerr << "Registering \"extract\" commands fails... exiting" << endl;
+        return false;
+    }
+    return true;
 }
 
 CmdExecStatus
-ExtractCmd::exec(const string &option) {  
+ExtractCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     unsigned id = qcirMgr->getNextID();
-    if (! token.empty()){
+    if (!token.empty()) {
         if (!myStr2Uns(option, id)) {
             cerr << "Error: invalid QCir ID!!\n";
             return errorOption(CMD_OPT_ILLEGAL, (option));
         }
     }
 
-    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
+    if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
         cerr << "Error: ZX-graph list is empty now. Please ZXNew before EXTRact." << endl;
         return CMD_EXEC_ERROR;
     }
 
     zxGraphMgr->copy(zxGraphMgr->getNextID());
     Extractor ext(zxGraphMgr->getGraph());
-    QCir* result = ext.extract();
-    if(result != nullptr){
+    QCir *result = ext.extract();
+    if (result != nullptr) {
         qcirMgr->addQCir(id);
         qcirMgr->setQCircuit(result);
     }
@@ -70,27 +69,25 @@ void ExtractCmd::help() const {
 }
 
 CmdExecStatus
-ExtractStepCmd::exec(const string &option) {    
+ExtractStepCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
-    if(zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()){
+    if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
         cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXPrint." << endl;
         return CMD_EXEC_ERROR;
     }
-    
-    if (myStrNCmp("-CLFrontier", token, 4) == 0){
+
+    if (myStrNCmp("-CLFrontier", token, 4) == 0) {
         zxGraphMgr->copy(zxGraphMgr->getNextID());
         Extractor ext(zxGraphMgr->getGraph());
         ext.cleanFrontier();
-    }   
-    else if (myStrNCmp("-RMGadget", token, 4) == 0){
+    } else if (myStrNCmp("-RMGadget", token, 4) == 0) {
         zxGraphMgr->copy(zxGraphMgr->getNextID());
         Extractor ext(zxGraphMgr->getGraph());
         ext.removeGadget();
-    }
-    else {
-        cout << "Error: unsupported option " << token << " !!"  << endl;
+    } else {
+        cout << "Error: unsupported option " << token << " !!" << endl;
         return CMD_EXEC_ERROR;
     }
     return CMD_EXEC_DONE;

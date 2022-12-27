@@ -73,9 +73,12 @@ public:
     const Row& getRow(size_t r) { return _matrix[r]; }
 
     size_t numRows() const { return _matrix.size(); }
-    size_t numCols() const { return _matrix.empty() ? 0 : _matrix[0].size(); }
-    
-    void clear() { _matrix.clear(); _opStorage.clear(); }
+    size_t numCols() const { return _matrix[0].size(); }
+
+    void clear() {
+        _matrix.clear();
+        _opStorage.clear();
+    }
 
     bool xorOper(size_t ctrl, size_t targ, bool track = false);
     bool gaussianElimSkip(bool track = true);
@@ -93,7 +96,6 @@ public:
     const Row& operator[](const size_t& i) const {
         return _matrix[i];
     }
-
 
 private:
     vector<Row> _matrix;

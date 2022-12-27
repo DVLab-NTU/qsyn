@@ -6,11 +6,11 @@
   Copyright    [ 2022 8 ]
 ****************************************************************************/
 
-#include "rationalNumber.h"
-
 #include <iostream>
-#include <string>
 #include <sstream>
+#include <string>
+
+#include "rationalNumber.h"
 
 // --- Always put catch2/catch.hpp after all other header files ---
 #include "catch2/catch.hpp"
@@ -32,10 +32,10 @@ TEST_CASE("Rational numbers are initiated correctly", "[Rational]") {
 }
 
 TEST_CASE("Rational numbers are initiated from floating points correctly", "[Rational]") {
-    double      f1 = 1.25003, eps1 = 1e-6;
-    float       f2 = 2.7654321f, eps2 = 1e-2f;
+    double f1 = 1.25003, eps1 = 1e-6;
+    float f2 = 2.7654321f, eps2 = 1e-2f;
     long double f3 = 1.234567890234567890L, eps3 = 1e-10L;
-    
+
     Rational qD0(f1);
     REQUIRE(qD0.toDouble() == Approx(f1).margin(1e-4));
     Rational qD1(f1, eps1);
@@ -51,7 +51,7 @@ TEST_CASE("Rational number arithmetics works correctly", "[Rational]") {
     REQUIRE((q1 - q2) == Rational(1, 12));
     REQUIRE((q1 * q2) == Rational(1, 2));
     REQUIRE((q1 / q2) == Rational(9, 8));
-    REQUIRE((q1 / 2)  == Rational(3, 8));
+    REQUIRE((q1 / 2) == Rational(3, 8));
     REQUIRE_THROWS_AS((q3 / 0), std::overflow_error);
     REQUIRE((q1 - q6) == Rational(1, 2));
 }
@@ -62,7 +62,6 @@ TEST_CASE("Rational number comparisons work correctly", "[Rational]") {
     REQUIRE_FALSE(q1 < q3);
     REQUIRE(q1 == q3);
 }
-
 
 TEST_CASE("Rational number are printed correctly", "[Rational]") {
     Catch::StringMaker<Rational> sm;

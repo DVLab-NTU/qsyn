@@ -50,7 +50,7 @@ int listDir(vector<string>& files, const string& prefix, const string& dir = "."
     }
 
     sort(files.begin(), files.end());
-    
+
     return 0;
 }
 

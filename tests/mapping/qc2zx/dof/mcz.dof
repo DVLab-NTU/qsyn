@@ -1,9 +1,0 @@
-// Create 10 qubits
-qcba 10
-// Add multiple-control qubit gate (CnZ)
-// 5 is the target
-qcgma 1 2 3 4 5
-qccp -q
-// qcgp gateNumber -zx would print the ZX-graph of gate
-qcgp 0 -zx
-qq -f

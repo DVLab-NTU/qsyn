@@ -21,7 +21,7 @@ extern size_t verbose;
 
 /**
  * @brief reset ZXGraphMgr
- * 
+ *
  */
 void ZXGraphMgr::reset() {
     for (auto& graph : _graphList) {
@@ -32,16 +32,14 @@ void ZXGraphMgr::reset() {
     _nextID = 0;
 }
 
-
-
 // Test
 
 /**
  * @brief Check if `id` is an existed ID in ZXGraphMgr
- * 
- * @param id 
- * @return true 
- * @return false 
+ *
+ * @param id
+ * @return true
+ * @return false
  */
 bool ZXGraphMgr::isID(size_t id) const {
     for (size_t i = 0; i < _graphList.size(); i++) {
@@ -50,16 +48,14 @@ bool ZXGraphMgr::isID(size_t id) const {
     return false;
 }
 
-
-
 // Add and Remove
 
 /**
- * @brief Add a ZX-graph to 
- * 
- * @param id 
- * @param ref 
- * @return ZXGraph* 
+ * @brief Add a ZX-graph to
+ *
+ * @param id
+ * @param ref
+ * @return ZXGraph*
  */
 ZXGraph* ZXGraphMgr::addZXGraph(size_t id, void** ref) {
     ZXGraph* zxGraph = new ZXGraph(id, ref);
@@ -95,7 +91,6 @@ void ZXGraphMgr::removeZXGraph(size_t id) {
     return;
 }
 
-
 // Action
 void ZXGraphMgr::checkout2ZXGraph(size_t id) {
     for (size_t i = 0; i < _graphList.size(); i++) {
@@ -110,24 +105,24 @@ void ZXGraphMgr::checkout2ZXGraph(size_t id) {
 }
 
 void ZXGraphMgr::copy(size_t id, bool toNew) {
-    if(_graphList.empty()) cerr << "Error: ZXGraphMgr is empty now! Action \"copy\" failed!" << endl;
-    else{
+    if (_graphList.empty())
+        cerr << "Error: ZXGraphMgr is empty now! Action \"copy\" failed!" << endl;
+    else {
         size_t oriGraphID = getGraph()->getId();
         ZXGraph* copiedGraph = getGraph()->copy();
         copiedGraph->setId(id);
-        
-        if(toNew){
+
+        if (toNew) {
             _graphList.push_back(copiedGraph);
-            _gListItr = _graphList.end() -1;
-            if(_nextID <= id) _nextID = id + 1;
-            if(verbose >= 3){
+            _gListItr = _graphList.end() - 1;
+            if (_nextID <= id) _nextID = id + 1;
+            if (verbose >= 3) {
                 cout << "Successfully copied Graph " << oriGraphID << " to Graph " << id << "\n";
                 cout << "Checkout to Graph " << id << "\n";
             }
-        }
-        else{
-            for(size_t i = 0; i < _graphList.size(); i++){
-                if(_graphList[i]->getId() == id){
+        } else {
+            for (size_t i = 0; i < _graphList.size(); i++) {
+                if (_graphList[i]->getId() == id) {
                     _graphList[i] = copiedGraph;
                     if (verbose >= 3) cout << "Successfully copied Graph " << oriGraphID << " to Graph " << id << endl;
                     checkout2ZXGraph(id);
@@ -137,8 +132,6 @@ void ZXGraphMgr::copy(size_t id, bool toNew) {
         }
     }
 }
-
-
 
 ZXGraph* ZXGraphMgr::findZXGraphByID(size_t id) const {
     if (!isID(id))
@@ -150,8 +143,6 @@ ZXGraph* ZXGraphMgr::findZXGraphByID(size_t id) const {
     }
     return nullptr;
 }
-
-
 
 // Print
 void ZXGraphMgr::printZXGraphMgr() const {

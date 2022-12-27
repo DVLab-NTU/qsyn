@@ -8,10 +8,11 @@
 #ifndef GFLOW_H
 #define GFLOW_H
 
-#include "zxGraph.h"
-#include "m2.h"
-#include <vector>
 #include <unordered_map>
+#include <vector>
+
+#include "m2.h"
+#include "zxGraph.h"
 
 class GFlow {
 public:
@@ -44,7 +45,7 @@ private:
     ZXVertexList _frontier;
     ZXVertexList _neighbors;
     unordered_set<ZXVertex*> _taken;
-    M2           _coefficientMatrix;
+    M2 _coefficientMatrix;
 
     // gflow calculation subroutines
     void clearTemporaryStorage();
@@ -55,7 +56,6 @@ private:
 
     void printFrontier() const;
     void printNeighbors() const;
-    
 };
 
-#endif // GFLOW_H
+#endif  // GFLOW_H

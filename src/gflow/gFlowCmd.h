@@ -13,4 +13,4 @@
 
 CmdClass(ZXGGFlowCmd);
 
-#endif // GFLOW_CMD_H
+#endif  // GFLOW_CMD_H

@@ -7,24 +7,25 @@
 ****************************************************************************/
 
 #include "m2.h"
+
 #include <cmath>
 #include <algorithm>
 extern size_t verbose;
 using namespace std;
 
 namespace std {
-    template <>
-    struct hash<vector<unsigned char>> {
-        size_t operator()(const vector<unsigned char>& k) const {
-            size_t ret = hash<unsigned char>()(k[0]);
-            for (size_t i = 1; i < k.size(); i++) {
-                ret ^= hash<unsigned char>()(k[i] << (i % sizeof(size_t)));
-            }
-
-            return ret;
+template <>
+struct hash<vector<unsigned char>> {
+    size_t operator()(const vector<unsigned char>& k) const {
+        size_t ret = hash<unsigned char>()(k[0]);
+        for (size_t i = 1; i < k.size(); i++) {
+            ret ^= hash<unsigned char>()(k[i] << (i % sizeof(size_t)));
         }
-    };
-}
+
+        return ret;
+    }
+};
+}  // namespace std
 
 Row operator+(Row& lhs, const Row& rhs) {
     lhs += rhs;
@@ -75,7 +76,7 @@ bool Row::isZeros() const {
     }
     return true;
 }
-void M2::reset(){
+void M2::reset() {
     _matrix.clear();
     _opStorage.clear();
 }
@@ -141,65 +142,62 @@ bool M2::xorOper(size_t ctrl, size_t targ, bool track) {
 
 /**
  * @brief Perform Gaussian Elimination. Skip the column if it is dupicated.
- * 
- * @param track 
- * @return true 
- * @return false 
+ *
+ * @param track
+ * @return true
+ * @return false
  */
-bool M2::gaussianElimSkip(bool track){
+bool M2::gaussianElimSkip(bool track) {
     vector<size_t> pivot_cols, pivot_cols_backup;
     size_t pivot_row = 0;
     unordered_map<vector<unsigned char>, size_t> duplicated;
-    for(size_t i=0; i<numRows(); i++){
-        if(_matrix[i].isZeros()) continue;
-        if(duplicated.contains(_matrix[i].getRow())){
+    for (size_t i = 0; i < numRows(); i++) {
+        if (_matrix[i].isZeros()) continue;
+        if (duplicated.contains(_matrix[i].getRow())) {
             xorOper(duplicated[_matrix[i].getRow()], i, track);
-        }
-        else{
+        } else {
             duplicated[_matrix[i].getRow()] = i;
         }
     }
     size_t p = 0;
-    while(p < numCols()){
-        for(size_t r0 = pivot_row; r0 < numRows(); r0++){
-            
-            if(_matrix[r0].getRow()[p] != 0){
-                if(r0 != pivot_row){
+    while (p < numCols()) {
+        for (size_t r0 = pivot_row; r0 < numRows(); r0++) {
+            if (_matrix[r0].getRow()[p] != 0) {
+                if (r0 != pivot_row) {
                     xorOper(r0, pivot_row, track);
                 }
 
-                for(size_t r1 = pivot_row+1; r1 < numRows(); r1++){
-                    if(_matrix[r1].getRow()[p] != 0){
+                for (size_t r1 = pivot_row + 1; r1 < numRows(); r1++) {
+                    if (_matrix[r1].getRow()[p] != 0) {
                         xorOper(pivot_row, r1, track);
                     }
                 }
                 pivot_cols.push_back(p);
-                pivot_row ++;
+                pivot_row++;
                 break;
             }
         }
         p++;
     }
-    
+
     pivot_row--;
     pivot_cols_backup = pivot_cols;
 
     duplicated.clear();
-    for(size_t i=pivot_row; i>0; i--){
-        if(_matrix[i].isZeros()) continue;
-        if(duplicated.contains(_matrix[i].getRow())){
+    for (size_t i = pivot_row; i > 0; i--) {
+        if (_matrix[i].isZeros()) continue;
+        if (duplicated.contains(_matrix[i].getRow())) {
             xorOper(duplicated[_matrix[i].getRow()], i, track);
-        }
-        else{
+        } else {
             duplicated[_matrix[i].getRow()] = i;
         }
     }
-    //NOTE - 0 <= pivot_cols_backup[i] < numRows() is true
-    while(pivot_cols_backup.size() > 0){
-        size_t pcol = pivot_cols_backup[pivot_cols_backup.size()-1];
+    // NOTE - 0 <= pivot_cols_backup[i] < numRows() is true
+    while (pivot_cols_backup.size() > 0) {
+        size_t pcol = pivot_cols_backup[pivot_cols_backup.size() - 1];
         pivot_cols_backup.pop_back();
-        for(size_t r = 0; r < pivot_row; r++){
-            if(_matrix[r].getRow()[pcol] != 0){
+        for (size_t r = 0; r < pivot_row; r++) {
+            if (_matrix[r].getRow()[pcol] != 0) {
                 xorOper(pivot_row, r, track);
             }
         }
@@ -218,13 +216,13 @@ bool M2::gaussianElim(bool track, bool isAugmentedMatrix) {
     if (verbose >= 5) cout << "Performing Gaussian Elimination..." << endl;
     if (verbose >= 8) printMatrix();
     _opStorage.clear();
-    
+
     size_t numVariables = numCols() - ((isAugmentedMatrix) ? 1 : 0);
 
     /**
-     * @brief If _matrix[i][i] is 0, greedily perform row operations 
+     * @brief If _matrix[i][i] is 0, greedily perform row operations
      * to make the number 1
-     * 
+     *
      * @return true on success, false on failures
      */
     auto makeMainDiagonalOne = [this, &track](size_t i) -> bool {
@@ -244,11 +242,9 @@ bool M2::gaussianElim(bool track, bool isAugmentedMatrix) {
 
     // convert to upper-triangle matrix
     for (size_t i = 0; i < min(numRows() - 1, numVariables); i++) {
-        
-        // the system of equation is not solvable if the 
+        // the system of equation is not solvable if the
         // main diagonal cannot be made 1
-        //REVIEW - I comment out this line since no routine in Gaussian do this?
-        
+        // REVIEW - I comment out this line since no routine in Gaussian do this?
         if (!makeMainDiagonalOne(i)) return false;
 
         for (size_t j = i + 1; j < numRows(); j++) {
@@ -261,7 +257,7 @@ bool M2::gaussianElim(bool track, bool isAugmentedMatrix) {
             }
         }
     }
-    
+
     // for augmented matrix, if any rows looks like [0 ... 0 1],
     // the system has no solution
     if (isAugmentedMatrix) {
@@ -286,12 +282,12 @@ bool M2::gaussianElim(bool track, bool isAugmentedMatrix) {
 }
 
 /**
- * @brief check if the matrix is of solved form. That is, 
+ * @brief check if the matrix is of solved form. That is,
  *        (1) an identity matrix,
- *        (2) an identity matrix with an arbitrary matrix on the right, or 
+ *        (2) an identity matrix with an arbitrary matrix on the right, or
  *        (3) an identity matrix with an zero matrix on the bottom.
- * 
- * @return true or false 
+ *
+ * @return true or false
  */
 bool M2::isSolvedForm() const {
     for (size_t i = 0; i < numRows(); ++i) {
@@ -362,11 +358,11 @@ bool M2::gaussianElimAugmented(bool track) {
 }
 
 /**
- * @brief check if the augmented matrix is of solved form. That is, 
- *        an identity matrix with an arbitrary matrix on the right, and possibly 
+ * @brief check if the augmented matrix is of solved form. That is,
+ *        an identity matrix with an arbitrary matrix on the right, and possibly
  *        an identity matrix with an zero matrix on the bottom.
- * 
- * @return true or false 
+ *
+ * @return true or false
  */
 bool M2::isAugmentedSolvedForm() const {
     size_t n = min(numRows(), numCols() - 1);
