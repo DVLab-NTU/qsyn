@@ -19,4 +19,4 @@ void printAxisList(const TensorAxisList& ax);
 
 bool isDisjoint(const TensorAxisList& ax1, const TensorAxisList& ax2);
 
-#endif //TENSOR_UTIL_H
+#endif  // TENSOR_UTIL_H

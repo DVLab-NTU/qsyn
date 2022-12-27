@@ -6,22 +6,19 @@
 //   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 // ****************************************************************************/
 
+#include "zxRules.h"
 
 #include <iostream>
-#include <vector>
 #include <unordered_map>
-#include "zxRules.h"
+#include <vector>
 using namespace std;
 
 extern size_t verbose;
 
-void ZXRule::reset(){
-  _matchTypeVecNum = 0;
-  _removeVertices.clear();
-  _removeEdges.clear();
-  _edgeTableKeys.clear();
-  _edgeTableValues.clear();
+void ZXRule::reset() {
+    _matchTypeVecNum = 0;
+    _removeVertices.clear();
+    _removeEdges.clear();
+    _edgeTableKeys.clear();
+    _edgeTableValues.clear();
 }
-
-
-

@@ -19,14 +19,12 @@
 using namespace std;
 extern size_t verbose;
 
-
-
 /// @brief Get nonBoundary vertices
 /// @return
 ZXVertexList ZXGraph::getNonBoundary() {
     ZXVertexList tmp;
     tmp.clear();
-    for(const auto& v: _vertices){
+    for (const auto& v : _vertices) {
         if (!v->isBoundary())
             tmp.emplace(v);
     }
@@ -34,7 +32,7 @@ ZXVertexList ZXGraph::getNonBoundary() {
 }
 
 /// @brief Get input vertex of qubit q
-/// @param q 
+/// @param q
 /// @return
 ZXVertex* ZXGraph::getInputFromHash(const size_t& q) {
     if (!_inputList.contains(q)) {
@@ -45,8 +43,8 @@ ZXVertex* ZXGraph::getInputFromHash(const size_t& q) {
 }
 
 /// @brief Get output vertex of qubit q
-/// @param q 
-/// @return 
+/// @param q
+/// @return
 ZXVertex* ZXGraph::getOutputFromHash(const size_t& q) {
     if (!_outputList.contains(q)) {
         cerr << "Output qubit id " << q << "not found" << endl;
@@ -56,8 +54,8 @@ ZXVertex* ZXGraph::getOutputFromHash(const size_t& q) {
 }
 
 /// @brief Concatenate a ZX-graph of a gate to the ZX-graph of big circuit
-/// @param tmp 
-/// @param remove_imm 
+/// @param tmp
+/// @param remove_imm
 void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
     // Add Vertices
     this->addVertices(tmp->getNonBoundary(), true);
@@ -70,10 +68,10 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
         ZXVertex* lastVertex = this->getOutputFromHash(inpQubit)->getFirstNeighbor().first;
         EdgeType circuitEtype = this->getOutputFromHash(inpQubit)->getFirstNeighbor().second;
         tmp->removeEdge(make_pair(make_pair(it->second, targetInput), gateEtype));  // Remove old edge (disconnect old graph)
-        
+
         lastVertex->disconnect(this->getOutputFromHash(inpQubit));
 
-        this->addEdge(lastVertex, targetInput, (circuitEtype == EdgeType::HADAMARD) ? toggleEdge(gateEtype): gateEtype);  // Add new edge
+        this->addEdge(lastVertex, targetInput, (circuitEtype == EdgeType::HADAMARD) ? toggleEdge(gateEtype) : gateEtype);  // Add new edge
         delete it->second;
     }
     // Reconnect Output
@@ -84,22 +82,22 @@ void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
         ZXVertex* targetOutput = it->second->getFirstNeighbor().first;
         EdgeType etype = it->second->getFirstNeighbor().second;
         ZXVertex* ZXOup = this->getOutputFromHash(oupQubit);
-        tmp->removeEdge(make_pair(make_pair(it->second, targetOutput), etype));                           // Remove old edge (disconnect old graph)
-        this->addEdge(targetOutput, ZXOup, etype);  // Add new edge
+        tmp->removeEdge(make_pair(make_pair(it->second, targetOutput), etype));  // Remove old edge (disconnect old graph)
+        this->addEdge(targetOutput, ZXOup, etype);                               // Add new edge
         delete it->second;
     }
     tmp->disownVertices();
 }
 
 /// @brief Get Tensor form of Z, X spider, or H box
-/// @return 
-QTensor<double> ZXVertex::getTSform(){
+/// @return
+QTensor<double> ZXVertex::getTSform() {
     QTensor<double> tensor = (1. + 0.i);
-    if (isBoundary()){
+    if (isBoundary()) {
         tensor = QTensor<double>::identity(_neighbors.size());
         return tensor;
     }
-    
+
     if (isHBox())
         tensor = QTensor<double>::hbox(_neighbors.size());
     else if (isZ())

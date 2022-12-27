@@ -19,4 +19,4 @@ class TensorMgr;
 
 // class TensorShape;
 
-#endif //TENSOR_DEF_H
+#endif  // TENSOR_DEF_H

@@ -13,4 +13,4 @@
 
 CmdClass(ExtractCmd);
 CmdClass(ExtractStepCmd);
-#endif //EXTRACTOR_CMD_H
+#endif  // EXTRACTOR_CMD_H

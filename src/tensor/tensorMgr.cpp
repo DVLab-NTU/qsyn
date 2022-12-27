@@ -6,8 +6,9 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #include "tensorMgr.h"
-#include <iostream>
+
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
@@ -95,6 +96,6 @@ Phase TensorMgr::getGlobalPhase(const size_t& id1, const size_t& id2) const {
     return globalPhase(*getTensor(id1), *getTensor(id2));
 }
 
-void TensorMgr::adjoint(const size_t& id) { 
+void TensorMgr::adjoint(const size_t& id) {
     *_tensorList[id].tensor = _tensorList[id].tensor->adjoint();
 }

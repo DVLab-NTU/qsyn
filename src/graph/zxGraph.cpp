@@ -24,7 +24,6 @@ using namespace std;
 namespace TF = TextFormat;
 extern size_t verbose;
 
-
 /*****************************************************/
 /*   class ZXGraph Getter and setter functions       */
 /*****************************************************/
@@ -84,12 +83,12 @@ bool ZXGraph::isValid() const {
 void ZXGraph::generateCNOT() {
     if (isEmpty()) {
         if (verbose >= 5) cout << "Generate a 2-qubit CNOT graph for testing\n";
-        ZXVertex* i0 = addInput(0,0,0);
-        ZXVertex* i1 = addInput(1,0,0);
+        ZXVertex* i0 = addInput(0, 0, 0);
+        ZXVertex* i1 = addInput(1, 0, 0);
         ZXVertex* vz = addVertex(0, VertexType::Z, Phase(), 0, 1);
         ZXVertex* vx = addVertex(1, VertexType::X, Phase(), 0, 1);
-        ZXVertex* o0 = addOutput(0,0,2);
-        ZXVertex* o1 = addOutput(1,0,2);
+        ZXVertex* o0 = addOutput(0, 0, 2);
+        ZXVertex* o1 = addOutput(1, 0, 2);
 
         addEdge(i0, vz, EdgeType::SIMPLE);
         addEdge(i1, vx, EdgeType::SIMPLE);
@@ -166,17 +165,17 @@ bool ZXGraph::isGraphLike() const {
 
 /**
  * @brief Check if graph is identity
- * 
+ *
  * @return true if graph is identity
  * @return false if not
  */
 bool ZXGraph::isIdentity() const {
-    for(auto& i: _inputs){
-        if(i -> getNumNeighbors() != 1) 
+    for (auto& i : _inputs) {
+        if (i->getNumNeighbors() != 1)
             return false;
-        if(! _outputs.contains(i -> getFirstNeighbor().first)) 
+        if (!_outputs.contains(i->getFirstNeighbor().first))
             return false;
-        if((i -> getFirstNeighbor().first)->getQubit() != i -> getQubit()) 
+        if ((i->getFirstNeighbor().first)->getQubit() != i->getQubit())
             return false;
     }
     return true;
@@ -218,11 +217,11 @@ int ZXGraph::nonCliffordCount(bool includeT) const {
 
 /**
  * @brief Add input to ZXVertexList
- * 
- * @param qubit 
- * @param checked 
- * @param col 
- * @return ZXVertex* 
+ *
+ * @param qubit
+ * @param checked
+ * @param col
+ * @return ZXVertex*
  */
 ZXVertex* ZXGraph::addInput(int qubit, bool checked, unsigned int col) {
     if (!checked) {
@@ -320,13 +319,13 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
             (vs->isX() && vt->isZ() && et == EdgeType::HADAMARD) ||
             (vs->isZ() && vt->isZ() && et == EdgeType::SIMPLE) ||
             (vs->isX() && vt->isX() && et == EdgeType::SIMPLE)) {
-            if (verbose >= 5) cout << "Note: redundant edge; merging into existing edge ("<<vs->getId()<<", "<< vt->getId()<<")..." << endl;
+            if (verbose >= 5) cout << "Note: redundant edge; merging into existing edge (" << vs->getId() << ", " << vt->getId() << ")..." << endl;
         } else if (
             (vs->isZ() && vt->isX() && et == EdgeType::SIMPLE) ||
             (vs->isX() && vt->isZ() && et == EdgeType::SIMPLE) ||
             (vs->isZ() && vt->isZ() && et == EdgeType::HADAMARD) ||
             (vs->isX() && vt->isX() && et == EdgeType::HADAMARD)) {
-            if (verbose >= 5) cout << "Note: Hopf edge; cancelling out with existing edge ("<<vs->getId()<<", "<< vt->getId()<<")..." << endl;
+            if (verbose >= 5) cout << "Note: Hopf edge; cancelling out with existing edge (" << vs->getId() << ", " << vt->getId() << ")..." << endl;
             vs->removeNeighbor(make_pair(vt, et));
             vt->removeNeighbor(make_pair(vs, et));
         }
@@ -506,8 +505,8 @@ void ZXGraph::assignBoundary(int qubit, bool isInput, VertexType vt, Phase phase
 /**
  * @brief transfer the phase of the specified vertex to a unary gadget. This function does nothing
  *        if the target vertex is not a Z-spider.
- * 
- * @param v 
+ *
+ * @param v
  * @param keepPhase if specified, keep this amount of phase on the vertex and only transfer the rest.
  */
 void ZXGraph::transferPhase(ZXVertex* v, const Phase& keepPhase) {
@@ -520,12 +519,12 @@ void ZXGraph::transferPhase(ZXVertex* v, const Phase& keepPhase) {
     this->addEdge(buffer, v, EdgeType::HADAMARD);
 }
 
-//REVIEW - Probably needs better name and description. Helps are appreciated.
+// REVIEW - Probably needs better name and description. Helps are appreciated.
 /**
- * @brief Add a Z-spider to buffer a vertex from another vertex, so that they don't come in 
- *        contact with each other on the edge with specified edge type. If such edge does not 
- *        exists, this function does nothing. 
- * 
+ * @brief Add a Z-spider to buffer a vertex from another vertex, so that they don't come in
+ *        contact with each other on the edge with specified edge type. If such edge does not
+ *        exists, this function does nothing.
+ *
  * @param toProtect the vertex to protect
  * @param fromVertex the vertex to buffer from
  * @param etype the edgetype the buffer should be added on

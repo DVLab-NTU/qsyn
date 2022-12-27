@@ -440,14 +440,14 @@ void QCir::analysis(bool detail) {
             case GateType::CRZ:
                 crz++;
                 // NOTE - CXs
-                clifford+=2; 
+                clifford += 2;
                 // NOTE - RZs
                 if (g->getPhase().getRational().denominator() == 1)
-                    clifford+=2;
+                    clifford += 2;
                 else if (g->getPhase().getRational().denominator() == 2)
-                    tfamily+=2;
+                    tfamily += 2;
                 else
-                    nct+=2;
+                    nct += 2;
                 break;
             case GateType::CZ:
                 cz++;           // --C--

@@ -22,7 +22,7 @@ TensorAxisList concatAxisList(const TensorAxisList& ax1, const TensorAxisList& a
 void printAxisList(const TensorAxisList& ax) {
     if (!ax.empty()) {
         std::cout << *ax.begin();
-        std::for_each(ax.begin()+1, ax.end(), [](const size_t& id){ std::cout << " " << id; });
+        std::for_each(ax.begin() + 1, ax.end(), [](const size_t& id) { std::cout << " " << id; });
     }
     std::cout << std::endl;
 }
