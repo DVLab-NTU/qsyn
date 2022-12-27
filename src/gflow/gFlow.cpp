@@ -45,6 +45,16 @@ bool GFlow::calculate(bool disjointNeighbors) {
         if (verbose >= 8) printNeighbors();
 
         for (auto& v : _neighbors) {
+            if (disjointNeighbors &&
+                any_of(v->getNeighbors().begin(), v->getNeighbors().end(), [this](const NeighborPair& nbpair) {
+                    return this->_levels.back().contains(nbpair.first);
+                })) {
+                if (verbose >= 8) {
+                    cout << "Skipping vertex " << v->getId() << ": connected to current level" << endl;
+                }
+                continue;
+            }
+
             M2 augmentedMatrix = _coefficientMatrix;
             augmentedMatrix.appendOneHot(i);
 
@@ -57,14 +67,9 @@ bool GFlow::calculate(bool disjointNeighbors) {
                 if (verbose >= 8) {
                     cout << "Solved, adding " << v->getId() << " to this level" << endl;
                 }
-                if (disjointNeighbors &&
-                    none_of(v->getNeighbors().begin(), v->getNeighbors().end(), [this](const NeighborPair& nbpair) {
-                        return this->_levels.back().contains(nbpair.first);
-                })) {
-                    _taken.insert(v);
-                    _levels.back().insert(v);
-                    setCorrectionSetFromMatrix(v, augmentedMatrix);
-                }
+                _taken.insert(v);
+                _levels.back().insert(v);
+                setCorrectionSetFromMatrix(v, augmentedMatrix);
             } else if (verbose >= 8) {
                 cout << "No solution for " << v->getId() << "." << endl;
             }
@@ -75,20 +80,24 @@ bool GFlow::calculate(bool disjointNeighbors) {
             }
             ++i;
         }
-
         updateFrontier();
     }
 
     _valid = (_taken.size() == _zxgraph->getNumVertices());
     _levels.pop_back();  // the back is always empty
 
+    vector<pair<size_t, ZXVertex*>> inputsToMove;
     for (size_t i = 0; i < _levels.size() - 1; ++i) {
         for (auto& v : _levels[i]) {
             if (_zxgraph->getInputs().contains(v)) {
-                _levels[i].erase(v);
-                _levels.back().insert(v);
+                inputsToMove.emplace_back(i, v);
             }
         }
+    }
+
+    for (auto& [level, v] : inputsToMove) {
+        _levels[level].erase(v);
+        _levels.back().insert(v);
     }
     return _valid;
 }
