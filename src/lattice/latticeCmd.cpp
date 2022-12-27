@@ -7,9 +7,11 @@
 ****************************************************************************/
 
 #include "latticeCmd.h"
+
 #include <cassert>
 #include <iomanip>
 #include <iostream>
+
 #include "lattice.h"
 #include "util.h"
 #include "zxGraph.h"
