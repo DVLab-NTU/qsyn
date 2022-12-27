@@ -28,7 +28,7 @@ bool initGFlowCmd() {
 }
 
 //----------------------------------------------------------------------
-//    ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets]
+//    ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets] [-Disjoint]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGGFlowCmd::exec(const string &option) {
@@ -39,8 +39,8 @@ ZXGGFlowCmd::exec(const string &option) {
         SUMMARY,
         ERROR
     };
-    string token;
-    if (!lexSingleOption(option, token, true)) return CMD_EXEC_ERROR;
+    vector<string> options;
+    if (!lexOptions(option, options)) return CMD_EXEC_ERROR;
 
     if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
         cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXGGFlow." << endl;
@@ -48,19 +48,38 @@ ZXGGFlowCmd::exec(const string &option) {
     }
     GFlow gflow(zxGraphMgr->getGraph());
 
-    GFLOW_PRINT_MODE mode = GFLOW_PRINT_MODE::ERROR;
-    if (myStrNCmp("-All", token, 2) == 0) {
-        mode = GFLOW_PRINT_MODE::ALL;
-    } else if (myStrNCmp("-Levels", token, 2) == 0) {
-        mode = GFLOW_PRINT_MODE::LEVELS;
-    } else if (myStrNCmp("-Correctionsets", token, 2) == 0) {
-        mode = GFLOW_PRINT_MODE::CORRECTION_SETS;
-    } else if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) {
-        mode = GFLOW_PRINT_MODE::SUMMARY;
-    } else {
-        return errorOption(CMD_OPT_ILLEGAL, token);
+    CMD_N_OPTS_AT_MOST_OR_RETURN(options, 2);
+
+    GFLOW_PRINT_MODE mode = GFLOW_PRINT_MODE::SUMMARY;
+    bool doDisjoint = false;
+    bool doMode = false;
+
+    for (size_t i = 0; i < options.size(); ++i) {
+        if (myStrNCmp("-All", options[i], 2) == 0) {
+            if (doMode) return errorOption(CMD_OPT_EXTRA, options[i]);
+            mode = GFLOW_PRINT_MODE::ALL;
+            doMode = true;
+        } else if (myStrNCmp("-Levels", options[i], 2) == 0) {
+            if (doMode) return errorOption(CMD_OPT_EXTRA, options[i]);
+            mode = GFLOW_PRINT_MODE::LEVELS;
+            doMode = true;
+        } else if (myStrNCmp("-Correctionsets", options[i], 2) == 0) {
+            if (doMode) return errorOption(CMD_OPT_EXTRA, options[i]);
+            mode = GFLOW_PRINT_MODE::CORRECTION_SETS;
+            doMode = true;
+        } else if (myStrNCmp("-Summary", options[i], 2) == 0) {
+            if (doMode) return errorOption(CMD_OPT_EXTRA, options[i]);
+            mode = GFLOW_PRINT_MODE::SUMMARY;
+            doMode = true;
+        } else if (myStrNCmp("-Disjoint", options[i], 2) == 0) {
+            if (doDisjoint) return errorOption(CMD_OPT_EXTRA, options[i]);
+            doDisjoint = true;
+        } else {
+            return errorOption(CMD_OPT_ILLEGAL, options[i]);
+        }
     }
-    gflow.calculate();
+
+    gflow.calculate(doDisjoint);
 
     switch (mode) {
         case GFLOW_PRINT_MODE::ALL:
@@ -89,7 +108,7 @@ ZXGGFlowCmd::exec(const string &option) {
 }
 
 void ZXGGFlowCmd::usage(ostream &os) const {
-    os << "Usage: ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets]" << endl;
+    os << "Usage: ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets] [-Disjoint]" << endl;
 }
 
 void ZXGGFlowCmd::help() const {

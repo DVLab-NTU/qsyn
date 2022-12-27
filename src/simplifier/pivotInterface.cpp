@@ -1,10 +1,10 @@
-// /****************************************************************************
-//   FileName     [ pivotInterface.cpp ]
-//   PackageName  [ simplifier ]
-//   Synopsis     [ Common Interface to Pivot-like Rule ]
-//   Author       [ Mu-Te (Joshua) Lau ]
-//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-// ****************************************************************************/
+/****************************************************************************
+  FileName     [ pivotInterface.cpp ]
+  PackageName  [ simplifier ]
+  Synopsis     [ Common Interface to Pivot-like Rule ]
+  Author       [ Mu-Te (Joshua) Lau ]
+  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
 
 #include <iostream>
 #include <numbers>

@@ -28,7 +28,8 @@ void GFlow::reset() {
  * @brief calculate the GFlow to the ZXGraph
  *
  */
-bool GFlow::calculate() {
+bool GFlow::calculate(bool disjointNeighbors) {
+    // REVIEW - exclude boundary nodes
     reset();
 
     calculateZerothLayer();
@@ -44,6 +45,16 @@ bool GFlow::calculate() {
         if (verbose >= 8) printNeighbors();
 
         for (auto& v : _neighbors) {
+            if (disjointNeighbors &&
+                any_of(v->getNeighbors().begin(), v->getNeighbors().end(), [this](const NeighborPair& nbpair) {
+                    return this->_levels.back().contains(nbpair.first);
+                })) {
+                if (verbose >= 8) {
+                    cout << "Skipping vertex " << v->getId() << ": connected to current level" << endl;
+                }
+                continue;
+            }
+
             M2 augmentedMatrix = _coefficientMatrix;
             augmentedMatrix.appendOneHot(i);
 
@@ -52,7 +63,7 @@ bool GFlow::calculate() {
                 augmentedMatrix.printMatrix();
             }
 
-            if (augmentedMatrix.gaussianElim(false, true)) {
+            if (augmentedMatrix.gaussianElimAugmented(false)) {
                 if (verbose >= 8) {
                     cout << "Solved, adding " << v->getId() << " to this level" << endl;
                 }
@@ -69,13 +80,25 @@ bool GFlow::calculate() {
             }
             ++i;
         }
-
         updateFrontier();
     }
 
     _valid = (_taken.size() == _zxgraph->getNumVertices());
     _levels.pop_back();  // the back is always empty
 
+    vector<pair<size_t, ZXVertex*>> inputsToMove;
+    for (size_t i = 0; i < _levels.size() - 1; ++i) {
+        for (auto& v : _levels[i]) {
+            if (_zxgraph->getInputs().contains(v)) {
+                inputsToMove.emplace_back(i, v);
+            }
+        }
+    }
+
+    for (auto& [level, v] : inputsToMove) {
+        _levels[level].erase(v);
+        _levels.back().insert(v);
+    }
     return _valid;
 }
 
@@ -104,7 +127,10 @@ void GFlow::updateNeighborsByFrontier() {
 
     for (auto& v : _frontier) {
         for (auto& [nb, _] : v->getNeighbors()) {
-            if (!_taken.contains(nb)) _neighbors.insert(nb);
+            if (_taken.contains(nb))
+                continue;
+
+            _neighbors.insert(nb);
         }
     }
 }
@@ -112,12 +138,16 @@ void GFlow::updateNeighborsByFrontier() {
 void GFlow::setCorrectionSetFromMatrix(ZXVertex* v, const M2& matrix) {
     _correctionSets[v] = ZXVertexList();
 
-    size_t j = 0;
-    for (auto& f : _frontier) {
-        if (matrix[j].back() == 1) {
-            _correctionSets[v].insert(f);
+    for (size_t r = 0; r < matrix.numRows(); ++r) {
+        if (matrix[r].back() == 0) continue;
+        size_t c = 0;
+        for (auto& f : _frontier) {
+            if (matrix[r][c] == 1) {
+                _correctionSets[v].insert(f);
+                break;
+            }
+            c++;
         }
-        j++;
     }
 }
 

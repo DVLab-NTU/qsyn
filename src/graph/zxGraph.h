@@ -167,7 +167,7 @@ public:
 
     // helper functions for simplifiers
     void transferPhase(ZXVertex* v, const Phase& keepPhase = Phase(0));
-    void addBuffer(ZXVertex* toProtect, ZXVertex* fromVertex, EdgeType etype);
+    ZXVertex* addBuffer(ZXVertex* toProtect, ZXVertex* fromVertex, EdgeType etype);
 
     // Find functions
     size_t findNextId() const;

@@ -8,6 +8,7 @@
 
 #include "m2.h"
 
+#include <algorithm>
 #include <cmath>
 extern size_t verbose;
 using namespace std;
@@ -297,6 +298,63 @@ bool M2::isSolvedForm() const {
     }
 
     return true;
+}
+
+bool M2::gaussianElimAugmented(bool track) {
+    if (verbose >= 5) cout << "Performing Gaussian Elimination..." << endl;
+    if (verbose >= 8) printMatrix();
+    _opStorage.clear();
+
+    size_t numVariables = numCols() - 1;
+
+    size_t curRow = 0, curCol = 0;
+
+    while (curRow < numRows() && curCol < numVariables) {
+        // skip columns of all zeros
+        if (all_of(_matrix.begin(), _matrix.end(), [&curCol](const Row& row) -> bool {
+                return row[curCol] == 0;
+            })) {
+            curCol++;
+            continue;
+        }
+
+        // make current element a 1
+        if (_matrix[curRow][curCol] == 0) {
+            size_t theFirstRowWithOne = find_if(_matrix.begin() + curRow, _matrix.end(), [&curCol](const Row& row) -> bool {
+                                            return row[curCol] == 1;
+                                        }) -
+                                        _matrix.begin();
+
+            if (theFirstRowWithOne >= numRows()) {  // cannot find rows with independent equation for current variable
+                curCol++;
+                continue;
+            }
+
+            xorOper(theFirstRowWithOne, curRow, track);
+            if (verbose >= 8) {
+                cout << "Add " << theFirstRowWithOne << " to " << curRow << endl;
+                printMatrix();
+            }
+        }
+
+        // make other elements on the same column 0
+        for (size_t r = 0; r < numRows(); ++r) {
+            if (r != curRow && _matrix[r][curCol] == 1) {
+                xorOper(curRow, r, track);
+                if (verbose >= 8) {
+                    cout << "Add " << curRow << " to " << r << endl;
+                    printMatrix();
+                }
+            }
+        }
+
+        curRow++;
+        curCol++;
+    }
+
+    return none_of(_matrix.begin() + curRow, _matrix.end(), [](const Row& row) -> bool {
+        return row.back() == 1;
+    });
 }
 
 /**

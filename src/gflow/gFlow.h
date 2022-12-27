@@ -19,12 +19,12 @@ public:
     using Levels = std::vector<ZXVertexList>;
     using CorrectionSets = std::unordered_map<ZXVertex*, ZXVertexList>;
 
-    GFlow(ZXGraph* g) : _zxgraph(g) {}
+    GFlow(ZXGraph* g) : _zxgraph(g), _valid(false) {}
 
     void reset();
-    bool calculate();
+    bool calculate(bool disjointNeighbors = false);
 
-    const Levels& getLevels() { return _levels; }
+    const Levels& getLevels() const { return _levels; }
     bool isValid() const { return _valid; }
 
     void print() const;
