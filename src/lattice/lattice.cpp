@@ -93,13 +93,13 @@ void LTContainer::addRow2Bottom(int r) {
         iterOffset = r + 1;
     }
 
-    auto nc = numCols(); 
+    auto nc = numCols();
 
     auto itr = _container.insert(_container.begin() + iterOffset, vector<Lattice>());
     for (size_t i = 0; i < nc; i++) {
         itr->emplace_back(iterOffset, i);
     }
-    
+
     if (iterOffset < numRows() - 1) {
         updateRC();
     }
@@ -156,7 +156,7 @@ void LTContainer::generateLTC(ZXGraph* g) {
         }
 
         // Generate End
-        for (auto& v : levels[i+1]) {
+        for (auto& v : levels[i + 1]) {
             if (v->isBoundary()) continue;
             end[v->getQubit()] = unordered_set<int>();
             for (auto& n : v->getNeighbors()) {
@@ -173,7 +173,7 @@ void LTContainer::generateLTC(ZXGraph* g) {
 
         // Start mapping to LTC
         resize(end.size() + 1, start.size() + 1);
- 
+
         unordered_map<qStartEnd, lsCoord> set;  // (qs, qe) -> (row, col)
         int count = 0;
         for (auto& [start_i, start_set] : start) {
@@ -184,7 +184,7 @@ void LTContainer::generateLTC(ZXGraph* g) {
             count++;
         }
         count = 0;
-        
+
         for (auto& [end_i, end_set] : end) {
             for (auto& start_j : end_set) {
                 auto key = make_pair(start_j, end_i);
@@ -237,8 +237,6 @@ void LTContainer::generateLTC(ZXGraph* g) {
             }
         }
 
-        
-
         // Compensate horizontally
         addCol2Right(-1);
         for (auto& [key, value] : eCand) {
@@ -264,6 +262,8 @@ void LTContainer::generateLTC(ZXGraph* g) {
         volume += (col1 > col2) ? col1 - col2 : col2 - col1;
     });
     cout << "Resource Estimate: " << endl;
-    cout << "> " << "Depth         : " << levels.size() - 2 << endl;
-    cout << "> " << "Quantum Volume: " << volume << " d^3" << endl;
+    cout << "> "
+         << "Depth         : " << levels.size() - 2 << endl;
+    cout << "> "
+         << "Quantum Volume: " << volume << " d^3" << endl;
 }

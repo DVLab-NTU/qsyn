@@ -13,4 +13,4 @@
 
 CmdClass(LTCmd);
 
-#endif // LATTICE_CMD_H
+#endif  // LATTICE_CMD_H
