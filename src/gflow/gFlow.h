@@ -18,8 +18,8 @@ class GFlow {
 public:
     using Levels = std::vector<ZXVertexList>;
     using CorrectionSets = std::unordered_map<ZXVertex*, ZXVertexList>;
-    
-    GFlow(ZXGraph* g): _zxgraph(g), _valid(false) {}
+
+    GFlow(ZXGraph* g) : _zxgraph(g), _valid(false) {}
 
     void reset();
     bool calculate(bool disjointNeighbors = false);
