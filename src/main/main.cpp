@@ -69,8 +69,7 @@ int main(int argc, char** argv) {
         !initM2Cmd() ||
         !initExtractCmd() ||
         !initGFlowCmd() ||
-        !initLTCmd()
-    ) {
+        !initLTCmd()) {
         return 1;
     }
 

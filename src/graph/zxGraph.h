@@ -164,7 +164,7 @@ public:
     // Operation on graph
     void adjoint();
     void assignBoundary(int qubit, bool input, VertexType type, Phase phase);
-    
+
     // helper functions for simplifiers
     void transferPhase(ZXVertex* v, const Phase& keepPhase = Phase(0));
     ZXVertex* addBuffer(ZXVertex* toProtect, ZXVertex* fromVertex, EdgeType etype);

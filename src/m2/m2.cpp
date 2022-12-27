@@ -8,8 +8,8 @@
 
 #include "m2.h"
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 extern size_t verbose;
 using namespace std;
 
@@ -308,12 +308,12 @@ bool M2::gaussianElimAugmented(bool track) {
     size_t numVariables = numCols() - 1;
 
     size_t curRow = 0, curCol = 0;
-    
-    while(curRow < numRows() && curCol < numVariables) {
+
+    while (curRow < numRows() && curCol < numVariables) {
         // skip columns of all zeros
         if (all_of(_matrix.begin(), _matrix.end(), [&curCol](const Row& row) -> bool {
-            return row[curCol] == 0;
-        })) {
+                return row[curCol] == 0;
+            })) {
             curCol++;
             continue;
         }
@@ -321,13 +321,14 @@ bool M2::gaussianElimAugmented(bool track) {
         // make current element a 1
         if (_matrix[curRow][curCol] == 0) {
             size_t theFirstRowWithOne = find_if(_matrix.begin() + curRow, _matrix.end(), [&curCol](const Row& row) -> bool {
-                return row[curCol] == 1; 
-            }) - _matrix.begin();
+                                            return row[curCol] == 1;
+                                        }) -
+                                        _matrix.begin();
 
-            if (theFirstRowWithOne >= numRows()) {// cannot find rows with independent equation for current variable
+            if (theFirstRowWithOne >= numRows()) {  // cannot find rows with independent equation for current variable
                 curCol++;
                 continue;
-            } 
+            }
 
             xorOper(theFirstRowWithOne, curRow, track);
             if (verbose >= 8) {
@@ -347,9 +348,8 @@ bool M2::gaussianElimAugmented(bool track) {
             }
         }
 
-        
-
-        curRow++; curCol++;
+        curRow++;
+        curCol++;
     }
 
     return none_of(_matrix.begin() + curRow, _matrix.end(), [](const Row& row) -> bool {

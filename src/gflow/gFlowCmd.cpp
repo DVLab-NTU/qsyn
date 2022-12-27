@@ -39,7 +39,7 @@ ZXGGFlowCmd::exec(const string &option) {
         SUMMARY,
         ERROR
     };
-    vector<string> options;  
+    vector<string> options;
     if (!lexOptions(option, options)) return CMD_EXEC_ERROR;
 
     if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
@@ -78,9 +78,9 @@ ZXGGFlowCmd::exec(const string &option) {
             return errorOption(CMD_OPT_ILLEGAL, options[i]);
         }
     }
-    
+
     gflow.calculate(doDisjoint);
-    
+
     switch (mode) {
         case GFLOW_PRINT_MODE::ALL:
             gflow.print();
