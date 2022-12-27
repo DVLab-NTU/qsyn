@@ -1,3 +1,0 @@
-qccr benchmark/qc/Adder32_pyzx.qc
-qccp -l
-q -f

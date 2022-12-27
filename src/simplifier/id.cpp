@@ -1,10 +1,10 @@
-// /****************************************************************************
-//   FileName     [ id.cpp ]
-//   PackageName  [ simplifier ]
-//   Synopsis     [ Identity Removal Rule Definition ]
-//   Author       [ Cheng-Hua Lu ]
-//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-// ****************************************************************************/
+/****************************************************************************
+  FileName     [ id.cpp ]
+  PackageName  [ simplifier ]
+  Synopsis     [ Identity Removal Rule Definition ]
+  Author       [ Cheng-Hua Lu ]
+  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
 
 #include <iostream>
 #include <vector>
@@ -22,14 +22,14 @@ extern size_t verbose;
  */
 void IdRemoval::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    if(verbose >= 8) g->printVertices();
+    if (verbose >= 8) g->printVertices();
     // size_t cnt = 0;
-    
+
     unordered_set<ZXVertex*> taken;
-    
-    for(const auto& v: g->getVertices()){
+
+    for (const auto& v : g->getVertices()) {
         if (taken.contains(v)) continue;
-        
+
         const Neighbors& nebs = v->getNeighbors();
         if (v->getPhase() != Phase(0)) continue;
         if (v->getType() != VertexType::Z && v->getType() != VertexType::X) continue;
@@ -38,7 +38,7 @@ void IdRemoval::match(ZXGraph* g) {
         NeighborPair nbp0 = *(nebs.begin());
         NeighborPair nbp1 = *next(nebs.begin());
 
-        EdgeType  etype  = (nbp0.second == nbp1.second) ? EdgeType::SIMPLE : EdgeType::HADAMARD;
+        EdgeType etype = (nbp0.second == nbp1.second) ? EdgeType::SIMPLE : EdgeType::HADAMARD;
 
         _matchTypeVec.emplace_back(v, nbp0.first, nbp1.first, etype);
         taken.insert(v);
@@ -56,20 +56,18 @@ void IdRemoval::match(ZXGraph* g) {
  */
 void IdRemoval::rewrite(ZXGraph* g) {
     reset();
-    
+
     for (const auto& [v, n0, n1, et] : _matchTypeVec) {
-        
         _removeVertices.push_back(v);
-        if(n0 == n1){
-            n0 -> setPhase( n0->getPhase() + Phase(1));
+        if (n0 == n1) {
+            n0->setPhase(n0->getPhase() + Phase(1));
             continue;
         }
         _edgeTableKeys.emplace_back(n0, n1);
         if (et == EdgeType::SIMPLE) {
-            _edgeTableValues.emplace_back(1, 0); 
+            _edgeTableValues.emplace_back(1, 0);
         } else {
-            _edgeTableValues.emplace_back(0, 1); 
+            _edgeTableValues.emplace_back(0, 1);
         }
-    } 
-
+    }
 }

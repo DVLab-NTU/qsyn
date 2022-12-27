@@ -9,29 +9,30 @@
 #ifndef ZX_DEF_H
 #define ZX_DEF_H
 
-#include <vector>
 #include <unordered_map>
 #include <unordered_set>
-#include "ordered_hashset.h"
+#include <vector>
+
 #include "myHashMap.h"
+#include "ordered_hashset.h"
 using namespace std;
 
 class ZXVertex;
 class ZXGraph;
 class ZXGraphMgr;
 
-enum class VertexType{
+enum class VertexType {
     BOUNDARY,
     Z,
     X,
     H_BOX,
-    ERRORTYPE       // Never use this
+    ERRORTYPE  // Never use this
 };
 
-enum class EdgeType{
+enum class EdgeType {
     SIMPLE,
     HADAMARD,
-    ERRORTYPE       // Never use this
+    ERRORTYPE  // Never use this
 };
 
 //------------------------------------------------------------------------
@@ -39,9 +40,9 @@ enum class EdgeType{
 //------------------------------------------------------------------------
 
 using ZXVertexList = ordered_hashset<ZXVertex*>;
-using EdgePair     = pair<pair<ZXVertex*, ZXVertex*>, EdgeType> ;
+using EdgePair = pair<pair<ZXVertex*, ZXVertex*>, EdgeType>;
 using NeighborPair = pair<ZXVertex*, EdgeType>;
-using Neighbors    = ordered_hashset<NeighborPair>;
+using Neighbors = ordered_hashset<NeighborPair>;
 
 //------------------------------------------------------------------------
 //   Define hashes
@@ -52,24 +53,22 @@ template <>
 struct hash<NeighborPair> {
     size_t operator()(const NeighborPair& k) const {
         return (
-            (hash<ZXVertex*>()(k.first) ^ 
-            (hash<EdgeType>()(k.second) << 1)) >> 1
-        );
+            (hash<ZXVertex*>()(k.first) ^
+             (hash<EdgeType>()(k.second) << 1)) >>
+            1);
     }
 };
-
-
 
 template <>
 struct hash<EdgePair> {
     size_t operator()(const EdgePair& k) const {
         return (
-            (hash<ZXVertex*>()(k.first.first) ^ 
-            (hash<ZXVertex*>()(k.first.second) << 1)) >> 1) ^ 
-            (hash<EdgeType>()(k.second) << 1
-        );
+                   (hash<ZXVertex*>()(k.first.first) ^
+                    (hash<ZXVertex*>()(k.first.second) << 1)) >>
+                   1) ^
+               (hash<EdgeType>()(k.second) << 1);
     }
 };
 }  // namespace std
 
-#endif // ZX_DEF_H
+#endif  // ZX_DEF_H

@@ -1,5 +1,5 @@
 REFPKGS   = 
-SRCPKGS   = qcir simplifier graph m2 tensor util cmd
+SRCPKGS   = extractor qcir simplifier lattice gflow m2 graph tensor util cmd
 LIBPKGS   = $(REFPKGS) $(SRCPKGS)
 MAIN      = main
 TESTMAIN  = test

@@ -13,4 +13,4 @@
 
 CmdClass(M2GaussEliCmd);
 CmdClass(M2TestCmd);
-#endif //M2_CMD_H
+#endif  // M2_CMD_H

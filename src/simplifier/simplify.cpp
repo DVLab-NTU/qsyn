@@ -1,10 +1,10 @@
-// /****************************************************************************
-//   FileName     [ simplify.cpp ]
-//   PackageName  [ simplifier ]
-//   Synopsis     [ Define class Stats, Simplify member functions ]
-//   Author       [ Cheng-Hua Lu ]
-//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-// ****************************************************************************/
+/****************************************************************************
+  FileName     [ simplify.cpp ]
+  PackageName  [ simplifier ]
+  Synopsis     [ Define class Stats, Simplify member functions ]
+  Author       [ Cheng-Hua Lu ]
+  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
 
 #include "simplify.h"
 
@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "util.h"
-#include <chrono>
 
 using namespace std;
 extern size_t verbose;
@@ -35,116 +34,63 @@ extern size_t verbose;
 /**
  * @brief Helper method for constructing simplification strategies based on the rules.
  *
- * @param rule_name
  * @return int
  */
 int Simplifier::simp() {
-    chrono::steady_clock::time_point t_start, timer;
-    chrono::microseconds t_match{0}, t_rewrite{0}, t_apply{0};
-    t_start = chrono::steady_clock::now();
-    size_t addEdgeCount = 0, rmEdgeCount = 0, rmVertexCount = 0;
-
     if (_rule->getName() == "Hadamard Rule") {
         cerr << "Error: Please use `hadamardSimp` when using HRule." << endl;
         return 0;
-    } 
+    }
     int i = 0;
-    bool new_matches = true;
+
+    bool new_matches = true;  // FIXME - useless flag
+    // _simpGraph->writeZX("./ref/qft3/0.bzx", false, true);
     if (verbose >= 2) cout << _rule->getName() << ": \n";
     while (new_matches) {
         new_matches = false;
-        timer = chrono::steady_clock::now();
+
         _rule->match(_simpGraph);
-        t_match += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
-        timer = chrono::steady_clock::now();
 
         if (_rule->getMatchTypeVecNum() <= 0) break;
 
         i += 1;
-        if(verbose >= 5) cout << "Found " << _rule->getMatchTypeVecNum() << " match(es)" << endl;
-        
-        timer = chrono::steady_clock::now();
+        if (verbose >= 5) cout << "Found " << _rule->getMatchTypeVecNum() << " match(es)" << endl;
+
         _rule->rewrite(_simpGraph);
-        t_rewrite += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
-        timer = chrono::steady_clock::now();
 
-        // add_edge_table
-        // TODO add_edge_table
+        amend();
+        // _simpGraph->writeZX("./ref/qft3/" + to_string(i) + ".bzx", false, true);
 
-
-        timer = chrono::steady_clock::now();
-        
-        for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
-            ZXVertex* v                = _rule->getEdgeTableKeys()[e].first;
-            ZXVertex* v_n              = _rule->getEdgeTableKeys()[e].second;
-            int       numSimpleEdges   = _rule->getEdgeTableValues()[e].first;
-            int       numHadamardEdges = _rule->getEdgeTableValues()[e].second;
-            
-            for (int j = 0; j < numSimpleEdges; j++){
-                _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::SIMPLE));
-                addEdgeCount++;
-            }
-            // t_simp += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
-            // timer = chrono::steady_clock::now();
-
-            for (int j = 0; j < numHadamardEdges; j++){
-                _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::HADAMARD));
-                addEdgeCount++;
-            }
-        }     
-
-        _simpGraph->removeEdges(_rule->getRemoveEdges());
-        rmEdgeCount += _rule->getRemoveEdges().size();
-
-        // remove vertices
-        _simpGraph->removeVertices(_rule->getRemoveVertices());
-        rmVertexCount += _rule->getRemoveVertices().size();
-
-        // remove isolated vertices
-        _simpGraph->removeIsolatedVertices();
-        t_apply += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
-        timer = chrono::steady_clock::now();
         new_matches = true;
-        // TODO check stats
-        // cout << "Round " << i << endl;
-        // cout << "  - match    : " << ((double)   t_match.count() / 1000) << " ms" << endl;
-        // cout << "  - rewrite  : " << ((double) t_rewrite.count() / 1000) << " ms" << endl;
-        // cout << "  - apply    : " << ((double)   t_apply.count() / 1000) << " ms" << endl;
     }
 
     if (verbose == 1 && i != 0) {
         _recipe.emplace_back(_rule->getName(), i);
         cout << setw(30) << left << _rule->getName() << i << " iteration(s)\n";
     }
-    if (verbose >= 2) { 
+    if (verbose >= 2) {
         if (i > 0) {
             cout << i << " iterations" << endl;
-        }
-        else       cout << "No matches" << endl;
+        } else
+            cout << "No matches" << endl;
     }
-    if(verbose >= 5) cout << "\n";
-    if(verbose >= 6) _simpGraph->printVertices();
-    // cout << "#Add Edge   : " << addEdgeCount << endl;
-    // cout << "#rm  Edge   : " << rmEdgeCount << endl;
-    // cout << "#rm  Vertex : " << rmVertexCount << endl;
-    // cout << "Time used   : " << chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - t_start).count() << " ms\n" << endl;
+    if (verbose >= 5) cout << "\n";
+    if (verbose >= 6) _simpGraph->printVertices();
+
     return i;
-    
 }
 
 /**
+ *
  * @brief Converts as many Hadamards represented by H-boxes to Hadamard-edges.
  *        We can't use the regular simp function, because removing H-nodes could lead to an infinite loop,
  *        since sometimes g.add_edge_table() decides that we can't change an H-box into an H-edge.
  *
- * @param rule_name
+ * //FIXME - weird function brief
+ *
  * @return int
  */
 int Simplifier::hadamardSimp() {
-    chrono::steady_clock::time_point t_start, timer;
-    chrono::microseconds t_match{0}, t_rewrite{0}, t_apply{0};
-    t_start = chrono::steady_clock::now();
-    size_t addEdgeCount = 0, rmEdgeCount = 0, rmVertexCount = 0;
     if (_rule->getName() != "Hadamard Rule") {
         cerr << "Error: `hadamardSimp` is only for HRule." << endl;
         return 0;
@@ -153,96 +99,74 @@ int Simplifier::hadamardSimp() {
     while (true) {
         size_t vcount = _simpGraph->getNumVertices();
 
-        timer = chrono::steady_clock::now();
         _rule->match(_simpGraph);
-        t_match += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
-        timer = chrono::steady_clock::now();
-        
+
         if (_rule->getMatchTypeVecNum() == 0) break;
         i += 1;
         if (i == 1 && verbose >= 2) cout << _rule->getName() << ": ";
         if (verbose >= 2) cout << _rule->getMatchTypeVecNum() << " ";
 
-        timer = chrono::steady_clock::now();
         _rule->rewrite(_simpGraph);
-        t_rewrite += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
-        timer = chrono::steady_clock::now();
-        // add_edge_table
-        //! TODO add_edge_table
 
-        timer = chrono::steady_clock::now();
-        for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
-            ZXVertex* v = _rule->getEdgeTableKeys()[e].first;
-            ZXVertex* v_n = _rule->getEdgeTableKeys()[e].second;
-            int numSimpleEdges = _rule->getEdgeTableValues()[e].first;
-            int numHadamardEdges = _rule->getEdgeTableValues()[e].second;
-            for (int j = 0; j < numSimpleEdges; j++) {
-                _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::SIMPLE));
-                addEdgeCount++;
-            }
-            for (int j = 0; j < numHadamardEdges; j++) {
-                _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::HADAMARD));
-                addEdgeCount++;
-            }
-        }
-        // remove edges
-        _simpGraph->removeEdges(_rule->getRemoveEdges());
-        rmEdgeCount += _rule->getRemoveEdges().size();
+        amend();
 
-        // remove vertices
-        _simpGraph->removeVertices(_rule->getRemoveVertices());
-        rmVertexCount += _rule->getRemoveVertices().size();
-        // remove isolated vertices
-        _simpGraph->removeIsolatedVertices();
-        t_apply += chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - timer);
-        timer = chrono::steady_clock::now();
         if (verbose >= 3) cout << ". ";
-        // cout << "Round " << i << endl;
-        // cout << "  - match    : " << ((double)   t_match.count() / 1000) << " ms" << endl;
-        // cout << "  - rewrite  : " << ((double) t_rewrite.count() / 1000) << " ms" << endl;
-        // cout << "  - apply    : " << ((double)   t_apply.count() / 1000) << " ms" << endl;
+
         if (_simpGraph->getNumVertices() >= vcount) break;
     }
     if (verbose >= 2 && i > 0) cout << i << " iterations" << endl;
-    // cout << "#Add Edge   : " << addEdgeCount << endl;
-    // cout << "#rm  Edge   : " << rmEdgeCount << endl;
-    // cout << "#rm  Vertex : " << rmVertexCount << endl;
-    // cout << "Time used   : " << chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - t_start).count() << " ms" << endl;
     return i;
 }
 
+/**
+ * @brief apply rule
+ */
+void Simplifier::amend() {
+    for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
+        ZXVertex* v = _rule->getEdgeTableKeys()[e].first;
+        ZXVertex* v_n = _rule->getEdgeTableKeys()[e].second;
+        int numSimpleEdges = _rule->getEdgeTableValues()[e].first;
+        int numHadamardEdges = _rule->getEdgeTableValues()[e].second;
 
+        if (v->getId() > v_n->getId()) swap(v, v_n);
+        for (int j = 0; j < numSimpleEdges; j++)
+            _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::SIMPLE));
+
+        for (int j = 0; j < numHadamardEdges; j++)
+            _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::HADAMARD));
+    }
+    _simpGraph->removeEdges(_rule->getRemoveEdges());
+    _simpGraph->removeVertices(_rule->getRemoveVertices());
+
+    _simpGraph->removeIsolatedVertices();
+}
 
 // Basic rules simplification
 
-int Simplifier::bialgSimp(){
+int Simplifier::bialgSimp() {
     this->setRule(new Bialgebra());
     int i = this->simp();
     return i;
 }
 
-
-int Simplifier::copySimp(){
-    if(!_simpGraph->isGraphLike()) return 0;
+int Simplifier::copySimp() {
+    if (!_simpGraph->isGraphLike()) return 0;
     this->setRule(new StateCopy());
     int i = this->simp();
     return i;
 }
 
-
-int Simplifier::gadgetSimp(){
+int Simplifier::gadgetSimp() {
     this->setRule(new PhaseGadget());
     int i = this->simp();
     return i;
 }
 
-
-int Simplifier::hfusionSimp(){
+int Simplifier::hfusionSimp() {
     this->setRule(new HboxFusion());
     int i = this->simp();
     return i;
 }
-
 
 // int Simplifier::hopfSimp(){
 //     this->setRule(new Hopf());
@@ -250,57 +174,47 @@ int Simplifier::hfusionSimp(){
 //     return i;
 // }
 
-
-int Simplifier::hruleSimp(){
+int Simplifier::hruleSimp() {
     this->setRule(new HRule());
     int i = this->hadamardSimp();
     return i;
 }
 
-
-int Simplifier::idSimp(){
+int Simplifier::idSimp() {
     this->setRule(new IdRemoval());
     int i = this->simp();
     return i;
 }
 
-
-int Simplifier::lcompSimp(){
+int Simplifier::lcompSimp() {
     this->setRule(new LComp());
     int i = this->simp();
     return i;
 }
 
-
-int Simplifier::pivotSimp(){
+int Simplifier::pivotSimp() {
     this->setRule(new Pivot());
     int i = this->simp();
     return i;
 }
 
-
-int Simplifier::pivotBoundarySimp(){
+int Simplifier::pivotBoundarySimp() {
     this->setRule(new PivotBoundary());
     int i = this->simp();
     return i;
 }
 
-
-int Simplifier::pivotGadgetSimp(){
+int Simplifier::pivotGadgetSimp() {
     this->setRule(new PivotGadget());
     int i = this->simp();
     return i;
 }
 
-
-int Simplifier::sfusionSimp(){
+int Simplifier::sfusionSimp() {
     this->setRule(new SpiderFusion());
     int i = this->simp();
     return i;
 }
-
-
-
 
 // action
 
@@ -310,8 +224,8 @@ int Simplifier::sfusionSimp(){
  * @param
  */
 void Simplifier::toGraph() {
-    for(auto& v:  _simpGraph->getVertices()){
-        if (v->getType() == VertexType::X){
+    for (auto& v : _simpGraph->getVertices()) {
+        if (v->getType() == VertexType::X) {
             _simpGraph->toggleEdges(v);
             v->setType(VertexType::Z);
         }
@@ -324,8 +238,8 @@ void Simplifier::toGraph() {
  * @param
  */
 void Simplifier::toRGraph() {
-    for(auto& v:  _simpGraph->getVertices()){
-        if (v->getType() == VertexType::Z){
+    for (auto& v : _simpGraph->getVertices()) {
+        if (v->getType() == VertexType::Z) {
             _simpGraph->toggleEdges(v);
             v->setType(VertexType::X);
         }
@@ -334,80 +248,76 @@ void Simplifier::toRGraph() {
 
 /**
  * @brief Keeps doing the simplifications `id_removal`, `s_fusion`, `pivot`, `lcomp` until none of them can be applied anymore.
- * 
- * @return int 
+ *
+ * @return int
  */
-int Simplifier::interiorCliffordSimp(){
+int Simplifier::interiorCliffordSimp() {
     this->sfusionSimp();
     toGraph();
 
     int i = 0;
-    while(true){
+    while (true) {
         int i1 = this->idSimp();
         int i2 = this->sfusionSimp();
         int i3 = this->pivotSimp();
         int i4 = this->lcompSimp();
-        if(i1+i2+i3+i4 == 0) break;
+        if (i1 + i2 + i3 + i4 == 0) break;
         i += 1;
     }
     return i;
 }
 
-
-int Simplifier::cliffordSimp(){
+int Simplifier::cliffordSimp() {
     int i = 0;
-    while(true){
+    while (true) {
         i += this->interiorCliffordSimp();
         int i2 = this->pivotBoundarySimp();
-        if(i2 == 0) break;
+        if (i2 == 0) break;
     }
     return i;
 }
 
 /**
  * @brief The main simplification routine of PyZX
- * 
+ *
  */
-void Simplifier::fullReduce(){
+void Simplifier::fullReduce() {
     this->interiorCliffordSimp();
     this->pivotGadgetSimp();
-    while(true){
+    while (true) {
         this->cliffordSimp();
         int i = this->gadgetSimp();
         this->interiorCliffordSimp();
         int j = this->pivotGadgetSimp();
-        if(i+j == 0) break;
+        if (i + j == 0) break;
     }
     // this->printRecipe();
 }
 
 /**
  * @brief The main simplification routine of PyZX
- * 
+ *
  */
-void Simplifier::symbolicReduce(){
+void Simplifier::symbolicReduce() {
     this->interiorCliffordSimp();
     this->pivotGadgetSimp();
     this->copySimp();
-    while(true){
+    while (true) {
         this->cliffordSimp();
         int i = this->gadgetSimp();
         this->interiorCliffordSimp();
         int j = this->pivotGadgetSimp();
         this->copySimp();
-        if(i+j == 0) break;
+        if (i + j == 0) break;
     }
     this->toRGraph();
 }
 
-
-
-
 // print function
-void Simplifier::printRecipe(){
-    if(verbose == 1){
-        for(auto& [rule_name, num] : _recipe){
-            string rule = rule_name+": ";
+void Simplifier::printRecipe() {
+    if (verbose == 1) {
+        for (auto& [rule_name, num] : _recipe) {
+            string rule = rule_name + ": ";
             cout << setw(30) << left << rule << num << " iteration(s)\n";
         }
     }

@@ -8,11 +8,11 @@
 
 /********************** Summary of this data structure **********************
  *
- *     ordered_hashtable is the common interface of ordered_hashmap and 
- * ordered_hashset. The data structure works like std::unordered_[map, set], 
- * except that the elements are ordered. 
- * 
- * For more details, please see the descriptions in 
+ *     ordered_hashtable is the common interface of ordered_hashmap and
+ * ordered_hashset. The data structure works like std::unordered_[map, set],
+ * except that the elements are ordered.
+ *
+ * For more details, please see the descriptions in
  *     - src/util/ordered_hashmap.h
  *     - src/util/ordered_hashset.h
  *
@@ -23,12 +23,12 @@
 
 #include <exception>
 #include <iostream>
+#include <iterator>
 #include <optional>
 #include <ranges>
 #include <stdexcept>
 #include <tuple>
 #include <unordered_map>
-#include <iterator>
 #include <vector>
 
 template <typename Key, typename Value, typename StoredType, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
@@ -56,7 +56,7 @@ public:
         using difference_type = std::ptrdiff_t;
         using iterator_category = std::bidirectional_iterator_tag;
         OTableIterator() {}
-        OTableIterator(const VecIterType& itr, const VecIterType& begin, const VecIterType& end) : _itr(itr),_begin(begin), _end(end) {}
+        OTableIterator(const VecIterType& itr, const VecIterType& begin, const VecIterType& end) : _itr(itr), _begin(begin), _end(end) {}
         OTableIterator(const OTableIterator<VecIterType>& o_itr) = default;
 
         OTableIterator& operator++() noexcept {
@@ -66,7 +66,7 @@ public:
             return *this;
         }
 
-        OTableIterator operator++(int) const noexcept {
+        OTableIterator operator++(int) noexcept {
             OTableIterator tmp = *this;
             ++*this;
             return tmp;
@@ -79,7 +79,7 @@ public:
             return *this;
         }
 
-        OTableIterator operator--(int) const noexcept {
+        OTableIterator operator--(int) noexcept {
             OTableIterator tmp = *this;
             --*this;
             return tmp;
@@ -105,20 +105,38 @@ public:
     // static_assert(std::bidirectional_iterator<iterator>);
     // static_assert(std::bidirectional_iterator<const_iterator>);
 
-    ordered_hashtable(): _size(0) {}
+    ordered_hashtable() : _size(0) {}
 
     // iterators
-    iterator begin() noexcept { auto itr = _data.begin(); while (itr != _data.end() && !itr->has_value()) ++itr; return iterator(itr, this->_data.begin(), this->_data.end()); }
+    iterator begin() noexcept {
+        auto itr = _data.begin();
+        while (itr != _data.end() && !itr->has_value()) ++itr;
+        return iterator(itr, this->_data.begin(), this->_data.end());
+    }
     iterator end() noexcept { return iterator(this->_data.end(), this->_data.begin(), this->_data.end()); }
-    const_iterator begin() const noexcept { auto itr = _data.begin(); while (itr != _data.end() && !itr->has_value()) ++itr;  return const_iterator(itr, this->_data.begin(), this->_data.end()); }
+    const_iterator begin() const noexcept {
+        auto itr = _data.begin();
+        while (itr != _data.end() && !itr->has_value()) ++itr;
+        return const_iterator(itr, this->_data.begin(), this->_data.end());
+    }
     const_iterator end() const noexcept { return const_iterator(this->_data.end(), this->_data.begin(), this->_data.end()); }
     const_iterator cbegin() const noexcept { return const_iterator(this->_data.cbegin(), this->_data.begin(), this->_data.cend()); }
     const_iterator cend() const noexcept { return const_iterator(this->_data.cend(), this->_data.begin(), this->_data.cend()); }
-    
+
     // lookup
-    iterator find(const Key& key) { if (this->contains(key)) return iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()); else return this->end(); }
-    const_iterator find(const Key& key) const { if (this->contains(key)) return const_iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()); else return this->end(); }
-    size_type id (const Key& key) const;
+    iterator find(const Key& key) {
+        if (this->contains(key))
+            return iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end());
+        else
+            return this->end();
+    }
+    const_iterator find(const Key& key) const {
+        if (this->contains(key))
+            return const_iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end());
+        else
+            return this->end();
+    }
+    size_type id(const Key& key) const;
     bool contains(const Key& key) const;
     virtual const Key& key(const value_type& value) const = 0;
 
@@ -147,13 +165,11 @@ public:
     template <typename F>
     void sort(F lambda);
 
-
 protected:
     std::unordered_map<Key, size_t, Hash, KeyEqual> _key2id;
     std::vector<stored_type> _data;
     size_t _size;
 };
-
 
 //------------------------------------------------------
 //  lookup
@@ -233,7 +249,7 @@ void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::insert(const Inp
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
 template <typename... Args>
 std::pair<typename ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::iterator, bool>
-ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::emplace(Args&&... args) { 
+ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::emplace(Args&&... args) {
     this->_data.emplace_back(value_type(std::forward<Args>(args)...));
     const key_type key = this->key(this->_data.back().value());
     bool hasItem = this->_key2id.contains(key);
@@ -251,8 +267,8 @@ ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::emplace(Args&&... arg
  *
  */
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
-void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sweep() { 
-    auto newEnd = std::remove_if(_data.begin(), _data.end(), [](const stored_type& v){return !v.has_value();});
+void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sweep() {
+    auto newEnd = std::remove_if(_data.begin(), _data.end(), [](const stored_type& v) { return !v.has_value(); });
     _data.erase(newEnd, _data.end());
 
     for (size_t i = 0; i < _data.size(); ++i) {
@@ -269,7 +285,7 @@ void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sweep() {
  * @return size_t : the number of element deleted
  */
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
-size_t ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::erase(const Key& key) { 
+size_t ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::erase(const Key& key) {
     if (!this->contains(key)) return 0;
 
     this->_data[this->id(key)] = std::nullopt;
@@ -293,8 +309,7 @@ size_t ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::erase(const Ke
  */
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
 size_t ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::erase(
-    const typename ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::iterator& itr
-) { 
+    const typename ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::iterator& itr) {
     return erase(key(*itr));
 }
 
@@ -315,5 +330,4 @@ void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sort(F lambda) {
     }
 }
 
-
-#endif // ORDERED_HASHTABLE_H
+#endif  // ORDERED_HASHTABLE_H

@@ -1,10 +1,10 @@
-// /****************************************************************************
-//   FileName     [ sfusion.cpp ]
-//   PackageName  [ simplifier ]
-//   Synopsis     [ Spider Fusion Rule Definition ]
-//   Author       [ Cheng-Hua Lu ]
-//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-// ****************************************************************************/
+/****************************************************************************
+  FileName     [ sfusion.cpp ]
+  PackageName  [ simplifier ]
+  Synopsis     [ Spider Fusion Rule Definition ]
+  Author       [ Cheng-Hua Lu ]
+  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
 
 #include <iostream>
 #include <vector>
@@ -28,8 +28,8 @@ void SpiderFusion::match(ZXGraph* g) {
 
     g->forEachEdge([&taken, this](const EdgePair& epair) {
         if (epair.second != EdgeType::SIMPLE) return;
-        ZXVertex* v0 = epair.first.first;  
-        ZXVertex* v1 = epair.first.second; // to be merged to v0
+        ZXVertex* v0 = epair.first.first;
+        ZXVertex* v1 = epair.first.second;  // to be merged to v0
 
         if (taken.contains(v0) || taken.contains(v1)) return;
 
@@ -59,10 +59,10 @@ void SpiderFusion::rewrite(ZXGraph* g) {
     reset();
 
     for (size_t i = 0; i < _matchTypeVec.size(); i++) {
-        _matchTypeVec[i].first->setPhase(_matchTypeVec[i].first->getPhase() + _matchTypeVec[i].second->getPhase());
-
         ZXVertex* v0 = _matchTypeVec[i].first;
         ZXVertex* v1 = _matchTypeVec[i].second;
+
+        v0->setPhase(v0->getPhase() + v1->getPhase());
         Neighbors v1n = v1->getNeighbors();
 
         for (auto& nbp : v1n) {

@@ -3,4 +3,4 @@ zxgread benchmark/zx/tof3.zx
 zxgp -v
 zxgs -freduce
 zxgp -v
-q -f
+qq -f

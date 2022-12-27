@@ -19,9 +19,9 @@
  * - bidirectional iterator
  *
  * How does ordered_hashset work?
- *     ordered_hashset is composed of a linear storage of items anda vanilla 
- * hash map that keeps tracks of the correspondence between item and storage 
- * id. In our implementation, these two containers are implemented using 
+ *     ordered_hashset is composed of a linear storage of items anda vanilla
+ * hash map that keeps tracks of the correspondence between item and storage
+ * id. In our implementation, these two containers are implemented using
  * std::vector and std::unordered_map.
  *
  *       hash map
@@ -33,7 +33,7 @@
  *     | item2 | 2  | ------+     +-----+---------+
  *     +-------+----+    +--|---> | 0   | item0   |
  *     |       |    |    |  |     +-----+---------+
- *     +-------+----+    |  |     | 1   | deleted |  
+ *     +-------+----+    |  |     | 1   | deleted |
  *     |       |    |    |  |     +-----+---------+
  *     +-------+----+    |  +---> | 2   | item2   |
  *     | item0 | 0  | ---+        +-----+---------+
@@ -56,11 +56,11 @@
  *
  * Caveats:
  * 1.  As ordered_hashset automatically manages the size of its internal stor-
- *     age, iterators may be invalidated upon insertion/deletion. Consequently, 
- *     one should not perform insertion/deletion during traversal. If this must 
- *     be done, it is suggested to collect the keys to another containers, and 
+ *     age, iterators may be invalidated upon insertion/deletion. Consequently,
+ *     one should not perform insertion/deletion during traversal. If this must
+ *     be done, it is suggested to collect the keys to another containers, and
  *     then perform the insertion/deletion during traversal of another container.
- * 
+ *
  * 2.  As ordered_hashset::iterator is not random access iterator, it cannot be
  *     sorted using std::sort; please use ordered_hashset::sort.
  *
@@ -74,10 +74,11 @@
 template <typename Key, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
 class ordered_hashset : public ordered_hashtable<Key, const Key, Key, Hash, KeyEqual> {
     using __OrderedHashTable = ordered_hashtable<Key, const Key, Key, Hash, KeyEqual>;
+
 public:
-    using key_type = __OrderedHashTable::key_type;                           
-    using value_type = __OrderedHashTable::value_type;     
-    using stored_type = __OrderedHashTable::stored_type;   
+    using key_type = __OrderedHashTable::key_type;
+    using value_type = __OrderedHashTable::value_type;
+    using stored_type = __OrderedHashTable::stored_type;
     using size_type = __OrderedHashTable::size_type;
     using difference_type = __OrderedHashTable::difference_type;
     using hasher = __OrderedHashTable::hasher;

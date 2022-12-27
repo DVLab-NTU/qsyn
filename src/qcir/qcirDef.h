@@ -10,8 +10,8 @@
 #define QCIR_DEF_H
 
 #include <vector>
-#include "myHashMap.h"
 
+#include "myHashMap.h"
 using namespace std;
 
 class QCirGate;
@@ -19,4 +19,4 @@ class QCirQubit;
 class QCir;
 class QCirMgr;
 
-#endif // QCIR_DEF_H
+#endif  // QCIR_DEF_H

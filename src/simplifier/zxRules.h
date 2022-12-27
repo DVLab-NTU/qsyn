@@ -9,6 +9,7 @@
 #ifndef ZX_RULES_H
 #define ZX_RULES_H
 
+#include <array>
 #include <iostream>
 #include <tuple>
 #include <unordered_map>
@@ -230,7 +231,7 @@ protected:
  */
 class LComp : public ZXRule {
 public:
-    typedef pair<ZXVertex*, vector<ZXVertex*>> MatchType;
+    typedef pair<ZXVertex*, vector<ZXVertex*>> MatchType;  // Vertex to remove, its neighbors
     typedef vector<MatchType> MatchTypeVec;
 
     LComp() {
@@ -280,7 +281,7 @@ protected:
  */
 class PivotInterface : public ZXRule {
 public:
-    typedef vector<ZXVertex*> MatchType;
+    typedef array<ZXVertex*, 2> MatchType;
     typedef vector<MatchType> MatchTypeVec;
 
     PivotInterface() {}
@@ -325,7 +326,7 @@ protected:
  */
 class PivotGadget : public PivotInterface {
 public:
-    typedef PivotInterface::MatchType MatchType; 
+    typedef PivotInterface::MatchType MatchType;
     typedef PivotInterface::MatchTypeVec MatchTypeVec;
 
     PivotGadget() {
@@ -345,7 +346,7 @@ protected:
  */
 class PivotBoundary : public PivotInterface {
 public:
-    typedef PivotInterface::MatchType MatchType; 
+    typedef PivotInterface::MatchType MatchType;
     typedef PivotInterface::MatchTypeVec MatchTypeVec;
 
     PivotBoundary() {
@@ -354,6 +355,8 @@ public:
     virtual ~PivotBoundary() {}
 
     void match(ZXGraph* g) override;
+    void addBoundary(ZXVertex* v) { _boundaries.push_back(v); }
+    void clearBoundary() { _boundaries.clear(); }
 
 protected:
     void preprocess(ZXGraph* g) override;

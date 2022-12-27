@@ -7,18 +7,18 @@
 ****************************************************************************/
 
 #include "tensorCmd.h"
-#include "tensorMgr.h"
 
 #include <vector>
 
 #include "qtensor.h"
+#include "tensorMgr.h"
 #include "textFormat.h"
 
 using namespace std;
 namespace TF = TextFormat;
 
-extern TensorMgr* tensorMgr;
-extern size_t     verbose;
+extern TensorMgr *tensorMgr;
+extern size_t verbose;
 
 bool initTensorCmd() {
     if (!(
@@ -33,16 +33,17 @@ bool initTensorCmd() {
 }
 
 //----------------------------------------------------------------------
-//    TSReset 
+//    TSReset
 //----------------------------------------------------------------------
 CmdExecStatus
 TSResetCmd::exec(const string &option) {
     if (!lexNoOption(option)) {
         return CMD_EXEC_ERROR;
     }
-    if (!tensorMgr) tensorMgr = new TensorMgr; 
-    else tensorMgr->reset();
-    
+    if (!tensorMgr)
+        tensorMgr = new TensorMgr;
+    else
+        tensorMgr->reset();
 
     return CMD_EXEC_DONE;
 }
@@ -71,7 +72,7 @@ TSPrintCmd::exec(const string &option) {
     bool list = false;
     bool useId = false;
     unsigned id;
-    for (const auto& option : options) {
+    for (const auto &option : options) {
         if (myStrNCmp("-List", option, 2) == 0) {
             if (list) {
                 return errorOption(CMD_OPT_EXTRA, option);
@@ -130,7 +131,7 @@ TSEquivalenceCmd::exec(const string &option) {
     unsigned tmp;
     ids.reserve(2);
 
-    for (const auto& option : options) {
+    for (const auto &option : options) {
         if (nextEpsilon) {
             if (!myStr2Double(option, epsilon)) {
                 return errorOption(CMD_OPT_ILLEGAL, option);
@@ -140,7 +141,7 @@ TSEquivalenceCmd::exec(const string &option) {
         } else if (myStrNCmp("-Epsilon", option, 2) == 0) {
             if (useEpsilon) {
                 return errorOption(CMD_OPT_EXTRA, option);
-            } 
+            }
             nextEpsilon = true;
         } else if (myStrNCmp("-Strict", option, 2) == 0) {
             if (useStrict) {
@@ -168,9 +169,9 @@ TSEquivalenceCmd::exec(const string &option) {
     if (nextEpsilon) {
         return errorOption(CMD_OPT_MISSING, options.back());
     }
-    bool   equiv = tensorMgr->isEquivalent(ids[0], ids[1], epsilon);
-    double norm  = tensorMgr->getGlobalNorm(ids[0], ids[1]);
-    Phase  phase = tensorMgr->getGlobalPhase(ids[0], ids[1]);
+    bool equiv = tensorMgr->isEquivalent(ids[0], ids[1], epsilon);
+    double norm = tensorMgr->getGlobalNorm(ids[0], ids[1]);
+    Phase phase = tensorMgr->getGlobalPhase(ids[0], ids[1]);
 
     if (useStrict) {
         if (norm > 1 + epsilon || norm < 1 - epsilon || phase != Phase(0)) {
@@ -179,9 +180,9 @@ TSEquivalenceCmd::exec(const string &option) {
     }
 
     if (equiv) {
-        cout    << TF::BOLD(TF::GREEN("Equivalent")) << endl
-                << "- Global Norm : " << norm  << endl
-                << "- Global Phase: " << phase << endl;
+        cout << TF::BOLD(TF::GREEN("Equivalent")) << endl
+             << "- Global Norm : " << norm << endl
+             << "- Global Phase: " << phase << endl;
     } else {
         cout << TF::BOLD(TF::RED("Not Equivalent")) << endl;
     }
@@ -197,7 +198,7 @@ void TSEquivalenceCmd::usage(ostream &os) const {
 
 void TSEquivalenceCmd::help() const {
     cout << setw(15) << left << "TSEQuiv: "
-         << "compare the equivalency of two stored tensors" << endl;
+         << "check the equivalency of two stored tensors" << endl;
 }
 
 //----------------------------------------------------------------------

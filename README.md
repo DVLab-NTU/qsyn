@@ -9,7 +9,7 @@
 # Qsyn: An End-to-End Quantum Program Compilation Framework
 <!-- ![example branch parameter](https://github.com/ric2k1/qsyn/actions/workflows/build-and-test.yml/badge.svg)
  -->
- ![](https://i.imgur.com/x2lKZXb.png)
+ ![](https://i.imgur.com/NxJvxaL.png)
 
 ## Introduction
 Qsyn is a C++ based growing software system for synthesis, optimization and verification of quantum circuits appearing in quantum computers. Qsyn combines scalable quantum circuits optimization by implementing ZX-Calculus and qubit mapping.
@@ -79,7 +79,7 @@ cd qsyn
     Vertices:      17
     Edges:         19
 
-    qsyn> q -f
+    qsyn> qq -f
     ```
 
 * The same result can be produced by running in the command-line mode:
@@ -105,7 +105,7 @@ cd qsyn
     Vertices:      17
     Edges:         19
 
-    qsyn> q -f
+    qsyn> qq -f
     ```
 
 
@@ -144,10 +144,10 @@ There are two types of testing approaches:
 | Cmd          | Description                         			| Options     |
 | --------     | --------                            			| --------    |
 | DOfile       | execute the commands in the dofile  			|             |
-| FORMAT       | set format level (0: none, 1: all)  			|             |
+| COLOR        | cmd line printing mode (0: grayscale, 1:color) |             |
 | HELp         | print this help message             			|             |
 | HIStory      | print command history               			|             |
-| Quit         | quit the execution                  			|             |
+| QQuit        | quit the execution                  			|             |
 | SEED         | fix the seed                        			|             |
 | USAGE        | report the runtime and/or memory usage         |             |
 | VERbose      | set verbose level (0-9)                        |             |

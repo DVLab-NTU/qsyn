@@ -6,8 +6,6 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "zxGraph.h"
-
 #include <algorithm>
 #include <cassert>
 #include <chrono>
@@ -19,11 +17,11 @@
 
 #include "textFormat.h"
 #include "util.h"
+#include "zxGraph.h"
 
 using namespace std;
 namespace TF = TextFormat;
 extern size_t verbose;
-
 
 /**
  * @brief Reset a ZX-graph (make empty)
@@ -62,12 +60,12 @@ ZXGraph* ZXGraph::copy() const {
     for (const auto& v : _vertices) {
         if (v->getType() == VertexType::BOUNDARY) {
             if (_inputs.contains(v))
-                oldV2newVMap[v] = newGraph->addInput(v->getQubit());
+                oldV2newVMap[v] = newGraph->addInput(v->getQubit(), true, v->getCol());
             else
-                oldV2newVMap[v] = newGraph->addOutput(v->getQubit());
+                oldV2newVMap[v] = newGraph->addOutput(v->getQubit(), true, v->getCol());
 
         } else if (v->getType() == VertexType::Z || v->getType() == VertexType::X || v->getType() == VertexType::H_BOX) {
-            oldV2newVMap[v] = newGraph->addVertex(v->getQubit(), v->getType(), v->getPhase());
+            oldV2newVMap[v] = newGraph->addVertex(v->getQubit(), v->getType(), v->getPhase(), true, v->getCol());
         }
     }
     // Link all edges
@@ -134,11 +132,19 @@ ZXGraph* ZXGraph::compose(ZXGraph* target) {
     else {
         ZXGraph* copiedGraph = target->copy();
 
-        // Update Id of copiedGraph to make them unique to the original graph
+        // Get maximum column in `this`
+        unsigned maxCol = 0;
+        for (const auto& o : this->getOutputs()) {
+            if (o->getCol() > maxCol) maxCol = o->getCol();
+        }
+
+        // Update `_id` and `_col` of copiedGraph to make them unique to the original graph
         for (const auto& v : copiedGraph->getVertices()) {
             v->setId(_nextVId);
+            v->setCol(v->getCol() + maxCol + 1);
             _nextVId++;
         }
+
         // Sort ori-output and copy-input
         this->sortIOByQubit();
         copiedGraph->sortIOByQubit();
@@ -209,39 +215,44 @@ ZXGraph* ZXGraph::tensorProduct(ZXGraph* target) {
     return this;
 }
 
+bool ZXGraph::isGadget(ZXVertex* v) {
+    if (v->getType() != VertexType::Z || v->getNumNeighbors() != 1) {
+        if (verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
+        return false;
+    }
+    if (v->getFirstNeighbor().first->getType() != VertexType::Z && v->getFirstNeighbor().first->getPhase() != 0 && v->getFirstNeighbor().first->getPhase() != 1) {
+        if (verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
+        return false;
+    }
+    return true;
+}
+
 /**
  * @brief Add phase gadget of phase `p` for each vertex in `verVec`.
- * 
- * @param p 
- * @param verVec 
+ *
+ * @param p
+ * @param verVec
  */
-void ZXGraph::addGadget(Phase p, const vector<ZXVertex*>& verVec){
-    for(size_t i = 0; i < verVec.size(); i++){
-        if(verVec[i]->getType() == VertexType::BOUNDARY || verVec[i]->getType() == VertexType::H_BOX) return;
+void ZXGraph::addGadget(Phase p, const vector<ZXVertex*>& verVec) {
+    for (size_t i = 0; i < verVec.size(); i++) {
+        if (verVec[i]->getType() == VertexType::BOUNDARY || verVec[i]->getType() == VertexType::H_BOX) return;
     }
 
     ZXVertex* axel = addVertex(-1, VertexType::Z, Phase(0));
     ZXVertex* leaf = addVertex(-2, VertexType::Z, p);
 
     addEdge(axel, leaf, EdgeType::HADAMARD);
-    for(const auto& v : verVec) addEdge(v, axel, EdgeType::HADAMARD);
-    if(verbose >= 5) cout << "Add phase gadget (" << leaf->getId() << ") to graph!" << endl;
+    for (const auto& v : verVec) addEdge(v, axel, EdgeType::HADAMARD);
+    if (verbose >= 5) cout << "Add phase gadget (" << leaf->getId() << ") to graph!" << endl;
 }
 
 /**
  * @brief Remove phase gadget `v`. (Auto-check if `v` is a gadget first!)
- * 
- * @param v 
+ *
+ * @param v
  */
-void ZXGraph::removeGadget(ZXVertex* v){
-    if(v->getType() != VertexType::Z || v->getNumNeighbors() != 1){
-        if(verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
-        return;
-    }  
-    if(v->getFirstNeighbor().first->getType() != VertexType::Z && v->getFirstNeighbor().first->getPhase() != 0 && v->getFirstNeighbor().first->getPhase() != 1){
-        if(verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
-        return;
-    }
+void ZXGraph::removeGadget(ZXVertex* v) {
+    if (!isGadget(v)) return;
     ZXVertex* axel = v->getFirstNeighbor().first;
     removeVertex(axel);
     removeVertex(v);
@@ -260,8 +271,8 @@ unordered_map<size_t, ZXVertex*> ZXGraph::id2VertexMap() const {
 
 /**
  * @brief Disown the vertices in a graph, so that they are no longer referenced by this ZXGraph.
- *        This function is used to change ownership of ZXVertices after composing/tensoring ZXGraphs. 
- * 
+ *        This function is used to change ownership of ZXVertices after composing/tensoring ZXGraphs.
+ *
  */
 void ZXGraph::disownVertices() {
     _inputs.clear();
@@ -271,4 +282,3 @@ void ZXGraph::disownVertices() {
     _inputList.clear();
     _outputList.clear();
 }
-

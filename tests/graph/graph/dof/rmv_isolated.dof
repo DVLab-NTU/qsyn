@@ -5,4 +5,4 @@ zxge -rmv 2
 zxgp -v
 zxge -rmv -i
 zxgp -v
-q -f
+qq -f

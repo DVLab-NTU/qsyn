@@ -7,20 +7,15 @@
 ****************************************************************************/
 
 #include "phase.h"
-#include "util.h"
+
 #include <cassert>
+
+#include "util.h"
 
 PhaseUnit Phase::_printUnit = PhaseUnit::PI;
 
 std::ostream& operator<<(std::ostream& os, const Phase& p) {
-    if (Phase::getPrintUnit() == PhaseUnit::PI) {
-        if (p._rational.numerator() != 1) os << p._rational.numerator();
-        if (p._rational.numerator() != 0) os << "\u03C0";
-        if (p._rational.denominator() != 1) os << "/" << p._rational.denominator();
-        return os;
-    } else {
-        return os << (p._rational.numerator() * std::numbers::pi / p._rational.denominator());
-    }
+    return os << p.getPrintString();
 }
 
 Phase Phase::operator+() const {
@@ -48,10 +43,10 @@ Phase operator-(Phase lhs, const Phase& rhs) {
     lhs -= rhs;
     return lhs;
 }
-bool Phase::operator== (const Phase& rhs) const{
+bool Phase::operator==(const Phase& rhs) const {
     return _rational == rhs._rational;
 }
-bool Phase::operator!= (const Phase& rhs) const{
+bool Phase::operator!=(const Phase& rhs) const {
     return !(*this == rhs);
 }
 
@@ -62,6 +57,6 @@ void Phase::normalize() {
 }
 
 std::ostream& operator<<(std::ostream& os, const setPhaseUnit& pu) {
-    Phase::setPrintUnit(pu._printUnit); 
+    Phase::setPrintUnit(pu._printUnit);
     return os;
 }

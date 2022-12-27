@@ -57,16 +57,16 @@ qsyn> zxgedit -adde 1 9 SIMPLE
 
 qsyn> zxgp -v
 
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	8	(2, -) (3, -) (4, [1m[34mH[0m[0m) (5, -) (6, [1m[34mH[0m[0m) (7, -) (8, -) (9, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	8	(2, -) (3, -) (4, -) (5, [1m[34mH[0m[0m) (6, [1m[34mH[0m[0m) (7, -) (8, -) (9, -) 
-ID:	2	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (1, -) 
-ID:	3	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (1, -) 
-ID:	4	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, [1m[34mH[0m[0m) (1, -) 
-ID:	5	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (1, [1m[34mH[0m[0m) 
-ID:	6	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, [1m[34mH[0m[0m) (1, [1m[34mH[0m[0m) 
-ID:	7	VertexType:	[1m[33mH[0m[0m	Qubit:	0	Phase:	0	#Neighbors:	2	(0, -) (1, -) 
-ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/2	#Neighbors:	2	(0, -) (1, -) 
-ID:	9	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	π/2	#Neighbors:	2	(0, -) (1, -) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   8     (2, -) (3, -) (4, [1m[34mH[0m[0m) (5, -) (6, [1m[34mH[0m[0m) (7, -) (8, -) (9, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   8     (2, -) (3, -) (4, -) (5, [1m[34mH[0m[0m) (6, [1m[34mH[0m[0m) (7, -) (8, -) (9, -) 
+ID:   2 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (1, -) 
+ID:   3 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (1, -) 
+ID:   4 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, [1m[34mH[0m[0m) (1, -) 
+ID:   5 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (1, [1m[34mH[0m[0m) 
+ID:   6 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, [1m[34mH[0m[0m) (1, [1m[34mH[0m[0m) 
+ID:   7 ([1m[33mH[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (1, -) 
+ID:   8 ([1m[32mZ[0m[0m, π/2)         (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (1, -) 
+ID:   9 ([1m[31mX[0m[0m, π/2)         (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (1, -) 
 Total #Vertices: 10
 
 
@@ -96,10 +96,10 @@ Identity Removal Rule:
 
 qsyn> zxgp -v
 
-ID:	0	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	4	(1, -) (1, [1m[34mH[0m[0m) (8, -) (9, -) 
-ID:	1	VertexType:	●	Qubit:	0	Phase:	0	#Neighbors:	4	(0, -) (0, [1m[34mH[0m[0m) (8, -) (9, -) 
-ID:	8	VertexType:	[1m[32mZ[0m[0m	Qubit:	0	Phase:	π/2	#Neighbors:	2	(0, -) (1, -) 
-ID:	9	VertexType:	[1m[31mX[0m[0m	Qubit:	0	Phase:	π/2	#Neighbors:	2	(0, -) (1, -) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (1, -) (1, [1m[34mH[0m[0m) (8, -) (9, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (0, -) (0, [1m[34mH[0m[0m) (8, -) (9, -) 
+ID:   8 ([1m[32mZ[0m[0m, π/2)         (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (1, -) 
+ID:   9 ([1m[31mX[0m[0m, π/2)         (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (1, -) 
 Total #Vertices: 4
 
 
@@ -112,5 +112,5 @@ qsyn> zxgp -e
 ( 1, 9 )	Type:	-
 Total #Edges: 6
 
-qsyn> q -f
+qsyn> qq -f
 

@@ -5,14 +5,15 @@
   Author       [ Mu-Te (Joshua) Lau ]
   Copyright    [ 2022 8 ]
 ****************************************************************************/
+#include "rationalNumber.h"
+
 #include <iostream>
 #include <numeric>
-#include "rationalNumber.h"
 //----------------------------------------
 // Operator Overloading
 //----------------------------------------
-std::ostream& operator<< (std::ostream& os, const Rational& q) {
-    os << q._numer; 
+std::ostream& operator<<(std::ostream& os, const Rational& q) {
+    os << q._numer;
     if (q._denom != 1) os << "/" << q._denom;
     return os;
 }
@@ -25,22 +26,25 @@ Rational Rational::operator-() const {
 }
 
 // a/b + c/d  = (ad + bc) / bd
-// We adopt for this more complex expression (instead of (ad + bc / bd)) so as to minimize the risk of overflow when multiplying numbers 
+// We adopt for this more complex expression (instead of (ad + bc / bd)) so as to minimize the risk of overflow when multiplying numbers
 Rational& Rational::operator+=(const Rational& rhs) {
     _numer = _numer * rhs._denom + _denom * rhs._numer;
     _denom = _denom * rhs._denom;
+    assert(_denom != 0);
     normalize();
     return *this;
 }
 Rational& Rational::operator-=(const Rational& rhs) {
     _numer = _numer * rhs._denom - _denom * rhs._numer;
     _denom = _denom * rhs._denom;
+    assert(_denom != 0);
     normalize();
     return *this;
 }
 Rational& Rational::operator*=(const Rational& rhs) {
     _numer *= rhs._numer;
     _denom *= rhs._denom;
+    assert(_denom != 0);
     normalize();
     return *this;
 }
@@ -50,6 +54,7 @@ Rational& Rational::operator/=(const Rational& rhs) {
     }
     _numer *= rhs._denom;
     _denom *= rhs._numer;
+    assert(_denom != 0);
     normalize();
     return *this;
 }
@@ -70,22 +75,22 @@ Rational operator/(Rational lhs, const Rational& rhs) {
     return lhs;
 }
 
-bool Rational::operator== (const Rational& rhs) const{
+bool Rational::operator==(const Rational& rhs) const {
     return (_numer == rhs._numer) && (_denom == rhs._denom);
 }
-bool Rational::operator!= (const Rational& rhs) const{
+bool Rational::operator!=(const Rational& rhs) const {
     return !(*this == rhs);
 }
-bool Rational::operator< (const Rational& rhs) const{
+bool Rational::operator<(const Rational& rhs) const {
     return (_numer * rhs._denom) < (_denom * rhs._numer);
 }
-bool Rational::operator<=(const Rational& rhs) const{
+bool Rational::operator<=(const Rational& rhs) const {
     return (*this == rhs) || (*this < rhs);
 }
-bool Rational::operator> (const Rational& rhs) const{
+bool Rational::operator>(const Rational& rhs) const {
     return !(*this == rhs) && !(*this < rhs);
 }
-bool Rational::operator>=(const Rational& rhs) const{
+bool Rational::operator>=(const Rational& rhs) const {
     return !(*this < rhs);
 }
 
@@ -102,6 +107,6 @@ void Rational::normalize() {
     _denom /= gcd;
 }
 
-Rational Rational::mediant(const Rational& lhs, const Rational& rhs){
+Rational Rational::mediant(const Rational& lhs, const Rational& rhs) {
     return Rational(lhs._numer + rhs._numer, lhs._denom + rhs._denom);
 }

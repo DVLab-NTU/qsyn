@@ -6,15 +6,17 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <vector>
-#include <string>
+#include "qcirQubit.h"
+
+#include <algorithm>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <algorithm>
+#include <string>
+#include <vector>
+
 #include "qcir.h"
 #include "qcirGate.h"
-#include "qcirQubit.h"
 
 using namespace std;
 
@@ -22,25 +24,22 @@ extern QCir *qCir;
 extern size_t verbose;
 
 /// @brief Print qubit info
-void QCirQubit::printBitLine() const
-{
-  QCirGate *current = _bitFirst;
-  size_t last_time = 0;
-  cout << "Q" << right << setfill(' ') << setw(2) << _id << "  ";
-  while (current != NULL)
-  {
-    cout << "-";
-    while (last_time < current->getTime())
-    {
-      cout << "----";
-      cout << "----";
-      last_time++;
+void QCirQubit::printBitLine() const {
+    QCirGate *current = _bitFirst;
+    size_t last_time = 0;
+    cout << "Q" << right << setfill(' ') << setw(2) << _id << "  ";
+    while (current != NULL) {
+        cout << "-";
+        while (last_time < current->getTime()) {
+            cout << "----";
+            cout << "----";
+            last_time++;
+        }
+        cout << setfill(' ') << setw(2) << current->getTypeStr().substr(0, 2);
+        cout << "(" << setfill(' ') << setw(2) << current->getId() << ")";
+        last_time = current->getTime() + 1;
+        current = current->getQubit(_id)._child;
+        cout << "-";
     }
-    cout << setfill(' ') << setw(2) << current->getTypeStr().substr(0, 2);
-    cout << "("<< setfill(' ') << setw(2) << current->getId()<<")";
-    last_time = current->getTime() + 1;
-    current = current->getQubit(_id)._child;
-    cout << "-";
-  }
-  cout << endl;
+    cout << endl;
 }

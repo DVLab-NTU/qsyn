@@ -15,4 +15,4 @@ zxgp -e
 zxgsimp -idr
 zxgp -v
 zxgp -e
-q -f
+qq -f

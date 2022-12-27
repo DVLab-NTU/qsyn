@@ -137,5 +137,5 @@ Checkout to Graph 0
 qsyn> zxgp
 Graph 0( 4 inputs, 4 outputs, 21 vertices, 20 edges )
 
-qsyn> q -f
+qsyn> qq -f
 

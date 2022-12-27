@@ -19,4 +19,4 @@ class M2;
 //------------------------------------------------------------------------
 
 using Oper = pair<size_t, size_t>;
-#endif // M2_DEF_H
+#endif  // M2_DEF_H

@@ -9,8 +9,8 @@
 #include <iostream>
 #include <map>
 #include <numbers>
-#include <vector>
 #include <ranges>
+#include <vector>
 
 #include "zxRules.h"
 using namespace std;
@@ -27,7 +27,7 @@ void PhaseGadget::match(ZXGraph* g) {
     _matchTypeVec.clear();
     if (verbose >= 8) g->printVertices();
 
-    unordered_map<ZXVertex*, ZXVertex*> axel2leaf; 
+    unordered_map<ZXVertex*, ZXVertex*> axel2leaf;
     unordered_multimap<vector<ZXVertex*>, ZXVertex*> group2axel;
     unordered_set<vector<ZXVertex*>> done;
 
@@ -37,7 +37,7 @@ void PhaseGadget::match(ZXGraph* g) {
         if (v->getPhase().getRational().denominator() <= 2 || v->getNumNeighbors() != 1) continue;
 
         ZXVertex* nb = v->getFirstNeighbor().first;
-        
+
         if (nb->getPhase().getRational().denominator() != 1) continue;
         if (nb->isBoundary()) continue;
         if (axel2leaf.contains(nb)) continue;
@@ -66,8 +66,9 @@ void PhaseGadget::match(ZXGraph* g) {
     while (itr != group2axel.end()) {
         auto [groupBegin, groupEnd] = group2axel.equal_range(itr->first);
         itr = groupEnd;
-        
-        axels.clear(); leaves.clear();
+
+        axels.clear();
+        leaves.clear();
 
         Phase totalPhase = Phase(0);
         for (auto& [_, axel] : ranges::subrange(groupBegin, groupEnd)) {
@@ -75,7 +76,7 @@ void PhaseGadget::match(ZXGraph* g) {
             if (axel->getPhase() == Phase(1)) {
                 axel->setPhase(Phase(0));
                 leaf->setPhase((-1) * axel2leaf[axel]->getPhase());
-            } 
+            }
             totalPhase += axel2leaf[axel]->getPhase();
             axels.push_back(axel);
             leaves.push_back(axel2leaf[axel]);

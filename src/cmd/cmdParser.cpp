@@ -9,9 +9,9 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
-#include <filesystem>
 
 #include "util.h"
 
@@ -140,7 +140,7 @@ void CmdParser::printHelps() const {
     // TODO...
     for (const auto& mi : _cmdMap)
         mi.second->help();
- 
+
     cout << endl;
 }
 
@@ -383,7 +383,7 @@ void CmdParser::listCmd(const string& str) {
         // cursor on first word
         for (size_t i = 0, n = cmd.size(); i < n; ++i)
             cmd[i] = toupper(cmd[i]);
-        
+
         if (getCmd(cmd)) {  // cmd is enough to determine a single cmd
             bi = _cmdMap.find(cmd);
             if (bi == _cmdMap.end()) {
@@ -426,7 +426,6 @@ void CmdParser::listCmd(const string& str) {
         cmdSpacing = 60 / cmdsPerLine;
         size_t count = 0;
         for (auto itr = bi; itr != ei; ++itr) {
-            if(itr->first == "//") continue;
             if ((count++ % cmdsPerLine) == 0) cout << endl;
             string ss = itr->first + itr->second->getOptCmd();
             cout << setw(cmdSpacing) << left << ss;
@@ -466,8 +465,8 @@ bool CmdParser::listCmdDir(const string& cmd) {
     auto findLastSpace = [](const string& str) -> size_t {
         size_t pos = string::npos;
         pos = str.find_last_of(" ");
-        while (pos != string::npos && str[pos-1] == '\\') {
-            pos = str.find_last_of(" ", pos-2);
+        while (pos != string::npos && str[pos - 1] == '\\') {
+            pos = str.find_last_of(" ", pos - 2);
         }
         return pos;
     };
@@ -481,7 +480,7 @@ bool CmdParser::listCmdDir(const string& cmd) {
     //     }
     //     return numSpecialChars;
     // };
-    
+
     size_t bn = findLastSpace(tmp);
     string promptname, filename, dirname, basename;
     vector<string> files;
@@ -517,9 +516,9 @@ bool CmdParser::listCmdDir(const string& cmd) {
     }
 
     listDir(files, basename, "./" + dirname);
-    if (files.size() == 0) { // [case 6.5] no matched file
+    if (files.size() == 0) {  // [case 6.5] no matched file
         return false;
-    } 
+    }
     string ff = files[0].substr(fLen, files[0].size() - fLen);
     if (files.size() == 1) {  // [case 6.1.3 & 6.4] singly matched file
         // [FIX] 2018/10/20 by Ric for 6.1.3 and 6.4
@@ -536,7 +535,7 @@ bool CmdParser::listCmdDir(const string& cmd) {
         if (incompleteQuotes.empty()) {
             for (size_t i = 0; i < ff.size(); ++i) {
                 switch (ff[i]) {
-                    case ' ': 
+                    case ' ':
                     case '\"':
                     case '\'':
                         ff.insert(i, "\\");
@@ -584,7 +583,7 @@ bool CmdParser::listCmdDir(const string& cmd) {
             for (auto& file : files) {
                 for (size_t i = 0; i < file.size(); ++i) {
                     switch (file[i]) {
-                        case ' ': 
+                        case ' ':
                         case '\"':
                         case '\'':
                             file.insert(i, "\\");
@@ -668,7 +667,7 @@ bool CmdExec::lexNoOption(const string& option) const {
 bool CmdExec::lexSingleOption(const string& option, string& token, bool optional) const {
     string stripped;
     if (!stripQuotes(option, stripped)) {
-        cerr << "[Error] Missing ending quote!!!!" << endl; 
+        cerr << "[Error] Missing ending quote!!!!" << endl;
         return false;
     }
     size_t n = myStrGetTok2(stripped, token);
@@ -691,7 +690,7 @@ bool CmdExec::lexSingleOption(const string& option, string& token, bool optional
 bool CmdExec::lexOptions(const string& option, vector<string>& tokens, size_t nOpts) const {
     string token, stripped;
     if (!stripQuotes(option, stripped)) {
-        cerr << "[Error] Missing ending quote!!!!" << endl; 
+        cerr << "[Error] Missing ending quote!!!!" << endl;
         return false;
     }
     size_t n = myStrGetTok2(stripped, token);

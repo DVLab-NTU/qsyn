@@ -9,6 +9,6 @@ zxcompose 0
 zxgprint
 zxgs -fr
 zxgp
-zxgp -q
+zxgt -id
 usage
-q -f
+qq -f

@@ -8,4 +8,4 @@ zxge -addo 1
 zxgp -i
 zxgp -o
 zxgp -v
-q -f
+qq -f

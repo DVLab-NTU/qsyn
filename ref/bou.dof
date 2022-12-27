@@ -1,4 +1,4 @@
-format 1
+color 1
 ver 1
 zxm -on
 qccr -r benchmark/demo/small.qasm
@@ -26,4 +26,4 @@ zxgp -v 1
 zxgp -v 2
 zxgp -v 3
 zxgp -v 4
-q -f
+qq -f

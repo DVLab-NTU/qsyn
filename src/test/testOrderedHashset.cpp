@@ -32,7 +32,7 @@ TEST_CASE("oset_insert_and_erase", "[OSet]") {
 
     REQUIRE(oset.insert(2).second == true);
     REQUIRE(oset.contains(2));
-    
+
     REQUIRE(oset.erase(4) == 0);
 
     REQUIRE(oset.erase(1) == 1);
@@ -74,7 +74,6 @@ TEST_CASE("oset_iterator", "[OSet]") {
     REQUIRE(ref[0] == 3);
     REQUIRE(ref[1] == 4);
     REQUIRE(ref[2] == 6);
-
 }
 
 TEST_CASE("oset_sort", "[OSet]") {
@@ -99,7 +98,6 @@ TEST_CASE("oset_sort", "[OSet]") {
     REQUIRE(ref[3] < ref[4]);
     REQUIRE(ref[4] < ref[5]);
     REQUIRE(ref[5] < ref[6]);
-    
 }
 
 // TEST_CASE("oset_playground", "[OSet]") {

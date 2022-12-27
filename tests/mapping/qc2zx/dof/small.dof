@@ -3,4 +3,4 @@ qccr benchmark/benchmark_SABRE/small/qft_4.qasm
 qccp -q
 qc2zx
 zxgtr
-q -f
+qq -f

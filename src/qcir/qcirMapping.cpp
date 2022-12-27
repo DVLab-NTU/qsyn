@@ -6,14 +6,13 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "qcir.h"
-
 #include <algorithm>
 #include <cassert>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
+#include "qcir.h"
 #include "tensorMgr.h"
 #include "zxGraphMgr.h"
 
@@ -39,6 +38,7 @@ void QCir::clearMapping() {
  */
 void QCir::ZXMapping() {
     if (zxGraphMgr == 0) {
+        // FIXME - ZXMode obsolete
         cerr << "Error: ZXMODE is OFF, please turn on before mapping" << endl;
         return;
     }
@@ -52,15 +52,19 @@ void QCir::ZXMapping() {
     for (size_t i = 0; i < _qubits.size(); i++) {
         ZXVertex *input = _ZXG->addInput(_qubits[i]->getId());
         ZXVertex *output = _ZXG->addOutput(_qubits[i]->getId());
+        input->setCol(0);
         _ZXG->addEdge(input, output, EdgeType(EdgeType::SIMPLE));
     }
 
-    
     topoTraverse([this, _ZXG](QCirGate *G) {
         if (verbose >= 5) cout << "> Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph *tmp = G->getZXform();
+
+        for (auto &v : tmp->getVertices()) {
+            v->setCol(v->getCol() + G->getTime() + 1);
+        }
         if (tmp == NULL) {
-            //TODO cleanup when conversion fails
+            // TODO cleanup when conversion fails
             cerr << "Gate " << G->getId() << " (type: " << G->getTypeStr() << ") is not implemented, the conversion result is wrong!!" << endl;
             return;
         }
@@ -69,6 +73,10 @@ void QCir::ZXMapping() {
         tmp->disownVertices();
         delete tmp;
     });
+
+    for (auto &v : _ZXG->getOutputs()) {
+        v->setCol(_topoOrder.back()->getTime() + 2);
+    }
 
     _ZXGraphList.push_back(_ZXG);
 }

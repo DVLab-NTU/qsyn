@@ -33,14 +33,13 @@ void PivotBoundary::preprocess(ZXGraph* g) {
  * @param g
  */
 void PivotBoundary::match(ZXGraph* g) {
-    this->_matchTypeVec.clear(); 
+    this->_matchTypeVec.clear();
     this->_boundaries.clear();
-    if(verbose >= 8) g->printVertices();
-    
+    if (verbose >= 8) g->printVertices();
+
     unordered_set<ZXVertex*> taken;
     vector<ZXVertex*> b0;
-    auto matchBoundary = [&taken, &b0, this](ZXVertex* v){
-
+    auto matchBoundary = [&taken, &b0, this](ZXVertex* v) {
         b0.clear();
         ZXVertex* vs = v->getFirstNeighbor().first;
         if (taken.contains(vs)) return;
@@ -55,6 +54,7 @@ void PivotBoundary::match(ZXGraph* g) {
             if (nb->isBoundary()) continue;
             if (!nb->hasNPiPhase()) continue;
             if (etype != EdgeType::HADAMARD) continue;
+            if (nb->isGadgetAxel()) continue;  // nb is the axel of a phase gadget
             vt = nb;
             break;
         }
@@ -76,15 +76,15 @@ void PivotBoundary::match(ZXGraph* g) {
 
         taken.insert(vs);
         taken.insert(vt);
+
         for (auto& [nb, _] : vs->getNeighbors()) taken.insert(nb);
         for (auto& [nb, _] : vt->getNeighbors()) taken.insert(nb);
 
         this->_matchTypeVec.push_back({vs, vt});
         this->_boundaries.insert(this->_boundaries.end(), b0.begin(), b0.end());
-
     };
 
-    for (auto& v : g->getInputs())  matchBoundary(v);
+    for (auto& v : g->getInputs()) matchBoundary(v);
     for (auto& v : g->getOutputs()) matchBoundary(v);
 
     setMatchTypeVecNum(_matchTypeVec.size());

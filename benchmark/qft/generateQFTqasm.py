@@ -18,8 +18,8 @@ def decomposeCRZ(w, ang, ctrl, targ):
 
 def main(args):
     with open(
-        "{root}/qft_{num}{dec}.qasm".format(
-            root=args.output_root, num=args.qnum, dec="dec" if args.decompose else ""
+        "{root}/qft_{num}{dec}{pyzx}.qasm".format(
+            root=args.output_root, num=args.qnum, dec="dec" if args.decompose else "", pyzx="crz" if args.forpyzx else ""
         ),
         "w",
     ) as qasmf:
@@ -41,9 +41,27 @@ def main(args):
                         i + j + 1,
                         i,
                     )
-                else:
+                elif args.forpyzx:
+                    qasmf.write(
+                        "rz(pi/{ang}) q[{targ}];\n".format(
+                            ang=pow(2, j + 1)
+                            if pow(2, j + 1) < args.max_denominator_value
+                            else args.max_denominator_value,
+                            targ=i + j + 1
+                        )
+                    )
                     qasmf.write(
                         "crz(pi/{ang}) q[{ctrl}],q[{targ}];\n".format(
+                            ang=pow(2, j + 1)
+                            if pow(2, j + 1) < args.max_denominator_value
+                            else args.max_denominator_value,
+                            ctrl=i + j + 1,
+                            targ=i,
+                        )
+                    )
+                else:
+                    qasmf.write(
+                        "cp(pi/{ang}) q[{ctrl}],q[{targ}];\n".format(
                             ang=pow(2, j + 1)
                             if pow(2, j + 1) < args.max_denominator_value
                             else args.max_denominator_value,
@@ -60,6 +78,11 @@ def parse_args() -> Namespace:
         "--decompose",
         action="store_true",
         help="Decompose H and CR gate into CX and Rz",
+    )
+    parser.add_argument(
+        "--forpyzx",
+        action="store_true",
+        help="Decompose CP into CRz and Rz for PyZX",
     )
     parser.add_argument(
         "--max_denominator_value",

@@ -1,10 +1,10 @@
-// /****************************************************************************
-//   FileName     [ pivotgadget.cpp ]
-//   PackageName  [ simplifier ]
-//   Synopsis     [ Pivot Gadget Rule Definition ]
-//   Author       [ Cheng-Hua Lu ]
-//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-// ****************************************************************************/
+/****************************************************************************
+  FileName     [ pivotgadget.cpp ]
+  PackageName  [ simplifier ]
+  Synopsis     [ Pivot Gadget Rule Definition ]
+  Author       [ Cheng-Hua Lu ]
+  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
 
 #include <iostream>
 #include <numbers>
@@ -17,8 +17,8 @@ extern size_t verbose;
 
 /**
  * @brief Preprocess the matches so that it conforms with the rewrite functions
- * 
- * @param g 
+ *
+ * @param g
  */
 void PivotGadget::preprocess(ZXGraph* g) {
     for (auto& m : this->_matchTypeVec) {
@@ -29,7 +29,7 @@ void PivotGadget::preprocess(ZXGraph* g) {
     }
 }
 
-//FIXME wrong brief
+// FIXME wrong brief
 /**
  * @brief Determines which phase gadgets act on the same vertices, so that they can be fused together.
  *        (Check PyZX/pyzx/rules.py/match_phase_gadgets for more details)
@@ -56,8 +56,14 @@ void PivotGadget::match(ZXGraph* g) {
         if (verbose == 9) cout << "\n-----------\n\n"
                                << "Edge " << cnt << ": " << vs->getId() << " " << vt->getId() << "\n";
 
-        if (!vs->isZ()) { taken.insert(vs); return; }
-        if (!vt->isZ()) { taken.insert(vt); return; }
+        if (!vs->isZ()) {
+            taken.insert(vs);
+            return;
+        }
+        if (!vt->isZ()) {
+            taken.insert(vt);
+            return;
+        }
 
         if (verbose == 9) cout << "(1) type pass\n";
 
@@ -68,13 +74,13 @@ void PivotGadget::match(ZXGraph* g) {
         // if both not, --> maybe pivot double-boundary
         if (vsIsNPi == vtIsNPi) return;
 
-        if (!vsIsNPi && vtIsNPi) swap(vs, vt); // if vs is not n*pi but vt is, should extract vs as gadget instead
+        if (!vsIsNPi && vtIsNPi) swap(vs, vt);  // if vs is not n*pi but vt is, should extract vs as gadget instead
 
         if (verbose == 9) cout << "(2) phase pass\n";
 
         // REVIEW - check ground conditions
 
-        if (vt->getNumNeighbors() == 1) { // early return: (vs, vt) is a phase gadget
+        if (vt->getNumNeighbors() == 1) {  // early return: (vs, vt) is a phase gadget
             taken.insert(vs);
             taken.insert(vt);
             return;
