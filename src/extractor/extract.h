@@ -28,9 +28,12 @@ class Extractor {
 public:
     using Target = unordered_map<size_t, size_t>;
     using ConnectInfo = vector<set<size_t>>;
-    Extractor(ZXGraph* g) {
+    Extractor(ZXGraph* g, QCir* c = nullptr) {
         _graph = g;
-        _circuit = new QCir(-1);
+        if(c == nullptr)
+            _circuit = new QCir(-1);
+        else
+            _circuit = c;
         initialize();
     }
     ~Extractor() {}
