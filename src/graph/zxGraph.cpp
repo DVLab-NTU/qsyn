@@ -123,10 +123,11 @@ bool ZXGraph::isId(size_t id) const {
 bool ZXGraph::isGraphLike() const {
     // all internal edges are hadamard edges
     for (const auto& v : _vertices) {
-        if (!v->isZ() || !v->isBoundary()) {
+        if (!v->isZ() && !v->isBoundary()) {
             if (verbose >= 5) {
                 cout << "Note: vertex " << v->getId() << " is of type " << VertexType2Str(v->getType()) << endl;
             }
+            return false;
         }
         for (const auto& [nb, etype] : v->getNeighbors()) {
             if (v->isBoundary() || nb->isBoundary()) continue;
