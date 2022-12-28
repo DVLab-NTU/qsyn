@@ -9,6 +9,9 @@ Traverse and build the graph...
 Successfully generated Graph 0
 Checkout to Graph 0
 
+qsyn> extp -f
+Error: ZX-graph (id: 0) is not graph-like. Not extractable!!
+
 qsyn> zxgs -fr
 Hadamard Rule: 4 . 1 iterations
 Spider Fusion Rule: 
@@ -152,6 +155,31 @@ ID:  16 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   3
 qsyn> ver 0
 Note: verbose level is set to 0
 
+qsyn> extp -f
+Frontier:
+Qubit:0: 14
+Qubit:1: 15
+Qubit:2: 16
+
+
+qsyn> extp -n
+Neighbors:
+11
+13
+12
+
+
+qsyn> extp -a
+Axels:
+18 (phase gadget: 17)
+20 (phase gadget: 19)
+22 (phase gadget: 21)
+24 (phase gadget: 23)
+26 (phase gadget: 25)
+28 (phase gadget: 27)
+30 (phase gadget: 29)
+
+
 qsyn> extr -zx 1 -qc 1 -PH
 
 qsyn> qccp -q
@@ -173,6 +201,27 @@ qsyn> qccp -q
 Q 0  - h( 0)-
 Q 1  - h( 1)-
 Q 2  
+
+qsyn> extp -f
+Frontier:
+Qubit:0: 14
+Qubit:1: 15
+Qubit:2: 16
+
+
+qsyn> extp -n
+Neighbors:
+11
+13
+12
+
+
+qsyn> extp -m
+M2 matrix:
+1 1 0 
+1 1 1 
+0 1 1 
+
 
 qsyn> extr -zx 1 -qc 1 -CX
 

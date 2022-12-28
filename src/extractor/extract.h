@@ -30,7 +30,7 @@ public:
     using ConnectInfo = vector<set<size_t>>;
     Extractor(ZXGraph* g, QCir* c = nullptr) {
         _graph = g;
-        if(c == nullptr)
+        if (c == nullptr)
             _circuit = new QCir(-1);
         else
             _circuit = c;
@@ -53,6 +53,7 @@ public:
 
     void updateNeighbors();
     void updateGraphByMatrix(EdgeType = EdgeType::HADAMARD);
+    void createMatrix();
 
     bool frontierIsCleaned();
     bool axelInNeighbors();
@@ -60,7 +61,7 @@ public:
     void printFrontier();
     void printNeighbors();
     void printAxels();
-    void printMatrix()  { _biAdjacency.printMatrix(); }
+    void printMatrix() { _biAdjacency.printMatrix(); }
 
 private:
     ZXGraph* _graph;

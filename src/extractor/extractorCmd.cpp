@@ -13,11 +13,11 @@
 #include <iostream>
 
 #include "extract.h"
+#include "qcirCmd.h"
 #include "qcirMgr.h"
 #include "util.h"
-#include "zxGraphMgr.h"
-#include "qcirCmd.h"
 #include "zxCmd.h"
+#include "zxGraphMgr.h"
 
 using namespace std;
 extern size_t verbose;
@@ -27,7 +27,8 @@ extern QCirMgr *qcirMgr;
 
 bool initExtractCmd() {
     if (!(cmdMgr->regCmd("ZX2QC", 5, new ExtractCmd) &&
-          cmdMgr->regCmd("EXTRact", 4, new ExtractStepCmd))) {
+          cmdMgr->regCmd("EXTRact", 4, new ExtractStepCmd) &&
+          cmdMgr->regCmd("EXTPrint", 4, new ExtractPrintCmd))) {
         cerr << "Registering \"extract\" commands fails... exiting" << endl;
         return false;
     }
@@ -51,7 +52,7 @@ ExtractCmd::exec(const string &option) {
 
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZX2QC");
 
-    if(!zxGraphMgr->getGraph()->isGraphLike()){
+    if (!zxGraphMgr->getGraph()->isGraphLike()) {
         cerr << "Error: ZX-graph (id: " << zxGraphMgr->getGraph()->getId() << ") is not graph-like. Not extractable!!" << endl;
         return CMD_EXEC_ERROR;
     }
@@ -84,18 +85,17 @@ ExtractStepCmd::exec(const string &option) {
     vector<string> options;
     if (!CmdExec::lexOptions(option, options))
         return CMD_EXEC_ERROR;
-    if(options.size() == 0){
+    if (options.size() == 0) {
         return CmdExec::errorOption(CMD_OPT_MISSING, "");
     }
-    if(options.size() < 5){
-        return CmdExec::errorOption(CMD_OPT_MISSING, options[options.size()-1]);
+    if (options.size() < 5) {
+        return CmdExec::errorOption(CMD_OPT_MISSING, options[options.size() - 1]);
     }
-    if(options.size() > 5){
-        if (myStrNCmp("-Loop", options[4], 2) == 0){
-            if(options.size() > 6) return CmdExec::errorOption(CMD_OPT_EXTRA, options[6]);
-        }
-        else 
-        return CmdExec::errorOption(CMD_OPT_EXTRA, options[5]);
+    if (options.size() > 5) {
+        if (myStrNCmp("-Loop", options[4], 2) == 0) {
+            if (options.size() > 6) return CmdExec::errorOption(CMD_OPT_EXTRA, options[6]);
+        } else
+            return CmdExec::errorOption(CMD_OPT_EXTRA, options[5]);
     }
     if (!(myStrNCmp("-ZXgraph", options[0], 3) == 0) || !(myStrNCmp("-QCir", options[2], 3) == 0)) {
         return CMD_EXEC_ERROR;
@@ -105,7 +105,7 @@ ExtractStepCmd::exec(const string &option) {
     ZX_CMD_ID_VALID_OR_RETURN(options[1], id, "Graph");
     ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
     zxGraphMgr->checkout2ZXGraph(id);
-    if(!zxGraphMgr->getGraph()->isGraphLike()){
+    if (!zxGraphMgr->getGraph()->isGraphLike()) {
         cerr << "Error: ZX-graph (id: " << zxGraphMgr->getGraph()->getId() << ") is not graph-like. Not extractable!!" << endl;
         return CMD_EXEC_ERROR;
     }
@@ -113,8 +113,8 @@ ExtractStepCmd::exec(const string &option) {
     QC_CMD_ID_VALID_OR_RETURN(options[3], id, "QCir");
     QC_CMD_QCIR_ID_EXISTS_OR_RETURN(id);
     qcirMgr->checkout2QCir(id);
-    
-    if(zxGraphMgr->getGraph()->getNumOutputs() != qcirMgr->getQCircuit()->getNQubit()){
+
+    if (zxGraphMgr->getGraph()->getNumOutputs() != qcirMgr->getQCircuit()->getNQubit()) {
         cerr << "Error: number of outputs in graph is not equal to number of qubits in circuit" << endl;
         return CMD_EXEC_ERROR;
     }
@@ -133,7 +133,7 @@ ExtractStepCmd::exec(const string &option) {
     EXTRACT_MODE mode;
     unsigned opt;
     if (myStrNCmp("-Loop", options[4], 2) == 0) {
-        if(options.size()==5)
+        if (options.size() == 5)
             opt = 1;
         else
             QC_CMD_ID_VALID_OR_RETURN(options[5], opt, "option");
@@ -153,7 +153,7 @@ ExtractStepCmd::exec(const string &option) {
     } else if (myStrNCmp("-PERmute", options[4], 4) == 0) {
         mode = EXTRACT_MODE::PERMUTE_QUBITS;
     } else {
-        cout << "Error: unsupported option " << token << " !!" << endl;
+        cout << "Error: unsupported option " << options[4] << " !!" << endl;
         return CMD_EXEC_ERROR;
     }
 
@@ -173,13 +173,13 @@ ExtractStepCmd::exec(const string &option) {
             ext.cleanFrontier();
             break;
         case EXTRACT_MODE::RM_GADGET:
-            if(ext.removeGadget(true))
+            if (ext.removeGadget(true))
                 cout << "Gadget(s) are removed" << endl;
             else
                 cout << "No gadget(s) are found" << endl;
             break;
         case EXTRACT_MODE::GAUSSIAN_CX:
-            if(ext.gaussianElimination(true)){
+            if (ext.gaussianElimination(true)) {
                 ext.updateGraphByMatrix();
                 ext.extractCXs();
             }
@@ -205,4 +205,70 @@ void ExtractStepCmd::usage(ostream &os) const {
 void ExtractStepCmd::help() const {
     cout << setw(15) << left << "EXTRact: "
          << "perform step(s) in extraction" << endl;
+}
+
+//----------------------------------------------------------------------
+//    EXTPrint <-Frontier | -Neighbors | -Axels | -Matrix>
+//----------------------------------------------------------------------
+CmdExecStatus
+ExtractPrintCmd::exec(const string &option) {
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+
+    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("EXTPrint");
+
+    if (!zxGraphMgr->getGraph()->isGraphLike()) {
+        cerr << "Error: ZX-graph (id: " << zxGraphMgr->getGraph()->getId() << ") is not graph-like. Not extractable!!" << endl;
+        return CMD_EXEC_ERROR;
+    }
+    Extractor ext(zxGraphMgr->getGraph());
+
+    enum class PRINT_MODE {
+        FRONTIER,
+        NEIGHBORS,
+        AXELS,
+        MATRIX,
+    };
+    PRINT_MODE mode;
+
+    if (myStrNCmp("-Frontier", option, 2) == 0) {
+        mode = PRINT_MODE::FRONTIER;
+    } else if (myStrNCmp("-Neighbors", option, 2) == 0) {
+        mode = PRINT_MODE::NEIGHBORS;
+    } else if (myStrNCmp("-Axels", option, 1) == 0) {
+        mode = PRINT_MODE::AXELS;
+    } else if (myStrNCmp("-Matrix", option, 2) == 0) {
+        mode = PRINT_MODE::MATRIX;
+    } else {
+        cout << "Error: unsupported option " << option << " !!" << endl;
+        return CMD_EXEC_ERROR;
+    }
+
+    switch (mode) {
+        case PRINT_MODE::FRONTIER:
+            ext.printFrontier();
+            break;
+        case PRINT_MODE::NEIGHBORS:
+            ext.printNeighbors();
+            break;
+        case PRINT_MODE::AXELS:
+            ext.printAxels();
+            break;
+        case PRINT_MODE::MATRIX:
+            ext.createMatrix();
+            ext.printMatrix();
+            break;
+        default:
+            break;
+    }
+    return CMD_EXEC_DONE;
+}
+
+void ExtractPrintCmd::usage(ostream &os) const {
+    os << "Usage: EXTPrint <-Frontier | -Neighbors | -Axels | -Matrix>" << endl;
+}
+
+void ExtractPrintCmd::help() const {
+    cout << setw(15) << left << "EXTPrint: "
+         << "print information of extracting graph" << endl;
 }

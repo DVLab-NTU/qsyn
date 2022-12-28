@@ -27,7 +27,7 @@ void Extractor::initialize(bool fromEmpty) {
             _frontier.emplace(o->getFirstNeighbor().first);
         }
         _qubitMap[o->getQubit()] = cnt;
-        if(fromEmpty)
+        if (fromEmpty)
             _circuit->addQubit(1);
         cnt += 1;
     }
@@ -57,7 +57,7 @@ void Extractor::initialize(bool fromEmpty) {
  * @return QCir*
  */
 QCir* Extractor::extract() {
-    if(!extractionLoop(-1))
+    if (!extractionLoop(-1))
         return nullptr;
     else
         cout << "Finish extracting!" << endl;
@@ -75,12 +75,12 @@ QCir* Extractor::extract() {
 
 /**
  * @brief Extraction Loop
- * 
+ *
  * @param max_iter perform max_iter iterations
  * @return true if successfully extracted
  * @return false if not
  */
-bool Extractor::extractionLoop(size_t max_iter){
+bool Extractor::extractionLoop(size_t max_iter) {
     while (max_iter > 0) {
         cleanFrontier();
         updateNeighbors();
@@ -121,7 +121,7 @@ bool Extractor::extractionLoop(size_t max_iter){
             _circuit->printQubits();
         }
 
-        if(max_iter != size_t(-1)) max_iter--;
+        if (max_iter != size_t(-1)) max_iter--;
     }
     return true;
 }
@@ -167,26 +167,26 @@ void Extractor::extractSingles() {
 
 /**
  * @brief Extract CZs from frontier. Used in clean frontier.
- * 
+ *
  * @param check check no phase in the frontier if true
- * @return true 
- * @return false 
+ * @return true
+ * @return false
  */
 bool Extractor::extractCZs(bool check) {
     if (verbose >= 3) cout << "Extract CZs" << endl;
-    
+
     if (check) {
-        for(auto& f: _frontier){
-            if (f->getPhase() != Phase(0)){
+        for (auto& f : _frontier) {
+            if (f->getPhase() != Phase(0)) {
                 cout << "Note: frontier contains phases, extract them first." << endl;
                 return false;
-            }   
-            for(auto& [n, e]: f->getNeighbors()){
-                if(_graph->getOutputs().contains(n) && e == EdgeType::HADAMARD){
+            }
+            for (auto& [n, e] : f->getNeighbors()) {
+                if (_graph->getOutputs().contains(n) && e == EdgeType::HADAMARD) {
                     cout << "Note: frontier contains hadamard edge to boundary, extract them first." << endl;
                     return false;
                 }
-            } 
+            }
         }
     }
 
@@ -240,19 +240,19 @@ void Extractor::extractCXs(size_t strategy) {
 
 /**
  * @brief Extract Hadamard if singly connected frontier is found
- * 
- * @param check 
- * @return size_t 
+ *
+ * @param check
+ * @return size_t
  */
 size_t Extractor::extractHsFromM2(bool check) {
     if (verbose >= 3) cout << "Extract Hs" << endl;
 
     if (check) {
-        if(!frontierIsCleaned()){
+        if (!frontierIsCleaned()) {
             cout << "Note: frontier is dirty, please clean it first." << endl;
             return 0;
         }
-        if(axelInNeighbors()){
+        if (axelInNeighbors()) {
             cout << "Note: axel(s) are in the neighbors, please remove gadget(s) first." << endl;
             return 0;
         }
@@ -305,7 +305,7 @@ size_t Extractor::extractHsFromM2(bool check) {
         _graph->removeVertex(f);
     }
 
-    if(check && frontNeighPairs.size() == 0) {
+    if (check && frontNeighPairs.size() == 0) {
         cerr << "Error: No Candidate Found!!" << endl;
         printMatrix();
     }
@@ -322,11 +322,11 @@ bool Extractor::removeGadget(bool check) {
     if (verbose >= 3) cout << "Remove Gadget" << endl;
 
     if (check) {
-        if (_frontier.empty()){
+        if (_frontier.empty()) {
             cout << "Note: no vertex left." << endl;
             return false;
         }
-        if(!frontierIsCleaned()){
+        if (!frontierIsCleaned()) {
             cout << "Note: frontier is dirty, please clean it first." << endl;
             return false;
         }
@@ -537,18 +537,18 @@ Extractor::Target Extractor::findColumnSwap(Target target) {
 
 /**
  * @brief Perform Gaussian Elimination
- * 
- * @param check 
+ *
+ * @param check
  * @return true if check pass
  * @return false if not
  */
 bool Extractor::gaussianElimination(bool check) {
     if (check) {
-        if(!frontierIsCleaned()){
+        if (!frontierIsCleaned()) {
             cout << "Note: frontier is dirty, please clean it first." << endl;
             return false;
         }
-        if(axelInNeighbors()){
+        if (axelInNeighbors()) {
             cout << "Note: axel(s) are in the neighbors, please remove gadget(s) first." << endl;
             return false;
         }
@@ -572,12 +572,12 @@ void Extractor::permuteQubit() {
     unordered_map<size_t, size_t> swapInvMap;  // i to o
     bool matched = true;
     for (auto& o : _graph->getOutputs()) {
-        if(o -> getNumNeighbors() != 1){
+        if (o->getNumNeighbors() != 1) {
             cout << "Note: output is not connected to only one vertex" << endl;
             return;
         }
         ZXVertex* i = o->getFirstNeighbor().first;
-        if(!_graph->getInputs().contains(i)){
+        if (!_graph->getInputs().contains(i)) {
             cout << "Note: output is not connected to input" << endl;
             return;
         }
@@ -678,17 +678,25 @@ void Extractor::updateGraphByMatrix(EdgeType et) {
 }
 
 /**
+ * @brief create matrix
+ *
+ */
+void Extractor::createMatrix() {
+    _biAdjacency.fromZXVertices(_frontier, _neighbors);
+}
+
+/**
  * @brief check whether the frontier is clean
- * 
+ *
  * @return true if clean
  * @return false if dirty
  */
 bool Extractor::frontierIsCleaned() {
-    for(auto& f: _frontier){
-        if(f -> getPhase() != Phase(0)) return false;
-        for(auto & [n, e]: f -> getNeighbors()){
-            if(_frontier.contains(n)) return false;
-            if(_graph->getOutputs().contains(n) && e == EdgeType::HADAMARD) return false;
+    for (auto& f : _frontier) {
+        if (f->getPhase() != Phase(0)) return false;
+        for (auto& [n, e] : f->getNeighbors()) {
+            if (_frontier.contains(n)) return false;
+            if (_graph->getOutputs().contains(n) && e == EdgeType::HADAMARD) return false;
         }
     }
     return true;
@@ -696,9 +704,9 @@ bool Extractor::frontierIsCleaned() {
 
 /**
  * @brief check any axel in neighbors
- * 
- * @return true 
- * @return false 
+ *
+ * @return true
+ * @return false
  */
 bool Extractor::axelInNeighbors() {
     for (auto& n : _neighbors) {
