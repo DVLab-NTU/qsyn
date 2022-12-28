@@ -27,7 +27,7 @@ extern QCirMgr *qcirMgr;
 
 bool initExtractCmd() {
     if (!(cmdMgr->regCmd("ZX2QC", 5, new ExtractCmd) &&
-          cmdMgr->regCmd("EXTStep", 4, new ExtractStepCmd))) {
+          cmdMgr->regCmd("EXTRact", 4, new ExtractStepCmd))) {
         cerr << "Registering \"extract\" commands fails... exiting" << endl;
         return false;
     }
@@ -75,10 +75,8 @@ void ExtractCmd::help() const {
 }
 
 //----------------------------------------------------------------------
-//    EXtract <-ZXgraph> <(size_t ZX-graphId)> <-QCir> <(size_t QCirId)> <-Loop>             [(size_t #loop)]
-//    EXtract <-ZXgraph> <(size_t ZX-graphId)> <-QCir> <(size_t QCirId)> <-CX>               [(size_t CX strategies)]
-//    EXtract <-ZXgraph> <(size_t ZX-graphId)> <-QCir> <(size_t QCirId)> <-CZ | -CLFrontier> [(size_t CZ strategies)]
-//    EXtract <-ZXgraph> <(size_t ZX-graphId)> <-QCir> <(size_t QCirId)> <-RMGadget| -PHase | -H | -PERmute>
+//    EXTRact <-ZXgraph> <(size_t ZX-graphId)> <-QCir> <(size_t QCirId)> <-Loop> [(size_t #loop)]
+//    EXTRact <-ZXgraph> <(size_t ZX-graphId)> <-QCir> <(size_t QCirId)> <-CX | -CZ | -CLFrontier | -RMGadget| -PHase | -H | -PERmute>
 //----------------------------------------------------------------------
 CmdExecStatus
 ExtractStepCmd::exec(const string &option) {
@@ -86,6 +84,9 @@ ExtractStepCmd::exec(const string &option) {
     vector<string> options;
     if (!CmdExec::lexOptions(option, options))
         return CMD_EXEC_ERROR;
+    if(options.size() == 0){
+        return CmdExec::errorOption(CMD_OPT_MISSING, "");
+    }
     if(options.size() < 5){
         return CmdExec::errorOption(CMD_OPT_MISSING, options[options.size()-1]);
     }
@@ -96,10 +97,9 @@ ExtractStepCmd::exec(const string &option) {
         else 
         return CmdExec::errorOption(CMD_OPT_EXTRA, options[5]);
     }
-    if ((myStrNCmp("-ZXgraph", options[0], 3) == 0) && (myStrNCmp("-QCir", options[2], 3) == 0)) {
+    if (!(myStrNCmp("-ZXgraph", options[0], 3) == 0) || !(myStrNCmp("-QCir", options[2], 3) == 0)) {
         return CMD_EXEC_ERROR;
     }
-
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("EXtract");
     unsigned id;
     ZX_CMD_ID_VALID_OR_RETURN(options[1], id, "Graph");
@@ -139,22 +139,10 @@ ExtractStepCmd::exec(const string &option) {
             QC_CMD_ID_VALID_OR_RETURN(options[5], opt, "option");
         mode = EXTRACT_MODE::LOOP;
     } else if (myStrNCmp("-CX", options[4], 3) == 0) {
-        if(options.size()==5)
-            opt = 0;
-        else
-            QC_CMD_ID_VALID_OR_RETURN(options[5], opt, "option");
         mode = EXTRACT_MODE::GAUSSIAN_CX;
     } else if (myStrNCmp("-CZ", options[4], 3) == 0) {
-        if(options.size()==5)
-            opt = 0;
-        else
-            QC_CMD_ID_VALID_OR_RETURN(options[5], opt, "option");
         mode = EXTRACT_MODE::CZ;
     } else if (myStrNCmp("-CLFrontier", options[4], 4) == 0) {
-        if(options.size()==5)
-            opt = 0;
-        else
-            QC_CMD_ID_VALID_OR_RETURN(options[5], opt, "option");
         mode = EXTRACT_MODE::CLEAN_FRONTIER;
     } else if (myStrNCmp("-RMGadget", options[4], 4) == 0) {
         mode = EXTRACT_MODE::RM_GADGET;
@@ -173,6 +161,35 @@ ExtractStepCmd::exec(const string &option) {
 
     switch (mode) {
         case EXTRACT_MODE::LOOP:
+            ext.extractionLoop(opt);
+            break;
+        case EXTRACT_MODE::PHASE:
+            ext.extractSingles();
+            break;
+        case EXTRACT_MODE::CZ:
+            ext.extractCZs(true);
+            break;
+        case EXTRACT_MODE::CLEAN_FRONTIER:
+            ext.cleanFrontier();
+            break;
+        case EXTRACT_MODE::RM_GADGET:
+            if(ext.removeGadget(true))
+                cout << "Gadget(s) are removed" << endl;
+            else
+                cout << "No gadget(s) are found" << endl;
+            break;
+        case EXTRACT_MODE::GAUSSIAN_CX:
+            if(ext.gaussianElimination(true)){
+                ext.updateGraphByMatrix();
+                ext.extractCXs();
+            }
+            break;
+        case EXTRACT_MODE::H:
+            ext.extractHsFromM2(true);
+            break;
+        case EXTRACT_MODE::PERMUTE_QUBITS:
+            ext.permuteQubit();
+            break;
         default:
             break;
     }
@@ -181,13 +198,11 @@ ExtractStepCmd::exec(const string &option) {
 }
 
 void ExtractStepCmd::usage(ostream &os) const {
-    os << "Usage: EXtract <-ZXgraph> <(size_t ZX-graphId)> <-QCir> <(size_t QCirId)> <-Loop>             [(size_t #loop)]" << endl;
-    os << "       EXtract <-ZXgraph> <(size_t ZX-graphId)> <-QCir> <(size_t QCirId)> <-CX>               [(size_t CX strategies)]" << endl;
-    os << "       EXtract <-ZXgraph> <(size_t ZX-graphId)> <-QCir> <(size_t QCirId)> <-CZ | -CLFrontier> [(size_t CZ strategies)]" << endl;
-    os << "       EXtract <-ZXgraph> <(size_t ZX-graphId)> <-QCir> <(size_t QCirId)> <-RMGadget| -PHase | -H | -PERmute>" << endl;
+    os << "Usage: EXTRact <-ZXgraph> <(size_t ZX-graphId)> <-QCir> <(size_t QCirId)> <-Loop> [(size_t #loop)]" << endl;
+    os << "       EXTRact <-ZXgraph> <(size_t ZX-graphId)> <-QCir> <(size_t QCirId)> <-CX | -CZ | -CLFrontier | -RMGadget| -PHase | -H | -PERmute>" << endl;
 }
 
 void ExtractStepCmd::help() const {
-    cout << setw(15) << left << "EXtract: "
+    cout << setw(15) << left << "EXTRact: "
          << "perform step(s) in extraction" << endl;
 }
