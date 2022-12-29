@@ -1,5 +1,5 @@
 PKGFLAG   =
-EXTHDRS   = qcirMgr.h qcir.h qcirGate.h qcirQubit.h qcirDef.h
+EXTHDRS   = qcirMgr.h qcir.h qcirGate.h qcirQubit.h qcirDef.h qcirCmd.h
 
 include ../Makefile.in
 include ../Makefile.lib

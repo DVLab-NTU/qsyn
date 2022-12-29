@@ -1,6 +1,7 @@
 zxgr -bzx benchmark/extraction/rmGadget.bzx
+qcba 3
 zxgp -q
 ver 8
-exts -rmg
+extr -zx 0 -qc 0 -rmg
 zxgp -q
 qq -f

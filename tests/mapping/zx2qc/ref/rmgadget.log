@@ -3,6 +3,11 @@ qsyn> zxgr -bzx benchmark/extraction/rmGadget.bzx
 Successfully generated Graph 0
 Checkout to Graph 0
 
+qsyn> qcba 3
+Note: QCir list is empty now. Create a new one.
+Successfully generated QCir 0
+Checkout to QCir 0
+
 qsyn> zxgp -q
 
 ID:   9 ([1m[32mZ[0m[0m, 3π/4)        (Qubit, Col): (-2, 1)	  #Neighbors:   1     (10, [1m[34mH[0m[0m) 
@@ -32,37 +37,9 @@ ID:  13 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 2)	  #Neighbors:   5
 qsyn> ver 8
 Note: verbose level is set to 8
 
-qsyn> exts -rmg
-Add vertex (●)0
-Add vertex (●)1
-Add vertex (●)2
-Add vertex (●)3
-Add vertex (●)4
-Add vertex (●)5
-Add vertex ([1m[32mZ[0m[0m)6
-Add vertex ([1m[32mZ[0m[0m)7
-Add vertex ([1m[32mZ[0m[0m)8
-Add vertex ([1m[32mZ[0m[0m)9
-Add vertex ([1m[32mZ[0m[0m)10
-Add vertex ([1m[32mZ[0m[0m)11
-Add vertex ([1m[32mZ[0m[0m)12
-Add vertex ([1m[32mZ[0m[0m)13
-Add edge ( 0, 6 )
-Add edge ( 1, 7 )
-Add edge ( 2, 8 )
-Add edge ( 3, 11 )
-Add edge ( 4, 12 )
-Add edge ( 5, 13 )
-Add edge ( 6, 11 )
-Add edge ( 6, 13 )
-Add edge ( 7, 10 )
-Add edge ( 7, 12 )
-Add edge ( 7, 13 )
-Add edge ( 8, 13 )
-Add edge ( 9, 10 )
-Add edge ( 10, 13 )
-Successfully copied Graph 0 to Graph 1
-Checkout to Graph 1
+qsyn> extr -zx 0 -qc 0 -rmg
+Checkout to Graph 0
+Checkout to QCir 0
 Initialize
 Note: (0) is not a gadget vertex!
 Note: (1) is not a gadget vertex!
@@ -181,6 +158,7 @@ Qubit:2: 14
 
 Axels:
 
+Gadget(s) are removed
 
 qsyn> zxgp -q
 

@@ -1,6 +1,7 @@
 zxgread benchmark/extraction/cleanFrontier.bzx -bzx
+qcba 6
 zxgp -q
 ver 8
-exts -clf
+extr -zx 0 -qc 0 -clf
 zxgp -q
 qq -f 

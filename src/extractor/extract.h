@@ -28,33 +28,40 @@ class Extractor {
 public:
     using Target = unordered_map<size_t, size_t>;
     using ConnectInfo = vector<set<size_t>>;
-    Extractor(ZXGraph* g) {
+    Extractor(ZXGraph* g, QCir* c = nullptr) {
         _graph = g;
-        _circuit = new QCir(-1);
-        initialize();
+        if (c == nullptr)
+            _circuit = new QCir(-1);
+        else
+            _circuit = c;
+        initialize(c == nullptr);
     }
     ~Extractor() {}
 
-    void initialize();
+    void initialize(bool fromEmpty = true);
     QCir* extract();
-
-    bool removeGadget();
-    void gaussianElimination();
+    bool extractionLoop(size_t = size_t(-1));
+    bool removeGadget(bool check = false);
+    bool gaussianElimination(bool check = false);
     void columnOptimalSwap();
     void extractSingles();
-    void extractCZs(size_t = 0);
+    bool extractCZs(bool check = false);
     void extractCXs(size_t = 0);
-    size_t extractHsFromM2();
+    size_t extractHsFromM2(bool check = false);
     void cleanFrontier();
     void permuteQubit();
 
     void updateNeighbors();
     void updateGraphByMatrix(EdgeType = EdgeType::HADAMARD);
+    void createMatrix();
 
+    bool frontierIsCleaned();
+    bool axelInNeighbors();
     bool containSingleNeighbor();
     void printFrontier();
     void printNeighbors();
     void printAxels();
+    void printMatrix() { _biAdjacency.printMatrix(); }
 
 private:
     ZXGraph* _graph;
