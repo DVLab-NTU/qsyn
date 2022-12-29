@@ -140,3 +140,57 @@ void ZXGraph::printEdges() const {
     });
     cout << "Total #Edges: " << getNumEdges() << endl;
 }
+
+string printColoredVertex(ZXVertex* v){
+    if(v->getType() == VertexType::BOUNDARY) return to_string(v->getId());
+    else if(v->getType() == VertexType::Z) return TF::BOLD(TF::GREEN(to_string(v->getId())));
+    else if(v->getType() == VertexType::X) return TF::BOLD(TF::RED(to_string(v->getId())));
+    else if(v->getType() == VertexType::H_BOX) return TF::BOLD(TF::YELLOW(to_string(v->getId())));
+}
+
+
+/**
+ * @brief Draw ZX-graph in CLI
+ * 
+ */
+void ZXGraph::draw() const {
+    cout << endl;
+    unsigned int maxCol = 0; unordered_map<int, int> qPair;
+    vector<int> qubitNum;
+    for(auto& o : getOutputs()){
+        if(o->getCol() > maxCol) maxCol = o->getCol();
+        qubitNum.push_back(o->getQubit());
+    }
+    sort(qubitNum.begin(), qubitNum.end());
+    for(size_t i = 0; i < qubitNum.size(); i++) qPair[i] = qubitNum[i];
+    vector<ZXVertex* > tmp;
+    tmp.resize(qubitNum.size());
+    vector<vector<ZXVertex*>> colList(maxCol+1, tmp);
+    
+    
+    for(auto& v : getVertices()) colList[v->getCol()][qPair[v->getQubit()]] = v;
+
+    vector<int> maxLength(maxCol+1, 0);
+    for(size_t i = 0; i < colList.size(); i++){
+        for(size_t j = 0; j < colList[i].size(); j++){
+            if(colList[i][j] != nullptr){
+                if(to_string(colList[i][j]->getId()).length() > maxLength[i]) maxLength[i] = to_string(colList[i][j]->getId()).length();
+            }
+        }
+    }
+    for(int i = 0; i < qubitNum.size(); i++){
+        for(int j = 0; j <= maxCol; j++){
+            if(colList[j][i] != nullptr){
+                if(j == maxCol) cout << "(" << printColoredVertex(colList[j][i]) << ")" << endl;
+                else cout << "(" << printColoredVertex(colList[j][i]) << ")--";
+                
+                for(int k = 0; k < maxLength[j]-to_string(colList[j][i]->getId()).length(); k++) cout << "-";
+            }
+            else{
+                cout << "--";
+                for(int k = 0; k < maxLength[j]+2; k++) cout << "-";
+            }
+        }
+        cout << endl;
+    }
+}
