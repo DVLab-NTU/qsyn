@@ -514,6 +514,9 @@ void ZXGraph::transferPhase(ZXVertex* v, const Phase& keepPhase) {
     if (!v->isZ()) return;
     ZXVertex* leaf = this->addVertex(-2, VertexType::Z, v->getPhase() - keepPhase, true);
     ZXVertex* buffer = this->addVertex(-1, VertexType::Z, Phase(0), true);
+    // REVIEW - No floating, directly take v
+    leaf->setCol(v->getCol());
+    buffer->setCol(v->getCol());
     v->setPhase(keepPhase);
 
     this->addEdge(leaf, buffer, EdgeType::HADAMARD);
@@ -538,7 +541,8 @@ ZXVertex* ZXGraph::addBuffer(ZXVertex* toProtect, ZXVertex* fromVertex, EdgeType
     this->addEdge(toProtect, bufferVertex, toggleEdge(etype));
     this->addEdge(bufferVertex, fromVertex, EdgeType::HADAMARD);
     this->removeEdge(toProtect, fromVertex, etype);
-
+    // REVIEW - Float version
+    bufferVertex->setCol((toProtect->getCol() + fromVertex->getCol()) / 2);
     return bufferVertex;
 }
 

@@ -100,6 +100,9 @@ void StateCopy::rewrite(ZXGraph* g) {
                 _edgeTableKeys.push_back(make_pair(a, newV));
                 _edgeTableValues.push_back(make_pair(0, 1));
 
+                // REVIEW - Floating
+                newV->setCol((neighbors[i]->getCol() + a->getCol()) / 2);
+
             } else {
                 neighbors[i]->setPhase(npi->getPhase() + neighbors[i]->getPhase());
             }
