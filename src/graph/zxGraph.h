@@ -198,6 +198,7 @@ public:
     void printVertices(vector<unsigned> cand) const;
     void printQubits(vector<int> cand = vector<int>{}) const;
     void printEdges() const;
+    void draw() const;
 
     // For mapping (in zxMapping.cpp)
     void toTensor();

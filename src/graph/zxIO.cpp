@@ -225,7 +225,7 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
     };
     ZXFile << "// Input \n";
     for (auto& v : _inputs) {
-        ZXFile << "I" << v->getId() << " " << v->getQubit() << " " << v->getCol();
+        ZXFile << "I" << v->getId() << " (" << v->getQubit() << "," << v->getCol() << ")";
         if (!writeNeighbors(v, complete)) return false;
         ZXFile << "\n";
     }
@@ -233,7 +233,7 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
     ZXFile << "// Output \n";
 
     for (auto& v : _outputs) {
-        ZXFile << "O" << v->getId() << " " << v->getQubit() << " " << v->getCol();
+        ZXFile << "O" << v->getId() << " (" << v->getQubit() << "," << v->getCol() << ")";
         if (!writeNeighbors(v, complete)) return false;
         ZXFile << "\n";
     }
@@ -249,7 +249,7 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
         else
             ZXFile << "H";
         ZXFile << v->getId();
-        if (bzx) ZXFile << " " << v->getQubit() << " " << v->getCol();
+        if (bzx) ZXFile << " (" << v->getQubit() << "," << v->getCol() << ")";
         if (!writeNeighbors(v, complete)) return false;
 
         if (v->getPhase() != Phase(0)) ZXFile << " " << v->getPhase().getAsciiString();

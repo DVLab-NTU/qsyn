@@ -40,6 +40,7 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXGADJoint", 6, new ZXGAdjointCmd) &&
           cmdMgr->regCmd("ZXGASsign", 5, new ZXGAssignCmd) &&
           cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
+          cmdMgr->regCmd("ZXGDraw", 4, new ZXGDrawCmd) &&
           cmdMgr->regCmd("ZX2TS", 5, new ZX2TSCmd) &&
           cmdMgr->regCmd("ZXGRead", 4, new ZXGReadCmd) &&
           cmdMgr->regCmd("ZXGWrite", 4, new ZXGWriteCmd))) {
@@ -611,6 +612,27 @@ void ZXGTraverseCmd::usage(ostream &os) const {
 void ZXGTraverseCmd::help() const {
     cout << setw(15) << left << "ZXGTRaverse: "
          << "traverse ZX-graph and update topological order of vertices" << endl;
+}
+
+//----------------------------------------------------------------------
+//    ZXGDraw
+//----------------------------------------------------------------------
+CmdExecStatus
+ZXGDrawCmd::exec(const string &option) {
+    string token;
+    if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
+    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGTraverse");
+    zxGraphMgr->getGraph()->draw();
+    return CMD_EXEC_DONE;
+}
+
+void ZXGDrawCmd::usage(ostream &os) const {
+    os << "Usage: ZXGTRaverse" << endl;
+}
+
+void ZXGDrawCmd::help() const {
+    cout << setw(15) << left << "ZXGDraw: "
+         << "draw ZX-graph" << endl;
 }
 
 //----------------------------------------------------------------------
