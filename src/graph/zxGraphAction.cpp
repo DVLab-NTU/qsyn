@@ -36,7 +36,7 @@ void ZXGraph::reset() {
     _topoOrder.clear();
     _vertices.clear();
     _nextVId = 0;
-    _globalDFScounter = 1;
+    _globalTraCounter = 1;
 }
 
 /**
