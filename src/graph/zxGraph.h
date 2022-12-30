@@ -105,7 +105,7 @@ private:
 class ZXGraph {
 public:
     ZXGraph(size_t id, void** ref = NULL) : _id(id), _ref(ref), _nextVId(0), _tensor(1. + 0.i) {
-        _globalDFScounter = 1;
+        _globalTraCounter = 1;
     }
 
     ~ZXGraph() {
@@ -219,6 +219,7 @@ public:
 
     // Traverse (in zxTraverse.cpp)
     void updateTopoOrder();
+    void updateBreadthLevel();
     template <typename F>
     void topoTraverse(F lambda) {
         updateTopoOrder();
@@ -245,9 +246,10 @@ private:
     vector<ZXVertex*> _topoOrder;
     unordered_map<size_t, ZXVertex*> _inputList;
     unordered_map<size_t, ZXVertex*> _outputList;
-    unsigned _globalDFScounter;
+    unsigned _globalTraCounter;
 
     void DFS(ZXVertex*);
+    void BFS(ZXVertex*);
 };
 
 // See `zxVertex.cpp` for details
