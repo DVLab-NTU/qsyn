@@ -11,7 +11,6 @@
 
 #include <fstream>
 
-#include "ordered_hashmap.h"
 #include "util.h"
 #include "zxGraph.h"
 
@@ -42,7 +41,7 @@ private:
     bool validTokensForBoundaryVertex(const vector<string>& tokens);
 
     bool parseQubit(const string& token, const char& type, int& qubit);
-    bool parseColumn(const string& token, unsigned& column);
+    bool parseColumn(const string& token, float& column);
 
     bool parseNeighbor(const string& token, pair<char, size_t>& neighbor);
 

@@ -236,14 +236,13 @@ bool ZXFileParser::parseQubit(const string& token, const char& type, int& qubit)
     return true;
 }
 
-bool ZXFileParser::parseColumn(const string& token, unsigned& column) {
+bool ZXFileParser::parseColumn(const string& token, float& column) {
     if (token == "-") {
         column = 0;
         return true;
     }
 
-    // REVIEW - Unsigned or float?
-    if (!myStr2Uns(token, column)) {
+    if (!myStr2Float(token, column)) {
         printFailedAtLineNum();
         cerr << "column ID (" << token << ") is not an unsigned integer!!" << endl;
         return false;

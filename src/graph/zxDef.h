@@ -13,9 +13,8 @@
 #include <unordered_set>
 #include <vector>
 
-#include "myHashMap.h"
-#include "ordered_hashset.h"
 #include "ordered_hashmap.h"
+#include "ordered_hashset.h"
 #include "phase.h"
 
 using namespace std;
@@ -52,7 +51,7 @@ namespace ZXParserDetail {
 struct VertexInfo {
     char type;
     int qubit;
-    unsigned column;
+    float column;
     vector<pair<char, size_t>> neighbors;
     Phase phase;
 };
