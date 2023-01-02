@@ -225,8 +225,8 @@ bool myStr2Uns(const string& str, unsigned& unsnum) {
 // A template interface for std::stoXXX(const string& str, size_t* pos = nullptr),
 // All the dirty compile-time checking happens here.
 template <class T>
-    requires std::floating_point<T>
-T stoFloatType(const string& str, size_t* pos) {
+requires std::floating_point<T>
+    T stoFloatType(const string& str, size_t* pos) {
     try {
         if constexpr (std::is_same<T, double>::value) {
             return std::stod(str, pos);
@@ -249,7 +249,7 @@ T stoFloatType(const string& str, size_t* pos) {
 // If `str` is a string of decimal number, return true and set `f` to the corresponding number.
 // Otherwise return 0 and set `f` to 0.
 template <class T>
-    requires std::floating_point<T> bool
+requires std::floating_point<T> bool
 myStr2FloatType(const string& str, T& f) {
     f = 0;
     size_t i;
