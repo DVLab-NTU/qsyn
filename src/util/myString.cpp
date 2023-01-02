@@ -249,8 +249,8 @@ requires std::floating_point<T>
 // If `str` is a string of decimal number, return true and set `f` to the corresponding number.
 // Otherwise return 0 and set `f` to 0.
 template <class T>
-requires std::floating_point<T> bool
-myStr2FloatType(const string& str, T& f) {
+requires std::floating_point<T>
+bool myStr2FloatType(const string& str, T& f) {
     f = 0;
     size_t i;
     try {
