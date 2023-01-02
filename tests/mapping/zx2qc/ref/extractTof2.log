@@ -2,7 +2,7 @@ DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> color 0
 Note: colored is set to 0
 
-qsyn> zxgread benchmark/bzx/tof3.bzx -bzx
+qsyn> zxgread benchmark/bzx/tof3.bzx
 Successfully generated Graph 0
 Checkout to Graph 0
 

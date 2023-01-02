@@ -1,8 +1,8 @@
 // a lot of cnots
-I0 0 S4
-I1 1 S5
-O2 0 S10
-O3 1 S11
+I0 (0, -) S4
+I1 (1, -) S5
+O2 (0, -) S10
+O3 (1, -) S11
 Z4 S5 S6
 X5 S7
 Z6 S7 S8

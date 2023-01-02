@@ -1,5 +1,5 @@
 DV Lab, NTUEE, Qsyn 0.3.0
-qsyn> zxgread benchmark/extraction/cleanFrontier.bzx -bzx
+qsyn> zxgread benchmark/extraction/cleanFrontier.bzx
 Successfully generated Graph 0
 Checkout to Graph 0
 

@@ -1,5 +1,5 @@
 DV Lab, NTUEE, Qsyn 0.3.0
-qsyn> zxgr -bzx benchmark/bzx/gauss.bzx
+qsyn> zxgr benchmark/bzx/gauss.bzx
 Successfully generated Graph 0
 Checkout to Graph 0
 

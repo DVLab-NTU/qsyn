@@ -1,5 +1,5 @@
 DV Lab, NTUEE, Qsyn 0.3.0
-qsyn> zxgr -bzx benchmark/extraction/rmGadget.bzx
+qsyn> zxgr benchmark/extraction/rmGadget.bzx
 Successfully generated Graph 0
 Checkout to Graph 0
 
