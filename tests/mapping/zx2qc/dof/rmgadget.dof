@@ -1,4 +1,4 @@
-zxgr -bzx benchmark/extraction/rmGadget.bzx
+zxgr benchmark/extraction/rmGadget.bzx
 qcba 3
 zxgp -q
 ver 8

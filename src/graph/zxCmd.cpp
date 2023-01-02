@@ -655,30 +655,31 @@ void ZX2TSCmd::help() const {
 }
 
 //----------------------------------------------------------------------
-//    ZXGRead <string Input.(b)zx> [-BZX] [-Replace]
+//    ZXGRead <string Input.(b)zx> [-KEEPid] [-Replace]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGReadCmd::exec(const string &option) {  // check option
     vector<string> options;
 
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
-    if (options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
+
+    CMD_N_OPTS_BETWEEN_OR_RETURN(options, 1, 3);
 
     bool doReplace = false;
-    bool doBZX = false;
+    bool doKeepID = false;
     size_t eraseIndexReplace = 0;
     size_t eraseIndexBZX = 0;
-    string fileName;
+    string fileName = "";
     for (size_t i = 0, n = options.size(); i < n; ++i) {
         if (myStrNCmp("-Replace", options[i], 2) == 0) {
             if (doReplace)
                 return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
             doReplace = true;
             eraseIndexReplace = i;
-        } else if (myStrNCmp("-BZX", options[i], 4) == 0) {
-            if (doBZX)
+        } else if (myStrNCmp("-KEEPid", options[i], 5) == 0) {
+            if (doKeepID)
                 return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
-            doBZX = true;
+            doKeepID = true;
             eraseIndexBZX = i;
         } else {
             if (fileName.size())
@@ -690,14 +691,15 @@ ZXGReadCmd::exec(const string &option) {  // check option
     string bzxStr = options[eraseIndexBZX];
     if (doReplace)
         options.erase(std::remove(options.begin(), options.end(), replaceStr), options.end());
-    if (doBZX)
+    if (doKeepID)
         options.erase(std::remove(options.begin(), options.end(), bzxStr), options.end());
     if (options.empty())
         return CmdExec::errorOption(CMD_OPT_MISSING, (eraseIndexBZX > eraseIndexReplace) ? bzxStr : replaceStr);
 
     ZXGraph *bufferGraph = new ZXGraph(0);
-    if (!bufferGraph->readZX(fileName, doBZX)) {
-        cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
+    if (!bufferGraph->readZX(fileName, doKeepID)) {
+        // REVIEW - This error message is not always accurate
+        // cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
         delete bufferGraph;
         return CMD_EXEC_ERROR;
     }
@@ -717,7 +719,7 @@ ZXGReadCmd::exec(const string &option) {  // check option
 }
 
 void ZXGReadCmd::usage(ostream &os) const {
-    os << "Usage: ZXGRead <string Input.(b)zx> [-BZX] [-Replace]" << endl;
+    os << "Usage: ZXGRead <string Input.(b)zx> [-KEEPid] [-Replace]" << endl;
 }
 
 void ZXGReadCmd::help() const {
@@ -726,7 +728,7 @@ void ZXGReadCmd::help() const {
 }
 
 //----------------------------------------------------------------------
-//    ZXGWrite <string Output.(b)zx> [-Complete] [-BZX]
+//    ZXGWrite <string Output.(b)zx> [-Complete]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGWriteCmd::exec(const string &option) {
@@ -736,9 +738,7 @@ ZXGWriteCmd::exec(const string &option) {
     if (options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
 
     bool doComplete = false;
-    bool doBZX = false;
     size_t eraseIndexComplete = 0;
-    size_t eraseIndexBZX = 0;
     string fileName;
     for (size_t i = 0, n = options.size(); i < n; ++i) {
         if (myStrNCmp("-Complete", options[i], 2) == 0) {
@@ -746,11 +746,6 @@ ZXGWriteCmd::exec(const string &option) {
                 return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
             doComplete = true;
             eraseIndexComplete = i;
-        } else if (myStrNCmp("-BZX", options[i], 4) == 0) {
-            if (doBZX)
-                return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
-            doBZX = true;
-            eraseIndexBZX = i;
         } else {
             if (fileName.size())
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
@@ -758,17 +753,14 @@ ZXGWriteCmd::exec(const string &option) {
         }
     }
     string completeStr = options[eraseIndexComplete];
-    string bzxStr = options[eraseIndexBZX];
     if (doComplete)
         options.erase(std::remove(options.begin(), options.end(), completeStr), options.end());
-    if (doBZX)
-        options.erase(std::remove(options.begin(), options.end(), bzxStr), options.end());
     if (options.empty())
-        return CmdExec::errorOption(CMD_OPT_MISSING, (eraseIndexBZX > eraseIndexComplete) ? bzxStr : completeStr);
+        return CmdExec::errorOption(CMD_OPT_MISSING, completeStr);
 
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXWrite");
 
-    if (!zxGraphMgr->getGraph()->writeZX(fileName, doComplete, doBZX)) {
+    if (!zxGraphMgr->getGraph()->writeZX(fileName, doComplete)) {
         cerr << "Error: fail to write ZX-Graph to \"" << fileName << "\"!!" << endl;
         return CMD_EXEC_ERROR;
     }

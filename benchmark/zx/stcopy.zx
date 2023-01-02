@@ -1,7 +1,7 @@
 // State copy basic example
-I0 0 S3
-I1 1 H4
-O2 0 S10
+I0 (0, -) S3
+I1 (1, -) H4
+O2 (0, -) S10
 Z3 H5
 Z4 H6
 Z5 H7 3*pi/4
