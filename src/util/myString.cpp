@@ -98,6 +98,18 @@ bool stripQuotes(const std::string& input, std::string& output) {
     return true;
 }
 
+/**
+ * @brief strip the leading and trailing whitespaces of a string
+ * 
+ * @param str 
+ */
+string stripWhitespaces(const string& str) {
+    size_t start = str.find_first_not_of(" ");
+    size_t end = str.find_last_not_of(" ");
+    if (start == string::npos && end == string::npos) return "";
+    return str.substr(start, end + 1 - start);
+}
+
 // 1. strlen(s1) must >= n
 // 2. The first n characters of s2 are mandatory, they must be case-
 //    insensitively compared to s1. Return less or greater than 0 if unequal.
@@ -130,6 +142,19 @@ int myStrNCmp(const string& s1, const string& s2, unsigned n) {
 size_t
 myStrGetTok(const string& str, string& tok, size_t pos = 0,
             const char del = ' ') {
+    size_t begin = str.find_first_not_of(del, pos);
+    if (begin == string::npos) {
+        tok = "";
+        return begin;
+    }
+    size_t end = str.find_first_of(del, begin);
+    tok = str.substr(begin, end - begin);
+    return end;
+}
+
+size_t
+myStrGetTok(const string& str, string& tok, size_t pos,
+            const string& del) {
     size_t begin = str.find_first_not_of(del, pos);
     if (begin == string::npos) {
         tok = "";
@@ -200,8 +225,8 @@ bool myStr2Uns(const string& str, unsigned& unsnum) {
 // A template interface for std::stoXXX(const string& str, size_t* pos = nullptr),
 // All the dirty compile-time checking happens here.
 template <class T>
-requires std::floating_point<T>
-    T stoFloatType(const string& str, size_t* pos) {
+    requires std::floating_point<T>
+T stoFloatType(const string& str, size_t* pos) {
     try {
         if constexpr (std::is_same<T, double>::value) {
             return std::stod(str, pos);
@@ -224,8 +249,8 @@ requires std::floating_point<T>
 // If `str` is a string of decimal number, return true and set `f` to the corresponding number.
 // Otherwise return 0 and set `f` to 0.
 template <class T>
-requires std::floating_point<T>
-bool myStr2FloatType(const string& str, T& f) {
+    requires std::floating_point<T> bool
+myStr2FloatType(const string& str, T& f) {
     f = 0;
     size_t i;
     try {

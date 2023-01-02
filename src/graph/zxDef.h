@@ -15,6 +15,9 @@
 
 #include "myHashMap.h"
 #include "ordered_hashset.h"
+#include "ordered_hashmap.h"
+#include "phase.h"
+
 using namespace std;
 
 class ZXVertex;
@@ -43,6 +46,20 @@ using ZXVertexList = ordered_hashset<ZXVertex*>;
 using EdgePair = pair<pair<ZXVertex*, ZXVertex*>, EdgeType>;
 using NeighborPair = pair<ZXVertex*, EdgeType>;
 using Neighbors = ordered_hashset<NeighborPair>;
+
+namespace ZXParserDetail {
+
+struct VertexInfo {
+    char type;
+    int qubit;
+    unsigned column;
+    vector<pair<char, size_t>> neighbors;
+    Phase phase;
+};
+
+using StorageType = ordered_hashmap<size_t, VertexInfo>;
+
+}  // namespace ZXParserDetail
 
 //------------------------------------------------------------------------
 //   Define hashes
