@@ -100,8 +100,8 @@ bool stripQuotes(const std::string& input, std::string& output) {
 
 /**
  * @brief strip the leading and trailing whitespaces of a string
- * 
- * @param str 
+ *
+ * @param str
  */
 string stripWhitespaces(const string& str) {
     size_t start = str.find_first_not_of(" ");
