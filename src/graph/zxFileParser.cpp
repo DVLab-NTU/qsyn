@@ -191,8 +191,8 @@ bool ZXFileParser::validTokensForBoundaryVertex(const vector<string>& tokens) {
         cerr << "please specify the qubit ID to boundary vertex!!" << endl;
         return false;
     }
-    
-    if (tokens.size() <= 3) return true; 
+
+    if (tokens.size() <= 3) return true;
 
     Phase tmp;
     if (tmp.fromString(tokens.back())) {
