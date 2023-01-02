@@ -49,8 +49,8 @@ zxIO.o: zxIO.cpp ../../include/util.h ../../include/myUsage.h \
  ../../include/tensorDef.h ../../include/tensorUtil.h zxDef.h \
  ../../include/ordered_hashmap.h
 zxGraphMgr.o: zxGraphMgr.cpp zxGraphMgr.h zxDef.h \
- ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
- ../../include/ordered_hashmap.h ../../include/phase.h \
+ ../../include/ordered_hashmap.h ../../include/ordered_hashtable.h \
+ ../../include/ordered_hashset.h ../../include/phase.h \
  ../../include/myConcepts.h ../../include/rationalNumber.h \
  ../../include/util.h ../../include/myUsage.h ../../include/rnGen.h \
  zxGraph.h ../../include/qtensor.h ../../include/phase.h \

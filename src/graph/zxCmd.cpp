@@ -728,7 +728,7 @@ void ZXGReadCmd::help() const {
 }
 
 //----------------------------------------------------------------------
-//    ZXGWrite <string Output.(b)zx> [-Complete] [-BZX]
+//    ZXGWrite <string Output.(b)zx> [-Complete]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGWriteCmd::exec(const string &option) {
@@ -738,9 +738,7 @@ ZXGWriteCmd::exec(const string &option) {
     if (options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
 
     bool doComplete = false;
-    bool doBZX = false;
     size_t eraseIndexComplete = 0;
-    size_t eraseIndexBZX = 0;
     string fileName;
     for (size_t i = 0, n = options.size(); i < n; ++i) {
         if (myStrNCmp("-Complete", options[i], 2) == 0) {
@@ -748,11 +746,6 @@ ZXGWriteCmd::exec(const string &option) {
                 return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
             doComplete = true;
             eraseIndexComplete = i;
-        } else if (myStrNCmp("-BZX", options[i], 4) == 0) {
-            if (doBZX)
-                return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
-            doBZX = true;
-            eraseIndexBZX = i;
         } else {
             if (fileName.size())
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
@@ -760,13 +753,10 @@ ZXGWriteCmd::exec(const string &option) {
         }
     }
     string completeStr = options[eraseIndexComplete];
-    string bzxStr = options[eraseIndexBZX];
     if (doComplete)
         options.erase(std::remove(options.begin(), options.end(), completeStr), options.end());
-    if (doBZX)
-        options.erase(std::remove(options.begin(), options.end(), bzxStr), options.end());
     if (options.empty())
-        return CmdExec::errorOption(CMD_OPT_MISSING, (eraseIndexBZX > eraseIndexComplete) ? bzxStr : completeStr);
+        return CmdExec::errorOption(CMD_OPT_MISSING, completeStr);
 
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXWrite");
 
