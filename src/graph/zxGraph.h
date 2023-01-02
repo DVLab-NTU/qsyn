@@ -44,7 +44,7 @@ public:
     const size_t& getPin() const { return _pin; }
     const Phase& getPhase() const { return _phase; }
     const VertexType& getType() const { return _type; }
-    const unsigned int& getCol() const { return _col; }
+    const float& getCol() const { return _col; }
     const Neighbors& getNeighbors() const { return _neighbors; }
     const NeighborPair& getFirstNeighbor() const { return *(_neighbors.begin()); }
     const NeighborPair& getSecondNeighbor() const { return *next((_neighbors.begin())); }
@@ -57,7 +57,7 @@ public:
     void setQubit(const int& q) { _qubit = q; }
     void setPin(const size_t& p) { _pin = p; }
     void setPhase(const Phase& p) { _phase = p; }
-    void setCol(const unsigned int& c) { _col = c; }
+    void setCol(const float& c) { _col = c; }
     void setType(const VertexType& vt) { _type = vt; }
     void setNeighbors(const Neighbors& n) { _neighbors = n; }
 
@@ -96,7 +96,7 @@ private:
     unsigned _DFSCounter;
     Neighbors _neighbors;
     VertexType _type;
-    unsigned int _col;
+    float _col;
 };
 
 class ZXGraph {
