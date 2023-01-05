@@ -211,19 +211,19 @@ void ZXGraph::draw() const {
         // print qubit
         int temp = offset + i;
         cout << "[";
-        for(size_t i = 0; i < maxLengthQ - to_string(temp).length(); i++) {
+        for (size_t i = 0; i < maxLengthQ - to_string(temp).length(); i++) {
             cout << " ";
         }
         cout << temp << "]";
 
         // print row
         for (size_t j = 0; j <= maxCol; j++) {
-            if (i < -offset ) {
+            if (i < -offset) {
                 if (colList[j][i] != nullptr) {
                     cout << "(" << printColoredVertex(colList[j][i]) << ")   ";
                 } else {
-                    if(j == maxCol) 
-                        cout<<endl;
+                    if (j == maxCol) 
+                        cout << endl;
                     else {
                         cout << "   ";
                         for (size_t k = 0; k < maxLength[j] + 2; k++) cout << " ";
@@ -244,7 +244,7 @@ void ZXGraph::draw() const {
         }
         cout << endl;
     }
-    for(auto& a: colList) {
+    for (auto& a : colList) {
         a.clear();
     }
     colList.clear();
