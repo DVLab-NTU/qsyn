@@ -228,7 +228,6 @@ void ZXGraph::draw() const {
                         cout << "   ";
                         for (size_t k = 0; k < maxLength[j] + 2; k++) cout << " ";
                     }
-                    
                 }
             } else if (colList[j][i] != nullptr) {
                 if (j == maxCol)
