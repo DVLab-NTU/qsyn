@@ -150,7 +150,7 @@ string printColoredVertex(ZXVertex* v) {
         return TF::BOLD(TF::RED(to_string(v->getId())));
     else if (v->getType() == VertexType::H_BOX)
         return TF::BOLD(TF::YELLOW(to_string(v->getId())));
-    else 
+    else
         return to_string(v->getId());
 }
 
@@ -222,7 +222,7 @@ void ZXGraph::draw() const {
                 if (colList[j][i] != nullptr) {
                     cout << "(" << printColoredVertex(colList[j][i]) << ")   ";
                 } else {
-                    if (j == maxCol) 
+                    if (j == maxCol)
                         cout << endl;
                     else {
                         cout << "   ";
