@@ -150,7 +150,8 @@ string printColoredVertex(ZXVertex* v) {
         return TF::BOLD(TF::RED(to_string(v->getId())));
     else if (v->getType() == VertexType::H_BOX)
         return TF::BOLD(TF::YELLOW(to_string(v->getId())));
-    else return to_string(v->getId());
+    else 
+        return to_string(v->getId());
 }
 
 /**
@@ -176,11 +177,10 @@ void ZXGraph::draw() const {
     sort(qubitNum_temp.begin(), qubitNum_temp.end());
     size_t offset = qubitNum_temp[0];
     qubitNum.push_back(0);
-    for (size_t i = 1; i < qubitNum_temp.size(); i++){
-        if (qubitNum_temp[i-1] == qubitNum_temp[i]){
+    for (size_t i = 1; i < qubitNum_temp.size(); i++) {
+        if (qubitNum_temp[i - 1] == qubitNum_temp[i]) {
             continue;
-        }
-        else{
+        } else {
             qubitNum.push_back(qubitNum_temp[i] - offset);
         }
     }
@@ -191,7 +191,7 @@ void ZXGraph::draw() const {
     tmp.resize(qubitNum.size());
     vector<vector<ZXVertex*>> colList(maxCol + 1, tmp);
 
-    for (auto& v : getVertices()) colList[v->getCol()][qPair[v->getQubit()-offset]] = v;
+    for (auto& v : getVertices()) colList[v->getCol()][qPair[v->getQubit() - offset]] = v;
 
     vector<size_t> maxLength(maxCol + 1, 0);
     for (size_t i = 0; i < colList.size(); i++) {
@@ -222,8 +222,9 @@ void ZXGraph::draw() const {
                 if (colList[j][i] != nullptr) {
                     cout << "(" << printColoredVertex(colList[j][i]) << ")   ";
                 } else {
-                    if(j==maxCol) cout<<endl;
-                    else{
+                    if(j == maxCol) 
+                        cout<<endl;
+                    else {
                         cout << "   ";
                         for (size_t k = 0; k < maxLength[j] + 2; k++) cout << " ";
                     }
@@ -243,7 +244,7 @@ void ZXGraph::draw() const {
         }
         cout << endl;
     }
-    for(auto& a: colList){
+    for(auto& a: colList) {
         a.clear();
     }
     colList.clear();
