@@ -32,10 +32,10 @@ public:
     QTensor(const TensorShape& shape) : Tensor<DataType>(shape) {}
     QTensor(TensorShape&& shape) : Tensor<DataType>(shape) {}
     template <typename From>
-        requires std::convertible_to<From, InternalType>
+    requires std::convertible_to<From, InternalType>
     QTensor(const From& internal) : Tensor<DataType>(internal) {}
     template <typename From>
-        requires std::convertible_to<From, InternalType>
+    requires std::convertible_to<From, InternalType>
     QTensor(From&& internal) : Tensor<DataType>(internal) {}
 
     virtual ~QTensor() {}
