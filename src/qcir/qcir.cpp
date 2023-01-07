@@ -240,7 +240,7 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
         temp = new CnPGate(_gateId);
         temp->setRotatePhase(phase);
     } else if (type == "crz") {
-        temp = new CrzGate(_gateId);
+        temp = new CRZGate(_gateId);
         temp->setRotatePhase(phase);
     } else if (type == "mcrx" || type == "crx") {
         temp = new CnRXGate(_gateId);
