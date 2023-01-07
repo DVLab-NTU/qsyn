@@ -86,8 +86,8 @@ Stored the resulting tensor as tensor id 1
 
 qsyn> tseq 0 1
 [1m[32mEquivalent[0m[0m
-- Global Norm : 0.933898
-- Global Phase: 45π/218
+- Global Norm : 1.02536
+- Global Phase: 161π/282
 
 qsyn> qq -f
 
