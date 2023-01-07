@@ -143,7 +143,7 @@ public:
     virtual string getTypeStr() const { return "crz"; }
     virtual GateType getType() const { return GateType::CRZ; }
     virtual ZXGraph* getZXform();
-    
+
     virtual QTensor<double> getTSform() const { return QTensor<double>::control(QTensor<double>::rzgate(_rotatePhase), 1); }
     virtual void printGateInfo(bool st) const { printMultipleQubitsGate(" RZ", true, st); }
 

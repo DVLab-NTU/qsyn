@@ -263,7 +263,7 @@ Tensor<U> directSum(const Tensor<U>& t1, const Tensor<U>& t2) {
     shape_t shape2 = t2._tensor.shape();
     auto tmp1 = xt::hstack(xt::xtuple(t1._tensor, xt::zeros<U>({shape1[0], shape2[1]})));
     auto tmp2 = xt::hstack(xt::xtuple(xt::zeros<U>({shape2[0], shape1[1]}), t2._tensor));
-    
+
     return xt::vstack(xt::xtuple(tmp1, tmp2));
 }
 
