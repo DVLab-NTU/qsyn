@@ -118,7 +118,6 @@ bool ZXGraph::writeZX(const string& filename, bool complete) {
     return true;
 }
 
-
 bool ZXGraph::buildGraphFromParserStorage(const ZXParserDetail::StorageType& storage, bool keepID) {
     unordered_map<size_t, ZXVertex*> id2Vertex;
 
@@ -161,33 +160,33 @@ bool ZXGraph::buildGraphFromParserStorage(const ZXParserDetail::StorageType& sto
     return true;
 }
 
-string tikzStyle = "[\n"
-"\t boun/.style={circle, draw=black!60, fill=black!5, very thick, text width=5mm, align=center, inner sep=0pt},\n"
-"\t hbox/.style={regular polygon,regular polygon sides=4, draw=yellow!90, fill=yellow!20, very thick, text width=3.5mm, align=center, inner sep=0pt},\n"
-"\t zspi/.style={circle, draw=green!60!black!100, fill=green!5, very thick, text width=5mm, align=center, inner sep=0pt},\n"
-"\t xspi/.style={circle, draw=red!80, fill=red!5, very thick, text width=5mm, align=center, inner sep=0pt},\n"
-"\t hedg/.style={draw=blue!100, very thick},\n"
-"\t sedg/.style={draw=black, very thick},\n"
-"];\n";
+string tikzStyle =
+    "[\n"
+    "\t boun/.style={circle, draw=black!60, fill=black!5, very thick, text width=5mm, align=center, inner sep=0pt},\n"
+    "\t hbox/.style={regular polygon,regular polygon sides=4, draw=yellow!90, fill=yellow!20, very thick, text width=3.5mm, align=center, inner sep=0pt},\n"
+    "\t zspi/.style={circle, draw=green!60!black!100, fill=green!5, very thick, text width=5mm, align=center, inner sep=0pt},\n"
+    "\t xspi/.style={circle, draw=red!80, fill=red!5, very thick, text width=5mm, align=center, inner sep=0pt},\n"
+    "\t hedg/.style={draw=blue!100, very thick},\n"
+    "\t sedg/.style={draw=black, very thick},\n"
+    "];\n";
 
 unordered_map<VertexType, string> vt2s = {
-    {VertexType::BOUNDARY,"boun"},
-    {VertexType::Z,"zspi"},
-    {VertexType::X,"xspi"},
-    {VertexType::H_BOX,"hbox"}
-};
+    {VertexType::BOUNDARY, "boun"},
+    {VertexType::Z, "zspi"},
+    {VertexType::X, "xspi"},
+    {VertexType::H_BOX, "hbox"}};
 
 unordered_map<EdgeType, string> et2s = {
-    {EdgeType::HADAMARD,"hedg"},
-    {EdgeType::SIMPLE,"sedg"},
+    {EdgeType::HADAMARD, "hedg"},
+    {EdgeType::SIMPLE, "sedg"},
 };
 
 /**
- * @brief 
- * 
- * @param filename 
- * @return true 
- * @return false 
+ * @brief
+ *
+ * @param filename
+ * @return true
+ * @return false
  */
 bool ZXGraph::writeTikz(string filename) {
     fstream tikzFile;
@@ -201,28 +200,29 @@ bool ZXGraph::writeTikz(string filename) {
     tikzFile << "    % Vertices\n";
 
     auto writePhase = [&tikzFile, &fontSize](ZXVertex* v) {
-        if(v->getPhase()==Phase(0)) 
+        if (v->getPhase() == Phase(0))
             return true;
         tikzFile << ",label={ " << fontSize << " $";
-        if(v->getPhase().getRational().denominator() == 1){
+        if (v->getPhase().getRational().denominator() == 1) {
             tikzFile << to_string(v->getPhase().getRational().numerator()) << "\\pi";
-        }
-        else{
+        } else {
             tikzFile << "\\frac{" << to_string(v->getPhase().getRational().numerator()) << "\\pi}{" << to_string(v->getPhase().getRational().denominator()) << "}";
         }
         tikzFile << "$ }";
         return true;
     };
 
-    //NOTE - Sample: \node[zspi] (88888)  at (0,1) {{\tiny 88888}};
+    // NOTE - Sample: \node[zspi] (88888)  at (0,1) {{\tiny 88888}};
     for (auto& v : _vertices) {
-        tikzFile << "    \\node[" << vt2s[v->getType()] << writePhase(v) << "]";
+        tikzFile << "    \\node[" << vt2s[v->getType()];
+        writePhase(v);
+        tikzFile << "]";
         tikzFile << "(" << to_string(v->getId()) << ")  at (" << to_string(v->getCol()) << "," << to_string(v->getQubit()) << ") ";
         tikzFile << "{{" << fontSize << " " << to_string(v->getId()) << "}};\n";
     }
-    //NOTE - Sample: \draw[hedg] (1234) -- (123);
+    // NOTE - Sample: \draw[hedg] (1234) -- (123);
     tikzFile << "    % Edges\n";
-    
+
     for (auto& v : _vertices) {
         for (auto& [n, e] : v->getNeighbors()) {
             if (n->getId() > v->getId())
