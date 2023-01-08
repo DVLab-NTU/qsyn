@@ -1,8 +1,8 @@
 // Hopf advanced testcase
-I0 0 S4
-I1 1 S7
-O2 0 S6
-O3 1 S9
+I0 (0, -) S4
+I1 (1, -) S7
+O2 (0, -) S6
+O3 (1, -) S9
 Z4 H5 S5 H5 S7 S7 H7 H8 H8
 X5 H6 S6 H6 S8 S8 
 X6 S8 S8 S9

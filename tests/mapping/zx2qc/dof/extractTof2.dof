@@ -1,5 +1,5 @@
 color 0
-zxgread benchmark/bzx/tof3.bzx -bzx
+zxgread benchmark/bzx/tof3.bzx
 ver 0
 zxgs -fr
 zxgp -q

@@ -25,9 +25,6 @@ using namespace std;
 class ZXVertex {
     // See `zxVertex.cpp` for details
 public:
-    class EdgeIterator;
-    friend class EdgeIterator;
-
     ZXVertex(size_t id, int qubit, VertexType vt, Phase phase = Phase(), unsigned int col = 0) {
         _id = id;
         _type = vt;
@@ -214,8 +211,8 @@ public:
     const unordered_map<size_t, ZXVertex*>& getOutputList() const { return _outputList; }
 
     // I/O (in zxIO.cpp)
-    bool readZX(string, bool bzx = false);
-    bool writeZX(string, bool complete = false, bool bzx = false);
+    bool readZX(const string& filename, bool keepID = false);
+    bool writeZX(const string& filename, bool complete = false);
     bool writeTikz(string);
     
     // Traverse (in zxTraverse.cpp)
@@ -251,6 +248,8 @@ private:
 
     void DFS(ZXVertex*);
     void BFS(ZXVertex*);
+
+    bool buildGraphFromParserStorage(const ZXParserDetail::StorageType& storage, bool keepID = false);
 };
 
 // See `zxVertex.cpp` for details

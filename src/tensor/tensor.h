@@ -79,9 +79,6 @@ public:
     template <typename U>
     friend Tensor<U> operator/(Tensor<U> lhs, const Tensor<U>& rhs);
 
-    // template <typename U>
-    // Tensor<U> conj(const Tensor<U>& t);
-
     size_t dimension() const { return _tensor.dimension(); }
     std::vector<size_t> shape() const;
 
@@ -107,8 +104,11 @@ public:
 
     Tensor<DT> toMatrix(const TensorAxisList& axin, const TensorAxisList& axout);
 
+    template <typename U>
+    friend Tensor<U> directSum(const Tensor<U>& t1, const Tensor<U>& t2);
+
     void reshape(const TensorShape& shape);
-    Tensor<DT> transpose(const TensorAxisList& perm);
+    Tensor<DT> transpose(const TensorAxisList& perm) const;
     Tensor<DT> adjoint();
 
 protected:
@@ -253,6 +253,20 @@ Tensor<DT> Tensor<DT>::toMatrix(const TensorAxisList& axin, const TensorAxisList
     return t;
 }
 
+template <typename U>
+Tensor<U> directSum(const Tensor<U>& t1, const Tensor<U>& t2) {
+    using shape_t = xt::xarray<U>::shape_type;
+    if (t1.dimension() != 2 || t2.dimension() != 2) {
+        throw std::invalid_argument("The two tensors should be 2-dimension.");
+    }
+    shape_t shape1 = t1._tensor.shape();
+    shape_t shape2 = t2._tensor.shape();
+    auto tmp1 = xt::hstack(xt::xtuple(t1._tensor, xt::zeros<U>({shape1[0], shape2[1]})));
+    auto tmp2 = xt::hstack(xt::xtuple(xt::zeros<U>({shape2[0], shape1[1]}), t2._tensor));
+
+    return xt::vstack(xt::xtuple(tmp1, tmp2));
+}
+
 // Rearrange the element of the tensor to a new shape
 template <typename DT>
 void Tensor<DT>::reshape(const TensorShape& shape) {
@@ -261,7 +275,7 @@ void Tensor<DT>::reshape(const TensorShape& shape) {
 
 // Rearrange the order of axes
 template <typename DT>
-Tensor<DT> Tensor<DT>::transpose(const TensorAxisList& perm) {
+Tensor<DT> Tensor<DT>::transpose(const TensorAxisList& perm) const {
     return xt::transpose(_tensor, perm);
 }
 
@@ -278,7 +292,7 @@ Tensor<DT> Tensor<DT>::adjoint() {
 // Calculate the inner products between two tensors
 template <typename U>
 double innerProduct(const Tensor<U>& t1, const Tensor<U>& t2) {
-    if (t1.shape() != t1.shape()) {
+    if (t1.shape() != t2.shape()) {
         throw std::invalid_argument("The two tensors should have the same shape");
     }
     return xt::abs(xt::sum(xt::conj(t1._tensor) * t2._tensor))();

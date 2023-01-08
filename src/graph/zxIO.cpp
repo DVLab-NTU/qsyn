@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "util.h"
+#include "zxFileParser.h"
 #include "zxGraph.h"
 
 extern size_t verbose;
@@ -24,167 +25,26 @@ extern size_t verbose;
  * @brief read a zx graph
  *
  * @param filename
- * @param bzx
- * @return true if correctly consturct the graph
+ * @param keepID if true, keep the IDs as written in file; if false, rearrange the vertex IDs
+ * @return true if correctly constructed the graph
  * @return false
  */
-bool ZXGraph::readZX(string filename, bool bzx) {
-    fstream ZXFile;
-    ZXFile.open(filename.c_str(), ios::in);
-    if (!ZXFile.is_open()) {
-        cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
-        return false;
-    }
-    string line;
-    string token;
-    unordered_map<size_t, vector<pair<size_t, EdgeType>>> storage;
-    unordered_map<size_t, ZXVertex*> vertexList;
-    size_t counter = 1;
-    while (getline(ZXFile, line)) {
-        // Slice comment
-        size_t found = line.find("//");
-        if (found != string::npos)
-            line = line.substr(0, found);
-        if (line == "") {
-            counter++;
-            continue;
-        }
-        vector<string> tokens;
-        size_t n = myStrGetTok(line, token);
-        while (token.size()) {
-            tokens.push_back(token);
-            n = myStrGetTok(line, token, n);
-        }
-        unsigned id, nid, cid = 0;
-        int qid;
-        int column = 0;
-        string vertexStr = tokens[0];
-        if (vertexStr[0] == 'I' || vertexStr[0] == 'O') {
-            string idStr = vertexStr.substr(1);
-            if (!myStr2Uns(idStr, id)) {
-                cerr << "Error: Vertex Id " << idStr << " is not an unsigned in line " << counter << "!!" << endl;
-                return false;
-            }
-            if (storage.contains(size_t(id))) {
-                cerr << "Error: Duplicated vertex Id " << size_t(id) << " in line " << counter << "!!" << endl;
-                return false;
-            }
-            if (tokens.size() == 0) {
-                cerr << "Error: Missing qubit Id after I/O declaration in line " << counter << "!!" << endl;
-                return false;
-            }
-            if (!myStr2Int(tokens[1], qid)) {
-                cerr << "Error: Qubit Id " << tokens[1] << " is not an integer in line " << counter << "!!" << endl;
-                return false;
-            }
-            if (bzx) {
-                if (!myStr2Uns(tokens[2], cid)) {
-                    cerr << "Error: Column Id " << tokens[2] << " is not an unsigned in line " << counter << "!!" << endl;
-                    return false;
-                }
-            }
-
-            vector<pair<size_t, EdgeType>> tmp;
-            for (size_t s = (bzx ? 3 : 2); s < tokens.size(); s++) {
-                string neighborStr = tokens[s];
-                if (neighborStr[0] == 'S' || neighborStr[0] == 'H') {
-                    string nidStr = neighborStr.substr(1);
-                    if (!myStr2Uns(nidStr, nid)) {
-                        cerr << "Error: Vertex Id in declaring neighbor " << neighborStr << " is not an unsigned in line " << counter << "!!" << endl;
-                        return false;
-                    } else if (size_t(nid) >= size_t(id))
-                        tmp.push_back(make_pair(size_t(nid), (neighborStr[0] == 'S') ? EdgeType::SIMPLE : EdgeType::HADAMARD));
-                } else {
-                    cerr << "Error: Unsupported edge type " << neighborStr[0] << " in line " << counter << "!!" << endl;
-                    return false;
-                }
-            }
-            storage[size_t(id)] = tmp;
-            if (vertexStr[0] == 'I')
-                vertexList[size_t(id)] = addInput(size_t(qid), true, cid);
-            else
-                vertexList[size_t(id)] = addOutput(size_t(qid), true, cid);
-        } else if (vertexStr[0] == 'Z' || vertexStr[0] == 'X' || vertexStr[0] == 'H') {
-            string idStr = vertexStr.substr(1);
-
-            if (!myStr2Uns(idStr, id)) {
-                cerr << "Error: Vertex Id " << idStr << " is not an unsigned in line " << counter << "!!" << endl;
-                return false;
-            }
-            if (storage.contains(size_t(id))) {
-                cerr << "Error: Duplicated vertex Id " << size_t(id) << " in line " << counter << "!!" << endl;
-                return false;
-            }
-            vector<pair<size_t, EdgeType>> tmp;
-            Phase ph;
-            for (size_t s = (bzx ? 3 : 1); s < tokens.size(); s++) {
-                string neighborStr = tokens[s];
-                bool checkNeighbor = true;
-                if (s == tokens.size() - 1) {
-                    if (ph.fromString(neighborStr)) {
-                        checkNeighbor = false;
-                    }
-                }
-                if (checkNeighbor) {
-                    if (neighborStr[0] == 'S' || neighborStr[0] == 'H') {
-                        string nidStr = neighborStr.substr(1);
-                        if (!myStr2Uns(nidStr, nid)) {
-                            cerr << "Error: Vertex Id in declaring neighbor " << neighborStr << " is not an unsigned in line " << counter << "!!" << endl;
-                            return false;
-                        } else if (size_t(nid) >= size_t(id))
-                            tmp.push_back(make_pair(size_t(nid), (neighborStr[0] == 'S') ? EdgeType::SIMPLE : EdgeType::HADAMARD));
-                    } else if (neighborStr[0] == 'C') {
-                        string colStr = neighborStr.substr(1);
-                        if (!myStr2Int(colStr, column)) {
-                            cerr << "Error: Column " << neighborStr << " is not an int in line " << counter << "!!" << endl;
-                            return false;
-                        }
-                    } else {
-                        cerr << "Error: Unsupported edge type " << neighborStr[0] << " in line " << counter << "!!" << endl;
-                        return false;
-                    }
-                }
-            }
-            qid = 0;
-            cid = 0;
-            if (bzx) {
-                if (!myStr2Int(tokens[1], qid)) {
-                    cerr << "Error: Qubit Id " << tokens[1] << " is not an integer in line " << counter << "!!" << endl;
-                    return false;
-                }
-                if (!myStr2Uns(tokens[2], cid)) {
-                    cerr << "Error: Column Id " << tokens[2] << " is not an unsigned in line " << counter << "!!" << endl;
-                    return false;
-                }
-            }
-            storage[size_t(id)] = tmp;
-            if (vertexStr[0] == 'Z')
-                vertexList[size_t(id)] = addVertex(size_t(qid), VertexType::Z, ph, true, cid);
-            else if (vertexStr[0] == 'X')
-                vertexList[size_t(id)] = addVertex(size_t(qid), VertexType::X, ph, true, cid);
-            else
-                vertexList[size_t(id)] = addVertex(size_t(qid), VertexType::H_BOX, ph, true, cid);
-        } else {
-            cerr << "Error: Unsupported vertex type " << vertexStr[0] << " in line " << counter << "!!" << endl;
+bool ZXGraph::readZX(const string& filename, bool keepID) {
+    size_t extensionPosition = filename.find_last_of(".");
+    // REVIEW - should we guard the case of no file extension?
+    if (extensionPosition != string::npos) {
+        string extensionString = filename.substr(extensionPosition);
+        if (
+            myStrNCmp(".zx", extensionString, 3) != 0 &&
+            myStrNCmp(".bzx", extensionString, 4) != 0) {  // backward compatibility
+            cerr << "Unsupported file extension \"" << extensionString << "\"!!" << endl;
             return false;
         }
-
-        counter++;
     }
 
-    for (const auto [vertexId, neighbors] : storage) {
-        //   for(auto itr = storage.begin(); itr!=storage.end(); itr++){
-        for (const auto& [nbId, nbEdgeType] : neighbors) {
-            // for(size_t nb=0; nb<neighbors.size(); nb++){
-            if (vertexList[nbId] == nullptr) {
-                cerr << "Found a never declared id " << nbId << " in neighbor list of vertex " << vertexId << "!!" << endl;
-                return false;
-            } else {
-                addEdge(vertexList[vertexId], vertexList[nbId], EdgeType(nbEdgeType));
-            }
-        }
-    }
-    return true;
+    ZXFileParser parser;
+
+    return parser.parse(filename) && buildGraphFromParserStorage(parser.getStorage());
 }
 
 /**
@@ -192,18 +52,17 @@ bool ZXGraph::readZX(string filename, bool bzx) {
  *
  * @param filename
  * @param complete
- * @param bzx
  * @return true if correctly write a graph into .zx
  * @return false
  */
-bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
-    fstream ZXFile;
-    ZXFile.open(filename.c_str(), std::fstream::out);
+bool ZXGraph::writeZX(const string& filename, bool complete) {
+    ofstream ZXFile;
+    ZXFile.open(filename);
     if (!ZXFile.is_open()) {
         cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
         return false;
     }
-    auto writeNeighbors = [&ZXFile](ZXVertex* v, bool complete = false) {
+    auto writeNeighbors = [&ZXFile, complete](ZXVertex* v) {
         for (const auto& [nb, etype] : v->getNeighbors()) {
             if ((complete) || (nb->getId() >= v->getId())) {
                 ZXFile << " ";
@@ -226,7 +85,7 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
     ZXFile << "// Input \n";
     for (auto& v : _inputs) {
         ZXFile << "I" << v->getId() << " (" << v->getQubit() << "," << v->getCol() << ")";
-        if (!writeNeighbors(v, complete)) return false;
+        if (!writeNeighbors(v)) return false;
         ZXFile << "\n";
     }
 
@@ -234,7 +93,7 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
 
     for (auto& v : _outputs) {
         ZXFile << "O" << v->getId() << " (" << v->getQubit() << "," << v->getCol() << ")";
-        if (!writeNeighbors(v, complete)) return false;
+        if (!writeNeighbors(v)) return false;
         ZXFile << "\n";
     }
 
@@ -249,11 +108,55 @@ bool ZXGraph::writeZX(string filename, bool complete, bool bzx) {
         else
             ZXFile << "H";
         ZXFile << v->getId();
-        if (bzx) ZXFile << " (" << v->getQubit() << "," << v->getCol() << ")";
-        if (!writeNeighbors(v, complete)) return false;
+
+        ZXFile << " (" << v->getQubit() << "," << v->getCol() << ")";  // NOTE - always output coordinate now
+        if (!writeNeighbors(v)) return false;
 
         if (v->getPhase() != Phase(0)) ZXFile << " " << v->getPhase().getAsciiString();
         ZXFile << "\n";
+    }
+    return true;
+}
+
+
+bool ZXGraph::buildGraphFromParserStorage(const ZXParserDetail::StorageType& storage, bool keepID) {
+    unordered_map<size_t, ZXVertex*> id2Vertex;
+
+    for (auto& [id, info] : storage) {
+        ZXVertex* v;
+
+        if (info.type == 'I')
+            v = addInput(info.qubit, true, info.column);
+        else if (info.type == 'O')
+            v = addOutput(info.qubit, true, info.column);
+        else {
+            VertexType vtype;
+            if (info.type == 'Z')
+                vtype = VertexType::Z;
+            else if (info.type == 'X')
+                vtype = VertexType::X;
+            else
+                vtype = VertexType::H_BOX;
+            v = addVertex(info.qubit, vtype, info.phase, true, info.column);
+        }
+
+        assert(v != nullptr);
+
+        if (keepID) v->setId(id);
+        id2Vertex[id] = v;
+    }
+
+    for (auto& [vid, info] : storage) {
+        for (auto& [type, nbid] : info.neighbors) {
+            if (!id2Vertex.contains(nbid)) {
+                cerr << "Error: Failed to build the graph: cannot find vertex with ID " << nbid << "!!" << endl;
+                return false;
+            }
+
+            if (vid < nbid) {
+                addEdge(id2Vertex[vid], id2Vertex[nbid], (type == 'S') ? EdgeType::SIMPLE : EdgeType::HADAMARD);
+            }
+        }
     }
     return true;
 }
