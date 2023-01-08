@@ -216,7 +216,8 @@ public:
     // I/O (in zxIO.cpp)
     bool readZX(string, bool bzx = false);
     bool writeZX(string, bool complete = false, bool bzx = false);
-
+    bool writeTikz(string);
+    
     // Traverse (in zxTraverse.cpp)
     void updateTopoOrder();
     void updateBreadthLevel();
