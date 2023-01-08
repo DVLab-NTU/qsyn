@@ -162,6 +162,7 @@ bool ZXGraph::buildGraphFromParserStorage(const ZXParserDetail::StorageType& sto
 
 string tikzStyle =
     "[\n"
+    "\t yscale=-1,\n"
     "\t boun/.style={circle, draw=black!60, fill=black!5, very thick, text width=5mm, align=center, inner sep=0pt},\n"
     "\t hbox/.style={regular polygon,regular polygon sides=4, draw=yellow!90, fill=yellow!20, very thick, text width=3.5mm, align=center, inner sep=0pt},\n"
     "\t zspi/.style={circle, draw=green!60!black!100, fill=green!5, very thick, text width=5mm, align=center, inner sep=0pt},\n"
@@ -196,6 +197,7 @@ bool ZXGraph::writeTikz(string filename) {
         return false;
     }
     string fontSize = "\\tiny";
+    tikzFile << "\\scalebox{1.0}{";
     tikzFile << "\\begin{tikzpicture}" << tikzStyle;
     tikzFile << "    % Vertices\n";
 
@@ -203,10 +205,18 @@ bool ZXGraph::writeTikz(string filename) {
         if (v->getPhase() == Phase(0))
             return true;
         tikzFile << ",label={ " << fontSize << " $";
-        if (v->getPhase().getRational().denominator() == 1) {
-            tikzFile << to_string(v->getPhase().getRational().numerator()) << "\\pi";
-        } else {
-            tikzFile << "\\frac{" << to_string(v->getPhase().getRational().numerator()) << "\\pi}{" << to_string(v->getPhase().getRational().denominator()) << "}";
+        int numerator = v->getPhase().getRational().numerator();
+        int denominator = v->getPhase().getRational().denominator();
+
+        if (denominator != 1) {
+            tikzFile << "\\frac{";
+        }
+        if (numerator != 1) {
+            tikzFile << to_string(numerator);
+        }
+        tikzFile << "\\pi";
+        if (denominator != 1) {
+            tikzFile << "}{" << to_string(denominator) << "}";
         }
         tikzFile << "$ }";
         return true;
@@ -230,6 +240,6 @@ bool ZXGraph::writeTikz(string filename) {
         }
     }
 
-    tikzFile << "\\end{tikzpicture}\n";
+    tikzFile << "\\end{tikzpicture}}\n";
     return true;
 }
