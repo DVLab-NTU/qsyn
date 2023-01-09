@@ -728,7 +728,7 @@ void ZXGReadCmd::help() const {
 }
 
 //----------------------------------------------------------------------
-//    ZXGWrite <string Output.(b)zx> [-Complete]
+//    ZXGWrite <string Output.<zx | tikz>> [-Complete]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGWriteCmd::exec(const string &option) {
@@ -788,7 +788,7 @@ ZXGWriteCmd::exec(const string &option) {
 }
 
 void ZXGWriteCmd::usage(ostream &os) const {
-    os << "Usage: ZXGWrite <string Output.(b)zx> [-Complete] [-BZX]" << endl;
+    os << "Usage: ZXGWrite <string Output.<zx | tikz>> [-Complete]" << endl;
 }
 
 void ZXGWriteCmd::help() const {
