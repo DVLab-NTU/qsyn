@@ -621,13 +621,13 @@ CmdExecStatus
 ZXGDrawCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
-    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGTraverse");
+    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGDraw");
     zxGraphMgr->getGraph()->draw();
     return CMD_EXEC_DONE;
 }
 
 void ZXGDrawCmd::usage(ostream &os) const {
-    os << "Usage: ZXGTRaverse" << endl;
+    os << "Usage: ZXGDraw" << endl;
 }
 
 void ZXGDrawCmd::help() const {

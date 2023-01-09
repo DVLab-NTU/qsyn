@@ -150,6 +150,8 @@ string printColoredVertex(ZXVertex* v) {
         return TF::BOLD(TF::RED(to_string(v->getId())));
     else if (v->getType() == VertexType::H_BOX)
         return TF::BOLD(TF::YELLOW(to_string(v->getId())));
+    else
+        return to_string(v->getId());
 }
 
 /**
@@ -158,22 +160,40 @@ string printColoredVertex(ZXVertex* v) {
  */
 void ZXGraph::draw() const {
     cout << endl;
-    unsigned int maxCol = 0;
+    unsigned int maxCol = 0;  // number of columns -1
     unordered_map<int, int> qPair;
-    vector<int> qubitNum;
+    vector<int> qubitNum;  // number of qubit
+
+    // maxCol
     for (auto& o : getOutputs()) {
         if (o->getCol() > maxCol) maxCol = o->getCol();
-        qubitNum.push_back(o->getQubit());
     }
-    sort(qubitNum.begin(), qubitNum.end());
+
+    // qubitNum
+    vector<int> qubitNum_temp;  // number of qubit
+    for (auto& v : getVertices()) {
+        qubitNum_temp.push_back(v->getQubit());
+    }
+    sort(qubitNum_temp.begin(), qubitNum_temp.end());
+    size_t offset = qubitNum_temp[0];
+    qubitNum.push_back(0);
+    for (size_t i = 1; i < qubitNum_temp.size(); i++) {
+        if (qubitNum_temp[i - 1] == qubitNum_temp[i]) {
+            continue;
+        } else {
+            qubitNum.push_back(qubitNum_temp[i] - offset);
+        }
+    }
+    qubitNum_temp.clear();
+
     for (size_t i = 0; i < qubitNum.size(); i++) qPair[i] = qubitNum[i];
     vector<ZXVertex*> tmp;
     tmp.resize(qubitNum.size());
     vector<vector<ZXVertex*>> colList(maxCol + 1, tmp);
 
-    for (auto& v : getVertices()) colList[v->getCol()][qPair[v->getQubit()]] = v;
+    for (auto& v : getVertices()) colList[v->getCol()][qPair[v->getQubit() - offset]] = v;
 
-    vector<int> maxLength(maxCol + 1, 0);
+    vector<size_t> maxLength(maxCol + 1, 0);
     for (size_t i = 0; i < colList.size(); i++) {
         for (size_t j = 0; j < colList[i].size(); j++) {
             if (colList[i][j] != nullptr) {
@@ -181,20 +201,53 @@ void ZXGraph::draw() const {
             }
         }
     }
-    for (int i = 0; i < qubitNum.size(); i++) {
-        for (int j = 0; j <= maxCol; j++) {
-            if (colList[j][i] != nullptr) {
+    size_t maxLengthQ = 0;
+    for (size_t i = 0; i < qubitNum.size(); i++) {
+        int temp = offset + i;
+        if (to_string(temp).length() > maxLengthQ) maxLengthQ = to_string(temp).length();
+    }
+
+    for (size_t i = 0; i < qubitNum.size(); i++) {
+        // print qubit
+        int temp = offset + i;
+        cout << "[";
+        for (size_t i = 0; i < maxLengthQ - to_string(temp).length(); i++) {
+            cout << " ";
+        }
+        cout << temp << "]";
+
+        // print row
+        for (size_t j = 0; j <= maxCol; j++) {
+            if (i < -offset) {
+                if (colList[j][i] != nullptr) {
+                    cout << "(" << printColoredVertex(colList[j][i]) << ")   ";
+                } else {
+                    if (j == maxCol)
+                        cout << endl;
+                    else {
+                        cout << "   ";
+                        for (size_t k = 0; k < maxLength[j] + 2; k++) cout << " ";
+                    }
+                }
+            } else if (colList[j][i] != nullptr) {
                 if (j == maxCol)
                     cout << "(" << printColoredVertex(colList[j][i]) << ")" << endl;
                 else
-                    cout << "(" << printColoredVertex(colList[j][i]) << ")--";
+                    cout << "(" << printColoredVertex(colList[j][i]) << ")---";
 
-                for (int k = 0; k < maxLength[j] - to_string(colList[j][i]->getId()).length(); k++) cout << "-";
+                for (size_t k = 0; k < maxLength[j] - to_string(colList[j][i]->getId()).length(); k++) cout << "-";
             } else {
-                cout << "--";
-                for (int k = 0; k < maxLength[j] + 2; k++) cout << "-";
+                cout << "---";
+                for (size_t k = 0; k < maxLength[j] + 2; k++) cout << "-";
             }
         }
         cout << endl;
     }
+    for (auto& a : colList) {
+        a.clear();
+    }
+    colList.clear();
+
+    maxLength.clear();
+    qubitNum.clear();
 }
