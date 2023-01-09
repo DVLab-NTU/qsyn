@@ -365,13 +365,11 @@ void ZXGraph::addVertices(const ZXVertexList& vertices, bool reordered) {
  *
  */
 size_t ZXGraph::removeIsolatedVertices() {
-    vector<ZXVertex*> removing;
+    vector<ZXVertex*> rmList;
     for (const auto& v : _vertices) {
-        if (v->getNumNeighbors() == 0) {
-            removing.push_back(v);
-        }
+        if (v->getNumNeighbors() == 0) rmList.push_back(v);
     }
-    return removeVertices(removing);
+    return removeVertices(rmList);
 }
 
 /**
