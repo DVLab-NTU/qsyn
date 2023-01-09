@@ -37,10 +37,10 @@ void QCir::clearMapping() {
  * @brief Mapping QCir to ZX-graph
  */
 void QCir::ZXMapping() {
-    if (verbose >= 3) cout << "Traverse and build the graph... " << endl;
     updateTopoOrder();
 
     ZXGraph *_ZXG = zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
+    if (verbose >= 5) cout << "Traverse and build the graph... " << endl;
     _ZXG->setRef((void **)_ZXG);
 
     if (verbose >= 5) cout << "\n> Add boundaries" << endl;
@@ -52,7 +52,8 @@ void QCir::ZXMapping() {
     }
 
     topoTraverse([this, _ZXG](QCirGate *G) {
-        if (verbose >= 5) cout << "\n> Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
+        if (verbose >= 8) cout << "\n";
+        if (verbose >= 5) cout << "> Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph *tmp = G->getZXform();
 
         for (auto &v : tmp->getVertices()) {

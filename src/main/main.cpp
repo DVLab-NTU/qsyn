@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
         !initZXCmd() ||
         !initSimpCmd() ||
         !initTensorCmd() ||
-        !initM2Cmd() ||
+        // !initM2Cmd() ||
         !initExtractCmd() ||
         !initGFlowCmd() ||
         !initLTCmd()) {

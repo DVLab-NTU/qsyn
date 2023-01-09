@@ -25,7 +25,7 @@ void PivotInterface::rewrite(ZXGraph* g) {
     preprocess(g);
 
     for (auto& m : _matchTypeVec) {
-        if (verbose >= 5) {
+        if (verbose >= 8) {
             cout << "> rewrite...\n";
             cout << "vs: " << m[0]->getId() << "\tvt: " << m[1]->getId() << endl;
         }

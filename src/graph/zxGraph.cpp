@@ -309,7 +309,7 @@ void ZXGraph::addOutputs(const ZXVertexList& outputs) {
 EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
     if (vs == vt) {
         Phase phase = (et == EdgeType::HADAMARD) ? Phase(1) : Phase(0);
-        if (verbose >= 5) cout << "Note: converting this self-loop to phase " << phase << " on vertex " << vs->getId() << "..." << endl;
+        if (verbose >= 8) cout << "Note: converting this self-loop to phase " << phase << " on vertex " << vs->getId() << "..." << endl;
         vs->setPhase(vs->getPhase() + phase);
         return makeEdgePairDummy();
     }
@@ -320,13 +320,13 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
             (vs->isX() && vt->isZ() && et == EdgeType::HADAMARD) ||
             (vs->isZ() && vt->isZ() && et == EdgeType::SIMPLE) ||
             (vs->isX() && vt->isX() && et == EdgeType::SIMPLE)) {
-            if (verbose >= 5) cout << "Note: redundant edge; merging into existing edge (" << vs->getId() << ", " << vt->getId() << ")..." << endl;
+            if (verbose >= 8) cout << "Note: redundant edge; merging into existing edge (" << vs->getId() << ", " << vt->getId() << ")..." << endl;
         } else if (
             (vs->isZ() && vt->isX() && et == EdgeType::SIMPLE) ||
             (vs->isX() && vt->isZ() && et == EdgeType::SIMPLE) ||
             (vs->isZ() && vt->isZ() && et == EdgeType::HADAMARD) ||
             (vs->isX() && vt->isX() && et == EdgeType::HADAMARD)) {
-            if (verbose >= 5) cout << "Note: Hopf edge; cancelling out with existing edge (" << vs->getId() << ", " << vt->getId() << ")..." << endl;
+            if (verbose >= 8) cout << "Note: Hopf edge; cancelling out with existing edge (" << vs->getId() << ", " << vt->getId() << ")..." << endl;
             vs->removeNeighbor(make_pair(vt, et));
             vt->removeNeighbor(make_pair(vs, et));
         }
@@ -399,7 +399,7 @@ size_t ZXGraph::removeVertex(ZXVertex* v) {
         _outputs.erase(v);
     }
 
-    if (verbose >= 5) cout << "Remove ID: " << v->getId() << endl;
+    if (verbose >= 8) cout << "Remove ID: " << v->getId() << endl;
     // deallocate ZXVertex
     delete v;
     return 1;

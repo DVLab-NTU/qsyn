@@ -101,7 +101,7 @@ void PivotGadget::match(ZXGraph* g) {
         if (verbose == 9) cout << "(3) good match\n";
 
         // Both vs and vt are interior
-        if (verbose >= 5) cout << "Both vertices are both interior: " << vs->getId() << " " << vt->getId() << endl;
+        if (verbose >= 8) cout << "Both vertices are both interior: " << vs->getId() << " " << vt->getId() << endl;
 
         taken.insert(vs);
         taken.insert(vt);
