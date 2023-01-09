@@ -275,7 +275,7 @@ ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, bool checked
     }
     ZXVertex* v = new ZXVertex(_nextVId, qubit, vt, phase, col);
     _vertices.emplace(v);
-    if (verbose >= 5) cout << "Add vertex (" << VertexType2Str(vt) << ")" << _nextVId << endl;
+    if (verbose >= 8) cout << "Add vertex (" << VertexType2Str(vt) << ") " << _nextVId << endl;
     _nextVId++;
     return v;
 }
@@ -334,7 +334,7 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
     } else {
         vs->addNeighbor(make_pair(vt, et));
         vt->addNeighbor(make_pair(vs, et));
-        if (verbose >= 5) cout << "Add edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
+        if (verbose >= 8) cout << "Add edge (" << vs->getId() << ", " << vt->getId() << ")" << endl;
     }
 
     return makeEdgePair(vs, vt, et);
@@ -442,7 +442,7 @@ size_t ZXGraph::removeEdge(ZXVertex* vs, ZXVertex* vt, EdgeType etype) {
         throw out_of_range("Graph connection error in " + to_string(vs->getId()) + " and " + to_string(vt->getId()));
     }
     if (count == 2) {
-        if (verbose >= 5) cout << "Remove edge ( " << vs->getId() << ", " << vt->getId() << " ), type: " << EdgeType2Str(etype) << endl;
+        if (verbose >= 8) cout << "Remove edge (" << vs->getId() << ", " << vt->getId() << "), type: " << EdgeType2Str(etype) << endl;
     }
     return count / 2;
 }

@@ -26,7 +26,7 @@ extern size_t verbose;
 ZXGraph *QCirGate::mapSingleQubitGate(VertexType vt, Phase ph) {
     ZXGraph *g = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+    // if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
     ZXVertex *in = g->addInput(qubit);
     ZXVertex *gate = g->addVertex(qubit, vt, ph);
     ZXVertex *out = g->addOutput(qubit);
@@ -34,7 +34,7 @@ ZXGraph *QCirGate::mapSingleQubitGate(VertexType vt, Phase ph) {
     g->addEdge(gate, out, EdgeType::SIMPLE);
     g->setInputHash(qubit, in);
     g->setOutputHash(qubit, out);
-    if (verbose >= 5) cout << "***********************************" << endl;
+    // if (verbose >= 5) cout << "***********************************" << endl;
     return g;
 }
 
@@ -85,7 +85,7 @@ ZXGraph *CXGate::getZXform() {
     ZXGraph *temp = new ZXGraph(_id);
     size_t ctrl_qubit = _qubits[0]._isTarget ? _qubits[1]._qubit : _qubits[0]._qubit;
     size_t targ_qubit = _qubits[0]._isTarget ? _qubits[0]._qubit : _qubits[1]._qubit;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+    // if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
     ZXVertex *in_ctrl = temp->addInput(ctrl_qubit);
     ZXVertex *in_targ = temp->addInput(targ_qubit);
     ZXVertex *ctrl = temp->addVertex(ctrl_qubit, VertexType::Z, Phase(0));
@@ -101,7 +101,7 @@ ZXGraph *CXGate::getZXform() {
     temp->setOutputHash(ctrl_qubit, out_ctrl);
     temp->setInputHash(targ_qubit, in_targ);
     temp->setOutputHash(targ_qubit, out_targ);
-    if (verbose >= 5) cout << "***********************************" << endl;
+    // if (verbose >= 5) cout << "***********************************" << endl;
     return temp;
 }
 
@@ -126,7 +126,7 @@ ZXGraph *CCXGate::getZXform()  //
 
     vector<ZXVertex *> Vertices_list = {};
 
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+    // if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
     ZXVertex *in_ctrl_1 = temp->addInput(ctrl_qubit_1);
     ZXVertex *in_ctrl_2 = temp->addInput(ctrl_qubit_2);
     ZXVertex *in_targ = temp->addInput(targ_qubit);
@@ -153,7 +153,7 @@ ZXGraph *CCXGate::getZXform()  //
     temp->setOutputHash(ctrl_qubit_2, out_ctrl_2);
     temp->setInputHash(targ_qubit, in_targ);
     temp->setOutputHash(targ_qubit, out_targ);
-    if (verbose >= 5) cout << "***********************************" << endl;
+    // if (verbose >= 5) cout << "***********************************" << endl;
     return temp;
 }
 
@@ -166,7 +166,7 @@ ZXGraph *CZGate::getZXform() {
     ZXGraph *temp = new ZXGraph(_id);
     size_t ctrl_qubit = _qubits[0]._isTarget ? _qubits[1]._qubit : _qubits[0]._qubit;
     size_t targ_qubit = _qubits[0]._isTarget ? _qubits[0]._qubit : _qubits[1]._qubit;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+    // if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
     ZXVertex *in_ctrl = temp->addInput(ctrl_qubit);
     ZXVertex *in_targ = temp->addInput(targ_qubit);
     ZXVertex *ctrl = temp->addVertex(ctrl_qubit, VertexType::Z, Phase(0));
@@ -182,7 +182,7 @@ ZXGraph *CZGate::getZXform() {
     temp->setOutputHash(ctrl_qubit, out_ctrl);
     temp->setInputHash(targ_qubit, in_targ);
     temp->setOutputHash(targ_qubit, out_targ);
-    if (verbose >= 5) cout << "***********************************" << endl;
+    // if (verbose >= 5) cout << "***********************************" << endl;
     return temp;
 }
 
@@ -197,7 +197,7 @@ ZXGraph *CZGate::getZXform() {
 ZXGraph *YGate::getZXform() {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+    // if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
     ZXVertex *in = temp->addInput(qubit);
     ZXVertex *X = temp->addVertex(qubit, VertexType::X, Phase(1));
     ZXVertex *Z = temp->addVertex(qubit, VertexType::Z, Phase(1));
@@ -207,7 +207,7 @@ ZXGraph *YGate::getZXform() {
     temp->addEdge(Z, out, EdgeType::SIMPLE);
     temp->setInputHash(qubit, in);
     temp->setOutputHash(qubit, out);
-    if (verbose >= 5) cout << "***********************************" << endl;
+    // if (verbose >= 5) cout << "***********************************" << endl;
     return temp;
 }
 
@@ -219,7 +219,7 @@ ZXGraph *YGate::getZXform() {
 ZXGraph *SYGate::getZXform() {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+    // if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
     ZXVertex *in = temp->addInput(qubit);
     ZXVertex *S = temp->addVertex(qubit, VertexType::Z, Phase(1, 2));
     ZXVertex *SX = temp->addVertex(qubit, VertexType::X, Phase(1, 2));
@@ -231,7 +231,7 @@ ZXGraph *SYGate::getZXform() {
     temp->addEdge(Sdg, out, EdgeType::SIMPLE);
     temp->setInputHash(qubit, in);
     temp->setOutputHash(qubit, out);
-    if (verbose >= 5) cout << "***********************************" << endl;
+    // if (verbose >= 5) cout << "***********************************" << endl;
     return temp;
 }
 
@@ -245,7 +245,7 @@ ZXGraph *CnPGate::getZXform() {
     Phase phase = Phase(1, pow(2, _qubits.size() - 1));
     Rational ratio = _rotatePhase / Phase(1);
     phase = phase * ratio;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+    // if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
     vector<ZXVertex *> verVec;
     for (const auto bitinfo : _qubits) {
         size_t qubit = bitinfo._qubit;
@@ -282,7 +282,7 @@ ZXGraph *CRZGate::getZXform() {
     Phase phase = Phase(1, pow(2, _qubits.size() - 1));
     Rational ratio = _rotatePhase / Phase(1);
     phase = phase * ratio;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+    // if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
     vector<ZXVertex *> verVec;
     for (const auto bitinfo : _qubits) {
         size_t qubit = bitinfo._qubit;
@@ -318,7 +318,7 @@ ZXGraph *CnRXGate::getZXform() {
     Phase phase = Phase(1, pow(2, _qubits.size() - 1));
     Rational ratio = _rotatePhase / Phase(1);
     phase = phase * ratio;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+    // if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
     vector<ZXVertex *> verVec;
     size_t targetQubit = _qubits[_qubits.size() - 1]._qubit;
     for (const auto bitinfo : _qubits) {

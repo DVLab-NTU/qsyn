@@ -331,7 +331,7 @@ QCirReadCmd::exec(const string &option) {
         return CMD_EXEC_ERROR;
     }
     if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end()) {
-        cout << "Note: QCir list is empty now. Create a new one." << endl;
+        // cout << "Note: QCir list is empty now. Create a new one." << endl;
         qcirMgr->addQCir(qcirMgr->getNextID());
     } else {
         if (doReplace) {
@@ -403,6 +403,7 @@ QCirGatePrintCmd::exec(const string &option) {
             cerr << "Error: id " << id << " not found!!" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
         }
+        cout << "\n> Gate " << id << " (" << qcirMgr->getQCircuit()->getGate(id)->getTypeStr() << ")";
         qcirMgr->getQCircuit()->getGate(id)->getZXform()->printVertices();
     } else {
         if (!qcirMgr->getQCircuit()->printGateInfo(id, showTime))
