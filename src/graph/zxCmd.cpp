@@ -760,10 +760,30 @@ ZXGWriteCmd::exec(const string &option) {
 
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXWrite");
 
-    if (!zxGraphMgr->getGraph()->writeZX(fileName, doComplete)) {
-        cerr << "Error: fail to write ZX-Graph to \"" << fileName << "\"!!" << endl;
-        return CMD_EXEC_ERROR;
+    size_t extensionPosition = fileName.find_last_of(".");
+    // REVIEW - should we guard the case of no file extension?
+    if (extensionPosition != string::npos) {
+        string extensionString = fileName.substr(extensionPosition);
+        if (
+            myStrNCmp(".zx", extensionString, 3) == 0 ||
+            myStrNCmp(".bzx", extensionString, 4) == 0) {
+            if (!zxGraphMgr->getGraph()->writeZX(fileName, doComplete)) {
+                cerr << "Error: fail to write ZX-Graph to \"" << fileName << "\"!!" << endl;
+                return CMD_EXEC_ERROR;
+            }
+        } else if (myStrNCmp(".tikz", extensionString, 5) == 0) {
+            if (!zxGraphMgr->getGraph()->writeTikz(fileName)) {
+                cerr << "Error: fail to write Tikz to \"" << fileName << "\"!!" << endl;
+                return CMD_EXEC_ERROR;
+            }
+        }
+    } else {
+        if (!zxGraphMgr->getGraph()->writeZX(fileName, doComplete)) {
+            cerr << "Error: fail to write ZX-Graph to \"" << fileName << "\"!!" << endl;
+            return CMD_EXEC_ERROR;
+        }
     }
+
     return CMD_EXEC_DONE;
 }
 

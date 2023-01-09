@@ -277,7 +277,7 @@ ZXGraph *CnPGate::getZXform() {
  * @return ZXGraph*
  */
 // TODO - Implentment the MCRZ version.
-ZXGraph *CrzGate::getZXform() {
+ZXGraph *CRZGate::getZXform() {
     ZXGraph *temp = new ZXGraph(_id);
     Phase phase = Phase(1, pow(2, _qubits.size() - 1));
     Rational ratio = _rotatePhase / Phase(1);

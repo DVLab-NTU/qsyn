@@ -213,6 +213,7 @@ public:
     // I/O (in zxIO.cpp)
     bool readZX(const string& filename, bool keepID = false);
     bool writeZX(const string& filename, bool complete = false);
+    bool writeTikz(string);
 
     // Traverse (in zxTraverse.cpp)
     void updateTopoOrder();
