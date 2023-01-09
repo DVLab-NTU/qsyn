@@ -95,7 +95,7 @@ void QuitCmd::usage(ostream& os) const {
 
 void QuitCmd::help() const {
     cout << setw(15) << left << "QQuit: "
-         << "quit the execution" << endl;
+         << "quit Qsyn" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -296,5 +296,5 @@ void ColorCmd::usage(ostream& os) const {
 
 void ColorCmd::help() const {
     cout << setw(15) << left << "COLOR: "
-         << "command line printing mode (0: grayscale, 1: color)" << endl;
+         << "toggle colored printing (1: on, 0: off)" << endl;
 }

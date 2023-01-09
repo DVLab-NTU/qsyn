@@ -724,7 +724,7 @@ void ZXGReadCmd::usage(ostream &os) const {
 
 void ZXGReadCmd::help() const {
     cout << setw(15) << left << "ZXGRead: "
-         << "read a ZX-graph from ZX file" << endl;
+         << "read a file and construct the corresponding ZX-graph" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -793,7 +793,7 @@ void ZXGWriteCmd::usage(ostream &os) const {
 
 void ZXGWriteCmd::help() const {
     cout << setw(15) << left << "ZXGWrite: "
-         << "write a ZX-graph to a ZX file\n";
+         << "write a ZX-graph to a file\n";
 }
 
 //----------------------------------------------------------------------
@@ -843,7 +843,7 @@ void ZXGAssignCmd::usage(ostream &os) const {
 
 void ZXGAssignCmd::help() const {
     cout << setw(15) << left << "ZXGASsign: "
-         << "assign an input/output vertex to specific qubit\n";
+         << "assign quantum states to input/output vertex\n";
 }
 
 //----------------------------------------------------------------------

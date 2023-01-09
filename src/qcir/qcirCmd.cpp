@@ -353,7 +353,7 @@ void QCirReadCmd::usage(ostream &os) const {
 
 void QCirReadCmd::help() const {
     cout << setw(15) << left << "QCCRead: "
-         << "read a circuit and construct corresponding netlist" << endl;
+         << "read a circuit and construct the corresponding netlist" << endl;
 }
 
 //----------------------------------------------------------------------
