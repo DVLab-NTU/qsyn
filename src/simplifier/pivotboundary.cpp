@@ -35,7 +35,7 @@ void PivotBoundary::preprocess(ZXGraph* g) {
 void PivotBoundary::match(ZXGraph* g) {
     this->_matchTypeVec.clear();
     this->_boundaries.clear();
-    if (verbose >= 8) g->printVertices();
+    // if (verbose >= 8) g->printVertices();
 
     unordered_set<ZXVertex*> taken;
     vector<ZXVertex*> b0;

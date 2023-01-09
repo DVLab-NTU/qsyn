@@ -22,7 +22,7 @@ extern size_t verbose;
  */
 void SpiderFusion::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    if (verbose >= 8) g->printVertices();
+    // if (verbose >= 8) g->printVertices();
 
     unordered_set<ZXVertex*> taken;
 
@@ -45,7 +45,7 @@ void SpiderFusion::match(ZXGraph* g) {
         }
     });
 
-    if (verbose >= 5) cout << "Found " << _matchTypeVec.size() << " match(es) of spider fusion rule: " << endl;
+    // if (verbose >= 5) cout << "Found " << _matchTypeVec.size() << " match(es) of spider fusion rule: " << endl;
     setMatchTypeVecNum(_matchTypeVec.size());
 }
 

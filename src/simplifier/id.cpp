@@ -22,7 +22,7 @@ extern size_t verbose;
  */
 void IdRemoval::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    if (verbose >= 8) g->printVertices();
+    // if (verbose >= 8) g->printVertices();
     // size_t cnt = 0;
 
     unordered_set<ZXVertex*> taken;

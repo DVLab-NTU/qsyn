@@ -38,8 +38,8 @@ void PivotGadget::preprocess(ZXGraph* g) {
  */
 void PivotGadget::match(ZXGraph* g) {
     this->_matchTypeVec.clear();
-    if (verbose >= 8) g->printVertices();
-    if (verbose >= 5) cout << "> match...\n";
+    // if (verbose >= 8) g->printVertices();
+    if (verbose >= 8) cout << "> match...\n";
 
     size_t cnt = 0;
 

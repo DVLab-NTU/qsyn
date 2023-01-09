@@ -21,7 +21,7 @@ extern size_t verbose;
  */
 void LComp::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    if (verbose >= 8) g->printVertices();
+    // if (verbose >= 8) g->printVertices();
 
     // Find all Z vertices that connect to all neighb ors with H edge.
     unordered_set<ZXVertex*> taken;

@@ -25,7 +25,7 @@ extern size_t verbose;
  */
 void PhaseGadget::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    if (verbose >= 8) g->printVertices();
+    // if (verbose >= 8) g->printVertices();
 
     unordered_map<ZXVertex*, ZXVertex*> axel2leaf;
     unordered_multimap<vector<ZXVertex*>, ZXVertex*> group2axel;

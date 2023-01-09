@@ -21,7 +21,7 @@ extern size_t verbose;
  */
 void HRule::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    if (verbose >= 8) g->printVertices();
+    // if (verbose >= 8) g->printVertices();
 
     unordered_map<size_t, size_t> id2idx;
 
