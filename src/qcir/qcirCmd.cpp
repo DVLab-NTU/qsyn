@@ -207,12 +207,12 @@ QCirCopyCmd::exec(const string &option) {  // check option
 }
 
 void QCirCopyCmd::usage(ostream &os) const {
-    os << "Usage: ZXCOPy <size_t id> [-Replace]" << endl;
+    os << "Usage: QCCOPy <size_t id> [-Replace]" << endl;
 }
 
 void QCirCopyCmd::help() const {
-    cout << setw(15) << left << "ZXCOPy: "
-         << "copy a ZX-graph" << endl;
+    cout << setw(15) << left << "QCCOPy: "
+         << "copy a QCir" << endl;
 }
 
 //----------------------------------------------------------------------
