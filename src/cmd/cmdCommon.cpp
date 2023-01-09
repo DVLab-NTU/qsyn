@@ -229,7 +229,7 @@ void VerboseCmd::usage(ostream& os) const {
 
 void VerboseCmd::help() const {
     cout << setw(15) << left << "VERbose: "
-         << "set verbose level in 0-9 (default: 3)" << endl;
+         << "set verbose level to 0-9 (default: 3)" << endl;
 }
 
 //----------------------------------------------------------------------
