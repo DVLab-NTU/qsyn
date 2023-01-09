@@ -270,5 +270,5 @@ void ExtractPrintCmd::usage(ostream &os) const {
 
 void ExtractPrintCmd::help() const {
     cout << setw(15) << left << "EXTPrint: "
-         << "print information of extracting graph" << endl;
+         << "print info of extracting ZX-graph" << endl;
 }

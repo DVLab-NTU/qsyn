@@ -166,7 +166,7 @@ void QCirNewCmd::usage(ostream &os) const {
 
 void QCirNewCmd::help() const {
     cout << setw(15) << left << "QCNew: "
-         << "new QCir to QCirMgr" << endl;
+         << "create a new QCir to QCirMgr" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -296,7 +296,7 @@ void QCPrintCmd::usage(ostream &os) const {
 
 void QCPrintCmd::help() const {
     cout << setw(15) << left << "QCPrint: "
-         << "print info in QCirMgr" << endl;
+         << "print info of QCirMgr" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -418,7 +418,7 @@ void QCirGatePrintCmd::usage(ostream &os) const {
 
 void QCirGatePrintCmd::help() const {
     cout << setw(15) << left << "QCGPrint: "
-         << "print quantum gate information\n";
+         << "print gate info in QCir\n";
 }
 
 //----------------------------------------------------------------------
@@ -455,7 +455,7 @@ void QCirPrintCmd::usage(ostream &os) const {
 
 void QCirPrintCmd::help() const {
     cout << setw(15) << left << "QCCPrint: "
-         << "print quantum circuit\n";
+         << "print info of QCir\n";
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -792,7 +792,7 @@ void QCir2ZXCmd::usage(ostream &os) const {
 
 void QCir2ZXCmd::help() const {
     cout << setw(15) << left << "QC2ZX: "
-         << "convert the QCir to ZX-graph\n";
+         << "convert QCir to ZX-graph\n";
 }
 
 //----------------------------------------------------------------------
@@ -815,7 +815,7 @@ void QCir2TSCmd::usage(ostream &os) const {
 
 void QCir2TSCmd::help() const {
     cout << setw(15) << left << "QC2TS: "
-         << "convert the QCir to tensor\n";
+         << "convert QCir to tensor\n";
 }
 
 //----------------------------------------------------------------------
@@ -842,7 +842,7 @@ void QCirWriteCmd::usage(ostream &os) const {
 
 void QCirWriteCmd::help() const {
     cout << setw(15) << left << "QCCWrite: "
-         << "write QASM file\n";
+         << "write QCir to a QASM file\n";
 }
 
 void QCirAddMultipleCmd::usage(ostream &os) const {
