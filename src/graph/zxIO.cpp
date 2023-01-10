@@ -160,14 +160,22 @@ bool ZXGraph::buildGraphFromParserStorage(const ZXParserDetail::StorageType& sto
     return true;
 }
 
+string defineColors =
+    "\\definecolor{zx_red}{RGB}{253, 160, 162}\n"
+    "\\definecolor{zx_green}{RGB}{206, 254, 206}\n"
+    "\\definecolor{hedgeColor}{RGB}{40, 160, 240}\n"
+    "\\definecolor{phaseColor}{RGB}{14, 39, 100}\n";
+
 string tikzStyle =
     "[\n"
-    "\t boun/.style={circle, draw=black!60, fill=black!5, very thick, text width=5mm, align=center, inner sep=0pt},\n"
-    "\t hbox/.style={regular polygon,regular polygon sides=4, draw=yellow!90, fill=yellow!20, very thick, text width=3.5mm, align=center, inner sep=0pt},\n"
-    "\t zspi/.style={circle, draw=green!60!black!100, fill=green!5, very thick, text width=5mm, align=center, inner sep=0pt},\n"
-    "\t xspi/.style={circle, draw=red!80, fill=red!5, very thick, text width=5mm, align=center, inner sep=0pt},\n"
-    "\t hedg/.style={draw=blue!100, very thick},\n"
-    "\t sedg/.style={draw=black, very thick},\n"
+    "font = \\sffamily,\n"
+    "\t yscale=-1,\n"
+    "\t boun/.style={circle, text=yellow!60, font=\\sffamily, draw=black!100, fill=black!60, thick, text width=3mm, align=center, inner sep=0pt},\n"
+    "\t hbox/.style={regular polygon, regular polygon sides=4, font=\\sffamily, draw=yellow!40!black!100, fill=yellow!40, text width=2.5mm, align=center, inner sep=0pt},\n"
+    "\t zspi/.style={circle, font=\\sffamily, draw=green!60!black!100, fill=zx_green, text width=5mm, align=center, inner sep=0pt},\n"
+    "\t xspi/.style={circle, font=\\sffamily, draw=red!60!black!100, fill=zx_red, text width=5mm, align=center, inner sep=0pt},\n"
+    "\t hedg/.style={draw=hedgeColor, thick},\n"
+    "\t sedg/.style={draw=black, thick},\n"
     "];\n";
 
 unordered_map<VertexType, string> vt2s = {
@@ -182,11 +190,11 @@ unordered_map<EdgeType, string> et2s = {
 };
 
 /**
- * @brief
+ * @brief generate tikz file
  *
  * @param filename
- * @return true
- * @return false
+ * @return true if the filename is valid
+ * @return false if not
  */
 bool ZXGraph::writeTikz(string filename) {
     fstream tikzFile;
@@ -196,19 +204,32 @@ bool ZXGraph::writeTikz(string filename) {
         return false;
     }
     string fontSize = "\\tiny";
+    tikzFile << defineColors;
+    tikzFile << "\\scalebox{1.0}{";
     tikzFile << "\\begin{tikzpicture}" << tikzStyle;
     tikzFile << "    % Vertices\n";
 
     auto writePhase = [&tikzFile, &fontSize](ZXVertex* v) {
-        if (v->getPhase() == Phase(0))
+        if (v->getPhase() == Phase(0) && v->getType() != VertexType::H_BOX)
             return true;
-        tikzFile << ",label={ " << fontSize << " $";
-        if (v->getPhase().getRational().denominator() == 1) {
-            tikzFile << to_string(v->getPhase().getRational().numerator()) << "\\pi";
-        } else {
-            tikzFile << "\\frac{" << to_string(v->getPhase().getRational().numerator()) << "\\pi}{" << to_string(v->getPhase().getRational().denominator()) << "}";
+        if (v->getPhase() == Phase(1) && v->getType() == VertexType::H_BOX)
+            return true;
+        string labelStyle = "[label distance=-2px]90:{\\color{phaseColor}";
+        tikzFile << ",label={ " << labelStyle << fontSize << " $";
+        int numerator = v->getPhase().getRational().numerator();
+        int denominator = v->getPhase().getRational().denominator();
+
+        if (denominator != 1) {
+            tikzFile << "\\frac{";
         }
-        tikzFile << "$ }";
+        if (numerator != 1) {
+            tikzFile << "\\mathsf{" << to_string(numerator) << "}";
+        }
+        tikzFile << "\\pi";
+        if (denominator != 1) {
+            tikzFile << "}{ \\mathsf{" << to_string(denominator) << "}}";
+        }
+        tikzFile << "$ }}";
         return true;
     };
 
@@ -230,6 +251,6 @@ bool ZXGraph::writeTikz(string filename) {
         }
     }
 
-    tikzFile << "\\end{tikzpicture}\n";
+    tikzFile << "\\end{tikzpicture}}\n";
     return true;
 }
