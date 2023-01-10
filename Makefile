@@ -53,13 +53,12 @@ endif
 all:  main
 test: testmain
 
-libs:
-	@for pkg in $(SRCPKGS); \
-	do \
-		echo "Checking $$pkg..."; \
-		cd src/$$pkg; $(MAKE) -f make.$$pkg --no-print-directory PKGNAME=$$pkg OSFLAG="$(OSFLAG)"; \
-		cd ../..; \
-	done
+libs: $(SRCPKGS)
+
+$(SRCPKGS):
+	@echo "Checking $(@F)..."; \
+	cd src/$(@F); $(MAKE) -f make.$(@F) --no-print-directory PKGNAME=$(@F) OSFLAG="$(OSFLAG)"; \
+	cd ../..; 
 
 main: libs
 	@echo "Checking $(MAIN)..."
@@ -75,13 +74,9 @@ testmain: libs
 		$(MAKE) -f make.$(TESTMAIN) --no-print-directory INCLIB="$(LIBS)" EXEC=$(TESTEXEC) OSFLAG="$(OSFLAG)";
 
 
-clean:
-	@for pkg in $(SRCPKGS); \
-	do \
-		echo "Cleaning $$pkg..."; \
-		cd src/$$pkg; $(MAKE) -f make.$$pkg --no-print-directory PKGNAME=$$pkg clean; \
-                cd ../..; \
-	done
+CLEAN_SRCPKGS   = $(addprefix clean_,  $(SRCPKGS))
+
+clean: $(CLEAN_SRCPKGS)
 	@echo "Cleaning $(MAIN)..."
 	@cd src/$(MAIN); $(MAKE) -f make.$(MAIN) --no-print-directory clean
 	@echo "Cleaning $(TESTMAIN)..."
@@ -90,6 +85,11 @@ clean:
 	@cd lib; rm -f $(SRCLIBS)
 	@echo "Removing $(EXEC)..."
 	@rm -f bin/$(EXEC)
+
+$(CLEAN_SRCPKGS):
+	@echo "Cleaning $(@F:clean_%=%)..."; \
+	cd src/$(@F:clean_%=%); $(MAKE) -f make.$(@F:clean_%=%) --no-print-directory PKGNAME=$(@F:clean_%=%) clean; \
+    cd ../..;
 
 cleanall: clean
 	@echo "Removing bin/*..."
