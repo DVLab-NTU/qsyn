@@ -51,7 +51,6 @@ private:
 };
 
 class M2 {
-
 public:
     using Oper = std::pair<size_t, size_t>;
     M2() {}

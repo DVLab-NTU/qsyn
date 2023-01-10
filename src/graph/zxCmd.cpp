@@ -9,9 +9,9 @@
 #include "zxCmd.h"
 
 #include <cstddef>   // for size_t
-#include <iomanip>  // for ostream
-#include <iostream>  // for ostream
-#include <string>    // for string
+#include <iomanip>
+#include <iostream>
+#include <string>
 
 #include "cmdMacros.h"   // for CMD_N_OPTS_EQUAL_OR_RETURN, CMD_N_OPTS_AT_LE...
 #include "textFormat.h"  // for TextFormat

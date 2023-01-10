@@ -8,9 +8,9 @@
 #ifndef TENSOR_MGR_H
 #define TENSOR_MGR_H
 
-#include <iosfwd> 
-#include <map>      
-#include <string> 
+#include <iosfwd>
+#include <map>
+#include <string>
 
 #include "phase.h"
 

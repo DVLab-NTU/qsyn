@@ -6,10 +6,10 @@
   Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include "myUsage.h"
+
 #include <iomanip>
 #include <iostream>
-
-#include "myUsage.h"
 
 using namespace std;
 
@@ -26,13 +26,13 @@ void MyUsage::report(bool repTime, bool repMem) {
     if (repTime) {
         setTimeUsage();
         cout << "Period time used : " << setprecision(4)
-                << _periodUsedTime << " seconds" << endl;
+             << _periodUsedTime << " seconds" << endl;
         cout << "Total time used  : " << setprecision(4)
-                << _totalUsedTime << " seconds" << endl;
+             << _totalUsedTime << " seconds" << endl;
     }
     if (repMem) {
         setMemUsage();
         cout << "Total memory used: " << setprecision(4)
-                << _currentMem << " M Bytes" << endl;
+             << _currentMem << " M Bytes" << endl;
     }
 }

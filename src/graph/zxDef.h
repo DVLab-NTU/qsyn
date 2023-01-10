@@ -9,9 +9,9 @@
 #ifndef ZX_DEF_H
 #define ZX_DEF_H
 
+#include <iosfwd>
 #include <unordered_map>
 #include <unordered_set>
-#include <iosfwd>
 #include <vector>
 
 #include "ordered_hashmap.h"

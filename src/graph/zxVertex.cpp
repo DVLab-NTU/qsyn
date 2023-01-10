@@ -7,9 +7,9 @@
 ****************************************************************************/
 
 #include <cstddef>  // for size_t
-#include <string>   // for string
 #include <iomanip>
 #include <iostream>
+#include <string>
 
 #include "textFormat.h"  // for TextFormat
 #include "zxDef.h"       // for EdgeType, VertexType, EdgePair, EdgeType::HA...

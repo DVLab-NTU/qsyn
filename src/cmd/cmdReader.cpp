@@ -5,9 +5,9 @@
   Author       [ Chung-Yang (Ric) Huang ]
   Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include <cassert>   // for assert
-#include <iostream>  
-#include <cstring>   // for strcpy
+#include <cassert>  // for assert
+#include <cstring>  // for strcpy
+#include <iostream>
 
 #include "cmdCharDef.h"  // for ParseChar, ParseChar::BACK_SPACE_CHAR, Parse...
 #include "cmdParser.h"   // for CmdParser, PG_OFFSET

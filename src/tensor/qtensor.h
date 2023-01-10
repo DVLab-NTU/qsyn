@@ -32,10 +32,10 @@ public:
     QTensor(const TensorShape& shape) : Tensor<DataType>(shape) {}
     QTensor(TensorShape&& shape) : Tensor<DataType>(shape) {}
     template <typename From>
-    requires std::convertible_to<From, InternalType>
+        requires std::convertible_to<From, InternalType>
     QTensor(const From& internal) : Tensor<DataType>(internal) {}
     template <typename From>
-    requires std::convertible_to<From, InternalType>
+        requires std::convertible_to<From, InternalType>
     QTensor(From&& internal) : Tensor<DataType>(internal) {}
 
     virtual ~QTensor() {}
@@ -44,9 +44,18 @@ public:
     static QTensor<T> zspider(const size_t& arity, const Phase& phase = Phase(0));
     static QTensor<T> xspider(const size_t& arity, const Phase& phase = Phase(0));
     static QTensor<T> hbox(const size_t& arity, const DataType& a = -1.);
-    static QTensor<T> xgate() { using namespace std::literals; return {{0. + 0.i, 1. + 0.i}, {1. + 0.i, 0. + 0.i}}; }
-    static QTensor<T> ygate() { using namespace std::literals; return {{0. + 0.i, 0. - 1.i}, {0. + 1.i, 0. + 0.i}}; }
-    static QTensor<T> zgate() { using namespace std::literals; return {{1. + 0.i, 0. + 0.i}, {0. + 0.i, -1. + 0.i}}; }
+    static QTensor<T> xgate() {
+        using namespace std::literals;
+        return {{0. + 0.i, 1. + 0.i}, {1. + 0.i, 0. + 0.i}};
+    }
+    static QTensor<T> ygate() {
+        using namespace std::literals;
+        return {{0. + 0.i, 0. - 1.i}, {0. + 1.i, 0. + 0.i}};
+    }
+    static QTensor<T> zgate() {
+        using namespace std::literals;
+        return {{1. + 0.i, 0. + 0.i}, {0. + 0.i, -1. + 0.i}};
+    }
     static QTensor<T> rxgate(const Phase& phase = Phase(0));
     static QTensor<T> rygate(const Phase& phase = Phase(0));
     static QTensor<T> rzgate(const Phase& phase = Phase(0));

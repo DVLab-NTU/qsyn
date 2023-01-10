@@ -10,7 +10,7 @@
 #define ZX_FILE_PARSER_H
 
 #include <cstddef>  // for size_t
-#include <iosfwd>  // for ifstream
+#include <iosfwd>   // for ifstream
 #include <string>   // for string
 #include <utility>  // for pair
 

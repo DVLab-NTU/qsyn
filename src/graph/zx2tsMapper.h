@@ -49,13 +49,13 @@ public:
     bool map();
 
 private:
-    ZXGraph* _zxgraph;                // The ZX Graph to be mapped
+    ZXGraph* _zxgraph;                     // The ZX Graph to be mapped
     std::vector<EdgePair> _boundaryEdges;  // EdgePairs of the boundaries
-    ZX2TSList _zx2tsList;             // The tensor list for each set of frontiers
-    size_t _tensorId;                 // Current tensor id for the _tensorId
+    ZX2TSList _zx2tsList;                  // The tensor list for each set of frontiers
+    size_t _tensorId;                      // Current tensor id for the _tensorId
 
-    TensorAxisList _simplePins;     // Axes that can be tensordotted directly
-    TensorAxisList _hadamardPins;   // Axes that should be applied hadamards first
+    TensorAxisList _simplePins;          // Axes that can be tensordotted directly
+    TensorAxisList _hadamardPins;        // Axes that should be applied hadamards first
     std::vector<EdgePair> _removeEdges;  // Old frontiers to be removed
     std::vector<EdgePair> _addEdges;     // New frontiers to be added
 

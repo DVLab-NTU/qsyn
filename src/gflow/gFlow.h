@@ -8,10 +8,10 @@
 #ifndef GFLOW_H
 #define GFLOW_H
 
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
-#include "m2.h"  
+#include "m2.h"
 #include "zxGraph.h"
 
 class ZXGraph;

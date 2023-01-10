@@ -9,12 +9,12 @@
 #ifndef ZX_GRAPH_H
 #define ZX_GRAPH_H
 
-#include <cstddef>   // for size_t, NULL
 #include <complex>
-#include <string>    // for string
+#include <cstddef>  // for size_t, NULL
+#include <string>   // for string
 
-#include "phase.h"    // for Phase
-#include "zxDef.h"    // for VertexType, EdgeType, EdgePair, NeighborPair
+#include "phase.h"  // for Phase
+#include "zxDef.h"  // for VertexType, EdgeType, EdgePair, NeighborPair
 
 template <typename T>
 class QTensor;

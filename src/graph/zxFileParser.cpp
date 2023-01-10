@@ -8,7 +8,7 @@
 
 #include "zxFileParser.h"
 
-#include <fstream>  // for ifstream
+#include <fstream>   // for ifstream
 #include <iostream>  // for ifstream
 
 #include "phase.h"  // for Phase
@@ -280,6 +280,6 @@ bool ZXFileParser::parseNeighbor(const string& token, pair<char, size_t>& neighb
     return true;
 }
 
-void ZXFileParser::printFailedAtLineNum() const { 
-    cerr << "Error: failed to read line " << _lineNumber << ": "; 
+void ZXFileParser::printFailedAtLineNum() const {
+    cerr << "Error: failed to read line " << _lineNumber << ": ";
 }

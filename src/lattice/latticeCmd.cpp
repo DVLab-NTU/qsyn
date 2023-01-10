@@ -8,10 +8,10 @@
 
 #include "latticeCmd.h"
 
-#include <cstddef>   // for size_t
+#include <cstddef>  // for size_t
 #include <iomanip>
 #include <iostream>
-#include <string>    // for string
+#include <string>  // for string
 
 #include "lattice.h"     // for LTContainer
 #include "zxGraphMgr.h"  // for ZXGraphMgr, zxGraphMgr

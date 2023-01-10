@@ -8,7 +8,7 @@
 
 #include <cstddef>  // for size_t
 #include <fstream>  // for fstream
-#include <iostream> 
+#include <iostream>
 #include <string>  // for string
 
 #include "qcir.h"  // for QCir

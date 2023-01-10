@@ -101,7 +101,7 @@ protected:
     unsigned _DFSCounter;
     std::vector<BitInfo> _qubits;
     Phase _rotatePhase;
-    
+
     using ZXVertexCombi = std::vector<ZXVertex*>;
 
     ZXGraph* mapSingleQubitGate(VertexType, Phase);

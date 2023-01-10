@@ -8,7 +8,7 @@
 #ifndef CMD_PARSER_H
 #define CMD_PARSER_H
 
-#include <iosfwd>  
+#include <iosfwd>
 #include <map>
 #include <stack>
 #include <string>   // for string

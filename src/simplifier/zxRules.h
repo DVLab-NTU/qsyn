@@ -11,6 +11,7 @@
 
 #include <string>   // for string
 #include <utility>  // for pair
+
 #include "zxDef.h"  // for EdgePair
 
 class ZXGraph;
