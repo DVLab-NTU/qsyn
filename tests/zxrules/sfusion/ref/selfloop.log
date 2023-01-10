@@ -1,7 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> zxn
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> zxgedit -addi 0
 
@@ -39,8 +38,6 @@ qsyn> zxgp -e
 Total #Edges: 3
 
 qsyn> zxgsimp -spi
-Spider Fusion Rule: 
-No matches
 
 qsyn> zxgp -v
 

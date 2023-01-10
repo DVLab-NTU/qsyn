@@ -1,8 +1,7 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> qcba 3
 Note: QCir list is empty now. Create a new one.
-Successfully generated QCir 0
-Checkout to QCir 0
+Create and checkout to QCir 0
 
 qsyn> qcga -cx 0 2
 
@@ -15,8 +14,7 @@ Q 0  -cx( 0)--rz( 1)-
 Q 2  -cx( 0)-
 
 qsyn> qcnew
-Successfully generated QCir 1
-Checkout to QCir 1
+Create and checkout to QCir 1
 
 qsyn> qcba 4
 
@@ -48,9 +46,7 @@ Q 2  -cx( 0)--cx( 2)----------cx( 4)-
 Q 3  -----------------cx( 3)-
 
 qsyn> qc2zx
-Traverse and build the graph... 
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> zxgp -v
 

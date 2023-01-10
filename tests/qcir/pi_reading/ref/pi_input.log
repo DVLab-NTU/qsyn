@@ -1,8 +1,7 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
-Successfully generated QCir 0
-Checkout to QCir 0
+Create and checkout to QCir 0
 
 qsyn> qcga -rz -ph 11*pi/17 0 
 
@@ -21,9 +20,7 @@ Error: not a legal phase!!
 Error: Illegal option!! (PI*3PI/pi)
 
 qsyn> qc2zx
-Traverse and build the graph... 
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> qq -f
 

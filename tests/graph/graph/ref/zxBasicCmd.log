@@ -4,8 +4,7 @@ ZXMode: ON
 -> #Graph: 0
 
 qsyn> zxnew
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> zxgtest -gcx
 
@@ -29,8 +28,7 @@ qsyn> zxgprint -e
 Total #Edges: 5
 
 qsyn> zxnew
-Successfully generated Graph 1
-Checkout to Graph 1
+Create and checkout to Graph 1
 
 qsyn> zxcheckout 0
 Checkout to Graph 0

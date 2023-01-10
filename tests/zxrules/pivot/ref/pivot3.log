@@ -3,8 +3,7 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> zxnew
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> zxge -addi 0
 
@@ -227,8 +226,6 @@ qsyn> zxge -addv 0 Z 0
 qsyn> zxge -adde 27 47 HADAMARD
 
 qsyn> zxgs -pivot
-Pivot Rule: 
-4 iterations
 
 qsyn> zxgp -v
 

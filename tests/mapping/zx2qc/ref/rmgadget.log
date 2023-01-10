@@ -1,12 +1,10 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> zxgr benchmark/extraction/rmGadget.bzx
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> qcba 3
 Note: QCir list is empty now. Create a new one.
-Successfully generated QCir 0
-Checkout to QCir 0
+Create and checkout to QCir 0
 
 qsyn> zxgp -q
 
@@ -120,19 +118,19 @@ Axels:
 9)
 Note: (13) is not a gadget vertex!
 
-Add vertex ([1m[32mZ[0m[0m)14
-Add edge ( 5, 14 )
-Add edge ( 14, 13 )
-Remove edge ( 5, 13 ), type: -
+Add vertex ([1m[32mZ[0m[0m) 14
+Add edge (5, 14)
+Add edge (14, 13)
+Remove edge (5, 13), type: -
 > rewrite...
 vs: 10	vt: 13
-Add edge ( 6, 9 )
-Add edge ( 8, 9 )
-Add edge ( 9, 14 )
-Add edge ( 7, 9 )
-Add edge ( 6, 7 )
-Add edge ( 7, 8 )
-Add edge ( 7, 14 )
+Add edge (6, 9)
+Add edge (8, 9)
+Add edge (9, 14)
+Add edge (7, 9)
+Add edge (6, 7)
+Add edge (7, 8)
+Add edge (7, 14)
 Remove ID: 10
 Remove ID: 13
 

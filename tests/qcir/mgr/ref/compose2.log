@@ -1,12 +1,9 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> qccread benchmark/benchmark_SABRE/small/qft_4.qasm
-Note: QCir list is empty now. Create a new one.
-Successfully generated QCir 0
-Checkout to QCir 0
+Create and checkout to QCir 0
 
 qsyn> qccread benchmark/benchmark_SABRE/small/qft_4.qasm
-Successfully generated QCir 1
-Checkout to QCir 1
+Create and checkout to QCir 1
 
 qsyn> qccp -q
 Q 0  -cx( 0)--cx( 1)--cx( 2)-

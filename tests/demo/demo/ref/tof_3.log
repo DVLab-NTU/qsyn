@@ -6,6 +6,12 @@ qsyn> zxgread benchmark/zx/tof3.zx
 
 qsyn> zxgs -freduce
 
+All rules applied in order:
+Hadamard Rule                 1 iterations.
+Spider Fusion Rule            3 iterations.
+Pivot Gadget Rule             2 iterations.
+Identity Removal Rule         1 iterations.
+
 qsyn> zxgp
 Graph 0( 3 inputs, 3 outputs, 17 vertices, 19 edges )
 

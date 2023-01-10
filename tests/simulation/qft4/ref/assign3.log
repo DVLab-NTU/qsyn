@@ -3,7 +3,6 @@ qsyn> ver 1
 Note: verbose level is set to 1
 
 qsyn> qccr benchmark/benchmark_SABRE/small/qft_4.qasm
-Note: QCir list is empty now. Create a new one.
 
 qsyn> qc2zx
 
@@ -71,7 +70,6 @@ Total #Vertices: 20
 
 
 qsyn> zxgs -spi
-Spider Fusion Rule            3 iteration(s)
 
 qsyn> zxgp -v
 
@@ -90,7 +88,6 @@ Total #Vertices: 11
 
 
 qsyn> zxgs -pivot
-Pivot Rule                    2 iteration(s)
 
 qsyn> zxgp -v
 
