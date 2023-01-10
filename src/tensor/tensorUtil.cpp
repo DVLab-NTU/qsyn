@@ -6,8 +6,9 @@
   Copyright    [ 2022 9 ]
 ****************************************************************************/
 
-#include <iostream>
 #include "tensorUtil.h"
+
+#include <iostream>
 
 //------------------------------
 // Helper functions
