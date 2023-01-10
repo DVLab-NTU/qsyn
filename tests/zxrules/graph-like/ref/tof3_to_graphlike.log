@@ -1,14 +1,10 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> zxgread benchmark/zx/tof3.zx
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> zxgs -TOGraph
-Hadamard Rule: 2 . 1 iterations
 
 qsyn> zxgs -SPIderfusion
-Spider Fusion Rule: 
-3 iterations
 
 qsyn> zxgp -v
 

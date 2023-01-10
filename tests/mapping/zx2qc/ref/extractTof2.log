@@ -3,13 +3,18 @@ qsyn> color 0
 Note: colored is set to 0
 
 qsyn> zxgread benchmark/bzx/tof3.bzx
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> ver 0
 Note: verbose level is set to 0
 
 qsyn> zxgs -fr
+
+All rules applied in order:
+Hadamard Rule                 1 iterations.
+Spider Fusion Rule            3 iterations.
+Pivot Gadget Rule             2 iterations.
+Identity Removal Rule         1 iterations.
 
 qsyn> zxgp -q
 
@@ -44,57 +49,9 @@ qsyn> ver 5
 Note: verbose level is set to 5
 
 qsyn> zx2qc
-Add vertex (●)0
-Add vertex (●)1
-Add vertex (●)2
-Add vertex (●)3
-Add vertex (●)4
-Add vertex (●)5
-Add vertex (Z)6
-Add vertex (Z)7
-Add vertex (Z)8
-Add vertex (Z)9
-Add vertex (Z)10
-Add vertex (Z)11
-Add vertex (Z)12
-Add vertex (Z)13
-Add vertex (Z)14
-Add vertex (Z)15
-Add vertex (Z)16
-Add edge ( 0, 7 )
-Add edge ( 1, 6 )
-Add edge ( 2, 8 )
-Add edge ( 3, 7 )
-Add edge ( 4, 6 )
-Add edge ( 5, 8 )
-Add edge ( 6, 14 )
-Add edge ( 6, 10 )
-Add edge ( 6, 16 )
-Add edge ( 7, 14 )
-Add edge ( 7, 12 )
-Add edge ( 7, 16 )
-Add edge ( 8, 10 )
-Add edge ( 8, 12 )
-Add edge ( 8, 16 )
-Add edge ( 9, 10 )
-Add edge ( 11, 12 )
-Add edge ( 13, 14 )
-Add edge ( 15, 16 )
 Successfully copied Graph 0 to Graph 1
 Checkout to Graph 1
 Initialize
-Add vertex (Z)17
-Add edge ( 0, 17 )
-Add edge ( 17, 7 )
-Remove edge ( 0, 7 ), type: -
-Add vertex (Z)18
-Add edge ( 1, 18 )
-Add edge ( 18, 6 )
-Remove edge ( 1, 6 ), type: -
-Add vertex (Z)19
-Add edge ( 2, 19 )
-Add edge ( 19, 8 )
-Remove edge ( 2, 8 ), type: H
 Note: (0) is not a gadget vertex!
 Note: (1) is not a gadget vertex!
 Note: (2) is not a gadget vertex!
@@ -113,8 +70,6 @@ Note: (18) is not a gadget vertex!
 Note: (19) is not a gadget vertex!
 Clean Frontier
 Extract Singles
-Add edge ( 5, 8 )
-Remove edge ( 5, 8 ), type: H
 Extract CZs
 Remove Gadget
 Frontier:
@@ -137,60 +92,6 @@ Note: (7) is not a gadget vertex!
 Note: (8) is not a gadget vertex!
 15)
 
-Add vertex (Z)20
-Add edge ( 4, 20 )
-Add edge ( 20, 6 )
-Remove edge ( 4, 6 ), type: -
-> rewrite...
-vs: 14	vt: 6
-Add edge ( 7, 10 )
-Note: Hopf edge; cancelling out with existing edge (7, 16)...
-Add edge ( 7, 18 )
-Add edge ( 7, 20 )
-Add edge ( 10, 13 )
-Add edge ( 13, 16 )
-Add edge ( 13, 18 )
-Add edge ( 13, 20 )
-Remove ID: 14
-Remove ID: 6
-Add vertex (Z)21
-Add edge ( 3, 21 )
-Add edge ( 21, 7 )
-Remove edge ( 3, 7 ), type: -
-> rewrite...
-vs: 12	vt: 7
-Note: Hopf edge; cancelling out with existing edge (8, 10)...
-Add edge ( 8, 17 )
-Add edge ( 8, 18 )
-Add edge ( 8, 20 )
-Add edge ( 8, 21 )
-Add edge ( 10, 11 )
-Add edge ( 11, 17 )
-Add edge ( 11, 18 )
-Add edge ( 11, 20 )
-Add edge ( 11, 21 )
-Remove ID: 12
-Remove ID: 7
-Add vertex (Z)22
-Add edge ( 5, 22 )
-Add edge ( 22, 8 )
-Remove edge ( 5, 8 ), type: -
-> rewrite...
-vs: 16	vt: 8
-Add edge ( 13, 17 )
-Note: Hopf edge; cancelling out with existing edge (13, 18)...
-Add edge ( 13, 19 )
-Note: Hopf edge; cancelling out with existing edge (13, 20)...
-Add edge ( 13, 21 )
-Add edge ( 13, 22 )
-Add edge ( 15, 17 )
-Add edge ( 15, 18 )
-Add edge ( 15, 19 )
-Add edge ( 15, 20 )
-Add edge ( 15, 21 )
-Add edge ( 15, 22 )
-Remove ID: 16
-Remove ID: 8
 Frontier:
 Qubit:1: 20
 Qubit:0: 21
@@ -204,12 +105,6 @@ Note: (11) is not a gadget vertex!
 Gadget(s) are removed.
 Clean Frontier
 Extract Singles
-Add edge ( 3, 21 )
-Remove edge ( 3, 21 ), type: H
-Add edge ( 4, 20 )
-Remove edge ( 4, 20 ), type: H
-Add edge ( 5, 22 )
-Remove edge ( 5, 22 ), type: H
 Extract CZs
 Remove Gadget
 Frontier:
@@ -234,10 +129,6 @@ Note: (11) is not a gadget vertex!
 
 Perform Gaussian Elimination.
 Update Graph by Matrix
-Remove edge ( 21, 11 ), type: H
-Remove edge ( 21, 15 ), type: H
-Remove edge ( 20, 15 ), type: H
-Remove edge ( 22, 13 ), type: H
 Extract CXs
 Add CX: 2 0
 Add CX: 2 1
@@ -245,12 +136,6 @@ Add CX: 0 2
 Add CX: 1 2
 Add CX: 0 1
 Extract Hs
-Add edge ( 3, 13 )
-Remove ID: 21
-Add edge ( 4, 11 )
-Remove ID: 20
-Add edge ( 5, 15 )
-Remove ID: 22
 Clean Frontier
 Extract Singles
 Extract CZs
@@ -265,20 +150,6 @@ Axels:
 Note: (13) is not a gadget vertex!
 Note: (11) is not a gadget vertex!
 
-Add vertex (Z)23
-Add edge ( 3, 23 )
-Add edge ( 23, 13 )
-Remove edge ( 3, 13 ), type: -
-> rewrite...
-vs: 10	vt: 13
-Add edge ( 9, 17 )
-Add edge ( 9, 19 )
-Add edge ( 9, 23 )
-Note: Hopf edge; cancelling out with existing edge (11, 17)...
-Add edge ( 11, 19 )
-Add edge ( 11, 23 )
-Remove ID: 10
-Remove ID: 13
 Frontier:
 Qubit:1: 11
 Qubit:2: 15
@@ -289,10 +160,7 @@ Axels:
 Gadget(s) are removed.
 Clean Frontier
 Extract Singles
-Add edge ( 3, 23 )
-Remove edge ( 3, 23 ), type: H
 Extract CZs
-Remove edge ( 23, 11 ), type: H
 Remove Gadget
 Frontier:
 Qubit:0: 23
@@ -310,8 +178,6 @@ Axels:
 
 Construct an easy matrix.
 Extract Hs
-Add edge ( 3, 9 )
-Remove ID: 23
 Clean Frontier
 Extract Singles
 Extract CZs
@@ -332,34 +198,17 @@ Axels:
 
 Perform Gaussian Elimination.
 Update Graph by Matrix
-Remove edge ( 9, 19 ), type: H
-Remove edge ( 11, 18 ), type: H
-Remove edge ( 15, 17 ), type: H
-Remove edge ( 15, 19 ), type: H
 Extract CXs
 Add CX: 2 0
 Add CX: 1 2
 Add CX: 0 1
 Extract Hs
-Add edge ( 3, 17 )
-Remove ID: 9
-Add edge ( 4, 19 )
-Remove ID: 11
-Add edge ( 5, 18 )
-Remove ID: 15
 Clean Frontier
 Extract Singles
 Extract CZs
-Add edge ( 0, 3 )
-Remove ID: 17
-Add edge ( 2, 4 )
-Remove ID: 19
-Add edge ( 1, 5 )
-Remove ID: 18
 Finish extracting!
 Permute Qubit
-Successfully generated QCir 0
-Checkout to QCir 0
+Create and checkout to QCir 0
 
 qsyn> ver 0
 Note: verbose level is set to 0
@@ -371,6 +220,20 @@ qsyn> zxgadj
 qsyn> zxcomp 0
 
 qsyn> zxgs -fr    
+
+All rules applied in order:
+Hadamard Rule                 2 iterations.
+Spider Fusion Rule            3 iterations.
+Spider Fusion Rule            1 iterations.
+Pivot Rule                    2 iterations.
+Pivot Gadget Rule             3 iterations.
+Identity Removal Rule         1 iterations.
+Spider Fusion Rule            1 iterations.
+Identity Removal Rule         1 iterations.
+Spider Fusion Rule            1 iterations.
+Phase Gadget Rule             1 iterations.
+Pivot Rule                    1 iterations.
+Identity Removal Rule         1 iterations.
 
 qsyn> zxgp -q
 

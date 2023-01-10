@@ -6,7 +6,6 @@ qsyn> format 0
 Illegal command!! (format)
 
 qsyn> qccread ./benchmark/benchmark_SABRE/small/rd32-v1_68.qasm
-Note: QCir list is empty now. Create a new one.
 
 qsyn> qc2zx
 
@@ -81,16 +80,15 @@ ID:  55 ([1m[31mX[0m[0m, π)           (Qubit, Col): (3, 21)	  #Neighbors:  
 
 
 qsyn> zxgs -FR
-Spider Fusion Rule            3 iteration(s)
-Identity Removal Rule         1 iteration(s)
-Spider Fusion Rule            1 iteration(s)
-Pivot Rule                    1 iteration(s)
-Pivot Gadget Rule             3 iteration(s)
-Identity Removal Rule         1 iteration(s)
-Spider Fusion Rule            1 iteration(s)
-Pivot Boundary Rule           1 iteration(s)
-Phase Gadget Rule             1 iteration(s)
-Pivot Rule                    1 iteration(s)
+
+All rules applied:
+(1) Hadamard Rule
+(2) Spider Fusion Rule
+(3) Identity Removal Rule
+(4) Pivot Rule
+(5) Pivot Gadget Rule
+(6) Pivot Boundary Rule
+(7) Phase Gadget Rule
 
 qsyn> zxgp -Q
 

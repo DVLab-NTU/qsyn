@@ -21,60 +21,11 @@ Total #Vertices: 11
 
 
 qsyn> zxgs -fr
-Spider Fusion Rule: 
-2 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-2 iterations
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-2 iterations
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Gadget Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Boundary Rule: 
-No matches
-Phase Gadget Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Gadget Rule: 
-No matches
+
+All rules applied in order:
+Spider Fusion Rule            2 iterations.
+Pivot Rule                    2 iterations.
+Identity Removal Rule         2 iterations.
 
 qsyn> zxgp -v
 

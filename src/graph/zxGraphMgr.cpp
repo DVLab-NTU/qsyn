@@ -63,8 +63,7 @@ ZXGraph* ZXGraphMgr::addZXGraph(size_t id, void** ref) {
     _gListItr = _graphList.end() - 1;
     if (id == _nextID || _nextID < id) _nextID = id + 1;
     if (verbose >= 3) {
-        cout << "Successfully generated Graph " << id << endl;
-        cout << "Checkout to Graph " << id << endl;
+        cout << "Create and checkout to Graph " << id << endl;
     }
     return zxGraph;
 }

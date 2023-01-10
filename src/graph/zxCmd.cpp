@@ -74,7 +74,7 @@ void ZXNewCmd::usage(ostream &os) const {
 
 void ZXNewCmd::help() const {
     cout << setw(15) << left << "ZXNew: "
-         << "new ZX-graph to ZXGraphMgr" << endl;
+         << "create a new ZX-graph to ZXGraphMgr" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -180,7 +180,7 @@ void ZXPrintCmd::usage(ostream &os) const {
 
 void ZXPrintCmd::help() const {
     cout << setw(15) << left << "ZXPrint: "
-         << "print info in ZXGraphMgr" << endl;
+         << "print info of ZXGraphMgr" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -425,7 +425,7 @@ void ZXGPrintCmd::usage(ostream &os) const {
 
 void ZXGPrintCmd::help() const {
     cout << setw(15) << left << "ZXGPrint: "
-         << "print info in ZX-graph" << endl;
+         << "print info of ZX-graph" << endl;
 }
 
 //------------------------------------------------------------------------------------
@@ -651,7 +651,7 @@ void ZX2TSCmd::usage(ostream &os) const {
 
 void ZX2TSCmd::help() const {
     cout << setw(15) << left << "ZX2TS: "
-         << "convert the ZX-graph to tensor" << endl;
+         << "convert ZX-graph to tensor" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -724,7 +724,7 @@ void ZXGReadCmd::usage(ostream &os) const {
 
 void ZXGReadCmd::help() const {
     cout << setw(15) << left << "ZXGRead: "
-         << "read a ZX-graph" << endl;
+         << "read a file and construct the corresponding ZX-graph" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -793,7 +793,7 @@ void ZXGWriteCmd::usage(ostream &os) const {
 
 void ZXGWriteCmd::help() const {
     cout << setw(15) << left << "ZXGWrite: "
-         << "write a ZX-graph to file\n";
+         << "write a ZX-graph to a file\n";
 }
 
 //----------------------------------------------------------------------
@@ -843,7 +843,7 @@ void ZXGAssignCmd::usage(ostream &os) const {
 
 void ZXGAssignCmd::help() const {
     cout << setw(15) << left << "ZXGASsign: "
-         << "assign an input/output vertex to specific qubit\n";
+         << "assign quantum states to input/output vertex\n";
 }
 
 //----------------------------------------------------------------------
@@ -864,5 +864,5 @@ void ZXGAdjointCmd::usage(ostream &os) const {
 
 void ZXGAdjointCmd::help() const {
     cout << setw(15) << left << "ZXGADJoint: "
-         << "adjoint the current ZX-graph.\n";
+         << "adjoint ZX-graph\n";
 }

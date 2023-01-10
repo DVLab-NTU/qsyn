@@ -113,5 +113,5 @@ void ZXGGFlowCmd::usage(ostream &os) const {
 
 void ZXGGFlowCmd::help() const {
     cout << setw(15) << left << "ZXGGFlow: "
-         << "calculate the generalized flow of current ZX-graph.\n";
+         << "calculate the generalized flow of current ZX-graph\n";
 }

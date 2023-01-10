@@ -60,8 +60,7 @@ QCir* QCirMgr::addQCir(size_t id) {
     _cListItr = _circuitList.end() - 1;
     if (id == _nextID || _nextID < id) _nextID = id + 1;
     if (verbose >= 3) {
-        cout << "Successfully generated QCir " << id << endl;
-        cout << "Checkout to QCir " << id << endl;
+        cout << "Create and checkout to QCir " << id << endl;
     }
     return qcir;
 }

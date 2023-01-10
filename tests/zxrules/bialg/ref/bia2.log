@@ -3,208 +3,141 @@ qsyn> ver 9
 Note: verbose level is set to 9
 
 qsyn> zxnew 
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> zxge -addi 0
-Add vertex (●)0
+Add vertex (●) 0
 
 qsyn> zxge -addo 0
-Add vertex (●)1
+Add vertex (●) 1
 
 qsyn> zxge -addi 1
-Add vertex (●)2
+Add vertex (●) 2
 
 qsyn> zxge -addo 1
-Add vertex (●)3
+Add vertex (●) 3
 
 qsyn> zxge -addv 0 X
-Add vertex ([1m[31mX[0m[0m)4
+Add vertex ([1m[31mX[0m[0m) 4
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m)5
+Add vertex ([1m[32mZ[0m[0m) 5
 
 qsyn> zxge -addv 1 X
-Add vertex ([1m[31mX[0m[0m)6
+Add vertex ([1m[31mX[0m[0m) 6
 
 qsyn> zxge -addv 0 X
-Add vertex ([1m[31mX[0m[0m)7
+Add vertex ([1m[31mX[0m[0m) 7
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m)8
+Add vertex ([1m[32mZ[0m[0m) 8
 
 qsyn> zxge -addv 1 Z
-Add vertex ([1m[32mZ[0m[0m)9
+Add vertex ([1m[32mZ[0m[0m) 9
 
 qsyn> zxge -addv 0 X
-Add vertex ([1m[31mX[0m[0m)10
+Add vertex ([1m[31mX[0m[0m) 10
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m)11
+Add vertex ([1m[32mZ[0m[0m) 11
 
 qsyn> zxge -addv 1 X
-Add vertex ([1m[31mX[0m[0m)12
+Add vertex ([1m[31mX[0m[0m) 12
 
 qsyn> zxge -addv 0 X
-Add vertex ([1m[31mX[0m[0m)13
+Add vertex ([1m[31mX[0m[0m) 13
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m)14
+Add vertex ([1m[32mZ[0m[0m) 14
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m)15
+Add vertex ([1m[32mZ[0m[0m) 15
 
 qsyn> zxge -adde 0 4 SIMPLE
-Add edge ( 0, 4 )
+Add edge (0, 4)
 
 qsyn> zxge -adde 1 14 SIMPLE
-Add edge ( 1, 14 )
+Add edge (1, 14)
 
 qsyn> zxge -adde 2 6 SIMPLE
-Add edge ( 2, 6 )
+Add edge (2, 6)
 
 qsyn> zxge -adde 3 15 SIMPLE
-Add edge ( 3, 15 )
+Add edge (3, 15)
 
 qsyn> zxge -adde 4 5 SIMPLE
-Add edge ( 4, 5 )
+Add edge (4, 5)
 
 qsyn> zxge -adde 5 7 SIMPLE
-Add edge ( 5, 7 )
+Add edge (5, 7)
 
 qsyn> zxge -adde 5 6 SIMPLE
-Add edge ( 5, 6 )
+Add edge (5, 6)
 
 qsyn> zxge -adde 7 8 SIMPLE
-Add edge ( 7, 8 )
+Add edge (7, 8)
 
 qsyn> zxge -adde 7 9 SIMPLE
-Add edge ( 7, 9 )
+Add edge (7, 9)
 
 qsyn> zxge -adde 8 10 SIMPLE
-Add edge ( 8, 10 )
+Add edge (8, 10)
 
 qsyn> zxge -adde 10 9 SIMPLE
-Add edge ( 10, 9 )
+Add edge (10, 9)
 
 qsyn> zxge -adde 10 11 SIMPLE
-Add edge ( 10, 11 )
+Add edge (10, 11)
 
 qsyn> zxge -adde 11 12 SIMPLE
-Add edge ( 11, 12 )
+Add edge (11, 12)
 
 qsyn> zxge -adde 11 13 SIMPLE
-Add edge ( 11, 13 )
+Add edge (11, 13)
 
 qsyn> zxge -adde 14 13 SIMPLE
-Add edge ( 14, 13 )
+Add edge (14, 13)
 
 qsyn> zxge -adde 12 15 SIMPLE
-Add edge ( 12, 15 )
+Add edge (12, 15)
 
 qsyn> zxgsimp -bia
+Hadamard Rule                 
+=> 0 iterations.
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (14, -) 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (6, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (15, -) 
-ID:   4 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (5, -) 
-ID:   5 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (4, -) (6, -) (7, -) 
-ID:   6 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (2, -) (5, -) 
-ID:   7 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (5, -) (8, -) (9, -) 
-ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (7, -) (10, -) 
-ID:   9 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (7, -) (10, -) 
-ID:  10 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (8, -) (9, -) (11, -) 
-ID:  11 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (10, -) (12, -) (13, -) 
-ID:  12 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (11, -) (15, -) 
-ID:  13 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (11, -) (14, -) 
-ID:  14 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (1, -) (13, -) 
-ID:  15 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (3, -) (12, -) 
-Total #Vertices: 16
+Bialgebra Rule                
 
-Bialgebra Rule: 
-
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (14, -) 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (6, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (15, -) 
-ID:   4 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (5, -) 
-ID:   5 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (4, -) (6, -) (7, -) 
-ID:   6 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (2, -) (5, -) 
-ID:   7 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (5, -) (8, -) (9, -) 
-ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (7, -) (10, -) 
-ID:   9 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (7, -) (10, -) 
-ID:  10 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (8, -) (9, -) (11, -) 
-ID:  11 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (10, -) (12, -) (13, -) 
-ID:  12 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (11, -) (15, -) 
-ID:  13 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (11, -) (14, -) 
-ID:  14 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (1, -) (13, -) 
-ID:  15 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (3, -) (12, -) 
-Total #Vertices: 16
-
-Found 2 match(es)
-Add edge ( 4, 8 )
-Add edge ( 4, 9 )
-Add edge ( 6, 8 )
-Add edge ( 6, 9 )
-Add edge ( 8, 12 )
-Add edge ( 8, 13 )
-Add edge ( 9, 12 )
-Add edge ( 9, 13 )
+Iteration 1:
+>>>
+Add edge (4, 8)
+Add edge (4, 9)
+Add edge (6, 8)
+Add edge (6, 9)
+Add edge (8, 12)
+Add edge (8, 13)
+Add edge (9, 12)
+Add edge (9, 13)
 Remove ID: 5
 Remove ID: 7
 Remove ID: 10
 Remove ID: 11
+<<<
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (14, -) 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (6, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (15, -) 
-ID:   4 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (0, -) (8, -) (9, -) 
-ID:   6 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   3     (2, -) (8, -) (9, -) 
-ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (4, -) (6, -) (12, -) (13, -) 
-ID:   9 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   4     (4, -) (6, -) (12, -) (13, -) 
-ID:  12 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   3     (8, -) (9, -) (15, -) 
-ID:  13 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (8, -) (9, -) (14, -) 
-ID:  14 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (1, -) (13, -) 
-ID:  15 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (3, -) (12, -) 
-Total #Vertices: 12
-
-Found 1 match(es)
-Add edge ( 4, 15 )
+Iteration 2:
+>>>
+Add edge (4, 15)
 Note: Hopf edge; cancelling out with existing edge (4, 9)...
-Add edge ( 6, 15 )
+Add edge (6, 15)
 Note: Hopf edge; cancelling out with existing edge (6, 9)...
-Add edge ( 13, 15 )
+Add edge (13, 15)
 Note: Hopf edge; cancelling out with existing edge (9, 13)...
 Remove ID: 8
 Remove ID: 12
 Remove ID: 9
-
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (14, -) 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (6, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (15, -) 
-ID:   4 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (15, -) 
-ID:   6 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (2, -) (15, -) 
-ID:  13 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (14, -) (15, -) 
-ID:  14 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (1, -) (13, -) 
-ID:  15 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (3, -) (4, -) (6, -) (13, -) 
-Total #Vertices: 9
-
-2 iterations
-
-
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (14, -) 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (6, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (15, -) 
-ID:   4 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (15, -) 
-ID:   6 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (2, -) (15, -) 
-ID:  13 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (14, -) (15, -) 
-ID:  14 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (1, -) (13, -) 
-ID:  15 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (3, -) (4, -) (6, -) (13, -) 
-Total #Vertices: 9
+<<<
+=> 2 iterations.
+  1) 2 matches
+  2) 1 matches
 
 
 qsyn> zxgp -v

@@ -72,7 +72,7 @@ void ExtractCmd::usage(ostream &os) const {
 
 void ExtractCmd::help() const {
     cout << setw(15) << left << "ZX2QC: "
-         << "extract the circuit from the ZX-graph" << endl;
+         << "extract QCir from ZX-graph" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -270,5 +270,5 @@ void ExtractPrintCmd::usage(ostream &os) const {
 
 void ExtractPrintCmd::help() const {
     cout << setw(15) << left << "EXTPrint: "
-         << "print information of extracting graph" << endl;
+         << "print info of extracting ZX-graph" << endl;
 }

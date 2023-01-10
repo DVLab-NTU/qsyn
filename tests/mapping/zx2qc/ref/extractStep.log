@@ -1,107 +1,43 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
-Note: QCir list is empty now. Create a new one.
-Successfully generated QCir 0
-Checkout to QCir 0
+Create and checkout to QCir 0
 
 qsyn> qc2zx
-Traverse and build the graph... 
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> extp -f
 Error: ZX-graph (id: 0) is not graph-like. Not extractable!!
 
 qsyn> zxgs -fr
-Hadamard Rule: 4 . 1 iterations
-Spider Fusion Rule: 
-3 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-2 iterations
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Gadget Rule: 
-3 iterations
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Boundary Rule: 
-No matches
-Phase Gadget Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-2 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Gadget Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Boundary Rule: 
-No matches
-Phase Gadget Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Gadget Rule: 
-No matches
+
+All rules applied in order:
+Hadamard Rule                 1 iterations.
+  1) 4 matches
+Spider Fusion Rule            3 iterations.
+  1) 10 matches
+  2) 3 matches
+  3) 2 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Pivot Rule                    2 iterations.
+  1) 2 matches
+  2) 1 matches
+Pivot Gadget Rule             3 iterations.
+  1) 6 matches
+  2) 2 matches
+  3) 1 matches
+Phase Gadget Rule             1 iterations.
+  1) 1 matches
+Local Complementation Rule    2 iterations.
+  1) 1 matches
+  2) 1 matches
 
 qsyn> zxcopy 1
 Successfully copied Graph 0 to Graph 1
 Checkout to Graph 1
 
 qsyn> qcn
-Successfully generated QCir 1
-Checkout to QCir 1
+Create and checkout to QCir 1
 
 qsyn> qcba 3
 
@@ -258,6 +194,32 @@ qsyn> zxgadj
 qsyn> zxcomp 0
 
 qsyn> zxgs -fr  
+
+All rules applied in order:
+Hadamard Rule                 2 iterations.
+Spider Fusion Rule            3 iterations.
+Identity Removal Rule         1 iterations.
+Spider Fusion Rule            1 iterations.
+Pivot Rule                    1 iterations.
+Pivot Gadget Rule             4 iterations.
+Identity Removal Rule         1 iterations.
+Spider Fusion Rule            1 iterations.
+Pivot Rule                    2 iterations.
+Identity Removal Rule         1 iterations.
+Spider Fusion Rule            1 iterations.
+Pivot Rule                    2 iterations.
+Identity Removal Rule         1 iterations.
+Spider Fusion Rule            1 iterations.
+Pivot Boundary Rule           1 iterations.
+Identity Removal Rule         1 iterations.
+Spider Fusion Rule            1 iterations.
+Pivot Rule                    3 iterations.
+Identity Removal Rule         1 iterations.
+Spider Fusion Rule            1 iterations.
+Pivot Rule                    3 iterations.
+Identity Removal Rule         2 iterations.
+Spider Fusion Rule            1 iterations.
+Identity Removal Rule         1 iterations.
 
 qsyn> zxgp -q
 

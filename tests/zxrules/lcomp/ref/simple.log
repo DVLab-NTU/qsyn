@@ -1,11 +1,9 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> zxn
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> zxgr benchmark/zx/lcomp_1.zx
-Successfully generated Graph 1
-Checkout to Graph 1
+Create and checkout to Graph 1
 
 qsyn> zxgp -v
 
@@ -33,8 +31,6 @@ qsyn> zxgp -e
 Total #Edges: 8
 
 qsyn> zxgsimp -lcomp
-Local Complementation Rule: 
-1 iterations
 
 qsyn> zxgp -v
 

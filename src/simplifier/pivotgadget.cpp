@@ -38,8 +38,8 @@ void PivotGadget::preprocess(ZXGraph* g) {
  */
 void PivotGadget::match(ZXGraph* g) {
     this->_matchTypeVec.clear();
-    if (verbose >= 8) g->printVertices();
-    if (verbose >= 5) cout << "> match...\n";
+    // if (verbose >= 8) g->printVertices();
+    if (verbose >= 8) cout << "> match...\n";
 
     size_t cnt = 0;
 
@@ -101,7 +101,7 @@ void PivotGadget::match(ZXGraph* g) {
         if (verbose == 9) cout << "(3) good match\n";
 
         // Both vs and vt are interior
-        if (verbose >= 5) cout << "Both vertices are both interior: " << vs->getId() << " " << vt->getId() << endl;
+        if (verbose >= 8) cout << "Both vertices are both interior: " << vs->getId() << " " << vt->getId() << endl;
 
         taken.insert(vs);
         taken.insert(vt);

@@ -1,0 +1,5 @@
+qccread benchmark/benchmark_SABRE/small/3_17_13.qasm
+QC2ZX
+verbos 2
+zxgs -fr
+qq -f

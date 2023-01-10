@@ -109,7 +109,7 @@ void TSPrintCmd::usage(ostream &os) const {
 
 void TSPrintCmd::help() const {
     cout << setw(15) << left << "TSPrint: "
-         << "print information about stored tensors" << endl;
+         << "print info of stored tensors" << endl;
 }
 
 //----------------------------------------------------------------------

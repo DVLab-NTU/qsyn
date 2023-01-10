@@ -3,14 +3,10 @@ qsyn> color 0
 Note: colored is set to 0
 
 qsyn> qccr benchmark/qft/qft_10dec.qasm
-Note: QCir list is empty now. Create a new one.
-Successfully generated QCir 0
-Checkout to QCir 0
+Create and checkout to QCir 0
 
 qsyn> qc2zx
-Traverse and build the graph... 
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> zxggf -all
 GFlow of the graph: 
@@ -450,32 +446,6 @@ GFlow exists.
 #Levels: 67
 
 qsyn> zxgs -interclifford
-Spider Fusion Rule: 
-8 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-1 iterations
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
 
 qsyn> zxggf -all
 GFlow of the graph: 

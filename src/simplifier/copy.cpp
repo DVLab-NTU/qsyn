@@ -23,7 +23,7 @@ extern size_t verbose;
 void StateCopy::match(ZXGraph* g) {
     // Should be run in graph-like
     _matchTypeVec.clear();
-    if (verbose >= 8) g->printVertices();
+    // if (verbose >= 8) g->printVertices();
 
     unordered_map<ZXVertex*, size_t> Vertex2idx;
 

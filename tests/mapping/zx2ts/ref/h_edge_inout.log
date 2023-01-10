@@ -1,7 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> zxn
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> zxgedit -addi 0
 

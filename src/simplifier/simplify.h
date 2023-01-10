@@ -17,46 +17,20 @@
 #include "zxGraph.h"
 #include "zxRules.h"
 
-// class Stats;
 class Simplifier;
-// enum class SIMP_STRATEGY;
-
-// enum class SIMP_STRATEGY{
-//     SPIDER_SIMP,        // spider fusion
-//     ID_SIMP,            // identity removal
-//     COPY_SIMP,          // pi copy
-//     BIALG_SIMP,         // bialgebra
-//     PHASE_FREE_SIMP,
-//     PIVOT_SIMP,
-//     PIVOT_GADGET_SIMP,
-//     PIVOT_BOUNDARY_SIMP,
-//     GADGET_SIMP,
-//     LCOMP_SIMP
-
-// };
-
-// class Stats{
-//     public:
-//         Stats(){
-//             _rewritesNum.clear();
-//         }
-//         ~Stats(){}
-//         void countRewrites(string rule, int n);
-
-//     private:
-//         unordered_map<string, int>          _rewritesNum;
-// };
 
 class Simplifier {
 public:
     Simplifier(ZXGraph* g) {
         _rule = nullptr;
         _simpGraph = g;
+        _recipe.clear();
         hruleSimp();
     }
     Simplifier(ZXRule* rule, ZXGraph* g) {
         _rule = rule;
         _simpGraph = g;
+        _recipe.clear();
     }
     ~Simplifier() { delete _rule; }
 
@@ -98,7 +72,7 @@ public:
 private:
     ZXRule* _rule;
     ZXGraph* _simpGraph;
-    vector<tuple<string, int> > _recipe;
+    vector<tuple<string, vector<int> > > _recipe;
 };
 
 #endif

@@ -275,7 +275,7 @@ ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, bool checked
     }
     ZXVertex* v = new ZXVertex(_nextVId, qubit, vt, phase, col);
     _vertices.emplace(v);
-    if (verbose >= 5) cout << "Add vertex (" << VertexType2Str(vt) << ")" << _nextVId << endl;
+    if (verbose >= 8) cout << "Add vertex (" << VertexType2Str(vt) << ") " << _nextVId << endl;
     _nextVId++;
     return v;
 }
@@ -309,7 +309,7 @@ void ZXGraph::addOutputs(const ZXVertexList& outputs) {
 EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
     if (vs == vt) {
         Phase phase = (et == EdgeType::HADAMARD) ? Phase(1) : Phase(0);
-        if (verbose >= 5) cout << "Note: converting this self-loop to phase " << phase << " on vertex " << vs->getId() << "..." << endl;
+        if (verbose >= 8) cout << "Note: converting this self-loop to phase " << phase << " on vertex " << vs->getId() << "..." << endl;
         vs->setPhase(vs->getPhase() + phase);
         return makeEdgePairDummy();
     }
@@ -320,13 +320,13 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
             (vs->isX() && vt->isZ() && et == EdgeType::HADAMARD) ||
             (vs->isZ() && vt->isZ() && et == EdgeType::SIMPLE) ||
             (vs->isX() && vt->isX() && et == EdgeType::SIMPLE)) {
-            if (verbose >= 5) cout << "Note: redundant edge; merging into existing edge (" << vs->getId() << ", " << vt->getId() << ")..." << endl;
+            if (verbose >= 8) cout << "Note: redundant edge; merging into existing edge (" << vs->getId() << ", " << vt->getId() << ")..." << endl;
         } else if (
             (vs->isZ() && vt->isX() && et == EdgeType::SIMPLE) ||
             (vs->isX() && vt->isZ() && et == EdgeType::SIMPLE) ||
             (vs->isZ() && vt->isZ() && et == EdgeType::HADAMARD) ||
             (vs->isX() && vt->isX() && et == EdgeType::HADAMARD)) {
-            if (verbose >= 5) cout << "Note: Hopf edge; cancelling out with existing edge (" << vs->getId() << ", " << vt->getId() << ")..." << endl;
+            if (verbose >= 8) cout << "Note: Hopf edge; cancelling out with existing edge (" << vs->getId() << ", " << vt->getId() << ")..." << endl;
             vs->removeNeighbor(make_pair(vt, et));
             vt->removeNeighbor(make_pair(vs, et));
         }
@@ -334,7 +334,7 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
     } else {
         vs->addNeighbor(make_pair(vt, et));
         vt->addNeighbor(make_pair(vs, et));
-        if (verbose >= 5) cout << "Add edge ( " << vs->getId() << ", " << vt->getId() << " )" << endl;
+        if (verbose >= 8) cout << "Add edge (" << vs->getId() << ", " << vt->getId() << ")" << endl;
     }
 
     return makeEdgePair(vs, vt, et);
@@ -365,13 +365,11 @@ void ZXGraph::addVertices(const ZXVertexList& vertices, bool reordered) {
  *
  */
 size_t ZXGraph::removeIsolatedVertices() {
-    vector<ZXVertex*> removing;
+    vector<ZXVertex*> rmList;
     for (const auto& v : _vertices) {
-        if (v->getNumNeighbors() == 0) {
-            removing.push_back(v);
-        }
+        if (v->getNumNeighbors() == 0) rmList.push_back(v);
     }
-    return removeVertices(removing);
+    return removeVertices(rmList);
 }
 
 /**
@@ -401,7 +399,7 @@ size_t ZXGraph::removeVertex(ZXVertex* v) {
         _outputs.erase(v);
     }
 
-    if (verbose >= 5) cout << "Remove ID: " << v->getId() << endl;
+    if (verbose >= 8) cout << "Remove ID: " << v->getId() << endl;
     // deallocate ZXVertex
     delete v;
     return 1;
@@ -442,7 +440,7 @@ size_t ZXGraph::removeEdge(ZXVertex* vs, ZXVertex* vt, EdgeType etype) {
         throw out_of_range("Graph connection error in " + to_string(vs->getId()) + " and " + to_string(vt->getId()));
     }
     if (count == 2) {
-        if (verbose >= 5) cout << "Remove edge ( " << vs->getId() << ", " << vt->getId() << " ), type: " << EdgeType2Str(etype) << endl;
+        if (verbose >= 8) cout << "Remove edge (" << vs->getId() << ", " << vt->getId() << "), type: " << EdgeType2Str(etype) << endl;
     }
     return count / 2;
 }

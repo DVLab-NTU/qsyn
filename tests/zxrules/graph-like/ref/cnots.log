@@ -1,7 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.3.0
 qsyn> zxgread benchmark/zx/cnots.zx
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> zx2ts
 Traverse and build the tensor... 
@@ -28,8 +27,6 @@ Total #Vertices: 12
 
 
 qsyn> zxgs -SPIderfusion
-Spider Fusion Rule: 
-4 iterations
 
 qsyn> zxgp -v
 
