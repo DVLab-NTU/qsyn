@@ -8,9 +8,12 @@
 
 #include "tensorCmd.h"
 
-#include <vector>
+#include <cstddef>  // for size_t
+#include <iomanip>
+#include <iostream>
+#include <string>
 
-#include "qtensor.h"
+#include "phase.h"
 #include "tensorMgr.h"
 #include "textFormat.h"
 

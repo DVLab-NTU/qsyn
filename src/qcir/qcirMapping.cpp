@@ -6,15 +6,13 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include <cstddef>  // for size_t, NULL
 
-#include "qcir.h"
-#include "tensorMgr.h"
-#include "zxGraphMgr.h"
+#include "qcir.h"        // for QCir
+#include "qtensor.h"     // for QTensor
+#include "tensorMgr.h"   // for TensorMgr
+#include "zxGraph.h"     // for ZXGraph
+#include "zxGraphMgr.h"  // for ZXGraphMgr
 
 using namespace std;
 extern ZXGraphMgr *zxGraphMgr;

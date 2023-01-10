@@ -8,15 +8,8 @@
 
 #include "qcirQubit.h"
 
-#include <algorithm>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <string>
-#include <vector>
-
-#include "qcir.h"
-#include "qcirGate.h"
+#include "qcirGate.h"  // for QCirGate, BitInfo
+class QCir;
 
 using namespace std;
 

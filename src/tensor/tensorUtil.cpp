@@ -5,7 +5,10 @@
   Author       [ Mu-Te (Joshua) Lau ]
   Copyright    [ 2022 9 ]
 ****************************************************************************/
+
 #include "tensorUtil.h"
+
+#include <iostream>
 
 //------------------------------
 // Helper functions

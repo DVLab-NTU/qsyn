@@ -6,17 +6,12 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <chrono>
-#include <iomanip>
+#include <cstddef>  // for size_t
 #include <iostream>
-#include <ranges>
-#include <unordered_set>
-#include <vector>
+#include <map>
+#include <string>
 
 #include "textFormat.h"
-#include "util.h"
 #include "zxGraph.h"
 
 using namespace std;

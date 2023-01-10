@@ -8,13 +8,9 @@
 
 #include "qcirGate.h"
 
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <vector>
+#include <assert.h>  // for assert
 
-#include "qcir.h"
+#include <string>  // for string
 
 using namespace std;
 

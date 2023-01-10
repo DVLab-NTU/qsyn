@@ -7,13 +7,15 @@
 ****************************************************************************/
 #include "zx2tsMapper.h"
 
-#include "ordered_hashset.h"
-#include "tensorMgr.h"
-#include "textFormat.h"
+#include <cassert>  // for assert
+
+#include "tensorMgr.h"   // for TensorMgr
+#include "textFormat.h"  // for TextFormat
+#include "zxGraph.h"     // for ZXVertex, ZXGraph
+
 extern size_t verbose;
 extern TensorMgr* tensorMgr;
 
-#include <map>
 using namespace std;
 namespace TF = TextFormat;
 
@@ -260,4 +262,8 @@ void ZX2TSMapper::tensorDotVertex(ZXVertex* v) {
         size_t newId = currTensor().getNewAxisId(dehadamarded.dimension() + connect_pin[t]);
         currFrontiers().emplace(_addEdges[t], newId);  // origin pin (neighbot count) + 1,3,5,7,9
     }
+}
+
+bool ZX2TSMapper::isFrontier(const NeighborPair& nbr) const {
+    return (nbr.first->getPin() != unsigned(-1));
 }

@@ -8,8 +8,11 @@
 
 #include "zxGraphMgr.h"
 
+#include <cstddef>  // for size_t, NULL
 #include <iostream>
-#include <vector>
+
+#include "zxGraph.h"  // for ZXGraph
+
 using namespace std;
 
 ZXGraphMgr* zxGraphMgr = 0;
@@ -46,6 +49,12 @@ bool ZXGraphMgr::isID(size_t id) const {
         if (_graphList[i]->getId() == id) return true;
     }
     return false;
+}
+
+void ZXGraphMgr::setGraph(ZXGraph* g) {
+    delete _graphList[_gListItr - _graphList.begin()];
+    _graphList[_gListItr - _graphList.begin()] = g;
+    g->setId(_gListItr - _graphList.begin());
 }
 
 // Add and Remove

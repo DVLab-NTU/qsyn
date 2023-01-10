@@ -9,15 +9,9 @@
 #ifndef SIMPLIFY_H
 #define SIMPLIFY_H
 
-#include <iostream>
-#include <unordered_map>
-#include <vector>
+#include "zxRules.h"  // for ZXRule
 
-#include "zxDef.h"
-#include "zxGraph.h"
-#include "zxRules.h"
-
-class Simplifier;
+class ZXGraph;
 
 class Simplifier {
 public:
@@ -72,7 +66,7 @@ public:
 private:
     ZXRule* _rule;
     ZXGraph* _simpGraph;
-    vector<tuple<string, vector<int> > > _recipe;
+    std::vector<std::tuple<std::string, std::vector<int> > > _recipe;
 };
 
 #endif

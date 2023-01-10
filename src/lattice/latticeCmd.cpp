@@ -8,14 +8,13 @@
 
 #include "latticeCmd.h"
 
-#include <cassert>
+#include <cstddef>  // for size_t
 #include <iomanip>
 #include <iostream>
+#include <string>  // for string
 
-#include "lattice.h"
-#include "util.h"
-#include "zxGraph.h"
-#include "zxGraphMgr.h"
+#include "lattice.h"     // for LTContainer
+#include "zxGraphMgr.h"  // for ZXGraphMgr, zxGraphMgr
 
 using namespace std;
 extern size_t verbose;

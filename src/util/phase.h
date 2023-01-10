@@ -9,12 +9,16 @@
 #ifndef PHASE_H
 #define PHASE_H
 
+#include <cmath>
+#include <iosfwd>  // for ostream
 #include <numbers>
 #include <string>
+#include <vector>
 
 #include "myConcepts.h"
-#include "rationalNumber.h"
 #include "util.h"
+
+class Rational;
 
 enum class PhaseUnit {
     PI,
@@ -102,10 +106,10 @@ public:
     std::string getAsciiString() const {
         std::string str;
         if (_rational.numerator() != 1)
-            str += to_string(_rational.numerator()) + "*";
+            str += std::to_string(_rational.numerator()) + "*";
         str += "pi";
         if (_rational.denominator() != 1)
-            str += "/" + to_string(_rational.denominator());
+            str += "/" + std::to_string(_rational.denominator());
         return str;
     }
 
@@ -151,8 +155,8 @@ private:
 template <class T = double>
 requires std::floating_point<T>
 bool myStrValid(const std::string& str, Phase& p) {
-    vector<string> numberStrings;
-    vector<char> operators;
+    std::vector<std::string> numberStrings;
+    std::vector<char> operators;
 
     // string parsing
     size_t curPos = 0;

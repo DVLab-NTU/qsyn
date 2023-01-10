@@ -6,16 +6,15 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <string>
-#include <vector>
+#include <cstddef>  // for size_t
 
-#include "qcir.h"
-#include "zxGraph.h"
+#include "phase.h"           // for Phase, operator/
+#include "qcirGate.h"        // for CRZGate, CnPGate, CnRXGate, QCirGate
+#include "rationalNumber.h"  // for Rational
+#include "zxDef.h"           // for VertexType, VertexType::Z, VertexType::X
+#include "zxGraph.h"         // for ZXGraph, ZXVertex (ptr only)
+
+using namespace std;
 
 extern size_t verbose;
 
@@ -45,7 +44,7 @@ ZXGraph *QCirGate::mapSingleQubitGate(VertexType vt, Phase ph) {
  * @param k
  * @return vector<vector<ZXVertex* > >
  */
-vector<vector<ZXVertex *>> QCirGate::makeCombi(vector<ZXVertex *> verVec, int k) {
+vector<QCirGate::ZXVertexCombi> QCirGate::makeCombi(QCirGate::ZXVertexCombi verVec, int k) {
     vector<vector<ZXVertex *>> comb;
     vector<ZXVertex *> tmp;
     makeCombiUtil(comb, tmp, verVec, 0, k);
@@ -62,7 +61,7 @@ vector<vector<ZXVertex *>> QCirGate::makeCombi(vector<ZXVertex *> verVec, int k)
  * @param left
  * @param k
  */
-void QCirGate::makeCombiUtil(vector<vector<ZXVertex *>> &comb, vector<ZXVertex *> &tmp, vector<ZXVertex *> verVec, int left, int k) {
+void QCirGate::makeCombiUtil(vector<QCirGate::ZXVertexCombi> &comb, QCirGate::ZXVertexCombi &tmp, QCirGate::ZXVertexCombi verVec, int left, int k) {
     if (k == 0) {
         comb.push_back(tmp);
         return;

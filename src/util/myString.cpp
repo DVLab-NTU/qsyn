@@ -5,13 +5,13 @@
   Author       [ Chung-Yang (Ric) Huang ]
   Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include <ctype.h>
+
+#include <ctype.h>  // for tolower, etc.
 
 #include <cassert>
 #include <concepts>
-#include <cstring>
-#include <exception>
-#include <iostream>
+#include <cstddef>
+#include <stdexcept>
 #include <string>
 #include <vector>
 

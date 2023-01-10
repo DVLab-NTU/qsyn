@@ -5,12 +5,12 @@
   Author       [ Chung-Yang (Ric) Huang ]
   Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include <cassert>
-#include <cstring>
+#include <cassert>  // for assert
+#include <cstring>  // for strcpy
 #include <iostream>
 
-#include "cmdParser.h"
-#include "util.h"
+#include "cmdCharDef.h"  // for ParseChar, ParseChar::BACK_SPACE_CHAR, Parse...
+#include "cmdParser.h"   // for CmdParser, PG_OFFSET
 
 using namespace std;
 

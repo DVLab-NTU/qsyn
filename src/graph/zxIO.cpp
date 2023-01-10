@@ -6,20 +6,18 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
+#include <cassert>  // for assert
+#include <cstddef>  // for size_t
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <string>
-#include <unordered_map>
-#include <vector>
 
-#include "util.h"
 #include "zxFileParser.h"
 #include "zxGraph.h"
 
 extern size_t verbose;
+
+using namespace std;
 
 /**
  * @brief read a zx graph

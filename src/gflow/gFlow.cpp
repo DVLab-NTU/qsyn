@@ -8,7 +8,13 @@
 
 #include "gFlow.h"
 
-#include "textFormat.h"
+#include <cassert>  // for assert
+#include <cstddef>  // for size_t
+#include <iomanip>
+#include <iostream>
+
+#include "textFormat.h"  // for TextFormat
+class ZXVertex;
 
 namespace TF = TextFormat;
 

@@ -7,8 +7,7 @@
 ****************************************************************************/
 #ifndef QSYN_TEXT_FORMAT_H
 #define QSYN_TEXT_FORMAT_H
-#include <cassert>
-#include <iostream>
+
 #include <string>
 
 namespace TextFormat {

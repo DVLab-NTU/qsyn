@@ -10,13 +10,13 @@ LIBDEPEND = $(LIBDIR)/lib.d
 
 CXX       = g++
 CCC       = gcc
+#CXX      = include-what-you-use
+#CCC      = include-what-you-use
 AR        = ar cr
 ECHO      = /bin/echo
 
 CFLAGS = -g -Wall -std=c++20 -DTA_KB_SETTING $(PKGFLAG)
 CFLAGS = -O3 -Wall -std=c++20 -DTA_KB_SETTING $(PKGFLAG)
-
-.PHONY: depend extheader
 
 %.o : %.cpp
 	@$(ECHO) "> compiling: $<"
@@ -28,34 +28,6 @@ CFLAGS = -O3 -Wall -std=c++20 -DTA_KB_SETTING $(PKGFLAG)
 
 top: $(EXTLINK) target
 	@$(ECHO) -n
-
-clean:
-	@rm -f $(COBJS)
-
-## Make dependencies
-depend: .depend.mak
-.depend.mak: $(CSRCS) $(CHDRS)
-	@$(ECHO) Making dependencies ...
-	@$(CXX) -MM $(DEPENDDIR) $(CSRCS) > $@
-
-## Linking external headers
-extheader: .extheader.mak
-.extheader.mak: $(EXTHDRS)
-	@$(ECHO) Linking external header files...
-	@rm -f $@
-	@$(ECHO) -n "$(EXTLINK): " > $@
-	@for hdr in $(EXTHDRS); \
-	do \
-		$(ECHO) -n "$(EXTINCDIR)/$$hdr " >> $@; \
-		rm -f $(EXTINCDIR)/$$hdr; \
-	done
-	@$(ECHO) >> $@
-	@for hdr in $(EXTHDRS); \
-	do \
-		$(ECHO) "$(EXTINCDIR)/$$hdr: $$hdr" >> $@; \
-		$(ECHO) "	@rm -f $(EXTINCDIR)/$$hdr" >> $@; \
-		$(ECHO) "	@ln -fs ../src/$(PKGNAME)/$$hdr $(EXTINCDIR)/$$hdr" >> $@; \
-	done
 
 include .depend.mak
 include .extheader.mak

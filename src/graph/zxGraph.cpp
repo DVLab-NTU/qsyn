@@ -8,19 +8,13 @@
 
 #include "zxGraph.h"
 
-#include <algorithm>
-#include <cassert>
-#include <chrono>
-#include <iomanip>
 #include <iostream>
-#include <ranges>
-#include <unordered_set>
-#include <vector>
 
-#include "textFormat.h"
-#include "util.h"
+#include "textFormat.h"  // for TextFormat
+#include "zxDef.h"
 
 using namespace std;
+
 namespace TF = TextFormat;
 extern size_t verbose;
 

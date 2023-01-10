@@ -105,10 +105,6 @@ public:
 
     T& operator[](const Key& key);
     T& operator[](Key&& key);
-
-    // test
-
-    void printMap();
 };
 
 //------------------------------------------------------
@@ -165,34 +161,6 @@ template <typename Key, typename T, typename Hash, typename KeyEqual>
 T& ordered_hashmap<Key, T, Hash, KeyEqual>::operator[](Key&& key) {
     if (!this->contains(key)) this->emplace(key, T());
     return at(key);
-}
-
-//------------------------------------------------------
-//  test functions
-//------------------------------------------------------
-
-/**
- * @brief Test function that prints the content of the ordered hashmap.
- *
- */
-template <typename Key, typename T, typename Hash, typename KeyEqual>
-void ordered_hashmap<Key, T, Hash, KeyEqual>::printMap() {
-    std::cout << "----  umap  ----" << std::endl;
-    for (const auto& [k, v] : this->_key2id) {
-        std::cout << k << " : " << v << std::endl;
-    }
-    std::cout << "---- vector ----" << std::endl;
-    for (const auto& item : this->_data) {
-        if (item == std::nullopt) {
-            std::cout << "None" << std::endl;
-            continue;
-        }
-        std::cout << item.value().first << " : " << item.value().second << std::endl;
-    }
-    std::cout << std::endl;
-    std::cout << "size  : " << this->size() << std::endl
-              << "none  : " << this->_data.size() - this->size() << std::endl
-              << "total : " << this->_data.size() << std::endl;
 }
 
 #endif  // ORDERED_HASHMAP_H

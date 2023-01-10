@@ -6,13 +6,12 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <cstddef>  // for size_t
 #include <iostream>
-#include <map>
-#include <numbers>
-#include <ranges>
-#include <vector>
 
+#include "zxGraph.h"
 #include "zxRules.h"
+
 using namespace std;
 
 extern size_t verbose;

@@ -9,19 +9,18 @@
 #ifndef QCIR_MGR_H
 #define QCIR_MGR_H
 
-#include <iostream>
+#include <cstddef>  // for size_t
 #include <vector>
 
 #include "qcir.h"
-#include "qcirDef.h"
+class QCirMgr;
 
-extern QCirMgr* qcirhMgr;
-using namespace std;
+extern QCirMgr* qcirMgr;
 
 //------------------------------------------------------------------------
 //  Define types
 //------------------------------------------------------------------------
-typedef vector<QCir*> QCirList;
+typedef std::vector<QCir*> QCirList;
 
 //------------------------------------------------------------------------
 //  Define classes

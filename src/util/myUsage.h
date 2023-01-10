@@ -9,14 +9,10 @@
 #ifndef MY_USAGE_H
 #define MY_USAGE_H
 
-#include <sys/resource.h>
-#include <sys/times.h>
-#include <unistd.h>
-
-#include <iomanip>
-#include <iostream>
-
-using namespace std;
+#include <bits/types/struct_rusage.h>  // for rusage, rusage::(anonymous)
+#include <sys/resource.h>              // for getrusage, RUSAGE_SELF
+#include <sys/times.h>                 // for times, tms
+#include <unistd.h>                    // for sysconf, _SC_CLK_TCK
 
 #undef MYCLK_TCK
 #define MYCLK_TCK sysconf(_SC_CLK_TCK)
@@ -25,26 +21,9 @@ class MyUsage {
 public:
     MyUsage() { reset(); }
 
-    void reset() {
-        _initMem = checkMem();
-        _currentTick = checkTick();
-        _periodUsedTime = _totalUsedTime = 0.0;
-    }
+    void reset();
 
-    void report(bool repTime, bool repMem) {
-        if (repTime) {
-            setTimeUsage();
-            cout << "Period time used : " << setprecision(4)
-                 << _periodUsedTime << " seconds" << endl;
-            cout << "Total time used  : " << setprecision(4)
-                 << _totalUsedTime << " seconds" << endl;
-        }
-        if (repMem) {
-            setMemUsage();
-            cout << "Total memory used: " << setprecision(4)
-                 << _currentMem << " M Bytes" << endl;
-        }
-    }
+    void report(bool repTime, bool repMem);
 
 private:
     // for Memory usage (in MB)

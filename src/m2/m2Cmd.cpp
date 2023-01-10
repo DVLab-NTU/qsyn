@@ -8,12 +8,14 @@
 
 #include "m2Cmd.h"
 
-#include <cassert>
+#include <cstddef>  // for size_t
 #include <iomanip>
 #include <iostream>
+#include <string>
+#include <unordered_map>
 
 #include "m2.h"
-#include "util.h"
+#include "zxGraph.h"
 #include "zxGraphMgr.h"
 
 using namespace std;

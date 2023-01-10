@@ -8,16 +8,18 @@
 
 #include "extractorCmd.h"
 
-#include <cassert>
-#include <iomanip>
-#include <iostream>
+#include <cstddef>   // for size_t
+#include <iostream>  // for ostream
+#include <string>    // for string
 
-#include "extract.h"
-#include "qcirCmd.h"
-#include "qcirMgr.h"
-#include "util.h"
-#include "zxCmd.h"
-#include "zxGraphMgr.h"
+#include "extract.h"     // for Extractor
+#include "qcir.h"        // for QCir
+#include "qcirCmd.h"     // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
+#include "qcirMgr.h"     // for QCirMgr
+#include "util.h"        // for myStr2Uns
+#include "zxCmd.h"       // for ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN, ZX_CMD_...
+#include "zxGraph.h"     // for ZXGraph
+#include "zxGraphMgr.h"  // for ZXGraphMgr
 
 using namespace std;
 extern size_t verbose;

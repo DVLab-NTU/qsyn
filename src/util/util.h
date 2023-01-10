@@ -9,7 +9,8 @@
 #define UTIL_H
 
 #include <concepts>
-#include <istream>
+#include <iosfwd>
+#include <string>
 #include <vector>
 
 #include "myUsage.h"
@@ -26,7 +27,7 @@ extern int myStrNCmp(const std::string& s1, const std::string& s2, unsigned n);
 extern size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos = 0,
                           const char del = ' ');
 extern size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos,
-                          const string& del);
+                          const std::string& del);
 extern size_t myStrGetTok2(const std::string& str, std::string& tok, size_t pos = 0,
                            const char del = ' ');
 extern bool myStr2Int(const std::string& str, int& num);
@@ -43,11 +44,11 @@ extern bool myStr2LongDouble(const std::string& str, long double& f);
 extern bool isValidVarName(const std::string& str);
 
 // In myGetChar.cpp
-extern char myGetChar(istream&);
+extern char myGetChar(std::istream&);
 extern char myGetChar();
 
 // In util.cpp
-extern int listDir(vector<std::string>&, const std::string&, const std::string&);
+extern int listDir(std::vector<std::string>&, const std::string&, const std::string&);
 extern size_t getHashSize(size_t s);
 extern size_t intPow(size_t base, size_t n);
 

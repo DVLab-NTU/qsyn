@@ -9,16 +9,10 @@
 #ifndef QCIR_QUBIT_H
 #define QCIR_QUBIT_H
 
-#include <iostream>
-#include <string>
-#include <vector>
+#include <cstddef>  // for size_t, NULL
 
-#include "qcirDef.h"
-#include "qcirGate.h"
+class QCirGate;
 
-using namespace std;
-
-class QCirQubit;
 //------------------------------------------------------------------------
 //   Define classes
 //------------------------------------------------------------------------

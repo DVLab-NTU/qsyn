@@ -8,8 +8,9 @@
 
 #include "qcirMgr.h"
 
+#include <cstddef>  // for size_t
 #include <iostream>
-#include <vector>
+
 using namespace std;
 
 QCirMgr* qcirMgr = 0;

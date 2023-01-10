@@ -6,15 +6,11 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <iomanip>
+#include <cstddef>  // for size_t
 #include <iostream>
 #include <list>
-#include <vector>
 
-#include "util.h"
-#include "zxGraph.h"
+#include "zxGraph.h"  // for ZXGraph, ZXVertex
 
 using namespace std;
 extern size_t verbose;

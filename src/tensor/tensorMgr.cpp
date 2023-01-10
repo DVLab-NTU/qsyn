@@ -7,14 +7,22 @@
 ****************************************************************************/
 #include "tensorMgr.h"
 
-#include <algorithm>
-#include <iostream>
+#include <cstddef>  // for size_t
+#include <iomanip>
+
+#include "qtensor.h"
 
 using namespace std;
 
 extern size_t verbose;
 
 TensorMgr* tensorMgr = 0;
+
+std::ostream& operator<<(std::ostream& os, const TensorInfo& tsInfo) {
+    return os << "#Dim: "
+              << setw(4) << right << tsInfo.tensor->dimension()
+              << "\tInfo: " << left << tsInfo.info;
+}
 
 // @brief Reset the tensor manager
 void TensorMgr::reset() {

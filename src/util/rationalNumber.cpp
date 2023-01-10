@@ -5,10 +5,13 @@
   Author       [ Mu-Te (Joshua) Lau ]
   Copyright    [ 2022 8 ]
 ****************************************************************************/
+
 #include "rationalNumber.h"
 
 #include <iostream>
 #include <numeric>
+#include <stdexcept>
+
 //----------------------------------------
 // Operator Overloading
 //----------------------------------------

@@ -9,14 +9,10 @@
 #ifndef LATTICE_H
 #define LATTICE_H
 
-#include <iostream>
+#include <cstddef>  // for size_t
 #include <vector>
 
-#include "zxDef.h"
-#include "zxGraph.h"
-
-class Lattice;
-class LTContainer;
+class ZXGraph;
 
 class Lattice {
 public:
@@ -49,7 +45,7 @@ class LTContainer {
 public:
     LTContainer(unsigned nr, unsigned nc) {
         for (size_t r = 0; r < nr; r++) {
-            _container.push_back(vector<Lattice>());
+            _container.push_back(std::vector<Lattice>());
             for (size_t c = 0; c < nc; c++) {
                 _container.back().emplace_back(r, c);
             }
@@ -69,7 +65,7 @@ public:
     size_t numCols() const { return (_container.empty()) ? 0 : _container[0].size(); }
 
 private:
-    vector<vector<Lattice>> _container;
+    std::vector<std::vector<Lattice>> _container;
 };
 
 namespace std {

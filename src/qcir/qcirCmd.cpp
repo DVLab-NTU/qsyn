@@ -8,16 +8,16 @@
 
 #include "qcirCmd.h"
 
-#include <cassert>
-#include <iomanip>
-#include <iostream>
+#include <cstddef>   // for size_t, NULL
+#include <iostream>  // for ostream
+#include <string>    // for string
 
-#include "phase.h"
-#include "qcir.h"
-#include "qcirCmd.h"
-#include "qcirGate.h"
-#include "qcirMgr.h"
-#include "util.h"
+#include "cmdMacros.h"  // for CMD_N_OPTS_AT_MOST_OR_RETURN
+#include "phase.h"      // for Phase
+#include "qcir.h"       // for QCir
+#include "qcirGate.h"   // for QCirGate
+#include "qcirMgr.h"    // for QCirMgr
+#include "zxGraph.h"    // for ZXGraph
 
 using namespace std;
 

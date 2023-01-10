@@ -8,9 +8,9 @@
 
 #include "phase.h"
 
-#include <cassert>
+#include <cmath>
 
-#include "util.h"
+#include "rationalNumber.h"
 
 PhaseUnit Phase::_printUnit = PhaseUnit::PI;
 
