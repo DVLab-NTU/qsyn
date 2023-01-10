@@ -8,10 +8,11 @@
 
 #include "extract.h"
 
-#include <algorithm>
-#include <array>
-#include <iterator>
-#include <ranges>
+#include <assert.h>  // for assert
+
+#include "simplify.h"  // for Simplifier
+#include "zxGraph.h"   // for ZXGraph
+#include "zxRules.h"   // for PivotBoundary
 extern size_t verbose;
 
 /**

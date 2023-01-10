@@ -9,14 +9,12 @@
 #ifndef ZX_RULES_H
 #define ZX_RULES_H
 
-#include <array>
-#include <iostream>
-#include <tuple>
-#include <unordered_map>
-#include <vector>
+#include <string>   // for string
+#include <utility>  // for pair
+#include "zxDef.h"  // for EdgePair
 
-#include "zxDef.h"
-#include "zxGraph.h"
+class ZXGraph;
+class ZXVertex;
 
 namespace std {
 template <>

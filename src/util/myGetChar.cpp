@@ -5,8 +5,6 @@
   Author       [ Chung-Yang (Ric) Huang ]
   Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include <ctype.h>
-#include <stdlib.h>
 #include <termios.h>
 
 #include <iostream>

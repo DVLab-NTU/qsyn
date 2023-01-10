@@ -21,12 +21,10 @@
 #ifndef ORDERED_HASHTABLE_H
 #define ORDERED_HASHTABLE_H
 
-#include <exception>
 #include <iostream>
 #include <iterator>
 #include <optional>
 #include <ranges>
-#include <stdexcept>
 #include <tuple>
 #include <unordered_map>
 #include <vector>

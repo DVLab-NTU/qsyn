@@ -1,4 +1,4 @@
-util.d: ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h ../../include/myHashMap.h ../../include/rationalNumber.h ../../include/phase.h ../../include/myConcepts.h ../../include/textFormat.h ../../include/ordered_hashmap.h ../../include/ordered_hashset.h ../../include/ordered_hashtable.h 
+util.d: ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h ../../include/rationalNumber.h ../../include/phase.h ../../include/myConcepts.h ../../include/textFormat.h ../../include/ordered_hashmap.h ../../include/ordered_hashset.h ../../include/ordered_hashtable.h 
 ../../include/util.h: util.h
 	@rm -f ../../include/util.h
 	@ln -fs ../src/util/util.h ../../include/util.h
@@ -8,9 +8,6 @@ util.d: ../../include/util.h ../../include/rnGen.h ../../include/myUsage.h ../..
 ../../include/myUsage.h: myUsage.h
 	@rm -f ../../include/myUsage.h
 	@ln -fs ../src/util/myUsage.h ../../include/myUsage.h
-../../include/myHashMap.h: myHashMap.h
-	@rm -f ../../include/myHashMap.h
-	@ln -fs ../src/util/myHashMap.h ../../include/myHashMap.h
 ../../include/rationalNumber.h: rationalNumber.h
 	@rm -f ../../include/rationalNumber.h
 	@ln -fs ../src/util/rationalNumber.h ../../include/rationalNumber.h

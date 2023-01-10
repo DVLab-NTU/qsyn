@@ -9,7 +9,8 @@
 #ifndef QCIR_CMD_H
 #define QCIR_CMD_H
 
-#include "cmdParser.h"
+#include "cmdParser.h"  // for CmdClass, CmdExec, CmdExecStatus::CMD_EXEC_ERROR
+#include "qcirMgr.h"    // for QCirMgr
 
 CmdClass(QCirCheckoutCmd);
 CmdClass(QCirResetCmd);

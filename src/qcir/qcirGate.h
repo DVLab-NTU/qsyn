@@ -9,18 +9,17 @@
 #ifndef QCIR_GATE_H
 #define QCIR_GATE_H
 
-#include <iostream>
-#include <string>
-#include <vector>
+#include <cstddef>  // for size_t, NULL
+#include <string>   // for string
 
-#include "phase.h"
-#include "qtensor.h"
-#include "zxGraph.h"
-
-using namespace std;
+#include "phase.h"    // for Phase
+#include "qtensor.h"  // for QTensor
+#include "zxDef.h"    // for VertexType
 
 class QCirGate;
-struct BitInfo;
+class ZXGraph;
+
+using namespace std;
 //------------------------------------------------------------------------
 //   Define classes
 //------------------------------------------------------------------------

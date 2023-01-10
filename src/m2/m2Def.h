@@ -9,7 +9,6 @@
 #ifndef M2_DEF_H
 #define M2_DEF_H
 
-#include <string>
 using namespace std;
 
 class M2;
@@ -18,5 +17,4 @@ class M2;
 //  Define types
 //------------------------------------------------------------------------
 
-using Oper = pair<size_t, size_t>;
 #endif  // M2_DEF_H

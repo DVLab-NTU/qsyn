@@ -6,16 +6,10 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include <fstream>  // for fstream
+#include <string>   // for string
 
-#include "qcir.h"
+#include "qcir.h"  // for QCir
 
 using namespace std;
 

@@ -6,11 +6,10 @@
   Copyright    [ 2022 8 ]
 ****************************************************************************/
 
+#include <cmath>
+
 #include "phase.h"
-
-#include <cassert>
-
-#include "util.h"
+#include "rationalNumber.h"
 
 PhaseUnit Phase::_printUnit = PhaseUnit::PI;
 

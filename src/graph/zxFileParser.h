@@ -9,10 +9,12 @@
 #ifndef ZX_FILE_PARSER_H
 #define ZX_FILE_PARSER_H
 
-#include <fstream>
+#include <cstddef>  // for size_t
+#include <fstream>  // for ifstream
+#include <string>   // for string
+#include <utility>  // for pair
 
-#include "util.h"
-#include "zxGraph.h"
+#include "zxDef.h"  // for VertexInfo
 
 class ZXFileParser {
 public:

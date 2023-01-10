@@ -9,15 +9,9 @@
 #ifndef SIMPLIFY_H
 #define SIMPLIFY_H
 
-#include <iostream>
-#include <unordered_map>
-#include <vector>
+#include "zxRules.h"  // for ZXRule
 
-#include "zxDef.h"
-#include "zxGraph.h"
-#include "zxRules.h"
-
-class Simplifier;
+class ZXGraph;
 
 class Simplifier {
 public:

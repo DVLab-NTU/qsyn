@@ -10,8 +10,6 @@
 
 #include <limits.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 #define my_srandom srandom
 #define my_random random

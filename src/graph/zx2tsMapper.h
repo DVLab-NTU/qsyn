@@ -7,15 +7,14 @@
 ****************************************************************************/
 #ifndef ZX2TS_MAPPER_H
 #define ZX2TS_MAPPER_H
-#include <algorithm>
-#include <cassert>
-#include <iomanip>
-#include <iostream>
-#include <vector>
 
-#include "ordered_hashmap.h"
-#include "util.h"
-#include "zxGraph.h"
+#include <cstddef>  // for size_t
+
+#include "qtensor.h"  // for QTensor
+#include "zxDef.h"    // for NeighborPair
+
+class ZXGraph;
+class ZXVertex;
 
 class ZX2TSMapper {
 public:
@@ -74,7 +73,7 @@ private:
     QTensor<double> dehadamardize(const QTensor<double>& ts);
 
     bool isOfNewGraph(const ZXVertex* v);
-    bool isFrontier(const NeighborPair& nbr) const { return (nbr.first->getPin() != unsigned(-1)); }
+    bool isFrontier(const NeighborPair& nbr) const;
 
     void printFrontiers(size_t id) const;
     // EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et);

@@ -9,17 +9,14 @@
 #ifndef ZX_GRAPH_H
 #define ZX_GRAPH_H
 
-#include <iostream>
-#include <iterator>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#include <cstddef>   // for size_t, NULL
+#include <iostream>  // for ostream
+#include <string>    // for string
 
-#include "ordered_hashset.h"
-#include "phase.h"
-#include "qtensor.h"
-#include "zxDef.h"
+#include "phase.h"    // for Phase
+#include "qtensor.h"  // for QTensor
+#include "zxDef.h"    // for VertexType, EdgeType, EdgePair, NeighborPair
+
 using namespace std;
 
 class ZXVertex {

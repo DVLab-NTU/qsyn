@@ -6,16 +6,13 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <string>
-#include <vector>
+#include <cstddef>  // for size_t
 
-#include "qcir.h"
-#include "zxGraph.h"
+#include "phase.h"           // for Phase, operator/
+#include "qcirGate.h"        // for CRZGate, CnPGate, CnRXGate, QCirGate
+#include "rationalNumber.h"  // for Rational
+#include "zxDef.h"           // for VertexType, VertexType::Z, VertexType::X
+#include "zxGraph.h"         // for ZXGraph, ZXVertex (ptr only)
 
 extern size_t verbose;
 

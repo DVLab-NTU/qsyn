@@ -8,11 +8,13 @@
 
 #include "gFlowCmd.h"
 
-#include <iomanip>
+#include <cstddef>  // for size_t
+#include <iosfwd>   // for ostream
+#include <string>   // for string
 
-#include "gFlow.h"
-#include "zxGraph.h"
-#include "zxGraphMgr.h"
+#include "cmdMacros.h"   // for CMD_N_OPTS_AT_MOST_OR_RETURN
+#include "gFlow.h"       // for GFlow
+#include "zxGraphMgr.h"  // for ZXGraphMgr
 
 using namespace std;
 

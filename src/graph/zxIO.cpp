@@ -6,18 +6,13 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include <cassert>  // for assert
+#include <cstddef>  // for size_t
+#include <fstream>  // for fstream, ofstream
+#include <string>   // for string
 
-#include "util.h"
-#include "zxFileParser.h"
-#include "zxGraph.h"
+#include "zxFileParser.h"  // for ZXFileParser
+#include "zxGraph.h"       // for ZXGraph
 
 extern size_t verbose;
 

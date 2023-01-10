@@ -9,10 +9,13 @@
 #include "lattice.h"
 
 #include <iomanip>
+#include <iostream>
+#include <unordered_map>
 #include <unordered_set>
 
 #include "gFlow.h"
-#include "textFormat.h"
+#include "textFormat.h"  // for TextFormat
+#include "zxGraph.h"
 
 namespace TF = TextFormat;
 

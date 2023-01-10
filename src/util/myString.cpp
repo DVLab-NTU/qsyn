@@ -5,13 +5,13 @@
   Author       [ Chung-Yang (Ric) Huang ]
   Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include <ctype.h>
+
+#include <ctype.h>  // for tolower, etc.
 
 #include <cassert>
 #include <concepts>
-#include <cstring>
-#include <exception>
-#include <iostream>
+#include <cstddef>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -225,8 +225,8 @@ bool myStr2Uns(const string& str, unsigned& unsnum) {
 // A template interface for std::stoXXX(const string& str, size_t* pos = nullptr),
 // All the dirty compile-time checking happens here.
 template <class T>
-requires std::floating_point<T>
-    T stoFloatType(const string& str, size_t* pos) {
+    requires std::floating_point<T>
+T stoFloatType(const string& str, size_t* pos) {
     try {
         if constexpr (std::is_same<T, double>::value) {
             return std::stod(str, pos);
@@ -249,8 +249,8 @@ requires std::floating_point<T>
 // If `str` is a string of decimal number, return true and set `f` to the corresponding number.
 // Otherwise return 0 and set `f` to 0.
 template <class T>
-requires std::floating_point<T>
-bool myStr2FloatType(const string& str, T& f) {
+    requires std::floating_point<T> bool
+myStr2FloatType(const string& str, T& f) {
     f = 0;
     size_t i;
     try {

@@ -9,9 +9,6 @@
 #ifndef QCIR_DEF_H
 #define QCIR_DEF_H
 
-#include <vector>
-
-#include "myHashMap.h"
 using namespace std;
 
 class QCirGate;

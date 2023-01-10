@@ -9,21 +9,14 @@
 #ifndef M2_H
 #define M2_H
 
-#include <assert.h>
-
-#include <algorithm>
-#include <bitset>
-#include <iostream>
-#include <string>
+#include <cstddef>  // for size_t
+#include <utility>  // for pair
 #include <vector>
 
-#include "m2Def.h"
-#include "zxGraph.h"
+#include "zxDef.h"
 
 using namespace std;
 
-class M2;
-class Row;
 //------------------------------------------------------------------------
 //   Define classes
 //------------------------------------------------------------------------
@@ -60,7 +53,9 @@ private:
 };
 
 class M2 {
+
 public:
+    using Oper = pair<size_t, size_t>;
     M2() {}
     ~M2() {}
 

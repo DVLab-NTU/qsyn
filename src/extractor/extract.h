@@ -9,20 +9,14 @@
 #ifndef EXTRACT_H
 #define EXTRACT_H
 
-#include <iostream>
+#include <cstddef>  // for size_t
 #include <set>
-#include <unordered_map>
-#include <vector>
 
-#include "m2.h"
-#include "ordered_hashset.h"
-#include "qcir.h"
-#include "simplify.h"
-#include "zxDef.h"
-#include "zxGraph.h"
-#include "zxRules.h"
+#include "m2.h"     // for M2
+#include "qcir.h"   // for QCir
+#include "zxDef.h"  // for EdgeType, EdgeType::HADAMARD
 
-class Extractor;
+class ZXGraph;
 
 class Extractor {
 public:
@@ -72,7 +66,7 @@ private:
     unordered_map<size_t, size_t> _qubitMap;  // zx to qc
 
     M2 _biAdjacency;
-    vector<Oper> _cnots;
+    vector<M2::Oper> _cnots;
 
     // NOTE - Use only in column optimal swap
     Target findColumnSwap(Target);

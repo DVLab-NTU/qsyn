@@ -8,22 +8,17 @@
 #ifndef CMD_PARSER_H
 #define CMD_PARSER_H
 
-#include <fstream>
-#include <iostream>
+#include <fstream>  // for istream, ifstream, ostream
 #include <map>
-#include <stack>
-#include <string>
+#include <string>   // for string
+#include <utility>  // for pair
 #include <vector>
+#include <stack>
+#include <iostream>
 
-#include "cmdCharDef.h"
-#include "cmdMacros.h"
+#include "cmdCharDef.h"  // for ParseChar
 
-//----------------------------------------------------------------------
-//    Forward Declaration
-//----------------------------------------------------------------------
-
-class CmdExec;
-class CmdParser;
+class CmdParser;  // lines 26-26
 
 //----------------------------------------------------------------------
 //    External declaration
@@ -74,7 +69,6 @@ protected:
     bool lexNoOption(const std::string&) const;
     bool lexSingleOption(const std::string&, std::string&, bool optional = true) const;
     bool lexOptions(const std::string&, std::vector<std::string>&, size_t nOpts = 0) const;
-    bool numOptionsBetween(std::vector<std::string>& options, size_t lowerBound, size_t upperBound) const;
 
     CmdExecStatus errorOption(CmdOptionError err, const std::string& opt) const;
 

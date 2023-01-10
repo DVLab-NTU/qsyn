@@ -8,9 +8,8 @@
 
 #include "zxRules.h"
 
-#include <iostream>
-#include <unordered_map>
-#include <vector>
+#include <cstddef>  // for size_t
+
 using namespace std;
 
 extern size_t verbose;

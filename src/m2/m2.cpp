@@ -8,8 +8,13 @@
 
 #include "m2.h"
 
-#include <algorithm>
-#include <cmath>
+#include <cassert>
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+#include "zxGraph.h"
+
 extern size_t verbose;
 using namespace std;
 

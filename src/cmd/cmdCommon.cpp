@@ -7,10 +7,14 @@
 ****************************************************************************/
 #include "cmdCommon.h"
 
-#include <algorithm>
+#include <stdlib.h>  // for srand
+
+#include <cstddef>  // for size_t
 #include <iomanip>
+#include <iostream>
 #include <string>
 
+#include "myUsage.h"
 #include "util.h"
 
 using namespace std;

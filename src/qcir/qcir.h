@@ -9,19 +9,21 @@
 #ifndef QCIR_H
 #define QCIR_H
 
-#include <fstream>
-#include <functional>
-#include <iostream>
-#include <stack>
-#include <string>
-#include <vector>
+#include <cstddef>  // for size_t
+#include <string>   // for string
+#include <unordered_map>
 
-#include "phase.h"
-#include "qcirDef.h"
+#include "phase.h"  // for Phase
 #include "qcirGate.h"
 #include "qcirQubit.h"
-#include "qtensor.h"
-#include "zxGraph.h"
+
+class QCir;
+class ZXGraph;
+
+struct BitInfo;
+
+template <typename T>
+class QTensor;
 
 extern QCir* qCir;
 using namespace std;

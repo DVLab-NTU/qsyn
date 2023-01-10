@@ -9,11 +9,11 @@
 #ifndef ZX_GRAPH_MGR_H
 #define ZX_GRAPH_MGR_H
 
-#include <iostream>
+#include <cstddef>
 #include <vector>
 
-#include "zxDef.h"
-#include "zxGraph.h"
+class ZXGraph;
+class ZXGraphMgr;
 
 extern ZXGraphMgr* zxGraphMgr;
 using namespace std;
@@ -46,11 +46,7 @@ public:
     ZXGraphList::iterator getgListItr() const { return _gListItr; }
 
     void setNextID(size_t id) { _nextID = id; }
-    void setGraph(ZXGraph* g) {
-        delete _graphList[_gListItr - _graphList.begin()];
-        _graphList[_gListItr - _graphList.begin()] = g;
-        g->setId(_gListItr - _graphList.begin());
-    }
+    void setGraph(ZXGraph* g);
 
     // Add and Remove
     ZXGraph* addZXGraph(size_t id, void** ref = NULL);

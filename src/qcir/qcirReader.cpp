@@ -6,15 +6,12 @@
   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <string>
-#include <vector>
+#include <cstddef>  // for size_t
+#include <fstream>  // for fstream
+#include <iostream> 
+#include <string>  // for string
 
-#include "qcir.h"
+#include "qcir.h"  // for QCir
 
 /// @brief Read QCir file
 /// @param filename

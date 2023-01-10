@@ -8,14 +8,14 @@
 
 #include "zxCmd.h"
 
-#include <cassert>
-#include <iomanip>
-#include <iostream>
+#include <cstddef>   // for size_t
+#include <iostream>  // for ostream
+#include <string>    // for string
 
-#include "textFormat.h"
-#include "util.h"
-#include "zxGraph.h"
-#include "zxGraphMgr.h"
+#include "cmdMacros.h"   // for CMD_N_OPTS_EQUAL_OR_RETURN, CMD_N_OPTS_AT_LE...
+#include "textFormat.h"  // for TextFormat
+#include "zxGraph.h"     // for ZXGraph, ZXVertex
+#include "zxGraphMgr.h"  // for ZXGraphMgr
 
 namespace TF = TextFormat;
 

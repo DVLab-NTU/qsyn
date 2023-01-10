@@ -1,54 +1,57 @@
-zxTraverse.o: zxTraverse.cpp ../../include/util.h ../../include/myUsage.h \
- ../../include/rnGen.h zxGraph.h ../../include/ordered_hashset.h \
- ../../include/ordered_hashtable.h ../../include/phase.h \
+zxTraverse.o: zxTraverse.cpp zxGraph.h ../../include/phase.h \
  ../../include/myConcepts.h ../../include/rationalNumber.h \
- ../../include/util.h ../../include/qtensor.h ../../include/phase.h \
- ../../include/tensor.h ../../include/tensorDef.h \
- ../../include/tensorUtil.h zxDef.h ../../include/ordered_hashmap.h
-zx2tsMapper.o: zx2tsMapper.cpp zx2tsMapper.h \
+ ../../include/util.h ../../include/myUsage.h ../../include/rnGen.h \
+ ../../include/qtensor.h ../../include/phase.h ../../include/tensor.h \
+ ../../include/tensorDef.h ../../include/tensorUtil.h zxDef.h \
  ../../include/ordered_hashmap.h ../../include/ordered_hashtable.h \
- ../../include/util.h ../../include/myUsage.h ../../include/rnGen.h \
- zxGraph.h ../../include/ordered_hashset.h ../../include/phase.h \
+ ../../include/ordered_hashset.h
+zx2tsMapper.o: zx2tsMapper.cpp zx2tsMapper.h ../../include/qtensor.h \
+ ../../include/phase.h ../../include/myConcepts.h \
+ ../../include/rationalNumber.h ../../include/util.h \
+ ../../include/myUsage.h ../../include/rnGen.h ../../include/tensor.h \
+ ../../include/tensorDef.h ../../include/tensorUtil.h zxDef.h \
+ ../../include/ordered_hashmap.h ../../include/ordered_hashtable.h \
+ ../../include/ordered_hashset.h ../../include/phase.h \
+ ../../include/tensorMgr.h ../../include/textFormat.h zxGraph.h
+zxGraphAction.o: zxGraphAction.cpp ../../include/phase.h \
  ../../include/myConcepts.h ../../include/rationalNumber.h \
- ../../include/util.h ../../include/qtensor.h ../../include/phase.h \
- ../../include/tensor.h ../../include/tensorDef.h \
- ../../include/tensorUtil.h zxDef.h ../../include/tensorMgr.h \
- ../../include/qtensor.h ../../include/textFormat.h
-zxGraphAction.o: zxGraphAction.cpp ../../include/textFormat.h \
  ../../include/util.h ../../include/myUsage.h ../../include/rnGen.h \
- zxGraph.h ../../include/ordered_hashset.h \
- ../../include/ordered_hashtable.h ../../include/phase.h \
- ../../include/myConcepts.h ../../include/rationalNumber.h \
- ../../include/util.h ../../include/qtensor.h ../../include/phase.h \
+ ../../include/textFormat.h zxDef.h ../../include/ordered_hashmap.h \
+ ../../include/ordered_hashtable.h ../../include/ordered_hashset.h \
+ zxGraph.h ../../include/qtensor.h ../../include/phase.h \
  ../../include/tensor.h ../../include/tensorDef.h \
- ../../include/tensorUtil.h zxDef.h ../../include/ordered_hashmap.h
+ ../../include/tensorUtil.h
 zxCmd.o: zxCmd.cpp zxCmd.h ../../include/cmdParser.h \
- ../../include/cmdCharDef.h ../../include/cmdMacros.h \
- ../../include/textFormat.h ../../include/util.h ../../include/myUsage.h \
- ../../include/rnGen.h zxGraph.h ../../include/ordered_hashset.h \
- ../../include/ordered_hashtable.h ../../include/phase.h \
+ ../../include/cmdCharDef.h ../../include/phase.h \
  ../../include/myConcepts.h ../../include/rationalNumber.h \
- ../../include/util.h ../../include/qtensor.h ../../include/phase.h \
+ ../../include/util.h ../../include/myUsage.h ../../include/rnGen.h \
+ zxDef.h ../../include/ordered_hashmap.h \
+ ../../include/ordered_hashtable.h ../../include/ordered_hashset.h \
+ zxGraph.h ../../include/qtensor.h ../../include/phase.h \
  ../../include/tensor.h ../../include/tensorDef.h \
- ../../include/tensorUtil.h zxDef.h ../../include/ordered_hashmap.h \
- zxGraphMgr.h
-zxFileParser.o: zxFileParser.cpp zxFileParser.h ../../include/util.h \
+ ../../include/tensorUtil.h zxGraphMgr.h ../../include/cmdMacros.h \
+ ../../include/textFormat.h
+zxFileParser.o: zxFileParser.cpp zxFileParser.h zxDef.h \
+ ../../include/ordered_hashmap.h ../../include/ordered_hashtable.h \
+ ../../include/ordered_hashset.h ../../include/phase.h \
+ ../../include/myConcepts.h ../../include/rationalNumber.h \
+ ../../include/util.h ../../include/myUsage.h ../../include/rnGen.h \
+ ../../include/util.h
+zxIO.o: zxIO.cpp zxFileParser.h zxDef.h ../../include/ordered_hashmap.h \
+ ../../include/ordered_hashtable.h ../../include/ordered_hashset.h \
+ ../../include/phase.h ../../include/myConcepts.h \
+ ../../include/rationalNumber.h ../../include/util.h \
  ../../include/myUsage.h ../../include/rnGen.h zxGraph.h \
- ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
- ../../include/phase.h ../../include/myConcepts.h \
- ../../include/rationalNumber.h ../../include/util.h \
+ ../../include/qtensor.h ../../include/phase.h ../../include/tensor.h \
+ ../../include/tensorDef.h ../../include/tensorUtil.h
+zxGraphMgr.o: zxGraphMgr.cpp zxGraphMgr.h zxGraph.h ../../include/phase.h \
+ ../../include/myConcepts.h ../../include/rationalNumber.h \
+ ../../include/util.h ../../include/myUsage.h ../../include/rnGen.h \
  ../../include/qtensor.h ../../include/phase.h ../../include/tensor.h \
  ../../include/tensorDef.h ../../include/tensorUtil.h zxDef.h \
- ../../include/ordered_hashmap.h
-zxIO.o: zxIO.cpp ../../include/util.h ../../include/myUsage.h \
- ../../include/rnGen.h zxFileParser.h zxGraph.h \
- ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
- ../../include/phase.h ../../include/myConcepts.h \
- ../../include/rationalNumber.h ../../include/util.h \
- ../../include/qtensor.h ../../include/phase.h ../../include/tensor.h \
- ../../include/tensorDef.h ../../include/tensorUtil.h zxDef.h \
- ../../include/ordered_hashmap.h
-zxGraphMgr.o: zxGraphMgr.cpp zxGraphMgr.h zxDef.h \
+ ../../include/ordered_hashmap.h ../../include/ordered_hashtable.h \
+ ../../include/ordered_hashset.h
+zxVertex.o: zxVertex.cpp ../../include/textFormat.h zxDef.h \
  ../../include/ordered_hashmap.h ../../include/ordered_hashtable.h \
  ../../include/ordered_hashset.h ../../include/phase.h \
  ../../include/myConcepts.h ../../include/rationalNumber.h \
@@ -56,35 +59,24 @@ zxGraphMgr.o: zxGraphMgr.cpp zxGraphMgr.h zxDef.h \
  zxGraph.h ../../include/qtensor.h ../../include/phase.h \
  ../../include/tensor.h ../../include/tensorDef.h \
  ../../include/tensorUtil.h
-zxVertex.o: zxVertex.cpp ../../include/textFormat.h ../../include/util.h \
- ../../include/myUsage.h ../../include/rnGen.h zxGraph.h \
- ../../include/ordered_hashset.h ../../include/ordered_hashtable.h \
+zxMapping.o: zxMapping.cpp ../../include/qtensor.h ../../include/phase.h \
+ ../../include/myConcepts.h ../../include/rationalNumber.h \
+ ../../include/util.h ../../include/myUsage.h ../../include/rnGen.h \
+ ../../include/tensor.h ../../include/tensorDef.h \
+ ../../include/tensorUtil.h zx2tsMapper.h zxDef.h \
+ ../../include/ordered_hashmap.h ../../include/ordered_hashtable.h \
+ ../../include/ordered_hashset.h ../../include/phase.h zxGraph.h
+zxGraphPrint.o: zxGraphPrint.cpp ../../include/textFormat.h zxGraph.h \
  ../../include/phase.h ../../include/myConcepts.h \
  ../../include/rationalNumber.h ../../include/util.h \
- ../../include/qtensor.h ../../include/phase.h ../../include/tensor.h \
- ../../include/tensorDef.h ../../include/tensorUtil.h zxDef.h \
- ../../include/ordered_hashmap.h
-zxMapping.o: zxMapping.cpp ../../include/util.h ../../include/myUsage.h \
- ../../include/rnGen.h zx2tsMapper.h ../../include/ordered_hashmap.h \
- ../../include/ordered_hashtable.h zxGraph.h \
- ../../include/ordered_hashset.h ../../include/phase.h \
- ../../include/myConcepts.h ../../include/rationalNumber.h \
- ../../include/util.h ../../include/qtensor.h ../../include/phase.h \
- ../../include/tensor.h ../../include/tensorDef.h \
- ../../include/tensorUtil.h zxDef.h
-zxGraphPrint.o: zxGraphPrint.cpp ../../include/textFormat.h \
- ../../include/util.h ../../include/myUsage.h ../../include/rnGen.h \
- zxGraph.h ../../include/ordered_hashset.h \
- ../../include/ordered_hashtable.h ../../include/phase.h \
- ../../include/myConcepts.h ../../include/rationalNumber.h \
- ../../include/util.h ../../include/qtensor.h ../../include/phase.h \
- ../../include/tensor.h ../../include/tensorDef.h \
- ../../include/tensorUtil.h zxDef.h ../../include/ordered_hashmap.h
-zxGraph.o: zxGraph.cpp zxGraph.h ../../include/ordered_hashset.h \
- ../../include/ordered_hashtable.h ../../include/phase.h \
+ ../../include/myUsage.h ../../include/rnGen.h ../../include/qtensor.h \
+ ../../include/phase.h ../../include/tensor.h ../../include/tensorDef.h \
+ ../../include/tensorUtil.h zxDef.h ../../include/ordered_hashmap.h \
+ ../../include/ordered_hashtable.h ../../include/ordered_hashset.h
+zxGraph.o: zxGraph.cpp zxGraph.h ../../include/phase.h \
  ../../include/myConcepts.h ../../include/rationalNumber.h \
  ../../include/util.h ../../include/myUsage.h ../../include/rnGen.h \
  ../../include/qtensor.h ../../include/phase.h ../../include/tensor.h \
  ../../include/tensorDef.h ../../include/tensorUtil.h zxDef.h \
- ../../include/ordered_hashmap.h ../../include/textFormat.h \
- ../../include/util.h
+ ../../include/ordered_hashmap.h ../../include/ordered_hashtable.h \
+ ../../include/ordered_hashset.h ../../include/textFormat.h

@@ -9,7 +9,11 @@
 #ifndef ZX_CMD_H
 #define ZX_CMD_H
 
-#include "cmdParser.h"
+#include "cmdParser.h"   // for CmdExecStatus::CMD_EXEC_ERROR, CmdClass, Cmd...
+#include "phase.h"       // for Phase
+#include "zxDef.h"       // for VertexType, EdgeType, EdgeType::ERRORTYPE
+#include "zxGraph.h"     // for ZXGraph
+#include "zxGraphMgr.h"  // for ZXGraphMgr
 
 CmdClass(ZXNewCmd);
 CmdClass(ZXResetCmd);

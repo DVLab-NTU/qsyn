@@ -8,18 +8,16 @@
 #ifndef RATIONAL_NUM_H
 #define RATIONAL_NUM_H
 
-#include <cassert>
-#include <cmath>
+#include <cassert>  // for assert
 #include <concepts>
-#include <iostream>
-#include <tuple>
-#include <type_traits>
-#include <vector>
+#include <iosfwd>  // for ostream
+
 //--- Rational Numbers ----------------------------------
 // This class maintains the canonicity of stored rational numbers by simplifying the numerator/denominator whenever possible.
 // Rational numbers are not the same as fractions! This class does not support nested fractions or irrational numbers in numerator/denominator.
 // This class implicitly convert floating points to rational approximation when performing arithmetic operations.
 //--- Rational Numbers ----------------------------------
+
 class Rational {
 public:
     // Default constructor for two integral type
@@ -30,7 +28,7 @@ public:
     }
     // Implicitly use 1 as denominator
     template <class T>
-    requires std::floating_point<T>
+        requires std::floating_point<T>
     Rational(T f, T eps = 1e-4) {
         *this = Rational::toRational(f, eps);
     }
@@ -74,21 +72,17 @@ public:
     }
 
     template <class T>
-    requires std::floating_point<T>
-        T toFloatType()
-    const { return ((T)_numer) / _denom; }
+        requires std::floating_point<T>
+    T toFloatType()
+        const { return ((T)_numer) / _denom; }
 
     float toFloat() const { return toFloatType<float>(); }
     double toDouble() const { return toFloatType<double>(); }
     long double toLongDouble() const { return toFloatType<long double>(); }
 
     template <class T>
-    requires std::floating_point<T>
+        requires std::floating_point<T>
     static Rational toRational(T f, T eps = 1e-4) {
-        // std::cout << "f        " << f << std::endl
-        //           << "eps      " << eps << std::endl
-        //           << "Allowable range: [" << f - eps << ", " << f + eps << "]" << std::endl;
-        //   << "Rational " << *this << std::endl;
         int integralPart = (int)floor(f);
         f -= integralPart;
         Rational lower(0, 1), upper(1, 1);
@@ -109,7 +103,6 @@ public:
         }
 
         while (true) {
-            // std::cout << med << " = " << med.toFloatType<T>() << std::endl;
             if (!inLowerBound(med)) {
                 lower = med;
             } else if (!inUpperBound(med)) {

@@ -7,11 +7,11 @@
 ****************************************************************************/
 #include "cmdParser.h"
 
-#include <cassert>
-#include <cstdlib>
-#include <filesystem>
-#include <iomanip>
-#include <iostream>
+#include <cassert>     // for assert
+#include <cstddef>     // for size_t
+#include <cstdlib>     // for exit
+#include <filesystem>  // lines 12-12
+#include <iostream>    // for cin, cout
 
 #include "util.h"
 

@@ -8,6 +8,8 @@
 #ifndef TENSOR_UTIL_H
 #define TENSOR_UTIL_H
 
+#include <cstddef>
+#include <vector>
 #include <xtensor/xstorage.hpp>
 
 using TensorShape = xt::svector<size_t>;

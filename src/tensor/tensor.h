@@ -8,13 +8,11 @@
 #ifndef TENSOR_BASE_CLASS_H
 #define TENSOR_BASE_CLASS_H
 
-#include <algorithm>
 #include <cassert>
 #include <complex>
 #include <concepts>
 #include <exception>
 #include <iostream>
-#include <numeric>
 #include <unordered_map>
 #include <vector>
 #include <xtensor-blas/xlinalg.hpp>

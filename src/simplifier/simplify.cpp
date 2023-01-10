@@ -8,12 +8,9 @@
 
 #include "simplify.h"
 
-#include <iostream>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#include <cstddef>  // for size_t
 
-#include "util.h"
+#include "zxGraph.h"  // for ZXGraph
 
 using namespace std;
 extern size_t verbose;

@@ -8,14 +8,16 @@
 #ifndef TENSOR_MGR_H
 #define TENSOR_MGR_H
 
-#include <iomanip>
-#include <iostream>
-#include <map>
-#include <string>
-#include <unordered_map>
+#include <iostream> 
+#include <map>      
+#include <string> 
 
-#include "qtensor.h"
-#include "tensorDef.h"
+#include "phase.h"
+
+class TensorMgr;  // lines 17-17
+template <typename T>
+
+class QTensor;  // lines 19-20
 
 extern TensorMgr* tensorMgr;
 
@@ -23,11 +25,7 @@ struct TensorInfo {
     QTensor<double>* tensor;
     std::string info;
 
-    friend std::ostream& operator<<(std::ostream& os, const TensorInfo& tsInfo) {
-        return os << "#Dim: "
-                  << setw(4) << right << tsInfo.tensor->dimension()
-                  << "\tInfo: " << left << tsInfo.info;
-    }
+    friend std::ostream& operator<<(std::ostream& os, const TensorInfo& tsInfo);
 };
 
 using TensorList = std::map<size_t, TensorInfo>;
