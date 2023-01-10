@@ -8,7 +8,7 @@
 
 #include "zxCmd.h"
 
-#include <cstddef>   // for size_t
+#include <cstddef>  // for size_t
 #include <iomanip>
 #include <iostream>
 #include <string>

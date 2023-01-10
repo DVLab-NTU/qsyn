@@ -264,6 +264,6 @@ void ZX2TSMapper::tensorDotVertex(ZXVertex* v) {
     }
 }
 
-bool ZX2TSMapper::isFrontier(const NeighborPair& nbr) const { 
-    return (nbr.first->getPin() != unsigned(-1)); 
+bool ZX2TSMapper::isFrontier(const NeighborPair& nbr) const {
+    return (nbr.first->getPin() != unsigned(-1));
 }
