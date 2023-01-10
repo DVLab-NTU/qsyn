@@ -9,6 +9,7 @@
 #include "zxFileParser.h"
 
 #include <fstream>  // for ifstream
+#include <iostream>  // for ifstream
 
 #include "phase.h"  // for Phase
 #include "util.h"   // for myStr2Float, myStr2Int
@@ -277,4 +278,8 @@ bool ZXFileParser::parseNeighbor(const string& token, pair<char, size_t>& neighb
 
     neighbor = {type, id};
     return true;
+}
+
+void ZXFileParser::printFailedAtLineNum() const { 
+    cerr << "Error: failed to read line " << _lineNumber << ": "; 
 }

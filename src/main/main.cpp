@@ -9,7 +9,8 @@
 #include <stdlib.h>  // for exit
 
 #include <cstddef>  // for size_t
-#include <iostream>   // for ifstream
+#include <fstream>
+#include <iostream>
 
 #include "cmdParser.h"  // for CmdExecStatus, CmdExecStatus::CMD_EXEC_DONE
 #include "myUsage.h"    // for MyUsage

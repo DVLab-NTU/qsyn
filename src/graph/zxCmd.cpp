@@ -9,6 +9,7 @@
 #include "zxCmd.h"
 
 #include <cstddef>   // for size_t
+#include <iomanip>  // for ostream
 #include <iostream>  // for ostream
 #include <string>    // for string
 

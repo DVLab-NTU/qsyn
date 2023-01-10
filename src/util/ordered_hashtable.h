@@ -21,7 +21,6 @@
 #ifndef ORDERED_HASHTABLE_H
 #define ORDERED_HASHTABLE_H
 
-#include <iostream>
 #include <iterator>
 #include <optional>
 #include <ranges>

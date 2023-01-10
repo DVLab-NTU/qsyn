@@ -112,7 +112,6 @@ public:
 protected:
     InternalType _tensor;
     std::unordered_map<size_t, size_t> _axisHistory;
-    // static TensorAxisList concatAxisList(const TensorAxisList& ax1, const TensorAxisList& ax2);
 };
 
 //------------------------------

@@ -8,7 +8,7 @@
 #ifndef TENSOR_MGR_H
 #define TENSOR_MGR_H
 
-#include <iostream> 
+#include <iosfwd> 
 #include <map>      
 #include <string> 
 

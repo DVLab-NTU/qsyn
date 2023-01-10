@@ -9,6 +9,8 @@
 #include "simplify.h"
 
 #include <cstddef>  // for size_t
+#include <iomanip>
+#include <iostream>
 
 #include "zxGraph.h"  // for ZXGraph
 

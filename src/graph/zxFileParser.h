@@ -10,7 +10,7 @@
 #define ZX_FILE_PARSER_H
 
 #include <cstddef>  // for size_t
-#include <fstream>  // for ifstream
+#include <iosfwd>  // for ifstream
 #include <string>   // for string
 #include <utility>  // for pair
 
@@ -47,7 +47,7 @@ private:
 
     bool parseNeighbor(const string& token, pair<char, size_t>& neighbor);
 
-    void printFailedAtLineNum() const { cerr << "Error: failed to read line " << _lineNumber << ": "; }
+    void printFailedAtLineNum() const;
 };
 
 #endif  // ZX_FILE_PARSER_H

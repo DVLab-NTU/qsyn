@@ -9,6 +9,7 @@
 #include "m2Cmd.h"
 
 #include <cstddef>  // for size_t
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <unordered_map>

@@ -10,12 +10,15 @@
 #define ZX_GRAPH_H
 
 #include <cstddef>   // for size_t, NULL
+#include <complex>
 #include <iostream>  // for ostream
 #include <string>    // for string
 
 #include "phase.h"    // for Phase
-#include "qtensor.h"  // for QTensor
 #include "zxDef.h"    // for VertexType, EdgeType, EdgePair, NeighborPair
+
+template <typename T>
+class QTensor;
 
 using namespace std;
 
@@ -98,7 +101,7 @@ private:
 
 class ZXGraph {
 public:
-    ZXGraph(size_t id, void** ref = NULL) : _id(id), _ref(ref), _nextVId(0), _tensor(1. + 0.i) {
+    ZXGraph(size_t id, void** ref = NULL) : _id(id), _ref(ref), _nextVId(0) {
         _globalTraCounter = 1;
     }
 
@@ -234,7 +237,6 @@ private:
     size_t _id;
     void** _ref;
     size_t _nextVId;
-    QTensor<double> _tensor;
     ZXVertexList _inputs;
     ZXVertexList _outputs;
     ZXVertexList _vertices;

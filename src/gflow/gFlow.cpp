@@ -10,6 +10,7 @@
 
 #include <cassert>  // for assert
 #include <cstddef>  // for size_t
+#include <iomanip>
 #include <iostream>
 
 #include "textFormat.h"  // for TextFormat

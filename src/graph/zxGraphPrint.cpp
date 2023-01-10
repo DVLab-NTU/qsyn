@@ -7,10 +7,11 @@
 ****************************************************************************/
 
 #include <cstddef>  // for size_t
-#include <string>   // for string
+#include <map>
+#include <string>
 
-#include "textFormat.h"  // for TextFormat
-#include "zxGraph.h"     // for ZXGraph
+#include "textFormat.h"
+#include "zxGraph.h"
 
 using namespace std;
 namespace TF = TextFormat;

@@ -8,13 +8,12 @@
 #ifndef CMD_PARSER_H
 #define CMD_PARSER_H
 
-#include <fstream>  // for istream, ifstream, ostream
+#include <iosfwd>  
 #include <map>
+#include <stack>
 #include <string>   // for string
 #include <utility>  // for pair
 #include <vector>
-#include <stack>
-#include <iostream>
 
 #include "cmdCharDef.h"  // for ParseChar
 
@@ -124,10 +123,10 @@ private:
     bool readCmd(std::istream&);
     CmdExec* parseCmd(std::string&);
     void listCmd(const std::string&);
-    bool listCmdDir(const std::string&);  // Removed for TODO...
-    void printPrompt() const { std::cout << _prompt; }
-    bool pushDofile();  // Removed for TODO's
-    bool popDofile();   // Removed for TODO's
+    bool listCmdDir(const std::string&);
+    void printPrompt() const;
+    bool pushDofile();
+    bool popDofile();
 
     // Helper functions
     bool moveBufPtr(char* const);
