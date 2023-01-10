@@ -43,19 +43,20 @@ int Simplifier::simp() {
         else
             matches.push_back(_rule->getMatchTypeVecNum());
         i += 1;
-        
-        if(verbose >= 8) cout << "\nIteration " << i << ":" << endl << ">>>" << endl;
+
+        if (verbose >= 8) cout << "\nIteration " << i << ":" << endl
+                               << ">>>" << endl;
         _rule->rewrite(_simpGraph);
         amend();
-        if(verbose >= 8) cout << "<<<" << endl;
+        if (verbose >= 8) cout << "<<<" << endl;
         new_matches = true;
     }
     _recipe.emplace_back(_rule->getName(), matches);
     if (verbose >= 8) cout << "=> ";
-    if (verbose >= 5){
+    if (verbose >= 5) {
         cout << i << " iterations." << endl;
-        for(size_t m = 0; m < matches.size(); m++){
-            cout << "  " << m+1 << ") " << matches[m] << " matches" << endl;
+        for (size_t m = 0; m < matches.size(); m++) {
+            cout << "  " << m + 1 << ") " << matches[m] << " matches" << endl;
         }
     }
     if (verbose >= 5) cout << "\n";
@@ -86,22 +87,25 @@ int Simplifier::hadamardSimp() {
 
         _rule->match(_simpGraph);
 
-        if (_rule->getMatchTypeVecNum() == 0) break;
-        else matches.push_back(_rule->getMatchTypeVecNum());
+        if (_rule->getMatchTypeVecNum() == 0)
+            break;
+        else
+            matches.push_back(_rule->getMatchTypeVecNum());
         i += 1;
 
-        if(verbose >= 8) cout << "\nIteration " << i << ":" << endl << ">>>" << endl;
+        if (verbose >= 8) cout << "\nIteration " << i << ":" << endl
+                               << ">>>" << endl;
         _rule->rewrite(_simpGraph);
         amend();
-        if(verbose >= 8) cout << "<<<" << endl;
+        if (verbose >= 8) cout << "<<<" << endl;
         if (_simpGraph->getNumVertices() >= vcount) break;
     }
     _recipe.emplace_back(_rule->getName(), matches);
     if (verbose >= 8) cout << "=> ";
-    if (verbose >= 5){
+    if (verbose >= 5) {
         cout << i << " iterations." << endl;
-        for(size_t m = 0; m < matches.size(); m++){
-            cout << "  " << m+1 << ") " << matches[m] << " matches" << endl;
+        for (size_t m = 0; m < matches.size(); m++) {
+            cout << "  " << m + 1 << ") " << matches[m] << " matches" << endl;
         }
     }
     if (verbose >= 5) cout << "\n";
@@ -305,30 +309,29 @@ void Simplifier::symbolicReduce() {
 
 /**
  * @brief print recipe of Simplifier
- * 
+ *
  */
 void Simplifier::printRecipe() {
-    if(verbose <= 3){
-        if(verbose == 1){
+    if (verbose <= 3) {
+        if (verbose == 1) {
             cout << "\nAll rules applied:\n";
             unordered_set<string> rules;
-            for(size_t i = 0; i < _recipe.size(); i++){
-                if(get<1>(_recipe[i]).size() != 0){
-                    if(rules.find(get<0>(_recipe[i])) == rules.end()){
-                        cout <<"("  << rules.size()+1 << ") " << get<0>(_recipe[i]) << endl;
+            for (size_t i = 0; i < _recipe.size(); i++) {
+                if (get<1>(_recipe[i]).size() != 0) {
+                    if (rules.find(get<0>(_recipe[i])) == rules.end()) {
+                        cout << "(" << rules.size() + 1 << ") " << get<0>(_recipe[i]) << endl;
                         rules.insert(get<0>(_recipe[i]));
-                    } 
+                    }
                 }
             }
-        }
-        else{
+        } else {
             cout << "\nAll rules applied in order:\n";
-            for(size_t i = 0; i < _recipe.size(); i++){
-                if(get<1>(_recipe[i]).size() != 0){
+            for (size_t i = 0; i < _recipe.size(); i++) {
+                if (get<1>(_recipe[i]).size() != 0) {
                     cout << setw(30) << left << get<0>(_recipe[i]) << get<1>(_recipe[i]).size() << " iterations." << endl;
-                    if(verbose == 3){
-                        for(size_t j = 0; j < get<1>(_recipe[i]).size(); j++){
-                            cout << "  " << j+1 << ") " << get<1>(_recipe[i])[j] << " matches" << endl;
+                    if (verbose == 3) {
+                        for (size_t j = 0; j < get<1>(_recipe[i]).size(); j++) {
+                            cout << "  " << j + 1 << ") " << get<1>(_recipe[i])[j] << " matches" << endl;
                         }
                     }
                 }
