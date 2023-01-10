@@ -20,8 +20,8 @@ class ZXGraph;
 
 class Extractor {
 public:
-    using Target = unordered_map<size_t, size_t>;
-    using ConnectInfo = vector<set<size_t>>;
+    using Target = std::unordered_map<size_t, size_t>;
+    using ConnectInfo = std::vector<std::set<size_t>>;
     Extractor(ZXGraph* g, QCir* c = nullptr) {
         _graph = g;
         if (c == nullptr)
@@ -63,10 +63,10 @@ private:
     ZXVertexList _frontier;
     ZXVertexList _neighbors;
     ZXVertexList _axels;
-    unordered_map<size_t, size_t> _qubitMap;  // zx to qc
+    std::unordered_map<size_t, size_t> _qubitMap;  // zx to qc
 
     M2 _biAdjacency;
-    vector<M2::Oper> _cnots;
+    std::vector<M2::Oper> _cnots;
 
     // NOTE - Use only in column optimal swap
     Target findColumnSwap(Target);

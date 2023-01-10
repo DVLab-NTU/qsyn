@@ -66,7 +66,7 @@ public:
 private:
     ZXRule* _rule;
     ZXGraph* _simpGraph;
-    vector<tuple<string, vector<int> > > _recipe;
+    std::vector<std::tuple<std::string, std::vector<int> > > _recipe;
 };
 
 #endif

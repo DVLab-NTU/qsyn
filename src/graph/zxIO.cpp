@@ -17,6 +17,8 @@
 
 extern size_t verbose;
 
+using namespace std;
+
 /**
  * @brief read a zx graph
  *

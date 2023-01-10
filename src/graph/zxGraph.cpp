@@ -11,8 +11,10 @@
 #include <iostream>
 
 #include "textFormat.h"  // for TextFormat
+#include "zxDef.h"
 
 using namespace std;
+
 namespace TF = TextFormat;
 extern size_t verbose;
 

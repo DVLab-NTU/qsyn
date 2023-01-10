@@ -14,8 +14,6 @@
 #include <sys/times.h>                 // for times, tms
 #include <unistd.h>                    // for sysconf, _SC_CLK_TCK
 
-using namespace std;
-
 #undef MYCLK_TCK
 #define MYCLK_TCK sysconf(_SC_CLK_TCK)
 

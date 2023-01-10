@@ -14,6 +14,8 @@
 #include "zxDef.h"           // for VertexType, VertexType::Z, VertexType::X
 #include "zxGraph.h"         // for ZXGraph, ZXVertex (ptr only)
 
+using namespace std;
+
 extern size_t verbose;
 
 /// @brief map single qubit gate to zx
@@ -42,7 +44,7 @@ ZXGraph *QCirGate::mapSingleQubitGate(VertexType vt, Phase ph) {
  * @param k
  * @return vector<vector<ZXVertex* > >
  */
-vector<vector<ZXVertex *>> QCirGate::makeCombi(vector<ZXVertex *> verVec, int k) {
+vector<QCirGate::ZXVertexCombi> QCirGate::makeCombi(QCirGate::ZXVertexCombi verVec, int k) {
     vector<vector<ZXVertex *>> comb;
     vector<ZXVertex *> tmp;
     makeCombiUtil(comb, tmp, verVec, 0, k);
@@ -59,7 +61,7 @@ vector<vector<ZXVertex *>> QCirGate::makeCombi(vector<ZXVertex *> verVec, int k)
  * @param left
  * @param k
  */
-void QCirGate::makeCombiUtil(vector<vector<ZXVertex *>> &comb, vector<ZXVertex *> &tmp, vector<ZXVertex *> verVec, int left, int k) {
+void QCirGate::makeCombiUtil(vector<QCirGate::ZXVertexCombi> &comb, QCirGate::ZXVertexCombi &tmp, QCirGate::ZXVertexCombi verVec, int left, int k) {
     if (k == 0) {
         comb.push_back(tmp);
         return;

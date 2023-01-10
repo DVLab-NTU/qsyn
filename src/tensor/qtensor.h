@@ -18,7 +18,7 @@ protected:
     using InternalType = Tensor<std::complex<T>>::InternalType;
 
 public:
-    QTensor() : Tensor<DataType>(1. + 0.i) {}
+    QTensor() : Tensor<DataType>(std::complex<T>(1, 0)) {}
     QTensor(const Tensor<DataType>& t) : Tensor<DataType>(t) {}
     QTensor(Tensor<DataType>&& t) : Tensor<DataType>(t) {}
 
@@ -44,9 +44,9 @@ public:
     static QTensor<T> zspider(const size_t& arity, const Phase& phase = Phase(0));
     static QTensor<T> xspider(const size_t& arity, const Phase& phase = Phase(0));
     static QTensor<T> hbox(const size_t& arity, const DataType& a = -1.);
-    static QTensor<T> xgate() { return {{0. + 0.i, 1. + 0.i}, {1. + 0.i, 0. + 0.i}}; }
-    static QTensor<T> ygate() { return {{0. + 0.i, 0. - 1.i}, {0. + 1.i, 0. + 0.i}}; }
-    static QTensor<T> zgate() { return {{1. + 0.i, 0. + 0.i}, {0. + 0.i, -1. + 0.i}}; }
+    static QTensor<T> xgate() { using namespace std::literals; return {{0. + 0.i, 1. + 0.i}, {1. + 0.i, 0. + 0.i}}; }
+    static QTensor<T> ygate() { using namespace std::literals; return {{0. + 0.i, 0. - 1.i}, {0. + 1.i, 0. + 0.i}}; }
+    static QTensor<T> zgate() { using namespace std::literals; return {{1. + 0.i, 0. + 0.i}, {0. + 0.i, -1. + 0.i}}; }
     static QTensor<T> rxgate(const Phase& phase = Phase(0));
     static QTensor<T> rygate(const Phase& phase = Phase(0));
     static QTensor<T> rzgate(const Phase& phase = Phase(0));
@@ -105,6 +105,7 @@ QTensor<T> QTensor<T>::identity(const size_t& numQubits) {
  */
 template <typename T>
 QTensor<T> QTensor<T>::zspider(const size_t& arity, const Phase& phase) {
+    using namespace std::literals;
     QTensor<T> t = xt::zeros<DataType>(TensorShape(arity, 2));
     if (arity == 0) {
         t() = 1. + std::exp(1.0i * phase.toFloatType<T>());
@@ -126,6 +127,7 @@ QTensor<T> QTensor<T>::zspider(const size_t& arity, const Phase& phase) {
  */
 template <typename T>
 QTensor<T> QTensor<T>::xspider(const size_t& arity, const Phase& phase) {
+    using namespace std::literals;
     QTensor<T> t = xt::ones<QTensor<T>::DataType>(TensorShape(arity, 2));
     QTensor<T> ketMinus(TensorShape{2});
     ketMinus(0, 0) = 1.;
@@ -166,6 +168,7 @@ QTensor<T> QTensor<T>::hbox(const size_t& arity, const QTensor<T>::DataType& a) 
  */
 template <typename T>
 QTensor<T> QTensor<T>::rxgate(const Phase& phase) {
+    using namespace std::literals;
     auto t = QTensor<T>::pxgate(phase);
     t._tensor *= std::exp(-0.5i * phase.toFloatType<T>());
     return t;
@@ -180,6 +183,7 @@ QTensor<T> QTensor<T>::rxgate(const Phase& phase) {
  */
 template <typename T>
 QTensor<T> QTensor<T>::rygate(const Phase& phase) {
+    using namespace std::literals;
     auto t = QTensor<T>::pygate(phase);
     t._tensor *= std::exp(-0.5i * phase.toFloatType<T>());
     return t;
@@ -194,6 +198,7 @@ QTensor<T> QTensor<T>::rygate(const Phase& phase) {
  */
 template <typename T>
 QTensor<T> QTensor<T>::rzgate(const Phase& phase) {
+    using namespace std::literals;
     auto t = QTensor<T>::pzgate(phase);
     t._tensor *= std::exp(-0.5i * phase.toFloatType<T>());
     return t;

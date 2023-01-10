@@ -23,29 +23,29 @@ public:
 
     ZXFileParser() : _lineNumber(1) {}
 
-    bool parse(const string& filename);
+    bool parse(const std::string& filename);
     const StorageType getStorage() const { return _storage; }
 
 private:
     unsigned _lineNumber;
     StorageType _storage;
-    unordered_set<int> _takenInputQubits;
-    unordered_set<int> _takenOutputQubits;
+    std::unordered_set<int> _takenInputQubits;
+    std::unordered_set<int> _takenOutputQubits;
 
-    bool parseInternal(ifstream& f);
+    bool parseInternal(std::ifstream& f);
 
     // parsing subroutines
 
-    string stripLeadingSpacesAndComments(string& line);
-    bool tokenize(const string& line, vector<string>& tokens);
+    std::string stripLeadingSpacesAndComments(std::string& line);
+    bool tokenize(const std::string& line, std::vector<std::string>& tokens);
 
-    bool parseTypeAndId(const string& token, char& type, unsigned& id);
-    bool validTokensForBoundaryVertex(const vector<string>& tokens);
+    bool parseTypeAndId(const std::string& token, char& type, unsigned& id);
+    bool validTokensForBoundaryVertex(const std::vector<std::string>& tokens);
 
-    bool parseQubit(const string& token, const char& type, int& qubit);
-    bool parseColumn(const string& token, float& column);
+    bool parseQubit(const std::string& token, const char& type, int& qubit);
+    bool parseColumn(const std::string& token, float& column);
 
-    bool parseNeighbor(const string& token, pair<char, size_t>& neighbor);
+    bool parseNeighbor(const std::string& token, std::pair<char, size_t>& neighbor);
 
     void printFailedAtLineNum() const;
 };

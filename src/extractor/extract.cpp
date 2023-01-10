@@ -13,6 +13,9 @@
 #include "simplify.h"  // for Simplifier
 #include "zxGraph.h"   // for ZXGraph
 #include "zxRules.h"   // for PivotBoundary
+
+using namespace std;
+
 extern size_t verbose;
 
 /**

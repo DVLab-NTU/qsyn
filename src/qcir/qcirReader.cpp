@@ -13,6 +13,8 @@
 
 #include "qcir.h"  // for QCir
 
+using namespace std;
+
 /// @brief Read QCir file
 /// @param filename
 /// @return true if successfully read

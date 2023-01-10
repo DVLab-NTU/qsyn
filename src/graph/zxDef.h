@@ -18,8 +18,6 @@
 #include "ordered_hashset.h"
 #include "phase.h"
 
-using namespace std;
-
 class ZXVertex;
 class ZXGraph;
 class ZXGraphMgr;
@@ -43,8 +41,8 @@ enum class EdgeType {
 //------------------------------------------------------------------------
 
 using ZXVertexList = ordered_hashset<ZXVertex*>;
-using EdgePair = pair<pair<ZXVertex*, ZXVertex*>, EdgeType>;
-using NeighborPair = pair<ZXVertex*, EdgeType>;
+using EdgePair = std::pair<std::pair<ZXVertex*, ZXVertex*>, EdgeType>;
+using NeighborPair = std::pair<ZXVertex*, EdgeType>;
 using Neighbors = ordered_hashset<NeighborPair>;
 
 namespace ZXParserDetail {
@@ -53,7 +51,7 @@ struct VertexInfo {
     char type;
     int qubit;
     float column;
-    vector<pair<char, size_t>> neighbors;
+    std::vector<std::pair<char, size_t>> neighbors;
     Phase phase;
 };
 
@@ -89,8 +87,8 @@ struct hash<EdgePair> {
 }  // namespace std
 
 template <typename T>
-ostream& operator<<(typename enable_if<is_enum<T>::value, ostream>::type& stream, const T& e) {
-    return stream << static_cast<typename underlying_type<T>::type>(e);
+std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::ostream>::type& stream, const T& e) {
+    return stream << static_cast<typename std::underlying_type<T>::type>(e);
 }
 
 #endif  // ZX_DEF_H

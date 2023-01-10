@@ -38,7 +38,7 @@ public:
 
     const TensorList& getTensorList() const { return _tensorList; }
     QTensor<double>* getTensor(const size_t& id) const { return _tensorList.at(id).tensor; }
-    const string& getInfo(const size_t& id) const { return _tensorList.at(id).info; }
+    const std::string& getInfo(const size_t& id) const { return _tensorList.at(id).info; }
 
     void setTensor(const size_t& id, QTensor<double>* tensor) { _tensorList[id].tensor = tensor; }
     void setInfo(const size_t& id, const std::string& str = "") { _tensorList[id].info = str; }

@@ -9,8 +9,6 @@
 #ifndef QCIR_DEF_H
 #define QCIR_DEF_H
 
-using namespace std;
-
 class QCirGate;
 class QCirQubit;
 class QCir;

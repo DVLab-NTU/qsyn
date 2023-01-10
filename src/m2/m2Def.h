@@ -9,8 +9,6 @@
 #ifndef M2_DEF_H
 #define M2_DEF_H
 
-using namespace std;
-
 class M2;
 
 //------------------------------------------------------------------------

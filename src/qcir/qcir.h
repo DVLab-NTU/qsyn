@@ -26,7 +26,6 @@ template <typename T>
 class QTensor;
 
 extern QCir* qCir;
-using namespace std;
 
 class QCir {
 public:
@@ -40,8 +39,8 @@ public:
     size_t getId() const { return _id; }
     size_t getZXId() const { return _ZXNodeId; }
     size_t getNQubit() const { return _qubits.size(); }
-    const vector<QCirQubit*>& getQubits() const { return _qubits; }
-    const vector<QCirGate*>& getTopoOrderdGates() const { return _topoOrder; }
+    const std::vector<QCirQubit*>& getQubits() const { return _qubits; }
+    const std::vector<QCirGate*>& getTopoOrderdGates() const { return _topoOrder; }
     QCirGate* getGate(size_t gid) const;
     QCirQubit* getQubit(size_t qid) const;
     void incrementZXId() { _ZXNodeId++; }
@@ -59,17 +58,17 @@ public:
     QCirQubit* insertSingleQubit(size_t);
     void addQubit(size_t num);
     bool removeQubit(size_t q);
-    QCirGate* addGate(string, vector<size_t>, Phase, bool);
+    QCirGate* addGate(std::string, std::vector<size_t>, Phase, bool);
     QCirGate* addSingleRZ(size_t, Phase, bool);
     bool removeGate(size_t id);
 
-    bool readQCirFile(string file);
-    bool readQC(string qc_file);
-    bool readQASM(string qasm_file);
-    bool readQSIM(string qsim_file);
-    bool readQUIPPER(string quipper_file);
+    bool readQCirFile(std::string file);
+    bool readQC(std::string qc_file);
+    bool readQASM(std::string qasm_file);
+    bool readQSIM(std::string qsim_file);
+    bool readQUIPPER(std::string quipper_file);
 
-    bool writeQASM(string qasm_output);
+    bool writeQASM(std::string qasm_output);
 
     void analysis(bool = false);
     void ZXMapping();
@@ -103,7 +102,7 @@ public:
 
 private:
     void DFS(QCirGate*);
-    void updateTensorPin(vector<BitInfo>, QTensor<double>);
+    void updateTensorPin(std::vector<BitInfo>, QTensor<double>);
 
     size_t _id;
     size_t _gateId;
@@ -113,11 +112,11 @@ private:
     unsigned _globalDFScounter;
     QTensor<double>* _tensor;
 
-    vector<QCirGate*> _qgates;
-    vector<QCirQubit*> _qubits;
-    vector<QCirGate*> _topoOrder;
-    vector<ZXGraph*> _ZXGraphList;
-    unordered_map<size_t, pair<size_t, size_t>> _qubit2pin;
+    std::vector<QCirGate*> _qgates;
+    std::vector<QCirQubit*> _qubits;
+    std::vector<QCirGate*> _topoOrder;
+    std::vector<ZXGraph*> _ZXGraphList;
+    std::unordered_map<size_t, std::pair<size_t, size_t>> _qubit2pin;
 };
 
 #endif  // QCIR_MGR_H

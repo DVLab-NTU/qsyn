@@ -16,12 +16,11 @@ class ZXGraph;
 class ZXGraphMgr;
 
 extern ZXGraphMgr* zxGraphMgr;
-using namespace std;
 
 //------------------------------------------------------------------------
 //  Define types
 //------------------------------------------------------------------------
-typedef vector<ZXGraph*> ZXGraphList;
+typedef std::vector<ZXGraph*> ZXGraphList;
 
 //------------------------------------------------------------------------
 //  Define classes

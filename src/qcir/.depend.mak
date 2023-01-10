@@ -14,7 +14,7 @@ qcirAction.o: qcirAction.cpp qcir.h ../../include/phase.h \
  ../../include/tensorUtil.h ../../include/zxDef.h \
  ../../include/ordered_hashmap.h ../../include/ordered_hashtable.h \
  ../../include/ordered_hashset.h qcirQubit.h ../../include/zxGraph.h \
- ../../include/qtensor.h ../../include/zxDef.h
+ ../../include/zxDef.h
 qcirWriter.o: qcirWriter.cpp qcir.h ../../include/phase.h \
  ../../include/myConcepts.h ../../include/rationalNumber.h \
  ../../include/util.h ../../include/myUsage.h ../../include/rnGen.h \
@@ -47,8 +47,7 @@ qcirMapping.o: qcirMapping.cpp qcir.h ../../include/phase.h \
  ../../include/tensorUtil.h ../../include/zxDef.h \
  ../../include/ordered_hashmap.h ../../include/ordered_hashtable.h \
  ../../include/ordered_hashset.h qcirQubit.h ../../include/tensorMgr.h \
- ../../include/zxGraph.h ../../include/qtensor.h ../../include/zxDef.h \
- ../../include/zxGraphMgr.h
+ ../../include/zxGraph.h ../../include/zxDef.h ../../include/zxGraphMgr.h
 qcirQubit.o: qcirQubit.cpp qcirQubit.h qcirGate.h ../../include/phase.h \
  ../../include/myConcepts.h ../../include/rationalNumber.h \
  ../../include/util.h ../../include/myUsage.h ../../include/rnGen.h \
@@ -65,7 +64,7 @@ qcirCmd.o: qcirCmd.cpp qcirCmd.h ../../include/cmdParser.h \
  ../../include/tensorUtil.h ../../include/zxDef.h \
  ../../include/ordered_hashmap.h ../../include/ordered_hashtable.h \
  ../../include/ordered_hashset.h qcirQubit.h ../../include/cmdMacros.h \
- ../../include/zxGraph.h ../../include/qtensor.h ../../include/zxDef.h
+ ../../include/zxGraph.h ../../include/zxDef.h
 qcirGate2ZX.o: qcirGate2ZX.cpp ../../include/phase.h \
  ../../include/myConcepts.h ../../include/rationalNumber.h \
  ../../include/util.h ../../include/myUsage.h ../../include/rnGen.h \
@@ -74,7 +73,7 @@ qcirGate2ZX.o: qcirGate2ZX.cpp ../../include/phase.h \
  ../../include/tensorUtil.h ../../include/zxDef.h \
  ../../include/ordered_hashmap.h ../../include/ordered_hashtable.h \
  ../../include/ordered_hashset.h ../../include/rationalNumber.h \
- ../../include/zxGraph.h ../../include/qtensor.h ../../include/zxDef.h
+ ../../include/zxGraph.h ../../include/zxDef.h
 qcirGate.o: qcirGate.cpp qcirGate.h ../../include/phase.h \
  ../../include/myConcepts.h ../../include/rationalNumber.h \
  ../../include/util.h ../../include/myUsage.h ../../include/rnGen.h \

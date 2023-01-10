@@ -16,12 +16,11 @@
 class QCirMgr;
 
 extern QCirMgr* qcirMgr;
-using namespace std;
 
 //------------------------------------------------------------------------
 //  Define types
 //------------------------------------------------------------------------
-typedef vector<QCir*> QCirList;
+typedef std::vector<QCir*> QCirList;
 
 //------------------------------------------------------------------------
 //  Define classes
