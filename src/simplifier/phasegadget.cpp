@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include <cstddef>  // for size_t
+#include <iostream>
 
 #include "zxGraph.h"
 #include "zxRules.h"

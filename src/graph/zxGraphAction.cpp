@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include <cstddef>  // for size_t
+#include <iostream>
 
 #include "phase.h"       // for Phase
 #include "textFormat.h"  // for TextFormat

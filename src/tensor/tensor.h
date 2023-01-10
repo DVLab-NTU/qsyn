@@ -12,7 +12,7 @@
 #include <complex>
 #include <concepts>
 #include <exception>
-#include <iostream>
+#include <iosfwd>
 #include <unordered_map>
 #include <vector>
 #include <xtensor-blas/xlinalg.hpp>
@@ -81,7 +81,6 @@ public:
     std::vector<size_t> shape() const;
 
     void resetAxisHistory();
-    void printAxisHistory();
     size_t getNewAxisId(const size_t& oldId);
 
     template <typename U>
@@ -214,15 +213,6 @@ void Tensor<DT>::resetAxisHistory() {
     for (size_t i = 0; i < _tensor.dimension(); ++i) {
         _axisHistory.emplace(i, i);
     }
-}
-
-// reset the tensor axis history to (0, 0), (1, 1), ..., (n-1, n-1)
-template <typename DT>
-void Tensor<DT>::printAxisHistory() {
-    for (auto it : _axisHistory) {
-        std::cout << "(" << it.first << ", " << it.second << ") ";
-    }
-    std::cout << std::endl;
 }
 
 template <typename DT>

@@ -8,6 +8,8 @@
 
 #include "zxGraph.h"
 
+#include <iostream>
+
 #include "textFormat.h"  // for TextFormat
 
 using namespace std;

@@ -11,7 +11,6 @@
 
 #include <cstddef>   // for size_t, NULL
 #include <complex>
-#include <iostream>  // for ostream
 #include <string>    // for string
 
 #include "phase.h"    // for Phase
@@ -257,11 +256,6 @@ VertexType str2VertexType(const string& str);
 string EdgeType2Str(const EdgeType& et);
 string VertexType2Str(const VertexType& vt);
 EdgeType toggleEdge(const EdgeType& et);
-
-template <typename T>
-ostream& operator<<(typename enable_if<is_enum<T>::value, ostream>::type& stream, const T& e) {
-    return stream << static_cast<typename underlying_type<T>::type>(e);
-}
 
 EdgePair makeEdgePair(ZXVertex* v1, ZXVertex* v2, EdgeType et);
 EdgePair makeEdgePair(EdgePair epair);

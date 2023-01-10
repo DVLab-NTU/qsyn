@@ -11,6 +11,7 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <iosfwd>
 #include <vector>
 
 #include "ordered_hashmap.h"
@@ -86,5 +87,10 @@ struct hash<EdgePair> {
     }
 };
 }  // namespace std
+
+template <typename T>
+ostream& operator<<(typename enable_if<is_enum<T>::value, ostream>::type& stream, const T& e) {
+    return stream << static_cast<typename underlying_type<T>::type>(e);
+}
 
 #endif  // ZX_DEF_H

@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include <cstddef>  // for size_t
+#include <iostream>
 #include <list>
 
 #include "zxGraph.h"  // for ZXGraph, ZXVertex

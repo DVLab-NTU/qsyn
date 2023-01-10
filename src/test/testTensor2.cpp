@@ -24,11 +24,8 @@ using namespace std::literals::complex_literals;
 
 TEST_CASE("Tensordot", "[Tensor]") {
     QTensor<double> a = QTensor<double>::zspider(3, 0);
-    // a.printAxisHistory();
     QTensor<double> b = QTensor<double>::xspider(3, 0);
-    // b.printAxisHistory();
     auto c = tensordot(a, b, {2}, {0});
-    // c.printAxisHistory();
     REQUIRE(c.getNewAxisId(0) == 0);
     REQUIRE(c.getNewAxisId(1) == 1);
     REQUIRE(c.getNewAxisId(2) == (size_t)-1);

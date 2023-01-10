@@ -8,11 +8,12 @@
 
 #include <cassert>  // for assert
 #include <cstddef>  // for size_t
-#include <fstream>  // for fstream, ofstream
-#include <string>   // for string
+#include <fstream>
+#include <iostream>
+#include <string>
 
-#include "zxFileParser.h"  // for ZXFileParser
-#include "zxGraph.h"       // for ZXGraph
+#include "zxFileParser.h"
+#include "zxGraph.h"
 
 extern size_t verbose;
 

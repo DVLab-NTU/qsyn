@@ -9,6 +9,7 @@
 #include "zxGraphMgr.h"
 
 #include <cstddef>  // for size_t, NULL
+#include <iostream>
 
 #include "zxGraph.h"  // for ZXGraph
 
