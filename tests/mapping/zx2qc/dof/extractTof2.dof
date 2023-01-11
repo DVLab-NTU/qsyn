@@ -1,5 +1,6 @@
 color 0
 zxgread benchmark/bzx/tof3.bzx
+zx2ts
 ver 0
 zxgs -fr
 zxgp -q
@@ -14,4 +15,6 @@ zxgp -q
 qccp
 qccp -q
 zxgt -id
+qc2ts
+tseq 0 1
 qq -f
