@@ -196,14 +196,26 @@ unordered_map<EdgeType, string> et2s = {
  */
 bool ZXGraph::writeTikz(string filename) {
     fstream tikzFile;
-    tikzFile.open(filename.c_str(), std::fstream::out);
+    tikzFile.open(filename.c_str(), std::fstream::app | fstream::out);
     if (!tikzFile.is_open()) {
         cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
         return false;
     }
     string fontSize = "\\tiny";
+
+    size_t max = 0;
+    for (auto& v : _outputs) {
+        if (max < v->getCol())
+            max = v->getCol();
+    }
+    for (auto& v : _inputs) {
+        if (max < v->getCol())
+            max = v->getCol();
+    }
+    double scale = (double)25 / (double)static_cast<int>(max);
+
     tikzFile << defineColors;
-    tikzFile << "\\scalebox{1.0}{";
+    tikzFile << "\\scalebox{" << to_string(scale) << "}{";
     tikzFile << "\\begin{tikzpicture}" << tikzStyle;
     tikzFile << "    % Vertices\n";
 
@@ -212,7 +224,7 @@ bool ZXGraph::writeTikz(string filename) {
             return true;
         if (v->getPhase() == Phase(1) && v->getType() == VertexType::H_BOX)
             return true;
-        string labelStyle = "[label distance=-2px]90:{\\color{phaseColor}";
+        string labelStyle = "[label distance=-2]90:{\\color{phaseColor}";
         tikzFile << ",label={ " << labelStyle << fontSize << " $";
         int numerator = v->getPhase().getRational().numerator();
         int denominator = v->getPhase().getRational().denominator();
@@ -250,5 +262,55 @@ bool ZXGraph::writeTikz(string filename) {
     }
 
     tikzFile << "\\end{tikzpicture}}\n";
+    return true;
+}
+
+/**
+ * @brief
+ *
+ * @param filename
+ * @param toPDF
+ * @return true
+ * @return false
+ */
+bool ZXGraph::writeTex(string filename, bool toPDF) {
+    fstream texFile;
+    texFile.open(filename.c_str(), fstream::out);
+    if (!texFile.is_open()) {
+        cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
+        return false;
+    }
+    // FIXME - scale
+    string includes =
+        "\\documentclass[a4paper,landscape]{article}\n"
+        "\\usepackage[english]{babel}\n"
+        "\\usepackage[top=2cm,bottom=2cm,left=1cm,right=1cm,marginparwidth=1.75cm]{geometry}"
+        "\\usepackage{amsmath}\n"
+        "\\usepackage{tikz}\n"
+        "\\usetikzlibrary{shapes}\n"
+        "\\usetikzlibrary{plotmarks}\n"
+        "\\usepackage[colorlinks=true, allcolors=blue]{hyperref}\n"
+        "\\usetikzlibrary{positioning}\n"
+        "\\usetikzlibrary{shapes.geometric}\n";
+    texFile << includes;
+    texFile << "\\begin{document}\n";
+    texFile.flush();
+    if (!writeTikz(filename)) {
+        cout << "Failed" << endl;
+        return false;
+    }
+    texFile.close();
+    texFile.open(filename.c_str(), fstream::app | fstream::out);
+    texFile << "\\end{document}\n";
+    texFile.flush();
+    texFile.close();
+    if (toPDF) {
+        string cmd = "pdflatex " + filename + " >/dev/null 2>&1 ";
+        int systemRet = system(cmd.c_str());
+        if (systemRet == -1) {
+            cerr << "Error: failed to generate PDF" << endl;
+            return false;
+        }
+    }
     return true;
 }
