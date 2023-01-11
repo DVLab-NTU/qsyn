@@ -213,7 +213,7 @@ bool ZXGraph::writeTikz(string filename) {
             max = v->getCol();
     }
     double scale = (double)25 / (double)static_cast<int>(max);
-
+    scale = (scale > 3.0) ? 3.0 : scale;
     tikzFile << defineColors;
     tikzFile << "\\scalebox{" << to_string(scale) << "}{";
     tikzFile << "\\begin{tikzpicture}" << tikzStyle;
