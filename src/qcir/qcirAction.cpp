@@ -147,6 +147,7 @@ bool QCir::printTopoOrder() {
  * @brief Update execution time of gates
  */
 void QCir::updateGateTime() {
+    updateTopoOrder();
     auto Lambda = [](QCirGate* currentGate) {
         vector<BitInfo> Info = currentGate->getQubits();
         size_t max_time = 0;
