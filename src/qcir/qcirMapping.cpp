@@ -35,7 +35,7 @@ void QCir::clearMapping() {
  * @brief Mapping QCir to ZX-graph
  */
 void QCir::ZXMapping() {
-    updateTopoOrder();
+    updateGateTime();
 
     ZXGraph *_ZXG = zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
     if (verbose >= 5) cout << "Traverse and build the graph... " << endl;
