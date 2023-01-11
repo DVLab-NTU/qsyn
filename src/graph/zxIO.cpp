@@ -256,14 +256,13 @@ bool ZXGraph::writeTikz(string filename) {
 
     for (auto& v : _vertices) {
         for (auto& [n, e] : v->getNeighbors()) {
-            if (n->getId() > v->getId()){
-                if (n->getCol() == v->getCol() && n->getQubit() == v->getQubit()){
+            if (n->getId() > v->getId()) {
+                if (n->getCol() == v->getCol() && n->getQubit() == v->getQubit()) {
                     cerr << "Warning: " << v->getId() << " and " << n->getId() << " are connected but they have same coordinates." << endl;
                     tikzFile << "    % \\draw[" << et2s[e] << "] (" << to_string(v->getId()) << ") -- (" << to_string(n->getId()) << ");\n";
-                }
-                else
+                } else
                     tikzFile << "    \\draw[" << et2s[e] << "] (" << to_string(v->getId()) << ") -- (" << to_string(n->getId()) << ");\n";
-            }   
+            }
         }
     }
 
