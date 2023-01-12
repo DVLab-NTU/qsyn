@@ -293,8 +293,9 @@ size_t Extractor::extractHsFromM2(bool check) {
     for (auto& [f, n] : frontNeighPairs) {
         // NOTE - Add Hadamard according to the v of frontier (row)
         _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
-        // NOTE - Set #qubit according to the old frontier
+        // NOTE - Set #qubit and #col according to the old frontier
         n->setQubit(f->getQubit());
+        n->setCol(f->getCol());
 
         // NOTE - Connect edge between boundary and neighbor
         for (auto& [bound, ep] : f->getNeighbors()) {
