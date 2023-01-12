@@ -279,13 +279,24 @@ bool ZXGraph::writeTikz(string filename) {
  * @return false
  */
 bool ZXGraph::writeTex(string filename, bool toPDF) {
+    size_t directoryPosition = filename.find_last_of("/");
+    string directory = "./";
+    if (directoryPosition != string::npos) {
+        directory += filename.substr(0, directoryPosition);
+    }
+    string cmd = "mkdir -p " + directory;
+    int systemRet = system(cmd.c_str());
+    if (systemRet == -1) {
+        cerr << "Error: failed to open the directory" << endl;
+        return false;
+    }
     fstream texFile;
     texFile.open(filename.c_str(), fstream::out);
     if (!texFile.is_open()) {
         cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
         return false;
     }
-    // FIXME - scale
+
     string includes =
         "\\documentclass[a4paper,landscape]{article}\n"
         "\\usepackage[english]{babel}\n"
@@ -310,11 +321,28 @@ bool ZXGraph::writeTex(string filename, bool toPDF) {
     texFile.flush();
     texFile.close();
     if (toPDF) {
-        string cmd = "pdflatex " + filename + " >/dev/null 2>&1 ";
-        int systemRet = system(cmd.c_str());
+        // NOTE - Linux cmd: pdflatex -halt-on-error -output-directory <path/to/dir> <path/to/tex>
+        cmd = "pdflatex -halt-on-error -output-directory " + directory + " " + filename + " >/dev/null 2>&1 ";
+        systemRet = system(cmd.c_str());
         if (systemRet == -1) {
             cerr << "Error: failed to generate PDF" << endl;
             return false;
+        }
+
+        size_t extensionPosition = filename.find_last_of(".");
+        if (extensionPosition != string::npos) {
+            string name = filename.substr(0, extensionPosition);
+            string extensions[3] = {".aux", ".log", ".out"};
+            for (auto& ext : extensions) {
+                cmd = "rm " + name + ext;
+                systemRet = system(cmd.c_str());
+                if (systemRet == -1) {
+                    cerr << "Error: failed to remove compiling files." << endl;
+                    return false;
+                }
+            }
+        } else {
+            cerr << "Error: the filename has something wrong" << endl;
         }
     }
     return true;
