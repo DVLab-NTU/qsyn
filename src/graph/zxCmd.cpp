@@ -729,7 +729,7 @@ void ZXGReadCmd::help() const {
 }
 
 //----------------------------------------------------------------------
-//    ZXGWrite <string Output.<zx | tikz>> [-Complete]
+//    ZXGWrite <string Output.<zx | tikz | tex>> [-Complete]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGWriteCmd::exec(const string &option) {
@@ -775,6 +775,11 @@ ZXGWriteCmd::exec(const string &option) {
         } else if (myStrNCmp(".tikz", extensionString, 5) == 0) {
             if (!zxGraphMgr->getGraph()->writeTikz(fileName)) {
                 cerr << "Error: fail to write Tikz to \"" << fileName << "\"!!" << endl;
+                return CMD_EXEC_ERROR;
+            }
+        } else if (myStrNCmp(".tex", extensionString, 4) == 0) {
+            if (!zxGraphMgr->getGraph()->writeTex(fileName)) {
+                cerr << "Error: fail to write tex to \"" << fileName << "\"!!" << endl;
                 return CMD_EXEC_ERROR;
             }
         }

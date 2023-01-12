@@ -211,6 +211,7 @@ public:
     bool readZX(const std::string& filename, bool keepID = false);
     bool writeZX(const std::string& filename, bool complete = false);
     bool writeTikz(std::string);
+    bool writeTex(std::string, bool toPDF = true);
 
     // Traverse (in zxTraverse.cpp)
     void updateTopoOrder();
