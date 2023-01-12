@@ -134,7 +134,7 @@ bool Extractor::extractionLoop(size_t max_iter) {
  *
  */
 void Extractor::cleanFrontier() {
-    if (verbose >= 3) cout << "Clean Frontier" << endl;
+    if (verbose >= 5) cout << "Clean Frontier" << endl;
     // NOTE - Edge and Phase
     extractSingles();
     // NOTE - CZs
@@ -146,7 +146,7 @@ void Extractor::cleanFrontier() {
  *
  */
 void Extractor::extractSingles() {
-    if (verbose >= 3) cout << "Extract Singles" << endl;
+    if (verbose >= 5) cout << "Extract Singles" << endl;
     vector<pair<ZXVertex*, ZXVertex*>> toggleList;
     for (ZXVertex* o : _graph->getOutputs()) {
         if (o->getFirstNeighbor().second == EdgeType::HADAMARD) {
@@ -177,7 +177,7 @@ void Extractor::extractSingles() {
  * @return false
  */
 bool Extractor::extractCZs(bool check) {
-    if (verbose >= 3) cout << "Extract CZs" << endl;
+    if (verbose >= 5) cout << "Extract CZs" << endl;
 
     if (check) {
         for (auto& f : _frontier) {
@@ -226,7 +226,7 @@ bool Extractor::extractCZs(bool check) {
  * @param strategy (0: directly by result of Gaussian Elimination)
  */
 void Extractor::extractCXs(size_t strategy) {
-    if (verbose >= 3) cout << "Extract CXs" << endl;
+    if (verbose >= 5) cout << "Extract CXs" << endl;
     unordered_map<size_t, ZXVertex*> frontId2Vertex;
     size_t cnt = 0;
     for (auto& f : _frontier) {
@@ -249,7 +249,7 @@ void Extractor::extractCXs(size_t strategy) {
  * @return size_t
  */
 size_t Extractor::extractHsFromM2(bool check) {
-    if (verbose >= 3) cout << "Extract Hs" << endl;
+    if (verbose >= 5) cout << "Extract Hs" << endl;
 
     if (check) {
         if (!frontierIsCleaned()) {
@@ -323,7 +323,7 @@ size_t Extractor::extractHsFromM2(bool check) {
  * @return false if not
  */
 bool Extractor::removeGadget(bool check) {
-    if (verbose >= 3) cout << "Remove Gadget" << endl;
+    if (verbose >= 5) cout << "Remove Gadget" << endl;
 
     if (check) {
         if (_frontier.empty()) {
@@ -570,7 +570,7 @@ bool Extractor::gaussianElimination(bool check) {
  *
  */
 void Extractor::permuteQubit() {
-    if (verbose >= 3) cout << "Permute Qubit" << endl;
+    if (verbose >= 5) cout << "Permute Qubit" << endl;
     // REVIEW - ordered_hashmap?
     unordered_map<size_t, size_t> swapMap;     // o to i
     unordered_map<size_t, size_t> swapInvMap;  // i to o
@@ -605,6 +605,17 @@ void Extractor::permuteQubit() {
         _circuit->addGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0), false);
         swapMap[t2] = i;
         swapInvMap[i] = t2;
+    }
+    for (auto& o : _graph->getOutputs()) {
+        _graph->removeAllEdgesBetween(o->getFirstNeighbor().first, o);
+    }
+    for (auto& o : _graph->getOutputs()) {
+        for (auto& i : _graph->getInputs()) {
+            if (o->getQubit() == i->getQubit()) {
+                _graph->addEdge(o, i, EdgeType::SIMPLE);
+                break;
+            }
+        }
     }
 }
 
@@ -666,7 +677,7 @@ void Extractor::updateNeighbors() {
  */
 void Extractor::updateGraphByMatrix(EdgeType et) {
     size_t r = 0;
-    if (verbose >= 3) cout << "Update Graph by Matrix" << endl;
+    if (verbose >= 5) cout << "Update Graph by Matrix" << endl;
     for (auto& f : _frontier) {
         size_t c = 0;
         for (auto& nb : _neighbors) {
