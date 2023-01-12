@@ -1,0 +1,95 @@
+\documentclass[a4paper,landscape]{article}
+\usepackage[english]{babel}
+\usepackage[top=2cm,bottom=2cm,left=1cm,right=1cm,marginparwidth=1.75cm]{geometry}\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{shapes}
+\usetikzlibrary{plotmarks}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes.geometric}
+\begin{document}
+\definecolor{zx_red}{RGB}{253, 160, 162}
+\definecolor{zx_green}{RGB}{206, 254, 206}
+\definecolor{hedgeColor}{RGB}{40, 160, 240}
+\definecolor{phaseColor}{RGB}{14, 39, 100}
+\scalebox{2.272727}{\begin{tikzpicture}[
+font = \sffamily,
+	 yscale=-1,
+	 boun/.style={circle, text=yellow!60, font=\sffamily, draw=black!100, fill=black!60, thick, text width=3mm, align=center, inner sep=0pt},
+	 hbox/.style={regular polygon, regular polygon sides=4, font=\sffamily, draw=yellow!40!black!100, fill=yellow!40, text width=2.5mm, align=center, inner sep=0pt},
+	 zspi/.style={circle, font=\sffamily, draw=green!60!black!100, fill=zx_green, text width=5mm, align=center, inner sep=0pt},
+	 xspi/.style={circle, font=\sffamily, draw=red!60!black!100, fill=zx_red, text width=5mm, align=center, inner sep=0pt},
+	 hedg/.style={draw=hedgeColor, thick},
+	 sedg/.style={draw=black, thick},
+];
+    % Vertices
+    \node[boun](0)  at (0.000000,0) {{\tiny 0}};
+    \node[boun](1)  at (11.000000,0) {{\tiny 1}};
+    \node[boun](2)  at (0.000000,1) {{\tiny 2}};
+    \node[boun](3)  at (11.000000,1) {{\tiny 3}};
+    \node[boun](4)  at (0.000000,2) {{\tiny 4}};
+    \node[boun](5)  at (11.000000,2) {{\tiny 5}};
+    \node[zspi,label={ [label distance=-2]90:{\color{phaseColor}\tiny $\frac{\pi}{ \mathsf{4}}$ }}](6)  at (1.000000,1) {{\tiny 6}};
+    \node[hbox](7)  at (2.000000,1) {{\tiny 7}};
+    \node[zspi](8)  at (1.000000,0) {{\tiny 8}};
+    \node[zspi](9)  at (1.000000,2) {{\tiny 9}};
+    \node[hbox](10)  at (2.000000,2) {{\tiny 10}};
+    \node[zspi,label={ [label distance=-2]90:{\color{phaseColor}\tiny $\frac{\mathsf{7}\pi}{ \mathsf{4}}$ }}](11)  at (3.000000,2) {{\tiny 11}};
+    \node[hbox](12)  at (4.000000,2) {{\tiny 12}};
+    \node[zspi,label={ [label distance=-2]90:{\color{phaseColor}\tiny $\frac{\mathsf{7}\pi}{ \mathsf{4}}$ }}](13)  at (2.000000,0) {{\tiny 13}};
+    \node[hbox](14)  at (3.000000,0) {{\tiny 14}};
+    \node[zspi](15)  at (4.000000,0) {{\tiny 15}};
+    \node[xspi](16)  at (4.000000,1) {{\tiny 16}};
+    \node[zspi](17)  at (5.000000,0) {{\tiny 17}};
+    \node[xspi](18)  at (5.000000,2) {{\tiny 18}};
+    \node[zspi](19)  at (6.000000,2) {{\tiny 19}};
+    \node[xspi](20)  at (6.000000,1) {{\tiny 20}};
+    \node[zspi](21)  at (7.000000,1) {{\tiny 21}};
+    \node[xspi](22)  at (7.000000,2) {{\tiny 22}};
+    \node[hbox](23)  at (8.000000,2) {{\tiny 23}};
+    \node[zspi,label={ [label distance=-2]90:{\color{phaseColor}\tiny $\frac{\pi}{ \mathsf{4}}$ }}](24)  at (9.000000,2) {{\tiny 24}};
+    \node[hbox](25)  at (10.000000,2) {{\tiny 25}};
+    \node[zspi](26)  at (8.000000,1) {{\tiny 26}};
+    \node[xspi](27)  at (8.000000,0) {{\tiny 27}};
+    \node[hbox](28)  at (9.000000,0) {{\tiny 28}};
+    \node[zspi,label={ [label distance=-2]90:{\color{phaseColor}\tiny $\frac{\pi}{ \mathsf{4}}$ }}](29)  at (10.000000,0) {{\tiny 29}};
+    \node[hbox](30)  at (9.000000,1) {{\tiny 30}};
+    \node[zspi,label={ [label distance=-2]90:{\color{phaseColor}\tiny $\frac{\pi}{ \mathsf{4}}$ }}](31)  at (10.000000,1) {{\tiny 31}};
+    % Edges
+    \draw[sedg] (0) -- (8);
+    \draw[sedg] (1) -- (29);
+    \draw[sedg] (2) -- (6);
+    \draw[sedg] (3) -- (31);
+    \draw[sedg] (4) -- (9);
+    \draw[sedg] (5) -- (25);
+    \draw[sedg] (6) -- (7);
+    \draw[sedg] (7) -- (16);
+    \draw[hedg] (8) -- (9);
+    \draw[sedg] (8) -- (13);
+    \draw[sedg] (9) -- (10);
+    \draw[sedg] (10) -- (11);
+    \draw[sedg] (11) -- (12);
+    \draw[sedg] (12) -- (18);
+    \draw[sedg] (13) -- (14);
+    \draw[sedg] (14) -- (15);
+    \draw[sedg] (15) -- (16);
+    \draw[sedg] (15) -- (17);
+    \draw[sedg] (16) -- (20);
+    \draw[sedg] (17) -- (18);
+    \draw[sedg] (17) -- (27);
+    \draw[sedg] (18) -- (19);
+    \draw[sedg] (19) -- (20);
+    \draw[sedg] (19) -- (22);
+    \draw[sedg] (20) -- (21);
+    \draw[sedg] (21) -- (22);
+    \draw[sedg] (21) -- (26);
+    \draw[sedg] (22) -- (23);
+    \draw[sedg] (23) -- (24);
+    \draw[sedg] (24) -- (25);
+    \draw[sedg] (26) -- (27);
+    \draw[sedg] (26) -- (30);
+    \draw[sedg] (27) -- (28);
+    \draw[sedg] (28) -- (29);
+    \draw[sedg] (30) -- (31);
+\end{tikzpicture}}
+\end{document}
