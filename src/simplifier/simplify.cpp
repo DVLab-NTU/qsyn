@@ -312,6 +312,8 @@ void Simplifier::symbolicReduce() {
  */
 void Simplifier::printRecipe() {
     if (verbose <= 3) {
+        if (verbose == 0)
+            return;
         if (verbose == 1) {
             cout << "\nAll rules applied:\n";
             unordered_set<string> rules;
