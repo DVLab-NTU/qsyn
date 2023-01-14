@@ -56,10 +56,12 @@ bool ZXFileParser::parseInternal(ifstream& f) {
 
         if (!parseQubit(tokens[1], info.type, info.qubit)) return false;
         if (!parseColumn(tokens[2], info.column)) return false;
-
+        
+        Phase tmp;
         if (tokens.size() > 3) {
-            if (info.phase.fromString(tokens.back())) {
+            if (tmp.fromString(tokens.back())) {
                 tokens.pop_back();
+                info.phase = tmp;
             }
 
             pair<char, size_t> neighbor;
@@ -70,6 +72,7 @@ bool ZXFileParser::parseInternal(ifstream& f) {
         }
 
         _storage[id] = info;
+        cout << _storage[id].phase << endl;
     }
 
     return true;
