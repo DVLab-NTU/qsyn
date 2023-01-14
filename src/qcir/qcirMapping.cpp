@@ -35,7 +35,7 @@ void QCir::clearMapping() {
  * @brief Mapping QCir to ZX-graph
  */
 void QCir::ZXMapping() {
-    updateTopoOrder();
+    updateGateTime();
 
     ZXGraph *_ZXG = zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
     if (verbose >= 5) cout << "Traverse and build the graph... " << endl;
@@ -68,8 +68,15 @@ void QCir::ZXMapping() {
         delete tmp;
     });
 
+    size_t max = 0;
     for (auto &v : _ZXG->getOutputs()) {
-        v->setCol(_topoOrder.back()->getTime() + 2);
+        size_t neighborCol = v->getFirstNeighbor().first->getCol();
+        if (neighborCol > max) {
+            max = neighborCol;
+        }
+    }
+    for (auto &v : _ZXG->getOutputs()) {
+        v->setCol(max + 1);
     }
 
     _ZXGraphList.push_back(_ZXG);
