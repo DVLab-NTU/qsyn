@@ -56,7 +56,7 @@ bool ZXFileParser::parseInternal(ifstream& f) {
 
         if (!parseQubit(tokens[1], info.type, info.qubit)) return false;
         if (!parseColumn(tokens[2], info.column)) return false;
-        
+
         Phase tmp;
         if (tokens.size() > 3) {
             if (tmp.fromString(tokens.back())) {
