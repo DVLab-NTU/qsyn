@@ -29,7 +29,7 @@ ID:  18 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 0)	  #Neighbors:   
 ID:  19 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 0)	  #Neighbors:   2     (17, -) (22, -) 
 ID:  20 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (16, -) (21, -) (23, -) 
 ID:  21 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (18, -) (20, -) (24, -) 
-ID:  22 ([1m[33mH[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (5, -) (19, -) 
+ID:  22 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (5, -) (19, -) 
 ID:  23 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 0)	  #Neighbors:   2     (20, -) (25, -) 
 ID:  24 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (0, 0)	  #Neighbors:   2     (21, -) (26, -) 
 ID:  25 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (3, -) (23, -) (26, -) 
