@@ -2,8 +2,8 @@
   FileName     [ cmdCommon.cpp ]
   PackageName  [ cmd ]
   Synopsis     [ Define common commands ]
-  Author       [ Chung-Yang (Ric) Huang, Chin Yi Cheng ]
-  Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #include "cmdCommon.h"
 

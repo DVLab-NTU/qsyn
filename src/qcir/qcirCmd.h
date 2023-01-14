@@ -2,8 +2,8 @@
   FileName     [ qcirCmd.h ]
   PackageName  [ qcir ]
   Synopsis     [ Define basic qcir package commands ]
-  Author       [ Chin-Yi Cheng ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #ifndef QCIR_CMD_H

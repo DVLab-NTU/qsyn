@@ -1,10 +1,10 @@
-// /****************************************************************************
-//   FileName     [ extract.cpp ]
-//   PackageName  [ extractor ]
-//   Synopsis     [ graph extractor ]
-//   Author       [ Chin-Yi Cheng ]
-//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-// ****************************************************************************/
+/****************************************************************************
+  FileName     [ extract.cpp ]
+  PackageName  [ extractor ]
+  Synopsis     [ graph extractor ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
 
 #include "extract.h"
 

@@ -2,8 +2,8 @@
   FileName     [ cmdCharDef.cpp ]
   PackageName  [ cmd ]
   Synopsis     [ Process keyboard inputs ]
-  Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #include "cmdCharDef.h"  // for ParseChar, ParseChar::UNDEFINED_KEY, ParseCh...
 

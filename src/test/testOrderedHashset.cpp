@@ -2,8 +2,8 @@
   FileName     [ testTensor2.cpp ]
   PackageName  [ test ]
   Synopsis     [ Test program for orderedHashmap ]
-  Author       [ Mu-Te (Joshua) Lau ]
-  Copyright    [ 2022 8 ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #include "ordered_hashset.h"
 #include "util.h"

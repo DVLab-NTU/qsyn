@@ -2,8 +2,8 @@
   FileName     [ rnGen.h ]
   PackageName  [ util ]
   Synopsis     [ Random number generator ]
-  Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #ifndef RN_GEN_H
 #define RN_GEN_H

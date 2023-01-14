@@ -2,8 +2,8 @@
   FileName     [ util.h ]
   PackageName  [ util ]
   Synopsis     [ Define the prototypes of the exported utility functions ]
-  Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #ifndef UTIL_H
 #define UTIL_H

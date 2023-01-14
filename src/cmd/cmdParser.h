@@ -2,8 +2,8 @@
   FileName     [ cmdParser.h ]
   PackageName  [ cmd ]
   Synopsis     [ Define class CmdParser ]
-  Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #ifndef CMD_PARSER_H
 #define CMD_PARSER_H

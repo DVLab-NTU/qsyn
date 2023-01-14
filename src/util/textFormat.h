@@ -2,8 +2,8 @@
   FileName     [ textFormat.h ]
   PackageName  [ graph ]
   Synopsis     [ Declare text formatting functions such as colors, bold, etc. ]
-  Author       [ Mu-Te (Joshua) Lau ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #ifndef QSYN_TEXT_FORMAT_H
 #define QSYN_TEXT_FORMAT_H

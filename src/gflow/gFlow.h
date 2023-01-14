@@ -2,8 +2,8 @@
   FileName     [ gFlow.h ]
   PackageName  [ gflow ]
   Synopsis     [ Define class GFlow structure ]
-  Author       [ Mu-Te (Joshua) Lau ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #ifndef GFLOW_H
 #define GFLOW_H

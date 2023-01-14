@@ -2,8 +2,8 @@
   FileName     [ ordered_hashmap.h ]
   PackageName  [ util ]
   Synopsis     [ Define ordered_hashmap ]
-  Author       [ Mu-Te Lau ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 /********************** Summary of this data structure **********************

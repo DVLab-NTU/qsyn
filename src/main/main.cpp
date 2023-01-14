@@ -2,8 +2,8 @@
   FileName     [ main.cpp ]
   PackageName  [ main ]
   Synopsis     [ Define main() ]
-  Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include <stdlib.h>  // for exit

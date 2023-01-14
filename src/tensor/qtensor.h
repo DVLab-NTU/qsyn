@@ -2,8 +2,8 @@
   FileName     [ qtensor.h ]
   PackageName  [ tensor ]
   Synopsis     [ Definition of the QTensor class ]
-  Author       [ Mu-Te (Joshua) Lau ]
-  Copyright    [ 2022 9 ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #ifndef Q_TENSOR_H
 #define Q_TENSOR_H

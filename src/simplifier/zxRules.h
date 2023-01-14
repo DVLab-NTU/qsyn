@@ -1,10 +1,10 @@
-// /****************************************************************************
-//   FileName     [ ZXRule.h ]
-//   PackageName  [ simplifier ]
-//   Synopsis     [ ZX Basic Rules ]
-//   Author       [ Cheng-Hua Lu ]
-//   Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
-// ****************************************************************************/
+/****************************************************************************
+  FileName     [ ZXRule.h ]
+  PackageName  [ simplifier ]
+  Synopsis     [ ZX Basic Rules ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
 
 #ifndef ZX_RULES_H
 #define ZX_RULES_H

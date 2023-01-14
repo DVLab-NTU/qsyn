@@ -2,8 +2,8 @@
   FileName     [ tensor.h ]
   PackageName  [ tensor ]
   Synopsis     [ Definition of the Tensor class ]
-  Author       [ Mu-Te (Joshua) Lau ]
-  Copyright    [ 2022 9 ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #ifndef TENSOR_BASE_CLASS_H
 #define TENSOR_BASE_CLASS_H

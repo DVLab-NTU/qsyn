@@ -2,8 +2,8 @@
   FileName     [ tensorMgr.cpp ]
   PackageName  [ tensor ]
   Synopsis     [ Define tensor manager ]
-  Author       [ Mu-Te (Joshua) Lau ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #include "tensorMgr.h"
 

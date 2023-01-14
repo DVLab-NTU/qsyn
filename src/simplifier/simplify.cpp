@@ -2,8 +2,8 @@
   FileName     [ simplify.cpp ]
   PackageName  [ simplifier ]
   Synopsis     [ Define class Stats, Simplify member functions ]
-  Author       [ Cheng-Hua Lu ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include "simplify.h"
