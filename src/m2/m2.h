@@ -2,8 +2,8 @@
   FileName     [ m2.h ]
   PackageName  [ m2 ]
   Synopsis     [ Define m2 (Boolean Matrix) class ]
-  Author       [ Chin-Yi Cheng ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #ifndef M2_H

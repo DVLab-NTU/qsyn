@@ -2,8 +2,8 @@
   FileName     [ cmdMacros.h ]
   PackageName  [ cmd ]
   Synopsis     [ Define macros for command parsing ]
-  Author       [ Mu-Te Joshua Lau ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #ifndef CMD_MACROS_H

@@ -2,8 +2,8 @@
   FileName     [ myUsage.h ]
   PackageName  [ util ]
   Synopsis     [ Report the run time and memory usage ]
-  Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #ifndef MY_USAGE_H

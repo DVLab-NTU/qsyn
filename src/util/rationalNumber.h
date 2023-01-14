@@ -2,8 +2,8 @@
   FileName     [ rationalNumber.h ]
   PackageName  [ util ]
   Synopsis     [ Definition of the Rational Number class.]
-  Author       [ Mu-Te (Joshua) Lau ]
-  Copyright    [ 2022 8 ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #ifndef RATIONAL_NUM_H
 #define RATIONAL_NUM_H

@@ -2,8 +2,8 @@
   FileName     [ textFormat.cpp ]
   PackageName  [ graph ]
   Synopsis     [ Define text formatting functions such as colors, bold, etc. ]
-  Author       [ Mu-Te (Joshua) Lau ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #include "textFormat.h"
 

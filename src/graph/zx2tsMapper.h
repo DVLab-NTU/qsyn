@@ -2,8 +2,8 @@
   FileName     [ zx2tsMapper.h ]
   PackageName  [ graph ]
   Synopsis     [ Mapper class for ZX-to-Tensor mapping ]
-  Author       [ Chin-Yi Cheng, Mu-Te Joshua Lau ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #ifndef ZX2TS_MAPPER_H
 #define ZX2TS_MAPPER_H

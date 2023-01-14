@@ -2,8 +2,8 @@
   FileName     [ tensorMgr.h ]
   PackageName  [ tensor ]
   Synopsis     [ Define tensor manager ]
-  Author       [ Mu-Te (Joshua) Lau ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #ifndef TENSOR_MGR_H
 #define TENSOR_MGR_H

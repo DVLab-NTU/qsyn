@@ -2,8 +2,8 @@
   FileName     [ phase.cpp ]
   PackageName  [ util ]
   Synopsis     [ Implementation of the Phase class and pertinent classes]
-  Author       [ Mu-Te (Joshua) Lau ]
-  Copyright    [ 2022 8 ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include "phase.h"

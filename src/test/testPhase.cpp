@@ -2,8 +2,8 @@
   FileName     [ testPhase.cpp ]
   PackageName  [ test ]
   Synopsis     [ Test program for Phase class ]
-  Author       [ Mu-Te (Joshua) Lau ]
-  Copyright    [ 2022 8 ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include <exception>
