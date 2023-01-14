@@ -1,5 +1,0 @@
-CSRCS     = $(wildcard *.cpp) $(wildcard *.c)
-COBJS     = $(addsuffix .o, $(basename $(CSRCS)))
-
-clean:
-	@rm -f $(COBJS)
