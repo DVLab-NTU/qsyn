@@ -195,32 +195,6 @@ qsyn> zxcomp 0
 
 qsyn> zxgs -fr  
 
-All rules applied in order:
-Hadamard Rule                 2 iterations.
-Spider Fusion Rule            3 iterations.
-Identity Removal Rule         1 iterations.
-Spider Fusion Rule            1 iterations.
-Pivot Rule                    1 iterations.
-Pivot Gadget Rule             4 iterations.
-Identity Removal Rule         1 iterations.
-Spider Fusion Rule            1 iterations.
-Pivot Rule                    2 iterations.
-Identity Removal Rule         1 iterations.
-Spider Fusion Rule            1 iterations.
-Pivot Rule                    2 iterations.
-Identity Removal Rule         1 iterations.
-Spider Fusion Rule            1 iterations.
-Pivot Boundary Rule           1 iterations.
-Identity Removal Rule         1 iterations.
-Spider Fusion Rule            1 iterations.
-Pivot Rule                    3 iterations.
-Identity Removal Rule         1 iterations.
-Spider Fusion Rule            1 iterations.
-Pivot Rule                    3 iterations.
-Identity Removal Rule         2 iterations.
-Spider Fusion Rule            1 iterations.
-Identity Removal Rule         1 iterations.
-
 qsyn> zxgp -q
 
 ID:   1 (●, 0)           (Qubit, Col): (0, 41)	  #Neighbors:   1     (90, -) 
