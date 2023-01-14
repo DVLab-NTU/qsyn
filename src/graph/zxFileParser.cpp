@@ -72,7 +72,6 @@ bool ZXFileParser::parseInternal(ifstream& f) {
         }
 
         _storage[id] = info;
-        cout << _storage[id].phase << endl;
     }
 
     return true;
