@@ -11,17 +11,13 @@ EXEC     		:= qsyn
 TESTEXEC  		:= qsyn-test
 
 .PHONY: all
-# .PHONY: debug release
 
 all:  main
-# debug: main-debug
-# release: main-release
 
 ## Clean all objects files
 .PHONY: clean
 
 clean: $(addprefix clean_, $(SRCPKGS) main test)
-	@:
 
 ## Clean all objects files, .depend.mk, extheader.mk, and include/*
 .PHONY: cleanall

@@ -1,5 +1,4 @@
 include $(MK_INCLUDE_DIR)/localvars.mk
-include $(MK_INCLUDE_DIR)/subroutines.mk
 
 LIBS      = $(addprefix -l, $(LIBPKGS))
 
@@ -11,3 +10,5 @@ $(TARGET): $(COBJS) $(addprefix $(LIBDIR)/, $(SRCLIBS))
 	@echo "Building $(@F)..."
 	@$(CXX) $(_COBJS) $(CFLAGS) -I$(EXTINCDIR) -L$(LIBDIR) $(LIBS) -o $@
 	@ln -fs $(_TARGET) .
+
+include $(MK_INCLUDE_DIR)/subroutines.mk
