@@ -2,8 +2,8 @@
   FileName     [ zxDef.h ]
   PackageName  [ graph ]
   Synopsis     [ Define basic data or var for graph package ]
-  Author       [ Cheng-Hua Lu ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #ifndef ZX_DEF_H

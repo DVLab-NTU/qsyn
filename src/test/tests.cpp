@@ -2,8 +2,8 @@
   FileName     [ tests.cpp ]
   PackageName  [ test ]
   Synopsis     [ Catch2 Main Program. DO NOT MODIFY. ]
-  Author       [ Mu-Te (Joshua) Lau ]
-  Copyright    [ 2022 8 ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 // *** DO NOT MODIFY *** //

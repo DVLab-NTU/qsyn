@@ -2,8 +2,8 @@
   FileName     [ util.cpp ]
   PackageName  [ util ]
   Synopsis     [ Define global utility functions ]
-  Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2017-present LaDs(III), GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #include <dirent.h>
 #include <errno.h>

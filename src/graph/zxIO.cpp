@@ -2,8 +2,8 @@
   FileName     [ zxIO.cpp ]
   PackageName  [ graph ]
   Synopsis     [ Define qcir reader functions ]
-  Author       [ Chin-Yi Cheng, Yi-Hsiang Kuo ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include <algorithm>

@@ -2,8 +2,8 @@
   FileName     [ qcirMgr.h ]
   PackageName  [ qcir ]
   Synopsis     [ Define QCir manager ]
-  Author       [ Chin-Yi Cheng ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #ifndef QCIR_MGR_H

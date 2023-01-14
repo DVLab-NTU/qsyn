@@ -2,8 +2,8 @@
   FileName     [ zxMapping.cpp ]
   PackageName  [ graph ]
   Synopsis     [ Mapping function for ZX ]
-  Author       [ Chin-Yi Cheng ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include <algorithm>

@@ -2,8 +2,8 @@
   FileName     [ cmdCharDef.h ]
   PackageName  [ cmd ]
   Synopsis     [ enum for keyboard mapping ]
-  Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #ifndef CMD_CHAR_DEF_H
 #define CMD_CHAR_DEF_H
