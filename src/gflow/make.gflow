@@ -1,5 +1,0 @@
-PKGFLAG   =
-EXTHDRS   = gFlow.h
-
-include ../Makefile.in
-include ../Makefile.lib

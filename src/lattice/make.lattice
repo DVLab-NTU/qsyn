@@ -1,5 +1,0 @@
-PKGFLAG   =
-EXTHDRS   = lattice.h
-
-include ../Makefile.in
-include ../Makefile.lib

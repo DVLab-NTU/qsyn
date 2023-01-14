@@ -45,13 +45,6 @@ Total #Vertices: 20
 
 qsyn> zxgs -FR
 
-All rules applied in order:
-Spider Fusion Rule            3 iterations.
-Identity Removal Rule         1 iterations.
-Spider Fusion Rule            1 iterations.
-Pivot Rule                    1 iterations.
-Identity Removal Rule         1 iterations.
-
 qsyn> zxgp -v
 
 ID:   6 (●, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   1     (7, -) 

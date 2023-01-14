@@ -1,5 +1,0 @@
-PKGFLAG   = 
-EXTHDRS   = qtensor.h tensor.h tensorUtil.h tensorMgr.h
-
-include ../Makefile.in
-include ../Makefile.lib
