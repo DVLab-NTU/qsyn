@@ -104,7 +104,7 @@ bool stripQuotes(const std::string& input, std::string& output) {
  * @param str
  */
 string stripWhitespaces(const string& str) {
-    size_t start = str.find_first_not_of(" ");
+    size_t start = str.find_first_not_of(" \t\n\v\f\r");
     size_t end = str.find_last_not_of(" ");
     if (start == string::npos && end == string::npos) return "";
     return str.substr(start, end + 1 - start);

@@ -41,6 +41,7 @@ private:
 
     bool parseTypeAndId(const std::string& token, char& type, unsigned& id);
     bool validTokensForBoundaryVertex(const std::vector<std::string>& tokens);
+    bool validTokensForHBox(const std::vector<std::string>& tokens);
 
     bool parseQubit(const std::string& token, const char& type, int& qubit);
     bool parseColumn(const std::string& token, float& column);

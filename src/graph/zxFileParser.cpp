@@ -49,18 +49,24 @@ bool ZXFileParser::parseInternal(ifstream& f) {
         if (info.type == 'I' || info.type == 'O') {
             if (!validTokensForBoundaryVertex(tokens)) return false;
         }
+        if (info.type == 'H') {
+            if (!validTokensForHBox(tokens)) return false;
+            info.phase = Phase(1);
+        }
 
         if (!parseQubit(tokens[1], info.type, info.qubit)) return false;
         if (!parseColumn(tokens[2], info.column)) return false;
 
-        if (info.phase.fromString(tokens.back())) {
-            tokens.pop_back();
-        }
+        if (tokens.size() > 3) {
+            if (info.phase.fromString(tokens.back())) {
+                tokens.pop_back();
+            }
 
-        pair<char, size_t> neighbor;
-        for (size_t i = 3; i < tokens.size(); ++i) {
-            if (!parseNeighbor(tokens[i], neighbor)) return false;
-            info.neighbors.push_back(neighbor);
+            pair<char, size_t> neighbor;
+            for (size_t i = 3; i < tokens.size(); ++i) {
+                if (!parseNeighbor(tokens[i], neighbor)) return false;
+                info.neighbors.push_back(neighbor);
+            }
         }
 
         _storage[id] = info;
@@ -200,6 +206,18 @@ bool ZXFileParser::validTokensForBoundaryVertex(const vector<string>& tokens) {
     if (tmp.fromString(tokens.back())) {
         printFailedAtLineNum();
         cerr << "cannot assign phase to boundary vertex!!" << endl;
+        return false;
+    }
+    return true;
+}
+
+bool ZXFileParser::validTokensForHBox(const vector<string>& tokens) {
+    if (tokens.size() <= 3) return true;
+
+    Phase tmp;
+    if (tmp.fromString(tokens.back())) {
+        printFailedAtLineNum();
+        cerr << "cannot assign phase to H-box!!" << endl;
         return false;
     }
     return true;
