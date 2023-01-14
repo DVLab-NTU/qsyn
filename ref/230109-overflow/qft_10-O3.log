@@ -1,0 +1,41 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> ver 1
+Note: verbose level is set to 1
+
+qsyn> zxm -on
+Illegal command!! (zxm)
+
+qsyn> qccread benchmark/benchmark_SABRE/large/qft_10.qasm
+Note: QCir list is empty now. Create a new one.
+
+qsyn> qc2zx
+
+qsyn> zxgp
+Graph 0( 16 inputs, 16 outputs, 322 vertices, 396 edges )
+
+qsyn> zxcopy
+
+qsyn> zxgadjoint
+
+qsyn> zxcompose 0
+
+qsyn> zxgprint
+Graph 1( 16 inputs, 16 outputs, 644 vertices, 808 edges )
+
+qsyn> zxgs -fr
+Spider Fusion Rule            11 iteration(s)
+Identity Removal Rule         3 iteration(s)
+
+qsyn> zxgp 
+Graph 1( 16 inputs, 16 outputs, 32 vertices, 16 edges )
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> usage
+Period time used : 0 seconds
+Total time used  : 0 seconds
+Total memory used: 3.508 M Bytes
+
+qsyn> qq -f
+
