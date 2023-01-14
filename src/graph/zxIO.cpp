@@ -110,7 +110,7 @@ bool ZXGraph::writeZX(const string& filename, bool complete) {
         ZXFile << " (" << v->getQubit() << "," << v->getCol() << ")";  // NOTE - always output coordinate now
         if (!writeNeighbors(v)) return false;
 
-        if (v->getPhase() != Phase(0)) ZXFile << " " << v->getPhase().getAsciiString();
+        if (v->getPhase() != (v->isHBox() ? Phase(1) : Phase(0))) ZXFile << " " << v->getPhase().getAsciiString();
         ZXFile << "\n";
     }
     return true;
