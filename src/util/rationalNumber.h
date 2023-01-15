@@ -61,8 +61,8 @@ public:
 
     // Operations for Rational Numbers
     void reduce();
-    int numerator() const { return _numer; }
-    int denominator() const { return _denom; }
+    int numerator() const { return (int) _numer; }
+    int denominator() const { return (int) _denom; }
 
     template <class T>
         requires std::floating_point<T>
@@ -78,7 +78,7 @@ public:
     static Rational toRational(T f, T eps = 1e-4);
 
 protected:
-    int _numer, _denom;
+    double _numer, _denom;
     static Rational mediant(const Rational& lhs, const Rational& rhs);
 };
 

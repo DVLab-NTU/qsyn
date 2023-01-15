@@ -105,11 +105,11 @@ void Rational::reduce() {
         _numer = -_numer;
         _denom = -_denom;
     }
-    int gcd = std::gcd(_numer, _denom);
+    int gcd = std::gcd((int)_numer, (int)_denom);
     _numer /= gcd;
     _denom /= gcd;
 }
 
 Rational Rational::mediant(const Rational& lhs, const Rational& rhs) {
-    return Rational(lhs._numer + rhs._numer, lhs._denom + rhs._denom);
+    return Rational((int) (lhs._numer + rhs._numer), (int) (lhs._denom + rhs._denom));
 }
