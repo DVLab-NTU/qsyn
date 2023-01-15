@@ -23,8 +23,8 @@
 using namespace std::literals::complex_literals;
 
 TEST_CASE("Tensordot", "[Tensor]") {
-    QTensor<double> a = QTensor<double>::zspider(3, 0);
-    QTensor<double> b = QTensor<double>::xspider(3, 0);
+    QTensor<double> a = QTensor<double>::zspider(3, Phase(0));
+    QTensor<double> b = QTensor<double>::xspider(3, Phase(0));
     auto c = tensordot(a, b, {2}, {0});
     REQUIRE(c.getNewAxisId(0) == 0);
     REQUIRE(c.getNewAxisId(1) == 1);
@@ -38,7 +38,7 @@ TEST_CASE("Tensordot", "[Tensor]") {
     REQUIRE(c.getNewAxisId(2) == 2);
     REQUIRE(c.getNewAxisId(3) == 3);
 
-    QTensor<double> f = QTensor<double>::zspider(4, 0);
+    QTensor<double> f = QTensor<double>::zspider(4, Phase(0));
     auto g = f.selfTensordot({1}, {3});
     REQUIRE(g.getNewAxisId(0) == 0);
     REQUIRE(g.getNewAxisId(1) == (size_t)-1);
@@ -63,9 +63,9 @@ TEST_CASE("Tensor comparison", "[Tensor]") {
     REQUIRE(globalNorm(a, c) == Approx(std::sqrt(2)));
     REQUIRE(globalPhase(a, c) == Phase(0));
 
-    QTensor<double> d = QTensor<double>::cnx(1);
-    QTensor<double> e = QTensor<double>::zspider(3, 0);
-    QTensor<double> f = QTensor<double>::xspider(3, 0);
+    QTensor<double> d = QTensor<double>::control(QTensor<double>::xgate(), 1);
+    QTensor<double> e = QTensor<double>::zspider(3, Phase(0));
+    QTensor<double> f = QTensor<double>::xspider(3, Phase(0));
     QTensor<double> g = tensordot(e, f, {2}, {0});
 
     REQUIRE(cosineSimilarity(d, g) == Approx(1.0));

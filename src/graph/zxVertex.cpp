@@ -38,7 +38,7 @@ vector<ZXVertex*> ZXVertex::getCopiedNeighbors() {
  */
 void ZXVertex::printVertex() const {
     cout << "ID:" << right << setw(4) << _id;
-    cout << " (" << VertexType2Str(_type) << ", " << left << setw(12 - ((_phase == 0) ? 1 : 0)) << (_phase.getPrintString() + ")");
+    cout << " (" << VertexType2Str(_type) << ", " << left << setw(12 - ((_phase == Phase(0)) ? 1 : 0)) << (_phase.getPrintString() + ")");
     cout << "  (Qubit, Col): (" << _qubit << ", " << _col << ")\t"
          << "  #Neighbors: " << right << setw(3) << _neighbors.size() << "     ";
     printNeighbors();

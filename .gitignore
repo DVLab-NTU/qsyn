@@ -8,5 +8,5 @@ vendor/engine/*
 !lib/
 !lib/lib.d
 !lib/libcmd-*
-qsyn
+qsyn*
 

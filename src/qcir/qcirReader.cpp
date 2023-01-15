@@ -113,7 +113,7 @@ bool QCir::readQASM(string filename) {
         }
 
         Phase phase;
-        phase.fromString(phaseStr);
+        Phase::fromString(phaseStr, phase);
         addGate(type, pin_id, phase, true);
     }
     return true;
@@ -240,7 +240,7 @@ bool QCir::readQSIM(string filename) {
             pos = myStrGetTok(line, qubit_id, pos);
             pin_id.push_back(stoul(qubit_id));
             pos = myStrGetTok(line, phaseStr, pos);
-            phase.fromString(phaseStr);
+            Phase::fromString(phaseStr, phase);
             addGate(type, pin_id, phase, true);
         } else if (count(single_gate_list.begin(), single_gate_list.end(), type)) {
             // add single qubit gate

@@ -215,7 +215,9 @@ bool ZXGraph::isGadget(ZXVertex* v) {
         if (verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
         return false;
     }
-    if (v->getFirstNeighbor().first->getType() != VertexType::Z && v->getFirstNeighbor().first->getPhase() != 0 && v->getFirstNeighbor().first->getPhase() != 1) {
+    if (v->getFirstNeighbor().first->getType() != VertexType::Z &&
+        v->getFirstNeighbor().first->getPhase() != Phase(0) &&
+        v->getFirstNeighbor().first->getPhase() != Phase(1)) {
         if (verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
         return false;
     }

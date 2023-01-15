@@ -34,21 +34,21 @@ Rational& Rational::operator+=(const Rational& rhs) {
     _numer = _numer * rhs._denom + _denom * rhs._numer;
     _denom = _denom * rhs._denom;
     assert(_denom != 0);
-    normalize();
+    reduce();
     return *this;
 }
 Rational& Rational::operator-=(const Rational& rhs) {
     _numer = _numer * rhs._denom - _denom * rhs._numer;
     _denom = _denom * rhs._denom;
     assert(_denom != 0);
-    normalize();
+    reduce();
     return *this;
 }
 Rational& Rational::operator*=(const Rational& rhs) {
     _numer *= rhs._numer;
     _denom *= rhs._denom;
     assert(_denom != 0);
-    normalize();
+    reduce();
     return *this;
 }
 Rational& Rational::operator/=(const Rational& rhs) {
@@ -58,7 +58,7 @@ Rational& Rational::operator/=(const Rational& rhs) {
     _numer *= rhs._denom;
     _denom *= rhs._numer;
     assert(_denom != 0);
-    normalize();
+    reduce();
     return *this;
 }
 Rational operator+(Rational lhs, const Rational& rhs) {
@@ -100,16 +100,16 @@ bool Rational::operator>=(const Rational& rhs) const {
 //----------------------------------------
 // Operations specific to rational numbers
 //----------------------------------------
-void Rational::normalize() {
+void Rational::reduce() {
     if (_denom < 0) {
         _numer = -_numer;
         _denom = -_denom;
     }
-    int gcd = std::gcd(_numer, _denom);
+    int gcd = std::gcd((int)_numer, (int)_denom);
     _numer /= gcd;
     _denom /= gcd;
 }
 
 Rational Rational::mediant(const Rational& lhs, const Rational& rhs) {
-    return Rational(lhs._numer + rhs._numer, lhs._denom + rhs._denom);
+    return Rational((int)(lhs._numer + rhs._numer), (int)(lhs._denom + rhs._denom));
 }

@@ -64,7 +64,7 @@ void Bialgebra::match(ZXGraph* g) {
 
         // Do not consider the phase spider yet
         // todo: consider the phase
-        if ((left->getPhase() != 0) || (right->getPhase() != 0)) return;
+        if ((left->getPhase() != Phase(0)) || (right->getPhase() != Phase(0))) return;
 
         // Verify if the edge is connected by a X and a Z spider.
         if (!((left->getType() == VertexType::X && right->getType() == VertexType::Z) || (left->getType() == VertexType::Z && right->getType() == VertexType::X))) return;
@@ -78,8 +78,8 @@ void Bialgebra::match(ZXGraph* g) {
         if (check_duplicated_vertex(neighbor_of_left) || check_duplicated_vertex(neighbor_of_right)) return;
 
         // Check if all neighbors of z are x without phase and all neighbors of x are z without phase.
-        if (!all_of(neighbor_of_left.begin(), neighbor_of_left.end(), [right](ZXVertex* v) { return (v->getPhase() == 0 && v->getType() == right->getType()); })) return;
-        if (!all_of(neighbor_of_right.begin(), neighbor_of_right.end(), [left](ZXVertex* v) { return (v->getPhase() == 0 && v->getType() == left->getType()); })) return;
+        if (!all_of(neighbor_of_left.begin(), neighbor_of_left.end(), [right](ZXVertex* v) { return (v->getPhase() == Phase(0) && v->getType() == right->getType()); })) return;
+        if (!all_of(neighbor_of_right.begin(), neighbor_of_right.end(), [left](ZXVertex* v) { return (v->getPhase() == Phase(0) && v->getType() == left->getType()); })) return;
 
         // Check if all the edges are SIMPLE
         // TODO: Make H edge aware too.
