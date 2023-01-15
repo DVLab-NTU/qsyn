@@ -34,21 +34,21 @@ Rational& Rational::operator+=(const Rational& rhs) {
     _numer = _numer * rhs._denom + _denom * rhs._numer;
     _denom = _denom * rhs._denom;
     assert(_denom != 0);
-    normalize();
+    reduce();
     return *this;
 }
 Rational& Rational::operator-=(const Rational& rhs) {
     _numer = _numer * rhs._denom - _denom * rhs._numer;
     _denom = _denom * rhs._denom;
     assert(_denom != 0);
-    normalize();
+    reduce();
     return *this;
 }
 Rational& Rational::operator*=(const Rational& rhs) {
     _numer *= rhs._numer;
     _denom *= rhs._denom;
     assert(_denom != 0);
-    normalize();
+    reduce();
     return *this;
 }
 Rational& Rational::operator/=(const Rational& rhs) {
@@ -58,7 +58,7 @@ Rational& Rational::operator/=(const Rational& rhs) {
     _numer *= rhs._denom;
     _denom *= rhs._numer;
     assert(_denom != 0);
-    normalize();
+    reduce();
     return *this;
 }
 Rational operator+(Rational lhs, const Rational& rhs) {
@@ -100,7 +100,7 @@ bool Rational::operator>=(const Rational& rhs) const {
 //----------------------------------------
 // Operations specific to rational numbers
 //----------------------------------------
-void Rational::normalize() {
+void Rational::reduce() {
     if (_denom < 0) {
         _numer = -_numer;
         _denom = -_denom;

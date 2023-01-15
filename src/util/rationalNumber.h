@@ -23,9 +23,10 @@ class Rational {
 public:
     // Default constructor for two integral type
     Rational() : _numer(0), _denom(1) {}
+    Rational(int n) : _numer(n), _denom(1) {}
     Rational(int n, int d) : _numer(n), _denom(d) {
         assert(d != 0);
-        normalize();
+        reduce();
     }
     // Implicitly use 1 as denominator
     template <class T>
@@ -33,20 +34,15 @@ public:
     Rational(T f, T eps = 1e-4) {
         *this = Rational::toRational(f, eps);
     }
-    Rational(int n) : _numer(n), _denom(1) {}
-    Rational(const Rational&) = default;
-    virtual ~Rational() = default;
 
     // Operator Overloading
     friend std::ostream& operator<<(std::ostream& os, const Rational& q);
 
-    Rational& operator=(const Rational& rhs) = default;
-    Rational& operator=(Rational&& rhs) = default;
 
     Rational operator+() const;
     Rational operator-() const;
 
-    // Arithmetic operators always preserve the normalities of RatioNum
+    // Arithmetic operators always preserve the normalities of Rational
     Rational& operator+=(const Rational& rhs);
     Rational& operator-=(const Rational& rhs);
     Rational& operator*=(const Rational& rhs);
@@ -64,13 +60,9 @@ public:
     bool operator>=(const Rational& rhs) const;
 
     // Operations for Rational Numbers
-    void normalize();
-    int numerator() const {
-        return _numer;
-    }
-    int denominator() const {
-        return _denom;
-    }
+    void reduce();
+    int numerator() const { return _numer; }
+    int denominator() const { return _denom; }
 
     template <class T>
         requires std::floating_point<T>
@@ -83,41 +75,45 @@ public:
 
     template <class T>
         requires std::floating_point<T>
-    static Rational toRational(T f, T eps = 1e-4) {
-        int integralPart = (int)floor(f);
-        f -= integralPart;
-        Rational lower(0, 1), upper(1, 1);
-        Rational med(1, 2);
-
-        auto inLowerBound = [&f, &eps](const Rational& q) -> bool {
-            return ((f - eps) <= q.toFloatType<T>());
-        };
-        auto inUpperBound = [&f, &eps](const Rational& q) -> bool {
-            return ((f + eps) >= q.toFloatType<T>());
-        };
-
-        if (inLowerBound(lower) && inUpperBound(lower)) {
-            return lower + integralPart;
-        }
-        if (inLowerBound(upper) && inUpperBound(upper)) {
-            return upper + integralPart;
-        }
-
-        while (true) {
-            if (!inLowerBound(med)) {
-                lower = med;
-            } else if (!inUpperBound(med)) {
-                upper = med;
-            } else {
-                return med + integralPart;
-            }
-            med = mediant(lower, upper);
-        }
-    }
+    static Rational toRational(T f, T eps = 1e-4);
 
 protected:
     int _numer, _denom;
     static Rational mediant(const Rational& lhs, const Rational& rhs);
 };
+
+template <class T>
+    requires std::floating_point<T>
+Rational Rational::toRational(T f, T eps) {
+    int integralPart = (int)floor(f);
+    f -= integralPart;
+    Rational lower(0, 1), upper(1, 1);
+    Rational med(1, 2);
+
+    auto inLowerBound = [&f, &eps](const Rational& q) -> bool {
+        return ((f - eps) <= q.toFloatType<T>());
+    };
+    auto inUpperBound = [&f, &eps](const Rational& q) -> bool {
+        return ((f + eps) >= q.toFloatType<T>());
+    };
+
+    if (inLowerBound(lower) && inUpperBound(lower)) {
+        return lower + integralPart;
+    }
+    if (inLowerBound(upper) && inUpperBound(upper)) {
+        return upper + integralPart;
+    }
+
+    while (true) {
+        if (!inLowerBound(med)) {
+            lower = med;
+        } else if (!inUpperBound(med)) {
+            upper = med;
+        } else {
+            return med + integralPart;
+        }
+        med = mediant(lower, upper);
+    }
+}
 
 #endif  // RATIONAL_NUM_H

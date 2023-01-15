@@ -45,31 +45,12 @@ public:
     friend Phase operator-(Phase lhs, const Phase& rhs);
 
     // Multiplication / Devision w/ unitless constants
-    Phase& operator*=(const Unitless auto& rhs) {
-        this->_rational *= rhs;
-        normalize();
-        return *this;
-    }
-    Phase& operator/=(const Unitless auto& rhs) {
-        this->_rational /= rhs;
-        normalize();
-        return *this;
-    }
-    friend Phase operator*(Phase lhs, const Unitless auto& rhs) {
-        lhs *= rhs;
-        return lhs;
-    }
-    friend Phase operator*(const Unitless auto& lhs, Phase rhs) {
-        return rhs * lhs;
-    }
-    friend Phase operator/(Phase lhs, const Unitless auto& rhs) {
-        lhs /= rhs;
-        return lhs;
-    }
-    friend Rational operator/(const Phase& lhs, const Phase& rhs) {
-        Rational q = lhs._rational / rhs._rational;
-        return q;
-    }
+    Phase& operator*=(const Unitless auto& rhs);
+    Phase& operator/=(const Unitless auto& rhs);
+    friend Phase operator*(Phase lhs, const Unitless auto& rhs);
+    friend Phase operator*(const Unitless auto& lhs, Phase rhs);
+    friend Phase operator/(Phase lhs, const Unitless auto& rhs);
+    friend Rational operator/(const Phase& lhs, const Phase& rhs);
     // Operator *, / between phases are not supported deliberately as they don't make physical sense (Changes unit)
 
     bool operator==(const Phase& rhs) const;
@@ -85,9 +66,7 @@ public:
     double toDouble() { return toFloatType<double>(); }
     long double toLongDouble() { return toFloatType<long double>(); }
 
-    Rational getRational() const {
-        return _rational;
-    }
+    Rational getRational() const { return _rational; }
 
     template <class T>
     requires std::floating_point<T>
@@ -96,30 +75,11 @@ public:
         return p;
     }
 
-    static PhaseUnit getPrintUnit() {
-        return _printUnit;
-    }
-    static void setPrintUnit(const PhaseUnit& pu) {
-        _printUnit = pu;
-    }
+    static PhaseUnit getPrintUnit() { return _printUnit; }
+    static void setPrintUnit(const PhaseUnit& pu) { _printUnit = pu; }
 
-    std::string getAsciiString() const {
-        std::string str;
-        if (_rational.numerator() != 1)
-            str += std::to_string(_rational.numerator()) + "*";
-        str += "pi";
-        if (_rational.denominator() != 1)
-            str += "/" + std::to_string(_rational.denominator());
-        return str;
-    }
-
-    std::string getPrintString() const {
-        if (Phase::getPrintUnit() == PhaseUnit::PI) {
-            return ((_rational.numerator() != 1) ? std::to_string(_rational.numerator()) : "") + ((_rational.numerator() != 0) ? "\u03C0" : "") + ((_rational.denominator() != 1) ? ("/" + std::to_string(_rational.denominator())) : "");
-        } else {
-            return std::to_string(_rational.numerator() * std::numbers::pi / _rational.denominator());
-        }
-    }
+    std::string getAsciiString() const;
+    std::string getPrintString() const;
 
     void normalize();
 
@@ -152,6 +112,28 @@ public:
 private:
     PhaseUnit _printUnit;
 };
+
+Phase& Phase::operator*=(const Unitless auto& rhs) {
+    this->_rational *= rhs;
+    normalize();
+    return *this;
+}
+Phase& Phase::operator/=(const Unitless auto& rhs) {
+    this->_rational /= rhs;
+    normalize();
+    return *this;
+}
+Phase operator*(Phase lhs, const Unitless auto& rhs) {
+    lhs *= rhs;
+    return lhs;
+}
+Phase operator*(const Unitless auto& lhs, Phase rhs) {
+    return rhs * lhs;
+}
+Phase operator/(Phase lhs, const Unitless auto& rhs) {
+    lhs /= rhs;
+    return lhs;
+}
 
 template <class T = double>
 requires std::floating_point<T>
