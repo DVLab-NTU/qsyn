@@ -6,6 +6,8 @@ ColumnLimit: 0
 
 AlignTrailingComments: true
 AlignAfterOpenBracket: true
+RequiresClausePosition: OwnLine
+IndentRequiresClause: false
 
 # puts public, private, on the same column with class definition
 AccessModifierOffset: -4

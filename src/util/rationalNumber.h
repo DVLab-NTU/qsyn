@@ -30,14 +30,13 @@ public:
     }
     // Implicitly use 1 as denominator
     template <class T>
-        requires std::floating_point<T>
+    requires std::floating_point<T>
     Rational(T f, T eps = 1e-4) {
         *this = Rational::toRational(f, eps);
     }
 
     // Operator Overloading
     friend std::ostream& operator<<(std::ostream& os, const Rational& q);
-
 
     Rational operator+() const;
     Rational operator-() const;
@@ -61,11 +60,11 @@ public:
 
     // Operations for Rational Numbers
     void reduce();
-    int numerator() const { return (int) _numer; }
-    int denominator() const { return (int) _denom; }
+    int numerator() const { return (int)_numer; }
+    int denominator() const { return (int)_denom; }
 
     template <class T>
-        requires std::floating_point<T>
+    requires std::floating_point<T>
     T toFloatType()
         const { return ((T)_numer) / _denom; }
 
@@ -74,7 +73,7 @@ public:
     long double toLongDouble() const { return toFloatType<long double>(); }
 
     template <class T>
-        requires std::floating_point<T>
+    requires std::floating_point<T>
     static Rational toRational(T f, T eps = 1e-4);
 
 protected:
@@ -83,7 +82,7 @@ protected:
 };
 
 template <class T>
-    requires std::floating_point<T>
+requires std::floating_point<T>
 Rational Rational::toRational(T f, T eps) {
     int integralPart = (int)floor(f);
     f -= integralPart;
@@ -105,13 +104,12 @@ Rational Rational::toRational(T f, T eps) {
     }
 
     while (true) {
-        if (!inLowerBound(med)) {
+        if (!inLowerBound(med))
             lower = med;
-        } else if (!inUpperBound(med)) {
+        else if (!inUpperBound(med))
             upper = med;
-        } else {
+        else
             return med + integralPart;
-        }
         med = mediant(lower, upper);
     }
 }
