@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ lattice.cpp ]
   PackageName  [ lattice ]
-  Synopsis     [ Define class Lattice / LTContainer member functions ]
+  Synopsis     [ Define class Lattice and LTContainer member functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -22,6 +22,11 @@ namespace TF = TextFormat;
 using namespace std;
 extern size_t verbose;
 
+/**
+ * @brief Print the map
+ *
+ * @param map
+ */
 void printMap(unordered_map<int, unordered_set<int>> map) {
     for (auto& s : map) {
         cout << s.first << ": ";
@@ -30,10 +35,20 @@ void printMap(unordered_map<int, unordered_set<int>> map) {
     }
 }
 
+/**
+ * @brief Print start and end of (row, column)
+ *
+ */
 void Lattice::printLT() const {
     cout << "( " << _row << ", " << _col << " ): " << _qStart << "/" << _qEnd << endl;
 }
 
+/**
+ * @brief Resize the container from r to c
+ *
+ * @param r
+ * @param c
+ */
 void LTContainer::resize(unsigned r, unsigned c) {
     _container.clear();
     for (size_t i = 0; i < r; i++) {
@@ -44,6 +59,10 @@ void LTContainer::resize(unsigned r, unsigned c) {
     }
 }
 
+/**
+ * @brief Print Lattice container
+ *
+ */
 void LTContainer::printLTC() const {
     for (size_t c = 0; c < numCols(); c++) {
         cout << setw(5) << right << c << setw(5) << right << "|";
@@ -58,6 +77,10 @@ void LTContainer::printLTC() const {
     }
 }
 
+/**
+ * @brief Update rows and columns
+ *
+ */
 void LTContainer::updateRC() {
     for (size_t i = 0; i < numRows(); i++) {
         for (size_t j = 0; j < numCols(); j++) {
@@ -67,6 +90,11 @@ void LTContainer::updateRC() {
     }
 }
 
+/**
+ * @brief Add column to right
+ *
+ * @param c
+ */
 void LTContainer::addCol2Right(int c) {
     size_t iterOffset;
     if (c < 0) {
@@ -86,6 +114,11 @@ void LTContainer::addCol2Right(int c) {
     }
 }
 
+/**
+ * @brief Add row to bottom
+ *
+ * @param r
+ */
 void LTContainer::addRow2Bottom(int r) {
     size_t iterOffset = 0;
     if (r < 0) {
@@ -108,6 +141,11 @@ void LTContainer::addRow2Bottom(int r) {
     }
 }
 
+/**
+ * @brief Generate Lattice container
+ *
+ * @param g
+ */
 void LTContainer::generateLTC(ZXGraph* g) {
     // Prerequisite:
     // Input col: 0

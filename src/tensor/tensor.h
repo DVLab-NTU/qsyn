@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ tensor.h ]
   PackageName  [ tensor ]
-  Synopsis     [ Definition of the Tensor class ]
+  Synopsis     [ Define class Tensor structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

@@ -136,6 +136,12 @@ void ZXGraph::printEdges() const {
     cout << "Total #Edges: " << getNumEdges() << endl;
 }
 
+/**
+ * @brief Print the vertex with color
+ *
+ * @param v
+ * @return string
+ */
 string printColoredVertex(ZXVertex* v) {
     if (v->getType() == VertexType::BOUNDARY)
         return to_string(v->getId());

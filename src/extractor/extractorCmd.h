@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ extractorCmd.h ]
-  PackageName  [ n2 ]
-  Synopsis     [ Define basic extractor package commands ]
+  PackageName  [ extractor ]
+  Synopsis     [ Define extractor package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

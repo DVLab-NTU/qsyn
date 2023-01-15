@@ -16,15 +16,12 @@ using namespace std;
 extern size_t verbose;
 
 /**
- * @brief Finds non-interacting identity vertices.
- *        (Check PyZX/pyzx/rules.py/match_ids_parallel for more details)
+ * @brief Find non-interacting identity vertices.
  *
  * @param g
  */
 void IdRemoval::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    // if (verbose >= 8) g->printVertices();
-    // size_t cnt = 0;
 
     unordered_set<ZXVertex*> taken;
 
@@ -51,7 +48,6 @@ void IdRemoval::match(ZXGraph* g) {
 
 /**
  * @brief Generate Rewrite format from `_matchTypeVec`
- *        (Check PyZX/pyzx/rules.py/remove_ids for more details)
  *
  * @param g
  */

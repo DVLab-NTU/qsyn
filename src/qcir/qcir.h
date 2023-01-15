@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ qcir.h ]
   PackageName  [ qcir ]
-  Synopsis     [ Define quantum circuit manager ]
+  Synopsis     [ Define class QCir structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

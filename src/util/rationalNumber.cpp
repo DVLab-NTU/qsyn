@@ -110,6 +110,13 @@ void Rational::reduce() {
     _denom /= gcd;
 }
 
+/**
+ * @brief Calculate mediant
+ *
+ * @param lhs
+ * @param rhs
+ * @return Rational
+ */
 Rational Rational::mediant(const Rational& lhs, const Rational& rhs) {
     return Rational((int)(lhs._numer + rhs._numer), (int)(lhs._denom + rhs._denom));
 }

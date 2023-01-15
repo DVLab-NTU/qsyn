@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ qcirQubit.h ]
   PackageName  [ qcir ]
-  Synopsis     [ Define qubit data structures ]
+  Synopsis     [ Define class QCirQubit structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

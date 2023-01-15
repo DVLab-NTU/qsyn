@@ -1,9 +1,9 @@
 /****************************************************************************
   FileName     [ zxFileParser.cpp ]
   PackageName  [ graph ]
-  Synopsis     [ Define ZX format parser implementation ]
-  Author       [ Mu-Te (Joshua) Lau ]
-  Copyright    [ Copyleft(c) 2022-present DVLab, GIEE, NTU, Taiwan ]
+  Synopsis     [ Define zxFileStructure member functions ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include "zxFileParser.h"
@@ -16,6 +16,13 @@
 
 using namespace std;
 
+/**
+ * @brief Parse the file
+ *
+ * @param filename
+ * @return true if the file is successfully parsed
+ * @return false if error happens
+ */
 bool ZXFileParser::parse(const string& filename) {
     _storage.clear();
     _takenInputQubits.clear();
@@ -30,6 +37,13 @@ bool ZXFileParser::parse(const string& filename) {
     return parseInternal(zxFile);
 }
 
+/**
+ * @brief Parse each line in the file
+ *
+ * @param f
+ * @return true if the file is successfully parsed
+ * @return false if the format of any lines are wrong
+ */
 bool ZXFileParser::parseInternal(ifstream& f) {
     // each line should be in the format of
     // <VertexString> [(<Qubit, Column>)] [NeighborString...] [Phase phase]
@@ -77,6 +91,12 @@ bool ZXFileParser::parseInternal(ifstream& f) {
     return true;
 }
 
+/**
+ * @brief Strip leading spaces and comments
+ *
+ * @param line
+ * @return string
+ */
 string ZXFileParser::stripLeadingSpacesAndComments(string& line) {
     size_t firstNonSpace = line.find_first_not_of(" ");
     size_t commentStart = line.find("//");
@@ -86,6 +106,14 @@ string ZXFileParser::stripLeadingSpacesAndComments(string& line) {
     return line.substr(firstNonSpace, commentStart - firstNonSpace);
 }
 
+/**
+ * @brief Tokenize the line
+ *
+ * @param line
+ * @param tokens
+ * @return true
+ * @return false
+ */
 bool ZXFileParser::tokenize(const string& line, vector<string>& tokens) {
     string token;
 
@@ -157,6 +185,15 @@ bool ZXFileParser::tokenize(const string& line, vector<string>& tokens) {
     return true;
 }
 
+/**
+ * @brief Parse type and id
+ *
+ * @param token
+ * @param type
+ * @param id
+ * @return true
+ * @return false
+ */
 bool ZXFileParser::parseTypeAndId(const string& token, char& type, unsigned& id) {
     type = toupper(token[0]);
 
@@ -195,6 +232,13 @@ bool ZXFileParser::parseTypeAndId(const string& token, char& type, unsigned& id)
     return true;
 }
 
+/**
+ * @brief Check the tokens are valid for boundary vertices
+ *
+ * @param tokens
+ * @return true
+ * @return false
+ */
 bool ZXFileParser::validTokensForBoundaryVertex(const vector<string>& tokens) {
     if (tokens[1] == "-") {
         printFailedAtLineNum();
@@ -213,6 +257,13 @@ bool ZXFileParser::validTokensForBoundaryVertex(const vector<string>& tokens) {
     return true;
 }
 
+/**
+ * @brief Check the tokens are valid for H boxes
+ *
+ * @param tokens
+ * @return true
+ * @return false
+ */
 bool ZXFileParser::validTokensForHBox(const vector<string>& tokens) {
     if (tokens.size() <= 3) return true;
 
@@ -225,6 +276,15 @@ bool ZXFileParser::validTokensForHBox(const vector<string>& tokens) {
     return true;
 }
 
+/**
+ * @brief Parse qubit
+ *
+ * @param token
+ * @param type input or output
+ * @param qubit will store the qubit after parsing
+ * @return true
+ * @return false
+ */
 bool ZXFileParser::parseQubit(const string& token, const char& type, int& qubit) {
     if (token == "-") {
         qubit = 0;
@@ -258,6 +318,14 @@ bool ZXFileParser::parseQubit(const string& token, const char& type, int& qubit)
     return true;
 }
 
+/**
+ * @brief Parse column
+ *
+ * @param token
+ * @param column will store the column after parsing
+ * @return true
+ * @return false
+ */
 bool ZXFileParser::parseColumn(const string& token, float& column) {
     if (token == "-") {
         column = 0;
@@ -273,6 +341,14 @@ bool ZXFileParser::parseColumn(const string& token, float& column) {
     return true;
 }
 
+/**
+ * @brief Parser the neighbor
+ *
+ * @param token
+ * @param neighbor will store the neighbor(s) after parsing
+ * @return true
+ * @return false
+ */
 bool ZXFileParser::parseNeighbor(const string& token, pair<char, size_t>& neighbor) {
     char type = toupper(token[0]);
     unsigned id;
@@ -300,6 +376,10 @@ bool ZXFileParser::parseNeighbor(const string& token, pair<char, size_t>& neighb
     return true;
 }
 
+/**
+ * @brief Print the line failed
+ *
+ */
 void ZXFileParser::printFailedAtLineNum() const {
     cerr << "Error: failed to read line " << _lineNumber << ": ";
 }

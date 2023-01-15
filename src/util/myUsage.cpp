@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ myUsage.h ]
+  FileName     [ myUsage.cpp ]
   PackageName  [ util ]
   Synopsis     [ Report the run time and memory usage ]
   Author       [ Chung-Yang (Ric) Huang ]

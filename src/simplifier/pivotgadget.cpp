@@ -30,16 +30,13 @@ void PivotGadget::preprocess(ZXGraph* g) {
     }
 }
 
-// FIXME wrong brief
 /**
- * @brief Determines which phase gadgets act on the same vertices, so that they can be fused together.
- *        (Check PyZX/pyzx/rules.py/match_phase_gadgets for more details)
+ * @brief Find matchings of the pivot-gadget rule. Find the targets with non-Clifford and gadgetize them.
  *
  * @param g
  */
 void PivotGadget::match(ZXGraph* g) {
     this->_matchTypeVec.clear();
-    // if (verbose >= 8) g->printVertices();
     if (verbose >= 8) cout << "> match...\n";
 
     size_t cnt = 0;

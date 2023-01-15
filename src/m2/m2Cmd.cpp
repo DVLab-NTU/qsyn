@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ m2Cmd.cpp ]
   PackageName  [ m2 ]
-  Synopsis     [ Define basic m2 package commands ]
+  Synopsis     [ Define m2 package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

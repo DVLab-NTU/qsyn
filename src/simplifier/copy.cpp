@@ -16,8 +16,7 @@ using namespace std;
 extern size_t verbose;
 
 /**
- * @brief Finds spiders with a 0 or pi phase that have a single neighbor, and copies them through. Assumes that all the spiders are green and maximally fused.
- *        (Check PyZX/pyzx/rules.py/match_copy for more details)
+ * @brief Find spiders with a 0 or pi phase that have a single neighbor, and copies them through. Assumes that all the spiders are green and maximally fused.
  *
  * @param g
  */

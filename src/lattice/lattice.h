@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ lattice.h ]
   PackageName  [ lattice ]
-  Synopsis     [ Lattice Surgery structure definition ]
+  Synopsis     [ Define class Lattice and LTContainer structures ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ qcirWriter.cpp ]
   PackageName  [ qcir ]
-  Synopsis     [ Define QCir Writer functions ]
+  Synopsis     [ Define class QCir Writer functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -13,10 +13,13 @@
 
 using namespace std;
 
-/// @brief Write QASM
-/// @param filename
-/// @return true if successfully write
-/// @return false if path or file not found
+/**
+ * @brief Write QASM
+ *
+ * @param filename
+ * @return true if successfully write
+ * @return false if path or file not found
+ */
 bool QCir::writeQASM(string filename) {
     updateTopoOrder();
     fstream file;

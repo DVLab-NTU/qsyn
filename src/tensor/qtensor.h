@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ qtensor.h ]
   PackageName  [ tensor ]
-  Synopsis     [ Definition of the QTensor class ]
+  Synopsis     [ Define class QTensor structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -256,9 +256,14 @@ QTensor<T> QTensor<T>::pzgate(const Phase& phase) {
 // tensor manipulation functions
 //------------------------------
 
-// @brief tensor-dot a tensor between pairs of axes
-// @param ax1 the first set of axes
-// @param ax2 the second set of axes
+/**
+ * @brief Tensor-dot a tensor between pairs of axes
+ *
+ * @tparam T
+ * @param ax1 the first set of axes
+ * @param ax2 the second set of axes
+ * @return QTensor<T>
+ */
 template <typename T>
 QTensor<T> QTensor<T>::selfTensordot(const TensorAxisList& ax1, const TensorAxisList& ax2) {
     if (ax1.size() != ax2.size()) {
@@ -276,6 +281,12 @@ QTensor<T> QTensor<T>::selfTensordot(const TensorAxisList& ax1, const TensorAxis
     return u;
 }
 
+/**
+ * @brief Generate QTensor
+ *
+ * @tparam T
+ * @return QTensor<T>
+ */
 template <typename T>
 QTensor<T> QTensor<T>::toQTensor() {
     assert(this->dimension() == 2);
@@ -372,8 +383,13 @@ Phase globalPhase(const QTensor<U>& t1, const QTensor<U>& t2) {
 // Private member functions
 //------------------------------
 
-// @brief Calculate (2^(1/4))^n
-// @param n
+/**
+ * @brief Calculate (2^(1/4))^n
+ *
+ * @tparam T
+ * @param n
+ * @return QTensor<T>::DataType
+ */
 template <typename T>
 QTensor<T>::DataType QTensor<T>::nuPow(const int& n) {
     return std::pow(2., -0.25 * n);

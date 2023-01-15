@@ -1,7 +1,7 @@
 /****************************************************************************
-  FileName     [ tensorCmd.h ]
+  FileName     [ tensorCmd.cpp ]
   PackageName  [ tensor ]
-  Synopsis     [ Define tensor commands ]
+  Synopsis     [ Define tensor package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

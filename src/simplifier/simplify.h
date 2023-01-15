@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ simplify.h ]
   PackageName  [ simplifier ]
-  Synopsis     [ Simplification strategies ]
+  Synopsis     [ Define class Simplifier structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -43,7 +43,6 @@ public:
     int copySimp();
     int gadgetSimp();
     int hfusionSimp();
-    int hopfSimp();
     int hruleSimp();
     int idSimp();
     int lcompSimp();

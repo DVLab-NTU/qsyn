@@ -95,7 +95,7 @@ void ZXGraph::generateCNOT() {
 }
 
 /**
- * @brief Check if `id` is an existed vertex id
+ * @brief Check if `id` exists
  *
  * @param id
  * @return true
@@ -111,8 +111,8 @@ bool ZXGraph::isId(size_t id) const {
 /**
  * @brief Check if ZXGraph is graph-like, report first error
  *
- * @param
- * @return bool
+ * @return true
+ * @return false
  */
 bool ZXGraph::isGraphLike() const {
     // all internal edges are hadamard edges
@@ -159,10 +159,10 @@ bool ZXGraph::isGraphLike() const {
 }
 
 /**
- * @brief Check if graph is identity
+ * @brief Check if ZXGraph is identity
  *
- * @return true if graph is identity
- * @return false if not
+ * @return true
+ * @return false
  */
 bool ZXGraph::isIdentity() const {
     for (auto& i : _inputs) {
@@ -189,6 +189,12 @@ int ZXGraph::TCount() const {
     return num;
 }
 
+/**
+ * @brief Return the number of non-clifford(and T) gate
+ *
+ * @param includeT if true, T gate will be counted
+ * @return int
+ */
 int ZXGraph::nonCliffordCount(bool includeT) const {
     int num = 0;
     if (includeT) {

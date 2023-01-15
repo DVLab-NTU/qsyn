@@ -35,7 +35,7 @@ void ZXGraph::reset() {
 }
 
 /**
- * @brief Sort graph's _inputs and _outputs by qubit (ascending)
+ * @brief Sort _inputs and _outputs of graph by qubit (ascending)
  *
  */
 void ZXGraph::sortIOByQubit() {
@@ -210,6 +210,13 @@ ZXGraph* ZXGraph::tensorProduct(ZXGraph* target) {
     return this;
 }
 
+/**
+ * @brief Check v is a gadget
+ *
+ * @param v
+ * @return true
+ * @return false
+ */
 bool ZXGraph::isGadget(ZXVertex* v) {
     if (v->getType() != VertexType::Z || v->getNumNeighbors() != 1) {
         if (verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;

@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ qcir.cpp ]
   PackageName  [ qcir ]
-  Synopsis     [ Define QCir Mapping functions ]
+  Synopsis     [ Define class QCir Mapping functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

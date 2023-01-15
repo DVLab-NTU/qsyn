@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ m2.h ]
   PackageName  [ m2 ]
-  Synopsis     [ Define m2 (Boolean Matrix) class ]
+  Synopsis     [ Define class m2 (Boolean Matrix) structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

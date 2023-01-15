@@ -16,14 +16,12 @@ using namespace std;
 extern size_t verbose;
 
 /**
- * @brief Finds non-interacting matchings of the spider fusion rule.
- *        (Check PyZX/pyzx/rules.py/match_spider_parallel for more details)
+ * @brief Find non-interacting matchings of the spider fusion rule.
  *
  * @param g
  */
 void SpiderFusion::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    // if (verbose >= 8) g->printVertices();
 
     unordered_set<ZXVertex*> taken;
 
@@ -46,13 +44,11 @@ void SpiderFusion::match(ZXGraph* g) {
         }
     });
 
-    // if (verbose >= 5) cout << "Found " << _matchTypeVec.size() << " match(es) of spider fusion rule: " << endl;
     setMatchTypeVecNum(_matchTypeVec.size());
 }
 
 /**
  * @brief Generate Rewrite format from `_matchTypeVec`
- *        (Check PyZX/pyzx/rules.py/spider for more details)
  *
  * @param g
  */
@@ -80,5 +76,3 @@ void SpiderFusion::rewrite(ZXGraph* g) {
         _removeVertices.push_back(v1);
     }
 }
-
-//? (Check PyZX/pyzx/rules.py/unspider if have done the above functions)

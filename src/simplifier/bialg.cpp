@@ -16,7 +16,7 @@ using namespace std;
 extern size_t verbose;
 
 /**
- * @brief Finds if the vertex is duplicated
+ * @brief Find if the vertex is duplicated
  *
  * @param vec
  * @return true if found
@@ -34,7 +34,7 @@ bool Bialgebra::check_duplicated_vertex(vector<ZXVertex*> vec) {
 }
 
 /**
- * @brief Finds noninteracting matchings of the bialgebra rule.
+ * @brief Find noninteracting matchings of the bialgebra rule.
  *        (Check PyZX/pyzx/rules.py/match_bialg_parallel for more details)
  *
  * @param g
@@ -100,7 +100,7 @@ void Bialgebra::match(ZXGraph* g) {
 }
 
 /**
- * @brief Performs a certain type of bialgebra rewrite based on `_matchTypeVec`
+ * @brief Perform a certain type of bialgebra rewrite based on `_matchTypeVec`
  *        (Check PyZX/pyzx/rules.py/bialg for more details)
  *
  * @param g

@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ qcirGate.h ]
   PackageName  [ qcir ]
-  Synopsis     [ Define basic gate data structures ]
+  Synopsis     [ Define class qcirGate structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

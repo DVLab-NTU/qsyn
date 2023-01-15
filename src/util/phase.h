@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ phase.cpp ]
   PackageName  [ util ]
-  Synopsis     [ Definition of the Phase class and pertinent classes]
+  Synopsis     [ Definition of the Phase class and pertinent classes ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

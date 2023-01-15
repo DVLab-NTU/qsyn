@@ -16,13 +16,12 @@ using namespace std;
 extern size_t verbose;
 
 /**
- * @brief Matches all the H-boxes with arity 2 and phase 1, i.e. all the Hadamard gates.
+ * @brief Match all the H-boxes with arity 2 and phase 1, i.e. all the Hadamard gates.
  *
  * @param g
  */
 void HRule::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    // if (verbose >= 8) g->printVertices();
 
     unordered_map<size_t, size_t> id2idx;
 

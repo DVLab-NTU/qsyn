@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ ZXRule.h ]
   PackageName  [ simplifier ]
-  Synopsis     [ ZX Basic Rules ]
+  Synopsis     [ Define class ZXRule structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -72,7 +72,7 @@ protected:
 };
 
 /**
- * @brief Bialgebra Rule(b): Finds noninteracting matchings of the bialgebra rule. (in bialg.cpp)
+ * @brief Bialgebra Rule(b): Find noninteracting matchings of the bialgebra rule. (in bialg.cpp)
  *
  */
 class Bialgebra : public ZXRule {
@@ -100,7 +100,7 @@ protected:
 };
 
 /**
- * @brief Pi copy rule(pi): Finds spiders with a 0 or pi phase that have a single neighbor. (in copy.cpp)
+ * @brief State copy rule(pi): Find spiders with a 0 or pi phase that have a single neighbor. (in copy.cpp)
  *
  */
 class StateCopy : public ZXRule {
@@ -125,7 +125,7 @@ protected:
 };
 
 /**
- * @brief Hadamard Cancellation(i2): Fuses two neighboring H-boxes together. (in hfusion.cpp)
+ * @brief Hadamard Cancellation(i2): Fuse two neighboring H-boxes together. (in hfusion.cpp)
  *
  */
 class HboxFusion : public ZXRule {
@@ -137,31 +137,6 @@ public:
         _name = "Hadamard Cancellation Rule";
     }
     virtual ~HboxFusion() {}
-
-    void match(ZXGraph* g) override;
-    void rewrite(ZXGraph* g) override;
-
-    // Getter and Setter
-    const MatchTypeVec& getMatchTypeVec() const { return _matchTypeVec; }
-    void setMatchTypeVec(MatchTypeVec v) { _matchTypeVec = v; }
-
-protected:
-    MatchTypeVec _matchTypeVec;
-};
-
-/**
- * @brief
- *
- */
-class Hopf : public ZXRule {
-public:
-    using MatchType = std::pair<ZXVertex*, ZXVertex*>;
-    using MatchTypeVec = std::vector<MatchType>;
-
-    Hopf() {
-        _name = "Hopf Rule";
-    }
-    virtual ~Hopf() {}
 
     void match(ZXGraph* g) override;
     void rewrite(ZXGraph* g) override;
@@ -200,7 +175,7 @@ protected:
 };
 
 /**
- * @brief Identity Removal Rule(i1): Finds non-interacting identity vertices. (in id.cpp)
+ * @brief Identity Removal Rule(i1): Find non-interacting identity vertices. (in id.cpp)
  *
  */
 class IdRemoval : public ZXRule {
@@ -225,7 +200,7 @@ protected:
 };
 
 /**
- * @brief Finds noninteracting matchings of the local complementation rule.
+ * @brief Find noninteracting matchings of the local complementation rule.
  *
  */
 class LComp : public ZXRule {
@@ -250,7 +225,7 @@ protected:
 };
 
 /**
- * @brief Finds non-interacting matchings of the phase gadget rule.
+ * @brief Find non-interacting matchings of the phase gadget rule.
  *
  */
 class PhaseGadget : public ZXRule {
@@ -275,7 +250,7 @@ protected:
 };
 
 /**
- * @brief common interface to all pivot-like rules
+ * @brief Common interface to all pivot-like rules
  *
  */
 class PivotInterface : public ZXRule {
@@ -299,7 +274,7 @@ protected:
 };
 
 /**
- * @brief Finds non-interacting matchings of the pivot rule.
+ * @brief Find non-interacting matchings of the pivot rule.
  *
  */
 class Pivot : public PivotInterface {
@@ -320,7 +295,7 @@ protected:
 };
 
 /**
- * @brief Finds non-interacting matchings of the pivot gadget rule.
+ * @brief Find non-interacting matchings of the pivot gadget rule.
  *
  */
 class PivotGadget : public PivotInterface {
@@ -340,7 +315,7 @@ protected:
 };
 
 /**
- * @brief Finds non-interacting matchings of the pivot gadget rule.
+ * @brief Find non-interacting matchings of the pivot gadget rule.
  *
  */
 class PivotBoundary : public PivotInterface {
@@ -363,7 +338,7 @@ protected:
 };
 
 /**
- * @brief Spider Fusion(f): Finds non-interacting matchings of the spider fusion rule. (in sfusion.cpp)
+ * @brief Spider Fusion(f): Find non-interacting matchings of the spider fusion rule. (in sfusion.cpp)
  *
  */
 class SpiderFusion : public ZXRule {

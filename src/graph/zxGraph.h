@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ zxGraph.h ]
   PackageName  [ graph ]
-  Synopsis     [ Define ZXGraph structures ]
+  Synopsis     [ Define class ZXGraph structures ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

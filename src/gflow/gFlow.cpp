@@ -21,7 +21,7 @@ namespace TF = TextFormat;
 using namespace std;
 extern size_t verbose;
 /**
- * @brief reset the gflow calculator
+ * @brief Reset the gflow calculator
  *
  */
 void GFlow::reset() {
@@ -31,7 +31,7 @@ void GFlow::reset() {
 }
 
 /**
- * @brief calculate the GFlow to the ZXGraph
+ * @brief Calculate the GFlow to the ZXGraph
  *
  */
 bool GFlow::calculate(bool disjointNeighbors) {
@@ -108,6 +108,10 @@ bool GFlow::calculate(bool disjointNeighbors) {
     return _valid;
 }
 
+/**
+ * @brief Clean frontier, neighbors, taken, and coefficeint matrix
+ *
+ */
 void GFlow::clearTemporaryStorage() {
     _frontier.clear();
     _neighbors.clear();
@@ -115,6 +119,10 @@ void GFlow::clearTemporaryStorage() {
     _coefficientMatrix.clear();
 }
 
+/**
+ * @brief Calculate 0th layer
+ *
+ */
 void GFlow::calculateZerothLayer() {
     // initialize the 0th layer to be output
     _frontier = _zxgraph->getOutputs();
@@ -128,6 +136,10 @@ void GFlow::calculateZerothLayer() {
     }
 }
 
+/**
+ * @brief Update neighbors by frontier
+ *
+ */
 void GFlow::updateNeighborsByFrontier() {
     _neighbors.clear();
 
@@ -141,6 +153,12 @@ void GFlow::updateNeighborsByFrontier() {
     }
 }
 
+/**
+ * @brief Set the correction set to v by the matrix
+ *
+ * @param v correction set of whom
+ * @param matrix
+ */
 void GFlow::setCorrectionSetFromMatrix(ZXVertex* v, const M2& matrix) {
     _correctionSets[v] = ZXVertexList();
 
@@ -157,6 +175,10 @@ void GFlow::setCorrectionSetFromMatrix(ZXVertex* v, const M2& matrix) {
     }
 }
 
+/**
+ * @brief Update frontier
+ *
+ */
 void GFlow::updateFrontier() {
     // remove vertex that are not frontiers anymore
     vector<ZXVertex*> toRemove;
@@ -183,6 +205,10 @@ void GFlow::updateFrontier() {
     }
 }
 
+/**
+ * @brief Print gflow
+ *
+ */
 void GFlow::print() const {
     cout << "GFlow of the graph: \n";
     for (size_t i = 0; i < _levels.size(); ++i) {
@@ -193,6 +219,10 @@ void GFlow::print() const {
     }
 }
 
+/**
+ * @brief Print gflow according to levels
+ *
+ */
 void GFlow::printLevels() const {
     cout << "GFlow levels of the graph: \n";
     for (size_t i = 0; i < _levels.size(); ++i) {
@@ -204,6 +234,11 @@ void GFlow::printLevels() const {
     }
 }
 
+/**
+ * @brief Print correction set of v
+ *
+ * @param v correction set of whom
+ */
 void GFlow::printCorrectionSet(ZXVertex* v) const {
     cout << right << setw(4) << v->getId() << ":";
     if (_correctionSets.contains(v)) {
@@ -220,12 +255,20 @@ void GFlow::printCorrectionSet(ZXVertex* v) const {
     cout << endl;
 }
 
+/**
+ * @brief Print correction sets
+ *
+ */
 void GFlow::printCorrectionSets() const {
     for (auto& v : _zxgraph->getVertices()) {
         printCorrectionSet(v);
     }
 }
 
+/**
+ * @brief Print if gflow exists. If not, print which level it breaks
+ *
+ */
 void GFlow::printSummary() const {
     if (_valid) {
         cout << TF::BOLD(TF::GREEN("GFlow exists.\n"))
@@ -236,6 +279,10 @@ void GFlow::printSummary() const {
     }
 }
 
+/**
+ * @brief Print frontier
+ *
+ */
 void GFlow::printFrontier() const {
     cout << "Frontier :";
     for (auto& v : _frontier) {
@@ -244,6 +291,10 @@ void GFlow::printFrontier() const {
     cout << endl;
 }
 
+/**
+ * @brief Print neighbors
+ *
+ */
 void GFlow::printNeighbors() const {
     cout << "Neighbors:";
     for (auto& v : _neighbors) {
@@ -252,6 +303,10 @@ void GFlow::printNeighbors() const {
     cout << endl;
 }
 
+/**
+ * @brief Print the vertices with no correction sets
+ *
+ */
 void GFlow::printFailedVertices() const {
     cout << "No correction sets found for the following vertices:" << endl;
     for (auto& v : _neighbors) {
