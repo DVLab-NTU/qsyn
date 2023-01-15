@@ -9,6 +9,7 @@
 #define RATIONAL_NUM_H
 
 #include <cassert>  // for assert
+#include <cmath>
 #include <concepts>
 #include <iosfwd>  // for ostream
 
@@ -28,7 +29,7 @@ public:
     }
     // Implicitly use 1 as denominator
     template <class T>
-    requires std::floating_point<T>
+        requires std::floating_point<T>
     Rational(T f, T eps = 1e-4) {
         *this = Rational::toRational(f, eps);
     }
@@ -72,16 +73,16 @@ public:
     }
 
     template <class T>
-    requires std::floating_point<T>
-        T toFloatType()
-    const { return ((T)_numer) / _denom; }
+        requires std::floating_point<T>
+    T toFloatType()
+        const { return ((T)_numer) / _denom; }
 
     float toFloat() const { return toFloatType<float>(); }
     double toDouble() const { return toFloatType<double>(); }
     long double toLongDouble() const { return toFloatType<long double>(); }
 
     template <class T>
-    requires std::floating_point<T>
+        requires std::floating_point<T>
     static Rational toRational(T f, T eps = 1e-4) {
         int integralPart = (int)floor(f);
         f -= integralPart;

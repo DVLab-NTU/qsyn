@@ -125,10 +125,10 @@ public:
 
     template <class T = double>
     requires std::floating_point<T>
-    bool
-    fromString(const std::string& str) {
-        if (!myStrValid<T>(str, *this)) {
-            *this = 0;
+    static bool
+    fromString(const std::string& str, Phase& phase) {
+        if (!myStrValid<T>(str, phase)) {
+            phase = 0;
             return false;
         }
         return true;
@@ -137,15 +137,16 @@ public:
 private:
     Rational _rational;
     static PhaseUnit _printUnit;
+    template <class T = double>
+    requires std::floating_point<T>
+    static bool myStrValid(const std::string& str, Phase& p);
 };
 
 class setPhaseUnit {
 public:
     friend class Phase;
     explicit setPhaseUnit(PhaseUnit pu) : _printUnit(pu) {}
-    PhaseUnit getPhaseUnit() const {
-        return _printUnit;
-    }
+    PhaseUnit getPhaseUnit() const { return _printUnit; }
     friend std::ostream& operator<<(std::ostream& os, const setPhaseUnit& pu);
 
 private:
@@ -154,7 +155,7 @@ private:
 
 template <class T = double>
 requires std::floating_point<T>
-bool myStrValid(const std::string& str, Phase& p) {
+bool Phase::myStrValid(const std::string& str, Phase& p) {
     std::vector<std::string> numberStrings;
     std::vector<char> operators;
 

@@ -59,7 +59,7 @@ bool ZXFileParser::parseInternal(ifstream& f) {
 
         Phase tmp;
         if (tokens.size() > 3) {
-            if (tmp.fromString(tokens.back())) {
+            if (Phase::fromString(tokens.back(), tmp)) {
                 tokens.pop_back();
                 info.phase = tmp;
             }
@@ -205,7 +205,7 @@ bool ZXFileParser::validTokensForBoundaryVertex(const vector<string>& tokens) {
     if (tokens.size() <= 3) return true;
 
     Phase tmp;
-    if (tmp.fromString(tokens.back())) {
+    if (Phase::fromString(tokens.back(), tmp)) {
         printFailedAtLineNum();
         cerr << "cannot assign phase to boundary vertex!!" << endl;
         return false;
@@ -217,7 +217,7 @@ bool ZXFileParser::validTokensForHBox(const vector<string>& tokens) {
     if (tokens.size() <= 3) return true;
 
     Phase tmp;
-    if (tmp.fromString(tokens.back())) {
+    if (Phase::fromString(tokens.back(), tmp)) {
         printFailedAtLineNum();
         cerr << "cannot assign phase to H-box!!" << endl;
         return false;

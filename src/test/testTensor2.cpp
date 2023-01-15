@@ -63,7 +63,7 @@ TEST_CASE("Tensor comparison", "[Tensor]") {
     REQUIRE(globalNorm(a, c) == Approx(std::sqrt(2)));
     REQUIRE(globalPhase(a, c) == Phase(0));
 
-    QTensor<double> d = QTensor<double>::cnx(1);
+    QTensor<double> d = QTensor<double>::control(QTensor<double>::xgate(), 1);
     QTensor<double> e = QTensor<double>::zspider(3, 0);
     QTensor<double> f = QTensor<double>::xspider(3, 0);
     QTensor<double> g = tensordot(e, f, {2}, {0});

@@ -555,7 +555,7 @@ QCirAddGateCmd::exec(const string &option) {
                     return CmdExec::errorOption(CMD_OPT_MISSING, options[1]);
                 } else {
                     // Check Phase Legal
-                    if (!phase.fromString(options[2])) {
+                    if (!Phase::fromString(options[2], phase)) {
                         cerr << "Error: not a legal phase!!" << endl;
                         return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[2]);
                     }
@@ -593,7 +593,7 @@ QCirAddGateCmd::exec(const string &option) {
                     return CmdExec::errorOption(CMD_OPT_MISSING, options[1]);
                 } else {
                     // Check Phase Legal
-                    if (!phase.fromString(options[2])) {
+                    if (!Phase::fromString(options[2], phase)) {
                         cerr << "Error: not a legal phase!!" << endl;
                         return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[2]);
                     }
