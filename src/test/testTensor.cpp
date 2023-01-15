@@ -24,7 +24,7 @@ using namespace std::literals::complex_literals;
 
 TEST_CASE("Brace Initialization", "[Tensor]") {
     QTensor<double> t1 = {{1. + 0.i, 0. + 0.i}, {0. + 0.i, 1. + 0.i}};
-    REQUIRE(t1 == QTensor<double>::zspider(2, 0));
+    REQUIRE(t1 == QTensor<double>::zspider(2, Phase(0)));
 }
 TEST_CASE("Z-Spider initiation", "[Tensor]") {
     auto n = GENERATE(0, 1, 4, 9);
@@ -104,7 +104,7 @@ TEST_CASE("H-Box initiation from phase", "[Tensor]") {
 
 TEST_CASE("Default Parameters for Tensor generators", "[Tensor]") {
     auto n = GENERATE(0, 1, 4, 9);
-    REQUIRE(QTensor<double>::zspider(n) == QTensor<double>::zspider(n, 0));
-    REQUIRE(QTensor<double>::xspider(n) == QTensor<double>::xspider(n, 0));
+    REQUIRE(QTensor<double>::zspider(n) == QTensor<double>::zspider(n, Phase(0)));
+    REQUIRE(QTensor<double>::xspider(n) == QTensor<double>::xspider(n, Phase(0)));
     REQUIRE(QTensor<double>::hbox(n) == QTensor<double>::hbox(n, -1.));
 }

@@ -81,7 +81,7 @@ CmdClass(ZXGAssignCmd);
 
 #define ZX_CMD_PHASE_VALID_OR_RETURN(option, phase)               \
     {                                                             \
-        (phase) = 0;                                              \
+        (phase) = Phase(0);                                       \
         if (!Phase::fromString(option, phase)) {                  \
             cerr << "Error: not a legal phase!!" << endl;         \
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, option); \
