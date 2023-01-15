@@ -243,9 +243,6 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
     } else if (type == "crz") {
         temp = new CRZGate(_gateId);
         temp->setRotatePhase(phase);
-    } else if (type == "mcrx" || type == "crx") {
-        temp = new CnRXGate(_gateId);
-        temp->setRotatePhase(phase);
     } else {
         cerr << "Error: The gate " << type << " is not implemented!!" << endl;
         abort();
