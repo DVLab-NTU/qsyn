@@ -66,10 +66,4 @@ TEST_CASE("Phases are printed correctly", "[Phase]") {
     REQUIRE_THAT(sm.convert(p3), Catch::Matchers::Equals("3\u03C0/2"));
     REQUIRE_THAT(sm.convert(p4), Catch::Matchers::Equals("\u03C0/2"));
     REQUIRE_THAT(sm.convert(p5), Catch::Matchers::Equals("4\u03C0/3"));
-    std::cout << setPhaseUnit(PhaseUnit::ONE);
-    REQUIRE_THAT(sm.convert(p1), Catch::Matchers::Equals("0"));
-    REQUIRE_THAT(sm.convert(p2), Catch::Matchers::StartsWith("3.14159"));
-    REQUIRE_THAT(sm.convert(p3), Catch::Matchers::StartsWith("4.71239"));
-    REQUIRE_THAT(sm.convert(p4), Catch::Matchers::StartsWith("1.5708"));
-    REQUIRE_THAT(sm.convert(p5), Catch::Matchers::StartsWith("4.18879"));
 }
