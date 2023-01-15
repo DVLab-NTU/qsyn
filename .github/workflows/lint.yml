@@ -23,5 +23,5 @@ jobs:
           source: './src'
           exclude: './vender ./tests'
           extensions: 'h,cpp'
-          clangFormatVersion: 16
+          clangFormatVersion: 15
           # style: '.clang-format'
