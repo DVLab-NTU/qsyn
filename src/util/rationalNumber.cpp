@@ -111,5 +111,5 @@ void Rational::reduce() {
 }
 
 Rational Rational::mediant(const Rational& lhs, const Rational& rhs) {
-    return Rational((int) (lhs._numer + rhs._numer), (int) (lhs._denom + rhs._denom));
+    return Rational((int)(lhs._numer + rhs._numer), (int)(lhs._denom + rhs._denom));
 }

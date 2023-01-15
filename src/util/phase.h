@@ -60,7 +60,8 @@ public:
 
     template <class T>
     requires std::floating_point<T>
-    T toFloatType() const { return std::numbers::pi_v<T> * _rational.toFloatType<T>(); }
+        T toFloatType()
+    const { return std::numbers::pi_v<T> * _rational.toFloatType<T>(); }
 
     float toFloat() { return toFloatType<float>(); }
     double toDouble() { return toFloatType<double>(); }
