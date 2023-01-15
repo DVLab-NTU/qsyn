@@ -170,6 +170,10 @@ void ZXGraph::draw() const {
         qubitNum_temp.push_back(v->getQubit());
     }
     sort(qubitNum_temp.begin(), qubitNum_temp.end());
+    if (qubitNum_temp.size() == 0) {
+        cout << "Empty graph!!" << endl;
+        return;
+    }
     size_t offset = qubitNum_temp[0];
     qubitNum.push_back(0);
     for (size_t i = 1; i < qubitNum_temp.size(); i++) {

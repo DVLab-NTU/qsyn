@@ -6,10 +6,10 @@ qsyn> zxcopy 1
 Successfully copied Graph 0 to Graph 1
 Checkout to Graph 1
 
-qsyn> zxch 1
-Checkout to Graph 1
+qsyn> zxch 0
+Checkout to Graph 0
 
-qsyn> zxgw ref/extraction/tof2/input.tex
+qsyn> zxgd ref/extraction/tof2/input.pdf
 
 qsyn> zxgs -fr
 
@@ -18,211 +18,211 @@ Hadamard Rule                 2 iterations.
   1) 1 matches
   2) 1 matches
 
-qsyn> zxgw ref/extraction/tof2/fr.tex
+qsyn> zxgd ref/extraction/tof2/fr.pdf
 
 qsyn> qcba 3 
 Note: QCir list is empty now. Create a new one.
 Create and checkout to QCir 0
 
-qsyn> extract -ZXgraph 1 -QCir 0 -CLF
-Checkout to Graph 1
+qsyn> extract -ZXgraph 0 -QCir 0 -CLF
+Checkout to Graph 0
 Checkout to QCir 0
 
-qsyn> zxgw ref/extraction/tof2/loop0/clf.tex
+qsyn> zxgd ref/extraction/tof2/loop0/clf.pdf
 
 qsyn> qc2zx
 Create and checkout to Graph 2
 
-qsyn> zxgw ref/extraction/tof2/loop0/clfCir.tex
+qsyn> zxgd ref/extraction/tof2/loop0/clfCir.pdf
 
-qsyn> extract -ZXgraph 1 -QCir 0 -RMG
-Checkout to Graph 1
+qsyn> extract -ZXgraph 0 -QCir 0 -RMG
+Checkout to Graph 0
 Checkout to QCir 0
 Gadget(s) are removed
 
-qsyn> zxgw ref/extraction/tof2/loop0/rmg.tex
+qsyn> zxgd ref/extraction/tof2/loop0/rmg.pdf
 
-qsyn> extract -ZXgraph 1 -QCir 0 -CLF
-Checkout to Graph 1
+qsyn> extract -ZXgraph 0 -QCir 0 -CLF
+Checkout to Graph 0
 Checkout to QCir 0
 Note: Graph 2 is deleted due to modification(s) !!
 Successfully removed Graph 2
 Checkout to Graph 0
 
-qsyn> zxgw ref/extraction/tof2/loop1/clf.tex
+qsyn> zxgd ref/extraction/tof2/loop1/clf.pdf
 
 qsyn> qc2zx
 Create and checkout to Graph 3
 
-qsyn> zxgw ref/extraction/tof2/loop1/clfCir.tex
+qsyn> zxgd ref/extraction/tof2/loop1/clfCir.pdf
 
-qsyn> extract -ZXgraph 1 -QCir 0 -CX
-Checkout to Graph 1
+qsyn> extract -ZXgraph 0 -QCir 0 -CX
+Checkout to Graph 0
 Checkout to QCir 0
 Note: Graph 3 is deleted due to modification(s) !!
 Successfully removed Graph 3
 Checkout to Graph 0
 
-qsyn> zxgw ref/extraction/tof2/loop1/cx.tex
+qsyn> zxgd ref/extraction/tof2/loop1/cx.pdf
 
 qsyn> qc2zx
 Create and checkout to Graph 4
 
-qsyn> zxgw ref/extraction/tof2/loop1/cxCir.tex
+qsyn> zxgd ref/extraction/tof2/loop1/cxCir.pdf
 
-qsyn> extract -ZXgraph 1 -QCir 0 -H
-Checkout to Graph 1
+qsyn> extract -ZXgraph 0 -QCir 0 -H
+Checkout to Graph 0
 Checkout to QCir 0
 Note: Graph 4 is deleted due to modification(s) !!
 Successfully removed Graph 4
 Checkout to Graph 0
 
-qsyn> zxgw ref/extraction/tof2/loop1/h.tex
+qsyn> zxgd ref/extraction/tof2/loop1/h.pdf
 
 qsyn> qc2zx
 Create and checkout to Graph 5
 
-qsyn> zxgw ref/extraction/tof2/loop1/hCir.tex
+qsyn> zxgd ref/extraction/tof2/loop1/hCir.pdf
 
-qsyn> extract -ZXgraph 1 -QCir 0 -CLF
-Checkout to Graph 1
+qsyn> extract -ZXgraph 0 -QCir 0 -CLF
+Checkout to Graph 0
 Checkout to QCir 0
 Note: Graph 5 is deleted due to modification(s) !!
 Successfully removed Graph 5
 Checkout to Graph 0
 
-qsyn> zxgw ref/extraction/tof2/loop2/clf.tex
+qsyn> zxgd ref/extraction/tof2/loop2/clf.pdf
 
 qsyn> qc2zx
 Create and checkout to Graph 6
 
-qsyn> zxgw ref/extraction/tof2/loop2/clfCir.tex
+qsyn> zxgd ref/extraction/tof2/loop2/clfCir.pdf
 
-qsyn> extract -ZXgraph 1 -QCir 0 -RMG
-Checkout to Graph 1
+qsyn> extract -ZXgraph 0 -QCir 0 -RMG
+Checkout to Graph 0
 Checkout to QCir 0
 Gadget(s) are removed
 
-qsyn> zxgw ref/extraction/tof2/loop2/rmg.tex
+qsyn> zxgd ref/extraction/tof2/loop2/rmg.pdf
 
-qsyn> extract -ZXgraph 1 -QCir 0 -PH
-Checkout to Graph 1
+qsyn> extract -ZXgraph 0 -QCir 0 -PH
+Checkout to Graph 0
 Checkout to QCir 0
 Note: Graph 6 is deleted due to modification(s) !!
 Successfully removed Graph 6
 Checkout to Graph 0
 
-qsyn> zxgw ref/extraction/tof2/loop3/ph.tex
+qsyn> zxgd ref/extraction/tof2/loop3/ph.pdf
 
 qsyn> qc2zx
 Create and checkout to Graph 7
 
-qsyn> zxgw ref/extraction/tof2/loop3/phCir.tex
+qsyn> zxgd ref/extraction/tof2/loop3/phCir.pdf
 
-qsyn> extract -ZXgraph 1 -QCir 0 -CZ
-Checkout to Graph 1
+qsyn> extract -ZXgraph 0 -QCir 0 -CZ
+Checkout to Graph 0
 Checkout to QCir 0
 Note: Graph 7 is deleted due to modification(s) !!
 Successfully removed Graph 7
 Checkout to Graph 0
 
-qsyn> zxgw ref/extraction/tof2/loop3/cz.tex
+qsyn> zxgd ref/extraction/tof2/loop3/cz.pdf
 
 qsyn> qc2zx
 Create and checkout to Graph 8
 
-qsyn> zxgw ref/extraction/tof2/loop3/czCir.tex
+qsyn> zxgd ref/extraction/tof2/loop3/czCir.pdf
 
-qsyn> extract -ZXgraph 1 -QCir 0 -H
-Checkout to Graph 1
+qsyn> extract -ZXgraph 0 -QCir 0 -H
+Checkout to Graph 0
 Checkout to QCir 0
 Note: Graph 8 is deleted due to modification(s) !!
 Successfully removed Graph 8
 Checkout to Graph 0
 
-qsyn> zxgw ref/extraction/tof2/loop3/h.tex
+qsyn> zxgd ref/extraction/tof2/loop3/h.pdf
 
 qsyn> qc2zx
 Create and checkout to Graph 9
 
-qsyn> zxgw ref/extraction/tof2/loop3/hCir.tex
+qsyn> zxgd ref/extraction/tof2/loop3/hCir.pdf
 
-qsyn> extract -ZXgraph 1 -QCir 0 -CLF
-Checkout to Graph 1
+qsyn> extract -ZXgraph 0 -QCir 0 -CLF
+Checkout to Graph 0
 Checkout to QCir 0
 Note: Graph 9 is deleted due to modification(s) !!
 Successfully removed Graph 9
 Checkout to Graph 0
 
-qsyn> zxgw ref/extraction/tof2/loop4/clf.tex
+qsyn> zxgd ref/extraction/tof2/loop4/clf.pdf
 
 qsyn> qc2zx
 Create and checkout to Graph 10
 
-qsyn> zxgw ref/extraction/tof2/loop4/clfCir.tex
+qsyn> zxgd ref/extraction/tof2/loop4/clfCir.pdf
 
-qsyn> extract -ZXgraph 1 -QCir 0 -CX
-Checkout to Graph 1
+qsyn> extract -ZXgraph 0 -QCir 0 -CX
+Checkout to Graph 0
 Checkout to QCir 0
 Note: Graph 10 is deleted due to modification(s) !!
 Successfully removed Graph 10
 Checkout to Graph 0
 
-qsyn> zxgw ref/extraction/tof2/loop4/cx.tex
+qsyn> zxgd ref/extraction/tof2/loop4/cx.pdf
 
 qsyn> qc2zx
 Create and checkout to Graph 11
 
-qsyn> zxgw ref/extraction/tof2/loop4/cxCir.tex
+qsyn> zxgd ref/extraction/tof2/loop4/cxCir.pdf
 
-qsyn> extract -ZXgraph 1 -QCir 0 -H
-Checkout to Graph 1
+qsyn> extract -ZXgraph 0 -QCir 0 -H
+Checkout to Graph 0
 Checkout to QCir 0
 Note: Graph 11 is deleted due to modification(s) !!
 Successfully removed Graph 11
 Checkout to Graph 0
 
-qsyn> zxgw ref/extraction/tof2/loop4/h.tex
+qsyn> zxgd ref/extraction/tof2/loop4/h.pdf
 
 qsyn> qc2zx
 Create and checkout to Graph 12
 
-qsyn> zxgw ref/extraction/tof2/loop4/hCir.tex
+qsyn> zxgd ref/extraction/tof2/loop4/hCir.pdf
 
-qsyn> extract -ZXgraph 1 -QCir 0 -CLF
-Checkout to Graph 1
+qsyn> extract -ZXgraph 0 -QCir 0 -CLF
+Checkout to Graph 0
 Checkout to QCir 0
 Note: Graph 12 is deleted due to modification(s) !!
 Successfully removed Graph 12
 Checkout to Graph 0
 
-qsyn> zxgw ref/extraction/tof2/loop5/clf.tex
+qsyn> zxgd ref/extraction/tof2/loop5/clf.pdf
 
 qsyn> qc2zx
 Create and checkout to Graph 13
 
-qsyn> zxgw ref/extraction/tof2/loop5/clfCir.tex
+qsyn> zxgd ref/extraction/tof2/loop5/clfCir.pdf
 
-qsyn> extract -ZXgraph 1 -QCir 0 -PER
-Checkout to Graph 1
+qsyn> extract -ZXgraph 0 -QCir 0 -PER
+Checkout to Graph 0
 Checkout to QCir 0
 Note: Graph 13 is deleted due to modification(s) !!
 Successfully removed Graph 13
 Checkout to Graph 0
 
-qsyn> zxgw ref/extraction/tof2/loop5/per.tex
+qsyn> zxgd ref/extraction/tof2/loop5/per.pdf
 
 qsyn> qc2zx
 Create and checkout to Graph 14
 
-qsyn> zxgw ref/extraction/tof2/loop5/perCir.tex
+qsyn> zxgd ref/extraction/tof2/loop5/perCir.pdf
 
 qsyn> qc2zx
 Create and checkout to Graph 15
 
 qsyn> zxgadj
 
-qsyn> zxcomp 0
+qsyn> zxcomp 1
 
 qsyn> zxgs -fr
 
