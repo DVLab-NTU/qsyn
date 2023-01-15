@@ -35,7 +35,7 @@ bool ZXGraph::readZX(const string& filename, bool keepID) {
         if (
             myStrNCmp(".zx", extensionString, 3) != 0 &&
             myStrNCmp(".bzx", extensionString, 4) != 0) {  // backward compatibility
-            cerr << "Unsupported file extension \"" << extensionString << "\"!!" << endl;
+            cerr << "Error: unsupported file extension \"" << extensionString << "\"!!" << endl;
             return false;
         }
     }
@@ -279,6 +279,20 @@ bool ZXGraph::writeTikz(string filename) {
  * @return false
  */
 bool ZXGraph::writeTex(string filename, bool toPDF) {
+    size_t extensionPosition = filename.find_last_of(".");
+    if (extensionPosition != string::npos) {
+        string extensionString = filename.substr(extensionPosition);
+        if (
+            myStrNCmp(".tex", extensionString, 4) != 0 &&
+            myStrNCmp(".pdf", extensionString, 4) != 0) {  // backward compatibility
+            cerr << "Error: unsupported file extension \"" << extensionString << "\"!!" << endl;
+            return false;
+        }
+    } else {
+        cerr << "Error: no file extension!!" << endl;
+        return false;
+    } 
+
     size_t directoryPosition = filename.find_last_of("/");
     string directory = "./";
     if (directoryPosition != string::npos) {
@@ -287,13 +301,13 @@ bool ZXGraph::writeTex(string filename, bool toPDF) {
     string cmd = "mkdir -p " + directory;
     int systemRet = system(cmd.c_str());
     if (systemRet == -1) {
-        cerr << "Error: failed to open the directory" << endl;
+        cerr << "Error: fail to open the directory" << endl;
         return false;
     }
     fstream texFile;
     texFile.open(filename.c_str(), fstream::out);
     if (!texFile.is_open()) {
-        cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
+        cerr << "Error: cannot open the file \"" << filename << "\"!!" << endl;
         return false;
     }
 
@@ -325,25 +339,22 @@ bool ZXGraph::writeTex(string filename, bool toPDF) {
         cmd = "pdflatex -halt-on-error -output-directory " + directory + " " + filename + " >/dev/null 2>&1 ";
         systemRet = system(cmd.c_str());
         if (systemRet == -1) {
-            cerr << "Error: failed to generate PDF" << endl;
+            cerr << "Error: fail to generate PDF" << endl;
             return false;
         }
 
-        size_t extensionPosition = filename.find_last_of(".");
-        if (extensionPosition != string::npos) {
-            string name = filename.substr(0, extensionPosition);
-            string extensions[3] = {".aux", ".log", ".out"};
-            for (auto& ext : extensions) {
-                cmd = "rm " + name + ext;
-                systemRet = system(cmd.c_str());
-                if (systemRet == -1) {
-                    cerr << "Error: failed to remove compiling files." << endl;
-                    return false;
-                }
+        //NOTE - Clean up
+        string name = filename.substr(0, extensionPosition);
+        string extensions[3] = {".aux", ".log", ".out"};
+        for (auto& ext : extensions) {
+            cmd = "rm " + name + ext;
+            systemRet = system(cmd.c_str());
+            if (systemRet == -1) {
+                cerr << "Error: fail to remove compiling files." << endl;
+                return false;
             }
-        } else {
-            cerr << "Error: the filename has something wrong" << endl;
         }
+        
     }
     return true;
 }

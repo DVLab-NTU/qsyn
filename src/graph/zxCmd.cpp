@@ -616,19 +616,32 @@ void ZXGTraverseCmd::help() const {
 }
 
 //----------------------------------------------------------------------
-//    ZXGDraw
+//    ZXGDraw [-CLI]
+//    ZXGDraw <-Path> <string (path.pdf)>
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGDrawCmd::exec(const string &option) {
-    string token;
-    if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
+    vector<string> options;
+    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGDraw");
-    zxGraphMgr->getGraph()->draw();
+    CMD_N_OPTS_AT_MOST_OR_RETURN(options, 1);
+    if (options.size() == 0){
+        zxGraphMgr->getGraph()->draw();
+        return CMD_EXEC_DONE;
+    }
+    if (myStrNCmp("-CLI", options[0], 4) == 0) {
+        zxGraphMgr->getGraph()->draw();
+        return CMD_EXEC_DONE;
+    }
+    if (!zxGraphMgr->getGraph()->writeTex(options[0])) {
+        return CMD_EXEC_ERROR;
+    }
     return CMD_EXEC_DONE;
 }
 
 void ZXGDrawCmd::usage(ostream &os) const {
-    os << "Usage: ZXGDraw" << endl;
+    os << "Usage: ZXGDraw [-CLI]" << endl;
+    os << "Usage: ZXGDraw <-Path> <string (path.pdf)>" << endl;
 }
 
 void ZXGDrawCmd::help() const {
@@ -778,7 +791,7 @@ ZXGWriteCmd::exec(const string &option) {
                 return CMD_EXEC_ERROR;
             }
         } else if (myStrNCmp(".tex", extensionString, 4) == 0) {
-            if (!zxGraphMgr->getGraph()->writeTex(fileName)) {
+            if (!zxGraphMgr->getGraph()->writeTex(fileName, false)) {
                 cerr << "Error: fail to write tex to \"" << fileName << "\"!!" << endl;
                 return CMD_EXEC_ERROR;
             }
