@@ -291,7 +291,7 @@ bool ZXGraph::writeTex(string filename, bool toPDF) {
     } else {
         cerr << "Error: no file extension!!" << endl;
         return false;
-    } 
+    }
 
     size_t directoryPosition = filename.find_last_of("/");
     string directory = "./";
@@ -304,6 +304,8 @@ bool ZXGraph::writeTex(string filename, bool toPDF) {
         cerr << "Error: fail to open the directory" << endl;
         return false;
     }
+    string name = filename.substr(0, extensionPosition);
+    filename = name + ".tex";
     fstream texFile;
     texFile.open(filename.c_str(), fstream::out);
     if (!texFile.is_open()) {
@@ -343,9 +345,9 @@ bool ZXGraph::writeTex(string filename, bool toPDF) {
             return false;
         }
 
-        //NOTE - Clean up
-        string name = filename.substr(0, extensionPosition);
-        string extensions[3] = {".aux", ".log", ".out"};
+        // NOTE - Clean up
+
+        string extensions[4] = {".aux", ".log", ".out", ".tex"};
         for (auto& ext : extensions) {
             cmd = "rm " + name + ext;
             systemRet = system(cmd.c_str());
@@ -354,7 +356,6 @@ bool ZXGraph::writeTex(string filename, bool toPDF) {
                 return false;
             }
         }
-        
     }
     return true;
 }
