@@ -5,17 +5,16 @@ Note: colored is set to 0
 qsyn> ver 0
 Note: verbose level is set to 0
 
-qsyn> qccr ../../benchmark/benchmark_SABRE/large/rd73_252.qasm
-Note: QCir list is empty now. Create a new one.
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/urf1_149.qasm
 
 qsyn> qccp -a
 ───── Quantum Circuit Analysis ─────
 
 > Decompose into basic gate set
 
-Clifford: 3004
-└── CX: 2319
-T-family: 2317
+Clifford: 103986
+└── CX: 80878
+T-family: 80878
 Others  : 0
 
 
@@ -24,17 +23,17 @@ qsyn> qc2zx
 qsyn> zxgs -fr
 
 qsyn> usage
-Period time used : 0.49 seconds
-Total time used  : 0.49 seconds
-Total memory used: 25.7 M Bytes
+Period time used : 30.51 seconds
+Total time used  : 30.51 seconds
+Total memory used: 854.8 M Bytes
 
 qsyn> zx2qc
 Finish extracting!
 
 qsyn> usage
-Period time used : 0.79 seconds
-Total time used  : 1.28 seconds
-Total memory used: 25.7 M Bytes
+Period time used : 31.04 seconds
+Total time used  : 61.55 seconds
+Total memory used: 854.8 M Bytes
 
 qsyn> qcp
 -> #QCir: 2
@@ -45,9 +44,9 @@ qsyn> qccp -a
 
 > Decompose into basic gate set
 
-Clifford: 6845
-└── CX: 4719
-T-family: 1045
+Clifford: 221428
+└── CX: 121832
+T-family: 40380
 Others  : 0
 
 
@@ -60,9 +59,9 @@ qsyn> zxcomp 0
 qsyn> zxgs -fr
 
 qsyn> usage
-Period time used : 2.73 seconds
-Total time used  : 4.01 seconds
-Total memory used: 26.13 M Bytes
+Period time used : 2527 seconds
+Total time used  : 2588 seconds
+Total memory used: 860.4 M Bytes
 
 qsyn> zxgt -id 
 The graph is an identity!

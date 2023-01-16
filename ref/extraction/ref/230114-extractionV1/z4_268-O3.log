@@ -6,7 +6,6 @@ qsyn> ver 0
 Note: verbose level is set to 0
 
 qsyn> qccr ../../benchmark/benchmark_SABRE/large/z4_268.qasm
-Note: QCir list is empty now. Create a new one.
 
 qsyn> qccp -a
 ───── Quantum Circuit Analysis ─────
@@ -32,8 +31,8 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> usage
-Period time used : 0.54 seconds
-Total time used  : 0.77 seconds
+Period time used : 0.55 seconds
+Total time used  : 0.78 seconds
 Total memory used: 12.89 M Bytes
 
 qsyn> qcp
@@ -60,9 +59,9 @@ qsyn> zxcomp 0
 qsyn> zxgs -fr
 
 qsyn> usage
-Period time used : 0.93 seconds
+Period time used : 0.92 seconds
 Total time used  : 1.7 seconds
-Total memory used: 13.54 M Bytes
+Total memory used: 13.49 M Bytes
 
 qsyn> zxgt -id 
 The graph is an identity!
