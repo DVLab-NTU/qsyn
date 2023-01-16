@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ extract.h ]
   PackageName  [ extractor ]
-  Synopsis     [ graph extractor ]
+  Synopsis     [ Define class Extractor structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

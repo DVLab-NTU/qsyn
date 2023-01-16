@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ qcirQubit.cpp ]
   PackageName  [ qcir ]
-  Synopsis     [ Define qcir qubit functions ]
+  Synopsis     [ Define class QCirQubit member functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -16,7 +16,10 @@ using namespace std;
 extern QCir *qCir;
 extern size_t verbose;
 
-/// @brief Print qubit info
+/**
+ * @brief Print qubit info
+ *
+ */
 void QCirQubit::printBitLine() const {
     QCirGate *current = _bitFirst;
     size_t last_time = 0;

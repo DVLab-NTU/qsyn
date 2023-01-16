@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ zxRules.cpp ]
   PackageName  [ simplifier ]
-  Synopsis     [ Definition for each rules in zxRules.h ]
+  Synopsis     [ Define class ZXRule member function ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -14,6 +14,10 @@ using namespace std;
 
 extern size_t verbose;
 
+/**
+ * @brief Reset remove vertices, remove edges, and edge table
+ *
+ */
 void ZXRule::reset() {
     _matchTypeVecNum = 0;
     _removeVertices.clear();

@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ zx2tsMapper.h ]
   PackageName  [ graph ]
-  Synopsis     [ Mapper class for ZX-to-Tensor mapping ]
+  Synopsis     [ Define class ZX-to-Tensor Mapper structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

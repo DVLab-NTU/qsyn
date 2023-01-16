@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ zxCmd.h ]
   PackageName  [ graph ]
-  Synopsis     [ Define basic zx package commands ]
+  Synopsis     [ Define zx package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

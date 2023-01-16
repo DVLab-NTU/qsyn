@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ simplify.cpp ]
   PackageName  [ simplifier ]
-  Synopsis     [ Define class Stats, Simplify member functions ]
+  Synopsis     [ Define class Simplifier member functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -64,7 +64,7 @@ int Simplifier::simp() {
 
 /**
  *
- * @brief Converts as many Hadamards represented by H-boxes to Hadamard-edges.
+ * @brief Convert as many Hadamards represented by H-boxes to Hadamard-edges.
  *        We can't use the regular simp function, because removing H-nodes could lead to an infinite loop,
  *        since sometimes g.add_edge_table() decides that we can't change an H-box into an H-edge.
  *
@@ -112,7 +112,7 @@ int Simplifier::hadamardSimp() {
 }
 
 /**
- * @brief apply rule
+ * @brief Apply rule
  */
 void Simplifier::amend() {
     for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
@@ -136,12 +136,22 @@ void Simplifier::amend() {
 
 // Basic rules simplification
 
+/**
+ * @brief Perform Bialgebra Rule
+ *
+ * @return int
+ */
 int Simplifier::bialgSimp() {
     this->setRule(new Bialgebra());
     int i = this->simp();
     return i;
 }
 
+/**
+ * @brief Perform State Copy Rule
+ *
+ * @return int
+ */
 int Simplifier::copySimp() {
     if (!_simpGraph->isGraphLike()) return 0;
     this->setRule(new StateCopy());
@@ -149,60 +159,99 @@ int Simplifier::copySimp() {
     return i;
 }
 
+/**
+ * @brief Perform Gadget Rule
+ *
+ * @return int
+ */
 int Simplifier::gadgetSimp() {
     this->setRule(new PhaseGadget());
     int i = this->simp();
     return i;
 }
 
+/**
+ * @brief Perform Hadamard Fusion Rule
+ *
+ * @return int
+ */
 int Simplifier::hfusionSimp() {
     this->setRule(new HboxFusion());
     int i = this->simp();
     return i;
 }
 
-// int Simplifier::hopfSimp(){
-//     this->setRule(new Hopf());
-//     int i = this->simp();
-//     return i;
-// }
-
+/**
+ * @brief Perform Hadamard Rule
+ *
+ * @return int
+ */
 int Simplifier::hruleSimp() {
     this->setRule(new HRule());
     int i = this->hadamardSimp();
     return i;
 }
 
+/**
+ * @brief Perform Identity Removal Rule
+ *
+ * @return int
+ */
 int Simplifier::idSimp() {
     this->setRule(new IdRemoval());
     int i = this->simp();
     return i;
 }
 
+/**
+ * @brief Perform Local Complementation Rule
+ *
+ * @return int
+ */
 int Simplifier::lcompSimp() {
     this->setRule(new LComp());
     int i = this->simp();
     return i;
 }
 
+/**
+ * @brief Perform Pivot Rule
+ *
+ * @return int
+ */
 int Simplifier::pivotSimp() {
     this->setRule(new Pivot());
     int i = this->simp();
     return i;
 }
 
+/**
+ * @brief Perform Pivot Boundary Rule
+ *
+ * @return int
+ */
 int Simplifier::pivotBoundarySimp() {
     this->setRule(new PivotBoundary());
     int i = this->simp();
     return i;
 }
 
+/**
+ * @brief Perform Pivot Gadget Rule
+ *
+ * @return int
+ */
 int Simplifier::pivotGadgetSimp() {
     this->setRule(new PivotGadget());
     int i = this->simp();
     return i;
 }
 
+/**
+ * @brief Perform Spider Fusion Rule
+ *
+ * @return int
+ */
 int Simplifier::sfusionSimp() {
     this->setRule(new SpiderFusion());
     int i = this->simp();
@@ -212,9 +261,8 @@ int Simplifier::sfusionSimp() {
 // action
 
 /**
- * @brief Turns every red node(VertexType::X) into green node(VertexType::Z) by regular simple edges <--> hadamard edges.
+ * @brief Turn every red node(VertexType::X) into green node(VertexType::Z) by regular simple edges <--> hadamard edges.
  *
- * @param
  */
 void Simplifier::toGraph() {
     for (auto& v : _simpGraph->getVertices()) {
@@ -228,7 +276,6 @@ void Simplifier::toGraph() {
 /**
  * @brief Turn green nodes into red nodes by color-changing vertices which greedily reducing the number of Hadamard-edges.
  *
- * @param
  */
 void Simplifier::toRGraph() {
     for (auto& v : _simpGraph->getVertices()) {
@@ -240,7 +287,7 @@ void Simplifier::toRGraph() {
 }
 
 /**
- * @brief Keeps doing the simplifications `id_removal`, `s_fusion`, `pivot`, `lcomp` until none of them can be applied anymore.
+ * @brief Keep doing the simplifications `id_removal`, `s_fusion`, `pivot`, `lcomp` until none of them can be applied anymore.
  *
  * @return int
  */
@@ -260,6 +307,11 @@ int Simplifier::interiorCliffordSimp() {
     return i;
 }
 
+/**
+ * @brief Perform `interior_clifford` and `pivot_boundary` iteratively until no pivot_boundary candidate is found
+ *
+ * @return int
+ */
 int Simplifier::cliffordSimp() {
     int i = 0;
     while (true) {
@@ -271,7 +323,7 @@ int Simplifier::cliffordSimp() {
 }
 
 /**
- * @brief The main simplification routine of PyZX
+ * @brief The main simplification routine
  *
  */
 void Simplifier::fullReduce() {
@@ -288,7 +340,7 @@ void Simplifier::fullReduce() {
 }
 
 /**
- * @brief
+ * @brief The reduce strategy with `state_copy` and `full_reduce`
  *
  */
 void Simplifier::symbolicReduce() {
@@ -307,7 +359,7 @@ void Simplifier::symbolicReduce() {
 }
 
 /**
- * @brief print recipe of Simplifier
+ * @brief Print recipe of Simplifier
  *
  */
 void Simplifier::printRecipe() {

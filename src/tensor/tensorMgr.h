@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ tensorMgr.h ]
   PackageName  [ tensor ]
-  Synopsis     [ Define tensor manager ]
+  Synopsis     [ Define class TensorMgr structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

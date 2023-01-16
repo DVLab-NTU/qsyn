@@ -1,7 +1,7 @@
 /****************************************************************************
-  FileName     [ tensor.h ]
+  FileName     [ tensorDef.h ]
   PackageName  [ tensor ]
-  Synopsis     [ Definition of the tensor package ]
+  Synopsis     [ Define basic data or var for tensor package ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

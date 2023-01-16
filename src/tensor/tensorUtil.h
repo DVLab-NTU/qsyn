@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ tensorUtil.h ]
   PackageName  [ tensor ]
-  Synopsis     [ Definition of the Tensor base class interface ]
+  Synopsis     [ Define Tensor base class interface ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

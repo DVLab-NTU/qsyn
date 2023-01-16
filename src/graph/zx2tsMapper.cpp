@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ zx2tsMapper.cpp ]
   PackageName  [ graph ]
-  Synopsis     [ Mapper class for ZX-to-Tensor mapping ]
+  Synopsis     [ Define class ZX-to-Tensor Mapper member functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -19,10 +19,15 @@ extern TensorMgr* tensorMgr;
 using namespace std;
 namespace TF = TextFormat;
 
-// map a ZX-diagram to a tensor
+/**
+ * @brief Map a ZX-diagram to a tensor
+ *
+ * @return true if the tensor is contructed
+ * @return false if the ZX-graph is not valid
+ */
 bool ZX2TSMapper::map() {
     if (!_zxgraph->isValid()) {
-        cerr << "Error: The ZX-Graph is not valid!!" << endl;
+        cerr << "Error: The ZX-graph is not valid!!" << endl;
         return false;
     }
     if (verbose >= 3) cout << "Traverse and build the tensor... " << endl;
@@ -57,7 +62,11 @@ bool ZX2TSMapper::map() {
     return true;
 }
 
-// map one vertex
+/**
+ * @brief Consturct tensor of a single vertex
+ *
+ * @param v the tensor of whom
+ */
 void ZX2TSMapper::mapOneVertex(ZXVertex* v) {
     _simplePins.clear();
     _hadamardPins.clear();
@@ -84,7 +93,11 @@ void ZX2TSMapper::mapOneVertex(ZXVertex* v) {
     }
 }
 
-// Generate a new subgraph for mapping
+/**
+ * @brief Generate a new subgraph for mapping
+ *
+ * @param v the boundary vertex to start the mapping
+ */
 void ZX2TSMapper::initSubgraph(ZXVertex* v) {
     auto [nb, etype] = *(v->getNeighbors().begin());
 
@@ -98,8 +111,13 @@ void ZX2TSMapper::initSubgraph(ZXVertex* v) {
     currFrontiers().emplace(edgeKey, 1);
 }
 
-// Check if a vertex belongs to a new subgraph that is not traversed
-// if not, set the _tensorId to the current tensor
+/**
+ * @brief Check if a vertex belongs to a new subgraph that is not traversed
+ *
+ * @param v vertex
+ * @return true or
+ * @return false and set the _tensorId to the current tensor
+ */
 bool ZX2TSMapper::isOfNewGraph(const ZXVertex* v) {
     for (auto nbr : v->getNeighbors()) {
         if (isFrontier(nbr)) {
@@ -110,7 +128,11 @@ bool ZX2TSMapper::isOfNewGraph(const ZXVertex* v) {
     return true;
 }
 
-// Print the current and next frontiers
+/**
+ * @brief Print the current and next frontiers
+ *
+ * @param id
+ */
 void ZX2TSMapper::printFrontiers(size_t id) const {
     cout << "  - Current frontiers: " << endl;
     for (auto [epair, axid] : _zx2tsList.frontiers(id)) {
@@ -122,7 +144,12 @@ void ZX2TSMapper::printFrontiers(size_t id) const {
     }
 }
 
-// Get the order of inputs and outputs
+/**
+ * @brief Get the order of inputs and outputs
+ *
+ * @param inputAxisList
+ * @param outputAxisList
+ */
 void ZX2TSMapper::getAxisOrders(TensorAxisList& inputAxisList, TensorAxisList& outputAxisList) {
     inputAxisList.resize(_zxgraph->getNumInputs());
     outputAxisList.resize(_zxgraph->getNumOutputs());
@@ -179,7 +206,11 @@ void ZX2TSMapper::getAxisOrders(TensorAxisList& inputAxisList, TensorAxisList& o
     }
 }
 
-// update information for the current and next frontiers
+/**
+ * @brief Update information for the current and next frontiers
+ *
+ * @param v the current vertex
+ */
 void ZX2TSMapper::updatePinsAndFrontiers(ZXVertex* v) {
     Neighbors nbrs = v->getNeighbors();
 
@@ -202,7 +233,12 @@ void ZX2TSMapper::updatePinsAndFrontiers(ZXVertex* v) {
     }
 }
 
-// Convert hadamard edges to normal edges and returns a corresponding tensor
+/**
+ * @brief Convert hadamard edges to normal edges and returns a corresponding tensor
+ *
+ * @param ts original tensor before converting
+ * @return QTensor<double>
+ */
 QTensor<double> ZX2TSMapper::dehadamardize(const QTensor<double>& ts) {
     QTensor<double> HTensorProduct = tensorPow(
         QTensor<double>::hbox(2), _hadamardPins.size());
@@ -234,7 +270,11 @@ QTensor<double> ZX2TSMapper::dehadamardize(const QTensor<double>& ts) {
     return tmp;
 }
 
-// tensordot the current tensor to the vertex's tensor form
+/**
+ * @brief Tensordot the current tensor to the tensor of vertex v
+ *
+ * @param v current vertex
+ */
 void ZX2TSMapper::tensorDotVertex(ZXVertex* v) {
     QTensor<double> dehadamarded = dehadamardize(currTensor());
 
@@ -264,6 +304,13 @@ void ZX2TSMapper::tensorDotVertex(ZXVertex* v) {
     }
 }
 
+/**
+ * @brief Check the neighbor pair (edge) is in frontier
+ *
+ * @param nbr
+ * @return true
+ * @return false
+ */
 bool ZX2TSMapper::isFrontier(const NeighborPair& nbr) const {
     return (nbr.first->getPin() != unsigned(-1));
 }

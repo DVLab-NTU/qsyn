@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ qcirMgr.h ]
   PackageName  [ qcir ]
-  Synopsis     [ Define QCir manager ]
+  Synopsis     [ Define class QCir manager structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

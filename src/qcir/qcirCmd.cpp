@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ qcirCmd.cpp ]
   PackageName  [ qcir ]
-  Synopsis     [ Define basic qcir package commands ]
+  Synopsis     [ Define qcir package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

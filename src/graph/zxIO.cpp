@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ zxIO.cpp ]
   PackageName  [ graph ]
-  Synopsis     [ Define qcir reader functions ]
+  Synopsis     [ Define class ZXGraph Reader/Writer functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -20,7 +20,7 @@ extern size_t verbose;
 using namespace std;
 
 /**
- * @brief read a zx graph
+ * @brief Read a ZX-graph
  *
  * @param filename
  * @param keepID if true, keep the IDs as written in file; if false, rearrange the vertex IDs
@@ -46,7 +46,7 @@ bool ZXGraph::readZX(const string& filename, bool keepID) {
 }
 
 /**
- * @brief write a zxgraph
+ * @brief Write a ZX-graph
  *
  * @param filename
  * @param complete
@@ -116,6 +116,14 @@ bool ZXGraph::writeZX(const string& filename, bool complete) {
     return true;
 }
 
+/**
+ * @brief Build graph from parser storage
+ *
+ * @param storage
+ * @param keepID
+ * @return true
+ * @return false
+ */
 bool ZXGraph::buildGraphFromParserStorage(const ZXParserDetail::StorageType& storage, bool keepID) {
     unordered_map<size_t, ZXVertex*> id2Vertex;
 
@@ -188,7 +196,7 @@ unordered_map<EdgeType, string> et2s = {
 };
 
 /**
- * @brief generate tikz file
+ * @brief Generate tikz file
  *
  * @param filename
  * @return true if the filename is valid
@@ -271,10 +279,10 @@ bool ZXGraph::writeTikz(string filename) {
 }
 
 /**
- * @brief
+ * @brief Write .tex file
  *
  * @param filename
- * @param toPDF
+ * @param toPDF if true, compile it to .pdf
  * @return true
  * @return false
  */

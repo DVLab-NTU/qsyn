@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ tensorUtil.cpp ]
   PackageName  [ tensor ]
-  Synopsis     [ Definition of the Tensor base class interface ]
+  Synopsis     [ Define Tensor base class interface member function ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -14,14 +14,24 @@
 // Helper functions
 //------------------------------
 
-// Concat Two Axis Orders
+/**
+ * @brief Concat Two Axis Orders
+ *
+ * @param ax1
+ * @param ax2
+ * @return TensorAxisList
+ */
 TensorAxisList concatAxisList(const TensorAxisList& ax1, const TensorAxisList& ax2) {
     TensorAxisList ax = ax1;
     ax.insert(ax.end(), ax2.begin(), ax2.end());
     return ax;
 }
 
-// Print the axis list
+/**
+ * @brief Print the axis list
+ *
+ * @param ax
+ */
 void printAxisList(const TensorAxisList& ax) {
     if (!ax.empty()) {
         std::cout << *ax.begin();
@@ -30,7 +40,14 @@ void printAxisList(const TensorAxisList& ax) {
     std::cout << std::endl;
 }
 
-// Returns true if two axis lists are disjoint
+/**
+ * @brief Check if two axis lists are disjoint
+ *
+ * @param ax1
+ * @param ax2
+ * @return true
+ * @return false
+ */
 bool isDisjoint(const TensorAxisList& ax1, const TensorAxisList& ax2) {
     return std::find_first_of(ax1.begin(), ax1.end(), ax2.begin(), ax2.end()) == ax1.end();
 }

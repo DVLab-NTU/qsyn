@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ extract.cpp ]
   PackageName  [ extractor ]
-  Synopsis     [ graph extractor ]
+  Synopsis     [ Define class Extractor member functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -19,7 +19,7 @@ using namespace std;
 extern size_t verbose;
 
 /**
- * @brief Initialize the extractor. Set ZX-graph to QCir qubit map.
+ * @brief Initialize the extractor. Set ZXGraph to QCir qubit map.
  *
  */
 void Extractor::initialize(bool fromEmpty) {
@@ -142,7 +142,7 @@ void Extractor::cleanFrontier() {
 }
 
 /**
- * @brief Extract single qubit gates, i.e. rz family and H. Used in clean frontier.
+ * @brief Extract single qubit gates, i.e. z-rotate family and H. Used in clean frontier.
  *
  */
 void Extractor::extractSingles() {
@@ -243,9 +243,9 @@ void Extractor::extractCXs(size_t strategy) {
 }
 
 /**
- * @brief Extract Hadamard if singly connected frontier is found
+ * @brief Extract Hadamard if singly connected vertex in frontier is found
  *
- * @param check
+ * @param check if true, check frontier is cleaned and axels not connected to frontiers
  * @return size_t
  */
 size_t Extractor::extractHsFromM2(bool check) {
@@ -320,6 +320,7 @@ size_t Extractor::extractHsFromM2(bool check) {
 /**
  * @brief Remove gadget according to Pivot Boundary Rule
  *
+ * @param check if true, check the frontier is clean
  * @return true if gadget(s) are removed
  * @return false if not
  */
@@ -389,7 +390,7 @@ bool Extractor::removeGadget(bool check) {
 }
 
 /**
- * @brief Swap columns (neighbor order) in order to put most of them on the diagonal
+ * @brief Swap columns (order of neighbors) to put the most of them on the diagonal of the bi-adjacency matrix
  *
  */
 void Extractor::columnOptimalSwap() {
@@ -447,7 +448,7 @@ void Extractor::columnOptimalSwap() {
  * @brief Find the swap target. Used in function columnOptimalSwap
  *
  * @param target
- * @return Target
+ * @return Target (unordered_map of swaps)
  */
 Extractor::Target Extractor::findColumnSwap(Target target) {
     // REVIEW - No need to copy in cpp
@@ -541,9 +542,9 @@ Extractor::Target Extractor::findColumnSwap(Target target) {
 }
 
 /**
- * @brief Perform Gaussian Elimination
+ * @brief Perform Gaussian Elimination on frontier and neighbors
  *
- * @param check
+ * @param check if true, check the frontier is clean and no axels connecting to frontier
  * @return true if check pass
  * @return false if not
  */
@@ -621,7 +622,7 @@ void Extractor::permuteQubit() {
 }
 
 /**
- * @brief Update _neighbors according to _frontier
+ * @brief Update neighbors according to frontier
  *
  */
 void Extractor::updateNeighbors() {
@@ -672,7 +673,7 @@ void Extractor::updateNeighbors() {
 }
 
 /**
- * @brief Update _graph according to _biAdjaency
+ * @brief Update graph according to bi-adjacency matrix
  *
  * @param et EdgeType, default: EdgeType::HADAMARD
  */
@@ -694,7 +695,7 @@ void Extractor::updateGraphByMatrix(EdgeType et) {
 }
 
 /**
- * @brief create matrix
+ * @brief Create bi-adjacency matrix fron frontier and neighbors
  *
  */
 void Extractor::createMatrix() {
@@ -702,7 +703,7 @@ void Extractor::createMatrix() {
 }
 
 /**
- * @brief check whether the frontier is clean
+ * @brief Check whether the frontier is clean
  *
  * @return true if clean
  * @return false if dirty
@@ -719,7 +720,7 @@ bool Extractor::frontierIsCleaned() {
 }
 
 /**
- * @brief check any axel in neighbors
+ * @brief Check any axel in neighbors
  *
  * @return true
  * @return false
@@ -733,7 +734,7 @@ bool Extractor::axelInNeighbors() {
     return false;
 }
 /**
- * @brief Frontier contains a vertex only a single neighbor (boundary excluded).
+ * @brief Check whether the frontier contains a vertex has only a single neighbor (boundary excluded).
  *
  * @return true
  * @return false
@@ -746,6 +747,10 @@ bool Extractor::containSingleNeighbor() {
     return false;
 }
 
+/**
+ * @brief Print frontier
+ *
+ */
 void Extractor::printFrontier() {
     cout << "Frontier:" << endl;
     for (auto& f : _frontier)
@@ -753,6 +758,10 @@ void Extractor::printFrontier() {
     cout << endl;
 }
 
+/**
+ * @brief Print neighbors
+ *
+ */
 void Extractor::printNeighbors() {
     cout << "Neighbors:" << endl;
     for (auto& n : _neighbors)
@@ -760,6 +769,10 @@ void Extractor::printNeighbors() {
     cout << endl;
 }
 
+/**
+ * @brief Print axels
+ *
+ */
 void Extractor::printAxels() {
     cout << "Axels:" << endl;
     for (auto& n : _axels) {
