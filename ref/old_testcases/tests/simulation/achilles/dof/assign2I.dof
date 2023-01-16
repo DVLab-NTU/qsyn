@@ -1,0 +1,15 @@
+qccr benchmark/pseudoSimp/achilles.qasm
+qc2zx
+zxgas 3 I X 0
+zxgas 3 O X 0
+zxgas 2 I X 0
+zxgas 2 O X 0
+zxgas 0 I X 0
+zxgas 0 O X 0
+ver 0
+zxgs -sr
+ver 3
+zxgp -v
+zx2ts
+tsp 0
+qq -f

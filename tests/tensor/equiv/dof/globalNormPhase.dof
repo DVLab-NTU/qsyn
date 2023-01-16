@@ -1,0 +1,31 @@
+ver 2
+zxn
+zxge -addi 0
+zxge -addo 0
+zxge -addv 0 Z 0
+zxge -addv 0 Z 0
+zxge -adde 0 2 SIMPLE
+zxge -adde 2 3 SIMPLE
+zxge -adde 3 1 SIMPLE
+zx2ts
+zxge -adde 2 3 SIMPLE
+zx2ts
+ver 3
+tsp -l
+tseq 0 1
+tseq 0 1 -Strict
+zxr
+tsr
+ver 2
+qcba
+qc2ts 
+qcga -t 0
+qcga -x 0
+qcga -t 0
+qcga -x 0
+qc2ts
+ver 3
+tsp -l
+tseq 0 1
+tseq 0 1 -Strict
+qq -f

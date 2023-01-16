@@ -1,0 +1,10 @@
+ver 2
+qcba
+qc2ts
+qcba
+qc2ts
+ver 3
+tsp -l
+tseq 0 1 
+tseq 0 1 -Strict
+qq -f

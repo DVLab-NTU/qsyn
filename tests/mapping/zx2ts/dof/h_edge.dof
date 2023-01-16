@@ -1,0 +1,47 @@
+zxn
+zxgedit -addi 0
+zxgedit -addo 0
+zxgedit -addv 0 Z
+// out-edge are H-edge
+zxgedit -adde 0 2 SIMPLE
+zxgedit -adde 2 1 HADAMARD
+ver 8
+zx2ts
+ver 3
+// both edges are S-edge
+zxgedit -rme 2 1 -ALL
+zxgedit -adde 2 1 SIMPLE
+ver 8
+zx2ts
+ver 3
+// in-edge are H-edge
+zxgedit -rme 0 2 -ALL
+zxgedit -adde 2 0 HADAMARD
+ver 8
+zx2ts
+ver 3
+// Both edges are H-edge
+zxgedit -rme 1 2 -ALL
+zxgedit -adde 2 1 HADAMARD
+ver 8
+zx2ts
+zxn
+zxge -addi 0
+zxge -addo 0
+zxge -addi 1
+zxge -addo 1
+zxge -addv 0 Z
+zxge -addv 0 Z
+zxge -addv 0 Z
+zxge -addv 0 Z
+zxge -adde 0 4 SIMPLE
+zxge -adde 1 4 SIMPLE
+zxge -adde 2 5 HADAMARD
+zxge -adde 3 5 HADAMARD
+zxge -adde 6 5 HADAMARD
+zxge -adde 6 4 HADAMARD
+zxge -adde 6 7 HADAMARD
+ver 8
+zx2ts
+tsp 0
+qq -f 

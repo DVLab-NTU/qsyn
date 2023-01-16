@@ -1,0 +1,22 @@
+zxn
+zxgtest
+
+zxgedit -adde 0 5 SIMPLE
+
+zxgp -v
+zxgp -e
+
+// should fail because vertex 0 is a boundary with more than 1 neighbors...
+zx2ts
+
+zxn
+zxgtest
+zxgedit -rme 0 2 -ALL
+
+zxgp -v
+zxgp -e
+
+// should fail because vertex 0 is a boundary with no neighbors...
+zx2ts
+
+qq -f

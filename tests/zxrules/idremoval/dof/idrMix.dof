@@ -1,0 +1,84 @@
+zxn
+zxgedit -addi 0
+zxgedit -addo 0
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 X 0
+zxgedit -adde 0 2 SIMPLE
+zxgedit -adde 1 2 SIMPLE
+zxgedit -adde 3 2 SIMPLE
+zxgedit -adde 2 3 SIMPLE
+zxgedit -adde 4 2 HADAMARD
+zxgedit -adde 2 4 SIMPLE
+zxgp -v
+zxgp -e
+zxgsimp -idr
+zxgp -v
+zxgp -e
+zxr
+zxn
+zxgedit -addi 0
+zxgedit -addo 0
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 Z 0
+zxgedit -addi 1
+zxgedit -addo 1
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 X 0
+zxgedit -addv 0 H_BOX 0
+zxgedit -addv 0 X 0
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 Z 1.5708
+zxgedit -addv 0 Z 0
+
+zxgedit -adde 0 2 SIMPLE
+zxgedit -adde 2 3 SIMPLE
+zxgedit -adde 3 1 SIMPLE
+zxgedit -adde 4 6 HADAMARD
+zxgedit -adde 6 7 SIMPLE
+zxgedit -adde 7 8 SIMPLE
+zxgedit -adde 8 9 HADAMARD
+zxgedit -adde 9 10 HADAMARD
+zxgedit -adde 10 11 SIMPLE
+zxgedit -adde 11 12 SIMPLE
+zxgedit -adde 12 5 SIMPLE
+
+zxgp -v
+zxgp -e
+zxgsimp -idr
+zxgp -v
+zxgp -e
+zxr
+zxn
+zxgedit -addi 0
+zxgedit -addo 0
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 X 0
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 H_BOX 0
+zxgedit -addv 0 Z 1.5708
+zxgedit -addv 0 X 1.5708
+zxgedit -adde 0 2 SIMPLE
+zxgedit -adde 1 2 SIMPLE
+zxgedit -adde 0 3 SIMPLE
+zxgedit -adde 1 3 SIMPLE
+zxgedit -adde 0 4 HADAMARD
+zxgedit -adde 1 4 SIMPLE
+zxgedit -adde 0 5 SIMPLE
+zxgedit -adde 1 5 HADAMARD
+zxgedit -adde 0 6 HADAMARD
+zxgedit -adde 1 6 HADAMARD
+zxgedit -adde 0 7 SIMPLE
+zxgedit -adde 1 7 SIMPLE
+zxgedit -adde 0 8 SIMPLE
+zxgedit -adde 1 8 SIMPLE
+zxgedit -adde 0 9 SIMPLE
+zxgedit -adde 1 9 SIMPLE
+zxgp -v
+zxgp -e
+zxgsimp -idr
+zxgp -v
+zxgp -e
+qq -f

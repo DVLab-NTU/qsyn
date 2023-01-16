@@ -1,0 +1,79 @@
+zxn
+zxgedit -addi 0
+zxgedit -addo 0
+zxgedit -addi 1
+zxgedit -addo 1
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 Z pi
+zxgedit -addi 2
+zxgedit -addo 2
+zxgedit -addi 3
+zxgedit -addo 3
+
+zxgedit -adde 0 4 SIMPLE
+zxgedit -adde 4 1 SIMPLE
+zxgedit -adde 2 5 SIMPLE
+zxgedit -adde 5 3 SIMPLE
+zxgedit -adde 6 7 SIMPLE
+zxgedit -adde 8 9 SIMPLE
+
+zxgp -v
+zxgp -e
+
+ver 8
+zx2ts
+zxn
+zxgtest
+zxn
+zxgtest
+zxch 0
+zxtensor 1
+zxgp -v
+zxgp -e
+
+ver 8
+zx2ts
+zxn
+zxgedit -addi 0
+zxgedit -addo 0
+zxgedit -addi 1
+zxgedit -addo 1
+zxgedit -addi 2
+zxgedit -addo 2
+zxgedit -addi 3
+zxgedit -addo 3
+zxgedit -addi 4
+zxgedit -addo 4
+
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 Z 0
+zxgedit -addv 0 Z 0
+
+zxgedit -addi 5
+zxgedit -addo 5
+zxgedit -addi 6
+zxgedit -addo 6
+
+zxgedit -adde 0 1 SIMPLE
+zxgedit -adde 2 10 SIMPLE
+zxgedit -adde 3 11 SIMPLE
+zxgedit -adde 4 12 SIMPLE
+zxgedit -adde 5 12 SIMPLE
+zxgedit -adde 6 12 SIMPLE
+zxgedit -adde 7 13 SIMPLE
+zxgedit -adde 8 13 SIMPLE
+zxgedit -adde 9 13 SIMPLE
+zxgedit -adde 14 16 SIMPLE
+zxgedit -adde 15 17 SIMPLE
+
+
+zxgp -v
+zxgp -e
+
+ver 8
+zx2ts
+
+qq -f
+
+qq -f
