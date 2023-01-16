@@ -1,0 +1,11 @@
+zxgr benchmark/zx/tof2_opt.zx
+zxcopy 1
+zxgadj
+zxcomp 0
+zxgsimp -fr
+zxgp -v
+zx2ts
+qcba 3
+qc2ts
+tseq 0 1 -Strict
+qq -f

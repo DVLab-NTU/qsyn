@@ -1,0 +1,36 @@
+qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+qc2zx
+extp -f
+zxgs -fr
+zxcopy 1
+qcn
+qcba 3
+qcp
+zxgp -q
+ver 0
+extp -f
+extp -n
+extp -a
+extr -zx 1 -qc 1 -PH
+qccp -q
+extr -zx 1 -qc 1 -CZ
+qccp -q
+extr -zx 1 -qc 1 -RMG
+qccp -q
+extp -f
+extp -n
+extp -m
+extr -zx 1 -qc 1 -CX
+qccp -q
+extr -zx 1 -qc 1 -H
+qccp -q
+extr -zx 1 -qc 1 -L 2
+qccp -q
+extr -zx 1 -qc 1 -L 100
+qccp -q
+qc2zx
+zxgadj
+zxcomp 0
+zxgs -fr  
+zxgp -q
+qq -F

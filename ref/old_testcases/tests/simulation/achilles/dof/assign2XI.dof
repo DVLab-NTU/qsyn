@@ -1,0 +1,41 @@
+qccr benchmark/pseudoSimp/achilles.qasm
+qc2zx
+zxgas 3 I X 0
+zxgas 3 O X 0
+zxgas 1 I X pi
+zxgas 1 O X pi
+zxgas 0 I X pi
+zxgas 0 O X pi
+ver 0
+zxgs -sr
+ver 3
+zx2ts
+qccr -R benchmark/pseudoSimp/achilles.qasm
+qc2zx
+zxgas 3 I X 0
+zxgas 3 O X 0
+zxgas 1 I X pi
+zxgas 1 O X pi
+zxgas 2 I X pi
+zxgas 2 O X pi
+ver 0
+zxgs -sr
+ver 3
+zx2ts
+qccr -R benchmark/pseudoSimp/achilles.qasm
+qc2zx
+zxgas 3 I X 0
+zxgas 3 O X 0
+zxgas 2 I X pi
+zxgas 2 O X pi
+zxgas 0 I X pi
+zxgas 0 O X pi
+ver 0
+zxgs -sr
+ver 3
+zx2ts
+tseq 0 1
+tseq 0 2
+tseq 1 2
+tsp 0
+qq -f

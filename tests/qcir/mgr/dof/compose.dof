@@ -1,0 +1,30 @@
+qcba 3
+qcga -cx 0 2
+qcga -rz -ph pi 0
+qcbd 1
+qccp -q
+qcnew
+qcba 4
+qcga -cx 1 2
+qcga -cx 0 3
+qcga -cx 0 2
+qccp -q
+qcch 0
+qccp -q
+qccompose 1
+qccp -q
+qc2zx
+zxgp -v
+qc2ts
+zx2ts
+tseq 0 1
+qcr
+qccread benchmark/benchmark_SABRE/small/qft_4.qasm
+qccread benchmark/benchmark_SABRE/small/qft_4.qasm
+qccp -q
+qccompose 1
+qccp -q
+qccompose 0
+qccp -q
+qq -f
+

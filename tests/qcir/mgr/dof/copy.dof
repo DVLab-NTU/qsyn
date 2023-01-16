@@ -1,0 +1,60 @@
+qccr benchmark/benchmark_SABRE/small/rd32-v1_68.qasm
+qccp -q
+qccop
+qccp -q
+qccr benchmark/benchmark_SABRE/small/qft_4.qasm
+qc2zx
+qccp -q
+qccop 0 -R
+qccp -q
+qc2zx
+zxgp -v
+zxgadjoint
+zxcompose 0
+zxgp -v
+zxgs -fr
+zxgp -v
+qcr
+zxr
+qccp -q
+qcga -cx 0 1
+qcba
+qccp -q
+qcga -h
+qcga -h 0
+qccp -q
+qcga -cx 0 1
+qcba 3
+qccp -q
+qcga -cx 0 2
+qccp -q
+qcga -cx 1 3
+qccp -q
+qcga -t 2
+qcga -cx 2 1
+qcga -x 3
+qcga -t 3
+qcga -cx 3 2
+qcga -cx 0 1
+qccp -q
+qcga -pr -rz -ph 0.00001 0
+qcga -pr -rz -ph 1.2345 0
+qcgp 10
+qcgp 9 -t
+qccp -q
+qcgd 2
+qcgd 4
+qcgd 8
+qcgd 7
+qcbd 1
+qccp -q
+qccop
+qcba
+qccp -q
+qcga -pr -cx 0 4
+qcga -cx 2 4
+qcga -pr -rz -ph 1.2345 0
+qccp -q
+qc2zx
+zxgp
+qq -f

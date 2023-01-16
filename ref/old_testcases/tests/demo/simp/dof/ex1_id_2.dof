@@ -1,0 +1,10 @@
+ver 2
+zxgr benchmark/demo/simp/ex1_id_2.bzx
+zxgp -v
+zxgs -fr
+zxgp -v
+zx2ts
+zxgr benchmark/demo/simp/id_2.bzx
+zx2ts
+tseq 0 1
+qq -f

@@ -1,0 +1,63 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> zxn
+Create and checkout to Graph 0
+
+qsyn> zxgedit -addi 0
+
+qsyn> zxgedit -addo 0
+
+qsyn> zxgedit -addv 0 Z 0
+
+qsyn> zxgedit -addv 0 Z 0
+
+qsyn> zxgedit -addv 0 X 0
+
+qsyn> zxgedit -adde 0 2 SIMPLE
+
+qsyn> zxgedit -adde 1 2 SIMPLE
+
+qsyn> zxgedit -adde 3 2 SIMPLE
+
+qsyn> zxgedit -adde 2 3 SIMPLE
+
+qsyn> zxgedit -adde 4 2 HADAMARD
+
+qsyn> zxgedit -adde 2 4 SIMPLE
+
+qsyn> zxgp -v
+
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, -) 
+ID:   2 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   5     (0, -) (1, -) (3, -) (4, -) (4, [1m[34mH[0m[0m) 
+ID:   3 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, -) 
+ID:   4 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (2, -) (2, [1m[34mH[0m[0m) 
+Total #Vertices: 5
+
+
+qsyn> zxgp -e
+( 0, 2 )	Type:	-
+( 1, 2 )	Type:	-
+( 2, 3 )	Type:	-
+( 2, 4 )	Type:	[1m[34mH[0m[0m
+( 2, 4 )	Type:	-
+Total #Edges: 5
+
+qsyn> zxgsimp -idr
+
+qsyn> zxgp -v
+
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, -) 
+ID:   2 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (0, -) (1, -) (3, -) 
+ID:   3 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, -) 
+Total #Vertices: 4
+
+
+qsyn> zxgp -e
+( 0, 2 )	Type:	-
+( 1, 2 )	Type:	-
+( 2, 3 )	Type:	-
+Total #Edges: 3
+
+qsyn> qq -f
+
