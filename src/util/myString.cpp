@@ -172,7 +172,7 @@ myStrGetTok(const string& str, string& tok, size_t pos,
 // This function will treat '\ ' as a space in the token. That is, "a\ b" is one token ("a b") and not two
 size_t
 myStrGetTok2(const string& str, string& tok, size_t pos = 0,
-            const std::string& del = " \t\n\v\f\r") {
+             const std::string& del = " \t\n\v\f\r") {
     size_t begin = str.find_first_not_of(del, pos);
     if (begin == string::npos) {
         tok = "";
@@ -226,7 +226,7 @@ bool myStr2Uns(const string& str, unsigned& unsnum) {
 // All the dirty compile-time checking happens here.
 template <class T>
 requires std::floating_point<T>
-    T stoFloatType(const string& str, size_t* pos) {
+T stoFloatType(const string& str, size_t* pos) {
     try {
         if constexpr (std::is_same<T, double>::value) {
             return std::stod(str, pos);
