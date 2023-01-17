@@ -1,4 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.3.0
+DV Lab, NTUEE, Qsyn 0.4.0
 qsyn> ver 2
 Note: verbose level is set to 2
 
@@ -22,24 +22,24 @@ qsyn> tsp 0
 #Dim:    2	Info: QC
 
 qsyn> tsp 1
-{{ 1.      +0.i      ,  0.      +0.i      },
- { 0.      +0.i      ,  0.999999+0.0011i  }}
+{{ 1.      -0.00055i ,  0.      +0.i      },
+ { 0.      +0.i      ,  1.      +0.00055i }}
 #Dim:    2	Info: QC
 
 qsyn> tseq 0 1 -Eps 1e-2
 [1m[32mEquivalent[0m[0m
 - Global Norm : 1
-- Global Phase: π/4834
+- Global Phase: 0
 
 qsyn> tseq 0 1 -Eps 1e-4
 [1m[32mEquivalent[0m[0m
 - Global Norm : 1
-- Global Phase: π/4834
+- Global Phase: 0
 
 qsyn> tseq 0 1 -Eps 1e-6
 [1m[32mEquivalent[0m[0m
 - Global Norm : 1
-- Global Phase: π/4834
+- Global Phase: 0
 
 qsyn> tseq 0 1 -Eps 1e-8
 [1m[31mNot Equivalent[0m[0m

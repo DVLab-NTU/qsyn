@@ -5,13 +5,13 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include <ctype.h>
+
+#include <ctype.h>  // for tolower, etc.
 
 #include <cassert>
 #include <concepts>
-#include <cstring>
-#include <exception>
-#include <iostream>
+#include <cstddef>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -98,6 +98,18 @@ bool stripQuotes(const std::string& input, std::string& output) {
     return true;
 }
 
+/**
+ * @brief strip the leading and trailing whitespaces of a string
+ *
+ * @param str
+ */
+string stripWhitespaces(const string& str) {
+    size_t start = str.find_first_not_of(" \t\n\v\f\r");
+    size_t end = str.find_last_not_of(" \t\n\v\f\r");
+    if (start == string::npos && end == string::npos) return "";
+    return str.substr(start, end + 1 - start);
+}
+
 // 1. strlen(s1) must >= n
 // 2. The first n characters of s2 are mandatory, they must be case-
 //    insensitively compared to s1. Return less or greater than 0 if unequal.
@@ -140,6 +152,19 @@ myStrGetTok(const string& str, string& tok, size_t pos = 0,
     return end;
 }
 
+size_t
+myStrGetTok(const string& str, string& tok, size_t pos,
+            const string& del) {
+    size_t begin = str.find_first_not_of(del, pos);
+    if (begin == string::npos) {
+        tok = "";
+        return begin;
+    }
+    size_t end = str.find_first_of(del, begin);
+    tok = str.substr(begin, end - begin);
+    return end;
+}
+
 // Parse the string "str" for the token "tok", beginning at position "pos",
 // with delimiter "del". The leading "del" will be skipped.
 // Return "string::npos" if not found. Return the past to the end of "tok"
@@ -147,7 +172,7 @@ myStrGetTok(const string& str, string& tok, size_t pos = 0,
 // This function will treat '\ ' as a space in the token. That is, "a\ b" is one token ("a b") and not two
 size_t
 myStrGetTok2(const string& str, string& tok, size_t pos = 0,
-             const char del = ' ') {
+             const std::string& del = " \t\n\v\f\r") {
     size_t begin = str.find_first_not_of(del, pos);
     if (begin == string::npos) {
         tok = "";

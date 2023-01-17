@@ -1,21 +1,22 @@
 /****************************************************************************
   FileName     [ zxCmd.cpp ]
   PackageName  [ graph ]
-  Synopsis     [ Define basic zx package commands ]
+  Synopsis     [ Define zx package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include "zxCmd.h"
 
-#include <cassert>
+#include <cstddef>  // for size_t
 #include <iomanip>
 #include <iostream>
+#include <string>
 
-#include "textFormat.h"
-#include "util.h"
-#include "zxGraph.h"
-#include "zxGraphMgr.h"
+#include "cmdMacros.h"   // for CMD_N_OPTS_EQUAL_OR_RETURN, CMD_N_OPTS_AT_LE...
+#include "textFormat.h"  // for TextFormat
+#include "zxGraph.h"     // for ZXGraph, ZXVertex
+#include "zxGraphMgr.h"  // for ZXGraphMgr
 
 namespace TF = TextFormat;
 
@@ -40,6 +41,7 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXGADJoint", 6, new ZXGAdjointCmd) &&
           cmdMgr->regCmd("ZXGASsign", 5, new ZXGAssignCmd) &&
           cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
+          cmdMgr->regCmd("ZXGDraw", 4, new ZXGDrawCmd) &&
           cmdMgr->regCmd("ZX2TS", 5, new ZX2TSCmd) &&
           cmdMgr->regCmd("ZXGRead", 4, new ZXGReadCmd) &&
           cmdMgr->regCmd("ZXGWrite", 4, new ZXGWriteCmd))) {
@@ -73,7 +75,7 @@ void ZXNewCmd::usage(ostream &os) const {
 
 void ZXNewCmd::help() const {
     cout << setw(15) << left << "ZXNew: "
-         << "new ZX-graph to ZXGraphMgr" << endl;
+         << "create a new ZX-graph to ZXGraphMgr" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -179,7 +181,7 @@ void ZXPrintCmd::usage(ostream &os) const {
 
 void ZXPrintCmd::help() const {
     cout << setw(15) << left << "ZXPrint: "
-         << "print info in ZXGraphMgr" << endl;
+         << "print info of ZXGraphMgr" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -424,7 +426,7 @@ void ZXGPrintCmd::usage(ostream &os) const {
 
 void ZXGPrintCmd::help() const {
     cout << setw(15) << left << "ZXGPrint: "
-         << "print info in ZX-graph" << endl;
+         << "print info of ZX-graph" << endl;
 }
 
 //------------------------------------------------------------------------------------
@@ -614,6 +616,40 @@ void ZXGTraverseCmd::help() const {
 }
 
 //----------------------------------------------------------------------
+//    ZXGDraw [-CLI]
+//    ZXGDraw <-Path> <string (path.pdf)>
+//----------------------------------------------------------------------
+CmdExecStatus
+ZXGDrawCmd::exec(const string &option) {
+    vector<string> options;
+    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
+    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGDraw");
+    CMD_N_OPTS_AT_MOST_OR_RETURN(options, 1);
+    if (options.size() == 0) {
+        zxGraphMgr->getGraph()->draw();
+        return CMD_EXEC_DONE;
+    }
+    if (myStrNCmp("-CLI", options[0], 4) == 0) {
+        zxGraphMgr->getGraph()->draw();
+        return CMD_EXEC_DONE;
+    }
+    if (!zxGraphMgr->getGraph()->writeTex(options[0])) {
+        return CMD_EXEC_ERROR;
+    }
+    return CMD_EXEC_DONE;
+}
+
+void ZXGDrawCmd::usage(ostream &os) const {
+    os << "Usage: ZXGDraw [-CLI]" << endl;
+    os << "Usage: ZXGDraw <-Path> <string (path.pdf)>" << endl;
+}
+
+void ZXGDrawCmd::help() const {
+    cout << setw(15) << left << "ZXGDraw: "
+         << "draw ZX-graph" << endl;
+}
+
+//----------------------------------------------------------------------
 //    ZX2TS
 //----------------------------------------------------------------------
 CmdExecStatus
@@ -629,34 +665,35 @@ void ZX2TSCmd::usage(ostream &os) const {
 
 void ZX2TSCmd::help() const {
     cout << setw(15) << left << "ZX2TS: "
-         << "convert the ZX-graph to tensor" << endl;
+         << "convert ZX-graph to tensor" << endl;
 }
 
 //----------------------------------------------------------------------
-//    ZXGRead <string Input.(b)zx> [-BZX] [-Replace]
+//    ZXGRead <string Input.(b)zx> [-KEEPid] [-Replace]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGReadCmd::exec(const string &option) {  // check option
     vector<string> options;
 
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
-    if (options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
+
+    CMD_N_OPTS_BETWEEN_OR_RETURN(options, 1, 3);
 
     bool doReplace = false;
-    bool doBZX = false;
+    bool doKeepID = false;
     size_t eraseIndexReplace = 0;
     size_t eraseIndexBZX = 0;
-    string fileName;
+    string fileName = "";
     for (size_t i = 0, n = options.size(); i < n; ++i) {
         if (myStrNCmp("-Replace", options[i], 2) == 0) {
             if (doReplace)
                 return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
             doReplace = true;
             eraseIndexReplace = i;
-        } else if (myStrNCmp("-BZX", options[i], 4) == 0) {
-            if (doBZX)
+        } else if (myStrNCmp("-KEEPid", options[i], 5) == 0) {
+            if (doKeepID)
                 return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
-            doBZX = true;
+            doKeepID = true;
             eraseIndexBZX = i;
         } else {
             if (fileName.size())
@@ -668,14 +705,15 @@ ZXGReadCmd::exec(const string &option) {  // check option
     string bzxStr = options[eraseIndexBZX];
     if (doReplace)
         options.erase(std::remove(options.begin(), options.end(), replaceStr), options.end());
-    if (doBZX)
+    if (doKeepID)
         options.erase(std::remove(options.begin(), options.end(), bzxStr), options.end());
     if (options.empty())
         return CmdExec::errorOption(CMD_OPT_MISSING, (eraseIndexBZX > eraseIndexReplace) ? bzxStr : replaceStr);
 
     ZXGraph *bufferGraph = new ZXGraph(0);
-    if (!bufferGraph->readZX(fileName, doBZX)) {
-        cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
+    if (!bufferGraph->readZX(fileName, doKeepID)) {
+        // REVIEW - This error message is not always accurate
+        // cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
         delete bufferGraph;
         return CMD_EXEC_ERROR;
     }
@@ -695,16 +733,16 @@ ZXGReadCmd::exec(const string &option) {  // check option
 }
 
 void ZXGReadCmd::usage(ostream &os) const {
-    os << "Usage: ZXGRead <string Input.(b)zx> [-BZX] [-Replace]" << endl;
+    os << "Usage: ZXGRead <string Input.(b)zx> [-KEEPid] [-Replace]" << endl;
 }
 
 void ZXGReadCmd::help() const {
     cout << setw(15) << left << "ZXGRead: "
-         << "read a ZX-graph" << endl;
+         << "read a file and construct the corresponding ZX-graph" << endl;
 }
 
 //----------------------------------------------------------------------
-//    ZXGWrite <string Output.(b)zx> [-Complete] [-BZX]
+//    ZXGWrite <string Output.<zx | tikz | tex>> [-Complete]
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGWriteCmd::exec(const string &option) {
@@ -714,9 +752,7 @@ ZXGWriteCmd::exec(const string &option) {
     if (options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
 
     bool doComplete = false;
-    bool doBZX = false;
     size_t eraseIndexComplete = 0;
-    size_t eraseIndexBZX = 0;
     string fileName;
     for (size_t i = 0, n = options.size(); i < n; ++i) {
         if (myStrNCmp("-Complete", options[i], 2) == 0) {
@@ -724,11 +760,6 @@ ZXGWriteCmd::exec(const string &option) {
                 return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
             doComplete = true;
             eraseIndexComplete = i;
-        } else if (myStrNCmp("-BZX", options[i], 4) == 0) {
-            if (doBZX)
-                return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
-            doBZX = true;
-            eraseIndexBZX = i;
         } else {
             if (fileName.size())
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
@@ -736,30 +767,52 @@ ZXGWriteCmd::exec(const string &option) {
         }
     }
     string completeStr = options[eraseIndexComplete];
-    string bzxStr = options[eraseIndexBZX];
     if (doComplete)
         options.erase(std::remove(options.begin(), options.end(), completeStr), options.end());
-    if (doBZX)
-        options.erase(std::remove(options.begin(), options.end(), bzxStr), options.end());
     if (options.empty())
-        return CmdExec::errorOption(CMD_OPT_MISSING, (eraseIndexBZX > eraseIndexComplete) ? bzxStr : completeStr);
+        return CmdExec::errorOption(CMD_OPT_MISSING, completeStr);
 
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXWrite");
 
-    if (!zxGraphMgr->getGraph()->writeZX(fileName, doComplete, doBZX)) {
-        cerr << "Error: fail to write ZX-Graph to \"" << fileName << "\"!!" << endl;
-        return CMD_EXEC_ERROR;
+    size_t extensionPosition = fileName.find_last_of(".");
+    // REVIEW - should we guard the case of no file extension?
+    if (extensionPosition != string::npos) {
+        string extensionString = fileName.substr(extensionPosition);
+        if (
+            myStrNCmp(".zx", extensionString, 3) == 0 ||
+            myStrNCmp(".bzx", extensionString, 4) == 0) {
+            if (!zxGraphMgr->getGraph()->writeZX(fileName, doComplete)) {
+                cerr << "Error: fail to write ZX-Graph to \"" << fileName << "\"!!" << endl;
+                return CMD_EXEC_ERROR;
+            }
+        } else if (myStrNCmp(".tikz", extensionString, 5) == 0) {
+            if (!zxGraphMgr->getGraph()->writeTikz(fileName)) {
+                cerr << "Error: fail to write Tikz to \"" << fileName << "\"!!" << endl;
+                return CMD_EXEC_ERROR;
+            }
+        } else if (myStrNCmp(".tex", extensionString, 4) == 0) {
+            if (!zxGraphMgr->getGraph()->writeTex(fileName, false)) {
+                cerr << "Error: fail to write tex to \"" << fileName << "\"!!" << endl;
+                return CMD_EXEC_ERROR;
+            }
+        }
+    } else {
+        if (!zxGraphMgr->getGraph()->writeZX(fileName, doComplete)) {
+            cerr << "Error: fail to write ZX-Graph to \"" << fileName << "\"!!" << endl;
+            return CMD_EXEC_ERROR;
+        }
     }
+
     return CMD_EXEC_DONE;
 }
 
 void ZXGWriteCmd::usage(ostream &os) const {
-    os << "Usage: ZXGWrite <string Output.(b)zx> [-Complete] [-BZX]" << endl;
+    os << "Usage: ZXGWrite <string Output.<zx | tikz>> [-Complete]" << endl;
 }
 
 void ZXGWriteCmd::help() const {
     cout << setw(15) << left << "ZXGWrite: "
-         << "write a ZX-graph to file\n";
+         << "write a ZX-graph to a file\n";
 }
 
 //----------------------------------------------------------------------
@@ -809,7 +862,7 @@ void ZXGAssignCmd::usage(ostream &os) const {
 
 void ZXGAssignCmd::help() const {
     cout << setw(15) << left << "ZXGASsign: "
-         << "assign an input/output vertex to specific qubit\n";
+         << "assign quantum states to input/output vertex\n";
 }
 
 //----------------------------------------------------------------------
@@ -830,5 +883,5 @@ void ZXGAdjointCmd::usage(ostream &os) const {
 
 void ZXGAdjointCmd::help() const {
     cout << setw(15) << left << "ZXGADJoint: "
-         << "adjoint the current ZX-graph.\n";
+         << "adjoint ZX-graph\n";
 }

@@ -1,20 +1,21 @@
 /****************************************************************************
   FileName     [ qcir.cpp ]
   PackageName  [ qcir ]
-  Synopsis     [ Define QCir Edition functions ]
+  Synopsis     [ Define class QCir Edition functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include "qcir.h"
 
-#include <algorithm>
-#include <cassert>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include <stdlib.h>  // for abort
 
-#include "textFormat.h"
+#include <cassert>  // for assert
+#include <string>   // for string
+
+#include "qcirGate.h"    // for QCirGate
+#include "qcirQubit.h"   // for QCirQubit
+#include "textFormat.h"  // for TextFormat
 
 using namespace std;
 namespace TF = TextFormat;
@@ -84,7 +85,7 @@ void QCir::printQubits() {
  * @brief Print Gate information
  *
  * @param id
- * @param showTime
+ * @param showTime if true, show the time
  */
 bool QCir::printGateInfo(size_t id, bool showTime) {
     if (getGate(id) != NULL) {
@@ -101,7 +102,7 @@ bool QCir::printGateInfo(size_t id, bool showTime) {
 /**
  * @brief Add single Qubit.
  *
- * @param num
+ * @return QCirQubit*
  */
 QCirQubit *QCir::addSingleQubit() {
     QCirQubit *temp = new QCirQubit(_qubitId);
@@ -112,9 +113,10 @@ QCirQubit *QCir::addSingleQubit() {
 }
 
 /**
- * @brief insert single Qubit.
+ * @brief Insert single Qubit.
  *
- * @param num
+ * @param id
+ * @return QCirQubit*
  */
 QCirQubit *QCir::insertSingleQubit(size_t id) {
     assert(getQubit(id) == NULL);
@@ -170,6 +172,14 @@ bool QCir::removeQubit(size_t id) {
     }
 }
 
+/**
+ * @brief Add rotate-z gate and transform it to T, S, Z, Sdg, or Tdg if possible
+ *
+ * @param bit
+ * @param phase
+ * @param append if true, append the gate else prepend
+ * @return QCirGate*
+ */
 QCirGate *QCir::addSingleRZ(size_t bit, Phase phase, bool append) {
     vector<size_t> qubit;
     qubit.push_back(bit);
@@ -186,13 +196,14 @@ QCirGate *QCir::addSingleRZ(size_t bit, Phase phase, bool append) {
     else
         return addGate("rz", qubit, phase, append);
 }
+
 /**
  * @brief Add Gate
  *
  * @param type
  * @param bits
  * @param phase
- * @param append
+ * @param append if true, append the gate, else prepend
  *
  * @return QCirGate*
  */
@@ -240,10 +251,7 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
         temp = new CnPGate(_gateId);
         temp->setRotatePhase(phase);
     } else if (type == "crz") {
-        temp = new CrzGate(_gateId);
-        temp->setRotatePhase(phase);
-    } else if (type == "mcrx" || type == "crx") {
-        temp = new CnRXGate(_gateId);
+        temp = new CRZGate(_gateId);
         temp->setRotatePhase(phase);
     } else {
         cerr << "Error: The gate " << type << " is not implemented!!" << endl;
@@ -286,6 +294,13 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
     return temp;
 }
 
+/**
+ * @brief Remove gate
+ *
+ * @param id
+ * @return true
+ * @return false
+ */
 bool QCir::removeGate(size_t id) {
     QCirGate *target = getGate(id);
     if (target == NULL) {
@@ -312,6 +327,11 @@ bool QCir::removeGate(size_t id) {
     }
 }
 
+/**
+ * @brief Analysis the quantum circuit and estimate the Clifford and T count
+ *
+ * @param detail if true, print the detail information
+ */
 void QCir::analysis(bool detail) {
     size_t clifford = 0;
     size_t tfamily = 0;

@@ -1,0 +1,940 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/9symml_195.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 28063
+└── CX: 16217
+T-family: 6450
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/adr4_197.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 4085
+└── CX: 2657
+T-family: 692
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/cm42a_207.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 1517
+└── CX: 740
+T-family: 370
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/cm82a_208.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 619
+└── CX: 301
+T-family: 122
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/cm85a_209.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 11410
+└── CX: 7796
+T-family: 1950
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/cycle10_2_110.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 5263
+└── CX: 2921
+T-family: 1160
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/hwb8_113.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 58890
+└── CX: 29768
+T-family: 14934
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/inc_237.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 8274
+└── CX: 4612
+T-family: 1942
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/life_238.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 18391
+└── CX: 10744
+T-family: 4152
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/mlp4_245.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 18043
+└── CX: 12006
+T-family: 3324
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/qft_10.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 0
+└── CX: 0
+T-family: 0
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/qft_n20.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 1058
+└── CX: 482
+T-family: 21
+Others  : 184
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/rd53_251.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 1169
+└── CX: 569
+T-family: 280
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/rd73_252.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 5350
+└── CX: 3282
+T-family: 1045
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/sqn_258.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 9179
+└── CX: 5051
+T-family: 2097
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/sqrt8_260.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 2834
+└── CX: 1555
+T-family: 581
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/square_root_7.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 5623
+└── CX: 3117
+T-family: 1109
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/urf1_278.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 68306
+└── CX: 39427
+T-family: 12772
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/urf2_277.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 27064
+└── CX: 14908
+T-family: 5063
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/z4_268.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 2840
+└── CX: 1574
+T-family: 631
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/9symml_195.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 28063
+└── CX: 16217
+T-family: 6450
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/adr4_197.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 4085
+└── CX: 2657
+T-family: 692
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/cm42a_207.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 1517
+└── CX: 740
+T-family: 370
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/cm82a_208.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 619
+└── CX: 301
+T-family: 122
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/cm85a_209.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 11410
+└── CX: 7796
+T-family: 1950
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/cycle10_2_110.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 5263
+└── CX: 2921
+T-family: 1160
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/dc2_222.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 7328
+└── CX: 4021
+T-family: 1758
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/dist_223.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 32206
+└── CX: 19107
+T-family: 6868
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/ham15_107.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 8086
+└── CX: 4414
+T-family: 1805
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/hwb8_113.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 58890
+└── CX: 29768
+T-family: 14934
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/inc_237.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 8274
+└── CX: 4612
+T-family: 1942
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/life_238.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 18391
+└── CX: 10744
+T-family: 4152
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/mlp4_245.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 18043
+└── CX: 12006
+T-family: 3324
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/pm1_249.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 1517
+└── CX: 740
+T-family: 370
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/qft_10.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 0
+└── CX: 0
+T-family: 0
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/qft_n20.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 1058
+└── CX: 482
+T-family: 21
+Others  : 184
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/rd53_251.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 1169
+└── CX: 569
+T-family: 280
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/rd73_252.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 5350
+└── CX: 3282
+T-family: 1045
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/rd84_253.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 12286
+└── CX: 7231
+T-family: 2625
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/root_255.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 14966
+└── CX: 8870
+T-family: 3114
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/sqn_258.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 9179
+└── CX: 5051
+T-family: 2097
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/sqrt8_260.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 2834
+└── CX: 1555
+T-family: 581
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/square_root_7.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 5623
+└── CX: 3117
+T-family: 1109
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/urf1_149.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 196039
+└── CX: 98161
+T-family: 40380
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/urf1_278.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 68306
+└── CX: 39427
+T-family: 12772
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/urf2_277.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 27064
+└── CX: 14908
+T-family: 5063
+Others  : 0
+
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/z4_268.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -a
+───── Quantum Circuit Analysis ─────
+
+> Decompose into basic gate set
+
+Clifford: 2840
+└── CX: 1574
+T-family: 631
+Others  : 0
+
+
+qsyn> qq -f
+

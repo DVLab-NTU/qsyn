@@ -1,0 +1,16 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zxgr -R benchmark/zx/swap.zx
+Note: ZX-graph list is empty now. Create a new one.
+Create and checkout to Graph 0
+
+qsyn> zxgr benchmark/zx/tof3.zx
+Create and checkout to Graph 1
+
+qsyn> zxgr -R benchmark/zx/tof3.zx
+Note: original ZX-graph is replaced...
+
+qsyn> qq -f
+

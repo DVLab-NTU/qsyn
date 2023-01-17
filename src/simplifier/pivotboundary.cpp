@@ -1,20 +1,25 @@
 /****************************************************************************
-  FileName     [ pivot.cpp ]
+  FileName     [ pivotboundary.cpp ]
   PackageName  [ simplifier ]
   Synopsis     [ Pivot Rule Definition ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <iostream>
-#include <numbers>
-#include <vector>
+#include <cstddef>  // for size_t
 
+#include "zxGraph.h"
 #include "zxRules.h"
+
 using namespace std;
 
 extern size_t verbose;
 
+/**
+ * @brief Preprocess the matches so that it conforms with the rewrite functions
+ *
+ * @param g
+ */
 void PivotBoundary::preprocess(ZXGraph* g) {
     for (auto& v : this->_boundaries) {
         auto& [nb, etype] = v->getFirstNeighbor();
@@ -27,7 +32,7 @@ void PivotBoundary::preprocess(ZXGraph* g) {
 }
 
 /**
- * @brief Finds matchings of the pivot-boundary rule.
+ * @brief Find matchings of the pivot-boundary rule.
  *        Precondition: the graph is graph-like
  *
  * @param g
@@ -35,7 +40,6 @@ void PivotBoundary::preprocess(ZXGraph* g) {
 void PivotBoundary::match(ZXGraph* g) {
     this->_matchTypeVec.clear();
     this->_boundaries.clear();
-    if (verbose >= 8) g->printVertices();
 
     unordered_set<ZXVertex*> taken;
     vector<ZXVertex*> b0;

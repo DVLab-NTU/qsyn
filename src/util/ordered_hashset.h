@@ -97,37 +97,6 @@ public:
 
     // lookup
     virtual const Key& key(const value_type& value) const override { return value; }
-
-    // test
-    void printSet();
 };
-
-//------------------------------------------------------
-//  test functions
-//------------------------------------------------------
-
-/**
- * @brief Test function that prints the content of the ordered hashset.
- *
- */
-template <typename Key, typename Hash, typename KeyEqual>
-void ordered_hashset<Key, Hash, KeyEqual>::printSet() {
-    std::cout << "----  umap  ----" << std::endl;
-    for (const auto& [k, v] : this->_key2id) {
-        std::cout << k << " : " << v << std::endl;
-    }
-    std::cout << "---- vector ----" << std::endl;
-    for (const auto& item : this->_data) {
-        if (item == std::nullopt) {
-            std::cout << "None" << std::endl;
-            continue;
-        }
-        std::cout << item.value() << std::endl;
-    }
-    std::cout << std::endl;
-    std::cout << "size  : " << this->size() << std::endl
-              << "none  : " << this->_data.size() - this->size() << std::endl
-              << "total : " << this->_data.size() << std::endl;
-}
 
 #endif  // ORDERED_HASHSET_H

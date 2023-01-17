@@ -9,13 +9,14 @@
 #ifndef ZX_DEF_H
 #define ZX_DEF_H
 
+#include <iosfwd>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
-#include "myHashMap.h"
+#include "ordered_hashmap.h"
 #include "ordered_hashset.h"
-using namespace std;
+#include "phase.h"
 
 class ZXVertex;
 class ZXGraph;
@@ -40,9 +41,23 @@ enum class EdgeType {
 //------------------------------------------------------------------------
 
 using ZXVertexList = ordered_hashset<ZXVertex*>;
-using EdgePair = pair<pair<ZXVertex*, ZXVertex*>, EdgeType>;
-using NeighborPair = pair<ZXVertex*, EdgeType>;
+using EdgePair = std::pair<std::pair<ZXVertex*, ZXVertex*>, EdgeType>;
+using NeighborPair = std::pair<ZXVertex*, EdgeType>;
 using Neighbors = ordered_hashset<NeighborPair>;
+
+namespace ZXParserDetail {
+
+struct VertexInfo {
+    char type;
+    int qubit;
+    float column;
+    std::vector<std::pair<char, size_t>> neighbors;
+    Phase phase;
+};
+
+using StorageType = ordered_hashmap<size_t, VertexInfo>;
+
+}  // namespace ZXParserDetail
 
 //------------------------------------------------------------------------
 //   Define hashes
@@ -70,5 +85,10 @@ struct hash<EdgePair> {
     }
 };
 }  // namespace std
+
+template <typename T>
+std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::ostream>::type& stream, const T& e) {
+    return stream << static_cast<typename std::underlying_type<T>::type>(e);
+}
 
 #endif  // ZX_DEF_H

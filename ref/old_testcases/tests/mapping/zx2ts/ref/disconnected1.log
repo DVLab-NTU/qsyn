@@ -1,0 +1,108 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> zxn
+Create and checkout to Graph 0
+
+qsyn> zxgedit -addi 0
+
+qsyn> zxgedit -addo 0
+
+qsyn> zxgedit -addi 1
+
+qsyn> zxgedit -addo 1
+
+qsyn> zxgedit -addv 0 Z 0
+
+qsyn> zxgedit -addv 0 Z pi
+
+qsyn> zxgedit -addi 2
+
+qsyn> zxgedit -addo 2
+
+qsyn> zxgedit -addi 3
+
+qsyn> zxgedit -addo 3
+
+qsyn> 
+qsyn> zxgedit -adde 0 4 SIMPLE
+
+qsyn> zxgedit -adde 4 1 SIMPLE
+
+qsyn> zxgedit -adde 2 5 SIMPLE
+
+qsyn> zxgedit -adde 5 3 SIMPLE
+
+qsyn> zxgedit -adde 6 7 SIMPLE
+
+qsyn> zxgedit -adde 8 9 SIMPLE
+
+qsyn> 
+qsyn> zxgp -v
+
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
+ID:   4 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (1, -) 
+ID:   5 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (2, -) (3, -) 
+ID:   6 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (7, -) 
+ID:   7 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (6, -) 
+ID:   8 (●, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   1     (9, -) 
+ID:   9 (●, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   1     (8, -) 
+Total #Vertices: 10
+
+
+qsyn> zxgp -e
+( 0, 4 )	Type:	-
+( 1, 4 )	Type:	-
+( 2, 5 )	Type:	-
+( 3, 5 )	Type:	-
+( 6, 7 )	Type:	-
+( 8, 9 )	Type:	-
+Total #Edges: 6
+
+qsyn> 
+qsyn> ver 8
+Note: verbose level is set to 8
+
+qsyn> zx2ts
+Traverse and build the tensor... 
+Topological order from first input: 8 9 6 7 2 5 3 0 4 1 
+Size of topological order: 10
+> Mapping vertex 8 (●): New Subgraph
+  - Current frontiers: 
+    8--9 (-) axis id: 1
+> Mapping vertex 9 (●): Boundary Node
+  - Current frontiers: 
+    8--9 (-) axis id: 1
+> Mapping vertex 6 (●): New Subgraph
+  - Current frontiers: 
+    6--7 (-) axis id: 1
+> Mapping vertex 7 (●): Boundary Node
+  - Current frontiers: 
+    6--7 (-) axis id: 1
+> Mapping vertex 2 (●): New Subgraph
+  - Current frontiers: 
+    2--5 (-) axis id: 1
+> Mapping vertex 5 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    3--5 (-) axis id: 1
+> Mapping vertex 3 (●): Boundary Node
+  - Current frontiers: 
+    3--5 (-) axis id: 1
+> Mapping vertex 0 (●): New Subgraph
+  - Current frontiers: 
+    0--4 (-) axis id: 1
+> Mapping vertex 4 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--4 (-) axis id: 1
+> Mapping vertex 1 (●): Boundary Node
+  - Current frontiers: 
+    1--4 (-) axis id: 1
+Successfully added Tensor 0
+Input  axis ids: 6 4 2 0
+Output axis ids: 7 5 3 1
+Stored the resulting tensor as tensor id 0
+
+qsyn> 
+qsyn> qq -f
+

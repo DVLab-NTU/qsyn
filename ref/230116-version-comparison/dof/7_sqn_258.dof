@@ -1,0 +1,15 @@
+ver 1
+qccread benchmark/benchmark_SABRE/large/sqn_258.qasm
+qc2zx
+zxcopy
+zxgp
+zxgp -a
+zxgs -fr
+zxgp
+zxgp -a
+zxgadjoint
+zxcompose 0
+zxgs -fr
+zxgp
+usage
+qq -f

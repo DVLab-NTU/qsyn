@@ -1,19 +1,21 @@
 /****************************************************************************
   FileName     [ m2Cmd.cpp ]
   PackageName  [ m2 ]
-  Synopsis     [ Define basic m2 package commands ]
+  Synopsis     [ Define m2 package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include "m2Cmd.h"
 
-#include <cassert>
+#include <cstddef>  // for size_t
 #include <iomanip>
 #include <iostream>
+#include <string>
+#include <unordered_map>
 
 #include "m2.h"
-#include "util.h"
+#include "zxGraph.h"
 #include "zxGraphMgr.h"
 
 using namespace std;

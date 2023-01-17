@@ -1,0 +1,127 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> ver 9
+Note: verbose level is set to 9
+
+qsyn> zxnew
+Create and checkout to Graph 0
+
+qsyn> zxge -addi 0
+Add vertex (●) 0
+
+qsyn> zxge -addo 0
+Add vertex (●) 1
+
+qsyn> zxge -addi 1
+Add vertex (●) 2
+
+qsyn> zxge -addo 1
+Add vertex (●) 3
+
+qsyn> zxge -addv 0 Z 0
+Add vertex ([1m[32mZ[0m[0m) 4
+
+qsyn> zxge -addv 0 Z 0
+Add vertex ([1m[32mZ[0m[0m) 5
+
+qsyn> zxge -addv 0 Z 3.14159
+Add vertex ([1m[32mZ[0m[0m) 6
+
+qsyn> zxge -addv 0 Z 3.14159
+Add vertex ([1m[32mZ[0m[0m) 7
+
+qsyn> zxge -addv 0 Z 0
+Add vertex ([1m[32mZ[0m[0m) 8
+
+qsyn> zxge -addv 0 Z 0
+Add vertex ([1m[32mZ[0m[0m) 9
+
+qsyn> zxge -adde 4 6 HADAMARD
+Add edge (4, 6)
+
+qsyn> zxge -adde 5 6 HADAMARD
+Add edge (5, 6)
+
+qsyn> zxge -adde 6 7 HADAMARD
+Add edge (6, 7)
+
+qsyn> zxge -adde 7 8 HADAMARD
+Add edge (7, 8)
+
+qsyn> zxge -adde 7 9 HADAMARD
+Add edge (7, 9)
+
+qsyn> zxge -adde 0 4 SIMPLE
+Add edge (0, 4)
+
+qsyn> zxge -adde 2 5 SIMPLE
+Add edge (2, 5)
+
+qsyn> zxge -adde 1 8 SIMPLE
+Add edge (1, 8)
+
+qsyn> zxge -adde 3 9 SIMPLE
+Add edge (3, 9)
+
+qsyn> zxgs -pivot
+Hadamard Rule                 
+=> 0 iterations.
+
+Pivot Rule                    
+
+Iteration 1:
+>>>
+Add vertex ([1m[32mZ[0m[0m) 10
+Add edge (0, 10)
+Add edge (10, 4)
+Remove edge (0, 4), type: -
+> rewrite...
+vs: 4	vt: 6
+Add edge (5, 10)
+Add edge (7, 10)
+Remove ID: 4
+Remove ID: 6
+<<<
+
+Iteration 2:
+>>>
+Add vertex ([1m[32mZ[0m[0m) 11
+Add edge (1, 11)
+Add edge (11, 8)
+Remove edge (1, 8), type: -
+> rewrite...
+vs: 7	vt: 8
+Add edge (9, 11)
+Add edge (10, 11)
+Remove ID: 7
+Remove ID: 8
+<<<
+=> 2 iterations.
+  1) 1 matches
+  2) 1 matches
+
+
+qsyn> zxgp -v
+
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, [1m[34mH[0m[0m) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (11, [1m[34mH[0m[0m) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (9, -) 
+ID:   5 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (2, -) (10, [1m[34mH[0m[0m) 
+ID:   9 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (3, -) (11, [1m[34mH[0m[0m) 
+ID:  10 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (0, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (11, [1m[34mH[0m[0m) 
+ID:  11 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (1, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
+Total #Vertices: 8
+
+
+qsyn> zxgp -e
+( 0, 10 )	Type:	[1m[34mH[0m[0m
+( 1, 11 )	Type:	[1m[34mH[0m[0m
+( 2, 5 )	Type:	-
+( 3, 9 )	Type:	-
+( 5, 10 )	Type:	[1m[34mH[0m[0m
+( 9, 11 )	Type:	[1m[34mH[0m[0m
+( 10, 11 )	Type:	[1m[34mH[0m[0m
+Total #Edges: 7
+
+qsyn> qq -f
+

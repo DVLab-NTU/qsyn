@@ -1,20 +1,18 @@
 /****************************************************************************
-  FileName     [ qcir.cpp ]
+  FileName     [ qcirMapping.cpp ]
   PackageName  [ qcir ]
-  Synopsis     [ Define QCir Mapping functions ]
+  Synopsis     [ Define class QCir Mapping functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include <cstddef>  // for size_t, NULL
 
-#include "qcir.h"
-#include "tensorMgr.h"
-#include "zxGraphMgr.h"
+#include "qcir.h"        // for QCir
+#include "qtensor.h"     // for QTensor
+#include "tensorMgr.h"   // for TensorMgr
+#include "zxGraph.h"     // for ZXGraph
+#include "zxGraphMgr.h"  // for ZXGraphMgr
 
 using namespace std;
 extern ZXGraphMgr *zxGraphMgr;
@@ -37,18 +35,13 @@ void QCir::clearMapping() {
  * @brief Mapping QCir to ZX-graph
  */
 void QCir::ZXMapping() {
-    if (zxGraphMgr == 0) {
-        // FIXME - ZXMode obsolete
-        cerr << "Error: ZXMODE is OFF, please turn on before mapping" << endl;
-        return;
-    }
-    if (verbose >= 3) cout << "Traverse and build the graph... " << endl;
-    updateTopoOrder();
+    updateGateTime();
 
     ZXGraph *_ZXG = zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
+    if (verbose >= 5) cout << "Traverse and build the graph... " << endl;
     _ZXG->setRef((void **)_ZXG);
 
-    if (verbose >= 5) cout << "> Add boundaries" << endl;
+    if (verbose >= 5) cout << "\n> Add boundaries" << endl;
     for (size_t i = 0; i < _qubits.size(); i++) {
         ZXVertex *input = _ZXG->addInput(_qubits[i]->getId());
         ZXVertex *output = _ZXG->addOutput(_qubits[i]->getId());
@@ -57,6 +50,7 @@ void QCir::ZXMapping() {
     }
 
     topoTraverse([this, _ZXG](QCirGate *G) {
+        if (verbose >= 8) cout << "\n";
         if (verbose >= 5) cout << "> Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph *tmp = G->getZXform();
 
@@ -74,8 +68,15 @@ void QCir::ZXMapping() {
         delete tmp;
     });
 
+    size_t max = 0;
     for (auto &v : _ZXG->getOutputs()) {
-        v->setCol(_topoOrder.back()->getTime() + 2);
+        size_t neighborCol = v->getFirstNeighbor().first->getCol();
+        if (neighborCol > max) {
+            max = neighborCol;
+        }
+    }
+    for (auto &v : _ZXG->getOutputs()) {
+        v->setCol(max + 1);
     }
 
     _ZXGraphList.push_back(_ZXG);

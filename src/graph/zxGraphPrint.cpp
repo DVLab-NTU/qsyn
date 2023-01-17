@@ -6,17 +6,12 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <chrono>
-#include <iomanip>
+#include <cstddef>  // for size_t
 #include <iostream>
-#include <ranges>
-#include <unordered_set>
-#include <vector>
+#include <map>
+#include <string>
 
 #include "textFormat.h"
-#include "util.h"
 #include "zxGraph.h"
 
 using namespace std;
@@ -105,7 +100,7 @@ void ZXGraph::printVertices(vector<unsigned> cand) const {
  * @param cand
  */
 void ZXGraph::printQubits(vector<int> cand) const {
-    map<int, vector<ZXVertex*> > q2Vmap;
+    map<int, vector<ZXVertex*>> q2Vmap;
     for (const auto& v : _vertices) {
         if (!q2Vmap.contains(v->getQubit())) {
             vector<ZXVertex*> tmp(1, v);
@@ -139,4 +134,125 @@ void ZXGraph::printEdges() const {
         cout << "( " << epair.first.first->getId() << ", " << epair.first.second->getId() << " )\tType:\t" << EdgeType2Str(epair.second) << endl;
     });
     cout << "Total #Edges: " << getNumEdges() << endl;
+}
+
+/**
+ * @brief Print the vertex with color
+ *
+ * @param v
+ * @return string
+ */
+string printColoredVertex(ZXVertex* v) {
+    if (v->getType() == VertexType::BOUNDARY)
+        return to_string(v->getId());
+    else if (v->getType() == VertexType::Z)
+        return TF::BOLD(TF::GREEN(to_string(v->getId())));
+    else if (v->getType() == VertexType::X)
+        return TF::BOLD(TF::RED(to_string(v->getId())));
+    else if (v->getType() == VertexType::H_BOX)
+        return TF::BOLD(TF::YELLOW(to_string(v->getId())));
+    else
+        return to_string(v->getId());
+}
+
+/**
+ * @brief Draw ZX-graph in CLI
+ *
+ */
+void ZXGraph::draw() const {
+    cout << endl;
+    unsigned int maxCol = 0;  // number of columns -1
+    unordered_map<int, int> qPair;
+    vector<int> qubitNum;  // number of qubit
+
+    // maxCol
+    for (auto& o : getOutputs()) {
+        if (o->getCol() > maxCol) maxCol = o->getCol();
+    }
+
+    // qubitNum
+    vector<int> qubitNum_temp;  // number of qubit
+    for (auto& v : getVertices()) {
+        qubitNum_temp.push_back(v->getQubit());
+    }
+    sort(qubitNum_temp.begin(), qubitNum_temp.end());
+    if (qubitNum_temp.size() == 0) {
+        cout << "Empty graph!!" << endl;
+        return;
+    }
+    size_t offset = qubitNum_temp[0];
+    qubitNum.push_back(0);
+    for (size_t i = 1; i < qubitNum_temp.size(); i++) {
+        if (qubitNum_temp[i - 1] == qubitNum_temp[i]) {
+            continue;
+        } else {
+            qubitNum.push_back(qubitNum_temp[i] - offset);
+        }
+    }
+    qubitNum_temp.clear();
+
+    for (size_t i = 0; i < qubitNum.size(); i++) qPair[i] = qubitNum[i];
+    vector<ZXVertex*> tmp;
+    tmp.resize(qubitNum.size());
+    vector<vector<ZXVertex*>> colList(maxCol + 1, tmp);
+
+    for (auto& v : getVertices()) colList[v->getCol()][qPair[v->getQubit() - offset]] = v;
+
+    vector<size_t> maxLength(maxCol + 1, 0);
+    for (size_t i = 0; i < colList.size(); i++) {
+        for (size_t j = 0; j < colList[i].size(); j++) {
+            if (colList[i][j] != nullptr) {
+                if (to_string(colList[i][j]->getId()).length() > maxLength[i]) maxLength[i] = to_string(colList[i][j]->getId()).length();
+            }
+        }
+    }
+    size_t maxLengthQ = 0;
+    for (size_t i = 0; i < qubitNum.size(); i++) {
+        int temp = offset + i;
+        if (to_string(temp).length() > maxLengthQ) maxLengthQ = to_string(temp).length();
+    }
+
+    for (size_t i = 0; i < qubitNum.size(); i++) {
+        // print qubit
+        int temp = offset + i;
+        cout << "[";
+        for (size_t i = 0; i < maxLengthQ - to_string(temp).length(); i++) {
+            cout << " ";
+        }
+        cout << temp << "]";
+
+        // print row
+        for (size_t j = 0; j <= maxCol; j++) {
+            if (i < -offset) {
+                if (colList[j][i] != nullptr) {
+                    cout << "(" << printColoredVertex(colList[j][i]) << ")   ";
+                } else {
+                    if (j == maxCol)
+                        cout << endl;
+                    else {
+                        cout << "   ";
+                        for (size_t k = 0; k < maxLength[j] + 2; k++) cout << " ";
+                    }
+                }
+            } else if (colList[j][i] != nullptr) {
+                if (j == maxCol)
+                    cout << "(" << printColoredVertex(colList[j][i]) << ")" << endl;
+                else
+                    cout << "(" << printColoredVertex(colList[j][i]) << ")---";
+
+                for (size_t k = 0; k < maxLength[j] - to_string(colList[j][i]->getId()).length(); k++) cout << "-";
+            } else {
+                cout << "---";
+                for (size_t k = 0; k < maxLength[j] + 2; k++) cout << "-";
+            }
+        }
+        cout << endl;
+    }
+    for (auto& a : colList) {
+        a.clear();
+    }
+    colList.clear();
+
+    maxLength.clear();
+    qubitNum.clear();
 }

@@ -1,0 +1,20 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> ZXNew
+Create and checkout to Graph 0
+
+qsyn> ZXNew
+Create and checkout to Graph 1
+
+qsyn> ZXPrint
+ZXMode: ON
+-> #Graph: 2
+-> Now focus on: 1
+
+qsyn> ZXPrint -f
+Now focus on: 1
+
+qsyn> ZXPrint -n
+#Graph: 2
+
+qsyn> qq -f
+

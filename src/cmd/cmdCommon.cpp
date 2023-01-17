@@ -7,10 +7,14 @@
 ****************************************************************************/
 #include "cmdCommon.h"
 
-#include <algorithm>
+#include <stdlib.h>  // for srand
+
+#include <cstddef>  // for size_t
 #include <iomanip>
+#include <iostream>
 #include <string>
 
+#include "myUsage.h"
 #include "util.h"
 
 using namespace std;
@@ -44,6 +48,7 @@ HelpCmd::exec(const string& option) {
     if (token.size()) {
         CmdExec* e = cmdMgr->getCmd(token);
         if (!e) return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+        e->help();
         e->usage(cout);
     } else
         cmdMgr->printHelps();
@@ -94,7 +99,7 @@ void QuitCmd::usage(ostream& os) const {
 
 void QuitCmd::help() const {
     cout << setw(15) << left << "QQuit: "
-         << "quit the execution" << endl;
+         << "quit Qsyn" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -228,7 +233,7 @@ void VerboseCmd::usage(ostream& os) const {
 
 void VerboseCmd::help() const {
     cout << setw(15) << left << "VERbose: "
-         << "set verbose level (0-9)" << endl;
+         << "set verbose level to 0-9 (default: 3)" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -295,5 +300,5 @@ void ColorCmd::usage(ostream& os) const {
 
 void ColorCmd::help() const {
     cout << setw(15) << left << "COLOR: "
-         << "command line printing mode (0: grayscale, 1: color)" << endl;
+         << "toggle colored printing (1: on, 0: off)" << endl;
 }

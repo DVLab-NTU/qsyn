@@ -1,11 +1,12 @@
 *.o
 .vscode
 bin/*
+include/*.h
 tests/bin/*
 lib/*
 vendor/engine/* 
 !lib/
 !lib/lib.d
 !lib/libcmd-*
-qsyn
+qsyn*
 

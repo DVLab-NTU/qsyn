@@ -6,15 +6,20 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <iostream>
-#include <numbers>
-#include <vector>
+#include <cstddef>  // for size_t
 
+#include "zxGraph.h"
 #include "zxRules.h"
+
 using namespace std;
 
 extern size_t verbose;
 
+/**
+ * @brief Preprocess the matches so that it conforms with the rewrite functions
+ *
+ * @param g
+ */
 void Pivot::preprocess(ZXGraph* g) {
     for (auto& v : this->_boundaries) {
         auto& [nb, etype] = v->getFirstNeighbor();
@@ -23,14 +28,12 @@ void Pivot::preprocess(ZXGraph* g) {
 }
 /**
  * @brief Finds matchings of the pivot rule.
- *        (Check PyZX/pyzx/rules.py/match_pivot_parallel for more details)
  *
  * @param g
  */
 void Pivot::match(ZXGraph* g) {
     this->_matchTypeVec.clear();
     this->_boundaries.clear();
-    if (verbose >= 8) g->printVertices();
 
     unordered_set<ZXVertex*> taken;
     vector<ZXVertex*> b0, b1;

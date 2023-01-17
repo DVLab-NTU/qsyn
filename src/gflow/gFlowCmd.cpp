@@ -8,11 +8,14 @@
 
 #include "gFlowCmd.h"
 
-#include <iomanip>
+#include <cstddef>   // for size_t
+#include <iomanip>   // for ostream
+#include <iostream>  // for ostream
+#include <string>    // for string
 
-#include "gFlow.h"
-#include "zxGraph.h"
-#include "zxGraphMgr.h"
+#include "cmdMacros.h"   // for CMD_N_OPTS_AT_MOST_OR_RETURN
+#include "gFlow.h"       // for GFlow
+#include "zxGraphMgr.h"  // for ZXGraphMgr
 
 using namespace std;
 
@@ -113,5 +116,5 @@ void ZXGGFlowCmd::usage(ostream &os) const {
 
 void ZXGGFlowCmd::help() const {
     cout << setw(15) << left << "ZXGGFlow: "
-         << "calculate the generalized flow of current ZX-graph.\n";
+         << "calculate the generalized flow of current ZX-graph\n";
 }

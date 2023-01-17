@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ m2.h ]
   PackageName  [ m2 ]
-  Synopsis     [ Define m2 (Boolean Matrix) class ]
+  Synopsis     [ Define class m2 (Boolean Matrix) structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -9,21 +9,12 @@
 #ifndef M2_H
 #define M2_H
 
-#include <assert.h>
-
-#include <algorithm>
-#include <bitset>
-#include <iostream>
-#include <string>
+#include <cstddef>  // for size_t
+#include <utility>  // for pair
 #include <vector>
 
-#include "m2Def.h"
-#include "zxGraph.h"
+#include "zxDef.h"
 
-using namespace std;
-
-class M2;
-class Row;
 //------------------------------------------------------------------------
 //   Define classes
 //------------------------------------------------------------------------
@@ -31,10 +22,10 @@ class Row;
 // REVIEW - Change if bit > 64
 class Row {
 public:
-    Row(size_t id, const vector<unsigned char>& r) : _id(id), _row(r) {}
+    Row(size_t id, const std::vector<unsigned char>& r) : _id(id), _row(r) {}
     ~Row() {}
-    const vector<unsigned char>& getRow() const { return _row; }
-    void setRow(vector<unsigned char> row) { _row = row; }
+    const std::vector<unsigned char>& getRow() const { return _row; }
+    void setRow(std::vector<unsigned char> row) { _row = row; }
     size_t size() const { return _row.size(); }
     unsigned char& back() { return _row.back(); }
     const unsigned char& back() const { return _row.back(); }
@@ -56,11 +47,12 @@ public:
 
 private:
     size_t _id;
-    vector<unsigned char> _row;
+    std::vector<unsigned char> _row;
 };
 
 class M2 {
 public:
+    using Oper = std::pair<size_t, size_t>;
     M2() {}
     ~M2() {}
 
@@ -68,8 +60,8 @@ public:
     void reset();
     void defaultInit();
     bool fromZXVertices(const ZXVertexList& frontier, const ZXVertexList& neighbors);
-    const vector<Row>& getMatrix() { return _matrix; }
-    const vector<Oper>& getOpers() { return _opStorage; }
+    const std::vector<Row>& getMatrix() { return _matrix; }
+    const std::vector<Oper>& getOpers() { return _opStorage; }
     const Row& getRow(size_t r) { return _matrix[r]; }
 
     size_t numRows() const { return _matrix.size(); }
@@ -98,8 +90,8 @@ public:
     }
 
 private:
-    vector<Row> _matrix;
-    vector<Oper> _opStorage;
+    std::vector<Row> _matrix;
+    std::vector<Oper> _opStorage;
 };
 
 #endif  // M2_H

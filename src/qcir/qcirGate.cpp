@@ -1,20 +1,16 @@
 /****************************************************************************
   FileName     [ qcirGate.cpp ]
   PackageName  [ qcir ]
-  Synopsis     [ Define qcir gate functions ]
+  Synopsis     [ Define class qcirGate member functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include "qcirGate.h"
 
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <vector>
+#include <assert.h>  // for assert
 
-#include "qcir.h"
+#include <string>  // for string
 
 using namespace std;
 

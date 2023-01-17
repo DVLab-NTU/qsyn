@@ -1,13 +1,9 @@
-DV Lab, NTUEE, Qsyn 0.3.0
+DV Lab, NTUEE, Qsyn 0.4.0
 qsyn> qccr benchmark/pseudoSimp/tof_3.qasm
-Note: QCir list is empty now. Create a new one.
-Successfully generated QCir 0
-Checkout to QCir 0
+Create and checkout to QCir 0
 
 qsyn> qc2zx
-Traverse and build the graph... 
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> zxgp -v
 
@@ -103,95 +99,33 @@ qsyn> zxgt -GL
 The graph is not graph-like!
 
 qsyn> zxgsimp -FR
-Hadamard Rule: 6 . 6 . 6 . 3 iterations
-Spider Fusion Rule: 
-5 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-1 iterations
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Gadget Rule: 
-3 iterations
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-1 iterations
-Spider Fusion Rule: 
-1 iterations
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Boundary Rule: 
-No matches
-Phase Gadget Rule: 
-1 iterations
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-2 iterations
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Gadget Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Boundary Rule: 
-No matches
-Phase Gadget Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Identity Removal Rule: 
-No matches
-Spider Fusion Rule: 
-No matches
-Pivot Rule: 
-No matches
-Local Complementation Rule: 
-No matches
-Pivot Gadget Rule: 
-No matches
+
+All rules applied in order:
+Hadamard Rule                 3 iterations.
+  1) 6 matches
+  2) 6 matches
+  3) 6 matches
+Spider Fusion Rule            5 iterations.
+  1) 8 matches
+  2) 6 matches
+  3) 3 matches
+  4) 1 matches
+  5) 1 matches
+Pivot Rule                    1 iterations.
+  1) 1 matches
+Pivot Gadget Rule             3 iterations.
+  1) 7 matches
+  2) 3 matches
+  3) 3 matches
+Identity Removal Rule         1 iterations.
+  1) 4 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Phase Gadget Rule             1 iterations.
+  1) 1 matches
+Local Complementation Rule    2 iterations.
+  1) 1 matches
+  2) 1 matches
 
 qsyn> zxgt -GL
 The graph is graph-like!

@@ -7,11 +7,12 @@
 ****************************************************************************/
 #include "cmdParser.h"
 
-#include <cassert>
-#include <cstdlib>
-#include <filesystem>
-#include <iomanip>
-#include <iostream>
+#include <cassert>     // for assert
+#include <cstddef>     // for size_t
+#include <cstdlib>     // for exit
+#include <filesystem>  // lines 12-12
+#include <fstream>
+#include <iostream>  // for cin, cout
 
 #include "util.h"
 
@@ -752,4 +753,8 @@ bool CmdExec::checkOptCmd(const string& check) const {
         if (ch1 != ch2) return false;
     }
     return true;
+}
+
+void CmdParser::printPrompt() const {
+    cout << _prompt;
 }

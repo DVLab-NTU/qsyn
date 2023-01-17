@@ -1,23 +1,23 @@
 /****************************************************************************
   FileName     [ qcirCmd.cpp ]
   PackageName  [ qcir ]
-  Synopsis     [ Define basic qcir package commands ]
+  Synopsis     [ Define qcir package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include "qcirCmd.h"
 
-#include <cassert>
-#include <iomanip>
-#include <iostream>
+#include <cstddef>   // for size_t, NULL
+#include <iostream>  // for ostream
+#include <string>    // for string
 
-#include "phase.h"
-#include "qcir.h"
-#include "qcirCmd.h"
-#include "qcirGate.h"
-#include "qcirMgr.h"
-#include "util.h"
+#include "cmdMacros.h"  // for CMD_N_OPTS_AT_MOST_OR_RETURN
+#include "phase.h"      // for Phase
+#include "qcir.h"       // for QCir
+#include "qcirGate.h"   // for QCirGate
+#include "qcirMgr.h"    // for QCirMgr
+#include "zxGraph.h"    // for ZXGraph
 
 using namespace std;
 
@@ -166,7 +166,7 @@ void QCirNewCmd::usage(ostream &os) const {
 
 void QCirNewCmd::help() const {
     cout << setw(15) << left << "QCNew: "
-         << "new QCir to QCirMgr" << endl;
+         << "create a new QCir to QCirMgr" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -207,12 +207,12 @@ QCirCopyCmd::exec(const string &option) {  // check option
 }
 
 void QCirCopyCmd::usage(ostream &os) const {
-    os << "Usage: ZXCOPy <size_t id> [-Replace]" << endl;
+    os << "Usage: QCCOPy <size_t id> [-Replace]" << endl;
 }
 
 void QCirCopyCmd::help() const {
-    cout << setw(15) << left << "ZXCOPy: "
-         << "copy a ZX-graph" << endl;
+    cout << setw(15) << left << "QCCOPy: "
+         << "copy a QCir" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -296,7 +296,7 @@ void QCPrintCmd::usage(ostream &os) const {
 
 void QCPrintCmd::help() const {
     cout << setw(15) << left << "QCPrint: "
-         << "print info in QCirMgr" << endl;
+         << "print info of QCirMgr" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -331,7 +331,7 @@ QCirReadCmd::exec(const string &option) {
         return CMD_EXEC_ERROR;
     }
     if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end()) {
-        cout << "Note: QCir list is empty now. Create a new one." << endl;
+        // cout << "Note: QCir list is empty now. Create a new one." << endl;
         qcirMgr->addQCir(qcirMgr->getNextID());
     } else {
         if (doReplace) {
@@ -353,7 +353,7 @@ void QCirReadCmd::usage(ostream &os) const {
 
 void QCirReadCmd::help() const {
     cout << setw(15) << left << "QCCRead: "
-         << "read a circuit and construct corresponding netlist" << endl;
+         << "read a circuit and construct the corresponding netlist" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -403,6 +403,7 @@ QCirGatePrintCmd::exec(const string &option) {
             cerr << "Error: id " << id << " not found!!" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, strID);
         }
+        cout << "\n> Gate " << id << " (" << qcirMgr->getQCircuit()->getGate(id)->getTypeStr() << ")";
         qcirMgr->getQCircuit()->getGate(id)->getZXform()->printVertices();
     } else {
         if (!qcirMgr->getQCircuit()->printGateInfo(id, showTime))
@@ -418,7 +419,7 @@ void QCirGatePrintCmd::usage(ostream &os) const {
 
 void QCirGatePrintCmd::help() const {
     cout << setw(15) << left << "QCGPrint: "
-         << "print quantum gate information\n";
+         << "print gate info in QCir\n";
 }
 
 //----------------------------------------------------------------------
@@ -455,16 +456,15 @@ void QCirPrintCmd::usage(ostream &os) const {
 
 void QCirPrintCmd::help() const {
     cout << setw(15) << left << "QCCPrint: "
-         << "print quantum circuit\n";
+         << "print info of QCir\n";
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
-//     QCGAdd <-H | -X | -Z | -T | -TDG | -S | -V> <(size_t targ)> [-APpend|-PRepend] /
+//     QCGAdd <-H | -X | -Z | -T | -TDG | -S | -SX> <(size_t targ)> [-APpend|-PRepend] /
 //     QCGAdd <-CX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend] /
 //     QCGAdd <-RZ> <-PHase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend] /
 //     QCGAdd <-CRZ> <-PHase (Phase phase_inp)> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]
-// .   QCGAdd <-MCRX> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]
-// .   QCGAdd <-MCP> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]
+//     QCGAdd <-MCP> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]
 //-------------------------------------------------------------------------------------------------------------------------------
 CmdExecStatus
 QCirAddGateCmd::exec(const string &option) {
@@ -502,7 +502,7 @@ QCirAddGateCmd::exec(const string &option) {
     vector<size_t> qubits;
     // <-H | -X | -Z | -TG | -TDg | -S | -V | -Y | -SY | -SDG>
     if (myStrNCmp("-H", type, 2) == 0 || myStrNCmp("-X", type, 2) == 0 || myStrNCmp("-Z", type, 2) == 0 || myStrNCmp("-T", type, 2) == 0 ||
-        myStrNCmp("-TDG", type, 4) == 0 || myStrNCmp("-S", type, 2) == 0 || myStrNCmp("-V", type, 2) == 0 || myStrNCmp("-Y", type, 2) == 0 ||
+        myStrNCmp("-TDG", type, 4) == 0 || myStrNCmp("-S", type, 2) == 0 || myStrNCmp("-SX", type, 2) == 0 || myStrNCmp("-Y", type, 2) == 0 ||
         myStrNCmp("-SY", type, 3) == 0 || myStrNCmp("-SDG", type, 4) == 0) {
         if (options.size() == 1)
             return CmdExec::errorOption(CMD_OPT_MISSING, type);
@@ -554,7 +554,7 @@ QCirAddGateCmd::exec(const string &option) {
                     return CmdExec::errorOption(CMD_OPT_MISSING, options[1]);
                 } else {
                     // Check Phase Legal
-                    if (!phase.fromString(options[2])) {
+                    if (!Phase::fromString(options[2], phase)) {
                         cerr << "Error: not a legal phase!!" << endl;
                         return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[2]);
                     }
@@ -577,7 +577,7 @@ QCirAddGateCmd::exec(const string &option) {
         qubits.push_back(id);
         type = type.erase(0, 1);
         qcirMgr->getQCircuit()->addGate(type, qubits, phase, appendGate);
-    } else if (myStrNCmp("-MCRX", type, 5) == 0 || myStrNCmp("-CRZ", type, 4) == 0 || myStrNCmp("-MCP", type, 4) == 0) {
+    } else if (myStrNCmp("-CRZ", type, 4) == 0 || myStrNCmp("-MCP", type, 4) == 0) {
         Phase phase;
         if (options.size() == 1) {
             cerr << "Error: missing -PHase flag!!" << endl;
@@ -592,7 +592,7 @@ QCirAddGateCmd::exec(const string &option) {
                     return CmdExec::errorOption(CMD_OPT_MISSING, options[1]);
                 } else {
                     // Check Phase Legal
-                    if (!phase.fromString(options[2])) {
+                    if (!Phase::fromString(options[2], phase)) {
                         cerr << "Error: not a legal phase!!" << endl;
                         return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[2]);
                     }
@@ -644,7 +644,6 @@ QCirAddGateCmd::exec(const string &option) {
         type = type.erase(0, 1);
         qcirMgr->getQCircuit()->addGate(type, qubits, Phase(0), appendGate);
     } else {
-        cerr << "Error: type is not implemented!!" << endl;
         return CmdExec::errorOption(CMD_OPT_ILLEGAL, type);
     }
 
@@ -652,11 +651,10 @@ QCirAddGateCmd::exec(const string &option) {
 }
 
 void QCirAddGateCmd::usage(ostream &os) const {
-    os << "QCGAdd <-H | -X | -Z | -T | -TDG | -S | -SDG | -V | -Y | -SY> <(size_t targ)> [-APpend|-PRepend]" << endl;
+    os << "QCGAdd <-H | -X | -Z | -T | -TDG | -S | -SDG | -SX | -Y | -SY> <(size_t targ)> [-APpend|-PRepend]" << endl;
     os << "QCGAdd <-CX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
     os << "QCGAdd <-CCX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
     os << "QCGAdd <-RZ> <-PHase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend]" << endl;
-    os << "QCGAdd <-MCRX> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]" << endl;
     os << "QCGAdd <-MCP> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]" << endl;
     os << "QCGAdd <-CRZ> <-PHase (Phase phase_inp)> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
 }
@@ -792,7 +790,7 @@ void QCir2ZXCmd::usage(ostream &os) const {
 
 void QCir2ZXCmd::help() const {
     cout << setw(15) << left << "QC2ZX: "
-         << "convert the QCir to ZX-graph\n";
+         << "convert QCir to ZX-graph\n";
 }
 
 //----------------------------------------------------------------------
@@ -815,7 +813,7 @@ void QCir2TSCmd::usage(ostream &os) const {
 
 void QCir2TSCmd::help() const {
     cout << setw(15) << left << "QC2TS: "
-         << "convert the QCir to tensor\n";
+         << "convert QCir to tensor\n";
 }
 
 //----------------------------------------------------------------------
@@ -842,7 +840,7 @@ void QCirWriteCmd::usage(ostream &os) const {
 
 void QCirWriteCmd::help() const {
     cout << setw(15) << left << "QCCWrite: "
-         << "write QASM file\n";
+         << "write QCir to a QASM file\n";
 }
 
 void QCirAddMultipleCmd::usage(ostream &os) const {

@@ -1,7 +1,6 @@
-DV Lab, NTUEE, Qsyn 0.3.0
+DV Lab, NTUEE, Qsyn 0.4.0
 qsyn> zxgr benchmark/zx/tof2_opt.zx
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> zxggf -all
 GFlow of the graph: 

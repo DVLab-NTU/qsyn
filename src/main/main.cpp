@@ -6,10 +6,16 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <ctime>
+#include <stdlib.h>  // for exit
 
-#include "cmdParser.h"
-#include "util.h"
+#include <cstddef>  // for size_t
+#include <fstream>
+#include <iostream>
+
+#include "cmdParser.h"  // for CmdExecStatus, CmdExecStatus::CMD_EXEC_DONE
+#include "myUsage.h"    // for MyUsage
+#include "util.h"       // for myUsage
+
 using namespace std;
 
 //----------------------------------------------------------------------
@@ -66,7 +72,7 @@ int main(int argc, char** argv) {
         !initZXCmd() ||
         !initSimpCmd() ||
         !initTensorCmd() ||
-        !initM2Cmd() ||
+        // !initM2Cmd() ||
         !initExtractCmd() ||
         !initGFlowCmd() ||
         !initLTCmd()) {
@@ -74,9 +80,9 @@ int main(int argc, char** argv) {
     }
 
     CmdExecStatus status = CMD_EXEC_DONE;
-    // time_t result = time(nullptr);
-    cout << "DV Lab, NTUEE, Qsyn 0.3.0" << endl;
-    // cerr << "DV Lab, NTUEE, Qsyn 0.3.0, compiled " << ctime(&result);
+
+    cout << "DV Lab, NTUEE, Qsyn 0.4.0" << endl;
+
     while (status != CMD_EXEC_QUIT) {  // until "quit" or command error
         status = cmdMgr->execOneCmd();
         cout << endl;  // a blank line between each command

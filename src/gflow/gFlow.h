@@ -14,6 +14,9 @@
 #include "m2.h"
 #include "zxGraph.h"
 
+class ZXGraph;
+class ZXVertex;
+
 class GFlow {
 public:
     using Levels = std::vector<ZXVertexList>;
@@ -44,7 +47,7 @@ private:
     // helper members
     ZXVertexList _frontier;
     ZXVertexList _neighbors;
-    unordered_set<ZXVertex*> _taken;
+    std::unordered_set<ZXVertex*> _taken;
     M2 _coefficientMatrix;
 
     // gflow calculation subroutines

@@ -1,26 +1,27 @@
 /****************************************************************************
   FileName     [ qcirReader.cpp ]
   PackageName  [ qcir ]
-  Synopsis     [ Define QCir Reader functions ]
+  Synopsis     [ Define class QCir Reader functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <fstream>
-#include <iomanip>
+#include <cstddef>  // for size_t
+#include <fstream>  // for fstream
 #include <iostream>
-#include <string>
-#include <vector>
+#include <string>  // for string
 
-#include "qcir.h"
+#include "qcir.h"  // for QCir
 
-/// @brief Read QCir file
-/// @param filename
-/// @return true if successfully read
-/// @return false if error in file or not found
+using namespace std;
 
+/**
+ * @brief Read QCir file
+ *
+ * @param filename
+ * @return true if successfully read
+ * @return false if error in file or not found
+ */
 bool QCir::readQCirFile(string filename) {
     string lastname = filename.substr(filename.find_last_of('/') + 1);
 
@@ -59,10 +60,13 @@ bool QCir::readQCirFile(string filename) {
     }
 }
 
-/// @brief Read QASM
-/// @param filename
-/// @return true if successfully read
-/// @return false if error in file or not found
+/**
+ * @brief Read QASM
+ *
+ * @param filename
+ * @return true if successfully read
+ * @return false if error in file or not found
+ */
 bool QCir::readQASM(string filename) {
     // read file and open
     fstream qasm_file;
@@ -114,16 +118,19 @@ bool QCir::readQASM(string filename) {
         }
 
         Phase phase;
-        phase.fromString(phaseStr);
+        Phase::fromString(phaseStr, phase);
         addGate(type, pin_id, phase, true);
     }
     return true;
 }
 
-/// @brief Read QC
-/// @param filename
-/// @return true if successfully read
-/// @return false if error in file or not found
+/**
+ * @brief Read QC
+ *
+ * @param filename
+ * @return true if successfully read
+ * @return false if error in file or not found
+ */
 bool QCir::readQC(string filename) {
     // read file and open
     fstream qc_file;
@@ -197,10 +204,13 @@ bool QCir::readQC(string filename) {
     return true;
 }
 
-/// @brief Read QSIM
-/// @param filename
-/// @return true if successfully read
-/// @return false if error in file or not found
+/**
+ * @brief Read QSIM
+ *
+ * @param filename
+ * @return true if successfully read
+ * @return false if error in file or not found
+ */
 bool QCir::readQSIM(string filename) {
     // read file and open
     fstream qsim_file;
@@ -241,7 +251,7 @@ bool QCir::readQSIM(string filename) {
             pos = myStrGetTok(line, qubit_id, pos);
             pin_id.push_back(stoul(qubit_id));
             pos = myStrGetTok(line, phaseStr, pos);
-            phase.fromString(phaseStr);
+            Phase::fromString(phaseStr, phase);
             addGate(type, pin_id, phase, true);
         } else if (count(single_gate_list.begin(), single_gate_list.end(), type)) {
             // add single qubit gate
@@ -256,10 +266,13 @@ bool QCir::readQSIM(string filename) {
     return true;
 }
 
-/// @brief Read QUIPPER
-/// @param filename
-/// @return true if successfully read
-/// @return false if error in file or not found
+/**
+ * @brief Read QUIPPER
+ *
+ * @param filename
+ * @return true if successfully read
+ * @return false if error in file or not found
+ */
 bool QCir::readQUIPPER(string filename) {
     // read file and open
     fstream quipper_file;

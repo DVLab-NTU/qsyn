@@ -6,16 +6,17 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <iostream>
-#include <vector>
+#include <cstddef>  // for size_t
 
+#include "zxGraph.h"
 #include "zxRules.h"
+
 using namespace std;
 
 extern size_t verbose;
 
 /**
- * @brief Finds if the vertex is duplicated
+ * @brief Find if the vertex is duplicated
  *
  * @param vec
  * @return true if found
@@ -33,14 +34,14 @@ bool Bialgebra::check_duplicated_vertex(vector<ZXVertex*> vec) {
 }
 
 /**
- * @brief Finds noninteracting matchings of the bialgebra rule.
+ * @brief Find noninteracting matchings of the bialgebra rule.
  *        (Check PyZX/pyzx/rules.py/match_bialg_parallel for more details)
  *
  * @param g
  */
 void Bialgebra::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    if (verbose >= 8) g->printVertices();
+    // if (verbose >= 8) g->printVertices();
     unordered_map<size_t, size_t> id2idx;
     size_t cnt = 0;
     for (const auto& v : g->getVertices()) {
@@ -63,7 +64,7 @@ void Bialgebra::match(ZXGraph* g) {
 
         // Do not consider the phase spider yet
         // todo: consider the phase
-        if ((left->getPhase() != 0) || (right->getPhase() != 0)) return;
+        if ((left->getPhase() != Phase(0)) || (right->getPhase() != Phase(0))) return;
 
         // Verify if the edge is connected by a X and a Z spider.
         if (!((left->getType() == VertexType::X && right->getType() == VertexType::Z) || (left->getType() == VertexType::Z && right->getType() == VertexType::X))) return;
@@ -77,8 +78,8 @@ void Bialgebra::match(ZXGraph* g) {
         if (check_duplicated_vertex(neighbor_of_left) || check_duplicated_vertex(neighbor_of_right)) return;
 
         // Check if all neighbors of z are x without phase and all neighbors of x are z without phase.
-        if (!all_of(neighbor_of_left.begin(), neighbor_of_left.end(), [right](ZXVertex* v) { return (v->getPhase() == 0 && v->getType() == right->getType()); })) return;
-        if (!all_of(neighbor_of_right.begin(), neighbor_of_right.end(), [left](ZXVertex* v) { return (v->getPhase() == 0 && v->getType() == left->getType()); })) return;
+        if (!all_of(neighbor_of_left.begin(), neighbor_of_left.end(), [right](ZXVertex* v) { return (v->getPhase() == Phase(0) && v->getType() == right->getType()); })) return;
+        if (!all_of(neighbor_of_right.begin(), neighbor_of_right.end(), [left](ZXVertex* v) { return (v->getPhase() == Phase(0) && v->getType() == left->getType()); })) return;
 
         // Check if all the edges are SIMPLE
         // TODO: Make H edge aware too.
@@ -99,7 +100,7 @@ void Bialgebra::match(ZXGraph* g) {
 }
 
 /**
- * @brief Performs a certain type of bialgebra rewrite based on `_matchTypeVec`
+ * @brief Perform a certain type of bialgebra rewrite based on `_matchTypeVec`
  *        (Check PyZX/pyzx/rules.py/bialg for more details)
  *
  * @param g

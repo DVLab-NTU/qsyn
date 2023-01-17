@@ -1,0 +1,126 @@
+ver 9
+qcba
+qcga -h 0
+qcga -h 0
+qccp -l
+qc2zx
+zxgp -v
+zxgsimp -hr
+zxgp -v
+zxge -addv 0 H_BOX 0
+zxge -adde 0 4 HADAMARD
+zxge -adde 1 4 SIMPLE
+zxge -rme 0 1 -ALL
+zxgp -v
+zxgsimp -hf
+zxr
+qcr
+ver 9
+qcba
+qcga -h 0
+qcga -h 0
+qcga -h 0
+qccp -l
+qc2zx
+zxgp -v
+zxge -rme 2 3 -ALL
+zxge -rme 3 4 -ALL
+zxge -adde 2 3 HADAMARD
+zxge -adde 3 4 HADAMARD
+zxgp -v
+zxgsimp -hf
+zxr
+qcr
+ver 9
+qcba
+qcga -h 0
+qcga -h 0
+qccp -l
+qc2zx
+zxgp -v
+zxge -rme 0 2 -ALL
+zxge -rme 2 3 -ALL
+zxge -rme 3 1 -ALL
+zxge -adde 0 2 HADAMARD
+zxge -adde 2 3 HADAMARD
+zxge -adde 3 1 HADAMARD
+zxgp -v
+zxgsimp -hf
+zxgp -v
+zxr
+qcr
+ver 9
+qcba
+qcga -h 0
+qcga -h 0
+qcga -h 0
+qccp -l
+qc2zx
+zxgp -v
+zxge -rme 0 2 SIMPLE
+zxge -rme 2 3 SIMPLE
+zxge -rme 3 4 SIMPLE
+zxge -rme 4 1 SIMPLE
+zxge -adde 0 2 HADAMARD
+zxge -adde 2 3 HADAMARD
+zxge -adde 3 4 HADAMARD
+zxge -adde 4 1 HADAMARD
+zxgp -v
+zxgsimp -hf
+zxgp -v
+zxr
+qcr
+ver 9
+qcba
+qcga -h 0
+qcga -z 0
+qcga -h 0
+qccp -l
+qc2zx
+zxgp -v
+zxge -rme 0 2 SIMPLE
+zxge -rme 3 4 SIMPLE
+zxge -adde 0 2 HADAMARD
+zxge -adde 3 4 HADAMARD
+zxgp -v
+zxgsimp -hf
+zxgp -v
+zxr
+qcr
+ver 9
+qcba
+qcba 
+qcga -z 0
+qcga -z 1
+qccp -l
+qc2zx
+zxgp -v
+zxge -addv 0 H_BOX 0
+zxge -addv 1 H_BOX 0
+zxge -adde 4 6 HADAMARD
+zxge -adde 6 7 SIMPLE
+zxge -adde 7 5 HADAMARD
+zxgp -v
+zxgsimp -hf
+zxgp -v
+zxr
+qcr
+ver 9
+qcba
+qcga -h 0
+qcga -h 0
+qcga -z 0
+qcga -h 0
+qcga -h 0
+qcga -z 0
+qccp -l
+qc2zx
+zxgp -v
+zxge -rme 2 3 SIMPLE
+zxge -adde 2 3 HADAMARD
+zxge -rme 4 5 SIMPLE
+zxge -adde 4 5 HADAMARD
+zxgp -v
+zxgsimp -hf
+zxgp -v
+qq -f

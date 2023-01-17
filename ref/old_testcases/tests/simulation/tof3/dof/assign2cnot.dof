@@ -1,0 +1,17 @@
+qccr benchmark/pseudoSimp/tof_3.qasm
+qc2zx
+zxgp -v
+zxgas 0 I X pi
+zxgas 0 O X pi
+zxgas 2 I X pi
+zxgas 2 O X pi
+zxgas 4 I X 0
+zxgas 4 O X 0
+zxgp -v
+zxgs -fr
+zxgp -v
+zxgs -stco
+zxgp -v
+zx2ts
+tsp 0
+qq -f

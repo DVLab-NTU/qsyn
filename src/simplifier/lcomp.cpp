@@ -6,22 +6,22 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <iostream>
-#include <vector>
+#include <cstddef>  // for size_t
 
+#include "zxGraph.h"
 #include "zxRules.h"
+
 using namespace std;
 
 extern size_t verbose;
 
 /**
- * @brief Finds noninteracting matchings of the local complementation rule.
+ * @brief Find noninteracting matchings of the local complementation rule.
  *
  * @param g
  */
 void LComp::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    if (verbose >= 8) g->printVertices();
 
     // Find all Z vertices that connect to all neighb ors with H edge.
     unordered_set<ZXVertex*> taken;

@@ -1,0 +1,37 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> zxnew
+Create and checkout to Graph 0
+
+qsyn> zxge -addi 1
+
+qsyn> zxge -addi 0
+
+qsyn> zxge -addi 2
+
+qsyn> zxge -addo 0
+
+qsyn> zxge -addo 2
+
+qsyn> zxge -addo 1
+
+qsyn> zxgp -i
+Input ( 0 1 2 )
+Total #Inputs: 3
+
+qsyn> zxgp -o
+Output ( 3 4 5 )
+Total #Outputs: 3
+
+qsyn> zxgp -v
+
+ID:   0 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   0     
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   0     
+ID:   2 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   0     
+ID:   3 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   0     
+ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   0     
+ID:   5 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   0     
+Total #Vertices: 6
+
+
+qsyn> qq -f
+

@@ -1,13 +1,15 @@
 /****************************************************************************
   FileName     [ tensorUtil.h ]
   PackageName  [ tensor ]
-  Synopsis     [ Definition of the Tensor base class interface ]
+  Synopsis     [ Define Tensor base class interface ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #ifndef TENSOR_UTIL_H
 #define TENSOR_UTIL_H
 
+#include <cstddef>
+#include <vector>
 #include <xtensor/xstorage.hpp>
 
 using TensorShape = xt::svector<size_t>;

@@ -1,0 +1,31 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> qccread benchmark/benchmark_SABRE/small/qft_4.qasm
+Create and checkout to QCir 0
+
+qsyn> qccread benchmark/benchmark_SABRE/small/qft_4.qasm
+Create and checkout to QCir 1
+
+qsyn> qccp -q
+Q 0  -cx( 0)--cx( 1)--cx( 2)-
+Q 1  -cx( 0)----------cx( 3)--cx( 4)-
+Q 2  ---------cx( 1)--cx( 3)----------cx( 5)-
+Q 3  -----------------cx( 2)--cx( 4)--cx( 5)-
+
+qsyn> qccompose 1
+
+qsyn> qccp -q
+Q 0  -cx( 0)--cx( 1)--cx( 2)----------cx( 6)--cx( 7)--cx( 9)-
+Q 1  -cx( 0)----------cx( 3)--cx( 4)--cx( 6)----------cx( 8)--cx(10)-
+Q 2  ---------cx( 1)--cx( 3)----------cx( 5)--cx( 7)--cx( 8)----------cx(11)-
+Q 3  -----------------cx( 2)--cx( 4)--cx( 5)----------cx( 9)--cx(10)--cx(11)-
+
+qsyn> qccompose 0
+
+qsyn> qccp -q
+Q 0  -cx( 0)--cx( 1)--cx( 2)----------cx( 6)--cx( 7)--cx( 9)----------cx(12)--cx(13)--cx(15)-
+Q 1  -cx( 0)----------cx( 3)--cx( 4)--cx( 6)----------cx( 8)--cx(10)--cx(12)----------cx(14)--cx(16)-
+Q 2  ---------cx( 1)--cx( 3)----------cx( 5)--cx( 7)--cx( 8)----------cx(11)--cx(13)--cx(14)----------cx(17)-
+Q 3  -----------------cx( 2)--cx( 4)--cx( 5)----------cx( 9)--cx(10)--cx(11)----------cx(15)--cx(16)--cx(17)-
+
+qsyn> qq -f
+

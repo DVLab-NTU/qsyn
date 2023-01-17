@@ -1,9 +1,8 @@
-DV Lab, NTUEE, Qsyn 0.3.0
+DV Lab, NTUEE, Qsyn 0.4.0
 qsyn> ver 2
 Note: verbose level is set to 2
 
 qsyn> qccr benchmark/pseudoSimp/toGraph2.qasm
-Note: QCir list is empty now. Create a new one.
 
 qsyn> qccp -q
 Q 0  -cx( 0)-- t( 1)-- h( 2)--cx( 3)-
@@ -27,7 +26,6 @@ Total #Vertices: 10
 
 
 qsyn> zxgs -hrule
-Hadamard Rule: 1 1 iterations
 
 qsyn> zxgp -v
 

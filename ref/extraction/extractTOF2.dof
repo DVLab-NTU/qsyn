@@ -1,0 +1,69 @@
+zxgr benchmark/zx/tof2_opt.zx
+zxcopy 1
+zxch 0
+zxgd ref/extraction/tof2/input.pdf
+zxgs -fr
+zxgd ref/extraction/tof2/fr.pdf
+qcba 3 
+extract -ZXgraph 0 -QCir 0 -CLF
+zxgd ref/extraction/tof2/loop0/clf.pdf
+qc2zx
+zxgd ref/extraction/tof2/loop0/clfCir.pdf
+extract -ZXgraph 0 -QCir 0 -RMG
+zxgd ref/extraction/tof2/loop0/rmg.pdf
+extract -ZXgraph 0 -QCir 0 -CLF
+zxgd ref/extraction/tof2/loop1/clf.pdf
+qc2zx
+zxgd ref/extraction/tof2/loop1/clfCir.pdf
+extract -ZXgraph 0 -QCir 0 -CX
+zxgd ref/extraction/tof2/loop1/cx.pdf
+qc2zx
+zxgd ref/extraction/tof2/loop1/cxCir.pdf
+extract -ZXgraph 0 -QCir 0 -H
+zxgd ref/extraction/tof2/loop1/h.pdf
+qc2zx
+zxgd ref/extraction/tof2/loop1/hCir.pdf
+extract -ZXgraph 0 -QCir 0 -CLF
+zxgd ref/extraction/tof2/loop2/clf.pdf
+qc2zx
+zxgd ref/extraction/tof2/loop2/clfCir.pdf
+extract -ZXgraph 0 -QCir 0 -RMG
+zxgd ref/extraction/tof2/loop2/rmg.pdf
+extract -ZXgraph 0 -QCir 0 -PH
+zxgd ref/extraction/tof2/loop3/ph.pdf
+qc2zx
+zxgd ref/extraction/tof2/loop3/phCir.pdf
+extract -ZXgraph 0 -QCir 0 -CZ
+zxgd ref/extraction/tof2/loop3/cz.pdf
+qc2zx
+zxgd ref/extraction/tof2/loop3/czCir.pdf
+extract -ZXgraph 0 -QCir 0 -H
+zxgd ref/extraction/tof2/loop3/h.pdf
+qc2zx
+zxgd ref/extraction/tof2/loop3/hCir.pdf
+extract -ZXgraph 0 -QCir 0 -CLF
+zxgd ref/extraction/tof2/loop4/clf.pdf
+qc2zx
+zxgd ref/extraction/tof2/loop4/clfCir.pdf
+extract -ZXgraph 0 -QCir 0 -CX
+zxgd ref/extraction/tof2/loop4/cx.pdf
+qc2zx
+zxgd ref/extraction/tof2/loop4/cxCir.pdf
+extract -ZXgraph 0 -QCir 0 -H
+zxgd ref/extraction/tof2/loop4/h.pdf
+qc2zx
+zxgd ref/extraction/tof2/loop4/hCir.pdf
+extract -ZXgraph 0 -QCir 0 -CLF
+zxgd ref/extraction/tof2/loop5/clf.pdf
+qc2zx
+zxgd ref/extraction/tof2/loop5/clfCir.pdf
+extract -ZXgraph 0 -QCir 0 -PER
+zxgd ref/extraction/tof2/loop5/per.pdf
+qc2zx
+zxgd ref/extraction/tof2/loop5/perCir.pdf
+qc2zx
+zxgadj
+zxcomp 1
+zxgs -fr
+zxgt -id
+qq -f

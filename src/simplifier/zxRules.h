@@ -1,7 +1,7 @@
 /****************************************************************************
-  FileName     [ ZXRule.h ]
+  FileName     [ zxRules.h ]
   PackageName  [ simplifier ]
-  Synopsis     [ ZX Basic Rules ]
+  Synopsis     [ Define class ZXRule structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -9,14 +9,13 @@
 #ifndef ZX_RULES_H
 #define ZX_RULES_H
 
-#include <array>
-#include <iostream>
-#include <tuple>
-#include <unordered_map>
-#include <vector>
+#include <string>   // for string
+#include <utility>  // for pair
 
-#include "zxDef.h"
-#include "zxGraph.h"
+#include "zxDef.h"  // for EdgePair
+
+class ZXGraph;
+class ZXVertex;
 
 namespace std {
 template <>
@@ -38,8 +37,8 @@ struct hash<vector<ZXVertex*>> {
  */
 class ZXRule {
 public:
-    typedef int MatchType;
-    typedef vector<MatchType> MatchTypeVec;
+    using MatchType = int;
+    using MatchTypeVec = std::vector<MatchType>;
 
     ZXRule() {}
     virtual ~ZXRule() { reset(); }
@@ -51,35 +50,35 @@ public:
 
     // Getter and Setter
     virtual const int& getMatchTypeVecNum() const { return _matchTypeVecNum; }
-    virtual const string& getName() const { return _name; }
-    virtual const vector<ZXVertex*>& getRemoveVertices() const { return _removeVertices; }
-    virtual const vector<EdgePair>& getRemoveEdges() const { return _removeEdges; }
-    virtual const vector<pair<ZXVertex*, ZXVertex*>>& getEdgeTableKeys() const { return _edgeTableKeys; }
-    virtual const vector<pair<int, int>>& getEdgeTableValues() const { return _edgeTableValues; }
+    virtual const std::string& getName() const { return _name; }
+    virtual const std::vector<ZXVertex*>& getRemoveVertices() const { return _removeVertices; }
+    virtual const std::vector<EdgePair>& getRemoveEdges() const { return _removeEdges; }
+    virtual const std::vector<std::pair<ZXVertex*, ZXVertex*>>& getEdgeTableKeys() const { return _edgeTableKeys; }
+    virtual const std::vector<std::pair<int, int>>& getEdgeTableValues() const { return _edgeTableValues; }
 
     virtual void setMatchTypeVecNum(int n) { _matchTypeVecNum = n; }
-    virtual void setRemoveVertices(vector<ZXVertex*> v) { _removeVertices = v; }
-    virtual void setName(string name) { _name = name; }
+    virtual void setRemoveVertices(std::vector<ZXVertex*> v) { _removeVertices = v; }
+    virtual void setName(std::string name) { _name = name; }
 
     virtual void pushRemoveEdge(const EdgePair& ep) { _removeEdges.push_back(ep); }
 
 protected:
     int _matchTypeVecNum;
-    string _name;
-    vector<ZXVertex*> _removeVertices;
-    vector<EdgePair> _removeEdges;
-    vector<pair<ZXVertex*, ZXVertex*>> _edgeTableKeys;
-    vector<pair<int, int>> _edgeTableValues;
+    std::string _name;
+    std::vector<ZXVertex*> _removeVertices;
+    std::vector<EdgePair> _removeEdges;
+    std::vector<std::pair<ZXVertex*, ZXVertex*>> _edgeTableKeys;
+    std::vector<std::pair<int, int>> _edgeTableValues;
 };
 
 /**
- * @brief Bialgebra Rule(b): Finds noninteracting matchings of the bialgebra rule. (in bialg.cpp)
+ * @brief Bialgebra Rule(b): Find noninteracting matchings of the bialgebra rule. (in bialg.cpp)
  *
  */
 class Bialgebra : public ZXRule {
 public:
-    typedef EdgePair MatchType;
-    typedef vector<MatchType> MatchTypeVec;
+    using MatchType = EdgePair;
+    using MatchTypeVec = std::vector<MatchType>;
 
     Bialgebra() {
         _name = "Bialgebra Rule";
@@ -90,7 +89,7 @@ public:
     void rewrite(ZXGraph* g) override;
 
     // checker
-    bool check_duplicated_vertex(vector<ZXVertex*> vec);
+    bool check_duplicated_vertex(std::vector<ZXVertex*> vec);
 
     // Getter and Setter
     const MatchTypeVec& getMatchTypeVec() const { return _matchTypeVec; }
@@ -101,13 +100,13 @@ protected:
 };
 
 /**
- * @brief Pi copy rule(pi): Finds spiders with a 0 or pi phase that have a single neighbor. (in copy.cpp)
+ * @brief State copy rule(pi): Find spiders with a 0 or pi phase that have a single neighbor. (in copy.cpp)
  *
  */
 class StateCopy : public ZXRule {
 public:
-    typedef tuple<ZXVertex*, ZXVertex*, vector<ZXVertex*>> MatchType;  // vertex with a pi,  vertex with a, neighbors
-    typedef vector<MatchType> MatchTypeVec;
+    using MatchType = std::tuple<ZXVertex*, ZXVertex*, std::vector<ZXVertex*>>;  // vertex with a pi,  vertex with a, neighbors
+    using MatchTypeVec = std::vector<MatchType>;
 
     StateCopy() {
         _name = "State Copy Rule";
@@ -126,13 +125,13 @@ protected:
 };
 
 /**
- * @brief Hadamard Cancellation(i2): Fuses two neighboring H-boxes together. (in hfusion.cpp)
+ * @brief Hadamard Cancellation(i2): Fuse two neighboring H-boxes together. (in hfusion.cpp)
  *
  */
 class HboxFusion : public ZXRule {
 public:
-    typedef ZXVertex* MatchType;
-    typedef vector<MatchType> MatchTypeVec;
+    using MatchType = ZXVertex*;
+    using MatchTypeVec = std::vector<MatchType>;
 
     HboxFusion() {
         _name = "Hadamard Cancellation Rule";
@@ -151,38 +150,13 @@ protected:
 };
 
 /**
- * @brief
- *
- */
-class Hopf : public ZXRule {
-public:
-    typedef pair<ZXVertex*, ZXVertex*> MatchType;
-    typedef vector<MatchType> MatchTypeVec;
-
-    Hopf() {
-        _name = "Hopf Rule";
-    }
-    virtual ~Hopf() {}
-
-    void match(ZXGraph* g) override;
-    void rewrite(ZXGraph* g) override;
-
-    // Getter and Setter
-    const MatchTypeVec& getMatchTypeVec() const { return _matchTypeVec; }
-    void setMatchTypeVec(MatchTypeVec v) { _matchTypeVec = v; }
-
-protected:
-    MatchTypeVec _matchTypeVec;
-};
-
-/**
  * @brief Hadamard rule (h): H_BOX vertex -> HADAMARD edge (in hrule.cpp)
  * @ ZXRule's Derived class
  */
 class HRule : public ZXRule {
 public:
-    typedef ZXVertex* MatchType;
-    typedef vector<MatchType> MatchTypeVec;
+    using MatchType = ZXVertex*;
+    using MatchTypeVec = std::vector<MatchType>;
 
     HRule() {
         _name = "Hadamard Rule";
@@ -201,13 +175,13 @@ protected:
 };
 
 /**
- * @brief Identity Removal Rule(i1): Finds non-interacting identity vertices. (in id.cpp)
+ * @brief Identity Removal Rule(i1): Find non-interacting identity vertices. (in id.cpp)
  *
  */
 class IdRemoval : public ZXRule {
 public:
-    typedef tuple<ZXVertex*, ZXVertex*, ZXVertex*, EdgeType> MatchType;  // vertex, neighbor0, neighbor1, new edge type
-    typedef vector<MatchType> MatchTypeVec;
+    using MatchType = std::tuple<ZXVertex*, ZXVertex*, ZXVertex*, EdgeType>;  // vertex, neighbor0, neighbor1, new edge type
+    using MatchTypeVec = std::vector<MatchType>;
 
     IdRemoval() {
         _name = "Identity Removal Rule";
@@ -226,13 +200,13 @@ protected:
 };
 
 /**
- * @brief Finds noninteracting matchings of the local complementation rule.
+ * @brief Find noninteracting matchings of the local complementation rule.
  *
  */
 class LComp : public ZXRule {
 public:
-    typedef pair<ZXVertex*, vector<ZXVertex*>> MatchType;  // Vertex to remove, its neighbors
-    typedef vector<MatchType> MatchTypeVec;
+    using MatchType = std::pair<ZXVertex*, std::vector<ZXVertex*>>;  // Vertex to remove, its neighbors
+    using MatchTypeVec = std::vector<MatchType>;
 
     LComp() {
         _name = "Local Complementation Rule";
@@ -251,13 +225,13 @@ protected:
 };
 
 /**
- * @brief Finds non-interacting matchings of the phase gadget rule.
+ * @brief Find non-interacting matchings of the phase gadget rule.
  *
  */
 class PhaseGadget : public ZXRule {
 public:
-    typedef tuple<Phase, vector<ZXVertex*>, vector<ZXVertex*>> MatchType;
-    typedef vector<MatchType> MatchTypeVec;
+    using MatchType = std::tuple<Phase, std::vector<ZXVertex*>, std::vector<ZXVertex*>>;
+    using MatchTypeVec = std::vector<MatchType>;
 
     PhaseGadget() {
         _name = "Phase Gadget Rule";
@@ -276,13 +250,13 @@ protected:
 };
 
 /**
- * @brief common interface to all pivot-like rules
+ * @brief Common interface to all pivot-like rules
  *
  */
 class PivotInterface : public ZXRule {
 public:
-    typedef array<ZXVertex*, 2> MatchType;
-    typedef vector<MatchType> MatchTypeVec;
+    using MatchType = std::array<ZXVertex*, 2>;
+    using MatchTypeVec = std::vector<MatchType>;
 
     PivotInterface() {}
     virtual ~PivotInterface() {}
@@ -300,13 +274,13 @@ protected:
 };
 
 /**
- * @brief Finds non-interacting matchings of the pivot rule.
+ * @brief Find non-interacting matchings of the pivot rule.
  *
  */
 class Pivot : public PivotInterface {
 public:
-    typedef PivotInterface::MatchType MatchType;  // vs, vt(need to remove)
-    typedef PivotInterface::MatchTypeVec MatchTypeVec;
+    using MatchType = PivotInterface::MatchType;
+    using MatchTypeVec = PivotInterface::MatchTypeVec;
 
     Pivot() {
         _name = "Pivot Rule";
@@ -317,17 +291,17 @@ public:
 
 protected:
     void preprocess(ZXGraph* g) override;
-    vector<ZXVertex*> _boundaries;
+    std::vector<ZXVertex*> _boundaries;
 };
 
 /**
- * @brief Finds non-interacting matchings of the pivot gadget rule.
+ * @brief Find non-interacting matchings of the pivot gadget rule.
  *
  */
 class PivotGadget : public PivotInterface {
 public:
-    typedef PivotInterface::MatchType MatchType;
-    typedef PivotInterface::MatchTypeVec MatchTypeVec;
+    using MatchType = PivotInterface::MatchType;
+    using MatchTypeVec = PivotInterface::MatchTypeVec;
 
     PivotGadget() {
         _name = "Pivot Gadget Rule";
@@ -341,13 +315,13 @@ protected:
 };
 
 /**
- * @brief Finds non-interacting matchings of the pivot gadget rule.
+ * @brief Find non-interacting matchings of the pivot gadget rule.
  *
  */
 class PivotBoundary : public PivotInterface {
 public:
-    typedef PivotInterface::MatchType MatchType;
-    typedef PivotInterface::MatchTypeVec MatchTypeVec;
+    using MatchType = PivotInterface::MatchType;
+    using MatchTypeVec = PivotInterface::MatchTypeVec;
 
     PivotBoundary() {
         _name = "Pivot Boundary Rule";
@@ -360,17 +334,17 @@ public:
 
 protected:
     void preprocess(ZXGraph* g) override;
-    vector<ZXVertex*> _boundaries;
+    std::vector<ZXVertex*> _boundaries;
 };
 
 /**
- * @brief Spider Fusion(f): Finds non-interacting matchings of the spider fusion rule. (in sfusion.cpp)
+ * @brief Spider Fusion(f): Find non-interacting matchings of the spider fusion rule. (in sfusion.cpp)
  *
  */
 class SpiderFusion : public ZXRule {
 public:
-    typedef pair<ZXVertex*, ZXVertex*> MatchType;
-    typedef vector<MatchType> MatchTypeVec;
+    using MatchType = std::pair<ZXVertex*, ZXVertex*>;
+    using MatchTypeVec = std::vector<MatchType>;
 
     SpiderFusion() {
         _name = "Spider Fusion Rule";

@@ -1,0 +1,163 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> ver 8
+Note: verbose level is set to 8
+
+qsyn> qccr benchmark/benchmark_SABRE/small/qft_4.qasm
+Create and checkout to QCir 0
+
+qsyn> qccp -q
+Q 0  -cx( 0)--cx( 1)--cx( 2)-
+Q 1  -cx( 0)----------cx( 3)--cx( 4)-
+Q 2  ---------cx( 1)--cx( 3)----------cx( 5)-
+Q 3  -----------------cx( 2)--cx( 4)--cx( 5)-
+
+qsyn> qc2zx
+Create and checkout to Graph 0
+Traverse and build the graph... 
+
+> Add boundaries
+Add vertex (●) 0
+Add vertex (●) 1
+Add edge (0, 1)
+Add vertex (●) 2
+Add vertex (●) 3
+Add edge (2, 3)
+Add vertex (●) 4
+Add vertex (●) 5
+Add edge (4, 5)
+Add vertex (●) 6
+Add vertex (●) 7
+Add edge (6, 7)
+
+> Gate 0 (cx)
+Add vertex (●) 0
+Add vertex (●) 1
+Add vertex ([1m[32mZ[0m[0m) 2
+Add vertex ([1m[31mX[0m[0m) 3
+Add vertex (●) 4
+Add vertex (●) 5
+Add edge (0, 2)
+Add edge (2, 4)
+Add edge (1, 3)
+Add edge (3, 5)
+Add edge (2, 3)
+Remove edge (1, 9), type: -
+Add edge (2, 9)
+Remove edge (0, 8), type: -
+Add edge (0, 8)
+Remove edge (5, 9), type: -
+Add edge (9, 3)
+Remove edge (4, 8), type: -
+Add edge (8, 1)
+
+> Gate 1 (cx)
+Add vertex (●) 0
+Add vertex (●) 1
+Add vertex ([1m[32mZ[0m[0m) 2
+Add vertex ([1m[31mX[0m[0m) 3
+Add vertex (●) 4
+Add vertex (●) 5
+Add edge (0, 2)
+Add edge (2, 4)
+Add edge (1, 3)
+Add edge (3, 5)
+Add edge (2, 3)
+Remove edge (1, 11), type: -
+Add edge (4, 11)
+Remove edge (0, 10), type: -
+Add edge (8, 10)
+Remove edge (5, 11), type: -
+Add edge (11, 5)
+Remove edge (4, 10), type: -
+Add edge (10, 1)
+
+> Gate 3 (cx)
+Add vertex (●) 0
+Add vertex (●) 1
+Add vertex ([1m[32mZ[0m[0m) 2
+Add vertex ([1m[31mX[0m[0m) 3
+Add vertex (●) 4
+Add vertex (●) 5
+Add edge (0, 2)
+Add edge (2, 4)
+Add edge (1, 3)
+Add edge (3, 5)
+Add edge (2, 3)
+Remove edge (1, 13), type: -
+Add edge (11, 13)
+Remove edge (0, 12), type: -
+Add edge (9, 12)
+Remove edge (5, 13), type: -
+Add edge (13, 5)
+Remove edge (4, 12), type: -
+Add edge (12, 3)
+
+> Gate 2 (cx)
+Add vertex (●) 0
+Add vertex (●) 1
+Add vertex ([1m[32mZ[0m[0m) 2
+Add vertex ([1m[31mX[0m[0m) 3
+Add vertex (●) 4
+Add vertex (●) 5
+Add edge (0, 2)
+Add edge (2, 4)
+Add edge (1, 3)
+Add edge (3, 5)
+Add edge (2, 3)
+Remove edge (1, 15), type: -
+Add edge (6, 15)
+Remove edge (0, 14), type: -
+Add edge (10, 14)
+Remove edge (5, 15), type: -
+Add edge (15, 7)
+Remove edge (4, 14), type: -
+Add edge (14, 1)
+
+> Gate 4 (cx)
+Add vertex (●) 0
+Add vertex (●) 1
+Add vertex ([1m[32mZ[0m[0m) 2
+Add vertex ([1m[31mX[0m[0m) 3
+Add vertex (●) 4
+Add vertex (●) 5
+Add edge (0, 2)
+Add edge (2, 4)
+Add edge (1, 3)
+Add edge (3, 5)
+Add edge (2, 3)
+Remove edge (1, 17), type: -
+Add edge (15, 17)
+Remove edge (0, 16), type: -
+Add edge (12, 16)
+Remove edge (5, 17), type: -
+Add edge (17, 7)
+Remove edge (4, 16), type: -
+Add edge (16, 3)
+
+> Gate 5 (cx)
+Add vertex (●) 0
+Add vertex (●) 1
+Add vertex ([1m[32mZ[0m[0m) 2
+Add vertex ([1m[31mX[0m[0m) 3
+Add vertex (●) 4
+Add vertex (●) 5
+Add edge (0, 2)
+Add edge (2, 4)
+Add edge (1, 3)
+Add edge (3, 5)
+Add edge (2, 3)
+Remove edge (1, 19), type: -
+Add edge (17, 19)
+Remove edge (0, 18), type: -
+Add edge (13, 18)
+Remove edge (5, 19), type: -
+Add edge (19, 7)
+Remove edge (4, 18), type: -
+Add edge (18, 5)
+
+qsyn> zxgtr
+Topological order from first input: 0 8 9 12 13 11 4 10 14 1 15 17 19 7 18 5 16 3 6 2 
+Size of topological order: 20
+
+qsyn> qq -f
+

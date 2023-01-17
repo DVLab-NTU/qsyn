@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ testTensor2.cpp ]
+  FileName     [ testOrderedHashset.cpp ]
   PackageName  [ test ]
   Synopsis     [ Test program for orderedHashmap ]
   Author       [ Design Verification Lab ]

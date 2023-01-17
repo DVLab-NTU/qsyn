@@ -1,32 +1,34 @@
 /****************************************************************************
   FileName     [ qcirGate2ZX.cpp ]
   PackageName  [ qcir ]
-  Synopsis     [ Define qcir gate mapping functions ]
+  Synopsis     [ Define class QCirGate Mapping functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <string>
-#include <vector>
+#include <cstddef>  // for size_t
 
-#include "qcir.h"
-#include "zxGraph.h"
+#include "phase.h"           // for Phase, operator/
+#include "qcirGate.h"        // for CRZGate, CnPGate, CnRXGate, QCirGate
+#include "rationalNumber.h"  // for Rational
+#include "zxDef.h"           // for VertexType, VertexType::Z, VertexType::X
+#include "zxGraph.h"         // for ZXGraph, ZXVertex (ptr only)
+
+using namespace std;
 
 extern size_t verbose;
 
-/// @brief map single qubit gate to zx
-/// @param vt
-/// @param ph
-/// @return
+/**
+ * @brief Map single qubit gate to ZX-graph
+ *
+ * @param vt
+ * @param ph
+ * @return ZXGraph*
+ */
 ZXGraph *QCirGate::mapSingleQubitGate(VertexType vt, Phase ph) {
     ZXGraph *g = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+
     ZXVertex *in = g->addInput(qubit);
     ZXVertex *gate = g->addVertex(qubit, vt, ph);
     ZXVertex *out = g->addOutput(qubit);
@@ -34,7 +36,7 @@ ZXGraph *QCirGate::mapSingleQubitGate(VertexType vt, Phase ph) {
     g->addEdge(gate, out, EdgeType::SIMPLE);
     g->setInputHash(qubit, in);
     g->setOutputHash(qubit, out);
-    if (verbose >= 5) cout << "***********************************" << endl;
+
     return g;
 }
 
@@ -45,7 +47,7 @@ ZXGraph *QCirGate::mapSingleQubitGate(VertexType vt, Phase ph) {
  * @param k
  * @return vector<vector<ZXVertex* > >
  */
-vector<vector<ZXVertex *>> QCirGate::makeCombi(vector<ZXVertex *> verVec, int k) {
+vector<QCirGate::ZXVertexCombi> QCirGate::makeCombi(QCirGate::ZXVertexCombi verVec, int k) {
     vector<vector<ZXVertex *>> comb;
     vector<ZXVertex *> tmp;
     makeCombiUtil(comb, tmp, verVec, 0, k);
@@ -62,7 +64,7 @@ vector<vector<ZXVertex *>> QCirGate::makeCombi(vector<ZXVertex *> verVec, int k)
  * @param left
  * @param k
  */
-void QCirGate::makeCombiUtil(vector<vector<ZXVertex *>> &comb, vector<ZXVertex *> &tmp, vector<ZXVertex *> verVec, int left, int k) {
+void QCirGate::makeCombiUtil(vector<QCirGate::ZXVertexCombi> &comb, QCirGate::ZXVertexCombi &tmp, QCirGate::ZXVertexCombi verVec, int left, int k) {
     if (k == 0) {
         comb.push_back(tmp);
         return;
@@ -85,7 +87,7 @@ ZXGraph *CXGate::getZXform() {
     ZXGraph *temp = new ZXGraph(_id);
     size_t ctrl_qubit = _qubits[0]._isTarget ? _qubits[1]._qubit : _qubits[0]._qubit;
     size_t targ_qubit = _qubits[0]._isTarget ? _qubits[0]._qubit : _qubits[1]._qubit;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+
     ZXVertex *in_ctrl = temp->addInput(ctrl_qubit);
     ZXVertex *in_targ = temp->addInput(targ_qubit);
     ZXVertex *ctrl = temp->addVertex(ctrl_qubit, VertexType::Z, Phase(0));
@@ -101,18 +103,17 @@ ZXGraph *CXGate::getZXform() {
     temp->setOutputHash(ctrl_qubit, out_ctrl);
     temp->setInputHash(targ_qubit, in_targ);
     temp->setOutputHash(targ_qubit, out_targ);
-    if (verbose >= 5) cout << "***********************************" << endl;
+
     return temp;
 }
 
 /**
- * @brief get ZX-graph of CCX
+ * @brief Cet ZX-graph of CCX.
  *        Decomposed into 21 vertices (6X + 6Z + 4T + 3Tdg + 2H)
  *
  * @return ZXGraph*
  */
-ZXGraph *CCXGate::getZXform()  //
-{
+ZXGraph *CCXGate::getZXform() {
     ZXGraph *temp = new ZXGraph(_id);
 
     size_t ctrl_qubit_1 = _qubits[0]._isTarget ? _qubits[1]._qubit : _qubits[0]._qubit;
@@ -126,7 +127,6 @@ ZXGraph *CCXGate::getZXform()  //
 
     vector<ZXVertex *> Vertices_list = {};
 
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
     ZXVertex *in_ctrl_1 = temp->addInput(ctrl_qubit_1);
     ZXVertex *in_ctrl_2 = temp->addInput(ctrl_qubit_2);
     ZXVertex *in_targ = temp->addInput(targ_qubit);
@@ -153,12 +153,12 @@ ZXGraph *CCXGate::getZXform()  //
     temp->setOutputHash(ctrl_qubit_2, out_ctrl_2);
     temp->setInputHash(targ_qubit, in_targ);
     temp->setOutputHash(targ_qubit, out_targ);
-    if (verbose >= 5) cout << "***********************************" << endl;
+
     return temp;
 }
 
 /**
- * @brief get ZX-graph of CZ
+ * @brief Get ZX-graph of CZ
  *
  * @return ZXGraph*
  */
@@ -166,7 +166,7 @@ ZXGraph *CZGate::getZXform() {
     ZXGraph *temp = new ZXGraph(_id);
     size_t ctrl_qubit = _qubits[0]._isTarget ? _qubits[1]._qubit : _qubits[0]._qubit;
     size_t targ_qubit = _qubits[0]._isTarget ? _qubits[0]._qubit : _qubits[1]._qubit;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+
     ZXVertex *in_ctrl = temp->addInput(ctrl_qubit);
     ZXVertex *in_targ = temp->addInput(targ_qubit);
     ZXVertex *ctrl = temp->addVertex(ctrl_qubit, VertexType::Z, Phase(0));
@@ -182,7 +182,7 @@ ZXGraph *CZGate::getZXform() {
     temp->setOutputHash(ctrl_qubit, out_ctrl);
     temp->setInputHash(targ_qubit, in_targ);
     temp->setOutputHash(targ_qubit, out_targ);
-    if (verbose >= 5) cout << "***********************************" << endl;
+
     return temp;
 }
 
@@ -190,14 +190,14 @@ ZXGraph *CZGate::getZXform() {
 // NOTE - Cannot use mapSingleQubitGate
 
 /**
- * @brief get ZX-graph of Y = iXZ
+ * @brief Get ZX-graph of Y = iXZ
  *
  * @return ZXGraph*
  */
 ZXGraph *YGate::getZXform() {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+
     ZXVertex *in = temp->addInput(qubit);
     ZXVertex *X = temp->addVertex(qubit, VertexType::X, Phase(1));
     ZXVertex *Z = temp->addVertex(qubit, VertexType::Z, Phase(1));
@@ -207,19 +207,19 @@ ZXGraph *YGate::getZXform() {
     temp->addEdge(Z, out, EdgeType::SIMPLE);
     temp->setInputHash(qubit, in);
     temp->setOutputHash(qubit, out);
-    if (verbose >= 5) cout << "***********************************" << endl;
+
     return temp;
 }
 
 /**
- * @brief get ZX-graph of SY = S。SX。Sdg
+ * @brief Get ZX-graph of SY = S。SX。Sdg
  *
  * @return ZXGraph*
  */
 ZXGraph *SYGate::getZXform() {
     ZXGraph *temp = new ZXGraph(_id);
     size_t qubit = _qubits[0]._qubit;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+
     ZXVertex *in = temp->addInput(qubit);
     ZXVertex *S = temp->addVertex(qubit, VertexType::Z, Phase(1, 2));
     ZXVertex *SX = temp->addVertex(qubit, VertexType::X, Phase(1, 2));
@@ -231,12 +231,12 @@ ZXGraph *SYGate::getZXform() {
     temp->addEdge(Sdg, out, EdgeType::SIMPLE);
     temp->setInputHash(qubit, in);
     temp->setOutputHash(qubit, out);
-    if (verbose >= 5) cout << "***********************************" << endl;
+
     return temp;
 }
 
 /**
- * @brief get ZX-graph of cnp
+ * @brief Get ZX-graph of CnP
  *
  * @return ZXGraph*
  */
@@ -245,7 +245,7 @@ ZXGraph *CnPGate::getZXform() {
     Phase phase = Phase(1, pow(2, _qubits.size() - 1));
     Rational ratio = _rotatePhase / Phase(1);
     phase = phase * ratio;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+
     vector<ZXVertex *> verVec;
     for (const auto bitinfo : _qubits) {
         size_t qubit = bitinfo._qubit;
@@ -272,17 +272,17 @@ ZXGraph *CnPGate::getZXform() {
 }
 
 /**
- * @brief get ZX-graph of crz
+ * @brief Get ZX-graph of CRZ
  *
  * @return ZXGraph*
  */
 // TODO - Implentment the MCRZ version.
-ZXGraph *CrzGate::getZXform() {
+ZXGraph *CRZGate::getZXform() {
     ZXGraph *temp = new ZXGraph(_id);
     Phase phase = Phase(1, pow(2, _qubits.size() - 1));
     Rational ratio = _rotatePhase / Phase(1);
     phase = phase * ratio;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+
     vector<ZXVertex *> verVec;
     for (const auto bitinfo : _qubits) {
         size_t qubit = bitinfo._qubit;
@@ -309,7 +309,7 @@ ZXGraph *CrzGate::getZXform() {
 }
 
 /**
- * @brief get ZX-graph of CnRX
+ * @brief Get ZX-graph of CnRX
  *
  * @return ZXGraph*
  */
@@ -318,7 +318,7 @@ ZXGraph *CnRXGate::getZXform() {
     Phase phase = Phase(1, pow(2, _qubits.size() - 1));
     Rational ratio = _rotatePhase / Phase(1);
     phase = phase * ratio;
-    if (verbose >= 5) cout << "**** Generate ZX of Gate " << getId() << " (" << getTypeStr() << ") ****" << endl;
+
     vector<ZXVertex *> verVec;
     size_t targetQubit = _qubits[_qubits.size() - 1]._qubit;
     for (const auto bitinfo : _qubits) {

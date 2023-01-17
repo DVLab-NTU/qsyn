@@ -44,8 +44,8 @@ def main(args):
                 elif args.forpyzx:
                     qasmf.write(
                         "rz(pi/{ang}) q[{targ}];\n".format(
-                            ang=pow(2, j + 1)
-                            if pow(2, j + 1) < args.max_denominator_value
+                            ang=pow(2, j + 2)
+                            if pow(2, j + 2) < args.max_denominator_value
                             else args.max_denominator_value,
                             targ=i + j + 1
                         )

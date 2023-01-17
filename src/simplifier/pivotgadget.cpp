@@ -6,11 +6,12 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <cstddef>  // for size_t
 #include <iostream>
-#include <numbers>
-#include <vector>
 
+#include "zxGraph.h"
 #include "zxRules.h"
+
 using namespace std;
 
 extern size_t verbose;
@@ -29,17 +30,14 @@ void PivotGadget::preprocess(ZXGraph* g) {
     }
 }
 
-// FIXME wrong brief
 /**
- * @brief Determines which phase gadgets act on the same vertices, so that they can be fused together.
- *        (Check PyZX/pyzx/rules.py/match_phase_gadgets for more details)
+ * @brief Find matchings of the pivot-gadget rule. Find the targets with non-Clifford and gadgetize them.
  *
  * @param g
  */
 void PivotGadget::match(ZXGraph* g) {
     this->_matchTypeVec.clear();
-    if (verbose >= 8) g->printVertices();
-    if (verbose >= 5) cout << "> match...\n";
+    if (verbose >= 8) cout << "> match...\n";
 
     size_t cnt = 0;
 
@@ -101,7 +99,7 @@ void PivotGadget::match(ZXGraph* g) {
         if (verbose == 9) cout << "(3) good match\n";
 
         // Both vs and vt are interior
-        if (verbose >= 5) cout << "Both vertices are both interior: " << vs->getId() << " " << vt->getId() << endl;
+        if (verbose >= 8) cout << "Both vertices are both interior: " << vs->getId() << " " << vt->getId() << endl;
 
         taken.insert(vs);
         taken.insert(vt);

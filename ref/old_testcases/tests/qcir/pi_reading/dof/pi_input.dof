@@ -1,0 +1,9 @@
+qcba
+qcga -rz -ph 11*pi/17 0 
+qcga -rz -ph 1l*pi/17 0 
+qcga -rz -ph 3*3*PI/4/3 0
+qcga -rz -ph 3*4/PI 0
+qcga -rz -ph PI*PI/pi 0
+qcga -rz -ph PI*3PI/pi 0
+qc2zx
+qq -f

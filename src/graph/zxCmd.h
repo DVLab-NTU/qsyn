@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ zxCmd.h ]
   PackageName  [ graph ]
-  Synopsis     [ Define basic zx package commands ]
+  Synopsis     [ Define zx package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -9,7 +9,11 @@
 #ifndef ZX_CMD_H
 #define ZX_CMD_H
 
-#include "cmdParser.h"
+#include "cmdParser.h"   // for CmdExecStatus::CMD_EXEC_ERROR, CmdClass, Cmd...
+#include "phase.h"       // for Phase
+#include "zxDef.h"       // for VertexType, EdgeType, EdgeType::ERRORTYPE
+#include "zxGraph.h"     // for ZXGraph
+#include "zxGraphMgr.h"  // for ZXGraphMgr
 
 CmdClass(ZXNewCmd);
 CmdClass(ZXResetCmd);
@@ -23,6 +27,7 @@ CmdClass(ZXGPrintCmd);
 CmdClass(ZXGTestCmd);
 CmdClass(ZXGEditCmd);
 CmdClass(ZXGTraverseCmd);
+CmdClass(ZXGDrawCmd);
 CmdClass(ZX2TSCmd);
 CmdClass(ZXGReadCmd);
 CmdClass(ZXGWriteCmd);
@@ -76,8 +81,8 @@ CmdClass(ZXGAssignCmd);
 
 #define ZX_CMD_PHASE_VALID_OR_RETURN(option, phase)               \
     {                                                             \
-        (phase) = 0;                                              \
-        if (!(phase).fromString(option)) {                        \
+        (phase) = Phase(0);                                       \
+        if (!Phase::fromString(option, phase)) {                  \
             cerr << "Error: not a legal phase!!" << endl;         \
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, option); \
         }                                                         \

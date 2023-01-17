@@ -1,0 +1,30 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> ZXNew
+Create and checkout to Graph 0
+
+qsyn> zxgt
+
+qsyn> zxgp
+Graph 0( 2 inputs, 2 outputs, 6 vertices, 5 edges )
+
+qsyn> zxcopy
+Successfully copied Graph 0 to Graph 1
+Checkout to Graph 1
+
+qsyn> zxgp
+Graph 1( 2 inputs, 2 outputs, 6 vertices, 5 edges )
+
+qsyn> zxge -rmv 1
+
+qsyn> zxgp
+Graph 1( 1 inputs, 2 outputs, 5 vertices, 4 edges )
+
+qsyn> zxcop -r 0
+Successfully copied Graph 1 to Graph 0
+Checkout to Graph 0
+
+qsyn> zxgp
+Graph 0( 1 inputs, 2 outputs, 5 vertices, 4 edges )
+
+qsyn> qq -f
+

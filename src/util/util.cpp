@@ -5,20 +5,14 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include <dirent.h>
-#include <errno.h>
-#include <sys/types.h>
 
-#include <algorithm>
-#include <cstring>
 #include <filesystem>
-#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "myUsage.h"
-#include "rnGen.h"
+#include "myUsage.h"  // for MyUsage
+#include "rnGen.h"    // for RandomNumGen
 
 using namespace std;
 

@@ -5,15 +5,14 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include <ctype.h>
-#include <stdlib.h>
-#include <termios.h>
+#include "cmdCharDef.h"  // for ParseChar, ParseChar::UNDEFINED_KEY, ParseCh...
 
-#include <cassert>
-#include <iomanip>
-#include <iostream>
+#include <ctype.h>    // for isprint
+#include <termios.h>  // for termios, tcgetattr, tcsetattr, TCSANOW, cc_t
 
-#include "cmdParser.h"
+#include <iostream>  // for istream, cout
+
+#include "cmdParser.h"  // for CmdParser
 
 using namespace std;
 

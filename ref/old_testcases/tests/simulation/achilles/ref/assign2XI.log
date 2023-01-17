@@ -1,0 +1,122 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> qccr benchmark/pseudoSimp/achilles.qasm
+Create and checkout to QCir 0
+
+qsyn> qc2zx
+Create and checkout to Graph 0
+
+qsyn> zxgas 3 I X 0
+
+qsyn> zxgas 3 O X 0
+
+qsyn> zxgas 1 I X pi
+
+qsyn> zxgas 1 O X pi
+
+qsyn> zxgas 0 I X pi
+
+qsyn> zxgas 0 O X pi
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> zxgs -sr
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zx2ts
+Traverse and build the tensor... 
+Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
+
+qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
+Note: original QCir is replaced...
+
+qsyn> qc2zx
+Create and checkout to Graph 1
+
+qsyn> zxgas 3 I X 0
+
+qsyn> zxgas 3 O X 0
+
+qsyn> zxgas 1 I X pi
+
+qsyn> zxgas 1 O X pi
+
+qsyn> zxgas 2 I X pi
+
+qsyn> zxgas 2 O X pi
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> zxgs -sr
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zx2ts
+Traverse and build the tensor... 
+Successfully added Tensor 1
+Stored the resulting tensor as tensor id 1
+
+qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
+Note: original QCir is replaced...
+
+qsyn> qc2zx
+Create and checkout to Graph 2
+
+qsyn> zxgas 3 I X 0
+
+qsyn> zxgas 3 O X 0
+
+qsyn> zxgas 2 I X pi
+
+qsyn> zxgas 2 O X pi
+
+qsyn> zxgas 0 I X pi
+
+qsyn> zxgas 0 O X pi
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> zxgs -sr
+
+qsyn> ver 3
+Note: verbose level is set to 3
+
+qsyn> zx2ts
+Traverse and build the tensor... 
+Successfully added Tensor 2
+Stored the resulting tensor as tensor id 2
+
+qsyn> tseq 0 1
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> tseq 0 2
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> tseq 1 2
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> tsp 0
+{{ 0.      +6.123234e-17i,  1.      -6.123234e-17i,
+   0.      +0.000000e+00i,  0.      +0.000000e+00i},
+ { 1.      -6.123234e-17i,  0.      +6.123234e-17i,
+   0.      +0.000000e+00i,  0.      +0.000000e+00i},
+ { 0.      +0.000000e+00i,  0.      +0.000000e+00i,
+   1.      -6.123234e-17i,  0.      +6.123234e-17i},
+ { 0.      +0.000000e+00i,  0.      +0.000000e+00i,
+   0.      +6.123234e-17i,  1.      -6.123234e-17i}}
+#Dim:    2	Info: ZX 0
+
+qsyn> qq -f
+

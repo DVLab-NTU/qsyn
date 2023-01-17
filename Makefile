@@ -1,106 +1,41 @@
-REFPKGS   = 
-SRCPKGS   = extractor qcir simplifier lattice gflow m2 graph tensor util cmd
-LIBPKGS   = $(REFPKGS) $(SRCPKGS)
-MAIN      = main
-TESTMAIN  = test
+REFPKGS   		:= 
+SRCPKGS   		:= extractor qcir simplifier lattice gflow m2 graph tensor cmd util
+SRCLIBS   		:= $(addsuffix .a, $(addprefix lib, $(SRCPKGS)))
 
-LIBS      = $(addprefix -l, $(LIBPKGS))
-SRCLIBS   = $(addsuffix .a, $(addprefix lib, $(SRCPKGS)))
+SRC_DIR	  		:= src
+BUILD_DIR 		:= bin/qsyn-dev
+BUILD_SRC_DIR 	:= $(BUILD_DIR)/$(SRC_DIR)
+LIBDIR    		:= $(BUILD_DIR)/lib
 
-EXEC      = qsyn
-TESTEXEC  = tests
+EXEC     		:= qsyn
+TESTEXEC  		:= qsyn-test
 
-# OS detection
-# https://stackoverflow.com/questions/714100/os-detecting-makefile
-ifeq ($(OS),Windows_NT)
-    OSFLAG += -DWIN32
-    ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
-        OSFLAG += -DAMD64
-    else
-        ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
-            OSFLAG += -DAMD64
-        endif
-        ifeq ($(PROCESSOR_ARCHITECTURE),x86)
-            OSFLAG += -DIA32
-        endif
-    endif
-else
-    UNAME_S := $(shell uname -s)
-    ifeq ($(UNAME_S),Linux)
-        OSFLAG += -DLINUX
-    endif
-    ifeq ($(UNAME_S),Darwin)
-        OSFLAG += -DOSX
-    endif
-    UNAME_P := $(shell uname -p)
-    ifeq ($(UNAME_P),x86_64)
-        OSFLAG += -DAMD64
-    endif
-    ifneq ($(filter %86,$(UNAME_P)),)
-        OSFLAG += -DIA32
-    endif
-    ifneq ($(filter arm%,$(UNAME_P)),)
-        OSFLAG += -DARM
-    endif
-endif
-
-ifneq (,$(findstring -DOSX, $(OSFLAG)))
-    LIBPKGS += lapack cblas blas
-else
-    LIBPKGS += lapack cblas blas gfortran
-endif
+.PHONY: all
 
 all:  main
-test: testmain
 
-libs:
-	@for pkg in $(SRCPKGS); \
-	do \
-		echo "Checking $$pkg..."; \
-		cd src/$$pkg; $(MAKE) -f make.$$pkg --no-print-directory PKGNAME=$$pkg OSFLAG="$(OSFLAG)"; \
-		cd ../..; \
-	done
+## Clean all objects files
+.PHONY: clean
 
-main: libs
-	@echo "Checking $(MAIN)..."
-	@cd src/$(MAIN); \
-		$(MAKE) -f make.$(MAIN) --no-print-directory INCLIB="$(LIBS)" EXEC=$(EXEC) OSFLAG="$(OSFLAG)";
-	@ln -fs bin/$(EXEC) .
-#	@strip bin/$(EXEC)
+clean: $(addprefix clean_, $(SRCPKGS) main test)
 
-testmain: libs
-	@export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:/usr/local/lib
-	@echo "Checking $(TESTMAIN)..."
-	@cd src/$(TESTMAIN); \
-		$(MAKE) -f make.$(TESTMAIN) --no-print-directory INCLIB="$(LIBS)" EXEC=$(TESTEXEC) OSFLAG="$(OSFLAG)";
-
-
-clean:
-	@for pkg in $(SRCPKGS); \
-	do \
-		echo "Cleaning $$pkg..."; \
-		cd src/$$pkg; $(MAKE) -f make.$$pkg --no-print-directory PKGNAME=$$pkg clean; \
-                cd ../..; \
-	done
-	@echo "Cleaning $(MAIN)..."
-	@cd src/$(MAIN); $(MAKE) -f make.$(MAIN) --no-print-directory clean
-	@echo "Cleaning $(TESTMAIN)..."
-	@cd src/$(TESTMAIN); $(MAKE) -f make.$(TESTMAIN) --no-print-directory clean
-	@echo "Removing $(SRCLIBS)..."
-	@cd lib; rm -f $(SRCLIBS)
-	@echo "Removing $(EXEC)..."
-	@rm -f bin/$(EXEC)
+## Clean all objects files, .depend.mk, extheader.mk, and include/*
+.PHONY: cleanall
 
 cleanall: clean
 	@echo "Removing bin/*..."
 	@rm -rf bin/*
+	@echo "Removing include/*.h..."
+	@rm -f include/*.h
 
-ctags:	  
-	@rm -f src/tags
-	@for pkg in $(SRCPKGS); \
-	do \
-		echo "Tagging $$pkg..."; \
-		cd src; ctags -a $$pkg/*.cpp $$pkg/*.h; cd ..; \
-	done
-	@echo "Tagging $(MAIN)..."
-	@cd src; ctags -a $(MAIN)/*.cpp $(MAIN)/*.h
+.PHONY: libs
+
+libs: $(addprefix $(BUILD_SRC_DIR), $(SRCLIBS))
+
+## Linking external headers
+.PHONY: extheader
+EXTHEADER_MKS := $(addsuffix /.extheader.mk, $(addprefix $(BUILD_SRC_DIR)/, $(SRCPKGS) main test))
+
+# extheader: $(addsuffix /.extheader.mk, $(addprefix $(BUILD_SRC_DIR)/, $(SRCPKGS) main test))
+extheader: $(EXTHEADER_MKS)
+include $(SRC_DIR)/rules.mk

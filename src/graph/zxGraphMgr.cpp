@@ -8,8 +8,11 @@
 
 #include "zxGraphMgr.h"
 
+#include <cstddef>  // for size_t, NULL
 #include <iostream>
-#include <vector>
+
+#include "zxGraph.h"  // for ZXGraph
+
 using namespace std;
 
 ZXGraphMgr* zxGraphMgr = 0;
@@ -48,6 +51,12 @@ bool ZXGraphMgr::isID(size_t id) const {
     return false;
 }
 
+void ZXGraphMgr::setGraph(ZXGraph* g) {
+    delete _graphList[_gListItr - _graphList.begin()];
+    _graphList[_gListItr - _graphList.begin()] = g;
+    g->setId(_gListItr - _graphList.begin());
+}
+
 // Add and Remove
 
 /**
@@ -63,12 +72,16 @@ ZXGraph* ZXGraphMgr::addZXGraph(size_t id, void** ref) {
     _gListItr = _graphList.end() - 1;
     if (id == _nextID || _nextID < id) _nextID = id + 1;
     if (verbose >= 3) {
-        cout << "Successfully generated Graph " << id << endl;
-        cout << "Checkout to Graph " << id << endl;
+        cout << "Create and checkout to Graph " << id << endl;
     }
     return zxGraph;
 }
 
+/**
+ * @brief Remove a ZXGraph
+ *
+ * @param id the id to be removed
+ */
 void ZXGraphMgr::removeZXGraph(size_t id) {
     for (size_t i = 0; i < _graphList.size(); i++) {
         if (_graphList[i]->getId() == id) {
@@ -92,6 +105,11 @@ void ZXGraphMgr::removeZXGraph(size_t id) {
 }
 
 // Action
+/**
+ * @brief Checkout to ZXGraph
+ *
+ * @param id the id to be checkout
+ */
 void ZXGraphMgr::checkout2ZXGraph(size_t id) {
     for (size_t i = 0; i < _graphList.size(); i++) {
         if (_graphList[i]->getId() == id) {
@@ -104,6 +122,12 @@ void ZXGraphMgr::checkout2ZXGraph(size_t id) {
     return;
 }
 
+/**
+ * @brief Copy the ZXGraph
+ *
+ * @param id the id to be copied
+ * @param toNew if true, check to the new graph
+ */
 void ZXGraphMgr::copy(size_t id, bool toNew) {
     if (_graphList.empty())
         cerr << "Error: ZXGraphMgr is empty now! Action \"copy\" failed!" << endl;
@@ -133,6 +157,12 @@ void ZXGraphMgr::copy(size_t id, bool toNew) {
     }
 }
 
+/**
+ * @brief Find ZXGraph by id
+ *
+ * @param id
+ * @return ZXGraph*
+ */
 ZXGraph* ZXGraphMgr::findZXGraphByID(size_t id) const {
     if (!isID(id))
         cerr << "Error: Graph " << id << " does not exist!" << endl;
@@ -145,11 +175,19 @@ ZXGraph* ZXGraphMgr::findZXGraphByID(size_t id) const {
 }
 
 // Print
+/**
+ * @brief Print number of graphs and the focused id
+ *
+ */
 void ZXGraphMgr::printZXGraphMgr() const {
     cout << "-> #Graph: " << _graphList.size() << endl;
     if (!_graphList.empty()) cout << "-> Now focus on: " << getGraph()->getId() << endl;
 }
 
+/**
+ * @brief Print the id of the focused graph
+ *
+ */
 void ZXGraphMgr::printGListItr() const {
     if (!_graphList.empty())
         cout << "Now focus on: " << getGraph()->getId() << endl;
@@ -157,6 +195,10 @@ void ZXGraphMgr::printGListItr() const {
         cerr << "Error: ZXGraphMgr is empty now!" << endl;
 }
 
+/**
+ * @brief Print the number of graphs
+ *
+ */
 void ZXGraphMgr::printGraphListSize() const {
     cout << "#Graph: " << _graphList.size() << endl;
 }

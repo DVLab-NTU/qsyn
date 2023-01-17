@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ qcirCmd.h ]
   PackageName  [ qcir ]
-  Synopsis     [ Define basic qcir package commands ]
+  Synopsis     [ Define qcir package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -9,7 +9,8 @@
 #ifndef QCIR_CMD_H
 #define QCIR_CMD_H
 
-#include "cmdParser.h"
+#include "cmdParser.h"  // for CmdClass, CmdExec, CmdExecStatus::CMD_EXEC_ERROR
+#include "qcirMgr.h"    // for QCirMgr
 
 CmdClass(QCirCheckoutCmd);
 CmdClass(QCirResetCmd);

@@ -8,8 +8,13 @@
 
 #include "m2.h"
 
-#include <algorithm>
-#include <cmath>
+#include <cassert>
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+#include "zxGraph.h"
+
 extern size_t verbose;
 using namespace std;
 
@@ -27,11 +32,24 @@ struct hash<vector<unsigned char>> {
 };
 }  // namespace std
 
+/**
+ * @brief Overload operator + for Row
+ *
+ * @param lhs
+ * @param rhs
+ * @return Row
+ */
 Row operator+(Row& lhs, const Row& rhs) {
     lhs += rhs;
     return lhs;
 }
 
+/**
+ * @brief Overload operator += for Row
+ *
+ * @param rhs
+ * @return Row&
+ */
 Row& Row::operator+=(const Row& rhs) {
     assert(_row.size() == rhs._row.size());
     for (size_t i = 0; i < _row.size(); i++) {
@@ -52,10 +70,10 @@ void Row::printRow() const {
 }
 
 /**
- * @brief @brief Check is one hot
+ * @brief @brief Check if the row is one hot
  *
- * @return true if one hot
- * @return false if not
+ * @return true
+ * @return false
  */
 bool Row::isOneHot() const {
     size_t cnt = 0;
@@ -68,6 +86,12 @@ bool Row::isOneHot() const {
     return (cnt == 1);
 }
 
+/**
+ * @brief Check if the row contains all zeros
+ *
+ * @return true
+ * @return false
+ */
 bool Row::isZeros() const {
     for (auto& i : _row) {
         if (i == 1) {
@@ -76,12 +100,18 @@ bool Row::isZeros() const {
     }
     return true;
 }
+
+/**
+ * @brief Clear matrix and operations
+ *
+ */
 void M2::reset() {
     _matrix.clear();
     _opStorage.clear();
 }
+
 /**
- * @brief @brief Print matrix
+ * @brief Print matrix
  *
  */
 void M2::printMatrix() const {
@@ -93,7 +123,7 @@ void M2::printMatrix() const {
 }
 
 /**
- * @brief Print the operation track
+ * @brief Print track of operations
  *
  */
 void M2::printTrack() const {
@@ -105,7 +135,7 @@ void M2::printTrack() const {
 }
 
 /**
- * @brief initialize a test matrix
+ * @brief Initialize a test matrix
  *
  */
 void M2::defaultInit() {
@@ -143,7 +173,7 @@ bool M2::xorOper(size_t ctrl, size_t targ, bool track) {
 /**
  * @brief Perform Gaussian Elimination. Skip the column if it is dupicated.
  *
- * @param track
+ * @param track if true, record the process to operation track
  * @return true
  * @return false
  */
@@ -211,6 +241,9 @@ bool M2::gaussianElimSkip(bool track) {
  * @brief Perform Gaussian Elimination
  *
  * @param track if true, record the process to operation track
+ * @param isAugmentedMatrix the target matrix is augmented or not
+ * @return true
+ * @return false
  */
 bool M2::gaussianElim(bool track, bool isAugmentedMatrix) {
     if (verbose >= 5) cout << "Performing Gaussian Elimination..." << endl;
@@ -287,7 +320,8 @@ bool M2::gaussianElim(bool track, bool isAugmentedMatrix) {
  *        (2) an identity matrix with an arbitrary matrix on the right, or
  *        (3) an identity matrix with an zero matrix on the bottom.
  *
- * @return true or false
+ * @return true
+ * @return false
  */
 bool M2::isSolvedForm() const {
     for (size_t i = 0; i < numRows(); ++i) {
@@ -300,6 +334,13 @@ bool M2::isSolvedForm() const {
     return true;
 }
 
+/**
+ * @brief Perform Gaussian Elimination with augmentation column(s)
+ *
+ * @param track if true, record the process to operation track
+ * @return true
+ * @return false
+ */
 bool M2::gaussianElimAugmented(bool track) {
     if (verbose >= 5) cout << "Performing Gaussian Elimination..." << endl;
     if (verbose >= 8) printMatrix();
@@ -417,6 +458,11 @@ bool M2::fromZXVertices(const ZXVertexList& frontier, const ZXVertexList& neighb
     return true;
 }
 
+/**
+ * @brief Append one hot
+ *
+ * @param idx the id to be one
+ */
 void M2::appendOneHot(size_t idx) {
     assert(idx < _matrix.size());
     for (size_t i = 0; i < _matrix.size(); ++i) {

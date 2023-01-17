@@ -1,21 +1,23 @@
 /****************************************************************************
   FileName     [ tensorMgr.h ]
   PackageName  [ tensor ]
-  Synopsis     [ Define tensor manager ]
+  Synopsis     [ Define class TensorMgr structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #ifndef TENSOR_MGR_H
 #define TENSOR_MGR_H
 
-#include <iomanip>
-#include <iostream>
+#include <iosfwd>
 #include <map>
 #include <string>
-#include <unordered_map>
 
-#include "qtensor.h"
-#include "tensorDef.h"
+#include "phase.h"
+
+class TensorMgr;  // lines 17-17
+template <typename T>
+
+class QTensor;  // lines 19-20
 
 extern TensorMgr* tensorMgr;
 
@@ -23,11 +25,7 @@ struct TensorInfo {
     QTensor<double>* tensor;
     std::string info;
 
-    friend std::ostream& operator<<(std::ostream& os, const TensorInfo& tsInfo) {
-        return os << "#Dim: "
-                  << setw(4) << right << tsInfo.tensor->dimension()
-                  << "\tInfo: " << left << tsInfo.info;
-    }
+    friend std::ostream& operator<<(std::ostream& os, const TensorInfo& tsInfo);
 };
 
 using TensorList = std::map<size_t, TensorInfo>;
@@ -40,7 +38,7 @@ public:
 
     const TensorList& getTensorList() const { return _tensorList; }
     QTensor<double>* getTensor(const size_t& id) const { return _tensorList.at(id).tensor; }
-    const string& getInfo(const size_t& id) const { return _tensorList.at(id).info; }
+    const std::string& getInfo(const size_t& id) const { return _tensorList.at(id).info; }
 
     void setTensor(const size_t& id, QTensor<double>* tensor) { _tensorList[id].tensor = tensor; }
     void setInfo(const size_t& id, const std::string& str = "") { _tensorList[id].info = str; }

@@ -6,24 +6,24 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <iostream>
-#include <vector>
+#include <cstddef>  // for size_t
 
+#include "zxGraph.h"
 #include "zxRules.h"
+
 using namespace std;
 
 extern size_t verbose;
 
 /**
- * @brief Finds spiders with a 0 or pi phase that have a single neighbor, and copies them through. Assumes that all the spiders are green and maximally fused.
- *        (Check PyZX/pyzx/rules.py/match_copy for more details)
+ * @brief Find spiders with a 0 or pi phase that have a single neighbor, and copies them through. Assumes that all the spiders are green and maximally fused.
  *
  * @param g
  */
 void StateCopy::match(ZXGraph* g) {
     // Should be run in graph-like
     _matchTypeVec.clear();
-    if (verbose >= 8) g->printVertices();
+    // if (verbose >= 8) g->printVertices();
 
     unordered_map<ZXVertex*, size_t> Vertex2idx;
 
@@ -99,6 +99,9 @@ void StateCopy::rewrite(ZXGraph* g) {
                 // a to new
                 _edgeTableKeys.push_back(make_pair(a, newV));
                 _edgeTableValues.push_back(make_pair(0, 1));
+
+                // REVIEW - Floating
+                newV->setCol((neighbors[i]->getCol() + a->getCol()) / 2);
 
             } else {
                 neighbors[i]->setPhase(npi->getPhase() + neighbors[i]->getPhase());

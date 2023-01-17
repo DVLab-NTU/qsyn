@@ -1,0 +1,268 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> zxgr benchmark/zx/tof2_opt.zx
+Create and checkout to Graph 0
+
+qsyn> zxcopy 1
+Successfully copied Graph 0 to Graph 1
+Checkout to Graph 1
+
+qsyn> zxch 0
+Checkout to Graph 0
+
+qsyn> zxgd ref/extraction/tof2/input.pdf
+
+qsyn> zxgs -fr
+
+All rules applied in order:
+Hadamard Rule                 2 iterations.
+  1) 1 matches
+  2) 1 matches
+
+qsyn> zxgd ref/extraction/tof2/fr.pdf
+
+qsyn> qcba 3 
+Note: QCir list is empty now. Create a new one.
+Create and checkout to QCir 0
+
+qsyn> extract -ZXgraph 0 -QCir 0 -CLF
+Checkout to Graph 0
+Checkout to QCir 0
+
+qsyn> zxgd ref/extraction/tof2/loop0/clf.pdf
+
+qsyn> qc2zx
+Create and checkout to Graph 2
+
+qsyn> zxgd ref/extraction/tof2/loop0/clfCir.pdf
+
+qsyn> extract -ZXgraph 0 -QCir 0 -RMG
+Checkout to Graph 0
+Checkout to QCir 0
+Gadget(s) are removed
+
+qsyn> zxgd ref/extraction/tof2/loop0/rmg.pdf
+
+qsyn> extract -ZXgraph 0 -QCir 0 -CLF
+Checkout to Graph 0
+Checkout to QCir 0
+Note: Graph 2 is deleted due to modification(s) !!
+Successfully removed Graph 2
+Checkout to Graph 0
+
+qsyn> zxgd ref/extraction/tof2/loop1/clf.pdf
+
+qsyn> qc2zx
+Create and checkout to Graph 3
+
+qsyn> zxgd ref/extraction/tof2/loop1/clfCir.pdf
+
+qsyn> extract -ZXgraph 0 -QCir 0 -CX
+Checkout to Graph 0
+Checkout to QCir 0
+Note: Graph 3 is deleted due to modification(s) !!
+Successfully removed Graph 3
+Checkout to Graph 0
+
+qsyn> zxgd ref/extraction/tof2/loop1/cx.pdf
+
+qsyn> qc2zx
+Create and checkout to Graph 4
+
+qsyn> zxgd ref/extraction/tof2/loop1/cxCir.pdf
+
+qsyn> extract -ZXgraph 0 -QCir 0 -H
+Checkout to Graph 0
+Checkout to QCir 0
+Note: Graph 4 is deleted due to modification(s) !!
+Successfully removed Graph 4
+Checkout to Graph 0
+
+qsyn> zxgd ref/extraction/tof2/loop1/h.pdf
+
+qsyn> qc2zx
+Create and checkout to Graph 5
+
+qsyn> zxgd ref/extraction/tof2/loop1/hCir.pdf
+
+qsyn> extract -ZXgraph 0 -QCir 0 -CLF
+Checkout to Graph 0
+Checkout to QCir 0
+Note: Graph 5 is deleted due to modification(s) !!
+Successfully removed Graph 5
+Checkout to Graph 0
+
+qsyn> zxgd ref/extraction/tof2/loop2/clf.pdf
+
+qsyn> qc2zx
+Create and checkout to Graph 6
+
+qsyn> zxgd ref/extraction/tof2/loop2/clfCir.pdf
+
+qsyn> extract -ZXgraph 0 -QCir 0 -RMG
+Checkout to Graph 0
+Checkout to QCir 0
+Gadget(s) are removed
+
+qsyn> zxgd ref/extraction/tof2/loop2/rmg.pdf
+
+qsyn> extract -ZXgraph 0 -QCir 0 -PH
+Checkout to Graph 0
+Checkout to QCir 0
+Note: Graph 6 is deleted due to modification(s) !!
+Successfully removed Graph 6
+Checkout to Graph 0
+
+qsyn> zxgd ref/extraction/tof2/loop3/ph.pdf
+
+qsyn> qc2zx
+Create and checkout to Graph 7
+
+qsyn> zxgd ref/extraction/tof2/loop3/phCir.pdf
+
+qsyn> extract -ZXgraph 0 -QCir 0 -CZ
+Checkout to Graph 0
+Checkout to QCir 0
+Note: Graph 7 is deleted due to modification(s) !!
+Successfully removed Graph 7
+Checkout to Graph 0
+
+qsyn> zxgd ref/extraction/tof2/loop3/cz.pdf
+
+qsyn> qc2zx
+Create and checkout to Graph 8
+
+qsyn> zxgd ref/extraction/tof2/loop3/czCir.pdf
+
+qsyn> extract -ZXgraph 0 -QCir 0 -H
+Checkout to Graph 0
+Checkout to QCir 0
+Note: Graph 8 is deleted due to modification(s) !!
+Successfully removed Graph 8
+Checkout to Graph 0
+
+qsyn> zxgd ref/extraction/tof2/loop3/h.pdf
+
+qsyn> qc2zx
+Create and checkout to Graph 9
+
+qsyn> zxgd ref/extraction/tof2/loop3/hCir.pdf
+
+qsyn> extract -ZXgraph 0 -QCir 0 -CLF
+Checkout to Graph 0
+Checkout to QCir 0
+Note: Graph 9 is deleted due to modification(s) !!
+Successfully removed Graph 9
+Checkout to Graph 0
+
+qsyn> zxgd ref/extraction/tof2/loop4/clf.pdf
+
+qsyn> qc2zx
+Create and checkout to Graph 10
+
+qsyn> zxgd ref/extraction/tof2/loop4/clfCir.pdf
+
+qsyn> extract -ZXgraph 0 -QCir 0 -CX
+Checkout to Graph 0
+Checkout to QCir 0
+Note: Graph 10 is deleted due to modification(s) !!
+Successfully removed Graph 10
+Checkout to Graph 0
+
+qsyn> zxgd ref/extraction/tof2/loop4/cx.pdf
+
+qsyn> qc2zx
+Create and checkout to Graph 11
+
+qsyn> zxgd ref/extraction/tof2/loop4/cxCir.pdf
+
+qsyn> extract -ZXgraph 0 -QCir 0 -H
+Checkout to Graph 0
+Checkout to QCir 0
+Note: Graph 11 is deleted due to modification(s) !!
+Successfully removed Graph 11
+Checkout to Graph 0
+
+qsyn> zxgd ref/extraction/tof2/loop4/h.pdf
+
+qsyn> qc2zx
+Create and checkout to Graph 12
+
+qsyn> zxgd ref/extraction/tof2/loop4/hCir.pdf
+
+qsyn> extract -ZXgraph 0 -QCir 0 -CLF
+Checkout to Graph 0
+Checkout to QCir 0
+Note: Graph 12 is deleted due to modification(s) !!
+Successfully removed Graph 12
+Checkout to Graph 0
+
+qsyn> zxgd ref/extraction/tof2/loop5/clf.pdf
+
+qsyn> qc2zx
+Create and checkout to Graph 13
+
+qsyn> zxgd ref/extraction/tof2/loop5/clfCir.pdf
+
+qsyn> extract -ZXgraph 0 -QCir 0 -PER
+Checkout to Graph 0
+Checkout to QCir 0
+Note: Graph 13 is deleted due to modification(s) !!
+Successfully removed Graph 13
+Checkout to Graph 0
+
+qsyn> zxgd ref/extraction/tof2/loop5/per.pdf
+
+qsyn> qc2zx
+Create and checkout to Graph 14
+
+qsyn> zxgd ref/extraction/tof2/loop5/perCir.pdf
+
+qsyn> qc2zx
+Create and checkout to Graph 15
+
+qsyn> zxgadj
+
+qsyn> zxcomp 1
+
+qsyn> zxgs -fr
+
+All rules applied in order:
+Hadamard Rule                 2 iterations.
+  1) 11 matches
+  2) 5 matches
+Spider Fusion Rule            3 iterations.
+  1) 8 matches
+  2) 6 matches
+  3) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 4 matches
+Pivot Rule                    2 iterations.
+  1) 4 matches
+  2) 2 matches
+Pivot Gadget Rule             2 iterations.
+  1) 2 matches
+  2) 2 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Phase Gadget Rule             1 iterations.
+  1) 4 matches
+Pivot Rule                    1 iterations.
+  1) 4 matches
+Identity Removal Rule         1 iterations.
+  1) 3 matches
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+

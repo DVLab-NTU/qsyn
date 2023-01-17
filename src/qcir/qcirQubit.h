@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ qcirQubit.h ]
   PackageName  [ qcir ]
-  Synopsis     [ Define qubit data structures ]
+  Synopsis     [ Define class QCirQubit structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -9,16 +9,10 @@
 #ifndef QCIR_QUBIT_H
 #define QCIR_QUBIT_H
 
-#include <iostream>
-#include <string>
-#include <vector>
+#include <cstddef>  // for size_t, NULL
 
-#include "qcirDef.h"
-#include "qcirGate.h"
+class QCirGate;
 
-using namespace std;
-
-class QCirQubit;
 //------------------------------------------------------------------------
 //   Define classes
 //------------------------------------------------------------------------

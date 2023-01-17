@@ -1,16 +1,19 @@
 /****************************************************************************
-  FileName     [ tensorCmd.h ]
+  FileName     [ tensorCmd.cpp ]
   PackageName  [ tensor ]
-  Synopsis     [ Define tensor commands ]
+  Synopsis     [ Define tensor package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include "tensorCmd.h"
 
-#include <vector>
+#include <cstddef>  // for size_t
+#include <iomanip>
+#include <iostream>
+#include <string>
 
-#include "qtensor.h"
+#include "phase.h"
 #include "tensorMgr.h"
 #include "textFormat.h"
 
@@ -109,7 +112,7 @@ void TSPrintCmd::usage(ostream &os) const {
 
 void TSPrintCmd::help() const {
     cout << setw(15) << left << "TSPrint: "
-         << "print information about stored tensors" << endl;
+         << "print info of stored tensors" << endl;
 }
 
 //----------------------------------------------------------------------

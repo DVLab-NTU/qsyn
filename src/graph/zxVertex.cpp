@@ -6,18 +6,14 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <chrono>
+#include <cstddef>  // for size_t
 #include <iomanip>
 #include <iostream>
-#include <ranges>
-#include <unordered_set>
-#include <vector>
+#include <string>
 
-#include "textFormat.h"
-#include "util.h"
-#include "zxGraph.h"
+#include "textFormat.h"  // for TextFormat
+#include "zxDef.h"       // for EdgeType, VertexType, EdgePair, EdgeType::HA...
+#include "zxGraph.h"     // for ZXVertex
 
 using namespace std;
 namespace TF = TextFormat;
@@ -42,7 +38,7 @@ vector<ZXVertex*> ZXVertex::getCopiedNeighbors() {
  */
 void ZXVertex::printVertex() const {
     cout << "ID:" << right << setw(4) << _id;
-    cout << " (" << VertexType2Str(_type) << ", " << left << setw(12 - ((_phase == 0) ? 1 : 0)) << (_phase.getPrintString() + ")");
+    cout << " (" << VertexType2Str(_type) << ", " << left << setw(12 - ((_phase == Phase(0)) ? 1 : 0)) << (_phase.getPrintString() + ")");
     cout << "  (Qubit, Col): (" << _qubit << ", " << _col << ")\t"
          << "  #Neighbors: " << right << setw(3) << _neighbors.size() << "     ";
     printNeighbors();

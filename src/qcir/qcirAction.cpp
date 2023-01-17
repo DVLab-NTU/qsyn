@@ -1,24 +1,26 @@
 /****************************************************************************
-  FileName     [ qcir.cpp ]
+  FileName     [ qcirAction.cpp ]
   PackageName  [ qcir ]
-  Synopsis     [ Define QCir Action functions ]
+  Synopsis     [ Define class QCir Action functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include <cassert>  // for assert
+#include <cstddef>  // for NULL, size_t
 
-#include "qcir.h"
+#include "qcir.h"      // for QCir
+#include "qcirGate.h"  // for QCirGate
+#include "zxGraph.h"
 
 using namespace std;
 extern size_t verbose;
 
-/// @brief copy a circuit
-/// @return QCir*
+/**
+ * @brief Copy a circuit
+ *
+ * @return QCir*
+ */
 QCir* QCir::copy() {
     updateTopoOrder();
     QCir* newCircuit = new QCir(0);
@@ -55,9 +57,12 @@ QCir* QCir::copy() {
     return newCircuit;
 }
 
-/// @brief Compose QCir (append the target to current QCir)
-/// @param target
-/// @return QCir*
+/**
+ * @brief Append the target to current QCir
+ *
+ * @param target
+ * @return QCir*
+ */
 QCir* QCir::compose(QCir* target) {
     QCir* copiedQCir = target->copy();
     vector<QCirQubit*> targQubits = copiedQCir->getQubits();
@@ -76,9 +81,12 @@ QCir* QCir::compose(QCir* target) {
     return this;
 }
 
-/// @brief Tensor QCir (tensor the target to current QCir)
-/// @param target
-/// @return QCir*
+/**
+ * @brief Tensor the target to current tensor of QCir
+ *
+ * @param target
+ * @return QCir*
+ */
 QCir* QCir::tensorProduct(QCir* target) {
     QCir* copiedQCir = target->copy();
 
@@ -101,7 +109,7 @@ QCir* QCir::tensorProduct(QCir* target) {
 /**
  * @brief Perform DFS from currentGate
  *
- * @param currentGate
+ * @param currentGate the gate to start DFS
  */
 void QCir::DFS(QCirGate* currentGate) {
     currentGate->setVisited(_globalDFScounter);
@@ -148,6 +156,7 @@ bool QCir::printTopoOrder() {
  * @brief Update execution time of gates
  */
 void QCir::updateGateTime() {
+    updateTopoOrder();
     auto Lambda = [](QCirGate* currentGate) {
         vector<BitInfo> Info = currentGate->getQubits();
         size_t max_time = 0;
@@ -174,7 +183,10 @@ void QCir::printZXTopoOrder() {
     topoTraverse(Lambda);
 }
 
-/// @brief Reset QCirMgr
+/**
+ * @brief Reset QCir
+ *
+ */
 void QCir::reset() {
     _qgates.clear();
     _qubits.clear();

@@ -1,15 +1,16 @@
 /****************************************************************************
   FileName     [ qcirMgr.cpp ]
   PackageName  [ qcir ]
-  Synopsis     [ Define QCir manager ]
+  Synopsis     [ Define class QCir manager member functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include "qcirMgr.h"
 
+#include <cstddef>  // for size_t
 #include <iostream>
-#include <vector>
+
 using namespace std;
 
 QCirMgr* qcirMgr = 0;
@@ -60,12 +61,16 @@ QCir* QCirMgr::addQCir(size_t id) {
     _cListItr = _circuitList.end() - 1;
     if (id == _nextID || _nextID < id) _nextID = id + 1;
     if (verbose >= 3) {
-        cout << "Successfully generated QCir " << id << endl;
-        cout << "Checkout to QCir " << id << endl;
+        cout << "Create and checkout to QCir " << id << endl;
     }
     return qcir;
 }
 
+/**
+ * @brief Remove QCir
+ *
+ * @param id
+ */
 void QCirMgr::removeQCir(size_t id) {
     for (size_t i = 0; i < _circuitList.size(); i++) {
         if (_circuitList[i]->getId() == id) {
@@ -88,6 +93,11 @@ void QCirMgr::removeQCir(size_t id) {
 }
 
 // Action
+/**
+ * @brief Checkout to QCir
+ *
+ * @param id the id to be checkout
+ */
 void QCirMgr::checkout2QCir(size_t id) {
     for (size_t i = 0; i < _circuitList.size(); i++) {
         if (_circuitList[i]->getId() == id) {
@@ -100,6 +110,12 @@ void QCirMgr::checkout2QCir(size_t id) {
     return;
 }
 
+/**
+ * @brief Copy the QCir
+ *
+ * @param id the id to be copied
+ * @param toNew if true, checkout to new circuit
+ */
 void QCirMgr::copy(size_t id, bool toNew) {
     if (_circuitList.empty())
         cerr << "Error: QCirMgr is empty now! Action \"copy\" failed!" << endl;
@@ -129,6 +145,12 @@ void QCirMgr::copy(size_t id, bool toNew) {
     }
 }
 
+/**
+ * @brief Find QCir by id
+ *
+ * @param id
+ * @return QCir*
+ */
 QCir* QCirMgr::findQCirByID(size_t id) const {
     if (!isID(id))
         cerr << "Error: QCir " << id << " does not exist!" << endl;
@@ -141,11 +163,19 @@ QCir* QCirMgr::findQCirByID(size_t id) const {
 }
 
 // Print
+/**
+ * @brief Print number of circuits and the focused id
+ *
+ */
 void QCirMgr::printQCirMgr() const {
     cout << "-> #QCir: " << _circuitList.size() << endl;
     if (!_circuitList.empty()) cout << "-> Now focus on: " << getQCircuit()->getId() << endl;
 }
 
+/**
+ * @brief Print the id of focused circuit
+ *
+ */
 void QCirMgr::printCListItr() const {
     if (!_circuitList.empty())
         cout << "Now focus on: " << getQCircuit()->getId() << endl;
@@ -153,6 +183,10 @@ void QCirMgr::printCListItr() const {
         cerr << "Error: QCirMgr is empty now!" << endl;
 }
 
+/**
+ * @brief Print the number of circuits
+ *
+ */
 void QCirMgr::printQCircuitListSize() const {
     cout << "#QCir: " << _circuitList.size() << endl;
 }

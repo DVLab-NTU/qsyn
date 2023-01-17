@@ -1,5 +1,0 @@
-PKGFLAG   =
-EXTHDRS   = simplify.h zxRules.h
-
-include ../Makefile.in
-include ../Makefile.lib

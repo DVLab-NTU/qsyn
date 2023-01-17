@@ -1,8 +1,6 @@
-DV Lab, NTUEE, Qsyn 0.3.0
+DV Lab, NTUEE, Qsyn 0.4.0
 qsyn> qccr benchmark/pseudoSimp/tof2.qasm
-Note: QCir list is empty now. Create a new one.
-Successfully generated QCir 0
-Checkout to QCir 0
+Create and checkout to QCir 0
 
 qsyn> qc2ts
 Traverse and build the tensor... 
@@ -10,28 +8,18 @@ Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
 qsyn> tsp 0
-{{ 1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
-   0.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
-   0.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i,
-   0.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i,
-   0.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i,
-   0.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
-   1.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
-   0.      +0.i,  0.      +0.i,  1.      +0.i},
- { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i,
-   0.      +0.i,  1.      +0.i,  0.      +0.i}}
+{{ 1.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i},
+ { 0.+0.i,  1.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i},
+ { 0.+0.i,  0.+0.i,  1.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i},
+ { 0.+0.i,  0.+0.i,  0.+0.i,  1.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i},
+ { 0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  1.+0.i,  0.+0.i,  0.+0.i,  0.+0.i},
+ { 0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  1.+0.i,  0.+0.i,  0.+0.i},
+ { 0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  1.+0.i},
+ { 0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i,  1.+0.i,  0.+0.i}}
 #Dim:    2	Info: QC
 
 qsyn> qc2zx
-Traverse and build the graph... 
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> zxgp -v
 

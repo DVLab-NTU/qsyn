@@ -5,8 +5,6 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include <ctype.h>
-#include <stdlib.h>
 #include <termios.h>
 
 #include <iostream>

@@ -1,13 +1,9 @@
-DV Lab, NTUEE, Qsyn 0.3.0
+DV Lab, NTUEE, Qsyn 0.4.0
 qsyn> qccr benchmark/pseudoSimp/achilles.qasm
-Note: QCir list is empty now. Create a new one.
-Successfully generated QCir 0
-Checkout to QCir 0
+Create and checkout to QCir 0
 
 qsyn> qc2zx
-Traverse and build the graph... 
-Successfully generated Graph 0
-Checkout to Graph 0
+Create and checkout to Graph 0
 
 qsyn> zxgas 3 I X 0
 
@@ -38,9 +34,7 @@ qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
 Note: original QCir is replaced...
 
 qsyn> qc2zx
-Traverse and build the graph... 
-Successfully generated Graph 1
-Checkout to Graph 1
+Create and checkout to Graph 1
 
 qsyn> zxgas 3 I X 0
 
@@ -71,9 +65,7 @@ qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
 Note: original QCir is replaced...
 
 qsyn> qc2zx
-Traverse and build the graph... 
-Successfully generated Graph 2
-Checkout to Graph 2
+Create and checkout to Graph 2
 
 qsyn> zxgas 3 I X 0
 

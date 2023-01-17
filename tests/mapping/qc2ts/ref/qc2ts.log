@@ -1,11 +1,9 @@
-DV Lab, NTUEE, Qsyn 0.3.0
+DV Lab, NTUEE, Qsyn 0.4.0
 qsyn> ver 8
 Note: verbose level is set to 8
 
 qsyn> qccr benchmark/qc2ts/circuit/control_z.qasm
-Note: QCir list is empty now. Create a new one.
-Successfully generated QCir 0
-Checkout to QCir 0
+Create and checkout to QCir 0
 
 qsyn> qc2ts
 Traverse and build the tensor... 
@@ -387,6 +385,206 @@ Successfully added Tensor 3
   - Qubit: 1 input : 1 -> 1 |  output: 4 -> 4
   - Qubit: 0 input : 0 -> 0 |  output: 5 -> 5
 Stored the resulting tensor as tensor id 3
+
+qsyn> ver 8
+Note: verbose level is set to 8
+
+qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+Create and checkout to QCir 1
+
+qsyn> qccp -q
+Q 0  ---------cx( 1)-- h( 3)-- t( 6)----------cx( 8)--cx( 9)-- t(14)----------cx(15)--cx(16)-- h(18)-- t(20)--cx(23)----------cx(25)--cx(27)--td(28)----------cx(32)--cx(33)-
+Q 1  -----------------cx( 2)-- t( 4)--cx( 7)----------cx( 9)--cx(11)--td(12)----------cx(16)--cx(17)-- t(21)--cx(23)--cx(24)--td(26)--cx(27)--td(29)--cx(31)----------cx(33)--cx(35)-
+Q 2  - x( 0)--cx( 1)--cx( 2)-- t( 5)--cx( 7)--cx( 8)--td(10)--cx(11)--td(13)--cx(15)----------cx(17)-- h(19)-- t(22)--cx(24)--cx(25)-- t(30)----------cx(31)--cx(32)-- h(34)--cx(35)-
+
+qsyn> qc2ts
+Traverse and build the tensor... 
+> Add boundary
+Successfully added Tensor 4
+  - Add Qubit 0 output port: 1
+  - Add Qubit 1 output port: 3
+  - Add Qubit 2 output port: 5
+> Gate 0 (x)
+> Pin Permutation
+  - Qubit: 2 input : 4 -> 4 |  output: 5 -> 5
+  - Qubit: 1 input : 2 -> 2 |  output: 3 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 1 -> 1
+> Gate 1 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 4 -> 3 |  output: 5 -> 5
+  - Qubit: 1 input : 2 -> 1 |  output: 3 -> 2
+  - Qubit: 0 input : 0 -> 0 |  output: 1 -> 4
+> Gate 2 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 3 -> 2 |  output: 5 -> 4
+  - Qubit: 1 input : 1 -> 1 |  output: 2 -> 5
+  - Qubit: 0 input : 0 -> 0 |  output: 4 -> 3
+> Gate 4 (t)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 4 -> 4
+  - Qubit: 1 input : 1 -> 1 |  output: 5 -> 5
+  - Qubit: 0 input : 0 -> 0 |  output: 3 -> 3
+> Gate 5 (t)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 4 -> 5
+  - Qubit: 1 input : 1 -> 1 |  output: 5 -> 4
+  - Qubit: 0 input : 0 -> 0 |  output: 3 -> 3
+> Gate 7 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 5 -> 4
+  - Qubit: 1 input : 1 -> 1 |  output: 4 -> 5
+  - Qubit: 0 input : 0 -> 0 |  output: 3 -> 3
+> Gate 3 (h)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 4 -> 3
+  - Qubit: 1 input : 1 -> 1 |  output: 5 -> 4
+  - Qubit: 0 input : 0 -> 0 |  output: 3 -> 5
+> Gate 6 (t)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 3 -> 3
+  - Qubit: 1 input : 1 -> 1 |  output: 4 -> 4
+  - Qubit: 0 input : 0 -> 0 |  output: 5 -> 5
+> Gate 8 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 3 -> 5
+  - Qubit: 1 input : 1 -> 1 |  output: 4 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 5 -> 4
+> Gate 10 (td)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 5 -> 5
+  - Qubit: 1 input : 1 -> 1 |  output: 3 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 4 -> 4
+> Gate 9 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 5 -> 3
+  - Qubit: 1 input : 1 -> 1 |  output: 3 -> 4
+  - Qubit: 0 input : 0 -> 0 |  output: 4 -> 5
+> Gate 14 (t)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 3 -> 3
+  - Qubit: 1 input : 1 -> 1 |  output: 4 -> 4
+  - Qubit: 0 input : 0 -> 0 |  output: 5 -> 5
+> Gate 11 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 3 -> 5
+  - Qubit: 1 input : 1 -> 1 |  output: 4 -> 4
+  - Qubit: 0 input : 0 -> 0 |  output: 5 -> 3
+> Gate 13 (td)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 5 -> 5
+  - Qubit: 1 input : 1 -> 1 |  output: 4 -> 4
+  - Qubit: 0 input : 0 -> 0 |  output: 3 -> 3
+> Gate 15 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 5 -> 5
+  - Qubit: 1 input : 1 -> 1 |  output: 4 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 3 -> 4
+> Gate 12 (td)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 5 -> 4
+  - Qubit: 1 input : 1 -> 1 |  output: 3 -> 5
+  - Qubit: 0 input : 0 -> 0 |  output: 4 -> 3
+> Gate 16 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 4 -> 3
+  - Qubit: 1 input : 1 -> 1 |  output: 5 -> 4
+  - Qubit: 0 input : 0 -> 0 |  output: 3 -> 5
+> Gate 18 (h)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 3 -> 3
+  - Qubit: 1 input : 1 -> 1 |  output: 4 -> 4
+  - Qubit: 0 input : 0 -> 0 |  output: 5 -> 5
+> Gate 20 (t)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 3 -> 3
+  - Qubit: 1 input : 1 -> 1 |  output: 4 -> 4
+  - Qubit: 0 input : 0 -> 0 |  output: 5 -> 5
+> Gate 17 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 3 -> 4
+  - Qubit: 1 input : 1 -> 1 |  output: 4 -> 5
+  - Qubit: 0 input : 0 -> 0 |  output: 5 -> 3
+> Gate 21 (t)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 4 -> 4
+  - Qubit: 1 input : 1 -> 1 |  output: 5 -> 5
+  - Qubit: 0 input : 0 -> 0 |  output: 3 -> 3
+> Gate 23 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 4 -> 3
+  - Qubit: 1 input : 1 -> 1 |  output: 5 -> 4
+  - Qubit: 0 input : 0 -> 0 |  output: 3 -> 5
+> Gate 19 (h)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 3 -> 5
+  - Qubit: 1 input : 1 -> 1 |  output: 4 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 5 -> 4
+> Gate 22 (t)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 5 -> 5
+  - Qubit: 1 input : 1 -> 1 |  output: 3 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 4 -> 4
+> Gate 24 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 5 -> 4
+  - Qubit: 1 input : 1 -> 1 |  output: 3 -> 5
+  - Qubit: 0 input : 0 -> 0 |  output: 4 -> 3
+> Gate 26 (td)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 4 -> 4
+  - Qubit: 1 input : 1 -> 1 |  output: 5 -> 5
+  - Qubit: 0 input : 0 -> 0 |  output: 3 -> 3
+> Gate 25 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 4 -> 5
+  - Qubit: 1 input : 1 -> 1 |  output: 5 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 3 -> 4
+> Gate 30 (t)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 5 -> 5
+  - Qubit: 1 input : 1 -> 1 |  output: 3 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 4 -> 4
+> Gate 27 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 5 -> 3
+  - Qubit: 1 input : 1 -> 1 |  output: 3 -> 5
+  - Qubit: 0 input : 0 -> 0 |  output: 4 -> 4
+> Gate 29 (td)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 3 -> 3
+  - Qubit: 1 input : 1 -> 1 |  output: 5 -> 5
+  - Qubit: 0 input : 0 -> 0 |  output: 4 -> 4
+> Gate 31 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 3 -> 4
+  - Qubit: 1 input : 1 -> 1 |  output: 5 -> 5
+  - Qubit: 0 input : 0 -> 0 |  output: 4 -> 3
+> Gate 28 (td)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 4 -> 3
+  - Qubit: 1 input : 1 -> 1 |  output: 5 -> 4
+  - Qubit: 0 input : 0 -> 0 |  output: 3 -> 5
+> Gate 32 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 3 -> 5
+  - Qubit: 1 input : 1 -> 1 |  output: 4 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 5 -> 4
+> Gate 34 (h)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 5 -> 5
+  - Qubit: 1 input : 1 -> 1 |  output: 3 -> 3
+  - Qubit: 0 input : 0 -> 0 |  output: 4 -> 4
+> Gate 33 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 5 -> 3
+  - Qubit: 1 input : 1 -> 1 |  output: 3 -> 4
+  - Qubit: 0 input : 0 -> 0 |  output: 4 -> 5
+> Gate 35 (cx)
+> Pin Permutation
+  - Qubit: 2 input : 2 -> 2 |  output: 3 -> 5
+  - Qubit: 1 input : 1 -> 1 |  output: 4 -> 4
+  - Qubit: 0 input : 0 -> 0 |  output: 5 -> 3
+Stored the resulting tensor as tensor id 4
 
 qsyn> qq -f
 

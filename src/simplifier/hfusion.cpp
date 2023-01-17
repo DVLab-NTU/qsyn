@@ -6,24 +6,23 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <iostream>
-#include <vector>
+#include <cstddef>  // for size_t
 
+#include "zxGraph.h"
 #include "zxRules.h"
+
 using namespace std;
 
 extern size_t verbose;
 
 // FIXME - Seems buggy. Not fixing this as it is not in full reduce
 /**
- * @brief Matches Hadamard-edges that are connected to H-boxes or two neighboring H-boxes
- *        (Check PyZX/pyzx/hrules.py/match_connected_hboxes for more details)
+ * @brief Match Hadamard-edges that are connected to H-boxes or two neighboring H-boxes
  *
  * @param g
  */
 void HboxFusion::match(ZXGraph* g) {
     _matchTypeVec.clear();
-    if (verbose >= 8) g->printVertices();
 
     unordered_map<size_t, size_t> id2idx;
     size_t cnt = 0;
@@ -98,7 +97,6 @@ void HboxFusion::match(ZXGraph* g) {
 
 /**
  * @brief Generate Rewrite format from `_matchTypeVec`
- *        (Check PyZX/pyzx/hrules.py/fuse_hboxes for more details)
  *
  * @param g
  */

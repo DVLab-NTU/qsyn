@@ -6,18 +6,13 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <chrono>
-#include <iomanip>
+#include <cstddef>  // for size_t
 #include <iostream>
-#include <ranges>
-#include <unordered_set>
-#include <vector>
 
-#include "textFormat.h"
-#include "util.h"
-#include "zxGraph.h"
+#include "phase.h"       // for Phase
+#include "textFormat.h"  // for TextFormat
+#include "zxDef.h"       // for VertexType, VertexType::Z
+#include "zxGraph.h"     // for ZXGraph, ZXVertex
 
 using namespace std;
 namespace TF = TextFormat;
@@ -36,11 +31,11 @@ void ZXGraph::reset() {
     _topoOrder.clear();
     _vertices.clear();
     _nextVId = 0;
-    _globalDFScounter = 1;
+    _globalTraCounter = 1;
 }
 
 /**
- * @brief Sort graph's _inputs and _outputs by qubit (ascending)
+ * @brief Sort _inputs and _outputs of graph by qubit (ascending)
  *
  */
 void ZXGraph::sortIOByQubit() {
@@ -215,12 +210,21 @@ ZXGraph* ZXGraph::tensorProduct(ZXGraph* target) {
     return this;
 }
 
+/**
+ * @brief Check v is a gadget
+ *
+ * @param v
+ * @return true
+ * @return false
+ */
 bool ZXGraph::isGadget(ZXVertex* v) {
     if (v->getType() != VertexType::Z || v->getNumNeighbors() != 1) {
         if (verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
         return false;
     }
-    if (v->getFirstNeighbor().first->getType() != VertexType::Z && v->getFirstNeighbor().first->getPhase() != 0 && v->getFirstNeighbor().first->getPhase() != 1) {
+    if (v->getFirstNeighbor().first->getType() != VertexType::Z &&
+        v->getFirstNeighbor().first->getPhase() != Phase(0) &&
+        v->getFirstNeighbor().first->getPhase() != Phase(1)) {
         if (verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
         return false;
     }
