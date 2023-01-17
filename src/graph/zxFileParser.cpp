@@ -118,7 +118,7 @@ bool ZXFileParser::tokenize(const string& line, vector<string>& tokens) {
     string token;
 
     // parse first token
-    size_t pos = myStrGetTok(line, token);
+    size_t pos = myStrGetTok(line, token, 0, " \t\n\v\f\r");
     tokens.push_back(token);
 
     // parsing parenthesis
@@ -175,11 +175,11 @@ bool ZXFileParser::tokenize(const string& line, vector<string>& tokens) {
     }
 
     // parse remaining
-    pos = myStrGetTok(line, token, pos);
+    pos = myStrGetTok(line, token, pos, " \t\n\v\f\r");
 
     while (token.size()) {
         tokens.push_back(token);
-        pos = myStrGetTok(line, token, pos);
+        pos = myStrGetTok(line, token, pos, " \t\n\v\f\r");
     }
 
     return true;

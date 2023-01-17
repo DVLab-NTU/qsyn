@@ -105,7 +105,7 @@ bool stripQuotes(const std::string& input, std::string& output) {
  */
 string stripWhitespaces(const string& str) {
     size_t start = str.find_first_not_of(" \t\n\v\f\r");
-    size_t end = str.find_last_not_of(" ");
+    size_t end = str.find_last_not_of(" \t\n\v\f\r");
     if (start == string::npos && end == string::npos) return "";
     return str.substr(start, end + 1 - start);
 }
@@ -172,7 +172,7 @@ myStrGetTok(const string& str, string& tok, size_t pos,
 // This function will treat '\ ' as a space in the token. That is, "a\ b" is one token ("a b") and not two
 size_t
 myStrGetTok2(const string& str, string& tok, size_t pos = 0,
-             const char del = ' ') {
+            const std::string& del = " \t\n\v\f\r") {
     size_t begin = str.find_first_not_of(del, pos);
     if (begin == string::npos) {
         tok = "";
