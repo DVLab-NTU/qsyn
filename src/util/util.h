@@ -29,7 +29,7 @@ extern size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos =
 extern size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos,
                           const std::string& del);
 extern size_t myStrGetTok2(const std::string& str, std::string& tok, size_t pos = 0,
-                           const char del = ' ');
+                           const std::string& del = " \t\n\v\f\r");
 extern bool myStr2Int(const std::string& str, int& num);
 extern bool myStr2Uns(const std::string& str, unsigned& num);
 

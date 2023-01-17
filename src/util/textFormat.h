@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ textFormat.h ]
-  PackageName  [ graph ]
+  PackageName  [ util ]
   Synopsis     [ Declare text formatting functions such as colors, bold, etc. ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]

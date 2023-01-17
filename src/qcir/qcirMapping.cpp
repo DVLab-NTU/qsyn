@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ qcir.cpp ]
+  FileName     [ qcirMapping.cpp ]
   PackageName  [ qcir ]
   Synopsis     [ Define class QCir Mapping functions ]
   Author       [ Design Verification Lab ]

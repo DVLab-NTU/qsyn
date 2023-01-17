@@ -1,0 +1,56 @@
+qccr benchmark/pseudoSimp/achilles.qasm
+qc2zx
+zxgas 3 I X 0
+zxgas 3 O X 0
+zxgas 1 I X 0
+zxgas 1 O X 0
+ver 0
+zxgs -sr
+ver 3
+zx2ts
+qccr -R benchmark/pseudoSimp/achilles.qasm
+qc2zx
+zxgas 3 I X 0
+zxgas 3 O X 0
+zxgas 2 I X 0
+zxgas 2 O X 0
+ver 0
+zxgs -sr
+ver 3
+zx2ts
+qccr -R benchmark/pseudoSimp/achilles.qasm
+qc2zx
+zxgas 3 I X 0
+zxgas 3 O X 0
+zxgas 0 I X 0
+zxgas 0 O X 0
+ver 0
+zxgs -sr
+ver 3
+zx2ts
+tseq 0 1
+tseq 0 2
+tseq 1 2
+// Test if equivalence (with ZX tof2_opt)
+zxgr benchmark/zx/tof2_opt.zx
+zx2ts
+tseq 0 3
+// Test structural equivalence of the three results
+// zxch   0
+// zxcopy 4
+// zxgadj
+// zxch   1
+// zxcopy 5
+// zxcompose 4
+// ver 1
+// zxgs -sr
+// ver 3
+// zxgp -v
+// zxch   2
+// zxcopy 6
+// zxcompose 4
+// ver 1
+// zxgs -sr
+// ver 3
+// zxgp -v
+qq -f

@@ -1,0 +1,23 @@
+ver 2
+qcba 2
+qcga -cx 0 1
+qcga -cx 1 0
+qcga -cx 0 1
+qc2ts
+zxgr benchmark/zx/swap.zx
+zx2ts
+ver 3
+tsp -l
+tseq 0 1 -Strict
+tsr
+zxr
+ver 2
+zxgr benchmark/zx/tof3.zx
+zx2ts
+zxgr benchmark/zx/tof3_ZH.zx
+zx2ts
+ver 3
+tsp -l
+tseq 0 1 
+tseq 0 1 -Strict
+qq -f

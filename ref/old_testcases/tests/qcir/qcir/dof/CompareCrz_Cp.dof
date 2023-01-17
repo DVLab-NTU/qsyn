@@ -1,0 +1,17 @@
+color 0
+qcba 2
+qcgadd -mcp -phase pi/2 0 1 
+qcgp 0 -t
+qc2zx
+zxgp -v
+zx2ts
+tsp 0
+qcnew
+qcba 2
+qcgadd -crz -phase pi/2 0 1
+qcgp 0 -t
+qc2zx
+zxgp -v
+zx2ts
+tsp 1
+qq -f

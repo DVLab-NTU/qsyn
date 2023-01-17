@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ phase.cpp ]
+  FileName     [ phase.h ]
   PackageName  [ util ]
   Synopsis     [ Definition of the Phase class and pertinent classes ]
   Author       [ Design Verification Lab ]

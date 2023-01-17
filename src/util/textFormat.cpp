@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ textFormat.cpp ]
-  PackageName  [ graph ]
+  PackageName  [ util ]
   Synopsis     [ Define text formatting functions such as colors, bold, etc. ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]

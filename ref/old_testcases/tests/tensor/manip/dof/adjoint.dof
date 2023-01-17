@@ -1,0 +1,14 @@
+zxn
+zxge -addi 0
+zxge -addo 0
+zxge -addo 1
+zxge -addv 0 Z pi/2
+zxge -adde 0 3 SIMPLE
+zxge -adde 1 3 SIMPLE
+zxge -adde 2 3 SIMPLE
+zx2ts
+zxgadj
+zx2ts
+tsadj 0
+tseq 0 1 -Strict
+qq -f

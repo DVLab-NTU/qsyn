@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ ZXRule.h ]
+  FileName     [ zxRules.h ]
   PackageName  [ simplifier ]
   Synopsis     [ Define class ZXRule structure ]
   Author       [ Design Verification Lab ]

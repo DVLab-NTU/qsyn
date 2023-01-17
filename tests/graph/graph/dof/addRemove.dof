@@ -1,0 +1,44 @@
+zxnew
+zxgt
+zxgp -v
+zxge -rme 2 3 SIMPLE
+zxgp -v
+zxr
+zxnew
+zxgt
+zxgp -v
+zxge -rmv 2
+zxgp -v
+zxge -rmv -i
+zxgp -v
+zxr
+zxnew
+zxgt
+zxgp -v
+zxge -rmv 1 2
+zxgp -v
+zxr 
+zxnew
+zxge -addi 1
+zxge -addi 0
+zxge -addi 2
+zxge -addo 0
+zxge -addo 2
+zxge -addo 1
+zxgp -i
+zxgp -o
+zxgp -v
+zxr
+zxnew
+zxgt
+zxgp -v
+zxge -rmv 0
+zxgp -v
+zxge -rme 2 3 SIMPLE
+zxgp -v 
+zxge -addi 0
+zxgp -v
+zxge -adde 6 2 SIMPLE
+zxge -adde 2 3 SIMPLE
+zxgp -v
+qq -f

@@ -1,0 +1,10 @@
+ver 8
+qccr benchmark/qc2ts/circuit/control_z.qasm
+qc2ts
+qccr benchmark/qc2ts/circuit/control_h.qasm -R
+qc2ts
+qccr benchmark/qc2ts/circuit/toffoli_dec.qasm -R
+qc2ts
+qccr benchmark/qc2ts/circuit/toffoli_qiskit.qasm -R
+qc2ts
+qq -f

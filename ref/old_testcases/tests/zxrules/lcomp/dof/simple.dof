@@ -1,0 +1,8 @@
+zxn
+zxgr benchmark/zx/lcomp_1.zx
+zxgp -v
+zxgp -e
+zxgsimp -lcomp
+zxgp -v
+zxgp -e
+qq -f

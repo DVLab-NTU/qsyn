@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ qcir.cpp ]
+  FileName     [ qcirAction.cpp ]
   PackageName  [ qcir ]
   Synopsis     [ Define class QCir Action functions ]
   Author       [ Design Verification Lab ]

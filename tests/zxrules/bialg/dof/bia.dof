@@ -1,0 +1,101 @@
+ver 9
+zxnew 10
+zxge -addi 0
+zxge -addo 0
+zxge -addi 1
+zxge -addo 1
+zxge -addv 0 X
+zxge -addv 0 Z
+zxge -addv 1 X
+zxge -addv 0 X
+zxge -addv 0 Z
+zxge -addv 1 Z
+zxge -adde 5 7 SIMPLE
+zxge -adde 0 4 SIMPLE
+zxge -adde 1 8 SIMPLE
+zxge -adde 2 6 SIMPLE
+zxge -adde 3 9 SIMPLE
+zxge -adde 4 5 SIMPLE
+zxge -adde 5 6 SIMPLE
+zxge -adde 7 8 SIMPLE
+zxge -adde 7 9 SIMPLE
+zxgsimp -bia
+zxgp -v
+zxgp -e
+zxr
+zxnew 
+zxge -addi 0
+zxge -addo 0
+zxge -addi 1
+zxge -addo 1
+zxge -addv 0 X
+zxge -addv 0 Z
+zxge -addv 1 X
+zxge -addv 0 X
+zxge -addv 0 Z
+zxge -addv 1 Z
+zxge -addv 0 X
+zxge -addv 0 Z
+zxge -addv 1 X
+zxge -addv 0 X
+zxge -addv 0 Z
+zxge -addv 0 Z
+zxge -adde 0 4 SIMPLE
+zxge -adde 1 14 SIMPLE
+zxge -adde 2 6 SIMPLE
+zxge -adde 3 15 SIMPLE
+zxge -adde 4 5 SIMPLE
+zxge -adde 5 7 SIMPLE
+zxge -adde 5 6 SIMPLE
+zxge -adde 7 8 SIMPLE
+zxge -adde 7 9 SIMPLE
+zxge -adde 8 10 SIMPLE
+zxge -adde 10 9 SIMPLE
+zxge -adde 10 11 SIMPLE
+zxge -adde 11 12 SIMPLE
+zxge -adde 11 13 SIMPLE
+zxge -adde 14 13 SIMPLE
+zxge -adde 12 15 SIMPLE
+zxgsimp -bia
+zxgp -v
+zxgprint -e
+zx2ts
+tsp 0
+zxr
+zxnew 
+zxge -addi 0
+zxge -addo 0
+zxge -addi 1
+zxge -addo 1
+zxge -addv 0 X
+zxge -addv 0 Z
+zxge -addv 1 X
+zxge -addv 0 X
+zxge -addv 0 Z
+zxge -addv 1 Z
+zxge -addv 0 X
+zxge -addv 0 Z
+zxge -addv 1 X
+zxge -addv 0 X
+zxge -addv 0 Z
+zxge -addv 0 Z
+zxge -adde 0 4 SIMPLE
+zxge -adde 1 14 HADAMARD
+zxge -adde 2 6 SIMPLE
+zxge -adde 3 15 SIMPLE
+zxge -adde 4 5 SIMPLE
+zxge -adde 5 7 SIMPLE
+zxge -adde 5 6 HADAMARD
+zxge -adde 7 8 SIMPLE
+zxge -adde 7 9 SIMPLE
+zxge -adde 8 10 HADAMARD
+zxge -adde 10 9 SIMPLE
+zxge -adde 10 11 SIMPLE
+zxge -adde 11 12 HADAMARD
+zxge -adde 11 13 HADAMARD
+zxge -adde 14 13 SIMPLE
+zxge -adde 12 15 SIMPLE
+zxgsimp -bia
+zxgp -v
+zxgp -e
+qq -f
