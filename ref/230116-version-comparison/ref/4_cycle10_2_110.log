@@ -1,0 +1,63 @@
+DV Lab, NTUEE, Qsyn 0.3.0
+qsyn> ver 1
+Note: verbose level is set to 1
+
+qsyn> qccread benchmark/benchmark_SABRE/large/cycle10_2_110.qasm
+
+qsyn> qc2zx
+
+qsyn> zxcopy
+
+qsyn> zxgp
+Graph 1( 16 inputs, 16 outputs, 8730 vertices, 11362 edges )
+
+qsyn> zxgp -a
+#T-gate:                      2646
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           2646
+
+qsyn> zxgs -fr
+
+All rules applied:
+(1) Hadamard Rule
+(2) Spider Fusion Rule
+(3) Identity Removal Rule
+(4) Pivot Rule
+(5) Pivot Gadget Rule
+(6) Local Complementation Rule
+(7) Phase Gadget Rule
+
+qsyn> zxgp
+Graph 1( 16 inputs, 16 outputs, 1930 vertices, 8130 edges )
+
+qsyn> zxgp -a
+#T-gate:                      1160
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           1160
+
+qsyn> zxgadjoint
+
+qsyn> zxcompose 0
+
+qsyn> zxgs -fr
+
+All rules applied:
+(1) Hadamard Rule
+(2) Spider Fusion Rule
+(3) Identity Removal Rule
+(4) Pivot Rule
+(5) Local Complementation Rule
+(6) Pivot Gadget Rule
+(7) Phase Gadget Rule
+(8) Pivot Boundary Rule
+
+qsyn> zxgp
+Graph 1( 16 inputs, 16 outputs, 32 vertices, 16 edges )
+
+qsyn> usage
+Period time used : 12.1 seconds
+Total time used  : 12.1 seconds
+Total memory used: 179 M Bytes
+
+qsyn> qq -f
+
