@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ pivot.cpp ]
+  FileName     [ pivotboundary.cpp ]
   PackageName  [ simplifier ]
   Synopsis     [ Pivot Rule Definition ]
   Author       [ Design Verification Lab ]
