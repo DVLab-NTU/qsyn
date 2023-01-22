@@ -63,8 +63,7 @@ void QCir::ZXMapping() {
             return;
         }
 
-        _ZXG->concatenate(tmp, false);
-        tmp->disownVertices();
+        _ZXG->concatenate(tmp);
         delete tmp;
     });
 

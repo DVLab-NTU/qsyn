@@ -199,7 +199,7 @@ public:
     ZXVertexList getNonBoundary();
     ZXVertex* getInputFromHash(const size_t& q);
     ZXVertex* getOutputFromHash(const size_t& q);
-    void concatenate(ZXGraph* tmp, bool remove_imm = false);
+    void concatenate(ZXGraph* tmp);
     void setInputHash(const size_t& q, ZXVertex* v) { _inputList[q] = v; }
     void setOutputHash(const size_t& q, ZXVertex* v) { _outputList[q] = v; }
     void setInputList(const std::unordered_map<size_t, ZXVertex*>& lst) { _inputList = lst; }

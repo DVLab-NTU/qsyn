@@ -62,9 +62,8 @@ ZXVertex* ZXGraph::getOutputFromHash(const size_t& q) {
  * @brief Concatenate a ZX-graph of a gate to the ZX-graph of big circuit
  *
  * @param tmp the graph of a gate
- * @param remove_imm if true, remove edge immediately
  */
-void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
+void ZXGraph::concatenate(ZXGraph* tmp) {
     // Add Vertices
     this->addVertices(tmp->getNonBoundary(), true);
     // Reconnect Input
