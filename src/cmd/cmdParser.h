@@ -17,7 +17,7 @@
 
 #include "cmdCharDef.h"  // for ParseChar
 
-class CmdParser;         // lines 26-26
+class CmdParser;
 
 //----------------------------------------------------------------------
 //    External declaration
