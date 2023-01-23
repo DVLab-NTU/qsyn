@@ -15,6 +15,8 @@
 #include <string>
 #include <vector>
 
+#include "util.h"
+
 using namespace std;
 
 // Remove quotation marks and replace the ' ' between the quotes to be "\ "
@@ -140,8 +142,7 @@ int myStrNCmp(const string& s1, const string& s2, unsigned n) {
 // (i.e. "del" or string::npos) if found.
 // This function will not treat '\ ' as a space in the token. That is, "a\ b" is two token ("a\", "b") and not one
 size_t
-myStrGetTok(const string& str, string& tok, size_t pos = 0,
-            const char del = ' ') {
+myStrGetTok(const string& str, string& tok, size_t pos, const char del) {
     size_t begin = str.find_first_not_of(del, pos);
     if (begin == string::npos) {
         tok = "";
@@ -153,8 +154,7 @@ myStrGetTok(const string& str, string& tok, size_t pos = 0,
 }
 
 size_t
-myStrGetTok(const string& str, string& tok, size_t pos,
-            const string& del) {
+myStrGetTok(const string& str, string& tok, size_t pos, const string& del) {
     size_t begin = str.find_first_not_of(del, pos);
     if (begin == string::npos) {
         tok = "";
@@ -171,8 +171,7 @@ myStrGetTok(const string& str, string& tok, size_t pos,
 // (i.e. "del" or string::npos) if found.
 // This function will treat '\ ' as a space in the token. That is, "a\ b" is one token ("a b") and not two
 size_t
-myStrGetTok2(const string& str, string& tok, size_t pos = 0,
-             const std::string& del = " \t\n\v\f\r") {
+myStrGetTok2(const string& str, string& tok, size_t pos, const std::string& del) {
     size_t begin = str.find_first_not_of(del, pos);
     if (begin == string::npos) {
         tok = "";
