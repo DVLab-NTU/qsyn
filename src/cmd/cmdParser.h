@@ -17,7 +17,7 @@
 
 #include "cmdCharDef.h"  // for ParseChar
 
-class CmdParser;  // lines 26-26
+class CmdParser;         // lines 26-26
 
 //----------------------------------------------------------------------
 //    External declaration
@@ -93,8 +93,8 @@ class CmdParser {
 #define READ_BUF_SIZE 65536
 #define PG_OFFSET 10
 
-    typedef std::map<const std::string, CmdExec*> CmdMap;
-    typedef std::pair<const std::string, CmdExec*> CmdRegPair;
+    using CmdMap = std::map<const std::string, CmdExec*>;
+    using CmdRegPair = std::pair<const std::string, CmdExec*>;
 
 public:
     CmdParser(const std::string& p) : _prompt(p), _dofile(0), _readBufPtr(_readBuf), _readBufEnd(_readBuf), _historyIdx(0), _tabPressCount(0), _tempCmdStored(false) {}
@@ -137,9 +137,6 @@ private:
     void moveToHistory(int index);
     bool addHistory();
     void retrieveHistory();
-#ifdef TA_KB_SETTING
-    void taTestOnly() {}
-#endif
 
     // Data members
     const std::string _prompt;                // command prompt

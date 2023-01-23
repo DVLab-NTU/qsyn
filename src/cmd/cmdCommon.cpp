@@ -9,7 +9,7 @@
 
 #include <stdlib.h>  // for srand
 
-#include <cstddef>  // for size_t
+#include <cstddef>   // for size_t
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -20,6 +20,7 @@
 using namespace std;
 extern size_t verbose;
 extern size_t colorLevel;
+extern MyUsage myUsage;
 
 bool initCommonCmd() {
     if (!(cmdMgr->regCmd("QQuit", 2, new QuitCmd) &&
@@ -90,7 +91,7 @@ QuitCmd::exec(const string& option) {
         if (myStrNCmp("Yes", ss, 1) == 0)
             return CMD_EXEC_QUIT;  // ready to quit
     }
-    return CMD_EXEC_DONE;  // not yet to quit
+    return CMD_EXEC_DONE;          // not yet to quit
 }
 
 void QuitCmd::usage(ostream& os) const {

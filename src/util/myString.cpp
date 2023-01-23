@@ -226,7 +226,7 @@ bool myStr2Uns(const string& str, unsigned& unsnum) {
 // All the dirty compile-time checking happens here.
 template <class T>
 requires std::floating_point<T>
-    T stoFloatType(const string& str, size_t* pos) {
+T stoFloatType(const string& str, size_t* pos) {
     try {
         if constexpr (std::is_same<T, double>::value) {
             return std::stod(str, pos);
@@ -280,19 +280,4 @@ bool myStr2Double(const string& str, double& f) {
 
 bool myStr2LongDouble(const string& str, long double& f) {
     return myStr2FloatType<long double>(str, f);
-}
-
-// Valid var name is ---
-// 1. starts with [a-zA-Z_]
-// 2. others, can only be [a-zA-Z0-9_]
-// return false if not a var name
-bool isValidVarName(const string& str) {
-    size_t n = str.size();
-    if (n == 0) return false;
-    if (!isalpha(str[0]) && str[0] != '_')
-        return false;
-    for (size_t i = 1; i < n; ++i)
-        if (!isalnum(str[i]) && str[i] != '_')
-            return false;
-    return true;
 }

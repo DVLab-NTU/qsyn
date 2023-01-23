@@ -8,7 +8,7 @@
 
 #include <stdlib.h>  // for exit
 
-#include <cstddef>  // for size_t
+#include <cstddef>   // for size_t
 #include <fstream>
 #include <iostream>
 
@@ -34,6 +34,8 @@ extern bool initGFlowCmd();
 extern bool initLTCmd();
 size_t verbose = 3;
 size_t colorLevel = 1;
+
+extern MyUsage myUsage;
 
 static void
 usage() {
@@ -85,7 +87,7 @@ int main(int argc, char** argv) {
 
     while (status != CMD_EXEC_QUIT) {  // until "quit" or command error
         status = cmdMgr->execOneCmd();
-        cout << endl;  // a blank line between each command
+        cout << endl;                  // a blank line between each command
     }
 
     return 0;
