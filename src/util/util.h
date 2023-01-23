@@ -5,8 +5,8 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef QSYN_UTIL_H
+#define QSYN_UTIL_H
 
 #include <concepts>
 #include <iosfwd>
@@ -51,4 +51,4 @@ size_t findIndex(const std::vector<T>& vec, const T& t) {
     return std::find(vec.begin(), vec.end(), t) - vec.begin();
 }
 
-#endif  // UTIL_H
+#endif  // QSYN_UTIL_H
