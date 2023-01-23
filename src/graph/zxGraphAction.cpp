@@ -79,6 +79,7 @@ ZXGraph* ZXGraph::copy() const {
  * @param v
  */
 void ZXGraph::toggleEdges(ZXVertex* v) {
+    if (!v->isZ() && !v->isX()) return;
     Neighbors toggledNeighbors;
     for (auto& itr : v->getNeighbors()) {
         toggledNeighbors.insert(make_pair(itr.first, toggleEdge(itr.second)));
@@ -86,6 +87,7 @@ void ZXGraph::toggleEdges(ZXVertex* v) {
         itr.first->addNeighbor(make_pair(v, toggleEdge(itr.second)));
     }
     v->setNeighbors(toggledNeighbors);
+    v->setType(v->getType() == VertexType::Z ? VertexType::X : VertexType::Z);
 }
 
 /**

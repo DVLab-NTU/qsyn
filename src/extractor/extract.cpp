@@ -10,6 +10,8 @@
 
 #include <assert.h>  // for assert
 
+#include <memory>
+
 #include "simplify.h"  // for Simplifier
 #include "zxGraph.h"   // for ZXGraph
 #include "zxRules.h"   // for PivotBoundary
@@ -338,8 +340,9 @@ bool Extractor::removeGadget(bool check) {
         }
     }
 
-    PivotBoundary* pivotBoundaryRule = new PivotBoundary();
-    Simplifier simp(pivotBoundaryRule, _graph);
+    Simplifier simp(make_unique<PivotBoundary>(), _graph);
+    auto pivotBoundaryRule = static_cast<PivotBoundary*>(simp.getRule());
+
     if (verbose >= 8) _graph->printVertices();
     if (verbose >= 5) {
         printFrontier();
@@ -683,7 +686,7 @@ void Extractor::updateGraphByMatrix(EdgeType et) {
     for (auto& f : _frontier) {
         size_t c = 0;
         for (auto& nb : _neighbors) {
-            if (_biAdjacency[r][c] == 1 && !f->isNeighbor(nb)) {  // NOTE - Should connect but not connected
+            if (_biAdjacency[r][c] == 1 && !f->isNeighbor(nb)) {        // NOTE - Should connect but not connected
                 _graph->addEdge(f, nb, et);
             } else if (_biAdjacency[r][c] == 0 && f->isNeighbor(nb)) {  // NOTE - Should not connect but connected
                 _graph->removeEdge(f, nb, et);
