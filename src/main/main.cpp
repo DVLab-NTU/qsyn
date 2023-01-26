@@ -23,6 +23,7 @@ using namespace std;
 //----------------------------------------------------------------------
 CmdParser* cmdMgr = new CmdParser("qsyn> ");
 
+extern bool initArgParserCmd();
 extern bool initCommonCmd();
 extern bool initQCirCmd();
 extern bool initZXCmd();
@@ -68,7 +69,10 @@ int main(int argc, char** argv) {
         myexit();
     }
 
+    cout << "DV Lab, NTUEE, Qsyn 0.4.0" << endl;
+
     if (
+        !initArgParserCmd() ||
         !initCommonCmd() ||
         !initQCirCmd() ||
         !initZXCmd() ||
@@ -82,8 +86,6 @@ int main(int argc, char** argv) {
     }
 
     CmdExecStatus status = CMD_EXEC_DONE;
-
-    cout << "DV Lab, NTUEE, Qsyn 0.4.0" << endl;
 
     while (status != CMD_EXEC_QUIT) {  // until "quit" or command error
         status = cmdMgr->execOneCmd();
