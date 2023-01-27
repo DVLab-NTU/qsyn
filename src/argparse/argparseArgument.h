@@ -72,34 +72,23 @@ public:
     // attribute
     bool isMandatory() const { return !getDefaultValue().has_value(); }
     bool isOptional() const { return getDefaultValue().has_value(); }
-
-    bool isFlag() const { return getFlagValue().has_value(); }
+    template <typename T>
+    bool isOfType() const { return dynamic_cast<ArgumentModel<T>*>(_pimpl.get()) != nullptr; }
 
     // argument decorators
+    Argument& name(std::string const& name) { _name = name; return *this; }
     template <typename T>
     Argument& defaultValue(T const& arg);
+    Argument& help(std::string const& help) { _helpMessage = help; return *this; }
 
-    template <typename T>
-    Argument& flag(T const& arg);
-    Argument& help(std::string const& help) {
-        _helpMessage = help;
-        return *this;
-    }
-
-    // setters / getters
-    void setName(std::string const& name) { _name = name; }
-    void setNumMandatoryChars(size_t n) { _numMandatoryChars = n; }
-
+    // getters
     std::string const& getName() const { return _name; }
     std::string getTypeString() const { return _pimpl->doTypeString(); }
     std::optional<Argument> getDefaultValue() const { return _pimpl->doGetDefaultValue(); }
-    std::optional<Argument> getFlagValue() const { return _pimpl->doGetFlagValue(); }
     std::string getSyntaxString() const;
     size_t getNumMandatoryChars() const { return _numMandatoryChars; }
 
     void printInfoString() const;
-
-    Argument() {}
 
 private:
     // only use for dummy return
@@ -113,11 +102,12 @@ private:
     std::string _helpMessage;
 
     // pretty printing helpers
-
     std::string typeBracket(std::string const& str) const;
     std::string optionBracket(std::string const& str) const;
     std::string formattedType() const;
     std::string formattedName() const;
+
+    void setNumMandatoryChars(size_t n) { _numMandatoryChars = n; }
 
     /**
      * @brief Interface representing the concept of an Argument.
@@ -131,11 +121,9 @@ private:
         virtual std::string doTypeString() const = 0;
         virtual std::ostream& doPrint(std::ostream& os) const = 0;
         virtual bool doDefaultValue(Argument const& defaultVal) = 0;
-        virtual void doFlag(Argument const& flagVal) = 0;
 
         // getters
         virtual std::optional<Argument> doGetDefaultValue() const = 0;
-        virtual std::optional<Argument> doGetFlagValue() const = 0;
     };
 
     /**
@@ -145,43 +133,34 @@ private:
     template <typename ArgType>
     struct ArgumentModel : public ArgumentConcept {
         ArgumentModel(ArgType arg)
-            : _arg(std::move(arg)), _defaultValue(std::nullopt), _flagValue(std::nullopt) {}
+            : _arg(std::move(arg)), _defaultValue(std::nullopt) {}
 
         ArgType _arg;
         std::optional<ArgType> _defaultValue;
-        std::optional<ArgType> _flagValue;
 
         // type erasure indirection layer
         std::unique_ptr<ArgumentConcept> clone() const override;
         std::string doTypeString() const override;
         std::ostream& doPrint(std::ostream& os) const override;
-        bool doDefaultValue(Argument const& defaultVal) override {
-            if (_defaultValue.has_value()) {
-                return false;
-            }
-            _defaultValue.emplace(defaultVal);
-            return true;
-        }
-
-        void doFlag(Argument const& flagVal) override {
-            _flagValue.emplace(flagVal);
-        }
-
-        std::optional<Argument> doGetDefaultValue() const override {
-            if (_defaultValue.has_value())
-                return _defaultValue.value();
-            else
-                return std::nullopt;
-        };
-        std::optional<Argument> doGetFlagValue() const override {
-            if (_flagValue.has_value())
-                return _flagValue.value();
-            else
-                return std::nullopt;
-        };
+        bool doDefaultValue(Argument const& defaultVal) override;
+        std::optional<Argument> doGetDefaultValue() const override;
     };
 };
 
+
+//----------------------------------------
+// Argument functions
+//----------------------------------------
+
+/**
+ * @brief cast the `Argument` to specific type. The target type has to be of the same type as
+ *        the type stored under `Argument::ArgumentModel`. The user is expected to know the 
+ *        underlying type because this information is necessary for the constructor of this
+ *        class. If the casting fails, throw `ArgParse::bad_arg_cast` errors. 
+ * 
+ * @tparam T 
+ * @return T 
+ */
 template <typename T>
 Argument::operator T() const {
     if (auto ptr = dynamic_cast<ArgumentModel<T>*>(_pimpl.get())) {
@@ -193,21 +172,23 @@ Argument::operator T() const {
 }
 
 /**
- * @brief Set the default argument of an parameter
+ * @brief if the default value has not been set yet, set the default argument of an 
+ *        parameter, and mark it as an optional argument; If there is already a default 
+ *        value to the argument, this function will do nothing and warn the user. 
  *
  * @tparam T
  * @param arg the default argument to set to
  * @return Argument&
  */
 template <typename T>
-Argument& Argument::defaultValue(T const& arg) {
+Argument& Argument::defaultValue(T const& defaultVal) {
     try {
-        if (!_pimpl->doDefaultValue(arg)) {
+        if (!_pimpl->doDefaultValue(defaultVal)) {
             std::string argStr;
             if (std::is_same_v<T, bool>) {
-                argStr = (arg ? "true" : "false");
+                argStr = (defaultVal ? "true" : "false");
             } else {
-                argStr = std::to_string(arg);
+                argStr = std::to_string(defaultVal);
             }
             detail::printDuplicatedAttrErrorMsg(*this, "default value = " + argStr);
         };
@@ -217,22 +198,9 @@ Argument& Argument::defaultValue(T const& arg) {
     return *this;
 }
 
-/**
- * @brief Set the default argument of an parameter
- *
- * @tparam T
- * @param arg the default argument to set to
- * @return Argument&
- */
-template <typename T>
-Argument& Argument::flag(T const& arg) {
-    try {
-        _pimpl->doFlag(arg);
-    } catch (bad_arg_cast& e) {
-        detail::printDefaultValueErrorMsg(*this);
-    }
-    return *this;
-}
+//----------------------------------------
+// Argument::ArgumentModel functions
+//----------------------------------------
 
 /**
  * @brief clone an ArgumentModel. This function enables the
@@ -269,6 +237,41 @@ template <typename ArgType>
 std::ostream& Argument::ArgumentModel<ArgType>::doPrint(std::ostream& os) const {
     return os << _arg;
 }
+
+/**
+ * @brief set the default value of an ArgumentModel. This function enables the
+ *        type-erased `Argument::defaultValue()`.
+ * 
+ * @tparam ArgType 
+ * @param defaultVal the default value of the argument
+ * @return true if successfully set
+ * @return false if not
+ */
+template <typename ArgType>
+bool Argument::ArgumentModel<ArgType>::doDefaultValue(Argument const& defaultVal) {
+    if (_defaultValue.has_value()) {
+        return false;
+    }
+    _defaultValue.emplace(defaultVal);
+    return true;
+}
+
+/**
+ * @brief get the default value of an ArgumentModel. This function enables the
+ *        type-erased `Argument::getDefaultValue()`.
+ * 
+ * @tparam ArgType 
+ * @param defaultVal the default value of the argument
+ * @return true if successfully set
+ * @return false if not
+ */
+template <typename ArgType>
+std::optional<Argument> Argument::ArgumentModel<ArgType>::doGetDefaultValue() const {
+    if (_defaultValue.has_value())
+        return _defaultValue.value();
+    else
+        return std::nullopt;
+};
 
 }  // namespace ArgParse
 

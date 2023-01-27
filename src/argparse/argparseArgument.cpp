@@ -84,10 +84,7 @@ std::string Argument::getSyntaxString() const {
     if (isMandatory())
         return typeBracket(formattedType() + " " + formattedName());
     else
-        return optionBracket(formattedName() + (isFlag()
-                                                    ? ""
-                                                    : (" " + typeBracket(formattedType()))));
-    // return optionBracket(formattedName() + (isFlag() ? (" " + typeBracket(formattedType())) : ""));
+        return optionBracket(formattedName() + (isOfType<bool>() ? "" : (" " + typeBracket(formattedType()))));
 }
 
 void Argument::printInfoString() const {
@@ -102,7 +99,7 @@ void Argument::printInfoString() const {
                                      : TF::tokenSize(mandatoryFormat);
     cout << string(nIndents, ' ');
     cout << setw(typeWidth + TF::tokenSize(typeFormat))
-         << left << (isFlag() ? typeFormat("flag") : formattedType()) << " "
+         << left << (isOfType<bool>() && isOptional() ? typeFormat("flag") : formattedType()) << " "
          << setw(nameWidth + additionalNameWidth)
          << left << formattedName() << "   ";
 
@@ -112,7 +109,8 @@ void Argument::printInfoString() const {
     }
     cout << _helpMessage;
     if (isOptional()) {
-        cout << " (default = " << getDefaultValue().value() << ")";
+        if (!isOfType<bool>())
+            cout << " (default = " << getDefaultValue().value() << ")";
     }
     cout << endl;
 }

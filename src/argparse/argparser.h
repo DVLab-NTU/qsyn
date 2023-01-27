@@ -15,6 +15,7 @@
 
 #include "argparseArgument.h"
 #include "argparseErrorMsg.h"
+#include "ordered_hashmap.h"
 
 
 
@@ -25,16 +26,18 @@ public:
     ArgumentParser() {}
 
     template <typename ArgType>
-    Argument& addArgument(std::string const& argName, std::optional<ArgType> defaultValue = std::nullopt);
+    Argument& addArgument(std::string const& argName);
 
     void printUsage() const;
     void printHelp() const;
     void printArgumentInfo() const;
+    void printTokens() const;
 
-    std::string getCmdName() const { return _cmdName; }
+    // add attribute
+    void cmdInfo(std::string const& cmdName, std::string const& cmdSynopsis);
 
     // setters and getters
-    void cmdInfo(std::string const& cmdName, std::string const& cmdSynopsis);
+    std::string getCmdName() const { return _cmdName; }
 
     Argument& operator[](std::string const& key);
     Argument const& operator[](std::string const& key) const;
@@ -42,15 +45,17 @@ public:
     bool parse(std::string const& line);
 
 protected:
-    std::map<std::string, Argument*> _argMap;
-    std::vector<std::unique_ptr<Argument>> _arguments;
+    ordered_hashmap<std::string, Argument> mutable _arguments;
     std::string _cmdName;
     std::string _cmdDescription;
     size_t _cmdNumMandatoryChars;
 
+    std::vector<std::string> _tokens;
+
     bool mutable _optionsAnalyzed;
 
     bool analyzeOptions() const;
+    bool tokenize(std::string const& line);
 
     //pretty printing helpers
 
@@ -75,7 +80,7 @@ protected:
  * @return Argument&   return the added argument to ease streaming argument decorators
  */
 template <typename ArgType>
-Argument& ArgumentParser::addArgument(std::string const& argName, std::optional<ArgType> defaultValue) {
+Argument& ArgumentParser::addArgument(std::string const& argName) {
     if (argName.empty()) {
         detail::printArgNameEmptyErrorMsg();
         throw illegal_parser_arg{};
@@ -83,18 +88,17 @@ Argument& ArgumentParser::addArgument(std::string const& argName, std::optional<
 
     std::string realName = toLowerString(argName);
 
-    if (_argMap.contains(realName)) {
+    if (_arguments.contains(realName)) {
         detail::printArgNameDuplicateErrorMsg(realName);
         throw illegal_parser_arg{};
     }
 
-    _arguments.emplace_back(std::make_unique<Argument>(ArgType()));
-    _argMap.emplace(realName, _arguments.back().get());
-    _arguments.back()->setName(realName);
-    _arguments.back()->setNumMandatoryChars(countUpperChars(argName));
+    _arguments.emplace(realName, ArgType());
+    _arguments.at(realName).name(realName);
+    _arguments.at(realName).setNumMandatoryChars(countUpperChars(argName));
 
     _optionsAnalyzed = false;
-    return *_arguments.back();
+    return _arguments.at(realName);
 }
 
 }  // namespace ArgParse

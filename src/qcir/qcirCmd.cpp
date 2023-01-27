@@ -83,8 +83,8 @@ QCirCheckoutCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void QCirCheckoutCmd::usage(ostream &os) const {
-    os << "Usage: QCCHeckout <(size_t id)>" << endl;
+void QCirCheckoutCmd::usage() const {
+    cout << "Usage: QCCHeckout <(size_t id)>" << endl;
 }
 
 void QCirCheckoutCmd::help() const {
@@ -105,8 +105,8 @@ QCirResetCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void QCirResetCmd::usage(ostream &os) const {
-    os << "Usage: QCReset" << endl;
+void QCirResetCmd::usage() const {
+    cout << "Usage: QCReset" << endl;
 }
 
 void QCirResetCmd::help() const {
@@ -133,8 +133,8 @@ QCirDeleteCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void QCirDeleteCmd::usage(ostream &os) const {
-    os << "Usage: QCDelete <size_t id>" << endl;
+void QCirDeleteCmd::usage() const {
+    cout << "Usage: QCDelete <size_t id>" << endl;
 }
 
 void QCirDeleteCmd::help() const {
@@ -160,8 +160,8 @@ QCirNewCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void QCirNewCmd::usage(ostream &os) const {
-    os << "Usage: QCNew [size_t id]" << endl;
+void QCirNewCmd::usage() const {
+    cout << "Usage: QCNew [size_t id]" << endl;
 }
 
 void QCirNewCmd::help() const {
@@ -206,8 +206,8 @@ QCirCopyCmd::exec(const string &option) {  // check option
     return CMD_EXEC_DONE;
 }
 
-void QCirCopyCmd::usage(ostream &os) const {
-    os << "Usage: QCCOPy <size_t id> [-Replace]" << endl;
+void QCirCopyCmd::usage() const {
+    cout << "Usage: QCCOPy <size_t id> [-Replace]" << endl;
 }
 
 void QCirCopyCmd::help() const {
@@ -234,8 +234,8 @@ QCirComposeCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void QCirComposeCmd::usage(ostream &os) const {
-    os << "Usage: QCCOMpose <size_t id>" << endl;
+void QCirComposeCmd::usage() const {
+    cout << "Usage: QCCOMpose <size_t id>" << endl;
 }
 
 void QCirComposeCmd::help() const {
@@ -263,8 +263,8 @@ QCirTensorCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void QCirTensorCmd::usage(ostream &os) const {
-    os << "Usage: QCTensor <size_t id>" << endl;
+void QCirTensorCmd::usage() const {
+    cout << "Usage: QCTensor <size_t id>" << endl;
 }
 
 void QCirTensorCmd::help() const {
@@ -290,8 +290,8 @@ QCPrintCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void QCPrintCmd::usage(ostream &os) const {
-    os << "Usage: QCPrint [-Summary | -Focus | -Num]" << endl;
+void QCPrintCmd::usage() const {
+    cout << "Usage: QCPrint [-Summary | -Focus | -Num]" << endl;
 }
 
 void QCPrintCmd::help() const {
@@ -347,8 +347,8 @@ QCirReadCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void QCirReadCmd::usage(ostream &os) const {
-    os << "Usage: QCCRead <(string fileName)> [-Replace]" << endl;
+void QCirReadCmd::usage() const {
+    cout << "Usage: QCCRead <(string fileName)> [-Replace]" << endl;
 }
 
 void QCirReadCmd::help() const {
@@ -413,8 +413,8 @@ QCirGatePrintCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void QCirGatePrintCmd::usage(ostream &os) const {
-    os << "Usage: QCGPrint <(size_t gateID)> [-Time | -ZXform]" << endl;
+void QCirGatePrintCmd::usage() const {
+    cout << "Usage: QCGPrint <(size_t gateID)> [-Time | -ZXform]" << endl;
 }
 
 void QCirGatePrintCmd::help() const {
@@ -450,8 +450,8 @@ QCirPrintCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void QCirPrintCmd::usage(ostream &os) const {
-    os << "Usage: QCCPrint [-Summary | -Analysis | -Detail | -List | -Qubit]" << endl;
+void QCirPrintCmd::usage() const {
+    cout << "Usage: QCCPrint [-Summary | -Analysis | -Detail | -List | -Qubit]" << endl;
 }
 
 void QCirPrintCmd::help() const {
@@ -650,13 +650,13 @@ QCirAddGateCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void QCirAddGateCmd::usage(ostream &os) const {
-    os << "QCGAdd <-H | -X | -Z | -T | -TDG | -S | -SDG | -SX | -Y | -SY> <(size_t targ)> [-APpend|-PRepend]" << endl;
-    os << "QCGAdd <-CX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
-    os << "QCGAdd <-CCX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
-    os << "QCGAdd <-RZ> <-PHase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend]" << endl;
-    os << "QCGAdd <-MCP> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]" << endl;
-    os << "QCGAdd <-CRZ> <-PHase (Phase phase_inp)> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
+void QCirAddGateCmd::usage() const {
+    cout << "QCGAdd <-H | -X | -Z | -T | -TDG | -S | -SDG | -SX | -Y | -SY> <(size_t targ)> [-APpend|-PRepend]" << endl;
+    cout << "QCGAdd <-CX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
+    cout << "QCGAdd <-CCX> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
+    cout << "QCGAdd <-RZ> <-PHase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend]" << endl;
+    cout << "QCGAdd <-MCP> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]" << endl;
+    cout << "QCGAdd <-CRZ> <-PHase (Phase phase_inp)> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
 }
 
 void QCirAddGateCmd::help() const {
@@ -695,8 +695,8 @@ QCirAddQubitCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void QCirAddQubitCmd::usage(ostream &os) const {
-    os << "Usage: QCBAdd [size_t addNum] " << endl;
+void QCirAddQubitCmd::usage() const {
+    cout << "Usage: QCBAdd [size_t addNum] " << endl;
 }
 
 void QCirAddQubitCmd::help() const {
@@ -727,8 +727,8 @@ QCirDeleteGateCmd::exec(const string &option) {
         return CMD_EXEC_DONE;
 }
 
-void QCirDeleteGateCmd::usage(ostream &os) const {
-    os << "Usage: QCGDelete <(size_t gateID)> " << endl;
+void QCirDeleteGateCmd::usage() const {
+    cout << "Usage: QCGDelete <(size_t gateID)> " << endl;
 }
 
 void QCirDeleteGateCmd::help() const {
@@ -761,8 +761,8 @@ QCirDeleteQubitCmd::exec(const string &option) {
         return CMD_EXEC_DONE;
 }
 
-void QCirDeleteQubitCmd::usage(ostream &os) const {
-    os << "Usage: QCBDelete <(size_t qubitID)> " << endl;
+void QCirDeleteQubitCmd::usage() const {
+    cout << "Usage: QCBDelete <(size_t qubitID)> " << endl;
 }
 
 void QCirDeleteQubitCmd::help() const {
@@ -784,8 +784,8 @@ QCir2ZXCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void QCir2ZXCmd::usage(ostream &os) const {
-    os << "Usage: QC2ZX" << endl;
+void QCir2ZXCmd::usage() const {
+    cout << "Usage: QC2ZX" << endl;
 }
 
 void QCir2ZXCmd::help() const {
@@ -807,8 +807,8 @@ QCir2TSCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void QCir2TSCmd::usage(ostream &os) const {
-    os << "Usage: QC2TS" << endl;
+void QCir2TSCmd::usage() const {
+    cout << "Usage: QC2TS" << endl;
 }
 
 void QCir2TSCmd::help() const {
@@ -834,8 +834,8 @@ QCirWriteCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void QCirWriteCmd::usage(ostream &os) const {
-    os << "Usage: QCCWrite <string Output.qasm>" << endl;
+void QCirWriteCmd::usage() const {
+    cout << "Usage: QCCWrite <string Output.qasm>" << endl;
 }
 
 void QCirWriteCmd::help() const {
@@ -843,8 +843,8 @@ void QCirWriteCmd::help() const {
          << "write QCir to a QASM file\n";
 }
 
-void QCirAddMultipleCmd::usage(ostream &os) const {
-    os << "Usage: QCGMAdd 0 1 2 3 4" << endl;
+void QCirAddMultipleCmd::usage() const {
+    cout << "Usage: QCGMAdd 0 1 2 3 4" << endl;
 }
 
 void QCirAddMultipleCmd::help() const {

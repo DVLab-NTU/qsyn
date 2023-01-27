@@ -13,6 +13,7 @@
 #include <ranges>
 #include <string>
 
+#include "util.h"
 #include "myTrie.h"
 #include "textFormat.h"
 
@@ -39,14 +40,14 @@ void ArgumentParser::printUsage() const {
 
     cout << TF::LIGHT_BLUE("Usage: ");
     cout << formattedCmdName();
-    for (auto const& arg : _arguments) {
-        if (arg->isMandatory())
-            cout << " " << arg->getSyntaxString();
+    for (auto const& [_, arg] : _arguments) {
+        if (arg.isMandatory())
+            cout << " " << arg.getSyntaxString();
     }
 
-    for (auto const& arg : _arguments) {
-        if (arg->isOptional())
-            cout << " " << arg->getSyntaxString();
+    for (auto const& [_, arg] : _arguments) {
+        if (arg.isOptional())
+            cout << " " << arg.getSyntaxString();
     }
 
     cout << endl;
@@ -69,18 +70,25 @@ void ArgumentParser::printArgumentInfo() const {
     cout << TF::LIGHT_BLUE("\nDescription:\n  ") << _cmdDescription << "\n";
 
     cout << TF::LIGHT_BLUE("\nMandatory arguments:\n");
-    for (auto& arg : _arguments) {
-        if (arg->isMandatory()) {
-            arg->printInfoString();
+    for (auto const& [_, arg] : _arguments) {
+        if (arg.isMandatory()) {
+            arg.printInfoString();
         }
     }
 
     cout << TF::LIGHT_BLUE("\nOptional arguments:\n");
 
-    for (auto& arg : _arguments) {
-        if (arg->isOptional()) {
-            arg->printInfoString();
+    for (auto const& [_, arg] : _arguments) {
+        if (arg.isOptional()) {
+            arg.printInfoString();
         }
+    }
+}
+
+void ArgumentParser::printTokens() const {
+    size_t i = 0;
+    for (auto token : _tokens) {
+        cout << "Token #" << ++i << ":\t" << token << endl;
     }
 }
 
@@ -92,7 +100,7 @@ void ArgumentParser::cmdInfo(std::string const& cmdName, std::string const& desc
 
 Argument& ArgumentParser::operator[](std::string const& key) {
     try {
-        return *_argMap.at(key);
+        return _arguments[key];
     } catch (std::out_of_range& e) {
         std::cerr << "key = " << key << ", " << e.what() << std::endl;
         exit(-1);
@@ -101,7 +109,7 @@ Argument& ArgumentParser::operator[](std::string const& key) {
 
 Argument const& ArgumentParser::operator[](std::string const& key) const {
     try {
-        return *_argMap.at(toLowerString(key));
+        return _arguments.at(key);
     } catch (std::out_of_range& e) {
         std::cerr << "key = " << key << ", " << e.what() << std::endl;
         exit(-1);
@@ -113,6 +121,7 @@ bool ArgumentParser::parse(std::string const& line) {
         _optionsAnalyzed = analyzeOptions();
     }
 
+    tokenize(line);
     return true;
 }
 
@@ -125,17 +134,17 @@ bool ArgumentParser::parse(std::string const& line) {
 bool ArgumentParser::analyzeOptions() const {
     MyTrie trie;
 
-    for (auto& [argName, arg] : _argMap) {
-        if (arg->isMandatory()) continue;
-        trie.insert(argName);
+    for (auto const& [name, arg] : _arguments) {
+        if (arg.isMandatory()) continue;
+        trie.insert(name);
     }
 
-    for (auto& [argName, arg] : _argMap) {
-        if (arg->isMandatory()) continue;
-        arg->setNumMandatoryChars(
+    for (auto& [name, arg] : _arguments) {
+        if (arg.isMandatory()) continue;
+        arg.setNumMandatoryChars(
             max(
-                trie.shortestUniquePrefix(argName).value().size(),
-                arg->getNumMandatoryChars()));
+                trie.shortestUniquePrefix(name).value().size(),
+                arg.getNumMandatoryChars()));
     }
     return true;
 }
@@ -167,6 +176,35 @@ std::string ArgumentParser::formattedCmdName() const {
         }
         return tmp;
     }
+}
+
+bool ArgumentParser::tokenize(string const& line) {
+    _tokens.clear();
+    string buffer, stripped;
+    if (!stripQuotes(line, stripped)) {
+        cerr << "Error: missing ending quote!!" << endl;
+        return false;
+    }
+    size_t pos = myStrGetTok(stripped, buffer);
+    while (buffer.size()) {
+        _tokens.push_back(buffer);
+        pos = myStrGetTok(stripped, buffer, pos);
+    }
+    if (_tokens.empty()) return true;
+    // concat tokens with '\ ' to a single token with space in it
+    for (auto itr = next(_tokens.rbegin()); itr != _tokens.rend(); ++itr) {
+        string& currToken = *itr;
+        string& nextToken = *prev(itr);
+
+        if (currToken.ends_with('\\')) {
+            currToken.back() = ' ';
+            currToken += nextToken;
+            nextToken = "";
+        }
+    }
+    std::erase(_tokens, "");
+    
+    return true;
 }
 
 }  // namespace ArgParse
