@@ -265,8 +265,7 @@ ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::emplace(Args&&... arg
  */
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
 void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sweep() {
-    auto newEnd = std::remove_if(_data.begin(), _data.end(), [](const stored_type& v) { return !v.has_value(); });
-    _data.erase(newEnd, _data.end());
+    std::erase_if(_data, [](const stored_type& v) { return !v.has_value(); });
 
     for (size_t i = 0; i < _data.size(); ++i) {
         _key2id[this->key(_data[i].value())] = i;

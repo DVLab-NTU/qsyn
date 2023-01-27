@@ -704,9 +704,9 @@ ZXGReadCmd::exec(const string &option) {  // check option
     string replaceStr = options[eraseIndexReplace];
     string bzxStr = options[eraseIndexBZX];
     if (doReplace)
-        options.erase(std::remove(options.begin(), options.end(), replaceStr), options.end());
+        std::erase(options, replaceStr);
     if (doKeepID)
-        options.erase(std::remove(options.begin(), options.end(), bzxStr), options.end());
+        std::erase(options, bzxStr);
     if (options.empty())
         return CmdExec::errorOption(CMD_OPT_MISSING, (eraseIndexBZX > eraseIndexReplace) ? bzxStr : replaceStr);
 
@@ -768,7 +768,7 @@ ZXGWriteCmd::exec(const string &option) {
     }
     string completeStr = options[eraseIndexComplete];
     if (doComplete)
-        options.erase(std::remove(options.begin(), options.end(), completeStr), options.end());
+        std::erase(options, completeStr);
     if (options.empty())
         return CmdExec::errorOption(CMD_OPT_MISSING, completeStr);
 
