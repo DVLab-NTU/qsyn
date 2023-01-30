@@ -83,6 +83,7 @@ public:
     using difference_type = __OrderedHashTable::difference_type;
     using hasher = __OrderedHashTable::hasher;
     using key_equal = __OrderedHashTable::key_equal;
+    using container = __OrderedHashTable::container;
     using iterator = __OrderedHashTable::iterator;
     using const_iterator = __OrderedHashTable::const_iterator;
 
@@ -96,7 +97,7 @@ public:
     }
 
     // lookup
-    virtual const Key& key(const value_type& value) const override { return value; }
+    virtual const Key& key(const stored_type& value) const override { return value; }
 };
 
 #endif  // ORDERED_HASHSET_H
