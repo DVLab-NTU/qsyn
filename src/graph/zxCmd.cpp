@@ -69,8 +69,8 @@ ZXNewCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXNewCmd::usage(ostream &os) const {
-    os << "Usage: ZXNew [size_t id]" << endl;
+void ZXNewCmd::usage() const {
+    cout << "Usage: ZXNew [size_t id]" << endl;
 }
 
 void ZXNewCmd::help() const {
@@ -91,8 +91,8 @@ ZXResetCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXResetCmd::usage(ostream &os) const {
-    os << "Usage: ZXReset" << endl;
+void ZXResetCmd::usage() const {
+    cout << "Usage: ZXReset" << endl;
 }
 
 void ZXResetCmd::help() const {
@@ -119,8 +119,8 @@ ZXDeleteCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXDeleteCmd::usage(ostream &os) const {
-    os << "Usage: ZXDelete <size_t id>" << endl;
+void ZXDeleteCmd::usage() const {
+    cout << "Usage: ZXDelete <size_t id>" << endl;
 }
 
 void ZXDeleteCmd::help() const {
@@ -147,8 +147,8 @@ ZXCHeckoutCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXCHeckoutCmd::usage(ostream &os) const {
-    os << "Usage: ZXCHeckout <(size_t id)>" << endl;
+void ZXCHeckoutCmd::usage() const {
+    cout << "Usage: ZXCHeckout <(size_t id)>" << endl;
 }
 
 void ZXCHeckoutCmd::help() const {
@@ -175,8 +175,8 @@ ZXPrintCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXPrintCmd::usage(ostream &os) const {
-    os << "Usage: ZXPrint [-Summary | -Focus | -Num]" << endl;
+void ZXPrintCmd::usage() const {
+    cout << "Usage: ZXPrint [-Summary | -Focus | -Num]" << endl;
 }
 
 void ZXPrintCmd::help() const {
@@ -221,8 +221,8 @@ ZXCOPyCmd::exec(const string &option) {  // check option
     return CMD_EXEC_DONE;
 }
 
-void ZXCOPyCmd::usage(ostream &os) const {
-    os << "Usage: ZXCOPy <size_t id> [-Replace]" << endl;
+void ZXCOPyCmd::usage() const {
+    cout << "Usage: ZXCOPy <size_t id> [-Replace]" << endl;
 }
 
 void ZXCOPyCmd::help() const {
@@ -249,8 +249,8 @@ ZXCOMposeCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXCOMposeCmd::usage(ostream &os) const {
-    os << "Usage: ZXCOMpose <size_t id>" << endl;
+void ZXCOMposeCmd::usage() const {
+    cout << "Usage: ZXCOMpose <size_t id>" << endl;
 }
 
 void ZXCOMposeCmd::help() const {
@@ -278,8 +278,8 @@ ZXTensorCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXTensorCmd::usage(ostream &os) const {
-    os << "Usage: ZXTensor <size_t id>" << endl;
+void ZXTensorCmd::usage() const {
+    cout << "Usage: ZXTensor <size_t id>" << endl;
 }
 
 void ZXTensorCmd::help() const {
@@ -341,8 +341,8 @@ ZXGTestCmd::exec(const string &option) {
     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
 }
 
-void ZXGTestCmd::usage(ostream &os) const {
-    os << "Usage: ZXGTest [-GCX | -Empty | -Valid | -GLike | -IDentity ]" << endl;
+void ZXGTestCmd::usage() const {
+    cout << "Usage: ZXGTest [-GCX | -Empty | -Valid | -GLike | -IDentity ]" << endl;
 }
 
 void ZXGTestCmd::help() const {
@@ -420,8 +420,8 @@ ZXGPrintCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXGPrintCmd::usage(ostream &os) const {
-    os << "Usage: ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis]" << endl;
+void ZXGPrintCmd::usage() const {
+    cout << "Usage: ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis]" << endl;
 }
 
 void ZXGPrintCmd::help() const {
@@ -580,13 +580,13 @@ ZXGEditCmd::exec(const string &option) {
     return errorOption(CMD_OPT_ILLEGAL, action);
 }
 
-void ZXGEditCmd::usage(ostream &os) const {
-    os << "Usage: ZXGEdit -RMVertex <-Isolated | (size_t id)... >" << endl;
-    os << "               -RMEdge <(size_t id_s), (size_t id_t)> <-ALL | (EdgeType et)>" << endl;
-    os << "               -ADDVertex <(size_t qubit), (VertexType vt), [Phase phase]>" << endl;
-    os << "               -ADDInput <(size_t qubit)>" << endl;
-    os << "               -ADDOutput <(size_t qubit)>" << endl;
-    os << "               -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>" << endl;
+void ZXGEditCmd::usage() const {
+    cout << "Usage: ZXGEdit -RMVertex <-Isolated | (size_t id)... >" << endl;
+    cout << "               -RMEdge <(size_t id_s), (size_t id_t)> <-ALL | (EdgeType et)>" << endl;
+    cout << "               -ADDVertex <(size_t qubit), (VertexType vt), [Phase phase]>" << endl;
+    cout << "               -ADDInput <(size_t qubit)>" << endl;
+    cout << "               -ADDOutput <(size_t qubit)>" << endl;
+    cout << "               -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>" << endl;
 }
 
 void ZXGEditCmd::help() const {
@@ -606,8 +606,8 @@ ZXGTraverseCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXGTraverseCmd::usage(ostream &os) const {
-    os << "Usage: ZXGTRaverse" << endl;
+void ZXGTraverseCmd::usage() const {
+    cout << "Usage: ZXGTRaverse" << endl;
 }
 
 void ZXGTraverseCmd::help() const {
@@ -639,9 +639,9 @@ ZXGDrawCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXGDrawCmd::usage(ostream &os) const {
-    os << "Usage: ZXGDraw [-CLI]" << endl;
-    os << "Usage: ZXGDraw <-Path> <string (path.pdf)>" << endl;
+void ZXGDrawCmd::usage() const {
+    cout << "Usage: ZXGDraw [-CLI]" << endl;
+    cout << "Usage: ZXGDraw <-Path> <string (path.pdf)>" << endl;
 }
 
 void ZXGDrawCmd::help() const {
@@ -659,8 +659,8 @@ ZX2TSCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZX2TSCmd::usage(ostream &os) const {
-    os << "Usage: ZX2TS" << endl;
+void ZX2TSCmd::usage() const {
+    cout << "Usage: ZX2TS" << endl;
 }
 
 void ZX2TSCmd::help() const {
@@ -704,9 +704,9 @@ ZXGReadCmd::exec(const string &option) {  // check option
     string replaceStr = options[eraseIndexReplace];
     string bzxStr = options[eraseIndexBZX];
     if (doReplace)
-        options.erase(std::remove(options.begin(), options.end(), replaceStr), options.end());
+        std::erase(options, replaceStr);
     if (doKeepID)
-        options.erase(std::remove(options.begin(), options.end(), bzxStr), options.end());
+        std::erase(options, bzxStr);
     if (options.empty())
         return CmdExec::errorOption(CMD_OPT_MISSING, (eraseIndexBZX > eraseIndexReplace) ? bzxStr : replaceStr);
 
@@ -732,8 +732,8 @@ ZXGReadCmd::exec(const string &option) {  // check option
     return CMD_EXEC_DONE;
 }
 
-void ZXGReadCmd::usage(ostream &os) const {
-    os << "Usage: ZXGRead <string Input.(b)zx> [-KEEPid] [-Replace]" << endl;
+void ZXGReadCmd::usage() const {
+    cout << "Usage: ZXGRead <string Input.(b)zx> [-KEEPid] [-Replace]" << endl;
 }
 
 void ZXGReadCmd::help() const {
@@ -768,7 +768,7 @@ ZXGWriteCmd::exec(const string &option) {
     }
     string completeStr = options[eraseIndexComplete];
     if (doComplete)
-        options.erase(std::remove(options.begin(), options.end(), completeStr), options.end());
+        std::erase(options, completeStr);
     if (options.empty())
         return CmdExec::errorOption(CMD_OPT_MISSING, completeStr);
 
@@ -806,8 +806,8 @@ ZXGWriteCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXGWriteCmd::usage(ostream &os) const {
-    os << "Usage: ZXGWrite <string Output.<zx | tikz>> [-Complete]" << endl;
+void ZXGWriteCmd::usage() const {
+    cout << "Usage: ZXGWrite <string Output.<zx | tikz>> [-Complete]" << endl;
 }
 
 void ZXGWriteCmd::help() const {
@@ -856,8 +856,8 @@ ZXGAssignCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXGAssignCmd::usage(ostream &os) const {
-    os << "Usage: ZXGASsign <size_t qubit> <I|O> <VertexType vt> <string Phase>" << endl;
+void ZXGAssignCmd::usage() const {
+    cout << "Usage: ZXGASsign <size_t qubit> <I|O> <VertexType vt> <string Phase>" << endl;
 }
 
 void ZXGAssignCmd::help() const {
@@ -877,8 +877,8 @@ ZXGAdjointCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXGAdjointCmd::usage(ostream &os) const {
-    os << "Usage: ZXGADJoint" << endl;
+void ZXGAdjointCmd::usage() const {
+    cout << "Usage: ZXGADJoint" << endl;
 }
 
 void ZXGAdjointCmd::help() const {

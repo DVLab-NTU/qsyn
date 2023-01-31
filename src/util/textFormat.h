@@ -8,11 +8,15 @@
 #ifndef QSYN_TEXT_FORMAT_H
 #define QSYN_TEXT_FORMAT_H
 
+#include <functional>
 #include <string>
 
 namespace TextFormat {
 
-std::string SET_FORMAT(const std::string& str, const size_t& code);
+std::string decorate(std::string const& str, const size_t& code);
+std::string setFormat(const std::string& str, const size_t& code);
+
+size_t tokenSize(std::function<std::string(std::string const&)> F);
 
 std::string BOLD(const std::string& str);
 std::string DIM(const std::string& str);
@@ -57,6 +61,6 @@ std::string LIGHT_BG_MAGENTA(const std::string& str);
 std::string LIGHT_BG_CYAN(const std::string& str);
 std::string LIGHT_BG_WHITE(const std::string& str);
 
-};  // namespace TextFormat
+};      // namespace TextFormat
 
 #endif  // QSYN_TEXT_FORMAT_H

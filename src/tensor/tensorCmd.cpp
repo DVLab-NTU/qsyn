@@ -51,8 +51,8 @@ TSResetCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void TSResetCmd::usage(ostream &os) const {
-    os << "Usage: TSReset" << endl;
+void TSResetCmd::usage() const {
+    cout << "Usage: TSReset" << endl;
 }
 
 void TSResetCmd::help() const {
@@ -103,11 +103,11 @@ TSPrintCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void TSPrintCmd::usage(ostream &os) const {
-    os << "Usage: TSPrint [-List] [size_t id]" << endl
-       << "       -List: List infos only" << endl
-       << "       id   : Print the tensor with the id specified" << endl
-       << "       If no argument is given, list infos of all stored tensors. " << endl;
+void TSPrintCmd::usage() const {
+    cout << "Usage: TSPrint [-List] [size_t id]" << endl
+         << "       -List: List infos only" << endl
+         << "       id   : Print the tensor with the id specified" << endl
+         << "       If no argument is given, list infos of all stored tensors. " << endl;
 }
 
 void TSPrintCmd::help() const {
@@ -193,10 +193,10 @@ TSEquivalenceCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void TSEquivalenceCmd::usage(ostream &os) const {
-    os << "Usage: TSEQuiv <size_t id1> <size_t id2> [<-Epsilon> <double eps>] [-Exact]\n"
-       << "       -Epsilon: requires cosine similarity between tensors to be higher than (1 - eps) (default to 1e-6)\n"
-       << "       -Strict : requires exact equivalence (global scaling factor of 1)" << endl;
+void TSEquivalenceCmd::usage() const {
+    cout << "Usage: TSEQuiv <size_t id1> <size_t id2> [<-Epsilon> <double eps>] [-Exact]\n"
+         << "       -Epsilon: requires cosine similarity between tensors to be higher than (1 - eps) (default to 1e-6)\n"
+         << "       -Strict : requires exact equivalence (global scaling factor of 1)" << endl;
 }
 
 void TSEquivalenceCmd::help() const {
@@ -228,8 +228,8 @@ TSAdjointCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void TSAdjointCmd::usage(ostream &os) const {
-    os << "Usage: TSAdjoint <size_t id>" << endl;
+void TSAdjointCmd::usage() const {
+    cout << "Usage: TSAdjoint <size_t id>" << endl;
 }
 
 void TSAdjointCmd::help() const {

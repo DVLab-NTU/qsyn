@@ -76,7 +76,7 @@ DIR := test
 TARGET := $(BUILD_DIR)/$(TESTEXEC)
 include $(SRC_DIR)/$(DIR)/rules.mk
 
-CFLAGS 			:= $(OPTIMIZE_LEVEL) $(DEBUG_FLAG) $(DEP_FLAG) -Wall -std=c++20 -DTA_KB_SETTING $(PKGFLAG)
+CFLAGS 			:= $(OPTIMIZE_LEVEL) $(DEBUG_FLAG) $(DEP_FLAG) -Wall -std=c++20 $(PKGFLAG)
 
 ## -------------------------------
 ##      Generic build policy

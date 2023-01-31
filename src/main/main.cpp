@@ -8,7 +8,7 @@
 
 #include <stdlib.h>  // for exit
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <fstream>
 #include <iostream>
 
@@ -23,6 +23,7 @@ using namespace std;
 //----------------------------------------------------------------------
 CmdParser* cmdMgr = new CmdParser("qsyn> ");
 
+extern bool initArgParserCmd();
 extern bool initCommonCmd();
 extern bool initQCirCmd();
 extern bool initZXCmd();
@@ -34,6 +35,8 @@ extern bool initGFlowCmd();
 extern bool initLTCmd();
 size_t verbose = 3;
 size_t colorLevel = 1;
+
+extern MyUsage myUsage;
 
 static void
 usage() {
@@ -66,7 +69,10 @@ int main(int argc, char** argv) {
         myexit();
     }
 
+    cout << "DV Lab, NTUEE, Qsyn 0.4.0" << endl;
+
     if (
+        !initArgParserCmd() ||
         !initCommonCmd() ||
         !initQCirCmd() ||
         !initZXCmd() ||
@@ -81,11 +87,9 @@ int main(int argc, char** argv) {
 
     CmdExecStatus status = CMD_EXEC_DONE;
 
-    cout << "DV Lab, NTUEE, Qsyn 0.4.0" << endl;
-
     while (status != CMD_EXEC_QUIT) {  // until "quit" or command error
         status = cmdMgr->execOneCmd();
-        cout << endl;  // a blank line between each command
+        cout << endl;                  // a blank line between each command
     }
 
     return 0;

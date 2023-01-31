@@ -11,7 +11,7 @@
 #include <cstddef>  // for size_t
 #include <iomanip>
 #include <iostream>
-#include <string>  // for string
+#include <string>        // for string
 
 #include "lattice.h"     // for LTContainer
 #include "zxGraphMgr.h"  // for ZXGraphMgr, zxGraphMgr
@@ -55,10 +55,8 @@ LTCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void LTCmd::usage(ostream &os) const {
-    // os << "Usage: ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion | \n"
-    //                    << "-HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -PIVOTBoundary | -CLIFford | -FReduce | -SReduce]" << endl;
-    os << "Usage: LTS [ -Print ]" << endl;
+void LTCmd::usage() const {
+    cout << "Usage: LTS [ -Print ]" << endl;
 }
 
 void LTCmd::help() const {

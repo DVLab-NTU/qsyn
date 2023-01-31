@@ -9,7 +9,7 @@
 
 #include <stdlib.h>  // for srand
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -20,6 +20,7 @@
 using namespace std;
 extern size_t verbose;
 extern size_t colorLevel;
+extern MyUsage myUsage;
 
 bool initCommonCmd() {
     if (!(cmdMgr->regCmd("QQuit", 2, new QuitCmd) &&
@@ -48,15 +49,14 @@ HelpCmd::exec(const string& option) {
     if (token.size()) {
         CmdExec* e = cmdMgr->getCmd(token);
         if (!e) return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-        e->help();
-        e->usage(cout);
+        e->manual();
     } else
         cmdMgr->printHelps();
     return CMD_EXEC_DONE;
 }
 
-void HelpCmd::usage(ostream& os) const {
-    os << "Usage: HELp [(string cmd)]" << endl;
+void HelpCmd::usage() const {
+    cout << "Usage: HELp [(string cmd)]" << endl;
 }
 
 void HelpCmd::help() const {
@@ -90,11 +90,11 @@ QuitCmd::exec(const string& option) {
         if (myStrNCmp("Yes", ss, 1) == 0)
             return CMD_EXEC_QUIT;  // ready to quit
     }
-    return CMD_EXEC_DONE;  // not yet to quit
+    return CMD_EXEC_DONE;          // not yet to quit
 }
 
-void QuitCmd::usage(ostream& os) const {
-    os << "Usage: QQuit [-Force]" << endl;
+void QuitCmd::usage() const {
+    cout << "Usage: QQuit [-Force]" << endl;
 }
 
 void QuitCmd::help() const {
@@ -122,8 +122,8 @@ HistoryCmd::exec(const string& option) {
     return CMD_EXEC_DONE;
 }
 
-void HistoryCmd::usage(ostream& os) const {
-    os << "Usage: HIStory [(int nPrint)]" << endl;
+void HistoryCmd::usage() const {
+    cout << "Usage: HIStory [(int nPrint)]" << endl;
 }
 
 void HistoryCmd::help() const {
@@ -146,8 +146,8 @@ DofileCmd::exec(const string& option) {
     return CMD_EXEC_DONE;
 }
 
-void DofileCmd::usage(ostream& os) const {
-    os << "Usage: DOfile <(string file)>" << endl;
+void DofileCmd::usage() const {
+    cout << "Usage: DOfile <(string file)>" << endl;
 }
 
 void DofileCmd::help() const {
@@ -195,8 +195,8 @@ UsageCmd::exec(const string& option) {
     return CMD_EXEC_DONE;
 }
 
-void UsageCmd::usage(ostream& os) const {
-    os << "Usage: USAGE [-All | -Time | -Memory]" << endl;
+void UsageCmd::usage() const {
+    cout << "Usage: USAGE [-All | -Time | -Memory]" << endl;
 }
 
 void UsageCmd::help() const {
@@ -227,8 +227,8 @@ VerboseCmd::exec(const string& option) {
     return CMD_EXEC_DONE;
 }
 
-void VerboseCmd::usage(ostream& os) const {
-    os << "Usage: VERbose <size_t verbose level>" << endl;
+void VerboseCmd::usage() const {
+    cout << "Usage: VERbose <size_t verbose level>" << endl;
 }
 
 void VerboseCmd::help() const {
@@ -260,16 +260,14 @@ SeedCmd::exec(const string& option) {
     return CMD_EXEC_DONE;
 }
 
-void SeedCmd::usage(ostream& os) const {
-    os << "Usage: SEED [size_t seed]" << endl;
+void SeedCmd::usage() const {
+    cout << "Usage: SEED [size_t seed]" << endl;
 }
 
 void SeedCmd::help() const {
     cout << setw(15) << left << "SEED: "
          << "fix the seed" << endl;
 }
-
-//----------------------------------------------------------------------
 
 //----------------------------------------------------------------------
 //    COLOR <size_t color level>
@@ -294,8 +292,8 @@ ColorCmd::exec(const string& option) {
     return CMD_EXEC_DONE;
 }
 
-void ColorCmd::usage(ostream& os) const {
-    os << "Usage: COLOR <bool colored>" << endl;
+void ColorCmd::usage() const {
+    cout << "Usage: COLOR <bool colored>" << endl;
 }
 
 void ColorCmd::help() const {

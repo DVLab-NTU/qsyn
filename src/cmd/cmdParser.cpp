@@ -12,7 +12,7 @@
 #include <cstdlib>     // for exit
 #include <filesystem>  // lines 12-12
 #include <fstream>
-#include <iostream>  // for cin, cout
+#include <iostream>    // for cin, cout
 
 #include "util.h"
 
@@ -368,7 +368,7 @@ void CmdParser::listCmd(const string& str) {
                 if (_tabPressCount == 1) {
                     // [case 5] Singly matched on first tab
                     cout << endl;
-                    e->usage(cout);
+                    e->usage();
                 }
                 // [case 6] Singly matched on second+ tab
                 else if (!listCmdDir(cmd)) {
@@ -403,7 +403,7 @@ void CmdParser::listCmd(const string& str) {
                 return;
             }  // [case 4] no match in 1st wd
         }
-    }  // end of cmd string processing
+    }          // end of cmd string processing
     // cases 1, 2, 3 go here
     ti = bi;
     ++ti;

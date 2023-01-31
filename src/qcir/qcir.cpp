@@ -8,10 +8,10 @@
 
 #include "qcir.h"
 
-#include <stdlib.h>  // for abort
+#include <stdlib.h>      // for abort
 
-#include <cassert>  // for assert
-#include <string>   // for string
+#include <cassert>       // for assert
+#include <string>        // for string
 
 #include "qcirGate.h"    // for QCirGate
 #include "qcirQubit.h"   // for QCirQubit
@@ -165,7 +165,7 @@ bool QCir::removeQubit(size_t id) {
             cerr << "Error: id " << id << " is not an empty qubit!!" << endl;
             return false;
         } else {
-            _qubits.erase(remove(_qubits.begin(), _qubits.end(), target), _qubits.end());
+            std::erase(_qubits, target);
             clearMapping();
             return true;
         }
@@ -320,7 +320,7 @@ bool QCir::removeGate(size_t id) {
             Info[i]._parent = NULL;
             Info[i]._child = NULL;
         }
-        _qgates.erase(remove(_qgates.begin(), _qgates.end(), target), _qgates.end());
+        std::erase(_qgates, target);
         _dirty = true;
         clearMapping();
         return true;

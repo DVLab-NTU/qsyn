@@ -65,8 +65,7 @@ public:
 
     template <class T>
     requires std::floating_point<T>
-        T toFloatType()
-    const { return ((T)_numer) / _denom; }
+    T toFloatType() const { return ((T)_numer) / _denom; }
 
     float toFloat() const { return toFloatType<float>(); }
     double toDouble() const { return toFloatType<double>(); }
@@ -83,7 +82,7 @@ protected:
 
 template <class T>
 requires std::floating_point<T>
-    Rational Rational::toRational(T f, T eps) {
+Rational Rational::toRational(T f, T eps) {
     int integralPart = (int)floor(f);
     f -= integralPart;
     Rational lower(0, 1), upper(1, 1);

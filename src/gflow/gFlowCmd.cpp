@@ -8,10 +8,10 @@
 
 #include "gFlowCmd.h"
 
-#include <cstddef>   // for size_t
-#include <iomanip>   // for ostream
-#include <iostream>  // for ostream
-#include <string>    // for string
+#include <cstddef>       // for size_t
+#include <iomanip>       // for ostream
+#include <iostream>      // for ostream
+#include <string>        // for string
 
 #include "cmdMacros.h"   // for CMD_N_OPTS_AT_MOST_OR_RETURN
 #include "gFlow.h"       // for GFlow
@@ -110,8 +110,8 @@ ZXGGFlowCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXGGFlowCmd::usage(ostream &os) const {
-    os << "Usage: ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets] [-Disjoint]" << endl;
+void ZXGGFlowCmd::usage() const {
+    cout << "Usage: ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets] [-Disjoint]" << endl;
 }
 
 void ZXGGFlowCmd::help() const {
