@@ -25,7 +25,7 @@ public:
     void parserDefinition();
     CmdExecStatus exec(const std::string& option);
     void usage() const { parser.printUsage(); }
-    void help() const { parser.printHelp(); }
+    void help() const { parser.printSummary(); }
     void manual() const { parser.printHelp(); }
 
     ArgParse::ArgumentParser parser;
