@@ -54,7 +54,7 @@ void ArgumentParser::printUsage() const {
     cout << endl;
 }
 
-void ArgumentParser::printHelp() const {
+void ArgumentParser::printSummary() const {
     cout << setw(14 + TF::tokenSize(accentFormat)) << left << formattedCmdName() << " "
          << _cmdDescription << endl;
 }

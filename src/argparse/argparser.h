@@ -31,7 +31,7 @@ public:
     }
 
     void printUsage() const;
-    void printHelp() const;
+    void printSummary() const;
     void printHelp() const;
     void printTokens() const;
     void printArguments() const;

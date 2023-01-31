@@ -155,7 +155,7 @@ myStrGetTok(const string& str, string& tok, size_t pos, const string& del) {
 
 size_t
 myStrGetTok(const string& str, string& tok, size_t pos, const char del) {
-    myStrGetTok(str, tok, pos, string(1, del));
+    return myStrGetTok(str, tok, pos, string(1, del));
 }
 
 // Parse the string "str" for the token "tok", beginning at position "pos",
