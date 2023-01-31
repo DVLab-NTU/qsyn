@@ -90,7 +90,7 @@ QuitCmd::exec(const string& option) {
         if (myStrNCmp("Yes", ss, 1) == 0)
             return CMD_EXEC_QUIT;  // ready to quit
     }
-    return CMD_EXEC_DONE;  // not yet to quit
+    return CMD_EXEC_DONE;          // not yet to quit
 }
 
 void QuitCmd::usage() const {

@@ -12,7 +12,7 @@
 #include <cstdlib>     // for exit
 #include <filesystem>  // lines 12-12
 #include <fstream>
-#include <iostream>  // for cin, cout
+#include <iostream>    // for cin, cout
 
 #include "util.h"
 
@@ -403,7 +403,7 @@ void CmdParser::listCmd(const string& str) {
                 return;
             }  // [case 4] no match in 1st wd
         }
-    }  // end of cmd string processing
+    }          // end of cmd string processing
     // cases 1, 2, 3 go here
     ti = bi;
     ++ti;

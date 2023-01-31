@@ -8,10 +8,10 @@
 
 #include "qcir.h"
 
-#include <stdlib.h>  // for abort
+#include <stdlib.h>      // for abort
 
-#include <cassert>  // for assert
-#include <string>   // for string
+#include <cassert>       // for assert
+#include <string>        // for string
 
 #include "qcirGate.h"    // for QCirGate
 #include "qcirQubit.h"   // for QCirQubit

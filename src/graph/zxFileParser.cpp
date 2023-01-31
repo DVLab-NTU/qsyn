@@ -11,8 +11,8 @@
 #include <fstream>   // for ifstream
 #include <iostream>  // for ifstream
 
-#include "phase.h"  // for Phase
-#include "util.h"   // for myStr2Float, myStr2Int
+#include "phase.h"   // for Phase
+#include "util.h"    // for myStr2Float, myStr2Int
 
 using namespace std;
 

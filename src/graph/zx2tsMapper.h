@@ -8,7 +8,7 @@
 #ifndef ZX2TS_MAPPER_H
 #define ZX2TS_MAPPER_H
 
-#include <cstddef>  // for size_t
+#include <cstddef>    // for size_t
 
 #include "qtensor.h"  // for QTensor
 #include "zxDef.h"    // for NeighborPair
@@ -54,10 +54,10 @@ private:
     ZX2TSList _zx2tsList;                  // The tensor list for each set of frontiers
     size_t _tensorId;                      // Current tensor id for the _tensorId
 
-    TensorAxisList _simplePins;          // Axes that can be tensordotted directly
-    TensorAxisList _hadamardPins;        // Axes that should be applied hadamards first
-    std::vector<EdgePair> _removeEdges;  // Old frontiers to be removed
-    std::vector<EdgePair> _addEdges;     // New frontiers to be added
+    TensorAxisList _simplePins;            // Axes that can be tensordotted directly
+    TensorAxisList _hadamardPins;          // Axes that should be applied hadamards first
+    std::vector<EdgePair> _removeEdges;    // Old frontiers to be removed
+    std::vector<EdgePair> _addEdges;       // New frontiers to be added
 
     Frontiers& currFrontiers() { return _zx2tsList.frontiers(_tensorId); }
     QTensor<double>& currTensor() { return _zx2tsList.tensor(_tensorId); }

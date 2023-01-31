@@ -61,6 +61,6 @@ std::string LIGHT_BG_MAGENTA(const std::string& str);
 std::string LIGHT_BG_CYAN(const std::string& str);
 std::string LIGHT_BG_WHITE(const std::string& str);
 
-};  // namespace TextFormat
+};      // namespace TextFormat
 
 #endif  // QSYN_TEXT_FORMAT_H
