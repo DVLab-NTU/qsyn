@@ -368,7 +368,7 @@ void CmdParser::listCmd(const string& str) {
                 if (_tabPressCount == 1) {
                     // [case 5] Singly matched on first tab
                     cout << endl;
-                    e->usage(cout);
+                    e->usage();
                 }
                 // [case 6] Singly matched on second+ tab
                 else if (!listCmdDir(cmd)) {

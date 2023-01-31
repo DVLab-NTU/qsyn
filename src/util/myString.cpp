@@ -15,6 +15,8 @@
 #include <string>
 #include <vector>
 
+#include "util.h"
+
 using namespace std;
 
 // Remove quotation marks and replace the ' ' between the quotes to be "\ "
@@ -140,8 +142,7 @@ int myStrNCmp(const string& s1, const string& s2, unsigned n) {
 // (i.e. "del" or string::npos) if found.
 // This function will not treat '\ ' as a space in the token. That is, "a\ b" is two token ("a\", "b") and not one
 size_t
-myStrGetTok(const string& str, string& tok, size_t pos = 0,
-            const char del = ' ') {
+myStrGetTok(const string& str, string& tok, size_t pos, const string& del) {
     size_t begin = str.find_first_not_of(del, pos);
     if (begin == string::npos) {
         tok = "";
@@ -153,16 +154,8 @@ myStrGetTok(const string& str, string& tok, size_t pos = 0,
 }
 
 size_t
-myStrGetTok(const string& str, string& tok, size_t pos,
-            const string& del) {
-    size_t begin = str.find_first_not_of(del, pos);
-    if (begin == string::npos) {
-        tok = "";
-        return begin;
-    }
-    size_t end = str.find_first_of(del, begin);
-    tok = str.substr(begin, end - begin);
-    return end;
+myStrGetTok(const string& str, string& tok, size_t pos, const char del) {
+    return myStrGetTok(str, tok, pos, string(1, del));
 }
 
 // Parse the string "str" for the token "tok", beginning at position "pos",
@@ -171,8 +164,7 @@ myStrGetTok(const string& str, string& tok, size_t pos,
 // (i.e. "del" or string::npos) if found.
 // This function will treat '\ ' as a space in the token. That is, "a\ b" is one token ("a b") and not two
 size_t
-myStrGetTok2(const string& str, string& tok, size_t pos = 0,
-             const std::string& del = " \t\n\v\f\r") {
+myStrGetTok2(const string& str, string& tok, size_t pos, const std::string& del) {
     size_t begin = str.find_first_not_of(del, pos);
     if (begin == string::npos) {
         tok = "";
@@ -280,19 +272,4 @@ bool myStr2Double(const string& str, double& f) {
 
 bool myStr2LongDouble(const string& str, long double& f) {
     return myStr2FloatType<long double>(str, f);
-}
-
-// Valid var name is ---
-// 1. starts with [a-zA-Z_]
-// 2. others, can only be [a-zA-Z0-9_]
-// return false if not a var name
-bool isValidVarName(const string& str) {
-    size_t n = str.size();
-    if (n == 0) return false;
-    if (!isalpha(str[0]) && str[0] != '_')
-        return false;
-    for (size_t i = 1; i < n; ++i)
-        if (!isalnum(str[i]) && str[i] != '_')
-            return false;
-    return true;
 }

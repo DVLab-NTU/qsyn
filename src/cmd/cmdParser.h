@@ -17,7 +17,7 @@
 
 #include "cmdCharDef.h"  // for ParseChar
 
-class CmdParser;  // lines 26-26
+class CmdParser;
 
 //----------------------------------------------------------------------
 //    External declaration
@@ -57,8 +57,9 @@ public:
     virtual ~CmdExec() {}
 
     virtual CmdExecStatus exec(const std::string&) = 0;
-    virtual void usage(std::ostream&) const = 0;
+    virtual void usage() const = 0;
     virtual void help() const = 0;
+    virtual void manual() const = 0;
 
     void setOptCmd(const std::string& str) { _optCmd = str; }
     bool checkOptCmd(const std::string& check) const;  // Removed for TODO...
@@ -81,8 +82,12 @@ private:
         T() {}                                         \
         ~T() {}                                        \
         CmdExecStatus exec(const std::string& option); \
-        void usage(std::ostream& os) const;            \
+        void usage() const;                            \
         void help() const;                             \
+        void manual() const {                          \
+            help();                                    \
+            usage();                                   \
+        }                                              \
     }
 
 //----------------------------------------------------------------------
@@ -93,8 +98,8 @@ class CmdParser {
 #define READ_BUF_SIZE 65536
 #define PG_OFFSET 10
 
-    typedef std::map<const std::string, CmdExec*> CmdMap;
-    typedef std::pair<const std::string, CmdExec*> CmdRegPair;
+    using CmdMap = std::map<const std::string, CmdExec*>;
+    using CmdRegPair = std::pair<const std::string, CmdExec*>;
 
 public:
     CmdParser(const std::string& p) : _prompt(p), _dofile(0), _readBufPtr(_readBuf), _readBufEnd(_readBuf), _historyIdx(0), _tabPressCount(0), _tempCmdStored(false) {}
@@ -137,9 +142,6 @@ private:
     void moveToHistory(int index);
     bool addHistory();
     void retrieveHistory();
-#ifdef TA_KB_SETTING
-    void taTestOnly() {}
-#endif
 
     // Data members
     const std::string _prompt;                // command prompt

@@ -1,5 +1,5 @@
 REFPKGS   		:= 
-SRCPKGS   		:= extractor qcir simplifier lattice gflow m2 graph tensor cmd util
+SRCPKGS   		:= argparse extractor qcir simplifier lattice gflow m2 graph tensor cmd util
 SRCLIBS   		:= $(addsuffix .a, $(addprefix lib, $(SRCPKGS)))
 
 SRC_DIR	  		:= src

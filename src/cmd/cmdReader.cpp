@@ -89,9 +89,6 @@ bool CmdParser::readCmd(istream& istr) {
                 insertChar(char(pch));
                 break;
         }
-#ifdef TA_KB_SETTING
-        taTestOnly();
-#endif
     }
     return newCmd;
 }

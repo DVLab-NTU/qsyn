@@ -110,8 +110,8 @@ ZXGGFlowCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void ZXGGFlowCmd::usage(ostream &os) const {
-    os << "Usage: ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets] [-Disjoint]" << endl;
+void ZXGGFlowCmd::usage() const {
+    cout << "Usage: ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets] [-Disjoint]" << endl;
 }
 
 void ZXGGFlowCmd::help() const {

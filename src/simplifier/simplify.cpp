@@ -142,7 +142,7 @@ void Simplifier::amend() {
  * @return int
  */
 int Simplifier::bialgSimp() {
-    this->setRule(new Bialgebra());
+    this->setRule(make_unique<Bialgebra>());
     int i = this->simp();
     return i;
 }
@@ -154,7 +154,7 @@ int Simplifier::bialgSimp() {
  */
 int Simplifier::copySimp() {
     if (!_simpGraph->isGraphLike()) return 0;
-    this->setRule(new StateCopy());
+    this->setRule(make_unique<StateCopy>());
     int i = this->simp();
     return i;
 }
@@ -165,7 +165,7 @@ int Simplifier::copySimp() {
  * @return int
  */
 int Simplifier::gadgetSimp() {
-    this->setRule(new PhaseGadget());
+    this->setRule(make_unique<PhaseGadget>());
     int i = this->simp();
     return i;
 }
@@ -176,7 +176,7 @@ int Simplifier::gadgetSimp() {
  * @return int
  */
 int Simplifier::hfusionSimp() {
-    this->setRule(new HboxFusion());
+    this->setRule(make_unique<HboxFusion>());
     int i = this->simp();
     return i;
 }
@@ -187,7 +187,7 @@ int Simplifier::hfusionSimp() {
  * @return int
  */
 int Simplifier::hruleSimp() {
-    this->setRule(new HRule());
+    this->setRule(make_unique<HRule>());
     int i = this->hadamardSimp();
     return i;
 }
@@ -198,7 +198,7 @@ int Simplifier::hruleSimp() {
  * @return int
  */
 int Simplifier::idSimp() {
-    this->setRule(new IdRemoval());
+    this->setRule(make_unique<IdRemoval>());
     int i = this->simp();
     return i;
 }
@@ -209,7 +209,7 @@ int Simplifier::idSimp() {
  * @return int
  */
 int Simplifier::lcompSimp() {
-    this->setRule(new LComp());
+    this->setRule(make_unique<LComp>());
     int i = this->simp();
     return i;
 }
@@ -220,7 +220,7 @@ int Simplifier::lcompSimp() {
  * @return int
  */
 int Simplifier::pivotSimp() {
-    this->setRule(new Pivot());
+    this->setRule(make_unique<Pivot>());
     int i = this->simp();
     return i;
 }
@@ -231,7 +231,7 @@ int Simplifier::pivotSimp() {
  * @return int
  */
 int Simplifier::pivotBoundarySimp() {
-    this->setRule(new PivotBoundary());
+    this->setRule(make_unique<PivotBoundary>());
     int i = this->simp();
     return i;
 }
@@ -242,7 +242,7 @@ int Simplifier::pivotBoundarySimp() {
  * @return int
  */
 int Simplifier::pivotGadgetSimp() {
-    this->setRule(new PivotGadget());
+    this->setRule(make_unique<PivotGadget>());
     int i = this->simp();
     return i;
 }
@@ -253,7 +253,7 @@ int Simplifier::pivotGadgetSimp() {
  * @return int
  */
 int Simplifier::sfusionSimp() {
-    this->setRule(new SpiderFusion());
+    this->setRule(make_unique<SpiderFusion>());
     int i = this->simp();
     return i;
 }
@@ -268,7 +268,6 @@ void Simplifier::toGraph() {
     for (auto& v : _simpGraph->getVertices()) {
         if (v->getType() == VertexType::X) {
             _simpGraph->toggleEdges(v);
-            v->setType(VertexType::Z);
         }
     }
 }
@@ -281,7 +280,6 @@ void Simplifier::toRGraph() {
     for (auto& v : _simpGraph->getVertices()) {
         if (v->getType() == VertexType::Z) {
             _simpGraph->toggleEdges(v);
-            v->setType(VertexType::X);
         }
     }
 }

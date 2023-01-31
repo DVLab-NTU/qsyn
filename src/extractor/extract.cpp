@@ -10,6 +10,8 @@
 
 #include <assert.h>  // for assert
 
+#include <memory>
+
 #include "simplify.h"  // for Simplifier
 #include "zxGraph.h"   // for ZXGraph
 #include "zxRules.h"   // for PivotBoundary
@@ -338,8 +340,9 @@ bool Extractor::removeGadget(bool check) {
         }
     }
 
-    PivotBoundary* pivotBoundaryRule = new PivotBoundary();
-    Simplifier simp(pivotBoundaryRule, _graph);
+    Simplifier simp(make_unique<PivotBoundary>(), _graph);
+    auto pivotBoundaryRule = static_cast<PivotBoundary*>(simp.getRule());
+
     if (verbose >= 8) _graph->printVertices();
     if (verbose >= 5) {
         printFrontier();

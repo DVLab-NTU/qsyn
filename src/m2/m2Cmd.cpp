@@ -65,8 +65,8 @@ M2GaussEliCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void M2GaussEliCmd::usage(ostream &os) const {
-    os << "Usage: M2GAUE" << endl;
+void M2GaussEliCmd::usage() const {
+    cout << "Usage: M2GAUE" << endl;
 }
 
 void M2GaussEliCmd::help() const {
@@ -86,8 +86,8 @@ M2TestCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void M2TestCmd::usage(ostream &os) const {
-    os << "Usage: M2TEST" << endl;
+void M2TestCmd::usage() const {
+    cout << "Usage: M2TEST" << endl;
 }
 
 void M2TestCmd::help() const {
