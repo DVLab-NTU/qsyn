@@ -8,14 +8,15 @@
 
 #include "argparser.h"
 
+#include <cassert>
 #include <iomanip>
 #include <iostream>
 #include <ranges>
 #include <string>
 
-#include "util.h"
 #include "myTrie.h"
 #include "textFormat.h"
+#include "util.h"
 
 using namespace std;
 
@@ -64,7 +65,7 @@ void ArgumentParser::printHelp() const {
  *        call `analyzeOptions()`.
  *
  */
-void ArgumentParser::printArgumentInfo() const {
+void ArgumentParser::printHelp() const {
     printUsage();
 
     cout << TF::LIGHT_BLUE("\nDescription:\n  ") << _cmdDescription << "\n";
@@ -87,8 +88,21 @@ void ArgumentParser::printArgumentInfo() const {
 
 void ArgumentParser::printTokens() const {
     size_t i = 0;
-    for (auto token : _tokens) {
-        cout << "Token #" << ++i << ":\t" << token << endl;
+    for (auto& [token, parsed] : _tokens) {
+        cout << "Token #" << ++i << ":\t" << left << setw(12) << token << " (" << (parsed ? "parsed" : "unparsed") << ")" << endl;
+    }
+}
+
+void ArgumentParser::printArguments() const {
+    cout << "Mandatory arguments:\n";
+    for (auto const& [name, arg] : _arguments) {
+        if (arg.isMandatory()) arg.printStatus();
+    }
+
+    cout << "Optional arguments:\n";
+
+    for (auto const& [name, arg] : _arguments) {
+        if (arg.isOptional()) arg.printStatus();
     }
 }
 
@@ -116,13 +130,28 @@ Argument const& ArgumentParser::operator[](std::string const& key) const {
     }
 }
 
-bool ArgumentParser::parse(std::string const& line) {
+ParseResult ArgumentParser::parse(string const& line) {
     if (!_optionsAnalyzed) {
         _optionsAnalyzed = analyzeOptions();
     }
 
+    for (auto& [_, arg] : _arguments) {
+        arg.setParsed(false);
+    }
+
     tokenize(line);
-    return true;
+
+    auto result = parseOptionalArguments();
+    if (result != ParseResult::success) {
+        return result;
+    }
+
+    result = parseMandatoryArguments();
+    if (result != ParseResult::success) {
+        return result;
+    }
+
+    return ParseResult::success;
 }
 
 /**
@@ -133,7 +162,6 @@ bool ArgumentParser::parse(std::string const& line) {
  */
 bool ArgumentParser::analyzeOptions() const {
     MyTrie trie;
-
     for (auto const& [name, arg] : _arguments) {
         if (arg.isMandatory()) continue;
         trie.insert(name);
@@ -187,14 +215,14 @@ bool ArgumentParser::tokenize(string const& line) {
     }
     size_t pos = myStrGetTok(stripped, buffer);
     while (buffer.size()) {
-        _tokens.push_back(buffer);
+        _tokens.emplace_back(buffer, false);
         pos = myStrGetTok(stripped, buffer, pos);
     }
     if (_tokens.empty()) return true;
     // concat tokens with '\ ' to a single token with space in it
     for (auto itr = next(_tokens.rbegin()); itr != _tokens.rend(); ++itr) {
-        string& currToken = *itr;
-        string& nextToken = *prev(itr);
+        string& currToken = itr->first;
+        string& nextToken = prev(itr)->first;
 
         if (currToken.ends_with('\\')) {
             currToken.back() = ' ';
@@ -202,9 +230,109 @@ bool ArgumentParser::tokenize(string const& line) {
             nextToken = "";
         }
     }
-    std::erase(_tokens, "");
-    
+    std::erase_if(_tokens, [](Token const& tokenPair) { return tokenPair.first == ""; });
+
     return true;
+}
+
+ParseResult ArgumentParser::parseOptionalArguments() {
+    size_t i = _tokens.size() - 1;
+    size_t lastUnparsed = _tokens.size();
+
+    for (auto& [token, parsed] : _tokens | views::reverse) {
+        for (auto& [name, arg] : _arguments) {
+            if (arg.isMandatory()) continue;
+            if (myStrNCmp(arg.getName(), token, arg.getNumMandatoryChars()) != 0) continue;
+
+            // cout << "Matched token \"" << token << "\" to option \"" << arg.getName() << "\"" << endl;
+            // cout << "range: [" << i << ", " << lastUnparsed << ")" << endl;
+            auto tokenSpan = span<Token>{_tokens}.subspan(i + 1, lastUnparsed - (i + 1));
+            if (tokenSpan.empty() && !arg.hasAction()) {
+                return errorOption(ParseResult::missing_arg, _tokens[i].first);
+            }
+
+            auto result = arg.parse(tokenSpan);
+
+            if (result == ParseResult::illegal_arg) {
+                return result;
+            }
+            parsed = true;
+            lastUnparsed = i;
+            break;
+        }
+        --i;
+    }
+
+    return ParseResult::success;
+}
+
+ParseResult ArgumentParser::parseMandatoryArguments() {
+    auto currToken = _tokens.begin();
+    auto currArg = _arguments.begin();
+    size_t i = 0;
+
+    auto nextToken = [&currToken, &i, this]() {
+        while (currToken != _tokens.end() && currToken->second == true) {
+            currToken++;
+            i++;
+        }
+    };
+
+    auto nextArgument = [&currArg, this]() {
+        while (
+            currArg != _arguments.end() && (currArg->second.isOptional() ||
+                                            currArg->second.isParsed()))
+            currArg++;
+    };
+
+    string lastParsedToken;
+    nextToken();
+    nextArgument();
+
+    for (; currToken != _tokens.end() && currArg != _arguments.end(); nextToken(), nextArgument()) {
+        auto& [token, parsed] = *currToken;
+        auto& [name, arg] = *currArg;
+
+        assert(arg.isMandatory());
+
+        auto result = arg.parse(span<Token>{_tokens}.subspan(i));
+
+        assert(result != ParseResult::missing_arg);
+
+        if (result == ParseResult::illegal_arg) {
+            return errorOption(ParseResult::illegal_arg, _tokens[i].first);
+        }
+        lastParsedToken = token;
+        parsed = true;
+    }
+
+    auto tokenIsParsed = [](auto const& tokenPair) {
+        return tokenPair.second;
+    };
+
+    auto mandatoryArgIsParsed = [](auto const& argPair) {
+        return argPair.second.isOptional() || argPair.second.isParsed();
+    };
+
+    if (!all_of(_arguments.begin(), _arguments.end(), mandatoryArgIsParsed)) {
+        return errorOption(ParseResult::missing_arg, lastParsedToken);
+    }
+
+    if (!all_of(_tokens.begin(), _tokens.end(), tokenIsParsed)) {
+        return errorOption(ParseResult::extra_arg, currToken->first);
+    }
+
+    return ParseResult::success;
+}
+
+//----------------------------------
+// Argument type: subparser
+//----------------------------------
+
+ArgumentParser& SubParsers::addParser(string const& name, string const& help) {
+    _subparsers.emplace(name, ArgumentParser{});
+    _subparsers.at(name).cmdInfo(name, help);
+    return _subparsers.at(name);
 }
 
 }  // namespace ArgParse

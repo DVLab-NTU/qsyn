@@ -38,14 +38,16 @@ ArgParserCmd::parserDefinition() {
 
     parser.addArgument<string>("filepath")
         .help("supports files with `.zx` or `.bzx` extension");
-    parser.addArgument<bool>("mandatory-bool-arg")
-        .help("test");
-    parser.addArgument<bool>("-KEEPid")
-        .defaultValue(false)
-        .help("retain the vertex IDs from the input file (i.e., don't rearrange to consecutive numbers)");
+    
     parser.addArgument<bool>("-replace")
         .defaultValue(false)
+        .action(ArgParse::Argument::storeTrue())
         .help("replace the current ZX-graph");
+
+    parser.addArgument<bool>("-KEEPid")
+        .defaultValue(false)
+        .action(ArgParse::Argument::storeTrue())
+        .help("retain the vertex IDs from the input file (i.e., don't rearrange to consecutive numbers)");
 }
 
 CmdExecStatus
@@ -53,6 +55,7 @@ ArgParserCmd::exec(const string& option) {
     parser.parse(option);
 
     parser.printTokens();
+    parser.printArguments();
     // access parsed variable here. e.g.,
     // if (parser["-replace"]) {
     //    cout << "replace the current graph"

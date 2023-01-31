@@ -28,10 +28,15 @@ public:
     template <typename ArgType>
     Argument& addArgument(std::string const& argName);
 
+    SubParsers& addSubParsers(std::string const& name, std::string const& help) {
+        return addArgument<SubParsers>(name).help(help).getRef<SubParsers>();
+    }
+
     void printUsage() const;
     void printHelp() const;
-    void printArgumentInfo() const;
+    void printHelp() const;
     void printTokens() const;
+    void printArguments() const;
 
     // add attribute
     void cmdInfo(std::string const& cmdName, std::string const& cmdSynopsis);
@@ -42,20 +47,23 @@ public:
     Argument& operator[](std::string const& key);
     Argument const& operator[](std::string const& key) const;
 
-    bool parse(std::string const& line);
+    ParseResult parse(std::string const& line);
 
 protected:
-    ordered_hashmap<std::string, Argument> mutable _arguments;
+    ordered_hashmap<std::string, Argument> _arguments;
     std::string _cmdName;
     std::string _cmdDescription;
     size_t _cmdNumMandatoryChars;
 
-    std::vector<std::string> _tokens;
+    std::vector<Token> _tokens;
 
     bool mutable _optionsAnalyzed;
 
     bool analyzeOptions() const;
     bool tokenize(std::string const& line);
+
+    ParseResult parseOptionalArguments();
+    ParseResult parseMandatoryArguments();
 
     //pretty printing helpers
 
@@ -66,6 +74,21 @@ protected:
 
 };
 
+class SubParsers {
+public:
+    ArgumentParser& addParser(std::string const& name, std::string const& help);
+
+    friend std::ostream& operator<< (std::ostream& os, SubParsers const& sap) {
+        return os << "(subparsers)";
+    }
+
+    ArgumentParser& operator[] (std::string const& name) { return _subparsers.at(name); }
+    ArgumentParser const& operator[] (std::string const& name) const { return _subparsers.at(name); }
+
+private:
+    ordered_hashmap<std::string, ArgumentParser> _subparsers;
+};
+
 /**
  * @brief              add an argument to the `ArgumentParser`.
  *
@@ -74,9 +97,6 @@ protected:
  *                     access the parsed argument by calling
  *                     `ArgParse::ArgumentParser::operator[](std::string const&)`
  *
- * @param defaultValue default value to this argument. If set to other
- *                     than `std::nullopt`, a default value is set for the
- *                     argument, and the argument is flagged as optional.
  * @return Argument&   return the added argument to ease streaming argument decorators
  */
 template <typename ArgType>

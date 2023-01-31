@@ -14,8 +14,12 @@
  * 
  */
 namespace ArgParse {
+    enum class ParseResult;
     class Argument;
     class ArgumentParser;
+    class SubParsers;
+
+    using Token = std::pair<std::string, bool>;
 }
 
 #endif // QSYN_ARG_PARSE_DEF_H

@@ -26,7 +26,7 @@ public:
     CmdExecStatus exec(const std::string& option);
     void usage() const { parser.printUsage(); }
     void help() const { parser.printHelp(); }
-    void manual() const { parser.printArgumentInfo(); }
+    void manual() const { parser.printHelp(); }
 
     ArgParse::ArgumentParser parser;
 };
