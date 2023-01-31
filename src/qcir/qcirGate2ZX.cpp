@@ -240,7 +240,7 @@ ZXGraph *SYGate::getZXform() {
  *
  * @return ZXGraph*
  */
-ZXGraph *CnPGate::getZXform() {
+ZXGraph *MCPGate::getZXform() {
     ZXGraph *temp = new ZXGraph(_id);
     Phase phase = Phase(1, pow(2, _qubits.size() - 1));
     Rational ratio = _rotatePhase / Phase(1);
@@ -309,11 +309,11 @@ ZXGraph *CRZGate::getZXform() {
 }
 
 /**
- * @brief Get ZX-graph of CnRX
+ * @brief Get ZX-graph of MCPX
  *
  * @return ZXGraph*
  */
-ZXGraph *CnRXGate::getZXform() {
+ZXGraph *MCPXGate::getZXform() {
     ZXGraph *temp = new ZXGraph(_id);
     Phase phase = Phase(1, pow(2, _qubits.size() - 1));
     Rational ratio = _rotatePhase / Phase(1);
@@ -348,4 +348,26 @@ ZXGraph *CnRXGate::getZXform() {
         }
     }
     return temp;
+}
+
+/**
+ * @brief Get ZX-graph of MCRX
+ * 
+ * @return ZXGraph* 
+ */
+
+//TODO - ZX form
+ZXGraph *MCRXGate::getZXform() {
+    return nullptr;
+}
+
+/**
+ * @brief Get ZX-graph of MCRZ
+ * 
+ * @return ZXGraph* 
+ */
+
+//TODO - ZX form
+ZXGraph *MCRZGate::getZXform() {
+    return nullptr;
 }
