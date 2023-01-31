@@ -218,7 +218,7 @@ bool myStr2Uns(const string& str, unsigned& unsnum) {
 // All the dirty compile-time checking happens here.
 template <class T>
 requires std::floating_point<T>
-    T stoFloatType(const string& str, size_t* pos) {
+T stoFloatType(const string& str, size_t* pos) {
     try {
         if constexpr (std::is_same<T, double>::value) {
             return std::stod(str, pos);
