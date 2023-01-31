@@ -9,9 +9,9 @@
 #include <cstddef>  // for size_t
 #include <fstream>  // for fstream
 #include <iostream>
-#include <string>  // for string
+#include <string>   // for string
 
-#include "qcir.h"  // for QCir
+#include "qcir.h"   // for QCir
 
 using namespace std;
 
