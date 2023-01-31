@@ -29,6 +29,7 @@ public:
 
     bool insert(std::string const& word);
     std::optional<std::string> shortestUniquePrefix(std::string const& word) const;
+
 private:
     std::unique_ptr<MyTrieNode> _root;
 };

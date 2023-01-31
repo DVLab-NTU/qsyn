@@ -20,12 +20,9 @@
 bool stripQuotes(const std::string& input, std::string& output);
 std::string stripWhitespaces(const std::string& str);
 int myStrNCmp(const std::string& s1, const std::string& s2, unsigned n);
-size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos = 0,
-                          const char del = ' ');
-size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos,
-                          const std::string& del);
-size_t myStrGetTok2(const std::string& str, std::string& tok, size_t pos = 0,
-                           const std::string& del = " \t\n\v\f\r");
+size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos = 0, const std::string& del = " \t\n\v\f\r");
+size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos, const char del);
+size_t myStrGetTok2(const std::string& str, std::string& tok, size_t pos = 0, const std::string& del = " \t\n\v\f\r");
 bool myStr2Int(const std::string& str, int& num);
 bool myStr2Uns(const std::string& str, unsigned& num);
 

@@ -21,7 +21,7 @@ bool MyTrie::insert(string const& word) {
         size_t idx = ch;
         if (itr->children[idx].get() == nullptr) {
             itr->children[idx] = make_unique<MyTrieNode>();
-        } 
+        }
         itr = itr->children[idx].get();
         itr->frequency++;
     }
@@ -39,11 +39,10 @@ std::optional<std::string> MyTrie::shortestUniquePrefix(std::string const& word)
     size_t pos = 0;
     for (auto& ch : word) {
         pos++;
-        itr = itr->children[(size_t) ch].get();
+        itr = itr->children[(size_t)ch].get();
         if (itr == nullptr) return std::nullopt;
         if (itr->frequency == 1) break;
     }
-
 
     return word.substr(0, pos);
 }

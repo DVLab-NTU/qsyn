@@ -8,14 +8,14 @@
 #ifndef QSYN_ARG_PARSER_CMD_H
 #define QSYN_ARG_PARSER_CMD_H
 
-#include "cmdParser.h"
 #include "argparser.h"
+#include "cmdParser.h"
 
 class ArgParserCmd : public CmdExec {
-public: 
-    ArgParserCmd() { 
+public:
+    ArgParserCmd() {
         try {
-            parserDefinition(); 
+            parserDefinition();
         } catch (ArgParse::argparse_exception& e) {
             ArgParse::detail::printArgParseFatalErrorMsg();
             exit(-1);

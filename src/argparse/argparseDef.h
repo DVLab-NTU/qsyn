@@ -11,15 +11,15 @@
 
 /**
  * @brief Namespace for argument parser and other auxilliary classes and functions.
- * 
+ *
  */
 namespace ArgParse {
-    enum class ParseResult;
-    class Argument;
-    class ArgumentParser;
-    class SubParsers;
+enum class ParseResult;
+class Argument;
+class ArgumentParser;
+class SubParsers;
 
-    using Token = std::pair<std::string, bool>;
-}
+using Token = std::pair<std::string, bool>;
+}  // namespace ArgParse
 
-#endif // QSYN_ARG_PARSE_DEF_H
+#endif  // QSYN_ARG_PARSE_DEF_H

@@ -15,8 +15,8 @@
 #include <string>
 #include <vector>
 
-#include "util.h"
 #include "argparser.h"
+#include "util.h"
 
 using namespace std;
 
@@ -32,13 +32,12 @@ bool initArgParserCmd() {
 //    PARSERTREE <size_t color level>
 //----------------------------------------------------------------------
 
-void 
-ArgParserCmd::parserDefinition() {
+void ArgParserCmd::parserDefinition() {
     parser.cmdInfo("ZXGRead", "read a file and construct the corresponding ZX-graph");
 
     parser.addArgument<string>("filepath")
         .help("supports files with `.zx` or `.bzx` extension");
-    
+
     parser.addArgument<bool>("-replace")
         .defaultValue(false)
         .action(ArgParse::Argument::storeTrue())

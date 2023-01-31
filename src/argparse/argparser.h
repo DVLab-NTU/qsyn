@@ -17,8 +17,6 @@
 #include "argparseErrorMsg.h"
 #include "ordered_hashmap.h"
 
-
-
 namespace ArgParse {
 
 class ArgumentParser {
@@ -65,25 +63,24 @@ protected:
     ParseResult parseOptionalArguments();
     ParseResult parseMandatoryArguments();
 
-    //pretty printing helpers
+    // pretty printing helpers
 
     std::string toLowerString(std::string const& str) const;
     size_t countUpperChars(std::string const& str) const;
 
     std::string formattedCmdName() const;
-
 };
 
 class SubParsers {
 public:
     ArgumentParser& addParser(std::string const& name, std::string const& help);
 
-    friend std::ostream& operator<< (std::ostream& os, SubParsers const& sap) {
+    friend std::ostream& operator<<(std::ostream& os, SubParsers const& sap) {
         return os << "(subparsers)";
     }
 
-    ArgumentParser& operator[] (std::string const& name) { return _subparsers.at(name); }
-    ArgumentParser const& operator[] (std::string const& name) const { return _subparsers.at(name); }
+    ArgumentParser& operator[](std::string const& name) { return _subparsers.at(name); }
+    ArgumentParser const& operator[](std::string const& name) const { return _subparsers.at(name); }
 
 private:
     ordered_hashmap<std::string, ArgumentParser> _subparsers;

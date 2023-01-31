@@ -70,21 +70,20 @@ string getTypeString(int const& arg) {
 
 /**
  * @brief Parse the tokens and to a `int` argument.
- * 
+ *
  * @param arg Argument
  * @param tokens the tokens
- * @return ParseResult 
+ * @return ParseResult
  */
 ParseResult parse(int& arg, std::span<Token> tokens) {
     if (tokens.empty()) return ParseResult::missing_arg;
     int tmp;
     if (myStr2Int(tokens[0].first, tmp)) {
         arg = tmp;
-    }
-    else {
+    } else {
         return errorOption(ParseResult::illegal_arg, tokens[0].first);
     }
-    
+
     tokens[0].second = true;
 
     return (tokens.size() == 1) ? ParseResult::success : ParseResult::extra_arg;
@@ -104,14 +103,14 @@ string getTypeString(string const& arg) {
 
 /**
  * @brief Parse the tokens and to a `string` argument.
- * 
+ *
  * @param arg Argument
  * @param tokens the tokens
- * @return ParseResult 
+ * @return ParseResult
  */
 ParseResult parse(string& arg, std::span<Token> tokens) {
     if (tokens.empty()) return ParseResult::missing_arg;
-    
+
     arg = tokens[0].first;
     tokens[0].second = true;
 
@@ -132,21 +131,20 @@ string getTypeString(bool const& arg) {
 
 /**
  * @brief Parse the tokens and to a `bool` argument.
- * 
+ *
  * @param arg Argument
  * @param tokens the tokens
- * @return ParseResult 
+ * @return ParseResult
  */
 ParseResult parse(bool& arg, std::span<Token> tokens) {
     if (tokens.empty()) return ParseResult::missing_arg;
     if (myStrNCmp("true", tokens[0].first, 1) == 0) {
         arg = true;
-    }
-    else if (myStrNCmp("false", tokens[0].first, 1) == 0) {
+    } else if (myStrNCmp("false", tokens[0].first, 1) == 0) {
         arg = false;
-    }
-    else {
-        return errorOption(ParseResult::illegal_arg, tokens[0].first);;
+    } else {
+        return errorOption(ParseResult::illegal_arg, tokens[0].first);
+        ;
     }
 
     tokens[0].second = true;
@@ -168,13 +166,13 @@ string getTypeString(SubParsers const& arg) {
 
 /**
  * @brief Parse the tokens and to a `bool` argument.
- * 
+ *
  * @param arg Argument
  * @param tokens the tokens
- * @return ParseResult 
+ * @return ParseResult
  */
 ParseResult parse(SubParsers& arg, std::span<Token> tokens) {
-    //TODO - correct parsing logic for subargs!
+    // TODO - correct parsing logic for subargs!
     return ParseResult::success;
 }
 
@@ -214,7 +212,8 @@ void Argument::printInfoString() const {
 
     size_t typeStringOccupiedSpace = max(typeWidth, typeStr.size());
     if (typeStringOccupiedSpace + name.size() >= typeWidth + nameWidth + 1) {
-        cout << "\n" << string(typeWidth + nameWidth + 4 + nIndents, ' ');
+        cout << "\n"
+             << string(typeWidth + nameWidth + 4 + nIndents, ' ');
     }
     cout << getHelp();
     if (hasDefaultValue()) {

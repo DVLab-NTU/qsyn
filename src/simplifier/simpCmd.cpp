@@ -92,7 +92,7 @@ ZXGSimpCmd::exec(const string &option) {
 
 void ZXGSimpCmd::usage() const {
     cout << "Usage: ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion | \n"
-       << "-HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -CLIFford | -FReduce | -SReduce]" << endl;
+         << "-HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -CLIFford | -FReduce | -SReduce]" << endl;
 }
 
 void ZXGSimpCmd::help() const {

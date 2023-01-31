@@ -142,7 +142,7 @@ int myStrNCmp(const string& s1, const string& s2, unsigned n) {
 // (i.e. "del" or string::npos) if found.
 // This function will not treat '\ ' as a space in the token. That is, "a\ b" is two token ("a\", "b") and not one
 size_t
-myStrGetTok(const string& str, string& tok, size_t pos, const char del) {
+myStrGetTok(const string& str, string& tok, size_t pos, const string& del) {
     size_t begin = str.find_first_not_of(del, pos);
     if (begin == string::npos) {
         tok = "";
@@ -154,15 +154,8 @@ myStrGetTok(const string& str, string& tok, size_t pos, const char del) {
 }
 
 size_t
-myStrGetTok(const string& str, string& tok, size_t pos, const string& del) {
-    size_t begin = str.find_first_not_of(del, pos);
-    if (begin == string::npos) {
-        tok = "";
-        return begin;
-    }
-    size_t end = str.find_first_of(del, begin);
-    tok = str.substr(begin, end - begin);
-    return end;
+myStrGetTok(const string& str, string& tok, size_t pos, const char del) {
+    myStrGetTok(str, tok, pos, string(1, del));
 }
 
 // Parse the string "str" for the token "tok", beginning at position "pos",
@@ -225,7 +218,7 @@ bool myStr2Uns(const string& str, unsigned& unsnum) {
 // All the dirty compile-time checking happens here.
 template <class T>
 requires std::floating_point<T>
-T stoFloatType(const string& str, size_t* pos) {
+    T stoFloatType(const string& str, size_t* pos) {
     try {
         if constexpr (std::is_same<T, double>::value) {
             return std::stod(str, pos);
