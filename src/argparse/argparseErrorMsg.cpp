@@ -30,14 +30,13 @@ void printArgumentCastErrorMsg(Argument const& arg) {
 }
 
 void printDefaultValueErrorMsg(Argument const& arg) {
-    cerr << "[ArgParse] Error: failed to assign default value to argument \"" 
+    cerr << "[ArgParse] Error: failed to assign default value to argument \""
          << arg.getName() + "\"!!" << endl;
 }
 
 void printArgParseFatalErrorMsg() {
     cerr << TF::RED("[ArgParse] Fatal error: cannot recover from ill-formed parsing logic. Exiting program...") << endl;
 }
-
 
 void printArgNameEmptyErrorMsg() {
     cerr << "[ArgParse] Error: Argument name cannot be an empty string!!" << endl;
@@ -51,6 +50,6 @@ void printDuplicatedAttrErrorMsg(Argument const& arg, std::string const& attrNam
     cerr << "[ArgParse] Error: Failed to add attribute \"" << attrName << "\" to argument \"" << arg.getName() << "\": attribute duplicated" << endl;
 }
 
-}
+}  // namespace detail
 
-}
+}  // namespace ArgParse

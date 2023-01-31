@@ -9,7 +9,7 @@
 
 #include <stdlib.h>  // for srand
 
-#include <cstddef>   // for size_t
+#include <cstddef>
 #include <iomanip>
 #include <iostream>
 #include <string>
