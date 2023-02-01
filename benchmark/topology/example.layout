@@ -1,0 +1,14 @@
+NAME: example_topology
+QUBITNUM: 3
+GATESET: {x, rz, h, id, sx, cnot}
+// 裡面那層也由小到大
+COUPLINGMAP: [[1],[0,2],[1]]
+
+// The order of the following items isn't fixed
+// Single Gate Error
+SGERROR: [3e-3, 4e-3, 5e-3]
+// in nanosecond
+SGTIME: [5e-12, 4.5e-12, 5e-12]
+CNOTERROR: [[1e-2],[1e-2, 5e-3],[5e-3]]
+// in nanosecond
+CNOTTIME: [[7e-8],[7e-8, 6e-8],[6e-8]]
