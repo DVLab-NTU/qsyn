@@ -8,10 +8,10 @@
 
 #include "qcir.h"
 
-#include <stdlib.h>      // for abort
+#include <stdlib.h>  // for abort
 
-#include <cassert>       // for assert
-#include <string>        // for string
+#include <cassert>  // for assert
+#include <string>   // for string
 
 #include "qcirGate.h"    // for QCirGate
 #include "qcirQubit.h"   // for QCirQubit
@@ -222,10 +222,6 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
         temp = new TGate(_gateId);
     else if (type == "tdg" || type == "td" || type == "t*")
         temp = new TDGGate(_gateId);
-    else if (type == "p")
-        temp = new RZGate(_gateId);
-    else if (type == "cz")
-        temp = new CZGate(_gateId);
     else if (type == "x" || type == "not")
         temp = new XGate(_gateId);
     else if (type == "y")
@@ -238,6 +234,8 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
         temp = new CXGate(_gateId);
     else if (type == "ccx" || type == "ccnot")
         temp = new CCXGate(_gateId);
+    else if (type == "cz")
+        temp = new CZGate(_gateId);
     else if (type == "ccz")
         temp = new CCZGate(_gateId);
     // Note: rz and p has a little difference
@@ -247,8 +245,11 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
     } else if (type == "rx") {
         temp = new RXGate(_gateId);
         temp->setRotatePhase(phase);
-    } else if (type == "mcp" || type == "cp") {
+    } else if (type == "mcp" || type == "cp" || type == "p") {
         temp = new MCPGate(_gateId);
+        temp->setRotatePhase(phase);
+    } else if (type == "mcpx" || type == "cpx" || type == "px") {
+        temp = new MCPXGate(_gateId);
         temp->setRotatePhase(phase);
     } else if (type == "crz") {
         temp = new CRZGate(_gateId);
