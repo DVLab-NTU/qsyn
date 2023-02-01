@@ -9,8 +9,8 @@
 #ifndef QCIR_GATE_H
 #define QCIR_GATE_H
 
-#include <cstddef>    // for size_t, NULL
-#include <string>     // for string
+#include <cstddef>  // for size_t, NULL
+#include <string>   // for string
 
 #include "phase.h"    // for Phase
 #include "qtensor.h"  // for QTensor
@@ -29,6 +29,7 @@ class ZXGraph;
 // │    ┌────┴────┐        ┌────┴────┐         ┌────┴────┐                  │
 // │   MCP      MCRZ      MCPX     MCRX       MCPY     MCRY                 │
 // │  ╌╌╌╌╌╌   ╌╌╌╌╌╌    ╌╌╌╌╌╌   ╌╌╌╌╌╌     ╌╌╌╌╌╌   ╌╌╌╌╌╌                │
+// │  (MCZ n)            (MCX n)                                            │
 // │  CCZ (2)            CCX (2)             CCY (2)                        │
 // │  CZ  (1)            CX  (1)             CY  (1)                        │
 // │  Z                  X                   Y                              │
@@ -38,7 +39,6 @@ class ZXGraph;
 // │  **********  Will be merged into MCP/R X/Y/Z  **********               │
 // │  (CP,P)  (CRZ,RZ)  (CPX,PX) (CRX,RX)   (CPY,PY) (CRY,RY)               │
 // └────────────────────────────────────────────────────────────────────────┘
-
 
 //------------------------------------------------------------------------
 //   Define classes
@@ -202,7 +202,8 @@ class MCPGate : public ZAxisGate {
 public:
     MCPGate(size_t id) : ZAxisGate(id) { _type = "mcp"; }
     virtual ~MCPGate(){};
-    virtual std::string getTypeStr() const { return _qubits.size() > 2 ? _type : "cp"; }
+    virtual std::string getTypeStr() const { return _qubits.size() > 2 ? _type : _qubits.size() == 2 ? "cp"
+                                                                                                     : "p"; }
     virtual GateType getType() const { return GateType::MCP; }
 
     virtual ZXGraph* getZXform();
@@ -229,10 +230,11 @@ public:
 
 class MCPXGate : public XAxisGate {
 public:
-    MCPXGate(size_t id) : XAxisGate(id) { _type = "mcrx"; }
+    MCPXGate(size_t id) : XAxisGate(id) { _type = "mcpx"; }
     virtual ~MCPXGate(){};
 
-    virtual std::string getTypeStr() const { return _qubits.size() > 2 ? _type : "cpx"; }
+    virtual std::string getTypeStr() const { return _qubits.size() > 2 ? _type : _qubits.size() == 2 ? "cpx"
+                                                                                                     : "px"; }
     virtual GateType getType() const { return GateType::MCPX; }
     virtual ZXGraph* getZXform();
     virtual QTensor<double> getTSform() const { return QTensor<double>::control(QTensor<double>::pxgate(_rotatePhase), _qubits.size() - 1); }
@@ -256,7 +258,7 @@ public:
     virtual void setRotatePhase(Phase p) { _rotatePhase = p; }
 };
 
-// FIXME - No ZX form
+// TODO - No ZX form
 class MCPYGate : public YAxisGate {
 public:
     MCPYGate(size_t id) : YAxisGate(id) { _type = "mcpy"; }
@@ -270,7 +272,7 @@ public:
     virtual void setRotatePhase(Phase p) { _rotatePhase = p; }
 };
 
-// FIXME - No ZX form
+// TODO - No ZX form
 class MCRYGate : public YAxisGate {
 public:
     MCRYGate(size_t id) : YAxisGate(id) { _type = "mcry"; }
@@ -286,16 +288,15 @@ public:
 //----------------------------------------------------------------------
 //    Children class of MCP
 //----------------------------------------------------------------------
-// NOTE - CP gate is merged into MCPGate with control = 1
+// NOTE - CP and P gates are merged into MCPGate with number of control = 1 or 0
 
-// FIXME - No ZX form
 class CCZGate : public MCPGate {
 public:
     CCZGate(size_t id) : MCPGate(id) { _type = "ccz"; }
     virtual ~CCZGate() {}
     virtual std::string getTypeStr() const { return "ccz"; }
     virtual GateType getType() const { return GateType::CCZ; }
-    virtual ZXGraph* getZXform() { return nullptr; }
+    virtual ZXGraph* getZXform() { return MCPGate::getZXform(); }
     virtual QTensor<double> getTSform() const { return QTensor<double>::control(QTensor<double>::zgate(), 2); }
     virtual void printGateInfo(bool st) const { printMultipleQubitsGate("Z", false, st); }
 };
@@ -412,7 +413,7 @@ public:
 //----------------------------------------------------------------------
 //    Children class of MCPX
 //----------------------------------------------------------------------
-// NOTE - CPX gate is merged into MCPXGate with control = 1
+// NOTE - CPX and PX gates are merged into MCPXGate with number of control = 1 or 0
 
 class CCXGate : public MCPXGate {
 public:

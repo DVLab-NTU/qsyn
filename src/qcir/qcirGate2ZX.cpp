@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>           // for size_t
+#include <cstddef>  // for size_t
 
 #include "phase.h"           // for Phase, operator/
 #include "qcirGate.h"        // for CRZGate, CnPGate, CnRXGate, QCirGate
@@ -352,22 +352,22 @@ ZXGraph *MCPXGate::getZXform() {
 
 /**
  * @brief Get ZX-graph of MCRX
- * 
- * @return ZXGraph* 
+ *
+ * @return ZXGraph*
  */
 
-//TODO - ZX form
+// TODO - ZX form
 ZXGraph *MCRXGate::getZXform() {
     return nullptr;
 }
 
 /**
  * @brief Get ZX-graph of MCRZ
- * 
- * @return ZXGraph* 
+ *
+ * @return ZXGraph*
  */
 
-//TODO - ZX form
+// TODO - ZX form
 ZXGraph *MCRZGate::getZXform() {
     return nullptr;
 }
