@@ -9,8 +9,8 @@
 #ifndef QCIR_GATE_H
 #define QCIR_GATE_H
 
-#include <cstddef>  // for size_t, NULL
-#include <string>   // for string
+#include <cstddef>    // for size_t, NULL
+#include <string>     // for string
 
 #include "phase.h"    // for Phase
 #include "qtensor.h"  // for QTensor
