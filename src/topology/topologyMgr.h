@@ -36,7 +36,7 @@ public:
     void reset();
 
     // Test
-    bool isID(size_t id) const { return true; };
+    bool isID(size_t id) const;
 
     // Setter and Getter
     size_t getNextID() const { return _nextID; }
@@ -63,7 +63,7 @@ public:
     // Print
     void printDeviceTopoMgr() const;
     void printTopoListItr() const;
-    void printDeviceTopocuitListSize() const;
+    void printDeviceTopoListSize() const;
 
 private:
     size_t _nextID;

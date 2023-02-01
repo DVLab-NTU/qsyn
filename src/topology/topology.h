@@ -23,6 +23,7 @@ public:
     }
     ~DeviceTopo() {}
 
+    size_t getId() const { return _id; }
     void setId(size_t id) { _id = id; }
 
 private:
