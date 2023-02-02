@@ -112,6 +112,21 @@ string stripWhitespaces(const string& str) {
     return str.substr(start, end + 1 - start);
 }
 
+/**
+ * @brief Strip leading spaces and comments
+ *
+ * @param line
+ * @return string
+ */
+string stripLeadingSpacesAndComments(string& line) {
+    size_t firstNonSpace = line.find_first_not_of(" ");
+    size_t commentStart = line.find("//");
+    if (firstNonSpace == string::npos) return "";
+    if (firstNonSpace == commentStart) return "";
+
+    return line.substr(firstNonSpace, commentStart - firstNonSpace);
+}
+
 // 1. strlen(s1) must >= n
 // 2. The first n characters of s2 are mandatory, they must be case-
 //    insensitively compared to s1. Return less or greater than 0 if unequal.
