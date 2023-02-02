@@ -29,7 +29,7 @@ bool initDeviceTopoCmd() {
           cmdMgr->regCmd("DTReset", 3, new DeviceTopoResetCmd) &&
           cmdMgr->regCmd("DTDelete", 3, new DeviceTopoDeleteCmd) &&
           cmdMgr->regCmd("DTNew", 3, new DeviceTopoNewCmd) &&
-          // cmdMgr->regCmd("DTRead", 3, new DeviceTopoReadCmd) &&
+          cmdMgr->regCmd("DTGRead", 4, new DeviceTopoReadCmd) &&
           cmdMgr->regCmd("DTPrint", 3, new DeviceTopoPrintCmd))) {
         cerr << "Registering \"device topology\" commands fails... exiting" << endl;
         return false;
@@ -141,6 +141,29 @@ void DeviceTopoNewCmd::usage() const {
 void DeviceTopoNewCmd::help() const {
     cout << setw(15) << left << "DTNew: "
          << "create a new DeviceTopo to DeviceTopoMgr" << endl;
+}
+
+//----------------------------------------------------------------------
+//    DTGRead <(size_t filename)>
+//----------------------------------------------------------------------
+CmdExecStatus
+DeviceTopoReadCmd::exec(const string &option) {
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+
+    // FIXME - Temporary version
+    deviceTopoMgr->addDeviceTopo(deviceTopoMgr->getNextID());
+    deviceTopoMgr->getDeviceTopo()->readTopo(token);
+    return CMD_EXEC_DONE;
+}
+
+void DeviceTopoReadCmd::usage() const {
+    cout << "Usage: DTGRead <(size_t filename)>" << endl;
+}
+
+void DeviceTopoReadCmd::help() const {
+    cout << setw(15) << left << "DTGRead: "
+         << "read a device topology" << endl;
 }
 
 //----------------------------------------------------------------------

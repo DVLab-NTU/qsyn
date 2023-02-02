@@ -81,19 +81,24 @@ public:
     size_t getNQubit() const { return _nQubit; }
     std::string getName() const { return _name; }
     const std::vector<GateType>& getGateSet() const { return _gateSet; }
-    const PhyQubitList& getPhyQubitList() const { return _qubitList; }
+    // REVIEW - Not sure why this function cannot be const funct.
+    const PhyQubitList& getPhyQubitList() { return _qubitList; }
     const AdjacenciesInfo& getAdjInfo() const { return _adjInfo; }
+    const AdjInfo& getAdjPairInfo(size_t, size_t);
 
     void setId(size_t id) { _id = id; }
     void setNQubit(size_t n) { _nQubit = n; }
     void setName(std::string n) { _name = n; }
     void addGateType(GateType gt) { _gateSet.emplace_back(gt); }
-    void addPhyQubit(PhyQubit* q) { _qubitList.emplace(q->getId(), q); }
+    void addPhyQubit(PhyQubit* q) { _qubitList[q->getId()] = q; }
     void addAdjacency(size_t a, size_t b);
     void addAdjacencyInfo(size_t a, size_t b, AdjInfo info);
 
     bool qubitIdExist(size_t id) { return _qubitList.contains(id); }
     bool readTopo(const std::string&);
+
+    void printQubits(std::vector<size_t> cand = {});
+    void printEdges();
 
 private:
     size_t _id;
