@@ -25,15 +25,16 @@ struct AdjInfo;
 
 using AdjacencyPair = std::pair<PhyQubit*, PhyQubit*>;
 using Adjacencies = ordered_hashset<PhyQubit*>;
-using AdjacenciesInfo = std::unordered_map<AdjacencyPair, AdjInfo>;
+using PhyQubitList = ordered_hashmap<size_t, PhyQubit*>;
+using AdjacenciesInfo = std::unordered_map<std::pair<size_t, size_t>, AdjInfo>;
 
 namespace std {
 template <>
-struct hash<AdjacencyPair> {
-    size_t operator()(const AdjacencyPair& k) const {
+struct hash<std::pair<size_t, size_t>> {
+    size_t operator()(const std::pair<size_t, size_t>& k) const {
         return (
-            (hash<PhyQubit*>()(k.first) ^
-             (hash<PhyQubit*>()(k.second) << 1)) >>
+            (hash<size_t>()(k.first) ^
+             (hash<size_t>()(k.second) << 1)) >>
             1);
     }
 };
@@ -80,21 +81,26 @@ public:
     size_t getNQubit() const { return _nQubit; }
     std::string getName() const { return _name; }
     const std::vector<GateType>& getGateSet() const { return _gateSet; }
+    const PhyQubitList& getPhyQubitList() const { return _qubitList; }
     const AdjacenciesInfo& getAdjInfo() const { return _adjInfo; }
 
     void setId(size_t id) { _id = id; }
     void setNQubit(size_t n) { _nQubit = n; }
     void setName(std::string n) { _name = n; }
     void addGateType(GateType gt) { _gateSet.emplace_back(gt); }
-    void addAdjacencyInfo(AdjacencyPair adjp);
+    void addPhyQubit(PhyQubit* q) { _qubitList.emplace(q->getId(), q); }
+    void addAdjacency(size_t a, size_t b);
+    void addAdjacencyInfo(size_t a, size_t b, AdjInfo info);
 
-    bool readTopo();
+    bool qubitIdExist(size_t id) { return _qubitList.contains(id); }
+    bool readTopo(const std::string&);
 
 private:
     size_t _id;
     std::string _name;
     size_t _nQubit;
     std::vector<GateType> _gateSet;
+    PhyQubitList _qubitList;
     AdjacenciesInfo _adjInfo;
 };
 
