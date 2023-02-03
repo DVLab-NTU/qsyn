@@ -61,6 +61,8 @@ public:
     void setDelay(float dl) { _gateDelay = dl; }
     void addAdjacency(PhyQubit* adj) { _adjacencies.emplace(adj); }
 
+    void printInfo(bool = false) const;
+
 private:
     // NOTE - Device information
     size_t _id;
@@ -98,7 +100,8 @@ public:
     bool readTopo(const std::string&);
 
     void printQubits(std::vector<size_t> cand = {});
-    void printEdges();
+    void printEdges(std::vector<size_t> cand = {});
+    void printSingleEdge(size_t a, size_t b);
 
 private:
     size_t _id;
@@ -107,6 +110,16 @@ private:
     std::vector<GateType> _gateSet;
     PhyQubitList _qubitList;
     AdjacenciesInfo _adjInfo;
+
+    // NOTE - Internal functions/objects only used in reader
+    bool parseInfo(std::ifstream& f);
+    bool parseSingles(std::string, size_t);
+    bool parsePairs(std::string, size_t);
+    std::vector<std::vector<size_t>> _adjList;
+    std::vector<std::vector<float>> _cxErr;
+    std::vector<std::vector<float>> _cxDelay;
+    std::vector<float> _sgErr;
+    std::vector<float> _sgDelay;
 };
 
 #endif  // TOPOLOGY_H

@@ -24,6 +24,24 @@ extern size_t verbose;
 AdjInfo defaultInfo = {._cnotTime = 0.0, ._error = 0.0};
 
 /**
+ * @brief Print information of physical qubit
+ *
+ * @param detail If true, print delay and error
+ */
+void PhyQubit::printInfo(bool detail) const {
+    cout << "ID:" << right << setw(4) << _id << "    ";
+    if (detail) {
+        cout << "Delay:" << right << setw(8) << _gateDelay << "    ";
+        cout << "Error:" << right << setw(8) << _error << "    ";
+    }
+    cout << "Adjs:";
+    for (auto& q : _adjacencies) {
+        cout << right << setw(3) << q->getId() << " ";
+    }
+    cout << endl;
+}
+
+/**
  * @brief Get the information of a single pair
  *
  * @param a Id of first qubit
@@ -143,40 +161,137 @@ bool DeviceTopo::readTopo(const string& filename) {
     size_t firstfound = str.find_first_of("[");
     data = str.substr(firstfound + 1, lastfound - firstfound - 1);
 
-    // TODO - Move to a function if more information would be used in future
-    vector<vector<size_t>> adjlist;
+    if (!parsePairs(data, 0)) return false;
 
-    string adjstr, adjNum;
+    // NOTE - Parse Information
+    parseInfo(topoFile);
+    // NOTE - Finish parsing, store the topology
 
+    for (size_t i = 0; i < _adjList.size(); i++) {
+        for (size_t j = 0; j < _adjList[i].size(); j++) {
+            if (_adjList[i][j] > i) {
+                addAdjacency(i, _adjList[i][j]);
+                addAdjacencyInfo(i, _adjList[i][j], {._cnotTime = _cxDelay[i][j], ._error = _cxErr[i][j]});
+            }
+        }
+        _qubitList[i]->setDelay(_sgDelay[i]);
+        _qubitList[i]->setError(_sgErr[i]);
+    }
+    return true;
+}
+
+/**
+ * @brief Parse device information including SGERROR, SGTIME, CNOTERROR, and CNOTTIME
+ *
+ * @param f
+ * @return true
+ * @return false
+ */
+bool DeviceTopo::parseInfo(std::ifstream& f) {
+    string str = "", token = "", data = "";
+    while (!f.eof()) {
+        while (str == "") {
+            getline(f, str);
+            str = stripLeadingSpacesAndComments(str);
+        }
+
+        size_t token_end = myStrGetTok(str, token, 0, ": ");
+        data = str.substr(token_end + 1);
+
+        data = stripWhitespaces(data);
+
+        if (token == "SGERROR") {
+            parseSingles(data, 0);
+        } else if (token == "SGTIME") {
+            parseSingles(data, 1);
+        } else if (token == "CNOTERROR") {
+            parsePairs(data, 1);
+        } else if (token == "CNOTTIME") {
+            parsePairs(data, 2);
+        }
+        getline(f, str);
+        str = stripLeadingSpacesAndComments(str);
+    }
+
+    return true;
+}
+
+/**
+ * @brief Parse device qubits information
+ *
+ * @param data raw information string, i.e. [0.1, ...]
+ * @param which 0: SGERROR, 1:SGTIME
+ * @return true
+ * @return false
+ */
+bool DeviceTopo::parseSingles(string data, size_t which) {
+    string str, num;
+    float fl;
+    size_t m = 0;
+
+    myStrGetTok(data, str, 0, '[');
+    str = str.substr(0, str.find_first_of("]"));
+
+    vector<float> singleFl;
+    while (m < str.size()) {
+        m = myStrGetTok(str, num, m, ',');
+        num = stripWhitespaces(num);
+        if (!myStr2Float(num, fl)) {
+            cout << "Error: The number `" << num << "` is not a float!!\n";
+            return false;
+        }
+        if (which == 0)
+            _sgErr.push_back(fl);
+        else if (which == 1)
+            _sgDelay.push_back(fl);
+    }
+    return true;
+}
+
+/**
+ * @brief Parse device edges information
+ *
+ * @param data raw information string, i.e. [[1, 3, ...], [0, ... ,], ...]
+ * @param which 0:COUPLINGMAP, 1:CNOTERROR, 2:CNOTTIME
+ * @return true
+ * @return false
+ */
+bool DeviceTopo::parsePairs(string data, size_t which) {
+    string str, num;
+    unsigned qbn;
+    float fl;
     size_t n = 0, m = 0;
     while (n < data.size()) {
-        n = myStrGetTok(data, adjstr, n, '[');
-        adjstr = adjstr.substr(0, adjstr.find_first_of("]"));
+        n = myStrGetTok(data, str, n, '[');
+        str = str.substr(0, str.find_first_of("]"));
 
         m = 0;
         vector<size_t> single;
-        while (m < adjstr.size()) {
-            m = myStrGetTok(adjstr, adjNum, m, ',');
-            adjNum = stripWhitespaces(adjNum);
+        vector<float> singleFl;
+        while (m < str.size()) {
+            m = myStrGetTok(str, num, m, ',');
+            num = stripWhitespaces(num);
+            if (which == 0) {
+                if (!myStr2Uns(num, qbn) || qbn >= _nQubit) {
+                    cout << "Error: The number of qubit `" << num << "` is not a positive integer or not in the legal range!!\n";
+                    return false;
+                }
+                single.push_back(size_t(qbn));
+            } else {
+                if (!myStr2Float(num, fl)) {
+                    cout << "Error: The number `" << num << "` is not a float!!\n";
+                    return false;
+                }
 
-            if (!myStr2Uns(adjNum, qbn) || qbn >= _nQubit) {
-                cout << "Error: The number of qubit `" << adjNum << "` is not a positive integer or not in the legal range!!\n";
-                return false;
-            }
-            single.push_back(size_t(qbn));
-        }
-        adjlist.push_back(single);
-    }
-    //////
-    // TODO - Parse Information
-    // NOTE - Finish parsing, store the topology
-
-    for (size_t i = 0; i < adjlist.size(); i++) {
-        for (size_t j = 0; j < adjlist[i].size(); j++) {
-            if (adjlist[i][j] > i) {
-                addAdjacency(i, adjlist[i][j]);
+                singleFl.push_back(fl);
             }
         }
+        if (which == 0)
+            _adjList.push_back(single);
+        else if (which == 1)
+            _cxErr.push_back(singleFl);
+        else if (which == 2)
+            _cxDelay.push_back(singleFl);
     }
     return true;
 }
@@ -189,12 +304,9 @@ bool DeviceTopo::readTopo(const string& filename) {
 void DeviceTopo::printQubits(vector<size_t> cand) {
     if (cand.empty()) {
         for (size_t i = 0; i < _nQubit; i++) {
-            cout << _qubitList[i]->getId() << ": ";
-            for (auto& q : _qubitList[i]->getAdjacencies()) {
-                cout << q->getId() << " ";
-            }
-            cout << endl;
+            _qubitList[i]->printInfo(true);
         }
+        cout << "Total #Qubits: " << _nQubit << endl;
     } else {
         sort(cand.begin(), cand.end());
         for (auto& p : cand) {
@@ -210,11 +322,42 @@ void DeviceTopo::printQubits(vector<size_t> cand) {
 /**
  * @brief Print device edge
  *
+ * @param cand Empty: print all. Single element [a]: print edges connecting to a. Two elements [a,b]: print edge (a,b).
  */
-void DeviceTopo::printEdges() {
-    // TODO - Sort
-    for (auto& [adjp, p] : _adjInfo) {
-        cout << adjp.first << " -- " << adjp.second << ": ";
-        cout << endl;
+void DeviceTopo::printEdges(vector<size_t> cand) {
+    if (cand.size() == 0) {
+        size_t cnt = 0;
+        for (size_t i = 0; i < _nQubit; i++) {
+            for (auto& q : _qubitList[i]->getAdjacencies()) {
+                if (i < q->getId()) {
+                    cnt++;
+                    printSingleEdge(i, q->getId());
+                }
+            }
+        }
+        assert(cnt == _adjInfo.size());
+        cout << "Total #Edges: " << _adjInfo.size() << endl;
+    } else if (cand.size() == 1) {
+        for (auto& q : _qubitList[cand[0]]->getAdjacencies()) {
+            if (cand[0] < q->getId()) {
+                printSingleEdge(cand[0], q->getId());
+            }
+        }
+        cout << "Total #Edges: " << _qubitList[cand[0]]->getAdjacencies().size() << endl;
+    } else if (cand.size() == 2) {
+        printSingleEdge(cand[0], cand[1]);
     }
+}
+
+/**
+ * @brief Print information of the edge (a,b)
+ *
+ * @param a Id of first qubit
+ * @param b Id of second qubit
+ */
+void DeviceTopo::printSingleEdge(size_t a, size_t b) {
+    auto& adjp = _adjInfo[make_pair(a, b)];
+    cout << "(" << right << setw(3) << _qubitList[a]->getId() << ", " << right << setw(3) << _qubitList[b]->getId() << ")    ";
+    cout << "Delay:" << right << setw(8) << adjp._cnotTime << "    ";
+    cout << "Error:" << right << setw(8) << adjp._error << endl;
 }
