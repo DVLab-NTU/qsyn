@@ -218,16 +218,18 @@ void DeviceTopoGraphPrintCmd::help() const {
 }
 
 //----------------------------------------------------------------------
-//    DTPrint [-Summary | -Focus | -Num]
+//    DTPrint [-Summary | -Focus | -List | -Num]
 //----------------------------------------------------------------------
 CmdExecStatus
 DeviceTopoPrintCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) {
+    if (token.empty() || myStrNCmp("-Summary", token, 2) == 0)
         deviceTopoMgr->printDeviceTopoMgr();
-    } else if (myStrNCmp("-Focus", token, 2) == 0)
+    else if (myStrNCmp("-Focus", token, 2) == 0)
         deviceTopoMgr->printTopoListItr();
+    else if (myStrNCmp("-List", token, 2) == 0)
+        deviceTopoMgr->printTopoList();
     else if (myStrNCmp("-Num", token, 2) == 0)
         deviceTopoMgr->printDeviceTopoListSize();
     else
@@ -236,7 +238,7 @@ DeviceTopoPrintCmd::exec(const string &option) {
 }
 
 void DeviceTopoPrintCmd::usage() const {
-    cout << "Usage: DTPrint [-Summary | -Focus | -Num]" << endl;
+    cout << "Usage: DTPrint [-Summary | -Focus | -List | -Num]" << endl;
 }
 
 void DeviceTopoPrintCmd::help() const {

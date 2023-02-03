@@ -126,7 +126,7 @@ DeviceTopo* DeviceTopoMgr::findDeviceTopoByID(size_t id) const {
  */
 void DeviceTopoMgr::printDeviceTopoMgr() const {
     cout << "-> #DeviceTopo: " << _topoList.size() << endl;
-    if (!_topoList.empty()) cout << "-> Now focus on: " << getDeviceTopo()->getId() << endl;
+    if (!_topoList.empty()) cout << "-> Now focus on: " << getDeviceTopo()->getId() << " (" << getDeviceTopo()->getName() << ")" << endl;
 }
 
 /**
@@ -135,9 +135,25 @@ void DeviceTopoMgr::printDeviceTopoMgr() const {
  */
 void DeviceTopoMgr::printTopoListItr() const {
     if (!_topoList.empty())
-        cout << "Now focus on: " << getDeviceTopo()->getId() << endl;
+        cout << "Now focus on: " << getDeviceTopo()->getId() << " (" << getDeviceTopo()->getName() << ")" << endl;
     else
         cerr << "Error: DeviceTopoMgr is empty now!" << endl;
+}
+
+/**
+ * @brief Print the list of topology
+ *
+ */
+void DeviceTopoMgr::printTopoList() const {
+    if (!_topoList.empty()) {
+        for (auto& tpg : _topoList) {
+            if (tpg->getId() == getDeviceTopo()->getId())
+                cout << "★ ";
+            else
+                cout << "  ";
+            cout << tpg->getId() << " " << left << setw(20) << tpg->getName().substr(0, 20) << " #Q: " << right << setw(4) << tpg->getNQubit() << endl;
+        }
+    }
 }
 
 /**

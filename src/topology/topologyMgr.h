@@ -63,6 +63,7 @@ public:
     // Print
     void printDeviceTopoMgr() const;
     void printTopoListItr() const;
+    void printTopoList() const;
     void printDeviceTopoListSize() const;
 
 private:

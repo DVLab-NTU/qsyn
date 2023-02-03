@@ -142,7 +142,7 @@ bool DeviceTopo::readTopo(const string& filename) {
         getline(topoFile, str);
         str = stripLeadingSpacesAndComments(str);
     }
-    parseGateSet(str);
+    if (!parseGateSet(str)) return false;
     // NOTE - Coupling map
 
     str = "", token = "", data = "";
@@ -161,7 +161,7 @@ bool DeviceTopo::readTopo(const string& filename) {
     if (!parsePairs(data, 0)) return false;
 
     // NOTE - Parse Information
-    parseInfo(topoFile);
+    if (!parseInfo(topoFile)) return false;
     // NOTE - Finish parsing, store the topology
 
     for (size_t i = 0; i < _adjList.size(); i++) {
@@ -178,14 +178,22 @@ bool DeviceTopo::readTopo(const string& filename) {
 }
 
 bool DeviceTopo::parseGateSet(string str) {
-    string token = "", data = "";
+    string token = "", data = "", gt;
     size_t token_end = myStrGetTok(str, token, 0, ": ");
     data = str.substr(token_end + 1);
-
     data = stripWhitespaces(data);
-
     data = removeBracket(data, '{', '}');
-    cout << data << endl;
+    size_t m = 0;
+    while (m < data.size()) {
+        m = myStrGetTok(data, gt, m, ',');
+        gt = stripWhitespaces(gt);
+        for_each(gt.begin(), gt.end(), [](char& c) { c = ::tolower(c); });
+        if (!str2GateType.contains(gt)) {
+            cout << "Error: unsupported gate type " << gt << "!!" << endl;
+            return false;
+        }
+        _gateSet.push_back(str2GateType[gt]);
+    }
     return true;
 }
 
@@ -210,13 +218,13 @@ bool DeviceTopo::parseInfo(std::ifstream& f) {
         data = stripWhitespaces(data);
 
         if (token == "SGERROR") {
-            parseSingles(data, 0);
+            if (!parseSingles(data, 0)) return false;
         } else if (token == "SGTIME") {
-            parseSingles(data, 1);
+            if (!parseSingles(data, 1)) return false;
         } else if (token == "CNOTERROR") {
-            parsePairs(data, 1);
+            if (!parsePairs(data, 1)) return false;
         } else if (token == "CNOTTIME") {
-            parsePairs(data, 2);
+            if (!parsePairs(data, 2)) return false;
         }
         getline(f, str);
         str = stripLeadingSpacesAndComments(str);
@@ -371,7 +379,14 @@ void DeviceTopo::printSingleEdge(size_t a, size_t b) {
  *
  */
 void DeviceTopo::printTopo() const {
-    cout << "Topology " << _id << ": " << _name << "( "
+    cout << "Topology " << right << setw(2) << _id << ": " << _name << "( "
          << _qubitList.size() << " qubits, "
          << _adjInfo.size() << " edges )\n";
+
+    cout << "Gate Set   : ";
+    for (size_t i = 0; i < _gateSet.size(); i++) {
+        cout << gateType2Str[_gateSet[i]];
+        if (i != _gateSet.size() - 1) cout << ", ";
+    }
+    cout << endl;
 }
