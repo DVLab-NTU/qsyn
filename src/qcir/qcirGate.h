@@ -30,6 +30,7 @@ struct BitInfo {
 };
 
 enum class GateType {
+    ID,
     H,
     RZ,
     Z,
@@ -53,6 +54,27 @@ enum class GateType {
     MCRY,
     ERRORTYPE  // Never use this
 };
+
+// TODO - Uncompleted, will be added in future
+static std::unordered_map<std::string, GateType> str2Gate = {
+    {"x", GateType::X},
+    {"rz", GateType::RZ},
+    {"h", GateType::H},
+    {"sx", GateType::SX},
+    {"cnot", GateType::CX},
+    {"cx", GateType::CX},
+    {"id", GateType::ID},
+};
+
+// static std::unordered_map<GateType, std::string> gate2Str = {
+//     {"x", GateType::X},
+//     {"rz", GateType::RZ},
+//     {"h", GateType::H},
+//     {"sx", GateType::SX},
+//     {"cnot", GateType::CX},
+//     {"cx", GateType::CX},
+//     {"id", GateType::ID},
+// };
 
 class QCirGate {
 public:

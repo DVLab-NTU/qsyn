@@ -114,6 +114,7 @@ private:
 
     // NOTE - Internal functions/objects only used in reader
     bool parseInfo(std::ifstream& f);
+    bool parseGateSet(std::string);
     bool parseSingles(std::string, size_t);
     bool parsePairs(std::string, size_t);
     std::vector<std::vector<size_t>> _adjList;

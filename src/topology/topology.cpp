@@ -142,7 +142,7 @@ bool DeviceTopo::readTopo(const string& filename) {
         getline(topoFile, str);
         str = stripLeadingSpacesAndComments(str);
     }
-
+    parseGateSet(str);
     // NOTE - Coupling map
 
     str = "", token = "", data = "";
@@ -156,10 +156,7 @@ bool DeviceTopo::readTopo(const string& filename) {
     data = str.substr(token_end + 1);
 
     data = stripWhitespaces(data);
-
-    size_t lastfound = str.find_last_of("]");
-    size_t firstfound = str.find_first_of("[");
-    data = str.substr(firstfound + 1, lastfound - firstfound - 1);
+    data = removeBracket(data, '[', ']');
 
     if (!parsePairs(data, 0)) return false;
 
@@ -177,6 +174,18 @@ bool DeviceTopo::readTopo(const string& filename) {
         _qubitList[i]->setDelay(_sgDelay[i]);
         _qubitList[i]->setError(_sgErr[i]);
     }
+    return true;
+}
+
+bool DeviceTopo::parseGateSet(string str) {
+    string token = "", data = "";
+    size_t token_end = myStrGetTok(str, token, 0, ": ");
+    data = str.substr(token_end + 1);
+
+    data = stripWhitespaces(data);
+
+    data = removeBracket(data, '{', '}');
+    cout << data << endl;
     return true;
 }
 
@@ -229,8 +238,7 @@ bool DeviceTopo::parseSingles(string data, size_t which) {
     float fl;
     size_t m = 0;
 
-    myStrGetTok(data, str, 0, '[');
-    str = str.substr(0, str.find_first_of("]"));
+    str = removeBracket(data, '[', ']');
 
     vector<float> singleFl;
     while (m < str.size()) {
