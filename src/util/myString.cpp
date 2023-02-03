@@ -127,6 +127,19 @@ string stripLeadingSpacesAndComments(string& line) {
     return line.substr(firstNonSpace, commentStart - firstNonSpace);
 }
 
+/**
+ * @brief Remove brackets and strip the spaces
+ *
+ * @param str
+ * @param left {, [, (
+ * @param right }, ], )
+ * @return string
+ */
+string removeBracket(const std::string& str, const char left, const char right) {
+    size_t lastfound = str.find_last_of(right);
+    size_t firstfound = str.find_first_of(left);
+    return stripWhitespaces(str.substr(firstfound + 1, lastfound - firstfound - 1));
+}
 // 1. strlen(s1) must >= n
 // 2. The first n characters of s2 are mandatory, they must be case-
 //    insensitively compared to s1. Return less or greater than 0 if unequal.
