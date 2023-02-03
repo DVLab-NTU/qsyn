@@ -1,0 +1,123 @@
+DV Lab, NTUEE, Qsyn 0.4.0
+qsyn> qcba 2
+Note: QCir list is empty now. Create a new one.
+Create and checkout to QCir 0
+
+qsyn> qcgadd -MCPX -PH pi 0 1
+
+qsyn> qccp -q
+Q 0  -cp( 0)-
+Q 1  -cp( 0)-
+
+qsyn> qcgp 0
+Q0 Start ────●──── End
+          ┌──┴──┐ 
+Q1 Start ─┤  PX ├─ End
+          └─────┘ 
+Rotate Phase: π
+
+qsyn> qc2ts
+Traverse and build the tensor... 
+Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
+
+qsyn> tsp 0
+{{ 1.      +0.000000e+00i,  0.      +0.000000e+00i,
+   0.      +0.000000e+00i,  0.      +0.000000e+00i},
+ { 0.      +0.000000e+00i,  1.      +0.000000e+00i,
+   0.      +0.000000e+00i,  0.      +0.000000e+00i},
+ { 0.      +0.000000e+00i,  0.      +0.000000e+00i,
+   0.      +6.123234e-17i,  1.      -6.123234e-17i},
+ { 0.      +0.000000e+00i,  0.      +0.000000e+00i,
+   1.      -6.123234e-17i,  0.      +6.123234e-17i}}
+#Dim:    2	Info: QC
+
+qsyn> qc2zx
+Create and checkout to Graph 0
+
+qsyn> zxgp -Q
+
+ID:   7 ([1m[32mZ[0m[0m, 3π/2)        (Qubit, Col): (-2, 1)	  #Neighbors:   1     (6, [1m[34mH[0m[0m) 
+
+
+ID:   6 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (-1, 1)	  #Neighbors:   3     (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+
+
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   1     (4, -) 
+ID:   4 ([1m[32mZ[0m[0m, π/2)         (Qubit, Col): (0, 1)	  #Neighbors:   3     (0, -) (1, -) (6, [1m[34mH[0m[0m) 
+
+
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, [1m[34mH[0m[0m) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 2)	  #Neighbors:   1     (5, [1m[34mH[0m[0m) 
+ID:   5 ([1m[32mZ[0m[0m, π/2)         (Qubit, Col): (1, 1)	  #Neighbors:   3     (2, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) (6, [1m[34mH[0m[0m) 
+
+
+qsyn> zxgs -fr
+
+All rules applied in order:
+Local Complementation Rule    2 iterations.
+  1) 1 matches
+  2) 1 matches
+
+qsyn> zxgp -Q
+
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   1     (4, -) 
+ID:   4 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 1)	  #Neighbors:   3     (0, -) (1, -) (5, [1m[34mH[0m[0m) 
+
+
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, [1m[34mH[0m[0m) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 2)	  #Neighbors:   1     (5, [1m[34mH[0m[0m) 
+ID:   5 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 1)	  #Neighbors:   3     (2, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) 
+
+
+qsyn> zx2ts
+Traverse and build the tensor... 
+Successfully added Tensor 1
+Stored the resulting tensor as tensor id 1
+
+qsyn> tsp 1
+{{ 1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
+ { 0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i},
+ { 0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i}}
+#Dim:    2	Info: ZX 0
+
+qsyn> tsp
+Tensor    0: #Dim:    2	Info: QC
+Tensor    1: #Dim:    2	Info: ZX 0
+Total #Tensor: 2
+
+qsyn> qcr
+
+qsyn> zxr
+
+qsyn> tsr
+
+qsyn> 
+qsyn> qcba 1
+Note: QCir list is empty now. Create a new one.
+Create and checkout to QCir 0
+
+qsyn> qcgadd -MCPX -PH pi 0
+
+qsyn> qcgp 0
+          ┌─────┐ 
+Q0 Start ─┤  PX ├─ End
+          └─────┘ 
+Rotate Phase: π
+
+qsyn> qc2zx
+Create and checkout to Graph 0
+
+qsyn> zxgp -v
+
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, [1m[34mH[0m[0m) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   1     (2, [1m[34mH[0m[0m) 
+ID:   2 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   2     (0, [1m[34mH[0m[0m) (1, [1m[34mH[0m[0m) 
+Total #Vertices: 3
+
+
+qsyn> qq -f
+

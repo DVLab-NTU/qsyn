@@ -180,7 +180,10 @@ void QCirGate::printMultipleQubitsGate(string gtype, bool showRotate, bool showT
                 cout << " ";
             cout << " ┌─";
             for (size_t j = 0; j < paddingSize; j++) cout << "─";
-            cout << "┴";
+            if (_qubits.size() > 1)
+                cout << "┴";
+            else
+                cout << "─";
             for (size_t j = 0; j < paddingSize; j++) cout << "─";
             cout << "─┐ " << endl;
             cout << qubitInfo << " " << parentInfo << " ─┤ " << gtype << " ├─ " << childInfo << endl;
