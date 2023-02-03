@@ -61,7 +61,7 @@ public:
     void setDelay(float dl) { _gateDelay = dl; }
     void addAdjacency(PhyQubit* adj) { _adjacencies.emplace(adj); }
 
-    void printInfo(bool = false) const;
+    void printInfo(bool = true) const;
 
 private:
     // NOTE - Device information
@@ -102,6 +102,7 @@ public:
     void printQubits(std::vector<size_t> cand = {});
     void printEdges(std::vector<size_t> cand = {});
     void printSingleEdge(size_t a, size_t b);
+    void printTopo() const;
 
 private:
     size_t _id;

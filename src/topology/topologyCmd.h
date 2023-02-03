@@ -16,8 +16,9 @@ CmdClass(DeviceTopoCheckoutCmd);
 CmdClass(DeviceTopoResetCmd);
 CmdClass(DeviceTopoDeleteCmd);
 CmdClass(DeviceTopoNewCmd);
-CmdClass(DeviceTopoReadCmd);
+CmdClass(DeviceTopoGraphReadCmd);
 CmdClass(DeviceTopoPrintCmd);
+CmdClass(DeviceTopoGraphPrintCmd);
 
 #define DT_CMD_MGR_NOT_EMPTY_OR_RETURN(str)                                                             \
     {                                                                                                   \

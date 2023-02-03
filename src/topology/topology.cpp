@@ -302,6 +302,7 @@ bool DeviceTopo::parsePairs(string data, size_t which) {
  * @param cand a vector of qubits to be printed
  */
 void DeviceTopo::printQubits(vector<size_t> cand) {
+    cout << endl;
     if (cand.empty()) {
         for (size_t i = 0; i < _nQubit; i++) {
             _qubitList[i]->printInfo(true);
@@ -310,11 +311,7 @@ void DeviceTopo::printQubits(vector<size_t> cand) {
     } else {
         sort(cand.begin(), cand.end());
         for (auto& p : cand) {
-            cout << _qubitList[p]->getId() << ": ";
-            for (auto& q : _qubitList[p]->getAdjacencies()) {
-                cout << q->getId() << " ";
-            }
-            cout << endl;
+            _qubitList[p]->printInfo(true);
         }
     }
 }
@@ -325,6 +322,7 @@ void DeviceTopo::printQubits(vector<size_t> cand) {
  * @param cand Empty: print all. Single element [a]: print edges connecting to a. Two elements [a,b]: print edge (a,b).
  */
 void DeviceTopo::printEdges(vector<size_t> cand) {
+    cout << endl;
     if (cand.size() == 0) {
         size_t cnt = 0;
         for (size_t i = 0; i < _nQubit; i++) {
@@ -339,9 +337,7 @@ void DeviceTopo::printEdges(vector<size_t> cand) {
         cout << "Total #Edges: " << _adjInfo.size() << endl;
     } else if (cand.size() == 1) {
         for (auto& q : _qubitList[cand[0]]->getAdjacencies()) {
-            if (cand[0] < q->getId()) {
-                printSingleEdge(cand[0], q->getId());
-            }
+            printSingleEdge(cand[0], q->getId());
         }
         cout << "Total #Edges: " << _qubitList[cand[0]]->getAdjacencies().size() << endl;
     } else if (cand.size() == 2) {
@@ -360,4 +356,14 @@ void DeviceTopo::printSingleEdge(size_t a, size_t b) {
     cout << "(" << right << setw(3) << _qubitList[a]->getId() << ", " << right << setw(3) << _qubitList[b]->getId() << ")    ";
     cout << "Delay:" << right << setw(8) << adjp._cnotTime << "    ";
     cout << "Error:" << right << setw(8) << adjp._error << endl;
+}
+
+/**
+ * @brief Print information of Device Topology
+ *
+ */
+void DeviceTopo::printTopo() const {
+    cout << "Topology " << _id << ": " << _name << "( "
+         << _qubitList.size() << " qubits, "
+         << _adjInfo.size() << " edges )\n";
 }

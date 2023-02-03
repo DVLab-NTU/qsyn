@@ -29,7 +29,8 @@ bool initDeviceTopoCmd() {
           cmdMgr->regCmd("DTReset", 3, new DeviceTopoResetCmd) &&
           cmdMgr->regCmd("DTDelete", 3, new DeviceTopoDeleteCmd) &&
           cmdMgr->regCmd("DTNew", 3, new DeviceTopoNewCmd) &&
-          cmdMgr->regCmd("DTGRead", 4, new DeviceTopoReadCmd) &&
+          cmdMgr->regCmd("DTGRead", 4, new DeviceTopoGraphReadCmd) &&
+          cmdMgr->regCmd("DTGPrint", 4, new DeviceTopoGraphPrintCmd) &&
           cmdMgr->regCmd("DTPrint", 3, new DeviceTopoPrintCmd))) {
         cerr << "Registering \"device topology\" commands fails... exiting" << endl;
         return false;
@@ -52,7 +53,7 @@ DeviceTopoCheckoutCmd::exec(const string &option) {
         unsigned id;
         DT_CMD_ID_VALID_OR_RETURN(token, id, "DeviceTopo");
         DT_CMD_DTOPO_ID_EXISTS_OR_RETURN(id);
-        // deviceTopoMgr->checkout2DeviceTopo(id);
+        deviceTopoMgr->checkout2DeviceTopo(id);
     }
     return CMD_EXEC_DONE;
 }
@@ -147,7 +148,7 @@ void DeviceTopoNewCmd::help() const {
 //    DTGRead <(size_t filename)>
 //----------------------------------------------------------------------
 CmdExecStatus
-DeviceTopoReadCmd::exec(const string &option) {
+DeviceTopoGraphReadCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
@@ -157,13 +158,63 @@ DeviceTopoReadCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void DeviceTopoReadCmd::usage() const {
+void DeviceTopoGraphReadCmd::usage() const {
     cout << "Usage: DTGRead <(size_t filename)>" << endl;
 }
 
-void DeviceTopoReadCmd::help() const {
+void DeviceTopoGraphReadCmd::help() const {
     cout << setw(15) << left << "DTGRead: "
          << "read a device topology" << endl;
+}
+
+//-----------------------------------------------------------------------------------------------------------
+//    DTGPrint [-Summary | -Edges | -Qubits]
+//-----------------------------------------------------------------------------------------------------------
+CmdExecStatus
+DeviceTopoGraphPrintCmd::exec(const string &option) {
+    // check option
+    vector<string> options;
+    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
+
+    DT_CMD_MGR_NOT_EMPTY_OR_RETURN("DTGPrint");
+
+    if (options.empty() || myStrNCmp("-Summary", options[0], 2) == 0)
+        deviceTopoMgr->getDeviceTopo()->printTopo();
+    else if (myStrNCmp("-Edges", options[0], 2) == 0) {
+        CMD_N_OPTS_AT_MOST_OR_RETURN(options, 3)
+        vector<size_t> candidates;
+        for (size_t i = 1; i < options.size(); i++) {
+            unsigned qid;
+            if (myStr2Uns(options[i], qid))
+                candidates.push_back(size_t(qid));
+            else {
+                cout << "Error: " << options[i] << " is not a valid qubit ID!!" << endl;
+            }
+        }
+        deviceTopoMgr->getDeviceTopo()->printEdges(candidates);
+    } else if (myStrNCmp("-Qubits", options[0], 2) == 0) {
+        vector<size_t> candidates;
+        for (size_t i = 1; i < options.size(); i++) {
+            unsigned qid;
+            if (myStr2Uns(options[i], qid))
+                candidates.push_back(size_t(qid));
+            else {
+                cout << "Error: " << options[i] << " is not a valid qubit ID!!" << endl;
+            }
+        }
+        deviceTopoMgr->getDeviceTopo()->printQubits(candidates);
+    } else
+        return errorOption(CMD_OPT_ILLEGAL, options[0]);
+    return CMD_EXEC_DONE;
+}
+
+void DeviceTopoGraphPrintCmd::usage() const {
+    cout << "Usage: DTGPrint [-Summary | -Edges | -Qubits]" << endl;
+}
+
+void DeviceTopoGraphPrintCmd::help() const {
+    cout << setw(15) << left << "DTGPrint: "
+         << "print info of device topology" << endl;
 }
 
 //----------------------------------------------------------------------
