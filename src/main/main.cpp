@@ -30,6 +30,7 @@ extern bool initZXCmd();
 extern bool initSimpCmd();
 extern bool initTensorCmd();
 extern bool initExtractCmd();
+extern bool initDeviceTopoCmd();
 extern bool initM2Cmd();
 extern bool initGFlowCmd();
 extern bool initLTCmd();
@@ -80,6 +81,7 @@ int main(int argc, char** argv) {
         !initTensorCmd() ||
         // !initM2Cmd() ||
         !initExtractCmd() ||
+        !initDeviceTopoCmd() ||
         !initGFlowCmd() ||
         !initLTCmd()) {
         return 1;

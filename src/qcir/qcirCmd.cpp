@@ -835,12 +835,3 @@ void QCirWriteCmd::help() const {
     cout << setw(15) << left << "QCCWrite: "
          << "write QCir to a QASM file\n";
 }
-
-void QCirAddMultipleCmd::usage() const {
-    cout << "Usage: QCGMAdd 0 1 2 3 4" << endl;
-}
-
-void QCirAddMultipleCmd::help() const {
-    cout << setw(15) << left << "QCGMAdd: "
-         << "add multiple control\n";
-}

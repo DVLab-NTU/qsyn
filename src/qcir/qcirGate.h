@@ -29,7 +29,7 @@ class ZXGraph;
 // │    ┌────┴────┐        ┌────┴────┐         ┌────┴────┐                  │
 // │   MCP      MCRZ      MCPX     MCRX       MCPY     MCRY                 │
 // │  ╌╌╌╌╌╌   ╌╌╌╌╌╌    ╌╌╌╌╌╌   ╌╌╌╌╌╌     ╌╌╌╌╌╌   ╌╌╌╌╌╌                │
-// │  (MCZ n)            (MCX n)                                            │
+// │  (MCZ n)  RZ        (MCX n)                                            │
 // │  CCZ (2)            CCX (2)             CCY (2)                        │
 // │  CZ  (1)            CX  (1)             CY  (1)                        │
 // │  Z                  X                   Y                              │
@@ -51,31 +51,79 @@ struct BitInfo {
 };
 
 enum class GateType {
+    ID,
+    // NOTE - Multi-control rotate
+    MCP,
+    MCRZ,
+    MCPX,
+    MCRX,
+    MCPY,
+    MCRY,
     H,
-    RZ,
-    P,
+    // NOTE - MCP(Z)
+    CCZ,
+    CZ,
     Z,
     S,
     SDG,
     T,
     TDG,
-    RX,
+    CRZ,  // TODO - Temparary, delete in future
+    RZ,
+    // NOTE - MCPX
+    CCX,
+    CX,
     X,
     SX,
-    RY,
+    RX,  // TODO - Temparary, delete in future
+    // NOTE - MCPY
     Y,
     SY,
-    MCP,
-    CRZ,
-    CZ,
-    CCZ,
-    MCRX,
-    MCPX,
-    CX,
-    CCX,
-    MCRY,
-    MCPY,
+    RY,        // TODO - Temparary, delete in future
     ERRORTYPE  // Never use this
+};
+
+// TODO - Uncompleted, will be added in future
+static std::unordered_map<std::string, GateType> str2GateType = {
+    {"x", GateType::X},
+    {"rz", GateType::RZ},
+    {"h", GateType::H},
+    {"sx", GateType::SX},
+    {"cnot", GateType::CX},
+    {"cx", GateType::CX},
+    {"id", GateType::ID},
+};
+
+static std::unordered_map<GateType, std::string> gateType2Str = {
+    {GateType::ID, "ID"},
+    // NOTE - Multi-control rotate
+    {GateType::MCP, "MCP"},
+    {GateType::MCRZ, "MCRZ"},
+    {GateType::MCPX, "MCPX"},
+    {GateType::MCRX, "MCRX"},
+    {GateType::MCPY, "MCPY"},
+    {GateType::MCRY, "MCRY"},
+    {GateType::H, "H"},
+    // NOTE - MCP(Z)
+    {GateType::CCZ, "CCZ"},
+    {GateType::CZ, "CZ"},
+    {GateType::Z, "Z"},
+    {GateType::S, "S"},
+    {GateType::SDG, "SDG"},
+    {GateType::T, "T"},
+    {GateType::TDG, "TDG"},
+    {GateType::CRZ, "CRZ"},  // TODO - Temparary, delete in future
+    {GateType::RZ, "RZ"},
+    // NOTE - MCPX
+    {GateType::CCX, "CCX"},
+    {GateType::CX, "CX"},
+    {GateType::X, "X"},
+    {GateType::SX, "SX"},
+    {GateType::RX, "RX"},  // TODO - Temparary, delete in future
+    // NOTE - MCPY
+    {GateType::Y, "Y"},
+    {GateType::SY, "SY"},
+    {GateType::RY, "RY"}  // TODO - Temparary, delete in future
 };
 
 class QCirGate {
@@ -220,7 +268,7 @@ public:
     virtual ~MCRZGate(){};
 
     virtual std::string getTypeStr() const { return _qubits.size() > 2 ? _type : "crz"; }
-    virtual GateType getType() const { return GateType::MCRX; }
+    virtual GateType getType() const { return GateType::MCRZ; }
     virtual ZXGraph* getZXform();
     virtual QTensor<double> getTSform() const { return QTensor<double>::control(QTensor<double>::rzgate(_rotatePhase), _qubits.size() - 1); }
     virtual void printGateInfo(bool st) const { printMultipleQubitsGate(" RZ", true, st); }
@@ -265,7 +313,7 @@ public:
     virtual ~MCPYGate(){};
 
     virtual std::string getTypeStr() const { return _qubits.size() > 2 ? _type : "cpy"; }
-    virtual GateType getType() const { return GateType::MCPX; }
+    virtual GateType getType() const { return GateType::MCPY; }
     virtual QTensor<double> getTSform() const { return QTensor<double>::control(QTensor<double>::pygate(_rotatePhase), _qubits.size() - 1); }
     virtual void printGateInfo(bool st) const { printMultipleQubitsGate(" PY", true, st); }
 
@@ -398,7 +446,6 @@ public:
     virtual void setRotatePhase(Phase p) { _rotatePhase = p; }
 };
 
-// REVIEW - Check if it can be merged into MCRZ after the implementation of MCRZ ZX-form
 class RZGate : public MCRZGate {
 public:
     RZGate(size_t id) : MCRZGate(id) { _type = "rz"; }
