@@ -126,7 +126,6 @@ bool DeviceTopo::readTopo(const string& filename) {
     }
     token_end = myStrGetTok(str, token, 0, ": ");
     data = str.substr(token_end + 1);
-
     data = stripWhitespaces(data);
     if (!myStr2Uns(data, qbn)) {
         cout << "Error: The number of qubit is not a positive integer!!\n";
@@ -144,7 +143,6 @@ bool DeviceTopo::readTopo(const string& filename) {
     }
     if (!parseGateSet(str)) return false;
     // NOTE - Coupling map
-
     str = "", token = "", data = "";
 
     while (str == "") {
@@ -159,11 +157,9 @@ bool DeviceTopo::readTopo(const string& filename) {
     data = removeBracket(data, '[', ']');
 
     if (!parsePairs(data, 0)) return false;
-
     // NOTE - Parse Information
     if (!parseInfo(topoFile)) return false;
     // NOTE - Finish parsing, store the topology
-
     for (size_t i = 0; i < _adjList.size(); i++) {
         for (size_t j = 0; j < _adjList[i].size(); j++) {
             if (_adjList[i][j] > i) {
@@ -171,8 +167,8 @@ bool DeviceTopo::readTopo(const string& filename) {
                 addAdjacencyInfo(i, _adjList[i][j], {._cnotTime = _cxDelay[i][j], ._error = _cxErr[i][j]});
             }
         }
-        _qubitList[i]->setDelay(_sgDelay[i]);
-        _qubitList[i]->setError(_sgErr[i]);
+        if (i < _sgDelay.size()) _qubitList[i]->setDelay(_sgDelay[i]);
+        if (i < _sgErr.size()) _qubitList[i]->setError(_sgErr[i]);
     }
     return true;
 }
@@ -206,17 +202,16 @@ bool DeviceTopo::parseGateSet(string str) {
  */
 bool DeviceTopo::parseInfo(std::ifstream& f) {
     string str = "", token = "", data = "";
-    while (!f.eof()) {
+    while (true) {
         while (str == "") {
+            if (f.eof()) break;
             getline(f, str);
             str = stripLeadingSpacesAndComments(str);
         }
-
         size_t token_end = myStrGetTok(str, token, 0, ": ");
         data = str.substr(token_end + 1);
 
         data = stripWhitespaces(data);
-
         if (token == "SGERROR") {
             if (!parseSingles(data, 0)) return false;
         } else if (token == "SGTIME") {
@@ -225,6 +220,9 @@ bool DeviceTopo::parseInfo(std::ifstream& f) {
             if (!parsePairs(data, 1)) return false;
         } else if (token == "CNOTTIME") {
             if (!parsePairs(data, 2)) return false;
+        }
+        if (f.eof()) {
+            break;
         }
         getline(f, str);
         str = stripLeadingSpacesAndComments(str);
