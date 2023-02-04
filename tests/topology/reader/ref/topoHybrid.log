@@ -66,27 +66,27 @@ ID:  40    Delay:   4.828    Error: 0.00035    Adjs: 35  49
 ID:  41    Delay:   5.634    Error:  0.0005    Adjs: 38  42 
 ID:  42    Delay:   4.653    Error: 0.00035    Adjs: 41  43 
 ID:  43    Delay:   5.164    Error: 0.00021    Adjs: 42  44  52 
-ID:  44    Delay:   5.384    Error:       0    Adjs: 43  45 
-ID:  45    Delay:   4.181    Error:       0    Adjs: 39  44  46 
-ID:  46    Delay:   4.459    Error:       0    Adjs: 45  47 
-ID:  47    Delay:   5.777    Error:       0    Adjs: 46  48  53 
-ID:  48    Delay:   5.414    Error:       0    Adjs: 47  49 
-ID:  49    Delay:   4.975    Error:       0    Adjs: 40  48  50 
-ID:  50    Delay:   5.887    Error:       0    Adjs: 49  51 
-ID:  51    Delay:   5.961    Error:       0    Adjs: 50  54 
-ID:  52    Delay:    4.27    Error:       0    Adjs: 43  56 
-ID:  53    Delay:   4.847    Error:       0    Adjs: 47  60 
-ID:  54    Delay:   4.139    Error:       0    Adjs: 51  64 
-ID:  55    Delay:   5.405    Error:       0    Adjs: 56 
-ID:  56    Delay:   4.843    Error:       0    Adjs: 52  55  57 
-ID:  57    Delay:   4.368    Error:       0    Adjs: 56  58 
-ID:  58    Delay:   5.301    Error:       0    Adjs: 57  59 
-ID:  59    Delay:    5.12    Error:       0    Adjs: 58  60 
-ID:  60    Delay:   4.369    Error:       0    Adjs: 53  59  61 
-ID:  61    Delay:   5.406    Error:       0    Adjs: 60  62 
-ID:  62    Delay:   4.164    Error:       0    Adjs: 61  63 
-ID:  63    Delay:   4.828    Error:       0    Adjs: 62  64 
-ID:  64    Delay:   4.828    Error:       0    Adjs: 54  63 
+ID:  44    Delay:   5.384    Error: 0.00028    Adjs: 43  45 
+ID:  45    Delay:   4.181    Error: 0.00017    Adjs: 39  44  46 
+ID:  46    Delay:   4.459    Error: 0.00027    Adjs: 45  47 
+ID:  47    Delay:   5.777    Error: 0.00018    Adjs: 46  48  53 
+ID:  48    Delay:   5.414    Error: 0.00047    Adjs: 47  49 
+ID:  49    Delay:   4.975    Error: 0.00021    Adjs: 40  48  50 
+ID:  50    Delay:   5.887    Error: 0.00146    Adjs: 49  51 
+ID:  51    Delay:   5.961    Error: 0.00039    Adjs: 50  54 
+ID:  52    Delay:    4.27    Error: 0.00038    Adjs: 43  56 
+ID:  53    Delay:   4.847    Error: 0.00019    Adjs: 47  60 
+ID:  54    Delay:   4.139    Error: 0.00023    Adjs: 51  64 
+ID:  55    Delay:   5.405    Error: 0.00018    Adjs: 56 
+ID:  56    Delay:   4.843    Error: 0.00032    Adjs: 52  55  57 
+ID:  57    Delay:   4.368    Error: 0.00016    Adjs: 56  58 
+ID:  58    Delay:   5.301    Error: 0.00051    Adjs: 57  59 
+ID:  59    Delay:    5.12    Error: 0.00242    Adjs: 58  60 
+ID:  60    Delay:   4.369    Error: 0.00022    Adjs: 53  59  61 
+ID:  61    Delay:   5.406    Error: 0.00014    Adjs: 60  62 
+ID:  62    Delay:   4.164    Error: 0.00077    Adjs: 61  63 
+ID:  63    Delay:   4.828    Error: 0.00027    Adjs: 62  64 
+ID:  64    Delay:   4.828    Error: 0.00018    Adjs: 54  63 
 Total #Qubits: 65
 
 qsyn> dtgp -q 15
