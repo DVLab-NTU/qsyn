@@ -73,7 +73,7 @@ void ArgumentParser::printHelp() const {
     cout << TF::LIGHT_BLUE("\nMandatory arguments:\n");
     for (auto const& [_, arg] : _arguments) {
         if (arg.isMandatory()) {
-            arg.printInfoString();
+            arg.printHelpString();
         }
     }
 
@@ -81,14 +81,14 @@ void ArgumentParser::printHelp() const {
 
     for (auto const& [_, arg] : _arguments) {
         if (arg.isOptional()) {
-            arg.printInfoString();
+            arg.printHelpString();
         }
     }
 }
 
 void ArgumentParser::printTokens() const {
     size_t i = 0;
-    for (auto& [token, parsed] : _tokens) {
+    for (auto& [token, parsed] : _tokenPairs) {
         cout << "Token #" << ++i << ":\t" << left << setw(12) << token << " (" << (parsed ? "parsed" : "unparsed") << ")" << endl;
     }
 }
@@ -136,7 +136,7 @@ ParseResult ArgumentParser::parse(string const& line) {
     }
 
     for (auto& [_, arg] : _arguments) {
-        arg.setParsed(false);
+        arg.reset();
     }
 
     tokenize(line);
@@ -207,7 +207,7 @@ std::string ArgumentParser::formattedCmdName() const {
 }
 
 bool ArgumentParser::tokenize(string const& line) {
-    _tokens.clear();
+    _tokenPairs.clear();
     string buffer, stripped;
     if (!stripQuotes(line, stripped)) {
         cerr << "Error: missing ending quote!!" << endl;
@@ -215,12 +215,12 @@ bool ArgumentParser::tokenize(string const& line) {
     }
     size_t pos = myStrGetTok(stripped, buffer);
     while (buffer.size()) {
-        _tokens.emplace_back(buffer, false);
+        _tokenPairs.emplace_back(buffer, false);
         pos = myStrGetTok(stripped, buffer, pos);
     }
-    if (_tokens.empty()) return true;
+    if (_tokenPairs.empty()) return true;
     // concat tokens with '\ ' to a single token with space in it
-    for (auto itr = next(_tokens.rbegin()); itr != _tokens.rend(); ++itr) {
+    for (auto itr = next(_tokenPairs.rbegin()); itr != _tokenPairs.rend(); ++itr) {
         string& currToken = itr->first;
         string& nextToken = prev(itr)->first;
 
@@ -230,30 +230,28 @@ bool ArgumentParser::tokenize(string const& line) {
             nextToken = "";
         }
     }
-    std::erase_if(_tokens, [](Token const& tokenPair) { return tokenPair.first == ""; });
+    std::erase_if(_tokenPairs, [](TokenPair const& tokenPair) { return tokenPair.first == ""; });
 
     return true;
 }
 
 ParseResult ArgumentParser::parseOptionalArguments() {
-    size_t i = _tokens.size() - 1;
-    size_t lastUnparsed = _tokens.size();
+    size_t i = _tokenPairs.size() - 1;
+    size_t lastUnparsed = _tokenPairs.size();
 
-    for (auto& [token, parsed] : _tokens | views::reverse) {
+    for (auto& [token, parsed] : _tokenPairs | views::reverse) {
         for (auto& [name, arg] : _arguments) {
             if (arg.isMandatory()) continue;
             if (myStrNCmp(arg.getName(), token, arg.getNumMandatoryChars()) != 0) continue;
 
-            // cout << "Matched token \"" << token << "\" to option \"" << arg.getName() << "\"" << endl;
-            // cout << "range: [" << i << ", " << lastUnparsed << ")" << endl;
-            auto tokenSpan = span<Token>{_tokens}.subspan(i + 1, lastUnparsed - (i + 1));
+            auto tokenSpan = span<TokenPair>{_tokenPairs}.subspan(i + 1, lastUnparsed - (i + 1));
             if (tokenSpan.empty() && !arg.hasAction()) {
-                return errorOption(ParseResult::missing_arg, _tokens[i].first);
+                return errorOption(ParseErrorType::missing_arg, _tokenPairs[i].first);
             }
 
             auto result = arg.parse(tokenSpan);
 
-            if (result == ParseResult::illegal_arg) {
+            if (result != ParseResult::success) {
                 return result;
             }
             parsed = true;
@@ -267,13 +265,14 @@ ParseResult ArgumentParser::parseOptionalArguments() {
 }
 
 ParseResult ArgumentParser::parseMandatoryArguments() {
-    auto currToken = _tokens.begin();
+    auto currTokenPair = _tokenPairs.begin();
     auto currArg = _arguments.begin();
     size_t i = 0;
+    string lastParsedToken;
 
-    auto nextToken = [&currToken, &i, this]() {
-        while (currToken != _tokens.end() && currToken->second == true) {
-            currToken++;
+    auto nextTokenPair = [&currTokenPair, &i, this]() {
+        while (currTokenPair != _tokenPairs.end() && currTokenPair->second == true) {
+            currTokenPair++;
             i++;
         }
     };
@@ -285,27 +284,6 @@ ParseResult ArgumentParser::parseMandatoryArguments() {
             currArg++;
     };
 
-    string lastParsedToken;
-    nextToken();
-    nextArgument();
-
-    for (; currToken != _tokens.end() && currArg != _arguments.end(); nextToken(), nextArgument()) {
-        auto& [token, parsed] = *currToken;
-        auto& [name, arg] = *currArg;
-
-        assert(arg.isMandatory());
-
-        auto result = arg.parse(span<Token>{_tokens}.subspan(i));
-
-        assert(result != ParseResult::missing_arg);
-
-        if (result == ParseResult::illegal_arg) {
-            return errorOption(ParseResult::illegal_arg, _tokens[i].first);
-        }
-        lastParsedToken = token;
-        parsed = true;
-    }
-
     auto tokenIsParsed = [](auto const& tokenPair) {
         return tokenPair.second;
     };
@@ -313,13 +291,32 @@ ParseResult ArgumentParser::parseMandatoryArguments() {
     auto mandatoryArgIsParsed = [](auto const& argPair) {
         return argPair.second.isOptional() || argPair.second.isParsed();
     };
+    
+    nextTokenPair();
+    nextArgument();
 
-    if (!all_of(_arguments.begin(), _arguments.end(), mandatoryArgIsParsed)) {
-        return errorOption(ParseResult::missing_arg, lastParsedToken);
+    for (; currTokenPair != _tokenPairs.end() && currArg != _arguments.end(); nextTokenPair(), nextArgument()) {
+        auto& [token, parsed] = *currTokenPair;
+        auto& [name, arg] = *currArg;
+
+        assert(arg.isMandatory());
+
+        auto result = arg.parse(span<TokenPair>{_tokenPairs}.subspan(i));
+
+        if (result != ParseResult::success) {
+            return errorOption(ParseErrorType::illegal_arg, _tokenPairs[i].first);
+        }
+        lastParsedToken = token;
+        parsed = true;
     }
 
-    if (!all_of(_tokens.begin(), _tokens.end(), tokenIsParsed)) {
-        return errorOption(ParseResult::extra_arg, currToken->first);
+
+    if (!all_of(_arguments.begin(), _arguments.end(), mandatoryArgIsParsed)) {
+        return errorOption(ParseErrorType::missing_arg, lastParsedToken);
+    }
+
+    if (!all_of(_tokenPairs.begin(), _tokenPairs.end(), tokenIsParsed)) {
+        return errorOption(ParseErrorType::extra_arg, currTokenPair->first);
     }
 
     return ParseResult::success;

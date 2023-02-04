@@ -19,6 +19,7 @@ namespace ArgParse {
 namespace detail {
 
 void printArgumentCastErrorMsg(Argument const& arg);
+void printArgumentUnparsedErrorMsg(Argument const& arg);
 void printDefaultValueErrorMsg(Argument const& arg);
 void printArgParseFatalErrorMsg();
 void printArgNameEmptyErrorMsg();

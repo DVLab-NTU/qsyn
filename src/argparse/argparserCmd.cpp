@@ -51,10 +51,15 @@ void ArgParserCmd::parserDefinition() {
 
 CmdExecStatus
 ArgParserCmd::exec(const string& option) {
+    cout << "Before parsing: " << endl;
+    parser.printArguments();
+
     parser.parse(option);
 
-    parser.printTokens();
+    cout << "\nAfter parsing: " << endl;
     parser.printArguments();
+    parser.printTokens();
+    
     // access parsed variable here. e.g.,
     // if (parser["-replace"]) {
     //    cout << "replace the current graph"

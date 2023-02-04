@@ -18,50 +18,11 @@
 #include <span>
 #include <string>
 
+#include "argparseArgTypes.h"
 #include "argparseDef.h"
 #include "argparseErrorMsg.h"
 
 namespace ArgParse {
-
-enum class ParseResult {
-    success,
-    illegal_arg,
-    extra_arg,
-    missing_arg
-};
-
-ParseResult errorOption(ParseResult const& result, std::string const& token);
-
-class Argument;
-class SubParsers;
-
-/**
- * @brief per-type implementation to enable type-erasure
- *
- */
-namespace detail {
-
-// argument type: int
-
-std::string getTypeString(int const& arg);
-ParseResult parse(int& arg, std::span<Token> tokens);
-
-// argument type: std::string
-
-std::string getTypeString(std::string const& arg);
-ParseResult parse(std::string& arg, std::span<Token> tokens);
-
-// argument type: bool
-
-std::string getTypeString(bool const& arg);
-ParseResult parse(bool& arg, std::span<Token> tokens);
-
-// argument type: subparser (aka std::unique_ptr<ArgParse::ArgumentParser>)
-
-std::string getTypeString(SubParsers const& arg);
-ParseResult parse(SubParsers& arg, std::span<Token> tokens);
-
-}  // namespace detail
 
 /**
  * @brief A type-erased interface to all argument types that
@@ -98,70 +59,72 @@ public:
     }
 
     friend std::ostream& operator<<(std::ostream& os, Argument const& arg) {
-        return arg._pimpl->doPrint(os);
+        return arg.isParsed()
+                   ? arg._pimpl->doPrint(os)
+                   : (arg.hasDefaultValue()
+                          ? arg._pimpl->doPrint(os) << " (default)"
+                          : os << "(unparsed)");
     }
 
     template <typename T>
-    operator T() const;
-
-    template <typename T>
-    T& getRef() { return dynamic_cast<ArgumentModel<T>*>(_pimpl.get())->_arg; }
-
-    template <typename T>
-    T const& getRef() const { return dynamic_cast<ArgumentModel<T>*>(_pimpl.get())->_arg; }
+    operator T&() const;
 
     // argument decorators
 
     Argument& name(std::string const& name) {
-        _traits.name = name;
+        setName(name);
         return *this;
     }
 
     Argument& optional() {
-        _traits.optional = true;
+        setOptional(true);
         return *this;
     }
 
     template <typename T>
-    Argument& defaultValue(T const& arg);
+    Argument& defaultValue(T const& val) {
+        setDefaultValue(val);
+        return *this;
+    }
+
     Argument& help(std::string const& help) {
-        _traits.help = help;
+        setHelp(help);
         return *this;
     }
 
     Argument& action(ActionType const& action) {
-        _traits.action = action;
+        setAction(action);
         return *this;
     }
 
     // actions
 
-    ParseResult parse(std::span<Token> tokens) {
+    ParseResult parse(std::span<TokenPair> tokens) {
         ParseResult result = hasAction() ? getAction()(*this) : _pimpl->doParse(tokens);
-        _traits.parsed = true;
+        setParsed(true);
         return result;
     }
 
-    // setters and getters
-    void setParsed(bool parsed) { _traits.parsed = parsed; }
-
+    // getters and attributes
     std::string const& getName() const { return _traits.name; }
     std::string const& getHelp() const { return _traits.help; }
-    ActionType const& getAction() const { return _traits.action; }
     std::string getTypeString() const { return _pimpl->doTypeString(); }
-    std::string getSyntaxString() const;
     size_t getNumMandatoryChars() const { return _traits.numMandatoryChars; }
+    ActionType const& getAction() const { return _traits.action; }
+    ActionType const& getResetCallback() const { return _traits.resetCallback; }
 
-    // attribute
     bool isMandatory() const { return !_traits.optional; }
     bool isOptional() const { return _traits.optional; }
     template <typename T>
     bool isOfType() const { return dynamic_cast<ArgumentModel<T>*>(_pimpl.get()) != nullptr; }
     bool isParsed() const { return _traits.parsed; }
+
     bool hasDefaultValue() const { return _traits.hasDefaultVal; }
     bool hasAction() const { return _traits.action != nullptr; }
+    bool hasResetCallback() const { return _traits.resetCallback != nullptr; }
 
-    void printInfoString() const;
+    // print functions
+    void printHelpString() const;
     void printStatus() const;
 
     template <typename T>
@@ -172,7 +135,7 @@ public:
                 arg = constant;
             } catch (bad_arg_cast& e) {
                 detail::printArgumentCastErrorMsg(arg);
-                return ParseResult::illegal_arg;
+                return ParseResult::error;
             }
             return ParseResult::success;
         };
@@ -196,7 +159,7 @@ private:
 
     struct ArgumentTraits {
         ArgumentTraits()
-            : name{}, help{}, numMandatoryChars{0}, parsed{false}, optional{false}, hasDefaultVal{false}, action{} {}
+            : name{}, help{}, numMandatoryChars{0}, parsed{false}, optional{false}, hasDefaultVal{false}, action{}, resetCallback{} {}
         std::string name;
         std::string help;
         size_t numMandatoryChars;
@@ -205,17 +168,55 @@ private:
         bool optional;
         bool hasDefaultVal;
         ActionType action;
+        ActionType resetCallback;
     };
 
     ArgumentTraits _traits;
 
     // pretty printing helpers
+    std::string getSyntaxString() const;
     std::string typeBracket(std::string const& str) const;
     std::string optionBracket(std::string const& str) const;
     std::string formattedType() const;
     std::string formattedName() const;
 
+    // setters
+    void reset() {
+        setParsed(false);
+        if (hasResetCallback()) getResetCallback()(*this);
+    }
+
+    template <typename T>
+    void setDefaultValue(T const& val) {
+        try {
+            *this = val;
+        } catch (bad_arg_cast& e) {
+            detail::printDefaultValueErrorMsg(*this);
+        }
+        _traits.optional = true;
+        _traits.hasDefaultVal = true;
+        _traits.resetCallback = resetToDefault(val);
+    }
+    void setHelp(std::string const& help) { _traits.help = help; }
+    void setAction(ActionType const& action) { _traits.action = action; }
+    void setName(std::string const& name) { _traits.name = name; }
     void setNumMandatoryChars(size_t n) { _traits.numMandatoryChars = n; }
+    void setOptional(bool isOpt) { _traits.optional = isOpt; }
+    void setParsed(bool parsed) { _traits.parsed = parsed; }
+
+    template <typename T>
+    static ActionType resetToDefault(T const& val) {
+        // must pass `val` by copy so the callback remenber its state!
+        return [val](Argument& arg) -> ParseResult {
+            try {
+                arg = val;
+            } catch (bad_arg_cast& e) {
+                detail::printArgumentCastErrorMsg(arg);
+                return ParseResult::error;
+            }
+            return ParseResult::success;
+        };
+    }
 
     /**
      * @brief Interface representing the concept of an Argument.
@@ -228,7 +229,7 @@ private:
         virtual std::unique_ptr<ArgumentConcept> clone() const = 0;
         virtual std::string doTypeString() const = 0;
         virtual std::ostream& doPrint(std::ostream& os) const = 0;
-        virtual ParseResult doParse(std::span<Token> tokens) = 0;
+        virtual ParseResult doParse(std::span<TokenPair> tokens) = 0;
     };
 
     /**
@@ -246,7 +247,7 @@ private:
         std::unique_ptr<ArgumentConcept> clone() const override;
         std::string doTypeString() const override;
         std::ostream& doPrint(std::ostream& os) const override;
-        ParseResult doParse(std::span<Token> tokens) override {
+        ParseResult doParse(std::span<TokenPair> tokens) override {
             return detail::parse(_arg, tokens);
         }
     };
@@ -266,34 +267,15 @@ private:
  * @return T
  */
 template <typename T>
-Argument::operator T() const {
+Argument::operator T&() const {
     if (auto ptr = dynamic_cast<ArgumentModel<T>*>(_pimpl.get())) {
-        return T(ptr->_arg);
+        if (!isParsed() && !hasDefaultValue())
+            detail::printArgumentUnparsedErrorMsg(*this);
+        return ptr->_arg;
     } else {
         detail::printArgumentCastErrorMsg(*this);
         throw bad_arg_cast{};
     }
-}
-
-/**
- * @brief if the default value has not been set yet, set the default argument of an
- *        parameter, and mark it as an optional argument; If there is already a default
- *        value to the argument, this function will do nothing and warn the user.
- *
- * @tparam T
- * @param arg the default argument to set to
- * @return Argument&
- */
-template <typename T>
-Argument& Argument::defaultValue(T const& defaultVal) {
-    try {
-        *this = defaultVal;
-    } catch (bad_arg_cast& e) {
-        detail::printDefaultValueErrorMsg(*this);
-    }
-    _traits.optional = true;
-    _traits.hasDefaultVal = true;
-    return *this;
 }
 
 //----------------------------------------
@@ -335,21 +317,6 @@ template <typename ArgType>
 std::ostream& Argument::ArgumentModel<ArgType>::doPrint(std::ostream& os) const {
     return os << _arg;
 }
-
-// /**
-//  * @brief set the default value of an ArgumentModel. This function enables the
-//  *        type-erased `Argument::defaultValue()`.
-//  *
-//  * @tparam ArgType
-//  * @param defaultVal the default value of the argument
-//  * @return true if successfully set
-//  * @return false if not
-//  */
-// template <typename ArgType>
-// bool Argument::ArgumentModel<ArgType>::doDefaultValue(Argument const& defaultVal) {
-//     _arg = defaultVal;
-//     return true;
-// }
 
 }  // namespace ArgParse
 

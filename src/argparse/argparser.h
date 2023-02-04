@@ -27,7 +27,7 @@ public:
     Argument& addArgument(std::string const& argName);
 
     SubParsers& addSubParsers(std::string const& name, std::string const& help) {
-        return addArgument<SubParsers>(name).help(help).getRef<SubParsers>();
+        return addArgument<SubParsers>(name).help(help);
     }
 
     void printUsage() const;
@@ -53,7 +53,7 @@ protected:
     std::string _cmdDescription;
     size_t _cmdNumMandatoryChars;
 
-    std::vector<Token> _tokens;
+    std::vector<TokenPair> _tokenPairs;
 
     bool mutable _optionsAnalyzed;
 

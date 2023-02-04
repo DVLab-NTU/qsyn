@@ -23,160 +23,12 @@ using namespace std;
 
 namespace ArgParse {
 
-ParseResult errorOption(ParseResult const& result, std::string const& token) {
-    assert(result != ParseResult::success);
 
-    switch (result) {
-        case ParseResult::illegal_arg:
-            cerr << "Error: illegal argument"
-                 << (token.size() ? " \"" + token + "\"" : "")
-                 << "!!" << endl;
-            break;
-        case ParseResult::extra_arg:
-            cerr << "Error: extra argument"
-                 << (token.size() ? " \"" + token + "\"" : "")
-                 << "!!" << endl;
-            break;
-        case ParseResult::missing_arg:
-            cerr << "Error: missing argument"
-                 << (token.size() ? " after \"" + token + "\"" : "")
-                 << "!!" << endl;
-            break;
-        default:
-            break;
-    }
-
-    return result;
-}
 
 constexpr auto optionFormat = TF::YELLOW;
 constexpr auto mandatoryFormat = TF::BOLD;
 constexpr auto typeFormat = [](string const& str) { return TF::CYAN(TF::ITALIC(str)); };
 constexpr auto accentFormat = [](string const& str) { return TF::BOLD(TF::ULINE(str)); };
-
-namespace detail {
-
-/**
- * @brief Get the type string of the `int` argument.
- *        This function is a implementation to the type-erased
- *        interface `std::string getTypeString(ArgParse::Argument const& arg)`
- *
- * @param arg Argument
- * @return std::string the type string
- */
-string getTypeString(int const& arg) {
-    return "int";
-}
-
-/**
- * @brief Parse the tokens and to a `int` argument.
- *
- * @param arg Argument
- * @param tokens the tokens
- * @return ParseResult
- */
-ParseResult parse(int& arg, std::span<Token> tokens) {
-    if (tokens.empty()) return ParseResult::missing_arg;
-    int tmp;
-    if (myStr2Int(tokens[0].first, tmp)) {
-        arg = tmp;
-    } else {
-        return errorOption(ParseResult::illegal_arg, tokens[0].first);
-    }
-
-    tokens[0].second = true;
-
-    return (tokens.size() == 1) ? ParseResult::success : ParseResult::extra_arg;
-}
-
-/**
- * @brief Get the type string of the `std::string` argument.
- *        This function is a implementation to the type-erased
- *        interface `std::string getTypeString(ArgParse::Argument const& arg)`
- *
- * @param arg Argument
- * @return std::string the type string
- */
-string getTypeString(string const& arg) {
-    return "string";
-}
-
-/**
- * @brief Parse the tokens and to a `string` argument.
- *
- * @param arg Argument
- * @param tokens the tokens
- * @return ParseResult
- */
-ParseResult parse(string& arg, std::span<Token> tokens) {
-    if (tokens.empty()) return ParseResult::missing_arg;
-
-    arg = tokens[0].first;
-    tokens[0].second = true;
-
-    return (tokens.size() == 1) ? ParseResult::success : ParseResult::extra_arg;
-}
-
-/**
- * @brief Get the type string of the `bool` argument.
- *        This function is a implementation to the type-erased
- *        interface `std::string getTypeString(ArgParse::Argument const& arg)`
- *
- * @param arg Argument
- * @return std::string the type string
- */
-string getTypeString(bool const& arg) {
-    return "bool";
-}
-
-/**
- * @brief Parse the tokens and to a `bool` argument.
- *
- * @param arg Argument
- * @param tokens the tokens
- * @return ParseResult
- */
-ParseResult parse(bool& arg, std::span<Token> tokens) {
-    if (tokens.empty()) return ParseResult::missing_arg;
-    if (myStrNCmp("true", tokens[0].first, 1) == 0) {
-        arg = true;
-    } else if (myStrNCmp("false", tokens[0].first, 1) == 0) {
-        arg = false;
-    } else {
-        return errorOption(ParseResult::illegal_arg, tokens[0].first);
-        ;
-    }
-
-    tokens[0].second = true;
-
-    return (tokens.size() == 1) ? ParseResult::success : ParseResult::extra_arg;
-}
-
-/**
- * @brief Get the type string of the `SubParsers` argument.
- *        This function is a implementation to the type-erased
- *        interface `std::string getTypeString(ArgParse::Argument const& arg)`
- *
- * @param arg Argument
- * @return std::string the type string
- */
-string getTypeString(SubParsers const& arg) {
-    return "subparser";
-}
-
-/**
- * @brief Parse the tokens and to a `bool` argument.
- *
- * @param arg Argument
- * @param tokens the tokens
- * @return ParseResult
- */
-ParseResult parse(SubParsers& arg, std::span<Token> tokens) {
-    // TODO - correct parsing logic for subargs!
-    return ParseResult::success;
-}
-
-}  // namespace detail
 
 //---------------------------------------
 // class Argument operator
@@ -194,7 +46,7 @@ std::string Argument::getSyntaxString() const {
         return optionBracket(formattedName() + (isOfType<bool>() ? "" : (" " + typeBracket(formattedType()))));
 }
 
-void Argument::printInfoString() const {
+void Argument::printHelpString() const {
     constexpr size_t typeWidth = 7;
     constexpr size_t nameWidth = 10;
     constexpr size_t nIndents = 2;
@@ -216,22 +68,14 @@ void Argument::printInfoString() const {
              << string(typeWidth + nameWidth + 4 + nIndents, ' ');
     }
     cout << getHelp();
-    if (hasDefaultValue()) {
+    if (hasDefaultValue() && !hasAction()) {
         cout << " (default = " << *this << ")";
     }
     cout << endl;
 }
 
 void Argument::printStatus() const {
-    cout << "  " << left << setw(8) << getName() << "  ";
-    if (isParsed()) {
-        cout << " = " << *this;
-    } else if (hasDefaultValue()) {
-        cout << " = " << *this << " (default)";
-    } else {
-        cout << "   (unparsed)";
-    }
-    cout << endl;
+    cout << "  " << left << setw(8) << getName() << "   = " << *this << endl;
 }
 
 string Argument::typeBracket(string const& str) const {

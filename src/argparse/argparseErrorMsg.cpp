@@ -22,11 +22,19 @@ namespace ArgParse {
 namespace detail {
 
 void printArgumentCastErrorMsg(Argument const& arg) {
-    cerr << "[ArgParse] Error: failed to cast argument!!";
+    cerr << "[ArgParse] Error: failed to cast argument";
     if (arg.getName().size()) {
-        cerr << "\"" << arg.getName() << "\" ";
+        cerr << " \"" << arg.getName() << "\"";
     }
-    cerr << "Only castable to type \"" << arg.getTypeString() << "\"." << endl;
+    cerr << ": Only castable to type \"" << arg.getTypeString() << "\"!!" << endl;
+}
+
+void printArgumentUnparsedErrorMsg(Argument const& arg) {
+    cerr << "[ArgParse] Error: cannot retrieve value from unparsed argument ";
+    if (arg.getName().size()) {
+        cerr << " \"" << arg.getName() << "\"";
+    }
+    cerr << "!!" << endl;
 }
 
 void printDefaultValueErrorMsg(Argument const& arg) {
