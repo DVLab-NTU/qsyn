@@ -9,10 +9,10 @@ Create and checkout to QCir 0
 qsyn> qcgadd -mcp -phase pi/2 0 1 
 
 qsyn> qcgp 0 -t
-Q0 Start ────●──── End
-          ┌──┴──┐ 
-Q1 Start ─┤  RZ ├─ End
-          └─────┘ 
+Q0 Start ───●─── End
+          ┌─┴─┐ 
+Q1 Start ─┤ P ├─ End
+          └───┘ 
 Rotate Phase: π/2
 Execute at t= 0
 

@@ -19,6 +19,8 @@
 // In myString.cpp
 bool stripQuotes(const std::string& input, std::string& output);
 std::string stripWhitespaces(const std::string& str);
+std::string stripLeadingSpacesAndComments(std::string& line);
+std::string removeBracket(const std::string& str, const char left, const char right);
 int myStrNCmp(const std::string& s1, const std::string& s2, unsigned n);
 size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos = 0, const std::string& del = " \t\n\v\f\r");
 size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos, const char del);
