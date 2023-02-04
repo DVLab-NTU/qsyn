@@ -43,6 +43,16 @@ ParseResult parse(bool& arg, std::span<TokenPair> tokens);
 std::string getTypeString(SubParsers const& arg);
 ParseResult parse(SubParsers& arg, std::span<TokenPair> tokens);
 
+// argument type: unsigned
+
+std::string getTypeString(unsigned const& arg);
+ParseResult parse(unsigned& arg, std::span<TokenPair> tokens);
+
+// argument type: size_t
+
+std::string getTypeString(size_t const& arg);
+ParseResult parse(size_t& arg, std::span<TokenPair> tokens);
+
 }  // namespace detail
 
 };      // namespace ArgParse

@@ -52,6 +52,72 @@ ParseResult parse(int& arg, std::span<TokenPair> tokens) {
 }
 
 /**
+ * @brief Get the type string of the `unsigned` argument.
+ *        This function is a implementation to the type-erased
+ *        interface `std::string getTypeString(ArgParse::Argument const& arg)`
+ *
+ * @param arg Argument
+ * @return std::string the type string
+ */
+string getTypeString(unsigned const& arg) {
+    return "unsigned";
+}
+
+/**
+ * @brief Parse the tokens and to a `unsigned` argument.
+ *
+ * @param arg Argument
+ * @param tokens the tokens
+ * @return ParseResult
+ */
+ParseResult parse(unsigned& arg, std::span<TokenPair> tokens) {
+    assert(!tokens.empty());
+    unsigned tmp;
+    if (myStr2Uns(tokens[0].first, tmp)) {
+        arg = tmp;
+    } else {
+        return errorOption(ParseErrorType::illegal_arg, tokens[0].first);
+    }
+
+    tokens[0].second = true;
+
+    return ParseResult::success;
+}
+
+/**
+ * @brief Get the type string of the `size_t` argument.
+ *        This function is a implementation to the type-erased
+ *        interface `std::string getTypeString(ArgParse::Argument const& arg)`
+ *
+ * @param arg Argument
+ * @return std::string the type string
+ */
+string getTypeString(size_t const& arg) {
+    return "size_t";
+}
+
+/**
+ * @brief Parse the tokens and to a `size_t` argument.
+ *
+ * @param arg Argument
+ * @param tokens the tokens
+ * @return ParseResult
+ */
+ParseResult parse(size_t& arg, std::span<TokenPair> tokens) {
+    assert(!tokens.empty());
+    unsigned tmp;
+    if (myStr2Uns(tokens[0].first, tmp)) {
+        arg = (size_t) tmp;
+    } else {
+        return errorOption(ParseErrorType::illegal_arg, tokens[0].first);
+    }
+
+    tokens[0].second = true;
+
+    return ParseResult::success;
+}
+
+/**
  * @brief Get the type string of the `std::string` argument.
  *        This function is a implementation to the type-erased
  *        interface `std::string getTypeString(ArgParse::Argument const& arg)`

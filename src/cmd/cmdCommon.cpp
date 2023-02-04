@@ -272,31 +272,24 @@ void SeedCmd::help() const {
 //----------------------------------------------------------------------
 //    COLOR <size_t color level>
 //----------------------------------------------------------------------
+void
+ColorCmd::parserDefinition() {
+    parser.cmdInfo("COLOR", "toggle colored printing (1: on, 0: off)");
+
+    parser.addArgument<size_t>("colorLevel")
+        .choices<size_t>({0, 1})
+        .help("1: on, 0: off");
+}
+
 CmdExecStatus
 ColorCmd::exec(const string& option) {
     // check option
-    string token;
-    if (!CmdExec::lexSingleOption(option, token, false))
+    if (parser.parse(option) != ArgParse::ParseResult::success) {
         return CMD_EXEC_ERROR;
-    unsigned level;
-    if (!myStr2Uns(token, level)) {
-        cerr << "Error: colored should be a positive integer or 0!!" << endl;
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     }
-    if (level > 1) {
-        cerr << "Error: colored should be 0-1 !!" << endl;
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    }
-    cout << "Note: colored is set to " << level << endl;
-    colorLevel = level;
+    
+    colorLevel = (size_t) parser["colorLevel"];
+    cout << "Note: colored is set to " << colorLevel << endl;
+
     return CMD_EXEC_DONE;
-}
-
-void ColorCmd::usage() const {
-    cout << "Usage: COLOR <bool colored>" << endl;
-}
-
-void ColorCmd::help() const {
-    cout << setw(15) << left << "COLOR: "
-         << "toggle colored printing (1: on, 0: off)" << endl;
 }

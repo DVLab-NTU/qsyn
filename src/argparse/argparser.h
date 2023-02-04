@@ -16,6 +16,7 @@
 #include "argparseArgument.h"
 #include "argparseErrorMsg.h"
 #include "ordered_hashmap.h"
+#include "util.h"
 
 namespace ArgParse {
 
@@ -37,7 +38,7 @@ public:
     void printArguments() const;
 
     // add attribute
-    void cmdInfo(std::string const& cmdName, std::string const& cmdSynopsis);
+    void cmdInfo(std::string const& cmdName, std::string const& cmdDescription);
 
     // setters and getters
     std::string getCmdName() const { return _cmdName; }
@@ -63,11 +64,6 @@ protected:
     ParseResult parseOptionalArguments();
     ParseResult parseMandatoryArguments();
 
-    // pretty printing helpers
-
-    std::string toLowerString(std::string const& str) const;
-    size_t countUpperChars(std::string const& str) const;
-
     std::string formattedCmdName() const;
 };
 
@@ -79,8 +75,17 @@ public:
         return os << "(subparsers)";
     }
 
-    ArgumentParser& operator[](std::string const& name) { return _subparsers.at(name); }
-    ArgumentParser const& operator[](std::string const& name) const { return _subparsers.at(name); }
+    bool operator== (SubParsers const& other) const {
+        // REVIEW - how to check equivalency?
+        return false;
+    }
+
+    bool operator!= (SubParsers const& other) const {
+        return !(*this == other);
+    }
+
+    ArgumentParser& operator[](std::string const& name) { return _subparsers.at(toLowerString(name)); }
+    ArgumentParser const& operator[](std::string const& name) const { return _subparsers.at(toLowerString(name)); }
 
 private:
     ordered_hashmap<std::string, ArgumentParser> _subparsers;

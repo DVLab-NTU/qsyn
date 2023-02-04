@@ -36,6 +36,9 @@ bool myStr2Float(const std::string& str, float& f);
 bool myStr2Double(const std::string& str, double& f);
 bool myStr2LongDouble(const std::string& str, long double& f);
 
+std::string toLowerString(std::string const& str);
+size_t countUpperChars(std::string const& str);
+
 // In util.cpp
 int listDir(std::vector<std::string>&, const std::string&, const std::string&);
 size_t intPow(size_t base, size_t n);

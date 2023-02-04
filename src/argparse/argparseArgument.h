@@ -10,6 +10,7 @@
 #define QSYN_ARG_PARSE_ARGUMENT_H
 
 #include <any>
+#include <concepts>
 #include <functional>
 #include <iosfwd>
 #include <iostream>
@@ -31,8 +32,11 @@ namespace ArgParse {
  */
 class Argument {
 public:
-    using ActionType = std::function<ParseResult(Argument&)>;
+    using ActionType = std::function<bool(Argument&)>;
+    using OnErrorCallbackType = std::function<void(Argument const&)>;
+    using ConstraintType = std::pair<ActionType, OnErrorCallbackType>;
 
+    // construct/assign from internal types
     template <typename ArgType>
     Argument(ArgType arg)
         : _pimpl{std::make_unique<ArgumentModel<ArgType>>(std::move(arg))},
@@ -43,14 +47,16 @@ public:
         : _pimpl{std::make_unique<ArgumentModel<std::string>>(std::move(std::string(arg)))},
           _traits() {}
 
-    Argument(Argument const& other)
-        : _pimpl(other._pimpl->clone()), _traits(other._traits) {}
-
     template <typename ArgType>
     Argument& operator=(ArgType const& other) {
         _pimpl = std::make_unique<ArgumentModel<ArgType>>(std::move(other));
         return *this;
     }
+
+    // construct/assign from other arguments
+
+    Argument(Argument const& other)
+        : _pimpl(other._pimpl->clone()), _traits(other._traits) {}
 
     Argument& operator=(Argument const& other) {
         other._pimpl->clone().swap(_pimpl);
@@ -58,13 +64,7 @@ public:
         return *this;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, Argument const& arg) {
-        return arg.isParsed()
-                   ? arg._pimpl->doPrint(os)
-                   : (arg.hasDefaultValue()
-                          ? arg._pimpl->doPrint(os) << " (default)"
-                          : os << "(unparsed)");
-    }
+    friend std::ostream& operator<<(std::ostream& os, Argument const& arg);
 
     template <typename T>
     operator T&() const;
@@ -97,26 +97,65 @@ public:
         return *this;
     }
 
-    // actions
+    Argument& constraint(ActionType const& constraint, OnErrorCallbackType const& onerror) {
+        addConstraint(constraint, onerror);
+        return *this;
+    }
+
+    template <typename T>
+    Argument& choices(std::initializer_list<T> const& choices) {
+        if constexpr (std::is_same_v<T, char const*>) {
+            std::vector<std::string> vecChoices(choices.begin(), choices.end());
+            addConstraint(makeChoicesConstraint<std::string>(vecChoices),
+                          detail::printParseResultIsNotAChoiceErrorMsg);
+        } else {
+            std::vector<T> vecChoices{choices};
+            addConstraint(makeChoicesConstraint<T>(vecChoices),
+                          detail::printParseResultIsNotAChoiceErrorMsg);
+        }
+        return *this;
+    }
+
+    // parse
 
     ParseResult parse(std::span<TokenPair> tokens) {
-        ParseResult result = hasAction() ? getAction()(*this) : _pimpl->doParse(tokens);
+        if (hasAction()) {
+            ParseResult result = getAction()(*this) ? ParseResult::success : ParseResult::error;
+            setParsed(true);
+            return result;
+        }
+
+        ParseResult result = _pimpl->doParse(tokens);
         setParsed(true);
+        for (auto const& [callback, onerror] : getConstraintCallbacks()) {
+            if (!callback) continue;
+
+            if (!callback(*this)) {
+                if (onerror) onerror(*this);
+                return ParseResult::error;
+            }
+        }
+
         return result;
     }
 
-    // getters and attributes
+    // getters
+
     std::string const& getName() const { return _traits.name; }
     std::string const& getHelp() const { return _traits.help; }
     std::string getTypeString() const { return _pimpl->doTypeString(); }
     size_t getNumMandatoryChars() const { return _traits.numMandatoryChars; }
     ActionType const& getAction() const { return _traits.action; }
     ActionType const& getResetCallback() const { return _traits.resetCallback; }
+    std::vector<ConstraintType> const& getConstraintCallbacks() const { return _traits.constraintCallbacks; }
+
+    // attributes
+
+    template <typename T>
+    bool isOfType() const { return dynamic_cast<ArgumentModel<T>*>(_pimpl.get()) != nullptr; }
 
     bool isMandatory() const { return !_traits.optional; }
     bool isOptional() const { return _traits.optional; }
-    template <typename T>
-    bool isOfType() const { return dynamic_cast<ArgumentModel<T>*>(_pimpl.get()) != nullptr; }
     bool isParsed() const { return _traits.parsed; }
 
     bool hasDefaultValue() const { return _traits.hasDefaultVal; }
@@ -127,27 +166,12 @@ public:
     void printHelpString() const;
     void printStatus() const;
 
+    // common actions
+
     template <typename T>
-    static ActionType storeConst(T const& constant) {
-        // must pass `constant` by copy so the callback remenber its state!
-        return [constant](Argument& arg) -> ParseResult {
-            try {
-                arg = constant;
-            } catch (bad_arg_cast& e) {
-                detail::printArgumentCastErrorMsg(arg);
-                return ParseResult::error;
-            }
-            return ParseResult::success;
-        };
-    }
-
-    static ActionType storeTrue() {
-        return storeConst(true);
-    }
-
-    static ActionType storeFalse() {
-        return storeConst(false);
-    }
+    static ActionType storeConst(T const& constant);
+    static ActionType storeTrue() { return storeConst(true); }
+    static ActionType storeFalse() { return storeConst(false); }
 
 private:
     // only use for dummy return
@@ -159,7 +183,7 @@ private:
 
     struct ArgumentTraits {
         ArgumentTraits()
-            : name{}, help{}, numMandatoryChars{0}, parsed{false}, optional{false}, hasDefaultVal{false}, action{}, resetCallback{} {}
+            : name{}, help{}, numMandatoryChars{0}, parsed{false}, optional{false}, hasDefaultVal{false}, action{}, resetCallback{}, constraintCallbacks{} {}
         std::string name;
         std::string help;
         size_t numMandatoryChars;
@@ -169,6 +193,7 @@ private:
         bool hasDefaultVal;
         ActionType action;
         ActionType resetCallback;
+        std::vector<ConstraintType> constraintCallbacks;
     };
 
     ArgumentTraits _traits;
@@ -204,17 +229,19 @@ private:
     void setOptional(bool isOpt) { _traits.optional = isOpt; }
     void setParsed(bool parsed) { _traits.parsed = parsed; }
 
+    void addConstraint(ActionType const& constraint, OnErrorCallbackType const& onerror = nullptr) {
+        _traits.constraintCallbacks.emplace_back(constraint, onerror);
+    }
+
     template <typename T>
-    static ActionType resetToDefault(T const& val) {
-        // must pass `val` by copy so the callback remenber its state!
-        return [val](Argument& arg) -> ParseResult {
-            try {
-                arg = val;
-            } catch (bad_arg_cast& e) {
-                detail::printArgumentCastErrorMsg(arg);
-                return ParseResult::error;
-            }
-            return ParseResult::success;
+    static ActionType resetToDefault(T const& val);
+
+    template <typename T>
+    static ActionType makeChoicesConstraint(std::vector<T> vecChoices) {
+        return [vecChoices](Argument const& arg) -> bool {
+            return any_of(vecChoices.begin(), vecChoices.end(), [&arg](T const& val) {
+                return (val == (T&)arg);
+            });
         };
     }
 
@@ -276,6 +303,34 @@ Argument::operator T&() const {
         detail::printArgumentCastErrorMsg(*this);
         throw bad_arg_cast{};
     }
+}
+
+template <typename T>
+Argument::ActionType Argument::storeConst(T const& constant) {
+    // must pass `constant` by copy so the callback remenber its state!
+    return [constant](Argument& arg) -> bool {
+        try {
+            arg = constant;
+        } catch (bad_arg_cast& e) {
+            detail::printArgumentCastErrorMsg(arg);
+            return false;
+        }
+        return true;
+    };
+}
+
+template <typename T>
+Argument::ActionType Argument::resetToDefault(T const& val) {
+    // must pass `val` by copy so the callback remenber its state!
+    return [val](Argument& arg) -> bool {
+        try {
+            arg = val;
+        } catch (bad_arg_cast& e) {
+            detail::printArgumentCastErrorMsg(arg);
+            return false;
+        }
+        return true;
+    };
 }
 
 //----------------------------------------

@@ -25,6 +25,7 @@ void printArgParseFatalErrorMsg();
 void printArgNameEmptyErrorMsg();
 void printArgNameDuplicateErrorMsg(std::string const& name);
 void printDuplicatedAttrErrorMsg(Argument const& arg, std::string const& attrName);
+void printParseResultIsNotAChoiceErrorMsg(Argument const& arg);
 
 }  // namespace detail
 

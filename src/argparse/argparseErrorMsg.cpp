@@ -58,6 +58,11 @@ void printDuplicatedAttrErrorMsg(Argument const& arg, std::string const& attrNam
     cerr << "[ArgParse] Error: Failed to add attribute \"" << attrName << "\" to argument \"" << arg.getName() << "\": attribute duplicated" << endl;
 }
 
+void printParseResultIsNotAChoiceErrorMsg(Argument const& arg) {
+    cerr << "Error: Invalid assignment to argument \"" << arg.getName() << "\": \"" 
+         << arg << "\" is not a valid choice!!" << endl;
+}
+
 }  // namespace detail
 
 }  // namespace ArgParse

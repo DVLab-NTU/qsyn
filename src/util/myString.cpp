@@ -301,3 +301,18 @@ bool myStr2Double(const string& str, double& f) {
 bool myStr2LongDouble(const string& str, long double& f) {
     return myStr2FloatType<long double>(str, f);
 }
+
+std::string toLowerString(std::string const& str) {
+    std::string ret = str;
+    for_each(ret.begin(), ret.end(), [](char& ch) { ch = ::tolower(ch); });
+    return ret;
+};
+
+size_t countUpperChars(std::string const& str) {
+    size_t cnt = 0;
+    for (auto& ch : str) {
+        if (::islower(ch)) return cnt;
+        ++cnt;
+    }
+    return str.size();
+};

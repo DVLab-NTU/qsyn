@@ -35,7 +35,7 @@ bool initArgParserCmd() {
 void ArgParserCmd::parserDefinition() {
     parser.cmdInfo("ZXGRead", "read a file and construct the corresponding ZX-graph");
 
-    parser.addArgument<string>("filepath")
+    parser.addArgument<int>("filepath")
         .help("supports files with `.zx` or `.bzx` extension");
 
     parser.addArgument<bool>("-replace")
@@ -51,12 +51,9 @@ void ArgParserCmd::parserDefinition() {
 
 CmdExecStatus
 ArgParserCmd::exec(const string& option) {
-    cout << "Before parsing: " << endl;
-    parser.printArguments();
 
     parser.parse(option);
 
-    cout << "\nAfter parsing: " << endl;
     parser.printArguments();
     parser.printTokens();
     

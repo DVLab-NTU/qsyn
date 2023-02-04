@@ -67,21 +67,25 @@ void ArgumentParser::printSummary() const {
  */
 void ArgumentParser::printHelp() const {
     printUsage();
+    if (_cmdDescription.size()) {
+        cout << TF::LIGHT_BLUE("\nDescription:\n  ") << _cmdDescription << "\n";
+    }
 
-    cout << TF::LIGHT_BLUE("\nDescription:\n  ") << _cmdDescription << "\n";
-
-    cout << TF::LIGHT_BLUE("\nMandatory arguments:\n");
-    for (auto const& [_, arg] : _arguments) {
-        if (arg.isMandatory()) {
-            arg.printHelpString();
+    if (count_if(_arguments.begin(), _arguments.end(), [](auto const argPair) { return argPair.second.isMandatory(); })) {
+        cout << TF::LIGHT_BLUE("\nMandatory arguments:\n");
+        for (auto const& [_, arg] : _arguments) {
+            if (arg.isMandatory()) {
+                arg.printHelpString();
+            }
         }
     }
 
-    cout << TF::LIGHT_BLUE("\nOptional arguments:\n");
-
-    for (auto const& [_, arg] : _arguments) {
-        if (arg.isOptional()) {
-            arg.printHelpString();
+    if (count_if(_arguments.begin(), _arguments.end(), [](auto const argPair) { return argPair.second.isOptional(); })) {
+        cout << TF::LIGHT_BLUE("\nOptional arguments:\n");
+        for (auto const& [_, arg] : _arguments) {
+            if (arg.isOptional()) {
+                arg.printHelpString();
+            }
         }
     }
 }
@@ -112,20 +116,20 @@ void ArgumentParser::cmdInfo(std::string const& cmdName, std::string const& desc
     _cmdNumMandatoryChars = countUpperChars(cmdName);
 }
 
-Argument& ArgumentParser::operator[](std::string const& key) {
+Argument& ArgumentParser::operator[](std::string const& name) {
     try {
-        return _arguments[key];
+        return _arguments.at(toLowerString(name));
     } catch (std::out_of_range& e) {
-        std::cerr << "key = " << key << ", " << e.what() << std::endl;
+        std::cerr << "name = " << name << ", " << e.what() << std::endl;
         exit(-1);
     }
 }
 
-Argument const& ArgumentParser::operator[](std::string const& key) const {
+Argument const& ArgumentParser::operator[](std::string const& name) const {
     try {
-        return _arguments.at(key);
+        return _arguments.at(toLowerString(name));
     } catch (std::out_of_range& e) {
-        std::cerr << "key = " << key << ", " << e.what() << std::endl;
+        std::cerr << "name = " << name << ", " << e.what() << std::endl;
         exit(-1);
     }
 }
@@ -176,21 +180,6 @@ bool ArgumentParser::analyzeOptions() const {
     }
     return true;
 }
-
-std::string ArgumentParser::toLowerString(std::string const& str) const {
-    std::string ret = str;
-    for_each(ret.begin(), ret.end(), [](char& ch) { ch = ::tolower(ch); });
-    return ret;
-};
-
-size_t ArgumentParser::countUpperChars(std::string const& str) const {
-    size_t cnt = 0;
-    for (auto& ch : str) {
-        if (::islower(ch)) return cnt;
-        ++cnt;
-    }
-    return str.size();
-};
 
 std::string ArgumentParser::formattedCmdName() const {
     if (colorLevel >= 1) {
@@ -291,7 +280,7 @@ ParseResult ArgumentParser::parseMandatoryArguments() {
     auto mandatoryArgIsParsed = [](auto const& argPair) {
         return argPair.second.isOptional() || argPair.second.isParsed();
     };
-    
+
     nextTokenPair();
     nextArgument();
 
@@ -309,7 +298,6 @@ ParseResult ArgumentParser::parseMandatoryArguments() {
         lastParsedToken = token;
         parsed = true;
     }
-
 
     if (!all_of(_arguments.begin(), _arguments.end(), mandatoryArgIsParsed)) {
         return errorOption(ParseErrorType::missing_arg, lastParsedToken);

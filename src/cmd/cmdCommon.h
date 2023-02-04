@@ -18,5 +18,5 @@ CmdClass(UsageCmd);
 CmdClass(VerboseCmd);
 CmdClass(SeedCmd);
 CmdClass(CommentCmd);
-CmdClass(ColorCmd);
+ArgParseCmdClass(ColorCmd);
 #endif  // CMD_COMMON_H
