@@ -145,21 +145,51 @@ void DeviceTopoNewCmd::help() const {
 }
 
 //----------------------------------------------------------------------
-//    DTGRead <(size_t filename)>
+//    DTGRead <(size_t filename)> [-Replace]
 //----------------------------------------------------------------------
 CmdExecStatus
 DeviceTopoGraphReadCmd::exec(const string &option) {
-    string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    vector<string> options;
+    if (!CmdExec::lexOptions(option, options))
+        return CMD_EXEC_ERROR;
+    if (options.empty())
+        return CmdExec::errorOption(CMD_OPT_MISSING, "");
 
-    // FIXME - Temporary version
-    deviceTopoMgr->addDeviceTopo(deviceTopoMgr->getNextID());
-    deviceTopoMgr->getDeviceTopo()->readTopo(token);
+    bool doReplace = false;
+    string fileName;
+    for (size_t i = 0, n = options.size(); i < n; ++i) {
+        if (myStrNCmp("-Replace", options[i], 2) == 0) {
+            if (doReplace)
+                return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
+            doReplace = true;
+        } else {
+            if (fileName.size())
+                return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
+            fileName = options[i];
+        }
+    }
+    DeviceTopo *bufferTopo = new DeviceTopo(0);
+    if (!bufferTopo->readTopo(fileName)) {
+        cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
+        delete bufferTopo;
+        return CMD_EXEC_ERROR;
+    }
+    if (deviceTopoMgr->getDTListItr() == deviceTopoMgr->getDeviceTopoList().end()) {
+        deviceTopoMgr->addDeviceTopo(deviceTopoMgr->getNextID());
+    } else {
+        if (doReplace) {
+            if (verbose >= 1) cout << "Note: original QCir is replaced..." << endl;
+        } else {
+            deviceTopoMgr->addDeviceTopo(deviceTopoMgr->getNextID());
+        }
+    }
+    deviceTopoMgr->setDeviceTopo(bufferTopo);
+
     return CMD_EXEC_DONE;
 }
 
 void DeviceTopoGraphReadCmd::usage() const {
-    cout << "Usage: DTGRead <(size_t filename)>" << endl;
+    cout << "Usage: DTGRead <(size_t filename)> [-Replace]" << endl;
 }
 
 void DeviceTopoGraphReadCmd::help() const {
@@ -188,7 +218,7 @@ DeviceTopoGraphPrintCmd::exec(const string &option) {
             if (myStr2Uns(options[i], qid))
                 candidates.push_back(size_t(qid));
             else {
-                cout << "Error: " << options[i] << " is not a valid qubit ID!!" << endl;
+                cout << "Warning: " << options[i] << " is not a valid qubit ID!!" << endl;
             }
         }
         deviceTopoMgr->getDeviceTopo()->printEdges(candidates);
@@ -199,7 +229,7 @@ DeviceTopoGraphPrintCmd::exec(const string &option) {
             if (myStr2Uns(options[i], qid))
                 candidates.push_back(size_t(qid));
             else {
-                cout << "Error: " << options[i] << " is not a valid qubit ID!!" << endl;
+                cout << "Warning: " << options[i] << " is not a valid qubit ID!!" << endl;
             }
         }
         deviceTopoMgr->getDeviceTopo()->printQubits(candidates);
