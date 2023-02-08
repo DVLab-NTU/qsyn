@@ -73,7 +73,7 @@ public:
     }
 
     bool xorOper(size_t ctrl, size_t targ, bool track = false);
-    bool gaussianElimSkip(bool track = true);
+    size_t gaussianElimSkip(size_t blockSize, bool fullReduced, bool track = true);
     bool gaussianElim(bool track = false, bool isAugmentedMatrix = false);
     bool gaussianElimAugmented(bool track = false);
     bool isSolvedForm() const;
@@ -81,6 +81,7 @@ public:
     void printMatrix() const;
     void printTrack() const;
     void appendOneHot(size_t idx);
+    size_t filterDuplicatedOps();
 
     Row& operator[](const size_t& i) {
         return _matrix[i];

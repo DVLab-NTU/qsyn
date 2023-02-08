@@ -80,8 +80,12 @@ M2TestCmd::exec(const string &option) {
     M2 m2;
     m2.defaultInit();
     m2.printMatrix();
-    cout << "Is Idendity? " << m2.gaussianElim(true) << endl;
+    m2.gaussianElimSkip(5, true, true);
+    cout << "----" << endl;
     m2.printMatrix();
+    m2.printMatrix();
+    m2.printTrack();
+    m2.filterDuplicatedOps();
     m2.printTrack();
     return CMD_EXEC_DONE;
 }
