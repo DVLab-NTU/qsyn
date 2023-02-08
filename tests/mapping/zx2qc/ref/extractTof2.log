@@ -107,8 +107,8 @@ Extract Singles
 Extract CZs
 Remove Gadget
 Frontier:
-Qubit:0: 21
 Qubit:1: 20
+Qubit:0: 21
 Qubit:2: 22
 
 Axels:
@@ -117,8 +117,8 @@ Note: (13) is not a gadget vertex!
 Note: (11) is not a gadget vertex!
 
 Frontier:
-Qubit:0: 21
 Qubit:1: 20
+Qubit:0: 21
 Qubit:2: 22
 
 Axels:
@@ -129,19 +129,18 @@ Note: (11) is not a gadget vertex!
 Perform Gaussian Elimination.
 Update Graph by Matrix
 Extract CXs
-Add CX: 2 0
-Add CX: 2 1
-Add CX: 0 2
-Add CX: 1 2
+Filter 0 CXs. Total: 0
 Add CX: 0 1
+Add CX: 2 0
+Add CX: 1 2
 Extract Hs
 Clean Frontier
 Extract Singles
 Extract CZs
 Remove Gadget
 Frontier:
-Qubit:0: 13
 Qubit:1: 11
+Qubit:0: 13
 Qubit:2: 15
 
 Axels:
@@ -162,16 +161,16 @@ Extract Singles
 Extract CZs
 Remove Gadget
 Frontier:
-Qubit:0: 23
 Qubit:1: 11
 Qubit:2: 15
+Qubit:0: 23
 
 Axels:
 
 Frontier:
-Qubit:0: 23
 Qubit:1: 11
 Qubit:2: 15
+Qubit:0: 23
 
 Axels:
 
@@ -182,25 +181,26 @@ Extract Singles
 Extract CZs
 Remove Gadget
 Frontier:
-Qubit:0: 9
 Qubit:1: 11
 Qubit:2: 15
+Qubit:0: 9
 
 Axels:
 
 Frontier:
-Qubit:0: 9
 Qubit:1: 11
 Qubit:2: 15
+Qubit:0: 9
 
 Axels:
 
 Perform Gaussian Elimination.
 Update Graph by Matrix
 Extract CXs
-Add CX: 2 0
-Add CX: 1 2
-Add CX: 0 1
+Filter 0 CXs. Total: 0
+Add CX: 2 1
+Add CX: 0 2
+Add CX: 1 0
 Extract Hs
 Clean Frontier
 Extract Singles
@@ -222,25 +222,25 @@ qsyn> zxgs -fr
 
 qsyn> zxgp -q
 
-ID:   1 (●, 0)           (Qubit, Col): (0, 22)	  #Neighbors:   1     (54, -) 
-ID:  54 (●, 0)           (Qubit, Col): (0, 12)	  #Neighbors:   1     (1, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 17)	  #Neighbors:   1     (50, -) 
+ID:  50 (●, 0)           (Qubit, Col): (0, 12)	  #Neighbors:   1     (1, -) 
 
 
-ID:   3 (●, 0)           (Qubit, Col): (1, 22)	  #Neighbors:   1     (55, -) 
-ID:  55 (●, 0)           (Qubit, Col): (1, 12)	  #Neighbors:   1     (3, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 17)	  #Neighbors:   1     (51, -) 
+ID:  51 (●, 0)           (Qubit, Col): (1, 12)	  #Neighbors:   1     (3, -) 
 
 
-ID:   5 (●, 0)           (Qubit, Col): (2, 22)	  #Neighbors:   1     (56, -) 
-ID:  56 (●, 0)           (Qubit, Col): (2, 12)	  #Neighbors:   1     (5, -) 
+ID:   5 (●, 0)           (Qubit, Col): (2, 17)	  #Neighbors:   1     (52, -) 
+ID:  52 (●, 0)           (Qubit, Col): (2, 12)	  #Neighbors:   1     (5, -) 
 
 
 qsyn> qccp
-QCir 0( 3 qubits, 33 gates)
+QCir 0( 3 qubits, 31 gates)
 
 qsyn> qccp -q
-Q 0  - h(28)-- h(25)------------------cx(24)----------cx(22)--td(21)-- h(20)--cz(19)-- h(18)--td(15)-- h(12)--cx(11)----------cx( 9)----------cx( 7)-- h( 4)-- t( 0)-
-Q 1  -cx(32)--cx(31)--cx(30)-- h(26)--cx(24)--cx(23)--------------------------cz(19)--td(16)-- h(13)----------cx(11)--cx(10)----------cx( 8)-- h( 5)-- t( 1)-
-Q 2  -cx(32)--cx(31)--cx(30)-- h(29)-- h(27)--cx(23)--cx(22)-- t(17)-- h(14)------------------------------------------cx(10)--cx( 9)--cx( 8)--cx( 7)-- h( 6)-- t( 3)-- h( 2)-
+Q 0  -cx(30)--cx(29)--cx(28)-- h(25)--cx(22)--cx(21)--td(19)-- h(18)--cz(17)-- h(16)--td(13)-- h(11)--cx( 8)--cx( 7)-- h( 4)-- t( 0)-
+Q 1  - h(26)-- h(23)------------------cx(22)----------cx(20)----------cz(17)--td(14)-- h(10)--cx( 9)----------cx( 7)-- h( 5)-- t( 1)-
+Q 2  -cx(30)--cx(29)--cx(28)-- h(27)-- h(24)--cx(21)--cx(20)-- t(15)-- h(12)------------------cx( 9)--cx( 8)-- h( 6)-- t( 3)-- h( 2)-
 
 qsyn> zxgt -id
 The graph is an identity!
