@@ -17,7 +17,7 @@
  */
 namespace ArgParse {
 
-ParseResult errorOption(ParseErrorType const& errType, std::string const& token) {
+bool errorOption(ParseErrorType const& errType, std::string const& token) {
     using std::cerr, std::endl;
 
     switch (errType) {
@@ -33,6 +33,11 @@ ParseResult errorOption(ParseErrorType const& errType, std::string const& token)
             break;
         case ParseErrorType::missing_arg:
             cerr << "Error: missing argument"
+                 << (token.size() ? " \"" + token + "\"" : "")
+                 << "!!" << endl;
+            break;
+        case ParseErrorType::missing_arg_after:
+            cerr << "Error: missing argument"
                  << (token.size() ? " after \"" + token + "\"" : "")
                  << "!!" << endl;
             break;
@@ -40,7 +45,7 @@ ParseResult errorOption(ParseErrorType const& errType, std::string const& token)
             break;
     }
 
-    return ParseResult::error;
+    return false;
 }
 
 }  // namespace ArgParse

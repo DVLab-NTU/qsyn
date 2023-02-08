@@ -30,14 +30,18 @@ string getTypeString(int const& arg) {
     return "int";
 }
 
+std::vector<TokenPair> toTokens(int const& arg) {
+    return std::vector<TokenPair>(1, {std::to_string(arg), false});
+}
+
 /**
  * @brief Parse the tokens and to a `int` argument.
  *
  * @param arg Argument
  * @param tokens the tokens
- * @return ParseResult
+ * @return bool
  */
-ParseResult parse(int& arg, std::span<TokenPair> tokens) {
+bool parse(int& arg, std::span<TokenPair> tokens) {
     assert(!tokens.empty());
     int tmp;
     if (myStr2Int(tokens[0].first, tmp)) {
@@ -48,7 +52,11 @@ ParseResult parse(int& arg, std::span<TokenPair> tokens) {
 
     tokens[0].second = true;
 
-    return ParseResult::success;
+    return true;
+}
+
+std::vector<TokenPair> toTokens(unsigned const& arg) {
+    return std::vector<TokenPair>(1, {std::to_string(arg), false});
 }
 
 /**
@@ -68,9 +76,9 @@ string getTypeString(unsigned const& arg) {
  *
  * @param arg Argument
  * @param tokens the tokens
- * @return ParseResult
+ * @return bool
  */
-ParseResult parse(unsigned& arg, std::span<TokenPair> tokens) {
+bool parse(unsigned& arg, std::span<TokenPair> tokens) {
     assert(!tokens.empty());
     unsigned tmp;
     if (myStr2Uns(tokens[0].first, tmp)) {
@@ -81,7 +89,7 @@ ParseResult parse(unsigned& arg, std::span<TokenPair> tokens) {
 
     tokens[0].second = true;
 
-    return ParseResult::success;
+    return true;
 }
 
 /**
@@ -96,14 +104,18 @@ string getTypeString(size_t const& arg) {
     return "size_t";
 }
 
+std::vector<TokenPair> toTokens(size_t const& arg) {
+    return std::vector<TokenPair>(1, {std::to_string(arg), false});
+}
+
 /**
  * @brief Parse the tokens and to a `size_t` argument.
  *
  * @param arg Argument
  * @param tokens the tokens
- * @return ParseResult
+ * @return bool
  */
-ParseResult parse(size_t& arg, std::span<TokenPair> tokens) {
+bool parse(size_t& arg, std::span<TokenPair> tokens) {
     assert(!tokens.empty());
     unsigned tmp;
     if (myStr2Uns(tokens[0].first, tmp)) {
@@ -114,7 +126,7 @@ ParseResult parse(size_t& arg, std::span<TokenPair> tokens) {
 
     tokens[0].second = true;
 
-    return ParseResult::success;
+    return true;
 }
 
 /**
@@ -129,20 +141,24 @@ string getTypeString(string const& arg) {
     return "string";
 }
 
+std::vector<TokenPair> toTokens(string const& arg) {
+    return std::vector<TokenPair>(1, {arg, false});
+}
+
 /**
  * @brief Parse the tokens and to a `string` argument.
  *
  * @param arg Argument
  * @param tokens the tokens
- * @return ParseResult
+ * @return bool
  */
-ParseResult parse(string& arg, std::span<TokenPair> tokens) {
+bool parse(string& arg, std::span<TokenPair> tokens) {
     assert(!tokens.empty());
 
     arg = tokens[0].first;
     tokens[0].second = true;
 
-    return ParseResult::success;
+    return true;
 }
 
 /**
@@ -157,14 +173,18 @@ string getTypeString(bool const& arg) {
     return "bool";
 }
 
+std::vector<TokenPair> toTokens(bool const& arg) {
+    return std::vector<TokenPair>(1, {(arg ? "true" : "false"), false});
+}
+
 /**
  * @brief Parse the tokens and to a `bool` argument.
  *
  * @param arg Argument
  * @param tokens the tokens
- * @return ParseResult
+ * @return bool
  */
-ParseResult parse(bool& arg, std::span<TokenPair> tokens) {
+bool parse(bool& arg, std::span<TokenPair> tokens) {
     assert(!tokens.empty());
 
     if (myStrNCmp("true", tokens[0].first, 1) == 0) {
@@ -177,33 +197,33 @@ ParseResult parse(bool& arg, std::span<TokenPair> tokens) {
 
     tokens[0].second = true;
 
-    return ParseResult::success;
+    return true;
 }
 
-/**
- * @brief Get the type string of the `SubParsers` argument.
- *        This function is a implementation to the type-erased
- *        interface `std::string getTypeString(ArgParse::Argument const& arg)`
- *
- * @param arg Argument
- * @return std::string the type string
- */
-string getTypeString(SubParsers const& arg) {
-    return "subparser";
-}
+// /**
+//  * @brief Get the type string of the `SubParsers` argument.
+//  *        This function is a implementation to the type-erased
+//  *        interface `std::string getTypeString(ArgParse::Argument const& arg)`
+//  *
+//  * @param arg Argument
+//  * @return std::string the type string
+//  */
+// string getTypeString(SubParsers const& arg) {
+//     return "subparser";
+// }
 
-/**
- * @brief Parse the tokens and to a `bool` argument.
- *
- * @param arg Argument
- * @param tokens the tokens
- * @return ParseResult
- */
-ParseResult parse(SubParsers& arg, std::span<TokenPair> tokens) {
-    assert(!tokens.empty());
-    // TODO - correct parsing logic for subargs!
-    return ParseResult::success;
-}
+// /**
+//  * @brief Parse the tokens and to a `bool` argument.
+//  *
+//  * @param arg Argument
+//  * @param tokens the tokens
+//  * @return bool
+//  */
+// bool parse(SubParsers& arg, std::span<TokenPair> tokens) {
+//     assert(!tokens.empty());
+//     // TODO - correct parsing logic for subargs!
+//     return true;
+// }
 
 }  // namespace detail
 

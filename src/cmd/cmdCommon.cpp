@@ -207,66 +207,52 @@ void UsageCmd::help() const {
 //----------------------------------------------------------------------
 //    VERbose <size_t verbose level>
 //----------------------------------------------------------------------
+void VerboseCmd::parserDefinition() {
+    parser.cmdInfo("VERbose", "set verbose level to 0-9.");
+
+    parser.addArgument<size_t>("level")
+        .constraint([](ArgParse::Argument const& arg) -> bool {
+            size_t const& ref = arg;
+            return (ref == 353 || (ref >= 0 && ref <= 9));
+        }, [](ArgParse::Argument const& arg) {
+            cout << "Error: verbose level should be 0-9!!" << endl;
+        });
+}
+
 CmdExecStatus
 VerboseCmd::exec(const string& option) {
     // check option
-    string token;
-    if (!CmdExec::lexSingleOption(option, token, false))
+    if (!parser.parse(option)) {
         return CMD_EXEC_ERROR;
-    unsigned level;
-    if (!myStr2Uns(token, level)) {
-        cerr << "Error: verbose level should be a positive integer or 0!!" << endl;
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     }
-    if (level > 9 && level != 353) {
-        cerr << "Error: verbose level should be 0-9 !!" << endl;
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    }
-    cout << "Note: verbose level is set to " << level << endl;
-    verbose = level;
+
+    cout << "Note: verbose level is set to " << parser["level"] << endl;
+    verbose = parser["level"];
     return CMD_EXEC_DONE;
-}
-
-void VerboseCmd::usage() const {
-    cout << "Usage: VERbose <size_t verbose level>" << endl;
-}
-
-void VerboseCmd::help() const {
-    cout << setw(15) << left << "VERbose: "
-         << "set verbose level to 0-9 (default: 3)" << endl;
 }
 
 //----------------------------------------------------------------------
 //    SEED [size_t seed]
 //----------------------------------------------------------------------
+
+void SeedCmd::parserDefinition() {
+    parser.cmdInfo("SEED", "fix the seed");
+
+    parser.addArgument<unsigned>("seed")
+        .defaultValue(353);
+}
+
 CmdExecStatus
 SeedCmd::exec(const string& option) {
     // check option
-    string token;
-    if (option.size() == 0) {
-        srand(353);
-        cerr << "Note: seed is set to 353" << endl;
-    } else {
-        if (!CmdExec::lexSingleOption(option, token, false))
-            return CMD_EXEC_ERROR;
-        int seed;
-        if (!myStr2Int(token, seed)) {
-            cerr << "Error: Seed should be an integer!!" << endl;
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-        }
-        srand(seed);
-        cerr << "Note: seed is set to " << seed << endl;
+    if (!parser.parse(option)) {
+        return CMD_EXEC_ERROR;
     }
+    
+    srand(parser["seed"]);
+    cerr << "Note: seed is set to " << parser["seed"] << endl;
+    
     return CMD_EXEC_DONE;
-}
-
-void SeedCmd::usage() const {
-    cout << "Usage: SEED [size_t seed]" << endl;
-}
-
-void SeedCmd::help() const {
-    cout << setw(15) << left << "SEED: "
-         << "fix the seed" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -284,7 +270,7 @@ ColorCmd::parserDefinition() {
 CmdExecStatus
 ColorCmd::exec(const string& option) {
     // check option
-    if (parser.parse(option) != ArgParse::ParseResult::success) {
+    if (!parser.parse(option)) {
         return CMD_EXEC_ERROR;
     }
     

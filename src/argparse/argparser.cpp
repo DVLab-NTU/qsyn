@@ -42,7 +42,7 @@ void ArgumentParser::printUsage() const {
     cout << TF::LIGHT_BLUE("Usage: ");
     cout << formattedCmdName();
     for (auto const& [_, arg] : _arguments) {
-        if (arg.isMandatory())
+        if (arg.isRequired())
             cout << " " << arg.getSyntaxString();
     }
 
@@ -71,19 +71,19 @@ void ArgumentParser::printHelp() const {
         cout << TF::LIGHT_BLUE("\nDescription:\n  ") << _cmdDescription << "\n";
     }
 
-    if (count_if(_arguments.begin(), _arguments.end(), [](auto const argPair) { return argPair.second.isMandatory(); })) {
-        cout << TF::LIGHT_BLUE("\nMandatory arguments:\n");
+    if (count_if(_arguments.begin(), _arguments.end(), [](auto const argPair) { return argPair.second.isPositional(); })) {
+        cout << TF::LIGHT_BLUE("\nPositional Arguments:\n");
         for (auto const& [_, arg] : _arguments) {
-            if (arg.isMandatory()) {
+            if (arg.isPositional()) {
                 arg.printHelpString();
             }
         }
     }
 
-    if (count_if(_arguments.begin(), _arguments.end(), [](auto const argPair) { return argPair.second.isOptional(); })) {
-        cout << TF::LIGHT_BLUE("\nOptional arguments:\n");
+    if (count_if(_arguments.begin(), _arguments.end(), [](auto const argPair) { return argPair.second.isNonPositional(); })) {
+        cout << TF::LIGHT_BLUE("\nOptions:\n");
         for (auto const& [_, arg] : _arguments) {
-            if (arg.isOptional()) {
+            if (arg.isNonPositional()) {
                 arg.printHelpString();
             }
         }
@@ -98,15 +98,15 @@ void ArgumentParser::printTokens() const {
 }
 
 void ArgumentParser::printArguments() const {
-    cout << "Mandatory arguments:\n";
+    cout << "Positional arguments:\n";
     for (auto const& [name, arg] : _arguments) {
-        if (arg.isMandatory()) arg.printStatus();
+        if (arg.isPositional()) arg.printStatus();
     }
 
-    cout << "Optional arguments:\n";
+    cout << "Options:\n";
 
     for (auto const& [name, arg] : _arguments) {
-        if (arg.isOptional()) arg.printStatus();
+        if (arg.isNonPositional()) arg.printStatus();
     }
 }
 
@@ -134,7 +134,7 @@ Argument const& ArgumentParser::operator[](std::string const& name) const {
     }
 }
 
-ParseResult ArgumentParser::parse(string const& line) {
+bool ArgumentParser::parse(string const& line) {
     if (!_optionsAnalyzed) {
         _optionsAnalyzed = analyzeOptions();
     }
@@ -143,19 +143,7 @@ ParseResult ArgumentParser::parse(string const& line) {
         arg.reset();
     }
 
-    tokenize(line);
-
-    auto result = parseOptionalArguments();
-    if (result != ParseResult::success) {
-        return result;
-    }
-
-    result = parseMandatoryArguments();
-    if (result != ParseResult::success) {
-        return result;
-    }
-
-    return ParseResult::success;
+    return tokenize(line) && parseOptions() && parsePositionalArguments();
 }
 
 /**
@@ -167,12 +155,12 @@ ParseResult ArgumentParser::parse(string const& line) {
 bool ArgumentParser::analyzeOptions() const {
     MyTrie trie;
     for (auto const& [name, arg] : _arguments) {
-        if (arg.isMandatory()) continue;
+        if (arg.isPositional()) continue;
         trie.insert(name);
     }
 
     for (auto& [name, arg] : _arguments) {
-        if (arg.isMandatory()) continue;
+        if (arg.isPositional()) continue;
         arg.setNumMandatoryChars(
             max(
                 trie.shortestUniquePrefix(name).value().size(),
@@ -224,24 +212,22 @@ bool ArgumentParser::tokenize(string const& line) {
     return true;
 }
 
-ParseResult ArgumentParser::parseOptionalArguments() {
+bool ArgumentParser::parseOptions() {
     size_t i = _tokenPairs.size() - 1;
     size_t lastUnparsed = _tokenPairs.size();
 
     for (auto& [token, parsed] : _tokenPairs | views::reverse) {
         for (auto& [name, arg] : _arguments) {
-            if (arg.isMandatory()) continue;
+            if (arg.isPositional()) continue;
             if (myStrNCmp(arg.getName(), token, arg.getNumMandatoryChars()) != 0) continue;
 
             auto tokenSpan = span<TokenPair>{_tokenPairs}.subspan(i + 1, lastUnparsed - (i + 1));
             if (tokenSpan.empty() && !arg.hasAction()) {
-                return errorOption(ParseErrorType::missing_arg, _tokenPairs[i].first);
+                return errorOption(ParseErrorType::missing_arg_after, _tokenPairs[i].first);
             }
 
-            auto result = arg.parse(tokenSpan);
-
-            if (result != ParseResult::success) {
-                return result;
+            if (!arg.parse(tokenSpan)) {
+                return false;
             }
             parsed = true;
             lastUnparsed = i;
@@ -250,10 +236,21 @@ ParseResult ArgumentParser::parseOptionalArguments() {
         --i;
     }
 
-    return ParseResult::success;
+    auto reqOptionIsParsed = [](auto const& argPair) {
+        Argument const& arg = argPair.second;
+        return implies(arg.isNonPositional() && arg.isRequired(), arg.isParsed());
+    };
+
+    auto itr = find_if_not(_arguments.begin(), _arguments.end(), reqOptionIsParsed);
+    if (itr != _arguments.end()) {
+        return errorOption(ParseErrorType::missing_arg, itr->first);
+    }
+    
+
+    return true;
 }
 
-ParseResult ArgumentParser::parseMandatoryArguments() {
+bool ArgumentParser::parsePositionalArguments() {
     auto currTokenPair = _tokenPairs.begin();
     auto currArg = _arguments.begin();
     size_t i = 0;
@@ -268,7 +265,7 @@ ParseResult ArgumentParser::parseMandatoryArguments() {
 
     auto nextArgument = [&currArg, this]() {
         while (
-            currArg != _arguments.end() && (currArg->second.isOptional() ||
+            currArg != _arguments.end() && (currArg->second.isNonPositional() ||
                                             currArg->second.isParsed()))
             currArg++;
     };
@@ -277,8 +274,9 @@ ParseResult ArgumentParser::parseMandatoryArguments() {
         return tokenPair.second;
     };
 
-    auto mandatoryArgIsParsed = [](auto const& argPair) {
-        return argPair.second.isOptional() || argPair.second.isParsed();
+    auto requiredArgIsParsed = [](auto const& argPair) {
+        Argument const& arg= argPair.second;
+        return implies(arg.isRequired(), arg.isParsed());
     };
 
     nextTokenPair();
@@ -288,36 +286,35 @@ ParseResult ArgumentParser::parseMandatoryArguments() {
         auto& [token, parsed] = *currTokenPair;
         auto& [name, arg] = *currArg;
 
-        assert(arg.isMandatory());
+        assert(arg.isPositional());
+        auto tokenSpan = span<TokenPair>{_tokenPairs}.subspan(i);
 
-        auto result = arg.parse(span<TokenPair>{_tokenPairs}.subspan(i));
-
-        if (result != ParseResult::success) {
-            return errorOption(ParseErrorType::illegal_arg, _tokenPairs[i].first);
+        if (!arg.parse(tokenSpan)) {
+            return false;
         }
         lastParsedToken = token;
         parsed = true;
     }
 
-    if (!all_of(_arguments.begin(), _arguments.end(), mandatoryArgIsParsed)) {
-        return errorOption(ParseErrorType::missing_arg, lastParsedToken);
+    if (!all_of(_arguments.begin(), _arguments.end(), requiredArgIsParsed)) {
+        return errorOption(ParseErrorType::missing_arg_after, lastParsedToken);
     }
 
     if (!all_of(_tokenPairs.begin(), _tokenPairs.end(), tokenIsParsed)) {
         return errorOption(ParseErrorType::extra_arg, currTokenPair->first);
     }
 
-    return ParseResult::success;
+    return true;
 }
 
 //----------------------------------
 // Argument type: subparser
 //----------------------------------
 
-ArgumentParser& SubParsers::addParser(string const& name, string const& help) {
-    _subparsers.emplace(name, ArgumentParser{});
-    _subparsers.at(name).cmdInfo(name, help);
-    return _subparsers.at(name);
-}
+// ArgumentParser& SubParsers::addParser(string const& name, string const& help) {
+//     _subparsers.emplace(name, ArgumentParser{});
+//     _subparsers.at(name).cmdInfo(name, help);
+//     return _subparsers.at(name);
+// }
 
 }  // namespace ArgParse

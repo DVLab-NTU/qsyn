@@ -308,6 +308,12 @@ std::string toLowerString(std::string const& str) {
     return ret;
 };
 
+std::string toUpperString(std::string const& str) {
+    std::string ret = str;
+    for_each(ret.begin(), ret.end(), [](char& ch) { ch = ::toupper(ch); });
+    return ret;
+};
+
 size_t countUpperChars(std::string const& str) {
     size_t cnt = 0;
     for (auto& ch : str) {

@@ -16,24 +16,21 @@
  *
  */
 namespace ArgParse {
-enum class ParseResult {
-    success,
-    error
-};
 
 enum class ParseErrorType {
     illegal_arg,
     extra_arg,
+    missing_arg_after,
     missing_arg
 };
 
 class Argument;
 class ArgumentParser;
-class SubParsers;
+// class SubParsers;
 
 using TokenPair = std::pair<std::string, bool>;
 
-ParseResult errorOption(ParseErrorType const& errType, std::string const& token);
+bool errorOption(ParseErrorType const& errType, std::string const& token);
 }  // namespace ArgParse
 
 #endif  // QSYN_ARG_PARSE_DEF_H

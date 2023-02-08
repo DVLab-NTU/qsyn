@@ -26,36 +26,150 @@ namespace ArgParse {
 
 
 constexpr auto optionFormat = TF::YELLOW;
-constexpr auto mandatoryFormat = TF::BOLD;
+constexpr auto positionalFormat = TF::BOLD;
 constexpr auto typeFormat = [](string const& str) { return TF::CYAN(TF::ITALIC(str)); };
 constexpr auto accentFormat = [](string const& str) { return TF::BOLD(TF::ULINE(str)); };
 
 //---------------------------------------
-// class Argument operator
+// class Argument public functions
 //---------------------------------------
 
 std::ostream& operator<<(std::ostream& os, Argument const& arg) {
-    return arg.isParsed()
-                ? arg._pimpl->doPrint(os)
-                : (arg.hasDefaultValue()
-                        ? arg._pimpl->doPrint(os) << " (default)"
-                        : os << "(unparsed)");
+    return arg._pimpl->doPrint(os);
 }
 
-template <>
-std::ostream& Argument::ArgumentModel<bool>::doPrint(std::ostream& os) const {
-    return os << std::boolalpha << _arg;
+/**
+ * @brief set name to an argument. 
+ *        This function returns the reference to the argument to ease decorator chaining
+ * 
+ * @tparam T 
+ * @param val 
+ * @return Argument& 
+ */
+Argument& Argument::name(std::string const& name) {
+    setName(name);
+    return *this;
 }
+
+/**
+ * @brief set meta-variable, i.e., displayed name, to an argument. 
+ *        This function returns the reference to the argument to ease decorator chaining
+ * 
+ * @tparam T 
+ * @param val 
+ * @return Argument& 
+ */
+Argument& Argument::metavar(std::string const& mvar) {
+    setMetavar(mvar);
+    return *this;
+}
+
+/**
+ * @brief set an argument as required. 
+ *        This function returns the reference to the argument to ease decorator chaining
+ * 
+ * @tparam T 
+ * @param val 
+ * @return Argument& 
+ */
+Argument& Argument::required() {
+    setRequired(true);
+    return *this;
+}
+
+/**
+ * @brief set an argument as optional. 
+ *        This function returns the reference to the argument to ease decorator chaining
+ * 
+ * @tparam T 
+ * @param val 
+ * @return Argument& 
+ */
+Argument& Argument::optional() {
+    setRequired(false);
+    return *this;
+}
+
+/**
+ * @brief set help message to an argument. 
+ *        This function returns the reference to the argument to ease decorator chaining
+ * 
+ * @tparam T 
+ * @param val 
+ * @return Argument& 
+ */
+Argument& Argument::help(std::string const& help) {
+    setHelp(help);
+    return *this;
+}
+
+/**
+ * @brief set the action on parsing for an argument. 
+ *        If not set, the default behavior is to parse the argument from string.
+ *        This function returns the reference to the argument to ease decorator chaining
+ * 
+ * @tparam T 
+ * @param val 
+ * @return Argument& 
+ */
+Argument& Argument::action(ActionType const& action) {
+    setAction(action);
+    return *this;
+}
+
+/**
+ * @brief set constraint to an argument. 
+ *        This function returns the reference to the argument to ease decorator chaining
+ * 
+ * @tparam T 
+ * @param val 
+ * @return Argument& 
+ */
+Argument& Argument::constraint(ActionType const& constraint, OnErrorCallbackType const& onerror) {
+    addConstraint(constraint, onerror);
+    return *this;
+}
+
+bool Argument::parse(std::span<TokenPair> tokens) {
+        bool result = hasAction() ? getAction()(*this) : _pimpl->doParse(tokens);
+
+        setParsed(true);
+        
+        if (!hasAction()) {
+            for (auto const& [callback, onerror] : getConstraintCallbacks()) {
+                if (!callback) continue;
+
+                if (!callback(*this)) {
+                    if (onerror) onerror(*this);
+                    return false;
+                }
+            }
+        }
+
+        return result;
+    }
 
 //---------------------------------------
 // class Argument pretty-printing helpers
 //---------------------------------------
 
 std::string Argument::getSyntaxString() const {
-    if (isMandatory())
-        return typeBracket(formattedType() + " " + formattedName());
+    string ret; 
+
+    if (!hasAction()) {
+        ret += formattedType() + " " + formattedMetaVar();
+    }
+    
+    if (isNonPositional()) {
+        ret = formattedName() + " " + typeBracket(ret);
+    }
+
+    auto bracketFormat = isPositional() ? TF::CYAN : optionFormat;
+
+    if (isRequired())
+        return bracketFormat("<") + ret + bracketFormat(">");
     else
-        return optionBracket(formattedName() + (isOfType<bool>() ? "" : (" " + typeBracket(formattedType()))));
+        return bracketFormat("[") + ret + bracketFormat("]");
 }
 
 void Argument::printHelpString() const {
@@ -65,12 +179,12 @@ void Argument::printHelpString() const {
     string typeStr = getTypeString();
     string name = getName();
 
-    size_t additionalNameWidth = isOptional()
-                                     ? (TF::tokenSize(accentFormat) + (colorLevel >= 1 ? 2 : 1) * TF::tokenSize(optionFormat))
-                                     : TF::tokenSize(mandatoryFormat);
+    size_t additionalNameWidth = isPositional()
+                                     ? TF::tokenSize(positionalFormat)
+                                     : (TF::tokenSize(accentFormat) + (colorLevel >= 1 ? 2 : 1) * TF::tokenSize(optionFormat));
     cout << string(nIndents, ' ');
     cout << setw(typeWidth + TF::tokenSize(typeFormat))
-         << left << (isOfType<bool>() && isOptional() ? typeFormat("flag") : formattedType()) << " "
+         << left << formattedType() << " "
          << setw(nameWidth + additionalNameWidth)
          << left << formattedName() << "   ";
 
@@ -88,7 +202,15 @@ void Argument::printHelpString() const {
 }
 
 void Argument::printStatus() const {
-    cout << "  " << left << setw(8) << getName() << "   = " << *this << endl;
+    cout << "  " << left << setw(8) << getName() << "   = ";
+    if (isParsed()) {
+        cout << *this;
+    } else if (hasDefaultValue()) {
+        cout << *this << " (default)";
+    } else {
+        cout << "(unparsed)";
+    }
+    cout << endl;
 }
 
 string Argument::typeBracket(string const& str) const {
@@ -104,7 +226,7 @@ string Argument::formattedType() const {
 }
 
 string Argument::formattedName() const {
-    if (isMandatory()) return mandatoryFormat(getName());
+    if (isPositional()) return positionalFormat(getName());
     if (colorLevel >= 1) {
         string mand = getName().substr(0, getNumMandatoryChars());
         string rest = getName().substr(getNumMandatoryChars());
@@ -116,6 +238,10 @@ string Argument::formattedName() const {
         }
         return optionFormat(tmp);
     }
+}
+
+string Argument::formattedMetaVar() const {
+    return positionalFormat(getMetaVar());
 }
 
 }  // namespace ArgParse

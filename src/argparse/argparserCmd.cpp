@@ -33,20 +33,20 @@ bool initArgParserCmd() {
 //----------------------------------------------------------------------
 
 void ArgParserCmd::parserDefinition() {
-    parser.cmdInfo("ZXGRead", "read a file and construct the corresponding ZX-graph");
+    parser.cmdInfo("Argparse", "argparse function playground");
 
-    parser.addArgument<int>("filepath")
-        .help("supports files with `.zx` or `.bzx` extension");
-
-    parser.addArgument<bool>("-replace")
-        .defaultValue(false)
-        .action(ArgParse::Argument::storeTrue())
-        .help("replace the current ZX-graph");
-
-    parser.addArgument<bool>("-KEEPid")
-        .defaultValue(false)
-        .action(ArgParse::Argument::storeTrue())
-        .help("retain the vertex IDs from the input file (i.e., don't rearrange to consecutive numbers)");
+    parser.addArgument<string>("reqpos")
+        .help("Required positional argument");
+    parser.addArgument<string>("optpos")
+        .help("Optional positional argument")
+        .optional();
+    parser.addArgument<string>("-reqopt")
+        .help("Required option")
+        .required()
+        .metavar("apple");
+    parser.addArgument<string>("-optopt")
+        .help("Optional option")
+        .metavar("banana");
 }
 
 CmdExecStatus

@@ -27,9 +27,9 @@ public:
     template <typename ArgType>
     Argument& addArgument(std::string const& argName);
 
-    SubParsers& addSubParsers(std::string const& name, std::string const& help) {
-        return addArgument<SubParsers>(name).help(help);
-    }
+    // SubParsers& addSubParsers(std::string const& name, std::string const& help) {
+    //     return addArgument<SubParsers>(name).help(help);
+    // }
 
     void printUsage() const;
     void printSummary() const;
@@ -46,7 +46,7 @@ public:
     Argument& operator[](std::string const& key);
     Argument const& operator[](std::string const& key) const;
 
-    ParseResult parse(std::string const& line);
+    bool parse(std::string const& line);
 
 protected:
     ordered_hashmap<std::string, Argument> _arguments;
@@ -61,35 +61,35 @@ protected:
     bool analyzeOptions() const;
     bool tokenize(std::string const& line);
 
-    ParseResult parseOptionalArguments();
-    ParseResult parseMandatoryArguments();
+    bool parseOptions();
+    bool parsePositionalArguments();
 
     std::string formattedCmdName() const;
 };
 
-class SubParsers {
-public:
-    ArgumentParser& addParser(std::string const& name, std::string const& help);
+// class SubParsers {
+// public:
+//     ArgumentParser& addParser(std::string const& name, std::string const& help);
 
-    friend std::ostream& operator<<(std::ostream& os, SubParsers const& sap) {
-        return os << "(subparsers)";
-    }
+//     friend std::ostream& operator<<(std::ostream& os, SubParsers const& sap) {
+//         return os << "(subparsers)";
+//     }
 
-    bool operator== (SubParsers const& other) const {
-        // REVIEW - how to check equivalency?
-        return false;
-    }
+//     bool operator==(SubParsers const& other) const {
+//         // REVIEW - how to check equivalency?
+//         return false;
+//     }
 
-    bool operator!= (SubParsers const& other) const {
-        return !(*this == other);
-    }
+//     bool operator!=(SubParsers const& other) const {
+//         return !(*this == other);
+//     }
 
-    ArgumentParser& operator[](std::string const& name) { return _subparsers.at(toLowerString(name)); }
-    ArgumentParser const& operator[](std::string const& name) const { return _subparsers.at(toLowerString(name)); }
+//     ArgumentParser& operator[](std::string const& name) { return _subparsers.at(toLowerString(name)); }
+//     ArgumentParser const& operator[](std::string const& name) const { return _subparsers.at(toLowerString(name)); }
 
-private:
-    ordered_hashmap<std::string, ArgumentParser> _subparsers;
-};
+// private:
+//     ordered_hashmap<std::string, ArgumentParser> _subparsers;
+// };
 
 /**
  * @brief              add an argument to the `ArgumentParser`.
@@ -116,11 +116,23 @@ Argument& ArgumentParser::addArgument(std::string const& argName) {
     }
 
     _arguments.emplace(realName, ArgType());
-    _arguments.at(realName).name(realName);
-    _arguments.at(realName).setNumMandatoryChars(countUpperChars(argName));
+    auto& newArg = _arguments.at(realName);
+
+    newArg.name(realName);
+    newArg.setNumMandatoryChars(countUpperChars(argName));
+
+    if (newArg.isPositional()) {
+        newArg
+            .metavar(realName)
+            .required();
+    } else {
+        newArg
+            .metavar(toUpperString(realName.substr(realName.find_first_not_of('-'))))
+            .optional();
+    }
 
     _optionsAnalyzed = false;
-    return _arguments.at(realName);
+    return newArg;
 }
 
 }  // namespace ArgParse

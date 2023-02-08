@@ -38,12 +38,12 @@ public:
 
     // construct/assign from internal types
     template <typename ArgType>
-    Argument(ArgType arg)
+    explicit Argument(ArgType arg)
         : _pimpl{std::make_unique<ArgumentModel<ArgType>>(std::move(arg))},
           _traits() {}
 
     template <size_t N>
-    Argument(char const (&arg)[N])
+    explicit Argument(char const (&arg)[N])
         : _pimpl{std::make_unique<ArgumentModel<std::string>>(std::move(std::string(arg)))},
           _traits() {}
 
@@ -69,81 +69,34 @@ public:
     template <typename T>
     operator T&() const;
 
+    template <typename T>
+    operator T const&() const;
+
     // argument decorators
 
-    Argument& name(std::string const& name) {
-        setName(name);
-        return *this;
-    }
-
-    Argument& optional() {
-        setOptional(true);
-        return *this;
-    }
+    Argument& name(std::string const& name);
+    Argument& metavar(std::string const& mvar);
+    Argument& required();
+    Argument& optional();
+    Argument& help(std::string const& help);
+    Argument& action(ActionType const& action);
+    Argument& constraint(ActionType const& constraint, OnErrorCallbackType const& onerror);
 
     template <typename T>
-    Argument& defaultValue(T const& val) {
-        setDefaultValue(val);
-        return *this;
-    }
-
-    Argument& help(std::string const& help) {
-        setHelp(help);
-        return *this;
-    }
-
-    Argument& action(ActionType const& action) {
-        setAction(action);
-        return *this;
-    }
-
-    Argument& constraint(ActionType const& constraint, OnErrorCallbackType const& onerror) {
-        addConstraint(constraint, onerror);
-        return *this;
-    }
-
+    Argument& defaultValue(T const& val);
     template <typename T>
-    Argument& choices(std::initializer_list<T> const& choices) {
-        if constexpr (std::is_same_v<T, char const*>) {
-            std::vector<std::string> vecChoices(choices.begin(), choices.end());
-            addConstraint(makeChoicesConstraint<std::string>(vecChoices),
-                          detail::printParseResultIsNotAChoiceErrorMsg);
-        } else {
-            std::vector<T> vecChoices{choices};
-            addConstraint(makeChoicesConstraint<T>(vecChoices),
-                          detail::printParseResultIsNotAChoiceErrorMsg);
-        }
-        return *this;
-    }
+    Argument& choices(std::initializer_list<T> const& choices);
 
     // parse
 
-    ParseResult parse(std::span<TokenPair> tokens) {
-        if (hasAction()) {
-            ParseResult result = getAction()(*this) ? ParseResult::success : ParseResult::error;
-            setParsed(true);
-            return result;
-        }
-
-        ParseResult result = _pimpl->doParse(tokens);
-        setParsed(true);
-        for (auto const& [callback, onerror] : getConstraintCallbacks()) {
-            if (!callback) continue;
-
-            if (!callback(*this)) {
-                if (onerror) onerror(*this);
-                return ParseResult::error;
-            }
-        }
-
-        return result;
-    }
+    bool parse(std::span<TokenPair> tokens);
 
     // getters
 
     std::string const& getName() const { return _traits.name; }
+    std::string const& getMetaVar() const { return _traits.metavar; }
     std::string const& getHelp() const { return _traits.help; }
-    std::string getTypeString() const { return _pimpl->doTypeString(); }
+    std::string getTypeString() const { return hasAction() ? "flag" : _pimpl->doTypeString(); }
     size_t getNumMandatoryChars() const { return _traits.numMandatoryChars; }
     ActionType const& getAction() const { return _traits.action; }
     ActionType const& getResetCallback() const { return _traits.resetCallback; }
@@ -154,8 +107,10 @@ public:
     template <typename T>
     bool isOfType() const { return dynamic_cast<ArgumentModel<T>*>(_pimpl.get()) != nullptr; }
 
-    bool isMandatory() const { return !_traits.optional; }
-    bool isOptional() const { return _traits.optional; }
+    bool isRequired() const { return _traits.required; }
+    bool isOptional() const { return !isRequired(); }
+    bool isPositional() const { return !isNonPositional(); }
+    bool isNonPositional() const { return _traits.name.starts_with("-"); }
     bool isParsed() const { return _traits.parsed; }
 
     bool hasDefaultValue() const { return _traits.hasDefaultVal; }
@@ -163,6 +118,7 @@ public:
     bool hasResetCallback() const { return _traits.resetCallback != nullptr; }
 
     // print functions
+
     void printHelpString() const;
     void printStatus() const;
 
@@ -183,13 +139,14 @@ private:
 
     struct ArgumentTraits {
         ArgumentTraits()
-            : name{}, help{}, numMandatoryChars{0}, parsed{false}, optional{false}, hasDefaultVal{false}, action{}, resetCallback{}, constraintCallbacks{} {}
+            : name{}, metavar{}, help{}, numMandatoryChars{0}, parsed{false}, required{true}, hasDefaultVal{false}, action{}, resetCallback{}, constraintCallbacks{} {}
         std::string name;
+        std::string metavar;
         std::string help;
         size_t numMandatoryChars;
 
         bool parsed;
-        bool optional;
+        bool required;
         bool hasDefaultVal;
         ActionType action;
         ActionType resetCallback;
@@ -204,6 +161,7 @@ private:
     std::string optionBracket(std::string const& str) const;
     std::string formattedType() const;
     std::string formattedName() const;
+    std::string formattedMetaVar() const;
 
     // setters
     void reset() {
@@ -213,20 +171,19 @@ private:
 
     template <typename T>
     void setDefaultValue(T const& val) {
-        try {
-            *this = val;
-        } catch (bad_arg_cast& e) {
-            detail::printDefaultValueErrorMsg(*this);
-        }
-        _traits.optional = true;
+        // convert to tokens first to circumvent type issues
+        auto vec = detail::toTokens(val);
+        _pimpl->doParse(vec);
+        _traits.required = false;
         _traits.hasDefaultVal = true;
         _traits.resetCallback = resetToDefault(val);
     }
+    void setName(std::string const& name) { _traits.name = name; }
+    void setMetavar(std::string const& mvar) {_traits.metavar = mvar; }
     void setHelp(std::string const& help) { _traits.help = help; }
     void setAction(ActionType const& action) { _traits.action = action; }
-    void setName(std::string const& name) { _traits.name = name; }
     void setNumMandatoryChars(size_t n) { _traits.numMandatoryChars = n; }
-    void setOptional(bool isOpt) { _traits.optional = isOpt; }
+    void setRequired(bool isReq) { _traits.required = isReq; }
     void setParsed(bool parsed) { _traits.parsed = parsed; }
 
     void addConstraint(ActionType const& constraint, OnErrorCallbackType const& onerror = nullptr) {
@@ -237,7 +194,7 @@ private:
     static ActionType resetToDefault(T const& val);
 
     template <typename T>
-    static ActionType makeChoicesConstraint(std::vector<T> vecChoices) {
+    ActionType makeChoicesConstraint(std::vector<T> vecChoices) {
         return [vecChoices](Argument const& arg) -> bool {
             return any_of(vecChoices.begin(), vecChoices.end(), [&arg](T const& val) {
                 return (val == (T&)arg);
@@ -256,7 +213,7 @@ private:
         virtual std::unique_ptr<ArgumentConcept> clone() const = 0;
         virtual std::string doTypeString() const = 0;
         virtual std::ostream& doPrint(std::ostream& os) const = 0;
-        virtual ParseResult doParse(std::span<TokenPair> tokens) = 0;
+        virtual bool doParse(std::span<TokenPair> tokens) = 0;
     };
 
     /**
@@ -274,7 +231,7 @@ private:
         std::unique_ptr<ArgumentConcept> clone() const override;
         std::string doTypeString() const override;
         std::ostream& doPrint(std::ostream& os) const override;
-        ParseResult doParse(std::span<TokenPair> tokens) override {
+        bool doParse(std::span<TokenPair> tokens) override {
             return detail::parse(_arg, tokens);
         }
     };
@@ -287,8 +244,7 @@ private:
 /**
  * @brief cast the `Argument` to specific type. The target type has to be of the same type as
  *        the type stored under `Argument::ArgumentModel`. The user is expected to know the
- *        underlying type because this information is necessary for the constructor of this
- *        class. If the casting fails, throw `ArgParse::bad_arg_cast` errors.
+ *        underlying type. If the casting fails, throw `ArgParse::bad_arg_cast` errors.
  *
  * @tparam T
  * @return T
@@ -303,6 +259,62 @@ Argument::operator T&() const {
         detail::printArgumentCastErrorMsg(*this);
         throw bad_arg_cast{};
     }
+}
+
+/**
+ * @brief cast the `Argument` to specific type. The target type has to be of the same type as
+ *        the type stored under `Argument::ArgumentModel`. The user is expected to know the
+ *        underlying type. If the casting fails, throw `ArgParse::bad_arg_cast` errors.
+ *
+ * @tparam T
+ * @return T
+ */
+template <typename T>
+Argument::operator T const&() const {
+    if (auto ptr = dynamic_cast<ArgumentModel<T>*>(_pimpl.get())) {
+        if (!isParsed() && !hasDefaultValue())
+            detail::printArgumentUnparsedErrorMsg(*this);
+        return ptr->_arg;
+    } else {
+        detail::printArgumentCastErrorMsg(*this);
+        throw bad_arg_cast{};
+    }
+}
+
+/**
+ * @brief set default value to an argument. 
+ *        This function returns the reference to the argument to ease decorator chaining
+ * 
+ * @tparam T 
+ * @param val 
+ * @return Argument& 
+ */
+template <typename T>
+Argument& Argument::defaultValue(T const& val) {
+    setDefaultValue(val);
+    return *this;
+}
+
+/**
+ * @brief set choices to an argument. 
+ *        This function returns the reference to the argument to ease decorator chaining
+ * 
+ * @tparam T 
+ * @param val 
+ * @return Argument& 
+ */
+template <typename T>
+Argument& Argument::choices(std::initializer_list<T> const& choices) {
+    if constexpr (std::is_same_v<T, char const*>) {
+        std::vector<std::string> vecChoices(choices.begin(), choices.end());
+        addConstraint(makeChoicesConstraint<std::string>(vecChoices),
+                        detail::printParseResultIsNotAChoiceErrorMsg);
+    } else {
+        std::vector<T> vecChoices{choices};
+        addConstraint(makeChoicesConstraint<T>(vecChoices),
+                        detail::printParseResultIsNotAChoiceErrorMsg);
+    }
+    return *this;
 }
 
 template <typename T>
@@ -324,7 +336,9 @@ Argument::ActionType Argument::resetToDefault(T const& val) {
     // must pass `val` by copy so the callback remenber its state!
     return [val](Argument& arg) -> bool {
         try {
-            arg = val;
+            // convert to token first to circumvent type issues
+            auto vec = detail::toTokens(val);
+            arg._pimpl->doParse(vec);
         } catch (bad_arg_cast& e) {
             detail::printArgumentCastErrorMsg(arg);
             return false;

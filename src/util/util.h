@@ -37,6 +37,7 @@ bool myStr2Double(const std::string& str, double& f);
 bool myStr2LongDouble(const std::string& str, long double& f);
 
 std::string toLowerString(std::string const& str);
+std::string toUpperString(std::string const& str);
 size_t countUpperChars(std::string const& str);
 
 // In util.cpp
@@ -52,5 +53,7 @@ template <typename T>
 size_t findIndex(const std::vector<T>& vec, const T& t) {
     return std::find(vec.begin(), vec.end(), t) - vec.begin();
 }
+
+inline bool implies(bool a, bool b) { return !a || b; }
 
 #endif  // QSYN_UTIL_H

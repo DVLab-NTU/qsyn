@@ -15,8 +15,7 @@ CmdClass(QuitCmd);
 CmdClass(HistoryCmd);
 CmdClass(DofileCmd);
 CmdClass(UsageCmd);
-CmdClass(VerboseCmd);
-CmdClass(SeedCmd);
-CmdClass(CommentCmd);
+ArgParseCmdClass(VerboseCmd);
+ArgParseCmdClass(SeedCmd);
 ArgParseCmdClass(ColorCmd);
 #endif  // CMD_COMMON_H
