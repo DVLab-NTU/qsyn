@@ -25,7 +25,7 @@ extern size_t verbose;
  *
  */
 void Extractor::initialize(bool fromEmpty) {
-    if (verbose >= 5) cout << "Initialize" << endl;
+    if (verbose >= 4) cout << "Initialize" << endl;
     size_t cnt = 0;
     for (auto& o : _graph->getOutputs()) {
         if (!o->getFirstNeighbor().first->isBoundary()) {
@@ -60,9 +60,10 @@ void Extractor::initialize(bool fromEmpty) {
 /**
  * @brief Extract the graph into circuit
  *
+ * @param permute if false, do not permute qubit in the end
  * @return QCir*
  */
-QCir* Extractor::extract() {
+QCir* Extractor::extract(bool permute) {
     if (!extractionLoop(-1))
         return nullptr;
     else
@@ -71,11 +72,14 @@ QCir* Extractor::extract() {
         _circuit->printQubits();
         _graph->printQubits();
     }
-    permuteQubit();
-    if (verbose >= 8) {
-        _circuit->printQubits();
-        _graph->printQubits();
+    if (permute) {
+        permuteQubit();
+        if (verbose >= 8) {
+            _circuit->printQubits();
+            _graph->printQubits();
+        }
     }
+
     return _circuit;
 }
 
@@ -94,7 +98,7 @@ bool Extractor::extractionLoop(size_t max_iter) {
         if (_frontier.empty()) break;
 
         if (removeGadget()) {
-            if (verbose >= 5) cout << "Gadget(s) are removed." << endl;
+            if (verbose >= 4) cout << "Gadget(s) are removed." << endl;
             if (verbose >= 8) {
                 printFrontier();
                 _graph->printQubits();
@@ -104,12 +108,10 @@ bool Extractor::extractionLoop(size_t max_iter) {
         }
 
         if (containSingleNeighbor()) {
-            if (verbose >= 5) cout << "Construct an easy matrix." << endl;
+            if (verbose >= 4) cout << "Construct an easy matrix." << endl;
             _biAdjacency.fromZXVertices(_frontier, _neighbors);
         } else {
-            if (verbose >= 5) cout << "Perform Gaussian Elimination." << endl;
-            gaussianElimination();
-            updateGraphByMatrix();
+            if (verbose >= 4) cout << "Perform Gaussian Elimination." << endl;
             extractCXs();
         }
         if (extractHsFromM2() == 0) {
@@ -131,12 +133,13 @@ bool Extractor::extractionLoop(size_t max_iter) {
     }
     return true;
 }
+
 /**
  * @brief Clean frontier. Contain extract singles and CZs. Used in extract.
  *
  */
 void Extractor::cleanFrontier() {
-    if (verbose >= 5) cout << "Clean Frontier" << endl;
+    if (verbose >= 4) cout << "Clean Frontier" << endl;
     // NOTE - Edge and Phase
     extractSingles();
     // NOTE - CZs
@@ -148,7 +151,7 @@ void Extractor::cleanFrontier() {
  *
  */
 void Extractor::extractSingles() {
-    if (verbose >= 5) cout << "Extract Singles" << endl;
+    if (verbose >= 4) cout << "Extract Singles" << endl;
     vector<pair<ZXVertex*, ZXVertex*>> toggleList;
     for (ZXVertex* o : _graph->getOutputs()) {
         if (o->getFirstNeighbor().second == EdgeType::HADAMARD) {
@@ -179,7 +182,7 @@ void Extractor::extractSingles() {
  * @return false
  */
 bool Extractor::extractCZs(bool check) {
-    if (verbose >= 5) cout << "Extract CZs" << endl;
+    if (verbose >= 4) cout << "Extract CZs" << endl;
 
     if (check) {
         for (auto& f : _frontier) {
@@ -197,9 +200,6 @@ bool Extractor::extractCZs(bool check) {
     }
 
     vector<pair<ZXVertex*, ZXVertex*>> removeList;
-    _frontier.sort([](const ZXVertex* a, const ZXVertex* b) {
-        return a->getQubit() < b->getQubit();
-    });
 
     for (auto itr = _frontier.begin(); itr != _frontier.end(); itr++) {
         for (auto jtr = next(itr); jtr != _frontier.end(); jtr++) {
@@ -225,21 +225,36 @@ bool Extractor::extractCZs(bool check) {
 /**
  * @brief Extract CXs
  *
- * @param strategy (0: directly by result of Gaussian Elimination)
+ * @param strategy (0: directly by result of Gaussian Elimination, 1-default: Filter Duplicated CNOT)
  */
 void Extractor::extractCXs(size_t strategy) {
-    if (verbose >= 5) cout << "Extract CXs" << endl;
+    gaussianElimination();
+    updateGraphByMatrix();
+
+    if (verbose >= 4) cout << "Extract CXs" << endl;
     unordered_map<size_t, ZXVertex*> frontId2Vertex;
     size_t cnt = 0;
     for (auto& f : _frontier) {
         frontId2Vertex[cnt] = f;
         cnt++;
     }
+
+    if (strategy == 1) {
+        size_t old = _cntCXFiltered;
+        while (true) {
+            size_t reduce = _biAdjacency.filterDuplicatedOps();
+            _cntCXFiltered += reduce;
+            if (reduce == 0) break;
+        }
+        if (verbose >= 4) cout << "Filter " << _cntCXFiltered - old << " CXs. Total: " << _cntCXFiltered << endl;
+    }
+
+    _cnots = _biAdjacency.getOpers();
     for (auto& [t, c] : _cnots) {
         // NOTE - targ and ctrl are opposite here
         size_t ctrl = _qubitMap[frontId2Vertex[c]->getQubit()];
         size_t targ = _qubitMap[frontId2Vertex[t]->getQubit()];
-        if (verbose >= 5) cout << "Add CX: " << ctrl << " " << targ << endl;
+        if (verbose >= 4) cout << "Add CX: " << ctrl << " " << targ << endl;
         _circuit->addGate("cx", {ctrl, targ}, Phase(0), false);
     }
 }
@@ -251,7 +266,7 @@ void Extractor::extractCXs(size_t strategy) {
  * @return size_t
  */
 size_t Extractor::extractHsFromM2(bool check) {
-    if (verbose >= 5) cout << "Extract Hs" << endl;
+    if (verbose >= 4) cout << "Extract Hs" << endl;
 
     if (check) {
         if (!frontierIsCleaned()) {
@@ -313,7 +328,7 @@ size_t Extractor::extractHsFromM2(bool check) {
     }
 
     if (check && frontNeighPairs.size() == 0) {
-        cerr << "Error: No Candidate Found!!" << endl;
+        cerr << "Error: no candidate found!!" << endl;
         printMatrix();
     }
     return frontNeighPairs.size();
@@ -327,7 +342,7 @@ size_t Extractor::extractHsFromM2(bool check) {
  * @return false if not
  */
 bool Extractor::removeGadget(bool check) {
-    if (verbose >= 5) cout << "Remove Gadget" << endl;
+    if (verbose >= 4) cout << "Remove Gadget" << endl;
 
     if (check) {
         if (_frontier.empty()) {
@@ -375,7 +390,7 @@ bool Extractor::removeGadget(bool check) {
                 simp.amend();
 
                 pivotBoundaryRule->clearBoundary();
-                // n->setQubit(candidate->getQubit());
+
                 if (targetBoundary != nullptr)
                     _frontier.emplace(targetBoundary->getFirstNeighbor().first);
                 // REVIEW - qubit_map
@@ -488,7 +503,7 @@ Extractor::Target Extractor::findColumnSwap(Target target) {
             }
 
             if (freeCols.size() == 0) {
-                cout << "No Free Column!!" << endl;
+                cout << "Error: no free column!!" << endl;
                 Target t;
                 return t;  // NOTE - Contradiction
             }
@@ -562,10 +577,16 @@ bool Extractor::gaussianElimination(bool check) {
             return false;
         }
     }
+
+    // REVIEW - Do not know why sort in here would be better
+    _neighbors.sort([](const ZXVertex* a, const ZXVertex* b) {
+        return a->getId() < b->getId();
+    });
+
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
     columnOptimalSwap();
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
-    _biAdjacency.gaussianElimSkip();
+    _biAdjacency.gaussianElimSkip(5, true, true);
     _cnots = _biAdjacency.getOpers();
     return true;
 }
@@ -575,7 +596,7 @@ bool Extractor::gaussianElimination(bool check) {
  *
  */
 void Extractor::permuteQubit() {
-    if (verbose >= 5) cout << "Permute Qubit" << endl;
+    if (verbose >= 4) cout << "Permute Qubit" << endl;
     // REVIEW - ordered_hashmap?
     unordered_map<size_t, size_t> swapMap;     // o to i
     unordered_map<size_t, size_t> swapInvMap;  // i to o
@@ -682,7 +703,7 @@ void Extractor::updateNeighbors() {
  */
 void Extractor::updateGraphByMatrix(EdgeType et) {
     size_t r = 0;
-    if (verbose >= 5) cout << "Update Graph by Matrix" << endl;
+    if (verbose >= 4) cout << "Update Graph by Matrix" << endl;
     for (auto& f : _frontier) {
         size_t c = 0;
         for (auto& nb : _neighbors) {
