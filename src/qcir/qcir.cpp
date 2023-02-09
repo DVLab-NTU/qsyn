@@ -251,9 +251,21 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
     } else if (type == "mcpx" || type == "cpx" || type == "px") {
         temp = new MCPXGate(_gateId);
         temp->setRotatePhase(phase);
-    } else if (type == "crz") {
-        temp = new CRZGate(_gateId);
+    } else if (type == "mcpy" || type == "cpy" || type == "py") {
+        temp = new MCPYGate(_gateId);
         temp->setRotatePhase(phase);
+    } else if (type == "mcrz" || type == "crz" || type == "rz") {
+        temp = new MCRZGate(_gateId);
+        temp->setRotatePhase(phase);
+    } else if (type == "mcrx" || type == "crx" || type == "rx") {
+        temp = new MCRXGate(_gateId);
+        temp->setRotatePhase(phase);
+    } else if (type == "mcry" || type == "cry" || type == "ry") {
+        temp = new MCRYGate(_gateId);
+        temp->setRotatePhase(phase);
+    // } else if (type == "crz") {
+    //     temp = new CRZGate(_gateId);
+    //     temp->setRotatePhase(phase);
     } else {
         cerr << "Error: The gate " << type << " is not implemented!!" << endl;
         abort();

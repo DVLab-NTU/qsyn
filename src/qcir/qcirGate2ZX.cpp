@@ -18,6 +18,129 @@ using namespace std;
 
 extern size_t verbose;
 
+namespace detail {
+
+Phase getGadgetPhase(Phase const& rotatePhase, size_t nQubits) {
+    return rotatePhase * Rational(1, pow(2, nQubits - 1));
+}
+
+enum class RotationAxis {
+    X, Y, Z
+};
+
+pair<vector<ZXVertex*>, ZXVertex*> 
+MC_GenBackbone(ZXGraph* g, vector<BitInfo> const& qubits, RotationAxis ax) {
+    vector<ZXVertex *> controls;
+    ZXVertex* target;
+    for (auto const& bitinfo : qubits) {
+        size_t qubit = bitinfo._qubit;
+        ZXVertex *in = g->addInput(qubit);
+        ZXVertex *v = g->addVertex(qubit, VertexType::Z);
+        ZXVertex *out = g->addOutput(qubit);
+        if (ax == RotationAxis::Z || !bitinfo._isTarget) {
+            g->addEdge(in, v, EdgeType::SIMPLE);
+            g->addEdge(v, out, EdgeType::SIMPLE);
+        } else {
+            g->addEdge(in, v, EdgeType::HADAMARD);
+            g->addEdge(v, out, EdgeType::HADAMARD);
+            if (ax == RotationAxis::Y) {
+                g->addBuffer(in, v, EdgeType::HADAMARD)->setPhase(Phase(1, 2));
+                g->addBuffer(out, v, EdgeType::HADAMARD)->setPhase(Phase(-1, 2));
+            }
+        }
+        if (!bitinfo._isTarget) controls.push_back(v);
+        else target = v;
+    }
+
+    assert(target != nullptr);
+
+    return {controls, target};
+}
+
+/**
+ * @brief Make combination of `k` from `verVec`.
+ *        Function that will be called in `makeCombi`
+ *
+ * @param comb
+ * @param tmp
+ * @param verVec
+ * @param left
+ * @param k
+ */
+void makeCombiUtil(vector<vector<ZXVertex*>> &comb, vector<ZXVertex*> &tmp, vector<ZXVertex*> const& verVec, int left, int k) {
+    if (k == 0) {
+        comb.push_back(tmp);
+        return;
+    }
+    for (int i = left; i < (int)verVec.size(); ++i) {
+        tmp.push_back(verVec[i]);
+        makeCombiUtil(comb, tmp, verVec, i + 1, k - 1);
+        tmp.pop_back();
+    }
+}
+
+/**
+ * @brief Make combination of `k` from `verVec`
+ *
+ * @param verVec
+ * @param k
+ * @return vector<vector<ZXVertex* > >
+ */
+vector<vector<ZXVertex*>> makeCombi(vector<ZXVertex*> const& verVec, int k) {
+    vector<vector<ZXVertex*>> comb;
+    vector<ZXVertex*> tmp;
+    makeCombiUtil(comb, tmp, verVec, 0, k);
+    return comb;
+}
+
+void MCR_GenGadgets(ZXGraph* g, vector<ZXVertex*> const& controls, ZXVertex* target, Phase const& phase) {
+    target->setPhase(phase);
+    for (size_t k = 1; k <= controls.size(); k++) {
+        vector<vector<ZXVertex *>> combinations = makeCombi(controls, k);
+        for (auto& combination : combinations) {
+            combination.push_back(target);
+            g->addGadget((combination.size() % 2) ? phase : -phase, combination);
+        }
+    }
+}
+
+void MCP_GenGadgets(ZXGraph* g, vector<ZXVertex*> const& vertices, Phase const& phase) {
+    for (auto& v : vertices) {
+        v->setPhase(phase);
+    }
+    for (size_t k = 2; k <= vertices.size(); k++) {
+        vector<vector<ZXVertex *>> combinations = makeCombi(vertices, k);
+        for (auto& combination : combinations) {
+            g->addGadget((combination.size() % 2) ? phase : -phase, combination);
+        }
+    }
+}
+
+ZXGraph* MCR_Gen(vector<BitInfo> qubits, size_t id, Phase const& rotatePhase, RotationAxis ax) {
+    ZXGraph *g = new ZXGraph(id);
+    Phase phase = detail::getGadgetPhase(rotatePhase, qubits.size());
+
+    auto [controls, target] = detail::MC_GenBackbone(g, qubits, ax);
+
+    detail::MCR_GenGadgets(g, controls, target, phase);
+    
+    return g;
+}
+
+ZXGraph* MCP_Gen(vector<BitInfo> qubits, size_t id, Phase const& rotatePhase, RotationAxis ax) {
+    ZXGraph *g = new ZXGraph(id);
+    Phase phase = detail::getGadgetPhase(rotatePhase, qubits.size());
+
+    auto [vertices, target] = detail::MC_GenBackbone(g, qubits, ax);
+    vertices.push_back(target);
+
+    detail::MCP_GenGadgets(g, vertices, phase);
+    
+    return g;
+}
+
+}
+
 /**
  * @brief Map single qubit gate to ZX-graph
  *
@@ -34,46 +157,8 @@ ZXGraph *QCirGate::mapSingleQubitGate(VertexType vt, Phase ph) {
     ZXVertex *out = g->addOutput(qubit);
     g->addEdge(in, gate, EdgeType::SIMPLE);
     g->addEdge(gate, out, EdgeType::SIMPLE);
-    g->setInputHash(qubit, in);
-    g->setOutputHash(qubit, out);
 
     return g;
-}
-
-/**
- * @brief Make combination of `k` from `verVec`
- *
- * @param verVec
- * @param k
- * @return vector<vector<ZXVertex* > >
- */
-vector<QCirGate::ZXVertexCombi> QCirGate::makeCombi(QCirGate::ZXVertexCombi verVec, int k) {
-    vector<vector<ZXVertex *>> comb;
-    vector<ZXVertex *> tmp;
-    makeCombiUtil(comb, tmp, verVec, 0, k);
-    return comb;
-}
-
-/**
- * @brief Make combination of `k` from `verVec`.
- *        Function that will be called in `makeCombi`
- *
- * @param comb
- * @param tmp
- * @param verVec
- * @param left
- * @param k
- */
-void QCirGate::makeCombiUtil(vector<QCirGate::ZXVertexCombi> &comb, QCirGate::ZXVertexCombi &tmp, QCirGate::ZXVertexCombi verVec, int left, int k) {
-    if (k == 0) {
-        comb.push_back(tmp);
-        return;
-    }
-    for (int i = left; i < (int)verVec.size(); ++i) {
-        tmp.push_back(verVec[i]);
-        makeCombiUtil(comb, tmp, verVec, i + 1, k - 1);
-        tmp.pop_back();
-    }
 }
 
 // Double or More Qubit Gate
@@ -99,10 +184,6 @@ ZXGraph *CXGate::getZXform() {
     temp->addEdge(in_targ, targX, EdgeType::SIMPLE);
     temp->addEdge(targX, out_targ, EdgeType::SIMPLE);
     temp->addEdge(ctrl, targX, EdgeType::SIMPLE);
-    temp->setInputHash(ctrl_qubit, in_ctrl);
-    temp->setOutputHash(ctrl_qubit, out_ctrl);
-    temp->setInputHash(targ_qubit, in_targ);
-    temp->setOutputHash(targ_qubit, out_targ);
 
     return temp;
 }
@@ -147,13 +228,6 @@ ZXGraph *CCXGate::getZXform() {
         temp->addEdge(Vertices_list[adj_pair[i].first], Vertices_list[adj_pair[i].second], EdgeType::SIMPLE);
     }
 
-    temp->setInputHash(ctrl_qubit_1, in_ctrl_1);
-    temp->setOutputHash(ctrl_qubit_1, out_ctrl_1);
-    temp->setInputHash(ctrl_qubit_2, in_ctrl_2);
-    temp->setOutputHash(ctrl_qubit_2, out_ctrl_2);
-    temp->setInputHash(targ_qubit, in_targ);
-    temp->setOutputHash(targ_qubit, out_targ);
-
     return temp;
 }
 
@@ -178,10 +252,6 @@ ZXGraph *CZGate::getZXform() {
     temp->addEdge(in_targ, targZ, EdgeType::SIMPLE);
     temp->addEdge(targZ, out_targ, EdgeType::SIMPLE);
     temp->addEdge(ctrl, targZ, EdgeType(EdgeType::HADAMARD));
-    temp->setInputHash(ctrl_qubit, in_ctrl);
-    temp->setOutputHash(ctrl_qubit, out_ctrl);
-    temp->setInputHash(targ_qubit, in_targ);
-    temp->setOutputHash(targ_qubit, out_targ);
 
     return temp;
 }
@@ -205,8 +275,6 @@ ZXGraph *YGate::getZXform() {
     temp->addEdge(in, X, EdgeType::SIMPLE);
     temp->addEdge(X, Z, EdgeType::SIMPLE);
     temp->addEdge(Z, out, EdgeType::SIMPLE);
-    temp->setInputHash(qubit, in);
-    temp->setOutputHash(qubit, out);
 
     return temp;
 }
@@ -229,84 +297,11 @@ ZXGraph *SYGate::getZXform() {
     temp->addEdge(S, SX, EdgeType::SIMPLE);
     temp->addEdge(SX, Sdg, EdgeType::SIMPLE);
     temp->addEdge(Sdg, out, EdgeType::SIMPLE);
-    temp->setInputHash(qubit, in);
-    temp->setOutputHash(qubit, out);
 
     return temp;
 }
 
-/**
- * @brief Get ZX-graph of CnP
- *
- * @return ZXGraph*
- */
-ZXGraph *MCPGate::getZXform() {
-    ZXGraph *temp = new ZXGraph(_id);
-    Phase phase = Phase(1, pow(2, _qubits.size() - 1));
-    Rational ratio = _rotatePhase / Phase(1);
-    phase = phase * ratio;
 
-    vector<ZXVertex *> verVec;
-    for (const auto bitinfo : _qubits) {
-        size_t qubit = bitinfo._qubit;
-        ZXVertex *in = temp->addInput(qubit);
-        ZXVertex *v = temp->addVertex(qubit, VertexType::Z, phase);
-        ZXVertex *out = temp->addOutput(qubit);
-        temp->addEdge(in, v, EdgeType::SIMPLE);
-        temp->addEdge(v, out, EdgeType::SIMPLE);
-        temp->setInputHash(qubit, in);
-        temp->setOutputHash(qubit, out);
-        verVec.push_back(v);
-    }
-
-    for (size_t k = 2; k <= verVec.size(); k++) {
-        vector<vector<ZXVertex *>> comb = makeCombi(verVec, k);
-        for (size_t i = 0; i < comb.size(); i++) {
-            if (k % 2)
-                temp->addGadget(phase, comb[i]);
-            else
-                temp->addGadget(-phase, comb[i]);
-        }
-    }
-    return temp;
-}
-
-/**
- * @brief Get ZX-graph of CRZ
- *
- * @return ZXGraph*
- */
-// TODO - Implentment the MCRZ version.
-ZXGraph *CRZGate::getZXform() {
-    ZXGraph *temp = new ZXGraph(_id);
-    Phase phase = Phase(1, pow(2, _qubits.size() - 1));
-    Rational ratio = _rotatePhase / Phase(1);
-    phase = phase * ratio;
-
-    vector<ZXVertex *> verVec;
-    for (const auto bitinfo : _qubits) {
-        size_t qubit = bitinfo._qubit;
-        ZXVertex *in = temp->addInput(qubit);
-        ZXVertex *v = temp->addVertex(qubit, VertexType::Z, bitinfo._isTarget ? phase : Phase(0));
-        ZXVertex *out = temp->addOutput(qubit);
-        temp->addEdge(in, v, EdgeType::SIMPLE);
-        temp->addEdge(v, out, EdgeType::SIMPLE);
-        temp->setInputHash(qubit, in);
-        temp->setOutputHash(qubit, out);
-        verVec.push_back(v);
-    }
-
-    for (size_t k = 2; k <= verVec.size(); k++) {
-        vector<vector<ZXVertex *>> comb = makeCombi(verVec, k);
-        for (size_t i = 0; i < comb.size(); i++) {
-            if (k % 2)
-                temp->addGadget(phase, comb[i]);
-            else
-                temp->addGadget(-phase, comb[i]);
-        }
-    }
-    return temp;
-}
 
 /**
  * @brief Get ZX-graph of MCPX
@@ -314,40 +309,25 @@ ZXGraph *CRZGate::getZXform() {
  * @return ZXGraph*
  */
 ZXGraph *MCPXGate::getZXform() {
-    ZXGraph *temp = new ZXGraph(_id);
-    Phase phase = Phase(1, pow(2, _qubits.size() - 1));
-    Rational ratio = _rotatePhase / Phase(1);
-    phase = phase * ratio;
+    return detail::MCP_Gen(_qubits, _id, _rotatePhase, detail::RotationAxis::X);
+}
 
-    vector<ZXVertex *> verVec;
-    size_t targetQubit = _qubits[_qubits.size() - 1]._qubit;
-    for (const auto bitinfo : _qubits) {
-        size_t qubit = bitinfo._qubit;
-        ZXVertex *in = temp->addInput(qubit);
-        ZXVertex *v = temp->addVertex(qubit, VertexType::Z, phase);
-        ZXVertex *out = temp->addOutput(qubit);
-        if (qubit != targetQubit) {
-            temp->addEdge(in, v, EdgeType::SIMPLE);
-            temp->addEdge(v, out, EdgeType::SIMPLE);
-        } else {
-            temp->addEdge(in, v, EdgeType::HADAMARD);
-            temp->addEdge(v, out, EdgeType::HADAMARD);
-        }
-        temp->setInputHash(qubit, in);
-        temp->setOutputHash(qubit, out);
-        verVec.push_back(v);
-    }
+/**
+ * @brief Get ZX-graph of MCPY
+ *
+ * @return ZXGraph*
+ */
+ZXGraph *MCPYGate::getZXform() {
+    return detail::MCP_Gen(_qubits, _id, _rotatePhase, detail::RotationAxis::Y);
+}
 
-    for (size_t k = 2; k <= verVec.size(); k++) {
-        vector<vector<ZXVertex *>> comb = makeCombi(verVec, k);
-        for (size_t i = 0; i < comb.size(); i++) {
-            if (k % 2)
-                temp->addGadget(phase, comb[i]);
-            else
-                temp->addGadget(-phase, comb[i]);
-        }
-    }
-    return temp;
+/**
+ * @brief Get ZX-graph of MCP
+ *
+ * @return ZXGraph*
+ */
+ZXGraph *MCPGate::getZXform() {
+    return detail::MCP_Gen(_qubits, _id, _rotatePhase, detail::RotationAxis::Z);
 }
 
 /**
@@ -355,10 +335,26 @@ ZXGraph *MCPXGate::getZXform() {
  *
  * @return ZXGraph*
  */
-
-// TODO - ZX form
 ZXGraph *MCRXGate::getZXform() {
-    return nullptr;
+    return detail::MCR_Gen(_qubits, _id, _rotatePhase, detail::RotationAxis::X);
+}
+
+/**
+ * @brief Get ZX-graph of MCRY
+ *
+ * @return ZXGraph*
+ */
+ZXGraph *MCRYGate::getZXform() {
+    return detail::MCR_Gen(_qubits, _id, _rotatePhase, detail::RotationAxis::Y);
+}
+
+/**
+ * @brief Get ZX-graph of CRZ
+ *
+ * @return ZXGraph*
+ */
+ZXGraph *CRZGate::getZXform() {
+    return detail::MCR_Gen(_qubits, _id, _rotatePhase, detail::RotationAxis::Z);
 }
 
 /**
@@ -366,8 +362,6 @@ ZXGraph *MCRXGate::getZXform() {
  *
  * @return ZXGraph*
  */
-
-// TODO - ZX form
 ZXGraph *MCRZGate::getZXform() {
-    return nullptr;
+    return detail::MCR_Gen(_qubits, _id, _rotatePhase, detail::RotationAxis::Z);
 }
