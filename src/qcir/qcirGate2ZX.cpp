@@ -20,19 +20,21 @@ extern size_t verbose;
 
 namespace detail {
 
-Phase getGadgetPhase(Phase const& rotatePhase, size_t nQubits) {
+Phase getGadgetPhase(Phase const &rotatePhase, size_t nQubits) {
     return rotatePhase * Rational(1, pow(2, nQubits - 1));
 }
 
 enum class RotationAxis {
-    X, Y, Z
+    X,
+    Y,
+    Z
 };
 
-pair<vector<ZXVertex*>, ZXVertex*> 
-MC_GenBackbone(ZXGraph* g, vector<BitInfo> const& qubits, RotationAxis ax) {
+pair<vector<ZXVertex *>, ZXVertex *>
+MC_GenBackbone(ZXGraph *g, vector<BitInfo> const &qubits, RotationAxis ax) {
     vector<ZXVertex *> controls;
-    ZXVertex* target;
-    for (auto const& bitinfo : qubits) {
+    ZXVertex *target;
+    for (auto const &bitinfo : qubits) {
         size_t qubit = bitinfo._qubit;
         ZXVertex *in = g->addInput(qubit);
         ZXVertex *v = g->addVertex(qubit, VertexType::Z);
@@ -48,8 +50,10 @@ MC_GenBackbone(ZXGraph* g, vector<BitInfo> const& qubits, RotationAxis ax) {
                 g->addBuffer(out, v, EdgeType::HADAMARD)->setPhase(Phase(-1, 2));
             }
         }
-        if (!bitinfo._isTarget) controls.push_back(v);
-        else target = v;
+        if (!bitinfo._isTarget)
+            controls.push_back(v);
+        else
+            target = v;
     }
 
     assert(target != nullptr);
@@ -67,7 +71,7 @@ MC_GenBackbone(ZXGraph* g, vector<BitInfo> const& qubits, RotationAxis ax) {
  * @param left
  * @param k
  */
-void makeCombiUtil(vector<vector<ZXVertex*>> &comb, vector<ZXVertex*> &tmp, vector<ZXVertex*> const& verVec, int left, int k) {
+void makeCombiUtil(vector<vector<ZXVertex *>> &comb, vector<ZXVertex *> &tmp, vector<ZXVertex *> const &verVec, int left, int k) {
     if (k == 0) {
         comb.push_back(tmp);
         return;
@@ -86,48 +90,48 @@ void makeCombiUtil(vector<vector<ZXVertex*>> &comb, vector<ZXVertex*> &tmp, vect
  * @param k
  * @return vector<vector<ZXVertex* > >
  */
-vector<vector<ZXVertex*>> makeCombi(vector<ZXVertex*> const& verVec, int k) {
-    vector<vector<ZXVertex*>> comb;
-    vector<ZXVertex*> tmp;
+vector<vector<ZXVertex *>> makeCombi(vector<ZXVertex *> const &verVec, int k) {
+    vector<vector<ZXVertex *>> comb;
+    vector<ZXVertex *> tmp;
     makeCombiUtil(comb, tmp, verVec, 0, k);
     return comb;
 }
 
-void MCR_GenGadgets(ZXGraph* g, vector<ZXVertex*> const& controls, ZXVertex* target, Phase const& phase) {
+void MCR_GenGadgets(ZXGraph *g, vector<ZXVertex *> const &controls, ZXVertex *target, Phase const &phase) {
     target->setPhase(phase);
     for (size_t k = 1; k <= controls.size(); k++) {
         vector<vector<ZXVertex *>> combinations = makeCombi(controls, k);
-        for (auto& combination : combinations) {
+        for (auto &combination : combinations) {
             combination.push_back(target);
             g->addGadget((combination.size() % 2) ? phase : -phase, combination);
         }
     }
 }
 
-void MCP_GenGadgets(ZXGraph* g, vector<ZXVertex*> const& vertices, Phase const& phase) {
-    for (auto& v : vertices) {
+void MCP_GenGadgets(ZXGraph *g, vector<ZXVertex *> const &vertices, Phase const &phase) {
+    for (auto &v : vertices) {
         v->setPhase(phase);
     }
     for (size_t k = 2; k <= vertices.size(); k++) {
         vector<vector<ZXVertex *>> combinations = makeCombi(vertices, k);
-        for (auto& combination : combinations) {
+        for (auto &combination : combinations) {
             g->addGadget((combination.size() % 2) ? phase : -phase, combination);
         }
     }
 }
 
-ZXGraph* MCR_Gen(vector<BitInfo> qubits, size_t id, Phase const& rotatePhase, RotationAxis ax) {
+ZXGraph *MCR_Gen(vector<BitInfo> qubits, size_t id, Phase const &rotatePhase, RotationAxis ax) {
     ZXGraph *g = new ZXGraph(id);
     Phase phase = detail::getGadgetPhase(rotatePhase, qubits.size());
 
     auto [controls, target] = detail::MC_GenBackbone(g, qubits, ax);
 
     detail::MCR_GenGadgets(g, controls, target, phase);
-    
+
     return g;
 }
 
-ZXGraph* MCP_Gen(vector<BitInfo> qubits, size_t id, Phase const& rotatePhase, RotationAxis ax) {
+ZXGraph *MCP_Gen(vector<BitInfo> qubits, size_t id, Phase const &rotatePhase, RotationAxis ax) {
     ZXGraph *g = new ZXGraph(id);
     Phase phase = detail::getGadgetPhase(rotatePhase, qubits.size());
 
@@ -135,11 +139,11 @@ ZXGraph* MCP_Gen(vector<BitInfo> qubits, size_t id, Phase const& rotatePhase, Ro
     vertices.push_back(target);
 
     detail::MCP_GenGadgets(g, vertices, phase);
-    
+
     return g;
 }
 
-}
+}  // namespace detail
 
 /**
  * @brief Map single qubit gate to ZX-graph
@@ -300,8 +304,6 @@ ZXGraph *SYGate::getZXform() {
 
     return temp;
 }
-
-
 
 /**
  * @brief Get ZX-graph of MCPX
