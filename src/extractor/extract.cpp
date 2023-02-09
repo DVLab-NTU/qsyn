@@ -213,7 +213,6 @@ bool Extractor::extractCZs(bool check) {
         _circuit->addGate("cz", {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1), false);
     }
 
-    // REVIEW - Other Strategies
     if (verbose >= 8) {
         _circuit->printQubits();
         _graph->printQubits();
@@ -469,7 +468,6 @@ void Extractor::columnOptimalSwap() {
  * @return Target (unordered_map of swaps)
  */
 Extractor::Target Extractor::findColumnSwap(Target target) {
-    // REVIEW - No need to copy in cpp
     size_t rowCnt = _rowInfo.size();
     // size_t colCnt = _colInfo.size();
 
@@ -542,7 +540,6 @@ Extractor::Target Extractor::findColumnSwap(Target target) {
                 assert(false);
             }
             // NOTE -  depth-first search
-            // REVIEW - no need to copy in cpp -> pass by value
             Target copiedTarget = target;
             if (verbose >= 8) cout << "Backtracking on " << min_index << endl;
 

@@ -58,7 +58,6 @@ void QCir::ZXMapping() {
             v->setCol(v->getCol() + G->getTime() + 1);
         }
         if (tmp == NULL) {
-            // TODO cleanup when conversion fails
             cerr << "Gate " << G->getId() << " (type: " << G->getTypeStr() << ") is not implemented, the conversion result is wrong!!" << endl;
             return;
         }
