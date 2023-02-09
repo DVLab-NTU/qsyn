@@ -174,13 +174,9 @@ protected:
     std::vector<BitInfo> _qubits;
     Phase _rotatePhase;
 
-    using ZXVertexCombi = std::vector<ZXVertex*>;
-
     ZXGraph* mapSingleQubitGate(VertexType, Phase);
     void printSingleQubitGate(std::string, bool = false) const;
     void printMultipleQubitsGate(std::string, bool = false, bool = false) const;
-    std::vector<ZXVertexCombi> makeCombi(ZXVertexCombi verVec, int k);
-    void makeCombiUtil(std::vector<ZXVertexCombi>& comb, ZXVertexCombi& tmp, ZXVertexCombi verVec, int left, int k);
 };
 
 class HGate : public QCirGate {
@@ -261,7 +257,6 @@ public:
     virtual void setRotatePhase(Phase p) { _rotatePhase = p; }
 };
 
-// FIXME - No ZX form
 class MCRZGate : public ZAxisGate {
 public:
     MCRZGate(size_t id) : ZAxisGate(id) { _type = "mcrz"; }
@@ -291,7 +286,6 @@ public:
     virtual void setRotatePhase(Phase p) { _rotatePhase = p; }
 };
 
-// FIXME - No ZX form
 class MCRXGate : public XAxisGate {
 public:
     MCRXGate(size_t id) : XAxisGate(id) { _type = "mcrx"; }
@@ -306,7 +300,6 @@ public:
     virtual void setRotatePhase(Phase p) { _rotatePhase = p; }
 };
 
-// TODO - No ZX form
 class MCPYGate : public YAxisGate {
 public:
     MCPYGate(size_t id) : YAxisGate(id) { _type = "mcpy"; }
@@ -314,19 +307,20 @@ public:
 
     virtual std::string getTypeStr() const { return _qubits.size() > 2 ? _type : "cpy"; }
     virtual GateType getType() const { return GateType::MCPY; }
+    virtual ZXGraph* getZXform();
     virtual QTensor<double> getTSform() const { return QTensor<double>::control(QTensor<double>::pygate(_rotatePhase), _qubits.size() - 1); }
     virtual void printGateInfo(bool st) const { printMultipleQubitsGate(" PY", true, st); }
 
     virtual void setRotatePhase(Phase p) { _rotatePhase = p; }
 };
 
-// TODO - No ZX form
 class MCRYGate : public YAxisGate {
 public:
     MCRYGate(size_t id) : YAxisGate(id) { _type = "mcry"; }
     virtual ~MCRYGate(){};
     virtual std::string getTypeStr() const { return _qubits.size() > 2 ? _type : "cry"; }
     virtual GateType getType() const { return GateType::MCRY; }
+    virtual ZXGraph* getZXform();
     virtual QTensor<double> getTSform() const { return QTensor<double>::control(QTensor<double>::rygate(_rotatePhase), _qubits.size() - 1); }
     virtual void printGateInfo(bool st) const { printMultipleQubitsGate(" RY", true, st); }
 
