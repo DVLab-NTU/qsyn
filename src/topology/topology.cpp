@@ -134,7 +134,6 @@ bool DeviceTopo::readTopo(const string& filename) {
     _nQubit = size_t(qbn);
 
     // NOTE - Gate set
-    // TODO - Store gate set
     str = "", token = "", data = "";
 
     while (str == "") {

@@ -56,7 +56,6 @@ public:
     M2() {}
     ~M2() {}
 
-    // NOTE - Initializer
     void reset();
     void defaultInit();
     bool fromZXVertices(const ZXVertexList& frontier, const ZXVertexList& neighbors);

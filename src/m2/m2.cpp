@@ -371,7 +371,6 @@ bool M2::gaussianElim(bool track, bool isAugmentedMatrix) {
     for (size_t i = 0; i < min(numRows() - 1, numVariables); i++) {
         // the system of equation is not solvable if the
         // main diagonal cannot be made 1
-        // REVIEW - I comment out this line since no routine in Gaussian do this?
         if (!makeMainDiagonalOne(i)) return false;
 
         for (size_t j = i + 1; j < numRows(); j++) {
@@ -525,10 +524,6 @@ bool M2::isAugmentedSolvedForm() const {
  * @return false if not
  */
 bool M2::fromZXVertices(const ZXVertexList& frontier, const ZXVertexList& neighbors) {
-    // if (frontier.size() != neighbors.size()) {
-    //     cout << "Numbers of elements in frontier and neighbors mismatch!" << endl;
-    //     return false;
-    // }
     // NOTE - assign row by calculating a Frontier's connecting status to Neighbors, e.g. 10010 = connect to qubit 0 and 3.
     reset();
     unordered_map<ZXVertex*, size_t> table;
@@ -540,11 +535,7 @@ bool M2::fromZXVertices(const ZXVertexList& frontier, const ZXVertexList& neighb
     for (auto& v : frontier) {
         vector<unsigned char> storage = vector<unsigned char>(neighbors.size(), 0);
         for (auto& [vt, _] : v->getNeighbors()) {
-            if (neighbors.contains(vt)) {
-                // REVIEW - Assume no space in #qubit (0,2,3,4,5 is not allowed)
-                storage[table[vt]] = 1;
-                // in Neighbors
-            }
+            if (neighbors.contains(vt)) storage[table[vt]] = 1;
         }
         _matrix.push_back(Row(1, storage));
     }
