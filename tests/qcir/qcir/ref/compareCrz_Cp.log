@@ -53,7 +53,7 @@ Create and checkout to QCir 1
 
 qsyn> qcba 2
 
-qsyn> qcgadd -crz -phase pi/2 0 1
+qsyn> qcgadd -mcrz -phase pi/2 0 1
 
 qsyn> qcgp 0 -t
 Q0 Start ────●──── End
