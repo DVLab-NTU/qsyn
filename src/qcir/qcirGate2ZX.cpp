@@ -9,7 +9,7 @@
 #include <cstddef>           // for size_t
 
 #include "phase.h"           // for Phase, operator/
-#include "qcirGate.h"        // for CRZGate, CnPGate, CnRXGate, QCirGate
+#include "qcirGate.h"        // for QCirGate...
 #include "rationalNumber.h"  // for Rational
 #include "zxDef.h"           // for VertexType, VertexType::Z, VertexType::X
 #include "zxGraph.h"         // for ZXGraph, ZXVertex (ptr only)
@@ -348,15 +348,6 @@ ZXGraph *MCRXGate::getZXform() {
  */
 ZXGraph *MCRYGate::getZXform() {
     return detail::MCR_Gen(_qubits, _id, _rotatePhase, detail::RotationAxis::Y);
-}
-
-/**
- * @brief Get ZX-graph of CRZ
- *
- * @return ZXGraph*
- */
-ZXGraph *CRZGate::getZXform() {
-    return detail::MCR_Gen(_qubits, _id, _rotatePhase, detail::RotationAxis::Z);
 }
 
 /**

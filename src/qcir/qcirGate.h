@@ -23,21 +23,18 @@ class ZXGraph;
 // │                                                                        │
 // │                        Hierarchy of QCirGates                          │
 // │                                                                        │
-// │                               QCirGate                                 │
+// │                                   QCirGate                             │
 // │         ┌──────────────────┬─────────┴─────────┬──────────────────┐    │
 // │       Z-axis             X-axis              Y-axis               H    │
 // │    ┌────┴────┐        ┌────┴────┐         ┌────┴────┐                  │
 // │   MCP      MCRZ      MCPX     MCRX       MCPY     MCRY                 │
 // │  ╌╌╌╌╌╌   ╌╌╌╌╌╌    ╌╌╌╌╌╌   ╌╌╌╌╌╌     ╌╌╌╌╌╌   ╌╌╌╌╌╌                │
-// │  (MCZ n)  RZ        (MCX n)                                            │
-// │  CCZ (2)            CCX (2)             CCY (2)                        │
-// │  CZ  (1)            CX  (1)             CY  (1)                        │
+// │  CCZ (2)            CCX (2)             (CCY)                          │
+// │  CZ  (1)            CX  (1)             (CY)                           │
+// │  P        RZ        PX       RX         (PY)     (RY)                  │
 // │  Z                  X                   Y                              │
 // │  S, SDG             SX                  SY                             │
 // │  T, TDG             (SWAP)                                             │
-// │  ╌╌╌╌╌╌   ╌╌╌╌╌╌    ╌╌╌╌╌╌   ╌╌╌╌╌╌     ╌╌╌╌╌╌   ╌╌╌╌╌╌                │
-// │  **********  Will be merged into MCP/R X/Y/Z  **********               │
-// │  (CP,P)  (CRZ,RZ)  (CPX,PX) (CRX,RX)   (CPY,PY) (CRY,RY)               │
 // └────────────────────────────────────────────────────────────────────────┘
 
 //------------------------------------------------------------------------
@@ -63,23 +60,25 @@ enum class GateType {
     // NOTE - MCP(Z)
     CCZ,
     CZ,
+    P,
     Z,
     S,
     SDG,
     T,
     TDG,
-    CRZ,  // TODO - Temparary, delete in future
     RZ,
     // NOTE - MCPX
     CCX,
     CX,
+    PX,
     X,
     SX,
-    RX,  // TODO - Temparary, delete in future
+    RX,
     // NOTE - MCPY
     Y,
+    PY,
     SY,
-    RY,        // TODO - Temparary, delete in future
+    RY,
     ERRORTYPE  // Never use this
 };
 
@@ -107,23 +106,25 @@ static std::unordered_map<GateType, std::string> gateType2Str = {
     // NOTE - MCP(Z)
     {GateType::CCZ, "CCZ"},
     {GateType::CZ, "CZ"},
+    {GateType::P, "P"},
     {GateType::Z, "Z"},
     {GateType::S, "S"},
     {GateType::SDG, "SDG"},
     {GateType::T, "T"},
     {GateType::TDG, "TDG"},
-    {GateType::CRZ, "CRZ"},  // TODO - Temparary, delete in future
     {GateType::RZ, "RZ"},
     // NOTE - MCPX
     {GateType::CCX, "CCX"},
     {GateType::CX, "CX"},
+    {GateType::PX, "PX"},
     {GateType::X, "X"},
     {GateType::SX, "SX"},
-    {GateType::RX, "RX"},  // TODO - Temparary, delete in future
+    {GateType::RX, "RX"},
     // NOTE - MCPY
     {GateType::Y, "Y"},
+    {GateType::PY, "PY"},
     {GateType::SY, "SY"},
-    {GateType::RY, "RY"}  // TODO - Temparary, delete in future
+    {GateType::RY, "RY"},
 };
 
 class QCirGate {
@@ -330,7 +331,6 @@ public:
 //----------------------------------------------------------------------
 //    Children class of MCP
 //----------------------------------------------------------------------
-// NOTE - CP and P gates are merged into MCPGate with number of control = 1 or 0
 
 class CCZGate : public MCPGate {
 public:
@@ -354,17 +354,16 @@ public:
     virtual void printGateInfo(bool st) const { printMultipleQubitsGate("Z", false, st); }
 };
 
-// REVIEW - Check if it can be merged into MCP
-//  class PGate : public MCPGate {
-//  public:
-//      PGate(size_t id) : MCPGate(id) { _type = "p"; }
-//      virtual ~PGate() {}
-//      virtual std::string getTypeStr() const { return "p"; }
-//      virtual GateType getType() const { return GateType::P; }
-//      virtual ZXGraph* getZXform() { return mapSingleQubitGate(VertexType::Z, Phase(_rotatePhase)); }
-//      virtual QTensor<double> getTSform() const { return QTensor<double>::pzgate(_rotatePhase); }
-//      virtual void printGateInfo(bool st) const { printSingleQubitGate("P", st); }
-//  };
+class PGate : public MCPGate {
+public:
+    PGate(size_t id) : MCPGate(id) { _type = "p"; }
+    virtual ~PGate() {}
+    virtual std::string getTypeStr() const { return "p"; }
+    virtual GateType getType() const { return GateType::P; }
+    virtual ZXGraph* getZXform() { return mapSingleQubitGate(VertexType::Z, Phase(_rotatePhase)); }
+    virtual QTensor<double> getTSform() const { return QTensor<double>::pzgate(_rotatePhase); }
+    virtual void printGateInfo(bool st) const { printSingleQubitGate("P", st); }
+};
 
 class ZGate : public MCPGate {
 public:
@@ -425,21 +424,6 @@ public:
 //    Children class of MCRZ
 //----------------------------------------------------------------------
 
-// REVIEW - Check if it can be merged into MCRZ after the implementation of MCRZ ZX-form
-class CRZGate : public MCRZGate {
-public:
-    CRZGate(size_t id) : MCRZGate(id) { _type = "crz"; }
-    virtual ~CRZGate() {}
-    virtual std::string getTypeStr() const { return "crz"; }
-    virtual GateType getType() const { return GateType::CRZ; }
-    virtual ZXGraph* getZXform();
-
-    virtual QTensor<double> getTSform() const { return QTensor<double>::control(QTensor<double>::rzgate(_rotatePhase), 1); }
-    virtual void printGateInfo(bool st) const { printMultipleQubitsGate(" RZ", true, st); }
-
-    virtual void setRotatePhase(Phase p) { _rotatePhase = p; }
-};
-
 class RZGate : public MCRZGate {
 public:
     RZGate(size_t id) : MCRZGate(id) { _type = "rz"; }
@@ -454,7 +438,6 @@ public:
 //----------------------------------------------------------------------
 //    Children class of MCPX
 //----------------------------------------------------------------------
-// NOTE - CPX and PX gates are merged into MCPXGate with number of control = 1 or 0
 
 class CCXGate : public MCPXGate {
 public:
@@ -478,17 +461,16 @@ public:
     virtual void printGateInfo(bool st) const { printMultipleQubitsGate("X", false, st); }
 };
 
-// REVIEW - Check if it can be merged into MCPX
-//  class PXGate : public MCPXGate {
-//  public:
-//      PXGate(size_t id) : MCPXGate(id) { _type = "px"; }
-//      virtual ~PXGate() {}
-//      virtual std::string getTypeStr() const { return "px"; }
-//      virtual GateType getType() const { return GateType::PX; }
-//      virtual ZXGraph* getZXform() { return mapSingleQubitGate(VertexType::X, Phase(_rotatePhase)); }
-//      virtual QTensor<double> getTSform() const { return QTensor<double>::pxgate(_rotatePhase); }
-//      virtual void printGateInfo(bool st) const { printSingleQubitGate(" PX", st); }
-//  };
+class PXGate : public MCPXGate {
+public:
+    PXGate(size_t id) : MCPXGate(id) { _type = "px"; }
+    virtual ~PXGate() {}
+    virtual std::string getTypeStr() const { return "px"; }
+    virtual GateType getType() const { return GateType::PX; }
+    virtual ZXGraph* getZXform() { return mapSingleQubitGate(VertexType::X, Phase(_rotatePhase)); }
+    virtual QTensor<double> getTSform() const { return QTensor<double>::pxgate(_rotatePhase); }
+    virtual void printGateInfo(bool st) const { printSingleQubitGate("PX", st); }
+};
 
 class XGate : public MCPXGate {
 public:
@@ -516,7 +498,6 @@ public:
 //    Children class of MCRX
 //----------------------------------------------------------------------
 
-// REVIEW - Check if it can be merged into MCRX after the implementation of MCRX ZX-form
 class RXGate : public MCRXGate {
 public:
     RXGate(size_t id) : MCRXGate(id) { _type = "rx"; }
@@ -528,12 +509,9 @@ public:
     virtual void printGateInfo(bool st) const { printSingleQubitGate("RX", st); }
 };
 
-// REVIEW - Check if CRX can be merged into MCRZ after the implementation of MCRZ ZX-form
-
 //----------------------------------------------------------------------
 //    Children class of MCPY
 //----------------------------------------------------------------------
-// REVIEW - Check if PY, CPY can be merged into MCPY after the implementation of MCPY ZX-form
 
 class YGate : public MCPYGate {
 public:
@@ -560,6 +538,5 @@ public:
 //----------------------------------------------------------------------
 //    Children class of MCRY
 //----------------------------------------------------------------------
-// REVIEW - Check if RY, CRY can be merged into MCPY after the implementation of MCPY ZX-form
 
 #endif  // QCIR_GATE_H
