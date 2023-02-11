@@ -31,8 +31,8 @@ AdjInfo defaultInfo = {._cnotTime = 0.0, ._error = 0.0};
 void PhyQubit::printInfo(bool detail) const {
     cout << "ID:" << right << setw(4) << _id << "    ";
     if (detail) {
-        cout << "Delay:" << right << setw(8) << _gateDelay << "    ";
-        cout << "Error:" << right << setw(8) << _error << "    ";
+        cout << "Delay:" << right << setw(8) << fixed << setprecision(3) << _gateDelay << "    ";
+        cout << "Error:" << right << setw(8) << fixed << setprecision(5) << _error << "    ";
     }
     cout << "Adjs:";
     for (auto& q : _adjacencies) {
@@ -134,7 +134,6 @@ bool DeviceTopo::readTopo(const string& filename) {
     _nQubit = size_t(qbn);
 
     // NOTE - Gate set
-    // TODO - Store gate set
     str = "", token = "", data = "";
 
     while (str == "") {
@@ -316,6 +315,12 @@ bool DeviceTopo::parsePairs(string data, size_t which) {
  * @param cand a vector of qubits to be printed
  */
 void DeviceTopo::printQubits(vector<size_t> cand) {
+    for (auto& c : cand) {
+        if (c >= _nQubit) {
+            cout << "Error: the maximum qubit id is " << _nQubit - 1 << "!!" << endl;
+            return;
+        }
+    }
     cout << endl;
     if (cand.empty()) {
         for (size_t i = 0; i < _nQubit; i++) {
@@ -336,6 +341,12 @@ void DeviceTopo::printQubits(vector<size_t> cand) {
  * @param cand Empty: print all. Single element [a]: print edges connecting to a. Two elements [a,b]: print edge (a,b).
  */
 void DeviceTopo::printEdges(vector<size_t> cand) {
+    for (auto& c : cand) {
+        if (c >= _nQubit) {
+            cout << "Error: the maximum qubit id is " << _nQubit - 1 << "!!" << endl;
+            return;
+        }
+    }
     cout << endl;
     if (cand.size() == 0) {
         size_t cnt = 0;
@@ -366,10 +377,15 @@ void DeviceTopo::printEdges(vector<size_t> cand) {
  * @param b Id of second qubit
  */
 void DeviceTopo::printSingleEdge(size_t a, size_t b) {
-    auto& adjp = _adjInfo[make_pair(a, b)];
-    cout << "(" << right << setw(3) << _qubitList[a]->getId() << ", " << right << setw(3) << _qubitList[b]->getId() << ")    ";
-    cout << "Delay:" << right << setw(8) << adjp._cnotTime << "    ";
-    cout << "Error:" << right << setw(8) << adjp._error << endl;
+    pair<size_t, size_t> query = (a < b) ? make_pair(a, b) : make_pair(b, a);
+    if (_adjInfo.contains(query)) {
+        auto& adjp = _adjInfo[query];
+        cout << "(" << right << setw(3) << _qubitList[a]->getId() << ", " << right << setw(3) << _qubitList[b]->getId() << ")    ";
+        cout << "Delay:" << right << setw(8) << fixed << setprecision(3) << adjp._cnotTime << "    ";
+        cout << "Error:" << right << setw(8) << fixed << setprecision(5) << adjp._error << endl;
+    } else {
+        cout << "No connection between " << a << " and " << b << "." << endl;
+    }
 }
 
 /**

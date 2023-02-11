@@ -8,7 +8,7 @@ COUPLINGMAP: [[ 1 ] ,[ 0 , 2], [ 1 ]]
 // Single Gate Error
 SGERROR: [3e-3, 4e-3, 5e-3]
 // in nanosecond
-SGTIME: [5e-12, 4.5e-12, 5e-12]
+SGTIME: [5e-3, 4.5e-3, 5e-3]
 CNOTERROR: [[1e-2],[1e-2, 5e-3],[5e-3]]
 // in nanosecond
-CNOTTIME: [[7e-8],[7e-8, 6e-8],[6e-8]]
+CNOTTIME: [[70],[70, 60],[60]]

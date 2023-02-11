@@ -103,9 +103,9 @@ Create and checkout to QCir 0
 qsyn> qcgadd -MCPX -PH pi 0
 
 qsyn> qcgp 0
-          ┌─────┐ 
-Q0 Start ─┤  PX ├─ End
-          └─────┘ 
+          ┌────┐ 
+Q0 Start ─┤ PX ├─ End
+          └────┘ 
 Rotate Phase: π
 
 qsyn> qc2zx

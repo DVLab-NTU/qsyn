@@ -28,14 +28,10 @@ int Simplifier::simp() {
         return 0;
     }
     int i = 0;
-
-    bool new_matches = true;  // FIXME - useless flag
     vector<int> matches;
-
     if (verbose >= 5) cout << setw(30) << left << _rule->getName();
     if (verbose >= 8) cout << endl;
-    while (new_matches) {
-        new_matches = false;
+    while (true) {
         _rule->match(_simpGraph);
         if (_rule->getMatchTypeVecNum() <= 0)
             break;
@@ -48,7 +44,6 @@ int Simplifier::simp() {
         _rule->rewrite(_simpGraph);
         amend();
         if (verbose >= 8) cout << "<<<" << endl;
-        new_matches = true;
     }
     _recipe.emplace_back(_rule->getName(), matches);
     if (verbose >= 8) cout << "=> ";
@@ -65,10 +60,6 @@ int Simplifier::simp() {
 /**
  *
  * @brief Convert as many Hadamards represented by H-boxes to Hadamard-edges.
- *        We can't use the regular simp function, because removing H-nodes could lead to an infinite loop,
- *        since sometimes g.add_edge_table() decides that we can't change an H-box into an H-edge.
- *
- * //FIXME - weird function brief
  *
  * @return int
  */

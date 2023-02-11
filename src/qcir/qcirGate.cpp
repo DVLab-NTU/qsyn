@@ -140,7 +140,6 @@ void QCirGate::printSingleQubitGate(string gtype, bool showTime) const {
  * @param showTime
  */
 void QCirGate::printMultipleQubitsGate(string gtype, bool showRotate, bool showTime) const {
-    assert(gtype.size() % 2 == 1);
     size_t paddingSize = (gtype.size() - 1) / 2;
     string max_qubit = to_string(max_element(_qubits.begin(), _qubits.end(), [](BitInfo const a, BitInfo const b) {
                                      return a._qubit < b._qubit;
@@ -183,15 +182,16 @@ void QCirGate::printMultipleQubitsGate(string gtype, bool showRotate, bool showT
             if (_qubits.size() > 1)
                 cout << "┴";
             else
-                cout << "─";
+                for (size_t j = 0; j < gtype.size(); j++) cout << "─";
+
             for (size_t j = 0; j < paddingSize; j++) cout << "─";
             cout << "─┐ " << endl;
             cout << qubitInfo << " " << parentInfo << " ─┤ " << gtype << " ├─ " << childInfo << endl;
             for (size_t j = 0; j < max_qubit.size() + max_parent.size() + 3; j++)
                 cout << " ";
             cout << " └─";
-            for (size_t j = 0; j < 2 * paddingSize; j++) cout << "─";
-            cout << "──┘ " << endl;
+            for (size_t j = 0; j < gtype.size(); j++) cout << "─";
+            cout << "─┘ " << endl;
         } else {
             cout << qubitInfo << " " << parentInfo << " ──";
             for (size_t j = 0; j < paddingSize; j++) cout << "─";
