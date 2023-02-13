@@ -30,7 +30,7 @@ public:
     QCir* parseForward();
     void parseGate();
 
-    void addHadamard();
+    void addHadamard(size_t);
     void addCZ();
     void addCX();
     void addGate();
@@ -40,13 +40,13 @@ public:
 private:
     QCir* _circuit;
     std::unordered_map<size_t, std::vector<QCirGate*>> _gates;
-    std::unordered_map<size_t, std::vector<QCirGate*>> _available;
+    std::unordered_map<size_t, std::vector<size_t>> _available;
     std::unordered_map<size_t, size_t> _availty;  // FIXME - Consider rename. Look like something available order.
 
     std::unordered_map<size_t, size_t> _permutation;
-    std::vector<QCirGate*> _hadamards;
-    std::vector<QCirGate*> _xs;  // NOTE - nots
-    std::vector<QCirGate*> _zs;
+    std::vector<size_t> _hadamards;
+    std::vector<size_t> _xs;  // NOTE - nots
+    std::vector<size_t> _zs;
 
     size_t _gateCnt;  // NOTE - gcount
 };
