@@ -26,6 +26,7 @@ CmdParser* cmdMgr = new CmdParser("qsyn> ");
 extern bool initArgParserCmd();
 extern bool initCommonCmd();
 extern bool initQCirCmd();
+extern bool initOptimizeCmd();
 extern bool initZXCmd();
 extern bool initSimpCmd();
 extern bool initTensorCmd();
@@ -76,6 +77,7 @@ int main(int argc, char** argv) {
         !initArgParserCmd() ||
         !initCommonCmd() ||
         !initQCirCmd() ||
+        !initOptimizeCmd() ||
         !initZXCmd() ||
         !initSimpCmd() ||
         !initTensorCmd() ||
