@@ -11,8 +11,9 @@
 
 #include <cstddef>  // for size_t
 #include <set>
+#include <unordered_map>
 
-#include "qcir.h"   // for QCir
+#include "qcir.h"  // for QCir
 
 class QCir;
 
@@ -20,6 +21,8 @@ class Optimizer {
 public:
     Optimizer(QCir* c = nullptr) {
         _circuit = c;
+        for (size_t i = 0; i < c->getQubits().size(); i++)
+            _permutation[i] = c->getQubits()[i]->getId();
     }
     ~Optimizer() {}
 
@@ -36,7 +39,16 @@ public:
 
 private:
     QCir* _circuit;
-    std::vector<QCirGate*> _gates;
+    std::unordered_map<size_t, std::vector<QCirGate*>> _gates;
+    std::unordered_map<size_t, std::vector<QCirGate*>> _available;
+    std::unordered_map<size_t, size_t> _availty;  // FIXME - Consider rename. Look like something available order.
+
+    std::unordered_map<size_t, size_t> _permutation;
+    std::vector<QCirGate*> _hadamards;
+    std::vector<QCirGate*> _xs;  // NOTE - nots
+    std::vector<QCirGate*> _zs;
+
+    size_t _gateCnt;  // NOTE - gcount
 };
 
 #endif
