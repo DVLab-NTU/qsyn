@@ -73,10 +73,27 @@ void Optimizer::addCX() {
 }
 
 /**
- * @brief
+ * @brief Add a single qubit rotate gate to the output.
  *
+ * @param target Index of the target qubit
+ * @param type 0: Z-axis, 1: X-axis, 2: Y-axis
  */
-void Optimizer::addGate() {
+void Optimizer::addGate(size_t target, size_t type) {
+    QCirGate* rotate = nullptr;
+    if (type == 0) {
+        rotate = new PGate(_gateCnt);
+    } else if (type == 1) {
+        rotate = new PXGate(_gateCnt);
+    } else if (type == 2) {
+        rotate = new PYGate(_gateCnt);
+    } else {
+        cerr << "Error: wrong type!! Type shoud be 0, 1, or 2";
+        return;
+    }
+    rotate->addQubit(target, true);
+    _gates[target].emplace_back(rotate);
+    _available[target].emplace_back(target);
+    _gateCnt++;
 }
 
 /**

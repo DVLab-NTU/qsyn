@@ -33,7 +33,7 @@ public:
     void addHadamard(size_t);
     void addCZ();
     void addCX();
-    void addGate();
+    void addGate(size_t, size_t);
 
     void topologicalSort();
 
