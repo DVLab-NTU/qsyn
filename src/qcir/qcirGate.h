@@ -31,7 +31,7 @@ class ZXGraph;
 // │  ╌╌╌╌╌╌   ╌╌╌╌╌╌    ╌╌╌╌╌╌   ╌╌╌╌╌╌     ╌╌╌╌╌╌   ╌╌╌╌╌╌                │
 // │  CCZ (2)            CCX (2)             (CCY)                          │
 // │  CZ  (1)            CX  (1)             (CY)                           │
-// │  P        RZ        PX       RX         (PY)     (RY)                  │
+// │  P        RZ        PX       RX         PY       RY                    │
 // │  Z                  X                   Y                              │
 // │  S, SDG             SX                  SY                             │
 // │  T, TDG             (SWAP)                                             │
@@ -513,6 +513,17 @@ public:
     virtual void printGateInfo(bool st) const { printSingleQubitGate("Y", st); }
 };
 
+class PYGate : public MCPYGate {
+public:
+    PYGate(size_t id) : MCPYGate(id) {}
+    virtual ~PYGate() {}
+    virtual std::string getTypeStr() const { return "py"; }
+    virtual GateType getType() const { return GateType::PY; }
+
+    virtual QTensor<double> getTSform() const { return QTensor<double>::pygate(_rotatePhase); }
+    virtual void printGateInfo(bool st) const { printSingleQubitGate("PY", st); }
+};
+
 class SYGate : public MCPYGate {
 public:
     SYGate(size_t id) : MCPYGate(id) {}
@@ -527,5 +538,16 @@ public:
 //----------------------------------------------------------------------
 //    Children class of MCRY
 //----------------------------------------------------------------------
+
+class RYGate : public MCRYGate {
+public:
+    RYGate(size_t id) : MCRYGate(id) {}
+    virtual ~RYGate() {}
+    virtual std::string getTypeStr() const { return "ry"; }
+    virtual GateType getType() const { return GateType::RY; }
+
+    virtual QTensor<double> getTSform() const { return QTensor<double>::rygate(_rotatePhase); }
+    virtual void printGateInfo(bool st) const { printSingleQubitGate("RY", st); }
+};
 
 #endif  // QCIR_GATE_H
