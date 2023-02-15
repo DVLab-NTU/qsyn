@@ -13,9 +13,12 @@
 #include <set>
 #include <unordered_map>
 
+#include "ordered_hashset.h"
 #include "qcir.h"  // for QCir
 
 class QCir;
+
+using Qubit2Gates = std::unordered_map<size_t, ordered_hashset<QCirGate*>>;
 
 class Optimizer {
 public:
@@ -39,14 +42,14 @@ public:
 
 private:
     QCir* _circuit;
-    std::unordered_map<size_t, std::vector<QCirGate*>> _gates;
-    std::unordered_map<size_t, std::vector<size_t>> _available;
+    Qubit2Gates _gates;
+    Qubit2Gates _available;
     std::unordered_map<size_t, size_t> _availty;  // FIXME - Consider rename. Look like something available order.
 
     std::unordered_map<size_t, size_t> _permutation;
-    std::vector<size_t> _hadamards;
-    std::vector<size_t> _xs;  // NOTE - nots
-    std::vector<size_t> _zs;
+    ordered_hashset<size_t> _hadamards;
+    ordered_hashset<size_t> _xs;  // NOTE - nots
+    ordered_hashset<size_t> _zs;
 
     size_t _gateCnt;  // NOTE - gcount
 };

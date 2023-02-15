@@ -52,8 +52,8 @@ void Optimizer::addHadamard(size_t target) {
     QCirGate* had = new HGate(_gateCnt);
     had->addQubit(target, true);
     _gateCnt++;
-    _gates[target].emplace_back(had);
-    remove(_hadamards.begin(), _hadamards.end(), target);
+    _gates[target].emplace(had);
+    _hadamards.erase(target);
     _available[target].clear();
     _availty[target] = 1;
 }
@@ -91,8 +91,8 @@ void Optimizer::addGate(size_t target, size_t type) {
         return;
     }
     rotate->addQubit(target, true);
-    _gates[target].emplace_back(rotate);
-    _available[target].emplace_back(target);
+    _gates[target].emplace(rotate);
+    _available[target].emplace(rotate);
     _gateCnt++;
 }
 
