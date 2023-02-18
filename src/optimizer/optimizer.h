@@ -18,7 +18,7 @@
 
 class QCir;
 
-using Qubit2Gates = std::unordered_map<size_t, ordered_hashset<QCirGate*>>;
+using Qubit2Gates = std::unordered_map<size_t, std::vector<QCirGate*>>;
 
 class Optimizer {
 public:
@@ -31,14 +31,16 @@ public:
 
     QCir* parseCircuit();
     QCir* parseForward();
-    void parseGate();
+    bool parseGate(QCirGate*);
 
     void addHadamard(size_t);
-    void addCZ();
-    void addCX();
-    void addGate(size_t, size_t);
+    void addCZ(size_t, size_t);
+    void addCX(size_t, size_t);
+    void addGate(size_t, Phase, size_t);
 
     void topologicalSort();
+    bool isSingleRotateZ(QCirGate*);
+    QCirGate* getAvailableRotateZ(size_t t);
 
 private:
     QCir* _circuit;
@@ -52,6 +54,7 @@ private:
     ordered_hashset<size_t> _zs;
 
     size_t _gateCnt;  // NOTE - gcount
+    void toggleElement(size_t type, size_t element);
 };
 
 #endif
