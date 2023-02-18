@@ -24,11 +24,11 @@ class Optimizer {
 public:
     Optimizer(QCir* c = nullptr) {
         _circuit = c;
-        for (size_t i = 0; i < c->getQubits().size(); i++)
-            _permutation[i] = c->getQubits()[i]->getId();
+        reset();
     }
     ~Optimizer() {}
 
+    void reset();
     QCir* parseCircuit();
     QCir* parseForward();
     bool parseGate(QCirGate*);
@@ -46,6 +46,7 @@ private:
     QCir* _circuit;
     Qubit2Gates _gates;
     Qubit2Gates _available;
+    std::vector<QCirGate*> _corrections;
     std::unordered_map<size_t, size_t> _availty;  // FIXME - Consider rename. Look like something available order.
 
     std::unordered_map<size_t, size_t> _permutation;

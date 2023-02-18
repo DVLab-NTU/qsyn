@@ -14,6 +14,23 @@ using namespace std;
 
 extern size_t verbose;
 
+/**
+ * @brief Reset the storage
+ *
+ */
+void Optimizer::reset() {
+    _gates.clear();
+    _available.clear();
+    _availty.clear();
+    _hadamards.clear();
+    _xs.clear();
+    _zs.clear();
+    _corrections.clear();
+    _gateCnt = 0;
+    for (size_t i = 0; i < _circuit->getQubits().size(); i++)
+        _permutation[i] = _circuit->getQubits()[i]->getId();
+}
+
 // FIXME - All functions can be modified, i.e. you may need to pass some parameters or change return type into some functions
 
 /**
@@ -28,12 +45,40 @@ QCir* Optimizer::parseCircuit() {
 }
 
 /**
- * @brief
+ * @brief Parse through the gates according to topological order and optimize the circuit
  *
- * @return QCir*
+ * @return QCir* : new Circuit
  */
 QCir* Optimizer::parseForward() {
-    return nullptr;
+    reset();
+    _circuit->updateTopoOrder();
+    for (auto& g : _circuit->getTopoOrderdGates()) {
+        parseGate(g);
+    }
+    for (auto& t : _hadamards) {
+        addHadamard(t);
+    }
+    for (auto& t : _zs) {
+        addGate(t, Phase(0), 0);
+    }
+    QCir* tmp = new QCir(-1);
+    // NOTE - Below function will add the gate to tmp -
+    topologicalSort();
+    // ------------------------------------------------
+    for (auto& t : _xs) {
+        QCirGate* notGate = new XGate(_gateCnt);
+        notGate->addQubit(t, true);
+        _gateCnt++;
+        _corrections.emplace_back(notGate);
+    }
+
+    // TODO - Move permutation code out from extractor
+    // for (auto& [a, b] : permutation(_permutation)) {
+    //     QCirGate* CX0 = new CXGate(_gateCnt);
+    //     .....expand SWAP to CXs
+    //     _corrections.emplace_back(notGate);
+    // }
+    return tmp;
 }
 
 /**
