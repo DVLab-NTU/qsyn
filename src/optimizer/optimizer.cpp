@@ -34,14 +34,29 @@ void Optimizer::reset() {
 // FIXME - All functions can be modified, i.e. you may need to pass some parameters or change return type into some functions
 
 /**
- * @brief
+ * @brief Parse the circuit and forward and backward iteratively and optimize it
  *
- * @return QCir*
+ * @param doSwap permute the qubit if true
+ * @param separateCorrection separate corrections if true
+ * @param maxIter
+ * @return QCir* Optimized Circuit
  */
-QCir* Optimizer::parseCircuit() {
+QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIter) {
     // FIXME - Delete after the function is finished
     cout << "Parse Circuit" << endl;
-    return nullptr;
+    _doSwap = doSwap;
+    _separateCorrection = separateCorrection;
+    _maxIter = maxIter;
+    QCir* forward = parseForward();
+    for (auto& g : _corrections) {
+        vector<size_t> bits;
+        for (auto& b : g->getQubits()) {
+            bits.emplace_back(b._qubit);
+        }
+        forward->addGate(g->getTypeStr(), bits, Phase(0), true);
+    }
+    // TODO - Only Single iteration now. Please modify it when forward is correct.
+    return _circuit;
 }
 
 /**
@@ -63,7 +78,7 @@ QCir* Optimizer::parseForward() {
     }
     QCir* tmp = new QCir(-1);
     // NOTE - Below function will add the gate to tmp -
-    topologicalSort();
+    topologicalSort(tmp);
     // ------------------------------------------------
     for (auto& t : _xs) {
         QCirGate* notGate = new XGate(_gateCnt);
@@ -277,10 +292,11 @@ void Optimizer::addGate(size_t target, Phase ph, size_t type) {
 }
 
 /**
- * @brief
+ * @brief Add the gate from storage (_gates) to the circuit
  *
+ * @param circuit
  */
-void Optimizer::topologicalSort() {
+void Optimizer::topologicalSort(QCir* circuit) {
 }
 
 /**
@@ -328,6 +344,12 @@ bool Optimizer::isSingleRotateZ(QCirGate* g) {
         return false;
 }
 
+/**
+ * @brief Get first available rotate gate along Z-axis on qubit `target`
+ *
+ * @param target which qubit
+ * @return QCirGate*
+ */
 QCirGate* Optimizer::getAvailableRotateZ(size_t target) {
     for (auto& g : _available[target]) {
         if (isSingleRotateZ(g)) {

@@ -8,15 +8,15 @@
 
 #include "optimizerCmd.h"
 
-#include <cstddef>       // for size_t
-#include <iostream>      // for ostream
-#include <string>        // for string
+#include <cstddef>      // for size_t
+#include <iostream>     // for ostream
+#include <string>       // for string
 
-#include "optimizer.h"     // for Extractor
-#include "qcir.h"        // for QCir
-#include "qcirCmd.h"     // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
-#include "qcirMgr.h"     // for QCirMgr
-#include "util.h"        // for myStr2Uns
+#include "optimizer.h"  // for Extractor
+#include "qcir.h"       // for QCir
+#include "qcirCmd.h"    // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
+#include "qcirMgr.h"    // for QCirMgr
+#include "util.h"       // for myStr2Uns
 
 using namespace std;
 extern size_t verbose;
@@ -38,7 +38,7 @@ CmdExecStatus
 OptimizeCmd::exec(const string &option) {
     QC_CMD_MGR_NOT_EMPTY_OR_RETURN("OPTimize");
     Optimizer Opt(qcirMgr->getQCircuit());
-    Opt.parseCircuit();
+    Opt.parseCircuit(true, false, 1000);
     return CMD_EXEC_DONE;
 }
 

@@ -25,11 +25,14 @@ public:
     Optimizer(QCir* c = nullptr) {
         _circuit = c;
         reset();
+        _doSwap = true;
+        _separateCorrection = false;
+        _maxIter = 1000;
     }
     ~Optimizer() {}
 
     void reset();
-    QCir* parseCircuit();
+    QCir* parseCircuit(bool, bool, size_t);
     QCir* parseForward();
     bool parseGate(QCirGate*);
 
@@ -38,12 +41,15 @@ public:
     void addCX(size_t, size_t);
     void addGate(size_t, Phase, size_t);
 
-    void topologicalSort();
+    void topologicalSort(QCir*);
     bool isSingleRotateZ(QCirGate*);
     QCirGate* getAvailableRotateZ(size_t t);
 
 private:
     QCir* _circuit;
+    bool _doSwap;
+    bool _separateCorrection;
+    size_t _maxIter;
     Qubit2Gates _gates;
     Qubit2Gates _available;
     std::vector<QCirGate*> _corrections;
