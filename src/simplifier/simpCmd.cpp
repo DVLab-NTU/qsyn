@@ -95,7 +95,7 @@ void ZXGSimpCmd::usage() const {
          << "-HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -CLIFford | -FReduce | -SReduce]" << endl;
 }
 
-void ZXGSimpCmd::help() const {
+void ZXGSimpCmd::summary() const {
     cout << setw(15) << left << "ZXGSimp: "
          << "perform simplification strategies for ZX-graph" << endl;
 }

@@ -114,7 +114,7 @@ void ZXGGFlowCmd::usage() const {
     cout << "Usage: ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets] [-Disjoint]" << endl;
 }
 
-void ZXGGFlowCmd::help() const {
+void ZXGGFlowCmd::summary() const {
     cout << setw(15) << left << "ZXGGFlow: "
          << "calculate the generalized flow of current ZX-graph\n";
 }

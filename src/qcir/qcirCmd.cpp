@@ -87,7 +87,7 @@ void QCirCheckoutCmd::usage() const {
     cout << "Usage: QCCHeckout <(size_t id)>" << endl;
 }
 
-void QCirCheckoutCmd::help() const {
+void QCirCheckoutCmd::summary() const {
     cout << setw(15) << left << "QCCHeckout: "
          << "checkout to QCir <id> in QCirMgr" << endl;
 }
@@ -109,7 +109,7 @@ void QCirResetCmd::usage() const {
     cout << "Usage: QCReset" << endl;
 }
 
-void QCirResetCmd::help() const {
+void QCirResetCmd::summary() const {
     cout << setw(15) << left << "QCReset: "
          << "reset QCirMgr" << endl;
 }
@@ -137,7 +137,7 @@ void QCirDeleteCmd::usage() const {
     cout << "Usage: QCDelete <size_t id>" << endl;
 }
 
-void QCirDeleteCmd::help() const {
+void QCirDeleteCmd::summary() const {
     cout << setw(15) << left << "QCDelete: "
          << "remove a QCir from QCirMgr" << endl;
 }
@@ -164,7 +164,7 @@ void QCirNewCmd::usage() const {
     cout << "Usage: QCNew [size_t id]" << endl;
 }
 
-void QCirNewCmd::help() const {
+void QCirNewCmd::summary() const {
     cout << setw(15) << left << "QCNew: "
          << "create a new QCir to QCirMgr" << endl;
 }
@@ -210,7 +210,7 @@ void QCirCopyCmd::usage() const {
     cout << "Usage: QCCOPy <size_t id> [-Replace]" << endl;
 }
 
-void QCirCopyCmd::help() const {
+void QCirCopyCmd::summary() const {
     cout << setw(15) << left << "QCCOPy: "
          << "copy a QCir" << endl;
 }
@@ -238,7 +238,7 @@ void QCirComposeCmd::usage() const {
     cout << "Usage: QCCOMpose <size_t id>" << endl;
 }
 
-void QCirComposeCmd::help() const {
+void QCirComposeCmd::summary() const {
     cout << setw(15) << left << "QCCOMpose: "
          << "compose a QCir" << endl;
 }
@@ -267,7 +267,7 @@ void QCirTensorCmd::usage() const {
     cout << "Usage: QCTensor <size_t id>" << endl;
 }
 
-void QCirTensorCmd::help() const {
+void QCirTensorCmd::summary() const {
     cout << setw(15) << left << "QCTensor: "
          << "tensor a QCir" << endl;
 }
@@ -294,7 +294,7 @@ void QCPrintCmd::usage() const {
     cout << "Usage: QCPrint [-Summary | -Focus | -Num]" << endl;
 }
 
-void QCPrintCmd::help() const {
+void QCPrintCmd::summary() const {
     cout << setw(15) << left << "QCPrint: "
          << "print info of QCirMgr" << endl;
 }
@@ -351,7 +351,7 @@ void QCirReadCmd::usage() const {
     cout << "Usage: QCCRead <(string fileName)> [-Replace]" << endl;
 }
 
-void QCirReadCmd::help() const {
+void QCirReadCmd::summary() const {
     cout << setw(15) << left << "QCCRead: "
          << "read a circuit and construct the corresponding netlist" << endl;
 }
@@ -417,7 +417,7 @@ void QCirGatePrintCmd::usage() const {
     cout << "Usage: QCGPrint <(size_t gateID)> [-Time | -ZXform]" << endl;
 }
 
-void QCirGatePrintCmd::help() const {
+void QCirGatePrintCmd::summary() const {
     cout << setw(15) << left << "QCGPrint: "
          << "print gate info in QCir\n";
 }
@@ -454,7 +454,7 @@ void QCirPrintCmd::usage() const {
     cout << "Usage: QCCPrint [-Summary | -Analysis | -Detail | -List | -Qubit]" << endl;
 }
 
-void QCirPrintCmd::help() const {
+void QCirPrintCmd::summary() const {
     cout << setw(15) << left << "QCCPrint: "
          << "print info of QCir\n";
 }
@@ -651,7 +651,7 @@ void QCirAddGateCmd::usage() const {
     cout << "QCGAdd <-MCP | -MCPX | -MCRZ| -MCRX> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]" << endl;
 }
 
-void QCirAddGateCmd::help() const {
+void QCirAddGateCmd::summary() const {
     cout << setw(15) << left << "QCGAdd: "
          << "add quantum gate\n";
 }
@@ -691,7 +691,7 @@ void QCirAddQubitCmd::usage() const {
     cout << "Usage: QCBAdd [size_t addNum] " << endl;
 }
 
-void QCirAddQubitCmd::help() const {
+void QCirAddQubitCmd::summary() const {
     cout << setw(15) << left << "QCBAdd: "
          << "add qubit(s)\n";
 }
@@ -723,7 +723,7 @@ void QCirDeleteGateCmd::usage() const {
     cout << "Usage: QCGDelete <(size_t gateID)> " << endl;
 }
 
-void QCirDeleteGateCmd::help() const {
+void QCirDeleteGateCmd::summary() const {
     cout << setw(15) << left << "QCGDelete: "
          << "delete quantum gate\n";
 }
@@ -757,7 +757,7 @@ void QCirDeleteQubitCmd::usage() const {
     cout << "Usage: QCBDelete <(size_t qubitID)> " << endl;
 }
 
-void QCirDeleteQubitCmd::help() const {
+void QCirDeleteQubitCmd::summary() const {
     cout << setw(15) << left << "QCBDelete: "
          << "delete an empty qubit\n";
 }
@@ -780,7 +780,7 @@ void QCir2ZXCmd::usage() const {
     cout << "Usage: QC2ZX" << endl;
 }
 
-void QCir2ZXCmd::help() const {
+void QCir2ZXCmd::summary() const {
     cout << setw(15) << left << "QC2ZX: "
          << "convert QCir to ZX-graph\n";
 }
@@ -803,7 +803,7 @@ void QCir2TSCmd::usage() const {
     cout << "Usage: QC2TS" << endl;
 }
 
-void QCir2TSCmd::help() const {
+void QCir2TSCmd::summary() const {
     cout << setw(15) << left << "QC2TS: "
          << "convert QCir to tensor\n";
 }
@@ -830,7 +830,7 @@ void QCirWriteCmd::usage() const {
     cout << "Usage: QCCWrite <string Output.qasm>" << endl;
 }
 
-void QCirWriteCmd::help() const {
+void QCirWriteCmd::summary() const {
     cout << setw(15) << left << "QCCWrite: "
          << "write QCir to a QASM file\n";
 }

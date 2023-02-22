@@ -10,6 +10,7 @@
 
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <stack>
 #include <string>   // for string
 #include <utility>  // for pair
@@ -57,10 +58,11 @@ public:
     CmdExec() {}
     virtual ~CmdExec() {}
 
+    virtual bool initialize() = 0;
     virtual CmdExecStatus exec(const std::string&) = 0;
     virtual void usage() const = 0;
+    virtual void summary() const = 0;
     virtual void help() const = 0;
-    virtual void manual() const = 0;
 
     void setOptCmd(const std::string& str) { _optCmd = str; }
     bool checkOptCmd(const std::string& check) const;  // Removed for TODO...
@@ -82,27 +84,28 @@ private:
     public:                                            \
         T() {}                                         \
         ~T() {}                                        \
+        bool initialize() { return true; }             \
         CmdExecStatus exec(const std::string& option); \
         void usage() const;                            \
-        void help() const;                             \
-        void manual() const {                          \
-            help();                                    \
+        void summary() const;                          \
+        void help() const {                            \
+            summary();                                 \
             usage();                                   \
         }                                              \
     }
 
-#define ArgParseCmdClass(T)                                   \
-    class T : public CmdExec {                                \
-    public:                                                   \
-        T() { parserDefinition(); }                           \
-        ~T() {}                                               \
-        void parserDefinition();                              \
-        CmdExecStatus exec(const std::string& option);        \
-        void usage() const override { parser.printUsage(); }  \
-        void help() const override { parser.printSummary(); } \
-        void manual() const override { parser.printHelp(); }  \
-                                                              \
-        ArgParse::ArgumentParser parser;                      \
+#define ArgParseCmdClass(T)                                      \
+    class T : public CmdExec {                                   \
+    public:                                                      \
+        T() { parserDefinition(); }                              \
+        ~T() {}                                                  \
+        void parserDefinition();                                 \
+        CmdExecStatus exec(const std::string& option);           \
+        void usage() const override { parser.printUsage(); }     \
+        void summary() const override { parser.printSummary(); } \
+        void help() const override { parser.printHelp(); }       \
+                                                                 \
+        ArgParse::ArgumentParser parser;                         \
     };
 
 //----------------------------------------------------------------------

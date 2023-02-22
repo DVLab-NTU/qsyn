@@ -69,7 +69,7 @@ void M2GaussEliCmd::usage() const {
     cout << "Usage: M2GAUE" << endl;
 }
 
-void M2GaussEliCmd::help() const {
+void M2GaussEliCmd::summary() const {
     cout << setw(15) << left << "M2GAUE: "
          << "perform Gaussian elimination" << endl;
 }
@@ -94,7 +94,7 @@ void M2TestCmd::usage() const {
     cout << "Usage: M2TEST" << endl;
 }
 
-void M2TestCmd::help() const {
+void M2TestCmd::summary() const {
     cout << setw(15) << left << "M2TEST: "
          << "test funct." << endl;
 }

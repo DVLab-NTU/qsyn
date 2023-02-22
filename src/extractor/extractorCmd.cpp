@@ -72,7 +72,7 @@ void ExtractCmd::usage() const {
     cout << "Usage: ZX2QC" << endl;
 }
 
-void ExtractCmd::help() const {
+void ExtractCmd::summary() const {
     cout << setw(15) << left << "ZX2QC: "
          << "extract QCir from ZX-graph" << endl;
 }
@@ -204,7 +204,7 @@ void ExtractStepCmd::usage() const {
     cout << "       EXTRact <-ZXgraph> <(size_t ZX-graphId)> <-QCir> <(size_t QCirId)> <-CX | -CZ | -CLFrontier | -RMGadget| -PHase | -H | -PERmute>" << endl;
 }
 
-void ExtractStepCmd::help() const {
+void ExtractStepCmd::summary() const {
     cout << setw(15) << left << "EXTRact: "
          << "perform step(s) in extraction" << endl;
 }
@@ -270,7 +270,7 @@ void ExtractPrintCmd::usage() const {
     cout << "Usage: EXTPrint <-Frontier | -Neighbors | -Axels | -Matrix>" << endl;
 }
 
-void ExtractPrintCmd::help() const {
+void ExtractPrintCmd::summary() const {
     cout << setw(15) << left << "EXTPrint: "
          << "print info of extracting ZX-graph" << endl;
 }

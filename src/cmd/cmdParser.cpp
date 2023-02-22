@@ -85,6 +85,7 @@ bool CmdParser::regCmd(const string& cmd, unsigned nCmp, CmdExec* e) {
     // Make sure cmd hasn't been registered and won't cause ambiguity
     string str = cmd;
     unsigned s = str.size();
+    if (!e->initialize()) return false;
     if (s < nCmp) return false;
     while (true) {
         if (getCmd(str)) return false;
@@ -140,7 +141,7 @@ CmdParser::execOneCmd() {
 void CmdParser::printHelps() const {
     // TODO...
     for (const auto& mi : _cmdMap)
-        mi.second->help();
+        mi.second->summary();
 
     cout << endl;
 }

@@ -62,7 +62,7 @@ void DeviceTopoCheckoutCmd::usage() const {
     cout << "Usage: DTCHeckout <(size_t id)>" << endl;
 }
 
-void DeviceTopoCheckoutCmd::help() const {
+void DeviceTopoCheckoutCmd::summary() const {
     cout << setw(15) << left << "DTCHeckout: "
          << "checkout to DeviceTopo <id> in DeviceTopoMgr" << endl;
 }
@@ -84,7 +84,7 @@ void DeviceTopoResetCmd::usage() const {
     cout << "Usage: DTReset" << endl;
 }
 
-void DeviceTopoResetCmd::help() const {
+void DeviceTopoResetCmd::summary() const {
     cout << setw(15) << left << "DTReset: "
          << "reset DeviceTopoMgr" << endl;
 }
@@ -112,7 +112,7 @@ void DeviceTopoDeleteCmd::usage() const {
     cout << "Usage: DTDelete <size_t id>" << endl;
 }
 
-void DeviceTopoDeleteCmd::help() const {
+void DeviceTopoDeleteCmd::summary() const {
     cout << setw(15) << left << "DTDelete: "
          << "remove a DeviceTopo from DeviceTopoMgr" << endl;
 }
@@ -139,7 +139,7 @@ void DeviceTopoNewCmd::usage() const {
     cout << "Usage: DTNew [size_t id]" << endl;
 }
 
-void DeviceTopoNewCmd::help() const {
+void DeviceTopoNewCmd::summary() const {
     cout << setw(15) << left << "DTNew: "
          << "create a new DeviceTopo to DeviceTopoMgr" << endl;
 }
@@ -192,7 +192,7 @@ void DeviceTopoGraphReadCmd::usage() const {
     cout << "Usage: DTGRead <(size_t filename)> [-Replace]" << endl;
 }
 
-void DeviceTopoGraphReadCmd::help() const {
+void DeviceTopoGraphReadCmd::summary() const {
     cout << setw(15) << left << "DTGRead: "
          << "read a device topology" << endl;
 }
@@ -242,7 +242,7 @@ void DeviceTopoGraphPrintCmd::usage() const {
     cout << "Usage: DTGPrint [-Summary | -Edges | -Qubits]" << endl;
 }
 
-void DeviceTopoGraphPrintCmd::help() const {
+void DeviceTopoGraphPrintCmd::summary() const {
     cout << setw(15) << left << "DTGPrint: "
          << "print info of device topology" << endl;
 }
@@ -271,7 +271,7 @@ void DeviceTopoPrintCmd::usage() const {
     cout << "Usage: DTPrint [-Summary | -Focus | -List | -Num]" << endl;
 }
 
-void DeviceTopoPrintCmd::help() const {
+void DeviceTopoPrintCmd::summary() const {
     cout << setw(15) << left << "DTPrint: "
          << "print info of DeviceTopoMgr" << endl;
 }

@@ -59,7 +59,7 @@ void LTCmd::usage() const {
     cout << "Usage: LTS [ -Print ]" << endl;
 }
 
-void LTCmd::help() const {
+void LTCmd::summary() const {
     cout << setw(15) << left << "LTS: "
          << "(experimental) perform mapping from ZX-graph to corresponding lattice surgery" << endl;
 }
