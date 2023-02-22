@@ -21,7 +21,7 @@ extern size_t verbose;
 
 bool initSimpCmd() {
     if (!(
-            cmdMgr->regCmd("ZXGSimp", 4, new ZXGSimpCmd)
+            cmdMgr->regCmd("ZXGSimp", 4, make_unique<ZXGSimpCmd>())
 
                 )) {
         cerr << "Registering \"zx\" commands fails... exiting" << endl;

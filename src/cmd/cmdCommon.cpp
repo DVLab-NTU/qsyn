@@ -23,14 +23,14 @@ extern size_t colorLevel;
 extern MyUsage myUsage;
 
 bool initCommonCmd() {
-    if (!(cmdMgr->regCmd("QQuit", 2, new QuitCmd) &&
-          cmdMgr->regCmd("HIStory", 3, new HistoryCmd) &&
-          cmdMgr->regCmd("HELp", 3, new HelpCmd) &&
-          cmdMgr->regCmd("DOfile", 2, new DofileCmd) &&
-          cmdMgr->regCmd("USAGE", 5, new UsageCmd) &&
-          cmdMgr->regCmd("VERbose", 3, new VerboseCmd) &&
-          cmdMgr->regCmd("SEED", 4, new SeedCmd) &&
-          cmdMgr->regCmd("COLOR", 5, new ColorCmd))) {
+    if (!(cmdMgr->regCmd("QQuit", 2, make_unique<QuitCmd>()) &&
+          cmdMgr->regCmd("HIStory", 3, make_unique<HistoryCmd>()) &&
+          cmdMgr->regCmd("HELp", 3, make_unique<HelpCmd>()) &&
+          cmdMgr->regCmd("DOfile", 2, make_unique<DofileCmd>()) &&
+          cmdMgr->regCmd("USAGE", 5, make_unique<UsageCmd>()) &&
+          cmdMgr->regCmd("VERbose", 3, make_unique<VerboseCmd>()) &&
+          cmdMgr->regCmd("SEED", 4, make_unique<SeedCmd>()) &&
+          cmdMgr->regCmd("COLOR", 5, make_unique<ColorCmd>()))) {
         cerr << "Registering \"init\" commands fails... exiting" << endl;
         return false;
     }

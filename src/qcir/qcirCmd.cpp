@@ -27,24 +27,24 @@ extern int effLimit;
 
 bool initQCirCmd() {
     qcirMgr = new QCirMgr;
-    if (!(cmdMgr->regCmd("QCCHeckout", 4, new QCirCheckoutCmd) &&
-          cmdMgr->regCmd("QCReset", 3, new QCirResetCmd) &&
-          cmdMgr->regCmd("QCDelete", 3, new QCirDeleteCmd) &&
-          cmdMgr->regCmd("QCNew", 3, new QCirNewCmd) &&
-          cmdMgr->regCmd("QCCOPy", 5, new QCirCopyCmd) &&
-          cmdMgr->regCmd("QCCOMpose", 5, new QCirComposeCmd) &&
-          cmdMgr->regCmd("QCTensor", 3, new QCirTensorCmd) &&
-          cmdMgr->regCmd("QCPrint", 3, new QCPrintCmd) &&
-          cmdMgr->regCmd("QCCRead", 4, new QCirReadCmd) &&
-          cmdMgr->regCmd("QCCPrint", 4, new QCirPrintCmd) &&
-          cmdMgr->regCmd("QCGAdd", 4, new QCirAddGateCmd) &&
-          cmdMgr->regCmd("QCBAdd", 4, new QCirAddQubitCmd) &&
-          cmdMgr->regCmd("QCGDelete", 4, new QCirDeleteGateCmd) &&
-          cmdMgr->regCmd("QCBDelete", 4, new QCirDeleteQubitCmd) &&
-          cmdMgr->regCmd("QCGPrint", 4, new QCirGatePrintCmd) &&
-          cmdMgr->regCmd("QC2ZX", 5, new QCir2ZXCmd) &&
-          cmdMgr->regCmd("QC2TS", 5, new QCir2TSCmd) &&
-          cmdMgr->regCmd("QCCWrite", 4, new QCirWriteCmd)
+    if (!(cmdMgr->regCmd("QCCHeckout", 4, make_unique<QCirCheckoutCmd>()) &&
+          cmdMgr->regCmd("QCReset", 3, make_unique<QCirResetCmd>()) &&
+          cmdMgr->regCmd("QCDelete", 3, make_unique<QCirDeleteCmd>()) &&
+          cmdMgr->regCmd("QCNew", 3, make_unique<QCirNewCmd>()) &&
+          cmdMgr->regCmd("QCCOPy", 5, make_unique<QCirCopyCmd>()) &&
+          cmdMgr->regCmd("QCCOMpose", 5, make_unique<QCirComposeCmd>()) &&
+          cmdMgr->regCmd("QCTensor", 3, make_unique<QCirTensorCmd>()) &&
+          cmdMgr->regCmd("QCPrint", 3, make_unique<QCPrintCmd>()) &&
+          cmdMgr->regCmd("QCCRead", 4, make_unique<QCirReadCmd>()) &&
+          cmdMgr->regCmd("QCCPrint", 4, make_unique<QCirPrintCmd>()) &&
+          cmdMgr->regCmd("QCGAdd", 4, make_unique<QCirAddGateCmd>()) &&
+          cmdMgr->regCmd("QCBAdd", 4, make_unique<QCirAddQubitCmd>()) &&
+          cmdMgr->regCmd("QCGDelete", 4, make_unique<QCirDeleteGateCmd>()) &&
+          cmdMgr->regCmd("QCBDelete", 4, make_unique<QCirDeleteQubitCmd>()) &&
+          cmdMgr->regCmd("QCGPrint", 4, make_unique<QCirGatePrintCmd>()) &&
+          cmdMgr->regCmd("QC2ZX", 5, make_unique<QCir2ZXCmd>()) &&
+          cmdMgr->regCmd("QC2TS", 5, make_unique<QCir2TSCmd>()) &&
+          cmdMgr->regCmd("QCCWrite", 4, make_unique<QCirWriteCmd>())
           // && cmdMgr->regCmd("QCTEST", 6, new QCirTestCmd)
           )) {
         cerr << "Registering \"qcir\" commands fails... exiting" << endl;

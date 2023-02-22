@@ -94,20 +94,6 @@ private:
         }                                              \
     }
 
-#define ArgParseCmdClass(T)                                      \
-    class T : public CmdExec {                                   \
-    public:                                                      \
-        T() { parserDefinition(); }                              \
-        ~T() {}                                                  \
-        void parserDefinition();                                 \
-        CmdExecStatus exec(const std::string& option);           \
-        void usage() const override { parser.printUsage(); }     \
-        void summary() const override { parser.printSummary(); } \
-        void help() const override { parser.printHelp(); }       \
-                                                                 \
-        ArgParse::ArgumentParser parser;                         \
-    };
-
 //----------------------------------------------------------------------
 //    Base class : CmdParser
 //----------------------------------------------------------------------
@@ -116,8 +102,8 @@ class CmdParser {
 #define READ_BUF_SIZE 65536
 #define PG_OFFSET 10
 
-    using CmdMap = std::map<const std::string, CmdExec*>;
-    using CmdRegPair = std::pair<const std::string, CmdExec*>;
+    using CmdMap = std::map<const std::string, std::unique_ptr<CmdExec>>;
+    using CmdRegPair = std::pair<const std::string, std::unique_ptr<CmdExec>>;
 
 public:
     CmdParser(const std::string& p) : _prompt(p), _dofile(0), _readBufPtr(_readBuf), _readBufEnd(_readBuf), _historyIdx(0), _tabPressCount(0), _tempCmdStored(false) {}
@@ -126,7 +112,7 @@ public:
     bool openDofile(const std::string& dof);
     void closeDofile();
 
-    bool regCmd(const std::string&, unsigned, CmdExec*);
+    bool regCmd(const std::string&, unsigned, std::unique_ptr<CmdExec>&&);
     CmdExecStatus execOneCmd();
     void printHelps() const;
 

@@ -24,7 +24,7 @@ extern int effLimit;
 extern ZXGraphMgr *zxGraphMgr;
 
 bool initM2Cmd() {
-    if (!(cmdMgr->regCmd("M2GAUE", 6, new M2GaussEliCmd) && cmdMgr->regCmd("M2TEST", 6, new M2TestCmd))) {
+    if (!(cmdMgr->regCmd("M2GAUE", 6, make_unique<M2GaussEliCmd>()) && cmdMgr->regCmd("M2TEST", 6, make_unique<M2TestCmd>()))) {
         cerr << "Registering \"m2\" commands fails... exiting" << endl;
         return false;
     }

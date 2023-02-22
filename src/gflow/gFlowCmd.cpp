@@ -23,7 +23,7 @@ extern ZXGraphMgr *zxGraphMgr;
 extern size_t verbose;
 
 bool initGFlowCmd() {
-    if (!cmdMgr->regCmd("ZXGGFlow", 5, new ZXGGFlowCmd)) {
+    if (!cmdMgr->regCmd("ZXGGFlow", 5, make_unique<ZXGGFlowCmd>())) {
         cerr << "Registering \"gflow\" commands fails... exiting" << endl;
         return false;
     }

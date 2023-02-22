@@ -17,7 +17,7 @@
  */
 class ArgParseCmdType : public CmdExec {
 public:
-    ArgParseCmdType(std::string const& name): _name(name) { _parser.name(name); }
+    ArgParseCmdType(std::string const& name) { _parser.name(name); }
     ~ArgParseCmdType() {}
 
     bool initialize() override;
@@ -31,7 +31,6 @@ public:
 
 private:
     ArgParse::ArgumentParser _parser;
-    std::string _name;
 
     void printMissingParserDefinitionErrorMsg() const;
     void printMissingOnParseSuccessErrorMsg() const;

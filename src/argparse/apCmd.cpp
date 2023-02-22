@@ -25,7 +25,7 @@ using namespace std;
 bool initArgParserCmd() {
     using namespace ArgParse;
 
-    auto argparseCmd = new ArgParseCmdType("Argparse");
+    auto argparseCmd = make_unique<ArgParseCmdType>("Argparse");
 
     argparseCmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("ArgParse package sandbox");
@@ -52,7 +52,7 @@ bool initArgParserCmd() {
         return CMD_EXEC_DONE;
     };
 
-    if (!(cmdMgr->regCmd("Argparse", 1, argparseCmd))) {
+    if (!(cmdMgr->regCmd("Argparse", 1, std::move(argparseCmd)))) {
         cerr << "Registering \"argparser\" commands fails... exiting" << endl;
         return false;
     }
@@ -95,11 +95,11 @@ CmdExecStatus ArgParseCmdType::exec(const std::string& option) {
 }
 
 void ArgParseCmdType::printMissingParserDefinitionErrorMsg() const {
-    cerr << "[ArgParse] Error:   please define parser definition for command \"" << _name << "\"!!\n"
+    cerr << "[ArgParse] Error:   please define parser definition for command \"" << _parser.getName() << "\"!!\n"
          << "           Syntax:  <cmd>->parserDefinition = [](ArgumentParser& parser) -> void { ... }; " << endl;
 }
 
 void ArgParseCmdType::printMissingOnParseSuccessErrorMsg() const {
-    cerr << "[ArgParse] Error:   please define on-parse-success action for command \"" << _name << "\"!!\n"
+    cerr << "[ArgParse] Error:   please define on-parse-success action for command \"" << _parser.getName() << "\"!!\n"
          << "           Syntax:  <cmd>->onParseSuccess = [](ArgumentParser const& parser) -> CmdExecStatus { ... }; " << endl;
 }

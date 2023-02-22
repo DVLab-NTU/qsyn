@@ -25,10 +25,10 @@ extern size_t verbose;
 
 bool initTensorCmd() {
     if (!(
-            cmdMgr->regCmd("TSReset", 3, new TSResetCmd) &&
-            cmdMgr->regCmd("TSPrint", 3, new TSPrintCmd) &&
-            cmdMgr->regCmd("TSADJoint", 3, new TSAdjointCmd) &&
-            cmdMgr->regCmd("TSEQuiv", 4, new TSEquivalenceCmd))) {
+            cmdMgr->regCmd("TSReset", 3, make_unique<TSResetCmd>()) &&
+            cmdMgr->regCmd("TSPrint", 3, make_unique<TSPrintCmd>()) &&
+            cmdMgr->regCmd("TSADJoint", 3, make_unique<TSAdjointCmd>()) &&
+            cmdMgr->regCmd("TSEQuiv", 4, make_unique<TSEquivalenceCmd>()))) {
         cerr << "Registering \"tensor\" commands fails... exiting" << endl;
         return false;
     }

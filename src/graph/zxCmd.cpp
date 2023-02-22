@@ -27,24 +27,24 @@ extern size_t verbose;
 
 bool initZXCmd() {
     zxGraphMgr = new ZXGraphMgr;
-    if (!(cmdMgr->regCmd("ZXNew", 3, new ZXNewCmd) &&
-          cmdMgr->regCmd("ZXReset", 3, new ZXResetCmd) &&
-          cmdMgr->regCmd("ZXDelete", 3, new ZXDeleteCmd) &&
-          cmdMgr->regCmd("ZXCHeckout", 4, new ZXCHeckoutCmd) &&
-          cmdMgr->regCmd("ZXCOPy", 5, new ZXCOPyCmd) &&
-          cmdMgr->regCmd("ZXCOMpose", 5, new ZXCOMposeCmd) &&
-          cmdMgr->regCmd("ZXTensor", 3, new ZXTensorCmd) &&
-          cmdMgr->regCmd("ZXPrint", 3, new ZXPrintCmd) &&
-          cmdMgr->regCmd("ZXGPrint", 4, new ZXGPrintCmd) &&
-          cmdMgr->regCmd("ZXGTest", 4, new ZXGTestCmd) &&
-          cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd) &&
-          cmdMgr->regCmd("ZXGADJoint", 6, new ZXGAdjointCmd) &&
-          cmdMgr->regCmd("ZXGASsign", 5, new ZXGAssignCmd) &&
-          cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
-          cmdMgr->regCmd("ZXGDraw", 4, new ZXGDrawCmd) &&
-          cmdMgr->regCmd("ZX2TS", 5, new ZX2TSCmd) &&
-          cmdMgr->regCmd("ZXGRead", 4, new ZXGReadCmd) &&
-          cmdMgr->regCmd("ZXGWrite", 4, new ZXGWriteCmd))) {
+    if (!(cmdMgr->regCmd("ZXNew", 3, make_unique<ZXNewCmd>()) &&
+          cmdMgr->regCmd("ZXReset", 3, make_unique<ZXResetCmd>()) &&
+          cmdMgr->regCmd("ZXDelete", 3, make_unique<ZXDeleteCmd>()) &&
+          cmdMgr->regCmd("ZXCHeckout", 4, make_unique<ZXCHeckoutCmd>()) &&
+          cmdMgr->regCmd("ZXCOPy", 5, make_unique<ZXCOPyCmd>()) &&
+          cmdMgr->regCmd("ZXCOMpose", 5, make_unique<ZXCOMposeCmd>()) &&
+          cmdMgr->regCmd("ZXTensor", 3, make_unique<ZXTensorCmd>()) &&
+          cmdMgr->regCmd("ZXPrint", 3, make_unique<ZXPrintCmd>()) &&
+          cmdMgr->regCmd("ZXGPrint", 4, make_unique<ZXGPrintCmd>()) &&
+          cmdMgr->regCmd("ZXGTest", 4, make_unique<ZXGTestCmd>()) &&
+          cmdMgr->regCmd("ZXGEdit", 4, make_unique<ZXGEditCmd>()) &&
+          cmdMgr->regCmd("ZXGADJoint", 6, make_unique<ZXGAdjointCmd>()) &&
+          cmdMgr->regCmd("ZXGASsign", 5, make_unique<ZXGAssignCmd>()) &&
+          cmdMgr->regCmd("ZXGTRaverse", 5, make_unique<ZXGTraverseCmd>()) &&
+          cmdMgr->regCmd("ZXGDraw", 4, make_unique<ZXGDrawCmd>()) &&
+          cmdMgr->regCmd("ZX2TS", 5, make_unique<ZX2TSCmd>()) &&
+          cmdMgr->regCmd("ZXGRead", 4, make_unique<ZXGReadCmd>()) &&
+          cmdMgr->regCmd("ZXGWrite", 4, make_unique<ZXGWriteCmd>()))) {
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
         return false;
     }

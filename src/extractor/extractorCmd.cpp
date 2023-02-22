@@ -28,9 +28,9 @@ extern ZXGraphMgr *zxGraphMgr;
 extern QCirMgr *qcirMgr;
 
 bool initExtractCmd() {
-    if (!(cmdMgr->regCmd("ZX2QC", 5, new ExtractCmd) &&
-          cmdMgr->regCmd("EXTRact", 4, new ExtractStepCmd) &&
-          cmdMgr->regCmd("EXTPrint", 4, new ExtractPrintCmd))) {
+    if (!(cmdMgr->regCmd("ZX2QC", 5, make_unique<ExtractCmd>()) &&
+          cmdMgr->regCmd("EXTRact", 4, make_unique<ExtractStepCmd>()) &&
+          cmdMgr->regCmd("EXTPrint", 4, make_unique<ExtractPrintCmd>()))) {
         cerr << "Registering \"extract\" commands fails... exiting" << endl;
         return false;
     }

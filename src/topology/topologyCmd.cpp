@@ -25,13 +25,13 @@ extern int effLimit;
 
 bool initDeviceTopoCmd() {
     deviceTopoMgr = new DeviceTopoMgr;
-    if (!(cmdMgr->regCmd("DTCHeckout", 4, new DeviceTopoCheckoutCmd) &&
-          cmdMgr->regCmd("DTReset", 3, new DeviceTopoResetCmd) &&
-          cmdMgr->regCmd("DTDelete", 3, new DeviceTopoDeleteCmd) &&
-          cmdMgr->regCmd("DTNew", 3, new DeviceTopoNewCmd) &&
-          cmdMgr->regCmd("DTGRead", 4, new DeviceTopoGraphReadCmd) &&
-          cmdMgr->regCmd("DTGPrint", 4, new DeviceTopoGraphPrintCmd) &&
-          cmdMgr->regCmd("DTPrint", 3, new DeviceTopoPrintCmd))) {
+    if (!(cmdMgr->regCmd("DTCHeckout", 4, make_unique<DeviceTopoCheckoutCmd>()) &&
+          cmdMgr->regCmd("DTReset", 3, make_unique<DeviceTopoResetCmd>()) &&
+          cmdMgr->regCmd("DTDelete", 3, make_unique<DeviceTopoDeleteCmd>()) &&
+          cmdMgr->regCmd("DTNew", 3, make_unique<DeviceTopoNewCmd>()) &&
+          cmdMgr->regCmd("DTGRead", 4, make_unique<DeviceTopoGraphReadCmd>()) &&
+          cmdMgr->regCmd("DTGPrint", 4, make_unique<DeviceTopoGraphPrintCmd>()) &&
+          cmdMgr->regCmd("DTPrint", 3, make_unique<DeviceTopoPrintCmd>()))) {
         cerr << "Registering \"device topology\" commands fails... exiting" << endl;
         return false;
     }

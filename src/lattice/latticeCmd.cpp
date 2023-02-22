@@ -21,7 +21,7 @@ extern size_t verbose;
 
 bool initLTCmd() {
     if (!(
-            cmdMgr->regCmd("LTS", 3, new LTCmd)
+            cmdMgr->regCmd("LTS", 3, make_unique<LTCmd>())
 
                 )) {
         cerr << "Registering \"lts\" commands fails... exiting" << endl;

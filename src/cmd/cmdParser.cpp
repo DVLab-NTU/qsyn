@@ -81,7 +81,7 @@ bool CmdParser::popDofile() {
 }
 
 // Return false if registration fails
-bool CmdParser::regCmd(const string& cmd, unsigned nCmp, CmdExec* e) {
+bool CmdParser::regCmd(const string& cmd, unsigned nCmp, unique_ptr<CmdExec>&& e) {
     // Make sure cmd hasn't been registered and won't cause ambiguity
     string str = cmd;
     unsigned s = str.size();
@@ -114,7 +114,7 @@ bool CmdParser::regCmd(const string& cmd, unsigned nCmp, CmdExec* e) {
     e->setOptCmd(optCmd);
 
     // insert (mandCmd, e) to _cmdMap; return false if insertion fails.
-    return (_cmdMap.insert(CmdRegPair(mandCmd, e))).second;
+    return (_cmdMap.insert(CmdRegPair(mandCmd, std::move(e)))).second;
 }
 
 // Return false on "quit" or if exception happens
@@ -636,7 +636,7 @@ CmdParser::getCmd(string cmd) {
         cmd[i] = toupper(cmd[i]);
         string check = cmd.substr(0, i + 1);
         if (_cmdMap.find(check) != _cmdMap.end())
-            e = _cmdMap[check];
+            e = _cmdMap[check].get();
         if (e != 0) {
             string optCheck = cmd.substr(i + 1);
             if (e->checkOptCmd(optCheck))
