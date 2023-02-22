@@ -211,7 +211,7 @@ myStrGetTok2(const string& str, string& tok, size_t pos, const std::string& del)
 // Convert string "str" to integer "num". Return false if str does not appear
 // to be a number
 bool myStr2Int(const string& str, int& num) {
-    num = 0;
+    int tmp = 0;
     size_t i = 0;
     int sign = 1;
     if (str[0] == '-') {
@@ -221,13 +221,13 @@ bool myStr2Int(const string& str, int& num) {
     bool valid = false;
     for (; i < str.size(); ++i) {
         if (isdigit(str[i])) {
-            num *= 10;
-            num += int(str[i] - '0');
+            tmp *= 10;
+            tmp += int(str[i] - '0');
             valid = true;
         } else
             return false;
     }
-    num *= sign;
+    num = tmp * sign;
     return valid;
 }
 
@@ -271,7 +271,6 @@ T stoFloatType(const string& str, size_t* pos) {
 template <class T>
 requires std::floating_point<T>
 bool myStr2FloatType(const string& str, T& f) {
-    f = 0;
     size_t i;
     try {
         f = stoFloatType<T>(str, &i);
@@ -279,11 +278,7 @@ bool myStr2FloatType(const string& str, T& f) {
         return false;
     }
     // Check if str have un-parsable parts
-    if (i != str.size()) {
-        f = 0;
-        return false;
-    }
-    return true;
+    return (i == str.size());
 }
 
 template bool myStr2FloatType<float>(const string&, float&);

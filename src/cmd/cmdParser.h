@@ -15,7 +15,7 @@
 #include <utility>  // for pair
 #include <vector>
 
-#include "argparser.h"
+#include "apArgParser.h"
 #include "cmdCharDef.h"  // for ParseChar
 
 class CmdParser;
@@ -91,25 +91,18 @@ private:
         }                                              \
     }
 
-#define ArgParseCmdClass(T)                                     \
-    class T : public CmdExec {                                  \
-    public:                                                     \
-        T() {                                                   \
-            try {                                               \
-                parserDefinition();                             \
-            } catch (ArgParse::argparse_exception & e) {        \
-                ArgParse::detail::printArgParseFatalErrorMsg(); \
-                exit(-1);                                       \
-            }                                                   \
-        }                                                       \
-        ~T() {}                                                 \
-        void parserDefinition();                                \
-        CmdExecStatus exec(const std::string& option);          \
-        void usage() const override { parser.printUsage(); }    \
-        void help() const override { parser.printSummary(); }   \
-        void manual() const override { parser.printHelp(); }    \
-                                                                \
-        ArgParse::ArgumentParser parser;                        \
+#define ArgParseCmdClass(T)                                   \
+    class T : public CmdExec {                                \
+    public:                                                   \
+        T() { parserDefinition(); }                           \
+        ~T() {}                                               \
+        void parserDefinition();                              \
+        CmdExecStatus exec(const std::string& option);        \
+        void usage() const override { parser.printUsage(); }  \
+        void help() const override { parser.printSummary(); } \
+        void manual() const override { parser.printHelp(); }  \
+                                                              \
+        ArgParse::ArgumentParser parser;                      \
     };
 
 //----------------------------------------------------------------------

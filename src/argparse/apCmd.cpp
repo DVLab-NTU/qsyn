@@ -5,7 +5,7 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include "argparserCmd.h"
+#include "apCmd.h"
 
 #include <stdlib.h>  // for srand
 
@@ -15,13 +15,13 @@
 #include <string>
 #include <vector>
 
-#include "argparser.h"
+#include "apArgParser.h"
 #include "util.h"
 
 using namespace std;
 
 bool initArgParserCmd() {
-    if (!(cmdMgr->regCmd("Argparser", 1, new ArgParserCmd))) {
+    if (!(cmdMgr->regCmd("Argparse", 1, new ArgParseCmd))) {
         cerr << "Registering \"argparser\" commands fails... exiting" << endl;
         return false;
     }
@@ -29,39 +29,34 @@ bool initArgParserCmd() {
 }
 
 //----------------------------------------------------------------------
-//    PARSERTREE <size_t color level>
+//    Argparse [(...)]
 //----------------------------------------------------------------------
 
-void ArgParserCmd::parserDefinition() {
-    parser.cmdInfo("Argparse", "argparse function playground");
+void ArgParseCmd::parserDefinition() {
+    using namespace ArgParse;
+    
+    parser.name("Argparse").help("ArgParse package sandbox");
+    parser.addArgument<string>("cat")
+        .help("cute");
+    parser.addArgument<string>("dog")
+        .help("humans' best friend");
 
-    parser.addArgument<string>("reqpos")
-        .help("Required positional argument");
-    parser.addArgument<string>("optpos")
-        .help("Optional positional argument")
-        .optional();
-    parser.addArgument<string>("-reqopt")
-        .help("Required option")
-        .required()
-        .metavar("apple");
-    parser.addArgument<string>("-optopt")
-        .help("Optional option")
-        .metavar("banana");
+    parser.addArgument<int>("-badge")
+        .defaultValue(42)
+        .help("a symbol of honor");
+    parser.addArgument<unsigned>("-bacon")
+        .defaultValue(5)
+        .action(storeConst<unsigned>)
+        .constValue(87)
+        .help("yummy");
 }
 
 CmdExecStatus
-ArgParserCmd::exec(const string& option) {
-
+ArgParseCmd::exec(const string& option) {
     parser.parse(option);
 
-    parser.printArguments();
     parser.printTokens();
-    
-    // access parsed variable here. e.g.,
-    // if (parser["-replace"]) {
-    //    cout << "replace the current graph"
-    //}
-    // g->readZX(parser["filepath"], ...);
+    parser.printArguments();
 
     return CMD_EXEC_DONE;
 }
