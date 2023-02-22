@@ -81,6 +81,4 @@ optional<string> MyTrie::findWithPrefix(string const& word) const {
     }
 
     return retStr;
-
-
 }

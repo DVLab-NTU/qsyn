@@ -54,7 +54,6 @@ public:
     std::string const& getName() const { return _name; }
     std::string const& getHelp() const { return _help; }
 
-
     bool hasOptionPrefix(std::string const& str) const {
         return str.find_first_of(_optionPrefix) == 0UL;
     }

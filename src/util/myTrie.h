@@ -13,8 +13,8 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 struct MyTrieNode {
 #define NUM_ASCII_CHARS 128
@@ -35,6 +35,7 @@ public:
     size_t frequency(std::string const& word) const;
 
     std::optional<std::string> findWithPrefix(std::string const& word) const;
+
 private:
     std::unique_ptr<MyTrieNode> _root;
 };

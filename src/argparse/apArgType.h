@@ -10,9 +10,9 @@
 #define QSYN_ARGPARSE_ARGTYPE_H
 
 #include <functional>
+#include <optional>
 #include <span>
 #include <string>
-#include <optional>
 
 #include "util.h"
 
@@ -139,7 +139,6 @@ ArgType<T>::ActionType storeConst(ArgType<T>& arg) {
         return true;
     };
 }
-
 
 ArgType<bool>::ActionType storeTrue(ArgType<bool>& arg);
 ArgType<bool>::ActionType storeFalse(ArgType<bool>& arg);

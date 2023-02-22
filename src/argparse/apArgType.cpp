@@ -47,7 +47,7 @@ bool parseFromString(std::string& val, std::string const& token) {
     return true;
 }
 
-}
+}  // namespace detail
 
 ArgType<bool>::ActionType storeTrue(ArgType<bool>& arg) {
     arg.defaultValue(false);
@@ -67,4 +67,4 @@ ArgType<bool>::ActionType storeFalse(ArgType<bool>& arg) {
     };
 }
 
-}
+}  // namespace ArgParse

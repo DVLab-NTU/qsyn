@@ -64,7 +64,7 @@ bool initArgParserCmd() {
 
 /**
  * @brief Check the soundness of the parser before initializing the command with parserDefinition;
- * 
+ *
  * @return true if succeeded
  * @return false if failed
  */
@@ -83,7 +83,7 @@ bool ArgParseCmdType::initialize() {
 
 /**
  * @brief parse the argument. On parse success, execute the onParseSuccess callback.
- * 
+ *
  * @return true if succeeded
  * @return false if failed
  */

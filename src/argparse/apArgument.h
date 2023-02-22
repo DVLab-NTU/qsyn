@@ -147,8 +147,8 @@ private:
         bool doHasAction() const { return inner.hasAction(); }
         bool doIsRequired() const { return inner.isRequired(); };
 
-        std::ostream& doPrint(std::ostream& os) const override { return os << inner; } 
-        std::ostream& doPrintDefaultValue(std::ostream& os) const override { return (inner.getDefaultValue().has_value() ? os << inner.getDefaultValue().value() : os << "(none)" ); }
+        std::ostream& doPrint(std::ostream& os) const override { return os << inner; }
+        std::ostream& doPrintDefaultValue(std::ostream& os) const override { return (inner.getDefaultValue().has_value() ? os << inner.getDefaultValue().value() : os << "(none)"); }
 
         bool doParse(std::string const& token) override { return inner.parse(token); }
         virtual void doReset() override { inner.reset(); }

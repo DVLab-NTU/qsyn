@@ -13,7 +13,7 @@
 
 /**
  * @brief class specification for commands that uses ArgParse::ArgumentParser to parse and generate help messages.
- * 
+ *
  */
 class ArgParseCmdType : public CmdExec {
 public:
@@ -26,8 +26,8 @@ public:
     void summary() const override { _parser.printSummary(); }
     void help() const override { _parser.printHelp(); }
 
-    std::function<void(ArgParse::ArgumentParser&)> parserDefinition; // define the parser's arguments and traits
-    std::function<CmdExecStatus(ArgParse::ArgumentParser const&)> onParseSuccess; // define the action to take on parse success
+    std::function<void(ArgParse::ArgumentParser&)> parserDefinition;               // define the parser's arguments and traits
+    std::function<CmdExecStatus(ArgParse::ArgumentParser const&)> onParseSuccess;  // define the action to take on parse success
 
 private:
     ArgParse::ArgumentParser _parser;
