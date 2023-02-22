@@ -27,24 +27,24 @@ extern size_t verbose;
 
 bool initZXCmd() {
     zxGraphMgr = new ZXGraphMgr;
-    if (!(cmdMgr->regCmd("ZXNew", 3, new ZXNewCmd) &&
-          cmdMgr->regCmd("ZXReset", 3, new ZXResetCmd) &&
-          cmdMgr->regCmd("ZXDelete", 3, new ZXDeleteCmd) &&
-          cmdMgr->regCmd("ZXCHeckout", 4, new ZXCHeckoutCmd) &&
-          cmdMgr->regCmd("ZXCOPy", 5, new ZXCOPyCmd) &&
-          cmdMgr->regCmd("ZXCOMpose", 5, new ZXCOMposeCmd) &&
-          cmdMgr->regCmd("ZXTensor", 3, new ZXTensorCmd) &&
-          cmdMgr->regCmd("ZXPrint", 3, new ZXPrintCmd) &&
-          cmdMgr->regCmd("ZXGPrint", 4, new ZXGPrintCmd) &&
-          cmdMgr->regCmd("ZXGTest", 4, new ZXGTestCmd) &&
-          cmdMgr->regCmd("ZXGEdit", 4, new ZXGEditCmd) &&
-          cmdMgr->regCmd("ZXGADJoint", 6, new ZXGAdjointCmd) &&
-          cmdMgr->regCmd("ZXGASsign", 5, new ZXGAssignCmd) &&
-          cmdMgr->regCmd("ZXGTRaverse", 5, new ZXGTraverseCmd) &&
-          cmdMgr->regCmd("ZXGDraw", 4, new ZXGDrawCmd) &&
-          cmdMgr->regCmd("ZX2TS", 5, new ZX2TSCmd) &&
-          cmdMgr->regCmd("ZXGRead", 4, new ZXGReadCmd) &&
-          cmdMgr->regCmd("ZXGWrite", 4, new ZXGWriteCmd))) {
+    if (!(cmdMgr->regCmd("ZXNew", 3, make_unique<ZXNewCmd>()) &&
+          cmdMgr->regCmd("ZXReset", 3, make_unique<ZXResetCmd>()) &&
+          cmdMgr->regCmd("ZXDelete", 3, make_unique<ZXDeleteCmd>()) &&
+          cmdMgr->regCmd("ZXCHeckout", 4, make_unique<ZXCHeckoutCmd>()) &&
+          cmdMgr->regCmd("ZXCOPy", 5, make_unique<ZXCOPyCmd>()) &&
+          cmdMgr->regCmd("ZXCOMpose", 5, make_unique<ZXCOMposeCmd>()) &&
+          cmdMgr->regCmd("ZXTensor", 3, make_unique<ZXTensorCmd>()) &&
+          cmdMgr->regCmd("ZXPrint", 3, make_unique<ZXPrintCmd>()) &&
+          cmdMgr->regCmd("ZXGPrint", 4, make_unique<ZXGPrintCmd>()) &&
+          cmdMgr->regCmd("ZXGTest", 4, make_unique<ZXGTestCmd>()) &&
+          cmdMgr->regCmd("ZXGEdit", 4, make_unique<ZXGEditCmd>()) &&
+          cmdMgr->regCmd("ZXGADJoint", 6, make_unique<ZXGAdjointCmd>()) &&
+          cmdMgr->regCmd("ZXGASsign", 5, make_unique<ZXGAssignCmd>()) &&
+          cmdMgr->regCmd("ZXGTRaverse", 5, make_unique<ZXGTraverseCmd>()) &&
+          cmdMgr->regCmd("ZXGDraw", 4, make_unique<ZXGDrawCmd>()) &&
+          cmdMgr->regCmd("ZX2TS", 5, make_unique<ZX2TSCmd>()) &&
+          cmdMgr->regCmd("ZXGRead", 4, make_unique<ZXGReadCmd>()) &&
+          cmdMgr->regCmd("ZXGWrite", 4, make_unique<ZXGWriteCmd>()))) {
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
         return false;
     }
@@ -73,7 +73,7 @@ void ZXNewCmd::usage() const {
     cout << "Usage: ZXNew [size_t id]" << endl;
 }
 
-void ZXNewCmd::help() const {
+void ZXNewCmd::summary() const {
     cout << setw(15) << left << "ZXNew: "
          << "create a new ZX-graph to ZXGraphMgr" << endl;
 }
@@ -95,7 +95,7 @@ void ZXResetCmd::usage() const {
     cout << "Usage: ZXReset" << endl;
 }
 
-void ZXResetCmd::help() const {
+void ZXResetCmd::summary() const {
     cout << setw(15) << left << "ZXReset: "
          << "reset ZXGraphMgr" << endl;
 }
@@ -123,7 +123,7 @@ void ZXDeleteCmd::usage() const {
     cout << "Usage: ZXDelete <size_t id>" << endl;
 }
 
-void ZXDeleteCmd::help() const {
+void ZXDeleteCmd::summary() const {
     cout << setw(15) << left << "ZXDelete: "
          << "remove a ZX-graph from ZXGraphMgr" << endl;
 }
@@ -151,7 +151,7 @@ void ZXCHeckoutCmd::usage() const {
     cout << "Usage: ZXCHeckout <(size_t id)>" << endl;
 }
 
-void ZXCHeckoutCmd::help() const {
+void ZXCHeckoutCmd::summary() const {
     cout << setw(15) << left << "ZXCHeckout: "
          << "checkout to Graph <id> in ZXGraphMgr" << endl;
 }
@@ -179,7 +179,7 @@ void ZXPrintCmd::usage() const {
     cout << "Usage: ZXPrint [-Summary | -Focus | -Num]" << endl;
 }
 
-void ZXPrintCmd::help() const {
+void ZXPrintCmd::summary() const {
     cout << setw(15) << left << "ZXPrint: "
          << "print info of ZXGraphMgr" << endl;
 }
@@ -225,7 +225,7 @@ void ZXCOPyCmd::usage() const {
     cout << "Usage: ZXCOPy <size_t id> [-Replace]" << endl;
 }
 
-void ZXCOPyCmd::help() const {
+void ZXCOPyCmd::summary() const {
     cout << setw(15) << left << "ZXCOPy: "
          << "copy a ZX-graph" << endl;
 }
@@ -253,7 +253,7 @@ void ZXCOMposeCmd::usage() const {
     cout << "Usage: ZXCOMpose <size_t id>" << endl;
 }
 
-void ZXCOMposeCmd::help() const {
+void ZXCOMposeCmd::summary() const {
     cout << setw(15) << left << "ZXCOMpose: "
          << "compose a ZX-graph" << endl;
 }
@@ -282,7 +282,7 @@ void ZXTensorCmd::usage() const {
     cout << "Usage: ZXTensor <size_t id>" << endl;
 }
 
-void ZXTensorCmd::help() const {
+void ZXTensorCmd::summary() const {
     cout << setw(15) << left << "ZXTensor: "
          << "tensor a ZX-graph" << endl;
 }
@@ -345,7 +345,7 @@ void ZXGTestCmd::usage() const {
     cout << "Usage: ZXGTest [-GCX | -Empty | -Valid | -GLike | -IDentity ]" << endl;
 }
 
-void ZXGTestCmd::help() const {
+void ZXGTestCmd::summary() const {
     cout << setw(15) << left << "ZXGTest: "
          << "test ZX-graph structures and functions" << endl;
 }
@@ -424,7 +424,7 @@ void ZXGPrintCmd::usage() const {
     cout << "Usage: ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis]" << endl;
 }
 
-void ZXGPrintCmd::help() const {
+void ZXGPrintCmd::summary() const {
     cout << setw(15) << left << "ZXGPrint: "
          << "print info of ZX-graph" << endl;
 }
@@ -589,7 +589,7 @@ void ZXGEditCmd::usage() const {
     cout << "               -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>" << endl;
 }
 
-void ZXGEditCmd::help() const {
+void ZXGEditCmd::summary() const {
     cout << setw(15) << left << "ZXGEdit: "
          << "edit ZX-graph" << endl;
 }
@@ -610,7 +610,7 @@ void ZXGTraverseCmd::usage() const {
     cout << "Usage: ZXGTRaverse" << endl;
 }
 
-void ZXGTraverseCmd::help() const {
+void ZXGTraverseCmd::summary() const {
     cout << setw(15) << left << "ZXGTRaverse: "
          << "traverse ZX-graph and update topological order of vertices" << endl;
 }
@@ -644,7 +644,7 @@ void ZXGDrawCmd::usage() const {
     cout << "Usage: ZXGDraw <string (path.pdf)>" << endl;
 }
 
-void ZXGDrawCmd::help() const {
+void ZXGDrawCmd::summary() const {
     cout << setw(15) << left << "ZXGDraw: "
          << "draw ZX-graph" << endl;
 }
@@ -663,7 +663,7 @@ void ZX2TSCmd::usage() const {
     cout << "Usage: ZX2TS" << endl;
 }
 
-void ZX2TSCmd::help() const {
+void ZX2TSCmd::summary() const {
     cout << setw(15) << left << "ZX2TS: "
          << "convert ZX-graph to tensor" << endl;
 }
@@ -736,7 +736,7 @@ void ZXGReadCmd::usage() const {
     cout << "Usage: ZXGRead <string Input.(b)zx> [-KEEPid] [-Replace]" << endl;
 }
 
-void ZXGReadCmd::help() const {
+void ZXGReadCmd::summary() const {
     cout << setw(15) << left << "ZXGRead: "
          << "read a file and construct the corresponding ZX-graph" << endl;
 }
@@ -810,7 +810,7 @@ void ZXGWriteCmd::usage() const {
     cout << "Usage: ZXGWrite <string Output.<zx | tikz>> [-Complete]" << endl;
 }
 
-void ZXGWriteCmd::help() const {
+void ZXGWriteCmd::summary() const {
     cout << setw(15) << left << "ZXGWrite: "
          << "write a ZX-graph to a file\n";
 }
@@ -860,7 +860,7 @@ void ZXGAssignCmd::usage() const {
     cout << "Usage: ZXGASsign <size_t qubit> <I|O> <VertexType vt> <string Phase>" << endl;
 }
 
-void ZXGAssignCmd::help() const {
+void ZXGAssignCmd::summary() const {
     cout << setw(15) << left << "ZXGASsign: "
          << "assign quantum states to input/output vertex\n";
 }
@@ -881,7 +881,7 @@ void ZXGAdjointCmd::usage() const {
     cout << "Usage: ZXGADJoint" << endl;
 }
 
-void ZXGAdjointCmd::help() const {
+void ZXGAdjointCmd::summary() const {
     cout << setw(15) << left << "ZXGADJoint: "
          << "adjoint ZX-graph\n";
 }

@@ -13,12 +13,14 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 struct MyTrieNode {
 #define NUM_ASCII_CHARS 128
 public:
     MyTrieNode() : isWord(false), frequency(0) {}
-    std::array<std::unique_ptr<MyTrieNode>, NUM_ASCII_CHARS> children;
+    std::unordered_map<char, std::unique_ptr<MyTrieNode>> children;
     bool isWord;
     size_t frequency;
 };
@@ -27,8 +29,12 @@ class MyTrie {
 public:
     MyTrie() : _root(std::make_unique<MyTrieNode>()) {}
 
+    void clear() { _root = std::make_unique<MyTrieNode>(); }
     bool insert(std::string const& word);
     std::optional<std::string> shortestUniquePrefix(std::string const& word) const;
+    size_t frequency(std::string const& word) const;
+
+    std::optional<std::string> findWithPrefix(std::string const& word) const;
 
 private:
     std::unique_ptr<MyTrieNode> _root;

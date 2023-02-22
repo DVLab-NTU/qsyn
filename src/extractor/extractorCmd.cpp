@@ -28,9 +28,9 @@ extern ZXGraphMgr *zxGraphMgr;
 extern QCirMgr *qcirMgr;
 
 bool initExtractCmd() {
-    if (!(cmdMgr->regCmd("ZX2QC", 5, new ExtractCmd) &&
-          cmdMgr->regCmd("EXTRact", 4, new ExtractStepCmd) &&
-          cmdMgr->regCmd("EXTPrint", 4, new ExtractPrintCmd))) {
+    if (!(cmdMgr->regCmd("ZX2QC", 5, make_unique<ExtractCmd>()) &&
+          cmdMgr->regCmd("EXTRact", 4, make_unique<ExtractStepCmd>()) &&
+          cmdMgr->regCmd("EXTPrint", 4, make_unique<ExtractPrintCmd>()))) {
         cerr << "Registering \"extract\" commands fails... exiting" << endl;
         return false;
     }
@@ -72,7 +72,7 @@ void ExtractCmd::usage() const {
     cout << "Usage: ZX2QC" << endl;
 }
 
-void ExtractCmd::help() const {
+void ExtractCmd::summary() const {
     cout << setw(15) << left << "ZX2QC: "
          << "extract QCir from ZX-graph" << endl;
 }
@@ -204,7 +204,7 @@ void ExtractStepCmd::usage() const {
     cout << "       EXTRact <-ZXgraph> <(size_t ZX-graphId)> <-QCir> <(size_t QCirId)> <-CX | -CZ | -CLFrontier | -RMGadget| -PHase | -H | -PERmute>" << endl;
 }
 
-void ExtractStepCmd::help() const {
+void ExtractStepCmd::summary() const {
     cout << setw(15) << left << "EXTRact: "
          << "perform step(s) in extraction" << endl;
 }
@@ -270,7 +270,7 @@ void ExtractPrintCmd::usage() const {
     cout << "Usage: EXTPrint <-Frontier | -Neighbors | -Axels | -Matrix>" << endl;
 }
 
-void ExtractPrintCmd::help() const {
+void ExtractPrintCmd::summary() const {
     cout << setw(15) << left << "EXTPrint: "
          << "print info of extracting ZX-graph" << endl;
 }

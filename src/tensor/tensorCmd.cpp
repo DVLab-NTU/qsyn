@@ -25,10 +25,10 @@ extern size_t verbose;
 
 bool initTensorCmd() {
     if (!(
-            cmdMgr->regCmd("TSReset", 3, new TSResetCmd) &&
-            cmdMgr->regCmd("TSPrint", 3, new TSPrintCmd) &&
-            cmdMgr->regCmd("TSADJoint", 3, new TSAdjointCmd) &&
-            cmdMgr->regCmd("TSEQuiv", 4, new TSEquivalenceCmd))) {
+            cmdMgr->regCmd("TSReset", 3, make_unique<TSResetCmd>()) &&
+            cmdMgr->regCmd("TSPrint", 3, make_unique<TSPrintCmd>()) &&
+            cmdMgr->regCmd("TSADJoint", 3, make_unique<TSAdjointCmd>()) &&
+            cmdMgr->regCmd("TSEQuiv", 4, make_unique<TSEquivalenceCmd>()))) {
         cerr << "Registering \"tensor\" commands fails... exiting" << endl;
         return false;
     }
@@ -55,7 +55,7 @@ void TSResetCmd::usage() const {
     cout << "Usage: TSReset" << endl;
 }
 
-void TSResetCmd::help() const {
+void TSResetCmd::summary() const {
     cout << setw(15) << left << "TSReset: "
          << "reset the tensor manager" << endl;
 }
@@ -110,7 +110,7 @@ void TSPrintCmd::usage() const {
          << "       If no argument is given, list infos of all stored tensors. " << endl;
 }
 
-void TSPrintCmd::help() const {
+void TSPrintCmd::summary() const {
     cout << setw(15) << left << "TSPrint: "
          << "print info of stored tensors" << endl;
 }
@@ -199,7 +199,7 @@ void TSEquivalenceCmd::usage() const {
          << "       -Strict : requires exact equivalence (global scaling factor of 1)" << endl;
 }
 
-void TSEquivalenceCmd::help() const {
+void TSEquivalenceCmd::summary() const {
     cout << setw(15) << left << "TSEQuiv: "
          << "check the equivalency of two stored tensors" << endl;
 }
@@ -232,7 +232,7 @@ void TSAdjointCmd::usage() const {
     cout << "Usage: TSAdjoint <size_t id>" << endl;
 }
 
-void TSAdjointCmd::help() const {
+void TSAdjointCmd::summary() const {
     cout << setw(15) << left << "TSADJoint: "
          << "adjoint the specified tensor" << endl;
 }
