@@ -617,7 +617,7 @@ void ZXGTraverseCmd::summary() const {
 
 //----------------------------------------------------------------------
 //    ZXGDraw [-CLI]
-//    ZXGDraw <-Path> <string (path.pdf)>
+//    ZXGDraw <string (path.pdf)>
 //----------------------------------------------------------------------
 CmdExecStatus
 ZXGDrawCmd::exec(const string &option) {
@@ -641,7 +641,7 @@ ZXGDrawCmd::exec(const string &option) {
 
 void ZXGDrawCmd::usage() const {
     cout << "Usage: ZXGDraw [-CLI]" << endl;
-    cout << "Usage: ZXGDraw <-Path> <string (path.pdf)>" << endl;
+    cout << "Usage: ZXGDraw <string (path.pdf)>" << endl;
 }
 
 void ZXGDrawCmd::summary() const {
