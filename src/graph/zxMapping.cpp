@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>  // for size_t
+#include <cstddef>        // for size_t
 
 #include "qtensor.h"      // for QTensor
 #include "zx2tsMapper.h"  // for ZX2TSMapper
@@ -62,9 +62,8 @@ ZXVertex* ZXGraph::getOutputFromHash(const size_t& q) {
  * @brief Concatenate a ZX-graph of a gate to the ZX-graph of big circuit
  *
  * @param tmp the graph of a gate
- * @param remove_imm if true, remove edge immediately
  */
-void ZXGraph::concatenate(ZXGraph* tmp, bool remove_imm) {
+void ZXGraph::concatenate(ZXGraph* tmp) {
     // Add Vertices
     this->addVertices(tmp->getNonBoundary(), true);
     // Reconnect Input

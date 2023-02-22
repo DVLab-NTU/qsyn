@@ -24,7 +24,7 @@ extern int effLimit;
 extern ZXGraphMgr *zxGraphMgr;
 
 bool initM2Cmd() {
-    if (!(cmdMgr->regCmd("M2GAUE", 6, new M2GaussEliCmd) && cmdMgr->regCmd("M2TEST", 6, new M2TestCmd))) {
+    if (!(cmdMgr->regCmd("M2GAUE", 6, make_unique<M2GaussEliCmd>()) && cmdMgr->regCmd("M2TEST", 6, make_unique<M2TestCmd>()))) {
         cerr << "Registering \"m2\" commands fails... exiting" << endl;
         return false;
     }
@@ -65,11 +65,11 @@ M2GaussEliCmd::exec(const string &option) {
     return CMD_EXEC_DONE;
 }
 
-void M2GaussEliCmd::usage(ostream &os) const {
-    os << "Usage: M2GAUE" << endl;
+void M2GaussEliCmd::usage() const {
+    cout << "Usage: M2GAUE" << endl;
 }
 
-void M2GaussEliCmd::help() const {
+void M2GaussEliCmd::summary() const {
     cout << setw(15) << left << "M2GAUE: "
          << "perform Gaussian elimination" << endl;
 }
@@ -80,17 +80,21 @@ M2TestCmd::exec(const string &option) {
     M2 m2;
     m2.defaultInit();
     m2.printMatrix();
-    cout << "Is Idendity? " << m2.gaussianElim(true) << endl;
+    m2.gaussianElimSkip(5, true, true);
+    cout << "----" << endl;
     m2.printMatrix();
+    m2.printMatrix();
+    m2.printTrack();
+    m2.filterDuplicatedOps();
     m2.printTrack();
     return CMD_EXEC_DONE;
 }
 
-void M2TestCmd::usage(ostream &os) const {
-    os << "Usage: M2TEST" << endl;
+void M2TestCmd::usage() const {
+    cout << "Usage: M2TEST" << endl;
 }
 
-void M2TestCmd::help() const {
+void M2TestCmd::summary() const {
     cout << setw(15) << left << "M2TEST: "
          << "test funct." << endl;
 }

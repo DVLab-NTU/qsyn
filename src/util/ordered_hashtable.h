@@ -34,17 +34,18 @@ public:
     // class OTableIterator;
     using key_type = Key;
     using value_type = Value;
-    using stored_type = std::optional<StoredType>;
+    using stored_type = StoredType;
     using size_type = size_t;
     using difference_type = std::ptrdiff_t;
     using hasher = Hash;
     using key_equal = KeyEqual;
+    using container = std::vector<std::optional<stored_type>>;
 
     template <typename VecIterType>
     class OTableIterator;
 
-    using iterator = OTableIterator<typename std::vector<stored_type>::iterator>;
-    using const_iterator = OTableIterator<typename std::vector<stored_type>::const_iterator>;
+    using iterator = OTableIterator<typename container::iterator>;
+    using const_iterator = OTableIterator<typename container::const_iterator>;
 
     template <typename VecIterType>
     class OTableIterator {
@@ -135,12 +136,12 @@ public:
     }
     size_type id(const Key& key) const;
     bool contains(const Key& key) const;
-    virtual const Key& key(const value_type& value) const = 0;
+    virtual const Key& key(const stored_type& value) const = 0;
 
     // properties
     size_t size() const { return _size; }
     bool empty() const { return (this->size() == 0); }
-    bool operator==(const ordered_hashtable& rhs) const { return _data = rhs->_data; }
+    bool operator==(const ordered_hashtable& rhs) const { return _data == rhs._data; }
     bool operator!=(const ordered_hashtable& rhs) const { return !(*this == rhs); }
 
     // container manipulation
@@ -164,7 +165,7 @@ public:
 
 protected:
     std::unordered_map<Key, size_t, Hash, KeyEqual> _key2id;
-    std::vector<stored_type> _data;
+    container _data;
     size_t _size;
 };
 
@@ -265,8 +266,7 @@ ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::emplace(Args&&... arg
  */
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
 void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sweep() {
-    auto newEnd = std::remove_if(_data.begin(), _data.end(), [](const stored_type& v) { return !v.has_value(); });
-    _data.erase(newEnd, _data.end());
+    std::erase_if(_data, [](const std::optional<stored_type>& v) { return !v.has_value(); });
 
     for (size_t i = 0; i < _data.size(); ++i) {
         _key2id[this->key(_data[i].value())] = i;
@@ -313,7 +313,7 @@ size_t ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::erase(
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
 template <typename F>
 void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sort(F lambda) {
-    std::sort(this->_data.begin(), this->_data.end(), [&lambda](const stored_type& a, const stored_type& b) {
+    std::sort(this->_data.begin(), this->_data.end(), [&lambda](const std::optional<stored_type>& a, const std::optional<stored_type>& b) {
         if (!a.has_value()) return false;
         if (!b.has_value()) return true;
         return lambda(a.value(), b.value());

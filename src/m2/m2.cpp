@@ -9,6 +9,7 @@
 #include "m2.h"
 
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <unordered_map>
 #include <vector>
@@ -139,12 +140,33 @@ void M2::printTrack() const {
  *
  */
 void M2::defaultInit() {
-    _matrix.push_back(Row(0, vector<unsigned char>{1, 0, 1, 1, 0, 1}));
-    _matrix.push_back(Row(1, vector<unsigned char>{0, 1, 1, 1, 0, 0}));
-    _matrix.push_back(Row(2, vector<unsigned char>{0, 1, 1, 0, 1, 0}));
-    _matrix.push_back(Row(3, vector<unsigned char>{1, 0, 0, 1, 1, 0}));
-    _matrix.push_back(Row(4, vector<unsigned char>{1, 1, 0, 1, 1, 0}));
-    _matrix.push_back(Row(5, vector<unsigned char>{0, 0, 0, 1, 0, 1}));
+    // _matrix.push_back(Row(0, vector<unsigned char> {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0}));
+    // _matrix.push_back(Row(1, vector<unsigned char> {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0}));
+    // _matrix.push_back(Row(2, vector<unsigned char> {0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0}));
+    // _matrix.push_back(Row(3, vector<unsigned char> {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}));
+    // _matrix.push_back(Row(4, vector<unsigned char> {0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0}));
+    // _matrix.push_back(Row(5, vector<unsigned char> {0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0}));
+    // _matrix.push_back(Row(6, vector<unsigned char> {0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0}));
+    // _matrix.push_back(Row(7, vector<unsigned char> {0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1}));
+    // _matrix.push_back(Row(8, vector<unsigned char> {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}));
+    // _matrix.push_back(Row(9, vector<unsigned char> {0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0}));
+    // _matrix.push_back(Row(10, vector<unsigned char>{0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0}));
+    // _matrix.push_back(Row(11, vector<unsigned char>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0}));
+    // _matrix.push_back(Row(12, vector<unsigned char>{1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0}));
+    // _matrix.push_back(Row(13, vector<unsigned char>{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0}));
+
+    _matrix.push_back(Row(0, vector<unsigned char>{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0}));
+    _matrix.push_back(Row(1, vector<unsigned char>{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0}));
+    _matrix.push_back(Row(2, vector<unsigned char>{0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}));
+    _matrix.push_back(Row(3, vector<unsigned char>{0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0}));
+    _matrix.push_back(Row(4, vector<unsigned char>{0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}));
+    _matrix.push_back(Row(5, vector<unsigned char>{0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}));
+    _matrix.push_back(Row(6, vector<unsigned char>{0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}));
+    _matrix.push_back(Row(7, vector<unsigned char>{0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0}));
+    _matrix.push_back(Row(8, vector<unsigned char>{0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}));
+    _matrix.push_back(Row(9, vector<unsigned char>{0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0}));
+    _matrix.push_back(Row(10, vector<unsigned char>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}));
+    _matrix.push_back(Row(11, vector<unsigned char>{1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0}));
 }
 
 /**
@@ -171,70 +193,142 @@ bool M2::xorOper(size_t ctrl, size_t targ, bool track) {
 }
 
 /**
- * @brief Perform Gaussian Elimination. Skip the column if it is dupicated.
+ * @brief Perform Gaussian Elimination with different block sizes. Skip the column if it is dupicated.
  *
+ * @param blockSize
+ * @param fullReduced if true, performing back-substitution from the echelon form
  * @param track if true, record the process to operation track
- * @return true
- * @return false
+ * @return size_t (rank)
  */
-bool M2::gaussianElimSkip(bool track) {
+size_t M2::gaussianElimSkip(size_t blockSize, bool fullReduced, bool track) {
     vector<size_t> pivot_cols, pivot_cols_backup;
     size_t pivot_row = 0;
-    unordered_map<vector<unsigned char>, size_t> duplicated;
-    for (size_t i = 0; i < numRows(); i++) {
-        if (_matrix[i].isZeros()) continue;
-        if (duplicated.contains(_matrix[i].getRow())) {
-            xorOper(duplicated[_matrix[i].getRow()], i, track);
-        } else {
-            duplicated[_matrix[i].getRow()] = i;
+
+    for (size_t section = 0; section < ceil(numCols() / (double)blockSize); section++) {
+        size_t start = section * blockSize;
+        size_t end = min(numCols(), (section + 1) * blockSize);
+
+        unordered_map<vector<unsigned char>, size_t> duplicated;
+        for (size_t i = pivot_row; i < numRows(); i++) {
+            vector<unsigned char>::const_iterator first = _matrix[i].getRow().begin() + start;
+            vector<unsigned char>::const_iterator last = _matrix[i].getRow().begin() + end;
+            // NOTE - not all vector, only consider Row[first:last]
+            vector<unsigned char> subVec(first, last);
+            bool zeros = true;
+            for (auto& i : subVec) {
+                if (i == 1) {
+                    zeros = false;
+                    break;
+                }
+            }
+            if (zeros) continue;
+            if (duplicated.contains(subVec)) {
+                xorOper(duplicated[subVec], i, track);
+            } else {
+                duplicated[subVec] = i;
+            }
+        }
+
+        size_t p = start;
+
+        while (p < end) {
+            for (size_t r0 = pivot_row; r0 < numRows(); r0++) {
+                if (_matrix[r0].getRow()[p] != 0) {
+                    if (r0 != pivot_row) {
+                        xorOper(r0, pivot_row, track);
+                    }
+
+                    for (size_t r1 = pivot_row + 1; r1 < numRows(); r1++) {
+                        if (pivot_row != r1 && _matrix[r1].getRow()[p] != 0) {
+                            xorOper(pivot_row, r1, track);
+                        }
+                    }
+                    pivot_cols.push_back(p);
+                    pivot_row++;
+                    break;
+                }
+            }
+            p++;
         }
     }
-    size_t p = 0;
-    while (p < numCols()) {
-        for (size_t r0 = pivot_row; r0 < numRows(); r0++) {
-            if (_matrix[r0].getRow()[p] != 0) {
-                if (r0 != pivot_row) {
-                    xorOper(r0, pivot_row, track);
-                }
+    size_t rank = pivot_row;
+    // NOTE - echelon form already
 
-                for (size_t r1 = pivot_row + 1; r1 < numRows(); r1++) {
-                    if (_matrix[r1].getRow()[p] != 0) {
-                        xorOper(pivot_row, r1, track);
+    if (fullReduced) {
+        pivot_row--;
+        pivot_cols_backup = pivot_cols;
+        for (int section = ceil(numCols() / (double)blockSize) - 1; section >= 0; section--) {
+            size_t start = section * blockSize;
+            size_t end = min(numCols(), (section + 1) * blockSize);
+
+            unordered_map<vector<unsigned char>, size_t> duplicated;
+            for (int i = pivot_row; i >= 0; i--) {
+                vector<unsigned char>::const_iterator first = _matrix[i].getRow().begin() + start;
+                vector<unsigned char>::const_iterator last = _matrix[i].getRow().begin() + end;
+                // NOTE - not all vector, only consider Row[first:last]
+                vector<unsigned char> subVec(first, last);
+                bool zeros = true;
+                for (auto& i : subVec) {
+                    if (i == 1) {
+                        zeros = false;
+                        break;
                     }
                 }
-                pivot_cols.push_back(p);
-                pivot_row++;
-                break;
+                if (zeros) continue;
+                if (duplicated.contains(subVec)) {
+                    xorOper(duplicated[subVec], i, track);
+                } else {
+                    duplicated[subVec] = i;
+                }
+            }
+
+            while (pivot_cols_backup.size() > 0 && start <= pivot_cols_backup.back() && pivot_cols_backup.back() < end) {
+                size_t pcol = pivot_cols_backup[pivot_cols_backup.size() - 1];
+                pivot_cols_backup.pop_back();
+                for (size_t r = 0; r < pivot_row; r++) {
+                    if (_matrix[r].getRow()[pcol] != 0) {
+                        xorOper(pivot_row, r, track);
+                    }
+                }
+                pivot_row--;
             }
         }
-        p++;
     }
 
-    pivot_row--;
-    pivot_cols_backup = pivot_cols;
+    return rank;
+}
 
-    duplicated.clear();
-    for (size_t i = pivot_row; i > 0; i--) {
-        if (_matrix[i].isZeros()) continue;
-        if (duplicated.contains(_matrix[i].getRow())) {
-            xorOper(duplicated[_matrix[i].getRow()], i, track);
+/**
+ * @brief A temporary method to filter duplicated operations
+ *
+ * @return size_t
+ */
+size_t M2::filterDuplicatedOps() {
+    vector<Oper> opsCopy = _opStorage;
+    vector<size_t> dups;
+    unordered_map<size_t, pair<size_t, size_t>> lastUsed;  // NOTE - bit, (another bit, gateId)
+    for (size_t i = 0; i < opsCopy.size(); i++) {
+        bool firstMatch = false, secondMatch = false;
+        if (lastUsed.contains(opsCopy[i].first) && lastUsed[opsCopy[i].first].first == opsCopy[i].second && opsCopy[lastUsed[opsCopy[i].first].second].first == opsCopy[i].first) firstMatch = true;
+        if (lastUsed.contains(opsCopy[i].second) && lastUsed[opsCopy[i].second].first == opsCopy[i].first && opsCopy[lastUsed[opsCopy[i].second].second].second == opsCopy[i].second) secondMatch = true;
+        if (firstMatch && secondMatch) {
+            dups.push_back(i);
+            dups.push_back(lastUsed[opsCopy[i].second].second);
+            lastUsed.erase(opsCopy[i].first);
+            lastUsed.erase(opsCopy[i].second);
+
         } else {
-            duplicated[_matrix[i].getRow()] = i;
+            lastUsed[opsCopy[i].first] = make_pair(opsCopy[i].second, i);
+            lastUsed[opsCopy[i].second] = make_pair(opsCopy[i].first, i);
         }
     }
-    // NOTE - 0 <= pivot_cols_backup[i] < numRows() is true
-    while (pivot_cols_backup.size() > 0) {
-        size_t pcol = pivot_cols_backup[pivot_cols_backup.size() - 1];
-        pivot_cols_backup.pop_back();
-        for (size_t r = 0; r < pivot_row; r++) {
-            if (_matrix[r].getRow()[pcol] != 0) {
-                xorOper(pivot_row, r, track);
-            }
-        }
-        pivot_row--;
+    sort(dups.begin(), dups.end());
+
+    for (size_t i = 0; i < dups.size(); i++) {
+        _opStorage.erase(_opStorage.begin() + (dups[i] - i));
     }
 
-    return true;
+    return dups.size();
 }
 
 /**
@@ -277,7 +371,6 @@ bool M2::gaussianElim(bool track, bool isAugmentedMatrix) {
     for (size_t i = 0; i < min(numRows() - 1, numVariables); i++) {
         // the system of equation is not solvable if the
         // main diagonal cannot be made 1
-        // REVIEW - I comment out this line since no routine in Gaussian do this?
         if (!makeMainDiagonalOne(i)) return false;
 
         for (size_t j = i + 1; j < numRows(); j++) {
@@ -431,10 +524,6 @@ bool M2::isAugmentedSolvedForm() const {
  * @return false if not
  */
 bool M2::fromZXVertices(const ZXVertexList& frontier, const ZXVertexList& neighbors) {
-    // if (frontier.size() != neighbors.size()) {
-    //     cout << "Numbers of elements in frontier and neighbors mismatch!" << endl;
-    //     return false;
-    // }
     // NOTE - assign row by calculating a Frontier's connecting status to Neighbors, e.g. 10010 = connect to qubit 0 and 3.
     reset();
     unordered_map<ZXVertex*, size_t> table;
@@ -446,11 +535,7 @@ bool M2::fromZXVertices(const ZXVertexList& frontier, const ZXVertexList& neighb
     for (auto& v : frontier) {
         vector<unsigned char> storage = vector<unsigned char>(neighbors.size(), 0);
         for (auto& [vt, _] : v->getNeighbors()) {
-            if (neighbors.contains(vt)) {
-                // REVIEW - Assume no space in #qubit (0,2,3,4,5 is not allowed)
-                storage[table[vt]] = 1;
-                // in Neighbors
-            }
+            if (neighbors.contains(vt)) storage[table[vt]] = 1;
         }
         _matrix.push_back(Row(1, storage));
     }

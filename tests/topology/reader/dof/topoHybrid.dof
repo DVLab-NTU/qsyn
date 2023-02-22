@@ -1,0 +1,14 @@
+dtgr benchmark/topology/ithaca.layout
+dtgp
+dtgr benchmark/topology/example.layout
+dtgp
+dtch 0
+dtp
+dtgp -q
+dtgp -q 15
+dtgp -e 15
+dtp
+dtp -l
+qq -f
+
+

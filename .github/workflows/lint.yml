@@ -11,17 +11,38 @@ on:
 jobs:
   run-linters:
     name: Run linters
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      
+      - name: install clang-format
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 16
+          sudo apt-get update
+          sudo apt-get install clang-format-16 colordiff findutils
+    
 
       - name: clang-format lint
-        uses: DoozyX/clang-format-lint-action@v0.15
-        with:
-          source: './src'
-          exclude: './vender ./tests'
-          extensions: 'h,cpp'
-          clangFormatVersion: 14
+        run: |
+          clang-format-16 --version
+          mkdir -p tmp_
+          find ./src -type d | xargs -I {} mkdir -p tmp_/{}
+          find ./src -regex ".*\.\(h\|cpp\)" -type f | xargs -I {} sh -c 'cp "$1" tmp_/"$1"' -- {}
+          cp .clang-format tmp_
+          cd tmp_
+          find ./src -regex ".*\.\(h\|cpp\)" -type f | xargs -I {} sh -c 'clang-format-16 "$1" > "$1"\ \(Reformatted\)' -- {}
+          find ./src -regex ".*\.\(h\|cpp\)" -type f | xargs -I {} sh -c 'cp "$1" "$1"\ \(Original\)' -- {}
+          find . -regex ".*\.\(h\|cpp\)" -type f | xargs -I {} sh -c 'colordiff -u "$1"\ \(Original\) "$1"\ \(Reformatted\)' -- {}
+          cd ..
+          rm -rf tmp_
+        # uses: DoozyX/clang-format-lint-action@v0.15
+        # with:
+        #   source: './src'
+        #   exclude: './vender ./tests'
+        #   extensions: 'h,cpp'
+        #   clangFormatVersion: 15
           # style: '.clang-format'

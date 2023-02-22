@@ -9,6 +9,8 @@
 #ifndef SIMPLIFY_H
 #define SIMPLIFY_H
 
+#include <memory>
+
 #include "zxRules.h"  // for ZXRule
 
 class ZXGraph;
@@ -21,17 +23,15 @@ public:
         _recipe.clear();
         hruleSimp();
     }
-    Simplifier(ZXRule* rule, ZXGraph* g) {
-        _rule = rule;
+    Simplifier(std::unique_ptr<ZXRule> rule, ZXGraph* g) {
+        _rule = std::move(rule);
         _simpGraph = g;
         _recipe.clear();
     }
-    ~Simplifier() { delete _rule; }
 
-    void setRule(ZXRule* rule) {
-        if (_rule != nullptr) delete _rule;
-        _rule = rule;
-    }
+    ZXRule* getRule() const { return _rule.get(); }
+
+    void setRule(std::unique_ptr<ZXRule> rule) { _rule = std::move(rule); }
 
     void amend();
     // Simplification strategies
@@ -63,7 +63,7 @@ public:
     void printRecipe();
 
 private:
-    ZXRule* _rule;
+    std::unique_ptr<ZXRule> _rule;
     ZXGraph* _simpGraph;
     std::vector<std::tuple<std::string, std::vector<int> > > _recipe;
 };

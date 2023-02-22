@@ -28,7 +28,6 @@ CmdClass(QCirAddGateCmd);
 CmdClass(QCirAddQubitCmd);
 CmdClass(QCirDeleteGateCmd);
 CmdClass(QCirDeleteQubitCmd);
-CmdClass(QCirAddMultipleCmd);
 CmdClass(QCir2ZXCmd);
 CmdClass(QCir2TSCmd);
 CmdClass(QCirGatePrintCmd);

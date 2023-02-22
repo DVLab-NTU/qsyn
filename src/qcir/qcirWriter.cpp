@@ -9,7 +9,7 @@
 #include <fstream>  // for fstream
 #include <string>   // for string
 
-#include "qcir.h"  // for QCir
+#include "qcir.h"   // for QCir
 
 using namespace std;
 
@@ -32,7 +32,7 @@ bool QCir::writeQASM(string filename) {
     for (size_t i = 0; i < _topoOrder.size(); i++) {
         QCirGate* curGate = _topoOrder[i];
         file << curGate->getTypeStr();
-        if (curGate->getTypeStr() == "rz" || curGate->getTypeStr() == "rx" || curGate->getTypeStr() == "ry" || curGate->getTypeStr() == "crz" || curGate->getTypeStr() == "crx" || curGate->getTypeStr() == "cry" || curGate->getTypeStr() == "cp") {
+        if (curGate->getType() == GateType::MCP || curGate->getType() == GateType::MCPX || curGate->getType() == GateType::MCPY || curGate->getType() == GateType::MCRZ || curGate->getType() == GateType::MCRX || curGate->getType() == GateType::MCRY || curGate->getType() == GateType::P || curGate->getType() == GateType::PX || curGate->getType() == GateType::PY || curGate->getType() == GateType::RZ || curGate->getType() == GateType::RX || curGate->getType() == GateType::RY) {
             file << "(" << curGate->getPhase().getAsciiString() << ")"
                  << " ";
         } else {

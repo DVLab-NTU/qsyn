@@ -1,0 +1,112 @@
+DV Lab, NTUEE, Qsyn 0.4.0
+qsyn> dtgr benchmark/topology/ithaca.layout
+Create and checkout to DeviceTopo 0
+
+qsyn> dtgp
+Topology  0: ibm_ithaca( 65 qubits, 72 edges )
+Gate Set   : CX, ID, RZ, SX, X
+
+qsyn> dtgr benchmark/topology/example.layout
+Create and checkout to DeviceTopo 1
+
+qsyn> dtgp
+Topology  1: example_topology( 3 qubits, 2 edges )
+Gate Set   : X, RZ, H, ID, SX, CX
+
+qsyn> dtch 0
+Checkout to DeviceTopo 0
+
+qsyn> dtp
+-> #DeviceTopo: 2
+-> Now focus on: 0 (ibm_ithaca)
+
+qsyn> dtgp -q
+
+ID:   0    Delay:   4.369    Error: 0.00030    Adjs:  1  10 
+ID:   1    Delay:   5.941    Error: 0.00016    Adjs:  0   2 
+ID:   2    Delay:   4.722    Error: 0.00036    Adjs:  1   3 
+ID:   3    Delay:   4.217    Error: 0.00040    Adjs:  2   4 
+ID:   4    Delay:   5.259    Error: 0.00021    Adjs:  3   5  11 
+ID:   5    Delay:   5.105    Error: 0.00028    Adjs:  4   6 
+ID:   6    Delay:   4.724    Error: 0.00017    Adjs:  5   7 
+ID:   7    Delay:   4.006    Error: 0.00027    Adjs:  6   8 
+ID:   8    Delay:   4.094    Error: 0.00018    Adjs:  7   9  12 
+ID:   9    Delay:   5.099    Error: 0.00047    Adjs:  8 
+ID:  10    Delay:   4.221    Error: 0.00021    Adjs:  0  13 
+ID:  11    Delay:   5.021    Error: 0.00146    Adjs:  4  17 
+ID:  12    Delay:   5.699    Error: 0.00039    Adjs:  8  21 
+ID:  13    Delay:   5.442    Error: 0.00038    Adjs: 10  14 
+ID:  14    Delay:   5.652    Error: 0.00019    Adjs: 13  15 
+ID:  15    Delay:   5.267    Error: 0.00023    Adjs: 14  16  24 
+ID:  16    Delay:   5.464    Error: 0.00018    Adjs: 15  17 
+ID:  17    Delay:   4.215    Error: 0.00032    Adjs: 11  16  18 
+ID:  18    Delay:   5.012    Error: 0.00016    Adjs: 17  19 
+ID:  19    Delay:   5.183    Error: 0.00051    Adjs: 18  20  25 
+ID:  20    Delay:   5.130    Error: 0.00242    Adjs: 19  21 
+ID:  21    Delay:   5.960    Error: 0.00022    Adjs: 12  20  22 
+ID:  22    Delay:   4.907    Error: 0.00014    Adjs: 21  23 
+ID:  23    Delay:   5.246    Error: 0.00077    Adjs: 22  26 
+ID:  24    Delay:   5.460    Error: 0.00015    Adjs: 15  29 
+ID:  25    Delay:   4.695    Error: 0.00024    Adjs: 19  33 
+ID:  26    Delay:   4.957    Error: 0.00027    Adjs: 23  37 
+ID:  27    Delay:   4.544    Error: 0.01000    Adjs: 28  38 
+ID:  28    Delay:   5.338    Error: 0.00014    Adjs: 27  29 
+ID:  29    Delay:   5.479    Error: 0.00030    Adjs: 24  28  30 
+ID:  30    Delay:   5.220    Error: 0.00014    Adjs: 29  31 
+ID:  31    Delay:   4.875    Error: 0.00020    Adjs: 30  32  39 
+ID:  32    Delay:   4.850    Error: 0.00021    Adjs: 31  33 
+ID:  33    Delay:   4.315    Error: 0.00025    Adjs: 25  32  34 
+ID:  34    Delay:   4.546    Error: 0.00038    Adjs: 33  35 
+ID:  35    Delay:   4.970    Error: 0.00041    Adjs: 34  36  40 
+ID:  36    Delay:   4.424    Error: 0.00023    Adjs: 35  37 
+ID:  37    Delay:   5.923    Error: 0.00024    Adjs: 26  36 
+ID:  38    Delay:   4.538    Error: 0.00023    Adjs: 27  41 
+ID:  39    Delay:   5.824    Error: 0.00037    Adjs: 31  45 
+ID:  40    Delay:   4.828    Error: 0.00035    Adjs: 35  49 
+ID:  41    Delay:   5.634    Error: 0.00050    Adjs: 38  42 
+ID:  42    Delay:   4.653    Error: 0.00035    Adjs: 41  43 
+ID:  43    Delay:   5.164    Error: 0.00021    Adjs: 42  44  52 
+ID:  44    Delay:   5.384    Error: 0.00028    Adjs: 43  45 
+ID:  45    Delay:   4.181    Error: 0.00017    Adjs: 39  44  46 
+ID:  46    Delay:   4.459    Error: 0.00027    Adjs: 45  47 
+ID:  47    Delay:   5.777    Error: 0.00018    Adjs: 46  48  53 
+ID:  48    Delay:   5.414    Error: 0.00047    Adjs: 47  49 
+ID:  49    Delay:   4.975    Error: 0.00021    Adjs: 40  48  50 
+ID:  50    Delay:   5.887    Error: 0.00146    Adjs: 49  51 
+ID:  51    Delay:   5.961    Error: 0.00039    Adjs: 50  54 
+ID:  52    Delay:   4.270    Error: 0.00038    Adjs: 43  56 
+ID:  53    Delay:   4.847    Error: 0.00019    Adjs: 47  60 
+ID:  54    Delay:   4.139    Error: 0.00023    Adjs: 51  64 
+ID:  55    Delay:   5.405    Error: 0.00018    Adjs: 56 
+ID:  56    Delay:   4.843    Error: 0.00032    Adjs: 52  55  57 
+ID:  57    Delay:   4.368    Error: 0.00016    Adjs: 56  58 
+ID:  58    Delay:   5.301    Error: 0.00051    Adjs: 57  59 
+ID:  59    Delay:   5.120    Error: 0.00242    Adjs: 58  60 
+ID:  60    Delay:   4.369    Error: 0.00022    Adjs: 53  59  61 
+ID:  61    Delay:   5.406    Error: 0.00014    Adjs: 60  62 
+ID:  62    Delay:   4.164    Error: 0.00077    Adjs: 61  63 
+ID:  63    Delay:   4.828    Error: 0.00027    Adjs: 62  64 
+ID:  64    Delay:   4.828    Error: 0.00018    Adjs: 54  63 
+Total #Qubits: 65
+
+qsyn> dtgp -q 15
+
+ID:  15    Delay:   5.267    Error: 0.00023    Adjs: 14  16  24 
+
+qsyn> dtgp -e 15
+
+( 15,  14)    Delay: 561.778    Error: 0.01016
+( 15,  16)    Delay: 512.000    Error: 0.00690
+( 15,  24)    Delay: 561.778    Error: 1.00000
+Total #Edges: 3
+
+qsyn> dtp
+-> #DeviceTopo: 2
+-> Now focus on: 0 (ibm_ithaca)
+
+qsyn> dtp -l
+★ 0 ibm_ithaca           #Q:   65
+  1 example_topology     #Q:    3
+
+qsyn> qq -f
+

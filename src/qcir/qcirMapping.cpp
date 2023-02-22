@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>  // for size_t, NULL
+#include <cstddef>       // for size_t, NULL
 
 #include "qcir.h"        // for QCir
 #include "qtensor.h"     // for QTensor
@@ -58,13 +58,11 @@ void QCir::ZXMapping() {
             v->setCol(v->getCol() + G->getTime() + 1);
         }
         if (tmp == NULL) {
-            // TODO cleanup when conversion fails
             cerr << "Gate " << G->getId() << " (type: " << G->getTypeStr() << ") is not implemented, the conversion result is wrong!!" << endl;
             return;
         }
 
-        _ZXG->concatenate(tmp, false);
-        tmp->disownVertices();
+        _ZXG->concatenate(tmp);
         delete tmp;
     });
 

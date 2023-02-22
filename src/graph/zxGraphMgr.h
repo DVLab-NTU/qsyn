@@ -20,7 +20,7 @@ extern ZXGraphMgr* zxGraphMgr;
 //------------------------------------------------------------------------
 //  Define types
 //------------------------------------------------------------------------
-typedef std::vector<ZXGraph*> ZXGraphList;
+using ZXGraphList = std::vector<ZXGraph*>;
 
 //------------------------------------------------------------------------
 //  Define classes

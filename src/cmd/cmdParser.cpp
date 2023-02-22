@@ -12,7 +12,7 @@
 #include <cstdlib>     // for exit
 #include <filesystem>  // lines 12-12
 #include <fstream>
-#include <iostream>  // for cin, cout
+#include <iostream>    // for cin, cout
 
 #include "util.h"
 
@@ -81,10 +81,11 @@ bool CmdParser::popDofile() {
 }
 
 // Return false if registration fails
-bool CmdParser::regCmd(const string& cmd, unsigned nCmp, CmdExec* e) {
+bool CmdParser::regCmd(const string& cmd, unsigned nCmp, unique_ptr<CmdExec>&& e) {
     // Make sure cmd hasn't been registered and won't cause ambiguity
     string str = cmd;
     unsigned s = str.size();
+    if (!e->initialize()) return false;
     if (s < nCmp) return false;
     while (true) {
         if (getCmd(str)) return false;
@@ -113,7 +114,7 @@ bool CmdParser::regCmd(const string& cmd, unsigned nCmp, CmdExec* e) {
     e->setOptCmd(optCmd);
 
     // insert (mandCmd, e) to _cmdMap; return false if insertion fails.
-    return (_cmdMap.insert(CmdRegPair(mandCmd, e))).second;
+    return (_cmdMap.insert(CmdRegPair(mandCmd, std::move(e)))).second;
 }
 
 // Return false on "quit" or if exception happens
@@ -140,7 +141,7 @@ CmdParser::execOneCmd() {
 void CmdParser::printHelps() const {
     // TODO...
     for (const auto& mi : _cmdMap)
-        mi.second->help();
+        mi.second->summary();
 
     cout << endl;
 }
@@ -368,7 +369,7 @@ void CmdParser::listCmd(const string& str) {
                 if (_tabPressCount == 1) {
                     // [case 5] Singly matched on first tab
                     cout << endl;
-                    e->usage(cout);
+                    e->usage();
                 }
                 // [case 6] Singly matched on second+ tab
                 else if (!listCmdDir(cmd)) {
@@ -403,7 +404,7 @@ void CmdParser::listCmd(const string& str) {
                 return;
             }  // [case 4] no match in 1st wd
         }
-    }  // end of cmd string processing
+    }          // end of cmd string processing
     // cases 1, 2, 3 go here
     ti = bi;
     ++ti;
@@ -635,7 +636,7 @@ CmdParser::getCmd(string cmd) {
         cmd[i] = toupper(cmd[i]);
         string check = cmd.substr(0, i + 1);
         if (_cmdMap.find(check) != _cmdMap.end())
-            e = _cmdMap[check];
+            e = _cmdMap[check].get();
         if (e != 0) {
             string optCheck = cmd.substr(i + 1);
             if (e->checkOptCmd(optCheck))

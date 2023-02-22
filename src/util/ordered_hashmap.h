@@ -98,7 +98,7 @@ public:
     }
 
     // lookup
-    virtual const Key& key(const value_type& value) const override { return value.first; }
+    virtual const Key& key(const stored_type& value) const override { return value.first; }
 
     T& at(const Key& key);
     const T& at(const Key& key) const;

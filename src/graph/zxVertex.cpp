@@ -104,13 +104,9 @@ bool ZXVertex::isGadgetAxel() const {
  * @return EdgeType
  */
 EdgeType toggleEdge(const EdgeType& et) {
-    if (et == EdgeType::SIMPLE)
-        return EdgeType::HADAMARD;
-    // FIXME - code quality : unnecessary else
-    else if (et == EdgeType::HADAMARD)
-        return EdgeType::SIMPLE;
-    else
-        return EdgeType::ERRORTYPE;
+    if (et == EdgeType::SIMPLE) return EdgeType::HADAMARD;
+    if (et == EdgeType::HADAMARD) return EdgeType::SIMPLE;
+    return EdgeType::ERRORTYPE;
 }
 
 /**
@@ -120,15 +116,10 @@ EdgeType toggleEdge(const EdgeType& et) {
  * @return VertexType
  */
 VertexType str2VertexType(const string& str) {
-    if (str == "BOUNDARY")
-        return VertexType::BOUNDARY;
-    // FIXME - code quality : unnecessary else
-    else if (str == "Z")
-        return VertexType::Z;
-    else if (str == "X")
-        return VertexType::X;
-    else if (str == "H_BOX")
-        return VertexType::H_BOX;
+    if (str == "BOUNDARY") return VertexType::BOUNDARY;
+    if (str == "Z") return VertexType::Z;
+    if (str == "X") return VertexType::X;
+    if (str == "H_BOX") return VertexType::H_BOX;
     return VertexType::ERRORTYPE;
 }
 
@@ -153,11 +144,8 @@ string VertexType2Str(const VertexType& vt) {
  * @return EdgeType
  */
 EdgeType str2EdgeType(const string& str) {
-    if (str == "SIMPLE")
-        return EdgeType::SIMPLE;
-    // FIXME - code quality : unnecessary else
-    else if (str == "HADAMARD")
-        return EdgeType::HADAMARD;
+    if (str == "SIMPLE") return EdgeType::SIMPLE;
+    if (str == "HADAMARD") return EdgeType::HADAMARD;
     return EdgeType::ERRORTYPE;
 }
 

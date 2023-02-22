@@ -29,18 +29,19 @@ public:
         else
             _circuit = c;
         initialize(c == nullptr);
+        _cntCXFiltered = 0;
     }
     ~Extractor() {}
 
     void initialize(bool fromEmpty = true);
-    QCir* extract();
+    QCir* extract(bool permute = true);
     bool extractionLoop(size_t = size_t(-1));
     bool removeGadget(bool check = false);
     bool gaussianElimination(bool check = false);
     void columnOptimalSwap();
     void extractSingles();
     bool extractCZs(bool check = false);
-    void extractCXs(size_t = 0);
+    void extractCXs(size_t = 1);
     size_t extractHsFromM2(bool check = false);
     void cleanFrontier();
     void permuteQubit();
@@ -72,6 +73,8 @@ private:
     Target findColumnSwap(Target);
     ConnectInfo _rowInfo;
     ConnectInfo _colInfo;
+
+    size_t _cntCXFiltered;
 };
 
 #endif

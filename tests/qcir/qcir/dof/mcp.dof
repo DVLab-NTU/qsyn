@@ -1,0 +1,23 @@
+qcba 2
+qcgadd -MCP -PH pi 0 1
+qccp -q
+qcgp 0
+qc2ts
+tsp 0
+qc2zx
+zxgp -Q
+zxgs -fr
+zxgp -Q
+zx2ts
+tsp 1
+tsp
+qcr
+zxr
+tsr
+
+qcba 1
+qcgadd -MCP -PH pi 0
+qcgp 0
+qc2zx
+zxgp -v
+qq -f

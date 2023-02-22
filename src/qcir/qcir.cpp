@@ -8,10 +8,10 @@
 
 #include "qcir.h"
 
-#include <stdlib.h>  // for abort
+#include <stdlib.h>      // for abort
 
-#include <cassert>  // for assert
-#include <string>   // for string
+#include <cassert>       // for assert
+#include <string>        // for string
 
 #include "qcirGate.h"    // for QCirGate
 #include "qcirQubit.h"   // for QCirQubit
@@ -165,7 +165,7 @@ bool QCir::removeQubit(size_t id) {
             cerr << "Error: id " << id << " is not an empty qubit!!" << endl;
             return false;
         } else {
-            _qubits.erase(remove(_qubits.begin(), _qubits.end(), target), _qubits.end());
+            std::erase(_qubits, target);
             clearMapping();
             return true;
         }
@@ -222,10 +222,6 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
         temp = new TGate(_gateId);
     else if (type == "tdg" || type == "td" || type == "t*")
         temp = new TDGGate(_gateId);
-    else if (type == "p")
-        temp = new RZGate(_gateId);
-    else if (type == "cz")
-        temp = new CZGate(_gateId);
     else if (type == "x" || type == "not")
         temp = new XGate(_gateId);
     else if (type == "y")
@@ -238,6 +234,8 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
         temp = new CXGate(_gateId);
     else if (type == "ccx" || type == "ccnot")
         temp = new CCXGate(_gateId);
+    else if (type == "cz")
+        temp = new CZGate(_gateId);
     else if (type == "ccz")
         temp = new CCZGate(_gateId);
     // Note: rz and p has a little difference
@@ -247,11 +245,29 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
     } else if (type == "rx") {
         temp = new RXGate(_gateId);
         temp->setRotatePhase(phase);
-    } else if (type == "mcp" || type == "cp") {
-        temp = new CnPGate(_gateId);
+    } else if (type == "p") {
+        temp = new PGate(_gateId);
         temp->setRotatePhase(phase);
-    } else if (type == "crz") {
-        temp = new CRZGate(_gateId);
+    } else if (type == "px") {
+        temp = new PXGate(_gateId);
+        temp->setRotatePhase(phase);
+    } else if (type == "mcp" || type == "cp") {
+        temp = new MCPGate(_gateId);
+        temp->setRotatePhase(phase);
+    } else if (type == "mcpx" || type == "cpx") {
+        temp = new MCPXGate(_gateId);
+        temp->setRotatePhase(phase);
+    } else if (type == "mcpy" || type == "cpy" || type == "py") {
+        temp = new MCPYGate(_gateId);
+        temp->setRotatePhase(phase);
+    } else if (type == "mcrz" || type == "crz") {
+        temp = new MCRZGate(_gateId);
+        temp->setRotatePhase(phase);
+    } else if (type == "mcrx" || type == "crx") {
+        temp = new MCRXGate(_gateId);
+        temp->setRotatePhase(phase);
+    } else if (type == "mcry" || type == "cry" || type == "ry") {
+        temp = new MCRYGate(_gateId);
         temp->setRotatePhase(phase);
     } else {
         cerr << "Error: The gate " << type << " is not implemented!!" << endl;
@@ -320,7 +336,7 @@ bool QCir::removeGate(size_t id) {
             Info[i]._parent = NULL;
             Info[i]._child = NULL;
         }
-        _qgates.erase(remove(_qgates.begin(), _qgates.end(), target), _qgates.end());
+        std::erase(_qgates, target);
         _dirty = true;
         clearMapping();
         return true;
@@ -332,6 +348,7 @@ bool QCir::removeGate(size_t id) {
  *
  * @param detail if true, print the detail information
  */
+// TODO - Analysis qasm is correct since no MC in it. Would fix MC in future.
 void QCir::analysis(bool detail) {
     size_t clifford = 0;
     size_t tfamily = 0;
@@ -364,7 +381,7 @@ void QCir::analysis(bool detail) {
         if (g->getQubits().size() == 2) {
             if (g->getPhase().getRational().denominator() == 1) {
                 clifford++;
-                if (g->getType() != GateType::MCRX) clifford += 2;
+                if (g->getType() != GateType::MCPX || g->getType() != GateType::MCRX) clifford += 2;
                 cxcnt++;
             } else if (g->getPhase().getRational().denominator() == 2) {
                 clifford += 2;
@@ -457,18 +474,6 @@ void QCir::analysis(bool detail) {
                 mcp++;
                 analysisMCR(g);
                 break;
-            case GateType::CRZ:
-                crz++;
-                // NOTE - CXs
-                clifford += 2;
-                // NOTE - RZs
-                if (g->getPhase().getRational().denominator() == 1)
-                    clifford += 2;
-                else if (g->getPhase().getRational().denominator() == 2)
-                    tfamily += 2;
-                else
-                    nct += 2;
-                break;
             case GateType::CZ:
                 cz++;           // --C--
                 clifford += 3;  // H-X-H
@@ -500,7 +505,7 @@ void QCir::analysis(bool detail) {
                 analysisMCR(g);
                 break;
             default:
-                cerr << "Error: The gate type is ERRORTYPE" << endl;
+                cerr << "Error: the gate type is ERRORTYPE" << endl;
                 break;
         }
     }
