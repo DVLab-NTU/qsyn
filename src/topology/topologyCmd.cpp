@@ -198,7 +198,7 @@ void DeviceTopoGraphReadCmd::summary() const {
 }
 
 //-----------------------------------------------------------------------------------------------------------
-//    DTGPrint [-Summary | -Edges | -Qubits]
+//    DTGPrint [-Summary | -Edges | -Qubits | -Distance | -Predecessor]
 //-----------------------------------------------------------------------------------------------------------
 CmdExecStatus
 DeviceTopoGraphPrintCmd::exec(const string &option) {
@@ -233,6 +233,8 @@ DeviceTopoGraphPrintCmd::exec(const string &option) {
             }
         }
         deviceTopoMgr->getDeviceTopo()->printQubits(candidates);
+    } else if (myStrNCmp("-Distance", options[0], 2) == 0) {
+        deviceTopoMgr->getDeviceTopo()->printDistance();
     } else
         return errorOption(CMD_OPT_ILLEGAL, options[0]);
     return CMD_EXEC_DONE;
