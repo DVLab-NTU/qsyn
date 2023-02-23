@@ -31,23 +31,42 @@ bool initArgParserCmd() {
         parser.help("ArgParse package sandbox");
 
         parser.addArgument<string>("cat")
-            .help("cute");
+            .help("won't eat veggies");
+
         parser.addArgument<string>("dog")
             .help("humans' best friend");
 
-        parser.addArgument<int>("-badge")
-            .defaultValue(42)
-            .help("a symbol of honor");
-        parser.addArgument<unsigned>("-bacon")
+        parser.addArgument<unsigned>("-another")
             .defaultValue(5)
             .action(storeConst<unsigned>)
             .constValue(87)
-            .help("yummy");
+            .help("another variable");
+
+        parser.addArgument<int>("-answer")
+            .defaultValue(42)
+            .help("the answer to everything");
+
+
     };
 
     argparseCmd->onParseSuccess = [](ArgumentParser const& parser) {
-        parser.printTokens();
-        parser.printArguments();
+        cout << "Here's my cat, its name is " << parser["cat"] << endl;
+        cout << parser["cat"] << " has a dog friend, " << parser["dog"] << ".\n" << endl;
+
+        [[maybe_unused]]
+        auto add = [](unsigned a, int b) {
+            return a + b;
+        };
+
+
+        [[maybe_unused]]
+        auto multiply = [](int a, int b) {
+            return a * b;
+        };
+
+        cout << "another + answer = " << add(parser["-another"], parser["-answer"]) << endl;
+        // cout << "another * answer = " << multiply(parser["-another"], parser["-answer"]) << endl;
+
 
         return CMD_EXEC_DONE;
     };

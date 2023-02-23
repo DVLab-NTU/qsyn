@@ -106,9 +106,9 @@ public:
 
     std::string getTypeString() const { return detail::getTypeString(_value); }
     std::string const& getName() const { return _traits.name; }
-    // std::string const& getMetaVar() const { return _traits.metavar; }
     std::string const& getHelp() const { return _traits.help; }
     std::optional<T> getDefaultValue() const { return _traits.defaultValue; }
+    std::string const& getMetaVar() const { return _traits.metavar; }
 
     // attributes
     bool hasDefaultValue() const { return _traits.defaultValue.has_value(); }

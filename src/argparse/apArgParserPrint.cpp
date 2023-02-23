@@ -8,6 +8,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <numeric>
 
 #include "apArgParser.h"
 #include "textFormat.h"
@@ -153,7 +154,7 @@ string ArgumentParser::getSyntaxString(Argument const& arg) const {
     if (!arg.hasAction()) {
         // TODO - metavar
         ret += requiredArgBracket(
-            typeStyle(arg.getTypeString()) + " " + metaVarStyle(arg.getName()));
+            typeStyle(arg.getTypeString()) + " " + metaVarStyle(arg.getMetaVar()));
     }
     if (hasOptionPrefix(arg)) {
         ret = optionalStyle(styledArgName(arg)) + (arg.hasAction() ? "" : (" " + ret));
@@ -173,35 +174,40 @@ string ArgumentParser::optionalArgBracket(std::string const& str) const {
 }
 
 void ArgumentParser::printHelpString(Argument const& arg) const {
-    constexpr size_t typeWidth = 7;
-    constexpr size_t nameWidth = 10;
-    constexpr size_t nIndents = 2;
-
     // argument types and names
-    size_t additionalNameWidth = hasOptionPrefix(arg)
-                                     ? (TF::tokenSize(accentStyle) + (colorLevel >= 1) * 2 * TF::tokenSize(optionalStyle))
-                                     : TF::tokenSize(metaVarStyle);
 
-    cout << string(nIndents, ' ');
-    cout << setw(typeWidth + TF::tokenSize(typeStyle))
-         << left << typeStyle(arg.getTypeString()) << " ";
-    cout << setw(nameWidth + additionalNameWidth)
-         << left << styledArgName(arg) << "   ";
+    size_t lineBreakThres = accumulate(_printTableWidths.begin(), _printTableWidths.end(), 0);
 
-    // help messages
-
-    size_t typeStringOccupiedSpace = max(typeWidth, arg.getTypeString().size());
-    if (typeStringOccupiedSpace + arg.getName().size() > typeWidth + nameWidth + 1) {
-        cout << "\n"
-             << string(typeWidth + nameWidth + 4 + nIndents, ' ');
+    cout << "  ";
+    if (!arg.hasAction()) {
+        cout << left << setw(_printTableWidths[0] + TF::tokenSize(typeStyle)) << typeStyle(arg.getTypeString());
+    } else {
+        cout << typeStyle("flag") << string(_printTableWidths[0] - 4, ' ');
     }
-    cout << arg.getHelp();
-    if (arg.hasDefaultValue() && !arg.hasAction()) {
-        cout << " (default = ";
-        arg.printDefaultValue(cout);
-        cout << ")";
+    cout << "  ";
+    if (hasOptionPrefix(arg)) {
+        cout << left << setw(_printTableWidths[1] + TF::tokenSize(accentStyle) + (colorLevel >= 1) * 2 * TF::tokenSize(optionalStyle))
+             << styledArgName(arg);
+        cout << "  ";
+        cout << left << setw(_printTableWidths[2] + TF::tokenSize(metaVarStyle))
+             << metaVarStyle(arg.getMetaVar());
+
+        cout << "  ";
+        if (arg.getName().size() + arg.getMetaVar().size() + arg.getTypeString().size() > lineBreakThres) {
+            cout << "\n"
+                 << string(lineBreakThres + 8, ' ');
+        }
+    } else {
+        cout << left << setw(_printTableWidths[1] + _printTableWidths[2] + TF::tokenSize(metaVarStyle) + 2)
+             << metaVarStyle(arg.getMetaVar());
+        cout << "  ";
+        if (arg.getMetaVar().size() + arg.getTypeString().size() > lineBreakThres + 2) {
+            cout << "\n"
+                 << string(lineBreakThres + 8, ' ');
+        }
     }
-    cout << endl;
+
+    cout << arg.getHelp() << endl;
 }
 
 string ArgumentParser::styledArgName(Argument const& arg) const {

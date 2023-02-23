@@ -76,6 +76,8 @@ bool ArgumentParser::parse(std::string const& line) {
 bool ArgumentParser::analyzeOptions() const {
     if (_optionsAnalyzed) return true;
 
+    // calculate the number of required characters to differentiate each option
+
     _trie.clear();
     for (auto const& [name, arg] : _arguments) {
         if (!hasOptionPrefix(name)) continue;
@@ -88,6 +90,28 @@ bool ArgumentParser::analyzeOptions() const {
             max(
                 _trie.shortestUniquePrefix(name).value().size(),
                 arg.getNumRequiredChars()));
+    }
+
+    // calculate tabulate info
+
+    _printTableWidths = {0, 0, 0};
+
+    constexpr size_t maxWidth = 10;
+
+    for (auto& [name, arg] : _arguments) {
+        if (arg.getTypeString().size() >= _printTableWidths[0]) {
+            _printTableWidths[0] = arg.getTypeString().size();
+        }
+        if (arg.getName().size() >= _printTableWidths[1]) {
+            _printTableWidths[1] = arg.getName().size();
+        }
+        if (arg.getMetaVar().size() >= _printTableWidths[2]) {
+            _printTableWidths[2] = arg.getMetaVar().size();
+        }
+    }
+
+    for (auto& w : _printTableWidths) {
+        if (w > maxWidth) w = maxWidth;
     }
 
     _optionsAnalyzed = true;

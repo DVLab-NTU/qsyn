@@ -65,11 +65,11 @@ public:
 
     // getters
 
-    std::string getTypeString() const { return hasAction() ? "flag" : _pimpl->doGetTypeString(); }
+    std::string getTypeString() const { return _pimpl->doGetTypeString(); }
     std::string const& getName() const { return _pimpl->doGetName(); }
-    // std::string const& getMetaVar() const { return _pimpl->doGetMetaVar(); }
     std::string const& getHelp() const { return _pimpl->doGetHelp(); }
     size_t getNumRequiredChars() const { return _numRequiredChars; }
+    std::string const& getMetaVar() const { return _pimpl->doGetMetaVar(); }
 
     // attributes
     bool hasDefaultValue() const { return _pimpl->doHasDefaultValue(); }
@@ -115,8 +115,8 @@ private:
 
         virtual std::string doGetTypeString() const = 0;
         virtual std::string const& doGetName() const = 0;
-        // virtual std::string const& doGetMetaVar() const = 0;
         virtual std::string const& doGetHelp() const = 0;
+        virtual std::string const& doGetMetaVar() const = 0;
 
         virtual bool doHasDefaultValue() const = 0;
         virtual bool doHasAction() const = 0;
@@ -140,8 +140,8 @@ private:
 
         std::string doGetTypeString() const override { return inner.getTypeString(); }
         std::string const& doGetName() const override { return inner.getName(); }
-        // std::string const& doGetMetaVar() const override { return inner.getMetaVar(); }
         std::string const& doGetHelp() const override { return inner.getHelp(); }
+        std::string const& doGetMetaVar() const override { return inner.getMetaVar(); }
 
         bool doHasDefaultValue() const { return inner.hasDefaultValue(); }
         bool doHasAction() const { return inner.hasAction(); }

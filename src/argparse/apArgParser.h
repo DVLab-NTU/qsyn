@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <variant>
+#include <array>
 
 #include "apArgument.h"
 #include "myTrie.h"
@@ -81,6 +82,7 @@ private:
     // members for analyzing parser options
     MyTrie mutable _trie;
     bool mutable _optionsAnalyzed;
+    std::array<size_t, 3> mutable _printTableWidths;
 
     // addArgument error printing
 
@@ -125,7 +127,9 @@ ArgType<T>& ArgumentParser::addArgument(std::string const& name) {
     ArgType<T>& returnRef = dynamic_cast<Argument::Model<ArgType<T>>*>(_arguments.at(realname)._pimpl.get())->inner;
 
     if (!hasOptionPrefix(realname)) {
-        returnRef.required(true);
+        returnRef.required(true).metavar(realname);
+    } else {
+        returnRef.metavar(toUpperString(realname.substr(realname.find_first_not_of(_optionPrefix))));
     }
 
     _optionsAnalyzed = false;
