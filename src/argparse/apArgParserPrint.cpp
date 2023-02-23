@@ -20,17 +20,28 @@ extern size_t colorLevel;
 namespace TF = TextFormat;
 
 constexpr auto requiredStyle = TF::CYAN;
-constexpr auto metaVarStyle = TF::BOLD;
+constexpr auto metavarStyle = TF::BOLD;
 constexpr auto optionalStyle = TF::YELLOW;
 constexpr auto typeStyle = [](string const& str) -> string { return TF::CYAN(TF::ITALIC(str)); };
 constexpr auto accentStyle = [](string const& str) -> string { return TF::BOLD(TF::ULINE(str)); };
 
 namespace ArgParse {
 
+/**
+ * @brief print the error message when duplicated argument name is detected
+ * 
+ * @param name 
+ */
 void ArgumentParser::printDuplicateArgNameErrorMsg(std::string const& name) const {
     std::cerr << "[ArgParse] Error: Duplicate argument name \"" << name << "\"!!" << std::endl;
 }
 
+
+/**
+ * @brief return a string of styled command name. The mandatory part is accented.
+ * 
+ * @return string 
+ */
 string ArgumentParser::styledCmdName() const {
     if (colorLevel >= 1) {
         string mand = _name.substr(0, _numRequiredChars);
@@ -148,13 +159,19 @@ void ArgumentParser::printHelp() const {
     }
 }
 
+/**
+ * @brief get the syntax representation string of an argument.
+ * 
+ * @param arg 
+ * @return string 
+ */
 string ArgumentParser::getSyntaxString(Argument const& arg) const {
     string ret = "";
 
     if (!arg.hasAction()) {
         // TODO - metavar
         ret += requiredArgBracket(
-            typeStyle(arg.getTypeString()) + " " + metaVarStyle(arg.getMetaVar()));
+            typeStyle(arg.getTypeString()) + " " + metavarStyle(arg.getMetavar()));
     }
     if (hasOptionPrefix(arg)) {
         ret = optionalStyle(styledArgName(arg)) + (arg.hasAction() ? "" : (" " + ret));
@@ -165,14 +182,31 @@ string ArgumentParser::getSyntaxString(Argument const& arg) const {
 
 // printing helpers
 
+/**
+ * @brief circumfix the string with the required argument bracket (<...>)
+ * 
+ * @param str 
+ * @return string 
+ */
 string ArgumentParser::requiredArgBracket(std::string const& str) const {
     return requiredStyle("<") + str + requiredStyle(">");
 }
 
+/**
+ * @brief circumfix the string with the optional argument bracket ([]...])
+ * 
+ * @param str 
+ * @return string 
+ */
 string ArgumentParser::optionalArgBracket(std::string const& str) const {
     return optionalStyle("[") + str + optionalStyle("]");
 }
 
+/**
+ * @brief print the help string of an argument
+ * 
+ * @param arg 
+ */
 void ArgumentParser::printHelpString(Argument const& arg) const {
     // argument types and names
 
@@ -189,19 +223,19 @@ void ArgumentParser::printHelpString(Argument const& arg) const {
         cout << left << setw(_printTableWidths[1] + TF::tokenSize(accentStyle) + (colorLevel >= 1) * 2 * TF::tokenSize(optionalStyle))
              << styledArgName(arg);
         cout << "  ";
-        cout << left << setw(_printTableWidths[2] + TF::tokenSize(metaVarStyle))
-             << metaVarStyle(arg.getMetaVar());
+        cout << left << setw(_printTableWidths[2] + TF::tokenSize(metavarStyle))
+             << metavarStyle(arg.getMetavar());
 
         cout << "  ";
-        if (arg.getName().size() + arg.getMetaVar().size() + arg.getTypeString().size() > lineBreakThres) {
+        if (arg.getName().size() + arg.getMetavar().size() + arg.getTypeString().size() > lineBreakThres) {
             cout << "\n"
                  << string(lineBreakThres + 8, ' ');
         }
     } else {
-        cout << left << setw(_printTableWidths[1] + _printTableWidths[2] + TF::tokenSize(metaVarStyle) + 2)
-             << metaVarStyle(arg.getMetaVar());
+        cout << left << setw(_printTableWidths[1] + _printTableWidths[2] + TF::tokenSize(metavarStyle) + 2)
+             << metavarStyle(arg.getMetavar());
         cout << "  ";
-        if (arg.getMetaVar().size() + arg.getTypeString().size() > lineBreakThres + 2) {
+        if (arg.getMetavar().size() + arg.getTypeString().size() > lineBreakThres + 2) {
             cout << "\n"
                  << string(lineBreakThres + 8, ' ');
         }
@@ -210,8 +244,14 @@ void ArgumentParser::printHelpString(Argument const& arg) const {
     cout << arg.getHelp() << endl;
 }
 
+/**
+ * @brief print the styled argument name.
+ * 
+ * @param arg 
+ * @return string 
+ */
 string ArgumentParser::styledArgName(Argument const& arg) const {
-    if (!hasOptionPrefix(arg)) return metaVarStyle(arg.getName());
+    if (!hasOptionPrefix(arg)) return metavarStyle(arg.getName());
     if (colorLevel >= 1) {
         string mand = arg.getName().substr(0, arg.getNumRequiredChars());
         string rest = arg.getName().substr(arg.getNumRequiredChars());

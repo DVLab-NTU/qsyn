@@ -25,7 +25,7 @@ using namespace std;
 bool initArgParserCmd() {
     using namespace ArgParse;
 
-    auto argparseCmd = make_unique<ArgParseCmdType>("Argparse");
+    auto argparseCmd = make_unique<ArgParseCmdType>("Argparse");  // argparse package sandbox
 
     argparseCmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("ArgParse package sandbox");
@@ -45,28 +45,23 @@ bool initArgParserCmd() {
         parser.addArgument<int>("-answer")
             .defaultValue(42)
             .help("the answer to everything");
-
-
     };
 
     argparseCmd->onParseSuccess = [](ArgumentParser const& parser) {
         cout << "Here's my cat, its name is " << parser["cat"] << endl;
-        cout << parser["cat"] << " has a dog friend, " << parser["dog"] << ".\n" << endl;
+        cout << parser["cat"] << " has a dog friend, " << parser["dog"] << ".\n"
+             << endl;
 
-        [[maybe_unused]]
-        auto add = [](unsigned a, int b) {
+        [[maybe_unused]] auto add = [](unsigned a, int b) {
             return a + b;
         };
 
-
-        [[maybe_unused]]
-        auto multiply = [](int a, int b) {
+        [[maybe_unused]] auto multiply = [](int a, int b) {
             return a * b;
         };
 
         cout << "another + answer = " << add(parser["-another"], parser["-answer"]) << endl;
         // cout << "another * answer = " << multiply(parser["-another"], parser["-answer"]) << endl;
-
 
         return CMD_EXEC_DONE;
     };

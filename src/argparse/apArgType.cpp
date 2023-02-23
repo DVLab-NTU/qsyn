@@ -49,6 +49,13 @@ bool parseFromString(std::string& val, std::string const& token) {
 
 }  // namespace detail
 
+/**
+ * @brief generate a callback that sets the argument to true. 
+ *        This function also set the default value to false.
+ * 
+ * @param arg 
+ * @return ArgType<bool>::ActionType 
+ */
 ArgType<bool>::ActionType storeTrue(ArgType<bool>& arg) {
     arg.defaultValue(false);
     arg.constValue(true);
@@ -58,6 +65,13 @@ ArgType<bool>::ActionType storeTrue(ArgType<bool>& arg) {
     };
 }
 
+/**
+ * @brief generate a callback that sets the argument to false. 
+ *        This function also set the default value to true.
+ * 
+ * @param arg 
+ * @return ArgType<bool>::ActionType 
+ */
 ArgType<bool>::ActionType storeFalse(ArgType<bool>& arg) {
     arg.defaultValue(true);
     arg.constValue(false);

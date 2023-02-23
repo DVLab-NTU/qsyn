@@ -50,6 +50,29 @@ Argument const& ArgumentParser::operator[](std::string const& name) const {
 }
 
 /**
+ * @brief set the command name to the argument parser
+ * 
+ * @param name 
+ * @return ArgumentParser& 
+ */
+ArgumentParser& ArgumentParser::name(std::string const& name) {
+    _name = name;
+    _numRequiredChars = countUpperChars(name);
+    return *this;
+}
+
+/**
+ * @brief set the help message to the argument parser
+ * 
+ * @param name 
+ * @return ArgumentParser& 
+ */
+ArgumentParser& ArgumentParser::help(std::string const& help) {
+    _help = help;
+    return *this;
+}
+
+/**
  * @brief parse the arguments in the line
  *
  * @param line
@@ -105,8 +128,8 @@ bool ArgumentParser::analyzeOptions() const {
         if (arg.getName().size() >= _printTableWidths[1]) {
             _printTableWidths[1] = arg.getName().size();
         }
-        if (arg.getMetaVar().size() >= _printTableWidths[2]) {
-            _printTableWidths[2] = arg.getMetaVar().size();
+        if (arg.getMetavar().size() >= _printTableWidths[2]) {
+            _printTableWidths[2] = arg.getMetavar().size();
         }
     }
 

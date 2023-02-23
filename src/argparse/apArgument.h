@@ -37,11 +37,13 @@ public:
         return *this;
     }
 
-    // deliberately left out move ctors and assignments
+    // deliberately left out move ctors and assignments. The copy counterparts serves as a fallback
 
     friend std::ostream& operator<<(std::ostream& os, Argument const& arg) {
         return arg._pimpl->doPrint(os);
     }
+
+    // enable casting back to original type
 
     template <typename T>
     operator T&() const {
@@ -69,9 +71,10 @@ public:
     std::string const& getName() const { return _pimpl->doGetName(); }
     std::string const& getHelp() const { return _pimpl->doGetHelp(); }
     size_t getNumRequiredChars() const { return _numRequiredChars; }
-    std::string const& getMetaVar() const { return _pimpl->doGetMetaVar(); }
+    std::string const& getMetavar() const { return _pimpl->doGetMetaVar(); }
 
     // attributes
+    
     bool hasDefaultValue() const { return _pimpl->doHasDefaultValue(); }
     bool hasAction() const { return _pimpl->doHasAction(); }
     bool isRequired() const { return _pimpl->doIsRequired(); }
@@ -87,15 +90,9 @@ public:
     void printDefaultValue(std::ostream& os) const { _pimpl->doPrintDefaultValue(os); }
 
     // action
-    void reset() {
-        _parsed = false;
-        _pimpl->doReset();
-    }
-    bool parse(std::string const& token) {
-        bool result = _pimpl->doParse(token);
-        _parsed = true;
-        return result;
-    }
+
+    void reset();
+    bool parse(std::string const& token);
 
 private:
     friend class ArgumentParser;

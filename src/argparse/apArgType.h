@@ -57,58 +57,41 @@ public:
 
     // argument decorators
 
-    ArgType& name(std::string name) {
-        _traits.name = name;
-        return *this;
-    }
+    ArgType& name(std::string const& name);
+    ArgType& help(std::string const& help);
+    ArgType& required(bool isReq);
+    ArgType& defaultValue(T const& val);
+    ArgType& action(std::function<ActionType(ArgType<T>&)> const& action);
+    ArgType& constValue(T const& val);
+    ArgType& metavar(std::string const& metavar);
 
-    ArgType& help(std::string help) {
-        _traits.help = help;
-        return *this;
-    }
+    /**
+     * @brief If the argument has a default value, reset to it.
+     * 
+     */
+    void reset();
 
-    ArgType& required(bool isReq) {
-        _traits.required = isReq;
-        return *this;
-    }
+    /**
+     * @brief parse the argument. If the argument has an action, perform it; otherwise,
+     *        try to parse the value from token.
+     * 
+     * @param token 
+     * @return true if succeeded
+     * @return false if failed
+     */
+    bool parse(std::string const& token);
 
-    ArgType& defaultValue(T const& val) {
-        _traits.defaultValue = val;
-        return *this;
-    }
-
-    ArgType& action(std::function<ActionType(ArgType<T>&)> const& action) {
-        _traits.actionCallback = action(*this);
-        return *this;
-    }
-
-    ArgType& constValue(T const& val) {
-        _traits.constValue = val;
-        return *this;
-    }
-
-    ArgType& metavar(std::string metavar) {
-        _traits.metavar = metavar;
-        return *this;
-    }
-
-    void reset() {
-        if (hasDefaultValue()) _value = _traits.defaultValue.value();
-    }
-
-    void setValueToConst() { _value = _traits.constValue; }
-
-    bool parse(std::string const& token) {
-        return (_traits.actionCallback) ? _traits.actionCallback() : detail::parseFromString(_value, token);
-    }
-
-    // getters/attributes
+    // getters
 
     std::string getTypeString() const { return detail::getTypeString(_value); }
     std::string const& getName() const { return _traits.name; }
     std::string const& getHelp() const { return _traits.help; }
     std::optional<T> getDefaultValue() const { return _traits.defaultValue; }
     std::string const& getMetaVar() const { return _traits.metavar; }
+
+    // setters
+
+    void setValueToConst() { _value = _traits.constValue; }
 
     // attributes
     bool hasDefaultValue() const { return _traits.defaultValue.has_value(); }
@@ -132,6 +115,143 @@ private:
     Traits _traits;
 };
 
+// --------------------------------------
+//   argument decorators
+// --------------------------------------
+
+/**
+ * @brief set the name of the argument
+ * 
+ * @tparam T 
+ * @param name 
+ * @return ArgType<T>& 
+ */
+template <typename T>
+ArgType<T>& ArgType<T>::name(std::string const& name) {
+    _traits.name = name;
+    return *this;
+}
+
+/**
+ * @brief set the help message of the argument
+ * 
+ * @tparam T 
+ * @param help 
+ * @return ArgType<T>& 
+ */
+template <typename T>
+ArgType<T>& ArgType<T>::help(std::string const& help) {
+    _traits.help = help;
+    return *this;
+}
+
+/**
+ * @brief set if the argument is required
+ * 
+ * @tparam T 
+ * @param isReq 
+ * @return ArgType<T>& 
+ */
+template <typename T>
+ArgType<T>& ArgType<T>::required(bool isReq) {
+    _traits.required = isReq;
+    return *this;
+}
+
+/**
+ * @brief set the default value of the argument
+ * 
+ * @tparam T 
+ * @param val 
+ * @return ArgType<T>& 
+ */
+template <typename T>
+ArgType<T>& ArgType<T>::defaultValue(T const& val) {
+    _traits.defaultValue = val;
+    return *this;
+}
+
+/**
+ * @brief set the action of the argument when parsed. An action can be 
+ *        any callable type that takes an `ArgType<T>&` and returns a
+ *        `ArgType<T>::ActionType` (aka `std::function<bool()>`).
+ * 
+ * @tparam T 
+ * @param action 
+ * @return ArgType<T>& 
+ */
+template <typename T>
+ArgType<T>& ArgType<T>::action(std::function<ActionType(ArgType<T>&)> const& action) {
+    _traits.actionCallback = action(*this);
+    return *this;
+}
+
+/**
+ * @brief set the const value to store when the argument is parsed. This setting is 
+ *        only effective when the action is set to `ArgParse::storeConst<T>`
+ * 
+ * @tparam T 
+ * @param val 
+ * @return ArgType<T>& 
+ */
+template <typename T>
+ArgType<T>& ArgType<T>::constValue(T const& val) {
+    _traits.constValue = val;
+    return *this;
+}
+
+/**
+ * @brief set the meta-variable, i.e., the displayed name of the argument as
+ *        seen in the help message.
+ * 
+ * @tparam T 
+ * @param metavar 
+ * @return ArgType<T>& 
+ */
+template <typename T>
+ArgType<T>& ArgType<T>::metavar(std::string const& metavar) {
+    _traits.metavar = metavar;
+    return *this;
+}
+
+// --------------------------------------
+//   action
+// --------------------------------------
+
+/**
+ * @brief If the argument has a default value, reset to it.
+ * 
+ */
+template <typename T>
+void ArgType<T>::reset() {
+    if (hasDefaultValue()) _value = _traits.defaultValue.value();
+}
+
+/**
+ * @brief parse the argument. If the argument has an action, perform it; otherwise,
+ *        try to parse the value from token.
+ * 
+ * @param token 
+ * @return true if succeeded
+ * @return false if failed
+ */
+template <typename T>
+bool ArgType<T>::parse(std::string const& token) {
+    return (_traits.actionCallback) ? _traits.actionCallback() : detail::parseFromString(_value, token);
+}
+
+// --------------------------------------
+//   actions
+// --------------------------------------
+
+/**
+ * @brief generate a callback that sets the argument to const value. This function
+ *        should be used along with the const decorator of an argument.
+ * 
+ * @tparam T 
+ * @param arg 
+ * @return ArgType<T>::ActionType (aka `std::function<bool()>`)
+ */
 template <typename T>
 ArgType<T>::ActionType storeConst(ArgType<T>& arg) {
     return [&arg]() -> bool {

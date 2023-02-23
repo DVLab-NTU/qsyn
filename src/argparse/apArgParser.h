@@ -8,9 +8,9 @@
 #ifndef QSYN_ARGPARSE_ARGPARSER_H
 #define QSYN_ARGPARSE_ARGPARSER_H
 
+#include <array>
 #include <cassert>
 #include <variant>
-#include <array>
 
 #include "apArgument.h"
 #include "myTrie.h"
@@ -25,16 +25,8 @@ public:
     Argument& operator[](std::string const& name);
     Argument const& operator[](std::string const& name) const;
 
-    ArgumentParser& name(std::string const& name) {
-        _name = name;
-        _numRequiredChars = countUpperChars(name);
-        return *this;
-    }
-
-    ArgumentParser& help(std::string const& help) {
-        _help = help;
-        return *this;
-    }
+    ArgumentParser& name(std::string const& name);
+    ArgumentParser& help(std::string const& help);
 
     // print functions
 
@@ -115,6 +107,13 @@ private:
     void printRequiredArgumentsMissingErrorMsg() const;
 };
 
+/**
+ * @brief add an argument with the name.
+ * 
+ * @tparam T 
+ * @param name 
+ * @return ArgType<T>& 
+ */
 template <typename T>
 ArgType<T>& ArgumentParser::addArgument(std::string const& name) {
     auto realname = toLowerString(name);
