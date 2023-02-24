@@ -99,10 +99,11 @@ public:
 
     bool qubitIdExist(size_t id) { return _qubitList.contains(id); }
     bool readTopo(const std::string&);
-
+    void calculatePath();
     // NOTE - All Pairs Shortest Path
     void FloydWarshall();
-    const std::vector<PhyQubit*>& getPath(PhyQubit*, PhyQubit*);
+    std::vector<PhyQubit*> getPath(PhyQubit*, PhyQubit*);
+    std::vector<PhyQubit*> getPath(size_t, size_t);
 
     void printQubits(std::vector<size_t> cand = {});
     void printEdges(std::vector<size_t> cand = {});
@@ -110,6 +111,7 @@ public:
     void printTopo() const;
     void printPredecessor() const;
     void printDistance() const;
+    void printPath(size_t, size_t);
 
 private:
     size_t _id;
