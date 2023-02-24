@@ -76,6 +76,7 @@ private:
 class DeviceTopo {
 public:
     DeviceTopo(size_t id) : _id(id) {
+        _maxDist = 100000;
     }
     ~DeviceTopo() {}
 
@@ -98,11 +99,19 @@ public:
 
     bool qubitIdExist(size_t id) { return _qubitList.contains(id); }
     bool readTopo(const std::string&);
+    void calculatePath();
+    // NOTE - All Pairs Shortest Path
+    void FloydWarshall();
+    std::vector<PhyQubit*> getPath(PhyQubit*, PhyQubit*);
+    std::vector<PhyQubit*> getPath(size_t, size_t);
 
     void printQubits(std::vector<size_t> cand = {});
     void printEdges(std::vector<size_t> cand = {});
     void printSingleEdge(size_t a, size_t b);
     void printTopo() const;
+    void printPredecessor() const;
+    void printDistance() const;
+    void printPath(size_t, size_t);
 
 private:
     size_t _id;
@@ -122,6 +131,14 @@ private:
     std::vector<std::vector<float>> _cxDelay;
     std::vector<float> _sgErr;
     std::vector<float> _sgDelay;
+
+    // NOTE - Containers and helper functions for Floyd-Warshall
+    int _maxDist;
+    std::vector<std::vector<PhyQubit*>> _predecessor;
+    std::vector<std::vector<int>> _distance;
+    std::vector<std::vector<int>> _adjMatrix;
+    void initFloydWarshall();
+    void setWeight(size_t = 0);
 };
 
 #endif  // TOPOLOGY_H

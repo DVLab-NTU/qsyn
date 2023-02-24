@@ -12,6 +12,7 @@
 
 #include <cassert>       // for assert
 #include <fstream>       // for ifstream
+#include <limits>        // for _maxDist
 #include <string>        // for string
 
 #include "qcirGate.h"    // for QCirGate
@@ -169,9 +170,18 @@ bool DeviceTopo::readTopo(const string& filename) {
         if (i < _sgDelay.size()) _qubitList[i]->setDelay(_sgDelay[i]);
         if (i < _sgErr.size()) _qubitList[i]->setError(_sgErr[i]);
     }
+
+    calculatePath();
     return true;
 }
 
+/**
+ * @brief Parse Gate set
+ *
+ * @param str
+ * @return true
+ * @return false
+ */
 bool DeviceTopo::parseGateSet(string str) {
     string token = "", data = "", gt;
     size_t token_end = myStrGetTok(str, token, 0, ": ");
@@ -403,4 +413,181 @@ void DeviceTopo::printTopo() const {
         if (i != _gateSet.size() - 1) cout << ", ";
     }
     cout << endl;
+}
+
+/**
+ * @brief Print Predecessor
+ *
+ */
+void DeviceTopo::printPredecessor() const {
+    cout << "Predecessor Matrix:" << endl;
+    for (size_t i = 0; i < _nQubit; i++) {
+        for (size_t j = 0; j < _nQubit; j++) {
+            if (_predecessor[i][j] == nullptr) {
+                cout << setw(5) << "/";
+            } else
+                cout << setw(5) << _predecessor[i][j]->getId();
+        }
+        cout << endl;
+    }
+}
+
+/**
+ * @brief Print Distance
+ *
+ */
+void DeviceTopo::printDistance() const {
+    cout << "Distance Matrix:" << endl;
+    for (size_t i = 0; i < _nQubit; i++) {
+        for (size_t j = 0; j < _nQubit; j++) {
+            if (_distance[i][j] == _maxDist) {
+                cout << setw(5) << "X";
+            } else
+                cout << setw(5) << _distance[i][j];
+        }
+        cout << endl;
+    }
+}
+
+/**
+ * @brief Print shortest path from `s` to `t`
+ *
+ * @param s start
+ * @param t terminate
+ */
+void DeviceTopo::printPath(size_t s, size_t t) {
+    cout << endl;
+    for (auto& c : {s, t}) {
+        if (c >= _nQubit) {
+            cout << "Error: the maximum qubit id is " << _nQubit - 1 << "!!" << endl;
+            return;
+        }
+    }
+    auto path = getPath(s, t);
+    if (path.front()->getId() != s && path.back()->getId() != t)
+        cout << "No path between " << s << "and " << t;
+    else {
+        cout << "Path from " << s << " to " << t << ":" << endl;
+        size_t cnt = 1;
+        for (auto& v : path) {
+            cout << setw(4) << v->getId() << " ";
+            if (cnt % 10 == 0) cout << endl;
+            cnt++;
+        }
+    }
+}
+
+/**
+ * @brief Calculate Shortest Path
+ *
+ */
+void DeviceTopo::calculatePath() {
+    _predecessor.clear();
+    _distance.clear();
+    _adjMatrix.clear();
+
+    _adjMatrix.resize(_nQubit);
+    for (size_t i = 0; i < _nQubit; i++) {
+        _adjMatrix[i].resize(_nQubit, _maxDist);
+        for (size_t j = 0; j < _nQubit; j++) {
+            if (i == j)
+                _adjMatrix[i][j] = 0;
+        }
+    }
+
+    FloydWarshall();
+}
+/**
+ * @brief Init data for Floyd-Warshall Algorithm
+ *
+ */
+void DeviceTopo::initFloydWarshall() {
+    _distance.resize(_nQubit);
+    _predecessor.resize(_nQubit);
+
+    for (size_t i = 0; i < _nQubit; i++) {
+        _distance[i].resize(_nQubit);
+        _predecessor[i].resize(_nQubit, nullptr);
+        for (size_t j = 0; j < _nQubit; j++) {
+            _distance[i][j] = _adjMatrix[i][j];
+            if (_distance[i][j] != 0 && _distance[i][j] != _maxDist) {
+                _predecessor[i][j] = _qubitList[i];
+            }
+        }
+    }
+    if (verbose >= 5) {
+        printPredecessor();
+        printDistance();
+    }
+}
+
+/**
+ * @brief Set weight of edge used in Floyd-Warshall
+ *
+ * @param type
+ */
+void DeviceTopo::setWeight(size_t type) {
+    assert(_adjList.size() == _nQubit);
+    assert(_adjMatrix.size() == _adjList.size());
+    for (size_t i = 0; i < _nQubit; i++) {
+        for (size_t j = 0; j < _adjList[i].size(); j++) {
+            _adjMatrix[i][_adjList[i][j]] = 1;
+        }
+    }
+}
+
+/**
+ * @brief Floyd-Warshall Algorithm. Solve All Pairs Shortest Path (APSP)
+ *
+ */
+void DeviceTopo::FloydWarshall() {
+    setWeight();
+    initFloydWarshall();
+    for (size_t k = 0; k < _nQubit; k++) {
+        if (verbose >= 5) cout << "Including vertex(" << k << "):" << endl;
+        for (size_t i = 0; i < _nQubit; i++) {
+            for (size_t j = 0; j < _nQubit; j++) {
+                if ((_distance[i][j] > _distance[i][k] + _distance[k][j]) && (_distance[i][k] != _maxDist)) {
+                    _distance[i][j] = _distance[i][k] + _distance[k][j];
+                    _predecessor[i][j] = _predecessor[k][j];
+                }
+            }
+        }
+        if (verbose >= 5) {
+            printPredecessor();
+            printDistance();
+        }
+    }
+}
+
+/**
+ * @brief Get shortest path from `s` to `t`
+ *
+ * @param s start
+ * @param t terminate
+ * @return vector<PhyQubit*>
+ */
+vector<PhyQubit*> DeviceTopo::getPath(size_t s, size_t t) {
+    return getPath(_qubitList[s], _qubitList[t]);
+}
+
+/**
+ * @brief Get shortest path from `s` to `t`
+ *
+ * @param s start
+ * @param t terminate
+ * @return vector<PhyQubit*>
+ */
+vector<PhyQubit*> DeviceTopo::getPath(PhyQubit* s, PhyQubit* t) {
+    vector<PhyQubit*> path;
+    path.push_back(s);
+    if (s == t) return path;
+    PhyQubit* newPred = _predecessor[t->getId()][s->getId()];
+    path.push_back(newPred);
+    while (true) {
+        newPred = _predecessor[t->getId()][newPred->getId()];
+        if (newPred == nullptr) break;
+        path.push_back(newPred);
+    }
+    return path;
 }
