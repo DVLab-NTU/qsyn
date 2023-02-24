@@ -233,6 +233,12 @@ bool ArgumentParser::parseOptions() {
                  << _tokens[i].token << "\"!!" << endl;
             return false;
         }
+        
+        // check if meet constraints
+        for (auto& [constraint, onerror] : arg.getConstraints()) {
+            if (!constraint()) onerror();
+            return false;
+        }
 
         _tokens[i].parsed = true;
 
@@ -279,6 +285,12 @@ bool ArgumentParser::parsePositionalArguments() {
         if (!arg.parse(token)) {
             cerr << "Error: invalid " << arg.getTypeString() << " value \""
                  << token << "\" for argument \"" << name << "\"!!" << endl;
+            return false;
+        }
+
+        // check if meet constraints
+        for (auto& [constraint, onerror] : arg.getConstraints()) {
+            if (!constraint()) onerror();
             return false;
         }
 

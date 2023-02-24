@@ -72,6 +72,7 @@ public:
     std::string const& getHelp() const { return _pimpl->doGetHelp(); }
     size_t getNumRequiredChars() const { return _numRequiredChars; }
     std::string const& getMetavar() const { return _pimpl->doGetMetaVar(); }
+    std::vector<ConstraintType> const& getConstraints() const { return _pimpl->doGetConstraints(); }
 
     // attributes
     
@@ -114,6 +115,7 @@ private:
         virtual std::string const& doGetName() const = 0;
         virtual std::string const& doGetHelp() const = 0;
         virtual std::string const& doGetMetaVar() const = 0;
+        virtual std::vector<ConstraintType> const& doGetConstraints() const = 0;
 
         virtual bool doHasDefaultValue() const = 0;
         virtual bool doHasAction() const = 0;
@@ -139,6 +141,7 @@ private:
         std::string const& doGetName() const override { return inner.getName(); }
         std::string const& doGetHelp() const override { return inner.getHelp(); }
         std::string const& doGetMetaVar() const override { return inner.getMetaVar(); }
+        std::vector<ConstraintType> const& doGetConstraints() const { return inner.getConstraints(); }
 
         bool doHasDefaultValue() const { return inner.hasDefaultValue(); }
         bool doHasAction() const { return inner.hasAction(); }

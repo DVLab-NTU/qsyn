@@ -33,9 +33,9 @@ void Argument::reset() {
  * @return false if failed
  */
 bool Argument::parse(std::string const& token) {
-    bool result = _pimpl->doParse(token);
+    if (!_pimpl->doParse(token)) return false;
     _parsed = true;
-    return result;
+    return true;
 }
 
 /**

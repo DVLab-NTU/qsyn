@@ -7,6 +7,9 @@
 ****************************************************************************/
 
 #include "apArgType.h"
+#include <iostream>
+
+using namespace std;
 
 namespace ArgParse {
 
@@ -16,6 +19,11 @@ std::string getTypeString(bool) { return "bool"; }
 std::string getTypeString(int) { return "int"; }
 std::string getTypeString(unsigned) { return "unsigned"; }
 std::string getTypeString(std::string const& val) { return "string"; }
+
+std::ostream& print(std::ostream& os, bool val) { return os << val; }
+std::ostream& print(std::ostream& os, int val) { return os << val; }
+std::ostream& print(std::ostream& os, unsigned val) { return os << val; }
+std::ostream& print(std::ostream& os, std::string const& val) { return os << val; }
 
 bool parseFromString(bool& val, std::string const& token) {
     if (myStrNCmp("true", token, 1) == 0) {
@@ -54,9 +62,9 @@ bool parseFromString(std::string& val, std::string const& token) {
  *        This function also set the default value to false.
  * 
  * @param arg 
- * @return ArgType<bool>::ActionType 
+ * @return ArgParse::ActionType 
  */
-ArgType<bool>::ActionType storeTrue(ArgType<bool>& arg) {
+ActionType storeTrue(ArgType<bool>& arg) {
     arg.defaultValue(false);
     arg.constValue(true);
     return [&arg]() -> bool {
@@ -70,9 +78,9 @@ ArgType<bool>::ActionType storeTrue(ArgType<bool>& arg) {
  *        This function also set the default value to true.
  * 
  * @param arg 
- * @return ArgType<bool>::ActionType 
+ * @return ArgParse::ActionType 
  */
-ArgType<bool>::ActionType storeFalse(ArgType<bool>& arg) {
+ActionType storeFalse(ArgType<bool>& arg) {
     arg.defaultValue(true);
     arg.constValue(false);
     return [&arg]() -> bool {

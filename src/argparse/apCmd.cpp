@@ -44,6 +44,18 @@ bool initArgParserCmd() {
 
         parser.addArgument<int>("-answer")
             .defaultValue(42)
+            .constraint({
+            [](ArgType<int> const& arg) {
+                return [&arg]() {
+                    return arg.getValue() < 10 && arg.getValue() >= 1;
+                };
+            },
+            [](ArgType<int> const& arg) {
+                return [&arg]() {
+                    cerr << "Error: invalid choice for argument \"" << arg.getName() << ": please choose within range [1, 10)!!\n";
+                };
+            }
+            })
             .help("the answer to everything");
     };
 
