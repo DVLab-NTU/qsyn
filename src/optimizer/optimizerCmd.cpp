@@ -24,7 +24,7 @@ extern int effLimit;
 extern QCirMgr *qcirMgr;
 
 bool initOptimizeCmd() {
-    if (!(cmdMgr->regCmd("OPTimize", 3, new OptimizeCmd))) {
+    if (!(cmdMgr->regCmd("OPTimize", 3, make_unique<OptimizeCmd>()))) {
         cerr << "Registering \"optimize\" commands fails... exiting" << endl;
         return false;
     }
@@ -46,7 +46,7 @@ void OptimizeCmd::usage() const {
     cout << "Usage: Optimize (Under construction)" << endl;
 }
 
-void OptimizeCmd::help() const {
+void OptimizeCmd::summary() const {
     cout << setw(15) << left << "Optimize: "
          << "Optimize QCir" << endl;
 }
