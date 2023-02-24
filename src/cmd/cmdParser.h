@@ -10,11 +10,13 @@
 
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <stack>
 #include <string>   // for string
 #include <utility>  // for pair
 #include <vector>
 
+#include "apArgParser.h"
 #include "cmdCharDef.h"  // for ParseChar
 
 class CmdParser;
@@ -56,10 +58,11 @@ public:
     CmdExec() {}
     virtual ~CmdExec() {}
 
+    virtual bool initialize() = 0;
     virtual CmdExecStatus exec(const std::string&) = 0;
     virtual void usage() const = 0;
+    virtual void summary() const = 0;
     virtual void help() const = 0;
-    virtual void manual() const = 0;
 
     void setOptCmd(const std::string& str) { _optCmd = str; }
     bool checkOptCmd(const std::string& check) const;  // Removed for TODO...
@@ -81,11 +84,12 @@ private:
     public:                                            \
         T() {}                                         \
         ~T() {}                                        \
+        bool initialize() { return true; }             \
         CmdExecStatus exec(const std::string& option); \
         void usage() const;                            \
-        void help() const;                             \
-        void manual() const {                          \
-            help();                                    \
+        void summary() const;                          \
+        void help() const {                            \
+            summary();                                 \
             usage();                                   \
         }                                              \
     }
@@ -98,8 +102,8 @@ class CmdParser {
 #define READ_BUF_SIZE 65536
 #define PG_OFFSET 10
 
-    using CmdMap = std::map<const std::string, CmdExec*>;
-    using CmdRegPair = std::pair<const std::string, CmdExec*>;
+    using CmdMap = std::map<const std::string, std::unique_ptr<CmdExec>>;
+    using CmdRegPair = std::pair<const std::string, std::unique_ptr<CmdExec>>;
 
 public:
     CmdParser(const std::string& p) : _prompt(p), _dofile(0), _readBufPtr(_readBuf), _readBufEnd(_readBuf), _historyIdx(0), _tabPressCount(0), _tempCmdStored(false) {}
@@ -108,7 +112,7 @@ public:
     bool openDofile(const std::string& dof);
     void closeDofile();
 
-    bool regCmd(const std::string&, unsigned, CmdExec*);
+    bool regCmd(const std::string&, unsigned, std::unique_ptr<CmdExec>&&);
     CmdExecStatus execOneCmd();
     void printHelps() const;
 

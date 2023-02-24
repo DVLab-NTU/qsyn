@@ -21,7 +21,7 @@ extern size_t verbose;
 
 bool initLTCmd() {
     if (!(
-            cmdMgr->regCmd("LTS", 3, new LTCmd)
+            cmdMgr->regCmd("LTS", 3, make_unique<LTCmd>())
 
                 )) {
         cerr << "Registering \"lts\" commands fails... exiting" << endl;
@@ -59,7 +59,7 @@ void LTCmd::usage() const {
     cout << "Usage: LTS [ -Print ]" << endl;
 }
 
-void LTCmd::help() const {
+void LTCmd::summary() const {
     cout << setw(15) << left << "LTS: "
          << "(experimental) perform mapping from ZX-graph to corresponding lattice surgery" << endl;
 }

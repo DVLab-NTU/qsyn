@@ -23,7 +23,7 @@ extern ZXGraphMgr *zxGraphMgr;
 extern size_t verbose;
 
 bool initGFlowCmd() {
-    if (!cmdMgr->regCmd("ZXGGFlow", 5, new ZXGGFlowCmd)) {
+    if (!cmdMgr->regCmd("ZXGGFlow", 5, make_unique<ZXGGFlowCmd>())) {
         cerr << "Registering \"gflow\" commands fails... exiting" << endl;
         return false;
     }
@@ -114,7 +114,7 @@ void ZXGGFlowCmd::usage() const {
     cout << "Usage: ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets] [-Disjoint]" << endl;
 }
 
-void ZXGGFlowCmd::help() const {
+void ZXGGFlowCmd::summary() const {
     cout << setw(15) << left << "ZXGGFlow: "
          << "calculate the generalized flow of current ZX-graph\n";
 }

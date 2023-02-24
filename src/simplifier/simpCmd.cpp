@@ -21,7 +21,7 @@ extern size_t verbose;
 
 bool initSimpCmd() {
     if (!(
-            cmdMgr->regCmd("ZXGSimp", 4, new ZXGSimpCmd)
+            cmdMgr->regCmd("ZXGSimp", 4, make_unique<ZXGSimpCmd>())
 
                 )) {
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
@@ -95,7 +95,7 @@ void ZXGSimpCmd::usage() const {
          << "-HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -CLIFford | -FReduce | -SReduce]" << endl;
 }
 
-void ZXGSimpCmd::help() const {
+void ZXGSimpCmd::summary() const {
     cout << setw(15) << left << "ZXGSimp: "
          << "perform simplification strategies for ZX-graph" << endl;
 }

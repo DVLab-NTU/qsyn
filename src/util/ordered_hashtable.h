@@ -141,7 +141,7 @@ public:
     // properties
     size_t size() const { return _size; }
     bool empty() const { return (this->size() == 0); }
-    bool operator==(const ordered_hashtable& rhs) const { return _data = rhs->_data; }
+    bool operator==(const ordered_hashtable& rhs) const { return _data == rhs._data; }
     bool operator!=(const ordered_hashtable& rhs) const { return !(*this == rhs); }
 
     // container manipulation

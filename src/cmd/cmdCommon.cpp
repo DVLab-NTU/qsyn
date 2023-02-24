@@ -23,14 +23,14 @@ extern size_t colorLevel;
 extern MyUsage myUsage;
 
 bool initCommonCmd() {
-    if (!(cmdMgr->regCmd("QQuit", 2, new QuitCmd) &&
-          cmdMgr->regCmd("HIStory", 3, new HistoryCmd) &&
-          cmdMgr->regCmd("HELp", 3, new HelpCmd) &&
-          cmdMgr->regCmd("DOfile", 2, new DofileCmd) &&
-          cmdMgr->regCmd("USAGE", 5, new UsageCmd) &&
-          cmdMgr->regCmd("VERbose", 3, new VerboseCmd) &&
-          cmdMgr->regCmd("SEED", 4, new SeedCmd) &&
-          cmdMgr->regCmd("COLOR", 5, new ColorCmd))) {
+    if (!(cmdMgr->regCmd("QQuit", 2, make_unique<QuitCmd>()) &&
+          cmdMgr->regCmd("HIStory", 3, make_unique<HistoryCmd>()) &&
+          cmdMgr->regCmd("HELp", 3, make_unique<HelpCmd>()) &&
+          cmdMgr->regCmd("DOfile", 2, make_unique<DofileCmd>()) &&
+          cmdMgr->regCmd("USAGE", 5, make_unique<UsageCmd>()) &&
+          cmdMgr->regCmd("VERbose", 3, make_unique<VerboseCmd>()) &&
+          cmdMgr->regCmd("SEED", 4, make_unique<SeedCmd>()) &&
+          cmdMgr->regCmd("COLOR", 5, make_unique<ColorCmd>()))) {
         cerr << "Registering \"init\" commands fails... exiting" << endl;
         return false;
     }
@@ -49,7 +49,7 @@ HelpCmd::exec(const string& option) {
     if (token.size()) {
         CmdExec* e = cmdMgr->getCmd(token);
         if (!e) return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-        e->manual();
+        e->help();
     } else
         cmdMgr->printHelps();
     return CMD_EXEC_DONE;
@@ -59,7 +59,7 @@ void HelpCmd::usage() const {
     cout << "Usage: HELp [(string cmd)]" << endl;
 }
 
-void HelpCmd::help() const {
+void HelpCmd::summary() const {
     cout << setw(15) << left << "HELp: "
          << "print this help message" << endl;
 }
@@ -97,7 +97,7 @@ void QuitCmd::usage() const {
     cout << "Usage: QQuit [-Force]" << endl;
 }
 
-void QuitCmd::help() const {
+void QuitCmd::summary() const {
     cout << setw(15) << left << "QQuit: "
          << "quit Qsyn" << endl;
 }
@@ -126,7 +126,7 @@ void HistoryCmd::usage() const {
     cout << "Usage: HIStory [(int nPrint)]" << endl;
 }
 
-void HistoryCmd::help() const {
+void HistoryCmd::summary() const {
     cout << setw(15) << left << "HIStory: "
          << "print command history" << endl;
 }
@@ -150,7 +150,7 @@ void DofileCmd::usage() const {
     cout << "Usage: DOfile <(string file)>" << endl;
 }
 
-void DofileCmd::help() const {
+void DofileCmd::summary() const {
     cout << setw(15) << left << "DOfile: "
          << "execute the commands in the dofile" << endl;
 }
@@ -199,7 +199,7 @@ void UsageCmd::usage() const {
     cout << "Usage: USAGE [-All | -Time | -Memory]" << endl;
 }
 
-void UsageCmd::help() const {
+void UsageCmd::summary() const {
     cout << setw(15) << left << "USAGE: "
          << "report the runtime and/or memory usage" << endl;
 }
@@ -231,7 +231,7 @@ void VerboseCmd::usage() const {
     cout << "Usage: VERbose <size_t verbose level>" << endl;
 }
 
-void VerboseCmd::help() const {
+void VerboseCmd::summary() const {
     cout << setw(15) << left << "VERbose: "
          << "set verbose level to 0-9 (default: 3)" << endl;
 }
@@ -264,7 +264,7 @@ void SeedCmd::usage() const {
     cout << "Usage: SEED [size_t seed]" << endl;
 }
 
-void SeedCmd::help() const {
+void SeedCmd::summary() const {
     cout << setw(15) << left << "SEED: "
          << "fix the seed" << endl;
 }
@@ -296,7 +296,7 @@ void ColorCmd::usage() const {
     cout << "Usage: COLOR <bool colored>" << endl;
 }
 
-void ColorCmd::help() const {
+void ColorCmd::summary() const {
     cout << setw(15) << left << "COLOR: "
          << "toggle colored printing (1: on, 0: off)" << endl;
 }
