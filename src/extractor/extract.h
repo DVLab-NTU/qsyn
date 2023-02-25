@@ -16,6 +16,9 @@
 #include "qcir.h"   // for QCir
 #include "zxDef.h"  // for EdgeType, EdgeType::HADAMARD
 
+extern bool SORT_FRONTIER;
+extern bool SORT_NEIGHBORS;
+extern bool PERMUTE_QUBITS;
 class ZXGraph;
 
 class Extractor {
@@ -34,7 +37,7 @@ public:
     ~Extractor() {}
 
     void initialize(bool fromEmpty = true);
-    QCir* extract(bool permute = true);
+    QCir* extract();
     bool extractionLoop(size_t = size_t(-1));
     bool removeGadget(bool check = false);
     bool gaussianElimination(bool check = false);

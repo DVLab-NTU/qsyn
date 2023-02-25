@@ -18,6 +18,9 @@
 
 using namespace std;
 
+bool SORT_FRONTIER = 0;
+bool SORT_NEIGHBORS = 1;
+bool PERMUTE_QUBITS = 1;
 extern size_t verbose;
 
 /**
@@ -60,10 +63,9 @@ void Extractor::initialize(bool fromEmpty) {
 /**
  * @brief Extract the graph into circuit
  *
- * @param permute if false, do not permute qubit in the end
  * @return QCir*
  */
-QCir* Extractor::extract(bool permute) {
+QCir* Extractor::extract() {
     if (!extractionLoop(-1))
         return nullptr;
     else
@@ -72,7 +74,7 @@ QCir* Extractor::extract(bool permute) {
         _circuit->printQubits();
         _graph->printQubits();
     }
-    if (permute) {
+    if (PERMUTE_QUBITS) {
         permuteQubit();
         if (verbose >= 8) {
             _circuit->printQubits();
@@ -575,10 +577,17 @@ bool Extractor::gaussianElimination(bool check) {
         }
     }
 
-    // REVIEW - Do not know why sort in here would be better
-    _neighbors.sort([](const ZXVertex* a, const ZXVertex* b) {
-        return a->getId() < b->getId();
-    });
+    if (SORT_FRONTIER == true) {
+        _frontier.sort([](const ZXVertex* a, const ZXVertex* b) {
+            return a->getQubit() < b->getQubit();
+        });
+    }
+    if (SORT_NEIGHBORS == true) {
+        // REVIEW - Do not know why sort in here would be better
+        _neighbors.sort([](const ZXVertex* a, const ZXVertex* b) {
+            return a->getId() < b->getId();
+        });
+    }
 
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
     columnOptimalSwap();
