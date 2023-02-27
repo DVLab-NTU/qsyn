@@ -19,6 +19,7 @@
 extern bool SORT_FRONTIER;
 extern bool SORT_NEIGHBORS;
 extern bool PERMUTE_QUBITS;
+extern size_t BLOCK_SIZE;
 class ZXGraph;
 
 class Extractor {
@@ -33,6 +34,8 @@ public:
             _circuit = c;
         initialize(c == nullptr);
         _cntCXFiltered = 0;
+
+        _cntCXIter = 0;
     }
     ~Extractor() {}
 
@@ -56,12 +59,14 @@ public:
     bool frontierIsCleaned();
     bool axelInNeighbors();
     bool containSingleNeighbor();
+    void printCXs();
     void printFrontier();
     void printNeighbors();
     void printAxels();
     void printMatrix() { _biAdjacency.printMatrix(); }
 
 private:
+    size_t _cntCXIter;
     ZXGraph* _graph;
     QCir* _circuit;
     ZXVertexList _frontier;
