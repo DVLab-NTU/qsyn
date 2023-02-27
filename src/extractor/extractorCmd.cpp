@@ -320,7 +320,7 @@ ExtractSetCmd::exec(const string &option) {
         return errorOption(CMD_OPT_ILLEGAL, (option));
     }
     if (!myStr2Uns(options[3], blockSize)) {
-        cerr << "Error: invalid blockSize value, should be 0 or 1!!\n";
+        cerr << "Error: invalid blockSize value!!\n";
         return errorOption(CMD_OPT_ILLEGAL, (option));
     }
     SORT_FRONTIER = sortFrontier == 1;
