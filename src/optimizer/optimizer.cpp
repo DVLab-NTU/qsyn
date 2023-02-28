@@ -27,8 +27,10 @@ void Optimizer::reset() {
     _zs.clear();
     _corrections.clear();
     _gateCnt = 0;
-    for (size_t i = 0; i < _circuit->getQubits().size(); i++)
+    for (size_t i = 0; i < _circuit->getQubits().size(); i++){
+        _availty.push_back(1);
         _permutation[i] = _circuit->getQubits()[i]->getId();
+    }
 }
 
 // FIXME - All functions can be modified, i.e. you may need to pass some parameters or change return type into some functions
@@ -251,18 +253,117 @@ void Optimizer::addHadamard(size_t target) {
     _availty[target] = 1;
 }
 
+
 /**
- * @brief
+ * @brief Predicate function called by addCX and addCZ.
  *
  */
-void Optimizer::addCZ(size_t ctrl, size_t targ) {
+bool Optimizer::TwoQubitGateExist(QCirGate* g, GateType gt, size_t ctrl, size_t targ){
+    return (g->getType() == gt && g->getControl()._qubit == ctrl && g->getTarget()._qubit == targ);
 }
+
 
 /**
  * @brief
  *
  */
+void Optimizer::addCZ(size_t ctrl, size_t targ) {
+    // cout << "Founction addCZ unfinish now." << endl;
+
+    // bool found_match = false;
+
+
+
+
+
+}
+
+/**
+ * @brief Add a Cnot gate to the output and do some optimize if possible.
+ * 
+ * @param Indexes of the control and target qubits.
+ */
 void Optimizer::addCX(size_t ctrl, size_t targ) {
+    bool found_match = false;
+    if (_availty[ctrl] == 2){
+        if (_availty[targ] == 1){
+            // TODO - check if reverse is needed
+            for (auto& g : _available[ctrl]){
+                if (g->getType() == GateType::CX && g->getControl()._qubit == ctrl && g->getTarget()._qubit == targ){
+                    found_match = true;
+                    break;
+                }
+            
+            if (found_match and _doSwap){
+                // #TODO -  do the CNOT(t,c)CNOT(c,t) = CNOT(c,t)SWAP(c,t) commutation
+                if (count_if(_available[targ].begin(), _available[targ].end(), [&](QCirGate* g){return Optimizer::TwoQubitGateExist(g, GateType::CX, targ, ctrl);})){
+                    QCirGate* cnot = new CXGate(_gateCnt);
+                    cnot->setControlBit(ctrl);
+                    cnot->setTargetBit(targ);
+                    _gateCnt++;
+                    remove_if(_gates[ctrl].begin(), _gates[ctrl].end(), [&](QCirGate* g){return Optimizer::TwoQubitGateExist(g, GateType::CX, targ, ctrl);});
+                    remove_if(_gates[targ].begin(), _gates[targ].end(), [&](QCirGate* g){return Optimizer::TwoQubitGateExist(g, GateType::CX, targ, ctrl);});
+                    _availty[ctrl] = 1;
+                    _availty[targ] = 2;
+                    _gates[ctrl].emplace_back(cnot);
+                    _gates[targ].emplace_back(cnot);
+                    _available[ctrl].clear();
+                    _available[ctrl].emplace_back(cnot);
+                    _available[targ].clear();
+                    _available[targ].emplace_back(cnot);
+                    //TODO - Find another efficient way to swap
+                    size_t q1 = _permutation[ctrl];
+                    size_t q2 = _permutation[targ];
+                    _permutation[ctrl] = q2;
+                    _permutation[targ] = q1;
+                    Optimizer::swapElement(0, ctrl, targ);
+                    Optimizer::swapElement(1, ctrl, targ);
+                    Optimizer::swapElement(2, ctrl, targ);
+                    return ;
+                }
+            }
+            }
+            _available[ctrl].clear();
+            _availty[ctrl] = 1;
+        }
+    }
+
+    if (_availty[targ] == 1){
+        _available[targ].clear();
+        _availty[targ] = 2;
+    }
+
+    found_match = false;
+
+    for (auto& g : _available[ctrl]){
+        if (g->getType() == GateType::CX && g->getControl()._qubit == ctrl){
+            found_match = true;
+            break;
+        }
+    }
+    //NOTE - do CNOT(c,t)CNOT(c,t) = id
+    if (found_match){
+        if (count_if(_available[targ].begin(), _available[targ].end(), [&](QCirGate* g){return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ);})){
+            remove_if(_available[ctrl].begin(), _available[ctrl].end(), [&](QCirGate* g){return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ);});
+            remove_if(_available[targ].begin(), _available[targ].end(), [&](QCirGate* g){return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ);});
+            remove_if(_gates[ctrl].begin(), _gates[ctrl].end(), [&](QCirGate* g){return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ);});
+            remove_if(_gates[targ].begin(), _gates[targ].end(), [&](QCirGate* g){return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ);});
+        }
+        else{
+            found_match = false;
+        }
+    }
+
+    if (!found_match){
+        QCirGate* cnot = new CXGate(_gateCnt);
+        cnot->setControlBit(ctrl);
+        cnot->setTargetBit(targ);
+        _gateCnt++;
+        _gates[ctrl].emplace_back(cnot);
+        _gates[targ].emplace_back(cnot);
+        _available[ctrl].emplace_back(cnot);
+        _available[targ].emplace_back(cnot);
+    }
 }
 
 /**
@@ -321,6 +422,43 @@ void Optimizer::toggleElement(size_t type, size_t element) {
             _zs.erase(element);
         else
             _zs.emplace(element);
+    }
+}
+
+
+/**
+ * @brief Swap the element in _hadamards, _xs, and _zs
+ *
+ * @param type 0: _hadamards, 1: _xs, and 2: _zs
+ * @param element
+ */
+void Optimizer::swapElement(size_t type, size_t e1, size_t e2){
+    if (type == 0) {
+        if (_hadamards.contains(e1) && !_hadamards.contains(e2)){
+            _hadamards.erase(e1);
+            _hadamards.emplace(e2);
+        }
+        else if (_hadamards.contains(e2) && !_hadamards.contains(e1)){
+            _hadamards.erase(e2);
+            _hadamards.emplace(e1);
+        }
+    }else if (type == 1) {
+        if (_xs.contains(e1) && !_xs.contains(e2)){
+            _xs.erase(e1);
+            _xs.emplace(e2);
+        }else if (_xs.contains(e2) && !_xs.contains(e1)){
+            _xs.erase(e2);
+            _xs.emplace(e1);
+        }
+    }else if (type == 2) {
+        if (_zs.contains(e1) && !_zs.contains(e2)){
+            _zs.erase(e1);
+            _zs.emplace(e2);
+        }
+        else if (_zs.contains(e2) && !_zs.contains(e1)){
+            _zs.erase(e2);
+            _zs.emplace(e1);
+        }
     }
 }
 

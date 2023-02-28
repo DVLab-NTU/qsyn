@@ -45,6 +45,9 @@ public:
     bool isSingleRotateZ(QCirGate*);
     QCirGate* getAvailableRotateZ(size_t t);
 
+    // Predicate function
+    bool TwoQubitGateExist(QCirGate* g, GateType gt, size_t ctrl, size_t targ);
+
 private:
     QCir* _circuit;
     bool _doSwap;
@@ -53,7 +56,7 @@ private:
     Qubit2Gates _gates;
     Qubit2Gates _available;
     std::vector<QCirGate*> _corrections;
-    std::unordered_map<size_t, size_t> _availty;  // FIXME - Consider rename. Look like something available order.
+    std::vector<size_t> _availty;  // FIXME - Consider rename. Look like something available order.
 
     std::unordered_map<size_t, size_t> _permutation;
     ordered_hashset<size_t> _hadamards;
@@ -62,6 +65,7 @@ private:
 
     size_t _gateCnt;  // NOTE - gcount
     void toggleElement(size_t type, size_t element);
+    void swapElement(size_t type, size_t e1, size_t e2);
 };
 
 #endif
