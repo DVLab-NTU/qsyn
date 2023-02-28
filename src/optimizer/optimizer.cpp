@@ -47,6 +47,7 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
     // FIXME - Delete after the function is finished
     cout << "Parse Circuit" << endl;
     _doSwap = doSwap;
+    _minimize_czs = false;
     _separateCorrection = separateCorrection;
     _maxIter = maxIter;
     QCir* forward = parseForward();
@@ -267,15 +268,123 @@ bool Optimizer::TwoQubitGateExist(QCirGate* g, GateType gt, size_t ctrl, size_t 
  * @brief
  *
  */
-void Optimizer::addCZ(size_t ctrl, size_t targ) {
-    // cout << "Founction addCZ unfinish now." << endl;
+void Optimizer::addCZ(size_t t1, size_t t2) {
+    cout << "Founction addCZ unfinish now." << endl;
+    size_t ctrl = -1, targ = -1;
+    QCirGate* cnot;
+    //NOTE - Try to cancel CNOT
+    bool found_match = false;
+    if (_minimize_czs){
+        //NOTE - Checkout t1 as control and t2 as control respectively.
+        for (size_t i = 0; i < 2; i++){
+            ctrl = i? t1:t2;
+            targ = i? t2:t1;
+            for (auto& g: _available[ctrl]){
+                if(g->getType() == GateType::CX && g->getControl()._qubit == ctrl && g->getTarget()._qubit == targ){
+                    cnot = g;
+                    if (_availty[targ] == 2){
+                        if(count_if(_available[targ].begin(), _available[ctrl].end(), [&](QCirGate* g){return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ);})){
+                            found_match = true;
+                            break;
+                        }
+                    }
+                    //NOTE - According to pyzx "There are Z-like gates blocking the CNOT from usage
+                    //       But if the CNOT can be passed all the way up to these Z-like gates
+                    //       Then we can commute the CZ gate next to the CNOT and hence use it."
+                    //NOTE - looking at the gates behind the Z-like gates
+                    for(size_t i=0; i<_gates[targ].size()-_available[targ].size();i++){
+                        if(_gates[targ][i]->getType() != GateType::CX || _gates[targ][i]->getTarget()._qubit != targ)
+                            break;
+                        if(_gates[targ][i]->getType() == GateType::CX && _gates[targ][i]->getControl()._qubit == ctrl && _gates[targ][i]->getTarget()._qubit == targ){
+                            found_match = true;
+                            break;
+                        }
+                    }
+                    if (found_match) break;
+                }
 
-    // bool found_match = false;
+            }
+            if (found_match) break;
+        } 
+    }
+    //NOTE - CNOT-CZ = (S* x id)CNOT (S x S)
+    if (found_match){
+        if (_availty[targ] == 2){
+            _availty[targ] = 1;
+            _available[targ].clear();
+        }
+        remove_if(_available[ctrl].begin(), _available[ctrl].end(), [&](QCirGate* g){return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ);});
+        remove_if(_gates[ctrl].begin(), _gates[ctrl].end(), [&](QCirGate* g){return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ);});
+        remove_if(_gates[targ].begin(), _gates[targ].end(), [&](QCirGate* g){return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ);});
 
+        QCirGate* s1 = new SDGGate(_gateCnt);
+        s1->addQubit(targ, true);
+        _gateCnt++;
+        QCirGate* s2 = new SDGGate(_gateCnt);
+        s2->addQubit(targ, true);
+        _gateCnt++;
+        QCirGate* s3 = new SDGGate(_gateCnt);
+        s3->addQubit(targ, true);
+        _gateCnt++;
 
+        if (_available[targ].size()){
+            _gates[targ].insert(_gates[targ].end()-_available[targ].size(), s1);
+            _gates[targ].insert(_gates[targ].end()-_available[targ].size(), cnot);
+        }else{
+            _gates[targ].emplace_back(s1);
+            _gates[targ].emplace_back(cnot);
+        }
+        _gates[targ].emplace_back(s2);
+        _available[targ].emplace_back(s2);
 
+        _available[ctrl].emplace_back(cnot);
+        _available[ctrl].emplace_back(s3);
+        _gates[ctrl].emplace_back(cnot);
+        _gates[ctrl].emplace_back(s3);
+        return;
+    }
 
+    if (_availty[t1] == 2){
+        _available[t1].clear();
+        _availty[t1] = 1;
+    }
+    if (_availty[t2] == 2){
+        _available[t2].clear();
+        _availty[t2] = 1;
+    }
 
+    //NOTE - Try to cancel CZ
+    found_match = false;
+    for(auto& g: _available[t2]){
+        if((g->getType() == GateType::CZ && g->getControl()._qubit == t1 && g->getTarget()._qubit == t2)||
+        (g->getType() == GateType::CZ && g->getControl()._qubit == t2 && g->getTarget()._qubit == t1)){
+            found_match = true;
+            cnot = g;
+            break;
+        }
+    }
+
+    if(found_match){
+        if(count_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g){return g == cnot;})){
+            remove_if(_available[t1].begin(), _available[t1].end(), [&](QCirGate* g){return g == cnot;});
+            remove_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g){return g == cnot;});
+            remove_if(_gates[t1].begin(), _gates[t1].end(), [&](QCirGate* g){return g == cnot;});
+            remove_if(_gates[t2].begin(), _gates[t2].end(), [&](QCirGate* g){return g == cnot;});
+        }else{
+            found_match = false;
+        }
+    }
+    //NOTE - No cancel found
+    if(!found_match){
+        QCirGate* cz = new CZGate(_gateCnt);
+        cz->setControlBit(t1);
+        cz->setTargetBit(t2);
+        _gateCnt++;
+        _gates[t1].emplace_back(cz);
+        _gates[t2].emplace_back(cz);
+        _available[t1].emplace_back(cz);
+        _available[t2].emplace_back(cz);
+    }
 }
 
 /**
@@ -336,7 +445,7 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
     found_match = false;
 
     for (auto& g : _available[ctrl]){
-        if (g->getType() == GateType::CX && g->getControl()._qubit == ctrl){
+        if (g->getType() == GateType::CX && g->getControl()._qubit == ctrl && g->getTarget()._qubit == targ){
             found_match = true;
             break;
         }
