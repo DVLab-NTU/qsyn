@@ -95,7 +95,9 @@ public:
     void updateTopoOrder();
 
     // Member functions about circuit reporting
+    void printDepth();
     void printGates();
+    void printCircuit();
     bool printGateInfo(size_t, bool);
     void printSummary();
     void printQubits();

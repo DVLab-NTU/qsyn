@@ -62,12 +62,34 @@ void QCir::printGates() {
 }
 
 /**
- * @brief Print QCir Summary
+ * @brief Print Qcir's Depth
+ * 
  */
-void QCir::printSummary() {
+void QCir::printDepth(){
+    if (_dirty) updateGateTime();
+    int depth = 0;
+    for(size_t i = 0; i < _qgates.size(); i++){
+        if(int(_qgates[i]->getTime()) > depth) depth = int(_qgates[i]->getTime());
+    }
+    cout << "Depth: " << depth+1 << endl;
+}
+
+/**
+ * @brief Print QCir 
+ */
+void QCir::printCircuit() {
     cout << "QCir " << _id << "( "
          << _qubits.size() << " qubits, "
          << _qgates.size() << " gates)\n";
+}
+
+/**
+ * @brief Print QCir Summary
+ */
+void QCir::printSummary(){
+    printCircuit();
+    analysis();
+    printDepth();
 }
 
 /**
@@ -512,8 +534,8 @@ void QCir::analysis(bool detail) {
     size_t singleZ = rz + z + s + sdg + t + tdg;
     size_t singleX = rx + x + sx;
     size_t singleY = ry + y + sy;
-    cout << "───── Quantum Circuit Analysis ─────" << endl;
-    cout << endl;
+    // cout << "───── Quantum Circuit Analysis ─────" << endl;
+    // cout << endl;
     if (detail) {
         cout << "├── Single-qubit gate: " << h + singleZ + singleX + singleY << endl;
         cout << "│   ├── H: " << h << endl;
@@ -546,8 +568,8 @@ void QCir::analysis(bool detail) {
         cout << "        └── MCRY: " << mcry << endl;
         cout << endl;
     }
-    cout << "> Decompose into basic gate set" << endl;
-    cout << endl;
+    // cout << "> Decompose into basic gate set" << endl;
+    // cout << endl;
     cout << TF::BOLD(TF::GREEN("Clifford: " + to_string(clifford))) << endl;
     cout << "└── " << TF::BOLD(TF::RED("CX: " + to_string(cxcnt))) << endl;
     cout << TF::BOLD(TF::RED("T-family: " + to_string(tfamily))) << endl;
@@ -555,5 +577,5 @@ void QCir::analysis(bool detail) {
         cout << TF::BOLD(TF::RED("Others  : " + to_string(nct))) << endl;
     else
         cout << TF::BOLD(TF::GREEN("Others  : " + to_string(nct))) << endl;
-    cout << endl;
+    // cout << endl;
 }
