@@ -236,6 +236,11 @@ ID:  52 (●, 0)           (Qubit, Col): (2, 12)	  #Neighbors:   1     (5, -)
 
 qsyn> qccp
 QCir 0( 3 qubits, 31 gates)
+Clifford: 26
+└── CX: 10
+T-family: 7
+Others  : 0
+Depth: 16
 
 qsyn> qccp -q
 Q 0  -cx(30)--cx(29)--cx(28)-- h(25)--cx(22)--cx(21)--td(19)-- h(18)--cz(17)-- h(16)--td(13)-- h(11)--cx( 8)--cx( 7)-- h( 4)-- t( 0)-
