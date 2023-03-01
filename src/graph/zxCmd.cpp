@@ -363,8 +363,14 @@ ZXGPrintCmd::exec(const string &option) {
 
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGPrint");
 
-    if (options.empty() || myStrNCmp("-Summary", options[0], 2) == 0)
+    if (options.empty())
         zxGraphMgr->getGraph()->printGraph();
+    else if (myStrNCmp("-Summary", options[0], 2) == 0){
+        zxGraphMgr->getGraph()->printGraph();
+        cout << setw(30) << left << "#T-gate: " << zxGraphMgr->getGraph()->TCount() << "\n";
+        cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(false) << "\n";
+        cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(true) << "\n";
+    }
     else if (myStrNCmp("-Inputs", options[0], 2) == 0)
         zxGraphMgr->getGraph()->printInputs();
     else if (myStrNCmp("-Outputs", options[0], 2) == 0)
