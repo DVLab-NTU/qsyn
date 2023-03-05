@@ -1,0 +1,11 @@
+QCNew
+QCBAdd 4
+qcga -CX 0 1
+qcga -CX 0 1
+qcga -CX 1 2
+qcga -Z 3 
+qcga -s 3
+qcga -s 0
+qccprint -q
+optimize
+qccprint -q

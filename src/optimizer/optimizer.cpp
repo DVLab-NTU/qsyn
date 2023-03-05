@@ -50,7 +50,9 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
     _minimize_czs = false;
     _separateCorrection = separateCorrection;
     _maxIter = maxIter;
+    cout << "Before Parse Forward" << endl;
     QCir* forward = parseForward();
+    cout << "After Parse Circuit" << endl;
     for (auto& g : _corrections) {
         vector<size_t> bits;
         for (auto& b : g->getQubits()) {
@@ -59,6 +61,12 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
         forward->addGate(g->getTypeStr(), bits, Phase(0), true);
     }
     // TODO - Only Single iteration now. Please modify it when forward is correct.
+    // _circuit->reset();
+    // cout << "This is forward" << endl;
+    // forward->printSummary();
+    // forward->addGate("X", {0}, Phase(0), false);
+    // cout << "Forward add a X" << endl;
+    // _circuit = forward;
     return _circuit;
 }
 
@@ -68,20 +76,26 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
  * @return QCir* : new Circuit
  */
 QCir* Optimizer::parseForward() {
+    cout << "1" << endl;
     reset();
     _circuit->updateTopoOrder();
+    cout << "2" << endl;
     for (auto& g : _circuit->getTopoOrderdGates()) {
         parseGate(g);
     }
+    cout << "3" << endl;
     for (auto& t : _hadamards) {
         addHadamard(t);
     }
+    cout << "4" << endl;
     for (auto& t : _zs) {
         addGate(t, Phase(0), 0);
     }
+    cout << "5" << endl;
     QCir* tmp = new QCir(-1);
     // NOTE - Below function will add the gate to tmp -
     topologicalSort(tmp);
+    cout << "6" << endl;
     // ------------------------------------------------
     for (auto& t : _xs) {
         QCirGate* notGate = new XGate(_gateCnt);
@@ -89,6 +103,7 @@ QCir* Optimizer::parseForward() {
         _gateCnt++;
         _corrections.emplace_back(notGate);
     }
+    cout << "7" << endl;
 
     // TODO - Move permutation code out from extractor
     // for (auto& [a, b] : permutation(_permutation)) {
@@ -109,6 +124,7 @@ QCir* Optimizer::parseForward() {
 bool Optimizer::parseGate(QCirGate* gate) {
     // REVIEW - No copy
     // NOTE - Permute
+    cout << "a" << endl;
     size_t target = -1, control = -1;
     for (auto& [i, j] : _permutation) {
         if (j == gate->getTarget()._qubit) {
@@ -117,6 +133,7 @@ bool Optimizer::parseGate(QCirGate* gate) {
             break;
         }
     }
+    cout << "b" << endl;
     assert(target != size_t(-1));
     if (gate->getType() == GateType::CX || gate->getType() == GateType::CZ) {
         for (auto& [i, j] : _permutation) {
@@ -130,6 +147,8 @@ bool Optimizer::parseGate(QCirGate* gate) {
     }
 
     // NOTE - Hadamard
+    cout << "c" << endl;
+    cout << gate->getTypeStr() << endl;
     if (gate->getType() == GateType::H) {
         if (_xs.contains(target) && (!_zs.contains(target))) {
             _xs.erase(target);
@@ -215,14 +234,21 @@ bool Optimizer::parseGate(QCirGate* gate) {
         else
             addCX(control, target);
     } else if (gate->getType() == GateType::CX) {
+        cout << "aa" << endl;
         if (_xs.contains(control))
             toggleElement(1, target);
+        cout << "ab" << endl;
         if (_zs.contains(target))
             toggleElement(2, control);
+        cout << "ac" << endl;
+        cout << "Control: " << _hadamards.contains(control) << endl;
+        cout << "Target: " << _hadamards.contains(target) << endl;
         if (_hadamards.contains(control) && _hadamards.contains(target)) {
             addCX(target, control);
         } else if (!_hadamards.contains(control) && !_hadamards.contains(target)) {
+            cout << "aaa" << endl;
             addCX(control, target);
+            cout << "aab" << endl;
         } else if (_hadamards.contains(target)) {
             if (control > target)
                 addCZ(target, control);
@@ -232,6 +258,7 @@ bool Optimizer::parseGate(QCirGate* gate) {
             addHadamard(control);
             addCX(control, target);
         }
+        cout << "ad" << endl;
     } else {
         cout << "Error: Unsupported Gate type " << gate->getTypeStr() << " !!" << endl;
         return false;
@@ -269,7 +296,6 @@ bool Optimizer::TwoQubitGateExist(QCirGate* g, GateType gt, size_t ctrl, size_t 
  *
  */
 void Optimizer::addCZ(size_t t1, size_t t2) {
-    cout << "Founction addCZ unfinish now." << endl;
     size_t ctrl = -1, targ = -1;
     QCirGate* cnot;
     //NOTE - Try to cancel CNOT
@@ -377,8 +403,10 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
     //NOTE - No cancel found
     if(!found_match){
         QCirGate* cz = new CZGate(_gateCnt);
-        cz->setControlBit(t1);
-        cz->setTargetBit(t2);
+        cz->addQubit(t1, false);
+        cz->addQubit(t2, false);
+        // cz->setControlBit(t1);
+        // cz->setTargetBit(t2);
         _gateCnt++;
         _gates[t1].emplace_back(cz);
         _gates[t2].emplace_back(cz);
@@ -394,6 +422,7 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
  */
 void Optimizer::addCX(size_t ctrl, size_t targ) {
     bool found_match = false;
+    cout << "ㄅ" << endl;
     if (_availty[ctrl] == 2){
         if (_availty[targ] == 1){
             // TODO - check if reverse is needed
@@ -404,7 +433,7 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
                 }
             
             if (found_match and _doSwap){
-                // #TODO -  do the CNOT(t,c)CNOT(c,t) = CNOT(c,t)SWAP(c,t) commutation
+                // NOTE -  -  do the CNOT(t,c)CNOT(c,t) = CNOT(c,t)SWAP(c,t) commutation
                 if (count_if(_available[targ].begin(), _available[targ].end(), [&](QCirGate* g){return Optimizer::TwoQubitGateExist(g, GateType::CX, targ, ctrl);})){
                     QCirGate* cnot = new CXGate(_gateCnt);
                     cnot->setControlBit(ctrl);
@@ -436,12 +465,12 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
             _availty[ctrl] = 1;
         }
     }
-
+    cout << "ㄆ" << endl;
     if (_availty[targ] == 1){
         _available[targ].clear();
         _availty[targ] = 2;
     }
-
+    cout << "ㄇ" << endl;
     found_match = false;
 
     for (auto& g : _available[ctrl]){
@@ -450,6 +479,7 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
             break;
         }
     }
+    cout << "ㄈ" << endl;
     //NOTE - do CNOT(c,t)CNOT(c,t) = id
     if (found_match){
         if (count_if(_available[targ].begin(), _available[targ].end(), [&](QCirGate* g){return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ);})){
@@ -462,17 +492,26 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
             found_match = false;
         }
     }
-
+    cout << "ㄉ" << endl;
     if (!found_match){
+        cout << "1" << endl;
         QCirGate* cnot = new CXGate(_gateCnt);
-        cnot->setControlBit(ctrl);
-        cnot->setTargetBit(targ);
+        cout << "2" << endl;
+        cnot->addQubit(ctrl, false);
+        cout << "3" << endl;
+        cnot->addQubit(targ, true);
+        cout << "4" << endl;
         _gateCnt++;
         _gates[ctrl].emplace_back(cnot);
+        cout << "5" << endl;
         _gates[targ].emplace_back(cnot);
+        cout << "6" << endl;
         _available[ctrl].emplace_back(cnot);
+        cout << "7" << endl;
         _available[targ].emplace_back(cnot);
+        cout << "8" << endl;
     }
+    cout << "ㄊ" << endl;
 }
 
 /**
