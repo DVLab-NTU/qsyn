@@ -18,6 +18,10 @@
 
 using namespace std;
 
+bool SORT_FRONTIER = 0;
+bool SORT_NEIGHBORS = 1;
+bool PERMUTE_QUBITS = 1;
+size_t BLOCK_SIZE = 5;
 extern size_t verbose;
 
 /**
@@ -60,10 +64,9 @@ void Extractor::initialize(bool fromEmpty) {
 /**
  * @brief Extract the graph into circuit
  *
- * @param permute if false, do not permute qubit in the end
  * @return QCir*
  */
-QCir* Extractor::extract(bool permute) {
+QCir* Extractor::extract() {
     if (!extractionLoop(-1))
         return nullptr;
     else
@@ -72,14 +75,15 @@ QCir* Extractor::extract(bool permute) {
         _circuit->printQubits();
         _graph->printQubits();
     }
-    if (permute) {
+    if (PERMUTE_QUBITS) {
         permuteQubit();
         if (verbose >= 8) {
             _circuit->printQubits();
             _graph->printQubits();
         }
     }
-
+    // cout << "Iteration of extract CX: " << _cntCXIter << endl;
+    // cout << "Total Filtered CX count: " << _cntCXFiltered << endl;
     return _circuit;
 }
 
@@ -227,6 +231,7 @@ bool Extractor::extractCZs(bool check) {
  * @param strategy (0: directly by result of Gaussian Elimination, 1-default: Filter Duplicated CNOT)
  */
 void Extractor::extractCXs(size_t strategy) {
+    _cntCXIter++;
     gaussianElimination();
     updateGraphByMatrix();
 
@@ -575,16 +580,28 @@ bool Extractor::gaussianElimination(bool check) {
         }
     }
 
-    // REVIEW - Do not know why sort in here would be better
-    _neighbors.sort([](const ZXVertex* a, const ZXVertex* b) {
-        return a->getId() < b->getId();
-    });
+    if (SORT_FRONTIER == true) {
+        _frontier.sort([](const ZXVertex* a, const ZXVertex* b) {
+            return a->getQubit() < b->getQubit();
+        });
+    }
+    if (SORT_NEIGHBORS == true) {
+        // REVIEW - Do not know why sort in here would be better
+        _neighbors.sort([](const ZXVertex* a, const ZXVertex* b) {
+            return a->getId() < b->getId();
+        });
+    }
 
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
     columnOptimalSwap();
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
-    _biAdjacency.gaussianElimSkip(5, true, true);
-    _cnots = _biAdjacency.getOpers();
+    // cout << "Iter " << _cntCXIter << " (Before):" << endl;
+    // printMatrix();
+    _biAdjacency.gaussianElimSkip(BLOCK_SIZE, true, true);
+    // cout << "Iter " << _cntCXIter << " (After):" << endl;
+    // printMatrix();
+    // _cnots = _biAdjacency.getOpers();
+    // printCXs();
     return true;
 }
 
@@ -802,6 +819,14 @@ void Extractor::printAxels() {
             if (_graph->isGadget(pg))
                 cout << pg->getId() << ")" << endl;
         }
+    }
+    cout << endl;
+}
+
+void Extractor::printCXs() {
+    cout << "CXs: " << endl;
+    for (auto& [c,t] : _cnots) {
+        cout << "(" << c << ", " << t << ")  ";
     }
     cout << endl;
 }

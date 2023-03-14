@@ -12,6 +12,7 @@
 #include <iostream>      // for ostream
 #include <string>        // for string
 
+#include "cmdMacros.h"   // for CMD_N_OPTS_EQUAL_OR_RETURN, CMD_N_OPTS_AT_LE...
 #include "extract.h"     // for Extractor
 #include "qcir.h"        // for QCir
 #include "qcirCmd.h"     // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
@@ -30,6 +31,7 @@ extern QCirMgr *qcirMgr;
 bool initExtractCmd() {
     if (!(cmdMgr->regCmd("ZX2QC", 5, make_unique<ExtractCmd>()) &&
           cmdMgr->regCmd("EXTRact", 4, make_unique<ExtractStepCmd>()) &&
+          cmdMgr->regCmd("EXTSet", 4, make_unique<ExtractSetCmd>()) &&
           cmdMgr->regCmd("EXTPrint", 4, make_unique<ExtractPrintCmd>()))) {
         cerr << "Registering \"extract\" commands fails... exiting" << endl;
         return false;
@@ -210,13 +212,20 @@ void ExtractStepCmd::summary() const {
 }
 
 //----------------------------------------------------------------------
-//    EXTPrint <-Frontier | -Neighbors | -Axels | -Matrix>
+//    EXTPrint <-Frontier | -Neighbors | -Axels | -Matrix | -Settings>
 //----------------------------------------------------------------------
 CmdExecStatus
 ExtractPrintCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-
+    if (myStrNCmp("-Settings", option, 2) == 0) {
+        cout << endl;
+        cout << "Sort Frontier:     " << (SORT_FRONTIER == true ? "True" : "False") << endl;
+        cout << "Sort Neighbors:    " << (SORT_NEIGHBORS == true ? "True" : "False") << endl;
+        cout << "Permute Qubits:    " << (PERMUTE_QUBITS == true ? "True" : "False") << endl;
+        cout << "Block Size:        " << BLOCK_SIZE << endl;
+        return CMD_EXEC_DONE;
+    }
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("EXTPrint");
 
     if (!zxGraphMgr->getGraph()->isGraphLike()) {
@@ -229,7 +238,7 @@ ExtractPrintCmd::exec(const string &option) {
         FRONTIER,
         NEIGHBORS,
         AXELS,
-        MATRIX,
+        MATRIX
     };
     PRINT_MODE mode;
 
@@ -273,4 +282,59 @@ void ExtractPrintCmd::usage() const {
 void ExtractPrintCmd::summary() const {
     cout << setw(15) << left << "EXTPrint: "
          << "print info of extracting ZX-graph" << endl;
+}
+
+//------------------------------------------------------------------------------
+//    EXTSet <bool sortFrontier> <bool sortNeighbors> <bool permuteQubits> <size_t block size>
+//------------------------------------------------------------------------------
+CmdExecStatus
+ExtractSetCmd::exec(const string &option) {
+    string token;
+    vector<string> options;
+    if (!CmdExec::lexOptions(option, options))
+        return CMD_EXEC_ERROR;
+    CMD_N_OPTS_EQUAL_OR_RETURN(options, 4);
+    unsigned sortFrontier, sortNeighbors, permuteQubits, blockSize;
+    if (!myStr2Uns(options[0], sortFrontier)) {
+        cerr << "Error: invalid sortFrontier value, should be 0 or 1!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
+    if (sortFrontier != 0 && sortFrontier != 1) {
+        cerr << "Error: invalid sortFrontier value, should be 0 or 1!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
+    if (!myStr2Uns(options[1], sortNeighbors)) {
+        cerr << "Error: invalid sortNeighbors value, should be 0 or 1!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
+    if (sortNeighbors != 0 && sortNeighbors != 1) {
+        cerr << "Error: invalid sortNeighbors value, should be 0 or 1!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
+    if (!myStr2Uns(options[2], permuteQubits)) {
+        cerr << "Error: invalid permuteQubits value, should be 0 or 1!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
+    if (permuteQubits != 0 && permuteQubits != 1) {
+        cerr << "Error: invalid permuteQubits value, should be 0 or 1!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
+    if (!myStr2Uns(options[3], blockSize)) {
+        cerr << "Error: invalid blockSize value!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
+    SORT_FRONTIER = sortFrontier == 1;
+    SORT_NEIGHBORS = sortNeighbors == 1;
+    PERMUTE_QUBITS = permuteQubits == 1;
+    BLOCK_SIZE = blockSize;
+    return CMD_EXEC_DONE;
+}
+
+void ExtractSetCmd::usage() const {
+    cout << "Usage: EXTSet <bool sortFrontier> <bool sortNeighbors> <bool permuteQubits> <size_t block size>" << endl;
+}
+
+void ExtractSetCmd::summary() const {
+    cout << setw(15) << left << "EXTSet: "
+         << "Set variables to extractor" << endl;
 }
