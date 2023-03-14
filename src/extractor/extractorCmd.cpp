@@ -223,7 +223,9 @@ ExtractPrintCmd::exec(const string &option) {
         cout << "Sort Frontier:     " << (SORT_FRONTIER == true ? "True" : "False") << endl;
         cout << "Sort Neighbors:    " << (SORT_NEIGHBORS == true ? "True" : "False") << endl;
         cout << "Permute Qubits:    " << (PERMUTE_QUBITS == true ? "True" : "False") << endl;
+        cout << "Filter Duplicated: " << (FILTER_DUPLICATED_CXS == true ? "True" : "False") << endl;
         cout << "Block Size:        " << BLOCK_SIZE << endl;
+        cout << "Optimize Level:    " << OPTIMIZE_LEVEL << endl;
         return CMD_EXEC_DONE;
     }
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("EXTPrint");
@@ -285,7 +287,7 @@ void ExtractPrintCmd::summary() const {
 }
 
 //------------------------------------------------------------------------------
-//    EXTSet <bool sortFrontier> <bool sortNeighbors> <bool permuteQubits> <size_t block size>
+//    EXTSet <bool sortFrontier> <bool sortNeighbors> <bool permuteQubits> <size_t block size> <bool filtered> <size_t optimizeLevel>
 //------------------------------------------------------------------------------
 CmdExecStatus
 ExtractSetCmd::exec(const string &option) {
@@ -293,8 +295,8 @@ ExtractSetCmd::exec(const string &option) {
     vector<string> options;
     if (!CmdExec::lexOptions(option, options))
         return CMD_EXEC_ERROR;
-    CMD_N_OPTS_EQUAL_OR_RETURN(options, 4);
-    unsigned sortFrontier, sortNeighbors, permuteQubits, blockSize;
+    CMD_N_OPTS_EQUAL_OR_RETURN(options, 6);
+    unsigned sortFrontier, sortNeighbors, permuteQubits, blockSize, filterDuplicated, optimizeLevel;
     if (!myStr2Uns(options[0], sortFrontier)) {
         cerr << "Error: invalid sortFrontier value, should be 0 or 1!!\n";
         return errorOption(CMD_OPT_ILLEGAL, (option));
@@ -323,15 +325,29 @@ ExtractSetCmd::exec(const string &option) {
         cerr << "Error: invalid blockSize value!!\n";
         return errorOption(CMD_OPT_ILLEGAL, (option));
     }
+    if (!myStr2Uns(options[4], filterDuplicated)) {
+        cerr << "Error: invalid filterDuplicated value, should be 0 or 1!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
+    if (filterDuplicated != 0 && filterDuplicated != 1) {
+        cerr << "Error: invalid filterDuplicated value, should be 0 or 1!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
+    if (!myStr2Uns(options[5], optimizeLevel)) {
+        cerr << "Error: invalid optimizeLevel value!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
     SORT_FRONTIER = sortFrontier == 1;
     SORT_NEIGHBORS = sortNeighbors == 1;
     PERMUTE_QUBITS = permuteQubits == 1;
+    FILTER_DUPLICATED_CXS = filterDuplicated == 1;
     BLOCK_SIZE = blockSize;
+    OPTIMIZE_LEVEL = optimizeLevel;
     return CMD_EXEC_DONE;
 }
 
 void ExtractSetCmd::usage() const {
-    cout << "Usage: EXTSet <bool sortFrontier> <bool sortNeighbors> <bool permuteQubits> <size_t block size>" << endl;
+    cout << "Usage: EXTSet <bool sortFrontier> <bool sortNeighbors> <bool permuteQubits> <size_t block size> <bool filtered> <size_t optimizeLevel>" << endl;
 }
 
 void ExtractSetCmd::summary() const {
