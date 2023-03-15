@@ -21,7 +21,9 @@ using namespace std;
 bool SORT_FRONTIER = 0;
 bool SORT_NEIGHBORS = 1;
 bool PERMUTE_QUBITS = 1;
+bool FILTER_DUPLICATED_CXS = 1;
 size_t BLOCK_SIZE = 5;
+size_t OPTIMIZE_LEVEL = 1;
 extern size_t verbose;
 
 /**
@@ -243,17 +245,6 @@ void Extractor::extractCXs(size_t strategy) {
         cnt++;
     }
 
-    if (strategy == 1) {
-        size_t old = _cntCXFiltered;
-        while (true) {
-            size_t reduce = _biAdjacency.filterDuplicatedOps();
-            _cntCXFiltered += reduce;
-            if (reduce == 0) break;
-        }
-        if (verbose >= 4) cout << "Filter " << _cntCXFiltered - old << " CXs. Total: " << _cntCXFiltered << endl;
-    }
-
-    _cnots = _biAdjacency.getOpers();
     for (auto& [t, c] : _cnots) {
         // NOTE - targ and ctrl are opposite here
         size_t ctrl = _qubitMap[frontId2Vertex[c]->getQubit()];
@@ -595,14 +586,55 @@ bool Extractor::gaussianElimination(bool check) {
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
     columnOptimalSwap();
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
-    // cout << "Iter " << _cntCXIter << " (Before):" << endl;
-    // printMatrix();
-    _biAdjacency.gaussianElimSkip(BLOCK_SIZE, true, true);
-    // cout << "Iter " << _cntCXIter << " (After):" << endl;
-    // printMatrix();
-    // _cnots = _biAdjacency.getOpers();
-    // printCXs();
+
+    if (OPTIMIZE_LEVEL == 0) {
+        _biAdjacency.gaussianElimSkip(BLOCK_SIZE, true, true);
+        if (FILTER_DUPLICATED_CXS) {
+            size_t old = _cntCXFiltered;
+            while (true) {
+                size_t reduce = _biAdjacency.filterDuplicatedOps();
+                _cntCXFiltered += reduce;
+                if (reduce == 0) break;
+            }
+            if (verbose >= 4) cout << "Filter " << _cntCXFiltered - old << " CXs. Total: " << _cntCXFiltered << endl;
+        }
+    } else if (OPTIMIZE_LEVEL == 1) {
+        size_t minCnots = size_t(-1);
+        M2 bestMatrix;
+        for (size_t blk = 1; blk < _biAdjacency.numCols(); blk++) {
+            blockElimination(bestMatrix, minCnots, blk);
+        }
+        _biAdjacency = bestMatrix;
+    } else {
+        cerr << "Error: Wrong Optimize Level" << endl;
+        abort();
+    }
+    _cnots = _biAdjacency.getOpers();
+
     return true;
+}
+
+/**
+ * @brief Perform Gaussian Elimination with block size `blockSize`
+ *
+ * @param bestMatrix Currently best matrix
+ * @param minCnots Minimum value
+ * @param blockSize
+ */
+void Extractor::blockElimination(M2& bestMatrix, size_t& minCnots, size_t blockSize) {
+    M2 copiedMatrix = _biAdjacency;
+    copiedMatrix.gaussianElimSkip(blockSize, true, true);
+    if (FILTER_DUPLICATED_CXS) {
+        while (true) {
+            size_t reduce = copiedMatrix.filterDuplicatedOps();
+            _cntCXFiltered += reduce;
+            if (reduce == 0) break;
+        }
+    }
+    if (copiedMatrix.getOpers().size() < minCnots) {
+        minCnots = copiedMatrix.getOpers().size();
+        bestMatrix = copiedMatrix;
+    }
 }
 
 /**
@@ -825,7 +857,7 @@ void Extractor::printAxels() {
 
 void Extractor::printCXs() {
     cout << "CXs: " << endl;
-    for (auto& [c,t] : _cnots) {
+    for (auto& [c, t] : _cnots) {
         cout << "(" << c << ", " << t << ")  ";
     }
     cout << endl;

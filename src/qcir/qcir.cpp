@@ -63,19 +63,19 @@ void QCir::printGates() {
 
 /**
  * @brief Print Qcir's Depth
- * 
+ *
  */
-void QCir::printDepth(){
+void QCir::printDepth() {
     if (_dirty) updateGateTime();
     int depth = 0;
-    for(size_t i = 0; i < _qgates.size(); i++){
-        if(int(_qgates[i]->getTime()) > depth) depth = int(_qgates[i]->getTime());
+    for (size_t i = 0; i < _qgates.size(); i++) {
+        if (int(_qgates[i]->getTime()) > depth) depth = int(_qgates[i]->getTime());
     }
-    cout << "Depth: " << depth+1 << endl;
+    cout << "Depth: " << depth + 1 << endl;
 }
 
 /**
- * @brief Print QCir 
+ * @brief Print QCir
  */
 void QCir::printCircuit() {
     cout << "QCir " << _id << "( "
@@ -86,7 +86,7 @@ void QCir::printCircuit() {
 /**
  * @brief Print QCir Summary
  */
-void QCir::printSummary(){
+void QCir::printSummary() {
     printCircuit();
     analysis();
     printDepth();

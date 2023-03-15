@@ -19,7 +19,9 @@
 extern bool SORT_FRONTIER;
 extern bool SORT_NEIGHBORS;
 extern bool PERMUTE_QUBITS;
+extern bool FILTER_DUPLICATED_CXS;
 extern size_t BLOCK_SIZE;
+extern size_t OPTIMIZE_LEVEL;
 class ZXGraph;
 
 class Extractor {
@@ -77,6 +79,7 @@ private:
     M2 _biAdjacency;
     std::vector<M2::Oper> _cnots;
 
+    void blockElimination(M2&, size_t&, size_t);
     // NOTE - Use only in column optimal swap
     Target findColumnSwap(Target);
     ConnectInfo _rowInfo;

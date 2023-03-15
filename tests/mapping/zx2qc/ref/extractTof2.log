@@ -129,7 +129,6 @@ Note: (11) is not a gadget vertex!
 Perform Gaussian Elimination.
 Update Graph by Matrix
 Extract CXs
-Filter 0 CXs. Total: 0
 Add CX: 0 1
 Add CX: 2 0
 Add CX: 1 2
@@ -197,7 +196,6 @@ Axels:
 Perform Gaussian Elimination.
 Update Graph by Matrix
 Extract CXs
-Filter 0 CXs. Total: 0
 Add CX: 2 1
 Add CX: 0 2
 Add CX: 1 0
