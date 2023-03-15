@@ -598,8 +598,7 @@ bool Extractor::gaussianElimination(bool check) {
             }
             if (verbose >= 4) cout << "Filter " << _cntCXFiltered - old << " CXs. Total: " << _cntCXFiltered << endl;
         }
-    }
-    else if (OPTIMIZE_LEVEL == 1) {
+    } else if (OPTIMIZE_LEVEL == 1) {
         size_t minCnots = size_t(-1);
         M2 bestMatrix;
         for (size_t blk = 1; blk < _biAdjacency.numCols(); blk++) {
@@ -617,10 +616,10 @@ bool Extractor::gaussianElimination(bool check) {
 
 /**
  * @brief Perform Gaussian Elimination with block size `blockSize`
- * 
+ *
  * @param bestMatrix Currently best matrix
  * @param minCnots Minimum value
- * @param blockSize 
+ * @param blockSize
  */
 void Extractor::blockElimination(M2& bestMatrix, size_t& minCnots, size_t blockSize) {
     M2 copiedMatrix = _biAdjacency;
