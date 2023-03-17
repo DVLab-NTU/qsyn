@@ -22,13 +22,16 @@ size_t MULTIPLE_DELAY = 5;
 
 /**
  * @brief Get delay of gate
- * 
- * @return size_t 
+ *
+ * @return size_t
  */
 size_t QCirGate::getDelay() const {
-    if(_qubits.size() == 1) return SINGLE_DELAY;
-    else if(_qubits.size() == 2) return DOUBLE_DELAY;
-    else return MULTIPLE_DELAY;
+    if (_qubits.size() == 1)
+        return SINGLE_DELAY;
+    else if (_qubits.size() == 2)
+        return DOUBLE_DELAY;
+    else
+        return MULTIPLE_DELAY;
 }
 
 /**
