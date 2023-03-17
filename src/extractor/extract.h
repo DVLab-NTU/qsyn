@@ -66,6 +66,8 @@ public:
     void updateGraphByMatrix(EdgeType = EdgeType::HADAMARD);
     void createMatrix();
 
+    void prependGate(std::string, const std::vector<size_t>&, Phase);
+
     bool frontierIsCleaned();
     bool axelInNeighbors();
     bool containSingleNeighbor();

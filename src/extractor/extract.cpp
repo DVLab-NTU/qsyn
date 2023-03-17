@@ -161,12 +161,14 @@ void Extractor::extractSingles() {
     vector<pair<ZXVertex*, ZXVertex*>> toggleList;
     for (ZXVertex* o : _graph->getOutputs()) {
         if (o->getFirstNeighbor().second == EdgeType::HADAMARD) {
-            _circuit->addGate("H", {_qubitMap[o->getQubit()]}, Phase(0), false);
+            prependGate("h", {_qubitMap[o->getQubit()]}, Phase(0));
+            // _circuit->addGate("H", {_qubitMap[o->getQubit()]}, Phase(0), false);
             toggleList.emplace_back(o, o->getFirstNeighbor().first);
         }
         Phase ph = o->getFirstNeighbor().first->getPhase();
         if (ph != Phase(0)) {
-            _circuit->addSingleRZ(_qubitMap[o->getQubit()], ph, false);
+            prependGate("rotate", {_qubitMap[o->getQubit()]}, ph);
+            // _circuit->addSingleRZ(_qubitMap[o->getQubit()], ph, false);
             o->getFirstNeighbor().first->setPhase(Phase(0));
         }
     }
@@ -216,7 +218,8 @@ bool Extractor::extractCZs(bool check) {
     }
     for (const auto& [s, t] : removeList) {
         _graph->removeEdge(s, t, EdgeType::HADAMARD);
-        _circuit->addGate("cz", {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1), false);
+        prependGate("cz", {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1));
+        // _circuit->addGate("cz", {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1), false);
     }
 
     if (verbose >= 8) {
@@ -250,7 +253,8 @@ void Extractor::extractCXs(size_t strategy) {
         size_t ctrl = _qubitMap[frontId2Vertex[c]->getQubit()];
         size_t targ = _qubitMap[frontId2Vertex[t]->getQubit()];
         if (verbose >= 4) cout << "Add CX: " << ctrl << " " << targ << endl;
-        _circuit->addGate("cx", {ctrl, targ}, Phase(0), false);
+        prependGate("cx", {ctrl, targ}, Phase(0));
+        // _circuit->addGate("cx", {ctrl, targ}, Phase(0), false);
     }
 }
 
@@ -304,7 +308,8 @@ size_t Extractor::extractHsFromM2(bool check) {
 
     for (auto& [f, n] : frontNeighPairs) {
         // NOTE - Add Hadamard according to the v of frontier (row)
-        _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
+        // _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
+        prependGate("h", {_qubitMap[f->getQubit()]}, Phase(0));
         // NOTE - Set #qubit and #col according to the old frontier
         n->setQubit(f->getQubit());
         n->setCol(f->getCol());
@@ -672,9 +677,12 @@ void Extractor::permuteQubit() {
         if (o == i) continue;
         size_t t2 = swapInvMap.at(o);
         // NOTE - SWAP
-        _circuit->addGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0), false);
-        _circuit->addGate("cx", {_qubitMap[t2], _qubitMap[o]}, Phase(0), false);
-        _circuit->addGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0), false);
+        // _circuit->addGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0), false);
+        // _circuit->addGate("cx", {_qubitMap[t2], _qubitMap[o]}, Phase(0), false);
+        // _circuit->addGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0), false);
+        prependGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0));
+        prependGate("cx", {_qubitMap[t2], _qubitMap[o]}, Phase(0));
+        prependGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0));
         swapMap[t2] = i;
         swapInvMap[i] = t2;
     }
@@ -711,8 +719,10 @@ void Extractor::updateNeighbors() {
             // NOTE - Remove
             for (auto& [b, ep] : f->getNeighbors()) {
                 if (_graph->getInputs().contains(b)) {
-                    if (ep == EdgeType::HADAMARD)
-                        _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
+                    if (ep == EdgeType::HADAMARD) {
+                        // _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
+                        prependGate("h", {_qubitMap[f->getQubit()]}, Phase(0));
+                    }
                     break;
                 }
             }
@@ -770,6 +780,34 @@ void Extractor::updateGraphByMatrix(EdgeType et) {
  */
 void Extractor::createMatrix() {
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
+}
+
+/**
+ * @brief Prepend gate to circuit. If _device is given, directly map to physical device.
+ *
+ * @param type
+ * @param qubits
+ * @param phase
+ */
+void Extractor::prependGate(string type, const vector<size_t>& qubits, Phase phase) {
+    assert(qubits.size()==1 || qubits.size()==2);
+    if (type == "rotate") {
+        if (_device == nullptr)
+            _circuit->addSingleRZ(qubits[0], phase, false);
+        else
+            _circuit->addSingleRZ(_device->getPhysicalByLogical(qubits[0])->getId(), phase, false);
+    } else {
+        if(_device == nullptr) {
+            _circuit->addGate(type, qubits, phase, false);
+        } else {
+            if (qubits.size() == 1)
+                _circuit->addGate(type, {_device->getPhysicalByLogical(qubits[0])->getId()}, phase, false);
+            else {
+                // TODO: Duostra Route
+                _circuit->addGate(type, qubits, phase, false);
+            }
+        }
+    }
 }
 
 /**

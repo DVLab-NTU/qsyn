@@ -88,6 +88,7 @@ public:
     const PhyQubitList& getPhyQubitList() { return _qubitList; }
     const AdjacenciesInfo& getAdjInfo() const { return _adjInfo; }
     const AdjInfo& getAdjPairInfo(size_t, size_t);
+    PhyQubit* getPhysicalByLogical(size_t id) { return _log2Phy[id]; }
 
     void setId(size_t id) { _id = id; }
     void setNQubit(size_t n) { _nQubit = n; }
@@ -120,6 +121,7 @@ private:
     std::vector<GateType> _gateSet;
     PhyQubitList _qubitList;
     AdjacenciesInfo _adjInfo;
+    std::unordered_map<size_t, PhyQubit*> _log2Phy;
 
     // NOTE - Internal functions/objects only used in reader
     bool parseInfo(std::ifstream& f);
