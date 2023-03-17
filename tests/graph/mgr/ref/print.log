@@ -6,7 +6,6 @@ qsyn> ZXNew
 Create and checkout to Graph 1
 
 qsyn> ZXPrint
-ZXMode: ON
 -> #Graph: 2
 -> Now focus on: 1
 

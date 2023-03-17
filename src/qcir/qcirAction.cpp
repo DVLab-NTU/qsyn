@@ -163,10 +163,10 @@ void QCir::updateGateTime() {
         for (size_t i = 0; i < Info.size(); i++) {
             if (Info[i]._parent == NULL)
                 continue;
-            if (Info[i]._parent->getTime() + 1 > max_time)
-                max_time = Info[i]._parent->getTime() + 1;
+            if (Info[i]._parent->getTime() > max_time)
+                max_time = Info[i]._parent->getTime();
         }
-        currentGate->setTime(max_time);
+        currentGate->setTime(max_time + currentGate->getDelay());
     };
     topoTraverse(Lambda);
 }

@@ -35,6 +35,7 @@ bool initQCirCmd() {
           cmdMgr->regCmd("QCCOMpose", 5, make_unique<QCirComposeCmd>()) &&
           cmdMgr->regCmd("QCTensor", 3, make_unique<QCirTensorCmd>()) &&
           cmdMgr->regCmd("QCPrint", 3, make_unique<QCPrintCmd>()) &&
+          cmdMgr->regCmd("QCSet", 3, make_unique<QCSetCmd>()) &&
           cmdMgr->regCmd("QCCRead", 4, make_unique<QCirReadCmd>()) &&
           cmdMgr->regCmd("QCCPrint", 4, make_unique<QCirPrintCmd>()) &&
           cmdMgr->regCmd("QCGAdd", 4, make_unique<QCirAddGateCmd>()) &&
@@ -273,30 +274,81 @@ void QCirTensorCmd::summary() const {
 }
 
 //----------------------------------------------------------------------
-//    QCPrint [-Summary | -Focus | -Num]
+//    QCPrint [-SUmmary | -Focus | -Num | -SEttings]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCPrintCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) {
+    if (token.empty() || myStrNCmp("-SUmmary", token, 3) == 0) {
         qcirMgr->printQCirMgr();
     } else if (myStrNCmp("-Focus", token, 2) == 0)
         qcirMgr->printCListItr();
     else if (myStrNCmp("-Num", token, 2) == 0)
         qcirMgr->printQCircuitListSize();
-    else
+    else if (myStrNCmp("-SEttings", token, 3) == 0) {
+        cout << "Delay of Single-qubit gate :     " << SINGLE_DELAY << endl;
+        cout << "Delay of Double-qubit gate :     " << DOUBLE_DELAY << endl;
+        cout << "Delay of Multi-qubit gate :      " << MULTIPLE_DELAY << endl;
+    } else
         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     return CMD_EXEC_DONE;
 }
 
 void QCPrintCmd::usage() const {
-    cout << "Usage: QCPrint [-Summary | -Focus | -Num]" << endl;
+    cout << "Usage: QCPrint [-SUmmary | -Focus | -Num | -SEttings]" << endl;
 }
 
 void QCPrintCmd::summary() const {
     cout << setw(15) << left << "QCPrint: "
          << "print info of QCirMgr" << endl;
+}
+
+//------------------------------------------------------------------------------
+//    QCSet <size_t singleDelay> <size_t doubleDelay> <size_t multipleDelay>
+//------------------------------------------------------------------------------
+CmdExecStatus
+QCSetCmd::exec(const string &option) {
+    string token;
+    vector<string> options;
+    if (!CmdExec::lexOptions(option, options))
+        return CMD_EXEC_ERROR;
+    CMD_N_OPTS_EQUAL_OR_RETURN(options, 3);
+    unsigned singleDelay, doubleDelay, multipleDelay;
+    if (!myStr2Uns(options[0], singleDelay)) {
+        cerr << "Error: invalid singleDelay value!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    } else if (singleDelay == 0) {
+        cerr << "Error: singleDelay value should > 0!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
+    if (!myStr2Uns(options[1], doubleDelay)) {
+        cerr << "Error: invalid doubleDelay value!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    } else if (doubleDelay == 0) {
+        cerr << "Error: doubleDelay value should > 0!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
+    if (!myStr2Uns(options[2], multipleDelay)) {
+        cerr << "Error: invalid multipleDelay value!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    } else if (multipleDelay == 0) {
+        cerr << "Error: multipleDelay value should > 0!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
+    SINGLE_DELAY = singleDelay;
+    DOUBLE_DELAY = doubleDelay;
+    MULTIPLE_DELAY = multipleDelay;
+    return CMD_EXEC_DONE;
+}
+
+void QCSetCmd::usage() const {
+    cout << "Usage: QCSet <size_t singleDelay> <size_t doubleDelay> <size_t multipleDelay>" << endl;
+}
+
+void QCSetCmd::summary() const {
+    cout << setw(15) << left << "QCSet: "
+         << "Set variables to QCir" << endl;
 }
 
 //----------------------------------------------------------------------

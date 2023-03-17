@@ -20,6 +20,7 @@ CmdClass(QCirCopyCmd);
 CmdClass(QCirComposeCmd);
 CmdClass(QCirTensorCmd);
 CmdClass(QCPrintCmd);
+CmdClass(QCSetCmd);
 
 CmdClass(QCirReadCmd);
 CmdClass(QCirPrintCmd);

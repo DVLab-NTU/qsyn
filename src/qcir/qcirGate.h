@@ -16,6 +16,10 @@
 #include "qtensor.h"  // for QTensor
 #include "zxDef.h"    // for VertexType
 
+extern size_t SINGLE_DELAY;
+extern size_t DOUBLE_DELAY;
+extern size_t MULTIPLE_DELAY;
+
 class QCirGate;
 class ZXGraph;
 
@@ -141,6 +145,7 @@ public:
     virtual GateType getType() const = 0;
     size_t getId() const { return _id; }
     size_t getTime() const { return _time; }
+    size_t getDelay() const;
     Phase getPhase() const { return _rotatePhase; }
     const std::vector<BitInfo>& getQubits() const { return _qubits; }
     const BitInfo getQubit(size_t qubit) const;

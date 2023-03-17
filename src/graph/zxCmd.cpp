@@ -164,7 +164,6 @@ ZXPrintCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) {
-        cout << "ZXMode: ON" << endl;
         zxGraphMgr->printZXGraphMgr();
     } else if (myStrNCmp("-Focus", token, 2) == 0)
         zxGraphMgr->printGListItr();
