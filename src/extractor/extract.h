@@ -14,6 +14,7 @@
 
 #include "m2.h"     // for M2
 #include "qcir.h"   // for QCir
+#include "topology.h"
 #include "zxDef.h"  // for EdgeType, EdgeType::HADAMARD
 
 extern bool SORT_FRONTIER;
@@ -28,8 +29,15 @@ class Extractor {
 public:
     using Target = std::unordered_map<size_t, size_t>;
     using ConnectInfo = std::vector<std::set<size_t>>;
-    Extractor(ZXGraph* g, QCir* c = nullptr) {
+    Extractor(ZXGraph* g, QCir* c = nullptr, DeviceTopo* dt = nullptr) {
         _graph = g;
+        _device = dt;
+        if (_device != nullptr) {
+            std::cout << std::endl;
+            std::cout << "Extracting to device" << std::endl;
+            std::cout << std::endl;
+            _device->printTopo();
+        }
         if (c == nullptr)
             _circuit = new QCir(-1);
         else
@@ -71,6 +79,7 @@ private:
     size_t _cntCXIter;
     ZXGraph* _graph;
     QCir* _circuit;
+    DeviceTopo* _device;
     ZXVertexList _frontier;
     ZXVertexList _neighbors;
     ZXVertexList _axels;
