@@ -35,6 +35,7 @@ bool initQCirCmd() {
           cmdMgr->regCmd("QCCOMpose", 5, make_unique<QCirComposeCmd>()) &&
           cmdMgr->regCmd("QCTensor", 3, make_unique<QCirTensorCmd>()) &&
           cmdMgr->regCmd("QCPrint", 3, make_unique<QCPrintCmd>()) &&
+          cmdMgr->regCmd("QCSet", 3, make_unique<QCSetCmd>()) &&
           cmdMgr->regCmd("QCCRead", 4, make_unique<QCirReadCmd>()) &&
           cmdMgr->regCmd("QCCPrint", 4, make_unique<QCirPrintCmd>()) &&
           cmdMgr->regCmd("QCGAdd", 4, make_unique<QCirAddGateCmd>()) &&
@@ -273,7 +274,7 @@ void QCirTensorCmd::summary() const {
 }
 
 //----------------------------------------------------------------------
-//    QCPrint [-Summary | -Focus | -Num]
+//    QCPrint [-Summary | -Focus | -Num | -Settings]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCPrintCmd::exec(const string &option) {
@@ -291,12 +292,50 @@ QCPrintCmd::exec(const string &option) {
 }
 
 void QCPrintCmd::usage() const {
-    cout << "Usage: QCPrint [-Summary | -Focus | -Num]" << endl;
+    cout << "Usage: QCPrint [-Summary | -Focus | -Num | -Settings]" << endl;
 }
 
 void QCPrintCmd::summary() const {
     cout << setw(15) << left << "QCPrint: "
          << "print info of QCirMgr" << endl;
+}
+
+//------------------------------------------------------------------------------
+//    QCSet <size_t singleDelay> <size_t doubleDelay> <size_t multipleDelay>
+//------------------------------------------------------------------------------
+CmdExecStatus
+QCSetCmd::exec(const string &option) {
+    string token;
+    vector<string> options;
+    if (!CmdExec::lexOptions(option, options))
+        return CMD_EXEC_ERROR;
+    CMD_N_OPTS_EQUAL_OR_RETURN(options, 3);
+    unsigned singleDelay, doubleDelay, multipleDelay;
+    if (!myStr2Uns(options[0], singleDelay)) {
+        cerr << "Error: invalid singleDelay value!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
+    if (!myStr2Uns(options[1], doubleDelay)) {
+        cerr << "Error: invalid doubleDelay value!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
+    if (!myStr2Uns(options[2], multipleDelay)) {
+        cerr << "Error: invalid multipleDelay value!!\n";
+        return errorOption(CMD_OPT_ILLEGAL, (option));
+    }
+    SINGLE_DELAY = singleDelay;
+    DOUBLE_DELAY = doubleDelay;
+    MULTIPLE_DELAY = multipleDelay;
+    return CMD_EXEC_DONE;
+}
+
+void QCSetCmd::usage() const {
+    cout << "Usage: QCSet <bool sortFrontier> <bool sortNeighbors> <bool permuteQubits> <size_t block size> <bool filtered> <size_t optimizeLevel>" << endl;
+}
+
+void QCSetCmd::summary() const {
+    cout << setw(15) << left << "QCSet: "
+         << "Set variables to QCir" << endl;
 }
 
 //----------------------------------------------------------------------
