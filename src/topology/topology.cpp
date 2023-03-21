@@ -54,6 +54,66 @@ const AdjInfo& DeviceTopo::getAdjPairInfo(size_t a, size_t b) {
     return _adjInfo[make_pair(a, b)];
 }
 
+void PhyQubit::mark(bool source, PhyQubit* pred) {
+    _marked = true;
+    _source = source;
+    _pred = pred;
+}
+
+void PhyQubit::takeRoute(size_t cost, size_t swapTime) {
+    _cost = cost;
+    _swapTime = swapTime;
+    _taken = true;
+}
+
+void PhyQubit::reset() {
+    _marked = false;
+    _taken = false;
+    _cost = _occuTime;
+}
+
+void DeviceTopo::applyGate(const Operation& op) {
+    tuple<size_t, size_t> qubits = op.get_qubits();
+    PhyQubit* q0 = getPhysicalQubit(get<0>(qubits));
+    PhyQubit* q1 = getPhysicalQubit(get<1>(qubits));
+
+    size_t t = op.get_op_time();
+
+    switch (op.get_operator()) {
+        case GateType::SWAP: {  // swap topo qubit
+            size_t temp = q0->getLogicalQubit();
+            q0->setLogicalQubit(q1->getLogicalQubit());
+            q1->setLogicalQubit(temp);
+            q0->setOccupiedTime(t + SWAP_DELAY);
+            q1->setOccupiedTime(t + SWAP_DELAY);
+            break;
+        }
+        case GateType::CX: {
+            q0->setOccupiedTime(t + DOUBLE_DELAY);
+            q1->setOccupiedTime(t + DOUBLE_DELAY);
+            break;
+        }
+        // TODO - CZ
+        case GateType::CZ: {
+            q0->setOccupiedTime(t + DOUBLE_DELAY);
+            q1->setOccupiedTime(t + DOUBLE_DELAY);
+            break;
+        }
+        default: {
+            assert(false);
+        }
+    }
+}
+
+vector<size_t> DeviceTopo::mapping() const {
+    vector<size_t> ret;
+    ret.reserve(_qubitList.size());
+    for (const auto& [_, qubit] : _qubitList) {
+        ret.push_back(qubit->getLogicalQubit());
+    }
+    return ret;
+}
+
 /**
  * @brief Add adjacency pair (a,b)
  *
@@ -590,4 +650,14 @@ vector<PhyQubit*> DeviceTopo::getPath(PhyQubit* s, PhyQubit* t) {
         path.push_back(newPred);
     }
     return path;
+}
+
+ostream& operator<<(ostream& os, Operation& op) {
+    os << left;
+    size_t from = get<0>(op.duration_);
+    size_t to = get<1>(op.duration_);
+    os << setw(20) << "Operation: " + gateType2Str[op.oper_];
+    os << "Q" << get<0>(op.qubits_) << " Q" << get<1>(op.qubits_)
+       << "    from: " << left << setw(10) << from << "to: " << to;
+    return os;
 }

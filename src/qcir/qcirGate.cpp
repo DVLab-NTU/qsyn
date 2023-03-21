@@ -18,6 +18,7 @@ extern size_t verbose;
 
 size_t SINGLE_DELAY = 1;
 size_t DOUBLE_DELAY = 1;
+size_t SWAP_DELAY = 6;
 size_t MULTIPLE_DELAY = 5;
 
 /**
@@ -26,6 +27,8 @@ size_t MULTIPLE_DELAY = 5;
  * @return size_t
  */
 size_t QCirGate::getDelay() const {
+    if (getType() == GateType::SWAP)
+        return SWAP_DELAY;
     if (_qubits.size() == 1)
         return SINGLE_DELAY;
     else if (_qubits.size() == 2)

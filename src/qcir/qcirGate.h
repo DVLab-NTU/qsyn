@@ -18,6 +18,7 @@
 
 extern size_t SINGLE_DELAY;
 extern size_t DOUBLE_DELAY;
+extern size_t SWAP_DELAY;
 extern size_t MULTIPLE_DELAY;
 
 class QCirGate;
@@ -38,7 +39,7 @@ class ZXGraph;
 // │  P        RZ        PX       RX         (PY)     (RY)                  │
 // │  Z                  X                   Y                              │
 // │  S, SDG             SX                  SY                             │
-// │  T, TDG             (SWAP)                                             │
+// │  T, TDG             SWAP                                               │
 // └────────────────────────────────────────────────────────────────────────┘
 
 //------------------------------------------------------------------------
@@ -74,6 +75,7 @@ enum class GateType {
     // NOTE - MCPX
     CCX,
     CX,
+    SWAP,
     PX,
     X,
     SX,
@@ -120,6 +122,7 @@ static std::unordered_map<GateType, std::string> gateType2Str = {
     // NOTE - MCPX
     {GateType::CCX, "CCX"},
     {GateType::CX, "CX"},
+    {GateType::SWAP, "SWAP"},
     {GateType::PX, "PX"},
     {GateType::X, "X"},
     {GateType::SX, "SX"},
@@ -454,6 +457,17 @@ public:
     virtual ZXGraph* getZXform();
     virtual QTensor<double> getTSform() const { return QTensor<double>::control(QTensor<double>::xgate(), 1); }
     virtual void printGateInfo(bool st) const { printMultipleQubitsGate("X", false, st); }
+};
+
+class SWAPGate : public MCPXGate {
+public:
+    SWAPGate(size_t id) : MCPXGate(id) {}
+    virtual ~SWAPGate() {}
+    virtual std::string getTypeStr() const { return "sw"; }
+    virtual GateType getType() const { return GateType::SWAP; }
+    virtual ZXGraph* getZXform();
+    virtual QTensor<double> getTSform() const { return QTensor<double>::control(QTensor<double>::xgate(), 1); }
+    virtual void printGateInfo(bool st) const { printMultipleQubitsGate("SWP", false, st); }
 };
 
 class PXGate : public MCPXGate {

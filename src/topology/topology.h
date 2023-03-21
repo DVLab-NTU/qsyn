@@ -21,6 +21,7 @@
 class DeviceTopo;
 
 class PhyQubit;
+class Operation;
 struct AdjInfo;
 
 using AdjacencyPair = std::pair<PhyQubit*, PhyQubit*>;
@@ -55,10 +56,17 @@ public:
     size_t getLogicalQubit() const { return _logicalQubit; }
     float getError() const { return _error; }
     float getDelay() const { return _gateDelay; }
+    size_t getCost() const { return _cost; }
+    bool getSource() const { return _source; }
+    PhyQubit* getPred() const { return _pred; }
     const Adjacencies& getAdjacencies() const { return _adjacencies; }
     size_t getOccupiedTime() const { return _occuTime; }
+    size_t getSwapTime() const { return _swapTime; }
     bool isAdjacency(PhyQubit* pq) { return _adjacencies.contains(pq); }
+    bool isMarked() { return _marked; }
+    bool isTaken() { return _taken; }
     void setId(size_t id) { _id = id; }
+    void setOccupiedTime(size_t t) { _occuTime = t; }
     void setLogicalQubit(size_t id) { _logicalQubit = id; }
     void setError(float er) { _error = er; }
     void setDelay(float dl) { _gateDelay = dl; }
@@ -66,15 +74,29 @@ public:
 
     void printInfo(bool = true) const;
 
+    // NOTE - Duostra functions
+    void mark(bool, PhyQubit*);
+    void takeRoute(size_t, size_t);
+    void reset();
+
 private:
     // NOTE - Device information
     size_t _id;
-    size_t _logicalQubit;
+
     float _error;
     float _gateDelay;
     Adjacencies _adjacencies;
+
     // NOTE - Duostra parameter
+    size_t _logicalQubit;
     size_t _occuTime;
+
+    bool _marked;
+    PhyQubit* _pred;
+    size_t _cost;
+    size_t _swapTime;
+    bool _source;  // false:0, true:1
+    bool _taken;
 };
 
 class DeviceTopo {
@@ -111,6 +133,10 @@ public:
     std::vector<PhyQubit*> getPath(PhyQubit*, PhyQubit*);
     std::vector<PhyQubit*> getPath(size_t, size_t);
 
+    // NOTE - Duostra
+    void applyGate(const Operation& op);
+    std::vector<size_t> mapping() const;
+
     void printQubits(std::vector<size_t> cand = {});
     void printEdges(std::vector<size_t> cand = {});
     void printSingleEdge(size_t a, size_t b);
@@ -146,6 +172,48 @@ private:
     std::vector<std::vector<int>> _adjMatrix;
     void initFloydWarshall();
     void setWeight(size_t = 0);
+};
+
+class Operation {
+public:
+    friend std::ostream& operator<<(std::ostream&, Operation&);
+    friend std::ostream& operator<<(std::ostream&, const Operation&);
+
+    Operation(GateType oper,
+              std::tuple<size_t, size_t> qs,
+              std::tuple<size_t, size_t> du)
+        : oper_(oper), qubits_(qs), duration_(du) {
+        // sort qs
+        size_t a = std::get<0>(qs);
+        size_t b = std::get<1>(qs);
+        assert(a != b);
+        if (a > b) {
+            qubits_ = std::make_tuple(b, a);
+        }
+    }
+    Operation(const Operation& other)
+        : oper_(other.oper_),
+          qubits_(other.qubits_),
+          duration_(other.duration_) {}
+
+    Operation& operator=(const Operation& other) {
+        oper_ = other.oper_;
+        qubits_ = other.qubits_;
+        duration_ = other.duration_;
+        return *this;
+    }
+
+    size_t get_cost() const { return std::get<1>(duration_); }
+    size_t get_op_time() const { return std::get<0>(duration_); }
+    std::tuple<size_t, size_t> get_duration() const { return duration_; }
+    GateType get_operator() const { return oper_; }
+    // std::string get_operator_name() const { return operator_get_name(oper_); }
+    std::tuple<size_t, size_t> get_qubits() const { return qubits_; }
+
+private:
+    GateType oper_;
+    std::tuple<size_t, size_t> qubits_;
+    std::tuple<size_t, size_t> duration_;  // <from, to>
 };
 
 #endif  // TOPOLOGY_H
