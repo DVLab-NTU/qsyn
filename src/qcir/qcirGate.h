@@ -149,6 +149,7 @@ public:
     Phase getPhase() const { return _rotatePhase; }
     const std::vector<BitInfo>& getQubits() const { return _qubits; }
     const BitInfo getQubit(size_t qubit) const;
+    size_t getNQubit() { return _qubits.size(); }
 
     void setId(size_t id) { _id = id; }
     void setTime(size_t time) { _time = time; }

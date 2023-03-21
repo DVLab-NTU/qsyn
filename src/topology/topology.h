@@ -52,11 +52,14 @@ public:
     ~PhyQubit() {}
 
     size_t getId() const { return _id; }
+    size_t getLogicalQubit() const { return _logicalQubit; }
     float getError() const { return _error; }
     float getDelay() const { return _gateDelay; }
     const Adjacencies& getAdjacencies() const { return _adjacencies; }
-
+    size_t getOccupiedTime() const { return _occuTime; }
+    bool isAdjacency(PhyQubit* pq) { return _adjacencies.contains(pq); }
     void setId(size_t id) { _id = id; }
+    void setLogicalQubit(size_t id) { _logicalQubit = id; }
     void setError(float er) { _error = er; }
     void setDelay(float dl) { _gateDelay = dl; }
     void addAdjacency(PhyQubit* adj) { _adjacencies.emplace(adj); }
@@ -66,11 +69,12 @@ public:
 private:
     // NOTE - Device information
     size_t _id;
+    size_t _logicalQubit;
     float _error;
     float _gateDelay;
     Adjacencies _adjacencies;
     // NOTE - Duostra parameter
-    float _occuTime;
+    size_t _occuTime;
 };
 
 class DeviceTopo {
@@ -86,6 +90,7 @@ public:
     const std::vector<GateType>& getGateSet() const { return _gateSet; }
     // REVIEW - Not sure why this function cannot be const funct.
     const PhyQubitList& getPhyQubitList() { return _qubitList; }
+    PhyQubit* getPhysicalQubit(size_t id) { return _qubitList[id]; }
     const AdjacenciesInfo& getAdjInfo() const { return _adjInfo; }
     const AdjInfo& getAdjPairInfo(size_t, size_t);
     PhyQubit* getPhysicalByLogical(size_t id) { return _log2Phy[id]; }
