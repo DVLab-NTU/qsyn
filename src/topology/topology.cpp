@@ -114,6 +114,13 @@ vector<size_t> DeviceTopo::mapping() const {
     return ret;
 }
 
+void DeviceTopo::place(vector<size_t>& assign) {
+    for (size_t i = 0; i < assign.size(); ++i) {
+        assert(_qubitList[assign[i]]->getLogicalQubit() == size_t(-1));
+        _qubitList[assign[i]]->setLogicalQubit(i);
+    }
+}
+
 /**
  * @brief Add adjacency pair (a,b)
  *

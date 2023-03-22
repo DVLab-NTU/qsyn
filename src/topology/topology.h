@@ -48,7 +48,7 @@ struct AdjInfo {
 
 class PhyQubit {
 public:
-    PhyQubit(size_t id) : _id(id) {
+    PhyQubit(size_t id) : _id(id), _logicalQubit(-1), _occuTime(0), _marked(false), _cost(0), _swapTime(0), _source(false), _taken(false) {
     }
     ~PhyQubit() {}
 
@@ -136,6 +136,7 @@ public:
     // NOTE - Duostra
     void applyGate(const Operation& op);
     std::vector<size_t> mapping() const;
+    void place(std::vector<size_t>& assign);
 
     void printQubits(std::vector<size_t> cand = {});
     void printEdges(std::vector<size_t> cand = {});
