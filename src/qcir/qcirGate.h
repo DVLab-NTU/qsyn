@@ -165,6 +165,9 @@ public:
     bool isVisited(unsigned global) { return global == _DFSCounter; }
     void setVisited(unsigned global) { _DFSCounter = global; }
     void addDummyChild(QCirGate* c);
+
+    // Duostra
+    bool is_avail(const std::unordered_map<size_t, size_t>& executed_gates) const;
     // Printing functions
     void printGate() const;
 

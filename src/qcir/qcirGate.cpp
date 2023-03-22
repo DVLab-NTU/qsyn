@@ -103,6 +103,12 @@ void QCirGate::setChild(size_t qubit, QCirGate *c) {
     }
 }
 
+bool QCirGate::is_avail(const std::unordered_map<size_t, size_t> &executed_gates) const {
+    return all_of(_qubits.begin(), _qubits.end(), [&](BitInfo prev) -> bool {
+        return executed_gates.find(prev._parent->getId()) != executed_gates.end();
+    });
+}
+
 /**
  * @brief Print Gate brief information
  */
