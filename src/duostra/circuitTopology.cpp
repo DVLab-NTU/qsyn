@@ -17,7 +17,7 @@ using namespace std;
  *
  * @param executed Index of executed gate
  */
-void Topology::update_avail_gates(size_t executed) {
+void CircuitTopo::update_avail_gates(size_t executed) {
     assert(find(begin(avail_gates_), end(avail_gates_), executed) !=
            end(avail_gates_));
     const QCirGate* g_exec = get_gate(executed);

@@ -13,7 +13,7 @@
 
 using namespace std;
 
-unique_ptr<BasePlacer> get(const string& typ) {
+unique_ptr<BasePlacer> getPlacer(const string& typ) {
     if (typ == "static") {
         return make_unique<StaticPlacer>();
     } else if (typ == "random") {

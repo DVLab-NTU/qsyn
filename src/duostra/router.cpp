@@ -8,7 +8,8 @@
 ****************************************************************************/
 
 #include "router.h"
-// #include "util.hpp"
+
+#include "util.h"
 
 using namespace std;
 
@@ -77,7 +78,7 @@ size_t Router::get_gate_cost(QCirGate* gate, bool min_max, size_t apsp_coef) con
     tuple<size_t, size_t> device_qubits_idx = get_device_qubits_idx(gate);
 
     if (gate->getNQubit() == 1) {
-        assert(get<1>(device_qubits_idx) == size_t(-1) - 1);
+        assert(get<1>(device_qubits_idx) == ERROR_CODE);
         return device_->getPhysicalQubit(get<0>(device_qubits_idx))->getOccupiedTime();
     }
 
@@ -98,7 +99,7 @@ vector<Operation> Router::assign_gate(QCirGate* gate) {
     tuple<size_t, size_t> device_qubits_idx = get_device_qubits_idx(gate);
 
     if (gate->getNQubit() == 1) {
-        assert(get<1>(device_qubits_idx) == size_t(-1) - 1);
+        assert(get<1>(device_qubits_idx) == ERROR_CODE);
         Operation op = execute_single(gate, get<0>(device_qubits_idx));
         return vector<Operation>(1, op);
     }
@@ -112,7 +113,7 @@ vector<Operation> Router::assign_gate(QCirGate* gate) {
     // i is the idx of device qubit
     for (size_t i = 0; i < change_list.size(); ++i) {
         size_t topo_qubit_id = change_list[i];
-        if (topo_qubit_id == size_t(-1) - 1) {
+        if (topo_qubit_id == ERROR_CODE) {
             continue;
         }
         // assert(checker[i] == false);
@@ -134,7 +135,7 @@ bool Router::is_executable(QCirGate* gate) const {
     }
 
     tuple<size_t, size_t> device_qubits_idx{get_device_qubits_idx(gate)};
-    assert(get<1>(device_qubits_idx) != size_t(-1) - 1);
+    assert(get<1>(device_qubits_idx) != ERROR_CODE);
     PhyQubit* q0 = device_->getPhysicalQubit(get<0>(device_qubits_idx));
     PhyQubit* q1 = device_->getPhysicalQubit(get<1>(device_qubits_idx));
     return q0->isAdjacency(q1);
@@ -149,13 +150,13 @@ tuple<size_t, size_t> Router::get_device_qubits_idx(QCirGate* gate) const {
     assert(gate->getNQubit() < 3 && gate->getNQubit() > 0);
     size_t topo_idx_q0 = gate->getQubits()[0]._qubit;
     size_t device_idx_q0 = topo_to_dev_[topo_idx_q0];  // get device qubit index of the gate
-    size_t device_idx_q1 = size_t(-1) - 1;
+    size_t device_idx_q1 = ERROR_CODE;
 
     if (gate->getNQubit() == 2) {
         // get operation qubit index of
         size_t topo_idx_q1 = gate->getQubits()[1]._qubit;
         // gate in topology
-        assert(topo_idx_q1 != size_t(-1) - 1);
+        assert(topo_idx_q1 != ERROR_CODE);
         device_idx_q1 = topo_to_dev_[topo_idx_q1];  // get device qubit index of the gate
     }
     return make_tuple(device_idx_q0, device_idx_q1);
@@ -169,7 +170,7 @@ Operation Router::execute_single(QCirGate* gate, size_t q) {
     qubit->setOccupiedTime(endtime);
     qubit->reset();
 
-    Operation op(gate->getType(), make_tuple(q, size_t(-1) - 1),
+    Operation op(gate->getType(), make_tuple(q, ERROR_CODE),
                  make_tuple(starttime, endtime));
 #ifdef DEBUG
     cout << op << "\n";
@@ -260,7 +261,7 @@ std::vector<Operation> Router::duostra_routing(QCirGate* gate, std::tuple<size_t
         qubit->reset();
         assert(qubit->getLogicalQubit() < device_->getNQubit());
 #ifdef DEBUG
-        if (i != size_t(-1) - 1) {
+        if (i != ERROR_CODE) {
             assert(checker[i] == false);
             checker[i] = true;
         }
@@ -298,7 +299,7 @@ tuple<bool, size_t> Router::touch_adj(PhyQubit* qubit, PriorityQueue& pq, bool s
 
         pq.push(AStarNode(cost, adj->getId(), swtch));
     }
-    return make_tuple(false, size_t(-1) - 1);
+    return make_tuple(false, ERROR_CODE);
 }
 
 vector<Operation> Router::traceback([[maybe_unused]] GateType gt, PhyQubit* q0, PhyQubit* q1, PhyQubit* t0, PhyQubit* t1) {

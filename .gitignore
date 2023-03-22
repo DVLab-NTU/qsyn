@@ -1,7 +1,8 @@
 *.o
 .vscode
 bin/*
-include/*.h
+include/
+!include/mk
 tests/bin/*
 lib/*
 vendor/engine/* 

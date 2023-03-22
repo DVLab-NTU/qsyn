@@ -62,6 +62,6 @@ private:
                     std::vector<bool>& qubit_mark) const;
 };
 
-std::unique_ptr<BasePlacer> get(const std::string& typ);
+std::unique_ptr<BasePlacer> getPlacer(const std::string& typ);
 
 #endif

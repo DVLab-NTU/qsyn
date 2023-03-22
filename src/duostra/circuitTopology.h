@@ -21,30 +21,32 @@
 
 #include "qcir.h"
 
-class Topology {
+class CircuitTopo {
 public:
-    Topology(QCir* circuit) : dep_graph_(circuit),
-                              avail_gates_({}),
-                              executed_gates_({}) {}
+    CircuitTopo(QCir* circuit) : dep_graph_(circuit),
+                                 avail_gates_({}),
+                                 executed_gates_({}) {}
 
-    Topology(const Topology& other)
+    CircuitTopo(const CircuitTopo& other)
         : dep_graph_(other.dep_graph_),
           avail_gates_(other.avail_gates_),
           executed_gates_(other.executed_gates_) {}
 
-    Topology(Topology&& other)
+    CircuitTopo(CircuitTopo&& other)
         : dep_graph_(std::move(other.dep_graph_)),
           avail_gates_(std::move(other.avail_gates_)),
           executed_gates_(std::move(other.executed_gates_)) {}
 
-    virtual ~Topology() {}
+    ~CircuitTopo() {}
 
-    virtual std::unique_ptr<Topology> clone() const = 0;
+    std::unique_ptr<CircuitTopo> clone() const {
+        return std::make_unique<CircuitTopo>(*this);
+    }
 
     void update_avail_gates(size_t executed);
     size_t get_num_qubits() const { return dep_graph_->getNQubit(); }
     size_t get_num_gates() const { return dep_graph_->getTopoOrderdGates().size(); }
-    const QCirGate* get_gate(size_t i) const { return dep_graph_->getGate(i); }
+    QCirGate* get_gate(size_t i) const { return dep_graph_->getGate(i); }
     const std::vector<size_t>& get_avail_gates() const { return avail_gates_; }
 
     // NOTE - If onion is implemented

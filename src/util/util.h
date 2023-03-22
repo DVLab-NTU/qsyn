@@ -10,11 +10,38 @@
 
 #include <concepts>
 #include <iosfwd>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "myUsage.h"
 #include "rnGen.h"
+#include "tqdm/tqdm.h"
+
+class tqdm;
+constexpr size_t ERROR_CODE = (size_t)-1;
+
+class TqdmWrapper {
+public:
+    TqdmWrapper(size_t total);
+    TqdmWrapper(int total);
+    ~TqdmWrapper();
+
+    size_t idx() const { return counter_; }
+    bool done() const { return counter_ == total_; }
+    void add();
+    TqdmWrapper& operator++() { return add(), *this; }
+
+private:
+    size_t counter_;
+    size_t total_;
+
+    // Using a pointer so we don't need to know tqdm's size in advance.
+    // This way, no need to #include it in the header
+    // because although tqdm works well, it's not expertly written
+    // which leads to a lot of warnings.
+    std::unique_ptr<tqdm> tqdm_;
+};
 
 // In myString.cpp
 bool stripQuotes(const std::string& input, std::string& output);
@@ -55,5 +82,17 @@ size_t findIndex(const std::vector<T>& vec, const T& t) {
 }
 
 inline bool implies(bool a, bool b) { return !a || b; }
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& v) {
+    os << "[";
+    if (v.empty()) {
+        return os << "]";
+    }
+    for (size_t i = 0; i < v.size() - 1; ++i) {
+        os << v[i] << ", ";
+    }
+    return os << v.back() << "]";
+}
 
 #endif  // QSYN_UTIL_H
