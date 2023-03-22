@@ -21,10 +21,11 @@ Qsyn is a C++ based growing software system for synthesis, optimization and veri
 Qsyn provides an experimental implementation of optimization algorithms and a programming environment for simulation or building similar applications. Future development will focus on enhancing the algorithms, and visualization of ZX-graphs.
 
 ## Third party dependencies
-* xtensor, xtensor-blas
-* pdflatex
+* `xtensor`, `xtensor-blas` for tensor calculation
+* `catch2` for unit testing
+* `pdflatex` for outputting pdf files
 
-## Getting Start
+## Getting Started
 ### Installation
 ```shell!
 git clone https://github.com/ric2k1/qsyn.git
