@@ -14,6 +14,7 @@
 
 using namespace std;
 
+extern size_t verbose;
 class TopologyCandidate {
 public:
     TopologyCandidate(const CircuitTopo& topo, size_t candidate)
@@ -46,7 +47,6 @@ void GreedyScheduler::assign_gates(unique_ptr<Router> router) {
 
     [[maybe_unused]] size_t count = 0;
     auto topo_wrap = TopologyCandidate(*topo_, conf_.candidates);
-
     for (TqdmWrapper bar{topo_->get_num_gates()};
          !topo_wrap.get_avail_gates().empty(); ++bar) {
         auto wait_list = topo_wrap.get_avail_gates();
@@ -55,9 +55,9 @@ void GreedyScheduler::assign_gates(unique_ptr<Router> router) {
         size_t gate_idx = get_executable(*router);
         gate_idx = greedy_fallback(*router, wait_list, gate_idx);
         route_one_gate(*router, gate_idx);
-#ifdef DEBUG
-        cout << "waitlist: " << wait_list << " " << gate_idx << "\n\n";
-#endif
+
+        if (verbose > 3) cout << "waitlist: " << wait_list << " " << gate_idx << "\n\n";
+
         ++count;
     }
     assert(count == topo_->get_num_gates());

@@ -15,7 +15,8 @@
 
 class Duostra {
 public:
-    Duostra(QCir* cir, DeviceTopo* dev) : _logicalCircuit(cir), _device(dev) {}
+    Duostra(QCir* cir, DeviceTopo* dev) : _logicalCircuit(cir), _device(dev) {
+    }
     ~Duostra() {}
     size_t flow();
 

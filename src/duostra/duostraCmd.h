@@ -6,3 +6,11 @@
   Paper        [ https://arxiv.org/abs/2210.01306 ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
+
+#ifndef DUOSTRA_CMD_H
+#define DUOSTRA_CMD_H
+
+#include "cmdParser.h"
+
+CmdClass(DuostraCmd);
+#endif  // DUOSTRA_CMD_H

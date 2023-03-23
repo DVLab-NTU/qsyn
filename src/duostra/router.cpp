@@ -12,7 +12,7 @@
 #include "util.h"
 
 using namespace std;
-
+extern size_t verbose;
 Router::Router(DeviceTopo* device,
                const string& typ,
                const string& cost,
@@ -172,9 +172,9 @@ Operation Router::execute_single(QCirGate* gate, size_t q) {
 
     Operation op(gate->getType(), make_tuple(q, ERROR_CODE),
                  make_tuple(starttime, endtime));
-#ifdef DEBUG
-    cout << op << "\n";
-#endif
+
+    if (verbose > 3) cout << op << endl;
+
     return op;
 }
 
@@ -182,7 +182,6 @@ std::vector<Operation> Router::duostra_routing(QCirGate* gate, std::tuple<size_t
     assert(gate->getNQubit() == 1 || gate->getNQubit() == 2);
     size_t q0_idx = get<0>(qs);  // source 0
     size_t q1_idx = get<1>(qs);  // source 1
-
     // If two sources compete for the same qubit, the one with smaller occu goes first
     if (device_->getPhysicalQubit(q0_idx)->getOccupiedTime() >
         device_->getPhysicalQubit(q1_idx)->getOccupiedTime()) {
@@ -198,7 +197,6 @@ std::vector<Operation> Router::duostra_routing(QCirGate* gate, std::tuple<size_t
 
     PhyQubit* t0 = device_->getPhysicalQubit(q0_idx);  // target 0
     PhyQubit* t1 = device_->getPhysicalQubit(q1_idx);  // target 1
-
     // priority queue: pop out the node with the smallest cost from both the sources
     PriorityQueue pq;
 
@@ -247,11 +245,11 @@ std::vector<Operation> Router::duostra_routing(QCirGate* gate, std::tuple<size_t
     vector<Operation> ops =
         traceback(gate->getType(), device_->getPhysicalQubit(q0_idx), device_->getPhysicalQubit(q1_idx), t0, t1);
 
-#ifdef DEBUG
-    for (size_t i = 0; i < ops.size(); ++i) {
-        cout << ops[i] << "\n";
+    if (verbose > 3) {
+        for (size_t i = 0; i < ops.size(); ++i) {
+            cout << ops[i] << endl;
+        }
     }
-#endif
 
 #ifdef DEBUG
     vector<bool> checker(device_->getNQubit(), false);
@@ -323,7 +321,7 @@ vector<Operation> Router::traceback([[maybe_unused]] GateType gt, PhyQubit* q0, 
     // traceback by tracing the parent iteratively
     // trace 0
     while (traceQubit0 != t0) {
-        PhyQubit* tracePredQubit0 = q0->getPred();
+        PhyQubit* tracePredQubit0 = traceQubit0->getPred();
 
         size_t swap_time = q0->getSwapTime();
         Operation SWAP_gate(GateType::SWAP, make_tuple(traceQubit0->getId(), tracePredQubit0->getId()),
@@ -333,7 +331,7 @@ vector<Operation> Router::traceback([[maybe_unused]] GateType gt, PhyQubit* q0, 
     }
     // trace 1
     while (traceQubit1 != t1) {
-        PhyQubit* tracePredQubit1 = q1->getPred();
+        PhyQubit* tracePredQubit1 = traceQubit1->getPred();
 
         size_t swap_time = q1->getSwapTime();
         Operation SWAP_gate(GateType::SWAP, make_tuple(traceQubit1->getId(), tracePredQubit1->getId()),

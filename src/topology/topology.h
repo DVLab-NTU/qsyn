@@ -145,6 +145,7 @@ public:
     void printPredecessor() const;
     void printDistance() const;
     void printPath(size_t, size_t);
+    void printMapping();
 
 private:
     size_t _id;

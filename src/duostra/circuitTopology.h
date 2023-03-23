@@ -23,9 +23,9 @@
 
 class CircuitTopo {
 public:
-    CircuitTopo(QCir* circuit) : dep_graph_(circuit),
-                                 avail_gates_({}),
-                                 executed_gates_({}) {}
+    CircuitTopo(QCir* circuit) : dep_graph_(circuit), avail_gates_({}), executed_gates_({}) {
+        initial_avail_gates();
+    }
 
     CircuitTopo(const CircuitTopo& other)
         : dep_graph_(other.dep_graph_),
@@ -42,7 +42,7 @@ public:
     std::unique_ptr<CircuitTopo> clone() const {
         return std::make_unique<CircuitTopo>(*this);
     }
-
+    void initial_avail_gates();
     void update_avail_gates(size_t executed);
     size_t get_num_qubits() const { return dep_graph_->getNQubit(); }
     size_t get_num_gates() const { return dep_graph_->getTopoOrderdGates().size(); }

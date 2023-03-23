@@ -482,6 +482,15 @@ void DeviceTopo::printTopo() const {
     cout << endl;
 }
 
+void DeviceTopo::printMapping() {
+    cout << "Device Mapping: (Physical: Logical)" << endl;
+    for (size_t i = 0; i < _nQubit; i++) {
+        PhyQubit* q = _qubitList[i];
+        cout << q->getId() << ": " << q->getLogicalQubit() << endl;
+    }
+    cout << endl;
+}
+
 /**
  * @brief Print Predecessor
  *
@@ -664,7 +673,8 @@ ostream& operator<<(ostream& os, Operation& op) {
     size_t from = get<0>(op.duration_);
     size_t to = get<1>(op.duration_);
     os << setw(20) << "Operation: " + gateType2Str[op.oper_];
-    os << "Q" << get<0>(op.qubits_) << " Q" << get<1>(op.qubits_)
-       << "    from: " << left << setw(10) << from << "to: " << to;
+    os << "Q" << get<0>(op.qubits_);
+    if (get<1>(op.qubits_) != ERROR_CODE) os << " Q" << get<1>(op.qubits_);
+    os << "    from: " << left << setw(10) << from << "to: " << to;
     return os;
 }

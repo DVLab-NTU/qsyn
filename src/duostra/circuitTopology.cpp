@@ -24,7 +24,6 @@ void CircuitTopo::update_avail_gates(size_t executed) {
     avail_gates_.erase(remove(begin(avail_gates_), end(avail_gates_), executed),
                        end(avail_gates_));
     assert(g_exec->getId() == executed);
-
     executed_gates_[executed] = 0;
 
     for (const auto& bitInfo : g_exec->getQubits()) {
@@ -33,7 +32,6 @@ void CircuitTopo::update_avail_gates(size_t executed) {
             avail_gates_.push_back(bitInfo._child->getId());
         }
     }
-
     vector<size_t> gates_to_trim;
     for (const auto& bitInfo : g_exec->getQubits()) {
         QCirGate* prev_gate = bitInfo._parent;
@@ -49,8 +47,23 @@ void CircuitTopo::update_avail_gates(size_t executed) {
             gates_to_trim.push_back(prev_gate->getId());
         }
     }
-
     for (size_t gate_id : gates_to_trim) {
         executed_gates_.erase(gate_id);
+    }
+}
+
+void CircuitTopo::initial_avail_gates() {
+    for (const auto& qb : dep_graph_->getQubits()) {
+        QCirGate* gate = qb->getFirst();
+        if (gate == nullptr) continue;
+        bool available = true;
+        for (const auto& bitInfo : gate->getQubits()) {
+            if (bitInfo._parent != nullptr) {
+                available = false;
+                break;
+            }
+        }
+        if (!available) continue;
+        avail_gates_.emplace_back(qb->getFirst()->getId());
     }
 }
