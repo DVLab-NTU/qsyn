@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ topologyMgr.cpp ]
   PackageName  [ topology ]
-  Synopsis     [ Define class DeviceTopo manager member functions ]
+  Synopsis     [ Define class Device manager member functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -13,69 +13,66 @@
 
 using namespace std;
 
-DeviceTopoMgr* deviceTopoMgr = 0;
+DeviceMgr* deviceMgr = 0;
 extern size_t verbose;
 
 /**
- * @brief Reset DeviceTopoMgr
+ * @brief Reset DeviceMgr
  *
  */
-void DeviceTopoMgr::reset() {
-    for (auto& topo : _topoList) delete topo;
+void DeviceMgr::reset() {
     _topoList.clear();
     _topoListItr = _topoList.begin();
     _nextID = 0;
 }
 
 /**
- * @brief Check if `id` is an existed ID in DeviceTopoMgr
+ * @brief Check if `id` is an existed ID in DeviceMgr
  *
  * @param id
  * @return true
  * @return false
  */
-bool DeviceTopoMgr::isID(size_t id) const {
+bool DeviceMgr::isID(size_t id) const {
     for (size_t i = 0; i < _topoList.size(); i++) {
-        if (_topoList[i]->getId() == id) return true;
+        if (_topoList[i].getId() == id) return true;
     }
     return false;
 }
 
 /**
- * @brief Add a device topology to DeviceTopoMgr
+ * @brief Add a device topology to DeviceMgr
  *
  * @param id
- * @return DeviceTopo*
+ * @return Device*
  */
-DeviceTopo* DeviceTopoMgr::addDeviceTopo(size_t id) {
-    DeviceTopo* qcir = new DeviceTopo(id);
-    _topoList.push_back(qcir);
+const Device& DeviceMgr::addDevice(size_t id) {
+    Device tmp = Device(id);
+    _topoList.push_back(tmp);
     _topoListItr = _topoList.end() - 1;
     if (id == _nextID || _nextID < id) _nextID = id + 1;
     if (verbose >= 3) {
-        cout << "Create and checkout to DeviceTopo " << id << endl;
+        cout << "Create and checkout to Device " << id << endl;
     }
-    return qcir;
+    return _topoList.back();
 }
 
 /**
- * @brief Remove DeviceTopo
+ * @brief Remove Device
  *
  * @param id
  */
-void DeviceTopoMgr::removeDeviceTopo(size_t id) {
+void DeviceMgr::removeDevice(size_t id) {
     for (size_t i = 0; i < _topoList.size(); i++) {
-        if (_topoList[i]->getId() == id) {
-            DeviceTopo* rmCircuit = _topoList[i];
+        if (_topoList[i].getId() == id) {
             _topoList.erase(_topoList.begin() + i);
-            delete rmCircuit;
-            if (verbose >= 3) cout << "Successfully removed DeviceTopo " << id << endl;
+            if (verbose >= 3) cout << "Successfully removed Device " << id << endl;
             _topoListItr = _topoList.begin();
             if (verbose >= 3) {
                 if (!_topoList.empty())
-                    cout << "Checkout to DeviceTopo " << _topoList[0]->getId() << endl;
+                    cout << "Checkout to Device " << _topoList[0].getId() << endl;
                 else
-                    cout << "Note: The DeviceTopo list is empty now" << endl;
+                    cout << "Note: The Device list is empty now" << endl;
             }
             return;
         }
@@ -86,15 +83,15 @@ void DeviceTopoMgr::removeDeviceTopo(size_t id) {
 
 // Action
 /**
- * @brief Checkout to DeviceTopo
+ * @brief Checkout to Device
  *
  * @param id the id to be checkout
  */
-void DeviceTopoMgr::checkout2DeviceTopo(size_t id) {
+void DeviceMgr::checkout2Device(size_t id) {
     for (size_t i = 0; i < _topoList.size(); i++) {
-        if (_topoList[i]->getId() == id) {
+        if (_topoList[i].getId() == id) {
             _topoListItr = _topoList.begin() + i;
-            if (verbose >= 3) cout << "Checkout to DeviceTopo " << id << endl;
+            if (verbose >= 3) cout << "Checkout to Device " << id << endl;
             return;
         }
     }
@@ -103,17 +100,18 @@ void DeviceTopoMgr::checkout2DeviceTopo(size_t id) {
 }
 
 /**
- * @brief Find DeviceTopo by id
+ * @brief Find Device by id
  *
  * @param id
- * @return DeviceTopo*
+ * @return Device*
  */
-DeviceTopo* DeviceTopoMgr::findDeviceTopoByID(size_t id) const {
+Device* DeviceMgr::findDeviceByID(size_t id) {
     if (!isID(id))
-        cerr << "Error: DeviceTopo " << id << " does not exist!" << endl;
+        cerr << "Error: Device " << id << " does not exist!" << endl;
     else {
         for (size_t i = 0; i < _topoList.size(); i++) {
-            if (_topoList[i]->getId() == id) return _topoList[i];
+            if (_topoList[i].getId() == id) return &_topoList[i];
+            // if (_topoList[i].getId() == id) return &(*it)+i;
         }
     }
     return nullptr;
@@ -124,34 +122,34 @@ DeviceTopo* DeviceTopoMgr::findDeviceTopoByID(size_t id) const {
  * @brief Print number of topologies and the focused id
  *
  */
-void DeviceTopoMgr::printDeviceTopoMgr() const {
-    cout << "-> #DeviceTopo: " << _topoList.size() << endl;
-    if (!_topoList.empty()) cout << "-> Now focus on: " << getDeviceTopo()->getId() << " (" << getDeviceTopo()->getName() << ")" << endl;
+void DeviceMgr::printDeviceMgr() const {
+    cout << "-> #Device: " << _topoList.size() << endl;
+    if (!_topoList.empty()) cout << "-> Now focus on: " << getDevice().getId() << " (" << getDevice().getName() << ")" << endl;
 }
 
 /**
  * @brief Print the id of focused topology
  *
  */
-void DeviceTopoMgr::printTopoListItr() const {
+void DeviceMgr::printDeviceListItr() const {
     if (!_topoList.empty())
-        cout << "Now focus on: " << getDeviceTopo()->getId() << " (" << getDeviceTopo()->getName() << ")" << endl;
+        cout << "Now focus on: " << getDevice().getId() << " (" << getDevice().getName() << ")" << endl;
     else
-        cerr << "Error: DeviceTopoMgr is empty now!" << endl;
+        cerr << "Error: DeviceMgr is empty now!" << endl;
 }
 
 /**
  * @brief Print the list of topology
  *
  */
-void DeviceTopoMgr::printTopoList() const {
+void DeviceMgr::printDeviceList() const {
     if (!_topoList.empty()) {
         for (auto& tpg : _topoList) {
-            if (tpg->getId() == getDeviceTopo()->getId())
+            if (tpg.getId() == getDevice().getId())
                 cout << "★ ";
             else
                 cout << "  ";
-            cout << tpg->getId() << " " << left << setw(20) << tpg->getName().substr(0, 20) << " #Q: " << right << setw(4) << tpg->getNQubit() << endl;
+            cout << tpg.getId() << " " << left << setw(20) << tpg.getName().substr(0, 20) << " #Q: " << right << setw(4) << tpg.getNQubit() << endl;
         }
     }
 }
@@ -160,6 +158,6 @@ void DeviceTopoMgr::printTopoList() const {
  * @brief Print the number of circuits
  *
  */
-void DeviceTopoMgr::printDeviceTopoListSize() const {
-    cout << "#DeviceTopo: " << _topoList.size() << endl;
+void DeviceMgr::printDeviceListSize() const {
+    cout << "#Device: " << _topoList.size() << endl;
 }

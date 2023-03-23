@@ -1,10 +1,10 @@
-/****************************************************************************
-  FileName     [ topology.cpp ]
-  PackageName  [ topology ]
-  Synopsis     [ Define class Topology functions ]
-  Author       [ Design Verification Lab ]
-  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
-****************************************************************************/
+// /****************************************************************************
+//   FileName     [ topology.cpp ]
+//   PackageName  [ topology ]
+//   Synopsis     [ Define class Topology functions ]
+//   Author       [ Design Verification Lab ]
+//   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
+// ****************************************************************************/
 
 #include "topology.h"
 
@@ -22,24 +22,76 @@ using namespace std;
 namespace TF = TextFormat;
 extern size_t verbose;
 
-AdjInfo defaultInfo = {._cnotTime = 0.0, ._error = 0.0};
+Info defaultInfo = {._time = 0.0, ._error = 0.0};
 
 /**
- * @brief Print information of physical qubit
+ * @brief Add adjacency information of (a,b)
  *
- * @param detail If true, print delay and error
+ * @param a Id of first qubit
+ * @param b Id of second qubit
+ * @param info Information of this pair
  */
-void PhyQubit::printInfo(bool detail) const {
-    cout << "ID:" << right << setw(4) << _id << "    ";
-    if (detail) {
-        cout << "Delay:" << right << setw(8) << fixed << setprecision(3) << _gateDelay << "    ";
-        cout << "Error:" << right << setw(8) << fixed << setprecision(5) << _error << "    ";
-    }
-    cout << "Adjs:";
-    for (auto& q : _adjacencies) {
-        cout << right << setw(3) << q->getId() << " ";
-    }
-    cout << endl;
+void Topology::addAdjacencyInfo(size_t a, size_t b, Info info) {
+    if (a > b) swap(a, b);
+    _adjInfo[make_pair(a, b)] = info;
+}
+
+void Topology::addQubitInfo(size_t a, Info info) {
+    _qubitInfo[a] = info;
+}
+
+PhyQubit::PhyQubit(const size_t id) : _id(id), _adjacencies({}), _logicalQubit(ERROR_CODE), _occuTime(0), _marked(false), _pred(0), _cost(0), _swapTime(0), _source(false), _taken(false) {}
+
+PhyQubit::PhyQubit(const PhyQubit& other)
+    : _id(other._id),
+      _adjacencies(other._adjacencies),
+      _logicalQubit(other._logicalQubit),
+      _occuTime(other._occuTime),
+      _marked(other._marked),
+      _pred(other._pred),
+      _cost(other._cost),
+      _swapTime(other._swapTime),
+      _source(other._source),
+      _taken(other._taken) {}
+
+PhyQubit& PhyQubit::operator=(const PhyQubit& other) {
+    _id = other._id;
+    _adjacencies = other._adjacencies;
+    _logicalQubit = other._logicalQubit;
+    _occuTime = other._occuTime;
+    _marked = other._marked;
+    _pred = other._pred;
+    _cost = other._cost;
+    _swapTime = other._swapTime;
+    _source = other._source;
+    _taken = other._taken;
+    return *this;
+}
+
+PhyQubit::PhyQubit(PhyQubit&& other)
+    : _id(other._id),
+      _adjacencies(move(other._adjacencies)),
+      _logicalQubit(other._logicalQubit),
+      _occuTime(other._occuTime),
+      _marked(other._marked),
+      _pred(other._pred),
+      _cost(other._cost),
+      _swapTime(other._swapTime),
+      _source(other._source),
+      _taken(other._taken) {}
+
+PhyQubit& PhyQubit::operator=(PhyQubit&& other) {
+    _id = other._id;
+    _adjacencies = move(other._adjacencies);
+    _logicalQubit = other._logicalQubit;
+    _occuTime = other._occuTime;
+    _marked = other._marked;
+    _pred = other._pred;
+    _cost = other._cost;
+    _swapTime = other._swapTime;
+    _source = other._source;
+    _taken = other._taken;
+    return *this;
 }
 
 /**
@@ -47,14 +99,18 @@ void PhyQubit::printInfo(bool detail) const {
  *
  * @param a Id of first qubit
  * @param b Id of second qubit
- * @return AdjInfo&
+ * @return Info&
  */
-const AdjInfo& DeviceTopo::getAdjPairInfo(size_t a, size_t b) {
+const Info& Topology::getAdjPairInfo(size_t a, size_t b) {
     if (a > b) swap(a, b);
     return _adjInfo[make_pair(a, b)];
 }
 
-void PhyQubit::mark(bool source, PhyQubit* pred) {
+const Info& Topology::getQubitInfo(size_t a) {
+    return _qubitInfo[a];
+}
+
+void PhyQubit::mark(bool source, size_t pred) {
     _marked = true;
     _source = source;
     _pred = pred;
@@ -72,31 +128,31 @@ void PhyQubit::reset() {
     _cost = _occuTime;
 }
 
-void DeviceTopo::applyGate(const Operation& op) {
+void Device::applyGate(const Operation& op) {
     tuple<size_t, size_t> qubits = op.get_qubits();
-    PhyQubit* q0 = getPhysicalQubit(get<0>(qubits));
-    PhyQubit* q1 = getPhysicalQubit(get<1>(qubits));
+    PhyQubit& q0 = getPhysicalQubit(get<0>(qubits));
+    PhyQubit& q1 = getPhysicalQubit(get<1>(qubits));
 
     size_t t = op.get_op_time();
 
     switch (op.get_operator()) {
         case GateType::SWAP: {  // swap topo qubit
-            size_t temp = q0->getLogicalQubit();
-            q0->setLogicalQubit(q1->getLogicalQubit());
-            q1->setLogicalQubit(temp);
-            q0->setOccupiedTime(t + SWAP_DELAY);
-            q1->setOccupiedTime(t + SWAP_DELAY);
+            size_t temp = q0.getLogicalQubit();
+            q0.setLogicalQubit(q1.getLogicalQubit());
+            q1.setLogicalQubit(temp);
+            q0.setOccupiedTime(t + SWAP_DELAY);
+            q1.setOccupiedTime(t + SWAP_DELAY);
             break;
         }
         case GateType::CX: {
-            q0->setOccupiedTime(t + DOUBLE_DELAY);
-            q1->setOccupiedTime(t + DOUBLE_DELAY);
+            q0.setOccupiedTime(t + DOUBLE_DELAY);
+            q1.setOccupiedTime(t + DOUBLE_DELAY);
             break;
         }
         // TODO - CZ
         case GateType::CZ: {
-            q0->setOccupiedTime(t + DOUBLE_DELAY);
-            q1->setOccupiedTime(t + DOUBLE_DELAY);
+            q0.setOccupiedTime(t + DOUBLE_DELAY);
+            q1.setOccupiedTime(t + DOUBLE_DELAY);
             break;
         }
         default: {
@@ -105,19 +161,19 @@ void DeviceTopo::applyGate(const Operation& op) {
     }
 }
 
-vector<size_t> DeviceTopo::mapping() const {
+vector<size_t> Device::mapping() const {
     vector<size_t> ret;
     ret.reserve(_qubitList.size());
     for (const auto& [_, qubit] : _qubitList) {
-        ret.push_back(qubit->getLogicalQubit());
+        ret.push_back(qubit.getLogicalQubit());
     }
     return ret;
 }
 
-void DeviceTopo::place(vector<size_t>& assign) {
+void Device::place(vector<size_t>& assign) {
     for (size_t i = 0; i < assign.size(); ++i) {
-        assert(_qubitList[assign[i]]->getLogicalQubit() == size_t(-1));
-        _qubitList[assign[i]]->setLogicalQubit(i);
+        assert(_qubitList[assign[i]].getLogicalQubit() == size_t(-1));
+        _qubitList[assign[i]].setLogicalQubit(i);
     }
 }
 
@@ -127,34 +183,20 @@ void DeviceTopo::place(vector<size_t>& assign) {
  * @param a Id of first qubit
  * @param b Id of second qubit
  */
-void DeviceTopo::addAdjacency(size_t a, size_t b) {
+void Device::addAdjacency(size_t a, size_t b) {
     if (a > b) swap(a, b);
     if (!qubitIdExist(a)) {
-        PhyQubit* temp = new PhyQubit(a);
+        PhyQubit temp = PhyQubit(a);
         addPhyQubit(temp);
     }
     if (!qubitIdExist(b)) {
-        PhyQubit* temp = new PhyQubit(b);
+        PhyQubit temp = PhyQubit(b);
         addPhyQubit(temp);
     }
-    PhyQubit* qa = _qubitList[a];
-    PhyQubit* qb = _qubitList[b];
-    qa->addAdjacency(qb);
-    qb->addAdjacency(qa);
+    _qubitList[a].addAdjacency(_qubitList[b].getId());
+    _qubitList[b].addAdjacency(_qubitList[a].getId());
 
-    addAdjacencyInfo(a, b, defaultInfo);
-}
-
-/**
- * @brief Add adjacency information of (a,b)
- *
- * @param a Id of first qubit
- * @param b Id of second qubit
- * @param info Information of this pair
- */
-void DeviceTopo::addAdjacencyInfo(size_t a, size_t b, AdjInfo info) {
-    if (a > b) swap(a, b);
-    _adjInfo[make_pair(a, b)] = info;
+    _topology->addAdjacencyInfo(a, b, defaultInfo);
 }
 
 /**
@@ -164,7 +206,7 @@ void DeviceTopo::addAdjacencyInfo(size_t a, size_t b, AdjInfo info) {
  * @return true
  * @return false
  */
-bool DeviceTopo::readTopo(const string& filename) {
+bool Device::readTopo(const string& filename) {
     ifstream topoFile(filename);
     if (!topoFile.is_open()) {
         cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
@@ -182,7 +224,7 @@ bool DeviceTopo::readTopo(const string& filename) {
     size_t token_end = myStrGetTok(str, token, 0, ": ");
     data = str.substr(token_end + 1);
 
-    _name = stripWhitespaces(data);
+    _topology->setName(stripWhitespaces(data));
 
     // NOTE - Qubit num
     str = "", token = "", data = "";
@@ -222,20 +264,25 @@ bool DeviceTopo::readTopo(const string& filename) {
 
     data = stripWhitespaces(data);
     data = removeBracket(data, '[', ']');
-
-    if (!parsePairs(data, 0)) return false;
+    vector<vector<float>> cxErr, cxDelay;
+    vector<vector<size_t>> adjList;
+    vector<float> sgErr, sgDelay;
+    if (!parsePairsSizeT(data, adjList))
+        return false;
     // NOTE - Parse Information
-    if (!parseInfo(topoFile)) return false;
+    if (!parseInfo(topoFile, cxErr, cxDelay, sgErr, sgDelay)) return false;
     // NOTE - Finish parsing, store the topology
-    for (size_t i = 0; i < _adjList.size(); i++) {
-        for (size_t j = 0; j < _adjList[i].size(); j++) {
-            if (_adjList[i][j] > i) {
-                addAdjacency(i, _adjList[i][j]);
-                addAdjacencyInfo(i, _adjList[i][j], {._cnotTime = _cxDelay[i][j], ._error = _cxErr[i][j]});
+    for (size_t i = 0; i < adjList.size(); i++) {
+        for (size_t j = 0; j < adjList[i].size(); j++) {
+            if (adjList[i][j] > i) {
+                addAdjacency(i, adjList[i][j]);
+                _topology->addAdjacencyInfo(i, adjList[i][j], {._time = cxDelay[i][j], ._error = cxErr[i][j]});
             }
         }
-        if (i < _sgDelay.size()) _qubitList[i]->setDelay(_sgDelay[i]);
-        if (i < _sgErr.size()) _qubitList[i]->setError(_sgErr[i]);
+    }
+    assert(sgErr.size() == sgDelay.size());
+    for (size_t i = 0; i < sgErr.size(); i++) {
+        _topology->addQubitInfo(i, {._time = sgDelay[i], ._error = sgErr[i]});
     }
 
     calculatePath();
@@ -249,7 +296,7 @@ bool DeviceTopo::readTopo(const string& filename) {
  * @return true
  * @return false
  */
-bool DeviceTopo::parseGateSet(string str) {
+bool Device::parseGateSet(string str) {
     string token = "", data = "", gt;
     size_t token_end = myStrGetTok(str, token, 0, ": ");
     data = str.substr(token_end + 1);
@@ -264,7 +311,7 @@ bool DeviceTopo::parseGateSet(string str) {
             cout << "Error: unsupported gate type " << gt << "!!" << endl;
             return false;
         }
-        _gateSet.push_back(str2GateType[gt]);
+        _topology->addGateType(str2GateType[gt]);
     }
     return true;
 }
@@ -276,7 +323,7 @@ bool DeviceTopo::parseGateSet(string str) {
  * @return true
  * @return false
  */
-bool DeviceTopo::parseInfo(std::ifstream& f) {
+bool Device::parseInfo(std::ifstream& f, vector<vector<float>>& cxErr, vector<vector<float>>& cxDelay, vector<float>& sgErr, vector<float>& sgDelay) {
     string str = "", token = "", data = "";
     while (true) {
         while (str == "") {
@@ -289,13 +336,13 @@ bool DeviceTopo::parseInfo(std::ifstream& f) {
 
         data = stripWhitespaces(data);
         if (token == "SGERROR") {
-            if (!parseSingles(data, 0)) return false;
+            if (!parseSingles(data, sgErr)) return false;
         } else if (token == "SGTIME") {
-            if (!parseSingles(data, 1)) return false;
+            if (!parseSingles(data, sgDelay)) return false;
         } else if (token == "CNOTERROR") {
-            if (!parsePairs(data, 1)) return false;
+            if (!parsePairsFloat(data, cxErr)) return false;
         } else if (token == "CNOTTIME") {
-            if (!parsePairs(data, 2)) return false;
+            if (!parsePairsFloat(data, cxDelay)) return false;
         }
         if (f.eof()) {
             break;
@@ -315,7 +362,7 @@ bool DeviceTopo::parseInfo(std::ifstream& f) {
  * @return true
  * @return false
  */
-bool DeviceTopo::parseSingles(string data, size_t which) {
+bool Device::parseSingles(string data, vector<float>& container) {
     string str, num;
     float fl;
     size_t m = 0;
@@ -330,10 +377,7 @@ bool DeviceTopo::parseSingles(string data, size_t which) {
             cout << "Error: The number `" << num << "` is not a float!!\n";
             return false;
         }
-        if (which == 0)
-            _sgErr.push_back(fl);
-        else if (which == 1)
-            _sgDelay.push_back(fl);
+        container.emplace_back(fl);
     }
     return true;
 }
@@ -346,44 +390,57 @@ bool DeviceTopo::parseSingles(string data, size_t which) {
  * @return true
  * @return false
  */
-bool DeviceTopo::parsePairs(string data, size_t which) {
+bool Device::parsePairsFloat(string data, vector<vector<float>>& container) {
     string str, num;
-    unsigned qbn;
     float fl;
     size_t n = 0, m = 0;
     while (n < data.size()) {
         n = myStrGetTok(data, str, n, '[');
         str = str.substr(0, str.find_first_of("]"));
-
         m = 0;
-        vector<size_t> single;
         vector<float> singleFl;
         while (m < str.size()) {
             m = myStrGetTok(str, num, m, ',');
             num = stripWhitespaces(num);
-            if (which == 0) {
-                if (!myStr2Uns(num, qbn) || qbn >= _nQubit) {
-                    cout << "Error: The number of qubit `" << num << "` is not a positive integer or not in the legal range!!\n";
-                    return false;
-                }
-                single.push_back(size_t(qbn));
-            } else {
-                if (!myStr2Float(num, fl)) {
-                    cout << "Error: The number `" << num << "` is not a float!!\n";
-                    return false;
-                }
 
-                singleFl.push_back(fl);
+            if (!myStr2Float(num, fl)) {
+                cout << "Error: The number `" << num << "` is not a float!!\n";
+                return false;
             }
+            singleFl.push_back(fl);
         }
-        if (which == 0)
-            _adjList.push_back(single);
-        else if (which == 1)
-            _cxErr.push_back(singleFl);
-        else if (which == 2)
-            _cxDelay.push_back(singleFl);
+        container.push_back(singleFl);
     }
     return true;
+}
+
+bool Device::parsePairsSizeT(string data, vector<vector<size_t>>& container) {
+    string str, num;
+    unsigned qbn;
+    size_t n = 0, m = 0;
+    while (n < data.size()) {
+        n = myStrGetTok(data, str, n, '[');
+        str = str.substr(0, str.find_first_of("]"));
+        m = 0;
+        vector<size_t> single;
+        while (m < str.size()) {
+            m = myStrGetTok(str, num, m, ',');
+            num = stripWhitespaces(num);
+
+            if (!myStr2Uns(num, qbn) || qbn >= _nQubit) {
+                cout << "Error: The number of qubit `" << num << "` is not a positive integer or not in the legal range!!\n";
+                return false;
+            }
+            single.push_back(size_t(qbn));
+        }
+        container.push_back(single);
+    }
+    return true;
+}
+
+ostream& operator<<(ostream& os, const Info& info) {
+    os << "Delay:" << right << setw(8) << fixed << setprecision(3) << info._time << "    ";
+    return os << "Error:" << right << setw(8) << fixed << setprecision(5) << info._error << "    ";
 }
 
 /**
@@ -391,7 +448,7 @@ bool DeviceTopo::parsePairs(string data, size_t which) {
  *
  * @param cand a vector of qubits to be printed
  */
-void DeviceTopo::printQubits(vector<size_t> cand) {
+void Device::printQubits(vector<size_t> cand) const {
     for (auto& c : cand) {
         if (c >= _nQubit) {
             cout << "Error: the maximum qubit id is " << _nQubit - 1 << "!!" << endl;
@@ -399,15 +456,30 @@ void DeviceTopo::printQubits(vector<size_t> cand) {
         }
     }
     cout << endl;
+    vector<PhyQubit> qubits;
+    qubits.resize(_nQubit);
+    for (const auto& [idx, info] : _qubitList) {
+        qubits[idx] = info;
+    }
     if (cand.empty()) {
-        for (size_t i = 0; i < _nQubit; i++) {
-            _qubitList[i]->printInfo(true);
+        for (size_t i = 0; i < qubits.size(); i++) {
+            cout << "ID:" << right << setw(4) << i << "    ";
+            cout << _topology->getQubitInfo(i) << "Adjs:";
+            for (auto& q : qubits[i].getAdjacencies()) {
+                cout << right << setw(3) << q << " ";
+            }
+            cout << endl;
         }
         cout << "Total #Qubits: " << _nQubit << endl;
     } else {
         sort(cand.begin(), cand.end());
         for (auto& p : cand) {
-            _qubitList[p]->printInfo(true);
+            cout << "ID:" << right << setw(4) << p << "    ";
+            cout << _topology->getQubitInfo(p) << "Adjs:";
+            for (auto& q : qubits[p].getAdjacencies()) {
+                cout << right << setw(3) << q << " ";
+            }
+            cout << endl;
         }
     }
 }
@@ -417,7 +489,7 @@ void DeviceTopo::printQubits(vector<size_t> cand) {
  *
  * @param cand Empty: print all. Single element [a]: print edges connecting to a. Two elements [a,b]: print edge (a,b).
  */
-void DeviceTopo::printEdges(vector<size_t> cand) {
+void Device::printEdges(vector<size_t> cand) const {
     for (auto& c : cand) {
         if (c >= _nQubit) {
             cout << "Error: the maximum qubit id is " << _nQubit - 1 << "!!" << endl;
@@ -425,25 +497,30 @@ void DeviceTopo::printEdges(vector<size_t> cand) {
         }
     }
     cout << endl;
+    vector<PhyQubit> qubits;
+    qubits.resize(_nQubit);
+    for (const auto& [idx, info] : _qubitList) {
+        qubits[idx] = info;
+    }
     if (cand.size() == 0) {
         size_t cnt = 0;
         for (size_t i = 0; i < _nQubit; i++) {
-            for (auto& q : _qubitList[i]->getAdjacencies()) {
-                if (i < q->getId()) {
+            for (auto& q : qubits[i].getAdjacencies()) {
+                if (i < q) {
                     cnt++;
-                    printSingleEdge(i, q->getId());
+                    _topology->printSingleEdge(i, q);
                 }
             }
         }
-        assert(cnt == _adjInfo.size());
-        cout << "Total #Edges: " << _adjInfo.size() << endl;
+        assert(cnt == _topology->getAdjSize());
+        cout << "Total #Edges: " << cnt << endl;
     } else if (cand.size() == 1) {
-        for (auto& q : _qubitList[cand[0]]->getAdjacencies()) {
-            printSingleEdge(cand[0], q->getId());
+        for (auto& q : qubits[cand[0]].getAdjacencies()) {
+            _topology->printSingleEdge(cand[0], q);
         }
-        cout << "Total #Edges: " << _qubitList[cand[0]]->getAdjacencies().size() << endl;
+        cout << "Total #Edges: " << qubits[cand[0]].getAdjacencies().size() << endl;
     } else if (cand.size() == 2) {
-        printSingleEdge(cand[0], cand[1]);
+        _topology->printSingleEdge(cand[0], cand[1]);
     }
 }
 
@@ -453,12 +530,12 @@ void DeviceTopo::printEdges(vector<size_t> cand) {
  * @param a Id of first qubit
  * @param b Id of second qubit
  */
-void DeviceTopo::printSingleEdge(size_t a, size_t b) {
+void Topology::printSingleEdge(size_t a, size_t b) const {
     pair<size_t, size_t> query = (a < b) ? make_pair(a, b) : make_pair(b, a);
     if (_adjInfo.contains(query)) {
-        auto& adjp = _adjInfo[query];
-        cout << "(" << right << setw(3) << _qubitList[a]->getId() << ", " << right << setw(3) << _qubitList[b]->getId() << ")    ";
-        cout << "Delay:" << right << setw(8) << fixed << setprecision(3) << adjp._cnotTime << "    ";
+        const auto& adjp = _adjInfo.at(query);
+        cout << "(" << right << setw(3) << a << ", " << right << setw(3) << b << ")    ";
+        cout << "Delay:" << right << setw(8) << fixed << setprecision(3) << adjp._time << "    ";
         cout << "Error:" << right << setw(8) << fixed << setprecision(5) << adjp._error << endl;
     } else {
         cout << "No connection between " << a << " and " << b << "." << endl;
@@ -469,40 +546,40 @@ void DeviceTopo::printSingleEdge(size_t a, size_t b) {
  * @brief Print information of Device Topology
  *
  */
-void DeviceTopo::printTopo() const {
-    cout << "Topology " << right << setw(2) << _id << ": " << _name << "( "
+void Device::printTopo() const {
+    cout << "Topology " << right << setw(2) << _id << ": " << getName() << "( "
          << _qubitList.size() << " qubits, "
-         << _adjInfo.size() << " edges )\n";
+         << _topology->getAdjSize() << " edges )\n";
 
     cout << "Gate Set   : ";
-    for (size_t i = 0; i < _gateSet.size(); i++) {
-        cout << gateType2Str[_gateSet[i]];
-        if (i != _gateSet.size() - 1) cout << ", ";
+    for (size_t i = 0; i < _topology->getGateSet().size(); i++) {
+        cout << gateType2Str[_topology->getGateSet()[i]];
+        if (i != _topology->getGateSet().size() - 1) cout << ", ";
     }
     cout << endl;
 }
 
-void DeviceTopo::printMapping() {
-    cout << "Device Mapping: (Physical: Logical)" << endl;
-    for (size_t i = 0; i < _nQubit; i++) {
-        PhyQubit* q = _qubitList[i];
-        cout << q->getId() << ": " << q->getLogicalQubit() << endl;
-    }
-    cout << endl;
-}
+// void DeviceTopo::printMapping() {
+//     cout << "Device Mapping: (Physical: Logical)" << endl;
+//     for (size_t i = 0; i < _nQubit; i++) {
+//         PhyQubit* q = _qubitList[i];
+//         cout << q->getId() << ": " << q->getLogicalQubit() << endl;
+//     }
+//     cout << endl;
+// }
 
 /**
  * @brief Print Predecessor
  *
  */
-void DeviceTopo::printPredecessor() const {
+void Device::printPredecessor() const {
     cout << "Predecessor Matrix:" << endl;
     for (size_t i = 0; i < _nQubit; i++) {
         for (size_t j = 0; j < _nQubit; j++) {
-            if (_predecessor[i][j] == nullptr) {
+            if (_predecessor[i][j] == size_t(-1)) {
                 cout << setw(5) << "/";
             } else
-                cout << setw(5) << _predecessor[i][j]->getId();
+                cout << setw(5) << _predecessor[i][j];
         }
         cout << endl;
     }
@@ -512,7 +589,7 @@ void DeviceTopo::printPredecessor() const {
  * @brief Print Distance
  *
  */
-void DeviceTopo::printDistance() const {
+void Device::printDistance() const {
     cout << "Distance Matrix:" << endl;
     for (size_t i = 0; i < _nQubit; i++) {
         for (size_t j = 0; j < _nQubit; j++) {
@@ -531,7 +608,7 @@ void DeviceTopo::printDistance() const {
  * @param s start
  * @param t terminate
  */
-void DeviceTopo::printPath(size_t s, size_t t) {
+void Device::printPath(size_t s, size_t t) const {
     cout << endl;
     for (auto& c : {s, t}) {
         if (c >= _nQubit) {
@@ -539,14 +616,14 @@ void DeviceTopo::printPath(size_t s, size_t t) {
             return;
         }
     }
-    auto path = getPath(s, t);
-    if (path.front()->getId() != s && path.back()->getId() != t)
+    const vector<PhyQubit>& path = getPath(s, t);
+    if (path.front().getId() != s && path.back().getId() != t)
         cout << "No path between " << s << "and " << t;
     else {
         cout << "Path from " << s << " to " << t << ":" << endl;
         size_t cnt = 1;
         for (auto& v : path) {
-            cout << setw(4) << v->getId() << " ";
+            cout << setw(4) << v.getId() << " ";
             if (cnt % 10 == 0) cout << endl;
             cnt++;
         }
@@ -557,7 +634,7 @@ void DeviceTopo::printPath(size_t s, size_t t) {
  * @brief Calculate Shortest Path
  *
  */
-void DeviceTopo::calculatePath() {
+void Device::calculatePath() {
     _predecessor.clear();
     _distance.clear();
     _adjMatrix.clear();
@@ -572,22 +649,23 @@ void DeviceTopo::calculatePath() {
     }
 
     FloydWarshall();
+    _adjMatrix.clear();
 }
 /**
  * @brief Init data for Floyd-Warshall Algorithm
  *
  */
-void DeviceTopo::initFloydWarshall() {
+void Device::initFloydWarshall() {
     _distance.resize(_nQubit);
     _predecessor.resize(_nQubit);
 
     for (size_t i = 0; i < _nQubit; i++) {
         _distance[i].resize(_nQubit);
-        _predecessor[i].resize(_nQubit, nullptr);
+        _predecessor[i].resize(_nQubit, size_t(-1));
         for (size_t j = 0; j < _nQubit; j++) {
             _distance[i][j] = _adjMatrix[i][j];
             if (_distance[i][j] != 0 && _distance[i][j] != _maxDist) {
-                _predecessor[i][j] = _qubitList[i];
+                _predecessor[i][j] = _qubitList[i].getId();
             }
         }
     }
@@ -602,12 +680,11 @@ void DeviceTopo::initFloydWarshall() {
  *
  * @param type
  */
-void DeviceTopo::setWeight(size_t type) {
-    assert(_adjList.size() == _nQubit);
-    assert(_adjMatrix.size() == _adjList.size());
+void Device::setWeight(size_t type) {
+    assert(_adjMatrix.size() == _nQubit);
     for (size_t i = 0; i < _nQubit; i++) {
-        for (size_t j = 0; j < _adjList[i].size(); j++) {
-            _adjMatrix[i][_adjList[i][j]] = 1;
+        for (const auto& adj : _qubitList[i].getAdjacencies()) {
+            _adjMatrix[i][adj] = 1;
         }
     }
 }
@@ -616,7 +693,7 @@ void DeviceTopo::setWeight(size_t type) {
  * @brief Floyd-Warshall Algorithm. Solve All Pairs Shortest Path (APSP)
  *
  */
-void DeviceTopo::FloydWarshall() {
+void Device::FloydWarshall() {
     setWeight();
     initFloydWarshall();
     for (size_t k = 0; k < _nQubit; k++) {
@@ -641,29 +718,18 @@ void DeviceTopo::FloydWarshall() {
  *
  * @param s start
  * @param t terminate
- * @return vector<PhyQubit*>
+ * @return vector<PhyQubit>&
  */
-vector<PhyQubit*> DeviceTopo::getPath(size_t s, size_t t) {
-    return getPath(_qubitList[s], _qubitList[t]);
-}
-
-/**
- * @brief Get shortest path from `s` to `t`
- *
- * @param s start
- * @param t terminate
- * @return vector<PhyQubit*>
- */
-vector<PhyQubit*> DeviceTopo::getPath(PhyQubit* s, PhyQubit* t) {
-    vector<PhyQubit*> path;
-    path.push_back(s);
+vector<PhyQubit> Device::getPath(size_t s, size_t t) const {
+    vector<PhyQubit> path;
+    path.push_back(_qubitList.at(s));
     if (s == t) return path;
-    PhyQubit* newPred = _predecessor[t->getId()][s->getId()];
+    size_t newPred = _predecessor[t][s];
     path.push_back(newPred);
     while (true) {
-        newPred = _predecessor[t->getId()][newPred->getId()];
-        if (newPred == nullptr) break;
-        path.push_back(newPred);
+        newPred = _predecessor[t][newPred];
+        if (newPred == size_t(-1)) break;
+        path.push_back(_qubitList.at(newPred));
     }
     return path;
 }

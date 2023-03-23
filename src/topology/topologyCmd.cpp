@@ -14,24 +14,24 @@
 #include <string>         // for string
 
 #include "cmdMacros.h"    // for CMD_N_OPTS_AT_MOST_OR_RETURN
-#include "topology.h"     // for DeviceTopo
-#include "topologyMgr.h"  // for DeviceTopoMgr
+#include "topology.h"     // for Device
+#include "topologyMgr.h"  // for DeviceMgr
 
 using namespace std;
 
-extern DeviceTopoMgr *deviceTopoMgr;
+extern DeviceMgr *deviceMgr;
 extern size_t verbose;
 extern int effLimit;
 
-bool initDeviceTopoCmd() {
-    deviceTopoMgr = new DeviceTopoMgr;
-    if (!(cmdMgr->regCmd("DTCHeckout", 4, make_unique<DeviceTopoCheckoutCmd>()) &&
-          cmdMgr->regCmd("DTReset", 3, make_unique<DeviceTopoResetCmd>()) &&
-          cmdMgr->regCmd("DTDelete", 3, make_unique<DeviceTopoDeleteCmd>()) &&
-          cmdMgr->regCmd("DTNew", 3, make_unique<DeviceTopoNewCmd>()) &&
-          cmdMgr->regCmd("DTGRead", 4, make_unique<DeviceTopoGraphReadCmd>()) &&
-          cmdMgr->regCmd("DTGPrint", 4, make_unique<DeviceTopoGraphPrintCmd>()) &&
-          cmdMgr->regCmd("DTPrint", 3, make_unique<DeviceTopoPrintCmd>()))) {
+bool initDeviceCmd() {
+    deviceMgr = new DeviceMgr;
+    if (!(cmdMgr->regCmd("DTCHeckout", 4, make_unique<DeviceCheckoutCmd>()) &&
+          cmdMgr->regCmd("DTReset", 3, make_unique<DeviceResetCmd>()) &&
+          cmdMgr->regCmd("DTDelete", 3, make_unique<DeviceDeleteCmd>()) &&
+          cmdMgr->regCmd("DTNew", 3, make_unique<DeviceNewCmd>()) &&
+          cmdMgr->regCmd("DTGRead", 4, make_unique<DeviceGraphReadCmd>()) &&
+          cmdMgr->regCmd("DTGPrint", 4, make_unique<DeviceGraphPrintCmd>()) &&
+          cmdMgr->regCmd("DTPrint", 3, make_unique<DevicePrintCmd>()))) {
         cerr << "Registering \"device topology\" commands fails... exiting" << endl;
         return false;
     }
@@ -43,7 +43,7 @@ bool initDeviceTopoCmd() {
 //----------------------------------------------------------------------
 
 CmdExecStatus
-DeviceTopoCheckoutCmd::exec(const string &option) {
+DeviceCheckoutCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
@@ -51,49 +51,49 @@ DeviceTopoCheckoutCmd::exec(const string &option) {
         return CmdExec::errorOption(CMD_OPT_MISSING, "");
     else {
         unsigned id;
-        DT_CMD_ID_VALID_OR_RETURN(token, id, "DeviceTopo");
+        DT_CMD_ID_VALID_OR_RETURN(token, id, "Device");
         DT_CMD_DTOPO_ID_EXISTS_OR_RETURN(id);
-        deviceTopoMgr->checkout2DeviceTopo(id);
+        deviceMgr->checkout2Device(id);
     }
     return CMD_EXEC_DONE;
 }
 
-void DeviceTopoCheckoutCmd::usage() const {
+void DeviceCheckoutCmd::usage() const {
     cout << "Usage: DTCHeckout <(size_t id)>" << endl;
 }
 
-void DeviceTopoCheckoutCmd::summary() const {
+void DeviceCheckoutCmd::summary() const {
     cout << setw(15) << left << "DTCHeckout: "
-         << "checkout to DeviceTopo <id> in DeviceTopoMgr" << endl;
+         << "checkout to Device <id> in DeviceMgr" << endl;
 }
 
 //----------------------------------------------------------------------
 //    DTReset
 //----------------------------------------------------------------------
 CmdExecStatus
-DeviceTopoResetCmd::exec(const string &option) {
+DeviceResetCmd::exec(const string &option) {
     if (!lexNoOption(option)) return CMD_EXEC_ERROR;
-    if (!deviceTopoMgr)
-        deviceTopoMgr = new DeviceTopoMgr;
+    if (!deviceMgr)
+        deviceMgr = new DeviceMgr;
     else
-        deviceTopoMgr->reset();
+        deviceMgr->reset();
     return CMD_EXEC_DONE;
 }
 
-void DeviceTopoResetCmd::usage() const {
+void DeviceResetCmd::usage() const {
     cout << "Usage: DTReset" << endl;
 }
 
-void DeviceTopoResetCmd::summary() const {
+void DeviceResetCmd::summary() const {
     cout << setw(15) << left << "DTReset: "
-         << "reset DeviceTopoMgr" << endl;
+         << "reset DeviceMgr" << endl;
 }
 
 //----------------------------------------------------------------------
 //    DTDelete <(size_t id)>
 //----------------------------------------------------------------------
 CmdExecStatus
-DeviceTopoDeleteCmd::exec(const string &option) {
+DeviceDeleteCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
@@ -101,54 +101,54 @@ DeviceTopoDeleteCmd::exec(const string &option) {
         return CmdExec::errorOption(CMD_OPT_MISSING, "");
     else {
         unsigned id;
-        DT_CMD_ID_VALID_OR_RETURN(token, id, "DeviceTopo");
+        DT_CMD_ID_VALID_OR_RETURN(token, id, "Device");
         DT_CMD_DTOPO_ID_EXISTS_OR_RETURN(id);
-        deviceTopoMgr->removeDeviceTopo(id);
+        deviceMgr->removeDevice(id);
     }
     return CMD_EXEC_DONE;
 }
 
-void DeviceTopoDeleteCmd::usage() const {
+void DeviceDeleteCmd::usage() const {
     cout << "Usage: DTDelete <size_t id>" << endl;
 }
 
-void DeviceTopoDeleteCmd::summary() const {
+void DeviceDeleteCmd::summary() const {
     cout << setw(15) << left << "DTDelete: "
-         << "remove a DeviceTopo from DeviceTopoMgr" << endl;
+         << "remove a Device from DeviceMgr" << endl;
 }
 
 //----------------------------------------------------------------------
 //    DTNew [(size_t id)]
 //----------------------------------------------------------------------
 CmdExecStatus
-DeviceTopoNewCmd::exec(const string &option) {
+DeviceNewCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
     if (token.empty())
-        deviceTopoMgr->addDeviceTopo(deviceTopoMgr->getNextID());
+        deviceMgr->addDevice(deviceMgr->getNextID());
     else {
         unsigned id;
-        DT_CMD_ID_VALID_OR_RETURN(token, id, "DeviceTopo");
-        deviceTopoMgr->addDeviceTopo(id);
+        DT_CMD_ID_VALID_OR_RETURN(token, id, "Device");
+        deviceMgr->addDevice(id);
     }
     return CMD_EXEC_DONE;
 }
 
-void DeviceTopoNewCmd::usage() const {
+void DeviceNewCmd::usage() const {
     cout << "Usage: DTNew [size_t id]" << endl;
 }
 
-void DeviceTopoNewCmd::summary() const {
+void DeviceNewCmd::summary() const {
     cout << setw(15) << left << "DTNew: "
-         << "create a new DeviceTopo to DeviceTopoMgr" << endl;
+         << "create a new Device to DeviceMgr" << endl;
 }
 
 //----------------------------------------------------------------------
 //    DTGRead <(size_t filename)> [-Replace]
 //----------------------------------------------------------------------
 CmdExecStatus
-DeviceTopoGraphReadCmd::exec(const string &option) {
+DeviceGraphReadCmd::exec(const string &option) {
     vector<string> options;
     if (!CmdExec::lexOptions(option, options))
         return CMD_EXEC_ERROR;
@@ -168,31 +168,29 @@ DeviceTopoGraphReadCmd::exec(const string &option) {
             fileName = options[i];
         }
     }
-    DeviceTopo *bufferTopo = new DeviceTopo(0);
-    if (!bufferTopo->readTopo(fileName)) {
+    Device bufferTopo = Device(0);
+    if (!bufferTopo.readTopo(fileName)) {
         cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
-        delete bufferTopo;
         return CMD_EXEC_ERROR;
     }
-    if (deviceTopoMgr->getDTListItr() == deviceTopoMgr->getDeviceTopoList().end()) {
-        deviceTopoMgr->addDeviceTopo(deviceTopoMgr->getNextID());
+    if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {
+        deviceMgr->addDevice(deviceMgr->getNextID());
     } else {
         if (doReplace) {
-            if (verbose >= 1) cout << "Note: original QCir is replaced..." << endl;
+            if (verbose >= 1) cout << "Note: original Device is replaced..." << endl;
         } else {
-            deviceTopoMgr->addDeviceTopo(deviceTopoMgr->getNextID());
+            deviceMgr->addDevice(deviceMgr->getNextID());
         }
     }
-    deviceTopoMgr->setDeviceTopo(bufferTopo);
-
+    deviceMgr->setDevice(bufferTopo);
     return CMD_EXEC_DONE;
 }
 
-void DeviceTopoGraphReadCmd::usage() const {
+void DeviceGraphReadCmd::usage() const {
     cout << "Usage: DTGRead <(size_t filename)> [-Replace]" << endl;
 }
 
-void DeviceTopoGraphReadCmd::summary() const {
+void DeviceGraphReadCmd::summary() const {
     cout << setw(15) << left << "DTGRead: "
          << "read a device topology" << endl;
 }
@@ -201,7 +199,7 @@ void DeviceTopoGraphReadCmd::summary() const {
 //    DTGPrint [-Summary | -Edges | -Path | -Qubit]
 //-----------------------------------------------------------------------------------------------------------
 CmdExecStatus
-DeviceTopoGraphPrintCmd::exec(const string &option) {
+DeviceGraphPrintCmd::exec(const string &option) {
     // check option
     vector<string> options;
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
@@ -209,7 +207,7 @@ DeviceTopoGraphPrintCmd::exec(const string &option) {
     DT_CMD_MGR_NOT_EMPTY_OR_RETURN("DTGPrint");
 
     if (options.empty() || myStrNCmp("-Summary", options[0], 2) == 0)
-        deviceTopoMgr->getDeviceTopo()->printTopo();
+        deviceMgr->getDevice().printTopo();
     else if (myStrNCmp("-Edges", options[0], 2) == 0) {
         CMD_N_OPTS_AT_MOST_OR_RETURN(options, 3)
         vector<size_t> candidates;
@@ -221,7 +219,7 @@ DeviceTopoGraphPrintCmd::exec(const string &option) {
                 cout << "Warning: " << options[i] << " is not a valid qubit ID!!" << endl;
             }
         }
-        deviceTopoMgr->getDeviceTopo()->printEdges(candidates);
+        deviceMgr->getDevice().printEdges(candidates);
     } else if (myStrNCmp("-Qubits", options[0], 2) == 0) {
         vector<size_t> candidates;
         for (size_t i = 1; i < options.size(); i++) {
@@ -232,24 +230,24 @@ DeviceTopoGraphPrintCmd::exec(const string &option) {
                 cout << "Warning: " << options[i] << " is not a valid qubit ID!!" << endl;
             }
         }
-        deviceTopoMgr->getDeviceTopo()->printQubits(candidates);
+        deviceMgr->getDevice().printQubits(candidates);
     } else if (myStrNCmp("-Path", options[0], 2) == 0) {
         CMD_N_OPTS_EQUAL_OR_RETURN(options, 3)
         unsigned qid0, qid1;
         if (!myStr2Uns(options[1], qid0)) cout << "Warning: " << options[1] << " is not a valid qubit ID!!" << endl;
         if (!myStr2Uns(options[2], qid1)) cout << "Warning: " << options[2] << " is not a valid qubit ID!!" << endl;
 
-        deviceTopoMgr->getDeviceTopo()->printPath(qid0, qid1);
+        deviceMgr->getDevice().printPath(qid0, qid1);
     } else
         return errorOption(CMD_OPT_ILLEGAL, options[0]);
     return CMD_EXEC_DONE;
 }
 
-void DeviceTopoGraphPrintCmd::usage() const {
+void DeviceGraphPrintCmd::usage() const {
     cout << "Usage: DTGPrint [-Summary | -Edges | -Path | -Qubit]" << endl;
 }
 
-void DeviceTopoGraphPrintCmd::summary() const {
+void DeviceGraphPrintCmd::summary() const {
     cout << setw(15) << left << "DTGPrint: "
          << "print info of device topology" << endl;
 }
@@ -258,27 +256,27 @@ void DeviceTopoGraphPrintCmd::summary() const {
 //    DTPrint [-Summary | -Focus | -List | -Num]
 //----------------------------------------------------------------------
 CmdExecStatus
-DeviceTopoPrintCmd::exec(const string &option) {
+DevicePrintCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     if (token.empty() || myStrNCmp("-Summary", token, 2) == 0)
-        deviceTopoMgr->printDeviceTopoMgr();
+        deviceMgr->printDeviceMgr();
     else if (myStrNCmp("-Focus", token, 2) == 0)
-        deviceTopoMgr->printTopoListItr();
+        deviceMgr->printDeviceListItr();
     else if (myStrNCmp("-List", token, 2) == 0)
-        deviceTopoMgr->printTopoList();
+        deviceMgr->printDeviceList();
     else if (myStrNCmp("-Num", token, 2) == 0)
-        deviceTopoMgr->printDeviceTopoListSize();
+        deviceMgr->printDeviceListSize();
     else
         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     return CMD_EXEC_DONE;
 }
 
-void DeviceTopoPrintCmd::usage() const {
+void DevicePrintCmd::usage() const {
     cout << "Usage: DTPrint [-Summary | -Focus | -List | -Num]" << endl;
 }
 
-void DeviceTopoPrintCmd::summary() const {
+void DevicePrintCmd::summary() const {
     cout << setw(15) << left << "DTPrint: "
-         << "print info of DeviceTopoMgr" << endl;
+         << "print info of DeviceMgr" << endl;
 }
