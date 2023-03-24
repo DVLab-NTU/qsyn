@@ -15,13 +15,20 @@
 
 class Duostra {
 public:
-    Duostra(QCir* cir, DeviceTopo* dev) : _logicalCircuit(cir), _device(dev) {
+    Duostra(QCir* cir, Device dev) : _logicalCircuit(cir), _physicalCircuit(new QCir(0)), _device(dev) {
     }
     ~Duostra() {}
+    void makeDepend();
     size_t flow();
+    void print_assembly() const;
+    void buildCircuitByResult();
+    QCir* getPhysicalCircuit() { return _physicalCircuit; }
 
 private:
     QCir* _logicalCircuit;
     QCir* _physicalCircuit;
-    DeviceTopo* _device;
+    Device _device;
+    std::unique_ptr<BaseScheduler> _scheduler;
+    std::shared_ptr<DependencyGraph> _dependency;
+    std::vector<Operation> _result;
 };

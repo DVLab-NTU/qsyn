@@ -11,40 +11,28 @@
 
 using namespace std;
 
-/**
- * @brief Update available gates by executed gate id. Execuded gate also removed
- *  if conditions is satisfied
- *
- * @param executed Index of executed gate
- */
 void CircuitTopo::update_avail_gates(size_t executed) {
     assert(find(begin(avail_gates_), end(avail_gates_), executed) !=
            end(avail_gates_));
-    const QCirGate* g_exec = get_gate(executed);
+    const Gate& g_exec = get_gate(executed);
     avail_gates_.erase(remove(begin(avail_gates_), end(avail_gates_), executed),
                        end(avail_gates_));
-    assert(g_exec->getId() == executed);
-    executed_gates_[executed] = 0;
+    assert(g_exec.get_id() == executed);
 
-    for (const auto& bitInfo : g_exec->getQubits()) {
-        if (bitInfo._child == nullptr) continue;
-        if (get_gate(bitInfo._child->getId())->is_avail(executed_gates_)) {
-            avail_gates_.push_back(bitInfo._child->getId());
+    executed_gates_[executed] = 0;
+    for (size_t next : g_exec.get_nexts()) {
+        if (get_gate(next).is_avail(executed_gates_)) {
+            avail_gates_.push_back(next);
         }
     }
+
     vector<size_t> gates_to_trim;
-    for (const auto& bitInfo : g_exec->getQubits()) {
-        QCirGate* prev_gate = bitInfo._parent;
-        if (prev_gate == nullptr) continue;
+    for (size_t prev_id : g_exec.get_prevs()) {
+        const auto& prev_gate = get_gate(prev_id);
+        ++executed_gates_[prev_id];
 
-        ++executed_gates_[prev_gate->getId()];
-
-        size_t countTrueNext = 0;
-        for (const auto& bitNext : prev_gate->getQubits()) {
-            if (bitNext._child != nullptr) countTrueNext++;
-        }
-        if (executed_gates_[prev_gate->getId()] >= countTrueNext) {
-            gates_to_trim.push_back(prev_gate->getId());
+        if (executed_gates_[prev_id] >= prev_gate.get_nexts().size()) {
+            gates_to_trim.push_back(prev_id);
         }
     }
     for (size_t gate_id : gates_to_trim) {
@@ -52,18 +40,29 @@ void CircuitTopo::update_avail_gates(size_t executed) {
     }
 }
 
-void CircuitTopo::initial_avail_gates() {
-    for (const auto& qb : dep_graph_->getQubits()) {
-        QCirGate* gate = qb->getFirst();
-        if (gate == nullptr) continue;
-        bool available = true;
-        for (const auto& bitInfo : gate->getQubits()) {
-            if (bitInfo._parent != nullptr) {
-                available = false;
-                break;
-            }
+void CircuitTopo::print_gates_with_next() {
+    cout << "Print successors of each gate" << endl;
+    const auto& gates = dep_graph_->gates();
+    for (size_t i = 0; i < gates.size(); i++) {
+        vector<size_t> temp = gates[i].get_nexts();
+        cout << gates[i].get_id() << "(" << gates[i].get_type() << ") || ";
+        for (size_t j = 0; j < temp.size(); j++) {
+            cout << temp[j] << " ";
         }
-        if (!available) continue;
-        avail_gates_.emplace_back(qb->getFirst()->getId());
+        cout << endl;
+    }
+}
+
+void CircuitTopo::print_gates_with_prev() {
+    cout << "Print predecessors of each gate" << endl;
+    const auto& gate = dep_graph_->gates();
+    for (size_t i = 0; i < gate.size(); i++) {
+        const auto& prevs = gate.at(i).get_prevs();
+        cout << gate.at(i).get_id() << "(" << gate.at(i).get_type() << ") || ";
+
+        for (size_t j = 0; j < prevs.size(); j++) {
+            cout << prevs[j] << " ";
+        }
+        cout << endl;
     }
 }

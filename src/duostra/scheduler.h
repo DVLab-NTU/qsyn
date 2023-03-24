@@ -53,6 +53,7 @@ public:
                           bool forget = false);
 
     size_t get_executable(Router& router) const;
+    bool is_sorted() const { return sorted_; }
 
 protected:
     std::unique_ptr<CircuitTopo> topo_;
@@ -112,7 +113,7 @@ public:
     ~GreedyScheduler() override {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
-    size_t greedy_fallback(const Router& router,
+    size_t greedy_fallback(Router& router,
                            const std::vector<size_t>& wait_list,
                            size_t gate_idx) const;
 
@@ -164,6 +165,8 @@ public:
     bool done() const { return scheduler().get_avail_gates().empty(); }
     bool is_leaf() const { return children_.empty(); }
     void grow_if_needed();
+
+    bool can_grow() const;
 
 private:
     TreeNodeConf conf_;

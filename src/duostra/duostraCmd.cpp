@@ -18,14 +18,14 @@
 #include "qcir.h"         // for QCir
 #include "qcirCmd.h"      // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
 #include "qcirMgr.h"      // for QCirMgr
-#include "topologyMgr.h"  // for DeviceTopoMgr
+#include "topologyMgr.h"  // for DeviceMgr
 #include "util.h"         // for myStr2Uns
 
 using namespace std;
 extern size_t verbose;
 extern int effLimit;
 extern QCirMgr *qcirMgr;
-extern DeviceTopoMgr *deviceTopoMgr;
+extern DeviceMgr *deviceMgr;
 
 bool initDuostraCmd() {
     if (!(cmdMgr->regCmd("DUOSTRA", 7, make_unique<DuostraCmd>()))) {
@@ -44,8 +44,17 @@ DuostraCmd::exec(const string &option) {
         return CMD_EXEC_ERROR;
 
     QC_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
-    Duostra duo = Duostra(qcirMgr->getQCircuit(), deviceTopoMgr->getDeviceTopo());
+    Duostra duo = Duostra(qcirMgr->getQCircuit(), deviceMgr->getDevice());
     duo.flow();
+    QCir *result = duo.getPhysicalCircuit();
+    if (result != nullptr) {
+        qcirMgr->addQCir(qcirMgr->getNextID());
+        result->setId(qcirMgr->getNextID());
+        qcirMgr->setQCircuit(result);
+    }
+    else{
+        cerr<<"Error: Something wrong in Duostra Mapping!!" << endl;
+    }
     return CMD_EXEC_DONE;
 }
 

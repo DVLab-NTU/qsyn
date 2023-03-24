@@ -63,7 +63,7 @@ void GreedyScheduler::assign_gates(unique_ptr<Router> router) {
     assert(count == topo_->get_num_gates());
 }
 
-size_t GreedyScheduler::greedy_fallback(const Router& router,
+size_t GreedyScheduler::greedy_fallback(Router& router,
                                         const std::vector<size_t>& wait_list,
                                         size_t gate_idx) const {
     if (gate_idx != ERROR_CODE) {

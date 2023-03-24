@@ -23,13 +23,13 @@ public:
     BasePlacer(BasePlacer&& other) = delete;
     virtual ~BasePlacer() {}
 
-    void place_and_assign(DeviceTopo* device) {
+    void place_and_assign(Device& device) {
         auto assign = place(device);
-        device->place(assign);
+        device.place(assign);
     }
 
 protected:
-    virtual std::vector<size_t> place(DeviceTopo* device) const = 0;
+    virtual std::vector<size_t> place(Device& device) const = 0;
 };
 
 class RandomPlacer : public BasePlacer {
@@ -37,7 +37,7 @@ public:
     ~RandomPlacer() override {}
 
 protected:
-    std::vector<size_t> place(DeviceTopo* device) const override;
+    std::vector<size_t> place(Device& device) const override;
 };
 
 class StaticPlacer : public BasePlacer {
@@ -45,7 +45,7 @@ public:
     ~StaticPlacer() override {}
 
 protected:
-    std::vector<size_t> place(DeviceTopo* device) const override;
+    std::vector<size_t> place(Device& device) const override;
 };
 
 class DFSPlacer : public BasePlacer {
@@ -53,11 +53,11 @@ public:
     ~DFSPlacer() override {}
 
 protected:
-    std::vector<size_t> place(DeviceTopo* device) const override;
+    std::vector<size_t> place(Device& device) const override;
 
 private:
     void dfs_device(size_t current,
-                    DeviceTopo* device,
+                    Device& device,
                     std::vector<size_t>& assign,
                     std::vector<bool>& qubit_mark) const;
 };
