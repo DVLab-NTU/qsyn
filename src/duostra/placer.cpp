@@ -25,9 +25,9 @@ unique_ptr<BasePlacer> getPlacer(const string& typ) {
     abort();
 }
 
-vector<size_t> RandomPlacer::place(DeviceTopo* device) const {
+vector<size_t> RandomPlacer::place(Device& device) const {
     std::vector<size_t> assign;
-    for (size_t i = 0; i < device->getNQubit(); ++i) {
+    for (size_t i = 0; i < device.getNQubit(); ++i) {
         assign.push_back(i);
     }
     size_t seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -36,23 +36,23 @@ vector<size_t> RandomPlacer::place(DeviceTopo* device) const {
     return assign;
 }
 
-vector<size_t> StaticPlacer::place(DeviceTopo* device) const {
+vector<size_t> StaticPlacer::place(Device& device) const {
     std::vector<size_t> assign;
-    for (size_t i = 0; i < device->getNQubit(); ++i) {
+    for (size_t i = 0; i < device.getNQubit(); ++i) {
         assign.push_back(i);
     }
     return assign;
 }
 
-vector<size_t> DFSPlacer::place(DeviceTopo* device) const {
+vector<size_t> DFSPlacer::place(Device& device) const {
     vector<size_t> assign;
-    vector<bool> qubit_mark(device->getNQubit(), false);
+    vector<bool> qubit_mark(device.getNQubit(), false);
     dfs_device(0, device, assign, qubit_mark);
-    assert(assign.size() == device->getNQubit());
+    assert(assign.size() == device.getNQubit());
     return assign;
 }
 
-void DFSPlacer::dfs_device(size_t current, DeviceTopo* device, vector<size_t>& assign, vector<bool>& qubit_mark) const {
+void DFSPlacer::dfs_device(size_t current, Device& device, vector<size_t>& assign, vector<bool>& qubit_mark) const {
     if (qubit_mark[current]) {
         cout << current << endl;
     }
@@ -60,18 +60,17 @@ void DFSPlacer::dfs_device(size_t current, DeviceTopo* device, vector<size_t>& a
     qubit_mark[current] = true;
     assign.push_back(current);
 
-    PhyQubit* q = device->getPhysicalQubit(current);
+    const PhyQubit& q = device.getPhysicalQubit(current);
     vector<size_t> adj_waitlist;
 
-    for (auto& adjQ : q->getAdjacencies()) {
-        size_t adj = adjQ->getId();
+    for (auto& adj : q.getAdjacencies()) {
         // already marked
         if (qubit_mark[adj])
             continue;
-        assert(adjQ->getAdjacencies().size() > 0);
+        assert(q.getAdjacencies().size() > 0);
 
         // corner
-        if (adjQ->getAdjacencies().size() == 1) {
+        if (q.getAdjacencies().size() == 1) {
             dfs_device(adj, device, assign, qubit_mark);
         } else {
             adj_waitlist.push_back(adj);

@@ -13,9 +13,9 @@
 #include <queue>
 #include <string>
 // #include <tuple>
+#include "circuitTopology.h"
 #include "qcir.h"
 #include "topology.h"
-// #include "topo.hpp"
 
 class AStarNode {
 public:
@@ -52,40 +52,40 @@ public:
 class Router {
 public:
     using PriorityQueue = std::priority_queue<AStarNode, std::vector<AStarNode>, AStarComp>;
-    Router(DeviceTopo* device,
+    Router(Device&& device,
            const std::string& typ,
            const std::string& cost,
            bool orient) noexcept;
     Router(const Router& other) noexcept;
     Router(Router&& other) noexcept;
 
-    DeviceTopo* get_device() { return device_; }
-    const DeviceTopo* get_device() const { return device_; }
+    Device& get_device() { return device_; }
+    const Device& get_device() const { return device_; }
 
-    size_t get_gate_cost(QCirGate* gate, bool min_max, size_t apsp_coef) const;
-    bool is_executable(QCirGate* gate) const;
+    size_t get_gate_cost(const Gate&, bool min_max, size_t apsp_coef);
+    bool is_executable(const Gate& gate);
     std::unique_ptr<Router> clone() const;
 
     // Main Router function
-    Operation execute_single(QCirGate* gate, size_t q);
-    std::vector<Operation> duostra_routing(QCirGate* gate, std::tuple<size_t, size_t> qs, bool orient);
+    Operation execute_single(GateType gate, size_t q);
+    std::vector<Operation> duostra_routing(GateType gate, std::tuple<size_t, size_t> qs, bool orient);
     // TODO - APSP_ROUTING: After First version is finished
-    std::vector<Operation> apsp_routing(QCirGate* gate, std::tuple<size_t, size_t> qs, bool orient);
-    std::vector<Operation> assign_gate(QCirGate* gate);
+    std::vector<Operation> apsp_routing(GateType gate, std::tuple<size_t, size_t> qs, bool orient);
+    std::vector<Operation> assign_gate(const Gate& gate);
 
 private:
     bool greedy_type_;
     bool duostra_;
     bool orient_;
     bool apsp_;
-    DeviceTopo* device_;
+    Device device_;
     std::vector<size_t> topo_to_dev_;
 
     void init(const std::string& typ, const std::string& cost);
-    std::tuple<size_t, size_t> get_device_qubits_idx(QCirGate* gate) const;
+    std::tuple<size_t, size_t> get_device_qubits_idx(const Gate& gate) const;
 
-    std::tuple<bool, size_t> touch_adj(PhyQubit* qubit, PriorityQueue& pq, bool swtch);  // return <if touch target, target id>, swtch: false q0 propagate, true q1 propagate
-    std::vector<Operation> traceback([[maybe_unused]] GateType op, PhyQubit* q0, PhyQubit* q1, PhyQubit* t0, PhyQubit* t1);
+    std::tuple<bool, size_t> touch_adj(PhyQubit& qubit, PriorityQueue& pq, bool swtch);  // return <if touch target, target id>, swtch: false q0 propagate, true q1 propagate
+    std::vector<Operation> traceback([[maybe_unused]] GateType op, PhyQubit& q0, PhyQubit& q1, PhyQubit& t0, PhyQubit& t1);
 };
 
 #endif

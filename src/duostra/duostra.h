@@ -15,13 +15,15 @@
 
 class Duostra {
 public:
-    Duostra(QCir* cir, DeviceTopo* dev) : _logicalCircuit(cir), _device(dev) {
+    Duostra(QCir* cir, Device dev) : _logicalCircuit(cir), _device(dev) {
     }
     ~Duostra() {}
+    void makeDepend();
     size_t flow();
 
 private:
     QCir* _logicalCircuit;
     QCir* _physicalCircuit;
-    DeviceTopo* _device;
+    Device _device;
+    std::shared_ptr<DependencyGraph> _dependency;
 };

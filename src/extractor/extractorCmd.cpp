@@ -17,7 +17,7 @@
 #include "qcir.h"         // for QCir
 #include "qcirCmd.h"      // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
 #include "qcirMgr.h"      // for QCirMgr
-#include "topologyMgr.h"  // for DeviceTopoMgr
+#include "topologyMgr.h"  // for DeviceMgr
 #include "util.h"         // for myStr2Uns
 #include "zxCmd.h"        // for ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN, ZX_CMD_...
 #include "zxGraph.h"      // for ZXGraph
@@ -28,7 +28,7 @@ extern size_t verbose;
 extern int effLimit;
 extern ZXGraphMgr *zxGraphMgr;
 extern QCirMgr *qcirMgr;
-extern DeviceTopoMgr *deviceTopoMgr;
+extern DeviceMgr *deviceMgr;
 
 bool initExtractCmd() {
     if (!(cmdMgr->regCmd("ZX2QC", 5, make_unique<ExtractCmd>()) &&
@@ -47,17 +47,17 @@ bool initExtractCmd() {
 CmdExecStatus
 ExtractCmd::exec(const string &option) {
     string token;
-    DeviceTopo *topo = nullptr;
+    Device topo = NULL;
     if (!CmdExec::lexSingleOption(option, token))
         return CMD_EXEC_ERROR;
     if (token.empty() || myStrNCmp("-Logical", token, 2) == 0)
         topo = nullptr;
     else if (myStrNCmp("-Physical", token, 2) == 0) {
-        if (deviceTopoMgr->getDTListItr() == deviceTopoMgr->getDeviceTopoList().end()) {
-            cerr << "Error: DeviceTopo list is empty now. Please DTNEW/DTRead before ZX2QC.\n";
+        if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {
+            cerr << "Error: Device list is empty now. Please DTNEW/DTRead before ZX2QC.\n";
             return CMD_EXEC_ERROR;
         }
-        topo = deviceTopoMgr->getDeviceTopo();
+        topo = deviceMgr->getDevice();
     } else {
         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     }

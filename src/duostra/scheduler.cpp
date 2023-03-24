@@ -96,7 +96,7 @@ size_t BaseScheduler::route_one_gate(Router& router, size_t gate_idx, bool forge
         ops_.insert(ops_.end(), ops.begin(), ops.end());
     }
     topo_->update_avail_gates(gate_idx);
-    // router.get_device()->printMapping();
+
     return max_cost;
 }
 

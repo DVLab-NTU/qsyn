@@ -97,7 +97,7 @@ public:
 
     size_t getId() const { return _id; }
     size_t getOccupiedTime() const { return _occuTime; }
-    bool isAdjacency(const PhyQubit& pq) { return _adjacencies.contains(pq.getId()); }
+    const bool isAdjacency(const PhyQubit& pq) const { return _adjacencies.contains(pq.getId()); }
     const Adjacencies& getAdjacencies() const { return _adjacencies; }
     size_t getLogicalQubit() const { return _logicalQubit; }
 

@@ -29,8 +29,8 @@ extern bool initQCirCmd();
 extern bool initZXCmd();
 extern bool initSimpCmd();
 extern bool initTensorCmd();
-extern bool initExtractCmd();
-extern bool initDeviceTopoCmd();
+// extern bool initExtractCmd();
+extern bool initDeviceCmd();
 extern bool initDuostraCmd();
 extern bool initM2Cmd();
 extern bool initGFlowCmd();
@@ -81,8 +81,8 @@ int main(int argc, char** argv) {
         !initSimpCmd() ||
         !initTensorCmd() ||
         // !initM2Cmd() ||
-        !initExtractCmd() ||
-        !initDeviceTopoCmd() ||
+        // !initExtractCmd() ||
+        !initDeviceCmd() ||
         !initDuostraCmd() ||
         !initGFlowCmd() ||
         !initLTCmd()) {
