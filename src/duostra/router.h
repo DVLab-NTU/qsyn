@@ -67,10 +67,9 @@ public:
     std::unique_ptr<Router> clone() const;
 
     // Main Router function
-    Operation execute_single(GateType gate, size_t q);
-    std::vector<Operation> duostra_routing(GateType gate, std::tuple<size_t, size_t> qs, bool orient);
-    // TODO - APSP_ROUTING: After First version is finished
-    std::vector<Operation> apsp_routing(GateType gate, std::tuple<size_t, size_t> qs, bool orient);
+    Operation execute_single(GateType gate, Phase ph, size_t q);
+    std::vector<Operation> duostra_routing(GateType gate, Phase ph, std::tuple<size_t, size_t> qs, bool orient);
+    std::vector<Operation> apsp_routing(GateType gate, Phase ph, std::tuple<size_t, size_t> qs, bool orient);
     std::vector<Operation> assign_gate(const Gate& gate);
 
 private:
@@ -85,7 +84,7 @@ private:
     std::tuple<size_t, size_t> get_device_qubits_idx(const Gate& gate) const;
 
     std::tuple<bool, size_t> touch_adj(PhyQubit& qubit, PriorityQueue& pq, bool swtch);  // return <if touch target, target id>, swtch: false q0 propagate, true q1 propagate
-    std::vector<Operation> traceback([[maybe_unused]] GateType op, PhyQubit& q0, PhyQubit& q1, PhyQubit& t0, PhyQubit& t1);
+    std::vector<Operation> traceback([[maybe_unused]] GateType op, Phase ph, PhyQubit& q0, PhyQubit& q1, PhyQubit& t0, PhyQubit& t1);
 };
 
 #endif

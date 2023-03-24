@@ -53,6 +53,7 @@ public:
                           bool forget = false);
 
     size_t get_executable(Router& router) const;
+    bool is_sorted() const { return sorted_; }
 
 protected:
     std::unique_ptr<CircuitTopo> topo_;

@@ -23,8 +23,8 @@
 
 class Gate {
 public:
-    Gate(size_t id, GateType type, std::tuple<size_t, size_t> qs)
-        : id_(id), type_(type), qubits_(qs), prevs_({}), nexts_({}) {
+    Gate(size_t id, GateType type, Phase ph,std::tuple<size_t, size_t> qs)
+        : id_(id), type_(type), _phase(ph), qubits_(qs), prevs_({}), nexts_({}) {
         if (std::get<0>(qubits_) > std::get<1>(qubits_)) {
             qubits_ = std::make_tuple(std::get<1>(qubits_), std::get<0>(qubits_));
         }
@@ -35,6 +35,7 @@ public:
     Gate(Gate&& other)
         : id_(other.id_),
           type_(other.type_),
+          _phase(other._phase),
           qubits_(other.qubits_),
           prevs_(other.prevs_),
           nexts_(other.nexts_) {}
@@ -43,7 +44,7 @@ public:
     std::tuple<size_t, size_t> get_qubits() const { return qubits_; }
 
     void set_type(GateType t) { type_ = t; }
-
+    void setPhase(Phase p) { _phase = p; }
     void add_prev(size_t p) {
         if (p != ERROR_CODE) {
             prevs_.push_back(p);
@@ -68,10 +69,12 @@ public:
     const std::vector<size_t>& get_prevs() const { return prevs_; }
     const std::vector<size_t>& get_nexts() const { return nexts_; }
     GateType get_type() const { return type_; }
+    Phase getPhase() const { return _phase; }
 
 private:
     size_t id_;
     GateType type_;
+    Phase _phase; //For saving phase information
     std::tuple<size_t, size_t> qubits_;
     std::vector<size_t> prevs_;
     std::vector<size_t> nexts_;
