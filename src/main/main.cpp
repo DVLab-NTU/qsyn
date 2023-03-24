@@ -29,7 +29,7 @@ extern bool initQCirCmd();
 extern bool initZXCmd();
 extern bool initSimpCmd();
 extern bool initTensorCmd();
-// extern bool initExtractCmd();
+extern bool initExtractCmd();
 extern bool initDeviceCmd();
 extern bool initDuostraCmd();
 extern bool initM2Cmd();
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
         !initSimpCmd() ||
         !initTensorCmd() ||
         // !initM2Cmd() ||
-        // !initExtractCmd() ||
+        !initExtractCmd() ||
         !initDeviceCmd() ||
         !initDuostraCmd() ||
         !initGFlowCmd() ||

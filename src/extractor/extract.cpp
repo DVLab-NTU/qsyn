@@ -792,21 +792,14 @@ void Extractor::createMatrix() {
 void Extractor::prependGate(string type, const vector<size_t>& qubits, Phase phase) {
     assert(qubits.size()==1 || qubits.size()==2);
     if (type == "rotate") {
-        if (_device == nullptr)
-            _circuit->addSingleRZ(qubits[0], phase, false);
-        else
-            _circuit->addSingleRZ(_device->getPhysicalByLogical(qubits[0])->getId(), phase, false);
+        // if (_device.isNull())
+        _circuit->addSingleRZ(qubits[0], phase, false);
     } else {
-        if(_device == nullptr) {
-            _circuit->addGate(type, qubits, phase, false);
-        } else {
-            if (qubits.size() == 1)
-                _circuit->addGate(type, {_device->getPhysicalByLogical(qubits[0])->getId()}, phase, false);
-            else {
-                // TODO: Duostra Route
-                _circuit->addGate(type, qubits, phase, false);
-            }
-        }
+        // if(_device.isNull()) {
+        _circuit->addGate(type, qubits, phase, false);
+        // } else {
+        //     // TODO - Link Device
+        // }
     }
 }
 

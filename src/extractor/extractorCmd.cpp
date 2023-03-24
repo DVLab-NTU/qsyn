@@ -42,25 +42,24 @@ bool initExtractCmd() {
 }
 
 //----------------------------------------------------------------------
-//    ZX2QC [-Logical | -Physical]
+//    ZX2QC
 //----------------------------------------------------------------------
 CmdExecStatus
 ExtractCmd::exec(const string &option) {
     string token;
-    Device topo = NULL;
     if (!CmdExec::lexSingleOption(option, token))
         return CMD_EXEC_ERROR;
-    if (token.empty() || myStrNCmp("-Logical", token, 2) == 0)
-        topo = nullptr;
-    else if (myStrNCmp("-Physical", token, 2) == 0) {
-        if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {
-            cerr << "Error: Device list is empty now. Please DTNEW/DTRead before ZX2QC.\n";
-            return CMD_EXEC_ERROR;
-        }
-        topo = deviceMgr->getDevice();
-    } else {
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    }
+    // if (token.empty() || myStrNCmp("-Logical", token, 2) == 0)
+    //     topo = Device();
+    // else if (myStrNCmp("-Physical", token, 2) == 0) {
+    //     if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {
+    //         cerr << "Error: Device list is empty now. Please DTNEW/DTRead before ZX2QC.\n";
+    //         return CMD_EXEC_ERROR;
+    //     }
+    //     topo = deviceMgr->getDevice();
+    // } else {
+    //     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+    // }
     unsigned id = qcirMgr->getNextID();
     // if (!token.empty()) {
     //     if (!myStr2Uns(option, id)) {
@@ -76,7 +75,7 @@ ExtractCmd::exec(const string &option) {
         return CMD_EXEC_ERROR;
     }
     zxGraphMgr->copy(zxGraphMgr->getNextID());
-    Extractor ext(zxGraphMgr->getGraph(), nullptr, topo);
+    Extractor ext(zxGraphMgr->getGraph(), nullptr);
     QCir *result = ext.extract();
     if (result != nullptr) {
         qcirMgr->addQCir(id);

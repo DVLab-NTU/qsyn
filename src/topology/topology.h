@@ -144,6 +144,7 @@ public:
     // REVIEW - Not sure why this function cannot be const funct.
     const PhyQubitList& getPhyQubitList() { return _qubitList; }
     PhyQubit& getPhysicalQubit(size_t id) { return _qubitList[id]; }
+    std::tuple<size_t, size_t> nextSwapCost(size_t source, size_t target);
 
     void setId(size_t id) { _id = id; }
     void setNQubit(size_t n) { _nQubit = n; }
@@ -197,10 +198,10 @@ public:
     friend std::ostream& operator<<(std::ostream&, Operation&);
     friend std::ostream& operator<<(std::ostream&, const Operation&);
 
-    Operation(GateType oper,
+    Operation(GateType oper, Phase ph,
               std::tuple<size_t, size_t> qs,
               std::tuple<size_t, size_t> du)
-        : oper_(oper), qubits_(qs), duration_(du) {
+        : oper_(oper), _phase(ph), qubits_(qs), duration_(du) {
         // sort qs
         size_t a = std::get<0>(qs);
         size_t b = std::get<1>(qs);
@@ -211,16 +212,20 @@ public:
     }
     Operation(const Operation& other)
         : oper_(other.oper_),
+          _phase(other._phase),
           qubits_(other.qubits_),
           duration_(other.duration_) {}
 
     Operation& operator=(const Operation& other) {
         oper_ = other.oper_;
+        _phase = other._phase;
         qubits_ = other.qubits_;
         duration_ = other.duration_;
         return *this;
     }
 
+    void setPhase(Phase ph) { _phase = ph; }
+    Phase getPhase() const { return _phase; }
     size_t get_cost() const { return std::get<1>(duration_); }
     size_t get_op_time() const { return std::get<0>(duration_); }
     std::tuple<size_t, size_t> get_duration() const { return duration_; }
@@ -230,6 +235,7 @@ public:
 
 private:
     GateType oper_;
+    Phase _phase;
     std::tuple<size_t, size_t> qubits_;
     std::tuple<size_t, size_t> duration_;  // <from, to>
 };

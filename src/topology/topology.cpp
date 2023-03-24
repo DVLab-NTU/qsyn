@@ -734,6 +734,17 @@ vector<PhyQubit> Device::getPath(size_t s, size_t t) const {
     return path;
 }
 
+tuple<size_t, size_t> Device::nextSwapCost(size_t source, size_t target) {
+    size_t nextIdx = _predecessor[source][target];
+    PhyQubit& qSource = getPhysicalQubit(source);
+    PhyQubit& qNext = getPhysicalQubit(nextIdx);
+    size_t cost = max(qSource.getOccupiedTime(), qNext.getOccupiedTime());
+
+    assert(qSource.isAdjacency(qNext));
+
+    return make_tuple(nextIdx, cost);
+}
+
 ostream& operator<<(ostream& os, Operation& op) {
     os << left;
     size_t from = get<0>(op.duration_);
