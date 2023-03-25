@@ -9,8 +9,72 @@
 
 #include "duostra.h"
 
+#include "variables.h"
+
 using namespace std;
 extern size_t verbose;
+
+// SECTION - Global settings for Duostra mapper
+
+size_t DUOSTRA_SCHEDULER = 4;            // 0:base 1:static 2:random 3:greedy 4:search
+size_t DUOSTRA_ROUTER = 1;               // 0:apsp 1:duostra
+size_t DUOSTRA_PLACER = 2;               // 0:static 1:random 2:dfs
+bool DUOSTRA_ORIENT = 1;                 // t/f smaller logical qubit index with little priority
+size_t DUOSTRA_CANDIDATES = (size_t)-1;  // top k candidates, -1: all
+size_t DUOSTRA_APSP_COEFF = 1;           // coefficient of apsp cost
+bool DUOSTRA_AVAILABLE = 1;              // 0:min 1:max, available time of double-qubit gate is set to min or max of occupied time
+bool DUOSTRA_COST = 0;                   // 0:min 1:max, select min or max cost from the waitlist
+size_t DUOSTRA_DEPTH = 5;                // depth of searching region
+bool DUOSTRA_NEVER_CACHE = 1;            // never cache any children unless children() is called
+bool DUOSTRA_EXECUTE_SINGLE = 1;         // execute the single gates when they are available
+
+extern size_t verbose;
+
+/**
+ * @brief Get the Scheduler Type Str object
+ *
+ * @return string
+ */
+string getSchedulerTypeStr() {
+    // 0:base 1:static 2:random 3:greedy 4:search
+    if (DUOSTRA_SCHEDULER == 0) return "base";
+    if (DUOSTRA_SCHEDULER == 1) return "static";
+    if (DUOSTRA_SCHEDULER == 2) return "random";
+    if (DUOSTRA_SCHEDULER == 3) return "greedy";
+    if (DUOSTRA_SCHEDULER == 4)
+        return "search";
+    else
+        return "Error";
+}
+
+/**
+ * @brief Get the Router Type Str object
+ *
+ * @return string
+ */
+string getRouterTypeStr() {
+    // 0:apsp 1:duostra
+    if (DUOSTRA_ROUTER == 0) return "apsp";
+    if (DUOSTRA_ROUTER == 1)
+        return "duostra";
+    else
+        return "Error";
+}
+
+/**
+ * @brief Get the Placer Type Str object
+ *
+ * @return string
+ */
+string getPlacerTypeStr() {
+    // 0:static 1:random 2:dfs
+    if (DUOSTRA_PLACER == 0) return "static";
+    if (DUOSTRA_PLACER == 1) return "random";
+    if (DUOSTRA_PLACER == 2)
+        return "dfs";
+    else
+        return "Error";
+}
 
 /**
  * @brief Construct a new Duostra:: Duostra object
@@ -71,23 +135,17 @@ size_t Duostra::flow() {
     }
 
     if (verbose > 3) cout << "Initial placing..." << endl;
-    string placerType = "dfs";
-    auto placer = getPlacer(placerType);
+    auto placer = getPlacer();
     placer->placeAndAssign(_device);
 
     // scheduler
-
     if (verbose > 3) cout << "Creating Scheduler..." << endl;
-    string schedulerType = "search";
-    auto sched = getScheduler(schedulerType, move(topo));
+    auto sched = getScheduler(move(topo));
 
     // router
     if (verbose > 3) cout << "Creating Router..." << endl;
-    string routerType = "duostra";
-    bool orient = true;
-    string greedyCost = "end";
-    string cost = (schedulerType == "greedy") ? greedyCost : "start";
-    auto router = make_unique<Router>(move(_device), routerType, cost, orient);
+    string cost = (DUOSTRA_SCHEDULER == 3) ? "end" : "start";
+    auto router = make_unique<Router>(move(_device), cost, DUOSTRA_ORIENT);
 
     // routing
     cout << "Routing..." << endl;
@@ -95,9 +153,9 @@ size_t Duostra::flow() {
 
     cout << "Duostra Result: " << endl;
     cout << endl;
-    cout << "Placer:         " << placerType << endl;
-    cout << "Scheduler:      " << schedulerType << endl;
-    cout << "Router:         " << routerType << endl;
+    cout << "Scheduler:      " << getSchedulerTypeStr() << endl;
+    cout << "Router:         " << getRouterTypeStr() << endl;
+    cout << "Placer:         " << getPlacerTypeStr() << endl;
     cout << endl;
     cout << "Mapping Depth:  " << sched->getFinalCost() << "\n";
     cout << "Total Time:     " << sched->getTotalTime() << "\n";

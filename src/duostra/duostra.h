@@ -33,3 +33,7 @@ private:
     std::shared_ptr<DependencyGraph> _dependency;
     std::vector<Operation> _result;
 };
+
+std::string getSchedulerTypeStr();
+std::string getRouterTypeStr();
+std::string getPlacerTypeStr();

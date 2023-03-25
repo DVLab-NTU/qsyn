@@ -16,18 +16,18 @@ using namespace std;
 /**
  * @brief Get the Placer object
  *
- * @param typ
  * @return unique_ptr<BasePlacer>
  */
-unique_ptr<BasePlacer> getPlacer(const string& typ) {
-    if (typ == "static") {
+unique_ptr<BasePlacer> getPlacer() {
+    // 0:static 1:random 2:dfs
+    if (DUOSTRA_PLACER == 0) {
         return make_unique<StaticPlacer>();
-    } else if (typ == "random") {
+    } else if (DUOSTRA_PLACER == 1) {
         return make_unique<RandomPlacer>();
-    } else if (typ == "dfs") {
+    } else if (DUOSTRA_PLACER == 2) {
         return make_unique<DFSPlacer>();
     }
-    cerr << typ << " is not a placer type." << endl;
+    cerr << "Error: placer type not found." << endl;
     abort();
 }
 

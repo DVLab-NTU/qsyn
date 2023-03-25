@@ -42,10 +42,10 @@ private:
  *
  */
 GreedyConf::GreedyConf()
-    : availableType(true),
-      costType(false),
-      _candidates(ERROR_CODE),
-      _APSPCoeff(1) {}
+    : _availableType(DUOSTRA_AVAILABLE),
+      _costType(DUOSTRA_COST),
+      _candidates(DUOSTRA_CANDIDATES),
+      _APSPCoeff(DUOSTRA_APSP_COEFF) {}
 
 // SECTION - Class GreedyScheduler Member Functions
 
@@ -123,10 +123,10 @@ size_t GreedyScheduler::greedyFallback(Router& router,
 
     for (size_t i = 0; i < waitlist.size(); ++i) {
         const auto& gate = _circuitTopology->getGate(waitlist[i]);
-        costList[i] = router.getGateCost(gate, _conf.availableType, _conf._APSPCoeff);
+        costList[i] = router.getGateCost(gate, _conf._availableType, _conf._APSPCoeff);
     }
 
-    auto listIdx = _conf.costType
+    auto listIdx = _conf._costType
                        ? max_element(costList.begin(), costList.end()) - costList.begin()
                        : min_element(costList.begin(), costList.end()) - costList.begin();
     return waitlist[listIdx];

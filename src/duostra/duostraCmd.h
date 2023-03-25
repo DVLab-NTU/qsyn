@@ -13,4 +13,5 @@
 #include "cmdParser.h"
 
 CmdClass(DuostraCmd);
+CmdClass(DuostraSetCmd);
 #endif  // DUOSTRA_CMD_H

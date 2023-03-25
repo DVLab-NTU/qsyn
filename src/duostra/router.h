@@ -16,6 +16,7 @@
 #include "circuitTopology.h"
 #include "qcir.h"
 #include "topology.h"
+#include "variables.h"
 
 class AStarNode {
 public:
@@ -45,7 +46,7 @@ public:
 class Router {
 public:
     using PriorityQueue = std::priority_queue<AStarNode, std::vector<AStarNode>, AStarComp>;
-    Router(Device&&, const std::string&, const std::string&, bool) noexcept;
+    Router(Device&&, const std::string&, bool) noexcept;
     Router(const Router&) noexcept;
     Router(Router&&) noexcept;
 
@@ -71,7 +72,7 @@ private:
     Device _device;
     std::vector<size_t> _logical2Physical;
 
-    void init(const std::string& typ, const std::string& cost);
+    void init(const std::string&);
     std::tuple<size_t, size_t> getPhysicalQubits(const Gate& gate) const;
 
     std::tuple<bool, size_t> touchAdjacency(PhysicalQubit& qubit, PriorityQueue& pq, bool swtch);  // return <if touch target, target id>, swtch: false q0 propagate, true q1 propagate

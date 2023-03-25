@@ -20,6 +20,7 @@
 #include "router.h"
 #include "topology.h"
 #include "util.h"
+#include "variables.h"
 
 class BaseScheduler {
 public:
@@ -83,8 +84,8 @@ protected:
 struct GreedyConf {
     GreedyConf();
 
-    bool availableType;  // true is max, false is min
-    bool costType;       // true is max, false is min
+    bool _availableType;  // true is max, false is min
+    bool _costType;       // true is max, false is min
     size_t _candidates;
     size_t _APSPCoeff;
 };
@@ -182,6 +183,6 @@ protected:
     void cacheOnlyWhenNecessary();
 };
 
-std::unique_ptr<BaseScheduler> getScheduler(const std::string&, std::unique_ptr<CircuitTopo>);
+std::unique_ptr<BaseScheduler> getScheduler(std::unique_ptr<CircuitTopo>);
 
 #endif

@@ -314,9 +314,9 @@ size_t TreeNode::bestCost() const {
  */
 SearchScheduler::SearchScheduler(unique_ptr<CircuitTopo> topo)
     : GreedyScheduler(move(topo)),
-      _lookAhead(5),
-      _neverCache(true),
-      _executeSingle(true) {
+      _lookAhead(DUOSTRA_DEPTH),
+      _neverCache(DUOSTRA_NEVER_CACHE),
+      _executeSingle(DUOSTRA_EXECUTE_SINGLE) {
     cacheOnlyWhenNecessary();
 }
 

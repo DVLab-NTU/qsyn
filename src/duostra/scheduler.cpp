@@ -21,19 +21,20 @@ using namespace std;
  * @param topo
  * @return unique_ptr<BaseScheduler>
  */
-unique_ptr<BaseScheduler> getScheduler(const string& typ, unique_ptr<CircuitTopo> topo) {
-    if (typ == "random") {
+unique_ptr<BaseScheduler> getScheduler(unique_ptr<CircuitTopo> topo) {
+    // 0:base 1:static 2:random 3:greedy 4:search
+    if (DUOSTRA_SCHEDULER == 2) {
         return make_unique<RandomScheduler>(move(topo));
-    } else if (typ == "static") {
+    } else if (DUOSTRA_SCHEDULER == 1) {
         return make_unique<StaticScheduler>(move(topo));
-    } else if (typ == "greedy") {
+    } else if (DUOSTRA_SCHEDULER == 3) {
         return make_unique<GreedyScheduler>(move(topo));
-    } else if (typ == "search") {
+    } else if (DUOSTRA_SCHEDULER == 4) {
         return make_unique<SearchScheduler>(move(topo));
-    } else if (typ == "base") {
+    } else if (DUOSTRA_SCHEDULER == 0) {
         return make_unique<BaseScheduler>(move(topo));
     } else {
-        cerr << typ << " is not a scheduler type" << endl;
+        cerr << "Error: scheduler type not found" << endl;
         abort();
     }
 }

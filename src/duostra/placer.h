@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "topology.h"
+#include "variables.h"
 
 class BasePlacer {
 public:
@@ -56,6 +57,6 @@ private:
     void DFSDevice(size_t, Device&, std::vector<size_t>&, std::vector<bool>&) const;
 };
 
-std::unique_ptr<BasePlacer> getPlacer(const std::string& typ);
+std::unique_ptr<BasePlacer> getPlacer();
 
 #endif

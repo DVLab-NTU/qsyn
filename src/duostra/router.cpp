@@ -53,18 +53,17 @@ AStarNode& AStarNode::operator=(const AStarNode& other) {
  * @brief Construct a new Router:: Router object
  *
  * @param device
- * @param type
  * @param cost
  * @param orient
  */
-Router::Router(Device&& device, const string& type, const string& cost, bool orient) noexcept
+Router::Router(Device&& device, const string& cost, bool orient) noexcept
     : _greedyType(false),
       _duostra(false),
       _orient(orient),
       _APSP(false),
       _device(device),
       _logical2Physical({}) {
-    init(type, cost);
+    init(cost);
 }
 
 /**
@@ -108,14 +107,15 @@ unique_ptr<Router> Router::clone() const {
  * @param type
  * @param cost
  */
-void Router::init(const string& type, const string& cost) {
-    if (type == "apsp") {
+void Router::init(const string& cost) {
+    // DUOSTRA_ROUTER 0:apsp 1:duostra
+    if (DUOSTRA_ROUTER == 0) {
         _APSP = true;
         _duostra = false;
-    } else if (type == "duostra") {
+    } else if (DUOSTRA_ROUTER == 1) {
         _duostra = true;
     } else {
-        cerr << "Error: " << type << " is not a router type" << endl;
+        cerr << "Error: router type not found" << endl;
         abort();
     }
 
