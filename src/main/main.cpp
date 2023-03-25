@@ -53,8 +53,6 @@ myexit() {
 int main(int argc, char** argv) {
     myUsage.reset();
 
-    ifstream dof;
-
     if (argc == 3) {  // -file <doFile>
         if (myStrNCmp("-File", argv[1], 2) == 0) {
             if (!cmdMgr->openDofile(argv[2])) {

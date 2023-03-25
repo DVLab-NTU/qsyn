@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -25,29 +26,65 @@ using namespace std;
 bool initArgParserCmd() {
     using namespace ArgParse;
 
-    auto argparseCmd = make_unique<ArgParseCmdType>("Argparse");
+    auto argparseCmd = make_unique<ArgParseCmdType>("Argparse");  // argparse package sandbox
 
     argparseCmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("ArgParse package sandbox");
 
         parser.addArgument<string>("cat")
-            .help("cute");
+            .help("won't eat veggies");
+
         parser.addArgument<string>("dog")
             .help("humans' best friend");
 
-        parser.addArgument<int>("-badge")
-            .defaultValue(42)
-            .help("a symbol of honor");
-        parser.addArgument<unsigned>("-bacon")
-            .defaultValue(5)
-            .action(storeConst<unsigned>)
-            .constValue(87)
+        auto mutex1 = parser.addMutuallyExclusiveGroup().required(true);
+
+        mutex1.addArgument<int>("-bacon")
             .help("yummy");
+
+        mutex1.addArgument<int>("-badge")
+            .help("a sign of honour");
+
+        mutex1.addArgument<int>("-bus")
+            .help("public transport");
+        // parser.addArgument<unsigned>("-another")
+        //     .defaultValue(5)
+        //     .action(storeConst<unsigned>)
+        //     .constValue(87)
+        //     .help("another variable");
+
+        // parser.addArgument<int>("-answer")
+        //     .defaultValue(42)
+        //     .constraint({
+        //     [](ArgType<int> const& arg) {
+        //         return [&arg]() {
+        //             return arg.getValue() < 10 && arg.getValue() >= 1;
+        //         };
+        //     },
+        //     [](ArgType<int> const& arg) {
+        //         return [&arg]() {
+        //             cerr << "Error: invalid choice for argument \"" << arg.getName() << ": please choose within range [1, 10)!!\n";
+        //         };
+        //     }
+        //     })
+        //     .help("the answer to everything");
     };
 
     argparseCmd->onParseSuccess = [](ArgumentParser const& parser) {
-        parser.printTokens();
-        parser.printArguments();
+        cout << "Here's my cat, its name is " << parser["cat"] << endl;
+        cout << parser["cat"] << " has a dog friend, " << parser["dog"] << ".\n"
+             << endl;
+
+        [[maybe_unused]] auto add = [](unsigned a, int b) {
+            return a + b;
+        };
+
+        [[maybe_unused]] auto multiply = [](int a, int b) {
+            return a * b;
+        };
+
+        // cout << "another + answer = " << add(parser["-another"], parser["-answer"]) << endl;
+        // cout << "another * answer = " << multiply(parser["-another"], parser["-answer"]) << endl;
 
         return CMD_EXEC_DONE;
     };
@@ -78,7 +115,7 @@ bool ArgParseCmdType::initialize() {
         return false;
     }
     parserDefinition(_parser);
-    return true;
+    return _parser.analyzeOptions();
 }
 
 /**

@@ -19,8 +19,33 @@ namespace ArgParse {
 
 class ArgumentParser;
 
+struct DummyArgumentType {
+    DummyArgumentType() : name{"dummy"} {}
+    std::string const& getTypeString() const { return name; }
+    std::string const& getName() const { return name; }
+    std::string const& getHelp() const { return name; }
+    std::string const& getMetaVar() const { return name; }
+    std::vector<ConstraintType> const& getConstraints() const { return constraints; }
+
+    bool hasDefaultValue() const { return false; }
+    bool hasAction() const { return false; }
+    bool isRequired() const { return false; }
+
+    friend std::ostream& operator<<(std::ostream& os, DummyArgumentType const& val) {
+        return os;
+    }
+
+    std::optional<DummyArgumentType> getDefaultValue() const { return std::nullopt; }
+    bool parse(std::string const&) { return true; }
+    void reset() { return; }
+
+    std::string name;
+    std::vector<ConstraintType> constraints;
+};
+
 class Argument {
 public:
+    Argument() : _pimpl{std::make_unique<Model<DummyArgumentType>>(DummyArgumentType{})} {}
     template <typename T>
     Argument(T const& val)
         : _pimpl{std::make_unique<Model<ArgType<T>>>(std::move(val))}, _parsed{false}, _numRequiredChars{1} {}
@@ -37,11 +62,16 @@ public:
         return *this;
     }
 
-    // deliberately left out move ctors and assignments
+    Argument(Argument&& other) = default;
+    Argument& operator=(Argument&& other) = default;
+
+    // deliberately left out move ctors and assignments. The copy counterparts serves as a fallback
 
     friend std::ostream& operator<<(std::ostream& os, Argument const& arg) {
         return arg._pimpl->doPrint(os);
     }
+
+    // enable casting back to original type
 
     template <typename T>
     operator T&() const {
@@ -65,13 +95,15 @@ public:
 
     // getters
 
-    std::string getTypeString() const { return hasAction() ? "flag" : _pimpl->doGetTypeString(); }
+    std::string getTypeString() const { return _pimpl->doGetTypeString(); }
     std::string const& getName() const { return _pimpl->doGetName(); }
-    // std::string const& getMetaVar() const { return _pimpl->doGetMetaVar(); }
     std::string const& getHelp() const { return _pimpl->doGetHelp(); }
     size_t getNumRequiredChars() const { return _numRequiredChars; }
+    std::string const& getMetavar() const { return _pimpl->doGetMetaVar(); }
+    std::vector<ConstraintType> const& getConstraints() const { return _pimpl->doGetConstraints(); }
 
     // attributes
+
     bool hasDefaultValue() const { return _pimpl->doHasDefaultValue(); }
     bool hasAction() const { return _pimpl->doHasAction(); }
     bool isRequired() const { return _pimpl->doIsRequired(); }
@@ -87,15 +119,9 @@ public:
     void printDefaultValue(std::ostream& os) const { _pimpl->doPrintDefaultValue(os); }
 
     // action
-    void reset() {
-        _parsed = false;
-        _pimpl->doReset();
-    }
-    bool parse(std::string const& token) {
-        bool result = _pimpl->doParse(token);
-        _parsed = true;
-        return result;
-    }
+
+    void reset();
+    bool parse(std::string const& token);
 
 private:
     friend class ArgumentParser;
@@ -115,8 +141,9 @@ private:
 
         virtual std::string doGetTypeString() const = 0;
         virtual std::string const& doGetName() const = 0;
-        // virtual std::string const& doGetMetaVar() const = 0;
         virtual std::string const& doGetHelp() const = 0;
+        virtual std::string const& doGetMetaVar() const = 0;
+        virtual std::vector<ConstraintType> const& doGetConstraints() const = 0;
 
         virtual bool doHasDefaultValue() const = 0;
         virtual bool doHasAction() const = 0;
@@ -140,8 +167,9 @@ private:
 
         std::string doGetTypeString() const override { return inner.getTypeString(); }
         std::string const& doGetName() const override { return inner.getName(); }
-        // std::string const& doGetMetaVar() const override { return inner.getMetaVar(); }
         std::string const& doGetHelp() const override { return inner.getHelp(); }
+        std::string const& doGetMetaVar() const override { return inner.getMetaVar(); }
+        std::vector<ConstraintType> const& doGetConstraints() const { return inner.getConstraints(); }
 
         bool doHasDefaultValue() const { return inner.hasDefaultValue(); }
         bool doHasAction() const { return inner.hasAction(); }
@@ -151,7 +179,7 @@ private:
         std::ostream& doPrintDefaultValue(std::ostream& os) const override { return (inner.getDefaultValue().has_value() ? os << inner.getDefaultValue().value() : os << "(none)"); }
 
         bool doParse(std::string const& token) override { return inner.parse(token); }
-        virtual void doReset() override { inner.reset(); }
+        void doReset() override { inner.reset(); }
     };
 };
 
