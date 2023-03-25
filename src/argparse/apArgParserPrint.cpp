@@ -94,14 +94,38 @@ void ArgumentParser::printUsage() const {
 
     cout << TF::LIGHT_BLUE("Usage: ");
     cout << styledCmdName();
-    for (auto const& [_, arg] : _arguments) {
-        if (arg.isRequired()) {
-            cout << " " << getSyntaxString(arg);
+    for (auto const& [name, arg] : _arguments) {
+        if (!arg.isRequired() && !_conflictGroups.contains(name)) {
+            cout << " " << optionalArgBracket(getSyntaxString(arg));
         }
     }
 
-    for (auto const& [_, arg] : _arguments) {
-        if (!arg.isRequired()) {
+    for (auto const& group : _mutuallyExclusiveGroups) {
+        if (!group.isRequired()) {
+            cout << " " + optionalStyle("[");
+            size_t ctr = 0;
+            for (auto const& name : group.getArguments()) {
+                cout << getSyntaxString(_arguments.at(name));
+                if (++ctr < group.getArguments().size()) cout << optionalStyle(" | ");
+            }
+            cout << optionalStyle("]");
+        }
+    }
+
+    for (auto const& group : _mutuallyExclusiveGroups) {
+        if (group.isRequired()) {
+            cout << " " + requiredStyle("<");
+            size_t ctr = 0;
+            for (auto const& name : group.getArguments()) {
+                cout << getSyntaxString(_arguments.at(name));
+                if (++ctr < group.getArguments().size()) cout << requiredStyle(" | ");
+            }
+            cout << requiredStyle(">");
+        }
+    }
+
+    for (auto const& [name, arg] : _arguments) {
+        if (arg.isRequired() && !_conflictGroups.contains(name)) {
             cout << " " << getSyntaxString(arg);
         }
     }
@@ -177,7 +201,7 @@ string ArgumentParser::getSyntaxString(Argument const& arg) const {
         ret = optionalStyle(styledArgName(arg)) + (arg.hasAction() ? "" : (" " + ret));
     }
 
-    return (arg.isRequired()) ? ret : optionalArgBracket(ret);
+    return ret;
 }
 
 // printing helpers

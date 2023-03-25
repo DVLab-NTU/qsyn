@@ -14,6 +14,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "apArgParser.h"
 #include "util.h"
@@ -36,27 +37,37 @@ bool initArgParserCmd() {
         parser.addArgument<string>("dog")
             .help("humans' best friend");
 
-        parser.addArgument<unsigned>("-another")
-            .defaultValue(5)
-            .action(storeConst<unsigned>)
-            .constValue(87)
-            .help("another variable");
+        auto mutex1 = parser.addMutuallyExclusiveGroup().required(true);
 
-        parser.addArgument<int>("-answer")
-            .defaultValue(42)
-            .constraint({
-            [](ArgType<int> const& arg) {
-                return [&arg]() {
-                    return arg.getValue() < 10 && arg.getValue() >= 1;
-                };
-            },
-            [](ArgType<int> const& arg) {
-                return [&arg]() {
-                    cerr << "Error: invalid choice for argument \"" << arg.getName() << ": please choose within range [1, 10)!!\n";
-                };
-            }
-            })
-            .help("the answer to everything");
+        mutex1.addArgument<int>("-bacon")
+            .help("yummy");
+        
+        mutex1.addArgument<int>("-badge")
+            .help("a sign of honour");
+
+        mutex1.addArgument<int>("-bus")
+            .help("public transport");
+        // parser.addArgument<unsigned>("-another")
+        //     .defaultValue(5)
+        //     .action(storeConst<unsigned>)
+        //     .constValue(87)
+        //     .help("another variable");
+
+        // parser.addArgument<int>("-answer")
+        //     .defaultValue(42)
+        //     .constraint({
+        //     [](ArgType<int> const& arg) {
+        //         return [&arg]() {
+        //             return arg.getValue() < 10 && arg.getValue() >= 1;
+        //         };
+        //     },
+        //     [](ArgType<int> const& arg) {
+        //         return [&arg]() {
+        //             cerr << "Error: invalid choice for argument \"" << arg.getName() << ": please choose within range [1, 10)!!\n";
+        //         };
+        //     }
+        //     })
+        //     .help("the answer to everything");
     };
 
     argparseCmd->onParseSuccess = [](ArgumentParser const& parser) {
@@ -72,7 +83,7 @@ bool initArgParserCmd() {
             return a * b;
         };
 
-        cout << "another + answer = " << add(parser["-another"], parser["-answer"]) << endl;
+        // cout << "another + answer = " << add(parser["-another"], parser["-answer"]) << endl;
         // cout << "another * answer = " << multiply(parser["-another"], parser["-answer"]) << endl;
 
         return CMD_EXEC_DONE;
@@ -104,7 +115,7 @@ bool ArgParseCmdType::initialize() {
         return false;
     }
     parserDefinition(_parser);
-    return true;
+    return _parser.analyzeOptions();
 }
 
 /**

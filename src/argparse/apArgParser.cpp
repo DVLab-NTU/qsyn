@@ -102,6 +102,18 @@ bool ArgumentParser::analyzeOptions() const {
     // calculate the number of required characters to differentiate each option
 
     _trie.clear();
+    _conflictGroups.clear();
+
+    for (auto const& group : _mutuallyExclusiveGroups) {
+        for (auto const& name : group.getArguments()) {
+            if (_arguments.at(name).isRequired()) {
+                cerr << "[ArgParse] Error: Mutually exclusive argument \"" << name << "\" must be optional!!" << endl;
+                return false;
+            }
+            _conflictGroups.emplace(name, group);
+        }
+    }
+
     for (auto const& [name, arg] : _arguments) {
         if (!hasOptionPrefix(name)) continue;
         _trie.insert(name);
@@ -212,7 +224,7 @@ bool ArgumentParser::parseOptions() {
             }
             // else this is an error
             if (frequency == 0) {
-                cerr << "Error: unrecognized option \"" << _tokens[i].token << "\"!!" << endl;
+                cerr << "Error: unrecognized option \"" << _tokens[i].token << "\"!!\n";
             } else {
                 printAmbiguousOptionErrorMsg(_tokens[i].token);
             }
@@ -221,9 +233,22 @@ bool ArgumentParser::parseOptions() {
         }
         Argument& arg = _arguments[get<string>(match)];
 
+        if (_conflictGroups.contains(arg.getName())) {
+            auto& conflictGroup = _conflictGroups.at(arg.getName());
+            if (conflictGroup.isParsed()) {
+                for (auto const& conflict: conflictGroup.getArguments()) {
+                    if (_arguments.at(conflict).isParsed()) {
+                        cerr << "Error: argument \"" << arg.getName() << "\" cannot occur with \"" << conflict << "\"!!\n";
+                        return false;
+                    }
+                }
+            }
+            conflictGroup.setParsed(true);  
+        }
+
         if (!arg.hasAction() &&
             (i + 1 >= (int)_tokens.size() || _tokens[i + 1].parsed == true)) {  // _tokens[i] is not the last token && _tokens[i+1] is unparsed
-            cerr << "Error: missing argument after \"" << _tokens[i].token << "\"!!" << endl;
+            cerr << "Error: missing argument after \"" << _tokens[i].token << "\"!!\n";
             return false;
         }
 
@@ -247,7 +272,7 @@ bool ArgumentParser::parseOptions() {
         }
     }
 
-    return allRequiredOptionsAreParsed();
+    return allRequiredOptionsAreParsed() && allRequiredMutexGroupsAreParsed();
 }
 
 /**
@@ -352,9 +377,34 @@ void ArgumentParser::printAmbiguousOptionErrorMsg(std::string const& token) cons
 bool ArgumentParser::allRequiredOptionsAreParsed() const {
     // Want: ∀ arg ∈ _arguments. (option(arg) ∧ required(arg)) → parsed(arg)
     // Thus: ∀ arg ∈ _arguments. ¬option(arg) ∨ ¬required(arg) ∨ parsed(arg)
-    return all_of(_arguments.begin(), _arguments.end(), [this](pair<string, Argument> const& argPair) {
-        return !hasOptionPrefix(argPair.first) || !argPair.second.isRequired() || argPair.second.isParsed();
-    });
+    for (auto& [name, arg] : _arguments) {
+        if (hasOptionPrefix(name) && arg.isRequired() && !arg.isParsed()) {
+            cerr << "Error: The option \"" << name << "\" is required!!" << endl;
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * @brief Check if all required groups are parsed
+ *
+ * @return true or false
+ */
+bool ArgumentParser::allRequiredMutexGroupsAreParsed() const {
+    for (auto& group : _mutuallyExclusiveGroups) {
+        if (group.isRequired() && !group.isParsed()) {
+            cerr << "Error: One of the options are required: ";
+            size_t ctr = 0;
+            for (auto& name : group.getArguments()) {
+                cerr << name;
+                if (++ctr < group.getArguments().size()) cerr << ", ";
+            }
+            cerr << "!!\n";
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
