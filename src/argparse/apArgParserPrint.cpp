@@ -142,7 +142,7 @@ void ArgumentParser::printSummary() const {
         cerr << "[ArgParse] Failed to generate usage information!!" << endl;
         return;
     }
-    cout << setw(13) << left << styledCmdName() << "  "
+    cout << setw(15 + TF::tokenSize(accentStyle)) << left << styledCmdName() + ":  "
          << getHelp() << endl;
 }
 
@@ -247,8 +247,12 @@ void ArgumentParser::printHelpString(Argument const& arg) const {
         cout << left << setw(_printTableWidths[1] + TF::tokenSize(accentStyle) + (colorLevel >= 1) * 2 * TF::tokenSize(optionalStyle))
              << styledArgName(arg);
         cout << "  ";
-        cout << left << setw(_printTableWidths[2] + TF::tokenSize(metavarStyle))
-             << metavarStyle(arg.getMetavar());
+        if (!arg.hasAction()) {
+            cout << left << setw(_printTableWidths[2] + TF::tokenSize(metavarStyle))
+                << metavarStyle(arg.getMetavar());
+        } else {
+            cout << string(_printTableWidths[2], ' ');
+        }
 
         cout << "  ";
         if (arg.getName().size() + arg.getMetavar().size() + arg.getTypeString().size() > lineBreakThres) {

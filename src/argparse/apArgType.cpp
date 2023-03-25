@@ -67,8 +67,11 @@ bool parseFromString(std::string& val, std::string const& token) {
 ActionType storeTrue(ArgType<bool>& arg) {
     arg.defaultValue(false);
     arg.constValue(true);
+    // printf("name = %s\n", arg.getName().c_str());
     return [&arg]() -> bool {
         arg.setValueToConst();
+        printf("name = %s\n", arg.getName().c_str());
+        cout << arg.getValue() << endl;
         return true;
     };
 }

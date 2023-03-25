@@ -68,12 +68,12 @@ public:
     bool checkOptCmd(const std::string& check) const;  // Removed for TODO...
     const std::string& getOptCmd() const { return _optCmd; }
 
+    static CmdExecStatus errorOption(CmdOptionError err, const std::string& opt);
 protected:
     bool lexNoOption(const std::string&) const;
     bool lexSingleOption(const std::string&, std::string&, bool optional = true) const;
     bool lexOptions(const std::string&, std::vector<std::string>&, size_t nOpts = 0) const;
 
-    CmdExecStatus errorOption(CmdOptionError err, const std::string& opt) const;
 
 private:
     std::string _optCmd;
@@ -117,7 +117,8 @@ public:
     void printHelps() const;
 
     // public helper functions
-    void printHistory(int nPrint = -1) const;
+    void printHistory() const;
+    void printHistory(size_t nPrint) const;
     CmdExec* getCmd(std::string);
 
 private:

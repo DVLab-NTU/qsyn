@@ -10,10 +10,6 @@
 
 #include "cmdParser.h"
 
-CmdClass(HelpCmd);
-CmdClass(QuitCmd);
-CmdClass(HistoryCmd);
-CmdClass(DofileCmd);
 CmdClass(UsageCmd);
 CmdClass(VerboseCmd);
 CmdClass(SeedCmd);

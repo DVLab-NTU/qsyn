@@ -100,15 +100,23 @@ public:
     std::string const& getName() const { return _traits.name; }
     std::string const& getHelp() const { return _traits.help; }
     std::optional<T> getDefaultValue() const { return _traits.defaultValue; }
+    std::optional<T> getConstValue() const { return _traits.constValue; }
     std::string const& getMetaVar() const { return _traits.metavar; }
     std::vector<ConstraintType> const& getConstraints() const { return _traits.constraintCallbacks; }
 
     // setters
 
-    void setValueToConst() { _value = _traits.constValue; }
+    void setValueToConst() { 
+        if (!_traits.constValue.has_value()) {
+            std::cerr << "Error: no const value is specified for argument \"" 
+                 << _traits.name << "\"!! no action is taken... \n";
+        }
+        _value = _traits.constValue.value(); 
+    }
 
     // attributes
     bool hasDefaultValue() const { return _traits.defaultValue.has_value(); }
+    bool hasConstValue() const { return _traits.constValue.has_value(); }
     bool hasAction() const { return _traits.actionCallback != nullptr; }
     bool isRequired() const { return _traits.required; }
 
@@ -120,7 +128,7 @@ private:
         std::string help;
         bool required;
         std::optional<T> defaultValue;
-        T constValue;
+        std::optional<T> constValue;
         ActionType actionCallback;
         std::string metavar;
         std::vector<ConstraintType> constraintCallbacks;

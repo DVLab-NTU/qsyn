@@ -56,7 +56,7 @@ Argument const& ArgumentParser::operator[](std::string const& name) const {
  * @return ArgumentParser& 
  */
 ArgumentParser& ArgumentParser::name(std::string const& name) {
-    _name = name;
+    _name = toLowerString(name);
     _numRequiredChars = countUpperChars(name);
     return *this;
 }
@@ -121,10 +121,9 @@ bool ArgumentParser::analyzeOptions() const {
 
     for (auto& [name, arg] : _arguments) {
         if (!hasOptionPrefix(name)) continue;
-        arg.setNumRequiredChars(
-            max(
-                _trie.shortestUniquePrefix(name).value().size(),
-                arg.getNumRequiredChars()));
+        size_t prefixSize = _trie.shortestUniquePrefix(name).value().size();
+        while (!isalpha(name[prefixSize - 1])) ++prefixSize; 
+        arg.setNumRequiredChars(max(prefixSize, arg.getNumRequiredChars()));
     }
 
     // calculate tabulate info
@@ -231,7 +230,10 @@ bool ArgumentParser::parseOptions() {
 
             return false;
         }
+
         Argument& arg = _arguments[get<string>(match)];
+
+        cout << "recognizing " << arg.getName() << endl;
 
         if (_conflictGroups.contains(arg.getName())) {
             auto& conflictGroup = _conflictGroups.at(arg.getName());
@@ -246,13 +248,11 @@ bool ArgumentParser::parseOptions() {
             conflictGroup.setParsed(true);  
         }
 
-        if (!arg.hasAction() &&
-            (i + 1 >= (int)_tokens.size() || _tokens[i + 1].parsed == true)) {  // _tokens[i] is not the last token && _tokens[i+1] is unparsed
+        if (arg.hasAction()) arg.parse("");
+        else if (i + 1 >= (int)_tokens.size() || _tokens[i + 1].parsed == true) {  // _tokens[i] is not the last token && _tokens[i+1] is unparsed
             cerr << "Error: missing argument after \"" << _tokens[i].token << "\"!!\n";
             return false;
-        }
-
-        if (!arg.parse(_tokens[i + 1].token)) {
+        } else if (!arg.parse(_tokens[i + 1].token)) {
             cerr << "Error: invalid " << arg.getTypeString() << " value \""
                  << _tokens[i + 1].token << "\" after \""
                  << _tokens[i].token << "\"!!" << endl;
@@ -343,7 +343,12 @@ bool ArgumentParser::parsePositionalArguments() {
 variant<string, size_t> ArgumentParser::matchOption(std::string const& token) const {
     auto key = toLowerString(token);
     auto match = _trie.findWithPrefix(key);
-    if (match.has_value()) return match.value();
+    if (match.has_value()) {
+        if (key.size() < _arguments.at(match.value()).getNumRequiredChars()) {
+            return 0u;
+        }
+        return match.value();
+    }
 
     return _trie.frequency(key);
 }
