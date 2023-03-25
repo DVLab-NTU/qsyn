@@ -8,25 +8,27 @@
 
 #include "extractorCmd.h"
 
-#include <cstddef>       // for size_t
-#include <iostream>      // for ostream
-#include <string>        // for string
+#include <cstddef>        // for size_t
+#include <iostream>       // for ostream
+#include <string>         // for string
 
-#include "cmdMacros.h"   // for CMD_N_OPTS_EQUAL_OR_RETURN, CMD_N_OPTS_AT_LE...
-#include "extract.h"     // for Extractor
-#include "qcir.h"        // for QCir
-#include "qcirCmd.h"     // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
-#include "qcirMgr.h"     // for QCirMgr
-#include "util.h"        // for myStr2Uns
-#include "zxCmd.h"       // for ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN, ZX_CMD_...
-#include "zxGraph.h"     // for ZXGraph
-#include "zxGraphMgr.h"  // for ZXGraphMgr
+#include "cmdMacros.h"    // for CMD_N_OPTS_EQUAL_OR_RETURN, CMD_N_OPTS_AT_LE...
+#include "extract.h"      // for Extractor
+#include "qcir.h"         // for QCir
+#include "qcirCmd.h"      // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
+#include "qcirMgr.h"      // for QCirMgr
+#include "topologyMgr.h"  // for DeviceMgr
+#include "util.h"         // for myStr2Uns
+#include "zxCmd.h"        // for ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN, ZX_CMD_...
+#include "zxGraph.h"      // for ZXGraph
+#include "zxGraphMgr.h"   // for ZXGraphMgr
 
 using namespace std;
 extern size_t verbose;
 extern int effLimit;
 extern ZXGraphMgr *zxGraphMgr;
 extern QCirMgr *qcirMgr;
+extern DeviceMgr *deviceMgr;
 
 bool initExtractCmd() {
     if (!(cmdMgr->regCmd("ZX2QC", 5, make_unique<ExtractCmd>()) &&
@@ -45,14 +47,26 @@ bool initExtractCmd() {
 CmdExecStatus
 ExtractCmd::exec(const string &option) {
     string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+    if (!CmdExec::lexSingleOption(option, token))
+        return CMD_EXEC_ERROR;
+    // if (token.empty() || myStrNCmp("-Logical", token, 2) == 0)
+    //     topo = Device();
+    // else if (myStrNCmp("-Physical", token, 2) == 0) {
+    //     if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {
+    //         cerr << "Error: Device list is empty now. Please DTNEW/DTRead before ZX2QC.\n";
+    //         return CMD_EXEC_ERROR;
+    //     }
+    //     topo = deviceMgr->getDevice();
+    // } else {
+    //     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+    // }
     unsigned id = qcirMgr->getNextID();
-    if (!token.empty()) {
-        if (!myStr2Uns(option, id)) {
-            cerr << "Error: invalid QCir ID!!\n";
-            return errorOption(CMD_OPT_ILLEGAL, (option));
-        }
-    }
+    // if (!token.empty()) {
+    //     if (!myStr2Uns(option, id)) {
+    //         cerr << "Error: invalid QCir ID!!\n";
+    //         return errorOption(CMD_OPT_ILLEGAL, (option));
+    //     }
+    // }
 
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZX2QC");
 
@@ -61,7 +75,7 @@ ExtractCmd::exec(const string &option) {
         return CMD_EXEC_ERROR;
     }
     zxGraphMgr->copy(zxGraphMgr->getNextID());
-    Extractor ext(zxGraphMgr->getGraph());
+    Extractor ext(zxGraphMgr->getGraph(), nullptr);
     QCir *result = ext.extract();
     if (result != nullptr) {
         qcirMgr->addQCir(id);

@@ -1,0 +1,15 @@
+ver 0
+qcset 1 2 5
+qccr benchmark/benchmark_SABRE/large/cm82a_208.qasm
+dtgr benchmark/topology/guadalupe.layout 
+qccp -a
+duoprint -d
+duoset -depth 2 -si true
+duoprint -d
+duostra
+qccp -a
+duoset -sc greedy
+duoprint
+duostra
+qccp -a
+qq -f

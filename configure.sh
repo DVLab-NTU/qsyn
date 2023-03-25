@@ -2,7 +2,7 @@
 
 TMP_NAME="tmp.log"
 ENGINE_INSTALL_PATH="/usr/local"
-HEADERS="catch2"
+HEADERS="catch2 tqdm"
 
 # Detect OS
 # https://stackoverflow.com/questions/394230/how-to-detect-the-os-from-a-bash-script

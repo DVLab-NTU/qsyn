@@ -1,0 +1,105 @@
+DV Lab, NTUEE, Qsyn 0.4.1
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> qcset 1 2 5
+
+qsyn> qccr benchmark/benchmark_SABRE/large/cm82a_208.qasm
+
+qsyn> dtgr benchmark/topology/guadalupe.layout 
+
+qsyn> qccp -a
+[1m[32mClifford: 370[0m[0m
+└── [1m[31mCX: 283[0m[0m
+[1m[31mT-family: 280[0m[0m
+[1m[32mOthers  : 0[0m[0m
+
+qsyn> duoprint -d
+
+Scheduler:         search
+Router:            duostra
+Placer:            dfs
+
+Candidates:        -1
+Search Depth:      4
+
+Orient:            true
+APSP Coeff.:       1
+Available Time:    max
+Prefer Cost:       min
+Never Cache:       true
+Single Immed.:     false
+
+qsyn> duoset -depth 2 -si true
+
+qsyn> duoprint -d
+
+Scheduler:         search
+Router:            duostra
+Placer:            dfs
+
+Candidates:        -1
+Search Depth:      2
+
+Orient:            true
+APSP Coeff.:       1
+Available Time:    max
+Prefer Cost:       min
+Never Cache:       true
+Single Immed.:     true
+
+qsyn> duostra
+Routing...
+
+Checking...
+
+Duostra Result: 
+
+Scheduler:      search
+Router:         duostra
+Placer:         dfs
+
+Mapping Depth:  1603
+Total Time:     3633
+#SWAP:          450
+
+
+qsyn> qccp -a
+[1m[32mClifford: 1720[0m[0m
+└── [1m[31mCX: 1633[0m[0m
+[1m[31mT-family: 280[0m[0m
+[1m[32mOthers  : 0[0m[0m
+
+qsyn> duoset -sc greedy
+
+qsyn> duoprint
+
+Scheduler:         greedy
+Router:            duostra
+Placer:            dfs
+
+qsyn> duostra
+Routing...
+Greedy scheduler running...
+
+Checking...
+
+Duostra Result: 
+
+Scheduler:      greedy
+Router:         duostra
+Placer:         dfs
+
+Mapping Depth:  2459
+Total Time:     6861
+#SWAP:          538
+
+
+qsyn> qccp -a
+[1m[32mClifford: 3334[0m[0m
+└── [1m[31mCX: 3247[0m[0m
+[1m[31mT-family: 280[0m[0m
+[1m[32mOthers  : 0[0m[0m
+
+qsyn> qq -f
+
