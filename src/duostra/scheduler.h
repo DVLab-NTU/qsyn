@@ -23,192 +23,165 @@
 
 class BaseScheduler {
 public:
-    BaseScheduler(const BaseScheduler& other);
-    BaseScheduler(std::unique_ptr<CircuitTopo> topo);
-    BaseScheduler(BaseScheduler&& other);
+    BaseScheduler(const BaseScheduler&);
+    BaseScheduler(std::unique_ptr<CircuitTopo>);
+    BaseScheduler(BaseScheduler&&);
     virtual ~BaseScheduler() {}
-
-    CircuitTopo& topo() { return *topo_; }
-    const CircuitTopo& topo() const { return *topo_; }
 
     virtual std::unique_ptr<BaseScheduler> clone() const;
 
-    void assign_gates_and_sort(std::unique_ptr<Router> router) {
-        assign_gates(std::move(router));
-        sort();
-    }
+    CircuitTopo& circuitTopology() { return *_circuitTopology; }
+    const CircuitTopo& circuitTopology() const { return *_circuitTopology; }
 
-    size_t get_final_cost() const;
-    size_t get_total_time() const;
-    size_t get_swap_num() const;
-    const std::vector<size_t>& get_avail_gates() const {
-        return topo_->get_avail_gates();
-    }
+    size_t getFinalCost() const;
+    size_t getTotalTime() const;
+    size_t getSwapNum() const;
+    size_t getExecutable(Router&) const;
+    bool isSorted() const { return _sorted; }
+    const std::vector<size_t>& getAvailableGates() const { return _circuitTopology->getAvailableGates(); }
+    const std::vector<Operation>& getOperations() const { return _operations; }
+    size_t operationsCost() const;
 
-    const std::vector<Operation>& get_operations() const { return ops_; }
-    size_t ops_cost() const;
-
-    size_t route_one_gate(Router& router,
-                          size_t gate_idx,
-                          bool forget = false);
-
-    size_t get_executable(Router& router) const;
-    bool is_sorted() const { return sorted_; }
+    void assignGatesAndSort(std::unique_ptr<Router>);
+    size_t routeOneGate(Router&, size_t, bool = false);
 
 protected:
-    std::unique_ptr<CircuitTopo> topo_;
-    std::vector<Operation> ops_;
-    bool sorted_ = false;
+    std::unique_ptr<CircuitTopo> _circuitTopology;
+    std::vector<Operation> _operations;
+    bool _sorted = false;
 
-    virtual void assign_gates(std::unique_ptr<Router> router);
+    virtual void assignGates(std::unique_ptr<Router>);
     void sort();
 };
 
 class RandomScheduler : public BaseScheduler {
 public:
-    RandomScheduler(std::unique_ptr<CircuitTopo> topo);
-    RandomScheduler(const RandomScheduler& other);
-    RandomScheduler(RandomScheduler&& other);
+    RandomScheduler(std::unique_ptr<CircuitTopo>);
+    RandomScheduler(const RandomScheduler&);
+    RandomScheduler(RandomScheduler&&);
     ~RandomScheduler() override {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
 
 protected:
-    void assign_gates(std::unique_ptr<Router> router) override;
+    void assignGates(std::unique_ptr<Router>) override;
 };
 
 class StaticScheduler : public BaseScheduler {
 public:
-    StaticScheduler(std::unique_ptr<CircuitTopo> topo);
-    StaticScheduler(const StaticScheduler& other);
-    StaticScheduler(StaticScheduler&& other);
+    StaticScheduler(std::unique_ptr<CircuitTopo>);
+    StaticScheduler(const StaticScheduler&);
+    StaticScheduler(StaticScheduler&&);
     ~StaticScheduler() override {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
 
 protected:
-    void assign_gates(std::unique_ptr<Router> router) override;
+    void assignGates(std::unique_ptr<Router>) override;
 };
 
 struct GreedyConf {
-    GreedyConf()
-        : avail_typ(true),
-          cost_typ(false),
-          candidates(ERROR_CODE),
-          apsp_coef(1) {}
+    GreedyConf();
 
-    // GreedyConf(const json& conf);
-
-    bool avail_typ;  // true is max, false is min
-    bool cost_typ;   // true is max, false is min
-    size_t candidates;
-    size_t apsp_coef;
+    bool availableType;  // true is max, false is min
+    bool costType;       // true is max, false is min
+    size_t _candidates;
+    size_t _APSPCoeff;
 };
 
 class GreedyScheduler : public BaseScheduler {
 public:
-    GreedyScheduler(std::unique_ptr<CircuitTopo> topo);
-    GreedyScheduler(const GreedyScheduler& other);
-    GreedyScheduler(GreedyScheduler&& other);
+    GreedyScheduler(std::unique_ptr<CircuitTopo>);
+    GreedyScheduler(const GreedyScheduler&);
+    GreedyScheduler(GreedyScheduler&&);
     ~GreedyScheduler() override {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
-    size_t greedy_fallback(Router& router,
-                           const std::vector<size_t>& wait_list,
-                           size_t gate_idx) const;
+    size_t greedyFallback(Router&, const std::vector<size_t>&, size_t) const;
 
 protected:
-    GreedyConf conf_;
+    GreedyConf _conf;
 
-    void assign_gates(std::unique_ptr<Router> router) override;
+    void assignGates(std::unique_ptr<Router>) override;
 };
 
 struct TreeNodeConf {
     // Never cache any children unless children() is called.
-    bool never_cache;
+    bool _neverCache;
     // Execute the single gates when they are available.
-    bool exec_single;
+    bool _executeSingle;
     // The number of childrens to consider,
-    // selected with some ops_cost heuristic.
-    size_t candidates;
+    // selected with some operationsCost heuristic.
+    size_t _candidates;
 };
 
 // This is a node of the heuristic search tree.
 class TreeNode {
 public:
-    TreeNode(TreeNodeConf conf,
-             size_t gate_idx,
-             std::unique_ptr<Router> router,
-             std::unique_ptr<BaseScheduler> scheduler,
-             size_t max_cost);
-    TreeNode(TreeNodeConf conf,
-             std::vector<size_t>&& gate_indices,
-             std::unique_ptr<Router> router,
-             std::unique_ptr<BaseScheduler> scheduler,
-             size_t max_cost);
-    TreeNode(const TreeNode& other);
-    TreeNode(TreeNode&& other);
+    TreeNode(TreeNodeConf, size_t, std::unique_ptr<Router>, std::unique_ptr<BaseScheduler>, size_t);
+    TreeNode(TreeNodeConf, std::vector<size_t>&&, std::unique_ptr<Router>, std::unique_ptr<BaseScheduler>, size_t);
+    TreeNode(const TreeNode&);
+    TreeNode(TreeNode&&);
 
-    TreeNode& operator=(const TreeNode& other);
-    TreeNode& operator=(TreeNode&& other);
+    TreeNode& operator=(const TreeNode&);
+    TreeNode& operator=(TreeNode&&);
 
-    TreeNode best_child(int depth);
+    bool isLeaf() const { return _children.empty(); }
+    void growIfNeeded();
+    bool canGrow() const;
 
-    size_t best_cost(int depth);
-    size_t best_cost() const;
+    TreeNode bestChild(int);
+    size_t bestCost(int);
+    size_t bestCost() const;
 
-    const Router& router() const { return *router_; }
-    const BaseScheduler& scheduler() const { return *scheduler_; }
+    const Router& router() const { return *_router; }
+    const BaseScheduler& scheduler() const { return *_scheduler; }
 
-    const std::vector<size_t>& executed_gates() const { return gate_indices_; }
+    const std::vector<size_t>& executedGates() const { return _gateIds; }
 
-    bool done() const { return scheduler().get_avail_gates().empty(); }
-    bool is_leaf() const { return children_.empty(); }
-    void grow_if_needed();
-
-    bool can_grow() const;
+    bool done() const { return scheduler().getAvailableGates().empty(); }
 
 private:
-    TreeNodeConf conf_;
+    TreeNodeConf _conf;
 
     // The head of the node.
-    std::vector<size_t> gate_indices_;
+    std::vector<size_t> _gateIds;
 
     // Using vector to pointer so that frequent cache misses
     // won't be as bad in parallel code.
-    std::vector<TreeNode> children_;
+    std::vector<TreeNode> _children;
 
     // The state of duostra.
-    size_t max_cost_;
-    std::unique_ptr<Router> router_;
-    std::unique_ptr<BaseScheduler> scheduler_;
+    size_t _maxCost;
+    std::unique_ptr<Router> _router;
+    std::unique_ptr<BaseScheduler> _scheduler;
 
     std::vector<TreeNode>&& children();
 
     void grow();
-    void route_internal_gates();
-    size_t immediate_next() const;
+    size_t immediateNext() const;
+    void routeInternalGates();
 };
 
 class SearchScheduler : public GreedyScheduler {
 public:
-    SearchScheduler(std::unique_ptr<CircuitTopo> topo);
-    SearchScheduler(const SearchScheduler& other);
-    SearchScheduler(SearchScheduler&& other);
+    SearchScheduler(std::unique_ptr<CircuitTopo>);
+    SearchScheduler(const SearchScheduler&);
+    SearchScheduler(SearchScheduler&&);
     ~SearchScheduler() override {}
-
-    const size_t look_ahead;
 
     std::unique_ptr<BaseScheduler> clone() const override;
 
-protected:
-    bool never_cache_;
-    bool exec_single_;
+    const size_t _lookAhead;
 
-    void assign_gates(std::unique_ptr<Router> router) override;
-    void cache_only_when_necessary();
+protected:
+    bool _neverCache;
+    bool _executeSingle;
+
+    void assignGates(std::unique_ptr<Router>) override;
+    void cacheOnlyWhenNecessary();
 };
 
-std::unique_ptr<BaseScheduler> getScheduler(const std::string& typ, std::unique_ptr<CircuitTopo> topo);
+std::unique_ptr<BaseScheduler> getScheduler(const std::string&, std::unique_ptr<CircuitTopo>);
 
 #endif

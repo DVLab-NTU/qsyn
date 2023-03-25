@@ -15,14 +15,15 @@
 
 class Duostra {
 public:
-    Duostra(QCir* cir, Device dev) : _logicalCircuit(cir), _physicalCircuit(new QCir(0)), _device(dev) {
-    }
+    Duostra(QCir*, Device);
     ~Duostra() {}
-    void makeDepend();
-    size_t flow();
-    void print_assembly() const;
-    void buildCircuitByResult();
+
     QCir* getPhysicalCircuit() { return _physicalCircuit; }
+
+    void makeDependency();
+    size_t flow();
+    void printAssembly() const;
+    void buildCircuitByResult();
 
 private:
     QCir* _logicalCircuit;

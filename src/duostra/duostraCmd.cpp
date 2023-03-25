@@ -51,9 +51,8 @@ DuostraCmd::exec(const string &option) {
         qcirMgr->addQCir(qcirMgr->getNextID());
         result->setId(qcirMgr->getNextID());
         qcirMgr->setQCircuit(result);
-    }
-    else{
-        cerr<<"Error: Something wrong in Duostra Mapping!!" << endl;
+    } else {
+        cerr << "Error: Something wrong in Duostra Mapping!!" << endl;
     }
     return CMD_EXEC_DONE;
 }

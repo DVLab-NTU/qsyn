@@ -11,58 +11,163 @@
 
 using namespace std;
 
-void CircuitTopo::update_avail_gates(size_t executed) {
-    assert(find(begin(avail_gates_), end(avail_gates_), executed) !=
-           end(avail_gates_));
-    const Gate& g_exec = get_gate(executed);
-    avail_gates_.erase(remove(begin(avail_gates_), end(avail_gates_), executed),
-                       end(avail_gates_));
-    assert(g_exec.get_id() == executed);
+// SECTION - Class Gate Member Functions
 
-    executed_gates_[executed] = 0;
-    for (size_t next : g_exec.get_nexts()) {
-        if (get_gate(next).is_avail(executed_gates_)) {
-            avail_gates_.push_back(next);
-        }
-    }
-
-    vector<size_t> gates_to_trim;
-    for (size_t prev_id : g_exec.get_prevs()) {
-        const auto& prev_gate = get_gate(prev_id);
-        ++executed_gates_[prev_id];
-
-        if (executed_gates_[prev_id] >= prev_gate.get_nexts().size()) {
-            gates_to_trim.push_back(prev_id);
-        }
-    }
-    for (size_t gate_id : gates_to_trim) {
-        executed_gates_.erase(gate_id);
+/**
+ * @brief Construct a new Gate:: Gate object
+ *
+ * @param id
+ * @param type
+ * @param ph
+ * @param qs
+ */
+Gate::Gate(size_t id, GateType type, Phase ph, std::tuple<size_t, size_t> qs)
+    : _id(id), _type(type), _phase(ph), _qubits(qs), _prevs({}), _nexts({}) {
+    if (std::get<0>(_qubits) > std::get<1>(_qubits)) {
+        _qubits = std::make_tuple(std::get<1>(_qubits), std::get<0>(_qubits));
     }
 }
 
-void CircuitTopo::print_gates_with_next() {
-    cout << "Print successors of each gate" << endl;
-    const auto& gates = dep_graph_->gates();
+/**
+ * @brief Construct a new Gate:: Gate object
+ *
+ * @param other
+ */
+Gate::Gate(Gate&& other)
+    : _id(other._id), _type(other._type), _phase(other._phase), _qubits(other._qubits), _prevs(other._prevs), _nexts(other._nexts) {}
+
+/**
+ * @brief Add previous gate
+ *
+ * @param p
+ */
+void Gate::addPrev(size_t p) {
+    if (p != ERROR_CODE)
+        _prevs.push_back(p);
+}
+
+/**
+ * @brief Add next gate
+ *
+ * @param n
+ */
+void Gate::addNext(size_t n) {
+    if (n != ERROR_CODE)
+        _nexts.push_back(n);
+}
+
+/**
+ * @brief Is the gate are ready to be executed
+ *
+ * @param executedGates
+ * @return true : all previous gates are executed,
+ * @return false : else
+ */
+bool Gate::isAvailable(const unordered_map<size_t, size_t>& executedGates) const {
+    return all_of(_prevs.begin(), _prevs.end(), [&](size_t prev) -> bool {
+        return executedGates.find(prev) != executedGates.end();
+    });
+}
+
+// SECTION - Class CircuitTopo Member Functions
+
+/**
+ * @brief Construct a new Circuit Topo:: Circuit Topo object
+ *
+ * @param dep
+ */
+CircuitTopo::CircuitTopo(shared_ptr<DependencyGraph> dep) : _dependencyGraph(dep), _availableGates({}), _executedGates({}) {
+    for (size_t i = 0; i < _dependencyGraph->gates().size(); i++) {
+        if (_dependencyGraph->getGate(i).isAvailable(_executedGates))
+            _availableGates.push_back(i);
+    }
+}
+
+/**
+ * @brief Construct a new Circuit Topo:: Circuit Topo object
+ *
+ * @param other
+ */
+CircuitTopo::CircuitTopo(const CircuitTopo& other)
+    : _dependencyGraph(other._dependencyGraph),
+      _availableGates(other._availableGates),
+      _executedGates(other._executedGates) {}
+
+/**
+ * @brief Construct a new Circuit Topo:: Circuit Topo object
+ *
+ * @param other
+ */
+CircuitTopo::CircuitTopo(CircuitTopo&& other)
+    : _dependencyGraph(move(other._dependencyGraph)),
+      _availableGates(move(other._availableGates)),
+      _executedGates(move(other._executedGates)) {}
+
+/**
+ * @brief Clone CircuitTopo
+ *
+ * @return unique_ptr<CircuitTopo>
+ */
+unique_ptr<CircuitTopo> CircuitTopo::clone() const {
+    return std::make_unique<CircuitTopo>(*this);
+}
+
+/**
+ * @brief Update available gates by the executed gate
+ *
+ * @param executed
+ */
+void CircuitTopo::updateAvailableGates(size_t executed) {
+    assert(find(begin(_availableGates), end(_availableGates), executed) != end(_availableGates));
+    const Gate& gateExecuted = getGate(executed);
+    _availableGates.erase(remove(begin(_availableGates), end(_availableGates), executed), end(_availableGates));
+    assert(gateExecuted.getId() == executed);
+
+    _executedGates[executed] = 0;
+    for (size_t next : gateExecuted.getNexts()) {
+        if (getGate(next).isAvailable(_executedGates))
+            _availableGates.push_back(next);
+    }
+
+    vector<size_t> gatesToTrim;
+    for (size_t prevId : gateExecuted.getPrevs()) {
+        const auto& prev_gate = getGate(prevId);
+        ++_executedGates[prevId];
+        if (_executedGates[prevId] >= prev_gate.getNexts().size())
+            gatesToTrim.push_back(prevId);
+    }
+    for (size_t gateId : gatesToTrim)
+        _executedGates.erase(gateId);
+}
+
+/**
+ * @brief Print gates with their successors
+ *
+ */
+void CircuitTopo::printGatesWithNexts() {
+    cout << "Successors of each gate" << endl;
+    const auto& gates = _dependencyGraph->gates();
     for (size_t i = 0; i < gates.size(); i++) {
-        vector<size_t> temp = gates[i].get_nexts();
-        cout << gates[i].get_id() << "(" << gates[i].get_type() << ") || ";
-        for (size_t j = 0; j < temp.size(); j++) {
+        vector<size_t> temp = gates[i].getNexts();
+        cout << gates[i].getId() << "(" << gates[i].getType() << ") || ";
+        for (size_t j = 0; j < temp.size(); j++)
             cout << temp[j] << " ";
-        }
         cout << endl;
     }
 }
 
-void CircuitTopo::print_gates_with_prev() {
-    cout << "Print predecessors of each gate" << endl;
-    const auto& gate = dep_graph_->gates();
+/**
+ * @brief Print gates with their predecessors
+ *
+ */
+void CircuitTopo::printGatesWithPrevs() {
+    cout << "Predecessors of each gate" << endl;
+    const auto& gate = _dependencyGraph->gates();
     for (size_t i = 0; i < gate.size(); i++) {
-        const auto& prevs = gate.at(i).get_prevs();
-        cout << gate.at(i).get_id() << "(" << gate.at(i).get_type() << ") || ";
-
-        for (size_t j = 0; j < prevs.size(); j++) {
+        const auto& prevs = gate.at(i).getPrevs();
+        cout << gate.at(i).getId() << "(" << gate.at(i).getType() << ") || ";
+        for (size_t j = 0; j < prevs.size(); j++)
             cout << prevs[j] << " ";
-        }
         cout << endl;
     }
 }

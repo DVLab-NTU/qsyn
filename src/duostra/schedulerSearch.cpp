@@ -18,119 +18,191 @@
 
 using namespace std;
 
+// SECTION - Class TreeNode Member Functions
+
+/**
+ * @brief Construct a new Tree Node:: Tree Node object
+ *
+ * @param conf
+ * @param gateId
+ * @param router
+ * @param scheduler
+ * @param maxCost
+ */
 TreeNode::TreeNode(TreeNodeConf conf,
-                   size_t gate_idx,
+                   size_t gateId,
                    unique_ptr<Router> router,
                    unique_ptr<BaseScheduler> scheduler,
-                   size_t max_cost)
+                   size_t maxCost)
     : TreeNode(conf,
-               vector<size_t>{gate_idx},
+               vector<size_t>{gateId},
                move(router),
                move(scheduler),
-               max_cost) {}
+               maxCost) {}
 
+/**
+ * @brief Construct a new Tree Node:: Tree Node object
+ *
+ * @param conf
+ * @param gateIds
+ * @param router
+ * @param scheduler
+ * @param maxCost
+ */
 TreeNode::TreeNode(TreeNodeConf conf,
-                   vector<size_t>&& gate_indices,
+                   vector<size_t>&& gateIds,
                    unique_ptr<Router> router,
                    unique_ptr<BaseScheduler> scheduler,
-                   size_t max_cost)
-    : conf_(conf),
-      gate_indices_(move(gate_indices)),
-      children_({}),
-      max_cost_(max_cost),
-      router_(move(router)),
-      scheduler_(move(scheduler)) {
-    route_internal_gates();
+                   size_t maxCost)
+    : _conf(conf),
+      _gateIds(move(gateIds)),
+      _children({}),
+      _maxCost(maxCost),
+      _router(move(router)),
+      _scheduler(move(scheduler)) {
+    routeInternalGates();
 }
 
+/**
+ * @brief Construct a new Tree Node:: Tree Node object
+ *
+ * @param other
+ */
 TreeNode::TreeNode(const TreeNode& other)
-    : conf_(other.conf_),
-      gate_indices_(other.gate_indices_),
-      children_(other.children_),
-      max_cost_(other.max_cost_),
-      router_(other.router_->clone()),
-      scheduler_(other.scheduler_->clone()) {}
+    : _conf(other._conf),
+      _gateIds(other._gateIds),
+      _children(other._children),
+      _maxCost(other._maxCost),
+      _router(other._router->clone()),
+      _scheduler(other._scheduler->clone()) {}
 
+/**
+ * @brief Construct a new Tree Node:: Tree Node object
+ *
+ * @param other
+ */
 TreeNode::TreeNode(TreeNode&& other)
-    : conf_(other.conf_),
-      gate_indices_(move(other.gate_indices_)),
-      children_(move(other.children_)),
-      max_cost_(other.max_cost_),
-      router_(move(other.router_)),
-      scheduler_(move(other.scheduler_)) {}
+    : _conf(other._conf),
+      _gateIds(move(other._gateIds)),
+      _children(move(other._children)),
+      _maxCost(other._maxCost),
+      _router(move(other._router)),
+      _scheduler(move(other._scheduler)) {}
 
+/**
+ * @brief Assignment operator overloading for TreeNode
+ *
+ * @param other
+ * @return TreeNode&
+ */
 TreeNode& TreeNode::operator=(const TreeNode& other) {
-    conf_ = other.conf_;
-    gate_indices_ = other.gate_indices_;
-    children_ = other.children_;
-    max_cost_ = other.max_cost_;
-    router_ = other.router_->clone();
-    scheduler_ = other.scheduler_->clone();
+    _conf = other._conf;
+    _gateIds = other._gateIds;
+    _children = other._children;
+    _maxCost = other._maxCost;
+    _router = other._router->clone();
+    _scheduler = other._scheduler->clone();
     return *this;
 }
 
+/**
+ * @brief Assignment operator overloading for TreeNode
+ *
+ * @param other
+ * @return TreeNode&
+ */
 TreeNode& TreeNode::operator=(TreeNode&& other) {
-    conf_ = other.conf_;
-    gate_indices_ = move(other.gate_indices_);
-    children_ = move(other.children_);
-    max_cost_ = other.max_cost_;
-    router_ = move(other.router_);
-    scheduler_ = move(other.scheduler_);
+    _conf = other._conf;
+    _gateIds = move(other._gateIds);
+    _children = move(other._children);
+    _maxCost = other._maxCost;
+    _router = move(other._router);
+    _scheduler = move(other._scheduler);
     return *this;
 }
 
+/**
+ * @brief Get children
+ *
+ * @return vector<TreeNode>&&
+ */
 vector<TreeNode>&& TreeNode::children() {
-    grow_if_needed();
-    return move(children_);
+    growIfNeeded();
+    return move(_children);
 }
 
-size_t TreeNode::immediate_next() const {
-    size_t gate_idx = scheduler().get_executable(*router_);
-    const auto& avail_gates = scheduler().get_avail_gates();
+/**
+ * @brief Grow by adding availalble gates to children.
+ *
+ */
+void TreeNode::grow() {
+    const auto& availGates = scheduler().getAvailableGates();
+    assert(_children.empty());
+    _children.reserve(availGates.size());
+    for (size_t gateId : availGates)
+        _children.emplace_back(_conf, gateId, router().clone(), scheduler().clone(), _maxCost);
+}
 
-    if (gate_idx != ERROR_CODE) {
-        return gate_idx;
-    }
+/**
+ * @brief Grow if needed
+ *
+ */
+inline void TreeNode::growIfNeeded() {
+    if (isLeaf()) grow();
+}
 
-    if (avail_gates.size() == 1) {
+/**
+ * @brief Can grow or not
+ *
+ * @return true
+ * @return false
+ */
+inline bool TreeNode::canGrow() const {
+    return !scheduler().getAvailableGates().empty();
+}
+
+/**
+ * @brief Get immediate next
+ *
+ * @return size_t
+ */
+size_t TreeNode::immediateNext() const {
+    size_t gateId = scheduler().getExecutable(*_router);
+    const auto& avail_gates = scheduler().getAvailableGates();
+    if (gateId != ERROR_CODE)
+        return gateId;
+    if (avail_gates.size() == 1)
         return avail_gates[0];
-    }
-
     return ERROR_CODE;
 }
 
-void TreeNode::route_internal_gates() {
-    assert(children_.empty());
+/**
+ * @brief Route internal gates
+ *
+ */
+void TreeNode::routeInternalGates() {
+    assert(_children.empty());
 
     // Execute the initial gates.
-    for (size_t gate_idx : gate_indices_) {
-        [[maybe_unused]] const auto& avail_gates =
-            scheduler().get_avail_gates();
-
-        assert(std::find(avail_gates.begin(), avail_gates.end(), gate_idx) !=
-               avail_gates.end());
-
-        max_cost_ = max(max_cost_,
-                        scheduler_->route_one_gate(*router_, gate_idx, true));
-
-        assert(std::find(avail_gates.begin(), avail_gates.end(), gate_idx) ==
-               avail_gates.end());
+    for (size_t gateId : _gateIds) {
+        [[maybe_unused]] const auto& availGates = scheduler().getAvailableGates();
+        assert(find(availGates.begin(), availGates.end(), gateId) != availGates.end());
+        _maxCost = max(_maxCost, _scheduler->routeOneGate(*_router, gateId, true));
+        assert(find(availGates.begin(), availGates.end(), gateId) == availGates.end());
     }
 
-    // Execute additional gates if exec_single.
-    if (gate_indices_.empty() || !conf_.exec_single) {
+    // Execute additional gates if _executeSingle.
+    if (_gateIds.empty() || !_conf._executeSingle)
         return;
+
+    size_t gateId;
+    while ((gateId = immediateNext()) != ERROR_CODE) {
+        _maxCost = max(_maxCost, _scheduler->routeOneGate(*_router, gateId, true));
+        _gateIds.push_back(gateId);
     }
 
-    size_t gate_idx;
-    while ((gate_idx = immediate_next()) != ERROR_CODE) {
-        max_cost_ = max(max_cost_,
-                        scheduler_->route_one_gate(*router_, gate_idx, true));
-        gate_indices_.push_back(gate_idx);
-    }
-
-    unordered_set<size_t> executed{gate_indices_.begin(), gate_indices_.end()};
-    assert(executed.size() == gate_indices_.size());
+    unordered_set<size_t> executed{_gateIds.begin(), _gateIds.end()};
+    assert(executed.size() == _gateIds.size());
 }
 
 template <>
@@ -140,166 +212,177 @@ inline void std::swap<TreeNode>(TreeNode& a, TreeNode& b) {
     b = std::move(c);
 }
 
-// Cost recursively calls children's cost, and selects the best one.
-size_t TreeNode::best_cost(int depth) {
+/**
+ * @brief Get best child
+ *
+ * @param depth
+ * @return TreeNode
+ */
+TreeNode TreeNode::bestChild(int depth) {
+    auto nextNodes = children();
+    size_t bestId = 0, best = (size_t)-1;
+    for (size_t idx = 0; idx < nextNodes.size(); ++idx) {
+        auto& node = nextNodes[idx];
+        assert(depth >= 1);
+        size_t cost = node.bestCost(depth);
+        if (cost < best) {
+            bestId = idx;
+            best = cost;
+        }
+    }
+    return nextNodes[bestId];
+}
+
+/**
+ * @brief Cost recursively calls children's cost, and selects the best one.
+ *
+ * @param depth
+ * @return size_t
+ */
+size_t TreeNode::bestCost(int depth) {
     // Grow if remaining depth >= 2.
     // Terminates on leaf nodes.
-    if (is_leaf()) {
-        if (depth <= 0 || !can_grow()) {
-            return max_cost_;
-        }
+    if (isLeaf()) {
+        if (depth <= 0 || !canGrow())
+            return _maxCost;
 
-        if (depth > 1) {
+        if (depth > 1)
             grow();
-        }
     }
 
-    // Calls the more efficient best_cost() when depth is only 1.
-    if (depth == 1) {
-        return best_cost();
-    }
+    // Calls the more efficient bestCost() when depth is only 1.
+    if (depth == 1)
+        return bestCost();
 
     assert(depth > 1);
-    assert(children_.size() != 0);
+    assert(_children.size() != 0);
 
-    auto end = children_.end();
-    if (conf_.candidates < children_.size()) {
-        end = children_.begin() + conf_.candidates;
-        nth_element(children_.begin(), end, children_.end(),
+    auto end = _children.end();
+    if (_conf._candidates < _children.size()) {
+        end = _children.begin() + _conf._candidates;
+        nth_element(_children.begin(), end, _children.end(),
                     [](const TreeNode& a, const TreeNode& b) {
-                        return a.max_cost_ < b.max_cost_;
+                        return a._maxCost < b._maxCost;
                     });
     }
 
     // Calcualtes the best cost for each children.
     size_t best = (size_t)-1;
-    for (auto child = children_.begin(); child < end; ++child) {
-        size_t cost = child->best_cost(depth - 1);
+    for (auto child = _children.begin(); child < end; ++child) {
+        size_t cost = child->bestCost(depth - 1);
 
-        if (cost < best) {
+        if (cost < best)
             best = cost;
-        }
     }
 
     // Clear the cache if specified.
-    if (conf_.never_cache) {
-        children_.clear();
-    }
+    if (_conf._neverCache)
+        _children.clear();
 
     return best;
 }
 
-size_t TreeNode::best_cost() const {
+/**
+ * @brief Select the best cost.
+ *
+ * @return size_t
+ */
+size_t TreeNode::bestCost() const {
     size_t best = (size_t)-1;
 
-    const auto& avail_gates = scheduler().get_avail_gates();
+    const auto& availGates = scheduler().getAvailableGates();
 
 #pragma omp parallel for
-    for (size_t idx = 0; idx < avail_gates.size(); ++idx) {
-        TreeNode child_node{conf_, avail_gates[idx], router().clone(),
-                            scheduler().clone(), max_cost_};
-        size_t cost = child_node.max_cost_;
+    for (size_t idx = 0; idx < availGates.size(); ++idx) {
+        TreeNode childNode{_conf, availGates[idx], router().clone(),
+                           scheduler().clone(), _maxCost};
+        size_t cost = childNode._maxCost;
 
 #pragma omp critical
-        if (cost < best) {
+        if (cost < best)
             best = cost;
-        }
     }
-
     return best;
 }
 
-inline bool TreeNode::can_grow() const {
-    return !scheduler().get_avail_gates().empty();
-}
+// SECTION - Class Search Scheduler Member Functions
 
-// Grow by adding availalble gates to children.
-void TreeNode::grow() {
-    const auto& avail_gates = scheduler().get_avail_gates();
-
-    assert(children_.empty());
-    children_.reserve(avail_gates.size());
-
-    for (size_t gate_idx : avail_gates) {
-        children_.emplace_back(conf_, gate_idx, router().clone(),
-                               scheduler().clone(), max_cost_);
-    }
-}
-
-inline void TreeNode::grow_if_needed() {
-    if (is_leaf()) {
-        grow();
-    }
-}
-
-TreeNode TreeNode::best_child(int depth) {
-    auto next_nodes = children();
-    size_t best_idx = 0, best = (size_t)-1;
-
-    for (size_t idx = 0; idx < next_nodes.size(); ++idx) {
-        auto& node = next_nodes[idx];
-
-        assert(depth >= 1);
-        size_t cost = node.best_cost(depth);
-
-        if (cost < best) {
-            best_idx = idx;
-            best = cost;
-        }
-    }
-
-    return next_nodes[best_idx];
-}
-
+/**
+ * @brief Construct a new Search Scheduler:: Search Scheduler object
+ *
+ * @param topo
+ */
 SearchScheduler::SearchScheduler(unique_ptr<CircuitTopo> topo)
     : GreedyScheduler(move(topo)),
-      look_ahead(5),
-      never_cache_(true),
-      exec_single_(true) {
-    cache_only_when_necessary();
+      _lookAhead(5),
+      _neverCache(true),
+      _executeSingle(true) {
+    cacheOnlyWhenNecessary();
 }
 
+/**
+ * @brief Construct a new Search Scheduler:: Search Scheduler object
+ *
+ * @param other
+ */
 SearchScheduler::SearchScheduler(const SearchScheduler& other)
     : GreedyScheduler(other),
-      look_ahead(other.look_ahead),
-      never_cache_(other.never_cache_),
-      exec_single_(other.exec_single_) {}
+      _lookAhead(other._lookAhead),
+      _neverCache(other._neverCache),
+      _executeSingle(other._executeSingle) {}
 
+/**
+ * @brief Construct a new Search Scheduler:: Search Scheduler object
+ *
+ * @param other
+ */
 SearchScheduler::SearchScheduler(SearchScheduler&& other)
     : GreedyScheduler(other),
-      look_ahead(other.look_ahead),
-      never_cache_(other.never_cache_),
-      exec_single_(other.exec_single_) {}
+      _lookAhead(other._lookAhead),
+      _neverCache(other._neverCache),
+      _executeSingle(other._executeSingle) {}
 
+/**
+ * @brief Clone scheduler
+ *
+ * @return unique_ptr<BaseScheduler>
+ */
 unique_ptr<BaseScheduler> SearchScheduler::clone() const {
     return make_unique<SearchScheduler>(*this);
 }
 
-void SearchScheduler::cache_only_when_necessary() {
-    if (!never_cache_ && look_ahead == 1) {
-        cerr << "When look_ahead = 1, 'never_cache' is used by default.\n";
-        never_cache_ = true;
+/**
+ * @brief Cache only when necessary
+ *
+ */
+void SearchScheduler::cacheOnlyWhenNecessary() {
+    if (!_neverCache && _lookAhead == 1) {
+        cerr << "When _lookAhead = 1, '_neverCache' is used by default.\n";
+        _neverCache = true;
     }
 }
 
-void SearchScheduler::assign_gates(unique_ptr<Router> router) {
-    auto total_gates = topo_->get_num_gates();
+/**
+ * @brief Assign gates
+ *
+ * @param router
+ */
+void SearchScheduler::assignGates(unique_ptr<Router> router) {
+    auto totalGates = _circuitTopology->getNumGates();
 
     auto root = make_unique<TreeNode>(
-        TreeNodeConf{never_cache_, exec_single_, conf_.candidates},
+        TreeNodeConf{_neverCache, _executeSingle, _conf._candidates},
         vector<size_t>{}, router->clone(), clone(), 0);
 
     // For each step. (all nodes + 1 dummy)
-    TqdmWrapper bar{total_gates + 1};
+    TqdmWrapper bar{totalGates + 1};
     do {
-        // Update the candidates.
-        auto selected_node =
-            make_unique<TreeNode>(root->best_child(look_ahead));
+        // Update the _candidates.
+        auto selectedNode = make_unique<TreeNode>(root->bestChild(_lookAhead));
+        root = move(selectedNode);
 
-        root = move(selected_node);
-
-        for (size_t gate_idx : root->executed_gates()) {
-            route_one_gate(*router, gate_idx);
+        for (size_t gateId : root->executedGates()) {
+            routeOneGate(*router, gateId);
             ++bar;
         }
     } while (!root->done());

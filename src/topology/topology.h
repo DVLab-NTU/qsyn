@@ -20,13 +20,12 @@
 
 class Device;
 class Topology;
-class PhyQubit;
+class PhysicalQubit;
 class Operation;
 struct Info;
 
-using AdjacencyPair = std::pair<PhyQubit*, PhyQubit*>;
 using Adjacencies = ordered_hashset<size_t>;
-using PhyQubitList = ordered_hashmap<size_t, PhyQubit>;
+using PhyQubitList = ordered_hashmap<size_t, PhysicalQubit>;
 using AdjacenciesInfo = std::unordered_map<std::pair<size_t, size_t>, Info>;
 using QubitInfo = std::unordered_map<size_t, Info>;
 
@@ -80,24 +79,24 @@ private:
     AdjacenciesInfo _adjInfo;
 };
 
-class PhyQubit {
+class PhysicalQubit {
 public:
-    PhyQubit() {}
-    PhyQubit(const size_t id);
-    PhyQubit(const PhyQubit& other);
-    PhyQubit(PhyQubit&& other);
-    PhyQubit& operator=(const PhyQubit& other);
-    PhyQubit& operator=(PhyQubit&& other);
+    PhysicalQubit() {}
+    PhysicalQubit(const size_t id);
+    PhysicalQubit(const PhysicalQubit& other);
+    PhysicalQubit(PhysicalQubit&& other);
+    PhysicalQubit& operator=(const PhysicalQubit& other);
+    PhysicalQubit& operator=(PhysicalQubit&& other);
 
-    ~PhyQubit() {}
+    ~PhysicalQubit() {}
     void setId(size_t id) { _id = id; }
-    void setOccupiedTime(size_t t) { _occuTime = t; }
+    void setOccupiedTime(size_t t) { _occupiedTime = t; }
     void setLogicalQubit(size_t id) { _logicalQubit = id; }
     void addAdjacency(size_t adj) { _adjacencies.emplace(adj); }
 
     size_t getId() const { return _id; }
-    size_t getOccupiedTime() const { return _occuTime; }
-    const bool isAdjacency(const PhyQubit& pq) const { return _adjacencies.contains(pq.getId()); }
+    size_t getOccupiedTime() const { return _occupiedTime; }
+    const bool isAdjacency(const PhysicalQubit& pq) const { return _adjacencies.contains(pq.getId()); }
     const Adjacencies& getAdjacencies() const { return _adjacencies; }
     size_t getLogicalQubit() const { return _logicalQubit; }
 
@@ -120,7 +119,7 @@ private:
 
     // NOTE - Duostra parameter
     size_t _logicalQubit;
-    size_t _occuTime;
+    size_t _occupiedTime;
 
     bool _marked;
     size_t _pred;
@@ -132,44 +131,40 @@ private:
 
 class Device {
 public:
-    Device(size_t id) : _id(id) {
-        _maxDist = 100000;
-        _topology = std::make_shared<Topology>(id);
-    }
+    Device(size_t);
     ~Device() {}
 
     size_t getId() const { return _id; }
     std::string getName() const { return _topology->getName(); }
     size_t getNQubit() const { return _nQubit; }
-    // REVIEW - Not sure why this function cannot be const funct.
-    const PhyQubitList& getPhyQubitList() { return _qubitList; }
-    PhyQubit& getPhysicalQubit(size_t id) { return _qubitList[id]; }
-    std::tuple<size_t, size_t> nextSwapCost(size_t source, size_t target);
+    const PhyQubitList& getPhyQubitList() const { return _qubitList; }
+    PhysicalQubit& getPhysicalQubit(size_t id) { return _qubitList[id]; }
+    std::tuple<size_t, size_t> getNextSwapCost(size_t source, size_t target);
+    bool qubitIdExist(size_t id) { return _qubitList.contains(id); }
 
     void setId(size_t id) { _id = id; }
     void setNQubit(size_t n) { _nQubit = n; }
-    void addPhyQubit(PhyQubit q) { _qubitList[q.getId()] = q; }
+    void addPhyQubit(PhysicalQubit q) { _qubitList[q.getId()] = q; }
     void addAdjacency(size_t a, size_t b);
-
-    bool qubitIdExist(size_t id) { return _qubitList.contains(id); }
-    bool readTopo(const std::string&);
-    void calculatePath();
-    // NOTE - All Pairs Shortest Path
-    void FloydWarshall();
-    std::vector<PhyQubit> getPath(size_t, size_t) const;
 
     // NOTE - Duostra
     void applyGate(const Operation& op);
     std::vector<size_t> mapping() const;
     void place(std::vector<size_t>& assign);
 
-    void printQubits(std::vector<size_t> cand = {}) const;
-    void printEdges(std::vector<size_t> cand = {}) const;
-    void printTopo() const;
+    // NOTE - All Pairs Shortest Path
+    void calculatePath();
+    void FloydWarshall();
+    std::vector<PhysicalQubit> getPath(size_t, size_t) const;
+
+    bool readDevice(const std::string&);
+
+    void printQubits(std::vector<size_t> = {}) const;
+    void printEdges(std::vector<size_t> = {}) const;
+    void printTopology() const;
     void printPredecessor() const;
     void printDistance() const;
     void printPath(size_t, size_t) const;
-    void printMapping() const;
 
 private:
     size_t _id;
@@ -177,12 +172,12 @@ private:
     std::shared_ptr<Topology> _topology;
     PhyQubitList _qubitList;
 
-    // NOTE - Internal functions/objects only used in reader
-    bool parseInfo(std::ifstream& f, std::vector<std::vector<float>>&, std::vector<std::vector<float>>&, std::vector<float>&, std::vector<float>&);
+    // NOTE - Internal functions only used in reader
     bool parseGateSet(std::string);
     bool parseSingles(std::string, std::vector<float>&);
     bool parsePairsFloat(std::string, std::vector<std::vector<float>>&);
     bool parsePairsSizeT(std::string, std::vector<std::vector<size_t>>&);
+    bool parseInfo(std::ifstream& f, std::vector<std::vector<float>>&, std::vector<std::vector<float>>&, std::vector<float>&, std::vector<float>&);
 
     // NOTE - Containers and helper functions for Floyd-Warshall
     int _maxDist;
@@ -198,46 +193,23 @@ public:
     friend std::ostream& operator<<(std::ostream&, Operation&);
     friend std::ostream& operator<<(std::ostream&, const Operation&);
 
-    Operation(GateType oper, Phase ph,
-              std::tuple<size_t, size_t> qs,
-              std::tuple<size_t, size_t> du)
-        : oper_(oper), _phase(ph), qubits_(qs), duration_(du) {
-        // sort qs
-        size_t a = std::get<0>(qs);
-        size_t b = std::get<1>(qs);
-        assert(a != b);
-        if (a > b) {
-            qubits_ = std::make_tuple(b, a);
-        }
-    }
-    Operation(const Operation& other)
-        : oper_(other.oper_),
-          _phase(other._phase),
-          qubits_(other.qubits_),
-          duration_(other.duration_) {}
+    Operation(GateType, Phase, std::tuple<size_t, size_t>, std::tuple<size_t, size_t>);
+    Operation(const Operation&);
 
-    Operation& operator=(const Operation& other) {
-        oper_ = other.oper_;
-        _phase = other._phase;
-        qubits_ = other.qubits_;
-        duration_ = other.duration_;
-        return *this;
-    }
+    Operation& operator=(const Operation&);
 
-    void setPhase(Phase ph) { _phase = ph; }
+    GateType getType() const { return _oper; }
     Phase getPhase() const { return _phase; }
-    size_t get_cost() const { return std::get<1>(duration_); }
-    size_t get_op_time() const { return std::get<0>(duration_); }
-    std::tuple<size_t, size_t> get_duration() const { return duration_; }
-    GateType get_operator() const { return oper_; }
-    // std::string get_operator_name() const { return operator_get_name(oper_); }
-    std::tuple<size_t, size_t> get_qubits() const { return qubits_; }
+    size_t getCost() const { return std::get<1>(_duration); }
+    size_t getOperationTime() const { return std::get<0>(_duration); }
+    std::tuple<size_t, size_t> getDuration() const { return _duration; }
+    std::tuple<size_t, size_t> getQubits() const { return _qubits; }
 
 private:
-    GateType oper_;
+    GateType _oper;
     Phase _phase;
-    std::tuple<size_t, size_t> qubits_;
-    std::tuple<size_t, size_t> duration_;  // <from, to>
+    std::tuple<size_t, size_t> _qubits;
+    std::tuple<size_t, size_t> _duration;  // <from, to>
 };
 
 #endif  // TOPOLOGY_H

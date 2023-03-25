@@ -19,17 +19,14 @@
 class BasePlacer {
 public:
     BasePlacer() {}
-    BasePlacer(const BasePlacer& other) = delete;
-    BasePlacer(BasePlacer&& other) = delete;
+    BasePlacer(const BasePlacer&) = delete;
+    BasePlacer(BasePlacer&&) = delete;
     virtual ~BasePlacer() {}
 
-    void place_and_assign(Device& device) {
-        auto assign = place(device);
-        device.place(assign);
-    }
+    void placeAndAssign(Device&);
 
 protected:
-    virtual std::vector<size_t> place(Device& device) const = 0;
+    virtual std::vector<size_t> place(Device&) const = 0;
 };
 
 class RandomPlacer : public BasePlacer {
@@ -37,7 +34,7 @@ public:
     ~RandomPlacer() override {}
 
 protected:
-    std::vector<size_t> place(Device& device) const override;
+    std::vector<size_t> place(Device&) const override;
 };
 
 class StaticPlacer : public BasePlacer {
@@ -45,7 +42,7 @@ public:
     ~StaticPlacer() override {}
 
 protected:
-    std::vector<size_t> place(Device& device) const override;
+    std::vector<size_t> place(Device&) const override;
 };
 
 class DFSPlacer : public BasePlacer {
@@ -53,13 +50,10 @@ public:
     ~DFSPlacer() override {}
 
 protected:
-    std::vector<size_t> place(Device& device) const override;
+    std::vector<size_t> place(Device&) const override;
 
 private:
-    void dfs_device(size_t current,
-                    Device& device,
-                    std::vector<size_t>& assign,
-                    std::vector<bool>& qubit_mark) const;
+    void DFSDevice(size_t, Device&, std::vector<size_t>&, std::vector<bool>&) const;
 };
 
 std::unique_ptr<BasePlacer> getPlacer(const std::string& typ);

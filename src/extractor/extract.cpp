@@ -790,7 +790,7 @@ void Extractor::createMatrix() {
  * @param phase
  */
 void Extractor::prependGate(string type, const vector<size_t>& qubits, Phase phase) {
-    assert(qubits.size()==1 || qubits.size()==2);
+    assert(qubits.size() == 1 || qubits.size() == 2);
     if (type == "rotate") {
         // if (_device.isNull())
         _circuit->addSingleRZ(qubits[0], phase, false);

@@ -169,7 +169,7 @@ DeviceGraphReadCmd::exec(const string &option) {
         }
     }
     Device bufferTopo = Device(0);
-    if (!bufferTopo.readTopo(fileName)) {
+    if (!bufferTopo.readDevice(fileName)) {
         cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
         return CMD_EXEC_ERROR;
     }
@@ -207,7 +207,7 @@ DeviceGraphPrintCmd::exec(const string &option) {
     DT_CMD_MGR_NOT_EMPTY_OR_RETURN("DTGPrint");
 
     if (options.empty() || myStrNCmp("-Summary", options[0], 2) == 0)
-        deviceMgr->getDevice().printTopo();
+        deviceMgr->getDevice().printTopology();
     else if (myStrNCmp("-Edges", options[0], 2) == 0) {
         CMD_N_OPTS_AT_MOST_OR_RETURN(options, 3)
         vector<size_t> candidates;

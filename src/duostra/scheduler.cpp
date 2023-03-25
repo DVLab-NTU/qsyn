@@ -14,153 +14,13 @@
 
 using namespace std;
 
-BaseScheduler::BaseScheduler(unique_ptr<CircuitTopo> topo) : topo_(move(topo)), ops_({}) {}
-
-BaseScheduler::BaseScheduler(const BaseScheduler& other) : topo_(other.topo_->clone()), ops_(other.ops_) {}
-
-BaseScheduler::BaseScheduler(BaseScheduler&& other) : topo_(move(other.topo_)), ops_(move(other.ops_)) {}
-
-unique_ptr<BaseScheduler> BaseScheduler::clone() const {
-    return make_unique<BaseScheduler>(*this);
-}
-
-void BaseScheduler::sort() {
-    std::sort(ops_.begin(), ops_.end(), [](const Operation& a, const Operation& b) -> bool {
-        return a.get_op_time() < b.get_op_time();
-    });
-    sorted_ = true;
-}
-
-void BaseScheduler::assign_gates(unique_ptr<Router> router) {
-    cout << "Default scheduler running..." << endl;
-
-    for (TqdmWrapper bar{topo_->get_num_gates()}; !bar.done(); ++bar) {
-        route_one_gate(*router, bar.idx());
-    }
-}
-
-size_t BaseScheduler::get_final_cost() const {
-    assert(sorted_);
-    return ops_.at(ops_.size() - 1).get_cost();
-}
-
-size_t BaseScheduler::get_total_time() const {
-    assert(sorted_);
-
-    size_t ret = 0;
-    for (size_t i = 0; i < ops_.size(); ++i) {
-        tuple<size_t, size_t> dur = ops_[i].get_duration();
-        ret += std::get<1>(dur) - std::get<0>(dur);
-    }
-    return ret;
-}
-
-size_t BaseScheduler::get_swap_num() const {
-    size_t ret = 0;
-    for (size_t i = 0; i < ops_.size(); ++i) {
-        if (ops_.at(i).get_operator() == GateType::SWAP) {
-            ++ret;
-        }
-    }
-    return ret;
-}
-
-size_t BaseScheduler::ops_cost() const {
-    return std::max_element(
-               ops_.begin(), ops_.end(),
-               [](const Operation& a, const Operation& b) {
-                   return a.get_cost() < b.get_cost();
-               })
-        ->get_cost();
-}
-
-size_t BaseScheduler::get_executable(Router& router) const {
-    for (size_t gate_idx : topo_->get_avail_gates()) {
-        if (router.is_executable(topo_->get_gate(gate_idx))) {
-            return gate_idx;
-        }
-    }
-    return ERROR_CODE;
-}
-
-size_t BaseScheduler::route_one_gate(Router& router, size_t gate_idx, bool forget) {
-    const auto& gate = topo_->get_gate(gate_idx);
-    auto ops{router.assign_gate(gate)};
-    size_t max_cost = 0;
-    for (const auto& op : ops) {
-        if (op.get_cost() > max_cost) {
-            max_cost = op.get_cost();
-        }
-    }
-    if (!forget) {
-        ops_.insert(ops_.end(), ops.begin(), ops.end());
-    }
-    topo_->update_avail_gates(gate_idx);
-
-    return max_cost;
-}
-
-RandomScheduler::RandomScheduler(unique_ptr<CircuitTopo> topo) : BaseScheduler(move(topo)) {}
-
-RandomScheduler::RandomScheduler(const RandomScheduler& other) : BaseScheduler(other) {}
-
-RandomScheduler::RandomScheduler(RandomScheduler&& other) : BaseScheduler(move(other)) {}
-
-void RandomScheduler::assign_gates(unique_ptr<Router> router) {
-    cout << "Random scheduler running..." << endl;
-
-    [[maybe_unused]] size_t count = 0;
-
-    for (TqdmWrapper bar{topo_->get_num_gates()}; !bar.done(); ++bar) {
-        auto& wait_list = topo_->get_avail_gates();
-        assert(wait_list.size() > 0);
-        srand(chrono::system_clock::now().time_since_epoch().count());
-
-        size_t choose = rand() % wait_list.size();
-
-        route_one_gate(*router, wait_list[choose]);
-#ifdef DEBUG
-        cout << wait_list << " " << wait_list[choose] << "\n\n";
-#endif
-        ++count;
-    }
-
-    assert(count == topo_->get_num_gates());
-}
-
-unique_ptr<BaseScheduler> RandomScheduler::clone() const {
-    return make_unique<RandomScheduler>(*this);
-}
-
-StaticScheduler::StaticScheduler(unique_ptr<CircuitTopo> topo) : BaseScheduler(move(topo)) {}
-StaticScheduler::StaticScheduler(const StaticScheduler& other) : BaseScheduler(other) {}
-StaticScheduler::StaticScheduler(StaticScheduler&& other) : BaseScheduler(move(other)) {}
-
-void StaticScheduler::assign_gates(unique_ptr<Router> router) {
-    cout << "Static scheduler running..." << endl;
-
-    [[maybe_unused]] size_t count = 0;
-
-    for (TqdmWrapper bar{topo_->get_num_gates()}; !bar.done(); ++bar) {
-        auto& wait_list = topo_->get_avail_gates();
-        assert(wait_list.size() > 0);
-
-        size_t gate_idx = get_executable(*router);
-        if (gate_idx == ERROR_CODE) {
-            gate_idx = wait_list[0];
-        }
-
-        route_one_gate(*router, gate_idx);
-
-        ++count;
-    }
-    assert(count == topo_->get_num_gates());
-}
-
-unique_ptr<BaseScheduler> StaticScheduler::clone() const {
-    return make_unique<StaticScheduler>(*this);
-}
-
+/**
+ * @brief Get the Scheduler object
+ *
+ * @param typ
+ * @param topo
+ * @return unique_ptr<BaseScheduler>
+ */
 unique_ptr<BaseScheduler> getScheduler(const string& typ, unique_ptr<CircuitTopo> topo) {
     if (typ == "random") {
         return make_unique<RandomScheduler>(move(topo));
@@ -170,10 +30,277 @@ unique_ptr<BaseScheduler> getScheduler(const string& typ, unique_ptr<CircuitTopo
         return make_unique<GreedyScheduler>(move(topo));
     } else if (typ == "search") {
         return make_unique<SearchScheduler>(move(topo));
-    } else if (typ == "old") {
+    } else if (typ == "base") {
         return make_unique<BaseScheduler>(move(topo));
     } else {
         cerr << typ << " is not a scheduler type" << endl;
         abort();
     }
+}
+
+// SECTION - Class BaseScheduler Member Functions
+
+/**
+ * @brief Construct a new Base Scheduler:: Base Scheduler object
+ *
+ * @param topo
+ */
+BaseScheduler::BaseScheduler(unique_ptr<CircuitTopo> topo) : _circuitTopology(move(topo)), _operations({}) {}
+
+/**
+ * @brief Construct a new Base Scheduler:: Base Scheduler object
+ *
+ * @param other
+ */
+BaseScheduler::BaseScheduler(const BaseScheduler& other) : _circuitTopology(other._circuitTopology->clone()), _operations(other._operations) {}
+
+/**
+ * @brief Construct a new Base Scheduler:: Base Scheduler object
+ *
+ * @param other
+ */
+BaseScheduler::BaseScheduler(BaseScheduler&& other) : _circuitTopology(move(other._circuitTopology)), _operations(move(other._operations)) {}
+
+/**
+ * @brief Clone scheduler
+ *
+ * @return unique_ptr<BaseScheduler>
+ */
+unique_ptr<BaseScheduler> BaseScheduler::clone() const {
+    return make_unique<BaseScheduler>(*this);
+}
+
+/**
+ * @brief Sort by operation time
+ *
+ */
+void BaseScheduler::sort() {
+    std::sort(_operations.begin(), _operations.end(), [](const Operation& a, const Operation& b) -> bool {
+        return a.getOperationTime() < b.getOperationTime();
+    });
+    _sorted = true;
+}
+
+/**
+ * @brief Get final cost (depth)
+ *
+ * @return size_t
+ */
+size_t BaseScheduler::getFinalCost() const {
+    assert(_sorted);
+    return _operations.at(_operations.size() - 1).getCost();
+}
+
+/**
+ * @brief Get total time
+ *
+ * @return size_t
+ */
+size_t BaseScheduler::getTotalTime() const {
+    assert(_sorted);
+    size_t ret = 0;
+    for (size_t i = 0; i < _operations.size(); ++i) {
+        tuple<size_t, size_t> dur = _operations[i].getDuration();
+        ret += std::get<1>(dur) - std::get<0>(dur);
+    }
+    return ret;
+}
+
+/**
+ * @brief Get number of swaps
+ *
+ * @return size_t
+ */
+size_t BaseScheduler::getSwapNum() const {
+    size_t ret = 0;
+    for (size_t i = 0; i < _operations.size(); ++i) {
+        if (_operations.at(i).getType() == GateType::SWAP)
+            ++ret;
+    }
+    return ret;
+}
+
+/**
+ * @brief Get executable gate
+ *
+ * @param router
+ * @return size_t
+ */
+size_t BaseScheduler::getExecutable(Router& router) const {
+    for (size_t gateIdx : _circuitTopology->getAvailableGates()) {
+        if (router.isExecutable(_circuitTopology->getGate(gateIdx))) {
+            return gateIdx;
+        }
+    }
+    return ERROR_CODE;
+}
+
+/**
+ * @brief Get cost of operations
+ *
+ * @return size_t
+ */
+size_t BaseScheduler::operationsCost() const {
+    return max_element(_operations.begin(), _operations.end(),
+                       [](const Operation& a, const Operation& b) {
+                           return a.getCost() < b.getCost();
+                       })
+        ->getCost();
+}
+
+/**
+ * @brief Assign gates and sort
+ *
+ * @param router
+ */
+void BaseScheduler::assignGatesAndSort(unique_ptr<Router> router) {
+    assignGates(move(router));
+    sort();
+}
+
+/**
+ * @brief Assign gates
+ *
+ * @param router
+ */
+void BaseScheduler::assignGates(unique_ptr<Router> router) {
+    cout << "Default scheduler running..." << endl;
+
+    for (TqdmWrapper bar{_circuitTopology->getNumGates()}; !bar.done(); ++bar)
+        routeOneGate(*router, bar.idx());
+}
+
+/**
+ * @brief Route one gate
+ *
+ * @param router
+ * @param gateIdx
+ * @param forget
+ * @return size_t
+ */
+size_t BaseScheduler::routeOneGate(Router& router, size_t gateIdx, bool forget) {
+    const auto& gate = _circuitTopology->getGate(gateIdx);
+    auto ops{router.assignGate(gate)};
+    size_t maxCost = 0;
+    for (const auto& op : ops) {
+        if (op.getCost() > maxCost)
+            maxCost = op.getCost();
+    }
+    if (!forget)
+        _operations.insert(_operations.end(), ops.begin(), ops.end());
+
+    _circuitTopology->updateAvailableGates(gateIdx);
+    return maxCost;
+}
+
+// SECTION - Class RandomScheduler Member Functions
+
+/**
+ * @brief Construct a new Random Scheduler:: Random Scheduler object
+ *
+ * @param topo
+ */
+RandomScheduler::RandomScheduler(unique_ptr<CircuitTopo> topo) : BaseScheduler(move(topo)) {}
+
+/**
+ * @brief Construct a new Random Scheduler:: Random Scheduler object
+ *
+ * @param other
+ */
+RandomScheduler::RandomScheduler(const RandomScheduler& other) : BaseScheduler(other) {}
+
+/**
+ * @brief Construct a new Random Scheduler:: Random Scheduler object
+ *
+ * @param other
+ */
+RandomScheduler::RandomScheduler(RandomScheduler&& other) : BaseScheduler(move(other)) {}
+
+/**
+ * @brief Clone scheduler
+ *
+ * @return unique_ptr<BaseScheduler>
+ */
+unique_ptr<BaseScheduler> RandomScheduler::clone() const {
+    return make_unique<RandomScheduler>(*this);
+}
+
+/**
+ * @brief Assign gate
+ *
+ * @param router
+ */
+void RandomScheduler::assignGates(unique_ptr<Router> router) {
+    cout << "Random scheduler running..." << endl;
+    [[maybe_unused]] size_t count = 0;
+
+    for (TqdmWrapper bar{_circuitTopology->getNumGates()}; !bar.done(); ++bar) {
+        auto& waitlist = _circuitTopology->getAvailableGates();
+        assert(waitlist.size() > 0);
+        srand(chrono::system_clock::now().time_since_epoch().count());
+
+        size_t choose = rand() % waitlist.size();
+
+        routeOneGate(*router, waitlist[choose]);
+#ifdef DEBUG
+        cout << waitlist << " " << waitlist[choose] << "\n\n";
+#endif
+        ++count;
+    }
+    assert(count == _circuitTopology->getNumGates());
+}
+
+// SECTION - Class StaticScheduler Member Functions
+
+/**
+ * @brief Construct a new Static Scheduler:: Static Scheduler object
+ *
+ * @param topo
+ */
+StaticScheduler::StaticScheduler(unique_ptr<CircuitTopo> topo) : BaseScheduler(move(topo)) {}
+
+/**
+ * @brief Construct a new Static Scheduler:: Static Scheduler object
+ *
+ * @param other
+ */
+StaticScheduler::StaticScheduler(const StaticScheduler& other) : BaseScheduler(other) {}
+
+/**
+ * @brief Construct a new Static Scheduler:: Static Scheduler object
+ *
+ * @param other
+ */
+StaticScheduler::StaticScheduler(StaticScheduler&& other) : BaseScheduler(move(other)) {}
+
+/**
+ * @brief Clone scheduler
+ *
+ * @return unique_ptr<BaseScheduler>
+ */
+unique_ptr<BaseScheduler> StaticScheduler::clone() const {
+    return make_unique<StaticScheduler>(*this);
+}
+
+/**
+ * @brief Assign gates
+ *
+ * @param router
+ */
+void StaticScheduler::assignGates(unique_ptr<Router> router) {
+    cout << "Static scheduler running..." << endl;
+
+    [[maybe_unused]] size_t count = 0;
+    for (TqdmWrapper bar{_circuitTopology->getNumGates()}; !bar.done(); ++bar) {
+        auto& waitlist = _circuitTopology->getAvailableGates();
+        assert(waitlist.size() > 0);
+
+        size_t gate_idx = getExecutable(*router);
+        if (gate_idx == ERROR_CODE)
+            gate_idx = waitlist[0];
+
+        routeOneGate(*router, gate_idx);
+        ++count;
+    }
+    assert(count == _circuitTopology->getNumGates());
 }

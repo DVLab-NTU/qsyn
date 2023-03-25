@@ -13,6 +13,12 @@
 
 using namespace std;
 
+/**
+ * @brief Get the Placer object
+ *
+ * @param typ
+ * @return unique_ptr<BasePlacer>
+ */
 unique_ptr<BasePlacer> getPlacer(const string& typ) {
     if (typ == "static") {
         return make_unique<StaticPlacer>();
@@ -25,64 +31,104 @@ unique_ptr<BasePlacer> getPlacer(const string& typ) {
     abort();
 }
 
+// SECTION - Class BasePlacer Member Functions
+
+/**
+ * @brief Place and assign logical qubit
+ *
+ * @param device
+ */
+void BasePlacer::placeAndAssign(Device& device) {
+    auto assign = place(device);
+    device.place(assign);
+}
+
+// SECTION - Class RandomPlacer Member Functions
+
+/**
+ * @brief Place logical qubit
+ *
+ * @param device
+ * @return vector<size_t>
+ */
 vector<size_t> RandomPlacer::place(Device& device) const {
-    std::vector<size_t> assign;
-    for (size_t i = 0; i < device.getNQubit(); ++i) {
+    vector<size_t> assign;
+    for (size_t i = 0; i < device.getNQubit(); ++i)
         assign.push_back(i);
-    }
-    size_t seed = std::chrono::system_clock::now().time_since_epoch().count();
 
-    shuffle(assign.begin(), assign.end(), std::default_random_engine(seed));
+    size_t seed = chrono::system_clock::now().time_since_epoch().count();
+    shuffle(assign.begin(), assign.end(), default_random_engine(seed));
     return assign;
 }
 
+// SECTION - Class StaticPlacer Member Functions
+
+/**
+ * @brief Place logical qubit
+ *
+ * @param device
+ * @return vector<size_t>
+ */
 vector<size_t> StaticPlacer::place(Device& device) const {
-    std::vector<size_t> assign;
-    for (size_t i = 0; i < device.getNQubit(); ++i) {
+    vector<size_t> assign;
+    for (size_t i = 0; i < device.getNQubit(); ++i)
         assign.push_back(i);
-    }
+
     return assign;
 }
 
+// SECTION - Class DFSPlacer Member Functions
+
+/**
+ * @brief Place logical qubit
+ *
+ * @param device
+ * @return vector<size_t>
+ */
 vector<size_t> DFSPlacer::place(Device& device) const {
     vector<size_t> assign;
-    vector<bool> qubit_mark(device.getNQubit(), false);
-    dfs_device(0, device, assign, qubit_mark);
+    vector<bool> qubitMark(device.getNQubit(), false);
+    DFSDevice(0, device, assign, qubitMark);
     assert(assign.size() == device.getNQubit());
     return assign;
 }
 
-void DFSPlacer::dfs_device(size_t current, Device& device, vector<size_t>& assign, vector<bool>& qubit_mark) const {
-    if (qubit_mark[current]) {
+/**
+ * @brief Depth-first search the device
+ *
+ * @param current
+ * @param device
+ * @param assign
+ * @param qubitMark
+ */
+void DFSPlacer::DFSDevice(size_t current, Device& device, vector<size_t>& assign, vector<bool>& qubitMark) const {
+    if (qubitMark[current]) {
         cout << current << endl;
     }
-    assert(!qubit_mark[current]);
-    qubit_mark[current] = true;
+    assert(!qubitMark[current]);
+    qubitMark[current] = true;
     assign.push_back(current);
 
-    const PhyQubit& q = device.getPhysicalQubit(current);
-    vector<size_t> adj_waitlist;
+    const PhysicalQubit& q = device.getPhysicalQubit(current);
+    vector<size_t> adjacencyWaitlist;
 
     for (auto& adj : q.getAdjacencies()) {
         // already marked
-        if (qubit_mark[adj])
+        if (qubitMark[adj])
             continue;
         assert(q.getAdjacencies().size() > 0);
-
         // corner
-        if (q.getAdjacencies().size() == 1) {
-            dfs_device(adj, device, assign, qubit_mark);
-        } else {
-            adj_waitlist.push_back(adj);
-        }
+        if (q.getAdjacencies().size() == 1)
+            DFSDevice(adj, device, assign, qubitMark);
+        else
+            adjacencyWaitlist.push_back(adj);
     }
 
-    for (size_t i = 0; i < adj_waitlist.size(); ++i) {
-        size_t adj = adj_waitlist[i];
-        if (qubit_mark[adj]) {
+    for (size_t i = 0; i < adjacencyWaitlist.size(); ++i) {
+        size_t adj = adjacencyWaitlist[i];
+        if (qubitMark[adj])
             continue;
-        }
-        dfs_device(adj, device, assign, qubit_mark);
+        DFSDevice(adj, device, assign, qubitMark);
     }
     return;
 }
