@@ -198,7 +198,7 @@ void DeviceTopoGraphReadCmd::summary() const {
 }
 
 //-----------------------------------------------------------------------------------------------------------
-//    DTGPrint [-Summary | -Edges | -Qubits]
+//    DTGPrint [-Summary | -Edges | -Path | -Qubit]
 //-----------------------------------------------------------------------------------------------------------
 CmdExecStatus
 DeviceTopoGraphPrintCmd::exec(const string &option) {
@@ -233,13 +233,20 @@ DeviceTopoGraphPrintCmd::exec(const string &option) {
             }
         }
         deviceTopoMgr->getDeviceTopo()->printQubits(candidates);
+    } else if (myStrNCmp("-Path", options[0], 2) == 0) {
+        CMD_N_OPTS_EQUAL_OR_RETURN(options, 3)
+        unsigned qid0, qid1;
+        if (!myStr2Uns(options[1], qid0)) cout << "Warning: " << options[1] << " is not a valid qubit ID!!" << endl;
+        if (!myStr2Uns(options[2], qid1)) cout << "Warning: " << options[2] << " is not a valid qubit ID!!" << endl;
+
+        deviceTopoMgr->getDeviceTopo()->printPath(qid0, qid1);
     } else
         return errorOption(CMD_OPT_ILLEGAL, options[0]);
     return CMD_EXEC_DONE;
 }
 
 void DeviceTopoGraphPrintCmd::usage() const {
-    cout << "Usage: DTGPrint [-Summary | -Edges | -Qubits]" << endl;
+    cout << "Usage: DTGPrint [-Summary | -Edges | -Path | -Qubit]" << endl;
 }
 
 void DeviceTopoGraphPrintCmd::summary() const {

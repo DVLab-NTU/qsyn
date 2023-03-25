@@ -1,4 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.4.0
+DV Lab, NTUEE, Qsyn 0.4.1
 qsyn> dtgr benchmark/topology/ithaca.layout
 Create and checkout to DeviceTopo 0
 
@@ -108,5 +108,23 @@ qsyn> dtp -l
 ★ 0 ibm_ithaca           #Q:   65
   1 example_topology     #Q:    3
 
+qsyn> dtgp -p 0 64
+
+Path from 0 to 64:
+   0    1    2    3    4   11   17   18   19   25 
+  33   34   35   40   49   50   51   54   64 
+qsyn> dtgp -p 12 56
+
+Path from 12 to 56:
+  12   21   20   19   25   33   32   31   39   45 
+  44   43   52   56 
+qsyn> dtgp -p 35 21
+
+Path from 35 to 21:
+  35   34   33   25   19   20   21 
+qsyn> dtgp -p 33 33
+
+Path from 33 to 33:
+  33 
 qsyn> qq -f
 

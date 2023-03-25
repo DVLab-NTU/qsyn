@@ -22,7 +22,7 @@ extern size_t verbose;
  */
 void QCirQubit::printBitLine() const {
     QCirGate *current = _bitFirst;
-    size_t last_time = 0;
+    size_t last_time = 1;
     cout << "Q" << right << setfill(' ') << setw(2) << _id << "  ";
     while (current != NULL) {
         cout << "-";

@@ -164,7 +164,6 @@ ZXPrintCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) {
-        cout << "ZXMode: ON" << endl;
         zxGraphMgr->printZXGraphMgr();
     } else if (myStrNCmp("-Focus", token, 2) == 0)
         zxGraphMgr->printGListItr();
@@ -363,9 +362,14 @@ ZXGPrintCmd::exec(const string &option) {
 
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGPrint");
 
-    if (options.empty() || myStrNCmp("-Summary", options[0], 2) == 0)
+    if (options.empty())
         zxGraphMgr->getGraph()->printGraph();
-    else if (myStrNCmp("-Inputs", options[0], 2) == 0)
+    else if (myStrNCmp("-Summary", options[0], 2) == 0) {
+        zxGraphMgr->getGraph()->printGraph();
+        cout << setw(30) << left << "#T-gate: " << zxGraphMgr->getGraph()->TCount() << "\n";
+        cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(false) << "\n";
+        cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(true) << "\n";
+    } else if (myStrNCmp("-Inputs", options[0], 2) == 0)
         zxGraphMgr->getGraph()->printInputs();
     else if (myStrNCmp("-Outputs", options[0], 2) == 0)
         zxGraphMgr->getGraph()->printOutputs();

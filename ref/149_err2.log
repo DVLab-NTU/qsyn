@@ -1,0 +1,171 @@
+DV Lab, NTUEE, Qsyn 0.4.1
+qsyn> color 0
+Note: colored is set to 0
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> qccr benchmark/benchmark_SABRE/large/urf1_149.qasm
+
+qsyn> qccp -a
+Clifford: 103986
+└── CX: 80878
+T-family: 80878
+Others  : 0
+
+qsyn> qc2zx
+
+qsyn> extp -s
+
+Sort Frontier:     False
+Sort Neighbors:    True
+Permute Qubits:    True
+Filter Duplicated: True
+Block Size:        5
+Optimize Level:    1
+
+qsyn> //exts 0 1 1 5 0 1
+qsyn> extp -s
+
+Sort Frontier:     False
+Sort Neighbors:    True
+Permute Qubits:    True
+Filter Duplicated: True
+Block Size:        5
+Optimize Level:    1
+
+qsyn> //qq -f
+qsyn> zxgs -fr
+
+qsyn> usage
+Period time used : 30.31 seconds
+Total time used  : 30.31 seconds
+Total memory used: 850.6 M Bytes
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 31.58 seconds
+Total time used  : 61.89 seconds
+Total memory used: 850.6 M Bytes
+
+qsyn> qcp
+-> #QCir: 2
+-> Now focus on: 1
+
+qsyn> qccp -a
+Clifford: 191868
+└── CX: 92440
+T-family: 40380
+Others  : 0
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> usage
+Period time used : 2525 seconds
+Total time used  : 2586 seconds
+Total memory used: 854.2 M Bytes
+
+qsyn> zxgt -id 
+The graph is not an identity!
+
+qsyn> zxgp -q
+
+ID:332669 (Z, 0)           (Qubit, Col): (-2, 9.952e+04)	  #Neighbors:  10     (3, H) (292637, H) (332684, H) (352191, H) (359969, H) (360002, H) (392034, H) (399826, H) (431886, H) (431972, H) 
+ID:332683 (Z, π/4)         (Qubit, Col): (-2, 9.958e+04)	  #Neighbors:   1     (332684, H) 
+ID:352190 (Z, 7π/4)        (Qubit, Col): (-2, 9.958e+04)	  #Neighbors:   1     (352191, H) 
+ID:392033 (Z, π/4)         (Qubit, Col): (-2, 1.151e+05)	  #Neighbors:   1     (392034, H) 
+ID:399825 (Z, 7π/4)        (Qubit, Col): (-2, 1.151e+05)	  #Neighbors:   1     (399826, H) 
+ID:431975 (Z, 7π/4)        (Qubit, Col): (-2, 1.151e+05)	  #Neighbors:   1     (431976, H) 
+
+
+ID:332684 (Z, 0)           (Qubit, Col): (-1, 9.958e+04)	  #Neighbors:   5     (292532, H) (302356, H) (302357, H) (332669, H) (332683, H) 
+ID:352191 (Z, 0)           (Qubit, Col): (-1, 9.958e+04)	  #Neighbors:   3     (292532, H) (332669, H) (352190, H) 
+ID:392034 (Z, 0)           (Qubit, Col): (-1, 1.151e+05)	  #Neighbors:   3     (302356, H) (332669, H) (392033, H) 
+ID:399826 (Z, 0)           (Qubit, Col): (-1, 1.151e+05)	  #Neighbors:   3     (302357, H) (332669, H) (399825, H) 
+ID:431976 (Z, 0)           (Qubit, Col): (-1, 1.151e+05)	  #Neighbors:   4     (292532, H) (302356, H) (302357, H) (431975, H) 
+
+
+ID:   1 (●, 0)           (Qubit, Col): (0, 1.151e+05)	  #Neighbors:   1     (292635, -) 
+ID:292635 (●, 0)           (Qubit, Col): (0, 9.959e+04)	  #Neighbors:   1     (1, -) 
+
+
+ID:   3 (●, 0)           (Qubit, Col): (1, 1.151e+05)	  #Neighbors:   1     (332669, H) 
+ID:292637 (●, 0)           (Qubit, Col): (1, 9.959e+04)	  #Neighbors:   1     (332669, H) 
+
+
+ID:   5 (●, 0)           (Qubit, Col): (2, 1.151e+05)	  #Neighbors:   1     (431973, -) 
+ID:292532 (Z, π/4)         (Qubit, Col): (2, 1.151e+05)	  #Neighbors:   7     (332684, H) (352191, H) (359969, H) (360002, H) (431886, H) (431973, H) (431976, H) 
+ID:292639 (●, 0)           (Qubit, Col): (2, 9.959e+04)	  #Neighbors:   1     (431886, -) 
+ID:302357 (Z, π/4)         (Qubit, Col): (2, 9.958e+04)	  #Neighbors:   9     (292611, H) (302359, H) (332684, H) (359969, H) (360002, H) (399826, H) (431886, H) (431973, H) (431976, H) 
+ID:431886 (Z, 0)           (Qubit, Col): (2, 9.959e+04)	  #Neighbors:   5     (292532, H) (292639, -) (302356, H) (302357, H) (332669, H) 
+ID:431973 (Z, 0)           (Qubit, Col): (2, 1.151e+05)	  #Neighbors:   4     (5, -) (292532, H) (302356, H) (302357, H) 
+
+
+ID:   7 (●, 0)           (Qubit, Col): (3, 1.151e+05)	  #Neighbors:   1     (292641, -) 
+ID:292641 (●, 0)           (Qubit, Col): (3, 9.959e+04)	  #Neighbors:   1     (7, -) 
+
+
+ID:   9 (●, 0)           (Qubit, Col): (4, 1.151e+05)	  #Neighbors:   1     (292611, H) 
+ID:292611 (Z, 0)           (Qubit, Col): (4, 1.151e+05)	  #Neighbors:   3     (9, H) (302356, H) (302357, H) 
+ID:292643 (●, 0)           (Qubit, Col): (4, 9.959e+04)	  #Neighbors:   1     (302359, H) 
+ID:302359 (Z, 0)           (Qubit, Col): (4, 9.959e+04)	  #Neighbors:   3     (292643, H) (302356, H) (302357, H) 
+
+
+ID:  11 (●, 0)           (Qubit, Col): (5, 1.151e+05)	  #Neighbors:   1     (431972, H) 
+ID:292645 (●, 0)           (Qubit, Col): (5, 9.959e+04)	  #Neighbors:   1     (431972, H) 
+ID:431972 (Z, 0)           (Qubit, Col): (5, 9.955e+04)	  #Neighbors:   3     (11, H) (292645, H) (332669, H) 
+
+
+ID:  13 (●, 0)           (Qubit, Col): (6, 1.151e+05)	  #Neighbors:   1     (292647, -) 
+ID:292647 (●, 0)           (Qubit, Col): (6, 9.959e+04)	  #Neighbors:   1     (13, -) 
+
+
+ID:  15 (●, 0)           (Qubit, Col): (7, 1.151e+05)	  #Neighbors:   1     (292649, -) 
+ID:292649 (●, 0)           (Qubit, Col): (7, 9.959e+04)	  #Neighbors:   1     (15, -) 
+
+
+ID:  17 (●, 0)           (Qubit, Col): (8, 1.151e+05)	  #Neighbors:   1     (360002, H) 
+ID:292651 (●, 0)           (Qubit, Col): (8, 9.959e+04)	  #Neighbors:   1     (359969, H) 
+ID:302356 (Z, 7π/4)        (Qubit, Col): (8, 9.958e+04)	  #Neighbors:   7     (292611, H) (302359, H) (332684, H) (392034, H) (431886, H) (431973, H) (431976, H) 
+ID:359969 (Z, 0)           (Qubit, Col): (8, 9.957e+04)	  #Neighbors:   4     (292532, H) (292651, H) (302357, H) (332669, H) 
+ID:360002 (Z, 0)           (Qubit, Col): (8, 1.151e+05)	  #Neighbors:   4     (17, H) (292532, H) (302357, H) (332669, H) 
+
+
+ID:  19 (●, 0)           (Qubit, Col): (9, 1.151e+05)	  #Neighbors:   1     (292653, -) 
+ID:292653 (●, 0)           (Qubit, Col): (9, 9.959e+04)	  #Neighbors:   1     (19, -) 
+
+
+ID:  21 (●, 0)           (Qubit, Col): (10, 1.151e+05)	  #Neighbors:   1     (292655, -) 
+ID:292655 (●, 0)           (Qubit, Col): (10, 9.959e+04)	  #Neighbors:   1     (21, -) 
+
+
+ID:  23 (●, 0)           (Qubit, Col): (11, 1.151e+05)	  #Neighbors:   1     (292657, -) 
+ID:292657 (●, 0)           (Qubit, Col): (11, 9.959e+04)	  #Neighbors:   1     (23, -) 
+
+
+ID:  25 (●, 0)           (Qubit, Col): (12, 1.151e+05)	  #Neighbors:   1     (292659, -) 
+ID:292659 (●, 0)           (Qubit, Col): (12, 9.959e+04)	  #Neighbors:   1     (25, -) 
+
+
+ID:  27 (●, 0)           (Qubit, Col): (13, 1.151e+05)	  #Neighbors:   1     (292661, -) 
+ID:292661 (●, 0)           (Qubit, Col): (13, 9.959e+04)	  #Neighbors:   1     (27, -) 
+
+
+ID:  29 (●, 0)           (Qubit, Col): (14, 1.151e+05)	  #Neighbors:   1     (292663, -) 
+ID:292663 (●, 0)           (Qubit, Col): (14, 9.959e+04)	  #Neighbors:   1     (29, -) 
+
+
+ID:  31 (●, 0)           (Qubit, Col): (15, 1.151e+05)	  #Neighbors:   1     (292665, -) 
+ID:292665 (●, 0)           (Qubit, Col): (15, 9.959e+04)	  #Neighbors:   1     (31, -) 
+
+
+qsyn> qq -f
+

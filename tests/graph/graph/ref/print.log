@@ -1,4 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.4.0
+DV Lab, NTUEE, Qsyn 0.4.1
 qsyn> zxnew
 Create and checkout to Graph 0
 
@@ -41,7 +41,6 @@ Total #Vertices: 6
 
 
 qsyn> zxprint
-ZXMode: ON
 -> #Graph: 2
 -> Now focus on: 1
 

@@ -9,6 +9,10 @@ dtgp -q 15
 dtgp -e 15
 dtp
 dtp -l
+dtgp -p 0 64
+dtgp -p 12 56
+dtgp -p 35 21
+dtgp -p 33 33
 qq -f
 
 

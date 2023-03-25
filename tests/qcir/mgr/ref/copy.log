@@ -1,4 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.4.0
+DV Lab, NTUEE, Qsyn 0.4.1
 qsyn> qccr benchmark/benchmark_SABRE/small/rd32-v1_68.qasm
 Create and checkout to QCir 0
 
@@ -46,25 +46,25 @@ Create and checkout to Graph 1
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (8, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 6)	  #Neighbors:   1     (14, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 7)	  #Neighbors:   1     (14, -) 
 ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (9, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 6)	  #Neighbors:   1     (16, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 7)	  #Neighbors:   1     (16, -) 
 ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (11, -) 
-ID:   5 (●, 0)           (Qubit, Col): (2, 6)	  #Neighbors:   1     (18, -) 
+ID:   5 (●, 0)           (Qubit, Col): (2, 7)	  #Neighbors:   1     (18, -) 
 ID:   6 (●, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   1     (15, -) 
-ID:   7 (●, 0)           (Qubit, Col): (3, 6)	  #Neighbors:   1     (19, -) 
-ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 1)	  #Neighbors:   3     (0, -) (9, -) (10, -) 
-ID:   9 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 1)	  #Neighbors:   3     (2, -) (8, -) (12, -) 
-ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   3     (8, -) (11, -) (14, -) 
-ID:  11 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 2)	  #Neighbors:   3     (4, -) (10, -) (13, -) 
-ID:  12 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 3)	  #Neighbors:   3     (9, -) (13, -) (16, -) 
-ID:  13 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 3)	  #Neighbors:   3     (11, -) (12, -) (18, -) 
-ID:  14 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   3     (1, -) (10, -) (15, -) 
-ID:  15 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 3)	  #Neighbors:   3     (6, -) (14, -) (17, -) 
-ID:  16 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 4)	  #Neighbors:   3     (3, -) (12, -) (17, -) 
-ID:  17 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 4)	  #Neighbors:   3     (15, -) (16, -) (19, -) 
-ID:  18 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 5)	  #Neighbors:   3     (5, -) (13, -) (19, -) 
-ID:  19 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 5)	  #Neighbors:   3     (7, -) (17, -) (18, -) 
+ID:   7 (●, 0)           (Qubit, Col): (3, 7)	  #Neighbors:   1     (19, -) 
+ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   3     (0, -) (9, -) (10, -) 
+ID:   9 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 2)	  #Neighbors:   3     (2, -) (8, -) (12, -) 
+ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   3     (8, -) (11, -) (14, -) 
+ID:  11 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 3)	  #Neighbors:   3     (4, -) (10, -) (13, -) 
+ID:  12 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 4)	  #Neighbors:   3     (9, -) (13, -) (16, -) 
+ID:  13 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 4)	  #Neighbors:   3     (11, -) (12, -) (18, -) 
+ID:  14 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   3     (1, -) (10, -) (15, -) 
+ID:  15 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 4)	  #Neighbors:   3     (6, -) (14, -) (17, -) 
+ID:  16 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 5)	  #Neighbors:   3     (3, -) (12, -) (17, -) 
+ID:  17 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 5)	  #Neighbors:   3     (15, -) (16, -) (19, -) 
+ID:  18 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 6)	  #Neighbors:   3     (5, -) (13, -) (19, -) 
+ID:  19 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 6)	  #Neighbors:   3     (7, -) (17, -) (18, -) 
 Total #Vertices: 20
 
 
@@ -75,45 +75,45 @@ qsyn> zxcompose 0
 qsyn> zxgp -v
 
 ID:   0 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (8, -) (20, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 6)	  #Neighbors:   1     (14, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 7)	  #Neighbors:   1     (14, -) 
 ID:   2 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (9, -) (22, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 6)	  #Neighbors:   1     (16, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 7)	  #Neighbors:   1     (16, -) 
 ID:   4 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   2     (11, -) (24, -) 
-ID:   5 (●, 0)           (Qubit, Col): (2, 6)	  #Neighbors:   1     (18, -) 
+ID:   5 (●, 0)           (Qubit, Col): (2, 7)	  #Neighbors:   1     (18, -) 
 ID:   6 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   2     (15, -) (26, -) 
-ID:   7 (●, 0)           (Qubit, Col): (3, 6)	  #Neighbors:   1     (19, -) 
-ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 1)	  #Neighbors:   3     (0, -) (9, -) (10, -) 
-ID:   9 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 1)	  #Neighbors:   3     (2, -) (8, -) (12, -) 
-ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   3     (8, -) (11, -) (14, -) 
-ID:  11 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 2)	  #Neighbors:   3     (4, -) (10, -) (13, -) 
-ID:  12 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 3)	  #Neighbors:   3     (9, -) (13, -) (16, -) 
-ID:  13 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 3)	  #Neighbors:   3     (11, -) (12, -) (18, -) 
-ID:  14 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   3     (1, -) (10, -) (15, -) 
-ID:  15 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 3)	  #Neighbors:   3     (6, -) (14, -) (17, -) 
-ID:  16 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 4)	  #Neighbors:   3     (3, -) (12, -) (17, -) 
-ID:  17 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 4)	  #Neighbors:   3     (15, -) (16, -) (19, -) 
-ID:  18 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 5)	  #Neighbors:   3     (5, -) (13, -) (19, -) 
-ID:  19 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 5)	  #Neighbors:   3     (7, -) (17, -) (18, -) 
+ID:   7 (●, 0)           (Qubit, Col): (3, 7)	  #Neighbors:   1     (19, -) 
+ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   3     (0, -) (9, -) (10, -) 
+ID:   9 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 2)	  #Neighbors:   3     (2, -) (8, -) (12, -) 
+ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   3     (8, -) (11, -) (14, -) 
+ID:  11 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 3)	  #Neighbors:   3     (4, -) (10, -) (13, -) 
+ID:  12 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 4)	  #Neighbors:   3     (9, -) (13, -) (16, -) 
+ID:  13 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 4)	  #Neighbors:   3     (11, -) (12, -) (18, -) 
+ID:  14 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   3     (1, -) (10, -) (15, -) 
+ID:  15 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 4)	  #Neighbors:   3     (6, -) (14, -) (17, -) 
+ID:  16 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 5)	  #Neighbors:   3     (3, -) (12, -) (17, -) 
+ID:  17 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 5)	  #Neighbors:   3     (15, -) (16, -) (19, -) 
+ID:  18 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 6)	  #Neighbors:   3     (5, -) (13, -) (19, -) 
+ID:  19 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 6)	  #Neighbors:   3     (7, -) (17, -) (18, -) 
 ID:  20 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 1)	  #Neighbors:   2     (0, -) (28, -) 
-ID:  21 (●, 0)           (Qubit, Col): (0, 7)	  #Neighbors:   1     (34, -) 
+ID:  21 (●, 0)           (Qubit, Col): (0, 8)	  #Neighbors:   1     (34, -) 
 ID:  22 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 1)	  #Neighbors:   2     (2, -) (29, -) 
-ID:  23 (●, 0)           (Qubit, Col): (1, 7)	  #Neighbors:   1     (36, -) 
+ID:  23 (●, 0)           (Qubit, Col): (1, 8)	  #Neighbors:   1     (36, -) 
 ID:  24 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 1)	  #Neighbors:   2     (4, -) (31, -) 
-ID:  25 (●, 0)           (Qubit, Col): (2, 7)	  #Neighbors:   1     (38, -) 
+ID:  25 (●, 0)           (Qubit, Col): (2, 8)	  #Neighbors:   1     (38, -) 
 ID:  26 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (3, 1)	  #Neighbors:   2     (6, -) (35, -) 
-ID:  27 (●, 0)           (Qubit, Col): (3, 7)	  #Neighbors:   1     (39, -) 
-ID:  28 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   3     (20, -) (29, -) (30, -) 
-ID:  29 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 2)	  #Neighbors:   3     (22, -) (28, -) (32, -) 
-ID:  30 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   3     (28, -) (31, -) (34, -) 
-ID:  31 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 3)	  #Neighbors:   3     (24, -) (30, -) (33, -) 
-ID:  32 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 4)	  #Neighbors:   3     (29, -) (33, -) (36, -) 
-ID:  33 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 4)	  #Neighbors:   3     (31, -) (32, -) (38, -) 
-ID:  34 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   3     (21, -) (30, -) (35, -) 
-ID:  35 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 4)	  #Neighbors:   3     (26, -) (34, -) (37, -) 
-ID:  36 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 5)	  #Neighbors:   3     (23, -) (32, -) (37, -) 
-ID:  37 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 5)	  #Neighbors:   3     (35, -) (36, -) (39, -) 
-ID:  38 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 6)	  #Neighbors:   3     (25, -) (33, -) (39, -) 
-ID:  39 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 6)	  #Neighbors:   3     (27, -) (37, -) (38, -) 
+ID:  27 (●, 0)           (Qubit, Col): (3, 8)	  #Neighbors:   1     (39, -) 
+ID:  28 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   3     (20, -) (29, -) (30, -) 
+ID:  29 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 3)	  #Neighbors:   3     (22, -) (28, -) (32, -) 
+ID:  30 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   3     (28, -) (31, -) (34, -) 
+ID:  31 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 4)	  #Neighbors:   3     (24, -) (30, -) (33, -) 
+ID:  32 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 5)	  #Neighbors:   3     (29, -) (33, -) (36, -) 
+ID:  33 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 5)	  #Neighbors:   3     (31, -) (32, -) (38, -) 
+ID:  34 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 5)	  #Neighbors:   3     (21, -) (30, -) (35, -) 
+ID:  35 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 5)	  #Neighbors:   3     (26, -) (34, -) (37, -) 
+ID:  36 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 6)	  #Neighbors:   3     (23, -) (32, -) (37, -) 
+ID:  37 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 6)	  #Neighbors:   3     (35, -) (36, -) (39, -) 
+ID:  38 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 7)	  #Neighbors:   3     (25, -) (33, -) (39, -) 
+ID:  39 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 7)	  #Neighbors:   3     (27, -) (37, -) (38, -) 
 Total #Vertices: 40
 
 
@@ -139,14 +139,14 @@ Identity Removal Rule         2 iterations.
 
 qsyn> zxgp -v
 
-ID:   1 (●, 0)           (Qubit, Col): (0, 6)	  #Neighbors:   1     (21, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 6)	  #Neighbors:   1     (23, -) 
-ID:   5 (●, 0)           (Qubit, Col): (2, 6)	  #Neighbors:   1     (25, -) 
-ID:   7 (●, 0)           (Qubit, Col): (3, 6)	  #Neighbors:   1     (27, -) 
-ID:  21 (●, 0)           (Qubit, Col): (0, 7)	  #Neighbors:   1     (1, -) 
-ID:  23 (●, 0)           (Qubit, Col): (1, 7)	  #Neighbors:   1     (3, -) 
-ID:  25 (●, 0)           (Qubit, Col): (2, 7)	  #Neighbors:   1     (5, -) 
-ID:  27 (●, 0)           (Qubit, Col): (3, 7)	  #Neighbors:   1     (7, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 7)	  #Neighbors:   1     (21, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 7)	  #Neighbors:   1     (23, -) 
+ID:   5 (●, 0)           (Qubit, Col): (2, 7)	  #Neighbors:   1     (25, -) 
+ID:   7 (●, 0)           (Qubit, Col): (3, 7)	  #Neighbors:   1     (27, -) 
+ID:  21 (●, 0)           (Qubit, Col): (0, 8)	  #Neighbors:   1     (1, -) 
+ID:  23 (●, 0)           (Qubit, Col): (1, 8)	  #Neighbors:   1     (3, -) 
+ID:  25 (●, 0)           (Qubit, Col): (2, 8)	  #Neighbors:   1     (5, -) 
+ID:  27 (●, 0)           (Qubit, Col): (3, 8)	  #Neighbors:   1     (7, -) 
 Total #Vertices: 8
 
 
@@ -236,7 +236,7 @@ qsyn> qcgp 9 -t
 Q0 G10 ─┤ RZ ├─ G0
         └────┘ 
 Rotate Phase: 0
-Execute at t= 1
+Execute at t= 2
 
 qsyn> qccp -q
 Q 0  -rz(10)--rz( 9)-- h( 0)--cx( 1)------------------cx( 8)-

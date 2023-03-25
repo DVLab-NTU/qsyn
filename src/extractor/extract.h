@@ -16,6 +16,12 @@
 #include "qcir.h"   // for QCir
 #include "zxDef.h"  // for EdgeType, EdgeType::HADAMARD
 
+extern bool SORT_FRONTIER;
+extern bool SORT_NEIGHBORS;
+extern bool PERMUTE_QUBITS;
+extern bool FILTER_DUPLICATED_CXS;
+extern size_t BLOCK_SIZE;
+extern size_t OPTIMIZE_LEVEL;
 class ZXGraph;
 
 class Extractor {
@@ -30,11 +36,13 @@ public:
             _circuit = c;
         initialize(c == nullptr);
         _cntCXFiltered = 0;
+
+        _cntCXIter = 0;
     }
     ~Extractor() {}
 
     void initialize(bool fromEmpty = true);
-    QCir* extract(bool permute = true);
+    QCir* extract();
     bool extractionLoop(size_t = size_t(-1));
     bool removeGadget(bool check = false);
     bool gaussianElimination(bool check = false);
@@ -53,12 +61,14 @@ public:
     bool frontierIsCleaned();
     bool axelInNeighbors();
     bool containSingleNeighbor();
+    void printCXs();
     void printFrontier();
     void printNeighbors();
     void printAxels();
     void printMatrix() { _biAdjacency.printMatrix(); }
 
 private:
+    size_t _cntCXIter;
     ZXGraph* _graph;
     QCir* _circuit;
     ZXVertexList _frontier;
@@ -69,6 +79,7 @@ private:
     M2 _biAdjacency;
     std::vector<M2::Oper> _cnots;
 
+    void blockElimination(M2&, size_t&, size_t);
     // NOTE - Use only in column optimal swap
     Target findColumnSwap(Target);
     ConnectInfo _rowInfo;
