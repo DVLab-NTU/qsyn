@@ -312,9 +312,9 @@ void Device::applyGate(const Operation& op) {
  */
 vector<size_t> Device::mapping() const {
     vector<size_t> ret;
-    ret.reserve(_qubitList.size());
-    for (const auto& [_, qubit] : _qubitList) {
-        ret.push_back(qubit.getLogicalQubit());
+    ret.resize(_qubitList.size());
+    for (const auto& [id, qubit] : _qubitList) {
+        ret[id] = qubit.getLogicalQubit();
     }
     return ret;
 }
@@ -324,7 +324,7 @@ vector<size_t> Device::mapping() const {
  *
  * @param assign
  */
-void Device::place(vector<size_t>& assign) {
+void Device::place(const vector<size_t>& assign) {
     for (size_t i = 0; i < assign.size(); ++i) {
         assert(_qubitList[assign[i]].getLogicalQubit() == ERROR_CODE);
         _qubitList[assign[i]].setLogicalQubit(i);
@@ -839,6 +839,17 @@ void Device::printPath(size_t s, size_t t) const {
     }
 }
 
+/**
+ * @brief Print Mapping (Physical : Logical)
+ *
+ */
+void Device::printMapping() {
+    cout << "----------Mapping---------" << endl;
+    for (size_t i = 0; i < _nQubit; i++) {
+        cout << left << setw(5) << i << " : " << getPhysicalQubit(i).getLogicalQubit() << endl;
+    }
+}
+
 // SECTION - Class Operation Member Functions
 
 /**
@@ -860,6 +871,23 @@ ostream& operator<<(ostream& os, Operation& op) {
 }
 
 /**
+ * @brief Print overloading
+ *
+ * @param os
+ * @param op
+ * @return ostream&
+ */
+ostream& operator<<(ostream& os, const Operation& op) {
+    os << left;
+    size_t from = get<0>(op._duration);
+    size_t to = get<1>(op._duration);
+    os << setw(20) << "Operation: " + gateType2Str[op._oper];
+    os << "Q" << get<0>(op._qubits) << " Q" << get<1>(op._qubits)
+       << "    from: " << left << setw(10) << from << "to: " << to;
+    return os;
+}
+
+/**
  * @brief Construct a new Operation:: Operation object
  *
  * @param oper
@@ -868,7 +896,7 @@ ostream& operator<<(ostream& os, Operation& op) {
  * @param du
  */
 Operation::Operation(GateType oper, Phase ph, tuple<size_t, size_t> qs, tuple<size_t, size_t> du)
-    : _oper(oper), _phase(ph), _qubits(qs), _duration(du) {
+    : _oper(oper), _phase(ph), _qubits(qs), _duration(du), _id(ERROR_CODE) {
     // sort qs
     size_t a = get<0>(qs);
     size_t b = get<1>(qs);
@@ -886,7 +914,8 @@ Operation::Operation(const Operation& other)
     : _oper(other._oper),
       _phase(other._phase),
       _qubits(other._qubits),
-      _duration(other._duration) {}
+      _duration(other._duration),
+      _id(other._id) {}
 
 /**
  * @brief Assignment operator overloading for Operation
@@ -899,5 +928,6 @@ Operation& Operation::operator=(const Operation& other) {
     _phase = other._phase;
     _qubits = other._qubits;
     _duration = other._duration;
+    _id = other._id;
     return *this;
 }

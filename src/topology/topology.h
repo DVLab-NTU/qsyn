@@ -148,9 +148,9 @@ public:
     void addAdjacency(size_t a, size_t b);
 
     // NOTE - Duostra
-    void applyGate(const Operation& op);
+    void applyGate(const Operation&);
     std::vector<size_t> mapping() const;
-    void place(std::vector<size_t>& assign);
+    void place(const std::vector<size_t>&);
 
     // NOTE - All Pairs Shortest Path
     void calculatePath();
@@ -165,6 +165,7 @@ public:
     void printPredecessor() const;
     void printDistance() const;
     void printPath(size_t, size_t) const;
+    void printMapping();
 
 private:
     size_t _id;
@@ -205,11 +206,17 @@ public:
     std::tuple<size_t, size_t> getDuration() const { return _duration; }
     std::tuple<size_t, size_t> getQubits() const { return _qubits; }
 
+    size_t getId() const { return _id; }
+    void setId(size_t id) { _id = id; }
+
 private:
     GateType _oper;
     Phase _phase;
     std::tuple<size_t, size_t> _qubits;
     std::tuple<size_t, size_t> _duration;  // <from, to>
+    size_t _id;
 };
+
+std::ostream& operator<<(std::ostream&, const Operation&);
 
 #endif  // TOPOLOGY_H
