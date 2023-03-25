@@ -51,9 +51,9 @@ Argument const& ArgumentParser::operator[](std::string const& name) const {
 
 /**
  * @brief set the command name to the argument parser
- * 
- * @param name 
- * @return ArgumentParser& 
+ *
+ * @param name
+ * @return ArgumentParser&
  */
 ArgumentParser& ArgumentParser::name(std::string const& name) {
     _name = toLowerString(name);
@@ -63,9 +63,9 @@ ArgumentParser& ArgumentParser::name(std::string const& name) {
 
 /**
  * @brief set the help message to the argument parser
- * 
- * @param name 
- * @return ArgumentParser& 
+ *
+ * @param name
+ * @return ArgumentParser&
  */
 ArgumentParser& ArgumentParser::help(std::string const& help) {
     _help = help;
@@ -122,7 +122,7 @@ bool ArgumentParser::analyzeOptions() const {
     for (auto& [name, arg] : _arguments) {
         if (!hasOptionPrefix(name)) continue;
         size_t prefixSize = _trie.shortestUniquePrefix(name).value().size();
-        while (!isalpha(name[prefixSize - 1])) ++prefixSize; 
+        while (!isalpha(name[prefixSize - 1])) ++prefixSize;
         arg.setNumRequiredChars(max(prefixSize, arg.getNumRequiredChars()));
     }
 
@@ -236,17 +236,18 @@ bool ArgumentParser::parseOptions() {
         if (_conflictGroups.contains(arg.getName())) {
             auto& conflictGroup = _conflictGroups.at(arg.getName());
             if (conflictGroup.isParsed()) {
-                for (auto const& conflict: conflictGroup.getArguments()) {
+                for (auto const& conflict : conflictGroup.getArguments()) {
                     if (_arguments.at(conflict).isParsed()) {
                         cerr << "Error: argument \"" << arg.getName() << "\" cannot occur with \"" << conflict << "\"!!\n";
                         return false;
                     }
                 }
             }
-            conflictGroup.setParsed(true);  
+            conflictGroup.setParsed(true);
         }
 
-        if (arg.hasAction()) arg.parse("");
+        if (arg.hasAction())
+            arg.parse("");
         else if (i + 1 >= (int)_tokens.size() || _tokens[i + 1].parsed == true) {  // _tokens[i] is not the last token && _tokens[i+1] is unparsed
             cerr << "Error: missing argument after \"" << _tokens[i].token << "\"!!\n";
             return false;
@@ -256,7 +257,7 @@ bool ArgumentParser::parseOptions() {
                  << _tokens[i].token << "\"!!" << endl;
             return false;
         }
-        
+
         // check if meet constraints
         for (auto& [constraint, onerror] : arg.getConstraints()) {
             if (!constraint()) onerror();
@@ -329,7 +330,6 @@ bool ArgumentParser::parsePositionalArguments() {
         printRequiredArgumentsMissingErrorMsg();
         return false;
     }
-
 
     return true;
 }

@@ -106,12 +106,12 @@ public:
 
     // setters
 
-    void setValueToConst() { 
+    void setValueToConst() {
         if (!_traits.constValue.has_value()) {
-            std::cerr << "Error: no const value is specified for argument \"" 
-                 << _traits.name << "\"!! no action is taken... \n";
+            std::cerr << "Error: no const value is specified for argument \""
+                      << _traits.name << "\"!! no action is taken... \n";
         }
-        _value = _traits.constValue.value(); 
+        _value = _traits.constValue.value();
     }
 
     // attributes

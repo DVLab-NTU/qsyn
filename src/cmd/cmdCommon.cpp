@@ -202,7 +202,6 @@ unique_ptr<ArgParseCmdType> verboseCmd() {
                              };
                          }})
             .help("0: silent, 1-3: normal usage, 4-6: detailed info, 7-9: prolix debug info");
-            
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {

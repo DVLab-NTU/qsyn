@@ -10,8 +10,8 @@
 
 #include <array>
 #include <cassert>
-#include <variant>
 #include <unordered_set>
+#include <variant>
 
 #include "apArgument.h"
 #include "myTrie.h"
@@ -23,39 +23,37 @@ class ArgumentParser;
 
 /**
  * @brief A view for adding mutually exclusive group of arguments. All copies of this group represents the same underlying group.
- * 
+ *
  */
 class MutuallyExclusiveGroupView {
-
-struct MutuallyExclusiveGroup {
-    MutuallyExclusiveGroup(ArgumentParser& parser): _parser{parser} {}
-    ArgumentParser& _parser;
-    std::unordered_set<std::string> _arguments;
-    bool _required;
-    bool _isParsed;
-};
+    struct MutuallyExclusiveGroup {
+        MutuallyExclusiveGroup(ArgumentParser& parser) : _parser{parser} {}
+        ArgumentParser& _parser;
+        std::unordered_set<std::string> _arguments;
+        bool _required;
+        bool _isParsed;
+    };
 
 public:
+    MutuallyExclusiveGroupView(ArgumentParser& parser) : _group{std::make_shared<MutuallyExclusiveGroup>(parser)} {}
 
-MutuallyExclusiveGroupView(ArgumentParser& parser): _group{std::make_shared<MutuallyExclusiveGroup>(parser)} {}
+    template <typename T>
+    ArgType<T>& addArgument(std::string const& name);
 
+    bool contains(std::string const& name) const { return _group->_arguments.contains(name); }
+    MutuallyExclusiveGroupView required(bool isReq) {
+        _group->_required = isReq;
+        return *this;
+    }
+    void setParsed(bool isParsed) { _group->_isParsed = isParsed; }
 
-template <typename T>
-ArgType<T>& addArgument(std::string const& name);
+    bool isRequired() const { return _group->_required; }
+    bool isParsed() const { return _group->_isParsed; }
 
-bool contains(std::string const& name) const { return _group->_arguments.contains(name); }
-MutuallyExclusiveGroupView required(bool isReq) { _group->_required = isReq; return *this; }
-void setParsed(bool isParsed) { _group->_isParsed = isParsed; }
-
-bool isRequired() const { return _group->_required; }
-bool isParsed() const { return _group->_isParsed; }
-
-std::unordered_set<std::string> const& getArguments() const { return _group->_arguments; }
+    std::unordered_set<std::string> const& getArguments() const { return _group->_arguments; }
 
 private:
-
-std::shared_ptr<MutuallyExclusiveGroup> _group;
-
+    std::shared_ptr<MutuallyExclusiveGroup> _group;
 };
 
 class ArgumentParser {
@@ -113,8 +111,8 @@ private:
     std::string _optionPrefix;
     std::vector<Token> _tokens;
 
-    std::vector<MutuallyExclusiveGroupView> _mutuallyExclusiveGroups; 
-    std::unordered_map<std::string, MutuallyExclusiveGroupView> mutable _conflictGroups; // map an argument name to a mutually-exclusive group if it belongs to one.
+    std::vector<MutuallyExclusiveGroupView> _mutuallyExclusiveGroups;
+    std::unordered_map<std::string, MutuallyExclusiveGroupView> mutable _conflictGroups;  // map an argument name to a mutually-exclusive group if it belongs to one.
 
     std::string _name;
     std::string _help;
@@ -158,10 +156,10 @@ private:
 
 /**
  * @brief add an argument with the name.
- * 
- * @tparam T 
- * @param name 
- * @return ArgType<T>& 
+ *
+ * @tparam T
+ * @param name
+ * @return ArgType<T>&
  */
 template <typename T>
 ArgType<T>& ArgumentParser::addArgument(std::string const& name) {

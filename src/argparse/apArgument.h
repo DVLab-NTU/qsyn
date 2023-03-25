@@ -20,7 +20,7 @@ namespace ArgParse {
 class ArgumentParser;
 
 struct DummyArgumentType {
-    DummyArgumentType(): name{"dummy"} {}
+    DummyArgumentType() : name{"dummy"} {}
     std::string const& getTypeString() const { return name; }
     std::string const& getName() const { return name; }
     std::string const& getHelp() const { return name; }
@@ -50,7 +50,7 @@ public:
     Argument(T const& val)
         : _pimpl{std::make_unique<Model<ArgType<T>>>(std::move(val))}, _parsed{false}, _numRequiredChars{1} {}
 
-    ~Argument() = default; 
+    ~Argument() = default;
 
     Argument(Argument const& other)
         : _pimpl(other._pimpl->clone()), _parsed{other._parsed}, _numRequiredChars{other._numRequiredChars} {}
@@ -63,7 +63,7 @@ public:
     }
 
     Argument(Argument&& other) = default;
-    Argument& operator= (Argument&& other) = default;
+    Argument& operator=(Argument&& other) = default;
 
     // deliberately left out move ctors and assignments. The copy counterparts serves as a fallback
 

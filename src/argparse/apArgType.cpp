@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include "apArgType.h"
+
 #include <iostream>
 
 using namespace std;
@@ -58,11 +59,11 @@ bool parseFromString(std::string& val, std::string const& token) {
 }  // namespace detail
 
 /**
- * @brief generate a callback that sets the argument to true. 
+ * @brief generate a callback that sets the argument to true.
  *        This function also set the default value to false.
- * 
- * @param arg 
- * @return ArgParse::ActionType 
+ *
+ * @param arg
+ * @return ArgParse::ActionType
  */
 ActionType storeTrue(ArgType<bool>& arg) {
     arg.defaultValue(false);
@@ -75,11 +76,11 @@ ActionType storeTrue(ArgType<bool>& arg) {
 }
 
 /**
- * @brief generate a callback that sets the argument to false. 
+ * @brief generate a callback that sets the argument to false.
  *        This function also set the default value to true.
- * 
- * @param arg 
- * @return ArgParse::ActionType 
+ *
+ * @param arg
+ * @return ArgParse::ActionType
  */
 ActionType storeFalse(ArgType<bool>& arg) {
     arg.defaultValue(true);

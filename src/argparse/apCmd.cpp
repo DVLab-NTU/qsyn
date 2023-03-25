@@ -12,9 +12,9 @@
 #include <cstddef>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "apArgParser.h"
 #include "util.h"
@@ -41,7 +41,7 @@ bool initArgParserCmd() {
 
         mutex1.addArgument<int>("-bacon")
             .help("yummy");
-        
+
         mutex1.addArgument<int>("-badge")
             .help("a sign of honour");
 

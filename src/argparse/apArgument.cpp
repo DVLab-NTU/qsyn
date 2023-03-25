@@ -17,7 +17,7 @@ namespace ArgParse {
 
 /**
  * @brief If the argument has a default value, reset to it.
- * 
+ *
  */
 void Argument::reset() {
     _parsed = false;
@@ -27,8 +27,8 @@ void Argument::reset() {
 /**
  * @brief parse the argument. If the argument has an action, perform it; otherwise,
  *        try to parse the value from token.
- * 
- * @param token 
+ *
+ * @param token
  * @return true if succeeded
  * @return false if failed
  */
@@ -39,9 +39,9 @@ bool Argument::parse(std::string const& token) {
 }
 
 /**
- * @brief If the argument is parsed, print out the parsed value. If not, 
+ * @brief If the argument is parsed, print out the parsed value. If not,
  *        print the default value if it has one, or "(unparsed)" if not.
- * 
+ *
  */
 void Argument::printStatus() const {
     cout << "  " << left << setw(8) << getName() << "   = ";
@@ -59,7 +59,7 @@ void Argument::printStatus() const {
 
 /**
  * @brief print argument casting error message
- * 
+ *
  */
 void Argument::printArgCastErrorMsg() const {
     std::cout << "[ArgParse] Error: cannot cast argument \""
