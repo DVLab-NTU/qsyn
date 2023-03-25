@@ -39,12 +39,15 @@ bool initDuostraCmd() {
 
         parser.addArgument<string>("-scheduler")
             .defaultValue(getSchedulerTypeStr())
+            // .choices({"base", "static", "random", "greedy", "search"})
             .help("scheduler");
         parser.addArgument<string>("-router")
             .defaultValue(getRouterTypeStr())
+            // .choices({"apsp", "duostra"})
             .help("router");
         parser.addArgument<string>("-placer")
             .defaultValue(getPlacerTypeStr())
+            // .choices({"static", "random", "dfs"})
             .help("placer");
 
         parser.addArgument<bool>("-orient")
@@ -62,10 +65,12 @@ bool initDuostraCmd() {
 
         parser.addArgument<string>("-available")
             .defaultValue((DUOSTRA_AVAILABLE == 0) ? "min" : "max")
+            // .choices({"min", "max"})
             .help("available time of double-qubit gate is set to min or max of occupied time");
 
         parser.addArgument<string>("-cost")
             .defaultValue((DUOSTRA_COST == 0) ? "min" : "max")
+            // .choices({"min", "max"})
             .help("select min or max cost from the waitlist");
 
         parser.addArgument<int>("-depth")
