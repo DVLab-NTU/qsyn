@@ -60,8 +60,8 @@ public:
 
     // Main Router function
     Operation executeSingle(GateType, Phase, size_t);
-    std::vector<Operation> duostraRouting(GateType, Phase, std::tuple<size_t, size_t>, bool);
-    std::vector<Operation> apspRouting(GateType, Phase, std::tuple<size_t, size_t>, bool);
+    std::vector<Operation> duostraRouting(GateType, size_t, Phase, std::tuple<size_t, size_t>, bool);
+    std::vector<Operation> apspRouting(GateType, size_t, Phase, std::tuple<size_t, size_t>, bool);
     std::vector<Operation> assignGate(const Gate&);
 
 private:
@@ -76,7 +76,7 @@ private:
     std::tuple<size_t, size_t> getPhysicalQubits(const Gate& gate) const;
 
     std::tuple<bool, size_t> touchAdjacency(PhysicalQubit& qubit, PriorityQueue& pq, bool swtch);  // return <if touch target, target id>, swtch: false q0 propagate, true q1 propagate
-    std::vector<Operation> traceback([[maybe_unused]] GateType op, Phase ph, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool);
+    std::vector<Operation> traceback([[maybe_unused]] GateType op, size_t, Phase ph, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool);
 };
 
 #endif

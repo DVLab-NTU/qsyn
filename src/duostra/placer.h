@@ -24,7 +24,7 @@ public:
     BasePlacer(BasePlacer&&) = delete;
     virtual ~BasePlacer() {}
 
-    void placeAndAssign(Device&);
+    std::vector<size_t> placeAndAssign(Device&);
 
 protected:
     virtual std::vector<size_t> place(Device&) const = 0;

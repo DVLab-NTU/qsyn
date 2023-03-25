@@ -38,9 +38,10 @@ unique_ptr<BasePlacer> getPlacer() {
  *
  * @param device
  */
-void BasePlacer::placeAndAssign(Device& device) {
+vector<size_t> BasePlacer::placeAndAssign(Device& device) {
     auto assign = place(device);
     device.place(assign);
+    return assign;
 }
 
 // SECTION - Class RandomPlacer Member Functions

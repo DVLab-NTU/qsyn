@@ -9,8 +9,8 @@
 
 #include "duostra.h"
 
+#include "checker.h"
 #include "variables.h"
-
 using namespace std;
 extern size_t verbose;
 
@@ -24,9 +24,9 @@ size_t DUOSTRA_CANDIDATES = (size_t)-1;  // top k candidates, -1: all
 size_t DUOSTRA_APSP_COEFF = 1;           // coefficient of apsp cost
 bool DUOSTRA_AVAILABLE = 1;              // 0:min 1:max, available time of double-qubit gate is set to min or max of occupied time
 bool DUOSTRA_COST = 0;                   // 0:min 1:max, select min or max cost from the waitlist
-size_t DUOSTRA_DEPTH = 5;                // depth of searching region
+size_t DUOSTRA_DEPTH = 4;                // depth of searching region
 bool DUOSTRA_NEVER_CACHE = 1;            // never cache any children unless children() is called
-bool DUOSTRA_EXECUTE_SINGLE = 1;         // execute the single gates when they are available
+bool DUOSTRA_EXECUTE_SINGLE = 0;         // execute the single gates when they are available
 
 extern size_t verbose;
 
@@ -176,7 +176,8 @@ size_t Duostra::flow() {
     makeDependency();
     unique_ptr<CircuitTopo> topo;
     topo = make_unique<CircuitTopo>(_dependency);
-
+    auto checkTopo = topo->clone();
+    auto checkDevice(_device);
     if (verbose > 3) cout << "Creating device..." << endl;
     if (topo->getNumQubits() > _device.getNQubit()) {
         cerr << "You cannot assign more qubits than the device." << endl;
@@ -185,7 +186,7 @@ size_t Duostra::flow() {
 
     if (verbose > 3) cout << "Initial placing..." << endl;
     auto placer = getPlacer();
-    placer->placeAndAssign(_device);
+    auto assign = placer->placeAndAssign(_device);
 
     // scheduler
     if (verbose > 3) cout << "Creating Scheduler..." << endl;
@@ -199,6 +200,12 @@ size_t Duostra::flow() {
     // routing
     cout << "Routing..." << endl;
     sched->assignGatesAndSort(move(router));
+
+    Checker checker(*checkTopo, checkDevice, sched->getOperations(), assign);
+
+    if (!checker.testOperations()) {
+        return ERROR_CODE;
+    }
 
     cout << "Duostra Result: " << endl;
     cout << endl;
@@ -236,7 +243,7 @@ void Duostra::printAssembly() const {
         }
         res += ";";
         cout << left << setw(20) << res;
-        cout << " // (" << op.getOperationTime() << "," << op.getCost() << ")\n";
+        cout << " // (" << op.getOperationTime() << "," << op.getCost() << ")   Origin gate: " << op.getId() << "\n";
     }
 }
 
