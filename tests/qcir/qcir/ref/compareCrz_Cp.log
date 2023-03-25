@@ -1,6 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.4.0
-qsyn> color 0
-Note: colored is set to 0
+qsyn> color off
+Note: color mode is set to off
 
 qsyn> qcba 2
 Note: QCir list is empty now. Create a new one.

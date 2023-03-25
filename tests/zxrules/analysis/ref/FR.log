@@ -2,8 +2,8 @@ DV Lab, NTUEE, Qsyn 0.4.0
 qsyn> ver 1
 Note: verbose level is set to 1
 
-qsyn> color 0
-Note: colored is set to 0
+qsyn> color off
+Note: color mode is set to off
 
 qsyn> qccread ./benchmark/benchmark_SABRE/small/rd32-v1_68.qasm
 
