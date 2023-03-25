@@ -31,8 +31,9 @@ extern DeviceMgr *deviceMgr;
 bool initDuostraCmd() {
     using namespace ArgParse;
 
-    auto duostraSetCmd = make_unique<ArgParseCmdType>("DUOSET");
+    // SECTION - DUOSET
 
+    auto duostraSetCmd = make_unique<ArgParseCmdType>("DUOSET");
     duostraSetCmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("set Duostra parameter");
 
@@ -48,7 +49,7 @@ bool initDuostraCmd() {
 
         parser.addArgument<bool>("-orient")
             .defaultValue(DUOSTRA_ORIENT)
-            .help("if true, smaller logical qubit index with little priority");
+            .help("smaller logical qubit index with little priority");
 
         int cand = (DUOSTRA_CANDIDATES == (size_t)-1) ? -1 : DUOSTRA_CANDIDATES;
         parser.addArgument<int>("-candidates")
@@ -75,20 +76,72 @@ bool initDuostraCmd() {
             .defaultValue(DUOSTRA_NEVER_CACHE)
             .help("never cache any children unless children() is called");
 
-        parser.addArgument<bool>("-execute_single")
+        parser.addArgument<bool>("-single_immediately")
             .defaultValue(DUOSTRA_EXECUTE_SINGLE)
             .help("execute the single gates when they are available");
     };
 
     duostraSetCmd->onParseSuccess = [](ArgumentParser const &parser) {
-        parser.printTokens();
-        parser.printArguments();
+        DUOSTRA_SCHEDULER = getSchedulerType(parser["-scheduler"]);
+        DUOSTRA_ROUTER = getRouterType(parser["-router"]);
+        DUOSTRA_PLACER = getPlacerType(parser["-placer"]);
+        DUOSTRA_ORIENT = parser["-orient"];
+
+        int resCand = parser["-candidates"];
+        DUOSTRA_CANDIDATES = (size_t)resCand;
+
+        int resAPSP = parser["-apsp_coeff"];
+        DUOSTRA_APSP_COEFF = (size_t)resAPSP;
+
+        string resAvail = parser["-available"];
+        DUOSTRA_AVAILABLE = (resAvail == "min") ? false : true;
+
+        string resCost = parser["-cost"];
+        DUOSTRA_COST = (resCost == "min") ? false : true;
+
+        int resDepth = parser["-depth"];
+        DUOSTRA_DEPTH = (size_t)resDepth;
+
+        DUOSTRA_NEVER_CACHE = parser["-never_cache"];
+        DUOSTRA_EXECUTE_SINGLE = parser["-single_immediately"];
 
         return CMD_EXEC_DONE;
     };
 
+    // SECTION - DUOPrint
+
+    auto duostraPrintCmd = make_unique<ArgParseCmdType>("DUOPrint");
+    duostraPrintCmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.addArgument<bool>("-detail")
+            .defaultValue(false)
+            .action(storeTrue)
+            .help("print detailed information");
+    };
+
+    duostraPrintCmd->onParseSuccess = [](ArgumentParser const &parser) {
+        cout << endl;
+        cout << "Scheduler:         " << getSchedulerTypeStr() << endl;
+        cout << "Router:            " << getRouterTypeStr() << endl;
+        cout << "Placer:            " << getPlacerTypeStr() << endl;
+
+        if (parser["-detail"]) {
+            cout << endl;
+            cout << "Candidates:        " << ((DUOSTRA_CANDIDATES == size_t(-1)) ? "-1" : to_string(DUOSTRA_CANDIDATES)) << endl;
+            cout << "Search Depth:      " << DUOSTRA_DEPTH << endl;
+            cout << endl;
+            cout << "Orient:            " << ((DUOSTRA_ORIENT == 1) ? "true" : "false") << endl;
+            cout << "APSP Coeff.:       " << DUOSTRA_APSP_COEFF << endl;
+            cout << "Available Time:    " << ((DUOSTRA_AVAILABLE == 0) ? "min" : "max") << endl;
+            cout << "Prefer Cost:       " << ((DUOSTRA_COST == 0) ? "min" : "max") << endl;
+            cout << "Never Cache:       " << ((DUOSTRA_NEVER_CACHE == 1) ? "true" : "false") << endl;
+            cout << "Single Immed.:     " << ((DUOSTRA_EXECUTE_SINGLE == 1) ? "true" : "false") << endl;
+        }
+        return CMD_EXEC_DONE;
+    };
+
     if (!(cmdMgr->regCmd("DUOSTRA", 7, make_unique<DuostraCmd>()) &&
-          cmdMgr->regCmd("DUOSET", 6, move(duostraSetCmd)))) {
+          cmdMgr->regCmd("DUOSET", 6, move(duostraSetCmd)) &&
+          cmdMgr->regCmd("DUOPrint", 4, move(duostraPrintCmd)))) {
         cerr << "Registering \"Duostra\" commands fails... exiting" << endl;
         return false;
     }

@@ -77,6 +77,55 @@ string getPlacerTypeStr() {
 }
 
 /**
+ * @brief Get the Scheduler object
+ *
+ * @param str
+ * @return size_t
+ */
+size_t getSchedulerType(string str) {
+    // 0:base 1:static 2:random 3:greedy 4:search
+    if (str == "base") return 0;
+    if (str == "static") return 1;
+    if (str == "random") return 2;
+    if (str == "greedy") return 3;
+    if (str == "search")
+        return 4;
+    else
+        return (size_t)-1;
+}
+
+/**
+ * @brief Get the Router object
+ *
+ * @param str
+ * @return size_t
+ */
+size_t getRouterType(string str) {
+    // 0:apsp 1:duostra
+    if (str == "apsp") return 0;
+    if (str == "duostra")
+        return 1;
+    else
+        return (size_t)-1;
+}
+
+/**
+ * @brief Get the Placer object
+ *
+ * @param str
+ * @return size_t
+ */
+size_t getPlacerType(string str) {
+    // 0:static 1:random 2:dfs
+    if (str == "static") return 0;
+    if (str == "random") return 1;
+    if (str == "dfs")
+        return 2;
+    else
+        return (size_t)-1;
+}
+
+/**
  * @brief Construct a new Duostra:: Duostra object
  *
  * @param cir
