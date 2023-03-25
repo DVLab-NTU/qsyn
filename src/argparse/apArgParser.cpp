@@ -50,6 +50,29 @@ Argument const& ArgumentParser::operator[](std::string const& name) const {
 }
 
 /**
+ * @brief set the command name to the argument parser
+ *
+ * @param name
+ * @return ArgumentParser&
+ */
+ArgumentParser& ArgumentParser::name(std::string const& name) {
+    _name = toLowerString(name);
+    _numRequiredChars = countUpperChars(name);
+    return *this;
+}
+
+/**
+ * @brief set the help message to the argument parser
+ *
+ * @param name
+ * @return ArgumentParser&
+ */
+ArgumentParser& ArgumentParser::help(std::string const& help) {
+    _help = help;
+    return *this;
+}
+
+/**
  * @brief parse the arguments in the line
  *
  * @param line
@@ -76,7 +99,21 @@ bool ArgumentParser::parse(std::string const& line) {
 bool ArgumentParser::analyzeOptions() const {
     if (_optionsAnalyzed) return true;
 
+    // calculate the number of required characters to differentiate each option
+
     _trie.clear();
+    _conflictGroups.clear();
+
+    for (auto const& group : _mutuallyExclusiveGroups) {
+        for (auto const& name : group.getArguments()) {
+            if (_arguments.at(name).isRequired()) {
+                cerr << "[ArgParse] Error: Mutually exclusive argument \"" << name << "\" must be optional!!" << endl;
+                return false;
+            }
+            _conflictGroups.emplace(name, group);
+        }
+    }
+
     for (auto const& [name, arg] : _arguments) {
         if (!hasOptionPrefix(name)) continue;
         _trie.insert(name);
@@ -84,10 +121,31 @@ bool ArgumentParser::analyzeOptions() const {
 
     for (auto& [name, arg] : _arguments) {
         if (!hasOptionPrefix(name)) continue;
-        arg.setNumRequiredChars(
-            max(
-                _trie.shortestUniquePrefix(name).value().size(),
-                arg.getNumRequiredChars()));
+        size_t prefixSize = _trie.shortestUniquePrefix(name).value().size();
+        while (!isalpha(name[prefixSize - 1])) ++prefixSize;
+        arg.setNumRequiredChars(max(prefixSize, arg.getNumRequiredChars()));
+    }
+
+    // calculate tabulate info
+
+    _printTableWidths = {0, 0, 0};
+
+    constexpr size_t maxWidth = 10;
+
+    for (auto& [name, arg] : _arguments) {
+        if (arg.getTypeString().size() >= _printTableWidths[0]) {
+            _printTableWidths[0] = arg.getTypeString().size();
+        }
+        if (arg.getName().size() >= _printTableWidths[1]) {
+            _printTableWidths[1] = arg.getName().size();
+        }
+        if (arg.getMetavar().size() >= _printTableWidths[2]) {
+            _printTableWidths[2] = arg.getMetavar().size();
+        }
+    }
+
+    for (auto& w : _printTableWidths) {
+        if (w > maxWidth) w = maxWidth;
     }
 
     _optionsAnalyzed = true;
@@ -165,25 +223,44 @@ bool ArgumentParser::parseOptions() {
             }
             // else this is an error
             if (frequency == 0) {
-                cerr << "Error: unrecognized option \"" << _tokens[i].token << "\"!!" << endl;
+                cerr << "Error: unrecognized option \"" << _tokens[i].token << "\"!!\n";
             } else {
                 printAmbiguousOptionErrorMsg(_tokens[i].token);
             }
 
             return false;
         }
+
         Argument& arg = _arguments[get<string>(match)];
 
-        if (!arg.hasAction() &&
-            (i + 1 >= (int)_tokens.size() || _tokens[i + 1].parsed == true)) {  // _tokens[i] is not the last token && _tokens[i+1] is unparsed
-            cerr << "Error: missing argument after \"" << _tokens[i].token << "\"!!" << endl;
-            return false;
+        if (_conflictGroups.contains(arg.getName())) {
+            auto& conflictGroup = _conflictGroups.at(arg.getName());
+            if (conflictGroup.isParsed()) {
+                for (auto const& conflict : conflictGroup.getArguments()) {
+                    if (_arguments.at(conflict).isParsed()) {
+                        cerr << "Error: argument \"" << arg.getName() << "\" cannot occur with \"" << conflict << "\"!!\n";
+                        return false;
+                    }
+                }
+            }
+            conflictGroup.setParsed(true);
         }
 
-        if (!arg.parse(_tokens[i + 1].token)) {
+        if (arg.hasAction())
+            arg.parse("");
+        else if (i + 1 >= (int)_tokens.size() || _tokens[i + 1].parsed == true) {  // _tokens[i] is not the last token && _tokens[i+1] is unparsed
+            cerr << "Error: missing argument after \"" << _tokens[i].token << "\"!!\n";
+            return false;
+        } else if (!arg.parse(_tokens[i + 1].token)) {
             cerr << "Error: invalid " << arg.getTypeString() << " value \""
                  << _tokens[i + 1].token << "\" after \""
                  << _tokens[i].token << "\"!!" << endl;
+            return false;
+        }
+
+        // check if meet constraints
+        for (auto& [constraint, onerror] : arg.getConstraints()) {
+            if (!constraint()) onerror();
             return false;
         }
 
@@ -194,7 +271,7 @@ bool ArgumentParser::parseOptions() {
         }
     }
 
-    return allRequiredOptionsAreParsed();
+    return allRequiredOptionsAreParsed() && allRequiredMutexGroupsAreParsed();
 }
 
 /**
@@ -234,6 +311,13 @@ bool ArgumentParser::parsePositionalArguments() {
                  << token << "\" for argument \"" << name << "\"!!" << endl;
             return false;
         }
+        // check if meet constraints
+        for (auto& [constraint, onerror] : arg.getConstraints()) {
+            if (!constraint()) {
+                onerror();
+                return false;
+            }
+        }
 
         parsed = true;
     }
@@ -259,7 +343,12 @@ bool ArgumentParser::parsePositionalArguments() {
 variant<string, size_t> ArgumentParser::matchOption(std::string const& token) const {
     auto key = toLowerString(token);
     auto match = _trie.findWithPrefix(key);
-    if (match.has_value()) return match.value();
+    if (match.has_value()) {
+        if (key.size() < _arguments.at(match.value()).getNumRequiredChars()) {
+            return 0u;
+        }
+        return match.value();
+    }
 
     return _trie.frequency(key);
 }
@@ -293,9 +382,34 @@ void ArgumentParser::printAmbiguousOptionErrorMsg(std::string const& token) cons
 bool ArgumentParser::allRequiredOptionsAreParsed() const {
     // Want: ∀ arg ∈ _arguments. (option(arg) ∧ required(arg)) → parsed(arg)
     // Thus: ∀ arg ∈ _arguments. ¬option(arg) ∨ ¬required(arg) ∨ parsed(arg)
-    return all_of(_arguments.begin(), _arguments.end(), [this](pair<string, Argument> const& argPair) {
-        return !hasOptionPrefix(argPair.first) || !argPair.second.isRequired() || argPair.second.isParsed();
-    });
+    for (auto& [name, arg] : _arguments) {
+        if (hasOptionPrefix(name) && arg.isRequired() && !arg.isParsed()) {
+            cerr << "Error: The option \"" << name << "\" is required!!" << endl;
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * @brief Check if all required groups are parsed
+ *
+ * @return true or false
+ */
+bool ArgumentParser::allRequiredMutexGroupsAreParsed() const {
+    for (auto& group : _mutuallyExclusiveGroups) {
+        if (group.isRequired() && !group.isParsed()) {
+            cerr << "Error: One of the options are required: ";
+            size_t ctr = 0;
+            for (auto& name : group.getArguments()) {
+                cerr << name;
+                if (++ctr < group.getArguments().size()) cerr << ", ";
+            }
+            cerr << "!!\n";
+            return false;
+        }
+    }
+    return true;
 }
 
 /**

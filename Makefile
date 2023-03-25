@@ -28,6 +28,9 @@ cleanall: clean
 	@echo "Removing include/*.h..."
 	@rm -f include/*.h
 
+lint:
+	@find ./src -regex ".*\.\(h\|cpp\)" -type f | xargs clang-format -i
+
 .PHONY: libs
 
 libs: $(addprefix $(BUILD_SRC_DIR), $(SRCLIBS))

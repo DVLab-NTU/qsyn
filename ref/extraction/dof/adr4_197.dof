@@ -1,4 +1,4 @@
-color 0
+color off
 ver 0
 qccr ../../benchmark/benchmark_SABRE/large/adr4_197.qasm
 qccp -a

@@ -7,7 +7,7 @@ CCC       		:= gcc
 AR        		:= ar cr
 ECHO      		:= /bin/echo
 
-OPTIMIZE_LEVEL 	:= -O3
+OPTIMIZE_LEVEL 	:= -g
 DEBUG_FLAG 		:= -DDEBUG
 DEP_FLAG		:= -MMD
 
