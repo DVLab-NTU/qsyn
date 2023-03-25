@@ -19,13 +19,38 @@ namespace ArgParse {
 
 class ArgumentParser;
 
+struct DummyArgumentType {
+    DummyArgumentType(): name{"dummy"} {}
+    std::string const& getTypeString() const { return name; }
+    std::string const& getName() const { return name; }
+    std::string const& getHelp() const { return name; }
+    std::string const& getMetaVar() const { return name; }
+    std::vector<ConstraintType> const& getConstraints() const { return constraints; }
+
+    bool hasDefaultValue() const { return false; }
+    bool hasAction() const { return false; }
+    bool isRequired() const { return false; }
+
+    friend std::ostream& operator<<(std::ostream& os, DummyArgumentType const& val) {
+        return os;
+    }
+
+    std::optional<DummyArgumentType> getDefaultValue() const { return std::nullopt; }
+    bool parse(std::string const&) { return true; }
+    void reset() { return; }
+
+    std::string name;
+    std::vector<ConstraintType> constraints;
+};
+
 class Argument {
 public:
+    Argument() : _pimpl{std::make_unique<Model<DummyArgumentType>>(DummyArgumentType{})} {}
     template <typename T>
     Argument(T const& val)
         : _pimpl{std::make_unique<Model<ArgType<T>>>(std::move(val))}, _parsed{false}, _numRequiredChars{1} {}
 
-    ~Argument() = default;
+    ~Argument() = default; 
 
     Argument(Argument const& other)
         : _pimpl(other._pimpl->clone()), _parsed{other._parsed}, _numRequiredChars{other._numRequiredChars} {}
@@ -36,6 +61,9 @@ public:
         _numRequiredChars = other._numRequiredChars;
         return *this;
     }
+
+    Argument(Argument&& other) = default;
+    Argument& operator= (Argument&& other) = default;
 
     // deliberately left out move ctors and assignments. The copy counterparts serves as a fallback
 
@@ -75,7 +103,7 @@ public:
     std::vector<ConstraintType> const& getConstraints() const { return _pimpl->doGetConstraints(); }
 
     // attributes
-    
+
     bool hasDefaultValue() const { return _pimpl->doHasDefaultValue(); }
     bool hasAction() const { return _pimpl->doHasAction(); }
     bool isRequired() const { return _pimpl->doIsRequired(); }
@@ -151,7 +179,7 @@ private:
         std::ostream& doPrintDefaultValue(std::ostream& os) const override { return (inner.getDefaultValue().has_value() ? os << inner.getDefaultValue().value() : os << "(none)"); }
 
         bool doParse(std::string const& token) override { return inner.parse(token); }
-        virtual void doReset() override { inner.reset(); }
+        void doReset() override { inner.reset(); }
     };
 };
 

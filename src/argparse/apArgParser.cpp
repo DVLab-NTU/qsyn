@@ -233,8 +233,6 @@ bool ArgumentParser::parseOptions() {
 
         Argument& arg = _arguments[get<string>(match)];
 
-        cout << "recognizing " << arg.getName() << endl;
-
         if (_conflictGroups.contains(arg.getName())) {
             auto& conflictGroup = _conflictGroups.at(arg.getName());
             if (conflictGroup.isParsed()) {
@@ -312,11 +310,12 @@ bool ArgumentParser::parsePositionalArguments() {
                  << token << "\" for argument \"" << name << "\"!!" << endl;
             return false;
         }
-
         // check if meet constraints
         for (auto& [constraint, onerror] : arg.getConstraints()) {
-            if (!constraint()) onerror();
-            return false;
+            if (!constraint()) {
+                onerror();
+                return false;
+            }
         }
 
         parsed = true;
@@ -330,6 +329,7 @@ bool ArgumentParser::parsePositionalArguments() {
         printRequiredArgumentsMissingErrorMsg();
         return false;
     }
+
 
     return true;
 }

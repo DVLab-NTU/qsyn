@@ -303,7 +303,7 @@ ArgType<T>& ArgType<T>::choices(std::initializer_list<T> const& choices) {
     };
     auto error = [&vec](ArgType<T> const& arg) -> ErrorCallbackType {  // REVIEW - iostream in header... is there any way to resolve this?
         return [&arg, vec]() {
-            std::cerr << "Error: invalid choice for argument \"" << arg->getName() << ": "
+            std::cerr << "Error: invalid choice for argument \"" << arg.getName() << "\": "
                       << "please choose from {";
             size_t ctr = 0;
             for (auto& choice : vec) {

@@ -29,6 +29,7 @@ unique_ptr<ArgParseCmdType> helpCmd();
 unique_ptr<ArgParseCmdType> quitCmd();
 unique_ptr<ArgParseCmdType> dofileCmd();
 unique_ptr<ArgParseCmdType> usageCmd();
+unique_ptr<ArgParseCmdType> verboseCmd();
 unique_ptr<ArgParseCmdType> seedCmd();
 unique_ptr<ArgParseCmdType> colorCmd();
 unique_ptr<ArgParseCmdType> historyCmd();
@@ -39,9 +40,9 @@ bool initCommonCmd() {
           cmdMgr->regCmd("HELp", 3, helpCmd()) &&
           cmdMgr->regCmd("DOfile", 2, dofileCmd()) &&
           cmdMgr->regCmd("USAGE", 5, usageCmd()) &&
-          cmdMgr->regCmd("VERbose", 3, make_unique<VerboseCmd>()) &&
-          cmdMgr->regCmd("SEED", 4, make_unique<SeedCmd>()) &&
-          cmdMgr->regCmd("COLOR", 5, make_unique<ColorCmd>()))) {
+          cmdMgr->regCmd("VERbose", 3, verboseCmd()) &&
+          cmdMgr->regCmd("SEED", 4, seedCmd()) &&
+          cmdMgr->regCmd("COLOR", 5, colorCmd()))) {
         cerr << "Registering \"init\" commands fails... exiting" << endl;
         return false;
     }
@@ -153,33 +154,23 @@ unique_ptr<ArgParseCmdType> usageCmd() {
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("report the runtime and/or memory usage");
 
-        // auto mutex = parser.addMutuallyExclusiveGroup();
+        auto mutex = parser.addMutuallyExclusiveGroup();
 
-        parser.addArgument<bool>("-all")
+        mutex.addArgument<bool>("-all")
             .action(storeTrue)
             .help("print both time and memory usage");
-        parser.parse("-a");
-        parser.addArgument<bool>("-time")
+        mutex.addArgument<bool>("-time")
             .action(storeTrue)
             .help("print time usage");
-        parser.parse("-a");
-        parser.addArgument<bool>("-memory")
+        mutex.addArgument<bool>("-memory")
             .action(storeTrue)
             .help("print memory usage");
-        parser.parse("-a");
-
-        
-
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         bool repAll = parser["-all"];
-        // bool repTime = parser["-time"];
-        // bool repMem = parser["-memory"];
-        bool repTime = false;
-        bool repMem = false;
-
-        parser.printArguments();
+        bool repTime = parser["-time"];
+        bool repMem = parser["-memory"];
 
         if (!repAll && !repTime && !repMem) repAll = true;
 
@@ -193,119 +184,79 @@ unique_ptr<ArgParseCmdType> usageCmd() {
     return cmd;
 }
 
-//----------------------------------------------------------------------
-//    USAGE [-All | -Time | -Memory]
-//----------------------------------------------------------------------
-CmdExecStatus
-UsageCmd::exec(const string& option) {
-    // check option
-    vector<string> options;
-    CmdExec::lexOptions(option, options);
+unique_ptr<ArgParseCmdType> verboseCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("VERbose");
 
-    bool repTime = false, repMem = false, repAll = false;
-    size_t n = options.size();
-    if (n == 0)
-        repAll = true;
-    else {
-        for (size_t i = 0; i < n; ++i) {
-            const string& token = options[i];
-            if (myStrNCmp("-All", token, 2) == 0) {
-                if (repTime | repMem | repAll)
-                    return CmdExec::errorOption(CMD_OPT_EXTRA, token);
-                repAll = true;
-            } else if (myStrNCmp("-Time", token, 2) == 0) {
-                if (repTime | repMem | repAll)
-                    return CmdExec::errorOption(CMD_OPT_EXTRA, token);
-                repTime = true;
-            } else if (myStrNCmp("-Memory", token, 2) == 0) {
-                if (repTime | repMem | repAll)
-                    return CmdExec::errorOption(CMD_OPT_EXTRA, token);
-                repMem = true;
-            } else
-                return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-        }
-    }
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("set verbose level to 0-9 (default: 3)");
 
-    if (repAll) repTime = repMem = true;
+        parser.addArgument<unsigned>("level")
+            .constraint({[](ArgType<unsigned> const& arg) {
+                             return [&arg]() {
+                                 return arg.getValue() <= 9 || arg.getValue() == 353;
+                             };
+                         },
+                         [](ArgType<unsigned> const& arg) {
+                             return [&arg]() {
+                                 cerr << "Error: verbose level should be 0-9!!\n";
+                             };
+                         }})
+            .help("0: silent, 1-3: normal usage, 4-6: detailed info, 7-9: prolix debug info");
+            
+    };
 
-    myUsage.report(repTime, repMem);
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        unsigned level = parser["level"];
+        verbose = level;
+        cout << "Note: verbose level is set to " << level << endl;
+        return CMD_EXEC_DONE;
+    };
 
-    return CMD_EXEC_DONE;
+    return cmd;
 }
 
-void UsageCmd::usage() const {
-    cout << "Usage: USAGE [-All | -Time | -Memory]" << endl;
+unique_ptr<ArgParseCmdType> seedCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("SEED");
+
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("set the random seed");
+
+        parser.addArgument<unsigned>("seed")
+            .defaultValue(353)
+            .required(false)
+            .help("random seed value");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        srand(parser["seed"]);
+        cout << "Note: seed is set to " << parser["seed"] << endl;
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
 }
 
-void UsageCmd::summary() const {
-    cout << setw(15) << left << "USAGE: "
-         << "report the runtime and/or memory usage" << endl;
-}
+unique_ptr<ArgParseCmdType> colorCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("COLOR");
 
-//----------------------------------------------------------------------
-//    VERbose <size_t verbose level>
-//----------------------------------------------------------------------
-CmdExecStatus
-VerboseCmd::exec(const string& option) {
-    // check option
-    string token;
-    if (!CmdExec::lexSingleOption(option, token, false))
-        return CMD_EXEC_ERROR;
-    unsigned level;
-    if (!myStr2Uns(token, level)) {
-        cerr << "Error: verbose level should be a positive integer or 0!!" << endl;
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    }
-    if (level > 9 && level != 353) {
-        cerr << "Error: verbose level should be 0-9 !!" << endl;
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    }
-    cout << "Note: verbose level is set to " << level << endl;
-    verbose = level;
-    return CMD_EXEC_DONE;
-}
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("toggle colored printing");
 
-void VerboseCmd::usage() const {
-    cout << "Usage: VERbose <size_t verbose level>" << endl;
-}
+        parser.addArgument<string>("mode")
+            .choices({"on", "off"})
+            .help("on: colored printing, off: pure-ascii printing");
+    };
 
-void VerboseCmd::summary() const {
-    cout << setw(15) << left << "VERbose: "
-         << "set verbose level to 0-9 (default: 3)" << endl;
-}
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        string mode = parser["mode"];
+        colorLevel = (mode == "on") ? 1 : 0;
+        cout << "Note: color mode is set to " << mode << endl;
 
-//----------------------------------------------------------------------
-//    SEED [size_t seed]
-//----------------------------------------------------------------------
-CmdExecStatus
-SeedCmd::exec(const string& option) {
-    // check option
-    string token;
-    if (option.size() == 0) {
-        srand(353);
-        cerr << "Note: seed is set to 353" << endl;
-    } else {
-        if (!CmdExec::lexSingleOption(option, token, false))
-            return CMD_EXEC_ERROR;
-        int seed;
-        if (!myStr2Int(token, seed)) {
-            cerr << "Error: Seed should be an integer!!" << endl;
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-        }
-        srand(seed);
-        cerr << "Note: seed is set to " << seed << endl;
-    }
-    return CMD_EXEC_DONE;
-}
+        return CMD_EXEC_DONE;
+    };
 
-void SeedCmd::usage() const {
-    cout << "Usage: SEED [size_t seed]" << endl;
-}
-
-void SeedCmd::summary() const {
-    cout << setw(15) << left << "SEED: "
-         << "fix the seed" << endl;
-}
+    return cmd;
+};
 
 //----------------------------------------------------------------------
 //    COLOR <size_t color level>

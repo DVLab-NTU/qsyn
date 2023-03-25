@@ -10,8 +10,6 @@
 
 #include "cmdParser.h"
 
-CmdClass(UsageCmd);
-CmdClass(VerboseCmd);
 CmdClass(SeedCmd);
 CmdClass(ColorCmd);
 #endif  // CMD_COMMON_H
