@@ -17,7 +17,6 @@
 #include "qcirCmd.h"      // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
 #include "qcirMgr.h"      // for QCirMgr
 #include "topologyMgr.h"  // for DeviceMgr
-#include "util.h"         // for myStr2Uns
 
 using namespace std;
 using namespace ArgParse;
@@ -94,7 +93,7 @@ unique_ptr<ArgParseCmdType> duostraSetCmd() {
         parser.addArgument<int>("-candidates")
             .help("top k candidates");
 
-        parser.addArgument<int>("-apsp-coeff")
+        parser.addArgument<size_t>("-apsp-coeff")
             .help("coefficient of apsp cost");
 
         parser.addArgument<string>("-available")
@@ -131,8 +130,7 @@ unique_ptr<ArgParseCmdType> duostraSetCmd() {
         }
 
         if (parser["-apsp-coeff"].isParsed()) {
-            int resAPSP = parser["-apsp-coeff"];
-            DUOSTRA_APSP_COEFF = (size_t)resAPSP;
+            DUOSTRA_APSP_COEFF = parser["-apsp-coeff"];
         }
 
         if (parser["-available"].isParsed()) {
