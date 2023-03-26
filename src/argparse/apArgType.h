@@ -16,6 +16,7 @@
 #include <string>
 
 #include "util.h"
+#include "myConcepts.h"
 
 namespace ArgParse {
 
@@ -31,27 +32,39 @@ struct Token {
 namespace detail {
 
 std::string getTypeString(bool);
+
 std::string getTypeString(int);
+std::string getTypeString(long);
+std::string getTypeString(long long);
+
 std::string getTypeString(unsigned);
+std::string getTypeString(unsigned long);
+std::string getTypeString(unsigned long long);
+
 std::string getTypeString(float);
 std::string getTypeString(double);
 std::string getTypeString(long double);
+
 std::string getTypeString(std::string const&);
 
 std::ostream& print(std::ostream&, bool);
-std::ostream& print(std::ostream&, int);
-std::ostream& print(std::ostream&, unsigned);
-std::ostream& print(std::ostream&, float);
-std::ostream& print(std::ostream&, double);
-std::ostream& print(std::ostream&, long double);
+
+template <typename T>
+requires Arithmetic<T>
+std::ostream& print(std::ostream& os, T const& val) {
+    return os << val;
+}
+
 std::ostream& print(std::ostream&, std::string const&);
 
 bool parseFromString(bool& val, std::string const& token);
-bool parseFromString(int& val, std::string const& token);
-bool parseFromString(unsigned& val, std::string const& token);
-bool parseFromString(float& val, std::string const& token);
-bool parseFromString(double& val, std::string const& token);
-bool parseFromString(long double& val, std::string const& token);
+
+template <typename T>
+requires Arithmetic<T>
+bool parseFromString(T& val, std::string const& token) {
+    return myStr2Number<T>(token, val);
+}
+
 bool parseFromString(std::string& val, std::string const& token);
 
 }  // namespace detail

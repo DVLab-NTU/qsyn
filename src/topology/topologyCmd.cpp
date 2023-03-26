@@ -49,13 +49,13 @@ bool initDeviceCmd() {
     return true;
 }
 
-ArgType<unsigned>::ConstraintType validDeviceId = {
-    [](ArgType<unsigned>& arg) {
+ArgType<size_t>::ConstraintType validDeviceId = {
+    [](ArgType<size_t>& arg) {
         return [&arg]() {
             return deviceMgr->isID(arg.getValue());
         };
     },
-    [](ArgType<unsigned> const& arg) {
+    [](ArgType<size_t> const& arg) {
         return [&arg]() {
             cerr << "Error: Device " << arg.getValue() << " does not exist!!\n";
         };
@@ -67,15 +67,13 @@ unique_ptr<ArgParseCmdType> dtCheckOutCmd() {
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("checkout to Device <id> in DeviceMgr");
 
-        parser.addArgument<unsigned>("id")
+        parser.addArgument<size_t>("id")
             .constraint(validDeviceId)
             .help("the ID of the device");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        unsigned id = parser["id"];
-
-        deviceMgr->checkout2Device(id);
+        deviceMgr->checkout2Device(parser["id"]);
         return CMD_EXEC_DONE;
     };
 
@@ -103,15 +101,13 @@ unique_ptr<ArgParseCmdType> dtDeleteCmd() {
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("remove a Device from DeviceMgr");
 
-        parser.addArgument<unsigned>("id")
+        parser.addArgument<size_t>("id")
             .constraint(validDeviceId)
             .help("the ID of the device");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        unsigned id = parser["id"];
-
-        deviceMgr->removeDevice(id);
+        deviceMgr->removeDevice(parser["id"]);
         return CMD_EXEC_DONE;
     };
 
@@ -124,15 +120,14 @@ unique_ptr<ArgParseCmdType> dtNewCmd() {
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("create a new Device to DeviceMgr");
 
-        parser.addArgument<unsigned>("id")
+        parser.addArgument<size_t>("id")
             .required(false)
             .help("the ID of the device");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser["id"].isParsed()) {
-            unsigned id = parser["id"];
-            deviceMgr->addDevice(id);
+            deviceMgr->addDevice(parser["id"]);
         } else {
             deviceMgr->addDevice(deviceMgr->getNextID());
         }

@@ -110,15 +110,14 @@ unique_ptr<ArgParseCmdType> historyCmd() {
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("print command history");
-        parser.addArgument<unsigned>("nPrint")
+        parser.addArgument<size_t>("nPrint")
             .required(false)
             .help("if specified, print the <nprint> latest command history");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        unsigned nPrint = parser["nPrint"];
         if (parser["nPrint"].isParsed()) {
-            cmdMgr->printHistory(nPrint);
+            cmdMgr->printHistory(parser["nPrint"]);
         } else {
             cmdMgr->printHistory();
         }
@@ -189,13 +188,13 @@ unique_ptr<ArgParseCmdType> verboseCmd() {
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("set verbose level to 0-9 (default: 3)");
 
-        parser.addArgument<unsigned>("level")
-            .constraint({[](ArgType<unsigned> const& arg) {
+        parser.addArgument<size_t>("level")
+            .constraint({[](ArgType<size_t> const& arg) {
                              return [&arg]() {
                                  return arg.getValue() <= 9 || arg.getValue() == 353;
                              };
                          },
-                         [](ArgType<unsigned> const& arg) {
+                         [](ArgType<size_t> const& arg) {
                              return [&arg]() {
                                  cerr << "Error: verbose level should be 0-9!!\n";
                              };
@@ -204,9 +203,8 @@ unique_ptr<ArgParseCmdType> verboseCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        unsigned level = parser["level"];
-        verbose = level;
-        cout << "Note: verbose level is set to " << level << endl;
+        verbose = parser["level"];
+        cout << "Note: verbose level is set to " << parser["level"] << endl;
         return CMD_EXEC_DONE;
     };
 

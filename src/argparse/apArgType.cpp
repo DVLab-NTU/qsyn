@@ -17,19 +17,22 @@ namespace ArgParse {
 namespace detail {
 
 std::string getTypeString(bool) { return "bool"; }
+
 std::string getTypeString(int) { return "int"; }
+std::string getTypeString(long) { return "long"; }
+std::string getTypeString(long long) { return "long long"; }
+
 std::string getTypeString(unsigned) { return "unsigned"; }
+std::string getTypeString(unsigned long) { return "unsigned long"; }
+std::string getTypeString(unsigned long long) { return "unsigned long long"; }
+
 std::string getTypeString(float) { return "float"; }
 std::string getTypeString(double) { return "double"; }
 std::string getTypeString(long double) { return "long double"; }
+
 std::string getTypeString(std::string const& val) { return "string"; }
 
 std::ostream& print(std::ostream& os, bool val) { return os << val; }
-std::ostream& print(std::ostream& os, int val) { return os << val; }
-std::ostream& print(std::ostream& os, unsigned val) { return os << val; }
-std::ostream& print(std::ostream& os, float val) { return os << val; }
-std::ostream& print(std::ostream& os, double val) { return os << val; }
-std::ostream& print(std::ostream& os, long double val) { return os << val; }
 std::ostream& print(std::ostream& os, std::string const& val) { return os << val; }
 
 bool parseFromString(bool& val, std::string const& token) {
@@ -41,41 +44,6 @@ bool parseFromString(bool& val, std::string const& token) {
         return true;
     }
     return false;
-}
-
-bool parseFromString(int& val, std::string const& token) {
-    if (!myStr2Int(token, val)) {
-        return false;
-    }
-    return true;
-}
-
-bool parseFromString(unsigned& val, std::string const& token) {
-    if (!myStr2Uns(token, val)) {
-        return false;
-    }
-    return true;
-}
-
-bool parseFromString(float& val, std::string const& token) {
-    if (!myStr2Float(token, val)) {
-        return false;
-    }
-    return true;
-}
-
-bool parseFromString(double& val, std::string const& token) {
-    if (!myStr2Double(token, val)) {
-        return false;
-    }
-    return true;
-}
-
-bool parseFromString(long double& val, std::string const& token) {
-    if (!myStr2LongDouble(token, val)) {
-        return false;
-    }
-    return true;
 }
 
 bool parseFromString(std::string& val, std::string const& token) {

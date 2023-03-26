@@ -317,44 +317,44 @@ unique_ptr<ArgParseCmdType> QCSetCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCSet");
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("set QCir parameters");
-        parser.addArgument<unsigned>("-single-delay")
+        parser.addArgument<size_t>("-single-delay")
             .help("delay of single-qubit gate");
-        parser.addArgument<unsigned>("-double-delay")
+        parser.addArgument<size_t>("-double-delay")
             .help("delay of double-qubit gate, SWAP excluded");
-        parser.addArgument<unsigned>("-swap-delay")
+        parser.addArgument<size_t>("-swap-delay")
             .help("delay of SWAP gate, used to be 3x double-qubit gate");
-        parser.addArgument<unsigned>("-multiple-delay")
+        parser.addArgument<size_t>("-multiple-delay")
             .help("delay of multiple-qubit gate");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         if (parser["-single-delay"].isParsed()) {
-            unsigned singleDelay = parser["-single-delay"];
+            size_t singleDelay = parser["-single-delay"];
             if (singleDelay == 0)
-                cerr << "Error: single delay value should > 0, neglect this option!!\n";
+                cerr << "Error: single delay value should > 0, skipping this option!!\n";
             else
-                SINGLE_DELAY = (size_t)singleDelay;
+                SINGLE_DELAY = singleDelay;
         }
         if (parser["-double-delay"].isParsed()) {
-            unsigned doubleDelay = parser["-double-delay"];
+            size_t doubleDelay = parser["-double-delay"];
             if (doubleDelay == 0)
-                cerr << "Error: double delay value should > 0, neglect this option!!\n";
+                cerr << "Error: double delay value should > 0, skipping this option!!\n";
             else
-                DOUBLE_DELAY = (size_t)doubleDelay;
+                DOUBLE_DELAY = doubleDelay;
         }
         if (parser["-swap-delay"].isParsed()) {
-            unsigned swapDelay = parser["-swap-delay"];
+            size_t swapDelay = parser["-swap-delay"];
             if (swapDelay == 0)
-                cerr << "Error: swap delay value should > 0, neglect this option!!\n";
+                cerr << "Error: swap delay value should > 0, skipping this option!!\n";
             else
-                SWAP_DELAY = (size_t)swapDelay;
+                SWAP_DELAY = swapDelay;
         }
         if (parser["-multiple-delay"].isParsed()) {
-            unsigned multiDelay = parser["-multiple-delay"];
+            size_t multiDelay = parser["-multiple-delay"];
             if (multiDelay == 0)
-                cerr << "Error: multiple delay value should > 0, neglect this option!!\n";
+                cerr << "Error: multiple delay value should > 0, skipping this option!!\n";
             else
-                MULTIPLE_DELAY = (size_t)multiDelay;
+                MULTIPLE_DELAY = multiDelay;
         }
         return CMD_EXEC_DONE;
     };

@@ -43,13 +43,13 @@ bool initTensorCmd() {
     return true;
 }
 
-ArgType<unsigned>::ConstraintType validTensorId = {
-    [](ArgType<unsigned> const& arg) {
+ArgType<size_t>::ConstraintType validTensorId = {
+    [](ArgType<size_t> const& arg) {
         return [&arg]() {
             return tensorMgr->hasId(arg.getValue());
         };
     },
-    [](ArgType<unsigned> const& arg) {
+    [](ArgType<size_t> const& arg) {
         return [&arg]() {
             cerr << "Error: Can't find tensor with ID " << arg.getValue() << "!!" << endl;
         };
@@ -79,7 +79,7 @@ unique_ptr<ArgParseCmdType> tsPrintCmd() {
         parser.addArgument<bool>("-list")
             .action(storeTrue)
             .help("only list summary");
-        parser.addArgument<unsigned>("id")
+        parser.addArgument<size_t>("id")
             .required(false)
             .constraint(validTensorId)
             .help("the ID to the tensor");
@@ -88,8 +88,7 @@ unique_ptr<ArgParseCmdType> tsPrintCmd() {
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         bool list = parser["-list"];
         if (parser["id"].isParsed()) {
-            unsigned id = parser["id"];
-            tensorMgr->printTensor(id, list);
+            tensorMgr->printTensor(parser["id"], list);
         } else {
             tensorMgr->printTensorMgr();
         }
@@ -105,13 +104,12 @@ unique_ptr<ArgParseCmdType> tsAdjointCmd() {
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("adjoint the specified tensor");
 
-        parser.addArgument<unsigned>("id")
+        parser.addArgument<size_t>("id")
             .constraint(validTensorId)
             .help("the ID of the tensor");
     };
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        unsigned id = parser["id"];
-        tensorMgr->adjoint(id);
+        tensorMgr->adjoint(parser["id"]);
         return CMD_EXEC_DONE;
     };
 
@@ -123,10 +121,10 @@ unique_ptr<ArgParseCmdType> tsEquivCmd() {
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("check the equivalency of two stored tensors");
 
-        parser.addArgument<unsigned>("id1")
+        parser.addArgument<size_t>("id1")
             .help("the ID of the first tensor")
             .constraint(validTensorId);
-        parser.addArgument<unsigned>("id2")
+        parser.addArgument<size_t>("id2")
             .help("the ID of the second tensor")
             .constraint(validTensorId);
         parser.addArgument<double>("-epsilon")
@@ -139,7 +137,7 @@ unique_ptr<ArgParseCmdType> tsEquivCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        unsigned id1 = parser["id1"], id2 = parser["id2"];
+        size_t id1 = parser["id1"], id2 = parser["id2"];
         double eps = parser["-epsilon"];
         bool strict = parser["-strict"];
 

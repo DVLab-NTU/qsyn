@@ -312,12 +312,12 @@ unique_ptr<ArgParseCmdType> ExtSetCmd() {
     auto cmd = make_unique<ArgParseCmdType>("EXTSet");
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("set extractor parameters");
-        parser.addArgument<unsigned>("-optimize-level")
+        parser.addArgument<size_t>("-optimize-level")
             .choices({0, 1})
             .help("optimization level");
         parser.addArgument<bool>("-permute-qubit")
             .help("permute the qubit after extraction");
-        parser.addArgument<unsigned>("-block-size")
+        parser.addArgument<size_t>("-block-size")
             .help("Gaussian block size, only used in optimization level 0");
         parser.addArgument<bool>("-filter-cx")
             .help("filter duplicated CXs");
@@ -329,18 +329,17 @@ unique_ptr<ArgParseCmdType> ExtSetCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         if (parser["-optimize-level"].isParsed()) {
-            unsigned optimizeLevel = parser["-optimize-level"];
-            OPTIMIZE_LEVEL = optimizeLevel;
+            OPTIMIZE_LEVEL = parser["-optimize-level"];
         }
         if (parser["-permute-qubit"].isParsed()) {
             PERMUTE_QUBITS = parser["-permute-qubit"];
         }
         if (parser["-block-size"].isParsed()) {
-            unsigned blockSize = parser["-block-size"];
+            size_t blockSize = parser["-block-size"];
             if (blockSize == 0)
-                cerr << "Error: block size value should > 0, neglect this option!!\n";
+                cerr << "Error: block size value should > 0, skipping this option!!\n";
             else
-                BLOCK_SIZE = (size_t)blockSize;
+                BLOCK_SIZE = blockSize;
         }
         if (parser["-filter-cx"].isParsed()) {
             FILTER_DUPLICATED_CXS = parser["-filter-cx"];
