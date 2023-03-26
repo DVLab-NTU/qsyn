@@ -23,6 +23,7 @@ Qsyn provides an experimental implementation of optimization algorithms and a pr
 ## Third party dependencies
 * `xtensor`, `xtensor-blas` for tensor calculation
 * `catch2` for unit testing
+* `tqdm` for progress bar pretty-printing
 * `pdflatex` for outputting pdf files
 
 ## Getting Started
