@@ -12,7 +12,6 @@
 #include <string>    // for string
 
 #include "apCmd.h"
-#include "cmdMacros.h"    // for CMD_N_OPTS_EQUAL_OR_RETURN, CMD_N_OPTS_AT_LE...
 #include "duostra.h"      // for Duostra
 #include "qcir.h"         // for QCir
 #include "qcirCmd.h"      // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
