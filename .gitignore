@@ -2,6 +2,7 @@
 .vscode
 bin/*
 include/
+!vendor/include
 !include/mk
 tests/bin/*
 lib/*

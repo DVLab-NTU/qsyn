@@ -260,8 +260,10 @@ bool ArgumentParser::parseOptions() {
 
         // check if meet constraints
         for (auto& [constraint, onerror] : arg.getConstraints()) {
-            if (!constraint()) onerror();
-            return false;
+            if (!constraint()) {
+                onerror();
+                return false;
+            }
         }
 
         _tokens[i].parsed = true;

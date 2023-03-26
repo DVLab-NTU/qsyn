@@ -1,6 +1,6 @@
 include $(MK_INCLUDE_DIR)/localvars.mk
 
-TARGET   							:= $(LIBDIR)/lib$(DIR).a
+TARGET   							:= $(LIB_DIR)/lib$(DIR).a
 
 ## make libs subroutine
 $(TARGET): private _DIR   			:= $(DIR)

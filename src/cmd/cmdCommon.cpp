@@ -5,8 +5,6 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include "cmdCommon.h"
-
 #include <stdlib.h>  // for srand
 
 #include <cstddef>
@@ -15,6 +13,7 @@
 #include <string>
 
 #include "apCmd.h"
+#include "cmdParser.h"
 #include "myUsage.h"
 #include "util.h"
 
@@ -256,35 +255,3 @@ unique_ptr<ArgParseCmdType> colorCmd() {
 
     return cmd;
 };
-
-//----------------------------------------------------------------------
-//    COLOR <size_t color level>
-//----------------------------------------------------------------------
-CmdExecStatus
-ColorCmd::exec(const string& option) {
-    // check option
-    string token;
-    if (!CmdExec::lexSingleOption(option, token, false))
-        return CMD_EXEC_ERROR;
-    unsigned level;
-    if (!myStr2Uns(token, level)) {
-        cerr << "Error: colored should be a positive integer or 0!!" << endl;
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    }
-    if (level > 1) {
-        cerr << "Error: colored should be 0-1 !!" << endl;
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    }
-    cout << "Note: colored is set to " << level << endl;
-    colorLevel = level;
-    return CMD_EXEC_DONE;
-}
-
-void ColorCmd::usage() const {
-    cout << "Usage: COLOR <bool colored>" << endl;
-}
-
-void ColorCmd::summary() const {
-    cout << setw(15) << left << "COLOR: "
-         << "toggle colored printing (1: on, 0: off)" << endl;
-}

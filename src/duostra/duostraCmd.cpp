@@ -38,77 +38,84 @@ bool initDuostraCmd() {
         parser.help("set Duostra parameter");
 
         parser.addArgument<string>("-scheduler")
-            .defaultValue(getSchedulerTypeStr())
-            // .choices({"base", "static", "random", "greedy", "search"})
+            .choices({"base", "static", "random", "greedy", "search"})
             .help("scheduler");
         parser.addArgument<string>("-router")
-            .defaultValue(getRouterTypeStr())
-            // .choices({"apsp", "duostra"})
+            .choices({"apsp", "duostra"})
             .help("router");
         parser.addArgument<string>("-placer")
-            .defaultValue(getPlacerTypeStr())
-            // .choices({"static", "random", "dfs"})
+            .choices({"static", "random", "dfs"})
             .help("placer");
 
         parser.addArgument<bool>("-orient")
-            .defaultValue(DUOSTRA_ORIENT)
             .help("smaller logical qubit index with little priority");
 
-        int cand = (DUOSTRA_CANDIDATES == (size_t)-1) ? -1 : DUOSTRA_CANDIDATES;
         parser.addArgument<int>("-candidates")
-            .defaultValue(cand)
             .help("top k candidates");
 
         parser.addArgument<int>("-apsp_coeff")
-            .defaultValue(DUOSTRA_APSP_COEFF)
             .help("coefficient of apsp cost");
 
         parser.addArgument<string>("-available")
-            .defaultValue((DUOSTRA_AVAILABLE == 0) ? "min" : "max")
-            // .choices({"min", "max"})
+            .choices({"min", "max"})
             .help("available time of double-qubit gate is set to min or max of occupied time");
 
         parser.addArgument<string>("-cost")
-            .defaultValue((DUOSTRA_COST == 0) ? "min" : "max")
-            // .choices({"min", "max"})
+            .choices({"min", "max"})
             .help("select min or max cost from the waitlist");
 
         parser.addArgument<int>("-depth")
-            .defaultValue(DUOSTRA_DEPTH)
             .help("depth of searching region");
 
         parser.addArgument<bool>("-never_cache")
-            .defaultValue(DUOSTRA_NEVER_CACHE)
             .help("never cache any children unless children() is called");
 
         parser.addArgument<bool>("-single_immediately")
-            .defaultValue(DUOSTRA_EXECUTE_SINGLE)
             .help("execute the single gates when they are available");
     };
 
     duostraSetCmd->onParseSuccess = [](ArgumentParser const &parser) {
-        DUOSTRA_SCHEDULER = getSchedulerType(parser["-scheduler"]);
-        DUOSTRA_ROUTER = getRouterType(parser["-router"]);
-        DUOSTRA_PLACER = getPlacerType(parser["-placer"]);
-        DUOSTRA_ORIENT = parser["-orient"];
+        if (parser["-scheduler"].isParsed())
+            DUOSTRA_SCHEDULER = getSchedulerType(parser["-scheduler"]);
+        if (parser["-router"].isParsed())
+            DUOSTRA_ROUTER = getRouterType(parser["-router"]);
+        if (parser["-placer"].isParsed())
+            DUOSTRA_PLACER = getPlacerType(parser["-placer"]);
+        if (parser["-orient"].isParsed())
+            DUOSTRA_ORIENT = parser["-orient"];
 
-        int resCand = parser["-candidates"];
-        DUOSTRA_CANDIDATES = (size_t)resCand;
+        if (parser["-candidates"].isParsed()) {
+            int resCand = parser["-candidates"];
+            DUOSTRA_CANDIDATES = (size_t)resCand;
+        }
 
-        int resAPSP = parser["-apsp_coeff"];
-        DUOSTRA_APSP_COEFF = (size_t)resAPSP;
+        if (parser["-apsp_coeff"].isParsed()) {
+            int resAPSP = parser["-apsp_coeff"];
+            DUOSTRA_APSP_COEFF = (size_t)resAPSP;
+        }
 
-        string resAvail = parser["-available"];
-        DUOSTRA_AVAILABLE = (resAvail == "min") ? false : true;
+        if (parser["-available"].isParsed()) {
+            string resAvail = parser["-available"];
+            DUOSTRA_AVAILABLE = (resAvail == "min") ? false : true;
+        }
 
-        string resCost = parser["-cost"];
-        DUOSTRA_COST = (resCost == "min") ? false : true;
+        if (parser["-cost"].isParsed()) {
+            string resCost = parser["-cost"];
+            DUOSTRA_COST = (resCost == "min") ? false : true;
+        }
 
-        int resDepth = parser["-depth"];
-        DUOSTRA_DEPTH = (size_t)resDepth;
+        if (parser["-depth"].isParsed()) {
+            int resDepth = parser["-depth"];
+            DUOSTRA_DEPTH = (size_t)resDepth;
+        }
 
-        DUOSTRA_NEVER_CACHE = parser["-never_cache"];
-        DUOSTRA_EXECUTE_SINGLE = parser["-single_immediately"];
+        if (parser["-never_cache"].isParsed()) {
+            DUOSTRA_NEVER_CACHE = parser["-never_cache"];
+        }
+
+        if (parser["-single_immediately"].isParsed()) {
+            DUOSTRA_EXECUTE_SINGLE = parser["-single_immediately"];
+        }
 
         return CMD_EXEC_DONE;
     };
