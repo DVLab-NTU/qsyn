@@ -5,8 +5,6 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include "cmdParser.h"
-
 #include <stdlib.h>  // for srand
 
 #include <cstddef>
@@ -15,6 +13,7 @@
 #include <string>
 
 #include "apCmd.h"
+#include "cmdParser.h"
 #include "myUsage.h"
 #include "util.h"
 
