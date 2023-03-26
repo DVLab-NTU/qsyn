@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 
+#include "myConcepts.h"
 #include "myUsage.h"
 #include "rnGen.h"
 #include "tqdm/tqdm.h"
@@ -52,16 +53,24 @@ int myStrNCmp(const std::string& s1, const std::string& s2, unsigned n);
 size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos = 0, const std::string& del = " \t\n\v\f\r");
 size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos, const char del);
 size_t myStrGetTok2(const std::string& str, std::string& tok, size_t pos = 0, const std::string& del = " \t\n\v\f\r");
-bool myStr2Int(const std::string& str, int& num);
-bool myStr2Uns(const std::string& str, unsigned& num);
 
 template <class T>
-requires std::floating_point<T>
-bool myStr2FloatType(const std::string& str, T& f);
+requires Arithmetic<T>
+bool myStr2Number(const std::string& str, T& f);
 
-bool myStr2Float(const std::string& str, float& f);
-bool myStr2Double(const std::string& str, double& f);
-bool myStr2LongDouble(const std::string& str, long double& f);
+inline bool myStr2Float(const std::string& str, float& num) { return myStr2Number<float>(str, num); };
+inline bool myStr2Double(const std::string& str, double& num) { return myStr2Number<double>(str, num); }
+inline bool myStr2LongDouble(const std::string& str, long double& num) { return myStr2Number<long double>(str, num); }
+
+inline bool myStr2Int(const std::string& str, int& num) { return myStr2Number<int>(str, num); }
+inline bool myStr2Long(const std::string& str, long& num) { return myStr2Number<long>(str, num); }
+inline bool myStr2LongLong(const std::string& str, long long& num) { return myStr2Number<long long>(str, num); }
+
+inline bool myStr2Uns(const std::string& str, unsigned& num) { return myStr2Number<unsigned>(str, num); }
+inline bool myStr2UnsLong(const std::string& str, unsigned long& num) { return myStr2Number<unsigned long>(str, num); }
+inline bool myStr2UnsLongLong(const std::string& str, unsigned long long& num) { return myStr2Number<unsigned long long>(str, num); }
+
+inline bool myStr2SizeT(const std::string& str, size_t& num) { return myStr2Number<size_t>(str, num); }
 
 std::string toLowerString(std::string const& str);
 std::string toUpperString(std::string const& str);

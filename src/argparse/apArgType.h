@@ -15,6 +15,7 @@
 #include <span>
 #include <string>
 
+#include "myConcepts.h"
 #include "util.h"
 
 namespace ArgParse {
@@ -31,31 +32,55 @@ struct Token {
 namespace detail {
 
 std::string getTypeString(bool);
+
 std::string getTypeString(int);
+std::string getTypeString(long);
+std::string getTypeString(long long);
+
 std::string getTypeString(unsigned);
+std::string getTypeString(unsigned long);
+std::string getTypeString(unsigned long long);
+
+std::string getTypeString(float);
+std::string getTypeString(double);
+std::string getTypeString(long double);
+
 std::string getTypeString(std::string const&);
 
 std::ostream& print(std::ostream&, bool);
-std::ostream& print(std::ostream&, int);
-std::ostream& print(std::ostream&, unsigned);
+
+template <typename T>
+requires Arithmetic<T>
+std::ostream& print(std::ostream& os, T const& val) {
+    return os << val;
+}
+
 std::ostream& print(std::ostream&, std::string const&);
 
 bool parseFromString(bool& val, std::string const& token);
-bool parseFromString(int& val, std::string const& token);
-bool parseFromString(unsigned& val, std::string const& token);
+
+template <typename T>
+requires Arithmetic<T>
+bool parseFromString(T& val, std::string const& token) {
+    return myStr2Number<T>(token, val);
+}
+
 bool parseFromString(std::string& val, std::string const& token);
 
 }  // namespace detail
 
-using ActionType = std::function<bool()>;                         // perform an action and return if it succeeds
-using ErrorCallbackType = std::function<void()>;                  // function to call when some action fails
-using ConstraintType = std::pair<ActionType, ErrorCallbackType>;  // constraints are defined by an ActionType that
-                                                                  // returns true if the constraint is met, and an
-                                                                  // ErrorCallbackType that prints the error message if it does not.
-
+using ActionCallbackType = std::function<bool()>;                                 // perform an action and return if it succeeds
+using ErrorCallbackType = std::function<void()>;                                  // function to call when some action fails
+using ConstraintCallbackType = std::pair<ActionCallbackType, ErrorCallbackType>;  // constraints are defined by an ActionCallbackType that
+                                                                                  // returns true if the constraint is met, and an
+                                                                                  // ErrorCallbackType that prints the error message if it does not.
 template <typename T>
 class ArgType {
 public:
+    using ActionType = std::function<ActionCallbackType(ArgType<T>&)>;
+    using ErrorType = std::function<ErrorCallbackType(ArgType<T> const&)>;
+    using ConstraintType = std::pair<ActionType, ErrorType>;
+
     ArgType(T const& val) : _value{val}, _traits{} {}
 
     friend std::ostream& operator<<(std::ostream& os, ArgType<T> const& arg) {
@@ -71,11 +96,11 @@ public:
     ArgType& help(std::string const& help);
     ArgType& required(bool isReq);
     ArgType& defaultValue(T const& val);
-    ArgType& action(std::function<ActionType(ArgType<T>&)> const& action);
+    ArgType& action(ActionType const& action);
     ArgType& constValue(T const& val);
     ArgType& metavar(std::string const& metavar);
-    ArgType& constraint(std::pair<std::function<ActionType(ArgType<T> const&)>, std::function<ErrorCallbackType(ArgType<T> const&)>> constraint_error);
-    ArgType& constraint(std::function<ActionType(ArgType<T> const&)> const& constraint, std::function<ErrorCallbackType(ArgType<T> const&)> const& onerror = nullptr);
+    ArgType& constraint(ConstraintType const& constraint_error);
+    ArgType& constraint(ActionType const& constraint, ErrorType const& onerror = nullptr);
     ArgType& choices(std::initializer_list<T> const& choices);
 
     /**
@@ -102,7 +127,7 @@ public:
     std::optional<T> getDefaultValue() const { return _traits.defaultValue; }
     std::optional<T> getConstValue() const { return _traits.constValue; }
     std::string const& getMetaVar() const { return _traits.metavar; }
-    std::vector<ConstraintType> const& getConstraints() const { return _traits.constraintCallbacks; }
+    std::vector<ConstraintCallbackType> const& getConstraints() const { return _traits.constraintCallbacks; }
 
     // setters
 
@@ -129,9 +154,9 @@ private:
         bool required;
         std::optional<T> defaultValue;
         std::optional<T> constValue;
-        ActionType actionCallback;
+        ActionCallbackType actionCallback;
         std::string metavar;
-        std::vector<ConstraintType> constraintCallbacks;
+        std::vector<ConstraintCallbackType> constraintCallbacks;
     };
 
     T _value;
@@ -204,7 +229,7 @@ ArgType<T>& ArgType<T>::defaultValue(T const& val) {
  * @return ArgType<T>&
  */
 template <typename T>
-ArgType<T>& ArgType<T>::action(std::function<ActionType(ArgType<T>&)> const& action) {
+ArgType<T>& ArgType<T>::action(ArgType<T>::ActionType const& action) {
     _traits.actionCallback = action(*this);
     return *this;
 }
@@ -247,7 +272,7 @@ ArgType<T>& ArgType<T>::metavar(std::string const& metavar) {
  * @return ArgType<T>&
  */
 template <typename T>
-ArgType<T>& ArgType<T>::constraint(std::pair<std::function<ActionType(ArgType<T> const&)>, std::function<ErrorCallbackType(ArgType<T> const&)>> constraint_error) {
+ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConstraintType const& constraint_error) {
     return this->constraint(constraint_error.first, constraint_error.second);
 }
 
@@ -255,46 +280,46 @@ ArgType<T>& ArgType<T>::constraint(std::pair<std::function<ActionType(ArgType<T>
  * @brief Add constraint to the argument.
  *
  * @tparam T
- * @param constraintGen takes a `ArgType<T> const&` and returns a ActionType
+ * @param constraintGen takes a `ArgType<T> const&` and returns a ActionCallbackType
  * @param onerrorGen takes a `ArgType<T> const&` and returns a ErrorCallbackType
  */
 template <typename T>
-ArgType<T>& ArgType<T>::constraint(std::function<ActionType(ArgType<T> const&)> const& constraintGen, std::function<ErrorCallbackType(ArgType<T> const&)> const& onerrorGen) {
-    if (constraintGen == nullptr) {
+ArgType<T>& ArgType<T>::constraint(ArgType<T>::ActionType const& constraint, ArgType<T>::ErrorType const& onerror) {
+    if (constraint == nullptr) {
         std::cerr << "[ArgParse] Failed to add constraint to argument \"" << getName()
                   << "\": constraint generator cannot be nullptr!!" << std::endl;
         return *this;
     }
-    ActionType constraint = constraintGen(*this);
-    if (constraint == nullptr) {
+    ActionCallbackType constraintCallback = constraint(*this);
+    if (constraintCallback == nullptr) {
         std::cerr << "[ArgParse] Failed to add constraint to argument \"" << getName()
                   << "\": constraint generator does not produce valid callback!!" << std::endl;
         return *this;
     }
-    ErrorCallbackType onerror;
-    if (onerrorGen == nullptr) {
-        onerror = [this]() {
+    ErrorCallbackType onerrorCallback;
+    if (onerror == nullptr) {
+        onerrorCallback = [this]() {
             std::cerr << "Error: invalid value \"" << getValue() << "\" for argument \""
                       << getName() << "\": fail to satisfy constraint(s)!!" << std::endl;
         };
     } else {
-        onerror = onerrorGen(*this);
+        onerrorCallback = onerror(*this);
     }
 
-    if (onerror == nullptr) {
+    if (onerrorCallback == nullptr) {
         std::cerr << "[ArgParse] Failed to add constraint to argument \"" << getName()
                   << "\": error callback generator does not produce valid callback!!" << std::endl;
         return *this;
     }
 
-    _traits.constraintCallbacks.emplace_back(constraint, onerror);
+    _traits.constraintCallbacks.emplace_back(constraintCallback, onerrorCallback);
     return *this;
 }
 
 template <typename T>
 ArgType<T>& ArgType<T>::choices(std::initializer_list<T> const& choices) {
     std::vector<T> vec{choices};
-    auto constraint = [&vec](ArgType<T> const& arg) -> ActionType {
+    auto constraint = [&vec](ArgType<T> const& arg) -> ActionCallbackType {
         return [&arg, vec]() {
             return any_of(vec.begin(), vec.end(), [&arg](T const& choice) -> bool {
                 return arg.getValue() == choice;
@@ -355,18 +380,18 @@ bool ArgType<T>::parse(std::string const& token) {
  *
  * @tparam T
  * @param arg
- * @return ArgParse::ActionType
+ * @return ArgParse::ActionCallbackType
  */
 template <typename T>
-ActionType storeConst(ArgType<T>& arg) {
+ActionCallbackType storeConst(ArgType<T>& arg) {
     return [&arg]() -> bool {
         arg.setValueToConst();
         return true;
     };
 }
 
-ActionType storeTrue(ArgType<bool>& arg);
-ActionType storeFalse(ArgType<bool>& arg);
+ActionCallbackType storeTrue(ArgType<bool>& arg);
+ActionCallbackType storeFalse(ArgType<bool>& arg);
 
 }  // namespace ArgParse
 

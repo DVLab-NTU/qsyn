@@ -47,27 +47,6 @@ bool initArgParserCmd() {
 
         mutex1.addArgument<int>("-bus")
             .help("public transport");
-        // parser.addArgument<unsigned>("-another")
-        //     .defaultValue(5)
-        //     .action(storeConst<unsigned>)
-        //     .constValue(87)
-        //     .help("another variable");
-
-        // parser.addArgument<int>("-answer")
-        //     .defaultValue(42)
-        //     .constraint({
-        //     [](ArgType<int> const& arg) {
-        //         return [&arg]() {
-        //             return arg.getValue() < 10 && arg.getValue() >= 1;
-        //         };
-        //     },
-        //     [](ArgType<int> const& arg) {
-        //         return [&arg]() {
-        //             cerr << "Error: invalid choice for argument \"" << arg.getName() << ": please choose within range [1, 10)!!\n";
-        //         };
-        //     }
-        //     })
-        //     .help("the answer to everything");
     };
 
     argparseCmd->onParseSuccess = [](ArgumentParser const& parser) {

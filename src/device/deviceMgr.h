@@ -1,19 +1,19 @@
 /****************************************************************************
-  FileName     [ topologyMgr.h ]
-  PackageName  [ topology ]
+  FileName     [ deviceMgr.h ]
+  PackageName  [ device ]
   Synopsis     [ Define class Device manager structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef TOPOLOGY_MGR_H
-#define TOPOLOGY_MGR_H
+#ifndef DEVICE_MGR_H
+#define DEVICE_MGR_H
 
 #include <cstddef>  // for size_t
 #include <optional>
 #include <vector>
 
-#include "topology.h"
+#include "device.h"
 class DeviceMgr;
 
 extern DeviceMgr* deviceMgr;
@@ -72,4 +72,4 @@ private:
     DeviceList::iterator _topoListItr;
 };
 
-#endif  // TOPOLOGY_MGR_H
+#endif  // DEVICE_MGR_H

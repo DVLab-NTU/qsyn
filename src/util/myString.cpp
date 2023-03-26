@@ -208,95 +208,6 @@ myStrGetTok2(const string& str, string& tok, size_t pos, const std::string& del)
     return end;
 }
 
-// Convert string "str" to integer "num". Return false if str does not appear
-// to be a number
-bool myStr2Int(const string& str, int& num) {
-    int tmp = 0;
-    size_t i = 0;
-    int sign = 1;
-    if (str[0] == '-') {
-        sign = -1;
-        i = 1;
-    }
-    bool valid = false;
-    for (; i < str.size(); ++i) {
-        if (isdigit(str[i])) {
-            tmp *= 10;
-            tmp += int(str[i] - '0');
-            valid = true;
-        } else
-            return false;
-    }
-    num = tmp * sign;
-    return valid;
-}
-
-// Convert string "str" to unsigned integer "unsnum". Return false if str does not appear
-// to be an unsigned number
-bool myStr2Uns(const string& str, unsigned& unsnum) {
-    int num = 0;
-    bool isNum = myStr2Int(str, num);
-    if (!isNum || num < 0)
-        return false;
-    unsnum = (unsigned int)num;
-    return true;
-}
-
-// A template interface for std::stoXXX(const string& str, size_t* pos = nullptr),
-// All the dirty compile-time checking happens here.
-template <class T>
-requires std::floating_point<T>
-T stoFloatType(const string& str, size_t* pos) {
-    try {
-        if constexpr (std::is_same<T, double>::value) {
-            return std::stod(str, pos);
-        } else if constexpr (std::is_same<T, float>::value) {
-            return std::stof(str, pos);
-        } else if constexpr (std::is_same<T, long double>::value) {
-            return std::stold(str, pos);
-        } else {
-            throw std::invalid_argument("Not a floating point type");
-        }
-    } catch (const std::invalid_argument& e) {
-        throw std::invalid_argument(e.what());
-    } catch (const std::out_of_range& e) {
-        throw std::out_of_range(e.what());
-    }
-
-    return 0.;  // silences compiler warnings
-}
-// Generic template for `myStr2<Float|Double|LongDouble>`
-// If `str` is a string of decimal number, return true and set `f` to the corresponding number.
-// Otherwise return 0 and set `f` to 0.
-template <class T>
-requires std::floating_point<T>
-bool myStr2FloatType(const string& str, T& f) {
-    size_t i;
-    try {
-        f = stoFloatType<T>(str, &i);
-    } catch (const std::exception& e) {
-        return false;
-    }
-    // Check if str have un-parsable parts
-    return (i == str.size());
-}
-
-template bool myStr2FloatType<float>(const string&, float&);
-template bool myStr2FloatType<double>(const string&, double&);
-template bool myStr2FloatType<long double>(const string&, long double&);
-
-bool myStr2Float(const string& str, float& f) {
-    return myStr2FloatType<float>(str, f);
-}
-
-bool myStr2Double(const string& str, double& f) {
-    return myStr2FloatType<double>(str, f);
-}
-
-bool myStr2LongDouble(const string& str, long double& f) {
-    return myStr2FloatType<long double>(str, f);
-}
-
 std::string toLowerString(std::string const& str) {
     std::string ret = str;
     for_each(ret.begin(), ret.end(), [](char& ch) { ch = ::tolower(ch); });
@@ -317,3 +228,97 @@ size_t countUpperChars(std::string const& str) {
     }
     return str.size();
 };
+
+//---------------------------------------------
+// number parsing
+//---------------------------------------------
+
+/**
+ * @brief An indirection layer for std::stoXXX(const string& str, size_t* pos = nullptr).
+ *        All the dirty compile-time checking happens here.
+ *
+ * @tparam T
+ * @param str
+ * @param pos
+ * @return requires
+ */
+template <class T>
+requires Arithmetic<T>
+T stoNumber(const string& str, size_t* pos) {
+    try {
+        // floating point types
+        if constexpr (std::is_same<T, double>::value) return std::stod(str, pos);
+        if constexpr (std::is_same<T, float>::value) return std::stof(str, pos);
+        if constexpr (std::is_same<T, long double>::value) return std::stold(str, pos);
+
+        // signed integer types
+        if constexpr (std::is_same<T, int>::value) return std::stoi(str, pos);
+        if constexpr (std::is_same<T, long>::value) return std::stol(str, pos);
+        if constexpr (std::is_same<T, long long>::value) return std::stoll(str, pos);
+
+        // unsigned integer types
+        if constexpr (std::is_same<T, unsigned>::value) {
+            if (stripWhitespaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
+            unsigned long result = std::stoul(str, pos);  // NOTE - for some reason there isn't stou (lol)
+            if (result > std::numeric_limits<unsigned>::max()) {
+                throw std::out_of_range("stou");
+            }
+            return (unsigned)result;
+        }
+        if constexpr (std::is_same<T, unsigned long>::value) {
+            if (stripWhitespaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
+            return std::stoul(str, pos);
+        }
+        if constexpr (std::is_same<T, unsigned long long>::value) {
+            if (stripWhitespaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
+            return std::stoull(str, pos);
+        }
+
+        throw std::invalid_argument("unsupported type");
+    } catch (const std::invalid_argument& e) {
+        throw std::invalid_argument(e.what());
+    } catch (const std::out_of_range& e) {
+        throw std::out_of_range(e.what());
+    }
+
+    return 0.;  // silences compiler warnings
+}
+
+/**
+ * @brief If `str` is a number of type T, parse it and return true;
+ *        otherwise, return false.
+ *
+ * @tparam T
+ * @param str
+ * @param f
+ * @return requires
+ */
+template <class T>
+requires Arithmetic<T>
+bool myStr2Number(const string& str, T& f) {
+    size_t i;
+    try {
+        f = stoNumber<T>(str, &i);
+    } catch (const std::exception& e) {
+        return false;
+    }
+    // Check if str have un-parsable parts
+    return (i == str.size());
+}
+
+#define MYSTR2NUMBER_INSTANTIATION(_type) \
+    template bool myStr2Number<_type>(const string&, _type&)
+
+MYSTR2NUMBER_INSTANTIATION(float);
+MYSTR2NUMBER_INSTANTIATION(double);
+MYSTR2NUMBER_INSTANTIATION(long double);
+
+MYSTR2NUMBER_INSTANTIATION(int);
+MYSTR2NUMBER_INSTANTIATION(long);
+MYSTR2NUMBER_INSTANTIATION(long long);
+
+MYSTR2NUMBER_INSTANTIATION(unsigned);
+MYSTR2NUMBER_INSTANTIATION(unsigned long);
+MYSTR2NUMBER_INSTANTIATION(unsigned long long);
+
+// no need to instantiate for size_t: it is just an type alias
