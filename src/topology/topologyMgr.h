@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ topologyMgr.h ]
   PackageName  [ topology ]
-  Synopsis     [ Define class DeviceTopo manager structure ]
+  Synopsis     [ Define class Device manager structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -10,29 +10,30 @@
 #define TOPOLOGY_MGR_H
 
 #include <cstddef>  // for size_t
+#include <optional>
 #include <vector>
 
 #include "topology.h"
-class DeviceTopoMgr;
+class DeviceMgr;
 
-extern DeviceTopoMgr* deviceTopoMgr;
+extern DeviceMgr* deviceMgr;
 
 //------------------------------------------------------------------------
 //  Define types
 //------------------------------------------------------------------------
-using DeviceTopoList = std::vector<DeviceTopo*>;
+using DeviceList = std::vector<Device>;
 
 //------------------------------------------------------------------------
 //  Define classes
 //------------------------------------------------------------------------
-class DeviceTopoMgr {
+class DeviceMgr {
 public:
-    DeviceTopoMgr() {
+    DeviceMgr() {
         _topoList.clear();
         _topoListItr = _topoList.begin();
         _nextID = 0;
     }
-    ~DeviceTopoMgr() {}
+    ~DeviceMgr() {}
     void reset();
 
     // Test
@@ -40,36 +41,35 @@ public:
 
     // Setter and Getter
     size_t getNextID() const { return _nextID; }
-    DeviceTopo* getDeviceTopo() const { return _topoList[_topoListItr - _topoList.begin()]; }
-    const DeviceTopoList& getDeviceTopoList() const { return _topoList; }
-    DeviceTopoList::iterator getDTListItr() const { return _topoListItr; }
+    const Device& getDevice() const { return _topoList[_topoListItr - _topoList.begin()]; }
+    const DeviceList& getDeviceList() const { return _topoList; }
+    DeviceList::iterator getDTListItr() const { return _topoListItr; }
 
     void setNextID(size_t id) { _nextID = id; }
-    void setDeviceTopo(DeviceTopo* dt) {
-        delete _topoList[_topoListItr - _topoList.begin()];
+    void setDevice(Device& dt) {
+        dt.setId(_topoListItr - _topoList.begin());
         _topoList[_topoListItr - _topoList.begin()] = dt;
-        dt->setId(_topoListItr - _topoList.begin());
     }
 
     // Add and Remove
-    DeviceTopo* addDeviceTopo(size_t id);
-    void removeDeviceTopo(size_t id);
+    const Device& addDevice(size_t id);
+    void removeDevice(size_t id);
 
     // Action
-    void checkout2DeviceTopo(size_t id);
+    void checkout2Device(size_t id);
     void copy(size_t id, bool toNew = true);
-    DeviceTopo* findDeviceTopoByID(size_t id) const;
+    Device* findDeviceByID(size_t id);
 
     // Print
-    void printDeviceTopoMgr() const;
-    void printTopoListItr() const;
-    void printTopoList() const;
-    void printDeviceTopoListSize() const;
+    void printDeviceMgr() const;
+    void printDeviceListItr() const;
+    void printDeviceList() const;
+    void printDeviceListSize() const;
 
 private:
     size_t _nextID;
-    DeviceTopoList _topoList;
-    DeviceTopoList::iterator _topoListItr;
+    DeviceList _topoList;
+    DeviceList::iterator _topoListItr;
 };
 
 #endif  // TOPOLOGY_MGR_H

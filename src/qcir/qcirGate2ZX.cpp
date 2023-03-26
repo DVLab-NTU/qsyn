@@ -235,6 +235,11 @@ ZXGraph *CCXGate::getZXform() {
     return temp;
 }
 
+// TODO - SWAP ZXForm
+ZXGraph *SWAPGate::getZXform() {
+    return nullptr;
+}
+
 /**
  * @brief Get ZX-graph of CZ
  *

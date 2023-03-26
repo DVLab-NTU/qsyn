@@ -8,10 +8,11 @@
 
 #include "qcirCmd.h"
 
-#include <cstddef>      // for size_t, NULL
-#include <iostream>     // for ostream
-#include <string>       // for string
+#include <cstddef>   // for size_t, NULL
+#include <iostream>  // for ostream
+#include <string>    // for string
 
+#include "apCmd.h"
 #include "cmdMacros.h"  // for CMD_N_OPTS_AT_MOST_OR_RETURN
 #include "phase.h"      // for Phase
 #include "qcir.h"       // for QCir
@@ -20,10 +21,12 @@
 #include "zxGraph.h"    // for ZXGraph
 
 using namespace std;
-
+using namespace ArgParse;
 extern QCirMgr *qcirMgr;
 extern size_t verbose;
 extern int effLimit;
+
+unique_ptr<ArgParseCmdType> QCSetCmd();
 
 bool initQCirCmd() {
     qcirMgr = new QCirMgr;
@@ -35,6 +38,7 @@ bool initQCirCmd() {
           cmdMgr->regCmd("QCCOMpose", 5, make_unique<QCirComposeCmd>()) &&
           cmdMgr->regCmd("QCTensor", 3, make_unique<QCirTensorCmd>()) &&
           cmdMgr->regCmd("QCPrint", 3, make_unique<QCPrintCmd>()) &&
+          cmdMgr->regCmd("QCSet", 3, QCSetCmd()) &&
           cmdMgr->regCmd("QCCRead", 4, make_unique<QCirReadCmd>()) &&
           cmdMgr->regCmd("QCCPrint", 4, make_unique<QCirPrintCmd>()) &&
           cmdMgr->regCmd("QCGAdd", 4, make_unique<QCirAddGateCmd>()) &&
@@ -273,30 +277,88 @@ void QCirTensorCmd::summary() const {
 }
 
 //----------------------------------------------------------------------
-//    QCPrint [-Summary | -Focus | -Num]
+//    QCPrint [-SUmmary | -Focus | -Num | -SEttings]
 //----------------------------------------------------------------------
 CmdExecStatus
 QCPrintCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) {
+    if (token.empty() || myStrNCmp("-SUmmary", token, 3) == 0) {
         qcirMgr->printQCirMgr();
     } else if (myStrNCmp("-Focus", token, 2) == 0)
         qcirMgr->printCListItr();
     else if (myStrNCmp("-Num", token, 2) == 0)
         qcirMgr->printQCircuitListSize();
-    else
+    else if (myStrNCmp("-SEttings", token, 3) == 0) {
+        cout << endl;
+        cout << "Delay of Single-qubit gate :     " << SINGLE_DELAY << endl;
+        cout << "Delay of Double-qubit gate :     " << DOUBLE_DELAY << endl;
+        cout << "Delay of SWAP gate :             " << SWAP_DELAY << ((SWAP_DELAY == 3 * DOUBLE_DELAY) ? " (3 CXs)" : "") << endl;
+        cout << "Delay of Multiple-qubit gate :   " << MULTIPLE_DELAY << endl;
+    } else
         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     return CMD_EXEC_DONE;
 }
 
 void QCPrintCmd::usage() const {
-    cout << "Usage: QCPrint [-Summary | -Focus | -Num]" << endl;
+    cout << "Usage: QCPrint [-SUmmary | -Focus | -Num | -SEttings]" << endl;
 }
 
 void QCPrintCmd::summary() const {
     cout << setw(15) << left << "QCPrint: "
          << "print info of QCirMgr" << endl;
+}
+
+//------------------------------------------------------------------------------
+//    QCSet ...
+//------------------------------------------------------------------------------
+
+unique_ptr<ArgParseCmdType> QCSetCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("QCSet");
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("set QCir parameters");
+        parser.addArgument<unsigned>("-single-delay")
+            .help("delay of single-qubit gate");
+        parser.addArgument<unsigned>("-double-delay")
+            .help("delay of double-qubit gate, SWAP excluded");
+        parser.addArgument<unsigned>("-swap-delay")
+            .help("delay of SWAP gate, used to be 3x double-qubit gate");
+        parser.addArgument<unsigned>("-multiple-delay")
+            .help("delay of multiple-qubit gate");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        if (parser["-single-delay"].isParsed()) {
+            unsigned singleDelay = parser["-single-delay"];
+            if (singleDelay == 0)
+                cerr << "Error: single delay value should > 0, neglect this option!!\n";
+            else
+                SINGLE_DELAY = (size_t)singleDelay;
+        }
+        if (parser["-double-delay"].isParsed()) {
+            unsigned doubleDelay = parser["-double-delay"];
+            if (doubleDelay == 0)
+                cerr << "Error: double delay value should > 0, neglect this option!!\n";
+            else
+                DOUBLE_DELAY = (size_t)doubleDelay;
+        }
+        if (parser["-swap-delay"].isParsed()) {
+            unsigned swapDelay = parser["-swap-delay"];
+            if (swapDelay == 0)
+                cerr << "Error: swap delay value should > 0, neglect this option!!\n";
+            else
+                SWAP_DELAY = (size_t)swapDelay;
+        }
+        if (parser["-multiple-delay"].isParsed()) {
+            unsigned multiDelay = parser["-multiple-delay"];
+            if (multiDelay == 0)
+                cerr << "Error: multiple delay value should > 0, neglect this option!!\n";
+            else
+                MULTIPLE_DELAY = (size_t)multiDelay;
+        }
+        return CMD_EXEC_DONE;
+    };
+    return cmd;
 }
 
 //----------------------------------------------------------------------

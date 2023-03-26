@@ -62,16 +62,16 @@ void QCir::printGates() {
 }
 
 /**
- * @brief Print Qcir's Depth
+ * @brief Print Depth of QCir
  *
  */
 void QCir::printDepth() {
     if (_dirty) updateGateTime();
-    int depth = 0;
+    size_t depth = 0;
     for (size_t i = 0; i < _qgates.size(); i++) {
-        if (int(_qgates[i]->getTime()) > depth) depth = int(_qgates[i]->getTime());
+        if (_qgates[i]->getTime() > depth) depth = _qgates[i]->getTime();
     }
-    cout << "Depth: " << depth + 1 << endl;
+    cout << "Depth: " << depth << endl;
 }
 
 /**
@@ -305,13 +305,13 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
             if (target->getLast() != NULL) {
                 temp->setParent(q, target->getLast());
                 target->getLast()->setChild(q, temp);
-                if ((target->getLast()->getTime() + 1) > max_time)
-                    max_time = target->getLast()->getTime() + 1;
+                if ((target->getLast()->getTime()) > max_time)
+                    max_time = target->getLast()->getTime();
             } else
                 target->setFirst(temp);
             target->setLast(temp);
         }
-        temp->setTime(max_time);
+        temp->setTime(max_time + temp->getDelay());
     } else {
         for (size_t k = 0; k < bits.size(); k++) {
             size_t q = bits[k];
