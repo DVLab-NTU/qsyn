@@ -15,8 +15,8 @@
 #include <span>
 #include <string>
 
-#include "util.h"
 #include "myConcepts.h"
+#include "util.h"
 
 namespace ArgParse {
 

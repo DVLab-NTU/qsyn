@@ -259,7 +259,7 @@ T stoNumber(const string& str, size_t* pos) {
         // unsigned integer types
         if constexpr (std::is_same<T, unsigned>::value) {
             if (stripWhitespaces(str)[0] == '-') throw std::out_of_range("unsigned number underflow");
-            unsigned long result = std::stoul(str, pos); // NOTE - for some reason there isn't stou (lol)
+            unsigned long result = std::stoul(str, pos);  // NOTE - for some reason there isn't stou (lol)
             if (result > std::numeric_limits<unsigned>::max()) {
                 throw std::out_of_range("stou");
             }
