@@ -38,7 +38,7 @@ bool initQCirCmd() {
           cmdMgr->regCmd("QCCOMpose", 5, make_unique<QCirComposeCmd>()) &&
           cmdMgr->regCmd("QCTensor", 3, make_unique<QCirTensorCmd>()) &&
           cmdMgr->regCmd("QCPrint", 3, make_unique<QCPrintCmd>()) &&
-          cmdMgr->regCmd("QCSet", 5, QCSetCmd()) &&
+          cmdMgr->regCmd("QCSet", 3, QCSetCmd()) &&
           cmdMgr->regCmd("QCCRead", 4, make_unique<QCirReadCmd>()) &&
           cmdMgr->regCmd("QCCPrint", 4, make_unique<QCirPrintCmd>()) &&
           cmdMgr->regCmd("QCGAdd", 4, make_unique<QCirAddGateCmd>()) &&
