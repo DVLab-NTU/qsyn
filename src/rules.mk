@@ -6,10 +6,7 @@ CXX       		:= g++
 CCC       		:= gcc
 AR        		:= ar cr
 ECHO      		:= /bin/echo
-
-OPTIMIZE_LEVEL 	:= -O3
-DEBUG_FLAG 		:= -DDEBUG
-DEP_FLAG		:= -MMD
+DEP_FLAG		:= -MMD -MP
 
 # debug: OPTIMIZE_LEVEL := -g
 # release: DEBUG_FLAG := -DNDEBUG
@@ -82,12 +79,12 @@ CFLAGS 			:= $(OPTIMIZE_LEVEL) $(DEBUG_FLAG) $(DEP_FLAG) -Wall -std=c++20 -fopen
 ##      Generic build policy
 ## -------------------------------
 
-$(BUILD_SRC_DIR)/%.o : $(SRC_DIR)/%.cpp $(EXTHEADER_MKS)
+$(BUILD_SRC_DIR)/%.o : $(SRC_DIR)/%.cpp $(EXTHEADER_MKS) $(VENDOR_LINKS)
 	@-mkdir -p $(@D)
 	@$(ECHO) "> compiling: $(notdir $<)"
 	@$(CXX) $(CFLAGS) -I$(EXTINCDIR) -c -o $@ $<
 
-$(BUILD_SRC_DIR)/%.o : $(SRC_DIR)/%.c $(EXTHEADER_MKS)
+$(BUILD_SRC_DIR)/%.o : $(SRC_DIR)/%.c $(EXTHEADER_MKS) $(VENDOR_LINKS)
 	@-mkdir -p $(@D)
 	@$(ECHO) "> compiling: $(notdir $<)"
 	@$(CCC) $(CFLAGS) -I$(EXTINCDIR) -c -o $@ $<
