@@ -1,12 +1,12 @@
 /****************************************************************************
-  FileName     [ topologyCmd.cpp ]
-  PackageName  [ topology ]
-  Synopsis     [ Define topology package commands ]
+  FileName     [ deviceCmd.cpp ]
+  PackageName  [ device ]
+  Synopsis     [ Define device package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "topologyCmd.h"
+#include "deviceCmd.h"
 
 #include <cstddef>   // for size_t, NULL
 #include <iomanip>   // for ostream
@@ -14,10 +14,10 @@
 #include <string>    // for string
 
 #include "apCmd.h"
-#include "cmdMacros.h"    // for CMD_N_OPTS_AT_MOST_OR_RETURN
+#include "cmdMacros.h"  // for CMD_N_OPTS_AT_MOST_OR_RETURN
 #include "cmdParser.h"
-#include "topology.h"     // for Device
-#include "topologyMgr.h"  // for DeviceMgr
+#include "device.h"     // for Device
+#include "deviceMgr.h"  // for DeviceMgr
 
 using namespace std;
 using namespace ArgParse;

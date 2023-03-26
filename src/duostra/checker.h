@@ -12,7 +12,7 @@
 #include <bits/stdc++.h>
 
 #include "circuitTopology.h"
-#include "topology.h"
+#include "device.h"
 
 class Checker {
 public:

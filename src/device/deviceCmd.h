@@ -1,16 +1,16 @@
 /****************************************************************************
-  FileName     [ topologyCmd.h ]
-  PackageName  [ topology ]
-  Synopsis     [ Define topology package commands ]
+  FileName     [ deviceCmd.h ]
+  PackageName  [ device ]
+  Synopsis     [ Define device package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef TOPOLOGY_CMD_H
-#define TOPOLOGY_CMD_H
+#ifndef DEVICE_CMD_H
+#define DEVICE_CMD_H
 
 #include "cmdParser.h"
-#include "topologyMgr.h"  // for DeviceMgr
+#include "deviceMgr.h"  // for DeviceMgr
 
 CmdClass(DeviceGraphPrintCmd);
 
@@ -22,4 +22,4 @@ CmdClass(DeviceGraphPrintCmd);
         }                                                                                           \
     }
 
-#endif  // TOPOLOGY_CMD_H
+#endif  // DEVICE_CMD_H

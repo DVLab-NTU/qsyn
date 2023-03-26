@@ -12,9 +12,9 @@
 #include <cstddef>  // for size_t
 #include <set>
 
+#include "device.h"
 #include "m2.h"     // for M2
 #include "qcir.h"   // for QCir
-#include "topology.h"
 #include "zxDef.h"  // for EdgeType, EdgeType::HADAMARD
 
 extern bool SORT_FRONTIER;

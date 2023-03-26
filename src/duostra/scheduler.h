@@ -17,8 +17,8 @@
 #include <vector>
 
 #include "circuitTopology.h"
+#include "device.h"
 #include "router.h"
-#include "topology.h"
 #include "util.h"
 #include "variables.h"
 

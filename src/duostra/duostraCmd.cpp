@@ -12,11 +12,11 @@
 #include <string>    // for string
 
 #include "apCmd.h"
-#include "duostra.h"      // for Duostra
-#include "qcir.h"         // for QCir
-#include "qcirCmd.h"      // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
-#include "qcirMgr.h"      // for QCirMgr
-#include "topologyMgr.h"  // for DeviceMgr
+#include "deviceMgr.h"  // for DeviceMgr
+#include "duostra.h"    // for Duostra
+#include "qcir.h"       // for QCir
+#include "qcirCmd.h"    // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
+#include "qcirMgr.h"    // for QCirMgr
 
 using namespace std;
 using namespace ArgParse;

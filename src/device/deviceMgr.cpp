@@ -1,12 +1,12 @@
 /****************************************************************************
-  FileName     [ topologyMgr.cpp ]
-  PackageName  [ topology ]
+  FileName     [ deviceMgr.cpp ]
+  PackageName  [ device ]
   Synopsis     [ Define class Device manager member functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "topologyMgr.h"
+#include "deviceMgr.h"
 
 #include <cstddef>  // for size_t
 #include <iostream>

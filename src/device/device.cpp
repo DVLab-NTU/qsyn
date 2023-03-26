@@ -1,12 +1,12 @@
 /****************************************************************************
-  FileName     [ topology.cpp ]
-  PackageName  [ topology ]
-  Synopsis     [ Define class Topology functions ]
+  FileName     [ device.cpp ]
+  PackageName  [ device ]
+  Synopsis     [ Define class Device, Topology, and Operation functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "topology.h"
+#include "device.h"
 
 #include <stdlib.h>      // for abort
 

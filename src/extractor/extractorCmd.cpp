@@ -13,16 +13,16 @@
 #include <string>    // for string
 
 #include "apCmd.h"
-#include "cmdMacros.h"    // for CMD_N_OPTS_EQUAL_OR_RETURN, CMD_N_OPTS_AT_LE...
-#include "extract.h"      // for Extractor
-#include "qcir.h"         // for QCir
-#include "qcirCmd.h"      // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
-#include "qcirMgr.h"      // for QCirMgr
-#include "topologyMgr.h"  // for DeviceMgr
-#include "util.h"         // for myStr2Uns
-#include "zxCmd.h"        // for ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN, ZX_CMD_...
-#include "zxGraph.h"      // for ZXGraph
-#include "zxGraphMgr.h"   // for ZXGraphMgr
+#include "cmdMacros.h"   // for CMD_N_OPTS_EQUAL_OR_RETURN, CMD_N_OPTS_AT_LE...
+#include "deviceMgr.h"   // for DeviceMgr
+#include "extract.h"     // for Extractor
+#include "qcir.h"        // for QCir
+#include "qcirCmd.h"     // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
+#include "qcirMgr.h"     // for QCirMgr
+#include "util.h"        // for myStr2Uns
+#include "zxCmd.h"       // for ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN, ZX_CMD_...
+#include "zxGraph.h"     // for ZXGraph
+#include "zxGraphMgr.h"  // for ZXGraphMgr
 
 using namespace std;
 using namespace ArgParse;

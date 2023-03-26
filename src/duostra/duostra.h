@@ -7,11 +7,11 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include "device.h"
 #include "placer.h"
 #include "qcir.h"
 #include "router.h"
 #include "scheduler.h"
-#include "topology.h"
 
 class Duostra {
 public:
