@@ -19,11 +19,17 @@ namespace detail {
 std::string getTypeString(bool) { return "bool"; }
 std::string getTypeString(int) { return "int"; }
 std::string getTypeString(unsigned) { return "unsigned"; }
+std::string getTypeString(float) { return "float"; }
+std::string getTypeString(double) { return "double"; }
+std::string getTypeString(long double) { return "long double"; }
 std::string getTypeString(std::string const& val) { return "string"; }
 
 std::ostream& print(std::ostream& os, bool val) { return os << val; }
 std::ostream& print(std::ostream& os, int val) { return os << val; }
 std::ostream& print(std::ostream& os, unsigned val) { return os << val; }
+std::ostream& print(std::ostream& os, float val) { return os << val; }
+std::ostream& print(std::ostream& os, double val) { return os << val; }
+std::ostream& print(std::ostream& os, long double val) { return os << val; }
 std::ostream& print(std::ostream& os, std::string const& val) { return os << val; }
 
 bool parseFromString(bool& val, std::string const& token) {
@@ -51,6 +57,27 @@ bool parseFromString(unsigned& val, std::string const& token) {
     return true;
 }
 
+bool parseFromString(float& val, std::string const& token) {
+    if (!myStr2Float(token, val)) {
+        return false;
+    }
+    return true;
+}
+
+bool parseFromString(double& val, std::string const& token) {
+    if (!myStr2Double(token, val)) {
+        return false;
+    }
+    return true;
+}
+
+bool parseFromString(long double& val, std::string const& token) {
+    if (!myStr2LongDouble(token, val)) {
+        return false;
+    }
+    return true;
+}
+
 bool parseFromString(std::string& val, std::string const& token) {
     val = token;
     return true;
@@ -63,9 +90,9 @@ bool parseFromString(std::string& val, std::string const& token) {
  *        This function also set the default value to false.
  *
  * @param arg
- * @return ArgParse::ActionType
+ * @return ArgParse::ActionCallbackType
  */
-ActionType storeTrue(ArgType<bool>& arg) {
+ActionCallbackType storeTrue(ArgType<bool>& arg) {
     arg.defaultValue(false);
     arg.constValue(true);
 
@@ -80,9 +107,9 @@ ActionType storeTrue(ArgType<bool>& arg) {
  *        This function also set the default value to true.
  *
  * @param arg
- * @return ArgParse::ActionType
+ * @return ArgParse::ActionCallbackType
  */
-ActionType storeFalse(ArgType<bool>& arg) {
+ActionCallbackType storeFalse(ArgType<bool>& arg) {
     arg.defaultValue(true);
     arg.constValue(false);
     return [&arg]() -> bool {
