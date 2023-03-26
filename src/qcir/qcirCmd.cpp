@@ -8,10 +8,11 @@
 
 #include "qcirCmd.h"
 
-#include <cstddef>      // for size_t, NULL
-#include <iostream>     // for ostream
-#include <string>       // for string
+#include <cstddef>   // for size_t, NULL
+#include <iostream>  // for ostream
+#include <string>    // for string
 
+#include "apCmd.h"
 #include "cmdMacros.h"  // for CMD_N_OPTS_AT_MOST_OR_RETURN
 #include "phase.h"      // for Phase
 #include "qcir.h"       // for QCir
@@ -20,10 +21,12 @@
 #include "zxGraph.h"    // for ZXGraph
 
 using namespace std;
-
+using namespace ArgParse;
 extern QCirMgr *qcirMgr;
 extern size_t verbose;
 extern int effLimit;
+
+unique_ptr<ArgParseCmdType> QCSetCmd();
 
 bool initQCirCmd() {
     qcirMgr = new QCirMgr;
@@ -35,7 +38,7 @@ bool initQCirCmd() {
           cmdMgr->regCmd("QCCOMpose", 5, make_unique<QCirComposeCmd>()) &&
           cmdMgr->regCmd("QCTensor", 3, make_unique<QCirTensorCmd>()) &&
           cmdMgr->regCmd("QCPrint", 3, make_unique<QCPrintCmd>()) &&
-          cmdMgr->regCmd("QCSet", 3, make_unique<QCSetCmd>()) &&
+          cmdMgr->regCmd("QCSet", 5, QCSetCmd()) &&
           cmdMgr->regCmd("QCCRead", 4, make_unique<QCirReadCmd>()) &&
           cmdMgr->regCmd("QCCPrint", 4, make_unique<QCirPrintCmd>()) &&
           cmdMgr->regCmd("QCGAdd", 4, make_unique<QCirAddGateCmd>()) &&
@@ -287,9 +290,11 @@ QCPrintCmd::exec(const string &option) {
     else if (myStrNCmp("-Num", token, 2) == 0)
         qcirMgr->printQCircuitListSize();
     else if (myStrNCmp("-SEttings", token, 3) == 0) {
+        cout << endl;
         cout << "Delay of Single-qubit gate :     " << SINGLE_DELAY << endl;
         cout << "Delay of Double-qubit gate :     " << DOUBLE_DELAY << endl;
-        cout << "Delay of Multi-qubit gate :      " << MULTIPLE_DELAY << endl;
+        cout << "Delay of SWAP gate :             " << SWAP_DELAY << ((SWAP_DELAY == 3 * DOUBLE_DELAY) ? " (3 CXs)" : "") << endl;
+        cout << "Delay of Multiple-qubit gate :   " << MULTIPLE_DELAY << endl;
     } else
         return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
     return CMD_EXEC_DONE;
@@ -305,50 +310,55 @@ void QCPrintCmd::summary() const {
 }
 
 //------------------------------------------------------------------------------
-//    QCSet <size_t singleDelay> <size_t doubleDelay> <size_t multipleDelay>
+//    QCSet ...
 //------------------------------------------------------------------------------
-CmdExecStatus
-QCSetCmd::exec(const string &option) {
-    string token;
-    vector<string> options;
-    if (!CmdExec::lexOptions(option, options))
-        return CMD_EXEC_ERROR;
-    CMD_N_OPTS_EQUAL_OR_RETURN(options, 3);
-    unsigned singleDelay, doubleDelay, multipleDelay;
-    if (!myStr2Uns(options[0], singleDelay)) {
-        cerr << "Error: invalid singleDelay value!!\n";
-        return errorOption(CMD_OPT_ILLEGAL, (option));
-    } else if (singleDelay == 0) {
-        cerr << "Error: singleDelay value should > 0!!\n";
-        return errorOption(CMD_OPT_ILLEGAL, (option));
-    }
-    if (!myStr2Uns(options[1], doubleDelay)) {
-        cerr << "Error: invalid doubleDelay value!!\n";
-        return errorOption(CMD_OPT_ILLEGAL, (option));
-    } else if (doubleDelay == 0) {
-        cerr << "Error: doubleDelay value should > 0!!\n";
-        return errorOption(CMD_OPT_ILLEGAL, (option));
-    }
-    if (!myStr2Uns(options[2], multipleDelay)) {
-        cerr << "Error: invalid multipleDelay value!!\n";
-        return errorOption(CMD_OPT_ILLEGAL, (option));
-    } else if (multipleDelay == 0) {
-        cerr << "Error: multipleDelay value should > 0!!\n";
-        return errorOption(CMD_OPT_ILLEGAL, (option));
-    }
-    SINGLE_DELAY = singleDelay;
-    DOUBLE_DELAY = doubleDelay;
-    MULTIPLE_DELAY = multipleDelay;
-    return CMD_EXEC_DONE;
-}
 
-void QCSetCmd::usage() const {
-    cout << "Usage: QCSet <size_t singleDelay> <size_t doubleDelay> <size_t multipleDelay>" << endl;
-}
+unique_ptr<ArgParseCmdType> QCSetCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("QCSet");
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("set QCir parameters");
+        parser.addArgument<unsigned>("-single-delay")
+            .help("delay of single-qubit gate");
+        parser.addArgument<unsigned>("-double-delay")
+            .help("delay of double-qubit gate, SWAP excluded");
+        parser.addArgument<unsigned>("-swap-delay")
+            .help("delay of SWAP gate, used to be 3x double-qubit gate");
+        parser.addArgument<unsigned>("-multiple-delay")
+            .help("delay of multiple-qubit gate");
+    };
 
-void QCSetCmd::summary() const {
-    cout << setw(15) << left << "QCSet: "
-         << "Set variables to QCir" << endl;
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        if (parser["-single-delay"].isParsed()) {
+            unsigned singleDelay = parser["-single-delay"];
+            if (singleDelay == 0)
+                cerr << "Error: single delay value should > 0, neglect this option!!\n";
+            else
+                SINGLE_DELAY = (size_t)singleDelay;
+        }
+        if (parser["-double-delay"].isParsed()) {
+            unsigned doubleDelay = parser["-double-delay"];
+            if (doubleDelay == 0)
+                cerr << "Error: double delay value should > 0, neglect this option!!\n";
+            else
+                DOUBLE_DELAY = (size_t)doubleDelay;
+        }
+        if (parser["-swap-delay"].isParsed()) {
+            unsigned swapDelay = parser["-swap-delay"];
+            if (swapDelay == 0)
+                cerr << "Error: swap delay value should > 0, neglect this option!!\n";
+            else
+                SWAP_DELAY = (size_t)swapDelay;
+        }
+        if (parser["-multiple-delay"].isParsed()) {
+            unsigned multiDelay = parser["-multiple-delay"];
+            if (multiDelay == 0)
+                cerr << "Error: multiple delay value should > 0, neglect this option!!\n";
+            else
+                MULTIPLE_DELAY = (size_t)multiDelay;
+        }
+        return CMD_EXEC_DONE;
+    };
+    return cmd;
 }
 
 //----------------------------------------------------------------------

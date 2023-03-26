@@ -95,7 +95,7 @@ unique_ptr<ArgParseCmdType> duostraSetCmd() {
         parser.addArgument<int>("-candidates")
             .help("top k candidates");
 
-        parser.addArgument<int>("-apsp_coeff")
+        parser.addArgument<int>("-apsp-coeff")
             .help("coefficient of apsp cost");
 
         parser.addArgument<string>("-available")
@@ -109,10 +109,10 @@ unique_ptr<ArgParseCmdType> duostraSetCmd() {
         parser.addArgument<int>("-depth")
             .help("depth of searching region");
 
-        parser.addArgument<bool>("-never_cache")
+        parser.addArgument<bool>("-never-cache")
             .help("never cache any children unless children() is called");
 
-        parser.addArgument<bool>("-single_immediately")
+        parser.addArgument<bool>("-single-immediately")
             .help("execute the single gates when they are available");
     };
 
@@ -131,8 +131,8 @@ unique_ptr<ArgParseCmdType> duostraSetCmd() {
             DUOSTRA_CANDIDATES = (size_t)resCand;
         }
 
-        if (parser["-apsp_coeff"].isParsed()) {
-            int resAPSP = parser["-apsp_coeff"];
+        if (parser["-apsp-coeff"].isParsed()) {
+            int resAPSP = parser["-apsp-coeff"];
             DUOSTRA_APSP_COEFF = (size_t)resAPSP;
         }
 
@@ -151,12 +151,12 @@ unique_ptr<ArgParseCmdType> duostraSetCmd() {
             DUOSTRA_DEPTH = (size_t)resDepth;
         }
 
-        if (parser["-never_cache"].isParsed()) {
-            DUOSTRA_NEVER_CACHE = parser["-never_cache"];
+        if (parser["-never-cache"].isParsed()) {
+            DUOSTRA_NEVER_CACHE = parser["-never-cache"];
         }
 
-        if (parser["-single_immediately"].isParsed()) {
-            DUOSTRA_EXECUTE_SINGLE = parser["-single_immediately"];
+        if (parser["-single-immediately"].isParsed()) {
+            DUOSTRA_EXECUTE_SINGLE = parser["-single-immediately"];
         }
 
         return CMD_EXEC_DONE;

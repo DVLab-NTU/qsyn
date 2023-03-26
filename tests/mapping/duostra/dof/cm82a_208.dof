@@ -1,5 +1,7 @@
 ver 0
-qcset 1 2 5
+qcp -se
+qcset -double 2 -sw 6
+qcp -se
 qccr benchmark/benchmark_SABRE/large/cm82a_208.qasm
 dtgr benchmark/topology/guadalupe.layout 
 qccp -a
