@@ -2,7 +2,21 @@ DV Lab, NTUEE, Qsyn 0.4.1
 qsyn> ver 0
 Note: verbose level is set to 0
 
-qsyn> qcset 1 2 5
+qsyn> qcp -se
+
+Delay of Single-qubit gate :     1
+Delay of Double-qubit gate :     1
+Delay of SWAP gate :             3 (3 CXs)
+Delay of Multiple-qubit gate :   5
+
+qsyn> qcset -double 2 -sw 6
+
+qsyn> qcp -se
+
+Delay of Single-qubit gate :     1
+Delay of Double-qubit gate :     2
+Delay of SWAP gate :             6 (3 CXs)
+Delay of Multiple-qubit gate :   5
 
 qsyn> qccr benchmark/benchmark_SABRE/large/cm82a_208.qasm
 
@@ -48,7 +62,7 @@ Prefer Cost:       min
 Never Cache:       true
 Single Immed.:     true
 
-qsyn> duostra
+qsyn> duostra -c
 Routing...
 
 Checking...
@@ -78,7 +92,7 @@ Scheduler:         greedy
 Router:            duostra
 Placer:            dfs
 
-qsyn> duostra
+qsyn> duostra -c
 Routing...
 Greedy scheduler running...
 

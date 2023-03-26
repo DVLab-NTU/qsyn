@@ -7,8 +7,6 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "duostraCmd.h"
-
 #include <cstddef>   // for size_t
 #include <iostream>  // for ostream
 #include <string>    // for string
@@ -23,19 +21,63 @@
 #include "util.h"         // for myStr2Uns
 
 using namespace std;
+using namespace ArgParse;
 extern size_t verbose;
 extern int effLimit;
 extern QCirMgr *qcirMgr;
 extern DeviceMgr *deviceMgr;
 
+unique_ptr<ArgParseCmdType> duostraCmd();
+unique_ptr<ArgParseCmdType> duostraPrintCmd();
+unique_ptr<ArgParseCmdType> duostraSetCmd();
+
 bool initDuostraCmd() {
-    using namespace ArgParse;
+    if (!(cmdMgr->regCmd("DUOSTRA", 7, duostraCmd()) &&
+          cmdMgr->regCmd("DUOSET", 6, duostraSetCmd()) &&
+          cmdMgr->regCmd("DUOPrint", 4, duostraPrintCmd()))) {
+        cerr << "Registering \"Duostra\" commands fails... exiting" << endl;
+        return false;
+    }
+    return true;
+}
 
-    // SECTION - DUOSET
+//------------------------------------------------------------------------------
+//    DUOSTRA
+//------------------------------------------------------------------------------
+unique_ptr<ArgParseCmdType> duostraCmd() {
+    auto duostraCmd = make_unique<ArgParseCmdType>("DUOSTRA");
+    duostraCmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("map logical circuit to physical circuit");
+        parser.addArgument<bool>("-check")
+            .defaultValue(false)
+            .action(storeTrue)
+            .help("check whether the mapping result is correct");
+    };
 
+    duostraCmd->onParseSuccess = [](ArgumentParser const &parser) {
+        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
+        Duostra duo = Duostra(qcirMgr->getQCircuit(), deviceMgr->getDevice(), parser["-check"]);
+        duo.flow();
+        QCir *result = duo.getPhysicalCircuit();
+        if (result != nullptr) {
+            qcirMgr->addQCir(qcirMgr->getNextID());
+            result->setId(qcirMgr->getNextID());
+            qcirMgr->setQCircuit(result);
+        } else {
+            cerr << "Error: Something wrong in Duostra Mapping!!" << endl;
+        }
+        return CMD_EXEC_DONE;
+    };
+    return duostraCmd;
+}
+
+//------------------------------------------------------------------------------
+//    DUOSET  ..... neglect
+//------------------------------------------------------------------------------
+unique_ptr<ArgParseCmdType> duostraSetCmd() {
     auto duostraSetCmd = make_unique<ArgParseCmdType>("DUOSET");
     duostraSetCmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("set Duostra parameter");
+        parser.help("set Duostra parameter(s)");
 
         parser.addArgument<string>("-scheduler")
             .choices({"base", "static", "random", "greedy", "search"})
@@ -53,7 +95,7 @@ bool initDuostraCmd() {
         parser.addArgument<int>("-candidates")
             .help("top k candidates");
 
-        parser.addArgument<int>("-apsp_coeff")
+        parser.addArgument<int>("-apsp-coeff")
             .help("coefficient of apsp cost");
 
         parser.addArgument<string>("-available")
@@ -67,10 +109,10 @@ bool initDuostraCmd() {
         parser.addArgument<int>("-depth")
             .help("depth of searching region");
 
-        parser.addArgument<bool>("-never_cache")
+        parser.addArgument<bool>("-never-cache")
             .help("never cache any children unless children() is called");
 
-        parser.addArgument<bool>("-single_immediately")
+        parser.addArgument<bool>("-single-immediately")
             .help("execute the single gates when they are available");
     };
 
@@ -89,8 +131,8 @@ bool initDuostraCmd() {
             DUOSTRA_CANDIDATES = (size_t)resCand;
         }
 
-        if (parser["-apsp_coeff"].isParsed()) {
-            int resAPSP = parser["-apsp_coeff"];
+        if (parser["-apsp-coeff"].isParsed()) {
+            int resAPSP = parser["-apsp-coeff"];
             DUOSTRA_APSP_COEFF = (size_t)resAPSP;
         }
 
@@ -109,21 +151,28 @@ bool initDuostraCmd() {
             DUOSTRA_DEPTH = (size_t)resDepth;
         }
 
-        if (parser["-never_cache"].isParsed()) {
-            DUOSTRA_NEVER_CACHE = parser["-never_cache"];
+        if (parser["-never-cache"].isParsed()) {
+            DUOSTRA_NEVER_CACHE = parser["-never-cache"];
         }
 
-        if (parser["-single_immediately"].isParsed()) {
-            DUOSTRA_EXECUTE_SINGLE = parser["-single_immediately"];
+        if (parser["-single-immediately"].isParsed()) {
+            DUOSTRA_EXECUTE_SINGLE = parser["-single-immediately"];
         }
 
         return CMD_EXEC_DONE;
     };
+    return duostraSetCmd;
+}
 
+//------------------------------------------------------------------------------
+//    DUOPrint [-detail]
+//------------------------------------------------------------------------------
+unique_ptr<ArgParseCmdType> duostraPrintCmd() {
     // SECTION - DUOPrint
 
     auto duostraPrintCmd = make_unique<ArgParseCmdType>("DUOPrint");
     duostraPrintCmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("print Duostra parameters");
         parser.addArgument<bool>("-detail")
             .defaultValue(false)
             .action(storeTrue)
@@ -150,61 +199,5 @@ bool initDuostraCmd() {
         }
         return CMD_EXEC_DONE;
     };
-
-    if (!(cmdMgr->regCmd("DUOSTRA", 7, make_unique<DuostraCmd>()) &&
-          cmdMgr->regCmd("DUOSET", 6, move(duostraSetCmd)) &&
-          cmdMgr->regCmd("DUOPrint", 4, move(duostraPrintCmd)))) {
-        cerr << "Registering \"Duostra\" commands fails... exiting" << endl;
-        return false;
-    }
-    return true;
+    return duostraPrintCmd;
 }
-
-//------------------------------------------------------------------------------
-//    DUOSTRA
-//------------------------------------------------------------------------------
-CmdExecStatus
-DuostraCmd::exec(const string &option) {
-    if (!CmdExec::lexNoOption(option))
-        return CMD_EXEC_ERROR;
-
-    QC_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
-    Duostra duo = Duostra(qcirMgr->getQCircuit(), deviceMgr->getDevice());
-    duo.flow();
-    QCir *result = duo.getPhysicalCircuit();
-    if (result != nullptr) {
-        qcirMgr->addQCir(qcirMgr->getNextID());
-        result->setId(qcirMgr->getNextID());
-        qcirMgr->setQCircuit(result);
-    } else {
-        cerr << "Error: Something wrong in Duostra Mapping!!" << endl;
-    }
-    return CMD_EXEC_DONE;
-}
-
-void DuostraCmd::usage() const {
-    cout << "Usage: DUOSTRA" << endl;
-}
-
-void DuostraCmd::summary() const {
-    cout << setw(15) << left << "DUOSTRA: "
-         << "map logical circuit to physical circuit" << endl;
-}
-
-// //------------------------------------------------------------------------------
-// //    DUOSET
-// //------------------------------------------------------------------------------
-// CmdExecStatus
-// DuostraSetCmd::exec(const string &option) {
-
-//     return CMD_EXEC_DONE;
-// }
-
-// void DuostraSetCmd::usage() const {
-//     cout << "Usage: DUOSET" << endl;
-// }
-
-// void DuostraSetCmd::summary() const {
-//     cout << setw(15) << left << "DUOSET: "
-//          << "set Duostra parameter" << endl;
-// }

@@ -130,8 +130,9 @@ size_t getPlacerType(string str) {
  *
  * @param cir
  * @param dev
+ * @param check
  */
-Duostra::Duostra(QCir* cir, Device dev) : _logicalCircuit(cir), _physicalCircuit(new QCir(0)), _device(dev) {
+Duostra::Duostra(QCir* cir, Device dev, bool check) : _logicalCircuit(cir), _physicalCircuit(new QCir(0)), _device(dev), _check(check) {
 }
 
 /**
@@ -176,8 +177,10 @@ size_t Duostra::flow() {
     makeDependency();
     unique_ptr<CircuitTopo> topo;
     topo = make_unique<CircuitTopo>(_dependency);
+
     auto checkTopo = topo->clone();
     auto checkDevice(_device);
+
     if (verbose > 3) cout << "Creating device..." << endl;
     if (topo->getNumQubits() > _device.getNQubit()) {
         cerr << "You cannot assign more qubits than the device." << endl;
@@ -201,10 +204,12 @@ size_t Duostra::flow() {
     cout << "Routing..." << endl;
     sched->assignGatesAndSort(move(router));
 
-    Checker checker(*checkTopo, checkDevice, sched->getOperations(), assign);
+    if (_check) {
+        Checker checker(*checkTopo, checkDevice, sched->getOperations(), assign);
 
-    if (!checker.testOperations()) {
-        return ERROR_CODE;
+        if (!checker.testOperations()) {
+            return ERROR_CODE;
+        }
     }
 
     cout << "Duostra Result: " << endl;
