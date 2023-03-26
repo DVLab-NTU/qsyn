@@ -10,30 +10,30 @@
 #define TOPOLOGY_CMD_H
 
 #include "cmdParser.h"
-#include "topologyMgr.h"  // for DeviceTopoMgr
+#include "topologyMgr.h"  // for DeviceMgr
 
-CmdClass(DeviceTopoCheckoutCmd);
-CmdClass(DeviceTopoResetCmd);
-CmdClass(DeviceTopoDeleteCmd);
-CmdClass(DeviceTopoNewCmd);
-CmdClass(DeviceTopoGraphReadCmd);
-CmdClass(DeviceTopoPrintCmd);
-CmdClass(DeviceTopoGraphPrintCmd);
+CmdClass(DeviceCheckoutCmd);
+CmdClass(DeviceResetCmd);
+CmdClass(DeviceDeleteCmd);
+CmdClass(DeviceNewCmd);
+CmdClass(DeviceGraphReadCmd);
+CmdClass(DevicePrintCmd);
+CmdClass(DeviceGraphPrintCmd);
 
-#define DT_CMD_MGR_NOT_EMPTY_OR_RETURN(str)                                                             \
-    {                                                                                                   \
-        if (deviceTopoMgr->getDTListItr() == deviceTopoMgr->getDeviceTopoList().end()) {                \
-            cerr << "Error: DeviceTopo list is empty now. Please DTNEW/DTRead before " << str << ".\n"; \
-            return CMD_EXEC_ERROR;                                                                      \
-        }                                                                                               \
+#define DT_CMD_MGR_NOT_EMPTY_OR_RETURN(str)                                                         \
+    {                                                                                               \
+        if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {                        \
+            cerr << "Error: Device list is empty now. Please DTNEW/DTRead before " << str << ".\n"; \
+            return CMD_EXEC_ERROR;                                                                  \
+        }                                                                                           \
     }
 
-#define DT_CMD_DTOPO_ID_EXISTS_OR_RETURN(id)                               \
-    {                                                                      \
-        if (!(deviceTopoMgr->isID(id))) {                                  \
-            cerr << "Error: DeviceTopo " << (id) << " does not exist!!\n"; \
-            return CMD_EXEC_ERROR;                                         \
-        }                                                                  \
+#define DT_CMD_DTOPO_ID_EXISTS_OR_RETURN(id)                           \
+    {                                                                  \
+        if (!(deviceMgr->isID(id))) {                                  \
+            cerr << "Error: Device " << (id) << " does not exist!!\n"; \
+            return CMD_EXEC_ERROR;                                     \
+        }                                                              \
     }
 
 #define DT_CMD_ID_VALID_OR_RETURN(option, id, str)         \
@@ -44,12 +44,12 @@ CmdClass(DeviceTopoGraphPrintCmd);
         }                                                  \
     }
 
-#define DT_CMD_DTOPO_ID_NOT_EXIST_OR_RETURN(id)                                                                        \
-    {                                                                                                                  \
-        if (deviceTopoMgr->isID(id)) {                                                                                 \
-            cerr << "Error: DeviceTopo " << (id) << " already exists!! Add `-Replace` if you want to overwrite it.\n"; \
-            return CMD_EXEC_ERROR;                                                                                     \
-        }                                                                                                              \
+#define DT_CMD_DTOPO_ID_NOT_EXIST_OR_RETURN(id)                                                                    \
+    {                                                                                                              \
+        if (deviceMgr->isID(id)) {                                                                                 \
+            cerr << "Error: Device " << (id) << " already exists!! Add `-Replace` if you want to overwrite it.\n"; \
+            return CMD_EXEC_ERROR;                                                                                 \
+        }                                                                                                          \
     }
 
 #endif  // TOPOLOGY_CMD_H
