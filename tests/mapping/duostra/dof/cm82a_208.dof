@@ -6,10 +6,10 @@ qccp -a
 duoprint -d
 duoset -depth 2 -si true
 duoprint -d
-duostra
+duostra -c
 qccp -a
 duoset -sc greedy
 duoprint
-duostra
+duostra -c
 qccp -a
 qq -f

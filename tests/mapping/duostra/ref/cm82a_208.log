@@ -48,7 +48,7 @@ Prefer Cost:       min
 Never Cache:       true
 Single Immed.:     true
 
-qsyn> duostra
+qsyn> duostra -c
 Routing...
 
 Checking...
@@ -78,7 +78,7 @@ Scheduler:         greedy
 Router:            duostra
 Placer:            dfs
 
-qsyn> duostra
+qsyn> duostra -c
 Routing...
 Greedy scheduler running...
 
