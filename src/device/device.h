@@ -1,13 +1,13 @@
 /****************************************************************************
-  FileName     [ topology.h ]
-  PackageName  [ topology ]
-  Synopsis     [ Define class DeviceTopo structure ]
+  FileName     [ device.h ]
+  PackageName  [ device ]
+  Synopsis     [ Define class Device, Topology, and Operation structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef TOPOLOGY_H
-#define TOPOLOGY_H
+#ifndef DEVICE_H
+#define DEVICE_H
 
 #include <cstddef>  // for size_t
 #include <string>   // for string
@@ -219,4 +219,4 @@ private:
 
 std::ostream& operator<<(std::ostream&, const Operation&);
 
-#endif  // TOPOLOGY_H
+#endif  // DEVICE_H

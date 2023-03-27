@@ -1,7 +1,7 @@
 *.o
 .vscode
 bin/*
-include/
+include/*
 !vendor/include
 !include/mk
 tests/bin/*

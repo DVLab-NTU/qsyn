@@ -10,13 +10,16 @@
 #define MY_CONCEPTS_H
 
 #include <concepts>
+#include <type_traits>
 
 #include "rationalNumber.h"
 
-template <class T>
+template <typename T>
+concept Arithmetic = std::is_arithmetic_v<T>;
+
+template <typename T>
 concept Unitless = requires(T t) {
-    std::integral<T> == true ||
-        std::floating_point<T> == true ||
-        std::same_as<T, Rational> == true;
+    Arithmetic<T> == true || std::same_as<T, Rational> == true;
 };
+
 #endif  // MY_CONCEPTS_H

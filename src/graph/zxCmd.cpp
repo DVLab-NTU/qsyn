@@ -379,7 +379,7 @@ ZXGPrintCmd::exec(const string &option) {
         if (options.size() == 1)
             zxGraphMgr->getGraph()->printVertices();
         else {
-            vector<unsigned> candidates;
+            vector<size_t> candidates;
             for (size_t i = 1; i < options.size(); i++) {
                 unsigned id;
                 if (myStr2Uns(options[i], id)) candidates.push_back(id);

@@ -14,7 +14,7 @@
 #include <random>
 #include <vector>
 
-#include "topology.h"
+#include "device.h"
 #include "variables.h"
 
 class BasePlacer {

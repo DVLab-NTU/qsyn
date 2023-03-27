@@ -14,8 +14,8 @@
 #include <string>
 
 #include "circuitTopology.h"
+#include "device.h"
 #include "qcir.h"
-#include "topology.h"
 #include "variables.h"
 
 class AStarNode {
