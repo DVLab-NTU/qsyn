@@ -33,7 +33,7 @@ public:
 
     void reset();
     QCir* parseCircuit(bool, bool, size_t);
-    QCir* parseForward();
+    QCir* parseForward(bool reverse);
     bool parseGate(QCirGate*);
 
     void addHadamard(size_t);
@@ -43,6 +43,7 @@ public:
 
     void topologicalSort(QCir*);
     bool isSingleRotateZ(QCirGate*);
+    bool isSingleRotateX(QCirGate*);
     QCirGate* getAvailableRotateZ(size_t t);
 
     // Predicate function
@@ -63,10 +64,13 @@ private:
     ordered_hashset<size_t> _hadamards;
     ordered_hashset<size_t> _xs;  // NOTE - nots
     ordered_hashset<size_t> _zs;
+    std::vector<std::pair<size_t, size_t> > _swaps;
 
     size_t _gateCnt;  // NOTE - gcount
     void toggleElement(size_t type, size_t element);
     void swapElement(size_t type, size_t e1, size_t e2);
+    std::vector<size_t> stats(QCir* circuit);
+    void _addGate2Circuit(QCir* circuit, QCirGate* gate);
 };
 
 #endif

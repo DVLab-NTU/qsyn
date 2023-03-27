@@ -1,11 +1,13 @@
 QCNew
-QCBAdd 4
-qcga -CX 0 1
-qcga -CX 0 1
-qcga -CX 1 2
-qcga -Z 3 
-qcga -s 3
-qcga -s 0
+QCBAdd 1
+qcga -X 0 
+qcga -X 0
+qcga -Z 0 
+qcga -Z 0
+qcga -S 0 
+qcga -S 0
+qccprint -l
 qccprint -q
 optimize
-qccprint -q
+qccprint -l
+qq -f
