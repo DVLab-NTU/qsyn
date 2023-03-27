@@ -39,7 +39,7 @@ public:
     void addHadamard(size_t);
     void addCZ(size_t, size_t);
     void addCX(size_t, size_t);
-    void addGate(size_t, Phase, size_t);
+    QCirGate* addGate(size_t, Phase, size_t);
 
     void topologicalSort(QCir*);
     bool isSingleRotateZ(QCirGate*);

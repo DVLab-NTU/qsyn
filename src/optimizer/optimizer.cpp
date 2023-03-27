@@ -165,7 +165,9 @@ QCir* Optimizer::parseForward(bool reverse=false) {
         addHadamard(t);
     }
     for (auto& t : _zs) {
-        addGate(t, Phase(0), 0);
+        cout << "Into zs" << endl;
+        QCirGate* zgate = addGate(t, Phase(0), 0);
+        _gates[t].emplace_back(zgate);
     }
     QCir* tmp = new QCir(-1);
     // NOTE - Below function will add the gate to tmp -
@@ -192,10 +194,6 @@ QCir* Optimizer::parseForward(bool reverse=false) {
         _corrections.emplace_back(cnot_1);
         _corrections.emplace_back(cnot_2);
         _corrections.emplace_back(cnot_3);
-        cout << "Add swaps" << endl;
-        cnot_1->printGate();
-        cnot_2->printGate();
-        cnot_3->printGate();
         
     }
 
@@ -271,25 +269,36 @@ bool Optimizer::parseGate(QCirGate* gate) {
         toggleElement(1, target);
     } else if (isSingleRotateZ(gate)) {
         cout << "issingleZ" << endl;
+        cout << "Target: " << target << endl;
         if (_zs.contains(target)) {
+            cout << "Into z1 loop" << endl;
             gate->setRotatePhase(gate->getPhase() + Phase(1));
             _zs.erase(target);
         }
-        if (gate->getPhase() == Phase(0))
+        if (gate->getPhase() == Phase(0) && gate->getType() == GateType::RZ){
+            cout << "Into z2 loop" << endl;
             return true;
+        }
+            
         if (_xs.contains(target)) {
+            cout << "Into z3 loop" << endl;
             gate->setRotatePhase(-1 * (gate->getPhase()));
         }
-        if (gate->getPhase() == Phase(1)) {
+        if (gate->getPhase() == Phase(1) || gate->getType() == GateType::Z) {
+            cout << "Into z4 loop" << endl;
             toggleElement(2, target);
+            cout << "Zs size: " << _zs.size() << endl;
+            cout << "target exist: " << _zs.contains(target)<< endl;
             return true;
         }
         // REVIEW - Neglect adjoint due to S and Sdg is separated
         if (_hadamards.contains(target)) {
+            cout << "Into z6 loop" << endl;
             addHadamard(target);
         }
         QCirGate* available = getAvailableRotateZ(target);
         if (_availty[target] == 1 && available != nullptr) {
+            cout << "Into z7 loop" << endl;
             _available[target].erase(remove(_available[target].begin(), _available[target].end(), available), _available[target].end());
             _gates[target].erase(remove(_gates[target].begin(), _gates[target].end(), available), _gates[target].end());
             Phase ph = available->getPhase() + gate->getPhase();
@@ -301,6 +310,7 @@ bool Optimizer::parseGate(QCirGate* gate) {
                 addGate(target, ph, 0);
             }
         } else {
+            cout << "Into z6 else loop" << endl;
             if (_availty[target] == 2) {
                 _availty[target] = 1;
                 _available[target].clear();
@@ -684,7 +694,7 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
  * @param ph Phase of the gate
  * @param type 0: Z-axis, 1: X-axis, 2: Y-axis
  */
-void Optimizer::addGate(size_t target, Phase ph, size_t type) {
+QCirGate* Optimizer::addGate(size_t target, Phase ph, size_t type) {
     QCirGate* rotate = nullptr;
     if (type == 0) {
         rotate = new PGate(_gateCnt);
@@ -694,13 +704,14 @@ void Optimizer::addGate(size_t target, Phase ph, size_t type) {
         rotate = new PYGate(_gateCnt);
     } else {
         cerr << "Error: wrong type!! Type shoud be 0, 1, or 2";
-        return;
+        return nullptr;
     }
     rotate->setRotatePhase(ph);
     rotate->addQubit(target, true);
     _gates[target].emplace_back(rotate);
     _available[target].emplace_back(rotate);
     _gateCnt++;
+    return rotate;
 }
 
 /**
@@ -727,6 +738,27 @@ void Optimizer::topologicalSort(QCir* circuit) {
     ordered_hashset<size_t> available_id;
     circuit->addQubit(_circuit->getNQubit());
     cout << "start topo sort" << endl;
+    for (size_t i = 0; i < _gates.size(); i++)
+    {
+        cout << "_gates["<<i<<"]" << endl;
+        for (size_t j = 0; j < _gates[i].size(); j++)
+        {
+            _gates[i][j]->printGate();
+        }
+    }
+    for (size_t i = 0; i < _available.size(); i++)
+    {
+        cout << "_available["<<i<<"]" << endl;
+        for (size_t j = 0; j < _available[i].size(); j++)
+        {
+            _available[i][j]->printGate();
+        }
+    }
+    for (size_t i = 0; i < _availty.size(); i++)
+    {
+        cout << "_availty["<<i<<"]: "<<_availty[i]<<"  ";
+    }
+    cout << endl;
     int count = 0;
     while(any_of(_gates.begin(), _gates.end(), [](auto& p_g){return p_g.second.size();})){
         cout << "In to while: " << count << endl;
@@ -739,6 +771,7 @@ void Optimizer::topologicalSort(QCir* circuit) {
                 if(g->getType() != GateType::CX && g->getType() != GateType::CZ){
                     cout << "case I" << endl;
                     Optimizer::_addGate2Circuit(circuit, g);
+                    gs.erase(gs.begin());
                 }else if(available_id.contains(g->getId())){
                     cout << "case II" << endl;
                     available_id.erase(g->getId());
