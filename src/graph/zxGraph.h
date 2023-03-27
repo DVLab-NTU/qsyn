@@ -189,7 +189,7 @@ public:
     void printOutputs() const;
     void printIO() const;
     void printVertices() const;
-    void printVertices(std::vector<unsigned> cand) const;
+    void printVertices(std::vector<size_t> cand) const;
     void printQubits(std::vector<int> cand = {}) const;
     void printEdges() const;
     void draw() const;

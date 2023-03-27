@@ -187,7 +187,7 @@ bool Phase::myStrValid(const std::string& str, Phase& p) {
                 denominator *= bufferInt;
             else
                 numerator *= bufferInt;
-        } else if (myStr2FloatType<T>(numberStrings[i], bufferFloat)) {
+        } else if (myStr2Number<T>(numberStrings[i], bufferFloat)) {
             if (doDivision)
                 tempFloat /= bufferFloat;
             else

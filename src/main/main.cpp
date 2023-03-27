@@ -31,7 +31,8 @@ extern bool initZXCmd();
 extern bool initSimpCmd();
 extern bool initTensorCmd();
 extern bool initExtractCmd();
-extern bool initDeviceTopoCmd();
+extern bool initDeviceCmd();
+extern bool initDuostraCmd();
 extern bool initM2Cmd();
 extern bool initGFlowCmd();
 extern bool initLTCmd();
@@ -54,8 +55,6 @@ myexit() {
 int main(int argc, char** argv) {
     myUsage.reset();
 
-    ifstream dof;
-
     if (argc == 3) {  // -file <doFile>
         if (myStrNCmp("-File", argv[1], 2) == 0) {
             if (!cmdMgr->openDofile(argv[2])) {
@@ -71,7 +70,7 @@ int main(int argc, char** argv) {
         myexit();
     }
 
-    cout << "DV Lab, NTUEE, Qsyn 0.4.0" << endl;
+    cout << "DV Lab, NTUEE, Qsyn 0.4.1" << endl;
 
     if (
         !initArgParserCmd() ||
@@ -83,7 +82,8 @@ int main(int argc, char** argv) {
         !initTensorCmd() ||
         // !initM2Cmd() ||
         !initExtractCmd() ||
-        !initDeviceTopoCmd() ||
+        !initDeviceCmd() ||
+        !initDuostraCmd() ||
         !initGFlowCmd() ||
         !initLTCmd()) {
         return 1;

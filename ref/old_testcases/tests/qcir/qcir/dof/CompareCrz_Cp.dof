@@ -1,4 +1,4 @@
-color 0
+color off
 qcba 2
 qcgadd -mcp -phase pi/2 0 1 
 qcgp 0 -t

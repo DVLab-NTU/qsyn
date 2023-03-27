@@ -5,8 +5,6 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include "cmdCommon.h"
-
 #include <stdlib.h>  // for srand
 
 #include <cstddef>
@@ -14,6 +12,8 @@
 #include <iostream>
 #include <string>
 
+#include "apCmd.h"
+#include "cmdParser.h"
 #include "myUsage.h"
 #include "util.h"
 
@@ -22,281 +22,234 @@ extern size_t verbose;
 extern size_t colorLevel;
 extern MyUsage myUsage;
 
+using namespace ArgParse;
+
+unique_ptr<ArgParseCmdType> helpCmd();
+unique_ptr<ArgParseCmdType> quitCmd();
+unique_ptr<ArgParseCmdType> dofileCmd();
+unique_ptr<ArgParseCmdType> usageCmd();
+unique_ptr<ArgParseCmdType> verboseCmd();
+unique_ptr<ArgParseCmdType> seedCmd();
+unique_ptr<ArgParseCmdType> colorCmd();
+unique_ptr<ArgParseCmdType> historyCmd();
+
 bool initCommonCmd() {
-    if (!(cmdMgr->regCmd("QQuit", 2, make_unique<QuitCmd>()) &&
-          cmdMgr->regCmd("HIStory", 3, make_unique<HistoryCmd>()) &&
-          cmdMgr->regCmd("HELp", 3, make_unique<HelpCmd>()) &&
-          cmdMgr->regCmd("DOfile", 2, make_unique<DofileCmd>()) &&
-          cmdMgr->regCmd("USAGE", 5, make_unique<UsageCmd>()) &&
-          cmdMgr->regCmd("VERbose", 3, make_unique<VerboseCmd>()) &&
-          cmdMgr->regCmd("SEED", 4, make_unique<SeedCmd>()) &&
-          cmdMgr->regCmd("COLOR", 5, make_unique<ColorCmd>()))) {
+    if (!(cmdMgr->regCmd("QQuit", 2, quitCmd()) &&
+          cmdMgr->regCmd("HIStory", 3, historyCmd()) &&
+          cmdMgr->regCmd("HELp", 3, helpCmd()) &&
+          cmdMgr->regCmd("DOfile", 2, dofileCmd()) &&
+          cmdMgr->regCmd("USAGE", 5, usageCmd()) &&
+          cmdMgr->regCmd("VERbose", 3, verboseCmd()) &&
+          cmdMgr->regCmd("SEED", 4, seedCmd()) &&
+          cmdMgr->regCmd("COLOR", 5, colorCmd()))) {
         cerr << "Registering \"init\" commands fails... exiting" << endl;
         return false;
     }
     return true;
 }
 
-//----------------------------------------------------------------------
-//    HELp [(string cmd)]
-//----------------------------------------------------------------------
-CmdExecStatus
-HelpCmd::exec(const string& option) {
-    // check option
-    string token;
-    if (!CmdExec::lexSingleOption(option, token))
-        return CMD_EXEC_ERROR;
-    if (token.size()) {
-        CmdExec* e = cmdMgr->getCmd(token);
-        if (!e) return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-        e->help();
-    } else
-        cmdMgr->printHelps();
-    return CMD_EXEC_DONE;
-}
+unique_ptr<ArgParseCmdType> helpCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("HELp");
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("shows helping message to commands");
 
-void HelpCmd::usage() const {
-    cout << "Usage: HELp [(string cmd)]" << endl;
-}
+        parser.addArgument<string>("command")
+            .defaultValue("")
+            .required(false)
+            .help("if specified, display help message to a command");
+    };
 
-void HelpCmd::summary() const {
-    cout << setw(15) << left << "HELp: "
-         << "print this help message" << endl;
-}
-
-//----------------------------------------------------------------------
-//    QQuit [-Force]
-//----------------------------------------------------------------------
-CmdExecStatus
-QuitCmd::exec(const string& option) {
-    // check option
-    string token;
-    if (!CmdExec::lexSingleOption(option, token))
-        return CMD_EXEC_ERROR;
-    if (token.size()) {
-        if (myStrNCmp("-Forced", token, 2) != 0)
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-        else
-            return CMD_EXEC_QUIT;  // ready to quit
-    }
-
-    cout << "Are you sure to quit (Yes/No)? [No] ";
-    char str[1024];
-    cin.getline(str, 1024);
-    string ss = string(str);
-    size_t s = ss.find_first_not_of(' ', 0);
-    if (s != string::npos) {
-        ss = ss.substr(s);
-        if (myStrNCmp("Yes", ss, 1) == 0)
-            return CMD_EXEC_QUIT;  // ready to quit
-    }
-    return CMD_EXEC_DONE;          // not yet to quit
-}
-
-void QuitCmd::usage() const {
-    cout << "Usage: QQuit [-Force]" << endl;
-}
-
-void QuitCmd::summary() const {
-    cout << setw(15) << left << "QQuit: "
-         << "quit Qsyn" << endl;
-}
-
-//----------------------------------------------------------------------
-//    HIStory [(int nPrint)]
-//----------------------------------------------------------------------
-CmdExecStatus
-HistoryCmd::exec(const string& option) {
-    // check option
-    string token;
-    if (!CmdExec::lexSingleOption(option, token))
-        return CMD_EXEC_ERROR;
-    int nPrint = -1;
-    if (token.size()) {
-        if (!myStr2Int(token, nPrint))
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    }
-
-    cmdMgr->printHistory(nPrint);
-
-    return CMD_EXEC_DONE;
-}
-
-void HistoryCmd::usage() const {
-    cout << "Usage: HIStory [(int nPrint)]" << endl;
-}
-
-void HistoryCmd::summary() const {
-    cout << setw(15) << left << "HIStory: "
-         << "print command history" << endl;
-}
-
-//----------------------------------------------------------------------
-//    DOfile <(string file)>
-//----------------------------------------------------------------------
-
-CmdExecStatus
-DofileCmd::exec(const string& option) {
-    // check option
-    string token;
-    if (!CmdExec::lexSingleOption(option, token, false))
-        return CMD_EXEC_ERROR;
-    if (!cmdMgr->openDofile(token))
-        return CmdExec::errorOption(CMD_OPT_FOPEN_FAIL, token);
-    return CMD_EXEC_DONE;
-}
-
-void DofileCmd::usage() const {
-    cout << "Usage: DOfile <(string file)>" << endl;
-}
-
-void DofileCmd::summary() const {
-    cout << setw(15) << left << "DOfile: "
-         << "execute the commands in the dofile" << endl;
-}
-
-//----------------------------------------------------------------------
-//    USAGE [-All | -Time | -Memory]
-//----------------------------------------------------------------------
-CmdExecStatus
-UsageCmd::exec(const string& option) {
-    // check option
-    vector<string> options;
-    CmdExec::lexOptions(option, options);
-
-    bool repTime = false, repMem = false, repAll = false;
-    size_t n = options.size();
-    if (n == 0)
-        repAll = true;
-    else {
-        for (size_t i = 0; i < n; ++i) {
-            const string& token = options[i];
-            if (myStrNCmp("-All", token, 2) == 0) {
-                if (repTime | repMem | repAll)
-                    return CmdExec::errorOption(CMD_OPT_EXTRA, token);
-                repAll = true;
-            } else if (myStrNCmp("-Time", token, 2) == 0) {
-                if (repTime | repMem | repAll)
-                    return CmdExec::errorOption(CMD_OPT_EXTRA, token);
-                repTime = true;
-            } else if (myStrNCmp("-Memory", token, 2) == 0) {
-                if (repTime | repMem | repAll)
-                    return CmdExec::errorOption(CMD_OPT_EXTRA, token);
-                repMem = true;
-            } else
-                return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        string command = parser["command"];
+        if (command.empty()) {
+            cmdMgr->printHelps();
+        } else {
+            CmdExec* e = cmdMgr->getCmd(parser["command"]);
+            if (!e) return CmdExec::errorOption(CMD_OPT_ILLEGAL, parser["command"]);
+            e->help();
         }
-    }
+        return CMD_EXEC_DONE;
+    };
 
-    if (repAll) repTime = repMem = true;
-
-    myUsage.report(repTime, repMem);
-
-    return CMD_EXEC_DONE;
+    return cmd;
 }
 
-void UsageCmd::usage() const {
-    cout << "Usage: USAGE [-All | -Time | -Memory]" << endl;
-}
+unique_ptr<ArgParseCmdType> quitCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("QQuit");
 
-void UsageCmd::summary() const {
-    cout << setw(15) << left << "USAGE: "
-         << "report the runtime and/or memory usage" << endl;
-}
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("quit Qsyn");
 
-//----------------------------------------------------------------------
-//    VERbose <size_t verbose level>
-//----------------------------------------------------------------------
-CmdExecStatus
-VerboseCmd::exec(const string& option) {
-    // check option
-    string token;
-    if (!CmdExec::lexSingleOption(option, token, false))
-        return CMD_EXEC_ERROR;
-    unsigned level;
-    if (!myStr2Uns(token, level)) {
-        cerr << "Error: verbose level should be a positive integer or 0!!" << endl;
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    }
-    if (level > 9 && level != 353) {
-        cerr << "Error: verbose level should be 0-9 !!" << endl;
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    }
-    cout << "Note: verbose level is set to " << level << endl;
-    verbose = level;
-    return CMD_EXEC_DONE;
-}
+        parser.addArgument<bool>("-force")
+            .action(storeTrue)
+            .help("quit without reaffirming");
+    };
 
-void VerboseCmd::usage() const {
-    cout << "Usage: VERbose <size_t verbose level>" << endl;
-}
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        bool forced = parser["-force"];
+        if (forced) return CMD_EXEC_QUIT;
 
-void VerboseCmd::summary() const {
-    cout << setw(15) << left << "VERbose: "
-         << "set verbose level to 0-9 (default: 3)" << endl;
-}
-
-//----------------------------------------------------------------------
-//    SEED [size_t seed]
-//----------------------------------------------------------------------
-CmdExecStatus
-SeedCmd::exec(const string& option) {
-    // check option
-    string token;
-    if (option.size() == 0) {
-        srand(353);
-        cerr << "Note: seed is set to 353" << endl;
-    } else {
-        if (!CmdExec::lexSingleOption(option, token, false))
-            return CMD_EXEC_ERROR;
-        int seed;
-        if (!myStr2Int(token, seed)) {
-            cerr << "Error: Seed should be an integer!!" << endl;
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+        cout << "Are you sure to quit (Yes/No)? [No] ";
+        char str[1024];
+        cin.getline(str, 1024);
+        string ss = string(str);
+        size_t s = ss.find_first_not_of(' ', 0);
+        if (s != string::npos) {
+            ss = ss.substr(s);
+            if (myStrNCmp("Yes", ss, 1) == 0)
+                return CMD_EXEC_QUIT;  // ready to quit
         }
-        srand(seed);
-        cerr << "Note: seed is set to " << seed << endl;
-    }
-    return CMD_EXEC_DONE;
+        return CMD_EXEC_DONE;          // not yet to quit
+    };
+
+    return cmd;
 }
 
-void SeedCmd::usage() const {
-    cout << "Usage: SEED [size_t seed]" << endl;
+unique_ptr<ArgParseCmdType> historyCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("HIStory");
+
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("print command history");
+        parser.addArgument<size_t>("nPrint")
+            .required(false)
+            .help("if specified, print the <nprint> latest command history");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        if (parser["nPrint"].isParsed()) {
+            cmdMgr->printHistory(parser["nPrint"]);
+        } else {
+            cmdMgr->printHistory();
+        }
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
 }
 
-void SeedCmd::summary() const {
-    cout << setw(15) << left << "SEED: "
-         << "fix the seed" << endl;
+unique_ptr<ArgParseCmdType> dofileCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("DOfile");
+
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("execute the commands in the dofile");
+
+        parser.addArgument<string>("file")
+            .help("path to a dofile, i.e., a list of Qsyn commands");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        return cmdMgr->openDofile(parser["file"])
+                   ? CMD_EXEC_DONE
+                   : CmdExec::errorOption(CMD_OPT_FOPEN_FAIL, parser["file"]);
+    };
+
+    return cmd;
 }
 
-//----------------------------------------------------------------------
-//    COLOR <size_t color level>
-//----------------------------------------------------------------------
-CmdExecStatus
-ColorCmd::exec(const string& option) {
-    // check option
-    string token;
-    if (!CmdExec::lexSingleOption(option, token, false))
-        return CMD_EXEC_ERROR;
-    unsigned level;
-    if (!myStr2Uns(token, level)) {
-        cerr << "Error: colored should be a positive integer or 0!!" << endl;
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    }
-    if (level > 1) {
-        cerr << "Error: colored should be 0-1 !!" << endl;
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    }
-    cout << "Note: colored is set to " << level << endl;
-    colorLevel = level;
-    return CMD_EXEC_DONE;
+unique_ptr<ArgParseCmdType> usageCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("USAGE");
+
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("report the runtime and/or memory usage");
+
+        auto mutex = parser.addMutuallyExclusiveGroup();
+
+        mutex.addArgument<bool>("-all")
+            .action(storeTrue)
+            .help("print both time and memory usage");
+        mutex.addArgument<bool>("-time")
+            .action(storeTrue)
+            .help("print time usage");
+        mutex.addArgument<bool>("-memory")
+            .action(storeTrue)
+            .help("print memory usage");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        bool repAll = parser["-all"];
+        bool repTime = parser["-time"];
+        bool repMem = parser["-memory"];
+
+        if (!repAll && !repTime && !repMem) repAll = true;
+
+        if (repAll) repTime = true, repMem = true;
+
+        myUsage.report(repTime, repMem);
+
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
 }
 
-void ColorCmd::usage() const {
-    cout << "Usage: COLOR <bool colored>" << endl;
+unique_ptr<ArgParseCmdType> verboseCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("VERbose");
+
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("set verbose level to 0-9 (default: 3)");
+
+        parser.addArgument<size_t>("level")
+            .constraint({[](ArgType<size_t> const& arg) {
+                             return [&arg]() {
+                                 return arg.getValue() <= 9 || arg.getValue() == 353;
+                             };
+                         },
+                         [](ArgType<size_t> const& arg) {
+                             return [&arg]() {
+                                 cerr << "Error: verbose level should be 0-9!!\n";
+                             };
+                         }})
+            .help("0: silent, 1-3: normal usage, 4-6: detailed info, 7-9: prolix debug info");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        verbose = parser["level"];
+        cout << "Note: verbose level is set to " << parser["level"] << endl;
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
 }
 
-void ColorCmd::summary() const {
-    cout << setw(15) << left << "COLOR: "
-         << "toggle colored printing (1: on, 0: off)" << endl;
+unique_ptr<ArgParseCmdType> seedCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("SEED");
+
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("set the random seed");
+
+        parser.addArgument<unsigned>("seed")
+            .defaultValue(353)
+            .required(false)
+            .help("random seed value");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        srand(parser["seed"]);
+        cout << "Note: seed is set to " << parser["seed"] << endl;
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
 }
+
+unique_ptr<ArgParseCmdType> colorCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("COLOR");
+
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("toggle colored printing");
+
+        parser.addArgument<string>("mode")
+            .choices({"on", "off"})
+            .help("on: colored printing, off: pure-ascii printing");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        string mode = parser["mode"];
+        colorLevel = (mode == "on") ? 1 : 0;
+        cout << "Note: color mode is set to " << mode << endl;
+
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
+};
