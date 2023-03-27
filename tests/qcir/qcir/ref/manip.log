@@ -90,7 +90,7 @@ Q 2  -------------------------cx( 1)-- t( 3)--cx( 4)--cx( 7)-
 Q 3  -cx( 2)-- x( 5)-- t( 6)--------------------------cx( 7)-
 
 qsyn> qccp -ZX
-Error: Illegal option!! (-ZX)
+Error: unrecognized option "-ZX"!!
 
 qsyn> qcr
 
@@ -182,7 +182,6 @@ qsyn> qcga -tdg 6
 
 qsyn> qcbd 6
 Error: id 6 is not an empty qubit!!
-Error: Illegal option!! (6)
 
 qsyn> qcbd 7
 
@@ -219,8 +218,7 @@ Execute at t= 16
 qsyn> qcgd 24
 
 qsyn> qcgp 24
-Error: id 24 not found!!
-Error: Illegal option!! (24)
+Error: Gate id 24 does not exist!!
 
 qsyn> qcgp 26
         ┌─────┐ 
@@ -17535,7 +17533,6 @@ Q 6  ---------------------------------------------------------------------------
 
 qsyn> qcbd 6
 Error: id 6 is not an empty qubit!!
-Error: Illegal option!! (6)
 
 qsyn> qcbd 5
 
