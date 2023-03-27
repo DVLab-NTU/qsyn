@@ -36,7 +36,7 @@ class ZXGraph;
 // │  ╌╌╌╌╌╌   ╌╌╌╌╌╌    ╌╌╌╌╌╌   ╌╌╌╌╌╌     ╌╌╌╌╌╌   ╌╌╌╌╌╌                │
 // │  CCZ (2)            CCX (2)             (CCY)                          │
 // │  CZ  (1)            CX  (1)             (CY)                           │
-// │  P        RZ        PX       RX         (PY)     (RY)                  │
+// │  P        RZ        PX       RX         PY       RY                    │
 // │  Z                  X                   Y                              │
 // │  S, SDG             SX                  SY                             │
 // │  T, TDG             SWAP                                               │
@@ -152,7 +152,12 @@ public:
     Phase getPhase() const { return _rotatePhase; }
     const std::vector<BitInfo>& getQubits() const { return _qubits; }
     const BitInfo getQubit(size_t qubit) const;
+<<<<<<< HEAD
     size_t getNQubit() { return _qubits.size(); }
+=======
+    const BitInfo getTarget() const { return _qubits[_qubits.size() - 1]; }
+    const BitInfo getControl() const { return _qubits[0]; }
+>>>>>>> feature_addCX
 
     void setId(size_t id) { _id = id; }
     void setTime(size_t time) { _time = time; }
@@ -160,7 +165,8 @@ public:
     void setParent(size_t qubit, QCirGate* p);
 
     void addQubit(size_t qubit, bool isTarget);
-
+    void setTargetBit(size_t qubit);
+    void setControlBit(size_t qubit) {}
     // DFS
     bool isVisited(unsigned global) { return global == _DFSCounter; }
     void setVisited(unsigned global) { _DFSCounter = global; }
@@ -351,6 +357,9 @@ public:
     virtual ZXGraph* getZXform();
     virtual QTensor<double> getTSform() const { return QTensor<double>::control(QTensor<double>::zgate(), 1); }
     virtual void printGateInfo(bool st) const { printMultipleQubitsGate("Z", false, st); }
+
+    const BitInfo getControl() const { return _qubits[0]; }
+    void setControlBit(size_t q) { _qubits[0]._qubit = q; }
 };
 
 class PGate : public MCPGate {
@@ -458,6 +467,9 @@ public:
     virtual ZXGraph* getZXform();
     virtual QTensor<double> getTSform() const { return QTensor<double>::control(QTensor<double>::xgate(), 1); }
     virtual void printGateInfo(bool st) const { printMultipleQubitsGate("X", false, st); }
+
+    const BitInfo getControl() const { return _qubits[0]; }
+    void setControlBit(size_t q) { _qubits[0]._qubit = q; }
 };
 
 class SWAPGate : public MCPXGate {
@@ -534,6 +546,17 @@ public:
     virtual void printGateInfo(bool st) const { printSingleQubitGate("Y", st); }
 };
 
+class PYGate : public MCPYGate {
+public:
+    PYGate(size_t id) : MCPYGate(id) {}
+    virtual ~PYGate() {}
+    virtual std::string getTypeStr() const { return "py"; }
+    virtual GateType getType() const { return GateType::PY; }
+
+    virtual QTensor<double> getTSform() const { return QTensor<double>::pygate(_rotatePhase); }
+    virtual void printGateInfo(bool st) const { printSingleQubitGate("PY", st); }
+};
+
 class SYGate : public MCPYGate {
 public:
     SYGate(size_t id) : MCPYGate(id, Phase(1, 2)) {}
@@ -548,5 +571,16 @@ public:
 //----------------------------------------------------------------------
 //    Children class of MCRY
 //----------------------------------------------------------------------
+
+class RYGate : public MCRYGate {
+public:
+    RYGate(size_t id) : MCRYGate(id) {}
+    virtual ~RYGate() {}
+    virtual std::string getTypeStr() const { return "ry"; }
+    virtual GateType getType() const { return GateType::RY; }
+
+    virtual QTensor<double> getTSform() const { return QTensor<double>::rygate(_rotatePhase); }
+    virtual void printGateInfo(bool st) const { printSingleQubitGate("RY", st); }
+};
 
 #endif  // QCIR_GATE_H

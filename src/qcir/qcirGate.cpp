@@ -53,7 +53,7 @@ const BitInfo QCirGate::getQubit(size_t qubit) const {
 }
 
 /**
- * @brief Adc qubit to a gate
+ * @brief Add qubit to a gate
  *
  * @param qubit
  * @param isTarget
@@ -61,6 +61,15 @@ const BitInfo QCirGate::getQubit(size_t qubit) const {
 void QCirGate::addQubit(size_t qubit, bool isTarget) {
     BitInfo temp = {._qubit = qubit, ._parent = NULL, ._child = NULL, ._isTarget = isTarget};
     _qubits.push_back(temp);
+}
+
+/**
+ * @brief Set the bit of target
+ *
+ * @param qubit
+ */
+void QCirGate::setTargetBit(size_t qubit) {
+    _qubits[_qubits.size() - 1]._qubit = qubit;
 }
 
 /**
