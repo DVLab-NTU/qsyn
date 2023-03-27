@@ -269,7 +269,6 @@ bool Optimizer::parseGate(QCirGate* gate) {
         toggleElement(1, target);
     } else if (isSingleRotateZ(gate)) {
         cout << "issingleZ" << endl;
-        cout << "Target: " << target << endl;
         if (_zs.contains(target)) {
             cout << "Into z1 loop" << endl;
             gate->setRotatePhase(gate->getPhase() + Phase(1));
@@ -287,8 +286,6 @@ bool Optimizer::parseGate(QCirGate* gate) {
         if (gate->getPhase() == Phase(1) || gate->getType() == GateType::Z) {
             cout << "Into z4 loop" << endl;
             toggleElement(2, target);
-            cout << "Zs size: " << _zs.size() << endl;
-            cout << "target exist: " << _zs.contains(target)<< endl;
             return true;
         }
         // REVIEW - Neglect adjoint due to S and Sdg is separated

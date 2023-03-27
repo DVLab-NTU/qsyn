@@ -152,12 +152,9 @@ public:
     Phase getPhase() const { return _rotatePhase; }
     const std::vector<BitInfo>& getQubits() const { return _qubits; }
     const BitInfo getQubit(size_t qubit) const;
-<<<<<<< HEAD
     size_t getNQubit() { return _qubits.size(); }
-=======
     const BitInfo getTarget() const { return _qubits[_qubits.size() - 1]; }
     const BitInfo getControl() const { return _qubits[0]; }
->>>>>>> feature_addCX
 
     void setId(size_t id) { _id = id; }
     void setTime(size_t time) { _time = time; }
