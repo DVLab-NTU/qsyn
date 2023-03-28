@@ -183,8 +183,8 @@ size_t Duostra::flow() {
 
     if (verbose > 3) cout << "Creating device..." << endl;
     if (topo->getNumQubits() > _device.getNQubit()) {
-        cerr << "You cannot assign more qubits than the device." << endl;
-        abort();
+        cerr << "Error: number of logical qubits are larger than the device!!" << endl;
+        return ERROR_CODE;
     }
 
     if (verbose > 3) cout << "Initial placing..." << endl;
