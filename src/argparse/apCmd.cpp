@@ -20,15 +20,24 @@
 #include "util.h"
 
 using namespace std;
+using namespace ArgParse;
 
 // init
 
+unique_ptr<ArgParseCmdType> argparseCmd();
+
 bool initArgParserCmd() {
-    using namespace ArgParse;
+    if (!(cmdMgr->regCmd("Argparse", 1, argparseCmd()))) {
+        cerr << "Registering \"argparser\" commands fails... exiting" << endl;
+        return false;
+    }
+    return true;
+}
 
-    auto argparseCmd = make_unique<ArgParseCmdType>("Argparse");  // argparse package sandbox
+unique_ptr<ArgParseCmdType> argparseCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("Argparse");
 
-    argparseCmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("ArgParse package sandbox");
 
         parser.addArgument<string>("cat")
@@ -49,30 +58,15 @@ bool initArgParserCmd() {
             .help("public transport");
     };
 
-    argparseCmd->onParseSuccess = [](ArgumentParser const& parser) {
-        cout << "Here's my cat, its name is " << parser["cat"] << endl;
-        cout << parser["cat"] << " has a dog friend, " << parser["dog"] << ".\n"
-             << endl;
-
-        [[maybe_unused]] auto add = [](unsigned a, int b) {
-            return a + b;
-        };
-
-        [[maybe_unused]] auto multiply = [](int a, int b) {
-            return a * b;
-        };
-
-        // cout << "another + answer = " << add(parser["-another"], parser["-answer"]) << endl;
-        // cout << "another * answer = " << multiply(parser["-another"], parser["-answer"]) << endl;
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        parser.printTokens();
+        parser.printArguments();
 
         return CMD_EXEC_DONE;
     };
 
-    if (!(cmdMgr->regCmd("Argparse", 1, std::move(argparseCmd)))) {
-        cerr << "Registering \"argparser\" commands fails... exiting" << endl;
-        return false;
-    }
-    return true;
+    return cmd;
+
 }
 // -------------------------------------------------
 //     generic definition for ArgParseCmdType
@@ -104,6 +98,9 @@ bool ArgParseCmdType::initialize() {
  * @return false if failed
  */
 CmdExecStatus ArgParseCmdType::exec(const std::string& option) {
+    if (precondition && !precondition()) {
+        return CMD_EXEC_ERROR;
+    }
     if (!_parser.parse(option)) {
         return CMD_EXEC_ERROR;
     }
