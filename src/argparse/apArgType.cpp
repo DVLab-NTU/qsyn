@@ -51,7 +51,7 @@ bool parseFromString(std::string& val, std::string const& token) {
     return true;
 }
 
-}  // namespace detail
+}  // namespace ArgTypeDescription
 
 /**
  * @brief generate a callback that sets the argument to true.

@@ -150,7 +150,6 @@ void ArgumentParser::printSummary() const {
  *
  */
 void ArgumentParser::printHelp() const {
-
     printUsage();
     if (getHelp().size()) {
         cout << TF::LIGHT_BLUE("\nDescription:\n  ") << getHelp() << endl;
@@ -236,14 +235,15 @@ void ArgumentParser::printHelpString(Argument const& arg) const {
 
     if (hasOptionPrefix(arg)) {
         _tabl << styledArgName(arg);
-        if (arg.hasAction()) _tabl << Tabler::Skip{};
-        else _tabl << metavarStyle(arg.getMetavar());
+        if (arg.hasAction())
+            _tabl << Tabler::Skip{};
+        else
+            _tabl << metavarStyle(arg.getMetavar());
     } else {
         _tabl << metavarStyle(arg.getMetavar()) << Tabler::Skip{};
     }
 
     _tabl << arg.getHelp();
-    
 }
 
 /**

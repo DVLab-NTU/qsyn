@@ -52,9 +52,9 @@ Tabler& Tabler::numCols(size_t n) {
 
 /**
  * @brief set the indent of the table
- * 
- * @param n 
- * @return Tabler& 
+ *
+ * @param n
+ * @return Tabler&
  */
 Tabler& Tabler::indent(unsigned n) {
     _attrs.indent = n;
@@ -63,9 +63,9 @@ Tabler& Tabler::indent(unsigned n) {
 
 /**
  * @brief set the left margin of each cell
- * 
- * @param n 
- * @return Tabler& 
+ *
+ * @param n
+ * @return Tabler&
  */
 Tabler& Tabler::leftMargin(unsigned n) {
     _attrs.leftMargin = n;
@@ -74,9 +74,9 @@ Tabler& Tabler::leftMargin(unsigned n) {
 
 /**
  * @brief set the right margin of each cell
- * 
- * @param n 
- * @return Tabler& 
+ *
+ * @param n
+ * @return Tabler&
  */
 Tabler& Tabler::rightMargin(unsigned n) {
     _attrs.rightMargin = n;
@@ -85,9 +85,9 @@ Tabler& Tabler::rightMargin(unsigned n) {
 
 /**
  * @brief set the vertical separator
- * 
- * @param n 
- * @return Tabler& 
+ *
+ * @param n
+ * @return Tabler&
  */
 Tabler& Tabler::vSep(std::string_view sep) {
     _attrs.vsep = sep;
@@ -96,9 +96,9 @@ Tabler& Tabler::vSep(std::string_view sep) {
 
 /**
  * @brief set the horizontal separator
- * 
- * @param n 
- * @return Tabler& 
+ *
+ * @param n
+ * @return Tabler&
  */
 Tabler& Tabler::hSep(char sep) {
     _attrs.vsep = sep;
@@ -107,9 +107,9 @@ Tabler& Tabler::hSep(char sep) {
 
 /**
  * @brief set the double horizontal separator
- * 
- * @param n 
- * @return Tabler& 
+ *
+ * @param n
+ * @return Tabler&
  */
 Tabler& Tabler::doubleHSep(char sep) {
     _attrs.vsep = sep;
@@ -118,9 +118,9 @@ Tabler& Tabler::doubleHSep(char sep) {
 
 /**
  * @brief toggle whether to use vertical separators
- * 
- * @param doV 
- * @return Tabler& 
+ *
+ * @param doV
+ * @return Tabler&
  */
 Tabler& Tabler::doVSep(bool doV) {
     _attrs.doVSep = doV;
@@ -129,9 +129,9 @@ Tabler& Tabler::doVSep(bool doV) {
 
 /**
  * @brief quick options for common styles
- * 
- * @param style 
- * @return Tabler& 
+ *
+ * @param style
+ * @return Tabler&
  */
 Tabler& Tabler::presetStyle(PresetStyle style) {
     switch (style) {
@@ -149,8 +149,8 @@ Tabler& Tabler::presetStyle(PresetStyle style) {
 
 /**
  * @brief specialization for skipping a cell
- * 
- * @return Tabler& 
+ *
+ * @return Tabler&
  */
 Tabler& Tabler::operator<<(Skip const&) {
     printBeforeText();
@@ -162,8 +162,8 @@ Tabler& Tabler::operator<<(Skip const&) {
 
 /**
  * @brief specialization for horizontal separation line
- * 
- * @return Tabler& 
+ *
+ * @return Tabler&
  */
 Tabler& Tabler::operator<<(HSep const&) {
     if (_counter > 0) _os << std::endl;
@@ -175,8 +175,8 @@ Tabler& Tabler::operator<<(HSep const&) {
 
 /**
  * @brief specialization for horizontal double separation line
- * 
- * @return Tabler& 
+ *
+ * @return Tabler&
  */
 Tabler& Tabler::operator<<(DoubleHSep const&) {
     if (_counter > 0) _os << std::endl;
@@ -192,7 +192,7 @@ Tabler& Tabler::operator<<(DoubleHSep const&) {
 
 /**
  * @brief printing indents and left margins
- * 
+ *
  */
 void Tabler::printBeforeText() {
     if (_counter == 0) _os << std::string(_attrs.indent, ' ');
@@ -201,7 +201,7 @@ void Tabler::printBeforeText() {
 
 /**
  * @brief printing right margins and endl
- * 
+ *
  */
 void Tabler::printAfterText() {
     _os << std::string(_attrs.rightMargin, ' ');
@@ -214,9 +214,9 @@ void Tabler::printAfterText() {
 
 /**
  * @brief calculate the number of style characters, i.e., \033....m in a string
- * 
- * @param str 
- * @return size_t 
+ *
+ * @param str
+ * @return size_t
  */
 size_t Tabler::countNumStyleChars(std::string_view str) const {
     bool isSpecial = false;

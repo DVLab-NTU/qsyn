@@ -67,7 +67,7 @@ bool parseFromString(T& val, std::string const& token) {
 
 bool parseFromString(std::string& val, std::string const& token);
 
-}  // namespace detail
+}  // namespace ArgTypeDescription
 
 using ActionCallbackType = std::function<bool()>;                                 // perform an action and return if it succeeds
 using ErrorCallbackType = std::function<void()>;                                  // function to call when some action fails

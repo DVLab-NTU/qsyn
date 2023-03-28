@@ -66,7 +66,6 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
     };
 
     return cmd;
-
 }
 // -------------------------------------------------
 //     generic definition for ArgParseCmdType

@@ -9,9 +9,9 @@
 #ifndef QSYN_TABLER_H
 #define QSYN_TABLER_H
 
-#include <numeric>
 #include <iomanip>
 #include <iostream>
+#include <numeric>
 #include <optional>
 #include <ranges>
 #include <vector>
@@ -50,9 +50,9 @@ public:
 
     /**
      * @brief Tabularizing non-string printables
-     * 
-     * @param val 
-     * @return Tabler& 
+     *
+     * @param val
+     * @return Tabler&
      */
     Tabler& operator<<(PrintableButNotStringLike auto const& val) {
         printBeforeText();
@@ -65,9 +65,9 @@ public:
 
     /**
      * @brief Tabularizing string printables
-     * 
-     * @param val 
-     * @return Tabler& 
+     *
+     * @param val
+     * @return Tabler&
      */
     Tabler& operator<<(StringLike auto const& val) {
         printBeforeText();
@@ -103,6 +103,6 @@ private:
     size_t countNumStyleChars(std::string_view str) const;
 };
 
-}  // namespace util
+}  // namespace qsutil
 
 #endif  // QSYN_TABLER_H

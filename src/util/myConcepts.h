@@ -10,9 +10,9 @@
 #define MY_CONCEPTS_H
 
 #include <concepts>
-#include <type_traits>
-#include <string>
 #include <iostream>
+#include <string>
+#include <type_traits>
 
 #include "rationalNumber.h"
 

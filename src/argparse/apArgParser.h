@@ -12,10 +12,10 @@
 #include <variant>
 
 #include "apArgument.h"
-#include "tabler.h"
 #include "myTrie.h"
 #include "ordered_hashmap.h"
 #include "ordered_hashset.h"
+#include "tabler.h"
 
 namespace ArgParse {
 

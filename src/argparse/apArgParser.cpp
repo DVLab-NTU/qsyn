@@ -156,7 +156,8 @@ bool ArgumentParser::analyzeOptions() const {
     }
 
     _tabl.presetStyle(qsutil::Tabler::PresetStyle::ASCII_MINIMAL)
-        .indent(1).rightMargin(2)
+        .indent(1)
+        .rightMargin(2)
         .widths(widths);
 
     _optionsAnalyzed = true;
