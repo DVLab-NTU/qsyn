@@ -14,7 +14,7 @@ using namespace std;
 
 namespace ArgParse {
 
-namespace detail {
+namespace ArgTypeDescription {
 
 std::string getTypeString(bool) { return "bool"; }
 
@@ -23,8 +23,8 @@ std::string getTypeString(long) { return "long"; }
 std::string getTypeString(long long) { return "long long"; }
 
 std::string getTypeString(unsigned) { return "unsigned"; }
-std::string getTypeString(unsigned long) { return "unsigned long"; }
-std::string getTypeString(unsigned long long) { return "unsigned long long"; }
+std::string getTypeString(unsigned long) { return "size_t"; }
+std::string getTypeString(unsigned long long) { return "size_t"; }
 
 std::string getTypeString(float) { return "float"; }
 std::string getTypeString(double) { return "double"; }

@@ -150,6 +150,7 @@ void ArgumentParser::printSummary() const {
  *
  */
 void ArgumentParser::printHelp() const {
+
     printUsage();
     if (getHelp().size()) {
         cout << TF::LIGHT_BLUE("\nDescription:\n  ") << getHelp() << endl;
@@ -192,7 +193,6 @@ string ArgumentParser::getSyntaxString(Argument const& arg) const {
     string ret = "";
 
     if (!arg.hasAction()) {
-        // TODO - metavar
         ret += requiredArgBracket(
             typeStyle(arg.getTypeString()) + " " + metavarStyle(arg.getMetavar()));
     }
@@ -231,44 +231,19 @@ string ArgumentParser::optionalArgBracket(std::string const& str) const {
  * @param arg
  */
 void ArgumentParser::printHelpString(Argument const& arg) const {
-    // argument types and names
+    using qsutil::Tabler;
+    _tabl << (arg.hasAction() ? typeStyle("flag") : typeStyle(arg.getTypeString()));
 
-    size_t lineBreakThres = accumulate(_printTableWidths.begin(), _printTableWidths.end(), 0);
-
-    cout << "  ";
-    if (!arg.hasAction()) {
-        cout << left << setw(_printTableWidths[0] + TF::tokenSize(typeStyle)) << typeStyle(arg.getTypeString());
-    } else {
-        cout << typeStyle("flag") << string(_printTableWidths[0] - 4, ' ');
-    }
-    cout << "  ";
     if (hasOptionPrefix(arg)) {
-        cout << left << setw(_printTableWidths[1] + TF::tokenSize(accentStyle) + (colorLevel >= 1) * 2 * TF::tokenSize(optionalStyle))
-             << styledArgName(arg);
-        cout << "  ";
-        if (!arg.hasAction()) {
-            cout << left << setw(_printTableWidths[2] + TF::tokenSize(metavarStyle))
-                 << metavarStyle(arg.getMetavar());
-        } else {
-            cout << string(_printTableWidths[2], ' ');
-        }
-
-        cout << "  ";
-        if (arg.getName().size() + arg.getMetavar().size() + arg.getTypeString().size() > lineBreakThres) {
-            cout << "\n"
-                 << string(lineBreakThres + 8, ' ');
-        }
+        _tabl << styledArgName(arg);
+        if (arg.hasAction()) _tabl << Tabler::Skip{};
+        else _tabl << metavarStyle(arg.getMetavar());
     } else {
-        cout << left << setw(_printTableWidths[1] + _printTableWidths[2] + TF::tokenSize(metavarStyle) + 2)
-             << metavarStyle(arg.getMetavar());
-        cout << "  ";
-        if (arg.getMetavar().size() + arg.getTypeString().size() > lineBreakThres + 2) {
-            cout << "\n"
-                 << string(lineBreakThres + 8, ' ');
-        }
+        _tabl << metavarStyle(arg.getMetavar()) << Tabler::Skip{};
     }
 
-    cout << arg.getHelp() << endl;
+    _tabl << arg.getHelp();
+    
 }
 
 /**

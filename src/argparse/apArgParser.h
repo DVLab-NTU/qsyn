@@ -8,12 +8,12 @@
 #ifndef QSYN_ARGPARSE_ARGPARSER_H
 #define QSYN_ARGPARSE_ARGPARSER_H
 
-#include <array>
 #include <cassert>
 #include <unordered_set>
 #include <variant>
 
 #include "apArgument.h"
+#include "tabler.h"
 #include "myTrie.h"
 #include "ordered_hashmap.h"
 
@@ -120,10 +120,11 @@ private:
     std::string _help;
     size_t _numRequiredChars;
 
+    qsutil::Tabler mutable _tabl;
+
     // members for analyzing parser options
     MyTrie mutable _trie;
     bool mutable _optionsAnalyzed;
-    std::array<size_t, 3> mutable _printTableWidths;
 
     // addArgument error printing
 

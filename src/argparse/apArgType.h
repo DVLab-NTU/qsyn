@@ -29,7 +29,7 @@ struct Token {
     bool parsed;
 };
 
-namespace detail {
+namespace ArgTypeDescription {
 
 std::string getTypeString(bool);
 
@@ -84,7 +84,7 @@ public:
     ArgType(T const& val) : _value{val}, _traits{} {}
 
     friend std::ostream& operator<<(std::ostream& os, ArgType<T> const& arg) {
-        return detail::print(os, arg._value);
+        return ArgTypeDescription::print(os, arg._value);
     }
 
     operator T&() { return _value; }
@@ -121,7 +121,7 @@ public:
 
     // getters
     T const& getValue() const { return _value; }
-    std::string getTypeString() const { return detail::getTypeString(_value); }
+    std::string getTypeString() const { return ArgTypeDescription::getTypeString(_value); }
     std::string const& getName() const { return _traits.name; }
     std::string const& getHelp() const { return _traits.help; }
     std::optional<T> getDefaultValue() const { return _traits.defaultValue; }
@@ -367,7 +367,7 @@ void ArgType<T>::reset() {
 template <typename T>
 bool ArgType<T>::parse(std::string const& token) {
     if (hasAction()) return _traits.actionCallback();
-    return detail::parseFromString(_value, token);
+    return ArgTypeDescription::parseFromString(_value, token);
 }
 
 // --------------------------------------
