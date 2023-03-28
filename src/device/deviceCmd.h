@@ -14,12 +14,12 @@
 
 CmdClass(DeviceGraphPrintCmd);
 
-#define DT_CMD_MGR_NOT_EMPTY_OR_RETURN(str)                                                         \
-    {                                                                                               \
-        if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {                        \
-            cerr << "Error: Device list is empty now. Please DTNEW/DTRead before " << str << ".\n"; \
-            return CMD_EXEC_ERROR;                                                                  \
-        }                                                                                           \
+#define DT_CMD_MGR_NOT_EMPTY_OR_RETURN(str)                                    \
+    {                                                                          \
+        if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {   \
+            cerr << "Error: Device list is empty now. Please DTRead first.\n"; \
+            return CMD_EXEC_ERROR;                                             \
+        }                                                                      \
     }
 
 #endif  // DEVICE_CMD_H

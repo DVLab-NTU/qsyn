@@ -12,6 +12,7 @@
 #include <string>    // for string
 
 #include "apCmd.h"
+#include "deviceCmd.h"
 #include "deviceMgr.h"  // for DeviceMgr
 #include "duostra.h"    // for Duostra
 #include "qcir.h"       // for QCir
@@ -53,16 +54,18 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
     };
 
     duostraCmd->onParseSuccess = [](ArgumentParser const &parser) {
+        DT_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
         Duostra duo = Duostra(qcirMgr->getQCircuit(), deviceMgr->getDevice(), parser["-check"]);
-        duo.flow();
-        QCir *result = duo.getPhysicalCircuit();
-        if (result != nullptr) {
-            qcirMgr->addQCir(qcirMgr->getNextID());
-            result->setId(qcirMgr->getNextID());
-            qcirMgr->setQCircuit(result);
-        } else {
-            cerr << "Error: Something wrong in Duostra Mapping!!" << endl;
+        if (duo.flow() != ERROR_CODE) {
+            QCir *result = duo.getPhysicalCircuit();
+            if (result != nullptr) {
+                qcirMgr->addQCir(qcirMgr->getNextID());
+                result->setId(qcirMgr->getNextID());
+                qcirMgr->setQCircuit(result);
+            } else {
+                cerr << "Error: Something wrong in Duostra Mapping!!" << endl;
+            }
         }
         return CMD_EXEC_DONE;
     };
