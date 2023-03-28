@@ -32,13 +32,15 @@ extern ZXGraphMgr *zxGraphMgr;
 extern QCirMgr *qcirMgr;
 extern DeviceMgr *deviceMgr;
 
-unique_ptr<ArgParseCmdType> ExtSetCmd();
+unique_ptr<ArgParseCmdType> ExtractCmd();
+unique_ptr<ArgParseCmdType> ExtractSetCmd();
+unique_ptr<ArgParseCmdType> ExtractPrintCmd();
 
 bool initExtractCmd() {
-    if (!(cmdMgr->regCmd("ZX2QC", 5, make_unique<ExtractCmd>()) &&
+    if (!(cmdMgr->regCmd("ZX2QC", 5, ExtractCmd()) &&
           cmdMgr->regCmd("EXTRact", 4, make_unique<ExtractStepCmd>()) &&
-          cmdMgr->regCmd("EXTSet", 4, ExtSetCmd()) &&
-          cmdMgr->regCmd("EXTPrint", 4, make_unique<ExtractPrintCmd>()))) {
+          cmdMgr->regCmd("EXTSet", 4, ExtractSetCmd()) &&
+          cmdMgr->regCmd("EXTPrint", 4, ExtractPrintCmd()))) {
         cerr << "Registering \"extract\" commands fails... exiting" << endl;
         return false;
     }
@@ -48,53 +50,30 @@ bool initExtractCmd() {
 //----------------------------------------------------------------------
 //    ZX2QC
 //----------------------------------------------------------------------
-CmdExecStatus
-ExtractCmd::exec(const string &option) {
-    string token;
-    if (!CmdExec::lexSingleOption(option, token))
-        return CMD_EXEC_ERROR;
-    // if (token.empty() || myStrNCmp("-Logical", token, 2) == 0)
-    //     topo = Device();
-    // else if (myStrNCmp("-Physical", token, 2) == 0) {
-    //     if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {
-    //         cerr << "Error: Device list is empty now. Please DTNEW/DTRead before ZX2QC.\n";
-    //         return CMD_EXEC_ERROR;
-    //     }
-    //     topo = deviceMgr->getDevice();
-    // } else {
-    //     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    // }
-    unsigned id = qcirMgr->getNextID();
-    // if (!token.empty()) {
-    //     if (!myStr2Uns(option, id)) {
-    //         cerr << "Error: invalid QCir ID!!\n";
-    //         return errorOption(CMD_OPT_ILLEGAL, (option));
-    //     }
-    // }
 
-    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZX2QC");
+unique_ptr<ArgParseCmdType> ExtractCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZX2QC");
 
-    if (!zxGraphMgr->getGraph()->isGraphLike()) {
-        cerr << "Error: ZX-graph (id: " << zxGraphMgr->getGraph()->getId() << ") is not graph-like. Not extractable!!" << endl;
-        return CMD_EXEC_ERROR;
-    }
-    zxGraphMgr->copy(zxGraphMgr->getNextID());
-    Extractor ext(zxGraphMgr->getGraph(), nullptr);
-    QCir *result = ext.extract();
-    if (result != nullptr) {
-        qcirMgr->addQCir(id);
-        qcirMgr->setQCircuit(result);
-    }
-    return CMD_EXEC_DONE;
-}
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("extract QCir from ZX-graph");
+    };
 
-void ExtractCmd::usage() const {
-    cout << "Usage: ZX2QC" << endl;
-}
-
-void ExtractCmd::summary() const {
-    cout << setw(15) << left << "ZX2QC: "
-         << "extract QCir from ZX-graph" << endl;
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZX2QC");
+        if (!zxGraphMgr->getGraph()->isGraphLike()) {
+            cerr << "Error: ZX-graph (id: " << zxGraphMgr->getGraph()->getId() << ") is not graph-like. Not extractable!!" << endl;
+            return CMD_EXEC_ERROR;
+        }
+        zxGraphMgr->copy(zxGraphMgr->getNextID());
+        Extractor ext(zxGraphMgr->getGraph(), nullptr);
+        QCir *result = ext.extract();
+        if (result != nullptr) {
+            qcirMgr->addQCir(qcirMgr->getNextID());
+            qcirMgr->setQCircuit(result);
+        }
+        return CMD_EXEC_DONE;
+    };
+    return cmd;
 }
 
 //----------------------------------------------------------------------
@@ -230,85 +209,72 @@ void ExtractStepCmd::summary() const {
 }
 
 //----------------------------------------------------------------------
-//    EXTPrint <-Frontier | -Neighbors | -Axels | -Matrix | -Settings>
+//    EXTPrint [ -Settings | -Frontier | -Neighbors | -Axels | -Matrix ]
 //----------------------------------------------------------------------
-CmdExecStatus
-ExtractPrintCmd::exec(const string &option) {
-    string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    if (myStrNCmp("-Settings", option, 2) == 0) {
-        cout << endl;
-        cout << "Sort Frontier:     " << (SORT_FRONTIER == true ? "true" : "false") << endl;
-        cout << "Sort Neighbors:    " << (SORT_NEIGHBORS == true ? "true" : "false") << endl;
-        cout << "Permute Qubits:    " << (PERMUTE_QUBITS == true ? "true" : "false") << endl;
-        cout << "Filter Duplicated: " << (FILTER_DUPLICATED_CXS == true ? "true" : "false") << endl;
-        cout << "Block Size:        " << BLOCK_SIZE << endl;
-        cout << "Optimize Level:    " << OPTIMIZE_LEVEL << endl;
-        return CMD_EXEC_DONE;
-    }
-    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("EXTPrint");
 
-    if (!zxGraphMgr->getGraph()->isGraphLike()) {
-        cerr << "Error: ZX-graph (id: " << zxGraphMgr->getGraph()->getId() << ") is not graph-like. Not extractable!!" << endl;
-        return CMD_EXEC_ERROR;
-    }
-    Extractor ext(zxGraphMgr->getGraph());
+unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("EXTPrint");
 
-    enum class PRINT_MODE {
-        FRONTIER,
-        NEIGHBORS,
-        AXELS,
-        MATRIX
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("print info of extracting ZX-graph");
+
+        auto mutex = parser.addMutuallyExclusiveGroup();
+
+        mutex.addArgument<bool>("-settings")
+            .action(storeTrue)
+            .help("print the settings of extractor");
+        mutex.addArgument<bool>("-frontier")
+            .action(storeTrue)
+            .help("print frontier of graph");
+        mutex.addArgument<bool>("-neighbors")
+            .action(storeTrue)
+            .help("print neighbors of graph");
+        mutex.addArgument<bool>("-axels")
+            .action(storeTrue)
+            .help("print axels of graph");
+        mutex.addArgument<bool>("-matrix")
+            .action(storeTrue)
+            .help("print biadjancency");
     };
-    PRINT_MODE mode;
 
-    if (myStrNCmp("-Frontier", option, 2) == 0) {
-        mode = PRINT_MODE::FRONTIER;
-    } else if (myStrNCmp("-Neighbors", option, 2) == 0) {
-        mode = PRINT_MODE::NEIGHBORS;
-    } else if (myStrNCmp("-Axels", option, 1) == 0) {
-        mode = PRINT_MODE::AXELS;
-    } else if (myStrNCmp("-Matrix", option, 2) == 0) {
-        mode = PRINT_MODE::MATRIX;
-    } else {
-        cout << "Error: unsupported option " << option << " !!" << endl;
-        return CMD_EXEC_ERROR;
-    }
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        if (parser["-settings"].isParsed() || parser.isParsedSize() == 0) {
+            cout << endl;
+            cout << "Optimize Level:    " << OPTIMIZE_LEVEL << endl;
+            cout << "Sort Frontier:     " << (SORT_FRONTIER == true ? "true" : "false") << endl;
+            cout << "Sort Neighbors:    " << (SORT_NEIGHBORS == true ? "true" : "false") << endl;
+            cout << "Permute Qubits:    " << (PERMUTE_QUBITS == true ? "true" : "false") << endl;
+            cout << "Filter Duplicated: " << (FILTER_DUPLICATED_CXS == true ? "true" : "false") << endl;
+            cout << "Block Size:        " << BLOCK_SIZE << endl;
+        } else {
+            ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("EXTPrint");
+            if (!zxGraphMgr->getGraph()->isGraphLike()) {
+                cerr << "Error: ZX-graph (id: " << zxGraphMgr->getGraph()->getId() << ") is not graph-like. Not extractable!!" << endl;
+                return CMD_EXEC_ERROR;
+            }
+            Extractor ext(zxGraphMgr->getGraph());
+            if (parser["-frontier"].isParsed()) {
+                ext.printFrontier();
+            } else if (parser["-neighbors"].isParsed()) {
+                ext.printNeighbors();
+            } else if (parser["-axels"].isParsed()) {
+                ext.printAxels();
+            } else if (parser["-matrix"].isParsed()) {
+                ext.createMatrix();
+                ext.printMatrix();
+            }
+        }
 
-    switch (mode) {
-        case PRINT_MODE::FRONTIER:
-            ext.printFrontier();
-            break;
-        case PRINT_MODE::NEIGHBORS:
-            ext.printNeighbors();
-            break;
-        case PRINT_MODE::AXELS:
-            ext.printAxels();
-            break;
-        case PRINT_MODE::MATRIX:
-            ext.createMatrix();
-            ext.printMatrix();
-            break;
-        default:
-            break;
-    }
-    return CMD_EXEC_DONE;
-}
-
-void ExtractPrintCmd::usage() const {
-    cout << "Usage: EXTPrint <-Frontier | -Neighbors | -Axels | -Matrix>" << endl;
-}
-
-void ExtractPrintCmd::summary() const {
-    cout << setw(15) << left << "EXTPrint: "
-         << "print info of extracting ZX-graph" << endl;
+        return CMD_EXEC_DONE;
+    };
+    return cmd;
 }
 
 //------------------------------------------------------------------------------
 //    EXTSet ...
 //------------------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> ExtSetCmd() {
+unique_ptr<ArgParseCmdType> ExtractSetCmd() {
     auto cmd = make_unique<ArgParseCmdType>("EXTSet");
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("set extractor parameters");
