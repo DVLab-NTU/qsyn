@@ -1,0 +1,12 @@
+QCNew
+QCBAdd 1
+qcga -Z 0 
+qcga -RZ -PH pi/2 0
+qcga -RZ -PH pi/2 0 
+qcga -RZ -PH 2*pi/3 0 
+qcga -RZ -PH 3*pi/2 0 
+qccprint -l
+qccprint -q
+optimize
+qccprint -l
+qq -f

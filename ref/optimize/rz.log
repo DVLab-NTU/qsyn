@@ -1,0 +1,251 @@
+DV Lab, NTUEE, Qsyn 0.4.1
+qsyn> QCNew
+Create and checkout to QCir 0
+
+qsyn> QCBAdd 1
+
+qsyn> qcga -Z 0 
+
+qsyn> qcga -RZ -PH pi/2 0
+
+qsyn> qcga -RZ -PH pi/2 0 
+
+qsyn> qcga -RZ -PH 2*pi/3 0 
+
+qsyn> qcga -RZ -PH 3*pi/2 0 
+
+qsyn> qccprint -l
+Listed by gate ID
+ID:   0 (  z)      Time:    1     Qubit:   0 
+ID:   1 ( rz)      Time:    2     Qubit:   0 
+ID:   2 ( rz)      Time:    3     Qubit:   0 
+ID:   3 ( rz)      Time:    4     Qubit:   0 
+ID:   4 ( rz)      Time:    5     Qubit:   0 
+
+qsyn> qccprint -q
+Q 0  - z( 0)--rz( 1)--rz( 2)--rz( 3)--rz( 4)-
+
+qsyn> optimize
+Before Parse Forward
+Start parseForward
+Listed by gate ID
+ID:   0 (  z)      Time:    1     Qubit:   0 
+ID:   1 ( rz)      Time:    2     Qubit:   0 
+ID:   2 ( rz)      Time:    3     Qubit:   0 
+ID:   3 ( rz)      Time:    4     Qubit:   0 
+ID:   4 ( rz)      Time:    5     Qubit:   0 
+######### start parse gate ##########
+ID:   0 (  z)      Time:    1     Qubit:   0 
+issingleZ
+Into z4 loop
+Parse gate done
+_gates[0]
+_available[0]
+_availty[0]: 1  _zs 1
+
+######### start parse gate ##########
+ID:   1 ( rz)      Time:    2     Qubit:   0 
+issingleZ
+Into z1 loop
+Into z7 else loop
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   2 ( rz)      Time:    3     Qubit:   0 
+issingleZ
+Into z7 loop
+Into z7-1 loop
+Parse gate done
+_gates[0]
+_available[0]
+_availty[0]: 1  _zs 1
+
+######### start parse gate ##########
+ID:   3 ( rz)      Time:    4     Qubit:   0 
+issingleZ
+Into z1 loop
+Into z7 else loop
+Parse gate done
+_gates[0]
+ID:   1 (  p)      Time:    0     Qubit:   0 
+_available[0]
+ID:   1 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   4 ( rz)      Time:    5     Qubit:   0 
+issingleZ
+Into z7 loop
+Into z7-2 loop
+Parse gate done
+_gates[0]
+ID:   2 (  p)      Time:    0     Qubit:   0 
+_available[0]
+ID:   2 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+start topo sort
+_gates[0]
+ID:   2 (  p)      Time:    0     Qubit:   0 
+π/6
+_available[0]
+ID:   2 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  
+In to while: 0
+q: 0 size: 1
+Into small while loop
+ID:   2 (  p)      Time:    0     Qubit:   0 
+case I
+tmp is
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+After Parse Circuit
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+corrections size: 0
+After add corrections
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+###########  Number 1 iter #############
+Start parseForward
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+reverse
+######### start parse gate ##########
+ID:   0 (  p)      Time:    1     Qubit:   0 
+issingleZ
+Into z7 else loop
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+start topo sort
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+π/6
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  
+In to while: 0
+q: 0 size: 1
+Into small while loop
+ID:   0 (  p)      Time:    0     Qubit:   0 
+case I
+tmp is
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+corrections size1: 0
+Start parseForward
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+######### start parse gate ##########
+ID:   0 (  p)      Time:    1     Qubit:   0 
+issingleZ
+Into z7 else loop
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+start topo sort
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+π/6
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  
+In to while: 0
+q: 0 size: 1
+Into small while loop
+ID:   0 (  p)      Time:    0     Qubit:   0 
+case I
+tmp is
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+corrections size2: 0
+###########  Number 2 iter #############
+Start parseForward
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+reverse
+######### start parse gate ##########
+ID:   0 (  p)      Time:    1     Qubit:   0 
+issingleZ
+Into z7 else loop
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+start topo sort
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+π/6
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  
+In to while: 0
+q: 0 size: 1
+Into small while loop
+ID:   0 (  p)      Time:    0     Qubit:   0 
+case I
+tmp is
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+corrections size1: 0
+Start parseForward
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+######### start parse gate ##########
+ID:   0 (  p)      Time:    1     Qubit:   0 
+issingleZ
+Into z7 else loop
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+start topo sort
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+π/6
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  
+In to while: 0
+q: 0 size: 1
+Into small while loop
+ID:   0 (  p)      Time:    0     Qubit:   0 
+case I
+tmp is
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+Final result
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+Q 0  - p( 0)-
+
+qsyn> qccprint -l
+Listed by gate ID
+ID:   0 (  z)      Time:    1     Qubit:   0 
+ID:   1 ( rz)      Time:    2     Qubit:   0 
+ID:   2 ( rz)      Time:    3     Qubit:   0 
+ID:   3 ( rz)      Time:    4     Qubit:   0 
+ID:   4 ( rz)      Time:    5     Qubit:   0 
+
+qsyn> qq -f
+

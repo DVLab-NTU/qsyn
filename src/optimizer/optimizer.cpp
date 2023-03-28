@@ -159,15 +159,39 @@ QCir* Optimizer::parseForward(bool reverse=false) {
         // }
     }
     for (auto& g : gs) {
+        cout << "######### start parse gate ##########" << endl;
+        g->printGate();
         parseGate(g);
+        cout << "Parse gate done" << endl;
+    for (size_t i = 0; i < _gates.size(); i++)
+    {
+        cout << "_gates["<<i<<"]" << endl;
+        for (size_t j = 0; j < _gates[i].size(); j++)
+        {
+            _gates[i][j]->printGate();
+        }
+    }
+    for (size_t i = 0; i < _available.size(); i++)
+    {
+        cout << "_available["<<i<<"]" << endl;
+        for (size_t j = 0; j < _available[i].size(); j++)
+        {
+            _available[i][j]->printGate();
+        }
+    }
+    for (size_t i = 0; i < _availty.size(); i++)
+    {
+        cout << "_availty["<<i<<"]: "<<_availty[i]<<"  ";
+    }
+    cout << "_zs " << _zs.size() << endl;
+    cout << endl;
     }
     for (auto& t : _hadamards) {
         addHadamard(t);
     }
     for (auto& t : _zs) {
         cout << "Into zs" << endl;
-        QCirGate* zgate = addGate(t, Phase(0), 0);
-        _gates[t].emplace_back(zgate);
+        addGate(t, Phase(1), 0);
     }
     QCir* tmp = new QCir(-1);
     // NOTE - Below function will add the gate to tmp -
@@ -270,44 +294,52 @@ bool Optimizer::parseGate(QCirGate* gate) {
     } else if (isSingleRotateZ(gate)) {
         cout << "issingleZ" << endl;
         if (_zs.contains(target)) {
-            cout << "Into z1 loop" << endl;
-            gate->setRotatePhase(gate->getPhase() + Phase(1));
+            // cout << "Into z1 loop" << endl;
+            //TODO - Add S gate
             _zs.erase(target);
+            if(gate->getType()==GateType::RZ){
+                gate->setRotatePhase(gate->getPhase());
+            }else if(gate->getType()==GateType::Z){
+                return true;
+            }
+            
         }
         if (gate->getPhase() == Phase(0) && gate->getType() == GateType::RZ){
-            cout << "Into z2 loop" << endl;
+            // cout << "Into z2 loop" << endl;
             return true;
         }
             
         if (_xs.contains(target)) {
-            cout << "Into z3 loop" << endl;
+            // cout << "Into z3 loop" << endl;
             gate->setRotatePhase(-1 * (gate->getPhase()));
         }
         if (gate->getPhase() == Phase(1) || gate->getType() == GateType::Z) {
-            cout << "Into z4 loop" << endl;
+            // cout << "Into z4 loop" << endl;
             toggleElement(2, target);
             return true;
         }
         // REVIEW - Neglect adjoint due to S and Sdg is separated
         if (_hadamards.contains(target)) {
-            cout << "Into z6 loop" << endl;
+            // cout << "Into z6 loop" << endl;
             addHadamard(target);
         }
         QCirGate* available = getAvailableRotateZ(target);
         if (_availty[target] == 1 && available != nullptr) {
-            cout << "Into z7 loop" << endl;
+            // cout << "Into z7 loop" << endl;
             _available[target].erase(remove(_available[target].begin(), _available[target].end(), available), _available[target].end());
             _gates[target].erase(remove(_gates[target].begin(), _gates[target].end(), available), _gates[target].end());
             Phase ph = available->getPhase() + gate->getPhase();
             if (ph == Phase(1)) {
                 toggleElement(2, target);
+                // cout << "Into z7-1 loop" << endl;
                 return true;
             }
             if (ph != Phase(0)) {
+                // cout << "Into z7-2 loop" << endl;
                 addGate(target, ph, 0);
             }
         } else {
-            cout << "Into z6 else loop" << endl;
+            // cout << "Into z7 else loop" << endl;
             if (_availty[target] == 2) {
                 _availty[target] = 1;
                 _available[target].clear();
@@ -398,6 +430,7 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
     size_t ctrl = -1, targ = -1;
     QCirGate* cnot;
     //NOTE - Try to cancel CNOT
+    //TODO - Separate f_m for cnot and for cz
     bool found_match = false;
     if (_minimize_czs){
         cout << "Into first loop" << endl;
@@ -487,24 +520,25 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
 
     //NOTE - Try to cancel CZ
     found_match = false;
+    QCirGate* targ_cz = nullptr;
     // TODO - checkout if "reverse" is necessary 
-    for(auto& g: _available[t2]){
-        cout << "Into for loop" << endl;
+    for(auto& g: _available[t1]){
+        cout << "Into for loop (cz part)" << endl;
         if((g->getType() == GateType::CZ && g->getControl()._qubit == t1 && g->getTarget()._qubit == t2)||
         (g->getType() == GateType::CZ && g->getControl()._qubit == t2 && g->getTarget()._qubit == t1)){
             found_match = true;
-            cnot = g;
+            QCirGate* targ_cz = g;
             break;
         }
     }
 
     if(found_match){
         cout << "Into 5th loop" << endl;
-        if(count_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g){return g == cnot;})){
-            _available[t1].erase(find_if(_available[t1].begin(), _available[t1].end(), [&](QCirGate* g){return g == cnot;}));
-            _available[t2].erase(find_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g){return g == cnot;}));
-            _gates[t1].erase(find_if(_gates[t1].begin(), _gates[t1].end(), [&](QCirGate* g){return g == cnot;}));
-            _gates[t2].erase(find_if(_gates[t2].begin(), _gates[t2].end(), [&](QCirGate* g){return g == cnot;}));
+        if(count_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g){return g == targ_cz;})){
+            _available[t1].erase(find_if(_available[t1].begin(), _available[t1].end(), [&](QCirGate* g){return g == targ_cz;}));
+            _available[t2].erase(find_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g){return g == targ_cz;}));
+            _gates[t1].erase(find_if(_gates[t1].begin(), _gates[t1].end(), [&](QCirGate* g){return g == targ_cz;}));
+            _gates[t2].erase(find_if(_gates[t2].begin(), _gates[t2].end(), [&](QCirGate* g){return g == targ_cz;}));
         }else{
             found_match = false;
         }
@@ -582,27 +616,6 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
                     Optimizer::swapElement(1, ctrl, targ);
                     Optimizer::swapElement(2, ctrl, targ);
                     cout << "End doswap" << endl;
-                    for (size_t i = 0; i < _gates.size(); i++)
-                    {
-                        cout << "_gates["<<i<<"]" << endl;
-                        for (size_t j = 0; j < _gates[i].size(); j++)
-                        {
-                            _gates[i][j]->printGate();
-                        }
-                    }
-                    for (size_t i = 0; i < _available.size(); i++)
-                    {
-                        cout << "_available["<<i<<"]" << endl;
-                        for (size_t j = 0; j < _available[i].size(); j++)
-                        {
-                            _available[i][j]->printGate();
-                        }
-                    }
-                    for (size_t i = 0; i < _availty.size(); i++)
-                    {
-                        cout << "_availy["<<i<<"]: "<<_availty[i]<<"  ";
-                    }
-                    cout << endl;
                     return ;
                 }
             }
@@ -659,28 +672,7 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
         _available[targ].emplace_back(cnot);
         // cout << "After emplace cnot: (" << _gates[ctrl].size() << ", " << _gates[targ].size() << ", " << _available[ctrl].size() << ", " << _available[targ].size() << ")" << endl;
     }
-    cout << "After the iter:" <<endl;
-    for (size_t i = 0; i < _gates.size(); i++)
-    {
-        cout << "_gates["<<i<<"]" << endl;
-        for (size_t j = 0; j < _gates[i].size(); j++)
-        {
-            _gates[i][j]->printGate();
-        }
-    }
-    for (size_t i = 0; i < _available.size(); i++)
-    {
-        cout << "_available["<<i<<"]" << endl;
-        for (size_t j = 0; j < _available[i].size(); j++)
-        {
-            _available[i][j]->printGate();
-        }
-    }
-    for (size_t i = 0; i < _availty.size(); i++)
-    {
-        cout << "_availy["<<i<<"]: "<<_availty[i]<<"  ";
-    }
-    cout << endl;
+    cout << "Done addcx:" <<endl;
     
 }
 
@@ -735,27 +727,6 @@ void Optimizer::topologicalSort(QCir* circuit) {
     ordered_hashset<size_t> available_id;
     circuit->addQubit(_circuit->getNQubit());
     cout << "start topo sort" << endl;
-    for (size_t i = 0; i < _gates.size(); i++)
-    {
-        cout << "_gates["<<i<<"]" << endl;
-        for (size_t j = 0; j < _gates[i].size(); j++)
-        {
-            _gates[i][j]->printGate();
-        }
-    }
-    for (size_t i = 0; i < _available.size(); i++)
-    {
-        cout << "_available["<<i<<"]" << endl;
-        for (size_t j = 0; j < _available[i].size(); j++)
-        {
-            _available[i][j]->printGate();
-        }
-    }
-    for (size_t i = 0; i < _availty.size(); i++)
-    {
-        cout << "_availty["<<i<<"]: "<<_availty[i]<<"  ";
-    }
-    cout << endl;
     int count = 0;
     while(any_of(_gates.begin(), _gates.end(), [](auto& p_g){return p_g.second.size();})){
         cout << "In to while: " << count << endl;
