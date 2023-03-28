@@ -66,6 +66,8 @@ public:
     ArgumentParser& name(std::string const& name);
     ArgumentParser& help(std::string const& help);
 
+    size_t isParsedSize() const;
+
     // print functions
 
     void printTokens() const;

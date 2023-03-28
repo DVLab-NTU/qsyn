@@ -73,6 +73,19 @@ ArgumentParser& ArgumentParser::help(std::string const& help) {
 }
 
 /**
+ * @brief get the size of parsed option
+ *
+ * @return size_t
+ */
+size_t ArgumentParser::isParsedSize() const {
+    size_t parsed = 0;
+    for (auto& [a, b] : _arguments) {
+        parsed += b.isParsed();
+    }
+    return parsed;
+}
+
+/**
  * @brief parse the arguments in the line
  *
  * @param line
