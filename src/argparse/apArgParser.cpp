@@ -139,27 +139,26 @@ bool ArgumentParser::analyzeOptions() const {
         arg.setNumRequiredChars(max(prefixSize, arg.getNumRequiredChars()));
     }
 
-    // calculate tabulate info
+    // calculate tabler info
 
-    _printTableWidths = {0, 0, 0};
-
-    constexpr size_t maxWidth = 10;
+    vector<size_t> widths = {0, 0, 0, 0};
 
     for (auto& [name, arg] : _arguments) {
-        if (arg.getTypeString().size() >= _printTableWidths[0]) {
-            _printTableWidths[0] = arg.getTypeString().size();
+        if (arg.getTypeString().size() >= widths[0]) {
+            widths[0] = arg.getTypeString().size();
         }
-        if (arg.getName().size() >= _printTableWidths[1]) {
-            _printTableWidths[1] = arg.getName().size();
+        if (arg.getName().size() >= widths[1]) {
+            widths[1] = arg.getName().size();
         }
-        if (arg.getMetavar().size() >= _printTableWidths[2]) {
-            _printTableWidths[2] = arg.getMetavar().size();
+        if (arg.getMetavar().size() >= widths[2]) {
+            widths[2] = arg.getMetavar().size();
         }
     }
 
-    for (auto& w : _printTableWidths) {
-        if (w > maxWidth) w = maxWidth;
-    }
+    _tabl.presetStyle(qsutil::Tabler::PresetStyle::ASCII_MINIMAL)
+        .indent(1)
+        .rightMargin(2)
+        .widths(widths);
 
     _optionsAnalyzed = true;
     return true;
