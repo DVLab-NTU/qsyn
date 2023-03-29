@@ -1,0 +1,29 @@
+zxgread fr-bug/orig-composes-adj/out-pyzx-pyzx.zx 
+zxgassign 0 I Z 0
+zxgassign 1 I Z 0
+zxgassign 2 I Z 0
+zxgassign 3 I Z 0
+zxgassign 4 I Z 0
+zxgassign 5 I Z 0
+zxgassign 6 I Z 0
+zxgassign 7 I Z 0
+zxgassign 8 I Z 0
+zxgassign 9 I Z 0
+zxgassign 10 I Z 0
+zxgassign 11 I Z 0
+zxgassign 12 I Z 0
+zxgassign 13 I Z 0
+zxgassign 14 I Z 0
+zxgassign 15 I Z 0
+zxgassign 10 O Z 0
+zxgassign 11 O Z 0
+zxgassign 12 O Z 0
+zxgassign 13 O Z 0
+zxgassign 14 O Z 0
+zxgassign 15 O Z 0
+ver 5
+zx2ts
+ver 1
+qcba 10
+qc2ts
+tseq 0 1
