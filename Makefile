@@ -15,7 +15,7 @@ LIB_DIR    		:= $(BUILD_DIR)/lib
 EXEC     		:= qsyn
 TESTEXEC  		:= qsyn-test
 
-OPTIMIZE_LEVEL 	:= -O3
+OPTIMIZE_LEVEL 	:= -g
 DEBUG_FLAG 		:= -DDEBUG
 
 .PHONY: all

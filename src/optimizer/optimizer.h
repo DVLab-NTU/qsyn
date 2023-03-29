@@ -33,7 +33,7 @@ public:
 
     void reset();
     QCir* parseCircuit(bool, bool, size_t);
-    QCir* parseForward(bool reverse);
+    QCir* parseForward();
     bool parseGate(QCirGate*);
 
     void addHadamard(size_t);
@@ -54,6 +54,7 @@ private:
     bool _doSwap;
     bool _separateCorrection;
     bool _minimize_czs;
+    bool _reversed;
     size_t _maxIter;
     Qubit2Gates _gates;
     Qubit2Gates _available;
