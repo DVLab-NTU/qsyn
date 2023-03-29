@@ -61,8 +61,10 @@ const BitInfo QCirGate::getQubit(size_t qubit) const {
 void QCirGate::addQubit(size_t qubit, bool isTarget) {
     BitInfo temp = {._qubit = qubit, ._parent = NULL, ._child = NULL, ._isTarget = isTarget};
     // _qubits.emplace_back(temp);
-    if (isTarget) _qubits.emplace_back(temp);
-    else _qubits.emplace(_qubits.begin(), temp);
+    if (isTarget)
+        _qubits.emplace_back(temp);
+    else
+        _qubits.emplace(_qubits.begin(), temp);
 }
 
 /**
