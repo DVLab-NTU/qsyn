@@ -7,10 +7,10 @@
 ****************************************************************************/
 
 #include <cassert>  // for assert
+#include <cmath>
 #include <cstddef>  // for size_t
 #include <fstream>
 #include <iostream>
-#include <cmath>
 #include <string>
 
 #include "zxFileParser.h"

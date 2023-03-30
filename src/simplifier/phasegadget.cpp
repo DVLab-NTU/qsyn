@@ -80,12 +80,12 @@ void PhaseGadget::match(ZXGraph* g) {
             axels.push_back(axel);
             leaves.push_back(axel2leaf[axel]);
         }
-        // cout << "> " <<  axels.size() << " " << leaves.size() << endl;
+
         if (leaves.size() > 1 || flipAxel) {
             _matchTypeVec.emplace_back(totalPhase, axels, leaves);
         }
     }
-    
+
     setMatchTypeVecNum(_matchTypeVec.size());
 }
 
