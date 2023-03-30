@@ -10,6 +10,7 @@
 #include <cstddef>  // for size_t
 #include <fstream>
 #include <iostream>
+#include <cmath>
 #include <string>
 
 #include "zxFileParser.h"
@@ -82,7 +83,7 @@ bool ZXGraph::writeZX(const string& filename, bool complete) {
     };
     ZXFile << "// Input \n";
     for (auto& v : _inputs) {
-        ZXFile << "I" << v->getId() << " (" << v->getQubit() << "," << v->getCol() << ")";
+        ZXFile << "I" << v->getId() << " (" << v->getQubit() << "," << floor(v->getCol()) << ")";
         if (!writeNeighbors(v)) return false;
         ZXFile << "\n";
     }
@@ -90,7 +91,7 @@ bool ZXGraph::writeZX(const string& filename, bool complete) {
     ZXFile << "// Output \n";
 
     for (auto& v : _outputs) {
-        ZXFile << "O" << v->getId() << " (" << v->getQubit() << "," << v->getCol() << ")";
+        ZXFile << "O" << v->getId() << " (" << v->getQubit() << "," << floor(v->getCol()) << ")";
         if (!writeNeighbors(v)) return false;
         ZXFile << "\n";
     }
@@ -107,7 +108,7 @@ bool ZXGraph::writeZX(const string& filename, bool complete) {
             ZXFile << "H";
         ZXFile << v->getId();
 
-        ZXFile << " (" << v->getQubit() << "," << v->getCol() << ")";  // NOTE - always output coordinate now
+        ZXFile << " (" << v->getQubit() << "," << floor(v->getCol()) << ")";  // NOTE - always output coordinate now
         if (!writeNeighbors(v)) return false;
 
         if (v->getPhase() != (v->isHBox() ? Phase(1) : Phase(0))) ZXFile << " " << v->getPhase().getAsciiString();
