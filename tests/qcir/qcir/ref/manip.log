@@ -1,4 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.4.1
+DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> qccp -q
 Error: QCir list is empty now. Please QCNEW/QCCRead/QCBAdd before QCCPrint.
 

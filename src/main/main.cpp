@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
         myexit();
     }
 
-    cout << "DV Lab, NTUEE, Qsyn 0.4.1" << endl;
+    cout << "DV Lab, NTUEE, Qsyn 0.4.2" << endl;
 
     if (
         !initArgParserCmd() ||
