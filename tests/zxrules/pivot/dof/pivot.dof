@@ -24,7 +24,7 @@ zxge -adde 0 4 SIMPLE
 zxge -adde 2 5 SIMPLE
 zxge -adde 1 8 SIMPLE
 zxge -adde 3 9 SIMPLE
-zxgs -pivot
+zxgs -pivotr
 zxgp -v
 zxgp -e
 zxr
@@ -49,7 +49,7 @@ zxge -adde 0 4 SIMPLE
 zxge -adde 2 5 SIMPLE
 zxge -adde 1 8 SIMPLE
 zxge -adde 3 9 SIMPLE
-zxgs -pivot
+zxgs -pivotr
 zxgp -v
 zxgp -e
 zxr
@@ -111,7 +111,7 @@ zxge -addv 0 Z 0
 zxge -adde 14 24 SIMPLE
 zxge -addv 0 X 0
 zxge -adde 15 25 SIMPLE
-zxgs -pivot
+zxgs -pivotr
 zxgp -v
 zxgp -e
 zxr
@@ -246,7 +246,7 @@ zxge -adde 0 10 SIMPLE
 zxge -adde 2 22 SIMPLE
 zxge -adde 1 43 SIMPLE
 zxge -adde 3 45 SIMPLE
-zxgs -pivot
+zxgs -pivotr
 zxgp -v
 zxgp -e
 zxr
@@ -362,7 +362,7 @@ zxge -addv 0 Z 0
 zxge -adde 26 46 HADAMARD
 zxge -addv 0 Z 0
 zxge -adde 27 47 HADAMARD
-zxgs -pivot
+zxgs -pivotr
 zxgp -v
 zx2ts
 tsp 0
