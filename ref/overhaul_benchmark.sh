@@ -1,3 +1,12 @@
+#!/bin/bash
+doit() {
+    ./qsyn -f $1 > $2 2>&1
+}
+export -f doit
+doit-mimalloc() {
+    LD_PRELOAD=libmimalloc.so ./qsyn -f $1 > $2 2>&1
+}
+export -f doit-mimalloc
 
 if [ $# -ne 1 ]; then
     echo "Error: wrong number of arguments!"
@@ -6,7 +15,7 @@ if [ $# -ne 1 ]; then
 fi
 
 FOLDER=$1
-mkdir ref/${FOLDER}
-for file in qft_10 cm82a_208 adr4_197 cm42a_207 cycle10_2_110 ham15_107 dc2_222 inc_237 rd84_253 sqn_258 root_255; do
-    ./qsyn -f "ref/${file}.dof" > ref/${FOLDER}/${file}-O3.log 2>&1
-done
+mkdir -p ref/${FOLDER}
+
+# ls ref/freduce/*.dof | parallel doit {} ref/${FOLDER}/{/.}.log
+ls ref/freduce/*.dof | parallel doit-mimalloc {} ref/${FOLDER}/{/.}.log

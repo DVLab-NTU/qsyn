@@ -5,7 +5,9 @@ qc2zx
 zxgp
 zxcopy
 zxgadjoint
-zxcompose 0
+// zxgs -fr
+zxch 0
+zxcompose 1
 zxgprint
 zxgs -fr
 zxgp

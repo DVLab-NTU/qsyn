@@ -1,14 +1,19 @@
 ver 1
-zxm -on
 qccread benchmark/benchmark_SABRE/large/sqn_258.qasm
 qc2zx
+zxgw out-qsyn-original.zx
 zxgp
 zxcopy
 zxgadjoint
+zxch 1
+zxgw out-qsyn-adjoint.zx
 zxcompose 0
-zxgprint
+zxgw out-qsyn-compose.zx
+ver 3
+zxgp
 zxgs -fr
-zxgp 
+zxgp
+zxgw out-qsyn-reduced.zx
 zxgt -id
 usage
 qq -f
