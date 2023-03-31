@@ -1,4 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.4.1
+DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> qccr benchmark/pseudoSimp/tof2.qasm
 Create and checkout to QCir 0
 
