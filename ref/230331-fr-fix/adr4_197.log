@@ -1,0 +1,48 @@
+DV Lab, NTUEE, Qsyn 0.4.1
+qsyn> ver 1
+Note: verbose level is set to 1
+
+qsyn> zxm -on
+Illegal command!! (zxm)
+
+qsyn> qccread benchmark/benchmark_SABRE/large/adr4_197.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgp
+Graph 0( 16 inputs, 16 outputs, 4969 vertices, 6451 edges )
+
+qsyn> zxcopy
+
+qsyn> zxgadjoint
+
+qsyn> zxcompose 0
+
+qsyn> zxgprint
+Graph 1( 16 inputs, 16 outputs, 9938 vertices, 12918 edges )
+
+qsyn> zxgs -fr
+
+All rules applied:
+(1) Hadamard Rule
+(2) Spider Fusion Rule
+(3) Identity Removal Rule
+(4) Pivot Rule
+(5) Local Complementation Rule
+(6) Pivot Gadget Rule
+(7) Phase Gadget Rule
+(8) Pivot Boundary Rule
+
+qsyn> zxgp 
+Graph 1( 16 inputs, 16 outputs, 32 vertices, 16 edges )
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> usage
+Period time used : 4 seconds
+Total time used  : 4 seconds
+Total memory used: 128.4 M Bytes
+
+qsyn> qq -f
+
