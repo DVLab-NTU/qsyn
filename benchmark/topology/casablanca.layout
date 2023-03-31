@@ -1,0 +1,10 @@
+// The device of Casablanca
+NAME: ibmq_casablanca
+QUBITNUM: 7
+GATESET: {x, rz, h, id, sx, cnot}
+COUPLINGMAP: [[1], [0,2,3], [1], [1,5], [5], [3,4,6], [5]]
+SGERROR: [3e-3, 4e-3, 5e-3, 3e-3, 4e-3, 5e-3, 3e-3]
+SGTIME: [3e-3, 4e-3, 5e-3, 3e-3, 4e-3, 5e-3, 3e-3]
+CNOTERROR: [[1], [0,2,3], [1], [1,5], [5], [3,4,6], [5]]
+// in nanosecond
+CNOTTIME: [[1], [0,2,3], [1], [1,5], [5], [3,4,6], [5]]

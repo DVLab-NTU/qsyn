@@ -1,6 +1,6 @@
-DV Lab, NTUEE, Qsyn 0.4.0
-qsyn> color 0
-Note: colored is set to 0
+DV Lab, NTUEE, Qsyn 0.4.1
+qsyn> color off
+Note: color mode is set to off
 
 qsyn> qccr benchmark/qft/qft_10dec.qasm
 Create and checkout to QCir 0

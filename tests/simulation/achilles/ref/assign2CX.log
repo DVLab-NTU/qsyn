@@ -1,4 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.4.0
+DV Lab, NTUEE, Qsyn 0.4.1
 qsyn> qccr benchmark/pseudoSimp/achilles.qasm
 Create and checkout to QCir 0
 
@@ -24,12 +24,12 @@ qsyn> zxgs -sr
 
 qsyn> zxgp -v
 
-ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (32, [1m[34mH[0m[0m) 
-ID:   5 (●, 0)           (Qubit, Col): (2, 7)	  #Neighbors:   1     (32, [1m[34mH[0m[0m) 
+ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (35, [1m[34mH[0m[0m) 
+ID:   5 (●, 0)           (Qubit, Col): (2, 36)	  #Neighbors:   1     (35, [1m[34mH[0m[0m) 
 ID:   8 (●, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (107, -) 
-ID:   9 (●, 0)           (Qubit, Col): (4, 7)	  #Neighbors:   1     (107, -) 
-ID:  32 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 2)	  #Neighbors:   3     (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (107, [1m[34mH[0m[0m) 
-ID: 107 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 5)	  #Neighbors:   3     (8, -) (9, -) (32, [1m[34mH[0m[0m) 
+ID:   9 (●, 0)           (Qubit, Col): (4, 36)	  #Neighbors:   1     (107, -) 
+ID:  35 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 15)	  #Neighbors:   3     (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (107, [1m[34mH[0m[0m) 
+ID: 107 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 30)	  #Neighbors:   3     (8, -) (9, -) (35, [1m[34mH[0m[0m) 
 Total #Vertices: 6
 
 

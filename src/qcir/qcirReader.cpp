@@ -121,6 +121,7 @@ bool QCir::readQASM(string filename) {
         Phase::fromString(phaseStr, phase);
         addGate(type, pin_id, phase, true);
     }
+    updateGateTime();
     return true;
 }
 

@@ -2,7 +2,6 @@
 
 TMP_NAME="tmp.log"
 ENGINE_INSTALL_PATH="/usr/local"
-HEADERS="catch2"
 
 # Detect OS
 # https://stackoverflow.com/questions/394230/how-to-detect-the-os-from-a-bash-script
@@ -28,22 +27,12 @@ else
         exit 1
 fi
 
-echo "Linking vendor headers..."
-cd include
-for header in $HEADERS; do
-    echo "> Linking vendor/${header}..."
-    rm -f ${header}
-    ln -s ../vendor/${header} ${header}
-done
-cd ..
-
 LIBRARIES=""
 if [[ "$OSFLAG" == *"$LINUX_FLAG"* ]]; then
     LIBRARIES+="lapack blas" # dependencies for xtensor-blas
 fi
 
-ENGINES="xtl xtensor"
-ENGINES+=" xtensor-blas"
+ENGINES="xtl xtensor xtensor-blas"
 # ENGINES+=" nlohmann_json zarray"
 
 

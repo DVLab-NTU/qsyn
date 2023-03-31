@@ -1,4 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.4.0
+DV Lab, NTUEE, Qsyn 0.4.1
 qsyn> ver 9
 Note: verbose level is set to 9
 
@@ -77,7 +77,7 @@ Add edge (1, 8)
 qsyn> zxge -adde 3 9 SIMPLE
 Add edge (3, 9)
 
-qsyn> zxgs -pivot
+qsyn> zxgs -pivotr
 Hadamard Rule                 
 => 0 iterations.
 
@@ -210,7 +210,7 @@ Add edge (1, 8)
 qsyn> zxge -adde 3 9 SIMPLE
 Add edge (3, 9)
 
-qsyn> zxgs -pivot
+qsyn> zxgs -pivotr
 Hadamard Rule                 
 => 0 iterations.
 
@@ -445,7 +445,7 @@ Add vertex ([1m[31mX[0m[0m) 25
 qsyn> zxge -adde 15 25 SIMPLE
 Add edge (15, 25)
 
-qsyn> zxgs -pivot
+qsyn> zxgs -pivotr
 Hadamard Rule                 
 => 0 iterations.
 
@@ -959,7 +959,7 @@ Add edge (1, 43)
 qsyn> zxge -adde 3 45 SIMPLE
 Add edge (3, 45)
 
-qsyn> zxgs -pivot
+qsyn> zxgs -pivotr
 Hadamard Rule                 
 => 0 iterations.
 
@@ -1466,7 +1466,7 @@ qsyn> zxge -addv 0 Z 0
 
 qsyn> zxge -adde 27 47 HADAMARD
 
-qsyn> zxgs -pivot
+qsyn> zxgs -pivotr
 
 qsyn> zxgp -v
 

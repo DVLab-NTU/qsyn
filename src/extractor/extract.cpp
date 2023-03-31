@@ -18,6 +18,12 @@
 
 using namespace std;
 
+bool SORT_FRONTIER = 0;
+bool SORT_NEIGHBORS = 1;
+bool PERMUTE_QUBITS = 1;
+bool FILTER_DUPLICATED_CXS = 1;
+size_t BLOCK_SIZE = 5;
+size_t OPTIMIZE_LEVEL = 1;
 extern size_t verbose;
 
 /**
@@ -60,10 +66,9 @@ void Extractor::initialize(bool fromEmpty) {
 /**
  * @brief Extract the graph into circuit
  *
- * @param permute if false, do not permute qubit in the end
  * @return QCir*
  */
-QCir* Extractor::extract(bool permute) {
+QCir* Extractor::extract() {
     if (!extractionLoop(-1))
         return nullptr;
     else
@@ -72,14 +77,15 @@ QCir* Extractor::extract(bool permute) {
         _circuit->printQubits();
         _graph->printQubits();
     }
-    if (permute) {
+    if (PERMUTE_QUBITS) {
         permuteQubit();
         if (verbose >= 8) {
             _circuit->printQubits();
             _graph->printQubits();
         }
     }
-
+    // cout << "Iteration of extract CX: " << _cntCXIter << endl;
+    // cout << "Total Filtered CX count: " << _cntCXFiltered << endl;
     return _circuit;
 }
 
@@ -155,12 +161,14 @@ void Extractor::extractSingles() {
     vector<pair<ZXVertex*, ZXVertex*>> toggleList;
     for (ZXVertex* o : _graph->getOutputs()) {
         if (o->getFirstNeighbor().second == EdgeType::HADAMARD) {
-            _circuit->addGate("H", {_qubitMap[o->getQubit()]}, Phase(0), false);
+            prependGate("h", {_qubitMap[o->getQubit()]}, Phase(0));
+            // _circuit->addGate("H", {_qubitMap[o->getQubit()]}, Phase(0), false);
             toggleList.emplace_back(o, o->getFirstNeighbor().first);
         }
         Phase ph = o->getFirstNeighbor().first->getPhase();
         if (ph != Phase(0)) {
-            _circuit->addSingleRZ(_qubitMap[o->getQubit()], ph, false);
+            prependGate("rotate", {_qubitMap[o->getQubit()]}, ph);
+            // _circuit->addSingleRZ(_qubitMap[o->getQubit()], ph, false);
             o->getFirstNeighbor().first->setPhase(Phase(0));
         }
     }
@@ -210,7 +218,8 @@ bool Extractor::extractCZs(bool check) {
     }
     for (const auto& [s, t] : removeList) {
         _graph->removeEdge(s, t, EdgeType::HADAMARD);
-        _circuit->addGate("cz", {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1), false);
+        prependGate("cz", {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1));
+        // _circuit->addGate("cz", {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1), false);
     }
 
     if (verbose >= 8) {
@@ -227,6 +236,7 @@ bool Extractor::extractCZs(bool check) {
  * @param strategy (0: directly by result of Gaussian Elimination, 1-default: Filter Duplicated CNOT)
  */
 void Extractor::extractCXs(size_t strategy) {
+    _cntCXIter++;
     gaussianElimination();
     updateGraphByMatrix();
 
@@ -238,23 +248,13 @@ void Extractor::extractCXs(size_t strategy) {
         cnt++;
     }
 
-    if (strategy == 1) {
-        size_t old = _cntCXFiltered;
-        while (true) {
-            size_t reduce = _biAdjacency.filterDuplicatedOps();
-            _cntCXFiltered += reduce;
-            if (reduce == 0) break;
-        }
-        if (verbose >= 4) cout << "Filter " << _cntCXFiltered - old << " CXs. Total: " << _cntCXFiltered << endl;
-    }
-
-    _cnots = _biAdjacency.getOpers();
     for (auto& [t, c] : _cnots) {
         // NOTE - targ and ctrl are opposite here
         size_t ctrl = _qubitMap[frontId2Vertex[c]->getQubit()];
         size_t targ = _qubitMap[frontId2Vertex[t]->getQubit()];
         if (verbose >= 4) cout << "Add CX: " << ctrl << " " << targ << endl;
-        _circuit->addGate("cx", {ctrl, targ}, Phase(0), false);
+        prependGate("cx", {ctrl, targ}, Phase(0));
+        // _circuit->addGate("cx", {ctrl, targ}, Phase(0), false);
     }
 }
 
@@ -308,7 +308,8 @@ size_t Extractor::extractHsFromM2(bool check) {
 
     for (auto& [f, n] : frontNeighPairs) {
         // NOTE - Add Hadamard according to the v of frontier (row)
-        _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
+        // _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
+        prependGate("h", {_qubitMap[f->getQubit()]}, Phase(0));
         // NOTE - Set #qubit and #col according to the old frontier
         n->setQubit(f->getQubit());
         n->setCol(f->getCol());
@@ -575,17 +576,70 @@ bool Extractor::gaussianElimination(bool check) {
         }
     }
 
-    // REVIEW - Do not know why sort in here would be better
-    _neighbors.sort([](const ZXVertex* a, const ZXVertex* b) {
-        return a->getId() < b->getId();
-    });
+    if (SORT_FRONTIER == true) {
+        _frontier.sort([](const ZXVertex* a, const ZXVertex* b) {
+            return a->getQubit() < b->getQubit();
+        });
+    }
+    if (SORT_NEIGHBORS == true) {
+        // REVIEW - Do not know why sort in here would be better
+        _neighbors.sort([](const ZXVertex* a, const ZXVertex* b) {
+            return a->getId() < b->getId();
+        });
+    }
 
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
     columnOptimalSwap();
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
-    _biAdjacency.gaussianElimSkip(5, true, true);
+
+    if (OPTIMIZE_LEVEL == 0) {
+        _biAdjacency.gaussianElimSkip(BLOCK_SIZE, true, true);
+        if (FILTER_DUPLICATED_CXS) {
+            size_t old = _cntCXFiltered;
+            while (true) {
+                size_t reduce = _biAdjacency.filterDuplicatedOps();
+                _cntCXFiltered += reduce;
+                if (reduce == 0) break;
+            }
+            if (verbose >= 4) cout << "Filter " << _cntCXFiltered - old << " CXs. Total: " << _cntCXFiltered << endl;
+        }
+    } else if (OPTIMIZE_LEVEL == 1) {
+        size_t minCnots = size_t(-1);
+        M2 bestMatrix;
+        for (size_t blk = 1; blk < _biAdjacency.numCols(); blk++) {
+            blockElimination(bestMatrix, minCnots, blk);
+        }
+        _biAdjacency = bestMatrix;
+    } else {
+        cerr << "Error: Wrong Optimize Level" << endl;
+        abort();
+    }
     _cnots = _biAdjacency.getOpers();
+
     return true;
+}
+
+/**
+ * @brief Perform Gaussian Elimination with block size `blockSize`
+ *
+ * @param bestMatrix Currently best matrix
+ * @param minCnots Minimum value
+ * @param blockSize
+ */
+void Extractor::blockElimination(M2& bestMatrix, size_t& minCnots, size_t blockSize) {
+    M2 copiedMatrix = _biAdjacency;
+    copiedMatrix.gaussianElimSkip(blockSize, true, true);
+    if (FILTER_DUPLICATED_CXS) {
+        while (true) {
+            size_t reduce = copiedMatrix.filterDuplicatedOps();
+            _cntCXFiltered += reduce;
+            if (reduce == 0) break;
+        }
+    }
+    if (copiedMatrix.getOpers().size() < minCnots) {
+        minCnots = copiedMatrix.getOpers().size();
+        bestMatrix = copiedMatrix;
+    }
 }
 
 /**
@@ -623,9 +677,12 @@ void Extractor::permuteQubit() {
         if (o == i) continue;
         size_t t2 = swapInvMap.at(o);
         // NOTE - SWAP
-        _circuit->addGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0), false);
-        _circuit->addGate("cx", {_qubitMap[t2], _qubitMap[o]}, Phase(0), false);
-        _circuit->addGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0), false);
+        // _circuit->addGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0), false);
+        // _circuit->addGate("cx", {_qubitMap[t2], _qubitMap[o]}, Phase(0), false);
+        // _circuit->addGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0), false);
+        prependGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0));
+        prependGate("cx", {_qubitMap[t2], _qubitMap[o]}, Phase(0));
+        prependGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0));
         swapMap[t2] = i;
         swapInvMap[i] = t2;
     }
@@ -662,8 +719,10 @@ void Extractor::updateNeighbors() {
             // NOTE - Remove
             for (auto& [b, ep] : f->getNeighbors()) {
                 if (_graph->getInputs().contains(b)) {
-                    if (ep == EdgeType::HADAMARD)
-                        _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
+                    if (ep == EdgeType::HADAMARD) {
+                        // _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
+                        prependGate("h", {_qubitMap[f->getQubit()]}, Phase(0));
+                    }
                     break;
                 }
             }
@@ -721,6 +780,27 @@ void Extractor::updateGraphByMatrix(EdgeType et) {
  */
 void Extractor::createMatrix() {
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
+}
+
+/**
+ * @brief Prepend gate to circuit. If _device is given, directly map to physical device.
+ *
+ * @param type
+ * @param qubits
+ * @param phase
+ */
+void Extractor::prependGate(string type, const vector<size_t>& qubits, Phase phase) {
+    assert(qubits.size() == 1 || qubits.size() == 2);
+    if (type == "rotate") {
+        // if (_device.isNull())
+        _circuit->addSingleRZ(qubits[0], phase, false);
+    } else {
+        // if(_device.isNull()) {
+        _circuit->addGate(type, qubits, phase, false);
+        // } else {
+        //     // TODO - Link Device
+        // }
+    }
 }
 
 /**
@@ -802,6 +882,14 @@ void Extractor::printAxels() {
             if (_graph->isGadget(pg))
                 cout << pg->getId() << ")" << endl;
         }
+    }
+    cout << endl;
+}
+
+void Extractor::printCXs() {
+    cout << "CXs: " << endl;
+    for (auto& [c, t] : _cnots) {
+        cout << "(" << c << ", " << t << ")  ";
     }
     cout << endl;
 }

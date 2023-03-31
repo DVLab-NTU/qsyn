@@ -27,6 +27,7 @@ public:
     void help() const override { _parser.printHelp(); }
 
     std::function<void(ArgParse::ArgumentParser&)> parserDefinition;               // define the parser's arguments and traits
+    std::function<bool()> precondition;                                            // define the parsing precondition
     std::function<CmdExecStatus(ArgParse::ArgumentParser const&)> onParseSuccess;  // define the action to take on parse success
 
 private:
