@@ -61,8 +61,8 @@ ZXGSimpCmd::exec(const string &option) {
             s.idSimp();
         else if (myStrNCmp("-LComp", token, 3) == 0)
             s.lcompSimp();
-
-        // else if(myStrNCmp("-PIVOTBoundary", token, 7) == 0)         s.pivotBoundarySimp();
+        else if(myStrNCmp("-PIVOTBoundary", token, 7) == 0)         
+            s.pivotBoundarySimp();
         else if (myStrNCmp("-PIVOTGadget", token, 7) == 0)
             s.pivotGadgetSimp();
         else if (myStrNCmp("-PIVOT", token, 6) == 0)
@@ -92,7 +92,7 @@ ZXGSimpCmd::exec(const string &option) {
 
 void ZXGSimpCmd::usage() const {
     cout << "Usage: ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion | \n"
-         << "-HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -CLIFford | -FReduce | -SReduce]" << endl;
+         << "-HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -PIVOTBoundary | -CLIFford | -FReduce | -SReduce]" << endl;
 }
 
 void ZXGSimpCmd::summary() const {

@@ -1,9 +1,7 @@
-color 0
+color off
 ver 0
 qccr FullReduceError/urf1_149.qasm
 qccp -a
-qc2ts
-tsp 0
 qc2zx
 extp -s
 zxgs -fr
@@ -11,18 +9,12 @@ usage
 zx2qc
 usage
 qccp -a
-qc2ts
-tsp 1
-tseq 0 1
 qc2zx
 zxgadj
 zxcomp 0
+ver 5
 zxgs -fr
 usage
 zxgt -id 
 zxgw FullReduceError/urf1_149_fr.zx
-zx2ts
-tsp 2
-// qc2ts
-// tsp 1
 qq -f

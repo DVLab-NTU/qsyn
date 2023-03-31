@@ -55,6 +55,7 @@ void PivotBoundary::match(ZXGraph* g) {
 
         ZXVertex* vt = nullptr;
         for (auto& [nb, etype] : vs->getNeighbors()) {
+            if (taken.contains(nb)) continue;  // do not choose the one in taken
             if (nb->isBoundary()) continue;
             if (!nb->hasNPiPhase()) continue;
             if (etype != EdgeType::HADAMARD) continue;
@@ -83,7 +84,6 @@ void PivotBoundary::match(ZXGraph* g) {
 
         for (auto& [nb, _] : vs->getNeighbors()) taken.insert(nb);
         for (auto& [nb, _] : vt->getNeighbors()) taken.insert(nb);
-
         this->_matchTypeVec.push_back({vs, vt});
         this->_boundaries.insert(this->_boundaries.end(), b0.begin(), b0.end());
     };
