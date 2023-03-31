@@ -1,9 +1,0 @@
-zxgr out-pyzx-pyzx.zx
-ver 3
-zxgp
-zxgs -fr
-zxgp
-zxgt -id
-zxgw out-pyzx-qsyn-reduced.zx
-usage
-qq -f
