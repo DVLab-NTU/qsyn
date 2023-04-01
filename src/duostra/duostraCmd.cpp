@@ -51,12 +51,20 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
             .defaultValue(false)
             .action(storeTrue)
             .help("check whether the mapping result is correct");
+        parser.addArgument<bool>("-mute-tqdm")
+            .defaultValue(false)
+            .action(storeTrue)
+            .help("mute tqdm");
+        parser.addArgument<bool>("-silent")
+            .defaultValue(false)
+            .action(storeTrue)
+            .help("mute all messages");
     };
 
     duostraCmd->onParseSuccess = [](ArgumentParser const &parser) {
         DT_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
-        Duostra duo = Duostra(qcirMgr->getQCircuit(), deviceMgr->getDevice(), parser["-check"]);
+        Duostra duo = Duostra(qcirMgr->getQCircuit(), deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"]);
         if (duo.flow() != ERROR_CODE) {
             QCir *result = duo.getPhysicalCircuit();
             if (result != nullptr) {
@@ -82,13 +90,13 @@ unique_ptr<ArgParseCmdType> duostraSetCmd() {
 
         parser.addArgument<string>("-scheduler")
             .choices({"base", "static", "random", "greedy", "search"})
-            .help("scheduler");
+            .help("< base   | static | random | greedy | search >");
         parser.addArgument<string>("-router")
             .choices({"apsp", "duostra"})
-            .help("router");
+            .help("< apsp   | duostra >");
         parser.addArgument<string>("-placer")
             .choices({"static", "random", "dfs"})
-            .help("placer");
+            .help("< static | random | dfs >");
 
         parser.addArgument<bool>("-orient")
             .help("smaller logical qubit index with little priority");
