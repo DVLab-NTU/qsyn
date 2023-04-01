@@ -131,8 +131,12 @@ size_t getPlacerType(string str) {
  * @param cir
  * @param dev
  * @param check
+ * @param tqdm
+ * @param silent
  */
-Duostra::Duostra(QCir* cir, Device dev, bool check) : _logicalCircuit(cir), _physicalCircuit(new QCir(0)), _device(dev), _check(check) {
+Duostra::Duostra(QCir* cir, Device dev, bool check, bool tqdm, bool silent) : _logicalCircuit(cir), _physicalCircuit(new QCir(0)), _device(dev), _check(check) {
+    _tqdm = (silent == true) ? false : tqdm;
+    _silent = silent;
 }
 
 /**
@@ -193,7 +197,7 @@ size_t Duostra::flow() {
 
     // scheduler
     if (verbose > 3) cout << "Creating Scheduler..." << endl;
-    auto sched = getScheduler(move(topo));
+    auto sched = getScheduler(move(topo), _tqdm);
 
     // router
     if (verbose > 3) cout << "Creating Router..." << endl;
@@ -201,28 +205,28 @@ size_t Duostra::flow() {
     auto router = make_unique<Router>(move(_device), cost, DUOSTRA_ORIENT);
 
     // routing
-    cout << "Routing..." << endl;
+    if (!_silent) cout << "Routing..." << endl;
     sched->assignGatesAndSort(move(router));
 
     if (_check) {
-        Checker checker(*checkTopo, checkDevice, sched->getOperations(), assign);
-
+        if (!_silent) cout << "Checking..." << endl;
+        Checker checker(*checkTopo, checkDevice, sched->getOperations(), assign, _tqdm);
         if (!checker.testOperations()) {
             return ERROR_CODE;
         }
     }
-
-    cout << "Duostra Result: " << endl;
-    cout << endl;
-    cout << "Scheduler:      " << getSchedulerTypeStr() << endl;
-    cout << "Router:         " << getRouterTypeStr() << endl;
-    cout << "Placer:         " << getPlacerTypeStr() << endl;
-    cout << endl;
-    cout << "Mapping Depth:  " << sched->getFinalCost() << "\n";
-    cout << "Total Time:     " << sched->getTotalTime() << "\n";
-    cout << "#SWAP:          " << sched->getSwapNum() << "\n";
-    cout << endl;
-
+    if (!_silent) {
+        cout << "Duostra Result: " << endl;
+        cout << endl;
+        cout << "Scheduler:      " << getSchedulerTypeStr() << endl;
+        cout << "Router:         " << getRouterTypeStr() << endl;
+        cout << "Placer:         " << getPlacerTypeStr() << endl;
+        cout << endl;
+        cout << "Mapping Depth:  " << sched->getFinalCost() << "\n";
+        cout << "Total Time:     " << sched->getTotalTime() << "\n";
+        cout << "#SWAP:          " << sched->getSwapNum() << "\n";
+        cout << endl;
+    }
     assert(sched->isSorted());
     _result = sched->getOperations();
     buildCircuitByResult();

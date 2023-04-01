@@ -16,7 +16,7 @@
 
 class Checker {
 public:
-    Checker(CircuitTopo&, Device&, const std::vector<Operation>&, const std::vector<size_t>&);
+    Checker(CircuitTopo&, Device&, const std::vector<Operation>&, const std::vector<size_t>&, bool = true);
 
     size_t getCycle(GateType);
 
@@ -32,6 +32,7 @@ private:
     CircuitTopo& _topo;
     Device& _device;
     const std::vector<Operation>& _ops;
+    bool _tqdm;
 };
 
 #endif
