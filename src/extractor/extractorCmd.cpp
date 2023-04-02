@@ -14,6 +14,7 @@
 
 #include "apCmd.h"
 #include "cmdMacros.h"   // for CMD_N_OPTS_EQUAL_OR_RETURN, CMD_N_OPTS_AT_LE...
+#include "deviceCmd.h"
 #include "deviceMgr.h"   // for DeviceMgr
 #include "extract.h"     // for Extractor
 #include "qcir.h"        // for QCir
@@ -56,6 +57,15 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
 
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("extract QCir from ZX-graph");
+
+        auto mutex = parser.addMutuallyExclusiveGroup();
+
+        mutex.addArgument<bool>("-logical")
+            .action(storeTrue)
+            .help("extract to logical circuit");
+        mutex.addArgument<bool>("-physical")
+            .action(storeTrue)
+            .help("extract to physical circuit");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
@@ -64,8 +74,12 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
             cerr << "Error: ZX-graph (id: " << zxGraphMgr->getGraph()->getId() << ") is not graph-like. Not extractable!!" << endl;
             return CMD_EXEC_ERROR;
         }
+        if (parser["-physical"].isParsed()) {
+            DT_CMD_MGR_NOT_EMPTY_OR_RETURN("");
+        }
         zxGraphMgr->copy(zxGraphMgr->getNextID());
-        Extractor ext(zxGraphMgr->getGraph(), nullptr);
+        Extractor ext(zxGraphMgr->getGraph(), nullptr, parser["-physical"].isParsed() ? make_optional<Device>(deviceMgr->getDevice()) : nullopt);
+
         QCir *result = ext.extract();
         if (result != nullptr) {
             qcirMgr->addQCir(qcirMgr->getNextID());

@@ -27,6 +27,21 @@ size_t OPTIMIZE_LEVEL = 1;
 extern size_t verbose;
 
 /**
+ * @brief Construct a new Extractor:: Extractor object
+ *
+ * @param g
+ * @param c
+ * @param d
+ */
+Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> d) : _graph(g), _device(d) {
+    _logicalCircuit = (c == nullptr) ? new QCir(-1) : c;
+    _physicalCircuit = toPhysical() ? new QCir(-1) : nullptr;
+    initialize(c == nullptr);
+    _cntCXFiltered = 0;
+    _cntCXIter = 0;
+}
+
+/**
  * @brief Initialize the extractor. Set ZXGraph to QCir qubit map.
  *
  */
@@ -40,7 +55,7 @@ void Extractor::initialize(bool fromEmpty) {
         }
         _qubitMap[o->getQubit()] = cnt;
         if (fromEmpty)
-            _circuit->addQubit(1);
+            _logicalCircuit->addQubit(1);
         cnt += 1;
     }
 
@@ -59,7 +74,12 @@ void Extractor::initialize(bool fromEmpty) {
         printFrontier();
         printNeighbors();
         _graph->printQubits();
-        _circuit->printQubits();
+        _logicalCircuit->printQubits();
+    }
+
+    if (toPhysical()) {
+        if (verbose >= 1) cout << "Note: extract to device " << _device.value().getName() << endl;
+        _physicalCircuit->addQubit(_device.value().getNQubit());
     }
 }
 
@@ -74,19 +94,19 @@ QCir* Extractor::extract() {
     else
         cout << "Finish extracting!" << endl;
     if (verbose >= 8) {
-        _circuit->printQubits();
+        _logicalCircuit->printQubits();
         _graph->printQubits();
     }
     if (PERMUTE_QUBITS) {
         permuteQubit();
         if (verbose >= 8) {
-            _circuit->printQubits();
+            _logicalCircuit->printQubits();
             _graph->printQubits();
         }
     }
     // cout << "Iteration of extract CX: " << _cntCXIter << endl;
     // cout << "Total Filtered CX count: " << _cntCXFiltered << endl;
-    return _circuit;
+    return _logicalCircuit;
 }
 
 /**
@@ -108,7 +128,7 @@ bool Extractor::extractionLoop(size_t max_iter) {
             if (verbose >= 8) {
                 printFrontier();
                 _graph->printQubits();
-                _circuit->printQubits();
+                _logicalCircuit->printQubits();
             }
             continue;
         }
@@ -132,7 +152,7 @@ bool Extractor::extractionLoop(size_t max_iter) {
             printFrontier();
             printNeighbors();
             _graph->printQubits();
-            _circuit->printQubits();
+            _logicalCircuit->printQubits();
         }
 
         if (max_iter != size_t(-1)) max_iter--;
@@ -177,7 +197,7 @@ void Extractor::extractSingles() {
         _graph->removeEdge(s, t, EdgeType::HADAMARD);
     }
     if (verbose >= 8) {
-        _circuit->printQubits();
+        _logicalCircuit->printQubits();
         _graph->printQubits();
     }
 }
@@ -223,7 +243,7 @@ bool Extractor::extractCZs(bool check) {
     }
 
     if (verbose >= 8) {
-        _circuit->printQubits();
+        _logicalCircuit->printQubits();
         _graph->printQubits();
     }
 
@@ -793,10 +813,10 @@ void Extractor::prependGate(string type, const vector<size_t>& qubits, Phase pha
     assert(qubits.size() == 1 || qubits.size() == 2);
     if (type == "rotate") {
         // if (_device.isNull())
-        _circuit->addSingleRZ(qubits[0], phase, false);
+        _logicalCircuit->addSingleRZ(qubits[0], phase, false);
     } else {
         // if(_device.isNull()) {
-        _circuit->addGate(type, qubits, phase, false);
+        _logicalCircuit->addGate(type, qubits, phase, false);
         // } else {
         //     // TODO - Link Device
         // }

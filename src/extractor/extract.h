@@ -10,6 +10,7 @@
 #define EXTRACT_H
 
 #include <cstddef>  // for size_t
+#include <optional>
 #include <set>
 
 #include "device.h"
@@ -29,18 +30,10 @@ class Extractor {
 public:
     using Target = std::unordered_map<size_t, size_t>;
     using ConnectInfo = std::vector<std::set<size_t>>;
-    Extractor(ZXGraph* g, QCir* c = nullptr) {
-        _graph = g;
-        if (c == nullptr)
-            _circuit = new QCir(-1);
-        else
-            _circuit = c;
-        initialize(c == nullptr);
-        _cntCXFiltered = 0;
-
-        _cntCXIter = 0;
-    }
+    Extractor(ZXGraph*, QCir* = nullptr, std::optional<Device> = std::nullopt);
     ~Extractor() {}
+
+    bool toPhysical() { return _device.has_value(); }
 
     void initialize(bool fromEmpty = true);
     QCir* extract();
@@ -73,7 +66,9 @@ public:
 private:
     size_t _cntCXIter;
     ZXGraph* _graph;
-    QCir* _circuit;
+    QCir* _logicalCircuit;
+    QCir* _physicalCircuit;
+    std::optional<Device> _device;
     ZXVertexList _frontier;
     ZXVertexList _neighbors;
     ZXVertexList _axels;
