@@ -1,4 +1,7 @@
 DV Lab, NTUEE, Qsyn 0.4.1
+qsyn> color off
+Note: color mode is set to off
+
 qsyn> QCNew
 Create and checkout to QCir 0
 
@@ -22,8 +25,10 @@ ID:   2 ( rz)      Time:    3     Qubit:   0
 ID:   3 ( rz)      Time:    4     Qubit:   0 
 ID:   4 ( rz)      Time:    5     Qubit:   0 
 
-qsyn> qccprint -q
-Q 0  - z( 0)--rz( 1)--rz( 2)--rz( 3)--rz( 4)-
+qsyn> qc2ts
+Traverse and build the tensor... 
+Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
 
 qsyn> optimize
 Before Parse Forward
@@ -37,7 +42,6 @@ ID:   4 ( rz)      Time:    5     Qubit:   0
 ######### start parse gate ##########
 ID:   0 (  z)      Time:    1     Qubit:   0 
 issingleZ
-Into z4 loop
 Parse gate done
 _gates[0]
 _available[0]
@@ -46,8 +50,6 @@ _availty[0]: 1  _zs 1
 ######### start parse gate ##########
 ID:   1 ( rz)      Time:    2     Qubit:   0 
 issingleZ
-Into z1 loop
-Into z7 else loop
 Parse gate done
 _gates[0]
 ID:   0 (  p)      Time:    0     Qubit:   0 
@@ -58,8 +60,6 @@ _availty[0]: 1  _zs 0
 ######### start parse gate ##########
 ID:   2 ( rz)      Time:    3     Qubit:   0 
 issingleZ
-Into z7 loop
-Into z7-1 loop
 Parse gate done
 _gates[0]
 _available[0]
@@ -68,8 +68,6 @@ _availty[0]: 1  _zs 1
 ######### start parse gate ##########
 ID:   3 ( rz)      Time:    4     Qubit:   0 
 issingleZ
-Into z1 loop
-Into z7 else loop
 Parse gate done
 _gates[0]
 ID:   1 (  p)      Time:    0     Qubit:   0 
@@ -80,8 +78,6 @@ _availty[0]: 1  _zs 0
 ######### start parse gate ##########
 ID:   4 ( rz)      Time:    5     Qubit:   0 
 issingleZ
-Into z7 loop
-Into z7-2 loop
 Parse gate done
 _gates[0]
 ID:   2 (  p)      Time:    0     Qubit:   0 
@@ -90,12 +86,6 @@ ID:   2 (  p)      Time:    0     Qubit:   0
 _availty[0]: 1  _zs 0
 
 start topo sort
-_gates[0]
-ID:   2 (  p)      Time:    0     Qubit:   0 
-π/6
-_available[0]
-ID:   2 (  p)      Time:    0     Qubit:   0 
-_availty[0]: 1  
 In to while: 0
 q: 0 size: 1
 Into small while loop
@@ -115,11 +105,10 @@ ID:   0 (  p)      Time:    1     Qubit:   0
 Start parseForward
 Listed by gate ID
 ID:   0 (  p)      Time:    1     Qubit:   0 
-reverse
+reversed
 ######### start parse gate ##########
 ID:   0 (  p)      Time:    1     Qubit:   0 
 issingleZ
-Into z7 else loop
 Parse gate done
 _gates[0]
 ID:   0 (  p)      Time:    0     Qubit:   0 
@@ -128,12 +117,6 @@ ID:   0 (  p)      Time:    0     Qubit:   0
 _availty[0]: 1  _zs 0
 
 start topo sort
-_gates[0]
-ID:   0 (  p)      Time:    0     Qubit:   0 
-π/6
-_available[0]
-ID:   0 (  p)      Time:    0     Qubit:   0 
-_availty[0]: 1  
 In to while: 0
 q: 0 size: 1
 Into small while loop
@@ -149,7 +132,6 @@ ID:   0 (  p)      Time:    1     Qubit:   0
 ######### start parse gate ##########
 ID:   0 (  p)      Time:    1     Qubit:   0 
 issingleZ
-Into z7 else loop
 Parse gate done
 _gates[0]
 ID:   0 (  p)      Time:    0     Qubit:   0 
@@ -158,12 +140,6 @@ ID:   0 (  p)      Time:    0     Qubit:   0
 _availty[0]: 1  _zs 0
 
 start topo sort
-_gates[0]
-ID:   0 (  p)      Time:    0     Qubit:   0 
-π/6
-_available[0]
-ID:   0 (  p)      Time:    0     Qubit:   0 
-_availty[0]: 1  
 In to while: 0
 q: 0 size: 1
 Into small while loop
@@ -177,11 +153,10 @@ corrections size2: 0
 Start parseForward
 Listed by gate ID
 ID:   0 (  p)      Time:    1     Qubit:   0 
-reverse
+reversed
 ######### start parse gate ##########
 ID:   0 (  p)      Time:    1     Qubit:   0 
 issingleZ
-Into z7 else loop
 Parse gate done
 _gates[0]
 ID:   0 (  p)      Time:    0     Qubit:   0 
@@ -190,12 +165,6 @@ ID:   0 (  p)      Time:    0     Qubit:   0
 _availty[0]: 1  _zs 0
 
 start topo sort
-_gates[0]
-ID:   0 (  p)      Time:    0     Qubit:   0 
-π/6
-_available[0]
-ID:   0 (  p)      Time:    0     Qubit:   0 
-_availty[0]: 1  
 In to while: 0
 q: 0 size: 1
 Into small while loop
@@ -211,7 +180,6 @@ ID:   0 (  p)      Time:    1     Qubit:   0
 ######### start parse gate ##########
 ID:   0 (  p)      Time:    1     Qubit:   0 
 issingleZ
-Into z7 else loop
 Parse gate done
 _gates[0]
 ID:   0 (  p)      Time:    0     Qubit:   0 
@@ -220,12 +188,6 @@ ID:   0 (  p)      Time:    0     Qubit:   0
 _availty[0]: 1  _zs 0
 
 start topo sort
-_gates[0]
-ID:   0 (  p)      Time:    0     Qubit:   0 
-π/6
-_available[0]
-ID:   0 (  p)      Time:    0     Qubit:   0 
-_availty[0]: 1  
 In to while: 0
 q: 0 size: 1
 Into small while loop
@@ -241,11 +203,20 @@ Q 0  - p( 0)-
 
 qsyn> qccprint -l
 Listed by gate ID
-ID:   0 (  z)      Time:    1     Qubit:   0 
-ID:   1 ( rz)      Time:    2     Qubit:   0 
-ID:   2 ( rz)      Time:    3     Qubit:   0 
-ID:   3 ( rz)      Time:    4     Qubit:   0 
-ID:   4 ( rz)      Time:    5     Qubit:   0 
+ID:   0 (  p)      Time:    1     Qubit:   0 
+
+qsyn> qccprint -q
+Q 0  - p( 0)-
+
+qsyn> qc2ts
+Traverse and build the tensor... 
+Successfully added Tensor 1
+Stored the resulting tensor as tensor id 1
+
+qsyn> tseq 0 1
+Equivalent
+- Global Norm : 1
+- Global Phase: 19π/12
 
 qsyn> qq -f
 

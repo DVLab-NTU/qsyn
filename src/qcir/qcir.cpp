@@ -43,16 +43,11 @@ QCirGate *QCir::getGate(size_t id) const {
  */
 QCirQubit *QCir::getQubit(size_t id) const {
     for (size_t i = 0; i < _qubits.size(); i++) {
-        cout << "Into getQubit foor loop" << endl;
-        cout << "Size " << _qubits.size() << endl;
-        cout << _qubits[i]->getId() << " and " << id << endl;
         if (_qubits[i]->getId() == id){
-            cout << "Found! " << _qubits[i]->getId()<<endl;
             return _qubits[i];
         }
             
     }
-    cout << "GetQubit return" << endl;
     return NULL;
 }
 
@@ -303,7 +298,6 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
         abort();
         return nullptr;
     }
-    cout << "First if end" << endl;
     if (append) {
         size_t max_time = 0;
         for (size_t k = 0; k < bits.size(); k++) {
@@ -321,32 +315,20 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
         }
         temp->setTime(max_time + temp->getDelay());
     } else {
-        cout << "Prepend loop" << endl;
-        cout << bits.size() << endl;
         for (size_t k = 0; k < bits.size(); k++) {
-            cout << "Iinto for loop" << endl;
             size_t q = bits[k];
-            cout << "Line A" << endl;
             temp->addQubit(q, k == bits.size() - 1);  // target is the last one
-            cout << "Line B: " << q<<endl;
             QCirQubit *target = getQubit(q);
-            cout << "Line C" << endl;
-            cout <<(target== nullptr)<<endl;
-            cout << target->getId() <<endl;
             if (target->getFirst() != NULL) {
-                cout << "Line if" << endl;
                 temp->setChild(q, target->getFirst());
                 target->getFirst()->setParent(q, temp);
             } else{
                 target->setLast(temp);
-                cout << "Line else" << endl;
             }
             target->setFirst(temp);
         }
-        cout << "End for loop" << endl;
         _dirty = true;
     }
-    cout << "Second if end" << endl;
     _qgates.push_back(temp);
     _gateId++;
     clearMapping();

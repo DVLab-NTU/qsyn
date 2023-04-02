@@ -1,4 +1,7 @@
-DV Lab, NTUEE, Qsyn 0.4.0
+DV Lab, NTUEE, Qsyn 0.4.1
+qsyn> color off
+Note: color mode is set to off
+
 qsyn> QCNew
 Create and checkout to QCir 0
 
@@ -20,35 +23,38 @@ qsyn> qcga -CX 1 2
 
 qsyn> qccprint -l
 Listed by gate ID
-ID:   0 ( cx)      Time:    0     Qubit:   0   1 
-ID:   1 ( cx)      Time:    1     Qubit:   1   0 
-ID:   2 ( cx)      Time:    2     Qubit:   0   1 
-ID:   3 ( cx)      Time:    3     Qubit:   1   0 
-ID:   4 ( cx)      Time:    4     Qubit:   0   2 
-ID:   5 ( cx)      Time:    5     Qubit:   2   0 
-ID:   6 ( cx)      Time:    6     Qubit:   1   2 
+ID:   0 ( cx)      Time:    1     Qubit:   0   1 
+ID:   1 ( cx)      Time:    2     Qubit:   1   0 
+ID:   2 ( cx)      Time:    3     Qubit:   0   1 
+ID:   3 ( cx)      Time:    4     Qubit:   1   0 
+ID:   4 ( cx)      Time:    5     Qubit:   0   2 
+ID:   5 ( cx)      Time:    6     Qubit:   2   0 
+ID:   6 ( cx)      Time:    7     Qubit:   1   2 
 
-qsyn> qccprint -q
-Q 0  -cx( 0)--cx( 1)--cx( 2)--cx( 3)--cx( 4)--cx( 5)-
-Q 1  -cx( 0)--cx( 1)--cx( 2)--cx( 3)------------------cx( 6)-
-Q 2  ---------------------------------cx( 4)--cx( 5)--cx( 6)-
+qsyn> qc2ts
+Traverse and build the tensor... 
+Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
 
 qsyn> optimize
 Before Parse Forward
 Start parseForward
 Listed by gate ID
-ID:   0 ( cx)      Time:    0     Qubit:   0   1 
-ID:   1 ( cx)      Time:    1     Qubit:   1   0 
-ID:   2 ( cx)      Time:    2     Qubit:   0   1 
-ID:   3 ( cx)      Time:    3     Qubit:   1   0 
-ID:   4 ( cx)      Time:    4     Qubit:   0   2 
-ID:   5 ( cx)      Time:    5     Qubit:   2   0 
-ID:   6 ( cx)      Time:    6     Qubit:   1   2 
+ID:   0 ( cx)      Time:    1     Qubit:   0   1 
+ID:   1 ( cx)      Time:    2     Qubit:   1   0 
+ID:   2 ( cx)      Time:    3     Qubit:   0   1 
+ID:   3 ( cx)      Time:    4     Qubit:   1   0 
+ID:   4 ( cx)      Time:    5     Qubit:   0   2 
+ID:   5 ( cx)      Time:    6     Qubit:   2   0 
+ID:   6 ( cx)      Time:    7     Qubit:   1   2 
+######### start parse gate ##########
+ID:   0 ( cx)      Time:    1     Qubit:   0   1 
 _______________APPLY ADDCX_______________
 Control: 0 Target: 1
 Into second loop
 Into fourth loop(!found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
 ID:   0 ( cx)      Time:    0     Qubit:   0   1 
 _gates[1]
@@ -59,13 +65,17 @@ ID:   0 ( cx)      Time:    0     Qubit:   0   1
 _available[1]
 ID:   0 ( cx)      Time:    0     Qubit:   0   1 
 _available[2]
-_availy[0]: 1  _availy[1]: 2  _availy[2]: 1  
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   1 ( cx)      Time:    2     Qubit:   1   0 
 _______________APPLY ADDCX_______________
 Control: 1 Target: 0
 Into first loop
 doswap
 0
 End doswap
+Parse gate done
 _gates[0]
 ID:   1 ( cx)      Time:    0     Qubit:   1   0 
 _gates[1]
@@ -76,25 +86,33 @@ ID:   1 ( cx)      Time:    0     Qubit:   1   0
 _available[1]
 ID:   1 ( cx)      Time:    0     Qubit:   1   0 
 _available[2]
-_availy[0]: 2  _availy[1]: 1  _availy[2]: 1  
+_availty[0]: 2  _availty[1]: 1  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   2 ( cx)      Time:    3     Qubit:   0   1 
 _______________APPLY ADDCX_______________
 Control: 1 Target: 0
 into for loop 
 Into third loop(found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
 _gates[1]
 _gates[2]
 _available[0]
 _available[1]
 _available[2]
-_availy[0]: 2  _availy[1]: 1  _availy[2]: 1  
+_availty[0]: 2  _availty[1]: 1  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   3 ( cx)      Time:    4     Qubit:   1   0 
 _______________APPLY ADDCX_______________
 Control: 0 Target: 1
 Into first loop
 Into second loop
 Into fourth loop(!found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
 ID:   2 ( cx)      Time:    0     Qubit:   0   1 
 _gates[1]
@@ -105,13 +123,17 @@ ID:   2 ( cx)      Time:    0     Qubit:   0   1
 _available[1]
 ID:   2 ( cx)      Time:    0     Qubit:   0   1 
 _available[2]
-_availy[0]: 1  _availy[1]: 2  _availy[2]: 1  
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   4 ( cx)      Time:    5     Qubit:   0   2 
 _______________APPLY ADDCX_______________
 Control: 1 Target: 2
 Into first loop
 Into second loop
 Into fourth loop(!found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
 ID:   2 ( cx)      Time:    0     Qubit:   0   1 
 _gates[1]
@@ -125,13 +147,17 @@ _available[1]
 ID:   3 ( cx)      Time:    0     Qubit:   1   2 
 _available[2]
 ID:   3 ( cx)      Time:    0     Qubit:   1   2 
-_availy[0]: 1  _availy[1]: 1  _availy[2]: 2  
+_availty[0]: 1  _availty[1]: 1  _availty[2]: 2  _zs 0
+
+######### start parse gate ##########
+ID:   5 ( cx)      Time:    6     Qubit:   2   0 
 _______________APPLY ADDCX_______________
 Control: 2 Target: 1
 Into first loop
 doswap
 0
 End doswap
+Parse gate done
 _gates[0]
 ID:   2 ( cx)      Time:    0     Qubit:   0   1 
 _gates[1]
@@ -145,13 +171,17 @@ _available[1]
 ID:   4 ( cx)      Time:    0     Qubit:   2   1 
 _available[2]
 ID:   4 ( cx)      Time:    0     Qubit:   2   1 
-_availy[0]: 1  _availy[1]: 2  _availy[2]: 1  
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   6 ( cx)      Time:    7     Qubit:   1   2 
 _______________APPLY ADDCX_______________
 Control: 0 Target: 1
 into for loop 
 Into third loop(found match)
 Into fourth loop(!found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
 ID:   2 ( cx)      Time:    0     Qubit:   0   1 
 ID:   5 ( cx)      Time:    0     Qubit:   0   1 
@@ -169,94 +199,115 @@ ID:   4 ( cx)      Time:    0     Qubit:   2   1
 ID:   5 ( cx)      Time:    0     Qubit:   0   1 
 _available[2]
 ID:   4 ( cx)      Time:    0     Qubit:   2   1 
-_availy[0]: 1  _availy[1]: 2  _availy[2]: 1  
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 1  _zs 0
+
 start topo sort
 In to while: 0
 q: 2 size: 1
 Into small while loop
 ID:   4 ( cx)      Time:    0     Qubit:   2   1 
 case III
+type: 0
+Pop remove
+_gates[0]
+ID:   2 ( cx)      Time:    0     Qubit:   0   1 
+ID:   5 ( cx)      Time:    0     Qubit:   0   1 
+_gates[1]
+ID:   2 ( cx)      Time:    0     Qubit:   0   1 
+ID:   4 ( cx)      Time:    0     Qubit:   2   1 
+ID:   5 ( cx)      Time:    0     Qubit:   0   1 
+_gates[2]
+ID:   4 ( cx)      Time:    0     Qubit:   2   1 
+Remove: 
+_gates[0]
+ID:   2 ( cx)      Time:    0     Qubit:   0   1 
+ID:   5 ( cx)      Time:    0     Qubit:   0   1 
+_gates[1]
+ID:   2 ( cx)      Time:    0     Qubit:   0   1 
+ID:   4 ( cx)      Time:    0     Qubit:   2   1 
+ID:   5 ( cx)      Time:    0     Qubit:   0   1 
+_gates[2]
+ID:   4 ( cx)      Time:    0     Qubit:   2   1 
 q: 1 size: 3
 Into small while loop
 ID:   2 ( cx)      Time:    0     Qubit:   0   1 
 case III
+type: 1
+Into the case3 for loop
+ID:   4 ( cx)      Time:    0     Qubit:   2   1 
+Second else if
+Second else if-1
+Into the case3 for loop
+ID:   5 ( cx)      Time:    0     Qubit:   0   1 
+Second else if
+Second else if-2
+Pop remove
+_gates[0]
+ID:   2 ( cx)      Time:    0     Qubit:   0   1 
+ID:   5 ( cx)      Time:    0     Qubit:   0   1 
+_gates[1]
+ID:   2 ( cx)      Time:    0     Qubit:   0   1 
+ID:   4 ( cx)      Time:    0     Qubit:   2   1 
+ID:   5 ( cx)      Time:    0     Qubit:   0   1 
+_gates[2]
+Remove: 1 
+_gates[0]
+ID:   2 ( cx)      Time:    0     Qubit:   0   1 
+ID:   5 ( cx)      Time:    0     Qubit:   0   1 
+_gates[1]
+ID:   2 ( cx)      Time:    0     Qubit:   0   1 
+ID:   5 ( cx)      Time:    0     Qubit:   0   1 
+_gates[2]
 q: 0 size: 2
 Into small while loop
 ID:   2 ( cx)      Time:    0     Qubit:   0   1 
 case II
 Into small while loop
 ID:   5 ( cx)      Time:    0     Qubit:   0   1 
-case III
-In to while: 0
-q: 2 size: 1
-Into small while loop
-ID:   4 ( cx)      Time:    0     Qubit:   2   1 
 case II
-q: 1 size: 1
-Into small while loop
-ID:   5 ( cx)      Time:    0     Qubit:   0   1 
-case II
-q: 0 size: 0
-Add swaps
-ID:   6 ( cx)      Time:    0     Qubit:   0   1 
-ID:   7 ( cx)      Time:    0     Qubit:   1   0 
-ID:   8 ( cx)      Time:    0     Qubit:   0   1 
-Add swaps
-ID:   9 ( cx)      Time:    0     Qubit:   1   2 
-ID:  10 ( cx)      Time:    0     Qubit:   2   1 
-ID:  11 ( cx)      Time:    0     Qubit:   1   2 
 tmp is
 Listed by gate ID
-ID:   0 ( cx)      Time:    0     Qubit:   0   1 
-ID:   1 ( cx)      Time:    1     Qubit:   2   1 
-ID:   2 ( cx)      Time:    2     Qubit:   0   1 
+ID:   0 ( cx)      Time:    1     Qubit:   2   1 
+ID:   1 ( cx)      Time:    2     Qubit:   0   1 
+ID:   2 ( cx)      Time:    3     Qubit:   0   1 
 After Parse Circuit
 Listed by gate ID
-ID:   0 ( cx)      Time:    0     Qubit:   0   1 
-ID:   1 ( cx)      Time:    1     Qubit:   2   1 
-ID:   2 ( cx)      Time:    2     Qubit:   0   1 
+ID:   0 ( cx)      Time:    1     Qubit:   2   1 
+ID:   1 ( cx)      Time:    2     Qubit:   0   1 
+ID:   2 ( cx)      Time:    3     Qubit:   0   1 
 corrections size: 6
-Add gate
-ID:   6 ( cx)      Time:    0     Qubit:   0   1 
-Add gate
-ID:   7 ( cx)      Time:    0     Qubit:   1   0 
-Add gate
-ID:   8 ( cx)      Time:    0     Qubit:   0   1 
-Add gate
-ID:   9 ( cx)      Time:    0     Qubit:   1   2 
-Add gate
-ID:  10 ( cx)      Time:    0     Qubit:   2   1 
-Add gate
-ID:  11 ( cx)      Time:    0     Qubit:   1   2 
 After add corrections
 Listed by gate ID
-ID:   0 ( cx)      Time:    0     Qubit:   0   1 
-ID:   1 ( cx)      Time:    1     Qubit:   2   1 
-ID:   2 ( cx)      Time:    2     Qubit:   0   1 
-ID:   3 ( cx)      Time:    3     Qubit:   0   1 
-ID:   4 ( cx)      Time:    4     Qubit:   1   0 
-ID:   5 ( cx)      Time:    5     Qubit:   0   1 
-ID:   6 ( cx)      Time:    6     Qubit:   1   2 
-ID:   7 ( cx)      Time:    7     Qubit:   2   1 
-ID:   8 ( cx)      Time:    8     Qubit:   1   2 
+ID:   0 ( cx)      Time:    1     Qubit:   2   1 
+ID:   1 ( cx)      Time:    2     Qubit:   0   1 
+ID:   2 ( cx)      Time:    3     Qubit:   0   1 
+ID:   3 ( cx)      Time:    4     Qubit:   0   1 
+ID:   4 ( cx)      Time:    5     Qubit:   1   0 
+ID:   5 ( cx)      Time:    6     Qubit:   0   1 
+ID:   6 ( cx)      Time:    7     Qubit:   1   2 
+ID:   7 ( cx)      Time:    8     Qubit:   2   1 
+ID:   8 ( cx)      Time:    9     Qubit:   1   2 
 ###########  Number 1 iter #############
 Start parseForward
 Listed by gate ID
-ID:   0 ( cx)      Time:    0     Qubit:   0   1 
-ID:   1 ( cx)      Time:    1     Qubit:   2   1 
-ID:   2 ( cx)      Time:    2     Qubit:   0   1 
-ID:   3 ( cx)      Time:    3     Qubit:   0   1 
-ID:   4 ( cx)      Time:    4     Qubit:   1   0 
-ID:   5 ( cx)      Time:    5     Qubit:   0   1 
-ID:   6 ( cx)      Time:    6     Qubit:   1   2 
-ID:   7 ( cx)      Time:    7     Qubit:   2   1 
-ID:   8 ( cx)      Time:    8     Qubit:   1   2 
-reverse
+ID:   0 ( cx)      Time:    1     Qubit:   2   1 
+ID:   1 ( cx)      Time:    2     Qubit:   0   1 
+ID:   2 ( cx)      Time:    3     Qubit:   0   1 
+ID:   3 ( cx)      Time:    4     Qubit:   0   1 
+ID:   4 ( cx)      Time:    5     Qubit:   1   0 
+ID:   5 ( cx)      Time:    6     Qubit:   0   1 
+ID:   6 ( cx)      Time:    7     Qubit:   1   2 
+ID:   7 ( cx)      Time:    8     Qubit:   2   1 
+ID:   8 ( cx)      Time:    9     Qubit:   1   2 
+reversed
+######### start parse gate ##########
+ID:   8 ( cx)      Time:    9     Qubit:   1   2 
 _______________APPLY ADDCX_______________
 Control: 1 Target: 2
 Into second loop
 Into fourth loop(!found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
 _gates[1]
 ID:   0 ( cx)      Time:    0     Qubit:   1   2 
@@ -267,13 +318,17 @@ _available[1]
 ID:   0 ( cx)      Time:    0     Qubit:   1   2 
 _available[2]
 ID:   0 ( cx)      Time:    0     Qubit:   1   2 
-_availy[0]: 1  _availy[1]: 1  _availy[2]: 2  
+_availty[0]: 1  _availty[1]: 1  _availty[2]: 2  _zs 0
+
+######### start parse gate ##########
+ID:   7 ( cx)      Time:    8     Qubit:   2   1 
 _______________APPLY ADDCX_______________
 Control: 2 Target: 1
 Into first loop
 doswap
 1
 End doswap
+Parse gate done
 _gates[0]
 _gates[1]
 ID:   1 ( cx)      Time:    0     Qubit:   2   1 
@@ -284,24 +339,32 @@ _available[1]
 ID:   1 ( cx)      Time:    0     Qubit:   2   1 
 _available[2]
 ID:   1 ( cx)      Time:    0     Qubit:   2   1 
-_availy[0]: 1  _availy[1]: 2  _availy[2]: 1  
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   6 ( cx)      Time:    7     Qubit:   1   2 
 _______________APPLY ADDCX_______________
 Control: 2 Target: 1
 into for loop 
 Into third loop(found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
 _gates[1]
 _gates[2]
 _available[0]
 _available[1]
 _available[2]
-_availy[0]: 1  _availy[1]: 2  _availy[2]: 1  
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   5 ( cx)      Time:    6     Qubit:   0   1 
 _______________APPLY ADDCX_______________
 Control: 0 Target: 2
 Into second loop
 Into fourth loop(!found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
 ID:   2 ( cx)      Time:    0     Qubit:   0   2 
 _gates[1]
@@ -312,13 +375,17 @@ ID:   2 ( cx)      Time:    0     Qubit:   0   2
 _available[1]
 _available[2]
 ID:   2 ( cx)      Time:    0     Qubit:   0   2 
-_availy[0]: 1  _availy[1]: 2  _availy[2]: 2  
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 2  _zs 0
+
+######### start parse gate ##########
+ID:   4 ( cx)      Time:    5     Qubit:   1   0 
 _______________APPLY ADDCX_______________
 Control: 2 Target: 0
 Into first loop
 doswap
 0
 End doswap
+Parse gate done
 _gates[0]
 ID:   3 ( cx)      Time:    0     Qubit:   2   0 
 _gates[1]
@@ -329,23 +396,31 @@ ID:   3 ( cx)      Time:    0     Qubit:   2   0
 _available[1]
 _available[2]
 ID:   3 ( cx)      Time:    0     Qubit:   2   0 
-_availy[0]: 2  _availy[1]: 2  _availy[2]: 1  
+_availty[0]: 2  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   3 ( cx)      Time:    4     Qubit:   0   1 
 _______________APPLY ADDCX_______________
 Control: 2 Target: 0
 into for loop 
 Into third loop(found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
 _gates[1]
 _gates[2]
 _available[0]
 _available[1]
 _available[2]
-_availy[0]: 2  _availy[1]: 2  _availy[2]: 1  
+_availty[0]: 2  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   2 ( cx)      Time:    3     Qubit:   0   1 
 _______________APPLY ADDCX_______________
 Control: 2 Target: 0
 Into fourth loop(!found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
 ID:   4 ( cx)      Time:    0     Qubit:   2   0 
 _gates[1]
@@ -356,32 +431,32 @@ ID:   4 ( cx)      Time:    0     Qubit:   2   0
 _available[1]
 _available[2]
 ID:   4 ( cx)      Time:    0     Qubit:   2   0 
-_availy[0]: 2  _availy[1]: 2  _availy[2]: 1  
+_availty[0]: 2  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   1 ( cx)      Time:    2     Qubit:   0   1 
+_______________APPLY ADDCX_______________
+Control: 2 Target: 0
+into for loop 
+Into third loop(found match)
+Done addcx:
+Parse gate done
+_gates[0]
+_gates[1]
+_gates[2]
+_available[0]
+_available[1]
+_available[2]
+_availty[0]: 2  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   0 ( cx)      Time:    1     Qubit:   2   1 
 _______________APPLY ADDCX_______________
 Control: 1 Target: 0
 Into first loop
 Into fourth loop(!found match)
-After the iter:
-_gates[0]
-ID:   4 ( cx)      Time:    0     Qubit:   2   0 
-ID:   5 ( cx)      Time:    0     Qubit:   1   0 
-_gates[1]
-ID:   5 ( cx)      Time:    0     Qubit:   1   0 
-_gates[2]
-ID:   4 ( cx)      Time:    0     Qubit:   2   0 
-_available[0]
-ID:   4 ( cx)      Time:    0     Qubit:   2   0 
-ID:   5 ( cx)      Time:    0     Qubit:   1   0 
-_available[1]
-ID:   5 ( cx)      Time:    0     Qubit:   1   0 
-_available[2]
-ID:   4 ( cx)      Time:    0     Qubit:   2   0 
-_availy[0]: 2  _availy[1]: 1  _availy[2]: 1  
-_______________APPLY ADDCX_______________
-Control: 2 Target: 0
-into for loop 
-Into third loop(found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
 ID:   5 ( cx)      Time:    0     Qubit:   1   0 
 _gates[1]
@@ -392,7 +467,8 @@ ID:   5 ( cx)      Time:    0     Qubit:   1   0
 _available[1]
 ID:   5 ( cx)      Time:    0     Qubit:   1   0 
 _available[2]
-_availy[0]: 2  _availy[1]: 1  _availy[2]: 1  
+_availty[0]: 2  _availty[1]: 1  _availty[2]: 1  _zs 0
+
 start topo sort
 In to while: 0
 q: 2 size: 0
@@ -400,284 +476,330 @@ q: 1 size: 1
 Into small while loop
 ID:   5 ( cx)      Time:    0     Qubit:   1   0 
 case III
+type: 0
+Pop remove
+_gates[0]
+ID:   5 ( cx)      Time:    0     Qubit:   1   0 
+_gates[1]
+ID:   5 ( cx)      Time:    0     Qubit:   1   0 
+_gates[2]
+Remove: 
+_gates[0]
+ID:   5 ( cx)      Time:    0     Qubit:   1   0 
+_gates[1]
+ID:   5 ( cx)      Time:    0     Qubit:   1   0 
+_gates[2]
 q: 0 size: 1
 Into small while loop
 ID:   5 ( cx)      Time:    0     Qubit:   1   0 
 case II
-Add swaps
-ID:   6 ( cx)      Time:    0     Qubit:   1   2 
-ID:   7 ( cx)      Time:    0     Qubit:   2   1 
-ID:   8 ( cx)      Time:    0     Qubit:   1   2 
-Add swaps
-ID:   9 ( cx)      Time:    0     Qubit:   0   2 
-ID:  10 ( cx)      Time:    0     Qubit:   2   0 
-ID:  11 ( cx)      Time:    0     Qubit:   0   2 
 tmp is
 Listed by gate ID
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
+ID:   0 ( cx)      Time:    1     Qubit:   1   0 
 corrections size1: 6
 Start parseForward
 Listed by gate ID
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
-ID:   1 ( cx)      Time:    1     Qubit:   1   2 
-ID:   2 ( cx)      Time:    2     Qubit:   2   1 
-ID:   3 ( cx)      Time:    3     Qubit:   1   2 
-ID:   4 ( cx)      Time:    4     Qubit:   0   2 
-ID:   5 ( cx)      Time:    5     Qubit:   2   0 
-ID:   6 ( cx)      Time:    6     Qubit:   0   2 
+ID:   0 ( cx)      Time:    7     Qubit:   1   0 
+ID:   1 ( cx)      Time:    6     Qubit:   1   2 
+ID:   2 ( cx)      Time:    5     Qubit:   2   1 
+ID:   3 ( cx)      Time:    4     Qubit:   1   2 
+ID:   4 ( cx)      Time:    3     Qubit:   0   2 
+ID:   5 ( cx)      Time:    2     Qubit:   2   0 
+ID:   6 ( cx)      Time:    1     Qubit:   0   2 
+######### start parse gate ##########
+ID:   6 ( cx)      Time:    1     Qubit:   0   2 
+_______________APPLY ADDCX_______________
+Control: 0 Target: 2
+Into second loop
+Into fourth loop(!found match)
+Done addcx:
+Parse gate done
+_gates[0]
+ID:   0 ( cx)      Time:    0     Qubit:   0   2 
+_gates[1]
+_gates[2]
+ID:   0 ( cx)      Time:    0     Qubit:   0   2 
+_available[0]
+ID:   0 ( cx)      Time:    0     Qubit:   0   2 
+_available[1]
+_available[2]
+ID:   0 ( cx)      Time:    0     Qubit:   0   2 
+_availty[0]: 1  _availty[1]: 1  _availty[2]: 2  _zs 0
+
+######### start parse gate ##########
+ID:   5 ( cx)      Time:    2     Qubit:   2   0 
+_______________APPLY ADDCX_______________
+Control: 2 Target: 0
+Into first loop
+doswap
+0
+End doswap
+Parse gate done
+_gates[0]
+ID:   1 ( cx)      Time:    0     Qubit:   2   0 
+_gates[1]
+_gates[2]
+ID:   1 ( cx)      Time:    0     Qubit:   2   0 
+_available[0]
+ID:   1 ( cx)      Time:    0     Qubit:   2   0 
+_available[1]
+_available[2]
+ID:   1 ( cx)      Time:    0     Qubit:   2   0 
+_availty[0]: 2  _availty[1]: 1  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   4 ( cx)      Time:    3     Qubit:   0   2 
+_______________APPLY ADDCX_______________
+Control: 2 Target: 0
+into for loop 
+Into third loop(found match)
+Done addcx:
+Parse gate done
+_gates[0]
+_gates[1]
+_gates[2]
+_available[0]
+_available[1]
+_available[2]
+_availty[0]: 2  _availty[1]: 1  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   3 ( cx)      Time:    4     Qubit:   1   2 
 _______________APPLY ADDCX_______________
 Control: 1 Target: 0
-Into second loop
 Into fourth loop(!found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
+ID:   2 ( cx)      Time:    0     Qubit:   1   0 
 _gates[1]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
+ID:   2 ( cx)      Time:    0     Qubit:   1   0 
 _gates[2]
 _available[0]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
+ID:   2 ( cx)      Time:    0     Qubit:   1   0 
 _available[1]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
+ID:   2 ( cx)      Time:    0     Qubit:   1   0 
 _available[2]
-_availy[0]: 2  _availy[1]: 1  _availy[2]: 1  
+_availty[0]: 2  _availty[1]: 1  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   2 ( cx)      Time:    5     Qubit:   2   1 
 _______________APPLY ADDCX_______________
-Control: 1 Target: 2
-Into second loop
-into for loop 
-Into fourth loop(!found match)
-After the iter:
-_gates[0]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
-_gates[1]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
-ID:   1 ( cx)      Time:    0     Qubit:   1   2 
-_gates[2]
-ID:   1 ( cx)      Time:    0     Qubit:   1   2 
-_available[0]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
-_available[1]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
-ID:   1 ( cx)      Time:    0     Qubit:   1   2 
-_available[2]
-ID:   1 ( cx)      Time:    0     Qubit:   1   2 
-_availy[0]: 2  _availy[1]: 1  _availy[2]: 2  
-_______________APPLY ADDCX_______________
-Control: 2 Target: 1
+Control: 0 Target: 1
 Into first loop
 doswap
 1
 End doswap
+Parse gate done
 _gates[0]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
+ID:   3 ( cx)      Time:    0     Qubit:   0   1 
 _gates[1]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
-ID:   2 ( cx)      Time:    0     Qubit:   2   1 
-_gates[2]
-ID:   2 ( cx)      Time:    0     Qubit:   2   1 
-_available[0]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
-_available[1]
-ID:   2 ( cx)      Time:    0     Qubit:   2   1 
-_available[2]
-ID:   2 ( cx)      Time:    0     Qubit:   2   1 
-_availy[0]: 2  _availy[1]: 2  _availy[2]: 1  
-_______________APPLY ADDCX_______________
-Control: 2 Target: 1
-into for loop 
-Into third loop(found match)
-After the iter:
-_gates[0]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
-_gates[1]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
+ID:   3 ( cx)      Time:    0     Qubit:   0   1 
 _gates[2]
 _available[0]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
+ID:   3 ( cx)      Time:    0     Qubit:   0   1 
 _available[1]
+ID:   3 ( cx)      Time:    0     Qubit:   0   1 
 _available[2]
-_availy[0]: 2  _availy[1]: 2  _availy[2]: 1  
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   1 ( cx)      Time:    6     Qubit:   1   2 
 _______________APPLY ADDCX_______________
 Control: 0 Target: 1
-Into first loop
-Into fourth loop(!found match)
-After the iter:
-_gates[0]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
-ID:   3 ( cx)      Time:    0     Qubit:   0   1 
-_gates[1]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
-ID:   3 ( cx)      Time:    0     Qubit:   0   1 
-_gates[2]
-_available[0]
-ID:   3 ( cx)      Time:    0     Qubit:   0   1 
-_available[1]
-ID:   3 ( cx)      Time:    0     Qubit:   0   1 
-_available[2]
-_availy[0]: 1  _availy[1]: 2  _availy[2]: 1  
-_______________APPLY ADDCX_______________
-Control: 1 Target: 0
-Into first loop
-doswap
-0
-End doswap
-_gates[0]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
-ID:   4 ( cx)      Time:    0     Qubit:   1   0 
-_gates[1]
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
-ID:   4 ( cx)      Time:    0     Qubit:   1   0 
-_gates[2]
-_available[0]
-ID:   4 ( cx)      Time:    0     Qubit:   1   0 
-_available[1]
-ID:   4 ( cx)      Time:    0     Qubit:   1   0 
-_available[2]
-_availy[0]: 2  _availy[1]: 1  _availy[2]: 1  
-_______________APPLY ADDCX_______________
-Control: 1 Target: 0
 into for loop 
 Into third loop(found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
-ID:   4 ( cx)      Time:    0     Qubit:   1   0 
 _gates[1]
-ID:   4 ( cx)      Time:    0     Qubit:   1   0 
 _gates[2]
 _available[0]
 _available[1]
 _available[2]
-_availy[0]: 2  _availy[1]: 1  _availy[2]: 1  
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   0 ( cx)      Time:    7     Qubit:   1   0 
+_______________APPLY ADDCX_______________
+Control: 0 Target: 2
+Into second loop
+Into fourth loop(!found match)
+Done addcx:
+Parse gate done
+_gates[0]
+ID:   4 ( cx)      Time:    0     Qubit:   0   2 
+_gates[1]
+_gates[2]
+ID:   4 ( cx)      Time:    0     Qubit:   0   2 
+_available[0]
+ID:   4 ( cx)      Time:    0     Qubit:   0   2 
+_available[1]
+_available[2]
+ID:   4 ( cx)      Time:    0     Qubit:   0   2 
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 2  _zs 0
+
 start topo sort
 In to while: 0
-q: 2 size: 0
-q: 1 size: 1
+q: 2 size: 1
 Into small while loop
-ID:   4 ( cx)      Time:    0     Qubit:   1   0 
+ID:   4 ( cx)      Time:    0     Qubit:   0   2 
 case III
+type: 1
+Pop remove
+_gates[0]
+ID:   4 ( cx)      Time:    0     Qubit:   0   2 
+_gates[1]
+_gates[2]
+ID:   4 ( cx)      Time:    0     Qubit:   0   2 
+Remove: 
+_gates[0]
+ID:   4 ( cx)      Time:    0     Qubit:   0   2 
+_gates[1]
+_gates[2]
+ID:   4 ( cx)      Time:    0     Qubit:   0   2 
+q: 1 size: 0
 q: 0 size: 1
 Into small while loop
-ID:   4 ( cx)      Time:    0     Qubit:   1   0 
+ID:   4 ( cx)      Time:    0     Qubit:   0   2 
 case II
-Add swaps
-ID:   5 ( cx)      Time:    0     Qubit:   1   2 
-ID:   6 ( cx)      Time:    0     Qubit:   2   1 
-ID:   7 ( cx)      Time:    0     Qubit:   1   2 
-Add swaps
-ID:   8 ( cx)      Time:    0     Qubit:   0   1 
-ID:   9 ( cx)      Time:    0     Qubit:   1   0 
-ID:  10 ( cx)      Time:    0     Qubit:   0   1 
 tmp is
 Listed by gate ID
-ID:   0 ( cx)      Time:    0     Qubit:   1   0 
+ID:   0 ( cx)      Time:    1     Qubit:   0   2 
 corrections size2: 6
 ###########  Number 2 iter #############
 Start parseForward
 Listed by gate ID
+ID:   0 ( cx)      Time:    1     Qubit:   0   2 
+ID:   1 ( cx)      Time:    2     Qubit:   0   2 
+ID:   2 ( cx)      Time:    3     Qubit:   2   0 
+ID:   3 ( cx)      Time:    4     Qubit:   0   2 
+ID:   4 ( cx)      Time:    5     Qubit:   1   0 
+ID:   5 ( cx)      Time:    6     Qubit:   0   1 
+ID:   6 ( cx)      Time:    7     Qubit:   1   0 
+reversed
+######### start parse gate ##########
+ID:   6 ( cx)      Time:    7     Qubit:   1   0 
+_______________APPLY ADDCX_______________
+Control: 1 Target: 0
+Into second loop
+Into fourth loop(!found match)
+Done addcx:
+Parse gate done
+_gates[0]
 ID:   0 ( cx)      Time:    0     Qubit:   1   0 
-ID:   1 ( cx)      Time:    1     Qubit:   1   2 
-ID:   2 ( cx)      Time:    2     Qubit:   2   1 
-ID:   3 ( cx)      Time:    3     Qubit:   1   2 
-ID:   4 ( cx)      Time:    4     Qubit:   0   1 
-ID:   5 ( cx)      Time:    5     Qubit:   1   0 
-ID:   6 ( cx)      Time:    6     Qubit:   0   1 
-reverse
+_gates[1]
+ID:   0 ( cx)      Time:    0     Qubit:   1   0 
+_gates[2]
+_available[0]
+ID:   0 ( cx)      Time:    0     Qubit:   1   0 
+_available[1]
+ID:   0 ( cx)      Time:    0     Qubit:   1   0 
+_available[2]
+_availty[0]: 2  _availty[1]: 1  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   5 ( cx)      Time:    6     Qubit:   0   1 
 _______________APPLY ADDCX_______________
 Control: 0 Target: 1
-Into second loop
-Into fourth loop(!found match)
-After the iter:
-_gates[0]
-ID:   0 ( cx)      Time:    0     Qubit:   0   1 
-_gates[1]
-ID:   0 ( cx)      Time:    0     Qubit:   0   1 
-_gates[2]
-_available[0]
-ID:   0 ( cx)      Time:    0     Qubit:   0   1 
-_available[1]
-ID:   0 ( cx)      Time:    0     Qubit:   0   1 
-_available[2]
-_availy[0]: 1  _availy[1]: 2  _availy[2]: 1  
-_______________APPLY ADDCX_______________
-Control: 1 Target: 0
-Into first loop
-doswap
-0
-End doswap
-_gates[0]
-ID:   1 ( cx)      Time:    0     Qubit:   1   0 
-_gates[1]
-ID:   1 ( cx)      Time:    0     Qubit:   1   0 
-_gates[2]
-_available[0]
-ID:   1 ( cx)      Time:    0     Qubit:   1   0 
-_available[1]
-ID:   1 ( cx)      Time:    0     Qubit:   1   0 
-_available[2]
-_availy[0]: 2  _availy[1]: 1  _availy[2]: 1  
-_______________APPLY ADDCX_______________
-Control: 1 Target: 0
-into for loop 
-Into third loop(found match)
-After the iter:
-_gates[0]
-_gates[1]
-_gates[2]
-_available[0]
-_available[1]
-_available[2]
-_availy[0]: 2  _availy[1]: 1  _availy[2]: 1  
-_______________APPLY ADDCX_______________
-Control: 0 Target: 2
-Into first loop
-Into second loop
-Into fourth loop(!found match)
-After the iter:
-_gates[0]
-ID:   2 ( cx)      Time:    0     Qubit:   0   2 
-_gates[1]
-_gates[2]
-ID:   2 ( cx)      Time:    0     Qubit:   0   2 
-_available[0]
-ID:   2 ( cx)      Time:    0     Qubit:   0   2 
-_available[1]
-_available[2]
-ID:   2 ( cx)      Time:    0     Qubit:   0   2 
-_availy[0]: 1  _availy[1]: 1  _availy[2]: 2  
-_______________APPLY ADDCX_______________
-Control: 2 Target: 0
 Into first loop
 doswap
 1
 End doswap
+Parse gate done
 _gates[0]
-ID:   3 ( cx)      Time:    0     Qubit:   2   0 
+ID:   1 ( cx)      Time:    0     Qubit:   0   1 
 _gates[1]
+ID:   1 ( cx)      Time:    0     Qubit:   0   1 
 _gates[2]
-ID:   3 ( cx)      Time:    0     Qubit:   2   0 
 _available[0]
-ID:   3 ( cx)      Time:    0     Qubit:   2   0 
+ID:   1 ( cx)      Time:    0     Qubit:   0   1 
 _available[1]
+ID:   1 ( cx)      Time:    0     Qubit:   0   1 
 _available[2]
-ID:   3 ( cx)      Time:    0     Qubit:   2   0 
-_availy[0]: 2  _availy[1]: 1  _availy[2]: 1  
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   4 ( cx)      Time:    5     Qubit:   1   0 
 _______________APPLY ADDCX_______________
-Control: 2 Target: 0
+Control: 0 Target: 1
 into for loop 
 Into third loop(found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
 _gates[1]
 _gates[2]
 _available[0]
 _available[1]
 _available[2]
-_availy[0]: 2  _availy[1]: 1  _availy[2]: 1  
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   3 ( cx)      Time:    4     Qubit:   0   2 
 _______________APPLY ADDCX_______________
-Control: 2 Target: 1
+Control: 1 Target: 2
+Into first loop
 Into second loop
 Into fourth loop(!found match)
-After the iter:
+Done addcx:
+Parse gate done
+_gates[0]
+_gates[1]
+ID:   2 ( cx)      Time:    0     Qubit:   1   2 
+_gates[2]
+ID:   2 ( cx)      Time:    0     Qubit:   1   2 
+_available[0]
+_available[1]
+ID:   2 ( cx)      Time:    0     Qubit:   1   2 
+_available[2]
+ID:   2 ( cx)      Time:    0     Qubit:   1   2 
+_availty[0]: 1  _availty[1]: 1  _availty[2]: 2  _zs 0
+
+######### start parse gate ##########
+ID:   2 ( cx)      Time:    3     Qubit:   2   0 
+_______________APPLY ADDCX_______________
+Control: 2 Target: 1
+Into first loop
+doswap
+0
+End doswap
+Parse gate done
+_gates[0]
+_gates[1]
+ID:   3 ( cx)      Time:    0     Qubit:   2   1 
+_gates[2]
+ID:   3 ( cx)      Time:    0     Qubit:   2   1 
+_available[0]
+_available[1]
+ID:   3 ( cx)      Time:    0     Qubit:   2   1 
+_available[2]
+ID:   3 ( cx)      Time:    0     Qubit:   2   1 
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   1 ( cx)      Time:    2     Qubit:   0   2 
+_______________APPLY ADDCX_______________
+Control: 2 Target: 1
+into for loop 
+Into third loop(found match)
+Done addcx:
+Parse gate done
+_gates[0]
+_gates[1]
+_gates[2]
+_available[0]
+_available[1]
+_available[2]
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   0 ( cx)      Time:    1     Qubit:   0   2 
+_______________APPLY ADDCX_______________
+Control: 2 Target: 1
+Into fourth loop(!found match)
+Done addcx:
+Parse gate done
 _gates[0]
 _gates[1]
 ID:   4 ( cx)      Time:    0     Qubit:   2   1 
@@ -688,204 +810,237 @@ _available[1]
 ID:   4 ( cx)      Time:    0     Qubit:   2   1 
 _available[2]
 ID:   4 ( cx)      Time:    0     Qubit:   2   1 
-_availy[0]: 2  _availy[1]: 2  _availy[2]: 1  
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 1  _zs 0
+
 start topo sort
 In to while: 0
 q: 2 size: 1
 Into small while loop
 ID:   4 ( cx)      Time:    0     Qubit:   2   1 
 case III
+type: 0
+Pop remove
+_gates[0]
+_gates[1]
+ID:   4 ( cx)      Time:    0     Qubit:   2   1 
+_gates[2]
+ID:   4 ( cx)      Time:    0     Qubit:   2   1 
+Remove: 
+_gates[0]
+_gates[1]
+ID:   4 ( cx)      Time:    0     Qubit:   2   1 
+_gates[2]
+ID:   4 ( cx)      Time:    0     Qubit:   2   1 
 q: 1 size: 1
 Into small while loop
 ID:   4 ( cx)      Time:    0     Qubit:   2   1 
 case II
 q: 0 size: 0
-Add swaps
-ID:   5 ( cx)      Time:    0     Qubit:   0   1 
-ID:   6 ( cx)      Time:    0     Qubit:   1   0 
-ID:   7 ( cx)      Time:    0     Qubit:   0   1 
-Add swaps
-ID:   8 ( cx)      Time:    0     Qubit:   0   2 
-ID:   9 ( cx)      Time:    0     Qubit:   2   0 
-ID:  10 ( cx)      Time:    0     Qubit:   0   2 
 tmp is
 Listed by gate ID
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
+ID:   0 ( cx)      Time:    1     Qubit:   2   1 
 corrections size1: 6
 Start parseForward
 Listed by gate ID
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-ID:   1 ( cx)      Time:    1     Qubit:   0   1 
-ID:   2 ( cx)      Time:    2     Qubit:   1   0 
-ID:   3 ( cx)      Time:    3     Qubit:   0   1 
-ID:   4 ( cx)      Time:    4     Qubit:   0   2 
-ID:   5 ( cx)      Time:    5     Qubit:   2   0 
-ID:   6 ( cx)      Time:    6     Qubit:   0   2 
-_______________APPLY ADDCX_______________
-Control: 2 Target: 1
-Into second loop
-Into fourth loop(!found match)
-After the iter:
-_gates[0]
-_gates[1]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-_gates[2]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-_available[0]
-_available[1]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-_available[2]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-_availy[0]: 1  _availy[1]: 2  _availy[2]: 1  
-_______________APPLY ADDCX_______________
-Control: 0 Target: 1
-Into fourth loop(!found match)
-After the iter:
-_gates[0]
-ID:   1 ( cx)      Time:    0     Qubit:   0   1 
-_gates[1]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-ID:   1 ( cx)      Time:    0     Qubit:   0   1 
-_gates[2]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-_available[0]
-ID:   1 ( cx)      Time:    0     Qubit:   0   1 
-_available[1]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-ID:   1 ( cx)      Time:    0     Qubit:   0   1 
-_available[2]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-_availy[0]: 1  _availy[1]: 2  _availy[2]: 1  
-_______________APPLY ADDCX_______________
-Control: 1 Target: 0
-Into first loop
-doswap
-0
-End doswap
-_gates[0]
-ID:   2 ( cx)      Time:    0     Qubit:   1   0 
-_gates[1]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-ID:   2 ( cx)      Time:    0     Qubit:   1   0 
-_gates[2]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-_available[0]
-ID:   2 ( cx)      Time:    0     Qubit:   1   0 
-_available[1]
-ID:   2 ( cx)      Time:    0     Qubit:   1   0 
-_available[2]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-_availy[0]: 2  _availy[1]: 1  _availy[2]: 1  
-_______________APPLY ADDCX_______________
-Control: 1 Target: 0
-into for loop 
-Into third loop(found match)
-After the iter:
-_gates[0]
-_gates[1]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-_gates[2]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-_available[0]
-_available[1]
-_available[2]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-_availy[0]: 2  _availy[1]: 1  _availy[2]: 1  
+ID:   0 ( cx)      Time:    7     Qubit:   2   1 
+ID:   1 ( cx)      Time:    6     Qubit:   1   0 
+ID:   2 ( cx)      Time:    5     Qubit:   0   1 
+ID:   3 ( cx)      Time:    4     Qubit:   1   0 
+ID:   4 ( cx)      Time:    3     Qubit:   1   2 
+ID:   5 ( cx)      Time:    2     Qubit:   2   1 
+ID:   6 ( cx)      Time:    1     Qubit:   1   2 
+######### start parse gate ##########
+ID:   6 ( cx)      Time:    1     Qubit:   1   2 
 _______________APPLY ADDCX_______________
 Control: 1 Target: 2
 Into second loop
 Into fourth loop(!found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
 _gates[1]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-ID:   3 ( cx)      Time:    0     Qubit:   1   2 
+ID:   0 ( cx)      Time:    0     Qubit:   1   2 
 _gates[2]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-ID:   3 ( cx)      Time:    0     Qubit:   1   2 
+ID:   0 ( cx)      Time:    0     Qubit:   1   2 
 _available[0]
 _available[1]
-ID:   3 ( cx)      Time:    0     Qubit:   1   2 
+ID:   0 ( cx)      Time:    0     Qubit:   1   2 
 _available[2]
-ID:   3 ( cx)      Time:    0     Qubit:   1   2 
-_availy[0]: 2  _availy[1]: 1  _availy[2]: 2  
+ID:   0 ( cx)      Time:    0     Qubit:   1   2 
+_availty[0]: 1  _availty[1]: 1  _availty[2]: 2  _zs 0
+
+######### start parse gate ##########
+ID:   5 ( cx)      Time:    2     Qubit:   2   1 
 _______________APPLY ADDCX_______________
 Control: 2 Target: 1
 Into first loop
 doswap
-0
+1
 End doswap
+Parse gate done
 _gates[0]
 _gates[1]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-ID:   4 ( cx)      Time:    0     Qubit:   2   1 
+ID:   1 ( cx)      Time:    0     Qubit:   2   1 
 _gates[2]
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-ID:   4 ( cx)      Time:    0     Qubit:   2   1 
+ID:   1 ( cx)      Time:    0     Qubit:   2   1 
 _available[0]
 _available[1]
-ID:   4 ( cx)      Time:    0     Qubit:   2   1 
+ID:   1 ( cx)      Time:    0     Qubit:   2   1 
 _available[2]
-ID:   4 ( cx)      Time:    0     Qubit:   2   1 
-_availy[0]: 2  _availy[1]: 2  _availy[2]: 1  
+ID:   1 ( cx)      Time:    0     Qubit:   2   1 
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   4 ( cx)      Time:    3     Qubit:   1   2 
 _______________APPLY ADDCX_______________
 Control: 2 Target: 1
 into for loop 
 Into third loop(found match)
-After the iter:
+Done addcx:
+Parse gate done
 _gates[0]
 _gates[1]
-ID:   4 ( cx)      Time:    0     Qubit:   2   1 
 _gates[2]
-ID:   4 ( cx)      Time:    0     Qubit:   2   1 
 _available[0]
 _available[1]
 _available[2]
-_availy[0]: 2  _availy[1]: 2  _availy[2]: 1  
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   3 ( cx)      Time:    4     Qubit:   1   0 
+_______________APPLY ADDCX_______________
+Control: 2 Target: 0
+Into second loop
+Into fourth loop(!found match)
+Done addcx:
+Parse gate done
+_gates[0]
+ID:   2 ( cx)      Time:    0     Qubit:   2   0 
+_gates[1]
+_gates[2]
+ID:   2 ( cx)      Time:    0     Qubit:   2   0 
+_available[0]
+ID:   2 ( cx)      Time:    0     Qubit:   2   0 
+_available[1]
+_available[2]
+ID:   2 ( cx)      Time:    0     Qubit:   2   0 
+_availty[0]: 2  _availty[1]: 2  _availty[2]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   2 ( cx)      Time:    5     Qubit:   0   1 
+_______________APPLY ADDCX_______________
+Control: 0 Target: 2
+Into first loop
+doswap
+1
+End doswap
+Parse gate done
+_gates[0]
+ID:   3 ( cx)      Time:    0     Qubit:   0   2 
+_gates[1]
+_gates[2]
+ID:   3 ( cx)      Time:    0     Qubit:   0   2 
+_available[0]
+ID:   3 ( cx)      Time:    0     Qubit:   0   2 
+_available[1]
+_available[2]
+ID:   3 ( cx)      Time:    0     Qubit:   0   2 
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 2  _zs 0
+
+######### start parse gate ##########
+ID:   1 ( cx)      Time:    6     Qubit:   1   0 
+_______________APPLY ADDCX_______________
+Control: 0 Target: 2
+into for loop 
+Into third loop(found match)
+Done addcx:
+Parse gate done
+_gates[0]
+_gates[1]
+_gates[2]
+_available[0]
+_available[1]
+_available[2]
+_availty[0]: 1  _availty[1]: 2  _availty[2]: 2  _zs 0
+
+######### start parse gate ##########
+ID:   0 ( cx)      Time:    7     Qubit:   2   1 
+_______________APPLY ADDCX_______________
+Control: 1 Target: 0
+Into first loop
+Into second loop
+Into fourth loop(!found match)
+Done addcx:
+Parse gate done
+_gates[0]
+ID:   4 ( cx)      Time:    0     Qubit:   1   0 
+_gates[1]
+ID:   4 ( cx)      Time:    0     Qubit:   1   0 
+_gates[2]
+_available[0]
+ID:   4 ( cx)      Time:    0     Qubit:   1   0 
+_available[1]
+ID:   4 ( cx)      Time:    0     Qubit:   1   0 
+_available[2]
+_availty[0]: 2  _availty[1]: 1  _availty[2]: 2  _zs 0
+
 start topo sort
 In to while: 0
-q: 2 size: 1
-Into small while loop
-ID:   4 ( cx)      Time:    0     Qubit:   2   1 
-case III
+q: 2 size: 0
 q: 1 size: 1
 Into small while loop
-ID:   4 ( cx)      Time:    0     Qubit:   2   1 
+ID:   4 ( cx)      Time:    0     Qubit:   1   0 
+case III
+type: 0
+Pop remove
+_gates[0]
+ID:   4 ( cx)      Time:    0     Qubit:   1   0 
+_gates[1]
+ID:   4 ( cx)      Time:    0     Qubit:   1   0 
+_gates[2]
+Remove: 
+_gates[0]
+ID:   4 ( cx)      Time:    0     Qubit:   1   0 
+_gates[1]
+ID:   4 ( cx)      Time:    0     Qubit:   1   0 
+_gates[2]
+q: 0 size: 1
+Into small while loop
+ID:   4 ( cx)      Time:    0     Qubit:   1   0 
 case II
-q: 0 size: 0
-Add swaps
-ID:   5 ( cx)      Time:    0     Qubit:   0   1 
-ID:   6 ( cx)      Time:    0     Qubit:   1   0 
-ID:   7 ( cx)      Time:    0     Qubit:   0   1 
-Add swaps
-ID:   8 ( cx)      Time:    0     Qubit:   1   2 
-ID:   9 ( cx)      Time:    0     Qubit:   2   1 
-ID:  10 ( cx)      Time:    0     Qubit:   1   2 
 tmp is
 Listed by gate ID
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
+ID:   0 ( cx)      Time:    1     Qubit:   1   0 
 Final result
 Listed by gate ID
-ID:   0 ( cx)      Time:    0     Qubit:   2   1 
-ID:   1 ( cx)      Time:    1     Qubit:   0   1 
-ID:   2 ( cx)      Time:    2     Qubit:   1   0 
-ID:   3 ( cx)      Time:    3     Qubit:   0   1 
-ID:   4 ( cx)      Time:    4     Qubit:   1   2 
-ID:   5 ( cx)      Time:    5     Qubit:   2   1 
-ID:   6 ( cx)      Time:    6     Qubit:   1   2 
-Q 0  ---------cx( 1)--cx( 2)--cx( 3)-
-Q 1  -cx( 0)--cx( 1)--cx( 2)--cx( 3)--cx( 4)--cx( 5)--cx( 6)-
-Q 2  -cx( 0)--------------------------cx( 4)--cx( 5)--cx( 6)-
+ID:   0 ( cx)      Time:    1     Qubit:   1   0 
+ID:   1 ( cx)      Time:    2     Qubit:   1   2 
+ID:   2 ( cx)      Time:    3     Qubit:   2   1 
+ID:   3 ( cx)      Time:    4     Qubit:   1   2 
+ID:   4 ( cx)      Time:    5     Qubit:   2   0 
+ID:   5 ( cx)      Time:    6     Qubit:   0   2 
+ID:   6 ( cx)      Time:    7     Qubit:   2   0 
+Q 0  -cx( 0)--------------------------cx( 4)--cx( 5)--cx( 6)-
+Q 1  -cx( 0)--cx( 1)--cx( 2)--cx( 3)-
+Q 2  ---------cx( 1)--cx( 2)--cx( 3)--cx( 4)--cx( 5)--cx( 6)-
 
 qsyn> qccprint -l
 Listed by gate ID
-ID:   0 ( cx)      Time:    0     Qubit:   0   1 
-ID:   1 ( cx)      Time:    1     Qubit:   1   0 
-ID:   2 ( cx)      Time:    2     Qubit:   0   0 
-ID:   3 ( cx)      Time:    3     Qubit:   1   1 
-ID:   4 ( cx)      Time:    4     Qubit:   0   2 
-ID:   5 ( cx)      Time:    5     Qubit:   2   1 
-ID:   6 ( cx)      Time:    6     Qubit:   1   1 
+ID:   0 ( cx)      Time:    1     Qubit:   1   0 
+ID:   1 ( cx)      Time:    2     Qubit:   1   2 
+ID:   2 ( cx)      Time:    3     Qubit:   2   1 
+ID:   3 ( cx)      Time:    4     Qubit:   1   2 
+ID:   4 ( cx)      Time:    5     Qubit:   2   0 
+ID:   5 ( cx)      Time:    6     Qubit:   0   2 
+ID:   6 ( cx)      Time:    7     Qubit:   2   0 
+
+qsyn> qc2ts
+Traverse and build the tensor... 
+Successfully added Tensor 1
+Stored the resulting tensor as tensor id 1
+
+qsyn> tseq 0 1
+Not Equivalent
 
 qsyn> qq -f
 

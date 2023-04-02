@@ -1,9 +1,14 @@
 QCNew
-QCBAdd 2
+QCBAdd 3
+qcga -CZ 0 2
+qcga -CX 2 0
+qcga -CZ 0 1
 qcga -CZ 0 1
 qcga -CX 0 1
+qcga -CZ 0 1
+qcga -CZ 2 1
 qccprint -l
 qccprint -q
 optimize
-qccprint -l
+qccprint -q
 qq -f

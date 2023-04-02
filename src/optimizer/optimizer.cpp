@@ -27,7 +27,6 @@ void Optimizer::reset() {
     _zs.clear();
     _swaps.clear();
     _corrections.clear();
-    // _reversed = false;
     _gateCnt = 0;
     for (size_t i = 0; i < _circuit->getQubits().size(); i++) {
         _availty.emplace_back(1);
@@ -680,24 +679,14 @@ QCirGate* Optimizer::addGate(size_t target, Phase ph, size_t type) {
  * @param QCirGate* The gate to be add
  */
 void Optimizer::_addGate2Circuit(QCir* circuit, QCirGate* gate) {
-    cout << "679:  "<<(gate == nullptr) << endl;
-    cout << "680: " << circuit->getNQubit() << endl;
-    cout << "AddGate2Circuit " << gate->getTypeStr() << endl;
-    cout << "reversed: " << _reversed << endl;
+    // cout << "AddGate2Circuit " << gate->getTypeStr() << endl;
+    // cout << "reversed: " << _reversed << endl;
     vector<size_t> qubit_list;
     if (gate->getType() == GateType::CX || gate->getType() == GateType::CZ) {
-        cout << "Is CX or CZ " << gate->getControl()._qubit << endl;
         qubit_list.emplace_back(gate->getControl()._qubit);
     }
-    cout << "688: " << circuit->getNQubit() << endl;
-    cout << "End if" << endl;
     qubit_list.emplace_back(gate->getTarget()._qubit);
-    cout << "689:  "<<(gate == nullptr) << endl;
-    cout << gate->getTypeStr() << " " << qubit_list.size() << " " << gate->getPhase() << " " << !_reversed << endl;
-     cout << "690:  "<<(gate == nullptr) << endl;
-     cout << circuit->getNQubit() << endl;
     circuit->addGate(gate->getTypeStr(), qubit_list, gate->getPhase(), !_reversed);
-    cout << "_addGate2Circuit" << endl;
 }
 
 /**
@@ -712,14 +701,12 @@ void Optimizer::topologicalSort(QCir* circuit) {
     circuit->addQubit(_circuit->getNQubit());
     cout << "start topo sort" << endl;
     int count = 0;
-    cout << "711: " << circuit->getNQubit() << endl;
     while (any_of(_gates.begin(), _gates.end(), [](auto& p_g) { return p_g.second.size(); })) {
         cout << "In to while: " << count << endl;
         for (auto& [q, gs] : _gates) {
             cout << "q: " << q << " size: " << gs.size() << endl;
             while (gs.size()) {
                 cout << "Into small while loop" << endl;
-                 cout << "718: " << circuit->getNQubit() << endl;
                 QCirGate* g = gs[0];
                 g->printGate();
                 if (g->getType() != GateType::CX && g->getType() != GateType::CZ) {
@@ -731,14 +718,11 @@ void Optimizer::topologicalSort(QCir* circuit) {
                     available_id.erase(g->getId());
                     size_t q2 = (q == g->getControl()._qubit) ? g->getTarget()._qubit : g->getControl()._qubit;
                     _gates[q2].erase(find_if(_gates[q2].begin(), _gates[q2].end(), [&](QCirGate* _g) { return g->getId() == _g->getId(); }));
-                    cout << "726: " << circuit->getNQubit() << endl;
                     Optimizer::_addGate2Circuit(circuit, g);
-                    cout << "case II before erase" << endl;
                     gs.erase(gs.begin());
-                    cout << "case II end" << endl;
                 } else {
                     cout << "case III" << endl;
-                    bool type = (g->getType() == GateType::CZ || g->getControl()._qubit == q);
+                    bool type = !(g->getType() == GateType::CZ || g->getControl()._qubit == q);
                     cout << "type: " << type << endl;
                     vector<size_t> removed;
                     available_id.emplace(g->getId());
@@ -785,20 +769,8 @@ void Optimizer::topologicalSort(QCir* circuit) {
                         cout << removed[i] << " ";
                     }
                     cout << endl;
-                    cout << "784: " << circuit->getNQubit() << endl;
-                    for (size_t i : removed) {
-                        cout << "786: " << circuit->getNQubit() << endl;
-                        for(auto& __g:gs) {
-                            
-                            __g->printGate();
-                        }
-                        
+                    for (size_t i : removed) {          
                         gs.erase(gs.begin() + i);
-                        
-                        cout << "788: " << circuit->getNQubit() << endl;
-                        for(auto& __g:gs) {
-                            __g->printGate();
-                        }
                     }
                     for (size_t i = 0; i < _gates.size(); i++) {
                         cout << "_gates[" << i << "]" << endl;
@@ -806,7 +778,6 @@ void Optimizer::topologicalSort(QCir* circuit) {
                             _gates[i][j]->printGate();
                         }
                     }
-                    cout << "BREAK: " << circuit->getNQubit() << endl;
                     break;
                 }
             }
