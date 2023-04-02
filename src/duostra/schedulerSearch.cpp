@@ -311,9 +311,10 @@ size_t TreeNode::bestCost() const {
  * @brief Construct a new Search Scheduler:: Search Scheduler object
  *
  * @param topo
+ * @param tqdm
  */
-SearchScheduler::SearchScheduler(unique_ptr<CircuitTopo> topo)
-    : GreedyScheduler(move(topo)),
+SearchScheduler::SearchScheduler(unique_ptr<CircuitTopo> topo, bool tqdm)
+    : GreedyScheduler(move(topo), tqdm),
       _lookAhead(DUOSTRA_DEPTH),
       _neverCache(DUOSTRA_NEVER_CACHE),
       _executeSingle(DUOSTRA_EXECUTE_SINGLE) {
@@ -375,7 +376,7 @@ void SearchScheduler::assignGates(unique_ptr<Router> router) {
         vector<size_t>{}, router->clone(), clone(), 0);
 
     // For each step. (all nodes + 1 dummy)
-    TqdmWrapper bar{totalGates + 1};
+    TqdmWrapper bar{totalGates + 1, _tqdm};
     do {
         // Update the _candidates.
         auto selectedNode = make_unique<TreeNode>(root->bestChild(_lookAhead));

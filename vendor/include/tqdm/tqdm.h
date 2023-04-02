@@ -50,6 +50,7 @@ class tqdm {
         std::string right_pad = "▏";
         std::string label = "";
 
+        bool show = true;
         void hsv_to_rgb(float h, float s, float v, int& r, int& g, int& b) {
             if (s < 1e-6) {
                 v *= 255.;
@@ -72,13 +73,14 @@ class tqdm {
         }
 
     public:
-        tqdm() {
+        tqdm(bool sho = true) {
             if (in_screen) {
                 set_theme_basic();
                 color_transition = false;
             } else if (in_tmux) {
                 color_transition = false;
             }
+            show = sho;
         }
 
         void reset() {
@@ -110,7 +112,7 @@ class tqdm {
 
         void finish() {
             progress(total_,total_);
-            printf("\n");
+            if (show) printf("\n");
             fflush(stdout);
         }
         void progress(int curr, int tot) {
@@ -158,38 +160,39 @@ class tqdm {
 
                 double fills = ((double)curr / tot * width);
                 int ifills = (int)fills;
-
-                printf("\015 ");
-                if (use_colors) {
-                    if (color_transition) {
-                        // red (hue=0) to green (hue=1/3)
-                        int r = 255, g = 255, b = 255;
-                        hsv_to_rgb(0.0+0.01*pct/3,0.65,1.0, r,g,b);
-                        printf("\033[38;2;%d;%d;%dm ", r, g, b);
-                    } else {
-                        printf("\033[32m ");
+                if (show) {
+                    printf("\015 ");
+                    if (use_colors) {
+                        if (color_transition) {
+                            // red (hue=0) to green (hue=1/3)
+                            int r = 255, g = 255, b = 255;
+                            hsv_to_rgb(0.0+0.01*pct/3,0.65,1.0, r,g,b);
+                            printf("\033[38;2;%d;%d;%dm ", r, g, b);
+                        } else {
+                            printf("\033[32m ");
+                        }
                     }
-                }
-                for (int i = 0; i < ifills; i++) std::cout << bars[8];
-                if (!in_screen and (curr != tot)) printf("%s",bars[(int)(8.0*(fills-ifills))]);
-                for (int i = 0; i < width-ifills-1; i++) std::cout << bars[0];
-                printf("%s ", right_pad.c_str());
-                if (use_colors) printf("\033[1m\033[31m");
-                printf("%4.1f%% ", pct);
-                if (use_colors) printf("\033[34m");
+                    for (int i = 0; i < ifills; i++) std::cout << bars[8];
+                    if (!in_screen and (curr != tot)) printf("%s",bars[(int)(8.0*(fills-ifills))]);
+                    for (int i = 0; i < width-ifills-1; i++) std::cout << bars[0];
+                    printf("%s ", right_pad.c_str());
+                    if (use_colors) printf("\033[1m\033[31m");
+                    printf("%4.1f%% ", pct);
+                    if (use_colors) printf("\033[34m");
 
-                std::string unit = "Hz";
-                double div = 1.;
-                if (avgrate > 1e6) {
-                    unit = "MHz"; div = 1.0e6;
-                } else if (avgrate > 1e3) {
-                    unit = "kHz"; div = 1.0e3;
-                }
-                printf("[%4d/%4d | %3.1f %s | %.0fs<%.0fs] ", curr,tot,  avgrate/div, unit.c_str(), dt_tot, peta);
-                printf("%s ", label.c_str());
-                if (use_colors) printf("\033[0m\033[32m\033[0m\015 ");
+                    std::string unit = "Hz";
+                    double div = 1.;
+                    if (avgrate > 1e6) {
+                        unit = "MHz"; div = 1.0e6;
+                    } else if (avgrate > 1e3) {
+                        unit = "kHz"; div = 1.0e3;
+                    }
+                    printf("[%4d/%4d | %3.1f %s | %.0fs<%.0fs] ", curr,tot,  avgrate/div, unit.c_str(), dt_tot, peta);
+                    printf("%s ", label.c_str());
+                    if (use_colors) printf("\033[0m\033[32m\033[0m\015 ");
 
-                if( ( tot - curr ) > period ) fflush(stdout);
+                    if( ( tot - curr ) > period ) fflush(stdout);
+                }
 
             }
         }
