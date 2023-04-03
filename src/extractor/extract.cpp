@@ -823,6 +823,16 @@ void Extractor::prependGate(string type, const vector<size_t>& qubits, Phase pha
         // } else {
         //     // TODO - Link Device
         // }
+        // NOTE - Example for calling Duostra
+        // vector<Operation> opers;
+        // //GateType, Phase, std::tuple<size_t, size_t>, std::tuple<size_t, size_t>
+        // for(size_t i=0; i<2; i++){
+        //     tuple<size_t, size_t> temp{i, i+1};
+        //     Operation op{GateType::CX, Phase(0), temp, temp};
+        //     opers.emplace_back(op);
+        // }
+        // Duostra duo(opers, _graph->getNumOutputs(), _device.value(), false, false, true);
+        // cout << "Cost: " << duo.flow(true) << endl;
     }
 }
 

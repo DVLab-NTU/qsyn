@@ -16,12 +16,14 @@
 class Duostra {
 public:
     Duostra(QCir*, Device, bool = false, bool = true, bool = false);
+    Duostra(const std::vector<Operation>&, size_t, Device, bool = false, bool = true, bool = false);
     ~Duostra() {}
 
     QCir* getPhysicalCircuit() { return _physicalCircuit; }
 
     void makeDependency();
-    size_t flow();
+    void makeDependency(const std::vector<Operation>&, size_t);
+    size_t flow(bool = false);
     void printAssembly() const;
     void buildCircuitByResult();
 
