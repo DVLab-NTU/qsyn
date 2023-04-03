@@ -14,6 +14,7 @@
 #include <set>
 
 #include "device.h"
+#include "duostra.h"
 #include "m2.h"     // for M2
 #include "qcir.h"   // for QCir
 #include "zxDef.h"  // for EdgeType, EdgeType::HADAMARD
@@ -84,6 +85,8 @@ private:
     ConnectInfo _colInfo;
 
     size_t _cntCXFiltered;
+
+    std::vector<size_t> _initialPlacement;
 };
 
 #endif

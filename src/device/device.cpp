@@ -186,6 +186,17 @@ PhysicalQubit& PhysicalQubit::operator=(PhysicalQubit&& other) {
 }
 
 /**
+ * @brief Operator overloading
+ *
+ * @param os
+ * @param q
+ * @return ostream&
+ */
+ostream& operator<<(ostream& os, const PhysicalQubit& q) {
+    return os << "Q" << right << setw(2) << q.getId() << ", logical: " << right << setw(2) << q.getLogicalQubit() << ", lock until " << q.getOccupiedTime();
+}
+
+/**
  * @brief Mark qubit
  *
  * @param source false: from 0, true: from 1
@@ -848,6 +859,24 @@ void Device::printMapping() {
     for (size_t i = 0; i < _nQubit; i++) {
         cout << left << setw(5) << i << " : " << getPhysicalQubit(i).getLogicalQubit() << endl;
     }
+}
+
+/**
+ * @brief Print device status
+ *
+ */
+void Device::printStatus() const {
+    cout << endl;
+    cout << "Device Status:" << endl;
+    vector<PhysicalQubit> qubits;
+    qubits.resize(_nQubit);
+    for (const auto& [idx, info] : _qubitList) {
+        qubits[idx] = info;
+    }
+    for (size_t i = 0; i < qubits.size(); ++i) {
+        cout << qubits[i] << "\n";
+    }
+    cout << "\n";
 }
 
 // SECTION - Class Operation Member Functions

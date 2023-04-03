@@ -166,6 +166,7 @@ public:
     void printDistance() const;
     void printPath(size_t, size_t) const;
     void printMapping();
+    void printStatus() const;
 
 private:
     size_t _id;

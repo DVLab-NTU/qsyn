@@ -80,6 +80,9 @@ void Extractor::initialize(bool fromEmpty) {
     if (toPhysical()) {
         if (verbose >= 1) cout << "Note: extract to device " << _device.value().getName() << endl;
         _physicalCircuit->addQubit(_device.value().getNQubit());
+        unique_ptr<DFSPlacer> placer = make_unique<DFSPlacer>();
+        _initialPlacement = placer->placeAndAssign(_device.value());
+        if (verbose >= 5) _device.value().printStatus();
     }
 }
 
