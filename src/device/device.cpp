@@ -317,6 +317,17 @@ void Device::applyGate(const Operation& op) {
 }
 
 /**
+ * @brief Apply single-qubit gate
+ *
+ * @param physicalId
+ */
+void Device::applySingleQubitGate(size_t physicalId) {
+    size_t startTime = _qubitList[physicalId].getOccupiedTime();
+    _qubitList[physicalId].setOccupiedTime(startTime + SINGLE_DELAY);
+    _qubitList[physicalId].reset();
+}
+
+/**
  * @brief get mapping of physical qubit
  *
  * @return vector<size_t> (index of physical qubit)

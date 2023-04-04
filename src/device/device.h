@@ -149,6 +149,7 @@ public:
 
     // NOTE - Duostra
     void applyGate(const Operation&);
+    void applySingleQubitGate(size_t);
     std::vector<size_t> mapping() const;
     void place(const std::vector<size_t>&);
 

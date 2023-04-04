@@ -184,13 +184,13 @@ void Extractor::extractSingles() {
     vector<pair<ZXVertex*, ZXVertex*>> toggleList;
     for (ZXVertex* o : _graph->getOutputs()) {
         if (o->getFirstNeighbor().second == EdgeType::HADAMARD) {
-            prependGate("h", {_qubitMap[o->getQubit()]}, Phase(0));
+            prependSingleQubitGate("h", _qubitMap[o->getQubit()], Phase(0));
             // _circuit->addGate("H", {_qubitMap[o->getQubit()]}, Phase(0), false);
             toggleList.emplace_back(o, o->getFirstNeighbor().first);
         }
         Phase ph = o->getFirstNeighbor().first->getPhase();
         if (ph != Phase(0)) {
-            prependGate("rotate", {_qubitMap[o->getQubit()]}, ph);
+            prependSingleQubitGate("rotate", _qubitMap[o->getQubit()], ph);
             // _circuit->addSingleRZ(_qubitMap[o->getQubit()], ph, false);
             o->getFirstNeighbor().first->setPhase(Phase(0));
         }
@@ -241,7 +241,7 @@ bool Extractor::extractCZs(bool check) {
     }
     for (const auto& [s, t] : removeList) {
         _graph->removeEdge(s, t, EdgeType::HADAMARD);
-        prependGate("cz", {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1));
+        prependDoubleQubitGate("cz", {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1));
         // _circuit->addGate("cz", {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1), false);
     }
 
@@ -276,7 +276,7 @@ void Extractor::extractCXs(size_t strategy) {
         size_t ctrl = _qubitMap[frontId2Vertex[c]->getQubit()];
         size_t targ = _qubitMap[frontId2Vertex[t]->getQubit()];
         if (verbose >= 4) cout << "Add CX: " << ctrl << " " << targ << endl;
-        prependGate("cx", {ctrl, targ}, Phase(0));
+        prependDoubleQubitGate("cx", {ctrl, targ}, Phase(0));
         // _circuit->addGate("cx", {ctrl, targ}, Phase(0), false);
     }
 }
@@ -332,7 +332,7 @@ size_t Extractor::extractHsFromM2(bool check) {
     for (auto& [f, n] : frontNeighPairs) {
         // NOTE - Add Hadamard according to the v of frontier (row)
         // _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
-        prependGate("h", {_qubitMap[f->getQubit()]}, Phase(0));
+        prependSingleQubitGate("h", _qubitMap[f->getQubit()], Phase(0));
         // NOTE - Set #qubit and #col according to the old frontier
         n->setQubit(f->getQubit());
         n->setCol(f->getCol());
@@ -703,9 +703,9 @@ void Extractor::permuteQubit() {
         // _circuit->addGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0), false);
         // _circuit->addGate("cx", {_qubitMap[t2], _qubitMap[o]}, Phase(0), false);
         // _circuit->addGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0), false);
-        prependGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0));
-        prependGate("cx", {_qubitMap[t2], _qubitMap[o]}, Phase(0));
-        prependGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0));
+        prependDoubleQubitGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0));
+        prependDoubleQubitGate("cx", {_qubitMap[t2], _qubitMap[o]}, Phase(0));
+        prependDoubleQubitGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0));
         swapMap[t2] = i;
         swapInvMap[i] = t2;
     }
@@ -744,7 +744,7 @@ void Extractor::updateNeighbors() {
                 if (_graph->getInputs().contains(b)) {
                     if (ep == EdgeType::HADAMARD) {
                         // _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
-                        prependGate("h", {_qubitMap[f->getQubit()]}, Phase(0));
+                        prependSingleQubitGate("h", _qubitMap[f->getQubit()], Phase(0));
                     }
                     break;
                 }
@@ -806,34 +806,52 @@ void Extractor::createMatrix() {
 }
 
 /**
- * @brief Prepend gate to circuit. If _device is given, directly map to physical device.
+ * @brief Prepend single-qubit gate to circuit. If _device is given, directly map to physical device.
+ *
+ * @param type
+ * @param qubit logical
+ * @param phase
+ */
+void Extractor::prependSingleQubitGate(string type, size_t qubit, Phase phase) {
+    if (type == "rotate") {
+        _logicalCircuit->addSingleRZ(qubit, phase, false);
+        if (toPhysical()) {
+            size_t physicalQId = _device.value().getPhysicalQubit(qubit).getId();
+            _device.value().applySingleQubitGate(physicalQId);
+            _physicalCircuit->addSingleRZ(physicalQId, phase, false);
+        }
+    } else {
+        _logicalCircuit->addGate(type, {qubit}, phase, false);
+        if (toPhysical()) {
+            size_t physicalQId = _device.value().getPhysicalQubit(qubit).getId();
+            _device.value().applySingleQubitGate(physicalQId);
+            _physicalCircuit->addGate(type, {_device.value().getPhysicalQubit(qubit).getId()}, phase, false);
+        }
+    }
+    if (toPhysical()) _device.value().printStatus();
+}
+
+/**
+ * @brief Prepend double-qubit gate to circuit. If _device is given, directly map to physical device.
  *
  * @param type
  * @param qubits
  * @param phase
  */
-void Extractor::prependGate(string type, const vector<size_t>& qubits, Phase phase) {
-    assert(qubits.size() == 1 || qubits.size() == 2);
-    if (type == "rotate") {
-        // if (_device.isNull())
-        _logicalCircuit->addSingleRZ(qubits[0], phase, false);
-    } else {
-        // if(_device.isNull()) {
-        _logicalCircuit->addGate(type, qubits, phase, false);
-        // } else {
-        //     // TODO - Link Device
-        // }
-        // NOTE - Example for calling Duostra
-        // vector<Operation> opers;
-        // //GateType, Phase, std::tuple<size_t, size_t>, std::tuple<size_t, size_t>
-        // for(size_t i=0; i<2; i++){
-        //     tuple<size_t, size_t> temp{i, i+1};
-        //     Operation op{GateType::CX, Phase(0), temp, temp};
-        //     opers.emplace_back(op);
-        // }
-        // Duostra duo(opers, _graph->getNumOutputs(), _device.value(), false, false, true);
-        // cout << "Cost: " << duo.flow(true) << endl;
-    }
+void Extractor::prependDoubleQubitGate(string type, const vector<size_t>& qubits, Phase phase) {
+    assert(qubits.size() == 2);
+    _logicalCircuit->addGate(type, qubits, phase, false);
+
+    // NOTE - Example for calling Duostra
+    // vector<Operation> opers;
+    // //GateType, Phase, std::tuple<size_t, size_t>, std::tuple<size_t, size_t>
+    // for(size_t i=0; i<2; i++){
+    //     tuple<size_t, size_t> temp{i, i+1};
+    //     Operation op{GateType::CX, Phase(0), temp, temp};
+    //     opers.emplace_back(op);
+    // }
+    // Duostra duo(opers, _graph->getNumOutputs(), _device.value(), false, false, true);
+    // cout << "Cost: " << duo.flow(true) << endl;
 }
 
 /**

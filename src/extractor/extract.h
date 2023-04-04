@@ -53,8 +53,8 @@ public:
     void updateGraphByMatrix(EdgeType = EdgeType::HADAMARD);
     void createMatrix();
 
-    void prependGate(std::string, const std::vector<size_t>&, Phase);
-
+    void prependSingleQubitGate(std::string, size_t, Phase);
+    void prependDoubleQubitGate(std::string, const std::vector<size_t>&, Phase);
     bool frontierIsCleaned();
     bool axelInNeighbors();
     bool containSingleNeighbor();
