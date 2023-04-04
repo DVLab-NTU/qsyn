@@ -273,10 +273,26 @@ size_t Duostra::flow(bool useDeviceAsPlacement) {
         cout << endl;
     }
     assert(sched->isSorted());
+    assert(sched->getOrder().size() == _dependency->gates().size());
     _result = sched->getOperations();
+    storeOrderInfo(sched->getOrder());
     buildCircuitByResult();
     cout.clear();
     return sched->getFinalCost();
+}
+
+/**
+ * @brief Convert index to full information of gate
+ *
+ * @param order
+ */
+void Duostra::storeOrderInfo(const std::vector<size_t>& order) {
+    for (const auto& gateId : order) {
+        const Gate& g = _dependency->getGate(gateId);
+        Operation op(g.getType(), g.getPhase(), g.getQubits(), {});
+        op.setId(g.getId());
+        _order.emplace_back(op);
+    }
 }
 
 /**

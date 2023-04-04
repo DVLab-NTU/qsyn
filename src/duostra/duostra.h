@@ -20,10 +20,13 @@ public:
     ~Duostra() {}
 
     QCir* getPhysicalCircuit() { return _physicalCircuit; }
+    const std::vector<Operation>& getResult() const { return _result; }
+    const std::vector<Operation>& getOrder() const { return _order; }
 
     void makeDependency();
     void makeDependency(const std::vector<Operation>&, size_t);
     size_t flow(bool = false);
+    void storeOrderInfo(const std::vector<size_t>&);
     void printAssembly() const;
     void buildCircuitByResult();
 
@@ -37,6 +40,7 @@ private:
     std::unique_ptr<BaseScheduler> _scheduler;
     std::shared_ptr<DependencyGraph> _dependency;
     std::vector<Operation> _result;
+    std::vector<Operation> _order;
 };
 
 std::string getSchedulerTypeStr();

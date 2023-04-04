@@ -41,6 +41,7 @@ public:
     bool isSorted() const { return _sorted; }
     const std::vector<size_t>& getAvailableGates() const { return _circuitTopology->getAvailableGates(); }
     const std::vector<Operation>& getOperations() const { return _operations; }
+    const std::vector<size_t>& getOrder() const { return _assignOrder; }
     size_t operationsCost() const;
 
     void assignGatesAndSort(std::unique_ptr<Router>);
@@ -49,6 +50,7 @@ public:
 protected:
     std::unique_ptr<CircuitTopo> _circuitTopology;
     std::vector<Operation> _operations;
+    std::vector<size_t> _assignOrder;
     bool _sorted = false;
     bool _tqdm = true;
     virtual void assignGates(std::unique_ptr<Router>);

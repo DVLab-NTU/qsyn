@@ -48,21 +48,21 @@ unique_ptr<BaseScheduler> getScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) 
  * @param topo
  * @param tqdm
  */
-BaseScheduler::BaseScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : _circuitTopology(move(topo)), _operations({}), _tqdm(tqdm) {}
+BaseScheduler::BaseScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : _circuitTopology(move(topo)), _operations({}), _assignOrder({}), _tqdm(tqdm) {}
 
 /**
  * @brief Construct a new Base Scheduler:: Base Scheduler object
  *
  * @param other
  */
-BaseScheduler::BaseScheduler(const BaseScheduler& other) : _circuitTopology(other._circuitTopology->clone()), _operations(other._operations), _tqdm(other._tqdm) {}
+BaseScheduler::BaseScheduler(const BaseScheduler& other) : _circuitTopology(other._circuitTopology->clone()), _operations(other._operations), _assignOrder(other._assignOrder), _tqdm(other._tqdm) {}
 
 /**
  * @brief Construct a new Base Scheduler:: Base Scheduler object
  *
  * @param other
  */
-BaseScheduler::BaseScheduler(BaseScheduler&& other) : _circuitTopology(move(other._circuitTopology)), _operations(move(other._operations)), _tqdm(other._tqdm) {}
+BaseScheduler::BaseScheduler(BaseScheduler&& other) : _circuitTopology(move(other._circuitTopology)), _operations(move(other._operations)), _assignOrder(move(other._assignOrder)), _tqdm(other._tqdm) {}
 
 /**
  * @brief Clone scheduler
@@ -189,7 +189,7 @@ size_t BaseScheduler::routeOneGate(Router& router, size_t gateIdx, bool forget) 
     }
     if (!forget)
         _operations.insert(_operations.end(), ops.begin(), ops.end());
-
+    _assignOrder.emplace_back(gateIdx);
     _circuitTopology->updateAvailableGates(gateIdx);
     return maxCost;
 }
