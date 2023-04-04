@@ -45,6 +45,7 @@ public:
     bool isSingleRotateZ(QCirGate*);
     bool isSingleRotateX(QCirGate*);
     QCirGate* getAvailableRotateZ(size_t t);
+    std::vector<std::pair<size_t, size_t> > get_swap_path();
 
     // Predicate function
     bool TwoQubitGateExist(QCirGate* g, GateType gt, size_t ctrl, size_t targ);

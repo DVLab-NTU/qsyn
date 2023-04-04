@@ -28,6 +28,7 @@ void Optimizer::reset() {
     _swaps.clear();
     _corrections.clear();
     _gateCnt = 0;
+                     
     for (size_t i = 0; i < _circuit->getQubits().size(); i++) {
         _availty.emplace_back(1);
         _available.emplace(i, vector<QCirGate*>{});
@@ -60,6 +61,7 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
     cout << "After Parse Circuit" << endl;
     _circuit->printGates();
     cout << "corrections size: " << _corrections.size() << endl;
+    for (auto& g : _corrections) g->printGate();
     for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
     _corrections.clear();
     cout << "After add corrections" << endl;
@@ -92,6 +94,7 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
         }
 
         cout << "corrections size2: " << _corrections.size() << endl;
+        for (auto& g : _corrections) g->printGate();
         for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
         _corrections.clear();
 
@@ -174,7 +177,10 @@ QCir* Optimizer::parseForward() {
         _corrections.emplace_back(notGate);
     }
 
+    _swaps = Optimizer::get_swap_path();
+
     for (auto& [c, t] : _swaps) {
+        //TODO - Use SWAP gate to replace cnots
         QCirGate* cnot_1 = new CXGate(_gateCnt);
         cnot_1->addQubit(c, false);
         cnot_1->addQubit(t, true);
@@ -563,8 +569,8 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
                     cnot->addQubit(ctrl, false);
                     cnot->addQubit(targ, true);
                     _gateCnt++;
-                    _gates[ctrl].erase(find_if(_gates[ctrl].begin(), _gates[ctrl].end(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, targ, ctrl); }));
-                    _gates[targ].erase(find_if(_gates[targ].begin(), _gates[targ].end(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, targ, ctrl); }));
+                    _gates[ctrl].erase(--(find_if(_gates[ctrl].rbegin(), _gates[ctrl].rend(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, targ, ctrl); })).base());
+                    _gates[targ].erase(--(find_if(_gates[targ].rbegin(), _gates[targ].rend(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, targ, ctrl); })).base());
                     _availty[ctrl] = 1;
                     _availty[targ] = 2;
                     _gates[ctrl].emplace_back(cnot);
@@ -575,14 +581,18 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
                     _available[targ].emplace_back(cnot);
 
                     // TODO - Implement the permutation swap
+                    cout << "Before swap " << endl;
+                    for(auto i: _permutation){
+                        cout << "_permutation["<< i.first <<"] "<< i.second <<endl;
+                    }
                     swap(_permutation.at(targ), _permutation.at(ctrl));
-                    _swaps.emplace_back(make_pair(targ, ctrl));
-                    // cout << "After swap " << endl;
-                    cout << _permutation[ctrl] << endl;
-                    // cout << "Size: " << _permutation.size() << endl;
-                    // for(auto i: _permutation){
-                    //     cout << "_permutation["<< i.first <<"] "<< i.second <<endl;
-                    // }
+                    // _swaps.emplace(_swaps.begin(), make_pair(targ, ctrl));
+                    cout << "Swap " << targ << " and " << ctrl << endl;
+                    cout << "After swap " << endl;
+                    cout << "Permutation size: " << _permutation.size() << endl;
+                    for(auto i: _permutation){
+                        cout << "_permutation["<< i.first <<"] "<< i.second <<endl;
+                    }
 
                     Optimizer::swapElement(0, ctrl, targ);
                     Optimizer::swapElement(1, ctrl, targ);
@@ -621,10 +631,10 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
     if (found_match) {
         cout << "Into third loop(found match)" << endl;
         if (count_if(_available[targ].begin(), _available[targ].end(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); })) {
-            _available[ctrl].erase(find_if(_available[ctrl].begin(), _available[ctrl].end(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); }));
-            _available[targ].erase(find_if(_available[targ].begin(), _available[targ].end(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); }));
-            _gates[ctrl].erase(find_if(_gates[ctrl].begin(), _gates[ctrl].end(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); }));
-            _gates[targ].erase(find_if(_gates[targ].begin(), _gates[targ].end(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); }));
+            _available[ctrl].erase(--(find_if(_available[ctrl].rbegin(), _available[ctrl].rend(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); })).base());
+            _available[targ].erase(--(find_if(_available[targ].rbegin(), _available[targ].rend(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); })).base());
+            _gates[ctrl].erase(--(find_if(_gates[ctrl].rbegin(), _gates[ctrl].rend(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); })).base());
+            _gates[targ].erase(--(find_if(_gates[targ].rbegin(), _gates[targ].rend(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); })).base());
         } else {
             found_match = false;
         }
@@ -688,7 +698,6 @@ void Optimizer::_addGate2Circuit(QCir* circuit, QCirGate* gate) {
         qubit_list.emplace_back(gate->getControl()._qubit);
     }
     qubit_list.emplace_back(gate->getTarget()._qubit);
-    cout << "Line 691: " <<circuit->getQubit(2) << endl;
     circuit->addGate(gate->getTypeStr(), qubit_list, gate->getPhase(), !_reversed);
 }
 
@@ -705,9 +714,11 @@ void Optimizer::topologicalSort(QCir* circuit) {
     cout << "start topo sort" << endl;
     int count = 0;
     while (any_of(_gates.begin(), _gates.end(), [](auto& p_g) { return p_g.second.size(); })) {
+        available_id.clear();
         cout << "In to while: " << count << endl;
         for (auto& [q, gs] : _gates) {
             cout << "q: " << q << " size: " << gs.size() << endl;
+            cout << "q0 size: " << _gates[0].size() << endl;
             while (gs.size()) {
                 // cout << "Into small while loop" << endl;
                 QCirGate* g = gs[0];
@@ -719,48 +730,46 @@ void Optimizer::topologicalSort(QCir* circuit) {
                 } else if (available_id.contains(g->getId())) {
                     cout << "case II" << endl;
                     available_id.erase(g->getId());
-                    cout << "Line A: " <<circuit->getQubit(2) << endl;
                     size_t q2 = (q == g->getControl()._qubit) ? g->getTarget()._qubit : g->getControl()._qubit;
-                    cout << "Line B: " <<circuit->getQubit(2) << endl;
-                    _gates[q2].erase(find_if(_gates[q2].begin(), _gates[q2].end(), [&](QCirGate* _g) { return g->getId() == _g->getId(); }));
-                    cout << "Line C: " <<circuit->getQubit(2) << endl;
+                    _gates[q2].erase(--(find_if(_gates[q2].rbegin(), _gates[q2].rend(), [&](QCirGate* _g) { return g->getId() == _g->getId(); })).base());
                     Optimizer::_addGate2Circuit(circuit, g);
-                    cout << "Line D" << endl;
                     gs.erase(gs.begin());
                 } else {
                     cout << "case III" << endl;
                     bool type = !(g->getType() == GateType::CZ || g->getControl()._qubit == q);
-                    // cout << "type: " << type << endl;
+                    cout << "type: " << type << endl;
                     vector<size_t> removed;
                     available_id.emplace(g->getId());
-
+                    cout << available_id.size() << endl;
+                    cout << "Into the case3 for loop" << endl;
                     for (size_t i = 1; i < gs.size(); i++) {
-                        QCirGate* g = gs[i];
-                        // cout << "Into the case3 for loop" << endl;
-                        g->printGate();
-                        if ((!type && isSingleRotateZ(g)) || (type && isSingleRotateX(g))) {
-                            // cout << "First if" << endl;
-                            Optimizer::_addGate2Circuit(circuit, g);
+                        QCirGate* g2 = gs[i];
+                        g2->printGate();
+                        if ((!type && isSingleRotateZ(g2)) || (type && isSingleRotateX(g2))) {
+                            cout << "    case 3-1" << endl;
+                            Optimizer::_addGate2Circuit(circuit, g2);
                             removed.emplace(removed.begin(), i);
-                        } else if (g->getType() != GateType::CX && g->getType() != GateType::CZ) {
-                            // cout << "First else if" << endl;
+                        } else if (g2->getType() != GateType::CX && g2->getType() != GateType::CZ) {
+                            cout << "    case 3-2" << endl;
                             break;
-                        } else if ((!type && (g->getType() == GateType::CZ || g->getControl()._qubit == q)) ||
-                                   (type && (g->getType() == GateType::CX || g->getTarget()._qubit == q))) {
-                            // cout << "Second else if" << endl;
-                            if (available_id.contains(g->getId())) {
-                                // cout << "Second else if-1" << endl;
-                                available_id.erase(g->getId());
-                                size_t q2 = q == g->getControl()._qubit ? g->getTarget()._qubit : g->getControl()._qubit;
-                                _gates[q2].erase(find_if(_gates[q2].begin(), _gates[q2].end(), [&](QCirGate* _g) { return g->getId() == _g->getId(); }));
-                                Optimizer::_addGate2Circuit(circuit, g);
+                        } else if ((!type && (g2->getType() == GateType::CZ || g2->getControl()._qubit == q)) ||
+                                   (type && (g2->getType() == GateType::CX && g2->getTarget()._qubit == q))) {
+                            cout << "    case 3-3" << endl;
+                            if (available_id.contains(g2->getId())) {
+                                cout << "    case 3-3-1" << endl;
+                                available_id.erase(g2->getId());
+                                size_t q2 = q == g2->getControl()._qubit ? g2->getTarget()._qubit : g2->getControl()._qubit;
+                                _gates[q2].erase(--(find_if(_gates[q2].rbegin(), _gates[q2].rend(), [&](QCirGate* _g) { return g2->getId() == _g->getId(); })).base());
+                                Optimizer::_addGate2Circuit(circuit, g2);
                                 removed.emplace(removed.begin(), i);
+                                cout << "q0 size: " << _gates[0].size() << endl;
                             } else {
-                                // cout << "Second else if-2" << endl;
-                                available_id.emplace(g->getId());
+                                cout << "    case 3-3-2" << endl;
+                                available_id.emplace(g2->getId());
+                                cout << "q0 size: " << _gates[0].size() << endl;
                             }
                         } else {
-                            // cout << "else if" << endl;
+                            cout << "    case 3-4" << endl;
                             break;
                         }
                     }
@@ -776,9 +785,9 @@ void Optimizer::topologicalSort(QCir* circuit) {
                     //     cout << removed[i] << " ";
                     // }
                     // cout << endl;
-                    // for (size_t i : removed) {          
-                    //     gs.erase(gs.begin() + i);
-                    // }
+                    for (size_t i : removed) {          
+                        gs.erase(gs.begin() + i);
+                    }
                     // for (size_t i = 0; i < _gates.size(); i++) {
                     //     cout << "_gates[" << i << "]" << endl;
                     //     for (size_t j = 0; j < _gates[i].size(); j++) {
@@ -925,4 +934,26 @@ QCirGate* Optimizer::getAvailableRotateZ(size_t target) {
         }
     }
     return nullptr;
+}
+
+/**
+ * @brief Get the swap path from intial permutaion to _permutation now
+ *
+ * @return vector<pair<size_t, size_t>> swap_path
+ */
+vector<pair<size_t, size_t>> Optimizer::get_swap_path(){
+    vector<std::pair<size_t, size_t> > swap_path;
+    unordered_map<size_t, size_t> inv_permutation;
+    for(auto [i, j]: _permutation){
+        inv_permutation.emplace(j, i);
+    }
+    
+    for (size_t i = 0; i < _permutation.size(); i++){
+        if (_permutation[i]==i) continue;
+        size_t q1 = _permutation[i], q2 = inv_permutation[i];
+        swap_path.emplace_back(make_pair(i, q2));
+        _permutation[q2] = q1;
+        inv_permutation[q1] = q2;
+    }
+    return swap_path;
 }
