@@ -76,7 +76,9 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
         _reversed = true;
         _circuit = parseForward();
         cout << "corrections size1: " << _corrections.size() << endl;
+        for (auto& g : _corrections) g->printGate();
         for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
+        //TODO - This line seems to be redundant
         _corrections.clear();
 
         _reversed = false;
@@ -686,6 +688,7 @@ void Optimizer::_addGate2Circuit(QCir* circuit, QCirGate* gate) {
         qubit_list.emplace_back(gate->getControl()._qubit);
     }
     qubit_list.emplace_back(gate->getTarget()._qubit);
+    cout << "Line 691: " <<circuit->getQubit(2) << endl;
     circuit->addGate(gate->getTypeStr(), qubit_list, gate->getPhase(), !_reversed);
 }
 
@@ -706,7 +709,7 @@ void Optimizer::topologicalSort(QCir* circuit) {
         for (auto& [q, gs] : _gates) {
             cout << "q: " << q << " size: " << gs.size() << endl;
             while (gs.size()) {
-                cout << "Into small while loop" << endl;
+                // cout << "Into small while loop" << endl;
                 QCirGate* g = gs[0];
                 g->printGate();
                 if (g->getType() != GateType::CX && g->getType() != GateType::CZ) {
@@ -716,68 +719,72 @@ void Optimizer::topologicalSort(QCir* circuit) {
                 } else if (available_id.contains(g->getId())) {
                     cout << "case II" << endl;
                     available_id.erase(g->getId());
+                    cout << "Line A: " <<circuit->getQubit(2) << endl;
                     size_t q2 = (q == g->getControl()._qubit) ? g->getTarget()._qubit : g->getControl()._qubit;
+                    cout << "Line B: " <<circuit->getQubit(2) << endl;
                     _gates[q2].erase(find_if(_gates[q2].begin(), _gates[q2].end(), [&](QCirGate* _g) { return g->getId() == _g->getId(); }));
+                    cout << "Line C: " <<circuit->getQubit(2) << endl;
                     Optimizer::_addGate2Circuit(circuit, g);
+                    cout << "Line D" << endl;
                     gs.erase(gs.begin());
                 } else {
                     cout << "case III" << endl;
                     bool type = !(g->getType() == GateType::CZ || g->getControl()._qubit == q);
-                    cout << "type: " << type << endl;
+                    // cout << "type: " << type << endl;
                     vector<size_t> removed;
                     available_id.emplace(g->getId());
 
                     for (size_t i = 1; i < gs.size(); i++) {
                         QCirGate* g = gs[i];
-                        cout << "Into the case3 for loop" << endl;
+                        // cout << "Into the case3 for loop" << endl;
                         g->printGate();
                         if ((!type && isSingleRotateZ(g)) || (type && isSingleRotateX(g))) {
-                            cout << "First if" << endl;
+                            // cout << "First if" << endl;
                             Optimizer::_addGate2Circuit(circuit, g);
                             removed.emplace(removed.begin(), i);
                         } else if (g->getType() != GateType::CX && g->getType() != GateType::CZ) {
-                            cout << "First else if" << endl;
+                            // cout << "First else if" << endl;
                             break;
                         } else if ((!type && (g->getType() == GateType::CZ || g->getControl()._qubit == q)) ||
                                    (type && (g->getType() == GateType::CX || g->getTarget()._qubit == q))) {
-                            cout << "Second else if" << endl;
+                            // cout << "Second else if" << endl;
                             if (available_id.contains(g->getId())) {
-                                cout << "Second else if-1" << endl;
+                                // cout << "Second else if-1" << endl;
                                 available_id.erase(g->getId());
                                 size_t q2 = q == g->getControl()._qubit ? g->getTarget()._qubit : g->getControl()._qubit;
                                 _gates[q2].erase(find_if(_gates[q2].begin(), _gates[q2].end(), [&](QCirGate* _g) { return g->getId() == _g->getId(); }));
                                 Optimizer::_addGate2Circuit(circuit, g);
                                 removed.emplace(removed.begin(), i);
                             } else {
-                                cout << "Second else if-2" << endl;
+                                // cout << "Second else if-2" << endl;
                                 available_id.emplace(g->getId());
                             }
                         } else {
-                            cout << "else if" << endl;
+                            // cout << "else if" << endl;
                             break;
                         }
                     }
-                    cout << "Pop remove" << endl;
-                    for (size_t i = 0; i < _gates.size(); i++) {
-                        cout << "_gates[" << i << "]" << endl;
-                        for (size_t j = 0; j < _gates[i].size(); j++) {
-                            _gates[i][j]->printGate();
-                        }
-                    }
-                    cout << "Remove: ";
-                    for (size_t i = 0; i < removed.size(); i++) {
-                        cout << removed[i] << " ";
-                    }
-                    cout << endl;
-                    for (size_t i : removed) {          
-                        gs.erase(gs.begin() + i);
-                    }
-                    for (size_t i = 0; i < _gates.size(); i++) {
-                        cout << "_gates[" << i << "]" << endl;
-                        for (size_t j = 0; j < _gates[i].size(); j++) {
-                            _gates[i][j]->printGate();
-                        }
-                    }
+                    // cout << "Pop remove" << endl;
+                    // for (size_t i = 0; i < _gates.size(); i++) {
+                    //     cout << "_gates[" << i << "]" << endl;
+                    //     for (size_t j = 0; j < _gates[i].size(); j++) {
+                    //         _gates[i][j]->printGate();
+                    //     }
+                    // }
+                    // cout << "Remove: ";
+                    // for (size_t i = 0; i < removed.size(); i++) {
+                    //     cout << removed[i] << " ";
+                    // }
+                    // cout << endl;
+                    // for (size_t i : removed) {          
+                    //     gs.erase(gs.begin() + i);
+                    // }
+                    // for (size_t i = 0; i < _gates.size(); i++) {
+                    //     cout << "_gates[" << i << "]" << endl;
+                    //     for (size_t j = 0; j < _gates[i].size(); j++) {
+                    //         _gates[i][j]->printGate();
+                    //     }
+                    // }
                     break;
                 }
             }

@@ -48,6 +48,7 @@ QCirQubit *QCir::getQubit(size_t id) const {
         }
             
     }
+    cout << "Error: The qubit do not exist." << endl;
     return NULL;
 }
 
@@ -299,18 +300,36 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
         return nullptr;
     }
     if (append) {
+        cout << "Into append" << endl;
         size_t max_time = 0;
         for (size_t k = 0; k < bits.size(); k++) {
             size_t q = bits[k];
+            cout << "Line 306" << endl;
             temp->addQubit(q, k == bits.size() - 1);  // target is the last one
+            cout << "Line 308" << endl;
+            cout << "size: " << _qubits.size() << endl;
+            for (auto qcirq: _qubits)
+            {
+                cout << qcirq->getId() << endl;
+            }
+            
+            cout << "q: " << q <<endl;
             QCirQubit *target = getQubit(q);
+            cout << "Line 310" << endl;
+            cout << &target << endl;
+            cout << "Line 310-2" << endl;
+            cout << target << endl;
             if (target->getLast() != NULL) {
+                cout << "Line 312" << endl;
                 temp->setParent(q, target->getLast());
                 target->getLast()->setChild(q, temp);
                 if ((target->getLast()->getTime()) > max_time)
                     max_time = target->getLast()->getTime();
-            } else
+            } else{
+                cout << "Line 318" << endl;
                 target->setFirst(temp);
+            }
+            cout << "Line 321" << endl;
             target->setLast(temp);
         }
         temp->setTime(max_time + temp->getDelay());
