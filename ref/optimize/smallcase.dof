@@ -1,0 +1,10 @@
+color off
+qccread ./benchmark/benchmark_SABRE/small/3_17_13.qasm
+qc2ts
+qc2zx
+zxgsimp -fr
+zx2qc
+optimize
+qc2ts
+tseq 0 1
+qq -f

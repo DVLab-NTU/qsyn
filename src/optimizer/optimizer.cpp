@@ -718,7 +718,6 @@ void Optimizer::topologicalSort(QCir* circuit) {
         cout << "In to while: " << count << endl;
         for (auto& [q, gs] : _gates) {
             cout << "q: " << q << " size: " << gs.size() << endl;
-            cout << "q0 size: " << _gates[0].size() << endl;
             while (gs.size()) {
                 // cout << "Into small while loop" << endl;
                 QCirGate* g = gs[0];
@@ -737,39 +736,39 @@ void Optimizer::topologicalSort(QCir* circuit) {
                 } else {
                     cout << "case III" << endl;
                     bool type = !(g->getType() == GateType::CZ || g->getControl()._qubit == q);
-                    cout << "type: " << type << endl;
+                    // cout << "type: " << type << endl;
                     vector<size_t> removed;
                     available_id.emplace(g->getId());
-                    cout << available_id.size() << endl;
+                    // cout << available_id.size() << endl;
                     cout << "Into the case3 for loop" << endl;
                     for (size_t i = 1; i < gs.size(); i++) {
                         QCirGate* g2 = gs[i];
                         g2->printGate();
                         if ((!type && isSingleRotateZ(g2)) || (type && isSingleRotateX(g2))) {
-                            cout << "    case 3-1" << endl;
+                            // cout << "    case 3-1" << endl;
                             Optimizer::_addGate2Circuit(circuit, g2);
                             removed.emplace(removed.begin(), i);
                         } else if (g2->getType() != GateType::CX && g2->getType() != GateType::CZ) {
-                            cout << "    case 3-2" << endl;
+                            // cout << "    case 3-2" << endl;
                             break;
                         } else if ((!type && (g2->getType() == GateType::CZ || g2->getControl()._qubit == q)) ||
                                    (type && (g2->getType() == GateType::CX && g2->getTarget()._qubit == q))) {
-                            cout << "    case 3-3" << endl;
+                            // cout << "    case 3-3" << endl;
                             if (available_id.contains(g2->getId())) {
-                                cout << "    case 3-3-1" << endl;
+                                // cout << "    case 3-3-1" << endl;
                                 available_id.erase(g2->getId());
                                 size_t q2 = q == g2->getControl()._qubit ? g2->getTarget()._qubit : g2->getControl()._qubit;
                                 _gates[q2].erase(--(find_if(_gates[q2].rbegin(), _gates[q2].rend(), [&](QCirGate* _g) { return g2->getId() == _g->getId(); })).base());
                                 Optimizer::_addGate2Circuit(circuit, g2);
                                 removed.emplace(removed.begin(), i);
-                                cout << "q0 size: " << _gates[0].size() << endl;
+                                // cout << "q0 size: " << _gates[0].size() << endl;
                             } else {
-                                cout << "    case 3-3-2" << endl;
+                                // cout << "    case 3-3-2" << endl;
                                 available_id.emplace(g2->getId());
-                                cout << "q0 size: " << _gates[0].size() << endl;
+                                // cout << "q0 size: " << _gates[0].size() << endl;
                             }
                         } else {
-                            cout << "    case 3-4" << endl;
+                            // cout << "    case 3-4" << endl;
                             break;
                         }
                     }
