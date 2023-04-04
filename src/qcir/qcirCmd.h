@@ -12,27 +12,7 @@
 #include "cmdParser.h"  // for CmdClass, CmdExec, CmdExecStatus::CMD_EXEC_ERROR
 #include "qcirMgr.h"    // for QCirMgr
 
-CmdClass(QCirCheckoutCmd);
-CmdClass(QCirResetCmd);
-CmdClass(QCirDeleteCmd);
-CmdClass(QCirNewCmd);
-CmdClass(QCirCopyCmd);
-CmdClass(QCirComposeCmd);
-CmdClass(QCirTensorCmd);
-CmdClass(QCPrintCmd);
-
-CmdClass(QCirReadCmd);
-CmdClass(QCirPrintCmd);
-CmdClass(QCirWriteCmd);
 CmdClass(QCirAddGateCmd);
-CmdClass(QCirAddQubitCmd);
-CmdClass(QCirDeleteGateCmd);
-CmdClass(QCirDeleteQubitCmd);
-CmdClass(QCir2ZXCmd);
-CmdClass(QCir2TSCmd);
-CmdClass(QCirGatePrintCmd);
-
-CmdClass(QCirTestCmd);
 
 #define QC_CMD_MGR_NOT_EMPTY_OR_RETURN(str)                                                               \
     {                                                                                                     \

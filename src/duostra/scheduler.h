@@ -24,8 +24,8 @@
 
 class BaseScheduler {
 public:
+    BaseScheduler(std::unique_ptr<CircuitTopo>, bool = true);
     BaseScheduler(const BaseScheduler&);
-    BaseScheduler(std::unique_ptr<CircuitTopo>);
     BaseScheduler(BaseScheduler&&);
     virtual ~BaseScheduler() {}
 
@@ -50,14 +50,14 @@ protected:
     std::unique_ptr<CircuitTopo> _circuitTopology;
     std::vector<Operation> _operations;
     bool _sorted = false;
-
+    bool _tqdm = true;
     virtual void assignGates(std::unique_ptr<Router>);
     void sort();
 };
 
 class RandomScheduler : public BaseScheduler {
 public:
-    RandomScheduler(std::unique_ptr<CircuitTopo>);
+    RandomScheduler(std::unique_ptr<CircuitTopo>, bool = true);
     RandomScheduler(const RandomScheduler&);
     RandomScheduler(RandomScheduler&&);
     ~RandomScheduler() override {}
@@ -70,7 +70,7 @@ protected:
 
 class StaticScheduler : public BaseScheduler {
 public:
-    StaticScheduler(std::unique_ptr<CircuitTopo>);
+    StaticScheduler(std::unique_ptr<CircuitTopo>, bool = true);
     StaticScheduler(const StaticScheduler&);
     StaticScheduler(StaticScheduler&&);
     ~StaticScheduler() override {}
@@ -92,7 +92,7 @@ struct GreedyConf {
 
 class GreedyScheduler : public BaseScheduler {
 public:
-    GreedyScheduler(std::unique_ptr<CircuitTopo>);
+    GreedyScheduler(std::unique_ptr<CircuitTopo>, bool = true);
     GreedyScheduler(const GreedyScheduler&);
     GreedyScheduler(GreedyScheduler&&);
     ~GreedyScheduler() override {}
@@ -166,7 +166,7 @@ private:
 
 class SearchScheduler : public GreedyScheduler {
 public:
-    SearchScheduler(std::unique_ptr<CircuitTopo>);
+    SearchScheduler(std::unique_ptr<CircuitTopo>, bool = true);
     SearchScheduler(const SearchScheduler&);
     SearchScheduler(SearchScheduler&&);
     ~SearchScheduler() override {}
@@ -183,6 +183,6 @@ protected:
     void cacheOnlyWhenNecessary();
 };
 
-std::unique_ptr<BaseScheduler> getScheduler(std::unique_ptr<CircuitTopo>);
+std::unique_ptr<BaseScheduler> getScheduler(std::unique_ptr<CircuitTopo>, bool = true);
 
 #endif

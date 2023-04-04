@@ -19,20 +19,21 @@ using namespace std;
  *
  * @param typ
  * @param topo
+ * @param tqdm
  * @return unique_ptr<BaseScheduler>
  */
-unique_ptr<BaseScheduler> getScheduler(unique_ptr<CircuitTopo> topo) {
+unique_ptr<BaseScheduler> getScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) {
     // 0:base 1:static 2:random 3:greedy 4:search
     if (DUOSTRA_SCHEDULER == 2) {
-        return make_unique<RandomScheduler>(move(topo));
+        return make_unique<RandomScheduler>(move(topo), tqdm);
     } else if (DUOSTRA_SCHEDULER == 1) {
-        return make_unique<StaticScheduler>(move(topo));
+        return make_unique<StaticScheduler>(move(topo), tqdm);
     } else if (DUOSTRA_SCHEDULER == 3) {
-        return make_unique<GreedyScheduler>(move(topo));
+        return make_unique<GreedyScheduler>(move(topo), tqdm);
     } else if (DUOSTRA_SCHEDULER == 4) {
-        return make_unique<SearchScheduler>(move(topo));
+        return make_unique<SearchScheduler>(move(topo), tqdm);
     } else if (DUOSTRA_SCHEDULER == 0) {
-        return make_unique<BaseScheduler>(move(topo));
+        return make_unique<BaseScheduler>(move(topo), tqdm);
     } else {
         cerr << "Error: scheduler type not found" << endl;
         abort();
@@ -45,22 +46,23 @@ unique_ptr<BaseScheduler> getScheduler(unique_ptr<CircuitTopo> topo) {
  * @brief Construct a new Base Scheduler:: Base Scheduler object
  *
  * @param topo
+ * @param tqdm
  */
-BaseScheduler::BaseScheduler(unique_ptr<CircuitTopo> topo) : _circuitTopology(move(topo)), _operations({}) {}
+BaseScheduler::BaseScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : _circuitTopology(move(topo)), _operations({}), _tqdm(tqdm) {}
 
 /**
  * @brief Construct a new Base Scheduler:: Base Scheduler object
  *
  * @param other
  */
-BaseScheduler::BaseScheduler(const BaseScheduler& other) : _circuitTopology(other._circuitTopology->clone()), _operations(other._operations) {}
+BaseScheduler::BaseScheduler(const BaseScheduler& other) : _circuitTopology(other._circuitTopology->clone()), _operations(other._operations), _tqdm(other._tqdm) {}
 
 /**
  * @brief Construct a new Base Scheduler:: Base Scheduler object
  *
  * @param other
  */
-BaseScheduler::BaseScheduler(BaseScheduler&& other) : _circuitTopology(move(other._circuitTopology)), _operations(move(other._operations)) {}
+BaseScheduler::BaseScheduler(BaseScheduler&& other) : _circuitTopology(move(other._circuitTopology)), _operations(move(other._operations)), _tqdm(other._tqdm) {}
 
 /**
  * @brief Clone scheduler
@@ -165,8 +167,6 @@ void BaseScheduler::assignGatesAndSort(unique_ptr<Router> router) {
  * @param router
  */
 void BaseScheduler::assignGates(unique_ptr<Router> router) {
-    cout << "Default scheduler running..." << endl;
-
     for (TqdmWrapper bar{_circuitTopology->getNumGates()}; !bar.done(); ++bar)
         routeOneGate(*router, bar.idx());
 }
@@ -200,8 +200,9 @@ size_t BaseScheduler::routeOneGate(Router& router, size_t gateIdx, bool forget) 
  * @brief Construct a new Random Scheduler:: Random Scheduler object
  *
  * @param topo
+ * @param tqdm
  */
-RandomScheduler::RandomScheduler(unique_ptr<CircuitTopo> topo) : BaseScheduler(move(topo)) {}
+RandomScheduler::RandomScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : BaseScheduler(move(topo), tqdm) {}
 
 /**
  * @brief Construct a new Random Scheduler:: Random Scheduler object
@@ -232,7 +233,6 @@ unique_ptr<BaseScheduler> RandomScheduler::clone() const {
  * @param router
  */
 void RandomScheduler::assignGates(unique_ptr<Router> router) {
-    cout << "Random scheduler running..." << endl;
     [[maybe_unused]] size_t count = 0;
 
     for (TqdmWrapper bar{_circuitTopology->getNumGates()}; !bar.done(); ++bar) {
@@ -257,8 +257,9 @@ void RandomScheduler::assignGates(unique_ptr<Router> router) {
  * @brief Construct a new Static Scheduler:: Static Scheduler object
  *
  * @param topo
+ * @param tqdm
  */
-StaticScheduler::StaticScheduler(unique_ptr<CircuitTopo> topo) : BaseScheduler(move(topo)) {}
+StaticScheduler::StaticScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : BaseScheduler(move(topo), tqdm) {}
 
 /**
  * @brief Construct a new Static Scheduler:: Static Scheduler object
@@ -289,8 +290,6 @@ unique_ptr<BaseScheduler> StaticScheduler::clone() const {
  * @param router
  */
 void StaticScheduler::assignGates(unique_ptr<Router> router) {
-    cout << "Static scheduler running..." << endl;
-
     [[maybe_unused]] size_t count = 0;
     for (TqdmWrapper bar{_circuitTopology->getNumGates()}; !bar.done(); ++bar) {
         auto& waitlist = _circuitTopology->getAvailableGates();

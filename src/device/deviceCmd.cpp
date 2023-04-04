@@ -29,7 +29,6 @@ extern int effLimit;
 unique_ptr<ArgParseCmdType> dtCheckOutCmd();
 unique_ptr<ArgParseCmdType> dtResetCmd();
 unique_ptr<ArgParseCmdType> dtDeleteCmd();
-unique_ptr<ArgParseCmdType> dtNewCmd();
 unique_ptr<ArgParseCmdType> dtGraphReadCmd();
 // unique_ptr<ArgParseCmdType> dtGraphPrintCmd(); // requires subparsers
 unique_ptr<ArgParseCmdType> dtPrintCmd();
@@ -39,7 +38,6 @@ bool initDeviceCmd() {
     if (!(cmdMgr->regCmd("DTCHeckout", 4, dtCheckOutCmd()) &&
           cmdMgr->regCmd("DTReset", 3, dtResetCmd()) &&
           cmdMgr->regCmd("DTDelete", 3, dtDeleteCmd()) &&
-          cmdMgr->regCmd("DTNew", 3, dtNewCmd()) &&
           cmdMgr->regCmd("DTGRead", 4, dtGraphReadCmd()) &&
           cmdMgr->regCmd("DTGPrint", 4, make_unique<DeviceGraphPrintCmd>()) &&
           cmdMgr->regCmd("DTPrint", 3, dtPrintCmd()))) {
@@ -108,29 +106,6 @@ unique_ptr<ArgParseCmdType> dtDeleteCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         deviceMgr->removeDevice(parser["id"]);
-        return CMD_EXEC_DONE;
-    };
-
-    return cmd;
-}
-
-unique_ptr<ArgParseCmdType> dtNewCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DTNew");
-
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("create a new Device to DeviceMgr");
-
-        parser.addArgument<size_t>("id")
-            .required(false)
-            .help("the ID of the device");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["id"].isParsed()) {
-            deviceMgr->addDevice(parser["id"]);
-        } else {
-            deviceMgr->addDevice(deviceMgr->getNextID());
-        }
         return CMD_EXEC_DONE;
     };
 

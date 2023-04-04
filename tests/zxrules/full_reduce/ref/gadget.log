@@ -1,4 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.4.1
+DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> qccr benchmark/pseudoSimp/tof2.qasm
 Create and checkout to QCir 0
 
@@ -15,45 +15,45 @@ Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
 qsyn> tsp 0
-{{ 1.414214e+00-9.420555e-16i,  1.110223e-16+7.850462e-17i,
+{{ 1.414214e+00-1.059812e-15i, -3.330669e-16-3.925231e-17i,
    0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
- { 1.110223e-16+7.850462e-17i,  1.414214e+00-9.420555e-16i,
+ {-3.330669e-16-3.925231e-17i,  1.414214e+00-1.059812e-15i,
    0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
  { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i,
-   1.110223e-16-1.177569e-16i,  1.414214e+00-7.457939e-16i},
+   1.110223e-16-2.820020e-16i,  1.414214e+00-8.315344e-16i},
  { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i,
-   1.414214e+00-7.457939e-16i,  1.110223e-16-1.177569e-16i}}
+   1.414214e+00-8.315344e-16i,  1.110223e-16-2.820020e-16i}}
 #Dim:    2	Info: ZX 0
 
 qsyn> zxgp -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 11)	  #Neighbors:   1     (25, -) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (7, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 11)	  #Neighbors:   1     (26, -) 
 ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (6, -) 
 ID:   5 (●, 0)           (Qubit, Col): (2, 11)	  #Neighbors:   1     (22, -) 
 ID:   6 ([1m[33mH[0m[0m, π)           (Qubit, Col): (2, 10)	  #Neighbors:   2     (4, -) (8, -) 
-ID:   7 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 10)	  #Neighbors:   3     (8, -) (13, -) (27, -) 
+ID:   7 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (0, -) (8, -) (13, -) 
 ID:   8 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (6, -) (7, -) (9, -) 
 ID:   9 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (8, -) (11, -) 
-ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (0, -) (11, -) (16, -) 
+ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 10)	  #Neighbors:   3     (11, -) (16, -) (27, -) 
 ID:  11 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (9, -) (10, -) (12, -) 
 ID:  12 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   2     (11, -) (14, -) 
-ID:  13 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 10)	  #Neighbors:   3     (7, -) (14, -) (18, -) 
+ID:  13 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (7, -) (14, -) (18, -) 
 ID:  14 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (12, -) (13, -) (15, -) 
 ID:  15 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (14, -) (17, -) 
-ID:  16 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (10, -) (17, -) (20, -) 
+ID:  16 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 10)	  #Neighbors:   3     (10, -) (17, -) (20, -) 
 ID:  17 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (15, -) (16, -) (19, -) 
-ID:  18 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (1, 10)	  #Neighbors:   2     (13, -) (21, -) 
+ID:  18 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 10)	  #Neighbors:   2     (13, -) (21, -) 
 ID:  19 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   2     (17, -) (22, -) 
-ID:  20 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (16, -) (21, -) (23, -) 
-ID:  21 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 10)	  #Neighbors:   3     (18, -) (20, -) (24, -) 
+ID:  20 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 10)	  #Neighbors:   3     (16, -) (21, -) (23, -) 
+ID:  21 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (18, -) (20, -) (24, -) 
 ID:  22 ([1m[33mH[0m[0m, π)           (Qubit, Col): (2, 10)	  #Neighbors:   2     (5, -) (19, -) 
-ID:  23 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 10)	  #Neighbors:   2     (20, -) (25, -) 
-ID:  24 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (0, 10)	  #Neighbors:   2     (21, -) (26, -) 
-ID:  25 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (1, -) (23, -) (26, -) 
-ID:  26 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 10)	  #Neighbors:   3     (24, -) (25, -) (28, -) 
-ID:  27 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (7, -) 
-ID:  28 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (26, -) 
+ID:  23 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (1, 10)	  #Neighbors:   2     (20, -) (25, -) 
+ID:  24 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (1, 10)	  #Neighbors:   2     (21, -) (26, -) 
+ID:  25 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 10)	  #Neighbors:   3     (23, -) (26, -) (28, -) 
+ID:  26 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (1, -) (24, -) (25, -) 
+ID:  27 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (10, -) 
+ID:  28 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (25, -) 
 Total #Vertices: 27
 
 
@@ -61,50 +61,52 @@ qsyn> zxgs -spiderf
 
 qsyn> zxgp -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 11)	  #Neighbors:   1     (10, -) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (7, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 11)	  #Neighbors:   1     (26, -) 
 ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (8, [1m[34mH[0m[0m) 
 ID:   5 (●, 0)           (Qubit, Col): (2, 11)	  #Neighbors:   1     (19, [1m[34mH[0m[0m) 
-ID:   7 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (1, 10)	  #Neighbors:   4     (8, -) (14, -) (21, -) (27, -) 
+ID:   7 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 10)	  #Neighbors:   4     (0, -) (8, -) (14, -) (21, -) 
 ID:   8 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (4, [1m[34mH[0m[0m) (7, -) (9, -) 
 ID:   9 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (8, -) (11, -) 
-ID:  10 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 10)	  #Neighbors:   6     (0, -) (1, -) (11, -) (17, -) (21, -) (26, -) 
+ID:  10 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (1, 10)	  #Neighbors:   6     (11, -) (17, -) (21, -) (26, -) (27, -) (28, -) 
 ID:  11 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (9, -) (10, -) (12, -) 
 ID:  12 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   2     (11, -) (14, -) 
 ID:  14 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (7, -) (12, -) (15, -) 
 ID:  15 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (14, -) (17, -) 
 ID:  17 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (10, -) (15, -) (19, -) 
 ID:  19 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   2     (5, [1m[34mH[0m[0m) (17, -) 
-ID:  21 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 10)	  #Neighbors:   3     (7, -) (10, -) (24, -) 
-ID:  24 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (0, 10)	  #Neighbors:   2     (21, -) (26, -) 
-ID:  26 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 10)	  #Neighbors:   2     (10, -) (24, -) 
-ID:  27 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (7, -) 
-Total #Vertices: 18
+ID:  21 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (7, -) (10, -) (24, -) 
+ID:  24 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (1, 10)	  #Neighbors:   2     (21, -) (26, -) 
+ID:  26 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (1, -) (10, -) (24, -) 
+ID:  27 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (10, -) 
+ID:  28 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (10, -) 
+Total #Vertices: 19
 
 
 qsyn> zxgs -idr
 
 qsyn> zxgp -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 11)	  #Neighbors:   1     (10, -) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (7, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 11)	  #Neighbors:   1     (26, -) 
 ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (8, [1m[34mH[0m[0m) 
 ID:   5 (●, 0)           (Qubit, Col): (2, 11)	  #Neighbors:   1     (19, [1m[34mH[0m[0m) 
-ID:   7 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (1, 10)	  #Neighbors:   4     (8, -) (14, -) (21, -) (27, -) 
+ID:   7 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 10)	  #Neighbors:   4     (0, -) (8, -) (14, -) (21, -) 
 ID:   8 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (4, [1m[34mH[0m[0m) (7, -) (9, -) 
 ID:   9 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (8, -) (11, -) 
-ID:  10 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 10)	  #Neighbors:   6     (0, -) (1, -) (11, -) (17, -) (21, -) (26, -) 
+ID:  10 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (1, 10)	  #Neighbors:   6     (11, -) (17, -) (21, -) (26, -) (27, -) (28, -) 
 ID:  11 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (9, -) (10, -) (12, -) 
 ID:  12 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   2     (11, -) (14, -) 
 ID:  14 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (7, -) (12, -) (15, -) 
 ID:  15 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (14, -) (17, -) 
 ID:  17 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (10, -) (15, -) (19, -) 
 ID:  19 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   2     (5, [1m[34mH[0m[0m) (17, -) 
-ID:  21 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 10)	  #Neighbors:   3     (7, -) (10, -) (24, -) 
-ID:  24 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (0, 10)	  #Neighbors:   2     (21, -) (26, -) 
-ID:  26 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 10)	  #Neighbors:   2     (10, -) (24, -) 
-ID:  27 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (7, -) 
-Total #Vertices: 18
+ID:  21 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (7, -) (10, -) (24, -) 
+ID:  24 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (1, 10)	  #Neighbors:   2     (21, -) (26, -) 
+ID:  26 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (1, -) (10, -) (24, -) 
+ID:  27 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (10, -) 
+ID:  28 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (10, -) 
+Total #Vertices: 19
 
 
 qsyn> zxgs -tog
@@ -121,6 +123,10 @@ Pivot Gadget Rule
 
 -----------
 
+Edge 0: 1 26
+
+-----------
+
 Edge 0: 5 19
 
 -----------
@@ -134,8 +140,18 @@ Edge 0: 7 8
 Edge 0: 7 14
 (1) type pass
 (2) phase pass
-(3) good match
-Both vertices are both interior: 14 7
+
+-----------
+
+Edge 0: 7 21
+(1) type pass
+(2) phase pass
+
+-----------
+
+Edge 0: 8 9
+(1) type pass
+(2) phase pass
 
 -----------
 
@@ -147,68 +163,96 @@ Both vertices are both interior: 11 9
 
 -----------
 
-Edge 0: 17 19
-(1) type pass
-(2) phase pass
-
------------
-
-Edge 0: 24 26
+Edge 0: 14 15
 (1) type pass
 (2) phase pass
 (3) good match
-Both vertices are both interior: 26 24
+Both vertices are both interior: 14 15
+
+-----------
+
+Edge 0: 21 24
+(1) type pass
+(2) phase pass
+(3) good match
+Both vertices are both interior: 21 24
 
 Iteration 1:
 >>>
 Add vertex ([1m[32mZ[0m[0m) 29
 Add vertex ([1m[32mZ[0m[0m) 30
 Add edge (29, 30)
-Add edge (30, 7)
+Add edge (30, 9)
 Add vertex ([1m[32mZ[0m[0m) 31
 Add vertex ([1m[32mZ[0m[0m) 32
 Add edge (31, 32)
-Add edge (32, 9)
+Add edge (32, 15)
 Add vertex ([1m[32mZ[0m[0m) 33
 Add vertex ([1m[32mZ[0m[0m) 34
 Add edge (33, 34)
 Add edge (34, 24)
 > rewrite...
-vs: 14	vt: 7
-> rewrite...
 vs: 11	vt: 9
 > rewrite...
-vs: 26	vt: 24
-Add edge (8, 12)
-Add edge (12, 21)
-Add edge (12, 27)
-Add edge (12, 30)
-Add edge (8, 15)
-Add edge (15, 21)
-Add edge (15, 27)
-Add edge (15, 30)
+vs: 14	vt: 15
+> rewrite...
+vs: 21	vt: 24
 Add edge (8, 10)
-Add edge (10, 32)
-Note: Hopf edge; cancelling out with existing edge (8, 12)...
+Add edge (10, 30)
+Add edge (8, 12)
+Add edge (12, 30)
+Add edge (7, 17)
+Add edge (7, 32)
+Add edge (12, 17)
 Add edge (12, 32)
-Note: Hopf edge; cancelling out with existing edge (10, 21)...
+Add edge (7, 26)
+Add edge (7, 34)
+Note: Hopf edge; cancelling out with existing edge (10, 26)...
 Add edge (10, 34)
-Remove ID: 14
-Remove ID: 7
 Remove ID: 11
 Remove ID: 9
-Remove ID: 26
+Remove ID: 14
+Remove ID: 15
+Remove ID: 21
 Remove ID: 24
 <<<
 > match...
 
 -----------
 
+Edge 0: 1 26
+
+-----------
+
 Edge 0: 5 19
 
 -----------
 
-Edge 0: 8 15
+Edge 0: 7 8
+(1) type pass
+(2) phase pass
+
+-----------
+
+Edge 0: 7 17
+(1) type pass
+(2) phase pass
+
+-----------
+
+Edge 0: 7 32
+(1) type pass
+(2) phase pass
+
+-----------
+
+Edge 0: 7 26
+(1) type pass
+(2) phase pass
+
+-----------
+
+Edge 0: 7 34
 (1) type pass
 (2) phase pass
 
@@ -220,126 +264,92 @@ Edge 0: 8 10
 
 -----------
 
+Edge 0: 8 12
+(1) type pass
+(2) phase pass
+
+-----------
+
 Edge 0: 10 17
 (1) type pass
 (2) phase pass
-
------------
-
-Edge 0: 10 32
-(1) type pass
-(2) phase pass
-
------------
-
-Edge 0: 10 34
-(1) type pass
-(2) phase pass
-
------------
-
-Edge 0: 12 21
-(1) type pass
-(2) phase pass
 (3) good match
-Both vertices are both interior: 21 12
-
------------
-
-Edge 0: 17 19
-(1) type pass
-(2) phase pass
+Both vertices are both interior: 17 10
 
 Iteration 2:
 >>>
 Add vertex ([1m[32mZ[0m[0m) 35
 Add vertex ([1m[32mZ[0m[0m) 36
 Add edge (35, 36)
-Add edge (36, 12)
+Add edge (36, 10)
 > rewrite...
-vs: 21	vt: 12
-Note: Hopf edge; cancelling out with existing edge (15, 27)...
-Note: Hopf edge; cancelling out with existing edge (15, 30)...
-Add edge (15, 32)
-Add edge (15, 36)
-Remove ID: 21
-Remove ID: 12
-Remove ID: 27
-<<<
-> match...
-
------------
-
-Edge 0: 5 19
-
------------
-
-Edge 0: 8 15
-(1) type pass
-(2) phase pass
-
------------
-
-Edge 0: 8 10
-(1) type pass
-(2) phase pass
-
------------
-
-Edge 0: 10 17
-(1) type pass
-(2) phase pass
-
------------
-
-Edge 0: 10 32
-(1) type pass
-(2) phase pass
-
------------
-
-Edge 0: 10 34
-(1) type pass
-(2) phase pass
-
------------
-
-Edge 0: 15 17
-(1) type pass
-(2) phase pass
-(3) good match
-Both vertices are both interior: 17 15
-
------------
-
-Edge 0: 29 30
-(1) type pass
-(2) phase pass
-
-Iteration 3:
->>>
-Add vertex ([1m[32mZ[0m[0m) 37
-Add vertex ([1m[32mZ[0m[0m) 38
-Add edge (37, 38)
-Add edge (38, 15)
-> rewrite...
-vs: 17	vt: 15
-Note: Hopf edge; cancelling out with existing edge (8, 10)...
-Note: Hopf edge; cancelling out with existing edge (10, 32)...
-Add edge (10, 36)
-Add edge (10, 38)
+vs: 17	vt: 10
+Note: Hopf edge; cancelling out with existing edge (7, 8)...
+Add edge (7, 27)
+Add edge (7, 28)
+Add edge (7, 30)
+Note: Hopf edge; cancelling out with existing edge (7, 34)...
+Add edge (7, 36)
+Note: Hopf edge; cancelling out with existing edge (8, 12)...
+Add edge (12, 27)
+Add edge (12, 28)
+Note: Hopf edge; cancelling out with existing edge (12, 30)...
+Add edge (12, 34)
+Add edge (12, 36)
 Add edge (8, 19)
-Add edge (19, 32)
+Add edge (19, 27)
+Add edge (19, 28)
+Add edge (19, 30)
+Add edge (19, 34)
 Add edge (19, 36)
-Add edge (19, 38)
 Remove ID: 17
-Remove ID: 15
+Remove ID: 10
 <<<
 > match...
 
 -----------
 
+Edge 0: 1 26
+
+-----------
+
 Edge 0: 5 19
+
+-----------
+
+Edge 0: 7 32
+(1) type pass
+(2) phase pass
+
+-----------
+
+Edge 0: 7 26
+(1) type pass
+(2) phase pass
+
+-----------
+
+Edge 0: 7 27
+(1) type pass
+(2) phase pass
+
+-----------
+
+Edge 0: 7 28
+(1) type pass
+(2) phase pass
+
+-----------
+
+Edge 0: 7 30
+(1) type pass
+(2) phase pass
+
+-----------
+
+Edge 0: 7 36
+(1) type pass
+(2) phase pass
 
 -----------
 
@@ -349,19 +359,71 @@ Edge 0: 8 19
 
 -----------
 
-Edge 0: 10 34
+Edge 0: 12 27
+(1) type pass
+(2) phase pass
+(3) good match
+Both vertices are both interior: 27 12
+
+Iteration 3:
+>>>
+Add vertex ([1m[32mZ[0m[0m) 37
+Add vertex ([1m[32mZ[0m[0m) 38
+Add edge (37, 38)
+Add edge (38, 12)
+> rewrite...
+vs: 27	vt: 12
+Note: Hopf edge; cancelling out with existing edge (7, 28)...
+Note: Hopf edge; cancelling out with existing edge (7, 32)...
+Add edge (7, 34)
+Note: Hopf edge; cancelling out with existing edge (7, 36)...
+Add edge (7, 38)
+Note: Hopf edge; cancelling out with existing edge (19, 28)...
+Add edge (19, 32)
+Note: Hopf edge; cancelling out with existing edge (19, 34)...
+Note: Hopf edge; cancelling out with existing edge (19, 36)...
+Add edge (19, 38)
+Remove ID: 27
+Remove ID: 12
+Remove ID: 28
+<<<
+> match...
+
+-----------
+
+Edge 0: 1 26
+
+-----------
+
+Edge 0: 5 19
+
+-----------
+
+Edge 0: 7 26
 (1) type pass
 (2) phase pass
 
 -----------
 
-Edge 0: 10 36
+Edge 0: 7 30
 (1) type pass
 (2) phase pass
 
 -----------
 
-Edge 0: 10 38
+Edge 0: 7 34
+(1) type pass
+(2) phase pass
+
+-----------
+
+Edge 0: 7 38
+(1) type pass
+(2) phase pass
+
+-----------
+
+Edge 0: 8 19
 (1) type pass
 (2) phase pass
 
@@ -373,7 +435,7 @@ Edge 0: 19 32
 
 -----------
 
-Edge 0: 29 30
+Edge 0: 35 36
 (1) type pass
 (2) phase pass
 => 3 iterations.
@@ -384,24 +446,25 @@ Edge 0: 29 30
 
 qsyn> zxgp -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 11)	  #Neighbors:   1     (10, -) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (7, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 11)	  #Neighbors:   1     (26, [1m[34mH[0m[0m) 
 ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (8, -) 
 ID:   5 (●, 0)           (Qubit, Col): (2, 11)	  #Neighbors:   1     (19, [1m[34mH[0m[0m) 
+ID:   7 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 10)	  #Neighbors:   5     (0, -) (26, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
 ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   2     (4, -) (19, [1m[34mH[0m[0m) 
-ID:  10 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 10)	  #Neighbors:   5     (0, -) (1, -) (34, [1m[34mH[0m[0m) (36, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
-ID:  19 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   5     (5, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) (36, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
-ID:  29 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (-2, 10)	  #Neighbors:   1     (30, [1m[34mH[0m[0m) 
-ID:  30 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   1     (29, [1m[34mH[0m[0m) 
+ID:  19 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   5     (5, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
+ID:  26 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   2     (1, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+ID:  29 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (30, [1m[34mH[0m[0m) 
+ID:  30 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (-1, 10)	  #Neighbors:   3     (7, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (29, [1m[34mH[0m[0m) 
 ID:  31 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (32, [1m[34mH[0m[0m) 
 ID:  32 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   2     (19, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
 ID:  33 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (34, [1m[34mH[0m[0m) 
-ID:  34 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   2     (10, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
+ID:  34 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   2     (7, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
 ID:  35 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (-2, 10)	  #Neighbors:   1     (36, [1m[34mH[0m[0m) 
-ID:  36 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   3     (10, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (35, [1m[34mH[0m[0m) 
-ID:  37 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (38, [1m[34mH[0m[0m) 
-ID:  38 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (-1, 10)	  #Neighbors:   3     (10, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (37, [1m[34mH[0m[0m) 
-Total #Vertices: 17
+ID:  36 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   1     (35, [1m[34mH[0m[0m) 
+ID:  37 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (-2, 10)	  #Neighbors:   1     (38, [1m[34mH[0m[0m) 
+ID:  38 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   3     (7, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (37, [1m[34mH[0m[0m) 
+Total #Vertices: 18
 
 
 qsyn> zxgs -idr
@@ -413,132 +476,126 @@ Identity Removal Rule
 Iteration 1:
 >>>
 Add edge (4, 19)
+Add edge (1, 7)
 Remove ID: 8
+Remove ID: 26
 <<<
 => 1 iterations.
-  1) 1 matches
+  1) 2 matches
 
 
 qsyn> zxgp -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 11)	  #Neighbors:   1     (10, -) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (7, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 11)	  #Neighbors:   1     (7, -) 
 ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (19, [1m[34mH[0m[0m) 
 ID:   5 (●, 0)           (Qubit, Col): (2, 11)	  #Neighbors:   1     (19, [1m[34mH[0m[0m) 
-ID:  10 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 10)	  #Neighbors:   5     (0, -) (1, -) (34, [1m[34mH[0m[0m) (36, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
-ID:  19 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   5     (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) (36, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
-ID:  29 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (-2, 10)	  #Neighbors:   1     (30, [1m[34mH[0m[0m) 
-ID:  30 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   1     (29, [1m[34mH[0m[0m) 
+ID:   7 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 10)	  #Neighbors:   5     (0, -) (1, -) (30, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
+ID:  19 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   5     (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
+ID:  29 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (30, [1m[34mH[0m[0m) 
+ID:  30 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (-1, 10)	  #Neighbors:   3     (7, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (29, [1m[34mH[0m[0m) 
 ID:  31 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (32, [1m[34mH[0m[0m) 
 ID:  32 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   2     (19, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
 ID:  33 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (34, [1m[34mH[0m[0m) 
-ID:  34 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   2     (10, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
+ID:  34 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   2     (7, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
 ID:  35 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (-2, 10)	  #Neighbors:   1     (36, [1m[34mH[0m[0m) 
-ID:  36 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   3     (10, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (35, [1m[34mH[0m[0m) 
-ID:  37 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (38, [1m[34mH[0m[0m) 
-ID:  38 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (-1, 10)	  #Neighbors:   3     (10, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (37, [1m[34mH[0m[0m) 
+ID:  36 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   1     (35, [1m[34mH[0m[0m) 
+ID:  37 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (-2, 10)	  #Neighbors:   1     (38, [1m[34mH[0m[0m) 
+ID:  38 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   3     (7, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (37, [1m[34mH[0m[0m) 
 Total #Vertices: 16
 
 
 qsyn> zx2ts
 Traverse and build the tensor... 
-Topological order from first input: 0 10 36 19 4 38 37 32 31 5 35 34 33 1 
+Topological order from first input: 0 7 1 34 33 30 19 4 38 37 32 31 5 29 
 Size of topological order: 14
 > Mapping vertex 0 (●): New Subgraph
   - Current frontiers: 
-    0--10 (-) axis id: 1
-> Mapping vertex 10 ([1m[32mZ[0m[0m): Tensordot
+    0--7 (-) axis id: 1
+> Mapping vertex 7 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
-    1--10 (-) axis id: 1
-    10--34 ([1m[34mH[0m[0m) axis id: 2
-    10--36 ([1m[34mH[0m[0m) axis id: 3
-    10--38 ([1m[34mH[0m[0m) axis id: 4
-> Mapping vertex 36 ([1m[32mZ[0m[0m): Tensordot
+    7--30 ([1m[34mH[0m[0m) axis id: 1
+    7--34 ([1m[34mH[0m[0m) axis id: 2
+    7--38 ([1m[34mH[0m[0m) axis id: 3
+    1--7 (-) axis id: 4
+> Mapping vertex 1 (●): Boundary Node
   - Current frontiers: 
-    1--10 (-) axis id: 1
-    10--34 ([1m[34mH[0m[0m) axis id: 2
-    10--38 ([1m[34mH[0m[0m) axis id: 3
-    35--36 ([1m[34mH[0m[0m) axis id: 4
-    19--36 ([1m[34mH[0m[0m) axis id: 5
-> Mapping vertex 19 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    1--10 (-) axis id: 1
-    10--34 ([1m[34mH[0m[0m) axis id: 2
-    10--38 ([1m[34mH[0m[0m) axis id: 3
-    35--36 ([1m[34mH[0m[0m) axis id: 4
-    5--19 ([1m[34mH[0m[0m) axis id: 5
-    19--32 ([1m[34mH[0m[0m) axis id: 6
-    19--38 ([1m[34mH[0m[0m) axis id: 7
-    4--19 ([1m[34mH[0m[0m) axis id: 8
-> Mapping vertex 4 (●): Boundary Node
-  - Current frontiers: 
-    1--10 (-) axis id: 1
-    10--34 ([1m[34mH[0m[0m) axis id: 2
-    10--38 ([1m[34mH[0m[0m) axis id: 3
-    35--36 ([1m[34mH[0m[0m) axis id: 4
-    5--19 ([1m[34mH[0m[0m) axis id: 5
-    19--32 ([1m[34mH[0m[0m) axis id: 6
-    19--38 ([1m[34mH[0m[0m) axis id: 7
-    4--19 ([1m[34mH[0m[0m) axis id: 8
-> Mapping vertex 38 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    1--10 (-) axis id: 1
-    10--34 ([1m[34mH[0m[0m) axis id: 2
-    35--36 ([1m[34mH[0m[0m) axis id: 3
-    5--19 ([1m[34mH[0m[0m) axis id: 4
-    19--32 ([1m[34mH[0m[0m) axis id: 5
-    4--19 ([1m[34mH[0m[0m) axis id: 6
-    37--38 ([1m[34mH[0m[0m) axis id: 7
-> Mapping vertex 37 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    1--10 (-) axis id: 1
-    10--34 ([1m[34mH[0m[0m) axis id: 2
-    35--36 ([1m[34mH[0m[0m) axis id: 3
-    5--19 ([1m[34mH[0m[0m) axis id: 4
-    19--32 ([1m[34mH[0m[0m) axis id: 5
-    4--19 ([1m[34mH[0m[0m) axis id: 6
-> Mapping vertex 32 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    1--10 (-) axis id: 1
-    10--34 ([1m[34mH[0m[0m) axis id: 2
-    35--36 ([1m[34mH[0m[0m) axis id: 3
-    5--19 ([1m[34mH[0m[0m) axis id: 4
-    4--19 ([1m[34mH[0m[0m) axis id: 5
-    31--32 ([1m[34mH[0m[0m) axis id: 6
-> Mapping vertex 31 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    1--10 (-) axis id: 1
-    10--34 ([1m[34mH[0m[0m) axis id: 2
-    35--36 ([1m[34mH[0m[0m) axis id: 3
-    5--19 ([1m[34mH[0m[0m) axis id: 4
-    4--19 ([1m[34mH[0m[0m) axis id: 5
-> Mapping vertex 5 (●): Boundary Node
-  - Current frontiers: 
-    1--10 (-) axis id: 1
-    10--34 ([1m[34mH[0m[0m) axis id: 2
-    35--36 ([1m[34mH[0m[0m) axis id: 3
-    5--19 ([1m[34mH[0m[0m) axis id: 5
-    4--19 ([1m[34mH[0m[0m) axis id: 4
-> Mapping vertex 35 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    1--10 (-) axis id: 1
-    10--34 ([1m[34mH[0m[0m) axis id: 2
-    5--19 ([1m[34mH[0m[0m) axis id: 4
-    4--19 ([1m[34mH[0m[0m) axis id: 3
+    7--30 ([1m[34mH[0m[0m) axis id: 1
+    7--34 ([1m[34mH[0m[0m) axis id: 2
+    7--38 ([1m[34mH[0m[0m) axis id: 3
+    1--7 (-) axis id: 4
 > Mapping vertex 34 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
-    1--10 (-) axis id: 1
-    5--19 ([1m[34mH[0m[0m) axis id: 3
-    4--19 ([1m[34mH[0m[0m) axis id: 2
+    7--30 ([1m[34mH[0m[0m) axis id: 1
+    7--38 ([1m[34mH[0m[0m) axis id: 2
+    1--7 (-) axis id: 3
     33--34 ([1m[34mH[0m[0m) axis id: 4
 > Mapping vertex 33 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
-    1--10 (-) axis id: 1
-    5--19 ([1m[34mH[0m[0m) axis id: 3
-    4--19 ([1m[34mH[0m[0m) axis id: 2
-> Mapping vertex 1 (●): Boundary Node
+    7--30 ([1m[34mH[0m[0m) axis id: 1
+    7--38 ([1m[34mH[0m[0m) axis id: 2
+    1--7 (-) axis id: 3
+> Mapping vertex 30 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
-    1--10 (-) axis id: 1
+    7--38 ([1m[34mH[0m[0m) axis id: 1
+    1--7 (-) axis id: 2
+    29--30 ([1m[34mH[0m[0m) axis id: 3
+    19--30 ([1m[34mH[0m[0m) axis id: 4
+> Mapping vertex 19 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    7--38 ([1m[34mH[0m[0m) axis id: 1
+    1--7 (-) axis id: 2
+    29--30 ([1m[34mH[0m[0m) axis id: 3
+    5--19 ([1m[34mH[0m[0m) axis id: 4
+    19--32 ([1m[34mH[0m[0m) axis id: 5
+    19--38 ([1m[34mH[0m[0m) axis id: 6
+    4--19 ([1m[34mH[0m[0m) axis id: 7
+> Mapping vertex 4 (●): Boundary Node
+  - Current frontiers: 
+    7--38 ([1m[34mH[0m[0m) axis id: 1
+    1--7 (-) axis id: 2
+    29--30 ([1m[34mH[0m[0m) axis id: 3
+    5--19 ([1m[34mH[0m[0m) axis id: 4
+    19--32 ([1m[34mH[0m[0m) axis id: 5
+    19--38 ([1m[34mH[0m[0m) axis id: 6
+    4--19 ([1m[34mH[0m[0m) axis id: 7
+> Mapping vertex 38 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--7 (-) axis id: 1
+    29--30 ([1m[34mH[0m[0m) axis id: 2
+    5--19 ([1m[34mH[0m[0m) axis id: 3
+    19--32 ([1m[34mH[0m[0m) axis id: 4
+    4--19 ([1m[34mH[0m[0m) axis id: 5
+    37--38 ([1m[34mH[0m[0m) axis id: 6
+> Mapping vertex 37 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--7 (-) axis id: 1
+    29--30 ([1m[34mH[0m[0m) axis id: 2
+    5--19 ([1m[34mH[0m[0m) axis id: 3
+    19--32 ([1m[34mH[0m[0m) axis id: 4
+    4--19 ([1m[34mH[0m[0m) axis id: 5
+> Mapping vertex 32 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--7 (-) axis id: 1
+    29--30 ([1m[34mH[0m[0m) axis id: 2
+    5--19 ([1m[34mH[0m[0m) axis id: 3
+    4--19 ([1m[34mH[0m[0m) axis id: 4
+    31--32 ([1m[34mH[0m[0m) axis id: 5
+> Mapping vertex 31 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--7 (-) axis id: 1
+    29--30 ([1m[34mH[0m[0m) axis id: 2
+    5--19 ([1m[34mH[0m[0m) axis id: 3
+    4--19 ([1m[34mH[0m[0m) axis id: 4
+> Mapping vertex 5 (●): Boundary Node
+  - Current frontiers: 
+    1--7 (-) axis id: 1
+    29--30 ([1m[34mH[0m[0m) axis id: 2
+    5--19 ([1m[34mH[0m[0m) axis id: 4
+    4--19 ([1m[34mH[0m[0m) axis id: 3
+> Mapping vertex 29 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--7 (-) axis id: 1
     5--19 ([1m[34mH[0m[0m) axis id: 3
     4--19 ([1m[34mH[0m[0m) axis id: 2
 Successfully added Tensor 1
@@ -547,14 +604,14 @@ Output axis ids: 1 3
 Stored the resulting tensor as tensor id 1
 
 qsyn> tsp 1
-{{ 7.071068e-01-7.071068e-01i,  1.665335e-16-9.752357e-17i,
+{{ 7.071068e-01-7.071068e-01i,  1.110223e-16+1.110223e-16i,
    0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
- { 1.665335e-16-9.752357e-17i,  7.071068e-01-7.071068e-01i,
+ { 1.110223e-16+1.110223e-16i,  7.071068e-01-7.071068e-01i,
    0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
  { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i,
-  -2.511506e-33-1.400374e-16i,  7.071068e-01-7.071068e-01i},
+  -1.110223e-16+5.551115e-17i,  7.071068e-01-7.071068e-01i},
  { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i,
-   7.071068e-01-7.071068e-01i, -2.511506e-33-1.400374e-16i}}
+   7.071068e-01-7.071068e-01i, -1.110223e-16+5.551115e-17i}}
 #Dim:    2	Info: ZX 0
 
 qsyn> tseq 0 1

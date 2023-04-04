@@ -10,7 +10,7 @@
 ![](https://i.imgur.com/wKg5cQO.jpg)
 
 
-![](https://i.imgur.com/jxLKFko.png)
+![](https://i.imgur.com/KeliAHn.png)
 
 <!-- ![example branch parameter](https://github.com/ric2k1/qsyn/actions/workflows/build-and-test.yml/badge.svg)
  -->

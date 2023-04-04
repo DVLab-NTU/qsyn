@@ -15,7 +15,7 @@
 
 class Duostra {
 public:
-    Duostra(QCir*, Device, bool = false);
+    Duostra(QCir*, Device, bool = false, bool = true, bool = false);
     ~Duostra() {}
 
     QCir* getPhysicalCircuit() { return _physicalCircuit; }
@@ -30,6 +30,8 @@ private:
     QCir* _physicalCircuit;
     Device _device;
     bool _check;
+    bool _tqdm;
+    bool _silent;
     std::unique_ptr<BaseScheduler> _scheduler;
     std::shared_ptr<DependencyGraph> _dependency;
     std::vector<Operation> _result;

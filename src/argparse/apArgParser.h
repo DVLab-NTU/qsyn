@@ -8,14 +8,14 @@
 #ifndef QSYN_ARGPARSE_ARGPARSER_H
 #define QSYN_ARGPARSE_ARGPARSER_H
 
-#include <array>
 #include <cassert>
-#include <unordered_set>
 #include <variant>
 
 #include "apArgument.h"
 #include "myTrie.h"
 #include "ordered_hashmap.h"
+#include "ordered_hashset.h"
+#include "tabler.h"
 
 namespace ArgParse {
 
@@ -29,7 +29,7 @@ class MutuallyExclusiveGroupView {
     struct MutuallyExclusiveGroup {
         MutuallyExclusiveGroup(ArgumentParser& parser) : _parser{parser} {}
         ArgumentParser& _parser;
-        std::unordered_set<std::string> _arguments;
+        ordered_hashset<std::string> _arguments;
         bool _required;
         bool _isParsed;
     };
@@ -50,7 +50,7 @@ public:
     bool isRequired() const { return _group->_required; }
     bool isParsed() const { return _group->_isParsed; }
 
-    std::unordered_set<std::string> const& getArguments() const { return _group->_arguments; }
+    ordered_hashset<std::string> const& getArguments() const { return _group->_arguments; }
 
 private:
     std::shared_ptr<MutuallyExclusiveGroup> _group;
@@ -65,6 +65,8 @@ public:
 
     ArgumentParser& name(std::string const& name);
     ArgumentParser& help(std::string const& help);
+
+    size_t isParsedSize() const;
 
     // print functions
 
@@ -118,10 +120,11 @@ private:
     std::string _help;
     size_t _numRequiredChars;
 
+    qsutil::Tabler mutable _tabl;
+
     // members for analyzing parser options
     MyTrie mutable _trie;
     bool mutable _optionsAnalyzed;
-    std::array<size_t, 3> mutable _printTableWidths;
 
     // addArgument error printing
 
