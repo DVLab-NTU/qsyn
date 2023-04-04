@@ -55,6 +55,7 @@ public:
 
     void prependSingleQubitGate(std::string, size_t, Phase);
     void prependDoubleQubitGate(std::string, const std::vector<size_t>&, Phase);
+    void prependSwapGate(size_t, size_t);
     bool frontierIsCleaned();
     bool axelInNeighbors();
     bool containSingleNeighbor();

@@ -185,13 +185,11 @@ void Extractor::extractSingles() {
     for (ZXVertex* o : _graph->getOutputs()) {
         if (o->getFirstNeighbor().second == EdgeType::HADAMARD) {
             prependSingleQubitGate("h", _qubitMap[o->getQubit()], Phase(0));
-            // _circuit->addGate("H", {_qubitMap[o->getQubit()]}, Phase(0), false);
             toggleList.emplace_back(o, o->getFirstNeighbor().first);
         }
         Phase ph = o->getFirstNeighbor().first->getPhase();
         if (ph != Phase(0)) {
             prependSingleQubitGate("rotate", _qubitMap[o->getQubit()], ph);
-            // _circuit->addSingleRZ(_qubitMap[o->getQubit()], ph, false);
             o->getFirstNeighbor().first->setPhase(Phase(0));
         }
     }
@@ -242,7 +240,6 @@ bool Extractor::extractCZs(bool check) {
     for (const auto& [s, t] : removeList) {
         _graph->removeEdge(s, t, EdgeType::HADAMARD);
         prependDoubleQubitGate("cz", {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1));
-        // _circuit->addGate("cz", {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1), false);
     }
 
     if (verbose >= 8) {
@@ -277,7 +274,6 @@ void Extractor::extractCXs(size_t strategy) {
         size_t targ = _qubitMap[frontId2Vertex[t]->getQubit()];
         if (verbose >= 4) cout << "Add CX: " << ctrl << " " << targ << endl;
         prependDoubleQubitGate("cx", {ctrl, targ}, Phase(0));
-        // _circuit->addGate("cx", {ctrl, targ}, Phase(0), false);
     }
 }
 
@@ -331,7 +327,6 @@ size_t Extractor::extractHsFromM2(bool check) {
 
     for (auto& [f, n] : frontNeighPairs) {
         // NOTE - Add Hadamard according to the v of frontier (row)
-        // _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
         prependSingleQubitGate("h", _qubitMap[f->getQubit()], Phase(0));
         // NOTE - Set #qubit and #col according to the old frontier
         n->setQubit(f->getQubit());
@@ -699,13 +694,7 @@ void Extractor::permuteQubit() {
     for (auto& [o, i] : swapMap) {
         if (o == i) continue;
         size_t t2 = swapInvMap.at(o);
-        // NOTE - SWAP
-        // _circuit->addGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0), false);
-        // _circuit->addGate("cx", {_qubitMap[t2], _qubitMap[o]}, Phase(0), false);
-        // _circuit->addGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0), false);
-        prependDoubleQubitGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0));
-        prependDoubleQubitGate("cx", {_qubitMap[t2], _qubitMap[o]}, Phase(0));
-        prependDoubleQubitGate("cx", {_qubitMap[o], _qubitMap[t2]}, Phase(0));
+        prependSwapGate(_qubitMap[o], _qubitMap[t2]);
         swapMap[t2] = i;
         swapInvMap[i] = t2;
     }
@@ -743,7 +732,6 @@ void Extractor::updateNeighbors() {
             for (auto& [b, ep] : f->getNeighbors()) {
                 if (_graph->getInputs().contains(b)) {
                     if (ep == EdgeType::HADAMARD) {
-                        // _circuit->addGate("h", {_qubitMap[f->getQubit()]}, Phase(0), false);
                         prependSingleQubitGate("h", _qubitMap[f->getQubit()], Phase(0));
                     }
                     break;
@@ -852,6 +840,19 @@ void Extractor::prependDoubleQubitGate(string type, const vector<size_t>& qubits
     // }
     // Duostra duo(opers, _graph->getNumOutputs(), _device.value(), false, false, true);
     // cout << "Cost: " << duo.flow(true) << endl;
+}
+
+/**
+ * @brief Prepend swap gate. Decompose into three CXs
+ *
+ * @param q0 logical
+ * @param q1 logical
+ */
+void Extractor::prependSwapGate(size_t q0, size_t q1) {
+    // NOTE - No qubit permutation in Physical Circuit
+    _logicalCircuit->addGate("cx", {q0, q1}, Phase(0), false);
+    _logicalCircuit->addGate("cx", {q1, q0}, Phase(0), false);
+    _logicalCircuit->addGate("cx", {q0, q1}, Phase(0), false);
 }
 
 /**
