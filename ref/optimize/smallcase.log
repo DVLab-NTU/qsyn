@@ -1,4 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.4.1
+DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> color off
 Note: color mode is set to off
 
@@ -42,6 +42,8 @@ Successfully copied Graph 0 to Graph 1
 Checkout to Graph 1
 Finish extracting!
 Create and checkout to QCir 1
+
+qsyn> qccw ref/optimize/smallcase_FR.qasm
 
 qsyn> optimize
 Before Parse Forward

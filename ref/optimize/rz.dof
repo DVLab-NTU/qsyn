@@ -4,8 +4,10 @@ QCBAdd 1
 qcga -Z 0 
 qcga -RZ -PH pi/2 0
 qcga -RZ -PH pi/2 0 
+qcga -RZ -PH 4*pi/5 0 
 qcga -RZ -PH 2*pi/3 0 
 qcga -RZ -PH 3*pi/2 0 
+qcga -RZ -PH -pi/4 0 
 qccprint -l
 qc2ts
 optimize

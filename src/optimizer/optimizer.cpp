@@ -145,6 +145,9 @@ QCir* Optimizer::parseForward() {
             cout << "_gates[" << i << "]" << endl;
             for (size_t j = 0; j < _gates[i].size(); j++) {
                 _gates[i][j]->printGate();
+                if(_gates[i][j]->getType()==GateType::P){
+                    cout << "Phase is " << _gates[i][j]->getPhase() << endl;
+                }
             }
         }
         for (size_t i = 0; i < _available.size(); i++) {
@@ -270,10 +273,10 @@ bool Optimizer::parseGate(QCirGate* gate) {
         cout << "issingleZ" << endl;
         if (_zs.contains(target)) {
             // cout << "Into z1 loop" << endl;
-            // TODO - Add S gate
+            // TODO - Add S/T gate
             _zs.erase(target);
-            if (gate->getType() == GateType::RZ) {
-                gate->setRotatePhase(gate->getPhase());
+            if (gate->getType() == GateType::RZ || gate->getType() == GateType::P) {
+                gate->setRotatePhase(gate->getPhase()+Phase(1));
             } else if (gate->getType() == GateType::Z) {
                 return true;
             }

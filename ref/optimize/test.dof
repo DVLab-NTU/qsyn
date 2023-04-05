@@ -1,18 +1,7 @@
 color off
-QCNew
-QCBAdd 3
-qcga -CZ 0 2
-qcga -CX 2 0
-qcga -CZ 0 1
-qcga -CZ 0 1
-qcga -CX 0 1
-qcga -CZ 0 1
-qcga -CZ 2 1
-qccprint -l
+qccread ref/optimize/FR.qasm
 qc2ts
 optimize
 qc2ts
-qccprint -l
-qccprint -q
 tseq 0 1
 qq -f

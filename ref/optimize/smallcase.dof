@@ -4,6 +4,7 @@ qc2ts
 qc2zx
 zxgsimp -fr
 zx2qc
+qccw ref/optimize/smallcase_FR.qasm
 optimize
 qc2ts
 tseq 0 1
