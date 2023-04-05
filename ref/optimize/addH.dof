@@ -1,0 +1,17 @@
+color off
+QCNew
+QCBAdd 1
+qcga -RZ -PH 4*pi/5 0 
+qcga -RZ -PH 2*pi/3 0 
+qcga -H 0
+qcga -RZ -PH 3*pi/2 0 
+qcga -H 0
+qcga -RZ -PH -pi/4 0 
+qccprint -l
+qc2ts
+optimize
+qccprint -l
+qccprint -q
+qc2ts
+tseq 0 1
+qq -f

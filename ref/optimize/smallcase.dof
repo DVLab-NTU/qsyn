@@ -1,10 +1,9 @@
 color off
-qccread ./benchmark/benchmark_SABRE/small/3_17_13.qasm
+qccread ./benchmark/benchmark_SABRE/small/4mod5-v0_20.qasm
 qc2ts
 qc2zx
 zxgsimp -fr
 zx2qc
-qccw ref/optimize/smallcase_FR.qasm
 optimize
 qc2ts
 tseq 0 1
