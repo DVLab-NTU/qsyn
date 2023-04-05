@@ -1,4 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.4.0
+DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> qccr benchmark/pseudoSimp/achilles.qasm
 Create and checkout to QCir 0
 
@@ -28,9 +28,9 @@ Note: verbose level is set to 3
 qsyn> zxgp -v
 
 ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (3, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 7)	  #Neighbors:   1     (2, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 36)	  #Neighbors:   1     (2, -) 
 ID:   8 (●, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (9, -) 
-ID:   9 (●, 0)           (Qubit, Col): (4, 7)	  #Neighbors:   1     (8, -) 
+ID:   9 (●, 0)           (Qubit, Col): (4, 36)	  #Neighbors:   1     (8, -) 
 Total #Vertices: 4
 
 

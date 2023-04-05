@@ -1,0 +1,8 @@
+qccr benchmark/benchmark_SABRE/large/adr4_197.qasm 
+dtgr benchmark/topology/guadalupe.layout
+qcset -double 2 -sw 6
+duoset -single false -depth 4
+duoprint
+duostra -c
+usage
+qq -f  

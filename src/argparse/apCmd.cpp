@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -19,44 +20,52 @@
 #include "util.h"
 
 using namespace std;
+using namespace ArgParse;
 
 // init
 
+unique_ptr<ArgParseCmdType> argparseCmd();
+
 bool initArgParserCmd() {
-    using namespace ArgParse;
+    if (!(cmdMgr->regCmd("Argparse", 1, argparseCmd()))) {
+        cerr << "Registering \"argparser\" commands fails... exiting" << endl;
+        return false;
+    }
+    return true;
+}
 
-    auto argparseCmd = make_unique<ArgParseCmdType>("Argparse");
+unique_ptr<ArgParseCmdType> argparseCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("Argparse");
 
-    argparseCmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("ArgParse package sandbox");
 
         parser.addArgument<string>("cat")
-            .help("cute");
+            .help("won't eat veggies");
+
         parser.addArgument<string>("dog")
             .help("humans' best friend");
 
-        parser.addArgument<int>("-badge")
-            .defaultValue(42)
-            .help("a symbol of honor");
-        parser.addArgument<unsigned>("-bacon")
-            .defaultValue(5)
-            .action(storeConst<unsigned>)
-            .constValue(87)
+        auto mutex1 = parser.addMutuallyExclusiveGroup().required(true);
+
+        mutex1.addArgument<int>("-bacon")
             .help("yummy");
+
+        mutex1.addArgument<int>("-badge")
+            .help("a sign of honour");
+
+        mutex1.addArgument<int>("-bus")
+            .help("public transport");
     };
 
-    argparseCmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         parser.printTokens();
         parser.printArguments();
 
         return CMD_EXEC_DONE;
     };
 
-    if (!(cmdMgr->regCmd("Argparse", 1, std::move(argparseCmd)))) {
-        cerr << "Registering \"argparser\" commands fails... exiting" << endl;
-        return false;
-    }
-    return true;
+    return cmd;
 }
 // -------------------------------------------------
 //     generic definition for ArgParseCmdType
@@ -78,7 +87,7 @@ bool ArgParseCmdType::initialize() {
         return false;
     }
     parserDefinition(_parser);
-    return true;
+    return _parser.analyzeOptions();
 }
 
 /**
@@ -88,6 +97,9 @@ bool ArgParseCmdType::initialize() {
  * @return false if failed
  */
 CmdExecStatus ArgParseCmdType::exec(const std::string& option) {
+    if (precondition && !precondition()) {
+        return CMD_EXEC_ERROR;
+    }
     if (!_parser.parse(option)) {
         return CMD_EXEC_ERROR;
     }

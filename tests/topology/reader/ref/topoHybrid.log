@@ -1,23 +1,23 @@
-DV Lab, NTUEE, Qsyn 0.4.0
+DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> dtgr benchmark/topology/ithaca.layout
-Create and checkout to DeviceTopo 0
+Create and checkout to Device 0
 
 qsyn> dtgp
 Topology  0: ibm_ithaca( 65 qubits, 72 edges )
 Gate Set   : CX, ID, RZ, SX, X
 
 qsyn> dtgr benchmark/topology/example.layout
-Create and checkout to DeviceTopo 1
+Create and checkout to Device 1
 
 qsyn> dtgp
 Topology  1: example_topology( 3 qubits, 2 edges )
 Gate Set   : X, RZ, H, ID, SX, CX
 
 qsyn> dtch 0
-Checkout to DeviceTopo 0
+Checkout to Device 0
 
 qsyn> dtp
--> #DeviceTopo: 2
+-> #Device: 2
 -> Now focus on: 0 (ibm_ithaca)
 
 qsyn> dtgp -q
@@ -101,7 +101,7 @@ qsyn> dtgp -e 15
 Total #Edges: 3
 
 qsyn> dtp
--> #DeviceTopo: 2
+-> #Device: 2
 -> Now focus on: 0 (ibm_ithaca)
 
 qsyn> dtp -l

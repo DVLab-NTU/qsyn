@@ -146,16 +146,18 @@ void CmdParser::printHelps() const {
     cout << endl;
 }
 
-void CmdParser::printHistory(int nPrint) const {
+void CmdParser::printHistory() const {
+    printHistory(_history.size());
+}
+
+void CmdParser::printHistory(size_t nPrint) const {
     assert(_tempCmdStored == false);
     if (_history.empty()) {
         cout << "Empty command history!!" << endl;
         return;
     }
-    int s = _history.size();
-    if ((nPrint < 0) || (nPrint > s))
-        nPrint = s;
-    for (int i = s - nPrint; i < s; ++i)
+    size_t s = _history.size();
+    for (auto i = s - min(s, nPrint); i < s; ++i)
         cout << "   " << i << ": " << _history[i] << endl;
 }
 
@@ -714,7 +716,7 @@ bool CmdExec::lexOptions(const string& option, vector<string>& tokens, size_t nO
 }
 
 CmdExecStatus
-CmdExec::errorOption(CmdOptionError err, const string& opt) const {
+CmdExec::errorOption(CmdOptionError err, const string& opt) {
     switch (err) {
         case CMD_OPT_MISSING:
             cerr << "Error: Missing option";

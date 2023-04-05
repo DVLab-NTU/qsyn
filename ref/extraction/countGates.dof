@@ -1,4 +1,4 @@
-color 0
+color off
 qccr ../../../pyzx/demos/extracted_circuit_FRbyQsyn/z4_268.qasm
 qccp -a
 qq -f

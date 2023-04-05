@@ -84,12 +84,12 @@ void ZXGraph::printVertices() const {
  *
  * @param cand
  */
-void ZXGraph::printVertices(vector<unsigned> cand) const {
+void ZXGraph::printVertices(vector<size_t> cand) const {
     unordered_map<size_t, ZXVertex*> id2Vmap = id2VertexMap();
 
     cout << "\n";
     for (size_t i = 0; i < cand.size(); i++) {
-        if (isId(cand[i])) id2Vmap[((size_t)cand[i])]->printVertex();
+        if (isId(cand[i])) id2Vmap[cand[i]]->printVertex();
     }
     cout << "\n";
 }

@@ -1,4 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.4.0
+DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> qccr benchmark/pseudoSimp/achilles.qasm
 Create and checkout to QCir 0
 

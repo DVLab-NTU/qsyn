@@ -1,0 +1,448 @@
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> QCNew
+Create and checkout to QCir 0
+
+qsyn> QCBAdd 1
+
+qsyn> qcga -RZ -PH 4*pi/5 0 
+
+qsyn> qcga -RZ -PH 2*pi/3 0 
+
+qsyn> qcga -H 0
+
+qsyn> qcga -RZ -PH 3*pi/2 0 
+
+qsyn> qcga -H 0
+
+qsyn> qcga -RZ -PH -pi/4 0 
+
+qsyn> qccprint -l
+Listed by gate ID
+ID:   0 ( rz)      Time:    1     Qubit:   0 
+ID:   1 ( rz)      Time:    2     Qubit:   0 
+ID:   2 (  h)      Time:    3     Qubit:   0 
+ID:   3 ( rz)      Time:    4     Qubit:   0 
+ID:   4 (  h)      Time:    5     Qubit:   0 
+ID:   5 ( rz)      Time:    6     Qubit:   0 
+
+qsyn> qc2ts
+Traverse and build the tensor... 
+Successfully added Tensor 0
+Stored the resulting tensor as tensor id 0
+
+qsyn> optimize
+Before Parse Forward
+Start parseForward
+Listed by gate ID
+ID:   0 ( rz)      Time:    1     Qubit:   0 
+ID:   1 ( rz)      Time:    2     Qubit:   0 
+ID:   2 (  h)      Time:    3     Qubit:   0 
+ID:   3 ( rz)      Time:    4     Qubit:   0 
+ID:   4 (  h)      Time:    5     Qubit:   0 
+ID:   5 ( rz)      Time:    6     Qubit:   0 
+######### start parse gate ##########
+ID:   0 ( rz)      Time:    1     Qubit:   0 
+issingleZ
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+Phase is 4π/5
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   1 ( rz)      Time:    2     Qubit:   0 
+issingleZ
+Parse gate done
+_gates[0]
+ID:   1 (  p)      Time:    0     Qubit:   0 
+Phase is 22π/15
+_available[0]
+ID:   1 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   2 (  h)      Time:    3     Qubit:   0 
+Parse gate done
+_gates[0]
+ID:   1 (  p)      Time:    0     Qubit:   0 
+Phase is 22π/15
+_available[0]
+ID:   1 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   3 ( rz)      Time:    4     Qubit:   0 
+issingleZ
+Parse gate done
+_gates[0]
+ID:   1 (  p)      Time:    0     Qubit:   0 
+Phase is 22π/15
+ID:   2 (  h)      Time:    0     Qubit:   0 
+ID:   3 (  p)      Time:    0     Qubit:   0 
+Phase is 3π/2
+_available[0]
+ID:   3 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   4 (  h)      Time:    5     Qubit:   0 
+Parse gate done
+_gates[0]
+ID:   1 (  p)      Time:    0     Qubit:   0 
+Phase is 22π/15
+ID:   4 (  p)      Time:    0     Qubit:   0 
+Phase is π/2
+ID:   2 (  h)      Time:    0     Qubit:   0 
+ID:   3 (  p)      Time:    0     Qubit:   0 
+Phase is π/2
+_available[0]
+ID:   3 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   5 ( rz)      Time:    6     Qubit:   0 
+issingleZ
+Parse gate done
+_gates[0]
+ID:   1 (  p)      Time:    0     Qubit:   0 
+Phase is 22π/15
+ID:   4 (  p)      Time:    0     Qubit:   0 
+Phase is π/2
+ID:   2 (  h)      Time:    0     Qubit:   0 
+ID:   5 (  p)      Time:    0     Qubit:   0 
+Phase is π/4
+_available[0]
+ID:   5 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+start topo sort
+In to while: 0
+q: 0 size: 4
+ID:   1 (  p)      Time:    0     Qubit:   0 
+case I
+ID:   4 (  p)      Time:    0     Qubit:   0 
+case I
+ID:   2 (  h)      Time:    0     Qubit:   0 
+case I
+ID:   5 (  p)      Time:    0     Qubit:   0 
+case I
+tmp is
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+ZPhase is  22π/15
+ID:   1 (  p)      Time:    2     Qubit:   0 
+ZPhase is  π/2
+ID:   2 (  h)      Time:    3     Qubit:   0 
+ID:   3 (  p)      Time:    4     Qubit:   0 
+ZPhase is  π/4
+After Parse Circuit
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+ZPhase is  22π/15
+ID:   1 (  p)      Time:    2     Qubit:   0 
+ZPhase is  π/2
+ID:   2 (  h)      Time:    3     Qubit:   0 
+ID:   3 (  p)      Time:    4     Qubit:   0 
+ZPhase is  π/4
+corrections size: 0
+After add corrections
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+ZPhase is  22π/15
+ID:   1 (  p)      Time:    2     Qubit:   0 
+ZPhase is  π/2
+ID:   2 (  h)      Time:    3     Qubit:   0 
+ID:   3 (  p)      Time:    4     Qubit:   0 
+ZPhase is  π/4
+###########  Number 1 iter #############
+Start parseForward
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+ZPhase is  22π/15
+ID:   1 (  p)      Time:    2     Qubit:   0 
+ZPhase is  π/2
+ID:   2 (  h)      Time:    3     Qubit:   0 
+ID:   3 (  p)      Time:    4     Qubit:   0 
+ZPhase is  π/4
+reversed
+######### start parse gate ##########
+ID:   3 (  p)      Time:    4     Qubit:   0 
+issingleZ
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+Phase is π/4
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   2 (  h)      Time:    3     Qubit:   0 
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+Phase is π/4
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   1 (  p)      Time:    2     Qubit:   0 
+issingleZ
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+Phase is π/4
+ID:   1 (  h)      Time:    0     Qubit:   0 
+ID:   2 (  p)      Time:    0     Qubit:   0 
+Phase is π/2
+_available[0]
+ID:   2 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   0 (  p)      Time:    1     Qubit:   0 
+issingleZ
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+Phase is π/4
+ID:   1 (  h)      Time:    0     Qubit:   0 
+ID:   3 (  p)      Time:    0     Qubit:   0 
+Phase is 59π/30
+_available[0]
+ID:   3 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+start topo sort
+In to while: 0
+q: 0 size: 3
+ID:   0 (  p)      Time:    0     Qubit:   0 
+case I
+ID:   1 (  h)      Time:    0     Qubit:   0 
+case I
+ID:   3 (  p)      Time:    0     Qubit:   0 
+case I
+tmp is
+Listed by gate ID
+ID:   0 (  p)      Time:    3     Qubit:   0 
+ZPhase is  π/4
+ID:   1 (  h)      Time:    2     Qubit:   0 
+ID:   2 (  p)      Time:    1     Qubit:   0 
+ZPhase is  59π/30
+corrections size1: 0
+Start parseForward
+Listed by gate ID
+ID:   0 (  p)      Time:    3     Qubit:   0 
+ZPhase is  π/4
+ID:   1 (  h)      Time:    2     Qubit:   0 
+ID:   2 (  p)      Time:    1     Qubit:   0 
+ZPhase is  59π/30
+######### start parse gate ##########
+ID:   2 (  p)      Time:    1     Qubit:   0 
+issingleZ
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+Phase is 59π/30
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   1 (  h)      Time:    2     Qubit:   0 
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+Phase is 59π/30
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   0 (  p)      Time:    3     Qubit:   0 
+issingleZ
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+Phase is 59π/30
+ID:   1 (  h)      Time:    0     Qubit:   0 
+ID:   2 (  p)      Time:    0     Qubit:   0 
+Phase is π/4
+_available[0]
+ID:   2 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+start topo sort
+In to while: 0
+q: 0 size: 3
+ID:   0 (  p)      Time:    0     Qubit:   0 
+case I
+ID:   1 (  h)      Time:    0     Qubit:   0 
+case I
+ID:   2 (  p)      Time:    0     Qubit:   0 
+case I
+tmp is
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+ZPhase is  59π/30
+ID:   1 (  h)      Time:    2     Qubit:   0 
+ID:   2 (  p)      Time:    3     Qubit:   0 
+ZPhase is  π/4
+corrections size2: 0
+###########  Number 2 iter #############
+Start parseForward
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+ZPhase is  59π/30
+ID:   1 (  h)      Time:    2     Qubit:   0 
+ID:   2 (  p)      Time:    3     Qubit:   0 
+ZPhase is  π/4
+reversed
+######### start parse gate ##########
+ID:   2 (  p)      Time:    3     Qubit:   0 
+issingleZ
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+Phase is π/4
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   1 (  h)      Time:    2     Qubit:   0 
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+Phase is π/4
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   0 (  p)      Time:    1     Qubit:   0 
+issingleZ
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+Phase is π/4
+ID:   1 (  h)      Time:    0     Qubit:   0 
+ID:   2 (  p)      Time:    0     Qubit:   0 
+Phase is 59π/30
+_available[0]
+ID:   2 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+start topo sort
+In to while: 0
+q: 0 size: 3
+ID:   0 (  p)      Time:    0     Qubit:   0 
+case I
+ID:   1 (  h)      Time:    0     Qubit:   0 
+case I
+ID:   2 (  p)      Time:    0     Qubit:   0 
+case I
+tmp is
+Listed by gate ID
+ID:   0 (  p)      Time:    3     Qubit:   0 
+ZPhase is  π/4
+ID:   1 (  h)      Time:    2     Qubit:   0 
+ID:   2 (  p)      Time:    1     Qubit:   0 
+ZPhase is  59π/30
+corrections size1: 0
+Start parseForward
+Listed by gate ID
+ID:   0 (  p)      Time:    3     Qubit:   0 
+ZPhase is  π/4
+ID:   1 (  h)      Time:    2     Qubit:   0 
+ID:   2 (  p)      Time:    1     Qubit:   0 
+ZPhase is  59π/30
+######### start parse gate ##########
+ID:   2 (  p)      Time:    1     Qubit:   0 
+issingleZ
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+Phase is 59π/30
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   1 (  h)      Time:    2     Qubit:   0 
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+Phase is 59π/30
+_available[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+######### start parse gate ##########
+ID:   0 (  p)      Time:    3     Qubit:   0 
+issingleZ
+Parse gate done
+_gates[0]
+ID:   0 (  p)      Time:    0     Qubit:   0 
+Phase is 59π/30
+ID:   1 (  h)      Time:    0     Qubit:   0 
+ID:   2 (  p)      Time:    0     Qubit:   0 
+Phase is π/4
+_available[0]
+ID:   2 (  p)      Time:    0     Qubit:   0 
+_availty[0]: 1  _zs 0
+
+start topo sort
+In to while: 0
+q: 0 size: 3
+ID:   0 (  p)      Time:    0     Qubit:   0 
+case I
+ID:   1 (  h)      Time:    0     Qubit:   0 
+case I
+ID:   2 (  p)      Time:    0     Qubit:   0 
+case I
+tmp is
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+ZPhase is  59π/30
+ID:   1 (  h)      Time:    2     Qubit:   0 
+ID:   2 (  p)      Time:    3     Qubit:   0 
+ZPhase is  π/4
+Final result
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+ZPhase is  59π/30
+ID:   1 (  h)      Time:    2     Qubit:   0 
+ID:   2 (  p)      Time:    3     Qubit:   0 
+ZPhase is  π/4
+Q 0  - p( 0)-- h( 1)-- p( 2)-
+
+qsyn> qccprint -l
+Listed by gate ID
+ID:   0 (  p)      Time:    1     Qubit:   0 
+ZPhase is  59π/30
+ID:   1 (  h)      Time:    2     Qubit:   0 
+ID:   2 (  p)      Time:    3     Qubit:   0 
+ZPhase is  π/4
+
+qsyn> qccprint -q
+Q 0  - p( 0)-- h( 1)-- p( 2)-
+
+qsyn> qc2ts
+Traverse and build the tensor... 
+Successfully added Tensor 1
+Stored the resulting tensor as tensor id 1
+
+qsyn> tseq 0 1
+Equivalent
+- Global Norm : 1
+- Global Phase: 73π/120
+
+qsyn> qq -f
+

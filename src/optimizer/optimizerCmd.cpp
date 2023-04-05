@@ -38,7 +38,8 @@ CmdExecStatus
 OptimizeCmd::exec(const string &option) {
     QC_CMD_MGR_NOT_EMPTY_OR_RETURN("OPTimize");
     Optimizer Opt(qcirMgr->getQCircuit());
-    Opt.parseCircuit(true, false, 1000);
+    QCir *result = Opt.parseCircuit(true, false, 1000);
+    qcirMgr->setQCircuit(result);
     return CMD_EXEC_DONE;
 }
 

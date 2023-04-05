@@ -68,9 +68,11 @@ void PhaseGadget::match(ZXGraph* g) {
         leaves.clear();
 
         Phase totalPhase = Phase(0);
+        bool flipAxel = false;
         for (auto& [_, axel] : ranges::subrange(groupBegin, groupEnd)) {
             ZXVertex* const& leaf = axel2leaf[axel];
             if (axel->getPhase() == Phase(1)) {
+                flipAxel = true;
                 axel->setPhase(Phase(0));
                 leaf->setPhase((-1) * axel2leaf[axel]->getPhase());
             }
@@ -78,10 +80,12 @@ void PhaseGadget::match(ZXGraph* g) {
             axels.push_back(axel);
             leaves.push_back(axel2leaf[axel]);
         }
-        if (leaves.size() > 1) {
+
+        if (leaves.size() > 1 || flipAxel) {
             _matchTypeVec.emplace_back(totalPhase, axels, leaves);
         }
     }
+
     setMatchTypeVecNum(_matchTypeVec.size());
 }
 

@@ -55,7 +55,7 @@ void QCir::ZXMapping() {
         ZXGraph *tmp = G->getZXform();
 
         for (auto &v : tmp->getVertices()) {
-            v->setCol(v->getCol() + G->getTime() + 1);
+            v->setCol(v->getCol() + G->getTime() + G->getDelay());
         }
         if (tmp == NULL) {
             cerr << "Gate " << G->getId() << " (type: " << G->getTypeStr() << ") is not implemented, the conversion result is wrong!!" << endl;

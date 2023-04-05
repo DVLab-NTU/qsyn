@@ -16,6 +16,27 @@ using namespace std;
 
 extern size_t verbose;
 
+size_t SINGLE_DELAY = 1;
+size_t DOUBLE_DELAY = 1;
+size_t SWAP_DELAY = 3;
+size_t MULTIPLE_DELAY = 5;
+
+/**
+ * @brief Get delay of gate
+ *
+ * @return size_t
+ */
+size_t QCirGate::getDelay() const {
+    if (getType() == GateType::SWAP)
+        return SWAP_DELAY;
+    if (_qubits.size() == 1)
+        return SINGLE_DELAY;
+    else if (_qubits.size() == 2)
+        return DOUBLE_DELAY;
+    else
+        return MULTIPLE_DELAY;
+}
+
 /**
  * @brief Get Qubit.
  *
@@ -39,7 +60,11 @@ const BitInfo QCirGate::getQubit(size_t qubit) const {
  */
 void QCirGate::addQubit(size_t qubit, bool isTarget) {
     BitInfo temp = {._qubit = qubit, ._parent = NULL, ._child = NULL, ._isTarget = isTarget};
-    _qubits.push_back(temp);
+    // _qubits.emplace_back(temp);
+    if (isTarget)
+        _qubits.emplace_back(temp);
+    else
+        _qubits.emplace(_qubits.begin(), temp);
 }
 
 /**

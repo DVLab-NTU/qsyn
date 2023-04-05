@@ -1,0 +1,16 @@
+ver 1
+zxm -on
+qccread benchmark/benchmark_SABRE/large/rd84_253.qasm
+qc2zx
+zxgp
+zxcopy
+zxgadjoint
+// zxgs -fr
+zxch 0
+zxcompose 1
+zxgprint
+zxgs -fr
+zxgp
+zxgt -id
+usage
+qq -f

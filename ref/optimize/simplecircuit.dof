@@ -1,0 +1,31 @@
+color off
+QCNew
+QCBAdd 3
+qcga -CX 0 1
+qcga -RZ -ph pi/2 1
+qcga -RZ -ph pi/2 0
+qcga -RZ -ph -pi/4 2
+qcga -CX 0 2
+qcga -RZ -ph pi/4 0
+qcga -RZ -ph -pi/2 1
+qcga -CX 2 0
+qcga -RZ -ph pi/2 2
+qcga -CX 1 2
+qcga -RZ -ph pi/2 2
+qcga -CX 1 0
+qcga -RZ -ph -4*pi/5 1
+qcga -CX 2 0
+qcga -RZ -ph -3*pi/4 0
+qcga -CX 2 0
+qcga -RZ -ph pi/3 2
+qcga -RZ -ph -pi/2 2
+qcga -CX 1 2
+qcga -CX 0 2
+qccprint -l
+qc2ts
+optimize
+qccprint -l
+qccprint -q
+qc2ts
+tseq 0 1
+qq -f

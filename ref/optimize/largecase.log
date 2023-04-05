@@ -1,0 +1,1821 @@
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> qccread benchmark/benchmark_SABRE/large/cm42a_207.qasm
+Create and checkout to QCir 0
+
+qsyn> qc2zx  
+Create and checkout to Graph 0
+
+qsyn> zxgsimp -fr
+
+All rules applied in order:
+Hadamard Rule                 2 iterations.
+  1) 172 matches
+  2) 48 matches
+Spider Fusion Rule            3 iterations.
+  1) 446 matches
+  2) 157 matches
+  3) 110 matches
+Spider Fusion Rule            1 iterations.
+  1) 61 matches
+Pivot Rule                    1 iterations.
+  1) 60 matches
+Pivot Gadget Rule             11 iterations.
+  1) 347 matches
+  2) 147 matches
+  3) 71 matches
+  4) 38 matches
+  5) 21 matches
+  6) 8 matches
+  7) 7 matches
+  8) 4 matches
+  9) 3 matches
+  10) 1 matches
+  11) 2 matches
+Identity Removal Rule         1 iterations.
+  1) 92 matches
+Spider Fusion Rule            16 iterations.
+  1) 39 matches
+  2) 9 matches
+  3) 9 matches
+  4) 5 matches
+  5) 4 matches
+  6) 3 matches
+  7) 2 matches
+  8) 2 matches
+  9) 2 matches
+  10) 2 matches
+  11) 2 matches
+  12) 1 matches
+  13) 1 matches
+  14) 1 matches
+  15) 1 matches
+  16) 1 matches
+Pivot Rule                    2 iterations.
+  1) 2 matches
+  2) 2 matches
+Local Complementation Rule    30 iterations.
+  1) 5 matches
+  2) 4 matches
+  3) 2 matches
+  4) 3 matches
+  5) 2 matches
+  6) 4 matches
+  7) 2 matches
+  8) 2 matches
+  9) 2 matches
+  10) 2 matches
+  11) 1 matches
+  12) 1 matches
+  13) 1 matches
+  14) 1 matches
+  15) 1 matches
+  16) 1 matches
+  17) 1 matches
+  18) 2 matches
+  19) 2 matches
+  20) 2 matches
+  21) 1 matches
+  22) 1 matches
+  23) 2 matches
+  24) 2 matches
+  25) 2 matches
+  26) 1 matches
+  27) 1 matches
+  28) 1 matches
+  29) 1 matches
+  30) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 24 matches
+Spider Fusion Rule            16 iterations.
+  1) 7 matches
+  2) 2 matches
+  3) 2 matches
+  4) 1 matches
+  5) 1 matches
+  6) 1 matches
+  7) 1 matches
+  8) 1 matches
+  9) 1 matches
+  10) 1 matches
+  11) 1 matches
+  12) 1 matches
+  13) 1 matches
+  14) 1 matches
+  15) 1 matches
+  16) 1 matches
+Pivot Rule                    3 iterations.
+  1) 3 matches
+  2) 2 matches
+  3) 2 matches
+Local Complementation Rule    2 iterations.
+  1) 1 matches
+  2) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 3 matches
+Spider Fusion Rule            3 iterations.
+  1) 1 matches
+  2) 1 matches
+  3) 1 matches
+Pivot Rule                    1 iterations.
+  1) 1 matches
+Phase Gadget Rule             1 iterations.
+  1) 146 matches
+Pivot Rule                    1 iterations.
+  1) 8 matches
+Local Complementation Rule    34 iterations.
+  1) 48 matches
+  2) 6 matches
+  3) 5 matches
+  4) 4 matches
+  5) 3 matches
+  6) 1 matches
+  7) 1 matches
+  8) 1 matches
+  9) 1 matches
+  10) 1 matches
+  11) 2 matches
+  12) 1 matches
+  13) 1 matches
+  14) 1 matches
+  15) 1 matches
+  16) 1 matches
+  17) 1 matches
+  18) 1 matches
+  19) 1 matches
+  20) 1 matches
+  21) 1 matches
+  22) 1 matches
+  23) 1 matches
+  24) 1 matches
+  25) 1 matches
+  26) 1 matches
+  27) 1 matches
+  28) 1 matches
+  29) 1 matches
+  30) 1 matches
+  31) 1 matches
+  32) 1 matches
+  33) 1 matches
+  34) 1 matches
+Pivot Rule                    1 iterations.
+  1) 1 matches
+
+qsyn> zx2qc
+Successfully copied Graph 0 to Graph 1
+Checkout to Graph 1
+Finish extracting!
+Create and checkout to QCir 1
+
+qsyn> optimize
+###########  Number 1 iter #############
+###########  Number 2 iter #############
+Final result
+Listed by gate ID
+ID:   0 (sdg)      Time:    1     Qubit:  13 
+ID:   1 ( cx)      Time:    1     Qubit:  11  10 
+ID:   2 (  p)      Time:    2     Qubit:  10 
+ZPhase is  7π/4
+ID:   3 (  p)      Time:    1     Qubit:   8 
+ZPhase is  3π/4
+ID:   4 ( cx)      Time:    1     Qubit:   7   9 
+ID:   5 ( cx)      Time:    3     Qubit:  10   7 
+ID:   6 (  p)      Time:    4     Qubit:   7 
+ZPhase is  π/4
+ID:   7 ( cx)      Time:    2     Qubit:   9  11 
+ID:   8 (  p)      Time:    3     Qubit:   9 
+ZPhase is  3π/4
+ID:   9 ( cx)      Time:    5     Qubit:   7  11 
+ID:  10 (  p)      Time:    6     Qubit:  11 
+ZPhase is  7π/4
+ID:  11 ( cx)      Time:    7     Qubit:  11  10 
+ID:  12 (  p)      Time:    8     Qubit:  10 
+ZPhase is  π/2
+ID:  13 ( cx)      Time:    8     Qubit:  11   9 
+ID:  14 (  s)      Time:    9     Qubit:   9 
+ID:  15 (  s)      Time:   10     Qubit:   9 
+ID:  16 ( cz)      Time:   11     Qubit:   8   9 
+ID:  17 ( cx)      Time:    9     Qubit:   7  10 
+ID:  18 ( cx)      Time:   10     Qubit:  11   7 
+ID:  19 ( cx)      Time:   12     Qubit:   9   6 
+ID:  20 ( cx)      Time:   13     Qubit:   9   4 
+ID:  21 ( cx)      Time:   14     Qubit:   9   2 
+ID:  22 ( cx)      Time:   11     Qubit:  10  11 
+ID:  23 (  p)      Time:   12     Qubit:  10 
+ZPhase is  3π/4
+ID:  24 ( cx)      Time:   15     Qubit:   9  11 
+ID:  25 ( cz)      Time:   13     Qubit:   8  10 
+ID:  26 ( cx)      Time:   16     Qubit:  11  13 
+ID:  27 ( cx)      Time:   17     Qubit:  11  12 
+ID:  28 ( cx)      Time:   16     Qubit:   9  10 
+ID:  29 ( cz)      Time:   18     Qubit:   8  11 
+ID:  30 (  p)      Time:   17     Qubit:  13 
+ZPhase is  π/4
+ID:  31 (  p)      Time:   17     Qubit:  10 
+ZPhase is  5π/4
+ID:  32 ( cx)      Time:   18     Qubit:  10   7 
+ID:  33 (  p)      Time:   19     Qubit:   7 
+ZPhase is  π/4
+ID:  34 ( cx)      Time:   20     Qubit:   9   7 
+ID:  35 ( cx)      Time:   21     Qubit:  11   7 
+ID:  36 (  h)      Time:   19     Qubit:  10 
+ID:  37 (  p)      Time:   20     Qubit:  10 
+ZPhase is  π/4
+ID:  38 ( cx)      Time:   22     Qubit:   7  10 
+ID:  39 ( cx)      Time:   23     Qubit:   8   7 
+ID:  40 (  p)      Time:   24     Qubit:   7 
+ZPhase is  5π/4
+ID:  41 (  p)      Time:   23     Qubit:  10 
+ZPhase is  7π/4
+ID:  42 ( cz)      Time:   24     Qubit:  10  13 
+ID:  43 ( cx)      Time:   25     Qubit:  10   8 
+ID:  44 ( cx)      Time:   26     Qubit:  10   7 
+ID:  45 ( cz)      Time:   27     Qubit:   7  13 
+ID:  46 (  p)      Time:   28     Qubit:   7 
+ZPhase is  π/2
+ID:  47 (  h)      Time:   27     Qubit:  10 
+ID:  48 ( cx)      Time:   28     Qubit:  10  12 
+ID:  49 (  p)      Time:   29     Qubit:  10 
+ZPhase is  5π/4
+ID:  50 ( cz)      Time:   30     Qubit:   8  10 
+ID:  51 ( cz)      Time:   31     Qubit:   7  10 
+ID:  52 ( cx)      Time:   32     Qubit:  11  10 
+ID:  53 (  p)      Time:   33     Qubit:  10 
+ZPhase is  π/2
+ID:  54 ( cx)      Time:   34     Qubit:  13  10 
+ID:  55 (  p)      Time:   35     Qubit:  10 
+ZPhase is  π/4
+ID:  56 ( cx)      Time:   35     Qubit:  12  13 
+ID:  57 ( cx)      Time:   36     Qubit:  11  12 
+ID:  58 (  p)      Time:   36     Qubit:  13 
+ZPhase is  3π/4
+ID:  59 (  p)      Time:   37     Qubit:  12 
+ZPhase is  π/4
+ID:  60 ( cz)      Time:   37     Qubit:  11  13 
+ID:  61 ( cz)      Time:   38     Qubit:  10  13 
+ID:  62 ( cx)      Time:   39     Qubit:  12  10 
+ID:  63 (  p)      Time:   40     Qubit:  10 
+ZPhase is  3π/2
+ID:  64 ( cx)      Time:   38     Qubit:   9  11 
+ID:  65 ( cz)      Time:   39     Qubit:   8  13 
+ID:  66 ( cz)      Time:   40     Qubit:   7  13 
+ID:  67 ( cx)      Time:   41     Qubit:   8   7 
+ID:  68 (  p)      Time:   42     Qubit:   7 
+ZPhase is  3π/2
+ID:  69 ( cx)      Time:   41     Qubit:  13  12 
+ID:  70 (  p)      Time:   42     Qubit:  12 
+ZPhase is  π/4
+ID:  71 ( cx)      Time:   39     Qubit:  11   6 
+ID:  72 ( cz)      Time:   43     Qubit:   6  12 
+ID:  73 (  p)      Time:   44     Qubit:   6 
+ZPhase is  5π/4
+ID:  74 ( cx)      Time:   40     Qubit:  11   5 
+ID:  75 ( cx)      Time:   41     Qubit:  11   4 
+ID:  76 ( cx)      Time:   44     Qubit:  12   4 
+ID:  77 (  p)      Time:   45     Qubit:   4 
+ZPhase is  π/4
+ID:  78 ( cx)      Time:   42     Qubit:  11   3 
+ID:  79 (sdg)      Time:   43     Qubit:   3 
+ID:  80 ( cx)      Time:   44     Qubit:   9   3 
+ID:  81 (  s)      Time:   45     Qubit:   3 
+ID:  82 ( cx)      Time:   43     Qubit:  11   2 
+ID:  83 (  p)      Time:   44     Qubit:   2 
+ZPhase is  5π/4
+ID:  84 ( cx)      Time:   45     Qubit:   9  13 
+ID:  85 ( cx)      Time:   46     Qubit:   8  13 
+ID:  86 (  h)      Time:   47     Qubit:  13 
+ID:  87 (  p)      Time:   48     Qubit:  13 
+ZPhase is  5π/4
+ID:  88 ( cz)      Time:   49     Qubit:  11  13 
+ID:  89 ( cz)      Time:   50     Qubit:  10  13 
+ID:  90 ( cx)      Time:   51     Qubit:  13   7 
+ID:  91 (  p)      Time:   52     Qubit:   7 
+ZPhase is  5π/4
+ID:  92 ( cx)      Time:   53     Qubit:   7   8 
+ID:  93 ( cx)      Time:   54     Qubit:  13   7 
+ID:  94 (  h)      Time:   55     Qubit:  13 
+ID:  95 (  p)      Time:   56     Qubit:  13 
+ZPhase is  7π/4
+ID:  96 ( cx)      Time:   57     Qubit:  11  13 
+ID:  97 (  p)      Time:   58     Qubit:  13 
+ZPhase is  7π/4
+ID:  98 ( cx)      Time:   59     Qubit:   9  13 
+ID:  99 (  p)      Time:   60     Qubit:  13 
+ZPhase is  7π/4
+ID: 100 ( cx)      Time:   61     Qubit:  11  13 
+ID: 101 (  p)      Time:   62     Qubit:  13 
+ZPhase is  7π/4
+ID: 102 ( cx)      Time:   63     Qubit:  11  13 
+ID: 103 ( cx)      Time:   64     Qubit:   8  13 
+ID: 104 (  h)      Time:   65     Qubit:  13 
+ID: 105 (  p)      Time:   66     Qubit:  13 
+ZPhase is  5π/4
+ID: 106 ( cx)      Time:   67     Qubit:   7  13 
+ID: 107 (  p)      Time:   68     Qubit:  13 
+ZPhase is  π/4
+ID: 108 ( cx)      Time:   69     Qubit:  13   8 
+ID: 109 ( cx)      Time:   70     Qubit:   7  13 
+ID: 110 (  h)      Time:   71     Qubit:  13 
+ID: 111 (  p)      Time:   72     Qubit:  13 
+ZPhase is  7π/4
+ID: 112 ( cx)      Time:   73     Qubit:  12  13 
+ID: 113 ( cx)      Time:   74     Qubit:  10  13 
+ID: 114 (  p)      Time:   75     Qubit:  13 
+ZPhase is  π/4
+ID: 115 ( cx)      Time:   76     Qubit:  10  13 
+ID: 116 (  p)      Time:   77     Qubit:  13 
+ZPhase is  7π/4
+ID: 117 ( cx)      Time:   78     Qubit:  12  13 
+ID: 118 ( cx)      Time:   79     Qubit:  10  13 
+ID: 119 (  p)      Time:   80     Qubit:  13 
+ZPhase is  π/4
+ID: 120 ( cx)      Time:   81     Qubit:  10  13 
+ID: 121 ( cx)      Time:   82     Qubit:   8  13 
+ID: 122 (  h)      Time:   83     Qubit:  13 
+ID: 123 (  p)      Time:   84     Qubit:  13 
+ZPhase is  5π/4
+ID: 124 ( cx)      Time:   85     Qubit:   7  13 
+ID: 125 (  p)      Time:   86     Qubit:  13 
+ZPhase is  π/4
+ID: 126 ( cx)      Time:   87     Qubit:  13   8 
+ID: 127 ( cx)      Time:   88     Qubit:   7  13 
+ID: 128 (  h)      Time:   89     Qubit:  13 
+ID: 129 (  p)      Time:   90     Qubit:  13 
+ZPhase is  π/4
+ID: 130 ( cx)      Time:   91     Qubit:  11  13 
+ID: 131 ( cx)      Time:   92     Qubit:   9  13 
+ID: 132 (  p)      Time:   93     Qubit:  13 
+ZPhase is  π/4
+ID: 133 ( cx)      Time:   94     Qubit:  13   6 
+ID: 134 (  p)      Time:   95     Qubit:   6 
+ZPhase is  π/4
+ID: 135 ( cx)      Time:   96     Qubit:   9   6 
+ID: 136 ( cx)      Time:   97     Qubit:  11   6 
+ID: 137 (  p)      Time:   98     Qubit:   6 
+ZPhase is  π/4
+ID: 138 ( cx)      Time:   99     Qubit:  13   6 
+ID: 139 (  p)      Time:  100     Qubit:   6 
+ZPhase is  π/4
+ID: 140 ( cx)      Time:  100     Qubit:  11  13 
+ID: 141 ( cx)      Time:  101     Qubit:  10  13 
+ID: 142 ( cx)      Time:  102     Qubit:   9  13 
+ID: 143 ( cx)      Time:  103     Qubit:   8  13 
+ID: 144 (  h)      Time:  104     Qubit:  13 
+ID: 145 (  p)      Time:  105     Qubit:  13 
+ZPhase is  π/4
+ID: 146 ( cx)      Time:  106     Qubit:   7  13 
+ID: 147 (  p)      Time:  107     Qubit:  13 
+ZPhase is  π/4
+ID: 148 ( cx)      Time:  108     Qubit:  13   8 
+ID: 149 ( cx)      Time:  109     Qubit:   7  13 
+ID: 150 (  h)      Time:  110     Qubit:  13 
+ID: 151 (  p)      Time:  111     Qubit:  13 
+ZPhase is  7π/4
+ID: 152 ( cx)      Time:  112     Qubit:  12  13 
+ID: 153 ( cx)      Time:  113     Qubit:  10  13 
+ID: 154 (  p)      Time:  114     Qubit:  13 
+ZPhase is  π/4
+ID: 155 ( cx)      Time:  115     Qubit:  10  13 
+ID: 156 (  p)      Time:  116     Qubit:  13 
+ZPhase is  7π/4
+ID: 157 ( cx)      Time:  117     Qubit:  12  13 
+ID: 158 ( cx)      Time:  118     Qubit:  10  13 
+ID: 159 (  p)      Time:  119     Qubit:  13 
+ZPhase is  π/4
+ID: 160 ( cx)      Time:  120     Qubit:  11  13 
+ID: 161 ( cx)      Time:  121     Qubit:   9  13 
+ID: 162 ( cx)      Time:  122     Qubit:   8  13 
+ID: 163 (  h)      Time:  123     Qubit:  13 
+ID: 164 (  p)      Time:  124     Qubit:  13 
+ZPhase is  π/4
+ID: 165 ( cx)      Time:  125     Qubit:   7  13 
+ID: 166 (  p)      Time:  126     Qubit:  13 
+ZPhase is  π/4
+ID: 167 ( cx)      Time:  127     Qubit:  13   8 
+ID: 168 (  h)      Time:  128     Qubit:  13 
+ID: 169 (  p)      Time:  129     Qubit:  13 
+ZPhase is  7π/4
+ID: 170 ( cx)      Time:  130     Qubit:   6  13 
+ID: 171 (  p)      Time:  131     Qubit:  13 
+ZPhase is  7π/4
+ID: 172 ( cx)      Time:  132     Qubit:  11  13 
+ID: 173 ( cx)      Time:  133     Qubit:   9  13 
+ID: 174 ( cx)      Time:  134     Qubit:   6  13 
+ID: 175 (  p)      Time:  135     Qubit:  13 
+ZPhase is  7π/4
+ID: 176 ( cx)      Time:  136     Qubit:   6  13 
+ID: 177 (  p)      Time:  137     Qubit:  13 
+ZPhase is  7π/4
+ID: 178 ( cx)      Time:  138     Qubit:   8  13 
+ID: 179 ( cx)      Time:  139     Qubit:   6  13 
+ID: 180 (  h)      Time:  140     Qubit:  13 
+ID: 181 (  p)      Time:  141     Qubit:  13 
+ZPhase is  7π/4
+ID: 182 ( cx)      Time:  142     Qubit:   7  13 
+ID: 183 (  p)      Time:  143     Qubit:  13 
+ZPhase is  7π/4
+ID: 184 ( cx)      Time:  144     Qubit:  13   8 
+ID: 185 (  h)      Time:  145     Qubit:  13 
+ID: 186 (  p)      Time:  146     Qubit:  13 
+ZPhase is  7π/4
+ID: 187 ( cx)      Time:  147     Qubit:  12  13 
+ID: 188 ( cx)      Time:  148     Qubit:  10  13 
+ID: 189 (  p)      Time:  149     Qubit:  13 
+ZPhase is  π/4
+ID: 190 ( cx)      Time:  150     Qubit:  10  13 
+ID: 191 (  p)      Time:  151     Qubit:  13 
+ZPhase is  7π/4
+ID: 192 ( cx)      Time:  152     Qubit:  12  13 
+ID: 193 ( cx)      Time:  153     Qubit:  10  13 
+ID: 194 (  p)      Time:  154     Qubit:  13 
+ZPhase is  π/4
+ID: 195 ( cx)      Time:  155     Qubit:  10  13 
+ID: 196 ( cx)      Time:  156     Qubit:   8  13 
+ID: 197 (  h)      Time:  157     Qubit:  13 
+ID: 198 (  p)      Time:  158     Qubit:  13 
+ZPhase is  5π/4
+ID: 199 ( cx)      Time:  159     Qubit:   7  13 
+ID: 200 (  p)      Time:  160     Qubit:  13 
+ZPhase is  π/4
+ID: 201 ( cx)      Time:  161     Qubit:  13   8 
+ID: 202 (  h)      Time:  162     Qubit:  13 
+ID: 203 (  p)      Time:  163     Qubit:  13 
+ZPhase is  3π/4
+ID: 204 ( cz)      Time:  164     Qubit:   7  13 
+ID: 205 ( cx)      Time:  165     Qubit:  13   3 
+ID: 206 (  p)      Time:  166     Qubit:   3 
+ZPhase is  π/4
+ID: 207 ( cx)      Time:  167     Qubit:  11   3 
+ID: 208 (  p)      Time:  168     Qubit:   3 
+ZPhase is  π/2
+ID: 209 ( cx)      Time:  169     Qubit:   9   3 
+ID: 210 (  p)      Time:  170     Qubit:   3 
+ZPhase is  7π/4
+ID: 211 ( cx)      Time:  168     Qubit:  11  13 
+ID: 212 (  p)      Time:  169     Qubit:  13 
+ZPhase is  π/2
+ID: 213 ( cx)      Time:  170     Qubit:   9  13 
+ID: 214 (  p)      Time:  171     Qubit:  13 
+ZPhase is  π/4
+ID: 215 ( cx)      Time:  172     Qubit:  13   3 
+ID: 216 ( cx)      Time:  173     Qubit:  11  13 
+ID: 217 ( cx)      Time:  174     Qubit:  10  13 
+ID: 218 ( cx)      Time:  175     Qubit:   9  13 
+ID: 219 ( cx)      Time:  176     Qubit:   8  13 
+ID: 220 (  h)      Time:  177     Qubit:  13 
+ID: 221 (  p)      Time:  178     Qubit:  13 
+ZPhase is  π/4
+ID: 222 ( cx)      Time:  179     Qubit:   7  13 
+ID: 223 (  p)      Time:  180     Qubit:  13 
+ZPhase is  π/4
+ID: 224 ( cx)      Time:  181     Qubit:  13   8 
+ID: 225 (  h)      Time:  182     Qubit:  13 
+ID: 226 (  p)      Time:  183     Qubit:  13 
+ZPhase is  7π/4
+ID: 227 ( cx)      Time:  184     Qubit:  12  13 
+ID: 228 ( cx)      Time:  185     Qubit:  10  13 
+ID: 229 (  p)      Time:  186     Qubit:  13 
+ZPhase is  π/4
+ID: 230 ( cx)      Time:  187     Qubit:  10  13 
+ID: 231 (  p)      Time:  188     Qubit:  13 
+ZPhase is  7π/4
+ID: 232 ( cx)      Time:  189     Qubit:  12  13 
+ID: 233 ( cx)      Time:  190     Qubit:  10  13 
+ID: 234 (  p)      Time:  191     Qubit:  13 
+ZPhase is  π/4
+ID: 235 ( cx)      Time:  192     Qubit:  11  13 
+ID: 236 ( cx)      Time:  193     Qubit:   9  13 
+ID: 237 ( cx)      Time:  194     Qubit:   8  13 
+ID: 238 (  h)      Time:  195     Qubit:  13 
+ID: 239 (  p)      Time:  196     Qubit:  13 
+ZPhase is  3π/4
+ID: 240 ( cx)      Time:  197     Qubit:   7  13 
+ID: 241 (  p)      Time:  198     Qubit:  13 
+ZPhase is  7π/4
+ID: 242 ( cx)      Time:  199     Qubit:  13   8 
+ID: 243 ( cx)      Time:  200     Qubit:   7  13 
+ID: 244 (  h)      Time:  201     Qubit:  13 
+ID: 245 (  p)      Time:  202     Qubit:  13 
+ZPhase is  7π/4
+ID: 246 ( cx)      Time:  203     Qubit:  11  13 
+ID: 247 ( cx)      Time:  204     Qubit:   9  13 
+ID: 248 ( cx)      Time:  205     Qubit:   3  13 
+ID: 249 (  p)      Time:  206     Qubit:  13 
+ZPhase is  π/4
+ID: 250 ( cx)      Time:  207     Qubit:   3  13 
+ID: 251 (  p)      Time:  208     Qubit:  13 
+ZPhase is  7π/4
+ID: 252 ( cx)      Time:  209     Qubit:  11  13 
+ID: 253 ( cx)      Time:  210     Qubit:   9  13 
+ID: 254 ( cx)      Time:  211     Qubit:   3  13 
+ID: 255 (  p)      Time:  212     Qubit:  13 
+ZPhase is  π/4
+ID: 256 ( cx)      Time:  213     Qubit:  11  13 
+ID: 257 ( cx)      Time:  214     Qubit:   9  13 
+ID: 258 ( cx)      Time:  215     Qubit:   8  13 
+ID: 259 ( cx)      Time:  216     Qubit:   3  13 
+ID: 260 (  h)      Time:  217     Qubit:  13 
+ID: 261 (  p)      Time:  218     Qubit:  13 
+ZPhase is  7π/4
+ID: 262 ( cx)      Time:  219     Qubit:   7  13 
+ID: 263 (  p)      Time:  220     Qubit:  13 
+ZPhase is  7π/4
+ID: 264 ( cx)      Time:  221     Qubit:  13   8 
+ID: 265 (  h)      Time:  222     Qubit:  13 
+ID: 266 (  p)      Time:  223     Qubit:  13 
+ZPhase is  7π/4
+ID: 267 ( cx)      Time:  224     Qubit:  12  13 
+ID: 268 ( cx)      Time:  225     Qubit:  10  13 
+ID: 269 (  p)      Time:  226     Qubit:  13 
+ZPhase is  π/4
+ID: 270 ( cx)      Time:  227     Qubit:  10  13 
+ID: 271 (  p)      Time:  228     Qubit:  13 
+ZPhase is  7π/4
+ID: 272 ( cx)      Time:  229     Qubit:  12  13 
+ID: 273 ( cx)      Time:  230     Qubit:  10  13 
+ID: 274 (  p)      Time:  231     Qubit:  13 
+ZPhase is  π/4
+ID: 275 ( cx)      Time:  232     Qubit:  11  13 
+ID: 276 ( cx)      Time:  233     Qubit:  10  13 
+ID: 277 ( cx)      Time:  234     Qubit:   9  13 
+ID: 278 ( cx)      Time:  235     Qubit:   8  13 
+ID: 279 (  h)      Time:  236     Qubit:  13 
+ID: 280 (  p)      Time:  237     Qubit:  13 
+ZPhase is  π/4
+ID: 281 ( cx)      Time:  238     Qubit:   7  13 
+ID: 282 (  p)      Time:  239     Qubit:  13 
+ZPhase is  π/4
+ID: 283 ( cx)      Time:  240     Qubit:  13   8 
+ID: 284 ( cx)      Time:  241     Qubit:   7  13 
+ID: 285 (  h)      Time:  242     Qubit:  13 
+ID: 286 (  p)      Time:  243     Qubit:  13 
+ZPhase is  7π/4
+ID: 287 ( cx)      Time:  244     Qubit:  11  13 
+ID: 288 ( cx)      Time:  245     Qubit:   9  13 
+ID: 289 (  p)      Time:  246     Qubit:  13 
+ZPhase is  7π/4
+ID: 290 ( cx)      Time:  247     Qubit:  13   2 
+ID: 291 (  p)      Time:  248     Qubit:   2 
+ZPhase is  π/4
+ID: 292 ( cx)      Time:  249     Qubit:   9   2 
+ID: 293 ( cx)      Time:  250     Qubit:  11   2 
+ID: 294 (  p)      Time:  251     Qubit:   2 
+ZPhase is  π/4
+ID: 295 ( cx)      Time:  252     Qubit:  13   2 
+ID: 296 (  p)      Time:  253     Qubit:   2 
+ZPhase is  π/4
+ID: 297 ( cx)      Time:  253     Qubit:  10  13 
+ID: 298 ( cx)      Time:  254     Qubit:   8  13 
+ID: 299 (  h)      Time:  255     Qubit:  13 
+ID: 300 (  p)      Time:  256     Qubit:  13 
+ZPhase is  5π/4
+ID: 301 ( cx)      Time:  257     Qubit:   7  13 
+ID: 302 (  p)      Time:  258     Qubit:  13 
+ZPhase is  π/4
+ID: 303 ( cx)      Time:  259     Qubit:  13   8 
+ID: 304 ( cx)      Time:  260     Qubit:   7  13 
+ID: 305 (  h)      Time:  261     Qubit:  13 
+ID: 306 (  p)      Time:  262     Qubit:  13 
+ZPhase is  7π/4
+ID: 307 ( cx)      Time:  263     Qubit:  12  13 
+ID: 308 ( cx)      Time:  264     Qubit:  10  13 
+ID: 309 (  p)      Time:  265     Qubit:  13 
+ZPhase is  π/4
+ID: 310 ( cx)      Time:  266     Qubit:  10  13 
+ID: 311 (  p)      Time:  267     Qubit:  13 
+ZPhase is  7π/4
+ID: 312 ( cx)      Time:  268     Qubit:  12  13 
+ID: 313 ( cx)      Time:  269     Qubit:  10  13 
+ID: 314 (  p)      Time:  270     Qubit:  13 
+ZPhase is  π/4
+ID: 315 ( cx)      Time:  271     Qubit:  11  13 
+ID: 316 ( cx)      Time:  272     Qubit:   9  13 
+ID: 317 ( cx)      Time:  273     Qubit:   8  13 
+ID: 318 (  h)      Time:  274     Qubit:  13 
+ID: 319 (  p)      Time:  275     Qubit:  13 
+ZPhase is  π/4
+ID: 320 ( cx)      Time:  276     Qubit:   7  13 
+ID: 321 (  p)      Time:  277     Qubit:  13 
+ZPhase is  π/4
+ID: 322 ( cx)      Time:  278     Qubit:  13   8 
+ID: 323 ( cx)      Time:  279     Qubit:   8   7 
+ID: 324 (  p)      Time:  280     Qubit:   7 
+ZPhase is  π/2
+ID: 325 ( cx)      Time:  280     Qubit:   8  13 
+ID: 326 ( cx)      Time:  281     Qubit:   7  13 
+ID: 327 (  h)      Time:  282     Qubit:  13 
+ID: 328 (  p)      Time:  283     Qubit:  13 
+ZPhase is  7π/4
+ID: 329 ( cx)      Time:  284     Qubit:   2  13 
+ID: 330 (  p)      Time:  285     Qubit:  13 
+ZPhase is  π/4
+ID: 331 ( cx)      Time:  286     Qubit:  11  13 
+ID: 332 ( cx)      Time:  287     Qubit:   9  13 
+ID: 333 ( cx)      Time:  288     Qubit:   2  13 
+ID: 334 (  p)      Time:  289     Qubit:  13 
+ZPhase is  7π/4
+ID: 335 ( cx)      Time:  290     Qubit:   2  13 
+ID: 336 (  p)      Time:  291     Qubit:  13 
+ZPhase is  π/4
+ID: 337 ( cx)      Time:  292     Qubit:   2  13 
+ID: 338 (  h)      Time:  293     Qubit:  13 
+ID: 339 (  p)      Time:  294     Qubit:  13 
+ZPhase is  5π/4
+ID: 340 ( cx)      Time:  295     Qubit:   7  13 
+ID: 341 (  p)      Time:  296     Qubit:  13 
+ZPhase is  3π/2
+ID: 342 ( cx)      Time:  297     Qubit:   8  13 
+ID: 343 ( cx)      Time:  298     Qubit:   7   8 
+ID: 344 (  p)      Time:  298     Qubit:  13 
+ZPhase is  7π/4
+ID: 345 ( cx)      Time:  299     Qubit:   7  13 
+ID: 346 (  h)      Time:  300     Qubit:   7 
+ID: 347 (  p)      Time:  301     Qubit:   7 
+ZPhase is  π/4
+ID: 348 ( cx)      Time:  302     Qubit:  12   7 
+ID: 349 ( cx)      Time:  303     Qubit:  10   7 
+ID: 350 (  p)      Time:  304     Qubit:   7 
+ZPhase is  7π/4
+ID: 351 ( cx)      Time:  305     Qubit:  10   7 
+ID: 352 (  p)      Time:  306     Qubit:   7 
+ZPhase is  π/4
+ID: 353 ( cx)      Time:  307     Qubit:  12   7 
+ID: 354 ( cx)      Time:  308     Qubit:  10   7 
+ID: 355 (  p)      Time:  309     Qubit:   7 
+ZPhase is  3π/4
+ID: 356 (  h)      Time:  310     Qubit:   7 
+ID: 357 ( cx)      Time:  311     Qubit:   7   8 
+ID: 358 ( cz)      Time:  312     Qubit:   7   9 
+ID: 359 ( cz)      Time:  313     Qubit:   7  11 
+ID: 360 ( cz)      Time:  314     Qubit:   7  10 
+ID: 361 (  p)      Time:  315     Qubit:   7 
+ZPhase is  7π/4
+ID: 362 (  p)      Time:  300     Qubit:  13 
+ZPhase is  3π/2
+ID: 363 ( cx)      Time:  312     Qubit:  13   8 
+ID: 364 (  p)      Time:  313     Qubit:   8 
+ZPhase is  3π/4
+ID: 365 ( cx)      Time:  314     Qubit:  13   8 
+ID: 366 ( cx)      Time:  316     Qubit:   7   8 
+ID: 367 ( cx)      Time:  317     Qubit:  13   7 
+ID: 368 (  p)      Time:  318     Qubit:   7 
+ZPhase is  3π/4
+ID: 369 (  p)      Time:  317     Qubit:   8 
+ZPhase is  7π/4
+ID: 370 ( cx)      Time:  319     Qubit:   8   7 
+ID: 371 (  p)      Time:  320     Qubit:   7 
+ZPhase is  3π/2
+ID: 372 ( cx)      Time:  321     Qubit:   7  13 
+ID: 373 (  h)      Time:  322     Qubit:   7 
+ID: 374 ( cz)      Time:  323     Qubit:   7   9 
+ID: 375 (  p)      Time:  324     Qubit:   7 
+ZPhase is  5π/4
+ID: 376 ( cx)      Time:  325     Qubit:   7   5 
+ID: 377 (sdg)      Time:  326     Qubit:   5 
+ID: 378 ( cx)      Time:  327     Qubit:   9   5 
+ID: 379 (  s)      Time:  328     Qubit:   5 
+ID: 380 (  p)      Time:  329     Qubit:   5 
+ZPhase is  3π/4
+ID: 381 ( cx)      Time:  330     Qubit:  11   5 
+ID: 382 (  p)      Time:  331     Qubit:   5 
+ZPhase is  π/2
+ID: 383 ( cx)      Time:  332     Qubit:   9   5 
+ID: 384 (  p)      Time:  333     Qubit:   5 
+ZPhase is  π/4
+ID: 385 ( cx)      Time:  333     Qubit:   9   8 
+ID: 386 ( cx)      Time:  334     Qubit:  11   8 
+ID: 387 (  h)      Time:  335     Qubit:   8 
+ID: 388 (  p)      Time:  336     Qubit:   8 
+ZPhase is  7π/4
+ID: 389 ( cx)      Time:  337     Qubit:  12   8 
+ID: 390 ( cx)      Time:  338     Qubit:  10   8 
+ID: 391 (  p)      Time:  339     Qubit:   8 
+ZPhase is  π/4
+ID: 392 ( cx)      Time:  340     Qubit:  12   8 
+ID: 393 (  p)      Time:  341     Qubit:   8 
+ZPhase is  π/4
+ID: 394 ( cx)      Time:  342     Qubit:  12   8 
+ID: 395 ( cx)      Time:  343     Qubit:  10   8 
+ID: 396 (  p)      Time:  344     Qubit:   8 
+ZPhase is  7π/4
+ID: 397 ( cx)      Time:  345     Qubit:  12   8 
+ID: 398 (  h)      Time:  346     Qubit:   8 
+ID: 399 (  p)      Time:  347     Qubit:   8 
+ZPhase is  7π/4
+ID: 400 ( cx)      Time:  348     Qubit:  11   8 
+ID: 401 (  p)      Time:  349     Qubit:   8 
+ZPhase is  7π/4
+ID: 402 ( cx)      Time:  350     Qubit:   9   8 
+ID: 403 (  p)      Time:  351     Qubit:   8 
+ZPhase is  7π/4
+ID: 404 ( cx)      Time:  352     Qubit:  11   8 
+ID: 405 (  p)      Time:  353     Qubit:   8 
+ZPhase is  7π/4
+ID: 406 ( cx)      Time:  354     Qubit:  11   8 
+ID: 407 (  h)      Time:  355     Qubit:   8 
+ID: 408 (  p)      Time:  356     Qubit:   8 
+ZPhase is  7π/4
+ID: 409 ( cx)      Time:  357     Qubit:  10   8 
+ID: 410 (  p)      Time:  358     Qubit:   8 
+ZPhase is  π/4
+ID: 411 ( cx)      Time:  359     Qubit:  12   8 
+ID: 412 (  p)      Time:  360     Qubit:   8 
+ZPhase is  π/4
+ID: 413 ( cx)      Time:  361     Qubit:  10   8 
+ID: 414 (  p)      Time:  362     Qubit:   8 
+ZPhase is  3π/4
+ID: 415 ( cx)      Time:  363     Qubit:  12   8 
+ID: 416 (  h)      Time:  364     Qubit:   8 
+ID: 417 (  p)      Time:  365     Qubit:   8 
+ZPhase is  7π/4
+ID: 418 ( cx)      Time:  355     Qubit:  11   7 
+ID: 419 (  p)      Time:  356     Qubit:   7 
+ZPhase is  π/2
+ID: 420 ( cx)      Time:  357     Qubit:   9   7 
+ID: 421 (  p)      Time:  358     Qubit:   7 
+ZPhase is  7π/4
+ID: 422 ( cx)      Time:  366     Qubit:   6   8 
+ID: 423 ( cx)      Time:  359     Qubit:   7   5 
+ID: 424 (  p)      Time:  367     Qubit:   8 
+ZPhase is  7π/4
+ID: 425 ( cx)      Time:  368     Qubit:   9   8 
+ID: 426 ( cx)      Time:  369     Qubit:  11   8 
+ID: 427 (  h)      Time:  360     Qubit:   7 
+ID: 428 (  p)      Time:  361     Qubit:   7 
+ZPhase is  7π/4
+ID: 429 ( cx)      Time:  370     Qubit:  11   7 
+ID: 430 ( cx)      Time:  370     Qubit:   6   8 
+ID: 431 (  p)      Time:  371     Qubit:   8 
+ZPhase is  7π/4
+ID: 432 ( cx)      Time:  372     Qubit:   6   8 
+ID: 433 (  p)      Time:  373     Qubit:   8 
+ZPhase is  7π/4
+ID: 434 ( cx)      Time:  374     Qubit:   9   8 
+ID: 435 ( cx)      Time:  375     Qubit:  11   8 
+ID: 436 (  h)      Time:  376     Qubit:   8 
+ID: 437 (  p)      Time:  377     Qubit:   8 
+ZPhase is  7π/4
+ID: 438 ( cx)      Time:  378     Qubit:  12   8 
+ID: 439 ( cx)      Time:  379     Qubit:  10   8 
+ID: 440 (  p)      Time:  380     Qubit:   8 
+ZPhase is  π/4
+ID: 441 ( cx)      Time:  381     Qubit:  10   8 
+ID: 442 (  p)      Time:  382     Qubit:   8 
+ZPhase is  7π/4
+ID: 443 ( cx)      Time:  383     Qubit:  12   8 
+ID: 444 ( cx)      Time:  384     Qubit:  10   8 
+ID: 445 (  p)      Time:  385     Qubit:   8 
+ZPhase is  5π/4
+ID: 446 ( cx)      Time:  386     Qubit:  12   8 
+ID: 447 ( cx)      Time:  387     Qubit:  10   8 
+ID: 448 (  h)      Time:  388     Qubit:   8 
+ID: 449 (  p)      Time:  389     Qubit:   8 
+ZPhase is  π/4
+ID: 450 ( cx)      Time:  390     Qubit:   6   8 
+ID: 451 (  p)      Time:  391     Qubit:   8 
+ZPhase is  π/4
+ID: 452 ( cx)      Time:  392     Qubit:   9   8 
+ID: 453 ( cx)      Time:  393     Qubit:  11   8 
+ID: 454 ( cx)      Time:  394     Qubit:   6   8 
+ID: 455 (  p)      Time:  395     Qubit:   8 
+ZPhase is  π/4
+ID: 456 ( cx)      Time:  396     Qubit:   6   8 
+ID: 457 (  p)      Time:  397     Qubit:   8 
+ZPhase is  π/4
+ID: 458 ( cx)      Time:  398     Qubit:   9   8 
+ID: 459 ( cx)      Time:  399     Qubit:  11   8 
+ID: 460 ( cx)      Time:  400     Qubit:   2   8 
+ID: 461 (  h)      Time:  401     Qubit:   8 
+ID: 462 (  p)      Time:  402     Qubit:   8 
+ZPhase is  π/4
+ID: 463 ( cx)      Time:  403     Qubit:  10   8 
+ID: 464 (  p)      Time:  404     Qubit:   8 
+ZPhase is  7π/4
+ID: 465 ( cx)      Time:  405     Qubit:  12   8 
+ID: 466 (  p)      Time:  406     Qubit:   8 
+ZPhase is  7π/4
+ID: 467 ( cx)      Time:  407     Qubit:  10   8 
+ID: 468 (  p)      Time:  408     Qubit:   8 
+ZPhase is  5π/4
+ID: 469 ( cx)      Time:  409     Qubit:  12   8 
+ID: 470 ( cx)      Time:  410     Qubit:   9   8 
+ID: 471 ( cx)      Time:  411     Qubit:  11   8 
+ID: 472 (  h)      Time:  412     Qubit:   8 
+ID: 473 (  p)      Time:  413     Qubit:   8 
+ZPhase is  7π/4
+ID: 474 ( cx)      Time:  414     Qubit:   6   8 
+ID: 475 ( cx)      Time:  415     Qubit:   2   8 
+ID: 476 (  p)      Time:  416     Qubit:   8 
+ZPhase is  π/4
+ID: 477 ( cx)      Time:  417     Qubit:   9   8 
+ID: 478 ( cx)      Time:  418     Qubit:  11   8 
+ID: 479 ( cx)      Time:  419     Qubit:   6   8 
+ID: 480 ( cx)      Time:  420     Qubit:   2   8 
+ID: 481 (  p)      Time:  421     Qubit:   8 
+ZPhase is  7π/4
+ID: 482 ( cx)      Time:  422     Qubit:   6   8 
+ID: 483 ( cx)      Time:  423     Qubit:   2   8 
+ID: 484 (  p)      Time:  424     Qubit:   8 
+ZPhase is  π/4
+ID: 485 ( cx)      Time:  425     Qubit:   9   8 
+ID: 486 ( cx)      Time:  426     Qubit:   6   8 
+ID: 487 ( cx)      Time:  427     Qubit:   8   7 
+ID: 488 (  p)      Time:  428     Qubit:   7 
+ZPhase is  3π/4
+ID: 489 ( cx)      Time:  428     Qubit:  13   8 
+ID: 490 ( cx)      Time:  429     Qubit:  11   8 
+ID: 491 (  p)      Time:  430     Qubit:   8 
+ZPhase is  3π/4
+ID: 492 ( cx)      Time:  429     Qubit:   7  13 
+ID: 493 ( cx)      Time:  431     Qubit:   8   7 
+ID: 494 (  p)      Time:  432     Qubit:   7 
+ZPhase is  π/2
+ID: 495 ( cx)      Time:  432     Qubit:  13   8 
+ID: 496 (  h)      Time:  433     Qubit:   8 
+ID: 497 (  p)      Time:  434     Qubit:   8 
+ZPhase is  7π/4
+ID: 498 ( cx)      Time:  435     Qubit:  12   8 
+ID: 499 ( cx)      Time:  436     Qubit:  10   8 
+ID: 500 (  p)      Time:  437     Qubit:   8 
+ZPhase is  7π/4
+ID: 501 ( cx)      Time:  438     Qubit:  10   8 
+ID: 502 (  p)      Time:  439     Qubit:   8 
+ZPhase is  7π/4
+ID: 503 ( cx)      Time:  440     Qubit:  12   8 
+ID: 504 ( cx)      Time:  441     Qubit:  10   8 
+ID: 505 (  p)      Time:  442     Qubit:   8 
+ZPhase is  3π/4
+ID: 506 ( cx)      Time:  443     Qubit:   9   8 
+ID: 507 ( cx)      Time:  444     Qubit:  11   8 
+ID: 508 ( cx)      Time:  445     Qubit:   7   8 
+ID: 509 (  h)      Time:  446     Qubit:   8 
+ID: 510 ( cx)      Time:  447     Qubit:   8  13 
+ID: 511 ( cz)      Time:  448     Qubit:   8  10 
+ID: 512 (  p)      Time:  449     Qubit:   8 
+ZPhase is  5π/4
+ID: 513 ( cx)      Time:  448     Qubit:  13   7 
+ID: 514 (  p)      Time:  449     Qubit:   7 
+ZPhase is  3π/4
+ID: 515 ( cx)      Time:  450     Qubit:   7   8 
+ID: 516 (  h)      Time:  451     Qubit:   7 
+ID: 517 (  p)      Time:  452     Qubit:   7 
+ZPhase is  3π/4
+ID: 518 ( cx)      Time:  453     Qubit:   9   7 
+ID: 519 ( cx)      Time:  454     Qubit:  11   7 
+ID: 520 ( cx)      Time:  455     Qubit:   5   7 
+ID: 521 (  p)      Time:  456     Qubit:   7 
+ZPhase is  π/4
+ID: 522 ( cx)      Time:  457     Qubit:   9   7 
+ID: 523 ( cx)      Time:  458     Qubit:  11   7 
+ID: 524 (  p)      Time:  459     Qubit:   7 
+ZPhase is  π/4
+ID: 525 ( cx)      Time:  460     Qubit:   9   7 
+ID: 526 ( cx)      Time:  461     Qubit:  11   7 
+ID: 527 ( cx)      Time:  462     Qubit:   5   7 
+ID: 528 (  p)      Time:  463     Qubit:   7 
+ZPhase is  3π/4
+ID: 529 ( cx)      Time:  464     Qubit:  13   7 
+ID: 530 (  h)      Time:  465     Qubit:   7 
+ID: 531 (  p)      Time:  466     Qubit:   7 
+ZPhase is  π/4
+ID: 532 ( cx)      Time:  467     Qubit:   8   7 
+ID: 533 (  p)      Time:  468     Qubit:   7 
+ZPhase is  7π/4
+ID: 534 ( cx)      Time:  469     Qubit:  13   7 
+ID: 535 ( cx)      Time:  470     Qubit:   7   8 
+ID: 536 ( cx)      Time:  471     Qubit:   8  13 
+ID: 537 ( cx)      Time:  472     Qubit:   7   8 
+ID: 538 (  h)      Time:  472     Qubit:  13 
+ID: 539 (  p)      Time:  473     Qubit:  13 
+ZPhase is  7π/4
+ID: 540 ( cx)      Time:  474     Qubit:  12  13 
+ID: 541 ( cx)      Time:  475     Qubit:  10  13 
+ID: 542 (  p)      Time:  473     Qubit:   8 
+ZPhase is  π
+ID: 543 (  p)      Time:  476     Qubit:  13 
+ZPhase is  7π/4
+ID: 544 ( cx)      Time:  477     Qubit:  10  13 
+ID: 545 (  p)      Time:  478     Qubit:  13 
+ZPhase is  7π/4
+ID: 546 ( cx)      Time:  479     Qubit:  12  13 
+ID: 547 ( cx)      Time:  480     Qubit:  10  13 
+ID: 548 (  p)      Time:  481     Qubit:  13 
+ZPhase is  3π/4
+ID: 549 ( cx)      Time:  482     Qubit:  11  13 
+ID: 550 ( cx)      Time:  483     Qubit:  10  13 
+ID: 551 ( cx)      Time:  484     Qubit:   9  13 
+ID: 552 ( cx)      Time:  485     Qubit:   7  13 
+ID: 553 (  h)      Time:  486     Qubit:  13 
+ID: 554 (  p)      Time:  487     Qubit:  13 
+ZPhase is  7π/4
+ID: 555 ( cx)      Time:  488     Qubit:   8  13 
+ID: 556 (  p)      Time:  489     Qubit:  13 
+ZPhase is  5π/4
+ID: 557 ( cx)      Time:  490     Qubit:  13   7 
+ID: 558 (  h)      Time:  491     Qubit:  13 
+ID: 559 (  p)      Time:  492     Qubit:  13 
+ZPhase is  π/4
+ID: 560 ( cx)      Time:  493     Qubit:  12  13 
+ID: 561 ( cx)      Time:  494     Qubit:  11  13 
+ID: 562 ( cx)      Time:  495     Qubit:   9  13 
+ID: 563 ( cx)      Time:  496     Qubit:   4  13 
+ID: 564 ( cx)      Time:  497     Qubit:   9   4 
+ID: 565 ( cx)      Time:  498     Qubit:  11   4 
+ID: 566 (  p)      Time:  499     Qubit:   4 
+ZPhase is  5π/4
+ID: 567 ( cx)      Time:  500     Qubit:  12   4 
+ID: 568 (  p)      Time:  497     Qubit:  13 
+ZPhase is  7π/4
+ID: 569 ( cx)      Time:  499     Qubit:  11  13 
+ID: 570 ( cx)      Time:  500     Qubit:   9  13 
+ID: 571 (  p)      Time:  501     Qubit:  13 
+ZPhase is  7π/4
+ID: 572 ( cx)      Time:  502     Qubit:   4  13 
+ID: 573 (  p)      Time:  503     Qubit:  13 
+ZPhase is  π/4
+ID: 574 ( cx)      Time:  504     Qubit:  10  13 
+ID: 575 ( cx)      Time:  505     Qubit:   7  13 
+ID: 576 (  h)      Time:  506     Qubit:  13 
+ID: 577 (  p)      Time:  507     Qubit:  13 
+ZPhase is  7π/4
+ID: 578 ( cx)      Time:  508     Qubit:   8  13 
+ID: 579 (  p)      Time:  509     Qubit:  13 
+ZPhase is  5π/4
+ID: 580 ( cx)      Time:  510     Qubit:  13   7 
+ID: 581 ( cx)      Time:  511     Qubit:   8  13 
+ID: 582 (  h)      Time:  512     Qubit:  13 
+ID: 583 (  p)      Time:  513     Qubit:  13 
+ZPhase is  π/4
+ID: 584 ( cx)      Time:  514     Qubit:  12  13 
+ID: 585 ( cx)      Time:  515     Qubit:  10  13 
+ID: 586 (  p)      Time:  516     Qubit:  13 
+ZPhase is  π/4
+ID: 587 ( cx)      Time:  517     Qubit:  10  13 
+ID: 588 (  p)      Time:  518     Qubit:  13 
+ZPhase is  π/4
+ID: 589 ( cx)      Time:  519     Qubit:  12  13 
+ID: 590 ( cx)      Time:  520     Qubit:  10  13 
+ID: 591 ( cx)      Time:  521     Qubit:  12  10 
+ID: 592 (  p)      Time:  522     Qubit:  10 
+ZPhase is  3π/2
+ID: 593 (  p)      Time:  521     Qubit:  13 
+ZPhase is  5π/4
+ID: 594 ( cx)      Time:  522     Qubit:  11  13 
+ID: 595 ( cx)      Time:  523     Qubit:   9  13 
+ID: 596 ( cx)      Time:  524     Qubit:   7  13 
+ID: 597 (  h)      Time:  525     Qubit:  13 
+ID: 598 (  p)      Time:  526     Qubit:  13 
+ZPhase is  5π/4
+ID: 599 ( cx)      Time:  527     Qubit:   8  13 
+ID: 600 (  p)      Time:  528     Qubit:  13 
+ZPhase is  7π/4
+ID: 601 ( cx)      Time:  529     Qubit:  13   7 
+ID: 602 (  p)      Time:  530     Qubit:   7 
+ZPhase is  3π/2
+ID: 603 (  h)      Time:  530     Qubit:  13 
+ID: 604 (  p)      Time:  531     Qubit:  13 
+ZPhase is  7π/4
+ID: 605 ( cx)      Time:  532     Qubit:   4  13 
+ID: 606 (  p)      Time:  533     Qubit:  13 
+ZPhase is  π/4
+ID: 607 ( cx)      Time:  534     Qubit:  11  13 
+ID: 608 ( cx)      Time:  535     Qubit:   9  13 
+ID: 609 (  p)      Time:  536     Qubit:  13 
+ZPhase is  π/4
+ID: 610 ( cx)      Time:  537     Qubit:   4  13 
+ID: 611 (  p)      Time:  538     Qubit:  13 
+ZPhase is  7π/4
+ID: 612 (  h)      Time:  539     Qubit:  13 
+ID: 613 (  p)      Time:  540     Qubit:  13 
+ZPhase is  3π/4
+ID: 614 ( cx)      Time:  541     Qubit:   7  13 
+ID: 615 ( cx)      Time:  542     Qubit:   8   7 
+ID: 616 (  p)      Time:  542     Qubit:  13 
+ZPhase is  π/2
+ID: 617 ( cx)      Time:  543     Qubit:   7  13 
+ID: 618 (  p)      Time:  544     Qubit:  13 
+ZPhase is  7π/4
+ID: 619 ( cx)      Time:  545     Qubit:   8  13 
+ID: 620 ( cx)      Time:  546     Qubit:   7  13 
+ID: 621 ( cx)      Time:  547     Qubit:   9   7 
+ID: 622 ( cx)      Time:  548     Qubit:  11   7 
+ID: 623 (  h)      Time:  549     Qubit:   7 
+ID: 624 (  p)      Time:  550     Qubit:   7 
+ZPhase is  π/4
+ID: 625 ( cx)      Time:  551     Qubit:  10   7 
+ID: 626 (  p)      Time:  552     Qubit:   7 
+ZPhase is  π/4
+ID: 627 ( cx)      Time:  553     Qubit:  12   7 
+ID: 628 ( cx)      Time:  554     Qubit:  10   7 
+ID: 629 (  p)      Time:  555     Qubit:   7 
+ZPhase is  π/4
+ID: 630 ( cx)      Time:  556     Qubit:  10   7 
+ID: 631 (  p)      Time:  557     Qubit:   7 
+ZPhase is  5π/4
+ID: 632 ( cx)      Time:  558     Qubit:  10   7 
+ID: 633 (  h)      Time:  559     Qubit:   7 
+ID: 634 (  p)      Time:  560     Qubit:   7 
+ZPhase is  7π/4
+ID: 635 ( cx)      Time:  554     Qubit:  11  12 
+ID: 636 ( cx)      Time:  555     Qubit:   9  12 
+ID: 637 ( cz)      Time:  561     Qubit:   7  13 
+ID: 638 ( cx)      Time:  562     Qubit:   8   7 
+ID: 639 (  p)      Time:  563     Qubit:   7 
+ZPhase is  3π/2
+ID: 640 ( cx)      Time:  564     Qubit:   9   7 
+ID: 641 ( cx)      Time:  565     Qubit:  11   7 
+ID: 642 (  p)      Time:  566     Qubit:   7 
+ZPhase is  π/4
+ID: 643 ( cx)      Time:  567     Qubit:  13   7 
+ID: 644 ( cx)      Time:  568     Qubit:   8   7 
+ID: 645 (  p)      Time:  569     Qubit:   7 
+ZPhase is  π/4
+ID: 646 ( cx)      Time:  570     Qubit:   9   7 
+ID: 647 ( cx)      Time:  571     Qubit:  11   7 
+ID: 648 ( cx)      Time:  572     Qubit:   8   7 
+ID: 649 (  p)      Time:  573     Qubit:   7 
+ZPhase is  π/4
+ID: 650 ( cx)      Time:  574     Qubit:  13   7 
+ID: 651 (  h)      Time:  556     Qubit:  12 
+ID: 652 (  p)      Time:  557     Qubit:  12 
+ZPhase is  7π/4
+ID: 653 ( cx)      Time:  559     Qubit:  10  12 
+ID: 654 ( cx)      Time:  573     Qubit:   8  12 
+ID: 655 (  p)      Time:  574     Qubit:  12 
+ZPhase is  7π/4
+ID: 656 ( cx)      Time:  575     Qubit:  10  12 
+ID: 657 (  p)      Time:  576     Qubit:  12 
+ZPhase is  7π/4
+ID: 658 ( cx)      Time:  577     Qubit:  10  12 
+ID: 659 ( cx)      Time:  578     Qubit:   8  12 
+ID: 660 (  p)      Time:  579     Qubit:  12 
+ZPhase is  7π/4
+ID: 661 ( cx)      Time:  580     Qubit:  10  12 
+ID: 662 ( cx)      Time:  581     Qubit:   8  12 
+ID: 663 (  h)      Time:  582     Qubit:  12 
+ID: 664 (  p)      Time:  583     Qubit:  12 
+ZPhase is  7π/4
+ID: 665 ( cx)      Time:  584     Qubit:   4  12 
+ID: 666 (  p)      Time:  585     Qubit:  12 
+ZPhase is  π/4
+ID: 667 ( cx)      Time:  586     Qubit:  11  12 
+ID: 668 ( cx)      Time:  587     Qubit:   9  12 
+ID: 669 ( cx)      Time:  588     Qubit:   4  12 
+ID: 670 (  p)      Time:  589     Qubit:  12 
+ZPhase is  7π/4
+ID: 671 ( cx)      Time:  590     Qubit:   4  12 
+ID: 672 (  p)      Time:  591     Qubit:  12 
+ZPhase is  π/4
+ID: 673 ( cx)      Time:  592     Qubit:   4  12 
+ID: 674 (  h)      Time:  593     Qubit:   4 
+ID: 675 (  h)      Time:  593     Qubit:  12 
+ID: 676 (  p)      Time:  594     Qubit:  12 
+ZPhase is  7π/4
+ID: 677 ( cx)      Time:  595     Qubit:  10  12 
+ID: 678 (  p)      Time:  596     Qubit:  12 
+ZPhase is  7π/4
+ID: 679 ( cx)      Time:  597     Qubit:  10  12 
+ID: 680 ( cx)      Time:  598     Qubit:   8  12 
+ID: 681 (  p)      Time:  599     Qubit:  12 
+ZPhase is  7π/4
+ID: 682 ( cx)      Time:  600     Qubit:  10  12 
+ID: 683 (  p)      Time:  601     Qubit:  12 
+ZPhase is  7π/4
+ID: 684 ( cx)      Time:  602     Qubit:   8  12 
+ID: 685 (  h)      Time:  603     Qubit:  12 
+ID: 686 (  p)      Time:  604     Qubit:  12 
+ZPhase is  π/4
+ID: 687 ( cx)      Time:  605     Qubit:   2  12 
+ID: 688 (  p)      Time:  606     Qubit:  12 
+ZPhase is  7π/4
+ID: 689 ( cx)      Time:  607     Qubit:  11  12 
+ID: 690 ( cx)      Time:  608     Qubit:   9  12 
+ID: 691 ( cx)      Time:  609     Qubit:   2  12 
+ID: 692 (  p)      Time:  610     Qubit:  12 
+ZPhase is  π/4
+ID: 693 ( cx)      Time:  611     Qubit:   2  12 
+ID: 694 (  p)      Time:  612     Qubit:  12 
+ZPhase is  7π/4
+ID: 695 ( cx)      Time:  613     Qubit:  11  12 
+ID: 696 ( cx)      Time:  614     Qubit:   9  12 
+ID: 697 ( cx)      Time:  615     Qubit:   2  12 
+ID: 698 (  h)      Time:  616     Qubit:  12 
+ID: 699 (  p)      Time:  617     Qubit:  12 
+ZPhase is  7π/4
+ID: 700 ( cx)      Time:  618     Qubit:   8  12 
+ID: 701 (  p)      Time:  619     Qubit:  12 
+ZPhase is  7π/4
+ID: 702 ( cx)      Time:  620     Qubit:  10  12 
+ID: 703 ( cx)      Time:  621     Qubit:   8  12 
+ID: 704 (  p)      Time:  622     Qubit:  12 
+ZPhase is  7π/4
+ID: 705 ( cx)      Time:  623     Qubit:   8  12 
+ID: 706 (  p)      Time:  624     Qubit:  12 
+ZPhase is  7π/4
+ID: 707 ( cx)      Time:  625     Qubit:  10  12 
+ID: 708 (  h)      Time:  626     Qubit:  12 
+ID: 709 (  p)      Time:  627     Qubit:  12 
+ZPhase is  π/4
+ID: 710 ( cx)      Time:  628     Qubit:   2  12 
+ID: 711 (  p)      Time:  629     Qubit:  12 
+ZPhase is  7π/4
+ID: 712 ( cx)      Time:  630     Qubit:  11  12 
+ID: 713 ( cx)      Time:  631     Qubit:   9  12 
+ID: 714 ( cx)      Time:  632     Qubit:   9  11 
+ID: 715 ( cx)      Time:  633     Qubit:   7   9 
+ID: 716 (  h)      Time:  634     Qubit:   7 
+ID: 717 (  p)      Time:  635     Qubit:   7 
+ZPhase is  7π/4
+ID: 718 ( cx)      Time:  636     Qubit:   8   7 
+ID: 719 (  p)      Time:  637     Qubit:   7 
+ZPhase is  5π/4
+ID: 720 (  p)      Time:  632     Qubit:  12 
+ZPhase is  7π/4
+ID: 721 (  h)      Time:  634     Qubit:   9 
+ID: 722 (  p)      Time:  635     Qubit:   9 
+ZPhase is  3π/4
+ID: 723 ( cx)      Time:  637     Qubit:   8   9 
+ID: 724 ( cx)      Time:  633     Qubit:  11   5 
+ID: 725 ( cx)      Time:  634     Qubit:  11   3 
+ID: 726 ( cx)      Time:  633     Qubit:   2  12 
+ID: 727 ( cx)      Time:  635     Qubit:  11   0 
+ID: 728 (  p)      Time:  634     Qubit:  12 
+ZPhase is  π/4
+ID: 729 (  h)      Time:  635     Qubit:  12 
+ID: 730 (  p)      Time:  636     Qubit:  12 
+ZPhase is  7π/4
+ID: 731 ( cx)      Time:  637     Qubit:  10  12 
+ID: 732 (  p)      Time:  638     Qubit:   9 
+ZPhase is  5π/4
+ID: 733 ( cx)      Time:  638     Qubit:   8  12 
+ID: 734 (  p)      Time:  639     Qubit:  12 
+ZPhase is  7π/4
+ID: 735 ( cx)      Time:  640     Qubit:  10  12 
+ID: 736 (  p)      Time:  641     Qubit:  12 
+ZPhase is  7π/4
+ID: 737 ( cx)      Time:  642     Qubit:  10  12 
+ID: 738 ( cx)      Time:  643     Qubit:   8  12 
+ID: 739 (  p)      Time:  644     Qubit:  12 
+ZPhase is  7π/4
+ID: 740 ( cx)      Time:  645     Qubit:   9  12 
+ID: 741 ( cx)      Time:  646     Qubit:   7   9 
+ID: 742 (  h)      Time:  647     Qubit:   7 
+ID: 743 (  p)      Time:  648     Qubit:   7 
+ZPhase is  5π/4
+ID: 744 ( cx)      Time:  649     Qubit:  10   7 
+ID: 745 ( cx)      Time:  650     Qubit:  11   7 
+ID: 746 (  h)      Time:  646     Qubit:  12 
+ID: 747 (  p)      Time:  647     Qubit:  12 
+ZPhase is  5π/4
+ID: 748 ( cz)      Time:  648     Qubit:   8  12 
+ID: 749 ( cx)      Time:  651     Qubit:  12   7 
+ID: 750 (  p)      Time:  652     Qubit:   7 
+ZPhase is  7π/4
+ID: 751 ( cx)      Time:  652     Qubit:  11  12 
+ID: 752 (  p)      Time:  653     Qubit:  12 
+ZPhase is  5π/4
+ID: 753 ( cx)      Time:  654     Qubit:   7  12 
+ID: 754 ( cx)      Time:  655     Qubit:  10   7 
+ID: 755 (  p)      Time:  656     Qubit:   7 
+ZPhase is  3π/4
+ID: 756 (  p)      Time:  655     Qubit:  12 
+ZPhase is  π/4
+ID: 757 ( cx)      Time:  657     Qubit:  12   7 
+ID: 758 ( cx)      Time:  658     Qubit:  11  12 
+ID: 759 ( cx)      Time:  659     Qubit:  10  12 
+ID: 760 (  h)      Time:  660     Qubit:  12 
+ID: 761 (  p)      Time:  661     Qubit:  12 
+ZPhase is  7π/4
+ID: 762 ( cx)      Time:  662     Qubit:   8  12 
+ID: 763 (  p)      Time:  663     Qubit:  12 
+ZPhase is  5π/4
+ID: 764 ( cx)      Time:  664     Qubit:  12   9 
+ID: 765 (  h)      Time:  665     Qubit:  12 
+ID: 766 (  p)      Time:  666     Qubit:  12 
+ZPhase is  5π/4
+ID: 767 ( cx)      Time:  667     Qubit:   8  12 
+ID: 768 (  p)      Time:  668     Qubit:  12 
+ZPhase is  3π/2
+ID: 769 ( cx)      Time:  669     Qubit:  13  12 
+ID: 770 ( cx)      Time:  670     Qubit:  11  12 
+ID: 771 (  p)      Time:  671     Qubit:  12 
+ZPhase is  7π/4
+ID: 772 ( cx)      Time:  672     Qubit:  11  12 
+ID: 773 (  p)      Time:  673     Qubit:  12 
+ZPhase is  7π/4
+ID: 774 ( cx)      Time:  674     Qubit:  13  12 
+ID: 775 ( cx)      Time:  675     Qubit:  11  12 
+ID: 776 ( cx)      Time:  676     Qubit:   8  12 
+ID: 777 (  p)      Time:  677     Qubit:  12 
+ZPhase is  3π/4
+ID: 778 (  h)      Time:  678     Qubit:  12 
+ID: 779 (  p)      Time:  679     Qubit:  12 
+ZPhase is  5π/4
+ID: 780 ( cx)      Time:  675     Qubit:   9  13 
+ID: 781 ( cx)      Time:  680     Qubit:   8  12 
+ID: 782 ( cx)      Time:  681     Qubit:  12  13 
+ID: 783 (  p)      Time:  682     Qubit:  12 
+ZPhase is  3π/4
+ID: 784 ( cx)      Time:  683     Qubit:  12   9 
+ID: 785 (  h)      Time:  682     Qubit:  13 
+ID: 786 (  p)      Time:  683     Qubit:  13 
+ZPhase is  7π/4
+ID: 787 (  h)      Time:  684     Qubit:  12 
+ID: 788 (  p)      Time:  685     Qubit:  12 
+ZPhase is  π/4
+ID: 789 ( cx)      Time:  684     Qubit:  11  13 
+ID: 790 ( cx)      Time:  686     Qubit:  10  12 
+ID: 791 (  p)      Time:  685     Qubit:  13 
+ZPhase is  7π/4
+ID: 792 (  p)      Time:  687     Qubit:  12 
+ZPhase is  π/4
+ID: 793 ( cx)      Time:  686     Qubit:  11  13 
+ID: 794 ( cx)      Time:  687     Qubit:   9  13 
+ID: 795 ( cx)      Time:  688     Qubit:   7  12 
+ID: 796 (  p)      Time:  688     Qubit:  13 
+ZPhase is  7π/4
+ID: 797 (  p)      Time:  689     Qubit:  12 
+ZPhase is  7π/4
+ID: 798 ( cx)      Time:  689     Qubit:  11  13 
+ID: 799 ( cx)      Time:  690     Qubit:  10  12 
+ID: 800 (  p)      Time:  690     Qubit:  13 
+ZPhase is  7π/4
+ID: 801 (  p)      Time:  691     Qubit:  12 
+ZPhase is  7π/4
+ID: 802 ( cx)      Time:  692     Qubit:  13  12 
+ID: 803 ( cx)      Time:  693     Qubit:   9  12 
+ID: 804 (  h)      Time:  694     Qubit:  12 
+ID: 805 (  p)      Time:  695     Qubit:  12 
+ZPhase is  π/4
+ID: 806 ( cx)      Time:  694     Qubit:   9  13 
+ID: 807 ( cx)      Time:  696     Qubit:   8  12 
+ID: 808 (  h)      Time:  695     Qubit:  13 
+ID: 809 (  p)      Time:  696     Qubit:  13 
+ZPhase is  5π/4
+ID: 810 (  p)      Time:  697     Qubit:  12 
+ZPhase is  7π/4
+ID: 811 ( cx)      Time:  697     Qubit:   8  13 
+ID: 812 (  p)      Time:  698     Qubit:  13 
+ZPhase is  3π/4
+ID: 813 ( cx)      Time:  699     Qubit:  13  12 
+ID: 814 ( cx)      Time:  700     Qubit:   8  13 
+ID: 815 (  h)      Time:  701     Qubit:  13 
+ID: 816 (  p)      Time:  702     Qubit:  13 
+ZPhase is  7π/4
+ID: 817 ( cx)      Time:  703     Qubit:  10  13 
+ID: 818 (  p)      Time:  704     Qubit:  13 
+ZPhase is  7π/4
+ID: 819 ( cx)      Time:  705     Qubit:   7  13 
+ID: 820 (  p)      Time:  706     Qubit:  13 
+ZPhase is  π/4
+ID: 821 ( cx)      Time:  707     Qubit:  10  13 
+ID: 822 (  p)      Time:  708     Qubit:  13 
+ZPhase is  5π/4
+ID: 823 ( cx)      Time:  709     Qubit:   7  13 
+ID: 824 (  h)      Time:  710     Qubit:  13 
+ID: 825 (  p)      Time:  711     Qubit:  13 
+ZPhase is  π/4
+ID: 826 ( cx)      Time:  712     Qubit:   8  13 
+ID: 827 (  p)      Time:  713     Qubit:  13 
+ZPhase is  7π/4
+ID: 828 ( cx)      Time:  714     Qubit:  13  12 
+ID: 829 (  h)      Time:  715     Qubit:  13 
+ID: 830 (  p)      Time:  716     Qubit:  13 
+ZPhase is  3π/4
+ID: 831 ( cx)      Time:  717     Qubit:  11  13 
+ID: 832 ( cx)      Time:  718     Qubit:   9  13 
+ID: 833 (  p)      Time:  719     Qubit:  13 
+ZPhase is  7π/4
+ID: 834 ( cx)      Time:  720     Qubit:  11  13 
+ID: 835 (  p)      Time:  721     Qubit:  13 
+ZPhase is  7π/4
+ID: 836 ( cx)      Time:  722     Qubit:  11  13 
+ID: 837 ( cx)      Time:  723     Qubit:   9  13 
+ID: 838 ( cx)      Time:  724     Qubit:  11   9 
+ID: 839 ( cx)      Time:  725     Qubit:  10   9 
+ID: 840 ( cx)      Time:  726     Qubit:   7   9 
+ID: 841 (  p)      Time:  724     Qubit:  13 
+ZPhase is  3π/4
+ID: 842 ( cx)      Time:  725     Qubit:  11  13 
+ID: 843 (  p)      Time:  727     Qubit:   9 
+ZPhase is  π/4
+ID: 844 ( cx)      Time:  728     Qubit:  11   9 
+ID: 845 (  p)      Time:  729     Qubit:   9 
+ZPhase is  7π/4
+ID: 846 (  h)      Time:  726     Qubit:  13 
+ID: 847 (  p)      Time:  727     Qubit:  13 
+ZPhase is  π/4
+ID: 848 ( cx)      Time:  728     Qubit:   8  13 
+ID: 849 (  p)      Time:  729     Qubit:  13 
+ZPhase is  7π/4
+ID: 850 ( cx)      Time:  730     Qubit:  12  13 
+ID: 851 (  h)      Time:  731     Qubit:  12 
+ID: 852 (  p)      Time:  732     Qubit:  12 
+ZPhase is  5π/4
+ID: 853 ( cz)      Time:  733     Qubit:   7  12 
+ID: 854 ( cx)      Time:  734     Qubit:  10  12 
+ID: 855 (  p)      Time:  735     Qubit:  12 
+ZPhase is  π/4
+ID: 856 ( cx)      Time:  736     Qubit:   7  12 
+ID: 857 (  p)      Time:  737     Qubit:  12 
+ZPhase is  π/4
+ID: 858 ( cx)      Time:  738     Qubit:  10  12 
+ID: 859 (  p)      Time:  739     Qubit:  12 
+ZPhase is  7π/4
+ID: 860 ( cx)      Time:  740     Qubit:  12   9 
+ID: 861 (  p)      Time:  741     Qubit:   9 
+ZPhase is  π/2
+ID: 862 ( cx)      Time:  741     Qubit:   7  12 
+ID: 863 ( cx)      Time:  742     Qubit:  10   7 
+ID: 864 (  h)      Time:  743     Qubit:   7 
+ID: 865 (  p)      Time:  744     Qubit:   7 
+ZPhase is  7π/4
+ID: 866 ( cx)      Time:  745     Qubit:   8   7 
+ID: 867 (  p)      Time:  746     Qubit:   7 
+ZPhase is  π/4
+ID: 868 ( cx)      Time:  747     Qubit:  10   7 
+ID: 869 (  p)      Time:  748     Qubit:   7 
+ZPhase is  π/4
+ID: 870 ( cx)      Time:  749     Qubit:   8   7 
+ID: 871 (  p)      Time:  750     Qubit:   7 
+ZPhase is  3π/4
+ID: 872 (  h)      Time:  751     Qubit:   7 
+ID: 873 (  p)      Time:  752     Qubit:   7 
+ZPhase is  π/4
+ID: 874 ( cx)      Time:  753     Qubit:   9   7 
+ID: 875 ( cx)      Time:  754     Qubit:  10   7 
+ID: 876 ( cx)      Time:  755     Qubit:  11   7 
+ID: 877 ( cx)      Time:  756     Qubit:  12   7 
+ID: 878 (  p)      Time:  757     Qubit:   7 
+ZPhase is  π/4
+ID: 879 ( cx)      Time:  758     Qubit:  11   7 
+ID: 880 (  p)      Time:  759     Qubit:   7 
+ZPhase is  π/4
+ID: 881 ( cx)      Time:  760     Qubit:   9   7 
+ID: 882 ( cx)      Time:  761     Qubit:  12   7 
+ID: 883 ( cx)      Time:  762     Qubit:  10   7 
+ID: 884 ( cx)      Time:  763     Qubit:  11   7 
+ID: 885 (  p)      Time:  764     Qubit:   7 
+ZPhase is  π/4
+ID: 886 ( cx)      Time:  765     Qubit:  11   7 
+ID: 887 (  h)      Time:  766     Qubit:   7 
+ID: 888 (  p)      Time:  767     Qubit:   7 
+ZPhase is  7π/4
+ID: 889 ( cx)      Time:  768     Qubit:   8   7 
+ID: 890 (  p)      Time:  769     Qubit:   7 
+ZPhase is  π/4
+ID: 891 ( cx)      Time:  770     Qubit:  10   7 
+ID: 892 (  p)      Time:  771     Qubit:   7 
+ZPhase is  π/4
+ID: 893 ( cx)      Time:  772     Qubit:   8   7 
+ID: 894 (  p)      Time:  773     Qubit:   7 
+ZPhase is  7π/4
+ID: 895 ( cx)      Time:  774     Qubit:  10   7 
+ID: 896 ( cx)      Time:  775     Qubit:   8   7 
+ID: 897 (  h)      Time:  776     Qubit:   7 
+ID: 898 (  p)      Time:  777     Qubit:   7 
+ZPhase is  π/4
+ID: 899 ( cx)      Time:  778     Qubit:   6   7 
+ID: 900 ( cx)      Time:  762     Qubit:  12   9 
+ID: 901 (  p)      Time:  779     Qubit:   7 
+ZPhase is  π/4
+ID: 902 ( cx)      Time:  780     Qubit:  11   7 
+ID: 903 (  p)      Time:  781     Qubit:   7 
+ZPhase is  π/4
+ID: 904 ( cx)      Time:  782     Qubit:   6   7 
+ID: 905 ( cx)      Time:  775     Qubit:  10  12 
+ID: 906 (  p)      Time:  783     Qubit:   7 
+ZPhase is  π/4
+ID: 907 (  h)      Time:  784     Qubit:   7 
+ID: 908 (  p)      Time:  785     Qubit:   7 
+ZPhase is  π/4
+ID: 909 ( cx)      Time:  786     Qubit:  10   7 
+ID: 910 (  p)      Time:  787     Qubit:   7 
+ZPhase is  π/4
+ID: 911 ( cx)      Time:  788     Qubit:  10   7 
+ID: 912 ( cx)      Time:  789     Qubit:   8   7 
+ID: 913 (  p)      Time:  790     Qubit:   7 
+ZPhase is  7π/4
+ID: 914 ( cx)      Time:  791     Qubit:  10   7 
+ID: 915 (  p)      Time:  792     Qubit:   7 
+ZPhase is  7π/4
+ID: 916 ( cx)      Time:  793     Qubit:  10   7 
+ID: 917 ( cx)      Time:  794     Qubit:   8   7 
+ID: 918 (  h)      Time:  795     Qubit:   7 
+ID: 919 (  p)      Time:  796     Qubit:   7 
+ZPhase is  7π/4
+ID: 920 ( cx)      Time:  797     Qubit:   6   7 
+ID: 921 (  h)      Time:  776     Qubit:  12 
+ID: 922 (  p)      Time:  777     Qubit:  12 
+ZPhase is  7π/4
+ID: 923 ( cx)      Time:  795     Qubit:   8  12 
+ID: 924 (  p)      Time:  798     Qubit:   7 
+ZPhase is  7π/4
+ID: 925 ( cx)      Time:  799     Qubit:  11   7 
+ID: 926 ( cx)      Time:  800     Qubit:   6   7 
+ID: 927 (  p)      Time:  796     Qubit:  12 
+ZPhase is  π/4
+ID: 928 ( cx)      Time:  797     Qubit:  13  12 
+ID: 929 ( cx)      Time:  798     Qubit:  10  12 
+ID: 930 ( cx)      Time:  799     Qubit:   9  12 
+ID: 931 ( cx)      Time:  800     Qubit:   8  12 
+ID: 932 (  p)      Time:  801     Qubit:   7 
+ZPhase is  7π/4
+ID: 933 ( cx)      Time:  802     Qubit:   6   7 
+ID: 934 (  p)      Time:  801     Qubit:  12 
+ZPhase is  7π/4
+ID: 935 ( cx)      Time:  802     Qubit:   8  12 
+ID: 936 (  p)      Time:  803     Qubit:   7 
+ZPhase is  3π/4
+ID: 937 ( cx)      Time:  804     Qubit:   6   7 
+ID: 938 (  p)      Time:  803     Qubit:  12 
+ZPhase is  5π/4
+ID: 939 ( cx)      Time:  804     Qubit:  13  12 
+ID: 940 ( cx)      Time:  805     Qubit:  10  12 
+ID: 941 ( cx)      Time:  806     Qubit:   9  12 
+ID: 942 (  h)      Time:  805     Qubit:   7 
+ID: 943 (  p)      Time:  806     Qubit:   7 
+ZPhase is  7π/4
+ID: 944 ( cx)      Time:  807     Qubit:  10   7 
+ID: 945 (  p)      Time:  808     Qubit:   7 
+ZPhase is  7π/4
+ID: 946 ( cx)      Time:  809     Qubit:   8   7 
+ID: 947 (  p)      Time:  810     Qubit:   7 
+ZPhase is  π/4
+ID: 948 ( cx)      Time:  811     Qubit:  10   7 
+ID: 949 (  p)      Time:  812     Qubit:   7 
+ZPhase is  5π/4
+ID: 950 ( cx)      Time:  813     Qubit:  10   7 
+ID: 951 ( cx)      Time:  814     Qubit:   8   7 
+ID: 952 (  h)      Time:  805     Qubit:  13 
+ID: 953 (  p)      Time:  806     Qubit:  13 
+ZPhase is  π/4
+ID: 954 ( cz)      Time:  814     Qubit:  10  13 
+ID: 955 ( cz)      Time:  815     Qubit:   9  13 
+ID: 956 ( cx)      Time:  816     Qubit:  11   9 
+ID: 957 ( cx)      Time:  817     Qubit:  10   9 
+ID: 958 ( cx)      Time:  816     Qubit:  13   0 
+ID: 959 (  p)      Time:  817     Qubit:   0 
+ZPhase is  π/4
+ID: 960 ( cx)      Time:  818     Qubit:  11   0 
+ID: 961 (  p)      Time:  819     Qubit:   0 
+ZPhase is  3π/4
+ID: 962 ( cx)      Time:  819     Qubit:  11  13 
+ID: 963 (  p)      Time:  820     Qubit:  13 
+ZPhase is  3π/4
+ID: 964 ( cx)      Time:  821     Qubit:  13   9 
+ID: 965 (  h)      Time:  822     Qubit:   9 
+ID: 966 (  p)      Time:  823     Qubit:   9 
+ZPhase is  3π/4
+ID: 967 ( cx)      Time:  824     Qubit:   8   9 
+ID: 968 ( cx)      Time:  822     Qubit:  13   0 
+ID: 969 ( cx)      Time:  823     Qubit:  11  13 
+ID: 970 (  p)      Time:  825     Qubit:   9 
+ZPhase is  5π/4
+ID: 971 (  h)      Time:  824     Qubit:  13 
+ID: 972 (  p)      Time:  825     Qubit:  13 
+ZPhase is  3π/4
+ID: 973 ( cx)      Time:  826     Qubit:   8  13 
+ID: 974 (  p)      Time:  827     Qubit:  13 
+ZPhase is  5π/4
+ID: 975 ( cx)      Time:  828     Qubit:  13   9 
+ID: 976 ( cx)      Time:  829     Qubit:  13   7 
+ID: 977 ( cx)      Time:  830     Qubit:   9   7 
+ID: 978 (  h)      Time:  831     Qubit:   7 
+ID: 979 (  p)      Time:  832     Qubit:   7 
+ZPhase is  3π/4
+ID: 980 ( cx)      Time:  830     Qubit:   8  13 
+ID: 981 (  h)      Time:  831     Qubit:  13 
+ID: 982 (  p)      Time:  832     Qubit:  13 
+ZPhase is  7π/4
+ID: 983 ( cx)      Time:  833     Qubit:   7  13 
+ID: 984 ( cx)      Time:  834     Qubit:  11   7 
+ID: 985 ( cx)      Time:  835     Qubit:   0   7 
+ID: 986 (  p)      Time:  834     Qubit:  13 
+ZPhase is  7π/4
+ID: 987 (  p)      Time:  836     Qubit:   7 
+ZPhase is  π/4
+ID: 988 ( cx)      Time:  837     Qubit:  13   7 
+ID: 989 ( cx)      Time:  838     Qubit:  10   7 
+ID: 990 ( cx)      Time:  839     Qubit:  11   7 
+ID: 991 ( cx)      Time:  840     Qubit:   0   7 
+ID: 992 ( cx)      Time:  839     Qubit:  10  13 
+ID: 993 (  p)      Time:  841     Qubit:   7 
+ZPhase is  3π/4
+ID: 994 (  p)      Time:  840     Qubit:  13 
+ZPhase is  3π/4
+ID: 995 ( cx)      Time:  842     Qubit:   7  13 
+ID: 996 ( cx)      Time:  843     Qubit:  10   7 
+ID: 997 (  h)      Time:  844     Qubit:   7 
+ID: 998 (  p)      Time:  845     Qubit:   7 
+ZPhase is  π/4
+ID: 999 ( cx)      Time:  846     Qubit:   8   7 
+ID:1000 ( cx)      Time:  847     Qubit:   7   9 
+ID:1001 (  p)      Time:  848     Qubit:   7 
+ZPhase is  7π/4
+ID:1002 ( cx)      Time:  849     Qubit:   8   7 
+ID:1003 (  h)      Time:  850     Qubit:   7 
+ID:1004 (  p)      Time:  851     Qubit:   7 
+ZPhase is  π/4
+ID:1005 ( cx)      Time:  852     Qubit:  11   7 
+ID:1006 ( cx)      Time:  853     Qubit:   0   7 
+ID:1007 (  p)      Time:  854     Qubit:   7 
+ZPhase is  7π/4
+ID:1008 ( cx)      Time:  855     Qubit:  11   7 
+ID:1009 (  p)      Time:  856     Qubit:   7 
+ZPhase is  π/4
+ID:1010 ( cx)      Time:  857     Qubit:  11   7 
+ID:1011 ( cx)      Time:  858     Qubit:   0   7 
+ID:1012 (  p)      Time:  859     Qubit:   7 
+ZPhase is  7π/4
+ID:1013 ( cx)      Time:  860     Qubit:  13   7 
+ID:1014 ( cx)      Time:  861     Qubit:  10   7 
+ID:1015 ( cx)      Time:  862     Qubit:  11   7 
+ID:1016 (  h)      Time:  863     Qubit:   7 
+ID:1017 (  p)      Time:  864     Qubit:   7 
+ZPhase is  7π/4
+ID:1018 ( cx)      Time:  865     Qubit:   8   7 
+ID:1019 ( cx)      Time:  866     Qubit:   7   9 
+ID:1020 (  p)      Time:  867     Qubit:   7 
+ZPhase is  5π/4
+ID:1021 ( cx)      Time:  868     Qubit:   8   7 
+ID:1022 (  h)      Time:  869     Qubit:   7 
+ID:1023 (  p)      Time:  870     Qubit:   7 
+ZPhase is  7π/4
+ID:1024 ( cx)      Time:  871     Qubit:  10   7 
+ID:1025 (  p)      Time:  872     Qubit:   7 
+ZPhase is  7π/4
+ID:1026 ( cx)      Time:  873     Qubit:  13   7 
+ID:1027 ( cx)      Time:  874     Qubit:  10   7 
+ID:1028 (  p)      Time:  875     Qubit:   7 
+ZPhase is  7π/4
+ID:1029 ( cx)      Time:  876     Qubit:  10   7 
+ID:1030 (  p)      Time:  877     Qubit:   7 
+ZPhase is  7π/4
+ID:1031 ( cx)      Time:  878     Qubit:  11   7 
+ID:1032 (  h)      Time:  879     Qubit:   7 
+ID:1033 (  p)      Time:  880     Qubit:   7 
+ZPhase is  π/4
+ID:1034 ( cx)      Time:  881     Qubit:   8   7 
+ID:1035 ( cx)      Time:  882     Qubit:   7   9 
+ID:1036 (  p)      Time:  883     Qubit:   7 
+ZPhase is  3π/4
+ID:1037 ( cx)      Time:  884     Qubit:   1   7 
+ID:1038 (  h)      Time:  885     Qubit:   1 
+ID:1039 (  p)      Time:  886     Qubit:   1 
+ZPhase is  3π/4
+ID:1040 ( cx)      Time:  887     Qubit:  11   1 
+ID:1041 (  p)      Time:  888     Qubit:   1 
+ZPhase is  5π/4
+ID:1042 (  h)      Time:  885     Qubit:   7 
+ID:1043 ( cz)      Time:  886     Qubit:   7   8 
+ID:1044 (  p)      Time:  887     Qubit:   7 
+ZPhase is  π/4
+ID:1045 ( cx)      Time:  888     Qubit:  11   7 
+ID:1046 (  p)      Time:  889     Qubit:   7 
+ZPhase is  7π/4
+ID:1047 ( cx)      Time:  890     Qubit:   7   1 
+ID:1048 (  h)      Time:  891     Qubit:   7 
+ID:1049 (  p)      Time:  892     Qubit:   7 
+ZPhase is  7π/4
+ID:1050 ( cx)      Time:  893     Qubit:   8   7 
+ID:1051 ( cx)      Time:  894     Qubit:   7   9 
+ID:1052 (  p)      Time:  895     Qubit:   7 
+ZPhase is  π/4
+ID:1053 ( cx)      Time:  896     Qubit:   8   7 
+ID:1054 (  h)      Time:  897     Qubit:   7 
+ID:1055 (  p)      Time:  898     Qubit:   7 
+ZPhase is  7π/4
+ID:1056 ( cx)      Time:  899     Qubit:  10   7 
+ID:1057 (  p)      Time:  900     Qubit:   7 
+ZPhase is  7π/4
+ID:1058 ( cx)      Time:  901     Qubit:  13   7 
+ID:1059 ( cx)      Time:  902     Qubit:  10   7 
+ID:1060 (  p)      Time:  903     Qubit:   7 
+ZPhase is  7π/4
+ID:1061 ( cx)      Time:  904     Qubit:  10   7 
+ID:1062 (  p)      Time:  905     Qubit:   7 
+ZPhase is  3π/4
+ID:1063 ( cx)      Time:  906     Qubit:  13   7 
+ID:1064 ( cx)      Time:  907     Qubit:  10   7 
+ID:1065 ( cx)      Time:  908     Qubit:  11   7 
+ID:1066 (  h)      Time:  909     Qubit:   7 
+ID:1067 (  p)      Time:  910     Qubit:   7 
+ZPhase is  7π/4
+ID:1068 ( cx)      Time:  911     Qubit:   8   7 
+ID:1069 ( cx)      Time:  912     Qubit:   7   9 
+ID:1070 (  p)      Time:  913     Qubit:   7 
+ZPhase is  5π/4
+ID:1071 (  h)      Time:  914     Qubit:   7 
+ID:1072 (  p)      Time:  915     Qubit:   7 
+ZPhase is  7π/4
+ID:1073 ( cx)      Time:  916     Qubit:   1   7 
+ID:1074 (  p)      Time:  917     Qubit:   7 
+ZPhase is  π/4
+ID:1075 ( cx)      Time:  918     Qubit:  11   7 
+ID:1076 ( cx)      Time:  919     Qubit:   1   7 
+ID:1077 ( cx)      Time:  907     Qubit:   0  13 
+ID:1078 (  p)      Time:  908     Qubit:  13 
+ZPhase is  7π/4
+ID:1079 ( cx)      Time:  919     Qubit:  11  13 
+ID:1080 (  p)      Time:  920     Qubit:   7 
+ZPhase is  π/4
+ID:1081 ( cx)      Time:  921     Qubit:   1   7 
+ID:1082 ( cx)      Time:  920     Qubit:   0  13 
+ID:1083 (  p)      Time:  921     Qubit:  13 
+ZPhase is  π/4
+ID:1084 (  p)      Time:  922     Qubit:   7 
+ZPhase is  3π/4
+ID:1085 ( cx)      Time:  923     Qubit:   1   7 
+ID:1086 (  h)      Time:  924     Qubit:   7 
+ID:1087 (  p)      Time:  925     Qubit:   7 
+ZPhase is  5π/4
+ID:1088 ( cx)      Time:  926     Qubit:   8   7 
+ID:1089 (  p)      Time:  927     Qubit:   7 
+ZPhase is  3π/4
+ID:1090 ( cx)      Time:  928     Qubit:   9   7 
+ID:1091 ( cx)      Time:  929     Qubit:   8   9 
+ID:1092 (  h)      Time:  930     Qubit:   9 
+ID:1093 (  p)      Time:  931     Qubit:   9 
+ZPhase is  7π/4
+ID:1094 ( cx)      Time:  932     Qubit:  10   9 
+ID:1095 (  p)      Time:  933     Qubit:   9 
+ZPhase is  7π/4
+ID:1096 ( cx)      Time:  934     Qubit:  13   9 
+ID:1097 ( cx)      Time:  935     Qubit:  11   9 
+ID:1098 ( cx)      Time:  936     Qubit:  10   9 
+ID:1099 (  p)      Time:  937     Qubit:   9 
+ZPhase is  7π/4
+ID:1100 ( cx)      Time:  938     Qubit:  10   9 
+ID:1101 (  p)      Time:  939     Qubit:   9 
+ZPhase is  3π/4
+ID:1102 ( cx)      Time:  940     Qubit:  10   9 
+ID:1103 (  h)      Time:  941     Qubit:   9 
+ID:1104 (  p)      Time:  942     Qubit:   9 
+ZPhase is  π/4
+ID:1105 ( cx)      Time:  943     Qubit:   8   9 
+ID:1106 ( cx)      Time:  944     Qubit:   7   9 
+ID:1107 ( cx)      Time:  936     Qubit:  11  13 
+ID:1108 (  p)      Time:  945     Qubit:   9 
+ZPhase is  7π/4
+ID:1109 ( cx)      Time:  946     Qubit:   8   9 
+ID:1110 (  h)      Time:  937     Qubit:  13 
+ID:1111 (  p)      Time:  938     Qubit:  13 
+ZPhase is  5π/4
+ID:1112 (  p)      Time:  947     Qubit:   9 
+ZPhase is  π/4
+ID:1113 ( cx)      Time:  947     Qubit:   8  13 
+ID:1114 ( cx)      Time:  948     Qubit:   8   9 
+ID:1115 ( cx)      Time:  949     Qubit:   7   9 
+ID:1116 ( cx)      Time:  950     Qubit:   8   7 
+ID:1117 (  p)      Time:  948     Qubit:  13 
+ZPhase is  7π/4
+ID:1118 ( cx)      Time:  949     Qubit:  10  13 
+ID:1119 (  p)      Time:  950     Qubit:   9 
+ZPhase is  3π/4
+ID:1120 ( cx)      Time:  951     Qubit:   8   9 
+ID:1121 (  p)      Time:  950     Qubit:  13 
+ZPhase is  7π/4
+ID:1122 ( cx)      Time:  952     Qubit:   8  13 
+ID:1123 (  p)      Time:  953     Qubit:  13 
+ZPhase is  5π/4
+ID:1124 ( cx)      Time:  954     Qubit:   8  13 
+ID:1125 (  h)      Time:  955     Qubit:  13 
+ID:1126 (  p)      Time:  956     Qubit:  13 
+ZPhase is  7π/4
+ID:1127 ( cx)      Time:  957     Qubit:  11  13 
+ID:1128 ( cx)      Time:  958     Qubit:   0  13 
+ID:1129 (  p)      Time:  959     Qubit:  13 
+ZPhase is  π/4
+ID:1130 ( cx)      Time:  960     Qubit:  11  13 
+ID:1131 (  p)      Time:  961     Qubit:  13 
+ZPhase is  7π/4
+ID:1132 ( cx)      Time:  962     Qubit:  11  13 
+ID:1133 ( cx)      Time:  963     Qubit:   0  13 
+ID:1134 ( cx)      Time:  964     Qubit:  11   0 
+ID:1135 (  p)      Time:  964     Qubit:  13 
+ZPhase is  π/4
+ID:1136 ( cx)      Time:  965     Qubit:  11  13 
+ID:1137 (  h)      Time:  966     Qubit:  13 
+ID:1138 (  p)      Time:  967     Qubit:  13 
+ZPhase is  7π/4
+ID:1139 ( cx)      Time:  968     Qubit:  10  13 
+ID:1140 (  p)      Time:  969     Qubit:  13 
+ZPhase is  7π/4
+ID:1141 ( cx)      Time:  970     Qubit:   8  13 
+ID:1142 (  p)      Time:  971     Qubit:  13 
+ZPhase is  π/4
+ID:1143 ( cx)      Time:  972     Qubit:  10  13 
+ID:1144 (  p)      Time:  973     Qubit:  13 
+ZPhase is  π/4
+ID:1145 ( cx)      Time:  974     Qubit:  10  13 
+ID:1146 (  x)      Time:  966     Qubit:  11 
+ID:1147 (  x)      Time:  805     Qubit:   6 
+ID:1148 (  x)      Time:  975     Qubit:  10 
+ID:1149 (  x)      Time:  635     Qubit:   3 
+ID:1150 (  x)      Time:  634     Qubit:   5 
+ID:1151 (  x)      Time:  975     Qubit:  13 
+ID:1152 ( cx)      Time:  951     Qubit:   7  12 
+ID:1153 ( cx)      Time:  952     Qubit:  12   7 
+ID:1154 ( cx)      Time:  953     Qubit:   7  12 
+ID:1155 ( cx)      Time:  971     Qubit:   8   9 
+ID:1156 ( cx)      Time:  972     Qubit:   9   8 
+ID:1157 ( cx)      Time:  973     Qubit:   8   9 
+ID:1158 ( cx)      Time:  974     Qubit:   9  12 
+ID:1159 ( cx)      Time:  975     Qubit:  12   9 
+ID:1160 ( cx)      Time:  976     Qubit:   9  12 
+ID:1161 ( cx)      Time:  976     Qubit:  10  11 
+ID:1162 ( cx)      Time:  977     Qubit:  11  10 
+ID:1163 ( cx)      Time:  978     Qubit:  10  11 
+ID:1164 ( cx)      Time:  979     Qubit:  11  12 
+ID:1165 ( cx)      Time:  980     Qubit:  12  11 
+ID:1166 ( cx)      Time:  981     Qubit:  11  12 
+
+qsyn> qc2zx  
+Create and checkout to Graph 2
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0 
+
+qsyn> zxgs -fr  
+
+All rules applied in order:
+Hadamard Rule                 1 iterations.
+  1) 109 matches
+Spider Fusion Rule            10 iterations.
+  1) 322 matches
+  2) 199 matches
+  3) 120 matches
+  4) 85 matches
+  5) 47 matches
+  6) 29 matches
+  7) 18 matches
+  8) 11 matches
+  9) 7 matches
+  10) 4 matches
+Identity Removal Rule         1 iterations.
+  1) 12 matches
+Spider Fusion Rule            1 iterations.
+  1) 88 matches
+Pivot Rule                    4 iterations.
+  1) 46 matches
+  2) 16 matches
+  3) 6 matches
+  4) 1 matches
+Local Complementation Rule    10 iterations.
+  1) 7 matches
+  2) 5 matches
+  3) 10 matches
+  4) 4 matches
+  5) 4 matches
+  6) 3 matches
+  7) 3 matches
+  8) 2 matches
+  9) 3 matches
+  10) 3 matches
+Pivot Rule                    1 iterations.
+  1) 2 matches
+Pivot Gadget Rule             8 iterations.
+  1) 47 matches
+  2) 104 matches
+  3) 34 matches
+  4) 38 matches
+  5) 27 matches
+  6) 3 matches
+  7) 1 matches
+  8) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 3 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Pivot Rule                    2 iterations.
+  1) 1 matches
+  2) 1 matches
+Phase Gadget Rule             1 iterations.
+  1) 228 matches
+Identity Removal Rule         1 iterations.
+  1) 3 matches
+Spider Fusion Rule            1 iterations.
+  1) 3 matches
+Pivot Rule                    2 iterations.
+  1) 4 matches
+  2) 1 matches
+Local Complementation Rule    4 iterations.
+  1) 1 matches
+  2) 1 matches
+  3) 1 matches
+  4) 1 matches
+
+qsyn> zxgp -a       
+#T-gate:                      724
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           724
+
+qsyn> zxgt -id 
+The graph is not an identity!
+
+qsyn> qq -f
+

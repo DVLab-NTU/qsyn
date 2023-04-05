@@ -41,6 +41,7 @@ public:
     size_t getNQubit() const { return _qubits.size(); }
     const std::vector<QCirQubit*>& getQubits() const { return _qubits; }
     const std::vector<QCirGate*>& getTopoOrderdGates() const { return _topoOrder; }
+    const std::vector<QCirGate*>& getGates() const { return _qgates; }
     QCirGate* getGate(size_t gid) const;
     QCirQubit* getQubit(size_t qid) const;
     void incrementZXId() { _ZXNodeId++; }
@@ -95,7 +96,9 @@ public:
     void updateTopoOrder();
 
     // Member functions about circuit reporting
+    void printDepth();
     void printGates();
+    void printCircuit();
     bool printGateInfo(size_t, bool);
     void printSummary();
     void printQubits();

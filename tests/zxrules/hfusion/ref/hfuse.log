@@ -1,4 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.4.0
+DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> ver 9
 Note: verbose level is set to 9
 
@@ -12,8 +12,8 @@ qsyn> qcga -h 0
 
 qsyn> qccp -l
 Listed by gate ID
-ID:   0 (  h)      Time:    0     Qubit:   0 
-ID:   1 (  h)      Time:    1     Qubit:   0 
+ID:   0 (  h)      Time:    1     Qubit:   0 
+ID:   1 (  h)      Time:    2     Qubit:   0 
 
 qsyn> qc2zx
 Create and checkout to Graph 0
@@ -49,9 +49,9 @@ Add edge (3, 1)
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   1     (3, -) 
-ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   2     (0, -) (3, -) 
-ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (1, -) (2, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   1     (3, -) 
+ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (0, -) (3, -) 
+ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (1, -) (2, -) 
 Total #Vertices: 4
 
 
@@ -80,7 +80,7 @@ Hadamard Rule
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (1, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   1     (0, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   1     (0, -) 
 Total #Vertices: 2
 
 
@@ -99,7 +99,7 @@ Remove edge (0, 1), type: -
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, [1m[34mH[0m[0m) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   1     (4, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   1     (4, -) 
 ID:   4 ([1m[33mH[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, [1m[34mH[0m[0m) (1, -) 
 Total #Vertices: 3
 
@@ -138,9 +138,9 @@ qsyn> qcga -h 0
 
 qsyn> qccp -l
 Listed by gate ID
-ID:   0 (  h)      Time:    0     Qubit:   0 
-ID:   1 (  h)      Time:    1     Qubit:   0 
-ID:   2 (  h)      Time:    2     Qubit:   0 
+ID:   0 (  h)      Time:    1     Qubit:   0 
+ID:   1 (  h)      Time:    2     Qubit:   0 
+ID:   2 (  h)      Time:    3     Qubit:   0 
 
 qsyn> qc2zx
 Create and checkout to Graph 0
@@ -187,10 +187,10 @@ Add edge (4, 1)
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   1     (4, -) 
-ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   2     (0, -) (3, -) 
-ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (2, -) (4, -) 
-ID:   4 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (1, -) (3, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 5)	  #Neighbors:   1     (4, -) 
+ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (0, -) (3, -) 
+ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (2, -) (4, -) 
+ID:   4 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 4)	  #Neighbors:   2     (1, -) (3, -) 
 Total #Vertices: 5
 
 
@@ -209,10 +209,10 @@ Add edge (3, 4)
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   1     (4, -) 
-ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   2     (0, -) (3, [1m[34mH[0m[0m) 
-ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (2, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) 
-ID:   4 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (1, -) (3, [1m[34mH[0m[0m) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 5)	  #Neighbors:   1     (4, -) 
+ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (0, -) (3, [1m[34mH[0m[0m) 
+ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (2, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) 
+ID:   4 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 4)	  #Neighbors:   2     (1, -) (3, [1m[34mH[0m[0m) 
 Total #Vertices: 5
 
 
@@ -262,8 +262,8 @@ qsyn> qcga -h 0
 
 qsyn> qccp -l
 Listed by gate ID
-ID:   0 (  h)      Time:    0     Qubit:   0 
-ID:   1 (  h)      Time:    1     Qubit:   0 
+ID:   0 (  h)      Time:    1     Qubit:   0 
+ID:   1 (  h)      Time:    2     Qubit:   0 
 
 qsyn> qc2zx
 Create and checkout to Graph 0
@@ -299,9 +299,9 @@ Add edge (3, 1)
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   1     (3, -) 
-ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   2     (0, -) (3, -) 
-ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (1, -) (2, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   1     (3, -) 
+ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (0, -) (3, -) 
+ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (1, -) (2, -) 
 Total #Vertices: 4
 
 
@@ -326,9 +326,9 @@ Add edge (3, 1)
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, [1m[34mH[0m[0m) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   1     (3, [1m[34mH[0m[0m) 
-ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   2     (0, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) 
-ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (1, [1m[34mH[0m[0m) (2, [1m[34mH[0m[0m) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   1     (3, [1m[34mH[0m[0m) 
+ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (0, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) 
+ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (1, [1m[34mH[0m[0m) (2, [1m[34mH[0m[0m) 
 Total #Vertices: 4
 
 
@@ -357,7 +357,7 @@ Hadamard Cancellation Rule
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (1, [1m[34mH[0m[0m) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   1     (0, [1m[34mH[0m[0m) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   1     (0, [1m[34mH[0m[0m) 
 Total #Vertices: 2
 
 
@@ -380,9 +380,9 @@ qsyn> qcga -h 0
 
 qsyn> qccp -l
 Listed by gate ID
-ID:   0 (  h)      Time:    0     Qubit:   0 
-ID:   1 (  h)      Time:    1     Qubit:   0 
-ID:   2 (  h)      Time:    2     Qubit:   0 
+ID:   0 (  h)      Time:    1     Qubit:   0 
+ID:   1 (  h)      Time:    2     Qubit:   0 
+ID:   2 (  h)      Time:    3     Qubit:   0 
 
 qsyn> qc2zx
 Create and checkout to Graph 0
@@ -429,10 +429,10 @@ Add edge (4, 1)
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   1     (4, -) 
-ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   2     (0, -) (3, -) 
-ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (2, -) (4, -) 
-ID:   4 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (1, -) (3, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 5)	  #Neighbors:   1     (4, -) 
+ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (0, -) (3, -) 
+ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (2, -) (4, -) 
+ID:   4 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 4)	  #Neighbors:   2     (1, -) (3, -) 
 Total #Vertices: 5
 
 
@@ -463,10 +463,10 @@ Add edge (4, 1)
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, [1m[34mH[0m[0m) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   1     (4, [1m[34mH[0m[0m) 
-ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   2     (0, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) 
-ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (2, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) 
-ID:   4 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (1, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 5)	  #Neighbors:   1     (4, [1m[34mH[0m[0m) 
+ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (0, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) 
+ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (2, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) 
+ID:   4 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 4)	  #Neighbors:   2     (1, [1m[34mH[0m[0m) (3, [1m[34mH[0m[0m) 
 Total #Vertices: 5
 
 
@@ -502,7 +502,7 @@ Hadamard Cancellation Rule
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (1, [1m[34mH[0m[0m) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   1     (0, [1m[34mH[0m[0m) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 5)	  #Neighbors:   1     (0, [1m[34mH[0m[0m) 
 Total #Vertices: 2
 
 
@@ -525,9 +525,9 @@ qsyn> qcga -h 0
 
 qsyn> qccp -l
 Listed by gate ID
-ID:   0 (  h)      Time:    0     Qubit:   0 
-ID:   1 (  z)      Time:    1     Qubit:   0 
-ID:   2 (  h)      Time:    2     Qubit:   0 
+ID:   0 (  h)      Time:    1     Qubit:   0 
+ID:   1 (  z)      Time:    2     Qubit:   0 
+ID:   2 (  h)      Time:    3     Qubit:   0 
 
 qsyn> qc2zx
 Create and checkout to Graph 0
@@ -574,10 +574,10 @@ Add edge (4, 1)
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   1     (4, -) 
-ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   2     (0, -) (3, -) 
-ID:   3 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (2, -) (4, -) 
-ID:   4 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (1, -) (3, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 5)	  #Neighbors:   1     (4, -) 
+ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (0, -) (3, -) 
+ID:   3 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (2, -) (4, -) 
+ID:   4 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 4)	  #Neighbors:   2     (1, -) (3, -) 
 Total #Vertices: 5
 
 
@@ -596,10 +596,10 @@ Add edge (3, 4)
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, [1m[34mH[0m[0m) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   1     (4, -) 
-ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   2     (0, [1m[34mH[0m[0m) (3, -) 
-ID:   3 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (2, -) (4, [1m[34mH[0m[0m) 
-ID:   4 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (1, -) (3, [1m[34mH[0m[0m) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 5)	  #Neighbors:   1     (4, -) 
+ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (0, [1m[34mH[0m[0m) (3, -) 
+ID:   3 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (2, -) (4, [1m[34mH[0m[0m) 
+ID:   4 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 4)	  #Neighbors:   2     (1, -) (3, [1m[34mH[0m[0m) 
 Total #Vertices: 5
 
 
@@ -628,8 +628,8 @@ Hadamard Cancellation Rule
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (3, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   1     (3, -) 
-ID:   3 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (0, -) (1, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 5)	  #Neighbors:   1     (3, -) 
+ID:   3 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (0, -) (1, -) 
 Total #Vertices: 3
 
 
@@ -652,8 +652,8 @@ qsyn> qcga -z 1
 
 qsyn> qccp -l
 Listed by gate ID
-ID:   0 (  z)      Time:    0     Qubit:   0 
-ID:   1 (  z)      Time:    0     Qubit:   1 
+ID:   0 (  z)      Time:    1     Qubit:   0 
+ID:   1 (  z)      Time:    1     Qubit:   1 
 
 qsyn> qc2zx
 Create and checkout to Graph 0
@@ -692,11 +692,11 @@ Add edge (5, 1)
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (5, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   1     (5, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   1     (5, -) 
 ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (4, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 2)	  #Neighbors:   1     (4, -) 
-ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (1, 1)	  #Neighbors:   2     (2, -) (3, -) 
-ID:   5 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   2     (0, -) (1, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 3)	  #Neighbors:   1     (4, -) 
+ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (1, 2)	  #Neighbors:   2     (2, -) (3, -) 
+ID:   5 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (0, -) (1, -) 
 Total #Vertices: 6
 
 
@@ -718,11 +718,11 @@ Add edge (7, 5)
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (5, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   1     (5, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   1     (5, -) 
 ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (4, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 2)	  #Neighbors:   1     (4, -) 
-ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (1, 1)	  #Neighbors:   3     (2, -) (3, -) (6, [1m[34mH[0m[0m) 
-ID:   5 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   3     (0, -) (1, -) (7, [1m[34mH[0m[0m) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 3)	  #Neighbors:   1     (4, -) 
+ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (1, 2)	  #Neighbors:   3     (2, -) (3, -) (6, [1m[34mH[0m[0m) 
+ID:   5 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   3     (0, -) (1, -) (7, [1m[34mH[0m[0m) 
 ID:   6 ([1m[33mH[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (4, [1m[34mH[0m[0m) (7, -) 
 ID:   7 ([1m[33mH[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (5, [1m[34mH[0m[0m) (6, -) 
 Total #Vertices: 8
@@ -753,11 +753,11 @@ Hadamard Cancellation Rule
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (5, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   1     (5, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   1     (5, -) 
 ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (4, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 2)	  #Neighbors:   1     (4, -) 
-ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (1, 1)	  #Neighbors:   3     (2, -) (3, -) (5, -) 
-ID:   5 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   3     (0, -) (1, -) (4, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 3)	  #Neighbors:   1     (4, -) 
+ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (1, 2)	  #Neighbors:   3     (2, -) (3, -) (5, -) 
+ID:   5 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   3     (0, -) (1, -) (4, -) 
 Total #Vertices: 6
 
 
@@ -786,12 +786,12 @@ qsyn> qcga -z 0
 
 qsyn> qccp -l
 Listed by gate ID
-ID:   0 (  h)      Time:    0     Qubit:   0 
-ID:   1 (  h)      Time:    1     Qubit:   0 
-ID:   2 (  z)      Time:    2     Qubit:   0 
-ID:   3 (  h)      Time:    3     Qubit:   0 
-ID:   4 (  h)      Time:    4     Qubit:   0 
-ID:   5 (  z)      Time:    5     Qubit:   0 
+ID:   0 (  h)      Time:    1     Qubit:   0 
+ID:   1 (  h)      Time:    2     Qubit:   0 
+ID:   2 (  z)      Time:    3     Qubit:   0 
+ID:   3 (  h)      Time:    4     Qubit:   0 
+ID:   4 (  h)      Time:    5     Qubit:   0 
+ID:   5 (  z)      Time:    6     Qubit:   0 
 
 qsyn> qc2zx
 Create and checkout to Graph 0
@@ -871,13 +871,13 @@ Add edge (7, 1)
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 7)	  #Neighbors:   1     (7, -) 
-ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   2     (0, -) (3, -) 
-ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (2, -) (4, -) 
-ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (3, -) (5, -) 
-ID:   5 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 4)	  #Neighbors:   2     (4, -) (6, -) 
-ID:   6 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 5)	  #Neighbors:   2     (5, -) (7, -) 
-ID:   7 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 6)	  #Neighbors:   2     (1, -) (6, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 8)	  #Neighbors:   1     (7, -) 
+ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (0, -) (3, -) 
+ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (2, -) (4, -) 
+ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 4)	  #Neighbors:   2     (3, -) (5, -) 
+ID:   5 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 5)	  #Neighbors:   2     (4, -) (6, -) 
+ID:   6 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 6)	  #Neighbors:   2     (5, -) (7, -) 
+ID:   7 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 7)	  #Neighbors:   2     (1, -) (6, -) 
 Total #Vertices: 8
 
 
@@ -896,13 +896,13 @@ Add edge (4, 5)
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (2, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 7)	  #Neighbors:   1     (7, -) 
-ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 1)	  #Neighbors:   2     (0, -) (3, [1m[34mH[0m[0m) 
-ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (2, [1m[34mH[0m[0m) (4, -) 
-ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (3, -) (5, [1m[34mH[0m[0m) 
-ID:   5 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 4)	  #Neighbors:   2     (4, [1m[34mH[0m[0m) (6, -) 
-ID:   6 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 5)	  #Neighbors:   2     (5, -) (7, -) 
-ID:   7 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 6)	  #Neighbors:   2     (1, -) (6, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 8)	  #Neighbors:   1     (7, -) 
+ID:   2 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (0, -) (3, [1m[34mH[0m[0m) 
+ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (2, [1m[34mH[0m[0m) (4, -) 
+ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 4)	  #Neighbors:   2     (3, -) (5, [1m[34mH[0m[0m) 
+ID:   5 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 5)	  #Neighbors:   2     (4, [1m[34mH[0m[0m) (6, -) 
+ID:   6 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 6)	  #Neighbors:   2     (5, -) (7, -) 
+ID:   7 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 7)	  #Neighbors:   2     (1, -) (6, -) 
 Total #Vertices: 8
 
 
@@ -940,9 +940,9 @@ Hadamard Cancellation Rule
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, [1m[34mH[0m[0m) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 7)	  #Neighbors:   1     (7, -) 
-ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   2     (0, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
-ID:   7 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 6)	  #Neighbors:   2     (1, -) (4, [1m[34mH[0m[0m) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 8)	  #Neighbors:   1     (7, -) 
+ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 4)	  #Neighbors:   2     (0, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+ID:   7 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 7)	  #Neighbors:   2     (1, -) (4, [1m[34mH[0m[0m) 
 Total #Vertices: 4
 
 
