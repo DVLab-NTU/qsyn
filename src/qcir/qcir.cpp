@@ -61,9 +61,10 @@ void QCir::printGates() {
     cout << "Listed by gate ID" << endl;
     for (size_t i = 0; i < _qgates.size(); i++) {
         _qgates[i]->printGate();
-        if(_qgates[i]->getType()==GateType::P){
-            cout << "ZPhase is  "<<_qgates[i]->getPhase() << endl;
-        }
+        //REVIEW - check the ZPhase
+        // if(_qgates[i]->getType()==GateType::P){
+        //     cout << "ZPhase is  "<<_qgates[i]->getPhase() << endl;
+        // }
     }
 }
 
