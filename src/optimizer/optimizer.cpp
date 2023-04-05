@@ -138,6 +138,7 @@ QCir* Optimizer::parseForward() {
     }
     for (auto& g : gs) {
         // cout << "######### start parse gate ##########" << endl;
+        // cout << "gs size is "<<gs.size() << endl;
         // g->printGate();
         parseGate(g);
         // cout << "Parse gate done" << endl;
@@ -199,12 +200,6 @@ QCir* Optimizer::parseForward() {
         _corrections.emplace_back(cnot_3);
     }
 
-    // TODO - Move permutation code out from extractor
-    // for (auto& [a, b] : permutation(_permutation)) {
-    //     QCirGate* CX0 = new CXGate(_gateCnt);
-    //     .....expand SWAP to CXs
-    //     _corrections.emplace_back(notGate);
-    // }
     // cout << "tmp is" << endl;
     // tmp->printGates();
     return tmp;
@@ -458,9 +453,9 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
             //  _availty[targ] = 1;
             _available[targ].clear();
         }
-        _available[ctrl].erase(find_if(_available[ctrl].begin(), _available[ctrl].end(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); }));
-        _gates[ctrl].erase(find_if(_gates[ctrl].begin(), _gates[ctrl].end(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); }));
-        _gates[targ].erase(find_if(_gates[targ].begin(), _gates[targ].end(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); }));
+        _available[ctrl].erase(--(find_if(_available[ctrl].rbegin(), _available[ctrl].rend(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); })).base());
+        _gates[ctrl].erase(--(find_if(_gates[ctrl].rbegin(), _gates[ctrl].rend(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); })).base());
+        _gates[targ].erase(--(find_if(_gates[targ].rbegin(), _gates[targ].rend(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); })).base());
 
         QCirGate* s1 = new SDGGate(_gateCnt);
         s1->addQubit(targ, true);
@@ -517,10 +512,10 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
     if (found_match) {
         // cout << "Into 5th loop" << endl;
         if (count_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g) { return g == targ_cz; })) {
-            _available[t1].erase(find_if(_available[t1].begin(), _available[t1].end(), [&](QCirGate* g) { return g == targ_cz; }));
-            _available[t2].erase(find_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g) { return g == targ_cz; }));
-            _gates[t1].erase(find_if(_gates[t1].begin(), _gates[t1].end(), [&](QCirGate* g) { return g == targ_cz; }));
-            _gates[t2].erase(find_if(_gates[t2].begin(), _gates[t2].end(), [&](QCirGate* g) { return g == targ_cz; }));
+            _available[t1].erase(--(find_if(_available[t1].rbegin(), _available[t1].rend(), [&](QCirGate* g) { return g == targ_cz; })).base());
+            _available[t2].erase(--(find_if(_available[t2].rbegin(), _available[t2].rend(), [&](QCirGate* g) { return g == targ_cz; })).base());
+            _gates[t1].erase(--(find_if(_gates[t1].rbegin(), _gates[t1].rend(), [&](QCirGate* g) { return g == targ_cz; })).base());
+            _gates[t2].erase(--(find_if(_gates[t2].rbegin(), _gates[t2].rend(), [&](QCirGate* g) { return g == targ_cz; })).base());
         } else {
             found_match = false;
         }
@@ -776,27 +771,9 @@ void Optimizer::topologicalSort(QCir* circuit) {
                             break;
                         }
                     }
-                    // cout << "Pop remove" << endl;
-                    // for (size_t i = 0; i < _gates.size(); i++) {
-                    //     cout << "_gates[" << i << "]" << endl;
-                    //     for (size_t j = 0; j < _gates[i].size(); j++) {
-                    //         _gates[i][j]->printGate();
-                    //     }
-                    // }
-                    // cout << "Remove: ";
-                    // for (size_t i = 0; i < removed.size(); i++) {
-                    //     cout << removed[i] << " ";
-                    // }
-                    // cout << endl;
                     for (size_t i : removed) {          
                         gs.erase(gs.begin() + i);
                     }
-                    // for (size_t i = 0; i < _gates.size(); i++) {
-                    //     cout << "_gates[" << i << "]" << endl;
-                    //     for (size_t j = 0; j < _gates[i].size(); j++) {
-                    //         _gates[i][j]->printGate();
-                    //     }
-                    // }
                     break;
                 }
             }

@@ -1,11 +1,13 @@
 color off
-qccread benchmark/benchmark_SABRE/large/cm42a_207.qasm
+qccread benchmark/benchmark_SABRE/large/ex-1_166.qasm
 qc2zx  
 zxgsimp -fr
 zx2qc
 optimize
 qc2zx  
 zxgadj
-zxcomp 0           
+zxcomp 0 
+zxgs -fr  
+zxgp -a       
 zxgt -id 
 qq -f
