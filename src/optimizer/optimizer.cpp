@@ -60,8 +60,8 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
     _circuit = parseForward();
     // cout << "After Parse Circuit" << endl;
     // _circuit->printGates();
-    // cout << "corrections size: " << _corrections.size() << endl;
-    // for (auto& g : _corrections) g->printGate();
+    cout << "corrections size: " << _corrections.size() << endl;
+    for (auto& g : _corrections) g->printGate();
     for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
     _corrections.clear();
     // cout << "After add corrections" << endl;
@@ -77,8 +77,8 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
 
         _reversed = true;
         _circuit = parseForward();
-        // cout << "corrections size1: " << _corrections.size() << endl;
-        // for (auto& g : _corrections) g->printGate();
+        cout << "corrections size1: " << _corrections.size() << endl;
+        for (auto& g : _corrections) g->printGate();
         for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
         //TODO - This line seems to be redundant
         _corrections.clear();
@@ -93,8 +93,8 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
             break;
         }
 
-        // cout << "corrections size2: " << _corrections.size() << endl;
-        // for (auto& g : _corrections) g->printGate();
+        cout << "corrections size2: " << _corrections.size() << endl;
+        for (auto& g : _corrections) g->printGate();
         for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
         _corrections.clear();
 
@@ -130,38 +130,40 @@ QCir* Optimizer::parseForward() {
         //     g->printGate();
         // }
         std::reverse(gs.begin(), gs.end());
-        // cout << "reversed" << endl;
+        cout << "reversed" << endl;
         // cout << "After reverse" << endl;
         // for(auto& g: gs){
         //     g->printGate();
         // }
     }
     for (auto& g : gs) {
-        // cout << "######### start parse gate ##########" << endl;
+        cout << "######### start parse gate ##########" << endl;
         // cout << "gs size is "<<gs.size() << endl;
-        // g->printGate();
+        g->printGate();
+        if(Optimizer::isSingleRotateZ(g)) cout << g->getPhase() << endl;
         parseGate(g);
-        // cout << "Parse gate done" << endl;
-        // for (size_t i = 0; i < _gates.size(); i++) {
-        //     cout << "_gates[" << i << "]" << endl;
-        //     for (size_t j = 0; j < _gates[i].size(); j++) {
-        //         _gates[i][j]->printGate();
-        //         if(_gates[i][j]->getType()==GateType::P){
-        //             cout << "Phase is " << _gates[i][j]->getPhase() << endl;
-        //         }
-        //     }
-        // }
-        // for (size_t i = 0; i < _available.size(); i++) {
-        //     cout << "_available[" << i << "]" << endl;
-        //     for (size_t j = 0; j < _available[i].size(); j++) {
-        //         _available[i][j]->printGate();
-        //     }
-        // }
-        // for (size_t i = 0; i < _availty.size(); i++) {
-        //     cout << "_availty[" << i << "]: " << _availty[i] << "  ";
-        // }
-        // cout << "_zs " << _zs.size() << endl;
-        // cout << endl;
+        cout << "Parse gate done" << endl;
+        for (size_t i = 0; i < _gates.size(); i++) {
+            cout << "_gates[" << i << "]" << endl;
+            for (size_t j = 0; j < _gates[i].size(); j++) {
+                _gates[i][j]->printGate();
+                if(_gates[i][j]->getType()==GateType::P){
+                    cout << "Phase is " << _gates[i][j]->getPhase() << endl;
+                }
+            }
+        }
+        for (size_t i = 0; i < _available.size(); i++) {
+            cout << "_available[" << i << "]" << endl;
+            for (size_t j = 0; j < _available[i].size(); j++) {
+                _available[i][j]->printGate();
+            }
+        }
+        for (size_t i = 0; i < _availty.size(); i++) {
+            cout << "_availty[" << i << "]: " << _availty[i] << "  ";
+        }
+        cout << endl;
+        cout << "_zs " << _zs.size() << endl;
+        cout << "_hs " << _hadamards.size() << endl;
     }
     for (auto& t : _hadamards) {
         addHadamard(t);
@@ -200,8 +202,8 @@ QCir* Optimizer::parseForward() {
         _corrections.emplace_back(cnot_3);
     }
 
-    // cout << "tmp is" << endl;
-    // tmp->printGates();
+    cout << "tmp is" << endl;
+    tmp->printGates();
     return tmp;
 }
 
@@ -266,40 +268,48 @@ bool Optimizer::parseGate(QCirGate* gate) {
     } else if (gate->getType() == GateType::X) {
         toggleElement(1, target);
     } else if (isSingleRotateZ(gate)) {
-        // cout << "issingleZ" << endl;
+        cout << "issingleZ" << endl;
         if (_zs.contains(target)) {
-            // cout << "Into z1 loop" << endl;
+            cout << "Into z1 loop" << endl;
             // TODO - Add S/T gate
             _zs.erase(target);
             if (gate->getType() == GateType::RZ || gate->getType() == GateType::P) {
                 gate->setRotatePhase(gate->getPhase()+Phase(1));
             } else if (gate->getType() == GateType::Z) {
                 return true;
+            } else {
+                //NOTE - Trans S/S*/T/T* into PGate
+                QCirGate* temp = new PGate(_gateCnt);
+                _gateCnt++;
+                temp->addQubit(target, true);
+                temp->setRotatePhase(gate->getPhase()+Phase(1));
+                gate = temp;
             }
         }
         if (gate->getPhase() == Phase(0) && gate->getType() == GateType::RZ) {
-            // cout << "Into z2 loop" << endl;
+            cout << "Into z2 loop" << endl;
             return true;
         }
 
         if (_xs.contains(target)) {
-            // cout << "Into z3 loop" << endl;
+            cout << "Into z3 loop" << endl;
             gate->setRotatePhase(-1 * (gate->getPhase()));
         }
         if (gate->getPhase() == Phase(1) || gate->getType() == GateType::Z) {
-            // cout << "Into z4 loop" << endl;
+            cout << "Into z4 loop" << endl;
             toggleElement(2, target);
             return true;
         }
         // REVIEW - Neglect adjoint due to S and Sdg is separated
         if (_hadamards.contains(target)) {
-            // cout << "Into z6 loop" << endl;
+            cout << "Into z6 loop" << endl;
             addHadamard(target);
         }
         QCirGate* available = getAvailableRotateZ(target);
         if (_availty[target] == 1 && available != nullptr) {
-            // cout << "Into z7 loop" << endl;
-            _available[target].erase(remove(_available[target].begin(), _available[target].end(), available), _available[target].end());
+            cout << "Into z7 loop" << endl;
+            // _available[target].erase(remove(_available[target].begin(), _available[target].end(), available), _available[target].end());
+            std::erase(_available[target], available);
             std::erase(_gates[target], available);
             Phase ph = available->getPhase() + gate->getPhase();
             if (ph == Phase(1)) {
@@ -312,7 +322,7 @@ bool Optimizer::parseGate(QCirGate* gate) {
                 addGate(target, ph, 0);
             }
         } else {
-            // cout << "Into z7 else loop" << endl;
+            cout << "Into z7 else loop" << endl;
             if (_availty[target] == 2) {
                 _availty[target] = 1;
                 _available[target].clear();
@@ -710,13 +720,13 @@ void Optimizer::topologicalSort(QCir* circuit) {
     assert(circuit->getNQubit() == 0);
 
     circuit->addQubit(_circuit->getNQubit());
-    // cout << "start topo sort" << endl;
-    // int count = 0;
+    cout << "start topo sort" << endl;
+    int count = 0;
     while (any_of(_gates.begin(), _gates.end(), [](auto& p_g) { return p_g.second.size(); })) {
         available_id.clear();
-        // cout << "In to while: " << count << endl;
+        cout << "In to while: " << count << endl;
         for (auto& [q, gs] : _gates) {
-            // cout << "q: " << q << " size: " << gs.size() << endl;
+            cout << "q: " << q << " size: " << gs.size() << endl;
             while (gs.size()) {
                 // cout << "Into small while loop" << endl;
                 QCirGate* g = gs[0];
