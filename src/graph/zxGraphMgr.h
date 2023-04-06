@@ -58,6 +58,7 @@ public:
 
     // Print
     void printZXGraphMgr() const;
+    void printGList() const;
     void printGListItr() const;
     void printGraphListSize() const;
 

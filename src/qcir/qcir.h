@@ -44,8 +44,13 @@ public:
     const std::vector<QCirGate*>& getGates() const { return _qgates; }
     QCirGate* getGate(size_t gid) const;
     QCirQubit* getQubit(size_t qid) const;
+    std::string getFileName() const { return _fileName; }
+    const std::vector<std::string>& getProcedures() const { return _procedures; }
+
     void incrementZXId() { _ZXNodeId++; }
     void setId(size_t id) { _id = id; }
+    void setFileName(std::string f) { _fileName = f; }
+    void addProcedure(std::string = "", const std::vector<std::string>& = {});
     // For Copy
     void setNextGateId(size_t id) { _gateId = id; }
     void setNextQubitId(size_t id) { _qubitId = id; }
@@ -114,6 +119,8 @@ private:
     bool _dirty;
     unsigned _globalDFScounter;
     QTensor<double>* _tensor;
+    std::string _fileName;
+    std::vector<std::string> _procedures;
 
     std::vector<QCirGate*> _qgates;
     std::vector<QCirQubit*> _qubits;

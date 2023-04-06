@@ -316,6 +316,7 @@ int Simplifier::cliffordSimp() {
  *
  */
 void Simplifier::fullReduce() {
+    _simpGraph->addProcedure("FR");
     this->interiorCliffordSimp();
     this->pivotGadgetSimp();
     while (true) {
