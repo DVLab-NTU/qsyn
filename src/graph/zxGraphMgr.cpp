@@ -188,7 +188,7 @@ void ZXGraphMgr::printZXGraphMgr() const {
 
 /**
  * @brief Print list of graphs
- * 
+ *
  */
 void ZXGraphMgr::printGList() const {
     if (!_graphList.empty()) {
