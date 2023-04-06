@@ -167,6 +167,8 @@ ZXPrintCmd::exec(const string &option) {
         zxGraphMgr->printZXGraphMgr();
     } else if (myStrNCmp("-Focus", token, 2) == 0)
         zxGraphMgr->printGListItr();
+    else if (myStrNCmp("-List", token, 2) == 0)
+        zxGraphMgr->printGList();
     else if (myStrNCmp("-Num", token, 2) == 0)
         zxGraphMgr->printGraphListSize();
     else
@@ -175,7 +177,7 @@ ZXPrintCmd::exec(const string &option) {
 }
 
 void ZXPrintCmd::usage() const {
-    cout << "Usage: ZXPrint [-Summary | -Focus | -Num]" << endl;
+    cout << "Usage: ZXPrint [-Summary | -Focus | -List | -Num]" << endl;
 }
 
 void ZXPrintCmd::summary() const {

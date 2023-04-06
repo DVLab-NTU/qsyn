@@ -42,7 +42,9 @@ bool ZXGraph::readZX(const string& filename, bool keepID) {
     }
 
     ZXFileParser parser;
-
+    string lastname = filename.substr(filename.find_last_of('/') + 1);
+    setFileName(lastname.substr(0, lastname.size() - 3));
+    _procedures.clear();
     return parser.parse(filename) && buildGraphFromParserStorage(parser.getStorage());
 }
 
