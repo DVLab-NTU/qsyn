@@ -9,6 +9,7 @@
 #include "zxGraphMgr.h"
 
 #include <cstddef>  // for size_t, NULL
+#include <iomanip>
 #include <iostream>
 
 #include "zxGraph.h"  // for ZXGraph
@@ -135,7 +136,8 @@ void ZXGraphMgr::copy(size_t id, bool toNew) {
         size_t oriGraphID = getGraph()->getId();
         ZXGraph* copiedGraph = getGraph()->copy();
         copiedGraph->setId(id);
-
+        copiedGraph->setFileName(getGraph()->getFileName());
+        copiedGraph->addProcedure("", getGraph()->getProcedures());
         if (toNew) {
             _graphList.push_back(copiedGraph);
             _gListItr = _graphList.end() - 1;
@@ -182,6 +184,28 @@ ZXGraph* ZXGraphMgr::findZXGraphByID(size_t id) const {
 void ZXGraphMgr::printZXGraphMgr() const {
     cout << "-> #Graph: " << _graphList.size() << endl;
     if (!_graphList.empty()) cout << "-> Now focus on: " << getGraph()->getId() << endl;
+}
+
+/**
+ * @brief Print list of graphs
+ * 
+ */
+void ZXGraphMgr::printGList() const {
+    if (!_graphList.empty()) {
+        for (auto& cir : _graphList) {
+            if (cir->getId() == getGraph()->getId())
+                cout << "★ ";
+            else
+                cout << "  ";
+            cout << cir->getId() << "    " << left << setw(20) << cir->getFileName().substr(0, 20);
+            for (size_t i = 0; i < cir->getProcedures().size(); i++) {
+                if (i != 0) cout << " ➔ ";
+                cout << cir->getProcedures()[i];
+            }
+            cout << endl;
+        }
+    } else
+        cerr << "Error: ZXGraphMgr is empty now!" << endl;
 }
 
 /**

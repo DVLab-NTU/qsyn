@@ -123,7 +123,8 @@ void QCirMgr::copy(size_t id, bool toNew) {
         size_t oriCircuitID = getQCircuit()->getId();
         QCir* copiedCircuit = getQCircuit()->copy();
         copiedCircuit->setId(id);
-
+        copiedCircuit->setFileName(getQCircuit()->getFileName());
+        copiedCircuit->addProcedure("", getQCircuit()->getProcedures());
         if (toNew) {
             _circuitList.push_back(copiedCircuit);
             _cListItr = _circuitList.end() - 1;
@@ -170,6 +171,28 @@ QCir* QCirMgr::findQCirByID(size_t id) const {
 void QCirMgr::printQCirMgr() const {
     cout << "-> #QCir: " << _circuitList.size() << endl;
     if (!_circuitList.empty()) cout << "-> Now focus on: " << getQCircuit()->getId() << endl;
+}
+
+/**
+ * @brief Print list of circuits
+ *
+ */
+void QCirMgr::printCList() const {
+    if (!_circuitList.empty()) {
+        for (auto& cir : _circuitList) {
+            if (cir->getId() == getQCircuit()->getId())
+                cout << "★ ";
+            else
+                cout << "  ";
+            cout << cir->getId() << "    " << left << setw(20) << cir->getFileName().substr(0, 20);
+            for (size_t i = 0; i < cir->getProcedures().size(); i++) {
+                if (i != 0) cout << " ➔ ";
+                cout << cir->getProcedures()[i];
+            }
+            cout << endl;
+        }
+    } else
+        cerr << "Error: QCirMgr is empty now!" << endl;
 }
 
 /**

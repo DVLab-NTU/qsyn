@@ -86,6 +86,9 @@ QCir* Extractor::extract() {
     }
     // cout << "Iteration of extract CX: " << _cntCXIter << endl;
     // cout << "Total Filtered CX count: " << _cntCXFiltered << endl;
+    _circuit->addProcedure("ZX2QC", _graph->getProcedures());
+    _graph->addProcedure("ZX2QC");
+    _circuit->setFileName(_graph->getFileName());
     return _circuit;
 }
 

@@ -132,7 +132,7 @@ void Checker::applySwap(const Operation& op) {
  * @return false
  */
 bool Checker::applyCX(const Operation& op, const Gate& gate) {
-    if (!(op.getType() == GateType::CX)) {
+    if (!(op.getType() == GateType::CX || op.getType() == GateType::CZ)) {
         cerr << gateType2Str[op.getType()] << " in applyCX" << endl;
         abort();
     }
