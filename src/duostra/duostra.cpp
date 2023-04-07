@@ -150,7 +150,7 @@ Duostra::Duostra(QCir* cir, Device dev, bool check, bool tqdm, bool silent) : _l
  * @param tqdm
  * @param silent
  */
-Duostra::Duostra(const vector<Operation>& cir, size_t nQubit, Device dev, bool check, bool tqdm, bool silent) : _physicalCircuit(new QCir(0)), _device(dev), _check(check) {
+Duostra::Duostra(const vector<Operation>& cir, size_t nQubit, Device dev, bool check, bool tqdm, bool silent) : _logicalCircuit(nullptr), _physicalCircuit(new QCir(0)), _device(dev), _check(check) {
     _tqdm = (silent == true) ? false : tqdm;
     _silent = silent;
     if (verbose > 3) cout << "Creating dependency of quantum circuit..." << endl;
@@ -208,7 +208,6 @@ void Duostra::makeDependency(const vector<Operation>& oper, size_t nQubit) {
         if (q0Gate != ERROR_CODE)
             allGates[q0Gate].addNext(i);
         if (q1Gate != ERROR_CODE && q1Gate != q0Gate) {
-            cout << q1Gate << endl;
             allGates[q1Gate].addNext(i);
         }
         lastGate[get<0>(oper[i].getQubits())] = i;
@@ -251,7 +250,7 @@ size_t Duostra::flow(bool useDeviceAsPlacement) {
 
     // routing
     if (!_silent) cout << "Routing..." << endl;
-    sched->assignGatesAndSort(move(router));
+    _device = sched->assignGatesAndSort(move(router));
 
     if (_check) {
         if (!_silent) cout << "Checking..." << endl;
@@ -322,8 +321,10 @@ void Duostra::printAssembly() const {
  *
  */
 void Duostra::buildCircuitByResult() {
-    _physicalCircuit->addProcedure("Duostra", _logicalCircuit->getProcedures());
-    _physicalCircuit->setFileName(_logicalCircuit->getFileName());
+    if (_logicalCircuit != nullptr) {
+        _physicalCircuit->addProcedure("Duostra", _logicalCircuit->getProcedures());
+        _physicalCircuit->setFileName(_logicalCircuit->getFileName());
+    }
     _physicalCircuit->addQubit(_device.getNQubit());
     for (const auto& operation : _result) {
         string gateName{gateType2Str[operation.getType()]};

@@ -367,8 +367,9 @@ void SearchScheduler::cacheOnlyWhenNecessary() {
  * @brief Assign gates
  *
  * @param router
+ * @return Device
  */
-void SearchScheduler::assignGates(unique_ptr<Router> router) {
+Device SearchScheduler::assignGates(unique_ptr<Router> router) {
     auto totalGates = _circuitTopology->getNumGates();
 
     auto root = make_unique<TreeNode>(
@@ -387,4 +388,5 @@ void SearchScheduler::assignGates(unique_ptr<Router> router) {
             ++bar;
         }
     } while (!root->done());
+    return router->getDevice();
 }

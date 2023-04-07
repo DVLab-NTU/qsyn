@@ -155,20 +155,24 @@ size_t BaseScheduler::operationsCost() const {
  * @brief Assign gates and sort
  *
  * @param router
+ * @return Device
  */
-void BaseScheduler::assignGatesAndSort(unique_ptr<Router> router) {
-    assignGates(move(router));
+Device BaseScheduler::assignGatesAndSort(unique_ptr<Router> router) {
+    Device d = assignGates(move(router));
     sort();
+    return d;
 }
 
 /**
  * @brief Assign gates
  *
  * @param router
+ * @return Device
  */
-void BaseScheduler::assignGates(unique_ptr<Router> router) {
+Device BaseScheduler::assignGates(unique_ptr<Router> router) {
     for (TqdmWrapper bar{_circuitTopology->getNumGates()}; !bar.done(); ++bar)
         routeOneGate(*router, bar.idx());
+    return router->getDevice();
 }
 
 /**
@@ -231,8 +235,9 @@ unique_ptr<BaseScheduler> RandomScheduler::clone() const {
  * @brief Assign gate
  *
  * @param router
+ * @return Device
  */
-void RandomScheduler::assignGates(unique_ptr<Router> router) {
+Device RandomScheduler::assignGates(unique_ptr<Router> router) {
     [[maybe_unused]] size_t count = 0;
 
     for (TqdmWrapper bar{_circuitTopology->getNumGates()}; !bar.done(); ++bar) {
@@ -249,6 +254,7 @@ void RandomScheduler::assignGates(unique_ptr<Router> router) {
         ++count;
     }
     assert(count == _circuitTopology->getNumGates());
+    return router->getDevice();
 }
 
 // SECTION - Class StaticScheduler Member Functions
@@ -288,8 +294,9 @@ unique_ptr<BaseScheduler> StaticScheduler::clone() const {
  * @brief Assign gates
  *
  * @param router
+ * @return Device
  */
-void StaticScheduler::assignGates(unique_ptr<Router> router) {
+Device StaticScheduler::assignGates(unique_ptr<Router> router) {
     [[maybe_unused]] size_t count = 0;
     for (TqdmWrapper bar{_circuitTopology->getNumGates()}; !bar.done(); ++bar) {
         auto& waitlist = _circuitTopology->getAvailableGates();
@@ -303,4 +310,5 @@ void StaticScheduler::assignGates(unique_ptr<Router> router) {
         ++count;
     }
     assert(count == _circuitTopology->getNumGates());
+    return router->getDevice();
 }

@@ -22,6 +22,7 @@ public:
     QCir* getPhysicalCircuit() { return _physicalCircuit; }
     const std::vector<Operation>& getResult() const { return _result; }
     const std::vector<Operation>& getOrder() const { return _order; }
+    Device getDevice() const { return _device; }
 
     void makeDependency();
     void makeDependency(const std::vector<Operation>&, size_t);
