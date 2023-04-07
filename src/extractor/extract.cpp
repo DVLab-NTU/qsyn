@@ -240,11 +240,27 @@ bool Extractor::extractCZs(bool check) {
             }
         }
     }
+    vector<Operation> ops;
     for (const auto& [s, t] : removeList) {
         _graph->removeEdge(s, t, EdgeType::HADAMARD);
-        prependDoubleQubitGate("cz", {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1));
+        Operation op(GateType::CZ, Phase(0), {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, {});
+        ops.emplace_back(op);
+        // prependDoubleQubitGate("cz", {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1));
     }
-
+    if(ops.size()>0){
+        if(toPhysical()){
+            Duostra duo(ops, _graph->getNumOutputs(), _device.value(), false, false, true);
+            duo.flow(true);
+            prependSeriesGates(duo.getOrder(), duo.getResult());
+            // _device->printStatus();
+            _device = duo.getDevice();
+            // _device->printStatus();
+            
+            // cout << "Cost: " << duo.flow(true) << endl;
+        }
+        else
+            prependSeriesGates(ops);
+    }
     if (verbose >= 8) {
         _logicalCircuit->printQubits();
         _graph->printQubits();
@@ -697,7 +713,7 @@ void Extractor::permuteQubit() {
     for (auto& [o, i] : swapMap) {
         if (o == i) continue;
         size_t t2 = swapInvMap.at(o);
-        prependSwapGate(_qubitMap[o], _qubitMap[t2]);
+        prependSwapGate(_qubitMap[o], _qubitMap[t2], _logicalCircuit);
         swapMap[t2] = i;
         swapInvMap[i] = t2;
     }
@@ -819,7 +835,7 @@ void Extractor::prependSingleQubitGate(string type, size_t qubit, Phase phase) {
             _physicalCircuit->addGate(type, {_device.value().getPhysicalQubit(qubit).getId()}, phase, false);
         }
     }
-    if (toPhysical()) _device.value().printStatus();
+    // if (toPhysical()) _device.value().printStatus();
 }
 
 /**
@@ -832,30 +848,36 @@ void Extractor::prependSingleQubitGate(string type, size_t qubit, Phase phase) {
 void Extractor::prependDoubleQubitGate(string type, const vector<size_t>& qubits, Phase phase) {
     assert(qubits.size() == 2);
     _logicalCircuit->addGate(type, qubits, phase, false);
-
-    // NOTE - Example for calling Duostra
-    // vector<Operation> opers;
-    // //GateType, Phase, std::tuple<size_t, size_t>, std::tuple<size_t, size_t>
-    // for(size_t i=0; i<2; i++){
-    //     tuple<size_t, size_t> temp{i, i+1};
-    //     Operation op{GateType::CX, Phase(0), temp, temp};
-    //     opers.emplace_back(op);
-    // }
-    // Duostra duo(opers, _graph->getNumOutputs(), _device.value(), false, false, true);
-    // cout << "Cost: " << duo.flow(true) << endl;
 }
+
+void Extractor::prependSeriesGates(const std::vector<Operation>& logical, const std::vector<Operation>& physical) {
+    for(const auto& gates: logical){
+        tuple<size_t, size_t> qubits = gates.getQubits();
+        _logicalCircuit->addGate(gateType2Str[gates.getType()], {get<0>(qubits), get<1>(qubits)}, gates.getPhase(), false);
+    }
+    
+    for(const auto& gates: physical){
+        tuple<size_t, size_t> qubits = gates.getQubits();
+        if(gates.getType() == GateType::SWAP)
+            prependSwapGate(get<0>(qubits), get<1>(qubits), _physicalCircuit);
+        else
+            _physicalCircuit->addGate(gateType2Str[gates.getType()], {get<0>(qubits), get<1>(qubits)}, gates.getPhase(), false);
+    }
+}
+
 
 /**
  * @brief Prepend swap gate. Decompose into three CXs
  *
  * @param q0 logical
  * @param q1 logical
+ * @param circuit
  */
-void Extractor::prependSwapGate(size_t q0, size_t q1) {
+void Extractor::prependSwapGate(size_t q0, size_t q1, QCir* circuit) {
     // NOTE - No qubit permutation in Physical Circuit
-    _logicalCircuit->addGate("cx", {q0, q1}, Phase(0), false);
-    _logicalCircuit->addGate("cx", {q1, q0}, Phase(0), false);
-    _logicalCircuit->addGate("cx", {q0, q1}, Phase(0), false);
+    circuit->addGate("cx", {q0, q1}, Phase(0), false);
+    circuit->addGate("cx", {q1, q0}, Phase(0), false);
+    circuit->addGate("cx", {q0, q1}, Phase(0), false);
 }
 
 /**
