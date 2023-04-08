@@ -81,6 +81,9 @@ private:
     std::vector<M2::Oper> _cnots;
 
     void blockElimination(M2&, size_t&, size_t);
+    void blockElimination(size_t&, M2&, size_t&, size_t);
+    std::vector<Operation> _DuostraAssigned;
+    std::vector<Operation> _DuostraMapped;
     // NOTE - Use only in column optimal swap
     Target findColumnSwap(Target);
     ConnectInfo _rowInfo;

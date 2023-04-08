@@ -245,20 +245,14 @@ bool Extractor::extractCZs(bool check) {
         _graph->removeEdge(s, t, EdgeType::HADAMARD);
         Operation op(GateType::CZ, Phase(0), {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, {});
         ops.emplace_back(op);
-        // prependDoubleQubitGate("cz", {_qubitMap[s->getQubit()], _qubitMap[t->getQubit()]}, Phase(1));
     }
-    if(ops.size()>0){
-        if(toPhysical()){
+    if (ops.size() > 0) {
+        if (toPhysical()) {
             Duostra duo(ops, _graph->getNumOutputs(), _device.value(), false, false, true);
             duo.flow(true);
             prependSeriesGates(duo.getOrder(), duo.getResult());
-            // _device->printStatus();
             _device = duo.getDevice();
-            // _device->printStatus();
-            
-            // cout << "Cost: " << duo.flow(true) << endl;
-        }
-        else
+        } else
             prependSeriesGates(ops);
     }
     if (verbose >= 8) {
@@ -286,13 +280,16 @@ void Extractor::extractCXs(size_t strategy) {
         frontId2Vertex[cnt] = f;
         cnt++;
     }
-
-    for (auto& [t, c] : _cnots) {
-        // NOTE - targ and ctrl are opposite here
-        size_t ctrl = _qubitMap[frontId2Vertex[c]->getQubit()];
-        size_t targ = _qubitMap[frontId2Vertex[t]->getQubit()];
-        if (verbose >= 4) cout << "Add CX: " << ctrl << " " << targ << endl;
-        prependDoubleQubitGate("cx", {ctrl, targ}, Phase(0));
+    if (toPhysical()) {
+        prependSeriesGates(_DuostraAssigned, _DuostraMapped);
+    } else {
+        for (auto& [t, c] : _cnots) {
+            // NOTE - targ and ctrl are opposite here
+            size_t ctrl = _qubitMap[frontId2Vertex[c]->getQubit()];
+            size_t targ = _qubitMap[frontId2Vertex[t]->getQubit()];
+            if (verbose >= 4) cout << "Add CX: " << ctrl << " " << targ << endl;
+            prependDoubleQubitGate("cx", {ctrl, targ}, Phase(0));
+        }
     }
 }
 
@@ -628,30 +625,69 @@ bool Extractor::gaussianElimination(bool check) {
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
     columnOptimalSwap();
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
-
-    if (OPTIMIZE_LEVEL == 0) {
-        _biAdjacency.gaussianElimSkip(BLOCK_SIZE, true, true);
-        if (FILTER_DUPLICATED_CXS) {
-            size_t old = _cntCXFiltered;
-            while (true) {
-                size_t reduce = _biAdjacency.filterDuplicatedOps();
-                _cntCXFiltered += reduce;
-                if (reduce == 0) break;
-            }
-            if (verbose >= 4) cout << "Filter " << _cntCXFiltered - old << " CXs. Total: " << _cntCXFiltered << endl;
-        }
-    } else if (OPTIMIZE_LEVEL == 1) {
+    if (toPhysical()) {
         size_t minCnots = size_t(-1);
+        size_t bestBlock = 0;
         M2 bestMatrix;
+        if(verbose > 4) cout << "Round Start" << endl;
         for (size_t blk = 1; blk < _biAdjacency.numCols(); blk++) {
-            blockElimination(bestMatrix, minCnots, blk);
+            if(verbose > 4) cout << "> ";
+            blockElimination(bestBlock, bestMatrix, minCnots, blk);
         }
+        if(verbose > 4) cout << "Best Duostra Mapped block: " << bestBlock << endl;
         _biAdjacency = bestMatrix;
+        _cnots = _biAdjacency.getOpers();
+
+        // NOTE - Construct Duostra Input
+        unordered_map<size_t, ZXVertex*> frontId2Vertex;
+        size_t cnt = 0;
+        for (auto& f : _frontier) {
+            frontId2Vertex[cnt] = f;
+            cnt++;
+        }
+        vector<Operation> ops;
+        for (auto& [t, c] : _cnots) {
+            // NOTE - targ and ctrl are opposite here
+            size_t ctrl = _qubitMap[frontId2Vertex[c]->getQubit()];
+            size_t targ = _qubitMap[frontId2Vertex[t]->getQubit()];
+            if (verbose > 4) cout << "Add CX: " << ctrl << " " << targ << endl;
+            Operation op(GateType::CX, Phase(0), {ctrl, targ}, {});
+            ops.emplace_back(op);
+        }
+
+        // NOTE - Get Mapping result
+        Duostra duo(ops, _graph->getNumOutputs(), _device.value(), false, false, true);
+        duo.flow(true);
+
+        _DuostraAssigned = duo.getOrder();
+        _DuostraMapped = duo.getResult();
+        _device = duo.getDevice();
+
     } else {
-        cerr << "Error: Wrong Optimize Level" << endl;
-        abort();
+        if (OPTIMIZE_LEVEL == 0) {
+            _biAdjacency.gaussianElimSkip(BLOCK_SIZE, true, true);
+            if (FILTER_DUPLICATED_CXS) {
+                size_t old = _cntCXFiltered;
+                while (true) {
+                    size_t reduce = _biAdjacency.filterDuplicatedOps();
+                    _cntCXFiltered += reduce;
+                    if (reduce == 0) break;
+                }
+                if (verbose >= 4) cout << "Filter " << _cntCXFiltered - old << " CXs. Total: " << _cntCXFiltered << endl;
+            }
+        } else if (OPTIMIZE_LEVEL == 1) {
+            size_t minCnots = size_t(-1);
+            M2 bestMatrix;
+            for (size_t blk = 1; blk < _biAdjacency.numCols(); blk++) {
+                blockElimination(bestMatrix, minCnots, blk);
+            }
+            _biAdjacency = bestMatrix;
+        } else {
+            cerr << "Error: Wrong Optimize Level" << endl;
+            abort();
+        }
+        _cnots = _biAdjacency.getOpers();
     }
-    _cnots = _biAdjacency.getOpers();
 
     return true;
 }
@@ -676,6 +712,45 @@ void Extractor::blockElimination(M2& bestMatrix, size_t& minCnots, size_t blockS
     if (copiedMatrix.getOpers().size() < minCnots) {
         minCnots = copiedMatrix.getOpers().size();
         bestMatrix = copiedMatrix;
+    }
+}
+
+void Extractor::blockElimination(size_t& bestBlock, M2& bestMatrix, size_t& minCost, size_t blockSize) {
+    M2 copiedMatrix = _biAdjacency;
+    copiedMatrix.gaussianElimSkip(blockSize, true, true);
+    if (FILTER_DUPLICATED_CXS) {
+        while (true) {
+            size_t reduce = copiedMatrix.filterDuplicatedOps();
+            _cntCXFiltered += reduce;
+            if (reduce == 0) break;
+        }
+    }
+
+    // NOTE - Construct Duostra Input
+    unordered_map<size_t, ZXVertex*> frontId2Vertex;
+    size_t cnt = 0;
+    for (auto& f : _frontier) {
+        frontId2Vertex[cnt] = f;
+        cnt++;
+    }
+    vector<Operation> ops;
+    for (auto& [t, c] : copiedMatrix.getOpers()) {
+        // NOTE - targ and ctrl are opposite here
+        size_t ctrl = _qubitMap[frontId2Vertex[c]->getQubit()];
+        size_t targ = _qubitMap[frontId2Vertex[t]->getQubit()];
+        if (verbose > 4) cout << "Add CX: " << ctrl << " " << targ << endl;
+        Operation op(GateType::CX, Phase(0), {ctrl, targ}, {});
+        ops.emplace_back(op);
+    }
+
+    // NOTE - Get Mapping result, Device is passed by copy
+    Duostra duo(ops, _graph->getNumOutputs(), _device.value(), false, false, true);
+    size_t depth = duo.flow(true);
+    if (verbose > 4) cout << blockSize << ", depth:" << depth << ", #cx: " << ops.size() << endl;
+    if (depth < minCost) {
+        minCost = depth;
+        bestMatrix = copiedMatrix;
+        bestBlock = blockSize;
     }
 }
 
@@ -851,20 +926,19 @@ void Extractor::prependDoubleQubitGate(string type, const vector<size_t>& qubits
 }
 
 void Extractor::prependSeriesGates(const std::vector<Operation>& logical, const std::vector<Operation>& physical) {
-    for(const auto& gates: logical){
+    for (const auto& gates : logical) {
         tuple<size_t, size_t> qubits = gates.getQubits();
         _logicalCircuit->addGate(gateType2Str[gates.getType()], {get<0>(qubits), get<1>(qubits)}, gates.getPhase(), false);
     }
-    
-    for(const auto& gates: physical){
+
+    for (const auto& gates : physical) {
         tuple<size_t, size_t> qubits = gates.getQubits();
-        if(gates.getType() == GateType::SWAP)
+        if (gates.getType() == GateType::SWAP)
             prependSwapGate(get<0>(qubits), get<1>(qubits), _physicalCircuit);
         else
             _physicalCircuit->addGate(gateType2Str[gates.getType()], {get<0>(qubits), get<1>(qubits)}, gates.getPhase(), false);
     }
 }
-
 
 /**
  * @brief Prepend swap gate. Decompose into three CXs
