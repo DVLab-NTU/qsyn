@@ -288,7 +288,10 @@ size_t Duostra::flow(bool useDeviceAsPlacement) {
 void Duostra::storeOrderInfo(const std::vector<size_t>& order) {
     for (const auto& gateId : order) {
         const Gate& g = _dependency->getGate(gateId);
-        Operation op(g.getType(), g.getPhase(), g.getQubits(), {});
+        tuple<size_t, size_t> qubits = g.getQubits();
+        if (g.isSwapped())
+            qubits = make_tuple(get<1>(qubits), get<0>(qubits));
+        Operation op(g.getType(), g.getPhase(), qubits, {});
         op.setId(g.getId());
         _order.emplace_back(op);
     }

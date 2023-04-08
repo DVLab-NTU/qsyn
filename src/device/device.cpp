@@ -941,8 +941,8 @@ Operation::Operation(GateType oper, Phase ph, tuple<size_t, size_t> qs, tuple<si
     size_t a = get<0>(qs);
     size_t b = get<1>(qs);
     assert(a != b);
-    if (a > b)
-        _qubits = make_tuple(b, a);
+    // if (a > b)
+    //     _qubits = make_tuple(b, a);
 }
 
 /**
