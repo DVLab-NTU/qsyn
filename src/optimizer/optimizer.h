@@ -36,7 +36,7 @@ public:
     QCir* parseForward();
     bool parseGate(QCirGate*);
 
-    void addHadamard(size_t);
+    void addHadamard(size_t, bool erase);
     void addCZ(size_t, size_t);
     void addCX(size_t, size_t);
     QCirGate* addGate(size_t, Phase, size_t);

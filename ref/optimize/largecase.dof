@@ -1,13 +1,14 @@
 color off
-qccread benchmark/benchmark_SABRE/large/cm42a_207.qasm
+verbose 0
+qccr ../../benchmark/benchmark_SABRE/large/dist_223.qasm
 qc2zx
 zxgsimp -fr
 zx2qc
 optimize
-qc2zx  
+qc2zx
 zxgadj
-zxcomp 0 
-zxgs -fr  
-zxgp -a       
-zxgt -id 
+zxcomp 0
+zxgs -fr
+zxgp -a
+zxgt -id
 qq -f
