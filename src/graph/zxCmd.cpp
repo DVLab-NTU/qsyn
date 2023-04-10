@@ -258,48 +258,6 @@ unique_ptr<ArgParseCmdType> ZXCopyCmd() {
     return cmd;
 }
 
-// CmdExecStatus
-// ZXCOPyCmd::exec(const string &option) {  // check option
-//     vector<string> options;
-//     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
-
-//     CMD_N_OPTS_AT_MOST_OR_RETURN(options, 2);
-//     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXCOPy");
-
-//     if (options.size() == 2) {
-//         bool doReplace = false;
-//         size_t id_idx = 0;
-//         for (size_t i = 0; i < options.size(); i++) {
-//             if (myStrNCmp("-Replace", options[i], 2) == 0) {
-//                 doReplace = true;
-//                 id_idx = 1 - i;
-//                 break;
-//             }
-//         }
-//         if (!doReplace) return CmdExec::errorOption(CMD_OPT_MISSING, "-Replace");
-//         unsigned id_g;
-//         ZX_CMD_ID_VALID_OR_RETURN(options[id_idx], id_g, "Graph");
-//         ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id_g);
-//         zxGraphMgr->copy(id_g, false);
-//     } else if (options.size() == 1) {
-//         unsigned id_g;
-//         ZX_CMD_ID_VALID_OR_RETURN(options[0], id_g, "Graph");
-//         ZX_CMD_GRAPH_ID_NOT_EXIST_OR_RETURN(id_g);
-//         zxGraphMgr->copy(id_g);
-//     } else {
-//         zxGraphMgr->copy(zxGraphMgr->getNextID());
-//     }
-//     return CMD_EXEC_DONE;
-// }
-
-// void ZXCOPyCmd::usage() const {
-//     cout << "Usage: ZXCOPy <size_t id> [-Replace]" << endl;
-// }
-
-// void ZXCOPyCmd::summary() const {
-//     cout << setw(15) << left << "ZXCOPy: "
-//          << "copy a ZX-graph" << endl;
-// }
 
 //----------------------------------------------------------------------
 //    ZXCOMpose <size_t id>
@@ -325,30 +283,6 @@ unique_ptr<ArgParseCmdType> ZXComposeCmd() {
 
 
 
-// CmdExecStatus
-// ZXCOMposeCmd::exec(const string &option) {
-//     string token;
-//     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-//     if (token.empty()) {
-//         cerr << "Error: the ZX-graph id you want to compose must be provided!" << endl;
-//         return CmdExec::errorOption(CMD_OPT_MISSING, token);
-//     } else {
-//         unsigned id;
-//         ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
-//         ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
-//         zxGraphMgr->getGraph()->compose(zxGraphMgr->findZXGraphByID(id));
-//     }
-//     return CMD_EXEC_DONE;
-// }
-
-// void ZXCOMposeCmd::usage() const {
-//     cout << "Usage: ZXCOMpose <size_t id>" << endl;
-// }
-
-// void ZXCOMposeCmd::summary() const {
-//     cout << setw(15) << left << "ZXCOMpose: "
-//          << "compose a ZX-graph" << endl;
-// }
 
 //----------------------------------------------------------------------
 //    ZXTensor <size_t id>
