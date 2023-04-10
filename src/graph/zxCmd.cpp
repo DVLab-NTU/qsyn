@@ -27,16 +27,18 @@ using namespace ArgParse;
 extern ZXGraphMgr *zxGraphMgr;
 extern size_t verbose;
 
+// unique_ptr<ArgParseCmdType> ZXCHeckoutCmd();
 unique_ptr<ArgParseCmdType> ZXNewCmd();
 unique_ptr<ArgParseCmdType> ZXResetCmd();
+unique_ptr<ArgParseCmdType> ZXDeleteCmd();
 // unique_ptr<ArgParseCmdType> ZXGWriteCmd();
 
 bool initZXCmd() {
     zxGraphMgr = new ZXGraphMgr;
-    if (!(cmdMgr->regCmd("ZXNew", 3, ZXNewCmd()) &&
+    if (!(cmdMgr->regCmd("ZXCHeckout", 4, make_unique<ZXCHeckoutCmd>()) &&
+          cmdMgr->regCmd("ZXNew", 3, ZXNewCmd()) &&
           cmdMgr->regCmd("ZXReset", 3, ZXResetCmd()) &&
-          cmdMgr->regCmd("ZXDelete", 3, make_unique<ZXDeleteCmd>()) &&
-          cmdMgr->regCmd("ZXCHeckout", 4, make_unique<ZXCHeckoutCmd>()) &&
+          cmdMgr->regCmd("ZXDelete", 3, ZXDeleteCmd()) &&
           cmdMgr->regCmd("ZXCOPy", 5, make_unique<ZXCOPyCmd>()) &&
           cmdMgr->regCmd("ZXCOMpose", 5, make_unique<ZXCOMposeCmd>()) &&
           cmdMgr->regCmd("ZXTensor", 3, make_unique<ZXTensorCmd>()) &&
@@ -73,6 +75,54 @@ ArgType<size_t>::ConstraintType validZXGraphId = {
 
 
 
+
+//----------------------------------------------------------------------
+//    ZXCHeckout <(size_t id)>
+//----------------------------------------------------------------------
+// unique_ptr<ArgParseCmdType> ZXCheckoutCmd() {
+//     auto cmd = make_unique<ArgParseCmdType>("ZXCHeckout");
+
+//     cmd->parserDefinition = [](ArgumentParser &parser) {
+//         parser.help("checkout to Graph <id> in ZXGraphMgr");
+
+//         parser.addArgument<size_t>("id")
+//             .constraint(validZXGraphId)
+//             .help("the ID of the ZX-graph");
+//     };
+
+//     cmd->onParseSuccess = [](ArgumentParser const &parser) {
+//         zxGraphMgr->checkout2ZXGraph(parser["id"]);
+//         return CMD_EXEC_DONE;
+//     };
+
+//     return cmd;
+// }
+
+
+CmdExecStatus
+ZXCHeckoutCmd::exec(const string &option) {
+    string token;
+    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+
+    if (token.empty())
+        return CmdExec::errorOption(CMD_OPT_MISSING, "");
+    else {
+        unsigned id;
+        ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
+        ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
+        zxGraphMgr->checkout2ZXGraph(id);
+    }
+    return CMD_EXEC_DONE;
+}
+
+void ZXCHeckoutCmd::usage() const {
+    cout << "Usage: ZXCHeckout <(size_t id)>" << endl;
+}
+
+void ZXCHeckoutCmd::summary() const {
+    cout << setw(15) << left << "ZXCHeckout: "
+         << "checkout to Graph <id> in ZXGraphMgr" << endl;
+}
 
 
 //----------------------------------------------------------------------
@@ -136,58 +186,50 @@ unique_ptr<ArgParseCmdType> ZXResetCmd() {
 //----------------------------------------------------------------------
 //    ZXDelete <(size_t id)>
 //----------------------------------------------------------------------
-CmdExecStatus
-ZXDeleteCmd::exec(const string &option) {
-    string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+unique_ptr<ArgParseCmdType> ZXDeleteCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXDelete");
 
-    if (token.empty())
-        return CmdExec::errorOption(CMD_OPT_MISSING, "");
-    else {
-        unsigned id;
-        ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
-        ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
-        zxGraphMgr->removeZXGraph(id);
-    }
-    return CMD_EXEC_DONE;
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("remove a ZX-graph from ZXGraphMgr");
+
+        parser.addArgument<size_t>("id")
+            .constraint(validZXGraphId)
+            .help("the ID of the ZX-graph");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        zxGraphMgr->removeZXGraph(parser["id"]);
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
 }
 
-void ZXDeleteCmd::usage() const {
-    cout << "Usage: ZXDelete <size_t id>" << endl;
-}
+// CmdExecStatus
+// ZXDeleteCmd::exec(const string &option) {
+//     string token;
+//     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
-void ZXDeleteCmd::summary() const {
-    cout << setw(15) << left << "ZXDelete: "
-         << "remove a ZX-graph from ZXGraphMgr" << endl;
-}
+//     if (token.empty())
+//         return CmdExec::errorOption(CMD_OPT_MISSING, "");
+//     else {
+//         unsigned id;
+//         ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
+//         ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
+//         zxGraphMgr->removeZXGraph(id);
+//     }
+//     return CMD_EXEC_DONE;
+// }
 
-//----------------------------------------------------------------------
-//    ZXCHeckout <(size_t id)>
-//----------------------------------------------------------------------
-CmdExecStatus
-ZXCHeckoutCmd::exec(const string &option) {
-    string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+// void ZXDeleteCmd::usage() const {
+//     cout << "Usage: ZXDelete <size_t id>" << endl;
+// }
 
-    if (token.empty())
-        return CmdExec::errorOption(CMD_OPT_MISSING, "");
-    else {
-        unsigned id;
-        ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
-        ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
-        zxGraphMgr->checkout2ZXGraph(id);
-    }
-    return CMD_EXEC_DONE;
-}
+// void ZXDeleteCmd::summary() const {
+//     cout << setw(15) << left << "ZXDelete: "
+//          << "remove a ZX-graph from ZXGraphMgr" << endl;
+// }
 
-void ZXCHeckoutCmd::usage() const {
-    cout << "Usage: ZXCHeckout <(size_t id)>" << endl;
-}
-
-void ZXCHeckoutCmd::summary() const {
-    cout << setw(15) << left << "ZXCHeckout: "
-         << "checkout to Graph <id> in ZXGraphMgr" << endl;
-}
 
 //----------------------------------------------------------------------
 //    ZXPrint [-Summary | -Focus | -Num]
