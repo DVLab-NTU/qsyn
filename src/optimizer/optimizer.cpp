@@ -471,7 +471,13 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
             for (auto& g : _available[ctrl]) {
                 // if(tozprint) cout << "Into second for loop" << endl;
                 if (g->getType() == GateType::CX && g->getControl()._qubit == ctrl && g->getTarget()._qubit == targ) {
-                    // cout << "Into IF loop" << endl;
+                    if(tozprint) cout << "Into IF loop" << endl;
+                    if(tozprint){
+                        for (size_t i = 0; i < _available[t1].size(); i++)                        {
+                            _available[t1][i]->printGate();
+                        }
+                        cout << "_availty[targ]" << _availty[targ] << endl;
+                    }
                     // cnot = g;
                     cnot = new CXGate(_gateCnt);
                     _gateCnt++;
@@ -483,19 +489,21 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
                             if(tozprint) cout << "FM1" << endl;
                             found_match = true;
                             break;
-                        }
+                        }else continue;
                     }
                     // NOTE - According to pyzx "There are Z-like gates blocking the CNOT from usage
                     //        But if the CNOT can be passed all the way up to these Z-like gates
                     //        Then we can commute the CZ gate next to the CNOT and hence use it."
                     // NOTE - looking at the gates behind the Z-like gates
+                    if(tozprint) cout << "Size: " << _gates[targ].size() - _available[targ].size() << endl;
                     for (int i = _gates[targ].size() - _available[targ].size() - 1; i >= 0; i--) {
                         if (_gates[targ][i]->getType() != GateType::CX || _gates[targ][i]->getTarget()._qubit != targ)
                             break;
-                        //TODO - "_gates[targ][i]->getControl()._qubit == ctrl" might be available too
-                        if (_gates[targ][i]->getType() == GateType::CX && _gates[targ][i]->getControl()._qubit == ctrl && _gates[targ][i]->getTarget()._qubit == targ) {
+                        //TODO - "_gates[targ][i] == g " might be available too
+                        if (_gates[targ][i]->getType() == GateType::CX && _gates[targ][i]->getControl()._qubit == ctrl && _gates[targ][i]->getTarget()._qubit == targ ) {
                             found_match = true;
                             if(tozprint) cout << "FM2" << endl;
+                            if(tozprint) _gates[targ][i]->printGate();
                             break;
                         }
                     }
