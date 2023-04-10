@@ -32,6 +32,8 @@ unique_ptr<ArgParseCmdType> ZXNewCmd();
 unique_ptr<ArgParseCmdType> ZXResetCmd();
 unique_ptr<ArgParseCmdType> ZXDeleteCmd();
 unique_ptr<ArgParseCmdType> ZXPrintCmd();
+unique_ptr<ArgParseCmdType> ZXCopyCmd();
+unique_ptr<ArgParseCmdType> ZXComposeCmd();
 // unique_ptr<ArgParseCmdType> ZXGWriteCmd();
 
 bool initZXCmd() {
@@ -40,8 +42,8 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXNew", 3, ZXNewCmd()) &&
           cmdMgr->regCmd("ZXReset", 3, ZXResetCmd()) &&
           cmdMgr->regCmd("ZXDelete", 3, ZXDeleteCmd()) &&
-          cmdMgr->regCmd("ZXCOPy", 5, make_unique<ZXCOPyCmd>()) &&
-          cmdMgr->regCmd("ZXCOMpose", 5, make_unique<ZXCOMposeCmd>()) &&
+          cmdMgr->regCmd("ZXCOPy", 5, ZXCopyCmd()) &&
+          cmdMgr->regCmd("ZXCOMpose", 5, ZXComposeCmd()) &&
           cmdMgr->regCmd("ZXTensor", 3, make_unique<ZXTensorCmd>()) &&
           cmdMgr->regCmd("ZXPrint", 3, ZXPrintCmd()) &&
           cmdMgr->regCmd("ZXGPrint", 4, make_unique<ZXGPrintCmd>()) &&
@@ -187,7 +189,6 @@ unique_ptr<ArgParseCmdType> ZXDeleteCmd() {
 }
 
 
-
 //----------------------------------------------------------------------
 //    ZXPrint [-Summary | -Focus | -Num]
 //----------------------------------------------------------------------
@@ -219,79 +220,135 @@ unique_ptr<ArgParseCmdType> ZXPrintCmd() {
     return cmd;
 }
 
+
 //----------------------------------------------------------------------
 //    ZXCOPy [(size_t id)]
 //----------------------------------------------------------------------
-CmdExecStatus
-ZXCOPyCmd::exec(const string &option) {  // check option
-    vector<string> options;
-    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
+unique_ptr<ArgParseCmdType> ZXCopyCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXCOPy");
 
-    CMD_N_OPTS_AT_MOST_OR_RETURN(options, 2);
-    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXCOPy");
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("copy a ZX-graph to ZXGraphMgr");
 
-    if (options.size() == 2) {
-        bool doReplace = false;
-        size_t id_idx = 0;
-        for (size_t i = 0; i < options.size(); i++) {
-            if (myStrNCmp("-Replace", options[i], 2) == 0) {
-                doReplace = true;
-                id_idx = 1 - i;
-                break;
-            }
+        parser.addArgument<size_t>("id")
+            .required(false)
+            .help("the ID copied ZX-graph to be stored");
+
+        parser.addArgument<bool>("-Replace")
+            .defaultValue(false)
+            .action(storeTrue)
+            .help("replace the current focused ZX-graph");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXCOPy");
+        if (parser["id"].isParsed()) {
+            if (zxGraphMgr->isID(parser["id"])) {
+                if (parser["-Replace"].isParsed()) {
+                    zxGraphMgr->copy(parser["id"], false);
+                } else
+                    cerr << "Error: ZXGraph " << parser["id"] << " already exists!! Specify `-Replace` if needed." << endl;
+            } else
+                zxGraphMgr->copy(parser["id"]);
+        } else {
+            zxGraphMgr->copy(zxGraphMgr->getNextID());
         }
-        if (!doReplace) return CmdExec::errorOption(CMD_OPT_MISSING, "-Replace");
-        unsigned id_g;
-        ZX_CMD_ID_VALID_OR_RETURN(options[id_idx], id_g, "Graph");
-        ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id_g);
-        zxGraphMgr->copy(id_g, false);
-    } else if (options.size() == 1) {
-        unsigned id_g;
-        ZX_CMD_ID_VALID_OR_RETURN(options[0], id_g, "Graph");
-        ZX_CMD_GRAPH_ID_NOT_EXIST_OR_RETURN(id_g);
-        zxGraphMgr->copy(id_g);
-    } else {
-        zxGraphMgr->copy(zxGraphMgr->getNextID());
-    }
-    return CMD_EXEC_DONE;
+        return CMD_EXEC_DONE;
+    };
+    return cmd;
 }
 
-void ZXCOPyCmd::usage() const {
-    cout << "Usage: ZXCOPy <size_t id> [-Replace]" << endl;
-}
+// CmdExecStatus
+// ZXCOPyCmd::exec(const string &option) {  // check option
+//     vector<string> options;
+//     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
 
-void ZXCOPyCmd::summary() const {
-    cout << setw(15) << left << "ZXCOPy: "
-         << "copy a ZX-graph" << endl;
-}
+//     CMD_N_OPTS_AT_MOST_OR_RETURN(options, 2);
+//     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXCOPy");
+
+//     if (options.size() == 2) {
+//         bool doReplace = false;
+//         size_t id_idx = 0;
+//         for (size_t i = 0; i < options.size(); i++) {
+//             if (myStrNCmp("-Replace", options[i], 2) == 0) {
+//                 doReplace = true;
+//                 id_idx = 1 - i;
+//                 break;
+//             }
+//         }
+//         if (!doReplace) return CmdExec::errorOption(CMD_OPT_MISSING, "-Replace");
+//         unsigned id_g;
+//         ZX_CMD_ID_VALID_OR_RETURN(options[id_idx], id_g, "Graph");
+//         ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id_g);
+//         zxGraphMgr->copy(id_g, false);
+//     } else if (options.size() == 1) {
+//         unsigned id_g;
+//         ZX_CMD_ID_VALID_OR_RETURN(options[0], id_g, "Graph");
+//         ZX_CMD_GRAPH_ID_NOT_EXIST_OR_RETURN(id_g);
+//         zxGraphMgr->copy(id_g);
+//     } else {
+//         zxGraphMgr->copy(zxGraphMgr->getNextID());
+//     }
+//     return CMD_EXEC_DONE;
+// }
+
+// void ZXCOPyCmd::usage() const {
+//     cout << "Usage: ZXCOPy <size_t id> [-Replace]" << endl;
+// }
+
+// void ZXCOPyCmd::summary() const {
+//     cout << setw(15) << left << "ZXCOPy: "
+//          << "copy a ZX-graph" << endl;
+// }
 
 //----------------------------------------------------------------------
 //    ZXCOMpose <size_t id>
 //----------------------------------------------------------------------
-CmdExecStatus
-ZXCOMposeCmd::exec(const string &option) {
-    string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    if (token.empty()) {
-        cerr << "Error: the ZX-graph id you want to compose must be provided!" << endl;
-        return CmdExec::errorOption(CMD_OPT_MISSING, token);
-    } else {
-        unsigned id;
-        ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
-        ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
-        zxGraphMgr->getGraph()->compose(zxGraphMgr->findZXGraphByID(id));
-    }
-    return CMD_EXEC_DONE;
+unique_ptr<ArgParseCmdType> ZXComposeCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXCOMpose");
+
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("compose a ZX-graph");
+
+        parser.addArgument<size_t>("id")
+            .constraint(validZXGraphId)
+            .help("the ID of the ZX-graph to compose with");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        zxGraphMgr->getGraph()->compose(zxGraphMgr->findZXGraphByID(parser["id"]));
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
 }
 
-void ZXCOMposeCmd::usage() const {
-    cout << "Usage: ZXCOMpose <size_t id>" << endl;
-}
 
-void ZXCOMposeCmd::summary() const {
-    cout << setw(15) << left << "ZXCOMpose: "
-         << "compose a ZX-graph" << endl;
-}
+
+// CmdExecStatus
+// ZXCOMposeCmd::exec(const string &option) {
+//     string token;
+//     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+//     if (token.empty()) {
+//         cerr << "Error: the ZX-graph id you want to compose must be provided!" << endl;
+//         return CmdExec::errorOption(CMD_OPT_MISSING, token);
+//     } else {
+//         unsigned id;
+//         ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
+//         ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
+//         zxGraphMgr->getGraph()->compose(zxGraphMgr->findZXGraphByID(id));
+//     }
+//     return CMD_EXEC_DONE;
+// }
+
+// void ZXCOMposeCmd::usage() const {
+//     cout << "Usage: ZXCOMpose <size_t id>" << endl;
+// }
+
+// void ZXCOMposeCmd::summary() const {
+//     cout << setw(15) << left << "ZXCOMpose: "
+//          << "compose a ZX-graph" << endl;
+// }
 
 //----------------------------------------------------------------------
 //    ZXTensor <size_t id>
