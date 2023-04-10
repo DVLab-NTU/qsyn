@@ -1,9 +1,10 @@
 color off
 verbose 0
-qccr ../../benchmark/benchmark_SABRE/large/dist_223.qasm
+qccr benchmark/benchmark_SABRE/large/life_238.qasm
 qc2zx
 zxgsimp -fr
 zx2qc
+qccw ref/optimize/FR.qasm
 optimize
 qc2zx
 zxgadj

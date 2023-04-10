@@ -5,7 +5,7 @@ Note: color mode is set to off
 qsyn> verbose 0
 Note: verbose level is set to 0
 
-qsyn> qccread benchmark/benchmark_SABRE/large/dc2_222.qasm
+qsyn> qccr benchmark/benchmark_SABRE/large/life_238.qasm
 
 qsyn> qc2zx
 
@@ -14,31 +14,1593 @@ qsyn> zxgsimp -fr
 qsyn> zx2qc
 Finish extracting!
 
-qsyn> optimize
-QCir 1( 16 qubits, 8530 gates)
-Parse gate: 8530 times
-###########  Number 1 iter #############
-Parse gate: 6274 times
-Parse gate: 6186 times
-###########  Number 2 iter #############
-Parse gate: 6151 times
-Parse gate: 6630 times
+qsyn> qccw ref/optimize/FR.qasm
 
-qsyn> qc2zx  
+qsyn> optimize
+QCir 1( 16 qubits, 20415 gates)
+Find CZ(8,4)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into 4th loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into 4th loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into 4th loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into 4th loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into 3rd loop
+Into 4th loop
+Into 6th loop
+Find CZ(4,8)
+Into 3rd loop
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Parse gate: 20415 times
+before topo
+_gates[0]: 2140
+_gates[1]: 2498
+_gates[2]: 2224
+_gates[3]: 2539
+_gates[4]: 2327
+_gates[5]: 2645
+_gates[6]: 2413
+_gates[7]: 2140
+_gates[8]: 2781
+_gates[9]: 2247
+_gates[10]: 959
+_gates[11]: 0
+_gates[12]: 0
+_gates[13]: 0
+_gates[14]: 0
+_gates[15]: 0
+tmp is
+QCir 18446744073709551615( 16 qubits, 15598 gates)
+###########  Number 1 iter #############
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(8,4)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(8,4)
+Into 3rd loop
+Into 4th loop
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(8,4)
+Into 4th loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into 4th loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into 3rd loop
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(8,4)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(8,4)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Parse gate: 15630 times
+before topo
+_gates[0]: 959
+_gates[1]: 2325
+_gates[2]: 3264
+_gates[3]: 2315
+_gates[4]: 2133
+_gates[5]: 2701
+_gates[6]: 2056
+_gates[7]: 2805
+_gates[8]: 2097
+_gates[9]: 1686
+_gates[10]: 2258
+_gates[11]: 0
+_gates[12]: 0
+_gates[13]: 0
+_gates[14]: 0
+_gates[15]: 0
+tmp is
+QCir 18446744073709551615( 16 qubits, 15362 gates)
+Find CZ(8,4)
+Into 4th loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(8,4)
+Into 3rd loop
+Into 4th loop
+Into 6th loop
+Find CZ(8,4)
+Into 4th loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into 3rd loop
+Into 4th loop
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Parse gate: 15389 times
+before topo
+_gates[0]: 2391
+_gates[1]: 1920
+_gates[2]: 2694
+_gates[3]: 2005
+_gates[4]: 2299
+_gates[5]: 3170
+_gates[6]: 2168
+_gates[7]: 2527
+_gates[8]: 1877
+_gates[9]: 2241
+_gates[10]: 959
+_gates[11]: 0
+_gates[12]: 0
+_gates[13]: 0
+_gates[14]: 0
+_gates[15]: 0
+tmp is
+QCir 18446744073709551615( 16 qubits, 15062 gates)
+###########  Number 2 iter #############
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+FM2
+Into second loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into 4th loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into 4th loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into 3rd loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into 3rd loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+FM1
+Into second loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+FM2
+Into second loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+FM2
+Into second loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+FM2
+Into second loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+FM2
+Into second loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+FM2
+Into second loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+FM2
+Into second loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into 4th loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into 4th loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into 4th loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into 3rd loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+FM2
+Into second loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+FM2
+Into second loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+FM1
+Into second loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into 4th loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(8,4)
+Into first loop
+Into for loop
+FM1
+Into second loop
+Find CZ(8,4)
+Into first loop
+Into for loop
+FM1
+Into second loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into 3rd loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into 3rd loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+FM2
+Into second loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+FM2
+Into second loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 5th loop
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+FM2
+Into second loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(8,4)
+Into first loop
+Into for loop
+Into for loop
+FM1
+Into second loop
+Find CZ(8,4)
+Into first loop
+Into for loop
+Into for loop
+FM2
+Into second loop
+Parse gate: 15077 times
+before topo
+_gates[0]: 957
+_gates[1]: 1521
+_gates[2]: 3389
+_gates[3]: 2043
+_gates[4]: 3425
+_gates[5]: 2724
+_gates[6]: 2037
+_gates[7]: 1532
+_gates[8]: 2290
+_gates[9]: 2217
+_gates[10]: 2545
+_gates[11]: 0
+_gates[12]: 0
+_gates[13]: 0
+_gates[14]: 0
+_gates[15]: 0
+tmp is
+QCir 18446744073709551615( 16 qubits, 16133 gates)
+Find CZ(8,4)
+Into first loop
+Into for loop
+FM2
+Into second loop
+Find CZ(8,4)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(8,4)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into for loop (cz part)
+Into 6th loop
+Find CZ(8,4)
+Into first loop
+Into for loop
+Into for loop
+Into 4th loop
+Into for loop (cz part)
+Into 6th loop
+Find CZ(4,8)
+Into first loop
+Into for loop
+Into for loop
+Into for loop (cz part)
+Into 6th loop
+Parse gate: 16160 times
+before topo
+_gates[0]: 2440
+_gates[1]: 2376
+_gates[2]: 2266
+_gates[3]: 1830
+_gates[4]: 1604
+_gates[5]: 1933
+_gates[6]: 3205
+_gates[7]: 3030
+_gates[8]: 1467
+_gates[9]: 1999
+_gates[10]: 913
+_gates[11]: 0
+_gates[12]: 0
+_gates[13]: 0
+_gates[14]: 0
+_gates[15]: 0
+tmp is
+QCir 18446744073709551615( 16 qubits, 14540 gates)
+
+qsyn> qc2zx
 
 qsyn> zxgadj
 
-qsyn> zxcomp 0 
+qsyn> zxcomp 0
 
-qsyn> zxgs -fr  
+qsyn> zxgs -fr
 
-qsyn> zxgp -a       
-#T-gate:                      0
+qsyn> zxgp -a
+#T-gate:                      8254
 #Non-(Clifford+T)-gate:       0
-#Non-Clifford-gate:           0
+#Non-Clifford-gate:           8254
 
-qsyn> zxgt -id 
-The graph is an identity!
+qsyn> zxgt -id
+The graph is not an identity!
 
 qsyn> qq -f
 

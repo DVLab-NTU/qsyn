@@ -5,7 +5,7 @@ Note: color mode is set to off
 qsyn> ver 0
 Note: verbose level is set to 0
 
-qsyn> qccread benchmark/benchmark_SABRE/large/cm42a_207.qasm
+qsyn> qccread benchmark/benchmark_SABRE/large/life_238.qasm
 
 qsyn> qc2zx
 
@@ -19,51 +19,14 @@ qsyn> zxcomp 0
 
 qsyn> zxgs -fr  
 
-qsyn> zxgp -v  
-
-ID:   1 (●, 0)           (Qubit, Col): (0, 1042)	  #Neighbors:   1     (1985, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 1042)	  #Neighbors:   1     (1987, H) 
-ID:   5 (●, 0)           (Qubit, Col): (2, 1042)	  #Neighbors:   1     (1989, -) 
-ID:   7 (●, 0)           (Qubit, Col): (3, 1042)	  #Neighbors:   1     (6431, H) 
-ID:   9 (●, 0)           (Qubit, Col): (4, 1042)	  #Neighbors:   1     (1993, -) 
-ID:  11 (●, 0)           (Qubit, Col): (5, 1042)	  #Neighbors:   1     (6458, H) 
-ID:  13 (●, 0)           (Qubit, Col): (6, 1042)	  #Neighbors:   1     (1997, H) 
-ID:  15 (●, 0)           (Qubit, Col): (7, 1042)	  #Neighbors:   1     (1999, -) 
-ID:  17 (●, 0)           (Qubit, Col): (8, 1042)	  #Neighbors:   1     (2001, -) 
-ID:  19 (●, 0)           (Qubit, Col): (9, 1042)	  #Neighbors:   1     (2003, H) 
-ID:  21 (●, 0)           (Qubit, Col): (10, 1042)	  #Neighbors:   1     (2005, -) 
-ID:  23 (●, 0)           (Qubit, Col): (11, 1042)	  #Neighbors:   1     (2007, -) 
-ID:  25 (●, 0)           (Qubit, Col): (12, 1042)	  #Neighbors:   1     (2009, -) 
-ID:  27 (●, 0)           (Qubit, Col): (13, 1042)	  #Neighbors:   1     (6562, H) 
-ID:  29 (●, 0)           (Qubit, Col): (14, 1042)	  #Neighbors:   1     (2013, -) 
-ID:  31 (●, 0)           (Qubit, Col): (15, 1042)	  #Neighbors:   1     (2015, -) 
-ID:1985 (●, 0)           (Qubit, Col): (0, 943)	  #Neighbors:   1     (1, -) 
-ID:1987 (●, 0)           (Qubit, Col): (1, 943)	  #Neighbors:   1     (3, H) 
-ID:1989 (●, 0)           (Qubit, Col): (2, 943)	  #Neighbors:   1     (5, -) 
-ID:1991 (●, 0)           (Qubit, Col): (3, 943)	  #Neighbors:   1     (6436, H) 
-ID:1993 (●, 0)           (Qubit, Col): (4, 943)	  #Neighbors:   1     (9, -) 
-ID:1995 (●, 0)           (Qubit, Col): (5, 943)	  #Neighbors:   1     (6479, H) 
-ID:1997 (●, 0)           (Qubit, Col): (6, 943)	  #Neighbors:   1     (13, H) 
-ID:1999 (●, 0)           (Qubit, Col): (7, 943)	  #Neighbors:   1     (15, -) 
-ID:2001 (●, 0)           (Qubit, Col): (8, 943)	  #Neighbors:   1     (17, -) 
-ID:2003 (●, 0)           (Qubit, Col): (9, 943)	  #Neighbors:   1     (19, H) 
-ID:2005 (●, 0)           (Qubit, Col): (10, 943)	  #Neighbors:   1     (21, -) 
-ID:2007 (●, 0)           (Qubit, Col): (11, 943)	  #Neighbors:   1     (23, -) 
-ID:2009 (●, 0)           (Qubit, Col): (12, 943)	  #Neighbors:   1     (25, -) 
-ID:2011 (●, 0)           (Qubit, Col): (13, 943)	  #Neighbors:   1     (6014, H) 
-ID:2013 (●, 0)           (Qubit, Col): (14, 943)	  #Neighbors:   1     (29, -) 
-ID:2015 (●, 0)           (Qubit, Col): (15, 943)	  #Neighbors:   1     (31, -) 
-ID:6014 (Z, π)           (Qubit, Col): (-2, 917)	  #Neighbors:   2     (2011, H) (6562, H) 
-ID:6431 (Z, π)           (Qubit, Col): (3, 945.25)	  #Neighbors:   2     (7, H) (6436, H) 
-ID:6436 (Z, π)           (Qubit, Col): (3, 708)	  #Neighbors:   2     (1991, H) (6431, H) 
-ID:6458 (Z, π)           (Qubit, Col): (5, 945)	  #Neighbors:   2     (11, H) (6479, H) 
-ID:6479 (Z, π)           (Qubit, Col): (5, 708)	  #Neighbors:   2     (1995, H) (6458, H) 
-ID:6562 (Z, π)           (Qubit, Col): (13, 1041.94)	  #Neighbors:   2     (27, H) (6014, H) 
-Total #Vertices: 38
-
+qsyn> zxgp -s  
+Graph 1( 16 inputs, 16 outputs, 32 vertices, 16 edges )
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
 
 qsyn> zxgt -id
-The graph is not an identity!
+The graph is an identity!
 
 qsyn> qccr ref/optimize/circuit/iter1.qasm
 
@@ -76,13 +39,13 @@ qsyn> zxcomp 0
 qsyn> zxgs -fr  
 
 qsyn> zxgp -s       
-Graph 2( 16 inputs, 16 outputs, 1273 vertices, 4361 edges )
-#T-gate:                      724
+Graph 2( 16 inputs, 16 outputs, 32 vertices, 16 edges )
+#T-gate:                      0
 #Non-(Clifford+T)-gate:       0
-#Non-Clifford-gate:           724
+#Non-Clifford-gate:           0
 
 qsyn> zxgt -id
-The graph is not an identity!
+The graph is an identity!
 
 qsyn> qq -f
 
