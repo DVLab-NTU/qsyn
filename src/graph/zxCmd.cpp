@@ -31,6 +31,7 @@ extern size_t verbose;
 unique_ptr<ArgParseCmdType> ZXNewCmd();
 unique_ptr<ArgParseCmdType> ZXResetCmd();
 unique_ptr<ArgParseCmdType> ZXDeleteCmd();
+unique_ptr<ArgParseCmdType> ZXPrintCmd();
 // unique_ptr<ArgParseCmdType> ZXGWriteCmd();
 
 bool initZXCmd() {
@@ -42,7 +43,7 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXCOPy", 5, make_unique<ZXCOPyCmd>()) &&
           cmdMgr->regCmd("ZXCOMpose", 5, make_unique<ZXCOMposeCmd>()) &&
           cmdMgr->regCmd("ZXTensor", 3, make_unique<ZXTensorCmd>()) &&
-          cmdMgr->regCmd("ZXPrint", 3, make_unique<ZXPrintCmd>()) &&
+          cmdMgr->regCmd("ZXPrint", 3, ZXPrintCmd()) &&
           cmdMgr->regCmd("ZXGPrint", 4, make_unique<ZXGPrintCmd>()) &&
           cmdMgr->regCmd("ZXGTest", 4, make_unique<ZXGTestCmd>()) &&
           cmdMgr->regCmd("ZXGEdit", 4, make_unique<ZXGEditCmd>()) &&
@@ -79,25 +80,6 @@ ArgType<size_t>::ConstraintType validZXGraphId = {
 //----------------------------------------------------------------------
 //    ZXCHeckout <(size_t id)>
 //----------------------------------------------------------------------
-// unique_ptr<ArgParseCmdType> ZXCheckoutCmd() {
-//     auto cmd = make_unique<ArgParseCmdType>("ZXCHeckout");
-
-//     cmd->parserDefinition = [](ArgumentParser &parser) {
-//         parser.help("checkout to Graph <id> in ZXGraphMgr");
-
-//         parser.addArgument<size_t>("id")
-//             .constraint(validZXGraphId)
-//             .help("the ID of the ZX-graph");
-//     };
-
-//     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-//         zxGraphMgr->checkout2ZXGraph(parser["id"]);
-//         return CMD_EXEC_DONE;
-//     };
-
-//     return cmd;
-// }
-
 
 CmdExecStatus
 ZXCHeckoutCmd::exec(const string &option) {
@@ -182,7 +164,6 @@ unique_ptr<ArgParseCmdType> ZXResetCmd() {
 }
 
 
-
 //----------------------------------------------------------------------
 //    ZXDelete <(size_t id)>
 //----------------------------------------------------------------------
@@ -205,57 +186,37 @@ unique_ptr<ArgParseCmdType> ZXDeleteCmd() {
     return cmd;
 }
 
-// CmdExecStatus
-// ZXDeleteCmd::exec(const string &option) {
-//     string token;
-//     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-
-//     if (token.empty())
-//         return CmdExec::errorOption(CMD_OPT_MISSING, "");
-//     else {
-//         unsigned id;
-//         ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
-//         ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
-//         zxGraphMgr->removeZXGraph(id);
-//     }
-//     return CMD_EXEC_DONE;
-// }
-
-// void ZXDeleteCmd::usage() const {
-//     cout << "Usage: ZXDelete <size_t id>" << endl;
-// }
-
-// void ZXDeleteCmd::summary() const {
-//     cout << setw(15) << left << "ZXDelete: "
-//          << "remove a ZX-graph from ZXGraphMgr" << endl;
-// }
 
 
 //----------------------------------------------------------------------
 //    ZXPrint [-Summary | -Focus | -Num]
 //----------------------------------------------------------------------
-CmdExecStatus
-ZXPrintCmd::exec(const string &option) {
-    string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) {
-        zxGraphMgr->printZXGraphMgr();
-    } else if (myStrNCmp("-Focus", token, 2) == 0)
-        zxGraphMgr->printGListItr();
-    else if (myStrNCmp("-Num", token, 2) == 0)
-        zxGraphMgr->printGraphListSize();
-    else
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
-    return CMD_EXEC_DONE;
-}
+unique_ptr<ArgParseCmdType> ZXPrintCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXPrint");
 
-void ZXPrintCmd::usage() const {
-    cout << "Usage: ZXPrint [-Summary | -Focus | -Num]" << endl;
-}
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("print info of ZXGraphMgr");
+        auto mutex = parser.addMutuallyExclusiveGroup();
 
-void ZXPrintCmd::summary() const {
-    cout << setw(15) << left << "ZXPrint: "
-         << "print info of ZXGraphMgr" << endl;
+        mutex.addArgument<bool>("-summary")
+            .action(storeTrue)
+            .help("print summary of all ZX-graph");
+        mutex.addArgument<bool>("-focus")
+            .action(storeTrue)
+            .help("print the info of the ZX-graph in focus");
+        mutex.addArgument<bool>("-number")
+            .action(storeTrue)
+            .help("print number of ZX-graph");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        if(parser["-focus"].isParsed()) zxGraphMgr->printGListItr();
+        else if(parser["-number"].isParsed()) zxGraphMgr->printGraphListSize();
+        else zxGraphMgr->printZXGraphMgr();
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
 }
 
 //----------------------------------------------------------------------
