@@ -89,7 +89,19 @@ bool ExtChecker::isSwap(QCirGate* candidate) {
     // q1gate == q0 gate
     if (candidate->getQubits()[0]._qubit != q1Gate->getQubits()[1]._qubit ||
         candidate->getQubits()[1]._qubit != q0Gate->getQubits()[0]._qubit) return false;
-    return true;
+
+    // NOTE - If it is actually a gate in dependency, it can not be changed into swap
+    size_t phyCtrlId = candidate->getQubits()[0]._qubit;
+    size_t phyTargId = candidate->getQubits()[1]._qubit;
+
+    QCirGate* logGate0 = _dependency[_device.getPhysicalQubit(phyCtrlId).getLogicalQubit()];
+    QCirGate* logGate1 = _dependency[_device.getPhysicalQubit(phyTargId).getLogicalQubit()];
+    if (logGate0 != logGate1)
+        return true;
+    else if (logGate0->getType() != GateType::CX)
+        return true;
+    else
+        return false;
 }
 
 /**
