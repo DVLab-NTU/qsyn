@@ -15,24 +15,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 32097 gates)
-Parse gate: 32097 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 25113 gates)
-###########  Number 1 iter #############
-Parse gate: 25137 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 24839 gates)
-Parse gate: 24860 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 23568 gates)
-###########  Number 2 iter #############
-Parse gate: 23592 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 25542 gates)
-Parse gate: 25566 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 22930 gates)
 
 qsyn> qc2zx
 
@@ -69,24 +51,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 3679 gates)
-Parse gate: 3679 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 2748 gates)
-###########  Number 1 iter #############
-Parse gate: 2777 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 2663 gates)
-Parse gate: 2696 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 2611 gates)
-###########  Number 2 iter #############
-Parse gate: 2637 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 2775 gates)
-Parse gate: 2803 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 2585 gates)
 
 qsyn> qc2zx
 
@@ -123,24 +87,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 1771 gates)
-Parse gate: 1771 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 1199 gates)
-###########  Number 1 iter #############
-Parse gate: 1232 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 1184 gates)
-Parse gate: 1208 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 1180 gates)
-###########  Number 2 iter #############
-Parse gate: 1194 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 1253 gates)
-Parse gate: 1277 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 1159 gates)
 
 qsyn> qc2zx
 
@@ -177,24 +123,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 682 gates)
-Parse gate: 682 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 476 gates)
-###########  Number 1 iter #############
-Parse gate: 496 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 465 gates)
-Parse gate: 488 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 460 gates)
-###########  Number 2 iter #############
-Parse gate: 479 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 486 gates)
-Parse gate: 503 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 458 gates)
 
 qsyn> qc2zx
 
@@ -231,24 +159,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 10541 gates)
-Parse gate: 10541 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 8512 gates)
-###########  Number 1 iter #############
-Parse gate: 8545 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 8391 gates)
-Parse gate: 8411 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 7858 gates)
-###########  Number 2 iter #############
-Parse gate: 7892 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 8428 gates)
-Parse gate: 8468 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 7754 gates)
 
 qsyn> qc2zx
 
@@ -285,24 +195,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 5647 gates)
-Parse gate: 5647 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 4422 gates)
-###########  Number 1 iter #############
-Parse gate: 4449 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 4324 gates)
-Parse gate: 4351 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 4066 gates)
-###########  Number 2 iter #############
-Parse gate: 4081 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 4373 gates)
-Parse gate: 4397 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 4019 gates)
 
 qsyn> qc2zx
 
@@ -339,24 +231,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 8530 gates)
-Parse gate: 8530 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 6232 gates)
-###########  Number 1 iter #############
-Parse gate: 6274 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 6149 gates)
-Parse gate: 6186 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 6121 gates)
-###########  Number 2 iter #############
-Parse gate: 6151 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 6602 gates)
-Parse gate: 6629 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 6040 gates)
 
 qsyn> qc2zx
 
@@ -393,24 +267,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 34555 gates)
-Parse gate: 34555 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 26740 gates)
-###########  Number 1 iter #############
-Parse gate: 26769 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 26183 gates)
-Parse gate: 26210 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 25367 gates)
-###########  Number 2 iter #############
-Parse gate: 25400 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 27526 gates)
-Parse gate: 27553 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 24846 gates)
 
 qsyn> qc2zx
 
@@ -447,24 +303,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 8730 gates)
-Parse gate: 8730 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 6550 gates)
-###########  Number 1 iter #############
-Parse gate: 6592 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 6289 gates)
-Parse gate: 6328 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 6166 gates)
-###########  Number 2 iter #############
-Parse gate: 6208 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 6550 gates)
-Parse gate: 6589 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 6100 gates)
 
 qsyn> qc2zx
 
@@ -501,24 +339,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 66943 gates)
-Parse gate: 66943 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 53110 gates)
-###########  Number 1 iter #############
-Parse gate: 53125 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 50491 gates)
-Parse gate: 50503 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 47365 gates)
-###########  Number 2 iter #############
-Parse gate: 47383 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 50553 gates)
-Parse gate: 50571 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 45840 gates)
 
 qsyn> qc2zx
 
@@ -555,24 +375,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 8793 gates)
-Parse gate: 8793 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 6256 gates)
-###########  Number 1 iter #############
-Parse gate: 6298 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 6203 gates)
-Parse gate: 6233 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 6181 gates)
-###########  Number 2 iter #############
-Parse gate: 6211 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 6659 gates)
-Parse gate: 6686 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 5995 gates)
 
 qsyn> qc2zx
 
@@ -609,24 +411,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 20415 gates)
-Parse gate: 20415 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 15598 gates)
-###########  Number 1 iter #############
-Parse gate: 15630 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 15362 gates)
-Parse gate: 15389 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 15062 gates)
-###########  Number 2 iter #############
-Parse gate: 15077 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 16131 gates)
-Parse gate: 16158 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 14539 gates)
 
 qsyn> qc2zx
 
@@ -663,24 +447,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 17501 gates)
-Parse gate: 17501 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 13260 gates)
-###########  Number 1 iter #############
-Parse gate: 13305 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 13098 gates)
-Parse gate: 13139 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 13027 gates)
-###########  Number 2 iter #############
-Parse gate: 13063 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 14198 gates)
-Parse gate: 14237 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 12901 gates)
 
 qsyn> qc2zx
 
@@ -717,24 +483,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 1771 gates)
-Parse gate: 1771 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 1199 gates)
-###########  Number 1 iter #############
-Parse gate: 1232 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 1184 gates)
-Parse gate: 1208 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 1180 gates)
-###########  Number 2 iter #############
-Parse gate: 1194 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 1253 gates)
-Parse gate: 1277 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 1159 gates)
 
 qsyn> qc2zx
 
@@ -771,24 +519,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 0 gates)
-Parse gate: 0 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 0 gates)
-###########  Number 1 iter #############
-Parse gate: 0 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 0 gates)
-Parse gate: 0 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 0 gates)
-###########  Number 2 iter #############
-Parse gate: 0 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 0 gates)
-Parse gate: 0 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 0 gates)
 
 qsyn> qc2zx
 
@@ -825,24 +555,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 20 qubits, 1132 gates)
-Parse gate: 1132 times
-tmp is
-QCir 18446744073709551615( 20 qubits, 760 gates)
-###########  Number 1 iter #############
-Parse gate: 784 times
-tmp is
-QCir 18446744073709551615( 20 qubits, 738 gates)
-Parse gate: 762 times
-tmp is
-QCir 18446744073709551615( 20 qubits, 736 gates)
-###########  Number 2 iter #############
-Parse gate: 760 times
-tmp is
-QCir 18446744073709551615( 20 qubits, 770 gates)
-Parse gate: 794 times
-tmp is
-QCir 18446744073709551615( 20 qubits, 743 gates)
 
 qsyn> qc2zx
 
@@ -879,24 +591,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 1262 gates)
-Parse gate: 1262 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 829 gates)
-###########  Number 1 iter #############
-Parse gate: 850 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 816 gates)
-Parse gate: 831 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 814 gates)
-###########  Number 2 iter #############
-Parse gate: 825 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 854 gates)
-Parse gate: 866 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 802 gates)
 
 qsyn> qc2zx
 
@@ -933,24 +627,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 5487 gates)
-Parse gate: 5487 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 4044 gates)
-###########  Number 1 iter #############
-Parse gate: 4073 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 3967 gates)
-Parse gate: 3991 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 3949 gates)
-###########  Number 2 iter #############
-Parse gate: 3971 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 4234 gates)
-Parse gate: 4255 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 3938 gates)
 
 qsyn> qc2zx
 
@@ -987,24 +663,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 13444 gates)
-Parse gate: 13444 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 10046 gates)
-###########  Number 1 iter #############
-Parse gate: 10070 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 9811 gates)
-Parse gate: 9838 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 9698 gates)
-###########  Number 2 iter #############
-Parse gate: 9728 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 10400 gates)
-Parse gate: 10427 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 9616 gates)
 
 qsyn> qc2zx
 
@@ -1041,24 +699,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 16162 gates)
-Parse gate: 16162 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 12201 gates)
-###########  Number 1 iter #############
-Parse gate: 12234 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 11980 gates)
-Parse gate: 12016 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 11919 gates)
-###########  Number 2 iter #############
-Parse gate: 11946 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 12905 gates)
-Parse gate: 12935 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 11772 gates)
 
 qsyn> qc2zx
 
@@ -1095,24 +735,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 10422 gates)
-Parse gate: 10422 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 8784 gates)
-###########  Number 1 iter #############
-Parse gate: 8800 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 8484 gates)
-Parse gate: 8508 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 7508 gates)
-###########  Number 2 iter #############
-Parse gate: 7526 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 8113 gates)
-Parse gate: 8128 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 7409 gates)
 
 qsyn> qc2zx
 
@@ -1149,24 +771,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 2984 gates)
-Parse gate: 2984 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 2266 gates)
-###########  Number 1 iter #############
-Parse gate: 2292 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 2204 gates)
-Parse gate: 2228 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 2132 gates)
-###########  Number 2 iter #############
-Parse gate: 2156 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 2267 gates)
-Parse gate: 2297 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 2106 gates)
 
 qsyn> qc2zx
 
@@ -1203,24 +807,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 5659 gates)
-Parse gate: 5659 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 4905 gates)
-###########  Number 1 iter #############
-Parse gate: 4942 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 4667 gates)
-Parse gate: 4700 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 4272 gates)
-###########  Number 2 iter #############
-Parse gate: 4308 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 4534 gates)
-Parse gate: 4569 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 4201 gates)
 
 qsyn> qc2zx
 
@@ -1257,24 +843,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 200162 gates)
-Parse gate: 200162 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 150068 gates)
-###########  Number 1 iter #############
-Parse gate: 150086 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 142671 gates)
-Parse gate: 142686 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 139969 gates)
-###########  Number 2 iter #############
-Parse gate: 139990 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 146580 gates)
-Parse gate: 146598 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 138778 gates)
 
 qsyn> qc2zx
 
@@ -1311,24 +879,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 68426 gates)
-Parse gate: 68426 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 54853 gates)
-###########  Number 1 iter #############
-Parse gate: 54879 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 52738 gates)
-Parse gate: 52759 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 50173 gates)
-###########  Number 2 iter #############
-Parse gate: 50191 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 52326 gates)
-Parse gate: 52347 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 49241 gates)
 
 qsyn> qc2zx
 
@@ -1365,24 +915,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 27160 gates)
-Parse gate: 27160 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 21047 gates)
-###########  Number 1 iter #############
-Parse gate: 21063 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 20011 gates)
-Parse gate: 20026 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 19280 gates)
-###########  Number 2 iter #############
-Parse gate: 19292 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 20208 gates)
-Parse gate: 20217 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 19167 gates)
 
 qsyn> qc2zx
 
@@ -1419,24 +951,6 @@ qsyn> zx2qc
 Finish extracting!
 
 qsyn> optimize
-QCir 1( 16 qubits, 3024 gates)
-Parse gate: 3024 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 2091 gates)
-###########  Number 1 iter #############
-Parse gate: 2114 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 2075 gates)
-Parse gate: 2100 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 2065 gates)
-###########  Number 2 iter #############
-Parse gate: 2084 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 2183 gates)
-Parse gate: 2202 times
-tmp is
-QCir 18446744073709551615( 16 qubits, 2051 gates)
 
 qsyn> qc2zx
 
