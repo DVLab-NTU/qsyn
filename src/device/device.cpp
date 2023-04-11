@@ -260,6 +260,21 @@ tuple<size_t, size_t> Device::getNextSwapCost(size_t source, size_t target) {
 }
 
 /**
+ * @brief Get physical qubit id by logical id
+ *
+ * @param id logical
+ * @return size_t
+ */
+size_t Device::getPhysicalbyLogical(size_t id) {
+    for (auto& [_, phy] : _qubitList) {
+        if (phy.getLogicalQubit() == id) {
+            return phy.getId();
+        }
+    }
+    return ERROR_CODE;
+}
+
+/**
  * @brief Add adjacency pair (a,b)
  *
  * @param a Id of first qubit
@@ -314,6 +329,22 @@ void Device::applyGate(const Operation& op) {
         default:
             assert(false);
     }
+}
+
+/**
+ * @brief Apply swap, only used in checker
+ *
+ * @param op
+ */
+void Device::applySwapCheck(size_t q0Id, size_t q1Id) {
+    PhysicalQubit& q0 = getPhysicalQubit(q0Id);
+    PhysicalQubit& q1 = getPhysicalQubit(q1Id);
+    size_t temp = q0.getLogicalQubit();
+    q0.setLogicalQubit(q1.getLogicalQubit());
+    q1.setLogicalQubit(temp);
+    size_t t = max(q0.getOccupiedTime(), q1.getOccupiedTime());
+    q0.setOccupiedTime(t + DOUBLE_DELAY);
+    q1.setOccupiedTime(t + DOUBLE_DELAY);
 }
 
 /**

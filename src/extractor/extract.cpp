@@ -12,6 +12,7 @@
 
 #include <memory>
 
+#include "extchecker.h"
 #include "simplify.h"  // for Simplifier
 #include "zxGraph.h"   // for ZXGraph
 #include "zxRules.h"   // for PivotBoundary
@@ -33,7 +34,7 @@ extern size_t verbose;
  * @param c
  * @param d
  */
-Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> d) : _graph(g), _device(d) {
+Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> d) : _graph(g), _device(d), _deviceBackup(d) {
     _logicalCircuit = (c == nullptr) ? new QCir(-1) : c;
     _physicalCircuit = toPhysical() ? new QCir(-1) : nullptr;
     initialize(c == nullptr);
@@ -100,6 +101,20 @@ QCir* Extractor::extract() {
         _logicalCircuit->printQubits();
         _graph->printQubits();
     }
+
+    bool correct = true;
+    if (toPhysical()) {
+        cout << "Checking...      ";
+        ExtChecker checker(_physicalCircuit, _logicalCircuit, _deviceBackup.value(), _initialPlacement);
+        if (checker.check()) {
+            cout << "passed" << endl;
+            _physicalCircuit->addProcedure("ZX2QC (Physical)", _graph->getProcedures());
+            _physicalCircuit->setFileName(_graph->getFileName());
+        } else {
+            cout << "failed" << endl;
+            correct = false;
+        }
+    }
     if (PERMUTE_QUBITS) {
         permuteQubit();
         if (verbose >= 8) {
@@ -112,6 +127,15 @@ QCir* Extractor::extract() {
     _logicalCircuit->addProcedure("ZX2QC", _graph->getProcedures());
     _graph->addProcedure("ZX2QC");
     _logicalCircuit->setFileName(_graph->getFileName());
+
+    if (toPhysical()) {
+        if (correct)
+            return _physicalCircuit;
+        else {
+            cout << "Warning: physical and logical circuits are not matched, store logical one!!" << endl;
+            return _logicalCircuit;
+        }
+    }
     return _logicalCircuit;
 }
 
@@ -282,6 +306,7 @@ void Extractor::extractCXs(size_t strategy) {
     }
     if (toPhysical()) {
         prependSeriesGates(_DuostraAssigned, _DuostraMapped);
+        // _device.value().printStatus();
     } else {
         for (auto& [t, c] : _cnots) {
             // NOTE - targ and ctrl are opposite here
@@ -629,12 +654,12 @@ bool Extractor::gaussianElimination(bool check) {
         size_t minCnots = size_t(-1);
         size_t bestBlock = 0;
         M2 bestMatrix;
-        if(verbose > 4) cout << "Round Start" << endl;
+        if (verbose > 4) cout << "Round Start" << endl;
         for (size_t blk = 1; blk < _biAdjacency.numCols(); blk++) {
-            if(verbose > 4) cout << "> ";
+            if (verbose > 4) cout << "> ";
             blockElimination(bestBlock, bestMatrix, minCnots, blk);
         }
-        if(verbose > 4) cout << "Best Duostra Mapped block: " << bestBlock << endl;
+        if (verbose > 4) cout << "Best Duostra Mapped block: " << bestBlock << endl;
         _biAdjacency = bestMatrix;
         _cnots = _biAdjacency.getOpers();
 
@@ -661,6 +686,7 @@ bool Extractor::gaussianElimination(bool check) {
 
         _DuostraAssigned = duo.getOrder();
         _DuostraMapped = duo.getResult();
+        // _device.value().printStatus();
         _device = duo.getDevice();
 
     } else {
@@ -898,16 +924,18 @@ void Extractor::prependSingleQubitGate(string type, size_t qubit, Phase phase) {
     if (type == "rotate") {
         _logicalCircuit->addSingleRZ(qubit, phase, false);
         if (toPhysical()) {
-            size_t physicalQId = _device.value().getPhysicalQubit(qubit).getId();
+            size_t physicalQId = _device.value().getPhysicalbyLogical(qubit);
+            assert(physicalQId != ERROR_CODE);
             _device.value().applySingleQubitGate(physicalQId);
             _physicalCircuit->addSingleRZ(physicalQId, phase, false);
         }
     } else {
         _logicalCircuit->addGate(type, {qubit}, phase, false);
         if (toPhysical()) {
-            size_t physicalQId = _device.value().getPhysicalQubit(qubit).getId();
+            size_t physicalQId = _device.value().getPhysicalbyLogical(qubit);
+            assert(physicalQId != ERROR_CODE);
             _device.value().applySingleQubitGate(physicalQId);
-            _physicalCircuit->addGate(type, {_device.value().getPhysicalQubit(qubit).getId()}, phase, false);
+            _physicalCircuit->addGate(type, {physicalQId}, phase, false);
         }
     }
     // if (toPhysical()) _device.value().printStatus();
@@ -925,6 +953,12 @@ void Extractor::prependDoubleQubitGate(string type, const vector<size_t>& qubits
     _logicalCircuit->addGate(type, qubits, phase, false);
 }
 
+/**
+ * @brief Prepend series of gates.
+ *
+ * @param logical
+ * @param physical
+ */
 void Extractor::prependSeriesGates(const std::vector<Operation>& logical, const std::vector<Operation>& physical) {
     for (const auto& gates : logical) {
         tuple<size_t, size_t> qubits = gates.getQubits();
@@ -985,6 +1019,7 @@ bool Extractor::axelInNeighbors() {
     }
     return false;
 }
+
 /**
  * @brief Check whether the frontier contains a vertex has only a single neighbor (boundary excluded).
  *

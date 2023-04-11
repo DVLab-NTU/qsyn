@@ -7,6 +7,9 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#ifndef DUOSTRA_H
+#define DUOSTRA_H
+
 #include "device.h"
 #include "placer.h"
 #include "qcir.h"
@@ -51,3 +54,5 @@ std::string getPlacerTypeStr();
 size_t getSchedulerType(std::string);
 size_t getRouterType(std::string);
 size_t getPlacerType(std::string);
+
+#endif

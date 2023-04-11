@@ -72,6 +72,7 @@ private:
     QCir* _logicalCircuit;
     QCir* _physicalCircuit;
     std::optional<Device> _device;
+    std::optional<Device> _deviceBackup;
     ZXVertexList _frontier;
     ZXVertexList _neighbors;
     ZXVertexList _axels;
