@@ -66,6 +66,9 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
         mutex.addArgument<bool>("-physical")
             .action(storeTrue)
             .help("extract to physical circuit");
+        mutex.addArgument<bool>("-both")
+            .action(storeTrue)
+            .help("extract to physical circuit and store corresponding logical circuit");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
@@ -74,17 +77,24 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
             cerr << "Error: ZX-graph (id: " << zxGraphMgr->getGraph()->getId() << ") is not graph-like. Not extractable!!" << endl;
             return CMD_EXEC_ERROR;
         }
-        if (parser["-physical"].isParsed()) {
+        bool toPhysical = parser["-physical"].isParsed() || parser["-both"].isParsed();
+        if (toPhysical) {
             DT_CMD_MGR_NOT_EMPTY_OR_RETURN("");
         }
         zxGraphMgr->copy(zxGraphMgr->getNextID());
-        Extractor ext(zxGraphMgr->getGraph(), nullptr, parser["-physical"].isParsed() ? make_optional<Device>(deviceMgr->getDevice()) : nullopt);
+        Extractor ext(zxGraphMgr->getGraph(), nullptr, toPhysical ? make_optional<Device>(deviceMgr->getDevice()) : nullopt);
 
         QCir *result = ext.extract();
+
+        if (parser["-both"].isParsed()) {
+            qcirMgr->addQCir(qcirMgr->getNextID());
+            qcirMgr->setQCircuit(ext.getLogical());
+        }
         if (result != nullptr) {
             qcirMgr->addQCir(qcirMgr->getNextID());
             qcirMgr->setQCircuit(result);
         }
+
         return CMD_EXEC_DONE;
     };
     return cmd;

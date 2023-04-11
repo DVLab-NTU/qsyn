@@ -35,6 +35,7 @@ public:
     ~Extractor() {}
 
     bool toPhysical() { return _device.has_value(); }
+    QCir* getLogical() { return _logicalCircuit; }
 
     void initialize(bool fromEmpty = true);
     QCir* extract();
