@@ -14,7 +14,7 @@
 
 #include "device.h"
 #include "duostra.h"
-#include "qcir.h"   // for QCir
+#include "qcir.h"  // for QCir
 
 class ExtChecker {
 public:
@@ -28,6 +28,7 @@ public:
 
     bool checkRemain();
     QCirGate* getNext(const BitInfo&);
+
 private:
     QCir* _physical;
     QCir* _logical;
