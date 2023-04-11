@@ -1,0 +1,40 @@
+/****************************************************************************
+  FileName     [ extchecker.h ]
+  PackageName  [ extractor ]
+  Synopsis     [ Define class ExtChecker structure ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
+
+#ifndef EXTCHECKER_H
+#define EXTCHECKER_H
+
+#include <cstddef>  // for size_t
+#include <optional>
+
+#include "device.h"
+#include "duostra.h"
+#include "qcir.h"   // for QCir
+
+class ExtChecker {
+public:
+    ExtChecker(QCir*, QCir*, Device, std::vector<size_t>);
+
+    bool check();
+    bool isSwap(QCirGate*);
+    bool executeSwap(QCirGate*, std::unordered_set<QCirGate*>&);
+    bool executeSingle(QCirGate*);
+    bool executeDouble(QCirGate*);
+
+    bool checkRemain();
+    QCirGate* getNext(const BitInfo&);
+private:
+    QCir* _physical;
+    QCir* _logical;
+    Device _device;
+    bool _reverse = true;
+    // <qubit, gate to execute (from back)> for logical circuit
+    std::unordered_map<size_t, QCirGate*> _dependency;
+};
+
+#endif
