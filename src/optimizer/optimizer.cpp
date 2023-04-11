@@ -203,10 +203,10 @@ QCir* Optimizer::parseForward() {
         addGate(t, Phase(1), 0);
     }
     
-    // for (size_t i = 0; i < _gates[8].size(); i++){
-    //     _gates[8][i]->printGate();
-    //     if (Optimizer::isSingleRotateZ(_gates[8][i])) cout << "   " << _gates[8][i]->getPhase() << endl;
-    // }
+    for (size_t i = 0; i < _gates[10].size(); i++){
+        _gates[10][i]->printGate();
+        if (Optimizer::isSingleRotateZ(_gates[10][i])) cout << "   " << _gates[10][i]->getPhase() << endl;
+    }
     
     cout << "before topo" << endl;
     for (size_t i = 0; i < _gates.size(); i++) {
@@ -309,9 +309,20 @@ bool Optimizer::parseGate(QCirGate* gate) {
     } else if (gate->getType() == GateType::X) {
         toggleElement(1, target);
     } else if (isSingleRotateZ(gate)) {
-        // cout << "issingleZ" << endl;
+        //FIXME - delete it after debug
+        bool qft_n20 = false;
+        if (target == 10) {
+            qft_n20 = true;
+            cout << "Find ZPhase(10, "<< gate->getPhase() <<") "  <<endl;
+            auto ph = gate->getPhase();
+            cout << ph.getRational().numerator() << ", " << ph.getRational().denominator() << endl;
+            if (gate->getPhase()==Phase(0)) {
+                cout << "isZerophase" << endl;
+            }else cout << "nonZeroPhase" << endl;
+            gate->printGate();
+        }
         if (_zs.contains(target)) {
-            // cout << "Into z1 loop" << endl;
+            if(qft_n20) cout << "Into z1 loop" << endl;
             // TODO - Add S/T gate
             _zs.erase(target);
             if (gate->getType() == GateType::RZ || gate->getType() == GateType::P) {
@@ -327,29 +338,28 @@ bool Optimizer::parseGate(QCirGate* gate) {
                 gate = temp;
             }
         }
-        if (gate->getPhase() == Phase(0) && gate->getType() == GateType::RZ) {
-            // cout << "Into z2 loop" << endl;
+        if (gate->getPhase() == Phase(0)) {
+            if(qft_n20) cout << "Into z2 loop" << endl;
             return true;
         }
 
         if (_xs.contains(target)) {
-            // cout << "Into z3 loop" << endl;
+            if(qft_n20) cout << "Into z3 loop" << endl;
             gate->setRotatePhase(-1 * (gate->getPhase()));
         }
         if (gate->getPhase() == Phase(1) || gate->getType() == GateType::Z) {
-            // cout << "Into z4 loop" << endl;
+            if(qft_n20) cout << "Into z4 loop" << endl;
             toggleElement(2, target);
             return true;
         }
         // REVIEW - Neglect adjoint due to S and Sdg is separated
         if (_hadamards.contains(target)) {
-            // cout << "Into z6 loop" << endl;
+            if(qft_n20) cout << "Into z6 loop" << endl;
             addHadamard(target, true);
         }
         QCirGate* available = getAvailableRotateZ(target);
         if (_availty[target] == 1 && available != nullptr) {
-            // cout << "Into z7 loop" << endl;
-            // _available[target].erase(remove(_available[target].begin(), _available[target].end(), available), _available[target].end());
+            if(qft_n20) cout << "Into z7 loop" << endl;
             std::erase(_available[target], available);
             std::erase(_gates[target], available);
             Phase ph = available->getPhase() + gate->getPhase();
@@ -363,7 +373,7 @@ bool Optimizer::parseGate(QCirGate* gate) {
                 addGate(target, ph, 0);
             }
         } else {
-            // cout << "Into z7 else loop" << endl;
+            if(qft_n20) cout << "Into z7 else loop" << endl;
             if (_availty[target] == 2) {
                 _availty[target] = 1;
                 _available[target].clear();
@@ -453,31 +463,31 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
     size_t ctrl = -1, targ = -1;
     QCirGate* cnot;
 
-    bool tozprint = false;
-    if ((t1 == 4 && t2 == 8) || (t1 == 8 && t2 == 4)){
-       tozprint = true; 
-       cout << "Find CZ("<<t1<<","<<t2<<")" << endl;
-    }  
+    // bool tozprint = false;
+    // if ((t1 == 4 && t2 == 8) || (t1 == 8 && t2 == 4)){
+    // //    tozprint = true; 
+    //    cout << "Find CZ("<<t1<<","<<t2<<")" << endl;
+    // }  
     // NOTE - Try to cancel CNOT
     // TODO - Separate f_m for cnot and for cz
     bool found_match = false;
     if (_minimize_czs) {
-        if(tozprint) cout << "Into first loop" << endl;
+        // if(tozprint) cout << "Into first loop" << endl;
         // NOTE - Checkout t1 as control and t2 as control respectively.
         for (size_t i = 0; i < 2; i++) {
-            if(tozprint) cout << "Into for loop" << endl;
+            // if(tozprint) cout << "Into for loop" << endl;
             ctrl = !i ? t1 : t2;
             targ = !i ? t2 : t1;
             for (auto& g : _available[ctrl]) {
                 // if(tozprint) cout << "Into second for loop" << endl;
                 if (g->getType() == GateType::CX && g->getControl()._qubit == ctrl && g->getTarget()._qubit == targ) {
-                    if(tozprint) cout << "Into IF loop" << endl;
-                    if(tozprint){
-                        for (size_t i = 0; i < _available[t1].size(); i++)                        {
-                            _available[t1][i]->printGate();
-                        }
-                        cout << "_availty[targ]" << _availty[targ] << endl;
-                    }
+                    // if(tozprint) cout << "Into IF loop" << endl;
+                    // if(tozprint){
+                    //     for (size_t i = 0; i < _available[t1].size(); i++)                        {
+                    //         _available[t1][i]->printGate();
+                    //     }
+                    //     cout << "_availty[targ]" << _availty[targ] << endl;
+                    // }
                     // cnot = g;
                     cnot = new CXGate(_gateCnt);
                     _gateCnt++;
@@ -486,7 +496,7 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
                     if (_availty[targ] == 2) {
                         // cout << "Into second IF loop" << endl;
                         if (count_if(_available[targ].begin(), _available[targ].end(), [&](QCirGate* _g) { return Optimizer::TwoQubitGateExist(_g, GateType::CX, ctrl, targ); })) {
-                            if(tozprint) cout << "FM1" << endl;
+                            // if(tozprint) cout << "FM1" << endl;
                             found_match = true;
                             break;
                         }else continue;
@@ -495,15 +505,15 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
                     //        But if the CNOT can be passed all the way up to these Z-like gates
                     //        Then we can commute the CZ gate next to the CNOT and hence use it."
                     // NOTE - looking at the gates behind the Z-like gates
-                    if(tozprint) cout << "Size: " << _gates[targ].size() - _available[targ].size() << endl;
+                    // if(tozprint) cout << "Size: " << _gates[targ].size() - _available[targ].size() << endl;
                     for (int i = _gates[targ].size() - _available[targ].size() - 1; i >= 0; i--) {
                         if (_gates[targ][i]->getType() != GateType::CX || _gates[targ][i]->getTarget()._qubit != targ)
                             break;
                         //TODO - "_gates[targ][i] == g " might be available too
                         if (_gates[targ][i]->getType() == GateType::CX && _gates[targ][i]->getControl()._qubit == ctrl && _gates[targ][i]->getTarget()._qubit == targ ) {
                             found_match = true;
-                            if(tozprint) cout << "FM2" << endl;
-                            if(tozprint) _gates[targ][i]->printGate();
+                            // if(tozprint) cout << "FM2" << endl;
+                            // if(tozprint) _gates[targ][i]->printGate();
                             break;
                         }
                     }
@@ -515,7 +525,7 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
     }
     // NOTE - CNOT-CZ = (S* x id)CNOT (S x S)
     if (found_match) {
-        if(tozprint) cout << "Into second loop" << endl;
+        // if(tozprint) cout << "Into second loop" << endl;
         // cout << "CZ CNOT" << endl;
         if (_availty[targ] == 2) {
             // REVIEW -  pyzx/optimize/line.339 has a bug
@@ -554,12 +564,12 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
     }
 
     if (_availty[t1] == 2) {
-        if(tozprint) cout << "Into 3rd loop" << endl;
+        // if(tozprint) cout << "Into 3rd loop" << endl;
         _available[t1].clear();
         _availty[t1] = 1;
     }
     if (_availty[t2] == 2) {
-        if(tozprint) cout << "Into 4th loop" << endl;
+        // if(tozprint) cout << "Into 4th loop" << endl;
         _available[t2].clear();
         _availty[t2] = 1;
     }
@@ -568,7 +578,7 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
     found_match = false;
     QCirGate* targ_cz = nullptr;
     for (auto& g : _available[t1]) {
-        if(tozprint) cout << "Into for loop (cz part)" << endl;
+        // if(tozprint) cout << "Into for loop (cz part)" << endl;
         if ((g->getType() == GateType::CZ && g->getControl()._qubit == t1 && g->getTarget()._qubit == t2) ||
             (g->getType() == GateType::CZ && g->getControl()._qubit == t2 && g->getTarget()._qubit == t1)) {
             found_match = true;
@@ -578,7 +588,7 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
     }
 
     if (found_match) {
-        if(tozprint) cout << "Into 5th loop" << endl;
+        // if(tozprint) cout << "Into 5th loop" << endl;
         if (count_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g) { return g == targ_cz; })) {
             _available[t1].erase(--(find_if(_available[t1].rbegin(), _available[t1].rend(), [&](QCirGate* g) { return g == targ_cz; })).base());
             _available[t2].erase(--(find_if(_available[t2].rbegin(), _available[t2].rend(), [&](QCirGate* g) { return g == targ_cz; })).base());
@@ -590,7 +600,7 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
     }
     // NOTE - No cancel found
     if (!found_match) {
-        if(tozprint) cout << "Into 6th loop" << endl;
+        // if(tozprint) cout << "Into 6th loop" << endl;
         QCirGate* cz = new CZGate(_gateCnt);
         // ctrl < targ
         if (t1 < t2) {

@@ -5,7 +5,7 @@ Note: color mode is set to off
 qsyn> ver 0
 Note: verbose level is set to 0
 
-qsyn> qccread benchmark/benchmark_SABRE/large/life_238.qasm
+qsyn> qccread benchmark/benchmark_SABRE/large/qft_n20.qasm
 
 qsyn> qc2zx
 
@@ -20,13 +20,13 @@ qsyn> zxcomp 0
 qsyn> zxgs -fr  
 
 qsyn> zxgp -s  
-Graph 1( 16 inputs, 16 outputs, 32 vertices, 16 edges )
-#T-gate:                      0
-#Non-(Clifford+T)-gate:       0
-#Non-Clifford-gate:           0
+Graph 1( 20 inputs, 20 outputs, 310 vertices, 496 edges )
+#T-gate:                      24
+#Non-(Clifford+T)-gate:       129
+#Non-Clifford-gate:           153
 
 qsyn> zxgt -id
-The graph is an identity!
+The graph is not an identity!
 
 qsyn> qccr ref/optimize/circuit/iter1.qasm
 
@@ -39,13 +39,13 @@ qsyn> zxcomp 0
 qsyn> zxgs -fr  
 
 qsyn> zxgp -s       
-Graph 2( 16 inputs, 16 outputs, 32 vertices, 16 edges )
-#T-gate:                      0
-#Non-(Clifford+T)-gate:       0
-#Non-Clifford-gate:           0
+Graph 2( 20 inputs, 20 outputs, 298 vertices, 477 edges )
+#T-gate:                      24
+#Non-(Clifford+T)-gate:       123
+#Non-Clifford-gate:           147
 
 qsyn> zxgt -id
-The graph is an identity!
+The graph is not an identity!
 
 qsyn> qq -f
 
