@@ -1,0 +1,71 @@
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> dtgr ../../benchmark/topology/guadalupe.layout
+
+qsyn> qcset -d 2 -sw 6
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/cycle10_2_110.qasm
+
+qsyn> qccp -a
+Clifford: 3404
+└── CX: 2648
+T-family: 2646
+Others  : 0
+
+qsyn> qc2zx
+
+qsyn> zxgs -fr
+
+qsyn> usage
+Period time used : 2.93 seconds
+Total time used  : 2.93 seconds
+Total memory used: 96.56 M Bytes
+
+qsyn> zx2qc -both
+Finish extracting!
+Checking...      passed
+
+qsyn> usage
+Period time used : 906.1 seconds
+Total time used  : 909 seconds
+Total memory used: 202.7 M Bytes
+
+qsyn> qcp -list
+  0    cycle10_2_110       
+  1    cycle10_2_110       QC2ZX ➔ FR ➔ ZX2QC
+★ 2    cycle10_2_110       QC2ZX ➔ FR ➔ ZX2QC (Physical)
+
+qsyn> qccp
+QCir 2( 16 qubits, 22172 gates)
+Clifford: 21442
+└── CX: 19104
+T-family: 1160
+Others  : 0
+Depth: 16246
+
+qsyn> // Check to logical and perform identity checking
+qsyn> qcch 1
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> usage
+Period time used : 2.76 seconds
+Total time used  : 911.8 seconds
+Total memory used: 208.2 M Bytes
+
+qsyn> zxgt -id 
+The graph is an identity!
+
+qsyn> qq -f
+
