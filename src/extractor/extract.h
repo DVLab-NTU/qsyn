@@ -10,9 +10,11 @@
 #define EXTRACT_H
 
 #include <cstddef>  // for size_t
+#include <optional>
 #include <set>
 
 #include "device.h"
+#include "duostra.h"
 #include "m2.h"     // for M2
 #include "qcir.h"   // for QCir
 #include "zxDef.h"  // for EdgeType, EdgeType::HADAMARD
@@ -29,18 +31,11 @@ class Extractor {
 public:
     using Target = std::unordered_map<size_t, size_t>;
     using ConnectInfo = std::vector<std::set<size_t>>;
-    Extractor(ZXGraph* g, QCir* c = nullptr) {
-        _graph = g;
-        if (c == nullptr)
-            _circuit = new QCir(-1);
-        else
-            _circuit = c;
-        initialize(c == nullptr);
-        _cntCXFiltered = 0;
-
-        _cntCXIter = 0;
-    }
+    Extractor(ZXGraph*, QCir* = nullptr, std::optional<Device> = std::nullopt);
     ~Extractor() {}
+
+    bool toPhysical() { return _device.has_value(); }
+    QCir* getLogical() { return _logicalCircuit; }
 
     void initialize(bool fromEmpty = true);
     QCir* extract();
@@ -59,8 +54,10 @@ public:
     void updateGraphByMatrix(EdgeType = EdgeType::HADAMARD);
     void createMatrix();
 
-    void prependGate(std::string, const std::vector<size_t>&, Phase);
-
+    void prependSingleQubitGate(std::string, size_t, Phase);
+    void prependDoubleQubitGate(std::string, const std::vector<size_t>&, Phase);
+    void prependSeriesGates(const std::vector<Operation>&, const std::vector<Operation>& = {});
+    void prependSwapGate(size_t, size_t, QCir*);
     bool frontierIsCleaned();
     bool axelInNeighbors();
     bool containSingleNeighbor();
@@ -73,7 +70,10 @@ public:
 private:
     size_t _cntCXIter;
     ZXGraph* _graph;
-    QCir* _circuit;
+    QCir* _logicalCircuit;
+    QCir* _physicalCircuit;
+    std::optional<Device> _device;
+    std::optional<Device> _deviceBackup;
     ZXVertexList _frontier;
     ZXVertexList _neighbors;
     ZXVertexList _axels;
@@ -83,12 +83,17 @@ private:
     std::vector<M2::Oper> _cnots;
 
     void blockElimination(M2&, size_t&, size_t);
+    void blockElimination(size_t&, M2&, size_t&, size_t);
+    std::vector<Operation> _DuostraAssigned;
+    std::vector<Operation> _DuostraMapped;
     // NOTE - Use only in column optimal swap
     Target findColumnSwap(Target);
     ConnectInfo _rowInfo;
     ConnectInfo _colInfo;
 
     size_t _cntCXFiltered;
+
+    std::vector<size_t> _initialPlacement;
 };
 
 #endif

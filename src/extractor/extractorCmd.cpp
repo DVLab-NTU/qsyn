@@ -14,6 +14,7 @@
 
 #include "apCmd.h"
 #include "cmdMacros.h"   // for CMD_N_OPTS_EQUAL_OR_RETURN, CMD_N_OPTS_AT_LE...
+#include "deviceCmd.h"
 #include "deviceMgr.h"   // for DeviceMgr
 #include "extract.h"     // for Extractor
 #include "qcir.h"        // for QCir
@@ -56,6 +57,18 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
 
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("extract QCir from ZX-graph");
+
+        auto mutex = parser.addMutuallyExclusiveGroup();
+
+        mutex.addArgument<bool>("-logical")
+            .action(storeTrue)
+            .help("extract to logical circuit");
+        mutex.addArgument<bool>("-physical")
+            .action(storeTrue)
+            .help("extract to physical circuit");
+        mutex.addArgument<bool>("-both")
+            .action(storeTrue)
+            .help("extract to physical circuit and store corresponding logical circuit");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
@@ -64,13 +77,24 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
             cerr << "Error: ZX-graph (id: " << zxGraphMgr->getGraph()->getId() << ") is not graph-like. Not extractable!!" << endl;
             return CMD_EXEC_ERROR;
         }
+        bool toPhysical = parser["-physical"].isParsed() || parser["-both"].isParsed();
+        if (toPhysical) {
+            DT_CMD_MGR_NOT_EMPTY_OR_RETURN("");
+        }
         zxGraphMgr->copy(zxGraphMgr->getNextID());
-        Extractor ext(zxGraphMgr->getGraph(), nullptr);
+        Extractor ext(zxGraphMgr->getGraph(), nullptr, toPhysical ? make_optional<Device>(deviceMgr->getDevice()) : nullopt);
+
         QCir *result = ext.extract();
+
+        if (parser["-both"].isParsed()) {
+            qcirMgr->addQCir(qcirMgr->getNextID());
+            qcirMgr->setQCircuit(ext.getLogical());
+        }
         if (result != nullptr) {
             qcirMgr->addQCir(qcirMgr->getNextID());
             qcirMgr->setQCircuit(result);
         }
+
         return CMD_EXEC_DONE;
     };
     return cmd;

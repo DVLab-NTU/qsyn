@@ -84,8 +84,9 @@ unique_ptr<BaseScheduler> GreedyScheduler::clone() const {
  * @brief Assign gates
  *
  * @param router
+ * @return Device
  */
-void GreedyScheduler::assignGates(unique_ptr<Router> router) {
+Device GreedyScheduler::assignGates(unique_ptr<Router> router) {
     [[maybe_unused]] size_t count = 0;
     auto topoWrap = TopologyCandidate(*_circuitTopology, _conf._candidates);
     for (TqdmWrapper bar{_circuitTopology->getNumGates(), _tqdm};
@@ -102,6 +103,7 @@ void GreedyScheduler::assignGates(unique_ptr<Router> router) {
         ++count;
     }
     assert(count == _circuitTopology->getNumGates());
+    return router->getDevice();
 }
 
 /**

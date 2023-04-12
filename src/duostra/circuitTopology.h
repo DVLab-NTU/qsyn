@@ -36,7 +36,7 @@ public:
     void addNext(size_t);
 
     bool isAvailable(const std::unordered_map<size_t, size_t>&) const;
-
+    bool isSwapped() const { return _swap; }
     bool isFirstGate() const { return _prevs.empty(); }
     bool isLastGate() const { return _nexts.empty(); }
 
@@ -49,6 +49,7 @@ private:
     size_t _id;
     GateType _type;
     Phase _phase;  // For saving phase information
+    bool _swap;    // qubits is swapped for duostra
     std::tuple<size_t, size_t> _qubits;
     std::vector<size_t> _prevs;
     std::vector<size_t> _nexts;

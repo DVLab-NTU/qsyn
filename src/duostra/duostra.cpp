@@ -137,10 +137,28 @@ size_t getPlacerType(string str) {
 Duostra::Duostra(QCir* cir, Device dev, bool check, bool tqdm, bool silent) : _logicalCircuit(cir), _physicalCircuit(new QCir(0)), _device(dev), _check(check) {
     _tqdm = (silent == true) ? false : tqdm;
     _silent = silent;
+    if (verbose > 3) cout << "Creating dependency of quantum circuit..." << endl;
+    makeDependency();
 }
 
 /**
- * @brief Make dependency graph
+ * @brief Construct a new Duostra:: Duostra object
+ *
+ * @param cir
+ * @param dev
+ * @param check
+ * @param tqdm
+ * @param silent
+ */
+Duostra::Duostra(const vector<Operation>& cir, size_t nQubit, Device dev, bool check, bool tqdm, bool silent) : _logicalCircuit(nullptr), _physicalCircuit(new QCir(0)), _device(dev), _check(check) {
+    _tqdm = (silent == true) ? false : tqdm;
+    _silent = silent;
+    if (verbose > 3) cout << "Creating dependency of quantum circuit..." << endl;
+    makeDependency(cir, nQubit);
+}
+
+/**
+ * @brief Make dependency graph from QCir*
  *
  */
 void Duostra::makeDependency() {
@@ -172,16 +190,41 @@ void Duostra::makeDependency() {
 }
 
 /**
+ * @brief Make dependency graph from vector<Operation>
+ *
+ * @param oper in topological order
+ */
+void Duostra::makeDependency(const vector<Operation>& oper, size_t nQubit) {
+    vector<size_t> lastGate;  // idx:qubit value: Gate id
+    vector<Gate> allGates;
+    lastGate.resize(nQubit, ERROR_CODE);
+    for (size_t i = 0; i < oper.size(); i++) {
+        Gate tempGate{i, oper[i].getType(), oper[i].getPhase(), oper[i].getQubits()};
+        size_t q0Gate = lastGate[get<0>(oper[i].getQubits())];
+        size_t q1Gate = lastGate[get<1>(oper[i].getQubits())];
+        tempGate.addPrev(q0Gate);
+        if (q0Gate != q1Gate)
+            tempGate.addPrev(q1Gate);
+        if (q0Gate != ERROR_CODE)
+            allGates[q0Gate].addNext(i);
+        if (q1Gate != ERROR_CODE && q1Gate != q0Gate) {
+            allGates[q1Gate].addNext(i);
+        }
+        lastGate[get<0>(oper[i].getQubits())] = i;
+        lastGate[get<1>(oper[i].getQubits())] = i;
+        allGates.push_back(move(tempGate));
+    }
+    _dependency = make_shared<DependencyGraph>(nQubit, move(allGates));
+}
+
+/**
  * @brief Main flow of Duostra mapper
  *
  * @return size_t
  */
-size_t Duostra::flow() {
-    if (verbose > 3) cout << "Creating dependency of quantum circuit..." << endl;
-    makeDependency();
+size_t Duostra::flow(bool useDeviceAsPlacement) {
     unique_ptr<CircuitTopo> topo;
     topo = make_unique<CircuitTopo>(_dependency);
-
     auto checkTopo = topo->clone();
     auto checkDevice(_device);
 
@@ -190,11 +233,12 @@ size_t Duostra::flow() {
         cerr << "Error: number of logical qubits are larger than the device!!" << endl;
         return ERROR_CODE;
     }
-
-    if (verbose > 3) cout << "Initial placing..." << endl;
-    auto placer = getPlacer();
-    auto assign = placer->placeAndAssign(_device);
-
+    vector<size_t> assign;
+    if (!useDeviceAsPlacement) {
+        if (verbose > 3) cout << "Initial placing..." << endl;
+        auto placer = getPlacer();
+        assign = placer->placeAndAssign(_device);
+    }
     // scheduler
     if (verbose > 3) cout << "Creating Scheduler..." << endl;
     auto sched = getScheduler(move(topo), _tqdm);
@@ -206,7 +250,7 @@ size_t Duostra::flow() {
 
     // routing
     if (!_silent) cout << "Routing..." << endl;
-    sched->assignGatesAndSort(move(router));
+    _device = sched->assignGatesAndSort(move(router));
 
     if (_check) {
         if (!_silent) cout << "Checking..." << endl;
@@ -228,10 +272,29 @@ size_t Duostra::flow() {
         cout << endl;
     }
     assert(sched->isSorted());
+    assert(sched->getOrder().size() == _dependency->gates().size());
     _result = sched->getOperations();
+    storeOrderInfo(sched->getOrder());
     buildCircuitByResult();
     cout.clear();
     return sched->getFinalCost();
+}
+
+/**
+ * @brief Convert index to full information of gate
+ *
+ * @param order
+ */
+void Duostra::storeOrderInfo(const std::vector<size_t>& order) {
+    for (const auto& gateId : order) {
+        const Gate& g = _dependency->getGate(gateId);
+        tuple<size_t, size_t> qubits = g.getQubits();
+        if (g.isSwapped())
+            qubits = make_tuple(get<1>(qubits), get<0>(qubits));
+        Operation op(g.getType(), g.getPhase(), qubits, {});
+        op.setId(g.getId());
+        _order.emplace_back(op);
+    }
 }
 
 /**
@@ -261,8 +324,10 @@ void Duostra::printAssembly() const {
  *
  */
 void Duostra::buildCircuitByResult() {
-    _physicalCircuit->addProcedure("Duostra", _logicalCircuit->getProcedures());
-    _physicalCircuit->setFileName(_logicalCircuit->getFileName());
+    if (_logicalCircuit != nullptr) {
+        _physicalCircuit->addProcedure("Duostra", _logicalCircuit->getProcedures());
+        _physicalCircuit->setFileName(_logicalCircuit->getFileName());
+    }
     _physicalCircuit->addQubit(_device.getNQubit());
     for (const auto& operation : _result) {
         string gateName{gateType2Str[operation.getType()]};

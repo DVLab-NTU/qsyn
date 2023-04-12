@@ -22,9 +22,10 @@ using namespace std;
  * @param qs
  */
 Gate::Gate(size_t id, GateType type, Phase ph, std::tuple<size_t, size_t> qs)
-    : _id(id), _type(type), _phase(ph), _qubits(qs), _prevs({}), _nexts({}) {
+    : _id(id), _type(type), _phase(ph), _swap(false), _qubits(qs), _prevs({}), _nexts({}) {
     if (std::get<0>(_qubits) > std::get<1>(_qubits)) {
         _qubits = std::make_tuple(std::get<1>(_qubits), std::get<0>(_qubits));
+        _swap = true;
     }
 }
 
@@ -34,7 +35,7 @@ Gate::Gate(size_t id, GateType type, Phase ph, std::tuple<size_t, size_t> qs)
  * @param other
  */
 Gate::Gate(Gate&& other)
-    : _id(other._id), _type(other._type), _phase(other._phase), _qubits(other._qubits), _prevs(other._prevs), _nexts(other._nexts) {}
+    : _id(other._id), _type(other._type), _phase(other._phase), _swap(other._swap), _qubits(other._qubits), _prevs(other._prevs), _nexts(other._nexts) {}
 
 /**
  * @brief Add previous gate
