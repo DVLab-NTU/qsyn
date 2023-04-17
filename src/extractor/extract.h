@@ -92,6 +92,7 @@ private:
     ConnectInfo _colInfo;
 
     size_t _cntCXFiltered;
+    size_t _cntSwap;
 
     std::vector<size_t> _initialPlacement;
 };

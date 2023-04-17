@@ -24,15 +24,15 @@ qsyn> zxgs -fr
 qsyn> usage
 Period time used : 7.48 seconds
 Total time used  : 7.48 seconds
-Total memory used: 202.1 M Bytes
+Total memory used: 202 M Bytes
 
 qsyn> zx2qc -both
 Finish extracting!
 Checking...      passed
 
 qsyn> usage
-Period time used : 8933 seconds
-Total time used  : 8940 seconds
+Period time used : 8935 seconds
+Total time used  : 8942 seconds
 Total memory used: 1045 M Bytes
 
 qsyn> qcp -list
@@ -60,12 +60,54 @@ qsyn> zxcomp 0
 qsyn> zxgs -fr
 
 qsyn> usage
-Period time used : 14.71 seconds
-Total time used  : 8955 seconds
+Period time used : 14.57 seconds
+Total time used  : 8957 seconds
 Total memory used: 1061 M Bytes
 
 qsyn> zxgt -id 
 The graph is an identity!
+
+qsyn> zxp -list
+  0    cm85a_209           QC2ZX ➔ FR
+  1    cm85a_209           QC2ZX ➔ FR ➔ ZX2QC
+★ 2    cm85a_209           QC2ZX ➔ FR ➔ ZX2QC ➔ QC2ZX ➔ FR
+
+qsyn> exts -p false
+
+qsyn> zxch 0
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> qcp -list
+  0    cm85a_209           
+  1    cm85a_209           QC2ZX ➔ FR ➔ ZX2QC
+  2    cm85a_209           QC2ZX ➔ FR ➔ ZX2QC (Physical)
+★ 3    cm85a_209           QC2ZX ➔ FR ➔ ZX2QC
+
+qsyn> duostra -c
+Routing...
+
+Checking...
+
+Duostra Result: 
+
+Scheduler:      search
+Router:         duostra
+Placer:         dfs
+
+Mapping Depth:  36546
+Total Time:     99120
+#SWAP:          13877
+
+
+qsyn> qccp
+QCir 4( 16 qubits, 52142 gates)
+Clifford: 50630
+└── CX: 46978
+T-family: 1950
+Others  : 0
+Depth: 36546
 
 qsyn> qq -f
 

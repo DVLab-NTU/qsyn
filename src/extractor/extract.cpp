@@ -40,6 +40,7 @@ Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> d) : _graph(g), 
     initialize(c == nullptr);
     _cntCXFiltered = 0;
     _cntCXIter = 0;
+    _cntSwap = 0;
 }
 
 /**
@@ -129,9 +130,10 @@ QCir* Extractor::extract() {
     _logicalCircuit->setFileName(_graph->getFileName());
 
     if (toPhysical()) {
-        if (correct)
+        if (correct) {
+            cout << "#swap: " << _cntSwap << " (decomposed into CXs)" << endl;
             return _physicalCircuit;
-        else {
+        } else {
             cout << "Warning: physical and logical circuits are not matched, store logical one!!" << endl;
             return _logicalCircuit;
         }
@@ -967,9 +969,10 @@ void Extractor::prependSeriesGates(const std::vector<Operation>& logical, const 
 
     for (const auto& gates : physical) {
         tuple<size_t, size_t> qubits = gates.getQubits();
-        if (gates.getType() == GateType::SWAP)
+        if (gates.getType() == GateType::SWAP) {
             prependSwapGate(get<0>(qubits), get<1>(qubits), _physicalCircuit);
-        else
+            _cntSwap++;
+        } else
             _physicalCircuit->addGate(gateType2Str[gates.getType()], {get<0>(qubits), get<1>(qubits)}, gates.getPhase(), false);
     }
 }
