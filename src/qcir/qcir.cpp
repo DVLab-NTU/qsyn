@@ -43,12 +43,9 @@ QCirGate *QCir::getGate(size_t id) const {
  */
 QCirQubit *QCir::getQubit(size_t id) const {
     for (size_t i = 0; i < _qubits.size(); i++) {
-        if (_qubits[i]->getId() == id){
+        if (_qubits[i]->getId() == id)
             return _qubits[i];
-        }
-            
     }
-    cout << "Error: The qubit do not exist." << endl;
     return NULL;
 }
 
