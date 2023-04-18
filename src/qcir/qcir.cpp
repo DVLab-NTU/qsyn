@@ -441,6 +441,15 @@ void QCir::analysis(bool detail) {
                 h++;
                 clifford++;
                 break;
+            case GateType::P:
+                rz++;
+                if (g->getPhase().getRational().denominator() <= 2)
+                    clifford++;
+                else if (g->getPhase().getRational().denominator() == 4)
+                    tfamily++;
+                else
+                    nct++;
+                break;
             case GateType::RZ:
                 rz++;
                 if (g->getPhase().getRational().denominator() <= 2)
