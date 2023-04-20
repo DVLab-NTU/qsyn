@@ -1,0 +1,1188 @@
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/9symml_195.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 32097 gates)
+Parse gate: 32097 times
+###########  Number 1 iter #############
+Parse gate: 25137 times
+Parse gate: 24860 times
+###########  Number 2 iter #############
+Parse gate: 23592 times
+Parse gate: 25566 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/adr4_197.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 3679 gates)
+Parse gate: 3679 times
+###########  Number 1 iter #############
+Parse gate: 2777 times
+Parse gate: 2696 times
+###########  Number 2 iter #############
+Parse gate: 2637 times
+Parse gate: 2803 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/cm42a_207.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 1771 gates)
+Parse gate: 1771 times
+###########  Number 1 iter #############
+Parse gate: 1232 times
+Parse gate: 1208 times
+###########  Number 2 iter #############
+Parse gate: 1194 times
+Parse gate: 1277 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/cm82a_208.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 682 gates)
+Parse gate: 682 times
+###########  Number 1 iter #############
+Parse gate: 496 times
+Parse gate: 488 times
+###########  Number 2 iter #############
+Parse gate: 479 times
+Parse gate: 503 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/cm85a_209.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 10541 gates)
+Parse gate: 10541 times
+###########  Number 1 iter #############
+Parse gate: 8545 times
+Parse gate: 8412 times
+###########  Number 2 iter #############
+Parse gate: 7893 times
+Parse gate: 8468 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/cycle10_2_110.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 5647 gates)
+Parse gate: 5647 times
+###########  Number 1 iter #############
+Parse gate: 4449 times
+Parse gate: 4351 times
+###########  Number 2 iter #############
+Parse gate: 4081 times
+Parse gate: 4397 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/dc2_222.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 8530 gates)
+Parse gate: 8530 times
+###########  Number 1 iter #############
+Parse gate: 6274 times
+Parse gate: 6186 times
+###########  Number 2 iter #############
+Parse gate: 6151 times
+Parse gate: 6630 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/dist_223.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 34555 gates)
+Parse gate: 34555 times
+###########  Number 1 iter #############
+Parse gate: 26769 times
+Parse gate: 26210 times
+###########  Number 2 iter #############
+Parse gate: 25400 times
+Parse gate: 27553 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/ham15_107.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 8730 gates)
+Parse gate: 8730 times
+###########  Number 1 iter #############
+Parse gate: 6592 times
+Parse gate: 6328 times
+###########  Number 2 iter #############
+Parse gate: 6208 times
+Parse gate: 6589 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/hwb8_113.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 66943 gates)
+Parse gate: 66943 times
+###########  Number 1 iter #############
+Parse gate: 53125 times
+Parse gate: 50503 times
+###########  Number 2 iter #############
+Parse gate: 47383 times
+Parse gate: 50571 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/inc_237.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 8793 gates)
+Parse gate: 8793 times
+###########  Number 1 iter #############
+Parse gate: 6298 times
+Parse gate: 6233 times
+###########  Number 2 iter #############
+Parse gate: 6211 times
+Parse gate: 6686 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/life_238.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 20415 gates)
+Parse gate: 20415 times
+###########  Number 1 iter #############
+Parse gate: 15630 times
+Parse gate: 15389 times
+###########  Number 2 iter #############
+Parse gate: 15077 times
+Parse gate: 16160 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      8254
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           8254
+
+qsyn> zxgt -id
+The graph is not an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/mlp4_245.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 17501 gates)
+Parse gate: 17501 times
+###########  Number 1 iter #############
+Parse gate: 13305 times
+Parse gate: 13139 times
+###########  Number 2 iter #############
+Parse gate: 13063 times
+Parse gate: 14237 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/pm1_249.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 1771 gates)
+Parse gate: 1771 times
+###########  Number 1 iter #############
+Parse gate: 1232 times
+Parse gate: 1208 times
+###########  Number 2 iter #############
+Parse gate: 1194 times
+Parse gate: 1277 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/qft_10.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 0 gates)
+Parse gate: 0 times
+###########  Number 1 iter #############
+Parse gate: 0 times
+Parse gate: 0 times
+###########  Number 2 iter #############
+Parse gate: 0 times
+Parse gate: 0 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/qft_n20.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 20 qubits, 1132 gates)
+Parse gate: 1132 times
+###########  Number 1 iter #############
+Parse gate: 784 times
+Parse gate: 762 times
+###########  Number 2 iter #############
+Parse gate: 760 times
+Parse gate: 794 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      32
+#Non-(Clifford+T)-gate:       257
+#Non-Clifford-gate:           289
+
+qsyn> zxgt -id
+The graph is not an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/rd53_251.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 1262 gates)
+Parse gate: 1262 times
+###########  Number 1 iter #############
+Parse gate: 850 times
+Parse gate: 831 times
+###########  Number 2 iter #############
+Parse gate: 825 times
+Parse gate: 866 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/rd73_252.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 5487 gates)
+Parse gate: 5487 times
+###########  Number 1 iter #############
+Parse gate: 4073 times
+Parse gate: 3991 times
+###########  Number 2 iter #############
+Parse gate: 3971 times
+Parse gate: 4255 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/rd84_253.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 13444 gates)
+Parse gate: 13444 times
+###########  Number 1 iter #############
+Parse gate: 10070 times
+Parse gate: 9838 times
+###########  Number 2 iter #############
+Parse gate: 9728 times
+Parse gate: 10427 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/root_255.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 16162 gates)
+Parse gate: 16162 times
+###########  Number 1 iter #############
+Parse gate: 12234 times
+Parse gate: 12016 times
+###########  Number 2 iter #############
+Parse gate: 11946 times
+Parse gate: 12935 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/sqn_258.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 10422 gates)
+Parse gate: 10422 times
+###########  Number 1 iter #############
+Parse gate: 8800 times
+Parse gate: 8508 times
+###########  Number 2 iter #############
+Parse gate: 7526 times
+Parse gate: 8128 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/sqrt8_260.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 2984 gates)
+Parse gate: 2984 times
+###########  Number 1 iter #############
+Parse gate: 2292 times
+Parse gate: 2228 times
+###########  Number 2 iter #############
+Parse gate: 2156 times
+Parse gate: 2297 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/square_root_7.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 5659 gates)
+Parse gate: 5659 times
+###########  Number 1 iter #############
+Parse gate: 4942 times
+Parse gate: 4700 times
+###########  Number 2 iter #############
+Parse gate: 4308 times
+Parse gate: 4569 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/urf1_149.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 200162 gates)
+Parse gate: 200162 times
+###########  Number 1 iter #############
+Parse gate: 150086 times
+Parse gate: 142686 times
+###########  Number 2 iter #############
+Parse gate: 139990 times
+Parse gate: 146598 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/urf1_278.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 68426 gates)
+Parse gate: 68426 times
+###########  Number 1 iter #############
+Parse gate: 54879 times
+Parse gate: 52759 times
+###########  Number 2 iter #############
+Parse gate: 50191 times
+Parse gate: 52347 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/urf2_277.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 27160 gates)
+Parse gate: 27160 times
+###########  Number 1 iter #############
+Parse gate: 21063 times
+Parse gate: 20026 times
+###########  Number 2 iter #############
+Parse gate: 19292 times
+Parse gate: 20217 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/z4_268.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+QCir 1( 16 qubits, 3024 gates)
+Parse gate: 3024 times
+###########  Number 1 iter #############
+Parse gate: 2114 times
+Parse gate: 2100 times
+###########  Number 2 iter #############
+Parse gate: 2084 times
+Parse gate: 2202 times
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+

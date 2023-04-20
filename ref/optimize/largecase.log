@@ -1,0 +1,36 @@
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr benchmark/benchmark_SABRE/large/z4_268.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> optimize
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
