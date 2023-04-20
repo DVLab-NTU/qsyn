@@ -45,7 +45,7 @@ public:
     bool isSingleRotateZ(QCirGate*);
     bool isSingleRotateX(QCirGate*);
     QCirGate* getAvailableRotateZ(size_t t);
-    std::vector<std::pair<size_t, size_t> > get_swap_path();
+    std::vector<std::pair<size_t, size_t>> get_swap_path();
 
     // Predicate function
     bool TwoQubitGateExist(QCirGate* g, GateType gt, size_t ctrl, size_t targ);
@@ -60,13 +60,13 @@ private:
     Qubit2Gates _gates;
     Qubit2Gates _available;
     std::vector<QCirGate*> _corrections;
-    std::vector<size_t> _availty;  // TODO - checkout if vector<bool> is availiable too. 
+    std::vector<size_t> _availty;  // TODO - checkout if vector<bool> is availiable too.
 
     std::unordered_map<size_t, size_t> _permutation;
     ordered_hashset<size_t> _hadamards;
     ordered_hashset<size_t> _xs;  // NOTE - nots
     ordered_hashset<size_t> _zs;
-    std::vector<std::pair<size_t, size_t> > _swaps;
+    std::vector<std::pair<size_t, size_t>> _swaps;
 
     size_t _gateCnt;  // NOTE - gcount
     void toggleElement(size_t type, size_t element);

@@ -41,7 +41,7 @@ OptimizeCmd::exec(const string &option) {
     QCir *result = Opt.parseCircuit(true, false, 1000);
     if (result == nullptr) {
         cout << "Error: Optimize circuit fail." << endl;
-    }else{
+    } else {
         qcirMgr->setQCircuit(result);
     }
     return CMD_EXEC_DONE;

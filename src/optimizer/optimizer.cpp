@@ -28,7 +28,7 @@ void Optimizer::reset() {
     _swaps.clear();
     _corrections.clear();
     _gateCnt = 0;
-                     
+
     for (size_t i = 0; i < _circuit->getQubits().size(); i++) {
         _availty.emplace_back(1);
         _available.emplace(i, vector<QCirGate*>{});
@@ -36,7 +36,6 @@ void Optimizer::reset() {
         _permutation[i] = _circuit->getQubits()[i]->getId();
     }
 }
-
 
 /**
  * @brief Parse the circuit and forward and backward iteratively and optimize it
@@ -46,7 +45,7 @@ void Optimizer::reset() {
  * @param maxIter
  * @return QCir* Optimized Circuit
  */
-QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIter) {    
+QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIter) {
     if (verbose >= 3) cout << "Start optimize" << endl;
     _doSwap = doSwap;
     _minimize_czs = false;
@@ -61,13 +60,12 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
     _corrections.clear();
     prev_stats = Optimizer::stats(_circuit);
 
-
     while (true) {
-        if (verbose >= 5) cout << "Start iteration " << iter+1 << endl;
+        if (verbose >= 5) cout << "Start iteration " << iter + 1 << endl;
         _reversed = true;
         _circuit = parseForward();
         for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
-        //TODO - This line seems to be redundant
+        // TODO - This line seems to be redundant
         _corrections.clear();
 
         _reversed = false;
@@ -75,7 +73,7 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
         iter++;
         stats = Optimizer::stats(_circuit);
         vector<size_t> stats = Optimizer::stats(_circuit);
-        //TODO - Find a more efficient way
+        // TODO - Find a more efficient way
         if (_minimize_czs && (iter >= _maxIter || (prev_stats[0] <= stats[0] && prev_stats[1] <= stats[1] && prev_stats[2] <= stats[2]))) {
             break;
         }
@@ -90,11 +88,11 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
     for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
     _corrections.clear();
     if (verbose >= 3) cout << "Optimize finished." << endl;
-    if (verbose >= 5){
+    if (verbose >= 5) {
         cout << "Final result is" << endl;
         _circuit->printCircuit();
         _circuit->printGates();
-    } 
+    }
     return _circuit;
 }
 
@@ -108,13 +106,13 @@ QCir* Optimizer::parseForward() {
     reset();
     _circuit->updateTopoOrder();
     vector<QCirGate*> gs = _circuit->getTopoOrderdGates();
-    if (_reversed){
+    if (_reversed) {
         std::reverse(gs.begin(), gs.end());
         if (verbose >= 6) cout << "Parse the circuit from the end." << endl;
-    } 
+    }
     for (auto& g : gs) parseGate(g);
-    
-    //TODO - Find a method to avoid using parameter "erase"
+
+    // TODO - Find a method to avoid using parameter "erase"
     for (auto& t : _hadamards) {
         addHadamard(t, false);
     }
@@ -123,7 +121,7 @@ QCir* Optimizer::parseForward() {
     for (auto& t : _zs) {
         addGate(t, Phase(1), 0);
     }
-    
+
     QCir* tmp = new QCir(-1);
     // NOTE - Below function will add the gate to tmp -
     topologicalSort(tmp);
@@ -138,7 +136,7 @@ QCir* Optimizer::parseForward() {
     _swaps = Optimizer::get_swap_path();
 
     for (auto& [c, t] : _swaps) {
-        //TODO - Use SWAP gate to replace cnots
+        // TODO - Use SWAP gate to replace cnots
         QCirGate* cnot_1 = new CXGate(_gateCnt);
         cnot_1->addQubit(c, false);
         cnot_1->addQubit(t, true);
@@ -154,11 +152,11 @@ QCir* Optimizer::parseForward() {
         _corrections.emplace_back(cnot_3);
     }
 
-    if (verbose >= 6){
+    if (verbose >= 6) {
         cout << "End parseForward. The temp circuit is" << endl;
         tmp->printCircuit();
         tmp->printGates();
-    } 
+    }
 
     return tmp;
 }
@@ -173,11 +171,11 @@ QCir* Optimizer::parseForward() {
 bool Optimizer::parseGate(QCirGate* gate) {
     // REVIEW - No copy
     // NOTE - Permute
-    if (verbose >= 8){
+    if (verbose >= 8) {
         cout << "Parse the gate" << endl;
         gate->printGate();
-    } 
-    
+    }
+
     size_t target = -1, control = -1;
 
     for (auto& [i, j] : _permutation) {
@@ -234,15 +232,15 @@ bool Optimizer::parseGate(QCirGate* gate) {
             // TODO - Add S/T gate
             _zs.erase(target);
             if (gate->getType() == GateType::RZ || gate->getType() == GateType::P) {
-                gate->setRotatePhase(gate->getPhase()+Phase(1));
+                gate->setRotatePhase(gate->getPhase() + Phase(1));
             } else if (gate->getType() == GateType::Z) {
                 return true;
             } else {
-                //NOTE - Trans S/S*/T/T* into PGate
+                // NOTE - Trans S/S*/T/T* into PGate
                 QCirGate* temp = new PGate(_gateCnt);
                 _gateCnt++;
                 temp->addQubit(target, true);
-                temp->setRotatePhase(gate->getPhase()+Phase(1));
+                temp->setRotatePhase(gate->getPhase() + Phase(1));
                 gate = temp;
             }
         }
@@ -286,7 +284,7 @@ bool Optimizer::parseGate(QCirGate* gate) {
             size_t tmp = control;
             gate->setTargetBit(target);
             gate->setControlBit(tmp);
-            if (verbose >= 9) cout << "Permutated control at "<< control << " target at " << target << endl;
+            if (verbose >= 9) cout << "Permutated control at " << control << " target at " << target << endl;
         }
         // NOTE - Push NOT gates trough the CZ
         // REVIEW - Seems strange
@@ -306,7 +304,7 @@ bool Optimizer::parseGate(QCirGate* gate) {
         else
             addCX(control, target);
     } else if (gate->getType() == GateType::CX) {
-        if (verbose >= 9) cout << "Permutated control at "<< control << " target at " << target << endl;
+        if (verbose >= 9) cout << "Permutated control at " << control << " target at " << target << endl;
         if (_xs.contains(control))
             toggleElement(1, target);
         if (_zs.contains(target))
@@ -376,7 +374,8 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
                         if (count_if(_available[targ].begin(), _available[targ].end(), [&](QCirGate* _g) { return Optimizer::TwoQubitGateExist(_g, GateType::CX, ctrl, targ); })) {
                             found_match = true;
                             break;
-                        }else continue;
+                        } else
+                            continue;
                     }
                     // NOTE - According to pyzx "There are Z-like gates blocking the CNOT from usage
                     //        But if the CNOT can be passed all the way up to these Z-like gates
@@ -385,8 +384,8 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
                     for (int i = _gates[targ].size() - _available[targ].size() - 1; i >= 0; i--) {
                         if (_gates[targ][i]->getType() != GateType::CX || _gates[targ][i]->getTarget()._qubit != targ)
                             break;
-                        //TODO - "_gates[targ][i] == g " might be available too
-                        if (_gates[targ][i]->getType() == GateType::CX && _gates[targ][i]->getControl()._qubit == ctrl && _gates[targ][i]->getTarget()._qubit == targ ) {
+                        // TODO - "_gates[targ][i] == g " might be available too
+                        if (_gates[targ][i]->getType() == GateType::CX && _gates[targ][i]->getControl()._qubit == ctrl && _gates[targ][i]->getTarget()._qubit == targ) {
                             found_match = true;
                             break;
                         }
@@ -494,7 +493,7 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
  */
 void Optimizer::addCX(size_t ctrl, size_t targ) {
     bool found_match = false;
-    
+
     if (_availty[ctrl] == 2) {
         if (_availty[targ] == 1) {
             for (int i = _available[ctrl].size() - 1; i >= 0; i--) {
@@ -664,7 +663,7 @@ void Optimizer::topologicalSort(QCir* circuit) {
                             break;
                         }
                     }
-                    for (size_t i : removed) {          
+                    for (size_t i : removed) {
                         gs.erase(gs.begin() + i);
                     }
                     break;
@@ -814,15 +813,15 @@ QCirGate* Optimizer::getAvailableRotateZ(size_t target) {
  *
  * @return vector<pair<size_t, size_t>> swap_path
  */
-vector<pair<size_t, size_t>> Optimizer::get_swap_path(){
-    vector<std::pair<size_t, size_t> > swap_path;
+vector<pair<size_t, size_t>> Optimizer::get_swap_path() {
+    vector<std::pair<size_t, size_t>> swap_path;
     unordered_map<size_t, size_t> inv_permutation;
-    for(auto [i, j]: _permutation){
+    for (auto [i, j] : _permutation) {
         inv_permutation.emplace(j, i);
     }
-    
-    for (size_t i = 0; i < _permutation.size(); i++){
-        if (_permutation[i]==i) continue;
+
+    for (size_t i = 0; i < _permutation.size(); i++) {
+        if (_permutation[i] == i) continue;
         size_t q1 = _permutation[i], q2 = inv_permutation[i];
         swap_path.emplace_back(make_pair(i, q2));
         _permutation[q2] = q1;
