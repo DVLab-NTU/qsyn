@@ -292,7 +292,6 @@ bool Optimizer::parseGate(QCirGate* gate) {
             toggleElement(2, target);
         if (_xs.contains(target))
             toggleElement(2, control);
-
         if (_hadamards.contains(control) && _hadamards.contains(target)) {
             addHadamard(control, true);
             addHadamard(target, true);
