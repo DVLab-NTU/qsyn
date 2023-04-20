@@ -19,4 +19,11 @@ zxcomp 0
 zxgs -fr
 usage
 zxgt -id 
+zxp -list
+exts -p false
+zxch 0
+zx2qc
+qcp -list
+duostra -c
+qccp
 qq -f

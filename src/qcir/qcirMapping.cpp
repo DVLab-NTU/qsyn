@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>       // for size_t, NULL
+#include <cstddef>  // for size_t, NULL
 
 #include "qcir.h"        // for QCir
 #include "qtensor.h"     // for QTensor

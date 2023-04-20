@@ -1,12 +1,12 @@
 /****************************************************************************
-  FileName     [ extchecker.cpp ]
-  PackageName  [ extractor ]
-  Synopsis     [ Define class ExtChecker member functions ]
+  FileName     [ mappingEQChecker.cpp ]
+  PackageName  [ duostra ]
+  Synopsis     [ Define class MappingEQChecker member functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "extchecker.h"
+#include "mappingEQChecker.h"
 using namespace std;
 
 /**
@@ -16,9 +16,14 @@ using namespace std;
  * @param log
  * @param dev
  * @param init
+ * @param reverse check reversily if true
  */
-ExtChecker::ExtChecker(QCir* phy, QCir* log, Device dev, std::vector<size_t> init) : _physical(phy), _logical(log), _device(dev) {
-    _device.place(init);
+MappingEQChecker::MappingEQChecker(QCir* phy, QCir* log, Device dev, std::vector<size_t> init, bool reverse) : _physical(phy), _logical(log), _device(dev), _reverse(reverse) {
+    if (init.empty()) {
+        auto placer = getPlacer();
+        init = placer->placeAndAssign(_device);
+    } else
+        _device.place(init);
     _physical->updateTopoOrder();
     for (const auto& qubit : _logical->getQubits()) {
         _dependency[qubit->getId()] = _reverse ? qubit->getLast() : qubit->getFirst();
@@ -31,13 +36,12 @@ ExtChecker::ExtChecker(QCir* phy, QCir* log, Device dev, std::vector<size_t> ini
  * @return true
  * @return false
  */
-bool ExtChecker::check() {
-    vector<QCirGate*> reverseOrder = _physical->getTopoOrderdGates();
-    reverse(reverseOrder.begin(), reverseOrder.end());  // NOTE - Now the order starts from back
-
+bool MappingEQChecker::check() {
+    vector<QCirGate*> executeOrder = _physical->getTopoOrderdGates();
+    if (_reverse) reverse(executeOrder.begin(), executeOrder.end());  // NOTE - Now the order starts from back
     // NOTE - Traverse all physical gates, should match dependency of logical gate
     unordered_set<QCirGate*> swaps;
-    for (const auto& phyGate : reverseOrder) {
+    for (const auto& phyGate : executeOrder) {
         if (swaps.contains(phyGate)) {
             continue;
         }
@@ -70,10 +74,11 @@ bool ExtChecker::check() {
  * @return true
  * @return false
  */
-bool ExtChecker::isSwap(QCirGate* candidate) {
+bool MappingEQChecker::isSwap(QCirGate* candidate) {
     if (candidate->getType() != GateType::CX) return false;
     QCirGate* q0Gate = getNext(candidate->getQubits()[0]);
     QCirGate* q1Gate = getNext(candidate->getQubits()[1]);
+
     if (q0Gate != q1Gate || q0Gate == nullptr || q1Gate == nullptr) return false;
     if (q0Gate->getType() != GateType::CX) return false;
     // q1gate == q0 gate
@@ -96,7 +101,7 @@ bool ExtChecker::isSwap(QCirGate* candidate) {
 
     QCirGate* logGate0 = _dependency[_device.getPhysicalQubit(phyCtrlId).getLogicalQubit()];
     QCirGate* logGate1 = _dependency[_device.getPhysicalQubit(phyTargId).getLogicalQubit()];
-    if (logGate0 != logGate1)
+    if (logGate0 != logGate1 || logGate0 == nullptr)
         return true;
     else if (logGate0->getType() != GateType::CX)
         return true;
@@ -112,7 +117,7 @@ bool ExtChecker::isSwap(QCirGate* candidate) {
  * @return true
  * @return false
  */
-bool ExtChecker::executeSwap(QCirGate* first, unordered_set<QCirGate*>& swaps) {
+bool MappingEQChecker::executeSwap(QCirGate* first, unordered_set<QCirGate*>& swaps) {
     bool connect = _device.getPhysicalQubit(first->getQubits()[0]._qubit).isAdjacency(_device.getPhysicalQubit(first->getQubits()[1]._qubit));
     if (!connect) return false;
 
@@ -133,7 +138,7 @@ bool ExtChecker::executeSwap(QCirGate* first, unordered_set<QCirGate*>& swaps) {
  * @return true
  * @return false
  */
-bool ExtChecker::executeSingle(QCirGate* gate) {
+bool MappingEQChecker::executeSingle(QCirGate* gate) {
     assert(gate->getQubits()[0]._isTarget == true);
     size_t phyId = gate->getQubits()[0]._qubit;
 
@@ -168,7 +173,7 @@ bool ExtChecker::executeSingle(QCirGate* gate) {
  * @return true
  * @return false
  */
-bool ExtChecker::executeDouble(QCirGate* gate) {
+bool MappingEQChecker::executeDouble(QCirGate* gate) {
     assert(gate->getQubits()[0]._isTarget == false);
     assert(gate->getQubits()[1]._isTarget == true);
     size_t phyCtrlId = gate->getQubits()[0]._qubit;
@@ -206,6 +211,7 @@ bool ExtChecker::executeDouble(QCirGate* gate) {
 
     _dependency[logical->getQubits()[0]._qubit] = getNext(logical->getQubits()[0]);
     _dependency[logical->getQubits()[1]._qubit] = getNext(logical->getQubits()[1]);
+
     return true;
 }
 
@@ -215,7 +221,7 @@ bool ExtChecker::executeDouble(QCirGate* gate) {
  * @return true
  * @return false
  */
-bool ExtChecker::checkRemain() {
+bool MappingEQChecker::checkRemain() {
     for (const auto& [q, g] : _dependency) {
         if (g != nullptr) {
             cout << "Note: qubit " << q << " has gates remaining" << endl;
@@ -230,7 +236,7 @@ bool ExtChecker::checkRemain() {
  * @param info
  * @return QCirGate*
  */
-QCirGate* ExtChecker::getNext(const BitInfo& info) {
+QCirGate* MappingEQChecker::getNext(const BitInfo& info) {
     if (_reverse)
         return info._parent;
     else

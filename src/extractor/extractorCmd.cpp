@@ -13,7 +13,7 @@
 #include <string>    // for string
 
 #include "apCmd.h"
-#include "cmdMacros.h"   // for CMD_N_OPTS_EQUAL_OR_RETURN, CMD_N_OPTS_AT_LE...
+#include "cmdMacros.h"  // for CMD_N_OPTS_EQUAL_OR_RETURN, CMD_N_OPTS_AT_LE...
 #include "deviceCmd.h"
 #include "deviceMgr.h"   // for DeviceMgr
 #include "extract.h"     // for Extractor

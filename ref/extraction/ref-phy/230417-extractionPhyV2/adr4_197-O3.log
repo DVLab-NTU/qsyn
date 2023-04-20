@@ -1,0 +1,114 @@
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> dtgr ../../benchmark/topology/guadalupe.layout
+
+qsyn> qcset -d 2 -sw 6
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/adr4_197.qasm
+
+qsyn> qccp -a
+Clifford: 1941
+└── CX: 1498
+T-family: 1498
+Others  : 0
+
+qsyn> qc2zx
+
+qsyn> zxgs -fr
+
+qsyn> usage
+Period time used : 0.43 seconds
+Total time used  : 0.43 seconds
+Total memory used: 24.42 M Bytes
+
+qsyn> zx2qc -both
+Finish extracting!
+Checking...      passed
+#swap: 3943 (decomposed into CXs)
+
+qsyn> usage
+Period time used : 1257 seconds
+Total time used  : 1258 seconds
+Total memory used: 127 M Bytes
+
+qsyn> qcp -list
+  0    adr4_197            
+  1    adr4_197            QC2ZX ➔ FR ➔ ZX2QC
+★ 2    adr4_197            QC2ZX ➔ FR ➔ ZX2QC (Physical)
+
+qsyn> qccp
+QCir 2( 16 qubits, 15802 gates)
+Clifford: 15336
+└── CX: 13896
+T-family: 692
+Others  : 0
+Depth: 11222
+
+qsyn> // Check to logical and perform identity checking
+qsyn> qcch 1
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> usage
+Period time used : 1.07 seconds
+Total time used  : 1259 seconds
+Total memory used: 131.4 M Bytes
+
+qsyn> zxgt -id 
+The graph is an identity!
+
+qsyn> zxp -list
+  0    adr4_197            QC2ZX ➔ FR
+  1    adr4_197            QC2ZX ➔ FR ➔ ZX2QC
+★ 2    adr4_197            QC2ZX ➔ FR ➔ ZX2QC ➔ QC2ZX ➔ FR
+
+qsyn> exts -p false
+
+qsyn> zxch 0
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> qcp -list
+  0    adr4_197            
+  1    adr4_197            QC2ZX ➔ FR ➔ ZX2QC
+  2    adr4_197            QC2ZX ➔ FR ➔ ZX2QC (Physical)
+★ 3    adr4_197            QC2ZX ➔ FR ➔ ZX2QC
+
+qsyn> duostra -c
+Routing...
+
+Checking...
+
+Duostra Result: 
+
+Scheduler:      search
+Router:         duostra
+Placer:         dfs
+
+Mapping Depth:  11230
+Total Time:     28786
+#SWAP:          3899
+
+
+qsyn> qccp
+QCir 4( 16 qubits, 15346 gates)
+Clifford: 14880
+└── CX: 13440
+T-family: 692
+Others  : 0
+Depth: 11230
+
+qsyn> qq -f
+

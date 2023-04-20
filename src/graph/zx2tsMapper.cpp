@@ -7,7 +7,7 @@
 ****************************************************************************/
 #include "zx2tsMapper.h"
 
-#include <cassert>       // for assert
+#include <cassert>  // for assert
 
 #include "tensorMgr.h"   // for TensorMgr
 #include "textFormat.h"  // for TextFormat

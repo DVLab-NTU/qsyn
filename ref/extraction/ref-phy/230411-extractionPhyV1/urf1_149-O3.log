@@ -22,17 +22,17 @@ qsyn> qc2zx
 qsyn> zxgs -fr
 
 qsyn> usage
-Period time used : 30.51 seconds
-Total time used  : 30.51 seconds
-Total memory used: 850 M Bytes
+Period time used : 31.11 seconds
+Total time used  : 31.11 seconds
+Total memory used: 850.3 M Bytes
 
 qsyn> zx2qc -both
 Finish extracting!
 Checking...      passed
 
 qsyn> usage
-Period time used : 3.936e+04 seconds
-Total time used  : 3.939e+04 seconds
+Period time used : 4.223e+04 seconds
+Total time used  : 4.227e+04 seconds
 Total memory used: 2955 M Bytes
 
 qsyn> qcp -list
@@ -60,12 +60,50 @@ qsyn> zxcomp 0
 qsyn> zxgs -fr
 
 qsyn> usage
-Period time used : 2675 seconds
-Total time used  : 4.207e+04 seconds
-Total memory used: 3118 M Bytes
+Period time used : 2787 seconds
+Total time used  : 4.505e+04 seconds
+Total memory used: 3117 M Bytes
 
 qsyn> zxgt -id 
 The graph is an identity!
 
-qsyn> qq -f
+qsyn> zxp -list
+  0    urf1_149            QC2ZX ➔ FR
+  1    urf1_149            QC2ZX ➔ FR ➔ ZX2QC
+★ 2    urf1_149            QC2ZX ➔ FR ➔ ZX2QC ➔ QC2ZX ➔ FR
 
+qsyn> exts -p false
+
+qsyn> zxch 0
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> qcp -list
+  0    urf1_149            
+  1    urf1_149            QC2ZX ➔ FR ➔ ZX2QC
+  2    urf1_149            QC2ZX ➔ FR ➔ ZX2QC (Physical)
+★ 3    urf1_149            QC2ZX ➔ FR ➔ ZX2QC
+
+qsyn> duostra -c
+Routing...
+
+Checking...
+
+Duostra Result: 
+
+Scheduler:      search
+Router:         duostra
+Placer:         dfs
+
+Mapping Depth:  513404
+Total Time:     1332030
+#SWAP:          173244
+
+
+qsyn> qccp
+QCir 4( 16 qubits, 719876 gates)
+Clifford: 711582
+└── CX: 612154
+T-family: 40380
+Others  : 0

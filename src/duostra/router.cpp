@@ -155,7 +155,7 @@ tuple<size_t, size_t> Router::getPhysicalQubits(const Gate& gate) const {
     if ((gate.getType() == GateType::CX || gate.getType() == GateType::CZ)) {
         size_t logicalId1 = get<1>(gate.getQubits());  // get logical qubit index of gate in topology
         assert(logicalId1 != ERROR_CODE);
-        physicalId1 = _logical2Physical[logicalId1];   // get physical qubit index of the gate
+        physicalId1 = _logical2Physical[logicalId1];  // get physical qubit index of the gate
     }
     return make_tuple(physicalId0, physicalId1);
 }

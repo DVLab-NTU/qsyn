@@ -12,7 +12,7 @@
 
 #include <memory>
 
-#include "extchecker.h"
+#include "mappingEQChecker.h"
 #include "simplify.h"  // for Simplifier
 #include "zxGraph.h"   // for ZXGraph
 #include "zxRules.h"   // for PivotBoundary
@@ -40,6 +40,7 @@ Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> d) : _graph(g), 
     initialize(c == nullptr);
     _cntCXFiltered = 0;
     _cntCXIter = 0;
+    _cntSwap = 0;
 }
 
 /**
@@ -105,7 +106,7 @@ QCir* Extractor::extract() {
     bool correct = true;
     if (toPhysical()) {
         cout << "Checking...      ";
-        ExtChecker checker(_physicalCircuit, _logicalCircuit, _deviceBackup.value(), _initialPlacement);
+        MappingEQChecker checker(_physicalCircuit, _logicalCircuit, _deviceBackup.value(), _initialPlacement, true);
         if (checker.check()) {
             cout << "passed" << endl;
             _physicalCircuit->addProcedure("ZX2QC (Physical)", _graph->getProcedures());
@@ -129,9 +130,10 @@ QCir* Extractor::extract() {
     _logicalCircuit->setFileName(_graph->getFileName());
 
     if (toPhysical()) {
-        if (correct)
+        if (correct) {
+            cout << "#swap: " << _cntSwap << " (decomposed into CXs)" << endl;
             return _physicalCircuit;
-        else {
+        } else {
             cout << "Warning: physical and logical circuits are not matched, store logical one!!" << endl;
             return _logicalCircuit;
         }
@@ -894,7 +896,7 @@ void Extractor::updateGraphByMatrix(EdgeType et) {
     for (auto& f : _frontier) {
         size_t c = 0;
         for (auto& nb : _neighbors) {
-            if (_biAdjacency[r][c] == 1 && !f->isNeighbor(nb)) {        // NOTE - Should connect but not connected
+            if (_biAdjacency[r][c] == 1 && !f->isNeighbor(nb)) {  // NOTE - Should connect but not connected
                 _graph->addEdge(f, nb, et);
             } else if (_biAdjacency[r][c] == 0 && f->isNeighbor(nb)) {  // NOTE - Should not connect but connected
                 _graph->removeEdge(f, nb, et);
@@ -967,9 +969,10 @@ void Extractor::prependSeriesGates(const std::vector<Operation>& logical, const 
 
     for (const auto& gates : physical) {
         tuple<size_t, size_t> qubits = gates.getQubits();
-        if (gates.getType() == GateType::SWAP)
+        if (gates.getType() == GateType::SWAP) {
             prependSwapGate(get<0>(qubits), get<1>(qubits), _physicalCircuit);
-        else
+            _cntSwap++;
+        } else
             _physicalCircuit->addGate(gateType2Str[gates.getType()], {get<0>(qubits), get<1>(qubits)}, gates.getPhase(), false);
     }
 }
