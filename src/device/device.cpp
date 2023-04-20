@@ -8,12 +8,12 @@
 
 #include "device.h"
 
-#include <stdlib.h>      // for abort
+#include <stdlib.h>  // for abort
 
-#include <cassert>       // for assert
-#include <fstream>       // for ifstream
-#include <limits>        // for _maxDist
-#include <string>        // for string
+#include <cassert>  // for assert
+#include <fstream>  // for ifstream
+#include <limits>   // for _maxDist
+#include <string>   // for string
 
 #include "qcirGate.h"    // for QCirGate
 #include "textFormat.h"  // for TextFormat

@@ -896,7 +896,7 @@ void Extractor::updateGraphByMatrix(EdgeType et) {
     for (auto& f : _frontier) {
         size_t c = 0;
         for (auto& nb : _neighbors) {
-            if (_biAdjacency[r][c] == 1 && !f->isNeighbor(nb)) {        // NOTE - Should connect but not connected
+            if (_biAdjacency[r][c] == 1 && !f->isNeighbor(nb)) {  // NOTE - Should connect but not connected
                 _graph->addEdge(f, nb, et);
             } else if (_biAdjacency[r][c] == 0 && f->isNeighbor(nb)) {  // NOTE - Should not connect but connected
                 _graph->removeEdge(f, nb, et);

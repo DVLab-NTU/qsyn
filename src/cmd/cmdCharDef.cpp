@@ -7,12 +7,12 @@
 ****************************************************************************/
 #include "cmdCharDef.h"  // for ParseChar, ParseChar::UNDEFINED_KEY, ParseCh...
 
-#include <ctype.h>       // for isprint
-#include <termios.h>     // for termios, tcgetattr, tcsetattr, TCSANOW, cc_t
+#include <ctype.h>    // for isprint
+#include <termios.h>  // for termios, tcgetattr, tcsetattr, TCSANOW, cc_t
 
-#include <iostream>      // for istream, cout
+#include <iostream>  // for istream, cout
 
-#include "cmdParser.h"   // for CmdParser
+#include "cmdParser.h"  // for CmdParser
 
 using namespace std;
 
