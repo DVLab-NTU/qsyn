@@ -8,9 +8,9 @@
 
 #include "optimizerCmd.h"
 
-#include <cstddef>      // for size_t
-#include <iostream>     // for ostream
-#include <string>       // for string
+#include <cstddef>   // for size_t
+#include <iostream>  // for ostream
+#include <string>    // for string
 
 #include "optimizer.h"  // for Extractor
 #include "qcir.h"       // for QCir
