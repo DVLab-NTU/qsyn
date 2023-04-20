@@ -12,7 +12,7 @@
 
 #include <memory>
 
-#include "extchecker.h"
+#include "mappingEQChecker.h"
 #include "simplify.h"  // for Simplifier
 #include "zxGraph.h"   // for ZXGraph
 #include "zxRules.h"   // for PivotBoundary
@@ -106,7 +106,7 @@ QCir* Extractor::extract() {
     bool correct = true;
     if (toPhysical()) {
         cout << "Checking...      ";
-        ExtChecker checker(_physicalCircuit, _logicalCircuit, _deviceBackup.value(), _initialPlacement);
+        MappingEQChecker checker(_physicalCircuit, _logicalCircuit, _deviceBackup.value(), _initialPlacement, true);
         if (checker.check()) {
             cout << "passed" << endl;
             _physicalCircuit->addProcedure("ZX2QC (Physical)", _graph->getProcedures());

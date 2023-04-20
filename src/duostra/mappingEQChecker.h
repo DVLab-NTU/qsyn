@@ -6,8 +6,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef EXTCHECKER_H
-#define EXTCHECKER_H
+#ifndef MPEQCHECKER_H
+#define MPEQCHECKER_H
 
 #include <cstddef>  // for size_t
 #include <optional>
@@ -18,7 +18,7 @@
 
 class MappingEQChecker {
 public:
-    MappingEQChecker(QCir*, QCir*, Device, std::vector<size_t> = {});
+    MappingEQChecker(QCir*, QCir*, Device, std::vector<size_t> = {}, bool = false);
 
     bool check();
     bool isSwap(QCirGate*);
@@ -33,7 +33,7 @@ private:
     QCir* _physical;
     QCir* _logical;
     Device _device;
-    bool _reverse = true;
+    bool _reverse;
     // <qubit, gate to execute (from back)> for logical circuit
     std::unordered_map<size_t, QCirGate*> _dependency;
 };

@@ -16,8 +16,9 @@ using namespace std;
  * @param log
  * @param dev
  * @param init
+ * @param reverse check reversily if true
  */
-MappingEQChecker::MappingEQChecker(QCir* phy, QCir* log, Device dev, std::vector<size_t> init) : _physical(phy), _logical(log), _device(dev) {
+MappingEQChecker::MappingEQChecker(QCir* phy, QCir* log, Device dev, std::vector<size_t> init, bool reverse) : _physical(phy), _logical(log), _device(dev), _reverse(reverse) {
     if (init.empty()) {
         auto placer = getPlacer();
         init = placer->placeAndAssign(_device);
