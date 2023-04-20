@@ -8,12 +8,12 @@
 
 #include "device.h"
 
-#include <stdlib.h>      // for abort
+#include <stdlib.h>  // for abort
 
-#include <cassert>       // for assert
-#include <fstream>       // for ifstream
-#include <limits>        // for _maxDist
-#include <string>        // for string
+#include <cassert>  // for assert
+#include <fstream>  // for ifstream
+#include <limits>   // for _maxDist
+#include <string>   // for string
 
 #include "qcirGate.h"    // for QCirGate
 #include "textFormat.h"  // for TextFormat
@@ -186,6 +186,17 @@ PhysicalQubit& PhysicalQubit::operator=(PhysicalQubit&& other) {
 }
 
 /**
+ * @brief Operator overloading
+ *
+ * @param os
+ * @param q
+ * @return ostream&
+ */
+ostream& operator<<(ostream& os, const PhysicalQubit& q) {
+    return os << "Q" << right << setw(2) << q.getId() << ", logical: " << right << setw(2) << q.getLogicalQubit() << ", lock until " << q.getOccupiedTime();
+}
+
+/**
  * @brief Mark qubit
  *
  * @param source false: from 0, true: from 1
@@ -249,6 +260,21 @@ tuple<size_t, size_t> Device::getNextSwapCost(size_t source, size_t target) {
 }
 
 /**
+ * @brief Get physical qubit id by logical id
+ *
+ * @param id logical
+ * @return size_t
+ */
+size_t Device::getPhysicalbyLogical(size_t id) {
+    for (auto& [_, phy] : _qubitList) {
+        if (phy.getLogicalQubit() == id) {
+            return phy.getId();
+        }
+    }
+    return ERROR_CODE;
+}
+
+/**
  * @brief Add adjacency pair (a,b)
  *
  * @param a Id of first qubit
@@ -303,6 +329,33 @@ void Device::applyGate(const Operation& op) {
         default:
             assert(false);
     }
+}
+
+/**
+ * @brief Apply swap, only used in checker
+ *
+ * @param op
+ */
+void Device::applySwapCheck(size_t q0Id, size_t q1Id) {
+    PhysicalQubit& q0 = getPhysicalQubit(q0Id);
+    PhysicalQubit& q1 = getPhysicalQubit(q1Id);
+    size_t temp = q0.getLogicalQubit();
+    q0.setLogicalQubit(q1.getLogicalQubit());
+    q1.setLogicalQubit(temp);
+    size_t t = max(q0.getOccupiedTime(), q1.getOccupiedTime());
+    q0.setOccupiedTime(t + DOUBLE_DELAY);
+    q1.setOccupiedTime(t + DOUBLE_DELAY);
+}
+
+/**
+ * @brief Apply single-qubit gate
+ *
+ * @param physicalId
+ */
+void Device::applySingleQubitGate(size_t physicalId) {
+    size_t startTime = _qubitList[physicalId].getOccupiedTime();
+    _qubitList[physicalId].setOccupiedTime(startTime + SINGLE_DELAY);
+    _qubitList[physicalId].reset();
 }
 
 /**
@@ -850,6 +903,24 @@ void Device::printMapping() {
     }
 }
 
+/**
+ * @brief Print device status
+ *
+ */
+void Device::printStatus() const {
+    cout << endl;
+    cout << "Device Status:" << endl;
+    vector<PhysicalQubit> qubits;
+    qubits.resize(_nQubit);
+    for (const auto& [idx, info] : _qubitList) {
+        qubits[idx] = info;
+    }
+    for (size_t i = 0; i < qubits.size(); ++i) {
+        cout << qubits[i] << "\n";
+    }
+    cout << "\n";
+}
+
 // SECTION - Class Operation Member Functions
 
 /**
@@ -901,8 +972,8 @@ Operation::Operation(GateType oper, Phase ph, tuple<size_t, size_t> qs, tuple<si
     size_t a = get<0>(qs);
     size_t b = get<1>(qs);
     assert(a != b);
-    if (a > b)
-        _qubits = make_tuple(b, a);
+    // if (a > b)
+    //     _qubits = make_tuple(b, a);
 }
 
 /**

@@ -9,9 +9,9 @@
 #include <cstddef>  // for size_t
 #include <fstream>  // for fstream
 #include <iostream>
-#include <string>   // for string
+#include <string>  // for string
 
-#include "qcir.h"   // for QCir
+#include "qcir.h"  // for QCir
 
 using namespace std;
 
@@ -69,6 +69,9 @@ bool QCir::readQCirFile(string filename) {
  */
 bool QCir::readQASM(string filename) {
     // read file and open
+    string lastname = filename.substr(filename.find_last_of('/') + 1);
+    setFileName(lastname.substr(0, lastname.size() - 5));
+    _procedures.clear();
     fstream qasm_file;
     string tmp;
     vector<string> record;

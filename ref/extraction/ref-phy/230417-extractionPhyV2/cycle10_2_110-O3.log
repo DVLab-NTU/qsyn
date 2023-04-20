@@ -1,0 +1,114 @@
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> dtgr ../../benchmark/topology/guadalupe.layout
+
+qsyn> qcset -d 2 -sw 6
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/cycle10_2_110.qasm
+
+qsyn> qccp -a
+Clifford: 3404
+└── CX: 2648
+T-family: 2646
+Others  : 0
+
+qsyn> qc2zx
+
+qsyn> zxgs -fr
+
+qsyn> usage
+Period time used : 3.03 seconds
+Total time used  : 3.03 seconds
+Total memory used: 96.46 M Bytes
+
+qsyn> zx2qc -both
+Finish extracting!
+Checking...      passed
+#swap: 5472 (decomposed into CXs)
+
+qsyn> usage
+Period time used : 859.6 seconds
+Total time used  : 862.6 seconds
+Total memory used: 202.7 M Bytes
+
+qsyn> qcp -list
+  0    cycle10_2_110       
+  1    cycle10_2_110       QC2ZX ➔ FR ➔ ZX2QC
+★ 2    cycle10_2_110       QC2ZX ➔ FR ➔ ZX2QC (Physical)
+
+qsyn> qccp
+QCir 2( 16 qubits, 22172 gates)
+Clifford: 21442
+└── CX: 19104
+T-family: 1160
+Others  : 0
+Depth: 16246
+
+qsyn> // Check to logical and perform identity checking
+qsyn> qcch 1
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> usage
+Period time used : 2.77 seconds
+Total time used  : 865.4 seconds
+Total memory used: 208.3 M Bytes
+
+qsyn> zxgt -id 
+The graph is an identity!
+
+qsyn> zxp -list
+  0    cycle10_2_110       QC2ZX ➔ FR
+  1    cycle10_2_110       QC2ZX ➔ FR ➔ ZX2QC
+★ 2    cycle10_2_110       QC2ZX ➔ FR ➔ ZX2QC ➔ QC2ZX ➔ FR
+
+qsyn> exts -p false
+
+qsyn> zxch 0
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> qcp -list
+  0    cycle10_2_110       
+  1    cycle10_2_110       QC2ZX ➔ FR ➔ ZX2QC
+  2    cycle10_2_110       QC2ZX ➔ FR ➔ ZX2QC (Physical)
+★ 3    cycle10_2_110       QC2ZX ➔ FR ➔ ZX2QC
+
+qsyn> duostra -c
+Routing...
+
+Checking...
+
+Duostra Result: 
+
+Scheduler:      search
+Router:         duostra
+Placer:         dfs
+
+Mapping Depth:  16259
+Total Time:     40536
+#SWAP:          5394
+
+
+qsyn> qccp
+QCir 4( 16 qubits, 21802 gates)
+Clifford: 21072
+└── CX: 18734
+T-family: 1160
+Others  : 0
+Depth: 16259
+
+qsyn> qq -f
+

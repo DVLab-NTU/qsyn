@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>       // for size_t, NULL
+#include <cstddef>  // for size_t, NULL
 
 #include "qcir.h"        // for QCir
 #include "qtensor.h"     // for QTensor
@@ -38,6 +38,9 @@ void QCir::ZXMapping() {
     updateGateTime();
 
     ZXGraph *_ZXG = zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
+    _ZXG->setFileName(_fileName);
+    _ZXG->addProcedure("QC2ZX", _procedures);
+
     if (verbose >= 5) cout << "Traverse and build the graph... " << endl;
     _ZXG->setRef((void **)_ZXG);
 

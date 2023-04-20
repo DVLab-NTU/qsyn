@@ -113,6 +113,8 @@ public:
     void setInputs(const ZXVertexList& inputs) { _inputs = inputs; }
     void setOutputs(const ZXVertexList& outputs) { _outputs = outputs; }
     void setVertices(const ZXVertexList& vertices) { _vertices = vertices; }
+    void setFileName(std::string f) { _fileName = f; }
+    void addProcedure(std::string = "", const std::vector<std::string>& = {});
 
     const size_t& getId() const { return _id; }
     void** getRef() const { return _ref; }
@@ -124,6 +126,8 @@ public:
     size_t getNumInputs() const { return _inputs.size(); }
     size_t getNumOutputs() const { return _outputs.size(); }
     size_t getNumVertices() const { return _vertices.size(); }
+    std::string getFileName() const { return _fileName; }
+    const std::vector<std::string>& getProcedures() const { return _procedures; }
 
     // For testings
     bool isEmpty() const;
@@ -235,6 +239,8 @@ private:
     size_t _id;
     void** _ref;
     size_t _nextVId;
+    std::string _fileName;
+    std::vector<std::string> _procedures;
     ZXVertexList _inputs;
     ZXVertexList _outputs;
     ZXVertexList _vertices;

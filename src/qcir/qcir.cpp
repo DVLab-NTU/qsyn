@@ -8,10 +8,10 @@
 
 #include "qcir.h"
 
-#include <stdlib.h>      // for abort
+#include <stdlib.h>  // for abort
 
-#include <cassert>       // for assert
-#include <string>        // for string
+#include <cassert>  // for assert
+#include <string>   // for string
 
 #include "qcirGate.h"    // for QCirGate
 #include "qcirQubit.h"   // for QCirQubit
@@ -47,6 +47,18 @@ QCirQubit *QCir::getQubit(size_t id) const {
             return _qubits[i];
     }
     return NULL;
+}
+
+/**
+ * @brief Add procedures to QCir
+ *
+ * @param p
+ * @param procedures
+ */
+void QCir::addProcedure(std::string p, const std::vector<std::string> &procedures) {
+    for (auto pr : procedures)
+        _procedures.emplace_back(pr);
+    if (p != "") _procedures.emplace_back(p);
 }
 
 /**
@@ -434,6 +446,15 @@ void QCir::analysis(bool detail) {
             case GateType::H:
                 h++;
                 clifford++;
+                break;
+            case GateType::P:
+                rz++;
+                if (g->getPhase().getRational().denominator() <= 2)
+                    clifford++;
+                else if (g->getPhase().getRational().denominator() == 4)
+                    tfamily++;
+                else
+                    nct++;
                 break;
             case GateType::RZ:
                 rz++;

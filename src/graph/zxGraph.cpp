@@ -23,6 +23,18 @@ extern size_t verbose;
 /*****************************************************/
 
 /**
+ * @brief Add procedures to ZXGraph
+ *
+ * @param p
+ * @param procedures
+ */
+void ZXGraph::addProcedure(std::string p, const std::vector<std::string>& procedures) {
+    for (auto pr : procedures)
+        _procedures.emplace_back(pr);
+    if (p != "") _procedures.emplace_back(p);
+}
+
+/**
  * @brief Get the number of edges in ZX-graph
  *
  * @return size_t
