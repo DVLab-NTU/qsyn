@@ -6,8 +6,6 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "optimizerCmd.h"
-
 #include <cstddef>   // for size_t
 #include <iostream>  // for ostream
 #include <string>    // for string
