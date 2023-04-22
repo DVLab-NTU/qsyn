@@ -22,13 +22,7 @@ using Qubit2Gates = std::unordered_map<size_t, std::vector<QCirGate*>>;
 
 class Optimizer {
 public:
-    Optimizer(QCir* c = nullptr) {
-        _circuit = c;
-        reset();
-        _doSwap = true;
-        _separateCorrection = false;
-        _maxIter = 1000;
-    }
+    Optimizer(QCir* = nullptr);
     ~Optimizer() {}
 
     void reset();
@@ -73,6 +67,9 @@ private:
     void swapElement(size_t type, size_t e1, size_t e2);
     std::vector<size_t> stats(QCir* circuit);
     void _addGate2Circuit(QCir* circuit, QCirGate* gate);
+
+    std::string _name;
+    std::vector<std::string> _procedures;
 };
 
 #endif

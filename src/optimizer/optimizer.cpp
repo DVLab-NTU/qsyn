@@ -15,6 +15,23 @@ using namespace std;
 extern size_t verbose;
 
 /**
+ * @brief Construct a new Optimizer:: Optimizer object
+ *
+ * @param c
+ */
+Optimizer::Optimizer(QCir* c) {
+    _circuit = c;
+    reset();
+    _doSwap = false;
+    _separateCorrection = false;
+    _maxIter = 1000;
+    if (c != nullptr) {
+        _name = _circuit->getFileName();
+        _procedures = _circuit->getProcedures();
+    }
+}
+
+/**
  * @brief Reset the storage
  *
  */
@@ -93,6 +110,8 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
         _circuit->printCircuit();
         _circuit->printGates();
     }
+    _circuit->setFileName(_name);
+    _circuit->addProcedure("Optimize", _procedures);
     return _circuit;
 }
 

@@ -12,6 +12,7 @@
 #include <iostream>  // for ostream
 #include <string>    // for string
 
+#include "apCmd.h"
 #include "optimizer.h"  // for Extractor
 #include "qcir.h"       // for QCir
 #include "qcirCmd.h"    // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
@@ -19,12 +20,15 @@
 #include "util.h"       // for myStr2Uns
 
 using namespace std;
+using namespace ArgParse;
 extern size_t verbose;
 extern int effLimit;
 extern QCirMgr *qcirMgr;
 
+unique_ptr<ArgParseCmdType> optimizeCmd();
+
 bool initOptimizeCmd() {
-    if (!(cmdMgr->regCmd("OPTimize", 3, make_unique<OptimizeCmd>()))) {
+    if (!(cmdMgr->regCmd("OPTimize", 3, optimizeCmd()))) {
         cerr << "Registering \"optimize\" commands fails... exiting" << endl;
         return false;
     }
@@ -34,24 +38,32 @@ bool initOptimizeCmd() {
 //----------------------------------------------------------------------
 //    Optimize
 //----------------------------------------------------------------------
-CmdExecStatus
-OptimizeCmd::exec(const string &option) {
-    QC_CMD_MGR_NOT_EMPTY_OR_RETURN("OPTimize");
-    Optimizer Opt(qcirMgr->getQCircuit());
-    QCir *result = Opt.parseCircuit(true, false, 1000);
-    if (result == nullptr) {
-        cout << "Error: Optimize circuit fail." << endl;
-    } else {
-        qcirMgr->setQCircuit(result);
-    }
-    return CMD_EXEC_DONE;
-}
+unique_ptr<ArgParseCmdType> optimizeCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("OPTimize");
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("optimize QCir");
+        parser.addArgument<bool>("-physical")
+            .defaultValue(false)
+            .action(storeTrue)
+            .help("optimize physical circuit, i.e preserve the swap path");
+        parser.addArgument<bool>("-copy")
+            .defaultValue(false)
+            .action(storeTrue)
+            .help("copy a circuit to perform optimization");
+    };
 
-void OptimizeCmd::usage() const {
-    cout << "Usage: Optimize (Under construction)" << endl;
-}
-
-void OptimizeCmd::summary() const {
-    cout << setw(15) << left << "Optimize: "
-         << "Optimize QCir" << endl;
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("OPTimize");
+        Optimizer Opt(qcirMgr->getQCircuit());
+        QCir *result = Opt.parseCircuit(!parser["-physical"], false, 1000);
+        if (result == nullptr) {
+            cout << "Error: fail to optimize circuit." << endl;
+        } else {
+            if (parser["-copy"])
+                qcirMgr->addQCir(qcirMgr->getNextID());
+            qcirMgr->setQCircuit(result);
+        }
+        return CMD_EXEC_DONE;
+    };
+    return cmd;
 }
