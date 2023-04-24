@@ -47,7 +47,7 @@ void Optimizer::reset() {
     _gateCnt = 0;
 
     for (size_t i = 0; i < _circuit->getQubits().size(); i++) {
-        _availty.emplace_back(1);
+        _availty.emplace_back(false);
         _available.emplace(i, vector<QCirGate*>{});
         _gates.emplace(i, vector<QCirGate*>{});
         _permutation[i] = _circuit->getQubits()[i]->getId();
@@ -280,7 +280,7 @@ bool Optimizer::parseGate(QCirGate* gate) {
             addHadamard(target, true);
         }
         QCirGate* available = getAvailableRotateZ(target);
-        if (_availty[target] == 1 && available != nullptr) {
+        if (_availty[target] == false && available != nullptr) {
             std::erase(_available[target], available);
             std::erase(_gates[target], available);
             Phase ph = available->getPhase() + gate->getPhase();
@@ -292,8 +292,8 @@ bool Optimizer::parseGate(QCirGate* gate) {
                 addGate(target, ph, 0);
             }
         } else {
-            if (_availty[target] == 2) {
-                _availty[target] = 1;
+            if (_availty[target] == true) {
+                _availty[target] = false;
                 _available[target].clear();
             }
             addGate(target, gate->getPhase(), 0);
@@ -358,7 +358,7 @@ void Optimizer::addHadamard(size_t target, bool erase) {
     _gates[target].emplace_back(had);
     if (erase) _hadamards.erase(target);
     _available[target].clear();
-    _availty[target] = 1;
+    _availty[target] = false;
 }
 
 /**
@@ -388,7 +388,7 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
                     _gateCnt++;
                     cnot->addQubit(g->getControl()._qubit, false);
                     cnot->addQubit(g->getTarget()._qubit, true);
-                    if (_availty[targ] == 2) {
+                    if (_availty[targ] == true) {
                         if (count_if(_available[targ].begin(), _available[targ].end(), [&](QCirGate* _g) { return Optimizer::TwoQubitGateExist(_g, GateType::CX, ctrl, targ); })) {
                             found_match = true;
                             break;
@@ -417,7 +417,7 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
     // NOTE - CNOT-CZ = (S* x id)CNOT (S x S)
     if (found_match) {
         if (verbose >= 9) cout << "Tranform CNOT-CZ into (S* x id)CNOT(S x S)" << endl;
-        if (_availty[targ] == 2) {
+        if (_availty[targ] == true) {
             // REVIEW -  pyzx/optimize/line.339 has a bug
             //  _availty[targ] = 1;
             _available[targ].clear();
@@ -453,13 +453,13 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
         return;
     }
 
-    if (_availty[t1] == 2) {
+    if (_availty[t1] == true) {
         _available[t1].clear();
-        _availty[t1] = 1;
+        _availty[t1] = false;
     }
-    if (_availty[t2] == 2) {
+    if (_availty[t2] == true) {
         _available[t2].clear();
-        _availty[t2] = 1;
+        _availty[t2] = false;
     }
 
     // NOTE - Try to cancel CZ
@@ -512,8 +512,8 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
 void Optimizer::addCX(size_t ctrl, size_t targ) {
     bool found_match = false;
 
-    if (_availty[ctrl] == 2) {
-        if (_availty[targ] == 1) {
+    if (_availty[ctrl] == true) {
+        if (_availty[targ] == false) {
             for (int i = _available[ctrl].size() - 1; i >= 0; i--) {
                 QCirGate* g = _available[ctrl][i];
                 if (g->getType() == GateType::CX && g->getControl()._qubit == targ && g->getTarget()._qubit == ctrl) {
@@ -531,8 +531,8 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
                     _gateCnt++;
                     _gates[ctrl].erase(--(find_if(_gates[ctrl].rbegin(), _gates[ctrl].rend(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, targ, ctrl); })).base());
                     _gates[targ].erase(--(find_if(_gates[targ].rbegin(), _gates[targ].rend(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, targ, ctrl); })).base());
-                    _availty[ctrl] = 1;
-                    _availty[targ] = 2;
+                    _availty[ctrl] = false;
+                    _availty[targ] = true;
                     _gates[ctrl].emplace_back(cnot);
                     _gates[targ].emplace_back(cnot);
                     _available[ctrl].clear();
@@ -550,11 +550,11 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
             }
         }
         _available[ctrl].clear();
-        _availty[ctrl] = 1;
+        _availty[ctrl] = false;
     }
-    if (_availty[targ] == 1) {
+    if (_availty[targ] == false) {
         _available[targ].clear();
-        _availty[targ] = 2;
+        _availty[targ] = true;
     }
     found_match = false;
 

@@ -7,7 +7,9 @@ zx2qc
 optimize -ph
 qc2zx
 zxgadj
+usage
 zxcomp 0
+usage
 zxgs -fr
 zxgp -a
 zxgt -id

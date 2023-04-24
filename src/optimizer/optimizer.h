@@ -54,7 +54,7 @@ private:
     Qubit2Gates _gates;
     Qubit2Gates _available;
     std::vector<QCirGate*> _corrections;
-    std::vector<size_t> _availty;  // TODO - checkout if vector<bool> is availiable too.
+    std::vector<bool> _availty;  // TODO - checkout if vector<bool> is availiable too.
 
     std::unordered_map<size_t, size_t> _permutation;
     ordered_hashset<size_t> _hadamards;
