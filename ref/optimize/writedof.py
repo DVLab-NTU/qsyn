@@ -10,7 +10,7 @@ with open("largecase.dof", "w") as f:
     f.write("qc2zx\n")
     f.write("zxgsimp -fr\n")
     f.write("zx2qc\n")
-    f.write("optimize\n")
+    f.write("optimize -ph\n")
     f.write("qc2zx\n")
     f.write("zxgadj\n")
     f.write("zxcomp 0\n")
