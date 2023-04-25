@@ -126,7 +126,7 @@ void QCirGate::printGate() const {
     for (size_t i = 0; i < _qubits.size(); i++) {
         cout << right << setw(3) << _qubits[i]._qubit << " ";
     }
-    if(getType()==GateType::P || getType()==GateType::RX || getType()==GateType::RY || getType()==GateType::RZ)
+    if (getType() == GateType::P || getType() == GateType::RX || getType() == GateType::RY || getType() == GateType::RZ)
         cout << "      Phase: " << right << setw(4) << getPhase() << " ";
     cout << endl;
 }
