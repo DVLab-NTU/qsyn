@@ -447,7 +447,7 @@ bool Extractor::removeGadget(bool check) {
                 _axels.erase(n);
                 _frontier.erase(candidate);
 
-                pivotBoundaryRule->rewrite(_graph);
+                simp.rewrite();
                 simp.amend();
 
                 pivotBoundaryRule->clearBoundary();

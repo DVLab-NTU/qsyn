@@ -22,13 +22,18 @@ public:
     using Levels = std::vector<ZXVertexList>;
     using CorrectionSets = std::unordered_map<ZXVertex*, ZXVertexList>;
 
-    GFlow(ZXGraph* g) : _zxgraph(g), _valid(false) {}
+    GFlow(ZXGraph* g) : _zxgraph{g}, _valid{false}, _doIndependentLayers{false}, _doRemoveGadgets{false} {}
 
     void reset();
-    bool calculate(bool disjointNeighbors = false);
+    bool calculate();
 
     const Levels& getLevels() const { return _levels; }
     bool isValid() const { return _valid; }
+
+    void doIndependentLayers(bool flag) { _doIndependentLayers = flag; }
+    void doRemoveGadgets(bool flag) { _doRemoveGadgets = flag; }
+
+    size_t getNumRemoveGadgets() const { return _numRemoveGadgets; }
 
     void print() const;
     void printLevels() const;
@@ -43,6 +48,10 @@ private:
     CorrectionSets _correctionSets;
 
     bool _valid;
+    bool _doIndependentLayers;
+    bool _doRemoveGadgets;
+
+    size_t _numRemoveGadgets;
 
     // helper members
     ZXVertexList _frontier;
@@ -54,6 +63,7 @@ private:
     void clearTemporaryStorage();
     void calculateZerothLayer();
     void updateNeighborsByFrontier();
+    size_t removeGadgets();
     void setCorrectionSetFromMatrix(ZXVertex* v, const M2& matrix);
     void updateFrontier();
 

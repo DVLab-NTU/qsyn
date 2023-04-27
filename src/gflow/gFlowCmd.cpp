@@ -77,12 +77,13 @@ ZXGGFlowCmd::exec(const string &option) {
         } else if (myStrNCmp("-Disjoint", options[i], 2) == 0) {
             if (doDisjoint) return errorOption(CMD_OPT_EXTRA, options[i]);
             doDisjoint = true;
+            gflow.doIndependentLayers(true);
         } else {
             return errorOption(CMD_OPT_ILLEGAL, options[i]);
         }
     }
 
-    gflow.calculate(doDisjoint);
+    gflow.calculate();
 
     switch (mode) {
         case GFLOW_PRINT_MODE::ALL:

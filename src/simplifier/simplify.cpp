@@ -13,6 +13,7 @@
 #include <iostream>
 
 #include "zxGraph.h"  // for ZXGraph
+#include "gFlow.h"
 
 using namespace std;
 extern size_t verbose;
@@ -41,7 +42,7 @@ int Simplifier::simp() {
 
         if (verbose >= 8) cout << "\nIteration " << i << ":" << endl
                                << ">>>" << endl;
-        _rule->rewrite(_simpGraph);
+        rewrite();
         amend();
         if (verbose >= 8) cout << "<<<" << endl;
     }
@@ -85,7 +86,7 @@ int Simplifier::hadamardSimp() {
 
         if (verbose >= 8) cout << "\nIteration " << i << ":" << endl
                                << ">>>" << endl;
-        _rule->rewrite(_simpGraph);
+        rewrite();
         amend();
         if (verbose >= 8) cout << "<<<" << endl;
         if (_simpGraph->getNumVertices() >= vcount) break;
@@ -114,10 +115,10 @@ void Simplifier::amend() {
 
         if (v->getId() > v_n->getId()) swap(v, v_n);
         for (int j = 0; j < numSimpleEdges; j++)
-            _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::SIMPLE));
+            _simpGraph->addEdge(v, v_n, EdgeType::SIMPLE);
 
         for (int j = 0; j < numHadamardEdges; j++)
-            _simpGraph->addEdge(v, v_n, EdgeType(EdgeType::HADAMARD));
+            _simpGraph->addEdge(v, v_n, EdgeType::HADAMARD);
     }
     _simpGraph->removeEdges(_rule->getRemoveEdges());
     _simpGraph->removeVertices(_rule->getRemoveVertices());
@@ -236,6 +237,20 @@ int Simplifier::pivotGadgetSimp() {
     this->setRule(make_unique<PivotGadget>());
     int i = this->simp();
     return i;
+}
+
+/**
+ * @brief Perform Degadgetize Rule
+ *
+ * @return int
+ */
+int Simplifier::degadgetizeSimp() {
+    GFlow gflow(_simpGraph);
+    gflow.doRemoveGadgets(true);
+
+    gflow.calculate();
+    
+    return gflow.getNumRemoveGadgets();
 }
 
 /**

@@ -12,6 +12,7 @@
 #include <cstddef>  // for size_t
 #include <iomanip>
 #include <iostream>
+#include "simplify.h"
 
 #include "textFormat.h"  // for TextFormat
 class ZXVertex;
@@ -27,6 +28,7 @@ extern size_t verbose;
 void GFlow::reset() {
     _levels.clear();
     _correctionSets.clear();
+    _numRemoveGadgets = 0;
     clearTemporaryStorage();
 }
 
@@ -34,15 +36,21 @@ void GFlow::reset() {
  * @brief Calculate the GFlow to the ZXGraph
  *
  */
-bool GFlow::calculate(bool disjointNeighbors) {
+bool GFlow::calculate() {
     // REVIEW - exclude boundary nodes
     reset();
 
     calculateZerothLayer();
 
     while (!_levels.back().empty()) {
-        _levels.push_back(ZXVertexList());
         updateNeighborsByFrontier();
+
+        
+        if (_doRemoveGadgets && removeGadgets() > 0) {
+            updateNeighborsByFrontier();
+        }
+
+        _levels.push_back(ZXVertexList());
 
         _coefficientMatrix.fromZXVertices(_neighbors, _frontier);
 
@@ -51,7 +59,7 @@ bool GFlow::calculate(bool disjointNeighbors) {
         if (verbose >= 8) printNeighbors();
 
         for (auto& v : _neighbors) {
-            if (disjointNeighbors &&
+            if (_doIndependentLayers &&
                 any_of(v->getNeighbors().begin(), v->getNeighbors().end(), [this](const NeighborPair& nbpair) {
                     return this->_levels.back().contains(nbpair.first);
                 })) {
@@ -151,6 +159,68 @@ void GFlow::updateNeighborsByFrontier() {
             _neighbors.insert(nb);
         }
     }
+}
+
+/**
+ * @brief Remove gadgets in the neighbors and recalculate frontiers
+ * 
+ */
+size_t GFlow::removeGadgets() {
+    Simplifier simp(make_unique<Pivot>(), _zxgraph);
+    auto pivotRule = static_cast<Pivot*>(simp.getRule());
+    
+    size_t count = 0;
+    // cout << "Neighbors: \n ";
+    // for (auto& n : _neighbors) cout << " " << n->getId();
+    // cout << endl;
+
+    // cout << "Frontier: \n ";
+    // for (auto& n : _frontier) cout << " " << n->getId();
+    // cout << endl;
+
+    for (auto& vs : _neighbors) {
+        if (!vs->isGadgetAxel()) continue;
+
+        for (auto [vt, _] : vs->getNeighbors()) {
+            if (!_frontier.contains(vt)) continue;
+
+            ZXVertex* buffer1 = _zxgraph->addVertex(vt->getQubit(), VertexType::Z);
+            ZXVertex* buffer2 = _zxgraph->addVertex(vt->getQubit(), VertexType::Z);
+
+            // cout << "\nvs      = " << vs->getId() << endl;
+            // cout << "vt      = " << vt->getId() << endl;
+            // cout << "buffer1 = " << buffer1->getId() << endl;
+            // cout << "buffer2 = " << buffer2->getId() << endl;
+
+            vector<NeighborPair> reconnects;
+
+            for (auto& [nb, etype] : vt->getNeighbors()) {
+                if (_frontier.contains(nb) || _neighbors.contains(nb)) {
+                    reconnects.emplace_back(nb, etype);
+                }
+            }
+            
+            for (auto& [nb, etype] : reconnects) {
+                _zxgraph->addEdge(nb, buffer2, etype);
+                _zxgraph->removeEdge(nb, vt, etype);
+            }
+
+            _zxgraph->addEdge(vt, buffer1, EdgeType::HADAMARD);
+            _zxgraph->addEdge(buffer1, buffer2, EdgeType::HADAMARD);
+
+            pivotRule->setMatchTypeVec(Pivot::MatchTypeVec{{vs, buffer2}});
+            
+            simp.rewrite();
+            simp.amend();
+            count++;
+
+            break;
+        }
+    }
+
+    _numRemoveGadgets += count;
+
+    return count;
 }
 
 /**
