@@ -12,8 +12,8 @@
 #include <cstddef>  // for size_t
 #include <iomanip>
 #include <iostream>
-#include "simplify.h"
 
+#include "simplify.h"
 #include "textFormat.h"  // for TextFormat
 class ZXVertex;
 
@@ -45,7 +45,6 @@ bool GFlow::calculate() {
     while (!_levels.back().empty()) {
         updateNeighborsByFrontier();
 
-        
         if (_doRemoveGadgets && removeGadgets() > 0) {
             updateNeighborsByFrontier();
         }
@@ -163,12 +162,12 @@ void GFlow::updateNeighborsByFrontier() {
 
 /**
  * @brief Remove gadgets in the neighbors and recalculate frontiers
- * 
+ *
  */
 size_t GFlow::removeGadgets() {
     Simplifier simp(make_unique<Pivot>(), _zxgraph);
     auto pivotRule = static_cast<Pivot*>(simp.getRule());
-    
+
     size_t count = 0;
     // cout << "Neighbors: \n ";
     // for (auto& n : _neighbors) cout << " " << n->getId();
@@ -199,7 +198,7 @@ size_t GFlow::removeGadgets() {
                     reconnects.emplace_back(nb, etype);
                 }
             }
-            
+
             for (auto& [nb, etype] : reconnects) {
                 _zxgraph->addEdge(nb, buffer2, etype);
                 _zxgraph->removeEdge(nb, vt, etype);
@@ -209,7 +208,7 @@ size_t GFlow::removeGadgets() {
             _zxgraph->addEdge(buffer1, buffer2, EdgeType::HADAMARD);
 
             pivotRule->setMatchTypeVec(Pivot::MatchTypeVec{{vs, buffer2}});
-            
+
             simp.rewrite();
             simp.amend();
             count++;

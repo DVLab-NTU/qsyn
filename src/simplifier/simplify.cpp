@@ -12,8 +12,8 @@
 #include <iomanip>
 #include <iostream>
 
-#include "zxGraph.h"  // for ZXGraph
 #include "gFlow.h"
+#include "zxGraph.h"  // for ZXGraph
 
 using namespace std;
 extern size_t verbose;
@@ -249,7 +249,7 @@ int Simplifier::degadgetizeSimp() {
     gflow.doRemoveGadgets(true);
 
     gflow.calculate();
-    
+
     return gflow.getNumRemoveGadgets();
 }
 
