@@ -14,7 +14,6 @@ using namespace std;
 
 extern size_t verbose;
 
-
 /**
  * @brief Parse the circuit and forward and backward iteratively and optimize it
  *

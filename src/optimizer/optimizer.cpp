@@ -54,8 +54,6 @@ void Optimizer::reset() {
     }
 }
 
-
-
 /**
  * @brief Toggle the element in _hadamards, _xs, and _zs
  *
