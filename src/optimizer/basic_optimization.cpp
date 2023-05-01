@@ -6,9 +6,9 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "optimizer.h"
-
 #include <assert.h>  // for assert
+
+#include "optimizer.h"
 
 using namespace std;
 

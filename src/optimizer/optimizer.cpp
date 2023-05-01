@@ -163,4 +163,3 @@ QCirGate* Optimizer::getAvailableRotateZ(size_t target) {
     }
     return nullptr;
 }
-
