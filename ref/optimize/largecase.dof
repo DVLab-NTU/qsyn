@@ -4,10 +4,12 @@ qccr benchmark/benchmark_SABRE/large/z4_268.qasm
 qc2zx
 zxgsimp -fr
 zx2qc
-optimize
+optimize -ph
 qc2zx
 zxgadj
+usage
 zxcomp 0
+usage
 zxgs -fr
 zxgp -a
 zxgt -id

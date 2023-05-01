@@ -24,25 +24,23 @@ class Optimizer {
 public:
     Optimizer(QCir* = nullptr);
     ~Optimizer() {}
-
     void reset();
-    QCir* parseCircuit(bool, bool, size_t);
-    QCir* parseForward();
-    bool parseGate(QCirGate*);
 
-    void addHadamard(size_t, bool erase);
-    void addCZ(size_t, size_t);
-    void addCX(size_t, size_t);
-    QCirGate* addGate(size_t, Phase, size_t);
-
-    void topologicalSort(QCir*);
+    // Predicate function && Utils
+    bool TwoQubitGateExist(QCirGate* g, GateType gt, size_t ctrl, size_t targ);
     bool isSingleRotateZ(QCirGate*);
     bool isSingleRotateX(QCirGate*);
     QCirGate* getAvailableRotateZ(size_t t);
-    std::vector<std::pair<size_t, size_t>> get_swap_path();
+    
 
-    // Predicate function
-    bool TwoQubitGateExist(QCirGate* g, GateType gt, size_t ctrl, size_t targ);
+    // basic optimization
+    QCir* parseCircuit(bool, bool, size_t);
+    QCir* parseForward();
+    bool parseGate(QCirGate*);
+    void addHadamard(size_t, bool erase);
+    void addCZ(size_t, size_t);
+    void addCX(size_t, size_t);
+    void topologicalSort(QCir*);
 
 private:
     QCir* _circuit;
@@ -54,7 +52,7 @@ private:
     Qubit2Gates _gates;
     Qubit2Gates _available;
     std::vector<QCirGate*> _corrections;
-    std::vector<size_t> _availty;  // TODO - checkout if vector<bool> is availiable too.
+    std::vector<bool> _availty;
 
     std::unordered_map<size_t, size_t> _permutation;
     ordered_hashset<size_t> _hadamards;
@@ -63,11 +61,20 @@ private:
     std::vector<std::pair<size_t, size_t>> _swaps;
 
     size_t _gateCnt;  // NOTE - gcount
+    
+    
+    // Utils
     void toggleElement(size_t type, size_t element);
     void swapElement(size_t type, size_t e1, size_t e2);
     std::vector<size_t> stats(QCir* circuit);
-    void _addGate2Circuit(QCir* circuit, QCirGate* gate);
 
+    // basic optimization
+    QCirGate* addGate(size_t, Phase, size_t);
+    std::vector<std::pair<size_t, size_t>> get_swap_path();
+    void _addGate2Circuit(QCir* circuit, QCirGate* gate);
+    
+    
+    // physical
     std::string _name;
     std::vector<std::string> _procedures;
 };
