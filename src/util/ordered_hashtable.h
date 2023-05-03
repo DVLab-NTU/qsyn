@@ -122,26 +122,35 @@ public:
     const_iterator cend() const noexcept { return const_iterator(this->_data.cend(), this->_data.begin(), this->_data.cend()); }
 
     // lookup
-    iterator find(const Key& key) {
-        if (this->contains(key))
-            return iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end());
-        else
-            return this->end();
+    inline iterator find(const Key& key) {
+        return this->contains(key) ? iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()) : this->end();
     }
-    const_iterator find(const Key& key) const {
-        if (this->contains(key))
-            return const_iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end());
-        else
-            return this->end();
+    inline const_iterator find(const Key& key) const {
+        return this->contains(key) ? iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()) : this->end();
     }
-    size_type id(const Key& key) const;
+    /**
+     * @brief Return the internal index where the element with the key is stored.
+     *        Note that as Ordered hashmap dynamically resizes its internal stor-
+     *        age, this information is not reliable once insertion and erasure
+     *        happens.
+     *
+     * @param key
+     * @return size_type
+     */
+    inline size_type id(const Key& key) const { return this->_key2id.at(key); }
     bool contains(const Key& key) const;
     virtual const Key& key(const stored_type& value) const = 0;
 
     // properties
     size_t size() const { return _size; }
     bool empty() const { return (this->size() == 0); }
-    bool operator==(const ordered_hashtable& rhs) const { return _data == rhs._data; }
+    bool operator==(const ordered_hashtable& rhs) const {
+        if (_size != rhs._size) return false;
+
+        return any_of(this->begin(), this->end(), [&rhs](auto const& item) {
+            return rhs.contains(item);
+        });
+    }
     bool operator!=(const ordered_hashtable& rhs) const { return !(*this == rhs); }
 
     // container manipulation
@@ -172,21 +181,6 @@ protected:
 //------------------------------------------------------
 //  lookup
 //------------------------------------------------------
-
-/**
- * @brief Return the internal index where the element with the key is stored.
- *        Note that as Ordered hashmap dynamically resizes its internal stor-
- *        age, this information is not reliable once insertion and erasure
- *        happens.
- *
- * @param key
- * @return size_type
- */
-template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
-typename ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::size_type
-ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::id(const Key& key) const {
-    return this->_key2id.at(key);
-}
 
 /**
  * @brief Check if the ordered hashmap contains an item with the given key.

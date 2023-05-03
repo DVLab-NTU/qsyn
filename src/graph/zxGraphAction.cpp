@@ -48,7 +48,7 @@ void ZXGraph::sortIOByQubit() {
  *
  * @return ZXGraph*
  */
-ZXGraph* ZXGraph::copy() const {
+ZXGraph* ZXGraph::copy(bool doReordering) const {
     ZXGraph* newGraph = new ZXGraph(0);
     // Copy all vertices (included i/o) first
     unordered_map<ZXVertex*, ZXVertex*> oldV2newVMap;
@@ -62,6 +62,13 @@ ZXGraph* ZXGraph::copy() const {
         } else if (v->getType() == VertexType::Z || v->getType() == VertexType::X || v->getType() == VertexType::H_BOX) {
             oldV2newVMap[v] = newGraph->addVertex(v->getQubit(), v->getType(), v->getPhase(), true, v->getCol());
         }
+    }
+
+    if (!doReordering) {
+        for (auto& [oldV, newV] : oldV2newVMap) {
+            newV->setId(oldV->getId());
+        }
+        newGraph->_nextVId = _nextVId; 
     }
     // Link all edges
     // cout << "Link all edges" << endl;

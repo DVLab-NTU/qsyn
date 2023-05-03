@@ -113,12 +113,8 @@ void Simplifier::amend() {
         int numSimpleEdges = _rule->getEdgeTableValues()[e].first;
         int numHadamardEdges = _rule->getEdgeTableValues()[e].second;
 
-        if (v->getId() > v_n->getId()) swap(v, v_n);
-        for (int j = 0; j < numSimpleEdges; j++)
-            _simpGraph->addEdge(v, v_n, EdgeType::SIMPLE);
-
-        for (int j = 0; j < numHadamardEdges; j++)
-            _simpGraph->addEdge(v, v_n, EdgeType::HADAMARD);
+        if (numSimpleEdges) _simpGraph->addEdge(v, v_n, EdgeType::SIMPLE);
+        if (numHadamardEdges) _simpGraph->addEdge(v, v_n, EdgeType::HADAMARD);
     }
     _simpGraph->removeEdges(_rule->getRemoveEdges());
     _simpGraph->removeVertices(_rule->getRemoveVertices());
@@ -135,8 +131,7 @@ void Simplifier::amend() {
  */
 int Simplifier::bialgSimp() {
     this->setRule(make_unique<Bialgebra>());
-    int i = this->simp();
-    return i;
+    return this->simp();
 }
 
 /**
@@ -147,8 +142,7 @@ int Simplifier::bialgSimp() {
 int Simplifier::copySimp() {
     if (!_simpGraph->isGraphLike()) return 0;
     this->setRule(make_unique<StateCopy>());
-    int i = this->simp();
-    return i;
+    return this->simp();
 }
 
 /**
@@ -158,8 +152,7 @@ int Simplifier::copySimp() {
  */
 int Simplifier::gadgetSimp() {
     this->setRule(make_unique<PhaseGadget>());
-    int i = this->simp();
-    return i;
+    return this->simp();
 }
 
 /**
@@ -169,8 +162,7 @@ int Simplifier::gadgetSimp() {
  */
 int Simplifier::hfusionSimp() {
     this->setRule(make_unique<HboxFusion>());
-    int i = this->simp();
-    return i;
+    return this->simp();
 }
 
 /**
@@ -180,8 +172,7 @@ int Simplifier::hfusionSimp() {
  */
 int Simplifier::hruleSimp() {
     this->setRule(make_unique<HRule>());
-    int i = this->hadamardSimp();
-    return i;
+    return this->hadamardSimp();
 }
 
 /**
@@ -191,8 +182,7 @@ int Simplifier::hruleSimp() {
  */
 int Simplifier::idSimp() {
     this->setRule(make_unique<IdRemoval>());
-    int i = this->simp();
-    return i;
+    return this->simp();
 }
 
 /**
@@ -202,8 +192,7 @@ int Simplifier::idSimp() {
  */
 int Simplifier::lcompSimp() {
     this->setRule(make_unique<LComp>());
-    int i = this->simp();
-    return i;
+    return this->simp();
 }
 
 /**
@@ -213,8 +202,7 @@ int Simplifier::lcompSimp() {
  */
 int Simplifier::pivotSimp() {
     this->setRule(make_unique<Pivot>());
-    int i = this->simp();
-    return i;
+    return this->simp();
 }
 
 /**
@@ -224,8 +212,7 @@ int Simplifier::pivotSimp() {
  */
 int Simplifier::pivotBoundarySimp() {
     this->setRule(make_unique<PivotBoundary>());
-    int i = this->simp();
-    return i;
+    return this->simp();
 }
 
 /**
@@ -235,8 +222,7 @@ int Simplifier::pivotBoundarySimp() {
  */
 int Simplifier::pivotGadgetSimp() {
     this->setRule(make_unique<PivotGadget>());
-    int i = this->simp();
-    return i;
+    return this->simp();
 }
 
 /**
@@ -250,6 +236,10 @@ int Simplifier::degadgetizeSimp() {
 
     gflow.calculate();
 
+    if (!gflow.isValid()) {
+        cout << "Warning: did not remove gadgets across all gflow layers." << endl;
+    }
+
     return gflow.getNumRemoveGadgets();
 }
 
@@ -260,8 +250,7 @@ int Simplifier::degadgetizeSimp() {
  */
 int Simplifier::sfusionSimp() {
     this->setRule(make_unique<SpiderFusion>());
-    int i = this->simp();
-    return i;
+    return this->simp();
 }
 
 // action
