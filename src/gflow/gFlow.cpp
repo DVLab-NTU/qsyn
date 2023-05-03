@@ -12,6 +12,7 @@
 #include <cstddef>  // for size_t
 #include <iomanip>
 #include <iostream>
+#include <ranges>
 
 #include "simplify.h"
 #include "textFormat.h"  // for TextFormat
@@ -116,7 +117,7 @@ bool GFlow::calculate() {
 }
 
 /**
- * @brief Clean frontier, neighbors, taken, and coefficeint matrix
+ * @brief Clean frontier, neighbors, taken, and coefficient matrix
  *
  */
 void GFlow::clearTemporaryStorage() {
@@ -169,52 +170,83 @@ size_t GFlow::removeGadgets() {
     auto pivotRule = static_cast<Pivot*>(simp.getRule());
 
     size_t count = 0;
-    // cout << "Neighbors: \n ";
-    // for (auto& n : _neighbors) cout << " " << n->getId();
-    // cout << endl;
 
-    // cout << "Frontier: \n ";
-    // for (auto& n : _frontier) cout << " " << n->getId();
-    // cout << endl;
 
-    for (auto& vs : _neighbors) {
-        if (!vs->isGadgetAxel()) continue;
-
-        for (auto [vt, _] : vs->getNeighbors()) {
-            if (!_frontier.contains(vt)) continue;
-
-            ZXVertex* buffer1 = _zxgraph->addVertex(vt->getQubit(), VertexType::Z);
-            ZXVertex* buffer2 = _zxgraph->addVertex(vt->getQubit(), VertexType::Z);
-
-            // cout << "\nvs      = " << vs->getId() << endl;
-            // cout << "vt      = " << vt->getId() << endl;
-            // cout << "buffer1 = " << buffer1->getId() << endl;
-            // cout << "buffer2 = " << buffer2->getId() << endl;
-
-            vector<NeighborPair> reconnects;
-
-            for (auto& [nb, etype] : vt->getNeighbors()) {
-                if (_frontier.contains(nb) || _neighbors.contains(nb)) {
-                    reconnects.emplace_back(nb, etype);
-                }
+    ZXVertexList taken;
+    cout << "=====================\n";
+    cout << "  Removing Gadgets\n";
+    cout << "=====================\n";
+    while (true) {
+        printFrontier();
+        printNeighbors();
+        ZXVertex* vs = std::invoke([&taken, this]() -> ZXVertex* {
+            for (auto& v : _neighbors) {
+                if (v->isGadgetAxel() && !taken.contains(v)) return v;
             }
+            return nullptr;
+        });
 
-            for (auto& [nb, etype] : reconnects) {
-                _zxgraph->addEdge(nb, buffer2, etype);
-                _zxgraph->removeEdge(nb, vt, etype);
+        if (!vs) break;
+
+        taken.insert(vs);
+        cout << "Got vs  = " << vs->getId() << endl;
+        ZXGraph* backup1 = _zxgraph->copy(false);
+
+        ZXVertex* vt = std::invoke([&vs, this]() -> ZXVertex* {
+            for (auto& [v, _] : vs->getNeighbors()) {
+                if (_frontier.contains(v)) return v;
             }
+            return nullptr;
+        });
 
-            _zxgraph->addEdge(vt, buffer1, EdgeType::HADAMARD);
-            _zxgraph->addEdge(buffer1, buffer2, EdgeType::HADAMARD);
+        if (vt == nullptr) continue;
+        cout << "Got vt  = " << vt->getId() << endl;
 
-            pivotRule->setMatchTypeVec(Pivot::MatchTypeVec{{vs, buffer2}});
+        ZXVertex* buffer1 = _zxgraph->addVertex(vt->getQubit(), VertexType::Z);
+        ZXVertex* buffer2 = _zxgraph->addVertex(vt->getQubit(), VertexType::Z);
 
-            simp.rewrite();
-            simp.amend();
-            count++;
+        cout << "buffer1 = " << buffer1->getId() << endl;
+        cout << "buffer2 = " << buffer2->getId() << endl;
 
-            break;
+        vector<NeighborPair> reconnects;
+
+        for (auto& [nb, etype] : vt->getNeighbors()) {
+            if (_frontier.contains(nb) || _neighbors.contains(nb)) {
+                reconnects.emplace_back(nb, etype);
+            }
         }
+
+        for (auto& [nb, etype] : reconnects) {
+            _zxgraph->addEdge(nb, buffer2, etype);
+            _zxgraph->removeEdge(nb, vt, etype);
+        }
+
+        _zxgraph->addEdge(vt, buffer1, EdgeType::HADAMARD);
+        _zxgraph->addEdge(buffer1, buffer2, EdgeType::HADAMARD);
+
+        for (auto& v : {vs, buffer2}) {
+            vector<NeighborPair> protects;
+            for (auto& nbpair : v->getNeighbors()) {
+                if (nbpair.first->isBoundary()) protects.emplace_back(nbpair);
+            }
+            for (auto& [bound, etype] : protects) {
+                _zxgraph->addBuffer(bound, v, etype);
+            }
+        }
+        ZXGraph* backup2 = _zxgraph->copy(false);
+        cout << "Before/After buffering" << endl;
+        backup2->printDifference(backup1);
+        cout << vs->getId() << ", " << buffer2->getId() << endl;
+
+        pivotRule->setMatchTypeVec(Pivot::MatchTypeVec{{vs, buffer2}});
+        simp.rewrite();
+        simp.amend();
+
+        cout << "Before/After pivot" << endl;
+        _zxgraph->printDifference(backup2);
+        count++;
+
+        updateNeighborsByFrontier();
     }
 
     _numRemoveGadgets += count;
