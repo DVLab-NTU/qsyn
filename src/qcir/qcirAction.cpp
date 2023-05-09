@@ -126,9 +126,11 @@ void QCir::DFS(QCirGate* currentGate) {
 }
 
 /**
- * @brief Update Topological Order
+ * @brief Update topological order
+ *
+ * @return const vector<QCirGate*>&
  */
-void QCir::updateTopoOrder() {
+const vector<QCirGate*>& QCir::updateTopoOrder() {
     _topoOrder.clear();
     _globalDFScounter++;
     QCirGate* dummy = new HGate(-1);
@@ -141,6 +143,8 @@ void QCir::updateTopoOrder() {
     reverse(_topoOrder.begin(), _topoOrder.end());
     assert(_topoOrder.size() == _qgates.size());
     delete dummy;
+
+    return _topoOrder;
 }
 
 /**

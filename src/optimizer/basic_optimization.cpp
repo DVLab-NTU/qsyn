@@ -52,6 +52,7 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
         vector<size_t> stats = Optimizer::stats(_circuit);
         // TODO - Find a more efficient way
         if (_minimize_czs && (iter >= _maxIter || (prev_stats[0] <= stats[0] && prev_stats[1] <= stats[1] && prev_stats[2] <= stats[2]))) {
+            if (verbose >= 5) cout << "Two-qubit gates: " << stats[0] << ",Had gates: " << stats[1] << ",Non-pauli gates: " << stats[2] << ". Stop the optimizer." << endl;
             break;
         }
 
@@ -658,10 +659,8 @@ void Optimizer::_addGate2Circuit(QCir* circuit, QCirGate* gate) {
 vector<size_t> Optimizer::stats(QCir* circuit) {
     size_t two_qubit = 0, had = 0, non_pauli = 0;
     vector<size_t> stats;
-    vector<QCirGate*> gs = circuit->getTopoOrderdGates();
-    for (auto g : gs) {
+    for (const auto& g : circuit->updateTopoOrder()) {
         GateType type = g->getType();
-
         if (type == GateType::CX || type == GateType::CZ) {
             two_qubit++;
         } else if (type == GateType::H) {

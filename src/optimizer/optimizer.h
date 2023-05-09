@@ -31,7 +31,6 @@ public:
     bool isSingleRotateZ(QCirGate*);
     bool isSingleRotateX(QCirGate*);
     QCirGate* getAvailableRotateZ(size_t t);
-    
 
     // basic optimization
     QCir* parseCircuit(bool, bool, size_t);
@@ -61,8 +60,7 @@ private:
     std::vector<std::pair<size_t, size_t>> _swaps;
 
     size_t _gateCnt;  // NOTE - gcount
-    
-    
+
     // Utils
     void toggleElement(size_t type, size_t element);
     void swapElement(size_t type, size_t e1, size_t e2);
@@ -72,8 +70,7 @@ private:
     QCirGate* addGate(size_t, Phase, size_t);
     std::vector<std::pair<size_t, size_t>> get_swap_path();
     void _addGate2Circuit(QCir* circuit, QCirGate* gate);
-    
-    
+
     // physical
     std::string _name;
     std::vector<std::string> _procedures;

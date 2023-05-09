@@ -1,7 +1,0 @@
-color off
-qccread ref/optimize/FR.qasm
-qc2ts
-optimize
-qc2ts
-tseq 0 1
-qq -f
