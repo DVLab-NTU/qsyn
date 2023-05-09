@@ -6,8 +6,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cassert>  // for assert
-#include <cstddef>  // for NULL, size_t
+#include <cassert>     // for assert
+#include <cstddef>     // for NULL, size_t
 
 #include "qcir.h"      // for QCir
 #include "qcirGate.h"  // for QCirGate
