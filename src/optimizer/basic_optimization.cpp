@@ -659,8 +659,7 @@ void Optimizer::_addGate2Circuit(QCir* circuit, QCirGate* gate) {
 vector<size_t> Optimizer::stats(QCir* circuit) {
     size_t two_qubit = 0, had = 0, non_pauli = 0;
     vector<size_t> stats;
-    vector<QCirGate*> gs = circuit->updateTopoOrder();
-    for (auto g : gs) {
+    for (const auto& g : circuit->updateTopoOrder()) {
         GateType type = g->getType();
         if (type == GateType::CX || type == GateType::CZ) {
             two_qubit++;
