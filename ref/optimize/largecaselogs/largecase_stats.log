@@ -1,0 +1,1458 @@
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/9symml_195.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 51.09 seconds
+Total time used  : 51.09 seconds
+Total memory used: 969 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 15.86 seconds
+Total time used  : 66.95 seconds
+Total memory used: 969 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 22887 gates)
+Clifford: 16879
+└── CX: 13530
+T-family: 6450
+Others  : 0
+Depth: 20404
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/adr4_197.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 1.28 seconds
+Total time used  : 1.28 seconds
+Total memory used: 24.2 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0.18 seconds
+Total time used  : 1.46 seconds
+Total memory used: 24.2 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 2616 gates)
+Clifford: 2048
+└── CX: 1626
+T-family: 692
+Others  : 0
+Depth: 2217
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/cm42a_207.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 0.64 seconds
+Total time used  : 0.64 seconds
+Total memory used: 17.74 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0.03 seconds
+Total time used  : 0.67 seconds
+Total memory used: 17.74 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 1176 gates)
+Clifford: 870
+└── CX: 656
+T-family: 370
+Others  : 0
+Depth: 978
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/cm82a_208.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 0.08 seconds
+Total time used  : 0.08 seconds
+Total memory used: 2.594 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0.01 seconds
+Total time used  : 0.09 seconds
+Total memory used: 3.742 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 467 gates)
+Clifford: 395
+└── CX: 286
+T-family: 122
+Others  : 0
+Depth: 379
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/cm85a_209.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 12.69 seconds
+Total time used  : 12.69 seconds
+Total memory used: 201.4 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 1.26 seconds
+Total time used  : 13.95 seconds
+Total memory used: 201.4 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 7758 gates)
+Clifford: 6068
+└── CX: 4832
+T-family: 1950
+Others  : 0
+Depth: 7019
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/cycle10_2_110.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 4.46 seconds
+Total time used  : 4.46 seconds
+Total memory used: 96.97 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0.31 seconds
+Total time used  : 4.77 seconds
+Total memory used: 96.97 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 3999 gates)
+Clifford: 3143
+└── CX: 2247
+T-family: 1160
+Others  : 0
+Depth: 3375
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/dc2_222.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 7.53 seconds
+Total time used  : 7.53 seconds
+Total memory used: 144.3 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0.61 seconds
+Total time used  : 8.14 seconds
+Total memory used: 144.3 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 6050 gates)
+Clifford: 4574
+└── CX: 3484
+T-family: 1758
+Others  : 0
+Depth: 5345
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/dist_223.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 74.74 seconds
+Total time used  : 74.74 seconds
+Total memory used: 1102 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 4.32 seconds
+Total time used  : 79.06 seconds
+Total memory used: 1102 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 24766 gates)
+Clifford: 19164
+└── CX: 14556
+T-family: 6868
+Others  : 0
+Depth: 20156
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/ham15_107.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 3.74 seconds
+Total time used  : 3.74 seconds
+Total memory used: 47.55 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0.7 seconds
+Total time used  : 4.44 seconds
+Total memory used: 49.23 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 6115 gates)
+Clifford: 4682
+└── CX: 3504
+T-family: 1805
+Others  : 0
+Depth: 5126
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/hwb8_113.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 45.09 seconds
+Total time used  : 45.09 seconds
+Total memory used: 707.5 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 16.29 seconds
+Total time used  : 61.38 seconds
+Total memory used: 707.5 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 45541 gates)
+Clifford: 32135
+└── CX: 24207
+T-family: 14934
+Others  : 0
+Depth: 38237
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/inc_237.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 11.31 seconds
+Total time used  : 11.31 seconds
+Total memory used: 279 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0.8 seconds
+Total time used  : 12.11 seconds
+Total memory used: 279 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 6011 gates)
+Clifford: 4273
+└── CX: 3293
+T-family: 1942
+Others  : 0
+Depth: 5438
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/life_238.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 21.93 seconds
+Total time used  : 21.93 seconds
+Total memory used: 373.9 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 4.41 seconds
+Total time used  : 26.34 seconds
+Total memory used: 373.9 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 14536 gates)
+Clifford: 10802
+└── CX: 8512
+T-family: 4152
+Others  : 0
+Depth: 13317
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/mlp4_245.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 45.4 seconds
+Total time used  : 45.4 seconds
+Total memory used: 835.9 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 1.95 seconds
+Total time used  : 47.35 seconds
+Total memory used: 835.9 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 12907 gates)
+Clifford: 9987
+└── CX: 7829
+T-family: 3324
+Others  : 0
+Depth: 11243
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/pm1_249.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 0.66 seconds
+Total time used  : 0.66 seconds
+Total memory used: 17.69 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0.04 seconds
+Total time used  : 0.7 seconds
+Total memory used: 17.69 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 1176 gates)
+Clifford: 870
+└── CX: 656
+T-family: 370
+Others  : 0
+Depth: 978
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/qft_10.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 0 seconds
+Total time used  : 0 seconds
+Total memory used: 1.805 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0 seconds
+Total time used  : 0 seconds
+Total memory used: 1.805 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 0 gates)
+Clifford: 0
+└── CX: 0
+T-family: 0
+Others  : 0
+Depth: 0
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/qft_n20.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 0.14 seconds
+Total time used  : 0.14 seconds
+Total memory used: 2.488 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0.02 seconds
+Total time used  : 0.16 seconds
+Total memory used: 4.945 M Bytes
+
+qsyn> qccp
+QCir 1( 20 qubits, 766 gates)
+Clifford: 661
+└── CX: 507
+T-family: 21
+Others  : 182
+Depth: 321
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      34
+#Non-(Clifford+T)-gate:       262
+#Non-Clifford-gate:           296
+
+qsyn> zxgt -id
+The graph is not an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/rd53_251.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 0.24 seconds
+Total time used  : 0.24 seconds
+Total memory used: 3.816 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0.02 seconds
+Total time used  : 0.26 seconds
+Total memory used: 6.055 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 811 gates)
+Clifford: 563
+└── CX: 430
+T-family: 280
+Others  : 0
+Depth: 689
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/rd73_252.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 1.58 seconds
+Total time used  : 1.58 seconds
+Total memory used: 25.44 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0.38 seconds
+Total time used  : 1.96 seconds
+Total memory used: 35.47 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 3923 gates)
+Clifford: 3020
+└── CX: 2387
+T-family: 1045
+Others  : 0
+Depth: 3173
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/rd84_253.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 12.54 seconds
+Total time used  : 12.54 seconds
+Total memory used: 276.8 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 1.5 seconds
+Total time used  : 14.04 seconds
+Total memory used: 277.2 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 9570 gates)
+Clifford: 7309
+└── CX: 5719
+T-family: 2625
+Others  : 0
+Depth: 7929
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/root_255.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 22.81 seconds
+Total time used  : 22.81 seconds
+Total memory used: 537.9 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 2.24 seconds
+Total time used  : 25.05 seconds
+Total memory used: 537.9 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 11736 gates)
+Clifford: 9172
+└── CX: 7053
+T-family: 3114
+Others  : 0
+Depth: 9515
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/sqn_258.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 7.17 seconds
+Total time used  : 7.17 seconds
+Total memory used: 196.7 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0.7 seconds
+Total time used  : 7.87 seconds
+Total memory used: 196.7 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 7403 gates)
+Clifford: 5692
+└── CX: 4301
+T-family: 2097
+Others  : 0
+Depth: 6062
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/sqrt8_260.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 1.36 seconds
+Total time used  : 1.36 seconds
+Total memory used: 33.19 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0.14 seconds
+Total time used  : 1.5 seconds
+Total memory used: 33.19 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 2116 gates)
+Clifford: 1663
+└── CX: 1277
+T-family: 581
+Others  : 0
+Depth: 1823
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/square_root_7.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 1.38 seconds
+Total time used  : 1.38 seconds
+Total memory used: 17.62 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0.55 seconds
+Total time used  : 1.93 seconds
+Total memory used: 37.34 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 4172 gates)
+Clifford: 3633
+└── CX: 2446
+T-family: 1109
+Others  : 0
+Depth: 2853
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/urf1_149.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 61.54 seconds
+Total time used  : 61.54 seconds
+Total memory used: 850.8 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 352.1 seconds
+Total time used  : 413.6 seconds
+Total memory used: 5164 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 136287 gates)
+Clifford: 107851
+└── CX: 78224
+T-family: 40380
+Others  : 0
+Depth: 84519
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/urf1_278.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 20.83 seconds
+Total time used  : 20.83 seconds
+Total memory used: 377.2 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 17.47 seconds
+Total time used  : 38.3 seconds
+Total memory used: 755 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 47978 gates)
+Clifford: 38954
+└── CX: 29059
+T-family: 12772
+Others  : 0
+Depth: 33425
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/urf2_277.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 4.24 seconds
+Total time used  : 4.24 seconds
+Total memory used: 73.04 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 1.75 seconds
+Total time used  : 5.99 seconds
+Total memory used: 169.5 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 18766 gates)
+Clifford: 15371
+└── CX: 11278
+T-family: 5063
+Others  : 0
+Depth: 11997
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/z4_268.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 0.92 seconds
+Total time used  : 0.92 seconds
+Total memory used: 12.9 M Bytes
+
+qsyn> optimize
+
+qsyn> usage
+Period time used : 0.13 seconds
+Total time used  : 1.05 seconds
+Total memory used: 14.63 M Bytes
+
+qsyn> qccp
+QCir 1( 16 qubits, 2063 gates)
+Clifford: 1512
+└── CX: 1174
+T-family: 631
+Others  : 0
+Depth: 1729
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> zxgp -a
+#T-gate:                      0
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           0
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
