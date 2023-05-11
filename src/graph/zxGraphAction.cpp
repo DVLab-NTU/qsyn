@@ -8,6 +8,7 @@
 
 #include <cstddef>  // for size_t
 #include <iostream>
+#include <queue>
 
 #include "phase.h"       // for Phase
 #include "textFormat.h"  // for TextFormat
@@ -287,4 +288,40 @@ void ZXGraph::disownVertices() {
     _topoOrder.clear();
     _inputList.clear();
     _outputList.clear();
+}
+
+/**
+ * @brief Rearrange nodes on each qubit so that each node can be seperated in the printed graph.
+ * 
+ */
+void ZXGraph::normalize(){
+    unordered_map<int, vector<ZXVertex*> > mp;
+    unordered_set<int> vis;
+    queue<ZXVertex*> cand;
+    for(const auto& i : _inputs){
+        cand.push(i);
+        vis.insert(i->getId());
+    }
+    while(!cand.empty()){
+        ZXVertex* node = cand.front();
+        cand.pop();
+        mp[node->getQubit()].push_back(node);
+        for(const auto& n : node->getNeighbors()){
+            if(vis.find(n.first->getId()) == vis.end()){
+                cand.push(n.first);
+                vis.insert(n.first->getId());
+            }
+        }
+    }
+    int maxCol = 0;
+    for(auto& i : mp){
+        int col = 0;
+        for(auto& v : i.second){
+            v->setCol(col);
+            col++;
+        }
+        col--;
+        maxCol = max(maxCol, col);
+    }
+    for(auto& o : _outputs) o->setCol(maxCol); 
 }

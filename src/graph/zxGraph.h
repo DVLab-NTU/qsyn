@@ -182,6 +182,7 @@ public:
     void mergeInputList(std::unordered_map<size_t, ZXVertex*> lst) { _inputList.merge(lst); }
     void mergeOutputList(std::unordered_map<size_t, ZXVertex*> lst) { _outputList.merge(lst); }
     void disownVertices();
+    void normalize();
 
     // Print functions (zxGraphPrint.cpp)
     void printGraph() const;
