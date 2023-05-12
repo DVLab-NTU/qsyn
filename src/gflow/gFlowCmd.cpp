@@ -8,10 +8,10 @@
 
 #include "gFlowCmd.h"
 
-#include <cstddef>       // for size_t
-#include <iomanip>       // for ostream
-#include <iostream>      // for ostream
-#include <string>        // for string
+#include <cstddef>   // for size_t
+#include <iomanip>   // for ostream
+#include <iostream>  // for ostream
+#include <string>    // for string
 
 #include "cmdMacros.h"   // for CMD_N_OPTS_AT_MOST_OR_RETURN
 #include "gFlow.h"       // for GFlow
