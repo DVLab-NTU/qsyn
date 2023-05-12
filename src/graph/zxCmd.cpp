@@ -657,10 +657,12 @@ ZXGDrawCmd::exec(const string &option) {
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGDraw");
     CMD_N_OPTS_AT_MOST_OR_RETURN(options, 1);
     if (options.size() == 0) {
+        // zxGraphMgr->getGraph()->normalize();
         zxGraphMgr->getGraph()->draw();
         return CMD_EXEC_DONE;
     }
     if (myStrNCmp("-CLI", options[0], 4) == 0) {
+        // zxGraphMgr->getGraph()->normalize();
         zxGraphMgr->getGraph()->draw();
         return CMD_EXEC_DONE;
     }

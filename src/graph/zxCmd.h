@@ -15,13 +15,13 @@
 #include "zxGraph.h"     // for ZXGraph
 #include "zxGraphMgr.h"  // for ZXGraphMgr
 
-CmdClass(ZXNewCmd);
-CmdClass(ZXResetCmd);
-CmdClass(ZXDeleteCmd);
+// CmdClass(ZXNewCmd);
+// CmdClass(ZXResetCmd);
+// CmdClass(ZXDeleteCmd);
 CmdClass(ZXCHeckoutCmd);
-CmdClass(ZXPrintCmd);
-CmdClass(ZXCOPyCmd);
-CmdClass(ZXCOMposeCmd);
+// CmdClass(ZXPrintCmd);
+// CmdClass(ZXCopyCmd);
+// CmdClass(ZXComposeCmd);
 CmdClass(ZXTensorCmd);
 CmdClass(ZXGPrintCmd);
 CmdClass(ZXGTestCmd);
