@@ -1,6 +1,7 @@
-ENGINE_NAME="BLAS-3.9.0"
-VENDOR_PATH="engine/$ENGINE_NAME"
-DOWNLOAD_PATH="http://www.netlib.org/blas/blas-3.9.0.tgz"
+ENGINE_NAME="BLAS-3.11.0"
+TIMESTAMP=$(date -I)
+VENDOR_PATH="/tmp/qsyn-configure-"$TIMESTAMP
+DOWNLOAD_PATH="http://www.netlib.org/blas/blas-3.11.0.tgz"
 JOB=16
 if [ $# -ne 1 ]; then 
     echo "[Error] Missing install path!"
@@ -8,9 +9,10 @@ if [ $# -ne 1 ]; then
 fi
 
 INSTALL_PATH=$1
-
-rm -rf ${VENDOR_PATH}
-cd engine
+echo $VENDOR_PATH
+mkdir -p ${VENDOR_PATH}
+rm -rf ${VENDOR_PATH}/${ENGINE_NAME}
+cd ${VENDOR_PATH}
 curl -L ${DOWNLOAD_PATH} --output ${ENGINE_NAME}.tgz
 tar -xf ${ENGINE_NAME}.tgz
 
