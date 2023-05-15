@@ -35,7 +35,7 @@ public:
 
     void amend();
     // Simplification strategies
-    int simp();
+    int simp(bool step2step);
     int hadamardSimp();
 
     // Basic rules simplification
@@ -55,8 +55,10 @@ public:
     void toGraph();
     void toRGraph();
     int interiorCliffordSimp();
+    int piCliffordSimp();
     int cliffordSimp();
     void fullReduce();
+    void partReduce();
     void symbolicReduce();
 
     // print function

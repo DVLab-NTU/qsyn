@@ -22,7 +22,7 @@ extern size_t verbose;
  *
  * @return int
  */
-int Simplifier::simp() {
+int Simplifier::simp(bool step2step = false) {
     if (_rule->getName() == "Hadamard Rule") {
         cerr << "Error: Please use `hadamardSimp` when using HRule." << endl;
         return 0;
@@ -44,6 +44,7 @@ int Simplifier::simp() {
         _rule->rewrite(_simpGraph);
         amend();
         if (verbose >= 8) cout << "<<<" << endl;
+        if(step2step) return 1;
     }
     _recipe.emplace_back(_rule->getName(), matches);
     if (verbose >= 8) cout << "=> ";
@@ -106,6 +107,7 @@ int Simplifier::hadamardSimp() {
  * @brief Apply rule
  */
 void Simplifier::amend() {
+    // cout << _rule->getEdgeTableKeys().size() << " " << _rule->getRemoveEdges().size() << " " << _rule->getRemoveVertices().size() << endl; 
     for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
         ZXVertex* v = _rule->getEdgeTableKeys()[e].first;
         ZXVertex* v_n = _rule->getEdgeTableKeys()[e].second;
@@ -201,7 +203,7 @@ int Simplifier::idSimp() {
  */
 int Simplifier::lcompSimp() {
     this->setRule(make_unique<LComp>());
-    int i = this->simp();
+    int i = this->simp(false);
     return i;
 }
 
@@ -223,7 +225,7 @@ int Simplifier::pivotSimp() {
  */
 int Simplifier::pivotBoundarySimp() {
     this->setRule(make_unique<PivotBoundary>());
-    int i = this->simp();
+    int i = this->simp(false);
     return i;
 }
 
@@ -234,7 +236,7 @@ int Simplifier::pivotBoundarySimp() {
  */
 int Simplifier::pivotGadgetSimp() {
     this->setRule(make_unique<PivotGadget>());
-    int i = this->simp();
+    int i = this->simp(false);
     return i;
 }
 
@@ -296,6 +298,24 @@ int Simplifier::interiorCliffordSimp() {
     return i;
 }
 
+
+int Simplifier::piCliffordSimp() {
+    this->sfusionSimp();
+    toGraph();
+
+    int i = 0;
+    while (true) {
+        int i1 = this->idSimp();
+        int i2 = this->sfusionSimp();
+        int i3 = this->pivotSimp();
+        int i4 = this->lcompSimp();
+        cout <<"InterC: " << i1 << " " << i2 << " " << i3 << " " << i4 << endl;
+        if (i1 + i2 == 0) break;
+        i++;
+    }
+    return i;
+}
+
 /**
  * @brief Perform `interior_clifford` and `pivot_boundary` iteratively until no pivot_boundary candidate is found
  *
@@ -324,6 +344,32 @@ void Simplifier::fullReduce() {
         this->interiorCliffordSimp();
         int j = this->pivotGadgetSimp();
         if (i + j == 0) break;
+    }
+    this->printRecipe();
+}
+
+/**
+ * @brief 
+ * 
+ */
+void Simplifier::partReduce() {
+    // interiorClifford (modified)
+    this->piCliffordSimp();
+    
+    this->pivotGadgetSimp();
+
+    while (true) {
+        this->cliffordSimp();
+        int i = this->gadgetSimp();
+        this->piCliffordSimp();
+        int j = this->pivotGadgetSimp();
+        this->piCliffordSimp();
+        // while (true) {
+        int i3 = this->pivotSimp();
+        int i4 = this->lcompSimp();
+        //     if (i3 + i4 == 0) break;
+        // }
+        if (i3 + i4 + i + j == 0) break;
     }
     this->printRecipe();
 }

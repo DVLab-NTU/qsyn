@@ -44,6 +44,11 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         mutex.addArgument<bool>("-freduce")
             .action(storeTrue)
             .help("perform full reduce");
+
+        mutex.addArgument<bool>("-preduce")
+            .action(storeTrue)
+            .help("perform part reduce");
+            
         mutex.addArgument<bool>("-sreduce")
             .action(storeTrue)
             .help("perform symbolic reduce");
@@ -51,6 +56,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         mutex.addArgument<bool>("-interclifford")
             .action(storeTrue)
             .help("perform inter-clifford");
+
         mutex.addArgument<bool>("-clifford")
             .action(storeTrue)
             .help("perform clifford");
@@ -58,33 +64,43 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         mutex.addArgument<bool>("-bialgebra")
             .action(storeTrue)
             .help("perform bialgebra");
+
         mutex.addArgument<bool>("-gadgetfusion")
             .action(storeTrue)
             .help("perform gadget fusion");
+
         mutex.addArgument<bool>("-hfusion")
             .action(storeTrue)
             .help("perform hadamard fusion");
+
         mutex.addArgument<bool>("-hrule")
             .action(storeTrue)
             .help("perform hadamard rule");
+
         mutex.addArgument<bool>("-idremoval")
             .action(storeTrue)
             .help("perform identity removal");
+
         mutex.addArgument<bool>("-lcomp")
             .action(storeTrue)
             .help("perform local complementation");
+
         mutex.addArgument<bool>("-pivotrule")
             .action(storeTrue)
             .help("perform pivot");
+
         mutex.addArgument<bool>("-pivotboundary")
             .action(storeTrue)
             .help("perform pivot boundary");
+
         mutex.addArgument<bool>("-pivotgadget")
             .action(storeTrue)
             .help("perform pivot gadget");
+
         mutex.addArgument<bool>("-spiderfusion")
             .action(storeTrue)
             .help("perform spider fusion");
+
         mutex.addArgument<bool>("-stcopy")
             .action(storeTrue)
             .help("perform state copy");
@@ -92,6 +108,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         mutex.addArgument<bool>("-tograph")
             .action(storeTrue)
             .help("convert to green (Z) graph");
+
         mutex.addArgument<bool>("-torgraph")
             .action(storeTrue)
             .help("convert to red (X) graph");
@@ -102,6 +119,8 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         Simplifier s(zxGraphMgr->getGraph());
         if (parser["-sreduce"].isParsed())
             s.symbolicReduce();
+        else if (parser["-preduce"].isParsed())
+            s.partReduce();
         else if (parser["-interclifford"].isParsed())
             s.interiorCliffordSimp();
         else if (parser["-clifford"].isParsed())
