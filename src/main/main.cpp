@@ -37,6 +37,7 @@ extern bool initGFlowCmd();
 extern bool initLTCmd();
 size_t verbose = 3;
 size_t colorLevel = 1;
+size_t dmode = 0;
 
 extern MyUsage myUsage;
 

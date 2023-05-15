@@ -17,6 +17,7 @@
 using namespace std;
 
 extern size_t verbose;
+extern size_t dmode;
 
 namespace detail {
 
@@ -200,38 +201,81 @@ ZXGraph *CXGate::getZXform() {
  */
 ZXGraph *CCXGate::getZXform() {
     ZXGraph *temp = new ZXGraph(_id);
-
-    size_t ctrl_qubit_1 = _qubits[0]._isTarget ? _qubits[1]._qubit : _qubits[0]._qubit;
-    size_t ctrl_qubit_2 = _qubits[0]._isTarget ? _qubits[2]._qubit : (_qubits[1]._isTarget ? _qubits[2]._qubit : _qubits[1]._qubit);
+    size_t ctrl_qubit_2 = _qubits[0]._isTarget ? _qubits[1]._qubit : _qubits[0]._qubit;
+    size_t ctrl_qubit_1 = _qubits[0]._isTarget ? _qubits[2]._qubit : (_qubits[1]._isTarget ? _qubits[2]._qubit : _qubits[1]._qubit);
     size_t targ_qubit = _qubits[0]._isTarget ? _qubits[0]._qubit : (_qubits[1]._isTarget ? _qubits[1]._qubit : _qubits[2]._qubit);
-
-    // Build vertices table and adjacency pairs of edges
-    vector<pair<pair<VertexType, Phase>, size_t>> Vertices_info = {{{VertexType::H_BOX, Phase(1)}, targ_qubit}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::X, Phase(0)}, ctrl_qubit_2}, {{VertexType::H_BOX, Phase(1)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_1}, {{VertexType::Z, Phase(-1, 4)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::X, Phase(0)}, ctrl_qubit_2}};
-
-    vector<pair<size_t, size_t>> adj_pair = {{0, 2}, {1, 2}, {2, 3}, {4, 5}, {3, 5}, {5, 6}, {6, 8}, {1, 7}, {7, 8}, {8, 9}, {9, 11}, {10, 11}, {4, 10}, {10, 14}, {11, 13}, {7, 12}, {14, 15}, {12, 15}, {13, 16}, {14, 17}, {17, 19}, {15, 18}, {18, 20}, {19, 20}};
-
+    vector<pair<pair<VertexType, Phase>, size_t>> Vertices_info;
+    vector<pair<pair<size_t, size_t>, EdgeType>> adj_pair;
+    vector<int> Vertices_col;
     vector<ZXVertex *> Vertices_list = {};
+    ZXVertex* in_ctrl_1; ZXVertex* in_ctrl_2; ZXVertex* in_targ;
+    ZXVertex* out_ctrl_1; ZXVertex* out_ctrl_2; ZXVertex* out_targ;
+    switch (dmode)
+    {
+    case 0:
+        Vertices_info = {{{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1,4)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1,4)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1,4)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit},  {{VertexType::Z, Phase(-1,4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, 
+                                                                       {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(1,4)}, ctrl_qubit_2}, {{VertexType::X, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(-1,4)}, ctrl_qubit_2}, {{VertexType::X, Phase(0)}, ctrl_qubit_2}, 
+                                                                       {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(1,4)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}};
+        adj_pair = {{{0, 1},EdgeType::SIMPLE}, {{1, 10},EdgeType::SIMPLE}, {{1, 2},EdgeType::SIMPLE}, {{2, 3},EdgeType::SIMPLE}, {{3, 16},EdgeType::SIMPLE}, {{3, 4},EdgeType::SIMPLE}, {{4, 5},EdgeType::SIMPLE}, {{5, 11},EdgeType::SIMPLE}, {{5, 6},EdgeType::SIMPLE}, {{6, 7},EdgeType::SIMPLE}, {{7, 17},EdgeType::SIMPLE},
+                                                                 {{7, 8},EdgeType::SIMPLE}, {{8, 9},EdgeType::HADAMARD}, {{10, 11},EdgeType::SIMPLE}, {{11, 12},EdgeType::SIMPLE}, {{12, 13},EdgeType::SIMPLE}, {{13, 18},EdgeType::SIMPLE}, {{13, 14},EdgeType::SIMPLE}, {{14, 15},EdgeType::SIMPLE}, {{15, 20},EdgeType::SIMPLE}, {{16, 17},EdgeType::SIMPLE}, {{17, 18},EdgeType::SIMPLE}, {{18, 19},EdgeType::SIMPLE}, {{19, 20},EdgeType::SIMPLE}};
 
-    ZXVertex *in_ctrl_1 = temp->addInput(ctrl_qubit_1);
-    ZXVertex *in_ctrl_2 = temp->addInput(ctrl_qubit_2);
-    ZXVertex *in_targ = temp->addInput(targ_qubit);
-    for (size_t i = 0; i < Vertices_info.size(); i++) {
-        Vertices_list.push_back(temp->addVertex(Vertices_info[i].second, Vertices_info[i].first.first, Vertices_info[i].first.second));
+        Vertices_col = {1,2,3,4,5,6,7,8,9,10,2,6,7,9,10,11,4,8,9,10,11};
+        
+        in_ctrl_1 = temp->addInput(ctrl_qubit_1, true, 0);
+        in_ctrl_2 = temp->addInput(ctrl_qubit_2, true, 0);
+        in_targ = temp->addInput(targ_qubit, true, 0);
+        for (size_t i = 0; i < Vertices_info.size(); i++) {
+            Vertices_list.push_back(temp->addVertex(Vertices_info[i].second, Vertices_info[i].first.first, Vertices_info[i].first.second));
+        }; 
+        for (size_t i = 0; i < Vertices_col.size(); i++) {
+            Vertices_list[i]->setCol(Vertices_col[i]);
+        }
+        out_ctrl_1 = temp->addOutput(ctrl_qubit_1, true, 12);
+        out_ctrl_2 = temp->addOutput(ctrl_qubit_2, true, 12);
+        out_targ = temp->addOutput(targ_qubit, true, 12);
+        temp->addEdge(in_ctrl_1, Vertices_list[16], EdgeType::SIMPLE);
+        temp->addEdge(in_ctrl_2, Vertices_list[10], EdgeType::SIMPLE);
+        temp->addEdge(in_targ, Vertices_list[0], EdgeType::HADAMARD);
+        temp->addEdge(out_ctrl_1, Vertices_list[20], EdgeType::SIMPLE);
+        temp->addEdge(out_ctrl_2, Vertices_list[15], EdgeType::SIMPLE);
+        temp->addEdge(out_targ, Vertices_list[9], EdgeType::SIMPLE);
+        for (size_t i = 0; i < adj_pair.size(); i++) {
+            temp->addEdge(Vertices_list[adj_pair[i].first.first], Vertices_list[adj_pair[i].first.second], adj_pair[i].second);
+        }
+        break;
+    
+    default:
+        Vertices_info = {{{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1,4)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1,4)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1,4)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit},  {{VertexType::Z, Phase(-1,4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, 
+                                                                       {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(1,4)}, ctrl_qubit_2}, {{VertexType::X, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(-1,4)}, ctrl_qubit_2}, {{VertexType::X, Phase(0)}, ctrl_qubit_2}, 
+                                                                       {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(1,4)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}};
+        adj_pair = {{{0, 1},EdgeType::SIMPLE}, {{1, 10},EdgeType::SIMPLE}, {{1, 2},EdgeType::SIMPLE}, {{2, 3},EdgeType::SIMPLE}, {{3, 16},EdgeType::SIMPLE}, {{3, 4},EdgeType::SIMPLE}, {{4, 5},EdgeType::SIMPLE}, {{5, 11},EdgeType::SIMPLE}, {{5, 6},EdgeType::SIMPLE}, {{6, 7},EdgeType::SIMPLE}, {{7, 17},EdgeType::SIMPLE},
+                                                                 {{7, 8},EdgeType::SIMPLE}, {{8, 9},EdgeType::HADAMARD}, {{10, 11},EdgeType::SIMPLE}, {{11, 12},EdgeType::SIMPLE}, {{12, 13},EdgeType::SIMPLE}, {{13, 18},EdgeType::SIMPLE}, {{13, 14},EdgeType::SIMPLE}, {{14, 15},EdgeType::SIMPLE}, {{15, 20},EdgeType::SIMPLE}, {{16, 17},EdgeType::SIMPLE}, {{17, 18},EdgeType::SIMPLE}, {{18, 19},EdgeType::SIMPLE}, {{19, 20},EdgeType::SIMPLE}};
+
+        Vertices_col = {1,2,3,4,5,6,7,8,9,10,2,6,7,9,10,11,4,8,9,10,11};
+        
+        in_ctrl_1 = temp->addInput(ctrl_qubit_1, true, 0);
+        in_ctrl_2 = temp->addInput(ctrl_qubit_2, true, 0);
+        in_targ = temp->addInput(targ_qubit, true, 0);
+        for (size_t i = 0; i < Vertices_info.size(); i++) {
+            Vertices_list.push_back(temp->addVertex(Vertices_info[i].second, Vertices_info[i].first.first, Vertices_info[i].first.second));
+        }; 
+        for (size_t i = 0; i < Vertices_col.size(); i++) {
+            Vertices_list[i]->setCol(Vertices_col[i]);
+        }
+        out_ctrl_1 = temp->addOutput(ctrl_qubit_1, true, 12);
+        out_ctrl_2 = temp->addOutput(ctrl_qubit_2, true, 12);
+        out_targ = temp->addOutput(targ_qubit, true, 12);
+        temp->addEdge(in_ctrl_1, Vertices_list[16], EdgeType::SIMPLE);
+        temp->addEdge(in_ctrl_2, Vertices_list[10], EdgeType::SIMPLE);
+        temp->addEdge(in_targ, Vertices_list[0], EdgeType::HADAMARD);
+        temp->addEdge(out_ctrl_1, Vertices_list[20], EdgeType::SIMPLE);
+        temp->addEdge(out_ctrl_2, Vertices_list[15], EdgeType::SIMPLE);
+        temp->addEdge(out_targ, Vertices_list[9], EdgeType::SIMPLE);
+        for (size_t i = 0; i < adj_pair.size(); i++) {
+            temp->addEdge(Vertices_list[adj_pair[i].first.first], Vertices_list[adj_pair[i].first.second], adj_pair[i].second);
+        }
+        break;
     }
-    ZXVertex *out_ctrl_1 = temp->addOutput(ctrl_qubit_1);
-    ZXVertex *out_ctrl_2 = temp->addOutput(ctrl_qubit_2);
-    ZXVertex *out_targ = temp->addOutput(targ_qubit);
-
-    temp->addEdge(in_ctrl_1, Vertices_list[4], EdgeType::SIMPLE);
-    temp->addEdge(in_ctrl_2, Vertices_list[1], EdgeType::SIMPLE);
-    temp->addEdge(in_targ, Vertices_list[0], EdgeType::SIMPLE);
-    temp->addEdge(out_ctrl_1, Vertices_list[19], EdgeType::SIMPLE);
-    temp->addEdge(out_ctrl_2, Vertices_list[20], EdgeType::SIMPLE);
-    temp->addEdge(out_targ, Vertices_list[16], EdgeType::SIMPLE);
-    for (size_t i = 0; i < adj_pair.size(); i++) {
-        temp->addEdge(Vertices_list[adj_pair[i].first], Vertices_list[adj_pair[i].second], EdgeType::SIMPLE);
-    }
-
     return temp;
 }
 

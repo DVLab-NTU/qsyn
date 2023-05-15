@@ -24,6 +24,7 @@ using namespace std;
 using namespace ArgParse;
 extern QCirMgr *qcirMgr;
 extern size_t verbose;
+extern size_t dmode;
 extern int effLimit;
 
 unique_ptr<ArgParseCmdType> QCirCheckOutCmd();
@@ -119,6 +120,19 @@ ArgType<size_t>::ConstraintType validQCirBitId = {
                 cerr << "Error: Qubit id " << arg.getValue() << " does not exist!!\n";
         };
     }};
+
+ArgType<size_t>::ConstraintType validDMode = {
+    [](ArgType<size_t> &arg){
+        return [&arg](){
+            return (arg.getValue() >= 0 && arg.getValue() <= 4);
+        };
+    },
+    [](ArgType<size_t> const &arg){
+        return [&arg](){
+            cerr << "Error: DMode " << arg.getValue() << " does not exist!!\n";
+        };
+    }
+};
 
 //----------------------------------------------------------------------
 //    QCCHeckout <(size_t id)>
@@ -821,10 +835,21 @@ unique_ptr<ArgParseCmdType> QCir2ZXCmd() {
 
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("convert QCir to ZX-graph");
+        
+        // auto mutex = parser.addMutuallyExclusiveGroup();
+
+        parser.addArgument<size_t>("dm")
+            .required(false)
+            .constraint(validDMode)
+            .help("decompose the graph in level 0");
+        
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QC2ZX");
+        
+        if(parser["dm"].isParsed()) dmode = parser["dm"];
+        else dmode = 0;
         qcirMgr->getQCircuit()->ZXMapping();
         return CMD_EXEC_DONE;
     };
