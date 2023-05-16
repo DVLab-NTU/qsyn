@@ -81,6 +81,8 @@ public:
     void printTrack() const;
     void appendOneHot(size_t idx);
     size_t filterDuplicatedOps();
+    size_t opDepth();
+    float denseRatio();
 
     Row& operator[](const size_t& i) {
         return _matrix[i];

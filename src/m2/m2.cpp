@@ -554,3 +554,36 @@ void M2::appendOneHot(size_t idx) {
         _matrix[i].push_back((i == idx) ? 1 : 0);
     }
 }
+
+/**
+ * @brief Get depth of operations
+ *
+ * @return size_t
+ */
+size_t M2::opDepth() {
+    vector<size_t> rowDepth;
+    rowDepth.resize(numRows(), 0);
+    if (_opStorage.size() == 0) {
+        cout << "Warning: no row operation" << endl;
+        return 0;
+    }
+    for (const auto& [a, b] : _opStorage) {
+        size_t maxDepth = max(rowDepth[a], rowDepth[b]);
+        rowDepth[a] = maxDepth + 1;
+        rowDepth[b] = maxDepth + 1;
+    }
+    return *max_element(rowDepth.begin(), rowDepth.end());
+}
+
+/**
+ * @brief Get dense of operations
+ *
+ * @return float
+ */
+float M2::denseRatio() {
+    size_t depth = opDepth();
+    if (depth == 0)
+        return 0;
+    float ratio = float(depth) / float(_opStorage.size());
+    return round(ratio * 100) / 100;
+}
