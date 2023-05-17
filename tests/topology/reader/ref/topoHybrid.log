@@ -105,8 +105,8 @@ qsyn> dtp
 -> Now focus on: 0 (ibm_ithaca)
 
 qsyn> dtp -l
-★ 0 ibm_ithaca           #Q:   65
-  1 example_topology     #Q:    3
+★ 0   ibm_ithaca           #Q:   65
+  1   example_topology     #Q:    3
 
 qsyn> dtgp -p 0 64
 

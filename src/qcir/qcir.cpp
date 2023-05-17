@@ -50,6 +50,18 @@ QCirQubit *QCir::getQubit(size_t id) const {
 }
 
 /**
+ * @brief Add procedures to QCir
+ *
+ * @param p
+ * @param procedures
+ */
+void QCir::addProcedure(std::string p, const std::vector<std::string> &procedures) {
+    for (auto pr : procedures)
+        _procedures.emplace_back(pr);
+    if (p != "") _procedures.emplace_back(p);
+}
+
+/**
  * @brief Print QCir Gates
  */
 void QCir::printGates() {
@@ -307,8 +319,9 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
                 target->getLast()->setChild(q, temp);
                 if ((target->getLast()->getTime()) > max_time)
                     max_time = target->getLast()->getTime();
-            } else
+            } else {
                 target->setFirst(temp);
+            }
             target->setLast(temp);
         }
         temp->setTime(max_time + temp->getDelay());
@@ -320,8 +333,9 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
             if (target->getFirst() != NULL) {
                 temp->setChild(q, target->getFirst());
                 target->getFirst()->setParent(q, temp);
-            } else
+            } else {
                 target->setLast(temp);
+            }
             target->setFirst(temp);
         }
         _dirty = true;
@@ -428,6 +442,15 @@ void QCir::analysis(bool detail) {
             case GateType::H:
                 h++;
                 clifford++;
+                break;
+            case GateType::P:
+                rz++;
+                if (g->getPhase().getRational().denominator() <= 2)
+                    clifford++;
+                else if (g->getPhase().getRational().denominator() == 4)
+                    tfamily++;
+                else
+                    nct++;
                 break;
             case GateType::RZ:
                 rz++;

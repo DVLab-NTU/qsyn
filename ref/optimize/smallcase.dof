@@ -1,0 +1,11 @@
+color off
+qccread ./benchmark/benchmark_SABRE/small/rd32-v1_68.qasm
+qc2ts
+qc2zx
+zxgsimp -fr
+zx2qc
+qccw ref/optimize/FR_4mod5-v1_24.qasm
+optimize
+qc2ts
+tseq 0 1
+qq -f

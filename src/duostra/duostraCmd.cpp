@@ -13,14 +13,17 @@
 
 #include "apCmd.h"
 #include "deviceCmd.h"
-#include "deviceMgr.h"  // for DeviceMgr
-#include "duostra.h"    // for Duostra
-#include "qcir.h"       // for QCir
-#include "qcirCmd.h"    // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
-#include "qcirMgr.h"    // for QCirMgr
+#include "deviceMgr.h"         // for DeviceMgr
+#include "duostra.h"           // for Duostra
+#include "mappingEQChecker.h"  // for MappingEQChecker
+#include "qcir.h"              // for QCir
+#include "qcirCmd.h"           // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
+#include "qcirMgr.h"           // for QCirMgr
+#include "textFormat.h"
 
 using namespace std;
 using namespace ArgParse;
+namespace TF = TextFormat;
 extern size_t verbose;
 extern int effLimit;
 extern QCirMgr *qcirMgr;
@@ -29,11 +32,13 @@ extern DeviceMgr *deviceMgr;
 unique_ptr<ArgParseCmdType> duostraCmd();
 unique_ptr<ArgParseCmdType> duostraPrintCmd();
 unique_ptr<ArgParseCmdType> duostraSetCmd();
+unique_ptr<ArgParseCmdType> mapEQCmd();
 
 bool initDuostraCmd() {
     if (!(cmdMgr->regCmd("DUOSTRA", 7, duostraCmd()) &&
           cmdMgr->regCmd("DUOSET", 6, duostraSetCmd()) &&
-          cmdMgr->regCmd("DUOPrint", 4, duostraPrintCmd()))) {
+          cmdMgr->regCmd("DUOPrint", 4, duostraPrintCmd()) &&
+          cmdMgr->regCmd("MPEQuiv", 4, mapEQCmd()))) {
         cerr << "Registering \"Duostra\" commands fails... exiting" << endl;
         return false;
     }
@@ -51,12 +56,20 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
             .defaultValue(false)
             .action(storeTrue)
             .help("check whether the mapping result is correct");
+        parser.addArgument<bool>("-mute-tqdm")
+            .defaultValue(false)
+            .action(storeTrue)
+            .help("mute tqdm");
+        parser.addArgument<bool>("-silent")
+            .defaultValue(false)
+            .action(storeTrue)
+            .help("mute all messages");
     };
 
     duostraCmd->onParseSuccess = [](ArgumentParser const &parser) {
         DT_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
-        Duostra duo = Duostra(qcirMgr->getQCircuit(), deviceMgr->getDevice(), parser["-check"]);
+        Duostra duo = Duostra(qcirMgr->getQCircuit(), deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"]);
         if (duo.flow() != ERROR_CODE) {
             QCir *result = duo.getPhysicalCircuit();
             if (result != nullptr) {
@@ -82,13 +95,13 @@ unique_ptr<ArgParseCmdType> duostraSetCmd() {
 
         parser.addArgument<string>("-scheduler")
             .choices({"base", "static", "random", "greedy", "search"})
-            .help("scheduler");
+            .help("< base   | static | random | greedy | search >");
         parser.addArgument<string>("-router")
             .choices({"apsp", "duostra"})
-            .help("router");
+            .help("< apsp   | duostra >");
         parser.addArgument<string>("-placer")
             .choices({"static", "random", "dfs"})
-            .help("placer");
+            .help("< static | random | dfs >");
 
         parser.addArgument<bool>("-orient")
             .help("smaller logical qubit index with little priority");
@@ -200,4 +213,36 @@ unique_ptr<ArgParseCmdType> duostraPrintCmd() {
         return CMD_EXEC_DONE;
     };
     return duostraPrintCmd;
+}
+
+unique_ptr<ArgParseCmdType> mapEQCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("MPEQuiv");
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("check equivalence of the physical and the logical circuits");
+        parser.addArgument<size_t>("-logical")
+            .required(true)
+            .help("logical circuit id");
+        parser.addArgument<size_t>("-physical")
+            .required(true)
+            .help("physical circuit id");
+        parser.addArgument<bool>("-reverse")
+            .defaultValue(false)
+            .action(storeTrue)
+            .help("check the circuit reversily, used in extracted circuit");
+    };
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        DT_CMD_MGR_NOT_EMPTY_OR_RETURN("MPEQuiv");
+        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("MPEQuiv");
+        if (qcirMgr->findQCirByID(parser["-physical"]) == nullptr || qcirMgr->findQCirByID(parser["-logical"]) == nullptr) {
+            return CMD_EXEC_ERROR;
+        }
+        MappingEQChecker mpeqc(qcirMgr->findQCirByID(parser["-physical"]), qcirMgr->findQCirByID(parser["-logical"]), deviceMgr->getDevice(), {});
+        if (mpeqc.check()) {
+            cout << TF::BOLD(TF::GREEN("Equivalent up to permutation")) << endl;
+        } else {
+            cout << TF::BOLD(TF::RED("Not Equivalent")) << endl;
+        }
+        return CMD_EXEC_DONE;
+    };
+    return cmd;
 }

@@ -139,6 +139,7 @@ public:
     size_t getNQubit() const { return _nQubit; }
     const PhyQubitList& getPhyQubitList() const { return _qubitList; }
     PhysicalQubit& getPhysicalQubit(size_t id) { return _qubitList[id]; }
+    size_t getPhysicalbyLogical(size_t id);
     std::tuple<size_t, size_t> getNextSwapCost(size_t source, size_t target);
     bool qubitIdExist(size_t id) { return _qubitList.contains(id); }
 
@@ -149,6 +150,8 @@ public:
 
     // NOTE - Duostra
     void applyGate(const Operation&);
+    void applySingleQubitGate(size_t);
+    void applySwapCheck(size_t, size_t);
     std::vector<size_t> mapping() const;
     void place(const std::vector<size_t>&);
 
@@ -166,6 +169,7 @@ public:
     void printDistance() const;
     void printPath(size_t, size_t) const;
     void printMapping();
+    void printStatus() const;
 
 private:
     size_t _id;

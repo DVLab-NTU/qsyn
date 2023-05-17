@@ -94,7 +94,6 @@ Placer:            dfs
 
 qsyn> duostra -c
 Routing...
-Greedy scheduler running...
 
 Checking...
 
@@ -104,14 +103,14 @@ Scheduler:      greedy
 Router:         duostra
 Placer:         dfs
 
-Mapping Depth:  2459
-Total Time:     6861
-#SWAP:          538
+Mapping Depth:  2441
+Total Time:     6753
+#SWAP:          520
 
 
 qsyn> qccp -a
-[1m[32mClifford: 3334[0m[0m
-└── [1m[31mCX: 3247[0m[0m
+[1m[32mClifford: 3280[0m[0m
+└── [1m[31mCX: 3193[0m[0m
 [1m[31mT-family: 280[0m[0m
 [1m[32mOthers  : 0[0m[0m
 

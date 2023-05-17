@@ -53,7 +53,7 @@ const BitInfo QCirGate::getQubit(size_t qubit) const {
 }
 
 /**
- * @brief Adc qubit to a gate
+ * @brief Add qubit to a gate
  *
  * @param qubit
  * @param isTarget
@@ -65,6 +65,15 @@ void QCirGate::addQubit(size_t qubit, bool isTarget) {
         _qubits.emplace_back(temp);
     else
         _qubits.emplace(_qubits.begin(), temp);
+}
+
+/**
+ * @brief Set the bit of target
+ *
+ * @param qubit
+ */
+void QCirGate::setTargetBit(size_t qubit) {
+    _qubits[_qubits.size() - 1]._qubit = qubit;
 }
 
 /**
@@ -113,11 +122,12 @@ void QCirGate::setChild(size_t qubit, QCirGate *c) {
 void QCirGate::printGate() const {
     cout << "ID:" << right << setw(4) << _id;
     cout << " (" << right << setw(3) << getTypeStr() << ") ";
-    // cout << "Gate " << _id << ": " << getTypeStr() << "   \t"
     cout << "     Time: " << right << setw(4) << _time << "     Qubit: ";
     for (size_t i = 0; i < _qubits.size(); i++) {
         cout << right << setw(3) << _qubits[i]._qubit << " ";
     }
+    if (getType() == GateType::P || getType() == GateType::RX || getType() == GateType::RY || getType() == GateType::RZ)
+        cout << "      Phase: " << right << setw(4) << getPhase() << " ";
     cout << endl;
 }
 
@@ -151,7 +161,7 @@ void QCirGate::printSingleQubitGate(string gtype, bool showTime) const {
     cout << " └─";
     for (size_t i = 0; i < gtype.size(); i++) cout << "─";
     cout << "─┘ " << endl;
-    if (gtype == "RX" || gtype == "RY" || gtype == "RZ")
+    if (gtype == "RX" || gtype == "RY" || gtype == "RZ" || gtype == "P")
         cout << "Rotate Phase: " << _rotatePhase << endl;
     if (showTime)
         cout << "Execute at t= " << getTime() << endl;

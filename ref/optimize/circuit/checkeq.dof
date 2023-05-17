@@ -1,0 +1,19 @@
+color off
+ver 0
+qccread benchmark/benchmark_SABRE/large/qft_n20.qasm
+qc2zx
+qccr ref/optimize/circuit/iter0.qasm 
+qc2zx
+zxgadj
+zxcomp 0 
+zxgs -fr  
+zxgp -s  
+zxgt -id
+qccr ref/optimize/circuit/iter1.qasm
+qc2zx 
+zxgadj
+zxcomp 0 
+zxgs -fr  
+zxgp -s       
+zxgt -id
+qq -f

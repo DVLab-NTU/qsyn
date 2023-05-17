@@ -38,6 +38,9 @@ void QCir::ZXMapping() {
     updateGateTime();
 
     ZXGraph *_ZXG = zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
+    _ZXG->setFileName(_fileName);
+    _ZXG->addProcedure("QC2ZX", _procedures);
+
     if (verbose >= 5) cout << "Traverse and build the graph... " << endl;
     _ZXG->setRef((void **)_ZXG);
 
