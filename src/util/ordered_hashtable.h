@@ -122,9 +122,28 @@ public:
     const_iterator cend() const noexcept { return const_iterator(this->_data.cend(), this->_data.begin(), this->_data.cend()); }
 
     // lookup
+    /**
+     * @brief Return the internal index where the element with the key is stored.
+     *        Note that as Ordered hashmap dynamically resizes its internal stor-
+     *        age, this information is not reliable once insertion and erasure
+     *        happens.
+     *
+     * @param key
+     * @return size_type
+     */
     inline iterator find(const Key& key) {
         return this->contains(key) ? iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()) : this->end();
     }
+    
+    /**
+     * @brief Return the internal index where the element with the key is stored.
+     *        Note that as Ordered hashmap dynamically resizes its internal stor-
+     *        age, this information is not reliable once insertion and erasure
+     *        happens.
+     *
+     * @param key
+     * @return size_type
+     */
     inline const_iterator find(const Key& key) const {
         return this->contains(key) ? iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()) : this->end();
     }

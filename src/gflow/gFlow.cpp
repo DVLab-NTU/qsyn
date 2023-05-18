@@ -181,7 +181,7 @@ size_t GFlow::removeGadgets() {
         printNeighbors();
         ZXVertex* vs = std::invoke([&taken, this]() -> ZXVertex* {
             for (auto& v : _neighbors) {
-                if (v->isGadgetAxel() && !taken.contains(v)) return v;
+                if (_zxgraph->isGadgetAxel(v) && !taken.contains(v)) return v;
             }
             return nullptr;
         });

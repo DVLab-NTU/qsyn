@@ -68,7 +68,7 @@ ZXGraph* ZXGraph::copy(bool doReordering) const {
         for (auto& [oldV, newV] : oldV2newVMap) {
             newV->setId(oldV->getId());
         }
-        newGraph->_nextVId = _nextVId; 
+        newGraph->_nextVId = _nextVId;
     }
     // Link all edges
     // cout << "Link all edges" << endl;
@@ -220,24 +220,47 @@ ZXGraph* ZXGraph::tensorProduct(ZXGraph* target) {
 }
 
 /**
- * @brief Check v is a gadget
+ * @brief Check if v is a gadget leaf
  *
  * @param v
  * @return true
  * @return false
  */
-bool ZXGraph::isGadget(ZXVertex* v) {
+bool ZXGraph::isGadgetLeaf(ZXVertex* v) const {
     if (v->getType() != VertexType::Z || v->getNumNeighbors() != 1) {
-        if (verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
+        if (verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget leaf vertex!" << endl;
         return false;
     }
-    if (v->getFirstNeighbor().first->getType() != VertexType::Z &&
-        v->getFirstNeighbor().first->getPhase() != Phase(0) &&
-        v->getFirstNeighbor().first->getPhase() != Phase(1)) {
-        if (verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget vertex!" << endl;
+    if (v->getFirstNeighbor().first->getType() != VertexType::Z ||
+        v->getFirstNeighbor().second != EdgeType::HADAMARD ||
+        !v->getFirstNeighbor().first->hasNPiPhase()) {
+        if (verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget leaf vertex!" << endl;
         return false;
     }
     return true;
+}
+
+/**
+ * @brief Check if v is a gadget axel
+ *
+ * @param v
+ * @return true
+ * @return false
+ */
+bool ZXGraph::isGadgetAxel(ZXVertex* v) const {
+    return v->isZ() &&
+           v->hasNPiPhase() &&
+           any_of(v->getNeighbors().begin(), v->getNeighbors().end(),
+                  [](const NeighborPair& nbp) {
+                      return nbp.first->getNumNeighbors() == 1 && nbp.first->isZ() && nbp.second == EdgeType::HADAMARD;
+                  });
+}
+
+bool ZXGraph::hasDanglingNeighbors(ZXVertex* v) const {
+    return any_of(v->getNeighbors().begin(), v->getNeighbors().end(),
+                  [](const NeighborPair& nbp) {
+                      return nbp.first->getNumNeighbors() == 1;
+                  });
 }
 
 /**
@@ -265,7 +288,7 @@ void ZXGraph::addGadget(Phase p, const vector<ZXVertex*>& verVec) {
  * @param v
  */
 void ZXGraph::removeGadget(ZXVertex* v) {
-    if (!isGadget(v)) return;
+    if (!isGadgetLeaf(v)) return;
     ZXVertex* axel = v->getFirstNeighbor().first;
     removeVertex(axel);
     removeVertex(v);

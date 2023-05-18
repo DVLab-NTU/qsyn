@@ -79,7 +79,6 @@ public:
     bool isNeighbor(const NeighborPair& n) const { return _neighbors.contains(n); }
     bool isNeighbor(ZXVertex* v, EdgeType et) const { return isNeighbor(std::make_pair(v, et)); }
     bool hasNPiPhase() const { return _phase.getRational().denominator() == 1; }
-    bool isGadgetAxel() const;
 
     // DFS
     bool isVisited(unsigned global) { return global == _DFSCounter; }
@@ -137,6 +136,11 @@ public:
     size_t numGadgets() const;
     bool isInputQubit(int qubit) const { return (_inputList.contains(qubit)); }
     bool isOutputQubit(int qubit) const { return (_outputList.contains(qubit)); }
+
+    bool isGadgetLeaf(ZXVertex*) const;
+    bool isGadgetAxel(ZXVertex*) const;
+    bool hasDanglingNeighbors(ZXVertex*) const;
+
     int TCount() const;
     int nonCliffordCount(bool includeT = false) const;
 
@@ -178,7 +182,6 @@ public:
     void liftQubit(const size_t& n);
     ZXGraph* compose(ZXGraph* target);
     ZXGraph* tensorProduct(ZXGraph* target);
-    bool isGadget(ZXVertex*);
     void addGadget(Phase p, const std::vector<ZXVertex*>& verVec);
     void removeGadget(ZXVertex* v);
     std::unordered_map<size_t, ZXVertex*> id2VertexMap() const;

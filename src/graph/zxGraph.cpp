@@ -9,7 +9,6 @@
 #include "zxGraph.h"
 
 #include <iostream>
-#include <ranges>
 
 #include "textFormat.h"  // for TextFormat
 #include "zxDef.h"
