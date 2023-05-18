@@ -51,22 +51,22 @@ qsyn> zx2qc
 Successfully copied Graph 0 to Graph 1
 Checkout to Graph 1
 Initialize
-Note: (0) is not a gadget vertex!
-Note: (1) is not a gadget vertex!
-Note: (2) is not a gadget vertex!
-Note: (3) is not a gadget vertex!
-Note: (4) is not a gadget vertex!
-Note: (5) is not a gadget vertex!
-Note: (6) is not a gadget vertex!
-Note: (7) is not a gadget vertex!
-Note: (8) is not a gadget vertex!
-Note: (10) is not a gadget vertex!
-Note: (12) is not a gadget vertex!
-Note: (14) is not a gadget vertex!
-Note: (16) is not a gadget vertex!
-Note: (17) is not a gadget vertex!
-Note: (18) is not a gadget vertex!
-Note: (19) is not a gadget vertex!
+Note: (0) is not a gadget leaf vertex!
+Note: (1) is not a gadget leaf vertex!
+Note: (2) is not a gadget leaf vertex!
+Note: (3) is not a gadget leaf vertex!
+Note: (4) is not a gadget leaf vertex!
+Note: (5) is not a gadget leaf vertex!
+Note: (6) is not a gadget leaf vertex!
+Note: (7) is not a gadget leaf vertex!
+Note: (8) is not a gadget leaf vertex!
+Note: (10) is not a gadget leaf vertex!
+Note: (12) is not a gadget leaf vertex!
+Note: (14) is not a gadget leaf vertex!
+Note: (16) is not a gadget leaf vertex!
+Note: (17) is not a gadget leaf vertex!
+Note: (18) is not a gadget leaf vertex!
+Note: (19) is not a gadget leaf vertex!
 Clean Frontier
 Extract Singles
 Extract CZs
@@ -77,18 +77,18 @@ Qubit:1: 6
 Qubit:2: 8
 
 Axels:
-10 (phase gadget: Note: (6) is not a gadget vertex!
-Note: (8) is not a gadget vertex!
+10 (phase gadget: Note: (6) is not a gadget leaf vertex!
+Note: (8) is not a gadget leaf vertex!
 9)
-12 (phase gadget: Note: (7) is not a gadget vertex!
-Note: (8) is not a gadget vertex!
+12 (phase gadget: Note: (7) is not a gadget leaf vertex!
+Note: (8) is not a gadget leaf vertex!
 11)
-14 (phase gadget: Note: (6) is not a gadget vertex!
-Note: (7) is not a gadget vertex!
+14 (phase gadget: Note: (6) is not a gadget leaf vertex!
+Note: (7) is not a gadget leaf vertex!
 13)
-16 (phase gadget: Note: (6) is not a gadget vertex!
-Note: (7) is not a gadget vertex!
-Note: (8) is not a gadget vertex!
+16 (phase gadget: Note: (6) is not a gadget leaf vertex!
+Note: (7) is not a gadget leaf vertex!
+Note: (8) is not a gadget leaf vertex!
 15)
 
 Frontier:
@@ -98,8 +98,8 @@ Qubit:2: 22
 
 Axels:
 10 (phase gadget: 9)
-Note: (13) is not a gadget vertex!
-Note: (11) is not a gadget vertex!
+Note: (13) is not a gadget leaf vertex!
+Note: (11) is not a gadget leaf vertex!
 
 Gadget(s) are removed.
 Clean Frontier
@@ -113,8 +113,8 @@ Qubit:2: 22
 
 Axels:
 10 (phase gadget: 9)
-Note: (13) is not a gadget vertex!
-Note: (11) is not a gadget vertex!
+Note: (13) is not a gadget leaf vertex!
+Note: (11) is not a gadget leaf vertex!
 
 Frontier:
 Qubit:1: 20
@@ -123,8 +123,8 @@ Qubit:2: 22
 
 Axels:
 10 (phase gadget: 9)
-Note: (13) is not a gadget vertex!
-Note: (11) is not a gadget vertex!
+Note: (13) is not a gadget leaf vertex!
+Note: (11) is not a gadget leaf vertex!
 
 Perform Gaussian Elimination.
 Update Graph by Matrix
@@ -144,8 +144,8 @@ Qubit:2: 15
 
 Axels:
 10 (phase gadget: 9)
-Note: (13) is not a gadget vertex!
-Note: (11) is not a gadget vertex!
+Note: (13) is not a gadget leaf vertex!
+Note: (11) is not a gadget leaf vertex!
 
 Frontier:
 Qubit:1: 11
