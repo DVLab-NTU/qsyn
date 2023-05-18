@@ -133,37 +133,37 @@ bool ZXGraph::buildGraphFromParserStorage(const ZXParserDetail::StorageType& sto
     for (auto& [id, info] : storage) {
         ZXVertex* v = std::invoke(
             [&id, &info, this]() {
-            if (info.type == 'I')
-                return addInput(info.qubit, true, info.column);
-            if (info.type == 'O')
-                return addOutput(info.qubit, true, info.column);
-            VertexType vtype;
-            if (info.type == 'Z')
-                vtype = VertexType::Z;
-            else if (info.type == 'X')
-                vtype = VertexType::X;
-            else
-                vtype = VertexType::H_BOX;
-            return addVertex(info.qubit, vtype, info.phase, true, info.column);
-    });
+                if (info.type == 'I')
+                    return addInput(info.qubit, true, info.column);
+                if (info.type == 'O')
+                    return addOutput(info.qubit, true, info.column);
+                VertexType vtype;
+                if (info.type == 'Z')
+                    vtype = VertexType::Z;
+                else if (info.type == 'X')
+                    vtype = VertexType::X;
+                else
+                    vtype = VertexType::H_BOX;
+                return addVertex(info.qubit, vtype, info.phase, true, info.column);
+            });
 
-    if (keepID) v->setId(id);
-    id2Vertex[id] = v;
-}
+        if (keepID) v->setId(id);
+        id2Vertex[id] = v;
+    }
 
-for (auto& [vid, info] : storage) {
-    for (auto& [type, nbid] : info.neighbors) {
-        if (!id2Vertex.contains(nbid)) {
-            cerr << "Error: Failed to build the graph: cannot find vertex with ID " << nbid << "!!" << endl;
-            return false;
-        }
+    for (auto& [vid, info] : storage) {
+        for (auto& [type, nbid] : info.neighbors) {
+            if (!id2Vertex.contains(nbid)) {
+                cerr << "Error: Failed to build the graph: cannot find vertex with ID " << nbid << "!!" << endl;
+                return false;
+            }
 
-        if (vid < nbid) {
-            addEdge(id2Vertex[vid], id2Vertex[nbid], (type == 'S') ? EdgeType::SIMPLE : EdgeType::HADAMARD);
+            if (vid < nbid) {
+                addEdge(id2Vertex[vid], id2Vertex[nbid], (type == 'S') ? EdgeType::SIMPLE : EdgeType::HADAMARD);
+            }
         }
     }
-}
-return true;
+    return true;
 }
 
 string defineColors =

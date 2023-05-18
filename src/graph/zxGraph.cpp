@@ -327,7 +327,7 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
     }
 
     if (vs->getId() > vt->getId()) swap(vs, vt);
-    
+
     if (vs->isNeighbor(vt, et)) {
         if (
             (vs->isZ() && vt->isX() && et == EdgeType::HADAMARD) ||

@@ -9,8 +9,8 @@
 #include <cstddef>  // for size_t
 #include <iomanip>
 #include <iostream>
-#include <string>
 #include <ranges>
+#include <string>
 
 #include "textFormat.h"  // for TextFormat
 #include "zxDef.h"       // for EdgeType, VertexType, EdgePair, EdgeType::HA...
@@ -52,8 +52,8 @@ void ZXVertex::printVertex() const {
 void ZXVertex::printNeighbors() const {
     vector<NeighborPair> storage(_neighbors.begin(), _neighbors.end());
 
-    ranges::sort(storage, [](NeighborPair const& a, NeighborPair const& b) { 
-        return (a.first->getId() != b.first->getId()) ? (a.first->getId() < b.first->getId()) : (a.second < b.second); 
+    ranges::sort(storage, [](NeighborPair const& a, NeighborPair const& b) {
+        return (a.first->getId() != b.first->getId()) ? (a.first->getId() < b.first->getId()) : (a.second < b.second);
     });
 
     for (const auto& [nb, etype] : storage) {

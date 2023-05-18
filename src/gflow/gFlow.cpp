@@ -171,7 +171,6 @@ size_t GFlow::removeGadgets() {
 
     size_t count = 0;
 
-
     ZXVertexList taken;
     cout << "=====================\n";
     cout << "  Removing Gadgets\n";

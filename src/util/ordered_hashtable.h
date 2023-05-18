@@ -134,7 +134,7 @@ public:
     inline iterator find(const Key& key) {
         return this->contains(key) ? iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()) : this->end();
     }
-    
+
     /**
      * @brief Return the internal index where the element with the key is stored.
      *        Note that as Ordered hashmap dynamically resizes its internal stor-
