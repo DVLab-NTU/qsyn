@@ -5,7 +5,7 @@ SRCLIBS   		:= $(addsuffix .a, $(addprefix lib, $(SRCPKGS)))
 EXTINCDIR 		:= include
 
 VENDOR_DIR      := vendor
-VENDOR_HDRS		:= catch2 tqdm
+VENDOR_HDRS		:= tqdm
 
 SRC_DIR	  		:= src
 BUILD_DIR 		:= bin/qsyn-dev
