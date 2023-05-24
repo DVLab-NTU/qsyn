@@ -74,7 +74,7 @@ void PhaseGadget::match(ZXGraph* g) {
         for (auto itr = groupBegin; itr != groupEnd; ++itr) {
             auto axel = itr->second;
 #else
-        for (auto& [_, axel] : ranges::subange(groupBegin, groupEnd)) {
+        for (auto& [_, axel] : ranges::subrange(groupBegin, groupEnd)) {
 #endif
             ZXVertex* const& leaf = axel2leaf[axel];
             if (axel->getPhase() == Phase(1)) {
