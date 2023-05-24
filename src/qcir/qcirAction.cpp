@@ -179,7 +179,7 @@ void QCir::updateGateTime() {
  * @brief Print ZX-graph of gate following the topological order
  */
 void QCir::printZXTopoOrder() {
-    auto Lambda = [this](QCirGate* G) {
+    auto Lambda = [](QCirGate* G) {
         cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph* tmp = G->getZXform();
         tmp->printVertices();

@@ -72,20 +72,20 @@
 #include "ordered_hashtable.h"
 
 template <typename Key, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
-class ordered_hashset : public ordered_hashtable<Key, const Key, Key, Hash, KeyEqual> {
+class ordered_hashset final : public ordered_hashtable<Key, const Key, Key, Hash, KeyEqual> {
     using __OrderedHashTable = ordered_hashtable<Key, const Key, Key, Hash, KeyEqual>;
 
 public:
-    using key_type = __OrderedHashTable::key_type;
-    using value_type = __OrderedHashTable::value_type;
-    using stored_type = __OrderedHashTable::stored_type;
-    using size_type = __OrderedHashTable::size_type;
-    using difference_type = __OrderedHashTable::difference_type;
-    using hasher = __OrderedHashTable::hasher;
-    using key_equal = __OrderedHashTable::key_equal;
-    using container = __OrderedHashTable::container;
-    using iterator = __OrderedHashTable::iterator;
-    using const_iterator = __OrderedHashTable::const_iterator;
+    using key_type = typename __OrderedHashTable::key_type;
+    using value_type = typename __OrderedHashTable::value_type;
+    using stored_type = typename __OrderedHashTable::stored_type;
+    using size_type = typename __OrderedHashTable::size_type;
+    using difference_type = typename __OrderedHashTable::difference_type;
+    using hasher = typename __OrderedHashTable::hasher;
+    using key_equal = typename __OrderedHashTable::key_equal;
+    using container = typename __OrderedHashTable::container;
+    using iterator = typename __OrderedHashTable::iterator;
+    using const_iterator = typename __OrderedHashTable::const_iterator;
 
     ordered_hashset() noexcept : __OrderedHashTable() {}
     ordered_hashset(const std::initializer_list<value_type>& il) noexcept : __OrderedHashTable() {

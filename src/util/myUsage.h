@@ -9,7 +9,6 @@
 #ifndef MY_USAGE_H
 #define MY_USAGE_H
 
-#include <bits/types/struct_rusage.h>  // for rusage, rusage::(anonymous)
 #include <sys/resource.h>              // for getrusage, RUSAGE_SELF
 #include <sys/times.h>                 // for times, tms
 #include <unistd.h>                    // for sysconf, _SC_CLK_TCK

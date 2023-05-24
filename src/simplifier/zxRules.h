@@ -11,6 +11,7 @@
 
 #include <string>   // for string
 #include <utility>  // for pair
+#include <array>
 
 #include "zxDef.h"  // for EdgePair
 
@@ -261,7 +262,7 @@ public:
     PivotInterface() {}
     virtual ~PivotInterface() {}
 
-    virtual void match(ZXGraph* g) = 0;
+    virtual void match(ZXGraph* g) override = 0;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter

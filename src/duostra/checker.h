@@ -9,7 +9,6 @@
 
 #ifndef CHECKER_H
 #define CHECKER_H
-#include <bits/stdc++.h>
 
 #include "circuitTopology.h"
 #include "device.h"

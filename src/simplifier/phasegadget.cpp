@@ -8,6 +8,7 @@
 
 #include <cstddef>  // for size_t
 #include <iostream>
+#include <ranges>
 
 #include "zxGraph.h"
 #include "zxRules.h"

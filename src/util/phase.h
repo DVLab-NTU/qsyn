@@ -136,7 +136,7 @@ Phase operator/(Phase lhs, const Unitless auto& rhs) {
     return lhs;
 }
 
-template <class T = double>
+template <class T>
 requires std::floating_point<T>
 bool Phase::myStrValid(const std::string& str, Phase& p) {
     std::vector<std::string> numberStrings;

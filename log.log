@@ -1,0 +1,10 @@
+src/simplifier/phasegadget.cpp:73:40: error: no member named 'subrange' in namespace 'std::ranges'
+        for (auto& [_, axel] : ranges::subrange(groupBegin, groupEnd)) {
+                               ~~~~~~~~^
+src/cmd/cmdCommon.cpp:198:39: warning: lambda capture 'arg' is not used [-Wunused-lambda-capture]
+                             return [&arg]() {
+                                     ~^~~
+1 error generated.
+gmake: *** [src/rules.mk:85: bin/qsyn-dev/src/simplifier/phasegadget.o] Error 1
+gmake: *** Waiting for unfinished jobs....
+1 warning generated.
