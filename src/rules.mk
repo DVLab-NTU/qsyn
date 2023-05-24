@@ -47,10 +47,12 @@ else
     endif
 endif
 
-ifneq (,$(findstring -DOSX, $(OSFLAG)))
-    LIBPKGS += lapack cblas blas
+ifneq (,$(findstring -DOSX, $(OSFLAG))) # if the OS is MacOS
+    LIBPKGS += lapack cblas blas omp
+	OMP_FLAG := -Xpreprocessor -fopenmp
 else
     LIBPKGS += lapack cblas blas gfortran
+	OMP_FLAG := -fopenmp
 endif
 
 ## -------------------------------
@@ -69,7 +71,7 @@ DIR := main
 TARGET := $(BUILD_DIR)/$(EXEC)
 include $(SRC_DIR)/$(DIR)/rules.mk
 
-CFLAGS 			:= $(OPTIMIZE_LEVEL) $(DEBUG_FLAG) $(DEP_FLAG) -Wall -std=c++20 -fopenmp $(PKGFLAG)
+CFLAGS 			:= $(OPTIMIZE_LEVEL) $(DEBUG_FLAG) $(DEP_FLAG) -Wall -std=c++20 $(OMP_FLAG) $(PKGFLAG)
 
 ## -------------------------------
 ##      Generic build policy

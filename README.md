@@ -35,9 +35,12 @@ cd qsyn
 ```shell
 sudo apt-get install texlive-latex-base
 ```
+### System Requirements
+* Linux (recommended): `Qsyn` requires `g++-10` and `gfortran-10` to compile. The two compilers should also be on the same version.
+* MacOS: `Qsyn` can also be compiled with Apple Clang (which, by default, is what gets called when invoking `g++`) with version 13.1.7 and up. However, note the following caveats:
+    * You may need to install `OpenMP` via HomeBrew or MacPort, and link/add the headers and libraries into compiler search path.
+    * Due to differences in c++ standard implementation, there might be some deviations in the output of Apple Clang-compiled program from their g++-compiled counterparts.
 ### Compilation
-`Qsyn` requires at least `g++-10` and `gfortran-10` to compile. The two compilers should also be on the same version.
-
 1. Qsyn depends on `xtensor` and `xtensor-blas`. To install these dependencies, run `configure.sh`, which checks for lacking dependencies and install them automatically. 
 	```shell!
 	sudo ./configure.sh
@@ -46,12 +49,17 @@ sudo apt-get install texlive-latex-base
 	```shell!
 	make -j16
 	```
-3. If the compilation process ends successfully, you will get
+    or
+    ```shell!
+	gmake -j16
+	```
+    if you are on MacOS.
+3. If the compilation process ends successfully, you will see
     ```shell!
     > building qsyn...
     ~/qsyn$ _
     ```
-4. If you want to delete all intermediate files created in the compilation process, please type
+4. To delete all intermediate files created in the compilation process, please type
     ```shell!
 	make clean
 	```
@@ -120,7 +128,7 @@ We have provided some DOFILEs, i.e., a sequence of commands, to serve as functio
     ```bash!
     ./RUN_ALL_TEST.sh
     ```
-
+Notice that if you use Apple Clang to compile `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
 
 ## License
 [Apache License 2.0](https://github.com/ric2k1/qsyn/blob/main/LICENSE)
