@@ -71,10 +71,6 @@ DIR := main
 TARGET := $(BUILD_DIR)/$(EXEC)
 include $(SRC_DIR)/$(DIR)/rules.mk
 
-DIR := test
-TARGET := $(BUILD_DIR)/$(TESTEXEC)
-include $(SRC_DIR)/$(DIR)/rules.mk
-
 CFLAGS 			:= $(OPTIMIZE_LEVEL) $(DEBUG_FLAG) $(DEP_FLAG) -Wall -std=c++20 $(OMP_FLAG) $(PKGFLAG)
 
 ## -------------------------------

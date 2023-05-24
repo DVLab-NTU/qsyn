@@ -1,0 +1,26 @@
+ver 0
+// Read device topology
+dtgread benchmark/topology/guadalupe.layout
+help qcset
+qcset -si 1 -d 2 -sw 6
+qcprint -set
+qccr benchmark/benchmark_SABRE/large/dc2_222.qasm
+qccp
+qc2zx
+zxgs -fr
+usage
+// Extract the circuit and store it into QCirMgr
+zx2qc
+qccp
+usage
+qcp -l
+// Copy the circuit and optimize it
+optimize -c
+qccp
+qcp -l
+duoprint
+// Map to physical device
+duostra -c
+qccp
+qcp -l
+qq -f

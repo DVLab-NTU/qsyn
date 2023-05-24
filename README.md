@@ -22,7 +22,6 @@ Qsyn provides an experimental implementation of optimization algorithms and a pr
 
 ## Third party dependencies
 * `xtensor`, `xtensor-blas` for tensor calculation
-* `catch2` for unit testing
 * `tqdm` for progress bar pretty-printing
 * `pdflatex` for outputting pdf files
 
@@ -40,9 +39,8 @@ sudo apt-get install texlive-latex-base
 `Qsyn` requires at least `g++-10` and `gfortran-10` to compile. The two compilers should also be on the same version.
 
 1. Qsyn depends on `xtensor` and `xtensor-blas`. To install these dependencies, run `configure.sh`, which checks for lacking dependencies and install them automatically. 
-
 	```shell!
-	./configure.sh
+	sudo ./configure.sh
 	```
 2. Then, run `make` to build up the executable.
 	```shell!
@@ -102,37 +100,26 @@ sudo apt-get install texlive-latex-base
     qsyn> zxgp
     Graph 0( 3 inputs, 3 outputs, 17 vertices, 19 edges )
 
-    qsyn> q -f
+    qsyn> qq -f
     ```
 
 
 
 ### Testing
-There are two types of testing approaches:
-1. DOFILEs, which automatically run a sequence of commands. (Located under `tests/<section>/<subsection>/dof/`)
+We have provided some DOFILEs, i.e., a sequence of commands, to serve as functionality checks as well as demonstration of use. DOFILEs are Located under `tests/<section>/<subsection>/dof/`.
 
-    * To run a DOFILE and compare the result to the reference, type
-		```shell!
-		./DOFILE.sh <path/to/test> -d
-		```
-    * To update the reference to a dofile, type
-		```shell!
-		./DOFILE.sh <path/to/test> -up
-		```
-    * You may also run all DOFILEs by running
-        ```bash!
-        ./RUN_ALL_TEST.sh
-        ```
-2. Unit tests, which checks the validity of selected data structures.
-	
-    * To compile unit test programs, type
-		```shell!
-		make test -j16
-		```
-	* Then, run the test by 
-		```shell!
-		./qsyn-test -r compact
-		```
+* To run a DOFILE and compare the result to the reference, type
+    ```shell!
+    ./DOFILE.sh <path/to/test> -d
+    ```
+* To update the reference to a dofile, type
+    ```shell!
+    ./DOFILE.sh <path/to/test> -up
+    ```
+* You may also run all DOFILEs by running
+    ```bash!
+    ./RUN_ALL_TEST.sh
+    ```
 
 
 ## License

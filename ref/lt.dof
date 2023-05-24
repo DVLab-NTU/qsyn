@@ -1,5 +1,0 @@
-verb 2
-zxgread benchmark/bczx/lattice5.bzx -bzx
-zxgp -v
-lts
-qq -f
