@@ -45,10 +45,12 @@ public:
 
     virtual void reset();
 
-    virtual void match(ZXGraph* g) = 0;
+    virtual void match(ZXGraph* g, int upper_bound=INT_MAX) = 0;
     virtual void rewrite(ZXGraph* g) = 0;
 
     // Getter and Setter
+    virtual const int& getR2R() const { return _r2r; }
+    virtual const int& getS2S() const { return _s2s; }
     virtual const int& getMatchTypeVecNum() const { return _matchTypeVecNum; }
     virtual const std::string& getName() const { return _name; }
     virtual const std::vector<ZXVertex*>& getRemoveVertices() const { return _removeVertices; }
@@ -56,6 +58,8 @@ public:
     virtual const std::vector<std::pair<ZXVertex*, ZXVertex*>>& getEdgeTableKeys() const { return _edgeTableKeys; }
     virtual const std::vector<std::pair<int, int>>& getEdgeTableValues() const { return _edgeTableValues; }
 
+    virtual void setR2R(int r2r) { _r2r = r2r; }
+    virtual void seS2S(int s2s) { _s2s = s2s; }
     virtual void setMatchTypeVecNum(int n) { _matchTypeVecNum = n; }
     virtual void setRemoveVertices(std::vector<ZXVertex*> v) { _removeVertices = v; }
     virtual void setName(std::string name) { _name = name; }
@@ -63,6 +67,8 @@ public:
     virtual void pushRemoveEdge(const EdgePair& ep) { _removeEdges.push_back(ep); }
 
 protected:
+    int _r2r;
+    int _s2s;
     int _matchTypeVecNum;
     std::string _name;
     std::vector<ZXVertex*> _removeVertices;
@@ -82,10 +88,12 @@ public:
 
     Bialgebra() {
         _name = "Bialgebra Rule";
+        _s2s = INT_MAX;
+        _r2r = INT_MAX;
     }
     virtual ~Bialgebra() {}
 
-    void match(ZXGraph* g) override;
+    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // checker
@@ -110,10 +118,12 @@ public:
 
     StateCopy() {
         _name = "State Copy Rule";
+        _s2s = INT_MAX;
+        _r2r = INT_MAX;
     }
     virtual ~StateCopy() {}
 
-    void match(ZXGraph* g) override;
+    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -135,10 +145,12 @@ public:
 
     HboxFusion() {
         _name = "Hadamard Cancellation Rule";
+        _s2s = INT_MAX;
+        _r2r = INT_MAX;
     }
     virtual ~HboxFusion() {}
 
-    void match(ZXGraph* g) override;
+    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -160,10 +172,12 @@ public:
 
     HRule() {
         _name = "Hadamard Rule";
+        _s2s = INT_MAX;
+        _r2r = INT_MAX;
     }
     virtual ~HRule() {}
 
-    void match(ZXGraph* g) override;
+    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -185,10 +199,12 @@ public:
 
     IdRemoval() {
         _name = "Identity Removal Rule";
+        _s2s = INT_MAX;
+        _r2r = INT_MAX;
     }
     virtual ~IdRemoval() {}
 
-    void match(ZXGraph* g) override;
+    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -210,10 +226,12 @@ public:
 
     LComp() {
         _name = "Local Complementation Rule";
+        _s2s = INT_MAX;
+        _r2r = INT_MAX;
     }
     virtual ~LComp() {}
 
-    void match(ZXGraph* g) override;
+    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -235,10 +253,12 @@ public:
 
     PhaseGadget() {
         _name = "Phase Gadget Rule";
+        _s2s = INT_MAX;
+        _r2r = INT_MAX;
     }
     virtual ~PhaseGadget() {}
 
-    void match(ZXGraph* g) override;
+    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -258,10 +278,13 @@ public:
     using MatchType = std::array<ZXVertex*, 2>;
     using MatchTypeVec = std::vector<MatchType>;
 
-    PivotInterface() {}
+    PivotInterface() {
+        _s2s = INT_MAX;
+        _r2r = INT_MAX;
+    }
     virtual ~PivotInterface() {}
 
-    virtual void match(ZXGraph* g) = 0;
+    virtual void match(ZXGraph* g, int upper_bound=INT_MAX) = 0;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -284,10 +307,12 @@ public:
 
     Pivot() {
         _name = "Pivot Rule";
+        _s2s = INT_MAX;
+        _r2r = INT_MAX;
     }
     virtual ~Pivot() {}
 
-    void match(ZXGraph* g) override;
+    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
 
 protected:
     void preprocess(ZXGraph* g) override;
@@ -305,10 +330,12 @@ public:
 
     PivotGadget() {
         _name = "Pivot Gadget Rule";
+        _s2s = INT_MAX;
+        _r2r = INT_MAX;
     }
     virtual ~PivotGadget() {}
 
-    void match(ZXGraph* g) override;
+    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
 
 protected:
     void preprocess(ZXGraph* g) override;
@@ -325,10 +352,12 @@ public:
 
     PivotBoundary() {
         _name = "Pivot Boundary Rule";
+        _s2s = INT_MAX;
+        _r2r = INT_MAX;
     }
     virtual ~PivotBoundary() {}
 
-    void match(ZXGraph* g) override;
+    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
     void addBoundary(ZXVertex* v) { _boundaries.push_back(v); }
     void clearBoundary() { _boundaries.clear(); }
 
@@ -348,10 +377,12 @@ public:
 
     SpiderFusion() {
         _name = "Spider Fusion Rule";
+        _s2s = INT_MAX;
+        _r2r = INT_MAX;
     }
     virtual ~SpiderFusion() { _matchTypeVec.clear(); }
 
-    void match(ZXGraph* g) override;
+    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter

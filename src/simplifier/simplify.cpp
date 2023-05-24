@@ -16,13 +16,14 @@
 
 using namespace std;
 extern size_t verbose;
+extern OPTimizer opt;
 
 /**
  * @brief Helper method for constructing simplification strategies based on the rules.
  *
  * @return int
  */
-int Simplifier::simp(bool step2step = false) {
+int Simplifier::simp() {
     if (_rule->getName() == "Hadamard Rule") {
         cerr << "Error: Please use `hadamardSimp` when using HRule." << endl;
         return 0;
@@ -31,20 +32,22 @@ int Simplifier::simp(bool step2step = false) {
     vector<int> matches;
     if (verbose >= 5) cout << setw(30) << left << _rule->getName();
     if (verbose >= 8) cout << endl;
-    while (true) {
-        _rule->match(_simpGraph);
+    int r2r = opt.getR2R(_rule->getName());
+    while (true && r2r > 0) {
+        _rule->match(_simpGraph, opt.getS2S(_rule->getName()));
+        if(r2r < INT_MAX) r2r--;
+        
         if (_rule->getMatchTypeVecNum() <= 0)
             break;
         else
             matches.push_back(_rule->getMatchTypeVecNum());
         i += 1;
 
-        if (verbose >= 8) cout << "\nIteration " << i << ":" << endl
-                               << ">>>" << endl;
+        if (verbose >= 8) cout << "\nIteration " << i << ":" << endl << ">>>" << endl;
         _rule->rewrite(_simpGraph);
         amend();
         if (verbose >= 8) cout << "<<<" << endl;
-        if(step2step) return 1;
+        // if(r2r == 0) break;
     }
     _recipe.emplace_back(_rule->getName(), matches);
     if (verbose >= 8) cout << "=> ";
@@ -75,7 +78,6 @@ int Simplifier::hadamardSimp() {
     if (verbose >= 8) cout << endl;
     while (true) {
         size_t vcount = _simpGraph->getNumVertices();
-
         _rule->match(_simpGraph);
 
         if (_rule->getMatchTypeVecNum() == 0)
@@ -203,7 +205,7 @@ int Simplifier::idSimp() {
  */
 int Simplifier::lcompSimp() {
     this->setRule(make_unique<LComp>());
-    int i = this->simp(false);
+    int i = this->simp();
     return i;
 }
 
@@ -225,7 +227,7 @@ int Simplifier::pivotSimp() {
  */
 int Simplifier::pivotBoundarySimp() {
     this->setRule(make_unique<PivotBoundary>());
-    int i = this->simp(false);
+    int i = this->simp();
     return i;
 }
 
@@ -236,7 +238,7 @@ int Simplifier::pivotBoundarySimp() {
  */
 int Simplifier::pivotGadgetSimp() {
     this->setRule(make_unique<PivotGadget>());
-    int i = this->simp(false);
+    int i = this->simp();
     return i;
 }
 
@@ -285,15 +287,16 @@ void Simplifier::toRGraph() {
 int Simplifier::interiorCliffordSimp() {
     this->sfusionSimp();
     toGraph();
-
     int i = 0;
-    while (true) {
+    int r2r = opt.getR2R("Interior Clifford Simp");
+    while (true && r2r > 0) {
         int i1 = this->idSimp();
         int i2 = this->sfusionSimp();
         int i3 = this->pivotSimp();
         int i4 = this->lcompSimp();
         if (i1 + i2 + i3 + i4 == 0) break;
         i += 1;
+        r2r--;
     }
     return i;
 }
@@ -323,10 +326,12 @@ int Simplifier::piCliffordSimp() {
  */
 int Simplifier::cliffordSimp() {
     int i = 0;
-    while (true) {
+    int r2r = opt.getR2R("Clifford Simp");
+    while (true && r2r > 0) {
         i += this->interiorCliffordSimp();
         int i2 = this->pivotBoundarySimp();
-        if (i2 == 0) break;
+        if(r2r != INT_MAX) r2r--;
+        if (i2 == 0 || r2r == 0) break;
     }
     return i;
 }
@@ -426,4 +431,12 @@ void Simplifier::printRecipe() {
             }
         }
     }
+}
+
+/**
+ * @brief Print parameter of optimizer for ZX-graph
+ * 
+ */
+void Simplifier::printOptimizer() {
+    
 }

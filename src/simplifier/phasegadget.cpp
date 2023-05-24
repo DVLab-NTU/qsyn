@@ -21,7 +21,7 @@ extern size_t verbose;
  *
  * @param g
  */
-void PhaseGadget::match(ZXGraph* g) {
+void PhaseGadget::match(ZXGraph* g, int upper_bound) {
     _matchTypeVec.clear();
 
     unordered_map<ZXVertex*, ZXVertex*> axel2leaf;

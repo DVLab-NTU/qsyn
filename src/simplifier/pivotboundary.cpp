@@ -37,7 +37,7 @@ void PivotBoundary::preprocess(ZXGraph* g) {
  *
  * @param g
  */
-void PivotBoundary::match(ZXGraph* g) {
+void PivotBoundary::match(ZXGraph* g, int upper_bound) {
     this->_matchTypeVec.clear();
     this->_boundaries.clear();
 

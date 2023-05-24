@@ -39,7 +39,7 @@ bool Bialgebra::check_duplicated_vertex(vector<ZXVertex*> vec) {
  *
  * @param g
  */
-void Bialgebra::match(ZXGraph* g) {
+void Bialgebra::match(ZXGraph* g, int upper_bound) {
     _matchTypeVec.clear();
     // if (verbose >= 8) g->printVertices();
     unordered_map<size_t, size_t> id2idx;

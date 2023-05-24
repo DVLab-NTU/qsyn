@@ -20,7 +20,7 @@ extern size_t verbose;
  *
  * @param g
  */
-void HRule::match(ZXGraph* g) {
+void HRule::match(ZXGraph* g, int upper_bound) {
     _matchTypeVec.clear();
 
     unordered_map<size_t, size_t> id2idx;

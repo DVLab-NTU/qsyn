@@ -12,6 +12,7 @@
 #include <memory>
 
 #include "zxRules.h"  // for ZXRule
+#include "optimizer.h"
 
 class ZXGraph;
 
@@ -35,7 +36,7 @@ public:
 
     void amend();
     // Simplification strategies
-    int simp(bool step2step);
+    int simp();
     int hadamardSimp();
 
     // Basic rules simplification
@@ -63,6 +64,7 @@ public:
 
     // print function
     void printRecipe();
+    void printOptimizer();
 
 private:
     std::unique_ptr<ZXRule> _rule;

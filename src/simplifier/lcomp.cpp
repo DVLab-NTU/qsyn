@@ -20,7 +20,7 @@ extern size_t verbose;
  *
  * @param g
  */
-void LComp::match(ZXGraph* g) {
+void LComp::match(ZXGraph* g, int upper_bound) {
     _matchTypeVec.clear();
 
     // Find all Z vertices that connect to all neighb ors with H edge.

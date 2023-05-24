@@ -31,7 +31,7 @@ void Pivot::preprocess(ZXGraph* g) {
  *
  * @param g
  */
-void Pivot::match(ZXGraph* g) {
+void Pivot::match(ZXGraph* g, int upper_bound) {
     this->_matchTypeVec.clear();
     this->_boundaries.clear();
 

@@ -22,12 +22,12 @@ extern size_t verbose;
 
 
 void OPTimizer::init() {
-    vector<string> vec{"Identity Removal Rule","Local Complementation Rule","Phase Gadget Rule","Pivot Rule","Pivot Gadget Rule","Pivot Boundary Rule","Spider Fusion Rule"};
+    vector<string> vec{"Identity Removal Rule","Local Complementation Rule","Phase Gadget Rule","Pivot Rule","Pivot Gadget Rule","Pivot Boundary Rule","Spider Fusion Rule","Interior Clifford Simp","Clifford Simp"};
     _rules.insert(vec.begin(), vec.end());
 
     for(auto& rule: _rules){
+        if(!(rule == "Interior Clifford Simp" && rule == "Clifford Simp")) setS2S(rule, INT_MAX);
         setR2R(rule, INT_MAX);
-        setS2S(rule, INT_MAX);
     }
 }
 
@@ -37,7 +37,8 @@ void OPTimizer::printSingle(const string& rule) {
         if(getR2R(rule) == INT_MAX) cout << "INF";
         else cout << getR2R(rule);
         cout << ", ";
-        if(getS2S(rule) == INT_MAX) cout << "INF";
+        if(rule == "Interior Clifford Simp" || rule == "Clifford Simp") cout << "-";
+        else if(getS2S(rule) == INT_MAX) cout << "INF";
         else cout << getS2S(rule);
         cout << ")" << endl;
     }
