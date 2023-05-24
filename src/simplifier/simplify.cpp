@@ -231,16 +231,17 @@ int Simplifier::pivotGadgetSimp() {
  * @return int
  */
 int Simplifier::degadgetizeSimp() {
-    GFlow gflow(_simpGraph);
-    gflow.doRemoveGadgets(true);
+    // GFlow gflow(_simpGraph);
+    // gflow.doRemoveGadgets(true);
 
-    gflow.calculate();
+    // gflow.calculate();
 
-    if (!gflow.isValid()) {
-        cout << "Warning: did not remove gadgets across all gflow layers." << endl;
-    }
+    // if (!gflow.isValid()) {
+    //     cout << "Warning: did not remove gadgets across all gflow layers." << endl;
+    // }
 
-    return gflow.getNumRemoveGadgets();
+    // return gflow.getNumRemoveGadgets();
+    return 0;
 }
 
 /**
