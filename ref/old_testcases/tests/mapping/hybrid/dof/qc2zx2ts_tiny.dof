@@ -1,9 +1,0 @@
-ver 2
-qcba 2
-qcga -cx 0 1
-qcga -cx 1 0
-qcga -cx 0 1
-qc2zx
-ver 7
-zx2ts
-qq -f

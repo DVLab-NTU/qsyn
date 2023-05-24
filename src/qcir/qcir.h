@@ -98,7 +98,7 @@ public:
 
     // pass a function F (public functions) into for_each
     // lambdaFn such as mappingToZX / updateGateTime
-    void updateTopoOrder();
+    const std::vector<QCirGate*>& updateTopoOrder();
 
     // Member functions about circuit reporting
     void printDepth();

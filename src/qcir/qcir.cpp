@@ -70,10 +70,6 @@ void QCir::printGates() {
     cout << "Listed by gate ID" << endl;
     for (size_t i = 0; i < _qgates.size(); i++) {
         _qgates[i]->printGate();
-        // REVIEW - check the ZPhase
-        if (_qgates[i]->getType() == GateType::P) {
-            cout << "ZPhase is  " << _qgates[i]->getPhase() << endl;
-        }
     }
 }
 
@@ -87,7 +83,7 @@ void QCir::printDepth() {
     for (size_t i = 0; i < _qgates.size(); i++) {
         if (_qgates[i]->getTime() > depth) depth = _qgates[i]->getTime();
     }
-    cout << "Depth: " << depth << endl;
+    cout << "Depth       : " << depth << endl;
 }
 
 /**
@@ -597,12 +593,12 @@ void QCir::analysis(bool detail) {
     }
     // cout << "> Decompose into basic gate set" << endl;
     // cout << endl;
-    cout << TF::BOLD(TF::GREEN("Clifford: " + to_string(clifford))) << endl;
-    cout << "└── " << TF::BOLD(TF::RED("CX: " + to_string(cxcnt))) << endl;
-    cout << TF::BOLD(TF::RED("T-family: " + to_string(tfamily))) << endl;
+    cout << TF::BOLD(TF::GREEN("Clifford    : " + to_string(clifford))) << endl;
+    cout << "└── " << TF::BOLD(TF::RED("2-qubit : " + to_string(cxcnt))) << endl;
+    cout << TF::BOLD(TF::RED("T-family    : " + to_string(tfamily))) << endl;
     if (nct > 0)
-        cout << TF::BOLD(TF::RED("Others  : " + to_string(nct))) << endl;
+        cout << TF::BOLD(TF::RED("Others      : " + to_string(nct))) << endl;
     else
-        cout << TF::BOLD(TF::GREEN("Others  : " + to_string(nct))) << endl;
+        cout << TF::BOLD(TF::GREEN("Others      : " + to_string(nct))) << endl;
     // cout << endl;
 }
