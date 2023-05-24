@@ -13,7 +13,6 @@ BUILD_SRC_DIR 	:= $(BUILD_DIR)/$(SRC_DIR)
 LIB_DIR    		:= $(BUILD_DIR)/lib
 
 EXEC     		:= qsyn
-TESTEXEC  		:= qsyn-test
 
 OPTIMIZE_LEVEL 	:= -O3
 DEBUG_FLAG 		:= -DDEBUG
@@ -25,7 +24,7 @@ all:  main
 ## Clean all objects files
 .PHONY: clean
 
-clean: $(addprefix clean_, $(SRCPKGS) main test)
+clean: $(addprefix clean_, $(SRCPKGS) main)
 
 ## Clean all objects files, .depend.mk, extheader.mk, and include/*
 .PHONY: cleanall
@@ -50,7 +49,7 @@ libs: $(addprefix $(BUILD_SRC_DIR), $(SRCLIBS))
 
 ## Linking external headers
 .PHONY: extheader
-EXTHEADER_MKS := $(addsuffix /.extheader.mk, $(addprefix $(BUILD_SRC_DIR)/, $(SRCPKGS) main test))
+EXTHEADER_MKS := $(addsuffix /.extheader.mk, $(addprefix $(BUILD_SRC_DIR)/, $(SRCPKGS) main))
 
 extheader: $(EXTHEADER_MKS)
 
