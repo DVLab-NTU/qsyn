@@ -70,7 +70,12 @@ void PhaseGadget::match(ZXGraph* g) {
 
         Phase totalPhase = Phase(0);
         bool flipAxel = false;
-        for (auto& [_, axel] : ranges::subrange(groupBegin, groupEnd)) {
+#ifdef __APPLE__
+        for (auto itr = groupBegin; itr != groupEnd; ++itr) {
+            auto axel = itr->second;
+#else
+        for (auto& [_, axel] : ranges::subange(groupBegin, groupEnd)) {
+#endif
             ZXVertex* const& leaf = axel2leaf[axel];
             if (axel->getPhase() == Phase(1)) {
                 flipAxel = true;
