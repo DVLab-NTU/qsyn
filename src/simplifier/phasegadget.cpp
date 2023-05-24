@@ -70,7 +70,7 @@ void PhaseGadget::match(ZXGraph* g) {
 
         Phase totalPhase = Phase(0);
         bool flipAxel = false;
-#ifdef __APPLE__
+#ifdef __APPLE__ // As of 2023-05-25, Apple Clang does not have proper support for ranges library
         for (auto itr = groupBegin; itr != groupEnd; ++itr) {
             auto axel = itr->second;
 #else
