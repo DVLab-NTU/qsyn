@@ -9,9 +9,9 @@
 #ifndef ZX_RULES_H
 #define ZX_RULES_H
 
+#include <array>
 #include <string>   // for string
 #include <utility>  // for pair
-#include <array>
 
 #include "zxDef.h"  // for EdgePair
 

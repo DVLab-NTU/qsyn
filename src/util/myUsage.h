@@ -9,9 +9,9 @@
 #ifndef MY_USAGE_H
 #define MY_USAGE_H
 
-#include <sys/resource.h>              // for getrusage, RUSAGE_SELF
-#include <sys/times.h>                 // for times, tms
-#include <unistd.h>                    // for sysconf, _SC_CLK_TCK
+#include <sys/resource.h>  // for getrusage, RUSAGE_SELF
+#include <sys/times.h>     // for times, tms
+#include <unistd.h>        // for sysconf, _SC_CLK_TCK
 
 #undef MYCLK_TCK
 #define MYCLK_TCK sysconf(_SC_CLK_TCK)
