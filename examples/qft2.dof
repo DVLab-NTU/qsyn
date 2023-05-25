@@ -1,0 +1,23 @@
+// qft_<num>.qasm: original circuit
+// qft_<num>dec.qasm: decompose cp into p and cx gates
+// qft_<num>crz.qasm: decompose cp into rz and crz gates (for pyZX since they do not support cp and p)
+
+qccr benchmark/qft/qft_2dec.qasm
+qccp
+qccp -q
+qc2zx
+zxp -l
+zxgd examples/qft_zxgraph/qft_2.pdf
+zxgs -fr
+zxp -l
+zxgd examples/qft_zxgraph/qft_2fr.pdf
+zx2qc
+optimize
+qccp
+qccp -q
+qcp -l
+qccw benchmark/qft/qft_2opt.qasm
+qc2zx
+zxp -l
+zxgd examples/qft_zxgraph/qft_2opt.pdf
+qq -f
