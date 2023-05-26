@@ -169,11 +169,11 @@ private:
         std::string const& doGetName() const override { return inner.getName(); }
         std::string const& doGetHelp() const override { return inner.getHelp(); }
         std::string const& doGetMetaVar() const override { return inner.getMetaVar(); }
-        std::vector<ConstraintCallbackType> const& doGetConstraints() const { return inner.getConstraints(); }
+        std::vector<ConstraintCallbackType> const& doGetConstraints() const override { return inner.getConstraints(); }
 
-        bool doHasDefaultValue() const { return inner.hasDefaultValue(); }
-        bool doHasAction() const { return inner.hasAction(); }
-        bool doIsRequired() const { return inner.isRequired(); };
+        bool doHasDefaultValue() const override { return inner.hasDefaultValue(); }
+        bool doHasAction() const override { return inner.hasAction(); }
+        bool doIsRequired() const override { return inner.isRequired(); };
 
         std::ostream& doPrint(std::ostream& os) const override { return os << inner; }
         std::ostream& doPrintDefaultValue(std::ostream& os) const override { return (inner.getDefaultValue().has_value() ? os << inner.getDefaultValue().value() : os << "(none)"); }

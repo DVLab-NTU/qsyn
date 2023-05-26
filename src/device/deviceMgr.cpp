@@ -139,7 +139,7 @@ void DeviceMgr::printDeviceListItr() const {
 }
 
 /**
- * @brief Print the list of topology
+ * @brief Print the list of devices
  *
  */
 void DeviceMgr::printDeviceList() const {
@@ -149,7 +149,7 @@ void DeviceMgr::printDeviceList() const {
                 cout << "★ ";
             else
                 cout << "  ";
-            cout << tpg.getId() << " " << left << setw(20) << tpg.getName().substr(0, 20) << " #Q: " << right << setw(4) << tpg.getNQubit() << endl;
+            cout << tpg.getId() << "   " << left << setw(20) << tpg.getName().substr(0, 20) << " #Q: " << right << setw(4) << tpg.getNQubit() << endl;
         }
     }
 }

@@ -24,8 +24,8 @@
 
 class BaseScheduler {
 public:
+    BaseScheduler(std::unique_ptr<CircuitTopo>, bool = true);
     BaseScheduler(const BaseScheduler&);
-    BaseScheduler(std::unique_ptr<CircuitTopo>);
     BaseScheduler(BaseScheduler&&);
     virtual ~BaseScheduler() {}
 
@@ -41,23 +41,25 @@ public:
     bool isSorted() const { return _sorted; }
     const std::vector<size_t>& getAvailableGates() const { return _circuitTopology->getAvailableGates(); }
     const std::vector<Operation>& getOperations() const { return _operations; }
+    const std::vector<size_t>& getOrder() const { return _assignOrder; }
     size_t operationsCost() const;
 
-    void assignGatesAndSort(std::unique_ptr<Router>);
+    Device assignGatesAndSort(std::unique_ptr<Router>);
     size_t routeOneGate(Router&, size_t, bool = false);
 
 protected:
     std::unique_ptr<CircuitTopo> _circuitTopology;
     std::vector<Operation> _operations;
+    std::vector<size_t> _assignOrder;
     bool _sorted = false;
-
-    virtual void assignGates(std::unique_ptr<Router>);
+    bool _tqdm = true;
+    virtual Device assignGates(std::unique_ptr<Router>);
     void sort();
 };
 
 class RandomScheduler : public BaseScheduler {
 public:
-    RandomScheduler(std::unique_ptr<CircuitTopo>);
+    RandomScheduler(std::unique_ptr<CircuitTopo>, bool = true);
     RandomScheduler(const RandomScheduler&);
     RandomScheduler(RandomScheduler&&);
     ~RandomScheduler() override {}
@@ -65,12 +67,12 @@ public:
     std::unique_ptr<BaseScheduler> clone() const override;
 
 protected:
-    void assignGates(std::unique_ptr<Router>) override;
+    Device assignGates(std::unique_ptr<Router>) override;
 };
 
 class StaticScheduler : public BaseScheduler {
 public:
-    StaticScheduler(std::unique_ptr<CircuitTopo>);
+    StaticScheduler(std::unique_ptr<CircuitTopo>, bool = true);
     StaticScheduler(const StaticScheduler&);
     StaticScheduler(StaticScheduler&&);
     ~StaticScheduler() override {}
@@ -78,7 +80,7 @@ public:
     std::unique_ptr<BaseScheduler> clone() const override;
 
 protected:
-    void assignGates(std::unique_ptr<Router>) override;
+    Device assignGates(std::unique_ptr<Router>) override;
 };
 
 struct GreedyConf {
@@ -92,7 +94,7 @@ struct GreedyConf {
 
 class GreedyScheduler : public BaseScheduler {
 public:
-    GreedyScheduler(std::unique_ptr<CircuitTopo>);
+    GreedyScheduler(std::unique_ptr<CircuitTopo>, bool = true);
     GreedyScheduler(const GreedyScheduler&);
     GreedyScheduler(GreedyScheduler&&);
     ~GreedyScheduler() override {}
@@ -103,7 +105,7 @@ public:
 protected:
     GreedyConf _conf;
 
-    void assignGates(std::unique_ptr<Router>) override;
+    Device assignGates(std::unique_ptr<Router>) override;
 };
 
 struct TreeNodeConf {
@@ -166,7 +168,7 @@ private:
 
 class SearchScheduler : public GreedyScheduler {
 public:
-    SearchScheduler(std::unique_ptr<CircuitTopo>);
+    SearchScheduler(std::unique_ptr<CircuitTopo>, bool = true);
     SearchScheduler(const SearchScheduler&);
     SearchScheduler(SearchScheduler&&);
     ~SearchScheduler() override {}
@@ -179,10 +181,10 @@ protected:
     bool _neverCache;
     bool _executeSingle;
 
-    void assignGates(std::unique_ptr<Router>) override;
+    Device assignGates(std::unique_ptr<Router>) override;
     void cacheOnlyWhenNecessary();
 };
 
-std::unique_ptr<BaseScheduler> getScheduler(std::unique_ptr<CircuitTopo>);
+std::unique_ptr<BaseScheduler> getScheduler(std::unique_ptr<CircuitTopo>, bool = true);
 
 #endif

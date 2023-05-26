@@ -26,6 +26,7 @@ CmdParser* cmdMgr = new CmdParser("qsyn> ");
 extern bool initArgParserCmd();
 extern bool initCommonCmd();
 extern bool initQCirCmd();
+extern bool initOptimizeCmd();
 extern bool initZXCmd();
 extern bool initSimpCmd();
 extern bool initTensorCmd();
@@ -73,9 +74,10 @@ int main(int argc, char** argv) {
     cout << "DV Lab, NTUEE, Qsyn 0.4.2" << endl;
 
     if (
-        !initArgParserCmd() ||
+        // !initArgParserCmd() ||
         !initCommonCmd() ||
         !initQCirCmd() ||
+        !initOptimizeCmd() ||
         !initZXCmd() ||
         !initSimpCmd() ||
         !initTensorCmd() ||
@@ -92,7 +94,7 @@ int main(int argc, char** argv) {
 
     while (status != CMD_EXEC_QUIT) {  // until "quit" or command error
         status = cmdMgr->execOneCmd();
-        cout << endl;                  // a blank line between each command
+        cout << endl;  // a blank line between each command
     }
 
     return 0;

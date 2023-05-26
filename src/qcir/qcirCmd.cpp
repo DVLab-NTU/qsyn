@@ -340,6 +340,9 @@ unique_ptr<ArgParseCmdType> QCPrintCmd() {
         mutex.addArgument<bool>("-focus")
             .action(storeTrue)
             .help("print the info of circuit in focus");
+        mutex.addArgument<bool>("-list")
+            .action(storeTrue)
+            .help("print a list of circuits");
         mutex.addArgument<bool>("-number")
             .action(storeTrue)
             .help("print number of circuits");
@@ -357,6 +360,8 @@ unique_ptr<ArgParseCmdType> QCPrintCmd() {
             cout << "Delay of Multiple-qubit gate :   " << MULTIPLE_DELAY << endl;
         } else if (parser["-focus"].isParsed())
             qcirMgr->printCListItr();
+        else if (parser["-list"].isParsed())
+            qcirMgr->printCList();
         else if (parser["-number"].isParsed())
             qcirMgr->printQCircuitListSize();
         else

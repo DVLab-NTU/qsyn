@@ -155,7 +155,7 @@ tuple<size_t, size_t> Router::getPhysicalQubits(const Gate& gate) const {
     if ((gate.getType() == GateType::CX || gate.getType() == GateType::CZ)) {
         size_t logicalId1 = get<1>(gate.getQubits());  // get logical qubit index of gate in topology
         assert(logicalId1 != ERROR_CODE);
-        physicalId1 = _logical2Physical[logicalId1];   // get physical qubit index of the gate
+        physicalId1 = _logical2Physical[logicalId1];  // get physical qubit index of the gate
     }
     return make_tuple(physicalId0, physicalId1);
 }
@@ -234,9 +234,10 @@ Operation Router::executeSingle(GateType gate, Phase phase, size_t q) {
  * @param phase
  * @param qubitPair
  * @param orient
+ * @param swapped if the qubits of gate are swapped when added into Duostra
  * @return vector<Operation>
  */
-vector<Operation> Router::duostraRouting(GateType gate, size_t gateId, Phase phase, tuple<size_t, size_t> qubitPair, bool orient) {
+vector<Operation> Router::duostraRouting(GateType gate, size_t gateId, Phase phase, tuple<size_t, size_t> qubitPair, bool orient, bool swapped) {
     assert(gate == GateType::CX || gate == GateType::CZ);
     size_t q0Id = get<0>(qubitPair);  // source 0
     size_t q1Id = get<1>(qubitPair);  // source 1
@@ -304,7 +305,7 @@ vector<Operation> Router::duostraRouting(GateType gate, size_t gateId, Phase pha
         }
     }
     vector<Operation> operationList =
-        traceback(gate, gateId, phase, _device.getPhysicalQubit(q0Id), _device.getPhysicalQubit(q1Id), t0, t1, swapIds);
+        traceback(gate, gateId, phase, _device.getPhysicalQubit(q0Id), _device.getPhysicalQubit(q1Id), t0, t1, swapIds, swapped);
 
     if (verbose > 3) {
         for (size_t i = 0; i < operationList.size(); ++i) {
@@ -336,9 +337,10 @@ vector<Operation> Router::duostraRouting(GateType gate, size_t gateId, Phase pha
  * @param phase
  * @param qs
  * @param orient
+ * @param swapped if the qubits of gate are swapped when added into Duostra
  * @return vector<Operation>
  */
-vector<Operation> Router::apspRouting(GateType gate, size_t gateId, Phase phase, tuple<size_t, size_t> qs, bool orient) {
+vector<Operation> Router::apspRouting(GateType gate, size_t gateId, Phase phase, tuple<size_t, size_t> qs, bool orient, bool swapped) {
     vector<Operation> operationList;
     size_t s0Id = get<0>(qs);
     size_t s1Id = get<1>(qs);
@@ -376,7 +378,7 @@ vector<Operation> Router::apspRouting(GateType gate, size_t gateId, Phase phase,
                           _device.getPhysicalQubit(q1Id).getOccupiedTime());
     // REVIEW - CZ Issue
     assert(gate == GateType::CX || gate == GateType::CZ);
-    Operation CXGate(gate, phase, make_tuple(q0Id, q1Id),
+    Operation CXGate(gate, phase, swapped ? make_tuple(q1Id, q0Id) : make_tuple(q0Id, q1Id),
                      make_tuple(gateCost, gateCost + DOUBLE_DELAY));
     _device.applyGate(CXGate);
     CXGate.setId(gateId);
@@ -430,9 +432,10 @@ tuple<bool, size_t> Router::touchAdjacency(PhysicalQubit& qubit, PriorityQueue& 
  * @param t0
  * @param t1
  * @param swapIds
+ * @param swapped if the qubits of gate are swapped when added into Duostra
  * @return vector<Operation>
  */
-vector<Operation> Router::traceback([[maybe_unused]] GateType gt, size_t gateId, Phase ph, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swapIds) {
+vector<Operation> Router::traceback([[maybe_unused]] GateType gt, size_t gateId, Phase ph, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swapIds, bool swapped) {
     assert(t0.getId() == t0.getPred());
     assert(t1.getId() == t1.getPred());
 
@@ -443,15 +446,17 @@ vector<Operation> Router::traceback([[maybe_unused]] GateType gt, size_t gateId,
     // REVIEW - CZ issue (need decompose?)
     assert(gt == GateType::CX || gt == GateType::CZ);
     // REVIEW - Order of qubits in CX matters
-    Operation CXGate(gt, ph, swapIds ? make_tuple(q1.getId(), q0.getId()) : make_tuple(q0.getId(), q1.getId()),
-                     make_tuple(operationTime, operationTime + DOUBLE_DELAY));
+    tuple<size_t, size_t> qids = swapIds ? make_tuple(q1.getId(), q0.getId()) : make_tuple(q0.getId(), q1.getId());
+    if (swapped) {
+        qids = make_tuple(get<1>(qids), get<0>(qids));
+    }
+    Operation CXGate(gt, ph, qids, make_tuple(operationTime, operationTime + DOUBLE_DELAY));
     CXGate.setId(gateId);
     operationList.push_back(CXGate);
 
     // traceback by tracing the parent iteratively
     size_t trace0 = q0.getId();
     size_t trace1 = q1.getId();
-
     // traceback by tracing the parent iteratively
     // trace 0
     while (trace0 != t0.getId()) {
@@ -477,7 +482,6 @@ vector<Operation> Router::traceback([[maybe_unused]] GateType gt, size_t gateId,
 
         trace1 = tracePred1;
     }
-
     // REVIEW - Check time, now the start time
     sort(operationList.begin(), operationList.end(), [](const Operation& a, const Operation& b) -> bool {
         return a.getOperationTime() < b.getOperationTime();
@@ -507,8 +511,8 @@ vector<Operation> Router::assignGate(const Gate& gate) {
     }
     vector<Operation> operationList =
         _duostra
-            ? duostraRouting(gate.getType(), gate.getId(), gate.getPhase(), physicalQubitsIds, _orient)
-            : apspRouting(gate.getType(), gate.getId(), gate.getPhase(), physicalQubitsIds, _orient);
+            ? duostraRouting(gate.getType(), gate.getId(), gate.getPhase(), physicalQubitsIds, _orient, gate.isSwapped())
+            : apspRouting(gate.getType(), gate.getId(), gate.getPhase(), physicalQubitsIds, _orient, gate.isSwapped());
     vector<size_t> changeList = _device.mapping();
     vector<bool> checker(_logical2Physical.size(), false);
 

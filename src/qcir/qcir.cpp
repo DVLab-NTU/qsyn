@@ -8,10 +8,10 @@
 
 #include "qcir.h"
 
-#include <stdlib.h>      // for abort
+#include <stdlib.h>  // for abort
 
-#include <cassert>       // for assert
-#include <string>        // for string
+#include <cassert>  // for assert
+#include <string>   // for string
 
 #include "qcirGate.h"    // for QCirGate
 #include "qcirQubit.h"   // for QCirQubit
@@ -50,6 +50,18 @@ QCirQubit *QCir::getQubit(size_t id) const {
 }
 
 /**
+ * @brief Add procedures to QCir
+ *
+ * @param p
+ * @param procedures
+ */
+void QCir::addProcedure(std::string p, const std::vector<std::string> &procedures) {
+    for (auto pr : procedures)
+        _procedures.emplace_back(pr);
+    if (p != "") _procedures.emplace_back(p);
+}
+
+/**
  * @brief Print QCir Gates
  */
 void QCir::printGates() {
@@ -71,7 +83,7 @@ void QCir::printDepth() {
     for (size_t i = 0; i < _qgates.size(); i++) {
         if (_qgates[i]->getTime() > depth) depth = _qgates[i]->getTime();
     }
-    cout << "Depth: " << depth << endl;
+    cout << "Depth       : " << depth << endl;
 }
 
 /**
@@ -307,8 +319,9 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
                 target->getLast()->setChild(q, temp);
                 if ((target->getLast()->getTime()) > max_time)
                     max_time = target->getLast()->getTime();
-            } else
+            } else {
                 target->setFirst(temp);
+            }
             target->setLast(temp);
         }
         temp->setTime(max_time + temp->getDelay());
@@ -320,8 +333,9 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
             if (target->getFirst() != NULL) {
                 temp->setChild(q, target->getFirst());
                 target->getFirst()->setParent(q, temp);
-            } else
+            } else {
                 target->setLast(temp);
+            }
             target->setFirst(temp);
         }
         _dirty = true;
@@ -428,6 +442,15 @@ void QCir::analysis(bool detail) {
             case GateType::H:
                 h++;
                 clifford++;
+                break;
+            case GateType::P:
+                rz++;
+                if (g->getPhase().getRational().denominator() <= 2)
+                    clifford++;
+                else if (g->getPhase().getRational().denominator() == 4)
+                    tfamily++;
+                else
+                    nct++;
                 break;
             case GateType::RZ:
                 rz++;
@@ -570,12 +593,12 @@ void QCir::analysis(bool detail) {
     }
     // cout << "> Decompose into basic gate set" << endl;
     // cout << endl;
-    cout << TF::BOLD(TF::GREEN("Clifford: " + to_string(clifford))) << endl;
-    cout << "└── " << TF::BOLD(TF::RED("CX: " + to_string(cxcnt))) << endl;
-    cout << TF::BOLD(TF::RED("T-family: " + to_string(tfamily))) << endl;
+    cout << TF::BOLD(TF::GREEN("Clifford    : " + to_string(clifford))) << endl;
+    cout << "└── " << TF::BOLD(TF::RED("2-qubit : " + to_string(cxcnt))) << endl;
+    cout << TF::BOLD(TF::RED("T-family    : " + to_string(tfamily))) << endl;
     if (nct > 0)
-        cout << TF::BOLD(TF::RED("Others  : " + to_string(nct))) << endl;
+        cout << TF::BOLD(TF::RED("Others      : " + to_string(nct))) << endl;
     else
-        cout << TF::BOLD(TF::GREEN("Others  : " + to_string(nct))) << endl;
+        cout << TF::BOLD(TF::GREEN("Others      : " + to_string(nct))) << endl;
     // cout << endl;
 }

@@ -8,6 +8,7 @@
 
 #include <cstddef>  // for size_t
 #include <iostream>
+#include <ranges>
 
 #include "zxGraph.h"
 #include "zxRules.h"
@@ -69,7 +70,12 @@ void PhaseGadget::match(ZXGraph* g, int upper_bound) {
 
         Phase totalPhase = Phase(0);
         bool flipAxel = false;
+#ifdef __APPLE__  // As of 2023-05-25, Apple Clang does not have proper support for ranges library
+        for (auto itr = groupBegin; itr != groupEnd; ++itr) {
+            auto axel = itr->second;
+#else
         for (auto& [_, axel] : ranges::subrange(groupBegin, groupEnd)) {
+#endif
             ZXVertex* const& leaf = axel2leaf[axel];
             if (axel->getPhase() == Phase(1)) {
                 flipAxel = true;

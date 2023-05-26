@@ -62,6 +62,7 @@ public:
 
     // Print
     void printQCirMgr() const;
+    void printCList() const;
     void printCListItr() const;
     void printQCircuitListSize() const;
 

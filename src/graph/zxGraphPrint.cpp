@@ -163,7 +163,7 @@ void ZXGraph::draw() const {
     cout << endl;
     unsigned int maxCol = 0;  // number of columns -1
     unordered_map<int, int> qPair;
-    vector<int> qubitNum;     // number of qubit
+    vector<int> qubitNum;  // number of qubit
 
     // maxCol
     for (auto& o : getOutputs()) {

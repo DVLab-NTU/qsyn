@@ -1,0 +1,59 @@
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> dtgr benchmark/topology/guadalupe.layout
+
+qsyn> qcset -d 2 -sw 6
+
+qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+
+qsyn> duostra -c
+Routing...
+
+Checking...
+
+Duostra Result: 
+
+Scheduler:      search
+Router:         duostra
+Placer:         dfs
+
+Mapping Depth:  85
+Total Time:     101
+#SWAP:          8
+
+
+qsyn> qccp
+QCir 1( 16 qubits, 60 gates)
+Clifford    : 46
+└── 2-qubit : 41
+T-family    : 14
+Others      : 0
+Depth       : 85
+
+qsyn> qcp -l
+  0    3_17_13             
+★ 1    3_17_13             Duostra
+
+qsyn> help mpeq
+Usage: MPEQuiv [-Reverse] -Logical <size_t LOGICAL> -Physical <size_t PHYSICAL>
+
+Description:
+  check equivalence of the physical and the logical circuits
+
+Required Arguments:
+  size_t   -Logical    LOGICAL    logical circuit id  
+  size_t   -Physical   PHYSICAL   physical circuit id  
+
+Optional Arguments:
+  flag     -Reverse               check the circuit reversily, used in extracted circuit  
+
+qsyn> mpeq -l 0 -p 1
+Equivalent up to permutation
+
+qsyn> qq -f
+

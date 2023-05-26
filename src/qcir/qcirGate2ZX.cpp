@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>           // for size_t
+#include <cstddef>  // for size_t
 
 #include "phase.h"           // for Phase, operator/
 #include "qcirGate.h"        // for QCirGate...

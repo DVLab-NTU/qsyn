@@ -9,7 +9,7 @@
 #include <fstream>  // for fstream
 #include <string>   // for string
 
-#include "qcir.h"   // for QCir
+#include "qcir.h"  // for QCir
 
 using namespace std;
 

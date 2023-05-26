@@ -1,0 +1,18 @@
+// Reading in a circuit that implements some gates
+qccr examples/qasm/unknown_gate.qasm
+qc2zx 
+
+// Change the following three lines for simulating different states
+zxgassign 0 I X 0
+zxgassign 1 I X 0
+zxgassign 2 I X 0
+// Q1: What input state does this assignments corresponds to?
+
+zxgs -sr // simplify the diagram and convert to red graph at the end
+zxgp -v 
+// Q2: What output state does this graph corresponds to?
+
+// Q3: Based on your observation, what is the function of the this circuit?
+//     Convert the circuit or ZX-diagram to tensor to verify.
+
+qq -f

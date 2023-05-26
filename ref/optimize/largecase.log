@@ -1,0 +1,79 @@
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> verbose 0
+Note: verbose level is set to 0
+
+qsyn> qccr benchmark/benchmark_SABRE/large/9symml_195.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgsimp -fr
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> qccp
+QCir 1( 16 qubits, 32097 gates)
+Clifford: 26887
+└── CX: 15103
+T-family: 6450
+Others  : 0
+Depth: 28128
+
+qsyn> optimize
+Start iteration 1
+Start iteration 2
+Start iteration 3
+Start iteration 4
+Start iteration 5
+Start iteration 6
+Start iteration 7
+
+qsyn> qccp
+QCir 1( 16 qubits, 22887 gates)
+Clifford: 16879
+└── CX: 13530
+T-family: 6450
+Others  : 0
+Depth: 20404
+
+qsyn> optimize
+Start iteration 1
+Start iteration 2
+
+qsyn> qccp
+QCir 1( 16 qubits, 22887 gates)
+Clifford: 16879
+└── CX: 13530
+T-family: 6450
+Others  : 0
+Depth: 20404
+
+qsyn> optimize
+Start iteration 1
+Start iteration 2
+
+qsyn> qccp
+QCir 1( 16 qubits, 22887 gates)
+Clifford: 16879
+└── CX: 13530
+T-family: 6450
+Others  : 0
+Depth: 20404
+
+qsyn> optimize
+Start iteration 1
+Start iteration 2
+
+qsyn> qccp
+QCir 1( 16 qubits, 22887 gates)
+Clifford: 16879
+└── CX: 13530
+T-family: 6450
+Others  : 0
+Depth: 20404
+
+qsyn> qq -f
+

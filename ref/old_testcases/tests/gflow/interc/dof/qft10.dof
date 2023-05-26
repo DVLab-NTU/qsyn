@@ -1,8 +1,0 @@
-color off
-qccr benchmark/qft/qft_10dec.qasm
-qc2zx
-zxggf -all
-zxgs -interclifford
-zxggf -all
-
-qq -f 

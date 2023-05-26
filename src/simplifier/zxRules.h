@@ -9,6 +9,7 @@
 #ifndef ZX_RULES_H
 #define ZX_RULES_H
 
+#include <array>
 #include <string>   // for string
 #include <utility>  // for pair
 

@@ -19,12 +19,13 @@ extern size_t verbose;
  * @param device
  * @param ops
  * @param assign
+ * @param tqdm
  */
 Checker::Checker(CircuitTopo& topo,
                  Device& device,
                  const vector<Operation>& ops,
-                 const vector<size_t>& assign)
-    : _topo(topo), _device(device), _ops(ops) {
+                 const vector<size_t>& assign, bool tqdm)
+    : _topo(topo), _device(device), _ops(ops), _tqdm(tqdm) {
     _device.place(assign);
 }
 
@@ -131,7 +132,7 @@ void Checker::applySwap(const Operation& op) {
  * @return false
  */
 bool Checker::applyCX(const Operation& op, const Gate& gate) {
-    if (!(op.getType() == GateType::CX)) {
+    if (!(op.getType() == GateType::CX || op.getType() == GateType::CZ)) {
         cerr << gateType2Str[op.getType()] << " in applyCX" << endl;
         abort();
     }
@@ -209,8 +210,8 @@ bool Checker::applySingle(const Operation& op, const Gate& gate) {
 bool Checker::testOperations() {
     vector<size_t> finishedGates;
 
-    cout << "Checking..." << endl;
-    TqdmWrapper bar{_ops.size()};
+    // cout << "Checking..." << endl;
+    TqdmWrapper bar{_ops.size(), _tqdm};
     for (const auto& op : _ops) {
         if (op.getType() == GateType::SWAP) {
             applySwap(op);

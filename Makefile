@@ -1,11 +1,11 @@
 REFPKGS   		:= 
-SRCPKGS   		:= argparse extractor duostra device qcir simplifier lattice gflow m2 graph tensor cmd util
+SRCPKGS   		:= extractor optimizer duostra device qcir simplifier lattice gflow m2 graph tensor cmd argparse util
 SRCLIBS   		:= $(addsuffix .a, $(addprefix lib, $(SRCPKGS)))
 
 EXTINCDIR 		:= include
 
 VENDOR_DIR      := vendor
-VENDOR_HDRS		:= catch2 tqdm
+VENDOR_HDRS		:= tqdm
 
 SRC_DIR	  		:= src
 BUILD_DIR 		:= bin/qsyn-dev
@@ -13,7 +13,6 @@ BUILD_SRC_DIR 	:= $(BUILD_DIR)/$(SRC_DIR)
 LIB_DIR    		:= $(BUILD_DIR)/lib
 
 EXEC     		:= qsyn
-TESTEXEC  		:= qsyn-test
 
 OPTIMIZE_LEVEL 	:= -O3
 DEBUG_FLAG 		:= -DDEBUG
@@ -25,7 +24,7 @@ all:  main
 ## Clean all objects files
 .PHONY: clean
 
-clean: $(addprefix clean_, $(SRCPKGS) main test)
+clean: $(addprefix clean_, $(SRCPKGS) main)
 
 ## Clean all objects files, .depend.mk, extheader.mk, and include/*
 .PHONY: cleanall
@@ -50,7 +49,7 @@ libs: $(addprefix $(BUILD_SRC_DIR), $(SRCLIBS))
 
 ## Linking external headers
 .PHONY: extheader
-EXTHEADER_MKS := $(addsuffix /.extheader.mk, $(addprefix $(BUILD_SRC_DIR)/, $(SRCPKGS) main test))
+EXTHEADER_MKS := $(addsuffix /.extheader.mk, $(addprefix $(BUILD_SRC_DIR)/, $(SRCPKGS) main))
 
 extheader: $(EXTHEADER_MKS)
 

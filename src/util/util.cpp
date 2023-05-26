@@ -60,15 +60,15 @@ size_t intPow(size_t base, size_t n) {
         return base * tmp * tmp;
 }
 
-TqdmWrapper::TqdmWrapper(size_t total)
-    : counter_(0), total_(total), tqdm_(make_unique<tqdm>()) {}
+TqdmWrapper::TqdmWrapper(size_t total, bool show)
+    : _counter(0), _total(total), _tqdm(make_unique<tqdm>(show)) {}
 
-TqdmWrapper::TqdmWrapper(int total) : TqdmWrapper(static_cast<size_t>(total)) {}
+TqdmWrapper::TqdmWrapper(int total, bool show) : TqdmWrapper(static_cast<size_t>(total), show) {}
 
 TqdmWrapper::~TqdmWrapper() {
-    tqdm_->finish();
+    _tqdm->finish();
 }
 
 void TqdmWrapper::add() {
-    tqdm_->progress(counter_++, total_);
+    _tqdm->progress(_counter++, _total);
 }

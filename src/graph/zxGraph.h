@@ -19,6 +19,20 @@
 template <typename T>
 class QTensor;
 
+class ZXVertex;
+class ZXGraph;
+
+// See `zxVertex.cpp` for details
+EdgeType str2EdgeType(const std::string& str);
+VertexType str2VertexType(const std::string& str);
+std::string EdgeType2Str(const EdgeType& et);
+std::string VertexType2Str(const VertexType& vt);
+EdgeType toggleEdge(const EdgeType& et);
+
+EdgePair makeEdgePair(ZXVertex* v1, ZXVertex* v2, EdgeType et);
+EdgePair makeEdgePair(EdgePair epair);
+EdgePair makeEdgePairDummy();
+
 class ZXVertex {
     // See `zxVertex.cpp` for details
 public:
@@ -113,6 +127,8 @@ public:
     void setInputs(const ZXVertexList& inputs) { _inputs = inputs; }
     void setOutputs(const ZXVertexList& outputs) { _outputs = outputs; }
     void setVertices(const ZXVertexList& vertices) { _vertices = vertices; }
+    void setFileName(std::string f) { _fileName = f; }
+    void addProcedure(std::string = "", const std::vector<std::string>& = {});
 
     const size_t& getId() const { return _id; }
     void** getRef() const { return _ref; }
@@ -124,6 +140,8 @@ public:
     size_t getNumInputs() const { return _inputs.size(); }
     size_t getNumOutputs() const { return _outputs.size(); }
     size_t getNumVertices() const { return _vertices.size(); }
+    std::string getFileName() const { return _fileName; }
+    const std::vector<std::string>& getProcedures() const { return _procedures; }
 
     // For testings
     bool isEmpty() const;
@@ -236,6 +254,8 @@ private:
     size_t _id;
     void** _ref;
     size_t _nextVId;
+    std::string _fileName;
+    std::vector<std::string> _procedures;
     ZXVertexList _inputs;
     ZXVertexList _outputs;
     ZXVertexList _vertices;
@@ -249,16 +269,5 @@ private:
 
     bool buildGraphFromParserStorage(const ZXParserDetail::StorageType& storage, bool keepID = false);
 };
-
-// See `zxVertex.cpp` for details
-EdgeType str2EdgeType(const std::string& str);
-VertexType str2VertexType(const std::string& str);
-std::string EdgeType2Str(const EdgeType& et);
-std::string VertexType2Str(const VertexType& vt);
-EdgeType toggleEdge(const EdgeType& et);
-
-EdgePair makeEdgePair(ZXVertex* v1, ZXVertex* v2, EdgeType et);
-EdgePair makeEdgePair(EdgePair epair);
-EdgePair makeEdgePairDummy();
 
 #endif

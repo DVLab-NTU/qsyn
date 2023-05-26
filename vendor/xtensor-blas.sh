@@ -1,5 +1,6 @@
 ENGINE_NAME="xtensor-blas"
-VENDOR_PATH="engine/$ENGINE_NAME"
+TIMESTAMP=$(date -I)
+VENDOR_PATH="/tmp/qsyn-configure-"$TIMESTAMP
 GITHUB_PATH="https://github.com/xtensor-stack/xtensor-blas.git"
 JOB=16
 if [ $# -ne 1 ]; then 
@@ -9,10 +10,12 @@ fi
 
 INSTALL_PATH=$1
 
-rm -rf ${VENDOR_PATH}
-git clone ${GITHUB_PATH} ${VENDOR_PATH}
-
+mkdir -p ${VENDOR_PATH}
+rm -rf ${VENDOR_PATH}/${ENGINE_NAME}
 cd ${VENDOR_PATH}
+git clone ${GITHUB_PATH} ${ENGINE_NAME}
+
+cd ${ENGINE_NAME}
 
 mkdir build
 cd build

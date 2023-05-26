@@ -14,8 +14,8 @@
 template <typename T>
 class QTensor : public Tensor<std::complex<T>> {
 protected:
-    using DataType = Tensor<std::complex<T>>::DataType;
-    using InternalType = Tensor<std::complex<T>>::InternalType;
+    using DataType = typename Tensor<std::complex<T>>::DataType;
+    using InternalType = typename Tensor<std::complex<T>>::InternalType;
 
 public:
     QTensor() : Tensor<DataType>(std::complex<T>(1, 0)) {}
@@ -391,7 +391,7 @@ Phase globalPhase(const QTensor<U>& t1, const QTensor<U>& t2) {
  * @return QTensor<T>::DataType
  */
 template <typename T>
-QTensor<T>::DataType QTensor<T>::nuPow(const int& n) {
+typename QTensor<T>::DataType QTensor<T>::nuPow(const int& n) {
     return std::pow(2., -0.25 * n);
 }
 

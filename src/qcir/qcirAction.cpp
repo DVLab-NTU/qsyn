@@ -6,8 +6,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cassert>     // for assert
-#include <cstddef>     // for NULL, size_t
+#include <cassert>  // for assert
+#include <cstddef>  // for NULL, size_t
 
 #include "qcir.h"      // for QCir
 #include "qcirGate.h"  // for QCirGate
@@ -126,9 +126,11 @@ void QCir::DFS(QCirGate* currentGate) {
 }
 
 /**
- * @brief Update Topological Order
+ * @brief Update topological order
+ *
+ * @return const vector<QCirGate*>&
  */
-void QCir::updateTopoOrder() {
+const vector<QCirGate*>& QCir::updateTopoOrder() {
     _topoOrder.clear();
     _globalDFScounter++;
     QCirGate* dummy = new HGate(-1);
@@ -141,6 +143,8 @@ void QCir::updateTopoOrder() {
     reverse(_topoOrder.begin(), _topoOrder.end());
     assert(_topoOrder.size() == _qgates.size());
     delete dummy;
+
+    return _topoOrder;
 }
 
 /**
@@ -175,7 +179,7 @@ void QCir::updateGateTime() {
  * @brief Print ZX-graph of gate following the topological order
  */
 void QCir::printZXTopoOrder() {
-    auto Lambda = [this](QCirGate* G) {
+    auto Lambda = [](QCirGate* G) {
         cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph* tmp = G->getZXform();
         tmp->printVertices();
