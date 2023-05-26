@@ -22,7 +22,6 @@ Qsyn provides an experimental implementation of optimization algorithms and a pr
 
 ## Third party dependencies
 * `xtensor`, `xtensor-blas` for tensor calculation
-* `catch2` for unit testing
 * `tqdm` for progress bar pretty-printing
 * `pdflatex` for outputting pdf files
 
@@ -36,24 +35,31 @@ cd qsyn
 ```shell
 sudo apt-get install texlive-latex-base
 ```
+### System Requirements
+* Linux (recommended): `Qsyn` requires `g++-10` and `gfortran-10` to compile. The two compilers should also be on the same version.
+* MacOS: `Qsyn` can also be compiled with Apple Clang (which, by default, is what gets called when invoking `g++`) with version 13.1.7 and up. However, note the following caveats:
+    * You may need to install `OpenMP` via HomeBrew or MacPort, and link/add the headers and libraries into compiler search path.
+    * Due to differences in c++ standard implementation, there might be some deviations in the output of Apple Clang-compiled program from their g++-compiled counterparts.
 ### Compilation
-`Qsyn` requires at least `g++-10` and `gfortran-10` to compile. The two compilers should also be on the same version.
-
 1. Qsyn depends on `xtensor` and `xtensor-blas`. To install these dependencies, run `configure.sh`, which checks for lacking dependencies and install them automatically. 
-
 	```shell!
-	./configure.sh
+	sudo ./configure.sh
 	```
 2. Then, run `make` to build up the executable.
 	```shell!
 	make -j16
 	```
-3. If the compilation process ends successfully, you will get
+    or
+    ```shell!
+	gmake -j16
+	```
+    if you are on MacOS.
+3. If the compilation process ends successfully, you will see
     ```shell!
     > building qsyn...
     ~/qsyn$ _
     ```
-4. If you want to delete all intermediate files created in the compilation process, please type
+4. To delete all intermediate files created in the compilation process, please type
     ```shell!
 	make clean
 	```
@@ -102,38 +108,27 @@ sudo apt-get install texlive-latex-base
     qsyn> zxgp
     Graph 0( 3 inputs, 3 outputs, 17 vertices, 19 edges )
 
-    qsyn> q -f
+    qsyn> qq -f
     ```
 
 
 
 ### Testing
-There are two types of testing approaches:
-1. DOFILEs, which automatically run a sequence of commands. (Located under `tests/<section>/<subsection>/dof/`)
+We have provided some DOFILEs, i.e., a sequence of commands, to serve as functionality checks as well as demonstration of use. DOFILEs are Located under `tests/<section>/<subsection>/dof/`.
 
-    * To run a DOFILE and compare the result to the reference, type
-		```shell!
-		./DOFILE.sh <path/to/test> -d
-		```
-    * To update the reference to a dofile, type
-		```shell!
-		./DOFILE.sh <path/to/test> -up
-		```
-    * You may also run all DOFILEs by running
-        ```bash!
-        ./RUN_ALL_TEST.sh
-        ```
-2. Unit tests, which checks the validity of selected data structures.
-	
-    * To compile unit test programs, type
-		```shell!
-		make test -j16
-		```
-	* Then, run the test by 
-		```shell!
-		./qsyn-test -r compact
-		```
-
+* To run a DOFILE and compare the result to the reference, type
+    ```shell!
+    ./DOFILE.sh <path/to/test> -d
+    ```
+* To update the reference to a dofile, type
+    ```shell!
+    ./DOFILE.sh <path/to/test> -up
+    ```
+* You may also run all DOFILEs by running
+    ```bash!
+    ./RUN_ALL_TEST.sh
+    ```
+Notice that if you use Apple Clang to compile `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
 
 ## License
 [Apache License 2.0](https://github.com/ric2k1/qsyn/blob/main/LICENSE)

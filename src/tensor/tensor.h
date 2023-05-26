@@ -242,7 +242,7 @@ Tensor<DT> Tensor<DT>::toMatrix(const TensorAxisList& axin, const TensorAxisList
 
 template <typename U>
 Tensor<U> directSum(const Tensor<U>& t1, const Tensor<U>& t2) {
-    using shape_t = xt::xarray<U>::shape_type;
+    using shape_t = typename xt::xarray<U>::shape_type;
     if (t1.dimension() != 2 || t2.dimension() != 2) {
         throw std::invalid_argument("The two tensors should be 2-dimension.");
     }
