@@ -23,13 +23,37 @@ namespace TF = TextFormat;
 using namespace std;
 extern size_t verbose;
 /**
- * @brief Reset the gflow calculator
+ * @brief Initialize the gflow calculator
  *
  */
-void GFlow::reset() {
+void GFlow::initialize() {
     _levels.clear();
     _correctionSets.clear();
-    clearTemporaryStorage();
+    _measurementPlanes.clear();
+    _frontier.clear();
+    _neighbors.clear();
+    _taken.clear();
+    _coefficientMatrix.clear();
+    using MP = MeasurementPlane;
+
+    // Measurement planes - See Table 1, p.10 of the paper
+    // M. Backens, H. Miller-Bakewell, G. de Felice, L. Lobski, & J. van de Wetering (2021). There and back again: A circuit extraction tale. Quantum, 5, 421.
+    // https://quantum-journal.org/papers/q-2021-03-25-421/
+    for (auto const& v : _zxgraph->getVertices()) {
+        _measurementPlanes.emplace(v, MP::XY);
+    }
+    // if calculating extended gflow, modify some of the measurment plane
+    if (_doExtended) {
+        for (auto const& v : _zxgraph->getVertices()) {
+            if (_zxgraph->isGadgetLeaf(v))
+                _measurementPlanes[v] = MP::NOT_A_QUBIT;
+            else if (_zxgraph->isGadgetAxel(v))
+                _measurementPlanes[v] = v->hasNPiPhase() ? MP::YZ
+                                        : v->getPhase().denominator() == 2
+                                            ? MP::XZ
+                                            : MP::ERROR;
+        }
+    }
 }
 
 /**
@@ -38,7 +62,7 @@ void GFlow::reset() {
  */
 bool GFlow::calculate() {
     // REVIEW - exclude boundary nodes
-    reset();
+    initialize();
 
     calculateZerothLayer();
 
@@ -64,8 +88,7 @@ bool GFlow::calculate() {
                 continue;
             }
 
-            M2 augmentedMatrix = _coefficientMatrix;
-            augmentedMatrix.appendOneHot(i);
+            M2 augmentedMatrix = prepareMatrix(v, i);
 
             if (verbose >= 8) {
                 cout << "Before solving: " << endl;
@@ -112,17 +135,6 @@ bool GFlow::calculate() {
 }
 
 /**
- * @brief Clean frontier, neighbors, taken, and coefficient matrix
- *
- */
-void GFlow::clearTemporaryStorage() {
-    _frontier.clear();
-    _neighbors.clear();
-    _taken.clear();
-    _coefficientMatrix.clear();
-}
-
-/**
  * @brief Calculate 0th layer
  *
  */
@@ -150,6 +162,10 @@ void GFlow::updateNeighborsByFrontier() {
         for (auto& [nb, _] : v->getNeighbors()) {
             if (_taken.contains(nb))
                 continue;
+            if (_measurementPlanes[nb] == MeasurementPlane::NOT_A_QUBIT) {
+                _taken.insert(nb);
+                continue;
+            }
 
             _neighbors.insert(nb);
         }
@@ -176,6 +192,45 @@ void GFlow::setCorrectionSetFromMatrix(ZXVertex* v, const M2& matrix) {
             c++;
         }
     }
+    using MP = MeasurementPlane;
+    if (_doExtended && (_measurementPlanes[v] == MP::XZ || _measurementPlanes[v] == MP::YZ)) {
+        _correctionSets[v].insert(v);
+    }
+}
+
+/**
+ * @brief prepare the matrix to solve depending on the measurement plane.
+ *
+ */
+M2 GFlow::prepareMatrix(ZXVertex* v, size_t i) {
+    using MP = MeasurementPlane;
+    M2 augmentedMatrix = _coefficientMatrix;
+    augmentedMatrix.pushColumn();
+    bool doZError = !_doExtended ||
+                    _measurementPlanes[v] == MP::XY ||
+                    _measurementPlanes[v] == MP::XZ;
+    bool doXError = _doExtended &&
+                    (_measurementPlanes[v] == MP::XZ ||
+                     _measurementPlanes[v] == MP::YZ);
+
+    auto itr = _neighbors.begin();
+    for (size_t j = 0; j < augmentedMatrix.numRows(); ++j) {
+        if (doZError) {
+            augmentedMatrix[j][augmentedMatrix.numCols() - 1] += (i == j) ? 1 : 0;
+        }
+        if (doXError) {
+            if ((*itr)->isNeighbor(v)) {
+                augmentedMatrix[j][augmentedMatrix.numCols() - 1] += 1;
+            }
+        }
+        ++itr;
+    }
+
+    for (size_t j = 0; j < augmentedMatrix.numRows(); ++j) {
+        augmentedMatrix[j][augmentedMatrix.numCols() - 1] %= 2;
+    }
+
+    return augmentedMatrix;
 }
 
 /**
@@ -243,7 +298,7 @@ void GFlow::printLevels() const {
  * @param v correction set of whom
  */
 void GFlow::printCorrectionSet(ZXVertex* v) const {
-    cout << right << setw(4) << v->getId() << ":";
+    cout << right << setw(4) << v->getId() << " (" << _measurementPlanes.at(v) << "):";
     if (_correctionSets.contains(v)) {
         if (_correctionSets.at(v).empty()) {
             cout << " (None)";
@@ -316,4 +371,21 @@ void GFlow::printFailedVertices() const {
         cout << v->getId() << " ";
     }
     cout << endl;
+}
+
+std::ostream& operator<<(std::ostream& os, GFlow::MeasurementPlane const& plane) {
+    using MP = GFlow::MeasurementPlane;
+    switch (plane) {
+        case MP::XY:
+            return os << "XY";
+        case MP::YZ:
+            return os << "YZ";
+        case MP::XZ:
+            return os << "XZ";
+        case MP::NOT_A_QUBIT:
+            return os << "(not a qubit)";
+        case MP::ERROR:
+        default:
+            return os << "ERROR";
+    }
 }

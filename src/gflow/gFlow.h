@@ -20,17 +20,27 @@ class ZXVertex;
 class GFlow {
 public:
     using Levels = std::vector<ZXVertexList>;
-    using CorrectionSets = std::unordered_map<ZXVertex*, ZXVertexList>;
+    using CorrectionSetMap = std::unordered_map<ZXVertex*, ZXVertexList>;
+    enum class MeasurementPlane {
+        XY,
+        YZ,
+        XZ,
+        NOT_A_QUBIT,
+        ERROR
+    };
+    using MeasurementPlaneMap = std::unordered_map<ZXVertex*, MeasurementPlane>;
 
-    GFlow(ZXGraph* g) : _zxgraph{g}, _valid{false}, _doIndependentLayers{false} {}
+    GFlow(ZXGraph* g) : _zxgraph{g}, _valid{false}, _doIndependentLayers{false}, _doExtended{true} {}
 
-    void reset();
     bool calculate();
 
-    const Levels& getLevels() const { return _levels; }
+    Levels const& getLevels() const { return _levels; }
+    CorrectionSetMap const& getCorrectionSets() const { return _correctionSets; }
+    
     bool isValid() const { return _valid; }
 
     void doIndependentLayers(bool flag) { _doIndependentLayers = flag; }
+    void doExtendedGFlow(bool flag) { _doIndependentLayers = flag; }
 
     void print() const;
     void printLevels() const;
@@ -42,10 +52,12 @@ public:
 private:
     ZXGraph* _zxgraph;
     Levels _levels;
-    CorrectionSets _correctionSets;
+    CorrectionSetMap _correctionSets;
+    std::unordered_map<ZXVertex*, MeasurementPlane> _measurementPlanes;
 
     bool _valid;
     bool _doIndependentLayers;
+    bool _doExtended;
 
     // helper members
     ZXVertexList _frontier;
@@ -54,14 +66,17 @@ private:
     M2 _coefficientMatrix;
 
     // gflow calculation subroutines
-    void clearTemporaryStorage();
+    void initialize();
     void calculateZerothLayer();
     void updateNeighborsByFrontier();
+    M2 prepareMatrix(ZXVertex* v, size_t i);
     void setCorrectionSetFromMatrix(ZXVertex* v, const M2& matrix);
     void updateFrontier();
 
     void printFrontier() const;
     void printNeighbors() const;
 };
+
+std::ostream& operator<<(std::ostream& os, GFlow::MeasurementPlane const& plane);
 
 #endif  // GFLOW_H
