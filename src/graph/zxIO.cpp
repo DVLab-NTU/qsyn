@@ -234,8 +234,8 @@ bool ZXGraph::writeTikz(string filename) {
             return true;
         string labelStyle = "[label distance=-2]90:{\\color{phaseColor}";
         tikzFile << ",label={ " << labelStyle << fontSize << " $";
-        int numerator = v->getPhase().getRational().numerator();
-        int denominator = v->getPhase().getRational().denominator();
+        int numerator = v->getPhase().numerator();
+        int denominator = v->getPhase().denominator();
 
         if (denominator != 1) {
             tikzFile << "\\frac{";

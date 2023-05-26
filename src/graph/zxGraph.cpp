@@ -197,7 +197,7 @@ size_t ZXGraph::numGadgets() const {
  */
 int ZXGraph::TCount() const {
     return count_if(_vertices.begin(), _vertices.end(), [](ZXVertex* v) {
-        return (v->getPhase().getRational().denominator() == 4);
+        return (v->getPhase().denominator() == 4);
     });
 }
 
@@ -211,14 +211,14 @@ int ZXGraph::nonCliffordCount(bool includeT) const {
     int num = 0;
     if (includeT) {
         for (const auto& v : _vertices) {
-            if (v->getPhase().getRational().denominator() != 1 &&
-                v->getPhase().getRational().denominator() != 2) num++;
+            if (v->getPhase().denominator() != 1 &&
+                v->getPhase().denominator() != 2) num++;
         }
     } else {
         for (const auto& v : _vertices) {
-            if (v->getPhase().getRational().denominator() != 1 &&
-                v->getPhase().getRational().denominator() != 2 &&
-                v->getPhase().getRational().denominator() != 4) num++;
+            if (v->getPhase().denominator() != 1 &&
+                v->getPhase().denominator() != 2 &&
+                v->getPhase().denominator() != 4) num++;
         }
     }
     return num;

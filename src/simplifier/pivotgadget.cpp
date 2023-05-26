@@ -24,7 +24,7 @@ extern size_t verbose;
 void PivotGadget::preprocess(ZXGraph* g) {
     for (auto& m : this->_matchTypeVec) {
         // REVIEW - scalar add power
-        if (m[1]->getPhase().getRational().denominator() != 1) {
+        if (m[1]->getPhase().denominator() != 1) {
             g->transferPhase(m[1]);
         }
     }
@@ -65,8 +65,8 @@ void PivotGadget::match(ZXGraph* g) {
 
         if (verbose == 9) cout << "(1) type pass\n";
 
-        bool vsIsNPi = (vs->getPhase().getRational().denominator() == 1);
-        bool vtIsNPi = (vt->getPhase().getRational().denominator() == 1);
+        bool vsIsNPi = (vs->getPhase().denominator() == 1);
+        bool vtIsNPi = (vt->getPhase().denominator() == 1);
 
         // if both n*pi --> ordinary pivot rules
         // if both not, --> maybe pivot double-boundary
