@@ -195,7 +195,7 @@ unique_ptr<ArgParseCmdType> verboseCmd() {
                              };
                          },
                          [](ArgType<size_t> const& arg) {
-                             return [&arg]() {
+                             return []() {
                                  cerr << "Error: verbose level should be 0-9!!\n";
                              };
                          }})

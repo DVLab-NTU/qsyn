@@ -1,5 +1,0 @@
-ver 3
-zxgr -R benchmark/zx/swap.zx
-zxgr benchmark/zx/tof3.zx
-zxgr -R benchmark/zx/tof3.zx
-qq -f

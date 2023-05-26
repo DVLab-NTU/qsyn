@@ -82,7 +82,7 @@ DIFF_FOOT="${BOLD}${RED}${DIFF_FOOT}${WHITE}${NORMAL}"
 
 if [[ $DODIFF == 1 ]]; then
     printf "Testing %-30s" ${DOFILE}
-    OUTPUT=$(./qsyn -f ${FILE_PATH} |& diff ${REF_FILE} - )
+    OUTPUT=$(./qsyn -f ${FILE_PATH} 2>&1 | diff ${REF_FILE} - )
     STATUS=$?
     if [[ $STATUS == 0 ]]; then 
         echo -e ${PASS_TEXT};

@@ -1,0 +1,17 @@
+// Using ZX calculus to calculate the output states given input
+qccr benchmark/qft/qft_5.qasm
+qc2zx 
+
+// Change the following five lines for simulating different states
+zxgassign 0 I X 0 // this means "replace the boundary vertex at qubit 0 with a X-spider of phase pi"
+zxgassign 1 I X pi
+zxgassign 2 I X pi
+zxgassign 3 I X 0
+zxgassign 4 I X pi
+// Q1: What input state does this assignments corresponds to?
+
+zxgs -sr // Simplify the diagram and convert to red graph at the end
+zxgp -v 
+// Q2: What output state does this graph corresponds to?
+
+qq -f

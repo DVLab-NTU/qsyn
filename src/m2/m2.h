@@ -22,7 +22,7 @@
 // REVIEW - Change if bit > 64
 class Row {
 public:
-    Row(size_t id, const std::vector<unsigned char>& r) : _id(id), _row(r) {}
+    Row(size_t id, const std::vector<unsigned char>& r) : _row(r) {}
     ~Row() {}
     const std::vector<unsigned char>& getRow() const { return _row; }
     void setRow(std::vector<unsigned char> row) { _row = row; }
@@ -46,7 +46,6 @@ public:
     }
 
 private:
-    size_t _id;
     std::vector<unsigned char> _row;
 };
 

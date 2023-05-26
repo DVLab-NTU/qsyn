@@ -19,6 +19,20 @@
 template <typename T>
 class QTensor;
 
+class ZXVertex;
+class ZXGraph;
+
+// See `zxVertex.cpp` for details
+EdgeType str2EdgeType(const std::string& str);
+VertexType str2VertexType(const std::string& str);
+std::string EdgeType2Str(const EdgeType& et);
+std::string VertexType2Str(const VertexType& vt);
+EdgeType toggleEdge(const EdgeType& et);
+
+EdgePair makeEdgePair(ZXVertex* v1, ZXVertex* v2, EdgeType et);
+EdgePair makeEdgePair(EdgePair epair);
+EdgePair makeEdgePairDummy();
+
 class ZXVertex {
     // See `zxVertex.cpp` for details
 public:
@@ -254,16 +268,5 @@ private:
 
     bool buildGraphFromParserStorage(const ZXParserDetail::StorageType& storage, bool keepID = false);
 };
-
-// See `zxVertex.cpp` for details
-EdgeType str2EdgeType(const std::string& str);
-VertexType str2VertexType(const std::string& str);
-std::string EdgeType2Str(const EdgeType& et);
-std::string VertexType2Str(const VertexType& vt);
-EdgeType toggleEdge(const EdgeType& et);
-
-EdgePair makeEdgePair(ZXVertex* v1, ZXVertex* v2, EdgeType et);
-EdgePair makeEdgePair(EdgePair epair);
-EdgePair makeEdgePairDummy();
 
 #endif

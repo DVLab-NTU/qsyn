@@ -155,11 +155,11 @@ void ArgumentParser::printHelp() const {
         cout << TF::LIGHT_BLUE("\nDescription:\n  ") << getHelp() << endl;
     }
 
-    auto argPairIsRequired = [this](pair<string, Argument> const& argPair) {
+    auto argPairIsRequired = [](pair<string, Argument> const& argPair) {
         return argPair.second.isRequired();
     };
 
-    auto argPairIsOptional = [this](pair<string, Argument> const& argPair) {
+    auto argPairIsOptional = [](pair<string, Argument> const& argPair) {
         return !argPair.second.isRequired();
     };
 
