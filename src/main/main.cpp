@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
     cout << "DV Lab, NTUEE, Qsyn 0.4.2" << endl;
 
     if (
-        !initArgParserCmd() ||
+        // !initArgParserCmd() ||
         !initCommonCmd() ||
         !initQCirCmd() ||
         !initOptimizeCmd() ||
