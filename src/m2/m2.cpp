@@ -587,3 +587,11 @@ float M2::denseRatio() {
     float ratio = float(depth) / float(_opStorage.size());
     return round(ratio * 100) / 100;
 }
+
+/**
+ * @brief Push a new column at the end of the matrix
+ *
+ */
+void M2::pushColumn() {
+    for_each(_matrix.begin(), _matrix.end(), [](Row& r) { r.push_back(0); });
+}

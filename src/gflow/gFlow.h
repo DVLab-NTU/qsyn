@@ -36,7 +36,8 @@ public:
 
     Levels const& getLevels() const { return _levels; }
     CorrectionSetMap const& getCorrectionSets() const { return _correctionSets; }
-    
+    MeasurementPlaneMap const& getMeasurementPlanes() const { return _measurementPlanes; }
+
     bool isValid() const { return _valid; }
 
     void doIndependentLayers(bool flag) { _doIndependentLayers = flag; }
