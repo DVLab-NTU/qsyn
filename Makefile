@@ -1,5 +1,5 @@
 REFPKGS   		:= 
-SRCPKGS   		:= argparse extractor optimizer duostra device qcir simplifier lattice gflow m2 graph tensor cmd util
+SRCPKGS   		:= extractor optimizer duostra device qcir simplifier lattice gflow m2 graph tensor cmd argparse util
 SRCLIBS   		:= $(addsuffix .a, $(addprefix lib, $(SRCPKGS)))
 
 EXTINCDIR 		:= include
