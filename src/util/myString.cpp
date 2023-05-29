@@ -33,7 +33,7 @@ bool stripQuotes(const std::string& input, std::string& output) {
     auto findQuote = [&output](char quote) -> size_t {
         size_t pos = 0;
         pos = output.find_first_of(quote);
-        while (pos != 0 && output[pos - 1] == '\\') {
+        while (pos != 0 && pos != string::npos && output[pos - 1] == '\\') {
             pos = output.find_first_of(quote, pos + 1);
         }
         return pos;
@@ -43,10 +43,10 @@ bool stripQuotes(const std::string& input, std::string& output) {
         size_t doubleQuote = findQuote('\"');
         size_t singleQuote = findQuote('\'');
         size_t pos = min(doubleQuote, singleQuote);
-        char delim = output[pos];
         outside.emplace_back(output.substr(0, pos));
         if (pos == string::npos) break;
         output = output.substr(pos + 1);
+        char delim = output[pos];
         if (pos != string::npos) {
             size_t closingQuote = findQuote(delim);
 
