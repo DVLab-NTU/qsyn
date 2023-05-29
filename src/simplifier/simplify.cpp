@@ -231,17 +231,8 @@ int Simplifier::pivotGadgetSimp() {
  * @return int
  */
 int Simplifier::degadgetizeSimp() {
-    // GFlow gflow(_simpGraph);
-    // gflow.doRemoveGadgets(true);
-
-    // gflow.calculate();
-
-    // if (!gflow.isValid()) {
-    //     cout << "Warning: did not remove gadgets across all gflow layers." << endl;
-    // }
-
-    // return gflow.getNumRemoveGadgets();
-    return 0;
+    this->setRule(make_unique<PivotDegadget>());
+    return this->simp();
 }
 
 /**

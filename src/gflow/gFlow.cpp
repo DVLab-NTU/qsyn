@@ -22,13 +22,41 @@ namespace TF = TextFormat;
 
 using namespace std;
 extern size_t verbose;
+
+/**
+ * @brief Calculate the Z correction set of a vertex,
+ *        i.e., Odd(g(v))
+ *
+ * @param v
+ * @return ZXVertexList
+ */
+ZXVertexList GFlow::getZCorrectionSet(ZXVertex* v) const {
+    ZXVertexList out;
+
+    ordered_hashmap<ZXVertex*, size_t> numOccurences;
+
+    for (auto const& gv : getXCorrectionSet(v)) {
+        if (numOccurences.contains(gv)) {
+            numOccurences[gv]++;
+        } else {
+            numOccurences.emplace(gv, 1);
+        }
+    }
+
+    for (auto const& [gv, n] : numOccurences) {
+        if (n % 2 == 1) out.emplace(gv);
+    }
+
+    return out;
+}
+
 /**
  * @brief Initialize the gflow calculator
  *
  */
 void GFlow::initialize() {
     _levels.clear();
-    _correctionSets.clear();
+    _xCorrectionSets.clear();
     _measurementPlanes.clear();
     _frontier.clear();
     _neighbors.clear();
@@ -52,6 +80,7 @@ void GFlow::initialize() {
                                         : v->getPhase().denominator() == 2
                                             ? MP::XZ
                                             : MP::ERROR;
+            assert(_measurementPlanes[v] != MP::ERROR);
         }
     }
 }
@@ -145,8 +174,8 @@ void GFlow::calculateZerothLayer() {
     _levels.push_back(_zxgraph->getOutputs());
 
     for (auto& v : _zxgraph->getOutputs()) {
-        assert(!_correctionSets.contains(v));
-        _correctionSets[v] = ZXVertexList();
+        assert(!_xCorrectionSets.contains(v));
+        _xCorrectionSets[v] = ZXVertexList();
         _taken.insert(v);
     }
 }
@@ -179,14 +208,15 @@ void GFlow::updateNeighborsByFrontier() {
  * @param matrix
  */
 void GFlow::setCorrectionSetFromMatrix(ZXVertex* v, const M2& matrix) {
-    _correctionSets[v] = ZXVertexList();
+    assert(!_xCorrectionSets.contains(v));
+    _xCorrectionSets[v] = ZXVertexList();
 
     for (size_t r = 0; r < matrix.numRows(); ++r) {
         if (matrix[r].back() == 0) continue;
         size_t c = 0;
         for (auto& f : _frontier) {
             if (matrix[r][c] == 1) {
-                _correctionSets[v].insert(f);
+                _xCorrectionSets[v].insert(f);
                 break;
             }
             c++;
@@ -194,8 +224,9 @@ void GFlow::setCorrectionSetFromMatrix(ZXVertex* v, const M2& matrix) {
     }
     using MP = MeasurementPlane;
     if (_doExtended && (_measurementPlanes[v] == MP::XZ || _measurementPlanes[v] == MP::YZ)) {
-        _correctionSets[v].insert(v);
+        _xCorrectionSets[v].insert(v);
     }
+    assert(_xCorrectionSets[v].size());
 }
 
 /**
@@ -272,7 +303,7 @@ void GFlow::print() const {
     for (size_t i = 0; i < _levels.size(); ++i) {
         cout << "Level " << i << endl;
         for (const auto& v : _levels[i]) {
-            printCorrectionSet(v);
+            printXCorrectionSet(v);
         }
     }
 }
@@ -297,13 +328,13 @@ void GFlow::printLevels() const {
  *
  * @param v correction set of whom
  */
-void GFlow::printCorrectionSet(ZXVertex* v) const {
+void GFlow::printXCorrectionSet(ZXVertex* v) const {
     cout << right << setw(4) << v->getId() << " (" << _measurementPlanes.at(v) << "):";
-    if (_correctionSets.contains(v)) {
-        if (_correctionSets.at(v).empty()) {
+    if (_xCorrectionSets.contains(v)) {
+        if (_xCorrectionSets.at(v).empty()) {
             cout << " (None)";
         } else {
-            for (const auto& w : _correctionSets.at(v)) {
+            for (const auto& w : _xCorrectionSets.at(v)) {
                 cout << " " << w->getId();
             }
         }
@@ -317,9 +348,9 @@ void GFlow::printCorrectionSet(ZXVertex* v) const {
  * @brief Print correction sets
  *
  */
-void GFlow::printCorrectionSets() const {
+void GFlow::printXCorrectionSets() const {
     for (auto& v : _zxgraph->getVertices()) {
-        printCorrectionSet(v);
+        printXCorrectionSet(v);
     }
 }
 
@@ -383,7 +414,7 @@ std::ostream& operator<<(std::ostream& os, GFlow::MeasurementPlane const& plane)
         case MP::XZ:
             return os << "XZ";
         case MP::NOT_A_QUBIT:
-            return os << "(not a qubit)";
+            return os << "not a qubit";
         case MP::ERROR:
         default:
             return os << "ERROR";

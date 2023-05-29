@@ -339,6 +339,30 @@ protected:
 };
 
 /**
+ * @brief Find non-interacting matchings of the pivot degadget rule.
+ *
+ */
+class PivotDegadget : public PivotInterface {
+public:
+    using MatchType = PivotInterface::MatchType;
+    using MatchTypeVec = PivotInterface::MatchTypeVec;
+
+    PivotDegadget() {
+        _name = "Pivot Degadget Rule";
+    }
+    virtual ~PivotDegadget() {}
+
+    void match(ZXGraph* g) override;
+    void addBoundary(ZXVertex* v) { _boundaries.push_back(v); }
+    void clearBoundary() { _boundaries.clear(); }
+
+protected:
+    void preprocess(ZXGraph* g) override;
+    std::vector<ZXVertex*> _boundaries;
+    MatchTypeVec _unfuseCandidates;
+};
+
+/**
  * @brief Spider Fusion(f): Find non-interacting matchings of the spider fusion rule. (in sfusion.cpp)
  *
  */

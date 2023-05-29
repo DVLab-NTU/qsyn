@@ -35,25 +35,28 @@ public:
     bool calculate();
 
     Levels const& getLevels() const { return _levels; }
-    CorrectionSetMap const& getCorrectionSets() const { return _correctionSets; }
+    CorrectionSetMap const& getXCorrectionSets() const { return _xCorrectionSets; }
+    ZXVertexList const& getXCorrectionSet(ZXVertex* v) const { return _xCorrectionSets.at(v); }
+    ZXVertexList getZCorrectionSet(ZXVertex* v) const;
     MeasurementPlaneMap const& getMeasurementPlanes() const { return _measurementPlanes; }
+    MeasurementPlane const& getMeasurementPlane(ZXVertex* v) const { return _measurementPlanes.at(v); }
 
     bool isValid() const { return _valid; }
 
     void doIndependentLayers(bool flag) { _doIndependentLayers = flag; }
-    void doExtendedGFlow(bool flag) { _doIndependentLayers = flag; }
+    void doExtendedGFlow(bool flag) { _doExtended = flag; }
 
     void print() const;
     void printLevels() const;
-    void printCorrectionSets() const;
-    void printCorrectionSet(ZXVertex* v) const;
+    void printXCorrectionSets() const;
+    void printXCorrectionSet(ZXVertex* v) const;
     void printSummary() const;
     void printFailedVertices() const;
 
 private:
     ZXGraph* _zxgraph;
     Levels _levels;
-    CorrectionSetMap _correctionSets;
+    CorrectionSetMap _xCorrectionSets;
     std::unordered_map<ZXVertex*, MeasurementPlane> _measurementPlanes;
 
     bool _valid;
