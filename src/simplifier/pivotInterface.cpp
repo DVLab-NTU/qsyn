@@ -36,8 +36,8 @@ void PivotInterface::rewrite(ZXGraph* g) {
         vector<ZXVertex*> tmp0 = m[0]->getCopiedNeighbors();
         vector<ZXVertex*> tmp1 = m[1]->getCopiedNeighbors();
 
-        tmp0.erase(std::find(tmp0.begin(), tmp0.end(), m[1]));
-        tmp1.erase(std::find(tmp1.begin(), tmp1.end(), m[0]));
+        std::erase(tmp0, m[1]);
+        std::erase(tmp1, m[0]);
 
         auto vidLessThan = [](ZXVertex* const& a, ZXVertex* const& b) {
             return a->getId() < b->getId();
