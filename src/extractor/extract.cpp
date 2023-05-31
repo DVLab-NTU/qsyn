@@ -97,7 +97,7 @@ QCir* Extractor::extract() {
     if (!extractionLoop(-1))
         return nullptr;
     else
-        cout << "Finish extracting!" << endl;
+        if(verbose >= 3) cout << "Finish extracting!" << endl;
     if (verbose >= 8) {
         _logicalCircuit->printQubits();
         _graph->printQubits();
