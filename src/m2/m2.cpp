@@ -436,7 +436,7 @@ bool M2::isSolvedForm() const {
  */
 bool M2::gaussianElimAugmented(bool track) {
     if (verbose >= 5) cout << "Performing Gaussian Elimination..." << endl;
-    if (verbose >= 8) printMatrix();
+    if (verbose >= 9) printMatrix();
     _opStorage.clear();
 
     size_t numVariables = numCols() - 1;
@@ -465,7 +465,7 @@ bool M2::gaussianElimAugmented(bool track) {
             }
 
             xorOper(theFirstRowWithOne, curRow, track);
-            if (verbose >= 8) {
+            if (verbose >= 9) {
                 cout << "Add " << theFirstRowWithOne << " to " << curRow << endl;
                 printMatrix();
             }
@@ -475,7 +475,7 @@ bool M2::gaussianElimAugmented(bool track) {
         for (size_t r = 0; r < numRows(); ++r) {
             if (r != curRow && _matrix[r][curCol] == 1) {
                 xorOper(curRow, r, track);
-                if (verbose >= 8) {
+                if (verbose >= 9) {
                     cout << "Add " << curRow << " to " << r << endl;
                     printMatrix();
                 }
