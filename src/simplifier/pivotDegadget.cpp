@@ -29,16 +29,30 @@ void PivotDegadget::preprocess(ZXGraph* g) {
     }
 
     cout << "Finished Buffering Boundaries!" << endl;
+    GFlow gflow{g};
+    gflow.calculate();
+    gflow.print();
+    g->printVertices();
+
+    assert(gflow.isValid());
 
     for (auto& [vt, vu] : _unfuseCandidates) {
         EdgeType etype = vt->isNeighbor(vu, EdgeType::SIMPLE) ? EdgeType::SIMPLE : EdgeType::HADAMARD;
         assert(vt->isNeighbor(vu, etype));
         ZXVertex* buffer1 = g->addBuffer(vu, vt, etype);
-        g->addBuffer(buffer1, vt, EdgeType::HADAMARD);
-        buffer1->setPhase(vt->getPhase());
+        ZXVertex* buffer2 = g->addBuffer(vu, buffer1, toggleEdge(etype));
+        buffer2->setPhase(vt->getPhase());
+        cout << "buffer1 = " << buffer1->getId() << endl;
+        cout << "buffer2 = " << buffer2->getId() << endl;
         vt->setPhase(Phase(0));
     }
     cout << "Finished Unfusing!" << endl;
+
+    gflow.calculate();
+    gflow.print();
+    g->printVertices();
+
+    assert(gflow.isValid());
 }
 
 /**
@@ -66,19 +80,26 @@ void PivotDegadget::match(ZXGraph* g) {
     using MP = GFlow::MeasurementPlane;
 
     cout << "Start Matching..." << endl;
+    cout << "Note: # gadgets = " << g->numGadgets() << endl;
 
     for (auto const& [vs, plane] : gflow.getMeasurementPlanes()) {
         if (taken.contains(vs) || plane != MP::YZ) continue;
         ZXVertex* vt = nullptr;
         ZXVertex* vu = nullptr;
         for (auto const& v : gflow.getZCorrectionSet(vs)) {
-            if (taken.contains(v) || gflow.getMeasurementPlane(v) != MP::XY) continue;
+            if (taken.contains(v) ||
+                gflow.getMeasurementPlane(v) != MP::XY ||
+                !v->isNeighbor(vs) ||
+                gflow.getLevel(v) >= gflow.getLevel(vs)) continue;
             if (vt == nullptr || v->hasNPiPhase()) vt = v;  // vt with 0 or pi phase takes priority
         }
         if (vt == nullptr) continue;
 
         for (auto const& v : gflow.getXCorrectionSet(vt)) {
-            if (taken.contains(v) || gflow.getMeasurementPlane(v) != MP::XY) continue;
+            if (taken.contains(v) ||
+                gflow.getMeasurementPlane(v) != MP::XY ||
+                !v->isNeighbor(vt) ||
+                gflow.getLevel(v) >= gflow.getLevel(vt)) continue;
             vu = v;
         }
         if (vu == nullptr) continue;
@@ -99,6 +120,7 @@ void PivotDegadget::match(ZXGraph* g) {
 
         _matchTypeVec.push_back({vs, vt});
         _unfuseCandidates.push_back({vt, vu});
+        break;
     }
     cout << "Finished Matching!" << endl;
 

@@ -84,7 +84,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             .help("unfuse the phase and apply pivot rules to form gadgets");
         mutex.addArgument<bool>("-degadgetize")
             .action(storeTrue)
-            .help("apply unfusions and pivot rules so that the resulting graph has no gadgets");
+            .help("[UNSTABLE!] apply unfusions and pivot rules so that the resulting graph has no gadgets");
         mutex.addArgument<bool>("-spiderfusion")
             .action(storeTrue)
             .help("fuse spiders of the same color");

@@ -36,15 +36,18 @@ ZXVertexList GFlow::getZCorrectionSet(ZXVertex* v) const {
     ordered_hashmap<ZXVertex*, size_t> numOccurences;
 
     for (auto const& gv : getXCorrectionSet(v)) {
-        if (numOccurences.contains(gv)) {
-            numOccurences[gv]++;
-        } else {
-            numOccurences.emplace(gv, 1);
+        // FIXME - should count neighbor!
+        for (auto const& [nb, et] : gv->getNeighbors()) {
+            if (numOccurences.contains(nb)) {
+                numOccurences[nb]++;
+            } else {
+                numOccurences.emplace(nb, 1);
+            }
         }
     }
 
-    for (auto const& [gv, n] : numOccurences) {
-        if (n % 2 == 1) out.emplace(gv);
+    for (auto const& [odd_gv, n] : numOccurences) {
+        if (n % 2 == 1) out.emplace(odd_gv);
     }
 
     return out;
@@ -62,6 +65,7 @@ void GFlow::initialize() {
     _neighbors.clear();
     _taken.clear();
     _coefficientMatrix.clear();
+    _vertex2levels.clear();
     using MP = MeasurementPlane;
 
     // Measurement planes - See Table 1, p.10 of the paper
@@ -73,9 +77,10 @@ void GFlow::initialize() {
     // if calculating extended gflow, modify some of the measurment plane
     if (_doExtended) {
         for (auto const& v : _zxgraph->getVertices()) {
-            if (_zxgraph->isGadgetLeaf(v))
+            if (_zxgraph->isGadgetLeaf(v)) {
                 _measurementPlanes[v] = MP::NOT_A_QUBIT;
-            else if (_zxgraph->isGadgetAxel(v))
+                _taken.insert(v);
+            } else if (_zxgraph->isGadgetAxel(v))
                 _measurementPlanes[v] = v->hasNPiPhase() ? MP::YZ
                                         : v->getPhase().denominator() == 2
                                             ? MP::XZ
@@ -142,6 +147,10 @@ bool GFlow::calculate() {
             ++i;
         }
         updateFrontier();
+
+        for (auto& v : _levels.back()) {
+            _vertex2levels.emplace(v, _levels.size() - 1);
+        }
     }
 
     _valid = (_taken.size() == _zxgraph->getNumVertices());
@@ -175,6 +184,7 @@ void GFlow::calculateZerothLayer() {
 
     for (auto& v : _zxgraph->getOutputs()) {
         assert(!_xCorrectionSets.contains(v));
+        _vertex2levels.emplace(v, 0);
         _xCorrectionSets[v] = ZXVertexList();
         _taken.insert(v);
     }
@@ -222,10 +232,8 @@ void GFlow::setCorrectionSetFromMatrix(ZXVertex* v, const M2& matrix) {
             c++;
         }
     }
-    using MP = MeasurementPlane;
-    if (_doExtended && (_measurementPlanes[v] == MP::XZ || _measurementPlanes[v] == MP::YZ)) {
-        _xCorrectionSets[v].insert(v);
-    }
+    if (isXError(v)) _xCorrectionSets[v].insert(v);
+
     assert(_xCorrectionSets[v].size());
 }
 
@@ -234,22 +242,19 @@ void GFlow::setCorrectionSetFromMatrix(ZXVertex* v, const M2& matrix) {
  *
  */
 M2 GFlow::prepareMatrix(ZXVertex* v, size_t i) {
-    using MP = MeasurementPlane;
+    // cout << "preparing matrix: v = " << v->getId() << ", i = " << i << endl;
+    // printFrontier();
+    // printNeighbors();
+
     M2 augmentedMatrix = _coefficientMatrix;
     augmentedMatrix.pushColumn();
-    bool doZError = !_doExtended ||
-                    _measurementPlanes[v] == MP::XY ||
-                    _measurementPlanes[v] == MP::XZ;
-    bool doXError = _doExtended &&
-                    (_measurementPlanes[v] == MP::XZ ||
-                     _measurementPlanes[v] == MP::YZ);
 
     auto itr = _neighbors.begin();
     for (size_t j = 0; j < augmentedMatrix.numRows(); ++j) {
-        if (doZError) {
+        if (isZError(v)) {
             augmentedMatrix[j][augmentedMatrix.numCols() - 1] += (i == j) ? 1 : 0;
         }
-        if (doXError) {
+        if (isXError(v)) {
             if ((*itr)->isNeighbor(v)) {
                 augmentedMatrix[j][augmentedMatrix.numCols() - 1] += 1;
             }
@@ -272,14 +277,12 @@ void GFlow::updateFrontier() {
     // remove vertex that are not frontiers anymore
     vector<ZXVertex*> toRemove;
     for (auto& v : _frontier) {
-        bool removing = true;
-        for (auto& [nb, _] : v->getNeighbors()) {
-            if (!_taken.contains(nb)) {
-                removing = false;
-                break;
-            }
+        if (all_of(v->getNeighbors().begin(), v->getNeighbors().end(),
+                   [this](NeighborPair const& nbp) {
+                       return _taken.contains(nbp.first);
+                   })) {
+            toRemove.push_back(v);
         }
-        if (removing) toRemove.push_back(v);
     }
 
     for (auto& v : toRemove) {

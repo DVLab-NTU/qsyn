@@ -28,10 +28,6 @@ void ZXGraph::printGraph() const {
          << getNumOutputs() << " outputs, "
          << getNumVertices() << " vertices, "
          << getNumEdges() << " edges )\n";
-    // cout << setw(15) << left << "Inputs: " << getNumInputs() << endl;
-    // cout << setw(15) << left << "Outputs: " << getNumOutputs() << endl;
-    // cout << setw(15) << left << "Vertices: " << getNumVertices() << endl;
-    // cout << setw(15) << left << "Edges: " << getNumEdges() << endl;
 }
 
 /**

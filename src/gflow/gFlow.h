@@ -36,10 +36,19 @@ public:
 
     Levels const& getLevels() const { return _levels; }
     CorrectionSetMap const& getXCorrectionSets() const { return _xCorrectionSets; }
+    MeasurementPlaneMap const& getMeasurementPlanes() const { return _measurementPlanes; }
+
+    size_t getLevel(ZXVertex* v) const { return _vertex2levels.at(v); }
     ZXVertexList const& getXCorrectionSet(ZXVertex* v) const { return _xCorrectionSets.at(v); }
     ZXVertexList getZCorrectionSet(ZXVertex* v) const;
-    MeasurementPlaneMap const& getMeasurementPlanes() const { return _measurementPlanes; }
     MeasurementPlane const& getMeasurementPlane(ZXVertex* v) const { return _measurementPlanes.at(v); }
+
+    bool isZError(ZXVertex* v) const { return !_doExtended ||
+                                              _measurementPlanes.at(v) == MeasurementPlane::XY ||
+                                              _measurementPlanes.at(v) == MeasurementPlane::XZ; }
+    bool isXError(ZXVertex* v) const { return _doExtended &&
+                                              (_measurementPlanes.at(v) == MeasurementPlane::XZ ||
+                                               _measurementPlanes.at(v) == MeasurementPlane::YZ); }
 
     bool isValid() const { return _valid; }
 
@@ -58,6 +67,7 @@ private:
     Levels _levels;
     CorrectionSetMap _xCorrectionSets;
     std::unordered_map<ZXVertex*, MeasurementPlane> _measurementPlanes;
+    std::unordered_map<ZXVertex*, size_t> _vertex2levels;
 
     bool _valid;
     bool _doIndependentLayers;

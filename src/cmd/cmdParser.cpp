@@ -195,7 +195,7 @@ CmdParser::parseCmd(string& option) {
     if (!e) {
         cerr << "Illegal command!! (" << cmd << ")" << endl;
     } else if (n != string::npos) {
-            option = str.substr(n);
+        option = str.substr(n);
     }
     return e;
 }

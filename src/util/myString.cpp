@@ -46,10 +46,10 @@ bool stripQuotes(const std::string& input, std::string& output) {
         size_t doubleQuote = findQuote('\"');
         size_t singleQuote = findQuote('\'');
         size_t pos = min(doubleQuote, singleQuote);
-        
+
         outside.emplace_back(output.substr(0, pos));
         if (pos == string::npos) break;
-        
+
         char delim = output[pos];
 
         output = output.substr(pos + 1);

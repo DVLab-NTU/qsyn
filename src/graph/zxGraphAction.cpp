@@ -227,11 +227,9 @@ ZXGraph* ZXGraph::tensorProduct(ZXGraph* target) {
  * @return false
  */
 bool ZXGraph::isGadgetLeaf(ZXVertex* v) const {
-    if (v->getType() != VertexType::Z || v->getNumNeighbors() != 1) {
-        if (verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget leaf vertex!" << endl;
-        return false;
-    }
-    if (v->getFirstNeighbor().first->getType() != VertexType::Z ||
+    if (v->getType() != VertexType::Z ||
+        v->getNumNeighbors() != 1 ||
+        v->getFirstNeighbor().first->getType() != VertexType::Z ||
         v->getFirstNeighbor().second != EdgeType::HADAMARD ||
         !v->getFirstNeighbor().first->hasNPiPhase()) {
         if (verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget leaf vertex!" << endl;
