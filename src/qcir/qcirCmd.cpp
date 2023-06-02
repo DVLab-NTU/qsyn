@@ -526,9 +526,9 @@ unique_ptr<ArgParseCmdType> QCirPrintCmd() {
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCCPrint");
         if (parser["-analysis"].isParsed())
-            qcirMgr->getQCircuit()->analysis();
+            qcirMgr->getQCircuit()->countGate();
         else if (parser["-detail"].isParsed())
-            qcirMgr->getQCircuit()->analysis(true);
+            qcirMgr->getQCircuit()->countGate(true);
         else if (parser["-list"].isParsed())
             qcirMgr->getQCircuit()->printGates();
         else if (parser["-qubit"].isParsed())
