@@ -105,8 +105,13 @@ class CmdParser {
     using CmdMap = std::map<const std::string, std::unique_ptr<CmdExec>>;
     using CmdRegPair = std::pair<const std::string, std::unique_ptr<CmdExec>>;
 
+    enum class ParserState {
+        RECEIVING_INPUT,
+        EXECUTING_COMMAND
+    };
+    
 public:
-    CmdParser(const std::string& p) : _prompt(p), _dofile(0), _readBufPtr(_readBuf), _readBufEnd(_readBuf), _historyIdx(0), _tabPressCount(0), _tempCmdStored(false) {}
+    CmdParser(const std::string& p) : _prompt(p), _dofile(0), _readBufPtr(_readBuf), _readBufEnd(_readBuf), _historyIdx(0), _tabPressCount(0), _tempCmdStored(false), _state{ParserState::RECEIVING_INPUT}, _pidRef{-1} {}
     virtual ~CmdParser() {}
 
     bool openDofile(const std::string& dof);
@@ -120,6 +125,8 @@ public:
     void printHistory() const;
     void printHistory(size_t nPrint) const;
     CmdExec* getCmd(std::string);
+
+    void sigintHandler(int signum);
 
 private:
     // Private member functions
@@ -169,6 +176,8 @@ private:
                                               // Reset to false when new command added
     CmdMap _cmdMap;                           // map from string to command
     std::stack<std::ifstream*> _dofileStack;  // For recursive dofile calling
+    ParserState _state; 
+    pid_t _pidRef;
 };
 
 #endif  // CMD_PARSER_H

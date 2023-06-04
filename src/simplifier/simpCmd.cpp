@@ -81,7 +81,10 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             .help("perform pivot boundary");
         mutex.addArgument<bool>("-pivotgadget")
             .action(storeTrue)
-            .help("perform pivot gadget");
+            .help("unfuse the phase and apply pivot rules to form gadgets");
+        // mutex.addArgument<bool>("-degadgetize")
+        //     .action(storeTrue)
+        //     .help("[UNSTABLE!] apply unfusions and pivot rules so that the resulting graph has no gadgets");
         mutex.addArgument<bool>("-spiderfusion")
             .action(storeTrue)
             .help("perform spider fusion");
@@ -124,6 +127,8 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             s.pivotBoundarySimp();
         else if (parser["-pivotgadget"].isParsed())
             s.pivotGadgetSimp();
+        // else if (parser["-degadgetize"].isParsed())
+        //     s.degadgetizeSimp();
         else if (parser["-spiderfusion"].isParsed())
             s.sfusionSimp();
         else if (parser["-stcopy"].isParsed())

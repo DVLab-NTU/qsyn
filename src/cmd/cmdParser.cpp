@@ -117,6 +117,19 @@ bool CmdParser::regCmd(const string& cmd, unsigned nCmp, unique_ptr<CmdExec>&& e
     return (_cmdMap.insert(CmdRegPair(mandCmd, std::move(e)))).second;
 }
 
+void CmdParser::sigintHandler(int signum) {
+    switch (_state)
+    {
+    case ParserState::RECEIVING_INPUT:
+        cout << char(NEWLINE_KEY);
+        resetBufAndPrintPrompt();
+        return;
+    case ParserState::EXECUTING_COMMAND:
+    default:
+        exit(128 + signum);
+    }
+}
+
 // Return false on "quit" or if exception happens
 CmdExecStatus
 CmdParser::execOneCmd() {
@@ -130,8 +143,12 @@ CmdParser::execOneCmd() {
     if (newCmd) {
         string option;
         CmdExec* e = parseCmd(option);
-        if (e != 0)
-            return e->exec(option);
+        if (e != 0) {
+            _state = ParserState::EXECUTING_COMMAND;
+            CmdExecStatus result = e->exec(option);
+            _state = ParserState::RECEIVING_INPUT;
+            return result;
+        }
     }
     return CMD_EXEC_NOP;
 }
@@ -759,5 +776,5 @@ bool CmdExec::checkOptCmd(const string& check) const {
 }
 
 void CmdParser::printPrompt() const {
-    cout << _prompt;
+    cout << _prompt << flush;
 }

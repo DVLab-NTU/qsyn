@@ -19,6 +19,8 @@ using namespace std;
 //----------------------------------------------------------------------
 void mybeep();
 
+void clearConsole();
+
 //----------------------------------------------------------------------
 //    Member Function for class CmdParser
 //----------------------------------------------------------------------
@@ -26,11 +28,24 @@ bool CmdParser::readCmd(istream& istr) {
     resetBufAndPrintPrompt();
 
     bool newCmd = false;
+    // listen for keystrokes
     while (!newCmd) {
         ParseChar pch = getChar(istr);
         if (pch == INPUT_END_KEY) {
             if (_dofile != 0)
                 closeDofile();
+            cout << "\nquit" << endl;
+            exit(0);
+        }
+        // Note: actual ctrl-c triggers SIGINT, and is therefore handled by 
+        // `void CmdParser::sigintHandler(int signum);`
+        // This INTERRUPT_KEY is sent when EOF of a dofile is reached
+        if (pch == INTERRUPT_KEY) {
+            if (_dofile != 0)
+                closeDofile();
+            newCmd = addHistory();
+            cout << char(NEWLINE_KEY);
+            // if (!newCmd) resetBufAndPrintPrompt();
             break;
         }
         switch (pch) {
@@ -53,6 +68,11 @@ bool CmdParser::readCmd(istream& istr) {
                 newCmd = addHistory();
                 cout << char(NEWLINE_KEY);
                 if (!newCmd) resetBufAndPrintPrompt();
+                break;
+            case CLEAR_CONSOLE_KEY:
+                clearConsole();
+                cout << char(NEWLINE_KEY);
+                resetBufAndPrintPrompt();
                 break;
             case ARROW_UP_KEY:
                 moveToHistory(_historyIdx - 1);
