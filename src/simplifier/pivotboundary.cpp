@@ -43,7 +43,7 @@ void PivotBoundary::match(ZXGraph* g) {
 
     unordered_set<ZXVertex*> taken;
     vector<ZXVertex*> b0;
-    auto matchBoundary = [&taken, &b0, this](ZXVertex* v) {
+    auto matchBoundary = [&taken, &b0, &g, this](ZXVertex* v) {
         b0.clear();
         ZXVertex* vs = v->getFirstNeighbor().first;
         if (taken.contains(vs)) return;
@@ -59,7 +59,7 @@ void PivotBoundary::match(ZXGraph* g) {
             if (nb->isBoundary()) continue;
             if (!nb->hasNPiPhase()) continue;
             if (etype != EdgeType::HADAMARD) continue;
-            if (nb->isGadgetAxel()) continue;  // nb is the axel of a phase gadget
+            if (g->hasDanglingNeighbors(nb)) continue;  // nb is the axel of a phase gadget
             vt = nb;
             break;
         }

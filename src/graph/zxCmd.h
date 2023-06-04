@@ -11,7 +11,7 @@
 
 #include "cmdParser.h"   // for CmdExecStatus::CMD_EXEC_ERROR, CmdClass, Cmd...
 #include "phase.h"       // for Phase
-#include "zxDef.h"       // for VertexType, EdgeType, EdgeType::ERRORTYPE
+#include "zxDef.h"       // for VertexType, EdgeType
 #include "zxGraph.h"     // for ZXGraph
 #include "zxGraphMgr.h"  // for ZXGraphMgr
 

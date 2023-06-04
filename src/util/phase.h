@@ -68,6 +68,8 @@ public:
     long double toLongDouble() { return toFloatType<long double>(); }
 
     Rational getRational() const { return _rational; }
+    int numerator() const { return _rational.numerator(); }
+    int denominator() const { return _rational.denominator(); }
 
     template <class T>
     requires std::floating_point<T>

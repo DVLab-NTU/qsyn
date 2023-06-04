@@ -12,7 +12,9 @@
 #include <cstddef>  // for size_t
 #include <iomanip>
 #include <iostream>
+#include <ranges>
 
+#include "simplify.h"
 #include "textFormat.h"  // for TextFormat
 class ZXVertex;
 
@@ -20,29 +22,88 @@ namespace TF = TextFormat;
 
 using namespace std;
 extern size_t verbose;
+
 /**
- * @brief Reset the gflow calculator
+ * @brief Calculate the Z correction set of a vertex,
+ *        i.e., Odd(g(v))
+ *
+ * @param v
+ * @return ZXVertexList
+ */
+ZXVertexList GFlow::getZCorrectionSet(ZXVertex* v) const {
+    ZXVertexList out;
+
+    ordered_hashmap<ZXVertex*, size_t> numOccurences;
+
+    for (auto const& gv : getXCorrectionSet(v)) {
+        // FIXME - should count neighbor!
+        for (auto const& [nb, et] : gv->getNeighbors()) {
+            if (numOccurences.contains(nb)) {
+                numOccurences[nb]++;
+            } else {
+                numOccurences.emplace(nb, 1);
+            }
+        }
+    }
+
+    for (auto const& [odd_gv, n] : numOccurences) {
+        if (n % 2 == 1) out.emplace(odd_gv);
+    }
+
+    return out;
+}
+
+/**
+ * @brief Initialize the gflow calculator
  *
  */
-void GFlow::reset() {
+void GFlow::initialize() {
     _levels.clear();
-    _correctionSets.clear();
-    clearTemporaryStorage();
+    _xCorrectionSets.clear();
+    _measurementPlanes.clear();
+    _frontier.clear();
+    _neighbors.clear();
+    _taken.clear();
+    _coefficientMatrix.clear();
+    _vertex2levels.clear();
+    using MP = MeasurementPlane;
+
+    // Measurement planes - See Table 1, p.10 of the paper
+    // M. Backens, H. Miller-Bakewell, G. de Felice, L. Lobski, & J. van de Wetering (2021). There and back again: A circuit extraction tale. Quantum, 5, 421.
+    // https://quantum-journal.org/papers/q-2021-03-25-421/
+    for (auto const& v : _zxgraph->getVertices()) {
+        _measurementPlanes.emplace(v, MP::XY);
+    }
+    // if calculating extended gflow, modify some of the measurment plane
+    if (_doExtended) {
+        for (auto const& v : _zxgraph->getVertices()) {
+            if (_zxgraph->isGadgetLeaf(v)) {
+                _measurementPlanes[v] = MP::NOT_A_QUBIT;
+                _taken.insert(v);
+            } else if (_zxgraph->isGadgetAxel(v))
+                _measurementPlanes[v] = v->hasNPiPhase() ? MP::YZ
+                                        : v->getPhase().denominator() == 2
+                                            ? MP::XZ
+                                            : MP::ERROR;
+            assert(_measurementPlanes[v] != MP::ERROR);
+        }
+    }
 }
 
 /**
  * @brief Calculate the GFlow to the ZXGraph
  *
  */
-bool GFlow::calculate(bool disjointNeighbors) {
+bool GFlow::calculate() {
     // REVIEW - exclude boundary nodes
-    reset();
+    initialize();
 
     calculateZerothLayer();
 
     while (!_levels.back().empty()) {
-        _levels.push_back(ZXVertexList());
         updateNeighborsByFrontier();
+
+        _levels.push_back(ZXVertexList());
 
         _coefficientMatrix.fromZXVertices(_neighbors, _frontier);
 
@@ -51,7 +112,7 @@ bool GFlow::calculate(bool disjointNeighbors) {
         if (verbose >= 8) printNeighbors();
 
         for (auto& v : _neighbors) {
-            if (disjointNeighbors &&
+            if (_doIndependentLayers &&
                 any_of(v->getNeighbors().begin(), v->getNeighbors().end(), [this](const NeighborPair& nbpair) {
                     return this->_levels.back().contains(nbpair.first);
                 })) {
@@ -61,8 +122,7 @@ bool GFlow::calculate(bool disjointNeighbors) {
                 continue;
             }
 
-            M2 augmentedMatrix = _coefficientMatrix;
-            augmentedMatrix.appendOneHot(i);
+            M2 augmentedMatrix = prepareMatrix(v, i);
 
             if (verbose >= 8) {
                 cout << "Before solving: " << endl;
@@ -87,6 +147,10 @@ bool GFlow::calculate(bool disjointNeighbors) {
             ++i;
         }
         updateFrontier();
+
+        for (auto& v : _levels.back()) {
+            _vertex2levels.emplace(v, _levels.size() - 1);
+        }
     }
 
     _valid = (_taken.size() == _zxgraph->getNumVertices());
@@ -109,17 +173,6 @@ bool GFlow::calculate(bool disjointNeighbors) {
 }
 
 /**
- * @brief Clean frontier, neighbors, taken, and coefficeint matrix
- *
- */
-void GFlow::clearTemporaryStorage() {
-    _frontier.clear();
-    _neighbors.clear();
-    _taken.clear();
-    _coefficientMatrix.clear();
-}
-
-/**
  * @brief Calculate 0th layer
  *
  */
@@ -130,8 +183,9 @@ void GFlow::calculateZerothLayer() {
     _levels.push_back(_zxgraph->getOutputs());
 
     for (auto& v : _zxgraph->getOutputs()) {
-        assert(!_correctionSets.contains(v));
-        _correctionSets[v] = ZXVertexList();
+        assert(!_xCorrectionSets.contains(v));
+        _vertex2levels.emplace(v, 0);
+        _xCorrectionSets[v] = ZXVertexList();
         _taken.insert(v);
     }
 }
@@ -147,6 +201,10 @@ void GFlow::updateNeighborsByFrontier() {
         for (auto& [nb, _] : v->getNeighbors()) {
             if (_taken.contains(nb))
                 continue;
+            if (_measurementPlanes[nb] == MeasurementPlane::NOT_A_QUBIT) {
+                _taken.insert(nb);
+                continue;
+            }
 
             _neighbors.insert(nb);
         }
@@ -160,19 +218,55 @@ void GFlow::updateNeighborsByFrontier() {
  * @param matrix
  */
 void GFlow::setCorrectionSetFromMatrix(ZXVertex* v, const M2& matrix) {
-    _correctionSets[v] = ZXVertexList();
+    assert(!_xCorrectionSets.contains(v));
+    _xCorrectionSets[v] = ZXVertexList();
 
     for (size_t r = 0; r < matrix.numRows(); ++r) {
         if (matrix[r].back() == 0) continue;
         size_t c = 0;
         for (auto& f : _frontier) {
             if (matrix[r][c] == 1) {
-                _correctionSets[v].insert(f);
+                _xCorrectionSets[v].insert(f);
                 break;
             }
             c++;
         }
     }
+    if (isXError(v)) _xCorrectionSets[v].insert(v);
+
+    assert(_xCorrectionSets[v].size());
+}
+
+/**
+ * @brief prepare the matrix to solve depending on the measurement plane.
+ *
+ */
+M2 GFlow::prepareMatrix(ZXVertex* v, size_t i) {
+    // cout << "preparing matrix: v = " << v->getId() << ", i = " << i << endl;
+    // printFrontier();
+    // printNeighbors();
+
+    M2 augmentedMatrix = _coefficientMatrix;
+    augmentedMatrix.pushColumn();
+
+    auto itr = _neighbors.begin();
+    for (size_t j = 0; j < augmentedMatrix.numRows(); ++j) {
+        if (isZError(v)) {
+            augmentedMatrix[j][augmentedMatrix.numCols() - 1] += (i == j) ? 1 : 0;
+        }
+        if (isXError(v)) {
+            if ((*itr)->isNeighbor(v)) {
+                augmentedMatrix[j][augmentedMatrix.numCols() - 1] += 1;
+            }
+        }
+        ++itr;
+    }
+
+    for (size_t j = 0; j < augmentedMatrix.numRows(); ++j) {
+        augmentedMatrix[j][augmentedMatrix.numCols() - 1] %= 2;
+    }
+
+    return augmentedMatrix;
 }
 
 /**
@@ -183,14 +277,12 @@ void GFlow::updateFrontier() {
     // remove vertex that are not frontiers anymore
     vector<ZXVertex*> toRemove;
     for (auto& v : _frontier) {
-        bool removing = true;
-        for (auto& [nb, _] : v->getNeighbors()) {
-            if (!_taken.contains(nb)) {
-                removing = false;
-                break;
-            }
+        if (all_of(v->getNeighbors().begin(), v->getNeighbors().end(),
+                   [this](NeighborPair const& nbp) {
+                       return _taken.contains(nbp.first);
+                   })) {
+            toRemove.push_back(v);
         }
-        if (removing) toRemove.push_back(v);
     }
 
     for (auto& v : toRemove) {
@@ -214,7 +306,7 @@ void GFlow::print() const {
     for (size_t i = 0; i < _levels.size(); ++i) {
         cout << "Level " << i << endl;
         for (const auto& v : _levels[i]) {
-            printCorrectionSet(v);
+            printXCorrectionSet(v);
         }
     }
 }
@@ -239,13 +331,13 @@ void GFlow::printLevels() const {
  *
  * @param v correction set of whom
  */
-void GFlow::printCorrectionSet(ZXVertex* v) const {
-    cout << right << setw(4) << v->getId() << ":";
-    if (_correctionSets.contains(v)) {
-        if (_correctionSets.at(v).empty()) {
+void GFlow::printXCorrectionSet(ZXVertex* v) const {
+    cout << right << setw(4) << v->getId() << " (" << _measurementPlanes.at(v) << "):";
+    if (_xCorrectionSets.contains(v)) {
+        if (_xCorrectionSets.at(v).empty()) {
             cout << " (None)";
         } else {
-            for (const auto& w : _correctionSets.at(v)) {
+            for (const auto& w : _xCorrectionSets.at(v)) {
                 cout << " " << w->getId();
             }
         }
@@ -259,9 +351,9 @@ void GFlow::printCorrectionSet(ZXVertex* v) const {
  * @brief Print correction sets
  *
  */
-void GFlow::printCorrectionSets() const {
+void GFlow::printXCorrectionSets() const {
     for (auto& v : _zxgraph->getVertices()) {
-        printCorrectionSet(v);
+        printXCorrectionSet(v);
     }
 }
 
@@ -313,4 +405,21 @@ void GFlow::printFailedVertices() const {
         cout << v->getId() << " ";
     }
     cout << endl;
+}
+
+std::ostream& operator<<(std::ostream& os, GFlow::MeasurementPlane const& plane) {
+    using MP = GFlow::MeasurementPlane;
+    switch (plane) {
+        case MP::XY:
+            return os << "XY";
+        case MP::YZ:
+            return os << "YZ";
+        case MP::XZ:
+            return os << "XZ";
+        case MP::NOT_A_QUBIT:
+            return os << "not a qubit";
+        case MP::ERROR:
+        default:
+            return os << "ERROR";
+    }
 }

@@ -5,15 +5,15 @@ Create and checkout to Graph 0
 qsyn> zxggf -all
 GFlow of the graph: 
 Level 0
-   1: (None)
-   3: (None)
-   5: (None)
+   1 (XY): (None)
+   3 (XY): (None)
+   5 (XY): (None)
 Level 1
-   6: 1
-  11: 3
-  18: 5
+   6 (XY): 1
+  11 (XY): 3
+  18 (XY): 5
 Level 2
-  17: 18
+  17 (XY): 18
 [1m[31mNo GFlow exists.
 [0m[0mThe flow breaks at level 3.
 No correction sets found for the following vertices:

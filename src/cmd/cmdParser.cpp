@@ -196,19 +196,22 @@ CmdExec*
 CmdParser::parseCmd(string& option) {
     assert(_tempCmdStored == false);
     assert(!_history.empty());
-    string str = _history.back();
+    string buffer = _history.back();
 
     // TODO...
-    assert(str[0] != 0 && str[0] != ' ');
-    size_t n = str.find(' ');
-    string cmd = str.substr(0, n);
+    assert(buffer[0] != 0 && buffer[0] != ' ');
+
+    string str;
+    str = stripLeadingSpacesAndComments(str);
+    stripQuotes(buffer, str);
+
+    string cmd;
+    size_t n = myStrGetTok2(str, cmd);
     CmdExec* e = getCmd(cmd);
     if (!e) {
         cerr << "Illegal command!! (" << cmd << ")" << endl;
     } else if (n != string::npos) {
-        size_t opt = str.find_first_not_of(' ', n);
-        if (opt != string::npos)
-            option = str.substr(opt);
+        option = str.substr(n);
     }
     return e;
 }
