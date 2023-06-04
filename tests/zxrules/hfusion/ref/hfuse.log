@@ -33,7 +33,7 @@ Add edge (1, 2)
 Remove edge (0, 2), type: -
 Add edge (0, 2)
 Remove edge (2, 2), type: -
-Add edge (2, 1)
+Add edge (1, 2)
 
 > Gate 1 (h)
 Add vertex (●) 0
@@ -44,7 +44,7 @@ Add edge (1, 2)
 Remove edge (0, 3), type: -
 Add edge (2, 3)
 Remove edge (2, 3), type: -
-Add edge (3, 1)
+Add edge (1, 3)
 
 qsyn> zxgp -v
 
@@ -160,7 +160,7 @@ Add edge (1, 2)
 Remove edge (0, 2), type: -
 Add edge (0, 2)
 Remove edge (2, 2), type: -
-Add edge (2, 1)
+Add edge (1, 2)
 
 > Gate 1 (h)
 Add vertex (●) 0
@@ -171,7 +171,7 @@ Add edge (1, 2)
 Remove edge (0, 3), type: -
 Add edge (2, 3)
 Remove edge (2, 3), type: -
-Add edge (3, 1)
+Add edge (1, 3)
 
 > Gate 2 (h)
 Add vertex (●) 0
@@ -182,7 +182,7 @@ Add edge (1, 2)
 Remove edge (0, 4), type: -
 Add edge (3, 4)
 Remove edge (2, 4), type: -
-Add edge (4, 1)
+Add edge (1, 4)
 
 qsyn> zxgp -v
 
@@ -283,7 +283,7 @@ Add edge (1, 2)
 Remove edge (0, 2), type: -
 Add edge (0, 2)
 Remove edge (2, 2), type: -
-Add edge (2, 1)
+Add edge (1, 2)
 
 > Gate 1 (h)
 Add vertex (●) 0
@@ -294,7 +294,7 @@ Add edge (1, 2)
 Remove edge (0, 3), type: -
 Add edge (2, 3)
 Remove edge (2, 3), type: -
-Add edge (3, 1)
+Add edge (1, 3)
 
 qsyn> zxgp -v
 
@@ -321,7 +321,7 @@ qsyn> zxge -adde 2 3 HADAMARD
 Add edge (2, 3)
 
 qsyn> zxge -adde 3 1 HADAMARD
-Add edge (3, 1)
+Add edge (1, 3)
 
 qsyn> zxgp -v
 
@@ -402,7 +402,7 @@ Add edge (1, 2)
 Remove edge (0, 2), type: -
 Add edge (0, 2)
 Remove edge (2, 2), type: -
-Add edge (2, 1)
+Add edge (1, 2)
 
 > Gate 1 (h)
 Add vertex (●) 0
@@ -413,7 +413,7 @@ Add edge (1, 2)
 Remove edge (0, 3), type: -
 Add edge (2, 3)
 Remove edge (2, 3), type: -
-Add edge (3, 1)
+Add edge (1, 3)
 
 > Gate 2 (h)
 Add vertex (●) 0
@@ -424,7 +424,7 @@ Add edge (1, 2)
 Remove edge (0, 4), type: -
 Add edge (3, 4)
 Remove edge (2, 4), type: -
-Add edge (4, 1)
+Add edge (1, 4)
 
 qsyn> zxgp -v
 
@@ -458,7 +458,7 @@ qsyn> zxge -adde 3 4 HADAMARD
 Add edge (3, 4)
 
 qsyn> zxge -adde 4 1 HADAMARD
-Add edge (4, 1)
+Add edge (1, 4)
 
 qsyn> zxgp -v
 
@@ -547,7 +547,7 @@ Add edge (1, 2)
 Remove edge (0, 2), type: -
 Add edge (0, 2)
 Remove edge (2, 2), type: -
-Add edge (2, 1)
+Add edge (1, 2)
 
 > Gate 1 (z)
 Add vertex (●) 0
@@ -558,7 +558,7 @@ Add edge (1, 2)
 Remove edge (0, 3), type: -
 Add edge (2, 3)
 Remove edge (2, 3), type: -
-Add edge (3, 1)
+Add edge (1, 3)
 
 > Gate 2 (h)
 Add vertex (●) 0
@@ -569,7 +569,7 @@ Add edge (1, 2)
 Remove edge (0, 4), type: -
 Add edge (3, 4)
 Remove edge (2, 4), type: -
-Add edge (4, 1)
+Add edge (1, 4)
 
 qsyn> zxgp -v
 
@@ -676,7 +676,7 @@ Add edge (1, 2)
 Remove edge (0, 4), type: -
 Add edge (2, 4)
 Remove edge (2, 4), type: -
-Add edge (4, 3)
+Add edge (3, 4)
 
 > Gate 0 (z)
 Add vertex (●) 0
@@ -687,7 +687,7 @@ Add edge (1, 2)
 Remove edge (0, 5), type: -
 Add edge (0, 5)
 Remove edge (2, 5), type: -
-Add edge (5, 1)
+Add edge (1, 5)
 
 qsyn> zxgp -v
 
@@ -713,7 +713,7 @@ qsyn> zxge -adde 6 7 SIMPLE
 Add edge (6, 7)
 
 qsyn> zxge -adde 7 5 HADAMARD
-Add edge (7, 5)
+Add edge (5, 7)
 
 qsyn> zxgp -v
 
@@ -811,7 +811,7 @@ Add edge (1, 2)
 Remove edge (0, 2), type: -
 Add edge (0, 2)
 Remove edge (2, 2), type: -
-Add edge (2, 1)
+Add edge (1, 2)
 
 > Gate 1 (h)
 Add vertex (●) 0
@@ -822,7 +822,7 @@ Add edge (1, 2)
 Remove edge (0, 3), type: -
 Add edge (2, 3)
 Remove edge (2, 3), type: -
-Add edge (3, 1)
+Add edge (1, 3)
 
 > Gate 2 (z)
 Add vertex (●) 0
@@ -833,7 +833,7 @@ Add edge (1, 2)
 Remove edge (0, 4), type: -
 Add edge (3, 4)
 Remove edge (2, 4), type: -
-Add edge (4, 1)
+Add edge (1, 4)
 
 > Gate 3 (h)
 Add vertex (●) 0
@@ -844,7 +844,7 @@ Add edge (1, 2)
 Remove edge (0, 5), type: -
 Add edge (4, 5)
 Remove edge (2, 5), type: -
-Add edge (5, 1)
+Add edge (1, 5)
 
 > Gate 4 (h)
 Add vertex (●) 0
@@ -855,7 +855,7 @@ Add edge (1, 2)
 Remove edge (0, 6), type: -
 Add edge (5, 6)
 Remove edge (2, 6), type: -
-Add edge (6, 1)
+Add edge (1, 6)
 
 > Gate 5 (z)
 Add vertex (●) 0
@@ -866,7 +866,7 @@ Add edge (1, 2)
 Remove edge (0, 7), type: -
 Add edge (6, 7)
 Remove edge (2, 7), type: -
-Add edge (7, 1)
+Add edge (1, 7)
 
 qsyn> zxgp -v
 
