@@ -118,21 +118,6 @@ string stripWhitespaces(const string& str) {
 }
 
 /**
- * @brief Strip leading spaces and comments
- *
- * @param line
- * @return string
- */
-string stripLeadingSpacesAndComments(string& line) {
-    size_t firstNonSpace = line.find_first_not_of(" ");
-    size_t commentStart = line.find("//");
-    if (firstNonSpace == string::npos) return "";
-    if (firstNonSpace == commentStart) return "";
-
-    return line.substr(firstNonSpace, commentStart - firstNonSpace);
-}
-
-/**
  * @brief Remove brackets and strip the spaces
  *
  * @param str

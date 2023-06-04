@@ -49,7 +49,7 @@ bool ZXFileParser::parseInternal(ifstream& f) {
     // <VertexString> [(<Qubit, Column>)] [NeighborString...] [Phase phase]
     _lineNumber = 1;
     for (string line; getline(f, line); _lineNumber++) {
-        line = stripLeadingSpacesAndComments(line);
+        line = stripWhitespaces(stripComments(line));
         if (line.empty()) continue;
 
         vector<string> tokens;
@@ -89,21 +89,6 @@ bool ZXFileParser::parseInternal(ifstream& f) {
     }
 
     return true;
-}
-
-/**
- * @brief Strip leading spaces and comments
- *
- * @param line
- * @return string
- */
-string ZXFileParser::stripLeadingSpacesAndComments(string& line) {
-    size_t firstNonSpace = line.find_first_not_of(" ");
-    size_t commentStart = line.find("//");
-    if (firstNonSpace == string::npos) return "";
-    if (firstNonSpace == commentStart) return "";
-
-    return line.substr(firstNonSpace, commentStart - firstNonSpace);
 }
 
 /**
