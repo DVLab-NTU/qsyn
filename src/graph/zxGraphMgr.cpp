@@ -67,8 +67,8 @@ void ZXGraphMgr::setGraph(ZXGraph* g) {
  * @param ref
  * @return ZXGraph*
  */
-ZXGraph* ZXGraphMgr::addZXGraph(size_t id, void** ref) {
-    ZXGraph* zxGraph = new ZXGraph(id, ref);
+ZXGraph* ZXGraphMgr::addZXGraph(size_t id) {
+    ZXGraph* zxGraph = new ZXGraph(id);
     _graphList.push_back(zxGraph);
     _gListItr = _graphList.end() - 1;
     if (id == _nextID || _nextID < id) _nextID = id + 1;
@@ -87,7 +87,6 @@ void ZXGraphMgr::removeZXGraph(size_t id) {
     for (size_t i = 0; i < _graphList.size(); i++) {
         if (_graphList[i]->getId() == id) {
             ZXGraph* rmGraph = _graphList[i];
-            rmGraph->setRef(NULL);
             _graphList.erase(_graphList.begin() + i);
             delete rmGraph;
             if (verbose >= 3) cout << "Successfully removed Graph " << id << endl;

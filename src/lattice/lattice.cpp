@@ -160,8 +160,9 @@ void LTContainer::generateLTC(ZXGraph* g) {
     ZXGraph* copyGraph = g->copy();
 
     GFlow gflow(copyGraph);
+    gflow.doIndependentLayers(true);
 
-    gflow.calculate(true);
+    gflow.calculate();
 
     GFlow::Levels levels = gflow.getLevels();  // gflow levels are reversed to the measurement order
     reverse(levels.begin(), levels.end());     // reverse to match measurement order

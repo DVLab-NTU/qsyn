@@ -33,6 +33,7 @@ public:
 
     void setRule(std::unique_ptr<ZXRule> rule) { _rule = std::move(rule); }
 
+    void rewrite() { _rule->rewrite(_simpGraph); };
     void amend();
     // Simplification strategies
     int simp();
@@ -49,6 +50,7 @@ public:
     int pivotSimp();
     int pivotBoundarySimp();
     int pivotGadgetSimp();
+    int degadgetizeSimp();
     int sfusionSimp();
 
     // action

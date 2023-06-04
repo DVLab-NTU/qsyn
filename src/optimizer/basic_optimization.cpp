@@ -192,7 +192,7 @@ bool Optimizer::parseGate(QCirGate* gate) {
         if (_gates[target].size() > 1 && _gates[target][_gates[target].size() - 2]->getType() == GateType::H && isSingleRotateZ(_gates[target][_gates[target].size() - 1])) {
             if (verbose >= 9) cout << "Transform H-RZ(ph)-H into RZ(-ph)-H-RZ(-ph)" << endl;
             QCirGate* g2 = _gates[target][_gates[target].size() - 1];
-            if (g2->getPhase().getRational().denominator() == 2) {
+            if (g2->getPhase().denominator() == 2) {
                 // QCirGate* h = _gates[target][_gates[target].size()-2];
                 QCirGate* zp = new PGate(_gateCnt);
                 zp->addQubit(target, true);

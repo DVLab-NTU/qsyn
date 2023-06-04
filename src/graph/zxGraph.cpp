@@ -177,15 +177,17 @@ bool ZXGraph::isGraphLike() const {
  * @return false
  */
 bool ZXGraph::isIdentity() const {
-    for (auto& i : _inputs) {
-        if (i->getNumNeighbors() != 1)
-            return false;
-        if (!_outputs.contains(i->getFirstNeighbor().first))
-            return false;
-        if ((i->getFirstNeighbor().first)->getQubit() != i->getQubit())
-            return false;
-    }
-    return true;
+    return all_of(_inputs.begin(), _inputs.end(), [this](ZXVertex* i) {
+        return (i->getNumNeighbors() == 1) &&
+               _outputs.contains(i->getFirstNeighbor().first) &&
+               i->getFirstNeighbor().first->getQubit() == i->getQubit();
+    });
+}
+
+size_t ZXGraph::numGadgets() const {
+    return count_if(getVertices().begin(), getVertices().end(), [](ZXVertex* v) {
+        return !v->isBoundary() && v->getNumNeighbors() == 1;
+    });
 }
 
 /**
@@ -194,11 +196,9 @@ bool ZXGraph::isIdentity() const {
  * @return int
  */
 int ZXGraph::TCount() const {
-    int num = 0;
-    for (const auto& v : _vertices) {
-        if (v->getPhase().getRational().denominator() == 4) num++;
-    }
-    return num;
+    return count_if(_vertices.begin(), _vertices.end(), [](ZXVertex* v) {
+        return (v->getPhase().denominator() == 4);
+    });
 }
 
 /**
@@ -211,14 +211,14 @@ int ZXGraph::nonCliffordCount(bool includeT) const {
     int num = 0;
     if (includeT) {
         for (const auto& v : _vertices) {
-            if (v->getPhase().getRational().denominator() != 1 &&
-                v->getPhase().getRational().denominator() != 2) num++;
+            if (v->getPhase().denominator() != 1 &&
+                v->getPhase().denominator() != 2) num++;
         }
     } else {
         for (const auto& v : _vertices) {
-            if (v->getPhase().getRational().denominator() != 1 &&
-                v->getPhase().getRational().denominator() != 2 &&
-                v->getPhase().getRational().denominator() != 4) num++;
+            if (v->getPhase().denominator() != 1 &&
+                v->getPhase().denominator() != 2 &&
+                v->getPhase().denominator() != 4) num++;
         }
     }
     return num;
@@ -326,6 +326,8 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
         return makeEdgePairDummy();
     }
 
+    if (vs->getId() > vt->getId()) swap(vs, vt);
+
     if (vs->isNeighbor(vt, et)) {
         if (
             (vs->isZ() && vt->isX() && et == EdgeType::HADAMARD) ||
@@ -422,12 +424,11 @@ size_t ZXGraph::removeVertex(ZXVertex* v) {
  *
  * @param vertices
  */
-size_t ZXGraph::removeVertices(vector<ZXVertex*> vertices) {
-    size_t count = 0;
-    for (const auto& v : vertices) {
-        count += removeVertex(v);
-    }
-    return count;
+size_t ZXGraph::removeVertices(vector<ZXVertex*> const& vertices) {
+    return std::transform_reduce(
+        vertices.begin(), vertices.end(), 0, std::plus{}, [this](ZXVertex* v) {
+            return removeVertex(v);
+        });
 }
 
 /**
@@ -463,12 +464,11 @@ size_t ZXGraph::removeEdge(ZXVertex* vs, ZXVertex* vt, EdgeType etype) {
  * @param eps
  * @return size_t
  */
-size_t ZXGraph::removeEdges(const vector<EdgePair>& eps) {
-    size_t count = 0;
-    for (const auto& ep : eps) {
-        count += removeEdge(ep);
-    }
-    return count;
+size_t ZXGraph::removeEdges(vector<EdgePair> const& eps) {
+    return std::transform_reduce(
+        eps.begin(), eps.end(), 0, std::plus{}, [this](EdgePair const& ep) {
+            return removeEdge(ep);
+        });
 }
 
 /**

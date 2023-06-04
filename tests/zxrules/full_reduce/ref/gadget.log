@@ -182,15 +182,15 @@ Iteration 1:
 Add vertex ([1m[32mZ[0m[0m) 29
 Add vertex ([1m[32mZ[0m[0m) 30
 Add edge (29, 30)
-Add edge (30, 9)
+Add edge (9, 30)
 Add vertex ([1m[32mZ[0m[0m) 31
 Add vertex ([1m[32mZ[0m[0m) 32
 Add edge (31, 32)
-Add edge (32, 15)
+Add edge (15, 32)
 Add vertex ([1m[32mZ[0m[0m) 33
 Add vertex ([1m[32mZ[0m[0m) 34
 Add edge (33, 34)
-Add edge (34, 24)
+Add edge (24, 34)
 > rewrite...
 vs: 11	vt: 9
 > rewrite...
@@ -209,10 +209,10 @@ Add edge (7, 26)
 Add edge (7, 34)
 Note: Hopf edge; cancelling out with existing edge (10, 26)...
 Add edge (10, 34)
-Remove ID: 11
 Remove ID: 9
-Remove ID: 14
+Remove ID: 11
 Remove ID: 15
+Remove ID: 14
 Remove ID: 21
 Remove ID: 24
 <<<
@@ -281,7 +281,7 @@ Iteration 2:
 Add vertex ([1m[32mZ[0m[0m) 35
 Add vertex ([1m[32mZ[0m[0m) 36
 Add edge (35, 36)
-Add edge (36, 10)
+Add edge (10, 36)
 > rewrite...
 vs: 17	vt: 10
 Note: Hopf edge; cancelling out with existing edge (7, 8)...
@@ -370,7 +370,7 @@ Iteration 3:
 Add vertex ([1m[32mZ[0m[0m) 37
 Add vertex ([1m[32mZ[0m[0m) 38
 Add edge (37, 38)
-Add edge (38, 12)
+Add edge (12, 38)
 > rewrite...
 vs: 27	vt: 12
 Note: Hopf edge; cancelling out with existing edge (7, 28)...
