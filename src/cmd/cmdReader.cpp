@@ -37,7 +37,7 @@ bool CmdParser::readCmd(istream& istr) {
             cout << "\nquit" << endl;
             exit(0);
         }
-        // Note: actual ctrl-c triggers SIGINT, and is therefore handled by 
+        // Note: actual ctrl-c triggers SIGINT, and is therefore handled by
         // `void CmdParser::sigintHandler(int signum);`
         // This INTERRUPT_KEY is sent when EOF of a dofile is reached
         if (pch == INTERRUPT_KEY) {

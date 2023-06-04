@@ -267,7 +267,7 @@ unique_ptr<ArgParseCmdType> clearCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         clearConsole();
-        
+
         return CMD_EXEC_DONE;
     };
 
