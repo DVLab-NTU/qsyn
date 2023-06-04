@@ -82,15 +82,9 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         mutex.addArgument<bool>("-pivotgadget")
             .action(storeTrue)
             .help("unfuse the phase and apply pivot rules to form gadgets");
-<<<<<<< HEAD
         // mutex.addArgument<bool>("-degadgetize")
         //     .action(storeTrue)
         //     .help("[UNSTABLE!] apply unfusions and pivot rules so that the resulting graph has no gadgets");
-=======
-        mutex.addArgument<bool>("-degadgetize")
-            .action(storeTrue)
-            .help("[UNSTABLE!] apply unfusions and pivot rules so that the resulting graph has no gadgets");
->>>>>>> 83b9326dd9d2de407ab8b70b2a35fa01377bc351
         mutex.addArgument<bool>("-spiderfusion")
             .action(storeTrue)
             .help("fuse spiders of the same color");
@@ -133,13 +127,8 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             s.pivotBoundarySimp();
         else if (parser["-pivotgadget"].isParsed())
             s.pivotGadgetSimp();
-<<<<<<< HEAD
         // else if (parser["-degadgetize"].isParsed())
         //     s.degadgetizeSimp();
-=======
-        else if (parser["-degadgetize"].isParsed())
-            s.degadgetizeSimp();
->>>>>>> 83b9326dd9d2de407ab8b70b2a35fa01377bc351
         else if (parser["-spiderfusion"].isParsed())
             s.sfusionSimp();
         else if (parser["-stcopy"].isParsed())

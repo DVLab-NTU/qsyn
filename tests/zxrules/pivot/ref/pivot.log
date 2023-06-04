@@ -87,7 +87,7 @@ Iteration 1:
 >>>
 Add vertex ([1m[32mZ[0m[0m) 11
 Add edge (0, 11)
-Add edge (11, 4)
+Add edge (4, 11)
 Remove edge (0, 4), type: -
 > rewrite...
 vs: 4	vt: 6
@@ -102,7 +102,7 @@ Iteration 2:
 >>>
 Add vertex ([1m[32mZ[0m[0m) 12
 Add edge (1, 12)
-Add edge (12, 8)
+Add edge (8, 12)
 Remove edge (1, 8), type: -
 > rewrite...
 vs: 7	vt: 8
@@ -220,7 +220,7 @@ Iteration 1:
 >>>
 Add vertex ([1m[32mZ[0m[0m) 10
 Add edge (0, 10)
-Add edge (10, 4)
+Add edge (4, 10)
 Remove edge (0, 4), type: -
 > rewrite...
 vs: 4	vt: 6
@@ -234,7 +234,7 @@ Iteration 2:
 >>>
 Add vertex ([1m[32mZ[0m[0m) 11
 Add edge (1, 11)
-Add edge (11, 8)
+Add edge (8, 11)
 Remove edge (1, 8), type: -
 > rewrite...
 vs: 7	vt: 8
@@ -1053,10 +1053,10 @@ Add edge (23, 24)
 Add edge (23, 25)
 Add edge (23, 26)
 Add edge (23, 27)
-Remove ID: 4
 Remove ID: 5
-Remove ID: 16
+Remove ID: 4
 Remove ID: 17
+Remove ID: 16
 <<<
 => 1 iterations.
   1) 2 matches

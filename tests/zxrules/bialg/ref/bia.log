@@ -189,7 +189,7 @@ qsyn> zxge -adde 8 10 SIMPLE
 Add edge (8, 10)
 
 qsyn> zxge -adde 10 9 SIMPLE
-Add edge (10, 9)
+Add edge (9, 10)
 
 qsyn> zxge -adde 10 11 SIMPLE
 Add edge (10, 11)
@@ -201,7 +201,7 @@ qsyn> zxge -adde 11 13 SIMPLE
 Add edge (11, 13)
 
 qsyn> zxge -adde 14 13 SIMPLE
-Add edge (14, 13)
+Add edge (13, 14)
 
 qsyn> zxge -adde 12 15 SIMPLE
 Add edge (12, 15)
@@ -222,10 +222,10 @@ Add edge (8, 12)
 Add edge (8, 13)
 Add edge (9, 12)
 Add edge (9, 13)
-Remove ID: 5
 Remove ID: 7
-Remove ID: 10
+Remove ID: 5
 Remove ID: 11
+Remove ID: 10
 <<<
 
 Iteration 2:
@@ -411,7 +411,7 @@ qsyn> zxge -adde 8 10 HADAMARD
 Add edge (8, 10)
 
 qsyn> zxge -adde 10 9 SIMPLE
-Add edge (10, 9)
+Add edge (9, 10)
 
 qsyn> zxge -adde 10 11 SIMPLE
 Add edge (10, 11)
@@ -423,7 +423,7 @@ qsyn> zxge -adde 11 13 HADAMARD
 Add edge (11, 13)
 
 qsyn> zxge -adde 14 13 SIMPLE
-Add edge (14, 13)
+Add edge (13, 14)
 
 qsyn> zxge -adde 12 15 SIMPLE
 Add edge (12, 15)
