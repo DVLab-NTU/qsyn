@@ -82,6 +82,7 @@ public:
     size_t filterDuplicatedOps();
     size_t opDepth();
     float denseRatio();
+    void pushColumn();
 
     Row& operator[](const size_t& i) {
         return _matrix[i];

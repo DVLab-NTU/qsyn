@@ -12,7 +12,7 @@ done
 for file in cm85a_209 mlp4_245 square_root_7 pm1_249 sqrt8_260 z4_268 rd73_252 rd53_251; do
     ../../qsyn -f "dof/${file}.dof" > ref/${FOLDER}/${file}-O3.log 2>&1
 done
-##NOTE - Big cases
+#NOTE - Big cases
 for file in hwb8_113 urf1_149; do
     ../../qsyn -f "dof/${file}.dof" > ref/${FOLDER}/${file}-O3.log 2>&1
 done

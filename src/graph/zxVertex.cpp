@@ -9,6 +9,7 @@
 #include <cstddef>  // for size_t
 #include <iomanip>
 #include <iostream>
+#include <ranges>
 #include <string>
 
 #include "textFormat.h"  // for TextFormat
@@ -49,14 +50,11 @@ void ZXVertex::printVertex() const {
  *
  */
 void ZXVertex::printNeighbors() const {
-    // if(_neighbors.size()==0) return;
-    vector<NeighborPair> storage;
-    for (const auto& neighbor : _neighbors) {
-        storage.push_back(neighbor);
-        // cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
-    }
-    sort(begin(storage), end(storage), [](NeighborPair a, NeighborPair b) { return a.second < b.second; });
-    sort(begin(storage), end(storage), [](NeighborPair a, NeighborPair b) { return a.first->getId() < b.first->getId(); });
+    vector<NeighborPair> storage(_neighbors.begin(), _neighbors.end());
+
+    ranges::sort(storage, [](NeighborPair const& a, NeighborPair const& b) {
+        return (a.first->getId() != b.first->getId()) ? (a.first->getId() < b.first->getId()) : (a.second < b.second);
+    });
 
     for (const auto& [nb, etype] : storage) {
         cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
@@ -81,15 +79,6 @@ void ZXVertex::disconnect(ZXVertex* v, bool checked) {
     _neighbors.erase(make_pair(v, EdgeType::HADAMARD));
     v->removeNeighbor(make_pair(this, EdgeType::SIMPLE));
     v->removeNeighbor(make_pair(this, EdgeType::HADAMARD));
-}
-
-bool ZXVertex::isGadgetAxel() const {
-    return any_of(
-        _neighbors.begin(),
-        _neighbors.end(),
-        [](const NeighborPair& nbp) {
-            return nbp.first->getNumNeighbors() == 1;
-        });
 }
 
 /*****************************************************/

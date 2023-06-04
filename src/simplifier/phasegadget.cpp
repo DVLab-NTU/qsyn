@@ -32,11 +32,11 @@ void PhaseGadget::match(ZXGraph* g) {
     vector<ZXVertex*> axels;
     vector<ZXVertex*> leaves;
     for (const auto& v : g->getVertices()) {
-        if (v->getPhase().getRational().denominator() <= 2 || v->getNumNeighbors() != 1) continue;
+        if (v->getPhase().denominator() <= 2 || v->getNumNeighbors() != 1) continue;
 
         ZXVertex* nb = v->getFirstNeighbor().first;
 
-        if (nb->getPhase().getRational().denominator() != 1) continue;
+        if (nb->getPhase().denominator() != 1) continue;
         if (nb->isBoundary()) continue;
         if (axel2leaf.contains(nb)) continue;
 

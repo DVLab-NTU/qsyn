@@ -339,6 +339,11 @@ ZXGTestCmd::exec(const string &option) {
         return CMD_EXEC_DONE;
     }
 
+    if (myStrNCmp("-NGADgets", token, 5) == 0) {
+        cout << "The graph has " << zxGraphMgr->getGraph()->numGadgets() << " gadgets" << endl;
+        return CMD_EXEC_DONE;
+    }
+
     return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
 }
 
