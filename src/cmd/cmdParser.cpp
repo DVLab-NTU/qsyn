@@ -118,15 +118,14 @@ bool CmdParser::regCmd(const string& cmd, unsigned nCmp, unique_ptr<CmdExec>&& e
 }
 
 void CmdParser::sigintHandler(int signum) {
-    switch (_state)
-    {
-    case ParserState::RECEIVING_INPUT:
-        cout << char(NEWLINE_KEY);
-        resetBufAndPrintPrompt();
-        return;
-    case ParserState::EXECUTING_COMMAND:
-    default:
-        exit(128 + signum);
+    switch (_state) {
+        case ParserState::RECEIVING_INPUT:
+            cout << char(NEWLINE_KEY);
+            resetBufAndPrintPrompt();
+            return;
+        case ParserState::EXECUTING_COMMAND:
+        default:
+            exit(128 + signum);
     }
 }
 

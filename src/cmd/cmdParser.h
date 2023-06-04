@@ -109,7 +109,7 @@ class CmdParser {
         RECEIVING_INPUT,
         EXECUTING_COMMAND
     };
-    
+
 public:
     CmdParser(const std::string& p) : _prompt(p), _dofile(0), _readBufPtr(_readBuf), _readBufEnd(_readBuf), _historyIdx(0), _tabPressCount(0), _tempCmdStored(false), _state{ParserState::RECEIVING_INPUT}, _pidRef{-1} {}
     virtual ~CmdParser() {}
@@ -176,7 +176,7 @@ private:
                                               // Reset to false when new command added
     CmdMap _cmdMap;                           // map from string to command
     std::stack<std::ifstream*> _dofileStack;  // For recursive dofile calling
-    ParserState _state; 
+    ParserState _state;
     pid_t _pidRef;
 };
 

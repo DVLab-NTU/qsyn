@@ -21,7 +21,7 @@ enum ParseChar {
     NEWLINE_KEY = int('\n'),  // enter('\n') or ctrl-m
     CLEAR_CONSOLE_KEY = 12,   // ctrl-l
     ESC_KEY = 27,             // Not printable; used for combo keys
-    
+
     // -- The following simple/combo keys are platform-dependent
     //    You should test to check the returned codes of these key presses
     // -- Use "testAsc.cpp" to test

@@ -70,12 +70,12 @@ CmdParser::getChar(istream& istr) const {
     switch (ch) {
         // Simple keys: one code for one key press
         // -- The following should be platform-independent
-        case LINE_BEGIN_KEY:  // Ctrl-a
-        case LINE_END_KEY:    // Ctrl-e
-        case INPUT_END_KEY:   // Ctrl-d
-        case TAB_KEY:         // tab('\t') or Ctrl-i
-        case NEWLINE_KEY:     // enter('\n') or ctrl-m
-        case CLEAR_CONSOLE_KEY:   // Clear console (Ctrl-l)
+        case LINE_BEGIN_KEY:     // Ctrl-a
+        case LINE_END_KEY:       // Ctrl-e
+        case INPUT_END_KEY:      // Ctrl-d
+        case TAB_KEY:            // tab('\t') or Ctrl-i
+        case NEWLINE_KEY:        // enter('\n') or ctrl-m
+        case CLEAR_CONSOLE_KEY:  // Clear console (Ctrl-l)
             return returnCh(ch);
 
         // -- The following simple/combo keys are platform-dependent
@@ -136,5 +136,3 @@ void clearConsole() {
         cerr << "Error clearing the console!!" << endl;
     }
 }
-
-
