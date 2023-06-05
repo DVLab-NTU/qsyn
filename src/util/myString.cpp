@@ -106,11 +106,22 @@ bool stripQuotes(const std::string& input, std::string& output) {
 }
 
 /**
+ * @brief strip the leading whitespaces of a string
+ *
+ * @param str
+ */
+string stripLeadingWhitespaces(string const& str) {
+    size_t start = str.find_first_not_of(" \t\n\v\f\r");
+    if (start == string::npos) return "";
+    return str.substr(start);
+}
+
+/**
  * @brief strip the leading and trailing whitespaces of a string
  *
  * @param str
  */
-string stripWhitespaces(const string& str) {
+string stripWhitespaces(string const& str) {
     size_t start = str.find_first_not_of(" \t\n\v\f\r");
     size_t end = str.find_last_not_of(" \t\n\v\f\r");
     if (start == string::npos && end == string::npos) return "";

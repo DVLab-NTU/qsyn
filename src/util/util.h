@@ -46,7 +46,8 @@ private:
 
 // In myString.cpp
 bool stripQuotes(const std::string& input, std::string& output);
-std::string stripWhitespaces(const std::string& str);
+std::string stripLeadingWhitespaces(std::string const& str);
+std::string stripWhitespaces(std::string const& str);
 /**
  * @brief strip comment, which starts with "//", from a string
  *

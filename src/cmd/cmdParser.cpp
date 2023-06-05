@@ -371,90 +371,89 @@ CmdParser::parseCmd() {
 //    ==> Beep and stay in the same location
 
 void CmdParser::listCmd(const string& str) {
-    // TODO...
-    CmdMap::const_iterator bi, ei, ti;
-    size_t b = str.find_first_not_of(' ');
-    string cmd;
-    if (b == string::npos) {  // [case 1] empty string; list all
-        bi = _cmdMap.begin();
-        ei = _cmdMap.end();
-    } else {
-        cmd = str.substr(b);  // remove leading ' '
-        assert(!cmd.empty());
-        size_t bn = cmd.find_first_of(' ');
-        if (bn != string::npos) {                    // already has ' '; Cursor NOT on first word
-            CmdExec* e = getCmd(cmd.substr(0, bn));  // first word
-            if (e != 0) {
-                assert(_tabPressCount != 0);
-                if (_tabPressCount == 1) {
-                    // [case 5] Singly matched on first tab
-                    cout << endl;
-                    e->usage();
-                }
-                // [case 6] Singly matched on second+ tab
-                else if (!listCmdDir(cmd)) {
-                    mybeep();
-                    return;
-                }
-                reprintCmd();
-            } else
-                mybeep();  // [case 7] no match; cursor not on first word
-            return;        // from cases 5, 6, 7
-        }
+    assert(str.empty() || str[0] != ' ');
 
-        // cursor on first word
-        for (size_t i = 0; i < cmd.size(); ++i)
-            cmd[i] = toupper(cmd[i]);
+    if (str.size()) {
+        assert(!str.empty());
 
-        if (getCmd(cmd)) {  // cmd is enough to determine a single cmd
-            bi = _cmdMap.find(cmd);
-            if (bi == _cmdMap.end()) {
-                bi = _cmdMap.lower_bound(cmd);
-                --bi;
-            }
-            ei = bi;
-            ++ei;
-        } else {
-            string cmdN = cmd;
-            cmdN.back() = cmd.back() + 1;
-            bi = _cmdMap.lower_bound(cmd);
-            ei = _cmdMap.lower_bound(cmdN);
-            if (bi == ei) {
+        if (size_t firstSpacePos = str.find_first_of(' '); firstSpacePos != string::npos) {  // already has ' '; Cursor NOT on first word
+            assert(_tabPressCount != 0);
+            CmdExec* e = getCmd(str.substr(0, firstSpacePos));  // first word
+
+            // [case 6] Singly matched on second+ tab
+            // [case 7] no match; cursor not on first word
+            if (e == nullptr || (_tabPressCount > 1 && !listCmdDir(str))) {
                 mybeep();
                 return;
-            }  // [case 4] no match in 1st wd
+            }
+
+            // [case 5] Singly matched on first tab
+            else if (_tabPressCount == 1) {
+                cout << endl;
+                e->usage();
+            }
+
+            reprintCmd();
+            return;  // from cases 5, 6, 7
         }
     }  // end of cmd string processing
-    // cases 1, 2, 3 go here
-    ti = std::next(bi);
 
-    if (ti == ei) {  // [case 3] single command; insert ' '
-        string ss = bi->first + bi->second->getOptCmd();
-        for (size_t i = cmd.size(); i < ss.size(); ++i)
+    _tabPressCount = 0;
+
+    auto [matchBegin, matchEnd] = getCmdMatches(str);
+
+    // [case 4] no matching cmd in the first word
+    if (matchBegin == matchEnd) {
+        mybeep();
+        return;
+    }
+
+    // cases 1, 2, 3 go here
+    // [case 3] single command; insert ' '
+    if (std::next(matchBegin) == matchEnd) {
+        string ss = matchBegin->first + matchBegin->second->getOptCmd();
+        for (size_t i = str.size(); i < ss.size(); ++i)
             insertChar(ss[i]);
         insertChar(' ');
-    } else {  // [case 2] multiple matches
-        size_t cmdSpacing = 0;
-        size_t cmdsPerLine = 5;
-        for (auto itr = bi; itr != ei; ++itr) {
-            string ss = itr->first + itr->second->getOptCmd();
-            if (ss.size() > cmdSpacing) {
-                cmdSpacing = ss.size();
-            }
-        }
-        while (cmdsPerLine > 1 && cmdsPerLine * (cmdSpacing + 2) > 60) {
-            cmdsPerLine--;
-        }
-        cmdSpacing = 60 / cmdsPerLine;
-        size_t count = 0;
-        for (auto itr = bi; itr != ei; ++itr) {
-            if ((count++ % cmdsPerLine) == 0) cout << endl;
-            string ss = itr->first + itr->second->getOptCmd();
-            cout << setw(cmdSpacing) << left << ss;
-        }
-        reprintCmd();
+        return;
     }
-    _tabPressCount = 0;
+
+    // [case 1, 2] multiple matches
+    vector<string> words;
+
+    for (auto itr = matchBegin; itr != matchEnd; ++itr) {
+        auto const& [mand, cmd] = *itr;
+        words.emplace_back(mand + cmd->getOptCmd());
+    }
+
+    printAsTable(words, 60);
+    reprintCmd();
+}
+
+std::pair<CmdParser::CmdMap::const_iterator, CmdParser::CmdMap::const_iterator>
+CmdParser::getCmdMatches(string const& str) {
+    string cmd = toUpperString(str);
+
+    // all cmds
+    if (cmd.empty()) return {_cmdMap.begin(), _cmdMap.end()};
+
+    // singly matched
+    if (getCmd(cmd)) {  // cmd is enough to determine a single cmd
+        auto [bi, ei] = _cmdMap.equal_range(cmd);
+        if (!_cmdMap.contains(cmd)) {
+            --bi;
+        }
+        return {bi, ei};
+    }
+
+    // multiple matches / no matches
+    string cmdNext = cmd;
+    cmdNext.back()++;
+
+    auto bi = _cmdMap.lower_bound(cmd);
+    auto ei = _cmdMap.lower_bound(cmdNext);
+
+    return {bi, ei};
 }
 
 /**
@@ -491,7 +490,6 @@ bool CmdParser::listCmdDir(const string& cmd) {
 
     searchString = searchString.substr(lastSpacePos + 1, searchString.size() - (lastSpacePos + 1));
 
-
     // if the search string ends with a backslash,
     // we will remove it from the search string,
     // but we will flag it to do specialized treatments later
@@ -517,7 +515,6 @@ bool CmdParser::listCmdDir(const string& cmd) {
 
     vector<string> files = listDir(basename, dirname);
 
-    
     if (trailingBackslash) {
         std::erase_if(files, [this, &basename](string const& file) { return !isSpecialChar(file[basename.size()]); });
     }
@@ -528,7 +525,6 @@ bool CmdParser::listCmdDir(const string& cmd) {
     }
 
     string autoCompleteStr = files[0].substr(basename.size(), files[0].size() - basename.size());
-
 
     // [FIXED] 2018/10/20 by Ric
     // singly matched file or directory
@@ -593,36 +589,38 @@ bool CmdParser::listCmdDir(const string& cmd) {
     }
 
     // [case 6.2] multiple matched files
-    size_t fileSpacing = 0;
-    size_t filesPerLine = 5;
     for (auto& file : files) {
         for (size_t i = 0; i < file.size(); ++i) {
-            switch (file[i]) {
-                case ' ':
-                case '\"':
-                case '\'':
-                    file.insert(i, "\\");
-                    ++i;
-                    break;
-                default:
-                    break;
+            if (isSpecialChar(file[i])) {
+                file.insert(i, "\\");
+                ++i;
             }
         }
-        if (file.size() > fileSpacing) {
-            fileSpacing = file.size();
-        }
-    }
-    while (filesPerLine > 1 && filesPerLine * (fileSpacing + 2) > 80) {
-        filesPerLine--;
-    }
-    fileSpacing = 80 / filesPerLine;
-    size_t count = 0;
-    for (const auto& file : files) {
-        if (count++ % filesPerLine == 0) cout << endl;
-        cout << setw(fileSpacing) << left << file;
     }
 
+    printAsTable(files, 80);
+
     return true;
+}
+
+void CmdParser::printAsTable(std::vector<std::string> words, size_t widthLimit) const {
+    // calculate an lower bound to the spacing first
+    auto longestWord = max_element(words.begin(), words.end(),
+                                   [](string const& a, string const& b) {
+                                       return a.size() < b.size();
+                                   });
+
+    size_t numWordsPerLine = max(
+        1ul,
+        min(5ul, widthLimit / (longestWord->size() + 2)));
+
+    size_t spacing = widthLimit / numWordsPerLine;
+
+    size_t count = 0;
+    for (auto const& word : words) {
+        if ((count++ % numWordsPerLine) == 0) cout << endl;
+        cout << setw(spacing) << left << (word);
+    }
 }
 
 // cmd is a copy of the original input
@@ -638,20 +636,19 @@ bool CmdParser::listCmdDir(const string& cmd) {
 //
 CmdExec*
 CmdParser::getCmd(string cmd) {
-    CmdExec* e = 0;
-    // TODO...
-    // call CmdExec::checkOptCmd(const string&) if needed...
-    for (unsigned i = 0, n = cmd.size(); i < n; ++i) {
+    CmdExec* e = nullptr;
+
+    for (unsigned i = 0; i < cmd.size(); ++i) {
         cmd[i] = toupper(cmd[i]);
         string check = cmd.substr(0, i + 1);
         if (_cmdMap.find(check) != _cmdMap.end())
             e = _cmdMap[check].get();
-        if (e != 0) {
+        if (e != nullptr) {
             string optCheck = cmd.substr(i + 1);
             if (e->checkOptCmd(optCheck))
                 return e;  // match found!!
             else
-                e = 0;
+                e = nullptr;
         }
     }
     return e;

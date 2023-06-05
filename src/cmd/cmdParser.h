@@ -113,8 +113,8 @@ class CmdParser {
 public:
     CmdParser(const std::string& p)
         : _prompt{p}, _specialChars{"\"\' "}, _dofile(0), _readBuf{}, _cursorPosition{0}, _historyIdx(0), _tabPressCount(0), _tempCmdStored(false), _state{ParserState::RECEIVING_INPUT} {
-            _readBuf.reserve(65536);
-        }
+        _readBuf.reserve(65536);
+    }
     virtual ~CmdParser() {}
 
     bool openDofile(const std::string& dof);
@@ -159,6 +159,8 @@ private:
     void retrieveHistory();
 
     inline bool isSpecialChar(char ch) const { return _specialChars.find_first_of(ch) != std::string::npos; }
+    std::pair<CmdMap::const_iterator, CmdMap::const_iterator> getCmdMatches(std::string const& str);
+    void printAsTable(std::vector<std::string> words, size_t widthLimit) const;
 
     // Data members
     std::string const _prompt;                // command prompt

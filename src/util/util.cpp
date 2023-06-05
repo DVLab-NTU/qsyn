@@ -30,15 +30,15 @@ MyUsage myUsage;
 //----------------------------------------------------------------------
 
 /**
- * @brief 
- * 
+ * @brief
+ *
  * @param prefix the filename prefix
  * @param dir the directory to search
- * @return vector<string> 
+ * @return vector<string>
  */
 vector<string> listDir(string const& prefix, string const& dir) {
     vector<string> files;
-    
+
     namespace fs = std::filesystem;
 
     if (!fs::exists(dir)) {

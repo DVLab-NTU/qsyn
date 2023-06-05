@@ -94,7 +94,7 @@ bool CmdParser::readCmd(istream& istr) {
                 break;
             case TAB_KEY: {
                 ++_tabPressCount;
-                listCmd(_readBuf.substr(0, _cursorPosition));
+                listCmd(stripLeadingWhitespaces(_readBuf.substr(0, _cursorPosition)));
                 break;
             }
             case INSERT_KEY:  // not yet supported; fall through to UNDEFINE
@@ -194,8 +194,7 @@ bool CmdParser::deleteChar() {
 void CmdParser::insertChar(char ch) {
     _readBuf.insert(_cursorPosition, 1, ch);
 
-    cout << _readBuf.substr(_cursorPosition);
-    _cursorPosition = _readBuf.size();
+    cout << _readBuf.substr(_cursorPosition + 1);
     moveCursor(_cursorPosition + 1);
 }
 
