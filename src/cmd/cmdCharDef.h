@@ -15,9 +15,11 @@ enum ParseChar {
     // -- The following should be platform-independent
     LINE_BEGIN_KEY = 1,       // ctrl-a
     LINE_END_KEY = 5,         // ctrl-e
+    INTERRUPT_KEY = 3,        // ctrl-d
     INPUT_END_KEY = 4,        // ctrl-d
     TAB_KEY = int('\t'),      // tab('\t') or Ctrl-i
     NEWLINE_KEY = int('\n'),  // enter('\n') or ctrl-m
+    CLEAR_CONSOLE_KEY = 12,   // ctrl-l
     ESC_KEY = 27,             // Not printable; used for combo keys
 
     // -- The following simple/combo keys are platform-dependent

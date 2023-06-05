@@ -19,6 +19,8 @@ using namespace std;
 //----------------------------------------------------------------------
 void mybeep();
 
+void clearConsole();
+
 //----------------------------------------------------------------------
 //    Member Function for class CmdParser
 //----------------------------------------------------------------------
@@ -26,24 +28,37 @@ bool CmdParser::readCmd(istream& istr) {
     resetBufAndPrintPrompt();
 
     bool newCmd = false;
+    // listen for keystrokes
     while (!newCmd) {
         ParseChar pch = getChar(istr);
         if (pch == INPUT_END_KEY) {
             if (_dofile != 0)
                 closeDofile();
+            cout << "\nquit" << endl;
+            exit(0);
+        }
+        // Note: actual ctrl-c triggers SIGINT, and is therefore handled by
+        // `void CmdParser::sigintHandler(int signum);`
+        // This INTERRUPT_KEY is sent when EOF of a dofile is reached
+        if (pch == INTERRUPT_KEY) {
+            if (_dofile != 0)
+                closeDofile();
+            newCmd = addHistory();
+            cout << char(NEWLINE_KEY);
+            // if (!newCmd) resetBufAndPrintPrompt();
             break;
         }
         switch (pch) {
             case LINE_BEGIN_KEY:
             case HOME_KEY:
-                moveBufPtr(_readBuf);
+                moveCursor(0);
                 break;
             case LINE_END_KEY:
             case END_KEY:
-                moveBufPtr(_readBufEnd);
+                moveCursor(_readBuf.size());
                 break;
             case BACK_SPACE_KEY:
-                if (moveBufPtr(_readBufPtr - 1))
+                if (moveCursor(_cursorPosition - 1))
                     deleteChar();
                 break;
             case DELETE_KEY:
@@ -54,6 +69,11 @@ bool CmdParser::readCmd(istream& istr) {
                 cout << char(NEWLINE_KEY);
                 if (!newCmd) resetBufAndPrintPrompt();
                 break;
+            case CLEAR_CONSOLE_KEY:
+                clearConsole();
+                cout << char(NEWLINE_KEY);
+                resetBufAndPrintPrompt();
+                break;
             case ARROW_UP_KEY:
                 moveToHistory(_historyIdx - 1);
                 break;
@@ -61,10 +81,10 @@ bool CmdParser::readCmd(istream& istr) {
                 moveToHistory(_historyIdx + 1);
                 break;
             case ARROW_RIGHT_KEY:
-                moveBufPtr(_readBufPtr + 1);
+                moveCursor(_cursorPosition + 1);
                 break;
             case ARROW_LEFT_KEY:
-                moveBufPtr(_readBufPtr - 1);
+                moveCursor((int)_cursorPosition - 1);
                 break;
             case PG_UP_KEY:
                 moveToHistory(_historyIdx - PG_OFFSET);
@@ -73,12 +93,8 @@ bool CmdParser::readCmd(istream& istr) {
                 moveToHistory(_historyIdx + PG_OFFSET);
                 break;
             case TAB_KEY: {
-                char tmp = *_readBufPtr;
-                *_readBufPtr = 0;
-                string str = _readBuf;
-                *_readBufPtr = tmp;
                 ++_tabPressCount;
-                listCmd(str);
+                listCmd(stripLeadingWhitespaces(_readBuf.substr(0, _cursorPosition)));
                 break;
             }
             case INSERT_KEY:  // not yet supported; fall through to UNDEFINE
@@ -105,24 +121,22 @@ bool CmdParser::readCmd(istream& istr) {
 //
 // [Note] This function can also be called by other member functions below
 //        to move the _readBufPtr to proper position.
-bool CmdParser::moveBufPtr(char* const ptr) {
-    if (ptr < _readBuf || ptr > _readBufEnd) {
+bool CmdParser::moveCursor(int idx) {
+    if (idx < 0 || (size_t)idx > _readBuf.size()) {
         mybeep();
         return false;
     }
 
     // move left
-    while (_readBufPtr > ptr) {
-        cout << char(BACK_SPACE_CHAR);
-        --_readBufPtr;
+    if (_cursorPosition > (size_t)idx) {
+        cout << string(_cursorPosition - idx, char(BACK_SPACE_CHAR));
     }
 
     // move right
-    while (_readBufPtr < ptr) {
-        cout << *_readBufPtr;
-        ++_readBufPtr;
+    if (_cursorPosition < (size_t)idx) {
+        cout << _readBuf.substr(_cursorPosition, idx - _cursorPosition);
     }
-
+    _cursorPosition = idx;
     return true;
 }
 
@@ -146,21 +160,19 @@ bool CmdParser::moveBufPtr(char* const ptr) {
 //              ^
 //
 bool CmdParser::deleteChar() {
-    if (_readBufPtr == _readBufEnd) {
+    if (_cursorPosition == _readBuf.size()) {
         mybeep();
         return false;
     }
-    char *tmp = _readBufPtr, *next = _readBufPtr + 1;
-    for (; next != _readBufEnd; ++next) {
-        *tmp = *next;
-        tmp = next;
-        cout << *next;
-    }
-    cout << " " << char(BACK_SPACE_CHAR);
-    *(--_readBufEnd) = 0;
-    tmp = _readBufPtr;
-    _readBufPtr = _readBufEnd;
-    moveBufPtr(tmp);
+    // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
+
+    cout << _readBuf.substr(_cursorPosition + 1);  // will move cursor to the end
+    cout << " " << char(BACK_SPACE_CHAR);          // get rid of the last character
+    _readBuf.erase(_cursorPosition, 1);
+
+    int idx = _cursorPosition;
+    _cursorPosition = _readBuf.size();  // before moving cursor, reflect the change in actual cursor location
+    moveCursor(idx);                    // move the cursor back to where it should be
     return true;
 }
 
@@ -179,20 +191,11 @@ bool CmdParser::deleteChar() {
 // cmd> This is kkkthe command
 //                 ^
 //
-void CmdParser::insertChar(char ch, int repeat) {
-    // TODO...
-    assert(repeat >= 1);
-    char* tmp = _readBufEnd - 1;
-    for (; tmp >= _readBufPtr; --tmp)
-        *(tmp + repeat) = *tmp;
-    for (tmp = _readBufPtr; tmp < (_readBufPtr + repeat); ++tmp)
-        *tmp = ch;
-    _readBufEnd += repeat;
-    *_readBufEnd = 0;
-    cout << _readBufPtr;
-    tmp = _readBufPtr + repeat;
-    _readBufPtr = _readBufEnd;
-    moveBufPtr(tmp);
+void CmdParser::insertChar(char ch) {
+    _readBuf.insert(_cursorPosition, 1, ch);
+
+    cout << _readBuf.substr(_cursorPosition + 1);
+    moveCursor(_cursorPosition + 1);
 }
 
 // 1. Delete the line that is currently shown on the screen
@@ -210,22 +213,22 @@ void CmdParser::insertChar(char ch, int repeat) {
 //      ^
 //
 void CmdParser::deleteLine() {
-    moveBufPtr(_readBufEnd);
-    for (; _readBufPtr != _readBuf; --_readBufPtr)
-        cout << char(BACK_SPACE_CHAR) << " " << char(BACK_SPACE_CHAR);
-    _readBufEnd = _readBufPtr;
-    *_readBufEnd = 0;
+    moveCursor(_readBuf.size());
+    cout << string(_cursorPosition, '\b') << string(_cursorPosition, ' ') << string(_cursorPosition, '\b');
+    _readBuf.clear();
 }
 
 // Reprint the current command to a newline
 // cursor should be restored to the original location
 void CmdParser::reprintCmd() {
     cout << endl;
-    char* tmp = _readBufPtr;
-    _readBufPtr = _readBufEnd;
+
+    // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
+    int idx = _cursorPosition;
+    _cursorPosition = _readBuf.size();  // before moving cursor, reflect the change in actual cursor location
     printPrompt();
     cout << _readBuf;
-    moveBufPtr(tmp);
+    moveCursor(idx);  // move the cursor back to where it should be
 }
 
 // This functions moves _historyIdx to index and display _history[index]
@@ -282,41 +285,17 @@ void CmdParser::moveToHistory(int index) {
  * @return `true` if a new command is added to _history, `false` if not
  */
 bool CmdParser::addHistory() {
-    char* tmp = _readBuf;
+    string cmd = stripWhitespaces(stripComments(_readBuf));
 
-    char* _cmdEnd = _readBufEnd - 1;
-
-    // find the first '//'
-    while (tmp < _readBufEnd - 1) {
-        if (*tmp == '/' && *(tmp + 1) == '/') {
-            *tmp = ' ';  // replace with space so for easier trimming later
-            _cmdEnd = tmp;
-            break;
-        } else {
-            ++tmp;
-        }
+    if (_tempCmdStored) {
+        _history.pop_back();
+        _tempCmdStored = false;
     }
 
-    // trim trailing whitespace
-    tmp = _cmdEnd;
-    while ((tmp >= _readBuf) && (*tmp == ' ')) *(tmp--) = 0;
-
-    // trim leading whitespace
-    tmp = _readBuf;
-    while (*tmp == ' ') ++tmp;
-
     bool newCmd = false;
-
-    // add to _history
-    if (_tempCmdStored) {
-        if (*tmp != 0) {
-            _history[_history.size() - 1] = tmp;
-            newCmd = true;
-        } else
-            _history.pop_back();
-        _tempCmdStored = false;
-    } else if (*tmp != 0) {
-        _history.push_back(tmp);
+    if (cmd.size()) {
+        // add to _history
+        _history.emplace_back(cmd);
         newCmd = true;
     }
 
@@ -332,7 +311,7 @@ bool CmdParser::addHistory() {
 //
 void CmdParser::retrieveHistory() {
     deleteLine();
-    strcpy(_readBuf, _history[_historyIdx].c_str());
+    _readBuf = _history[_historyIdx];
     cout << _readBuf;
-    _readBufPtr = _readBufEnd = _readBuf + _history[_historyIdx].size();
+    _cursorPosition = _history[_historyIdx].size();
 }

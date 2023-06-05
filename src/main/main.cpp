@@ -8,6 +8,7 @@
 
 #include <stdlib.h>  // for exit
 
+#include <csignal>
 #include <cstddef>
 #include <fstream>
 #include <iostream>
@@ -54,6 +55,8 @@ myexit() {
 
 int main(int argc, char** argv) {
     myUsage.reset();
+
+    signal(SIGINT, [](int signum) -> void { cmdMgr->sigintHandler(signum); return; });
 
     if (argc == 3) {  // -file <doFile>
         if (myStrNCmp("-File", argv[1], 2) == 0) {
