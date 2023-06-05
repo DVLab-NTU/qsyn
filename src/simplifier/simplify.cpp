@@ -16,6 +16,7 @@
 
 using namespace std;
 extern size_t verbose;
+extern size_t dmode;
 extern OPTimizer opt;
 
 /**
@@ -358,24 +359,28 @@ void Simplifier::fullReduce() {
  * @brief 
  * 
  */
-void Simplifier::partReduce() {
+void Simplifier::dynamicReduce() {
     // interiorClifford (modified)
-    this->piCliffordSimp();
     
+    this->interiorCliffordSimp();
     this->pivotGadgetSimp();
-
+    if(dmode == 2){
+        opt.setR2R("Pivot Gadget Rule", 1);
+        opt.setS2S("Pivot Gadget Rule", 2);
+    }
+    opt.storeStatus(this->_simpGraph);
     while (true) {
         this->cliffordSimp();
         int i = this->gadgetSimp();
-        this->piCliffordSimp();
+        this->interiorCliffordSimp();
+        cout << "TCount: " << this->_simpGraph->TCount() << endl;
         int j = this->pivotGadgetSimp();
-        this->piCliffordSimp();
-        // while (true) {
-        int i3 = this->pivotSimp();
-        int i4 = this->lcompSimp();
-        //     if (i3 + i4 == 0) break;
-        // }
-        if (i3 + i4 + i + j == 0) break;
+        if (i + j == 0) break;
+        if(this->_simpGraph->TCount() == opt.getLastTCount()){
+            opt.setR2R("Interior Clifford Simp", 1);
+            opt.setR2R("Clifford Simp", 1);
+        }
+        opt.storeStatus(this->_simpGraph);
     }
     this->printRecipe();
 }

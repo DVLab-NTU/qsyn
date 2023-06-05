@@ -15,14 +15,18 @@
 #include "simplify.h"
 #include "zxCmd.h"
 #include "zxGraphMgr.h"
-#include "optimizer.h"
+#include "zxoptimizer.h"
+#include "qcirMgr.h"    // for QCirMgr
+#include "qcirCmd.h"
 
 using namespace std;
 using namespace ArgParse;
 extern size_t verbose;
+
 OPTimizer opt;
 
 unique_ptr<ArgParseCmdType> ZXGSimpCmd();
+unique_ptr<ArgParseCmdType> ZXOPTCmd();
 unique_ptr<ArgParseCmdType> ZXOPTPrintCmd();
 unique_ptr<ArgParseCmdType> ZXOPTR2rCmd();
 unique_ptr<ArgParseCmdType> ZXOPTS2sCmd();
@@ -32,6 +36,7 @@ bool initSimpCmd() {
     // OPTimizer opt;
     if (!(
             cmdMgr->regCmd("ZXGSimp", 4, ZXGSimpCmd()) &&
+            cmdMgr->regCmd("ZXOPT", 5, ZXOPTCmd()) &&
             cmdMgr->regCmd("ZXOPTPrint", 6, ZXOPTPrintCmd()) &&
             cmdMgr->regCmd("ZXOPTR2r", 6, ZXOPTR2rCmd()) &&
             cmdMgr->regCmd("ZXOPTS2s", 6, ZXOPTS2sCmd()) 
@@ -56,10 +61,6 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         mutex.addArgument<bool>("-freduce")
             .action(storeTrue)
             .help("perform full reduce");
-
-        mutex.addArgument<bool>("-preduce")
-            .action(storeTrue)
-            .help("perform part reduce");
             
         mutex.addArgument<bool>("-sreduce")
             .action(storeTrue)
@@ -131,8 +132,6 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         Simplifier s(zxGraphMgr->getGraph());
         if (parser["-sreduce"].isParsed())
             s.symbolicReduce();
-        else if (parser["-preduce"].isParsed())
-            s.partReduce();
         else if (parser["-interclifford"].isParsed())
             s.interiorCliffordSimp();
         else if (parser["-clifford"].isParsed())
@@ -170,6 +169,23 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
 
     return cmd;
 }
+
+//------------------------------------------------------------------------------------------------------------------
+//    ZXOPT 
+//------------------------------------------------------------------------------------------------------------------
+unique_ptr<ArgParseCmdType> ZXOPTCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXOPT");
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("Dynamic Optimization for a ZX-graph");
+    };
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("ZXOPT");
+        opt.myOptimize();
+        return CMD_EXEC_DONE;
+    };
+    return cmd;
+}
+
 
 //------------------------------------------------------------------------------------------------------------------
 //    ZXOPTPrint [-Gadgetfusion | -Spiderfusion | -Idremoval | -PIVOTRule | -Lcomp | -PIVOTGadget | -PIVOTBoundary ]

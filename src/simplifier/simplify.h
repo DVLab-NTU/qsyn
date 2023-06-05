@@ -12,7 +12,7 @@
 #include <memory>
 
 #include "zxRules.h"  // for ZXRule
-#include "optimizer.h"
+#include "zxoptimizer.h"
 
 class ZXGraph;
 
@@ -59,7 +59,7 @@ public:
     int piCliffordSimp();
     int cliffordSimp();
     void fullReduce();
-    void partReduce();
+    void dynamicReduce();
     void symbolicReduce();
 
     // print function
