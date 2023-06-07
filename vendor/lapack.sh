@@ -1,6 +1,5 @@
 ENGINE_NAME="lapack-3.10.1"
-TIMESTAMP=$(date -I)
-VENDOR_PATH="/tmp/qsyn-configure-"$TIMESTAMP
+VENDOR_PATH=$(mktemp -d)
 DOWNLOAD_PATH="https://github.com/Reference-LAPACK/lapack/archive/v3.10.1.tar.gz"
 JOB=16
 if [ $# -ne 1 ]; then 

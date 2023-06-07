@@ -8,6 +8,8 @@
 
 #include "util.h"
 
+#include <cerrno>
+#include <cstring>
 #include <filesystem>
 #include <iostream>
 #include <string>
@@ -65,6 +67,57 @@ size_t intPow(size_t base, size_t n) {
         return tmp * tmp;
     else
         return base * tmp * tmp;
+}
+
+/**
+ * @brief Create a temp directory with a name starting with `prefix`.
+ *
+ * @param prefix
+ * @return std::string the temp directory name starting with `prefix` followed by six random characters.
+ */
+std::string createTempDir(std::string const& prefix) {
+    // NOTE - All-cap to avoid clashing with keyword
+    char* TEMPLATE = new char[prefix.size() + 7];  // 6 for the Xs, 1 for null terminator
+    prefix.copy(TEMPLATE, prefix.size());
+    for (int i = 0; i < 6; i++) TEMPLATE[prefix.size() + i] = 'X';
+
+    IGNORE_UNUSED_RETURN_WARNING mkdtemp(TEMPLATE);
+
+    if (errno) {
+        cerr << "Error: " << std::strerror(errno) << endl;
+        return "";
+    }
+
+    string ret{TEMPLATE};
+
+    delete[] TEMPLATE;
+
+    return ret;
+}
+
+/**
+ * @brief Create a temp file with a name starting with `prefix`.
+ *
+ * @param prefix
+ * @return std::string the temp file name starting with `prefix` followed by six random characters.
+ */
+std::string createTempFile(std::string const& prefix) {
+    char* TEMPLATE = new char[prefix.size() + 7];  // 6 for the Xs, 1 for null terminator
+    prefix.copy(TEMPLATE, prefix.size());
+    for (int i = 0; i < 6; i++) TEMPLATE[prefix.size() + i] = 'X';
+
+    IGNORE_UNUSED_RETURN_WARNING mkstemp(TEMPLATE);
+
+    if (errno) {
+        cerr << "Error: " << std::strerror(errno) << endl;
+        return "";
+    }
+
+    string ret{TEMPLATE};
+
+    delete[] TEMPLATE;
+
+    return ret;
 }
 
 TqdmWrapper::TqdmWrapper(size_t total, bool show)

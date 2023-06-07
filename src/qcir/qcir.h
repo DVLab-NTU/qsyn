@@ -76,6 +76,8 @@ public:
 
     bool writeQASM(std::string qasm_output);
 
+    bool draw(std::string const& drawer, std::string const& outputPath = "") const;
+
     void analysis(bool = false);
     void ZXMapping();
     void tensorMapping();

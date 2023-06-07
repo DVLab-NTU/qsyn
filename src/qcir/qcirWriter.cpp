@@ -6,6 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <filesystem>
 #include <fstream>  // for fstream
 #include <string>   // for string
 
@@ -47,5 +48,34 @@ bool QCir::writeQASM(string filename) {
                 file << ",";
         }
     }
+    return true;
+}
+
+/**
+ * @brief Draw a quantum circuit onto console or into a file using Qiskit
+ *
+ * @param drawer `text`, `mpl`, `latex`, or `latex_source`. Here `mpl` means Python's MatPlotLib
+ * @param outputPath If specified, output to this path; else output to console. Must be specified for `mpl` and `latex` drawer.
+ * @return true if succeeds drawing;
+ * @return false if not.
+ */
+bool QCir::draw(std::string const& drawer, std::string const& outputPath) const {
+    // TODO - t5 - Draw quantum circuits by calling qiskit
+
+    // create a temporary directory with a name starting with /tmp/
+    // We've wrapped the function `createTempDir(string prefix)` for you.
+    string tmpDirName = createTempDir("/tmp/");  // returns something like /tmp/XXXXXX
+
+    // You're welcome to change the prefix of the folder if you want, but it is advised that
+    // you create it in /tmp/. This is where MacOS and Linux keeps all the temporary files.
+
+    // write the QCir to a QASM file into this folder. This can be done with QCir::writeQASM(...)
+
+    // perform your system calls. Read the output QASM file with the python script,
+    // output using the respective `drawer` to the console or to a file
+
+    // remove the directory and all temporary files in it
+    filesystem::remove_all(tmpDirName);
+
     return true;
 }

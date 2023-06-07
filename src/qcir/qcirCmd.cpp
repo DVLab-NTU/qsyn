@@ -44,6 +44,7 @@ unique_ptr<ArgParseCmdType> QCirDeleteQubitCmd();
 unique_ptr<ArgParseCmdType> QCir2ZXCmd();
 unique_ptr<ArgParseCmdType> QCir2TSCmd();
 unique_ptr<ArgParseCmdType> QCirWriteCmd();
+unique_ptr<ArgParseCmdType> QCirDrawCmd();
 
 bool initQCirCmd() {
     qcirMgr = new QCirMgr;
@@ -65,6 +66,7 @@ bool initQCirCmd() {
           cmdMgr->regCmd("QCGPrint", 4, QCirGatePrintCmd()) &&
           cmdMgr->regCmd("QC2ZX", 5, QCir2ZXCmd()) &&
           cmdMgr->regCmd("QC2TS", 5, QCir2TSCmd()) &&
+          cmdMgr->regCmd("QCCDraw", 4, QCirDrawCmd()) &&
           cmdMgr->regCmd("QCCWrite", 4, QCirWriteCmd()))) {
         cerr << "Registering \"qcir\" commands fails... exiting" << endl;
         return false;
@@ -876,6 +878,46 @@ unique_ptr<ArgParseCmdType> QCirWriteCmd() {
             cerr << "Error: path " << parser["output-path.qasm"] << " not found!!" << endl;
             return CMD_EXEC_ERROR;
         }
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
+}
+
+unique_ptr<ArgParseCmdType> QCirDrawCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("QCCDraw");
+
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("Draw a QCir. This command relies on qiskit and pdflatex to be present in the system.");
+        parser.addArgument<string>("output_path")
+            .required(false)
+            .defaultValue("")
+            .help(
+                "if specified, output the resulting drawing into this file. "
+                "This argument is mandatory if the drawer is 'mpl' or 'latex'");
+        parser.addArgument<string>("-drawer")
+            .choices(std::initializer_list<string>{"text", "mpl", "latex", "latex_source"})
+            .defaultValue("text")
+            .help("the backend for drawing quantum circuit");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCCDraw");
+        string drawer = parser["-drawer"];
+        string outputPath = parser["output_path"];
+
+        if (drawer == "latex" || drawer == "mpl") {
+            if (outputPath.empty()) {
+                cerr << "Error: Using drawer \"" << drawer << "\" requires an output destination!!" << endl;
+                return CMD_EXEC_ERROR;
+            }
+        }
+
+        if (!qcirMgr->getQCircuit()->draw(drawer, outputPath)) {
+            cerr << "Error: could not draw the QCir successfully!!" << endl;
+            return CMD_EXEC_ERROR;
+        }
+
         return CMD_EXEC_DONE;
     };
 
