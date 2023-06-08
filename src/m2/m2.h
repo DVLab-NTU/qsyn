@@ -37,6 +37,7 @@ public:
     void push_back(unsigned char i) { _row.push_back(i); }
 
     Row& operator+=(const Row& rhs);
+    friend Row operator+(Row lhs, const Row& rhs);
 
     unsigned char& operator[](const size_t& i) {
         return _row[i];

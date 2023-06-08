@@ -40,7 +40,7 @@ struct hash<vector<unsigned char>> {
  * @param rhs
  * @return Row
  */
-Row operator+(Row& lhs, const Row& rhs) {
+Row operator+(Row lhs, const Row& rhs) {
     lhs += rhs;
     return lhs;
 }
