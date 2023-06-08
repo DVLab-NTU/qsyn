@@ -103,6 +103,21 @@ bool Row::isZeros() const {
 }
 
 /**
+ * @brief Sum the values of the row  
+ *
+ * @return Sum of the row
+ */
+size_t Row::sum() const {
+    size_t sum = 0;
+    for (auto& i : _row) {
+        if (i == 1) {
+            ++sum;
+        }
+    }
+    return sum;
+}
+
+/**
  * @brief Clear matrix and operations
  *
  */

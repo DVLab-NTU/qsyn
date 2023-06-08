@@ -24,7 +24,7 @@ bool SORT_NEIGHBORS = 1;
 bool PERMUTE_QUBITS = 1;
 bool FILTER_DUPLICATED_CXS = 1;
 size_t BLOCK_SIZE = 5;
-size_t OPTIMIZE_LEVEL = 1;
+size_t OPTIMIZE_LEVEL = 2;
 extern size_t verbose;
 
 /**
@@ -710,7 +710,13 @@ bool Extractor::gaussianElimination(bool check) {
                 blockElimination(bestMatrix, minCnots, blk);
             }
             _biAdjacency = bestMatrix;
-        } else {
+        } else if (OPTIMIZE_LEVEL == 2) {
+            cout << "Is opt 2 now" << endl;
+            vector<M2::Oper> greedy_opers = Extractor::greedyReduction(_biAdjacency);
+            for(auto oper: greedy_opers){
+                _biAdjacency.xorOper(oper.first, oper.second, true);
+            }
+        }else {
             cerr << "Error: Wrong Optimize Level" << endl;
             abort();
         }

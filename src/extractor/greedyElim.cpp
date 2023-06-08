@@ -62,8 +62,41 @@ vector<size_t> Extractor::findMinimalSums(M2& matrix, bool reversedSearch) {
  * @param matrix
  * @return vector<M2::Oper>
  */
-vector<M2::Oper> Extractor::greedyReduction(M2& matrix) {
+vector<M2::Oper> Extractor::greedyReduction(M2& m) {
+    M2 matrix = m;
     vector<M2::Oper> result;
-    // TODO -
+    vector<size_t> indicest = Extractor::findMinimalSums(matrix, false);
+    // Return empty vector if indicest do not exist
+    if (!indicest.size()) return result;
+
+    while(!indicest.size()){
+        M2::Oper best_oper(-1, -1);
+        size_t reduction = -1*matrix.numCols();
+
+        for (size_t i = 0; i < indicest.size(); i++){
+            for (size_t j=i+1; j < indicest.size(); j++){
+                size_t new_row_sum = (matrix[i]+matrix[j]).sum();
+
+                if(matrix[i].sum()-new_row_sum > reduction){
+                    //NOTE - Add j to i
+                    best_oper.first = j;
+                    best_oper.second = i;
+                    reduction = matrix[i].sum()-new_row_sum;
+                }
+                if(matrix[j].sum()-new_row_sum > reduction){
+                    //NOTE - Add i to j
+                    best_oper.first = i;
+                    best_oper.second = j;
+                    reduction = matrix[j].sum()-new_row_sum;
+                }
+            }
+        }
+        result.push_back(best_oper);
+        matrix[best_oper.second] = matrix[best_oper.first] + matrix[best_oper.second];
+        
+        indicest.erase(std::remove(indicest.begin(), indicest.end(), best_oper.first), indicest.end());
+    }
+
+
     return result;
 }

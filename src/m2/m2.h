@@ -29,6 +29,7 @@ public:
     size_t size() const { return _row.size(); }
     unsigned char& back() { return _row.back(); }
     const unsigned char& back() const { return _row.back(); }
+    size_t sum() const;
 
     bool isOneHot() const;
     bool isZeros() const;
