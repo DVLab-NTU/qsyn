@@ -173,7 +173,7 @@ bool Extractor::extractionLoop(size_t max_iter) {
             extractCXs();
         }
         if (extractHsFromM2() == 0) {
-            cerr << "Error: No Candidate Found!!" << endl;
+            cerr << "Error: No Candidate Found!! in extractHsFromM2" << endl;
             _biAdjacency.printMatrix();
             return false;
         }
