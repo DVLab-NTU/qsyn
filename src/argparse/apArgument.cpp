@@ -15,13 +15,24 @@ using namespace std;
 
 namespace ArgParse {
 
+void Argument::swap(Argument& rhs) noexcept {
+    using std::swap;
+    swap(_pimpl, rhs._pimpl);
+    swap(_parsed, rhs._parsed);
+    swap(_numRequiredChars, rhs._numRequiredChars);
+}
+
+void swap(Argument& lhs, Argument& rhs) noexcept {
+    lhs.swap(rhs);
+}
+
 /**
  * @brief If the argument has a default value, reset to it.
  *
  */
 void Argument::reset() {
     _parsed = false;
-    _pimpl->doReset();
+    _pimpl->do_reset();
 }
 
 /**
@@ -33,7 +44,7 @@ void Argument::reset() {
  * @return false if failed
  */
 bool Argument::parse(std::string const& token) {
-    if (!_pimpl->doParse(token)) return false;
+    if (!_pimpl->do_parse(token)) return false;
     _parsed = true;
     return true;
 }
@@ -53,17 +64,6 @@ void Argument::printStatus() const {
         cout << "(unparsed)";
     }
     cout << endl;
-}
-
-// error printing function
-
-/**
- * @brief print argument casting error message
- *
- */
-void Argument::printArgCastErrorMsg() const {
-    std::cout << "[ArgParse] Error: cannot cast argument \""
-              << getName() << "\" to target type!!" << std::endl;
 }
 
 }  // namespace ArgParse

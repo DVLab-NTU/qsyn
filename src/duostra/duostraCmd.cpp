@@ -11,7 +11,6 @@
 #include <iostream>  // for ostream
 #include <string>    // for string
 
-#include "apCmd.h"
 #include "deviceCmd.h"
 #include "deviceMgr.h"         // for DeviceMgr
 #include "duostra.h"           // for Duostra

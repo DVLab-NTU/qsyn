@@ -11,7 +11,6 @@
 #include <iostream>
 #include <string>
 
-#include "apCmd.h"
 #include "simplify.h"
 #include "zxCmd.h"
 #include "zxGraphMgr.h"

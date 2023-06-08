@@ -6,47 +6,37 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "apArgParser.h"
-
 #include <cassert>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
 
+#include "argparse.h"
 #include "myTrie.h"
+#include "util.h"
 
 using namespace std;
 
 namespace ArgParse {
 
 /**
- * @brief Access the argument with the name
+ * @brief returns the Argument with the `name`
  *
  * @param name
  * @return Argument&
  */
 Argument& ArgumentParser::operator[](std::string const& name) {
-    try {
-        return _arguments.at(toLowerString(name));
-    } catch (std::out_of_range& e) {
-        std::cerr << "name = " << name << ", " << e.what() << std::endl;
-        exit(-1);
-    }
+    return operatorBracketImpl(*this, name);
 }
 
 /**
- * @brief Access the argument with the name
+ * @brief returns the Argument with the `name`
  *
  * @param name
- * @return Argument const&
+ * @return Argument&
  */
 Argument const& ArgumentParser::operator[](std::string const& name) const {
-    try {
-        return _arguments.at(toLowerString(name));
-    } catch (std::out_of_range& e) {
-        std::cerr << "name = " << name << ", " << e.what() << std::endl;
-        exit(-1);
-    }
+    return operatorBracketImpl(*this, name);
 }
 
 /**
@@ -229,10 +219,8 @@ bool ArgumentParser::parseOptions() {
             auto frequency = std::get<size_t>(match);
             assert(frequency != 1);
             // if the argument is a number, skip to the next arg
-            float tmp;
-            if (myStr2Float(_tokens[i].token, tmp)) {
+            if (float tmp; myStr2Float(_tokens[i].token, tmp))
                 continue;
-            }
             // else this is an error
             if (frequency == 0) {
                 cerr << "Error: unrecognized option \"" << _tokens[i].token << "\"!!\n";

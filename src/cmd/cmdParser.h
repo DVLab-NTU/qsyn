@@ -16,7 +16,7 @@
 #include <utility>  // for pair
 #include <vector>
 
-#include "apArgParser.h"
+#include "argparse.h"
 #include "cmdCharDef.h"  // for ParseChar
 
 class CmdParser;
@@ -93,6 +93,33 @@ private:
             usage();                                   \
         }                                              \
     }
+
+/**
+ * @brief class specification for commands that uses
+ *        ArgParse::ArgumentParser to parse and generate help messages.
+ *
+ */
+class ArgParseCmdType : public CmdExec {
+public:
+    ArgParseCmdType(std::string const& name) { _parser.name(name); }
+    ~ArgParseCmdType() {}
+
+    bool initialize() override;
+    CmdExecStatus exec(const std::string& option) override;
+    void usage() const override { _parser.printUsage(); }
+    void summary() const override { _parser.printSummary(); }
+    void help() const override { _parser.printHelp(); }
+
+    std::function<void(ArgParse::ArgumentParser&)> parserDefinition;               // define the parser's arguments and traits
+    std::function<bool()> precondition;                                            // define the parsing precondition
+    std::function<CmdExecStatus(ArgParse::ArgumentParser const&)> onParseSuccess;  // define the action to take on parse success
+
+private:
+    ArgParse::ArgumentParser _parser;
+
+    void printMissingParserDefinitionErrorMsg() const;
+    void printMissingOnParseSuccessErrorMsg() const;
+};
 
 //----------------------------------------------------------------------
 //    Base class : CmdParser

@@ -21,8 +21,18 @@ namespace ArgParse {
 
 class ArgumentParser;
 
+struct Token {
+    Token(std::string const& tok) : token{tok}, parsed{false} {}
+    Token(char* const tok) : token{tok}, parsed{false} {}
+    template <size_t N>
+    Token(char const (&tok)[N]) : token{tok}, parsed{false} {}
+    std::string token;
+    bool parsed;
+};
+
 /**
- * @brief A view for adding mutually exclusive group of arguments. All copies of this group represents the same underlying group.
+ * @brief A view for adding mutually exclusive group of arguments.
+ *        All copies of this group represents the same underlying group.
  *
  */
 class MutuallyExclusiveGroupView {
@@ -57,6 +67,17 @@ private:
 };
 
 class ArgumentParser {
+    template <typename T>
+    static decltype(auto)
+    operatorBracketImpl(T&& t, std::string const& name) {
+        try {
+            return std::forward<T>(t)._arguments.at(toLowerString(name));
+        } catch (std::out_of_range& e) {
+            std::cerr << "name = " << name << ", " << e.what() << std::endl;
+            exit(-1);
+        }
+    }
+
 public:
     ArgumentParser() : _optionPrefix("-"), _optionsAnalyzed(false) {}
 
@@ -87,13 +108,8 @@ public:
     std::string const& getName() const { return _name; }
     std::string const& getHelp() const { return _help; }
 
-    bool hasOptionPrefix(std::string const& str) const {
-        return str.find_first_of(_optionPrefix) == 0UL;
-    }
-
-    bool hasOptionPrefix(Argument const& arg) const {
-        return arg.getName().find_first_of(_optionPrefix) == 0UL;
-    }
+    bool hasOptionPrefix(std::string const& str) const { return str.find_first_of(_optionPrefix) == 0UL; }
+    bool hasOptionPrefix(Argument const& arg) const { return hasOptionPrefix(arg.getName()); }
 
     // action
 

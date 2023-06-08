@@ -12,7 +12,6 @@
 #include <iostream>
 #include <string>
 
-#include "apCmd.h"
 #include "cmdParser.h"
 #include "myUsage.h"
 #include "util.h"

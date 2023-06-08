@@ -6,9 +6,9 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "apArgType.h"
-
 #include <iostream>
+
+#include "argparse.h"
 
 using namespace std;
 
@@ -16,24 +16,30 @@ namespace ArgParse {
 
 namespace ArgTypeDescription {
 
-std::string getTypeString(bool) { return "bool"; }
-
+template <>
 std::string getTypeString(int) { return "int"; }
+template <>
 std::string getTypeString(long) { return "long"; }
+template <>
 std::string getTypeString(long long) { return "long long"; }
 
+template <>
 std::string getTypeString(unsigned) { return "unsigned"; }
+template <>
 std::string getTypeString(unsigned long) { return "size_t"; }
+template <>
 std::string getTypeString(unsigned long long) { return "size_t"; }
 
+template <>
 std::string getTypeString(float) { return "float"; }
+template <>
 std::string getTypeString(double) { return "double"; }
+template <>
 std::string getTypeString(long double) { return "long double"; }
 
 std::string getTypeString(std::string const& val) { return "string"; }
-
-std::ostream& print(std::ostream& os, bool val) { return os << val; }
-std::ostream& print(std::ostream& os, std::string const& val) { return os << val; }
+std::string getTypeString(bool) { return "bool"; }
+std::string getTypeString(DummyArgumentType) { return "dummy"; }
 
 bool parseFromString(bool& val, std::string const& token) {
     if (myStrNCmp("true", token, 1) == 0) {
@@ -48,6 +54,10 @@ bool parseFromString(bool& val, std::string const& token) {
 
 bool parseFromString(std::string& val, std::string const& token) {
     val = token;
+    return true;
+}
+
+bool parseFromString(DummyArgumentType& val, std::string const& token) {
     return true;
 }
 

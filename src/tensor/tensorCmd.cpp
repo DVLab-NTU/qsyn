@@ -11,7 +11,6 @@
 #include <iostream>
 #include <string>
 
-#include "apCmd.h"
 #include "cmdParser.h"
 #include "phase.h"
 #include "tensorMgr.h"

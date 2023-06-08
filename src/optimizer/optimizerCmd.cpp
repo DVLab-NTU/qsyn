@@ -10,7 +10,6 @@
 #include <iostream>  // for ostream
 #include <string>    // for string
 
-#include "apCmd.h"
 #include "optimizer.h"  // for Extractor
 #include "qcir.h"       // for QCir
 #include "qcirCmd.h"    // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...

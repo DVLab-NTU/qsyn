@@ -10,7 +10,7 @@
 #include <iostream>
 #include <numeric>
 
-#include "apArgParser.h"
+#include "argparse.h"
 #include "textFormat.h"
 
 using namespace std;
@@ -19,13 +19,13 @@ extern size_t colorLevel;
 
 namespace TF = TextFormat;
 
+namespace ArgParse {
+
 constexpr auto requiredStyle = TF::CYAN;
 constexpr auto metavarStyle = TF::BOLD;
 constexpr auto optionalStyle = TF::YELLOW;
 constexpr auto typeStyle = [](string const& str) -> string { return TF::CYAN(TF::ITALIC(str)); };
 constexpr auto accentStyle = [](string const& str) -> string { return TF::BOLD(TF::ULINE(str)); };
-
-namespace ArgParse {
 
 /**
  * @brief print the error message when duplicated argument name is detected

@@ -12,7 +12,6 @@
 #include <iostream>  // for ostream
 #include <string>    // for string
 
-#include "apCmd.h"
 #include "cmdMacros.h"  // for CMD_N_OPTS_AT_MOST_OR_RETURN
 #include "phase.h"      // for Phase
 #include "qcir.h"       // for QCir
