@@ -17,8 +17,8 @@ using namespace std;
 extern size_t verbose;
 
 size_t SINGLE_DELAY = 1;
-size_t DOUBLE_DELAY = 1;
-size_t SWAP_DELAY = 3;
+size_t DOUBLE_DELAY = 2;
+size_t SWAP_DELAY = 6;
 size_t MULTIPLE_DELAY = 5;
 
 /**

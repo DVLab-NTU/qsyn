@@ -41,7 +41,7 @@ public:
     QCir* extract();
     bool extractionLoop(size_t = size_t(-1));
     bool removeGadget(bool check = false);
-    bool gaussianElimination(bool check = false);
+    bool biadjacencyElimination(bool check = false);
     void columnOptimalSwap();
     void extractSingles();
     bool extractCZs(bool check = false);

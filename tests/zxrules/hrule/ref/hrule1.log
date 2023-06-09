@@ -5,23 +5,23 @@ Note: verbose level is set to 2
 qsyn> qccr benchmark/pseudoSimp/toGraph2.qasm
 
 qsyn> qccp -q
-Q 0  -cx( 0)-- t( 1)-- h( 2)--cx( 3)-
-Q 1  -cx( 0)------------------cx( 3)-
+Q 0  ---------cx( 0)-- t( 1)-- h( 2)----------cx( 3)-
+Q 1  ---------cx( 0)--------------------------cx( 3)-
 
 qsyn> qc2zx
 
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 6)	  #Neighbors:   1     (9, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 9)	  #Neighbors:   1     (9, -) 
 ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 6)	  #Neighbors:   1     (8, -) 
-ID:   4 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   3     (0, -) (5, -) (6, -) 
-ID:   5 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 2)	  #Neighbors:   3     (2, -) (4, -) (8, -) 
-ID:   6 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 3)	  #Neighbors:   2     (4, -) (7, -) 
-ID:   7 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 4)	  #Neighbors:   2     (6, -) (9, -) 
-ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 5)	  #Neighbors:   3     (3, -) (5, -) (9, -) 
-ID:   9 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 5)	  #Neighbors:   3     (1, -) (7, -) (8, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 9)	  #Neighbors:   1     (8, -) 
+ID:   4 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   3     (0, -) (5, -) (6, -) 
+ID:   5 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 4)	  #Neighbors:   3     (2, -) (4, -) (8, -) 
+ID:   6 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 4)	  #Neighbors:   2     (4, -) (7, -) 
+ID:   7 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 5)	  #Neighbors:   2     (6, -) (9, -) 
+ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 8)	  #Neighbors:   3     (3, -) (5, -) (9, -) 
+ID:   9 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 8)	  #Neighbors:   3     (1, -) (7, -) (8, -) 
 Total #Vertices: 10
 
 
@@ -30,14 +30,14 @@ qsyn> zxgs -hrule
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 6)	  #Neighbors:   1     (9, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 9)	  #Neighbors:   1     (9, -) 
 ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 6)	  #Neighbors:   1     (8, -) 
-ID:   4 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 2)	  #Neighbors:   3     (0, -) (5, -) (6, -) 
-ID:   5 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 2)	  #Neighbors:   3     (2, -) (4, -) (8, -) 
-ID:   6 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 3)	  #Neighbors:   2     (4, -) (9, [1m[34mH[0m[0m) 
-ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 5)	  #Neighbors:   3     (3, -) (5, -) (9, -) 
-ID:   9 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 5)	  #Neighbors:   3     (1, -) (6, [1m[34mH[0m[0m) (8, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 9)	  #Neighbors:   1     (8, -) 
+ID:   4 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   3     (0, -) (5, -) (6, -) 
+ID:   5 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 4)	  #Neighbors:   3     (2, -) (4, -) (8, -) 
+ID:   6 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 4)	  #Neighbors:   2     (4, -) (9, [1m[34mH[0m[0m) 
+ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 8)	  #Neighbors:   3     (3, -) (5, -) (9, -) 
+ID:   9 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 8)	  #Neighbors:   3     (1, -) (6, [1m[34mH[0m[0m) (8, -) 
 Total #Vertices: 9
 
 
