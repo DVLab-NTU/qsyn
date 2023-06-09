@@ -131,24 +131,21 @@ bool ZXGraph::buildGraphFromParserStorage(const ZXParserDetail::StorageType& sto
     unordered_map<size_t, ZXVertex*> id2Vertex;
 
     for (auto& [id, info] : storage) {
-        ZXVertex* v;
-
-        if (info.type == 'I')
-            v = addInput(info.qubit, true, info.column);
-        else if (info.type == 'O')
-            v = addOutput(info.qubit, true, info.column);
-        else {
-            VertexType vtype;
-            if (info.type == 'Z')
-                vtype = VertexType::Z;
-            else if (info.type == 'X')
-                vtype = VertexType::X;
-            else
-                vtype = VertexType::H_BOX;
-            v = addVertex(info.qubit, vtype, info.phase, true, info.column);
-        }
-
-        assert(v != nullptr);
+        ZXVertex* v = std::invoke(
+            [&id, &info, this]() {
+                if (info.type == 'I')
+                    return addInput(info.qubit, true, info.column);
+                if (info.type == 'O')
+                    return addOutput(info.qubit, true, info.column);
+                VertexType vtype;
+                if (info.type == 'Z')
+                    vtype = VertexType::Z;
+                else if (info.type == 'X')
+                    vtype = VertexType::X;
+                else
+                    vtype = VertexType::H_BOX;
+                return addVertex(info.qubit, vtype, info.phase, true, info.column);
+            });
 
         if (keepID) v->setId(id);
         id2Vertex[id] = v;
@@ -237,8 +234,8 @@ bool ZXGraph::writeTikz(string filename) {
             return true;
         string labelStyle = "[label distance=-2]90:{\\color{phaseColor}";
         tikzFile << ",label={ " << labelStyle << fontSize << " $";
-        int numerator = v->getPhase().getRational().numerator();
-        int denominator = v->getPhase().getRational().denominator();
+        int numerator = v->getPhase().numerator();
+        int denominator = v->getPhase().denominator();
 
         if (denominator != 1) {
             tikzFile << "\\frac{";

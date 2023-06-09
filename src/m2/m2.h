@@ -22,13 +22,14 @@
 // REVIEW - Change if bit > 64
 class Row {
 public:
-    Row(size_t id, const std::vector<unsigned char>& r) : _id(id), _row(r) {}
+    Row(size_t id, const std::vector<unsigned char>& r) : _row(r) {}
     ~Row() {}
     const std::vector<unsigned char>& getRow() const { return _row; }
     void setRow(std::vector<unsigned char> row) { _row = row; }
     size_t size() const { return _row.size(); }
     unsigned char& back() { return _row.back(); }
     const unsigned char& back() const { return _row.back(); }
+    size_t sum() const;
 
     bool isOneHot() const;
     bool isZeros() const;
@@ -37,6 +38,7 @@ public:
     void push_back(unsigned char i) { _row.push_back(i); }
 
     Row& operator+=(const Row& rhs);
+    friend Row operator+(Row lhs, const Row& rhs);
 
     unsigned char& operator[](const size_t& i) {
         return _row[i];
@@ -46,7 +48,6 @@ public:
     }
 
 private:
-    size_t _id;
     std::vector<unsigned char> _row;
 };
 
@@ -83,6 +84,7 @@ public:
     size_t filterDuplicatedOps();
     size_t opDepth();
     float denseRatio();
+    void pushColumn();
 
     Row& operator[](const size_t& i) {
         return _matrix[i];

@@ -50,44 +50,47 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
 
         mutex.addArgument<bool>("-interclifford")
             .action(storeTrue)
-            .help("perform inter-clifford");
+            .help("perform interior clifford simplification");
         mutex.addArgument<bool>("-clifford")
             .action(storeTrue)
-            .help("perform clifford");
+            .help("perform clifford simplification");
 
         mutex.addArgument<bool>("-bialgebra")
             .action(storeTrue)
-            .help("perform bialgebra");
+            .help("apply bialgebra rules");
         mutex.addArgument<bool>("-gadgetfusion")
             .action(storeTrue)
-            .help("perform gadget fusion");
+            .help("fuse phase gadgets connected to the same set of vertices");
         mutex.addArgument<bool>("-hfusion")
             .action(storeTrue)
-            .help("perform hadamard fusion");
+            .help("remove adjacent H-boxes or H-edges");
         mutex.addArgument<bool>("-hrule")
             .action(storeTrue)
-            .help("perform hadamard rule");
+            .help("convert H-boxes to H-edges");
         mutex.addArgument<bool>("-idremoval")
             .action(storeTrue)
-            .help("perform identity removal");
+            .help("remove Z/X-spiders with no phase");
         mutex.addArgument<bool>("-lcomp")
             .action(storeTrue)
-            .help("perform local complementation");
+            .help("apply local complementations to vertices with phase ±π/2");
         mutex.addArgument<bool>("-pivotrule")
             .action(storeTrue)
-            .help("perform pivot");
+            .help("apply pivot rules to vertex pairs with phase 0 or π.");
         mutex.addArgument<bool>("-pivotboundary")
             .action(storeTrue)
-            .help("perform pivot boundary");
+            .help("apply pivot rules to vertex pairs connected to the boundary");
         mutex.addArgument<bool>("-pivotgadget")
             .action(storeTrue)
-            .help("perform pivot gadget");
+            .help("unfuse the phase and apply pivot rules to form gadgets");
+        // mutex.addArgument<bool>("-degadgetize")
+        //     .action(storeTrue)
+        //     .help("[UNSTABLE!] apply unfusions and pivot rules so that the resulting graph has no gadgets");
         mutex.addArgument<bool>("-spiderfusion")
             .action(storeTrue)
-            .help("perform spider fusion");
+            .help("fuse spiders of the same color");
         mutex.addArgument<bool>("-stcopy")
             .action(storeTrue)
-            .help("perform state copy");
+            .help("apply state copy rules");
 
         mutex.addArgument<bool>("-tograph")
             .action(storeTrue)
@@ -124,6 +127,8 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             s.pivotBoundarySimp();
         else if (parser["-pivotgadget"].isParsed())
             s.pivotGadgetSimp();
+        // else if (parser["-degadgetize"].isParsed())
+        //     s.degadgetizeSimp();
         else if (parser["-spiderfusion"].isParsed())
             s.sfusionSimp();
         else if (parser["-stcopy"].isParsed())

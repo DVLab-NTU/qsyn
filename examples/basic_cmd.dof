@@ -1,0 +1,42 @@
+// 1
+qccread ./benchmark/qft/qft_3.qasm 
+qccprint -s
+qccprint -q
+
+// 2
+qc2zx
+
+// 3
+zxgprint -s
+zxcopy
+zxgdraw ./examples/pdf/qft_3-before.pdf
+zxgwrite ./examples/zx-format/qft_3-before.zx
+zxgsimp -freduce
+zxgprint -s
+zxgdraw ./examples/pdf/qft_3-after.pdf
+zxgwrite ./examples/zx-format/qft_3-after.zx
+
+// 4
+zxcopy
+zx2qc
+qccprint -s
+qccprint -q
+qccwrite ./examples/qasm/qft_3-after.qasm
+
+// 5
+qccheckout 0 // The original one
+qc2ts
+qccheckout 1 // The optimized one
+qc2ts
+tsequiv 0 1
+
+// 6
+zxcheckout 1
+zxgadjoint
+zxcompose 0
+zxgsimp -freduce
+zxgp -s
+zxgp -v
+
+// 7
+qq -f

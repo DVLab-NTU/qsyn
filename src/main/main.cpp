@@ -8,6 +8,7 @@
 
 #include <stdlib.h>  // for exit
 
+#include <csignal>
 #include <cstddef>
 #include <fstream>
 #include <iostream>
@@ -55,6 +56,8 @@ myexit() {
 int main(int argc, char** argv) {
     myUsage.reset();
 
+    signal(SIGINT, [](int signum) -> void { cmdMgr->sigintHandler(signum); return; });
+
     if (argc == 3) {  // -file <doFile>
         if (myStrNCmp("-File", argv[1], 2) == 0) {
             if (!cmdMgr->openDofile(argv[2])) {
@@ -73,7 +76,7 @@ int main(int argc, char** argv) {
     cout << "DV Lab, NTUEE, Qsyn 0.4.2" << endl;
 
     if (
-        !initArgParserCmd() ||
+        // !initArgParserCmd() ||
         !initCommonCmd() ||
         !initQCirCmd() ||
         !initOptimizeCmd() ||

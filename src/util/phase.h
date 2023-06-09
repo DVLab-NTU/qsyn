@@ -68,6 +68,8 @@ public:
     long double toLongDouble() { return toFloatType<long double>(); }
 
     Rational getRational() const { return _rational; }
+    int numerator() const { return _rational.numerator(); }
+    int denominator() const { return _rational.denominator(); }
 
     template <class T>
     requires std::floating_point<T>
@@ -136,7 +138,7 @@ Phase operator/(Phase lhs, const Unitless auto& rhs) {
     return lhs;
 }
 
-template <class T = double>
+template <class T>
 requires std::floating_point<T>
 bool Phase::myStrValid(const std::string& str, Phase& p) {
     std::vector<std::string> numberStrings;

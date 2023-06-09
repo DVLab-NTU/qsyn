@@ -83,7 +83,7 @@ void QCir::printDepth() {
     for (size_t i = 0; i < _qgates.size(); i++) {
         if (_qgates[i]->getTime() > depth) depth = _qgates[i]->getTime();
     }
-    cout << "Depth: " << depth << endl;
+    cout << "Depth       : " << depth << endl;
 }
 
 /**
@@ -100,7 +100,7 @@ void QCir::printCircuit() {
  */
 void QCir::printSummary() {
     printCircuit();
-    analysis();
+    countGate();
     printDepth();
 }
 
@@ -385,7 +385,7 @@ bool QCir::removeGate(size_t id) {
  * @param detail if true, print the detail information
  */
 // TODO - Analysis qasm is correct since no MC in it. Would fix MC in future.
-void QCir::analysis(bool detail) {
+void QCir::countGate(bool detail) {
     size_t clifford = 0;
     size_t tfamily = 0;
     size_t cxcnt = 0;
@@ -415,20 +415,20 @@ void QCir::analysis(bool detail) {
 
     auto analysisMCR = [&clifford, &tfamily, &nct, &cxcnt](QCirGate *g) -> void {
         if (g->getQubits().size() == 2) {
-            if (g->getPhase().getRational().denominator() == 1) {
+            if (g->getPhase().denominator() == 1) {
                 clifford++;
                 if (g->getType() != GateType::MCPX || g->getType() != GateType::MCRX) clifford += 2;
                 cxcnt++;
-            } else if (g->getPhase().getRational().denominator() == 2) {
+            } else if (g->getPhase().denominator() == 2) {
                 clifford += 2;
                 cxcnt += 2;
                 tfamily += 3;
             } else
                 nct++;
         } else if (g->getQubits().size() == 1) {
-            if (g->getPhase().getRational().denominator() <= 2)
+            if (g->getPhase().denominator() <= 2)
                 clifford++;
-            else if (g->getPhase().getRational().denominator() == 4)
+            else if (g->getPhase().denominator() == 4)
                 tfamily++;
             else
                 nct++;
@@ -445,18 +445,18 @@ void QCir::analysis(bool detail) {
                 break;
             case GateType::P:
                 rz++;
-                if (g->getPhase().getRational().denominator() <= 2)
+                if (g->getPhase().denominator() <= 2)
                     clifford++;
-                else if (g->getPhase().getRational().denominator() == 4)
+                else if (g->getPhase().denominator() == 4)
                     tfamily++;
                 else
                     nct++;
                 break;
             case GateType::RZ:
                 rz++;
-                if (g->getPhase().getRational().denominator() <= 2)
+                if (g->getPhase().denominator() <= 2)
                     clifford++;
-                else if (g->getPhase().getRational().denominator() == 4)
+                else if (g->getPhase().denominator() == 4)
                     tfamily++;
                 else
                     nct++;
@@ -483,9 +483,9 @@ void QCir::analysis(bool detail) {
                 break;
             case GateType::RX:
                 rx++;
-                if (g->getPhase().getRational().denominator() <= 2)
+                if (g->getPhase().denominator() <= 2)
                     clifford++;
-                else if (g->getPhase().getRational().denominator() == 4)
+                else if (g->getPhase().denominator() == 4)
                     tfamily++;
                 else
                     nct++;
@@ -500,9 +500,9 @@ void QCir::analysis(bool detail) {
                 break;
             case GateType::RY:
                 ry++;
-                if (g->getPhase().getRational().denominator() <= 2)
+                if (g->getPhase().denominator() <= 2)
                     clifford++;
-                else if (g->getPhase().getRational().denominator() == 4)
+                else if (g->getPhase().denominator() == 4)
                     tfamily++;
                 else
                     nct++;
@@ -593,12 +593,12 @@ void QCir::analysis(bool detail) {
     }
     // cout << "> Decompose into basic gate set" << endl;
     // cout << endl;
-    cout << TF::BOLD(TF::GREEN("Clifford: " + to_string(clifford))) << endl;
-    cout << "└── " << TF::BOLD(TF::RED("CX: " + to_string(cxcnt))) << endl;
-    cout << TF::BOLD(TF::RED("T-family: " + to_string(tfamily))) << endl;
+    cout << TF::BOLD(TF::GREEN("Clifford    : " + to_string(clifford))) << endl;
+    cout << "└── " << TF::BOLD(TF::RED("2-qubit : " + to_string(cxcnt))) << endl;
+    cout << TF::BOLD(TF::RED("T-family    : " + to_string(tfamily))) << endl;
     if (nct > 0)
-        cout << TF::BOLD(TF::RED("Others  : " + to_string(nct))) << endl;
+        cout << TF::BOLD(TF::RED("Others      : " + to_string(nct))) << endl;
     else
-        cout << TF::BOLD(TF::GREEN("Others  : " + to_string(nct))) << endl;
+        cout << TF::BOLD(TF::GREEN("Others      : " + to_string(nct))) << endl;
     // cout << endl;
 }

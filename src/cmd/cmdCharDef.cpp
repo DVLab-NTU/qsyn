@@ -16,6 +16,8 @@
 
 using namespace std;
 
+void clearConsole();
+
 //----------------------------------------------------------------------
 //    Global static funcitons
 //----------------------------------------------------------------------
@@ -64,15 +66,16 @@ CmdParser::getChar(istream& istr) const {
     char ch = mygetc(istr);
 
     if (istr.eof())
-        return returnCh(INPUT_END_KEY);
+        return returnCh(INTERRUPT_KEY);
     switch (ch) {
         // Simple keys: one code for one key press
         // -- The following should be platform-independent
-        case LINE_BEGIN_KEY:  // Ctrl-a
-        case LINE_END_KEY:    // Ctrl-e
-        case INPUT_END_KEY:   // Ctrl-d
-        case TAB_KEY:         // tab('\t') or Ctrl-i
-        case NEWLINE_KEY:     // enter('\n') or ctrl-m
+        case LINE_BEGIN_KEY:     // Ctrl-a
+        case LINE_END_KEY:       // Ctrl-e
+        case INPUT_END_KEY:      // Ctrl-d
+        case TAB_KEY:            // tab('\t') or Ctrl-i
+        case NEWLINE_KEY:        // enter('\n') or ctrl-m
+        case CLEAR_CONSOLE_KEY:  // Clear console (Ctrl-l)
             return returnCh(ch);
 
         // -- The following simple/combo keys are platform-dependent
@@ -81,6 +84,8 @@ CmdParser::getChar(istream& istr) const {
         //    "cmdCharDef.h", or revise the control flow of the "case ESC" below
         case BACK_SPACE_KEY:
             return returnCh(ch);
+        case char(8):
+            return returnCh(BACK_SPACE_KEY);
 
         // Combo keys: multiple codes for one key press
         // -- Usually starts with ESC key, so we check the "case ESC"
@@ -118,4 +123,16 @@ CmdParser::getChar(istream& istr) const {
 inline static ParseChar
 returnCh(int ch) {
     return ParseChar(ch);
+}
+
+void clearConsole() {
+    int result;
+#ifdef _WIN32
+    result = system("cls");
+#else
+    result = system("clear");
+#endif
+    if (result != 0) {
+        cerr << "Error clearing the console!!" << endl;
+    }
 }

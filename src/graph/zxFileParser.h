@@ -35,8 +35,6 @@ private:
     bool parseInternal(std::ifstream& f);
 
     // parsing subroutines
-
-    std::string stripLeadingSpacesAndComments(std::string& line);
     bool tokenize(const std::string& line, std::vector<std::string>& tokens);
 
     bool parseTypeAndId(const std::string& token, char& type, unsigned& id);

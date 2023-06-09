@@ -42,7 +42,6 @@ void QCir::ZXMapping() {
     _ZXG->addProcedure("QC2ZX", _procedures);
 
     if (verbose >= 5) cout << "Traverse and build the graph... " << endl;
-    _ZXG->setRef((void **)_ZXG);
 
     if (verbose >= 5) cout << "\n> Add boundaries" << endl;
     for (size_t i = 0; i < _qubits.size(); i++) {
@@ -52,7 +51,7 @@ void QCir::ZXMapping() {
         _ZXG->addEdge(input, output, EdgeType(EdgeType::SIMPLE));
     }
 
-    topoTraverse([this, _ZXG](QCirGate *G) {
+    topoTraverse([_ZXG](QCirGate *G) {
         if (verbose >= 8) cout << "\n";
         if (verbose >= 5) cout << "> Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph *tmp = G->getZXform();

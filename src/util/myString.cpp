@@ -33,8 +33,11 @@ bool stripQuotes(const std::string& input, std::string& output) {
     auto findQuote = [&output](char quote) -> size_t {
         size_t pos = 0;
         pos = output.find_first_of(quote);
+        if (pos == string::npos) return pos;
+        // if the quote is after a backslash, it should be read verbatim, so we need to skip it.
         while (pos != 0 && output[pos - 1] == '\\') {
             pos = output.find_first_of(quote, pos + 1);
+            if (pos == string::npos) return pos;
         }
         return pos;
     };
@@ -43,9 +46,12 @@ bool stripQuotes(const std::string& input, std::string& output) {
         size_t doubleQuote = findQuote('\"');
         size_t singleQuote = findQuote('\'');
         size_t pos = min(doubleQuote, singleQuote);
-        char delim = output[pos];
+
         outside.emplace_back(output.substr(0, pos));
         if (pos == string::npos) break;
+
+        char delim = output[pos];
+
         output = output.substr(pos + 1);
         if (pos != string::npos) {
             size_t closingQuote = findQuote(delim);
@@ -54,7 +60,6 @@ bool stripQuotes(const std::string& input, std::string& output) {
                 output = refStr;
                 return false;
             }
-
             inside.emplace_back(output.substr(0, closingQuote));
             output = output.substr(closingQuote + 1);
         }
@@ -101,30 +106,26 @@ bool stripQuotes(const std::string& input, std::string& output) {
 }
 
 /**
+ * @brief strip the leading whitespaces of a string
+ *
+ * @param str
+ */
+string stripLeadingWhitespaces(string const& str) {
+    size_t start = str.find_first_not_of(" \t\n\v\f\r");
+    if (start == string::npos) return "";
+    return str.substr(start);
+}
+
+/**
  * @brief strip the leading and trailing whitespaces of a string
  *
  * @param str
  */
-string stripWhitespaces(const string& str) {
+string stripWhitespaces(string const& str) {
     size_t start = str.find_first_not_of(" \t\n\v\f\r");
     size_t end = str.find_last_not_of(" \t\n\v\f\r");
     if (start == string::npos && end == string::npos) return "";
     return str.substr(start, end + 1 - start);
-}
-
-/**
- * @brief Strip leading spaces and comments
- *
- * @param line
- * @return string
- */
-string stripLeadingSpacesAndComments(string& line) {
-    size_t firstNonSpace = line.find_first_not_of(" ");
-    size_t commentStart = line.find("//");
-    if (firstNonSpace == string::npos) return "";
-    if (firstNonSpace == commentStart) return "";
-
-    return line.substr(firstNonSpace, commentStart - firstNonSpace);
 }
 
 /**

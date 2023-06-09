@@ -36,10 +36,8 @@ void Pivot::match(ZXGraph* g) {
     this->_boundaries.clear();
 
     unordered_set<ZXVertex*> taken;
-    vector<ZXVertex*> b0, b1;
-    g->forEachEdge([&taken, &b0, &b1, this](const EdgePair& epair) {
-        b0.clear();
-        b1.clear();
+    vector<ZXVertex*> boundaries;
+    g->forEachEdge([&taken, &boundaries, this](const EdgePair& epair) {
         if (epair.second != EdgeType::HADAMARD) return;
 
         // 2: Get Neighbors
@@ -57,43 +55,29 @@ void Pivot::match(ZXGraph* g) {
 
         // 4: Check neighbors of Neighbors
 
-        // REVIEW - Squeeze into a for loop
-        for (auto& [v, et] : vs->getNeighbors()) {
-            if (v->isZ() && et == EdgeType::HADAMARD)
-                continue;
-            else if (v->isBoundary()) {
-                b0.push_back(v);
-            } else {
-                taken.insert(v);
-                return;
-            }
-        }
-        for (auto& [v, et] : vt->getNeighbors()) {
-            if (v->isZ() && et == EdgeType::HADAMARD)
-                continue;
-            else if (v->isBoundary()) {
-                b1.push_back(v);
-            } else {
-                taken.insert(v);
-                return;
+        boundaries.clear();
+        for (auto& v : {vs, vt}) {
+            for (auto& [nb, et] : v->getNeighbors()) {
+                if (nb->isZ() && et == EdgeType::HADAMARD) continue;
+                if (nb->isBoundary()) {
+                    boundaries.push_back(nb);
+                } else {
+                    taken.insert(nb);
+                    return;
+                }
             }
         }
 
-        // if(b0.size() > 0 && b1.size() > 0) return;   // skip when Neighbors are all connected to boundary
-        if (b0.size() + b1.size() > 1) return;  // skip when Neighbors are all connected to boundary
+        if (boundaries.size() > 1) return;
         // 5: taken
         taken.insert(vs);
         taken.insert(vt);
-        for (auto& [v, _] : vs->getNeighbors()) {
-            taken.insert(v);
-        }
-        for (auto& [v, _] : vt->getNeighbors()) {
-            taken.insert(v);
-        }
+        for (auto& [v, _] : vs->getNeighbors()) taken.insert(v);
+        for (auto& [v, _] : vt->getNeighbors()) taken.insert(v);
+
         // 6: add Epair into _matchTypeVec
         this->_matchTypeVec.push_back({vs, vt});
-        this->_boundaries.insert(this->_boundaries.end(), b0.begin(), b0.end());
-        this->_boundaries.insert(this->_boundaries.end(), b1.begin(), b1.end());
+        this->_boundaries.insert(this->_boundaries.end(), boundaries.begin(), boundaries.end());
     });
     setMatchTypeVecNum(this->_matchTypeVec.size());
 }

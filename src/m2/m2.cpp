@@ -40,7 +40,7 @@ struct hash<vector<unsigned char>> {
  * @param rhs
  * @return Row
  */
-Row operator+(Row& lhs, const Row& rhs) {
+Row operator+(Row lhs, const Row& rhs) {
     lhs += rhs;
     return lhs;
 }
@@ -100,6 +100,21 @@ bool Row::isZeros() const {
         }
     }
     return true;
+}
+
+/**
+ * @brief Sum the values of the row
+ *
+ * @return Sum of the row
+ */
+size_t Row::sum() const {
+    size_t sum = 0;
+    for (auto& i : _row) {
+        if (i == 1) {
+            ++sum;
+        }
+    }
+    return sum;
 }
 
 /**
@@ -436,7 +451,7 @@ bool M2::isSolvedForm() const {
  */
 bool M2::gaussianElimAugmented(bool track) {
     if (verbose >= 5) cout << "Performing Gaussian Elimination..." << endl;
-    if (verbose >= 8) printMatrix();
+    if (verbose >= 9) printMatrix();
     _opStorage.clear();
 
     size_t numVariables = numCols() - 1;
@@ -465,7 +480,7 @@ bool M2::gaussianElimAugmented(bool track) {
             }
 
             xorOper(theFirstRowWithOne, curRow, track);
-            if (verbose >= 8) {
+            if (verbose >= 9) {
                 cout << "Add " << theFirstRowWithOne << " to " << curRow << endl;
                 printMatrix();
             }
@@ -475,7 +490,7 @@ bool M2::gaussianElimAugmented(bool track) {
         for (size_t r = 0; r < numRows(); ++r) {
             if (r != curRow && _matrix[r][curCol] == 1) {
                 xorOper(curRow, r, track);
-                if (verbose >= 8) {
+                if (verbose >= 9) {
                     cout << "Add " << curRow << " to " << r << endl;
                     printMatrix();
                 }
@@ -586,4 +601,12 @@ float M2::denseRatio() {
         return 0;
     float ratio = float(depth) / float(_opStorage.size());
     return round(ratio * 100) / 100;
+}
+
+/**
+ * @brief Push a new column at the end of the matrix
+ *
+ */
+void M2::pushColumn() {
+    for_each(_matrix.begin(), _matrix.end(), [](Row& r) { r.push_back(0); });
 }

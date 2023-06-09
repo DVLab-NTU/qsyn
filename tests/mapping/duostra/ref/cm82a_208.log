@@ -5,8 +5,8 @@ Note: verbose level is set to 0
 qsyn> qcp -se
 
 Delay of Single-qubit gate :     1
-Delay of Double-qubit gate :     1
-Delay of SWAP gate :             3 (3 CXs)
+Delay of Double-qubit gate :     2
+Delay of SWAP gate :             6 (3 CXs)
 Delay of Multiple-qubit gate :   5
 
 qsyn> qcset -double 2 -sw 6
@@ -23,10 +23,10 @@ qsyn> qccr benchmark/benchmark_SABRE/large/cm82a_208.qasm
 qsyn> dtgr benchmark/topology/guadalupe.layout 
 
 qsyn> qccp -a
-[1m[32mClifford: 370[0m[0m
-└── [1m[31mCX: 283[0m[0m
-[1m[31mT-family: 280[0m[0m
-[1m[32mOthers  : 0[0m[0m
+[1m[32mClifford    : 370[0m[0m
+└── [1m[31m2-qubit : 283[0m[0m
+[1m[31mT-family    : 280[0m[0m
+[1m[32mOthers      : 0[0m[0m
 
 qsyn> duoprint -d
 
@@ -79,10 +79,10 @@ Total Time:     3633
 
 
 qsyn> qccp -a
-[1m[32mClifford: 1720[0m[0m
-└── [1m[31mCX: 1633[0m[0m
-[1m[31mT-family: 280[0m[0m
-[1m[32mOthers  : 0[0m[0m
+[1m[32mClifford    : 1720[0m[0m
+└── [1m[31m2-qubit : 1633[0m[0m
+[1m[31mT-family    : 280[0m[0m
+[1m[32mOthers      : 0[0m[0m
 
 qsyn> duoset -sc greedy
 
@@ -109,10 +109,10 @@ Total Time:     6753
 
 
 qsyn> qccp -a
-[1m[32mClifford: 3280[0m[0m
-└── [1m[31mCX: 3193[0m[0m
-[1m[31mT-family: 280[0m[0m
-[1m[32mOthers  : 0[0m[0m
+[1m[32mClifford    : 3280[0m[0m
+└── [1m[31m2-qubit : 3193[0m[0m
+[1m[31mT-family    : 280[0m[0m
+[1m[32mOthers      : 0[0m[0m
 
 qsyn> qq -f
 

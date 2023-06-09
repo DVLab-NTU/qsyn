@@ -8,6 +8,7 @@
 
 #include <cstddef>  // for size_t
 #include <iostream>
+#include <ranges>
 
 #include "zxGraph.h"
 #include "zxRules.h"
@@ -31,11 +32,11 @@ void PhaseGadget::match(ZXGraph* g) {
     vector<ZXVertex*> axels;
     vector<ZXVertex*> leaves;
     for (const auto& v : g->getVertices()) {
-        if (v->getPhase().getRational().denominator() <= 2 || v->getNumNeighbors() != 1) continue;
+        if (v->getPhase().denominator() <= 2 || v->getNumNeighbors() != 1) continue;
 
         ZXVertex* nb = v->getFirstNeighbor().first;
 
-        if (nb->getPhase().getRational().denominator() != 1) continue;
+        if (nb->getPhase().denominator() != 1) continue;
         if (nb->isBoundary()) continue;
         if (axel2leaf.contains(nb)) continue;
 
@@ -69,7 +70,12 @@ void PhaseGadget::match(ZXGraph* g) {
 
         Phase totalPhase = Phase(0);
         bool flipAxel = false;
+#ifdef __APPLE__  // As of 2023-05-25, Apple Clang does not have proper support for ranges library
+        for (auto itr = groupBegin; itr != groupEnd; ++itr) {
+            auto axel = itr->second;
+#else
         for (auto& [_, axel] : ranges::subrange(groupBegin, groupEnd)) {
+#endif
             ZXVertex* const& leaf = axel2leaf[axel];
             if (axel->getPhase() == Phase(1)) {
                 flipAxel = true;

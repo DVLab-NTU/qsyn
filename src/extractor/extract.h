@@ -41,7 +41,7 @@ public:
     QCir* extract();
     bool extractionLoop(size_t = size_t(-1));
     bool removeGadget(bool check = false);
-    bool gaussianElimination(bool check = false);
+    bool biadjacencyElimination(bool check = false);
     void columnOptimalSwap();
     void extractSingles();
     bool extractCZs(bool check = false);
@@ -66,6 +66,9 @@ public:
     void printNeighbors();
     void printAxels();
     void printMatrix() { _biAdjacency.printMatrix(); }
+
+    std::vector<size_t> findMinimalSums(M2&, bool = false);
+    std::vector<M2::Oper> greedyReduction(M2&);
 
 private:
     size_t _cntCXIter;

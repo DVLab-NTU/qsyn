@@ -161,10 +161,10 @@ qsyn> zxge -adde 3 5 HADAMARD
 Add edge (3, 5)
 
 qsyn> zxge -adde 6 5 HADAMARD
-Add edge (6, 5)
+Add edge (5, 6)
 
 qsyn> zxge -adde 6 4 HADAMARD
-Add edge (6, 4)
+Add edge (4, 6)
 
 qsyn> zxge -adde 6 7 HADAMARD
 Add edge (6, 7)

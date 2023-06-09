@@ -19,6 +19,20 @@
 template <typename T>
 class QTensor;
 
+class ZXVertex;
+class ZXGraph;
+
+// See `zxVertex.cpp` for details
+EdgeType str2EdgeType(const std::string& str);
+VertexType str2VertexType(const std::string& str);
+std::string EdgeType2Str(const EdgeType& et);
+std::string VertexType2Str(const VertexType& vt);
+EdgeType toggleEdge(const EdgeType& et);
+
+EdgePair makeEdgePair(ZXVertex* v1, ZXVertex* v2, EdgeType et);
+EdgePair makeEdgePair(EdgePair epair);
+EdgePair makeEdgePairDummy();
+
 class ZXVertex {
     // See `zxVertex.cpp` for details
 public:
@@ -78,8 +92,7 @@ public:
     bool isNeighbor(ZXVertex* v) const { return _neighbors.contains(std::make_pair(v, EdgeType::SIMPLE)) || _neighbors.contains(std::make_pair(v, EdgeType::HADAMARD)); }
     bool isNeighbor(const NeighborPair& n) const { return _neighbors.contains(n); }
     bool isNeighbor(ZXVertex* v, EdgeType et) const { return isNeighbor(std::make_pair(v, et)); }
-    bool hasNPiPhase() const { return _phase.getRational().denominator() == 1; }
-    bool isGadgetAxel() const;
+    bool hasNPiPhase() const { return _phase.denominator() == 1; }
 
     // DFS
     bool isVisited(unsigned global) { return global == _DFSCounter; }
@@ -98,7 +111,7 @@ private:
 
 class ZXGraph {
 public:
-    ZXGraph(size_t id, void** ref = NULL) : _id(id), _ref(ref), _nextVId(0) {
+    ZXGraph(size_t id) : _id(id), _nextVId(0) {
         _globalTraCounter = 1;
     }
 
@@ -108,7 +121,6 @@ public:
 
     // Getter and Setter
     void setId(size_t id) { _id = id; }
-    void setRef(void** ref) { _ref = ref; }
 
     void setInputs(const ZXVertexList& inputs) { _inputs = inputs; }
     void setOutputs(const ZXVertexList& outputs) { _outputs = outputs; }
@@ -117,7 +129,6 @@ public:
     void addProcedure(std::string = "", const std::vector<std::string>& = {});
 
     const size_t& getId() const { return _id; }
-    void** getRef() const { return _ref; }
     const size_t& getNextVId() const { return _nextVId; }
     const ZXVertexList& getInputs() const { return _inputs; }
     const ZXVertexList& getOutputs() const { return _outputs; }
@@ -136,8 +147,14 @@ public:
     bool isId(size_t id) const;
     bool isGraphLike() const;
     bool isIdentity() const;
+    size_t numGadgets() const;
     bool isInputQubit(int qubit) const { return (_inputList.contains(qubit)); }
     bool isOutputQubit(int qubit) const { return (_outputList.contains(qubit)); }
+
+    bool isGadgetLeaf(ZXVertex*) const;
+    bool isGadgetAxel(ZXVertex*) const;
+    bool hasDanglingNeighbors(ZXVertex*) const;
+
     int TCount() const;
     int nonCliffordCount(bool includeT = false) const;
 
@@ -153,10 +170,10 @@ public:
 
     size_t removeIsolatedVertices();
     size_t removeVertex(ZXVertex* v);
-    size_t removeVertices(std::vector<ZXVertex*> vertices);
+    size_t removeVertices(std::vector<ZXVertex*> const& vertices);
     size_t removeEdge(const EdgePair& ep);
     size_t removeEdge(ZXVertex* vs, ZXVertex* vt, EdgeType etype);
-    size_t removeEdges(const std::vector<EdgePair>& eps);
+    size_t removeEdges(std::vector<EdgePair> const& eps);
     size_t removeAllEdgesBetween(ZXVertex* vs, ZXVertex* vt, bool checked = false);
 
     // Operation on graph
@@ -174,12 +191,11 @@ public:
     // Action functions (zxGraphAction.cpp)
     void reset();
     void sortIOByQubit();
-    ZXGraph* copy() const;
+    ZXGraph* copy(bool doReordering = true) const;
     void toggleEdges(ZXVertex* v);
     void liftQubit(const size_t& n);
     ZXGraph* compose(ZXGraph* target);
     ZXGraph* tensorProduct(ZXGraph* target);
-    bool isGadget(ZXVertex*);
     void addGadget(Phase p, const std::vector<ZXVertex*>& verVec);
     void removeGadget(ZXVertex* v);
     std::unordered_map<size_t, ZXVertex*> id2VertexMap() const;
@@ -196,6 +212,8 @@ public:
     void printVertices(std::vector<size_t> cand) const;
     void printQubits(std::vector<int> cand = {}) const;
     void printEdges() const;
+
+    void printDifference(ZXGraph* other) const;
     void draw() const;
 
     // For mapping (in zxMapping.cpp)
@@ -237,7 +255,6 @@ public:
 
 private:
     size_t _id;
-    void** _ref;
     size_t _nextVId;
     std::string _fileName;
     std::vector<std::string> _procedures;
@@ -254,16 +271,5 @@ private:
 
     bool buildGraphFromParserStorage(const ZXParserDetail::StorageType& storage, bool keepID = false);
 };
-
-// See `zxVertex.cpp` for details
-EdgeType str2EdgeType(const std::string& str);
-VertexType str2VertexType(const std::string& str);
-std::string EdgeType2Str(const EdgeType& et);
-std::string VertexType2Str(const VertexType& vt);
-EdgeType toggleEdge(const EdgeType& et);
-
-EdgePair makeEdgePair(ZXVertex* v1, ZXVertex* v2, EdgeType et);
-EdgePair makeEdgePair(EdgePair epair);
-EdgePair makeEdgePairDummy();
 
 #endif

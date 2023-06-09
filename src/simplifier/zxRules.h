@@ -9,6 +9,7 @@
 #ifndef ZX_RULES_H
 #define ZX_RULES_H
 
+#include <array>
 #include <string>   // for string
 #include <utility>  // for pair
 
@@ -261,7 +262,7 @@ public:
     PivotInterface() {}
     virtual ~PivotInterface() {}
 
-    virtual void match(ZXGraph* g) = 0;
+    virtual void match(ZXGraph* g) override = 0;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -335,6 +336,30 @@ public:
 protected:
     void preprocess(ZXGraph* g) override;
     std::vector<ZXVertex*> _boundaries;
+};
+
+/**
+ * @brief Find non-interacting matchings of the pivot degadget rule.
+ *
+ */
+class PivotDegadget : public PivotInterface {
+public:
+    using MatchType = PivotInterface::MatchType;
+    using MatchTypeVec = PivotInterface::MatchTypeVec;
+
+    PivotDegadget() {
+        _name = "Pivot Degadget Rule";
+    }
+    virtual ~PivotDegadget() {}
+
+    void match(ZXGraph* g) override;
+    void addBoundary(ZXVertex* v) { _boundaries.push_back(v); }
+    void clearBoundary() { _boundaries.clear(); }
+
+protected:
+    void preprocess(ZXGraph* g) override;
+    std::vector<ZXVertex*> _boundaries;
+    MatchTypeVec _unfuseCandidates;
 };
 
 /**
