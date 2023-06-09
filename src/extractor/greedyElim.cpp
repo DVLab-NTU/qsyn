@@ -15,7 +15,7 @@
 using namespace std;
 
 /**
- * @brief
+ * @brief find a set of addition indices which forms a row with single 1
  *
  * @param matrix
  * @param reversedSearch
@@ -26,15 +26,15 @@ vector<size_t> Extractor::findMinimalSums(M2& matrix, bool reversedSearch) {
     for (size_t i = 0; i < matrix.numRows(); i++) {
         if (matrix[i].isOneHot()) return {};
     }
-    vector<pair<vector<size_t>, Row>> combs, newCombs;
+    vector<pair<vector<size_t>, Row>> rowTrackPairs, newRowTrackPairs;
 
     for (size_t i = 0; i < matrix.numRows(); i++)
-        combs.emplace_back(vector<size_t>{i}, matrix[i]);
+        rowTrackPairs.emplace_back(vector<size_t>{i}, matrix[i]);
 
     size_t iterations = 0;
     while (true) {
-        newCombs.clear();
-        for (const auto& [indices, row] : combs) {
+        newRowTrackPairs.clear();
+        for (const auto& [indices, row] : rowTrackPairs) {
             size_t maxIndex = *max_element(indices.begin(), indices.end());
             for (size_t k = maxIndex + 1; k < matrix.numRows(); k++) {
                 Row newRow = row + matrix[k];
@@ -43,21 +43,21 @@ vector<size_t> Extractor::findMinimalSums(M2& matrix, bool reversedSearch) {
                 if (newRow.isOneHot())
                     return result;
 
-                newCombs.emplace_back(result, newRow);
+                newRowTrackPairs.emplace_back(result, newRow);
                 iterations++;
             }
             if (iterations > 100000)
                 return {};
         }
-        if (newCombs.empty())
+        if (newRowTrackPairs.empty())
             return {};
-        // NOTE - update combs
-        combs = newCombs;
+        // NOTE - update rowTrackPairs
+        rowTrackPairs = newRowTrackPairs;
     }
 }
 
 /**
- * @brief
+ * @brief Greedily eliminate a row to single 1
  *
  * @param matrix
  * @return vector<M2::Oper>
@@ -65,38 +65,35 @@ vector<size_t> Extractor::findMinimalSums(M2& matrix, bool reversedSearch) {
 vector<M2::Oper> Extractor::greedyReduction(M2& m) {
     M2 matrix = m;
     vector<M2::Oper> result;
-    vector<size_t> indicest = Extractor::findMinimalSums(matrix, false);
-    // Return empty vector if indicest do not exist
-    if (!indicest.size()) return result;
+    vector<size_t> indices = Extractor::findMinimalSums(matrix, false);
+    // Return empty vector if indices do not exist
+    if (!indices.size()) return result;
+    while (indices.size() > 1) {
+        M2::Oper bestOperation(-1, -1);
+        int reduction = -1 * matrix.numCols();
 
-    while(!indicest.size()){
-        M2::Oper best_oper(-1, -1);
-        size_t reduction = -1*matrix.numCols();
-
-        for (size_t i = 0; i < indicest.size(); i++){
-            for (size_t j=i+1; j < indicest.size(); j++){
-                size_t new_row_sum = (matrix[i]+matrix[j]).sum();
-
-                if(matrix[i].sum()-new_row_sum > reduction){
-                    //NOTE - Add j to i
-                    best_oper.first = j;
-                    best_oper.second = i;
-                    reduction = matrix[i].sum()-new_row_sum;
+        for (const auto& i : indices) {
+            for (const auto& j : indices) {
+                if (j <= i) continue;
+                int newRowSum = (matrix[i] + matrix[j]).sum();
+                if (int(matrix[i].sum()) - newRowSum > reduction) {
+                    // NOTE - Add j to i
+                    bestOperation.first = j;
+                    bestOperation.second = i;
+                    reduction = matrix[i].sum() - newRowSum;
                 }
-                if(matrix[j].sum()-new_row_sum > reduction){
-                    //NOTE - Add i to j
-                    best_oper.first = i;
-                    best_oper.second = j;
-                    reduction = matrix[j].sum()-new_row_sum;
+                if (int(matrix[j].sum()) - newRowSum > reduction) {
+                    // NOTE - Add i to j
+                    bestOperation.first = i;
+                    bestOperation.second = j;
+                    reduction = matrix[j].sum() - newRowSum;
                 }
             }
         }
-        result.push_back(best_oper);
-        matrix[best_oper.second] = matrix[best_oper.first] + matrix[best_oper.second];
-        
-        indicest.erase(std::remove(indicest.begin(), indicest.end(), best_oper.first), indicest.end());
+        result.push_back(bestOperation);
+        matrix[bestOperation.second] = matrix[bestOperation.first] + matrix[bestOperation.second];
+
+        indices.erase(remove(indices.begin(), indices.end(), bestOperation.first), indices.end());
     }
-
-
     return result;
 }
