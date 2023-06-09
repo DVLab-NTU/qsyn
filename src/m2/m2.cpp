@@ -103,7 +103,7 @@ bool Row::isZeros() const {
 }
 
 /**
- * @brief Sum the values of the row  
+ * @brief Sum the values of the row
  *
  * @return Sum of the row
  */

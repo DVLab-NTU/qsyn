@@ -69,7 +69,6 @@ public:
 
     std::vector<size_t> findMinimalSums(M2&, bool = false);
     std::vector<M2::Oper> greedyReduction(M2&);
-    
 
 private:
     size_t _cntCXIter;
