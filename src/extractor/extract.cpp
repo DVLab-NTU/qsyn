@@ -523,7 +523,7 @@ Extractor::Target Extractor::findColumnSwap(Target target) {
             }
 
             if (freeCols.size() == 0) {
-                cout << "Error: no free column!!" << endl;
+                if (verbose >= 5) cout << "Note: no free column for column optimal swap!!" << endl;
                 Target t;
                 return t;  // NOTE - Contradiction
             }

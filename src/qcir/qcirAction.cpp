@@ -8,6 +8,7 @@
 
 #include <cassert>  // for assert
 #include <cstddef>  // for NULL, size_t
+#include <stack>
 
 #include "qcir.h"      // for QCir
 #include "qcirGate.h"  // for QCirGate
@@ -112,17 +113,32 @@ QCir* QCir::tensorProduct(QCir* target) {
  * @param currentGate the gate to start DFS
  */
 void QCir::DFS(QCirGate* currentGate) {
-    currentGate->setVisited(_globalDFScounter);
+    stack<pair<bool, QCirGate*>> dfs;
 
-    vector<BitInfo> Info = currentGate->getQubits();
-    for (size_t i = 0; i < Info.size(); i++) {
-        if ((Info[i])._child != NULL) {
-            if (!((Info[i])._child->isVisited(_globalDFScounter))) {
-                DFS((Info[i])._child);
+    if (!currentGate->isVisited(_globalDFScounter)) {
+        dfs.push(make_pair(false, currentGate));
+    }
+    while (!dfs.empty()) {
+        pair<bool, QCirGate*> node = dfs.top();
+        dfs.pop();
+        if (node.first) {
+            _topoOrder.push_back(node.second);
+            continue;
+        }
+        if (node.second->isVisited(_globalDFScounter)) {
+            continue;
+        }
+        node.second->setVisited(_globalDFScounter);
+        dfs.push(make_pair(true, node.second));
+
+        for (const auto& Info : node.second->getQubits()) {
+            if ((Info)._child != nullptr) {
+                if (!((Info)._child->isVisited(_globalDFScounter))) {
+                    dfs.push(make_pair(false, (Info)._child));
+                }
             }
         }
     }
-    _topoOrder.push_back(currentGate);
 }
 
 /**
@@ -134,7 +150,6 @@ const vector<QCirGate*>& QCir::updateTopoOrder() {
     _topoOrder.clear();
     _globalDFScounter++;
     QCirGate* dummy = new HGate(-1);
-
     for (size_t i = 0; i < _qubits.size(); i++) {
         dummy->addDummyChild(_qubits[i]->getFirst());
     }
