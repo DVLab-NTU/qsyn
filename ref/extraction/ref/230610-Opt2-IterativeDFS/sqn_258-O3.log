@@ -1,0 +1,74 @@
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/sqn_258.qasm
+
+qsyn> qccp 
+QCir 0( 16 qubits, 10223 gates)
+Clifford    : 5764
+└── 2-qubit : 4459
+T-family    : 4459
+Others      : 0
+Depth       : 9176
+
+qsyn> qc2zx
+
+qsyn> zxgs -fr
+
+qsyn> usage
+Period time used : 2.05 seconds
+Total time used  : 2.05 seconds
+Total memory used: 272.5 M Bytes
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 0.09 seconds
+Total time used  : 2.14 seconds
+Total memory used: 272.5 M Bytes
+
+qsyn> qcp
+-> #QCir: 2
+-> Now focus on: 1
+
+qsyn> qccp 
+QCir 1( 16 qubits, 9778 gates)
+Clifford    : 9659
+└── 2-qubit : 4182
+T-family    : 2097
+Others      : 0
+Depth       : 11753
+
+qsyn> optimize
+
+qsyn> qccp 
+QCir 1( 16 qubits, 6657 gates)
+Clifford    : 4878
+└── 2-qubit : 3721
+T-family    : 2097
+Others      : 0
+Depth       : 8647
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> usage
+Period time used : 5.08 seconds
+Total time used  : 7.22 seconds
+Total memory used: 272.5 M Bytes
+
+qsyn> zxgt -id 
+The graph is an identity!
+
+qsyn> qq -f
+
