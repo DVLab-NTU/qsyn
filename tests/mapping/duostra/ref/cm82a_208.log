@@ -5,8 +5,8 @@ Note: verbose level is set to 0
 qsyn> qcp -se
 
 Delay of Single-qubit gate :     1
-Delay of Double-qubit gate :     1
-Delay of SWAP gate :             3 (3 CXs)
+Delay of Double-qubit gate :     2
+Delay of SWAP gate :             6 (3 CXs)
 Delay of Multiple-qubit gate :   5
 
 qsyn> qcset -double 2 -sw 6

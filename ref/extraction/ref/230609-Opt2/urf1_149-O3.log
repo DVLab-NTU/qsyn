@@ -13,23 +13,23 @@ Clifford    : 103986
 └── 2-qubit : 80878
 T-family    : 80878
 Others      : 0
-Depth       : 99585
+Depth       : 172518
 
 qsyn> qc2zx
 
 qsyn> zxgs -fr
 
 qsyn> usage
-Period time used : 12.69 seconds
-Total time used  : 12.69 seconds
+Period time used : 12.61 seconds
+Total time used  : 12.61 seconds
 Total memory used: 927.7 M Bytes
 
 qsyn> zx2qc
 Finish extracting!
 
 qsyn> usage
-Period time used : 3.78 seconds
-Total time used  : 16.47 seconds
+Period time used : 3.77 seconds
+Total time used  : 16.38 seconds
 Total memory used: 927.7 M Bytes
 
 qsyn> qcp
@@ -42,7 +42,17 @@ Clifford    : 218257
 └── 2-qubit : 78613
 T-family    : 40380
 Others      : 0
-Depth       : 121905
+Depth       : 180030
+
+qsyn> optimize
+
+qsyn> qccp 
+QCir 1( 16 qubits, 125635 gates)
+Clifford    : 91449
+└── 2-qubit : 69309
+T-family    : 40380
+Others      : 0
+Depth       : 134021
 
 qsyn> qc2zx
 
@@ -53,9 +63,9 @@ qsyn> zxcomp 0
 qsyn> zxgs -fr
 
 qsyn> usage
-Period time used : 1248 seconds
-Total time used  : 1265 seconds
-Total memory used: 927.7 M Bytes
+Period time used : 1379 seconds
+Total time used  : 1396 seconds
+Total memory used: 4291 M Bytes
 
 qsyn> zxgt -id 
 The graph is an identity!
