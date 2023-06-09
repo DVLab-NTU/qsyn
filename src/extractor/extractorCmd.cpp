@@ -204,7 +204,7 @@ ExtractStepCmd::exec(const string &option) {
                 cout << "No gadget(s) are found" << endl;
             break;
         case EXTRACT_MODE::GAUSSIAN_CX:
-            if (ext.gaussianElimination(true)) {
+            if (ext.biadjacencyElimination(true)) {
                 ext.updateGraphByMatrix();
                 ext.extractCXs();
             }
@@ -303,7 +303,7 @@ unique_ptr<ArgParseCmdType> ExtractSetCmd() {
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("set extractor parameters");
         parser.addArgument<size_t>("-optimize-level")
-            .choices({0, 1})
+            .choices({0, 1, 2, 3})
             .help("optimization level");
         parser.addArgument<bool>("-permute-qubit")
             .help("permute the qubit after extraction");

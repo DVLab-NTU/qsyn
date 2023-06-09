@@ -260,7 +260,7 @@ bool Extractor::extractCZs(bool check) {
  */
 void Extractor::extractCXs(size_t strategy) {
     _cntCXIter++;
-    gaussianElimination();
+    biadjacencyElimination();
     updateGraphByMatrix();
 
     if (verbose >= 4) cout << "Extract CXs" << endl;
@@ -579,13 +579,13 @@ Extractor::Target Extractor::findColumnSwap(Target target) {
 }
 
 /**
- * @brief Perform Gaussian Elimination on frontier and neighbors
+ * @brief Perform elimination on biadjacency matrix
  *
  * @param check if true, check the frontier is clean and no axels connecting to frontier
  * @return true if check pass
  * @return false if not
  */
-bool Extractor::gaussianElimination(bool check) {
+bool Extractor::biadjacencyElimination(bool check) {
     if (check) {
         if (!frontierIsCleaned()) {
             cout << "Note: frontier is dirty, please clean it first." << endl;
@@ -609,9 +609,21 @@ bool Extractor::gaussianElimination(bool check) {
         });
     }
 
+    vector<M2::Oper> greedyOpers;
+
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
+    M2 greedyMat = _biAdjacency;
+    ZXVertexList backupNeighbors = _neighbors;
+    if (OPTIMIZE_LEVEL > 1) {
+        // NOTE - opt = 2 or 3
+        greedyOpers = greedyReduction(greedyMat);
+        for (auto oper : greedyOpers) {
+            greedyMat.xorOper(oper.first, oper.second, true);
+        }
+    }
 
     if (OPTIMIZE_LEVEL != 2) {
+        // NOTE - opt = 0, 1 or 3
         columnOptimalSwap();
         _biAdjacency.fromZXVertices(_frontier, _neighbors);
 
@@ -626,27 +638,45 @@ bool Extractor::gaussianElimination(bool check) {
                 }
                 if (verbose >= 4) cout << "Filter " << _cntCXFiltered - old << " CXs. Total: " << _cntCXFiltered << endl;
             }
-        } else if (OPTIMIZE_LEVEL == 1) {
+            _cnots = _biAdjacency.getOpers();
+        } else if (OPTIMIZE_LEVEL == 1 || OPTIMIZE_LEVEL == 3) {
             size_t minCnots = size_t(-1);
             M2 bestMatrix;
             for (size_t blk = 1; blk < _biAdjacency.numCols(); blk++) {
                 blockElimination(bestMatrix, minCnots, blk);
             }
-            _biAdjacency = bestMatrix;
-
+            if (OPTIMIZE_LEVEL == 1) {
+                _biAdjacency = bestMatrix;
+                _cnots = _biAdjacency.getOpers();
+            } else {
+                size_t nGaussOpers = bestMatrix.getOpers().size();
+                size_t nSingleOneRows = accumulate(bestMatrix.getMatrix().begin(), bestMatrix.getMatrix().end(), 0,
+                                                   [](size_t acc, const Row& r) { return acc + size_t(r.isOneHot()); });
+                // NOTE - opers per extractable rows for Gaussian is bigger than greedy
+                bool selectGreedy = float(nGaussOpers) / float(nSingleOneRows) > float(greedyOpers.size()) - 0.1;
+                if (!greedyOpers.empty() && selectGreedy) {
+                    _biAdjacency = greedyMat;
+                    _cnots = greedyMat.getOpers();
+                    _neighbors = backupNeighbors;
+                    if (verbose > 3) cout << "Found greedy reduction with " << _cnots.size() << " CX(s)" << endl;
+                } else {
+                    _biAdjacency = bestMatrix;
+                    _cnots = _biAdjacency.getOpers();
+                    if (verbose > 3) cout << "Gaussian elimination with " << _cnots.size() << " CX(s)" << endl;
+                }
+            }
         } else {
             cerr << "Error: Wrong Optimize Level" << endl;
             abort();
         }
-        _cnots = _biAdjacency.getOpers();
+
     } else {
-        vector<M2::Oper> greedy_opers = greedyReduction(_biAdjacency);
-        for (auto oper : greedy_opers) {
-            _biAdjacency.xorOper(oper.first, oper.second, true);
-        }
-        _cnots = _biAdjacency.getOpers();
+        // NOTE - OPT level 2
+        _biAdjacency = greedyMat;
+        _cnots = greedyMat.getOpers();
     }
 
+    // TODO - update matrix to correct one
     return true;
 }
 
