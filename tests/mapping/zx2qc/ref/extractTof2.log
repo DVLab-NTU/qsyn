@@ -208,6 +208,8 @@ Extract CZs
 Finish extracting!
 Permute Qubit
 Create and checkout to QCir 0
+Successfully removed Graph 1
+Checkout to Graph 0
 
 qsyn> ver 0
 Note: verbose level is set to 0
