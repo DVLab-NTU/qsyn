@@ -93,7 +93,8 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
         if (result != nullptr) {
             qcirMgr->addQCir(qcirMgr->getNextID());
             qcirMgr->setQCircuit(result);
-            if(PERMUTE_QUBITS) zxGraphMgr->removeZXGraph(nextId);
+            if (PERMUTE_QUBITS)
+                zxGraphMgr->removeZXGraph(nextId);
             else {
                 cout << "Note: the extracted circuit is up to a qubit permutation." << endl;
                 cout << "      Remaining permutation information is in ZX-graph id " << nextId << "." << endl;
