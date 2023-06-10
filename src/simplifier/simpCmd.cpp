@@ -36,7 +36,7 @@ bool initSimpCmd() {
 unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXGSimp");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("perform simplification strategies for ZX-graph");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
@@ -99,45 +99,45 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             .help("convert to red (X) graph");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGSimp");
-        Simplifier s(zxGraphMgr->getGraph());
+        Simplifier s(zxGraphMgr->getGraph(), st);
         if (parser["-sreduce"].isParsed())
-            s.symbolicReduce();
+            s.symbolicReduce(st);
         else if (parser["-interclifford"].isParsed())
-            s.interiorCliffordSimp();
+            s.interiorCliffordSimp(st);
         else if (parser["-clifford"].isParsed())
-            s.cliffordSimp();
+            s.cliffordSimp(st);
         else if (parser["-bialgebra"].isParsed())
-            s.bialgSimp();
+            s.bialgSimp(st);
         else if (parser["-gadgetfusion"].isParsed())
-            s.gadgetSimp();
+            s.gadgetSimp(st);
         else if (parser["-hfusion"].isParsed())
-            s.hfusionSimp();
+            s.hfusionSimp(st);
         else if (parser["-hrule"].isParsed())
-            s.hruleSimp();
+            s.hruleSimp(st);
         else if (parser["-idremoval"].isParsed())
-            s.idSimp();
+            s.idSimp(st);
         else if (parser["-lcomp"].isParsed())
-            s.lcompSimp();
+            s.lcompSimp(st);
         else if (parser["-pivotrule"].isParsed())
-            s.pivotSimp();
+            s.pivotSimp(st);
         else if (parser["-pivotboundary"].isParsed())
-            s.pivotBoundarySimp();
+            s.pivotBoundarySimp(st);
         else if (parser["-pivotgadget"].isParsed())
-            s.pivotGadgetSimp();
+            s.pivotGadgetSimp(st);
         // else if (parser["-degadgetize"].isParsed())
-        //     s.degadgetizeSimp();
+        //     s.degadgetizeSimp(st);
         else if (parser["-spiderfusion"].isParsed())
-            s.sfusionSimp();
+            s.sfusionSimp(st);
         else if (parser["-stcopy"].isParsed())
-            s.copySimp();
+            s.copySimp(st);
         else if (parser["-tograph"].isParsed())
             s.toGraph();
         else if (parser["-torgraph"].isParsed())
             s.toRGraph();
         else
-            s.fullReduce();
+            s.fullReduce(st);
         return CMD_EXEC_DONE;
     };
 

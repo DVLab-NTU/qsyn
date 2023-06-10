@@ -57,11 +57,11 @@ ArgType<size_t>::ConstraintType validTensorId = {
 unique_ptr<ArgParseCmdType> tsResetCmd() {
     unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSReset");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("reset the tensor manager");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         tensorMgr->reset();
         return CMD_EXEC_DONE;
     };
@@ -72,7 +72,7 @@ unique_ptr<ArgParseCmdType> tsResetCmd() {
 unique_ptr<ArgParseCmdType> tsPrintCmd() {
     unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSPrint");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("print info of stored tensors");
 
         parser.addArgument<bool>("-list")
@@ -84,7 +84,7 @@ unique_ptr<ArgParseCmdType> tsPrintCmd() {
             .help("the ID to the tensor");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         bool list = parser["-list"];
         if (parser["id"].isParsed()) {
             tensorMgr->printTensor(parser["id"], list);
@@ -100,14 +100,14 @@ unique_ptr<ArgParseCmdType> tsPrintCmd() {
 unique_ptr<ArgParseCmdType> tsAdjointCmd() {
     unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSADJoint");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("adjoint the specified tensor");
 
         parser.addArgument<size_t>("id")
             .constraint(validTensorId)
             .help("the ID of the tensor");
     };
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         tensorMgr->adjoint(parser["id"]);
         return CMD_EXEC_DONE;
     };
@@ -117,7 +117,7 @@ unique_ptr<ArgParseCmdType> tsAdjointCmd() {
 unique_ptr<ArgParseCmdType> tsEquivCmd() {
     unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSEQuiv");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("check the equivalency of two stored tensors");
 
         parser.addArgument<size_t>("id1")
@@ -135,7 +135,7 @@ unique_ptr<ArgParseCmdType> tsEquivCmd() {
             .action(storeTrue);
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         size_t id1 = parser["id1"], id2 = parser["id2"];
         double eps = parser["-epsilon"];
         bool strict = parser["-strict"];

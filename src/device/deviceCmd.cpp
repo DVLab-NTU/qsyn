@@ -61,7 +61,7 @@ ArgType<size_t>::ConstraintType validDeviceId = {
 unique_ptr<ArgParseCmdType> dtCheckOutCmd() {
     auto cmd = make_unique<ArgParseCmdType>("DTCHeckout");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("checkout to Device <id> in DeviceMgr");
 
         parser.addArgument<size_t>("id")
@@ -69,7 +69,7 @@ unique_ptr<ArgParseCmdType> dtCheckOutCmd() {
             .help("the ID of the device");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         deviceMgr->checkout2Device(parser["id"]);
         return CMD_EXEC_DONE;
     };
@@ -80,11 +80,11 @@ unique_ptr<ArgParseCmdType> dtCheckOutCmd() {
 unique_ptr<ArgParseCmdType> dtResetCmd() {
     auto cmd = make_unique<ArgParseCmdType>("DTReset");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("reset DeviceMgr");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         deviceMgr->reset();
         return CMD_EXEC_DONE;
     };
@@ -95,7 +95,7 @@ unique_ptr<ArgParseCmdType> dtResetCmd() {
 unique_ptr<ArgParseCmdType> dtDeleteCmd() {
     auto cmd = make_unique<ArgParseCmdType>("DTDelete");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("remove a Device from DeviceMgr");
 
         parser.addArgument<size_t>("id")
@@ -103,7 +103,7 @@ unique_ptr<ArgParseCmdType> dtDeleteCmd() {
             .help("the ID of the device");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         deviceMgr->removeDevice(parser["id"]);
         return CMD_EXEC_DONE;
     };
@@ -114,7 +114,7 @@ unique_ptr<ArgParseCmdType> dtDeleteCmd() {
 unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
     auto cmd = make_unique<ArgParseCmdType>("DTGRead");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("read a device topology");
 
         parser.addArgument<string>("filepath")
@@ -125,7 +125,7 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
             .help("if specified, replace the current device; otherwise store to a new one");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         Device bufferTopo = Device(0);
         string filepath = parser["filepath"];
         bool replace = parser["-replace"];
@@ -155,7 +155,7 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
 // unique_ptr<ArgParseCmdType> dtGraphPrintCmd() {
 //     auto cmd = make_unique<ArgParseCmdType>("DTGPrint");
 
-//     cmd->parserDefinition = [](ArgumentParser& parser) {
+//     cmd->parserDefinition = [](ArgumentParser & parser) {
 //         parser.help("print info of device topology");
 
 //         auto mutex = parser.addMutuallyExclusiveGroup();
@@ -177,7 +177,7 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
 //             .help("qubit of the device graph");
 //     };
 
-//     cmd->onParseSuccess = [](ArgumentParser const& parser) {
+//     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
 
 //         return CMD_EXEC_DONE;
 //     };
@@ -188,7 +188,7 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
 unique_ptr<ArgParseCmdType> dtPrintCmd() {
     auto cmd = make_unique<ArgParseCmdType>("DTPrint");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("print info of DeviceMgr");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
@@ -207,7 +207,7 @@ unique_ptr<ArgParseCmdType> dtPrintCmd() {
             .help("print number of devices");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         if (parser["-focus"].isParsed())
             deviceMgr->printDeviceListItr();
         else if (parser["-list"].isParsed())
@@ -227,7 +227,7 @@ unique_ptr<ArgParseCmdType> dtPrintCmd() {
 //    DTGPrint [-Summary | -Edges | -Path | -Qubit]
 //-----------------------------------------------------------------------------------------------------------
 CmdExecStatus
-DeviceGraphPrintCmd::exec(const string& option) {
+DeviceGraphPrintCmd::exec(std::stop_token, const string& option) {
     // check option
     vector<string> options;
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;

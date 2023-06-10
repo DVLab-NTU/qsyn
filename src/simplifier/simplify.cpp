@@ -23,7 +23,7 @@ extern size_t verbose;
  *
  * @return int
  */
-int Simplifier::simp() {
+int Simplifier::simp(std::stop_token st) {
     if (_rule->getName() == "Hadamard Rule") {
         cerr << "Error: Please use `hadamardSimp` when using HRule." << endl;
         return 0;
@@ -32,7 +32,7 @@ int Simplifier::simp() {
     vector<int> matches;
     if (verbose >= 5) cout << setw(30) << left << _rule->getName();
     if (verbose >= 8) cout << endl;
-    while (true) {
+    while (!st.stop_requested()) {
         _rule->match(_simpGraph);
         if (_rule->getMatchTypeVecNum() <= 0)
             break;
@@ -64,7 +64,7 @@ int Simplifier::simp() {
  *
  * @return int
  */
-int Simplifier::hadamardSimp() {
+int Simplifier::hadamardSimp(std::stop_token st) {
     if (_rule->getName() != "Hadamard Rule") {
         cerr << "Error: `hadamardSimp` is only for HRule." << endl;
         return 0;
@@ -73,7 +73,7 @@ int Simplifier::hadamardSimp() {
     vector<int> matches;
     if (verbose >= 5) cout << setw(30) << left << _rule->getName();
     if (verbose >= 8) cout << endl;
-    while (true) {
+    while (!st.stop_requested()) {
         size_t vcount = _simpGraph->getNumVertices();
 
         _rule->match(_simpGraph);
@@ -129,9 +129,9 @@ void Simplifier::amend() {
  *
  * @return int
  */
-int Simplifier::bialgSimp() {
+int Simplifier::bialgSimp(std::stop_token st) {
     this->setRule(make_unique<Bialgebra>());
-    return this->simp();
+    return this->simp(st);
 }
 
 /**
@@ -139,10 +139,10 @@ int Simplifier::bialgSimp() {
  *
  * @return int
  */
-int Simplifier::copySimp() {
+int Simplifier::copySimp(std::stop_token st) {
     if (!_simpGraph->isGraphLike()) return 0;
     this->setRule(make_unique<StateCopy>());
-    return this->simp();
+    return this->simp(st);
 }
 
 /**
@@ -150,9 +150,9 @@ int Simplifier::copySimp() {
  *
  * @return int
  */
-int Simplifier::gadgetSimp() {
+int Simplifier::gadgetSimp(std::stop_token st) {
     this->setRule(make_unique<PhaseGadget>());
-    return this->simp();
+    return this->simp(st);
 }
 
 /**
@@ -160,9 +160,9 @@ int Simplifier::gadgetSimp() {
  *
  * @return int
  */
-int Simplifier::hfusionSimp() {
+int Simplifier::hfusionSimp(std::stop_token st) {
     this->setRule(make_unique<HboxFusion>());
-    return this->simp();
+    return this->simp(st);
 }
 
 /**
@@ -170,9 +170,9 @@ int Simplifier::hfusionSimp() {
  *
  * @return int
  */
-int Simplifier::hruleSimp() {
+int Simplifier::hruleSimp(std::stop_token st) {
     this->setRule(make_unique<HRule>());
-    return this->hadamardSimp();
+    return this->hadamardSimp(st);
 }
 
 /**
@@ -180,9 +180,9 @@ int Simplifier::hruleSimp() {
  *
  * @return int
  */
-int Simplifier::idSimp() {
+int Simplifier::idSimp(std::stop_token st) {
     this->setRule(make_unique<IdRemoval>());
-    return this->simp();
+    return this->simp(st);
 }
 
 /**
@@ -190,9 +190,9 @@ int Simplifier::idSimp() {
  *
  * @return int
  */
-int Simplifier::lcompSimp() {
+int Simplifier::lcompSimp(std::stop_token st) {
     this->setRule(make_unique<LComp>());
-    return this->simp();
+    return this->simp(st);
 }
 
 /**
@@ -200,9 +200,9 @@ int Simplifier::lcompSimp() {
  *
  * @return int
  */
-int Simplifier::pivotSimp() {
+int Simplifier::pivotSimp(std::stop_token st) {
     this->setRule(make_unique<Pivot>());
-    return this->simp();
+    return this->simp(st);
 }
 
 /**
@@ -210,9 +210,9 @@ int Simplifier::pivotSimp() {
  *
  * @return int
  */
-int Simplifier::pivotBoundarySimp() {
+int Simplifier::pivotBoundarySimp(std::stop_token st) {
     this->setRule(make_unique<PivotBoundary>());
-    return this->simp();
+    return this->simp(st);
 }
 
 /**
@@ -220,9 +220,9 @@ int Simplifier::pivotBoundarySimp() {
  *
  * @return int
  */
-int Simplifier::pivotGadgetSimp() {
+int Simplifier::pivotGadgetSimp(std::stop_token st) {
     this->setRule(make_unique<PivotGadget>());
-    return this->simp();
+    return this->simp(st);
 }
 
 /**
@@ -230,9 +230,9 @@ int Simplifier::pivotGadgetSimp() {
  *
  * @return int
  */
-int Simplifier::degadgetizeSimp() {
+int Simplifier::degadgetizeSimp(std::stop_token st) {
     this->setRule(make_unique<PivotDegadget>());
-    return this->simp();
+    return this->simp(st);
 }
 
 /**
@@ -240,9 +240,9 @@ int Simplifier::degadgetizeSimp() {
  *
  * @return int
  */
-int Simplifier::sfusionSimp() {
+int Simplifier::sfusionSimp(std::stop_token st) {
     this->setRule(make_unique<SpiderFusion>());
-    return this->simp();
+    return this->simp(st);
 }
 
 // action
@@ -276,16 +276,16 @@ void Simplifier::toRGraph() {
  *
  * @return int
  */
-int Simplifier::interiorCliffordSimp() {
-    this->sfusionSimp();
+int Simplifier::interiorCliffordSimp(std::stop_token st) {
+    this->sfusionSimp(st);
     toGraph();
 
     int i = 0;
-    while (true) {
-        int i1 = this->idSimp();
-        int i2 = this->sfusionSimp();
-        int i3 = this->pivotSimp();
-        int i4 = this->lcompSimp();
+    while (!st.stop_requested()) {
+        int i1 = this->idSimp(st);
+        int i2 = this->sfusionSimp(st);
+        int i3 = this->pivotSimp(st);
+        int i4 = this->lcompSimp(st);
         if (i1 + i2 + i3 + i4 == 0) break;
         i += 1;
     }
@@ -297,11 +297,11 @@ int Simplifier::interiorCliffordSimp() {
  *
  * @return int
  */
-int Simplifier::cliffordSimp() {
+int Simplifier::cliffordSimp(std::stop_token st) {
     int i = 0;
-    while (true) {
-        i += this->interiorCliffordSimp();
-        int i2 = this->pivotBoundarySimp();
+    while (!st.stop_requested()) {
+        i += this->interiorCliffordSimp(st);
+        int i2 = this->pivotBoundarySimp(st);
         if (i2 == 0) break;
     }
     return i;
@@ -311,15 +311,15 @@ int Simplifier::cliffordSimp() {
  * @brief The main simplification routine
  *
  */
-void Simplifier::fullReduce() {
+void Simplifier::fullReduce(std::stop_token st) {
     _simpGraph->addProcedure("FR");
-    this->interiorCliffordSimp();
-    this->pivotGadgetSimp();
-    while (true) {
-        this->cliffordSimp();
-        int i = this->gadgetSimp();
-        this->interiorCliffordSimp();
-        int j = this->pivotGadgetSimp();
+    this->interiorCliffordSimp(st);
+    this->pivotGadgetSimp(st);
+    while (!st.stop_requested()) {
+        this->cliffordSimp(st);
+        int i = this->gadgetSimp(st);
+        this->interiorCliffordSimp(st);
+        int j = this->pivotGadgetSimp(st);
         if (i + j == 0) break;
     }
     this->printRecipe();
@@ -329,16 +329,16 @@ void Simplifier::fullReduce() {
  * @brief The reduce strategy with `state_copy` and `full_reduce`
  *
  */
-void Simplifier::symbolicReduce() {
-    this->interiorCliffordSimp();
-    this->pivotGadgetSimp();
-    this->copySimp();
-    while (true) {
-        this->cliffordSimp();
-        int i = this->gadgetSimp();
-        this->interiorCliffordSimp();
-        int j = this->pivotGadgetSimp();
-        this->copySimp();
+void Simplifier::symbolicReduce(std::stop_token st) {
+    this->interiorCliffordSimp(st);
+    this->pivotGadgetSimp(st);
+    this->copySimp(st);
+    while (!st.stop_requested()) {
+        this->cliffordSimp(st);
+        int i = this->gadgetSimp(st);
+        this->interiorCliffordSimp(st);
+        int j = this->pivotGadgetSimp(st);
+        this->copySimp(st);
         if (i + j == 0) break;
     }
     this->toRGraph();

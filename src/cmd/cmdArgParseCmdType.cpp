@@ -35,22 +35,22 @@ bool ArgParseCmdType::initialize() {
  * @return true if succeeded
  * @return false if failed
  */
-CmdExecStatus ArgParseCmdType::exec(const std::string& option) {
+CmdExecStatus ArgParseCmdType::exec(std::stop_token st, const std::string& option) {
     if (precondition && !precondition()) {
         return CMD_EXEC_ERROR;
     }
     if (!_parser.parse(option)) {
         return CMD_EXEC_ERROR;
     }
-    return onParseSuccess(_parser);
+    return onParseSuccess(st, _parser);
 }
 
 void ArgParseCmdType::printMissingParserDefinitionErrorMsg() const {
     cerr << "[ArgParse] Error:   please define parser definition for command \"" << _parser.getName() << "\"!!\n"
-         << "           Syntax:  <cmd>->parserDefinition = [](ArgumentParser& parser) -> void { ... }; " << endl;
+         << "           Syntax:  <cmd>->parserDefinition = [](ArgumentParser & parser) { ... }; " << endl;
 }
 
 void ArgParseCmdType::printMissingOnParseSuccessErrorMsg() const {
     cerr << "[ArgParse] Error:   please define on-parse-success action for command \"" << _parser.getName() << "\"!!\n"
-         << "           Syntax:  <cmd>->onParseSuccess = [](ArgumentParser const& parser) -> CmdExecStatus { ... }; " << endl;
+         << "           Syntax:  <cmd>->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) { ... }; " << endl;
 }

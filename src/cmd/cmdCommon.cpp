@@ -53,7 +53,7 @@ bool initCommonCmd() {
 
 unique_ptr<ArgParseCmdType> helpCmd() {
     auto cmd = make_unique<ArgParseCmdType>("HELp");
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("shows helping message to commands");
 
         parser.addArgument<string>("command")
@@ -62,7 +62,7 @@ unique_ptr<ArgParseCmdType> helpCmd() {
             .help("if specified, display help message to a command");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         string command = parser["command"];
         if (command.empty()) {
             cmdMgr->printHelps();
@@ -80,7 +80,7 @@ unique_ptr<ArgParseCmdType> helpCmd() {
 unique_ptr<ArgParseCmdType> quitCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QQuit");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("quit Qsyn");
 
         parser.addArgument<bool>("-force")
@@ -88,7 +88,7 @@ unique_ptr<ArgParseCmdType> quitCmd() {
             .help("quit without reaffirming");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         bool forced = parser["-force"];
         if (forced) return CMD_EXEC_QUIT;
 
@@ -111,14 +111,14 @@ unique_ptr<ArgParseCmdType> quitCmd() {
 unique_ptr<ArgParseCmdType> historyCmd() {
     auto cmd = make_unique<ArgParseCmdType>("HIStory");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("print command history");
         parser.addArgument<size_t>("nPrint")
             .required(false)
             .help("if specified, print the <nprint> latest command history");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         if (parser["nPrint"].isParsed()) {
             cmdMgr->printHistory(parser["nPrint"]);
         } else {
@@ -133,14 +133,14 @@ unique_ptr<ArgParseCmdType> historyCmd() {
 unique_ptr<ArgParseCmdType> dofileCmd() {
     auto cmd = make_unique<ArgParseCmdType>("DOfile");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("execute the commands in the dofile");
 
         parser.addArgument<string>("file")
             .help("path to a dofile, i.e., a list of Qsyn commands");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         return cmdMgr->openDofile(parser["file"])
                    ? CMD_EXEC_DONE
                    : CmdExec::errorOption(CMD_OPT_FOPEN_FAIL, parser["file"]);
@@ -152,7 +152,7 @@ unique_ptr<ArgParseCmdType> dofileCmd() {
 unique_ptr<ArgParseCmdType> usageCmd() {
     auto cmd = make_unique<ArgParseCmdType>("USAGE");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("report the runtime and/or memory usage");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
@@ -168,7 +168,7 @@ unique_ptr<ArgParseCmdType> usageCmd() {
             .help("print memory usage");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         bool repAll = parser["-all"];
         bool repTime = parser["-time"];
         bool repMem = parser["-memory"];
@@ -188,7 +188,7 @@ unique_ptr<ArgParseCmdType> usageCmd() {
 unique_ptr<ArgParseCmdType> verboseCmd() {
     auto cmd = make_unique<ArgParseCmdType>("VERbose");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("set verbose level to 0-9 (default: 3)");
 
         parser.addArgument<size_t>("level")
@@ -205,7 +205,7 @@ unique_ptr<ArgParseCmdType> verboseCmd() {
             .help("0: silent, 1-3: normal usage, 4-6: detailed info, 7-9: prolix debug info");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         verbose = parser["level"];
         cout << "Note: verbose level is set to " << parser["level"] << endl;
         return CMD_EXEC_DONE;
@@ -217,7 +217,7 @@ unique_ptr<ArgParseCmdType> verboseCmd() {
 unique_ptr<ArgParseCmdType> seedCmd() {
     auto cmd = make_unique<ArgParseCmdType>("SEED");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("set the random seed");
 
         parser.addArgument<unsigned>("seed")
@@ -226,7 +226,7 @@ unique_ptr<ArgParseCmdType> seedCmd() {
             .help("random seed value");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         srand(parser["seed"]);
         cout << "Note: seed is set to " << parser["seed"] << endl;
         return CMD_EXEC_DONE;
@@ -238,7 +238,7 @@ unique_ptr<ArgParseCmdType> seedCmd() {
 unique_ptr<ArgParseCmdType> colorCmd() {
     auto cmd = make_unique<ArgParseCmdType>("COLOR");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("toggle colored printing");
 
         parser.addArgument<string>("mode")
@@ -246,7 +246,7 @@ unique_ptr<ArgParseCmdType> colorCmd() {
             .help("on: colored printing, off: pure-ascii printing");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         string mode = parser["mode"];
         colorLevel = (mode == "on") ? 1 : 0;
         cout << "Note: color mode is set to " << mode << endl;
@@ -260,11 +260,11 @@ unique_ptr<ArgParseCmdType> colorCmd() {
 unique_ptr<ArgParseCmdType> clearCmd() {
     auto cmd = make_unique<ArgParseCmdType>("CLEAR");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("clear the console");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         clearConsole();
 
         return CMD_EXEC_DONE;

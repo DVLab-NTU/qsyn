@@ -49,7 +49,7 @@ bool initDuostraCmd() {
 //------------------------------------------------------------------------------
 unique_ptr<ArgParseCmdType> duostraCmd() {
     auto duostraCmd = make_unique<ArgParseCmdType>("DUOSTRA");
-    duostraCmd->parserDefinition = [](ArgumentParser &parser) {
+    duostraCmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("map logical circuit to physical circuit");
         parser.addArgument<bool>("-check")
             .defaultValue(false)
@@ -65,7 +65,7 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
             .help("mute all messages");
     };
 
-    duostraCmd->onParseSuccess = [](ArgumentParser const &parser) {
+    duostraCmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         DT_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
         Duostra duo = Duostra(qcirMgr->getQCircuit(), deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"]);
@@ -89,7 +89,7 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
 //------------------------------------------------------------------------------
 unique_ptr<ArgParseCmdType> duostraSetCmd() {
     auto duostraSetCmd = make_unique<ArgParseCmdType>("DUOSET");
-    duostraSetCmd->parserDefinition = [](ArgumentParser &parser) {
+    duostraSetCmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("set Duostra parameter(s)");
 
         parser.addArgument<string>("-scheduler")
@@ -129,7 +129,7 @@ unique_ptr<ArgParseCmdType> duostraSetCmd() {
             .help("execute the single gates when they are available");
     };
 
-    duostraSetCmd->onParseSuccess = [](ArgumentParser const &parser) {
+    duostraSetCmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         if (parser["-scheduler"].isParsed())
             DUOSTRA_SCHEDULER = getSchedulerType(parser["-scheduler"]);
         if (parser["-router"].isParsed())
@@ -183,7 +183,7 @@ unique_ptr<ArgParseCmdType> duostraPrintCmd() {
     // SECTION - DUOPrint
 
     auto duostraPrintCmd = make_unique<ArgParseCmdType>("DUOPrint");
-    duostraPrintCmd->parserDefinition = [](ArgumentParser &parser) {
+    duostraPrintCmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("print Duostra parameters");
         parser.addArgument<bool>("-detail")
             .defaultValue(false)
@@ -191,7 +191,7 @@ unique_ptr<ArgParseCmdType> duostraPrintCmd() {
             .help("print detailed information");
     };
 
-    duostraPrintCmd->onParseSuccess = [](ArgumentParser const &parser) {
+    duostraPrintCmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         cout << endl;
         cout << "Scheduler:         " << getSchedulerTypeStr() << endl;
         cout << "Router:            " << getRouterTypeStr() << endl;
@@ -216,7 +216,7 @@ unique_ptr<ArgParseCmdType> duostraPrintCmd() {
 
 unique_ptr<ArgParseCmdType> mapEQCmd() {
     auto cmd = make_unique<ArgParseCmdType>("MPEQuiv");
-    cmd->parserDefinition = [](ArgumentParser &parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("check equivalence of the physical and the logical circuits");
         parser.addArgument<size_t>("-logical")
             .required(true)
@@ -229,7 +229,7 @@ unique_ptr<ArgParseCmdType> mapEQCmd() {
             .action(storeTrue)
             .help("check the circuit reversily, used in extracted circuit");
     };
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         DT_CMD_MGR_NOT_EMPTY_OR_RETURN("MPEQuiv");
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("MPEQuiv");
         if (qcirMgr->findQCirByID(parser["-physical"]) == nullptr || qcirMgr->findQCirByID(parser["-logical"]) == nullptr) {

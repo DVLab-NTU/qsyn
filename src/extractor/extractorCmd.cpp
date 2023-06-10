@@ -54,7 +54,7 @@ bool initExtractCmd() {
 unique_ptr<ArgParseCmdType> ExtractCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZX2QC");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("extract QCir from ZX-graph");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
@@ -70,7 +70,7 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
             .help("extract to physical circuit and store corresponding logical circuit");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZX2QC");
         if (!zxGraphMgr->getGraph()->isGraphLike()) {
             cerr << "Error: ZX-graph (id: " << zxGraphMgr->getGraph()->getId() << ") is not graph-like. Not extractable!!" << endl;
@@ -104,7 +104,7 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
 //    EXTRact <-ZXgraph> <(size_t ZX-graphId)> <-QCir> <(size_t QCirId)> <-CX | -CZ | -CLFrontier | -RMGadget| -PHase | -H | -PERmute>
 //----------------------------------------------------------------------
 CmdExecStatus
-ExtractStepCmd::exec(const string &option) {
+ExtractStepCmd::exec(std::stop_token, const string &option) {
     string token;
     vector<string> options;
     if (!CmdExec::lexOptions(option, options))
@@ -238,7 +238,7 @@ void ExtractStepCmd::summary() const {
 unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
     auto cmd = make_unique<ArgParseCmdType>("EXTPrint");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("print info of extracting ZX-graph");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
@@ -260,7 +260,7 @@ unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
             .help("print biadjancency");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         if (parser["-settings"].isParsed() || parser.isParsedSize() == 0) {
             cout << endl;
             cout << "Optimize Level:    " << OPTIMIZE_LEVEL << endl;
@@ -299,7 +299,7 @@ unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
 
 unique_ptr<ArgParseCmdType> ExtractSetCmd() {
     auto cmd = make_unique<ArgParseCmdType>("EXTSet");
-    cmd->parserDefinition = [](ArgumentParser &parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("set extractor parameters");
         parser.addArgument<size_t>("-optimize-level")
             .choices({0, 1})
@@ -316,7 +316,7 @@ unique_ptr<ArgParseCmdType> ExtractSetCmd() {
             .help("sort neighbors");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         if (parser["-optimize-level"].isParsed()) {
             OPTIMIZE_LEVEL = parser["-optimize-level"];
         }

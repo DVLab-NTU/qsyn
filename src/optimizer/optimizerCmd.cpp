@@ -37,7 +37,7 @@ bool initOptimizeCmd() {
 //----------------------------------------------------------------------
 unique_ptr<ArgParseCmdType> optimizeCmd() {
     auto cmd = make_unique<ArgParseCmdType>("OPTimize");
-    cmd->parserDefinition = [](ArgumentParser &parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("optimize QCir");
         parser.addArgument<bool>("-physical")
             .defaultValue(false)
@@ -49,7 +49,7 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
             .help("copy a circuit to perform optimization");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("OPTimize");
         Optimizer Opt(qcirMgr->getQCircuit());
         QCir *result = Opt.parseCircuit(!parser["-physical"], false, 1000);

@@ -32,7 +32,7 @@ bool initM2Cmd() {
 }
 
 CmdExecStatus
-M2GaussEliCmd::exec(const string &option) {
+M2GaussEliCmd::exec(std::stop_token, const string &option) {
     unordered_map<size_t, ZXVertex *> outputList = zxGraphMgr->getGraph()->getOutputList();
     vector<ZXVertex *> front;
     ZXVertexList frontier;
@@ -75,7 +75,7 @@ void M2GaussEliCmd::summary() const {
 }
 
 CmdExecStatus
-M2TestCmd::exec(const string &option) {
+M2TestCmd::exec(std::stop_token, const string &option) {
     string token;
     M2 m2;
     m2.defaultInit();

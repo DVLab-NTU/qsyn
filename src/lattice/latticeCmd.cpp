@@ -34,7 +34,7 @@ bool initLTCmd() {
 //    LT [ -p ]
 //------------------------------------------------------------------------------------------------------------------
 CmdExecStatus
-LTCmd::exec(const string &option) {
+LTCmd::exec(std::stop_token, const string &option) {
     // check option
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;

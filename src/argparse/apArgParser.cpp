@@ -420,7 +420,7 @@ bool ArgumentParser::allRequiredMutexGroupsAreParsed() const {
  * @return true or false
  */
 bool ArgumentParser::allTokensAreParsed() const {
-    return all_of(_tokens.begin(), _tokens.end(), [](Token const& tok) {
+    return ranges::all_of(_tokens, [](Token const& tok) {
         return tok.parsed;
     });
 }

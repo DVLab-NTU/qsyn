@@ -55,7 +55,7 @@ bool initZXCmd() {
 //    ZXNew [(size_t id)]
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXNewCmd::exec(const string &option) {
+ZXNewCmd::exec(std::stop_token, const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
@@ -82,7 +82,7 @@ void ZXNewCmd::summary() const {
 //    ZXReset
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXResetCmd::exec(const string &option) {
+ZXResetCmd::exec(std::stop_token, const string &option) {
     if (!lexNoOption(option)) return CMD_EXEC_ERROR;
     if (!zxGraphMgr)
         zxGraphMgr = new ZXGraphMgr;
@@ -104,7 +104,7 @@ void ZXResetCmd::summary() const {
 //    ZXDelete <(size_t id)>
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXDeleteCmd::exec(const string &option) {
+ZXDeleteCmd::exec(std::stop_token, const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
@@ -132,7 +132,7 @@ void ZXDeleteCmd::summary() const {
 //    ZXCHeckout <(size_t id)>
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXCHeckoutCmd::exec(const string &option) {
+ZXCHeckoutCmd::exec(std::stop_token, const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
@@ -160,7 +160,7 @@ void ZXCHeckoutCmd::summary() const {
 //    ZXPrint [-Summary | -Focus | -Num]
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXPrintCmd::exec(const string &option) {
+ZXPrintCmd::exec(std::stop_token, const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) {
@@ -189,7 +189,7 @@ void ZXPrintCmd::summary() const {
 //    ZXCOPy [(size_t id)]
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXCOPyCmd::exec(const string &option) {  // check option
+ZXCOPyCmd::exec(std::stop_token, const string &option) {  // check option
     vector<string> options;
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
 
@@ -235,7 +235,7 @@ void ZXCOPyCmd::summary() const {
 //    ZXCOMpose <size_t id>
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXCOMposeCmd::exec(const string &option) {
+ZXCOMposeCmd::exec(std::stop_token, const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     if (token.empty()) {
@@ -263,7 +263,7 @@ void ZXCOMposeCmd::summary() const {
 //    ZXTensor <size_t id>
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXTensorCmd::exec(const string &option) {
+ZXTensorCmd::exec(std::stop_token, const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
     if (token.empty()) {
@@ -292,7 +292,7 @@ void ZXTensorCmd::summary() const {
 //    ZXGTest [-GCX | -Empty | -Valid | -GLike | -IDentity]
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGTestCmd::exec(const string &option) {
+ZXGTestCmd::exec(std::stop_token, const string &option) {
     // check option
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
@@ -360,7 +360,7 @@ void ZXGTestCmd::summary() const {
 //    ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis]
 //-----------------------------------------------------------------------------------------------------------
 CmdExecStatus
-ZXGPrintCmd::exec(const string &option) {
+ZXGPrintCmd::exec(std::stop_token, const string &option) {
     // check option
     vector<string> options;
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
@@ -449,7 +449,7 @@ void ZXGPrintCmd::summary() const {
 //            -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>
 //------------------------------------------------------------------------------------
 CmdExecStatus
-ZXGEditCmd::exec(const string &option) {
+ZXGEditCmd::exec(std::stop_token, const string &option) {
     // check option
     vector<string> options;
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
@@ -609,7 +609,7 @@ void ZXGEditCmd::summary() const {
 //    ZXGTRaverse
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGTraverseCmd::exec(const string &option) {
+ZXGTraverseCmd::exec(std::stop_token, const string &option) {
     string token;
     if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGTraverse");
@@ -631,7 +631,7 @@ void ZXGTraverseCmd::summary() const {
 //    ZXGDraw <string (path.pdf)>
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGDrawCmd::exec(const string &option) {
+ZXGDrawCmd::exec(std::stop_token, const string &option) {
     vector<string> options;
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGDraw");
@@ -664,7 +664,7 @@ void ZXGDrawCmd::summary() const {
 //    ZX2TS
 //----------------------------------------------------------------------
 CmdExecStatus
-ZX2TSCmd::exec(const string &option) {
+ZX2TSCmd::exec(std::stop_token, const string &option) {
     if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
     zxGraphMgr->getGraph()->toTensor();
     return CMD_EXEC_DONE;
@@ -683,7 +683,7 @@ void ZX2TSCmd::summary() const {
 //    ZXGRead <string Input.(b)zx> [-KEEPid] [-Replace]
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGReadCmd::exec(const string &option) {  // check option
+ZXGReadCmd::exec(std::stop_token, const string &option) {  // check option
     vector<string> options;
 
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
@@ -756,7 +756,7 @@ void ZXGReadCmd::summary() const {
 //    ZXGWrite <string Output.<zx | tikz | tex>> [-Complete]
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGWriteCmd::exec(const string &option) {
+ZXGWriteCmd::exec(std::stop_token, const string &option) {
     vector<string> options;
 
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
@@ -830,7 +830,7 @@ void ZXGWriteCmd::summary() const {
 //    ZXGASsign <size_t qubit> <I|O> <VertexType vt> <string Phase>
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGAssignCmd::exec(const string &option) {
+ZXGAssignCmd::exec(std::stop_token, const string &option) {
     // check option
     vector<string> options;
     if (!CmdExec::lexOptions(option, options))
@@ -880,7 +880,7 @@ void ZXGAssignCmd::summary() const {
 //    ZXGADJoint
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGAdjointCmd::exec(const string &option) {
+ZXGAdjointCmd::exec(std::stop_token, const string &option) {
     if (!lexNoOption(option)) return CMD_EXEC_ERROR;
     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGAdjoint");
 

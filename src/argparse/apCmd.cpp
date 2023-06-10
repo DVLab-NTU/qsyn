@@ -35,7 +35,7 @@ bool initArgParserCmd() {
 unique_ptr<ArgParseCmdType> argparseCmd() {
     auto cmd = make_unique<ArgParseCmdType>("Argparse");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser & parser) {
         parser.help("ArgParse package sandbox");
 
         parser.addArgument<string>("cat")
@@ -56,7 +56,7 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
             .help("public transport");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         parser.printTokens();
         parser.printArguments();
 
