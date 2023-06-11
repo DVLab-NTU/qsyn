@@ -36,7 +36,7 @@ bool initSimpCmd() {
 unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXGSimp");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("perform simplification strategies for ZX-graph");
 
         auto mutex = parser.addMutuallyExclusiveGroup();

@@ -25,8 +25,8 @@ using namespace ArgParse;
 namespace TF = TextFormat;
 extern size_t verbose;
 extern int effLimit;
-extern QCirMgr *qcirMgr;
-extern DeviceMgr *deviceMgr;
+extern QCirMgr* qcirMgr;
+extern DeviceMgr* deviceMgr;
 
 unique_ptr<ArgParseCmdType> duostraCmd();
 unique_ptr<ArgParseCmdType> duostraPrintCmd();
@@ -49,7 +49,7 @@ bool initDuostraCmd() {
 //------------------------------------------------------------------------------
 unique_ptr<ArgParseCmdType> duostraCmd() {
     auto duostraCmd = make_unique<ArgParseCmdType>("DUOSTRA");
-    duostraCmd->parserDefinition = [](ArgumentParser & parser) {
+    duostraCmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("map logical circuit to physical circuit");
         parser.addArgument<bool>("-check")
             .defaultValue(false)
@@ -70,7 +70,7 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
         Duostra duo = Duostra(qcirMgr->getQCircuit(), deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"]);
         if (duo.flow() != ERROR_CODE) {
-            QCir *result = duo.getPhysicalCircuit();
+            QCir* result = duo.getPhysicalCircuit();
             if (result != nullptr) {
                 qcirMgr->addQCir(qcirMgr->getNextID());
                 result->setId(qcirMgr->getNextID());
@@ -89,7 +89,7 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
 //------------------------------------------------------------------------------
 unique_ptr<ArgParseCmdType> duostraSetCmd() {
     auto duostraSetCmd = make_unique<ArgParseCmdType>("DUOSET");
-    duostraSetCmd->parserDefinition = [](ArgumentParser & parser) {
+    duostraSetCmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("set Duostra parameter(s)");
 
         parser.addArgument<string>("-scheduler")
@@ -183,7 +183,7 @@ unique_ptr<ArgParseCmdType> duostraPrintCmd() {
     // SECTION - DUOPrint
 
     auto duostraPrintCmd = make_unique<ArgParseCmdType>("DUOPrint");
-    duostraPrintCmd->parserDefinition = [](ArgumentParser & parser) {
+    duostraPrintCmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("print Duostra parameters");
         parser.addArgument<bool>("-detail")
             .defaultValue(false)
@@ -216,7 +216,7 @@ unique_ptr<ArgParseCmdType> duostraPrintCmd() {
 
 unique_ptr<ArgParseCmdType> mapEQCmd() {
     auto cmd = make_unique<ArgParseCmdType>("MPEQuiv");
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("check equivalence of the physical and the logical circuits");
         parser.addArgument<size_t>("-logical")
             .required(true)

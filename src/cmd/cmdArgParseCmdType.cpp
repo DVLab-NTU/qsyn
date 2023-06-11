@@ -47,7 +47,7 @@ CmdExecStatus ArgParseCmdType::exec(std::stop_token st, const std::string& optio
 
 void ArgParseCmdType::printMissingParserDefinitionErrorMsg() const {
     cerr << "[ArgParse] Error:   please define parser definition for command \"" << _parser.getName() << "\"!!\n"
-         << "           Syntax:  <cmd>->parserDefinition = [](ArgumentParser & parser) { ... }; " << endl;
+         << "           Syntax:  <cmd>->parserDefinition = [](ArgumentParser& parser) { ... }; " << endl;
 }
 
 void ArgParseCmdType::printMissingOnParseSuccessErrorMsg() const {

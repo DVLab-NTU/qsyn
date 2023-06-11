@@ -61,7 +61,7 @@ ArgType<size_t>::ConstraintType validDeviceId = {
 unique_ptr<ArgParseCmdType> dtCheckOutCmd() {
     auto cmd = make_unique<ArgParseCmdType>("DTCHeckout");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("checkout to Device <id> in DeviceMgr");
 
         parser.addArgument<size_t>("id")
@@ -80,7 +80,7 @@ unique_ptr<ArgParseCmdType> dtCheckOutCmd() {
 unique_ptr<ArgParseCmdType> dtResetCmd() {
     auto cmd = make_unique<ArgParseCmdType>("DTReset");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("reset DeviceMgr");
     };
 
@@ -95,7 +95,7 @@ unique_ptr<ArgParseCmdType> dtResetCmd() {
 unique_ptr<ArgParseCmdType> dtDeleteCmd() {
     auto cmd = make_unique<ArgParseCmdType>("DTDelete");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("remove a Device from DeviceMgr");
 
         parser.addArgument<size_t>("id")
@@ -114,7 +114,7 @@ unique_ptr<ArgParseCmdType> dtDeleteCmd() {
 unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
     auto cmd = make_unique<ArgParseCmdType>("DTGRead");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("read a device topology");
 
         parser.addArgument<string>("filepath")
@@ -188,7 +188,7 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
 unique_ptr<ArgParseCmdType> dtPrintCmd() {
     auto cmd = make_unique<ArgParseCmdType>("DTPrint");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("print info of DeviceMgr");
 
         auto mutex = parser.addMutuallyExclusiveGroup();

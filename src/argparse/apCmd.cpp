@@ -35,7 +35,7 @@ bool initArgParserCmd() {
 unique_ptr<ArgParseCmdType> argparseCmd() {
     auto cmd = make_unique<ArgParseCmdType>("Argparse");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("ArgParse package sandbox");
 
         parser.addArgument<string>("cat")

@@ -21,7 +21,7 @@
 
 using namespace std;
 using namespace ArgParse;
-extern QCirMgr *qcirMgr;
+extern QCirMgr* qcirMgr;
 extern size_t verbose;
 extern int effLimit;
 
@@ -72,19 +72,19 @@ bool initQCirCmd() {
 }
 
 ArgType<size_t>::ConstraintType validQCirId = {
-    [](ArgType<size_t> &arg) {
+    [](ArgType<size_t>& arg) {
         return [&arg]() {
             return qcirMgr->isID(arg.getValue());
         };
     },
-    [](ArgType<size_t> const &arg) {
+    [](ArgType<size_t> const& arg) {
         return [&arg]() {
             cerr << "Error: QCir " << arg.getValue() << " does not exist!!\n";
         };
     }};
 
 ArgType<size_t>::ConstraintType validQCirGateId = {
-    [](ArgType<size_t> &arg) {
+    [](ArgType<size_t>& arg) {
         return [&arg]() {
             if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end())
                 return false;
@@ -92,7 +92,7 @@ ArgType<size_t>::ConstraintType validQCirGateId = {
                 return (qcirMgr->getQCircuit()->getGate(arg.getValue()) != nullptr);
         };
     },
-    [](ArgType<size_t> const &arg) {
+    [](ArgType<size_t> const& arg) {
         return [&arg]() {
             if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end())
                 cerr << "Error: QCir list is empty now. Please QCNew/QCCRead/QCBAdd first.\n";
@@ -102,7 +102,7 @@ ArgType<size_t>::ConstraintType validQCirGateId = {
     }};
 
 ArgType<size_t>::ConstraintType validQCirBitId = {
-    [](ArgType<size_t> &arg) {
+    [](ArgType<size_t>& arg) {
         return [&arg]() {
             if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end())
                 return false;
@@ -110,7 +110,7 @@ ArgType<size_t>::ConstraintType validQCirBitId = {
                 return (qcirMgr->getQCircuit()->getQubit(arg.getValue()) != nullptr);
         };
     },
-    [](ArgType<size_t> const &arg) {
+    [](ArgType<size_t> const& arg) {
         return [&arg]() {
             if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end())
                 cerr << "Error: QCir list is empty now. Please QCNew/QCCRead/QCBAdd first.\n";
@@ -126,7 +126,7 @@ ArgType<size_t>::ConstraintType validQCirBitId = {
 unique_ptr<ArgParseCmdType> QCirCheckOutCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCCHeckout");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("checkout to QCir <id> in QCirMgr");
 
         parser.addArgument<size_t>("id")
@@ -149,7 +149,7 @@ unique_ptr<ArgParseCmdType> QCirCheckOutCmd() {
 unique_ptr<ArgParseCmdType> QCirResetCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCReset");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("reset QCirMgr");
     };
 
@@ -168,7 +168,7 @@ unique_ptr<ArgParseCmdType> QCirResetCmd() {
 unique_ptr<ArgParseCmdType> QCirDeleteCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCDelete");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("remove a QCir from QCirMgr");
 
         parser.addArgument<size_t>("id")
@@ -191,7 +191,7 @@ unique_ptr<ArgParseCmdType> QCirDeleteCmd() {
 unique_ptr<ArgParseCmdType> QCirNewCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCNew");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("create a new QCir to QCirMgr");
 
         parser.addArgument<size_t>("id")
@@ -208,7 +208,7 @@ unique_ptr<ArgParseCmdType> QCirNewCmd() {
             if (qcirMgr->isID(parser["id"])) {
                 if (parser["-Replace"].isParsed()) {
                     size_t repId = parser["id"];
-                    QCir *qcir = new QCir(repId);
+                    QCir* qcir = new QCir(repId);
                     qcirMgr->setQCircuit(qcir);
                 } else
                     cerr << "Error: QCir " << parser["id"] << " already exists!! Specify `-Replace` if needed." << endl;
@@ -230,7 +230,7 @@ unique_ptr<ArgParseCmdType> QCirNewCmd() {
 unique_ptr<ArgParseCmdType> QCirCopyCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCCOPy");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("copy a QCir to QCirMgr");
 
         parser.addArgument<size_t>("id")
@@ -268,7 +268,7 @@ unique_ptr<ArgParseCmdType> QCirCopyCmd() {
 unique_ptr<ArgParseCmdType> QCirComposeCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCCOMpose");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("compose a QCir");
 
         parser.addArgument<size_t>("id")
@@ -291,7 +291,7 @@ unique_ptr<ArgParseCmdType> QCirComposeCmd() {
 unique_ptr<ArgParseCmdType> QCirTensorCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCTensor");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("tensor a QCir");
 
         parser.addArgument<size_t>("id")
@@ -314,7 +314,7 @@ unique_ptr<ArgParseCmdType> QCirTensorCmd() {
 unique_ptr<ArgParseCmdType> QCPrintCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCPrint");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("print info of QCirMgr or settings");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
@@ -364,7 +364,7 @@ unique_ptr<ArgParseCmdType> QCPrintCmd() {
 
 unique_ptr<ArgParseCmdType> QCSetCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCSet");
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("set QCir parameters");
         parser.addArgument<size_t>("-single-delay")
             .help("delay of single-qubit gate");
@@ -417,7 +417,7 @@ unique_ptr<ArgParseCmdType> QCSetCmd() {
 unique_ptr<ArgParseCmdType> QCirReadCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCCRead");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("read a circuit and construct the corresponding netlist");
 
         parser.addArgument<string>("filepath")
@@ -429,7 +429,7 @@ unique_ptr<ArgParseCmdType> QCirReadCmd() {
     };
 
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
-        QCir *bufferQCir = new QCir(0);
+        QCir* bufferQCir = new QCir(0);
         string filepath = parser["filepath"];
         bool replace = parser["-replace"];
         if (!bufferQCir->readQCirFile(filepath)) {
@@ -461,7 +461,7 @@ unique_ptr<ArgParseCmdType> QCirReadCmd() {
 unique_ptr<ArgParseCmdType> QCirGatePrintCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCGPrint");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("print gate info in QCir");
 
         parser.addArgument<size_t>("id")
@@ -500,7 +500,7 @@ unique_ptr<ArgParseCmdType> QCirGatePrintCmd() {
 unique_ptr<ArgParseCmdType> QCirPrintCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCCPrint");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("print info of QCir");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
@@ -549,7 +549,7 @@ unique_ptr<ArgParseCmdType> QCirPrintCmd() {
 //     QCGAdd <-MCP | -MCPX | -MCRZ| -MCRX> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 CmdExecStatus
-QCirAddGateCmd::exec(std::stop_token, const string &option) {
+QCirAddGateCmd::exec(std::stop_token, const string& option) {
     QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCGAdd");
     // check option
     vector<string> options;
@@ -745,7 +745,7 @@ void QCirAddGateCmd::summary() const {
 unique_ptr<ArgParseCmdType> QCirAddQubitCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCBAdd");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("add qubit(s)");
 
         parser.addArgument<size_t>("amount")
@@ -775,7 +775,7 @@ unique_ptr<ArgParseCmdType> QCirAddQubitCmd() {
 unique_ptr<ArgParseCmdType> QCirDeleteGateCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCGDelete");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("delete gate");
 
         parser.addArgument<size_t>("id")
@@ -798,7 +798,7 @@ unique_ptr<ArgParseCmdType> QCirDeleteGateCmd() {
 unique_ptr<ArgParseCmdType> QCirDeleteQubitCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCBDelete");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("delete qubit");
 
         parser.addArgument<size_t>("id")
@@ -823,7 +823,7 @@ unique_ptr<ArgParseCmdType> QCirDeleteQubitCmd() {
 unique_ptr<ArgParseCmdType> QCir2ZXCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QC2ZX");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("convert QCir to ZX-graph");
     };
 
@@ -843,7 +843,7 @@ unique_ptr<ArgParseCmdType> QCir2ZXCmd() {
 unique_ptr<ArgParseCmdType> QCir2TSCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QC2TS");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("convert QCir to tensor");
     };
 
@@ -863,7 +863,7 @@ unique_ptr<ArgParseCmdType> QCir2TSCmd() {
 unique_ptr<ArgParseCmdType> QCirWriteCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QCCWrite");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("write QCir to a QASM file");
         parser.addArgument<string>("output-path.qasm")
             .help("the filepath to output file");

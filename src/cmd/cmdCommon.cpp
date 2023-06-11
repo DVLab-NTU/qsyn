@@ -53,7 +53,7 @@ bool initCommonCmd() {
 
 unique_ptr<ArgParseCmdType> helpCmd() {
     auto cmd = make_unique<ArgParseCmdType>("HELp");
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("shows helping message to commands");
 
         parser.addArgument<string>("command")
@@ -80,7 +80,7 @@ unique_ptr<ArgParseCmdType> helpCmd() {
 unique_ptr<ArgParseCmdType> quitCmd() {
     auto cmd = make_unique<ArgParseCmdType>("QQuit");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("quit Qsyn");
 
         parser.addArgument<bool>("-force")
@@ -111,7 +111,7 @@ unique_ptr<ArgParseCmdType> quitCmd() {
 unique_ptr<ArgParseCmdType> historyCmd() {
     auto cmd = make_unique<ArgParseCmdType>("HIStory");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("print command history");
         parser.addArgument<size_t>("nPrint")
             .required(false)
@@ -133,7 +133,7 @@ unique_ptr<ArgParseCmdType> historyCmd() {
 unique_ptr<ArgParseCmdType> dofileCmd() {
     auto cmd = make_unique<ArgParseCmdType>("DOfile");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("execute the commands in the dofile");
 
         parser.addArgument<string>("file")
@@ -152,7 +152,7 @@ unique_ptr<ArgParseCmdType> dofileCmd() {
 unique_ptr<ArgParseCmdType> usageCmd() {
     auto cmd = make_unique<ArgParseCmdType>("USAGE");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("report the runtime and/or memory usage");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
@@ -188,7 +188,7 @@ unique_ptr<ArgParseCmdType> usageCmd() {
 unique_ptr<ArgParseCmdType> verboseCmd() {
     auto cmd = make_unique<ArgParseCmdType>("VERbose");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("set verbose level to 0-9 (default: 3)");
 
         parser.addArgument<size_t>("level")
@@ -217,7 +217,7 @@ unique_ptr<ArgParseCmdType> verboseCmd() {
 unique_ptr<ArgParseCmdType> seedCmd() {
     auto cmd = make_unique<ArgParseCmdType>("SEED");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("set the random seed");
 
         parser.addArgument<unsigned>("seed")
@@ -238,7 +238,7 @@ unique_ptr<ArgParseCmdType> seedCmd() {
 unique_ptr<ArgParseCmdType> colorCmd() {
     auto cmd = make_unique<ArgParseCmdType>("COLOR");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("toggle colored printing");
 
         parser.addArgument<string>("mode")
@@ -260,7 +260,7 @@ unique_ptr<ArgParseCmdType> colorCmd() {
 unique_ptr<ArgParseCmdType> clearCmd() {
     auto cmd = make_unique<ArgParseCmdType>("CLEAR");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("clear the console");
     };
 

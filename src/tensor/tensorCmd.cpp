@@ -57,7 +57,7 @@ ArgType<size_t>::ConstraintType validTensorId = {
 unique_ptr<ArgParseCmdType> tsResetCmd() {
     unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSReset");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("reset the tensor manager");
     };
 
@@ -72,7 +72,7 @@ unique_ptr<ArgParseCmdType> tsResetCmd() {
 unique_ptr<ArgParseCmdType> tsPrintCmd() {
     unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSPrint");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("print info of stored tensors");
 
         parser.addArgument<bool>("-list")
@@ -100,7 +100,7 @@ unique_ptr<ArgParseCmdType> tsPrintCmd() {
 unique_ptr<ArgParseCmdType> tsAdjointCmd() {
     unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSADJoint");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("adjoint the specified tensor");
 
         parser.addArgument<size_t>("id")
@@ -117,7 +117,7 @@ unique_ptr<ArgParseCmdType> tsAdjointCmd() {
 unique_ptr<ArgParseCmdType> tsEquivCmd() {
     unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSEQuiv");
 
-    cmd->parserDefinition = [](ArgumentParser & parser) {
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("check the equivalency of two stored tensors");
 
         parser.addArgument<size_t>("id1")
