@@ -46,8 +46,8 @@ Argument const& ArgumentParser::operator[](std::string const& name) const {
  * @return ArgumentParser&
  */
 ArgumentParser& ArgumentParser::name(std::string const& name) {
-    _name = toLowerString(name);
-    _numRequiredChars = countUpperChars(name);
+    _pimpl->name = toLowerString(name);
+    _pimpl->numRequiredChars = countUpperChars(name);
     return *this;
 }
 
@@ -58,7 +58,7 @@ ArgumentParser& ArgumentParser::name(std::string const& name) {
  * @return ArgumentParser&
  */
 ArgumentParser& ArgumentParser::help(std::string const& help) {
-    _help = help;
+    _pimpl->help = help;
     return *this;
 }
 
@@ -67,9 +67,9 @@ ArgumentParser& ArgumentParser::help(std::string const& help) {
  *
  * @return size_t
  */
-size_t ArgumentParser::isParsedSize() const {
+size_t ArgumentParser::numParsedArguments() const {
     size_t parsed = 0;
-    for (auto& [a, b] : _arguments) {
+    for (auto& [a, b] : _pimpl->arguments) {
         parsed += b.isParsed();
     }
     return parsed;
@@ -83,7 +83,7 @@ size_t ArgumentParser::isParsedSize() const {
  * @return false
  */
 bool ArgumentParser::parse(std::string const& line) {
-    for (auto& [_, arg] : _arguments) {
+    for (auto& [_, arg] : _pimpl->arguments) {
         arg.reset();
     }
 
@@ -100,31 +100,31 @@ bool ArgumentParser::parse(std::string const& line) {
  * @return false
  */
 bool ArgumentParser::analyzeOptions() const {
-    if (_optionsAnalyzed) return true;
+    if (_pimpl->optionsAnalyzed) return true;
 
     // calculate the number of required characters to differentiate each option
 
-    _trie.clear();
-    _conflictGroups.clear();
+    _pimpl->trie.clear();
+    _pimpl->conflictGroups.clear();
 
-    for (auto const& group : _mutuallyExclusiveGroups) {
+    for (auto const& group : _pimpl->mutuallyExclusiveGroups) {
         for (auto const& name : group.getArguments()) {
-            if (_arguments.at(name).isRequired()) {
+            if (_pimpl->arguments.at(name).isRequired()) {
                 cerr << "[ArgParse] Error: Mutually exclusive argument \"" << name << "\" must be optional!!" << endl;
                 return false;
             }
-            _conflictGroups.emplace(name, group);
+            _pimpl->conflictGroups.emplace(name, group);
         }
     }
 
-    for (auto const& [name, arg] : _arguments) {
+    for (auto const& [name, arg] : _pimpl->arguments) {
         if (!hasOptionPrefix(name)) continue;
-        _trie.insert(name);
+        _pimpl->trie.insert(name);
     }
 
-    for (auto& [name, arg] : _arguments) {
+    for (auto& [name, arg] : _pimpl->arguments) {
         if (!hasOptionPrefix(name)) continue;
-        size_t prefixSize = _trie.shortestUniquePrefix(name).value().size();
+        size_t prefixSize = _pimpl->trie.shortestUniquePrefix(name).value().size();
         while (!isalpha(name[prefixSize - 1])) ++prefixSize;
         arg.setNumRequiredChars(max(prefixSize, arg.getNumRequiredChars()));
     }
@@ -133,7 +133,7 @@ bool ArgumentParser::analyzeOptions() const {
 
     vector<size_t> widths = {0, 0, 0, 0};
 
-    for (auto& [name, arg] : _arguments) {
+    for (auto& [name, arg] : _pimpl->arguments) {
         if (arg.getTypeString().size() >= widths[0]) {
             widths[0] = arg.getTypeString().size();
         }
@@ -145,12 +145,12 @@ bool ArgumentParser::analyzeOptions() const {
         }
     }
 
-    _tabl.presetStyle(qsutil::Tabler::PresetStyle::ASCII_MINIMAL)
+    _pimpl->tabl.presetStyle(qsutil::Tabler::PresetStyle::ASCII_MINIMAL)
         .indent(1)
         .rightMargin(2)
         .widths(widths);
 
-    _optionsAnalyzed = true;
+    _pimpl->optionsAnalyzed = true;
     return true;
 }
 
@@ -162,7 +162,7 @@ bool ArgumentParser::analyzeOptions() const {
  * @return false if failed
  */
 bool ArgumentParser::tokenize(string const& line) {
-    _tokens.clear();
+    _pimpl->tokens.clear();
     string buffer, stripped;
     if (!stripQuotes(line, stripped)) {
         cerr << "Error: missing ending quote!!" << endl;
@@ -170,12 +170,12 @@ bool ArgumentParser::tokenize(string const& line) {
     }
     size_t pos = myStrGetTok(stripped, buffer);
     while (buffer.size()) {
-        _tokens.emplace_back(buffer);
+        _pimpl->tokens.emplace_back(buffer);
         pos = myStrGetTok(stripped, buffer, pos);
     }
-    if (_tokens.empty()) return true;
+    if (_pimpl->tokens.empty()) return true;
     // concat tokens with '\ ' to a single token with space in it
-    for (auto itr = next(_tokens.rbegin()); itr != _tokens.rend(); ++itr) {
+    for (auto itr = next(_pimpl->tokens.rbegin()); itr != _pimpl->tokens.rend(); ++itr) {
         string& currToken = itr->token;
         string& nextToken = prev(itr)->token;
 
@@ -185,17 +185,17 @@ bool ArgumentParser::tokenize(string const& line) {
             nextToken = "";
         }
     }
-    erase_if(_tokens, [](Token const& token) { return token.token == ""; });
+    erase_if(_pimpl->tokens, [](Token const& token) { return token.token == ""; });
 
     // convert "abc=def", "abc:def" to "abc def"
 
-    size_t nTokens = _tokens.size();
+    size_t nTokens = _pimpl->tokens.size();
     for (size_t i = 0; i < nTokens; ++i) {
-        string& currToken = _tokens[i].token;
+        string& currToken = _pimpl->tokens[i].token;
         size_t pos = currToken.find_first_of("=:");
 
         if (pos != string::npos && pos != 0) {
-            _tokens.emplace(_tokens.begin() + i + 1, currToken.substr(pos + 1));
+            _pimpl->tokens.emplace(_pimpl->tokens.begin() + i + 1, currToken.substr(pos + 1));
             nTokens++;
             currToken = currToken.substr(0, pos);
         }
@@ -212,32 +212,32 @@ bool ArgumentParser::tokenize(string const& line) {
  * @return false if failed
  */
 bool ArgumentParser::parseOptions() {
-    for (int i = _tokens.size() - 1; i >= 0; --i) {
-        if (!hasOptionPrefix(_tokens[i].token)) continue;
-        auto match = matchOption(_tokens[i].token);
+    for (int i = _pimpl->tokens.size() - 1; i >= 0; --i) {
+        if (!hasOptionPrefix(_pimpl->tokens[i].token)) continue;
+        auto match = matchOption(_pimpl->tokens[i].token);
         if (std::holds_alternative<size_t>(match)) {
             auto frequency = std::get<size_t>(match);
             assert(frequency != 1);
             // if the argument is a number, skip to the next arg
-            if (float tmp; myStr2Float(_tokens[i].token, tmp))
+            if (float tmp; myStr2Float(_pimpl->tokens[i].token, tmp))
                 continue;
             // else this is an error
             if (frequency == 0) {
-                cerr << "Error: unrecognized option \"" << _tokens[i].token << "\"!!\n";
+                cerr << "Error: unrecognized option \"" << _pimpl->tokens[i].token << "\"!!\n";
             } else {
-                printAmbiguousOptionErrorMsg(_tokens[i].token);
+                printAmbiguousOptionErrorMsg(_pimpl->tokens[i].token);
             }
 
             return false;
         }
 
-        Argument& arg = _arguments[get<string>(match)];
+        Argument& arg = _pimpl->arguments[get<string>(match)];
 
-        if (_conflictGroups.contains(arg.getName())) {
-            auto& conflictGroup = _conflictGroups.at(arg.getName());
+        if (_pimpl->conflictGroups.contains(arg.getName())) {
+            auto& conflictGroup = _pimpl->conflictGroups.at(arg.getName());
             if (conflictGroup.isParsed()) {
                 for (auto const& conflict : conflictGroup.getArguments()) {
-                    if (_arguments.at(conflict).isParsed()) {
+                    if (_pimpl->arguments.at(conflict).isParsed()) {
                         cerr << "Error: argument \"" << arg.getName() << "\" cannot occur with \"" << conflict << "\"!!\n";
                         return false;
                     }
@@ -248,13 +248,13 @@ bool ArgumentParser::parseOptions() {
 
         if (arg.hasAction())
             arg.parse("");
-        else if (i + 1 >= (int)_tokens.size() || _tokens[i + 1].parsed == true) {  // _tokens[i] is not the last token && _tokens[i+1] is unparsed
-            cerr << "Error: missing argument after \"" << _tokens[i].token << "\"!!\n";
+        else if (i + 1 >= (int)_pimpl->tokens.size() || _pimpl->tokens[i + 1].parsed == true) {  // _tokens[i] is not the last token && _tokens[i+1] is unparsed
+            cerr << "Error: missing argument after \"" << _pimpl->tokens[i].token << "\"!!\n";
             return false;
-        } else if (!arg.parse(_tokens[i + 1].token)) {
+        } else if (!arg.parse(_pimpl->tokens[i + 1].token)) {
             cerr << "Error: invalid " << arg.getTypeString() << " value \""
-                 << _tokens[i + 1].token << "\" after \""
-                 << _tokens[i].token << "\"!!" << endl;
+                 << _pimpl->tokens[i + 1].token << "\" after \""
+                 << _pimpl->tokens[i].token << "\"!!" << endl;
             return false;
         }
 
@@ -266,10 +266,10 @@ bool ArgumentParser::parseOptions() {
             }
         }
 
-        _tokens[i].parsed = true;
+        _pimpl->tokens[i].parsed = true;
 
         if (!arg.hasAction()) {
-            _tokens[i + 1].parsed = true;
+            _pimpl->tokens[i + 1].parsed = true;
         }
     }
 
@@ -283,17 +283,17 @@ bool ArgumentParser::parseOptions() {
  * @return false if failed
  */
 bool ArgumentParser::parsePositionalArguments() {
-    auto currToken = _tokens.begin();
-    auto currArg = _arguments.begin();
+    auto currToken = _pimpl->tokens.begin();
+    auto currArg = _pimpl->arguments.begin();
 
     auto nextToken = [&currToken, this]() {
-        while (currToken != _tokens.end() && currToken->parsed == true) {
+        while (currToken != _pimpl->tokens.end() && currToken->parsed == true) {
             currToken++;
         }
     };
 
     auto nextArg = [&currArg, this]() {
-        while (currArg != _arguments.end() && (currArg->second.isParsed() || hasOptionPrefix(currArg->first))) {
+        while (currArg != _pimpl->arguments.end() && (currArg->second.isParsed() || hasOptionPrefix(currArg->first))) {
             currArg++;
         }
     };
@@ -301,7 +301,7 @@ bool ArgumentParser::parsePositionalArguments() {
     nextToken();
     nextArg();
 
-    for (; currToken != _tokens.end() && currArg != _arguments.end(); nextToken(), nextArg()) {
+    for (; currToken != _pimpl->tokens.end() && currArg != _pimpl->arguments.end(); nextToken(), nextArg()) {
         auto& [token, parsed] = *currToken;
         auto& [name, arg] = *currArg;
 
@@ -344,15 +344,15 @@ bool ArgumentParser::parsePositionalArguments() {
  */
 variant<string, size_t> ArgumentParser::matchOption(std::string const& token) const {
     auto key = toLowerString(token);
-    auto match = _trie.findWithPrefix(key);
+    auto match = _pimpl->trie.findWithPrefix(key);
     if (match.has_value()) {
-        if (key.size() < _arguments.at(match.value()).getNumRequiredChars()) {
+        if (key.size() < _pimpl->arguments.at(match.value()).getNumRequiredChars()) {
             return 0u;
         }
         return match.value();
     }
 
-    return _trie.frequency(key);
+    return _pimpl->trie.frequency(key);
 }
 
 /**
@@ -365,7 +365,7 @@ void ArgumentParser::printAmbiguousOptionErrorMsg(std::string const& token) cons
     auto key = toLowerString(token);
     cerr << "Error: ambiguous option: \"" << token << "\" could match ";
     size_t ctr = 0;
-    for (auto& [name, _] : _arguments) {
+    for (auto& [name, _] : _pimpl->arguments) {
         if (!hasOptionPrefix(name)) continue;
         if (name.starts_with(key)) {
             if (ctr > 0) cerr << ", ";
@@ -384,7 +384,7 @@ void ArgumentParser::printAmbiguousOptionErrorMsg(std::string const& token) cons
 bool ArgumentParser::allRequiredOptionsAreParsed() const {
     // Want: ∀ arg ∈ _arguments. (option(arg) ∧ required(arg)) → parsed(arg)
     // Thus: ∀ arg ∈ _arguments. ¬option(arg) ∨ ¬required(arg) ∨ parsed(arg)
-    for (auto& [name, arg] : _arguments) {
+    for (auto& [name, arg] : _pimpl->arguments) {
         if (hasOptionPrefix(name) && arg.isRequired() && !arg.isParsed()) {
             cerr << "Error: The option \"" << name << "\" is required!!" << endl;
             return false;
@@ -399,7 +399,7 @@ bool ArgumentParser::allRequiredOptionsAreParsed() const {
  * @return true or false
  */
 bool ArgumentParser::allRequiredMutexGroupsAreParsed() const {
-    for (auto& group : _mutuallyExclusiveGroups) {
+    for (auto& group : _pimpl->mutuallyExclusiveGroups) {
         if (group.isRequired() && !group.isParsed()) {
             cerr << "Error: One of the options are required: ";
             size_t ctr = 0;
@@ -420,7 +420,7 @@ bool ArgumentParser::allRequiredMutexGroupsAreParsed() const {
  * @return true or false
  */
 bool ArgumentParser::allTokensAreParsed() const {
-    return ranges::all_of(_tokens, [](Token const& tok) {
+    return ranges::all_of(_pimpl->tokens, [](Token const& tok) {
         return tok.parsed;
     });
 }
@@ -433,7 +433,7 @@ bool ArgumentParser::allTokensAreParsed() const {
 bool ArgumentParser::allRequiredArgumentsAreParsed() const {
     // Want: ∀ arg ∈ _arguments. required(arg) → parsed(arg)
     // Thus: ∀ arg ∈ _arguments. ¬required(arg) ∨ parsed(arg)
-    return all_of(_arguments.begin(), _arguments.end(), [](pair<string, Argument> const& argPair) {
+    return all_of(_pimpl->arguments.begin(), _pimpl->arguments.end(), [](pair<string, Argument> const& argPair) {
         return !argPair.second.isRequired() || argPair.second.isParsed();
     });
 }
@@ -445,7 +445,7 @@ bool ArgumentParser::allRequiredArgumentsAreParsed() const {
 void ArgumentParser::printRequiredArgumentsMissingErrorMsg() const {
     cerr << "Error: Missing argument(s)!! The following arguments are required: ";
     size_t ctr = 0;
-    for (auto& [name, arg] : _arguments) {
+    for (auto& [name, arg] : _pimpl->arguments) {
         if (!arg.isParsed() && arg.isRequired()) {
             if (ctr > 0) cerr << ", ";
             cerr << name;

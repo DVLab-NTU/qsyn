@@ -176,7 +176,7 @@ public:
     std::string const& getName() const { return _pimpl->do_getName(); }
     std::string const& getHelp() const { return _pimpl->do_getHelp(); }
     size_t getNumRequiredChars() const { return _numRequiredChars; }
-    std::string const& getMetavar() const { return _pimpl->do_getMetavar(); }
+    std::string const& getMetavar() const { return _pimpl->do_getMetaVar(); }
     std::vector<ConstraintCallbackType> const& getConstraints() const { return _pimpl->do_getConstraints(); }
 
     // attributes
@@ -211,7 +211,7 @@ private:
         virtual std::string do_getTypeString() const = 0;
         virtual std::string const& do_getName() const = 0;
         virtual std::string const& do_getHelp() const = 0;
-        virtual std::string const& do_getMetavar() const = 0;
+        virtual std::string const& do_getMetaVar() const = 0;
         virtual std::vector<ConstraintCallbackType> const& do_getConstraints() const = 0;
 
         virtual bool do_hasDefaultValue() const = 0;
@@ -238,7 +238,7 @@ private:
         std::string do_getTypeString() const override { return inner.getTypeString(); }
         std::string const& do_getName() const override { return inner.getName(); }
         std::string const& do_getHelp() const override { return inner.getHelp(); }
-        std::string const& do_getMetavar() const override { return inner.getMetaVar(); }
+        std::string const& do_getMetaVar() const override { return inner.getMetaVar(); }
         std::vector<ConstraintCallbackType> const& do_getConstraints() const override { return inner.getConstraints(); }
 
         bool do_hasDefaultValue() const override { return inner.hasDefaultValue(); }
@@ -259,47 +259,108 @@ private:
 };
 
 /**
- * @brief A view for adding mutually exclusive group of arguments.
- *        All copies of this group represents the same underlying group.
+ * @brief A view for adding argument groups.
+ *        All copies of this class represents the same underlying group.
  *
  */
-class MutuallyExclusiveGroupView {
-    struct MutuallyExclusiveGroup {
-        MutuallyExclusiveGroup(ArgumentParser& parser)
+class ArgumentGroup {
+    struct ArgumentGroupImpl {
+        ArgumentGroupImpl(ArgumentParser& parser)
             : _parser{parser} {}
         ArgumentParser& _parser;
         ordered_hashset<std::string> _arguments;
         bool _required;
-        bool _isParsed;
+        bool _parsed;
     };
 
 public:
-    MutuallyExclusiveGroupView(ArgumentParser& parser)
-        : _group{std::make_shared<MutuallyExclusiveGroup>(parser)} {}
+    ArgumentGroup(ArgumentParser& parser)
+        : _group{std::make_shared<ArgumentGroupImpl>(parser)} {}
 
     template <typename T>
     ArgType<T>& addArgument(std::string const& name);
 
     bool contains(std::string const& name) const { return _group->_arguments.contains(name); }
-    MutuallyExclusiveGroupView required(bool isReq) {
+    ArgumentGroup required(bool isReq) {
         _group->_required = isReq;
         return *this;
     }
-    void setParsed(bool isParsed) { _group->_isParsed = isParsed; }
+    void setParsed(bool isParsed) { _group->_parsed = isParsed; }
 
     bool isRequired() const { return _group->_required; }
-    bool isParsed() const { return _group->_isParsed; }
+    bool isParsed() const { return _group->_parsed; }
 
     ordered_hashset<std::string> const& getArguments() const { return _group->_arguments; }
 
 private:
-    std::shared_ptr<MutuallyExclusiveGroup> _group;
+    std::shared_ptr<ArgumentGroupImpl> _group;
 };
 
-class ArgumentParser {
+/**
+ * @brief A view for adding subparsers.
+ *        All copies of this class represents the same underlying group of subparsers.
+ *
+ */
+class SubParsers {
+    struct SubParsersImpl {
+        bool _required;
+        bool _parsed;
+    };
+
 public:
-    ArgumentParser()
-        : _optionPrefix("-"), _optionsAnalyzed(false) {}
+    void setParsed(bool isParsed) { _subparsers->_parsed = isParsed; }
+    SubParsers required(bool isReq) {
+        _subparsers->_required = isReq;
+        return *this;
+    }
+
+    bool isRequired() const { return _subparsers->_required; }
+    bool isParsed() const { return _subparsers->_parsed; }
+
+private:
+    std::shared_ptr<SubParsersImpl> _subparsers;
+};
+
+/**
+ * @brief A view for argument parsers.
+ *        All copies of this class represents the same underlying parsers.
+ *
+ */
+class ArgumentParser {
+    struct Token {
+        Token(std::string const& tok)
+            : token{tok}, parsed{false} {}
+        Token(char* const tok)
+            : token{tok}, parsed{false} {}
+        template <size_t N>
+        Token(char const (&tok)[N])
+            : token{tok}, parsed{false} {}
+        std::string token;
+        bool parsed;
+    };
+
+    struct ArgumentParserImpl {
+        ArgumentParserImpl() : optionPrefix("-"), optionsAnalyzed(false) {}
+        ordered_hashmap<std::string, Argument> arguments;
+        std::string optionPrefix;
+        std::vector<Token> tokens;
+
+        std::vector<ArgumentGroup> mutuallyExclusiveGroups;
+        std::unordered_map<std::string, ArgumentGroup> mutable conflictGroups;  // map an argument name to a mutually-exclusive group if it belongs to one.
+
+        std::string name;
+        std::string help;
+        size_t numRequiredChars;
+
+        qsutil::Tabler mutable tabl;
+
+        // members for analyzing parser options
+        MyTrie mutable trie;
+        bool mutable optionsAnalyzed;
+    };
+
+public:
+    ArgumentParser() : _pimpl{std::make_shared<ArgumentParserImpl>()} {}
 
     Argument& operator[](std::string const& name);
     Argument const& operator[](std::string const& name) const;
@@ -307,7 +368,7 @@ public:
     ArgumentParser& name(std::string const& name);
     ArgumentParser& help(std::string const& help);
 
-    size_t isParsedSize() const;
+    size_t numParsedArguments() const;
 
     // print functions
 
@@ -321,56 +382,30 @@ public:
 
     // setters
 
-    void setOptionPrefix(std::string const& prefix) { _optionPrefix = prefix; }
+    void setOptionPrefix(std::string const& prefix) { _pimpl->optionPrefix = prefix; }
 
     // getters and attributes
 
-    std::string const& getName() const { return _name; }
-    std::string const& getHelp() const { return _help; }
-    bool hasOptionPrefix(std::string const& str) const { return str.find_first_of(_optionPrefix) == 0UL; }
+    std::string const& getName() const { return _pimpl->name; }
+    std::string const& getHelp() const { return _pimpl->help; }
+    size_t const& getNumRequiredChars() const { return _pimpl->numRequiredChars; }
+    bool hasOptionPrefix(std::string const& str) const { return str.find_first_of(_pimpl->optionPrefix) == 0UL; }
     bool hasOptionPrefix(Argument const& arg) const { return hasOptionPrefix(arg.getName()); }
 
     // action
 
     template <typename T>
     ArgType<T>& addArgument(std::string const& name);
-    MutuallyExclusiveGroupView& addMutuallyExclusiveGroup() {
-        _mutuallyExclusiveGroups.emplace_back(*this);
-        return _mutuallyExclusiveGroups.back();
+    ArgumentGroup& addMutuallyExclusiveGroup() {
+        _pimpl->mutuallyExclusiveGroups.emplace_back(*this);
+        return _pimpl->mutuallyExclusiveGroups.back();
     }
 
     bool parse(std::string const& line);
     bool analyzeOptions() const;
 
 private:
-    struct Token {
-        Token(std::string const& tok)
-            : token{tok}, parsed{false} {}
-        Token(char* const tok)
-            : token{tok}, parsed{false} {}
-        template <size_t N>
-        Token(char const (&tok)[N])
-            : token{tok}, parsed{false} {}
-        std::string token;
-        bool parsed;
-    };
-
-    ordered_hashmap<std::string, Argument> _arguments;
-    std::string _optionPrefix;
-    std::vector<Token> _tokens;
-
-    std::vector<MutuallyExclusiveGroupView> _mutuallyExclusiveGroups;
-    std::unordered_map<std::string, MutuallyExclusiveGroupView> mutable _conflictGroups;  // map an argument name to a mutually-exclusive group if it belongs to one.
-
-    std::string _name;
-    std::string _help;
-    size_t _numRequiredChars;
-
-    qsutil::Tabler mutable _tabl;
-
-    // members for analyzing parser options
-    MyTrie mutable _trie;
-    bool mutable _optionsAnalyzed;
+    std::shared_ptr<ArgumentParserImpl> _pimpl;
 
     template <typename T>
     static decltype(auto)
@@ -663,21 +698,21 @@ T const& Argument::get() const {
 template <typename T>
 ArgType<T>& ArgumentParser::addArgument(std::string const& name) {
     auto realname = toLowerString(name);
-    if (_arguments.contains(realname)) {
+    if (_pimpl->arguments.contains(realname)) {
         printDuplicateArgNameErrorMsg(name);
     } else {
-        _arguments.emplace(realname, Argument(T{}));
+        _pimpl->arguments.emplace(realname, Argument(T{}));
     }
 
-    ArgType<T>& returnRef = dynamic_cast<Argument::Model<ArgType<T>>*>(_arguments.at(realname)._pimpl.get())->inner;
+    ArgType<T>& returnRef = dynamic_cast<Argument::Model<ArgType<T>>*>(_pimpl->arguments.at(realname)._pimpl.get())->inner;
 
     if (!hasOptionPrefix(realname)) {
         returnRef.required(true).metavar(realname);
     } else {
-        returnRef.metavar(toUpperString(realname.substr(realname.find_first_not_of(_optionPrefix))));
+        returnRef.metavar(toUpperString(realname.substr(realname.find_first_not_of(_pimpl->optionPrefix))));
     }
 
-    _optionsAnalyzed = false;
+    _pimpl->optionsAnalyzed = false;
 
     return returnRef.name(name);
 }
@@ -686,7 +721,7 @@ template <typename T>
 decltype(auto)
 ArgumentParser::operatorBracketImpl(T&& t, std::string const& name) {
     try {
-        return std::forward<T>(t)._arguments.at(toLowerString(name));
+        return std::forward<T>(t)._pimpl->arguments.at(toLowerString(name));
     } catch (std::out_of_range& e) {
         std::cerr << "Argument name \"" << name
                   << "\" does not exist for command \""
@@ -696,7 +731,7 @@ ArgumentParser::operatorBracketImpl(T&& t, std::string const& name) {
 }
 
 template <typename T>
-ArgType<T>& MutuallyExclusiveGroupView::addArgument(std::string const& name) {
+ArgType<T>& ArgumentGroup::addArgument(std::string const& name) {
     ArgType<T>& returnRef = _group->_parser.addArgument<T>(name);
     _group->_arguments.insert(returnRef.getName());
     return returnRef;
