@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ argparserCmd.cpp ]
+  FileName     [ apCmd.cpp ]
   PackageName  [ argparser ]
   Synopsis     [ Define classes for argparser commands ]
   Author       [ Design Verification Lab ]
@@ -24,7 +24,7 @@ using namespace ArgParse;
 
 unique_ptr<ArgParseCmdType> argparseCmd();
 
-bool initArgParserCmd() {
+bool initArgParseCmd() {
     if (!(cmdMgr->regCmd("Argparse", 1, argparseCmd()))) {
         cerr << "Registering \"argparser\" commands fails... exiting" << endl;
         return false;
@@ -44,16 +44,28 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
         parser.addArgument<string>("dog")
             .help("humans' best friend");
 
-        auto mutex1 = parser.addMutuallyExclusiveGroup().required(true);
+        // auto mutex1 = parser.addMutuallyExclusiveGroup().required(true);
 
-        mutex1.addArgument<int>("-bacon")
-            .help("yummy");
+        // mutex1.addArgument<int>("-bacon")
+        //     .help("yummy");
 
-        mutex1.addArgument<int>("-badge")
-            .help("a sign of honour");
+        // mutex1.addArgument<int>("-badge")
+        //     .help("a sign of honour");
 
-        mutex1.addArgument<int>("-bus")
-            .help("public transport");
+        // mutex1.addArgument<int>("-bus")
+        //     .help("public transport");
+
+        auto subparsers = parser.addSubParsers()
+            .required(true)
+            .help("bird");
+
+        auto gooseParser = subparsers.addParser("goose");
+
+        gooseParser.addArgument<int>("honk");
+
+        auto duckParser = subparsers.addParser("duck");
+
+        duckParser.addArgument<string>("quack");
     };
 
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {

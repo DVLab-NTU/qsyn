@@ -122,11 +122,25 @@ bool ArgumentParser::analyzeOptions() const {
         _pimpl->trie.insert(name);
     }
 
+    if (_pimpl->subparsers.has_value()) {
+        for (auto const& [name, parser] : _pimpl->subparsers->getSubParsers()) {
+            _pimpl->trie.insert(name);
+        }
+    }
+
     for (auto& [name, arg] : _pimpl->arguments) {
         if (!hasOptionPrefix(name)) continue;
         size_t prefixSize = _pimpl->trie.shortestUniquePrefix(name).value().size();
         while (!isalpha(name[prefixSize - 1])) ++prefixSize;
         arg.setNumRequiredChars(max(prefixSize, arg.getNumRequiredChars()));
+    }
+
+    if (_pimpl->subparsers.has_value()) {
+        for (auto& [name, parser] : _pimpl->subparsers->getSubParsers()) {
+            size_t prefixSize = _pimpl->trie.shortestUniquePrefix(name).value().size();
+            while (!isalpha(name[prefixSize - 1])) ++prefixSize;
+            parser.setNumRequiredChars(max(prefixSize, parser.getNumRequiredChars()));
+        }
     }
 
     // calculate tabler info

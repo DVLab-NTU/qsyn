@@ -275,25 +275,27 @@ class ArgumentGroup {
 
 public:
     ArgumentGroup(ArgumentParser& parser)
-        : _group{std::make_shared<ArgumentGroupImpl>(parser)} {}
+        : _pimpl{std::make_shared<ArgumentGroupImpl>(parser)} {}
 
     template <typename T>
     ArgType<T>& addArgument(std::string const& name);
 
-    bool contains(std::string const& name) const { return _group->_arguments.contains(name); }
+    bool contains(std::string const& name) const { return _pimpl->_arguments.contains(name); }
     ArgumentGroup required(bool isReq) {
-        _group->_required = isReq;
+        _pimpl->_required = isReq;
         return *this;
     }
-    void setParsed(bool isParsed) { _group->_parsed = isParsed; }
+    void setParsed(bool isParsed) { _pimpl->_parsed = isParsed; }
 
-    bool isRequired() const { return _group->_required; }
-    bool isParsed() const { return _group->_parsed; }
+    bool isRequired() const { return _pimpl->_required; }
+    bool isParsed() const { return _pimpl->_parsed; }
 
-    ordered_hashset<std::string> const& getArguments() const { return _group->_arguments; }
+    size_t size() const noexcept { return _pimpl->_arguments.size(); }
+
+    ordered_hashset<std::string> const& getArguments() const { return _pimpl->_arguments; }
 
 private:
-    std::shared_ptr<ArgumentGroupImpl> _group;
+    std::shared_ptr<ArgumentGroupImpl> _pimpl;
 };
 
 /**
@@ -303,22 +305,37 @@ private:
  */
 class SubParsers {
     struct SubParsersImpl {
-        bool _required;
-        bool _parsed;
+        ordered_hashmap<std::string, ArgumentParser> subparsers;
+        std::string help;
+        bool required;
+        bool parsed;
     };
 
 public:
-    void setParsed(bool isParsed) { _subparsers->_parsed = isParsed; }
+    SubParsers(): _pimpl{std::make_shared<SubParsersImpl>()} {}
+    void setParsed(bool isParsed) { _pimpl->parsed = isParsed; }
     SubParsers required(bool isReq) {
-        _subparsers->_required = isReq;
+        _pimpl->required = isReq;
+        return *this;
+    }
+    SubParsers help(std::string const& help) {
+        _pimpl->help = help;
         return *this;
     }
 
-    bool isRequired() const { return _subparsers->_required; }
-    bool isParsed() const { return _subparsers->_parsed; }
+    ArgumentParser addParser(std::string const& n);
+
+    size_t size() const noexcept { return _pimpl->subparsers.size(); }
+
+    auto const& getSubParsers() const { return _pimpl->subparsers; }
+    auto const& getHelp() const { return _pimpl->help; }
+    
+
+    bool isRequired() const { return _pimpl->required; }
+    bool isParsed() const { return _pimpl->parsed; }
 
 private:
-    std::shared_ptr<SubParsersImpl> _subparsers;
+    std::shared_ptr<SubParsersImpl> _pimpl;
 };
 
 /**
@@ -327,6 +344,55 @@ private:
  *
  */
 class ArgumentParser {
+public:
+    ArgumentParser() : _pimpl{std::make_shared<ArgumentParserImpl>()} {}
+    ArgumentParser(std::string const& n) : _pimpl{std::make_shared<ArgumentParserImpl>()} {
+        this->name(n);
+    }
+
+    Argument& operator[](std::string const& name);
+    Argument const& operator[](std::string const& name) const;
+
+    ArgumentParser& name(std::string const& name);
+    ArgumentParser& help(std::string const& help);
+
+    size_t numParsedArguments() const;
+
+    // print functions
+
+    void printTokens() const;
+    void printArguments() const;
+    void printUsage() const;
+    void printSummary() const;
+    void printHelp() const;
+
+    std::string getSyntaxString(Argument const& arg) const;
+    std::string getSyntaxString(SubParsers parsers) const;
+
+    // setters
+
+    void setOptionPrefix(std::string const& prefix) { _pimpl->optionPrefix = prefix; }
+
+    // getters and attributes
+
+    std::string const& getName() const { return _pimpl->name; }
+    std::string const& getHelp() const { return _pimpl->help; }
+    size_t const& getNumRequiredChars() const { return _pimpl->numRequiredChars; }
+    bool hasOptionPrefix(std::string const& str) const { return str.find_first_of(_pimpl->optionPrefix) == 0UL; }
+    bool hasOptionPrefix(Argument const& arg) const { return hasOptionPrefix(arg.getName()); }
+
+    // action
+
+    template <typename T>
+    ArgType<T>& addArgument(std::string const& name);
+
+    ArgumentGroup addMutuallyExclusiveGroup();
+    SubParsers addSubParsers();
+
+    bool parse(std::string const& line);
+    bool analyzeOptions() const;
+
+private:
     struct Token {
         Token(std::string const& tok)
             : token{tok}, parsed{false} {}
@@ -346,6 +412,7 @@ class ArgumentParser {
         std::vector<Token> tokens;
 
         std::vector<ArgumentGroup> mutuallyExclusiveGroups;
+        std::optional<SubParsers> subparsers;
         std::unordered_map<std::string, ArgumentGroup> mutable conflictGroups;  // map an argument name to a mutually-exclusive group if it belongs to one.
 
         std::string name;
@@ -358,53 +425,6 @@ class ArgumentParser {
         MyTrie mutable trie;
         bool mutable optionsAnalyzed;
     };
-
-public:
-    ArgumentParser() : _pimpl{std::make_shared<ArgumentParserImpl>()} {}
-
-    Argument& operator[](std::string const& name);
-    Argument const& operator[](std::string const& name) const;
-
-    ArgumentParser& name(std::string const& name);
-    ArgumentParser& help(std::string const& help);
-
-    size_t numParsedArguments() const;
-
-    // print functions
-
-    void printTokens() const;
-    void printArguments() const;
-    void printUsage() const;
-    void printSummary() const;
-    void printHelp() const;
-
-    std::string getSyntaxString(Argument const& arg) const;
-
-    // setters
-
-    void setOptionPrefix(std::string const& prefix) { _pimpl->optionPrefix = prefix; }
-
-    // getters and attributes
-
-    std::string const& getName() const { return _pimpl->name; }
-    std::string const& getHelp() const { return _pimpl->help; }
-    size_t const& getNumRequiredChars() const { return _pimpl->numRequiredChars; }
-    bool hasOptionPrefix(std::string const& str) const { return str.find_first_of(_pimpl->optionPrefix) == 0UL; }
-    bool hasOptionPrefix(Argument const& arg) const { return hasOptionPrefix(arg.getName()); }
-
-    // action
-
-    template <typename T>
-    ArgType<T>& addArgument(std::string const& name);
-    ArgumentGroup& addMutuallyExclusiveGroup() {
-        _pimpl->mutuallyExclusiveGroups.emplace_back(*this);
-        return _pimpl->mutuallyExclusiveGroups.back();
-    }
-
-    bool parse(std::string const& line);
-    bool analyzeOptions() const;
-
-private:
     std::shared_ptr<ArgumentParserImpl> _pimpl;
 
     template <typename T>
@@ -420,8 +440,11 @@ private:
     std::string requiredArgBracket(std::string const& str) const;
     std::string optionalArgBracket(std::string const& str) const;
     void printHelpString(Argument const& arg) const;
+    void printHelpString(SubParsers parser) const;
     std::string styledArgName(Argument const& arg) const;
-    std::string styledCmdName() const;
+    std::string styledCmdName(std::string const& name, size_t numRequired) const;
+
+    void setNumRequiredChars(size_t num) { _pimpl->numRequiredChars = num; } 
 
     // parse subroutine
     bool tokenize(std::string const& line);
@@ -725,15 +748,15 @@ ArgumentParser::operatorBracketImpl(T&& t, std::string const& name) {
     } catch (std::out_of_range& e) {
         std::cerr << "Argument name \"" << name
                   << "\" does not exist for command \""
-                  << std::forward<T>(t).styledCmdName() << "\"\n";
+                  << std::forward<T>(t).styledCmdName(std::forward<T>(t).getName(), std::forward<T>(t).getNumRequiredChars()) << "\"\n";
         throw e;
     }
 }
 
 template <typename T>
 ArgType<T>& ArgumentGroup::addArgument(std::string const& name) {
-    ArgType<T>& returnRef = _group->_parser.addArgument<T>(name);
-    _group->_arguments.insert(returnRef.getName());
+    ArgType<T>& returnRef = _pimpl->_parser.addArgument<T>(name);
+    _pimpl->_arguments.insert(returnRef.getName());
     return returnRef;
 }
 

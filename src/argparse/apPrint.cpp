@@ -41,15 +41,15 @@ void ArgumentParser::printDuplicateArgNameErrorMsg(std::string const& name) cons
  *
  * @return string
  */
-string ArgumentParser::styledCmdName() const {
+string ArgumentParser::styledCmdName(std::string const& name, size_t numRequired) const {
     if (colorLevel >= 1) {
-        string mand = getName().substr(0, getNumRequiredChars());
-        string rest = getName().substr(getNumRequiredChars());
+        string mand = name.substr(0, numRequired);
+        string rest = name.substr(numRequired);
         return accentStyle(mand) + rest;
     } else {
-        string tmp = getName();
+        string tmp = name;
         for (size_t i = 0; i < tmp.size(); ++i) {
-            tmp[i] = (i < getNumRequiredChars()) ? ::toupper(tmp[i]) : ::tolower(tmp[i]);
+            tmp[i] = (i < numRequired) ? ::toupper(tmp[i]) : ::tolower(tmp[i]);
         }
         return tmp;
     }
@@ -92,7 +92,7 @@ void ArgumentParser::printUsage() const {
     }
 
     cout << TF::LIGHT_BLUE("Usage: ");
-    cout << styledCmdName();
+    cout << styledCmdName(getName(), getNumRequiredChars());
     for (auto const& [name, arg] : _pimpl->arguments) {
         if (!arg.isRequired() && !_pimpl->conflictGroups.contains(name)) {
             cout << " " << optionalArgBracket(getSyntaxString(arg));
@@ -105,7 +105,7 @@ void ArgumentParser::printUsage() const {
             size_t ctr = 0;
             for (auto const& name : group.getArguments()) {
                 cout << getSyntaxString(_pimpl->arguments.at(name));
-                if (++ctr < group.getArguments().size()) cout << optionalStyle(" | ");
+                if (++ctr < group.size()) cout << optionalStyle(" | ");
             }
             cout << optionalStyle("]");
         }
@@ -117,7 +117,7 @@ void ArgumentParser::printUsage() const {
             size_t ctr = 0;
             for (auto const& name : group.getArguments()) {
                 cout << getSyntaxString(_pimpl->arguments.at(name));
-                if (++ctr < group.getArguments().size()) cout << requiredStyle(" | ");
+                if (++ctr < group.size()) cout << requiredStyle(" | ");
             }
             cout << requiredStyle(">");
         }
@@ -127,6 +127,12 @@ void ArgumentParser::printUsage() const {
         if (arg.isRequired() && !_pimpl->conflictGroups.contains(name)) {
             cout << " " << getSyntaxString(arg);
         }
+    }
+
+    if (_pimpl->subparsers.has_value()) {
+        cout << " " << (_pimpl->subparsers->isRequired() ? requiredStyle("<") : optionalStyle("[")) 
+             << getSyntaxString(_pimpl->subparsers.value()) 
+             << (_pimpl->subparsers->isRequired() ? requiredStyle(">") : optionalStyle("]")) << " ...";
     }
 
     cout << endl;
@@ -141,7 +147,7 @@ void ArgumentParser::printSummary() const {
         cerr << "[ArgParse] Failed to generate usage information!!" << endl;
         return;
     }
-    cout << setw(15 + TF::tokenSize(accentStyle)) << left << styledCmdName() + ":  "
+    cout << setw(15 + TF::tokenSize(accentStyle)) << left << styledCmdName(getName(), getNumRequiredChars()) + ":  "
          << getHelp() << endl;
 }
 
@@ -172,6 +178,10 @@ void ArgumentParser::printHelp() const {
         }
     }
 
+    if (_pimpl->subparsers.has_value() && _pimpl->subparsers->isRequired()) {
+        printHelpString(_pimpl->subparsers.value());
+    }
+
     if (count_if(_pimpl->arguments.begin(), _pimpl->arguments.end(), argPairIsOptional)) {
         cout << TF::LIGHT_BLUE("\nOptional Arguments:\n");
         for (auto const& [_, arg] : _pimpl->arguments) {
@@ -179,6 +189,10 @@ void ArgumentParser::printHelp() const {
                 printHelpString(arg);
             }
         }
+    }
+
+    if (_pimpl->subparsers.has_value() && !_pimpl->subparsers->isRequired()) {
+        printHelpString(_pimpl->subparsers.value());
     }
 }
 
@@ -198,6 +212,18 @@ string ArgumentParser::getSyntaxString(Argument const& arg) const {
     if (hasOptionPrefix(arg)) {
         ret = optionalStyle(styledArgName(arg)) + (arg.hasAction() ? "" : (" " + ret));
     }
+
+    return ret;
+}
+
+string ArgumentParser::getSyntaxString(SubParsers parsers) const {
+    string ret = "{";
+    size_t ctr = 0;
+    for (auto const& [name, parser] : _pimpl->subparsers->getSubParsers()) {
+        ret += styledCmdName(parser.getName(), parser.getNumRequiredChars());
+        if (++ctr < _pimpl->subparsers->size()) ret += ", ";
+    }
+    ret += "}";
 
     return ret;
 }
@@ -234,16 +260,21 @@ void ArgumentParser::printHelpString(Argument const& arg) const {
     _pimpl->tabl << (arg.hasAction() ? typeStyle("flag") : typeStyle(arg.getTypeString()));
 
     if (hasOptionPrefix(arg)) {
-        _pimpl->tabl << styledArgName(arg);
-        if (arg.hasAction())
-            _pimpl->tabl << Tabler::Skip{};
-        else
-            _pimpl->tabl << metavarStyle(arg.getMetavar());
+        if (arg.hasAction()) {
+            _pimpl->tabl << Tabler::Multicols(styledArgName(arg), 2);
+        } else {
+            _pimpl->tabl << styledArgName(arg) << metavarStyle(arg.getMetavar());
+        }
     } else {
-        _pimpl->tabl << metavarStyle(arg.getMetavar()) << Tabler::Skip{};
+        _pimpl->tabl << Tabler::Multicols(metavarStyle(arg.getMetavar()), 2);
     }
 
     _pimpl->tabl << arg.getHelp();
+}
+
+void ArgumentParser::printHelpString(SubParsers parsers) const {
+    using qsutil::Tabler;
+    _pimpl->tabl << Tabler::Multicols(getSyntaxString(parsers), 3) << parsers.getHelp();
 }
 
 /**
