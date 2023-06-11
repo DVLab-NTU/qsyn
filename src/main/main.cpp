@@ -24,7 +24,7 @@ using namespace std;
 //----------------------------------------------------------------------
 CmdParser* cmdMgr = new CmdParser("qsyn> ");
 
-extern bool initArgParserCmd();
+extern bool initArgParseCmd();
 extern bool initCommonCmd();
 extern bool initQCirCmd();
 extern bool initOptimizeCmd();
@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
     cout << "DV Lab, NTUEE, Qsyn 0.4.2" << endl;
 
     if (
-        // !initArgParserCmd() ||
+        !initArgParseCmd() ||
         !initCommonCmd() ||
         !initQCirCmd() ||
         !initOptimizeCmd() ||
