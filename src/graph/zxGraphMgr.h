@@ -48,7 +48,7 @@ public:
     void setGraph(ZXGraph* g);
 
     // Add and Remove
-    ZXGraph* addZXGraph(size_t id, void** ref = NULL);
+    ZXGraph* addZXGraph(size_t id);
     void removeZXGraph(size_t id);
 
     // Action

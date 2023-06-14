@@ -68,7 +68,7 @@ void Extractor::initialize(bool fromEmpty) {
 
     updateNeighbors();
     for (auto& v : _graph->getVertices()) {
-        if (_graph->isGadget(v)) {
+        if (_graph->isGadgetLeaf(v)) {
             _axels.emplace(v->getFirstNeighbor().first);
         }
     }
@@ -447,7 +447,7 @@ bool Extractor::removeGadget(bool check) {
                 _axels.erase(n);
                 _frontier.erase(candidate);
 
-                pivotBoundaryRule->rewrite(_graph);
+                simp.rewrite();
                 simp.amend();
 
                 pivotBoundaryRule->clearBoundary();
@@ -1068,7 +1068,7 @@ void Extractor::printAxels() {
     for (auto& n : _axels) {
         cout << n->getId() << " (phase gadget: ";
         for (auto& [pg, _] : n->getNeighbors()) {
-            if (_graph->isGadget(pg))
+            if (_graph->isGadgetLeaf(pg))
                 cout << pg->getId() << ")" << endl;
         }
     }

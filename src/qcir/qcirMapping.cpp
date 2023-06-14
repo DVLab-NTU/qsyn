@@ -42,7 +42,6 @@ void QCir::ZXMapping() {
     _ZXG->addProcedure("QC2ZX", _procedures);
 
     if (verbose >= 5) cout << "Traverse and build the graph... " << endl;
-    _ZXG->setRef((void **)_ZXG);
 
     if (verbose >= 5) cout << "\n> Add boundaries" << endl;
     for (size_t i = 0; i < _qubits.size(); i++) {
