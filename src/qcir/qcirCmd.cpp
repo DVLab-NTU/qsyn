@@ -547,8 +547,10 @@ unique_ptr<ArgParseCmdType> QCirPrintCmd() {
             qcirMgr->getQCircuit()->printGates();
         else if (parser["-qubit"].isParsed())
             qcirMgr->getQCircuit()->printQubits();
-        else
+        else if (parser["-summary"].isParsed())
             qcirMgr->getQCircuit()->printSummary();
+        else
+            qcirMgr->getQCircuit()->printCirInfo();
 
         return CMD_EXEC_DONE;
     };
