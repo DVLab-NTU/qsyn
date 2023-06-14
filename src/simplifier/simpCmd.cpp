@@ -23,7 +23,7 @@ using namespace std;
 using namespace ArgParse;
 extern size_t verbose;
 
-OPTimizer opt;
+ZXOPTimizer opt;
 
 unique_ptr<ArgParseCmdType> ZXGSimpCmd();
 unique_ptr<ArgParseCmdType> ZXOPTCmd();
@@ -49,7 +49,7 @@ bool initSimpCmd() {
 
 //------------------------------------------------------------------------------------------------------------------
 //    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion |
-//             -HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -PIVOTBoundary | -CLIFford | -FReduce | -SReduce]
+//             -HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -PIVOTBoundary | -CLIFford | -FReduce | -SReduce | -DReduce]
 //------------------------------------------------------------------------------------------------------------------
 unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXGSimp");
@@ -58,6 +58,10 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         parser.help("perform simplification strategies for ZX-graph");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
+        mutex.addArgument<bool>("-dreduce")
+            .action(storeTrue)
+            .help("perform dynamic full reduce");
+
         mutex.addArgument<bool>("-freduce")
             .action(storeTrue)
             .help("perform full reduce");
@@ -132,6 +136,8 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         Simplifier s(zxGraphMgr->getGraph());
         if (parser["-sreduce"].isParsed())
             s.symbolicReduce();
+        else if (parser["-dreduce"].isParsed())
+            s.hybridReduce();
         else if (parser["-interclifford"].isParsed())
             s.interiorCliffordSimp();
         else if (parser["-clifford"].isParsed())

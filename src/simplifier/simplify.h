@@ -13,6 +13,7 @@
 
 #include "zxRules.h"  // for ZXRule
 #include "zxoptimizer.h"
+#include "optimizer.h"
 
 class ZXGraph;
 
@@ -59,12 +60,14 @@ public:
     int piCliffordSimp();
     int cliffordSimp();
     void fullReduce();
-    void dynamicReduce();
+    void dynamicReduce(int tOptimal = INT_MAX);
+    void hybridReduce();
     void symbolicReduce();
 
     // print function
     void printRecipe();
     void printOptimizer();
+    void getStepInfo(ZXGraph* g);
 
 private:
     std::unique_ptr<ZXRule> _rule;
