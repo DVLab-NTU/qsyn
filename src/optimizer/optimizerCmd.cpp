@@ -53,6 +53,7 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("OPTimize");
         Optimizer Opt(qcirMgr->getQCircuit());
+        qcirMgr->getQCircuit()->printCirInfo(); cout << endl;
         QCir *result = Opt.parseCircuit(!parser["-physical"], false, 1000);
         if (result == nullptr) {
             cout << "Error: fail to optimize circuit." << endl;
@@ -60,6 +61,7 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
             if (parser["-copy"])
                 qcirMgr->addQCir(qcirMgr->getNextID());
             qcirMgr->setQCircuit(result);
+            qcirMgr->getQCircuit()->printCirInfo();
         }
         return CMD_EXEC_DONE;
     };
