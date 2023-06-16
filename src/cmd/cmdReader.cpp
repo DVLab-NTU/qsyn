@@ -197,7 +197,7 @@ void CmdParser::insertChar(char ch) {
     cout << _readBuf.substr(_cursorPosition);
     int idx = _cursorPosition + 1;
     _cursorPosition = _readBuf.size();
-    moveCursor(idx);   
+    moveCursor(idx);
 }
 
 // 1. Delete the line that is currently shown on the screen
