@@ -48,6 +48,7 @@ private:
     bool _minimize_czs;
     bool _reversed;
     size_t _maxIter;
+    size_t _iter;
     Qubit2Gates _gates;
     Qubit2Gates _available;
     std::vector<QCirGate*> _corrections;
@@ -70,6 +71,15 @@ private:
     QCirGate* addGate(size_t, Phase, size_t);
     std::vector<std::pair<size_t, size_t>> get_swap_path();
     void _addGate2Circuit(QCir* circuit, QCirGate* gate);
+
+    //NOTE - To count how many time the rule be operated.
+    size_t FUSE_PHASE;
+    size_t X_CANCEL;
+    size_t CNOT_CANCEL;
+    size_t CZ_CANCEL;
+    size_t HS_EXCHANGE;
+    size_t CRZ_TRACSFORM;
+    size_t DO_SWAP;
 
     // physical
     std::string _name;

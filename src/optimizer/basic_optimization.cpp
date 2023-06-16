@@ -28,31 +28,27 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
     _minimize_czs = false;
     _separateCorrection = separateCorrection;
     _maxIter = maxIter;
+    _iter = 0;
     _reversed = false;
     vector<size_t> prev_stats, stats;
-    size_t iter = 0;
-    if (verbose >= 5) cout << "Start iteration 0" << endl;
     _circuit = parseForward();
     for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
     _corrections.clear();
     prev_stats = Optimizer::stats(_circuit);
 
     while (true) {
-        if (verbose >= 5) cout << "Start iteration " << iter + 1 << endl;
         _reversed = true;
         _circuit = parseForward();
         for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
         // TODO - This line seems to be redundant
         _corrections.clear();
-
         _reversed = false;
         _circuit = parseForward();
-        iter++;
         stats = Optimizer::stats(_circuit);
         vector<size_t> stats = Optimizer::stats(_circuit);
         // TODO - Find a more efficient way
-        if (_minimize_czs && (iter >= _maxIter || (prev_stats[0] <= stats[0] && prev_stats[1] <= stats[1] && prev_stats[2] <= stats[2]))) {
-            if (verbose >= 5) cout << "Two-qubit gates: " << stats[0] << ",Had gates: " << stats[1] << ",Non-pauli gates: " << stats[2] << ". Stop the optimizer." << endl;
+        if (_minimize_czs && (_iter >= _maxIter || (prev_stats[0] <= stats[0] && prev_stats[1] <= stats[1] && prev_stats[2] <= stats[2]))) {
+            if (verbose >= 5) cout << "Two-qubit gates: " << stats[0] << ",Had gates: " << stats[1] << ",Non-pauli gates: " << stats[2] << ". Stop the optimizer after "<< _iter*2+1 << "iterations." << endl;
             break;
         }
 
@@ -82,13 +78,13 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
  * @return QCir* : new Circuit
  */
 QCir* Optimizer::parseForward() {
-    if (verbose >= 6) cout << "Start parseForward" << endl;
+    if (verbose >= 5) cout << "Start parseForward" << endl;
     reset();
     _circuit->updateTopoOrder();
     vector<QCirGate*> gs = _circuit->getTopoOrderdGates();
     if (_reversed) {
         std::reverse(gs.begin(), gs.end());
-        if (verbose >= 6) cout << "Parse the circuit from the end." << endl;
+        if (verbose >= 5) cout << "Parse the circuit from the end." << endl;
     }
     for (auto& g : gs) parseGate(g);
 
@@ -132,12 +128,24 @@ QCir* Optimizer::parseForward() {
         _corrections.emplace_back(cnot_3);
     }
 
+    if (verbose >= 3) {
+        cout << "  ParseForward number "<< _iter <<" done." << endl;
+        cout << "  Operated rules number in this forward is: " << endl;
+        cout << "    Fuse the Zphase: " << FUSE_PHASE << endl;
+        cout << "    X gate canceled: " << X_CANCEL << endl;
+        cout << "    H-S exchange   : " << HS_EXCHANGE << endl;
+        cout << "    Cnot canceled  : " << CNOT_CANCEL << endl;
+        cout << "    CZ canceled    : " << CZ_CANCEL << endl;
+        cout << "    Crz transform  : " << CRZ_TRACSFORM << endl;
+        cout << "    Do swap        : " << DO_SWAP << endl << endl;;
+
+    }
     if (verbose >= 6) {
-        cout << "End parseForward. The temp circuit is" << endl;
+        cout << "The temp circuit is" << endl;
         tmp->printCircuit();
         tmp->printGates();
     }
-
+    _iter++;
     return tmp;
 }
 
@@ -149,15 +157,12 @@ QCir* Optimizer::parseForward() {
  * @return false : Encounter a gate that is not supported.
  */
 bool Optimizer::parseGate(QCirGate* gate) {
-    // REVIEW - No copy
-    // NOTE - Permute
     if (verbose >= 8) {
         cout << "Parse the gate" << endl;
         gate->printGate();
     }
-
+    //NOTE - Check the permutation
     size_t target = -1, control = -1;
-
     for (auto& [i, j] : _permutation) {
         if (j == gate->getTarget()._qubit) {
             gate->setTargetBit(i);
@@ -190,6 +195,7 @@ bool Optimizer::parseGate(QCirGate* gate) {
         }
         // NOTE - H-S-H to Sdg-H-Sdg
         if (_gates[target].size() > 1 && _gates[target][_gates[target].size() - 2]->getType() == GateType::H && isSingleRotateZ(_gates[target][_gates[target].size() - 1])) {
+            HS_EXCHANGE++;
             if (verbose >= 9) cout << "Transform H-RZ(ph)-H into RZ(-ph)-H-RZ(-ph)" << endl;
             QCirGate* g2 = _gates[target][_gates[target].size() - 1];
             if (g2->getPhase().denominator() == 2) {
@@ -206,10 +212,11 @@ bool Optimizer::parseGate(QCirGate* gate) {
         toggleElement(0, target);
     } else if (gate->getType() == GateType::X) {
         if (verbose >= 9) cout << "Cancel X-X into Id" << endl;
+        X_CANCEL++;
         toggleElement(1, target);
     } else if (isSingleRotateZ(gate)) {
         if (_zs.contains(target)) {
-            // TODO - Add S/T gate
+            FUSE_PHASE++;
             _zs.erase(target);
             if (gate->getType() == GateType::RZ || gate->getType() == GateType::P) {
                 gate->setRotatePhase(gate->getPhase() + Phase(1));
@@ -217,6 +224,7 @@ bool Optimizer::parseGate(QCirGate* gate) {
                 return true;
             } else {
                 // NOTE - Trans S/S*/T/T* into PGate
+                // TODO - Add S/T gate
                 QCirGate* temp = new PGate(_gateCnt);
                 _gateCnt++;
                 temp->addQubit(target, true);
@@ -245,6 +253,7 @@ bool Optimizer::parseGate(QCirGate* gate) {
             std::erase(_available[target], available);
             std::erase(_gates[target], available);
             Phase ph = available->getPhase() + gate->getPhase();
+            FUSE_PHASE++;
             if (ph == Phase(1)) {
                 toggleElement(2, target);
                 return true;
@@ -401,6 +410,7 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
             }
             if (found_match && _doSwap) {
                 // NOTE -  -  do the CNOT(t,c)CNOT(c,t) = CNOT(c,t)SWAP(c,t) commutation
+                DO_SWAP++;
                 if (verbose >= 9) cout << "Apply a do _swap commutation" << endl;
                 if (count_if(_available[targ].begin(), _available[targ].end(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, targ, ctrl); })) {
                     QCirGate* cnot = new CXGate(_gateCnt);
@@ -417,9 +427,7 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
                     _available[ctrl].emplace_back(cnot);
                     _available[targ].clear();
                     _available[targ].emplace_back(cnot);
-
                     swap(_permutation.at(targ), _permutation.at(ctrl));
-
                     Optimizer::swapElement(0, ctrl, targ);
                     Optimizer::swapElement(1, ctrl, targ);
                     Optimizer::swapElement(2, ctrl, targ);
@@ -445,6 +453,7 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
     }
     // NOTE - do CNOT(c,t)CNOT(c,t) = id
     if (found_match) {
+        CNOT_CANCEL++;
         if (verbose >= 9) cout << "Canncel with previous CX" << endl;
         if (count_if(_available[targ].begin(), _available[targ].end(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); })) {
             _available[ctrl].erase(--(find_if(_available[ctrl].rbegin(), _available[ctrl].rend(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); })).base());
@@ -514,6 +523,7 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
     }
     // NOTE - CNOT-CZ = (S* x id)CNOT (S x S)
     if (found_match) {
+        CRZ_TRACSFORM++;
         if (verbose >= 9) cout << "Tranform CNOT-CZ into (S* x id)CNOT(S x S)" << endl;
         if (_availty[targ] == true) {
             // REVIEW -  pyzx/optimize/line.339 has a bug
@@ -573,6 +583,7 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
     }
 
     if (found_match) {
+        CZ_CANCEL++;
         if (verbose >= 9) cout << "Cancel with previous CZ" << endl;
         if (count_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g) { return g == targ_cz; })) {
             _available[t1].erase(--(find_if(_available[t1].rbegin(), _available[t1].rend(), [&](QCirGate* g) { return g == targ_cz; })).base());

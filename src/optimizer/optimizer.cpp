@@ -45,7 +45,13 @@ void Optimizer::reset() {
     _swaps.clear();
     _corrections.clear();
     _gateCnt = 0;
-
+    FUSE_PHASE = 0;
+    X_CANCEL = 0;
+    CNOT_CANCEL = 0;
+    CZ_CANCEL = 0;
+    HS_EXCHANGE = 0;
+    CRZ_TRACSFORM = 0;
+    DO_SWAP = 0;
     for (size_t i = 0; i < _circuit->getQubits().size(); i++) {
         _availty.emplace_back(false);
         _available.emplace(i, vector<QCirGate*>{});
