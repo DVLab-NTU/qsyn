@@ -129,7 +129,7 @@ QCir* Optimizer::parseForward() {
         _corrections.emplace_back(cnot_3);
     }
 
-    if (verbose >= 5 || _statistics) {
+    if ((verbose >= 5 || _statistics) && _iter == 0) {
         cout << "  ParseForward number "<< _iter <<" done." << endl;
         cout << "  Operated rules number in this forward is: " << endl;
         cout << "    Fuse the Zphase: " << FUSE_PHASE << endl;
@@ -138,8 +138,7 @@ QCir* Optimizer::parseForward() {
         cout << "    Cnot canceled  : " << CNOT_CANCEL << endl;
         cout << "    CZ canceled    : " << CZ_CANCEL << endl;
         cout << "    Crz transform  : " << CRZ_TRACSFORM << endl;
-        cout << "    Do swap        : " << DO_SWAP << endl << endl;;
-
+        cout << "    Do swap        : " << DO_SWAP << endl << endl;
     }
     if (verbose >= 6) {
         cout << "The temp circuit is" << endl;
