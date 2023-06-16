@@ -461,9 +461,9 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
     }
     // NOTE - do CNOT(c,t)CNOT(c,t) = id
     if (found_match) {
-        CNOT_CANCEL++;
-        if (verbose >= 9) cout << "Canncel with previous CX" << endl;
         if (count_if(_available[targ].begin(), _available[targ].end(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); })) {
+            CNOT_CANCEL++;
+            if (verbose >= 9) cout << "Canncel with previous CX" << endl;
             _available[ctrl].erase(--(find_if(_available[ctrl].rbegin(), _available[ctrl].rend(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); })).base());
             _available[targ].erase(--(find_if(_available[targ].rbegin(), _available[targ].rend(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); })).base());
             _gates[ctrl].erase(--(find_if(_gates[ctrl].rbegin(), _gates[ctrl].rend(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, ctrl, targ); })).base());
