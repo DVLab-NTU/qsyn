@@ -129,7 +129,7 @@ QCir* Optimizer::parseForward() {
         _corrections.emplace_back(cnot_3);
     }
 
-    if ((verbose >= 5 || _statistics) && _iter == 0) {
+    if ((verbose >= 5 || _statistics)) {
         cout << "  ParseForward number "<< _iter <<" done." << endl;
         cout << "  Operated rules number in this forward is: " << endl;
         cout << "    Fuse the Zphase: " << FUSE_PHASE << endl;
