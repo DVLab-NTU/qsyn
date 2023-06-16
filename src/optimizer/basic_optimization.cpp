@@ -139,6 +139,8 @@ QCir* Optimizer::parseForward() {
         cout << "    CZ canceled    : " << CZ_CANCEL << endl;
         cout << "    Crz transform  : " << CRZ_TRACSFORM << endl;
         cout << "    Do swap        : " << DO_SWAP << endl << endl;
+        cout << "  Note: " << CZ2CX << "CZs had be transformed into CXs." << endl;
+        cout << "  Note: " << CX2CZ << "CXs be transformed into CZs." << endl;
     }
     if (verbose >= 6) {
         cout << "The temp circuit is" << endl;
@@ -287,10 +289,15 @@ bool Optimizer::parseGate(QCirGate* gate) {
         }
         if (!_hadamards.contains(control) && !_hadamards.contains(target)) {
             addCZ(control, target);
-        } else if (_hadamards.contains(control))
+        } else if (_hadamards.contains(control)){
+            CZ2CX++;
             addCX(target, control);
-        else
+        }
+        else{
+            CZ2CX++;
             addCX(control, target);
+        }
+            
     } else if (gate->getType() == GateType::CX) {
         if (verbose >= 9) cout << "Permutated control at " << control << " target at " << target << endl;
         if (_xs.contains(control))
@@ -302,6 +309,7 @@ bool Optimizer::parseGate(QCirGate* gate) {
         } else if (!_hadamards.contains(control) && !_hadamards.contains(target)) {
             addCX(control, target);
         } else if (_hadamards.contains(target)) {
+            CX2CZ++;
             if (control > target)
                 addCZ(target, control);
             else

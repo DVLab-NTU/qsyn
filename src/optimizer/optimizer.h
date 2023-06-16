@@ -81,6 +81,8 @@ private:
     size_t HS_EXCHANGE;
     size_t CRZ_TRACSFORM;
     size_t DO_SWAP;
+    size_t CZ2CX;
+    size_t CX2CZ;
 
     // physical
     std::string _name;
