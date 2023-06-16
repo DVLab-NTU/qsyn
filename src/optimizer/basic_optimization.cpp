@@ -138,9 +138,9 @@ QCir* Optimizer::parseForward() {
         cout << "    Cnot canceled  : " << CNOT_CANCEL << endl;
         cout << "    CZ canceled    : " << CZ_CANCEL << endl;
         cout << "    Crz transform  : " << CRZ_TRACSFORM << endl;
-        cout << "    Do swap        : " << DO_SWAP << endl << endl;
+        cout << "    Do swap        : " << DO_SWAP << endl;
         cout << "  Note: " << CZ2CX << "CZs had be transformed into CXs." << endl;
-        cout << "  Note: " << CX2CZ << "CXs be transformed into CZs." << endl;
+        cout << "        " << CX2CZ << "CXs nad be transformed into CZs." << endl << endl;;
     }
     if (verbose >= 6) {
         cout << "The temp circuit is" << endl;
@@ -197,11 +197,11 @@ bool Optimizer::parseGate(QCirGate* gate) {
         }
         // NOTE - H-S-H to Sdg-H-Sdg
         if (_gates[target].size() > 1 && _gates[target][_gates[target].size() - 2]->getType() == GateType::H && isSingleRotateZ(_gates[target][_gates[target].size() - 1])) {
-            HS_EXCHANGE++;
-            if (verbose >= 9) cout << "Transform H-RZ(ph)-H into RZ(-ph)-H-RZ(-ph)" << endl;
             QCirGate* g2 = _gates[target][_gates[target].size() - 1];
             if (g2->getPhase().denominator() == 2) {
                 // QCirGate* h = _gates[target][_gates[target].size()-2];
+                HS_EXCHANGE++;
+                if (verbose >= 9) cout << "Transform H-RZ(ph)-H into RZ(-ph)-H-RZ(-ph)" << endl;
                 QCirGate* zp = new PGate(_gateCnt);
                 zp->addQubit(target, true);
                 _gateCnt++;
@@ -213,8 +213,10 @@ bool Optimizer::parseGate(QCirGate* gate) {
         }
         toggleElement(0, target);
     } else if (gate->getType() == GateType::X) {
-        if (verbose >= 9) cout << "Cancel X-X into Id" << endl;
-        X_CANCEL++;
+        if (_xs.contains(gate->getTarget()._qubit)){
+            if (verbose >= 9) cout << "Cancel X-X into Id" << endl;
+            X_CANCEL++;
+        }
         toggleElement(1, target);
     } else if (isSingleRotateZ(gate)) {
         if (_zs.contains(target)) {
@@ -226,7 +228,6 @@ bool Optimizer::parseGate(QCirGate* gate) {
                 return true;
             } else {
                 // NOTE - Trans S/S*/T/T* into PGate
-                // TODO - Add S/T gate
                 QCirGate* temp = new PGate(_gateCnt);
                 _gateCnt++;
                 temp->addQubit(target, true);
@@ -418,9 +419,9 @@ void Optimizer::addCX(size_t ctrl, size_t targ) {
             }
             if (found_match && _doSwap) {
                 // NOTE -  -  do the CNOT(t,c)CNOT(c,t) = CNOT(c,t)SWAP(c,t) commutation
-                DO_SWAP++;
-                if (verbose >= 9) cout << "Apply a do _swap commutation" << endl;
                 if (count_if(_available[targ].begin(), _available[targ].end(), [&](QCirGate* g) { return Optimizer::TwoQubitGateExist(g, GateType::CX, targ, ctrl); })) {
+                    DO_SWAP++;
+                    if (verbose >= 9) cout << "Apply a do_swap commutation" << endl;
                     QCirGate* cnot = new CXGate(_gateCnt);
                     cnot->addQubit(ctrl, false);
                     cnot->addQubit(targ, true);
@@ -591,9 +592,9 @@ void Optimizer::addCZ(size_t t1, size_t t2) {
     }
 
     if (found_match) {
-        CZ_CANCEL++;
-        if (verbose >= 9) cout << "Cancel with previous CZ" << endl;
         if (count_if(_available[t2].begin(), _available[t2].end(), [&](QCirGate* g) { return g == targ_cz; })) {
+            CZ_CANCEL++;
+            if (verbose >= 9) cout << "Cancel with previous CZ" << endl;
             _available[t1].erase(--(find_if(_available[t1].rbegin(), _available[t1].rend(), [&](QCirGate* g) { return g == targ_cz; })).base());
             _available[t2].erase(--(find_if(_available[t2].rbegin(), _available[t2].rend(), [&](QCirGate* g) { return g == targ_cz; })).base());
             _gates[t1].erase(--(find_if(_gates[t1].rbegin(), _gates[t1].rend(), [&](QCirGate* g) { return g == targ_cz; })).base());
