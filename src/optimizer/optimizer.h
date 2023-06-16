@@ -33,7 +33,7 @@ public:
     QCirGate* getAvailableRotateZ(size_t t);
 
     // basic optimization
-    QCir* parseCircuit(bool, bool, size_t);
+    QCir* parseCircuit(bool, bool, size_t, bool);
     QCir* parseForward();
     bool parseGate(QCirGate*);
     void addHadamard(size_t, bool erase);
@@ -47,6 +47,7 @@ private:
     bool _separateCorrection;
     bool _minimize_czs;
     bool _reversed;
+    bool _statistics;
     size_t _maxIter;
     size_t _iter;
     Qubit2Gates _gates;

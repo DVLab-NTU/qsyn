@@ -22,11 +22,12 @@ extern size_t verbose;
  * @param maxIter
  * @return QCir* Optimized Circuit
  */
-QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIter) {
+QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIter, bool statistics) {
     if (verbose >= 3) cout << "Start optimize" << endl;
     _doSwap = doSwap;
     _minimize_czs = false;
     _separateCorrection = separateCorrection;
+    _statistics = statistics;
     _maxIter = maxIter;
     _iter = 0;
     _reversed = false;
@@ -128,7 +129,7 @@ QCir* Optimizer::parseForward() {
         _corrections.emplace_back(cnot_3);
     }
 
-    if (verbose >= 3) {
+    if (verbose >= 5 || _statistics) {
         cout << "  ParseForward number "<< _iter <<" done." << endl;
         cout << "  Operated rules number in this forward is: " << endl;
         cout << "    Fuse the Zphase: " << FUSE_PHASE << endl;

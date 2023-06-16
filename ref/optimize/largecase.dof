@@ -1,11 +1,11 @@
 color off
-verbose -1
+verbose 0
 qccr benchmark/benchmark_SABRE/large/z4_268.qasm
 qc2zx
 zxgsimp -fr
 zx2qc
 usage
-optimize
+optimize -statistics
 usage
 qccp
 qq -f
