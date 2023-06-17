@@ -33,7 +33,7 @@ public:
     QCirGate* getAvailableRotateZ(size_t t);
 
     // basic optimization
-    QCir* parseCircuit(bool, bool, size_t);
+    QCir* parseCircuit(bool, bool, size_t, bool);
     QCir* parseForward();
     bool parseGate(QCirGate*);
     void addHadamard(size_t, bool erase);
@@ -47,7 +47,9 @@ private:
     bool _separateCorrection;
     bool _minimize_czs;
     bool _reversed;
+    bool _statistics;
     size_t _maxIter;
+    size_t _iter;
     Qubit2Gates _gates;
     Qubit2Gates _available;
     std::vector<QCirGate*> _corrections;
@@ -70,6 +72,17 @@ private:
     QCirGate* addGate(size_t, Phase, size_t);
     std::vector<std::pair<size_t, size_t>> get_swap_path();
     void _addGate2Circuit(QCir* circuit, QCirGate* gate);
+
+    // NOTE - To count how many time the rule be operated.
+    size_t FUSE_PHASE;
+    size_t X_CANCEL;
+    size_t CNOT_CANCEL;
+    size_t CZ_CANCEL;
+    size_t HS_EXCHANGE;
+    size_t CRZ_TRACSFORM;
+    size_t DO_SWAP;
+    size_t CZ2CX;
+    size_t CX2CZ;
 
     // physical
     std::string _name;
