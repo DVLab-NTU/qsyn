@@ -73,7 +73,7 @@ private:
     std::vector<std::pair<size_t, size_t>> get_swap_path();
     void _addGate2Circuit(QCir* circuit, QCirGate* gate);
 
-    //NOTE - To count how many time the rule be operated.
+    // NOTE - To count how many time the rule be operated.
     size_t FUSE_PHASE;
     size_t X_CANCEL;
     size_t CNOT_CANCEL;

@@ -49,7 +49,7 @@ QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIt
         vector<size_t> stats = Optimizer::stats(_circuit);
         // TODO - Find a more efficient way
         if (_minimize_czs && (_iter >= _maxIter || (prev_stats[0] <= stats[0] && prev_stats[1] <= stats[1] && prev_stats[2] <= stats[2]))) {
-            if (verbose >= 5) cout << "Two-qubit gates: " << stats[0] << ",Had gates: " << stats[1] << ",Non-pauli gates: " << stats[2] << ". Stop the optimizer after "<< _iter*2+1 << "iterations." << endl;
+            if (verbose >= 5) cout << "Two-qubit gates: " << stats[0] << ",Had gates: " << stats[1] << ",Non-pauli gates: " << stats[2] << ". Stop the optimizer after " << _iter * 2 + 1 << "iterations." << endl;
             break;
         }
 
@@ -130,7 +130,7 @@ QCir* Optimizer::parseForward() {
     }
 
     if ((verbose >= 5 || _statistics)) {
-        cout << "  ParseForward No."<< _iter <<" iteration done." << endl;
+        cout << "  ParseForward No." << _iter << " iteration done." << endl;
         cout << "  Operated rule numbers in this forward are: " << endl;
         cout << "    Fuse the Zphase: " << FUSE_PHASE << endl;
         cout << "    X gate canceled: " << X_CANCEL << endl;
@@ -141,7 +141,8 @@ QCir* Optimizer::parseForward() {
         cout << "    Do swap        : " << DO_SWAP << endl;
         cout << "  Note: " << CZ2CX << "CZs had be transformed into CXs." << endl;
         cout << "        " << CX2CZ << "CXs had be transformed into CZs." << endl;
-        cout << "  Note: " << _swaps.size() << " swap gates had be added in the swap path." << endl << endl;
+        cout << "  Note: " << _swaps.size() << " swap gates had be added in the swap path." << endl
+             << endl;
     }
     if (verbose >= 6) {
         cout << "The temp circuit is" << endl;
@@ -164,7 +165,7 @@ bool Optimizer::parseGate(QCirGate* gate) {
         cout << "Parse the gate" << endl;
         gate->printGate();
     }
-    //NOTE - Check the permutation
+    // NOTE - Check the permutation
     size_t target = -1, control = -1;
     for (auto& [i, j] : _permutation) {
         if (j == gate->getTarget()._qubit) {
@@ -214,7 +215,7 @@ bool Optimizer::parseGate(QCirGate* gate) {
         }
         toggleElement(0, target);
     } else if (gate->getType() == GateType::X) {
-        if (_xs.contains(gate->getTarget()._qubit)){
+        if (_xs.contains(gate->getTarget()._qubit)) {
             if (verbose >= 9) cout << "Cancel X-X into Id" << endl;
             X_CANCEL++;
         }
@@ -291,15 +292,14 @@ bool Optimizer::parseGate(QCirGate* gate) {
         }
         if (!_hadamards.contains(control) && !_hadamards.contains(target)) {
             addCZ(control, target);
-        } else if (_hadamards.contains(control)){
+        } else if (_hadamards.contains(control)) {
             CZ2CX++;
             addCX(target, control);
-        }
-        else{
+        } else {
             CZ2CX++;
             addCX(control, target);
         }
-            
+
     } else if (gate->getType() == GateType::CX) {
         if (verbose >= 9) cout << "Permutated control at " << control << " target at " << target << endl;
         if (_xs.contains(control))
