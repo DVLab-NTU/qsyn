@@ -141,7 +141,7 @@ QCir* Optimizer::parseForward() {
         cout << "    Do swap        : " << DO_SWAP << endl;
         cout << "  Note: " << CZ2CX << "CZs had be transformed into CXs." << endl;
         cout << "        " << CX2CZ << "CXs had be transformed into CZs." << endl;
-        cout << "  Note: " << _swaps.size() << " swaps had be added in the swap path." << endl << endl;
+        cout << "  Note: " << _swaps.size() << " swap gates had be added in the swap path." << endl << endl;
     }
     if (verbose >= 6) {
         cout << "The temp circuit is" << endl;
