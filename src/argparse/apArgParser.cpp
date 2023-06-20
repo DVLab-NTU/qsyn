@@ -225,8 +225,12 @@ bool ArgumentParser::parseTokens(std::span<Token> tokens) {
         return pos;
     });
 
-    if (hasSubParsers() && subparserTokenPos < tokens.size()) {
-        if (!getActivatedSubParser().parseTokens(tokens.subspan(subparserTokenPos + 1))) {
+    if (hasSubParsers()) {
+        if (subparserTokenPos >= tokens.size() && _pimpl->subparsers->isRequired()) {
+            cerr << "Error: missing mandatory subparser argument: " << getSyntaxString(_pimpl->subparsers.value()) << endl;
+            return false;
+        }
+        if (subparserTokenPos < tokens.size() && !getActivatedSubParser().parseTokens(tokens.subspan(subparserTokenPos + 1))) {
             return false;
         }
     }
