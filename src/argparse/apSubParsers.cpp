@@ -24,4 +24,4 @@ SubParsers ArgumentParser::addSubParsers() {
     return _pimpl->subparsers.value();
 }
 
-}
+}  // namespace ArgParse

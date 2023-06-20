@@ -89,18 +89,18 @@ public:
     ArgType& constraint(ActionType const& constraint, ErrorType const& onerror = nullptr);
     ArgType& choices(std::initializer_list<T> const& choices);
 
-    void reset();
-    bool parse(std::string const& token);
+    inline bool parse(std::string const& token);
+    inline void reset();
 
     // getters
-    T const& getValue() const { return _value; }
-    std::string getTypeString() const { return ArgTypeDescription::getTypeString(_value); }
-    std::string const& getName() const { return _traits.name; }
-    std::string const& getHelp() const { return _traits.help; }
-    std::optional<T> getDefaultValue() const { return _traits.defaultValue; }
-    std::optional<T> getConstValue() const { return _traits.constValue; }
-    std::string const& getMetaVar() const { return _traits.metavar; }
-    std::vector<ConstraintCallbackType> const& getConstraints() const { return _traits.constraintCallbacks; }
+    inline T const& getValue() const { return _value; }
+    inline std::string getTypeString() const { return ArgTypeDescription::getTypeString(_value); }
+    inline std::string const& getName() const { return _traits.name; }
+    inline std::string const& getHelp() const { return _traits.help; }
+    inline std::optional<T> getDefaultValue() const { return _traits.defaultValue; }
+    inline std::optional<T> getConstValue() const { return _traits.constValue; }
+    inline std::string const& getMetaVar() const { return _traits.metavar; }
+    inline std::vector<ConstraintCallbackType> const& getConstraints() const { return _traits.constraintCallbacks; }
 
     // setters
 
@@ -108,15 +108,16 @@ public:
         if (!_traits.constValue.has_value()) {
             std::cerr << "Error: no const value is specified for argument \""
                       << _traits.name << "\"!! no action is taken... \n";
+            return;
         }
         _value = _traits.constValue.value();
     }
 
     // attributes
-    bool hasDefaultValue() const { return _traits.defaultValue.has_value(); }
-    bool hasConstValue() const { return _traits.constValue.has_value(); }
-    bool hasAction() const { return _traits.actionCallback != nullptr; }
-    bool isRequired() const { return _traits.required; }
+    inline bool hasDefaultValue() const { return _traits.defaultValue.has_value(); }
+    inline bool hasConstValue() const { return _traits.constValue.has_value(); }
+    inline bool hasAction() const { return _traits.actionCallback != nullptr; }
+    inline bool isRequired() const { return _traits.required; }
 
 private:
     struct Traits {
@@ -233,23 +234,23 @@ private:
             : inner(std::move(val)) {}
         ~Model() {}
 
-        std::unique_ptr<Concept> clone() const override { return std::make_unique<Model>(*this); }
+        inline std::unique_ptr<Concept> clone() const override { return std::make_unique<Model>(*this); }
 
-        std::string do_getTypeString() const override { return inner.getTypeString(); }
-        std::string const& do_getName() const override { return inner.getName(); }
-        std::string const& do_getHelp() const override { return inner.getHelp(); }
-        std::string const& do_getMetaVar() const override { return inner.getMetaVar(); }
-        std::vector<ConstraintCallbackType> const& do_getConstraints() const override { return inner.getConstraints(); }
+        inline std::string do_getTypeString() const override { return inner.getTypeString(); }
+        inline std::string const& do_getName() const override { return inner.getName(); }
+        inline std::string const& do_getHelp() const override { return inner.getHelp(); }
+        inline std::string const& do_getMetaVar() const override { return inner.getMetaVar(); }
+        inline std::vector<ConstraintCallbackType> const& do_getConstraints() const override { return inner.getConstraints(); }
 
-        bool do_hasDefaultValue() const override { return inner.hasDefaultValue(); }
-        bool do_hasAction() const override { return inner.hasAction(); }
-        bool do_isRequired() const override { return inner.isRequired(); };
+        inline bool do_hasDefaultValue() const override { return inner.hasDefaultValue(); }
+        inline bool do_hasAction() const override { return inner.hasAction(); }
+        inline bool do_isRequired() const override { return inner.isRequired(); };
 
-        std::ostream& do_print(std::ostream& os) const override { return os << inner; }
-        std::ostream& do_printDefaultValue(std::ostream& os) const override { return (inner.getDefaultValue().has_value() ? os << inner.getDefaultValue().value() : os << "(none)"); }
+        inline std::ostream& do_print(std::ostream& os) const override { return os << inner; }
+        inline std::ostream& do_printDefaultValue(std::ostream& os) const override { return (inner.getDefaultValue().has_value() ? os << inner.getDefaultValue().value() : os << "(none)"); }
 
-        bool do_parse(std::string const& token) override { return inner.parse(token); }
-        void do_reset() override { inner.reset(); }
+        inline bool do_parse(std::string const& token) override { return inner.parse(token); }
+        inline void do_reset() override { inner.reset(); }
     };
 
     std::unique_ptr<Concept> _pimpl;
@@ -304,15 +305,18 @@ private:
  *
  */
 class SubParsers {
+private:
     struct SubParsersImpl {
         ordered_hashmap<std::string, ArgumentParser> subparsers;
+        std::string activatedSubparser;
         std::string help;
         bool required;
         bool parsed;
     };
+    std::shared_ptr<SubParsersImpl> _pimpl;
 
 public:
-    SubParsers(): _pimpl{std::make_shared<SubParsersImpl>()} {}
+    SubParsers() : _pimpl{std::make_shared<SubParsersImpl>()} {}
     void setParsed(bool isParsed) { _pimpl->parsed = isParsed; }
     SubParsers required(bool isReq) {
         _pimpl->required = isReq;
@@ -329,13 +333,9 @@ public:
 
     auto const& getSubParsers() const { return _pimpl->subparsers; }
     auto const& getHelp() const { return _pimpl->help; }
-    
 
     bool isRequired() const { return _pimpl->required; }
     bool isParsed() const { return _pimpl->parsed; }
-
-private:
-    std::shared_ptr<SubParsersImpl> _pimpl;
 };
 
 /**
@@ -356,7 +356,15 @@ public:
     ArgumentParser& name(std::string const& name);
     ArgumentParser& help(std::string const& help);
 
-    size_t numParsedArguments() const;
+    /**
+     * @brief get the size of parsed option
+     *
+     * @return size_t
+     */
+    QSYN_ALWAYS_INLINE
+    size_t numParsedArguments() const {
+        return std::count_if(_pimpl->arguments.begin(), _pimpl->arguments.end(), [](auto& pr) { return pr.second.isParsed(); });
+    }
 
     // print functions
 
@@ -377,9 +385,11 @@ public:
 
     std::string const& getName() const { return _pimpl->name; }
     std::string const& getHelp() const { return _pimpl->help; }
-    size_t const& getNumRequiredChars() const { return _pimpl->numRequiredChars; }
+    size_t getNumRequiredChars() const { return _pimpl->numRequiredChars; }
     bool hasOptionPrefix(std::string const& str) const { return str.find_first_of(_pimpl->optionPrefix) == 0UL; }
     bool hasOptionPrefix(Argument const& arg) const { return hasOptionPrefix(arg.getName()); }
+    bool hasSubParsers() const { return _pimpl->subparsers.has_value(); }
+    bool usedSubParser(std::string const& name) const { return _pimpl->subparsers.has_value() && _pimpl->activatedSubParser == name; }
 
     // action
 
@@ -413,6 +423,7 @@ private:
 
         std::vector<ArgumentGroup> mutuallyExclusiveGroups;
         std::optional<SubParsers> subparsers;
+        std::string activatedSubParser;
         std::unordered_map<std::string, ArgumentGroup> mutable conflictGroups;  // map an argument name to a mutually-exclusive group if it belongs to one.
 
         std::string name;
@@ -444,12 +455,18 @@ private:
     std::string styledArgName(Argument const& arg) const;
     std::string styledCmdName(std::string const& name, size_t numRequired) const;
 
-    void setNumRequiredChars(size_t num) { _pimpl->numRequiredChars = num; } 
+    void setNumRequiredChars(size_t num) { _pimpl->numRequiredChars = num; }
+    void setSubParser(std::string const& name) {
+        _pimpl->activatedSubParser = name;
+        _pimpl->subparsers->setParsed(true);
+    }
+    ArgumentParser getActivatedSubParser() const { return _pimpl->subparsers->getSubParsers().at(_pimpl->activatedSubParser); }
 
     // parse subroutine
     bool tokenize(std::string const& line);
-    bool parseOptions();
-    bool parsePositionalArguments();
+    bool parseTokens(std::span<Token>);
+    bool parseOptions(std::span<Token>);
+    bool parsePositionalArguments(std::span<Token>);
 
     // parseOptions subroutine
 
@@ -460,7 +477,7 @@ private:
 
     // parsePositionalArguments subroutine
 
-    bool allTokensAreParsed() const;
+    bool allTokensAreParsed(std::span<Token>) const;
     bool allRequiredArgumentsAreParsed() const;
     void printRequiredArgumentsMissingErrorMsg() const;
 };
@@ -743,6 +760,13 @@ ArgType<T>& ArgumentParser::addArgument(std::string const& name) {
 template <typename T>
 decltype(auto)
 ArgumentParser::operatorBracketImpl(T&& t, std::string const& name) {
+    if (t._pimpl->subparsers.has_value() && t._pimpl->subparsers->isParsed()) {
+        auto subparser = t.getActivatedSubParser();
+        subparser.printArguments();
+        if (subparser._pimpl->arguments.contains(toLowerString(name))) {
+            return subparser._pimpl->arguments.at(toLowerString(name));
+        }
+    }
     try {
         return std::forward<T>(t)._pimpl->arguments.at(toLowerString(name));
     } catch (std::out_of_range& e) {

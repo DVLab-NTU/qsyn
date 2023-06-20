@@ -14,4 +14,4 @@ ArgumentGroup ArgumentParser::addMutuallyExclusiveGroup() {
     return _pimpl->mutuallyExclusiveGroups.back();
 }
 
-}
+}  // namespace ArgParse

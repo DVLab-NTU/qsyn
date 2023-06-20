@@ -130,8 +130,8 @@ void ArgumentParser::printUsage() const {
     }
 
     if (_pimpl->subparsers.has_value()) {
-        cout << " " << (_pimpl->subparsers->isRequired() ? requiredStyle("<") : optionalStyle("[")) 
-             << getSyntaxString(_pimpl->subparsers.value()) 
+        cout << " " << (_pimpl->subparsers->isRequired() ? requiredStyle("<") : optionalStyle("["))
+             << getSyntaxString(_pimpl->subparsers.value())
              << (_pimpl->subparsers->isRequired() ? requiredStyle(">") : optionalStyle("]")) << " ...";
     }
 

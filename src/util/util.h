@@ -20,11 +20,11 @@
 #include "tqdm/tqdm.h"
 
 #if defined(__clang__)
-    #define QSYN_ALWAYS_INLINE [[clang::always_inline]]
+#define QSYN_ALWAYS_INLINE [[clang::always_inline]]
 #elif defined(__GNUC__) || defined(__GNUG__)
-    #define QSYN_ALWAYS_INLINE __always_inline
-#else 
-    #define QSYN_ALWAYS_INLINE
+#define QSYN_ALWAYS_INLINE __always_inline
+#else
+#define QSYN_ALWAYS_INLINE
 #endif
 
 class tqdm;

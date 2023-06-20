@@ -56,8 +56,8 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
         //     .help("public transport");
 
         auto subparsers = parser.addSubParsers()
-            .required(true)
-            .help("bird");
+                              .required(true)
+                              .help("bird");
 
         auto gooseParser = subparsers.addParser("goose");
 
@@ -71,6 +71,15 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         parser.printTokens();
         parser.printArguments();
+
+        if (parser.usedSubParser("goose")) {
+            int honk = parser["honk"];
+            cout << "honk = " << honk << endl;
+        }
+        if (parser.usedSubParser("duck")) {
+            string quack = parser["quack"];
+            cout << "quack = " << quack << endl;
+        }
 
         return CMD_EXEC_DONE;
     };
