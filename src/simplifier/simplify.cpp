@@ -274,15 +274,15 @@ int Simplifier::pivotGadgetSimp() {
     return i;
 }
 
-/**
- * @brief Perform Degadgetize Rule
- *
- * @return int
- */
-int Simplifier::degadgetizeSimp() {
-    this->setRule(make_unique<PivotDegadget>());
-    return this->simp();
-}
+// /**
+//  * @brief Perform Degadgetize Rule
+//  *
+//  * @return int
+//  */
+// int Simplifier::degadgetizeSimp() {
+//     this->setRule(make_unique<PivotDegadget>());
+//     return this->simp();
+// }
 
 /**
  * @brief Perform Spider Fusion Rule
