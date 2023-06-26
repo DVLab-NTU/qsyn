@@ -1,3 +1,15 @@
+qccread ../decomposition/qasm/PyZX_benchmark/gf2^9_mult.qasm
+qc2zx 1
+zxgsimp -fr
+zxgwrite ../decomposition/zx/d1_fr/gf2^9_mult.d1.fr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/gf2^10_mult.qasm
+qc2zx 1
+zxgsimp -fr
+zxgwrite ../decomposition/zx/d1_fr/gf2^10_mult.d1.fr.zx
+
+qq -f
+
 qccread ../decomposition/qasm/PyZX_benchmark/mod5_4.qasm
 qc2zx 1
 zxgsimp -fr
@@ -117,5 +129,3 @@ qccread ../decomposition/qasm/PyZX_benchmark/gf2^8_mult.qasm
 qc2zx 1
 zxgsimp -fr
 zxgwrite ../decomposition/zx/d1_fr/gf2^8_mult.d1.fr.zx
-
-qq -f

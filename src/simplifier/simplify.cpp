@@ -478,6 +478,7 @@ void Simplifier::hybridReduce() {
     int tOptimal = _simpGraph->TCount();
     _simpGraph = _copyGraph;
     cout << endl << "Dynamic Reduce:";
+    _recipe.clear();
     this->dynamicReduce(tOptimal);
 }
 
