@@ -60,6 +60,14 @@ bool parseFromString(DummyArgumentType& val, std::string const& token);
 }  // namespace ArgTypeDescription
 
 template <typename T>
+concept ValidArgumentType = requires(T t) {
+    { ArgTypeDescription::getTypeString(t) } -> std::same_as<std::string>;
+    { ArgTypeDescription::print(std::cout, t) } -> std::same_as<std::ostream&>;
+    { ArgTypeDescription::parseFromString(t, std::string{}) } -> std::same_as<bool>;
+};
+
+template <typename T>
+requires ValidArgumentType<T>
 class ArgType {
 public:
     using ActionType = std::function<ActionCallbackType(ArgType<T>&)>;
@@ -165,12 +173,15 @@ public:
     }
 
     template <typename T>
+    requires ValidArgumentType<T>
     operator T&() const { return const_cast<T&>(get<T>()); }
 
     template <typename T>
+    requires ValidArgumentType<T>
     operator T const&() const { return get<T>(); }
 
     template <typename T>
+    requires ValidArgumentType<T>
     T const& get() const;
 
     std::string getTypeString() const { return _pimpl->do_getTypeString(); }
@@ -279,6 +290,7 @@ public:
         : _pimpl{std::make_shared<ArgumentGroupImpl>(parser)} {}
 
     template <typename T>
+    requires ValidArgumentType<T>
     ArgType<T>& addArgument(std::string const& name);
 
     bool contains(std::string const& name) const { return _pimpl->_arguments.contains(name); }
@@ -394,6 +406,7 @@ public:
     // action
 
     template <typename T>
+    requires ValidArgumentType<T>
     ArgType<T>& addArgument(std::string const& name);
 
     ArgumentGroup addMutuallyExclusiveGroup();
@@ -405,11 +418,6 @@ public:
 private:
     struct Token {
         Token(std::string const& tok)
-            : token{tok}, parsed{false} {}
-        Token(char* const tok)
-            : token{tok}, parsed{false} {}
-        template <size_t N>
-        Token(char const (&tok)[N])
             : token{tok}, parsed{false} {}
         std::string token;
         bool parsed;
@@ -716,6 +724,7 @@ ActionCallbackType storeFalse(ArgType<bool>& arg);
  * @return T const&
  */
 template <typename T>
+requires ValidArgumentType<T>
 T const& Argument::get() const {
     if (auto ptr = dynamic_cast<Model<ArgType<T>>*>(_pimpl.get())) {
         return ptr->inner;
@@ -736,6 +745,7 @@ T const& Argument::get() const {
  * @return ArgType<T>&
  */
 template <typename T>
+requires ValidArgumentType<T>
 ArgType<T>& ArgumentParser::addArgument(std::string const& name) {
     auto realname = toLowerString(name);
     if (_pimpl->arguments.contains(realname)) {
@@ -778,6 +788,7 @@ ArgumentParser::operatorBracketImpl(T&& t, std::string const& name) {
 }
 
 template <typename T>
+requires ValidArgumentType<T>
 ArgType<T>& ArgumentGroup::addArgument(std::string const& name) {
     ArgType<T>& returnRef = _pimpl->_parser.addArgument<T>(name);
     _pimpl->_arguments.insert(returnRef.getName());
