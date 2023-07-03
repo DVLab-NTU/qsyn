@@ -78,7 +78,8 @@ public:
 
     bool draw(std::string const& drawer, std::string const& outputPath = "") const;
 
-    void analysis(bool = false);
+    void countGate(bool = false);
+
     void ZXMapping();
     void tensorMapping();
 

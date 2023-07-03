@@ -58,17 +58,17 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("extract QCir from ZX-graph");
 
-        auto mutex = parser.addMutuallyExclusiveGroup();
+        // auto mutex = parser.addMutuallyExclusiveGroup();
 
-        mutex.addArgument<bool>("-logical")
-            .action(storeTrue)
-            .help("extract to logical circuit");
-        mutex.addArgument<bool>("-physical")
-            .action(storeTrue)
-            .help("extract to physical circuit");
-        mutex.addArgument<bool>("-both")
-            .action(storeTrue)
-            .help("extract to physical circuit and store corresponding logical circuit");
+        // mutex.addArgument<bool>("-logical")
+        //     .action(storeTrue)
+        //     .help("extract to logical circuit");
+        // mutex.addArgument<bool>("-physical")
+        //     .action(storeTrue)
+        //     .help("extract to physical circuit");
+        // mutex.addArgument<bool>("-both")
+        //     .action(storeTrue)
+        //     .help("extract to physical circuit and store corresponding logical circuit");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
@@ -77,22 +77,28 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
             cerr << "Error: ZX-graph (id: " << zxGraphMgr->getGraph()->getId() << ") is not graph-like. Not extractable!!" << endl;
             return CMD_EXEC_ERROR;
         }
-        bool toPhysical = parser["-physical"].isParsed() || parser["-both"].isParsed();
-        if (toPhysical) {
-            DT_CMD_MGR_NOT_EMPTY_OR_RETURN("");
-        }
-        zxGraphMgr->copy(zxGraphMgr->getNextID());
-        Extractor ext(zxGraphMgr->getGraph(), nullptr, toPhysical ? make_optional<Device>(deviceMgr->getDevice()) : nullopt);
+        // bool toPhysical = parser["-physical"].isParsed() || parser["-both"].isParsed();
+        // if (toPhysical) {
+        //     DT_CMD_MGR_NOT_EMPTY_OR_RETURN("");
+        // }
+        size_t nextId = zxGraphMgr->getNextID();
+        zxGraphMgr->copy(nextId);
+        Extractor ext(zxGraphMgr->getGraph(), nullptr, nullopt);
 
         QCir *result = ext.extract();
-
-        if (parser["-both"].isParsed()) {
-            qcirMgr->addQCir(qcirMgr->getNextID());
-            qcirMgr->setQCircuit(ext.getLogical());
-        }
+        // if (parser["-both"].isParsed()) {
+        //     qcirMgr->addQCir(qcirMgr->getNextID());
+        //     qcirMgr->setQCircuit(ext.getLogical());
+        // }
         if (result != nullptr) {
             qcirMgr->addQCir(qcirMgr->getNextID());
             qcirMgr->setQCircuit(result);
+            if (PERMUTE_QUBITS)
+                zxGraphMgr->removeZXGraph(nextId);
+            else {
+                cout << "Note: the extracted circuit is up to a qubit permutation." << endl;
+                cout << "      Remaining permutation information is in ZX-graph id " << nextId << "." << endl;
+            }
         }
 
         return CMD_EXEC_DONE;
@@ -204,7 +210,7 @@ ExtractStepCmd::exec(const string &option) {
                 cout << "No gadget(s) are found" << endl;
             break;
         case EXTRACT_MODE::GAUSSIAN_CX:
-            if (ext.gaussianElimination(true)) {
+            if (ext.biadjacencyElimination(true)) {
                 ext.updateGraphByMatrix();
                 ext.extractCXs();
             }
@@ -303,7 +309,7 @@ unique_ptr<ArgParseCmdType> ExtractSetCmd() {
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("set extractor parameters");
         parser.addArgument<size_t>("-optimize-level")
-            .choices({0, 1})
+            .choices({0, 1, 2, 3})
             .help("optimization level");
         parser.addArgument<bool>("-permute-qubit")
             .help("permute the qubit after extraction");
