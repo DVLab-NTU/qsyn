@@ -11,6 +11,7 @@
 #include <string>   // for string
 
 #include "qcir.h"  // for QCir
+#include "tempFiles.h"
 
 using namespace std;
 
@@ -61,10 +62,10 @@ bool QCir::writeQASM(string filename) {
  */
 bool QCir::draw(std::string const& drawer, std::string const& outputPath) const {
     // TODO - t5 - Draw quantum circuits by calling qiskit
-
+    namespace dv = dvlab_utils;
     // create a temporary directory with a name starting with /tmp/
     // We've wrapped the function `createTempDir(string prefix)` for you.
-    string tmpDirName = createTempDir("/tmp/");  // returns something like /tmp/XXXXXX
+    dv::TempDir tmpDir;  // returns something like /tmp/dvlab-XXXXXX
 
     // You're welcome to change the prefix of the folder if you want, but it is advised that
     // you create it in /tmp/. This is where MacOS and Linux keeps all the temporary files.
@@ -73,9 +74,5 @@ bool QCir::draw(std::string const& drawer, std::string const& outputPath) const 
 
     // perform your system calls. Read the output QASM file with the python script,
     // output using the respective `drawer` to the console or to a file
-
-    // remove the directory and all temporary files in it
-    filesystem::remove_all(tmpDirName);
-
     return true;
 }

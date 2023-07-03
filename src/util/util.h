@@ -90,9 +90,6 @@ size_t countUpperChars(std::string const& str) noexcept;
 std::vector<std::string> listDir(std::string const& prefix, std::string const& dir = ".");
 size_t intPow(size_t base, size_t n);
 
-std::string createTempDir(std::string const& prefix);
-std::string createTempFile(std::string const& prefix);
-
 template <typename T>
 bool contains(const std::vector<T>& vec, const T& t) {
     return (std::find(vec.begin(), vec.end(), t) != vec.end());
