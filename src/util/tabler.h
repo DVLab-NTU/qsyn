@@ -18,7 +18,7 @@
 
 #include "myConcepts.h"
 
-namespace qsutil {
+namespace dvlab_utils {
 
 class Tabler {
 public:

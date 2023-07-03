@@ -230,7 +230,7 @@ string ArgumentParser::optionalArgBracket(std::string const& str) const {
  * @param arg
  */
 void ArgumentParser::printHelpString(Argument const& arg) const {
-    using qsutil::Tabler;
+    using dvlab_utils::Tabler;
     _tabl << (arg.hasAction() ? typeStyle("flag") : typeStyle(arg.getTypeString()));
 
     if (hasOptionPrefix(arg)) {

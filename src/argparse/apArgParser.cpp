@@ -155,7 +155,7 @@ bool ArgumentParser::analyzeOptions() const {
         }
     }
 
-    _tabl.presetStyle(qsutil::Tabler::PresetStyle::ASCII_MINIMAL)
+    _tabl.presetStyle(dvlab_utils::Tabler::PresetStyle::ASCII_MINIMAL)
         .indent(1)
         .rightMargin(2)
         .widths(widths);
