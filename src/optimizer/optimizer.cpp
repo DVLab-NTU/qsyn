@@ -158,6 +158,21 @@ bool Optimizer::isSingleRotateX(QCirGate* g) {
 }
 
 /**
+ * @brief Is double qubit gate
+ *
+ * @param g
+ * @return true
+ * @return false
+ */
+bool Optimizer::isDoubleQubitGate(QCirGate* g) {
+    if (g->getType() == GateType::CX ||
+        g->getType() == GateType::CZ)
+        return true;
+    else
+        return false;
+}
+
+/**
  * @brief Get first available rotate gate along Z-axis on qubit `target`
  *
  * @param target which qubit

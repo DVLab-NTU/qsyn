@@ -1,0 +1,5 @@
+color off
+qccread ./benchmark/benchmark_SABRE/small/4mod5-v1_22.qasm
+qccp -q
+optimize -trivial
+qq -f

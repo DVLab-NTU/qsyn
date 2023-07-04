@@ -30,6 +30,7 @@ public:
     bool TwoQubitGateExist(QCirGate* g, GateType gt, size_t ctrl, size_t targ);
     bool isSingleRotateZ(QCirGate*);
     bool isSingleRotateX(QCirGate*);
+    bool isDoubleQubitGate(QCirGate*);
     QCirGate* getAvailableRotateZ(size_t t);
 
     // basic optimization
@@ -40,6 +41,10 @@ public:
     void addCZ(size_t, size_t);
     void addCX(size_t, size_t);
     void topologicalSort(QCir*);
+
+    // trivial optimization
+    QCir* trivial_optimization();
+    std::vector<QCirGate*> getFirstLayerGates(bool fromLast=false);
 
 private:
     QCir* _circuit;

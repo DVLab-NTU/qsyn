@@ -52,12 +52,18 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
             .defaultValue(false)
             .action(storeTrue)
             .help("count the number of rules operated in optimizer.");
+        parser.addArgument<bool>("-trivial")
+            .defaultValue(false)
+            .action(storeTrue)
+            .help("Use the trivial optimization.");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("OPTimize");
         Optimizer Opt(qcirMgr->getQCircuit());
-        QCir *result = Opt.parseCircuit(!parser["-physical"], false, 1000, parser["-statistics"]);
+        QCir *result;
+        if (parser["-trivial"]) result = Opt.trivial_optimization();
+        else result = Opt.parseCircuit(!parser["-physical"], false, 1000, parser["-statistics"]);
         if (result == nullptr) {
             cout << "Error: fail to optimize circuit." << endl;
         } else {
