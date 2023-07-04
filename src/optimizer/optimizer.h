@@ -44,7 +44,9 @@ public:
 
     // trivial optimization
     QCir* trivial_optimization();
-    std::vector<QCirGate*> getFirstLayerGates(bool fromLast=false);
+    std::vector<QCirGate*> getFirstLayerGates(QCir* QC, bool fromLast=false);
+    void CheckDoubleGate(QCir* QC, QCirGate* previousGate, QCirGate* gate);
+    void FuseZPhase(QCir* QC, QCirGate* previousGate, QCirGate* gate);
 
 private:
     QCir* _circuit;
