@@ -60,7 +60,7 @@ QCir* Optimizer::trivial_optimization() {
  * @return vector<QCirGate*> with size = circuit->getNqubit()
  */
 vector<QCirGate*> Optimizer::getFirstLayerGates(QCir* QC, bool fromLast) {
-    vector<QCirGate*> gateList = QC->getTopoOrderdGates();
+    vector<QCirGate*> gateList = QC->updateTopoOrder();
     if (fromLast) reverse(gateList.begin(), gateList.end());
     vector<QCirGate*> result;
     vector<bool> blocked;

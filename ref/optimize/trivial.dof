@@ -1,12 +1,12 @@
 color off
 qccread ./benchmark/benchmark_SABRE/large/9symml_195.qasm
+qccp
 qc2zx
-zxgsimp -fr
-zx2qc
-// qc2ts
-qccp
 optimize -trivial
-// qc2ts
 qccp
-// tseq 0 1
+qc2zx
+//zxgadjoint
+//zxcompose 0
+//zxgs -fr
+//zxgt -id
 qq -f

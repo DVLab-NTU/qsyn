@@ -34,7 +34,7 @@ public:
     QCirGate* getAvailableRotateZ(size_t t);
 
     // basic optimization
-    QCir* parseCircuit(bool, bool, size_t, bool);
+    QCir* basic_optimization(bool, bool, size_t, bool);
     QCir* parseForward();
     bool parseGate(QCirGate*);
     void addHadamard(size_t, bool erase);
