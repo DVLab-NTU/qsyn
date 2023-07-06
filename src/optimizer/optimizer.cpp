@@ -186,3 +186,18 @@ QCirGate* Optimizer::getAvailableRotateZ(size_t target) {
     }
     return nullptr;
 }
+
+/**
+ * @brief Add a gate (copy) to the circuit.
+ *
+ * @param QCir* circuit to add
+ * @param QCirGate* The gate to be add
+ */
+void Optimizer::_addGate2Circuit(QCir* circuit, QCirGate* gate) {
+    vector<size_t> qubit_list;
+    if (gate->getType() == GateType::CX || gate->getType() == GateType::CZ) {
+        qubit_list.emplace_back(gate->getControl()._qubit);
+    }
+    qubit_list.emplace_back(gate->getTarget()._qubit);
+    circuit->addGate(gate->getTypeStr(), qubit_list, gate->getPhase(), !_reversed);
+}

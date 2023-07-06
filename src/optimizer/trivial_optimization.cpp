@@ -43,10 +43,9 @@ QCir* Optimizer::trivial_optimization() {
             FuseZPhase(temp, previousGate, gate);
         } else if (gate->getType() == previousGate->getType()) {
             temp->removeGate(previousGate->getId());
-        } else{
+        } else {
             Optimizer::_addGate2Circuit(temp, gate);
         }
-            
     }
     _circuit = temp;
     return _circuit;

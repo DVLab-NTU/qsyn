@@ -2,7 +2,7 @@ color off
 qccread ./benchmark/benchmark_SABRE/large/9symml_195.qasm
 qccp
 qc2zx
-optimize -trivial
+qcoptimize -trivial -copy
 qccp
 qc2zx
 //zxgadjoint
