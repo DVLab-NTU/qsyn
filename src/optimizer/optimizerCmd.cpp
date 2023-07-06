@@ -26,7 +26,7 @@ extern QCirMgr *qcirMgr;
 unique_ptr<ArgParseCmdType> optimizeCmd();
 
 bool initOptimizeCmd() {
-    if (!(cmdMgr->regCmd("QCOptimize", 3, optimizeCmd()))) {
+    if (!(cmdMgr->regCmd("OPTimize", 3, optimizeCmd()))) {
         cerr << "Registering \"optimize\" commands fails... exiting" << endl;
         return false;
     }
@@ -37,7 +37,7 @@ bool initOptimizeCmd() {
 //    Optimize
 //----------------------------------------------------------------------
 unique_ptr<ArgParseCmdType> optimizeCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCOptimize");
+    auto cmd = make_unique<ArgParseCmdType>("OPTimize");
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("optimize QCir");
         parser.addArgument<bool>("-physical")
@@ -59,7 +59,7 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCOptimize");
+        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("OPTimize");
         Optimizer Opt(qcirMgr->getQCircuit());
         QCir *result;
         if (parser["-trivial"]) result = Opt.trivial_optimization();
