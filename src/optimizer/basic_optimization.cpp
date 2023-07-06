@@ -22,7 +22,7 @@ extern size_t verbose;
  * @param maxIter
  * @return QCir* Optimized Circuit
  */
-QCir* Optimizer::parseCircuit(bool doSwap, bool separateCorrection, size_t maxIter, bool statistics) {
+QCir* Optimizer::basic_optimization(bool doSwap, bool separateCorrection, size_t maxIter, bool statistics) {
     if (verbose >= 3) cout << "Start optimize" << endl;
     _doSwap = doSwap;
     _minimize_czs = false;
@@ -656,21 +656,6 @@ QCirGate* Optimizer::addGate(size_t target, Phase ph, size_t type) {
     _available[target].emplace_back(rotate);
     _gateCnt++;
     return rotate;
-}
-
-/**
- * @brief Add a gate to the circuit.
- *
- * @param QCir* circuit to add
- * @param QCirGate* The gate to be add
- */
-void Optimizer::_addGate2Circuit(QCir* circuit, QCirGate* gate) {
-    vector<size_t> qubit_list;
-    if (gate->getType() == GateType::CX || gate->getType() == GateType::CZ) {
-        qubit_list.emplace_back(gate->getControl()._qubit);
-    }
-    qubit_list.emplace_back(gate->getTarget()._qubit);
-    circuit->addGate(gate->getTypeStr(), qubit_list, gate->getPhase(), !_reversed);
 }
 
 /**
