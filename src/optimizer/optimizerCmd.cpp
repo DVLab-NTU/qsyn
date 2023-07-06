@@ -62,8 +62,10 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("OPTimize");
         Optimizer Opt(qcirMgr->getQCircuit());
         QCir *result;
-        if (parser["-trivial"]) result = Opt.trivial_optimization();
-        else result = Opt.basic_optimization(!parser["-physical"], false, 1000, parser["-statistics"]);
+        if (parser["-trivial"])
+            result = Opt.trivial_optimization();
+        else
+            result = Opt.basic_optimization(!parser["-physical"], false, 1000, parser["-statistics"]);
         if (result == nullptr) {
             cout << "Error: fail to optimize circuit." << endl;
         } else {
