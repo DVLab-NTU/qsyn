@@ -8,6 +8,8 @@
 
 #include "util.h"
 
+#include <cerrno>
+#include <cstring>
 #include <filesystem>
 #include <iostream>
 #include <string>

@@ -231,9 +231,12 @@ public:
 
     // I/O (in zxIO.cpp)
     bool readZX(const std::string& filename, bool keepID = false);
-    bool writeZX(const std::string& filename, bool complete = false);
-    bool writeTikz(std::string);
-    bool writeTex(std::string, bool toPDF = true);
+    bool writeZX(std::string const& filename, bool complete = false) const;
+    bool writeTikz(std::string const& filename) const;
+    bool writeTikz(std::ostream& tikzFile) const;
+    bool writePdf(std::string const& filename) const;
+    bool writeTex(std::string const& filename) const;
+    bool writeTex(std::ostream& texFile) const;
 
     // Traverse (in zxTraverse.cpp)
     void updateTopoOrder();

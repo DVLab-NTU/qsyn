@@ -6,10 +6,12 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <filesystem>
 #include <fstream>  // for fstream
 #include <string>   // for string
 
 #include "qcir.h"  // for QCir
+#include "tmpFiles.h"
 
 using namespace std;
 
@@ -48,4 +50,35 @@ bool QCir::writeQASM(string filename) {
         }
     }
     return true;
+}
+
+/**
+ * @brief Draw a quantum circuit onto console or into a file using Qiskit
+ *
+ * @param drawer `text`, `mpl`, `latex`, or `latex_source`. Here `mpl` means Python's MatPlotLib
+ * @param outputPath If specified, output to this path; else output to console. Must be specified for `mpl` and `latex` drawer.
+ * @return true if succeeds drawing;
+ * @return false if not.
+ */
+bool QCir::draw(std::string const& drawer, std::string const& outputPath, float scale) {
+    namespace dv = dvlab_utils;
+    namespace fs = std::filesystem;
+
+    dv::TmpDir tmpDir;
+    fs::path tmpQASM = tmpDir.path() / "tmp.qasm";
+
+    this->writeQASM(tmpQASM.string());
+
+    string pathToScript = "scripts/qccdraw_qiskit_interface.py";
+
+    string cmd = "python3 " + pathToScript + " -input " + tmpQASM.string() + " -drawer " + drawer;
+    +" -scale " + to_string(scale);
+
+    if (outputPath.size()) {
+        cmd += " -output " + outputPath;
+    }
+
+    int status = system(cmd.c_str());
+
+    return status == 0;
 }

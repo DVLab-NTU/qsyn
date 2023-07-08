@@ -644,7 +644,7 @@ ZXGDrawCmd::exec(const string &option) {
         zxGraphMgr->getGraph()->draw();
         return CMD_EXEC_DONE;
     }
-    if (!zxGraphMgr->getGraph()->writeTex(options[0])) {
+    if (!zxGraphMgr->getGraph()->writePdf(options[0])) {
         return CMD_EXEC_ERROR;
     }
     return CMD_EXEC_DONE;
@@ -802,7 +802,7 @@ ZXGWriteCmd::exec(const string &option) {
                 return CMD_EXEC_ERROR;
             }
         } else if (myStrNCmp(".tex", extensionString, 4) == 0) {
-            if (!zxGraphMgr->getGraph()->writeTex(fileName, false)) {
+            if (!zxGraphMgr->getGraph()->writeTex(fileName)) {
                 cerr << "Error: fail to write tex to \"" << fileName << "\"!!" << endl;
                 return CMD_EXEC_ERROR;
             }

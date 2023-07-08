@@ -1,6 +1,5 @@
 ENGINE_NAME="BLAS-3.11.0"
-TIMESTAMP=$(date -I)
-VENDOR_PATH="/tmp/qsyn-configure-"$TIMESTAMP
+VENDOR_PATH=$(mktemp -d)
 DOWNLOAD_PATH="http://www.netlib.org/blas/blas-3.11.0.tgz"
 JOB=16
 if [ $# -ne 1 ]; then 

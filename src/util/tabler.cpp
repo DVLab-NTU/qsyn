@@ -8,7 +8,7 @@
 
 #include "tabler.h"
 
-namespace qsutil {
+namespace dvlab_utils {
 
 /**
  * @brief Set the widths of each column. If numCols does not match the size of the input
@@ -233,4 +233,4 @@ size_t Tabler::countNumStyleChars(std::string_view str) const {
     return count;
 }
 
-}  // namespace qsutil
+}  // namespace dvlab_utils
