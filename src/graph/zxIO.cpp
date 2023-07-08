@@ -15,7 +15,7 @@
 #include <iostream>
 #include <string>
 
-#include "tempFiles.h"
+#include "tmpFiles.h"
 #include "zxFileParser.h"
 #include "zxGraph.h"
 
@@ -329,7 +329,7 @@ bool ZXGraph::writePdf(string const& filename) const {
         return false;
     }
 
-    dv::TempDir tmpDir;
+    dv::TmpDir tmpDir;
 
     auto tempTexPath = tmpDir.path() / filepath.filename();
 

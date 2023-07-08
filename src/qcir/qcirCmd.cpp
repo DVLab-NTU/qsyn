@@ -899,12 +899,17 @@ unique_ptr<ArgParseCmdType> QCirDrawCmd() {
             .choices(std::initializer_list<string>{"text", "mpl", "latex", "latex_source"})
             .defaultValue("text")
             .help("the backend for drawing quantum circuit");
+        parser.addArgument<float>("-scale")
+            .defaultValue(1.0f)
+            .help("if specified, scale the resulting drawing by this factor");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCCDraw");
+        
         string drawer = parser["-drawer"];
         string outputPath = parser["output_path"];
+        float scale = parser["-scale"];
 
         if (drawer == "latex" || drawer == "mpl") {
             if (outputPath.empty()) {
@@ -913,7 +918,12 @@ unique_ptr<ArgParseCmdType> QCirDrawCmd() {
             }
         }
 
-        if (!qcirMgr->getQCircuit()->draw(drawer, outputPath)) {
+        if (drawer == "text" && parser["-scale"].isParsed()) {
+            cerr << "Error: Cannot set scale for \'text\' drawer!!" << endl;
+            return CMD_EXEC_ERROR; 
+        }
+
+        if (!qcirMgr->getQCircuit()->draw(drawer, outputPath, scale)) {
             cerr << "Error: could not draw the QCir successfully!!" << endl;
             return CMD_EXEC_ERROR;
         }

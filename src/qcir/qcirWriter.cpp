@@ -11,7 +11,7 @@
 #include <string>   // for string
 
 #include "qcir.h"  // for QCir
-#include "tempFiles.h"
+#include "tmpFiles.h"
 
 using namespace std;
 
@@ -60,19 +60,27 @@ bool QCir::writeQASM(string filename) {
  * @return true if succeeds drawing;
  * @return false if not.
  */
-bool QCir::draw(std::string const& drawer, std::string const& outputPath) const {
-    // TODO - t5 - Draw quantum circuits by calling qiskit
+bool QCir::draw(std::string const& drawer, std::string const& outputPath, float scale) {
     namespace dv = dvlab_utils;
-    // create a temporary directory with a name starting with /tmp/
-    // We've wrapped the function `createTempDir(string prefix)` for you.
-    dv::TempDir tmpDir;  // returns something like /tmp/dvlab-XXXXXX
+    namespace fs = std::filesystem;
 
-    // You're welcome to change the prefix of the folder if you want, but it is advised that
-    // you create it in /tmp/. This is where MacOS and Linux keeps all the temporary files.
+    dv::TmpDir tmpDir;  
+    fs::path tmpQASM = tmpDir.path() / "tmp.qasm";
 
-    // write the QCir to a QASM file into this folder. This can be done with QCir::writeQASM(...)
+    this->writeQASM(tmpQASM.string());
 
-    // perform your system calls. Read the output QASM file with the python script,
-    // output using the respective `drawer` to the console or to a file
-    return true;
+    string pathToScript = "scripts/qccdraw_qiskit_interface.py";
+
+    string cmd = "python3 " + pathToScript 
+               + " -input " + tmpQASM.string() 
+               + " -drawer " + drawer;
+               + " -scale " + to_string(scale);
+
+    if (outputPath.size()) {
+        cmd += " -output " + outputPath;
+    }
+
+    int status = system(cmd.c_str());
+
+    return status == 0;
 }

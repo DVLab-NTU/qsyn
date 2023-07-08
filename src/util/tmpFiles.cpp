@@ -1,12 +1,12 @@
 /****************************************************************************
-  FileName     [ tempFiles.cpp ]
+  FileName     [ tmpFiles.cpp ]
   PackageName  [ util ]
   Synopsis     [ RAII wrapper for temporary files and directories ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "tempFiles.h"
+#include "tmpFiles.h"
 
 #include <cerrno>
 #include <cstring>
@@ -25,11 +25,12 @@ namespace detail {
  * @param prefix
  * @return std::string the temp directory name starting with `prefix` followed by six random characters.
  */
-std::filesystem::path createTempDir(std::string_view prefix) {
+std::filesystem::path createTmpDir(std::string_view prefix) {
     // NOTE - All-cap to avoid clashing with keyword
     char* TEMPLATE = new char[prefix.size() + 7];  // 6 for the Xs, 1 for null terminator
     prefix.copy(TEMPLATE, prefix.size());
     for (int i = 0; i < 6; i++) TEMPLATE[prefix.size() + i] = 'X';
+    TEMPLATE[prefix.size() + 6] = '\0';
 
     IGNORE_UNUSED_RETURN_WARNING mkdtemp(TEMPLATE);
 
@@ -52,7 +53,7 @@ std::filesystem::path createTempDir(std::string_view prefix) {
  * @param prefix
  * @return std::string the temp file name starting with `prefix` followed by six random characters.
  */
-std::filesystem::path createTempFile(std::string_view prefix) {
+std::filesystem::path createTmpFile(std::string_view prefix) {
     char* TEMPLATE = new char[prefix.size() + 7];  // 6 for the Xs, 1 for null terminator
     prefix.copy(TEMPLATE, prefix.size());
     for (int i = 0; i < 6; i++) TEMPLATE[prefix.size() + i] = 'X';

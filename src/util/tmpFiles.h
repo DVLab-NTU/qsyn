@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ tempFiles.h ]
+  FileName     [ tmpFiles.h ]
   PackageName  [ util ]
   Synopsis     [ RAII wrapper for temporary files and directories ]
   Author       [ Design Verification Lab ]
@@ -18,16 +18,16 @@ namespace dvlab_utils {
 
 namespace detail {
 
-std::filesystem::path createTempDir(std::string_view prefix);
-std::filesystem::path createTempFile(std::string_view prefix);
+std::filesystem::path createTmpDir(std::string_view prefix);
+std::filesystem::path createTmpFile(std::string_view prefix);
 
 }  // namespace detail
 
-class TempDir {
+class TmpDir {
 public:
-    TempDir() : _dir{detail::createTempDir(std::filesystem::temp_directory_path().string() + "/dvlab-")} {}
-    TempDir(std::string_view prefix) : _dir{detail::createTempDir(prefix)} {}
-    ~TempDir() { std::filesystem::remove_all(_dir); }
+    TmpDir() : _dir{detail::createTmpDir(std::filesystem::temp_directory_path().string() + "/dvlab-")} {}
+    TmpDir(std::string_view prefix) : _dir{detail::createTmpDir(prefix)} {}
+    ~TmpDir() { std::filesystem::remove_all(_dir); }
 
     std::filesystem::path path() const { return _dir; }
 
@@ -35,12 +35,12 @@ private:
     std::filesystem::path const _dir;
 };
 
-class TempFile {
+class TmpFile {
 public:
-    TempFile() : _stream{detail::createTempFile(std::filesystem::temp_directory_path().string())} {
+    TmpFile() : _stream{detail::createTmpFile(std::filesystem::temp_directory_path().string())} {
         assert(_stream.is_open());
     }
-    TempFile(std::string_view prefix) : _stream{detail::createTempFile(prefix)} {
+    TmpFile(std::string_view prefix) : _stream{detail::createTmpFile(prefix)} {
         assert(_stream.is_open());
     }
 
