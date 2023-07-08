@@ -26,7 +26,7 @@
 CmdClass(ZXGPrintCmd);
 CmdClass(ZXGTestCmd);
 CmdClass(ZXGEditCmd);
-CmdClass(ZXGTraverseCmd);
+// CmdClass(ZXGTraverseCmd);
 CmdClass(ZXGDrawCmd);
 CmdClass(ZX2TSCmd);
 CmdClass(ZXGReadCmd);

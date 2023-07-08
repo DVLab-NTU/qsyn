@@ -35,6 +35,7 @@ unique_ptr<ArgParseCmdType> ZXPrintCmd();
 unique_ptr<ArgParseCmdType> ZXCopyCmd();
 unique_ptr<ArgParseCmdType> ZXComposeCmd();
 unique_ptr<ArgParseCmdType> ZXTensorCmd();
+unique_ptr<ArgParseCmdType> ZXGTraverseCmd();
 // unique_ptr<ArgParseCmdType> ZXGWriteCmd();
 
 bool initZXCmd() {
@@ -52,7 +53,7 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXGEdit", 4, make_unique<ZXGEditCmd>()) &&
           cmdMgr->regCmd("ZXGADJoint", 6, make_unique<ZXGAdjointCmd>()) &&
           cmdMgr->regCmd("ZXGASsign", 5, make_unique<ZXGAssignCmd>()) &&
-          cmdMgr->regCmd("ZXGTRaverse", 5, make_unique<ZXGTraverseCmd>()) &&
+          cmdMgr->regCmd("ZXGTRaverse", 5, ZXGTraverseCmd()) &&
           cmdMgr->regCmd("ZXGDraw", 4, make_unique<ZXGDrawCmd>()) &&
           cmdMgr->regCmd("ZX2TS", 5, make_unique<ZX2TSCmd>()) &&
           cmdMgr->regCmd("ZXGRead", 4, make_unique<ZXGReadCmd>()) &&
@@ -270,8 +271,6 @@ unique_ptr<ArgParseCmdType> ZXComposeCmd() {
 
     return cmd;
 }
-
-
 
 
 //----------------------------------------------------------------------
@@ -641,23 +640,39 @@ void ZXGEditCmd::summary() const {
 //----------------------------------------------------------------------
 //    ZXGTRaverse
 //----------------------------------------------------------------------
-CmdExecStatus
-ZXGTraverseCmd::exec(const string &option) {
-    string token;
-    if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
-    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGTraverse");
-    zxGraphMgr->getGraph()->updateTopoOrder();
-    return CMD_EXEC_DONE;
+unique_ptr<ArgParseCmdType> ZXGTraverseCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXGTRaverse");
+
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("traverse ZX-graph and update topological order of vertices");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        zxGraphMgr->getGraph()->updateTopoOrder();
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
 }
 
-void ZXGTraverseCmd::usage() const {
-    cout << "Usage: ZXGTRaverse" << endl;
-}
 
-void ZXGTraverseCmd::summary() const {
-    cout << setw(15) << left << "ZXGTRaverse: "
-         << "traverse ZX-graph and update topological order of vertices" << endl;
-}
+// CmdExecStatus
+// ZXGTraverseCmd::exec(const string &option) {
+//     string token;
+//     if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
+//     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGTraverse");
+//     zxGraphMgr->getGraph()->updateTopoOrder();
+//     return CMD_EXEC_DONE;
+// }
+
+// void ZXGTraverseCmd::usage() const {
+//     cout << "Usage: ZXGTRaverse" << endl;
+// }
+
+// void ZXGTraverseCmd::summary() const {
+//     cout << setw(15) << left << "ZXGTRaverse: "
+//          << "traverse ZX-graph and update topological order of vertices" << endl;
+// }
 
 //----------------------------------------------------------------------
 //    ZXGDraw [-CLI]
@@ -790,30 +805,6 @@ void ZXGReadCmd::summary() const {
 //----------------------------------------------------------------------
 //    ZXGWrite <string Output.<zx | tikz | tex>> [-Complete]
 //----------------------------------------------------------------------
-
-// unique_ptr<ArgParseCmdType> ZXGWriteCmd() {
-//     auto cmd = make_unique<ArgParseCmdType>("ZXGWrite");
-
-//     cmd->parserDefinition = [](ArgumentParser &parser) {
-//         parser.help("write a ZX-graph to a file");
-//         parser.addArgument<string>("output-path")
-//             .help("the filepath of output file (.zx/.tikz/.tex)");
-//         parser.addArgument<string>("-Complete")
-//             .help("if specified, ")
-//     };
-
-//     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-//         ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGWrite");
-//         if (!qcirMgr->getQCircuit()->writeQASM(parser["output-path.qasm"])) {
-//             cerr << "Error: path " << parser["output-path.qasm"] << " not found!!" << endl;
-//             return CMD_EXEC_ERROR;
-//         }
-//         return CMD_EXEC_DONE;
-//     };
-
-//     return cmd;
-// }
-
 
 
 CmdExecStatus
