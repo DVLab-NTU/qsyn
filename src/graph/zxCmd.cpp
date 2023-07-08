@@ -36,6 +36,7 @@ unique_ptr<ArgParseCmdType> ZXCopyCmd();
 unique_ptr<ArgParseCmdType> ZXComposeCmd();
 unique_ptr<ArgParseCmdType> ZXTensorCmd();
 unique_ptr<ArgParseCmdType> ZXGTraverseCmd();
+unique_ptr<ArgParseCmdType> ZX2TSCmd();
 // unique_ptr<ArgParseCmdType> ZXGWriteCmd();
 
 bool initZXCmd() {
@@ -55,7 +56,7 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXGASsign", 5, make_unique<ZXGAssignCmd>()) &&
           cmdMgr->regCmd("ZXGTRaverse", 5, ZXGTraverseCmd()) &&
           cmdMgr->regCmd("ZXGDraw", 4, make_unique<ZXGDrawCmd>()) &&
-          cmdMgr->regCmd("ZX2TS", 5, make_unique<ZX2TSCmd>()) &&
+          cmdMgr->regCmd("ZX2TS", 5, ZX2TSCmd()) &&
           cmdMgr->regCmd("ZXGRead", 4, make_unique<ZXGReadCmd>()) &&
           cmdMgr->regCmd("ZXGWrite", 4, make_unique<ZXGWriteCmd>())
           )) {
@@ -695,21 +696,21 @@ void ZXGDrawCmd::summary() const {
 //----------------------------------------------------------------------
 //    ZX2TS
 //----------------------------------------------------------------------
-CmdExecStatus
-ZX2TSCmd::exec(const string &option) {
-    if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
-    zxGraphMgr->getGraph()->toTensor();
-    return CMD_EXEC_DONE;
+unique_ptr<ArgParseCmdType> ZX2TSCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZX2TS");
+
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("convert ZX-graph to tensor");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        zxGraphMgr->getGraph()->toTensor();
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
 }
 
-void ZX2TSCmd::usage() const {
-    cout << "Usage: ZX2TS" << endl;
-}
-
-void ZX2TSCmd::summary() const {
-    cout << setw(15) << left << "ZX2TS: "
-         << "convert ZX-graph to tensor" << endl;
-}
 
 //----------------------------------------------------------------------
 //    ZXGRead <string Input.(b)zx> [-KEEPid] [-Replace]
