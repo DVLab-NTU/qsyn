@@ -34,6 +34,7 @@ unique_ptr<ArgParseCmdType> ZXDeleteCmd();
 unique_ptr<ArgParseCmdType> ZXPrintCmd();
 unique_ptr<ArgParseCmdType> ZXCopyCmd();
 unique_ptr<ArgParseCmdType> ZXComposeCmd();
+unique_ptr<ArgParseCmdType> ZXTensorCmd();
 // unique_ptr<ArgParseCmdType> ZXGWriteCmd();
 
 bool initZXCmd() {
@@ -44,7 +45,7 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXDelete", 3, ZXDeleteCmd()) &&
           cmdMgr->regCmd("ZXCOPy", 5, ZXCopyCmd()) &&
           cmdMgr->regCmd("ZXCOMpose", 5, ZXComposeCmd()) &&
-          cmdMgr->regCmd("ZXTensor", 3, make_unique<ZXTensorCmd>()) &&
+          cmdMgr->regCmd("ZXTensor", 3, ZXTensorCmd()) &&
           cmdMgr->regCmd("ZXPrint", 3, ZXPrintCmd()) &&
           cmdMgr->regCmd("ZXGPrint", 4, make_unique<ZXGPrintCmd>()) &&
           cmdMgr->regCmd("ZXGTest", 4, make_unique<ZXGTestCmd>()) &&
@@ -276,31 +277,47 @@ unique_ptr<ArgParseCmdType> ZXComposeCmd() {
 //----------------------------------------------------------------------
 //    ZXTensor <size_t id>
 //----------------------------------------------------------------------
-CmdExecStatus
-ZXTensorCmd::exec(const string &option) {
-    string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    if (token.empty()) {
-        cerr << "Error: the ZX-graph id you want to tensor must be provided!" << endl;
-        return CmdExec::errorOption(CMD_OPT_MISSING, token);
-    } else {
-        unsigned id;
-        ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
-        ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
-        zxGraphMgr->getGraph()->tensorProduct(zxGraphMgr->findZXGraphByID(id));
-    }
-
-    return CMD_EXEC_DONE;
+unique_ptr<ArgParseCmdType> ZXTensorCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXTensor");
+    cmd->parserDefinition = [](ArgumentParser &parser){
+        parser.help("tensor a ZX-graph");
+        parser.addArgument<size_t>("id")
+            .constraint(validZXGraphId)
+            .help("the ID of the ZX-graph");
+    };
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        zxGraphMgr->getGraph()->tensorProduct(zxGraphMgr->findZXGraphByID(parser["id"]));
+        return CMD_EXEC_DONE;
+    };
+    return cmd;
 }
 
-void ZXTensorCmd::usage() const {
-    cout << "Usage: ZXTensor <size_t id>" << endl;
-}
 
-void ZXTensorCmd::summary() const {
-    cout << setw(15) << left << "ZXTensor: "
-         << "tensor a ZX-graph" << endl;
-}
+// CmdExecStatus
+// ZXTensorCmd::exec(const string &option) {
+//     string token;
+//     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+//     if (token.empty()) {
+//         cerr << "Error: the ZX-graph id you want to tensor must be provided!" << endl;
+//         return CmdExec::errorOption(CMD_OPT_MISSING, token);
+//     } else {
+//         unsigned id;
+//         ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
+//         ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
+//         zxGraphMgr->getGraph()->tensorProduct(zxGraphMgr->findZXGraphByID(id));
+//     }
+
+//     return CMD_EXEC_DONE;
+// }
+
+// void ZXTensorCmd::usage() const {
+//     cout << "Usage: ZXTensor <size_t id>" << endl;
+// }
+
+// void ZXTensorCmd::summary() const {
+//     cout << setw(15) << left << "ZXTensor: "
+//          << "tensor a ZX-graph" << endl;
+// }
 
 //----------------------------------------------------------------------
 //    ZXGTest [-GCX | -Empty | -Valid | -GLike | -IDentity]

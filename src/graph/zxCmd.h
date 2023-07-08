@@ -22,7 +22,7 @@
 // CmdClass(ZXPrintCmd);
 // CmdClass(ZXCopyCmd);
 // CmdClass(ZXComposeCmd);
-CmdClass(ZXTensorCmd);
+// CmdClass(ZXTensorCmd);
 CmdClass(ZXGPrintCmd);
 CmdClass(ZXGTestCmd);
 CmdClass(ZXGEditCmd);
