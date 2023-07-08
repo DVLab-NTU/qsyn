@@ -8,6 +8,7 @@
 
 #include "zxGraph.h"
 
+#include <algorithm>
 #include <iostream>
 
 #include "textFormat.h"  // for TextFormat
@@ -493,7 +494,15 @@ size_t ZXGraph::removeAllEdgesBetween(ZXVertex* vs, ZXVertex* vt, bool checked) 
 void ZXGraph::adjoint() {
     swap(_inputs, _outputs);
     swap(_inputList, _outputList);
-    for (ZXVertex* const& v : _vertices) v->setPhase(-v->getPhase());
+    size_t maxCol = (*max_element(
+                         _vertices.begin(), _vertices.end(),
+                         [](ZXVertex* const a, ZXVertex* const b) { return a->getCol() < b->getCol(); }))
+                        ->getCol();
+
+    ranges::for_each(_vertices, [&maxCol](ZXVertex* v) {
+        v->setPhase(-v->getPhase());
+        v->setCol(maxCol - v->getCol());
+    });
 }
 
 /**
