@@ -37,6 +37,7 @@ unique_ptr<ArgParseCmdType> ZXComposeCmd();
 unique_ptr<ArgParseCmdType> ZXTensorCmd();
 unique_ptr<ArgParseCmdType> ZXGTraverseCmd();
 unique_ptr<ArgParseCmdType> ZX2TSCmd();
+unique_ptr<ArgParseCmdType> ZXGADjointCmd();
 // unique_ptr<ArgParseCmdType> ZXGWriteCmd();
 
 bool initZXCmd() {
@@ -52,7 +53,7 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXGPrint", 4, make_unique<ZXGPrintCmd>()) &&
           cmdMgr->regCmd("ZXGTest", 4, make_unique<ZXGTestCmd>()) &&
           cmdMgr->regCmd("ZXGEdit", 4, make_unique<ZXGEditCmd>()) &&
-          cmdMgr->regCmd("ZXGADJoint", 6, make_unique<ZXGAdjointCmd>()) &&
+          cmdMgr->regCmd("ZXGADJoint", 6, ZXGADjointCmd()) &&
           cmdMgr->regCmd("ZXGASsign", 5, make_unique<ZXGAssignCmd>()) &&
           cmdMgr->regCmd("ZXGTRaverse", 5, ZXGTraverseCmd()) &&
           cmdMgr->regCmd("ZXGDraw", 4, make_unique<ZXGDrawCmd>()) &&
@@ -914,20 +915,17 @@ void ZXGAssignCmd::summary() const {
 //----------------------------------------------------------------------
 //    ZXGADJoint
 //----------------------------------------------------------------------
-CmdExecStatus
-ZXGAdjointCmd::exec(const string &option) {
-    if (!lexNoOption(option)) return CMD_EXEC_ERROR;
-    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGAdjoint");
+unique_ptr<ArgParseCmdType> ZXGADjointCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXGADjoint");
 
-    zxGraphMgr->getGraph()->adjoint();
-    return CMD_EXEC_DONE;
-}
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("adjoint ZX-graph");
+    };
 
-void ZXGAdjointCmd::usage() const {
-    cout << "Usage: ZXGADJoint" << endl;
-}
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        zxGraphMgr->getGraph()->adjoint();
+        return CMD_EXEC_DONE;
+    };
 
-void ZXGAdjointCmd::summary() const {
-    cout << setw(15) << left << "ZXGADJoint: "
-         << "adjoint ZX-graph\n";
+    return cmd;
 }
