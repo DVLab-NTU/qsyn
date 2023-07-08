@@ -656,24 +656,6 @@ unique_ptr<ArgParseCmdType> ZXGTraverseCmd() {
 }
 
 
-// CmdExecStatus
-// ZXGTraverseCmd::exec(const string &option) {
-//     string token;
-//     if (!CmdExec::lexNoOption(option)) return CMD_EXEC_ERROR;
-//     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGTraverse");
-//     zxGraphMgr->getGraph()->updateTopoOrder();
-//     return CMD_EXEC_DONE;
-// }
-
-// void ZXGTraverseCmd::usage() const {
-//     cout << "Usage: ZXGTRaverse" << endl;
-// }
-
-// void ZXGTraverseCmd::summary() const {
-//     cout << setw(15) << left << "ZXGTRaverse: "
-//          << "traverse ZX-graph and update topological order of vertices" << endl;
-// }
-
 //----------------------------------------------------------------------
 //    ZXGDraw [-CLI]
 //    ZXGDraw <string (path.pdf)>
