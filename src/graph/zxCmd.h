@@ -24,7 +24,7 @@
 // CmdClass(ZXComposeCmd);
 // CmdClass(ZXTensorCmd);
 CmdClass(ZXGPrintCmd);
-CmdClass(ZXGTestCmd);
+// CmdClass(ZXGTestCmd);
 CmdClass(ZXGEditCmd);
 // CmdClass(ZXGTraverseCmd);
 CmdClass(ZXGDrawCmd);

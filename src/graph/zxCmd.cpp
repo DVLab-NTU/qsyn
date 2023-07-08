@@ -38,6 +38,8 @@ unique_ptr<ArgParseCmdType> ZXTensorCmd();
 unique_ptr<ArgParseCmdType> ZXGTraverseCmd();
 unique_ptr<ArgParseCmdType> ZX2TSCmd();
 unique_ptr<ArgParseCmdType> ZXGADjointCmd();
+unique_ptr<ArgParseCmdType> ZXGTestCmd();
+
 // unique_ptr<ArgParseCmdType> ZXGWriteCmd();
 
 bool initZXCmd() {
@@ -51,7 +53,7 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXTensor", 3, ZXTensorCmd()) &&
           cmdMgr->regCmd("ZXPrint", 3, ZXPrintCmd()) &&
           cmdMgr->regCmd("ZXGPrint", 4, make_unique<ZXGPrintCmd>()) &&
-          cmdMgr->regCmd("ZXGTest", 4, make_unique<ZXGTestCmd>()) &&
+          cmdMgr->regCmd("ZXGTest", 4, ZXGTestCmd()) &&
           cmdMgr->regCmd("ZXGEdit", 4, make_unique<ZXGEditCmd>()) &&
           cmdMgr->regCmd("ZXGADJoint", 6, ZXGADjointCmd()) &&
           cmdMgr->regCmd("ZXGASsign", 5, make_unique<ZXGAssignCmd>()) &&
@@ -294,99 +296,56 @@ unique_ptr<ArgParseCmdType> ZXTensorCmd() {
 }
 
 
-// CmdExecStatus
-// ZXTensorCmd::exec(const string &option) {
-//     string token;
-//     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-//     if (token.empty()) {
-//         cerr << "Error: the ZX-graph id you want to tensor must be provided!" << endl;
-//         return CmdExec::errorOption(CMD_OPT_MISSING, token);
-//     } else {
-//         unsigned id;
-//         ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
-//         ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
-//         zxGraphMgr->getGraph()->tensorProduct(zxGraphMgr->findZXGraphByID(id));
-//     }
-
-//     return CMD_EXEC_DONE;
-// }
-
-// void ZXTensorCmd::usage() const {
-//     cout << "Usage: ZXTensor <size_t id>" << endl;
-// }
-
-// void ZXTensorCmd::summary() const {
-//     cout << setw(15) << left << "ZXTensor: "
-//          << "tensor a ZX-graph" << endl;
-// }
-
 //----------------------------------------------------------------------
-//    ZXGTest [-GCX | -Empty | -Valid | -GLike | -IDentity]
+//    ZXGTest [-Empty | -Valid | -GLike | -IDentity]
 //----------------------------------------------------------------------
-CmdExecStatus
-ZXGTestCmd::exec(const string &option) {
-    // check option
-    string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGTest");
+unique_ptr<ArgParseCmdType> ZXGTestCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXGTest");
 
-    if (token.empty() || myStrNCmp("-GCX", token, 4) == 0) {
-        zxGraphMgr->getGraph()->generateCNOT();
-        return CMD_EXEC_DONE;
-    }
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("test ZX-graph structures and functions");
 
-    if (myStrNCmp("-Empty", token, 2) == 0) {
-        if (zxGraphMgr->getGraph()->isEmpty()) {
-            cout << "The graph is empty!" << endl;
-        } else {
-            cout << "The graph is not empty!" << endl;
+        auto mutex = parser.addMutuallyExclusiveGroup();
+
+        mutex.addArgument<bool>("-empty")
+            .action(storeTrue)
+            .help("check if the ZX-graph is empty");
+        mutex.addArgument<bool>("-valid")
+            .action(storeTrue)
+            .help("check if the ZX-graph is valid");
+        mutex.addArgument<bool>("-glike")
+            .action(storeTrue)
+            .help("check if the ZX-graph is graph-like");
+        mutex.addArgument<bool>("-identity")
+            .action(storeTrue)
+            .help("check if the ZX-graph is equivalent to identity");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGTest");
+        if(parser["-empty"].isParsed()){
+            if(zxGraphMgr->getGraph()->isEmpty()) cout << "The graph is empty!" << endl;
+            else cout << "The graph is not empty!" << endl;
         }
-        return CMD_EXEC_DONE;
-    }
-
-    if (myStrNCmp("-Valid", token, 2) == 0) {
-        if (zxGraphMgr->getGraph()->isValid()) {
-            cout << "The graph is valid!" << endl;
-        } else {
-            cout << "The graph is invalid!" << endl;
+        else if(parser["-valid"].isParsed()){
+            if (zxGraphMgr->getGraph()->isValid()) cout << "The graph is valid!" << endl;
+            else cout << "The graph is invalid!" << endl;
         }
-        return CMD_EXEC_DONE;
-    }
-
-    if (myStrNCmp("-GLike", token, 3) == 0) {
-        if (zxGraphMgr->getGraph()->isGraphLike()) {
-            cout << "The graph is graph-like!" << endl;
-        } else {
-            cout << "The graph is not graph-like!" << endl;
+        else if(parser["-glike"].isParsed()){
+            if (zxGraphMgr->getGraph()->isGraphLike()) cout << "The graph is graph-like!" << endl;
+            else cout << "The graph is not graph-like!" << endl;
         }
-        return CMD_EXEC_DONE;
-    }
-
-    if (myStrNCmp("-IDentity", token, 3) == 0) {
-        if (zxGraphMgr->getGraph()->isIdentity()) {
-            cout << "The graph is an identity!" << endl;
-        } else {
-            cout << "The graph is not an identity!" << endl;
+        else if(parser["-identity"].isParsed()){
+            if (zxGraphMgr->getGraph()->isIdentity()) cout << "The graph is an identity!" << endl;
+            else cout << "The graph is not an identity!" << endl;
         }
+        else return CMD_EXEC_ERROR;
         return CMD_EXEC_DONE;
-    }
+    };
 
-    if (myStrNCmp("-NGADgets", token, 5) == 0) {
-        cout << "The graph has " << zxGraphMgr->getGraph()->numGadgets() << " gadgets" << endl;
-        return CMD_EXEC_DONE;
-    }
-
-    return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+    return cmd;
 }
 
-void ZXGTestCmd::usage() const {
-    cout << "Usage: ZXGTest [-GCX | -Empty | -Valid | -GLike | -IDentity ]" << endl;
-}
-
-void ZXGTestCmd::summary() const {
-    cout << setw(15) << left << "ZXGTest: "
-         << "test ZX-graph structures and functions" << endl;
-}
 
 //-----------------------------------------------------------------------------------------------------------
 //    ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis | -Density]
@@ -694,6 +653,7 @@ void ZXGDrawCmd::summary() const {
          << "draw ZX-graph" << endl;
 }
 
+
 //----------------------------------------------------------------------
 //    ZX2TS
 //----------------------------------------------------------------------
@@ -789,8 +749,6 @@ void ZXGReadCmd::summary() const {
 //----------------------------------------------------------------------
 //    ZXGWrite <string Output.<zx | tikz | tex>> [-Complete]
 //----------------------------------------------------------------------
-
-
 CmdExecStatus
 ZXGWriteCmd::exec(const string &option) {
     vector<string> options;
