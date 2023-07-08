@@ -30,16 +30,23 @@ public:
     bool TwoQubitGateExist(QCirGate* g, GateType gt, size_t ctrl, size_t targ);
     bool isSingleRotateZ(QCirGate*);
     bool isSingleRotateX(QCirGate*);
+    bool isDoubleQubitGate(QCirGate*);
     QCirGate* getAvailableRotateZ(size_t t);
 
     // basic optimization
-    QCir* parseCircuit(bool, bool, size_t, bool);
+    QCir* basic_optimization(bool, bool, size_t, bool);
     QCir* parseForward();
     bool parseGate(QCirGate*);
     void addHadamard(size_t, bool erase);
     void addCZ(size_t, size_t);
     void addCX(size_t, size_t);
     void topologicalSort(QCir*);
+
+    // trivial optimization
+    QCir* trivial_optimization();
+    std::vector<QCirGate*> getFirstLayerGates(QCir* QC, bool fromLast = false);
+    void CheckDoubleGate(QCir* QC, QCirGate* previousGate, QCirGate* gate);
+    void FuseZPhase(QCir* QC, QCirGate* previousGate, QCirGate* gate);
 
 private:
     QCir* _circuit;
