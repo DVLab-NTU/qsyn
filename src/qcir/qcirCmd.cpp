@@ -906,7 +906,7 @@ unique_ptr<ArgParseCmdType> QCirDrawCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCCDraw");
-        
+
         string drawer = parser["-drawer"];
         string outputPath = parser["output_path"];
         float scale = parser["-scale"];
@@ -920,7 +920,7 @@ unique_ptr<ArgParseCmdType> QCirDrawCmd() {
 
         if (drawer == "text" && parser["-scale"].isParsed()) {
             cerr << "Error: Cannot set scale for \'text\' drawer!!" << endl;
-            return CMD_EXEC_ERROR; 
+            return CMD_EXEC_ERROR;
         }
 
         if (!qcirMgr->getQCircuit()->draw(drawer, outputPath, scale)) {

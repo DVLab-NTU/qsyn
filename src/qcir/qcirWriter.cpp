@@ -64,17 +64,15 @@ bool QCir::draw(std::string const& drawer, std::string const& outputPath, float 
     namespace dv = dvlab_utils;
     namespace fs = std::filesystem;
 
-    dv::TmpDir tmpDir;  
+    dv::TmpDir tmpDir;
     fs::path tmpQASM = tmpDir.path() / "tmp.qasm";
 
     this->writeQASM(tmpQASM.string());
 
     string pathToScript = "scripts/qccdraw_qiskit_interface.py";
 
-    string cmd = "python3 " + pathToScript 
-               + " -input " + tmpQASM.string() 
-               + " -drawer " + drawer;
-               + " -scale " + to_string(scale);
+    string cmd = "python3 " + pathToScript + " -input " + tmpQASM.string() + " -drawer " + drawer;
+    +" -scale " + to_string(scale);
 
     if (outputPath.size()) {
         cmd += " -output " + outputPath;

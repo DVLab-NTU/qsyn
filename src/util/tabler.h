@@ -103,6 +103,6 @@ private:
     size_t countNumStyleChars(std::string_view str) const;
 };
 
-}  // namespace qsutil
+}  // namespace dvlab_utils
 
 #endif  // QSYN_TABLER_H

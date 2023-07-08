@@ -233,4 +233,4 @@ size_t Tabler::countNumStyleChars(std::string_view str) const {
     return count;
 }
 
-}  // namespace qsutil
+}  // namespace dvlab_utils
