@@ -18,7 +18,7 @@
 // CmdClass(ZXNewCmd);
 // CmdClass(ZXResetCmd);
 // CmdClass(ZXDeleteCmd);
-CmdClass(ZXCHeckoutCmd);
+// CmdClass(ZXCHeckoutCmd);
 // CmdClass(ZXPrintCmd);
 // CmdClass(ZXCopyCmd);
 // CmdClass(ZXComposeCmd);

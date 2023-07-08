@@ -27,7 +27,7 @@ using namespace ArgParse;
 extern ZXGraphMgr *zxGraphMgr;
 extern size_t verbose;
 
-// unique_ptr<ArgParseCmdType> ZXCHeckoutCmd();
+unique_ptr<ArgParseCmdType> ZXCHeckoutCmd();
 unique_ptr<ArgParseCmdType> ZXNewCmd();
 unique_ptr<ArgParseCmdType> ZXResetCmd();
 unique_ptr<ArgParseCmdType> ZXDeleteCmd();
@@ -38,7 +38,7 @@ unique_ptr<ArgParseCmdType> ZXComposeCmd();
 
 bool initZXCmd() {
     zxGraphMgr = new ZXGraphMgr;
-    if (!(cmdMgr->regCmd("ZXCHeckout", 4, make_unique<ZXCHeckoutCmd>()) &&
+    if (!(cmdMgr->regCmd("ZXCHeckout", 4, ZXCHeckoutCmd()) &&
           cmdMgr->regCmd("ZXNew", 3, ZXNewCmd()) &&
           cmdMgr->regCmd("ZXReset", 3, ZXResetCmd()) &&
           cmdMgr->regCmd("ZXDelete", 3, ZXDeleteCmd()) &&
@@ -82,30 +82,19 @@ ArgType<size_t>::ConstraintType validZXGraphId = {
 //----------------------------------------------------------------------
 //    ZXCHeckout <(size_t id)>
 //----------------------------------------------------------------------
-
-CmdExecStatus
-ZXCHeckoutCmd::exec(const string &option) {
-    string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-
-    if (token.empty())
-        return CmdExec::errorOption(CMD_OPT_MISSING, "");
-    else {
-        unsigned id;
-        ZX_CMD_ID_VALID_OR_RETURN(token, id, "Graph");
-        ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
-        zxGraphMgr->checkout2ZXGraph(id);
-    }
-    return CMD_EXEC_DONE;
-}
-
-void ZXCHeckoutCmd::usage() const {
-    cout << "Usage: ZXCHeckout <(size_t id)>" << endl;
-}
-
-void ZXCHeckoutCmd::summary() const {
-    cout << setw(15) << left << "ZXCHeckout: "
-         << "checkout to Graph <id> in ZXGraphMgr" << endl;
+unique_ptr<ArgParseCmdType> ZXCHeckoutCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXCHeckout");
+    cmd->parserDefinition = [](ArgumentParser &parser){
+        parser.help("checkout to Graph <id> in ZXGraphMgr");
+        parser.addArgument<size_t>("id")
+            .constraint(validZXGraphId)
+            .help("the ID of the ZX-graph");
+    };
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        zxGraphMgr->checkout2ZXGraph(parser["id"]);
+        return CMD_EXEC_DONE;
+    };
+    return cmd;
 }
 
 
@@ -382,7 +371,7 @@ void ZXGTestCmd::summary() const {
 }
 
 //-----------------------------------------------------------------------------------------------------------
-//    ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis]
+//    ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis | -Density]
 //-----------------------------------------------------------------------------------------------------------
 CmdExecStatus
 ZXGPrintCmd::exec(const string &option) {
@@ -396,6 +385,8 @@ ZXGPrintCmd::exec(const string &option) {
 
     if (options.empty())
         zxGraphMgr->getGraph()->printGraph();
+    else if(myStrNCmp("-Density", options[0], 2) == 0)
+        cout << "Density: " << zxGraphMgr->getGraph()->Density() << endl;
     else if (myStrNCmp("-Summary", options[0], 2) == 0) {
         zxGraphMgr->getGraph()->printGraph();
         cout << setw(30) << left << "#T-gate: " << zxGraphMgr->getGraph()->TCount() << "\n";
