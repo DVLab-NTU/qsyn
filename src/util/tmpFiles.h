@@ -37,7 +37,7 @@ private:
 
 class TmpFile {
 public:
-    TmpFile() : _stream{detail::createTmpFile(std::filesystem::temp_directory_path().string())} {
+    TmpFile() : _stream{detail::createTmpFile(std::filesystem::temp_directory_path().string() + "/dvlab-")} {
         assert(_stream.is_open());
     }
     TmpFile(std::string_view prefix) : _stream{detail::createTmpFile(prefix)} {
