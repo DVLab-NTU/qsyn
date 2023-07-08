@@ -139,6 +139,7 @@ public:
     size_t getNumVertices() const { return _vertices.size(); }
     std::string getFileName() const { return _fileName; }
     const std::vector<std::string>& getProcedures() const { return _procedures; }
+    
 
     // For testings
     bool isEmpty() const;
@@ -155,6 +156,7 @@ public:
     bool isGadgetAxel(ZXVertex*) const;
     bool hasDanglingNeighbors(ZXVertex*) const;
 
+    double Density();
     int TCount() const;
     int nonCliffordCount(bool includeT = false) const;
 
