@@ -76,7 +76,10 @@ public:
 
     bool writeQASM(std::string qasm_output);
 
+    bool draw(std::string const& drawer, std::string const& outputPath = "", float scale = 1.0f);
+
     void countGate(bool = false);
+
     void ZXMapping();
     void tensorMapping();
 

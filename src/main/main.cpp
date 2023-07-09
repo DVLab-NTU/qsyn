@@ -2,7 +2,7 @@
   FileName     [ main.cpp ]
   PackageName  [ main ]
   Synopsis     [ Define main() ]
-  Author       [ Design Verification Lab ]
+  Author       [ Design Verification Lab, Chia-Hsu Chuang ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
@@ -44,7 +44,7 @@ extern MyUsage myUsage;
 
 static void
 usage() {
-    cout << "Usage: ./qsyn [ -File < doFile > ]" << endl;
+    cout << "Usage: ./qsyn [-File < doFile > [arguments...]]" << endl;
 }
 
 static void
@@ -58,7 +58,11 @@ int main(int argc, char** argv) {
 
     signal(SIGINT, [](int signum) -> void { cmdMgr->sigintHandler(signum); return; });
 
-    if (argc == 3) {  // -file <doFile>
+    if (argc >= 3) {  // -file <doFile>
+        for (int i = 3; i < argc; ++i) {
+            cmdMgr->addArgument(argv[i]);
+        }
+
         if (myStrNCmp("-File", argv[1], 2) == 0) {
             if (!cmdMgr->openDofile(argv[2])) {
                 cerr << "Error: cannot open file \"" << argv[2] << "\"!!\n";

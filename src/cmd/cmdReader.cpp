@@ -2,12 +2,14 @@
   FileName     [ cmdReader.cpp ]
   PackageName  [ cmd ]
   Synopsis     [ Read the command from the standard input or dofile ]
-  Author       [ Design Verification Lab ]
+  Author       [ Design Verification Lab, Chia-Hsu Chuang ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #include <cassert>  // for assert
 #include <cstring>  // for strcpy
 #include <iostream>
+#include <regex>
+#include <sstream>  // for istringstream
 
 #include "cmdCharDef.h"  // for ParseChar, ParseChar::BACK_SPACE_CHAR, Parse...
 #include "cmdParser.h"   // for CmdParser, PG_OFFSET
@@ -289,6 +291,11 @@ void CmdParser::moveToHistory(int index) {
 bool CmdParser::addHistory() {
     string cmd = stripWhitespaces(stripComments(_readBuf));
 
+    size_t argumentTagPos = _readBuf.find("//!ARGS");
+    if (argumentTagPos == 0) {
+        saveArgumentsInVariables(_readBuf);
+    }
+
     if (_tempCmdStored) {
         _history.pop_back();
         _tempCmdStored = false;
@@ -304,6 +311,57 @@ bool CmdParser::addHistory() {
     _historyIdx = int(_history.size());
 
     return newCmd;
+}
+
+// may exit if the check fails
+void CmdParser::saveArgumentsInVariables(std::string const& str) {
+    // parse the string
+    // "//!ARGS n <ARG1> <ARG2> ... <ARGn>"
+    // and check if for all k = 1 to n,
+    // _variables[to_string(k)] is mapped to a valid value
+
+    // To enable keyword arguments, also map the names <ARGk>
+    // to _variables[to_string(k)]
+
+    std::istringstream iss(str);
+    std::string token;
+    iss >> token;  // skip the first token "//!ARGS"
+    assert(token == "//!ARGS");
+
+    size_t n;
+    iss >> n;
+
+    regex validVariableName("[a-zA-Z_][a-zA-Z0-9_]*");
+    std::vector<std::string> keys;
+    while (iss >> token) {
+        if (!regex_match(token, validVariableName)) {
+            std::cerr << '\n';
+            std::cerr << "Error: Invalid argument name \"" << token << "\" in \"//!ARGS\" directive" << std::endl;
+            exit(-1);
+        }
+        keys.push_back(token);
+    }
+
+    if (keys.size() < n) {
+        std::cerr << '\n';
+        std::cerr << "Error: Too few arguments declared in \"//!ARGS\" directive, expected " << n << " but got " << keys.size() << std::endl;
+        exit(-1);
+    } else if (keys.size() > n) {
+        std::cerr << '\n';
+        std::cerr << "Warning: Too many arguments declared in \"//!ARGS\" directive, expected " << n << " but got " << keys.size() << std::endl;
+        std::cerr << "Warning: Ignoring extra arguments" << std::endl;
+        exit(-1);
+    }
+
+    if (_arguments.size() != keys.size()) {
+        std::cerr << '\n';
+        std::cerr << "Error: Not enough arguments provided, expected " << keys.size() << " but got " << _arguments.size() << std::endl;
+        exit(-1);
+    }
+
+    for (size_t i = 0; i < n; ++i) {
+        _variables.emplace(keys[i], _arguments[i]);
+    }
 }
 
 // 1. Replace current line with _history[_historyIdx] on the screen

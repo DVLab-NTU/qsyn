@@ -19,7 +19,14 @@
 
 using namespace std;
 
-// Remove quotation marks and replace the ' ' between the quotes to be "\ "
+/**
+ * @brief
+ *
+ * @param input the string to strip quotes
+ * @param output if the function returns true, output the stripped string; else output the same string as input.
+ * @return true if quotation marks are paired;
+ * @return false if quotation marks are unpaired.
+ */
 bool stripQuotes(const std::string& input, std::string& output) {
     output = input;
     if (input == "") {
@@ -221,7 +228,7 @@ std::string toUpperString(std::string const& str) {
     return ret;
 };
 
-size_t countUpperChars(std::string const& str) {
+size_t countUpperChars(std::string const& str) noexcept {
     size_t cnt = 0;
     for (auto& ch : str) {
         if (::islower(ch)) return cnt;

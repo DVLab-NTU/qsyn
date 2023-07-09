@@ -27,6 +27,8 @@
 #define QSYN_ALWAYS_INLINE
 #endif
 
+#define IGNORE_UNUSED_RETURN_WARNING [[maybe_unused]] auto shutup =
+
 class tqdm;
 constexpr size_t ERROR_CODE = (size_t)-1;
 
@@ -53,6 +55,7 @@ private:
 };
 
 // In myString.cpp
+
 bool stripQuotes(const std::string& input, std::string& output);
 std::string stripLeadingWhitespaces(std::string const& str);
 std::string stripWhitespaces(std::string const& str);
@@ -89,7 +92,7 @@ inline bool myStr2SizeT(const std::string& str, size_t& num) { return myStr2Numb
 
 std::string toLowerString(std::string const& str);
 std::string toUpperString(std::string const& str);
-size_t countUpperChars(std::string const& str);
+size_t countUpperChars(std::string const& str) noexcept;
 
 // In util.cpp
 std::vector<std::string> listDir(std::string const& prefix, std::string const& dir = ".");

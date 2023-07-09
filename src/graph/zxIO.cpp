@@ -9,10 +9,13 @@
 #include <cassert>  // for assert
 #include <cmath>
 #include <cstddef>  // for size_t
+#include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
 
+#include "tmpFiles.h"
 #include "zxFileParser.h"
 #include "zxGraph.h"
 
@@ -56,7 +59,7 @@ bool ZXGraph::readZX(const string& filename, bool keepID) {
  * @return true if correctly write a graph into .zx
  * @return false
  */
-bool ZXGraph::writeZX(const string& filename, bool complete) {
+bool ZXGraph::writeZX(const string& filename, bool complete) const {
     ofstream ZXFile;
     ZXFile.open(filename);
     if (!ZXFile.is_open()) {
@@ -202,16 +205,28 @@ unordered_map<EdgeType, string> et2s = {
  * @return true if the filename is valid
  * @return false if not
  */
-bool ZXGraph::writeTikz(string filename) {
-    fstream tikzFile;
-    tikzFile.open(filename.c_str(), std::fstream::app | fstream::out);
+bool ZXGraph::writeTikz(string const& filename) const {
+    fstream tikzFile{filename, ios::out};
     if (!tikzFile.is_open()) {
         cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
         return false;
     }
+
+    return writeTikz(tikzFile);
+}
+
+/**
+ * @brief write tikz file to the fstream `tikzFile`
+ *
+ * @param tikzFile
+ * @return true if the filename is valid
+ * @return false if not
+ */
+bool ZXGraph::writeTikz(std::ostream& tikzFile) const {
     string fontSize = "\\tiny";
 
     size_t max = 0;
+
     for (auto& v : _outputs) {
         if (max < v->getCol())
             max = v->getCol();
@@ -279,48 +294,121 @@ bool ZXGraph::writeTikz(string filename) {
 }
 
 /**
- * @brief Write .tex file
+ * @brief Generate pdf file
  *
  * @param filename
  * @param toPDF if true, compile it to .pdf
  * @return true
  * @return false
  */
-bool ZXGraph::writeTex(string filename, bool toPDF) {
-    size_t extensionPosition = filename.find_last_of(".");
-    if (extensionPosition != string::npos) {
-        string extensionString = filename.substr(extensionPosition);
-        if (
-            myStrNCmp(".tex", extensionString, 4) != 0 &&
-            myStrNCmp(".pdf", extensionString, 4) != 0) {  // backward compatibility
-            cerr << "Error: unsupported file extension \"" << extensionString << "\"!!" << endl;
-            return false;
-        }
-    } else {
+bool ZXGraph::writePdf(string const& filename) const {
+    namespace fs = std::filesystem;
+    namespace dv = dvlab_utils;
+    fs::path filepath{filename};
+
+    if (filepath.extension() == "") {
         cerr << "Error: no file extension!!" << endl;
         return false;
     }
 
-    size_t directoryPosition = filename.find_last_of("/");
-    string directory = "./";
-    if (directoryPosition != string::npos) {
-        directory += filename.substr(0, directoryPosition);
-    }
-    string cmd = "mkdir -p " + directory;
-    int systemRet = system(cmd.c_str());
-    if (systemRet == -1) {
-        cerr << "Error: fail to open the directory" << endl;
-        return false;
-    }
-    string name = filename.substr(0, extensionPosition);
-    filename = name + ".tex";
-    fstream texFile;
-    texFile.open(filename.c_str(), fstream::out);
-    if (!texFile.is_open()) {
-        cerr << "Error: cannot open the file \"" << filename << "\"!!" << endl;
+    if (filepath.extension() != ".pdf") {
+        cerr << "Error: unsupported file extension \"" << filepath.extension() << "\"!!" << endl;
         return false;
     }
 
+    filepath.replace_extension(".tex");
+    if (filepath.parent_path().empty()) {
+        filepath = "./" + filepath.string();
+    }
+
+    std::error_code ec;
+    fs::create_directory(filepath.parent_path(), ec);
+    if (ec) {
+        cerr << "Error: fail to create the directory" << endl;
+        cerr << ec.message() << endl;
+        return false;
+    }
+
+    dv::TmpDir tmpDir;
+
+    auto tempTexPath = tmpDir.path() / filepath.filename();
+
+    fstream texFile{tempTexPath, ios::out};
+    if (!texFile.is_open()) {
+        cerr << "Error: cannot open the file \"" << filepath << "\"!!" << endl;
+        return false;
+    }
+
+    if (!writeTex(texFile)) return false;
+
+    texFile.close();
+    // NOTE - Linux cmd: pdflatex -halt-on-error -output-directory <path/to/dir> <path/to/tex>
+    string cmd = "pdflatex -halt-on-error -output-directory " + tempTexPath.parent_path().string() + " " + tempTexPath.string() + " >/dev/null 2>&1 ";
+    if (system(cmd.c_str()) == -1) {
+        cerr << "Error: fail to generate PDF" << endl;
+        return false;
+    }
+
+    filepath.replace_extension(".pdf");
+
+    if (fs::exists(filepath))
+        fs::remove(filepath);
+
+    // NOTE - copy instead of rename to avoid cross device link error
+    fs::copy(tempTexPath.replace_extension(".pdf"), filepath);
+
+    return true;
+}
+
+/**
+ * @brief Generate pdf file
+ *
+ * @param filename
+ * @param toPDF if true, compile it to .pdf
+ * @return true
+ * @return false
+ */
+bool ZXGraph::writeTex(string const& filename) const {
+    namespace fs = std::filesystem;
+    fs::path filepath{filename};
+
+    if (filepath.extension() == "") {
+        cerr << "Error: no file extension!!" << endl;
+        return false;
+    }
+
+    if (filepath.extension() != ".tex") {
+        cerr << "Error: unsupported file extension \"" << filepath.extension() << "\"!!" << endl;
+        return false;
+    }
+
+    if (!filepath.parent_path().empty()) {
+        std::error_code ec;
+        fs::create_directory(filepath.parent_path(), ec);
+        if (ec) {
+            cerr << "Error: fail to create the directory" << endl;
+            cerr << ec.message() << endl;
+            return false;
+        }
+    }
+
+    fstream texFile{filepath, ios::out};
+    if (!texFile.is_open()) {
+        cerr << "Error: cannot open the file \"" << filepath << "\"!!" << endl;
+        return false;
+    }
+
+    return writeTex(texFile);
+}
+
+/**
+ * @brief Generate tex file
+ *
+ * @param filename
+ * @return true if the filename is valid
+ * @return false if not
+ */
+bool ZXGraph::writeTex(ostream& texFile) const {
     string includes =
         "\\documentclass[a4paper,landscape]{article}\n"
         "\\usepackage[english]{babel}\n"
@@ -334,36 +422,10 @@ bool ZXGraph::writeTex(string filename, bool toPDF) {
         "\\usetikzlibrary{shapes.geometric}\n";
     texFile << includes;
     texFile << "\\begin{document}\n";
-    texFile.flush();
-    if (!writeTikz(filename)) {
+    if (!writeTikz(texFile)) {
         cout << "Failed" << endl;
         return false;
     }
-    texFile.close();
-    texFile.open(filename.c_str(), fstream::app | fstream::out);
     texFile << "\\end{document}\n";
-    texFile.flush();
-    texFile.close();
-    if (toPDF) {
-        // NOTE - Linux cmd: pdflatex -halt-on-error -output-directory <path/to/dir> <path/to/tex>
-        cmd = "pdflatex -halt-on-error -output-directory " + directory + " " + filename + " >/dev/null 2>&1 ";
-        systemRet = system(cmd.c_str());
-        if (systemRet == -1) {
-            cerr << "Error: fail to generate PDF" << endl;
-            return false;
-        }
-
-        // NOTE - Clean up
-
-        string extensions[4] = {".aux", ".log", ".out", ".tex"};
-        for (auto& ext : extensions) {
-            cmd = "rm " + name + ext;
-            systemRet = system(cmd.c_str());
-            if (systemRet == -1) {
-                cerr << "Error: fail to remove compiling files." << endl;
-                return false;
-            }
-        }
-    }
     return true;
 }

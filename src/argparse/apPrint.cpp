@@ -256,7 +256,7 @@ string ArgumentParser::optionalArgBracket(std::string const& str) const {
  * @param arg
  */
 void ArgumentParser::printHelpString(Argument const& arg) const {
-    using qsutil::Tabler;
+    using dvlab_utils::Tabler;
     _pimpl->tabl << (arg.hasAction() ? typeStyle("flag") : typeStyle(arg.getTypeString()));
 
     if (hasOptionPrefix(arg)) {
@@ -273,7 +273,7 @@ void ArgumentParser::printHelpString(Argument const& arg) const {
 }
 
 void ArgumentParser::printHelpString(SubParsers parsers) const {
-    using qsutil::Tabler;
+    using dvlab_utils::Tabler;
     _pimpl->tabl << Tabler::Multicols(getSyntaxString(parsers), 3) << parsers.getHelp();
 }
 

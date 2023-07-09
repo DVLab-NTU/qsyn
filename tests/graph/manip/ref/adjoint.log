@@ -32,12 +32,12 @@ Identity Removal Rule         1 iterations.
 
 qsyn> zxgp -v
 
-ID:   1 (●, 0)           (Qubit, Col): (0, 8)	  #Neighbors:   1     (20, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 8)	  #Neighbors:   1     (22, -) 
-ID:   5 (●, 0)           (Qubit, Col): (2, 8)	  #Neighbors:   1     (24, -) 
-ID:  20 (●, 0)           (Qubit, Col): (0, 9)	  #Neighbors:   1     (1, -) 
-ID:  22 (●, 0)           (Qubit, Col): (1, 9)	  #Neighbors:   1     (3, -) 
-ID:  24 (●, 0)           (Qubit, Col): (2, 9)	  #Neighbors:   1     (5, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (20, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (22, -) 
+ID:   5 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (24, -) 
+ID:  20 (●, 0)           (Qubit, Col): (0, 17)	  #Neighbors:   1     (1, -) 
+ID:  22 (●, 0)           (Qubit, Col): (1, 17)	  #Neighbors:   1     (3, -) 
+ID:  24 (●, 0)           (Qubit, Col): (2, 17)	  #Neighbors:   1     (5, -) 
 Total #Vertices: 6
 
 

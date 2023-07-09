@@ -438,7 +438,7 @@ private:
         std::string help;
         size_t numRequiredChars;
 
-        qsutil::Tabler mutable tabl;
+        dvlab_utils::Tabler mutable tabl;
 
         // members for analyzing parser options
         MyTrie mutable trie;

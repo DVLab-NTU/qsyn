@@ -2,7 +2,7 @@
   FileName     [ cmdParser.h ]
   PackageName  [ cmd ]
   Synopsis     [ Define class CmdParser ]
-  Author       [ Design Verification Lab ]
+  Author       [ Design Verification Lab, Chia-Hsu Chuang ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 #ifndef CMD_PARSER_H
@@ -67,7 +67,7 @@ public:
     virtual void help() const = 0;
 
     void setOptCmd(const std::string& str) { _optCmd = str; }
-    bool checkOptCmd(const std::string& check) const;  // Removed for TODO...
+    bool checkOptCmd(const std::string& check) const;
     const std::string& getOptCmd() const { return _optCmd; }
 
     static CmdExecStatus errorOption(CmdOptionError err, const std::string& opt);
@@ -148,6 +148,11 @@ public:
     CmdExecStatus execOneCmd();
     void printHelps() const;
 
+    void addArgument(std::string const& val) {
+        _arguments.push_back(val);
+        _variables.emplace(std::to_string(_arguments.size()), val);
+    }
+
     // public helper functions
     void printHistory() const;
     void printHistory(size_t nPrint) const;
@@ -182,6 +187,9 @@ private:
     bool addHistory();
     void retrieveHistory();
 
+    std::string replaceVariableKeysWithValues(std::string const& str) const;
+    void saveArgumentsInVariables(std::string const& str);
+
     inline bool isSpecialChar(char ch) const { return _specialChars.find_first_of(ch) != std::string::npos; }
     std::pair<CmdMap::const_iterator, CmdMap::const_iterator> getCmdMatches(std::string const& str);
     void printAsTable(std::vector<std::string> words, size_t widthLimit) const;
@@ -205,7 +213,9 @@ private:
     CmdMap _cmdMap;                                           // map from string to command
     std::stack<std::ifstream*> _dofileStack;                  // For recursive dofile calling
     std::optional<std::jthread> _currCmd;                     // the current (ongoing) command
-    std::unordered_map<std::string, std::string> _variables;  // the variables recognized by the parser
+    std::unordered_map<std::string, std::string> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
+    std::vector<std::string> _arguments;                      // stores the extra dofile arguments given when invoking the program
+    std::string _dofileName;
 };
 
 #endif  // CMD_PARSER_H

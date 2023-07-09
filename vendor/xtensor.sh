@@ -1,6 +1,5 @@
 ENGINE_NAME="xtensor"
-TIMESTAMP=$(date -I)
-VENDOR_PATH="/tmp/qsyn-configure-"$TIMESTAMP
+VENDOR_PATH=$(mktemp -d)
 GITHUB_PATH="https://github.com/xtensor-stack/xtensor.git"
 JOB=16
 if [ $# -ne 1 ]; then 
