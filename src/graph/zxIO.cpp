@@ -169,35 +169,6 @@ bool ZXGraph::buildGraphFromParserStorage(const ZXParserDetail::StorageType& sto
     return true;
 }
 
-string defineColors =
-    "\\definecolor{zx_red}{RGB}{253, 160, 162}\n"
-    "\\definecolor{zx_green}{RGB}{206, 254, 206}\n"
-    "\\definecolor{hedgeColor}{RGB}{40, 160, 240}\n"
-    "\\definecolor{phaseColor}{RGB}{14, 39, 100}\n";
-
-string tikzStyle =
-    "[\n"
-    "font = \\sffamily,\n"
-    "\t yscale=-1,\n"
-    "\t boun/.style={circle, text=yellow!60, font=\\sffamily, draw=black!100, fill=black!60, thick, text width=3mm, align=center, inner sep=0pt},\n"
-    "\t hbox/.style={regular polygon, regular polygon sides=4, font=\\sffamily, draw=yellow!40!black!100, fill=yellow!40, text width=2.5mm, align=center, inner sep=0pt},\n"
-    "\t zspi/.style={circle, font=\\sffamily, draw=green!60!black!100, fill=zx_green, text width=5mm, align=center, inner sep=0pt},\n"
-    "\t xspi/.style={circle, font=\\sffamily, draw=red!60!black!100, fill=zx_red, text width=5mm, align=center, inner sep=0pt},\n"
-    "\t hedg/.style={draw=hedgeColor, thick},\n"
-    "\t sedg/.style={draw=black, thick},\n"
-    "];\n";
-
-unordered_map<VertexType, string> vt2s = {
-    {VertexType::BOUNDARY, "boun"},
-    {VertexType::Z, "zspi"},
-    {VertexType::X, "xspi"},
-    {VertexType::H_BOX, "hbox"}};
-
-unordered_map<EdgeType, string> et2s = {
-    {EdgeType::HADAMARD, "hedg"},
-    {EdgeType::SIMPLE, "sedg"},
-};
-
 /**
  * @brief Generate tikz file
  *
@@ -223,7 +194,36 @@ bool ZXGraph::writeTikz(string const& filename) const {
  * @return false if not
  */
 bool ZXGraph::writeTikz(std::ostream& tikzFile) const {
-    string fontSize = "\\tiny";
+    constexpr string_view defineColors =
+        "\\definecolor{zx_red}{RGB}{253, 160, 162}\n"
+        "\\definecolor{zx_green}{RGB}{206, 254, 206}\n"
+        "\\definecolor{hedgeColor}{RGB}{40, 160, 240}\n"
+        "\\definecolor{phaseColor}{RGB}{14, 39, 100}\n";
+
+    constexpr string_view tikzStyle =
+        "[\n"
+        "font = \\sffamily,\n"
+        "\t yscale=-1,\n"
+        "\t boun/.style={circle, text=yellow!60, font=\\sffamily, draw=black!100, fill=black!60, thick, text width=3mm, align=center, inner sep=0pt},\n"
+        "\t hbox/.style={regular polygon, regular polygon sides=4, font=\\sffamily, draw=yellow!40!black!100, fill=yellow!40, text width=2.5mm, align=center, inner sep=0pt},\n"
+        "\t zspi/.style={circle, font=\\sffamily, draw=green!60!black!100, fill=zx_green, text width=5mm, align=center, inner sep=0pt},\n"
+        "\t xspi/.style={circle, font=\\sffamily, draw=red!60!black!100, fill=zx_red, text width=5mm, align=center, inner sep=0pt},\n"
+        "\t hedg/.style={draw=hedgeColor, thick},\n"
+        "\t sedg/.style={draw=black, thick},\n"
+        "];\n";
+
+    static unordered_map<VertexType, string> const vt2s = {
+        {VertexType::BOUNDARY, "boun"},
+        {VertexType::Z, "zspi"},
+        {VertexType::X, "xspi"},
+        {VertexType::H_BOX, "hbox"}};
+
+    static unordered_map<EdgeType, string> const et2s = {
+        {EdgeType::HADAMARD, "hedg"},
+        {EdgeType::SIMPLE, "sedg"},
+    };
+
+    constexpr string_view fontSize = "\\tiny";
 
     size_t max = 0;
 
@@ -268,7 +268,7 @@ bool ZXGraph::writeTikz(std::ostream& tikzFile) const {
 
     // NOTE - Sample: \node[zspi] (88888)  at (0,1) {{\tiny 88888}};
     for (auto& v : _vertices) {
-        tikzFile << "    \\node[" << vt2s[v->getType()];
+        tikzFile << "    \\node[" << vt2s.at(v->getType());
         writePhase(v);
         tikzFile << "]";
         tikzFile << "(" << to_string(v->getId()) << ")  at (" << to_string(v->getCol()) << "," << to_string(v->getQubit()) << ") ";
@@ -282,9 +282,9 @@ bool ZXGraph::writeTikz(std::ostream& tikzFile) const {
             if (n->getId() > v->getId()) {
                 if (n->getCol() == v->getCol() && n->getQubit() == v->getQubit()) {
                     cerr << "Warning: " << v->getId() << " and " << n->getId() << " are connected but they have same coordinates." << endl;
-                    tikzFile << "    % \\draw[" << et2s[e] << "] (" << to_string(v->getId()) << ") -- (" << to_string(n->getId()) << ");\n";
+                    tikzFile << "    % \\draw[" << et2s.at(e) << "] (" << to_string(v->getId()) << ") -- (" << to_string(n->getId()) << ");\n";
                 } else
-                    tikzFile << "    \\draw[" << et2s[e] << "] (" << to_string(v->getId()) << ") -- (" << to_string(n->getId()) << ");\n";
+                    tikzFile << "    \\draw[" << et2s.at(e) << "] (" << to_string(v->getId()) << ") -- (" << to_string(n->getId()) << ");\n";
             }
         }
     }
