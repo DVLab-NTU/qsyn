@@ -10,7 +10,8 @@
 #define QCIR_H
 
 #include <cstddef>  // for size_t
-#include <string>   // for string
+#include <stop_token>
+#include <string>  // for string
 #include <unordered_map>
 
 #include "phase.h"  // for Phase
@@ -80,7 +81,7 @@ public:
 
     void countGate(bool = false);
 
-    void ZXMapping();
+    void ZXMapping(std::stop_token st = std::stop_token{});
     void tensorMapping();
 
     void clearMapping();

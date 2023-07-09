@@ -831,7 +831,7 @@ unique_ptr<ArgParseCmdType> QCir2ZXCmd() {
 
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QC2ZX");
-        qcirMgr->getQCircuit()->ZXMapping();
+        qcirMgr->getQCircuit()->ZXMapping(st);
         return CMD_EXEC_DONE;
     };
 

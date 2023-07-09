@@ -34,7 +34,7 @@ void QCir::clearMapping() {
 /**
  * @brief Mapping QCir to ZX-graph
  */
-void QCir::ZXMapping() {
+void QCir::ZXMapping(std::stop_token st) {
     updateGateTime();
 
     ZXGraph *_ZXG = zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
@@ -48,10 +48,11 @@ void QCir::ZXMapping() {
         ZXVertex *input = _ZXG->addInput(_qubits[i]->getId());
         ZXVertex *output = _ZXG->addOutput(_qubits[i]->getId());
         input->setCol(0);
-        _ZXG->addEdge(input, output, EdgeType(EdgeType::SIMPLE));
+        _ZXG->addEdge(input, output, EdgeType::SIMPLE);
     }
 
-    topoTraverse([_ZXG](QCirGate *G) {
+    topoTraverse([st, _ZXG](QCirGate *G) {
+        if (st.stop_requested()) return;
         if (verbose >= 8) cout << "\n";
         if (verbose >= 5) cout << "> Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
         ZXGraph *tmp = G->getZXform();
@@ -77,6 +78,10 @@ void QCir::ZXMapping() {
     }
     for (auto &v : _ZXG->getOutputs()) {
         v->setCol(max + 1);
+    }
+
+    if (st.stop_requested()) {
+        cerr << "Warning: conversion interrupted. The resulting ZXGraph may be incomplete." << endl;
     }
 
     _ZXGraphList.push_back(_ZXG);

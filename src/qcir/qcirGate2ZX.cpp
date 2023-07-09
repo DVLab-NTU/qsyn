@@ -260,7 +260,7 @@ ZXGraph *CZGate::getZXform() {
     temp->addEdge(ctrl, out_ctrl, EdgeType::SIMPLE);
     temp->addEdge(in_targ, targZ, EdgeType::SIMPLE);
     temp->addEdge(targZ, out_targ, EdgeType::SIMPLE);
-    temp->addEdge(ctrl, targZ, EdgeType(EdgeType::HADAMARD));
+    temp->addEdge(ctrl, targZ, EdgeType::HADAMARD);
 
     return temp;
 }
