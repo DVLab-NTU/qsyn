@@ -126,7 +126,7 @@ ZXGraph* ZXGraph::compose(ZXGraph* target) {
         this->addEdge((*itr_ori), (*itr_cop), EdgeType::SIMPLE);
     }
     this->setOutputs(copiedGraph.getOutputs());
-    this->addVertices(copiedGraph.getVertices());
+    this->addVertices(copiedGraph.getVertices(), true);
     this->setOutputList(copiedGraph.getOutputList());
     copiedGraph.disownVertices();
 
@@ -166,7 +166,7 @@ ZXGraph* ZXGraph::tensorProduct(ZXGraph* target) {
     // Merge copiedGraph to original graph
     this->addInputs(copiedGraph.getInputs());
     this->addOutputs(copiedGraph.getOutputs());
-    this->addVertices(copiedGraph.getVertices());
+    this->addVertices(copiedGraph.getVertices(), true);
     this->mergeInputList(copiedGraph.getInputList());
     this->mergeOutputList(copiedGraph.getOutputList());
 
