@@ -246,7 +246,7 @@ ZXVertex* ZXGraph::addInput(int qubit, bool checked, unsigned int col) {
     }
     ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), true, col);
     _inputs.emplace(v);
-    setInputHash(qubit, v);
+    setInputQubit(qubit, v);
     return v;
 }
 
@@ -266,7 +266,7 @@ ZXVertex* ZXGraph::addOutput(int qubit, bool checked, unsigned int col) {
     }
     ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), true, col);
     _outputs.emplace(v);
-    setOutputHash(qubit, v);
+    setOutputQubit(qubit, v);
     return v;
 }
 
@@ -327,7 +327,7 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
         return makeEdgePairDummy();
     }
 
-    if (vs->getId() > vt->getId()) swap(vs, vt);
+    if (vs->getId() > vt->getId()) std::swap(vs, vt);
 
     if (vs->isNeighbor(vt, et)) {
         if (
@@ -492,8 +492,8 @@ size_t ZXGraph::removeAllEdgesBetween(ZXVertex* vs, ZXVertex* vt, bool checked) 
  *
  */
 void ZXGraph::adjoint() {
-    swap(_inputs, _outputs);
-    swap(_inputList, _outputList);
+    std::swap(_inputs, _outputs);
+    std::swap(_inputList, _outputList);
     size_t maxCol = (*max_element(
                          _vertices.begin(), _vertices.end(),
                          [](ZXVertex* const a, ZXVertex* const b) { return a->getCol() < b->getCol(); }))

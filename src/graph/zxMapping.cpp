@@ -36,7 +36,7 @@ ZXVertexList ZXGraph::getNonBoundary() {
  * @param q qubit
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::getInputFromHash(const size_t& q) {
+ZXVertex* ZXGraph::getInputByQubit(const size_t& q) {
     if (!_inputList.contains(q)) {
         cerr << "Input qubit id " << q << "not found" << endl;
         return nullptr;
@@ -50,7 +50,7 @@ ZXVertex* ZXGraph::getInputFromHash(const size_t& q) {
  * @param q qubit
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::getOutputFromHash(const size_t& q) {
+ZXVertex* ZXGraph::getOutputByQubit(const size_t& q) {
     if (!_outputList.contains(q)) {
         cerr << "Output qubit id " << q << "not found" << endl;
         return nullptr;
@@ -68,30 +68,24 @@ void ZXGraph::concatenate(ZXGraph* tmp) {
     this->addVertices(tmp->getNonBoundary(), true);
     // Reconnect Input
     unordered_map<size_t, ZXVertex*> tmpInp = tmp->getInputList();
-    for (auto it = tmpInp.begin(); it != tmpInp.end(); ++it) {
-        size_t inpQubit = it->first;
-        ZXVertex* targetInput = it->second->getFirstNeighbor().first;
-        EdgeType gateEtype = it->second->getFirstNeighbor().second;
-        ZXVertex* lastVertex = this->getOutputFromHash(inpQubit)->getFirstNeighbor().first;
-        EdgeType circuitEtype = this->getOutputFromHash(inpQubit)->getFirstNeighbor().second;
-        tmp->removeEdge(make_pair(make_pair(it->second, targetInput), gateEtype));  // Remove old edge (disconnect old graph)
+    for (auto& [inpQubit, v] : tmpInp) {
+        auto [targetInput, gateEtype] = v->getFirstNeighbor();
+        auto [lastVertex, circuitEtype] = this->getOutputByQubit(inpQubit)->getFirstNeighbor();
+        tmp->removeEdge(make_pair(make_pair(v, targetInput), gateEtype));  // Remove old edge (disconnect old graph)
 
-        lastVertex->disconnect(this->getOutputFromHash(inpQubit));
+        lastVertex->disconnect(this->getOutputByQubit(inpQubit));
 
         this->addEdge(lastVertex, targetInput, (circuitEtype == EdgeType::HADAMARD) ? toggleEdge(gateEtype) : gateEtype);  // Add new edge
-        delete it->second;
+        delete v;
     }
     // Reconnect Output
     unordered_map<size_t, ZXVertex*> tmpOup = tmp->getOutputList();
-    for (auto it = tmpOup.begin(); it != tmpOup.end(); ++it) {
-        size_t oupQubit = it->first;
-        // ZXVertex* targetOutput = it->second->getNeighbors()[0].first;
-        ZXVertex* targetOutput = it->second->getFirstNeighbor().first;
-        EdgeType etype = it->second->getFirstNeighbor().second;
-        ZXVertex* ZXOup = this->getOutputFromHash(oupQubit);
-        tmp->removeEdge(make_pair(make_pair(it->second, targetOutput), etype));  // Remove old edge (disconnect old graph)
-        this->addEdge(targetOutput, ZXOup, etype);                               // Add new edge
-        delete it->second;
+    for (auto& [oupQubit, v] : tmpOup) {
+        auto [targetOutput, etype] = v->getFirstNeighbor();
+        ZXVertex* ZXOup = this->getOutputByQubit(oupQubit);
+        tmp->removeEdge(make_pair(make_pair(v, targetOutput), etype));  // Remove old edge (disconnect old graph)
+        this->addEdge(targetOutput, ZXOup, etype);                      // Add new edge
+        delete v;
     }
     tmp->disownVertices();
 }

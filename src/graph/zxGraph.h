@@ -12,6 +12,7 @@
 #include <complex>
 #include <cstddef>  // for size_t, NULL
 #include <string>   // for string
+#include <unordered_map>
 
 #include "phase.h"  // for Phase
 #include "zxDef.h"  // for VertexType, EdgeType, EdgePair, NeighborPair
@@ -111,12 +112,68 @@ private:
 
 class ZXGraph {
 public:
-    ZXGraph(size_t id) : _id(id), _nextVId(0) {
+    ZXGraph(size_t id = 0) : _id(id), _nextVId(0) {
         _globalTraCounter = 1;
     }
 
     ~ZXGraph() {
         for (const auto& v : _vertices) delete v;
+    }
+
+    ZXGraph(ZXGraph const& other) : _id{other._id}, _nextVId{0}, _fileName{other._fileName}, _procedures{other._procedures} {
+        std::unordered_map<ZXVertex*, ZXVertex*> oldV2newVMap;
+
+        for (auto& v : other._vertices) {
+            if (v->isBoundary()) {
+                if (other._inputs.contains(v))
+                    oldV2newVMap[v] = this->addInput(v->getQubit(), true, v->getCol());
+                else
+                    oldV2newVMap[v] = this->addOutput(v->getQubit(), true, v->getCol());
+            } else if (v->isZ() || v->isX() || v->isHBox()) {
+                oldV2newVMap[v] = this->addVertex(v->getQubit(), v->getType(), v->getPhase(), true, v->getCol());
+            }
+        }
+
+        other.forEachEdge([&oldV2newVMap, this](EdgePair&& epair) {
+            this->addEdge(oldV2newVMap[epair.first.first], oldV2newVMap[epair.first.second], epair.second);
+        });
+    }
+
+    ZXGraph(ZXGraph&& other) noexcept {
+        _id = std::exchange(other._id, 0);
+        _nextVId = std::exchange(other._nextVId, 0);
+        _fileName = std::exchange(other._fileName, "");
+        _procedures = std::exchange(other._procedures, {});
+        _inputs = std::exchange(other._inputs, ZXVertexList{});
+        _outputs = std::exchange(other._outputs, ZXVertexList{});
+        _vertices = std::exchange(other._vertices, ZXVertexList{});
+        _topoOrder = std::exchange(other._topoOrder, std::vector<ZXVertex*>{});
+        _inputList = std::exchange(other._inputList, std::unordered_map<size_t, ZXVertex*>{});
+        _outputList = std::exchange(other._outputList, std::unordered_map<size_t, ZXVertex*>{});
+        _globalTraCounter = std::exchange(other._globalTraCounter, 0);
+    }
+
+    ZXGraph& operator=(ZXGraph copy) {
+        copy.swap(*this);
+        return *this;
+    }
+
+    void swap(ZXGraph& other) noexcept {
+        std::swap(_id, other._id);
+        std::swap(_nextVId, other._nextVId);
+        std::swap(_fileName, other._fileName);
+        std::swap(_procedures, other._procedures);
+        std::swap(_inputs, other._inputs);
+        std::swap(_outputs, other._outputs);
+        std::swap(_vertices, other._vertices);
+        std::swap(_topoOrder, other._topoOrder);
+        std::swap(_inputList, other._inputList);
+        std::swap(_outputList, other._outputList);
+        std::swap(_globalTraCounter, other._globalTraCounter);
+    }
+
+    friend void swap(ZXGraph& a, ZXGraph& b) noexcept {
+        a.swap(b);
     }
 
     // Getter and Setter
@@ -166,7 +223,7 @@ public:
     void addInputs(const ZXVertexList& inputs);
     void addOutputs(const ZXVertexList& outputs);
     EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
-    void addVertices(const ZXVertexList& vertices, bool reordered = false);
+    void addVertices(const ZXVertexList& vertices, bool reordered);
 
     size_t removeIsolatedVertices();
     size_t removeVertex(ZXVertex* v);
@@ -191,7 +248,6 @@ public:
     // Action functions (zxGraphAction.cpp)
     void reset();
     void sortIOByQubit();
-    ZXGraph* copy(bool doReordering = true) const;
     void toggleEdges(ZXVertex* v);
     void liftQubit(const size_t& n);
     ZXGraph* compose(ZXGraph* target);
@@ -219,11 +275,11 @@ public:
     // For mapping (in zxMapping.cpp)
     void toTensor();
     ZXVertexList getNonBoundary();
-    ZXVertex* getInputFromHash(const size_t& q);
-    ZXVertex* getOutputFromHash(const size_t& q);
+    ZXVertex* getInputByQubit(const size_t& q);
+    ZXVertex* getOutputByQubit(const size_t& q);
     void concatenate(ZXGraph* tmp);
-    void setInputHash(const size_t& q, ZXVertex* v) { _inputList[q] = v; }
-    void setOutputHash(const size_t& q, ZXVertex* v) { _outputList[q] = v; }
+    void setInputQubit(const size_t& q, ZXVertex* v) { _inputList[q] = v; }
+    void setOutputQubit(const size_t& q, ZXVertex* v) { _outputList[q] = v; }
     void setInputList(const std::unordered_map<size_t, ZXVertex*>& lst) { _inputList = lst; }
     void setOutputList(const std::unordered_map<size_t, ZXVertex*>& lst) { _outputList = lst; }
     const std::unordered_map<size_t, ZXVertex*>& getInputList() const { return _inputList; }
@@ -275,4 +331,4 @@ private:
     bool buildGraphFromParserStorage(const ZXParserDetail::StorageType& storage, bool keepID = false);
 };
 
-#endif
+#endif  // ZX_GRAPH_H
