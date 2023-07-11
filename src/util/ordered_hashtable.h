@@ -281,11 +281,11 @@ template <typename Key, typename Value, typename StoredType, typename Hash, type
 void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sweep() {
     container new_data;
     new_data.reserve(_size * 2);
-    for (std::optional<stored_type> const& v : _data) {
-        if (v.has_value()) new_data.emplace_back(v);
+    for (auto&& v : _data) {
+        if (v.has_value()) new_data.emplace_back(std::move(v));
     }
     // std::erase_if(_data, [](const std::optional<stored_type>& v) { return !v.has_value(); });
-    _data = new_data;
+    _data.swap(new_data);
     // _data.resize();
     for (size_t i = 0; i < _data.size(); ++i) {
         _key2id[this->key(_data[i].value())] = i;

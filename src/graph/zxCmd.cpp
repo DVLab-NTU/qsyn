@@ -723,7 +723,7 @@ ZXGReadCmd::exec(const string &option) {  // check option
         // cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
         return CMD_EXEC_ERROR;
     }
-    
+
     if (doReplace) {
         if (zxGraphMgr.empty()) {
             cout << "Note: ZX-graph list is empty now. Create a new one." << endl;

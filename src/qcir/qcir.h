@@ -50,7 +50,9 @@ public:
     void incrementZXId() { _ZXNodeId++; }
     void setId(size_t id) { _id = id; }
     void setFileName(std::string f) { _fileName = f; }
-    void addProcedure(std::vector<std::string> const& ps) { for (auto& p : ps) addProcedure(p); }
+    void addProcedure(std::vector<std::string> const& ps) {
+        for (auto& p : ps) addProcedure(p);
+    }
     void addProcedure(std::string const& p) { _procedures.push_back(p); }
     // For Copy
     void setNextGateId(size_t id) { _gateId = id; }

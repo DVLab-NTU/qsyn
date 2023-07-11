@@ -12,7 +12,8 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <unordered_map>
+
+#include "ordered_hashmap.h"
 
 extern size_t verbose;
 
@@ -32,7 +33,7 @@ public:
     DataStructureManager(DataStructureManager&& other) noexcept {
         _nextID = std::exchange(other._nextID, 0);
         _currID = std::exchange(other._currID, 0);
-        _list = std::exchange(other._list, std::unordered_map<size_t, std::unique_ptr<T>>{});
+        _list = std::exchange(other._list, ordered_hashmap<size_t, std::unique_ptr<T>>{});
     }
 
     DataStructureManager& operator=(DataStructureManager copy) {
@@ -159,6 +160,7 @@ public:
                 for (auto& proc : data->getProcedures()) {
                     if (i != 0) std::cout << " ➔ ";
                     std::cout << proc;
+                    ++i;
                 }
                 std::cout << std::endl;
             }
@@ -202,7 +204,7 @@ public:
 private:
     size_t _nextID;
     size_t _currID;
-    std::unordered_map<size_t, std::unique_ptr<T>> _list;
+    ordered_hashmap<size_t, std::unique_ptr<T>> _list;
     std::string _typeName;
 };
 
