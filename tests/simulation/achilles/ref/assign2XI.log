@@ -3,7 +3,7 @@ qsyn> qccr benchmark/pseudoSimp/achilles.qasm
 Create and checkout to QCir 0
 
 qsyn> qc2zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgas 3 I X 0
 
@@ -34,7 +34,7 @@ qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
 Note: original QCir is replaced...
 
 qsyn> qc2zx
-Create and checkout to Graph 1
+Created and checked out to ZXGraph 1
 
 qsyn> zxgas 3 I X 0
 
@@ -65,7 +65,7 @@ qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
 Note: original QCir is replaced...
 
 qsyn> qc2zx
-Create and checkout to Graph 2
+Created and checked out to ZXGraph 2
 
 qsyn> zxgas 3 I X 0
 

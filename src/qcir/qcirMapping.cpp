@@ -15,7 +15,7 @@
 #include "zxGraphMgr.h"  // for ZXGraphMgr
 
 using namespace std;
-extern ZXGraphMgr *zxGraphMgr;
+extern ZXGraphMgr zxGraphMgr;
 extern TensorMgr *tensorMgr;
 extern size_t verbose;
 
@@ -26,7 +26,7 @@ void QCir::clearMapping() {
     for (size_t i = 0; i < _ZXGraphList.size(); i++) {
         cerr << "Note: Graph " << _ZXGraphList[i]->getId() << " is deleted due to modification(s) !!" << endl;
         _ZXGraphList[i]->reset();
-        zxGraphMgr->removeZXGraph(_ZXGraphList[i]->getId());
+        zxGraphMgr.remove(_ZXGraphList[i]->getId());
     }
     _ZXGraphList.clear();
 }
@@ -37,7 +37,7 @@ void QCir::clearMapping() {
 void QCir::ZXMapping() {
     updateGateTime();
 
-    ZXGraph *_ZXG = zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
+    ZXGraph *_ZXG = zxGraphMgr.add(zxGraphMgr.getNextID());
     _ZXG->setFileName(_fileName);
     _ZXG->addProcedure("QC2ZX", _procedures);
 

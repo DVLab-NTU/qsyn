@@ -3,7 +3,7 @@ qsyn> ver 9
 Note: verbose level is set to 9
 
 qsyn> zxnew
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxge -addi 0
 Add vertex (●) 0
@@ -151,7 +151,7 @@ qsyn> ver 9
 Note: verbose level is set to 9
 
 qsyn> zxnew
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxge -addi 0
 Add vertex (●) 0
@@ -278,7 +278,7 @@ qsyn> ver 9
 Note: verbose level is set to 9
 
 qsyn> zxnew
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxge -addi 0
 Add vertex (●) 0
@@ -573,7 +573,7 @@ qsyn> ver 9
 Note: verbose level is set to 9
 
 qsyn> zxnew
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxge -addi 0
 Add vertex (●) 0
@@ -1244,7 +1244,7 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> zxnew
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxge -addi 0
 

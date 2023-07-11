@@ -9,11 +9,11 @@
 #ifndef ZX_CMD_H
 #define ZX_CMD_H
 
-#include "cmdParser.h"   // for CmdExecStatus::CMD_EXEC_ERROR, CmdClass, Cmd...
-#include "phase.h"       // for Phase
-#include "zxDef.h"       // for VertexType, EdgeType
-#include "zxGraph.h"     // for ZXGraph
-#include "zxGraphMgr.h"  // for ZXGraphMgr
+#include "cmdParser.h"  // for CmdExecStatus::CMD_EXEC_ERROR, CmdClass, Cmd...
+#include "phase.h"      // for Phase
+#include "zxDef.h"      // for VertexType, EdgeType
+#include "zxGraph.h"    // for ZXGraph
+#include "zxGraphMgr.h"
 
 CmdClass(ZXNewCmd);
 CmdClass(ZXResetCmd);
@@ -72,7 +72,7 @@ CmdClass(ZXGAssignCmd);
 
 #define ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id, v)                                             \
     {                                                                                          \
-        (v) = zxGraphMgr->getGraph()->findVertexById((id));                                    \
+        (v) = zxGraphMgr.get()->findVertexById((id));                                          \
         if (!(v)) {                                                                            \
             cerr << "Error: Cannot find vertex with id " << (id) << " in the graph!!" << endl; \
             return CMD_EXEC_ERROR;                                                             \
@@ -90,7 +90,7 @@ CmdClass(ZXGAssignCmd);
 
 #define ZX_CMD_GRAPH_ID_NOT_EXIST_OR_RETURN(id)                                                                   \
     {                                                                                                             \
-        if (zxGraphMgr->isID(id)) {                                                                               \
+        if (zxGraphMgr.isID(id)) {                                                                                \
             cerr << "Error: Graph " << (id) << " already exists!! Add `-Replace` if you want to overwrite it.\n"; \
             return CMD_EXEC_ERROR;                                                                                \
         }                                                                                                         \
@@ -98,7 +98,7 @@ CmdClass(ZXGAssignCmd);
 
 #define ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id)                          \
     {                                                                 \
-        if (!(zxGraphMgr->isID(id))) {                                \
+        if (!(zxGraphMgr.isID(id))) {                                 \
             cerr << "Error: Graph " << (id) << " does not exist!!\n"; \
             return CMD_EXEC_ERROR;                                    \
         }                                                             \
@@ -106,7 +106,7 @@ CmdClass(ZXGAssignCmd);
 
 #define ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN(str)                                               \
     {                                                                                          \
-        if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {                   \
+        if (zxGraphMgr.empty()) {                                                              \
             cerr << "Error: ZX-graph list is empty now. Please ZXNew before " << str << ".\n"; \
             return CMD_EXEC_ERROR;                                                             \
         }                                                                                      \

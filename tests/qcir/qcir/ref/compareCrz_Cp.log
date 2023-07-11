@@ -17,7 +17,7 @@ Rotate Phase: π/2
 Execute at t= 2
 
 qsyn> qc2zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgp -v
 
@@ -64,7 +64,7 @@ Rotate Phase: π/2
 Execute at t= 2
 
 qsyn> qc2zx
-Create and checkout to Graph 1
+Created and checked out to ZXGraph 1
 
 qsyn> zxgp -v
 

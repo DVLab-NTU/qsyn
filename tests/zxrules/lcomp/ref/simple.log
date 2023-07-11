@@ -1,9 +1,9 @@
 DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> zxn
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgr benchmark/zx/lcomp_1.zx
-Create and checkout to Graph 1
+Created and checked out to ZXGraph 1
 
 qsyn> zxgp -v
 

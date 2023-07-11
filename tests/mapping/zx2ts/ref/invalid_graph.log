@@ -1,6 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> zxn
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgtest
 
@@ -35,7 +35,7 @@ Error: The ZX-graph is not valid!!
 
 qsyn> 
 qsyn> zxn
-Create and checkout to Graph 1
+Created and checked out to ZXGraph 1
 
 qsyn> zxgtest
 

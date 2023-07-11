@@ -5,7 +5,7 @@ Create and checkout to QCir 0
 qsyn> exts -op 1
 
 qsyn> qc2zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> extp -f
 Error: ZX-graph (id: 0) is not graph-like. Not extractable!!
@@ -37,8 +37,8 @@ Local Complementation Rule    2 iterations.
   2) 1 matches
 
 qsyn> zxcopy 1
-Successfully copied Graph 0 to Graph 1
-Checkout to Graph 1
+Successfully copied ZXGraph 0 to ZXGraph 1
+Checked out to ZXGraph 1
 
 qsyn> qcn
 Create and checkout to QCir 1

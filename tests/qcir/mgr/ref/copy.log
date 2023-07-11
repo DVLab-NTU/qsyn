@@ -22,7 +22,7 @@ qsyn> qccr benchmark/benchmark_SABRE/small/qft_4.qasm
 Create and checkout to QCir 2
 
 qsyn> qc2zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> qccp -q
 Q 0  ---------cx( 0)----------cx( 1)----------cx( 2)-
@@ -41,7 +41,7 @@ Q 2  -------------------------cx( 1)----------cx( 3)--------------------------cx
 Q 3  -----------------------------------------cx( 2)----------cx( 4)----------cx( 5)-
 
 qsyn> qc2zx
-Create and checkout to Graph 1
+Created and checked out to ZXGraph 1
 
 qsyn> zxgp -v
 
@@ -284,7 +284,7 @@ Q 3  - x( 5)-- t( 6)-
 Q 4  -----------------cx(11)----------------------------------------------------------cx(12)-
 
 qsyn> qc2zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgp
 Graph 0( 4 inputs, 4 outputs, 21 vertices, 20 edges )

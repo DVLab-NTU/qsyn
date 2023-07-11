@@ -20,7 +20,6 @@
 
 class ZXVertex;
 class ZXGraph;
-class ZXGraphMgr;
 
 enum class VertexType {
     BOUNDARY,

@@ -18,6 +18,7 @@
 
 using namespace std;
 extern size_t verbose;
+extern ZXGraphMgr zxGraphMgr;
 
 bool initLTCmd() {
     if (!(
@@ -39,13 +40,13 @@ LTCmd::exec(const string &option) {
     string token;
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
-    if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
+    if (zxGraphMgr.empty()) {
         cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXPrint." << endl;
         return CMD_EXEC_ERROR;
     }
 
     LTContainer lt(0, 0);
-    lt.generateLTC(zxGraphMgr->getGraph());
+    lt.generateLTC(zxGraphMgr.get());
     if (token.empty())
         lt.printLTC();
 

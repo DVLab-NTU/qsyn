@@ -3,7 +3,7 @@ qsyn> verb 3
 Note: verbose level is set to 3
 
 qsyn> zxgread benchmark/zx/tof3.zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgp -v
 

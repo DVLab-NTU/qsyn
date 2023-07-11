@@ -19,7 +19,7 @@ qsyn> tsp 0
 #Dim:    2	Info: QC
 
 qsyn> qc2zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgp -v
 

@@ -1,11 +1,11 @@
 DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> zxnew
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgt
 
 qsyn> zxnew
-Create and checkout to Graph 1
+Created and checked out to ZXGraph 1
 
 qsyn> zxgt
 

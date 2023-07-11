@@ -1,6 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> zxnew
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgt
 
@@ -8,8 +8,8 @@ qsyn> zxgp
 Graph 0( 2 inputs, 2 outputs, 6 vertices, 5 edges )
 
 qsyn> zxcopy
-Successfully copied Graph 0 to Graph 1
-Checkout to Graph 1
+Successfully copied ZXGraph 0 to ZXGraph 1
+Checked out to ZXGraph 1
 
 qsyn> zxgp
 Graph 1( 2 inputs, 2 outputs, 6 vertices, 5 edges )
@@ -20,7 +20,7 @@ qsyn> zxgp
 Graph 1( 1 inputs, 2 outputs, 5 vertices, 4 edges )
 
 qsyn> zxch 0
-Checkout to Graph 0
+Checked out to ZXGraph 0
 
 qsyn> zxgp
 Graph 0( 2 inputs, 2 outputs, 6 vertices, 5 edges )
@@ -28,7 +28,7 @@ Graph 0( 2 inputs, 2 outputs, 6 vertices, 5 edges )
 qsyn> zxr
 
 qsyn> zxnew
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgt
 
@@ -36,8 +36,8 @@ qsyn> zxgp
 Graph 0( 2 inputs, 2 outputs, 6 vertices, 5 edges )
 
 qsyn> zxcopy
-Successfully copied Graph 0 to Graph 1
-Checkout to Graph 1
+Successfully copied ZXGraph 0 to ZXGraph 1
+Checked out to ZXGraph 1
 
 qsyn> zxgp
 Graph 1( 2 inputs, 2 outputs, 6 vertices, 5 edges )
@@ -48,8 +48,8 @@ qsyn> zxgp
 Graph 1( 1 inputs, 2 outputs, 5 vertices, 4 edges )
 
 qsyn> zxcop -r 0
-Successfully copied Graph 1 to Graph 0
-Checkout to Graph 0
+Successfully copied ZXGraph 1 to ZXGraph 0
+Checked out to ZXGraph 0
 
 qsyn> zxgp
 Graph 0( 1 inputs, 2 outputs, 5 vertices, 4 edges )
@@ -57,7 +57,7 @@ Graph 0( 1 inputs, 2 outputs, 5 vertices, 4 edges )
 qsyn> zxr
 
 qsyn> zxnew
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgt
 
@@ -73,8 +73,8 @@ Total #Vertices: 6
 
 
 qsyn> zxcopy
-Successfully copied Graph 0 to Graph 1
-Checkout to Graph 1
+Successfully copied ZXGraph 0 to ZXGraph 1
+Checked out to ZXGraph 1
 
 qsyn> zxgt
 Note: The graph is not empty! Generation failed!
@@ -93,7 +93,7 @@ Total #Vertices: 6
 
 
 qsyn> zxcheckout 0
-Checkout to Graph 0
+Checked out to ZXGraph 0
 
 qsyn> zxgp -v
 

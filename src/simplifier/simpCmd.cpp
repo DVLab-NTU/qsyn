@@ -14,11 +14,13 @@
 #include "apCmd.h"
 #include "simplify.h"
 #include "zxCmd.h"
-#include "zxGraphMgr.h"
 
 using namespace std;
 using namespace ArgParse;
 extern size_t verbose;
+
+extern ZXGraphMgr zxGraphMgr;
+
 unique_ptr<ArgParseCmdType> ZXGSimpCmd();
 
 bool initSimpCmd() {
@@ -102,7 +104,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGSimp");
-        Simplifier s(zxGraphMgr->getGraph());
+        Simplifier s(zxGraphMgr.get());
         if (parser["-sreduce"].isParsed())
             s.symbolicReduce();
         else if (parser["-interclifford"].isParsed())

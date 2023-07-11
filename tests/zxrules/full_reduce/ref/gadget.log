@@ -3,7 +3,7 @@ qsyn> qccr benchmark/pseudoSimp/tof2.qasm
 Create and checkout to QCir 0
 
 qsyn> qc2zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgas 1 I X pi
 

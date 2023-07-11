@@ -1,6 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> zxn
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgedit -addi 0
 
@@ -122,7 +122,7 @@ Output axis ids: 1
 Stored the resulting tensor as tensor id 3
 
 qsyn> zxn
-Create and checkout to Graph 1
+Created and checked out to ZXGraph 1
 
 qsyn> zxge -addi 0
 Add vertex (●) 0

@@ -29,7 +29,7 @@ using namespace std;
 using namespace ArgParse;
 extern size_t verbose;
 extern int effLimit;
-extern ZXGraphMgr *zxGraphMgr;
+extern ZXGraphMgr zxGraphMgr;
 extern QCirMgr *qcirMgr;
 extern DeviceMgr *deviceMgr;
 
@@ -73,17 +73,17 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZX2QC");
-        if (!zxGraphMgr->getGraph()->isGraphLike()) {
-            cerr << "Error: ZX-graph (id: " << zxGraphMgr->getGraph()->getId() << ") is not graph-like. Not extractable!!" << endl;
+        if (!zxGraphMgr.get()->isGraphLike()) {
+            cerr << "Error: ZX-graph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
             return CMD_EXEC_ERROR;
         }
         // bool toPhysical = parser["-physical"].isParsed() || parser["-both"].isParsed();
         // if (toPhysical) {
         //     DT_CMD_MGR_NOT_EMPTY_OR_RETURN("");
         // }
-        size_t nextId = zxGraphMgr->getNextID();
-        zxGraphMgr->copy(nextId);
-        Extractor ext(zxGraphMgr->getGraph(), nullptr, nullopt);
+        size_t nextId = zxGraphMgr.getNextID();
+        zxGraphMgr.copy(nextId);
+        Extractor ext(zxGraphMgr.get(), nullptr, nullopt);
 
         QCir *result = ext.extract();
         // if (parser["-both"].isParsed()) {
@@ -94,7 +94,7 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
             qcirMgr->addQCir(qcirMgr->getNextID());
             qcirMgr->setQCircuit(result);
             if (PERMUTE_QUBITS)
-                zxGraphMgr->removeZXGraph(nextId);
+                zxGraphMgr.remove(nextId);
             else {
                 cout << "Note: the extracted circuit is up to a qubit permutation." << endl;
                 cout << "      Remaining permutation information is in ZX-graph id " << nextId << "." << endl;
@@ -135,9 +135,9 @@ ExtractStepCmd::exec(const string &option) {
     unsigned id;
     ZX_CMD_ID_VALID_OR_RETURN(options[1], id, "Graph");
     ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
-    zxGraphMgr->checkout2ZXGraph(id);
-    if (!zxGraphMgr->getGraph()->isGraphLike()) {
-        cerr << "Error: ZX-graph (id: " << zxGraphMgr->getGraph()->getId() << ") is not graph-like. Not extractable!!" << endl;
+    zxGraphMgr.checkout(id);
+    if (!zxGraphMgr.get()->isGraphLike()) {
+        cerr << "Error: ZX-graph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
         return CMD_EXEC_ERROR;
     }
 
@@ -145,7 +145,7 @@ ExtractStepCmd::exec(const string &option) {
     QC_CMD_QCIR_ID_EXISTS_OR_RETURN(id);
     qcirMgr->checkout2QCir(id);
 
-    if (zxGraphMgr->getGraph()->getNumOutputs() != qcirMgr->getQCircuit()->getNQubit()) {
+    if (zxGraphMgr.get()->getNumOutputs() != qcirMgr->getQCircuit()->getNQubit()) {
         cerr << "Error: number of outputs in graph is not equal to number of qubits in circuit" << endl;
         return CMD_EXEC_ERROR;
     }
@@ -188,7 +188,7 @@ ExtractStepCmd::exec(const string &option) {
         return CMD_EXEC_ERROR;
     }
 
-    Extractor ext(zxGraphMgr->getGraph(), qcirMgr->getQCircuit());
+    Extractor ext(zxGraphMgr.get(), qcirMgr->getQCircuit());
 
     switch (mode) {
         case EXTRACT_MODE::LOOP:
@@ -278,11 +278,11 @@ unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
             cout << "Block Size:        " << BLOCK_SIZE << endl;
         } else {
             ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("EXTPrint");
-            if (!zxGraphMgr->getGraph()->isGraphLike()) {
-                cerr << "Error: ZX-graph (id: " << zxGraphMgr->getGraph()->getId() << ") is not graph-like. Not extractable!!" << endl;
+            if (!zxGraphMgr.get()->isGraphLike()) {
+                cerr << "Error: ZX-graph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
                 return CMD_EXEC_ERROR;
             }
-            Extractor ext(zxGraphMgr->getGraph());
+            Extractor ext(zxGraphMgr.get());
             if (parser["-frontier"].isParsed()) {
                 ext.printFrontier();
             } else if (parser["-neighbors"].isParsed()) {

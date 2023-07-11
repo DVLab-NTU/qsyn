@@ -5,7 +5,7 @@ Note: color mode is set to off
 qsyn> exts -op 1
 
 qsyn> zxgread benchmark/bzx/tof3.bzx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zx2ts
 Traverse and build the tensor... 
@@ -50,8 +50,8 @@ qsyn> ver 5
 Note: verbose level is set to 5
 
 qsyn> zx2qc
-Successfully copied Graph 0 to Graph 1
-Checkout to Graph 1
+Successfully copied ZXGraph 0 to ZXGraph 1
+Checked out to ZXGraph 1
 Initialize
 Note: (0) is not a gadget leaf vertex!
 Note: (1) is not a gadget leaf vertex!
@@ -208,8 +208,8 @@ Extract CZs
 Finish extracting!
 Permute Qubit
 Create and checkout to QCir 0
-Successfully removed Graph 1
-Checkout to Graph 0
+Successfully removed ZXGraph 1
+Checked out to ZXGraph 0
 
 qsyn> ver 0
 Note: verbose level is set to 0
