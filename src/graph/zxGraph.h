@@ -183,7 +183,8 @@ public:
     void setOutputs(const ZXVertexList& outputs) { _outputs = outputs; }
     void setVertices(const ZXVertexList& vertices) { _vertices = vertices; }
     void setFileName(std::string f) { _fileName = f; }
-    void addProcedure(std::string = "", const std::vector<std::string>& = {});
+    void addProcedure(std::vector<std::string> const& ps) { for (auto& p : ps) addProcedure(p); }
+    void addProcedure(std::string const& p) { _procedures.push_back(p); }
 
     const size_t& getId() const { return _id; }
     const size_t& getNextVId() const { return _nextVId; }

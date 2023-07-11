@@ -162,7 +162,7 @@ ZXPrintCmd::exec(const string &option) {
     if (token.empty() || myStrNCmp("-Summary", token, 2) == 0) {
         zxGraphMgr.printMgr();
     } else if (myStrNCmp("-Focus", token, 2) == 0)
-        zxGraphMgr.printListItr();
+        zxGraphMgr.printFocus();
     else if (myStrNCmp("-List", token, 2) == 0)
         zxGraphMgr.printList();
     else if (myStrNCmp("-Num", token, 2) == 0)

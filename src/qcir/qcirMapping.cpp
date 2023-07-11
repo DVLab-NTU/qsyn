@@ -39,7 +39,8 @@ void QCir::ZXMapping() {
 
     ZXGraph *_ZXG = zxGraphMgr.add(zxGraphMgr.getNextID());
     _ZXG->setFileName(_fileName);
-    _ZXG->addProcedure("QC2ZX", _procedures);
+    _ZXG->addProcedure(_procedures);
+    _ZXG->addProcedure("QC2ZX");
 
     if (verbose >= 5) cout << "Traverse and build the graph... " << endl;
 

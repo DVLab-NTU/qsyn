@@ -50,18 +50,6 @@ QCirQubit *QCir::getQubit(size_t id) const {
 }
 
 /**
- * @brief Add procedures to QCir
- *
- * @param p
- * @param procedures
- */
-void QCir::addProcedure(std::string p, const std::vector<std::string> &procedures) {
-    for (auto pr : procedures)
-        _procedures.emplace_back(pr);
-    if (p != "") _procedures.emplace_back(p);
-}
-
-/**
  * @brief Print QCir Gates
  */
 void QCir::printGates() {

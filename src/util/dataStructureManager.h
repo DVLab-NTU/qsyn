@@ -20,8 +20,6 @@ namespace dvlab_utils {
 
 template <typename T>
 class DataStructureManager {
-    using List = std::unordered_map<size_t, std::unique_ptr<T>>;
-
 public:
     DataStructureManager(std::string_view name) : _nextID{0}, _currID{0}, _typeName{name} {}
     ~DataStructureManager() = default;
@@ -34,7 +32,7 @@ public:
     DataStructureManager(DataStructureManager&& other) noexcept {
         _nextID = std::exchange(other._nextID, 0);
         _currID = std::exchange(other._currID, 0);
-        _list = std::exchange(other._list, List{});
+        _list = std::exchange(other._list, std::unordered_map<size_t, std::unique_ptr<T>>{});
     }
 
     DataStructureManager& operator=(DataStructureManager copy) {
@@ -116,7 +114,7 @@ public:
             printMgrEmptyErrorMsg();
             return;
         }
-        size_t origID = get()->getId();
+        size_t origID = _currID;
         auto copy = std::make_unique<T>(*get());
         copy->setId(id);
 
@@ -154,8 +152,8 @@ public:
     void printList() const {
         if (this->size()) {
             for (auto& [id, data] : _list) {
-                std::cout << (id == this->get()->getId() ? "★ " : "  ")
-                          << data->getId() << "    " << std::left << std::setw(20) << data->getFileName().substr(0, 20);
+                std::cout << (id == this->_currID ? "★ " : "  ")
+                          << id << "    " << std::left << std::setw(20) << data->getFileName().substr(0, 20);
 
                 size_t i = 0;
                 for (auto& proc : data->getProcedures()) {
@@ -168,7 +166,7 @@ public:
             printMgrEmptyErrorMsg();
         }
     }
-    void printListItr() const {
+    void printFocus() const {
         if (this->size()) {
             printFocusMsg();
         } else {
@@ -180,7 +178,7 @@ public:
     }
 
     void printCheckOutMsg() const {
-        std::cout << "Checked out to " << _typeName << " " << this->get()->getId() << std::endl;
+        std::cout << "Checked out to " << _typeName << " " << this->_currID << std::endl;
     }
 
     void printIdDoesNotExistErrorMsg() const {
@@ -188,7 +186,7 @@ public:
     }
 
     void printFocusMsg() const {
-        std::cout << "Now focused on: " << get()->getId() << std::endl;
+        std::cout << "Now focused on: " << _currID << std::endl;
     }
 
     void printMgrEmptyErrorMsg() const {
@@ -204,7 +202,7 @@ public:
 private:
     size_t _nextID;
     size_t _currID;
-    List _list;
+    std::unordered_map<size_t, std::unique_ptr<T>> _list;
     std::string _typeName;
 };
 
