@@ -28,20 +28,11 @@ constexpr auto typeStyle = [](string const& str) -> string { return TF::CYAN(TF:
 constexpr auto accentStyle = [](string const& str) -> string { return TF::BOLD(TF::ULINE(str)); };
 
 /**
- * @brief print the error message when duplicated argument name is detected
- *
- * @param name
- */
-void ArgumentParser::printDuplicateArgNameErrorMsg(std::string const& name) const {
-    std::cerr << "[ArgParse] Error: Duplicate argument name \"" << name << "\"!!" << std::endl;
-}
-
-/**
  * @brief return a string of styled command name. The mandatory part is accented.
  *
  * @return string
  */
-string ArgumentParser::styledCmdName(std::string const& name, size_t numRequired) const {
+string Formatter::styledCmdName(std::string const& name, size_t numRequired) {
     if (colorLevel >= 1) {
         string mand = name.substr(0, numRequired);
         string rest = name.substr(numRequired);
@@ -56,83 +47,62 @@ string ArgumentParser::styledCmdName(std::string const& name, size_t numRequired
 }
 
 /**
- * @brief Print the tokens and their parse states
- *
- */
-void ArgumentParser::printTokens() const {
-    size_t i = 0;
-    for (auto& [token, parsed] : _pimpl->tokens) {
-        cout << "Token #" << ++i << ":\t"
-             << left << setw(8) << token << " (" << (parsed ? "parsed" : "unparsed") << ")  "
-             << "Frequency: " << right << setw(3) << _pimpl->trie.frequency(token) << endl;
-    }
-}
-
-/**
- * @brief Print the argument and their parse states
- *
- */
-void ArgumentParser::printArguments() const {
-    for (auto& [_, arg] : _pimpl->arguments) {
-        if (arg.isRequired()) arg.printStatus();
-    }
-    for (auto& [_, arg] : _pimpl->arguments) {
-        if (!arg.isRequired()) arg.printStatus();
-    }
-}
-
-/**
  * @brief Print the usage of the command
  *
  */
-void ArgumentParser::printUsage() const {
-    if (!analyzeOptions()) {
+void Formatter::printUsage(ArgumentParser parser) {
+    if (!parser.analyzeOptions()) {
         cerr << "[ArgParse] Failed to generate usage information!!" << endl;
         return;
     }
 
+    auto& arguments = parser._pimpl->arguments;
+    auto& subparsers = parser._pimpl->subparsers;
+    auto& mutexGroups = parser._pimpl->mutuallyExclusiveGroups;
+    auto& conflictGroups = parser._pimpl->conflictGroups;
+
     cout << TF::LIGHT_BLUE("Usage: ");
-    cout << styledCmdName(getName(), getNumRequiredChars());
-    for (auto const& [name, arg] : _pimpl->arguments) {
-        if (!arg.isRequired() && !_pimpl->conflictGroups.contains(name)) {
-            cout << " " << optionalArgBracket(getSyntaxString(arg));
+    cout << styledCmdName(parser.getName(), parser.getNumRequiredChars());
+    for (auto const& [name, arg] : arguments) {
+        if (!arg.isRequired() && !conflictGroups.contains(name)) {
+            cout << " " << optionalArgBracket(getSyntaxString(parser, arg));
         }
     }
 
-    for (auto const& group : _pimpl->mutuallyExclusiveGroups) {
+    for (auto const& group : mutexGroups) {
         if (!group.isRequired()) {
             cout << " " + optionalStyle("[");
             size_t ctr = 0;
             for (auto const& name : group.getArguments()) {
-                cout << getSyntaxString(_pimpl->arguments.at(name));
+                cout << getSyntaxString(parser, arguments.at(name));
                 if (++ctr < group.size()) cout << optionalStyle(" | ");
             }
             cout << optionalStyle("]");
         }
     }
 
-    for (auto const& group : _pimpl->mutuallyExclusiveGroups) {
+    for (auto const& group : mutexGroups) {
         if (group.isRequired()) {
             cout << " " + requiredStyle("<");
             size_t ctr = 0;
             for (auto const& name : group.getArguments()) {
-                cout << getSyntaxString(_pimpl->arguments.at(name));
+                cout << getSyntaxString(parser, arguments.at(name));
                 if (++ctr < group.size()) cout << requiredStyle(" | ");
             }
             cout << requiredStyle(">");
         }
     }
 
-    for (auto const& [name, arg] : _pimpl->arguments) {
-        if (arg.isRequired() && !_pimpl->conflictGroups.contains(name)) {
-            cout << " " << getSyntaxString(arg);
+    for (auto const& [name, arg] : arguments) {
+        if (arg.isRequired() && !conflictGroups.contains(name)) {
+            cout << " " << getSyntaxString(parser, arg);
         }
     }
 
-    if (_pimpl->subparsers.has_value()) {
-        cout << " " << (_pimpl->subparsers->isRequired() ? requiredStyle("<") : optionalStyle("["))
-             << getSyntaxString(_pimpl->subparsers.value())
-             << (_pimpl->subparsers->isRequired() ? requiredStyle(">") : optionalStyle("]")) << " ...";
+    if (subparsers.has_value()) {
+        cout << " " << (subparsers->isRequired() ? requiredStyle("<") : optionalStyle("["))
+             << getSyntaxString(subparsers.value())
+             << (subparsers->isRequired() ? requiredStyle(">") : optionalStyle("]")) << " ...";
     }
 
     cout << endl;
@@ -142,24 +112,27 @@ void ArgumentParser::printUsage() const {
  * @brief Print the argument name and help message
  *
  */
-void ArgumentParser::printSummary() const {
-    if (!analyzeOptions()) {
+void Formatter::printSummary(ArgumentParser parser) {
+    if (!parser.analyzeOptions()) {
         cerr << "[ArgParse] Failed to generate usage information!!" << endl;
         return;
     }
-    cout << setw(15 + TF::tokenSize(accentStyle)) << left << styledCmdName(getName(), getNumRequiredChars()) + ":  "
-         << getHelp() << endl;
+    cout << setw(15 + TF::tokenSize(accentStyle)) << left << styledCmdName(parser.getName(), parser.getNumRequiredChars()) + ":  "
+         << parser.getHelp() << endl;
 }
 
 /**
  * @brief Print the help information for a command
  *
  */
-void ArgumentParser::printHelp() const {
-    printUsage();
-    if (getHelp().size()) {
-        cout << TF::LIGHT_BLUE("\nDescription:\n  ") << getHelp() << endl;
+void Formatter::printHelp(ArgumentParser parser) {
+    printUsage(parser);
+    if (parser.getHelp().size()) {
+        cout << TF::LIGHT_BLUE("\nDescription:\n  ") << parser.getHelp() << endl;
     }
+
+    auto& arguments = parser._pimpl->arguments;
+    auto& subparsers = parser._pimpl->subparsers;
 
     auto argPairIsRequired = [](pair<string, Argument> const& argPair) {
         return argPair.second.isRequired();
@@ -169,30 +142,30 @@ void ArgumentParser::printHelp() const {
         return !argPair.second.isRequired();
     };
 
-    if (count_if(_pimpl->arguments.begin(), _pimpl->arguments.end(), argPairIsRequired)) {
+    if (count_if(arguments.begin(), arguments.end(), argPairIsRequired)) {
         cout << TF::LIGHT_BLUE("\nRequired Arguments:\n");
-        for (auto const& [_, arg] : _pimpl->arguments) {
+        for (auto const& [_, arg] : arguments) {
             if (arg.isRequired()) {
-                printHelpString(arg);
+                printHelpString(parser, arg);
             }
         }
     }
 
-    if (_pimpl->subparsers.has_value() && _pimpl->subparsers->isRequired()) {
-        printHelpString(_pimpl->subparsers.value());
+    if (subparsers.has_value() && subparsers->isRequired()) {
+        printHelpString(parser, subparsers.value());
     }
 
-    if (count_if(_pimpl->arguments.begin(), _pimpl->arguments.end(), argPairIsOptional)) {
+    if (count_if(arguments.begin(), arguments.end(), argPairIsOptional)) {
         cout << TF::LIGHT_BLUE("\nOptional Arguments:\n");
-        for (auto const& [_, arg] : _pimpl->arguments) {
+        for (auto const& [_, arg] : arguments) {
             if (!arg.isRequired()) {
-                printHelpString(arg);
+                printHelpString(parser, arg);
             }
         }
     }
 
-    if (_pimpl->subparsers.has_value() && !_pimpl->subparsers->isRequired()) {
-        printHelpString(_pimpl->subparsers.value());
+    if (subparsers.has_value() && !subparsers->isRequired()) {
+        printHelpString(parser, subparsers.value());
     }
 }
 
@@ -202,26 +175,26 @@ void ArgumentParser::printHelp() const {
  * @param arg
  * @return string
  */
-string ArgumentParser::getSyntaxString(Argument const& arg) const {
+string Formatter::getSyntaxString(ArgumentParser parser, Argument const& arg) {
     string ret = "";
 
     if (!arg.hasAction()) {
         ret += requiredArgBracket(
             typeStyle(arg.getTypeString()) + " " + metavarStyle(arg.getMetavar()));
     }
-    if (hasOptionPrefix(arg)) {
-        ret = optionalStyle(styledArgName(arg)) + (arg.hasAction() ? "" : (" " + ret));
+    if (parser.isOption(arg)) {
+        ret = optionalStyle(styledArgName(parser, arg)) + (arg.hasAction() ? "" : (" " + ret));
     }
 
     return ret;
 }
 
-string ArgumentParser::getSyntaxString(SubParsers parsers) const {
+string Formatter::getSyntaxString(SubParsers parsers) {
     string ret = "{";
     size_t ctr = 0;
-    for (auto const& [name, parser] : _pimpl->subparsers->getSubParsers()) {
+    for (auto const& [name, parser] : parsers.getSubParsers()) {
         ret += styledCmdName(parser.getName(), parser.getNumRequiredChars());
-        if (++ctr < _pimpl->subparsers->size()) ret += ", ";
+        if (++ctr < parsers.getSubParsers().size()) ret += ", ";
     }
     ret += "}";
 
@@ -236,7 +209,7 @@ string ArgumentParser::getSyntaxString(SubParsers parsers) const {
  * @param str
  * @return string
  */
-string ArgumentParser::requiredArgBracket(std::string const& str) const {
+string Formatter::requiredArgBracket(std::string const& str) {
     return requiredStyle("<") + str + requiredStyle(">");
 }
 
@@ -246,7 +219,7 @@ string ArgumentParser::requiredArgBracket(std::string const& str) const {
  * @param str
  * @return string
  */
-string ArgumentParser::optionalArgBracket(std::string const& str) const {
+string Formatter::optionalArgBracket(std::string const& str) {
     return optionalStyle("[") + str + optionalStyle("]");
 }
 
@@ -255,26 +228,27 @@ string ArgumentParser::optionalArgBracket(std::string const& str) const {
  *
  * @param arg
  */
-void ArgumentParser::printHelpString(Argument const& arg) const {
+void Formatter::printHelpString(ArgumentParser parser, Argument const& arg) {
     using dvlab_utils::Tabler;
-    _pimpl->tabl << (arg.hasAction() ? typeStyle("flag") : typeStyle(arg.getTypeString()));
+    auto& tabl = parser._pimpl->tabl;
+    tabl << (arg.hasAction() ? typeStyle("flag") : typeStyle(arg.getTypeString()));
 
-    if (hasOptionPrefix(arg)) {
+    if (parser.isOption(arg)) {
         if (arg.hasAction()) {
-            _pimpl->tabl << Tabler::Multicols(styledArgName(arg), 2);
+            tabl << Tabler::Multicols(styledArgName(parser, arg), 2);
         } else {
-            _pimpl->tabl << styledArgName(arg) << metavarStyle(arg.getMetavar());
+            tabl << styledArgName(parser, arg) << metavarStyle(arg.getMetavar());
         }
     } else {
-        _pimpl->tabl << Tabler::Multicols(metavarStyle(arg.getMetavar()), 2);
+        tabl << Tabler::Multicols(metavarStyle(arg.getMetavar()), 2);
     }
 
-    _pimpl->tabl << arg.getHelp();
+    tabl << arg.getHelp();
 }
 
-void ArgumentParser::printHelpString(SubParsers parsers) const {
+void Formatter::printHelpString(ArgumentParser parser, SubParsers parsers) {
     using dvlab_utils::Tabler;
-    _pimpl->tabl << Tabler::Multicols(getSyntaxString(parsers), 3) << parsers.getHelp();
+    parser._pimpl->tabl << Tabler::Multicols(getSyntaxString(parsers), 3) << parsers.getHelp();
 }
 
 /**
@@ -283,8 +257,8 @@ void ArgumentParser::printHelpString(SubParsers parsers) const {
  * @param arg
  * @return string
  */
-string ArgumentParser::styledArgName(Argument const& arg) const {
-    if (!hasOptionPrefix(arg)) return metavarStyle(arg.getName());
+string Formatter::styledArgName(ArgumentParser parser, Argument const& arg) {
+    if (!parser.isOption(arg)) return metavarStyle(arg.getName());
     if (colorLevel >= 1) {
         string mand = arg.getName().substr(0, arg.getNumRequiredChars());
         string rest = arg.getName().substr(arg.getNumRequiredChars());

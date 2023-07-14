@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ apSubParsers.cpp ]
+  FileName     [ apArgGroup.cpp ]
   PackageName  [ argparser ]
   Synopsis     [ Definitions for argument groups of ArgumentParser ]
   Author       [ Design Verification Lab ]
@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include "argparse.h"
+
 namespace ArgParse {
 
 ArgumentGroup ArgumentParser::addMutuallyExclusiveGroup() {

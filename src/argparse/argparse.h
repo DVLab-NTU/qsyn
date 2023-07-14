@@ -1,12 +1,12 @@
 /****************************************************************************
-  FileName     [ apArgParser.h ]
+  FileName     [ argparse.h ]
   PackageName  [ argparser ]
   Synopsis     [ Define argument parser ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef QSYN_ARGPARSE_ARGPARSER_H
-#define QSYN_ARGPARSE_ARGPARSER_H
+#ifndef AP_ARGPARSE_ARGPARSER_H
+#define AP_ARGPARSE_ARGPARSER_H
 
 #include <any>
 #include <cassert>
@@ -27,7 +27,32 @@
 
 namespace ArgParse {
 
+class Argument;
 class ArgumentParser;
+class SubParsers;
+
+/**
+ * @brief Pretty printer for the command usages and helps.
+ * 
+ */
+struct Formatter {
+public:
+    static void printUsage(ArgumentParser parser);
+    static void printSummary(ArgumentParser parser);
+    static void printHelp(ArgumentParser parser);
+
+    static std::string styledArgName(ArgumentParser parser, Argument const& arg);
+    static std::string styledCmdName(std::string const& name, size_t numRequired);
+
+    static std::string getSyntaxString(ArgumentParser parser, Argument const& arg);
+    static std::string getSyntaxString(SubParsers parsers);
+
+    static std::string requiredArgBracket(std::string const& str);
+    static std::string optionalArgBracket(std::string const& str);
+
+    static void printHelpString(ArgumentParser parser, Argument const& arg);
+    static void printHelpString(ArgumentParser parser, SubParsers parsers);
+};
 
 using ActionCallbackType = std::function<bool()>;                                 // perform an action and return if it succeeds
 using ErrorCallbackType = std::function<void()>;                                  // function to call when some action fails
@@ -370,6 +395,7 @@ public:
  *
  */
 class ArgumentParser {
+    friend class Formatter;
 public:
     ArgumentParser() : _pimpl{std::make_shared<ArgumentParserImpl>()} {}
     ArgumentParser(std::string const& n) : _pimpl{std::make_shared<ArgumentParserImpl>()} {
@@ -382,26 +408,21 @@ public:
     ArgumentParser& name(std::string const& name);
     ArgumentParser& help(std::string const& help);
 
-    /**
-     * @brief get the size of parsed option
-     *
-     * @return size_t
-     */
-    QSYN_ALWAYS_INLINE
     size_t numParsedArguments() const {
-        return std::count_if(_pimpl->arguments.begin(), _pimpl->arguments.end(), [](auto& pr) { return pr.second.isParsed(); });
+        return std::count_if(
+            _pimpl->arguments.begin(), _pimpl->arguments.end(),
+            [](auto& pr) {
+                return pr.second.isParsed();
+            });
     }
 
     // print functions
 
     void printTokens() const;
     void printArguments() const;
-    void printUsage() const;
-    void printSummary() const;
-    void printHelp() const;
-
-    std::string getSyntaxString(Argument const& arg) const;
-    std::string getSyntaxString(SubParsers parsers) const;
+    void printUsage() const { _pimpl->formatter.printUsage(*this); }
+    void printSummary() const { _pimpl->formatter.printSummary(*this); }
+    void printHelp() const { _pimpl->formatter.printHelp(*this); }
 
     // setters
 
@@ -412,8 +433,8 @@ public:
     std::string const& getName() const { return _pimpl->name; }
     std::string const& getHelp() const { return _pimpl->help; }
     size_t getNumRequiredChars() const { return _pimpl->numRequiredChars; }
-    bool hasOptionPrefix(std::string const& str) const { return str.find_first_of(_pimpl->optionPrefix) == 0UL; }
-    bool hasOptionPrefix(Argument const& arg) const { return hasOptionPrefix(arg.getName()); }
+    bool isOption(std::string const& str) const { return str.find_first_of(_pimpl->optionPrefix) == 0UL; }
+    bool isOption(Argument const& arg) const { return isOption(arg.getName()); }
     bool hasSubParsers() const { return _pimpl->subparsers.has_value(); }
     bool usedSubParser(std::string const& name) const { return _pimpl->subparsers.has_value() && _pimpl->activatedSubParser == name; }
 
@@ -445,12 +466,14 @@ private:
         std::string help;
         size_t numRequiredChars;
 
-        dvlab_utils::Tabler mutable tabl;
+        dvlab_utils::Tabler tabl;
 
         // members for analyzing parser options
         MyTrie mutable trie;
         bool mutable optionsAnalyzed;
+        Formatter formatter;
     };
+
     std::shared_ptr<ArgumentParserImpl> _pimpl;
 
     template <typename T>
@@ -462,13 +485,6 @@ private:
     void printDuplicateArgNameErrorMsg(std::string const& name) const;
 
     // pretty printing helpers
-
-    std::string requiredArgBracket(std::string const& str) const;
-    std::string optionalArgBracket(std::string const& str) const;
-    void printHelpString(Argument const& arg) const;
-    void printHelpString(SubParsers parser) const;
-    std::string styledArgName(Argument const& arg) const;
-    std::string styledCmdName(std::string const& name, size_t numRequired) const;
 
     void setNumRequiredChars(size_t num) { _pimpl->numRequiredChars = num; }
     void setSubParser(std::string const& name) {
@@ -483,6 +499,8 @@ private:
     bool parseOptions(TokensView);
     bool parsePositionalArguments(TokensView);
 
+    static bool constraintsSatisfied(Argument const& arg);
+
     // parseOptions subroutine
 
     std::variant<std::string, size_t> matchOption(std::string const& token) const;
@@ -496,240 +514,6 @@ private:
     bool allRequiredArgumentsAreParsed() const;
     void printRequiredArgumentsMissingErrorMsg() const;
 };
-
-// SECTION - ArgType<T> template functions
-
-/**
- * @brief set the name of the argument
- *
- * @tparam T
- * @param name
- * @return ArgType<T>&
- */
-template <typename T>
-ArgType<T>& ArgType<T>::name(std::string const& name) {
-    _traits.name = name;
-    return *this;
-}
-
-/**
- * @brief set the help message of the argument
- *
- * @tparam T
- * @param help
- * @return ArgType<T>&
- */
-template <typename T>
-ArgType<T>& ArgType<T>::help(std::string const& help) {
-    _traits.help = help;
-    return *this;
-}
-
-/**
- * @brief set if the argument is required
- *
- * @tparam T
- * @param isReq
- * @return ArgType<T>&
- */
-template <typename T>
-ArgType<T>& ArgType<T>::required(bool isReq) {
-    _traits.required = isReq;
-    return *this;
-}
-
-/**
- * @brief set the default value of the argument
- *
- * @tparam T
- * @param val
- * @return ArgType<T>&
- */
-template <typename T>
-ArgType<T>& ArgType<T>::defaultValue(T const& val) {
-    _traits.defaultValue = val;
-    return *this;
-}
-
-/**
- * @brief set the action of the argument when parsed. An action can be
- *        any callable type that takes an `ArgType<T>&` and returns a
- *        `ArgType<T>::ActionType` (aka `std::function<bool()>`).
- *
- * @tparam T
- * @param action
- * @return ArgType<T>&
- */
-template <typename T>
-ArgType<T>& ArgType<T>::action(ArgType<T>::ActionType const& action) {
-    _traits.actionCallback = action(*this);
-    return *this;
-}
-
-/**
- * @brief set the const value to store when the argument is parsed. This setting is
- *        only effective when the action is set to `ArgParse::storeConst<T>`
- *
- * @tparam T
- * @param val
- * @return ArgType<T>&
- */
-template <typename T>
-ArgType<T>& ArgType<T>::constValue(T const& val) {
-    _traits.constValue = val;
-    return *this;
-}
-
-/**
- * @brief set the meta-variable, i.e., the displayed name of the argument as
- *        seen in the help message.
- *
- * @tparam T
- * @param metavar
- * @return ArgType<T>&
- */
-template <typename T>
-ArgType<T>& ArgType<T>::metavar(std::string const& metavar) {
-    _traits.metavar = metavar;
-    return *this;
-}
-
-/**
- * @brief Add constraint to the argument.
- *
- * @tparam T
- * @param constraint_error a pair of constraint generator and on-error callback generator.
- *        The constraint generator takes a `ArgType<T> const&` and returns a ActionType,
- *        while takes a `ArgType<T> const&` and returns a ErrorCallbackType.
- * @return ArgType<T>&
- */
-template <typename T>
-ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConstraintType const& constraint_error) {
-    return this->constraint(constraint_error.first, constraint_error.second);
-}
-
-/**
- * @brief Add constraint to the argument.
- *
- * @tparam T
- * @param constraintGen takes a `ArgType<T> const&` and returns a ActionCallbackType
- * @param onerrorGen takes a `ArgType<T> const&` and returns a ErrorCallbackType
- */
-template <typename T>
-ArgType<T>& ArgType<T>::constraint(ArgType<T>::ActionType const& constraint, ArgType<T>::ErrorType const& onerror) {
-    if (constraint == nullptr) {
-        std::cerr << "[ArgParse] Failed to add constraint to argument \"" << getName()
-                  << "\": constraint generator cannot be nullptr!!" << std::endl;
-        return *this;
-    }
-    ActionCallbackType constraintCallback = constraint(*this);
-    if (constraintCallback == nullptr) {
-        std::cerr << "[ArgParse] Failed to add constraint to argument \"" << getName()
-                  << "\": constraint generator does not produce valid callback!!" << std::endl;
-        return *this;
-    }
-    ErrorCallbackType onerrorCallback;
-    if (onerror == nullptr) {
-        onerrorCallback = [this]() {
-            std::cerr << "Error: invalid value \"" << getValue() << "\" for argument \""
-                      << getName() << "\": fail to satisfy constraint(s)!!" << std::endl;
-        };
-    } else {
-        onerrorCallback = onerror(*this);
-    }
-
-    if (onerrorCallback == nullptr) {
-        std::cerr << "[ArgParse] Failed to add constraint to argument \"" << getName()
-                  << "\": error callback generator does not produce valid callback!!" << std::endl;
-        return *this;
-    }
-
-    _traits.constraintCallbacks.emplace_back(constraintCallback, onerrorCallback);
-    return *this;
-}
-
-template <typename T>
-ArgType<T>& ArgType<T>::choices(std::initializer_list<T> const& choices) {
-    std::vector<T> vec{choices};
-    auto constraint = [&vec](ArgType<T> const& arg) -> ActionCallbackType {
-        return [&arg, vec]() {
-            return any_of(vec.begin(), vec.end(), [&arg](T const& choice) -> bool {
-                return arg.getValue() == choice;
-            });
-        };
-    };
-    auto error = [&vec](ArgType<T> const& arg) -> ErrorCallbackType {  // REVIEW - iostream in header... is there any way to resolve this?
-        return [&arg, vec]() {
-            std::cerr << "Error: invalid choice for argument \"" << arg.getName() << "\": "
-                      << "please choose from {";
-            size_t ctr = 0;
-            for (auto& choice : vec) {
-                if (ctr > 0) std::cerr << ", ";
-                std::cerr << choice;
-                ctr++;
-            }
-            std::cerr << "}!!\n";
-        };
-    };
-
-    return this->constraint(constraint, error);
-}
-
-/**
- * @brief set the number of arguments.
- *
- * @tparam T
- * @param n the required number
- * @return ArgType<T>&
- */
-template <typename T>
-ArgType<T>& ArgType<T>::nargs(size_t n) {
-    _traits.nargs = n;
-    return *this;
-}
-
-/**
- * @brief set the number of arguments.
- *
- * @tparam T
- * @param ch
- * @return ArgType<T>&
- */
-template <typename T>
-ArgType<T>& ArgType<T>::nargs(char ch) {
-    if (ch == OPTIONAL || ch == ZERO_OR_MORE || ch == ONE_OR_MORE) {
-        _traits.nargs = ch;
-    } else {
-        std::cerr << "[ArgParse] Failed to specified nargs to argument \"" << getName()
-                  << "\": error callback generator does not produce valid callback!!" << std::endl;
-        return *this;
-    }
-
-    return *this;
-}
-
-/**
- * @brief If the argument has a default value, reset to it.
- *
- */
-template <typename T>
-void ArgType<T>::reset() {
-    if (hasDefaultValue()) _value = _traits.defaultValue.value();
-}
-
-/**
- * @brief parse the argument. If the argument has an action, perform it; otherwise,
- *        try to parse the value from token.
- *
- * @param token
- * @return true if succeeded
- * @return false if failed
- */
-template <typename T>
-bool ArgType<T>::parse(TokensView tokens) {
-    if (hasAction()) return _traits.actionCallback();
-    return parseFromString(_value, tokens);
-}
 
 // SECTION - On-parse actions for ArgType<T>
 
@@ -752,29 +536,6 @@ ActionCallbackType storeConst(ArgType<T>& arg) {
 ActionCallbackType storeTrue(ArgType<bool>& arg);
 ActionCallbackType storeFalse(ArgType<bool>& arg);
 
-// SECTION - Argument Template Functions
-
-/**
- * @brief Access the data stored in the argument.
- *        This function only works when the target type T is
- *        the same as the stored type; otherwise, this function
- *        throws an error.
- *
- * @tparam T the stored data type
- * @return T const&
- */
-template <typename T>
-requires ValidArgumentType<T>
-T const& Argument::get() const {
-    if (auto ptr = dynamic_cast<Model<ArgType<T>>*>(_pimpl.get())) {
-        return ptr->inner;
-    }
-
-    std::cerr << "[ArgParse] Error: cannot cast argument \""
-              << getName() << "\" to target type!!\n";
-    throw std::bad_any_cast{};
-}
-
 // SECTION - ArgumentParser template functions
 
 /**
@@ -796,7 +557,7 @@ ArgType<T>& ArgumentParser::addArgument(std::string const& name) {
 
     ArgType<T>& returnRef = dynamic_cast<Argument::Model<ArgType<T>>*>(_pimpl->arguments.at(realname)._pimpl.get())->inner;
 
-    if (!hasOptionPrefix(realname)) {
+    if (!isOption(realname)) {
         returnRef.required(true).metavar(realname);
     } else {
         returnRef.metavar(toUpperString(realname.substr(realname.find_first_not_of(_pimpl->optionPrefix))));
@@ -810,11 +571,10 @@ ArgType<T>& ArgumentParser::addArgument(std::string const& name) {
 template <typename T>
 decltype(auto)
 ArgumentParser::operatorBracketImpl(T&& t, std::string const& name) {
-    if (t._pimpl->subparsers.has_value() && t._pimpl->subparsers->isParsed()) {
-        auto subparser = t.getActivatedSubParser();
-        subparser.printArguments();
-        if (subparser._pimpl->arguments.contains(toLowerString(name))) {
-            return subparser._pimpl->arguments.at(toLowerString(name));
+    if (std::forward<T>(t)._pimpl->subparsers.has_value() 
+    && std::forward<T>(t)._pimpl->subparsers->isParsed()) {
+        if (std::forward<T>(t).getActivatedSubParser()._pimpl->arguments.contains(toLowerString(name))) {
+            return std::forward<T>(t).getActivatedSubParser()._pimpl->arguments.at(toLowerString(name));
         }
     }
     try {
@@ -822,7 +582,7 @@ ArgumentParser::operatorBracketImpl(T&& t, std::string const& name) {
     } catch (std::out_of_range& e) {
         std::cerr << "Argument name \"" << name
                   << "\" does not exist for command \""
-                  << std::forward<T>(t).styledCmdName(std::forward<T>(t).getName(), std::forward<T>(t).getNumRequiredChars()) << "\"\n";
+                  << std::forward<T>(t)._pimpl->formatter.styledCmdName(std::forward<T>(t).getName(), std::forward<T>(t).getNumRequiredChars()) << "\"\n";
         throw e;
     }
 }
@@ -837,4 +597,7 @@ ArgType<T>& ArgumentGroup::addArgument(std::string const& name) {
 
 }  // namespace ArgParse
 
-#endif  // QSYN_ARGPARSE_ARGPARSER_H
+#include "apArgument.tpp"
+#include "apType.tpp"
+
+#endif  // AP_ARGPARSE_ARGPARSER_H

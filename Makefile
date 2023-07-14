@@ -41,7 +41,7 @@ cleanall: clean
 .PHONY: lint
 
 lint:
-	@find ./src -regex ".*\.\(h\|cpp\)" -type f | xargs clang-format -i
+	@find ./src -regex ".*\.\(h\|cpp\|tpp\)" -type f | xargs clang-format -i
 
 .PHONY: libs
 

@@ -20,6 +20,32 @@ using namespace std;
 namespace ArgParse {
 
 /**
+ * @brief Print the tokens and their parse states
+ *
+ */
+void ArgumentParser::printTokens() const {
+    size_t i = 0;
+    for (auto& [token, parsed] : _pimpl->tokens) {
+        cout << "Token #" << ++i << ":\t"
+             << left << setw(8) << token << " (" << (parsed ? "parsed" : "unparsed") << ")  "
+             << "Frequency: " << right << setw(3) << _pimpl->trie.frequency(token) << endl;
+    }
+}
+
+/**
+ * @brief Print the argument and their parse states
+ *
+ */
+void ArgumentParser::printArguments() const {
+    for (auto& [_, arg] : _pimpl->arguments) {
+        if (arg.isRequired()) arg.printStatus();
+    }
+    for (auto& [_, arg] : _pimpl->arguments) {
+        if (!arg.isRequired()) arg.printStatus();
+    }
+}
+
+/**
  * @brief returns the Argument with the `name`
  *
  * @param name
@@ -111,12 +137,12 @@ bool ArgumentParser::analyzeOptions() const {
     }
 
     for (auto const& [name, arg] : _pimpl->arguments) {
-        if (!hasOptionPrefix(name)) continue;
+        if (!isOption(name)) continue;
         _pimpl->trie.insert(name);
     }
 
     for (auto& [name, arg] : _pimpl->arguments) {
-        if (!hasOptionPrefix(name)) continue;
+        if (!isOption(name)) continue;
         size_t prefixSize = _pimpl->trie.shortestUniquePrefix(name).value().size();
         while (!isalpha(name[prefixSize - 1])) ++prefixSize;
         arg.setNumRequiredChars(max(prefixSize, arg.getNumRequiredChars()));
@@ -227,7 +253,7 @@ bool ArgumentParser::parseTokens(TokensView tokens) {
 
     if (hasSubParsers()) {
         if (subparserTokenPos >= tokens.size() && _pimpl->subparsers->isRequired()) {
-            cerr << "Error: missing mandatory subparser argument: " << getSyntaxString(_pimpl->subparsers.value()) << endl;
+            cerr << "Error: missing mandatory subparser argument: " << _pimpl->formatter.getSyntaxString(_pimpl->subparsers.value()) << endl;
             return false;
         }
         if (subparserTokenPos < tokens.size() && !getActivatedSubParser().parseTokens(tokens.subspan(subparserTokenPos + 1))) {
@@ -235,6 +261,16 @@ bool ArgumentParser::parseTokens(TokensView tokens) {
         }
     }
     return parseOptions(tokens.subspan(0, subparserTokenPos)) && parsePositionalArguments(tokens.subspan(0, subparserTokenPos));
+}
+
+bool ArgumentParser::constraintsSatisfied(Argument const& arg) {
+    for (auto& [constraint, onerror] : arg.getConstraints()) {
+        if (!constraint()) {
+            onerror();
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
@@ -246,7 +282,7 @@ bool ArgumentParser::parseTokens(TokensView tokens) {
  */
 bool ArgumentParser::parseOptions(TokensView tokens) {
     for (int i = tokens.size() - 1; i >= 0; --i) {
-        if (!hasOptionPrefix(tokens[i].token)) continue;
+        if (!isOption(tokens[i].token)) continue;
         auto match = matchOption(tokens[i].token);
         if (std::holds_alternative<size_t>(match)) {
             auto frequency = std::get<size_t>(match);
@@ -292,12 +328,7 @@ bool ArgumentParser::parseOptions(TokensView tokens) {
         }
 
         // check if meet constraints
-        for (auto& [constraint, onerror] : arg.getConstraints()) {
-            if (!constraint()) {
-                onerror();
-                return false;
-            }
-        }
+        if (!constraintsSatisfied(arg)) return false;
 
         tokens[i].parsed = true;
 
@@ -329,7 +360,7 @@ bool ArgumentParser::parsePositionalArguments(TokensView tokens) {
     };
 
     auto nextArg = [&currArg, this]() {
-        while (currArg != _pimpl->arguments.end() && (currArg->second.isParsed() || hasOptionPrefix(currArg->first))) {
+        while (currArg != _pimpl->arguments.end() && (currArg->second.isParsed() || isOption(currArg->first))) {
             currArg++;
         }
     };
@@ -341,7 +372,7 @@ bool ArgumentParser::parsePositionalArguments(TokensView tokens) {
         auto& [token, parsed] = *currToken;
         auto& [name, arg] = *currArg;
 
-        assert(!hasOptionPrefix(name));
+        assert(!isOption(name));
         assert(!arg.hasAction());
 
         if (!arg.parse(tokens.subspan(i, 1))) {
@@ -350,12 +381,7 @@ bool ArgumentParser::parsePositionalArguments(TokensView tokens) {
             return false;
         }
         // check if meet constraints
-        for (auto& [constraint, onerror] : arg.getConstraints()) {
-            if (!constraint()) {
-                onerror();
-                return false;
-            }
-        }
+        if (!constraintsSatisfied(arg)) return false;
 
         parsed = true;
     }
@@ -402,7 +428,7 @@ void ArgumentParser::printAmbiguousOptionErrorMsg(std::string const& token) cons
     cerr << "Error: ambiguous option: \"" << token << "\" could match ";
     size_t ctr = 0;
     for (auto& [name, _] : _pimpl->arguments) {
-        if (!hasOptionPrefix(name)) continue;
+        if (!isOption(name)) continue;
         if (name.starts_with(key)) {
             if (ctr > 0) cerr << ", ";
             cerr << name;
@@ -421,7 +447,7 @@ bool ArgumentParser::allRequiredOptionsAreParsed() const {
     // Want: ∀ arg ∈ _arguments. (option(arg) ∧ required(arg)) → parsed(arg)
     // Thus: ∀ arg ∈ _arguments. ¬option(arg) ∨ ¬required(arg) ∨ parsed(arg)
     for (auto& [name, arg] : _pimpl->arguments) {
-        if (hasOptionPrefix(name) && arg.isRequired() && !arg.isParsed()) {
+        if (isOption(name) && arg.isRequired() && !arg.isParsed()) {
             cerr << "Error: The option \"" << name << "\" is required!!" << endl;
             return false;
         }
@@ -489,6 +515,15 @@ void ArgumentParser::printRequiredArgumentsMissingErrorMsg() const {
         }
     }
     cerr << endl;
+}
+
+/**
+ * @brief print the error message when duplicated argument name is detected
+ *
+ * @param name
+ */
+void ArgumentParser::printDuplicateArgNameErrorMsg(std::string const& name) const {
+    std::cerr << "[ArgParse] Error: Duplicate argument name \"" << name << "\"!!" << std::endl;
 }
 
 }  // namespace ArgParse
