@@ -16,18 +16,37 @@
 
 using namespace std;
 
-void clearConsole();
+//----------------------------------------------------------------------
+//    Global funcitons
+//----------------------------------------------------------------------
+
+void mybeep() {
+    cout << char(BEEP_CHAR);
+}
+
+void clearConsole() {
+#ifdef _WIN32
+    int result = system("cls");
+#else
+    int result = system("clear");
+#endif
+    if (result != 0) {
+        cerr << "Error clearing the console!!" << endl;
+    }
+}
 
 //----------------------------------------------------------------------
-//    Global static funcitons
+//    keypress detection details
 //----------------------------------------------------------------------
+
+namespace detail {
 static struct termios stored_settings;
 
-static void reset_keypress(void) {
+static auto reset_keypress(void) {
     tcsetattr(0, TCSANOW, &stored_settings);
 }
 
-static void set_keypress(void) {
+static auto set_keypress(void) {
     struct termios new_settings;
     tcgetattr(0, &stored_settings);
     new_settings = stored_settings;
@@ -39,10 +58,7 @@ static void set_keypress(void) {
     tcsetattr(0, TCSANOW, &new_settings);
 }
 
-//----------------------------------------------------------------------
-//    Global funcitons
-//----------------------------------------------------------------------
-static char mygetc(istream& istr) {
+static auto mygetc(istream& istr) -> char {
     char ch;
     set_keypress();
     istr.unsetf(ios_base::skipws);
@@ -55,14 +71,15 @@ static char mygetc(istream& istr) {
     return ch;
 }
 
-void mybeep() {
-    cout << char(BEEP_CHAR);
-}
+static auto returnCh(int ch) -> ParseChar { 
+    return ParseChar(ch); 
+};
 
-inline static ParseChar returnCh(int);
+}
 
 ParseChar
 CmdParser::getChar(istream& istr) const {
+    using namespace detail;
     char ch = mygetc(istr);
 
     if (istr.eof())
@@ -84,7 +101,7 @@ CmdParser::getChar(istream& istr) const {
         //    "cmdCharDef.h", or revise the control flow of the "case ESC" below
         case BACK_SPACE_KEY:
             return returnCh(ch);
-        case char(8):
+        case BACK_SPACE_CHAR:
             return returnCh(BACK_SPACE_KEY);
 
         // Combo keys: multiple codes for one key press
@@ -118,21 +135,4 @@ CmdParser::getChar(istream& istr) const {
     }
 
     return returnCh(UNDEFINED_KEY);
-}
-
-inline static ParseChar
-returnCh(int ch) {
-    return ParseChar(ch);
-}
-
-void clearConsole() {
-    int result;
-#ifdef _WIN32
-    result = system("cls");
-#else
-    result = system("clear");
-#endif
-    if (result != 0) {
-        cerr << "Error clearing the console!!" << endl;
-    }
 }
