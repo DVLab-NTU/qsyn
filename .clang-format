@@ -10,3 +10,5 @@ IndentRequires: false
 
 # puts public, private, on the same column with class definition
 AccessModifierOffset: -4
+
+PackConstructorInitializers: BinPack

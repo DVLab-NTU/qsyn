@@ -205,7 +205,7 @@ bool ArgumentParser::tokenize(string const& line) {
     return true;
 }
 
-bool ArgumentParser::parseTokens(std::span<Token> tokens) {
+bool ArgumentParser::parseTokens(TokensView tokens) {
     if (!analyzeOptions()) return false;
 
     size_t subparserTokenPos = std::invoke([this, tokens]() -> size_t {
@@ -244,7 +244,7 @@ bool ArgumentParser::parseTokens(std::span<Token> tokens) {
  * @return true if succeeded
  * @return false if failed
  */
-bool ArgumentParser::parseOptions(std::span<Token> tokens) {
+bool ArgumentParser::parseOptions(TokensView tokens) {
     for (int i = tokens.size() - 1; i >= 0; --i) {
         if (!hasOptionPrefix(tokens[i].token)) continue;
         auto match = matchOption(tokens[i].token);
@@ -280,11 +280,11 @@ bool ArgumentParser::parseOptions(std::span<Token> tokens) {
         }
 
         if (arg.hasAction())
-            arg.parse("");
+            arg.parse(tokens.subspan(i, 0));
         else if (i + 1 >= (int)tokens.size() || tokens[i + 1].parsed) {  // _tokens[i] is not the last token && _tokens[i+1] is unparsed
             cerr << "Error: missing argument after \"" << tokens[i].token << "\"!!\n";
             return false;
-        } else if (!arg.parse(tokens[i + 1].token)) {
+        } else if (!arg.parse(tokens.subspan(i + 1, 1))) {
             cerr << "Error: invalid " << arg.getTypeString() << " value \""
                  << tokens[i + 1].token << "\" after \""
                  << tokens[i].token << "\"!!" << endl;
@@ -315,13 +315,16 @@ bool ArgumentParser::parseOptions(std::span<Token> tokens) {
  * @return true if succeeded
  * @return false if failed
  */
-bool ArgumentParser::parsePositionalArguments(std::span<Token> tokens) {
+bool ArgumentParser::parsePositionalArguments(TokensView tokens) {
     auto currToken = tokens.begin();
     auto currArg = _pimpl->arguments.begin();
 
-    auto nextToken = [&currToken, tokens]() {
+    size_t i = 0;
+
+    auto nextToken = [&currToken, &i, tokens]() {
         while (currToken != tokens.end() && currToken->parsed == true) {
             currToken++;
+            i++;
         }
     };
 
@@ -341,7 +344,7 @@ bool ArgumentParser::parsePositionalArguments(std::span<Token> tokens) {
         assert(!hasOptionPrefix(name));
         assert(!arg.hasAction());
 
-        if (!arg.parse(token)) {
+        if (!arg.parse(tokens.subspan(i, 1))) {
             cerr << "Error: invalid " << arg.getTypeString() << " value \""
                  << token << "\" for argument \"" << name << "\"!!" << endl;
             return false;
@@ -452,7 +455,7 @@ bool ArgumentParser::allRequiredMutexGroupsAreParsed() const {
  *
  * @return true or false
  */
-bool ArgumentParser::allTokensAreParsed(std::span<Token> tokens) const {
+bool ArgumentParser::allTokensAreParsed(TokensView tokens) const {
     return ranges::all_of(tokens, [](Token const& tok) {
         return tok.parsed;
     });

@@ -14,54 +14,50 @@ using namespace std;
 
 namespace ArgParse {
 
-namespace ArgTypeDescription {
+template <>
+std::string typeString(int) { return "int"; }
+template <>
+std::string typeString(long) { return "long"; }
+template <>
+std::string typeString(long long) { return "long long"; }
 
 template <>
-std::string getTypeString(int) { return "int"; }
+std::string typeString(unsigned) { return "unsigned"; }
 template <>
-std::string getTypeString(long) { return "long"; }
+std::string typeString(unsigned long) { return "size_t"; }
 template <>
-std::string getTypeString(long long) { return "long long"; }
+std::string typeString(unsigned long long) { return "size_t"; }
 
 template <>
-std::string getTypeString(unsigned) { return "unsigned"; }
+std::string typeString(float) { return "float"; }
 template <>
-std::string getTypeString(unsigned long) { return "size_t"; }
+std::string typeString(double) { return "double"; }
 template <>
-std::string getTypeString(unsigned long long) { return "size_t"; }
+std::string typeString(long double) { return "long double"; }
 
-template <>
-std::string getTypeString(float) { return "float"; }
-template <>
-std::string getTypeString(double) { return "double"; }
-template <>
-std::string getTypeString(long double) { return "long double"; }
+std::string typeString(std::string const& val) { return "string"; }
+std::string typeString(bool) { return "bool"; }
+std::string typeString(DummyArgumentType) { return "dummy"; }
 
-std::string getTypeString(std::string const& val) { return "string"; }
-std::string getTypeString(bool) { return "bool"; }
-std::string getTypeString(DummyArgumentType) { return "dummy"; }
-
-bool parseFromString(bool& val, std::string const& token) {
-    if (myStrNCmp("true", token, 1) == 0) {
+bool parseFromString(bool& val, TokensView tokens) {
+    if (myStrNCmp("true", tokens[0].token, 1) == 0) {
         val = true;
         return true;
-    } else if (myStrNCmp("false", token, 1) == 0) {
+    } else if (myStrNCmp("false", tokens[0].token, 1) == 0) {
         val = false;
         return true;
     }
     return false;
 }
 
-bool parseFromString(std::string& val, std::string const& token) {
-    val = token;
+bool parseFromString(std::string& val, TokensView tokens) {
+    val = tokens[0].token;
     return true;
 }
 
-bool parseFromString(DummyArgumentType& val, std::string const& token) {
+bool parseFromString(DummyArgumentType& val, TokensView tokens) {
     return true;
 }
-
-}  // namespace ArgTypeDescription
 
 /**
  * @brief generate a callback that sets the argument to true.

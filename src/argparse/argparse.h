@@ -34,36 +34,46 @@ using ErrorCallbackType = std::function<void()>;                                
 using ConstraintCallbackType = std::pair<ActionCallbackType, ErrorCallbackType>;  // constraints are defined by an ActionCallbackType that
                                                                                   // returns true if the constraint is met, and an
                                                                                   // ErrorCallbackType that prints the error message if it does not.
+
+constexpr char OPTIONAL = '?';
+constexpr char ZERO_OR_MORE = '*';
+constexpr char ONE_OR_MORE = '+';
+
+struct Token {
+    Token(std::string const& tok)
+        : token{tok}, parsed{false} {}
+    std::string token;
+    bool parsed;
+};
+
+using TokensView = std::span<Token>;
+
 struct DummyArgumentType {
     friend std::ostream& operator<<(std::ostream& os, DummyArgumentType const& val) { return os << "dummy"; }
 };
 
-namespace ArgTypeDescription {
-
 template <typename T>
 requires Arithmetic<T>
-std::string getTypeString(T);  // explicitly instantiated in apType.cpp
-std::string getTypeString(std::string const&);
-std::string getTypeString(bool);
-std::string getTypeString(DummyArgumentType);
+std::string typeString(T);  // explicitly instantiated in apType.cpp
+std::string typeString(std::string const&);
+std::string typeString(bool);
+std::string typeString(DummyArgumentType);
 
 template <typename T>
 std::ostream& print(std::ostream& os, T const& val) { return os << val; }
 
 template <typename T>
 requires Arithmetic<T>
-bool parseFromString(T& val, std::string const& token) { return myStr2Number<T>(token, val); }
-bool parseFromString(std::string& val, std::string const& token);
-bool parseFromString(bool& val, std::string const& token);
-bool parseFromString(DummyArgumentType& val, std::string const& token);
-
-}  // namespace ArgTypeDescription
+bool parseFromString(T& val, TokensView tokens) { return myStr2Number<T>(tokens[0].token, val); }
+bool parseFromString(std::string& val, TokensView tokens);
+bool parseFromString(bool& val, TokensView tokens);
+bool parseFromString(DummyArgumentType& val, TokensView tokens);
 
 template <typename T>
 concept ValidArgumentType = requires(T t) {
-    { ArgTypeDescription::getTypeString(t) } -> std::same_as<std::string>;
-    { ArgTypeDescription::print(std::cout, t) } -> std::same_as<std::ostream&>;
-    { ArgTypeDescription::parseFromString(t, std::string{}) } -> std::same_as<bool>;
+    { typeString(t) } -> std::same_as<std::string>;
+    { print(std::cout, t) } -> std::same_as<std::ostream&>;
+    { parseFromString(t, TokensView{}) } -> std::same_as<bool>;
 };
 
 template <typename T>
@@ -78,7 +88,7 @@ public:
         : _value{val}, _traits{} {}
 
     friend std::ostream& operator<<(std::ostream& os, ArgType<T> const& arg) {
-        return ArgTypeDescription::print(os, arg._value);
+        return print(os, arg._value);
     }
 
     operator T&() { return _value; }
@@ -96,17 +106,19 @@ public:
     ArgType& constraint(ConstraintType const& constraint_error);
     ArgType& constraint(ActionType const& constraint, ErrorType const& onerror = nullptr);
     ArgType& choices(std::initializer_list<T> const& choices);
+    ArgType& nargs(size_t n);
+    ArgType& nargs(char ch);
 
-    inline bool parse(std::string const& token);
+    inline bool parse(TokensView tokens);
     inline void reset();
 
     // getters
     inline T const& getValue() const { return _value; }
-    inline std::string getTypeString() const { return ArgTypeDescription::getTypeString(_value); }
+    inline std::string getTypeString() const { return typeString(_value); }
     inline std::string const& getName() const { return _traits.name; }
     inline std::string const& getHelp() const { return _traits.help; }
-    inline std::optional<T> getDefaultValue() const { return _traits.defaultValue; }
-    inline std::optional<T> getConstValue() const { return _traits.constValue; }
+    inline std::optional<T> const& getDefaultValue() const { return _traits.defaultValue; }
+    inline std::optional<T> const& getConstValue() const { return _traits.constValue; }
     inline std::string const& getMetaVar() const { return _traits.metavar; }
     inline std::vector<ConstraintCallbackType> const& getConstraints() const { return _traits.constraintCallbacks; }
 
@@ -130,7 +142,8 @@ public:
 private:
     struct Traits {
         Traits()
-            : name{}, help{}, required{false}, defaultValue{std::nullopt}, constValue{}, actionCallback{}, metavar{} {}
+            : name{}, help{}, required{false}, defaultValue{std::nullopt},
+              constValue{}, actionCallback{}, metavar{}, nargs{std::nullopt} {}
         std::string name;
         std::string help;
         bool required;
@@ -139,6 +152,7 @@ private:
         ActionCallbackType actionCallback;
         std::string metavar;
         std::vector<ConstraintCallbackType> constraintCallbacks;
+        std::optional<std::variant<size_t, char>> nargs;
     };
 
     T _value;
@@ -210,7 +224,7 @@ public:
     // action
 
     void reset();
-    bool parse(std::string const& token);
+    bool parse(TokensView tokens);
 
 private:
     friend class ArgumentParser;
@@ -233,15 +247,15 @@ private:
         virtual std::ostream& do_print(std::ostream& os) const = 0;
         virtual std::ostream& do_printDefaultValue(std::ostream& os) const = 0;
 
-        virtual bool do_parse(std::string const& token) = 0;
+        virtual bool do_parse(TokensView tokens) = 0;
         virtual void do_reset() = 0;
     };
 
-    template <typename T>
+    template <typename ArgT>
     struct Model final : Concept {
-        T inner;
+        ArgT inner;
 
-        Model(T val)
+        Model(ArgT val)
             : inner(std::move(val)) {}
         ~Model() {}
 
@@ -260,7 +274,7 @@ private:
         inline std::ostream& do_print(std::ostream& os) const override { return os << inner; }
         inline std::ostream& do_printDefaultValue(std::ostream& os) const override { return (inner.getDefaultValue().has_value() ? os << inner.getDefaultValue().value() : os << "(none)"); }
 
-        inline bool do_parse(std::string const& token) override { return inner.parse(token); }
+        inline bool do_parse(TokensView tokens) override { return inner.parse(tokens); }
         inline void do_reset() override { inner.reset(); }
     };
 
@@ -416,13 +430,6 @@ public:
     bool analyzeOptions() const;
 
 private:
-    struct Token {
-        Token(std::string const& tok)
-            : token{tok}, parsed{false} {}
-        std::string token;
-        bool parsed;
-    };
-
     struct ArgumentParserImpl {
         ArgumentParserImpl() : optionPrefix("-"), optionsAnalyzed(false) {}
         ordered_hashmap<std::string, Argument> arguments;
@@ -472,9 +479,9 @@ private:
 
     // parse subroutine
     bool tokenize(std::string const& line);
-    bool parseTokens(std::span<Token>);
-    bool parseOptions(std::span<Token>);
-    bool parsePositionalArguments(std::span<Token>);
+    bool parseTokens(TokensView);
+    bool parseOptions(TokensView);
+    bool parsePositionalArguments(TokensView);
 
     // parseOptions subroutine
 
@@ -485,7 +492,7 @@ private:
 
     // parsePositionalArguments subroutine
 
-    bool allTokensAreParsed(std::span<Token>) const;
+    bool allTokensAreParsed(TokensView) const;
     bool allRequiredArgumentsAreParsed() const;
     void printRequiredArgumentsMissingErrorMsg() const;
 };
@@ -669,6 +676,39 @@ ArgType<T>& ArgType<T>::choices(std::initializer_list<T> const& choices) {
 }
 
 /**
+ * @brief set the number of arguments.
+ *
+ * @tparam T
+ * @param n the required number
+ * @return ArgType<T>&
+ */
+template <typename T>
+ArgType<T>& ArgType<T>::nargs(size_t n) {
+    _traits.nargs = n;
+    return *this;
+}
+
+/**
+ * @brief set the number of arguments.
+ *
+ * @tparam T
+ * @param ch
+ * @return ArgType<T>&
+ */
+template <typename T>
+ArgType<T>& ArgType<T>::nargs(char ch) {
+    if (ch == OPTIONAL || ch == ZERO_OR_MORE || ch == ONE_OR_MORE) {
+        _traits.nargs = ch;
+    } else {
+        std::cerr << "[ArgParse] Failed to specified nargs to argument \"" << getName()
+                  << "\": error callback generator does not produce valid callback!!" << std::endl;
+        return *this;
+    }
+
+    return *this;
+}
+
+/**
  * @brief If the argument has a default value, reset to it.
  *
  */
@@ -686,9 +726,9 @@ void ArgType<T>::reset() {
  * @return false if failed
  */
 template <typename T>
-bool ArgType<T>::parse(std::string const& token) {
+bool ArgType<T>::parse(TokensView tokens) {
     if (hasAction()) return _traits.actionCallback();
-    return ArgTypeDescription::parseFromString(_value, token);
+    return parseFromString(_value, tokens);
 }
 
 // SECTION - On-parse actions for ArgType<T>
