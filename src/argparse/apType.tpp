@@ -189,38 +189,38 @@ ArgType<T>& ArgType<T>::choices(std::initializer_list<T> const& choices) {
     return this->constraint(constraint, error);
 }
 
-/**
- * @brief set the number of arguments.
- *
- * @tparam T
- * @param n the required number
- * @return ArgType<T>&
- */
-template <typename T>
-ArgType<T>& ArgType<T>::nargs(size_t n) {
-    _traits.nargs = n;
-    return *this;
-}
+// /**
+//  * @brief set the number of arguments.
+//  *
+//  * @tparam T
+//  * @param n the required number
+//  * @return ArgType<T>&
+//  */
+// template <typename T>
+// ArgType<T>& ArgType<T>::nargs(size_t n) {
+//     _traits.nargs = n;
+//     return *this;
+// }
 
-/**
- * @brief set the number of arguments.
- *
- * @tparam T
- * @param ch
- * @return ArgType<T>&
- */
-template <typename T>
-ArgType<T>& ArgType<T>::nargs(char ch) {
-    if (ch == OPTIONAL || ch == ZERO_OR_MORE || ch == ONE_OR_MORE) {
-        _traits.nargs = ch;
-    } else {
-        std::cerr << "[ArgParse] Failed to specified nargs to argument \"" << getName()
-                  << "\": error callback generator does not produce valid callback!!" << std::endl;
-        return *this;
-    }
+// /**
+//  * @brief set the number of arguments.
+//  *
+//  * @tparam T
+//  * @param ch
+//  * @return ArgType<T>&
+//  */
+// template <typename T>
+// ArgType<T>& ArgType<T>::nargs(char ch) {
+//     if (ch == OPTIONAL || ch == ZERO_OR_MORE || ch == ONE_OR_MORE) {
+//         _traits.nargs = ch;
+//     } else {
+//         std::cerr << "[ArgParse] Failed to specified nargs to argument \"" << getName()
+//                   << "\": error callback generator does not produce valid callback!!" << std::endl;
+//         return *this;
+//     }
 
-    return *this;
-}
+//     return *this;
+// }
 
 /**
  * @brief If the argument has a default value, reset to it.
@@ -240,9 +240,9 @@ void ArgType<T>::reset() {
  * @return false if failed
  */
 template <typename T>
-bool ArgType<T>::parse(TokensView tokens) {
+bool ArgType<T>::parse(std::string const& token) {
     if (hasAction()) return _traits.actionCallback();
-    return parseFromString(_value, tokens);
+    return parseFromString(_value, token);
 }
 }  // namespace ArgParse
 

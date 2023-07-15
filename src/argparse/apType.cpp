@@ -39,23 +39,23 @@ std::string typeString(std::string const& val) { return "string"; }
 std::string typeString(bool) { return "bool"; }
 std::string typeString(DummyArgumentType) { return "dummy"; }
 
-bool parseFromString(bool& val, TokensView tokens) {
-    if (myStrNCmp("true", tokens[0].token, 1) == 0) {
+bool parseFromString(bool& val, std::string const& token) {
+    if (myStrNCmp("true", token, 1) == 0) {
         val = true;
         return true;
-    } else if (myStrNCmp("false", tokens[0].token, 1) == 0) {
+    } else if (myStrNCmp("false", token, 1) == 0) {
         val = false;
         return true;
     }
     return false;
 }
 
-bool parseFromString(std::string& val, TokensView tokens) {
-    val = tokens[0].token;
+bool parseFromString(std::string& val, std::string const& token) {
+    val = token;
     return true;
 }
 
-bool parseFromString(DummyArgumentType& val, TokensView tokens) {
+bool parseFromString(DummyArgumentType& val, std::string const& token) {
     return true;
 }
 

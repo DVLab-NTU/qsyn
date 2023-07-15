@@ -71,11 +71,11 @@ static auto mygetc(istream& istr) -> char {
     return ch;
 }
 
-static auto returnCh(int ch) -> ParseChar { 
-    return ParseChar(ch); 
+static auto returnCh(int ch) -> ParseChar {
+    return ParseChar(ch);
 };
 
-}
+}  // namespace detail
 
 ParseChar
 CmdParser::getChar(istream& istr) const {

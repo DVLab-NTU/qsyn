@@ -33,7 +33,7 @@ class SubParsers;
 
 /**
  * @brief Pretty printer for the command usages and helps.
- * 
+ *
  */
 struct Formatter {
 public:
@@ -59,20 +59,6 @@ using ErrorCallbackType = std::function<void()>;                                
 using ConstraintCallbackType = std::pair<ActionCallbackType, ErrorCallbackType>;  // constraints are defined by an ActionCallbackType that
                                                                                   // returns true if the constraint is met, and an
                                                                                   // ErrorCallbackType that prints the error message if it does not.
-
-constexpr char OPTIONAL = '?';
-constexpr char ZERO_OR_MORE = '*';
-constexpr char ONE_OR_MORE = '+';
-
-struct Token {
-    Token(std::string const& tok)
-        : token{tok}, parsed{false} {}
-    std::string token;
-    bool parsed;
-};
-
-using TokensView = std::span<Token>;
-
 struct DummyArgumentType {
     friend std::ostream& operator<<(std::ostream& os, DummyArgumentType const& val) { return os << "dummy"; }
 };
@@ -89,16 +75,16 @@ std::ostream& print(std::ostream& os, T const& val) { return os << val; }
 
 template <typename T>
 requires Arithmetic<T>
-bool parseFromString(T& val, TokensView tokens) { return myStr2Number<T>(tokens[0].token, val); }
-bool parseFromString(std::string& val, TokensView tokens);
-bool parseFromString(bool& val, TokensView tokens);
-bool parseFromString(DummyArgumentType& val, TokensView tokens);
+bool parseFromString(T& val, std::string const& token) { return myStr2Number<T>(token, val); }
+bool parseFromString(std::string& val, std::string const& token);
+bool parseFromString(bool& val, std::string const& token);
+bool parseFromString(DummyArgumentType& val, std::string const& token);
 
 template <typename T>
 concept ValidArgumentType = requires(T t) {
     { typeString(t) } -> std::same_as<std::string>;
     { print(std::cout, t) } -> std::same_as<std::ostream&>;
-    { parseFromString(t, TokensView{}) } -> std::same_as<bool>;
+    { parseFromString(t, std::string{}) } -> std::same_as<bool>;
 };
 
 template <typename T>
@@ -131,10 +117,8 @@ public:
     ArgType& constraint(ConstraintType const& constraint_error);
     ArgType& constraint(ActionType const& constraint, ErrorType const& onerror = nullptr);
     ArgType& choices(std::initializer_list<T> const& choices);
-    ArgType& nargs(size_t n);
-    ArgType& nargs(char ch);
 
-    inline bool parse(TokensView tokens);
+    inline bool parse(std::string const& token);
     inline void reset();
 
     // getters
@@ -142,8 +126,8 @@ public:
     inline std::string getTypeString() const { return typeString(_value); }
     inline std::string const& getName() const { return _traits.name; }
     inline std::string const& getHelp() const { return _traits.help; }
-    inline std::optional<T> const& getDefaultValue() const { return _traits.defaultValue; }
-    inline std::optional<T> const& getConstValue() const { return _traits.constValue; }
+    inline std::optional<T> getDefaultValue() const { return _traits.defaultValue; }
+    inline std::optional<T> getConstValue() const { return _traits.constValue; }
     inline std::string const& getMetaVar() const { return _traits.metavar; }
     inline std::vector<ConstraintCallbackType> const& getConstraints() const { return _traits.constraintCallbacks; }
 
@@ -167,8 +151,7 @@ public:
 private:
     struct Traits {
         Traits()
-            : name{}, help{}, required{false}, defaultValue{std::nullopt},
-              constValue{}, actionCallback{}, metavar{}, nargs{std::nullopt} {}
+            : name{}, help{}, required{false}, defaultValue{std::nullopt}, constValue{}, actionCallback{}, metavar{} {}
         std::string name;
         std::string help;
         bool required;
@@ -177,7 +160,6 @@ private:
         ActionCallbackType actionCallback;
         std::string metavar;
         std::vector<ConstraintCallbackType> constraintCallbacks;
-        std::optional<std::variant<size_t, char>> nargs;
     };
 
     T _value;
@@ -249,7 +231,7 @@ public:
     // action
 
     void reset();
-    bool parse(TokensView tokens);
+    bool parse(std::string const& token);
 
 private:
     friend class ArgumentParser;
@@ -272,15 +254,15 @@ private:
         virtual std::ostream& do_print(std::ostream& os) const = 0;
         virtual std::ostream& do_printDefaultValue(std::ostream& os) const = 0;
 
-        virtual bool do_parse(TokensView tokens) = 0;
+        virtual bool do_parse(std::string const& token) = 0;
         virtual void do_reset() = 0;
     };
 
-    template <typename ArgT>
+    template <typename T>
     struct Model final : Concept {
-        ArgT inner;
+        T inner;
 
-        Model(ArgT val)
+        Model(T val)
             : inner(std::move(val)) {}
         ~Model() {}
 
@@ -299,7 +281,7 @@ private:
         inline std::ostream& do_print(std::ostream& os) const override { return os << inner; }
         inline std::ostream& do_printDefaultValue(std::ostream& os) const override { return (inner.getDefaultValue().has_value() ? os << inner.getDefaultValue().value() : os << "(none)"); }
 
-        inline bool do_parse(TokensView tokens) override { return inner.parse(tokens); }
+        inline bool do_parse(std::string const& token) override { return inner.parse(token); }
         inline void do_reset() override { inner.reset(); }
     };
 
@@ -396,6 +378,7 @@ public:
  */
 class ArgumentParser {
     friend class Formatter;
+
 public:
     ArgumentParser() : _pimpl{std::make_shared<ArgumentParserImpl>()} {}
     ArgumentParser(std::string const& n) : _pimpl{std::make_shared<ArgumentParserImpl>()} {
@@ -451,6 +434,13 @@ public:
     bool analyzeOptions() const;
 
 private:
+    struct Token {
+        Token(std::string const& tok)
+            : token{tok}, parsed{false} {}
+        std::string token;
+        bool parsed;
+    };
+
     struct ArgumentParserImpl {
         ArgumentParserImpl() : optionPrefix("-"), optionsAnalyzed(false) {}
         ordered_hashmap<std::string, Argument> arguments;
@@ -495,9 +485,9 @@ private:
 
     // parse subroutine
     bool tokenize(std::string const& line);
-    bool parseTokens(TokensView);
-    bool parseOptions(TokensView);
-    bool parsePositionalArguments(TokensView);
+    bool parseTokens(std::span<Token>);
+    bool parseOptions(std::span<Token>);
+    bool parsePositionalArguments(std::span<Token>);
 
     static bool constraintsSatisfied(Argument const& arg);
 
@@ -510,7 +500,7 @@ private:
 
     // parsePositionalArguments subroutine
 
-    bool allTokensAreParsed(TokensView) const;
+    bool allTokensAreParsed(std::span<Token>) const;
     bool allRequiredArgumentsAreParsed() const;
     void printRequiredArgumentsMissingErrorMsg() const;
 };
@@ -536,57 +526,6 @@ ActionCallbackType storeConst(ArgType<T>& arg) {
 ActionCallbackType storeTrue(ArgType<bool>& arg);
 ActionCallbackType storeFalse(ArgType<bool>& arg);
 
-// SECTION - ArgumentParser template functions
-
-/**
- * @brief add an argument with the name.
- *
- * @tparam T
- * @param name
- * @return ArgType<T>&
- */
-template <typename T>
-requires ValidArgumentType<T>
-ArgType<T>& ArgumentParser::addArgument(std::string const& name) {
-    auto realname = toLowerString(name);
-    if (_pimpl->arguments.contains(realname)) {
-        printDuplicateArgNameErrorMsg(name);
-    } else {
-        _pimpl->arguments.emplace(realname, Argument(T{}));
-    }
-
-    ArgType<T>& returnRef = dynamic_cast<Argument::Model<ArgType<T>>*>(_pimpl->arguments.at(realname)._pimpl.get())->inner;
-
-    if (!isOption(realname)) {
-        returnRef.required(true).metavar(realname);
-    } else {
-        returnRef.metavar(toUpperString(realname.substr(realname.find_first_not_of(_pimpl->optionPrefix))));
-    }
-
-    _pimpl->optionsAnalyzed = false;
-
-    return returnRef.name(name);
-}
-
-template <typename T>
-decltype(auto)
-ArgumentParser::operatorBracketImpl(T&& t, std::string const& name) {
-    if (std::forward<T>(t)._pimpl->subparsers.has_value() 
-    && std::forward<T>(t)._pimpl->subparsers->isParsed()) {
-        if (std::forward<T>(t).getActivatedSubParser()._pimpl->arguments.contains(toLowerString(name))) {
-            return std::forward<T>(t).getActivatedSubParser()._pimpl->arguments.at(toLowerString(name));
-        }
-    }
-    try {
-        return std::forward<T>(t)._pimpl->arguments.at(toLowerString(name));
-    } catch (std::out_of_range& e) {
-        std::cerr << "Argument name \"" << name
-                  << "\" does not exist for command \""
-                  << std::forward<T>(t)._pimpl->formatter.styledCmdName(std::forward<T>(t).getName(), std::forward<T>(t).getNumRequiredChars()) << "\"\n";
-        throw e;
-    }
-}
-
 template <typename T>
 requires ValidArgumentType<T>
 ArgType<T>& ArgumentGroup::addArgument(std::string const& name) {
@@ -597,6 +536,7 @@ ArgType<T>& ArgumentGroup::addArgument(std::string const& name) {
 
 }  // namespace ArgParse
 
+#include "apArgParser.tpp"
 #include "apArgument.tpp"
 #include "apType.tpp"
 

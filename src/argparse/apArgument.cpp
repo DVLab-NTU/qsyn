@@ -43,8 +43,8 @@ void Argument::reset() {
  * @return true if succeeded
  * @return false if failed
  */
-bool Argument::parse(TokensView tokens) {
-    if (!_pimpl->do_parse(tokens)) return false;
+bool Argument::parse(std::string const& token) {
+    if (!_pimpl->do_parse(token)) return false;
     _parsed = true;
     return true;
 }

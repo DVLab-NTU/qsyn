@@ -32,6 +32,6 @@ T const& Argument::get() const {
     throw std::bad_any_cast{};
 }
 
-}
+}  // namespace ArgParse
 
-#endif // AP_ARGUMENT_TPP
+#endif  // AP_ARGUMENT_TPP
