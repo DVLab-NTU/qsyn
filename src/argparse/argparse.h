@@ -29,6 +29,7 @@ namespace ArgParse {
 
 class Argument;
 class ArgumentParser;
+class ArgumentGroup;
 class SubParsers;
 
 /**
@@ -88,6 +89,17 @@ concept ValidArgumentType = requires(T t) {
 };
 
 template <typename T>
+concept IsContainerType = requires(T t) {
+    { t.begin() } -> std::same_as<typename T::iterator>;
+    { t.end() } -> std::same_as<typename T::iterator>;
+    { t.begin() } -> std::same_as<typename T::const_iterator>;
+    { t.end() } -> std::same_as<typename T::const_iterator>;
+    { t.size() } -> std::same_as<typename T::size_type>;
+    requires !std::same_as<T, std::string>;
+    requires !std::same_as<T, std::string_view>;
+};
+
+template <typename T>
 requires ValidArgumentType<T>
 class ArgType {
 public:
@@ -96,14 +108,12 @@ public:
     using ConstraintType = std::pair<ActionType, ErrorType>;
 
     ArgType(T const& val)
-        : _value{val}, _traits{} {}
+        : _value{val}, _name{}, _help{}, _required{false}, _defaultValue{std::nullopt}, 
+        _constValue{std::nullopt}, _actionCallback{}, _metavar{} {}
 
     friend std::ostream& operator<<(std::ostream& os, ArgType<T> const& arg) {
         return print(os, arg._value);
     }
-
-    operator T&() { return _value; }
-    operator T const&() const { return _value; }
 
     // argument decorators
 
@@ -122,48 +132,42 @@ public:
     inline void reset();
 
     // getters
-    inline T const& getValue() const { return _value; }
-    inline std::string getTypeString() const { return typeString(_value); }
-    inline std::string const& getName() const { return _traits.name; }
-    inline std::string const& getHelp() const { return _traits.help; }
-    inline std::optional<T> getDefaultValue() const { return _traits.defaultValue; }
-    inline std::optional<T> getConstValue() const { return _traits.constValue; }
-    inline std::string const& getMetaVar() const { return _traits.metavar; }
-    inline std::vector<ConstraintCallbackType> const& getConstraints() const { return _traits.constraintCallbacks; }
+    // NOTE - only giving the first argument in ArgType<T>
+    //      - might need to revisit later
+    template <typename Ret>
+    Ret get() const {
+        if constexpr (IsContainerType<Ret>) {
+            return _value;
+        } else {
+            return _value.front();
+        }
+    }
+    
+    inline T const& getValue() const { return _value.front(); }
 
     // setters
 
     void setValueToConst() {
-        if (!_traits.constValue.has_value()) {
+        if (!_constValue.has_value()) {
             std::cerr << "Error: no const value is specified for argument \""
-                      << _traits.name << "\"!! no action is taken... \n";
+                      << _name << "\"!! no action is taken... \n";
             return;
         }
-        _value = _traits.constValue.value();
+        _value.front() = _constValue.value();
     }
 
-    // attributes
-    inline bool hasDefaultValue() const { return _traits.defaultValue.has_value(); }
-    inline bool hasConstValue() const { return _traits.constValue.has_value(); }
-    inline bool hasAction() const { return _traits.actionCallback != nullptr; }
-    inline bool isRequired() const { return _traits.required; }
-
 private:
-    struct Traits {
-        Traits()
-            : name{}, help{}, required{false}, defaultValue{std::nullopt}, constValue{}, actionCallback{}, metavar{} {}
-        std::string name;
-        std::string help;
-        bool required;
-        std::optional<T> defaultValue;
-        std::optional<T> constValue;
-        ActionCallbackType actionCallback;
-        std::string metavar;
-        std::vector<ConstraintCallbackType> constraintCallbacks;
-    };
-
-    T _value;
-    Traits _traits;
+friend class Argument;
+friend class ArgumentGroup;
+    std::vector<T> _value;
+    std::string _name;
+    std::string _help;
+    bool _required;
+    std::optional<T> _defaultValue;
+    std::optional<T> _constValue;
+    ActionCallbackType _actionCallback;
+    std::string _metavar;
+    std::vector<ConstraintCallbackType> _constraintCallbacks;
 };
 
 class Argument {
@@ -195,15 +199,11 @@ public:
 
     template <typename T>
     requires ValidArgumentType<T>
-    operator T&() const { return const_cast<T&>(get<T>()); }
+    operator T() const { return get<T>(); }
 
     template <typename T>
     requires ValidArgumentType<T>
-    operator T const&() const { return get<T>(); }
-
-    template <typename T>
-    requires ValidArgumentType<T>
-    T const& get() const;
+    T get() const;
 
     std::string getTypeString() const { return _pimpl->do_getTypeString(); }
     std::string const& getName() const { return _pimpl->do_getName(); }
@@ -258,28 +258,28 @@ private:
         virtual void do_reset() = 0;
     };
 
-    template <typename T>
+    template <typename ArgT>
     struct Model final : Concept {
-        T inner;
+        ArgT inner;
 
-        Model(T val)
+        Model(ArgT val)
             : inner(std::move(val)) {}
         ~Model() {}
 
         inline std::unique_ptr<Concept> clone() const override { return std::make_unique<Model>(*this); }
 
-        inline std::string do_getTypeString() const override { return inner.getTypeString(); }
-        inline std::string const& do_getName() const override { return inner.getName(); }
-        inline std::string const& do_getHelp() const override { return inner.getHelp(); }
-        inline std::string const& do_getMetaVar() const override { return inner.getMetaVar(); }
-        inline std::vector<ConstraintCallbackType> const& do_getConstraints() const override { return inner.getConstraints(); }
+        inline std::string do_getTypeString() const override { return typeString(inner._value.front()); }
+        inline std::string const& do_getName() const override { return inner._name; }
+        inline std::string const& do_getHelp() const override { return inner._help; }
+        inline std::string const& do_getMetaVar() const override { return inner._metavar; }
+        inline std::vector<ConstraintCallbackType> const& do_getConstraints() const override { return inner._constraintCallbacks; }
 
-        inline bool do_hasDefaultValue() const override { return inner.hasDefaultValue(); }
-        inline bool do_hasAction() const override { return inner.hasAction(); }
-        inline bool do_isRequired() const override { return inner.isRequired(); };
+        inline bool do_hasDefaultValue() const override { return inner._defaultValue.has_value(); }
+        inline bool do_hasAction() const override { return inner._actionCallback != nullptr; }
+        inline bool do_isRequired() const override { return inner._required; };
 
         inline std::ostream& do_print(std::ostream& os) const override { return os << inner; }
-        inline std::ostream& do_printDefaultValue(std::ostream& os) const override { return (inner.getDefaultValue().has_value() ? os << inner.getDefaultValue().value() : os << "(none)"); }
+        inline std::ostream& do_printDefaultValue(std::ostream& os) const override { return (inner._defaultValue.has_value() ? os << inner._defaultValue.value() : os << "(none)"); }
 
         inline bool do_parse(std::string const& token) override { return inner.parse(token); }
         inline void do_reset() override { inner.reset(); }
@@ -530,7 +530,7 @@ template <typename T>
 requires ValidArgumentType<T>
 ArgType<T>& ArgumentGroup::addArgument(std::string const& name) {
     ArgType<T>& returnRef = _pimpl->_parser.addArgument<T>(name);
-    _pimpl->_arguments.insert(returnRef.getName());
+    _pimpl->_arguments.insert(returnRef._name);
     return returnRef;
 }
 

@@ -22,9 +22,9 @@ namespace ArgParse {
  */
 template <typename T>
 requires ValidArgumentType<T>
-T const& Argument::get() const {
+T Argument::get() const {
     if (auto ptr = dynamic_cast<Model<ArgType<T>>*>(_pimpl.get())) {
-        return ptr->inner;
+        return ptr->inner.template get<T>();
     }
 
     std::cerr << "[ArgParse] Error: cannot cast argument \""

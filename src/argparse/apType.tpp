@@ -22,7 +22,7 @@ namespace ArgParse {
  */
 template <typename T>
 ArgType<T>& ArgType<T>::name(std::string const& name) {
-    _traits.name = name;
+    _name = name;
     return *this;
 }
 
@@ -35,7 +35,7 @@ ArgType<T>& ArgType<T>::name(std::string const& name) {
  */
 template <typename T>
 ArgType<T>& ArgType<T>::help(std::string const& help) {
-    _traits.help = help;
+    _help = help;
     return *this;
 }
 
@@ -48,7 +48,7 @@ ArgType<T>& ArgType<T>::help(std::string const& help) {
  */
 template <typename T>
 ArgType<T>& ArgType<T>::required(bool isReq) {
-    _traits.required = isReq;
+    _required = isReq;
     return *this;
 }
 
@@ -61,7 +61,7 @@ ArgType<T>& ArgType<T>::required(bool isReq) {
  */
 template <typename T>
 ArgType<T>& ArgType<T>::defaultValue(T const& val) {
-    _traits.defaultValue = val;
+    _defaultValue = val;
     return *this;
 }
 
@@ -76,7 +76,7 @@ ArgType<T>& ArgType<T>::defaultValue(T const& val) {
  */
 template <typename T>
 ArgType<T>& ArgType<T>::action(ArgType<T>::ActionType const& action) {
-    _traits.actionCallback = action(*this);
+    _actionCallback = action(*this);
     return *this;
 }
 
@@ -90,7 +90,7 @@ ArgType<T>& ArgType<T>::action(ArgType<T>::ActionType const& action) {
  */
 template <typename T>
 ArgType<T>& ArgType<T>::constValue(T const& val) {
-    _traits.constValue = val;
+    _constValue = val;
     return *this;
 }
 
@@ -104,7 +104,7 @@ ArgType<T>& ArgType<T>::constValue(T const& val) {
  */
 template <typename T>
 ArgType<T>& ArgType<T>::metavar(std::string const& metavar) {
-    _traits.metavar = metavar;
+    _metavar = metavar;
     return *this;
 }
 
@@ -132,13 +132,13 @@ ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConstraintType const& constraint_
 template <typename T>
 ArgType<T>& ArgType<T>::constraint(ArgType<T>::ActionType const& constraint, ArgType<T>::ErrorType const& onerror) {
     if (constraint == nullptr) {
-        std::cerr << "[ArgParse] Failed to add constraint to argument \"" << getName()
+        std::cerr << "[ArgParse] Failed to add constraint to argument \"" << _name
                   << "\": constraint generator cannot be nullptr!!" << std::endl;
         return *this;
     }
     ActionCallbackType constraintCallback = constraint(*this);
     if (constraintCallback == nullptr) {
-        std::cerr << "[ArgParse] Failed to add constraint to argument \"" << getName()
+        std::cerr << "[ArgParse] Failed to add constraint to argument \"" << _name
                   << "\": constraint generator does not produce valid callback!!" << std::endl;
         return *this;
     }
@@ -146,19 +146,19 @@ ArgType<T>& ArgType<T>::constraint(ArgType<T>::ActionType const& constraint, Arg
     if (onerror == nullptr) {
         onerrorCallback = [this]() {
             std::cerr << "Error: invalid value \"" << getValue() << "\" for argument \""
-                      << getName() << "\": fail to satisfy constraint(s)!!" << std::endl;
+                      << _name << "\": fail to satisfy constraint(s)!!" << std::endl;
         };
     } else {
         onerrorCallback = onerror(*this);
     }
 
     if (onerrorCallback == nullptr) {
-        std::cerr << "[ArgParse] Failed to add constraint to argument \"" << getName()
+        std::cerr << "[ArgParse] Failed to add constraint to argument \"" << _name
                   << "\": error callback generator does not produce valid callback!!" << std::endl;
         return *this;
     }
 
-    _traits.constraintCallbacks.emplace_back(constraintCallback, onerrorCallback);
+    _constraintCallbacks.emplace_back(constraintCallback, onerrorCallback);
     return *this;
 }
 
@@ -168,13 +168,15 @@ ArgType<T>& ArgType<T>::choices(std::initializer_list<T> const& choices) {
     auto constraint = [&vec](ArgType<T> const& arg) -> ActionCallbackType {
         return [&arg, vec]() {
             return any_of(vec.begin(), vec.end(), [&arg](T const& choice) -> bool {
+                // NOTE - only comparing the first argument in ArgType<T>
+                //      - might need to revisit later
                 return arg.getValue() == choice;
             });
         };
     };
     auto error = [&vec](ArgType<T> const& arg) -> ErrorCallbackType {  // REVIEW - iostream in header... is there any way to resolve this?
         return [&arg, vec]() {
-            std::cerr << "Error: invalid choice for argument \"" << arg.getName() << "\": "
+            std::cerr << "Error: invalid choice for argument \"" << arg._name << "\": "
                       << "please choose from {";
             size_t ctr = 0;
             for (auto& choice : vec) {
@@ -189,46 +191,14 @@ ArgType<T>& ArgType<T>::choices(std::initializer_list<T> const& choices) {
     return this->constraint(constraint, error);
 }
 
-// /**
-//  * @brief set the number of arguments.
-//  *
-//  * @tparam T
-//  * @param n the required number
-//  * @return ArgType<T>&
-//  */
-// template <typename T>
-// ArgType<T>& ArgType<T>::nargs(size_t n) {
-//     _traits.nargs = n;
-//     return *this;
-// }
-
-// /**
-//  * @brief set the number of arguments.
-//  *
-//  * @tparam T
-//  * @param ch
-//  * @return ArgType<T>&
-//  */
-// template <typename T>
-// ArgType<T>& ArgType<T>::nargs(char ch) {
-//     if (ch == OPTIONAL || ch == ZERO_OR_MORE || ch == ONE_OR_MORE) {
-//         _traits.nargs = ch;
-//     } else {
-//         std::cerr << "[ArgParse] Failed to specified nargs to argument \"" << getName()
-//                   << "\": error callback generator does not produce valid callback!!" << std::endl;
-//         return *this;
-//     }
-
-//     return *this;
-// }
-
 /**
  * @brief If the argument has a default value, reset to it.
  *
  */
 template <typename T>
 void ArgType<T>::reset() {
-    if (hasDefaultValue()) _value = _traits.defaultValue.value();
+    _value.clear();
+    if (_defaultValue.has_value()) _value.push_back(_defaultValue.value());
 }
 
 /**
@@ -241,8 +211,11 @@ void ArgType<T>::reset() {
  */
 template <typename T>
 bool ArgType<T>::parse(std::string const& token) {
-    if (hasAction()) return _traits.actionCallback();
-    return parseFromString(_value, token);
+    if (_actionCallback != nullptr) return _actionCallback();
+    T tmp;
+    bool result = parseFromString(tmp, token);
+    if (result) _value.push_back(tmp);
+    return result;
 }
 }  // namespace ArgParse
 
