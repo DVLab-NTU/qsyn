@@ -8,6 +8,8 @@
 #ifndef AP_TYPE_H
 #define AP_TYPE_H
 
+#include <climits>
+
 #include "argparse.h"
 
 namespace ArgParse {
@@ -191,6 +193,33 @@ ArgType<T>& ArgType<T>::choices(std::initializer_list<T> const& choices) {
     return this->constraint(constraint, error);
 }
 
+template <typename T>
+ArgType<T>& ArgType<T>::nargs(size_t n) {
+    return nargs(n, n);
+}
+
+template <typename T>
+ArgType<T>& ArgType<T>::nargs(size_t l, size_t u) {
+    _nargs = {l, u};
+    return *this;
+}
+
+template <typename T>
+ArgType<T>& ArgType<T>::nargs(char ch) {
+    switch (ch) {
+        case '?':
+            return nargs(0, 1);
+        case '+':
+            return nargs(1, SIZE_MAX);
+        case '*':
+            return nargs(0, SIZE_MAX);
+        default:
+            std::cerr << "[ArgParse Error] Unrecognized nargs specifier '"
+                      << ch << "'!!" << std::endl;
+    }
+    return *this;
+}
+
 /**
  * @brief If the argument has a default value, reset to it.
  *
@@ -214,8 +243,29 @@ bool ArgType<T>::parse(std::string const& token) {
     if (_actionCallback != nullptr) return _actionCallback();
     T tmp;
     bool result = parseFromString(tmp, token);
-    if (result) _value.push_back(tmp);
+    if (result) {
+        if (_append || !_defaultValue.has_value())
+            _value.push_back(tmp);
+        else
+            _value.back() = tmp;
+    }
     return result;
+}
+
+/**
+ * @brief Set _value to _constValue if _constValue is not std::nullopt;
+ *        emits an error message and return otherwise.
+ *
+ * @tparam T
+ */
+template <typename T>
+void ArgType<T>::setValueToConst() {
+    if (!_constValue.has_value()) {
+        std::cerr << "Error: no const value is specified for argument \""
+                  << _name << "\"!! no action is taken... \n";
+        return;
+    }
+    _value.front() = _constValue.value();
 }
 }  // namespace ArgParse
 

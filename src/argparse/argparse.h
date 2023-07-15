@@ -108,10 +108,12 @@ public:
     using ConstraintType = std::pair<ActionType, ErrorType>;
 
     ArgType(T const& val)
-        : _value{val}, _name{}, _help{}, _required{false}, _defaultValue{std::nullopt}, 
-        _constValue{std::nullopt}, _actionCallback{}, _metavar{} {}
+        : _value{val}, _name{}, _help{}, _defaultValue{std::nullopt},
+          _constValue{std::nullopt}, _actionCallback{}, _metavar{},
+          _nargs{1, 1}, _required{false}, _append{false} {}
 
     friend std::ostream& operator<<(std::ostream& os, ArgType<T> const& arg) {
+        if (arg._nargs.upper <= 1) return print(os, arg._value.front());
         return print(os, arg._value);
     }
 
@@ -127,6 +129,9 @@ public:
     ArgType& constraint(ConstraintType const& constraint_error);
     ArgType& constraint(ActionType const& constraint, ErrorType const& onerror = nullptr);
     ArgType& choices(std::initializer_list<T> const& choices);
+    ArgType& nargs(size_t n);
+    ArgType& nargs(size_t l, size_t u);
+    ArgType& nargs(char ch);
 
     inline bool parse(std::string const& token);
     inline void reset();
@@ -142,32 +147,29 @@ public:
             return _value.front();
         }
     }
-    
+
     inline T const& getValue() const { return _value.front(); }
 
-    // setters
-
-    void setValueToConst() {
-        if (!_constValue.has_value()) {
-            std::cerr << "Error: no const value is specified for argument \""
-                      << _name << "\"!! no action is taken... \n";
-            return;
-        }
-        _value.front() = _constValue.value();
-    }
+    void setValueToConst();
 
 private:
-friend class Argument;
-friend class ArgumentGroup;
+    friend class Argument;
+    friend class ArgumentGroup;
     std::vector<T> _value;
     std::string _name;
     std::string _help;
-    bool _required;
     std::optional<T> _defaultValue;
     std::optional<T> _constValue;
     ActionCallbackType _actionCallback;
     std::string _metavar;
     std::vector<ConstraintCallbackType> _constraintCallbacks;
+    struct {
+        size_t lower;
+        size_t upper;
+    } _nargs;
+
+    bool _required : 1;
+    bool _append : 1;
 };
 
 class Argument {

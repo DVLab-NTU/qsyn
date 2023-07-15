@@ -44,17 +44,6 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
         parser.addArgument<string>("dog")
             .help("humans' best friend");
 
-        // auto mutex1 = parser.addMutuallyExclusiveGroup().required(true);
-
-        // mutex1.addArgument<int>("-bacon")
-        //     .help("yummy");
-
-        // mutex1.addArgument<int>("-badge")
-        //     .help("a sign of honour");
-
-        // mutex1.addArgument<int>("-bus")
-        //     .help("public transport");
-
         auto subparsers = parser.addSubParsers()
                               .required(true)
                               .help("bird");
