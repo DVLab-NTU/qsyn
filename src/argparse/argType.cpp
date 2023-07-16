@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ apArgType.cpp ]
+  FileName     [ argType.cpp ]
   PackageName  [ argparser ]
   Synopsis     [ Define parser argument types ]
   Author       [ Design Verification Lab ]

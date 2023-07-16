@@ -5,8 +5,8 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef AP_ARG_PARSER_H
-#define AP_ARG_PARSER_H
+#ifndef ARGPARSE_ARGPARSER_TPP
+#define ARGPARSE_ARGPARSER_TPP
 
 #include "argparse.h"
 

@@ -1,7 +1,7 @@
 /****************************************************************************
-  FileName     [ apCmd.cpp ]
+  FileName     [ argCmd.cpp ]
   PackageName  [ argparser ]
-  Synopsis     [ Define classes for argparser commands ]
+  Synopsis     [ Define classes for argparse commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

@@ -5,8 +5,8 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef AP_ARGPARSE_ARGPARSER_H
-#define AP_ARGPARSE_ARGPARSER_H
+#ifndef ARGPARSE_ARGPARSE_H
+#define ARGPARSE_ARGPARSE_H
 
 #include <any>
 #include <cassert>
@@ -72,9 +72,6 @@ std::string typeString(bool);
 std::string typeString(DummyArgumentType);
 
 template <typename T>
-std::ostream& print(std::ostream& os, T const& val) { return os << val; }
-
-template <typename T>
 requires Arithmetic<T>
 bool parseFromString(T& val, std::string const& token) { return myStr2Number<T>(token, val); }
 bool parseFromString(std::string& val, std::string const& token);
@@ -84,7 +81,6 @@ bool parseFromString(DummyArgumentType& val, std::string const& token);
 template <typename T>
 concept ValidArgumentType = requires(T t) {
     { typeString(t) } -> std::same_as<std::string>;
-    { print(std::cout, t) } -> std::same_as<std::ostream&>;
     { parseFromString(t, std::string{}) } -> std::same_as<bool>;
 };
 
@@ -112,9 +108,29 @@ public:
           _constValue{std::nullopt}, _actionCallback{}, _metavar{},
           _nargs{1, 1}, _required{false}, _append{false} {}
 
-    friend std::ostream& operator<<(std::ostream& os, ArgType<T> const& arg) {
-        if (arg._nargs.upper <= 1) return print(os, arg._value.front());
-        return print(os, arg._value);
+    friend std::ostream& operator<<(std::ostream& os, ArgType const& arg) {
+        if (arg._value.empty()) return os << "(None)";
+
+        if constexpr (Printable<T>) {
+            if (arg._nargs.upper <= 1)
+                os << arg._value.front();
+            else {
+                size_t i = 0;
+                os << '[';
+                for (auto&& val : arg._value) {
+                    if (i > 0) os << ", ";
+                    os << val;
+                    ++i;
+                }
+                os << ']';
+            }
+        } else {
+            if (arg._nargs.upper <= 1)
+                return os << "(not representable)";
+            else
+                os << "[(not representable)]";
+        }
+        return os;
     }
 
     // argument decorators
@@ -211,7 +227,7 @@ public:
     std::string const& getName() const { return _pimpl->do_getName(); }
     std::string const& getHelp() const { return _pimpl->do_getHelp(); }
     size_t getNumRequiredChars() const { return _numRequiredChars; }
-    std::string const& getMetavar() const { return _pimpl->do_getMetaVar(); }
+    std::string const& getMetavar() const { return _pimpl->do_getMetavar(); }
     std::vector<ConstraintCallbackType> const& getConstraints() const { return _pimpl->do_getConstraints(); }
 
     // attributes
@@ -246,7 +262,7 @@ private:
         virtual std::string do_getTypeString() const = 0;
         virtual std::string const& do_getName() const = 0;
         virtual std::string const& do_getHelp() const = 0;
-        virtual std::string const& do_getMetaVar() const = 0;
+        virtual std::string const& do_getMetavar() const = 0;
         virtual std::vector<ConstraintCallbackType> const& do_getConstraints() const = 0;
 
         virtual bool do_hasDefaultValue() const = 0;
@@ -273,7 +289,7 @@ private:
         inline std::string do_getTypeString() const override { return typeString(inner._value.front()); }
         inline std::string const& do_getName() const override { return inner._name; }
         inline std::string const& do_getHelp() const override { return inner._help; }
-        inline std::string const& do_getMetaVar() const override { return inner._metavar; }
+        inline std::string const& do_getMetavar() const override { return inner._metavar; }
         inline std::vector<ConstraintCallbackType> const& do_getConstraints() const override { return inner._constraintCallbacks; }
 
         inline bool do_hasDefaultValue() const override { return inner._defaultValue.has_value(); }
@@ -538,8 +554,8 @@ ArgType<T>& ArgumentGroup::addArgument(std::string const& name) {
 
 }  // namespace ArgParse
 
-#include "apArgParser.tpp"
-#include "apArgument.tpp"
-#include "apType.tpp"
+#include "argParser.tpp"
+#include "argType.tpp"
+#include "argument.tpp"
 
-#endif  // AP_ARGPARSE_ARGPARSER_H
+#endif  // ARGPARSE_ARGPARSE_H

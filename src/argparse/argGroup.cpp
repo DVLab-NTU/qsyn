@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ apArgGroup.cpp ]
+  FileName     [ argGroup.cpp ]
   PackageName  [ argparser ]
   Synopsis     [ Definitions for argument groups of ArgumentParser ]
   Author       [ Design Verification Lab ]

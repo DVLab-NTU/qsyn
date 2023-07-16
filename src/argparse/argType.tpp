@@ -1,19 +1,44 @@
 /****************************************************************************
-  FileName     [ apArgument.h ]
+  FileName     [ argType.h ]
   PackageName  [ argparser ]
   Synopsis     [ Define ArgParse::ArgType template implementation ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef AP_TYPE_H
-#define AP_TYPE_H
+#ifndef ARGPARSE_ARGTYPE_TPP
+#define ARGPARSE_ARGTYPE_TPP
 
 #include <climits>
 
 #include "argparse.h"
 
 namespace ArgParse {
-// SECTION - ArgType<T> template functions
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, ArgType<T> const& arg) {
+    if (arg._value.empty()) return os << "(None)";
+
+    if constexpr (Printable<T>) {
+        if (arg._nargs.upper <= 1)
+            os << arg._value.front();
+        else {
+            size_t i = 0;
+            os << '[';
+            for (auto&& val : arg._value) {
+                if (i > 0) os << ", ";
+                os << val;
+                ++i;
+            }
+            os << ']';
+        }
+    } else {
+        if (arg._nargs.upper <= 1)
+            return os << "(not representable)";
+        else
+            os << "[(not representable)]";
+    }
+    return os;
+}
 
 /**
  * @brief set the name of the argument

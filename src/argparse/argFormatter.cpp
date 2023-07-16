@@ -1,7 +1,7 @@
 /****************************************************************************
-  FileName     [ apArgParser.cpp ]
+  FileName     [ argFormatter.cpp ]
   PackageName  [ argparser ]
-  Synopsis     [ Define argument parser print functions ]
+  Synopsis     [ Define argument parser formatter functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
