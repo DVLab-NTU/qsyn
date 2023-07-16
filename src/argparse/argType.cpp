@@ -37,7 +37,7 @@ std::string typeString(long double) { return "long double"; }
 
 std::string typeString(std::string const& val) { return "string"; }
 std::string typeString(bool) { return "bool"; }
-std::string typeString(DummyArgumentType) { return "dummy"; }
+std::string typeString(DummyArgType) { return "dummy"; }
 
 bool parseFromString(bool& val, std::string const& token) {
     if (myStrNCmp("true", token, 1) == 0) {
@@ -55,7 +55,7 @@ bool parseFromString(std::string& val, std::string const& token) {
     return true;
 }
 
-bool parseFromString(DummyArgumentType& val, std::string const& token) {
+bool parseFromString(DummyArgType& val, std::string const& token) {
     return true;
 }
 
@@ -68,12 +68,8 @@ bool parseFromString(DummyArgumentType& val, std::string const& token) {
  */
 ActionCallbackType storeTrue(ArgType<bool>& arg) {
     arg.defaultValue(false);
-
-    return [&arg]() -> bool {
-        arg.setValue(true);
-
-        return true;
-    };
+    arg.nargs(0ul);
+    return [&arg](std::string const&) { arg.appendValue(true); return true; };
 }
 
 /**
@@ -85,10 +81,8 @@ ActionCallbackType storeTrue(ArgType<bool>& arg) {
  */
 ActionCallbackType storeFalse(ArgType<bool>& arg) {
     arg.defaultValue(true);
-    return [&arg]() -> bool {
-        arg.setValue(false);
-        return true;
-    };
+    arg.nargs(0ul);
+    return [&arg](std::string const&) { arg.appendValue(false); return true; };
 }
 
 }  // namespace ArgParse

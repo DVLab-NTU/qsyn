@@ -39,7 +39,7 @@ CmdExecStatus ArgParseCmdType::exec(std::stop_token st, const std::string& optio
     if (precondition && !precondition()) {
         return CMD_EXEC_ERROR;
     }
-    if (!_parser.parse(option)) {
+    if (!_parser.parseArgs(option)) {
         return CMD_EXEC_ERROR;
     }
     return onParseSuccess(st, _parser);

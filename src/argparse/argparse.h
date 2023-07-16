@@ -55,13 +55,14 @@ public:
     static void printHelpString(ArgumentParser parser, SubParsers parsers);
 };
 
-using ActionCallbackType = std::function<bool()>;                                 // perform an action and return if it succeeds
-using ErrorCallbackType = std::function<void()>;                                  // function to call when some action fails
-using ConstraintCallbackType = std::pair<ActionCallbackType, ErrorCallbackType>;  // constraints are defined by an ActionCallbackType that
-                                                                                  // returns true if the constraint is met, and an
-                                                                                  // ErrorCallbackType that prints the error message if it does not.
-struct DummyArgumentType {
-    friend std::ostream& operator<<(std::ostream& os, DummyArgumentType const& val) { return os << "dummy"; }
+using ActionCallbackType = std::function<bool(std::string const&)>;  // perform an action and return if it succeeds
+using ConditionCallbackType = std::function<bool()>;
+using ErrorCallbackType = std::function<void()>;                                     // function to call when some action fails
+using ConstraintCallbackType = std::pair<ConditionCallbackType, ErrorCallbackType>;  // constraints are defined by an ActionCallbackType that
+                                                                                     // returns true if the constraint is met, and an
+                                                                                     // ErrorCallbackType that prints the error message if it does not.
+struct DummyArgType {
+    friend std::ostream& operator<<(std::ostream& os, DummyArgType const& val) { return os << "dummy"; }
 };
 
 template <typename T>
@@ -69,14 +70,14 @@ requires Arithmetic<T>
 std::string typeString(T);  // explicitly instantiated in apType.cpp
 std::string typeString(std::string const&);
 std::string typeString(bool);
-std::string typeString(DummyArgumentType);
+std::string typeString(DummyArgType);
 
 template <typename T>
 requires Arithmetic<T>
 bool parseFromString(T& val, std::string const& token) { return myStr2Number<T>(token, val); }
 bool parseFromString(std::string& val, std::string const& token);
 bool parseFromString(bool& val, std::string const& token);
-bool parseFromString(DummyArgumentType& val, std::string const& token);
+bool parseFromString(DummyArgType& val, std::string const& token);
 
 template <typename T>
 concept ValidArgumentType = requires(T t) {
@@ -95,45 +96,53 @@ concept IsContainerType = requires(T t) {
     requires !std::same_as<T, std::string_view>;
 };
 
+// SECTION - On-parse actions for ArgType<T>
+
+template <typename T>
+requires ValidArgumentType<T>
+class ArgType;
+
+template <typename T>
+requires ValidArgumentType<T>
+ActionCallbackType store(ArgType<T>& arg);
+
+template <typename T>
+requires ValidArgumentType<T>
+ArgType<T>::ActionType storeConst(T const& constValue);
+ActionCallbackType storeTrue(ArgType<bool>& arg);
+ActionCallbackType storeFalse(ArgType<bool>& arg);
+
+struct NArgsRange {
+    size_t lower;
+    size_t upper;
+};
+
+enum class NArgsOption {
+    OPTIONAL,
+    ONE_OR_MORE,
+    ZERO_OR_MORE
+};
+
 template <typename T>
 requires ValidArgumentType<T>
 class ArgType {
 public:
     using ActionType = std::function<ActionCallbackType(ArgType<T>&)>;
+    using ConditionType = std::function<ConditionCallbackType(ArgType<T> const&)>;
     using ErrorType = std::function<ErrorCallbackType(ArgType<T> const&)>;
-    using ConstraintType = std::pair<ActionType, ErrorType>;
+    using ConstraintType = std::pair<ConditionType, ErrorType>;
 
-    ArgType(T const& val)
-        : _value{val}, _name{}, _help{}, _defaultValue{std::nullopt},
+    ArgType(T val)
+        : _value{std::move(val)}, _name{}, _help{}, _defaultValue{std::nullopt},
           _actionCallback{}, _metavar{}, _nargs{1, 1},
           _required{false}, _append{false} {}
 
-    friend std::ostream& operator<<(std::ostream& os, ArgType const& arg) {
-        if (arg._value.empty()) return os << "(None)";
-
-        if constexpr (Printable<T>) {
-            if (arg._nargs.upper <= 1)
-                os << arg._value.front();
-            else {
-                size_t i = 0;
-                os << '[';
-                for (auto&& val : arg._value) {
-                    if (i > 0) os << ", ";
-                    os << val;
-                    ++i;
-                }
-                os << ']';
-            }
-        } else {
-            if (arg._nargs.upper <= 1)
-                return os << "(not representable)";
-            else
-                os << "[(not representable)]";
-        }
-        return os;
-    }
+    // defined in argType.tpp
+    template <typename U>
+    friend std::ostream& operator<<(std::ostream& os, ArgType<U> const& arg);
 
     // argument decorators
+    // defined in argType.tpp
 
     ArgType& name(std::string const& name);
     ArgType& help(std::string const& help);
@@ -142,13 +151,13 @@ public:
     ArgType& action(ActionType const& action);
     ArgType& metavar(std::string const& metavar);
     ArgType& constraint(ConstraintType const& constraint_error);
-    ArgType& constraint(ActionType const& constraint, ErrorType const& onerror = nullptr);
+    ArgType& constraint(ConditionType const& constraint, ErrorType const& onerror = nullptr);
     ArgType& choices(std::initializer_list<T> const& choices);
     ArgType& nargs(size_t n);
     ArgType& nargs(size_t l, size_t u);
-    ArgType& nargs(char ch);
+    ArgType& nargs(NArgsOption opt);
 
-    inline bool parse(std::string const& token);
+    inline bool takeAction(std::string const& token);
     inline void reset();
 
     // getters
@@ -165,7 +174,14 @@ public:
 
     inline T const& getValue() const { return _value.front(); }
 
-    void setValue(T const& val);
+    void appendValue(T const& val) { _value.push_back(val); }
+
+    void setValueToDefault() {
+        if (_defaultValue.has_value()) {
+            _value.clear();
+            _value.emplace_back(_defaultValue.value());
+        }
+    }
 
 private:
     friend class Argument;
@@ -177,10 +193,7 @@ private:
     ActionCallbackType _actionCallback;
     std::string _metavar;
     std::vector<ConstraintCallbackType> _constraintCallbacks;
-    struct {
-        size_t lower;
-        size_t upper;
-    } _nargs;
+    NArgsRange _nargs;
 
     bool _required : 1;
     bool _append : 1;
@@ -189,10 +202,10 @@ private:
 class Argument {
 public:
     Argument()
-        : _pimpl{std::make_unique<Model<ArgType<DummyArgumentType>>>(DummyArgumentType{})} {}
+        : _pimpl{std::make_unique<Model<ArgType<DummyArgType>>>(DummyArgType{})} {}
 
     template <typename T>
-    Argument(T const& val)
+    Argument(T val)
         : _pimpl{std::make_unique<Model<ArgType<T>>>(std::move(val))}, _parsed{false}, _numRequiredChars{1} {}
 
     ~Argument() = default;
@@ -206,8 +219,16 @@ public:
     }
     Argument(Argument&& other) noexcept = default;
 
-    void swap(Argument& rhs) noexcept;
-    friend void swap(Argument& lhs, Argument& rhs) noexcept;
+    void swap(Argument& rhs) noexcept {
+        using std::swap;
+        swap(_pimpl, rhs._pimpl);
+        swap(_parsed, rhs._parsed);
+        swap(_numRequiredChars, rhs._numRequiredChars);
+    }
+
+    friend void swap(Argument& lhs, Argument& rhs) noexcept {
+        lhs.swap(rhs);
+    }
 
     friend std::ostream& operator<<(std::ostream& os, Argument const& arg) {
         return arg._pimpl->do_print(os);
@@ -227,17 +248,18 @@ public:
     size_t getNumRequiredChars() const { return _numRequiredChars; }
     std::string const& getMetavar() const { return _pimpl->do_getMetavar(); }
     std::vector<ConstraintCallbackType> const& getConstraints() const { return _pimpl->do_getConstraints(); }
-
+    NArgsRange const& getNArgsRange() const { return _pimpl->do_getNArgsRange(); }
     // attributes
 
     bool hasDefaultValue() const { return _pimpl->do_hasDefaultValue(); }
-    bool hasAction() const { return _pimpl->do_hasAction(); }
     bool isRequired() const { return _pimpl->do_isRequired(); }
     bool isParsed() const { return _parsed; }
+    bool takesArgument() const { return getNArgsRange().upper > 0; }
 
     // setters
 
     void setNumRequiredChars(size_t n) { _numRequiredChars = n; }
+    void setValueToDefault() { _pimpl->do_setValueToDefault(); }
 
     // print functions
 
@@ -247,10 +269,13 @@ public:
     // action
 
     void reset();
-    bool parse(std::string const& token);
+    bool takeAction(std::string const& token) { return _pimpl->do_takeAction(token); }
+    void markAsParsed() { _parsed = true; }
 
 private:
-    friend class ArgumentParser;
+    friend class ArgumentParser;  // shares Argument::Model<T> and _pimpl
+                                  // to ArgumentParser, enabling it to access
+                                  // the underlying ArgType<T>
 
     struct Concept {
         virtual ~Concept() {}
@@ -262,15 +287,16 @@ private:
         virtual std::string const& do_getHelp() const = 0;
         virtual std::string const& do_getMetavar() const = 0;
         virtual std::vector<ConstraintCallbackType> const& do_getConstraints() const = 0;
+        virtual NArgsRange const& do_getNArgsRange() const = 0;
 
         virtual bool do_hasDefaultValue() const = 0;
-        virtual bool do_hasAction() const = 0;
         virtual bool do_isRequired() const = 0;
 
         virtual std::ostream& do_print(std::ostream& os) const = 0;
         virtual std::ostream& do_printDefaultValue(std::ostream& os) const = 0;
 
-        virtual bool do_parse(std::string const& token) = 0;
+        virtual bool do_takeAction(std::string const& token) = 0;
+        virtual void do_setValueToDefault() = 0;
         virtual void do_reset() = 0;
     };
 
@@ -289,15 +315,16 @@ private:
         inline std::string const& do_getHelp() const override { return inner._help; }
         inline std::string const& do_getMetavar() const override { return inner._metavar; }
         inline std::vector<ConstraintCallbackType> const& do_getConstraints() const override { return inner._constraintCallbacks; }
+        inline NArgsRange const& do_getNArgsRange() const override { return inner._nargs; }
 
         inline bool do_hasDefaultValue() const override { return inner._defaultValue.has_value(); }
-        inline bool do_hasAction() const override { return inner._actionCallback != nullptr; }
         inline bool do_isRequired() const override { return inner._required; };
 
         inline std::ostream& do_print(std::ostream& os) const override { return os << inner; }
         inline std::ostream& do_printDefaultValue(std::ostream& os) const override { return (inner._defaultValue.has_value() ? os << inner._defaultValue.value() : os << "(none)"); }
 
-        inline bool do_parse(std::string const& token) override { return inner.parse(token); }
+        inline bool do_takeAction(std::string const& token) override { return inner.takeAction(token); }
+        inline void do_setValueToDefault() override { return inner.setValueToDefault(); }
         inline void do_reset() override { inner.reset(); }
     };
 
@@ -446,7 +473,7 @@ public:
     ArgumentGroup addMutuallyExclusiveGroup();
     SubParsers addSubParsers();
 
-    bool parse(std::string const& line);
+    bool parseArgs(std::string const& line);
     bool analyzeOptions() const;
 
 private:
@@ -504,6 +531,7 @@ private:
     bool parseTokens(std::span<Token>);
     bool parseOptions(std::span<Token>);
     bool parsePositionalArguments(std::span<Token>);
+    bool fillUnparsedArgumentsWithDefaults();
 
     static bool constraintsSatisfied(Argument const& arg);
 
@@ -520,14 +548,6 @@ private:
     bool allRequiredArgumentsAreParsed() const;
     void printRequiredArgumentsMissingErrorMsg() const;
 };
-
-// SECTION - On-parse actions for ArgType<T>
-
-template <typename T>
-requires ValidArgumentType<T>
-ArgType<T>::ActionType storeConst(T const& constValue);
-ActionCallbackType storeTrue(ArgType<bool>& arg);
-ActionCallbackType storeFalse(ArgType<bool>& arg);
 
 }  // namespace ArgParse
 

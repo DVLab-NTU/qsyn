@@ -14,11 +14,19 @@
 
 namespace ArgParse {
 
-template <typename T>
-std::ostream& operator<<(std::ostream& os, ArgType<T> const& arg) {
+/**
+ * @brief print the value of the argument if it is printable; otherwise, shows "(not representable)"
+ *
+ * @tparam T
+ * @param os
+ * @param arg
+ * @return std::ostream&
+ */
+template <typename U>
+std::ostream& operator<<(std::ostream& os, ArgType<U> const& arg) {
     if (arg._value.empty()) return os << "(None)";
 
-    if constexpr (Printable<T>) {
+    if constexpr (Printable<U>) {
         if (arg._nargs.upper <= 1)
             os << arg._value.front();
         else {
@@ -139,46 +147,47 @@ ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConstraintType const& constraint_
  * @brief Add constraint to the argument.
  *
  * @tparam T
- * @param constraintGen takes a `ArgType<T> const&` and returns a ActionCallbackType
- * @param onerrorGen takes a `ArgType<T> const&` and returns a ErrorCallbackType
+ * @param constraint takes a `ArgType<T> const&` and returns a ActionCallbackType
+ * @param onerror takes a `ArgType<T> const&` and returns a ErrorCallbackType
  */
 template <typename T>
-ArgType<T>& ArgType<T>::constraint(ArgType<T>::ActionType const& constraint, ArgType<T>::ErrorType const& onerror) {
+ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConditionType const& constraint, ArgType<T>::ErrorType const& onerror) {
     if (constraint == nullptr) {
         std::cerr << "[ArgParse] Failed to add constraint to argument \"" << _name
                   << "\": constraint generator cannot be nullptr!!" << std::endl;
         return *this;
     }
-    ActionCallbackType constraintCallback = constraint(*this);
-    if (constraintCallback == nullptr) {
+    auto const conditionCallback = constraint(*this);
+    auto const onerrorCallback = std::invoke([&onerror, this]() -> ErrorCallbackType {
+        if (onerror == nullptr) {
+            return [this]() -> void {
+                std::cerr << "Error: invalid value \"" << getValue() << "\" for argument \""
+                          << _name << "\": fail to satisfy constraint(s)!!" << std::endl;
+            };
+        } else {
+            return onerror(*this);
+        }
+    });
+
+    if (conditionCallback == nullptr) {
         std::cerr << "[ArgParse] Failed to add constraint to argument \"" << _name
                   << "\": constraint generator does not produce valid callback!!" << std::endl;
         return *this;
     }
-    ErrorCallbackType onerrorCallback;
-    if (onerror == nullptr) {
-        onerrorCallback = [this]() {
-            std::cerr << "Error: invalid value \"" << getValue() << "\" for argument \""
-                      << _name << "\": fail to satisfy constraint(s)!!" << std::endl;
-        };
-    } else {
-        onerrorCallback = onerror(*this);
-    }
-
     if (onerrorCallback == nullptr) {
         std::cerr << "[ArgParse] Failed to add constraint to argument \"" << _name
                   << "\": error callback generator does not produce valid callback!!" << std::endl;
         return *this;
     }
 
-    _constraintCallbacks.emplace_back(constraintCallback, onerrorCallback);
+    _constraintCallbacks.emplace_back(conditionCallback, onerrorCallback);
     return *this;
 }
 
 template <typename T>
 ArgType<T>& ArgType<T>::choices(std::initializer_list<T> const& choices) {
     std::vector<T> vec{choices};
-    auto constraint = [&vec](ArgType<T> const& arg) -> ActionCallbackType {
+    auto constraint = [&vec](ArgType<T> const& arg) -> ConditionCallbackType {
         return [&arg, vec]() {
             return any_of(vec.begin(), vec.end(), [&arg](T const& choice) -> bool {
                 // NOTE - only comparing the first argument in ArgType<T>
@@ -216,17 +225,17 @@ ArgType<T>& ArgType<T>::nargs(size_t l, size_t u) {
 }
 
 template <typename T>
-ArgType<T>& ArgType<T>::nargs(char ch) {
-    switch (ch) {
-        case '?':
+ArgType<T>& ArgType<T>::nargs(NArgsOption opt) {
+    using enum NArgsOption;
+    switch (opt) {
+        case OPTIONAL:
             return nargs(0, 1);
-        case '+':
+        case ONE_OR_MORE:
             return nargs(1, SIZE_MAX);
-        case '*':
+        case ZERO_OR_MORE:
             return nargs(0, SIZE_MAX);
         default:
-            std::cerr << "[ArgParse Error] Unrecognized nargs specifier '"
-                      << ch << "'!!" << std::endl;
+            return *this;
     }
     return *this;
 }
@@ -238,7 +247,9 @@ ArgType<T>& ArgType<T>::nargs(char ch) {
 template <typename T>
 void ArgType<T>::reset() {
     _value.clear();
-    if (_defaultValue.has_value()) _value.push_back(_defaultValue.value());
+    if (_actionCallback == nullptr) {
+        this->action(store<T>);
+    }
 }
 
 /**
@@ -250,28 +261,31 @@ void ArgType<T>::reset() {
  * @return false if failed
  */
 template <typename T>
-bool ArgType<T>::parse(std::string const& token) {
-    if (_actionCallback != nullptr) return _actionCallback();
-    T tmp;
-    bool result = parseFromString(tmp, token);
-    if (result) {
-        if (_append || !_defaultValue.has_value())
-            _value.push_back(tmp);
-        else
-            _value.back() = tmp;
-    }
-    return result;
+bool ArgType<T>::takeAction(std::string const& token) {
+    assert(_actionCallback != nullptr);
+    return _actionCallback(token);
 }
 
 /**
- * @brief Set _value to `val`
+ * @brief try to parse the token.
+ *        On success, store the parsed result and return true;
+ *        otherwise do nothing and return false.
  *
  * @tparam T
+ * @param arg
+ * @return ArgType<T>::ActionType that store `constValue` upon parsed
  */
 template <typename T>
-void ArgType<T>::setValue(T const& val) {
-    _value.resize(1);
-    _value.front() = val;
+requires ValidArgumentType<T>
+ActionCallbackType store(ArgType<T>& arg) {
+    return [&arg](std::string const& token) -> bool {
+        T tmp;
+        bool result = parseFromString(tmp, token);
+        if (result) {
+            arg.appendValue(tmp);
+        }
+        return result;
+    };
 }
 
 /**
@@ -285,10 +299,8 @@ template <typename T>
 requires ValidArgumentType<T>
 ArgType<T>::ActionType storeConst(T const& constValue) {
     return [constValue](ArgType<T>& arg) -> ActionCallbackType {
-        return [&arg, constValue]() -> bool {
-            arg.setValue(constValue);
-            return true;
-        };
+        arg.nargs(0ul);
+        return [&arg, constValue](std::string const&) { arg.appendValue(constValue); return true; };
     };
 }
 

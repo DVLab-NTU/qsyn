@@ -95,12 +95,12 @@ ArgumentParser& ArgumentParser::help(std::string const& help) {
  * @return true
  * @return false
  */
-bool ArgumentParser::parse(std::string const& line) {
+bool ArgumentParser::parseArgs(std::string const& line) {
     for (auto& [_, arg] : _pimpl->arguments) {
         arg.reset();
     }
 
-    return tokenize(line) && parseTokens(_pimpl->tokens);
+    return tokenize(line) && parseTokens(_pimpl->tokens) && fillUnparsedArgumentsWithDefaults();
 }
 
 // Parser subroutine
@@ -315,12 +315,12 @@ bool ArgumentParser::parseOptions(std::span<Token> tokens) {
             conflictGroup.setParsed(true);
         }
 
-        if (arg.hasAction())
-            arg.parse("");
+        if (!arg.takesArgument())
+            arg.takeAction("");
         else if (i + 1 >= (int)tokens.size() || tokens[i + 1].parsed) {  // _tokens[i] is not the last token && _tokens[i+1] is unparsed
             cerr << "Error: missing argument after \"" << tokens[i].token << "\"!!\n";
             return false;
-        } else if (!arg.parse(tokens[i + 1].token)) {
+        } else if (!arg.takeAction(tokens[i + 1].token)) {
             cerr << "Error: invalid " << arg.getTypeString() << " value \""
                  << tokens[i + 1].token << "\" after \""
                  << tokens[i].token << "\"!!" << endl;
@@ -332,9 +332,10 @@ bool ArgumentParser::parseOptions(std::span<Token> tokens) {
 
         tokens[i].parsed = true;
 
-        if (!arg.hasAction()) {
+        if (arg.takesArgument()) {
             tokens[i + 1].parsed = true;
         }
+        arg.markAsParsed();
     }
 
     return allRequiredOptionsAreParsed() && allRequiredMutexGroupsAreParsed();
@@ -370,9 +371,7 @@ bool ArgumentParser::parsePositionalArguments(std::span<Token> tokens) {
         auto& [name, arg] = *currArg;
 
         assert(!isOption(name));
-        assert(!arg.hasAction());
-
-        if (!arg.parse(token)) {
+        if (!arg.takeAction(token)) {
             cerr << "Error: invalid " << arg.getTypeString() << " value \""
                  << token << "\" for argument \"" << name << "\"!!" << endl;
             return false;
@@ -381,6 +380,7 @@ bool ArgumentParser::parsePositionalArguments(std::span<Token> tokens) {
         if (!constraintsSatisfied(arg)) return false;
 
         parsed = true;
+        arg.markAsParsed();
     }
 
     if (!allTokensAreParsed(tokens)) {
@@ -392,6 +392,15 @@ bool ArgumentParser::parsePositionalArguments(std::span<Token> tokens) {
         return false;
     }
 
+    return true;
+}
+
+bool ArgumentParser::fillUnparsedArgumentsWithDefaults() {
+    for (auto& [name, arg] : _pimpl->arguments) {
+        if (!arg.isParsed() && arg.hasDefaultValue()) {
+            arg.setValueToDefault();
+        }
+    }
     return true;
 }
 

@@ -74,7 +74,7 @@ bool initQCirCmd() {
 }
 
 ArgType<size_t>::ConstraintType validQCirId = {
-    [](ArgType<size_t>& arg) {
+    [](ArgType<size_t> const& arg) {
         return [&arg]() {
             return qcirMgr->isID(arg.getValue());
         };
@@ -86,7 +86,7 @@ ArgType<size_t>::ConstraintType validQCirId = {
     }};
 
 ArgType<size_t>::ConstraintType validQCirGateId = {
-    [](ArgType<size_t>& arg) {
+    [](ArgType<size_t> const& arg) {
         return [&arg]() {
             if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end())
                 return false;
@@ -104,7 +104,7 @@ ArgType<size_t>::ConstraintType validQCirGateId = {
     }};
 
 ArgType<size_t>::ConstraintType validQCirBitId = {
-    [](ArgType<size_t>& arg) {
+    [](ArgType<size_t> const& arg) {
         return [&arg]() {
             if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end())
                 return false;

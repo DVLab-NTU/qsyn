@@ -15,17 +15,6 @@ using namespace std;
 
 namespace ArgParse {
 
-void Argument::swap(Argument& rhs) noexcept {
-    using std::swap;
-    swap(_pimpl, rhs._pimpl);
-    swap(_parsed, rhs._parsed);
-    swap(_numRequiredChars, rhs._numRequiredChars);
-}
-
-void swap(Argument& lhs, Argument& rhs) noexcept {
-    lhs.swap(rhs);
-}
-
 /**
  * @brief If the argument has a default value, reset to it.
  *
@@ -33,20 +22,6 @@ void swap(Argument& lhs, Argument& rhs) noexcept {
 void Argument::reset() {
     _parsed = false;
     _pimpl->do_reset();
-}
-
-/**
- * @brief parse the argument. If the argument has an action, perform it; otherwise,
- *        try to parse the value from token.
- *
- * @param token
- * @return true if succeeded
- * @return false if failed
- */
-bool Argument::parse(std::string const& token) {
-    if (!_pimpl->do_parse(token)) return false;
-    _parsed = true;
-    return true;
 }
 
 /**

@@ -178,12 +178,12 @@ void Formatter::printHelp(ArgumentParser parser) {
 string Formatter::getSyntaxString(ArgumentParser parser, Argument const& arg) {
     string ret = "";
 
-    if (!arg.hasAction()) {
+    if (arg.takesArgument()) {
         ret += requiredArgBracket(
             typeStyle(arg.getTypeString()) + " " + metavarStyle(arg.getMetavar()));
     }
     if (parser.isOption(arg)) {
-        ret = optionalStyle(styledArgName(parser, arg)) + (arg.hasAction() ? "" : (" " + ret));
+        ret = optionalStyle(styledArgName(parser, arg)) + (arg.takesArgument() ? (" " + ret) : "");
     }
 
     return ret;
@@ -231,13 +231,13 @@ string Formatter::optionalArgBracket(std::string const& str) {
 void Formatter::printHelpString(ArgumentParser parser, Argument const& arg) {
     using dvlab_utils::Tabler;
     auto& tabl = parser._pimpl->tabl;
-    tabl << (arg.hasAction() ? typeStyle("flag") : typeStyle(arg.getTypeString()));
+    tabl << (arg.takesArgument() ? typeStyle(arg.getTypeString()) : typeStyle("flag"));
 
     if (parser.isOption(arg)) {
-        if (arg.hasAction()) {
-            tabl << Tabler::Multicols(styledArgName(parser, arg), 2);
-        } else {
+        if (arg.takesArgument()) {
             tabl << styledArgName(parser, arg) << metavarStyle(arg.getMetavar());
+        } else {
+            tabl << Tabler::Multicols(styledArgName(parser, arg), 2);
         }
     } else {
         tabl << Tabler::Multicols(metavarStyle(arg.getMetavar()), 2);

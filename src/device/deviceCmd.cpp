@@ -47,7 +47,7 @@ bool initDeviceCmd() {
 }
 
 ArgType<size_t>::ConstraintType validDeviceId = {
-    [](ArgType<size_t>& arg) {
+    [](ArgType<size_t> const& arg) {
         return [&arg]() {
             return deviceMgr->isID(arg.getValue());
         };
