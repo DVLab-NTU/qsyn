@@ -12,13 +12,26 @@
 
 namespace ArgParse {
 
-// SECTION - ArgumentParser template functions
+/**
+ * @brief add an argument with the name to the ArgumentGroup
+ *
+ * @tparam T the type of argument
+ * @param name the name of the argument
+ * @return ArgType<T>& a reference to the added argument
+ */
+template <typename T>
+requires ValidArgumentType<T>
+ArgType<T>& ArgumentGroup::addArgument(std::string const& name) {
+    ArgType<T>& returnRef = _pimpl->_parser.addArgument<T>(name);
+    _pimpl->_arguments.insert(returnRef._name);
+    return returnRef;
+}
 
 /**
  * @brief add an argument with the name.
  *
- * @tparam T
- * @param name
+ * @tparam T the type of argument
+ * @param name the name of the argument
  * @return ArgType<T>&
  */
 template <typename T>
@@ -44,20 +57,28 @@ ArgType<T>& ArgumentParser::addArgument(std::string const& name) {
     return returnRef.name(name);
 }
 
-template <typename T>
+/**
+ * @brief implements the details of ArgumentParser::operator[]
+ *
+ * @tparam ArgT ArgType<T>
+ * @param arg the ArgType<T> object
+ * @param name name of the argument to look up
+ * @return decltype(auto)
+ */
+template <typename ArgT>
 decltype(auto)
-ArgumentParser::operatorBracketImpl(T&& t, std::string const& name) {
-    if (std::forward<T>(t)._pimpl->subparsers.has_value() && std::forward<T>(t)._pimpl->subparsers->isParsed()) {
-        if (std::forward<T>(t).getActivatedSubParser()._pimpl->arguments.contains(toLowerString(name))) {
-            return std::forward<T>(t).getActivatedSubParser()._pimpl->arguments.at(toLowerString(name));
+ArgumentParser::operatorBracketImpl(ArgT&& arg, std::string const& name) {
+    if (std::forward<ArgT>(arg)._pimpl->subparsers.has_value() && std::forward<ArgT>(arg)._pimpl->subparsers->isParsed()) {
+        if (std::forward<ArgT>(arg).getActivatedSubParser()._pimpl->arguments.contains(toLowerString(name))) {
+            return std::forward<ArgT>(arg).getActivatedSubParser()._pimpl->arguments.at(toLowerString(name));
         }
     }
     try {
-        return std::forward<T>(t)._pimpl->arguments.at(toLowerString(name));
+        return std::forward<ArgT>(arg)._pimpl->arguments.at(toLowerString(name));
     } catch (std::out_of_range& e) {
         std::cerr << "Argument name \"" << name
                   << "\" does not exist for command \""
-                  << std::forward<T>(t)._pimpl->formatter.styledCmdName(std::forward<T>(t).getName(), std::forward<T>(t).getNumRequiredChars()) << "\"\n";
+                  << std::forward<ArgT>(arg)._pimpl->formatter.styledCmdName(std::forward<ArgT>(arg).getName(), std::forward<ArgT>(arg).getNumRequiredChars()) << "\"\n";
         throw e;
     }
 }

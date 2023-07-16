@@ -32,8 +32,8 @@ clean: $(addprefix clean_, $(SRCPKGS) main)
 cleanall: clean
 	@echo "Removing bin/*..."
 	@rm -rf bin/*
-	@echo "Removing include/*.h..."
-	@rm -f include/*.h
+	@echo "Removing include/*.h and include/*.tpp..."
+	@rm -f include/*.h include/*.tpp
 	@echo "Removing vendor header links..."
 	@rm -f $(VENDOR_LINKS)
 

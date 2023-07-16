@@ -105,8 +105,8 @@ public:
 
     ArgType(T const& val)
         : _value{val}, _name{}, _help{}, _defaultValue{std::nullopt},
-          _constValue{std::nullopt}, _actionCallback{}, _metavar{},
-          _nargs{1, 1}, _required{false}, _append{false} {}
+          _actionCallback{}, _metavar{}, _nargs{1, 1},
+          _required{false}, _append{false} {}
 
     friend std::ostream& operator<<(std::ostream& os, ArgType const& arg) {
         if (arg._value.empty()) return os << "(None)";
@@ -140,7 +140,6 @@ public:
     ArgType& required(bool isReq);
     ArgType& defaultValue(T const& val);
     ArgType& action(ActionType const& action);
-    ArgType& constValue(T const& val);
     ArgType& metavar(std::string const& metavar);
     ArgType& constraint(ConstraintType const& constraint_error);
     ArgType& constraint(ActionType const& constraint, ErrorType const& onerror = nullptr);
@@ -166,7 +165,7 @@ public:
 
     inline T const& getValue() const { return _value.front(); }
 
-    void setValueToConst();
+    void setValue(T const& val);
 
 private:
     friend class Argument;
@@ -175,7 +174,6 @@ private:
     std::string _name;
     std::string _help;
     std::optional<T> _defaultValue;
-    std::optional<T> _constValue;
     ActionCallbackType _actionCallback;
     std::string _metavar;
     std::vector<ConstraintCallbackType> _constraintCallbacks;
@@ -330,7 +328,7 @@ public:
 
     template <typename T>
     requires ValidArgumentType<T>
-    ArgType<T>& addArgument(std::string const& name);
+    ArgType<T>& addArgument(std::string const& name);  // defined in argParser.tpp
 
     bool contains(std::string const& name) const { return _pimpl->_arguments.contains(name); }
     ArgumentGroup required(bool isReq) {
@@ -484,9 +482,9 @@ private:
 
     std::shared_ptr<ArgumentParserImpl> _pimpl;
 
-    template <typename T>
+    template <typename ArgT>
     static decltype(auto)
-    operatorBracketImpl(T&& t, std::string const& name);
+    operatorBracketImpl(ArgT&& t, std::string const& name);
 
     // addArgument error printing
 
@@ -525,32 +523,11 @@ private:
 
 // SECTION - On-parse actions for ArgType<T>
 
-/**
- * @brief generate a callback that sets the argument to const value. This function
- *        should be used along with the const decorator of an argument.
- *
- * @tparam T
- * @param arg
- * @return ArgParse::ActionCallbackType
- */
-template <typename T>
-ActionCallbackType storeConst(ArgType<T>& arg) {
-    return [&arg]() -> bool {
-        arg.setValueToConst();
-        return true;
-    };
-}
-
-ActionCallbackType storeTrue(ArgType<bool>& arg);
-ActionCallbackType storeFalse(ArgType<bool>& arg);
-
 template <typename T>
 requires ValidArgumentType<T>
-ArgType<T>& ArgumentGroup::addArgument(std::string const& name) {
-    ArgType<T>& returnRef = _pimpl->_parser.addArgument<T>(name);
-    _pimpl->_arguments.insert(returnRef._name);
-    return returnRef;
-}
+ArgType<T>::ActionType storeConst(T const& constValue);
+ActionCallbackType storeTrue(ArgType<bool>& arg);
+ActionCallbackType storeFalse(ArgType<bool>& arg);
 
 }  // namespace ArgParse
 

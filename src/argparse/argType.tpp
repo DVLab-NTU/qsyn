@@ -108,20 +108,6 @@ ArgType<T>& ArgType<T>::action(ArgType<T>::ActionType const& action) {
 }
 
 /**
- * @brief set the const value to store when the argument is parsed. This setting is
- *        only effective when the action is set to `ArgParse::storeConst<T>`
- *
- * @tparam T
- * @param val
- * @return ArgType<T>&
- */
-template <typename T>
-ArgType<T>& ArgType<T>::constValue(T const& val) {
-    _constValue = val;
-    return *this;
-}
-
-/**
  * @brief set the meta-variable, i.e., the displayed name of the argument as
  *        seen in the help message.
  *
@@ -201,7 +187,7 @@ ArgType<T>& ArgType<T>::choices(std::initializer_list<T> const& choices) {
             });
         };
     };
-    auto error = [&vec](ArgType<T> const& arg) -> ErrorCallbackType {  // REVIEW - iostream in header... is there any way to resolve this?
+    auto error = [&vec](ArgType<T> const& arg) -> ErrorCallbackType {
         return [&arg, vec]() {
             std::cerr << "Error: invalid choice for argument \"" << arg._name << "\": "
                       << "please choose from {";
@@ -278,20 +264,34 @@ bool ArgType<T>::parse(std::string const& token) {
 }
 
 /**
- * @brief Set _value to _constValue if _constValue is not std::nullopt;
- *        emits an error message and return otherwise.
+ * @brief Set _value to `val`
  *
  * @tparam T
  */
 template <typename T>
-void ArgType<T>::setValueToConst() {
-    if (!_constValue.has_value()) {
-        std::cerr << "Error: no const value is specified for argument \""
-                  << _name << "\"!! no action is taken... \n";
-        return;
-    }
-    _value.front() = _constValue.value();
+void ArgType<T>::setValue(T const& val) {
+    _value.resize(1);
+    _value.front() = val;
 }
+
+/**
+ * @brief generate a callback that sets the argument to `constValue`.
+ *
+ * @tparam T argument type
+ * @param constValue
+ * @return ArgType<T>::ActionType that store `constValue` upon parsed
+ */
+template <typename T>
+requires ValidArgumentType<T>
+ArgType<T>::ActionType storeConst(T const& constValue) {
+    return [constValue](ArgType<T>& arg) -> ActionCallbackType {
+        return [&arg, constValue]() -> bool {
+            arg.setValue(constValue);
+            return true;
+        };
+    };
+}
+
 }  // namespace ArgParse
 
 #endif

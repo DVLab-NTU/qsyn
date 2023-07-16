@@ -41,34 +41,23 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
         parser.addArgument<string>("cat")
             .help("won't eat veggies");
 
-        parser.addArgument<string>("dog")
+        parser.addArgument<string>("-dog")
+            .action(storeConst("rocky"s))
             .help("humans' best friend");
-
-        auto subparsers = parser.addSubParsers()
-                              .required(true)
-                              .help("bird");
-
-        auto gooseParser = subparsers.addParser("goose");
-
-        gooseParser.addArgument<int>("honk");
-
-        auto duckParser = subparsers.addParser("duck");
-
-        duckParser.addArgument<string>("quack");
     };
 
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         parser.printTokens();
         parser.printArguments();
 
-        if (parser.usedSubParser("goose")) {
-            int honk = parser["honk"];
-            cout << "honk = " << honk << endl;
-        }
-        if (parser.usedSubParser("duck")) {
-            string quack = parser["quack"];
-            cout << "quack = " << quack << endl;
-        }
+        // if (parser.usedSubParser("goose")) {
+        //     int honk = parser["honk"];
+        //     cout << "honk = " << honk << endl;
+        // }
+        // if (parser.usedSubParser("duck")) {
+        //     string quack = parser["quack"];
+        //     cout << "quack = " << quack << endl;
+        // }
 
         return CMD_EXEC_DONE;
     };

@@ -68,10 +68,10 @@ bool parseFromString(DummyArgumentType& val, std::string const& token) {
  */
 ActionCallbackType storeTrue(ArgType<bool>& arg) {
     arg.defaultValue(false);
-    arg.constValue(true);
 
     return [&arg]() -> bool {
-        arg.setValueToConst();
+        arg.setValue(true);
+
         return true;
     };
 }
@@ -85,9 +85,8 @@ ActionCallbackType storeTrue(ArgType<bool>& arg) {
  */
 ActionCallbackType storeFalse(ArgType<bool>& arg) {
     arg.defaultValue(true);
-    arg.constValue(false);
     return [&arg]() -> bool {
-        arg.setValueToConst();
+        arg.setValue(false);
         return true;
     };
 }
