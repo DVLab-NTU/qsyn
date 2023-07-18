@@ -15,7 +15,7 @@ project(
   VERSION 1.0.0)
 
 find_package(OpenMP REQUIRED)
-find_package(BLAS REQUIRED)
+find_package(BLAS QUIET)
 find_package(LAPACK REQUIRED)
 
 FetchContent_Declare(
@@ -42,12 +42,23 @@ file(
   "src/**/*.cpp" "src/**/*.h")
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-file(
-  GLOB INCLUDES
-  LIST_DIRECTORIES true
-  RELATIVE ${CMAKE_SOURCE_DIR}
-  "*/")
+# lists all subdirectories of a directory
+macro(SUBDIRLIST result curdir)
+  file(GLOB children ${curdir}/*)
+  set(dirlist "")
+  foreach(child ${children})
+    if(IS_DIRECTORY ${child})
+      list(APPEND dirlist ${child})
+    endif()
+  endforeach()
+  set(${result} ${dirlist})
+endmacro()
+
+subdirlist(INCLUDES ${CMAKE_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDES})
+# for tqdm.h
+target_include_directories(${PROJECT_NAME}
+                           PRIVATE ${CMAKE_SOURCE_DIR}/vendor/include)
 
 target_link_libraries(
   ${PROJECT_NAME}
