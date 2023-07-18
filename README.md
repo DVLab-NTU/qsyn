@@ -82,13 +82,14 @@ Alternatively, you can have CMake manage your dependencies:
    cd build
    ```
 
-2. run CMake to generate Makefiles
+2. run CMake to generate Makefiles, if this step fails, you might have to install `blas` and `lapack` libraries
 
    ```shell!
    cmake ..
    ```
 
 3. run `make` to build up the executable, you would want to crank up the number of threads to speed up the compilation process
+
    ```shell!
     make -j16
    ```

@@ -14,6 +14,10 @@ project(
   LANGUAGES CXX
   VERSION 1.0.0)
 
+find_package(OpenMP REQUIRED)
+find_package(BLAS REQUIRED)
+find_package(LAPACK REQUIRED)
+
 FetchContent_Declare(
   xtl
   GIT_REPOSITORY https://github.com/xtensor-stack/xtl.git
@@ -31,10 +35,6 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/xtensor-stack/xtensor-blas.git
   GIT_TAG 0.20.0)
 FetchContent_MakeAvailable(xtensor-blas)
-
-find_package(OpenMP REQUIRED)
-find_package(BLAS REQUIRED)
-find_package(LAPACK REQUIRED)
 
 file(
   GLOB_RECURSE SOURCES
