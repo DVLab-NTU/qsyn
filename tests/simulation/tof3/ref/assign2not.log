@@ -284,8 +284,8 @@ Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
 qsyn> tsp 0
-{{ 0.      +6.123234e-17i,  1.      -6.123234e-17i},
- { 1.      -6.123234e-17i,  0.      +6.123234e-17i}}
+{{ 4.266422e-17+6.123234e-17i,  1.000000e+00-6.123234e-17i},
+ { 1.000000e+00-6.123234e-17i,  4.266422e-17+6.123234e-17i}}
 #Dim:    2	Info: ZX 0
 
 qsyn> qq -f
