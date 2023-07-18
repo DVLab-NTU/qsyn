@@ -50,6 +50,34 @@ sudo apt-get install texlive-latex-base
 
 ### Compilation
 
+#### CMake
+
+`qsyn` uses CMake manage the dependencies:
+
+1. create a `build` directory to store CMake files
+
+   ```shell!
+   mkdir build
+   cd build
+   ```
+
+2. run CMake to generate Makefiles, if this step fails, you might have to install `blas` and `lapack` libraries
+
+   ```shell!
+   cmake ..
+   ```
+
+3. run `make` to build up the executable, you would want to crank up the number of threads to speed up the compilation process
+
+   ```shell!
+    make -j16
+   ```
+
+
+#### Makefile (to be deprecated)
+
+`qsyn` can also be built with the old-school "configure-then-make" way. However, note that this way of managing the build is planned to be deprecated in the future.
+
 1. Qsyn depends on `xtensor` and `xtensor-blas`. To install these dependencies, run `configure.sh`, which checks for lacking dependencies and install them automatically.
    ```shell!
    sudo ./configure.sh
@@ -71,27 +99,6 @@ sudo apt-get install texlive-latex-base
 4. To delete all intermediate files created in the compilation process, please type
    ```shell!
    make clean
-   ```
-
-Alternatively, you can have CMake manage your dependencies:
-
-1. create a `build` directory to store CMake files
-
-   ```shell!
-   mkdir build
-   cd build
-   ```
-
-2. run CMake to generate Makefiles, if this step fails, you might have to install `blas` and `lapack` libraries
-
-   ```shell!
-   cmake ..
-   ```
-
-3. run `make` to build up the executable, you would want to crank up the number of threads to speed up the compilation process
-
-   ```shell!
-    make -j16
    ```
 
 ### Run
