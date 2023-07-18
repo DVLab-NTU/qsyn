@@ -51,14 +51,23 @@ file(
   "src/**/*.cpp" "src/**/*.h")
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-file(
-  GLOB INCLUDES
-  LIST_DIRECTORIES true
-  RELATIVE ${CMAKE_SOURCE_DIR}
-  "src/*/" "vendor/include")
-list(REMOVE_ITEM INCLUDES "src/rules.mk") # To shut cc1plus warning up
+# lists all subdirectories of a directory
+macro(SUBDIRLIST result curdir)
+  file(GLOB children ${curdir}/*)
+  set(dirlist "")
+  foreach(child ${children})
+    if(IS_DIRECTORY ${child})
+      list(APPEND dirlist ${child})
+    endif()
+  endforeach()
+  set(${result} ${dirlist})
+endmacro()
+
+subdirlist(INCLUDES ${CMAKE_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDES})
-target_include_directories(${PROJECT_NAME} PRIVATE /opt/OpenBLAS/include/)
+# for tqdm.h
+target_include_directories(${PROJECT_NAME}
+                           PRIVATE ${CMAKE_SOURCE_DIR}/vendor/include)
 
 target_link_libraries(
   ${PROJECT_NAME}
