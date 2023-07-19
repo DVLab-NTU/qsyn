@@ -1,0 +1,6 @@
+verb 3
+zxgread benchmark/zx/tof3.zx
+zxgp -v
+zxgs -preduce 2 2
+zxgp -v
+qq -f

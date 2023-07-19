@@ -58,6 +58,8 @@ public:
     void dynamicReduce(int tOptimal = INT_MAX);
     void hybridReduce();
     void symbolicReduce();
+    // slice_rounds = n means 2^n partitions
+    void partitionReduce(size_t sliceTimes, size_t rounds);
 
     // print function
     void printRecipe();

@@ -45,6 +45,30 @@ bool initSimpCmd() {
     return true;
 }
 
+ArgType<size_t>::ConstraintType validPreduceSliceTimes = {
+    [](ArgType<size_t> &arg) {
+        return [&arg]() {
+            return (arg.getValue() <= 10 && arg.getValue() >= 1);
+        };
+    },
+    [](ArgType<size_t> const &arg) {
+        return [&arg]() {
+            cerr << "The sliceTime parameter in partition reduce should be in the range of [1, 10]" << endl;
+        };
+    }};
+
+ArgType<size_t>::ConstraintType validPreduceRounds = {
+    [](ArgType<size_t> &arg) {
+        return [&arg]() {
+            return (arg.getValue() <= 10 && arg.getValue() >= 1);
+        };
+    },
+    [](ArgType<size_t> const &arg) {
+        return [&arg]() {
+            cerr << "The rounds parameter in partition reduce should be in the range of [1, 10]" << endl;
+        };
+    }};
+
 //------------------------------------------------------------------------------------------------------------------
 //    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion |
 //             -HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -PIVOTBoundary | -CLIFford | -FReduce | -SReduce | -DReduce]
@@ -67,6 +91,18 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         mutex.addArgument<bool>("-sreduce")
             .action(storeTrue)
             .help("perform symbolic reduce");
+        mutex.addArgument<bool>("-preduce")
+            .action(storeTrue)
+            .help("perform partial reduce");
+
+        parser.addArgument<size_t>("d")
+            .required(false)
+            .constraint(validPreduceSliceTimes)
+            .help("the sliceTimes parameter for preduce");
+        parser.addArgument<size_t>("r")
+            .required(false)
+            .constraint(validPreduceRounds)
+            .help("the rounds parameter for preduce");
 
         mutex.addArgument<bool>("-interclifford")
             .action(storeTrue)
@@ -130,7 +166,11 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             s.symbolicReduce();
         else if (parser["-dreduce"].isParsed())
             s.hybridReduce();
-        else if (parser["-interclifford"].isParsed())
+        else if (parser["-preduce"].isParsed()) {
+            Argument sliceTime = parser["d"].isParsed() ? parser["d"] : Argument(1);
+            Argument rounds = parser["r"].isParsed() ? parser["r"] : Argument(1);
+            s.partitionReduce(parser["d"], parser["r"]);
+        } else if (parser["-interclifford"].isParsed())
             s.interiorCliffordSimp();
         else if (parser["-clifford"].isParsed())
             s.cliffordSimp();

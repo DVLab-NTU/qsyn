@@ -493,6 +493,16 @@ void Simplifier::symbolicReduce() {
 }
 
 /**
+ * @brief partition the graph into 2^slice_rounds partitions and reduce each partition separately
+ *        then merge the partitions together for n rounds
+ *
+ */
+void Simplifier::partitionReduce(size_t sliceTimes, size_t rounds = 1) {
+    std::cerr << "partitionReduce is not implemented yet" << std::endl;
+    std::cerr << "called with sliceTimes = " << sliceTimes << " and rounds = " << rounds << std::endl;
+}
+
+/**
  * @brief Print recipe of Simplifier
  *
  */

@@ -13,6 +13,7 @@
 #include <span>
 #include <string>
 #include <unordered_map>
+#include <utility>
 
 #include "phase.h"
 #include "zxDef.h"
@@ -307,6 +308,9 @@ public:
             }
         }
     }
+
+    // split the graph into two parts by K-L algorithm
+    friend std::pair<ZXGraph*, ZXGraph*> klSplit(ZXGraph* graph);
 
 private:
     size_t _id;
