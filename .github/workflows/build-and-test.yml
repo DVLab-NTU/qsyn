@@ -15,17 +15,15 @@ jobs:
     - name: Check out Git repository
       uses: actions/checkout@v3
     
-    - name: g++-10
-      run: |
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 100
-          sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-10 100
-    
-    - name: configure
-      run:  |
-          ./configure.sh
+    - name: install openBLAS
+      run: sudo apt install libopenblas-dev
       
     - name: Compile main program
-      run: make -j8
+      run:  |
+        mkdir build && cd build
+        cmake ..
+        make -j16
+
       
     # - name: Compile test program
     #   run: make test -j8

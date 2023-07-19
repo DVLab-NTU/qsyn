@@ -21,23 +21,12 @@ Traverse and build the tensor...
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
-qsyn> tsp 0
-{{ 1.      +0.000000e+00i,  0.      +0.000000e+00i,
-   0.      +0.000000e+00i,  0.      +0.000000e+00i},
- { 0.      +0.000000e+00i,  1.      +0.000000e+00i,
-   0.      +0.000000e+00i,  0.      +0.000000e+00i},
- { 0.      +0.000000e+00i,  0.      +0.000000e+00i,
-   0.      +6.123234e-17i,  1.      -6.123234e-17i},
- { 0.      +0.000000e+00i,  0.      +0.000000e+00i,
-   1.      -6.123234e-17i,  0.      +6.123234e-17i}}
-#Dim:    2	Info: QC
-
 qsyn> qc2zx
 Create and checkout to Graph 0
 
 qsyn> zxgp -Q
 
-ID:   7 ([1m[32mZ[0m[0m, 3π/2)        (Qubit, Col): (-2, 4)	  #Neighbors:   1     (6, [1m[34mH[0m[0m) 
+ID:   7 ([1m[32mZ[0m[0m, -π/2)        (Qubit, Col): (-2, 4)	  #Neighbors:   1     (6, [1m[34mH[0m[0m) 
 
 
 ID:   6 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (-1, 4)	  #Neighbors:   3     (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
@@ -77,21 +66,16 @@ Traverse and build the tensor...
 Successfully added Tensor 1
 Stored the resulting tensor as tensor id 1
 
-qsyn> tsp 1
-{{ 1.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  1.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  0.      +0.i,  1.      +0.i},
- { 0.      +0.i,  0.      +0.i,  1.      +0.i,  0.      +0.i}}
-#Dim:    2	Info: ZX 0
-
-qsyn> tsp
-Tensor    0: #Dim:    2	Info: QC
-Tensor    1: #Dim:    2	Info: ZX 0
-Total #Tensor: 2
+qsyn> tseq 0 1
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
 
 qsyn> qcr
 
 qsyn> zxr
+
+qsyn> tsr
 
 qsyn> tsr
 

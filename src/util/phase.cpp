@@ -74,7 +74,12 @@ std::string Phase::getAsciiString() const {
  */
 std::string Phase::getPrintString() const {
     if (Phase::getPrintUnit() == PhaseUnit::PI) {
-        return ((_rational.numerator() != 1) ? std::to_string(_rational.numerator()) : "") + ((_rational.numerator() != 0) ? "\u03C0" : "") + ((_rational.denominator() != 1) ? ("/" + std::to_string(_rational.denominator())) : "");
+        return (
+                   _rational.numerator() == 1 ? ""
+                   : _rational.numerator() == -1
+                       ? "-"
+                       : std::to_string(_rational.numerator())) +
+               ((_rational.numerator() != 0) ? "\u03C0" : "") + ((_rational.denominator() != 1) ? ("/" + std::to_string(_rational.denominator())) : "");
     } else {
         return std::to_string(this->toFloatType<double>());
     }
@@ -88,6 +93,7 @@ void Phase::normalize() {
     Rational factor = (_rational / 2);
     int integralPart = std::floor(factor.toFloat());
     _rational -= (integralPart * 2);
+    if (_rational > 1) _rational -= 2;
 }
 
 std::ostream& operator<<(std::ostream& os, const setPhaseUnit& pu) {

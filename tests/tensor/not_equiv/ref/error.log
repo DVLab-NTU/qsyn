@@ -16,16 +16,6 @@ Stored the resulting tensor as tensor id 1
 qsyn> ver 3
 Note: verbose level is set to 3
 
-qsyn> tsp 0
-{{ 1.+0.i,  0.+0.i},
- { 0.+0.i,  1.+0.i}}
-#Dim:    2	Info: QC
-
-qsyn> tsp 1
-{{ 1.      -0.00055i ,  0.      +0.i      },
- { 0.      +0.i      ,  1.      +0.00055i }}
-#Dim:    2	Info: QC
-
 qsyn> tseq 0 1 -Eps 1e-2
 [1m[32mEquivalent[0m[0m
 - Global Norm : 1
