@@ -14,17 +14,6 @@ Traverse and build the tensor...
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
-qsyn> tsp 0
-{{ 1.414214e+00-1.059812e-15i, -3.330669e-16-3.925231e-17i,
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
- {-3.330669e-16-3.925231e-17i,  1.414214e+00-1.059812e-15i,
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
- { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i,
-   1.110223e-16-2.820020e-16i,  1.414214e+00-8.315344e-16i},
- { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i,
-   1.414214e+00-8.315344e-16i,  1.110223e-16-2.820020e-16i}}
-#Dim:    2	Info: ZX 0
-
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (7, -) 
@@ -34,13 +23,13 @@ ID:   5 (●, 0)           (Qubit, Col): (2, 11)	  #Neighbors:   1     (22, -)
 ID:   6 ([1m[33mH[0m[0m, π)           (Qubit, Col): (2, 10)	  #Neighbors:   2     (4, -) (8, -) 
 ID:   7 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (0, -) (8, -) (13, -) 
 ID:   8 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (6, -) (7, -) (9, -) 
-ID:   9 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (8, -) (11, -) 
+ID:   9 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (8, -) (11, -) 
 ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 10)	  #Neighbors:   3     (11, -) (16, -) (27, -) 
 ID:  11 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (9, -) (10, -) (12, -) 
 ID:  12 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   2     (11, -) (14, -) 
 ID:  13 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (7, -) (14, -) (18, -) 
 ID:  14 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (12, -) (13, -) (15, -) 
-ID:  15 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (14, -) (17, -) 
+ID:  15 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (14, -) (17, -) 
 ID:  16 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 10)	  #Neighbors:   3     (10, -) (17, -) (20, -) 
 ID:  17 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (15, -) (16, -) (19, -) 
 ID:  18 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 10)	  #Neighbors:   2     (13, -) (21, -) 
@@ -49,7 +38,7 @@ ID:  20 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 10)	  #Neighbors:   
 ID:  21 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (18, -) (20, -) (24, -) 
 ID:  22 ([1m[33mH[0m[0m, π)           (Qubit, Col): (2, 10)	  #Neighbors:   2     (5, -) (19, -) 
 ID:  23 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (1, 10)	  #Neighbors:   2     (20, -) (25, -) 
-ID:  24 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (1, 10)	  #Neighbors:   2     (21, -) (26, -) 
+ID:  24 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (1, 10)	  #Neighbors:   2     (21, -) (26, -) 
 ID:  25 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 10)	  #Neighbors:   3     (23, -) (26, -) (28, -) 
 ID:  26 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (1, -) (24, -) (25, -) 
 ID:  27 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (10, -) 
@@ -67,16 +56,16 @@ ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (8, [1m[
 ID:   5 (●, 0)           (Qubit, Col): (2, 11)	  #Neighbors:   1     (19, [1m[34mH[0m[0m) 
 ID:   7 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 10)	  #Neighbors:   4     (0, -) (8, -) (14, -) (21, -) 
 ID:   8 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (4, [1m[34mH[0m[0m) (7, -) (9, -) 
-ID:   9 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (8, -) (11, -) 
+ID:   9 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (8, -) (11, -) 
 ID:  10 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (1, 10)	  #Neighbors:   6     (11, -) (17, -) (21, -) (26, -) (27, -) (28, -) 
 ID:  11 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (9, -) (10, -) (12, -) 
 ID:  12 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   2     (11, -) (14, -) 
 ID:  14 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (7, -) (12, -) (15, -) 
-ID:  15 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (14, -) (17, -) 
+ID:  15 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (14, -) (17, -) 
 ID:  17 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (10, -) (15, -) (19, -) 
 ID:  19 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   2     (5, [1m[34mH[0m[0m) (17, -) 
 ID:  21 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (7, -) (10, -) (24, -) 
-ID:  24 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (1, 10)	  #Neighbors:   2     (21, -) (26, -) 
+ID:  24 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (1, 10)	  #Neighbors:   2     (21, -) (26, -) 
 ID:  26 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (1, -) (10, -) (24, -) 
 ID:  27 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (10, -) 
 ID:  28 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (10, -) 
@@ -93,16 +82,16 @@ ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (8, [1m[
 ID:   5 (●, 0)           (Qubit, Col): (2, 11)	  #Neighbors:   1     (19, [1m[34mH[0m[0m) 
 ID:   7 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 10)	  #Neighbors:   4     (0, -) (8, -) (14, -) (21, -) 
 ID:   8 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (4, [1m[34mH[0m[0m) (7, -) (9, -) 
-ID:   9 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (8, -) (11, -) 
+ID:   9 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (8, -) (11, -) 
 ID:  10 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (1, 10)	  #Neighbors:   6     (11, -) (17, -) (21, -) (26, -) (27, -) (28, -) 
 ID:  11 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (9, -) (10, -) (12, -) 
 ID:  12 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   2     (11, -) (14, -) 
 ID:  14 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (7, -) (12, -) (15, -) 
-ID:  15 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (14, -) (17, -) 
+ID:  15 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (2, 10)	  #Neighbors:   2     (14, -) (17, -) 
 ID:  17 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   3     (10, -) (15, -) (19, -) 
 ID:  19 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   2     (5, [1m[34mH[0m[0m) (17, -) 
 ID:  21 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (7, -) (10, -) (24, -) 
-ID:  24 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (1, 10)	  #Neighbors:   2     (21, -) (26, -) 
+ID:  24 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (1, 10)	  #Neighbors:   2     (21, -) (26, -) 
 ID:  26 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   3     (1, -) (10, -) (24, -) 
 ID:  27 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (10, -) 
 ID:  28 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (10, -) 
@@ -454,11 +443,11 @@ ID:   7 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 10)	  #Neighbors:  
 ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 10)	  #Neighbors:   2     (4, -) (19, [1m[34mH[0m[0m) 
 ID:  19 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   5     (5, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
 ID:  26 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 10)	  #Neighbors:   2     (1, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
-ID:  29 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (30, [1m[34mH[0m[0m) 
+ID:  29 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (30, [1m[34mH[0m[0m) 
 ID:  30 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (-1, 10)	  #Neighbors:   3     (7, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (29, [1m[34mH[0m[0m) 
-ID:  31 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (32, [1m[34mH[0m[0m) 
+ID:  31 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (32, [1m[34mH[0m[0m) 
 ID:  32 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   2     (19, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
-ID:  33 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (34, [1m[34mH[0m[0m) 
+ID:  33 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (34, [1m[34mH[0m[0m) 
 ID:  34 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   2     (7, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
 ID:  35 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (-2, 10)	  #Neighbors:   1     (36, [1m[34mH[0m[0m) 
 ID:  36 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   1     (35, [1m[34mH[0m[0m) 
@@ -492,11 +481,11 @@ ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (19, [1m
 ID:   5 (●, 0)           (Qubit, Col): (2, 11)	  #Neighbors:   1     (19, [1m[34mH[0m[0m) 
 ID:   7 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 10)	  #Neighbors:   5     (0, -) (1, -) (30, [1m[34mH[0m[0m) (34, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
 ID:  19 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 10)	  #Neighbors:   5     (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (30, [1m[34mH[0m[0m) (32, [1m[34mH[0m[0m) (38, [1m[34mH[0m[0m) 
-ID:  29 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (30, [1m[34mH[0m[0m) 
+ID:  29 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (30, [1m[34mH[0m[0m) 
 ID:  30 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (-1, 10)	  #Neighbors:   3     (7, [1m[34mH[0m[0m) (19, [1m[34mH[0m[0m) (29, [1m[34mH[0m[0m) 
-ID:  31 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (32, [1m[34mH[0m[0m) 
+ID:  31 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (32, [1m[34mH[0m[0m) 
 ID:  32 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   2     (19, [1m[34mH[0m[0m) (31, [1m[34mH[0m[0m) 
-ID:  33 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (34, [1m[34mH[0m[0m) 
+ID:  33 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (-2, 10)	  #Neighbors:   1     (34, [1m[34mH[0m[0m) 
 ID:  34 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   2     (7, [1m[34mH[0m[0m) (33, [1m[34mH[0m[0m) 
 ID:  35 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (-2, 10)	  #Neighbors:   1     (36, [1m[34mH[0m[0m) 
 ID:  36 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 10)	  #Neighbors:   1     (35, [1m[34mH[0m[0m) 
@@ -603,21 +592,10 @@ Input  axis ids: 0 2
 Output axis ids: 1 3
 Stored the resulting tensor as tensor id 1
 
-qsyn> tsp 1
-{{ 7.071068e-01-7.071068e-01i,  1.110223e-16+1.110223e-16i,
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
- { 1.110223e-16+1.110223e-16i,  7.071068e-01-7.071068e-01i,
-   0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i},
- { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i,
-  -1.110223e-16+5.551115e-17i,  7.071068e-01-7.071068e-01i},
- { 0.000000e+00+0.000000e+00i,  0.000000e+00+0.000000e+00i,
-   7.071068e-01-7.071068e-01i, -1.110223e-16+5.551115e-17i}}
-#Dim:    2	Info: ZX 0
-
 qsyn> tseq 0 1
 [1m[32mEquivalent[0m[0m
 - Global Norm : 0.707107
-- Global Phase: 7π/4
+- Global Phase: -π/4
 
 qsyn> qq -f
 

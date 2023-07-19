@@ -10,9 +10,8 @@ zxgas 4 O X 0
 zxgp -v
 zxgs -fr
 zx2ts
-tsp 0
 zxgs -stco
 zxgp -v
 zx2ts
-tsp 1
+tseq 0 1
 qq -f

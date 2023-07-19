@@ -229,7 +229,7 @@ qsyn> qcgp 26 -ZX
 
 > Gate 26 (tdg)
 ID:   0 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (1, -) 
-ID:   1 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (1, 0)	  #Neighbors:   2     (0, -) (2, -) 
+ID:   1 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (1, 0)	  #Neighbors:   2     (0, -) (2, -) 
 ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (1, -) 
 Total #Vertices: 3
 

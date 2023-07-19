@@ -11,4 +11,4 @@ vendor/engine/*
 !lib/lib.d
 !lib/libcmd-*
 qsyn*
-
+build/
