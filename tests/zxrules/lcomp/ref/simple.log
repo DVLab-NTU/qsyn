@@ -39,9 +39,9 @@ ID:   1 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -)
 ID:   2 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (7, -) 
 ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (8, -) 
 ID:   4 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (0, -) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) 
-ID:   5 ([1m[32mZ[0m[0m, 3π/2)        (Qubit, Col): (0, 0)	  #Neighbors:   4     (1, -) (4, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) 
-ID:   7 ([1m[32mZ[0m[0m, 3π/2)        (Qubit, Col): (0, 0)	  #Neighbors:   4     (2, -) (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) 
-ID:   8 ([1m[32mZ[0m[0m, 3π/2)        (Qubit, Col): (0, 0)	  #Neighbors:   4     (3, -) (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+ID:   5 ([1m[32mZ[0m[0m, -π/2)        (Qubit, Col): (0, 0)	  #Neighbors:   4     (1, -) (4, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) 
+ID:   7 ([1m[32mZ[0m[0m, -π/2)        (Qubit, Col): (0, 0)	  #Neighbors:   4     (2, -) (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) 
+ID:   8 ([1m[32mZ[0m[0m, -π/2)        (Qubit, Col): (0, 0)	  #Neighbors:   4     (3, -) (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
 Total #Vertices: 8
 
 
