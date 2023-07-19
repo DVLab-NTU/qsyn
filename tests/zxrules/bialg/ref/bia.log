@@ -369,7 +369,7 @@ Total #Vertices: 6
 
 qsyn> zx2ts
 Traverse and build the tensor... 
-Topological order from first input: 0 4 5 3 1 2 
+Topological order from first input: 0 4 2 5 1 3 
 Size of topological order: 6
 > Mapping vertex 0 (●): New Subgraph
   - Current frontiers: 
@@ -378,12 +378,11 @@ Size of topological order: 6
   - Current frontiers: 
     2--4 (-) axis id: 1
     4--5 (-) axis id: 2
-> Mapping vertex 5 ([1m[32mZ[0m[0m): Tensordot
+> Mapping vertex 2 (●): Boundary Node
   - Current frontiers: 
     2--4 (-) axis id: 1
-    1--5 (-) axis id: 2
-    3--5 (-) axis id: 3
-> Mapping vertex 3 (●): Boundary Node
+    4--5 (-) axis id: 2
+> Mapping vertex 5 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
     2--4 (-) axis id: 1
     1--5 (-) axis id: 2
@@ -393,7 +392,7 @@ Size of topological order: 6
     2--4 (-) axis id: 1
     1--5 (-) axis id: 2
     3--5 (-) axis id: 3
-> Mapping vertex 2 (●): Boundary Node
+> Mapping vertex 3 (●): Boundary Node
   - Current frontiers: 
     2--4 (-) axis id: 1
     1--5 (-) axis id: 2
