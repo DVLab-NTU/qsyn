@@ -15,7 +15,8 @@ jobs:
     - name: Check out Git repository
       uses: actions/checkout@v3
     
-
+    - name: install openBLAS
+      run: apt install libopenblas-dev
       
     - name: Compile main program
       run:  |
