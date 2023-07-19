@@ -19,9 +19,9 @@ qsyn> zxgs -fr
 
 qsyn> zxgp -q
 
-ID:  27 (Z, 7π/4)        (Qubit, Col): (-2, 3)	  #Neighbors:   1     (28, H) 
-ID:  29 (Z, 7π/4)        (Qubit, Col): (-2, 7)	  #Neighbors:   1     (30, H) 
-ID:  31 (Z, 7π/4)        (Qubit, Col): (-2, 5)	  #Neighbors:   1     (32, H) 
+ID:  27 (Z, -π/4)        (Qubit, Col): (-2, 3)	  #Neighbors:   1     (28, H) 
+ID:  29 (Z, -π/4)        (Qubit, Col): (-2, 7)	  #Neighbors:   1     (30, H) 
+ID:  31 (Z, -π/4)        (Qubit, Col): (-2, 5)	  #Neighbors:   1     (32, H) 
 ID:  33 (Z, π/4)         (Qubit, Col): (-2, 5)	  #Neighbors:   1     (34, H) 
 
 

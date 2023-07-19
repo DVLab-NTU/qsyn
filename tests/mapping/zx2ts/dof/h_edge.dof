@@ -43,5 +43,9 @@ zxge -adde 6 4 HADAMARD
 zxge -adde 6 7 HADAMARD
 ver 8
 zx2ts
-tsp 0
+qcnew
+qcba 1
+qcga -h 0
+qc2ts
+tseq 0 5
 qq -f 

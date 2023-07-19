@@ -1,17 +1,15 @@
-color off
 qcba 2
 qcgadd -mcp -phase pi/2 0 1 
+qcgadd -mcrz -phase -pi/2 0 1
+qcgadd -tdg 0
 qcgp 0 -t
+qcgp 1 -t
+qcgp 2 -t
 qc2zx
 zxgp -v
 zx2ts
-tsp 0
 qcnew
 qcba 2
-qcgadd -mcrz -phase pi/2 0 1
-qcgp 0 -t
-qc2zx
-zxgp -v
-zx2ts
-tsp 1
+qc2ts
+tseq 0 1
 qq -f

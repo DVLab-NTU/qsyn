@@ -11,5 +11,8 @@ zxgs -sr
 ver 3
 zxgp -v
 zx2ts
-tsp 0
+qcnew
+qcba 2
+qc2ts
+tseq 0 1
 qq -f
