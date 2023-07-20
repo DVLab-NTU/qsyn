@@ -24,15 +24,15 @@ namespace ArgParse {
  */
 template <typename U>
 std::ostream& operator<<(std::ostream& os, ArgType<U> const& arg) {
-    if (arg._value.empty()) return os << "(None)";
+    if (arg._values.empty()) return os << "(None)";
 
     if constexpr (Printable<U>) {
         if (arg._nargs.upper <= 1)
-            os << arg._value.front();
+            os << arg._values.front();
         else {
             size_t i = 0;
             os << '[';
-            for (auto&& val : arg._value) {
+            for (auto&& val : arg._values) {
                 if (i > 0) os << ", ";
                 os << val;
                 ++i;
@@ -147,67 +147,43 @@ ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConstraintType const& constraint_
  * @brief Add constraint to the argument.
  *
  * @tparam T
- * @param constraint takes a `ArgType<T> const&` and returns a ActionCallbackType
+ * @param condition takes a `ArgType<T> const&` and returns a ActionCallbackType
  * @param onerror takes a `ArgType<T> const&` and returns a ErrorCallbackType
  */
 template <typename T>
-ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConditionType const& constraint, ArgType<T>::ErrorType const& onerror) {
-    if (constraint == nullptr) {
+ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConditionType const& condition, ArgType<T>::ErrorType const& onerror) {
+    if (condition == nullptr) {
         std::cerr << "[ArgParse] Failed to add constraint to argument \"" << _name
-                  << "\": constraint generator cannot be nullptr!!" << std::endl;
-        return *this;
-    }
-    auto const conditionCallback = constraint(*this);
-    auto const onerrorCallback = std::invoke([&onerror, this]() -> ErrorCallbackType {
-        if (onerror == nullptr) {
-            return [this]() -> void {
-                std::cerr << "Error: invalid value \"" << getValue() << "\" for argument \""
-                          << _name << "\": fail to satisfy constraint(s)!!" << std::endl;
-            };
-        } else {
-            return onerror(*this);
-        }
-    });
-
-    if (conditionCallback == nullptr) {
-        std::cerr << "[ArgParse] Failed to add constraint to argument \"" << _name
-                  << "\": constraint generator does not produce valid callback!!" << std::endl;
-        return *this;
-    }
-    if (onerrorCallback == nullptr) {
-        std::cerr << "[ArgParse] Failed to add constraint to argument \"" << _name
-                  << "\": error callback generator does not produce valid callback!!" << std::endl;
+                  << "\": condition cannot be nullptr!!" << std::endl;
         return *this;
     }
 
-    _constraintCallbacks.emplace_back(conditionCallback, onerrorCallback);
+    _constraints.emplace_back(
+        condition,
+        (onerror != nullptr) ? onerror : [this](T const& val) -> void {
+            std::cerr << "Error: invalid value \"" << val << "\" for argument \""
+                      << _name << "\": fail to satisfy constraint(s)!!" << std::endl;
+        });
     return *this;
 }
 
 template <typename T>
-ArgType<T>& ArgType<T>::choices(std::initializer_list<T> const& choices) {
-    std::vector<T> vec{choices};
-    auto constraint = [&vec](ArgType<T> const& arg) -> ConditionCallbackType {
-        return [&arg, vec]() {
-            return any_of(vec.begin(), vec.end(), [&arg](T const& choice) -> bool {
-                // NOTE - only comparing the first argument in ArgType<T>
-                //      - might need to revisit later
-                return arg.getValue() == choice;
-            });
-        };
+ArgType<T>& ArgType<T>::choices(std::vector<T> const& choices) {
+    auto constraint = [choices](T const& val) -> bool {
+        return any_of(choices.begin(), choices.end(), [&val](T const& choice) -> bool {
+            return val == choice;
+        });
     };
-    auto error = [&vec](ArgType<T> const& arg) -> ErrorCallbackType {
-        return [&arg, vec]() {
-            std::cerr << "Error: invalid choice for argument \"" << arg._name << "\": "
-                      << "please choose from {";
-            size_t ctr = 0;
-            for (auto& choice : vec) {
-                if (ctr > 0) std::cerr << ", ";
-                std::cerr << choice;
-                ctr++;
-            }
-            std::cerr << "}!!\n";
-        };
+    auto error = [choices, this](T const& arg) -> void {
+        std::cerr << "Error: invalid choice for argument \"" << this->_name << "\": "
+                  << "please choose from {";
+        size_t ctr = 0;
+        for (auto& choice : choices) {
+            if (ctr > 0) std::cerr << ", ";
+            std::cerr << choice;
+            ctr++;
+        }
+        std::cerr << "}!!\n";
     };
 
     return this->constraint(constraint, error);
@@ -221,7 +197,7 @@ ArgType<T>& ArgType<T>::nargs(size_t n) {
 template <typename T>
 ArgType<T>& ArgType<T>::nargs(size_t l, size_t u) {
     _nargs = {l, u};
-    return *this;
+    return (l > 0) ? *this : this->required(false);
 }
 
 template <typename T>
@@ -246,7 +222,7 @@ ArgType<T>& ArgType<T>::nargs(NArgsOption opt) {
  */
 template <typename T>
 void ArgType<T>::reset() {
-    _value.clear();
+    _values.clear();
     if (_actionCallback == nullptr) {
         this->action(store<T>);
     }
@@ -261,9 +237,10 @@ void ArgType<T>::reset() {
  * @return false if failed
  */
 template <typename T>
-bool ArgType<T>::takeAction(std::string const& token) {
+bool ArgType<T>::takeAction(TokensView tokens) {
     assert(_actionCallback != nullptr);
-    return _actionCallback(token);
+
+    return _actionCallback(tokens);
 }
 
 /**
@@ -278,13 +255,18 @@ bool ArgType<T>::takeAction(std::string const& token) {
 template <typename T>
 requires ValidArgumentType<T>
 ActionCallbackType store(ArgType<T>& arg) {
-    return [&arg](std::string const& token) -> bool {
+    return [&arg](TokensView tokens) -> bool {
         T tmp;
-        bool result = parseFromString(tmp, token);
-        if (result) {
+        for (auto& [token, parsed] : tokens) {
+            if (!parseFromString(tmp, token)) {
+                std::cerr << "Error: invalid " << typeString(tmp)
+                          << " value \"" << token << "\" for argument \"" << arg.getName() << "\"!!" << std::endl;
+                return false;
+            }
             arg.appendValue(tmp);
+            parsed = true;
         }
-        return result;
+        return true;
     };
 }
 
@@ -300,7 +282,7 @@ requires ValidArgumentType<T>
 ArgType<T>::ActionType storeConst(T const& constValue) {
     return [constValue](ArgType<T>& arg) -> ActionCallbackType {
         arg.nargs(0ul);
-        return [&arg, constValue](std::string const&) { arg.appendValue(constValue); return true; };
+        return [&arg, constValue](TokensView) { arg.appendValue(constValue); return true; };
     };
 }
 

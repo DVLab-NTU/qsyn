@@ -12,8 +12,6 @@
 #include "cmdParser.h"  // for CmdClass, CmdExec, CmdExecStatus::CMD_EXEC_ERROR
 #include "qcirMgr.h"    // for QCirMgr
 
-CmdClass(QCirAddGateCmd);
-
 #define QC_CMD_MGR_NOT_EMPTY_OR_RETURN(str)                                                               \
     {                                                                                                     \
         if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end()) {                                 \

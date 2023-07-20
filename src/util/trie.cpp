@@ -1,18 +1,20 @@
 /****************************************************************************
-  FileName     [ myTrie.cpp ]
+  FileName     [ trie.cpp ]
   PackageName  [ util ]
   Synopsis     [ User-defined trie data structure for parsing ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "myTrie.h"
+#include "trie.h"
 
 #include <cassert>
 
 using namespace std;
 
-bool MyTrie::insert(string const& word) {
+namespace dvlab_utils {
+
+bool Trie::insert(string const& word) {
     auto itr = _root.get();
 
     assert(itr != nullptr);
@@ -20,7 +22,7 @@ bool MyTrie::insert(string const& word) {
     for (auto& ch : word) {
         size_t idx = ch;
         if (itr->children[idx].get() == nullptr) {
-            itr->children[idx] = make_unique<MyTrieNode>();
+            itr->children[idx] = make_unique<TrieNode>();
         }
         itr = itr->children[idx].get();
         itr->frequency++;
@@ -31,7 +33,7 @@ bool MyTrie::insert(string const& word) {
     return true;
 }
 
-optional<string> MyTrie::shortestUniquePrefix(string const& word) const {
+optional<string> Trie::shortestUniquePrefix(string const& word) const {
     auto itr = _root.get();
 
     assert(itr != nullptr);
@@ -47,7 +49,7 @@ optional<string> MyTrie::shortestUniquePrefix(string const& word) const {
     return word.substr(0, pos);
 }
 
-size_t MyTrie::frequency(string const& word) const {
+size_t Trie::frequency(string const& word) const {
     auto itr = _root.get();
 
     assert(itr != nullptr);
@@ -60,7 +62,7 @@ size_t MyTrie::frequency(string const& word) const {
     return itr->frequency;
 }
 
-optional<string> MyTrie::findWithPrefix(string const& word) const {
+optional<string> Trie::findWithPrefix(string const& word) const {
     auto itr = _root.get();
 
     assert(itr != nullptr);
@@ -82,3 +84,5 @@ optional<string> MyTrie::findWithPrefix(string const& word) const {
 
     return retStr;
 }
+
+}  // namespace dvlab_utils

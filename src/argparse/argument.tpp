@@ -21,10 +21,16 @@ namespace ArgParse {
  * @return T const&
  */
 template <typename T>
-requires ValidArgumentType<T>
 T Argument::get() const {
-    if (auto ptr = dynamic_cast<Model<ArgType<T>>*>(_pimpl.get())) {
-        return ptr->inner.template get<T>();
+    if constexpr (IsContainerType<T>) {
+        using V = std::remove_cv<typename T::value_type>::type;
+        if (auto ptr = dynamic_cast<Model<ArgType<V>>*>(_pimpl.get())) {
+            return ptr->inner.template get<T>();
+        }
+    } else {
+        if (auto ptr = dynamic_cast<Model<ArgType<T>>*>(_pimpl.get())) {
+            return ptr->inner.template get<T>();
+        }
     }
 
     std::cerr << "[ArgParse] Error: cannot cast argument \""

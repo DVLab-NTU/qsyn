@@ -12,7 +12,7 @@
 #include <numeric>
 
 #include "argparse.h"
-#include "myTrie.h"
+#include "trie.h"
 #include "util.h"
 
 using namespace std;
@@ -52,7 +52,7 @@ void ArgumentParser::printArguments() const {
  * @return Argument&
  */
 Argument& ArgumentParser::operator[](std::string const& name) {
-    return operatorBracketImpl(*this, name);
+    return operator_bracket_impl(*this, name);
 }
 
 /**
@@ -62,7 +62,7 @@ Argument& ArgumentParser::operator[](std::string const& name) {
  * @return Argument&
  */
 Argument const& ArgumentParser::operator[](std::string const& name) const {
-    return operatorBracketImpl(*this, name);
+    return operator_bracket_impl(*this, name);
 }
 
 /**
@@ -86,21 +86,6 @@ ArgumentParser& ArgumentParser::name(std::string const& name) {
 ArgumentParser& ArgumentParser::help(std::string const& help) {
     _pimpl->help = help;
     return *this;
-}
-
-/**
- * @brief parse the arguments in the line
- *
- * @param line
- * @return true
- * @return false
- */
-bool ArgumentParser::parseArgs(std::string const& line) {
-    for (auto& [_, arg] : _pimpl->arguments) {
-        arg.reset();
-    }
-
-    return tokenize(line) && parseTokens(_pimpl->tokens) && fillUnparsedArgumentsWithDefaults();
 }
 
 // Parser subroutine
@@ -128,7 +113,7 @@ bool ArgumentParser::analyzeOptions() const {
 
     for (auto const& group : _pimpl->mutuallyExclusiveGroups) {
         for (auto const& name : group.getArguments()) {
-            if (_pimpl->arguments.at(name).isRequired()) {
+            if (_pimpl->arguments.at(toLowerString(name)).isRequired()) {
                 cerr << "[ArgParse] Error: Mutually exclusive argument \"" << name << "\" must be optional!!" << endl;
                 return false;
             }
@@ -137,12 +122,12 @@ bool ArgumentParser::analyzeOptions() const {
     }
 
     for (auto const& [name, arg] : _pimpl->arguments) {
-        if (!isOption(name)) continue;
+        if (!hasOptionPrefix(name)) continue;
         _pimpl->trie.insert(name);
     }
 
     for (auto& [name, arg] : _pimpl->arguments) {
-        if (!isOption(name)) continue;
+        if (!hasOptionPrefix(name)) continue;
         size_t prefixSize = _pimpl->trie.shortestUniquePrefix(name).value().size();
         while (!isalpha(name[prefixSize - 1])) ++prefixSize;
         arg.setNumRequiredChars(max(prefixSize, arg.getNumRequiredChars()));
@@ -231,17 +216,48 @@ bool ArgumentParser::tokenize(string const& line) {
     return true;
 }
 
-bool ArgumentParser::parseTokens(std::span<Token> tokens) {
-    if (!analyzeOptions()) return false;
+/**
+ * @brief parse the arguments from tokens
+ *
+ * @param tokens
+ * @return true
+ * @return false
+ */
+bool ArgumentParser::parseArgs(TokensView tokens) {
+    auto [success, unrecognized] = parseKnownArgs(tokens);
 
-    size_t subparserTokenPos = std::invoke([this, tokens]() -> size_t {
+    if (!success) return false;
+
+    if (unrecognized.size()) {
+        cerr << "Error: unrecognized arguments:";
+        for (auto& [token, _] : unrecognized) {
+            cerr << " \"" << token << "\"";
+        }
+        cerr << "!!" << endl;
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief  parse the arguments known by the tokens from tokens
+ *
+ * @return std::pair<bool, std::vector<Token>>, where
+ *         the first return value specifies whether the parse has succeeded, and
+ *         the second one specifies the unrecognized tokens
+ */
+std::pair<bool, std::vector<Token>> ArgumentParser::parseKnownArgs(TokensView tokens) {
+    if (!analyzeOptions()) return {false, {}};
+
+    auto subparserTokenPos = std::invoke([this, tokens]() -> size_t {
         if (!_pimpl->subparsers.has_value())
             return tokens.size();
 
         size_t pos = 0;
         for (auto const& [token, _] : tokens) {
             for (auto const& [name, subparser] : _pimpl->subparsers->getSubParsers()) {
-                if (token == name) {
+                if (toLowerString(token) == name) {
                     setSubParser(name);
                     return pos;
                 }
@@ -251,26 +267,34 @@ bool ArgumentParser::parseTokens(std::span<Token> tokens) {
         return pos;
     });
 
-    if (hasSubParsers()) {
-        if (subparserTokenPos >= tokens.size() && _pimpl->subparsers->isRequired()) {
-            cerr << "Error: missing mandatory subparser argument: " << _pimpl->formatter.getSyntaxString(_pimpl->subparsers.value()) << endl;
-            return false;
-        }
-        if (subparserTokenPos < tokens.size() && !getActivatedSubParser().parseTokens(tokens.subspan(subparserTokenPos + 1))) {
-            return false;
-        }
+    for (auto& [_, arg] : _pimpl->arguments) {
+        arg.reset();
     }
-    return parseOptions(tokens.subspan(0, subparserTokenPos)) && parsePositionalArguments(tokens.subspan(0, subparserTokenPos));
-}
 
-bool ArgumentParser::constraintsSatisfied(Argument const& arg) {
-    for (auto& [constraint, onerror] : arg.getConstraints()) {
-        if (!constraint()) {
-            onerror();
-            return false;
+    TokensView main_parser_tokens = tokens.subspan(0, subparserTokenPos);
+
+    std::vector<Token> unrecognized;
+    if (!parseOptions(main_parser_tokens, unrecognized) ||
+        !parsePositionalArguments(main_parser_tokens, unrecognized)) {
+        return {false, {}};
+    }
+
+    fillUnparsedArgumentsWithDefaults();
+    if (hasSubParsers()) {
+        TokensView subparser_tokens = tokens.subspan(subparserTokenPos + 1);
+        if (getActivatedSubParserName().size()) {
+            auto [success, subparser_unrecognized] = getActivatedSubParser().parseKnownArgs(subparser_tokens);
+            if (!success) return {false, {}};
+            unrecognized.insert(unrecognized.end(), subparser_unrecognized.begin(), subparser_unrecognized.end());
+        } else if (_pimpl->subparsers->isRequired()) {
+            cerr << "Error: missing mandatory subparser argument: "
+                 << _pimpl->formatter.getSyntaxString(_pimpl->subparsers.value())
+                 << endl;
+            return {false, {}};
         }
     }
-    return true;
+
+    return {true, unrecognized};
 }
 
 /**
@@ -280,61 +304,31 @@ bool ArgumentParser::constraintsSatisfied(Argument const& arg) {
  * @return true if succeeded
  * @return false if failed
  */
-bool ArgumentParser::parseOptions(std::span<Token> tokens) {
-    for (int i = tokens.size() - 1; i >= 0; --i) {
-        if (!isOption(tokens[i].token)) continue;
+bool ArgumentParser::parseOptions(TokensView tokens, std::vector<Token>& unrecognized) {
+    for (size_t i = 0; i < tokens.size(); ++i) {
+        if (!hasOptionPrefix(tokens[i].token) || tokens[i].parsed) continue;
         auto match = matchOption(tokens[i].token);
         if (std::holds_alternative<size_t>(match)) {
+            if (float tmp; myStr2Float(tokens[i].token, tmp))  // if the argument is a number, skip to the next arg
+                continue;
             auto frequency = std::get<size_t>(match);
             assert(frequency != 1);
-            // if the argument is a number, skip to the next arg
-            if (float tmp; myStr2Float(tokens[i].token, tmp))
-                continue;
+
+            if (frequency == 0) continue;  // unrecognized; may be positional arguments or errors
             // else this is an error
-            if (frequency == 0) {
-                cerr << "Error: unrecognized option \"" << tokens[i].token << "\"!!\n";
-            } else {
-                printAmbiguousOptionErrorMsg(tokens[i].token);
-            }
-
+            printAmbiguousOptionErrorMsg(tokens[i].token);
             return false;
         }
 
-        Argument& arg = _pimpl->arguments[get<string>(match)];
+        Argument& arg = _pimpl->arguments[std::get<string>(match)];
 
-        if (_pimpl->conflictGroups.contains(arg.getName())) {
-            auto& conflictGroup = _pimpl->conflictGroups.at(arg.getName());
-            if (conflictGroup.isParsed()) {
-                for (auto const& conflict : conflictGroup.getArguments()) {
-                    if (_pimpl->arguments.at(conflict).isParsed()) {
-                        cerr << "Error: argument \"" << arg.getName() << "\" cannot occur with \"" << conflict << "\"!!\n";
-                        return false;
-                    }
-                }
-            }
-            conflictGroup.setParsed(true);
-        }
+        if (conflictWithParsedArguments(arg)) return false;
 
-        if (!arg.takesArgument())
-            arg.takeAction("");
-        else if (i + 1 >= (int)tokens.size() || tokens[i + 1].parsed) {  // _tokens[i] is not the last token && _tokens[i+1] is unparsed
-            cerr << "Error: missing argument after \"" << tokens[i].token << "\"!!\n";
-            return false;
-        } else if (!arg.takeAction(tokens[i + 1].token)) {
-            cerr << "Error: invalid " << arg.getTypeString() << " value \""
-                 << tokens[i + 1].token << "\" after \""
-                 << tokens[i].token << "\"!!" << endl;
-            return false;
-        }
+        auto parse_range = arg.getParseRange(tokens);
+        if (!arg.tokensEnoughToParse(parse_range)) return false;
 
-        // check if meet constraints
-        if (!constraintsSatisfied(arg)) return false;
-
+        if (!arg.takeAction(tokens.subspan(i + 1).subspan(0, arg.getNArgs().upper))) return false;
         tokens[i].parsed = true;
-
-        if (arg.takesArgument()) {
-            tokens[i + 1].parsed = true;
-        }
         arg.markAsParsed();
     }
 
@@ -347,61 +341,38 @@ bool ArgumentParser::parseOptions(std::span<Token> tokens) {
  * @return true if succeeded
  * @return false if failed
  */
-bool ArgumentParser::parsePositionalArguments(std::span<Token> tokens) {
-    auto currToken = tokens.begin();
-    auto currArg = _pimpl->arguments.begin();
+bool ArgumentParser::parsePositionalArguments(TokensView tokens, std::vector<Token>& unrecognized) {
+    for (auto& [name, arg] : _pimpl->arguments) {
+        if (arg.isParsed() || hasOptionPrefix(name)) continue;
 
-    auto nextToken = [&currToken, tokens]() {
-        while (currToken != tokens.end() && currToken->parsed == true) {
-            currToken++;
-        }
-    };
+        auto parse_range = arg.getParseRange(tokens);
+        if (!arg.tokensEnoughToParse(parse_range)) return false;
+        if (!arg.takeAction(parse_range)) return false;
 
-    auto nextArg = [&currArg, this]() {
-        while (currArg != _pimpl->arguments.end() && (currArg->second.isParsed() || isOption(currArg->first))) {
-            currArg++;
-        }
-    };
-
-    nextToken();
-    nextArg();
-
-    for (; currToken != tokens.end() && currArg != _pimpl->arguments.end(); nextToken(), nextArg()) {
-        auto& [token, parsed] = *currToken;
-        auto& [name, arg] = *currArg;
-
-        assert(!isOption(name));
-        if (!arg.takeAction(token)) {
-            cerr << "Error: invalid " << arg.getTypeString() << " value \""
-                 << token << "\" for argument \"" << name << "\"!!" << endl;
-            return false;
-        }
-        // check if meet constraints
-        if (!constraintsSatisfied(arg)) return false;
-
-        parsed = true;
-        arg.markAsParsed();
+        // only mark as parsed if at least some tokens is associated with this argument
+        if (parse_range.size()) arg.markAsParsed();
     }
 
-    if (!allTokensAreParsed(tokens)) {
-        cerr << "Error: unrecognized argument \"" << currToken->token << "\"!!" << endl;
-        return false;
-    }
     if (!allRequiredArgumentsAreParsed()) {
         printRequiredArgumentsMissingErrorMsg();
         return false;
     }
 
+    for (auto& token : tokens) {
+        if (!token.parsed) {
+            unrecognized.emplace_back(token);
+        }
+    }
+
     return true;
 }
 
-bool ArgumentParser::fillUnparsedArgumentsWithDefaults() {
+void ArgumentParser::fillUnparsedArgumentsWithDefaults() {
     for (auto& [name, arg] : _pimpl->arguments) {
         if (!arg.isParsed() && arg.hasDefaultValue()) {
             arg.setValueToDefault();
         }
     }
-    return true;
 }
 
 /**
@@ -423,6 +394,23 @@ variant<string, size_t> ArgumentParser::matchOption(std::string const& token) co
     return _pimpl->trie.frequency(key);
 }
 
+bool ArgumentParser::conflictWithParsedArguments(Argument const& arg) const {
+    if (!_pimpl->conflictGroups.contains(arg.getName())) return false;
+
+    auto& conflictGroup = _pimpl->conflictGroups.at(arg.getName());
+    if (!conflictGroup.isParsed()) return false;
+
+    for (auto const& conflict : conflictGroup.getArguments()) {
+        if (_pimpl->arguments.at(conflict).isParsed()) {
+            cerr << "Error: argument \"" << arg.getName() << "\" cannot occur with \"" << conflict << "\"!!\n";
+            return true;
+        }
+    }
+
+    conflictGroup.setParsed(true);
+    return false;
+}
+
 /**
  * @brief print all potential option name for a token.
  *        This function is meant to be used when there are
@@ -434,7 +422,7 @@ void ArgumentParser::printAmbiguousOptionErrorMsg(std::string const& token) cons
     cerr << "Error: ambiguous option: \"" << token << "\" could match ";
     size_t ctr = 0;
     for (auto& [name, _] : _pimpl->arguments) {
-        if (!isOption(name)) continue;
+        if (!hasOptionPrefix(name)) continue;
         if (name.starts_with(key)) {
             if (ctr > 0) cerr << ", ";
             cerr << name;
@@ -453,7 +441,7 @@ bool ArgumentParser::allRequiredOptionsAreParsed() const {
     // Want: ∀ arg ∈ _arguments. (option(arg) ∧ required(arg)) → parsed(arg)
     // Thus: ∀ arg ∈ _arguments. ¬option(arg) ∨ ¬required(arg) ∨ parsed(arg)
     for (auto& [name, arg] : _pimpl->arguments) {
-        if (isOption(name) && arg.isRequired() && !arg.isParsed()) {
+        if (hasOptionPrefix(name) && arg.isRequired() && !arg.isParsed()) {
             cerr << "Error: The option \"" << name << "\" is required!!" << endl;
             return false;
         }
@@ -487,7 +475,7 @@ bool ArgumentParser::allRequiredMutexGroupsAreParsed() const {
  *
  * @return true or false
  */
-bool ArgumentParser::allTokensAreParsed(std::span<Token> tokens) const {
+bool ArgumentParser::allTokensAreParsed(TokensView tokens) const {
     return ranges::all_of(tokens, [](Token const& tok) {
         return tok.parsed;
     });

@@ -90,19 +90,20 @@ public:
     requires std::floating_point<T>
     static bool
     fromString(const std::string& str, Phase& phase) {
-        if (!myStrValid<T>(str, phase)) {
+        if (!myStr2Phase<T>(str, phase)) {
             phase = Phase(0);
             return false;
         }
         return true;
     }
 
+    template <class T = double>
+    requires std::floating_point<T>
+    static bool myStr2Phase(const std::string& str, Phase& p);
+
 private:
     Rational _rational;
     static PhaseUnit _printUnit;
-    template <class T = double>
-    requires std::floating_point<T>
-    static bool myStrValid(const std::string& str, Phase& p);
 };
 
 class setPhaseUnit {
@@ -140,7 +141,7 @@ Phase operator/(Phase lhs, const Unitless auto& rhs) {
 
 template <class T>
 requires std::floating_point<T>
-bool Phase::myStrValid(const std::string& str, Phase& p) {
+bool Phase::myStr2Phase(const std::string& str, Phase& p) {
     std::vector<std::string> numberStrings;
     std::vector<char> operators;
 

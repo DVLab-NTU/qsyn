@@ -59,6 +59,40 @@ bool parseFromString(DummyArgType& val, std::string const& token) {
     return true;
 }
 
+ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::string> choices) {
+    ranges::for_each(choices, [](std::string& str) { str = toLowerString(str); });
+    dvlab_utils::Trie trie{choices.begin(), choices.end()};
+
+    auto constraint = [choices, trie](std::string const& val) -> bool {
+        return trie.frequency(toLowerString(val)) == 1 ||
+               any_of(choices.begin(), choices.end(), [&val, &trie](std::string const& choice) -> bool {
+                   return toLowerString(val) == choice;
+               });
+    };
+    auto error = [choices, trie](std::string const& val) -> void {
+        if (trie.frequency(val) > 1) {
+            std::cerr << "Error: ambiguous choice \"" << val << "\": could match";
+
+            for (auto& choice : choices) {
+                if (choice.starts_with(toLowerString(val))) std::cerr << " " << choice;
+            }
+            std::cerr << "!!\n";
+            return;
+        } else {
+            std::cerr << "Error: invalid choice \"" << val << "\": please choose from {";
+            size_t ctr = 0;
+            for (auto& choice : choices) {
+                if (ctr > 0) std::cerr << ", ";
+                std::cerr << choice;
+                ctr++;
+            }
+            std::cerr << "}!!\n";
+        }
+    };
+
+    return {constraint, error};
+}
+
 /**
  * @brief generate a callback that sets the argument to true.
  *        This function also set the default value to false.
@@ -69,7 +103,7 @@ bool parseFromString(DummyArgType& val, std::string const& token) {
 ActionCallbackType storeTrue(ArgType<bool>& arg) {
     arg.defaultValue(false);
     arg.nargs(0ul);
-    return [&arg](std::string const&) { arg.appendValue(true); return true; };
+    return [&arg](TokensView) { arg.appendValue(true); return true; };
 }
 
 /**
@@ -82,7 +116,7 @@ ActionCallbackType storeTrue(ArgType<bool>& arg) {
 ActionCallbackType storeFalse(ArgType<bool>& arg) {
     arg.defaultValue(true);
     arg.nargs(0ul);
-    return [&arg](std::string const&) { arg.appendValue(false); return true; };
+    return [&arg](TokensView) { arg.appendValue(false); return true; };
 }
 
 }  // namespace ArgParse

@@ -11,8 +11,8 @@
 namespace ArgParse {
 
 ArgumentParser SubParsers::addParser(std::string const& n) {
-    _pimpl->subparsers.emplace(n, ArgumentParser{n});
-    return _pimpl->subparsers.at(n);
+    _pimpl->subparsers.emplace(toLowerString(n), ArgumentParser{n});
+    return _pimpl->subparsers.at(toLowerString(n));
 }
 
 SubParsers ArgumentParser::addSubParsers() {

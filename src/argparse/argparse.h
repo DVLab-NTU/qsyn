@@ -19,10 +19,10 @@
 #include <variant>
 
 #include "myConcepts.h"
-#include "myTrie.h"
 #include "ordered_hashmap.h"
 #include "ordered_hashset.h"
 #include "tabler.h"
+#include "trie.h"
 #include "util.h"
 
 namespace ArgParse {
@@ -31,6 +31,15 @@ class Argument;
 class ArgumentParser;
 class ArgumentGroup;
 class SubParsers;
+
+struct Token {
+    Token(std::string const& tok)
+        : token{tok}, parsed{false} {}
+    std::string token;
+    bool parsed;
+};
+
+using TokensView = std::span<Token>;
 
 /**
  * @brief Pretty printer for the command usages and helps.
@@ -55,12 +64,12 @@ public:
     static void printHelpString(ArgumentParser parser, SubParsers parsers);
 };
 
-using ActionCallbackType = std::function<bool(std::string const&)>;  // perform an action and return if it succeeds
-using ConditionCallbackType = std::function<bool()>;
-using ErrorCallbackType = std::function<void()>;                                     // function to call when some action fails
-using ConstraintCallbackType = std::pair<ConditionCallbackType, ErrorCallbackType>;  // constraints are defined by an ActionCallbackType that
-                                                                                     // returns true if the constraint is met, and an
-                                                                                     // ErrorCallbackType that prints the error message if it does not.
+using ActionCallbackType = std::function<bool(TokensView)>;  // perform an action and return if it succeeds
+// using ConditionCallbackType = std::function<bool()>;
+// using ErrorCallbackType = std::function<void()>;                                     // function to call when some action fails
+// using ConstraintCallbackType = std::pair<ConditionCallbackType, ErrorCallbackType>;  // constraints are defined by an ActionCallbackType that
+//                                                                                      // returns true if the constraint is met, and an
+//                                                                                      // ErrorCallbackType that prints the error message if it does not.
 struct DummyArgType {
     friend std::ostream& operator<<(std::ostream& os, DummyArgType const& val) { return os << "dummy"; }
 };
@@ -89,12 +98,16 @@ template <typename T>
 concept IsContainerType = requires(T t) {
     { t.begin() } -> std::same_as<typename T::iterator>;
     { t.end() } -> std::same_as<typename T::iterator>;
-    { t.begin() } -> std::same_as<typename T::const_iterator>;
-    { t.end() } -> std::same_as<typename T::const_iterator>;
+    std::constructible_from<typename T::iterator, typename T::iterator>;
     { t.size() } -> std::same_as<typename T::size_type>;
     requires !std::same_as<T, std::string>;
     requires !std::same_as<T, std::string_view>;
 };
+
+static_assert(IsContainerType<std::vector<int>> == true);
+static_assert(IsContainerType<std::vector<std::string>> == true);
+static_assert(IsContainerType<ordered_hashset<float>> == true);
+static_assert(IsContainerType<std::string> == false);
 
 // SECTION - On-parse actions for ArgType<T>
 
@@ -108,7 +121,7 @@ ActionCallbackType store(ArgType<T>& arg);
 
 template <typename T>
 requires ValidArgumentType<T>
-ArgType<T>::ActionType storeConst(T const& constValue);
+ArgType<T>::ActionTypexw storeConst(T const& constValue);
 ActionCallbackType storeTrue(ArgType<bool>& arg);
 ActionCallbackType storeFalse(ArgType<bool>& arg);
 
@@ -128,18 +141,18 @@ requires ValidArgumentType<T>
 class ArgType {
 public:
     using ActionType = std::function<ActionCallbackType(ArgType<T>&)>;
-    using ConditionType = std::function<ConditionCallbackType(ArgType<T> const&)>;
-    using ErrorType = std::function<ErrorCallbackType(ArgType<T> const&)>;
+    using ConditionType = std::function<bool(T const&)>;
+    using ErrorType = std::function<void(T const&)>;
     using ConstraintType = std::pair<ConditionType, ErrorType>;
 
     ArgType(T val)
-        : _value{std::move(val)}, _name{}, _help{}, _defaultValue{std::nullopt},
+        : _values{std::move(val)}, _name{}, _help{}, _defaultValue{std::nullopt},
           _actionCallback{}, _metavar{}, _nargs{1, 1},
           _required{false}, _append{false} {}
 
     // defined in argType.tpp
     template <typename U>
-    friend std::ostream& operator<<(std::ostream& os, ArgType<U> const& arg);
+    friend std::ostream& operator<<(std::ostream&, ArgType<U> const&);
 
     // argument decorators
     // defined in argType.tpp
@@ -152,12 +165,12 @@ public:
     ArgType& metavar(std::string const& metavar);
     ArgType& constraint(ConstraintType const& constraint_error);
     ArgType& constraint(ConditionType const& constraint, ErrorType const& onerror = nullptr);
-    ArgType& choices(std::initializer_list<T> const& choices);
+    ArgType& choices(std::vector<T> const& choices);
     ArgType& nargs(size_t n);
     ArgType& nargs(size_t l, size_t u);
     ArgType& nargs(NArgsOption opt);
 
-    inline bool takeAction(std::string const& token);
+    inline bool takeAction(TokensView tokens);
     inline void reset();
 
     // getters
@@ -166,38 +179,51 @@ public:
     template <typename Ret>
     Ret get() const {
         if constexpr (IsContainerType<Ret>) {
-            return _value;
+            return Ret{_values.begin(), _values.end()};
         } else {
-            return _value.front();
+            return _values.front();
         }
     }
 
-    inline T const& getValue() const { return _value.front(); }
-
-    void appendValue(T const& val) { _value.push_back(val); }
+    inline std::string const& getName() const { return _name; }
+    void appendValue(T const& val) { _values.push_back(val); }
 
     void setValueToDefault() {
         if (_defaultValue.has_value()) {
-            _value.clear();
-            _value.emplace_back(_defaultValue.value());
+            _values.clear();
+            _values.emplace_back(_defaultValue.value());
         }
+    }
+
+    bool constraintsSatisfied() const {
+        for (auto& [condition, onerror] : _constraints) {
+            for (auto const& val : _values) {
+                if (!condition(val)) {
+                    onerror(val);
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
 private:
     friend class Argument;
     friend class ArgumentGroup;
-    std::vector<T> _value;
+    std::vector<T> _values;
     std::string _name;
     std::string _help;
     std::optional<T> _defaultValue;
     ActionCallbackType _actionCallback;
     std::string _metavar;
-    std::vector<ConstraintCallbackType> _constraintCallbacks;
+    std::vector<ConstraintType> _constraints;
     NArgsRange _nargs;
 
     bool _required : 1;
     bool _append : 1;
 };
+
+ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::string> choices);
 
 class Argument {
 public:
@@ -235,11 +261,9 @@ public:
     }
 
     template <typename T>
-    requires ValidArgumentType<T>
     operator T() const { return get<T>(); }
 
     template <typename T>
-    requires ValidArgumentType<T>
     T get() const;
 
     std::string getTypeString() const { return _pimpl->do_getTypeString(); }
@@ -247,14 +271,13 @@ public:
     std::string const& getHelp() const { return _pimpl->do_getHelp(); }
     size_t getNumRequiredChars() const { return _numRequiredChars; }
     std::string const& getMetavar() const { return _pimpl->do_getMetavar(); }
-    std::vector<ConstraintCallbackType> const& getConstraints() const { return _pimpl->do_getConstraints(); }
-    NArgsRange const& getNArgsRange() const { return _pimpl->do_getNArgsRange(); }
+    NArgsRange const& getNArgs() const { return _pimpl->do_getNArgsRange(); }
     // attributes
 
     bool hasDefaultValue() const { return _pimpl->do_hasDefaultValue(); }
     bool isRequired() const { return _pimpl->do_isRequired(); }
     bool isParsed() const { return _parsed; }
-    bool takesArgument() const { return getNArgsRange().upper > 0; }
+    bool takesArgument() const { return getNArgs().upper > 0; }
 
     // setters
 
@@ -269,7 +292,9 @@ public:
     // action
 
     void reset();
-    bool takeAction(std::string const& token) { return _pimpl->do_takeAction(token); }
+    bool takeAction(TokensView tokens);
+    bool constraintsSatisfied() const { return _pimpl->do_constraintsSatisfied(); }
+
     void markAsParsed() { _parsed = true; }
 
 private:
@@ -286,16 +311,16 @@ private:
         virtual std::string const& do_getName() const = 0;
         virtual std::string const& do_getHelp() const = 0;
         virtual std::string const& do_getMetavar() const = 0;
-        virtual std::vector<ConstraintCallbackType> const& do_getConstraints() const = 0;
         virtual NArgsRange const& do_getNArgsRange() const = 0;
 
         virtual bool do_hasDefaultValue() const = 0;
         virtual bool do_isRequired() const = 0;
+        virtual bool do_constraintsSatisfied() const = 0;
 
-        virtual std::ostream& do_print(std::ostream& os) const = 0;
-        virtual std::ostream& do_printDefaultValue(std::ostream& os) const = 0;
+        virtual std::ostream& do_print(std::ostream&) const = 0;
+        virtual std::ostream& do_printDefaultValue(std::ostream&) const = 0;
 
-        virtual bool do_takeAction(std::string const& token) = 0;
+        virtual bool do_takeAction(TokensView) = 0;
         virtual void do_setValueToDefault() = 0;
         virtual void do_reset() = 0;
     };
@@ -310,20 +335,20 @@ private:
 
         inline std::unique_ptr<Concept> clone() const override { return std::make_unique<Model>(*this); }
 
-        inline std::string do_getTypeString() const override { return typeString(inner._value.front()); }
+        inline std::string do_getTypeString() const override { return typeString(inner._values.front()); }
         inline std::string const& do_getName() const override { return inner._name; }
         inline std::string const& do_getHelp() const override { return inner._help; }
         inline std::string const& do_getMetavar() const override { return inner._metavar; }
-        inline std::vector<ConstraintCallbackType> const& do_getConstraints() const override { return inner._constraintCallbacks; }
         inline NArgsRange const& do_getNArgsRange() const override { return inner._nargs; }
 
         inline bool do_hasDefaultValue() const override { return inner._defaultValue.has_value(); }
         inline bool do_isRequired() const override { return inner._required; };
+        inline bool do_constraintsSatisfied() const override { return inner.constraintsSatisfied(); }
 
         inline std::ostream& do_print(std::ostream& os) const override { return os << inner; }
         inline std::ostream& do_printDefaultValue(std::ostream& os) const override { return (inner._defaultValue.has_value() ? os << inner._defaultValue.value() : os << "(none)"); }
 
-        inline bool do_takeAction(std::string const& token) override { return inner.takeAction(token); }
+        inline bool do_takeAction(TokensView tokens) override { return inner.takeAction(tokens); }
         inline void do_setValueToDefault() override { return inner.setValueToDefault(); }
         inline void do_reset() override { inner.reset(); }
     };
@@ -332,6 +357,9 @@ private:
 
     bool _parsed;
     size_t _numRequiredChars;
+
+    TokensView getParseRange(TokensView) const;
+    bool tokensEnoughToParse(TokensView) const;
 };
 
 /**
@@ -342,7 +370,7 @@ private:
 class ArgumentGroup {
     struct ArgumentGroupImpl {
         ArgumentGroupImpl(ArgumentParser& parser)
-            : _parser{parser} {}
+            : _parser{parser}, _required{false}, _parsed{false} {}
         ArgumentParser& _parser;
         ordered_hashset<std::string> _arguments;
         bool _required;
@@ -431,6 +459,24 @@ public:
     Argument& operator[](std::string const& name);
     Argument const& operator[](std::string const& name) const;
 
+    template <typename T>
+    T get(std::string const& name) const {
+        auto lower = toLowerString(name);
+        if (_pimpl->activatedSubParser.size()) {
+            auto& subparser = _pimpl->subparsers->getSubParsers().at(_pimpl->activatedSubParser);
+            if (subparser._pimpl->arguments.contains(lower)) {
+                return subparser._pimpl->arguments.at(lower).get<T>();
+            }
+        }
+        if (_pimpl->arguments.contains(lower)) {
+            return _pimpl->arguments.at(lower).get<T>();
+        }
+        std::cerr << "[ArgParse error] Argument name \"" << name
+                  << "\" does not exist for command \""
+                  << _pimpl->formatter.styledCmdName(getName(), getNumRequiredChars()) << "\"\n";
+        throw std::out_of_range{"Trying to access non-existent arguments"};
+    }
+
     ArgumentParser& name(std::string const& name);
     ArgumentParser& help(std::string const& help);
 
@@ -459,10 +505,11 @@ public:
     std::string const& getName() const { return _pimpl->name; }
     std::string const& getHelp() const { return _pimpl->help; }
     size_t getNumRequiredChars() const { return _pimpl->numRequiredChars; }
-    bool isOption(std::string const& str) const { return str.find_first_of(_pimpl->optionPrefix) == 0UL; }
-    bool isOption(Argument const& arg) const { return isOption(arg.getName()); }
+    bool hasOptionPrefix(std::string const& str) const { return str.find_first_of(_pimpl->optionPrefix) == 0UL; }
+    bool hasOptionPrefix(Argument const& arg) const { return hasOptionPrefix(arg.getName()); }
     bool hasSubParsers() const { return _pimpl->subparsers.has_value(); }
     bool usedSubParser(std::string const& name) const { return _pimpl->subparsers.has_value() && _pimpl->activatedSubParser == name; }
+    std::string const& getActivatedSubParserName() const { return _pimpl->activatedSubParser; }
 
     // action
 
@@ -473,17 +520,32 @@ public:
     ArgumentGroup addMutuallyExclusiveGroup();
     SubParsers addSubParsers();
 
-    bool parseArgs(std::string const& line);
+    /**
+     * @brief tokenize the line and parse the arguments
+     *
+     * @param line
+     * @return true
+     * @return false
+     */
+    bool parseArgs(std::string const& line) { return tokenize(line) && parseArgs(_pimpl->tokens); }
+    bool parseArgs(TokensView);
+
+    /**
+     * @brief tokenize the line and parse the arguments known by the parser
+     *
+     * @param line
+     * @return std::pair<bool, std::vector<Token>>, where
+     *         the first return value specifies whether the parse has succeeded, and
+     *         the second one specifies the unrecognized tokens
+     */
+    std::pair<bool, std::vector<Token>> parseKnownArgs(std::string const& line) {
+        if (!tokenize(line)) return {false, {}};
+        return parseKnownArgs(_pimpl->tokens);
+    }
+    std::pair<bool, std::vector<Token>> parseKnownArgs(TokensView);
     bool analyzeOptions() const;
 
 private:
-    struct Token {
-        Token(std::string const& tok)
-            : token{tok}, parsed{false} {}
-        std::string token;
-        bool parsed;
-    };
-
     struct ArgumentParserImpl {
         ArgumentParserImpl() : optionPrefix("-"), optionsAnalyzed(false) {}
         ordered_hashmap<std::string, Argument> arguments;
@@ -502,7 +564,7 @@ private:
         dvlab_utils::Tabler tabl;
 
         // members for analyzing parser options
-        MyTrie mutable trie;
+        dvlab_utils::Trie mutable trie;
         bool mutable optionsAnalyzed;
         Formatter formatter;
     };
@@ -511,7 +573,7 @@ private:
 
     template <typename ArgT>
     static decltype(auto)
-    operatorBracketImpl(ArgT&& t, std::string const& name);
+    operator_bracket_impl(ArgT&& t, std::string const& name);
 
     // addArgument error printing
 
@@ -528,12 +590,9 @@ private:
 
     // parse subroutine
     bool tokenize(std::string const& line);
-    bool parseTokens(std::span<Token>);
-    bool parseOptions(std::span<Token>);
-    bool parsePositionalArguments(std::span<Token>);
-    bool fillUnparsedArgumentsWithDefaults();
-
-    static bool constraintsSatisfied(Argument const& arg);
+    bool parseOptions(TokensView, std::vector<Token>&);
+    bool parsePositionalArguments(TokensView, std::vector<Token>&);
+    void fillUnparsedArgumentsWithDefaults();
 
     // parseOptions subroutine
 
@@ -542,9 +601,11 @@ private:
     bool allRequiredOptionsAreParsed() const;
     bool allRequiredMutexGroupsAreParsed() const;
 
+    bool conflictWithParsedArguments(Argument const&) const;
+
     // parsePositionalArguments subroutine
 
-    bool allTokensAreParsed(std::span<Token>) const;
+    bool allTokensAreParsed(TokensView) const;
     bool allRequiredArgumentsAreParsed() const;
     void printRequiredArgumentsMissingErrorMsg() const;
 };

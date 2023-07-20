@@ -11,7 +11,9 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <set>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "cmdParser.h"
@@ -39,6 +41,7 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
         parser.help("ArgParse package sandbox");
 
         parser.addArgument<string>("cat")
+            .nargs(NArgsOption::ZERO_OR_MORE)
             .help("won't eat veggies");
 
         parser.addArgument<string>("-dog")
@@ -50,6 +53,12 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         parser.printTokens();
         parser.printArguments();
+
+        ordered_hashset<string> cats = parser["cat"];
+
+        cout << "# cats = " << cats.size() << ":";
+        for (auto& name : cats) cout << " " << name;
+        cout << endl;
 
         return CMD_EXEC_DONE;
     };

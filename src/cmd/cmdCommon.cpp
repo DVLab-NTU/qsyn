@@ -58,7 +58,7 @@ unique_ptr<ArgParseCmdType> helpCmd() {
 
         parser.addArgument<string>("command")
             .defaultValue("")
-            .required(false)
+            .nargs(NArgsOption::OPTIONAL)
             .help("if specified, display help message to a command");
     };
 
@@ -114,7 +114,7 @@ unique_ptr<ArgParseCmdType> historyCmd() {
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("print command history");
         parser.addArgument<size_t>("nPrint")
-            .required(false)
+            .nargs(NArgsOption::OPTIONAL)
             .help("if specified, print the <nprint> latest command history");
     };
 
@@ -192,15 +192,11 @@ unique_ptr<ArgParseCmdType> verboseCmd() {
         parser.help("set verbose level to 0-9 (default: 3)");
 
         parser.addArgument<size_t>("level")
-            .constraint({[](ArgType<size_t> const& arg) {
-                             return [&arg]() {
-                                 return arg.getValue() <= 9 || arg.getValue() == 353;
-                             };
+            .constraint({[](size_t const& val) {
+                             return val <= 9 || val == 353;
                          },
-                         [](ArgType<size_t> const& arg) {
-                             return []() {
-                                 cerr << "Error: verbose level should be 0-9!!\n";
-                             };
+                         [](size_t const& val) {
+                             cerr << "Error: verbose level should be 0-9!!\n";
                          }})
             .help("0: silent, 1-3: normal usage, 4-6: detailed info, 7-9: prolix debug info");
     };
@@ -222,7 +218,7 @@ unique_ptr<ArgParseCmdType> seedCmd() {
 
         parser.addArgument<unsigned>("seed")
             .defaultValue(353)
-            .required(false)
+            .nargs(NArgsOption::OPTIONAL)
             .help("random seed value");
     };
 

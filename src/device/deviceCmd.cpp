@@ -47,15 +47,11 @@ bool initDeviceCmd() {
 }
 
 ArgType<size_t>::ConstraintType validDeviceId = {
-    [](ArgType<size_t> const& arg) {
-        return [&arg]() {
-            return deviceMgr->isID(arg.getValue());
-        };
+    [](size_t const& id) {
+        return deviceMgr->isID(id);
     },
-    [](ArgType<size_t> const& arg) {
-        return [&arg]() {
-            cerr << "Error: Device " << arg.getValue() << " does not exist!!\n";
-        };
+    [](size_t const& id) {
+        cerr << "Error: Device " << id << " does not exist!!\n";
     }};
 
 unique_ptr<ArgParseCmdType> dtCheckOutCmd() {

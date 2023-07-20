@@ -64,7 +64,7 @@ void Formatter::printUsage(ArgumentParser parser) {
     cout << TF::LIGHT_BLUE("Usage: ");
     cout << styledCmdName(parser.getName(), parser.getNumRequiredChars());
     for (auto const& [name, arg] : arguments) {
-        if (!arg.isRequired() && !conflictGroups.contains(name)) {
+        if (!arg.isRequired() && !conflictGroups.contains(toLowerString(name))) {
             cout << " " << optionalArgBracket(getSyntaxString(parser, arg));
         }
     }
@@ -74,7 +74,7 @@ void Formatter::printUsage(ArgumentParser parser) {
             cout << " " + optionalStyle("[");
             size_t ctr = 0;
             for (auto const& name : group.getArguments()) {
-                cout << getSyntaxString(parser, arguments.at(name));
+                cout << getSyntaxString(parser, arguments.at(toLowerString(name)));
                 if (++ctr < group.size()) cout << optionalStyle(" | ");
             }
             cout << optionalStyle("]");
@@ -86,7 +86,7 @@ void Formatter::printUsage(ArgumentParser parser) {
             cout << " " + requiredStyle("<");
             size_t ctr = 0;
             for (auto const& name : group.getArguments()) {
-                cout << getSyntaxString(parser, arguments.at(name));
+                cout << getSyntaxString(parser, arguments.at(toLowerString(name)));
                 if (++ctr < group.size()) cout << requiredStyle(" | ");
             }
             cout << requiredStyle(">");
@@ -94,7 +94,7 @@ void Formatter::printUsage(ArgumentParser parser) {
     }
 
     for (auto const& [name, arg] : arguments) {
-        if (arg.isRequired() && !conflictGroups.contains(name)) {
+        if (arg.isRequired() && !conflictGroups.contains(toLowerString(name))) {
             cout << " " << getSyntaxString(parser, arg);
         }
     }
@@ -182,7 +182,7 @@ string Formatter::getSyntaxString(ArgumentParser parser, Argument const& arg) {
         ret += requiredArgBracket(
             typeStyle(arg.getTypeString()) + " " + metavarStyle(arg.getMetavar()));
     }
-    if (parser.isOption(arg)) {
+    if (parser.hasOptionPrefix(arg)) {
         ret = optionalStyle(styledArgName(parser, arg)) + (arg.takesArgument() ? (" " + ret) : "");
     }
 
@@ -233,7 +233,7 @@ void Formatter::printHelpString(ArgumentParser parser, Argument const& arg) {
     auto& tabl = parser._pimpl->tabl;
     tabl << (arg.takesArgument() ? typeStyle(arg.getTypeString()) : typeStyle("flag"));
 
-    if (parser.isOption(arg)) {
+    if (parser.hasOptionPrefix(arg)) {
         if (arg.takesArgument()) {
             tabl << styledArgName(parser, arg) << metavarStyle(arg.getMetavar());
         } else {
@@ -258,7 +258,7 @@ void Formatter::printHelpString(ArgumentParser parser, SubParsers parsers) {
  * @return string
  */
 string Formatter::styledArgName(ArgumentParser parser, Argument const& arg) {
-    if (!parser.isOption(arg)) return metavarStyle(arg.getName());
+    if (!parser.hasOptionPrefix(arg)) return metavarStyle(arg.getName());
     if (colorLevel >= 1) {
         string mand = arg.getName().substr(0, arg.getNumRequiredChars());
         string rest = arg.getName().substr(arg.getNumRequiredChars());

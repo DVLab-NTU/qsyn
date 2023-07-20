@@ -46,7 +46,7 @@ ArgType<T>& ArgumentParser::addArgument(std::string const& name) {
 
     ArgType<T>& returnRef = dynamic_cast<Argument::Model<ArgType<T>>*>(_pimpl->arguments.at(realname)._pimpl.get())->inner;
 
-    if (!isOption(realname)) {
+    if (!hasOptionPrefix(realname)) {
         returnRef.required(true).metavar(realname);
     } else {
         returnRef.metavar(toUpperString(realname.substr(realname.find_first_not_of(_pimpl->optionPrefix))));
@@ -67,7 +67,7 @@ ArgType<T>& ArgumentParser::addArgument(std::string const& name) {
  */
 template <typename ArgT>
 decltype(auto)
-ArgumentParser::operatorBracketImpl(ArgT&& arg, std::string const& name) {
+ArgumentParser::operator_bracket_impl(ArgT&& arg, std::string const& name) {
     if (std::forward<ArgT>(arg)._pimpl->subparsers.has_value() && std::forward<ArgT>(arg)._pimpl->subparsers->isParsed()) {
         if (std::forward<ArgT>(arg).getActivatedSubParser()._pimpl->arguments.contains(toLowerString(name))) {
             return std::forward<ArgT>(arg).getActivatedSubParser()._pimpl->arguments.at(toLowerString(name));

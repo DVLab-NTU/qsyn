@@ -43,15 +43,11 @@ bool initTensorCmd() {
 }
 
 ArgType<size_t>::ConstraintType validTensorId = {
-    [](ArgType<size_t> const& arg) {
-        return [&arg]() {
-            return tensorMgr->hasId(arg.getValue());
-        };
+    [](size_t const& id) {
+        return tensorMgr->hasId(id);
     },
-    [](ArgType<size_t> const& arg) {
-        return [&arg]() {
-            cerr << "Error: Can't find tensor with ID " << arg.getValue() << "!!" << endl;
-        };
+    [](size_t const& id) {
+        cerr << "Error: Can't find tensor with ID " << id << "!!" << endl;
     }};
 
 unique_ptr<ArgParseCmdType> tsResetCmd() {
@@ -79,7 +75,7 @@ unique_ptr<ArgParseCmdType> tsPrintCmd() {
             .action(storeTrue)
             .help("only list summary");
         parser.addArgument<size_t>("id")
-            .required(false)
+            .nargs(NArgsOption::OPTIONAL)
             .constraint(validTensorId)
             .help("the ID to the tensor");
     };
