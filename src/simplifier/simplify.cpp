@@ -143,7 +143,8 @@ void Simplifier::amend() {
  */
 int Simplifier::bialgSimp() {
     this->setRule(make_unique<Bialgebra>());
-    return this->simp();
+    int i = this->simp();
+    return i;
 }
 
 /**
@@ -154,7 +155,8 @@ int Simplifier::bialgSimp() {
 int Simplifier::copySimp() {
     if (!_simpGraph->isGraphLike()) return 0;
     this->setRule(make_unique<StateCopy>());
-    return this->simp();
+    int i = this->simp();
+    return i;
 }
 
 /**
