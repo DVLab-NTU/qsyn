@@ -310,7 +310,7 @@ public:
     }
 
     // split the graph into two parts by K-L algorithm
-    friend std::pair<ZXGraph*, ZXGraph*> klSplit(ZXGraph* graph);
+    friend std::pair<ZXVertexList, ZXVertexList> klSplit(ZXGraph* graph);
 
 private:
     size_t _id;
@@ -332,5 +332,7 @@ private:
 
     void moveVerticesFrom(ZXGraph& g);
 };
+
+std::pair<ZXVertexList, ZXVertexList> klSplit(ZXGraph* graph);
 
 #endif  // ZX_GRAPH_H

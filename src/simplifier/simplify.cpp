@@ -500,6 +500,38 @@ void Simplifier::symbolicReduce() {
 void Simplifier::partitionReduce(size_t sliceTimes, size_t rounds = 1) {
     std::cerr << "partitionReduce is not implemented yet" << std::endl;
     std::cerr << "called with sliceTimes = " << sliceTimes << " and rounds = " << rounds << std::endl;
+
+    auto [partition1, partition2] = klSplit(_simpGraph);
+
+    size_t cut = 0;
+    for (auto& v1 : partition1) {
+        for (auto& v2 : partition2) {
+            if (v1->isNeighbor(v2)) {
+                cut++;
+            }
+        }
+    }
+    std::cerr << "cut = " << cut << std::endl;
+
+    size_t internal1 = 0;
+    for (auto& v1 : partition1) {
+        for (auto& v2 : partition1) {
+            if (v1->isNeighbor(v2)) {
+                internal1++;
+            }
+        }
+    }
+    std::cerr << "internal1 = " << internal1 << std::endl;
+
+    size_t internal2 = 0;
+    for (auto& v1 : partition2) {
+        for (auto& v2 : partition2) {
+            if (v1->isNeighbor(v2)) {
+                internal2++;
+            }
+        }
+    }
+    std::cerr << "internal2 = " << internal2 << std::endl;
 }
 
 /**
