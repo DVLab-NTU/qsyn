@@ -45,7 +45,7 @@ bool initSimpCmd() {
     return true;
 }
 
-ArgType<size_t>::ConstraintType validPreduceSliceTimes = {
+ArgType<size_t>::ConstraintType validPreduceSliceRounds = {
     [](ArgType<size_t> &arg) {
         return [&arg]() {
             return (arg.getValue() <= 10 && arg.getValue() >= 1);
@@ -57,7 +57,7 @@ ArgType<size_t>::ConstraintType validPreduceSliceTimes = {
         };
     }};
 
-ArgType<size_t>::ConstraintType validPreduceRounds = {
+ArgType<size_t>::ConstraintType validPreduceIteratoins = {
     [](ArgType<size_t> &arg) {
         return [&arg]() {
             return (arg.getValue() <= 10 && arg.getValue() >= 1);
@@ -97,12 +97,14 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
 
         parser.addArgument<size_t>("d")
             .required(false)
-            .constraint(validPreduceSliceTimes)
-            .help("the sliceTimes parameter for preduce");
-        parser.addArgument<size_t>("r")
+            .defaultValue(1)
+            .constraint(validPreduceSliceRounds)
+            .help("the sliceRounds parameter for preduce");
+        parser.addArgument<size_t>("n")
             .required(false)
-            .constraint(validPreduceRounds)
-            .help("the rounds parameter for preduce");
+            .defaultValue(1)
+            .constraint(validPreduceIteratoins)
+            .help("the iterations parameter for preduce, if not specified, it will be set to 1");
 
         mutex.addArgument<bool>("-interclifford")
             .action(storeTrue)

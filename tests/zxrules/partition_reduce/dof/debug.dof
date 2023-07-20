@@ -1,7 +1,6 @@
 verb 3
-// zxgread benchmark/zx/swap.zx
-zxgread benchmark/zx/tof3.zx
-// zxgp -v
-zxgs -preduce 2 2
-// zxgp -v
+qccread benchmark/qft/qft_27.qasm
+// zxgread benchmark/zx/tof3.zx
+qc2zx
+zxgs -preduce 4 1
 qq -f

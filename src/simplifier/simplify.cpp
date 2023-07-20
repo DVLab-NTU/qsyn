@@ -14,7 +14,8 @@
 
 #include "extract.h"
 #include "gFlow.h"
-#include "zxGraph.h"
+#include "zxDef.h"
+#include "zxGraph.h"  // for ZXGraph
 #include "zxoptimizer.h"
 
 using namespace std;
@@ -497,41 +498,32 @@ void Simplifier::symbolicReduce() {
  *        then merge the partitions together for n rounds
  *
  */
-void Simplifier::partitionReduce(size_t sliceTimes, size_t rounds = 1) {
+void Simplifier::partitionReduce(size_t sliceRounds, size_t iterations = 1) {
+    // TODO: implement partitionReduce
     std::cerr << "partitionReduce is not implemented yet" << std::endl;
-    std::cerr << "called with sliceTimes = " << sliceTimes << " and rounds = " << rounds << std::endl;
+    std::cerr << "called with sliceTimes = " << sliceRounds << " and rounds = " << iterations << std::endl;
 
-    auto [partition1, partition2] = klSplit(_simpGraph);
+    std::vector<ZXVertexList> partitions = klPartition(_simpGraph, sliceRounds);
 
-    size_t cut = 0;
-    for (auto& v1 : partition1) {
-        for (auto& v2 : partition2) {
-            if (v1->isNeighbor(v2)) {
-                cut++;
+    size_t total_internal_cost = 0;
+    for (auto& p : partitions) {
+        std::cerr << "\nsize: " << p.size() << std::endl;
+        size_t internal_cost = 0;
+        for (auto& v : p) {
+            for (auto& [n, e] : v->getNeighbors()) {
+                if (p.contains(n)) {
+                    internal_cost++;
+                }
             }
         }
+        total_internal_cost += internal_cost;
+        std::cerr << "internal cost: " << internal_cost << std::endl;
     }
-    std::cerr << "cut = " << cut << std::endl;
+    std::cerr << "\ntotal internal cost: " << total_internal_cost << std::endl;
 
-    size_t internal1 = 0;
-    for (auto& v1 : partition1) {
-        for (auto& v2 : partition1) {
-            if (v1->isNeighbor(v2)) {
-                internal1++;
-            }
-        }
+    // reconstruct the graph
+    for (auto& p : partitions) {
     }
-    std::cerr << "internal1 = " << internal1 << std::endl;
-
-    size_t internal2 = 0;
-    for (auto& v1 : partition2) {
-        for (auto& v2 : partition2) {
-            if (v1->isNeighbor(v2)) {
-                internal2++;
-            }
-        }
-    }
-    std::cerr << "internal2 = " << internal2 << std::endl;
 }
 
 /**

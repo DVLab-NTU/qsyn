@@ -15,12 +15,28 @@
 
 using SwapPair = std::pair<ZXVertex*, ZXVertex*>;
 
-std::pair<ZXVertexList, ZXVertexList> klSplit(ZXGraph* graph) {
+std::pair<ZXVertexList, ZXVertexList> _klPartition(ZXVertexList vertices);
+
+std::vector<ZXVertexList> klPartition(ZXGraph* graph, size_t rounds) {
+    std::vector<ZXVertexList> partitions = {graph->getVertices()};
+    for (size_t i = 0; i < rounds; i++) {
+        std::vector<ZXVertexList> newPartitions;
+        for (auto& partition : partitions) {
+            auto [p1, p2] = _klPartition(partition);
+            partition = p1;
+            newPartitions.push_back(p2);
+        }
+        partitions.insert(partitions.end(), newPartitions.begin(), newPartitions.end());
+    }
+    return partitions;
+}
+
+std::pair<ZXVertexList, ZXVertexList> _klPartition(ZXVertexList vertices) {
     ZXVertexList partition1 = ZXVertexList();
     ZXVertexList partition2 = ZXVertexList();
 
     bool toggle = false;
-    for (auto v : graph->getVertices()) {
+    for (auto v : vertices) {
         if (toggle) {
             partition1.insert(v);
         } else {
@@ -37,22 +53,22 @@ std::pair<ZXVertexList, ZXVertexList> klSplit(ZXGraph* graph) {
     std::unordered_set<ZXVertex*> lockedVertices;
 
     auto computeD = [&]() {
-        for (auto& v : graph->getVertices()) {
+        for (auto& v : vertices) {
             int internal_cost = 0;
             int external_cost = 0;
 
             ZXVertexList& myPartition = partition1.contains(v) ? partition1 : partition2;
+            ZXVertexList& otherPartition = partition1.contains(v) ? partition2 : partition1;
 
             for (auto& [neighbor, edge] : v->getNeighbors()) {
                 if (myPartition.contains(neighbor)) {
                     internal_cost++;
-                } else {
+                } else if (otherPartition.contains(neighbor)) {
                     external_cost++;
                 }
             }
 
             dValues[v] = external_cost - internal_cost;
-            v->printVertex();
         }
     };
 
@@ -97,6 +113,7 @@ std::pair<ZXVertexList, ZXVertexList> klSplit(ZXGraph* graph) {
         }
     };
 
+    size_t iteration = 0;
     while (true) {
         cumulativeGain = 0;
         swapHistory = std::stack<SwapPair>();
@@ -104,13 +121,26 @@ std::pair<ZXVertexList, ZXVertexList> klSplit(ZXGraph* graph) {
         bestIteration = 0;
         lockedVertices.clear();
         computeD();
+
+        // OPTIMIZE: decide a better stopping condition
         for (size_t _ = 0; _ < partition1.size() - 1; _++) {
             swapOnce();
         }
+        // for (size_t _ = 0; _ < partition1.size() / 2; _++) {
+        //     swapOnce();
+        // }
+
+        std::cerr << "Iteration " << iteration++ << ": " << bestCumulativeGain << std::endl;
+
+        // OPTIMIZE: decide a better stopping condition
         if (bestCumulativeGain <= 0) {
             break;
         }
-        // undo until best iteration
+        // if (bestCumulativeGain <= partition1.size() / 10) {
+        //     break;
+        // }
+
+        // NOTE: undo until best iteration
         while (swapHistory.size() > bestIteration) {
             auto [swap1, swap2] = swapHistory.top();
             swapHistory.pop();
