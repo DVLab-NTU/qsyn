@@ -22,7 +22,7 @@ extern size_t verbose;
 
 
 void OPTimizer::init() {
-    vector<string> vec{"Identity Removal Rule","Local Complementation Rule","Phase Gadget Rule","Pivot Rule","Pivot Gadget Rule","Pivot Boundary Rule","Spider Fusion Rule","Interior Clifford Simp","Clifford Simp"};
+    vector<string> vec{"Identity Removal Rule","Local Complementation Rule","Phase Gadget Rule","Pivot Rule","Pivot Gadget Rule","Pivot Boundary Rule","Spider Fusion Rule","Interior Clifford Simp","Clifford Simp", "State Copy Rule", "Bialgebra Rule", "Hadamard Cancellation Rule"};
     _rules.insert(vec.begin(), vec.end());
 
     for(auto& rule: _rules){
