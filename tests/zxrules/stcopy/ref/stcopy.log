@@ -40,11 +40,13 @@ ID:   1 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (4, [1m[
 ID:   2 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, -) 
 ID:   3 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (5, [1m[34mH[0m[0m) 
 ID:   4 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (1, [1m[34mH[0m[0m) (6, [1m[34mH[0m[0m) 
-ID:   5 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (0, 0)	  #Neighbors:   1     (3, [1m[34mH[0m[0m) 
-ID:   6 ([1m[32mZ[0m[0m, 11π/6)       (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, [1m[34mH[0m[0m) 
-ID:   9 ([1m[32mZ[0m[0m, 15π/8)       (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, [1m[34mH[0m[0m) 
+ID:   5 ([1m[32mZ[0m[0m, 3π/4)        (Qubit, Col): (0, 0)	  #Neighbors:   2     (3, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+ID:   6 ([1m[32mZ[0m[0m, 5π/6)        (Qubit, Col): (0, 0)	  #Neighbors:   2     (4, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+ID:   7 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (5, [1m[34mH[0m[0m) (6, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) (9, [1m[34mH[0m[0m) 
+ID:   8 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (7, [1m[34mH[0m[0m) 
+ID:   9 ([1m[32mZ[0m[0m, 7π/8)        (Qubit, Col): (0, 0)	  #Neighbors:   2     (7, [1m[34mH[0m[0m) (10, [1m[34mH[0m[0m) 
 ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (2, -) (9, [1m[34mH[0m[0m) 
-Total #Vertices: 9
+Total #Vertices: 11
 
 
 qsyn> zxgp -e
@@ -53,8 +55,12 @@ qsyn> zxgp -e
 ( 2, 10 )	Type:	-
 ( 3, 5 )	Type:	[1m[34mH[0m[0m
 ( 4, 6 )	Type:	[1m[34mH[0m[0m
+( 5, 7 )	Type:	[1m[34mH[0m[0m
+( 6, 7 )	Type:	[1m[34mH[0m[0m
+( 7, 8 )	Type:	[1m[34mH[0m[0m
+( 7, 9 )	Type:	[1m[34mH[0m[0m
 ( 9, 10 )	Type:	[1m[34mH[0m[0m
-Total #Edges: 6
+Total #Edges: 10
 
 qsyn> zxgr -r benchmark/zx/stcopy_boundary.zx
 Note: original ZX-graph is replaced...
@@ -89,23 +95,27 @@ qsyn> zxgs -stco
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (3, -) 
-ID:   1 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (9, -) 
+ID:   1 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, [1m[34mH[0m[0m) 
 ID:   2 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (8, -) 
 ID:   3 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (4, [1m[34mH[0m[0m) 
-ID:   4 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (0, 0)	  #Neighbors:   1     (3, [1m[34mH[0m[0m) 
-ID:   7 ([1m[32mZ[0m[0m, 15π/8)       (Qubit, Col): (0, 0)	  #Neighbors:   1     (8, [1m[34mH[0m[0m) 
+ID:   4 ([1m[32mZ[0m[0m, 3π/4)        (Qubit, Col): (0, 0)	  #Neighbors:   2     (3, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) 
+ID:   5 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (1, [1m[34mH[0m[0m) (4, [1m[34mH[0m[0m) (6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) 
+ID:   6 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (5, [1m[34mH[0m[0m) 
+ID:   7 ([1m[32mZ[0m[0m, 7π/8)        (Qubit, Col): (0, 0)	  #Neighbors:   2     (5, [1m[34mH[0m[0m) (8, [1m[34mH[0m[0m) 
 ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (2, -) (7, [1m[34mH[0m[0m) 
-ID:   9 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (1, -) 
-Total #Vertices: 8
+Total #Vertices: 9
 
 
 qsyn> zxgp -e
 ( 0, 3 )	Type:	-
-( 1, 9 )	Type:	-
+( 1, 5 )	Type:	[1m[34mH[0m[0m
 ( 2, 8 )	Type:	-
 ( 3, 4 )	Type:	[1m[34mH[0m[0m
+( 4, 5 )	Type:	[1m[34mH[0m[0m
+( 5, 6 )	Type:	[1m[34mH[0m[0m
+( 5, 7 )	Type:	[1m[34mH[0m[0m
 ( 7, 8 )	Type:	[1m[34mH[0m[0m
-Total #Edges: 5
+Total #Edges: 8
 
 qsyn> qq -f
 
