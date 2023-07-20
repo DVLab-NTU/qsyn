@@ -73,6 +73,78 @@ void QCir::addProcedure(std::string p, const std::vector<std::string> &procedure
 }
 
 /**
+ * @brief Print QCir Gates
+ */
+void QCir::printGates() {
+    if (_dirty)
+        updateGateTime();
+    cout << "Listed by gate ID" << endl;
+    for (size_t i = 0; i < _qgates.size(); i++) {
+        _qgates[i]->printGate();
+    }
+}
+
+/**
+ * @brief Print Depth of QCir
+ *
+ */
+void QCir::printDepth() {
+    if (_dirty) updateGateTime();
+    size_t depth = 0;
+    for (size_t i = 0; i < _qgates.size(); i++) {
+        if (_qgates[i]->getTime() > depth) depth = _qgates[i]->getTime();
+    }
+    cout << "Depth       : " << depth << endl;
+}
+
+/**
+ * @brief Print QCir
+ */
+void QCir::printCircuit() {
+    cout << "QCir " << _id << "( "
+         << _qubits.size() << " qubits, "
+         << _qgates.size() << " gates)\n";
+}
+
+/**
+ * @brief Print QCir Summary
+ */
+void QCir::printSummary() {
+    printCircuit();
+    countGate();
+    printDepth();
+}
+
+/**
+ * @brief Print Qubits
+ */
+void QCir::printQubits() {
+    if (_dirty)
+        updateGateTime();
+
+    for (size_t i = 0; i < _qubits.size(); i++)
+        _qubits[i]->printBitLine();
+}
+
+/**
+ * @brief Print Gate information
+ *
+ * @param id
+ * @param showTime if true, show the time
+ */
+bool QCir::printGateInfo(size_t id, bool showTime) {
+    if (getGate(id) != NULL) {
+        if (showTime && _dirty)
+            updateGateTime();
+        getGate(id)->printGateInfo(showTime);
+        return true;
+    } else {
+        cerr << "Error: id " << id << " not found!!" << endl;
+        return false;
+    }
+}
+
+/**
  * @brief Add single Qubit.
  *
  * @return QCirQubit*
@@ -324,7 +396,11 @@ bool QCir::removeGate(size_t id) {
  * @param detail if true, print the detail information
  */
 // TODO - Analysis qasm is correct since no MC in it. Would fix MC in future.
+<<<<<<< HEAD
 vector<int> QCir::analysis(bool detail, bool print) {
+=======
+void QCir::countGate(bool detail) {
+>>>>>>> devt
     size_t clifford = 0;
     size_t tfamily = 0;
     size_t cxcnt = 0;

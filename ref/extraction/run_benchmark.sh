@@ -1,4 +1,4 @@
-FOLDER=230523-IterativeDFS
+FOLDER=230610-Opt2-IterativeDFS
 mkdir -p ref/${FOLDER}
 ##NOTE - Full Reduced Stats
 for file in cm82a_208 adr4_197 cm42a_207 cycle10_2_110 ham15_107 dc2_222 inc_237 rd84_253 sqn_258 root_255; do

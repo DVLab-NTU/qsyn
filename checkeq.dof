@@ -1,9 +1,0 @@
-qccr urf2_277_extracted.qasm
-qc2zx
-qccr urf2_277_optimized.qasm
-qc2zx
-zxgadj
-zxcompose 0
-zxgs -fr
-zxgt -id
-qq -f

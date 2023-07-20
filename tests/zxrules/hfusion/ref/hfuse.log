@@ -667,36 +667,36 @@ Add vertex (●) 2
 Add vertex (●) 3
 Add edge (2, 3)
 
-> Gate 1 (z)
-Add vertex (●) 0
-Add vertex ([1m[32mZ[0m[0m) 1
-Add vertex (●) 2
-Add edge (0, 1)
-Add edge (1, 2)
-Remove edge (0, 4), type: -
-Add edge (2, 4)
-Remove edge (2, 4), type: -
-Add edge (3, 4)
-
 > Gate 0 (z)
 Add vertex (●) 0
 Add vertex ([1m[32mZ[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
+Remove edge (0, 4), type: -
+Add edge (0, 4)
+Remove edge (2, 4), type: -
+Add edge (1, 4)
+
+> Gate 1 (z)
+Add vertex (●) 0
+Add vertex ([1m[32mZ[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
 Remove edge (0, 5), type: -
-Add edge (0, 5)
+Add edge (2, 5)
 Remove edge (2, 5), type: -
-Add edge (1, 5)
+Add edge (3, 5)
 
 qsyn> zxgp -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (5, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   1     (5, -) 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (4, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 3)	  #Neighbors:   1     (4, -) 
-ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (1, 2)	  #Neighbors:   2     (2, -) (3, -) 
-ID:   5 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (0, -) (1, -) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   1     (4, -) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 3)	  #Neighbors:   1     (5, -) 
+ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   2     (0, -) (1, -) 
+ID:   5 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (1, 2)	  #Neighbors:   2     (2, -) (3, -) 
 Total #Vertices: 6
 
 
@@ -717,12 +717,12 @@ Add edge (5, 7)
 
 qsyn> zxgp -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (5, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   1     (5, -) 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (4, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 3)	  #Neighbors:   1     (4, -) 
-ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (1, 2)	  #Neighbors:   3     (2, -) (3, -) (6, [1m[34mH[0m[0m) 
-ID:   5 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   3     (0, -) (1, -) (7, [1m[34mH[0m[0m) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   1     (4, -) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 3)	  #Neighbors:   1     (5, -) 
+ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   3     (0, -) (1, -) (6, [1m[34mH[0m[0m) 
+ID:   5 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (1, 2)	  #Neighbors:   3     (2, -) (3, -) (7, [1m[34mH[0m[0m) 
 ID:   6 ([1m[33mH[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (4, [1m[34mH[0m[0m) (7, -) 
 ID:   7 ([1m[33mH[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (5, [1m[34mH[0m[0m) (6, -) 
 Total #Vertices: 8
@@ -752,12 +752,12 @@ Hadamard Cancellation Rule
 
 qsyn> zxgp -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (5, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   1     (5, -) 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (4, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 3)	  #Neighbors:   1     (4, -) 
-ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (1, 2)	  #Neighbors:   3     (2, -) (3, -) (5, -) 
-ID:   5 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   3     (0, -) (1, -) (4, -) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 3)	  #Neighbors:   1     (4, -) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 3)	  #Neighbors:   1     (5, -) 
+ID:   4 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (0, 2)	  #Neighbors:   3     (0, -) (1, -) (5, -) 
+ID:   5 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (1, 2)	  #Neighbors:   3     (2, -) (3, -) (4, -) 
 Total #Vertices: 6
 
 

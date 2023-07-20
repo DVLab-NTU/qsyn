@@ -24,7 +24,7 @@ bool SORT_NEIGHBORS = 1;
 bool PERMUTE_QUBITS = 1;
 bool FILTER_DUPLICATED_CXS = 1;
 size_t BLOCK_SIZE = 5;
-size_t OPTIMIZE_LEVEL = 1;
+size_t OPTIMIZE_LEVEL = 2;
 extern size_t verbose;
 
 /**
@@ -78,14 +78,6 @@ void Extractor::initialize(bool fromEmpty) {
         _graph->printQubits();
         _logicalCircuit->printQubits();
     }
-
-    if (toPhysical()) {
-        if (verbose >= 1) cout << "Note: extract to device " << _device.value().getName() << endl;
-        _physicalCircuit->addQubit(_device.value().getNQubit());
-        unique_ptr<DFSPlacer> placer = make_unique<DFSPlacer>();
-        _initialPlacement = placer->placeAndAssign(_device.value());
-        if (verbose >= 5) _device.value().printStatus();
-    }
 }
 
 /**
@@ -103,19 +95,6 @@ QCir* Extractor::extract() {
         _graph->printQubits();
     }
 
-    bool correct = true;
-    if (toPhysical()) {
-        cout << "Checking...      ";
-        MappingEQChecker checker(_physicalCircuit, _logicalCircuit, _deviceBackup.value(), _initialPlacement, true);
-        if (checker.check()) {
-            cout << "passed" << endl;
-            _physicalCircuit->addProcedure("ZX2QC (Physical)", _graph->getProcedures());
-            _physicalCircuit->setFileName(_graph->getFileName());
-        } else {
-            cout << "failed" << endl;
-            correct = false;
-        }
-    }
     if (PERMUTE_QUBITS) {
         permuteQubit();
         if (verbose >= 8) {
@@ -129,15 +108,6 @@ QCir* Extractor::extract() {
     _graph->addProcedure("ZX2QC");
     _logicalCircuit->setFileName(_graph->getFileName());
 
-    if (toPhysical()) {
-        if (correct) {
-            cout << "#swap: " << _cntSwap << " (decomposed into CXs)" << endl;
-            return _physicalCircuit;
-        } else {
-            cout << "Warning: physical and logical circuits are not matched, store logical one!!" << endl;
-            return _logicalCircuit;
-        }
-    }
     return _logicalCircuit;
 }
 
@@ -173,7 +143,7 @@ bool Extractor::extractionLoop(size_t max_iter) {
             extractCXs();
         }
         if (extractHsFromM2() == 0) {
-            cerr << "Error: No Candidate Found!!" << endl;
+            cerr << "Error: No Candidate Found!! in extractHsFromM2" << endl;
             _biAdjacency.printMatrix();
             return false;
         }
@@ -273,13 +243,7 @@ bool Extractor::extractCZs(bool check) {
         ops.emplace_back(op);
     }
     if (ops.size() > 0) {
-        if (toPhysical()) {
-            Duostra duo(ops, _graph->getNumOutputs(), _device.value(), false, false, true);
-            duo.flow(true);
-            prependSeriesGates(duo.getOrder(), duo.getResult());
-            _device = duo.getDevice();
-        } else
-            prependSeriesGates(ops);
+        prependSeriesGates(ops);
     }
     if (verbose >= 8) {
         _logicalCircuit->printQubits();
@@ -296,7 +260,7 @@ bool Extractor::extractCZs(bool check) {
  */
 void Extractor::extractCXs(size_t strategy) {
     _cntCXIter++;
-    gaussianElimination();
+    biadjacencyElimination();
     updateGraphByMatrix();
 
     if (verbose >= 4) cout << "Extract CXs" << endl;
@@ -306,17 +270,13 @@ void Extractor::extractCXs(size_t strategy) {
         frontId2Vertex[cnt] = f;
         cnt++;
     }
-    if (toPhysical()) {
-        prependSeriesGates(_DuostraAssigned, _DuostraMapped);
-        // _device.value().printStatus();
-    } else {
-        for (auto& [t, c] : _cnots) {
-            // NOTE - targ and ctrl are opposite here
-            size_t ctrl = _qubitMap[frontId2Vertex[c]->getQubit()];
-            size_t targ = _qubitMap[frontId2Vertex[t]->getQubit()];
-            if (verbose >= 4) cout << "Add CX: " << ctrl << " " << targ << endl;
-            prependDoubleQubitGate("cx", {ctrl, targ}, Phase(0));
-        }
+
+    for (auto& [t, c] : _cnots) {
+        // NOTE - targ and ctrl are opposite here
+        size_t ctrl = _qubitMap[frontId2Vertex[c]->getQubit()];
+        size_t targ = _qubitMap[frontId2Vertex[t]->getQubit()];
+        if (verbose >= 4) cout << "Add CX: " << ctrl << " " << targ << endl;
+        prependDoubleQubitGate("cx", {ctrl, targ}, Phase(0));
     }
 }
 
@@ -563,7 +523,7 @@ Extractor::Target Extractor::findColumnSwap(Target target) {
             }
 
             if (freeCols.size() == 0) {
-                cout << "Error: no free column!!" << endl;
+                if (verbose >= 5) cout << "Note: no free column for column optimal swap!!" << endl;
                 Target t;
                 return t;  // NOTE - Contradiction
             }
@@ -619,13 +579,13 @@ Extractor::Target Extractor::findColumnSwap(Target target) {
 }
 
 /**
- * @brief Perform Gaussian Elimination on frontier and neighbors
+ * @brief Perform elimination on biadjacency matrix
  *
  * @param check if true, check the frontier is clean and no axels connecting to frontier
  * @return true if check pass
  * @return false if not
  */
-bool Extractor::gaussianElimination(bool check) {
+bool Extractor::biadjacencyElimination(bool check) {
     if (check) {
         if (!frontierIsCleaned()) {
             cout << "Note: frontier is dirty, please clean it first." << endl;
@@ -649,49 +609,24 @@ bool Extractor::gaussianElimination(bool check) {
         });
     }
 
+    vector<M2::Oper> greedyOpers;
+
     _biAdjacency.fromZXVertices(_frontier, _neighbors);
-    columnOptimalSwap();
-    _biAdjacency.fromZXVertices(_frontier, _neighbors);
-    if (toPhysical()) {
-        size_t minCnots = size_t(-1);
-        size_t bestBlock = 0;
-        M2 bestMatrix;
-        if (verbose > 4) cout << "Round Start" << endl;
-        for (size_t blk = 1; blk < _biAdjacency.numCols(); blk++) {
-            if (verbose > 4) cout << "> ";
-            blockElimination(bestBlock, bestMatrix, minCnots, blk);
+    M2 greedyMat = _biAdjacency;
+    ZXVertexList backupNeighbors = _neighbors;
+    if (OPTIMIZE_LEVEL > 1) {
+        // NOTE - opt = 2 or 3
+        greedyOpers = greedyReduction(greedyMat);
+        for (auto oper : greedyOpers) {
+            greedyMat.xorOper(oper.first, oper.second, true);
         }
-        if (verbose > 4) cout << "Best Duostra Mapped block: " << bestBlock << endl;
-        _biAdjacency = bestMatrix;
-        _cnots = _biAdjacency.getOpers();
+    }
 
-        // NOTE - Construct Duostra Input
-        unordered_map<size_t, ZXVertex*> frontId2Vertex;
-        size_t cnt = 0;
-        for (auto& f : _frontier) {
-            frontId2Vertex[cnt] = f;
-            cnt++;
-        }
-        vector<Operation> ops;
-        for (auto& [t, c] : _cnots) {
-            // NOTE - targ and ctrl are opposite here
-            size_t ctrl = _qubitMap[frontId2Vertex[c]->getQubit()];
-            size_t targ = _qubitMap[frontId2Vertex[t]->getQubit()];
-            if (verbose > 4) cout << "Add CX: " << ctrl << " " << targ << endl;
-            Operation op(GateType::CX, Phase(0), {ctrl, targ}, {});
-            ops.emplace_back(op);
-        }
+    if (OPTIMIZE_LEVEL != 2) {
+        // NOTE - opt = 0, 1 or 3
+        columnOptimalSwap();
+        _biAdjacency.fromZXVertices(_frontier, _neighbors);
 
-        // NOTE - Get Mapping result
-        Duostra duo(ops, _graph->getNumOutputs(), _device.value(), false, false, true);
-        duo.flow(true);
-
-        _DuostraAssigned = duo.getOrder();
-        _DuostraMapped = duo.getResult();
-        // _device.value().printStatus();
-        _device = duo.getDevice();
-
-    } else {
         if (OPTIMIZE_LEVEL == 0) {
             _biAdjacency.gaussianElimSkip(BLOCK_SIZE, true, true);
             if (FILTER_DUPLICATED_CXS) {
@@ -703,20 +638,45 @@ bool Extractor::gaussianElimination(bool check) {
                 }
                 if (verbose >= 4) cout << "Filter " << _cntCXFiltered - old << " CXs. Total: " << _cntCXFiltered << endl;
             }
-        } else if (OPTIMIZE_LEVEL == 1) {
+            _cnots = _biAdjacency.getOpers();
+        } else if (OPTIMIZE_LEVEL == 1 || OPTIMIZE_LEVEL == 3) {
             size_t minCnots = size_t(-1);
             M2 bestMatrix;
             for (size_t blk = 1; blk < _biAdjacency.numCols(); blk++) {
                 blockElimination(bestMatrix, minCnots, blk);
             }
-            _biAdjacency = bestMatrix;
+            if (OPTIMIZE_LEVEL == 1) {
+                _biAdjacency = bestMatrix;
+                _cnots = _biAdjacency.getOpers();
+            } else {
+                size_t nGaussOpers = bestMatrix.getOpers().size();
+                size_t nSingleOneRows = accumulate(bestMatrix.getMatrix().begin(), bestMatrix.getMatrix().end(), 0,
+                                                   [](size_t acc, const Row& r) { return acc + size_t(r.isOneHot()); });
+                // NOTE - opers per extractable rows for Gaussian is bigger than greedy
+                bool selectGreedy = float(nGaussOpers) / float(nSingleOneRows) > float(greedyOpers.size()) - 0.1;
+                if (!greedyOpers.empty() && selectGreedy) {
+                    _biAdjacency = greedyMat;
+                    _cnots = greedyMat.getOpers();
+                    _neighbors = backupNeighbors;
+                    if (verbose > 3) cout << "Found greedy reduction with " << _cnots.size() << " CX(s)" << endl;
+                } else {
+                    _biAdjacency = bestMatrix;
+                    _cnots = _biAdjacency.getOpers();
+                    if (verbose > 3) cout << "Gaussian elimination with " << _cnots.size() << " CX(s)" << endl;
+                }
+            }
         } else {
             cerr << "Error: Wrong Optimize Level" << endl;
             abort();
         }
-        _cnots = _biAdjacency.getOpers();
+
+    } else {
+        // NOTE - OPT level 2
+        _biAdjacency = greedyMat;
+        _cnots = greedyMat.getOpers();
     }
 
+    // TODO - update matrix to correct one
     return true;
 }
 
@@ -925,20 +885,20 @@ void Extractor::createMatrix() {
 void Extractor::prependSingleQubitGate(string type, size_t qubit, Phase phase) {
     if (type == "rotate") {
         _logicalCircuit->addSingleRZ(qubit, phase, false);
-        if (toPhysical()) {
-            size_t physicalQId = _device.value().getPhysicalbyLogical(qubit);
-            assert(physicalQId != ERROR_CODE);
-            _device.value().applySingleQubitGate(physicalQId);
-            _physicalCircuit->addSingleRZ(physicalQId, phase, false);
-        }
+        // if (toPhysical()) {
+        //     size_t physicalQId = _device.value().getPhysicalbyLogical(qubit);
+        //     assert(physicalQId != ERROR_CODE);
+        //     _device.value().applySingleQubitGate(physicalQId);
+        //     _physicalCircuit->addSingleRZ(physicalQId, phase, false);
+        // }
     } else {
         _logicalCircuit->addGate(type, {qubit}, phase, false);
-        if (toPhysical()) {
-            size_t physicalQId = _device.value().getPhysicalbyLogical(qubit);
-            assert(physicalQId != ERROR_CODE);
-            _device.value().applySingleQubitGate(physicalQId);
-            _physicalCircuit->addGate(type, {physicalQId}, phase, false);
-        }
+        // if (toPhysical()) {
+        //     size_t physicalQId = _device.value().getPhysicalbyLogical(qubit);
+        //     assert(physicalQId != ERROR_CODE);
+        //     _device.value().applySingleQubitGate(physicalQId);
+        //     _physicalCircuit->addGate(type, {physicalQId}, phase, false);
+        // }
     }
     // if (toPhysical()) _device.value().printStatus();
 }

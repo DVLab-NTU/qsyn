@@ -196,8 +196,8 @@ ID:  87 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   
 ID:  88 ([1m[31mX[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (77, -) 
 ID:  89 ([1m[31mX[0m[0m, π)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (53, -) 
 ID:  90 ([1m[31mX[0m[0m, π)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (57, -) 
-ID:  91 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (10, -) 
-ID:  92 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (84, -) 
+ID:  91 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (12, -) 
+ID:  92 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (82, -) 
 Total #Vertices: 85
 
 

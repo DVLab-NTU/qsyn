@@ -28,15 +28,22 @@ MyUsage myUsage;
 //----------------------------------------------------------------------
 //    Global functions in util
 //----------------------------------------------------------------------
-//
-// List all the file names under "dir" with prefix "prefix"
-// Ignore "." and ".."
-//
-int listDir(vector<string>& files, const string& prefix, const string& dir = ".") {
+
+/**
+ * @brief
+ *
+ * @param prefix the filename prefix
+ * @param dir the directory to search
+ * @return vector<string>
+ */
+vector<string> listDir(string const& prefix, string const& dir) {
+    vector<string> files;
+
     namespace fs = std::filesystem;
+
     if (!fs::exists(dir)) {
-        cerr << "Error(" << errno << "): failed to open " << dir << "!!\n";
-        return errno;
+        cerr << "Error: failed to open " << dir << "!!\n";
+        return files;
     }
 
     for (auto& entry : fs::directory_iterator(dir)) {
@@ -47,7 +54,7 @@ int listDir(vector<string>& files, const string& prefix, const string& dir = "."
 
     sort(files.begin(), files.end());
 
-    return 0;
+    return files;
 }
 
 size_t intPow(size_t base, size_t n) {

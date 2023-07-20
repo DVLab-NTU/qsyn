@@ -45,7 +45,15 @@ void Optimizer::reset() {
     _swaps.clear();
     _corrections.clear();
     _gateCnt = 0;
-
+    FUSE_PHASE = 0;
+    X_CANCEL = 0;
+    CNOT_CANCEL = 0;
+    CZ_CANCEL = 0;
+    HS_EXCHANGE = 0;
+    CRZ_TRACSFORM = 0;
+    CX2CZ = 0;
+    CZ2CX = 0;
+    DO_SWAP = 0;
     for (size_t i = 0; i < _circuit->getQubits().size(); i++) {
         _availty.emplace_back(false);
         _available.emplace(i, vector<QCirGate*>{});
@@ -150,6 +158,21 @@ bool Optimizer::isSingleRotateX(QCirGate* g) {
 }
 
 /**
+ * @brief Is double qubit gate
+ *
+ * @param g
+ * @return true
+ * @return false
+ */
+bool Optimizer::isDoubleQubitGate(QCirGate* g) {
+    if (g->getType() == GateType::CX ||
+        g->getType() == GateType::CZ)
+        return true;
+    else
+        return false;
+}
+
+/**
  * @brief Get first available rotate gate along Z-axis on qubit `target`
  *
  * @param target which qubit
@@ -162,4 +185,19 @@ QCirGate* Optimizer::getAvailableRotateZ(size_t target) {
         }
     }
     return nullptr;
+}
+
+/**
+ * @brief Add a gate (copy) to the circuit.
+ *
+ * @param QCir* circuit to add
+ * @param QCirGate* The gate to be add
+ */
+void Optimizer::_addGate2Circuit(QCir* circuit, QCirGate* gate) {
+    vector<size_t> qubit_list;
+    if (gate->getType() == GateType::CX || gate->getType() == GateType::CZ) {
+        qubit_list.emplace_back(gate->getControl()._qubit);
+    }
+    qubit_list.emplace_back(gate->getTarget()._qubit);
+    circuit->addGate(gate->getTypeStr(), qubit_list, gate->getPhase(), !_reversed);
 }
