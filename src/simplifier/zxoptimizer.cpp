@@ -127,6 +127,6 @@ bool ZXOPTimizer::updateParameters(ZXGraph* g) {
         _lDensity = calculateDensity(g);
         _lZXGraph = g;
     }
-    cout << "# " << _lVerticeCnt << " vertices, " << _lEdgeCnt << " edges, " << _lTCnt << " T-gates, Density = " << _lDensity << " -> " << stop << endl << endl;
+    if(verbose >= 8) cout << "# " << _lVerticeCnt << " vertices, " << _lEdgeCnt << " edges, " << _lTCnt << " T-gates, Density = " << _lDensity << " -> Stop:" << stop << endl << endl;
     return stop;
 }

@@ -166,7 +166,7 @@ int Simplifier::gadgetSimp() {
     this->setRule(make_unique<PhaseGadget>());
     int i = this->simp();
     if(i > 0){
-        cout << this->getRule()->getName() << endl;
+        if(verbose >= 8) cout << this->getRule()->getName() << endl;
         stop = opt.updateParameters(_simpGraph);
     }
     
@@ -203,7 +203,7 @@ int Simplifier::idSimp() {
     this->setRule(make_unique<IdRemoval>());
     int i = this->simp();
     if(i > 0){
-        cout << this->getRule()->getName() << endl;
+        if(verbose >= 8) cout << this->getRule()->getName() << endl;
         stop = opt.updateParameters(_simpGraph);
     }
     if(stop) return -1;
@@ -219,7 +219,7 @@ int Simplifier::lcompSimp() {
     this->setRule(make_unique<LComp>());
     int i = this->simp();
     if(i > 0){
-        cout << this->getRule()->getName() << endl;
+        if(verbose >= 8) cout << this->getRule()->getName() << endl;
         stop = opt.updateParameters(_simpGraph);
     }
     if(stop) return -1;
@@ -235,7 +235,7 @@ int Simplifier::pivotSimp() {
     this->setRule(make_unique<Pivot>());
     int i = this->simp();
     if(i > 0){
-        cout << this->getRule()->getName() << endl;
+        if(verbose >= 8) cout << this->getRule()->getName() << endl;
         stop = opt.updateParameters(_simpGraph);
     }
     if(stop) return -1;
@@ -251,7 +251,7 @@ int Simplifier::pivotBoundarySimp() {
     this->setRule(make_unique<PivotBoundary>());
     int i = this->simp();
     if(i > 0){
-        cout << this->getRule()->getName() << endl;
+        if(verbose >= 8) cout << this->getRule()->getName() << endl;
         stop = opt.updateParameters(_simpGraph);
     }
     if(stop) return -1;
@@ -267,7 +267,7 @@ int Simplifier::pivotGadgetSimp() {
     this->setRule(make_unique<PivotGadget>());
     int i = this->simp();
     if(i > 0){
-        cout << this->getRule()->getName() << endl;
+        if(verbose >= 8) cout << this->getRule()->getName() << endl;
         stop = opt.updateParameters(_simpGraph);
     }
     if(stop) return -1;
@@ -293,7 +293,7 @@ int Simplifier::sfusionSimp() {
     this->setRule(make_unique<SpiderFusion>());
     int i = this->simp();
     if(i > 0){
-        cout << this->getRule()->getName() << endl;
+        if(verbose >= 8) cout << this->getRule()->getName() << endl;
         stop = opt.updateParameters(_simpGraph);
     }
     if(stop) return -1;
@@ -332,7 +332,6 @@ void Simplifier::toRGraph() {
  * @return int
  */
 int Simplifier::interiorCliffordSimp() {
-    cout << "- Interior Clifford Simp" << endl;
     this->sfusionSimp();
     toGraph();
     int i = 0;
@@ -355,30 +354,12 @@ int Simplifier::interiorCliffordSimp() {
 }
 
 
-// int Simplifier::piCliffordSimp() {
-//     this->sfusionSimp();
-//     toGraph();
-
-//     int i = 0;
-//     while (true) {
-//         int i1 = this->idSimp();
-//         int i2 = this->sfusionSimp();
-//         int i3 = this->pivotSimp();
-//         int i4 = this->lcompSimp();
-//         cout <<"InterC: " << i1 << " " << i2 << " " << i3 << " " << i4 << endl;
-//         if (i1 + i2 == 0) break;
-//         i++;
-//     }
-//     return i;
-// }
-
 /**
  * @brief Perform `interior_clifford` and `pivot_boundary` iteratively until no pivot_boundary candidate is found
  *
  * @return int
  */
 int Simplifier::cliffordSimp() {
-    cout << "- Clifford Simp" << endl;
     int i = 0;
     int r2r = opt.getR2R("Clifford Simp");
     while (true && r2r > 0) {
@@ -404,11 +385,9 @@ void Simplifier::fullReduce() {
     this->pivotGadgetSimp();
     while (true) {
         this->cliffordSimp();
-        cout << "--------" << endl << endl; 
         int i = this->gadgetSimp();
         if(i == -1) i = 0;
         this->interiorCliffordSimp();
-        cout << "--------" << endl << endl; 
         int j = this->pivotGadgetSimp();
         if(j == -1) j = 0;
         if (i + j == 0) break;
@@ -421,48 +400,52 @@ void Simplifier::fullReduce() {
  * 
  */
 void Simplifier::dynamicReduce(int tOptimal) {
-    cout << "(" << tOptimal << ")" << endl;
+    cout << " (T-optimal: " << tOptimal << ")" ;
     opt.init();
     _simpGraph->addProcedure("DR");
     opt.updateParameters(_simpGraph);
     
     int a1 = this->interiorCliffordSimp();
-    cout << "--------" << endl << endl; 
+    
     if(a1 == -1){
         _simpGraph = opt.getLastZXGraph();
+        this->printRecipe();
         return;
     } 
     
     int a2 = this->pivotGadgetSimp();
     if(a2 == -1 && tOptimal == _simpGraph->TCount()){
         _simpGraph = opt.getLastZXGraph();
+        this->printRecipe();
         return;
     } 
     
     while (true) {
         int a3 = this->cliffordSimp();
-        cout << "--------" << endl << endl; 
         if(a3 == -1 && tOptimal == _simpGraph->TCount()){
             _simpGraph = opt.getLastZXGraph();
+            this->printRecipe();
             return;
         } 
         
         int a4 = this->gadgetSimp();
         if(a4 == -1 && tOptimal == _simpGraph->TCount()){
             _simpGraph = opt.getLastZXGraph();
+            this->printRecipe();
             return;
         } 
         
         int a5 = this->interiorCliffordSimp();
-        cout << "--------" << endl << endl; 
         if(a5 == -1 && tOptimal == _simpGraph->TCount()){
             _simpGraph = opt.getLastZXGraph();
+            this->printRecipe();
             return;
         } 
         
         int a6 = this->pivotGadgetSimp();
         if(a6 == -1 && tOptimal == _simpGraph->TCount()){
             _simpGraph = opt.getLastZXGraph();
+            this->printRecipe();
             return;
         } 
         
@@ -474,6 +457,7 @@ void Simplifier::dynamicReduce(int tOptimal) {
 
 void Simplifier::hybridReduce() {
     ZXGraph* _copyGraph = _simpGraph->copy();
+    cout << endl << "Full Reduce:";
     this->fullReduce();
     int tOptimal = _simpGraph->TCount();
     _simpGraph = _copyGraph;
