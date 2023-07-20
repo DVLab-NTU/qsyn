@@ -25,7 +25,7 @@ zxge -addi 2
 zxge -addo 0
 zxge -addo 2
 zxge -addo 1
-zxgp -i
+zxgp -inputs
 zxgp -o
 zxgp -v
 zxr

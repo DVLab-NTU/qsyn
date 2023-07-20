@@ -115,7 +115,7 @@ qsyn> zxge -addo 2
 
 qsyn> zxge -addo 1
 
-qsyn> zxgp -i
+qsyn> zxgp -inputs
 Input ( 0 1 2 )
 Total #Inputs: 3
 
