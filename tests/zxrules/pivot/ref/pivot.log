@@ -116,6 +116,9 @@ Remove ID: 8
   1) 1 matches
   2) 1 matches
 
+Pivot Rule
+# 9 vertices, 11 edges, 0 T-gates, Density = 7.77778 -> Stop:0
+
 
 qsyn> zxgp -v
 
@@ -246,6 +249,9 @@ Remove ID: 8
 => 2 iterations.
   1) 1 matches
   2) 1 matches
+
+Pivot Rule
+# 8 vertices, 7 edges, 0 T-gates, Density = 3.75 -> Stop:0
 
 
 qsyn> zxgp -v
@@ -489,6 +495,9 @@ Remove ID: 5
 <<<
 => 1 iterations.
   1) 1 matches
+
+Pivot Rule
+# 24 vertices, 43 edges, 0 T-gates, Density = 22.6667 -> Stop:1
 
 
 qsyn> zxgp -v
@@ -1061,6 +1070,9 @@ Remove ID: 16
 => 1 iterations.
   1) 2 matches
 
+Pivot Rule
+# 44 vertices, 124 edges, 0 T-gates, Density = 62.9091 -> Stop:1
+
 
 qsyn> zxgp -v
 
@@ -1487,10 +1499,14 @@ Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
 qsyn> tsp 0
-{{ 2.+0.i,  0.+0.i,  0.+0.i,  0.+0.i},
- { 0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i},
- { 0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i},
- { 0.+0.i,  0.+0.i,  0.+0.i,  0.+0.i}}
+{{ 2.000000e+00+0.i,  0.000000e+00+0.i,  0.000000e+00+0.i,
+   3.383279e-17+0.i},
+ {-5.309110e-17+0.i,  0.000000e+00+0.i,  0.000000e+00+0.i,
+  -8.981100e-34+0.i},
+ {-5.309110e-17+0.i,  0.000000e+00+0.i,  0.000000e+00+0.i,
+  -8.981100e-34+0.i},
+ { 1.409333e-33+0.i,  0.000000e+00+0.i,  0.000000e+00+0.i,
+   2.384083e-50+0.i}}
 #Dim:    2	Info: ZX 0
 
 qsyn> qq -f
