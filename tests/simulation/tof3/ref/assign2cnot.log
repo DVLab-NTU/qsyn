@@ -263,9 +263,7 @@ ID:   6 (●, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   1     (45, [1m
 ID:   7 (●, 0)           (Qubit, Col): (3, 38)	  #Neighbors:   1     (45, [1m[34mH[0m[0m) 
 ID:  24 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 14)	  #Neighbors:   3     (2, -) (3, -) (45, [1m[34mH[0m[0m) 
 ID:  45 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (3, 28)	  #Neighbors:   3     (6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (24, [1m[34mH[0m[0m) 
-ID: 115 ([1m[32mZ[0m[0m, -3π/4)       (Qubit, Col): (-2, 23)	  #Neighbors:   1     (116, [1m[34mH[0m[0m) 
-ID: 116 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 23)	  #Neighbors:   1     (115, [1m[34mH[0m[0m) 
-Total #Vertices: 8
+Total #Vertices: 6
 
 
 qsyn> zx2ts
