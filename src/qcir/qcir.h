@@ -79,7 +79,7 @@ public:
 
     bool draw(std::string const& drawer, std::string const& outputPath = "", float scale = 1.0f);
 
-    std::vector<int> countGate(bool detail = false, bool print = false);
+    std::vector<int> countGate(bool detail = false, bool print = true);
 
     void ZXMapping();
     void tensorMapping();

@@ -1,5 +1,4 @@
-zxn
-zxgtest
+zxgr benchmark/zx/cnot.zx
 
 zxgedit -adde 0 5 SIMPLE
 
@@ -9,8 +8,7 @@ zxgp -e
 // should fail because vertex 0 is a boundary with more than 1 neighbors...
 zx2ts
 
-zxn
-zxgtest
+zxgr benchmark/zx/cnot.zx
 zxgedit -rme 0 2 -ALL
 
 zxgp -v

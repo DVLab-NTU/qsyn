@@ -306,7 +306,7 @@ unique_ptr<ArgParseCmdType> ZXGTestCmd() {
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("test ZX-graph structures and functions");
 
-        auto mutex = parser.addMutuallyExclusiveGroup();
+        auto mutex = parser.addMutuallyExclusiveGroup().required(true);
 
         mutex.addArgument<bool>("-empty")
             .action(storeTrue)

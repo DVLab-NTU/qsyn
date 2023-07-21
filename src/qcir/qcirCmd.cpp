@@ -542,7 +542,7 @@ unique_ptr<ArgParseCmdType> QCirPrintCmd() {
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCCPrint");
         if (parser["-analysis"].isParsed())
-            qcirMgr->getQCircuit()->countGate();
+            qcirMgr->getQCircuit()->countGate(false);
         else if (parser["-detail"].isParsed())
             qcirMgr->getQCircuit()->countGate(true);
         else if (parser["-list"].isParsed())

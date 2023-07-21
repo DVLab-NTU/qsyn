@@ -103,11 +103,21 @@ Input  axis ids: 6 4 2 0
 Output axis ids: 7 5 3 1
 Stored the resulting tensor as tensor id 0
 
-qsyn> zxn
+qsyn> zxgr benchmark/zx/cnot.zx
+Add vertex (●) 0
+Add vertex (●) 1
+Add vertex ([1m[32mZ[0m[0m) 2
+Add vertex ([1m[31mX[0m[0m) 3
+Add vertex (●) 4
+Add vertex (●) 5
+Add edge (0, 2)
+Add edge (1, 3)
+Add edge (2, 3)
+Add edge (2, 4)
+Add edge (3, 5)
 Create and checkout to Graph 1
 
-qsyn> zxgtest
-Generate a 2-qubit CNOT graph for testing
+qsyn> zxgr benchmark/zx/cnot.zx
 Add vertex (●) 0
 Add vertex (●) 1
 Add vertex ([1m[32mZ[0m[0m) 2
@@ -119,23 +129,7 @@ Add edge (1, 3)
 Add edge (2, 3)
 Add edge (2, 4)
 Add edge (3, 5)
-
-qsyn> zxn
 Create and checkout to Graph 2
-
-qsyn> zxgtest
-Generate a 2-qubit CNOT graph for testing
-Add vertex (●) 0
-Add vertex (●) 1
-Add vertex ([1m[32mZ[0m[0m) 2
-Add vertex ([1m[31mX[0m[0m) 3
-Add vertex (●) 4
-Add vertex (●) 5
-Add edge (0, 2)
-Add edge (1, 3)
-Add edge (2, 3)
-Add edge (2, 4)
-Add edge (3, 5)
 
 qsyn> zxch 0
 Checkout to Graph 0
