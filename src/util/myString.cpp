@@ -19,7 +19,14 @@
 
 using namespace std;
 
-// Remove quotation marks and replace the ' ' between the quotes to be "\ "
+/**
+ * @brief
+ *
+ * @param input the string to strip quotes
+ * @param output if the function returns true, output the stripped string; else output the same string as input.
+ * @return true if quotation marks are paired;
+ * @return false if quotation marks are unpaired.
+ */
 bool stripQuotes(const std::string& input, std::string& output) {
     output = input;
     if (input == "") {
@@ -106,30 +113,26 @@ bool stripQuotes(const std::string& input, std::string& output) {
 }
 
 /**
+ * @brief strip the leading whitespaces of a string
+ *
+ * @param str
+ */
+string stripLeadingWhitespaces(string const& str) {
+    size_t start = str.find_first_not_of(" \t\n\v\f\r");
+    if (start == string::npos) return "";
+    return str.substr(start);
+}
+
+/**
  * @brief strip the leading and trailing whitespaces of a string
  *
  * @param str
  */
-string stripWhitespaces(const string& str) {
+string stripWhitespaces(string const& str) {
     size_t start = str.find_first_not_of(" \t\n\v\f\r");
     size_t end = str.find_last_not_of(" \t\n\v\f\r");
     if (start == string::npos && end == string::npos) return "";
     return str.substr(start, end + 1 - start);
-}
-
-/**
- * @brief Strip leading spaces and comments
- *
- * @param line
- * @return string
- */
-string stripLeadingSpacesAndComments(string& line) {
-    size_t firstNonSpace = line.find_first_not_of(" ");
-    size_t commentStart = line.find("//");
-    if (firstNonSpace == string::npos) return "";
-    if (firstNonSpace == commentStart) return "";
-
-    return line.substr(firstNonSpace, commentStart - firstNonSpace);
 }
 
 /**
@@ -225,7 +228,7 @@ std::string toUpperString(std::string const& str) {
     return ret;
 };
 
-size_t countUpperChars(std::string const& str) {
+size_t countUpperChars(std::string const& str) noexcept {
     size_t cnt = 0;
     for (auto& ch : str) {
         if (::islower(ch)) return cnt;

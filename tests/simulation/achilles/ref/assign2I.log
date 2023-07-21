@@ -39,12 +39,20 @@ Traverse and build the tensor...
 Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
-qsyn> tsp 0
-{{ 1.+0.i,  0.+0.i,  0.+0.i,  0.+0.i},
- { 0.+0.i,  1.+0.i,  0.+0.i,  0.+0.i},
- { 0.+0.i,  0.+0.i,  1.+0.i,  0.+0.i},
- { 0.+0.i,  0.+0.i,  0.+0.i,  1.+0.i}}
-#Dim:    2	Info: ZX 0
+qsyn> qcnew
+Create and checkout to QCir 1
+
+qsyn> qcba 2
+
+qsyn> qc2ts
+Traverse and build the tensor... 
+Successfully added Tensor 1
+Stored the resulting tensor as tensor id 1
+
+qsyn> tseq 0 1
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
 
 qsyn> qq -f
 

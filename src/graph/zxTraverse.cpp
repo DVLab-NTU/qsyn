@@ -9,6 +9,7 @@
 #include <cstddef>  // for size_t
 #include <iostream>
 #include <list>
+#include <stack>
 
 #include "zxGraph.h"  // for ZXGraph, ZXVertex
 
@@ -46,14 +47,30 @@ void ZXGraph::updateTopoOrder() {
  * @param currentVertex
  */
 void ZXGraph::DFS(ZXVertex* currentVertex) {
-    currentVertex->setVisited(_globalTraCounter);
+    stack<pair<bool, ZXVertex*>> dfs;
 
-    Neighbors neighbors = currentVertex->getNeighbors();
-    for (const auto& v : neighbors) {
-        if (!(v.first->isVisited(_globalTraCounter))) DFS(v.first);
+    if (!currentVertex->isVisited(_globalTraCounter)) {
+        dfs.push(make_pair(false, currentVertex));
     }
+    while (!dfs.empty()) {
+        pair<bool, ZXVertex*> node = dfs.top();
+        dfs.pop();
+        if (node.first) {
+            _topoOrder.push_back(node.second);
+            continue;
+        }
+        if (node.second->isVisited(_globalTraCounter)) {
+            continue;
+        }
+        node.second->setVisited(_globalTraCounter);
+        dfs.push(make_pair(true, node.second));
 
-    _topoOrder.push_back(currentVertex);
+        for (const auto& v : node.second->getNeighbors()) {
+            if (!(v.first->isVisited(_globalTraCounter))) {
+                dfs.push(make_pair(false, v.first));
+            }
+        }
+    }
 }
 
 /**

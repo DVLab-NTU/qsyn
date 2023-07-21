@@ -505,7 +505,7 @@ bool Device::readDevice(const string& filename) {
     // NOTE - Device name
     while (str == "") {
         getline(topoFile, str);
-        str = stripLeadingSpacesAndComments(str);
+        str = stripWhitespaces(stripComments(str));
     }
     size_t token_end = myStrGetTok(str, token, 0, ": ");
     data = str.substr(token_end + 1);
@@ -517,7 +517,7 @@ bool Device::readDevice(const string& filename) {
     unsigned qbn;
     while (str == "") {
         getline(topoFile, str);
-        str = stripLeadingSpacesAndComments(str);
+        str = stripWhitespaces(stripComments(str));
     }
     token_end = myStrGetTok(str, token, 0, ": ");
     data = str.substr(token_end + 1);
@@ -532,7 +532,7 @@ bool Device::readDevice(const string& filename) {
     str = "", token = "", data = "";
     while (str == "") {
         getline(topoFile, str);
-        str = stripLeadingSpacesAndComments(str);
+        str = stripWhitespaces(stripComments(str));
     }
     if (!parseGateSet(str)) return false;
 
@@ -540,7 +540,7 @@ bool Device::readDevice(const string& filename) {
     str = "", token = "", data = "";
     while (str == "") {
         getline(topoFile, str);
-        str = stripLeadingSpacesAndComments(str);
+        str = stripWhitespaces(stripComments(str));
     }
 
     token_end = myStrGetTok(str, token, 0, ": ");
@@ -617,7 +617,7 @@ bool Device::parseInfo(std::ifstream& f, vector<vector<float>>& cxErr, vector<ve
         while (str == "") {
             if (f.eof()) break;
             getline(f, str);
-            str = stripLeadingSpacesAndComments(str);
+            str = stripWhitespaces(stripComments(str));
         }
         size_t token_end = myStrGetTok(str, token, 0, ": ");
         data = str.substr(token_end + 1);
@@ -636,7 +636,7 @@ bool Device::parseInfo(std::ifstream& f, vector<vector<float>>& cxErr, vector<ve
             break;
         }
         getline(f, str);
-        str = stripLeadingSpacesAndComments(str);
+        str = stripWhitespaces(stripComments(str));
     }
 
     return true;

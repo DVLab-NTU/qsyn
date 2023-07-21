@@ -29,6 +29,7 @@ public:
     size_t size() const { return _row.size(); }
     unsigned char& back() { return _row.back(); }
     const unsigned char& back() const { return _row.back(); }
+    size_t sum() const;
 
     bool isOneHot() const;
     bool isZeros() const;
@@ -37,6 +38,7 @@ public:
     void push_back(unsigned char i) { _row.push_back(i); }
 
     Row& operator+=(const Row& rhs);
+    friend Row operator+(Row lhs, const Row& rhs);
 
     unsigned char& operator[](const size_t& i) {
         return _row[i];

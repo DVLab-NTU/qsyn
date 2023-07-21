@@ -19,6 +19,8 @@
 #include "rnGen.h"
 #include "tqdm/tqdm.h"
 
+#define IGNORE_UNUSED_RETURN_WARNING [[maybe_unused]] auto shutup =
+
 class tqdm;
 constexpr size_t ERROR_CODE = (size_t)-1;
 
@@ -45,9 +47,17 @@ private:
 };
 
 // In myString.cpp
+
 bool stripQuotes(const std::string& input, std::string& output);
-std::string stripWhitespaces(const std::string& str);
-std::string stripLeadingSpacesAndComments(std::string& line);
+std::string stripLeadingWhitespaces(std::string const& str);
+std::string stripWhitespaces(std::string const& str);
+/**
+ * @brief strip comment, which starts with "//", from a string
+ *
+ * @param line
+ * @return std::string
+ */
+inline std::string stripComments(std::string const& line) { return line.substr(0, line.find("//")); }
 std::string removeBracket(const std::string& str, const char left, const char right);
 int myStrNCmp(const std::string& s1, const std::string& s2, unsigned n);
 size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos = 0, const std::string& del = " \t\n\v\f\r");
@@ -74,10 +84,10 @@ inline bool myStr2SizeT(const std::string& str, size_t& num) { return myStr2Numb
 
 std::string toLowerString(std::string const& str);
 std::string toUpperString(std::string const& str);
-size_t countUpperChars(std::string const& str);
+size_t countUpperChars(std::string const& str) noexcept;
 
 // In util.cpp
-int listDir(std::vector<std::string>&, const std::string&, const std::string&);
+std::vector<std::string> listDir(std::string const& prefix, std::string const& dir = ".");
 size_t intPow(size_t base, size_t n);
 
 template <typename T>

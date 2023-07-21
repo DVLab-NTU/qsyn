@@ -1,0 +1,60 @@
+DV Lab, NTUEE, Qsyn 0.4.2
+qsyn> color off
+Note: color mode is set to off
+
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> qccr ../../benchmark/benchmark_SABRE/large/rd84_253.qasm
+
+qsyn> qccp -a
+Clifford: 7701
+└── CX: 5960
+T-family: 5957
+Others  : 0
+
+qsyn> qc2zx
+
+qsyn> zxgs -fr
+
+qsyn> usage
+Period time used : 27.53 seconds
+Total time used  : 27.53 seconds
+Total memory used: 431.2 M Bytes
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> usage
+Period time used : 2.98 seconds
+Total time used  : 30.51 seconds
+Total memory used: 431.2 M Bytes
+
+qsyn> qcp
+-> #QCir: 2
+-> Now focus on: 1
+
+qsyn> qccp -a
+Clifford: 11561
+└── CX: 6375
+T-family: 2625
+Others  : 0
+
+qsyn> qc2zx
+
+qsyn> zxgadj
+
+qsyn> zxcomp 0
+
+qsyn> zxgs -fr
+
+qsyn> usage
+Period time used : 40.12 seconds
+Total time used  : 70.63 seconds
+Total memory used: 431.2 M Bytes
+
+qsyn> zxgt -id 
+The graph is an identity!
+
+qsyn> qq -f
+

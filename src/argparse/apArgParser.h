@@ -120,7 +120,7 @@ private:
     std::string _help;
     size_t _numRequiredChars;
 
-    qsutil::Tabler mutable _tabl;
+    dvlab_utils::Tabler mutable _tabl;
 
     // members for analyzing parser options
     MyTrie mutable _trie;

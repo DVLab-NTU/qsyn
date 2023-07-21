@@ -324,7 +324,7 @@ bool QCir::removeGate(size_t id) {
  * @param detail if true, print the detail information
  */
 // TODO - Analysis qasm is correct since no MC in it. Would fix MC in future.
-vector<int> QCir::analysis(bool detail, bool print) {
+std::vector<int> QCir::countGate(bool detail, bool print) {
     size_t clifford = 0;
     size_t tfamily = 0;
     size_t cxcnt = 0;

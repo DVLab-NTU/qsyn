@@ -56,7 +56,7 @@ void QCir::printCircuit() {
  */
 void QCir::printSummary() {
     printCircuit();
-    analysis();
+    countGate();
     printDepth();
 }
 
@@ -90,7 +90,7 @@ bool QCir::printGateInfo(size_t id, bool showTime) {
 }
 
 void QCir::printCirInfo() {
-    vector<int> info = analysis(false, false);
+    vector<int> info = countGate(false, false);
     cout << "QCir " << _id << "( "
          << _qgates.size() << " gates, "
          << info[1] << " 2-qubits gates, "

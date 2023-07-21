@@ -174,7 +174,7 @@ Note: verbose level is set to 8
 
 qsyn> zx2ts
 Traverse and build the tensor... 
-Topological order from first input: 0 4 6 7 5 3 2 1 
+Topological order from first input: 0 4 1 6 5 2 3 7 
 Size of topological order: 8
 > Mapping vertex 0 (●): New Subgraph
   - Current frontiers: 
@@ -183,44 +183,64 @@ Size of topological order: 8
   - Current frontiers: 
     1--4 (-) axis id: 1
     4--6 ([1m[34mH[0m[0m) axis id: 2
+> Mapping vertex 1 (●): Boundary Node
+  - Current frontiers: 
+    1--4 (-) axis id: 1
+    4--6 ([1m[34mH[0m[0m) axis id: 2
 > Mapping vertex 6 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
     1--4 (-) axis id: 1
     5--6 ([1m[34mH[0m[0m) axis id: 2
     6--7 ([1m[34mH[0m[0m) axis id: 3
-> Mapping vertex 7 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    1--4 (-) axis id: 1
-    5--6 ([1m[34mH[0m[0m) axis id: 2
 > Mapping vertex 5 ([1m[32mZ[0m[0m): Tensordot
   - Current frontiers: 
     1--4 (-) axis id: 1
-    2--5 ([1m[34mH[0m[0m) axis id: 2
+    6--7 ([1m[34mH[0m[0m) axis id: 2
+    2--5 ([1m[34mH[0m[0m) axis id: 3
+    3--5 ([1m[34mH[0m[0m) axis id: 4
+> Mapping vertex 2 (●): Boundary Node
+  - Current frontiers: 
+    1--4 (-) axis id: 1
+    6--7 ([1m[34mH[0m[0m) axis id: 2
+    2--5 ([1m[34mH[0m[0m) axis id: 4
     3--5 ([1m[34mH[0m[0m) axis id: 3
 > Mapping vertex 3 (●): Boundary Node
   - Current frontiers: 
     1--4 (-) axis id: 1
+    6--7 ([1m[34mH[0m[0m) axis id: 2
+    2--5 ([1m[34mH[0m[0m) axis id: 3
+    3--5 ([1m[34mH[0m[0m) axis id: 4
+> Mapping vertex 7 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    1--4 (-) axis id: 1
     2--5 ([1m[34mH[0m[0m) axis id: 2
     3--5 ([1m[34mH[0m[0m) axis id: 3
-> Mapping vertex 2 (●): Boundary Node
-  - Current frontiers: 
-    1--4 (-) axis id: 1
-    2--5 ([1m[34mH[0m[0m) axis id: 3
-    3--5 ([1m[34mH[0m[0m) axis id: 2
-> Mapping vertex 1 (●): Boundary Node
-  - Current frontiers: 
-    1--4 (-) axis id: 1
-    2--5 ([1m[34mH[0m[0m) axis id: 3
-    3--5 ([1m[34mH[0m[0m) axis id: 2
 Successfully added Tensor 4
-Input  axis ids: 0 3
-Output axis ids: 1 2
+Input  axis ids: 0 2
+Output axis ids: 1 3
 Stored the resulting tensor as tensor id 4
 
-qsyn> tsp 0
-{{ 0.707107+0.i,  0.707107+0.i},
- { 0.707107+0.i, -0.707107+0.i}}
-#Dim:    2	Info: ZX 0
+qsyn> qcnew
+Create and checkout to QCir 0
+
+qsyn> qcba 1
+
+qsyn> qcga -h 0
+
+qsyn> qc2ts
+Traverse and build the tensor... 
+> Add boundary
+Successfully added Tensor 5
+  - Add Qubit 0 output port: 1
+> Gate 0 (h)
+> Pin Permutation
+  - Qubit: 0 input : 0 -> 0 |  output: 1 -> 1
+Stored the resulting tensor as tensor id 5
+
+qsyn> tseq 0 5
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
 
 qsyn> qq -f 
 

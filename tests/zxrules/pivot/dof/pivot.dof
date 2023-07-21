@@ -365,5 +365,19 @@ zxge -adde 27 47 HADAMARD
 zxgs -pivotr
 zxgp -v
 zx2ts
-tsp 0
+zxnew
+zxge -addi 0
+zxge -addv 0 X 0
+zxge -addv 0 X 0
+zxge -addo 0
+zxge -addi 1
+zxge -addv 1 X 0
+zxge -addv 1 X 0
+zxge -addo 1
+zxge -adde 0 1 SIMPLE
+zxge -adde 2 3 SIMPLE
+zxge -adde 4 5 SIMPLE
+zxge -adde 6 7 SIMPLE
+zx2ts
+tseq 0 1
 qq -f

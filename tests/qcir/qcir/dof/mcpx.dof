@@ -3,16 +3,15 @@ qcgadd -MCPX -PH pi 0 1
 qccp -q
 qcgp 0
 qc2ts
-tsp 0
 qc2zx
 zxgp -Q
 zxgs -fr
 zxgp -Q
 zx2ts
-tsp 1
-tsp
+tseq 0 1
 qcr
 zxr
+tsr
 tsr
 
 qcba 1

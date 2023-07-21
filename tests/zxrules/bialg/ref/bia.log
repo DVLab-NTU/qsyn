@@ -272,7 +272,7 @@ Total #Edges: 8
 
 qsyn> zx2ts
 Traverse and build the tensor... 
-Topological order from first input: 0 4 15 13 14 1 6 2 3 
+Topological order from first input: 0 4 15 3 6 2 13 14 1 
 Size of topological order: 9
 > Mapping vertex 0 (●): New Subgraph
   - Current frontiers: 
@@ -285,47 +285,127 @@ Size of topological order: 9
     3--15 (-) axis id: 1
     6--15 (-) axis id: 2
     13--15 (-) axis id: 3
-> Mapping vertex 13 ([1m[31mX[0m[0m): Tensordot
+> Mapping vertex 3 (●): Boundary Node
   - Current frontiers: 
     3--15 (-) axis id: 1
     6--15 (-) axis id: 2
-    13--14 (-) axis id: 3
-> Mapping vertex 14 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    6--15 (-) axis id: 2
-    1--14 (-) axis id: 3
-> Mapping vertex 1 (●): Boundary Node
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    6--15 (-) axis id: 2
-    1--14 (-) axis id: 3
+    13--15 (-) axis id: 3
 > Mapping vertex 6 ([1m[31mX[0m[0m): Tensordot
   - Current frontiers: 
     3--15 (-) axis id: 1
-    1--14 (-) axis id: 2
+    13--15 (-) axis id: 2
     2--6 (-) axis id: 3
 > Mapping vertex 2 (●): Boundary Node
   - Current frontiers: 
     3--15 (-) axis id: 1
-    1--14 (-) axis id: 2
+    13--15 (-) axis id: 2
     2--6 (-) axis id: 3
-> Mapping vertex 3 (●): Boundary Node
+> Mapping vertex 13 ([1m[31mX[0m[0m): Tensordot
   - Current frontiers: 
     3--15 (-) axis id: 1
-    1--14 (-) axis id: 2
-    2--6 (-) axis id: 3
+    2--6 (-) axis id: 2
+    13--14 (-) axis id: 3
+> Mapping vertex 14 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    3--15 (-) axis id: 1
+    2--6 (-) axis id: 2
+    1--14 (-) axis id: 3
+> Mapping vertex 1 (●): Boundary Node
+  - Current frontiers: 
+    3--15 (-) axis id: 1
+    2--6 (-) axis id: 2
+    1--14 (-) axis id: 3
 Successfully added Tensor 0
-Input  axis ids: 0 3
-Output axis ids: 2 1
+Input  axis ids: 0 2
+Output axis ids: 3 1
 Stored the resulting tensor as tensor id 0
 
-qsyn> tsp 0
-{{ 1.414214+0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  0.      +0.i,  0.      +0.i},
- { 0.      +0.i,  0.      +0.i,  0.      +0.i,  1.414214+0.i}}
-#Dim:    2	Info: ZX 0
+qsyn> zxnew
+Create and checkout to Graph 1
+
+qsyn> zxge -addi 0
+Add vertex (●) 0
+
+qsyn> zxge -addo 0
+Add vertex (●) 1
+
+qsyn> zxge -addi 1
+Add vertex (●) 2
+
+qsyn> zxge -addo 1
+Add vertex (●) 3
+
+qsyn> zxge -addv 0 Z 0
+Add vertex ([1m[32mZ[0m[0m) 4
+
+qsyn> zxge -addv 0 Z 0
+Add vertex ([1m[32mZ[0m[0m) 5
+
+qsyn> zxge -adde 0 4 SIMPLE
+Add edge (0, 4)
+
+qsyn> zxge -adde 2 4 SIMPLE
+Add edge (2, 4)
+
+qsyn> zxge -adde 1 5 SIMPLE
+Add edge (1, 5)
+
+qsyn> zxge -adde 3 5 SIMPLE
+Add edge (3, 5)
+
+qsyn> zxge -adde 4 5 SIMPLE
+Add edge (4, 5)
+
+qsyn> zxgp -v
+
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (5, -) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (4, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
+ID:   4 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (0, -) (2, -) (5, -) 
+ID:   5 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (1, -) (3, -) (4, -) 
+Total #Vertices: 6
+
+
+qsyn> zx2ts
+Traverse and build the tensor... 
+Topological order from first input: 0 4 2 5 1 3 
+Size of topological order: 6
+> Mapping vertex 0 (●): New Subgraph
+  - Current frontiers: 
+    0--4 (-) axis id: 1
+> Mapping vertex 4 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    2--4 (-) axis id: 1
+    4--5 (-) axis id: 2
+> Mapping vertex 2 (●): Boundary Node
+  - Current frontiers: 
+    2--4 (-) axis id: 1
+    4--5 (-) axis id: 2
+> Mapping vertex 5 ([1m[32mZ[0m[0m): Tensordot
+  - Current frontiers: 
+    2--4 (-) axis id: 1
+    1--5 (-) axis id: 2
+    3--5 (-) axis id: 3
+> Mapping vertex 1 (●): Boundary Node
+  - Current frontiers: 
+    2--4 (-) axis id: 1
+    1--5 (-) axis id: 2
+    3--5 (-) axis id: 3
+> Mapping vertex 3 (●): Boundary Node
+  - Current frontiers: 
+    2--4 (-) axis id: 1
+    1--5 (-) axis id: 2
+    3--5 (-) axis id: 3
+Successfully added Tensor 1
+Input  axis ids: 0 1
+Output axis ids: 2 3
+Stored the resulting tensor as tensor id 1
+
+qsyn> tseq 0 1
+[1m[32mEquivalent[0m[0m
+- Global Norm : 1
+- Global Phase: 0
 
 qsyn> zxr
 

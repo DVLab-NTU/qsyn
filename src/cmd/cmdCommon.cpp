@@ -22,6 +22,8 @@ extern size_t verbose;
 extern size_t colorLevel;
 extern MyUsage myUsage;
 
+void clearConsole();
+
 using namespace ArgParse;
 
 unique_ptr<ArgParseCmdType> helpCmd();
@@ -32,6 +34,7 @@ unique_ptr<ArgParseCmdType> verboseCmd();
 unique_ptr<ArgParseCmdType> seedCmd();
 unique_ptr<ArgParseCmdType> colorCmd();
 unique_ptr<ArgParseCmdType> historyCmd();
+unique_ptr<ArgParseCmdType> clearCmd();
 
 bool initCommonCmd() {
     if (!(cmdMgr->regCmd("QQuit", 2, quitCmd()) &&
@@ -41,6 +44,7 @@ bool initCommonCmd() {
           cmdMgr->regCmd("USAGE", 5, usageCmd()) &&
           cmdMgr->regCmd("VERbose", 3, verboseCmd()) &&
           cmdMgr->regCmd("SEED", 4, seedCmd()) &&
+          cmdMgr->regCmd("CLEAR", 5, clearCmd()) &&
           cmdMgr->regCmd("COLOR", 5, colorCmd()))) {
         cerr << "Registering \"init\" commands fails... exiting" << endl;
         return false;
@@ -247,6 +251,22 @@ unique_ptr<ArgParseCmdType> colorCmd() {
         string mode = parser["mode"];
         colorLevel = (mode == "on") ? 1 : 0;
         cout << "Note: color mode is set to " << mode << endl;
+
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
+};
+
+unique_ptr<ArgParseCmdType> clearCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("CLEAR");
+
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("clear the console");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        clearConsole();
 
         return CMD_EXEC_DONE;
     };
