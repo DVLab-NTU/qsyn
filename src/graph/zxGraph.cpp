@@ -193,18 +193,17 @@ size_t ZXGraph::numGadgets() const {
 
 /**
  * @brief Return the density of the ZX-graph
- * 
- * @return double 
+ *
+ * @return double
  */
-double ZXGraph::Density(){
+double ZXGraph::Density() {
     unordered_map<int, int> mp;
-    for(auto& v : this->getVertices()) mp[v->getNumNeighbors()]++;
+    for (auto& v : this->getVertices()) mp[v->getNumNeighbors()]++;
     double ans = 0;
-    for(auto& i : mp) ans += (i.first*i.first*i.second);
+    for (auto& i : mp) ans += (i.first * i.first * i.second);
     ans /= this->getNumVertices();
     return ans;
 }
-
 
 /**
  * @brief Return the number of T-gate in the ZX-graph
@@ -609,5 +608,3 @@ ZXVertex* ZXGraph::findVertexById(const size_t& id) const {
     }
     return nullptr;
 }
-
-

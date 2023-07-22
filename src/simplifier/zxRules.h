@@ -46,7 +46,7 @@ public:
 
     virtual void reset();
 
-    virtual void match(ZXGraph* g, int upper_bound=INT_MAX) = 0;
+    virtual void match(ZXGraph* g, int upper_bound = INT_MAX) = 0;
     virtual void rewrite(ZXGraph* g) = 0;
 
     // Getter and Setter
@@ -94,7 +94,7 @@ public:
     }
     virtual ~Bialgebra() {}
 
-    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
+    void match(ZXGraph* g, int upper_bound = INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // checker
@@ -124,7 +124,7 @@ public:
     }
     virtual ~StateCopy() {}
 
-    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
+    void match(ZXGraph* g, int upper_bound = INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -151,7 +151,7 @@ public:
     }
     virtual ~HboxFusion() {}
 
-    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
+    void match(ZXGraph* g, int upper_bound = INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -178,7 +178,7 @@ public:
     }
     virtual ~HRule() {}
 
-    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
+    void match(ZXGraph* g, int upper_bound = INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -205,7 +205,7 @@ public:
     }
     virtual ~IdRemoval() {}
 
-    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
+    void match(ZXGraph* g, int upper_bound = INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -232,7 +232,7 @@ public:
     }
     virtual ~LComp() {}
 
-    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
+    void match(ZXGraph* g, int upper_bound = INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -259,7 +259,7 @@ public:
     }
     virtual ~PhaseGadget() {}
 
-    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
+    void match(ZXGraph* g, int upper_bound = INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -285,7 +285,7 @@ public:
     }
     virtual ~PivotInterface() {}
 
-    virtual void match(ZXGraph* g, int upper_bound=INT_MAX) = 0;
+    virtual void match(ZXGraph* g, int upper_bound = INT_MAX) = 0;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -313,7 +313,7 @@ public:
     }
     virtual ~Pivot() {}
 
-    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
+    void match(ZXGraph* g, int upper_bound = INT_MAX) override;
 
 protected:
     void preprocess(ZXGraph* g) override;
@@ -336,7 +336,7 @@ public:
     }
     virtual ~PivotGadget() {}
 
-    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
+    void match(ZXGraph* g, int upper_bound = INT_MAX) override;
 
 protected:
     void preprocess(ZXGraph* g) override;
@@ -358,7 +358,7 @@ public:
     }
     virtual ~PivotBoundary() {}
 
-    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
+    void match(ZXGraph* g, int upper_bound = INT_MAX) override;
     void addBoundary(ZXVertex* v) { _boundaries.push_back(v); }
     void clearBoundary() { _boundaries.clear(); }
 
@@ -407,7 +407,7 @@ public:
     }
     virtual ~SpiderFusion() { _matchTypeVec.clear(); }
 
-    void match(ZXGraph* g, int upper_bound=INT_MAX) override;
+    void match(ZXGraph* g, int upper_bound = INT_MAX) override;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter

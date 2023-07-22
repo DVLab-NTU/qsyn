@@ -11,9 +11,9 @@
 
 #include <memory>
 
+#include "optimizer.h"
 #include "zxRules.h"  // for ZXRule
 #include "zxoptimizer.h"
-#include "optimizer.h"
 
 class ZXGraph;
 

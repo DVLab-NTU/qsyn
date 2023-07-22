@@ -10,9 +10,9 @@
 #define OPTIMIZER_H
 
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <string>
 
 #include "zxRules.h"
 
@@ -20,7 +20,7 @@ class ZXGraph;
 
 class OPTimizer {
 public:
-    OPTimizer(){
+    OPTimizer() {
         init();
     }
     void setR2R(const std::string& rule, int r2r) { _r2r[rule] = r2r; }

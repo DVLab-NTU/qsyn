@@ -532,20 +532,19 @@ std::vector<int> QCir::countGate(bool detail, bool print) {
     }
     // cout << "> Decompose into basic gate set" << endl;
     // cout << endl;
-    if(print){
-    cout << TF::BOLD(TF::GREEN("Clifford    : " + to_string(clifford))) << endl;
-    cout << "└── " << TF::BOLD(TF::RED("2-qubit : " + to_string(cxcnt))) << endl;
-    cout << TF::BOLD(TF::RED("T-family    : " + to_string(tfamily))) << endl;
-    if (nct > 0)
-        cout << TF::BOLD(TF::RED("Others      : " + to_string(nct))) << endl;
-    else
-        cout << TF::BOLD(TF::GREEN("Others      : " + to_string(nct))) << endl;
+    if (print) {
+        cout << TF::BOLD(TF::GREEN("Clifford    : " + to_string(clifford))) << endl;
+        cout << "└── " << TF::BOLD(TF::RED("2-qubit : " + to_string(cxcnt))) << endl;
+        cout << TF::BOLD(TF::RED("T-family    : " + to_string(tfamily))) << endl;
+        if (nct > 0)
+            cout << TF::BOLD(TF::RED("Others      : " + to_string(nct))) << endl;
+        else
+            cout << TF::BOLD(TF::GREEN("Others      : " + to_string(nct))) << endl;
     }
     vector<int> info;
     info.push_back(clifford);
     info.push_back(cxcnt);
     info.push_back(tfamily);
-    return info; // [clifford, cxcnt, tfamily]
+    return info;  // [clifford, cxcnt, tfamily]
     // cout << endl;
 }
-

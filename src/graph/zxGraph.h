@@ -139,7 +139,6 @@ public:
     size_t getNumVertices() const { return _vertices.size(); }
     std::string getFileName() const { return _fileName; }
     const std::vector<std::string>& getProcedures() const { return _procedures; }
-    
 
     // For testings
     bool isEmpty() const;

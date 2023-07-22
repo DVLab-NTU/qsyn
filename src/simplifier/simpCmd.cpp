@@ -12,12 +12,12 @@
 #include <string>
 
 #include "apCmd.h"
+#include "qcirCmd.h"
+#include "qcirMgr.h"  // for QCirMgr
 #include "simplify.h"
 #include "zxCmd.h"
 #include "zxGraphMgr.h"
 #include "zxoptimizer.h"
-#include "qcirMgr.h"    // for QCirMgr
-#include "qcirCmd.h"
 
 using namespace std;
 using namespace ArgParse;
@@ -32,15 +32,13 @@ unique_ptr<ArgParseCmdType> ZXOPTR2rCmd();
 unique_ptr<ArgParseCmdType> ZXOPTS2sCmd();
 
 bool initSimpCmd() {
-    
     // OPTimizer opt;
     if (!(
             cmdMgr->regCmd("ZXGSimp", 4, ZXGSimpCmd()) &&
             cmdMgr->regCmd("ZXOPT", 5, ZXOPTCmd()) &&
             cmdMgr->regCmd("ZXOPTPrint", 6, ZXOPTPrintCmd()) &&
             cmdMgr->regCmd("ZXOPTR2r", 6, ZXOPTR2rCmd()) &&
-            cmdMgr->regCmd("ZXOPTS2s", 6, ZXOPTS2sCmd()) 
-       )) {
+            cmdMgr->regCmd("ZXOPTS2s", 6, ZXOPTS2sCmd()))) {
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
         return false;
     }
@@ -65,7 +63,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         mutex.addArgument<bool>("-freduce")
             .action(storeTrue)
             .help("perform full reduce");
-            
+
         mutex.addArgument<bool>("-sreduce")
             .action(storeTrue)
             .help("perform symbolic reduce");
@@ -81,7 +79,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         mutex.addArgument<bool>("-bialgebra")
             .action(storeTrue)
             .help("apply bialgebra rules");
-            
+
         mutex.addArgument<bool>("-gadgetfusion")
             .action(storeTrue)
             .help("fuse phase gadgets connected to the same set of vertices");
@@ -173,7 +171,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
 }
 
 //------------------------------------------------------------------------------------------------------------------
-//    ZXOPT 
+//    ZXOPT
 //------------------------------------------------------------------------------------------------------------------
 unique_ptr<ArgParseCmdType> ZXOPTCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXOPT");
@@ -188,7 +186,6 @@ unique_ptr<ArgParseCmdType> ZXOPTCmd() {
     return cmd;
 }
 
-
 //------------------------------------------------------------------------------------------------------------------
 //    ZXOPTPrint [-Gadgetfusion | -Spiderfusion | -Idremoval | -PIVOTRule | -Lcomp | -PIVOTGadget | -PIVOTBoundary ]
 //------------------------------------------------------------------------------------------------------------------
@@ -196,7 +193,7 @@ unique_ptr<ArgParseCmdType> ZXOPTPrintCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXOPTPrint");
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("print parameter of optimizer for ZX-graph");
-        
+
         auto mutex = parser.addMutuallyExclusiveGroup();
 
         mutex.addArgument<bool>("-idremoval")
@@ -226,7 +223,7 @@ unique_ptr<ArgParseCmdType> ZXOPTPrintCmd() {
         mutex.addArgument<bool>("-spiderfusion")
             .action(storeTrue)
             .help("perform spider fusion");
-        
+
         mutex.addArgument<bool>("-interclifford")
             .action(storeTrue)
             .help("perform inter-clifford");
@@ -236,16 +233,26 @@ unique_ptr<ArgParseCmdType> ZXOPTPrintCmd() {
             .help("perform clifford");
     };
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        if(parser["-idremoval"].isParsed()) opt.printSingle("Identity Removal Rule");
-        else if(parser["-lcomp"].isParsed()) opt.printSingle("Local Complementation Rule");
-        else if(parser["-gadgetfusion"].isParsed()) opt.printSingle("Phase Gadget Rule");
-        else if(parser["-pivotrule"].isParsed()) opt.printSingle("Pivot Rule");
-        else if(parser["-pivotboundary"].isParsed()) opt.printSingle("Pivot Boundary Rule");
-        else if(parser["-pivotgadget"].isParsed()) opt.printSingle("Pivot Gadget Rule");
-        else if(parser["-spiderfusion"].isParsed()) opt.printSingle("Spider Fusion Rule");
-        else if(parser["-interclifford"].isParsed()) opt.printSingle("Interior Clifford Simp");
-        else if(parser["-clifford"].isParsed()) opt.printSingle("Clifford Simp");
-        else opt.print();
+        if (parser["-idremoval"].isParsed())
+            opt.printSingle("Identity Removal Rule");
+        else if (parser["-lcomp"].isParsed())
+            opt.printSingle("Local Complementation Rule");
+        else if (parser["-gadgetfusion"].isParsed())
+            opt.printSingle("Phase Gadget Rule");
+        else if (parser["-pivotrule"].isParsed())
+            opt.printSingle("Pivot Rule");
+        else if (parser["-pivotboundary"].isParsed())
+            opt.printSingle("Pivot Boundary Rule");
+        else if (parser["-pivotgadget"].isParsed())
+            opt.printSingle("Pivot Gadget Rule");
+        else if (parser["-spiderfusion"].isParsed())
+            opt.printSingle("Spider Fusion Rule");
+        else if (parser["-interclifford"].isParsed())
+            opt.printSingle("Interior Clifford Simp");
+        else if (parser["-clifford"].isParsed())
+            opt.printSingle("Clifford Simp");
+        else
+            opt.print();
         return CMD_EXEC_DONE;
     };
     return cmd;
@@ -258,11 +265,11 @@ unique_ptr<ArgParseCmdType> ZXOPTS2sCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXOPTS2s");
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("set s2s parameter of optimizer for ZX-graph");
-        
+
         parser.addArgument<int>("s2s")
             .required(true)
             .help("s2s paramenter");
-        
+
         // auto mutex = parser.addMutuallyExclusiveGroup();
 
         parser.addArgument<bool>("-idremoval")
@@ -301,17 +308,17 @@ unique_ptr<ArgParseCmdType> ZXOPTS2sCmd() {
             .help("perform spider fusion");
     };
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        if(parser["s2s"].isParsed()){
-            if(parser["-idremoval"].isParsed()) opt.setS2S("Identity Removal Rule", parser["s2s"]);
-            if(parser["-lcomp"].isParsed()) opt.setS2S("Local Complementation Rule", parser["s2s"]);
-            if(parser["-gadgetfusion"].isParsed()) opt.setS2S("Phase Gadget Rule", parser["s2s"]);
-            if(parser["-pivotrule"].isParsed()) opt.setS2S("Pivot Rule", parser["s2s"]);
-            if(parser["-pivotboundary"].isParsed()) opt.setS2S("Pivot Boundary Rule", parser["s2s"]);
-            if(parser["-pivotgadget"].isParsed()) opt.setS2S("Pivot Gadget Rule", parser["s2s"]);
-            if(parser["-spiderfusion"].isParsed()) opt.setS2S("Spider Fusion Rule", parser["s2s"]);
+        if (parser["s2s"].isParsed()) {
+            if (parser["-idremoval"].isParsed()) opt.setS2S("Identity Removal Rule", parser["s2s"]);
+            if (parser["-lcomp"].isParsed()) opt.setS2S("Local Complementation Rule", parser["s2s"]);
+            if (parser["-gadgetfusion"].isParsed()) opt.setS2S("Phase Gadget Rule", parser["s2s"]);
+            if (parser["-pivotrule"].isParsed()) opt.setS2S("Pivot Rule", parser["s2s"]);
+            if (parser["-pivotboundary"].isParsed()) opt.setS2S("Pivot Boundary Rule", parser["s2s"]);
+            if (parser["-pivotgadget"].isParsed()) opt.setS2S("Pivot Gadget Rule", parser["s2s"]);
+            if (parser["-spiderfusion"].isParsed()) opt.setS2S("Spider Fusion Rule", parser["s2s"]);
             return CMD_EXEC_DONE;
-        }
-        else return CMD_EXEC_ERROR;
+        } else
+            return CMD_EXEC_ERROR;
     };
     return cmd;
 }
@@ -323,11 +330,11 @@ unique_ptr<ArgParseCmdType> ZXOPTR2rCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXOPTR2r");
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("set r2r parameter of optimizer for ZX-graph");
-        
+
         parser.addArgument<int>("r2r")
             .required(true)
             .help("r2r paramenter");
-        
+
         // auto mutex = parser.addMutuallyExclusiveGroup();
 
         parser.addArgument<bool>("-idremoval")
@@ -364,7 +371,7 @@ unique_ptr<ArgParseCmdType> ZXOPTR2rCmd() {
             .defaultValue(false)
             .action(storeTrue)
             .help("perform spider fusion");
-        
+
         parser.addArgument<bool>("-interclifford")
             .action(storeTrue)
             .help("perform inter-clifford");
@@ -374,19 +381,19 @@ unique_ptr<ArgParseCmdType> ZXOPTR2rCmd() {
             .help("perform clifford");
     };
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        if(parser["r2r"].isParsed()){
-            if(parser["-idremoval"].isParsed()) opt.setR2R("Identity Removal Rule", parser["r2r"]);
-            if(parser["-lcomp"].isParsed()) opt.setR2R("Local Complementation Rule", parser["r2r"]);
-            if(parser["-gadgetfusion"].isParsed()) opt.setR2R("Phase Gadget Rule", parser["r2r"]);
-            if(parser["-pivotrule"].isParsed()) opt.setR2R("Pivot Rule", parser["r2r"]);
-            if(parser["-pivotboundary"].isParsed()) opt.setR2R("Pivot Boundary Rule", parser["r2r"]);
-            if(parser["-pivotgadget"].isParsed()) opt.setR2R("Pivot Gadget Rule", parser["r2r"]);
-            if(parser["-spiderfusion"].isParsed()) opt.setR2R("Spider Fusion Rule", parser["r2r"]);
-            if(parser["-interclifford"].isParsed()) opt.setR2R("Interior Clifford Simp", parser["r2r"]);
-            if(parser["-clifford"].isParsed()) opt.setR2R("Clifford Simp", parser["r2r"]);
+        if (parser["r2r"].isParsed()) {
+            if (parser["-idremoval"].isParsed()) opt.setR2R("Identity Removal Rule", parser["r2r"]);
+            if (parser["-lcomp"].isParsed()) opt.setR2R("Local Complementation Rule", parser["r2r"]);
+            if (parser["-gadgetfusion"].isParsed()) opt.setR2R("Phase Gadget Rule", parser["r2r"]);
+            if (parser["-pivotrule"].isParsed()) opt.setR2R("Pivot Rule", parser["r2r"]);
+            if (parser["-pivotboundary"].isParsed()) opt.setR2R("Pivot Boundary Rule", parser["r2r"]);
+            if (parser["-pivotgadget"].isParsed()) opt.setR2R("Pivot Gadget Rule", parser["r2r"]);
+            if (parser["-spiderfusion"].isParsed()) opt.setR2R("Spider Fusion Rule", parser["r2r"]);
+            if (parser["-interclifford"].isParsed()) opt.setR2R("Interior Clifford Simp", parser["r2r"]);
+            if (parser["-clifford"].isParsed()) opt.setR2R("Clifford Simp", parser["r2r"]);
             return CMD_EXEC_DONE;
-        }
-        else return CMD_EXEC_ERROR;
+        } else
+            return CMD_EXEC_ERROR;
     };
     return cmd;
 }

@@ -79,6 +79,6 @@ void Pivot::match(ZXGraph* g, int upper_bound) {
         this->_matchTypeVec.push_back({vs, vt});
         this->_boundaries.insert(this->_boundaries.end(), boundaries.begin(), boundaries.end());
     });
-    
+
     setMatchTypeVecNum(this->_matchTypeVec.size());
 }

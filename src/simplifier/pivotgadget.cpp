@@ -107,7 +107,7 @@ void PivotGadget::match(ZXGraph* g, int upper_bound) {
         for (auto& [v, _] : vt->getNeighbors()) taken.insert(v);
 
         this->_matchTypeVec.push_back({vs, vt});
-        if((int)this->_matchTypeVec.size() == upper_bound){
+        if ((int)this->_matchTypeVec.size() == upper_bound) {
             setMatchTypeVecNum(this->_matchTypeVec.size());
             return;
         }

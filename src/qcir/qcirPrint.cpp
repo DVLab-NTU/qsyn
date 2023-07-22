@@ -6,13 +6,12 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "qcir.h"
-
 #include <stdlib.h>  // for abort
 
 #include <cassert>  // for assert
 #include <string>   // for string
 
+#include "qcir.h"
 #include "qcirGate.h"    // for QCirGate
 #include "qcirQubit.h"   // for QCirQubit
 #include "textFormat.h"  // for TextFormat
@@ -20,7 +19,6 @@
 using namespace std;
 namespace TF = TextFormat;
 extern size_t verbose;
-
 
 /**
  * @brief Print QCir Gates

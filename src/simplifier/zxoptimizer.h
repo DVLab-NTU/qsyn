@@ -10,10 +10,10 @@
 #define OPTIMIZER_H
 
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <string>
 
 #include "zxRules.h"
 
@@ -21,7 +21,7 @@ class ZXGraph;
 
 class ZXOPTimizer {
 public:
-    ZXOPTimizer(){
+    ZXOPTimizer() {
         init();
     }
 
@@ -41,7 +41,6 @@ public:
     ZXGraph* getLastZXGraph() { return _lZXGraph; }
 
     bool updateParameters(ZXGraph* g);
-
 
     void init();
     void printSingle(const std::string& rule);
