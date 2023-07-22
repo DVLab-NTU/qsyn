@@ -12,6 +12,7 @@
 
 #include <cassert>  // for assert
 #include <string>   // for string
+#include <vector>   // for vector
 
 #include "qcirGate.h"    // for QCirGate
 #include "qcirQubit.h"   // for QCirQubit
@@ -49,6 +50,16 @@ QCirQubit *QCir::getQubit(size_t id) const {
     return NULL;
 }
 
+int QCir::getDepth() {
+    if (_dirty) updateGateTime();
+    _dirty = false;
+    size_t depth = 0;
+    for (size_t i = 0; i < _qgates.size(); i++) {
+        if (_qgates[i]->getTime() > depth) depth = _qgates[i]->getTime();
+    }
+    return depth;
+}
+
 /**
  * @brief Add procedures to QCir
  *
@@ -59,78 +70,6 @@ void QCir::addProcedure(std::string p, const std::vector<std::string> &procedure
     for (auto pr : procedures)
         _procedures.emplace_back(pr);
     if (p != "") _procedures.emplace_back(p);
-}
-
-/**
- * @brief Print QCir Gates
- */
-void QCir::printGates() {
-    if (_dirty)
-        updateGateTime();
-    cout << "Listed by gate ID" << endl;
-    for (size_t i = 0; i < _qgates.size(); i++) {
-        _qgates[i]->printGate();
-    }
-}
-
-/**
- * @brief Print Depth of QCir
- *
- */
-void QCir::printDepth() {
-    if (_dirty) updateGateTime();
-    size_t depth = 0;
-    for (size_t i = 0; i < _qgates.size(); i++) {
-        if (_qgates[i]->getTime() > depth) depth = _qgates[i]->getTime();
-    }
-    cout << "Depth       : " << depth << endl;
-}
-
-/**
- * @brief Print QCir
- */
-void QCir::printCircuit() {
-    cout << "QCir " << _id << "( "
-         << _qubits.size() << " qubits, "
-         << _qgates.size() << " gates)\n";
-}
-
-/**
- * @brief Print QCir Summary
- */
-void QCir::printSummary() {
-    printCircuit();
-    countGate();
-    printDepth();
-}
-
-/**
- * @brief Print Qubits
- */
-void QCir::printQubits() {
-    if (_dirty)
-        updateGateTime();
-
-    for (size_t i = 0; i < _qubits.size(); i++)
-        _qubits[i]->printBitLine();
-}
-
-/**
- * @brief Print Gate information
- *
- * @param id
- * @param showTime if true, show the time
- */
-bool QCir::printGateInfo(size_t id, bool showTime) {
-    if (getGate(id) != NULL) {
-        if (showTime && _dirty)
-            updateGateTime();
-        getGate(id)->printGateInfo(showTime);
-        return true;
-    } else {
-        cerr << "Error: id " << id << " not found!!" << endl;
-        return false;
-    }
 }
 
 /**
@@ -385,7 +324,7 @@ bool QCir::removeGate(size_t id) {
  * @param detail if true, print the detail information
  */
 // TODO - Analysis qasm is correct since no MC in it. Would fix MC in future.
-void QCir::countGate(bool detail) {
+std::vector<int> QCir::countGate(bool detail, bool print) {
     size_t clifford = 0;
     size_t tfamily = 0;
     size_t cxcnt = 0;
@@ -593,12 +532,19 @@ void QCir::countGate(bool detail) {
     }
     // cout << "> Decompose into basic gate set" << endl;
     // cout << endl;
-    cout << TF::BOLD(TF::GREEN("Clifford    : " + to_string(clifford))) << endl;
-    cout << "└── " << TF::BOLD(TF::RED("2-qubit : " + to_string(cxcnt))) << endl;
-    cout << TF::BOLD(TF::RED("T-family    : " + to_string(tfamily))) << endl;
-    if (nct > 0)
-        cout << TF::BOLD(TF::RED("Others      : " + to_string(nct))) << endl;
-    else
-        cout << TF::BOLD(TF::GREEN("Others      : " + to_string(nct))) << endl;
+    if (print) {
+        cout << TF::BOLD(TF::GREEN("Clifford    : " + to_string(clifford))) << endl;
+        cout << "└── " << TF::BOLD(TF::RED("2-qubit : " + to_string(cxcnt))) << endl;
+        cout << TF::BOLD(TF::RED("T-family    : " + to_string(tfamily))) << endl;
+        if (nct > 0)
+            cout << TF::BOLD(TF::RED("Others      : " + to_string(nct))) << endl;
+        else
+            cout << TF::BOLD(TF::GREEN("Others      : " + to_string(nct))) << endl;
+    }
+    vector<int> info;
+    info.push_back(clifford);
+    info.push_back(cxcnt);
+    info.push_back(tfamily);
+    return info;  // [clifford, cxcnt, tfamily]
     // cout << endl;
 }

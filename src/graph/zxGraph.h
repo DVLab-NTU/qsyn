@@ -155,6 +155,7 @@ public:
     bool isGadgetAxel(ZXVertex*) const;
     bool hasDanglingNeighbors(ZXVertex*) const;
 
+    double Density();
     int TCount() const;
     int nonCliffordCount(bool includeT = false) const;
 
@@ -202,6 +203,7 @@ public:
     void mergeInputList(std::unordered_map<size_t, ZXVertex*> lst) { _inputList.merge(lst); }
     void mergeOutputList(std::unordered_map<size_t, ZXVertex*> lst) { _outputList.merge(lst); }
     void disownVertices();
+    void normalize();
 
     // Print functions (zxGraphPrint.cpp)
     void printGraph() const;

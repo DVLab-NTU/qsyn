@@ -88,7 +88,7 @@ void Extractor::initialize(bool fromEmpty) {
 QCir* Extractor::extract() {
     if (!extractionLoop(-1))
         return nullptr;
-    else
+    else if (verbose >= 3)
         cout << "Finish extracting!" << endl;
     if (verbose >= 8) {
         _logicalCircuit->printQubits();

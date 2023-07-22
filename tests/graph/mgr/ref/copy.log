@@ -1,8 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.4.2
-qsyn> zxnew
+qsyn> zxgr benchmark/zx/cnot.zx
 Create and checkout to Graph 0
-
-qsyn> zxgt
 
 qsyn> zxgp
 Graph 0( 2 inputs, 2 outputs, 6 vertices, 5 edges )
@@ -27,10 +25,8 @@ Graph 0( 2 inputs, 2 outputs, 6 vertices, 5 edges )
 
 qsyn> zxr
 
-qsyn> zxnew
+qsyn> zxgr benchmark/zx/cnot.zx
 Create and checkout to Graph 0
-
-qsyn> zxgt
 
 qsyn> zxgp
 Graph 0( 2 inputs, 2 outputs, 6 vertices, 5 edges )
@@ -56,10 +52,8 @@ Graph 0( 1 inputs, 2 outputs, 5 vertices, 4 edges )
 
 qsyn> zxr
 
-qsyn> zxnew
+qsyn> zxgr benchmark/zx/cnot.zx
 Create and checkout to Graph 0
-
-qsyn> zxgt
 
 qsyn> zxgp -v
 
@@ -75,9 +69,6 @@ Total #Vertices: 6
 qsyn> zxcopy
 Successfully copied Graph 0 to Graph 1
 Checkout to Graph 1
-
-qsyn> zxgt
-Note: The graph is not empty! Generation failed!
 
 qsyn> zxge -adde 0 5 HADAMARD
 

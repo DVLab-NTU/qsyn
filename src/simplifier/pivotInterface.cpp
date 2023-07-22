@@ -23,6 +23,7 @@ extern size_t verbose;
  * @param g
  */
 void PivotInterface::rewrite(ZXGraph* g) {
+    // cout <<"# " <<   this->getName() << " -> " << _matchTypeVec.size() << endl;
     reset();
     preprocess(g);
 
@@ -87,5 +88,6 @@ void PivotInterface::rewrite(ZXGraph* g) {
         for (const auto& v : n2) v->setPhase(v->getPhase() + m[0]->getPhase() + m[1]->getPhase() + Phase(1));
 
         for (int i = 0; i < 2; ++i) _removeVertices.push_back(m[i]);
+        // break;
     }
 }

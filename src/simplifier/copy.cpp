@@ -20,7 +20,7 @@ extern size_t verbose;
  *
  * @param g
  */
-void StateCopy::match(ZXGraph* g) {
+void StateCopy::match(ZXGraph* g, int upper_bound) {
     // Should be run in graph-like
     _matchTypeVec.clear();
     // if (verbose >= 8) g->printVertices();
