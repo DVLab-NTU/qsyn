@@ -1,6 +1,9 @@
 #!/bin/bash
 source benchmark/qsyn_testing_code/BASH_UTIL.sh
 
+echo "Warning: this shell script is deprecated and is to be removed in the near future."
+echo "         Please run './RUN_TEST -d' to run all tests instead."
+
 RETURN_CODE=0
 
 function USAGE () {
@@ -67,5 +70,8 @@ fi
 # if [ ${PIPESTATUS[0]} -ne 0 ]; then 
 #     RETURN_CODE=1;
 # fi
+
+echo "Warning: this shell script is deprecated and is to be removed in the near future."
+echo "         Please run './RUN_TEST -d' to run all tests instead."
 
 exit ${RETURN_CODE}

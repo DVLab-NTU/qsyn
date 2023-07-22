@@ -155,15 +155,15 @@ We have provided some DOFILEs, i.e., a sequence of commands, to serve as functio
 
 - To run a DOFILE and compare the result to the reference, type
   ```shell!
-  ./DOFILE.sh <path/to/test> -d
+  ./RUN_TEST <path/to/test> -d
   ```
 - To update the reference to a dofile, type
   ```shell!
-  ./DOFILE.sh <path/to/test> -up
+  ./RUN_TEST <path/to/test> -u
   ```
 - You may also run all DOFILEs by running
   `bash!
-./RUN_ALL_TEST.sh
+  ./RUN_TEST
 `
   Notice that if you use Apple Clang to compile `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
 
