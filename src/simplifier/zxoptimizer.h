@@ -6,8 +6,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef OPTIMIZER_H
-#define OPTIMIZER_H
+#ifndef ZX_OPTIMIZER_H
+#define ZX_OPTIMIZER_H
 
 #include <memory>
 #include <string>

@@ -14,7 +14,7 @@
 
 #include "extract.h"
 #include "gFlow.h"
-#include "optimizer.h"
+#include "zxoptimizer.h"
 #include "zxGraph.h"  // for ZXGraph
 
 using namespace std;
