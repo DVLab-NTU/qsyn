@@ -14,8 +14,8 @@
 
 #include "extract.h"
 #include "gFlow.h"
-#include "zxoptimizer.h"
 #include "zxGraph.h"  // for ZXGraph
+#include "zxoptimizer.h"
 
 using namespace std;
 extern size_t verbose;
