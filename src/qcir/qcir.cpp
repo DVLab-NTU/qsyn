@@ -548,3 +548,4 @@ std::vector<int> QCir::countGate(bool detail, bool print) {
     return info; // [clifford, cxcnt, tfamily]
     // cout << endl;
 }
+

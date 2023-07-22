@@ -39,7 +39,7 @@ unique_ptr<ArgParseCmdType> ZXGTraverseCmd();
 unique_ptr<ArgParseCmdType> ZX2TSCmd();
 unique_ptr<ArgParseCmdType> ZXGADjointCmd();
 unique_ptr<ArgParseCmdType> ZXGTestCmd();
-unique_ptr<ArgParseCmdType> ZXGPrintCmd();
+// unique_ptr<ArgParseCmdType> ZXGPrintCmd();
 
 // unique_ptr<ArgParseCmdType> ZXGWriteCmd();
 
@@ -53,7 +53,7 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXCOMpose", 5, ZXComposeCmd()) &&
           cmdMgr->regCmd("ZXTensor", 3, ZXTensorCmd()) &&
           cmdMgr->regCmd("ZXPrint", 3, ZXPrintCmd()) &&
-          cmdMgr->regCmd("ZXGPrint", 4, ZXGPrintCmd()) &&
+          cmdMgr->regCmd("ZXGPrint", 4, make_unique<ZXGPrintCmd>()) &&
           cmdMgr->regCmd("ZXGTest", 4, ZXGTestCmd()) &&
           cmdMgr->regCmd("ZXGEdit", 4, make_unique<ZXGEditCmd>()) &&
           cmdMgr->regCmd("ZXGADJoint", 6, ZXGADjointCmd()) &&
@@ -311,6 +311,9 @@ unique_ptr<ArgParseCmdType> ZXGTestCmd() {
         mutex.addArgument<bool>("-empty")
             .action(storeTrue)
             .help("check if the ZX-graph is empty");
+        mutex.addArgument<bool>("-gcx")
+            .action(storeTrue)
+            .help("generate a CNOT in ZX-graph");
         mutex.addArgument<bool>("-valid")
             .action(storeTrue)
             .help("check if the ZX-graph is valid");
@@ -340,7 +343,7 @@ unique_ptr<ArgParseCmdType> ZXGTestCmd() {
             if (zxGraphMgr->getGraph()->isIdentity()) cout << "The graph is an identity!" << endl;
             else cout << "The graph is not an identity!" << endl;
         }
-        else return CMD_EXEC_ERROR;
+        else zxGraphMgr->getGraph()->generateCNOT();
         return CMD_EXEC_DONE;
     };
 
@@ -351,158 +354,158 @@ unique_ptr<ArgParseCmdType> ZXGTestCmd() {
 //-----------------------------------------------------------------------------------------------------------
 //    ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis | -Density]
 //-----------------------------------------------------------------------------------------------------------
-unique_ptr<ArgParseCmdType> ZXGPrintCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("ZXGPrint");
+// unique_ptr<ArgParseCmdType> ZXGPrintCmd() {
+//     auto cmd = make_unique<ArgParseCmdType>("ZXGPrint");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("print info of ZX-graph");
+//     cmd->parserDefinition = [](ArgumentParser &parser) {
+//         parser.help("print info of ZX-graph");
 
-        auto mutex = parser.addMutuallyExclusiveGroup();
+//         auto mutex = parser.addMutuallyExclusiveGroup();
 
-        mutex.addArgument<bool>("-summary")
-            .action(storeTrue)
-            .help("print the summary info of ZX-graph");
-        mutex.addArgument<bool>("-io")
-            .action(storeTrue)
-            .help("print the I/O info of ZX-graph");
-        mutex.addArgument<bool>("-inputs")
-            .action(storeTrue)
-            .help("print the inputs info of ZX-graph");
-        mutex.addArgument<bool>("-outputs")
-            .action(storeTrue)
-            .help("print the outputs info of ZX-graph");
-        mutex.addArgument<bool>("-vertices")
-            .action(storeTrue)
-            .help("print the vertices info of ZX-graph");
-        mutex.addArgument<bool>("-edges")
-            .action(storeTrue)
-            .help("print the edges info of ZX-graph");
-        mutex.addArgument<bool>("-qubits")
-            .action(storeTrue)
-            .help("print the qubits info of ZX-graph");
-        mutex.addArgument<bool>("-neighbors")
-            .action(storeTrue)
-            .help("print the neighbors info of ZX-graph");
-        mutex.addArgument<bool>("-density")
-            .action(storeTrue)
-            .help("print the density of ZX-graph");
-    };
+//         mutex.addArgument<bool>("-summary")
+//             .action(storeTrue)
+//             .help("print the summary info of ZX-graph");
+//         mutex.addArgument<bool>("-io")
+//             .action(storeTrue)
+//             .help("print the I/O info of ZX-graph");
+//         mutex.addArgument<bool>("-inputs")
+//             .action(storeTrue)
+//             .help("print the inputs info of ZX-graph");
+//         mutex.addArgument<bool>("-outputs")
+//             .action(storeTrue)
+//             .help("print the outputs info of ZX-graph");
+//         mutex.addArgument<bool>("-vertices")
+//             .action(storeTrue)
+//             .help("print the vertices info of ZX-graph");
+//         mutex.addArgument<bool>("-edges")
+//             .action(storeTrue)
+//             .help("print the edges info of ZX-graph");
+//         mutex.addArgument<bool>("-qubits")
+//             .action(storeTrue)
+//             .help("print the qubits info of ZX-graph");
+//         mutex.addArgument<bool>("-neighbors")
+//             .action(storeTrue)
+//             .help("print the neighbors info of ZX-graph");
+//         mutex.addArgument<bool>("-density")
+//             .action(storeTrue)
+//             .help("print the density of ZX-graph");
+//     };
 
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGPrint");
-        //TODO - `-vertices`, `-qubits`, `-neighbors` specific printing 
-        if(parser["-summary"].isParsed()){
-            zxGraphMgr->getGraph()->printGraph();
-            cout << setw(30) << left << "#T-gate: " << zxGraphMgr->getGraph()->TCount() << "\n";
-            cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(false) << "\n";
-            cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(true) << "\n";
+//     cmd->onParseSuccess = [](ArgumentParser const &parser) {
+//         ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGPrint");
+//         //TODO - `-vertices`, `-qubits`, `-neighbors` specific printing 
+//         if(parser["-summary"].isParsed()){
+//             zxGraphMgr->getGraph()->printGraph();
+//             cout << setw(30) << left << "#T-gate: " << zxGraphMgr->getGraph()->TCount() << "\n";
+//             cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(false) << "\n";
+//             cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(true) << "\n";
+//         }
+//         else if(parser["-io"].isParsed()) zxGraphMgr->getGraph()->printIO();
+//         else if(parser["-inputs"].isParsed()) zxGraphMgr->getGraph()->printInputs();
+//         else if(parser["-outputs"].isParsed()) zxGraphMgr->getGraph()->printOutputs();
+//         else if(parser["-vertices"].isParsed()) zxGraphMgr->getGraph()->printVertices();
+//         else if(parser["-edges"].isParsed()) zxGraphMgr->getGraph()->printEdges();
+//         else if(parser["-qubits"].isParsed()) zxGraphMgr->getGraph()->printQubits();
+//         else if(parser["-neighbors"].isParsed()){}
+//         else if(parser["-density"].isParsed()){
+//             cout << "Density: " << zxGraphMgr->getGraph()->Density() << endl;
+//         }
+//         else zxGraphMgr->getGraph()->printGraph();
+//         return CMD_EXEC_DONE;
+//     };
+
+//     return cmd;
+// }
+
+
+
+
+
+
+
+CmdExecStatus
+ZXGPrintCmd::exec(const string &option) {
+    // check option
+    vector<string> options;
+    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
+    // string token;
+    // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
+
+    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGPrint");
+
+    if (options.empty())
+        zxGraphMgr->getGraph()->printGraph();
+    else if(myStrNCmp("-Density", options[0], 2) == 0)
+        cout << "Density: " << zxGraphMgr->getGraph()->Density() << endl;
+    else if (myStrNCmp("-Summary", options[0], 2) == 0) {
+        zxGraphMgr->getGraph()->printGraph();
+        cout << setw(30) << left << "#T-gate: " << zxGraphMgr->getGraph()->TCount() << "\n";
+        cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(false) << "\n";
+        cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(true) << "\n";
+    } 
+    else if (myStrNCmp("-Inputs", options[0], 2) == 0)
+        zxGraphMgr->getGraph()->printInputs();
+    else if (myStrNCmp("-Outputs", options[0], 2) == 0)
+        zxGraphMgr->getGraph()->printOutputs();
+    else if (myStrNCmp("-IO", options[0], 3) == 0)
+        zxGraphMgr->getGraph()->printIO();
+    else if (myStrNCmp("-Vertices", options[0], 2) == 0) {
+        if (options.size() == 1)
+            zxGraphMgr->getGraph()->printVertices();
+        else {
+            vector<size_t> candidates;
+            for (size_t i = 1; i < options.size(); i++) {
+                unsigned id;
+                if (myStr2Uns(options[i], id)) candidates.push_back(id);
+            }
+            zxGraphMgr->getGraph()->printVertices(candidates);
         }
-        else if(parser["-io"].isParsed()) zxGraphMgr->getGraph()->printIO();
-        else if(parser["-inputs"].isParsed()) zxGraphMgr->getGraph()->printInputs();
-        else if(parser["-outputs"].isParsed()) zxGraphMgr->getGraph()->printOutputs();
-        else if(parser["-vertices"].isParsed()) zxGraphMgr->getGraph()->printVertices();
-        else if(parser["-edges"].isParsed()) zxGraphMgr->getGraph()->printEdges();
-        else if(parser["-qubits"].isParsed()) zxGraphMgr->getGraph()->printQubits();
-        else if(parser["-neighbors"].isParsed()){}
-        else if(parser["-density"].isParsed()){
-            cout << "Density: " << zxGraphMgr->getGraph()->Density() << endl;
+    } else if (myStrNCmp("-Edges", options[0], 2) == 0)
+        zxGraphMgr->getGraph()->printEdges();
+    else if (myStrNCmp("-Qubits", options[0], 2) == 0) {
+        vector<int> candidates;
+        for (size_t i = 1; i < options.size(); i++) {
+            int qid;
+            if (myStr2Int(options[i], qid))
+                candidates.push_back(qid);
+            else {
+                cout << "Warning: " << options[i] << " is not a valid qubit ID!!" << endl;
+            }
         }
-        else zxGraphMgr->getGraph()->printGraph();
+        zxGraphMgr->getGraph()->printQubits(candidates);
+    } else if (myStrNCmp("-Neighbors", options[0], 2) == 0) {
+        CMD_N_OPTS_EQUAL_OR_RETURN(options, 2);
+
+        unsigned id;
+        ZXVertex *v;
+        ZX_CMD_ID_VALID_OR_RETURN(options[1], id, "Vertex");
+        ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id, v);
+
+        v->printVertex();
+        cout << "----- Neighbors -----" << endl;
+        for (auto [nb, _] : v->getNeighbors()) {
+            nb->printVertex();
+        }
+    } else if (myStrNCmp("-Analysis", options[0], 2) == 0) {
+        cout << setw(30) << left << "#T-gate: " << zxGraphMgr->getGraph()->TCount() << "\n";
+        cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(false) << "\n";
+        cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(true) << "\n";
         return CMD_EXEC_DONE;
-    };
+    }
 
-    return cmd;
+    else
+        return errorOption(CMD_OPT_ILLEGAL, options[0]);
+    return CMD_EXEC_DONE;
 }
 
+void ZXGPrintCmd::usage() const {
+    cout << "Usage: ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis]" << endl;
+}
 
-
-
-
-
-
-// CmdExecStatus
-// ZXGPrintCmd::exec(const string &option) {
-//     // check option
-//     vector<string> options;
-//     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
-//     // string token;
-//     // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-
-//     ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGPrint");
-
-//     if (options.empty())
-//         zxGraphMgr->getGraph()->printGraph();
-//     else if(myStrNCmp("-Density", options[0], 2) == 0)
-//         cout << "Density: " << zxGraphMgr->getGraph()->Density() << endl;
-//     else if (myStrNCmp("-Summary", options[0], 2) == 0) {
-//         zxGraphMgr->getGraph()->printGraph();
-//         cout << setw(30) << left << "#T-gate: " << zxGraphMgr->getGraph()->TCount() << "\n";
-//         cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(false) << "\n";
-//         cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(true) << "\n";
-//     } 
-//     else if (myStrNCmp("-Inputs", options[0], 2) == 0)
-//         zxGraphMgr->getGraph()->printInputs();
-//     else if (myStrNCmp("-Outputs", options[0], 2) == 0)
-//         zxGraphMgr->getGraph()->printOutputs();
-//     else if (myStrNCmp("-IO", options[0], 3) == 0)
-//         zxGraphMgr->getGraph()->printIO();
-//     else if (myStrNCmp("-Vertices", options[0], 2) == 0) {
-//         if (options.size() == 1)
-//             zxGraphMgr->getGraph()->printVertices();
-//         else {
-//             vector<size_t> candidates;
-//             for (size_t i = 1; i < options.size(); i++) {
-//                 unsigned id;
-//                 if (myStr2Uns(options[i], id)) candidates.push_back(id);
-//             }
-//             zxGraphMgr->getGraph()->printVertices(candidates);
-//         }
-//     } else if (myStrNCmp("-Edges", options[0], 2) == 0)
-//         zxGraphMgr->getGraph()->printEdges();
-//     else if (myStrNCmp("-Qubits", options[0], 2) == 0) {
-//         vector<int> candidates;
-//         for (size_t i = 1; i < options.size(); i++) {
-//             int qid;
-//             if (myStr2Int(options[i], qid))
-//                 candidates.push_back(qid);
-//             else {
-//                 cout << "Warning: " << options[i] << " is not a valid qubit ID!!" << endl;
-//             }
-//         }
-//         zxGraphMgr->getGraph()->printQubits(candidates);
-//     } else if (myStrNCmp("-Neighbors", options[0], 2) == 0) {
-//         CMD_N_OPTS_EQUAL_OR_RETURN(options, 2);
-
-//         unsigned id;
-//         ZXVertex *v;
-//         ZX_CMD_ID_VALID_OR_RETURN(options[1], id, "Vertex");
-//         ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id, v);
-
-//         v->printVertex();
-//         cout << "----- Neighbors -----" << endl;
-//         for (auto [nb, _] : v->getNeighbors()) {
-//             nb->printVertex();
-//         }
-//     } else if (myStrNCmp("-Analysis", options[0], 2) == 0) {
-//         cout << setw(30) << left << "#T-gate: " << zxGraphMgr->getGraph()->TCount() << "\n";
-//         cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(false) << "\n";
-//         cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(true) << "\n";
-//         return CMD_EXEC_DONE;
-//     }
-
-//     else
-//         return errorOption(CMD_OPT_ILLEGAL, options[0]);
-//     return CMD_EXEC_DONE;
-// }
-
-// void ZXGPrintCmd::usage() const {
-//     cout << "Usage: ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis]" << endl;
-// }
-
-// void ZXGPrintCmd::summary() const {
-//     cout << setw(15) << left << "ZXGPrint: "
-//          << "print info of ZX-graph" << endl;
-// }
+void ZXGPrintCmd::summary() const {
+    cout << setw(15) << left << "ZXGPrint: "
+         << "print info of ZX-graph" << endl;
+}
 
 
 
