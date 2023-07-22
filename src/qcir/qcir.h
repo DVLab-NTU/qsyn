@@ -39,6 +39,7 @@ public:
     size_t getId() const { return _id; }
     size_t getZXId() const { return _ZXNodeId; }
     size_t getNQubit() const { return _qubits.size(); }
+    int getDepth();
     const std::vector<QCirQubit*>& getQubits() const { return _qubits; }
     const std::vector<QCirGate*>& getTopoOrderdGates() const { return _topoOrder; }
     const std::vector<QCirGate*>& getGates() const { return _qgates; }
@@ -81,7 +82,7 @@ public:
 
     bool draw(std::string const& drawer, std::string const& outputPath = "", float scale = 1.0f);
 
-    void countGate(bool = false);
+    std::vector<int> countGate(bool detail = false, bool print = true);
 
     void ZXMapping();
     void tensorMapping();
@@ -113,6 +114,7 @@ public:
     bool printGateInfo(size_t, bool);
     void printSummary();
     void printQubits();
+    void printCirInfo();
 
 private:
     void DFS(QCirGate*);

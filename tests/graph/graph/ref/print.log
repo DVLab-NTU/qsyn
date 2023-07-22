@@ -1,8 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.4.2
-qsyn> zxnew
+qsyn> zxgr benchmark/zx/cnot.zx
 Created and checked out to ZXGraph 0
-
-qsyn> zxgt
 
 qsyn> zxgp -v 1 0
 
@@ -24,10 +22,8 @@ ID:   5 (●, 0)           (Qubit, Col): (1, 2)	  #Neighbors:   1     (3, -)
 
 
 
-qsyn> zxnew
+qsyn> zxgr benchmark/zx/cnot.zx
 Created and checked out to ZXGraph 1
-
-qsyn> zxgt
 
 qsyn> zxgp -v
 
@@ -44,10 +40,8 @@ qsyn> zxprint
 -> #ZXGraph: 2
 -> Now focused on: 1
 
-qsyn> zxnew
+qsyn> zxgr benchmark/zx/cnot.zx
 Created and checked out to ZXGraph 2
-
-qsyn> zxgtest -gcx
 
 qsyn> zxgprint -v
 

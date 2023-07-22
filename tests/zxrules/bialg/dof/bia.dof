@@ -60,7 +60,21 @@ zxgsimp -bia
 zxgp -v
 zxgprint -e
 zx2ts
-tsp 0
+zxnew
+zxge -addi 0
+zxge -addo 0
+zxge -addi 1
+zxge -addo 1
+zxge -addv 0 Z 0
+zxge -addv 0 Z 0
+zxge -adde 0 4 SIMPLE
+zxge -adde 2 4 SIMPLE
+zxge -adde 1 5 SIMPLE
+zxge -adde 3 5 SIMPLE
+zxge -adde 4 5 SIMPLE
+zxgp -v
+zx2ts
+tseq 0 1
 zxr
 zxnew 
 zxge -addi 0

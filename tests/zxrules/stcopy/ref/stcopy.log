@@ -40,9 +40,9 @@ ID:   1 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (4, [1m[
 ID:   2 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, -) 
 ID:   3 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (5, [1m[34mH[0m[0m) 
 ID:   4 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (1, [1m[34mH[0m[0m) (6, [1m[34mH[0m[0m) 
-ID:   5 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (0, 0)	  #Neighbors:   1     (3, [1m[34mH[0m[0m) 
-ID:   6 ([1m[32mZ[0m[0m, 11π/6)       (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, [1m[34mH[0m[0m) 
-ID:   9 ([1m[32mZ[0m[0m, 15π/8)       (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, [1m[34mH[0m[0m) 
+ID:   5 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (0, 0)	  #Neighbors:   1     (3, [1m[34mH[0m[0m) 
+ID:   6 ([1m[32mZ[0m[0m, -π/6)        (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, [1m[34mH[0m[0m) 
+ID:   9 ([1m[32mZ[0m[0m, -π/8)        (Qubit, Col): (0, 0)	  #Neighbors:   1     (10, [1m[34mH[0m[0m) 
 ID:  10 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (2, -) (9, [1m[34mH[0m[0m) 
 Total #Vertices: 9
 
@@ -92,8 +92,8 @@ ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (3, -)
 ID:   1 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (9, -) 
 ID:   2 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (8, -) 
 ID:   3 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (4, [1m[34mH[0m[0m) 
-ID:   4 ([1m[32mZ[0m[0m, 7π/4)        (Qubit, Col): (0, 0)	  #Neighbors:   1     (3, [1m[34mH[0m[0m) 
-ID:   7 ([1m[32mZ[0m[0m, 15π/8)       (Qubit, Col): (0, 0)	  #Neighbors:   1     (8, [1m[34mH[0m[0m) 
+ID:   4 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (0, 0)	  #Neighbors:   1     (3, [1m[34mH[0m[0m) 
+ID:   7 ([1m[32mZ[0m[0m, -π/8)        (Qubit, Col): (0, 0)	  #Neighbors:   1     (8, [1m[34mH[0m[0m) 
 ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (2, -) (7, [1m[34mH[0m[0m) 
 ID:   9 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (1, -) 
 Total #Vertices: 8

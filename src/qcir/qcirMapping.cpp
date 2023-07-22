@@ -79,7 +79,7 @@ void QCir::ZXMapping() {
     for (auto &v : _ZXG->getOutputs()) {
         v->setCol(max + 1);
     }
-
+    // _ZXG->normalize();
     _ZXGraphList.push_back(_ZXG);
 }
 

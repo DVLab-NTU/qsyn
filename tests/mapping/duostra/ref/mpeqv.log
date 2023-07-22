@@ -28,12 +28,7 @@ Total Time:     101
 
 
 qsyn> qccp
-QCir 1( 16 qubits, 60 gates)
-Clifford    : 46
-└── 2-qubit : 41
-T-family    : 14
-Others      : 0
-Depth       : 85
+QCir 1( 60 gates, 41 2-qubits gates, 14 T-gates, 85 depths)
 
 qsyn> qcp -l
   0    3_17_13             

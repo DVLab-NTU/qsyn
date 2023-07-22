@@ -1,13 +1,9 @@
 DV Lab, NTUEE, Qsyn 0.4.2
-qsyn> zxnew
+qsyn> zxgr benchmark/zx/cnot.zx
 Created and checked out to ZXGraph 0
 
-qsyn> zxgt
-
-qsyn> zxnew
+qsyn> zxgr benchmark/zx/cnot.zx
 Created and checked out to ZXGraph 1
-
-qsyn> zxgt
 
 qsyn> zxcompose 0
 

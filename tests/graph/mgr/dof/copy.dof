@@ -1,5 +1,4 @@
-zxnew
-zxgt
+zxgr benchmark/zx/cnot.zx
 zxgp
 zxcopy
 zxgp
@@ -8,8 +7,7 @@ zxgp
 zxch 0
 zxgp
 zxr
-zxnew
-zxgt
+zxgr benchmark/zx/cnot.zx
 zxgp
 zxcopy
 zxgp
@@ -18,11 +16,9 @@ zxgp
 zxcop -r 0
 zxgp
 zxr
-zxnew
-zxgt
+zxgr benchmark/zx/cnot.zx
 zxgp -v
 zxcopy
-zxgt
 zxge -adde 0 5 HADAMARD
 zxgp -v
 zxcheckout 0

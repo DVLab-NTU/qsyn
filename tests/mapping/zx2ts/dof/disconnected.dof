@@ -22,10 +22,8 @@ zxgp -e
 
 ver 8
 zx2ts
-zxn
-zxgtest
-zxn
-zxgtest
+zxgr benchmark/zx/cnot.zx
+zxgr benchmark/zx/cnot.zx
 zxch 0
 zxtensor 1
 zxgp -v
