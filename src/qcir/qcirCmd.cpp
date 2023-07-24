@@ -90,7 +90,7 @@ bool initQCirCmd() {
     return true;
 }
 
-ArgType<size_t>::ConstraintType validQCirId = {
+ArgType<size_t>::ConstraintType const validQCirId = {
     [](size_t const& id) {
         return qcirMgr->isID(id);
     },
@@ -98,7 +98,7 @@ ArgType<size_t>::ConstraintType validQCirId = {
         cerr << "Error: QCir " << id << " does not exist!!\n";
     }};
 
-ArgType<size_t>::ConstraintType validQCirGateId = {
+ArgType<size_t>::ConstraintType const validQCirGateId = {
     [](size_t const& id) {
         assert(qcirMgr->getcListItr() != qcirMgr->getQCircuitList().end());
         return (qcirMgr->getQCircuit()->getGate(id) != nullptr);
@@ -108,7 +108,7 @@ ArgType<size_t>::ConstraintType validQCirGateId = {
         cerr << "Error: Gate id " << id << " does not exist!!\n";
     }};
 
-ArgType<size_t>::ConstraintType validQCirBitId = {
+ArgType<size_t>::ConstraintType const validQCirBitId = {
     [](size_t const& id) {
         assert(qcirMgr->getcListItr() != qcirMgr->getQCircuitList().end());
         return (qcirMgr->getQCircuit()->getQubit(id) != nullptr);
@@ -118,7 +118,7 @@ ArgType<size_t>::ConstraintType validQCirBitId = {
         cerr << "Error: Qubit id " << id << " does not exist!!\n";
     }};
 
-ArgType<size_t>::ConstraintType validDMode = {
+ArgType<size_t>::ConstraintType const validDMode = {
     [](size_t const& val) {
         return (val >= 0 && val <= 4);
     },
@@ -143,7 +143,7 @@ unique_ptr<ArgParseCmdType> QCirCheckOutCmd() {
             .help("the ID of the circuit");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         qcirMgr->checkout2QCir(parser["id"]);
         return CMD_EXEC_DONE;
     };
@@ -162,7 +162,7 @@ unique_ptr<ArgParseCmdType> QCirResetCmd() {
         parser.help("reset QCirMgr");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         qcirMgr->reset();
         return CMD_EXEC_DONE;
     };
@@ -187,7 +187,7 @@ unique_ptr<ArgParseCmdType> QCirDeleteCmd() {
             .help("the ID of the circuit");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         qcirMgr->removeQCir(parser["id"]);
         return CMD_EXEC_DONE;
     };
@@ -214,7 +214,7 @@ unique_ptr<ArgParseCmdType> QCirNewCmd() {
             .help("if specified, replace the current circuit; otherwise store to a new one");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         size_t id = parser["id"].isParsed() ? parser.get<size_t>("id") : qcirMgr->getNextID();
 
         if (qcirMgr->isID(id)) {
@@ -827,9 +827,7 @@ unique_ptr<ArgParseCmdType> QCir2ZXCmd() {
             .help("decompose the graph in level 0");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
-        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QC2ZX");
-
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         if (parser["dm"].isParsed())
             dmode = parser["dm"];
         else

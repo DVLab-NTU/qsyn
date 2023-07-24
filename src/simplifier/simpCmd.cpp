@@ -52,7 +52,7 @@ bool initSimpCmd() {
 unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXGSimp");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
+    cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("perform simplification strategies for ZX-graph");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
@@ -123,7 +123,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             .help("convert to red (X) graph");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
         ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGSimp");
         Simplifier s(zxGraphMgr.get(), st);
         if (parser["-sreduce"].isParsed())
@@ -178,8 +178,7 @@ unique_ptr<ArgParseCmdType> ZXOPTCmd() {
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("Dynamic Optimization for a ZX-graph");
     };
-    cmd->onParseSuccess = [](std::stop_token, ArgumentParser const &parser) {
-        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("ZXOPT");
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
         opt.myOptimize();
         return CMD_EXEC_DONE;
     };
@@ -307,7 +306,7 @@ unique_ptr<ArgParseCmdType> ZXOPTS2sCmd() {
             .action(storeTrue)
             .help("perform spider fusion");
     };
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
         if (parser["s2s"].isParsed()) {
             if (parser["-idremoval"].isParsed()) opt.setS2S("Identity Removal Rule", parser["s2s"]);
             if (parser["-lcomp"].isParsed()) opt.setS2S("Local Complementation Rule", parser["s2s"]);
@@ -380,7 +379,7 @@ unique_ptr<ArgParseCmdType> ZXOPTR2rCmd() {
             .action(storeTrue)
             .help("perform clifford");
     };
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
         if (parser["r2r"].isParsed()) {
             if (parser["-idremoval"].isParsed()) opt.setR2R("Identity Removal Rule", parser["r2r"]);
             if (parser["-lcomp"].isParsed()) opt.setR2R("Local Complementation Rule", parser["r2r"]);

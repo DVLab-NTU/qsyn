@@ -224,6 +224,11 @@ private:
 };
 
 ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::string> choices);
+extern ArgType<std::string>::ConstraintType const file_exists;
+extern ArgType<std::string>::ConstraintType const dir_for_file_exists;
+ArgType<std::string>::ConstraintType starts_with(std::vector<std::string> const& prefixes);
+ArgType<std::string>::ConstraintType ends_with(std::vector<std::string> const& suffixes);
+ArgType<std::string>::ConstraintType allowed_extension(std::vector<std::string> const& extensions);
 
 class Argument {
 public:

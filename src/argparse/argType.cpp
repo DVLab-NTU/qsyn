@@ -6,6 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <filesystem>
 #include <iostream>
 
 #include "argparse.h"
@@ -91,6 +92,66 @@ ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::strin
     };
 
     return {constraint, error};
+}
+
+ArgType<std::string>::ConstraintType const file_exists = {
+    [](std::string const& filepath) {
+        return std::filesystem::exists(filepath);
+    },
+    [](std::string const& filepath) {
+        std::cerr << "Error: the file \"" << filepath << "\" does not exist!!" << std::endl;
+    }};
+
+ArgType<std::string>::ConstraintType const dir_for_file_exists = {
+    [](std::string const& filepath) {
+        size_t lastSlash = filepath.find_last_of('/');
+        if (lastSlash == std::string::npos) return std::filesystem::exists(".");
+        return std::filesystem::exists(filepath.substr(0, lastSlash));
+    },
+    [](std::string const& filepath) {
+        std::cerr << "Error: the directory for file \"" << filepath << "\" does not exist!!" << std::endl;
+    }};
+
+ArgType<std::string>::ConstraintType starts_with(std::vector<std::string> const& prefixes) {
+    return {
+        [prefixes](std::string const& str) {
+            return std::ranges::any_of(prefixes, [&str](std::string const& prefix) { return str.starts_with(prefix); });
+        },
+        [prefixes](std::string const& str) {
+            std::cerr << "Error: string \"" << str << "\" should start with one of";
+            for (auto& prefix : prefixes) {
+                std::cerr << " \"" << prefix << "\"";
+            }
+            std::cerr << "!!" << std::endl;
+        }};
+}
+
+ArgType<std::string>::ConstraintType ends_with(std::vector<std::string> const& suffixes) {
+    return {
+        [suffixes](std::string const& str) {
+            return std::ranges::any_of(suffixes, [&str](std::string const& suffix) { return str.ends_with(suffix); });
+        },
+        [suffixes](std::string const& str) {
+            std::cerr << "Error: string \"" << str << "\" should end with one of";
+            for (auto& suffix : suffixes) {
+                std::cerr << " \"" << suffix << "\"";
+            }
+            std::cerr << "!!" << std::endl;
+        }};
+}
+
+ArgType<std::string>::ConstraintType allowed_extension(std::vector<std::string> const& extensions) {
+    return {
+        [extensions](std::string const& str) {
+            return std::ranges::any_of(extensions, [&str](std::string const& ext) { return str.ends_with(ext); });
+        },
+        [extensions](std::string const& str) {
+            std::cerr << "Error: file must have one of the following extension:";
+            for (auto& ext : extensions) {
+                std::cerr << " \"" << ext << "\"";
+            }
+            std::cerr << "!!" << std::endl;
+        }};
 }
 
 /**

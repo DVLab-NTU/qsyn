@@ -113,7 +113,7 @@ bool ArgumentParser::analyzeOptions() const {
 
     for (auto const& group : _pimpl->mutuallyExclusiveGroups) {
         for (auto const& name : group.getArguments()) {
-            if (_pimpl->arguments.at(toLowerString(name)).isRequired()) {
+            if (_pimpl->arguments.at(name).isRequired()) {
                 cerr << "[ArgParse] Error: Mutually exclusive argument \"" << name << "\" must be optional!!" << endl;
                 return false;
             }
@@ -397,7 +397,6 @@ variant<string, size_t> ArgumentParser::matchOption(std::string const& token) co
 bool ArgumentParser::conflictWithParsedArguments(Argument const& arg) const {
     if (!_pimpl->conflictGroups.contains(arg.getName())) return false;
 
-    
     auto& conflictGroup = _pimpl->conflictGroups.at(arg.getName());
     if (!conflictGroup.isParsed()) {
         conflictGroup.setParsed(true);

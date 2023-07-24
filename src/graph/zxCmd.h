@@ -15,24 +15,16 @@
 #include "zxGraph.h"    // for ZXGraph
 #include "zxGraphMgr.h"
 
-// CmdClass(ZXNewCmd);
-// CmdClass(ZXResetCmd);
-// CmdClass(ZXDeleteCmd);
-// CmdClass(ZXCHeckoutCmd);
-// CmdClass(ZXPrintCmd);
-// CmdClass(ZXCopyCmd);
-// CmdClass(ZXComposeCmd);
-// CmdClass(ZXTensorCmd);
 CmdClass(ZXGPrintCmd);
-// CmdClass(ZXGTestCmd);
 CmdClass(ZXGEditCmd);
-// CmdClass(ZXGTraverseCmd);
-CmdClass(ZXGDrawCmd);
-// CmdClass(ZX2TSCmd);
+// CmdClass(ZXGDrawCmd);
 CmdClass(ZXGReadCmd);
 CmdClass(ZXGWriteCmd);
-// CmdClass(ZXGAdjointCmd);
 CmdClass(ZXGAssignCmd);
+
+extern ArgParse::ArgType<size_t>::ConstraintType const validZXGraphId;
+
+bool zxGraphMgrNotEmpty(std::string const& command);
 
 #define ZX_CMD_QUBIT_ID_VALID_OR_RETURN(option, qid)         \
     {                                                        \

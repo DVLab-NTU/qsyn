@@ -7,17 +7,17 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>   // for size_t
-#include <iostream>  // for ostream
-#include <string>    // for string
+#include <cstddef>
+#include <iostream>
+#include <string>
 
 #include "deviceCmd.h"
-#include "deviceMgr.h"         // for DeviceMgr
-#include "duostra.h"           // for Duostra
-#include "mappingEQChecker.h"  // for MappingEQChecker
-#include "qcir.h"              // for QCir
-#include "qcirCmd.h"           // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
-#include "qcirMgr.h"           // for QCirMgr
+#include "deviceMgr.h"
+#include "duostra.h"
+#include "mappingEQChecker.h"
+#include "qcir.h"
+#include "qcirCmd.h"
+#include "qcirMgr.h"
 #include "textFormat.h"
 
 using namespace std;
@@ -48,8 +48,11 @@ bool initDuostraCmd() {
 //    DUOSTRA
 //------------------------------------------------------------------------------
 unique_ptr<ArgParseCmdType> duostraCmd() {
-    auto duostraCmd = make_unique<ArgParseCmdType>("DUOSTRA");
-    duostraCmd->parserDefinition = [](ArgumentParser& parser) {
+    auto cmd = make_unique<ArgParseCmdType>("DUOSTRA");
+
+    cmd->precondition = []() { return qcirMgrNotEmpty("DUOSTRA"); };
+
+    cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("map logical circuit to physical circuit");
         parser.addArgument<bool>("-check")
             .defaultValue(false)
@@ -65,9 +68,8 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
             .help("mute all messages");
     };
 
-    duostraCmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         DT_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
-        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
         Duostra duo = Duostra(qcirMgr->getQCircuit(), deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"]);
         if (duo.flow() != ERROR_CODE) {
             QCir* result = duo.getPhysicalCircuit();
@@ -81,7 +83,7 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
         }
         return CMD_EXEC_DONE;
     };
-    return duostraCmd;
+    return cmd;
 }
 
 //------------------------------------------------------------------------------
@@ -216,6 +218,9 @@ unique_ptr<ArgParseCmdType> duostraPrintCmd() {
 
 unique_ptr<ArgParseCmdType> mapEQCmd() {
     auto cmd = make_unique<ArgParseCmdType>("MPEQuiv");
+
+    cmd->precondition = []() { return qcirMgrNotEmpty("MPEQuiv"); };
+
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("check equivalence of the physical and the logical circuits");
         parser.addArgument<size_t>("-logical")
@@ -229,9 +234,9 @@ unique_ptr<ArgParseCmdType> mapEQCmd() {
             .action(storeTrue)
             .help("check the circuit reversily, used in extracted circuit");
     };
+
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         DT_CMD_MGR_NOT_EMPTY_OR_RETURN("MPEQuiv");
-        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("MPEQuiv");
         if (qcirMgr->findQCirByID(parser["-physical"]) == nullptr || qcirMgr->findQCirByID(parser["-logical"]) == nullptr) {
             return CMD_EXEC_ERROR;
         }
@@ -243,5 +248,6 @@ unique_ptr<ArgParseCmdType> mapEQCmd() {
         }
         return CMD_EXEC_DONE;
     };
+
     return cmd;
 }

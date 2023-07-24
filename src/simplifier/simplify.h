@@ -20,10 +20,10 @@ class ZXGraph;
 
 class Simplifier {
 public:
-    Simplifier(ZXGraph* g, std::stop_token st): _rule{nullptr}, _simpGraph{g}, _stop_token{st} {
+    Simplifier(ZXGraph* g, std::stop_token st) : _rule{nullptr}, _simpGraph{g}, _stop_token{st} {
         hruleSimp();
     }
-    Simplifier(std::unique_ptr<ZXRule> rule, ZXGraph* g): _rule{std::move(rule)}, _simpGraph{g} {}
+    Simplifier(std::unique_ptr<ZXRule> rule, ZXGraph* g) : _rule{std::move(rule)}, _simpGraph{g} {}
 
     ZXRule* getRule() const { return _rule.get(); }
 
