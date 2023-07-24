@@ -266,7 +266,7 @@ unique_ptr<ArgParseCmdType> ZXComposeCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        zxGraphMgr.get()->compose(zxGraphMgr.findByID(parser["id"]));
+        zxGraphMgr.get()->compose(*zxGraphMgr.findByID(parser["id"]));
         return CMD_EXEC_DONE;
     };
 
@@ -285,7 +285,7 @@ unique_ptr<ArgParseCmdType> ZXTensorCmd() {
             .help("the ID of the ZX-graph");
     };
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        zxGraphMgr.get()->tensorProduct(zxGraphMgr.findByID(parser["id"]));
+        zxGraphMgr.get()->tensorProduct(*zxGraphMgr.findByID(parser["id"]));
         return CMD_EXEC_DONE;
     };
     return cmd;

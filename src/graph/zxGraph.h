@@ -12,7 +12,7 @@
 #include <complex>
 #include <cstddef>  // for size_t, NULL
 #include <span>
-#include <string>   // for string
+#include <string>  // for string
 #include <unordered_map>
 
 #include "phase.h"  // for Phase
@@ -249,9 +249,11 @@ public:
     void sortIOByQubit();
     void toggleVertex(ZXVertex* v);
     void liftQubit(const size_t& n);
-    void relabelVertexIDs(size_t idStart) { std::ranges::for_each(this->_vertices, [&idStart](ZXVertex* v){ v->setId(idStart++); } ); }
-    ZXGraph* compose(ZXGraph* target);
-    ZXGraph* tensorProduct(ZXGraph* target);
+    void relabelVertexIDs(size_t idStart) {
+        std::ranges::for_each(this->_vertices, [&idStart](ZXVertex* v) { v->setId(idStart++); });
+    }
+    ZXGraph& compose(ZXGraph const& target);
+    ZXGraph& tensorProduct(ZXGraph const& target);
     void addGadget(Phase p, const std::vector<ZXVertex*>& verVec);
     void removeGadget(ZXVertex* v);
     std::unordered_map<size_t, ZXVertex*> id2VertexMap() const;
@@ -275,7 +277,7 @@ public:
     ZXVertexList getNonBoundary();
     ZXVertex* getInputByQubit(const size_t& q);
     ZXVertex* getOutputByQubit(const size_t& q);
-    void concatenate(ZXGraph* tmp);
+    void concatenate(ZXGraph const& tmp);
     const std::unordered_map<size_t, ZXVertex*>& getInputList() const { return _inputList; }
     const std::unordered_map<size_t, ZXVertex*>& getOutputList() const { return _outputList; }
 

@@ -172,7 +172,7 @@ public:
             printMgrEmptyErrorMsg();
         }
     }
-    
+
     void printListSize() const {
         std::cout << "#" << _typeName << size() << std::endl;
     }

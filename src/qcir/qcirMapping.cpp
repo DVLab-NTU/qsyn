@@ -51,21 +51,20 @@ void QCir::ZXMapping() {
         _ZXG->addEdge(input, output, EdgeType(EdgeType::SIMPLE));
     }
 
-    topoTraverse([_ZXG](QCirGate *G) {
+    topoTraverse([_ZXG](QCirGate *gate) {
         if (verbose >= 8) cout << "\n";
-        if (verbose >= 5) cout << "> Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
-        ZXGraph *tmp = G->getZXform();
+        if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
+        ZXGraph tmp = gate->getZXform();
 
-        for (auto &v : tmp->getVertices()) {
-            v->setCol(v->getCol() + G->getTime() + G->getDelay());
+        for (auto &v : tmp.getVertices()) {
+            v->setCol(v->getCol() + gate->getTime() + gate->getDelay());
         }
-        if (tmp == NULL) {
-            cerr << "Gate " << G->getId() << " (type: " << G->getTypeStr() << ") is not implemented, the conversion result is wrong!!" << endl;
-            return;
-        }
+        // if (tmp == NULL) {
+        //     cerr << "Gate " << gate->getId() << " (type: " << gate->getTypeStr() << ") is not implemented, the conversion result is wrong!!" << endl;
+        //     return;
+        // }
 
         _ZXG->concatenate(tmp);
-        delete tmp;
     });
 
     size_t max = 0;

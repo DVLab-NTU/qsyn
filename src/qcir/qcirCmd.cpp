@@ -498,7 +498,7 @@ unique_ptr<ArgParseCmdType> QCirGatePrintCmd() {
         QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCGPrint");
         if (parser["-zx-form"].isParsed()) {
             cout << "\n> Gate " << parser["id"] << " (" << qcirMgr->getQCircuit()->getGate(parser["id"])->getTypeStr() << ")";
-            qcirMgr->getQCircuit()->getGate(parser["id"])->getZXform()->printVertices();
+            qcirMgr->getQCircuit()->getGate(parser["id"])->getZXform().printVertices();
         } else {
             qcirMgr->getQCircuit()->printGateInfo(parser["id"], parser["-time"].isParsed());
         }

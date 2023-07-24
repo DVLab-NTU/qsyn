@@ -63,7 +63,7 @@ ZXVertex* ZXGraph::getOutputByQubit(const size_t& q) {
  *
  * @param other the other graph to concatenate with. This graph should have the same number of inputs and outputs
  */
-void ZXGraph::concatenate(ZXGraph* other) {
+void ZXGraph::concatenate(ZXGraph const& other) {
     /* Visualiztion of what is done:
        ┌────┐                                ┌────┐
     i0─┤    ├─o0         ┌─────┐          i0─┤    ├─ o0 ┌─────┐
@@ -72,30 +72,31 @@ void ZXGraph::concatenate(ZXGraph* other) {
        └────┘            └─────┘             └────┘     └─────┘
     */
 
-
-    if (other->getNumInputs() != other->getNumOutputs()) {
+    if (other.getNumInputs() != other.getNumOutputs()) {
         cerr << "Error: the graph being concatenated does not have the same number of inputs and outputs. Concatenation aborted!!\n";
         return;
     }
+
+    ZXGraph copy{other};
     // Reconnect Input
-    unordered_map<size_t, ZXVertex*> tmpInputs = other->getInputList();
+    unordered_map<size_t, ZXVertex*> tmpInputs = copy.getInputList();
     for (auto& [qubit, i] : tmpInputs) {
         auto [otherInputVertex, otherInputEtype] = i->getFirstNeighbor();
         auto [mainOutputVertex, mainOutputEtype] = this->getOutputByQubit(qubit)->getFirstNeighbor();
 
         this->removeEdge(mainOutputVertex, this->getOutputByQubit(qubit), mainOutputEtype);
         this->addEdge(mainOutputVertex, otherInputVertex, (mainOutputEtype == EdgeType::HADAMARD) ? toggleEdge(otherInputEtype) : otherInputEtype);
-        other->removeVertex(i);
+        copy.removeVertex(i);
     }
-    
+
     // Reconnect Output
-    unordered_map<size_t, ZXVertex*> tmpOutputs = other->getOutputList();
+    unordered_map<size_t, ZXVertex*> tmpOutputs = copy.getOutputList();
     for (auto& [qubit, o] : tmpOutputs) {
         auto [otherOutputVertex, etype] = o->getFirstNeighbor();
         this->addEdge(otherOutputVertex, this->getOutputByQubit(qubit), etype);
-        other->removeVertex(o);
+        copy.removeVertex(o);
     }
-    this->moveVerticesFrom(*other);
+    this->moveVerticesFrom(copy);
 }
 
 /**

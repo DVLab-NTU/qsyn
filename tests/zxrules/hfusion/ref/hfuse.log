@@ -30,10 +30,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 2), type: -
-Add edge (0, 2)
-Remove edge (2, 2), type: -
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
 Add edge (1, 2)
+Remove edge (0, 1), type: -
+Add edge (0, 1)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 > Gate 1 (h)
 Add vertex (●) 0
@@ -41,10 +47,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 3), type: -
-Add edge (2, 3)
-Remove edge (2, 3), type: -
-Add edge (1, 3)
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
+Remove edge (2, 1), type: -
+Add edge (1, 2)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 qsyn> zxgp -v
 
@@ -157,10 +169,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 2), type: -
-Add edge (0, 2)
-Remove edge (2, 2), type: -
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
 Add edge (1, 2)
+Remove edge (0, 1), type: -
+Add edge (0, 1)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 > Gate 1 (h)
 Add vertex (●) 0
@@ -168,10 +186,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 3), type: -
-Add edge (2, 3)
-Remove edge (2, 3), type: -
-Add edge (1, 3)
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
+Remove edge (2, 1), type: -
+Add edge (1, 2)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 > Gate 2 (h)
 Add vertex (●) 0
@@ -179,10 +203,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 4), type: -
-Add edge (3, 4)
-Remove edge (2, 4), type: -
-Add edge (1, 4)
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
+Remove edge (3, 1), type: -
+Add edge (1, 3)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 qsyn> zxgp -v
 
@@ -280,10 +310,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 2), type: -
-Add edge (0, 2)
-Remove edge (2, 2), type: -
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
 Add edge (1, 2)
+Remove edge (0, 1), type: -
+Add edge (0, 1)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 > Gate 1 (h)
 Add vertex (●) 0
@@ -291,10 +327,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 3), type: -
-Add edge (2, 3)
-Remove edge (2, 3), type: -
-Add edge (1, 3)
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
+Remove edge (2, 1), type: -
+Add edge (1, 2)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 qsyn> zxgp -v
 
@@ -399,10 +441,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 2), type: -
-Add edge (0, 2)
-Remove edge (2, 2), type: -
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
 Add edge (1, 2)
+Remove edge (0, 1), type: -
+Add edge (0, 1)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 > Gate 1 (h)
 Add vertex (●) 0
@@ -410,10 +458,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 3), type: -
-Add edge (2, 3)
-Remove edge (2, 3), type: -
-Add edge (1, 3)
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
+Remove edge (2, 1), type: -
+Add edge (1, 2)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 > Gate 2 (h)
 Add vertex (●) 0
@@ -421,10 +475,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 4), type: -
-Add edge (3, 4)
-Remove edge (2, 4), type: -
-Add edge (1, 4)
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
+Remove edge (3, 1), type: -
+Add edge (1, 3)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 qsyn> zxgp -v
 
@@ -544,10 +604,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 2), type: -
-Add edge (0, 2)
-Remove edge (2, 2), type: -
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
 Add edge (1, 2)
+Remove edge (0, 1), type: -
+Add edge (0, 1)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 > Gate 1 (z)
 Add vertex (●) 0
@@ -555,10 +621,16 @@ Add vertex ([1m[32mZ[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 3), type: -
-Add edge (2, 3)
-Remove edge (2, 3), type: -
-Add edge (1, 3)
+Add vertex (●) 0
+Add vertex ([1m[32mZ[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
+Remove edge (2, 1), type: -
+Add edge (1, 2)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 > Gate 2 (h)
 Add vertex (●) 0
@@ -566,10 +638,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 4), type: -
-Add edge (3, 4)
-Remove edge (2, 4), type: -
-Add edge (1, 4)
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
+Remove edge (3, 1), type: -
+Add edge (1, 3)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 qsyn> zxgp -v
 
@@ -673,10 +751,16 @@ Add vertex ([1m[32mZ[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 4), type: -
-Add edge (0, 4)
-Remove edge (2, 4), type: -
-Add edge (1, 4)
+Add vertex (●) 0
+Add vertex ([1m[32mZ[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
+Remove edge (0, 1), type: -
+Add edge (0, 1)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 > Gate 1 (z)
 Add vertex (●) 0
@@ -684,10 +768,16 @@ Add vertex ([1m[32mZ[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 5), type: -
-Add edge (2, 5)
-Remove edge (2, 5), type: -
-Add edge (3, 5)
+Add vertex (●) 0
+Add vertex ([1m[32mZ[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
+Remove edge (2, 3), type: -
+Add edge (1, 2)
+Remove ID: 0
+Add edge (1, 3)
+Remove ID: 2
 
 qsyn> zxgp -v
 
@@ -808,10 +898,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 2), type: -
-Add edge (0, 2)
-Remove edge (2, 2), type: -
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
 Add edge (1, 2)
+Remove edge (0, 1), type: -
+Add edge (0, 1)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 > Gate 1 (h)
 Add vertex (●) 0
@@ -819,10 +915,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 3), type: -
-Add edge (2, 3)
-Remove edge (2, 3), type: -
-Add edge (1, 3)
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
+Remove edge (2, 1), type: -
+Add edge (1, 2)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 > Gate 2 (z)
 Add vertex (●) 0
@@ -830,10 +932,16 @@ Add vertex ([1m[32mZ[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 4), type: -
-Add edge (3, 4)
-Remove edge (2, 4), type: -
-Add edge (1, 4)
+Add vertex (●) 0
+Add vertex ([1m[32mZ[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
+Remove edge (3, 1), type: -
+Add edge (1, 3)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 > Gate 3 (h)
 Add vertex (●) 0
@@ -841,10 +949,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 5), type: -
-Add edge (4, 5)
-Remove edge (2, 5), type: -
-Add edge (1, 5)
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
+Remove edge (4, 1), type: -
+Add edge (1, 4)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 > Gate 4 (h)
 Add vertex (●) 0
@@ -852,10 +966,16 @@ Add vertex ([1m[33mH[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 6), type: -
-Add edge (5, 6)
-Remove edge (2, 6), type: -
-Add edge (1, 6)
+Add vertex (●) 0
+Add vertex ([1m[33mH[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
+Remove edge (5, 1), type: -
+Add edge (1, 5)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 > Gate 5 (z)
 Add vertex (●) 0
@@ -863,10 +983,16 @@ Add vertex ([1m[32mZ[0m[0m) 1
 Add vertex (●) 2
 Add edge (0, 1)
 Add edge (1, 2)
-Remove edge (0, 7), type: -
-Add edge (6, 7)
-Remove edge (2, 7), type: -
-Add edge (1, 7)
+Add vertex (●) 0
+Add vertex ([1m[32mZ[0m[0m) 1
+Add vertex (●) 2
+Add edge (0, 1)
+Add edge (1, 2)
+Remove edge (6, 1), type: -
+Add edge (1, 6)
+Remove ID: 0
+Add edge (1, 1)
+Remove ID: 2
 
 qsyn> zxgp -v
 

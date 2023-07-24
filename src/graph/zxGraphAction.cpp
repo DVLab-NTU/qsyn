@@ -78,14 +78,14 @@ void ZXGraph::liftQubit(const size_t& n) {
  * @param target
  * @return ZXGraph*
  */
-ZXGraph* ZXGraph::compose(ZXGraph* target) {
+ZXGraph& ZXGraph::compose(ZXGraph const& target) {
     // Check ori-outputNum == target-inputNum
-    if (this->getNumOutputs() != target->getNumInputs()) {
+    if (this->getNumOutputs() != target.getNumInputs()) {
         cerr << "Error: The composing ZX-graph's #input is not equivalent to the original ZX-graph's #output." << endl;
-        return this;
+        return *this;
     }
 
-    ZXGraph copiedGraph{*target};
+    ZXGraph copiedGraph{target};
 
     // Get maximum column in `this`
     unsigned maxCol = 0;
@@ -111,13 +111,13 @@ ZXGraph* ZXGraph::compose(ZXGraph* target) {
         (*itr_cop)->setType(VertexType::Z);
         this->addEdge((*itr_ori), (*itr_cop), EdgeType::SIMPLE);
     }
-    
+
     _outputs = copiedGraph._outputs;
     _outputList = copiedGraph._outputList;
 
     this->moveVerticesFrom(copiedGraph);
 
-    return this;
+    return *this;
 }
 
 /**
@@ -126,8 +126,8 @@ ZXGraph* ZXGraph::compose(ZXGraph* target) {
  * @param target
  * @return ZXGraph*
  */
-ZXGraph* ZXGraph::tensorProduct(ZXGraph* target) {
-    ZXGraph copiedGraph{*target};
+ZXGraph& ZXGraph::tensorProduct(ZXGraph const& target) {
+    ZXGraph copiedGraph{target};
 
     // Lift Qubit
     int oriMaxQubit = INT_MIN, oriMinQubit = INT_MAX;
@@ -150,16 +150,15 @@ ZXGraph* ZXGraph::tensorProduct(ZXGraph* target) {
     size_t liftQ = (oriMaxQubit - oriMinQubit + 1) - copiedMinQubit;
     copiedGraph.liftQubit(liftQ);
 
-
     // Merge copiedGraph to original graph
     _inputs.insert(copiedGraph._inputs.begin(), copiedGraph._inputs.end());
     _inputList.merge(copiedGraph._inputList);
     _outputs.insert(copiedGraph._outputs.begin(), copiedGraph._outputs.end());
     _outputList.merge(copiedGraph._outputList);
-    
+
     this->moveVerticesFrom(copiedGraph);
 
-    return this;
+    return *this;
 }
 
 /**
