@@ -12,18 +12,26 @@
 #include <iomanip>
 #include <iostream>
 
+#include "extract.h"
 #include "gFlow.h"
 #include "zxGraph.h"  // for ZXGraph
+#include "zxoptimizer.h"
 
 using namespace std;
 extern size_t verbose;
+extern size_t dmode;
+extern ZXOPTimizer opt;
+
+int cnt = 0;
+bool step = false;
+bool stop = false;
 
 /**
  * @brief Helper method for constructing simplification strategies based on the rules.
  *
  * @return int
  */
-int Simplifier::simp(std::stop_token st) {
+int Simplifier::simp() {
     if (_rule->getName() == "Hadamard Rule") {
         cerr << "Error: Please use `hadamardSimp` when using HRule." << endl;
         return 0;
@@ -32,8 +40,11 @@ int Simplifier::simp(std::stop_token st) {
     vector<int> matches;
     if (verbose >= 5) cout << setw(30) << left << _rule->getName();
     if (verbose >= 8) cout << endl;
-    while (!st.stop_requested()) {
-        _rule->match(_simpGraph);
+    int r2r = opt.getR2R(_rule->getName());
+    while (!_stop_token.stop_requested() && r2r > 0) {
+        _rule->match(_simpGraph, opt.getS2S(_rule->getName()));
+        if (r2r < INT_MAX) r2r--;
+
         if (_rule->getMatchTypeVecNum() <= 0)
             break;
         else
@@ -45,6 +56,7 @@ int Simplifier::simp(std::stop_token st) {
         rewrite();
         amend();
         if (verbose >= 8) cout << "<<<" << endl;
+        // if(r2r == 0) break;
     }
     _recipe.emplace_back(_rule->getName(), matches);
     if (verbose >= 8) cout << "=> ";
@@ -64,7 +76,7 @@ int Simplifier::simp(std::stop_token st) {
  *
  * @return int
  */
-int Simplifier::hadamardSimp(std::stop_token st) {
+int Simplifier::hadamardSimp() {
     if (_rule->getName() != "Hadamard Rule") {
         cerr << "Error: `hadamardSimp` is only for HRule." << endl;
         return 0;
@@ -73,9 +85,8 @@ int Simplifier::hadamardSimp(std::stop_token st) {
     vector<int> matches;
     if (verbose >= 5) cout << setw(30) << left << _rule->getName();
     if (verbose >= 8) cout << endl;
-    while (!st.stop_requested()) {
+    while (!_stop_token.stop_requested()) {
         size_t vcount = _simpGraph->getNumVertices();
-
         _rule->match(_simpGraph);
 
         if (_rule->getMatchTypeVecNum() == 0)
@@ -107,6 +118,7 @@ int Simplifier::hadamardSimp(std::stop_token st) {
  * @brief Apply rule
  */
 void Simplifier::amend() {
+    // cout << _rule->getEdgeTableKeys().size() << " " << _rule->getRemoveEdges().size() << " " << _rule->getRemoveVertices().size() << endl;
     for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
         ZXVertex* v = _rule->getEdgeTableKeys()[e].first;
         ZXVertex* v_n = _rule->getEdgeTableKeys()[e].second;
@@ -129,9 +141,9 @@ void Simplifier::amend() {
  *
  * @return int
  */
-int Simplifier::bialgSimp(std::stop_token st) {
+int Simplifier::bialgSimp() {
     this->setRule(make_unique<Bialgebra>());
-    return this->simp(st);
+    return this->simp();
 }
 
 /**
@@ -139,10 +151,10 @@ int Simplifier::bialgSimp(std::stop_token st) {
  *
  * @return int
  */
-int Simplifier::copySimp(std::stop_token st) {
+int Simplifier::copySimp() {
     if (!_simpGraph->isGraphLike()) return 0;
     this->setRule(make_unique<StateCopy>());
-    return this->simp(st);
+    return this->simp();
 }
 
 /**
@@ -150,9 +162,16 @@ int Simplifier::copySimp(std::stop_token st) {
  *
  * @return int
  */
-int Simplifier::gadgetSimp(std::stop_token st) {
+int Simplifier::gadgetSimp() {
     this->setRule(make_unique<PhaseGadget>());
-    return this->simp(st);
+    int i = this->simp();
+    if (i > 0) {
+        if (verbose >= 8) cout << this->getRule()->getName() << endl;
+        stop = opt.updateParameters(_simpGraph);
+    }
+
+    if (stop) return -1;
+    return i;
 }
 
 /**
@@ -160,9 +179,9 @@ int Simplifier::gadgetSimp(std::stop_token st) {
  *
  * @return int
  */
-int Simplifier::hfusionSimp(std::stop_token st) {
+int Simplifier::hfusionSimp() {
     this->setRule(make_unique<HboxFusion>());
-    return this->simp(st);
+    return this->simp();
 }
 
 /**
@@ -170,9 +189,9 @@ int Simplifier::hfusionSimp(std::stop_token st) {
  *
  * @return int
  */
-int Simplifier::hruleSimp(std::stop_token st) {
+int Simplifier::hruleSimp() {
     this->setRule(make_unique<HRule>());
-    return this->hadamardSimp(st);
+    return this->hadamardSimp();
 }
 
 /**
@@ -180,9 +199,15 @@ int Simplifier::hruleSimp(std::stop_token st) {
  *
  * @return int
  */
-int Simplifier::idSimp(std::stop_token st) {
+int Simplifier::idSimp() {
     this->setRule(make_unique<IdRemoval>());
-    return this->simp(st);
+    int i = this->simp();
+    if (i > 0) {
+        if (verbose >= 8) cout << this->getRule()->getName() << endl;
+        stop = opt.updateParameters(_simpGraph);
+    }
+    if (stop) return -1;
+    return i;
 }
 
 /**
@@ -190,9 +215,15 @@ int Simplifier::idSimp(std::stop_token st) {
  *
  * @return int
  */
-int Simplifier::lcompSimp(std::stop_token st) {
+int Simplifier::lcompSimp() {
     this->setRule(make_unique<LComp>());
-    return this->simp(st);
+    int i = this->simp();
+    if (i > 0) {
+        if (verbose >= 8) cout << this->getRule()->getName() << endl;
+        stop = opt.updateParameters(_simpGraph);
+    }
+    if (stop) return -1;
+    return i;
 }
 
 /**
@@ -200,9 +231,15 @@ int Simplifier::lcompSimp(std::stop_token st) {
  *
  * @return int
  */
-int Simplifier::pivotSimp(std::stop_token st) {
+int Simplifier::pivotSimp() {
     this->setRule(make_unique<Pivot>());
-    return this->simp(st);
+    int i = this->simp();
+    if (i > 0) {
+        if (verbose >= 8) cout << this->getRule()->getName() << endl;
+        stop = opt.updateParameters(_simpGraph);
+    }
+    if (stop) return -1;
+    return i;
 }
 
 /**
@@ -210,9 +247,15 @@ int Simplifier::pivotSimp(std::stop_token st) {
  *
  * @return int
  */
-int Simplifier::pivotBoundarySimp(std::stop_token st) {
+int Simplifier::pivotBoundarySimp() {
     this->setRule(make_unique<PivotBoundary>());
-    return this->simp(st);
+    int i = this->simp();
+    if (i > 0) {
+        if (verbose >= 8) cout << this->getRule()->getName() << endl;
+        stop = opt.updateParameters(_simpGraph);
+    }
+    if (stop) return -1;
+    return i;
 }
 
 /**
@@ -220,29 +263,41 @@ int Simplifier::pivotBoundarySimp(std::stop_token st) {
  *
  * @return int
  */
-int Simplifier::pivotGadgetSimp(std::stop_token st) {
+int Simplifier::pivotGadgetSimp() {
     this->setRule(make_unique<PivotGadget>());
-    return this->simp(st);
+    int i = this->simp();
+    if (i > 0) {
+        if (verbose >= 8) cout << this->getRule()->getName() << endl;
+        stop = opt.updateParameters(_simpGraph);
+    }
+    if (stop) return -1;
+    return i;
 }
 
-/**
- * @brief Perform Degadgetize Rule
- *
- * @return int
- */
-int Simplifier::degadgetizeSimp(std::stop_token st) {
-    this->setRule(make_unique<PivotDegadget>());
-    return this->simp(st);
-}
+// /**
+//  * @brief Perform Degadgetize Rule
+//  *
+//  * @return int
+//  */
+// int Simplifier::degadgetizeSimp() {
+//     this->setRule(make_unique<PivotDegadget>());
+//     return this->simp();
+// }
 
 /**
  * @brief Perform Spider Fusion Rule
  *
  * @return int
  */
-int Simplifier::sfusionSimp(std::stop_token st) {
+int Simplifier::sfusionSimp() {
     this->setRule(make_unique<SpiderFusion>());
-    return this->simp(st);
+    int i = this->simp();
+    if (i > 0) {
+        if (verbose >= 8) cout << this->getRule()->getName() << endl;
+        stop = opt.updateParameters(_simpGraph);
+    }
+    if (stop) return -1;
+    return i;
 }
 
 // action
@@ -254,7 +309,7 @@ int Simplifier::sfusionSimp(std::stop_token st) {
 void Simplifier::toGraph() {
     for (auto& v : _simpGraph->getVertices()) {
         if (v->getType() == VertexType::X) {
-            _simpGraph->toggleEdges(v);
+            _simpGraph->toggleVertex(v);
         }
     }
 }
@@ -266,7 +321,7 @@ void Simplifier::toGraph() {
 void Simplifier::toRGraph() {
     for (auto& v : _simpGraph->getVertices()) {
         if (v->getType() == VertexType::Z) {
-            _simpGraph->toggleEdges(v);
+            _simpGraph->toggleVertex(v);
         }
     }
 }
@@ -276,18 +331,24 @@ void Simplifier::toRGraph() {
  *
  * @return int
  */
-int Simplifier::interiorCliffordSimp(std::stop_token st) {
-    this->sfusionSimp(st);
+int Simplifier::interiorCliffordSimp() {
+    this->sfusionSimp();
     toGraph();
-
     int i = 0;
-    while (!st.stop_requested()) {
-        int i1 = this->idSimp(st);
-        int i2 = this->sfusionSimp(st);
-        int i3 = this->pivotSimp(st);
-        int i4 = this->lcompSimp(st);
+    int r2r = opt.getR2R("Interior Clifford Simp");
+    while (true && r2r > 0) {
+        int i1 = this->idSimp();
+        if (i1 == -1) return -1;
+        int i2 = this->sfusionSimp();
+        if (i2 == -1) return -1;
+        int i3 = this->pivotSimp();
+        if (i3 == -1) return -1;
+        int i4 = this->lcompSimp();
+        if (i4 == -1) return -1;
+        // if(step && i4) getStepInfo(_simpGraph);
         if (i1 + i2 + i3 + i4 == 0) break;
         i += 1;
+        r2r--;
     }
     return i;
 }
@@ -297,12 +358,17 @@ int Simplifier::interiorCliffordSimp(std::stop_token st) {
  *
  * @return int
  */
-int Simplifier::cliffordSimp(std::stop_token st) {
+int Simplifier::cliffordSimp() {
     int i = 0;
-    while (!st.stop_requested()) {
-        i += this->interiorCliffordSimp(st);
-        int i2 = this->pivotBoundarySimp(st);
-        if (i2 == 0) break;
+    int r2r = opt.getR2R("Clifford Simp");
+    while (true && r2r > 0) {
+        int i1 = this->interiorCliffordSimp();
+        if (i1 == -1) return -1;
+        i += i1;
+        int i2 = this->pivotBoundarySimp();
+        if (i2 == -1) return -1;
+        if (r2r != INT_MAX) r2r--;
+        if (i2 == 0 || r2r == 0) break;
     }
     return i;
 }
@@ -311,34 +377,108 @@ int Simplifier::cliffordSimp(std::stop_token st) {
  * @brief The main simplification routine
  *
  */
-void Simplifier::fullReduce(std::stop_token st) {
+void Simplifier::fullReduce() {
     _simpGraph->addProcedure("FR");
-    this->interiorCliffordSimp(st);
-    this->pivotGadgetSimp(st);
-    while (!st.stop_requested()) {
-        this->cliffordSimp(st);
-        int i = this->gadgetSimp(st);
-        this->interiorCliffordSimp(st);
-        int j = this->pivotGadgetSimp(st);
+    this->interiorCliffordSimp();
+    this->pivotGadgetSimp();
+    while (true) {
+        this->cliffordSimp();
+        int i = this->gadgetSimp();
+        if (i == -1) i = 0;
+        this->interiorCliffordSimp();
+        int j = this->pivotGadgetSimp();
+        if (j == -1) j = 0;
         if (i + j == 0) break;
     }
     this->printRecipe();
 }
 
 /**
+ * @brief
+ *
+ */
+void Simplifier::dynamicReduce(int tOptimal) {
+    cout << " (T-optimal: " << tOptimal << ")";
+    opt.init();
+    _simpGraph->addProcedure("DR");
+    opt.updateParameters(_simpGraph);
+
+    int a1 = this->interiorCliffordSimp();
+
+    if (a1 == -1) {
+        _simpGraph = opt.getLastZXGraph();
+        this->printRecipe();
+        return;
+    }
+
+    int a2 = this->pivotGadgetSimp();
+    if (a2 == -1 && tOptimal == _simpGraph->TCount()) {
+        _simpGraph = opt.getLastZXGraph();
+        this->printRecipe();
+        return;
+    }
+
+    while (true) {
+        int a3 = this->cliffordSimp();
+        if (a3 == -1 && tOptimal == _simpGraph->TCount()) {
+            _simpGraph = opt.getLastZXGraph();
+            this->printRecipe();
+            return;
+        }
+
+        int a4 = this->gadgetSimp();
+        if (a4 == -1 && tOptimal == _simpGraph->TCount()) {
+            _simpGraph = opt.getLastZXGraph();
+            this->printRecipe();
+            return;
+        }
+
+        int a5 = this->interiorCliffordSimp();
+        if (a5 == -1 && tOptimal == _simpGraph->TCount()) {
+            _simpGraph = opt.getLastZXGraph();
+            this->printRecipe();
+            return;
+        }
+
+        int a6 = this->pivotGadgetSimp();
+        if (a6 == -1 && tOptimal == _simpGraph->TCount()) {
+            _simpGraph = opt.getLastZXGraph();
+            this->printRecipe();
+            return;
+        }
+
+        if (a4 + a6 == 0) break;
+    }
+    this->printRecipe();
+}
+
+void Simplifier::hybridReduce() {
+    ZXGraph _copyGraph = *_simpGraph;
+    cout << endl
+         << "Full Reduce:";
+    this->fullReduce();
+    int tOptimal = _simpGraph->TCount();
+    *_simpGraph = _copyGraph;
+    cout << endl
+         << "Dynamic Reduce:";
+    _recipe.clear();
+    this->dynamicReduce(tOptimal);
+}
+
+/**
  * @brief The reduce strategy with `state_copy` and `full_reduce`
  *
  */
-void Simplifier::symbolicReduce(std::stop_token st) {
-    this->interiorCliffordSimp(st);
-    this->pivotGadgetSimp(st);
-    this->copySimp(st);
-    while (!st.stop_requested()) {
-        this->cliffordSimp(st);
-        int i = this->gadgetSimp(st);
-        this->interiorCliffordSimp(st);
-        int j = this->pivotGadgetSimp(st);
-        this->copySimp(st);
+void Simplifier::symbolicReduce() {
+    this->interiorCliffordSimp();
+    this->pivotGadgetSimp();
+    this->copySimp();
+    while (!_stop_token.stop_requested()) {
+        this->cliffordSimp();
+        int i = this->gadgetSimp();
+        this->interiorCliffordSimp();
+        int j = this->pivotGadgetSimp();
+        this->copySimp();
         if (i + j == 0) break;
     }
     this->toRGraph();
@@ -378,3 +518,34 @@ void Simplifier::printRecipe() {
         }
     }
 }
+
+// /**
+//  * @brief Print parameter of optimizer for ZX-graph
+//  *
+//  */
+// void Simplifier::printOptimizer() {
+
+// }
+
+// void Simplifier::getStepInfo(ZXGraph* g){
+//     cout << this->getRule()->getName() << endl;
+//     g->printGraph(); cout << g->TCount() << endl << endl;
+//     // unordered_map<int, int> mp;
+//     // for(auto& v : g->getVertices()){
+//     //     mp[v->getNumNeighbors()]++;
+//     // }
+//     // cout << "Dense: (";
+//     // double ans = 0;
+//     // for(auto& i : mp){
+//     //     ans += (i.first*i.first*i.second);
+//     // }
+//     // ans /= g->getNumVertices();
+//     // double avg = pow((double)2*g->getNumEdges()/g->getNumVertices(), 2);
+//     // cout << ans << ", avg = " << avg << " = " << (double)ans/avg << endl;
+//     // for(auto& i : mp){
+//     //     cout << i.first << ": " << i.second << ", ";
+//     // }
+//     // cout << ")" << endl;
+//     // g->writeZX("../decomposition/zx/"+this->getRule()->getName()+"/full_"+to_string(cnt)+".zx");
+//     // cnt++;
+// }

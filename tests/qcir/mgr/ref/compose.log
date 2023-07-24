@@ -46,7 +46,7 @@ Q 2  ---------cx( 0)----------cx( 2)------------------cx( 4)-
 Q 3  ---------------------------------cx( 3)-
 
 qsyn> qc2zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgp -v
 

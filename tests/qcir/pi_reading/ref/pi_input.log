@@ -18,7 +18,7 @@ qsyn> qcga -rz -ph PI*3PI/pi 0
 Error: invalid Phase value "PI*3PI/pi" for argument "-phase"!!
 
 qsyn> qc2zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> qq -f
 

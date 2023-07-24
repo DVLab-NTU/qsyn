@@ -21,7 +21,7 @@
 using namespace std;
 extern size_t verbose;
 extern int effLimit;
-extern ZXGraphMgr *zxGraphMgr;
+extern ZXGraphMgr zxGraphMgr;
 
 bool initM2Cmd() {
     if (!(cmdMgr->regCmd("M2GAUE", 6, make_unique<M2GaussEliCmd>()) && cmdMgr->regCmd("M2TEST", 6, make_unique<M2TestCmd>()))) {
@@ -33,7 +33,7 @@ bool initM2Cmd() {
 
 CmdExecStatus
 M2GaussEliCmd::exec(std::stop_token, const string &option) {
-    unordered_map<size_t, ZXVertex *> outputList = zxGraphMgr->getGraph()->getOutputList();
+    unordered_map<size_t, ZXVertex *> outputList = zxGraphMgr.get()->getOutputList();
     vector<ZXVertex *> front;
     ZXVertexList frontier;
     for (auto [q, v] : outputList) {

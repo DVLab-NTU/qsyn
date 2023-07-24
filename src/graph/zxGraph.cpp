@@ -24,18 +24,6 @@ extern size_t verbose;
 /*****************************************************/
 
 /**
- * @brief Add procedures to ZXGraph
- *
- * @param p
- * @param procedures
- */
-void ZXGraph::addProcedure(std::string p, const std::vector<std::string>& procedures) {
-    for (auto pr : procedures)
-        _procedures.emplace_back(pr);
-    if (p != "") _procedures.emplace_back(p);
-}
-
-/**
  * @brief Get the number of edges in ZX-graph
  *
  * @return size_t
@@ -192,6 +180,20 @@ size_t ZXGraph::numGadgets() const {
 }
 
 /**
+ * @brief Return the density of the ZX-graph
+ *
+ * @return double
+ */
+double ZXGraph::density() {
+    unordered_map<int, int> mp;
+    for (auto& v : this->getVertices()) mp[v->getNumNeighbors()]++;
+    double ans = 0;
+    for (auto& i : mp) ans += (i.first * i.first * i.second);
+    ans /= this->getNumVertices();
+    return ans;
+}
+
+/**
  * @brief Return the number of T-gate in the ZX-graph
  *
  * @return int
@@ -246,7 +248,7 @@ ZXVertex* ZXGraph::addInput(int qubit, bool checked, unsigned int col) {
     }
     ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), true, col);
     _inputs.emplace(v);
-    setInputHash(qubit, v);
+    _inputList.emplace(qubit, v);
     return v;
 }
 
@@ -266,7 +268,7 @@ ZXVertex* ZXGraph::addOutput(int qubit, bool checked, unsigned int col) {
     }
     ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), true, col);
     _outputs.emplace(v);
-    setOutputHash(qubit, v);
+    _outputList.emplace(qubit, v);
     return v;
 }
 
@@ -294,24 +296,6 @@ ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, bool checked
 }
 
 /**
- * @brief Add a set of inputs
- *
- * @param inputs
- */
-void ZXGraph::addInputs(const ZXVertexList& inputs) {
-    _inputs.insert(inputs.begin(), inputs.end());
-}
-
-/**
- * @brief Add a set of outputs
- *
- * @param outputs
- */
-void ZXGraph::addOutputs(const ZXVertexList& outputs) {
-    _outputs.insert(outputs.begin(), outputs.end());
-}
-
-/**
  * @brief Add edge (<<vs, vt>, et>)
  *
  * @param vs
@@ -327,7 +311,7 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
         return makeEdgePairDummy();
     }
 
-    if (vs->getId() > vt->getId()) swap(vs, vt);
+    if (vs->getId() > vt->getId()) std::swap(vs, vt);
 
     if (vs->isNeighbor(vt, et)) {
         if (
@@ -356,19 +340,21 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
 }
 
 /**
- * @brief Add a set of vertices
+ * @brief Move vertices from the other graph
  *
  * @param vertices
- * @param reordered
  */
-void ZXGraph::addVertices(const ZXVertexList& vertices, bool reordered) {
-    if (reordered) {
-        for (const auto& v : vertices) {
-            v->setId(_nextVId);
-            _nextVId++;
-        }
-    }
-    _vertices.insert(vertices.begin(), vertices.end());
+void ZXGraph::moveVerticesFrom(ZXGraph& other) {
+    _vertices.insert(other._vertices.begin(), other._vertices.end());
+    other.relabelVertexIDs(_nextVId);
+    _nextVId += other.getNumVertices();
+
+    other._vertices.clear();
+    other._inputs.clear();
+    other._outputs.clear();
+    other._inputList.clear();
+    other._outputList.clear();
+    other._topoOrder.clear();
 }
 
 /*****************************************************/
@@ -492,8 +478,8 @@ size_t ZXGraph::removeAllEdgesBetween(ZXVertex* vs, ZXVertex* vt, bool checked) 
  *
  */
 void ZXGraph::adjoint() {
-    swap(_inputs, _outputs);
-    swap(_inputList, _outputList);
+    std::swap(_inputs, _outputs);
+    std::swap(_inputList, _outputList);
     size_t maxCol = (*max_element(
                          _vertices.begin(), _vertices.end(),
                          [](ZXVertex* const a, ZXVertex* const b) { return a->getCol() < b->getCol(); }))

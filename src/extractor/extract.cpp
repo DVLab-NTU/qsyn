@@ -88,7 +88,7 @@ void Extractor::initialize(bool fromEmpty) {
 QCir* Extractor::extract() {
     if (!extractionLoop(-1))
         return nullptr;
-    else
+    else if (verbose >= 3)
         cout << "Finish extracting!" << endl;
     if (verbose >= 8) {
         _logicalCircuit->printQubits();
@@ -104,8 +104,8 @@ QCir* Extractor::extract() {
     }
     // cout << "Iteration of extract CX: " << _cntCXIter << endl;
     // cout << "Total Filtered CX count: " << _cntCXFiltered << endl;
-    _logicalCircuit->addProcedure("ZX2QC", _graph->getProcedures());
     _graph->addProcedure("ZX2QC");
+    _logicalCircuit->addProcedure(_graph->getProcedures());
     _logicalCircuit->setFileName(_graph->getFileName());
 
     return _logicalCircuit;

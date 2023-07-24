@@ -12,23 +12,18 @@
 #include <memory>
 #include <thread>
 
+#include "optimizer.h"
 #include "zxRules.h"  // for ZXRule
+#include "zxoptimizer.h"
 
 class ZXGraph;
 
 class Simplifier {
 public:
-    Simplifier(ZXGraph* g, std::stop_token st) {
-        _rule = nullptr;
-        _simpGraph = g;
-        _recipe.clear();
-        hruleSimp(st);
+    Simplifier(ZXGraph* g, std::stop_token st): _rule{nullptr}, _simpGraph{g}, _stop_token{st} {
+        hruleSimp();
     }
-    Simplifier(std::unique_ptr<ZXRule> rule, ZXGraph* g) {
-        _rule = std::move(rule);
-        _simpGraph = g;
-        _recipe.clear();
-    }
+    Simplifier(std::unique_ptr<ZXRule> rule, ZXGraph* g): _rule{std::move(rule)}, _simpGraph{g} {}
 
     ZXRule* getRule() const { return _rule.get(); }
 
@@ -37,38 +32,44 @@ public:
     void rewrite() { _rule->rewrite(_simpGraph); };
     void amend();
     // Simplification strategies
-    int simp(std::stop_token);
-    int hadamardSimp(std::stop_token);
+    int simp();
+    int hadamardSimp();
 
     // Basic rules simplification
-    int bialgSimp(std::stop_token);
-    int copySimp(std::stop_token);
-    int gadgetSimp(std::stop_token);
-    int hfusionSimp(std::stop_token);
-    int hruleSimp(std::stop_token);
-    int idSimp(std::stop_token);
-    int lcompSimp(std::stop_token);
-    int pivotSimp(std::stop_token);
-    int pivotBoundarySimp(std::stop_token);
-    int pivotGadgetSimp(std::stop_token);
-    int degadgetizeSimp(std::stop_token);
-    int sfusionSimp(std::stop_token);
+    int bialgSimp();
+    int copySimp();
+    int gadgetSimp();
+    int hfusionSimp();
+    int hruleSimp();
+    int idSimp();
+    int lcompSimp();
+    int pivotSimp();
+    int pivotBoundarySimp();
+    int pivotGadgetSimp();
+    // int degadgetizeSimp(std::stop_token);
+    int sfusionSimp();
 
     // action
     void toGraph();
     void toRGraph();
-    int interiorCliffordSimp(std::stop_token);
-    int cliffordSimp(std::stop_token);
-    void fullReduce(std::stop_token);
-    void symbolicReduce(std::stop_token);
+    int interiorCliffordSimp();
+    int piCliffordSimp();
+    int cliffordSimp();
+    void fullReduce();
+    void dynamicReduce(int tOptimal = INT_MAX);
+    void hybridReduce();
+    void symbolicReduce();
 
     // print function
     void printRecipe();
+    void printOptimizer();
+    void getStepInfo(ZXGraph* g);
 
 private:
     std::unique_ptr<ZXRule> _rule;
     ZXGraph* _simpGraph;
     std::vector<std::tuple<std::string, std::vector<int> > > _recipe;
+    std::stop_token _stop_token;
 };
 
 #endif

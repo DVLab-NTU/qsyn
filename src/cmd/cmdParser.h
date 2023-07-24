@@ -102,6 +102,12 @@ private:
  *
  */
 class ArgParseCmdType : public CmdExec {
+    using ParserDefinition = std::function<void(ArgParse::ArgumentParser&)>;
+    using Precondition = std::function<bool()>;
+    using Uninterruptible = std::function<CmdExecStatus(ArgParse::ArgumentParser const&)>;
+    using Interruptible = std::function<CmdExecStatus(std::stop_token, ArgParse::ArgumentParser const&)>;
+    using OnParseSuccess = std::variant<Uninterruptible, Interruptible>;
+
 public:
     ArgParseCmdType(std::string const& name) { _parser.name(name); }
     ~ArgParseCmdType() {}
@@ -112,9 +118,10 @@ public:
     void summary() const override { _parser.printSummary(); }
     void help() const override { _parser.printHelp(); }
 
-    std::function<void(ArgParse::ArgumentParser&)> parserDefinition;                                // define the parser's arguments and traits
-    std::function<bool()> precondition;                                                             // define the parsing precondition
-    std::function<CmdExecStatus(std::stop_token, ArgParse::ArgumentParser const&)> onParseSuccess;  // define the action to take on parse success
+    ParserDefinition parserDefinition;  // define the parser's arguments and traits
+    Precondition precondition;          // define the parsing precondition
+
+    OnParseSuccess onParseSuccess;  // define the action to take on parse success
 
 private:
     ArgParse::ArgumentParser _parser;

@@ -89,19 +89,16 @@ public:
         bool isValid() const noexcept { return *(this->_itr) != std::nullopt; }
 
         value_type& operator*() noexcept { return (value_type&)this->_itr->value(); }
-        const value_type& operator*() const noexcept { return (value_type&)this->_itr->value(); }
+        value_type& operator*() const noexcept { return (value_type&)this->_itr->value(); }
 
         value_type* operator->() noexcept { return (value_type*)&(this->_itr->value()); }
-        value_type const* operator->() const noexcept { return (value_type*)&(this->_itr->value()); }
+        value_type* operator->() const noexcept { return (value_type*)&(this->_itr->value()); }
 
     private:
         VecIterType _itr;
         VecIterType _begin;
         VecIterType _end;
     };
-
-    // static_assert(std::bidirectional_iterator<iterator>);
-    // static_assert(std::bidirectional_iterator<const_iterator>);
 
     ordered_hashtable() : _size(0) {}
 
@@ -281,11 +278,11 @@ template <typename Key, typename Value, typename StoredType, typename Hash, type
 void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sweep() {
     container new_data;
     new_data.reserve(_size * 2);
-    for (std::optional<stored_type> const& v : _data) {
-        if (v.has_value()) new_data.emplace_back(v);
+    for (auto&& v : _data) {
+        if (v.has_value()) new_data.emplace_back(std::move(v));
     }
     // std::erase_if(_data, [](const std::optional<stored_type>& v) { return !v.has_value(); });
-    _data = new_data;
+    _data.swap(new_data);
     // _data.resize();
     for (size_t i = 0; i < _data.size(); ++i) {
         _key2id[this->key(_data[i].value())] = i;

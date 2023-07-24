@@ -1,19 +1,16 @@
-zxnew
-zxgt
+zxgr benchmark/zx/cnot.zx
 zxgp -v
 zxge -rme 2 3 SIMPLE
 zxgp -v
 zxr
-zxnew
-zxgt
+zxgr benchmark/zx/cnot.zx
 zxgp -v
 zxge -rmv 2
 zxgp -v
 zxge -rmv -i
 zxgp -v
 zxr
-zxnew
-zxgt
+zxgr benchmark/zx/cnot.zx
 zxgp -v
 zxge -rmv 1 2
 zxgp -v
@@ -25,12 +22,11 @@ zxge -addi 2
 zxge -addo 0
 zxge -addo 2
 zxge -addo 1
-zxgp -i
+zxgp -inputs
 zxgp -o
 zxgp -v
 zxr
-zxnew
-zxgt
+zxgr benchmark/zx/cnot.zx
 zxgp -v
 zxge -rmv 0
 zxgp -v

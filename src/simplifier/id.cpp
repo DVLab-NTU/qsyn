@@ -20,7 +20,7 @@ extern size_t verbose;
  *
  * @param g
  */
-void IdRemoval::match(ZXGraph* g) {
+void IdRemoval::match(ZXGraph* g, int upper_bound) {
     _matchTypeVec.clear();
 
     unordered_set<ZXVertex*> taken;

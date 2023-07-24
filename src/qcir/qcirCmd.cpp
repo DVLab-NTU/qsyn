@@ -23,6 +23,7 @@ using namespace std;
 using namespace ArgParse;
 extern QCirMgr* qcirMgr;
 extern size_t verbose;
+extern size_t dmode;
 extern int effLimit;
 
 std::string typeString(Phase const&) { return "Phase"; }
@@ -115,6 +116,14 @@ ArgType<size_t>::ConstraintType validQCirBitId = {
     [](size_t const& id) {
         assert(qcirMgr->getcListItr() != qcirMgr->getQCircuitList().end());
         cerr << "Error: Qubit id " << id << " does not exist!!\n";
+    }};
+
+ArgType<size_t>::ConstraintType validDMode = {
+    [](size_t const& val) {
+        return (val >= 0 && val <= 4);
+    },
+    [](size_t const& val) {
+        cerr << "Error: DMode " << val << " does not exist!!\n";
     }};
 
 //----------------------------------------------------------------------
@@ -490,7 +499,7 @@ unique_ptr<ArgParseCmdType> QCirGatePrintCmd() {
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         if (parser["-zx-form"].isParsed()) {
             cout << "\n> Gate " << parser["id"] << " (" << qcirMgr->getQCircuit()->getGate(parser["id"])->getTypeStr() << ")";
-            qcirMgr->getQCircuit()->getGate(parser["id"])->getZXform()->printVertices();
+            qcirMgr->getQCircuit()->getGate(parser["id"])->getZXform().printVertices();
         } else {
             qcirMgr->getQCircuit()->printGateInfo(parser["id"], parser["-time"].isParsed());
         }
@@ -534,15 +543,17 @@ unique_ptr<ArgParseCmdType> QCirPrintCmd() {
 
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         if (parser["-analysis"].isParsed())
-            qcirMgr->getQCircuit()->countGate();
+            qcirMgr->getQCircuit()->countGate(false);
         else if (parser["-detail"].isParsed())
             qcirMgr->getQCircuit()->countGate(true);
         else if (parser["-list"].isParsed())
             qcirMgr->getQCircuit()->printGates();
         else if (parser["-qubit"].isParsed())
             qcirMgr->getQCircuit()->printQubits();
-        else
+        else if (parser["-summary"].isParsed())
             qcirMgr->getQCircuit()->printSummary();
+        else
+            qcirMgr->getQCircuit()->printCirInfo();
 
         return CMD_EXEC_DONE;
     };
@@ -807,9 +818,22 @@ unique_ptr<ArgParseCmdType> QCir2ZXCmd() {
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("convert QCir to ZX-graph");
+
+        // auto mutex = parser.addMutuallyExclusiveGroup();
+
+        parser.addArgument<size_t>("dm")
+            .nargs(NArgsOption::OPTIONAL)
+            .constraint(validDMode)
+            .help("decompose the graph in level 0");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QC2ZX");
+
+        if (parser["dm"].isParsed())
+            dmode = parser["dm"];
+        else
+            dmode = 0;
         qcirMgr->getQCircuit()->ZXMapping(st);
         return CMD_EXEC_DONE;
     };

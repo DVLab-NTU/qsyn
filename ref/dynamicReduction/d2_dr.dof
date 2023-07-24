@@ -1,0 +1,121 @@
+qccread ../decomposition/qasm/PyZX_benchmark/mod5_4.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/mod5_4.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/vbe_adder_3.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/vbe_adder_3.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/csla_mux_3.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/csla_mux_3.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/csum_mux_9.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/csum_mux_9.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/qcla_com_7.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/qcla_com_7.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/qcla_mod_7.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/qcla_mod_7.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/qcla_adder_10.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/qcla_adder_10.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/adder_8.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/adder_8.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/rc_adder_6.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/rc_adder_6.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/mod_red_21.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/mod_red_21.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/mod_mult_55.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/mod_mult_55.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/barenco_tof_3.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/barenco_tof_3.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/tof_3.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/tof_3.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/barenco_tof_4.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/barenco_tof_4.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/tof_4.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/tof_4.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/barenco_tof_5.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/barenco_tof_5.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/tof_5.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/tof_5.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/barenco_tof_10.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/barenco_tof_10.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/tof_10.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/tof_10.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/gf2^4_mult.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/gf2^4_mult.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/gf2^5_mult.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/gf2^5_mult.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/gf2^6_mult.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/gf2^6_mult.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/gf2^7_mult.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/gf2^7_mult.d2.dr.zx
+
+qccread ../decomposition/qasm/PyZX_benchmark/gf2^8_mult.qasm
+qc2zx 2
+zxgsimp -dr
+zxgwrite ../decomposition/zx/d2_dr/gf2^8_mult.d2.dr.zx
+
+qq -f

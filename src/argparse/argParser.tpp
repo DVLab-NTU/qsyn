@@ -54,7 +54,7 @@ ArgType<T>& ArgumentParser::addArgument(std::string const& name) {
 
     _pimpl->optionsAnalyzed = false;
 
-    return returnRef.name(name);
+    return returnRef.name(realname);
 }
 
 /**

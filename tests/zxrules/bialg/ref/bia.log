@@ -3,7 +3,7 @@ qsyn> ver 9
 Note: verbose level is set to 9
 
 qsyn> zxnew 10
-Create and checkout to Graph 10
+Created and checked out to ZXGraph 10
 
 qsyn> zxge -addi 0
 Add vertex (●) 0
@@ -108,7 +108,7 @@ Total #Edges: 8
 qsyn> zxr
 
 qsyn> zxnew 
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxge -addi 0
 Add vertex (●) 0
@@ -321,7 +321,7 @@ Output axis ids: 3 1
 Stored the resulting tensor as tensor id 0
 
 qsyn> zxnew
-Create and checkout to Graph 1
+Created and checked out to ZXGraph 1
 
 qsyn> zxge -addi 0
 Add vertex (●) 0
@@ -410,7 +410,7 @@ qsyn> tseq 0 1
 qsyn> zxr
 
 qsyn> zxnew 
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxge -addi 0
 Add vertex (●) 0

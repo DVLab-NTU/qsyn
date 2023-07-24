@@ -23,10 +23,7 @@ jobs:
         mkdir build && cd build
         cmake ..
         make -j16
-
       
-    # - name: Compile test program
-    #   run: make test -j8
-      
-    - name: run tests
-      run: TERM=dumb ./RUN_ALL_TEST.sh -v
+    - name: Run Dofile Tests
+      run:  |
+        ./RUN_TEST -dv

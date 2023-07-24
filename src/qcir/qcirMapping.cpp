@@ -15,7 +15,7 @@
 #include "zxGraphMgr.h"  // for ZXGraphMgr
 
 using namespace std;
-extern ZXGraphMgr *zxGraphMgr;
+extern ZXGraphMgr zxGraphMgr;
 extern TensorMgr *tensorMgr;
 extern size_t verbose;
 
@@ -25,8 +25,7 @@ extern size_t verbose;
 void QCir::clearMapping() {
     for (size_t i = 0; i < _ZXGraphList.size(); i++) {
         cerr << "Note: Graph " << _ZXGraphList[i]->getId() << " is deleted due to modification(s) !!" << endl;
-        _ZXGraphList[i]->reset();
-        zxGraphMgr->removeZXGraph(_ZXGraphList[i]->getId());
+        zxGraphMgr.remove(_ZXGraphList[i]->getId());
     }
     _ZXGraphList.clear();
 }
@@ -37,46 +36,42 @@ void QCir::clearMapping() {
 void QCir::ZXMapping(std::stop_token st) {
     updateGateTime();
 
-    ZXGraph *_ZXG = zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
-    _ZXG->setFileName(_fileName);
-    _ZXG->addProcedure("QC2ZX", _procedures);
+    ZXGraph *newGraph = zxGraphMgr.add(zxGraphMgr.getNextID());
+    newGraph->setFileName(_fileName);
+    newGraph->addProcedure(_procedures);
+    newGraph->addProcedure("QC2ZX");
 
     if (verbose >= 5) cout << "Traverse and build the graph... " << endl;
 
     if (verbose >= 5) cout << "\n> Add boundaries" << endl;
     for (size_t i = 0; i < _qubits.size(); i++) {
-        ZXVertex *input = _ZXG->addInput(_qubits[i]->getId());
-        ZXVertex *output = _ZXG->addOutput(_qubits[i]->getId());
+        ZXVertex *input = newGraph->addInput(_qubits[i]->getId());
+        ZXVertex *output = newGraph->addOutput(_qubits[i]->getId());
         input->setCol(0);
-        _ZXG->addEdge(input, output, EdgeType::SIMPLE);
+        newGraph->addEdge(input, output, EdgeType::SIMPLE);
     }
 
-    topoTraverse([st, _ZXG](QCirGate *G) {
+    topoTraverse([st, newGraph](QCirGate *gate) {
         if (st.stop_requested()) return;
         if (verbose >= 8) cout << "\n";
-        if (verbose >= 5) cout << "> Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
-        ZXGraph *tmp = G->getZXform();
+        if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
+        ZXGraph tmp = gate->getZXform();
 
-        for (auto &v : tmp->getVertices()) {
-            v->setCol(v->getCol() + G->getTime() + G->getDelay());
-        }
-        if (tmp == NULL) {
-            cerr << "Gate " << G->getId() << " (type: " << G->getTypeStr() << ") is not implemented, the conversion result is wrong!!" << endl;
-            return;
+        for (auto &v : tmp.getVertices()) {
+            v->setCol(v->getCol() + gate->getTime() + gate->getDelay());
         }
 
-        _ZXG->concatenate(tmp);
-        delete tmp;
+        newGraph->concatenate(tmp);
     });
 
     size_t max = 0;
-    for (auto &v : _ZXG->getOutputs()) {
+    for (auto &v : newGraph->getOutputs()) {
         size_t neighborCol = v->getFirstNeighbor().first->getCol();
         if (neighborCol > max) {
             max = neighborCol;
         }
     }
-    for (auto &v : _ZXG->getOutputs()) {
+    for (auto &v : newGraph->getOutputs()) {
         v->setCol(max + 1);
     }
 
@@ -84,7 +79,7 @@ void QCir::ZXMapping(std::stop_token st) {
         cerr << "Warning: conversion interrupted. The resulting ZXGraph may be incomplete." << endl;
     }
 
-    _ZXGraphList.push_back(_ZXG);
+    _ZXGraphList.push_back(newGraph);
 }
 
 /**

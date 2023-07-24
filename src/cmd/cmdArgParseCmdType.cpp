@@ -21,7 +21,8 @@ bool ArgParseCmdType::initialize() {
         printMissingParserDefinitionErrorMsg();
         return false;
     }
-    if (!onParseSuccess) {
+    if ((std::holds_alternative<Uninterruptible>(onParseSuccess) && !std::get<Uninterruptible>(onParseSuccess)) ||
+        (std::holds_alternative<Interruptible>(onParseSuccess) && !std::get<Interruptible>(onParseSuccess))) {
         printMissingOnParseSuccessErrorMsg();
         return false;
     }
@@ -42,7 +43,11 @@ CmdExecStatus ArgParseCmdType::exec(std::stop_token st, const std::string& optio
     if (!_parser.parseArgs(option)) {
         return CMD_EXEC_ERROR;
     }
-    return onParseSuccess(st, _parser);
+    if (std::holds_alternative<Uninterruptible>(onParseSuccess)) {
+        return std::get<Uninterruptible>(onParseSuccess)(_parser);
+    } else {
+        return std::get<Interruptible>(onParseSuccess)(st, _parser);
+    }
 }
 
 void ArgParseCmdType::printMissingParserDefinitionErrorMsg() const {

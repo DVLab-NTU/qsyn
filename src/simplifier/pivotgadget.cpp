@@ -35,7 +35,7 @@ void PivotGadget::preprocess(ZXGraph* g) {
  *
  * @param g
  */
-void PivotGadget::match(ZXGraph* g) {
+void PivotGadget::match(ZXGraph* g, int upper_bound) {
     this->_matchTypeVec.clear();
     if (verbose >= 8) cout << "> match...\n";
 
@@ -43,7 +43,7 @@ void PivotGadget::match(ZXGraph* g) {
 
     unordered_set<ZXVertex*> taken;
 
-    g->forEachEdge([&cnt, &taken, this](const EdgePair& epair) {
+    g->forEachEdge([&upper_bound, &cnt, &taken, this](const EdgePair& epair) {
         if (epair.second != EdgeType::HADAMARD) return;
 
         ZXVertex* vs = epair.first.first;
@@ -107,6 +107,10 @@ void PivotGadget::match(ZXGraph* g) {
         for (auto& [v, _] : vt->getNeighbors()) taken.insert(v);
 
         this->_matchTypeVec.push_back({vs, vt});
+        if ((int)this->_matchTypeVec.size() == upper_bound) {
+            setMatchTypeVecNum(this->_matchTypeVec.size());
+            return;
+        }
     });
 
     setMatchTypeVecNum(this->_matchTypeVec.size());

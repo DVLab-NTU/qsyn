@@ -19,7 +19,7 @@
 
 using namespace std;
 
-extern ZXGraphMgr *zxGraphMgr;
+extern ZXGraphMgr zxGraphMgr;
 extern size_t verbose;
 
 bool initGFlowCmd() {
@@ -45,11 +45,11 @@ ZXGGFlowCmd::exec(std::stop_token, const string &option) {
     vector<string> options;
     if (!lexOptions(option, options)) return CMD_EXEC_ERROR;
 
-    if (zxGraphMgr->getgListItr() == zxGraphMgr->getGraphList().end()) {
+    if (zxGraphMgr.empty()) {
         cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXGGFlow." << endl;
         return CMD_EXEC_ERROR;
     }
-    GFlow gflow(zxGraphMgr->getGraph());
+    GFlow gflow(zxGraphMgr.get());
 
     CMD_N_OPTS_AT_MOST_OR_RETURN(options, 2);
 

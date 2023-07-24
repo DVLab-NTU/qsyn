@@ -1,19 +1,19 @@
 DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> ZXNew
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> ZXNew
-Create and checkout to Graph 1
+Created and checked out to ZXGraph 1
 
 qsyn> ZXPrint
--> #Graph: 2
--> Now focus on: 1
+-> #ZXGraph: 2
+-> Now focused on: 1
 
 qsyn> ZXPrint -f
-Now focus on: 1
+Now focused on: 1
 
 qsyn> ZXPrint -n
-#Graph: 2
+#ZXGraph2
 
 qsyn> qq -f
 

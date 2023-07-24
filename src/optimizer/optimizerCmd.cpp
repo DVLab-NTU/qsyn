@@ -68,9 +68,11 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
         if (result == nullptr) {
             cout << "Error: fail to optimize circuit." << endl;
         } else {
-            if (parser["-copy"])
+            if (parser["-copy"]) {
                 qcirMgr->addQCir(qcirMgr->getNextID());
+            }
             qcirMgr->setQCircuit(result);
+            qcirMgr->getQCircuit()->printCirInfo();
         }
         return CMD_EXEC_DONE;
     };

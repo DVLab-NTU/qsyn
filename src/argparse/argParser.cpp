@@ -397,8 +397,12 @@ variant<string, size_t> ArgumentParser::matchOption(std::string const& token) co
 bool ArgumentParser::conflictWithParsedArguments(Argument const& arg) const {
     if (!_pimpl->conflictGroups.contains(arg.getName())) return false;
 
+    
     auto& conflictGroup = _pimpl->conflictGroups.at(arg.getName());
-    if (!conflictGroup.isParsed()) return false;
+    if (!conflictGroup.isParsed()) {
+        conflictGroup.setParsed(true);
+        return false;
+    }
 
     for (auto const& conflict : conflictGroup.getArguments()) {
         if (_pimpl->arguments.at(conflict).isParsed()) {
@@ -407,7 +411,6 @@ bool ArgumentParser::conflictWithParsedArguments(Argument const& arg) const {
         }
     }
 
-    conflictGroup.setParsed(true);
     return false;
 }
 

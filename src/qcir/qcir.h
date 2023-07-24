@@ -40,6 +40,7 @@ public:
     size_t getId() const { return _id; }
     size_t getZXId() const { return _ZXNodeId; }
     size_t getNQubit() const { return _qubits.size(); }
+    int getDepth();
     const std::vector<QCirQubit*>& getQubits() const { return _qubits; }
     const std::vector<QCirGate*>& getTopoOrderdGates() const { return _topoOrder; }
     const std::vector<QCirGate*>& getGates() const { return _qgates; }
@@ -51,7 +52,10 @@ public:
     void incrementZXId() { _ZXNodeId++; }
     void setId(size_t id) { _id = id; }
     void setFileName(std::string f) { _fileName = f; }
-    void addProcedure(std::string = "", const std::vector<std::string>& = {});
+    void addProcedure(std::vector<std::string> const& ps) {
+        for (auto& p : ps) addProcedure(p);
+    }
+    void addProcedure(std::string const& p) { _procedures.push_back(p); }
     // For Copy
     void setNextGateId(size_t id) { _gateId = id; }
     void setNextQubitId(size_t id) { _qubitId = id; }
@@ -79,7 +83,7 @@ public:
 
     bool draw(std::string const& drawer, std::string const& outputPath = "", float scale = 1.0f);
 
-    void countGate(bool = false);
+    std::vector<int> countGate(bool detail = false, bool print = true);
 
     void ZXMapping(std::stop_token st = std::stop_token{});
     void tensorMapping();
@@ -111,6 +115,7 @@ public:
     bool printGateInfo(size_t, bool);
     void printSummary();
     void printQubits();
+    void printCirInfo();
 
 private:
     void DFS(QCirGate*);

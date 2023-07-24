@@ -157,9 +157,9 @@ void LTContainer::generateLTC(ZXGraph* g) {
     using lsCoord = pair<int, int>;
     using qStartEnd = pair<int, int>;
 
-    ZXGraph* copyGraph = g->copy();
+    ZXGraph copyGraph = *g;
 
-    GFlow gflow(copyGraph);
+    GFlow gflow(&copyGraph);
     gflow.doIndependentLayers(true);
 
     gflow.calculate();
@@ -298,7 +298,7 @@ void LTContainer::generateLTC(ZXGraph* g) {
         cout << endl;
     }
     size_t volume = 0;
-    copyGraph->forEachEdge([&volume](const EdgePair& epair) {
+    copyGraph.forEachEdge([&volume](const EdgePair& epair) {
         unsigned col1 = epair.first.first->getCol();
         unsigned col2 = epair.first.second->getCol();
         volume += (col1 > col2) ? col1 - col2 : col2 - col1;
