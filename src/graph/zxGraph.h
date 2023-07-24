@@ -11,6 +11,7 @@
 
 #include <complex>
 #include <cstddef>  // for size_t, NULL
+#include <span>
 #include <string>   // for string
 #include <unordered_map>
 
@@ -75,6 +76,7 @@ public:
 
     // Add and Remove
     void addNeighbor(const NeighborPair& n) { _neighbors.insert(n); }
+    void addNeighbor(ZXVertex* v, EdgeType et) { _neighbors.emplace(v, et); }
     size_t removeNeighbor(const NeighborPair& n) { return _neighbors.erase(n); }
     size_t removeNeighbor(ZXVertex* v, EdgeType et) { return removeNeighbor(std::make_pair(v, et)); }
 
@@ -181,24 +183,21 @@ public:
 
     void setInputs(const ZXVertexList& inputs) { _inputs = inputs; }
     void setOutputs(const ZXVertexList& outputs) { _outputs = outputs; }
-    void setVertices(const ZXVertexList& vertices) { _vertices = vertices; }
-    void setFileName(std::string f) { _fileName = f; }
-    void addProcedure(std::vector<std::string> const& ps) {
-        for (auto& p : ps) addProcedure(p);
-    }
-    void addProcedure(std::string const& p) { _procedures.push_back(p); }
+    void setFileName(std::string_view f) { _fileName = f; }
+    void addProcedure(std::span<std::string> ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
+    void addProcedure(std::string_view p) { _procedures.emplace_back(p); }
 
-    const size_t& getId() const { return _id; }
-    const size_t& getNextVId() const { return _nextVId; }
-    const ZXVertexList& getInputs() const { return _inputs; }
-    const ZXVertexList& getOutputs() const { return _outputs; }
-    const ZXVertexList& getVertices() const { return _vertices; }
+    size_t const& getId() const { return _id; }
+    size_t const& getNextVId() const { return _nextVId; }
+    ZXVertexList const& getInputs() const { return _inputs; }
+    ZXVertexList const& getOutputs() const { return _outputs; }
+    ZXVertexList const& getVertices() const { return _vertices; }
     size_t getNumEdges() const;
     size_t getNumInputs() const { return _inputs.size(); }
     size_t getNumOutputs() const { return _outputs.size(); }
     size_t getNumVertices() const { return _vertices.size(); }
     std::string getFileName() const { return _fileName; }
-    const std::vector<std::string>& getProcedures() const { return _procedures; }
+    std::vector<std::string> const& getProcedures() const { return _procedures; }
 
     // For testings
     bool isEmpty() const;
@@ -215,7 +214,7 @@ public:
     bool isGadgetAxel(ZXVertex*) const;
     bool hasDanglingNeighbors(ZXVertex*) const;
 
-    double Density();
+    double density();
     int TCount() const;
     int nonCliffordCount(bool includeT = false) const;
 
@@ -223,14 +222,11 @@ public:
     ZXVertex* addInput(int qubit, bool checked = false, unsigned int col = 0);
     ZXVertex* addOutput(int qubit, bool checked = false, unsigned int col = 0);
     ZXVertex* addVertex(int qubit, VertexType ZXVertex, Phase phase = Phase(), bool checked = false, unsigned int col = 0);
-
-    void addInputs(const ZXVertexList& inputs);
-    void addOutputs(const ZXVertexList& outputs);
     EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
-    void addVertices(const ZXVertexList& vertices, bool reordered);
 
     size_t removeIsolatedVertices();
     size_t removeVertex(ZXVertex* v);
+
     size_t removeVertices(std::vector<ZXVertex*> const& vertices);
     size_t removeEdge(const EdgePair& ep);
     size_t removeEdge(ZXVertex* vs, ZXVertex* vt, EdgeType etype);
@@ -250,18 +246,15 @@ public:
     ZXVertex* findVertexById(const size_t& id) const;
 
     // Action functions (zxGraphAction.cpp)
-    void reset();
     void sortIOByQubit();
-    void toggleEdges(ZXVertex* v);
+    void toggleVertex(ZXVertex* v);
     void liftQubit(const size_t& n);
+    void relabelVertexIDs(size_t idStart) { std::ranges::for_each(this->_vertices, [&idStart](ZXVertex* v){ v->setId(idStart++); } ); }
     ZXGraph* compose(ZXGraph* target);
     ZXGraph* tensorProduct(ZXGraph* target);
     void addGadget(Phase p, const std::vector<ZXVertex*>& verVec);
     void removeGadget(ZXVertex* v);
     std::unordered_map<size_t, ZXVertex*> id2VertexMap() const;
-    void mergeInputList(std::unordered_map<size_t, ZXVertex*> lst) { _inputList.merge(lst); }
-    void mergeOutputList(std::unordered_map<size_t, ZXVertex*> lst) { _outputList.merge(lst); }
-    void disownVertices();
     void normalize();
 
     // Print functions (zxGraphPrint.cpp)
@@ -283,10 +276,6 @@ public:
     ZXVertex* getInputByQubit(const size_t& q);
     ZXVertex* getOutputByQubit(const size_t& q);
     void concatenate(ZXGraph* tmp);
-    void setInputQubit(const size_t& q, ZXVertex* v) { _inputList[q] = v; }
-    void setOutputQubit(const size_t& q, ZXVertex* v) { _outputList[q] = v; }
-    void setInputList(const std::unordered_map<size_t, ZXVertex*>& lst) { _inputList = lst; }
-    void setOutputList(const std::unordered_map<size_t, ZXVertex*>& lst) { _outputList = lst; }
     const std::unordered_map<size_t, ZXVertex*>& getInputList() const { return _inputList; }
     const std::unordered_map<size_t, ZXVertex*>& getOutputList() const { return _outputList; }
 
@@ -309,8 +298,8 @@ public:
     }
     template <typename F>
     void forEachEdge(F lambda) const {
-        for (auto v : _vertices) {
-            for (auto [nb, etype] : v->getNeighbors()) {
+        for (auto& v : _vertices) {
+            for (auto& [nb, etype] : v->getNeighbors()) {
                 if (nb->getId() > v->getId())
                     lambda(makeEdgePair(v, nb, etype));
             }
@@ -334,6 +323,8 @@ private:
     void BFS(ZXVertex*);
 
     bool buildGraphFromParserStorage(const ZXParserDetail::StorageType& storage, bool keepID = false);
+
+    void moveVerticesFrom(ZXGraph& g);
 };
 
 #endif  // ZX_GRAPH_H

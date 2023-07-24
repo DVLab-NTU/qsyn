@@ -20,22 +20,6 @@ namespace TF = TextFormat;
 extern size_t verbose;
 
 /**
- * @brief Reset a ZX-graph (make empty)
- *
- */
-void ZXGraph::reset() {
-    for (auto& v : _vertices) delete v;
-    _inputs.clear();
-    _outputs.clear();
-    _inputList.clear();
-    _outputList.clear();
-    _topoOrder.clear();
-    _vertices.clear();
-    _nextVId = 0;
-    _globalTraCounter = 1;
-}
-
-/**
  * @brief Sort _inputs and _outputs of graph by qubit (ascending)
  *
  */
@@ -50,7 +34,7 @@ void ZXGraph::sortIOByQubit() {
  *
  * @param v
  */
-void ZXGraph::toggleEdges(ZXVertex* v) {
+void ZXGraph::toggleVertex(ZXVertex* v) {
     if (!v->isZ() && !v->isX()) return;
     Neighbors toggledNeighbors;
     for (auto& itr : v->getNeighbors()) {
@@ -84,8 +68,8 @@ void ZXGraph::liftQubit(const size_t& n) {
                  newOutputList[itr.first + n] = itr.second;
              });
 
-    setInputList(newInputList);
-    setOutputList(newOutputList);
+    _inputList = newInputList;
+    _outputList = newOutputList;
 }
 
 /**
@@ -119,6 +103,7 @@ ZXGraph* ZXGraph::compose(ZXGraph* target) {
     copiedGraph.sortIOByQubit();
 
     // Change ori-output and copy-inputs' vt to Z and link them respectively
+
     auto itr_ori = _outputs.begin();
     auto itr_cop = copiedGraph.getInputs().begin();
     for (; itr_ori != _outputs.end(); ++itr_ori, ++itr_cop) {
@@ -126,10 +111,11 @@ ZXGraph* ZXGraph::compose(ZXGraph* target) {
         (*itr_cop)->setType(VertexType::Z);
         this->addEdge((*itr_ori), (*itr_cop), EdgeType::SIMPLE);
     }
-    this->setOutputs(copiedGraph.getOutputs());
-    this->addVertices(copiedGraph.getVertices(), true);
-    this->setOutputList(copiedGraph.getOutputList());
-    copiedGraph.disownVertices();
+    
+    _outputs = copiedGraph._outputs;
+    _outputList = copiedGraph._outputList;
+
+    this->moveVerticesFrom(copiedGraph);
 
     return this;
 }
@@ -164,14 +150,14 @@ ZXGraph* ZXGraph::tensorProduct(ZXGraph* target) {
     size_t liftQ = (oriMaxQubit - oriMinQubit + 1) - copiedMinQubit;
     copiedGraph.liftQubit(liftQ);
 
-    // Merge copiedGraph to original graph
-    this->addInputs(copiedGraph.getInputs());
-    this->addOutputs(copiedGraph.getOutputs());
-    this->addVertices(copiedGraph.getVertices(), true);
-    this->mergeInputList(copiedGraph.getInputList());
-    this->mergeOutputList(copiedGraph.getOutputList());
 
-    copiedGraph.disownVertices();
+    // Merge copiedGraph to original graph
+    _inputs.insert(copiedGraph._inputs.begin(), copiedGraph._inputs.end());
+    _inputList.merge(copiedGraph._inputList);
+    _outputs.insert(copiedGraph._outputs.begin(), copiedGraph._outputs.end());
+    _outputList.merge(copiedGraph._outputList);
+    
+    this->moveVerticesFrom(copiedGraph);
 
     return this;
 }
@@ -258,20 +244,6 @@ unordered_map<size_t, ZXVertex*> ZXGraph::id2VertexMap() const {
     unordered_map<size_t, ZXVertex*> id2VertexMap;
     for (const auto& v : _vertices) id2VertexMap[v->getId()] = v;
     return id2VertexMap;
-}
-
-/**
- * @brief Disown the vertices in a graph, so that they are no longer referenced by this ZXGraph.
- *        This function is used to change ownership of ZXVertices after composing/tensoring ZXGraphs.
- *
- */
-void ZXGraph::disownVertices() {
-    _inputs.clear();
-    _outputs.clear();
-    _vertices.clear();
-    _topoOrder.clear();
-    _inputList.clear();
-    _outputList.clear();
 }
 
 /**

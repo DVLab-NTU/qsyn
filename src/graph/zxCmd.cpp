@@ -183,7 +183,7 @@ unique_ptr<ArgParseCmdType> ZXPrintCmd() {
 
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("print info of ZXGraphMgr");
-        auto mutex = parser.addMutuallyExclusiveGroup();
+        auto mutex = parser.addMutuallyExclusiveGroup().required(false);
 
         mutex.addArgument<bool>("-summary")
             .action(storeTrue)

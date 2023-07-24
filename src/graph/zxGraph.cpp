@@ -184,7 +184,7 @@ size_t ZXGraph::numGadgets() const {
  *
  * @return double
  */
-double ZXGraph::Density() {
+double ZXGraph::density() {
     unordered_map<int, int> mp;
     for (auto& v : this->getVertices()) mp[v->getNumNeighbors()]++;
     double ans = 0;
@@ -248,7 +248,7 @@ ZXVertex* ZXGraph::addInput(int qubit, bool checked, unsigned int col) {
     }
     ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), true, col);
     _inputs.emplace(v);
-    setInputQubit(qubit, v);
+    _inputList.emplace(qubit, v);
     return v;
 }
 
@@ -268,7 +268,7 @@ ZXVertex* ZXGraph::addOutput(int qubit, bool checked, unsigned int col) {
     }
     ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), true, col);
     _outputs.emplace(v);
-    setOutputQubit(qubit, v);
+    _outputList.emplace(qubit, v);
     return v;
 }
 
@@ -293,24 +293,6 @@ ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, bool checked
     if (verbose >= 8) cout << "Add vertex (" << VertexType2Str(vt) << ") " << _nextVId << endl;
     _nextVId++;
     return v;
-}
-
-/**
- * @brief Add a set of inputs
- *
- * @param inputs
- */
-void ZXGraph::addInputs(const ZXVertexList& inputs) {
-    _inputs.insert(inputs.begin(), inputs.end());
-}
-
-/**
- * @brief Add a set of outputs
- *
- * @param outputs
- */
-void ZXGraph::addOutputs(const ZXVertexList& outputs) {
-    _outputs.insert(outputs.begin(), outputs.end());
 }
 
 /**
@@ -358,19 +340,21 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
 }
 
 /**
- * @brief Add a set of vertices
+ * @brief Move vertices from the other graph
  *
  * @param vertices
- * @param reordered
  */
-void ZXGraph::addVertices(const ZXVertexList& vertices, bool reordered) {
-    if (reordered) {
-        for (const auto& v : vertices) {
-            v->setId(_nextVId);
-            _nextVId++;
-        }
-    }
-    _vertices.insert(vertices.begin(), vertices.end());
+void ZXGraph::moveVerticesFrom(ZXGraph& other) {
+    _vertices.insert(other._vertices.begin(), other._vertices.end());
+    other.relabelVertexIDs(_nextVId);
+    _nextVId += other.getNumVertices();
+
+    other._vertices.clear();
+    other._inputs.clear();
+    other._outputs.clear();
+    other._inputList.clear();
+    other._outputList.clear();
+    other._topoOrder.clear();
 }
 
 /*****************************************************/

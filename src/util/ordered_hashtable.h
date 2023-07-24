@@ -89,19 +89,16 @@ public:
         bool isValid() const noexcept { return *(this->_itr) != std::nullopt; }
 
         value_type& operator*() noexcept { return (value_type&)this->_itr->value(); }
-        const value_type& operator*() const noexcept { return (value_type&)this->_itr->value(); }
+        value_type& operator*() const noexcept { return (value_type&)this->_itr->value(); }
 
         value_type* operator->() noexcept { return (value_type*)&(this->_itr->value()); }
-        value_type const* operator->() const noexcept { return (value_type*)&(this->_itr->value()); }
+        value_type* operator->() const noexcept { return (value_type*)&(this->_itr->value()); }
 
     private:
         VecIterType _itr;
         VecIterType _begin;
         VecIterType _end;
     };
-
-    // static_assert(std::bidirectional_iterator<iterator>);
-    // static_assert(std::bidirectional_iterator<const_iterator>);
 
     ordered_hashtable() : _size(0) {}
 

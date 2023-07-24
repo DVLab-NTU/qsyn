@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ dataStructureManager.h.cpp ]
+  FileName     [ dataStructureManager.h ]
   PackageName  [ util ]
   Synopsis     [ Define data structure manager template ]
   Author       [ Design Verification Lab ]
@@ -30,11 +30,7 @@ public:
             _list.emplace(id, std::make_unique<T>(*data));
         }
     }
-    DataStructureManager(DataStructureManager&& other) noexcept {
-        _nextID = std::exchange(other._nextID, 0);
-        _currID = std::exchange(other._currID, 0);
-        _list = std::exchange(other._list, ordered_hashmap<size_t, std::unique_ptr<T>>{});
-    }
+    DataStructureManager(DataStructureManager&& other) noexcept = default;
 
     DataStructureManager& operator=(DataStructureManager copy) {
         copy.swap(*this);
@@ -168,6 +164,7 @@ public:
             printMgrEmptyErrorMsg();
         }
     }
+
     void printFocus() const {
         if (this->size()) {
             printFocusMsg();
@@ -175,9 +172,16 @@ public:
             printMgrEmptyErrorMsg();
         }
     }
+    
     void printListSize() const {
         std::cout << "#" << _typeName << size() << std::endl;
     }
+
+private:
+    size_t _nextID;
+    size_t _currID;
+    ordered_hashmap<size_t, std::unique_ptr<T>> _list;
+    std::string _typeName;
 
     void printCheckOutMsg() const {
         std::cout << "Checked out to " << _typeName << " " << this->_currID << std::endl;
@@ -200,12 +204,6 @@ public:
                   << _typeName << " " << oldID << " to "
                   << _typeName << " " << newID << std::endl;
     }
-
-private:
-    size_t _nextID;
-    size_t _currID;
-    ordered_hashmap<size_t, std::unique_ptr<T>> _list;
-    std::string _typeName;
 };
 
 }  // namespace dvlab_utils

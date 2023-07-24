@@ -25,7 +25,6 @@ extern size_t verbose;
 void QCir::clearMapping() {
     for (size_t i = 0; i < _ZXGraphList.size(); i++) {
         cerr << "Note: Graph " << _ZXGraphList[i]->getId() << " is deleted due to modification(s) !!" << endl;
-        _ZXGraphList[i]->reset();
         zxGraphMgr.remove(_ZXGraphList[i]->getId());
     }
     _ZXGraphList.clear();
