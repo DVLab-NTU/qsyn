@@ -116,7 +116,9 @@ public:
     }
 
     ~ZXGraph() {
-        for (const auto& v : _vertices) delete v;
+        for (const auto& v : _vertices) {
+            if (v != NULL) delete v;
+        }
     }
 
     ZXGraph(ZXGraph const& other) : _id{other._id}, _nextVId{0}, _fileName{other._fileName}, _procedures{other._procedures} {

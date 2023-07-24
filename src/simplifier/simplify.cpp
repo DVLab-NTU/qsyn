@@ -16,10 +16,12 @@
 #include "gFlow.h"
 #include "zxDef.h"
 #include "zxGraph.h"  // for ZXGraph
+#include "zxGraphMgr.h"
 #include "zxoptimizer.h"
 
 using namespace std;
 extern size_t verbose;
+extern ZXGraphMgr* zxGraphMgr;
 extern size_t dmode;
 extern ZXOPTimizer opt;
 
@@ -500,30 +502,90 @@ void Simplifier::symbolicReduce() {
  */
 void Simplifier::partitionReduce(size_t sliceRounds, size_t iterations = 1) {
     // TODO: implement partitionReduce
-    std::cerr << "partitionReduce is not implemented yet" << std::endl;
-    std::cerr << "called with sliceTimes = " << sliceRounds << " and rounds = " << iterations << std::endl;
+    _simpGraph->addProcedure("partitionReduce");
+
+    // NOTE: since deleting a subgraph also deletes the vertices in the subgraph,
+    // which still have to be referenced by the merged graph, so we need to copy
+    // merged graph back into the original graph
+    // partition -> optimized subgraphs -> merged graph -> copy back to original graph
 
     std::vector<ZXVertexList> partitions = klPartition(_simpGraph, sliceRounds);
+    ZXVertexList primaryInputs = _simpGraph->getInputs();
+    ZXVertexList primaryOutputs = _simpGraph->getOutputs();
 
-    size_t total_internal_cost = 0;
-    for (auto& p : partitions) {
-        std::cerr << "\nsize: " << p.size() << std::endl;
-        size_t internal_cost = 0;
-        for (auto& v : p) {
-            for (auto& [n, e] : v->getNeighbors()) {
-                if (p.contains(n)) {
-                    internal_cost++;
+    std::vector<ZXGraph*> subgraphs;
+    subgraphs.reserve(partitions.size());
+    std::unordered_set<EdgePair> cutEdges;
+
+    for (auto& partition : partitions) {
+        ZXGraph* graph = new ZXGraph(zxGraphMgr->getNextID());
+        subgraphs.push_back(graph);
+        graph->setVertices(partition);
+
+        ZXVertexList subgraphInputs;
+        ZXVertexList subgraphOutputs;
+        for (auto& vertex : graph->getVertices()) {
+            if (primaryInputs.contains(vertex)) subgraphInputs.insert(vertex);
+            if (primaryOutputs.contains(vertex)) subgraphOutputs.insert(vertex);
+            for (auto& [neighbor, edgeType] : vertex->getNeighbors()) {
+                if (!partition.contains(neighbor)) {
+                    cutEdges.insert({{vertex, neighbor}, edgeType});
+                    graph->removeEdge(vertex, neighbor, edgeType);
+                    // NOTE: label all boundary verices as outputs if it is not an input,
+                    // the code should only cares if a vertex is a boundary vertex
+                    if (!subgraphInputs.contains(vertex)) subgraphOutputs.insert(vertex);
                 }
             }
         }
-        total_internal_cost += internal_cost;
-        std::cerr << "internal cost: " << internal_cost << std::endl;
-    }
-    std::cerr << "\ntotal internal cost: " << total_internal_cost << std::endl;
+        graph->setInputs(subgraphInputs);
+        graph->setOutputs(subgraphOutputs);
 
-    // reconstruct the graph
-    for (auto& p : partitions) {
+        std::cerr << "==========" << std::endl;
+        std::cerr << "before: " << std::endl;
+        std::cerr << "inputs: " << std::endl;
+        for (auto& vertex : graph->getInputs()) {
+            vertex->printVertex();
+        }
+        std::cerr << "outputs: " << std::endl;
+        for (auto& vertex : graph->getOutputs()) {
+            vertex->printVertex();
+        }
+
+        Simplifier simplifier(graph);
+        simplifier.fullReduce();
+
+        std::cerr << "after: " << std::endl;
+        std::cerr << "inputs: " << std::endl;
+        for (auto& vertex : graph->getInputs()) {
+            vertex->printVertex();
+        }
+        std::cerr << "outputs: " << std::endl;
+        for (auto& vertex : graph->getOutputs()) {
+            vertex->printVertex();
+        }
     }
+
+    return;
+
+    // merge the subgraphs back into the original graph
+    ZXGraph* mergedGraph = new ZXGraph(zxGraphMgr->getNextID());
+    for (auto& graph : subgraphs) {
+        mergedGraph->addVertices(graph->getVertices());
+    }
+    for (auto& [edge, edgeType] : cutEdges) {
+        mergedGraph->addEdge(edge.first, edge.second, edgeType);
+    }
+    mergedGraph->setInputs(primaryInputs);
+    mergedGraph->setOutputs(primaryOutputs);
+
+    ZXGraph* oldGraph = _simpGraph;
+    _simpGraph = mergedGraph->copy();
+
+    for (auto& g : subgraphs) {
+        delete g;
+    }
+    delete oldGraph;
+    delete mergedGraph;
 }
 
 /**

@@ -130,8 +130,6 @@ std::pair<ZXVertexList, ZXVertexList> _klPartition(ZXVertexList vertices) {
         //     swapOnce();
         // }
 
-        std::cerr << "Iteration " << iteration++ << ": " << bestCumulativeGain << std::endl;
-
         // OPTIMIZE: decide a better stopping condition
         if (bestCumulativeGain <= 0) {
             break;
