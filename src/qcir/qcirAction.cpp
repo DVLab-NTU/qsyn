@@ -194,10 +194,10 @@ void QCir::updateGateTime() {
  * @brief Print ZX-graph of gate following the topological order
  */
 void QCir::printZXTopoOrder() {
-    auto Lambda = [](QCirGate* G) {
-        cout << "Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
-        ZXGraph* tmp = G->getZXform();
-        tmp->printVertices();
+    auto Lambda = [](QCirGate* gate) {
+        cout << "Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
+        ZXGraph tmp = gate->getZXform();
+        tmp.printVertices();
     };
     topoTraverse(Lambda);
 }

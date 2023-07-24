@@ -20,22 +20,6 @@ namespace TF = TextFormat;
 extern size_t verbose;
 
 /**
- * @brief Reset a ZX-graph (make empty)
- *
- */
-void ZXGraph::reset() {
-    for (auto& v : _vertices) delete v;
-    _inputs.clear();
-    _outputs.clear();
-    _inputList.clear();
-    _outputList.clear();
-    _topoOrder.clear();
-    _vertices.clear();
-    _nextVId = 0;
-    _globalTraCounter = 1;
-}
-
-/**
  * @brief Sort _inputs and _outputs of graph by qubit (ascending)
  *
  */
@@ -45,48 +29,12 @@ void ZXGraph::sortIOByQubit() {
 }
 
 /**
- * @brief Copy an identitcal ZX-graph
- *
- * @return ZXGraph*
- */
-ZXGraph* ZXGraph::copy(bool doReordering) const {
-    ZXGraph* newGraph = new ZXGraph(0);
-    // Copy all vertices (included i/o) first
-    unordered_map<ZXVertex*, ZXVertex*> oldV2newVMap;
-    for (const auto& v : _vertices) {
-        if (v->getType() == VertexType::BOUNDARY) {
-            if (_inputs.contains(v))
-                oldV2newVMap[v] = newGraph->addInput(v->getQubit(), true, v->getCol());
-            else
-                oldV2newVMap[v] = newGraph->addOutput(v->getQubit(), true, v->getCol());
-
-        } else if (v->getType() == VertexType::Z || v->getType() == VertexType::X || v->getType() == VertexType::H_BOX) {
-            oldV2newVMap[v] = newGraph->addVertex(v->getQubit(), v->getType(), v->getPhase(), true, v->getCol());
-        }
-    }
-
-    if (!doReordering) {
-        for (auto& [oldV, newV] : oldV2newVMap) {
-            newV->setId(oldV->getId());
-        }
-        newGraph->_nextVId = _nextVId;
-    }
-    // Link all edges
-    // cout << "Link all edges" << endl;
-    // unordered_map<size_t, ZXVertex*> id2VertexMap = newGraph->id2VertexMap();
-    forEachEdge([&oldV2newVMap, newGraph](const EdgePair& epair) {
-        newGraph->addEdge(oldV2newVMap[epair.first.first], oldV2newVMap[epair.first.second], epair.second);
-    });
-    return newGraph;
-}
-
-/**
  * @brief Toggle EdgeType that connected to `v`. ( H -> S / S -> H)
  *        Ex: [(3, S), (4, H), (5, S)] -> [(3, H), (4, S), (5, H)]
  *
  * @param v
  */
-void ZXGraph::toggleEdges(ZXVertex* v) {
+void ZXGraph::toggleVertex(ZXVertex* v) {
     if (!v->isZ() && !v->isX()) return;
     Neighbors toggledNeighbors;
     for (auto& itr : v->getNeighbors()) {
@@ -120,8 +68,8 @@ void ZXGraph::liftQubit(const size_t& n) {
                  newOutputList[itr.first + n] = itr.second;
              });
 
-    setInputList(newInputList);
-    setOutputList(newOutputList);
+    _inputList = newInputList;
+    _outputList = newOutputList;
 }
 
 /**
@@ -130,45 +78,46 @@ void ZXGraph::liftQubit(const size_t& n) {
  * @param target
  * @return ZXGraph*
  */
-ZXGraph* ZXGraph::compose(ZXGraph* target) {
+ZXGraph& ZXGraph::compose(ZXGraph const& target) {
     // Check ori-outputNum == target-inputNum
-    if (this->getNumOutputs() != target->getNumInputs())
+    if (this->getNumOutputs() != target.getNumInputs()) {
         cerr << "Error: The composing ZX-graph's #input is not equivalent to the original ZX-graph's #output." << endl;
-    else {
-        ZXGraph* copiedGraph = target->copy();
-
-        // Get maximum column in `this`
-        unsigned maxCol = 0;
-        for (const auto& o : this->getOutputs()) {
-            if (o->getCol() > maxCol) maxCol = o->getCol();
-        }
-
-        // Update `_id` and `_col` of copiedGraph to make them unique to the original graph
-        for (const auto& v : copiedGraph->getVertices()) {
-            v->setId(_nextVId);
-            v->setCol(v->getCol() + maxCol + 1);
-            _nextVId++;
-        }
-
-        // Sort ori-output and copy-input
-        this->sortIOByQubit();
-        copiedGraph->sortIOByQubit();
-
-        // Change ori-output and copy-inputs' vt to Z and link them respectively
-        auto itr_ori = _outputs.begin();
-        auto itr_cop = copiedGraph->getInputs().begin();
-        for (; itr_ori != _outputs.end(); ++itr_ori, ++itr_cop) {
-            (*itr_ori)->setType(VertexType::Z);
-            (*itr_cop)->setType(VertexType::Z);
-            this->addEdge((*itr_ori), (*itr_cop), EdgeType::SIMPLE);
-        }
-        this->setOutputs(copiedGraph->getOutputs());
-        this->addVertices(copiedGraph->getVertices());
-        this->setOutputList(copiedGraph->getOutputList());
-        copiedGraph->disownVertices();
-        delete copiedGraph;
+        return *this;
     }
-    return this;
+
+    ZXGraph copiedGraph{target};
+
+    // Get maximum column in `this`
+    unsigned maxCol = 0;
+    for (const auto& o : this->getOutputs()) {
+        if (o->getCol() > maxCol) maxCol = o->getCol();
+    }
+
+    // Update `_col` of copiedGraph to make them unique to the original graph
+    for (const auto& v : copiedGraph.getVertices()) {
+        v->setCol(v->getCol() + maxCol + 1);
+    }
+
+    // Sort ori-output and copy-input
+    this->sortIOByQubit();
+    copiedGraph.sortIOByQubit();
+
+    // Change ori-output and copy-inputs' vt to Z and link them respectively
+
+    auto itr_ori = _outputs.begin();
+    auto itr_cop = copiedGraph.getInputs().begin();
+    for (; itr_ori != _outputs.end(); ++itr_ori, ++itr_cop) {
+        (*itr_ori)->setType(VertexType::Z);
+        (*itr_cop)->setType(VertexType::Z);
+        this->addEdge((*itr_ori), (*itr_cop), EdgeType::SIMPLE);
+    }
+
+    _outputs = copiedGraph._outputs;
+    _outputList = copiedGraph._outputList;
+
+    this->moveVerticesFrom(copiedGraph);
+
+    return *this;
 }
 
 /**
@@ -177,8 +126,8 @@ ZXGraph* ZXGraph::compose(ZXGraph* target) {
  * @param target
  * @return ZXGraph*
  */
-ZXGraph* ZXGraph::tensorProduct(ZXGraph* target) {
-    ZXGraph* copiedGraph = target->copy();
+ZXGraph& ZXGraph::tensorProduct(ZXGraph const& target) {
+    ZXGraph copiedGraph{target};
 
     // Lift Qubit
     int oriMaxQubit = INT_MIN, oriMinQubit = INT_MAX;
@@ -192,32 +141,24 @@ ZXGraph* ZXGraph::tensorProduct(ZXGraph* target) {
         if (i->getQubit() < oriMinQubit) oriMinQubit = i->getQubit();
     }
 
-    for (const auto& i : copiedGraph->getInputs()) {
+    for (const auto& i : copiedGraph.getInputs()) {
         if (i->getQubit() < copiedMinQubit) copiedMinQubit = i->getQubit();
     }
-    for (const auto& i : copiedGraph->getOutputs()) {
+    for (const auto& i : copiedGraph.getOutputs()) {
         if (i->getQubit() < copiedMinQubit) copiedMinQubit = i->getQubit();
     }
     size_t liftQ = (oriMaxQubit - oriMinQubit + 1) - copiedMinQubit;
-    copiedGraph->liftQubit(liftQ);
-
-    // Update Id of copiedGraph to make them unique to the original graph
-    for (const auto& v : copiedGraph->getVertices()) {
-        v->setId(_nextVId);
-        _nextVId++;
-    }
+    copiedGraph.liftQubit(liftQ);
 
     // Merge copiedGraph to original graph
-    this->addInputs(copiedGraph->getInputs());
-    this->addOutputs(copiedGraph->getOutputs());
-    this->addVertices(copiedGraph->getVertices());
-    this->mergeInputList(copiedGraph->getInputList());
-    this->mergeOutputList(copiedGraph->getOutputList());
+    _inputs.insert(copiedGraph._inputs.begin(), copiedGraph._inputs.end());
+    _inputList.merge(copiedGraph._inputList);
+    _outputs.insert(copiedGraph._outputs.begin(), copiedGraph._outputs.end());
+    _outputList.merge(copiedGraph._outputList);
 
-    copiedGraph->disownVertices();
-    delete copiedGraph;
+    this->moveVerticesFrom(copiedGraph);
 
-    return this;
+    return *this;
 }
 
 /**
@@ -302,20 +243,6 @@ unordered_map<size_t, ZXVertex*> ZXGraph::id2VertexMap() const {
     unordered_map<size_t, ZXVertex*> id2VertexMap;
     for (const auto& v : _vertices) id2VertexMap[v->getId()] = v;
     return id2VertexMap;
-}
-
-/**
- * @brief Disown the vertices in a graph, so that they are no longer referenced by this ZXGraph.
- *        This function is used to change ownership of ZXVertices after composing/tensoring ZXGraphs.
- *
- */
-void ZXGraph::disownVertices() {
-    _inputs.clear();
-    _outputs.clear();
-    _vertices.clear();
-    _topoOrder.clear();
-    _inputList.clear();
-    _outputList.clear();
 }
 
 /**

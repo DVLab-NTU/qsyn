@@ -107,6 +107,8 @@ public:
     T& operator[](Key&& key);
 };
 
+static_assert(std::ranges::bidirectional_range<ordered_hashmap<int, int>>);
+
 //------------------------------------------------------
 //  lookup
 //------------------------------------------------------

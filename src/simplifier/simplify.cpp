@@ -311,7 +311,7 @@ int Simplifier::sfusionSimp() {
 void Simplifier::toGraph() {
     for (auto& v : _simpGraph->getVertices()) {
         if (v->getType() == VertexType::X) {
-            _simpGraph->toggleEdges(v);
+            _simpGraph->toggleVertex(v);
         }
     }
 }
@@ -323,7 +323,7 @@ void Simplifier::toGraph() {
 void Simplifier::toRGraph() {
     for (auto& v : _simpGraph->getVertices()) {
         if (v->getType() == VertexType::Z) {
-            _simpGraph->toggleEdges(v);
+            _simpGraph->toggleVertex(v);
         }
     }
 }
@@ -455,12 +455,12 @@ void Simplifier::dynamicReduce(int tOptimal) {
 }
 
 void Simplifier::hybridReduce() {
-    ZXGraph* _copyGraph = _simpGraph->copy();
+    ZXGraph _copyGraph = *_simpGraph;
     cout << endl
          << "Full Reduce:";
     this->fullReduce();
     int tOptimal = _simpGraph->TCount();
-    _simpGraph = _copyGraph;
+    *_simpGraph = _copyGraph;
     cout << endl
          << "Dynamic Reduce:";
     _recipe.clear();

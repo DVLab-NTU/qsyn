@@ -69,7 +69,8 @@ QCir* Optimizer::basic_optimization(bool doSwap, bool separateCorrection, size_t
         _circuit->printGates();
     }
     _circuit->setFileName(_name);
-    _circuit->addProcedure("Optimize", _procedures);
+    _circuit->addProcedure(_procedures);
+    _circuit->addProcedure("Optimize");
     return _circuit;
 }
 

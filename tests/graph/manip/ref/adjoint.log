@@ -1,10 +1,10 @@
 DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> zxgr benchmark/zx/tof2_opt.zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxcopy 1
-Successfully copied Graph 0 to Graph 1
-Checkout to Graph 1
+Successfully copied ZXGraph 0 to ZXGraph 1
+Checked out to ZXGraph 1
 
 qsyn> zxgadj
 

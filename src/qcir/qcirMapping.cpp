@@ -15,7 +15,7 @@
 #include "zxGraphMgr.h"  // for ZXGraphMgr
 
 using namespace std;
-extern ZXGraphMgr *zxGraphMgr;
+extern ZXGraphMgr zxGraphMgr;
 extern TensorMgr *tensorMgr;
 extern size_t verbose;
 
@@ -25,8 +25,7 @@ extern size_t verbose;
 void QCir::clearMapping() {
     for (size_t i = 0; i < _ZXGraphList.size(); i++) {
         cerr << "Note: Graph " << _ZXGraphList[i]->getId() << " is deleted due to modification(s) !!" << endl;
-        _ZXGraphList[i]->reset();
-        zxGraphMgr->removeZXGraph(_ZXGraphList[i]->getId());
+        zxGraphMgr.remove(_ZXGraphList[i]->getId());
     }
     _ZXGraphList.clear();
 }
@@ -37,9 +36,10 @@ void QCir::clearMapping() {
 void QCir::ZXMapping() {
     updateGateTime();
 
-    ZXGraph *_ZXG = zxGraphMgr->addZXGraph(zxGraphMgr->getNextID());
+    ZXGraph *_ZXG = zxGraphMgr.add(zxGraphMgr.getNextID());
     _ZXG->setFileName(_fileName);
-    _ZXG->addProcedure("QC2ZX", _procedures);
+    _ZXG->addProcedure(_procedures);
+    _ZXG->addProcedure("QC2ZX");
 
     if (verbose >= 5) cout << "Traverse and build the graph... " << endl;
 
@@ -51,21 +51,20 @@ void QCir::ZXMapping() {
         _ZXG->addEdge(input, output, EdgeType(EdgeType::SIMPLE));
     }
 
-    topoTraverse([_ZXG](QCirGate *G) {
+    topoTraverse([_ZXG](QCirGate *gate) {
         if (verbose >= 8) cout << "\n";
-        if (verbose >= 5) cout << "> Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
-        ZXGraph *tmp = G->getZXform();
+        if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
+        ZXGraph tmp = gate->getZXform();
 
-        for (auto &v : tmp->getVertices()) {
-            v->setCol(v->getCol() + G->getTime() + G->getDelay());
+        for (auto &v : tmp.getVertices()) {
+            v->setCol(v->getCol() + gate->getTime() + gate->getDelay());
         }
-        if (tmp == NULL) {
-            cerr << "Gate " << G->getId() << " (type: " << G->getTypeStr() << ") is not implemented, the conversion result is wrong!!" << endl;
-            return;
-        }
+        // if (tmp == NULL) {
+        //     cerr << "Gate " << gate->getId() << " (type: " << gate->getTypeStr() << ") is not implemented, the conversion result is wrong!!" << endl;
+        //     return;
+        // }
 
         _ZXG->concatenate(tmp);
-        delete tmp;
     });
 
     size_t max = 0;

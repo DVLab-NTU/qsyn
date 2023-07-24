@@ -100,4 +100,6 @@ public:
     virtual const Key& key(const stored_type& value) const override { return value; }
 };
 
+static_assert(std::ranges::bidirectional_range<ordered_hashset<int>>);
+
 #endif  // ORDERED_HASHSET_H

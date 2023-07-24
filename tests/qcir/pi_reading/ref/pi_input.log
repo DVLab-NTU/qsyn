@@ -20,7 +20,7 @@ Error: not a legal phase!!
 Error: Illegal option!! (PI*3PI/pi)
 
 qsyn> qc2zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> qq -f
 

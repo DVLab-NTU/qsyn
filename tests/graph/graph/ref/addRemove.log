@@ -1,6 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> zxgr benchmark/zx/cnot.zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgp -v
 
@@ -29,7 +29,7 @@ Total #Vertices: 6
 qsyn> zxr
 
 qsyn> zxgr benchmark/zx/cnot.zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgp -v
 
@@ -68,7 +68,7 @@ Total #Vertices: 3
 qsyn> zxr
 
 qsyn> zxgr benchmark/zx/cnot.zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgp -v
 
@@ -95,7 +95,7 @@ Total #Vertices: 4
 qsyn> zxr 
 
 qsyn> zxnew
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxge -addi 1
 
@@ -131,7 +131,7 @@ Total #Vertices: 6
 qsyn> zxr
 
 qsyn> zxgr benchmark/zx/cnot.zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> zxgp -v
 

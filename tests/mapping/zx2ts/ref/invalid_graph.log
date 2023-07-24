@@ -1,6 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.4.2
 qsyn> zxgr benchmark/zx/cnot.zx
-Create and checkout to Graph 0
+Created and checked out to ZXGraph 0
 
 qsyn> 
 qsyn> zxgedit -adde 0 5 SIMPLE
@@ -33,7 +33,7 @@ Error: The ZX-graph is not valid!!
 
 qsyn> 
 qsyn> zxgr benchmark/zx/cnot.zx
-Create and checkout to Graph 1
+Created and checked out to ZXGraph 1
 
 qsyn> zxgedit -rme 0 2 -ALL
 

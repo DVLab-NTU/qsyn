@@ -23,6 +23,7 @@ using namespace std;
 using namespace ArgParse;
 extern size_t verbose;
 
+extern ZXGraphMgr zxGraphMgr;
 ZXOPTimizer opt;
 
 unique_ptr<ArgParseCmdType> ZXGSimpCmd();
@@ -91,7 +92,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             .help("convert H-boxes to H-edges");
         mutex.addArgument<bool>("-idremoval")
             .action(storeTrue)
-            .help("remove Z/X-spiders with no phase");
+            .help("remove Z/X-spiders with no phase and arity of 2");
         mutex.addArgument<bool>("-lcomp")
             .action(storeTrue)
             .help("apply local complementations to vertices with phase ±π/2");
@@ -125,7 +126,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGSimp");
-        Simplifier s(zxGraphMgr->getGraph());
+        Simplifier s(zxGraphMgr.get());
         if (parser["-sreduce"].isParsed())
             s.symbolicReduce();
         else if (parser["-dreduce"].isParsed())
