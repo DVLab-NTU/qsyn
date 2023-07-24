@@ -48,7 +48,7 @@ void QCir::ZXMapping() {
         ZXVertex *input = _ZXG->addInput(_qubits[i]->getId());
         ZXVertex *output = _ZXG->addOutput(_qubits[i]->getId());
         input->setCol(0);
-        _ZXG->addEdge(input, output, EdgeType(EdgeType::SIMPLE));
+        _ZXG->addEdge(input, output, EdgeType::SIMPLE);
     }
 
     topoTraverse([_ZXG](QCirGate *gate) {

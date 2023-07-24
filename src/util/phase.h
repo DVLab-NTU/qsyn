@@ -27,10 +27,10 @@ enum class PhaseUnit {
 
 class Phase {
 public:
-    Phase() : _rational(0, 1) {}
+    constexpr Phase() : _rational(0, 1) {}
     // explicitly ban `Phase phase = n;` to prevent confusing code
-    explicit Phase(int n) : _rational(n, 1) { normalize(); }
-    Phase(int n, int d) : _rational(n, d) { normalize(); }
+    constexpr explicit Phase(int n) : _rational(n, 1) { normalize(); }
+    constexpr Phase(int n, int d) : _rational(n, d) { normalize(); }
     template <class T>
     requires std::floating_point<T>
     Phase(T f, T eps = 1e-4) : _rational(f / std::numbers::pi_v<T>, eps / std::numbers::pi_v<T>) { normalize(); }
