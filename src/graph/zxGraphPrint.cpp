@@ -68,11 +68,8 @@ void ZXGraph::printIO() const {
  */
 void ZXGraph::printVertices() const {
     cout << "\n";
-    for (const auto& v : _vertices) {
-        v->printVertex();
-    }
-    cout << "Total #Vertices: " << getNumVertices() << endl;
-    cout << "\n";
+    ranges::for_each(_vertices, [](ZXVertex* v) { v->printVertex(); });
+    cout << "Total #Vertices: " << getNumVertices() << "\n\n";
 }
 
 /**

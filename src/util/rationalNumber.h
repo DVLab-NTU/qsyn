@@ -22,9 +22,9 @@
 class Rational {
 public:
     // Default constructor for two integral type
-    Rational() : _numer(0), _denom(1) {}
-    Rational(int n) : _numer(n), _denom(1) {}
-    Rational(int n, int d) : _numer(n), _denom(d) {
+    constexpr Rational() : _numer(0), _denom(1) {}
+    constexpr Rational(int n) : _numer(n), _denom(1) {}
+    constexpr Rational(int n, int d) : _numer(n), _denom(d) {
         assert(d != 0);
         reduce();
     }

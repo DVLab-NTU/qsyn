@@ -137,9 +137,9 @@ bool ZXGraph::buildGraphFromParserStorage(const ZXParserDetail::StorageType& sto
         ZXVertex* v = std::invoke(
             [&id, &info, this]() {
                 if (info.type == 'I')
-                    return addInput(info.qubit, true, info.column);
+                    return addInput(info.qubit, info.column);
                 if (info.type == 'O')
-                    return addOutput(info.qubit, true, info.column);
+                    return addOutput(info.qubit, info.column);
                 VertexType vtype;
                 if (info.type == 'Z')
                     vtype = VertexType::Z;
@@ -147,7 +147,7 @@ bool ZXGraph::buildGraphFromParserStorage(const ZXParserDetail::StorageType& sto
                     vtype = VertexType::X;
                 else
                     vtype = VertexType::H_BOX;
-                return addVertex(info.qubit, vtype, info.phase, true, info.column);
+                return addVertex(info.qubit, vtype, info.phase, info.column);
             });
 
         if (keepID) v->setId(id);
