@@ -586,7 +586,8 @@ bool CmdParser::listCmdDir(const string& cmd) {
     vector<string> files = listDir(basename, dirname);
 
     if (trailingBackslash) {
-        std::erase_if(files, [this, &basename](string const& file) { return !isSpecialChar(file[basename.size()]); });
+        // clang++ does not support structured binding capture by reference with OpenMP
+        std::erase_if(files, [this, &basename = basename](string const& file) { return !isSpecialChar(file[basename.size()]); });
     }
 
     // no matched file

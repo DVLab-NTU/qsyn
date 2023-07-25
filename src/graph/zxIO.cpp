@@ -135,7 +135,8 @@ bool ZXGraph::buildGraphFromParserStorage(const ZXParserDetail::StorageType& sto
 
     for (auto& [id, info] : storage) {
         ZXVertex* v = std::invoke(
-            [&id, &info, this]() {
+            // clang++ does not support structured binding capture by reference with OpenMP
+            [&id = id, &info = info, this]() {
                 if (info.type == 'I')
                     return addInput(info.qubit, info.column);
                 if (info.type == 'O')
