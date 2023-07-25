@@ -204,10 +204,10 @@ ZXGraph CCXGate::getZXform() {
     size_t ctrl_qubit_2 = _qubits[0]._isTarget ? _qubits[1]._qubit : _qubits[0]._qubit;
     size_t ctrl_qubit_1 = _qubits[0]._isTarget ? _qubits[2]._qubit : (_qubits[1]._isTarget ? _qubits[2]._qubit : _qubits[1]._qubit);
     size_t targ_qubit = _qubits[0]._isTarget ? _qubits[0]._qubit : (_qubits[1]._isTarget ? _qubits[1]._qubit : _qubits[2]._qubit);
-    vector<pair<pair<VertexType, Phase>, size_t>> Vertices_info;
+    vector<pair<pair<VertexType, Phase>, size_t>> vertices_info;
     vector<pair<pair<size_t, size_t>, EdgeType>> adj_pair;
-    vector<int> Vertices_col;
-    vector<ZXVertex*> Vertices_list = {};
+    vector<int> vertices_col;
+    vector<ZXVertex*> vertices_list = {};
     ZXVertex* in_ctrl_1;
     ZXVertex* in_ctrl_2;
     ZXVertex* in_targ;
@@ -215,104 +215,104 @@ ZXGraph CCXGate::getZXform() {
     ZXVertex* out_ctrl_2;
     ZXVertex* out_targ;
     if (dmode == 1) {
-        Vertices_info = {{{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(-1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}};
+        vertices_info = {{{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(-1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}};
         adj_pair = {{{0, 1}, EdgeType::HADAMARD}, {{1, 10}, EdgeType::HADAMARD}, {{1, 2}, EdgeType::HADAMARD}, {{2, 3}, EdgeType::HADAMARD}, {{3, 16}, EdgeType::HADAMARD}, {{3, 4}, EdgeType::HADAMARD}, {{4, 5}, EdgeType::HADAMARD}, {{5, 11}, EdgeType::HADAMARD}, {{5, 6}, EdgeType::HADAMARD}, {{6, 7}, EdgeType::HADAMARD}, {{7, 17}, EdgeType::HADAMARD}, {{7, 8}, EdgeType::HADAMARD}, {{8, 9}, EdgeType::HADAMARD}, {{10, 11}, EdgeType::SIMPLE}, {{11, 12}, EdgeType::SIMPLE}, {{12, 13}, EdgeType::HADAMARD}, {{13, 18}, EdgeType::HADAMARD}, {{13, 14}, EdgeType::HADAMARD}, {{14, 15}, EdgeType::HADAMARD}, {{15, 20}, EdgeType::HADAMARD}, {{16, 17}, EdgeType::SIMPLE}, {{17, 18}, EdgeType::SIMPLE}, {{18, 19}, EdgeType::SIMPLE}, {{19, 20}, EdgeType::SIMPLE}};
 
-        Vertices_col = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 6, 7, 9, 10, 11, 4, 8, 9, 10, 11};
+        vertices_col = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 6, 7, 9, 10, 11, 4, 8, 9, 10, 11};
 
-        in_ctrl_1 = g.addInput(ctrl_qubit_1, true, 0);
-        in_ctrl_2 = g.addInput(ctrl_qubit_2, true, 0);
-        in_targ = g.addInput(targ_qubit, true, 0);
-        for (size_t i = 0; i < Vertices_info.size(); i++) {
-            Vertices_list.push_back(g.addVertex(Vertices_info[i].second, Vertices_info[i].first.first, Vertices_info[i].first.second));
+        in_ctrl_1 = g.addInput(ctrl_qubit_1, 0);
+        in_ctrl_2 = g.addInput(ctrl_qubit_2, 0);
+        in_targ = g.addInput(targ_qubit, 0);
+        for (size_t i = 0; i < vertices_info.size(); i++) {
+            vertices_list.push_back(g.addVertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
         };
-        for (size_t i = 0; i < Vertices_col.size(); i++) {
-            Vertices_list[i]->setCol(Vertices_col[i]);
+        for (size_t i = 0; i < vertices_col.size(); i++) {
+            vertices_list[i]->setCol(vertices_col[i]);
         }
-        out_ctrl_1 = g.addOutput(ctrl_qubit_1, true, 12);
-        out_ctrl_2 = g.addOutput(ctrl_qubit_2, true, 12);
-        out_targ = g.addOutput(targ_qubit, true, 12);
-        g.addEdge(in_ctrl_1, Vertices_list[16], EdgeType::SIMPLE);
-        g.addEdge(in_ctrl_2, Vertices_list[10], EdgeType::SIMPLE);
-        g.addEdge(in_targ, Vertices_list[0], EdgeType::HADAMARD);
-        g.addEdge(out_ctrl_1, Vertices_list[20], EdgeType::SIMPLE);
-        g.addEdge(out_ctrl_2, Vertices_list[15], EdgeType::HADAMARD);
-        g.addEdge(out_targ, Vertices_list[9], EdgeType::SIMPLE);
+        out_ctrl_1 = g.addOutput(ctrl_qubit_1, 12);
+        out_ctrl_2 = g.addOutput(ctrl_qubit_2, 12);
+        out_targ = g.addOutput(targ_qubit, 12);
+        g.addEdge(in_ctrl_1, vertices_list[16], EdgeType::SIMPLE);
+        g.addEdge(in_ctrl_2, vertices_list[10], EdgeType::SIMPLE);
+        g.addEdge(in_targ, vertices_list[0], EdgeType::HADAMARD);
+        g.addEdge(out_ctrl_1, vertices_list[20], EdgeType::SIMPLE);
+        g.addEdge(out_ctrl_2, vertices_list[15], EdgeType::HADAMARD);
+        g.addEdge(out_targ, vertices_list[9], EdgeType::SIMPLE);
     } else if (dmode == 2) {
-        Vertices_info = {{{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(-1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_1}};
+        vertices_info = {{{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(-1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_1}};
         adj_pair = {{{0, 1}, EdgeType::HADAMARD}, {{0, 8}, EdgeType::HADAMARD}, {{1, 2}, EdgeType::HADAMARD}, {{2, 12}, EdgeType::HADAMARD}, {{2, 3}, EdgeType::HADAMARD}, {{3, 4}, EdgeType::HADAMARD}, {{4, 8}, EdgeType::HADAMARD}, {{4, 5}, EdgeType::HADAMARD}, {{5, 6}, EdgeType::HADAMARD}, {{6, 12}, EdgeType::HADAMARD}, {{6, 7}, EdgeType::HADAMARD}, {{8, 9}, EdgeType::HADAMARD}, {{9, 12}, EdgeType::HADAMARD}, {{9, 10}, EdgeType::HADAMARD}, {{10, 11}, EdgeType::HADAMARD}, {{11, 12}, EdgeType::HADAMARD}};
 
-        Vertices_col = {2, 3, 4, 5, 6, 7, 8, 9, 2, 9, 10, 11, 4};
+        vertices_col = {2, 3, 4, 5, 6, 7, 8, 9, 2, 9, 10, 11, 4};
 
-        in_ctrl_1 = g.addInput(ctrl_qubit_1, true, 0);
-        in_ctrl_2 = g.addInput(ctrl_qubit_2, true, 0);
-        in_targ = g.addInput(targ_qubit, true, 0);
-        for (size_t i = 0; i < Vertices_info.size(); i++) {
-            Vertices_list.push_back(g.addVertex(Vertices_info[i].second, Vertices_info[i].first.first, Vertices_info[i].first.second));
+        in_ctrl_1 = g.addInput(ctrl_qubit_1, 0);
+        in_ctrl_2 = g.addInput(ctrl_qubit_2, 0);
+        in_targ = g.addInput(targ_qubit, 0);
+        for (size_t i = 0; i < vertices_info.size(); i++) {
+            vertices_list.push_back(g.addVertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
         };
-        for (size_t i = 0; i < Vertices_col.size(); i++) {
-            Vertices_list[i]->setCol(Vertices_col[i]);
+        for (size_t i = 0; i < vertices_col.size(); i++) {
+            vertices_list[i]->setCol(vertices_col[i]);
         }
-        out_ctrl_1 = g.addOutput(ctrl_qubit_1, true, 12);
-        out_ctrl_2 = g.addOutput(ctrl_qubit_2, true, 12);
-        out_targ = g.addOutput(targ_qubit, true, 12);
-        g.addEdge(in_ctrl_1, Vertices_list[12], EdgeType::SIMPLE);
-        g.addEdge(in_ctrl_2, Vertices_list[8], EdgeType::SIMPLE);
-        g.addEdge(in_targ, Vertices_list[0], EdgeType::SIMPLE);
-        g.addEdge(out_ctrl_1, Vertices_list[12], EdgeType::SIMPLE);
-        g.addEdge(out_ctrl_2, Vertices_list[11], EdgeType::HADAMARD);
-        g.addEdge(out_targ, Vertices_list[7], EdgeType::HADAMARD);
+        out_ctrl_1 = g.addOutput(ctrl_qubit_1, 12);
+        out_ctrl_2 = g.addOutput(ctrl_qubit_2, 12);
+        out_targ = g.addOutput(targ_qubit, 12);
+        g.addEdge(in_ctrl_1, vertices_list[12], EdgeType::SIMPLE);
+        g.addEdge(in_ctrl_2, vertices_list[8], EdgeType::SIMPLE);
+        g.addEdge(in_targ, vertices_list[0], EdgeType::SIMPLE);
+        g.addEdge(out_ctrl_1, vertices_list[12], EdgeType::SIMPLE);
+        g.addEdge(out_ctrl_2, vertices_list[11], EdgeType::HADAMARD);
+        g.addEdge(out_targ, vertices_list[7], EdgeType::HADAMARD);
     } else if (dmode == 3) {
-        Vertices_info = {{{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_1}, {{VertexType::Z, Phase(1, 4)}, -2}, {{VertexType::Z, Phase(0)}, -1}, {{VertexType::Z, Phase(-1, 4)}, -2}, {{VertexType::Z, Phase(0)}, -1}, {{VertexType::Z, Phase(-1, 4)}, -2}, {{VertexType::Z, Phase(0)}, -1}, {{VertexType::Z, Phase(-1, 4)}, -2}, {{VertexType::Z, Phase(0)}, -1}};
+        vertices_info = {{{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_1}, {{VertexType::Z, Phase(1, 4)}, -2}, {{VertexType::Z, Phase(0)}, -1}, {{VertexType::Z, Phase(-1, 4)}, -2}, {{VertexType::Z, Phase(0)}, -1}, {{VertexType::Z, Phase(-1, 4)}, -2}, {{VertexType::Z, Phase(0)}, -1}, {{VertexType::Z, Phase(-1, 4)}, -2}, {{VertexType::Z, Phase(0)}, -1}};
         adj_pair = {{{0, 4}, EdgeType::HADAMARD}, {{0, 6}, EdgeType::HADAMARD}, {{0, 8}, EdgeType::HADAMARD}, {{1, 4}, EdgeType::HADAMARD}, {{1, 6}, EdgeType::HADAMARD}, {{1, 10}, EdgeType::HADAMARD}, {{2, 4}, EdgeType::HADAMARD}, {{2, 8}, EdgeType::HADAMARD}, {{2, 10}, EdgeType::HADAMARD}, {{3, 4}, EdgeType::HADAMARD}, {{5, 6}, EdgeType::HADAMARD}, {{7, 8}, EdgeType::HADAMARD}, {{9, 10}, EdgeType::HADAMARD}};
-        Vertices_col = {5, 5, 5, 1, 1, 2, 2, 3, 3, 4, 4};
+        vertices_col = {5, 5, 5, 1, 1, 2, 2, 3, 3, 4, 4};
 
-        in_ctrl_1 = g.addInput(ctrl_qubit_1, true, 0);
-        in_ctrl_2 = g.addInput(ctrl_qubit_2, true, 0);
-        in_targ = g.addInput(targ_qubit, true, 0);
-        for (size_t i = 0; i < Vertices_info.size(); i++) {
-            Vertices_list.push_back(g.addVertex(Vertices_info[i].second, Vertices_info[i].first.first, Vertices_info[i].first.second));
+        in_ctrl_1 = g.addInput(ctrl_qubit_1, 0);
+        in_ctrl_2 = g.addInput(ctrl_qubit_2, 0);
+        in_targ = g.addInput(targ_qubit, 0);
+        for (size_t i = 0; i < vertices_info.size(); i++) {
+            vertices_list.push_back(g.addVertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
         };
-        for (size_t i = 0; i < Vertices_col.size(); i++) {
-            Vertices_list[i]->setCol(Vertices_col[i]);
+        for (size_t i = 0; i < vertices_col.size(); i++) {
+            vertices_list[i]->setCol(vertices_col[i]);
         }
-        out_ctrl_1 = g.addOutput(ctrl_qubit_1, true, 6);
-        out_ctrl_2 = g.addOutput(ctrl_qubit_2, true, 6);
-        out_targ = g.addOutput(targ_qubit, true, 6);
-        g.addEdge(in_ctrl_1, Vertices_list[2], EdgeType::SIMPLE);
-        g.addEdge(in_ctrl_2, Vertices_list[1], EdgeType::SIMPLE);
-        g.addEdge(in_targ, Vertices_list[0], EdgeType::HADAMARD);
-        g.addEdge(out_ctrl_1, Vertices_list[2], EdgeType::SIMPLE);
-        g.addEdge(out_ctrl_2, Vertices_list[1], EdgeType::SIMPLE);
-        g.addEdge(out_targ, Vertices_list[0], EdgeType::HADAMARD);
+        out_ctrl_1 = g.addOutput(ctrl_qubit_1, 6);
+        out_ctrl_2 = g.addOutput(ctrl_qubit_2, 6);
+        out_targ = g.addOutput(targ_qubit, 6);
+        g.addEdge(in_ctrl_1, vertices_list[2], EdgeType::SIMPLE);
+        g.addEdge(in_ctrl_2, vertices_list[1], EdgeType::SIMPLE);
+        g.addEdge(in_targ, vertices_list[0], EdgeType::HADAMARD);
+        g.addEdge(out_ctrl_1, vertices_list[2], EdgeType::SIMPLE);
+        g.addEdge(out_ctrl_2, vertices_list[1], EdgeType::SIMPLE);
+        g.addEdge(out_targ, vertices_list[0], EdgeType::HADAMARD);
     } else {
-        Vertices_info = {{{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_2}, {{VertexType::X, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(-1, 4)}, ctrl_qubit_2}, {{VertexType::X, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}};
+        vertices_info = {{{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::X, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_2}, {{VertexType::X, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(-1, 4)}, ctrl_qubit_2}, {{VertexType::X, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}};
         adj_pair = {{{0, 1}, EdgeType::SIMPLE}, {{1, 10}, EdgeType::SIMPLE}, {{1, 2}, EdgeType::SIMPLE}, {{2, 3}, EdgeType::SIMPLE}, {{3, 16}, EdgeType::SIMPLE}, {{3, 4}, EdgeType::SIMPLE}, {{4, 5}, EdgeType::SIMPLE}, {{5, 11}, EdgeType::SIMPLE}, {{5, 6}, EdgeType::SIMPLE}, {{6, 7}, EdgeType::SIMPLE}, {{7, 17}, EdgeType::SIMPLE}, {{7, 8}, EdgeType::SIMPLE}, {{8, 9}, EdgeType::HADAMARD}, {{10, 11}, EdgeType::SIMPLE}, {{11, 12}, EdgeType::SIMPLE}, {{12, 13}, EdgeType::SIMPLE}, {{13, 18}, EdgeType::SIMPLE}, {{13, 14}, EdgeType::SIMPLE}, {{14, 15}, EdgeType::SIMPLE}, {{15, 20}, EdgeType::SIMPLE}, {{16, 17}, EdgeType::SIMPLE}, {{17, 18}, EdgeType::SIMPLE}, {{18, 19}, EdgeType::SIMPLE}, {{19, 20}, EdgeType::SIMPLE}};
 
-        Vertices_col = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 6, 7, 9, 10, 11, 4, 8, 9, 10, 11};
+        vertices_col = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 6, 7, 9, 10, 11, 4, 8, 9, 10, 11};
 
-        in_ctrl_1 = g.addInput(ctrl_qubit_1, true, 0);
-        in_ctrl_2 = g.addInput(ctrl_qubit_2, true, 0);
-        in_targ = g.addInput(targ_qubit, true, 0);
-        for (size_t i = 0; i < Vertices_info.size(); i++) {
-            Vertices_list.push_back(g.addVertex(Vertices_info[i].second, Vertices_info[i].first.first, Vertices_info[i].first.second));
+        in_ctrl_1 = g.addInput(ctrl_qubit_1, 0);
+        in_ctrl_2 = g.addInput(ctrl_qubit_2, 0);
+        in_targ = g.addInput(targ_qubit, 0);
+        for (size_t i = 0; i < vertices_info.size(); i++) {
+            vertices_list.push_back(g.addVertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
         };
-        for (size_t i = 0; i < Vertices_col.size(); i++) {
-            Vertices_list[i]->setCol(Vertices_col[i]);
+        for (size_t i = 0; i < vertices_col.size(); i++) {
+            vertices_list[i]->setCol(vertices_col[i]);
         }
-        out_ctrl_1 = g.addOutput(ctrl_qubit_1, true, 12);
-        out_ctrl_2 = g.addOutput(ctrl_qubit_2, true, 12);
-        out_targ = g.addOutput(targ_qubit, true, 12);
-        g.addEdge(in_ctrl_1, Vertices_list[16], EdgeType::SIMPLE);
-        g.addEdge(in_ctrl_2, Vertices_list[10], EdgeType::SIMPLE);
-        g.addEdge(in_targ, Vertices_list[0], EdgeType::HADAMARD);
-        g.addEdge(out_ctrl_1, Vertices_list[20], EdgeType::SIMPLE);
-        g.addEdge(out_ctrl_2, Vertices_list[15], EdgeType::SIMPLE);
-        g.addEdge(out_targ, Vertices_list[9], EdgeType::SIMPLE);
+        out_ctrl_1 = g.addOutput(ctrl_qubit_1, 12);
+        out_ctrl_2 = g.addOutput(ctrl_qubit_2, 12);
+        out_targ = g.addOutput(targ_qubit, 12);
+        g.addEdge(in_ctrl_1, vertices_list[16], EdgeType::SIMPLE);
+        g.addEdge(in_ctrl_2, vertices_list[10], EdgeType::SIMPLE);
+        g.addEdge(in_targ, vertices_list[0], EdgeType::HADAMARD);
+        g.addEdge(out_ctrl_1, vertices_list[20], EdgeType::SIMPLE);
+        g.addEdge(out_ctrl_2, vertices_list[15], EdgeType::SIMPLE);
+        g.addEdge(out_targ, vertices_list[9], EdgeType::SIMPLE);
     }
 
     for (size_t i = 0; i < adj_pair.size(); i++) {
-        g.addEdge(Vertices_list[adj_pair[i].first.first], Vertices_list[adj_pair[i].first.second], adj_pair[i].second);
+        g.addEdge(vertices_list[adj_pair[i].first.first], vertices_list[adj_pair[i].first.second], adj_pair[i].second);
     }
     return g;
 }
@@ -320,10 +320,10 @@ ZXGraph CCXGate::getZXform() {
 // TODO - SWAP ZXForm
 ZXGraph SWAPGate::getZXform() {
     ZXGraph g;
-    auto i0 = g.addInput(0, true, 0);
-    auto o0 = g.addOutput(0, true, 1);
-    auto i1 = g.addInput(1, true, 0);
-    auto o1 = g.addOutput(1, true, 1);
+    auto i0 = g.addInput(0, 0);
+    auto o0 = g.addOutput(0, 1);
+    auto i1 = g.addInput(1, 0);
+    auto o1 = g.addOutput(1, 1);
     g.addEdge(i0, o1, EdgeType::SIMPLE);
     g.addEdge(i1, o0, EdgeType::SIMPLE);
 
@@ -336,23 +336,23 @@ ZXGraph SWAPGate::getZXform() {
  * @return ZXGraph
  */
 ZXGraph CZGate::getZXform() {
-    ZXGraph temp{_id};
+    ZXGraph g{_id};
     size_t ctrl_qubit = _qubits[0]._isTarget ? _qubits[1]._qubit : _qubits[0]._qubit;
     size_t targ_qubit = _qubits[0]._isTarget ? _qubits[0]._qubit : _qubits[1]._qubit;
 
-    ZXVertex* in_ctrl = temp.addInput(ctrl_qubit);
-    ZXVertex* in_targ = temp.addInput(targ_qubit);
-    ZXVertex* ctrl = temp.addVertex(ctrl_qubit, VertexType::Z, Phase(0));
-    ZXVertex* targZ = temp.addVertex(targ_qubit, VertexType::Z, Phase(0));
-    ZXVertex* out_ctrl = temp.addOutput(ctrl_qubit);
-    ZXVertex* out_targ = temp.addOutput(targ_qubit);
-    temp.addEdge(in_ctrl, ctrl, EdgeType::SIMPLE);
-    temp.addEdge(ctrl, out_ctrl, EdgeType::SIMPLE);
-    temp.addEdge(in_targ, targZ, EdgeType::SIMPLE);
-    temp.addEdge(targZ, out_targ, EdgeType::SIMPLE);
-    temp.addEdge(ctrl, targZ, EdgeType(EdgeType::HADAMARD));
+    ZXVertex* in_ctrl = g.addInput(ctrl_qubit);
+    ZXVertex* in_targ = g.addInput(targ_qubit);
+    ZXVertex* ctrl = g.addVertex(ctrl_qubit, VertexType::Z, Phase(0));
+    ZXVertex* targZ = g.addVertex(targ_qubit, VertexType::Z, Phase(0));
+    ZXVertex* out_ctrl = g.addOutput(ctrl_qubit);
+    ZXVertex* out_targ = g.addOutput(targ_qubit);
+    g.addEdge(in_ctrl, ctrl, EdgeType::SIMPLE);
+    g.addEdge(ctrl, out_ctrl, EdgeType::SIMPLE);
+    g.addEdge(in_targ, targZ, EdgeType::SIMPLE);
+    g.addEdge(targZ, out_targ, EdgeType::SIMPLE);
+    g.addEdge(ctrl, targZ, EdgeType::HADAMARD);
 
-    return temp;
+    return g;
 }
 
 // Y Gate
@@ -364,18 +364,18 @@ ZXGraph CZGate::getZXform() {
  * @return ZXGraph
  */
 ZXGraph YGate::getZXform() {
-    ZXGraph temp{_id};
+    ZXGraph g{_id};
     size_t qubit = _qubits[0]._qubit;
 
-    ZXVertex* in = temp.addInput(qubit);
-    ZXVertex* X = temp.addVertex(qubit, VertexType::X, Phase(1));
-    ZXVertex* Z = temp.addVertex(qubit, VertexType::Z, Phase(1));
-    ZXVertex* out = temp.addOutput(qubit);
-    temp.addEdge(in, X, EdgeType::SIMPLE);
-    temp.addEdge(X, Z, EdgeType::SIMPLE);
-    temp.addEdge(Z, out, EdgeType::SIMPLE);
+    ZXVertex* in = g.addInput(qubit);
+    ZXVertex* X = g.addVertex(qubit, VertexType::X, Phase(1));
+    ZXVertex* Z = g.addVertex(qubit, VertexType::Z, Phase(1));
+    ZXVertex* out = g.addOutput(qubit);
+    g.addEdge(in, X, EdgeType::SIMPLE);
+    g.addEdge(X, Z, EdgeType::SIMPLE);
+    g.addEdge(Z, out, EdgeType::SIMPLE);
 
-    return temp;
+    return g;
 }
 
 /**
@@ -384,20 +384,20 @@ ZXGraph YGate::getZXform() {
  * @return ZXGraph
  */
 ZXGraph SYGate::getZXform() {
-    ZXGraph temp{_id};
+    ZXGraph g{_id};
     size_t qubit = _qubits[0]._qubit;
 
-    ZXVertex* in = temp.addInput(qubit);
-    ZXVertex* S = temp.addVertex(qubit, VertexType::Z, Phase(1, 2));
-    ZXVertex* SX = temp.addVertex(qubit, VertexType::X, Phase(1, 2));
-    ZXVertex* Sdg = temp.addVertex(qubit, VertexType::Z, Phase(-1, 2));
-    ZXVertex* out = temp.addOutput(qubit);
-    temp.addEdge(in, S, EdgeType::SIMPLE);
-    temp.addEdge(S, SX, EdgeType::SIMPLE);
-    temp.addEdge(SX, Sdg, EdgeType::SIMPLE);
-    temp.addEdge(Sdg, out, EdgeType::SIMPLE);
+    ZXVertex* in = g.addInput(qubit);
+    ZXVertex* S = g.addVertex(qubit, VertexType::Z, Phase(1, 2));
+    ZXVertex* SX = g.addVertex(qubit, VertexType::X, Phase(1, 2));
+    ZXVertex* Sdg = g.addVertex(qubit, VertexType::Z, Phase(-1, 2));
+    ZXVertex* out = g.addOutput(qubit);
+    g.addEdge(in, S, EdgeType::SIMPLE);
+    g.addEdge(S, SX, EdgeType::SIMPLE);
+    g.addEdge(SX, Sdg, EdgeType::SIMPLE);
+    g.addEdge(Sdg, out, EdgeType::SIMPLE);
 
-    return temp;
+    return g;
 }
 
 /**

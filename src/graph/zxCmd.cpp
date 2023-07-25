@@ -432,8 +432,8 @@ ZXGPrintCmd::exec(std::stop_token, const string &option) {
     else if (myStrNCmp("-Summary", options[0], 2) == 0) {
         zxGraphMgr.get()->printGraph();
         cout << setw(30) << left << "#T-gate: " << zxGraphMgr.get()->TCount() << "\n";
-        cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr.get()->nonCliffordCount(false) << "\n";
-        cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr.get()->nonCliffordCount(true) << "\n";
+        cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr.get()->nonCliffordCount() << "\n";
+        cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr.get()->nonCliffordPlusTCount() << "\n";
     } else if (myStrNCmp("-Inputs", options[0], 2) == 0)
         zxGraphMgr.get()->printInputs();
     else if (myStrNCmp("-Outputs", options[0], 2) == 0)
@@ -479,8 +479,8 @@ ZXGPrintCmd::exec(std::stop_token, const string &option) {
         }
     } else if (myStrNCmp("-Analysis", options[0], 2) == 0) {
         cout << setw(30) << left << "#T-gate: " << zxGraphMgr.get()->TCount() << "\n";
-        cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr.get()->nonCliffordCount(false) << "\n";
-        cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr.get()->nonCliffordCount(true) << "\n";
+        cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr.get()->nonCliffordCount() << "\n";
+        cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr.get()->nonCliffordPlusTCount() << "\n";
         return CMD_EXEC_DONE;
     }
 
@@ -594,7 +594,10 @@ ZXGEditCmd::exec(std::stop_token, const string &option) {
 
         int qid;
         ZX_CMD_QUBIT_ID_VALID_OR_RETURN(options[1], qid);
-
+        if (zxGraphMgr.get()->isInputQubit(qid)) {
+            cerr << "Error: This qubit's input already exists!!" << endl;
+            return CMD_EXEC_ERROR;
+        }
         zxGraphMgr.get()->addInput(qid);
         return CMD_EXEC_DONE;
     }
@@ -604,7 +607,10 @@ ZXGEditCmd::exec(std::stop_token, const string &option) {
 
         int qid;
         ZX_CMD_QUBIT_ID_VALID_OR_RETURN(options[1], qid);
-
+        if (zxGraphMgr.get()->isOutputQubit(qid)) {
+            cerr << "Error: This qubit's output already exists!!" << endl;
+            return CMD_EXEC_ERROR;
+        }
         zxGraphMgr.get()->addOutput(qid);
         return CMD_EXEC_DONE;
     }

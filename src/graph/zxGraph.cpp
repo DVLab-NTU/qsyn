@@ -47,7 +47,7 @@ size_t ZXGraph::getNumEdges() const {
  * @return false
  */
 bool ZXGraph::isEmpty() const {
-    return (_inputs.empty() && _outputs.empty() && _vertices.empty());
+    return _vertices.empty();
 }
 
 /**
@@ -78,12 +78,12 @@ bool ZXGraph::isValid() const {
 void ZXGraph::generateCNOT() {
     if (isEmpty()) {
         if (verbose >= 5) cout << "Generate a 2-qubit CNOT graph for testing\n";
-        ZXVertex* i0 = addInput(0, 0, 0);
-        ZXVertex* i1 = addInput(1, 0, 0);
-        ZXVertex* vz = addVertex(0, VertexType::Z, Phase(), 0, 1);
-        ZXVertex* vx = addVertex(1, VertexType::X, Phase(), 0, 1);
-        ZXVertex* o0 = addOutput(0, 0, 2);
-        ZXVertex* o1 = addOutput(1, 0, 2);
+        ZXVertex* i0 = addInput(0, 0);
+        ZXVertex* i1 = addInput(1, 0);
+        ZXVertex* vz = addVertex(0, VertexType::Z, Phase(), 1);
+        ZXVertex* vx = addVertex(1, VertexType::X, Phase(), 1);
+        ZXVertex* o0 = addOutput(0, 2);
+        ZXVertex* o1 = addOutput(1, 2);
 
         addEdge(i0, vz, EdgeType::SIMPLE);
         addEdge(i1, vx, EdgeType::SIMPLE);
@@ -174,7 +174,7 @@ bool ZXGraph::isIdentity() const {
 }
 
 size_t ZXGraph::numGadgets() const {
-    return count_if(getVertices().begin(), getVertices().end(), [](ZXVertex* v) {
+    return ranges::count_if(_vertices, [](ZXVertex* v) {
         return !v->isBoundary() && v->getNumNeighbors() == 1;
     });
 }
@@ -193,101 +193,50 @@ double ZXGraph::density() {
     return ans;
 }
 
-/**
- * @brief Return the number of T-gate in the ZX-graph
- *
- * @return int
- */
-int ZXGraph::TCount() const {
-    return count_if(_vertices.begin(), _vertices.end(), [](ZXVertex* v) {
-        return (v->getPhase().denominator() == 4);
-    });
-}
-
-/**
- * @brief Return the number of non-clifford(and T) gate
- *
- * @param includeT if true, T gate will be counted
- * @return int
- */
-int ZXGraph::nonCliffordCount(bool includeT) const {
-    int num = 0;
-    if (includeT) {
-        for (const auto& v : _vertices) {
-            if (v->getPhase().denominator() != 1 &&
-                v->getPhase().denominator() != 2) num++;
-        }
-    } else {
-        for (const auto& v : _vertices) {
-            if (v->getPhase().denominator() != 1 &&
-                v->getPhase().denominator() != 2 &&
-                v->getPhase().denominator() != 4) num++;
-        }
-    }
-    return num;
-}
-
 /*****************************************************/
 /*   class ZXGraph Add functions                     */
 /*****************************************************/
 
 /**
- * @brief Add input to ZXVertexList
+ * @brief Add input to the ZXGraph
  *
  * @param qubit
- * @param checked
  * @param col
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::addInput(int qubit, bool checked, unsigned int col) {
-    if (!checked) {
-        if (isInputQubit(qubit)) {
-            cerr << "Error: This qubit's input already exists!!" << endl;
-            return nullptr;
-        }
-    }
-    ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), true, col);
+ZXVertex* ZXGraph::addInput(int qubit, unsigned int col) {
+    assert(!isInputQubit(qubit));
+
+    ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), col);
     _inputs.emplace(v);
     _inputList.emplace(qubit, v);
     return v;
 }
 
 /**
- * @brief Add output to ZXVertexList
+ * @brief Add output to the ZXGraph
  *
  * @param qubit
- * @param checked
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::addOutput(int qubit, bool checked, unsigned int col) {
-    if (!checked) {
-        if (isOutputQubit(qubit)) {
-            cerr << "Error: This qubit's output already exists!!" << endl;
-            return nullptr;
-        }
-    }
-    ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), true, col);
+ZXVertex* ZXGraph::addOutput(int qubit, unsigned int col) {
+    assert(!isOutputQubit(qubit));
+
+    ZXVertex* v = addVertex(qubit, VertexType::BOUNDARY, Phase(), col);
     _outputs.emplace(v);
     _outputList.emplace(qubit, v);
     return v;
 }
 
 /**
- * @brief Add vertex to ZXVertexList
+ * @brief Add a vertex to the ZXGraph.
  *
- * @param qubit
- * @param vt
- * @param phase
- * @param checked
+ * @param qubit the qubit to the ZXVertex. In case of adding a boundary vertex, it is the user's responsibility to maintain non-overlapping input and output qubit IDs.
+ * @param vt vertex type. In case of adding boundary vertex, it is the user's responsibility to maintain non-overlapping input and output qubit IDs.
+ * @param phase the phase
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, bool checked, unsigned int col) {
-    if (!checked) {
-        if (vt == VertexType::BOUNDARY) {
-            cerr << "Error: Use ADDInput / ADDOutput to add input vertex or output vertex!!" << endl;
-            return nullptr;
-        }
-    }
+ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, unsigned int col) {
     ZXVertex* v = new ZXVertex(_nextVId, qubit, vt, phase, col);
     _vertices.emplace(v);
     if (verbose >= 8) cout << "Add vertex (" << VertexType2Str(vt) << ") " << _nextVId << endl;
@@ -296,7 +245,7 @@ ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, bool checked
 }
 
 /**
- * @brief Add edge (<<vs, vt>, et>)
+ * @brief Add edge between `vs` and `vt` with edge `etype`
  *
  * @param vs
  * @param vt
@@ -304,6 +253,7 @@ ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, bool checked
  * @return EdgePair
  */
 EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
+    assert(et != EdgeType::ERRORTYPE);
     if (vs == vt) {
         Phase phase = (et == EdgeType::HADAMARD) ? Phase(1) : Phase(0);
         if (verbose >= 8) cout << "Note: converting this self-loop to phase " << phase << " on vertex " << vs->getId() << "..." << endl;
@@ -326,13 +276,13 @@ EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
             (vs->isZ() && vt->isZ() && et == EdgeType::HADAMARD) ||
             (vs->isX() && vt->isX() && et == EdgeType::HADAMARD)) {
             if (verbose >= 8) cout << "Note: Hopf edge; cancelling out with existing edge (" << vs->getId() << ", " << vt->getId() << ")..." << endl;
-            vs->removeNeighbor(make_pair(vt, et));
-            vt->removeNeighbor(make_pair(vs, et));
+            vs->removeNeighbor(vt, et);
+            vt->removeNeighbor(vs, et);
         }
         // REVIEW - similar conditions for H-Boxes and boundaries?
     } else {
-        vs->addNeighbor(make_pair(vt, et));
-        vt->addNeighbor(make_pair(vs, et));
+        vs->addNeighbor(vt, et);
+        vt->addNeighbor(vs, et);
         if (verbose >= 8) cout << "Add edge (" << vs->getId() << ", " << vt->getId() << ")" << endl;
     }
 
@@ -362,7 +312,7 @@ void ZXGraph::moveVerticesFrom(ZXGraph& other) {
 /*****************************************************/
 
 /**
- * @brief Remove all vertices with no neighbor.
+ * @brief Remove all vertices in the graph with no neighbor.
  *
  */
 size_t ZXGraph::removeIsolatedVertices() {
@@ -374,7 +324,7 @@ size_t ZXGraph::removeIsolatedVertices() {
 }
 
 /**
- * @brief Remove `v` in ZXGraph and maintain the relationship between each vertex.
+ * @brief Remove `v` in ZXGraph and itd incident edges
  *
  * @param v
  */
@@ -407,7 +357,7 @@ size_t ZXGraph::removeVertex(ZXVertex* v) {
 }
 
 /**
- * @brief Remove all vertex in vertices by calling `removeVertex(ZXVertex* v, bool checked)`
+ * @brief Remove all vertex in vertices by calling `removeVertex(ZXVertex* v)`
  *
  * @param vertices
  */
@@ -463,9 +413,8 @@ size_t ZXGraph::removeEdges(vector<EdgePair> const& eps) {
  *
  * @param vs
  * @param vt
- * @param checked
  */
-size_t ZXGraph::removeAllEdgesBetween(ZXVertex* vs, ZXVertex* vt, bool checked) {
+size_t ZXGraph::removeAllEdgesBetween(ZXVertex* vs, ZXVertex* vt) {
     return removeEdge(vs, vt, EdgeType::SIMPLE) + removeEdge(vs, vt, EdgeType::HADAMARD);
 }
 
@@ -517,8 +466,8 @@ void ZXGraph::assignBoundary(int qubit, bool isInput, VertexType vt, Phase phase
  */
 void ZXGraph::transferPhase(ZXVertex* v, const Phase& keepPhase) {
     if (!v->isZ()) return;
-    ZXVertex* leaf = this->addVertex(-2, VertexType::Z, v->getPhase() - keepPhase, true);
-    ZXVertex* buffer = this->addVertex(-1, VertexType::Z, Phase(0), true);
+    ZXVertex* leaf = this->addVertex(-2, VertexType::Z, v->getPhase() - keepPhase);
+    ZXVertex* buffer = this->addVertex(-1, VertexType::Z, Phase(0));
     // REVIEW - No floating, directly take v
     leaf->setCol(v->getCol());
     buffer->setCol(v->getCol());
@@ -541,7 +490,7 @@ void ZXGraph::transferPhase(ZXVertex* v, const Phase& keepPhase) {
 ZXVertex* ZXGraph::addBuffer(ZXVertex* toProtect, ZXVertex* fromVertex, EdgeType etype) {
     if (!toProtect->isNeighbor(fromVertex, etype)) return nullptr;
 
-    ZXVertex* bufferVertex = this->addVertex(toProtect->getQubit(), VertexType::Z, Phase(0), true);
+    ZXVertex* bufferVertex = this->addVertex(toProtect->getQubit(), VertexType::Z, Phase(0));
 
     this->addEdge(toProtect, bufferVertex, toggleEdge(etype));
     this->addEdge(bufferVertex, fromVertex, EdgeType::HADAMARD);

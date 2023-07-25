@@ -96,6 +96,7 @@ public:
     bool isNeighbor(const NeighborPair& n) const { return _neighbors.contains(n); }
     bool isNeighbor(ZXVertex* v, EdgeType et) const { return isNeighbor(std::make_pair(v, et)); }
     bool hasNPiPhase() const { return _phase.denominator() == 1; }
+    bool isClifford() const { return _phase.denominator() <= 2; }
 
     // DFS
     bool isVisited(unsigned global) { return global == _DFSCounter; }
@@ -128,11 +129,11 @@ public:
         for (auto& v : other._vertices) {
             if (v->isBoundary()) {
                 if (other._inputs.contains(v))
-                    oldV2newVMap[v] = this->addInput(v->getQubit(), true, v->getCol());
+                    oldV2newVMap[v] = this->addInput(v->getQubit(), v->getCol());
                 else
-                    oldV2newVMap[v] = this->addOutput(v->getQubit(), true, v->getCol());
+                    oldV2newVMap[v] = this->addOutput(v->getQubit(), v->getCol());
             } else if (v->isZ() || v->isX() || v->isHBox()) {
-                oldV2newVMap[v] = this->addVertex(v->getQubit(), v->getType(), v->getPhase(), true, v->getCol());
+                oldV2newVMap[v] = this->addVertex(v->getQubit(), v->getType(), v->getPhase(), v->getCol());
             }
         }
 
@@ -215,13 +216,18 @@ public:
     bool hasDanglingNeighbors(ZXVertex*) const;
 
     double density();
-    int TCount() const;
-    int nonCliffordCount(bool includeT = false) const;
+    inline size_t TCount() const {
+        return std::ranges::count_if(_vertices, [](ZXVertex* v) { return (v->getPhase().denominator() == 4); });
+    }
+    inline size_t nonCliffordCount() const {
+        return std::ranges::count_if(_vertices, [](ZXVertex* v) { return !v->isClifford(); });
+    }
+    inline size_t nonCliffordPlusTCount() const { return nonCliffordCount() - TCount(); }
 
     // Add and Remove
-    ZXVertex* addInput(int qubit, bool checked = false, unsigned int col = 0);
-    ZXVertex* addOutput(int qubit, bool checked = false, unsigned int col = 0);
-    ZXVertex* addVertex(int qubit, VertexType ZXVertex, Phase phase = Phase(), bool checked = false, unsigned int col = 0);
+    ZXVertex* addInput(int qubit, unsigned int col = 0);
+    ZXVertex* addOutput(int qubit, unsigned int col = 0);
+    ZXVertex* addVertex(int qubit, VertexType vt, Phase phase = Phase(), unsigned int col = 0);
     EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
 
     size_t removeIsolatedVertices();
@@ -231,7 +237,7 @@ public:
     size_t removeEdge(const EdgePair& ep);
     size_t removeEdge(ZXVertex* vs, ZXVertex* vt, EdgeType etype);
     size_t removeEdges(std::vector<EdgePair> const& eps);
-    size_t removeAllEdgesBetween(ZXVertex* vs, ZXVertex* vt, bool checked = false);
+    size_t removeAllEdgesBetween(ZXVertex* vs, ZXVertex* vt);
 
     // Operation on graph
     void adjoint();
@@ -278,8 +284,8 @@ public:
     ZXVertex* getInputByQubit(const size_t& q);
     ZXVertex* getOutputByQubit(const size_t& q);
     void concatenate(ZXGraph const& tmp);
-    const std::unordered_map<size_t, ZXVertex*>& getInputList() const { return _inputList; }
-    const std::unordered_map<size_t, ZXVertex*>& getOutputList() const { return _outputList; }
+    std::unordered_map<size_t, ZXVertex*> const& getInputList() const { return _inputList; }
+    std::unordered_map<size_t, ZXVertex*> const& getOutputList() const { return _outputList; }
 
     // I/O (in zxIO.cpp)
     bool readZX(const std::string& filename, bool keepID = false);

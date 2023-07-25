@@ -12,3 +12,5 @@ vendor/engine/*
 !lib/libcmd-*
 qsyn*
 build/
+.cache/
+compile_commands.json
