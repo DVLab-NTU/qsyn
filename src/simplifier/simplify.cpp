@@ -524,19 +524,22 @@ void Simplifier::partitionReduce(size_t sliceRounds, size_t iterations = 1) {
 
         ZXVertexList subgraphInputs;
         ZXVertexList subgraphOutputs;
+        ZXVertexList boundaryVertices;
         for (auto& vertex : graph->getVertices()) {
             if (primaryInputs.contains(vertex)) subgraphInputs.insert(vertex);
             if (primaryOutputs.contains(vertex)) subgraphOutputs.insert(vertex);
             for (auto& [neighbor, edgeType] : vertex->getNeighbors()) {
                 if (!partition.contains(neighbor)) {
                     cutEdges.insert({{vertex, neighbor}, edgeType});
-                    graph->removeEdge(vertex, neighbor, edgeType);
+                    boundaryVertices.insert(neighbor);
                     // NOTE: label all boundary verices as outputs if it is not an input,
                     // the code should only cares if a vertex is a boundary vertex
-                    if (!subgraphInputs.contains(vertex)) subgraphOutputs.insert(vertex);
+                    if (!subgraphInputs.contains(neighbor)) subgraphOutputs.insert(neighbor);
                 }
             }
         }
+
+        graph->addVertices(boundaryVertices);
         graph->setInputs(subgraphInputs);
         graph->setOutputs(subgraphOutputs);
 
