@@ -311,6 +311,10 @@ public:
         }
     }
 
+    // divide into subgraphs and merge (in zxPartition.cpp)
+    std::pair<std::vector<ZXGraph>, std::vector<ZXCut>> createSubgraphs(ZXPartitionStrategy strategy, size_t numPartitions);
+    static ZXGraph fromSubgraphs(const std::vector<ZXGraph>& subgraphs, const std::vector<ZXCut>& cuts);
+
 private:
     size_t _id;
     size_t _nextVId;
@@ -331,7 +335,5 @@ private:
 
     void moveVerticesFrom(ZXGraph& g);
 };
-
-std::vector<ZXVertexList> klPartition(ZXGraph* graph, size_t rounds);
 
 #endif  // ZX_GRAPH_H

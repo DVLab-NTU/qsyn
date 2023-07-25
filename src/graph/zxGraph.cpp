@@ -16,7 +16,6 @@
 
 using namespace std;
 
-namespace TF = TextFormat;
 extern size_t verbose;
 
 /*****************************************************/

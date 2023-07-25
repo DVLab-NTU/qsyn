@@ -93,13 +93,13 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             .help("perform symbolic reduce");
         mutex.addArgument<bool>("-preduce")
             .action(storeTrue)
-            .help("perform partial reduce");
+            .help("perform partition reduce");
 
-        parser.addArgument<size_t>("d")
+        parser.addArgument<size_t>("p")
             .required(false)
             .defaultValue(1)
             .constraint(validPreduceSliceRounds)
-            .help("the sliceRounds parameter for preduce");
+            .help("the amount of partitions generated for preduce");
         parser.addArgument<size_t>("n")
             .required(false)
             .defaultValue(1)
@@ -169,9 +169,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         else if (parser["-dreduce"].isParsed())
             s.hybridReduce();
         else if (parser["-preduce"].isParsed()) {
-            Argument sliceTime = parser["d"].isParsed() ? parser["d"] : Argument(1);
-            Argument rounds = parser["r"].isParsed() ? parser["r"] : Argument(1);
-            s.partitionReduce(parser["d"], parser["r"]);
+            s.partitionReduce(parser["p"], parser["n"]);
         } else if (parser["-interclifford"].isParsed())
             s.interiorCliffordSimp();
         else if (parser["-clifford"].isParsed())

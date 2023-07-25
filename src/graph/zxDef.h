@@ -44,6 +44,10 @@ using EdgePair = std::pair<std::pair<ZXVertex*, ZXVertex*>, EdgeType>;
 using NeighborPair = std::pair<ZXVertex*, EdgeType>;
 using Neighbors = ordered_hashset<NeighborPair>;
 
+// two boundary vertices from different ZXGraph and the edge type between them
+using ZXCut = std::tuple<ZXVertex*, ZXVertex*, EdgeType>;
+using ZXPartitionStrategy = std::function<std::vector<ZXVertexList>(const ZXGraph&, size_t)>;
+
 namespace ZXParserDetail {
 
 struct VertexInfo {
