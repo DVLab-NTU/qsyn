@@ -44,7 +44,7 @@ void HboxFusion::match(ZXGraph* g, int upper_bound) {
         if ((taken[n0] && neighbor_left->getType() == VertexType::H_BOX) || (taken[n1] && neighbor_right->getType() == VertexType::H_BOX)) return;
 
         if (neighbor_left->getType() == VertexType::H_BOX) {
-            _matchTypeVec.push_back(neighbor_left);
+            _matchTypeVec.emplace_back(neighbor_left);
             taken[n0] = true;
             taken[n1] = true;
 
@@ -58,7 +58,7 @@ void HboxFusion::match(ZXGraph* g, int upper_bound) {
             else
                 taken[n3] = true;
         } else if (neighbor_right->getType() == VertexType::H_BOX) {
-            _matchTypeVec.push_back(neighbor_right);
+            _matchTypeVec.emplace_back(neighbor_right);
             taken[n0] = true;
             taken[n1] = true;
 
@@ -85,8 +85,8 @@ void HboxFusion::match(ZXGraph* g, int upper_bound) {
 
         if (!taken[n0] && !taken[n1]) {
             if (neighbor_left->getType() == VertexType::H_BOX && neighbor_right->getType() == VertexType::H_BOX) {
-                _matchTypeVec.push_back(neighbor_left);
-                _matchTypeVec.push_back(neighbor_right);
+                _matchTypeVec.emplace_back(neighbor_left);
+                _matchTypeVec.emplace_back(neighbor_right);
                 taken[n0] = true;
                 taken[n1] = true;
             }
@@ -110,15 +110,15 @@ void HboxFusion::rewrite(ZXGraph* g) {
         vector<EdgeType> ets;
 
         for (auto& itr : _matchTypeVec[i]->getNeighbors()) {
-            ns.push_back(itr.first);
-            ets.push_back(itr.second);
+            ns.emplace_back(itr.first);
+            ets.emplace_back(itr.second);
         }
 
-        _edgeTableKeys.push_back(make_pair(ns[0], ns[1]));
+        _edgeTableKeys.emplace_back(make_pair(ns[0], ns[1]));
         if (ets[0] == ets[1])
-            _edgeTableValues.push_back(make_pair(0, 1));
+            _edgeTableValues.emplace_back(make_pair(0, 1));
         else
-            _edgeTableValues.push_back(make_pair(1, 0));
+            _edgeTableValues.emplace_back(make_pair(1, 0));
         // TODO - Correct for the sqrt(2) difference in H-boxes and H-edges
     }
 }

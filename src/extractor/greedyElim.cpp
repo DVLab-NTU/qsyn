@@ -39,7 +39,7 @@ vector<size_t> Extractor::findMinimalSums(M2& matrix, bool reversedSearch) {
             for (size_t k = maxIndex + 1; k < matrix.numRows(); k++) {
                 Row newRow = row + matrix[k];
                 vector<size_t> result = indices;
-                result.push_back(k);
+                result.emplace_back(k);
                 if (newRow.isOneHot())
                     return result;
 
@@ -90,7 +90,7 @@ vector<M2::Oper> Extractor::greedyReduction(M2& m) {
                 }
             }
         }
-        result.push_back(bestOperation);
+        result.emplace_back(bestOperation);
         matrix[bestOperation.second] = matrix[bestOperation.first] + matrix[bestOperation.second];
 
         indices.erase(remove(indices.begin(), indices.end(), bestOperation.first), indices.end());

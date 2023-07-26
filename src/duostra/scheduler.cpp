@@ -25,15 +25,15 @@ using namespace std;
 unique_ptr<BaseScheduler> getScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) {
     // 0:base 1:static 2:random 3:greedy 4:search
     if (DUOSTRA_SCHEDULER == 2) {
-        return make_unique<RandomScheduler>(move(topo), tqdm);
+        return make_unique<RandomScheduler>(std::move(topo), tqdm);
     } else if (DUOSTRA_SCHEDULER == 1) {
-        return make_unique<StaticScheduler>(move(topo), tqdm);
+        return make_unique<StaticScheduler>(std::move(topo), tqdm);
     } else if (DUOSTRA_SCHEDULER == 3) {
-        return make_unique<GreedyScheduler>(move(topo), tqdm);
+        return make_unique<GreedyScheduler>(std::move(topo), tqdm);
     } else if (DUOSTRA_SCHEDULER == 4) {
-        return make_unique<SearchScheduler>(move(topo), tqdm);
+        return make_unique<SearchScheduler>(std::move(topo), tqdm);
     } else if (DUOSTRA_SCHEDULER == 0) {
-        return make_unique<BaseScheduler>(move(topo), tqdm);
+        return make_unique<BaseScheduler>(std::move(topo), tqdm);
     } else {
         cerr << "Error: scheduler type not found" << endl;
         abort();
@@ -48,7 +48,7 @@ unique_ptr<BaseScheduler> getScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) 
  * @param topo
  * @param tqdm
  */
-BaseScheduler::BaseScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : _circuitTopology(move(topo)), _operations({}), _assignOrder({}), _tqdm(tqdm) {}
+BaseScheduler::BaseScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : _circuitTopology(std::move(topo)), _operations({}), _assignOrder({}), _tqdm(tqdm) {}
 
 /**
  * @brief Construct a new Base Scheduler:: Base Scheduler object
@@ -56,13 +56,6 @@ BaseScheduler::BaseScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : _circuit
  * @param other
  */
 BaseScheduler::BaseScheduler(const BaseScheduler& other) : _circuitTopology(other._circuitTopology->clone()), _operations(other._operations), _assignOrder(other._assignOrder), _tqdm(other._tqdm) {}
-
-/**
- * @brief Construct a new Base Scheduler:: Base Scheduler object
- *
- * @param other
- */
-BaseScheduler::BaseScheduler(BaseScheduler&& other) : _circuitTopology(move(other._circuitTopology)), _operations(move(other._operations)), _assignOrder(move(other._assignOrder)), _tqdm(other._tqdm) {}
 
 /**
  * @brief Clone scheduler
@@ -158,7 +151,7 @@ size_t BaseScheduler::operationsCost() const {
  * @return Device
  */
 Device BaseScheduler::assignGatesAndSort(unique_ptr<Router> router) {
-    Device d = assignGates(move(router));
+    Device d = assignGates(std::move(router));
     sort();
     return d;
 }
@@ -206,7 +199,7 @@ size_t BaseScheduler::routeOneGate(Router& router, size_t gateIdx, bool forget) 
  * @param topo
  * @param tqdm
  */
-RandomScheduler::RandomScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : BaseScheduler(move(topo), tqdm) {}
+RandomScheduler::RandomScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : BaseScheduler(std::move(topo), tqdm) {}
 
 /**
  * @brief Construct a new Random Scheduler:: Random Scheduler object
@@ -220,7 +213,7 @@ RandomScheduler::RandomScheduler(const RandomScheduler& other) : BaseScheduler(o
  *
  * @param other
  */
-RandomScheduler::RandomScheduler(RandomScheduler&& other) : BaseScheduler(move(other)) {}
+RandomScheduler::RandomScheduler(RandomScheduler&& other) : BaseScheduler(std::move(other)) {}
 
 /**
  * @brief Clone scheduler
@@ -265,7 +258,7 @@ Device RandomScheduler::assignGates(unique_ptr<Router> router) {
  * @param topo
  * @param tqdm
  */
-StaticScheduler::StaticScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : BaseScheduler(move(topo), tqdm) {}
+StaticScheduler::StaticScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : BaseScheduler(std::move(topo), tqdm) {}
 
 /**
  * @brief Construct a new Static Scheduler:: Static Scheduler object
@@ -279,7 +272,7 @@ StaticScheduler::StaticScheduler(const StaticScheduler& other) : BaseScheduler(o
  *
  * @param other
  */
-StaticScheduler::StaticScheduler(StaticScheduler&& other) : BaseScheduler(move(other)) {}
+StaticScheduler::StaticScheduler(StaticScheduler&& other) : BaseScheduler(std::move(other)) {}
 
 /**
  * @brief Clone scheduler

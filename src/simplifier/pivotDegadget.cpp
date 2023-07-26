@@ -110,7 +110,7 @@
 //         for (auto v : {vs, vt}) {
 //             for (auto& [nb, _] : v->getNeighbors()) {
 //                 taken.insert(nb);
-//                 if (nb->isBoundary() && nb != vu) _boundaries.push_back(nb);
+//                 if (nb->isBoundary() && nb != vu) _boundaries.emplace_back(nb);
 //             }
 //         }
 
@@ -118,8 +118,8 @@
 //              << vt->getId() << ", "
 //              << vu->getId() << "}\n";
 
-//         _matchTypeVec.push_back({vs, vt});
-//         _unfuseCandidates.push_back({vt, vu});
+//         _matchTypeVec.push_back({vs, vt}) // NOTE: cannot emplace_back -- std::array does not have a constructor!;
+//         _unfuseCandidates.emplace_back(vt, vu);
 //         break;
 //     }
 //     cout << "Finished Matching!" << endl;

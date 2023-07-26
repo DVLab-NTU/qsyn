@@ -26,7 +26,7 @@ using namespace std;
 extern size_t verbose;
 extern size_t dmode;
 extern QCirMgr* qcirMgr;
-extern ZXGraphMgr* zxGraphMgr;
+extern ZXGraphMgr zxGraphMgr;
 
 void ZXOPTimizer::init() {
     vector<string> vec{"Identity Removal Rule", "Local Complementation Rule", "Phase Gadget Rule", "Pivot Rule", "Pivot Gadget Rule", "Pivot Boundary Rule", "Spider Fusion Rule", "Interior Clifford Simp", "Clifford Simp", "State Copy Rule", "Bialgebra Rule", "Hadamard Cancellation Rule"};
@@ -71,7 +71,7 @@ void ZXOPTimizer::myOptimize() {
     //     init();
     //     dmode = i;
     //     qcirMgr->getQCircuit()->ZXMapping();
-    //     _candGraphs.push_back(zxGraphMgr->getGraph());
+    //     _candGraphs.emplace_back(zxGraphMgr->getGraph());
     //     ZXGraph* g = _candGraphs.back();
     //     g->printGraph();
     //     Simplifier s(g);

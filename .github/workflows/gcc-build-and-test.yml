@@ -1,4 +1,4 @@
-name: Makefile CI
+name: Cmake Build and Test (gcc)
 
 on:
   push:
@@ -8,7 +8,6 @@ on:
 
 jobs:
   build-and-test:
-
     runs-on: ubuntu-22.04
 
     steps:

@@ -37,7 +37,7 @@ M2GaussEliCmd::exec(std::stop_token, const string &option) {
     vector<ZXVertex *> front;
     ZXVertexList frontier;
     for (auto [q, v] : outputList) {
-        front.push_back(v->getFirstNeighbor().first);
+        front.emplace_back(v->getFirstNeighbor().first);
     }
     sort(front.begin(), front.end(), [](const ZXVertex *a, const ZXVertex *b) {
         return a->getQubit() < b->getQubit();

@@ -98,7 +98,7 @@ void QCirGate::setParent(size_t qubit, QCirGate *p) {
  */
 void QCirGate::addDummyChild(QCirGate *c) {
     BitInfo temp = {._qubit = 0, ._parent = NULL, ._child = c, ._isTarget = false};
-    _qubits.push_back(temp);
+    _qubits.emplace_back(temp);
 }
 
 /**
@@ -183,9 +183,9 @@ void QCirGate::printMultipleQubitsGate(string gtype, bool showRotate, bool showT
     vector<string> parents;
     for (size_t i = 0; i < _qubits.size(); i++) {
         if (getQubits()[i]._parent == NULL)
-            parents.push_back("Start");
+            parents.emplace_back("Start");
         else
-            parents.push_back("G" + to_string(getQubits()[i]._parent->getId()));
+            parents.emplace_back("G" + to_string(getQubits()[i]._parent->getId()));
     }
     string max_parent = *max_element(parents.begin(), parents.end(), [](string const a, string const b) {
         return a.size() < b.size();

@@ -81,7 +81,7 @@ bool ZXFileParser::parseInternal(ifstream& f) {
             pair<char, size_t> neighbor;
             for (size_t i = 3; i < tokens.size(); ++i) {
                 if (!parseNeighbor(tokens[i], neighbor)) return false;
-                info.neighbors.push_back(neighbor);
+                info.neighbors.emplace_back(neighbor);
             }
         }
 
@@ -104,7 +104,7 @@ bool ZXFileParser::tokenize(const string& line, vector<string>& tokens) {
 
     // parse first token
     size_t pos = myStrGetTok(line, token);
-    tokens.push_back(token);
+    tokens.emplace_back(token);
 
     // parsing parenthesis
     size_t leftParenPos = line.find_first_of("(", pos);
@@ -129,7 +129,7 @@ bool ZXFileParser::tokenize(const string& line, vector<string>& tokens) {
                 cerr << "missing argument before comma!!" << endl;
                 return false;
             }
-            tokens.push_back(token);
+            tokens.emplace_back(token);
 
             pos = myStrGetTok(line, token, pos + 1, ')');
 
@@ -139,7 +139,7 @@ bool ZXFileParser::tokenize(const string& line, vector<string>& tokens) {
                 cerr << "missing argument before right parenthesis!!" << endl;
                 return false;
             }
-            tokens.push_back(token);
+            tokens.emplace_back(token);
 
             pos = rightParenPos + 1;
         } else {
@@ -154,8 +154,8 @@ bool ZXFileParser::tokenize(const string& line, vector<string>& tokens) {
             return false;
         } else {
             // coordinate info is left out
-            tokens.push_back("-");
-            tokens.push_back("-");
+            tokens.emplace_back("-");
+            tokens.emplace_back("-");
         }
     }
 
@@ -163,7 +163,7 @@ bool ZXFileParser::tokenize(const string& line, vector<string>& tokens) {
     pos = myStrGetTok(line, token, pos);
 
     while (token.size()) {
-        tokens.push_back(token);
+        tokens.emplace_back(token);
         pos = myStrGetTok(line, token, pos);
     }
 

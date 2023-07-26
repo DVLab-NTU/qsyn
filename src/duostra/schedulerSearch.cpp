@@ -36,8 +36,8 @@ TreeNode::TreeNode(TreeNodeConf conf,
                    size_t maxCost)
     : TreeNode(conf,
                vector<size_t>{gateId},
-               move(router),
-               move(scheduler),
+               std::move(router),
+               std::move(scheduler),
                maxCost) {}
 
 /**
@@ -55,11 +55,11 @@ TreeNode::TreeNode(TreeNodeConf conf,
                    unique_ptr<BaseScheduler> scheduler,
                    size_t maxCost)
     : _conf(conf),
-      _gateIds(move(gateIds)),
+      _gateIds(std::move(gateIds)),
       _children({}),
       _maxCost(maxCost),
-      _router(move(router)),
-      _scheduler(move(scheduler)) {
+      _router(std::move(router)),
+      _scheduler(std::move(scheduler)) {
     routeInternalGates();
 }
 
@@ -83,11 +83,11 @@ TreeNode::TreeNode(const TreeNode& other)
  */
 TreeNode::TreeNode(TreeNode&& other)
     : _conf(other._conf),
-      _gateIds(move(other._gateIds)),
-      _children(move(other._children)),
+      _gateIds(std::move(other._gateIds)),
+      _children(std::move(other._children)),
       _maxCost(other._maxCost),
-      _router(move(other._router)),
-      _scheduler(move(other._scheduler)) {}
+      _router(std::move(other._router)),
+      _scheduler(std::move(other._scheduler)) {}
 
 /**
  * @brief Assignment operator overloading for TreeNode
@@ -113,11 +113,11 @@ TreeNode& TreeNode::operator=(const TreeNode& other) {
  */
 TreeNode& TreeNode::operator=(TreeNode&& other) {
     _conf = other._conf;
-    _gateIds = move(other._gateIds);
-    _children = move(other._children);
+    _gateIds = std::move(other._gateIds);
+    _children = std::move(other._children);
     _maxCost = other._maxCost;
-    _router = move(other._router);
-    _scheduler = move(other._scheduler);
+    _router = std::move(other._router);
+    _scheduler = std::move(other._scheduler);
     return *this;
 }
 
@@ -128,7 +128,7 @@ TreeNode& TreeNode::operator=(TreeNode&& other) {
  */
 vector<TreeNode>&& TreeNode::children() {
     growIfNeeded();
-    return move(_children);
+    return std::move(_children);
 }
 
 /**
@@ -198,7 +198,7 @@ void TreeNode::routeInternalGates() {
     size_t gateId;
     while ((gateId = immediateNext()) != ERROR_CODE) {
         _maxCost = max(_maxCost, _scheduler->routeOneGate(*_router, gateId, true));
-        _gateIds.push_back(gateId);
+        _gateIds.emplace_back(gateId);
     }
 
     unordered_set<size_t> executed{_gateIds.begin(), _gateIds.end()};
@@ -314,7 +314,7 @@ size_t TreeNode::bestCost() const {
  * @param tqdm
  */
 SearchScheduler::SearchScheduler(unique_ptr<CircuitTopo> topo, bool tqdm)
-    : GreedyScheduler(move(topo), tqdm),
+    : GreedyScheduler(std::move(topo), tqdm),
       _lookAhead(DUOSTRA_DEPTH),
       _neverCache(DUOSTRA_NEVER_CACHE),
       _executeSingle(DUOSTRA_EXECUTE_SINGLE) {
@@ -381,7 +381,7 @@ Device SearchScheduler::assignGates(unique_ptr<Router> router) {
     do {
         // Update the _candidates.
         auto selectedNode = make_unique<TreeNode>(root->bestChild(_lookAhead));
-        root = move(selectedNode);
+        root = std::move(selectedNode);
 
         for (size_t gateId : root->executedGates()) {
             routeOneGate(*router, gateId);

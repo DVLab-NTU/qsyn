@@ -14,12 +14,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 
-set(PROJECT_NAME qsyn)
-
 project(
-  ${PROJECT_NAME}
+  qsyn
   LANGUAGES CXX
-  VERSION 1.0.0)
+  VERSION 0.5.1)
 
 find_package(OpenMP REQUIRED)
 
@@ -49,7 +47,9 @@ file(
   GLOB_RECURSE SOURCES
   RELATIVE ${CMAKE_SOURCE_DIR}
   "src/**/*.cpp" "src/**/*.h")
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
+
+add_definitions(-DQSYN_VERSION="${CMAKE_PROJECT_VERSION}")
 
 # lists all subdirectories of a directory
 macro(SUBDIRLIST result curdir)
@@ -64,13 +64,13 @@ macro(SUBDIRLIST result curdir)
 endmacro()
 
 subdirlist(INCLUDES ${CMAKE_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDES})
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${INCLUDES})
 # for tqdm.h
-target_include_directories(${PROJECT_NAME}
+target_include_directories(${CMAKE_PROJECT_NAME}
                            PRIVATE ${CMAKE_SOURCE_DIR}/vendor/include)
 
 target_link_libraries(
-  ${PROJECT_NAME}
+  ${CMAKE_PROJECT_NAME}
   xtl
   xtensor
   xtensor-blas
@@ -80,7 +80,7 @@ target_link_libraries(
   ${LAPACK_LIBRARIES}
  )
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}
-    COMMENT "Copied executable to ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}"
+add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${CMAKE_PROJECT_NAME}> ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}
+    COMMENT "Copied executable to ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}"
 )

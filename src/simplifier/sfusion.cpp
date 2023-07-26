@@ -40,7 +40,7 @@ void SpiderFusion::match(ZXGraph* g, int upper_bound) {
             for (auto& [nb, etype] : v1n) {
                 taken.insert(nb);
             }
-            _matchTypeVec.push_back(make_pair(v0, v1));
+            _matchTypeVec.emplace_back(make_pair(v0, v1));
         }
     });
 
@@ -69,10 +69,10 @@ void SpiderFusion::rewrite(ZXGraph* g) {
                     v0->setPhase(v0->getPhase() + Phase(1));
                 // NOTE - No need to remove edges since v1 will be removed
             } else {
-                _edgeTableKeys.push_back(make_pair(v0, nbp.first));
-                _edgeTableValues.push_back(nbp.second == EdgeType::SIMPLE ? make_pair(1, 0) : make_pair(0, 1));
+                _edgeTableKeys.emplace_back(make_pair(v0, nbp.first));
+                _edgeTableValues.emplace_back(nbp.second == EdgeType::SIMPLE ? make_pair(1, 0) : make_pair(0, 1));
             }
         }
-        _removeVertices.push_back(v1);
+        _removeVertices.emplace_back(v1);
     }
 }

@@ -223,7 +223,7 @@ bool Checker::testOperations() {
                     if (applyCX(op, _topo.getGate(gate))) {
                         passCondition = true;
                         _topo.updateAvailableGates(gate);
-                        finishedGates.push_back(gate);
+                        finishedGates.emplace_back(gate);
                         break;
                     }
                 }
@@ -232,7 +232,7 @@ bool Checker::testOperations() {
                     if (applySingle(op, _topo.getGate(gate))) {
                         passCondition = true;
                         _topo.updateAvailableGates(gate);
-                        finishedGates.push_back(gate);
+                        finishedGates.emplace_back(gate);
                         break;
                     }
                 }

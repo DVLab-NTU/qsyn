@@ -99,7 +99,7 @@ void ZXGraph::printQubits(vector<int> cand) const {
             vector<ZXVertex*> tmp(1, v);
             q2Vmap[v->getQubit()] = tmp;
         } else
-            q2Vmap[v->getQubit()].push_back(v);
+            q2Vmap[v->getQubit()].emplace_back(v);
     }
     if (cand.empty()) {
         for (const auto& [key, vec] : q2Vmap) {
@@ -210,7 +210,7 @@ void ZXGraph::draw() const {
     // qubitNum
     vector<int> qubitNum_temp;  // number of qubit
     for (auto& v : getVertices()) {
-        qubitNum_temp.push_back(v->getQubit());
+        qubitNum_temp.emplace_back(v->getQubit());
     }
     sort(qubitNum_temp.begin(), qubitNum_temp.end());
     if (qubitNum_temp.size() == 0) {
@@ -218,12 +218,12 @@ void ZXGraph::draw() const {
         return;
     }
     size_t offset = qubitNum_temp[0];
-    qubitNum.push_back(0);
+    qubitNum.emplace_back(0);
     for (size_t i = 1; i < qubitNum_temp.size(); i++) {
         if (qubitNum_temp[i - 1] == qubitNum_temp[i]) {
             continue;
         } else {
-            qubitNum.push_back(qubitNum_temp[i] - offset);
+            qubitNum.emplace_back(qubitNum_temp[i] - offset);
         }
     }
     qubitNum_temp.clear();

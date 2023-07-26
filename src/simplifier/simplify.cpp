@@ -48,7 +48,7 @@ int Simplifier::simp() {
         if (_rule->getMatchTypeVecNum() <= 0)
             break;
         else
-            matches.push_back(_rule->getMatchTypeVecNum());
+            matches.emplace_back(_rule->getMatchTypeVecNum());
         i += 1;
 
         if (verbose >= 8) cout << "\nIteration " << i << ":" << endl
@@ -92,7 +92,7 @@ int Simplifier::hadamardSimp() {
         if (_rule->getMatchTypeVecNum() == 0)
             break;
         else
-            matches.push_back(_rule->getMatchTypeVecNum());
+            matches.emplace_back(_rule->getMatchTypeVecNum());
         i += 1;
 
         if (verbose >= 8) cout << "\nIteration " << i << ":" << endl

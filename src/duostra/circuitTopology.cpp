@@ -44,7 +44,7 @@ Gate::Gate(Gate&& other)
  */
 void Gate::addPrev(size_t p) {
     if (p != ERROR_CODE)
-        _prevs.push_back(p);
+        _prevs.emplace_back(p);
 }
 
 /**
@@ -54,7 +54,7 @@ void Gate::addPrev(size_t p) {
  */
 void Gate::addNext(size_t n) {
     if (n != ERROR_CODE)
-        _nexts.push_back(n);
+        _nexts.emplace_back(n);
 }
 
 /**
@@ -80,7 +80,7 @@ bool Gate::isAvailable(const unordered_map<size_t, size_t>& executedGates) const
 CircuitTopo::CircuitTopo(shared_ptr<DependencyGraph> dep) : _dependencyGraph(dep), _availableGates({}), _executedGates({}) {
     for (size_t i = 0; i < _dependencyGraph->gates().size(); i++) {
         if (_dependencyGraph->getGate(i).isAvailable(_executedGates))
-            _availableGates.push_back(i);
+            _availableGates.emplace_back(i);
     }
 }
 
@@ -100,9 +100,9 @@ CircuitTopo::CircuitTopo(const CircuitTopo& other)
  * @param other
  */
 CircuitTopo::CircuitTopo(CircuitTopo&& other)
-    : _dependencyGraph(move(other._dependencyGraph)),
-      _availableGates(move(other._availableGates)),
-      _executedGates(move(other._executedGates)) {}
+    : _dependencyGraph(std::move(other._dependencyGraph)),
+      _availableGates(std::move(other._availableGates)),
+      _executedGates(std::move(other._executedGates)) {}
 
 /**
  * @brief Clone CircuitTopo
@@ -127,7 +127,7 @@ void CircuitTopo::updateAvailableGates(size_t executed) {
     _executedGates[executed] = 0;
     for (size_t next : gateExecuted.getNexts()) {
         if (getGate(next).isAvailable(_executedGates))
-            _availableGates.push_back(next);
+            _availableGates.emplace_back(next);
     }
 
     vector<size_t> gatesToTrim;
@@ -135,7 +135,7 @@ void CircuitTopo::updateAvailableGates(size_t executed) {
         const auto& prev_gate = getGate(prevId);
         ++_executedGates[prevId];
         if (_executedGates[prevId] >= prev_gate.getNexts().size())
-            gatesToTrim.push_back(prevId);
+            gatesToTrim.emplace_back(prevId);
     }
     for (size_t gateId : gatesToTrim)
         _executedGates.erase(gateId);

@@ -67,7 +67,7 @@ int QCir::getDepth() {
  */
 QCirQubit *QCir::addSingleQubit() {
     QCirQubit *temp = new QCirQubit(_qubitId);
-    _qubits.push_back(temp);
+    _qubits.emplace_back(temp);
     _qubitId++;
     clearMapping();
     return temp;
@@ -102,7 +102,7 @@ QCirQubit *QCir::insertSingleQubit(size_t id) {
 void QCir::addQubit(size_t num) {
     for (size_t i = 0; i < num; i++) {
         QCirQubit *temp = new QCirQubit(_qubitId);
-        _qubits.push_back(temp);
+        _qubits.emplace_back(temp);
         _qubitId++;
         clearMapping();
     }
@@ -143,7 +143,7 @@ bool QCir::removeQubit(size_t id) {
  */
 QCirGate *QCir::addSingleRZ(size_t bit, Phase phase, bool append) {
     vector<size_t> qubit;
-    qubit.push_back(bit);
+    qubit.emplace_back(bit);
     if (phase == Phase(1, 4))
         return addGate("t", qubit, phase, append);
     else if (phase == Phase(1, 2))
@@ -267,7 +267,7 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
         }
         _dirty = true;
     }
-    _qgates.push_back(temp);
+    _qgates.emplace_back(temp);
     _gateId++;
     clearMapping();
     return temp;
@@ -530,9 +530,9 @@ std::vector<int> QCir::countGate(bool detail, bool print) {
             cout << TF::BOLD(TF::GREEN("Others      : " + to_string(nct))) << endl;
     }
     vector<int> info;
-    info.push_back(clifford);
-    info.push_back(cxcnt);
-    info.push_back(tfamily);
+    info.emplace_back(clifford);
+    info.emplace_back(cxcnt);
+    info.emplace_back(tfamily);
     return info;  // [clifford, cxcnt, tfamily]
     // cout << endl;
 }

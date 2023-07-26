@@ -156,7 +156,7 @@ public:
     void printHelps() const;
 
     void addArgument(std::string const& val) {
-        _arguments.push_back(val);
+        _arguments.emplace_back(val);
         _variables.emplace(std::to_string(_arguments.size()), val);
     }
 

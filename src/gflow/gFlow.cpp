@@ -103,7 +103,7 @@ bool GFlow::calculate() {
     while (!_levels.back().empty()) {
         updateNeighborsByFrontier();
 
-        _levels.push_back(ZXVertexList());
+        _levels.emplace_back();
 
         _coefficientMatrix.fromZXVertices(_neighbors, _frontier);
 
@@ -180,7 +180,7 @@ void GFlow::calculateZerothLayer() {
     // initialize the 0th layer to be output
     _frontier = _zxgraph->getOutputs();
 
-    _levels.push_back(_zxgraph->getOutputs());
+    _levels.emplace_back(_zxgraph->getOutputs());
 
     for (auto& v : _zxgraph->getOutputs()) {
         assert(!_xCorrectionSets.contains(v));
@@ -281,7 +281,7 @@ void GFlow::updateFrontier() {
                    [this](NeighborPair const& nbp) {
                        return _taken.contains(nbp.first);
                    })) {
-            toRemove.push_back(v);
+            toRemove.emplace_back(v);
         }
     }
 

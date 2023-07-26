@@ -52,7 +52,7 @@ void Lattice::printLT() const {
 void LTContainer::resize(unsigned r, unsigned c) {
     _container.clear();
     for (size_t i = 0; i < r; i++) {
-        _container.push_back(vector<Lattice>());
+        _container.emplace_back();
         for (size_t j = 0; j < c; j++) {
             _container.back().emplace_back(i, j);
         }

@@ -43,7 +43,7 @@ QCir* QCir::copy() {
         string type = gate->getTypeStr();
         vector<size_t> bits;
         for (const auto& b : gate->getQubits()) {
-            bits.push_back(b._qubit);
+            bits.emplace_back(b._qubit);
         }
         oldG2newG[gate] = newCircuit->addGate(gate->getTypeStr(), bits, gate->getPhase(), true);
     }
@@ -75,7 +75,7 @@ QCir* QCir::compose(QCir* target) {
     for (auto& targGate : copiedQCir->getTopoOrderdGates()) {
         vector<size_t> bits;
         for (const auto& b : targGate->getQubits()) {
-            bits.push_back(b._qubit);
+            bits.emplace_back(b._qubit);
         }
         addGate(targGate->getTypeStr(), bits, targGate->getPhase(), true);
     }
@@ -100,7 +100,7 @@ QCir* QCir::tensorProduct(QCir* target) {
     for (auto& targGate : copiedQCir->getTopoOrderdGates()) {
         vector<size_t> bits;
         for (const auto& b : targGate->getQubits()) {
-            bits.push_back(oldQ2NewQ[b._qubit]->getId());
+            bits.emplace_back(oldQ2NewQ[b._qubit]->getId());
         }
         addGate(targGate->getTypeStr(), bits, targGate->getPhase(), true);
     }
@@ -122,7 +122,7 @@ void QCir::DFS(QCirGate* currentGate) {
         pair<bool, QCirGate*> node = dfs.top();
         dfs.pop();
         if (node.first) {
-            _topoOrder.push_back(node.second);
+            _topoOrder.emplace_back(node.second);
             continue;
         }
         if (node.second->isVisited(_globalDFScounter)) {

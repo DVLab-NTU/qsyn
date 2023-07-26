@@ -60,7 +60,7 @@ void Pivot::match(ZXGraph* g, int upper_bound) {
             for (auto& [nb, et] : v->getNeighbors()) {
                 if (nb->isZ() && et == EdgeType::HADAMARD) continue;
                 if (nb->isBoundary()) {
-                    boundaries.push_back(nb);
+                    boundaries.emplace_back(nb);
                 } else {
                     taken.insert(nb);
                     return;
@@ -76,7 +76,7 @@ void Pivot::match(ZXGraph* g, int upper_bound) {
         for (auto& [v, _] : vt->getNeighbors()) taken.insert(v);
 
         // 6: add Epair into _matchTypeVec
-        this->_matchTypeVec.push_back({vs, vt});
+        this->_matchTypeVec.push_back({vs, vt});  // NOTE: cannot emplace_back -- std::array does not have a constructor!;
         this->_boundaries.insert(this->_boundaries.end(), boundaries.begin(), boundaries.end());
     });
 

@@ -284,7 +284,7 @@ string CmdParser::replaceVariableKeysWithValues(string const& str) const {
             if (pos > 0 && str[pos - 1] == '\\' && (pos == 1 || str[pos - 2] != '\\')) {
                 continue;
             }
-            to_replace.push_back({pos, var.length(), val});
+            to_replace.emplace_back(pos, var.length(), val);
         }
     }
 
@@ -601,7 +601,8 @@ bool CmdParser::listCmdDir(const string& cmd) {
     vector<string> files = listDir(basename, dirname);
 
     if (trailingBackslash) {
-        std::erase_if(files, [this, &basename](string const& file) { return !isSpecialChar(file[basename.size()]); });
+        // clang++ does not support structured binding capture by reference with OpenMP
+        std::erase_if(files, [this, &basename = basename](string const& file) { return !isSpecialChar(file[basename.size()]); });
     }
 
     // no matched file
@@ -788,7 +789,7 @@ bool CmdExec::lexOptions(const string& option, vector<string>& tokens, size_t nO
     }
     size_t n = myStrGetTok2(stripped, token);
     while (token.size()) {
-        tokens.push_back(token);
+        tokens.emplace_back(token);
         n = myStrGetTok2(stripped, token, n);
     }
     if (nOpts != 0) {

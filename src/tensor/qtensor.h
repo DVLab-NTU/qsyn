@@ -98,8 +98,8 @@ QTensor<T> QTensor<T>::identity(const size_t& numQubits) {
     t.reshape(TensorShape(2 * numQubits, 2));
     TensorAxisList ax;
     for (size_t i = 0; i < numQubits; ++i) {
-        ax.push_back(i);
-        ax.push_back(i + numQubits);
+        ax.emplace_back(i);
+        ax.emplace_back(i + numQubits);
     }
     return t.transpose(ax);
 }
@@ -296,8 +296,8 @@ QTensor<T> QTensor<T>::toQTensor() {
 
     TensorAxisList ax;
     for (size_t i = 0; i < dim / 2; ++i) {
-        ax.push_back(i);
-        ax.push_back(i + dim / 2);
+        ax.emplace_back(i);
+        ax.emplace_back(i + dim / 2);
     }
     this->reshape(TensorAxisList(dim, 2));
 
@@ -323,10 +323,10 @@ QTensor<T> QTensor<T>::control(const QTensor<T>& gate, size_t numControls) {
     TensorAxisList ax;
 
     for (size_t i = 0; i < dim / 2; ++i) {
-        ax.push_back(2 * i);
+        ax.emplace_back(2 * i);
     }
     for (size_t i = 0; i < dim / 2; ++i) {
-        ax.push_back(2 * i + 1);
+        ax.emplace_back(2 * i + 1);
     }
 
     size_t gateSize = intPow(2, dim / 2);

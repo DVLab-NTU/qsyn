@@ -60,10 +60,10 @@ void StateCopy::match(ZXGraph* g, int upper_bound) {
         vector<ZXVertex*> applyNeighbors;
         for (const auto& [nebOfPiNeighbor, _] : PiNeighbor->getNeighbors()) {
             if (nebOfPiNeighbor != v)
-                applyNeighbors.push_back(nebOfPiNeighbor);
+                applyNeighbors.emplace_back(nebOfPiNeighbor);
             validVertex[Vertex2idx[nebOfPiNeighbor]] = false;
         }
-        _matchTypeVec.push_back(make_tuple(v, PiNeighbor, applyNeighbors));
+        _matchTypeVec.emplace_back(make_tuple(v, PiNeighbor, applyNeighbors));
     }
     setMatchTypeVecNum(_matchTypeVec.size());
 }
@@ -82,23 +82,23 @@ void StateCopy::rewrite(ZXGraph* g) {
         ZXVertex* npi = get<0>(_matchTypeVec[i]);
         ZXVertex* a = get<1>(_matchTypeVec[i]);
         vector<ZXVertex*> neighbors = get<2>(_matchTypeVec[i]);
-        _removeVertices.push_back(npi);
-        _removeVertices.push_back(a);
+        _removeVertices.emplace_back(npi);
+        _removeVertices.emplace_back(a);
         for (size_t i = 0; i < neighbors.size(); i++) {
             if (neighbors[i]->getType() == VertexType::BOUNDARY) {
                 ZXVertex* newV = g->addVertex(neighbors[i]->getQubit(), VertexType::Z, npi->getPhase());
                 bool simpleEdge = false;
                 if ((neighbors[i]->getFirstNeighbor().second) == EdgeType::SIMPLE)
                     simpleEdge = true;
-                _removeEdges.push_back(make_pair(make_pair(a, neighbors[i]), neighbors[i]->getFirstNeighbor().second));
+                _removeEdges.emplace_back(make_pair(make_pair(a, neighbors[i]), neighbors[i]->getFirstNeighbor().second));
 
                 // new to Boundary
-                _edgeTableKeys.push_back(make_pair(newV, neighbors[i]));
-                _edgeTableValues.push_back(simpleEdge ? make_pair(0, 1) : make_pair(1, 0));
+                _edgeTableKeys.emplace_back(make_pair(newV, neighbors[i]));
+                _edgeTableValues.emplace_back(simpleEdge ? make_pair(0, 1) : make_pair(1, 0));
 
                 // a to new
-                _edgeTableKeys.push_back(make_pair(a, newV));
-                _edgeTableValues.push_back(make_pair(0, 1));
+                _edgeTableKeys.emplace_back(make_pair(a, newV));
+                _edgeTableValues.emplace_back(make_pair(0, 1));
 
                 // REVIEW - Floating
                 newV->setCol((neighbors[i]->getCol() + a->getCol()) / 2);

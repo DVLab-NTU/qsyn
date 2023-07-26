@@ -65,7 +65,7 @@ public:
     virtual void setRemoveVertices(std::vector<ZXVertex*> v) { _removeVertices = v; }
     virtual void setName(std::string name) { _name = name; }
 
-    virtual void pushRemoveEdge(const EdgePair& ep) { _removeEdges.push_back(ep); }
+    virtual void pushRemoveEdge(const EdgePair& ep) { _removeEdges.emplace_back(ep); }
 
 protected:
     int _r2r;
@@ -285,7 +285,7 @@ public:
     }
     virtual ~PivotInterface() {}
 
-    virtual void match(ZXGraph* g, int upper_bound = INT_MAX) = 0;
+    virtual void match(ZXGraph* g, int upper_bound = INT_MAX) override = 0;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter
@@ -359,7 +359,7 @@ public:
     virtual ~PivotBoundary() {}
 
     void match(ZXGraph* g, int upper_bound = INT_MAX) override;
-    void addBoundary(ZXVertex* v) { _boundaries.push_back(v); }
+    void addBoundary(ZXVertex* v) { _boundaries.emplace_back(v); }
     void clearBoundary() { _boundaries.clear(); }
 
 protected:
@@ -382,7 +382,7 @@ protected:
 //     virtual ~PivotDegadget() {}
 
 //     void match(ZXGraph* g) override;
-//     void addBoundary(ZXVertex* v) { _boundaries.push_back(v); }
+//     void addBoundary(ZXVertex* v) { _boundaries.emplace_back(v); }
 //     void clearBoundary() { _boundaries.clear(); }
 
 // protected:

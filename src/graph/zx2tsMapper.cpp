@@ -107,7 +107,7 @@ void ZX2TSMapper::initSubgraph(ZXVertex* v) {
 
     EdgePair edgeKey = makeEdgePair(v, nb, etype);
     currTensor() = tensordot(currTensor(), QTensor<double>::identity(v->getNumNeighbors()));
-    _boundaryEdges.push_back(edgeKey);
+    _boundaryEdges.emplace_back(edgeKey);
     currFrontiers().emplace(edgeKey, 1);
 }
 
@@ -220,15 +220,15 @@ void ZX2TSMapper::updatePinsAndFrontiers(ZXVertex* v) {
 
         EdgePair edgeKey = makeEdgePair(v, nb, etype);
         if (!isFrontier(nbr)) {
-            _addEdges.push_back(edgeKey);
+            _addEdges.emplace_back(edgeKey);
         } else {
             auto& [front, axid] = *(currFrontiers().find(edgeKey));
             if ((front.second) == EdgeType::HADAMARD) {
-                _hadamardPins.push_back(axid);
+                _hadamardPins.emplace_back(axid);
             } else {
-                _simplePins.push_back(axid);
+                _simplePins.emplace_back(axid);
             }
-            _removeEdges.push_back(edgeKey);
+            _removeEdges.emplace_back(edgeKey);
         }
     }
 }
@@ -245,7 +245,7 @@ QTensor<double> ZX2TSMapper::dehadamardize(const QTensor<double>& ts) {
 
     TensorAxisList connect_pin;
     for (size_t t = 0; t < _hadamardPins.size(); t++)
-        connect_pin.push_back(2 * t);
+        connect_pin.emplace_back(2 * t);
 
     QTensor<double> tmp = tensordot(ts, HTensorProduct, _hadamardPins, connect_pin);
 
@@ -280,7 +280,7 @@ void ZX2TSMapper::tensorDotVertex(ZXVertex* v) {
 
     TensorAxisList connect_pin;
     for (size_t t = 0; t < _simplePins.size(); t++)
-        connect_pin.push_back(t);
+        connect_pin.emplace_back(t);
 
     currTensor() = tensordot(dehadamarded, v->getTSform(), _simplePins, connect_pin);
 
@@ -296,7 +296,7 @@ void ZX2TSMapper::tensorDotVertex(ZXVertex* v) {
     // add new frontiers
     connect_pin.clear();
     for (size_t t = 0; t < _addEdges.size(); t++)
-        connect_pin.push_back(_simplePins.size() + t);
+        connect_pin.emplace_back(_simplePins.size() + t);
 
     for (size_t t = 0; t < _addEdges.size(); t++) {
         size_t newId = currTensor().getNewAxisId(dehadamarded.dimension() + connect_pin[t]);

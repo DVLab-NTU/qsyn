@@ -55,7 +55,7 @@ void IdRemoval::rewrite(ZXGraph* g) {
     reset();
 
     for (const auto& [v, n0, n1, et] : _matchTypeVec) {
-        _removeVertices.push_back(v);
+        _removeVertices.emplace_back(v);
         if (n0 == n1) {
             n0->setPhase(n0->getPhase() + Phase(1));
             continue;

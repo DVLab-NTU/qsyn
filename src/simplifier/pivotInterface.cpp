@@ -65,20 +65,20 @@ void PivotInterface::rewrite(ZXGraph* g) {
         for (const auto& s : n0) {
             for (const auto& t : n1) {
                 assert(s->getId() != t->getId());
-                _edgeTableKeys.push_back(make_pair(s, t));
-                _edgeTableValues.push_back(make_pair(0, 1));
+                _edgeTableKeys.emplace_back(make_pair(s, t));
+                _edgeTableValues.emplace_back(make_pair(0, 1));
             }
             for (const auto& t : n2) {
                 assert(s->getId() != t->getId());
-                _edgeTableKeys.push_back(make_pair(s, t));
-                _edgeTableValues.push_back(make_pair(0, 1));
+                _edgeTableKeys.emplace_back(make_pair(s, t));
+                _edgeTableValues.emplace_back(make_pair(0, 1));
             }
         }
         for (const auto& s : n1) {
             for (const auto& t : n2) {
                 assert(s->getId() != t->getId());
-                _edgeTableKeys.push_back(make_pair(s, t));
-                _edgeTableValues.push_back(make_pair(0, 1));
+                _edgeTableKeys.emplace_back(make_pair(s, t));
+                _edgeTableValues.emplace_back(make_pair(0, 1));
             }
         }
 
@@ -87,7 +87,7 @@ void PivotInterface::rewrite(ZXGraph* g) {
         for (const auto& v : n1) v->setPhase(v->getPhase() + m[0]->getPhase());
         for (const auto& v : n2) v->setPhase(v->getPhase() + m[0]->getPhase() + m[1]->getPhase() + Phase(1));
 
-        for (int i = 0; i < 2; ++i) _removeVertices.push_back(m[i]);
+        for (int i = 0; i < 2; ++i) _removeVertices.emplace_back(m[i]);
         // break;
     }
 }

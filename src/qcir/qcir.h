@@ -55,7 +55,7 @@ public:
     void addProcedure(std::vector<std::string> const& ps) {
         for (auto& p : ps) addProcedure(p);
     }
-    void addProcedure(std::string const& p) { _procedures.push_back(p); }
+    void addProcedure(std::string const& p) { _procedures.emplace_back(p); }
     // For Copy
     void setNextGateId(size_t id) { _gateId = id; }
     void setNextQubitId(size_t id) { _qubitId = id; }

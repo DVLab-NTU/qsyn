@@ -68,7 +68,7 @@ void PivotBoundary::match(ZXGraph* g, int upper_bound) {
         // check vs is only connected to boundary, or connected to Z-spider by H-edge
         for (auto& [nb, etype] : vs->getNeighbors()) {
             if (nb->isBoundary()) {
-                b0.push_back(nb);
+                b0.emplace_back(nb);
                 continue;
             }
             if (!nb->isZ() || etype != EdgeType::HADAMARD) return;
@@ -84,7 +84,7 @@ void PivotBoundary::match(ZXGraph* g, int upper_bound) {
 
         for (auto& [nb, _] : vs->getNeighbors()) taken.insert(nb);
         for (auto& [nb, _] : vt->getNeighbors()) taken.insert(nb);
-        this->_matchTypeVec.push_back({vs, vt});
+        this->_matchTypeVec.push_back({vs, vt});  // NOTE: cannot emplace_back -- std::array does not have a constructor!;
         this->_boundaries.insert(this->_boundaries.end(), b0.begin(), b0.end());
     };
 

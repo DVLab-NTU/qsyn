@@ -55,7 +55,7 @@ GreedyConf::GreedyConf()
  * @param topo
  * @param tqdm
  */
-GreedyScheduler::GreedyScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : BaseScheduler(move(topo), tqdm) {}
+GreedyScheduler::GreedyScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : BaseScheduler(std::move(topo), tqdm) {}
 
 /**
  * @brief Construct a new Greedy Scheduler:: Greedy Scheduler object
@@ -69,7 +69,7 @@ GreedyScheduler::GreedyScheduler(const GreedyScheduler& other) : BaseScheduler(o
  *
  * @param other
  */
-GreedyScheduler::GreedyScheduler(GreedyScheduler&& other) : BaseScheduler(move(other)), _conf(other._conf) {}
+GreedyScheduler::GreedyScheduler(GreedyScheduler&& other) : BaseScheduler(std::move(other)), _conf(other._conf) {}
 
 /**
  * @brief Get scheduler

@@ -1,4 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.4.2
+DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
 Create and checkout to QCir 0
 

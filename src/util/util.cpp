@@ -50,7 +50,7 @@ vector<string> listDir(string const& prefix, string const& dir) {
 
     for (auto& entry : fs::directory_iterator(dir)) {
         if (prefix.empty() || string(entry.path().filename()).compare(0, prefix.size(), prefix) == 0) {
-            files.push_back(entry.path().filename());
+            files.emplace_back(entry.path().filename());
         }
     }
 
