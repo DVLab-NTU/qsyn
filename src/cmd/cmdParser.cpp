@@ -147,7 +147,7 @@ CmdParser::execOneCmd() {
 
     std::atomic<CmdExecStatus> result = CMD_EXEC_EXECUTING;
     _currCmd = std::jthread(
-        [this, &e, &option, &result](std::stop_token st) {
+        [this, &e = e, &option = option, &result](std::stop_token st) {
             result = e->exec(st, option);
         });
 

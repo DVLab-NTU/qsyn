@@ -56,6 +56,7 @@ std::ostream& operator<<(std::ostream& os, ArgType<U> const& arg) {
  * @return ArgType<T>&
  */
 template <typename T>
+requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::name(std::string const& name) {
     _name = name;
     return *this;
@@ -69,6 +70,7 @@ ArgType<T>& ArgType<T>::name(std::string const& name) {
  * @return ArgType<T>&
  */
 template <typename T>
+requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::help(std::string const& help) {
     _help = help;
     return *this;
@@ -82,6 +84,7 @@ ArgType<T>& ArgType<T>::help(std::string const& help) {
  * @return ArgType<T>&
  */
 template <typename T>
+requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::required(bool isReq) {
     _required = isReq;
     return *this;
@@ -95,6 +98,7 @@ ArgType<T>& ArgType<T>::required(bool isReq) {
  * @return ArgType<T>&
  */
 template <typename T>
+requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::defaultValue(T const& val) {
     _defaultValue = val;
     return *this;
@@ -110,6 +114,7 @@ ArgType<T>& ArgType<T>::defaultValue(T const& val) {
  * @return ArgType<T>&
  */
 template <typename T>
+requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::action(ArgType<T>::ActionType const& action) {
     _actionCallback = action(*this);
     return *this;
@@ -124,6 +129,7 @@ ArgType<T>& ArgType<T>::action(ArgType<T>::ActionType const& action) {
  * @return ArgType<T>&
  */
 template <typename T>
+requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::metavar(std::string const& metavar) {
     _metavar = metavar;
     return *this;
@@ -139,6 +145,7 @@ ArgType<T>& ArgType<T>::metavar(std::string const& metavar) {
  * @return ArgType<T>&
  */
 template <typename T>
+requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConstraintType const& constraint_error) {
     return this->constraint(constraint_error.first, constraint_error.second);
 }
@@ -151,6 +158,7 @@ ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConstraintType const& constraint_
  * @param onerror takes a `ArgType<T> const&` and returns a ErrorCallbackType
  */
 template <typename T>
+requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConditionType const& condition, ArgType<T>::ErrorType const& onerror) {
     if (condition == nullptr) {
         std::cerr << "[ArgParse] Failed to add constraint to argument \"" << _name
@@ -168,6 +176,7 @@ ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConditionType const& condition, A
 }
 
 template <typename T>
+requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::choices(std::vector<T> const& choices) {
     auto constraint = [choices](T const& val) -> bool {
         return any_of(choices.begin(), choices.end(), [&val](T const& choice) -> bool {
@@ -190,17 +199,20 @@ ArgType<T>& ArgType<T>::choices(std::vector<T> const& choices) {
 }
 
 template <typename T>
+requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::nargs(size_t n) {
     return nargs(n, n);
 }
 
 template <typename T>
+requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::nargs(size_t l, size_t u) {
     _nargs = {l, u};
     return (l > 0) ? *this : this->required(false);
 }
 
 template <typename T>
+requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::nargs(NArgsOption opt) {
     using enum NArgsOption;
     switch (opt) {
@@ -221,6 +233,7 @@ ArgType<T>& ArgType<T>::nargs(NArgsOption opt) {
  *
  */
 template <typename T>
+requires ValidArgumentType<T>
 void ArgType<T>::reset() {
     _values.clear();
     if (_actionCallback == nullptr) {
@@ -237,6 +250,7 @@ void ArgType<T>::reset() {
  * @return false if failed
  */
 template <typename T>
+requires ValidArgumentType<T>
 bool ArgType<T>::takeAction(TokensView tokens) {
     assert(_actionCallback != nullptr);
 
