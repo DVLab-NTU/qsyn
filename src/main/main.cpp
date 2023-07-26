@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
     cout << "DV Lab, NTUEE, Qsyn " << QSYN_VERSION << endl;
 
     if (
-        !initArgParseCmd() ||
+        // !initArgParseCmd() ||
         !initCommonCmd() ||
         !initQCirCmd() ||
         !initOptimizeCmd() ||
