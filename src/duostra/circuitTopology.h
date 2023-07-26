@@ -57,10 +57,10 @@ private:
 
 class DependencyGraph {
 public:
-    DependencyGraph(size_t n, std::vector<Gate>&& gates) : _nQubits(n), _gates(move(gates)) {}
+    DependencyGraph(size_t n, std::vector<Gate>&& gates) : _nQubits(n), _gates(std::move(gates)) {}
     DependencyGraph(const DependencyGraph& other) = delete;
     DependencyGraph(DependencyGraph&& other)
-        : _nQubits(other._nQubits), _gates(move(other._gates)) {}
+        : _nQubits(other._nQubits), _gates(std::move(other._gates)) {}
 
     const std::vector<Gate>& gates() const { return _gates; }
     const Gate& getGate(size_t idx) const { return _gates[idx]; }
