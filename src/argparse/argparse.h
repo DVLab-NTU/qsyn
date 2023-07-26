@@ -102,12 +102,14 @@ concept IsContainerType = requires(T t) {
     { t.size() } -> std::same_as<typename T::size_type>;
     requires !std::same_as<T, std::string>;
     requires !std::same_as<T, std::string_view>;
+    requires !is_fixed_array<T>::value;
 };
 
 static_assert(IsContainerType<std::vector<int>> == true);
 static_assert(IsContainerType<std::vector<std::string>> == true);
 static_assert(IsContainerType<ordered_hashset<float>> == true);
 static_assert(IsContainerType<std::string> == false);
+static_assert(IsContainerType<std::array<int, 3>> == false);
 
 // SECTION - On-parse actions for ArgType<T>
 

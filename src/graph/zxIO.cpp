@@ -25,7 +25,7 @@ extern size_t verbose;
 using namespace std;
 
 /**
- * @brief Read a ZX-graph
+ * @brief Read a ZXGraph
  *
  * @param filename
  * @param keepID if true, keep the IDs as written in file; if false, rearrange the vertex IDs
@@ -53,7 +53,7 @@ bool ZXGraph::readZX(const string& filename, bool keepID) {
 }
 
 /**
- * @brief Write a ZX-graph
+ * @brief Write a ZXGraph
  *
  * @param filename
  * @param complete

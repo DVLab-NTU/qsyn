@@ -23,11 +23,11 @@ namespace TF = TextFormat;
  * @brief Map a ZX-diagram to a tensor
  *
  * @return true if the tensor is contructed
- * @return false if the ZX-graph is not valid
+ * @return false if the ZXGraph is not valid
  */
 bool ZX2TSMapper::map() {
     if (!_zxgraph->isValid()) {
-        cerr << "Error: The ZX-graph is not valid!!" << endl;
+        cerr << "Error: The ZXGraph is not valid!!" << endl;
         return false;
     }
     if (verbose >= 3) cout << "Traverse and build the tensor... " << endl;

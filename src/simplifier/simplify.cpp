@@ -520,7 +520,7 @@ void Simplifier::printRecipe() {
 }
 
 // /**
-//  * @brief Print parameter of optimizer for ZX-graph
+//  * @brief Print parameter of optimizer for ZXGraph
 //  *
 //  */
 // void Simplifier::printOptimizer() {

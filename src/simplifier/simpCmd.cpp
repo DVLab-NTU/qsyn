@@ -53,7 +53,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXGSimp");
 
     cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("perform simplification strategies for ZX-graph");
+        parser.help("perform simplification strategies for ZXGraph");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
         mutex.addArgument<bool>("-dreduce")
@@ -176,7 +176,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
 unique_ptr<ArgParseCmdType> ZXOPTCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXOPT");
     cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("Dynamic Optimization for a ZX-graph");
+        parser.help("Dynamic Optimization for a ZXGraph");
     };
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         opt.myOptimize();
@@ -191,7 +191,7 @@ unique_ptr<ArgParseCmdType> ZXOPTCmd() {
 unique_ptr<ArgParseCmdType> ZXOPTPrintCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXOPTPrint");
     cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("print parameter of optimizer for ZX-graph");
+        parser.help("print parameter of optimizer for ZXGraph");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
 
@@ -263,7 +263,7 @@ unique_ptr<ArgParseCmdType> ZXOPTPrintCmd() {
 unique_ptr<ArgParseCmdType> ZXOPTS2sCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXOPTS2s");
     cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("set s2s parameter of optimizer for ZX-graph");
+        parser.help("set s2s parameter of optimizer for ZXGraph");
 
         parser.addArgument<int>("s2s")
             .required(true)
@@ -328,7 +328,7 @@ unique_ptr<ArgParseCmdType> ZXOPTS2sCmd() {
 unique_ptr<ArgParseCmdType> ZXOPTR2rCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXOPTR2r");
     cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("set r2r parameter of optimizer for ZX-graph");
+        parser.help("set r2r parameter of optimizer for ZXGraph");
 
         parser.addArgument<int>("r2r")
             .required(true)

@@ -6,8 +6,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "qcirCmd.h"
-
+#include "phase_argparse.h"
+// --- include before qcirCmd.h
 #include <cstddef>   // for size_t, NULL
 #include <iostream>  // for ostream
 #include <string>    // for string
@@ -15,9 +15,10 @@
 #include "cmdMacros.h"  // for CMD_N_OPTS_AT_MOST_OR_RETURN
 #include "phase.h"      // for Phase
 #include "qcir.h"       // for QCir
-#include "qcirGate.h"   // for QCirGate
-#include "qcirMgr.h"    // for QCirMgr
-#include "zxGraph.h"    // for ZXGraph
+#include "qcirCmd.h"
+#include "qcirGate.h"  // for QCirGate
+#include "qcirMgr.h"   // for QCirMgr
+#include "zxGraph.h"   // for ZXGraph
 
 using namespace std;
 using namespace ArgParse;
@@ -25,13 +26,6 @@ extern QCirMgr* qcirMgr;
 extern size_t verbose;
 extern size_t dmode;
 extern int effLimit;
-
-std::string typeString(Phase const&) { return "Phase"; }
-bool parseFromString(Phase& p, std::string const& token) {
-    return Phase::myStr2Phase(token, p);
-}
-
-static_assert(ValidArgumentType<Phase>);
 
 bool qcirMgrNotEmpty(string const& command) {
     if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end()) {
@@ -437,7 +431,9 @@ unique_ptr<ArgParseCmdType> QCirReadCmd() {
         parser.help("read a circuit and construct the corresponding netlist");
 
         parser.addArgument<string>("filepath")
-            .help("the filepath to quantum circuit file");
+            .constraint(file_exists)
+            .constraint(allowed_extension({".qasm", ".qc", ".qsim", ".quipper", ""}))
+            .help("the filepath to quantum circuit file. Supported extension: .qasm, .qc, .qsim, .quipper");
 
         parser.addArgument<bool>("-replace")
             .action(storeTrue)
@@ -817,7 +813,7 @@ unique_ptr<ArgParseCmdType> QCir2ZXCmd() {
     cmd->precondition = []() { return qcirMgrNotEmpty("QC2ZX"); };
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("convert QCir to ZX-graph");
+        parser.help("convert QCir to ZXGraph");
 
         // auto mutex = parser.addMutuallyExclusiveGroup();
 
@@ -872,7 +868,9 @@ unique_ptr<ArgParseCmdType> QCirWriteCmd() {
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("write QCir to a QASM file");
         parser.addArgument<string>("output-path.qasm")
-            .help("the filepath to output file");
+            .constraint(dir_for_file_exists)
+            .constraint(allowed_extension({".qasm"}))
+            .help("the filepath to output file. Supported extension: .qasm");
     };
 
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
@@ -895,6 +893,7 @@ unique_ptr<ArgParseCmdType> QCirDrawCmd() {
         parser.help("Draw a QCir. This command relies on qiskit and pdflatex to be present in the system.");
         parser.addArgument<string>("output_path")
             .nargs(NArgsOption::OPTIONAL)
+            .constraint(dir_for_file_exists)
             .defaultValue("")
             .help(
                 "if specified, output the resulting drawing into this file. "

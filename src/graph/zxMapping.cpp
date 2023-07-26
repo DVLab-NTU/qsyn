@@ -123,7 +123,7 @@ QTensor<double> ZXVertex::getTSform() {
 }
 
 /**
- * @brief Generate tensor form of ZX-graph
+ * @brief Generate tensor form of ZXGraph
  *
  */
 void ZXGraph::toTensor() {

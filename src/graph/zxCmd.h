@@ -11,17 +11,16 @@
 
 #include "cmdParser.h"  // for CmdExecStatus::CMD_EXEC_ERROR, CmdClass, Cmd...
 #include "phase.h"      // for Phase
-#include "zxDef.h"      // for VertexType, EdgeType
 #include "zxGraph.h"    // for ZXGraph
 #include "zxGraphMgr.h"
 
 CmdClass(ZXGPrintCmd);
 CmdClass(ZXGEditCmd);
-// CmdClass(ZXGDrawCmd);
 CmdClass(ZXGReadCmd);
 CmdClass(ZXGWriteCmd);
 CmdClass(ZXGAssignCmd);
 
+extern ZXGraphMgr zxGraphMgr;
 extern ArgParse::ArgType<size_t>::ConstraintType const validZXGraphId;
 
 bool zxGraphMgrNotEmpty(std::string const& command);
@@ -96,12 +95,12 @@ bool zxGraphMgrNotEmpty(std::string const& command);
         }                                                             \
     }
 
-#define ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN(str)                                               \
-    {                                                                                          \
-        if (zxGraphMgr.empty()) {                                                              \
-            cerr << "Error: ZX-graph list is empty now. Please ZXNew before " << str << ".\n"; \
-            return CMD_EXEC_ERROR;                                                             \
-        }                                                                                      \
+#define ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN(str)                                              \
+    {                                                                                         \
+        if (zxGraphMgr.empty()) {                                                             \
+            cerr << "Error: ZXGraph list is empty now. Please ZXNew before " << str << ".\n"; \
+            return CMD_EXEC_ERROR;                                                            \
+        }                                                                                     \
     }
 
 #define ZX_CMD_ID_VALID_OR_RETURN(option, id, str)         \

@@ -41,7 +41,7 @@ LTCmd::exec(std::stop_token, const string &option) {
     if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
     if (zxGraphMgr.empty()) {
-        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXPrint." << endl;
+        cerr << "Error: ZXGraph list is empty now. Please ZXNew before ZXPrint." << endl;
         return CMD_EXEC_ERROR;
     }
 
@@ -62,5 +62,5 @@ void LTCmd::usage() const {
 
 void LTCmd::summary() const {
     cout << setw(15) << left << "LTS: "
-         << "(experimental) perform mapping from ZX-graph to corresponding lattice surgery" << endl;
+         << "(experimental) perform mapping from ZXGraph to corresponding lattice surgery" << endl;
 }

@@ -6,8 +6,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "zxCmd.h"
-
+#include "phase_argparse.h"
+// --- include before zxCmd.h
 #include <cassert>
 #include <cstddef>  // for size_t
 #include <iomanip>
@@ -17,6 +17,7 @@
 #include "cmdMacros.h"   // for CMD_N_OPTS_EQUAL_OR_RETURN, CMD_N_OPTS_AT_LE...
 #include "phase.h"       // for Phase
 #include "textFormat.h"  // for TextFormat
+#include "zxCmd.h"
 #include "zxGraphMgr.h"  // for ZXGraph, ZXVertex
 
 namespace TF = TextFormat;
@@ -77,9 +78,33 @@ ArgType<size_t>::ConstraintType const validZXGraphId = {
         cerr << "Error: ZXGraph " << id << " does not exist!!\n";
     }};
 
+ArgType<size_t>::ConstraintType const validZXVertexId = {
+    [](size_t const &id) {
+        return zxGraphMgr.get()->isId(id);
+    },
+    [](size_t const &id) {
+        cerr << "Error: Cannot find vertex with ID " << id << " in the ZXGraph!!\n";
+    }};
+
+ArgType<size_t>::ConstraintType const notExistingZXInputQubitId = {
+    [](size_t const &qid) {
+        return !zxGraphMgr.get()->isInputQubit(qid);
+    },
+    [](size_t const &qid) {
+        cerr << "Error: This qubit's input already exists!!\n";
+    }};
+
+ArgType<size_t>::ConstraintType const notExistingZXOutputQubitId = {
+    [](size_t const &qid) {
+        return !zxGraphMgr.get()->isOutputQubit(qid);
+    },
+    [](size_t const &qid) {
+        cerr << "Error: This qubit's output already exists!!\n";
+    }};
+
 bool zxGraphMgrNotEmpty(std::string const &command) {
     if (zxGraphMgr.empty()) {
-        cerr << "Error: ZX-graph list is empty now. Please ZXNew before " << command << ".\n";
+        cerr << "Error: ZXGraph list is empty now. Please ZXNew before " << command << ".\n";
         return false;
     }
     return true;
@@ -506,6 +531,161 @@ void ZXGPrintCmd::summary() const {
 //            -ADDOutput <(size_t qubit)>
 //            -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>
 //------------------------------------------------------------------------------------
+
+unique_ptr<ArgParseCmdType> _ZXGEditCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXGEdit");
+
+    cmd->precondition = []() { return zxGraphMgrNotEmpty("ZXGEdit"); };
+
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("edit ZXGraph");
+
+        auto subparsers = parser.addSubParsers().required(true);
+
+        auto removeVertexParser = subparsers.addParser("-rmvertex");
+
+        removeVertexParser.addArgument<size_t>("ids")
+            .nargs(NArgsOption::ZERO_OR_MORE)
+            .help("the IDs of vertices to remove");
+
+        removeVertexParser.addArgument<bool>("-isolated")
+            .action(storeTrue)
+            .help("if set, remove all isolated vertices");
+
+        auto removeEdgeParser = subparsers.addParser("-rmedge");
+
+        removeEdgeParser.addArgument<size_t>("ids")
+            .nargs(2)
+            .metavar("(vs, vt)")
+            .help("the IDs to the two vertices to remove edges in between");
+
+        removeEdgeParser.addArgument<string>("etype")
+            .constraint(choices_allow_prefix({"simple", "hadamard", "all"}))
+            .help("the edge type to remove. Options: simple, hadamard, all (i.e., remove both)");
+
+        auto addVertexParser = subparsers.addParser("-addvertex");
+
+        addVertexParser.addArgument<size_t>("qubit")
+            .help("the qubit ID the ZXVertex belongs to");
+
+        addVertexParser.addArgument<string>("vtype")
+            .constraint(choices_allow_prefix({"zspider", "xspider", "hbox"}))
+            .help("the type of ZXVertex");
+
+        addVertexParser.addArgument<Phase>("phase")
+            .nargs(NArgsOption::OPTIONAL)
+            .defaultValue(Phase(0))
+            .help("phase of the ZXVertex (default = 0)");
+
+        auto addInputParser = subparsers.addParser("-addinput");
+
+        addInputParser.addArgument<size_t>("qubit")
+            .constraint(notExistingZXInputQubitId)
+            .help("the qubit ID of the input");
+
+        auto addOutputParser = subparsers.addParser("-addoutput");
+
+        addOutputParser.addArgument<size_t>("qubit")
+            .constraint(notExistingZXOutputQubitId)
+            .help("the qubit ID of the output");
+
+        auto addEdgeParser = subparsers.addParser("-addedge");
+
+        addEdgeParser.addArgument<size_t>("ids")
+            .nargs(2)
+            .metavar("(vs, vt)")
+            .help("the IDs to the two vertices to add edges in between");
+
+        addEdgeParser.addArgument<string>("etype")
+            .constraint(choices_allow_prefix({"simple", "hadamard"}))
+            .help("the edge type to add. Options: simple, hadamard");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        std::string subparser = parser.getActivatedSubParserName();
+
+        if (subparser == "-rmvertex") {
+            zxGraphMgr.get()->removeVertices(parser.get<vector<size_t>>("ids"));
+
+            if (parser["-isolated"].isParsed()) {
+                zxGraphMgr.get()->removeIsolatedVertices();
+            }
+            return CMD_EXEC_DONE;
+        }
+        if (subparser == "-rmedge") {
+            auto vpair = parser.get<std::vector<size_t>>("ids");
+            auto etype = std::invoke([&parser]() {
+                auto str = parser.get<std::string>("etype");
+                switch (std::tolower(str[0])) {
+                    case 's':
+                        return EdgeType::SIMPLE;
+                    case 'h':
+                        return EdgeType::HADAMARD;
+                    default:
+                        return EdgeType::ERRORTYPE;
+                }
+            });
+
+            if (etype == EdgeType::ERRORTYPE) {  // corresponds to choice "ALL"
+                zxGraphMgr.get()->removeAllEdgesBetween(vpair[0], vpair[1]);
+            } else {
+                zxGraphMgr.get()->removeEdge(vpair[0], vpair[1], etype);
+            }
+
+            return CMD_EXEC_DONE;
+        }
+        if (subparser == "-addvertex") {
+            auto vtype = std::invoke([&parser]() {
+                auto vtypeStr = parser.get<std::string>("vtype");
+                switch (std::tolower(vtypeStr[0])) {
+                    case 'z':
+                        return VertexType::Z;
+                    case 'x':
+                        return VertexType::X;
+                    case 'h':
+                        return VertexType::H_BOX;
+                    default:
+                        return VertexType::ERRORTYPE;
+                }
+            });
+            assert(vtype != VertexType::ERRORTYPE);
+
+            zxGraphMgr.get()->addVertex(parser.get<size_t>("qubit"), vtype, parser.get<Phase>("phase"));
+
+            return CMD_EXEC_DONE;
+        }
+        if (subparser == "-addinput") {
+            zxGraphMgr.get()->addInput(parser.get<size_t>("qubit"));
+            return CMD_EXEC_DONE;
+        }
+        if (subparser == "-addoutput") {
+            zxGraphMgr.get()->addOutput(parser.get<size_t>("qubit"));
+            return CMD_EXEC_DONE;
+        }
+        if (subparser == "-addedge") {
+            auto vpair = parser.get<std::vector<size_t>>("ids");
+            auto etype = std::invoke([&parser]() {
+                auto str = parser.get<std::string>("etype");
+                switch (std::tolower(str[0])) {
+                    case 's':
+                        return EdgeType::SIMPLE;
+                    case 'h':
+                        return EdgeType::HADAMARD;
+                    default:
+                        return EdgeType::ERRORTYPE;
+                }
+            });
+            assert(etype != EdgeType::ERRORTYPE);
+
+            zxGraphMgr.get()->addEdge(vpair[0], vpair[1], etype);
+
+            return CMD_EXEC_DONE;
+        }
+        return CMD_EXEC_ERROR;
+    };
+
+    return cmd;
+}
 CmdExecStatus
 ZXGEditCmd::exec(std::stop_token, const string &option) {
     // check option
@@ -704,7 +884,7 @@ unique_ptr<ArgParseCmdType> ZXGDrawCmd() {
             .nargs(NArgsOption::OPTIONAL)
             .constraint(dir_for_file_exists)
             .constraint(allowed_extension({".pdf"}))
-            .help("the output path. Accepted extension: .pdf");
+            .help("the output path. Supported extension: .pdf");
 
         parser.addArgument<bool>("-CLI")
             .help("print to the console. Note that only horizontal wires will be printed");

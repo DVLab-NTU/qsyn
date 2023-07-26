@@ -31,7 +31,7 @@ void QCir::clearMapping() {
 }
 
 /**
- * @brief Mapping QCir to ZX-graph
+ * @brief Mapping QCir to ZXGraph
  */
 void QCir::ZXMapping(std::stop_token st) {
     updateGateTime();
