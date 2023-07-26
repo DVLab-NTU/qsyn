@@ -1,6 +1,0 @@
-// verb 9
-// qccread benchmark/qft/qft_3.qasm
-// qc2zx
-zxgread benchmark/zx/tof3.zx
-zxgs -preduce 1 1
-qq -f

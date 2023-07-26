@@ -17,6 +17,7 @@
 #include "zxDef.h"
 #include "zxGraph.h"  // for ZXGraph
 #include "zxGraphMgr.h"
+#include "zxPartition.h"
 #include "zxoptimizer.h"
 
 using namespace std;
@@ -501,7 +502,35 @@ void Simplifier::symbolicReduce() {
  */
 void Simplifier::partitionReduce(size_t numPartitions, size_t iterations = 1) {
     // TODO: implement partitionReduce
+
     _simpGraph->addProcedure("partitionReduce");
+    _simpGraph->printVertices();
+
+    auto [subgraphs, cuts] = _simpGraph->createSubgraphs(klPartition, numPartitions);
+
+    std::cerr << "cuts: " << std::endl;
+    for (auto [b1, b2, e] : cuts) {
+        std::cerr << std::endl;
+        std::cerr << b1 << " " << b2 << std::endl;
+        b1->printVertex();
+        b2->printVertex();
+    }
+
+    for (auto& graph : subgraphs) {
+        std::cerr << "====================" << std::endl;
+        std::cerr << "before: " << std::endl;
+        graph->printVertices();
+
+        Simplifier simplifier(graph);
+        simplifier.fullReduce();
+
+        std::cerr << std::endl;
+        std::cerr << "after: " << std::endl;
+        graph->printVertices();
+    }
+
+    _simpGraph = ZXGraph::fromSubgraphs(subgraphs, cuts);
+    _simpGraph->printVertices();
 }
 
 /**

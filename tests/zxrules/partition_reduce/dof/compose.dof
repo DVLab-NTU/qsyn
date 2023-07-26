@@ -1,0 +1,10 @@
+verb 9
+qccread ./benchmark/qft/qft_10.qasm
+qc2zx 
+zxcopy 1
+zxgs -preduce 2 1
+zxgadjoint 
+zxcompose 0
+zxgs -freduce
+zxgt -id
+qq -f

@@ -116,8 +116,8 @@ public:
     }
 
     ~ZXGraph() {
-        for (const auto& v : _vertices) {
-            if (v != NULL) delete v;
+        for (auto& v : _vertices) {
+            delete v;
         }
     }
 
@@ -154,9 +154,42 @@ public:
         _globalTraCounter = std::exchange(other._globalTraCounter, 0);
     }
 
+    ZXGraph(const ZXVertexList& vertices,
+            const ZXVertexList& inputs,
+            const ZXVertexList& outputs,
+            size_t id) : _id(id), _globalTraCounter(1) {
+        _vertices = vertices;
+        _inputs = inputs;
+        _outputs = outputs;
+        _nextVId = 0;
+        for (auto v : _vertices) {
+            v->setId(_nextVId);
+            _nextVId++;
+        }
+        for (auto v : _inputs) {
+            _inputList[v->getQubit()] = v;
+        }
+        for (auto v : _outputs) {
+            _outputList[v->getQubit()] = v;
+        }
+    }
+
     ZXGraph& operator=(ZXGraph copy) {
         copy.swap(*this);
         return *this;
+    }
+
+    void reset() {
+        _nextVId = 0;
+        _fileName = "";
+        _procedures.clear();
+        _inputs.clear();
+        _outputs.clear();
+        _vertices.clear();
+        _topoOrder.clear();
+        _inputList.clear();
+        _outputList.clear();
+        _globalTraCounter = 1;
     }
 
     void swap(ZXGraph& other) noexcept {
@@ -312,8 +345,8 @@ public:
     }
 
     // divide into subgraphs and merge (in zxPartition.cpp)
-    std::pair<std::vector<ZXGraph>, std::vector<ZXCut>> createSubgraphs(ZXPartitionStrategy strategy, size_t numPartitions);
-    static ZXGraph fromSubgraphs(const std::vector<ZXGraph>& subgraphs, const std::vector<ZXCut>& cuts);
+    std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> createSubgraphs(ZXPartitionStrategy strategy, size_t numPartitions);
+    static ZXGraph* fromSubgraphs(const std::vector<ZXGraph*>& subgraphs, const std::vector<ZXCut>& cuts);
 
 private:
     size_t _id;

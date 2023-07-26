@@ -97,14 +97,14 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
 
         parser.addArgument<size_t>("p")
             .required(false)
-            .defaultValue(1)
+            .defaultValue(2)
             .constraint(validPreduceSliceRounds)
-            .help("the amount of partitions generated for preduce");
+            .help("the amount of partitions generated for preduce, defaults to 2");
         parser.addArgument<size_t>("n")
             .required(false)
             .defaultValue(1)
             .constraint(validPreduceIteratoins)
-            .help("the iterations parameter for preduce, if not specified, it will be set to 1");
+            .help("the iterations parameter for preduce, defaults to 1");
 
         mutex.addArgument<bool>("-interclifford")
             .action(storeTrue)

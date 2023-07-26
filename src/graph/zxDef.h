@@ -48,6 +48,30 @@ using Neighbors = ordered_hashset<NeighborPair>;
 using ZXCut = std::tuple<ZXVertex*, ZXVertex*, EdgeType>;
 using ZXPartitionStrategy = std::function<std::vector<ZXVertexList>(const ZXGraph&, size_t)>;
 
+struct ZXCutHash {
+    size_t operator()(const ZXCut& cut) const {
+        auto [v1, v2, edgeType] = cut;
+        // the order of v1 and v2 does not matter
+        if (v1 > v2) std::swap(v1, v2);
+        size_t result = std::hash<ZXVertex*>()(v1) ^ std::hash<ZXVertex*>()(v2);
+        result ^= std::hash<EdgeType>()(edgeType) << 1;
+        return result;
+    }
+};
+
+struct ZXCutEqual {
+    bool operator()(const ZXCut& lhs, const ZXCut& rhs) const {
+        auto [v1, v2, edgeType] = lhs;
+        auto [v3, v4, edgeType2] = rhs;
+        // the order of v1 and v2 does not matter
+        if (v1 > v2) std::swap(v1, v2);
+        if (v3 > v4) std::swap(v3, v4);
+        return v1 == v3 && v2 == v4 && edgeType == edgeType2;
+    }
+};
+
+using ZXCutSet = ordered_hashset<ZXCut, ZXCutHash, ZXCutEqual>;
+
 namespace ZXParserDetail {
 
 struct VertexInfo {

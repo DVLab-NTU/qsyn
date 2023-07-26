@@ -1,0 +1,9 @@
+// verb 9
+qccread ./benchmark/qft/qft_3.qasm
+qc2zx 
+zx2ts
+zxcopy 1
+zxgs -preduce 2 1
+zx2ts
+tseq 0 1
+qq -f

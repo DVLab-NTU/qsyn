@@ -8,9 +8,12 @@
 
 #include "zxPartition.h"
 
+#include <algorithm>
+#include <cstdint>
 #include <iomanip>
 #include <stack>
 #include <unordered_map>
+#include <utility>
 
 #include "zxDef.h"
 #include "zxGraph.h"
@@ -22,100 +25,148 @@ extern ZXGraphMgr zxGraphMgr;
 /*   class ZXGraph partition functions.              */
 /*****************************************************/
 
-std::pair<std::vector<ZXGraph>, std::vector<ZXCut>> ZXGraph::createSubgraphs(ZXPartitionStrategy partitionStrategy, size_t numPartitions) {
-    // TODO: Implement this function
+const int CUT_BOUNDARY_QUBIT_ID = INT_MIN;
 
-    // NOTE: since deleting a subgraph also deletes the vertices in the subgraph,
-    // which still have to be referenced by the merged graph, so we need to copy
-    // merged graph back into the original graph
-    // partition -> optimized subgraphs -> merged graph -> copy back to original graph
+struct DirectionalZXCutHash {
+    size_t operator()(const ZXCut& cut) const {
+        auto [v1, v2, edgeType] = cut;
+        return std::hash<ZXVertex*>()(v1) ^ std::hash<ZXVertex*>()(v2) ^ std::hash<EdgeType>()(edgeType);
+    };
+};
 
+std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>>
+ZXGraph::createSubgraphs(ZXPartitionStrategy partitionStrategy, size_t numPartitions) {
     std::vector<ZXVertexList> partitions = partitionStrategy(*this, numPartitions);
+    std::vector<ZXGraph*> subgraphs;
+    // stores the two sides of the cut and the edge type
+    ZXCutSet innerCuts;
+    // stores the two boundary vertices and the edge type corresponding to the cut
+    std::vector<ZXCut> outerCuts;
+    std::unordered_map<ZXCut, ZXVertex*, DirectionalZXCutHash> cutToBoundary;
+
     ZXVertexList primaryInputs = getInputs();
     ZXVertexList primaryOutputs = getOutputs();
 
-    // std::vector<ZXGraph*> subgraphs;
-    // subgraphs.reserve(partitions.size());
-    // std::unordered_set<EdgePair> cutEdges;
-    //
-    // for (auto& partition : partitions) {
-    //     ZXGraph* graph = new ZXGraph(zxGraphMgr->getNextID());
-    //     subgraphs.push_back(graph);
-    //     graph->setVertices(partition);
-    //
-    //     ZXVertexList subgraphInputs;
-    //     ZXVertexList subgraphOutputs;
-    //     ZXVertexList boundaryVertices;
-    //     for (auto& vertex : graph->getVertices()) {
-    //         if (primaryInputs.contains(vertex)) subgraphInputs.insert(vertex);
-    //         if (primaryOutputs.contains(vertex)) subgraphOutputs.insert(vertex);
-    //         for (auto& [neighbor, edgeType] : vertex->getNeighbors()) {
-    //             if (!partition.contains(neighbor)) {
-    //                 cutEdges.insert({{vertex, neighbor}, edgeType});
-    //                 boundaryVertices.insert(neighbor);
-    //                 // NOTE: label all boundary verices as outputs if it is not an input,
-    //                 // the code should only cares if a vertex is a boundary vertex
-    //                 if (!subgraphInputs.contains(neighbor)) subgraphOutputs.insert(neighbor);
-    //             }
-    //         }
-    //     }
-    //
-    //     graph->addVertices(boundaryVertices);
-    //     graph->setInputs(subgraphInputs);
-    //     graph->setOutputs(subgraphOutputs);
-    //
-    //     std::cerr << "==========" << std::endl;
-    //     std::cerr << "before: " << std::endl;
-    //     std::cerr << "inputs: " << std::endl;
-    //     for (auto& vertex : graph->getInputs()) {
-    //         vertex->printVertex();
-    //     }
-    //     std::cerr << "outputs: " << std::endl;
-    //     for (auto& vertex : graph->getOutputs()) {
-    //         vertex->printVertex();
-    //     }
-    //
-    //     Simplifier simplifier(graph);
-    //     simplifier.fullReduce();
-    //
-    //     std::cerr << "after: " << std::endl;
-    //     std::cerr << "inputs: " << std::endl;
-    //     for (auto& vertex : graph->getInputs()) {
-    //         vertex->printVertex();
-    //     }
-    //     std::cerr << "outputs: " << std::endl;
-    //     for (auto& vertex : graph->getOutputs()) {
-    //         vertex->printVertex();
-    //     }
-    // }
-    //
-    // return;
-    //
-    // // merge the subgraphs back into the original graph
-    // ZXGraph* mergedGraph = new ZXGraph(zxGraphMgr->getNextID());
-    // for (auto& graph : subgraphs) {
-    //     mergedGraph->addVertices(graph->getVertices());
-    // }
-    // for (auto& [edge, edgeType] : cutEdges) {
-    //     mergedGraph->addEdge(edge.first, edge.second, edgeType);
-    // }
-    // mergedGraph->setInputs(primaryInputs);
-    // mergedGraph->setOutputs(primaryOutputs);
-    //
-    // ZXGraph* oldGraph = _simpGraph;
-    // _simpGraph = mergedGraph->copy();
-    //
-    // for (auto& g : subgraphs) {
-    //     delete g;
-    // }
-    // delete oldGraph;
-    // delete mergedGraph;
+    for (auto& partition : partitions) {
+        ZXVertexList subgraphInputs;
+        ZXVertexList subgraphOutputs;
+        std::vector<ZXVertex*> boundaryVertices;
 
-    return {std::vector<ZXGraph>(), std::vector<ZXCut>()};
+        size_t nextVertexId = 0;
+        for (const auto& vertex : partition) {
+            vertex->setId(nextVertexId);
+            nextVertexId++;
+        }
+
+        for (const auto& vertex : partition) {
+            if (primaryInputs.contains(vertex)) subgraphInputs.insert(vertex);
+            if (primaryOutputs.contains(vertex)) subgraphOutputs.insert(vertex);
+
+            std::cerr << "vertex: " << vertex->getId() << std::endl;
+            std::vector<NeighborPair> neighborsToRemove;
+            std::vector<NeighborPair> neighborsToAdd;
+            for (const auto& [neighbor, edgeType] : vertex->getNeighbors()) {
+                std::cerr << "\tneighbor: " << neighbor->getId() << std::endl;
+                if (!partition.contains(neighbor)) {
+                    ZXVertex* boundary = new ZXVertex(nextVertexId++, CUT_BOUNDARY_QUBIT_ID, VertexType::BOUNDARY);
+                    innerCuts.insert({vertex, neighbor, edgeType});
+                    cutToBoundary[{vertex, neighbor, edgeType}] = boundary;
+
+                    neighborsToRemove.push_back({neighbor, edgeType});
+                    neighborsToAdd.push_back({boundary, edgeType});
+
+                    boundary->addNeighbor(vertex, edgeType);
+
+                    boundaryVertices.push_back(boundary);
+                    subgraphOutputs.insert(boundary);
+                }
+            }
+
+            for (const auto& neighborPair : neighborsToAdd) {
+                vertex->addNeighbor(neighborPair);
+            }
+            for (const auto& neighborPair : neighborsToRemove) {
+                vertex->removeNeighbor(neighborPair);
+            }
+        }
+
+        for (const auto& vertex : boundaryVertices) {
+            partition.insert(vertex);
+        }
+        subgraphs.push_back(new ZXGraph(partition, subgraphInputs, subgraphOutputs, zxGraphMgr.getNextID()));
+    }
+
+    std::cerr << "subgraphs: " << std::endl;
+    for (auto g : subgraphs) {
+        g->printVertices();
+    }
+
+    for (auto [cut, b] : cutToBoundary) {
+        auto [v1, v2, e] = cut;
+        std::cerr << v1 << " " << v2 << "->" << b << std::endl;
+    }
+
+    for (auto [v1, v2, edgeType] : innerCuts) {
+        ZXVertex* boundary1 = cutToBoundary[{v1, v2, edgeType}];
+        ZXVertex* boundary2 = cutToBoundary[{v2, v1, edgeType}];
+
+        std::cerr << "====================" << std::endl;
+        std::cout << boundary1 << " " << boundary2 << std::endl;
+        std::cerr << "v1: " << std::endl;
+        for (auto [n, e] : v1->getNeighbors()) {
+            std::cerr << n << " ";
+        }
+        std::cerr << std::endl;
+        std::cerr << "v2: " << std::endl;
+        for (auto [n, e] : v2->getNeighbors()) {
+            std::cerr << n << " ";
+        }
+        std::cerr << std::endl;
+
+        outerCuts.push_back({boundary1, boundary2, edgeType});
+    }
+
+    return {subgraphs, outerCuts};
 }
 
-ZXGraph ZXGraph::fromSubgraphs(const std::vector<ZXGraph>& subgraphs, const std::vector<ZXCut>& cuts) {
-    return ZXGraph(zxGraphMgr.getNextID());
+/**
+ * @brief Creates a new ZXGraph from a list of subgraphs and a list of cuts
+ *        between the subgraphs. Deletes the subgraphs after merging.
+ *
+ * @param subgraphs The list of subgraphs to merge
+ * @param cuts The list of cuts between the subgraph (boundary vertices)
+ *
+ */
+ZXGraph* ZXGraph::fromSubgraphs(const std::vector<ZXGraph*>& subgraphs, const std::vector<ZXCut>& cuts) {
+    // TODO: Implement from subgraph
+    ZXVertexList vertices;
+    ZXVertexList inputs;
+    ZXVertexList outputs;
+
+    for (auto subgraph : subgraphs) {
+        vertices.insert(subgraph->getVertices().begin(), subgraph->getVertices().end());
+        inputs.insert(subgraph->getInputs().begin(), subgraph->getInputs().end());
+        outputs.insert(subgraph->getOutputs().begin(), subgraph->getOutputs().end());
+    }
+
+    for (auto [b1, b2, edgeType] : cuts) {
+        ZXVertex* v1 = b1->getFirstNeighbor().first;
+        ZXVertex* v2 = b2->getFirstNeighbor().first;
+        vertices.erase(b1);
+        vertices.erase(b2);
+        v1->removeNeighbor(b1, edgeType);
+        v2->removeNeighbor(b2, edgeType);
+        v1->addNeighbor(v2, edgeType);
+        v2->addNeighbor(v1, edgeType);
+    }
+
+    for (auto subgraph : subgraphs) {
+        // NOTE: ownership of the vertices is transferred to the merged graph
+        subgraph->reset();
+        delete subgraph;
+    }
+
+    return new ZXGraph(vertices, inputs, outputs, zxGraphMgr.getNextID());
 }
 
 /*****************************************************/
