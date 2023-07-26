@@ -28,7 +28,7 @@ public:
 
     template <typename T>
     struct Multicols {
-        Multicols(T const& str, size_t n): toPrint(str), nCols(n) {}
+        Multicols(T const& str, size_t n) : toPrint(str), nCols(n) {}
         T const& toPrint;
         size_t nCols;
     };
