@@ -1,4 +1,4 @@
-name: Makefile CI
+name: Cmake Build and Test (clang)
 
 on:
   push:
@@ -8,20 +8,19 @@ on:
 
 jobs:
   build-and-test:
-
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
     - name: Check out Git repository
       uses: actions/checkout@v3
     
-    - name: install openBLAS
-      run: sudo apt install libopenblas-dev
-      
+    - name: Install LLVM and Clang
+      uses: KyleMayes/install-llvm-action@v1.8.3
+
     - name: Compile main program
       run:  |
         mkdir build && cd build
-        cmake ..
+        cmake .. -DCMAKE_CXX_COMPILER=$(which clang++)
         make -j16
       
     - name: Run Dofile Tests
