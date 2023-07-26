@@ -34,7 +34,7 @@ bool initGFlowCmd() {
 //    ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets] [-Disjoint]
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGGFlowCmd::exec(const string &option) {
+ZXGGFlowCmd::exec(std::stop_token, const string &option) {
     enum class GFLOW_PRINT_MODE {
         ALL,
         LEVELS,
@@ -46,7 +46,7 @@ ZXGGFlowCmd::exec(const string &option) {
     if (!lexOptions(option, options)) return CMD_EXEC_ERROR;
 
     if (zxGraphMgr.empty()) {
-        cerr << "Error: ZX-graph list is empty now. Please ZXNew before ZXGGFlow." << endl;
+        cerr << "Error: ZXGraph list is empty now. Please ZXNew before ZXGGFlow." << endl;
         return CMD_EXEC_ERROR;
     }
     GFlow gflow(zxGraphMgr.get());
@@ -117,5 +117,5 @@ void ZXGGFlowCmd::usage() const {
 
 void ZXGGFlowCmd::summary() const {
     cout << setw(15) << left << "ZXGGFlow: "
-         << "calculate the generalized flow of current ZX-graph\n";
+         << "calculate the generalized flow of current ZXGraph\n";
 }

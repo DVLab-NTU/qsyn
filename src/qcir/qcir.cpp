@@ -170,7 +170,7 @@ QCirGate *QCir::addSingleRZ(size_t bit, Phase phase, bool append) {
  */
 QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool append) {
     QCirGate *temp = NULL;
-    for_each(type.begin(), type.end(), [](char &c) { c = ::tolower(c); });
+    type = toLowerString(type);
     if (type == "h")
         temp = new HGate(_gateId);
     else if (type == "z")
@@ -206,13 +206,13 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
     } else if (type == "rx") {
         temp = new RXGate(_gateId);
         temp->setRotatePhase(phase);
-    } else if (type == "p") {
+    } else if (type == "p" || type == "pz") {
         temp = new PGate(_gateId);
         temp->setRotatePhase(phase);
     } else if (type == "px") {
         temp = new PXGate(_gateId);
         temp->setRotatePhase(phase);
-    } else if (type == "mcp" || type == "cp") {
+    } else if (type == "mcp" || type == "mcpz" || type == "cp") {
         temp = new MCPGate(_gateId);
         temp->setRotatePhase(phase);
     } else if (type == "mcpx" || type == "cpx") {

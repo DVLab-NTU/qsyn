@@ -37,7 +37,7 @@ QCir* Optimizer::basic_optimization(bool doSwap, bool separateCorrection, size_t
     _corrections.clear();
     prev_stats = Optimizer::stats(_circuit);
 
-    while (true) {
+    while (!_stop_token.stop_requested()) {
         _reversed = true;
         _circuit = parseForward();
         for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
@@ -62,15 +62,23 @@ QCir* Optimizer::basic_optimization(bool doSwap, bool separateCorrection, size_t
 
     for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
     _corrections.clear();
+    _circuit->setFileName(_name);
+    _circuit->addProcedure(_procedures);
+
+    if (_stop_token.stop_requested()) {
+        cerr << "Warning: optimization interrupted" << endl;
+        _circuit->addProcedure("Optimize[INT]");
+        return _circuit;
+    }
+
+    _circuit->addProcedure("Optimize");
+
     if (verbose >= 3) cout << "Optimize finished." << endl;
     if (verbose >= 5) {
         cout << "Final result is" << endl;
         _circuit->printCircuit();
         _circuit->printGates();
     }
-    _circuit->setFileName(_name);
-    _circuit->addProcedure(_procedures);
-    _circuit->addProcedure("Optimize");
     return _circuit;
 }
 

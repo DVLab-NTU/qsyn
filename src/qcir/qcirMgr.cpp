@@ -114,7 +114,7 @@ void QCirMgr::checkout2QCir(size_t id) {
  * @brief Copy the QCir
  *
  * @param id the id to be copied
- * @param toNew if true, checkout to new circuit
+ * @param toNew if true, copy to a new circuit id
  */
 void QCirMgr::copy(size_t id, bool toNew) {
     if (_circuitList.empty())

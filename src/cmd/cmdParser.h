@@ -12,11 +12,12 @@
 #include <map>
 #include <memory>
 #include <stack>
-#include <string>   // for string
+#include <string>  // for string
+#include <thread>
 #include <utility>  // for pair
 #include <vector>
 
-#include "apArgParser.h"
+#include "argparse.h"
 #include "cmdCharDef.h"  // for ParseChar
 
 class CmdParser;
@@ -34,6 +35,7 @@ enum CmdExecStatus {
     CMD_EXEC_ERROR = 1,
     CMD_EXEC_QUIT = 2,
     CMD_EXEC_NOP = 3,
+    CMD_EXEC_EXECUTING = 4,
 
     // dummy
     CMD_EXEC_TOT
@@ -59,7 +61,7 @@ public:
     virtual ~CmdExec() {}
 
     virtual bool initialize() = 0;
-    virtual CmdExecStatus exec(const std::string&) = 0;
+    virtual CmdExecStatus exec(std::stop_token, const std::string&) = 0;
     virtual void usage() const = 0;
     virtual void summary() const = 0;
     virtual void help() const = 0;
@@ -79,20 +81,54 @@ private:
     std::string _optCmd;
 };
 
-#define CmdClass(T)                                    \
-    class T : public CmdExec {                         \
-    public:                                            \
-        T() {}                                         \
-        ~T() {}                                        \
-        bool initialize() { return true; }             \
-        CmdExecStatus exec(const std::string& option); \
-        void usage() const;                            \
-        void summary() const;                          \
-        void help() const {                            \
-            summary();                                 \
-            usage();                                   \
-        }                                              \
+#define CmdClass(T)                                              \
+    class T : public CmdExec {                                   \
+    public:                                                      \
+        T() {}                                                   \
+        ~T() {}                                                  \
+        bool initialize() { return true; }                       \
+        CmdExecStatus exec(std::stop_token, std::string const&); \
+        void usage() const;                                      \
+        void summary() const;                                    \
+        void help() const {                                      \
+            summary();                                           \
+            usage();                                             \
+        }                                                        \
     }
+
+/**
+ * @brief class specification for commands that uses
+ *        ArgParse::ArgumentParser to parse and generate help messages.
+ *
+ */
+class ArgParseCmdType : public CmdExec {
+    using ParserDefinition = std::function<void(ArgParse::ArgumentParser&)>;
+    using Precondition = std::function<bool()>;
+    using Uninterruptible = std::function<CmdExecStatus(ArgParse::ArgumentParser const&)>;
+    using Interruptible = std::function<CmdExecStatus(std::stop_token, ArgParse::ArgumentParser const&)>;
+    using OnParseSuccess = std::variant<Uninterruptible, Interruptible>;
+
+public:
+    ArgParseCmdType(std::string const& name) { _parser.name(name); }
+    ~ArgParseCmdType() {}
+
+    bool initialize() override;
+    CmdExecStatus exec(std::stop_token, std::string const& option) override;
+    void usage() const override { _parser.printUsage(); }
+    void summary() const override { _parser.printSummary(); }
+    void help() const override { _parser.printHelp(); }
+
+    ParserDefinition parserDefinition;  // define the parser's arguments and traits
+    Precondition precondition;          // define the parsing precondition
+
+    OnParseSuccess onParseSuccess;  // define the action to take on parse success
+
+private:
+    ArgParse::ArgumentParser _parser;
+
+    void printMissingParserDefinitionErrorMsg() const;
+    void printMissingOnParseSuccessErrorMsg() const;
+};
 
 //----------------------------------------------------------------------
 //    Base class : CmdParser
@@ -105,15 +141,10 @@ class CmdParser {
     using CmdMap = std::map<const std::string, std::unique_ptr<CmdExec>>;
     using CmdRegPair = std::pair<const std::string, std::unique_ptr<CmdExec>>;
 
-    enum class ParserState {
-        RECEIVING_INPUT,
-        EXECUTING_COMMAND
-    };
-
 public:
     CmdParser(const std::string& p)
-        : _prompt{p}, _specialChars{"\"\' "}, _dofile(0), _readBuf{}, _cursorPosition{0}, _historyIdx(0), _tabPressCount(0), _tempCmdStored(false), _state{ParserState::RECEIVING_INPUT} {
-        _readBuf.reserve(65536);
+        : _prompt{p}, _specialChars{"\"\' "}, _dofile(nullptr), _readBuf{}, _cursorPosition{0}, _historyIdx(0), _tabPressCount(0), _tempCmdStored(false), _currCmd{std::nullopt} {
+        _readBuf.reserve(READ_BUF_SIZE);
     }
     virtual ~CmdParser() {}
 
@@ -188,7 +219,7 @@ private:
                                                               // Reset to false when new command added
     CmdMap _cmdMap;                                           // map from string to command
     std::stack<std::ifstream*> _dofileStack;                  // For recursive dofile calling
-    ParserState _state;                                       // The state of the command line parser
+    std::optional<std::jthread> _currCmd;                     // the current (ongoing) command
     std::unordered_map<std::string, std::string> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
     std::vector<std::string> _arguments;                      // stores the extra dofile arguments given when invoking the program
     std::string _dofileName;

@@ -11,7 +11,6 @@
 #include <iostream>
 #include <string>
 
-#include "apCmd.h"
 #include "cmdParser.h"
 #include "phase.h"
 #include "tensorMgr.h"
@@ -44,15 +43,11 @@ bool initTensorCmd() {
 }
 
 ArgType<size_t>::ConstraintType validTensorId = {
-    [](ArgType<size_t> const& arg) {
-        return [&arg]() {
-            return tensorMgr->hasId(arg.getValue());
-        };
+    [](size_t const& id) {
+        return tensorMgr->hasId(id);
     },
-    [](ArgType<size_t> const& arg) {
-        return [&arg]() {
-            cerr << "Error: Can't find tensor with ID " << arg.getValue() << "!!" << endl;
-        };
+    [](size_t const& id) {
+        cerr << "Error: Can't find tensor with ID " << id << "!!" << endl;
     }};
 
 unique_ptr<ArgParseCmdType> tsResetCmd() {
@@ -62,7 +57,7 @@ unique_ptr<ArgParseCmdType> tsResetCmd() {
         parser.help("reset the tensor manager");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         tensorMgr->reset();
         return CMD_EXEC_DONE;
     };
@@ -80,12 +75,12 @@ unique_ptr<ArgParseCmdType> tsPrintCmd() {
             .action(storeTrue)
             .help("only list summary");
         parser.addArgument<size_t>("id")
-            .required(false)
+            .nargs(NArgsOption::OPTIONAL)
             .constraint(validTensorId)
             .help("the ID to the tensor");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         bool list = parser["-list"];
         if (parser["id"].isParsed()) {
             tensorMgr->printTensor(parser["id"], list);
@@ -108,7 +103,7 @@ unique_ptr<ArgParseCmdType> tsAdjointCmd() {
             .constraint(validTensorId)
             .help("the ID of the tensor");
     };
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         tensorMgr->adjoint(parser["id"]);
         return CMD_EXEC_DONE;
     };
@@ -136,7 +131,7 @@ unique_ptr<ArgParseCmdType> tsEquivCmd() {
             .action(storeTrue);
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         size_t id1 = parser["id1"], id2 = parser["id2"];
         double eps = parser["-epsilon"];
         bool strict = parser["-strict"];

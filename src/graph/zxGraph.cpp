@@ -24,7 +24,7 @@ extern size_t verbose;
 /*****************************************************/
 
 /**
- * @brief Get the number of edges in ZX-graph
+ * @brief Get the number of edges in ZXGraph
  *
  * @return size_t
  */
@@ -41,7 +41,7 @@ size_t ZXGraph::getNumEdges() const {
 /*****************************************************/
 
 /**
- * @brief Check if the ZX-graph is an empty one (no vertice)
+ * @brief Check if the ZXGraph is an empty one (no vertice)
  *
  * @return true
  * @return false
@@ -51,7 +51,7 @@ bool ZXGraph::isEmpty() const {
 }
 
 /**
- * @brief Check if the ZX-graph is valid (i/o connected to 1 vertex, each neighbor matches)
+ * @brief Check if the ZXGraph is valid (i/o connected to 1 vertex, each neighbor matches)
  *
  * @return true
  * @return false
@@ -180,7 +180,7 @@ size_t ZXGraph::numGadgets() const {
 }
 
 /**
- * @brief Return the density of the ZX-graph
+ * @brief Return the density of the ZXGraph
  *
  * @return double
  */

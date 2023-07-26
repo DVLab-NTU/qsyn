@@ -55,7 +55,7 @@ GreedyConf::GreedyConf()
  * @param topo
  * @param tqdm
  */
-GreedyScheduler::GreedyScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : BaseScheduler(std::move(topo), tqdm) {}
+GreedyScheduler::GreedyScheduler(unique_ptr<CircuitTopo> topo, bool tqdm, std::stop_token st) : BaseScheduler(std::move(topo), tqdm, st) {}
 
 /**
  * @brief Construct a new Greedy Scheduler:: Greedy Scheduler object
@@ -91,6 +91,9 @@ Device GreedyScheduler::assignGates(unique_ptr<Router> router) {
     auto topoWrap = TopologyCandidate(*_circuitTopology, _conf._candidates);
     for (TqdmWrapper bar{_circuitTopology->getNumGates(), _tqdm};
          !topoWrap.getAvailableGates().empty(); ++bar) {
+        if (this->_stop_token.stop_requested()) {
+            return router->getDevice();
+        }
         auto waitlist = topoWrap.getAvailableGates();
         assert(waitlist.size() > 0);
 

@@ -7,6 +7,7 @@
 ****************************************************************************/
 #include "cmdParser.h"
 
+#include <atomic>
 #include <cassert>     // for assert
 #include <cstddef>     // for size_t
 #include <cstdlib>     // for exit
@@ -14,6 +15,7 @@
 #include <fstream>
 #include <iostream>  // for cin, cout
 #include <regex>
+#include <thread>
 
 #include "util.h"
 
@@ -116,14 +118,14 @@ bool CmdParser::regCmd(const string& cmd, unsigned nCmp, unique_ptr<CmdExec>&& e
 }
 
 void CmdParser::sigintHandler(int signum) {
-    switch (_state) {
-        case ParserState::RECEIVING_INPUT:
-            cout << char(NEWLINE_KEY);
-            resetBufAndPrintPrompt();
-            return;
-        case ParserState::EXECUTING_COMMAND:
-        default:
-            exit(128 + signum);
+    if (_currCmd.has_value()) {
+        // there is an executing command
+        _currCmd->request_stop();
+        cout << "Command Interrupted" << endl;
+    } else {
+        // receiving inputs
+        cout << char(NEWLINE_KEY);
+        resetBufAndPrintPrompt();
     }
 }
 
@@ -137,16 +139,29 @@ CmdParser::execOneCmd() {
         newCmd = readCmd(cin);
 
     // execute the command
-    if (newCmd) {
-        auto [e, option] = parseCmd();
-        if (e != 0) {
-            _state = ParserState::EXECUTING_COMMAND;
-            CmdExecStatus result = e->exec(option);
-            _state = ParserState::RECEIVING_INPUT;
-            return result;
-        }
+    if (!newCmd) return CMD_EXEC_NOP;
+
+    auto [e, option] = parseCmd();
+
+    if (e == nullptr) return CMD_EXEC_NOP;
+
+    std::atomic<CmdExecStatus> result = CMD_EXEC_EXECUTING;
+    _currCmd = std::jthread(
+        [this, &e = e, &option = option, &result](std::stop_token st) {
+            result = e->exec(st, option);
+        });
+
+    assert(_currCmd.has_value());
+
+    _currCmd->join();
+
+    if (result == CMD_EXEC_EXECUTING) {
+        cerr << "Command interrupted " << endl;
     }
-    return CMD_EXEC_NOP;
+
+    _currCmd = std::nullopt;
+
+    return result;
 }
 
 // For each CmdExec* in _cmdMap, call its "help()" to print out the help msg.

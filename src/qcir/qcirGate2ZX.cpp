@@ -147,7 +147,7 @@ ZXGraph MCP_Gen(vector<BitInfo> qubits, size_t id, Phase const& rotatePhase, Rot
 }  // namespace detail
 
 /**
- * @brief Map single qubit gate to ZX-graph
+ * @brief Map single qubit gate to ZXGraph
  *
  * @param vt
  * @param ph
@@ -169,7 +169,7 @@ ZXGraph QCirGate::mapSingleQubitGate(VertexType vt, Phase ph) {
 // Double or More Qubit Gate
 
 /**
- * @brief get ZX-graph of CX
+ * @brief get ZXGraph of CX
  *
  * @return ZXGraph
  */
@@ -194,7 +194,7 @@ ZXGraph CXGate::getZXform() {
 }
 
 /**
- * @brief Cet ZX-graph of CCX.
+ * @brief Cet ZXGraph of CCX.
  *        Decomposed into 21 vertices (6X + 6Z + 4T + 3Tdg + 2H)
  *
  * @return ZXGraph
@@ -331,7 +331,7 @@ ZXGraph SWAPGate::getZXform() {
 }
 
 /**
- * @brief Get ZX-graph of CZ
+ * @brief Get ZXGraph of CZ
  *
  * @return ZXGraph
  */
@@ -359,7 +359,7 @@ ZXGraph CZGate::getZXform() {
 // NOTE - Cannot use mapSingleQubitGate
 
 /**
- * @brief Get ZX-graph of Y = iXZ
+ * @brief Get ZXGraph of Y = iXZ
  *
  * @return ZXGraph
  */
@@ -379,7 +379,7 @@ ZXGraph YGate::getZXform() {
 }
 
 /**
- * @brief Get ZX-graph of SY = S。SX。Sdg
+ * @brief Get ZXGraph of SY = S。SX。Sdg
  *
  * @return ZXGraph
  */
@@ -401,7 +401,7 @@ ZXGraph SYGate::getZXform() {
 }
 
 /**
- * @brief Get ZX-graph of MCPX
+ * @brief Get ZXGraph of MCPX
  *
  * @return ZXGraph
  */
@@ -410,7 +410,7 @@ ZXGraph MCPXGate::getZXform() {
 }
 
 /**
- * @brief Get ZX-graph of MCPY
+ * @brief Get ZXGraph of MCPY
  *
  * @return ZXGraph
  */
@@ -419,7 +419,7 @@ ZXGraph MCPYGate::getZXform() {
 }
 
 /**
- * @brief Get ZX-graph of MCP
+ * @brief Get ZXGraph of MCP
  *
  * @return ZXGraph
  */
@@ -428,7 +428,7 @@ ZXGraph MCPGate::getZXform() {
 }
 
 /**
- * @brief Get ZX-graph of MCRX
+ * @brief Get ZXGraph of MCRX
  *
  * @return ZXGraph
  */
@@ -437,7 +437,7 @@ ZXGraph MCRXGate::getZXform() {
 }
 
 /**
- * @brief Get ZX-graph of MCRY
+ * @brief Get ZXGraphof MCRY
  *
  * @return ZXGraph
  */
@@ -446,7 +446,7 @@ ZXGraph MCRYGate::getZXform() {
 }
 
 /**
- * @brief Get ZX-graph of MCRZ
+ * @brief Get ZXGraphof MCRZ
  *
  * @return ZXGraph
  */

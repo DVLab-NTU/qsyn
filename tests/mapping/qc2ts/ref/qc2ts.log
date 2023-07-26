@@ -8,7 +8,6 @@ Create and checkout to QCir 0
 qsyn> qc2ts
 Traverse and build the tensor... 
 > Add boundary
-Successfully added Tensor 0
   - Add Qubit 0 output port: 1
   - Add Qubit 1 output port: 3
 > Gate 0 (x)
@@ -47,6 +46,7 @@ Successfully added Tensor 0
 > Pin Permutation
   - Qubit: 1 input : 1 -> 1 |  output: 3 -> 3
   - Qubit: 0 input : 0 -> 0 |  output: 2 -> 2
+Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
 qsyn> qccr benchmark/qc2ts/circuit/control_h.qasm -R
@@ -55,7 +55,6 @@ Note: original QCir is replaced...
 qsyn> qc2ts
 Traverse and build the tensor... 
 > Add boundary
-Successfully added Tensor 1
   - Add Qubit 0 output port: 1
   - Add Qubit 1 output port: 3
 > Gate 0 (sx)
@@ -110,6 +109,7 @@ Successfully added Tensor 1
 > Pin Permutation
   - Qubit: 1 input : 1 -> 1 |  output: 3 -> 3
   - Qubit: 0 input : 0 -> 0 |  output: 2 -> 2
+Successfully added Tensor 1
 Stored the resulting tensor as tensor id 1
 
 qsyn> qccr benchmark/qc2ts/circuit/toffoli_dec.qasm -R
@@ -118,7 +118,6 @@ Note: original QCir is replaced...
 qsyn> qc2ts
 Traverse and build the tensor... 
 > Add boundary
-Successfully added Tensor 2
   - Add Qubit 0 output port: 1
   - Add Qubit 1 output port: 3
   - Add Qubit 2 output port: 5
@@ -197,6 +196,7 @@ Successfully added Tensor 2
   - Qubit: 2 input : 2 -> 2 |  output: 5 -> 5
   - Qubit: 1 input : 1 -> 1 |  output: 4 -> 4
   - Qubit: 0 input : 0 -> 0 |  output: 3 -> 3
+Successfully added Tensor 2
 Stored the resulting tensor as tensor id 2
 
 qsyn> qccr benchmark/qc2ts/circuit/toffoli_qiskit.qasm -R
@@ -205,7 +205,6 @@ Note: original QCir is replaced...
 qsyn> qc2ts
 Traverse and build the tensor... 
 > Add boundary
-Successfully added Tensor 3
   - Add Qubit 0 output port: 1
   - Add Qubit 1 output port: 3
   - Add Qubit 2 output port: 5
@@ -384,6 +383,7 @@ Successfully added Tensor 3
   - Qubit: 2 input : 2 -> 2 |  output: 3 -> 3
   - Qubit: 1 input : 1 -> 1 |  output: 4 -> 4
   - Qubit: 0 input : 0 -> 0 |  output: 5 -> 5
+Successfully added Tensor 3
 Stored the resulting tensor as tensor id 3
 
 qsyn> ver 8
@@ -400,7 +400,6 @@ Q 2  - x( 0)----------cx( 1)----------cx( 2)-- t( 5)----------cx( 7)----------cx
 qsyn> qc2ts
 Traverse and build the tensor... 
 > Add boundary
-Successfully added Tensor 4
   - Add Qubit 0 output port: 1
   - Add Qubit 1 output port: 3
   - Add Qubit 2 output port: 5
@@ -584,6 +583,7 @@ Successfully added Tensor 4
   - Qubit: 2 input : 2 -> 2 |  output: 3 -> 5
   - Qubit: 1 input : 1 -> 1 |  output: 4 -> 4
   - Qubit: 0 input : 0 -> 0 |  output: 5 -> 3
+Successfully added Tensor 4
 Stored the resulting tensor as tensor id 4
 
 qsyn> qq -f

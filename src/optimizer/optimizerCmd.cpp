@@ -6,16 +6,15 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>   // for size_t
-#include <iostream>  // for ostream
-#include <string>    // for string
+#include <cstddef>
+#include <iostream>
+#include <string>
 
-#include "apCmd.h"
-#include "optimizer.h"  // for Extractor
-#include "qcir.h"       // for QCir
-#include "qcirCmd.h"    // for QC_CMD_ID_VALID_OR_RETURN, QC_CMD_QCIR_ID_EX...
-#include "qcirMgr.h"    // for QCirMgr
-#include "util.h"       // for myStr2Uns
+#include "optimizer.h"
+#include "qcir.h"
+#include "qcirCmd.h"
+#include "qcirMgr.h"
+#include "util.h"
 
 using namespace std;
 using namespace ArgParse;
@@ -38,6 +37,9 @@ bool initOptimizeCmd() {
 //----------------------------------------------------------------------
 unique_ptr<ArgParseCmdType> optimizeCmd() {
     auto cmd = make_unique<ArgParseCmdType>("OPTimize");
+
+    cmd->precondition = []() { return qcirMgrNotEmpty("OPTimize"); };
+
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("optimize QCir");
         parser.addArgument<bool>("-physical")
@@ -58,14 +60,13 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
             .help("Use the trivial optimization.");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("OPTimize");
-        Optimizer Opt(qcirMgr->getQCircuit());
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+        Optimizer optimizer(qcirMgr->getQCircuit(), st);
         QCir *result;
         if (parser["-trivial"])
-            result = Opt.trivial_optimization();
+            result = optimizer.trivial_optimization();
         else
-            result = Opt.basic_optimization(!parser["-physical"], false, 1000, parser["-statistics"]);
+            result = optimizer.basic_optimization(!parser["-physical"], false, 1000, parser["-statistics"]);
         if (result == nullptr) {
             cout << "Error: fail to optimize circuit." << endl;
         } else {

@@ -134,9 +134,9 @@ size_t getPlacerType(string str) {
  * @param tqdm
  * @param silent
  */
-Duostra::Duostra(QCir* cir, Device dev, bool check, bool tqdm, bool silent) : _logicalCircuit(cir), _physicalCircuit(new QCir(0)), _device(dev), _check(check) {
-    _tqdm = (silent == true) ? false : tqdm;
-    _silent = silent;
+Duostra::Duostra(QCir* cir, Device dev, bool check, bool tqdm, bool silent, std::stop_token st)
+    : _logicalCircuit(cir), _physicalCircuit(new QCir(0)), _device(dev), _check(check),
+      _tqdm{(silent == true) ? false : tqdm}, _silent{silent}, _stop_token{st} {
     if (verbose > 3) cout << "Creating dependency of quantum circuit..." << endl;
     makeDependency();
 }
@@ -150,9 +150,9 @@ Duostra::Duostra(QCir* cir, Device dev, bool check, bool tqdm, bool silent) : _l
  * @param tqdm
  * @param silent
  */
-Duostra::Duostra(const vector<Operation>& cir, size_t nQubit, Device dev, bool check, bool tqdm, bool silent) : _logicalCircuit(nullptr), _physicalCircuit(new QCir(0)), _device(dev), _check(check) {
-    _tqdm = (silent == true) ? false : tqdm;
-    _silent = silent;
+Duostra::Duostra(const vector<Operation>& cir, size_t nQubit, Device dev, bool check, bool tqdm, bool silent, std::stop_token st)
+    : _logicalCircuit(nullptr), _physicalCircuit(new QCir(0)), _device(dev), _check(check),
+      _tqdm{(silent == true) ? false : tqdm}, _silent{silent}, _stop_token{st} {
     if (verbose > 3) cout << "Creating dependency of quantum circuit..." << endl;
     makeDependency(cir, nQubit);
 }
@@ -241,7 +241,7 @@ size_t Duostra::flow(bool useDeviceAsPlacement) {
     }
     // scheduler
     if (verbose > 3) cout << "Creating Scheduler..." << endl;
-    auto sched = getScheduler(std::move(topo), _tqdm);
+    auto sched = getScheduler(std::move(topo), _tqdm, _stop_token);
 
     // router
     if (verbose > 3) cout << "Creating Router..." << endl;
@@ -251,6 +251,11 @@ size_t Duostra::flow(bool useDeviceAsPlacement) {
     // routing
     if (!_silent) cout << "Routing..." << endl;
     _device = sched->assignGatesAndSort(std::move(router));
+
+    if (_stop_token.stop_requested()) {
+        cerr << "Warning: mapping interrupted" << endl;
+        return ERROR_CODE;
+    }
 
     if (_check) {
         if (!_silent) cout << "Checking..." << endl;

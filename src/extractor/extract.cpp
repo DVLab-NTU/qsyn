@@ -34,7 +34,7 @@ extern size_t verbose;
  * @param c
  * @param d
  */
-Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> d) : _graph(g), _device(d), _deviceBackup(d) {
+Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> d, std::stop_token st) : _graph(g), _device(d), _deviceBackup(d), _stop_token{st} {
     _logicalCircuit = (c == nullptr) ? new QCir(-1) : c;
     _physicalCircuit = toPhysical() ? new QCir(-1) : nullptr;
     initialize(c == nullptr);
@@ -86,9 +86,15 @@ void Extractor::initialize(bool fromEmpty) {
  * @return QCir*
  */
 QCir* Extractor::extract() {
-    if (!extractionLoop(-1))
+    if (!extractionLoop(-1)) {
         return nullptr;
-    else if (verbose >= 3)
+    }
+    if (_stop_token.stop_requested()) {
+        cerr << "Warning: conversion is interrupted" << endl;
+        return nullptr;
+    }
+
+    if (verbose >= 3)
         cout << "Finish extracting!" << endl;
     if (verbose >= 8) {
         _logicalCircuit->printQubits();
@@ -119,7 +125,7 @@ QCir* Extractor::extract() {
  * @return false if not
  */
 bool Extractor::extractionLoop(size_t max_iter) {
-    while (max_iter > 0) {
+    while (max_iter > 0 && !_stop_token.stop_requested()) {
         cleanFrontier();
         updateNeighbors();
 
@@ -456,15 +462,15 @@ void Extractor::columnOptimalSwap() {
     Target target;
     target = findColumnSwap(target);
 
-    set<size_t> colSet, left, right, targKey, targVal;
+    std::set<size_t> colSet, left, right, targKey, targVal;
     for (size_t i = 0; i < colCnt; i++) colSet.emplace(i);
     for (auto& [k, v] : target) {
         targKey.emplace(k);
         targVal.emplace(v);
     }
 
-    set_difference(colSet.begin(), colSet.end(), targVal.begin(), targVal.end(), inserter(left, left.end()));
-    set_difference(colSet.begin(), colSet.end(), targKey.begin(), targKey.end(), inserter(right, right.end()));
+    std::set_difference(colSet.begin(), colSet.end(), targVal.begin(), targVal.end(), inserter(left, left.end()));
+    std::set_difference(colSet.begin(), colSet.end(), targKey.begin(), targKey.end(), inserter(right, right.end()));
     vector<size_t> lvec(left.begin(), left.end());
     vector<size_t> rvec(right.begin(), right.end());
     for (size_t i = 0; i < lvec.size(); i++) {

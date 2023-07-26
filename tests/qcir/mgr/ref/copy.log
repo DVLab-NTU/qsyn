@@ -168,7 +168,7 @@ qsyn> qccp -q
 Q 0  
 
 qsyn> qcga -h
-Error: Missing option after (-h)!!
+Error: too few qubits are supplied for gate -h!!
 
 qsyn> qcga -h 0
 
@@ -176,8 +176,7 @@ qsyn> qccp -q
 Q 0  - h( 0)-
 
 qsyn> qcga -cx 0 1
-Error: qubit ID is not in current circuit!!
-Error: Illegal option!! (1)
+Error: Qubit id 1 does not exist!!
 
 qsyn> qcba 3
 

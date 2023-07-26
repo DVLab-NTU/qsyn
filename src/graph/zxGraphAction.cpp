@@ -47,7 +47,7 @@ void ZXGraph::toggleVertex(ZXVertex* v) {
 }
 
 /**
- * @brief Lift each vertex's qubit in ZX-graph with `n`.
+ * @brief Lift each vertex's qubit in ZXGraph with `n`.
  *        Ex: origin: 0 -> after lifting: n
  *
  * @param n
@@ -73,7 +73,7 @@ void ZXGraph::liftQubit(const size_t& n) {
 }
 
 /**
- * @brief Compose `target` to the original ZX-graph (horizontal concat)
+ * @brief Compose `target` to the original ZXGraph (horizontal concat)
  *
  * @param target
  * @return ZXGraph*
@@ -81,7 +81,7 @@ void ZXGraph::liftQubit(const size_t& n) {
 ZXGraph& ZXGraph::compose(ZXGraph const& target) {
     // Check ori-outputNum == target-inputNum
     if (this->getNumOutputs() != target.getNumInputs()) {
-        cerr << "Error: The composing ZX-graph's #input is not equivalent to the original ZX-graph's #output." << endl;
+        cerr << "Error: The composing ZXGraph's #input is not equivalent to the original ZXGraph's #output." << endl;
         return *this;
     }
 
@@ -121,7 +121,7 @@ ZXGraph& ZXGraph::compose(ZXGraph const& target) {
 }
 
 /**
- * @brief Tensor `target` to the original ZX-graph (vertical concat)
+ * @brief Tensor `target` to the original ZXGraph (vertical concat)
  *
  * @param target
  * @return ZXGraph*

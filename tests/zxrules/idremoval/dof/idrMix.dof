@@ -25,7 +25,7 @@ zxgedit -addi 1
 zxgedit -addo 1
 zxgedit -addv 0 Z 0
 zxgedit -addv 0 X 0
-zxgedit -addv 0 H_BOX 0
+zxgedit -addv 0 HBOX 0
 zxgedit -addv 0 X 0
 zxgedit -addv 0 Z 0
 zxgedit -addv 0 Z 1.5708
@@ -57,7 +57,7 @@ zxgedit -addv 0 X 0
 zxgedit -addv 0 Z 0
 zxgedit -addv 0 Z 0
 zxgedit -addv 0 Z 0
-zxgedit -addv 0 H_BOX 0
+zxgedit -addv 0 HBOX 0
 zxgedit -addv 0 Z 1.5708
 zxgedit -addv 0 X 1.5708
 zxgedit -adde 0 2 SIMPLE

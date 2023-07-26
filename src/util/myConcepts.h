@@ -9,12 +9,20 @@
 #ifndef MY_CONCEPTS_H
 #define MY_CONCEPTS_H
 
+#include <array>
 #include <concepts>
 #include <iostream>
 #include <string>
 #include <type_traits>
 
 #include "rationalNumber.h"
+
+template <class A>
+struct is_fixed_array : std::false_type {};
+
+// only works with arrays by specialization.
+template <class T, std::size_t I>
+struct is_fixed_array<std::array<T, I>> : std::true_type {};
 
 template <typename T>
 concept Arithmetic = std::is_arithmetic_v<T>;

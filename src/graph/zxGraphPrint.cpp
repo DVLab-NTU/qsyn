@@ -19,7 +19,7 @@ namespace TF = TextFormat;
 extern size_t verbose;
 
 /**
- * @brief Print information of ZX-graph
+ * @brief Print information of ZXGraph
  *
  */
 void ZXGraph::printGraph() const {
@@ -31,7 +31,7 @@ void ZXGraph::printGraph() const {
 }
 
 /**
- * @brief Print Inputs of ZX-graph
+ * @brief Print Inputs of ZXGraph
  *
  */
 void ZXGraph::printInputs() const {
@@ -41,7 +41,7 @@ void ZXGraph::printInputs() const {
 }
 
 /**
- * @brief Print Outputs of ZX-graph
+ * @brief Print Outputs of ZXGraph
  *
  */
 void ZXGraph::printOutputs() const {
@@ -51,7 +51,7 @@ void ZXGraph::printOutputs() const {
 }
 
 /**
- * @brief Print Inputs and Outputs of ZX-graph
+ * @brief Print Inputs and Outputs of ZXGraph
  *
  */
 void ZXGraph::printIO() const {
@@ -63,7 +63,7 @@ void ZXGraph::printIO() const {
 }
 
 /**
- * @brief Print Vertices of ZX-graph
+ * @brief Print Vertices of ZXGraph
  *
  */
 void ZXGraph::printVertices() const {
@@ -73,7 +73,7 @@ void ZXGraph::printVertices() const {
 }
 
 /**
- * @brief Print Vertices of ZX-graph in `cand`.
+ * @brief Print Vertices of ZXGraph in `cand`.
  *
  * @param cand
  */
@@ -88,7 +88,7 @@ void ZXGraph::printVertices(vector<size_t> cand) const {
 }
 
 /**
- * @brief Print Vertices of ZX-graph in `cand` by qubit.
+ * @brief Print Vertices of ZXGraph in `cand` by qubit.
  *
  * @param cand
  */
@@ -119,7 +119,7 @@ void ZXGraph::printQubits(vector<int> cand) const {
 }
 
 /**
- * @brief Print Edges of ZX-graph
+ * @brief Print Edges of ZXGraph
  *
  */
 void ZXGraph::printEdges() const {
@@ -193,7 +193,7 @@ string printColoredVertex(ZXVertex* v) {
 }
 
 /**
- * @brief Draw ZX-graph in CLI
+ * @brief Draw ZXGraphin CLI
  *
  */
 void ZXGraph::draw() const {

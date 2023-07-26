@@ -1,7 +1,7 @@
 /****************************************************************************
   FileName     [ zxGraphMgr.h ]
   PackageName  [ graph ]
-  Synopsis     [ Define ZX-graph manager ]
+  Synopsis     [ Define ZXGraph manager ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

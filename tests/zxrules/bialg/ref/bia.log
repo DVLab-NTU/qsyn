@@ -315,9 +315,9 @@ Size of topological order: 9
     3--15 (-) axis id: 1
     2--6 (-) axis id: 2
     1--14 (-) axis id: 3
-Successfully added Tensor 0
 Input  axis ids: 0 2
 Output axis ids: 3 1
+Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
 qsyn> zxnew
@@ -397,9 +397,9 @@ Size of topological order: 6
     2--4 (-) axis id: 1
     1--5 (-) axis id: 2
     3--5 (-) axis id: 3
-Successfully added Tensor 1
 Input  axis ids: 0 1
 Output axis ids: 2 3
+Successfully added Tensor 1
 Stored the resulting tensor as tensor id 1
 
 qsyn> tseq 0 1

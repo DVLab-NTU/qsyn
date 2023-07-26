@@ -8,7 +8,7 @@ qsyn> qc2zx
 Created and checked out to ZXGraph 0
 
 qsyn> extp -f
-Error: ZX-graph (id: 0) is not graph-like. Not extractable!!
+Error: ZXGraph (id: 0) is not graph-like. Not extractable!!
 
 qsyn> zxgs -fr
 

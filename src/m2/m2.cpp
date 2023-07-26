@@ -516,7 +516,7 @@ bool M2::isAugmentedSolvedForm() const {
 }
 
 /**
- * @brief Build matrix from ZX-graph (according to the given order)
+ * @brief Build matrix from ZXGraph (according to the given order)
  *
  * @param frontier
  * @param neighbors

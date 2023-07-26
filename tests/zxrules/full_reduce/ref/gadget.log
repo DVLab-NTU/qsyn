@@ -505,9 +505,9 @@ Size of topological order: 14
     1--22 (-) axis id: 1
     5--14 ([1m[34mH[0m[0m) axis id: 2
     4--14 ([1m[34mH[0m[0m) axis id: 3
-Successfully added Tensor 1
 Input  axis ids: 0 3
 Output axis ids: 1 2
+Successfully added Tensor 1
 Stored the resulting tensor as tensor id 1
 
 qsyn> tseq 0 1

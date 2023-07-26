@@ -19,6 +19,14 @@
 #include "rnGen.h"
 #include "tqdm/tqdm.h"
 
+#if defined(__clang__)
+#define QSYN_ALWAYS_INLINE [[clang::always_inline]]
+#elif defined(__GNUC__) || defined(__GNUG__)
+#define QSYN_ALWAYS_INLINE __always_inline
+#else
+#define QSYN_ALWAYS_INLINE
+#endif
+
 #define IGNORE_UNUSED_RETURN_WARNING [[maybe_unused]] auto shutup =
 
 class tqdm;
@@ -33,7 +41,10 @@ public:
     size_t idx() const { return _counter; }
     bool done() const { return _counter == _total; }
     void add();
-    TqdmWrapper& operator++() { return add(), *this; }
+    TqdmWrapper& operator++() {
+        add();
+        return *this;
+    }
 
 private:
     size_t _counter;

@@ -12,6 +12,7 @@
 
 #include <functional>
 #include <memory>
+#include <stop_token>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -24,7 +25,7 @@
 
 class BaseScheduler {
 public:
-    BaseScheduler(std::unique_ptr<CircuitTopo>, bool = true);
+    BaseScheduler(std::unique_ptr<CircuitTopo>, bool = true, std::stop_token = std::stop_token{});
     BaseScheduler(BaseScheduler const&);
     BaseScheduler(BaseScheduler&&) = default;
     virtual ~BaseScheduler() {}
@@ -53,13 +54,14 @@ protected:
     std::vector<size_t> _assignOrder;
     bool _sorted = false;
     bool _tqdm = true;
+    std::stop_token _stop_token;
     virtual Device assignGates(std::unique_ptr<Router>);
     void sort();
 };
 
 class RandomScheduler : public BaseScheduler {
 public:
-    RandomScheduler(std::unique_ptr<CircuitTopo>, bool = true);
+    RandomScheduler(std::unique_ptr<CircuitTopo>, bool = true, std::stop_token = std::stop_token{});
     RandomScheduler(const RandomScheduler&);
     RandomScheduler(RandomScheduler&&);
     ~RandomScheduler() override {}
@@ -72,7 +74,7 @@ protected:
 
 class StaticScheduler : public BaseScheduler {
 public:
-    StaticScheduler(std::unique_ptr<CircuitTopo>, bool = true);
+    StaticScheduler(std::unique_ptr<CircuitTopo>, bool = true, std::stop_token = std::stop_token{});
     StaticScheduler(const StaticScheduler&);
     StaticScheduler(StaticScheduler&&);
     ~StaticScheduler() override {}
@@ -94,7 +96,7 @@ struct GreedyConf {
 
 class GreedyScheduler : public BaseScheduler {
 public:
-    GreedyScheduler(std::unique_ptr<CircuitTopo>, bool = true);
+    GreedyScheduler(std::unique_ptr<CircuitTopo>, bool = true, std::stop_token = std::stop_token{});
     GreedyScheduler(const GreedyScheduler&);
     GreedyScheduler(GreedyScheduler&&);
     ~GreedyScheduler() override {}
@@ -168,7 +170,7 @@ private:
 
 class SearchScheduler : public GreedyScheduler {
 public:
-    SearchScheduler(std::unique_ptr<CircuitTopo>, bool = true);
+    SearchScheduler(std::unique_ptr<CircuitTopo>, bool = true, std::stop_token = std::stop_token{});
     SearchScheduler(const SearchScheduler&);
     SearchScheduler(SearchScheduler&&);
     ~SearchScheduler() override {}
@@ -185,6 +187,6 @@ protected:
     void cacheOnlyWhenNecessary();
 };
 
-std::unique_ptr<BaseScheduler> getScheduler(std::unique_ptr<CircuitTopo>, bool = true);
+std::unique_ptr<BaseScheduler> getScheduler(std::unique_ptr<CircuitTopo>, bool = true, std::stop_token = std::stop_token{});
 
 #endif

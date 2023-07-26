@@ -191,7 +191,7 @@ void QCir::updateGateTime() {
 }
 
 /**
- * @brief Print ZX-graph of gate following the topological order
+ * @brief Print ZXGraph of gate following the topological order
  */
 void QCir::printZXTopoOrder() {
     auto Lambda = [](QCirGate* gate) {
@@ -218,5 +218,4 @@ void QCir::reset() {
     _qubitId = 0;
     _dirty = true;
     _globalDFScounter = 1;
-    _tensor = nullptr;
 }

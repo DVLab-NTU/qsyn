@@ -1,4 +1,4 @@
 PKGFLAG   :=
-EXTHDRS   := apArgParser.h apArgument.h apArgType.h apCmd.h
+EXTHDRS   := argparse.h argument.tpp argType.tpp argParser.tpp
 
 include $(MK_INCLUDE_DIR)/lib.mk

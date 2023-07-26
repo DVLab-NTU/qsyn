@@ -8,9 +8,7 @@
 
 #include <cstddef>  // for size_t
 
-#include "qtensor.h"      // for QTensor
-#include "zx2tsMapper.h"  // for ZX2TSMapper
-#include "zxGraph.h"      // for ZXGraph, ZXVertex
+#include "zxGraph.h"  // for ZXGraph, ZXVertex
 
 using namespace std;
 extern size_t verbose;
@@ -97,39 +95,4 @@ void ZXGraph::concatenate(ZXGraph const& other) {
         copy.removeVertex(o);
     }
     this->moveVerticesFrom(copy);
-}
-
-/**
- * @brief Get Tensor form of Z, X spider, or H box
- *
- * @return QTensor<double>
- */
-QTensor<double> ZXVertex::getTSform() {
-    QTensor<double> tensor = (1. + 0.i);
-    if (isBoundary()) {
-        tensor = QTensor<double>::identity(_neighbors.size());
-        return tensor;
-    }
-
-    if (isHBox())
-        tensor = QTensor<double>::hbox(_neighbors.size());
-    else if (isZ())
-        tensor = QTensor<double>::zspider(_neighbors.size(), _phase);
-    else if (isX())
-        tensor = QTensor<double>::xspider(_neighbors.size(), _phase);
-    else
-        cerr << "Error: Invalid vertex type!! (" << _id << ")" << endl;
-    return tensor;
-}
-
-/**
- * @brief Generate tensor form of ZX-graph
- *
- */
-void ZXGraph::toTensor() {
-    for (auto& v : _vertices) {
-        v->setPin(unsigned(-1));
-    }
-    ZX2TSMapper mapper(this);
-    mapper.map();
 }

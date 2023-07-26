@@ -26,6 +26,13 @@ public:
     class HSep {};
     class DoubleHSep {};
 
+    template <typename T>
+    struct Multicols {
+        Multicols(T const& str, size_t n) : toPrint(str), nCols(n) {}
+        T const& toPrint;
+        size_t nCols;
+    };
+
     Tabler(std::ostream& os = std::cout, size_t nCols = 0) : _os{os}, _numCols{nCols}, _counter{0} {}
 
     Tabler& widths(std::vector<size_t> const& w);
@@ -80,6 +87,22 @@ public:
     Tabler& operator<<(Skip const&);
     Tabler& operator<<(HSep const&);
     Tabler& operator<<(DoubleHSep const&);
+
+    template <typename T>
+    Tabler& operator<<(Multicols<T> const& mc) {
+        size_t total_width = 0;
+        size_t nthCols = std::min(_widths.size(), _counter + mc.nCols);
+        for (size_t i = _counter; i < nthCols; ++i) {
+            total_width += _widths[i];
+        }
+        printBeforeText();
+        _os << std::setw(total_width + countNumStyleChars(mc.toPrint) + (nthCols - _counter - 1) * (_attrs.rightMargin + _attrs.leftMargin + _attrs.doVSep))
+            << std::left << mc.toPrint;
+        _counter += mc.nCols;
+        printAfterText();
+
+        return *this;
+    }
 
 private:
     std::ostream& _os;

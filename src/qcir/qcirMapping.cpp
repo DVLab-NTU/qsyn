@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include <cstddef>  // for size_t, NULL
+#include <thread>
 
 #include "qcir.h"        // for QCir
 #include "qtensor.h"     // for QTensor
@@ -31,27 +32,28 @@ void QCir::clearMapping() {
 }
 
 /**
- * @brief Mapping QCir to ZX-graph
+ * @brief Mapping QCir to ZXGraph
  */
-void QCir::ZXMapping() {
+void QCir::ZXMapping(std::stop_token st) {
     updateGateTime();
+    ZXGraph bufferGraph;
 
-    ZXGraph *_ZXG = zxGraphMgr.add(zxGraphMgr.getNextID());
-    _ZXG->setFileName(_fileName);
-    _ZXG->addProcedure(_procedures);
-    _ZXG->addProcedure("QC2ZX");
+    bufferGraph.setFileName(_fileName);
+    bufferGraph.addProcedure(_procedures);
+    bufferGraph.addProcedure("QC2ZX");
 
     if (verbose >= 5) cout << "Traverse and build the graph... " << endl;
 
     if (verbose >= 5) cout << "\n> Add boundaries" << endl;
     for (size_t i = 0; i < _qubits.size(); i++) {
-        ZXVertex *input = _ZXG->addInput(_qubits[i]->getId());
-        ZXVertex *output = _ZXG->addOutput(_qubits[i]->getId());
+        ZXVertex *input = bufferGraph.addInput(_qubits[i]->getId());
+        ZXVertex *output = bufferGraph.addOutput(_qubits[i]->getId());
         input->setCol(0);
-        _ZXG->addEdge(input, output, EdgeType::SIMPLE);
+        bufferGraph.addEdge(input, output, EdgeType::SIMPLE);
     }
 
-    topoTraverse([_ZXG](QCirGate *gate) {
+    topoTraverse([st, &bufferGraph](QCirGate *gate) {
+        if (st.stop_requested()) return;
         if (verbose >= 8) cout << "\n";
         if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
         ZXGraph tmp = gate->getZXform();
@@ -59,67 +61,93 @@ void QCir::ZXMapping() {
         for (auto &v : tmp.getVertices()) {
             v->setCol(v->getCol() + gate->getTime() + gate->getDelay());
         }
-        // if (tmp == NULL) {
-        //     cerr << "Gate " << gate->getId() << " (type: " << gate->getTypeStr() << ") is not implemented, the conversion result is wrong!!" << endl;
-        //     return;
-        // }
 
-        _ZXG->concatenate(tmp);
+        bufferGraph.concatenate(tmp);
     });
 
     size_t max = 0;
-    for (auto &v : _ZXG->getOutputs()) {
+    for (auto &v : bufferGraph.getOutputs()) {
         size_t neighborCol = v->getFirstNeighbor().first->getCol();
         if (neighborCol > max) {
             max = neighborCol;
         }
     }
-    for (auto &v : _ZXG->getOutputs()) {
+    for (auto &v : bufferGraph.getOutputs()) {
         v->setCol(max + 1);
     }
-    // _ZXG->normalize();
-    _ZXGraphList.emplace_back(_ZXG);
+
+    if (st.stop_requested()) {
+        cerr << "Warning: conversion interrupted." << endl;
+    }
+
+    ZXGraph *newGraph = zxGraphMgr.add(zxGraphMgr.getNextID());
+    zxGraphMgr.set(std::make_unique<ZXGraph>(std::move(bufferGraph)));
+
+    _ZXGraphList.emplace_back(zxGraphMgr.get());
 }
 
 /**
  * @brief Convert QCir to tensor
  */
-void QCir::tensorMapping() {
+void QCir::tensorMapping(std::stop_token st) {
     if (verbose >= 3) cout << "Traverse and build the tensor... " << endl;
     updateTopoOrder();
     if (verbose >= 5) cout << "> Add boundary" << endl;
-    if (!tensorMgr) tensorMgr = new TensorMgr();
-    size_t id = tensorMgr->nextID();
-    _tensor = tensorMgr->addTensor(id, "QC");
-    *_tensor = tensordot(*_tensor, QTensor<double>::identity(_qubits.size()));
+
+    QTensor<double> *tensor = new QTensor<double>;
+
+    // NOTE: Constucting an identity(_qubit.size()) takes much time and memory.
+    //       To make this process interruptible by SIGINT (ctrl-C), we grow the qubit size one by one
+    for (size_t i = 0; i < _qubits.size(); ++i) {
+        if (st.stop_requested()) {
+            cerr << "Warning: conversion interrupted." << endl;
+            delete tensor;
+            return;
+        }
+        *tensor = tensordot(*tensor, QTensor<double>::identity(1));
+    }
+
     _qubit2pin.clear();
     for (size_t i = 0; i < _qubits.size(); i++) {
         _qubit2pin[_qubits[i]->getId()] = make_pair(2 * i, 2 * i + 1);
         if (verbose >= 8) cout << "  - Add Qubit " << _qubits[i]->getId() << " output port: " << 2 * i + 1 << endl;
     }
 
-    topoTraverse([this](QCirGate *G) {
-        if (verbose >= 5) cout << "> Gate " << G->getId() << " (" << G->getTypeStr() << ")" << endl;
-        QTensor<double> tmp = G->getTSform();
+    topoTraverse([st, tensor, this](QCirGate *gate) {
+        if (st.stop_requested()) return;
+        if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
+        QTensor<double> tmp = gate->getTSform();
         vector<size_t> ori_pin;
         vector<size_t> new_pin;
         ori_pin.clear();
         new_pin.clear();
-        for (size_t np = 0; np < G->getQubits().size(); np++) {
+        for (size_t np = 0; np < gate->getQubits().size(); np++) {
             new_pin.emplace_back(2 * np);
-            BitInfo info = G->getQubits()[np];
+            BitInfo info = gate->getQubits()[np];
             ori_pin.emplace_back(_qubit2pin[info._qubit].second);
         }
-        *_tensor = tensordot(*_tensor, tmp, ori_pin, new_pin);
-        updateTensorPin(G->getQubits(), tmp);
+        *tensor = tensordot(*tensor, tmp, ori_pin, new_pin);
+        updateTensorPin(gate->getQubits(), *tensor, tmp);
     });
+
+    if (st.stop_requested()) {
+        cerr << "Warning: conversion interrupted." << endl;
+        return;
+    }
 
     vector<size_t> input_pin, output_pin;
     for (size_t i = 0; i < _qubits.size(); i++) {
         input_pin.emplace_back(_qubit2pin[_qubits[i]->getId()].first);
         output_pin.emplace_back(_qubit2pin[_qubits[i]->getId()].second);
     }
-    *_tensor = _tensor->toMatrix(input_pin, output_pin);
+    *tensor = tensor->toMatrix(input_pin, output_pin);
+
+    if (!tensorMgr) tensorMgr = new TensorMgr();
+
+    auto id = tensorMgr->nextID();
+    tensorMgr->addTensor(id, "QC");
+    tensorMgr->setTensor(id, tensor);
+
     cout << "Stored the resulting tensor as tensor id " << id << endl;
 }
 
@@ -129,7 +157,7 @@ void QCir::tensorMapping() {
  * @param pins
  * @param tmp
  */
-void QCir::updateTensorPin(vector<BitInfo> pins, QTensor<double> tmp) {
+void QCir::updateTensorPin(vector<BitInfo> const &pins, QTensor<double> &main, QTensor<double> const &gate) {
     // size_t count_pin_used = 0;
     // unordered_map<size_t, size_t> table; // qid to pin (pin0 = ctrl 0 pin1 = ctrl 1)
     if (verbose >= 8) cout << "> Pin Permutation" << endl;
@@ -138,7 +166,7 @@ void QCir::updateTensorPin(vector<BitInfo> pins, QTensor<double> tmp) {
             // NOTE print old input axis id
             cout << "  - Qubit: " << it->first << " input : " << it->second.first << " -> ";
         }
-        it->second.first = _tensor->getNewAxisId(it->second.first);
+        it->second.first = main.getNewAxisId(it->second.first);
         if (verbose >= 8) {
             // NOTE print new input axis id
             cout << it->second.first << " | ";
@@ -161,12 +189,12 @@ void QCir::updateTensorPin(vector<BitInfo> pins, QTensor<double> tmp) {
         }
         if (connected) {
             if (target)
-                it->second.second = _tensor->getNewAxisId(_tensor->dimension() + tmp.dimension() - 1);
+                it->second.second = main.getNewAxisId(main.dimension() + gate.dimension() - 1);
 
             else
-                it->second.second = _tensor->getNewAxisId(_tensor->dimension() + 2 * ithCtrl + 1);
+                it->second.second = main.getNewAxisId(main.dimension() + 2 * ithCtrl + 1);
         } else
-            it->second.second = _tensor->getNewAxisId(it->second.second);
+            it->second.second = main.getNewAxisId(it->second.second);
 
         if (verbose >= 8) {
             // NOTE print new axis id

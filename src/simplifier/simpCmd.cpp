@@ -11,7 +11,6 @@
 #include <iostream>
 #include <string>
 
-#include "apCmd.h"
 #include "qcirCmd.h"
 #include "qcirMgr.h"  // for QCirMgr
 #include "simplify.h"
@@ -54,7 +53,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXGSimp");
 
     cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("perform simplification strategies for ZX-graph");
+        parser.help("perform simplification strategies for ZXGraph");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
         mutex.addArgument<bool>("-dreduce")
@@ -124,9 +123,9 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             .help("convert to red (X) graph");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
         ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGSimp");
-        Simplifier s(zxGraphMgr.get());
+        Simplifier s(zxGraphMgr.get(), st);
         if (parser["-sreduce"].isParsed())
             s.symbolicReduce();
         else if (parser["-dreduce"].isParsed())
@@ -154,7 +153,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         else if (parser["-pivotgadget"].isParsed())
             s.pivotGadgetSimp();
         // else if (parser["-degadgetize"].isParsed())
-        //     s.degadgetizeSimp();
+        //     s.degadgetizeSimp(st);
         else if (parser["-spiderfusion"].isParsed())
             s.sfusionSimp();
         else if (parser["-stcopy"].isParsed())
@@ -177,10 +176,9 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
 unique_ptr<ArgParseCmdType> ZXOPTCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXOPT");
     cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("Dynamic Optimization for a ZX-graph");
+        parser.help("Dynamic Optimization for a ZXGraph");
     };
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("ZXOPT");
         opt.myOptimize();
         return CMD_EXEC_DONE;
     };
@@ -193,7 +191,7 @@ unique_ptr<ArgParseCmdType> ZXOPTCmd() {
 unique_ptr<ArgParseCmdType> ZXOPTPrintCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXOPTPrint");
     cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("print parameter of optimizer for ZX-graph");
+        parser.help("print parameter of optimizer for ZXGraph");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
 
@@ -233,7 +231,7 @@ unique_ptr<ArgParseCmdType> ZXOPTPrintCmd() {
             .action(storeTrue)
             .help("perform clifford");
     };
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
         if (parser["-idremoval"].isParsed())
             opt.printSingle("Identity Removal Rule");
         else if (parser["-lcomp"].isParsed())
@@ -265,7 +263,7 @@ unique_ptr<ArgParseCmdType> ZXOPTPrintCmd() {
 unique_ptr<ArgParseCmdType> ZXOPTS2sCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXOPTS2s");
     cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("set s2s parameter of optimizer for ZX-graph");
+        parser.help("set s2s parameter of optimizer for ZXGraph");
 
         parser.addArgument<int>("s2s")
             .required(true)
@@ -330,7 +328,7 @@ unique_ptr<ArgParseCmdType> ZXOPTS2sCmd() {
 unique_ptr<ArgParseCmdType> ZXOPTR2rCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXOPTR2r");
     cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("set r2r parameter of optimizer for ZX-graph");
+        parser.help("set r2r parameter of optimizer for ZXGraph");
 
         parser.addArgument<int>("r2r")
             .required(true)

@@ -11,6 +11,7 @@
 
 #include <cstddef>  // for size_t
 #include <set>
+#include <stop_token>
 #include <unordered_map>
 
 #include "ordered_hashset.h"
@@ -22,7 +23,7 @@ using Qubit2Gates = std::unordered_map<size_t, std::vector<QCirGate*>>;
 
 class Optimizer {
 public:
-    Optimizer(QCir* = nullptr);
+    Optimizer(QCir* = nullptr, std::stop_token = std::stop_token{});
     ~Optimizer() {}
     void reset();
 
@@ -94,6 +95,7 @@ private:
     // physical
     std::string _name;
     std::vector<std::string> _procedures;
+    std::stop_token _stop_token;
 };
 
 #endif

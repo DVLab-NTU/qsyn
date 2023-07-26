@@ -90,13 +90,22 @@ public:
     using iterator = typename __OrderedHashTable::iterator;
     using const_iterator = typename __OrderedHashTable::const_iterator;
 
-    ordered_hashmap() noexcept : __OrderedHashTable() {}
-    ordered_hashmap(const std::initializer_list<value_type>& il) noexcept : __OrderedHashTable() {
+    ordered_hashmap() : __OrderedHashTable() {}
+    ordered_hashmap(const std::initializer_list<value_type>& il) : __OrderedHashTable() {
         for (const value_type& item : il) {
             this->_key2id.emplace(key(item), this->_data.size());
             this->_data.emplace_back(item);
         }
         this->_size = il.size();
+    }
+
+    template <typename InputIt>
+    ordered_hashmap(InputIt first, InputIt last) {
+        for (auto it = first; it != last; ++it) {
+            this->_key2id.emplace(key(*(it)), this->_data.size());
+            this->_data.emplace_back(*(it));
+        }
+        this->_size = this->_data.size();
     }
 
     // lookup
