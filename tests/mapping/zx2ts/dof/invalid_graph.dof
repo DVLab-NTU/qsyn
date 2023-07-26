@@ -9,7 +9,7 @@ zxgp -e
 zx2ts
 
 zxgr benchmark/zx/cnot.zx
-zxgedit -rme 0 2 -ALL
+zxgedit -rme 0 2 ALL
 
 zxgp -v
 zxgp -e

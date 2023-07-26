@@ -257,7 +257,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::parseKnownArgs(TokensView to
         size_t pos = 0;
         for (auto const& [token, _] : tokens) {
             for (auto const& [name, subparser] : _pimpl->subparsers->getSubParsers()) {
-                if (toLowerString(token) == name) {
+                if (name.starts_with(toLowerString(token))) {
                     setSubParser(name);
                     return pos;
                 }

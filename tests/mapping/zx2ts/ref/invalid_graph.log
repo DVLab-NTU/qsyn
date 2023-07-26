@@ -35,7 +35,7 @@ qsyn>
 qsyn> zxgr benchmark/zx/cnot.zx
 Created and checked out to ZXGraph 1
 
-qsyn> zxgedit -rme 0 2 -ALL
+qsyn> zxgedit -rme 0 2 ALL
 
 qsyn> 
 qsyn> zxgp -v

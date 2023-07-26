@@ -96,7 +96,7 @@ ID:   1 (●, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   1     (0, -)
 Total #Vertices: 2
 
 
-qsyn> zxge -addv 0 H_BOX 0
+qsyn> zxge -addv 0 HBOX 0
 Add vertex ([1m[33mH[0m[0m) 4
 
 qsyn> zxge -adde 0 4 HADAMARD
@@ -105,7 +105,7 @@ Add edge (0, 4)
 qsyn> zxge -adde 1 4 SIMPLE
 Add edge (1, 4)
 
-qsyn> zxge -rme 0 1 -ALL
+qsyn> zxge -rme 0 1 ALL
 Remove edge (0, 1), type: -
 
 qsyn> zxgp -v
@@ -224,10 +224,10 @@ ID:   4 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 4)	  #Neighbors:   
 Total #Vertices: 5
 
 
-qsyn> zxge -rme 2 3 -ALL
+qsyn> zxge -rme 2 3 ALL
 Remove edge (2, 3), type: -
 
-qsyn> zxge -rme 3 4 -ALL
+qsyn> zxge -rme 3 4 ALL
 Remove edge (3, 4), type: -
 
 qsyn> zxge -adde 2 3 HADAMARD
@@ -347,13 +347,13 @@ ID:   3 ([1m[33mH[0m[0m, π)           (Qubit, Col): (0, 3)	  #Neighbors:   
 Total #Vertices: 4
 
 
-qsyn> zxge -rme 0 2 -ALL
+qsyn> zxge -rme 0 2 ALL
 Remove edge (0, 2), type: -
 
-qsyn> zxge -rme 2 3 -ALL
+qsyn> zxge -rme 2 3 ALL
 Remove edge (2, 3), type: -
 
-qsyn> zxge -rme 3 1 -ALL
+qsyn> zxge -rme 3 1 ALL
 Remove edge (3, 1), type: -
 
 qsyn> zxge -adde 0 2 HADAMARD
@@ -790,10 +790,10 @@ ID:   5 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (1, 2)	  #Neighbors:   
 Total #Vertices: 6
 
 
-qsyn> zxge -addv 0 H_BOX 0
+qsyn> zxge -addv 0 HBOX 0
 Add vertex ([1m[33mH[0m[0m) 6
 
-qsyn> zxge -addv 1 H_BOX 0
+qsyn> zxge -addv 1 HBOX 0
 Add vertex ([1m[33mH[0m[0m) 7
 
 qsyn> zxge -adde 4 6 HADAMARD

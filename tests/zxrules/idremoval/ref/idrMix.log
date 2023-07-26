@@ -80,7 +80,7 @@ qsyn> zxgedit -addv 0 Z 0
 
 qsyn> zxgedit -addv 0 X 0
 
-qsyn> zxgedit -addv 0 H_BOX 0
+qsyn> zxgedit -addv 0 HBOX 0
 
 qsyn> zxgedit -addv 0 X 0
 
@@ -183,7 +183,7 @@ qsyn> zxgedit -addv 0 Z 0
 
 qsyn> zxgedit -addv 0 Z 0
 
-qsyn> zxgedit -addv 0 H_BOX 0
+qsyn> zxgedit -addv 0 HBOX 0
 
 qsyn> zxgedit -addv 0 Z 1.5708
 

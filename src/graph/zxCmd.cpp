@@ -41,6 +41,7 @@ unique_ptr<ArgParseCmdType> ZX2TSCmd();
 unique_ptr<ArgParseCmdType> ZXGADjointCmd();
 unique_ptr<ArgParseCmdType> ZXGTestCmd();
 unique_ptr<ArgParseCmdType> ZXGDrawCmd();
+unique_ptr<ArgParseCmdType> ZXGEditCmd();
 // unique_ptr<ArgParseCmdType> ZXGPrintCmd();
 
 // unique_ptr<ArgParseCmdType> ZXGWriteCmd();
@@ -56,7 +57,7 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXPrint", 3, ZXPrintCmd()) &&
           cmdMgr->regCmd("ZXGPrint", 4, make_unique<ZXGPrintCmd>()) &&
           cmdMgr->regCmd("ZXGTest", 4, ZXGTestCmd()) &&
-          cmdMgr->regCmd("ZXGEdit", 4, make_unique<ZXGEditCmd>()) &&
+          cmdMgr->regCmd("ZXGEdit", 4, ZXGEditCmd()) &&
           cmdMgr->regCmd("ZXGADJoint", 6, ZXGADjointCmd()) &&
           cmdMgr->regCmd("ZXGASsign", 5, make_unique<ZXGAssignCmd>()) &&
           cmdMgr->regCmd("ZXGTRaverse", 5, ZXGTraverseCmd()) &&
@@ -523,16 +524,7 @@ void ZXGPrintCmd::summary() const {
          << "print info of ZXGraph" << endl;
 }
 
-//------------------------------------------------------------------------------------
-//    ZXGEdit -RMVertex <-Isolated | (size_t id)... >
-//            -RMEdge <(size_t id_s), (size_t id_t)> <-ALL | (EdgeType et)>
-//            -ADDVertex <(size_t qubit), (VertexType vt), [Phase phase]>
-//            -ADDInput <(size_t qubit)>
-//            -ADDOutput <(size_t qubit)>
-//            -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>
-//------------------------------------------------------------------------------------
-
-unique_ptr<ArgParseCmdType> _ZXGEditCmd() {
+unique_ptr<ArgParseCmdType> ZXGEditCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXGEdit");
 
     cmd->precondition = []() { return zxGraphMgrNotEmpty("ZXGEdit"); };
@@ -545,6 +537,7 @@ unique_ptr<ArgParseCmdType> _ZXGEditCmd() {
         auto removeVertexParser = subparsers.addParser("-rmvertex");
 
         removeVertexParser.addArgument<size_t>("ids")
+            .constraint(validZXVertexId)
             .nargs(NArgsOption::ZERO_OR_MORE)
             .help("the IDs of vertices to remove");
 
@@ -556,6 +549,7 @@ unique_ptr<ArgParseCmdType> _ZXGEditCmd() {
 
         removeEdgeParser.addArgument<size_t>("ids")
             .nargs(2)
+            .constraint(validZXVertexId)
             .metavar("(vs, vt)")
             .help("the IDs to the two vertices to remove edges in between");
 
@@ -593,6 +587,7 @@ unique_ptr<ArgParseCmdType> _ZXGEditCmd() {
 
         addEdgeParser.addArgument<size_t>("ids")
             .nargs(2)
+            .constraint(validZXVertexId)
             .metavar("(vs, vt)")
             .help("the IDs to the two vertices to add edges in between");
 
@@ -605,15 +600,24 @@ unique_ptr<ArgParseCmdType> _ZXGEditCmd() {
         std::string subparser = parser.getActivatedSubParserName();
 
         if (subparser == "-rmvertex") {
-            zxGraphMgr.get()->removeVertices(parser.get<vector<size_t>>("ids"));
+            auto ids = parser.get<vector<size_t>>("ids");
+            auto vertices_range = ids |
+            views::transform([](size_t id){ return zxGraphMgr.get()->findVertexById(id); }) |
+            views::filter([](ZXVertex* v) { return v != nullptr; });
+            zxGraphMgr.get()->removeVertices({vertices_range.begin(), vertices_range.end()});
 
             if (parser["-isolated"].isParsed()) {
+                cout << "Note: removing isolated vertices..." << endl;
                 zxGraphMgr.get()->removeIsolatedVertices();
             }
             return CMD_EXEC_DONE;
         }
         if (subparser == "-rmedge") {
-            auto vpair = parser.get<std::vector<size_t>>("ids");
+            auto ids = parser.get<std::vector<size_t>>("ids");
+            auto v0 = zxGraphMgr.get()->findVertexById(ids[0]);
+            auto v1 = zxGraphMgr.get()->findVertexById(ids[1]);
+            assert(v0 != nullptr && v1 != nullptr);
+
             auto etype = std::invoke([&parser]() {
                 auto str = parser.get<std::string>("etype");
                 switch (std::tolower(str[0])) {
@@ -627,9 +631,9 @@ unique_ptr<ArgParseCmdType> _ZXGEditCmd() {
             });
 
             if (etype == EdgeType::ERRORTYPE) {  // corresponds to choice "ALL"
-                zxGraphMgr.get()->removeAllEdgesBetween(vpair[0], vpair[1]);
+                zxGraphMgr.get()->removeAllEdgesBetween(v0, v1);
             } else {
-                zxGraphMgr.get()->removeEdge(vpair[0], vpair[1], etype);
+                zxGraphMgr.get()->removeEdge(v0, v1, etype);
             }
 
             return CMD_EXEC_DONE;
@@ -663,7 +667,11 @@ unique_ptr<ArgParseCmdType> _ZXGEditCmd() {
             return CMD_EXEC_DONE;
         }
         if (subparser == "-addedge") {
-            auto vpair = parser.get<std::vector<size_t>>("ids");
+            auto ids = parser.get<std::vector<size_t>>("ids");
+            auto v0 = zxGraphMgr.get()->findVertexById(ids[0]);
+            auto v1 = zxGraphMgr.get()->findVertexById(ids[1]);
+            assert(v0 != nullptr && v1 != nullptr);
+            
             auto etype = std::invoke([&parser]() {
                 auto str = parser.get<std::string>("etype");
                 switch (std::tolower(str[0])) {
@@ -677,7 +685,7 @@ unique_ptr<ArgParseCmdType> _ZXGEditCmd() {
             });
             assert(etype != EdgeType::ERRORTYPE);
 
-            zxGraphMgr.get()->addEdge(vpair[0], vpair[1], etype);
+            zxGraphMgr.get()->addEdge(v0, v1, etype);
 
             return CMD_EXEC_DONE;
         }
@@ -685,169 +693,6 @@ unique_ptr<ArgParseCmdType> _ZXGEditCmd() {
     };
 
     return cmd;
-}
-
-CmdExecStatus
-ZXGEditCmd::exec(std::stop_token, const string &option) {
-    // check option
-    vector<string> options;
-    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
-
-    CMD_N_OPTS_AT_LEAST_OR_RETURN(options, 2);
-    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGEdit");
-
-    string action = options[0];
-    if (myStrNCmp("-RMVertex", action, 4) == 0) {
-        if (myStrNCmp("-Isolated", options[1], 2) == 0) {
-            CMD_N_OPTS_AT_MOST_OR_RETURN(options, 2);
-            zxGraphMgr.get()->removeIsolatedVertices();
-            cout << "Note: removing isolated vertices..." << endl;
-            return CMD_EXEC_DONE;
-        }
-
-        for (size_t i = 1; i < options.size(); i++) {
-            unsigned id;
-            if (!myStr2Uns(options[i], id)) {
-                cerr << "Warning: invalid vertex ID (" << options[i] << ")!!" << endl;
-                continue;
-            }
-            ZXVertex *v = zxGraphMgr.get()->findVertexById(id);
-            if (!v) {
-                cerr << "Warning: Cannot find vertex with id " << id << " in the graph!!" << endl;
-                continue;
-            }
-            zxGraphMgr.get()->removeVertex(v);
-        }
-        return CMD_EXEC_DONE;
-    }
-
-    if (myStrNCmp("-RMEdge", action, 4) == 0) {
-        CMD_N_OPTS_EQUAL_OR_RETURN(options, 4);
-
-        unsigned id_s, id_t;
-        ZXVertex *vs;
-        ZXVertex *vt;
-        EdgeType etype;
-
-        ZX_CMD_ID_VALID_OR_RETURN(options[1], id_s, "Vertex");
-        ZX_CMD_ID_VALID_OR_RETURN(options[2], id_t, "Vertex");
-        ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_s, vs);
-        ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_t, vt);
-
-        if (myStrNCmp("-ALL", options[3], 4) == 0) {
-            zxGraphMgr.get()->removeAllEdgesBetween(vs, vt);
-        } else {
-            ZX_CMD_EDGE_TYPE_VALID_OR_RETURN(options[3], etype);
-            zxGraphMgr.get()->removeEdge(vs, vt, etype);
-        }
-
-        return CMD_EXEC_DONE;
-    }
-
-    if (myStrNCmp("-RMGadget", action, 4) == 0) {
-        CMD_N_OPTS_EQUAL_OR_RETURN(options, 2);
-        unsigned id;
-        ZXVertex *v;
-        ZX_CMD_ID_VALID_OR_RETURN(options[1], id, "Vertex");
-        ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id, v);
-        zxGraphMgr.get()->removeGadget(v);
-        return CMD_EXEC_DONE;
-    }
-
-    if (myStrNCmp("-ADDVertex", action, 5) == 0) {
-        CMD_N_OPTS_BETWEEN_OR_RETURN(options, 3, 4);
-
-        int qid;
-        VertexType vt;
-        Phase phase;
-
-        ZX_CMD_QUBIT_ID_VALID_OR_RETURN(options[1], qid);
-        ZX_CMD_VERTEX_TYPE_VALID_OR_RETURN(options[2], vt);
-        if (options.size() == 4)
-            ZX_CMD_PHASE_VALID_OR_RETURN(options[3], phase);
-
-        zxGraphMgr.get()->addVertex(qid, vt, phase);
-        return CMD_EXEC_DONE;
-    }
-
-    if (myStrNCmp("-ADDInput", action, 5) == 0) {
-        CMD_N_OPTS_EQUAL_OR_RETURN(options, 2);
-
-        int qid;
-        ZX_CMD_QUBIT_ID_VALID_OR_RETURN(options[1], qid);
-        if (zxGraphMgr.get()->isInputQubit(qid)) {
-            cerr << "Error: This qubit's input already exists!!" << endl;
-            return CMD_EXEC_ERROR;
-        }
-        zxGraphMgr.get()->addInput(qid);
-        return CMD_EXEC_DONE;
-    }
-
-    if (myStrNCmp("-ADDOutput", action, 5) == 0) {
-        CMD_N_OPTS_EQUAL_OR_RETURN(options, 2);
-
-        int qid;
-        ZX_CMD_QUBIT_ID_VALID_OR_RETURN(options[1], qid);
-        if (zxGraphMgr.get()->isOutputQubit(qid)) {
-            cerr << "Error: This qubit's output already exists!!" << endl;
-            return CMD_EXEC_ERROR;
-        }
-        zxGraphMgr.get()->addOutput(qid);
-        return CMD_EXEC_DONE;
-    }
-
-    if (myStrNCmp("-ADDEdge", action, 5) == 0) {
-        CMD_N_OPTS_EQUAL_OR_RETURN(options, 4);
-
-        unsigned id_s, id_t;
-        ZXVertex *vs;
-        ZXVertex *vt;
-        EdgeType etype;
-
-        ZX_CMD_ID_VALID_OR_RETURN(options[1], id_s, "Vertex");
-        ZX_CMD_ID_VALID_OR_RETURN(options[2], id_t, "Vertex");
-
-        ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_s, vs);
-        ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id_t, vt);
-
-        ZX_CMD_EDGE_TYPE_VALID_OR_RETURN(options[3], etype);
-
-        zxGraphMgr.get()->addEdge(vs, vt, etype);
-        return CMD_EXEC_DONE;
-    }
-
-    if (myStrNCmp("-ADDGadget", action, 5) == 0) {
-        CMD_N_OPTS_AT_LEAST_OR_RETURN(options, 3);
-        Phase phase;
-        ZX_CMD_PHASE_VALID_OR_RETURN(options[1], phase);
-
-        vector<ZXVertex *> verVec;
-        for (size_t i = 2; i < options.size(); i++) {
-            unsigned id;
-            ZXVertex *v;
-            ZX_CMD_ID_VALID_OR_RETURN(options[i], id, "Vertex");
-            ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id, v);
-            verVec.emplace_back(v);
-        }
-        zxGraphMgr.get()->addGadget(phase, verVec);
-        return CMD_EXEC_DONE;
-    }
-
-    return errorOption(CMD_OPT_ILLEGAL, action);
-}
-
-void ZXGEditCmd::usage() const {
-    cout << "Usage: ZXGEdit -RMVertex <-Isolated | (size_t id)... >" << endl;
-    cout << "               -RMEdge <(size_t id_s), (size_t id_t)> <-ALL | (EdgeType et)>" << endl;
-    cout << "               -ADDVertex <(size_t qubit), (VertexType vt), [Phase phase]>" << endl;
-    cout << "               -ADDInput <(size_t qubit)>" << endl;
-    cout << "               -ADDOutput <(size_t qubit)>" << endl;
-    cout << "               -ADDEdge <(size_t id_s), (size_t id_t), (EdgeType et)>" << endl;
-}
-
-void ZXGEditCmd::summary() const {
-    cout << setw(15) << left << "ZXGEdit: "
-         << "edit ZXGraph" << endl;
 }
 
 //----------------------------------------------------------------------
