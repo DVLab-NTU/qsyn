@@ -17,6 +17,10 @@
 #include "myUsage.h"    // for MyUsage
 #include "util.h"       // for myUsage
 
+#ifndef QSYN_VERSION
+#define QSYN_VERSION "0.5.1"
+#endif
+
 using namespace std;
 
 //----------------------------------------------------------------------
@@ -78,7 +82,7 @@ int main(int argc, char** argv) {
         myexit();
     }
 
-    cout << "DV Lab, NTUEE, Qsyn 0.4.2" << endl;
+    cout << "DV Lab, NTUEE, Qsyn " << QSYN_VERSION << endl;
 
     if (
         // !initArgParserCmd() ||
