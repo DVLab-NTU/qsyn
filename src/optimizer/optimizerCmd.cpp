@@ -61,12 +61,12 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
     };
 
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
-        Optimizer Opt(qcirMgr->getQCircuit());
+        Optimizer optimizer(qcirMgr->getQCircuit(), st);
         QCir *result;
         if (parser["-trivial"])
-            result = Opt.trivial_optimization();
+            result = optimizer.trivial_optimization();
         else
-            result = Opt.basic_optimization(!parser["-physical"], false, 1000, parser["-statistics"]);
+            result = optimizer.basic_optimization(!parser["-physical"], false, 1000, parser["-statistics"]);
         if (result == nullptr) {
             cout << "Error: fail to optimize circuit." << endl;
         } else {

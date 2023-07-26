@@ -12,6 +12,7 @@
 #include <cstddef>  // for size_t
 #include <optional>
 #include <set>
+#include <stop_token>
 
 #include "device.h"
 #include "duostra.h"
@@ -31,7 +32,7 @@ class Extractor {
 public:
     using Target = std::unordered_map<size_t, size_t>;
     using ConnectInfo = std::vector<std::set<size_t>>;
-    Extractor(ZXGraph*, QCir* = nullptr, std::optional<Device> = std::nullopt);
+    Extractor(ZXGraph*, QCir* = nullptr, std::optional<Device> = std::nullopt, std::stop_token = std::stop_token{});
     ~Extractor() {}
 
     bool toPhysical() { return _device.has_value(); }
@@ -98,6 +99,7 @@ private:
     size_t _cntSwap;
 
     std::vector<size_t> _initialPlacement;
+    std::stop_token _stop_token;
 };
 
 #endif

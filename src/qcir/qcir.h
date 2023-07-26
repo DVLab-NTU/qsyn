@@ -30,7 +30,7 @@ extern QCir* qCir;
 
 class QCir {
 public:
-    QCir(size_t id) : _id(id), _gateId(0), _ZXNodeId(0), _qubitId(0), _tensor(nullptr) {
+    QCir(size_t id) : _id(id), _gateId(0), _ZXNodeId(0), _qubitId(0) {
         _dirty = true;
         _globalDFScounter = 0;
     }
@@ -86,7 +86,7 @@ public:
     std::vector<int> countGate(bool detail = false, bool print = true);
 
     void ZXMapping(std::stop_token st = std::stop_token{});
-    void tensorMapping();
+    void tensorMapping(std::stop_token st = std::stop_token{});
 
     void clearMapping();
     void updateGateTime();
@@ -119,7 +119,7 @@ public:
 
 private:
     void DFS(QCirGate*);
-    void updateTensorPin(std::vector<BitInfo>, QTensor<double>);
+    void updateTensorPin(std::vector<BitInfo> const& pins, QTensor<double>& main, QTensor<double> const& gate);
 
     size_t _id;
     size_t _gateId;
@@ -127,7 +127,6 @@ private:
     size_t _qubitId;
     bool _dirty;
     unsigned _globalDFScounter;
-    QTensor<double>* _tensor;
     std::string _fileName;
     std::vector<std::string> _procedures;
 

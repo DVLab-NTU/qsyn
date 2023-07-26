@@ -9,16 +9,17 @@
 #include "phase_argparse.h"
 // --- include before zxCmd.h
 #include <cassert>
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <iomanip>
 #include <iostream>
 #include <string>
 
-#include "cmdMacros.h"   // for CMD_N_OPTS_EQUAL_OR_RETURN, CMD_N_OPTS_AT_LE...
-#include "phase.h"       // for Phase
-#include "textFormat.h"  // for TextFormat
+#include "cmdMacros.h"
+#include "phase.h"
+#include "textFormat.h"
+#include "zx2tsMapper.h"
 #include "zxCmd.h"
-#include "zxGraphMgr.h"  // for ZXGraph, ZXVertex
+#include "zxGraphMgr.h"
 
 namespace TF = TextFormat;
 
@@ -602,8 +603,8 @@ unique_ptr<ArgParseCmdType> ZXGEditCmd() {
         if (subparser == "-rmvertex") {
             auto ids = parser.get<vector<size_t>>("ids");
             auto vertices_range = ids |
-            views::transform([](size_t id){ return zxGraphMgr.get()->findVertexById(id); }) |
-            views::filter([](ZXVertex* v) { return v != nullptr; });
+                                  views::transform([](size_t id) { return zxGraphMgr.get()->findVertexById(id); }) |
+                                  views::filter([](ZXVertex *v) { return v != nullptr; });
             zxGraphMgr.get()->removeVertices({vertices_range.begin(), vertices_range.end()});
 
             if (parser["-isolated"].isParsed()) {
@@ -671,7 +672,7 @@ unique_ptr<ArgParseCmdType> ZXGEditCmd() {
             auto v0 = zxGraphMgr.get()->findVertexById(ids[0]);
             auto v1 = zxGraphMgr.get()->findVertexById(ids[1]);
             assert(v0 != nullptr && v1 != nullptr);
-            
+
             auto etype = std::invoke([&parser]() {
                 auto str = parser.get<std::string>("etype");
                 switch (std::tolower(str[0])) {
@@ -760,8 +761,9 @@ unique_ptr<ArgParseCmdType> ZX2TSCmd() {
         parser.help("convert ZXGraph to tensor");
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        zxGraphMgr.get()->toTensor();
+    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+        ZX2TSMapper mapper{zxGraphMgr.get(), st};
+        mapper.map();
         return CMD_EXEC_DONE;
     };
 

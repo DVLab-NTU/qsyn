@@ -41,7 +41,10 @@ public:
     size_t idx() const { return _counter; }
     bool done() const { return _counter == _total; }
     void add();
-    TqdmWrapper& operator++() { return add(), *this; }
+    TqdmWrapper& operator++() {
+        add();
+        return *this;
+    }
 
 private:
     size_t _counter;

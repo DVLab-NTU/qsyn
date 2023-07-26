@@ -9,17 +9,13 @@
 #ifndef ZX_GRAPH_H
 #define ZX_GRAPH_H
 
-#include <complex>
-#include <cstddef>  // for size_t, NULL
+#include <cstddef>
 #include <span>
-#include <string>  // for string
+#include <string>
 #include <unordered_map>
 
-#include "phase.h"  // for Phase
-#include "zxDef.h"  // for VertexType, EdgeType, EdgePair, NeighborPair
-
-template <typename T>
-class QTensor;
+#include "phase.h"
+#include "zxDef.h"
 
 class ZXVertex;
 class ZXGraph;
@@ -64,7 +60,6 @@ public:
 
     std::vector<ZXVertex*> getCopiedNeighbors();
     size_t getNumNeighbors() const { return _neighbors.size(); }
-    QTensor<double> getTSform();
 
     void setId(const size_t& id) { _id = id; }
     void setQubit(const int& q) { _qubit = q; }
@@ -279,7 +274,6 @@ public:
     void draw() const;
 
     // For mapping (in zxMapping.cpp)
-    void toTensor();
     ZXVertexList getNonBoundary();
     ZXVertex* getInputByQubit(const size_t& q);
     ZXVertex* getOutputByQubit(const size_t& q);

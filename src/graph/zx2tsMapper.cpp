@@ -30,12 +30,19 @@ bool ZX2TSMapper::map() {
         cerr << "Error: The ZXGraph is not valid!!" << endl;
         return false;
     }
+
+    for (auto& v : _zxgraph->getVertices()) {
+        v->setPin(unsigned(-1));
+    }
+
     if (verbose >= 3) cout << "Traverse and build the tensor... " << endl;
     _zxgraph->topoTraverse([this](ZXVertex* v) { mapOneVertex(v); });
 
-    if (!tensorMgr) tensorMgr = new TensorMgr();
-    size_t id = tensorMgr->nextID();
-    QTensor<double>* result = tensorMgr->addTensor(id, "ZX " + to_string(_zxgraph->getId()));
+    if (_stop_token.stop_requested()) {
+        cerr << "Warning: conversion interrupted. " << endl;
+        return false;
+    }
+    QTensor<double>* result = new QTensor<double>;
 
     for (size_t i = 0; i < _zx2tsList.size(); ++i) {
         *result = tensordot(*result, _zx2tsList.tensor(i));
@@ -57,6 +64,11 @@ bool ZX2TSMapper::map() {
     }
 
     *result = result->toMatrix(inputIds, outputIds);
+
+    if (!tensorMgr) tensorMgr = new TensorMgr();
+    size_t id = tensorMgr->nextID();
+    tensorMgr->addTensor(id, "ZX " + to_string(_zxgraph->getId()));
+    tensorMgr->setTensor(id, result);
     cout << "Stored the resulting tensor as tensor id " << id << endl;
 
     return true;
@@ -68,6 +80,8 @@ bool ZX2TSMapper::map() {
  * @param v the tensor of whom
  */
 void ZX2TSMapper::mapOneVertex(ZXVertex* v) {
+    if (_stop_token.stop_requested()) return;
+
     _simplePins.clear();
     _hadamardPins.clear();
     _removeEdges.clear();
@@ -282,7 +296,7 @@ void ZX2TSMapper::tensorDotVertex(ZXVertex* v) {
     for (size_t t = 0; t < _simplePins.size(); t++)
         connect_pin.emplace_back(t);
 
-    currTensor() = tensordot(dehadamarded, v->getTSform(), _simplePins, connect_pin);
+    currTensor() = tensordot(dehadamarded, getTSform(v), _simplePins, connect_pin);
 
     // remove dotted frontiers
     for (size_t i = 0; i < _removeEdges.size(); i++)
@@ -313,4 +327,20 @@ void ZX2TSMapper::tensorDotVertex(ZXVertex* v) {
  */
 bool ZX2TSMapper::isFrontier(const NeighborPair& nbr) const {
     return (nbr.first->getPin() != unsigned(-1));
+}
+
+/**
+ * @brief Get Tensor form of Z, X spider, or H box
+ *
+ * @param v the ZXVertex
+ * @return QTensor<double>
+ */
+QTensor<double> getTSform(ZXVertex* v) {
+    if (v->isBoundary()) return QTensor<double>::identity(v->getNumNeighbors());
+    if (v->isHBox()) return QTensor<double>::hbox(v->getNumNeighbors());
+    if (v->isZ()) return QTensor<double>::zspider(v->getNumNeighbors(), v->getPhase());
+    if (v->isX()) return QTensor<double>::xspider(v->getNumNeighbors(), v->getPhase());
+
+    cerr << "Error: Invalid vertex type!! (" << v->getId() << ")" << endl;
+    return {1. + 0.i};
 }

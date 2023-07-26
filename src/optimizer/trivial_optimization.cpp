@@ -24,6 +24,10 @@ QCir* Optimizer::trivial_optimization() {
     temp->addQubit(_circuit->getNQubit());
     vector<QCirGate*> gateList = _circuit->getTopoOrderdGates();
     for (auto gate : gateList) {
+        if (_stop_token.stop_requested()) {
+            cerr << "Warning: optimization interrupted" << endl;
+            return _circuit;
+        }
         vector<QCirGate*> LastLayer = getFirstLayerGates(temp, true);
         size_t qubit = gate->getTarget()._qubit;
         if (LastLayer[qubit] == nullptr) {

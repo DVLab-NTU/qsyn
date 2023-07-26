@@ -849,7 +849,7 @@ unique_ptr<ArgParseCmdType> QCir2TSCmd() {
     };
 
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
-        qcirMgr->getQCircuit()->tensorMapping();
+        qcirMgr->getQCircuit()->tensorMapping(st);
         return CMD_EXEC_DONE;
     };
 

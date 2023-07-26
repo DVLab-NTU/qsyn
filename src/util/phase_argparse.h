@@ -10,6 +10,7 @@
 #define QSYN_UTIL_PHASE_ARGPARSE_H
 
 #include <string>
+
 #include "phase.h"
 
 namespace ArgParse {
@@ -19,8 +20,8 @@ inline bool parseFromString(Phase& phase, std::string const& token) {
     return Phase::myStr2Phase(token, phase);
 }
 
-}
+}  // namespace ArgParse
 
 #include "argparse.h"
 
-#endif // QSYN_UTIL_PHASE_ARGPARSE_H
+#endif  // QSYN_UTIL_PHASE_ARGPARSE_H

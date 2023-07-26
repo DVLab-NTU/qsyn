@@ -9,6 +9,7 @@
 #define ZX2TS_MAPPER_H
 
 #include <cstddef>  // for size_t
+#include <stop_token>
 
 #include "qtensor.h"  // for QTensor
 #include "zxDef.h"    // for NeighborPair
@@ -20,7 +21,8 @@ class ZX2TSMapper {
 public:
     using Frontiers = ordered_hashmap<EdgePair, size_t>;
 
-    ZX2TSMapper(ZXGraph* zxg) : _zxgraph(zxg) {}
+    ZX2TSMapper(ZXGraph* zxg, std::stop_token st = std::stop_token{}) : _zxgraph{zxg}, _stop_token{st} {}
+
     class ZX2TSList {
     public:
         const Frontiers& frontiers(const size_t& id) const {
@@ -59,6 +61,8 @@ private:
     std::vector<EdgePair> _removeEdges;  // Old frontiers to be removed
     std::vector<EdgePair> _addEdges;     // New frontiers to be added
 
+    std::stop_token _stop_token;
+
     Frontiers& currFrontiers() { return _zx2tsList.frontiers(_tensorId); }
     QTensor<double>& currTensor() { return _zx2tsList.tensor(_tensorId); }
     const Frontiers& currFrontiers() const { return _zx2tsList.frontiers(_tensorId); }
@@ -79,4 +83,7 @@ private:
     // EdgePair makeEdgeKey(ZXVertex* v1, ZXVertex* v2, EdgeType* et);
     void getAxisOrders(TensorAxisList& inputAxisList, TensorAxisList& outputAxisList);
 };
+
+QTensor<double> getTSform(ZXVertex* v);
+
 #endif  // ZX2TS_MAPPER_H

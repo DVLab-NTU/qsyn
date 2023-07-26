@@ -82,7 +82,7 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
         // }
         size_t nextId = zxGraphMgr.getNextID();
         zxGraphMgr.copy(nextId);
-        Extractor ext(zxGraphMgr.get(), nullptr, nullopt);
+        Extractor ext(zxGraphMgr.get(), nullptr, nullopt, st);
 
         QCir *result = ext.extract();
         // if (parser["-both"].isParsed()) {

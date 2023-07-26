@@ -70,7 +70,7 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
 
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
         DT_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
-        Duostra duo = Duostra(qcirMgr->getQCircuit(), deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"]);
+        Duostra duo{qcirMgr->getQCircuit(), deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"], st};
         if (duo.flow() != ERROR_CODE) {
             QCir* result = duo.getPhysicalCircuit();
             if (result != nullptr) {

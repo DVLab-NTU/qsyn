@@ -218,5 +218,4 @@ void QCir::reset() {
     _qubitId = 0;
     _dirty = true;
     _globalDFScounter = 1;
-    _tensor = nullptr;
 }

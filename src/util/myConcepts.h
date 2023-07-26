@@ -17,11 +17,11 @@
 
 #include "rationalNumber.h"
 
-template<class A>
+template <class A>
 struct is_fixed_array : std::false_type {};
 
 // only works with arrays by specialization.
-template<class T, std::size_t I>
+template <class T, std::size_t I>
 struct is_fixed_array<std::array<T, I>> : std::true_type {};
 
 template <typename T>

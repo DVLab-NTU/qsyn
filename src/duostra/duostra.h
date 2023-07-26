@@ -10,6 +10,8 @@
 #ifndef DUOSTRA_H
 #define DUOSTRA_H
 
+#include <stop_token>
+
 #include "device.h"
 #include "placer.h"
 #include "qcir.h"
@@ -18,8 +20,8 @@
 
 class Duostra {
 public:
-    Duostra(QCir*, Device, bool = false, bool = true, bool = false);
-    Duostra(const std::vector<Operation>&, size_t, Device, bool = false, bool = true, bool = false);
+    Duostra(QCir*, Device, bool = false, bool = true, bool = false, std::stop_token st = std::stop_token{});
+    Duostra(const std::vector<Operation>&, size_t, Device, bool = false, bool = true, bool = false, std::stop_token st = std::stop_token{});
     ~Duostra() {}
 
     QCir* getPhysicalCircuit() { return _physicalCircuit; }
@@ -45,6 +47,8 @@ private:
     std::shared_ptr<DependencyGraph> _dependency;
     std::vector<Operation> _result;
     std::vector<Operation> _order;
+
+    std::stop_token _stop_token;
 };
 
 std::string getSchedulerTypeStr();

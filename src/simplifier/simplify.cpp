@@ -378,10 +378,9 @@ int Simplifier::cliffordSimp() {
  *
  */
 void Simplifier::fullReduce() {
-    _simpGraph->addProcedure("FR");
     this->interiorCliffordSimp();
     this->pivotGadgetSimp();
-    while (true) {
+    while (!_stop_token.stop_requested()) {
         this->cliffordSimp();
         int i = this->gadgetSimp();
         if (i == -1) i = 0;
@@ -391,6 +390,11 @@ void Simplifier::fullReduce() {
         if (i + j == 0) break;
     }
     this->printRecipe();
+    if (_stop_token.stop_requested()) {
+        _simpGraph->addProcedure("FR[INT]");
+    } else {
+        _simpGraph->addProcedure("FR");
+    }
 }
 
 /**
@@ -400,7 +404,6 @@ void Simplifier::fullReduce() {
 void Simplifier::dynamicReduce(int tOptimal) {
     cout << " (T-optimal: " << tOptimal << ")";
     opt.init();
-    _simpGraph->addProcedure("DR");
     opt.updateParameters(_simpGraph);
 
     int a1 = this->interiorCliffordSimp();
@@ -418,7 +421,7 @@ void Simplifier::dynamicReduce(int tOptimal) {
         return;
     }
 
-    while (true) {
+    while (!_stop_token.stop_requested()) {
         int a3 = this->cliffordSimp();
         if (a3 == -1 && tOptimal == _simpGraph->TCount()) {
             _simpGraph = opt.getLastZXGraph();
@@ -450,6 +453,11 @@ void Simplifier::dynamicReduce(int tOptimal) {
         if (a4 + a6 == 0) break;
     }
     this->printRecipe();
+    if (_stop_token.stop_requested()) {
+        _simpGraph->addProcedure("DR[INT]");
+    } else {
+        _simpGraph->addProcedure("DR");
+    }
 }
 
 void Simplifier::hybridReduce() {
