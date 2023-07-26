@@ -88,12 +88,12 @@ void Extractor::initialize(bool fromEmpty) {
 QCir* Extractor::extract() {
     if (!extractionLoop(-1)) {
         return nullptr;
-    } 
+    }
     if (_stop_token.stop_requested()) {
         cerr << "Warning: conversion is interrupted" << endl;
         return nullptr;
     }
-    
+
     if (verbose >= 3)
         cout << "Finish extracting!" << endl;
     if (verbose >= 8) {
