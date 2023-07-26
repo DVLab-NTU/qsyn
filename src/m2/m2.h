@@ -35,7 +35,7 @@ public:
     bool isZeros() const;
     void printRow() const;
 
-    void push_back(unsigned char i) { _row.push_back(i); }
+    void emplace_back(unsigned char i) { _row.emplace_back(i); }
 
     Row& operator+=(const Row& rhs);
     friend Row operator+(Row lhs, const Row& rhs);

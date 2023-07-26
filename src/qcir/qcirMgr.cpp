@@ -57,7 +57,7 @@ bool QCirMgr::isID(size_t id) const {
  */
 QCir* QCirMgr::addQCir(size_t id) {
     QCir* qcir = new QCir(id);
-    _circuitList.push_back(qcir);
+    _circuitList.emplace_back(qcir);
     _cListItr = _circuitList.end() - 1;
     if (id == _nextID || _nextID < id) _nextID = id + 1;
     if (verbose >= 3) {
@@ -126,7 +126,7 @@ void QCirMgr::copy(size_t id, bool toNew) {
         copiedCircuit->setFileName(getQCircuit()->getFileName());
         copiedCircuit->addProcedure(getQCircuit()->getProcedures());
         if (toNew) {
-            _circuitList.push_back(copiedCircuit);
+            _circuitList.emplace_back(copiedCircuit);
             _cListItr = _circuitList.end() - 1;
             if (_nextID <= id) _nextID = id + 1;
             if (verbose >= 3) {

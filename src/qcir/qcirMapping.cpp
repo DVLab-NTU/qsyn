@@ -78,7 +78,7 @@ void QCir::ZXMapping() {
         v->setCol(max + 1);
     }
     // _ZXG->normalize();
-    _ZXGraphList.push_back(_ZXG);
+    _ZXGraphList.emplace_back(_ZXG);
 }
 
 /**
@@ -106,9 +106,9 @@ void QCir::tensorMapping() {
         ori_pin.clear();
         new_pin.clear();
         for (size_t np = 0; np < G->getQubits().size(); np++) {
-            new_pin.push_back(2 * np);
+            new_pin.emplace_back(2 * np);
             BitInfo info = G->getQubits()[np];
-            ori_pin.push_back(_qubit2pin[info._qubit].second);
+            ori_pin.emplace_back(_qubit2pin[info._qubit].second);
         }
         *_tensor = tensordot(*_tensor, tmp, ori_pin, new_pin);
         updateTensorPin(G->getQubits(), tmp);
@@ -116,8 +116,8 @@ void QCir::tensorMapping() {
 
     vector<size_t> input_pin, output_pin;
     for (size_t i = 0; i < _qubits.size(); i++) {
-        input_pin.push_back(_qubit2pin[_qubits[i]->getId()].first);
-        output_pin.push_back(_qubit2pin[_qubits[i]->getId()].second);
+        input_pin.emplace_back(_qubit2pin[_qubits[i]->getId()].first);
+        output_pin.emplace_back(_qubit2pin[_qubits[i]->getId()].second);
     }
     *_tensor = _tensor->toMatrix(input_pin, output_pin);
     cout << "Stored the resulting tensor as tensor id " << id << endl;

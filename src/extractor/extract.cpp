@@ -392,7 +392,7 @@ bool Extractor::removeGadget(bool check) {
         for (auto& [candidate, _] : n->getNeighbors()) {
             if (_frontier.contains(candidate)) {
                 PivotBoundary::MatchTypeVec matches;
-                matches.push_back({n, candidate});
+                matches.push_back({n, candidate});  // NOTE - cannot emplace_back: std::array does not have a constructor!
 
                 pivotBoundaryRule->setMatchTypeVec(matches);
 
@@ -819,7 +819,7 @@ void Extractor::updateNeighbors() {
                     break;
                 }
             }
-            rmVs.push_back(f);
+            rmVs.emplace_back(f);
         } else {
             for (auto [b, ep] : f->getNeighbors()) {  // The pass-by-copy is deliberate. Pass by ref will cause segfault
                 if (_graph->getInputs().contains(b)) {

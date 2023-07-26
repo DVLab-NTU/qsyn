@@ -56,7 +56,7 @@ void ZXGraph::DFS(ZXVertex* currentVertex) {
         pair<bool, ZXVertex*> node = dfs.top();
         dfs.pop();
         if (node.first) {
-            _topoOrder.push_back(node.second);
+            _topoOrder.emplace_back(node.second);
             continue;
         }
         if (node.second->isVisited(_globalTraCounter)) {
@@ -97,18 +97,18 @@ void ZXGraph::BFS(ZXVertex* currentVertex) {
     list<ZXVertex*> queue;
 
     currentVertex->setVisited(_globalTraCounter);
-    queue.push_back(currentVertex);
+    queue.emplace_back(currentVertex);
 
     while (!queue.empty()) {
         ZXVertex* s = queue.front();
 
-        _topoOrder.push_back(s);
+        _topoOrder.emplace_back(s);
         queue.pop_front();
 
         for (auto [adjecent, _] : s->getNeighbors()) {
             if (!(adjecent->isVisited(_globalTraCounter))) {
                 adjecent->setVisited(_globalTraCounter);
-                queue.push_back(adjecent);
+                queue.emplace_back(adjecent);
             }
         }
     }

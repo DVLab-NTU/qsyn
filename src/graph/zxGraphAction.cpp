@@ -260,7 +260,7 @@ void ZXGraph::normalize() {
     while (!cand.empty()) {
         ZXVertex* node = cand.front();
         cand.pop();
-        mp[node->getQubit()].push_back(node);
+        mp[node->getQubit()].emplace_back(node);
         for (const auto& n : node->getNeighbors()) {
             if (vis.find(n.first->getId()) == vis.end()) {
                 cand.push(n.first);

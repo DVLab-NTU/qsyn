@@ -617,7 +617,7 @@ QCirAddGateCmd::exec(const string &option) {
             cerr << "Error: qubit ID is not in current circuit!!" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[1]);
         }
-        qubits.push_back(id);
+        qubits.emplace_back(id);
         type = type.erase(0, 1);
         qcirMgr->getQCircuit()->addGate(type, qubits, Phase(0), appendGate);
     } else if (myStrNCmp("-CX", type, 3) == 0 || myStrNCmp("-CZ", type, 3) == 0) {
@@ -635,7 +635,7 @@ QCirAddGateCmd::exec(const string &option) {
                 cerr << "Error: qubit ID is not in current circuit!!" << endl;
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
             }
-            qubits.push_back(id);
+            qubits.emplace_back(id);
         }
         type = type.erase(0, 1);
         qcirMgr->getQCircuit()->addGate(type, qubits, Phase(0), appendGate);
@@ -674,7 +674,7 @@ QCirAddGateCmd::exec(const string &option) {
             cerr << "Error: qubit ID is not in current circuit!!" << endl;
             return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
         }
-        qubits.push_back(id);
+        qubits.emplace_back(id);
         type = type.erase(0, 1);
         qcirMgr->getQCircuit()->addGate(type, qubits, phase, appendGate);
     } else if (myStrNCmp("-MCP", type, 4) == 0 || myStrNCmp("-MCPX", type, 5) == 0 || myStrNCmp("-MCPY", type, 5) == 0 ||
@@ -712,7 +712,7 @@ QCirAddGateCmd::exec(const string &option) {
                 cerr << "Error: qubit ID is not in current circuit!!" << endl;
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
             }
-            qubits.push_back(id);
+            qubits.emplace_back(id);
         }
         type = type.erase(0, 1);
         qcirMgr->getQCircuit()->addGate(type, qubits, phase, appendGate);
@@ -732,7 +732,7 @@ QCirAddGateCmd::exec(const string &option) {
                 cerr << "Error: qubit ID is not in current circuit!!" << endl;
                 return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
             }
-            qubits.push_back(id);
+            qubits.emplace_back(id);
         }
         type = type.erase(0, 1);
         qcirMgr->getQCircuit()->addGate(type, qubits, Phase(0), appendGate);

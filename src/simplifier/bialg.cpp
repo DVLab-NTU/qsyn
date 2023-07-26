@@ -26,7 +26,7 @@ bool Bialgebra::check_duplicated_vertex(vector<ZXVertex*> vec) {
     vector<int> appeared = {};
     for (size_t i = 0; i < vec.size(); i++) {
         if (find(appeared.begin(), appeared.end(), vec[i]->getId()) == appeared.end()) {
-            appeared.push_back(vec[i]->getId());
+            appeared.emplace_back(vec[i]->getId());
         } else
             return true;
     }
@@ -86,7 +86,7 @@ void Bialgebra::match(ZXGraph* g, int upper_bound) {
         if (!all_of(left->getNeighbors().begin(), left->getNeighbors().end(), [](pair<ZXVertex*, EdgeType> edge_pair) { return edge_pair.second == EdgeType::SIMPLE; })) return;
         if (!all_of(right->getNeighbors().begin(), right->getNeighbors().end(), [](pair<ZXVertex*, EdgeType> edge_pair) { return edge_pair.second == EdgeType::SIMPLE; })) return;
 
-        _matchTypeVec.push_back(epair);
+        _matchTypeVec.emplace_back(epair);
 
         // set left, right and their neighbors into taken
         for (size_t j = 0; j < neighbor_of_left.size(); j++) {
@@ -115,15 +115,15 @@ void Bialgebra::rewrite(ZXGraph* g) {
 
         vector<ZXVertex*> neighbor_of_left = left->getCopiedNeighbors(), neighbor_of_right = right->getCopiedNeighbors();
 
-        _removeVertices.push_back(left);
-        _removeVertices.push_back(right);
+        _removeVertices.emplace_back(left);
+        _removeVertices.emplace_back(right);
 
         for (size_t j = 0; j < neighbor_of_left.size(); j++) {
             if (neighbor_of_left[j] == right) continue;
             for (size_t k = 0; k < neighbor_of_right.size(); k++) {
                 if (neighbor_of_right[k] == left) continue;
-                _edgeTableKeys.push_back(make_pair(neighbor_of_left[j], neighbor_of_right[k]));
-                _edgeTableValues.push_back(make_pair(1, 0));
+                _edgeTableKeys.emplace_back(make_pair(neighbor_of_left[j], neighbor_of_right[k]));
+                _edgeTableValues.emplace_back(make_pair(1, 0));
             }
         }
     }

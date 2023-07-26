@@ -243,7 +243,7 @@ DeviceGraphPrintCmd::exec(const string& option) {
         for (size_t i = 1; i < options.size(); i++) {
             unsigned qid;
             if (myStr2Uns(options[i], qid))
-                candidates.push_back(size_t(qid));
+                candidates.emplace_back(size_t(qid));
             else {
                 cout << "Warning: " << options[i] << " is not a valid qubit ID!!" << endl;
             }
@@ -254,7 +254,7 @@ DeviceGraphPrintCmd::exec(const string& option) {
         for (size_t i = 1; i < options.size(); i++) {
             unsigned qid;
             if (myStr2Uns(options[i], qid))
-                candidates.push_back(size_t(qid));
+                candidates.emplace_back(size_t(qid));
             else {
                 cout << "Warning: " << options[i] << " is not a valid qubit ID!!" << endl;
             }

@@ -150,10 +150,10 @@ bool Phase::myStrValid(const std::string& str, Phase& p) {
     while (operatorPos != std::string::npos) {
         operatorPos = str.find_first_of("*/", curPos);
         if (operatorPos != std::string::npos) {
-            operators.push_back(str[operatorPos]);
-            numberStrings.push_back(str.substr(curPos, operatorPos - curPos));
+            operators.emplace_back(str[operatorPos]);
+            numberStrings.emplace_back(str.substr(curPos, operatorPos - curPos));
         } else {
-            numberStrings.push_back(str.substr(curPos));
+            numberStrings.emplace_back(str.substr(curPos));
         }
         curPos = operatorPos + 1;
     }

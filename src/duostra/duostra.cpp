@@ -184,7 +184,7 @@ void Duostra::makeDependency() {
             if (second._parent != nullptr) tempGate.addPrev(second._parent->getId());
             if (second._child != nullptr) tempGate.addNext(second._child->getId());
         }
-        allGates.push_back(std::move(tempGate));
+        allGates.emplace_back(std::move(tempGate));
     }
     _dependency = make_shared<DependencyGraph>(_logicalCircuit->getNQubit(), std::move(allGates));
 }
@@ -212,7 +212,7 @@ void Duostra::makeDependency(const vector<Operation>& oper, size_t nQubit) {
         }
         lastGate[get<0>(oper[i].getQubits())] = i;
         lastGate[get<1>(oper[i].getQubits())] = i;
-        allGates.push_back(std::move(tempGate));
+        allGates.emplace_back(std::move(tempGate));
     }
     _dependency = make_shared<DependencyGraph>(nQubit, std::move(allGates));
 }

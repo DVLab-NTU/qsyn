@@ -52,7 +52,7 @@ MC_GenBackbone(ZXGraph& g, vector<BitInfo> const& qubits, RotationAxis ax) {
             }
         }
         if (!bitinfo._isTarget)
-            controls.push_back(v);
+            controls.emplace_back(v);
         else
             target = v;
     }
@@ -74,11 +74,11 @@ MC_GenBackbone(ZXGraph& g, vector<BitInfo> const& qubits, RotationAxis ax) {
  */
 void makeCombiUtil(vector<vector<ZXVertex*>>& comb, vector<ZXVertex*>& tmp, vector<ZXVertex*> const& verVec, int left, int k) {
     if (k == 0) {
-        comb.push_back(tmp);
+        comb.emplace_back(tmp);
         return;
     }
     for (int i = left; i < (int)verVec.size(); ++i) {
-        tmp.push_back(verVec[i]);
+        tmp.emplace_back(verVec[i]);
         makeCombiUtil(comb, tmp, verVec, i + 1, k - 1);
         tmp.pop_back();
     }
@@ -103,7 +103,7 @@ void MCR_GenGadgets(ZXGraph& g, vector<ZXVertex*> const& controls, ZXVertex* tar
     for (size_t k = 1; k <= controls.size(); k++) {
         vector<vector<ZXVertex*>> combinations = makeCombi(controls, k);
         for (auto& combination : combinations) {
-            combination.push_back(target);
+            combination.emplace_back(target);
             g.addGadget((combination.size() % 2) ? phase : -phase, combination);
         }
     }
@@ -137,7 +137,7 @@ ZXGraph MCP_Gen(vector<BitInfo> qubits, size_t id, Phase const& rotatePhase, Rot
     Phase phase = detail::getGadgetPhase(rotatePhase, qubits.size());
 
     auto [vertices, target] = detail::MC_GenBackbone(g, qubits, ax);
-    vertices.push_back(target);
+    vertices.emplace_back(target);
 
     detail::MCP_GenGadgets(g, vertices, phase);
 
@@ -224,7 +224,7 @@ ZXGraph CCXGate::getZXform() {
         in_ctrl_2 = g.addInput(ctrl_qubit_2, 0);
         in_targ = g.addInput(targ_qubit, 0);
         for (size_t i = 0; i < vertices_info.size(); i++) {
-            vertices_list.push_back(g.addVertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
+            vertices_list.emplace_back(g.addVertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
         };
         for (size_t i = 0; i < vertices_col.size(); i++) {
             vertices_list[i]->setCol(vertices_col[i]);
@@ -248,7 +248,7 @@ ZXGraph CCXGate::getZXform() {
         in_ctrl_2 = g.addInput(ctrl_qubit_2, 0);
         in_targ = g.addInput(targ_qubit, 0);
         for (size_t i = 0; i < vertices_info.size(); i++) {
-            vertices_list.push_back(g.addVertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
+            vertices_list.emplace_back(g.addVertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
         };
         for (size_t i = 0; i < vertices_col.size(); i++) {
             vertices_list[i]->setCol(vertices_col[i]);
@@ -271,7 +271,7 @@ ZXGraph CCXGate::getZXform() {
         in_ctrl_2 = g.addInput(ctrl_qubit_2, 0);
         in_targ = g.addInput(targ_qubit, 0);
         for (size_t i = 0; i < vertices_info.size(); i++) {
-            vertices_list.push_back(g.addVertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
+            vertices_list.emplace_back(g.addVertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
         };
         for (size_t i = 0; i < vertices_col.size(); i++) {
             vertices_list[i]->setCol(vertices_col[i]);
@@ -295,7 +295,7 @@ ZXGraph CCXGate::getZXform() {
         in_ctrl_2 = g.addInput(ctrl_qubit_2, 0);
         in_targ = g.addInput(targ_qubit, 0);
         for (size_t i = 0; i < vertices_info.size(); i++) {
-            vertices_list.push_back(g.addVertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
+            vertices_list.emplace_back(g.addVertex(vertices_info[i].second, vertices_info[i].first.first, vertices_info[i].first.second));
         };
         for (size_t i = 0; i < vertices_col.size(); i++) {
             vertices_list[i]->setCol(vertices_col[i]);

@@ -41,11 +41,11 @@ void LComp::match(ZXGraph* g, int upper_bound) {
                 vector<ZXVertex*> neighbors;
                 for (const auto& [nb, _] : v->getNeighbors()) {
                     if (v == nb) continue;
-                    neighbors.push_back(nb);
+                    neighbors.emplace_back(nb);
                     taken.insert(nb);
                 }
                 taken.insert(v);
-                _matchTypeVec.push_back(make_pair(v, neighbors));
+                _matchTypeVec.emplace_back(make_pair(v, neighbors));
             }
         }
     }
@@ -61,7 +61,7 @@ void LComp::rewrite(ZXGraph* g) {
     reset();
 
     for (const auto& [v, neighbors] : _matchTypeVec) {
-        _removeVertices.push_back(v);
+        _removeVertices.emplace_back(v);
         size_t hEdgeCount = 0;
         for (auto& [nb, etype] : v->getNeighbors()) {
             if (nb == v && etype == EdgeType::HADAMARD) {
@@ -73,8 +73,8 @@ void LComp::rewrite(ZXGraph* g) {
         for (size_t n = 0; n < neighbors.size(); n++) {
             neighbors[n]->setPhase(neighbors[n]->getPhase() - p);
             for (size_t j = n + 1; j < neighbors.size(); j++) {
-                _edgeTableKeys.push_back(make_pair(neighbors[n], neighbors[j]));
-                _edgeTableValues.push_back(make_pair(0, 1));
+                _edgeTableKeys.emplace_back(make_pair(neighbors[n], neighbors[j]));
+                _edgeTableValues.emplace_back(make_pair(0, 1));
             }
         }
     }

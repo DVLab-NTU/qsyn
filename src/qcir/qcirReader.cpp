@@ -116,7 +116,7 @@ bool QCir::readQASM(string filename) {
                 cerr << "Error line: " << str << endl;
                 return false;
             }
-            pin_id.push_back(qub_n);
+            pin_id.emplace_back(qub_n);
             n = myStrGetTok(str, tmp, n, ',');
         }
 
@@ -164,7 +164,7 @@ bool QCir::readQC(string filename) {
 
                 pos = myStrGetTok(line, token, pos);
                 if (!count(qubit_labels.begin(), qubit_labels.end(), token)) {
-                    qubit_labels.push_back(token);
+                    qubit_labels.emplace_back(token);
                     n_qubit++;
                 }
             }
@@ -184,7 +184,7 @@ bool QCir::readQC(string filename) {
                 pos = myStrGetTok(line, qubit_label, pos);
                 if (count(qubit_labels.begin(), qubit_labels.end(), qubit_label)) {
                     size_t qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), qubit_label));
-                    pin_id.push_back(qubit_id);
+                    pin_id.emplace_back(qubit_id);
                 } else {
                     cerr << "Error: Find a undefined qubit " << qubit_label << endl;
                     return false;
@@ -245,22 +245,22 @@ bool QCir::readQSIM(string filename) {
         if (type == "cx" || type == "cz") {
             // add 2 qubit gate
             pos = myStrGetTok(line, qubit_id, pos);
-            pin_id.push_back(stoul(qubit_id));
+            pin_id.emplace_back(stoul(qubit_id));
             pos = myStrGetTok(line, qubit_id, pos);
-            pin_id.push_back(stoul(qubit_id));
+            pin_id.emplace_back(stoul(qubit_id));
             addGate(type, pin_id, Phase(0), true);
         } else if (type == "rx" || type == "rz") {
             // add phase gate
             Phase phase;
             pos = myStrGetTok(line, qubit_id, pos);
-            pin_id.push_back(stoul(qubit_id));
+            pin_id.emplace_back(stoul(qubit_id));
             pos = myStrGetTok(line, phaseStr, pos);
             Phase::fromString(phaseStr, phase);
             addGate(type, pin_id, phase, true);
         } else if (count(single_gate_list.begin(), single_gate_list.end(), type)) {
             // add single qubit gate
             pos = myStrGetTok(line, qubit_id, pos);
-            pin_id.push_back(stoul(qubit_id));
+            pin_id.emplace_back(stoul(qubit_id));
             addGate(type, pin_id, Phase(0), true);
         } else {
             cerr << "Error: Do not support gate type " << type << endl;
@@ -321,8 +321,8 @@ bool QCir::readQUIPPER(string filename) {
                             return false;
                         }
                         size_t qubit_control = stoul(ctrls_info.substr(1));
-                        pin_id.push_back(qubit_control);
-                        pin_id.push_back(qubit_target);
+                        pin_id.emplace_back(qubit_control);
+                        pin_id.emplace_back(qubit_target);
                         type.insert(0, "C");
                         addGate(type, pin_id, Phase(0), true);
                     } else if (count(line.begin(), line.end(), '+') == 2) {
@@ -334,9 +334,9 @@ bool QCir::readQUIPPER(string filename) {
                         size_t qubit_control1, qubit_control2;
                         qubit_control1 = stoul(ctrls_info.substr(1, ctrls_info.find(',') - 1));
                         qubit_control2 = stoul(ctrls_info.substr(ctrls_info.find(',') + 2));
-                        pin_id.push_back(qubit_control1);
-                        pin_id.push_back(qubit_control2);
-                        pin_id.push_back(qubit_target);
+                        pin_id.emplace_back(qubit_control1);
+                        pin_id.emplace_back(qubit_control2);
+                        pin_id.emplace_back(qubit_target);
                         type.insert(0, "CC");
                         addGate(type, pin_id, Phase(0), true);
                     } else {
@@ -345,7 +345,7 @@ bool QCir::readQUIPPER(string filename) {
                     }
                 } else {
                     // without control
-                    pin_id.push_back(qubit_target);
+                    pin_id.emplace_back(qubit_target);
                     addGate(type, pin_id, Phase(0), true);
                 }
 

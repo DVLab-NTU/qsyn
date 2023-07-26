@@ -201,7 +201,7 @@ template <typename DT>
 std::vector<size_t> Tensor<DT>::shape() const {
     std::vector<size_t> shape;
     for (size_t i = 0; i < dimension(); ++i) {
-        shape.push_back(_tensor.shape(i));
+        shape.emplace_back(_tensor.shape(i));
     }
     return shape;
 }

@@ -155,33 +155,18 @@ void M2::printTrack() const {
  *
  */
 void M2::defaultInit() {
-    // _matrix.push_back(Row(0, vector<unsigned char> {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0}));
-    // _matrix.push_back(Row(1, vector<unsigned char> {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0}));
-    // _matrix.push_back(Row(2, vector<unsigned char> {0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0}));
-    // _matrix.push_back(Row(3, vector<unsigned char> {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}));
-    // _matrix.push_back(Row(4, vector<unsigned char> {0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0}));
-    // _matrix.push_back(Row(5, vector<unsigned char> {0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0}));
-    // _matrix.push_back(Row(6, vector<unsigned char> {0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0}));
-    // _matrix.push_back(Row(7, vector<unsigned char> {0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1}));
-    // _matrix.push_back(Row(8, vector<unsigned char> {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}));
-    // _matrix.push_back(Row(9, vector<unsigned char> {0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0}));
-    // _matrix.push_back(Row(10, vector<unsigned char>{0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0}));
-    // _matrix.push_back(Row(11, vector<unsigned char>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0}));
-    // _matrix.push_back(Row(12, vector<unsigned char>{1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0}));
-    // _matrix.push_back(Row(13, vector<unsigned char>{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0}));
-
-    _matrix.push_back(Row(0, vector<unsigned char>{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0}));
-    _matrix.push_back(Row(1, vector<unsigned char>{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0}));
-    _matrix.push_back(Row(2, vector<unsigned char>{0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}));
-    _matrix.push_back(Row(3, vector<unsigned char>{0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0}));
-    _matrix.push_back(Row(4, vector<unsigned char>{0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}));
-    _matrix.push_back(Row(5, vector<unsigned char>{0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}));
-    _matrix.push_back(Row(6, vector<unsigned char>{0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}));
-    _matrix.push_back(Row(7, vector<unsigned char>{0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0}));
-    _matrix.push_back(Row(8, vector<unsigned char>{0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}));
-    _matrix.push_back(Row(9, vector<unsigned char>{0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0}));
-    _matrix.push_back(Row(10, vector<unsigned char>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}));
-    _matrix.push_back(Row(11, vector<unsigned char>{1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0}));
+    _matrix.emplace_back(0, vector<unsigned char>{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0});
+    _matrix.emplace_back(1, vector<unsigned char>{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0});
+    _matrix.emplace_back(2, vector<unsigned char>{0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0});
+    _matrix.emplace_back(3, vector<unsigned char>{0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0});
+    _matrix.emplace_back(4, vector<unsigned char>{0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0});
+    _matrix.emplace_back(5, vector<unsigned char>{0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+    _matrix.emplace_back(6, vector<unsigned char>{0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1});
+    _matrix.emplace_back(7, vector<unsigned char>{0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0});
+    _matrix.emplace_back(8, vector<unsigned char>{0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0});
+    _matrix.emplace_back(9, vector<unsigned char>{0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0});
+    _matrix.emplace_back(10, vector<unsigned char>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0});
+    _matrix.emplace_back(11, vector<unsigned char>{1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0});
 }
 
 /**
@@ -258,7 +243,7 @@ size_t M2::gaussianElimSkip(size_t blockSize, bool fullReduced, bool track) {
                             xorOper(pivot_row, r1, track);
                         }
                     }
-                    pivot_cols.push_back(p);
+                    pivot_cols.emplace_back(p);
                     pivot_row++;
                     break;
                 }
@@ -327,8 +312,8 @@ size_t M2::filterDuplicatedOps() {
         if (lastUsed.contains(opsCopy[i].first) && lastUsed[opsCopy[i].first].first == opsCopy[i].second && opsCopy[lastUsed[opsCopy[i].first].second].first == opsCopy[i].first) firstMatch = true;
         if (lastUsed.contains(opsCopy[i].second) && lastUsed[opsCopy[i].second].first == opsCopy[i].first && opsCopy[lastUsed[opsCopy[i].second].second].second == opsCopy[i].second) secondMatch = true;
         if (firstMatch && secondMatch) {
-            dups.push_back(i);
-            dups.push_back(lastUsed[opsCopy[i].second].second);
+            dups.emplace_back(i);
+            dups.emplace_back(lastUsed[opsCopy[i].second].second);
             lastUsed.erase(opsCopy[i].first);
             lastUsed.erase(opsCopy[i].second);
 
@@ -552,7 +537,7 @@ bool M2::fromZXVertices(const ZXVertexList& frontier, const ZXVertexList& neighb
         for (auto& [vt, _] : v->getNeighbors()) {
             if (neighbors.contains(vt)) storage[table[vt]] = 1;
         }
-        _matrix.push_back(Row(1, storage));
+        _matrix.emplace_back(1, storage);
     }
 
     return true;
@@ -566,7 +551,7 @@ bool M2::fromZXVertices(const ZXVertexList& frontier, const ZXVertexList& neighb
 void M2::appendOneHot(size_t idx) {
     assert(idx < _matrix.size());
     for (size_t i = 0; i < _matrix.size(); ++i) {
-        _matrix[i].push_back((i == idx) ? 1 : 0);
+        _matrix[i].emplace_back((i == idx) ? 1 : 0);
     }
 }
 
@@ -608,5 +593,5 @@ float M2::denseRatio() {
  *
  */
 void M2::pushColumn() {
-    for_each(_matrix.begin(), _matrix.end(), [](Row& r) { r.push_back(0); });
+    for_each(_matrix.begin(), _matrix.end(), [](Row& r) { r.emplace_back(0); });
 }

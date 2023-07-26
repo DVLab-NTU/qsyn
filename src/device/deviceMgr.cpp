@@ -48,7 +48,7 @@ bool DeviceMgr::isID(size_t id) const {
  */
 const Device& DeviceMgr::addDevice(size_t id) {
     Device tmp = Device(id);
-    _topoList.push_back(tmp);
+    _topoList.emplace_back(tmp);
     _topoListItr = _topoList.end() - 1;
     if (id == _nextID || _nextID < id) _nextID = id + 1;
     if (verbose >= 3) {

@@ -261,7 +261,7 @@ void CmdParser::moveToHistory(int index) {
         }
         if (size_t(_historyIdx) == _history.size()) {  // mv away from new str
             _tempCmdStored = true;
-            _history.push_back(_readBuf);
+            _history.emplace_back(_readBuf);
         } else if (_tempCmdStored &&  // the last _history is a stored temp cmd
                    size_t(_historyIdx) == size_t(_history.size() - 1))
             _history.back() = _readBuf;  // => update it
@@ -339,7 +339,7 @@ void CmdParser::saveArgumentsInVariables(std::string const& str) {
             std::cerr << "Error: Invalid argument name \"" << token << "\" in \"//!ARGS\" directive" << std::endl;
             exit(-1);
         }
-        keys.push_back(token);
+        keys.emplace_back(token);
     }
 
     if (keys.size() < n) {

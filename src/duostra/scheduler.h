@@ -25,8 +25,8 @@
 class BaseScheduler {
 public:
     BaseScheduler(std::unique_ptr<CircuitTopo>, bool = true);
-    BaseScheduler(const BaseScheduler&);
-    BaseScheduler(BaseScheduler&&);
+    BaseScheduler(BaseScheduler const&);
+    BaseScheduler(BaseScheduler&&) = default;
     virtual ~BaseScheduler() {}
 
     virtual std::unique_ptr<BaseScheduler> clone() const;

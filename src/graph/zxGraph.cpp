@@ -318,7 +318,7 @@ void ZXGraph::moveVerticesFrom(ZXGraph& other) {
 size_t ZXGraph::removeIsolatedVertices() {
     vector<ZXVertex*> rmList;
     for (const auto& v : _vertices) {
-        if (v->getNumNeighbors() == 0) rmList.push_back(v);
+        if (v->getNumNeighbors() == 0) rmList.emplace_back(v);
     }
     return removeVertices(rmList);
 }

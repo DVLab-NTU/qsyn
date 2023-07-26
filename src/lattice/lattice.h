@@ -45,7 +45,7 @@ class LTContainer {
 public:
     LTContainer(unsigned nr, unsigned nc) {
         for (size_t r = 0; r < nr; r++) {
-            _container.push_back(std::vector<Lattice>());
+            _container.emplace_back();
             for (size_t c = 0; c < nc; c++) {
                 _container.back().emplace_back(r, c);
             }

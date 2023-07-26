@@ -41,7 +41,7 @@ void HRule::match(ZXGraph* g, int upper_bound) {
             size_t n0 = id2idx[nbp0.first->getId()], n1 = id2idx[nbp1.first->getId()];
             if (taken[n0] || taken[n1]) continue;
             if (!inMatches[n0] && !inMatches[n1]) {
-                _matchTypeVec.push_back(v);
+                _matchTypeVec.emplace_back(v);
                 inMatches[id2idx[v->getId()]] = true;
                 taken[n0] = true;
                 taken[n1] = true;
@@ -67,15 +67,15 @@ void HRule::rewrite(ZXGraph* g) {
         vector<EdgeType> ets;
 
         for (auto& itr : _matchTypeVec[i]->getNeighbors()) {
-            ns.push_back(itr.first);
-            ets.push_back(itr.second);
+            ns.emplace_back(itr.first);
+            ets.emplace_back(itr.second);
         }
 
-        _edgeTableKeys.push_back(make_pair(ns[0], ns[1]));
+        _edgeTableKeys.emplace_back(make_pair(ns[0], ns[1]));
         if (ets[0] == ets[1])
-            _edgeTableValues.push_back(make_pair(0, 1));
+            _edgeTableValues.emplace_back(make_pair(0, 1));
         else
-            _edgeTableValues.push_back(make_pair(1, 0));
+            _edgeTableValues.emplace_back(make_pair(1, 0));
         // TODO - Correct for the sqrt(2) difference in H-boxes and H-edges
     }
 }

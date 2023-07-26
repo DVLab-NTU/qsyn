@@ -55,7 +55,7 @@ vector<size_t> BasePlacer::placeAndAssign(Device& device) {
 vector<size_t> RandomPlacer::place(Device& device) const {
     vector<size_t> assign;
     for (size_t i = 0; i < device.getNQubit(); ++i)
-        assign.push_back(i);
+        assign.emplace_back(i);
 
     size_t seed = chrono::system_clock::now().time_since_epoch().count();
     shuffle(assign.begin(), assign.end(), default_random_engine(seed));
@@ -73,7 +73,7 @@ vector<size_t> RandomPlacer::place(Device& device) const {
 vector<size_t> StaticPlacer::place(Device& device) const {
     vector<size_t> assign;
     for (size_t i = 0; i < device.getNQubit(); ++i)
-        assign.push_back(i);
+        assign.emplace_back(i);
 
     return assign;
 }
@@ -108,7 +108,7 @@ void DFSPlacer::DFSDevice(size_t current, Device& device, vector<size_t>& assign
     }
     assert(!qubitMark[current]);
     qubitMark[current] = true;
-    assign.push_back(current);
+    assign.emplace_back(current);
 
     const PhysicalQubit& q = device.getPhysicalQubit(current);
     vector<size_t> adjacencyWaitlist;
@@ -122,7 +122,7 @@ void DFSPlacer::DFSDevice(size_t current, Device& device, vector<size_t>& assign
         if (q.getAdjacencies().size() == 1)
             DFSDevice(adj, device, assign, qubitMark);
         else
-            adjacencyWaitlist.push_back(adj);
+            adjacencyWaitlist.emplace_back(adj);
     }
 
     for (size_t i = 0; i < adjacencyWaitlist.size(); ++i) {

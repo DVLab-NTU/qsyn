@@ -269,7 +269,7 @@ string CmdParser::replaceVariableKeysWithValues(string const& str) const {
             if (pos > 0 && str[pos - 1] == '\\' && (pos == 1 || str[pos - 2] != '\\')) {
                 continue;
             }
-            to_replace.push_back({pos, var.length(), val});
+            to_replace.emplace_back(pos, var.length(), val);
         }
     }
 
@@ -774,7 +774,7 @@ bool CmdExec::lexOptions(const string& option, vector<string>& tokens, size_t nO
     }
     size_t n = myStrGetTok2(stripped, token);
     while (token.size()) {
-        tokens.push_back(token);
+        tokens.emplace_back(token);
         n = myStrGetTok2(stripped, token, n);
     }
     if (nOpts != 0) {

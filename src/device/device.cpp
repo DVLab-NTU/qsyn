@@ -135,7 +135,7 @@ PhysicalQubit::PhysicalQubit(const PhysicalQubit& other)
  */
 PhysicalQubit::PhysicalQubit(PhysicalQubit&& other)
     : _id(other._id),
-      _adjacencies(move(other._adjacencies)),
+      _adjacencies(std::move(other._adjacencies)),
       _logicalQubit(other._logicalQubit),
       _occupiedTime(other._occupiedTime),
       _marked(other._marked),
@@ -173,7 +173,7 @@ PhysicalQubit& PhysicalQubit::operator=(const PhysicalQubit& other) {
  */
 PhysicalQubit& PhysicalQubit::operator=(PhysicalQubit&& other) {
     _id = other._id;
-    _adjacencies = move(other._adjacencies);
+    _adjacencies = std::move(other._adjacencies);
     _logicalQubit = other._logicalQubit;
     _occupiedTime = other._occupiedTime;
     _marked = other._marked;
@@ -475,14 +475,14 @@ void Device::FloydWarshall() {
  */
 vector<PhysicalQubit> Device::getPath(size_t s, size_t t) const {
     vector<PhysicalQubit> path;
-    path.push_back(_qubitList.at(s));
+    path.emplace_back(_qubitList.at(s));
     if (s == t) return path;
     size_t newPred = _predecessor[t][s];
-    path.push_back(newPred);
+    path.emplace_back(newPred);
     while (true) {
         newPred = _predecessor[t][newPred];
         if (newPred == size_t(-1)) break;
-        path.push_back(_qubitList.at(newPred));
+        path.emplace_back(_qubitList.at(newPred));
     }
     return path;
 }
@@ -694,9 +694,9 @@ bool Device::parsePairsFloat(string data, vector<vector<float>>& container) {
                 cout << "Error: The number `" << num << "` is not a float!!\n";
                 return false;
             }
-            singleFl.push_back(fl);
+            singleFl.emplace_back(fl);
         }
-        container.push_back(singleFl);
+        container.emplace_back(singleFl);
     }
     return true;
 }
@@ -725,9 +725,9 @@ bool Device::parsePairsSizeT(string data, vector<vector<size_t>>& container) {
                 cout << "Error: The number of qubit `" << num << "` is not a positive integer or not in the legal range!!\n";
                 return false;
             }
-            single.push_back(size_t(qbn));
+            single.emplace_back(size_t(qbn));
         }
-        container.push_back(single);
+        container.emplace_back(single);
     }
     return true;
 }

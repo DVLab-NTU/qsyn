@@ -71,7 +71,7 @@ void ZXOPTimizer::myOptimize() {
     //     init();
     //     dmode = i;
     //     qcirMgr->getQCircuit()->ZXMapping();
-    //     _candGraphs.push_back(zxGraphMgr->getGraph());
+    //     _candGraphs.emplace_back(zxGraphMgr->getGraph());
     //     ZXGraph* g = _candGraphs.back();
     //     g->printGraph();
     //     Simplifier s(g);

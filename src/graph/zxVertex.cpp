@@ -28,7 +28,7 @@ extern size_t verbose;
 vector<ZXVertex*> ZXVertex::getCopiedNeighbors() {
     vector<ZXVertex*> storage;
     for (const auto& neighbor : _neighbors) {
-        storage.push_back(neighbor.first);
+        storage.emplace_back(neighbor.first);
     }
     return storage;
 }

@@ -445,7 +445,7 @@ ZXGPrintCmd::exec(const string &option) {
             vector<size_t> candidates;
             for (size_t i = 1; i < options.size(); i++) {
                 unsigned id;
-                if (myStr2Uns(options[i], id)) candidates.push_back(id);
+                if (myStr2Uns(options[i], id)) candidates.emplace_back(id);
             }
             zxGraphMgr.get()->printVertices(candidates);
         }
@@ -456,7 +456,7 @@ ZXGPrintCmd::exec(const string &option) {
         for (size_t i = 1; i < options.size(); i++) {
             int qid;
             if (myStr2Int(options[i], qid))
-                candidates.push_back(qid);
+                candidates.emplace_back(qid);
             else {
                 cout << "Warning: " << options[i] << " is not a valid qubit ID!!" << endl;
             }
@@ -644,7 +644,7 @@ ZXGEditCmd::exec(const string &option) {
             ZXVertex *v;
             ZX_CMD_ID_VALID_OR_RETURN(options[i], id, "Vertex");
             ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id, v);
-            verVec.push_back(v);
+            verVec.emplace_back(v);
         }
         zxGraphMgr.get()->addGadget(phase, verVec);
         return CMD_EXEC_DONE;
