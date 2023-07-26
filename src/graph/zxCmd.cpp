@@ -686,6 +686,7 @@ unique_ptr<ArgParseCmdType> _ZXGEditCmd() {
 
     return cmd;
 }
+
 CmdExecStatus
 ZXGEditCmd::exec(std::stop_token, const string &option) {
     // check option
