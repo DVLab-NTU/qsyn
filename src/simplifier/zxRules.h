@@ -285,7 +285,7 @@ public:
     }
     virtual ~PivotInterface() {}
 
-    virtual void match(ZXGraph* g, int upper_bound = INT_MAX) = 0;
+    virtual void match(ZXGraph* g, int upper_bound = INT_MAX) override = 0;
     void rewrite(ZXGraph* g) override;
 
     // Getter and Setter

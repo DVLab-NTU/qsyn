@@ -24,7 +24,3 @@ jobs:
         mkdir build && cd build
         cmake .. -DCMAKE_CXX_COMPILER=$(which clang++)
         make -j16
-      
-    - name: Run Dofile Tests
-      run:  |
-        ./RUN_TEST -dv

@@ -184,9 +184,9 @@ void Duostra::makeDependency() {
             if (second._parent != nullptr) tempGate.addPrev(second._parent->getId());
             if (second._child != nullptr) tempGate.addNext(second._child->getId());
         }
-        allGates.push_back(move(tempGate));
+        allGates.push_back(std::move(tempGate));
     }
-    _dependency = make_shared<DependencyGraph>(_logicalCircuit->getNQubit(), move(allGates));
+    _dependency = make_shared<DependencyGraph>(_logicalCircuit->getNQubit(), std::move(allGates));
 }
 
 /**
@@ -212,9 +212,9 @@ void Duostra::makeDependency(const vector<Operation>& oper, size_t nQubit) {
         }
         lastGate[get<0>(oper[i].getQubits())] = i;
         lastGate[get<1>(oper[i].getQubits())] = i;
-        allGates.push_back(move(tempGate));
+        allGates.push_back(std::move(tempGate));
     }
-    _dependency = make_shared<DependencyGraph>(nQubit, move(allGates));
+    _dependency = make_shared<DependencyGraph>(nQubit, std::move(allGates));
 }
 
 /**
@@ -241,16 +241,16 @@ size_t Duostra::flow(bool useDeviceAsPlacement) {
     }
     // scheduler
     if (verbose > 3) cout << "Creating Scheduler..." << endl;
-    auto sched = getScheduler(move(topo), _tqdm);
+    auto sched = getScheduler(std::move(topo), _tqdm);
 
     // router
     if (verbose > 3) cout << "Creating Router..." << endl;
     string cost = (DUOSTRA_SCHEDULER == 3) ? "end" : "start";
-    auto router = make_unique<Router>(move(_device), cost, DUOSTRA_ORIENT);
+    auto router = make_unique<Router>(std::move(_device), cost, DUOSTRA_ORIENT);
 
     // routing
     if (!_silent) cout << "Routing..." << endl;
-    _device = sched->assignGatesAndSort(move(router));
+    _device = sched->assignGatesAndSort(std::move(router));
 
     if (_check) {
         if (!_silent) cout << "Checking..." << endl;

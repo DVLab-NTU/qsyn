@@ -70,6 +70,8 @@
 #ifndef ORDERED_HASHMAP_H
 #define ORDERED_HASHMAP_H
 
+#include <utility>
+
 #include "ordered_hashtable.h"
 
 template <typename Key, typename T, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
