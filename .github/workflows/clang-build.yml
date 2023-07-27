@@ -1,4 +1,4 @@
-name: Cmake Build and Test (clang)
+name: Cmake Build (clang)
 
 on:
   push:
