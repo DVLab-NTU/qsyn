@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "latticeCmd.h"
+#include "cmdParser.h"
 
 #include <cstddef>  // for size_t
 #include <iomanip>
@@ -15,14 +15,18 @@
 
 #include "lattice.h"     // for LTContainer
 #include "zxGraphMgr.h"  // for ZXGraphMgr, zxGraphMgr
+#include "zxCmd.h"
 
 using namespace std;
+using namespace ArgParse;
 extern size_t verbose;
 extern ZXGraphMgr zxGraphMgr;
 
+unique_ptr<ArgParseCmdType> latticeSurgeryCompilationCmd();
+
 bool initLTCmd() {
     if (!(
-            cmdMgr->regCmd("LTS", 3, make_unique<LTCmd>())
+            cmdMgr->regCmd("LTS", 3, latticeSurgeryCompilationCmd())
 
                 )) {
         cerr << "Registering \"lts\" commands fails... exiting" << endl;
@@ -34,33 +38,21 @@ bool initLTCmd() {
 //------------------------------------------------------------------------------------------------------------------
 //    LT [ -p ]
 //------------------------------------------------------------------------------------------------------------------
-CmdExecStatus
-LTCmd::exec(std::stop_token, const string &option) {
-    // check option
-    string token;
-    if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
 
-    if (zxGraphMgr.empty()) {
-        cerr << "Error: ZXGraph list is empty now. Please ZXNew before ZXPrint." << endl;
-        return CMD_EXEC_ERROR;
-    }
+unique_ptr<ArgParseCmdType> latticeSurgeryCompilationCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("LTS");
 
-    LTContainer lt(0, 0);
-    lt.generateLTC(zxGraphMgr.get());
-    if (token.empty())
-        lt.printLTC();
+    cmd->precondition = []() { return zxGraphMgrNotEmpty("LTS"); };
 
-    else
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("(experimental) perform mapping from ZXGraph to corresponding lattice surgery");
+    }; 
 
-    return CMD_EXEC_DONE;
-}
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        LTContainer lt(1, 1);
+        lt.generateLTC(zxGraphMgr.get());
+        return CMD_EXEC_DONE;
+    };
 
-void LTCmd::usage() const {
-    cout << "Usage: LTS [ -Print ]" << endl;
-}
-
-void LTCmd::summary() const {
-    cout << setw(15) << left << "LTS: "
-         << "(experimental) perform mapping from ZXGraph to corresponding lattice surgery" << endl;
+    return cmd;
 }

@@ -50,7 +50,7 @@ bool initDuostraCmd() {
 unique_ptr<ArgParseCmdType> duostraCmd() {
     auto cmd = make_unique<ArgParseCmdType>("DUOSTRA");
 
-    cmd->precondition = []() { return qcirMgrNotEmpty("DUOSTRA"); };
+    cmd->precondition = []() { return qcirMgrNotEmpty("DUOSTRA") && deviceMgrNotEmpty(); };
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("map logical circuit to physical circuit");
@@ -69,7 +69,6 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
     };
 
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
-        DT_CMD_MGR_NOT_EMPTY_OR_RETURN("DUOSTRA");
         Duostra duo{qcirMgr->getQCircuit(), deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"], st};
         if (duo.flow() != ERROR_CODE) {
             QCir* result = duo.getPhysicalCircuit();
@@ -194,22 +193,22 @@ unique_ptr<ArgParseCmdType> duostraPrintCmd() {
     };
 
     duostraPrintCmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
-        cout << endl;
-        cout << "Scheduler:         " << getSchedulerTypeStr() << endl;
-        cout << "Router:            " << getRouterTypeStr() << endl;
-        cout << "Placer:            " << getPlacerTypeStr() << endl;
+        cout << '\n'
+             << "Scheduler:         " << getSchedulerTypeStr() << '\n'
+             << "Router:            " << getRouterTypeStr() << '\n'
+             << "Placer:            " << getPlacerTypeStr() << endl;
 
         if (parser["-detail"]) {
-            cout << endl;
-            cout << "Candidates:        " << ((DUOSTRA_CANDIDATES == size_t(-1)) ? "-1" : to_string(DUOSTRA_CANDIDATES)) << endl;
-            cout << "Search Depth:      " << DUOSTRA_DEPTH << endl;
-            cout << endl;
-            cout << "Orient:            " << ((DUOSTRA_ORIENT == 1) ? "true" : "false") << endl;
-            cout << "APSP Coeff.:       " << DUOSTRA_APSP_COEFF << endl;
-            cout << "Available Time:    " << ((DUOSTRA_AVAILABLE == 0) ? "min" : "max") << endl;
-            cout << "Prefer Cost:       " << ((DUOSTRA_COST == 0) ? "min" : "max") << endl;
-            cout << "Never Cache:       " << ((DUOSTRA_NEVER_CACHE == 1) ? "true" : "false") << endl;
-            cout << "Single Immed.:     " << ((DUOSTRA_EXECUTE_SINGLE == 1) ? "true" : "false") << endl;
+            cout << '\n'
+                 << "Candidates:        " << ((DUOSTRA_CANDIDATES == size_t(-1)) ? "-1" : to_string(DUOSTRA_CANDIDATES)) << '\n'
+                 << "Search Depth:      " << DUOSTRA_DEPTH << '\n'
+                 << '\n'
+                 << "Orient:            " << ((DUOSTRA_ORIENT == 1) ? "true" : "false") << '\n'
+                 << "APSP Coeff.:       " << DUOSTRA_APSP_COEFF << '\n'
+                 << "Available Time:    " << ((DUOSTRA_AVAILABLE == 0) ? "min" : "max") << '\n'
+                 << "Prefer Cost:       " << ((DUOSTRA_COST == 0) ? "min" : "max") << '\n'
+                 << "Never Cache:       " << ((DUOSTRA_NEVER_CACHE == 1) ? "true" : "false") << '\n'
+                 << "Single Immed.:     " << ((DUOSTRA_EXECUTE_SINGLE == 1) ? "true" : "false") << endl;
         }
         return CMD_EXEC_DONE;
     };
@@ -219,7 +218,7 @@ unique_ptr<ArgParseCmdType> duostraPrintCmd() {
 unique_ptr<ArgParseCmdType> mapEQCmd() {
     auto cmd = make_unique<ArgParseCmdType>("MPEQuiv");
 
-    cmd->precondition = []() { return qcirMgrNotEmpty("MPEQuiv"); };
+    cmd->precondition = []() { return qcirMgrNotEmpty("MPEQuiv") && deviceMgrNotEmpty(); };
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("check equivalence of the physical and the logical circuits");
@@ -236,7 +235,6 @@ unique_ptr<ArgParseCmdType> mapEQCmd() {
     };
 
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
-        DT_CMD_MGR_NOT_EMPTY_OR_RETURN("MPEQuiv");
         if (qcirMgr->findQCirByID(parser["-physical"]) == nullptr || qcirMgr->findQCirByID(parser["-logical"]) == nullptr) {
             return CMD_EXEC_ERROR;
         }

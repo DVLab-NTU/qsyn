@@ -12,7 +12,6 @@
 #include <iostream>
 #include <string>
 
-#include "cmdMacros.h"
 #include "deviceCmd.h"
 #include "deviceMgr.h"
 #include "extract.h"
@@ -56,18 +55,6 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
 
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("extract QCir from ZXGraph");
-
-        // auto mutex = parser.addMutuallyExclusiveGroup();
-
-        // mutex.addArgument<bool>("-logical")
-        //     .action(storeTrue)
-        //     .help("extract to logical circuit");
-        // mutex.addArgument<bool>("-physical")
-        //     .action(storeTrue)
-        //     .help("extract to physical circuit");
-        // mutex.addArgument<bool>("-both")
-        //     .action(storeTrue)
-        //     .help("extract to physical circuit and store corresponding logical circuit");
     };
 
     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
@@ -76,19 +63,11 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
             cerr << "Error: ZXGraph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
             return CMD_EXEC_ERROR;
         }
-        // bool toPhysical = parser["-physical"].isParsed() || parser["-both"].isParsed();
-        // if (toPhysical) {
-        //     DT_CMD_MGR_NOT_EMPTY_OR_RETURN("");
-        // }
         size_t nextId = zxGraphMgr.getNextID();
         zxGraphMgr.copy(nextId);
         Extractor ext(zxGraphMgr.get(), nullptr, nullopt, st);
 
         QCir *result = ext.extract();
-        // if (parser["-both"].isParsed()) {
-        //     qcirMgr->addQCir(qcirMgr->getNextID());
-        //     qcirMgr->setQCircuit(ext.getLogical());
-        // }
         if (result != nullptr) {
             qcirMgr->addQCir(qcirMgr->getNextID());
             qcirMgr->setQCircuit(result);

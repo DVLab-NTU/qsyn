@@ -12,14 +12,6 @@
 #include "cmdParser.h"
 #include "deviceMgr.h"  // for DeviceMgr
 
-CmdClass(DeviceGraphPrintCmd);
-
-#define DT_CMD_MGR_NOT_EMPTY_OR_RETURN(str)                                    \
-    {                                                                          \
-        if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {   \
-            cerr << "Error: Device list is empty now. Please DTRead first.\n"; \
-            return CMD_EXEC_ERROR;                                             \
-        }                                                                      \
-    }
+extern bool deviceMgrNotEmpty();
 
 #endif  // DEVICE_CMD_H
