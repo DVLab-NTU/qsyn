@@ -9,7 +9,7 @@
 #ifndef QCIR_MGR_H
 #define QCIR_MGR_H
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <vector>
 
 #include "qcir.h"

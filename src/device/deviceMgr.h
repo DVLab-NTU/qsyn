@@ -9,7 +9,7 @@
 #ifndef DEVICE_MGR_H
 #define DEVICE_MGR_H
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <optional>
 #include <vector>
 
@@ -17,6 +17,8 @@
 class DeviceMgr;
 
 extern DeviceMgr* deviceMgr;
+
+bool deviceMgrNotEmpty();
 
 //------------------------------------------------------------------------
 //  Define types

@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <assert.h>  // for assert
+#include <assert.h>
 
 #include <memory>
 

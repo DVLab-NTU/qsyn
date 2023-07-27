@@ -9,7 +9,7 @@
 #ifndef LATTICE_H
 #define LATTICE_H
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <vector>
 
 class ZXGraph;

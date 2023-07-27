@@ -14,9 +14,6 @@
 #include "m2.h"
 #include "zxGraph.h"
 
-class ZXGraph;
-class ZXVertex;
-
 class GFlow {
 public:
     using Levels = std::vector<ZXVertexList>;

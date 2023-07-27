@@ -6,16 +6,14 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "deviceCmd.h"
-
-#include <cstddef>   // for size_t, NULL
-#include <iomanip>   // for ostream
-#include <iostream>  // for ostream
-#include <string>    // for string
+#include <cstddef>
+#include <iomanip>
+#include <iostream>
+#include <string>
 
 #include "cmdParser.h"
-#include "device.h"     // for Device
-#include "deviceMgr.h"  // for DeviceMgr
+#include "device.h"
+#include "deviceMgr.h"
 
 using namespace std;
 using namespace ArgParse;
@@ -52,14 +50,6 @@ ArgType<size_t>::ConstraintType validDeviceId = {
     [](size_t const& id) {
         cerr << "Error: Device " << id << " does not exist!!\n";
     }};
-
-bool deviceMgrNotEmpty() {
-    if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {
-        cerr << "Error: Device list is empty now. Please DTRead first.\n";
-        return false;
-    }
-    return true;
-}
 
 unique_ptr<ArgParseCmdType> dtCheckOutCmd() {
     auto cmd = make_unique<ArgParseCmdType>("DTCHeckout");
@@ -269,16 +259,16 @@ unique_ptr<ArgParseCmdType> dtGraphPrintCmd() {
         if (parser["-edges"].isParsed()) {
             deviceMgr->getDevice().printEdges(parser.get<vector<size_t>>("-edges"));
             return CMD_EXEC_DONE;
-        } 
+        }
         if (parser["-qubits"].isParsed()) {
             deviceMgr->getDevice().printQubits(parser.get<vector<size_t>>("-qubits"));
             return CMD_EXEC_DONE;
-        } 
+        }
         if (parser["-path"].isParsed()) {
             auto qids = parser.get<vector<size_t>>("-path");
             deviceMgr->getDevice().printPath(qids[0], qids[1]);
             return CMD_EXEC_DONE;
-        } 
+        }
 
         deviceMgr->getDevice().printTopology();
         return CMD_EXEC_DONE;

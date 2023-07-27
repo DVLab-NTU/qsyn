@@ -7,6 +7,11 @@
 ****************************************************************************/
 
 #include "mappingEQChecker.h"
+
+#include "placer.h"
+#include "qcir.h"
+#include "qcirQubit.h"
+
 using namespace std;
 
 /**

@@ -9,12 +9,12 @@
 #ifndef MPEQCHECKER_H
 #define MPEQCHECKER_H
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <optional>
 
 #include "device.h"
-#include "duostra.h"
-#include "qcir.h"  // for QCir
+
+class QCir;
 
 class MappingEQChecker {
 public:

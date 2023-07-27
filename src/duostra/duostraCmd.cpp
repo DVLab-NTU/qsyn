@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 
-#include "deviceCmd.h"
+#include "cmdParser.h"
 #include "deviceMgr.h"
 #include "duostra.h"
 #include "mappingEQChecker.h"
@@ -19,6 +19,7 @@
 #include "qcirCmd.h"
 #include "qcirMgr.h"
 #include "textFormat.h"
+#include "variables.h"
 
 using namespace std;
 using namespace ArgParse;

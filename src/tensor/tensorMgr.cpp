@@ -7,7 +7,7 @@
 ****************************************************************************/
 #include "tensorMgr.h"
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <iomanip>
 
 #include "qtensor.h"

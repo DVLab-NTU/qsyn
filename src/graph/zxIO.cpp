@@ -6,9 +6,9 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cassert>  // for assert
+#include <cassert>
 #include <cmath>
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <cstring>
 #include <filesystem>
 #include <fstream>

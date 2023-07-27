@@ -8,14 +8,16 @@
 
 #include "extract.h"
 
-#include <assert.h>  // for assert
+#include <assert.h>
 
 #include <memory>
 
+#include "duostra.h"
 #include "mappingEQChecker.h"
-#include "simplify.h"  // for Simplifier
-#include "zxGraph.h"   // for ZXGraph
-#include "zxRules.h"   // for PivotBoundary
+#include "qcir.h"
+#include "simplify.h"
+#include "zxGraph.h"
+#include "zxRules.h"
 
 using namespace std;
 

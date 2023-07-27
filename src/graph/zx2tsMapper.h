@@ -8,11 +8,12 @@
 #ifndef ZX2TS_MAPPER_H
 #define ZX2TS_MAPPER_H
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <stop_token>
+#include <vector>
 
-#include "qtensor.h"  // for QTensor
-#include "zxDef.h"    // for NeighborPair
+#include "qtensor.h"
+#include "zxDef.h"
 
 class ZXGraph;
 class ZXVertex;

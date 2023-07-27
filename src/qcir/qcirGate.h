@@ -9,12 +9,12 @@
 #ifndef QCIR_GATE_H
 #define QCIR_GATE_H
 
-#include <cstddef>  // for size_t, NULL
-#include <string>   // for string
+#include <cstddef>
+#include <string>
 
-#include "phase.h"    // for Phase
-#include "qtensor.h"  // for QTensor
-#include "zxDef.h"    // for VertexType
+#include "phase.h"
+#include "qtensor.h"
+#include "zxDef.h"
 #include "zxGraph.h"
 
 extern size_t SINGLE_DELAY;
@@ -88,51 +88,8 @@ enum class GateType {
     ERRORTYPE  // Never use this
 };
 
-// TODO - Uncompleted, will be added in future
-static std::unordered_map<std::string, GateType> str2GateType = {
-    {"x", GateType::X},
-    {"rz", GateType::RZ},
-    {"h", GateType::H},
-    {"sx", GateType::SX},
-    {"cnot", GateType::CX},
-    {"cx", GateType::CX},
-    {"id", GateType::ID},
-};
-
-static std::unordered_map<GateType, std::string> gateType2Str = {
-    {GateType::ID, "ID"},
-    // NOTE - Multi-control rotate
-    {GateType::MCP, "MCP"},
-    {GateType::MCRZ, "MCRZ"},
-    {GateType::MCPX, "MCPX"},
-    {GateType::MCRX, "MCRX"},
-    {GateType::MCPY, "MCPY"},
-    {GateType::MCRY, "MCRY"},
-    {GateType::H, "H"},
-    // NOTE - MCP(Z)
-    {GateType::CCZ, "CCZ"},
-    {GateType::CZ, "CZ"},
-    {GateType::P, "P"},
-    {GateType::Z, "Z"},
-    {GateType::S, "S"},
-    {GateType::SDG, "SDG"},
-    {GateType::T, "T"},
-    {GateType::TDG, "TDG"},
-    {GateType::RZ, "RZ"},
-    // NOTE - MCPX
-    {GateType::CCX, "CCX"},
-    {GateType::CX, "CX"},
-    {GateType::SWAP, "SWAP"},
-    {GateType::PX, "PX"},
-    {GateType::X, "X"},
-    {GateType::SX, "SX"},
-    {GateType::RX, "RX"},
-    // NOTE - MCPY
-    {GateType::Y, "Y"},
-    {GateType::PY, "PY"},
-    {GateType::SY, "SY"},
-    {GateType::RY, "RY"},
-};
+extern std::unordered_map<std::string, GateType> str2GateType;
+extern std::unordered_map<GateType, std::string> gateType2Str;
 
 class QCirGate {
 public:

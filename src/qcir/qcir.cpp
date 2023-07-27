@@ -8,15 +8,14 @@
 
 #include "qcir.h"
 
-#include <stdlib.h>  // for abort
+#include <cassert>
+#include <cstdlib>
+#include <string>
+#include <vector>
 
-#include <cassert>  // for assert
-#include <string>   // for string
-#include <vector>   // for vector
-
-#include "qcirGate.h"    // for QCirGate
-#include "qcirQubit.h"   // for QCirQubit
-#include "textFormat.h"  // for TextFormat
+#include "qcirGate.h"
+#include "qcirQubit.h"
+#include "textFormat.h"
 
 using namespace std;
 namespace TF = TextFormat;

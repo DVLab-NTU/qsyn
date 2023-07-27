@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "textFormat.h"  // for TextFormat
+#include "textFormat.h"
 #include "zxDef.h"
 
 using namespace std;

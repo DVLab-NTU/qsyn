@@ -14,8 +14,7 @@
 #include <random>
 #include <vector>
 
-#include "device.h"
-#include "variables.h"
+class Device;
 
 class BasePlacer {
 public:

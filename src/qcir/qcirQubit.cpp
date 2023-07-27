@@ -8,12 +8,10 @@
 
 #include "qcirQubit.h"
 
-#include "qcirGate.h"  // for QCirGate, BitInfo
-class QCir;
+#include "qcirGate.h"
 
 using namespace std;
 
-extern QCir *qCir;
 extern size_t verbose;
 
 /**

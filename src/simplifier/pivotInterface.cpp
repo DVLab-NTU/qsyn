@@ -7,7 +7,7 @@
 ****************************************************************************/
 
 #include <cassert>
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <iostream>
 
 #include "zxGraph.h"

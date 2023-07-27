@@ -6,16 +6,16 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <stdlib.h>  // for exit
+#include <stdlib.h>
 
 #include <csignal>
 #include <cstddef>
 #include <fstream>
 #include <iostream>
 
-#include "cmdParser.h"  // for CmdExecStatus, CmdExecStatus::CMD_EXEC_DONE
-#include "myUsage.h"    // for MyUsage
-#include "util.h"       // for myUsage
+#include "cmdParser.h"
+#include "myUsage.h"
+#include "util.h"
 
 #ifndef QSYN_VERSION
 #define QSYN_VERSION "0.5.1"

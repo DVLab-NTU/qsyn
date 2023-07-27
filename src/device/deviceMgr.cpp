@@ -8,13 +8,21 @@
 
 #include "deviceMgr.h"
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <iostream>
 
 using namespace std;
 
 DeviceMgr* deviceMgr = 0;
 extern size_t verbose;
+
+bool deviceMgrNotEmpty() {
+    if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {
+        cerr << "Error: Device list is empty now. Please DTRead first.\n";
+        return false;
+    }
+    return true;
+}
 
 /**
  * @brief Reset DeviceMgr

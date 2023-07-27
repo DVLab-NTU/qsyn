@@ -6,15 +6,14 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <cstddef>
+#include <iomanip>
+#include <iostream>
+#include <string>
+
 #include "cmdParser.h"
-
-#include <cstddef>   // for size_t
-#include <iomanip>   // for ostream
-#include <iostream>  // for ostream
-#include <string>    // for string
-
-#include "zxCmd.h"
 #include "gFlow.h"
+#include "zxCmd.h"
 #include "zxGraphMgr.h"
 
 using namespace std;
@@ -35,7 +34,7 @@ bool initGFlowCmd() {
 
 unique_ptr<ArgParseCmdType> ZXGGFlowCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXGGFlow");
-    
+
     cmd->precondition = []() { return zxGraphMgrNotEmpty("ZXGGFlow"); };
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
@@ -44,26 +43,25 @@ unique_ptr<ArgParseCmdType> ZXGGFlowCmd() {
         auto mutex = parser.addMutuallyExclusiveGroup().required(false);
 
         mutex.addArgument<bool>("-all")
-        .action(storeTrue)
-        .help("print both GFlow levels and correction sets");
+            .action(storeTrue)
+            .help("print both GFlow levels and correction sets");
         mutex.addArgument<bool>("-levels")
-        .action(storeTrue)
-        .help("print GFlow levels");
+            .action(storeTrue)
+            .help("print GFlow levels");
         mutex.addArgument<bool>("-corrections")
-        .action(storeTrue)
-        .help("print the correction set to each ZXVertex");
+            .action(storeTrue)
+            .help("print the correction set to each ZXVertex");
         mutex.addArgument<bool>("-summary")
-        .action(storeTrue)
-        .help("print basic information on the ZXGraph's GFlow");
+            .action(storeTrue)
+            .help("print basic information on the ZXGraph's GFlow");
 
         parser.addArgument<bool>("-extended")
-        .action(storeTrue)
-        .help("calculate the extended GFlow, i.e., allowing XY, YZ, XZ plane measurements");
+            .action(storeTrue)
+            .help("calculate the extended GFlow, i.e., allowing XY, YZ, XZ plane measurements");
 
         parser.addArgument<bool>("-independent-set")
-        .action(storeTrue)
-        .help("force each GFlow level to be an independent set");
-    
+            .action(storeTrue)
+            .help("force each GFlow level to be an independent set");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {

@@ -8,15 +8,14 @@
 
 #include "device.h"
 
-#include <stdlib.h>  // for abort
+#include <stdlib.h>
 
-#include <cassert>  // for assert
-#include <fstream>  // for ifstream
-#include <limits>   // for _maxDist
-#include <string>   // for string
+#include <cassert>
+#include <fstream>
+#include <limits>
+#include <string>
 
-#include "qcirGate.h"    // for QCirGate
-#include "textFormat.h"  // for TextFormat
+#include "textFormat.h"
 
 using namespace std;
 namespace TF = TextFormat;

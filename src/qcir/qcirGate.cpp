@@ -8,9 +8,9 @@
 
 #include "qcirGate.h"
 
-#include <assert.h>  // for assert
+#include <assert.h>
 
-#include <string>  // for string
+#include <string>
 
 using namespace std;
 
@@ -20,6 +20,51 @@ size_t SINGLE_DELAY = 1;
 size_t DOUBLE_DELAY = 2;
 size_t SWAP_DELAY = 6;
 size_t MULTIPLE_DELAY = 5;
+
+std::unordered_map<std::string, GateType> str2GateType = {
+    {"x", GateType::X},
+    {"rz", GateType::RZ},
+    {"h", GateType::H},
+    {"sx", GateType::SX},
+    {"cnot", GateType::CX},
+    {"cx", GateType::CX},
+    {"id", GateType::ID},
+};
+
+std::unordered_map<GateType, std::string> gateType2Str = {
+    {GateType::ID, "ID"},
+    // NOTE - Multi-control rotate
+    {GateType::MCP, "MCP"},
+    {GateType::MCRZ, "MCRZ"},
+    {GateType::MCPX, "MCPX"},
+    {GateType::MCRX, "MCRX"},
+    {GateType::MCPY, "MCPY"},
+    {GateType::MCRY, "MCRY"},
+    {GateType::H, "H"},
+    // NOTE - MCP(Z)
+    {GateType::CCZ, "CCZ"},
+    {GateType::CZ, "CZ"},
+    {GateType::P, "P"},
+    {GateType::Z, "Z"},
+    {GateType::S, "S"},
+    {GateType::SDG, "SDG"},
+    {GateType::T, "T"},
+    {GateType::TDG, "TDG"},
+    {GateType::RZ, "RZ"},
+    // NOTE - MCPX
+    {GateType::CCX, "CCX"},
+    {GateType::CX, "CX"},
+    {GateType::SWAP, "SWAP"},
+    {GateType::PX, "PX"},
+    {GateType::X, "X"},
+    {GateType::SX, "SX"},
+    {GateType::RX, "RX"},
+    // NOTE - MCPY
+    {GateType::Y, "Y"},
+    {GateType::PY, "PY"},
+    {GateType::SY, "SY"},
+    {GateType::RY, "RY"},
+};
 
 /**
  * @brief Get delay of gate

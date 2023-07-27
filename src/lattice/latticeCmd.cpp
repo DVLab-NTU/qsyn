@@ -6,16 +6,15 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "cmdParser.h"
-
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <iomanip>
 #include <iostream>
-#include <string>  // for string
+#include <string>
 
-#include "lattice.h"     // for LTContainer
-#include "zxGraphMgr.h"  // for ZXGraphMgr, zxGraphMgr
+#include "cmdParser.h"
+#include "lattice.h"
 #include "zxCmd.h"
+#include "zxGraphMgr.h"
 
 using namespace std;
 using namespace ArgParse;
@@ -46,7 +45,7 @@ unique_ptr<ArgParseCmdType> latticeSurgeryCompilationCmd() {
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("(experimental) perform mapping from ZXGraph to corresponding lattice surgery");
-    }; 
+    };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         LTContainer lt(1, 1);

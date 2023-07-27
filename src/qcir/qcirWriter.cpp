@@ -7,10 +7,11 @@
 ****************************************************************************/
 
 #include <filesystem>
-#include <fstream>  // for fstream
-#include <string>   // for string
+#include <fstream>
+#include <string>
 
-#include "qcir.h"  // for QCir
+#include "qcir.h"
+#include "qcirGate.h"
 #include "tmpFiles.h"
 
 using namespace std;

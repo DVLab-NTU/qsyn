@@ -6,13 +6,13 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 
-#include "phase.h"           // for Phase, operator/
-#include "qcirGate.h"        // for QCirGate...
-#include "rationalNumber.h"  // for Rational
-#include "zxDef.h"           // for VertexType, VertexType::Z, VertexType::X
-#include "zxGraph.h"         // for ZXGraph, ZXVertex (ptr only)
+#include "phase.h"
+#include "qcirGate.h"
+#include "rationalNumber.h"
+#include "zxDef.h"
+#include "zxGraph.h"
 
 using namespace std;
 

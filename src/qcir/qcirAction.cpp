@@ -6,12 +6,13 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cassert>  // for assert
-#include <cstddef>  // for NULL, size_t
+#include <cassert>
+#include <cstddef>
 #include <stack>
 
-#include "qcir.h"      // for QCir
-#include "qcirGate.h"  // for QCirGate
+#include "qcir.h"
+#include "qcirGate.h"
+#include "qcirQubit.h"
 #include "zxGraph.h"
 
 using namespace std;

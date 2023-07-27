@@ -8,7 +8,11 @@
 
 #include "optimizer.h"
 
-#include <assert.h>  // for assert
+#include <cassert>
+
+#include "qcir.h"
+#include "qcirGate.h"
+#include "qcirQubit.h"
 
 using namespace std;
 

@@ -8,7 +8,8 @@
 
 #include "qcirMgr.h"
 
-#include <cstddef>  // for size_t
+#include <cstddef>
+#include <iomanip>
 #include <iostream>
 
 using namespace std;

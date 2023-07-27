@@ -6,14 +6,16 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>  // for size_t, NULL
+#include <cstddef>
 #include <thread>
 
-#include "qcir.h"        // for QCir
-#include "qtensor.h"     // for QTensor
-#include "tensorMgr.h"   // for TensorMgr
-#include "zxGraph.h"     // for ZXGraph
-#include "zxGraphMgr.h"  // for ZXGraphMgr
+#include "qcir.h"
+#include "qcirGate.h"
+#include "qcirQubit.h"
+#include "qtensor.h"
+#include "tensorMgr.h"
+#include "zxGraph.h"
+#include "zxGraphMgr.h"
 
 using namespace std;
 extern ZXGraphMgr zxGraphMgr;

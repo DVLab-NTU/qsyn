@@ -6,18 +6,20 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef OPTIMIZE_H
-#define OPTIMIZE_H
+#ifndef QCIR_OPTIMIZE_H
+#define QCIR_OPTIMIZE_H
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <set>
 #include <stop_token>
 #include <unordered_map>
 
 #include "ordered_hashset.h"
-#include "qcir.h"  // for QCir
 
 class QCir;
+class QCirGate;
+class Phase;
+enum class GateType;
 
 using Qubit2Gates = std::unordered_map<size_t, std::vector<QCirGate*>>;
 

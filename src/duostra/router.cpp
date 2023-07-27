@@ -9,7 +9,9 @@
 
 #include "router.h"
 
+#include "circuitTopology.h"
 #include "util.h"
+#include "variables.h"
 
 using namespace std;
 extern size_t verbose;

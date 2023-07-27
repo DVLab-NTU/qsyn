@@ -12,7 +12,6 @@
 #include <iostream>
 #include <string>
 
-#include "deviceCmd.h"
 #include "deviceMgr.h"
 #include "extract.h"
 #include "qcir.h"

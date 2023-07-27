@@ -20,8 +20,6 @@
 #include "circuitTopology.h"
 #include "device.h"
 #include "router.h"
-#include "util.h"
-#include "variables.h"
 
 class BaseScheduler {
 public:
