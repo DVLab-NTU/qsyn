@@ -36,7 +36,7 @@ void QCir::clearMapping() {
 /**
  * @brief Mapping QCir to ZXGraph
  */
-void QCir::ZXMapping(std::stop_token st) {
+void QCir::ZXMapping(mythread::stop_token st) {
     updateGateTime();
     ZXGraph bufferGraph;
 
@@ -91,7 +91,7 @@ void QCir::ZXMapping(std::stop_token st) {
 /**
  * @brief Convert QCir to tensor
  */
-void QCir::tensorMapping(std::stop_token st) {
+void QCir::tensorMapping(mythread::stop_token st) {
     if (verbose >= 3) cout << "Traverse and build the tensor... " << endl;
     updateTopoOrder();
     if (verbose >= 5) cout << "> Add boundary" << endl;

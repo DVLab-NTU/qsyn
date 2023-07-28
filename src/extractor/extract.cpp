@@ -36,7 +36,7 @@ extern size_t verbose;
  * @param c
  * @param d
  */
-Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> d, std::stop_token st) : _graph(g), _device(d), _deviceBackup(d), _stop_token{st} {
+Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> d, mythread::stop_token st) : _graph(g), _device(d), _deviceBackup(d), _stop_token{st} {
     _logicalCircuit = (c == nullptr) ? new QCir(-1) : c;
     _physicalCircuit = toPhysical() ? new QCir(-1) : nullptr;
     initialize(c == nullptr);

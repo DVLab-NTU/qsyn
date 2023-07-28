@@ -45,6 +45,22 @@ bool initSimpCmd() {
     return true;
 }
 
+ArgType<size_t>::ConstraintType validPreduceSliceRounds = {
+    [](size_t const &arg) {
+        return (arg <= 10 && arg >= 1);
+    },
+    [](size_t const &arg) {
+        cerr << "The sliceTime parameter in partition reduce should be in the range of [1, 10]" << endl;
+    }};
+
+ArgType<size_t>::ConstraintType validPreduceIteratoins = {
+    [](size_t const &arg) {
+        return (arg <= 10 && arg >= 1);
+    },
+    [](size_t const &arg) {
+        cerr << "The rounds parameter in partition reduce should be in the range of [1, 10]" << endl;
+    }};
+
 //------------------------------------------------------------------------------------------------------------------
 //    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion |
 //             -HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -PIVOTBoundary | -CLIFford | -FReduce | -SReduce | -DReduce]
@@ -67,6 +83,20 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         mutex.addArgument<bool>("-sreduce")
             .action(storeTrue)
             .help("perform symbolic reduce");
+        mutex.addArgument<bool>("-preduce")
+            .action(storeTrue)
+            .help("perform partition reduce");
+
+        parser.addArgument<size_t>("p")
+            .nargs(NArgsOption::OPTIONAL)
+            .defaultValue(2)
+            .constraint(validPreduceSliceRounds)
+            .help("the amount of partitions generated for preduce, defaults to 2");
+        parser.addArgument<size_t>("n")
+            .nargs(NArgsOption::OPTIONAL)
+            .defaultValue(1)
+            .constraint(validPreduceIteratoins)
+            .help("the iterations parameter for preduce, defaults to 1");
 
         mutex.addArgument<bool>("-interclifford")
             .action(storeTrue)
@@ -123,14 +153,16 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             .help("convert to red (X) graph");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
         ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGSimp");
         Simplifier s(zxGraphMgr.get(), st);
         if (parser["-sreduce"].isParsed())
             s.symbolicReduce();
         else if (parser["-dreduce"].isParsed())
             s.hybridReduce();
-        else if (parser["-interclifford"].isParsed())
+        else if (parser["-preduce"].isParsed()) {
+            s.partitionReduce(parser["p"], parser["n"]);
+        } else if (parser["-interclifford"].isParsed())
             s.interiorCliffordSimp();
         else if (parser["-clifford"].isParsed())
             s.cliffordSimp();
@@ -231,7 +263,7 @@ unique_ptr<ArgParseCmdType> ZXOPTPrintCmd() {
             .action(storeTrue)
             .help("perform clifford");
     };
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
         if (parser["-idremoval"].isParsed())
             opt.printSingle("Identity Removal Rule");
         else if (parser["-lcomp"].isParsed())

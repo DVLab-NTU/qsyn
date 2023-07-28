@@ -137,7 +137,7 @@ size_t getPlacerType(string str) {
  * @param tqdm
  * @param silent
  */
-Duostra::Duostra(QCir* cir, Device dev, bool check, bool tqdm, bool silent, std::stop_token st)
+Duostra::Duostra(QCir* cir, Device dev, bool check, bool tqdm, bool silent, mythread::stop_token st)
     : _logicalCircuit(cir), _physicalCircuit(new QCir(0)), _device(dev), _check(check),
       _tqdm{(silent == true) ? false : tqdm}, _silent{silent}, _stop_token{st} {
     if (verbose > 3) cout << "Creating dependency of quantum circuit..." << endl;
@@ -153,7 +153,7 @@ Duostra::Duostra(QCir* cir, Device dev, bool check, bool tqdm, bool silent, std:
  * @param tqdm
  * @param silent
  */
-Duostra::Duostra(const vector<Operation>& cir, size_t nQubit, Device dev, bool check, bool tqdm, bool silent, std::stop_token st)
+Duostra::Duostra(const vector<Operation>& cir, size_t nQubit, Device dev, bool check, bool tqdm, bool silent, mythread::stop_token st)
     : _logicalCircuit(nullptr), _physicalCircuit(new QCir(0)), _device(dev), _check(check),
       _tqdm{(silent == true) ? false : tqdm}, _silent{silent}, _stop_token{st} {
     if (verbose > 3) cout << "Creating dependency of quantum circuit..." << endl;

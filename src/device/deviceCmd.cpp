@@ -62,7 +62,7 @@ unique_ptr<ArgParseCmdType> dtCheckOutCmd() {
             .help("the ID of the device");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         deviceMgr->checkout2Device(parser["id"]);
         return CMD_EXEC_DONE;
     };
@@ -77,7 +77,7 @@ unique_ptr<ArgParseCmdType> dtResetCmd() {
         parser.help("reset DeviceMgr");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         deviceMgr->reset();
         return CMD_EXEC_DONE;
     };
@@ -96,7 +96,7 @@ unique_ptr<ArgParseCmdType> dtDeleteCmd() {
             .help("the ID of the device");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         deviceMgr->removeDevice(parser["id"]);
         return CMD_EXEC_DONE;
     };
@@ -118,7 +118,7 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
             .help("if specified, replace the current device; otherwise store to a new one");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         Device bufferTopo = Device(0);
         string filepath = parser["filepath"];
         bool replace = parser["-replace"];
@@ -170,7 +170,7 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
 //             .help("qubit of the device graph");
 //     };
 
-//     cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+//     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
 
 //         return CMD_EXEC_DONE;
 //     };
@@ -200,7 +200,7 @@ unique_ptr<ArgParseCmdType> dtPrintCmd() {
             .help("print number of devices");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         if (parser["-focus"].isParsed())
             deviceMgr->printDeviceListItr();
         else if (parser["-list"].isParsed())

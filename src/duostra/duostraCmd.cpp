@@ -69,7 +69,7 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
             .help("mute all messages");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         Duostra duo{qcirMgr->getQCircuit(), deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"], st};
         if (duo.flow() != ERROR_CODE) {
             QCir* result = duo.getPhysicalCircuit();
@@ -131,7 +131,7 @@ unique_ptr<ArgParseCmdType> duostraSetCmd() {
             .help("execute the single gates when they are available");
     };
 
-    duostraSetCmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    duostraSetCmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         if (parser["-scheduler"].isParsed())
             DUOSTRA_SCHEDULER = getSchedulerType(parser["-scheduler"]);
         if (parser["-router"].isParsed())
@@ -193,7 +193,7 @@ unique_ptr<ArgParseCmdType> duostraPrintCmd() {
             .help("print detailed information");
     };
 
-    duostraPrintCmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    duostraPrintCmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         cout << '\n'
              << "Scheduler:         " << getSchedulerTypeStr() << '\n'
              << "Router:            " << getRouterTypeStr() << '\n'
@@ -235,7 +235,7 @@ unique_ptr<ArgParseCmdType> mapEQCmd() {
             .help("check the circuit reversily, used in extracted circuit");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         if (qcirMgr->findQCirByID(parser["-physical"]) == nullptr || qcirMgr->findQCirByID(parser["-logical"]) == nullptr) {
             return CMD_EXEC_ERROR;
         }

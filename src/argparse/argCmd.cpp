@@ -49,7 +49,7 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
             .help("humans' best friend");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         parser.printTokens();
         parser.printArguments();
 

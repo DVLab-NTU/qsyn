@@ -13,6 +13,7 @@
 #include <span>
 #include <string>
 #include <unordered_map>
+#include <utility>
 
 #include "phase.h"
 #include "zxDef.h"
@@ -115,7 +116,9 @@ public:
     }
 
     ~ZXGraph() {
-        for (const auto& v : _vertices) delete v;
+        for (auto& v : _vertices) {
+            delete v;
+        }
     }
 
     ZXGraph(ZXGraph const& other) : _id{other._id}, _nextVId{0}, _fileName{other._fileName}, _procedures{other._procedures} {
@@ -151,9 +154,45 @@ public:
         _globalTraCounter = std::exchange(other._globalTraCounter, 0);
     }
 
+    // TODO: add comment
+    ZXGraph(const ZXVertexList& vertices,
+            const ZXVertexList& inputs,
+            const ZXVertexList& outputs,
+            size_t id) : _id(id), _globalTraCounter(1) {
+        _vertices = vertices;
+        _inputs = inputs;
+        _outputs = outputs;
+        _nextVId = 0;
+        for (auto v : _vertices) {
+            v->setId(_nextVId);
+            _nextVId++;
+        }
+        for (auto v : _inputs) {
+            assert(vertices.contains(v));
+            _inputList[v->getQubit()] = v;
+        }
+        for (auto v : _outputs) {
+            assert(vertices.contains(v));
+            _outputList[v->getQubit()] = v;
+        }
+    }
+
     ZXGraph& operator=(ZXGraph copy) {
         copy.swap(*this);
         return *this;
+    }
+
+    void release() {
+        _nextVId = 0;
+        _fileName = "";
+        _procedures.clear();
+        _inputs.clear();
+        _outputs.clear();
+        _vertices.clear();
+        _topoOrder.clear();
+        _inputList.clear();
+        _outputList.clear();
+        _globalTraCounter = 1;
     }
 
     void swap(ZXGraph& other) noexcept {
@@ -307,6 +346,10 @@ public:
             }
         }
     }
+
+    // divide into subgraphs and merge (in zxPartition.cpp)
+    std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> createSubgraphs(ZXPartitionStrategy strategy, size_t numPartitions);
+    static ZXGraph* fromSubgraphs(const std::vector<ZXGraph*>& subgraphs, const std::vector<ZXCut>& cuts);
 
 private:
     size_t _id;

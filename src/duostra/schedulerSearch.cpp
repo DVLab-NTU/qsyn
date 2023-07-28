@@ -314,7 +314,7 @@ size_t TreeNode::bestCost() const {
  * @param topo
  * @param tqdm
  */
-SearchScheduler::SearchScheduler(unique_ptr<CircuitTopo> topo, bool tqdm, std::stop_token st)
+SearchScheduler::SearchScheduler(unique_ptr<CircuitTopo> topo, bool tqdm, mythread::stop_token st)
     : GreedyScheduler(std::move(topo), tqdm, st),
       _lookAhead(DUOSTRA_DEPTH),
       _neverCache(DUOSTRA_NEVER_CACHE),

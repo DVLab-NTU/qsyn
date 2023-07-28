@@ -1,0 +1,11 @@
+verb 5
+qccread ./benchmark/qft/qft_5.qasm
+qc2zx
+zx2ts
+zxcopy
+zxgs -preduce 2 1
+zx2ts
+tsp 1
+tseq 0 1
+qq -f
+

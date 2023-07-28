@@ -61,7 +61,7 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
             .help("Use the trivial optimization.");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
         Optimizer optimizer(qcirMgr->getQCircuit(), st);
         QCir *result;
         if (parser["-trivial"])
