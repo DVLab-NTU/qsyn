@@ -14,7 +14,7 @@
 #include <unordered_set>
 
 #include "gFlow.h"
-#include "textFormat.h"  // for TextFormat
+#include "textFormat.h"
 #include "zxGraph.h"
 
 namespace TF = TextFormat;

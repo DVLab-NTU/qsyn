@@ -8,17 +8,17 @@
 
 #include "phase_argparse.h"
 // --- include before qcirCmd.h
-#include <cstddef>   // for size_t, NULL
-#include <iostream>  // for ostream
-#include <string>    // for string
+#include <cstddef>
+#include <iostream>
+#include <string>
 
-#include "cmdMacros.h"  // for CMD_N_OPTS_AT_MOST_OR_RETURN
-#include "phase.h"      // for Phase
-#include "qcir.h"       // for QCir
+#include "cmdParser.h"
+#include "phase.h"
+#include "qcir.h"
 #include "qcirCmd.h"
-#include "qcirGate.h"  // for QCirGate
-#include "qcirMgr.h"   // for QCirMgr
-#include "zxGraph.h"   // for ZXGraph
+#include "qcirGate.h"
+#include "qcirMgr.h"
+#include "zxGraph.h"
 
 using namespace std;
 using namespace ArgParse;

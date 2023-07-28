@@ -6,116 +6,85 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "gFlowCmd.h"
+#include <cstddef>
+#include <iomanip>
+#include <iostream>
+#include <string>
 
-#include <cstddef>   // for size_t
-#include <iomanip>   // for ostream
-#include <iostream>  // for ostream
-#include <string>    // for string
-
-#include "cmdMacros.h"   // for CMD_N_OPTS_AT_MOST_OR_RETURN
-#include "gFlow.h"       // for GFlow
-#include "zxGraphMgr.h"  // for ZXGraphMgr
+#include "cmdParser.h"
+#include "gFlow.h"
+#include "zxCmd.h"
+#include "zxGraphMgr.h"
 
 using namespace std;
+using namespace ArgParse;
 
 extern ZXGraphMgr zxGraphMgr;
 extern size_t verbose;
 
+unique_ptr<ArgParseCmdType> ZXGGFlowCmd();
+
 bool initGFlowCmd() {
-    if (!cmdMgr->regCmd("ZXGGFlow", 5, make_unique<ZXGGFlowCmd>())) {
+    if (!cmdMgr->regCmd("ZXGGFlow", 5, ZXGGFlowCmd())) {
         cerr << "Registering \"gflow\" commands fails... exiting" << endl;
         return false;
     }
     return true;
 }
 
-//----------------------------------------------------------------------
-//    ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets] [-Disjoint]
-//----------------------------------------------------------------------
-CmdExecStatus
-ZXGGFlowCmd::exec(std::stop_token, const string &option) {
-    enum class GFLOW_PRINT_MODE {
-        ALL,
-        LEVELS,
-        CORRECTION_SETS,
-        SUMMARY,
-        ERROR
+unique_ptr<ArgParseCmdType> ZXGGFlowCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXGGFlow");
+
+    cmd->precondition = []() { return zxGraphMgrNotEmpty("ZXGGFlow"); };
+
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("calculate and print the generalized flow of a ZXGraph");
+
+        auto mutex = parser.addMutuallyExclusiveGroup().required(false);
+
+        mutex.addArgument<bool>("-all")
+            .action(storeTrue)
+            .help("print both GFlow levels and correction sets");
+        mutex.addArgument<bool>("-levels")
+            .action(storeTrue)
+            .help("print GFlow levels");
+        mutex.addArgument<bool>("-corrections")
+            .action(storeTrue)
+            .help("print the correction set to each ZXVertex");
+        mutex.addArgument<bool>("-summary")
+            .action(storeTrue)
+            .help("print basic information on the ZXGraph's GFlow");
+
+        parser.addArgument<bool>("-extended")
+            .action(storeTrue)
+            .help("calculate the extended GFlow, i.e., allowing XY, YZ, XZ plane measurements");
+
+        parser.addArgument<bool>("-independent-set")
+            .action(storeTrue)
+            .help("force each GFlow level to be an independent set");
     };
-    vector<string> options;
-    if (!lexOptions(option, options)) return CMD_EXEC_ERROR;
 
-    if (zxGraphMgr.empty()) {
-        cerr << "Error: ZXGraph list is empty now. Please ZXNew before ZXGGFlow." << endl;
-        return CMD_EXEC_ERROR;
-    }
-    GFlow gflow(zxGraphMgr.get());
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        GFlow gflow(zxGraphMgr.get());
 
-    CMD_N_OPTS_AT_MOST_OR_RETURN(options, 2);
+        gflow.doExtendedGFlow(parser["-extended"]);
+        gflow.doIndependentLayers(parser["-independent-set"]);
 
-    GFLOW_PRINT_MODE mode = GFLOW_PRINT_MODE::SUMMARY;
-    bool doDisjoint = false;
-    bool doMode = false;
+        gflow.calculate();
 
-    for (size_t i = 0; i < options.size(); ++i) {
-        if (myStrNCmp("-All", options[i], 2) == 0) {
-            if (doMode) return errorOption(CMD_OPT_EXTRA, options[i]);
-            mode = GFLOW_PRINT_MODE::ALL;
-            doMode = true;
-        } else if (myStrNCmp("-Levels", options[i], 2) == 0) {
-            if (doMode) return errorOption(CMD_OPT_EXTRA, options[i]);
-            mode = GFLOW_PRINT_MODE::LEVELS;
-            doMode = true;
-        } else if (myStrNCmp("-Correctionsets", options[i], 2) == 0) {
-            if (doMode) return errorOption(CMD_OPT_EXTRA, options[i]);
-            mode = GFLOW_PRINT_MODE::CORRECTION_SETS;
-            doMode = true;
-        } else if (myStrNCmp("-Summary", options[i], 2) == 0) {
-            if (doMode) return errorOption(CMD_OPT_EXTRA, options[i]);
-            mode = GFLOW_PRINT_MODE::SUMMARY;
-            doMode = true;
-        } else if (myStrNCmp("-Disjoint", options[i], 2) == 0) {
-            if (doDisjoint) return errorOption(CMD_OPT_EXTRA, options[i]);
-            doDisjoint = true;
-            gflow.doIndependentLayers(true);
-        } else {
-            return errorOption(CMD_OPT_ILLEGAL, options[i]);
-        }
-    }
-
-    gflow.calculate();
-
-    switch (mode) {
-        case GFLOW_PRINT_MODE::ALL:
+        if (parser["-all"].isParsed()) {
             gflow.print();
-            gflow.printSummary();
-            if (!gflow.isValid()) gflow.printFailedVertices();
-            break;
-        case GFLOW_PRINT_MODE::LEVELS:
+        } else if (parser["-levels"].isParsed()) {
             gflow.printLevels();
-            gflow.printSummary();
-            if (!gflow.isValid()) gflow.printFailedVertices();
-            break;
-        case GFLOW_PRINT_MODE::CORRECTION_SETS:
+        } else if (parser["-corrections"].isParsed()) {
             gflow.printXCorrectionSets();
-            gflow.printSummary();
-            break;
-        case GFLOW_PRINT_MODE::SUMMARY:
-            gflow.printSummary();
-            if (!gflow.isValid()) gflow.printFailedVertices();
-            break;
-        default:
-            break;
-    }
+        }
 
-    return CMD_EXEC_DONE;
-}
+        gflow.printSummary();
+        if (!gflow.isValid()) gflow.printFailedVertices();
 
-void ZXGGFlowCmd::usage() const {
-    cout << "Usage: ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets] [-Disjoint]" << endl;
-}
+        return CMD_EXEC_DONE;
+    };
 
-void ZXGGFlowCmd::summary() const {
-    cout << setw(15) << left << "ZXGGFlow: "
-         << "calculate the generalized flow of current ZXGraph\n";
+    return cmd;
 }

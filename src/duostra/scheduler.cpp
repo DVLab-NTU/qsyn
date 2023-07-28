@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <cassert>
 
+#include "variables.h"
+
 using namespace std;
 
 /**

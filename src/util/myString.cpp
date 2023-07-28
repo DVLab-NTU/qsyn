@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <ctype.h>  // for tolower, etc.
+#include <ctype.h>
 
 #include <cassert>
 #include <concepts>

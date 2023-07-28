@@ -9,8 +9,8 @@
 #ifndef M2_H
 #define M2_H
 
-#include <cstddef>  // for size_t
-#include <utility>  // for pair
+#include <cstddef>
+#include <utility>
 #include <vector>
 
 #include "zxDef.h"

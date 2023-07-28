@@ -6,9 +6,12 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <assert.h>  // for assert
+#include <assert.h>
 
 #include "optimizer.h"
+#include "phase.h"
+#include "qcir.h"
+#include "qcirGate.h"
 
 using namespace std;
 

@@ -6,9 +6,9 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 
-#include "zxGraph.h"  // for ZXGraph, ZXVertex
+#include "zxGraph.h"
 
 using namespace std;
 extern size_t verbose;

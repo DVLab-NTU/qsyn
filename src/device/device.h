@@ -9,12 +9,10 @@
 #ifndef DEVICE_H
 #define DEVICE_H
 
-#include <cstddef>  // for size_t
-#include <string>   // for string
+#include <cstddef>
+#include <string>
 #include <unordered_map>
 
-#include "ordered_hashmap.h"
-#include "ordered_hashset.h"
 #include "qcirGate.h"
 #include "util.h"
 

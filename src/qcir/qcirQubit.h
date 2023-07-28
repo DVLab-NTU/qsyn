@@ -9,7 +9,7 @@
 #ifndef QCIR_QUBIT_H
 #define QCIR_QUBIT_H
 
-#include <cstddef>  // for size_t, NULL
+#include <cstddef>
 
 class QCirGate;
 
@@ -39,8 +39,6 @@ private:
     size_t _id;
     QCirGate* _bitLast;
     QCirGate* _bitFirst;
-
-protected:
 };
 
 #endif  // QCIR_QUBIT_H

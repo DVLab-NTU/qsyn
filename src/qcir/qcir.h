@@ -9,17 +9,17 @@
 #ifndef QCIR_H
 #define QCIR_H
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <stop_token>
-#include <string>  // for string
+#include <string>
 #include <unordered_map>
-
-#include "phase.h"  // for Phase
-#include "qcirGate.h"
-#include "qcirQubit.h"
+#include <vector>
 
 class QCir;
+class QCirGate;
+class QCirQubit;
 class ZXGraph;
+class Phase;
 
 struct BitInfo;
 

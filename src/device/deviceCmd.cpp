@@ -6,17 +6,14 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "deviceCmd.h"
+#include <cstddef>
+#include <iomanip>
+#include <iostream>
+#include <string>
 
-#include <cstddef>   // for size_t, NULL
-#include <iomanip>   // for ostream
-#include <iostream>  // for ostream
-#include <string>    // for string
-
-#include "cmdMacros.h"  // for CMD_N_OPTS_AT_MOST_OR_RETURN
 #include "cmdParser.h"
-#include "device.h"     // for Device
-#include "deviceMgr.h"  // for DeviceMgr
+#include "device.h"
+#include "deviceMgr.h"
 
 using namespace std;
 using namespace ArgParse;
@@ -29,7 +26,7 @@ unique_ptr<ArgParseCmdType> dtCheckOutCmd();
 unique_ptr<ArgParseCmdType> dtResetCmd();
 unique_ptr<ArgParseCmdType> dtDeleteCmd();
 unique_ptr<ArgParseCmdType> dtGraphReadCmd();
-// unique_ptr<ArgParseCmdType> dtGraphPrintCmd(); // requires subparsers
+unique_ptr<ArgParseCmdType> dtGraphPrintCmd();  // requires subparsers
 unique_ptr<ArgParseCmdType> dtPrintCmd();
 
 bool initDeviceCmd() {
@@ -38,7 +35,7 @@ bool initDeviceCmd() {
           cmdMgr->regCmd("DTReset", 3, dtResetCmd()) &&
           cmdMgr->regCmd("DTDelete", 3, dtDeleteCmd()) &&
           cmdMgr->regCmd("DTGRead", 4, dtGraphReadCmd()) &&
-          cmdMgr->regCmd("DTGPrint", 4, make_unique<DeviceGraphPrintCmd>()) &&
+          cmdMgr->regCmd("DTGPrint", 4, dtGraphPrintCmd()) &&
           cmdMgr->regCmd("DTPrint", 3, dtPrintCmd()))) {
         cerr << "Registering \"device topology\" commands fails... exiting" << endl;
         return false;
@@ -222,56 +219,60 @@ unique_ptr<ArgParseCmdType> dtPrintCmd() {
 //-----------------------------------------------------------------------------------------------------------
 //    DTGPrint [-Summary | -Edges | -Path | -Qubit]
 //-----------------------------------------------------------------------------------------------------------
-CmdExecStatus
-DeviceGraphPrintCmd::exec(std::stop_token, const string& option) {
-    // check option
-    vector<string> options;
-    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
 
-    DT_CMD_MGR_NOT_EMPTY_OR_RETURN("DTGPrint");
+unique_ptr<ArgParseCmdType> dtGraphPrintCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("DTGPrint");
 
-    if (options.empty() || myStrNCmp("-Summary", options[0], 2) == 0)
+    cmd->precondition = deviceMgrNotEmpty;
+
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("print info of device topology");
+        auto mutex = parser.addMutuallyExclusiveGroup().required(false);
+
+        mutex.addArgument<bool>("-summary")
+            .action(storeTrue)
+            .help("print basic information of the topology");
+
+        mutex.addArgument<size_t>("-edges")
+            .nargs(0, 2)
+            .help(
+                "print information of edges. "
+                "If no qubit ID is specified, print for all edges; "
+                "if one qubit ID specified, list the adjacent edges to the qubit; "
+                "if two qubit IDs are specified, list the edge between them");
+
+        mutex.addArgument<size_t>("-qubits")
+            .nargs(NArgsOption::ZERO_OR_MORE)
+            .help(
+                "print information of qubits. "
+                "If no qubit ID is specified, print for all qubits;"
+                "otherwise, print information of the specified qubit IDs");
+
+        mutex.addArgument<size_t>("-path")
+            .nargs(2)
+            .metavar("(q1, q2)")
+            .help(
+                "print routing paths between q1 and q2");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        if (parser["-edges"].isParsed()) {
+            deviceMgr->getDevice().printEdges(parser.get<vector<size_t>>("-edges"));
+            return CMD_EXEC_DONE;
+        }
+        if (parser["-qubits"].isParsed()) {
+            deviceMgr->getDevice().printQubits(parser.get<vector<size_t>>("-qubits"));
+            return CMD_EXEC_DONE;
+        }
+        if (parser["-path"].isParsed()) {
+            auto qids = parser.get<vector<size_t>>("-path");
+            deviceMgr->getDevice().printPath(qids[0], qids[1]);
+            return CMD_EXEC_DONE;
+        }
+
         deviceMgr->getDevice().printTopology();
-    else if (myStrNCmp("-Edges", options[0], 2) == 0) {
-        CMD_N_OPTS_AT_MOST_OR_RETURN(options, 3)
-        vector<size_t> candidates;
-        for (size_t i = 1; i < options.size(); i++) {
-            unsigned qid;
-            if (myStr2Uns(options[i], qid))
-                candidates.emplace_back(size_t(qid));
-            else {
-                cout << "Warning: " << options[i] << " is not a valid qubit ID!!" << endl;
-            }
-        }
-        deviceMgr->getDevice().printEdges(candidates);
-    } else if (myStrNCmp("-Qubits", options[0], 2) == 0) {
-        vector<size_t> candidates;
-        for (size_t i = 1; i < options.size(); i++) {
-            unsigned qid;
-            if (myStr2Uns(options[i], qid))
-                candidates.emplace_back(size_t(qid));
-            else {
-                cout << "Warning: " << options[i] << " is not a valid qubit ID!!" << endl;
-            }
-        }
-        deviceMgr->getDevice().printQubits(candidates);
-    } else if (myStrNCmp("-Path", options[0], 2) == 0) {
-        CMD_N_OPTS_EQUAL_OR_RETURN(options, 3)
-        unsigned qid0, qid1;
-        if (!myStr2Uns(options[1], qid0)) cout << "Warning: " << options[1] << " is not a valid qubit ID!!" << endl;
-        if (!myStr2Uns(options[2], qid1)) cout << "Warning: " << options[2] << " is not a valid qubit ID!!" << endl;
+        return CMD_EXEC_DONE;
+    };
 
-        deviceMgr->getDevice().printPath(qid0, qid1);
-    } else
-        return errorOption(CMD_OPT_ILLEGAL, options[0]);
-    return CMD_EXEC_DONE;
-}
-
-void DeviceGraphPrintCmd::usage() const {
-    cout << "Usage: DTGPrint [-Summary | -Edges | -Path | -Qubit]" << endl;
-}
-
-void DeviceGraphPrintCmd::summary() const {
-    cout << setw(15) << left << "DTGPrint: "
-         << "print info of device topology" << endl;
+    return cmd;
 }

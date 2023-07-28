@@ -9,10 +9,7 @@
 #ifndef ZX_CMD_H
 #define ZX_CMD_H
 
-#include "cmdParser.h"  // for CmdExecStatus::CMD_EXEC_ERROR, CmdClass, Cmd...
-#include "phase.h"      // for Phase
-#include "zxGraph.h"    // for ZXGraph
-#include "zxGraphMgr.h"
+#include "cmdParser.h"
 
 CmdClass(ZXGPrintCmd);
 CmdClass(ZXGEditCmd);
@@ -20,7 +17,6 @@ CmdClass(ZXGReadCmd);
 CmdClass(ZXGWriteCmd);
 CmdClass(ZXGAssignCmd);
 
-extern ZXGraphMgr zxGraphMgr;
 extern ArgParse::ArgType<size_t>::ConstraintType const validZXGraphId;
 
 bool zxGraphMgrNotEmpty(std::string const& command);

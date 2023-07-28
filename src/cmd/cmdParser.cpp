@@ -8,12 +8,12 @@
 #include "cmdParser.h"
 
 #include <atomic>
-#include <cassert>     // for assert
-#include <cstddef>     // for size_t
-#include <cstdlib>     // for exit
-#include <filesystem>  // lines 12-12
+#include <cassert>
+#include <cstddef>
+#include <cstdlib>
+#include <filesystem>
 #include <fstream>
-#include <iostream>  // for cin, cout
+#include <iostream>
 #include <regex>
 #include <thread>
 

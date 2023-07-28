@@ -11,6 +11,7 @@
 #include <cassert>
 
 #include "scheduler.h"
+#include "variables.h"
 
 using namespace std;
 

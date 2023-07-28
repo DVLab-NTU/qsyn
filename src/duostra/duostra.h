@@ -13,10 +13,9 @@
 #include <stop_token>
 
 #include "device.h"
-#include "placer.h"
-#include "qcir.h"
-#include "router.h"
 #include "scheduler.h"
+
+class QCir;
 
 class Duostra {
 public:

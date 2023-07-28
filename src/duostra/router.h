@@ -13,10 +13,9 @@
 #include <queue>
 #include <string>
 
-#include "circuitTopology.h"
 #include "device.h"
-#include "qcir.h"
-#include "variables.h"
+
+class Gate;
 
 class AStarNode {
 public:

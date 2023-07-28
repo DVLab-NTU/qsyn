@@ -6,15 +6,15 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <iomanip>
 #include <iostream>
 #include <ranges>
 #include <string>
 
-#include "textFormat.h"  // for TextFormat
-#include "zxDef.h"       // for EdgeType, VertexType, EdgePair, EdgeType::HA...
-#include "zxGraph.h"     // for ZXVertex
+#include "textFormat.h"
+#include "zxDef.h"
+#include "zxGraph.h"
 
 using namespace std;
 namespace TF = TextFormat;

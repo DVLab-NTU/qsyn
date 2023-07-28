@@ -10,7 +10,10 @@
 #include "duostra.h"
 
 #include "checker.h"
+#include "placer.h"
+#include "qcir.h"
 #include "variables.h"
+
 using namespace std;
 extern size_t verbose;
 

@@ -6,14 +6,14 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <iostream>
 #include <queue>
 
-#include "phase.h"       // for Phase
-#include "textFormat.h"  // for TextFormat
-#include "zxDef.h"       // for VertexType, VertexType::Z
-#include "zxGraph.h"     // for ZXGraph, ZXVertex
+#include "phase.h"
+#include "textFormat.h"
+#include "zxDef.h"
+#include "zxGraph.h"
 
 using namespace std;
 namespace TF = TextFormat;

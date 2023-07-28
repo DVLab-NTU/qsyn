@@ -15,8 +15,8 @@
 #include <string>
 #include <vector>
 
-#include "myUsage.h"  // for MyUsage
-#include "rnGen.h"    // for RandomNumGen
+#include "myUsage.h"
+#include "rnGen.h"
 
 using namespace std;
 

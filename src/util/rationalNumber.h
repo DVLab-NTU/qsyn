@@ -8,10 +8,10 @@
 #ifndef RATIONAL_NUM_H
 #define RATIONAL_NUM_H
 
-#include <cassert>  // for assert
+#include <cassert>
 #include <cmath>
 #include <concepts>
-#include <iosfwd>  // for ostream
+#include <iosfwd>
 
 //--- Rational Numbers ----------------------------------
 // This class maintains the canonicity of stored rational numbers by simplifying the numerator/denominator whenever possible.

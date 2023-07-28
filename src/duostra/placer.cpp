@@ -9,7 +9,12 @@
 
 #include "placer.h"
 
+#include <cassert>
+#include <iostream>
 #include <random>
+
+#include "device.h"
+#include "variables.h"
 
 using namespace std;
 

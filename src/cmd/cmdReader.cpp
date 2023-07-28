@@ -5,14 +5,14 @@
   Author       [ Design Verification Lab, Chia-Hsu Chuang ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include <cassert>  // for assert
-#include <cstring>  // for strcpy
+#include <cassert>
+#include <cstring>
 #include <iostream>
 #include <regex>
-#include <sstream>  // for istringstream
+#include <sstream>
 
-#include "cmdCharDef.h"  // for ParseChar, ParseChar::BACK_SPACE_CHAR, Parse...
-#include "cmdParser.h"   // for CmdParser, PG_OFFSET
+#include "cmdCharDef.h"
+#include "cmdParser.h"
 
 using namespace std;
 

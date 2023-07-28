@@ -10,7 +10,7 @@
 #define QSYN_UTIL_PHASE_H
 
 #include <cmath>
-#include <iosfwd>  // for ostream
+#include <iosfwd>
 #include <numbers>
 #include <string>
 #include <vector>

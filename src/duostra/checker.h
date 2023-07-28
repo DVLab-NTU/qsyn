@@ -10,8 +10,10 @@
 #ifndef CHECKER_H
 #define CHECKER_H
 
-#include "circuitTopology.h"
 #include "device.h"
+
+class CircuitTopo;
+class Gate;
 
 class Checker {
 public:

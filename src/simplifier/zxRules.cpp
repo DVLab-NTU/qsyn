@@ -8,7 +8,7 @@
 
 #include "zxRules.h"
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 
 using namespace std;
 

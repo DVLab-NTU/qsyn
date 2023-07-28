@@ -10,10 +10,10 @@
 #define ZX_RULES_H
 
 #include <array>
-#include <string>   // for string
-#include <utility>  // for pair
+#include <string>
+#include <utility>
 
-#include "zxDef.h"  // for EdgePair
+#include "zxDef.h"
 
 class ZXGraph;
 class ZXVertex;

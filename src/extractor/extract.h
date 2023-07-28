@@ -9,16 +9,14 @@
 #ifndef EXTRACT_H
 #define EXTRACT_H
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <optional>
 #include <set>
 #include <stop_token>
 
 #include "device.h"
-#include "duostra.h"
-#include "m2.h"     // for M2
-#include "qcir.h"   // for QCir
-#include "zxDef.h"  // for EdgeType, EdgeType::HADAMARD
+#include "m2.h"
+#include "zxDef.h"
 
 extern bool SORT_FRONTIER;
 extern bool SORT_NEIGHBORS;
@@ -26,6 +24,8 @@ extern bool PERMUTE_QUBITS;
 extern bool FILTER_DUPLICATED_CXS;
 extern size_t BLOCK_SIZE;
 extern size_t OPTIMIZE_LEVEL;
+
+class QCir;
 class ZXGraph;
 
 class Extractor {

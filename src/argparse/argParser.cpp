@@ -327,7 +327,7 @@ bool ArgumentParser::parseOptions(TokensView tokens, std::vector<Token>& unrecog
         auto parse_range = arg.getParseRange(tokens);
         if (!arg.tokensEnoughToParse(parse_range)) return false;
 
-        if (!arg.takeAction(tokens.subspan(i + 1).subspan(0, arg.getNArgs().upper))) return false;
+        if (!arg.takeAction(tokens.subspan(i + 1, std::min(arg.getNArgs().upper, tokens.size() - (i + 1))))) return false;
         tokens[i].parsed = true;
         arg.markAsParsed();
     }

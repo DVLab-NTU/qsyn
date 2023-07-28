@@ -8,13 +8,13 @@
 
 #include "simplify.h"
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <iomanip>
 #include <iostream>
 
 #include "extract.h"
 #include "gFlow.h"
-#include "zxGraph.h"  // for ZXGraph
+#include "zxGraph.h"
 #include "zxoptimizer.h"
 
 using namespace std;

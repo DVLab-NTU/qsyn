@@ -35,7 +35,7 @@ T Argument::get() const {
 
     std::cerr << "[ArgParse] Error: cannot cast argument \""
               << getName() << "\" to target type!!\n";
-    throw std::bad_any_cast{};
+    throw std::bad_cast{};
 }
 
 }  // namespace ArgParse

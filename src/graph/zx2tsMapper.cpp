@@ -7,11 +7,11 @@
 ****************************************************************************/
 #include "zx2tsMapper.h"
 
-#include <cassert>  // for assert
+#include <cassert>
 
-#include "tensorMgr.h"   // for TensorMgr
-#include "textFormat.h"  // for TextFormat
-#include "zxGraph.h"     // for ZXVertex, ZXGraph
+#include "tensorMgr.h"
+#include "textFormat.h"
+#include "zxGraph.h"
 
 extern size_t verbose;
 extern TensorMgr* tensorMgr;

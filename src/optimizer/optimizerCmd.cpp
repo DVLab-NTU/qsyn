@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 
+#include "cmdParser.h"
 #include "optimizer.h"
 #include "qcir.h"
 #include "qcirCmd.h"

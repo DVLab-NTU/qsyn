@@ -12,13 +12,13 @@
 #include <map>
 #include <memory>
 #include <stack>
-#include <string>  // for string
+#include <string>
 #include <thread>
-#include <utility>  // for pair
+#include <utility>
 #include <vector>
 
 #include "argparse.h"
-#include "cmdCharDef.h"  // for ParseChar
+#include "cmdCharDef.h"
 
 class CmdParser;
 

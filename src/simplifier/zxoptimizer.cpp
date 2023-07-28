@@ -8,18 +8,17 @@
 
 #include "zxoptimizer.h"
 
-#include <cstddef>  // for size_t
+#include <cstddef>
 #include <iomanip>
 #include <iostream>
 #include <unordered_map>
 #include <unordered_set>
 
 #include "extract.h"
-#include "optimizer.h"
-#include "qcirMgr.h"  // for QCirMgr
+#include "qcirMgr.h"
 #include "simplify.h"
-#include "zxGraph.h"     // for ZXGraph
-#include "zxGraphMgr.h"  // for ZXGraphMgr
+#include "zxGraph.h"
+#include "zxGraphMgr.h"
 
 using namespace std;
 

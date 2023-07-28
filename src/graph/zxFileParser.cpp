@@ -8,11 +8,11 @@
 
 #include "zxFileParser.h"
 
-#include <fstream>   // for ifstream
-#include <iostream>  // for ifstream
+#include <fstream>
+#include <iostream>
 
-#include "phase.h"  // for Phase
-#include "util.h"   // for myStr2Float, myStr2Int
+#include "phase.h"
+#include "util.h"
 
 using namespace std;
 

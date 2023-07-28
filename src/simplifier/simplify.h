@@ -12,8 +12,7 @@
 #include <memory>
 #include <thread>
 
-#include "optimizer.h"
-#include "zxRules.h"  // for ZXRule
+#include "zxRules.h"
 #include "zxoptimizer.h"
 
 class ZXGraph;

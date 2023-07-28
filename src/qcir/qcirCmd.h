@@ -9,8 +9,7 @@
 #ifndef QCIR_CMD_H
 #define QCIR_CMD_H
 
-#include "cmdParser.h"  // for CmdClass, CmdExec, CmdExecStatus::CMD_EXEC_ERROR
-#include "qcirMgr.h"    // for QCirMgr
+#include "argparse.h"
 
 extern ArgParse::ArgType<size_t>::ConstraintType const validQCirId;
 extern ArgParse::ArgType<size_t>::ConstraintType const validQCirGateId;

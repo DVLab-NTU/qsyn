@@ -6,12 +6,14 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>  // for size_t
-#include <fstream>  // for fstream
+#include <cstddef>
+#include <fstream>
 #include <iostream>
-#include <string>  // for string
+#include <string>
 
-#include "qcir.h"  // for QCir
+#include "phase.h"
+#include "qcir.h"
+#include "util.h"
 
 using namespace std;
 
