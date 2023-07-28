@@ -23,7 +23,7 @@ namespace ArgParse {
 template <typename T>
 T Argument::get() const {
     if constexpr (IsContainerType<T>) {
-        using V = std::remove_cv<typename T::value_type>::type;
+        using V = typename std::remove_cv<typename T::value_type>::type;
         if (auto ptr = dynamic_cast<Model<ArgType<V>>*>(_pimpl.get())) {
             return ptr->inner.template get<T>();
         }

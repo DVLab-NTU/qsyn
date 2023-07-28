@@ -121,7 +121,7 @@ ActionCallbackType store(ArgType<T>& arg);
 
 template <typename T>
 requires ValidArgumentType<T>
-ArgType<T>::ActionType storeConst(T const& constValue);
+typename ArgType<T>::ActionType storeConst(T const& constValue);
 ActionCallbackType storeTrue(ArgType<bool>& arg);
 ActionCallbackType storeFalse(ArgType<bool>& arg);
 

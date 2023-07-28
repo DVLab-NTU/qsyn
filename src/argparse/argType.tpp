@@ -293,7 +293,7 @@ ActionCallbackType store(ArgType<T>& arg) {
  */
 template <typename T>
 requires ValidArgumentType<T>
-ArgType<T>::ActionType storeConst(T const& constValue) {
+typename ArgType<T>::ActionType storeConst(T const& constValue) {
     return [constValue](ArgType<T>& arg) -> ActionCallbackType {
         arg.nargs(0ul);
         return [&arg, constValue](TokensView) { arg.appendValue(constValue); return true; };
