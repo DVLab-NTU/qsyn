@@ -1,9 +1,13 @@
 // verb 9
-qccread ./benchmark/qft/qft_3.qasm
-qc2zx 
+qccread ./benchmark/qft/qft_7.qasm
+qc2zx
 zx2ts
-zxcopy 1
+zxcopy
+zxgd /tmp/before-preduce.pdf
 zxgs -preduce 2 1
+zxgd /tmp/after-preduce.pdf
 zx2ts
+tsp 1
 tseq 0 1
 qq -f
+

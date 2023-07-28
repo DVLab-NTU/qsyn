@@ -496,41 +496,25 @@ void Simplifier::symbolicReduce() {
 }
 
 /**
- * @brief partition the graph into 2^slice_rounds partitions and reduce each partition separately
+ * @brief partition the graph into 2^numPartitions partitions and reduce each partition separately
  *        then merge the partitions together for n rounds
  *
+ * @param numPartitions number of partitions to create
+ * @param iterations number of iterations
  */
 void Simplifier::partitionReduce(size_t numPartitions, size_t iterations = 1) {
-    // TODO: implement partitionReduce
-
     _simpGraph->addProcedure("partitionReduce");
-    _simpGraph->printVertices();
 
     auto [subgraphs, cuts] = _simpGraph->createSubgraphs(klPartition, numPartitions);
 
-    std::cerr << "cuts: " << std::endl;
-    for (auto [b1, b2, e] : cuts) {
-        std::cerr << std::endl;
-        std::cerr << b1 << " " << b2 << std::endl;
-        b1->printVertex();
-        b2->printVertex();
-    }
-
     for (auto& graph : subgraphs) {
-        std::cerr << "====================" << std::endl;
-        std::cerr << "before: " << std::endl;
-        graph->printVertices();
-
         Simplifier simplifier(graph);
         simplifier.fullReduce();
-
-        std::cerr << std::endl;
-        std::cerr << "after: " << std::endl;
-        graph->printVertices();
     }
 
-    _simpGraph = ZXGraph::fromSubgraphs(subgraphs, cuts);
-    _simpGraph->printVertices();
+    ZXGraph* newGraph = ZXGraph::fromSubgraphs(subgraphs, cuts);
+    _simpGraph->swap(*newGraph);
+    delete newGraph;
 }
 
 /**
@@ -567,34 +551,3 @@ void Simplifier::printRecipe() {
         }
     }
 }
-
-// /**
-//  * @brief Print parameter of optimizer for ZXGraph
-//  *
-//  */
-// void Simplifier::printOptimizer() {
-
-// }
-
-// void Simplifier::getStepInfo(ZXGraph* g){
-//     cout << this->getRule()->getName() << endl;
-//     g->printGraph(); cout << g->TCount() << endl << endl;
-//     // unordered_map<int, int> mp;
-//     // for(auto& v : g->getVertices()){
-//     //     mp[v->getNumNeighbors()]++;
-//     // }
-//     // cout << "Dense: (";
-//     // double ans = 0;
-//     // for(auto& i : mp){
-//     //     ans += (i.first*i.first*i.second);
-//     // }
-//     // ans /= g->getNumVertices();
-//     // double avg = pow((double)2*g->getNumEdges()/g->getNumVertices(), 2);
-//     // cout << ans << ", avg = " << avg << " = " << (double)ans/avg << endl;
-//     // for(auto& i : mp){
-//     //     cout << i.first << ": " << i.second << ", ";
-//     // }
-//     // cout << ")" << endl;
-//     // g->writeZX("../decomposition/zx/"+this->getRule()->getName()+"/full_"+to_string(cnt)+".zx");
-//     // cnt++;
-// }

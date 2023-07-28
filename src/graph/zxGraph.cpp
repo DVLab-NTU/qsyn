@@ -57,10 +57,20 @@ bool ZXGraph::isEmpty() const {
  */
 bool ZXGraph::isValid() const {
     for (auto& v : _inputs) {
-        if (v->getNumNeighbors() != 1) return false;
+        if (v->getNumNeighbors() != 1) {
+            if (verbose >= 3) {
+                cout << "Error: output " << v->getId() << " has " << v->getNumNeighbors() << " neighbors, expected 1\n";
+            }
+            return false;
+        }
     }
     for (auto& v : _outputs) {
-        if (v->getNumNeighbors() != 1) return false;
+        if (v->getNumNeighbors() != 1) {
+            if (verbose >= 3) {
+                cout << "Error: output " << v->getId() << " has " << v->getNumNeighbors() << " neighbors, expected 1\n";
+            }
+            return false;
+        }
     }
     for (auto& v : _vertices) {
         for (auto& [nb, etype] : v->getNeighbors()) {

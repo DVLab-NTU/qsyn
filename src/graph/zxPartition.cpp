@@ -34,6 +34,15 @@ struct DirectionalZXCutHash {
     };
 };
 
+/**
+ * @brief Creates a list of subgraphs with a ZXPartitionStrategy and the number of partitions
+ *        to split the graph into. Transfers ownership of the vertices to the subgraphs.
+ *
+ * @param partitionStrategy The partition strategy to use
+ * @param numPartitions The number of partitions to split the graph into
+ *
+ * @return A pair of the list of subgraphs and the list of cuts between the subgraphs
+ */
 std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>>
 ZXGraph::createSubgraphs(ZXPartitionStrategy partitionStrategy, size_t numPartitions) {
     std::vector<ZXVertexList> partitions = partitionStrategy(*this, numPartitions);
@@ -62,11 +71,9 @@ ZXGraph::createSubgraphs(ZXPartitionStrategy partitionStrategy, size_t numPartit
             if (primaryInputs.contains(vertex)) subgraphInputs.insert(vertex);
             if (primaryOutputs.contains(vertex)) subgraphOutputs.insert(vertex);
 
-            std::cerr << "vertex: " << vertex->getId() << std::endl;
             std::vector<NeighborPair> neighborsToRemove;
             std::vector<NeighborPair> neighborsToAdd;
             for (const auto& [neighbor, edgeType] : vertex->getNeighbors()) {
-                std::cerr << "\tneighbor: " << neighbor->getId() << std::endl;
                 if (!partition.contains(neighbor)) {
                     ZXVertex* boundary = new ZXVertex(nextVertexId++, CUT_BOUNDARY_QUBIT_ID, VertexType::BOUNDARY);
                     innerCuts.insert({vertex, neighbor, edgeType});
@@ -96,35 +103,22 @@ ZXGraph::createSubgraphs(ZXPartitionStrategy partitionStrategy, size_t numPartit
         subgraphs.push_back(new ZXGraph(partition, subgraphInputs, subgraphOutputs, zxGraphMgr.getNextID()));
     }
 
-    std::cerr << "subgraphs: " << std::endl;
-    for (auto g : subgraphs) {
-        g->printVertices();
-    }
-
-    for (auto [cut, b] : cutToBoundary) {
-        auto [v1, v2, e] = cut;
-        std::cerr << v1 << " " << v2 << "->" << b << std::endl;
+    if (verbose >= 5) {
+        size_t i = 0;
+        for (auto g : subgraphs) {
+            std::cerr << "subgraph " << i++ << std::endl;
+            g->printVertices();
+        }
     }
 
     for (auto [v1, v2, edgeType] : innerCuts) {
-        ZXVertex* boundary1 = cutToBoundary[{v1, v2, edgeType}];
-        ZXVertex* boundary2 = cutToBoundary[{v2, v1, edgeType}];
-
-        std::cerr << "====================" << std::endl;
-        std::cout << boundary1 << " " << boundary2 << std::endl;
-        std::cerr << "v1: " << std::endl;
-        for (auto [n, e] : v1->getNeighbors()) {
-            std::cerr << n << " ";
-        }
-        std::cerr << std::endl;
-        std::cerr << "v2: " << std::endl;
-        for (auto [n, e] : v2->getNeighbors()) {
-            std::cerr << n << " ";
-        }
-        std::cerr << std::endl;
-
-        outerCuts.push_back({boundary1, boundary2, edgeType});
+        ZXVertex* b1 = cutToBoundary[{v1, v2, edgeType}];
+        ZXVertex* b2 = cutToBoundary[{v2, v1, edgeType}];
+        outerCuts.push_back({b1, b2, edgeType});
     }
+
+    // ownership of the vertices is transferred to the subgraphs
+    release();
 
     return {subgraphs, outerCuts};
 }
@@ -136,9 +130,10 @@ ZXGraph::createSubgraphs(ZXPartitionStrategy partitionStrategy, size_t numPartit
  * @param subgraphs The list of subgraphs to merge
  * @param cuts The list of cuts between the subgraph (boundary vertices)
  *
+ * @return The merged ZXGraph
+ *
  */
 ZXGraph* ZXGraph::fromSubgraphs(const std::vector<ZXGraph*>& subgraphs, const std::vector<ZXCut>& cuts) {
-    // TODO: Implement from subgraph
     ZXVertexList vertices;
     ZXVertexList inputs;
     ZXVertexList outputs;
@@ -152,17 +147,24 @@ ZXGraph* ZXGraph::fromSubgraphs(const std::vector<ZXGraph*>& subgraphs, const st
     for (auto [b1, b2, edgeType] : cuts) {
         ZXVertex* v1 = b1->getFirstNeighbor().first;
         ZXVertex* v2 = b2->getFirstNeighbor().first;
+
         vertices.erase(b1);
         vertices.erase(b2);
+        inputs.erase(b1);
+        inputs.erase(b2);
+        outputs.erase(b1);
+        outputs.erase(b2);
         v1->removeNeighbor(b1, edgeType);
         v2->removeNeighbor(b2, edgeType);
         v1->addNeighbor(v2, edgeType);
         v2->addNeighbor(v1, edgeType);
+        delete b1;
+        delete b2;
     }
 
     for (auto subgraph : subgraphs) {
-        // NOTE: ownership of the vertices is transferred to the merged graph
-        subgraph->reset();
+        // ownership of the vertices is transferred to the merged graph
+        subgraph->release();
         delete subgraph;
     }
 
@@ -175,9 +177,12 @@ ZXGraph* ZXGraph::fromSubgraphs(const std::vector<ZXGraph*>& subgraphs, const st
 
 std::pair<ZXVertexList, ZXVertexList> _klBiPartition(ZXVertexList vertices);
 
-/* @brief Recursively partition the graph into numPartitions partitions using the Kernighan-Lin algorithm.
+/**
+ * @brief Recursively partition the graph into numPartitions partitions using the Kernighan-Lin algorithm.
+ *
  * @param graph The graph to partition.
  * @param numPartitions The number of partitions to split the graph into.
+ *
  * @return A vector of vertex lists, each representing a partition.
  */
 std::vector<ZXVertexList> klPartition(const ZXGraph& graph, size_t numPartitions) {
@@ -293,19 +298,13 @@ std::pair<ZXVertexList, ZXVertexList> _klBiPartition(ZXVertexList vertices) {
         for (size_t _ = 0; _ < partition1.size() - 1; _++) {
             swapOnce();
         }
-        // for (size_t _ = 0; _ < partition1.size() / 2; _++) {
-        //     swapOnce();
-        // }
 
         // OPTIMIZE: decide a better stopping condition
         if (bestCumulativeGain <= 0) {
             break;
         }
-        // if (bestCumulativeGain <= partition1.size() / 10) {
-        //     break;
-        // }
 
-        // NOTE: undo until best iteration
+        // undo until best iteration
         while (swapHistory.size() > bestIteration) {
             auto [swap1, swap2] = swapHistory.top();
             swapHistory.pop();

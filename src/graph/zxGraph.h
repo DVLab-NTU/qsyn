@@ -154,6 +154,7 @@ public:
         _globalTraCounter = std::exchange(other._globalTraCounter, 0);
     }
 
+    // TODO: add comment
     ZXGraph(const ZXVertexList& vertices,
             const ZXVertexList& inputs,
             const ZXVertexList& outputs,
@@ -167,9 +168,11 @@ public:
             _nextVId++;
         }
         for (auto v : _inputs) {
+            assert(vertices.contains(v));
             _inputList[v->getQubit()] = v;
         }
         for (auto v : _outputs) {
+            assert(vertices.contains(v));
             _outputList[v->getQubit()] = v;
         }
     }
@@ -179,7 +182,7 @@ public:
         return *this;
     }
 
-    void reset() {
+    void release() {
         _nextVId = 0;
         _fileName = "";
         _procedures.clear();
