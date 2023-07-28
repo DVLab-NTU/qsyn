@@ -785,7 +785,7 @@ unique_ptr<ArgParseCmdType> ZXGWriteCmd() {
         size_t extensionPos = filepath.find_last_of('.');
 
         string extension = (extensionPos == string::npos) ? "" : filepath.substr(extensionPos);
-        if (extension == ".zx", extension == ".bzx", extension == "") {
+        if (extension == ".zx" || extension == ".bzx" || extension == "") {
             if (!zxGraphMgr.get()->writeZX(filepath, doComplete)) {
                 cerr << "Error: fail to write ZXGraph to \"" << filepath << "\"!!\n";
                 return CMD_EXEC_ERROR;
