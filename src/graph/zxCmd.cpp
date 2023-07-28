@@ -14,7 +14,6 @@
 #include <iostream>
 #include <string>
 
-#include "cmdMacros.h"
 #include "textFormat.h"
 #include "zx2tsMapper.h"
 #include "zxCmd.h"
@@ -41,10 +40,11 @@ unique_ptr<ArgParseCmdType> ZX2TSCmd();
 unique_ptr<ArgParseCmdType> ZXGADjointCmd();
 unique_ptr<ArgParseCmdType> ZXGTestCmd();
 unique_ptr<ArgParseCmdType> ZXGDrawCmd();
+unique_ptr<ArgParseCmdType> ZXGPrintCmd();
 unique_ptr<ArgParseCmdType> ZXGEditCmd();
-// unique_ptr<ArgParseCmdType> ZXGPrintCmd();
-
-// unique_ptr<ArgParseCmdType> ZXGWriteCmd();
+unique_ptr<ArgParseCmdType> ZXGReadCmd();
+unique_ptr<ArgParseCmdType> ZXGWriteCmd();
+unique_ptr<ArgParseCmdType> ZXGAssignCmd();
 
 bool initZXCmd() {
     if (!(cmdMgr->regCmd("ZXCHeckout", 4, ZXCHeckoutCmd()) &&
@@ -55,16 +55,16 @@ bool initZXCmd() {
           cmdMgr->regCmd("ZXCOMpose", 5, ZXComposeCmd()) &&
           cmdMgr->regCmd("ZXTensor", 3, ZXTensorCmd()) &&
           cmdMgr->regCmd("ZXPrint", 3, ZXPrintCmd()) &&
-          cmdMgr->regCmd("ZXGPrint", 4, make_unique<ZXGPrintCmd>()) &&
+          cmdMgr->regCmd("ZXGPrint", 4, ZXGPrintCmd()) &&
           cmdMgr->regCmd("ZXGTest", 4, ZXGTestCmd()) &&
           cmdMgr->regCmd("ZXGEdit", 4, ZXGEditCmd()) &&
           cmdMgr->regCmd("ZXGADJoint", 6, ZXGADjointCmd()) &&
-          cmdMgr->regCmd("ZXGASsign", 5, make_unique<ZXGAssignCmd>()) &&
+          cmdMgr->regCmd("ZXGASsign", 5, ZXGAssignCmd()) &&
           cmdMgr->regCmd("ZXGTRaverse", 5, ZXGTraverseCmd()) &&
           cmdMgr->regCmd("ZXGDraw", 4, ZXGDrawCmd()) &&
           cmdMgr->regCmd("ZX2TS", 5, ZX2TSCmd()) &&
-          cmdMgr->regCmd("ZXGRead", 4, make_unique<ZXGReadCmd>()) &&
-          cmdMgr->regCmd("ZXGWrite", 4, make_unique<ZXGWriteCmd>()))) {
+          cmdMgr->regCmd("ZXGRead", 4, ZXGReadCmd()) &&
+          cmdMgr->regCmd("ZXGWrite", 4, ZXGWriteCmd()))) {
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
         return false;
     }
@@ -77,6 +77,14 @@ ArgType<size_t>::ConstraintType const validZXGraphId = {
     },
     [](size_t const &id) {
         cerr << "Error: ZXGraph " << id << " does not exist!!\n";
+    }};
+
+ArgType<size_t>::ConstraintType const zxGraphIdNotExist = {
+    [](size_t const &id) {
+        return !zxGraphMgr.isID(id);
+    },
+    [](size_t const &id) {
+        cerr << "Error: ZXGraph " << id << " already exists!! Add `-Replace` if you want to overwrite it.\n";
     }};
 
 ArgType<size_t>::ConstraintType const validZXVertexId = {
@@ -380,148 +388,84 @@ unique_ptr<ArgParseCmdType> ZXGTestCmd() {
 //-----------------------------------------------------------------------------------------------------------
 //    ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis | -Density]
 //-----------------------------------------------------------------------------------------------------------
-// unique_ptr<ArgParseCmdType> ZXGPrintCmd() {
-//     auto cmd = make_unique<ArgParseCmdType>("ZXGPrint");
+unique_ptr<ArgParseCmdType> ZXGPrintCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXGPrint");
 
-//     cmd->parserDefinition = [](ArgumentParser &parser) {
-//         parser.help("print info of ZXGraph");
+    cmd->precondition = []() { return zxGraphMgrNotEmpty("ZXGPrint"); };
 
-//         auto mutex = parser.addMutuallyExclusiveGroup();
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("print info of ZXGraph");
 
-//         mutex.addArgument<bool>("-summary")
-//             .action(storeTrue)
-//             .help("print the summary info of ZXGraph");
-//         mutex.addArgument<bool>("-io")
-//             .action(storeTrue)
-//             .help("print the I/O info of ZXGraph");
-//         mutex.addArgument<bool>("-inputs")
-//             .action(storeTrue)
-//             .help("print the inputs info of ZXGraph");
-//         mutex.addArgument<bool>("-outputs")
-//             .action(storeTrue)
-//             .help("print the outputs info of ZXGraph");
-//         mutex.addArgument<bool>("-vertices")
-//             .action(storeTrue)
-//             .help("print the vertices info of ZXGraph");
-//         mutex.addArgument<bool>("-edges")
-//             .action(storeTrue)
-//             .help("print the edges info of ZXGraph");
-//         mutex.addArgument<bool>("-qubits")
-//             .action(storeTrue)
-//             .help("print the qubits info of ZXGraph");
-//         mutex.addArgument<bool>("-neighbors")
-//             .action(storeTrue)
-//             .help("print the neighbors info of ZXGraph");
-//         mutex.addArgument<bool>("-density")
-//             .action(storeTrue)
-//             .help("print the density of ZXGraph");
-//     };
+        auto mutex = parser.addMutuallyExclusiveGroup();
 
-//     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-//         ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGPrint");
-//         //TODO - `-vertices`, `-qubits`, `-neighbors` specific printing
-//         if(parser["-summary"].isParsed()){
-//             zxGraphMgr->getGraph()->printGraph();
-//             cout << setw(30) << left << "#T-gate: " << zxGraphMgr->getGraph()->TCount() << "\n";
-//             cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(false) << "\n";
-//             cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr->getGraph()->nonCliffordCount(true) << "\n";
-//         }
-//         else if(parser["-io"].isParsed()) zxGraphMgr->getGraph()->printIO();
-//         else if(parser["-inputs"].isParsed()) zxGraphMgr->getGraph()->printInputs();
-//         else if(parser["-outputs"].isParsed()) zxGraphMgr->getGraph()->printOutputs();
-//         else if(parser["-vertices"].isParsed()) zxGraphMgr->getGraph()->printVertices();
-//         else if(parser["-edges"].isParsed()) zxGraphMgr->getGraph()->printEdges();
-//         else if(parser["-qubits"].isParsed()) zxGraphMgr->getGraph()->printQubits();
-//         else if(parser["-neighbors"].isParsed()){}
-//         else if(parser["-density"].isParsed()){
-//             cout << "Density: " << zxGraphMgr->getGraph()->Density() << endl;
-//         }
-//         else zxGraphMgr->getGraph()->printGraph();
-//         return CMD_EXEC_DONE;
-//     };
+        mutex.addArgument<bool>("-summary")
+            .action(storeTrue)
+            .help("print the summary info of ZXGraph");
+        mutex.addArgument<bool>("-io")
+            .action(storeTrue)
+            .help("print the I/O info of ZXGraph");
+        mutex.addArgument<bool>("-inputs")
+            .action(storeTrue)
+            .help("print the input info of ZXGraph");
+        mutex.addArgument<bool>("-outputs")
+            .action(storeTrue)
+            .help("print the output info of ZXGraph");
+        mutex.addArgument<size_t>("-vertices")
+            .nargs(NArgsOption::ZERO_OR_MORE)
+            .constraint(validZXVertexId)
+            .help("print the vertex info of ZXGraph");
+        mutex.addArgument<bool>("-edges")
+            .action(storeTrue)
+            .help("print the edges info of ZXGraph");
+        mutex.addArgument<int>("-qubits")
+            .nargs(NArgsOption::ZERO_OR_MORE)
+            .help("print the qubit info of ZXGraph");
+        mutex.addArgument<size_t>("-neighbors")
+            .constraint(validZXVertexId)
+            .help("print the neighbor info of ZXGraph");
+        mutex.addArgument<bool>("-density")
+            .action(storeTrue)
+            .help("print the density of ZXGraph");
+    };
 
-//     return cmd;
-// }
-
-CmdExecStatus
-ZXGPrintCmd::exec(std::stop_token, const string &option) {
-    // check option
-    vector<string> options;
-    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
-    // string token;
-    // if (!CmdExec::lexSingleOption(option, token)) return CMD_EXEC_ERROR;
-
-    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGPrint");
-
-    if (options.empty())
-        zxGraphMgr.get()->printGraph();
-    else if (myStrNCmp("-Summary", options[0], 2) == 0) {
-        zxGraphMgr.get()->printGraph();
-        cout << setw(30) << left << "#T-gate: " << zxGraphMgr.get()->TCount() << "\n";
-        cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr.get()->nonCliffordCount() << "\n";
-        cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr.get()->nonCliffordPlusTCount() << "\n";
-    } else if (myStrNCmp("-Inputs", options[0], 2) == 0)
-        zxGraphMgr.get()->printInputs();
-    else if (myStrNCmp("-Outputs", options[0], 2) == 0)
-        zxGraphMgr.get()->printOutputs();
-    else if (myStrNCmp("-IO", options[0], 3) == 0)
-        zxGraphMgr.get()->printIO();
-    else if (myStrNCmp("-Vertices", options[0], 2) == 0) {
-        if (options.size() == 1)
-            zxGraphMgr.get()->printVertices();
-        else {
-            vector<size_t> candidates;
-            for (size_t i = 1; i < options.size(); i++) {
-                unsigned id;
-                if (myStr2Uns(options[i], id)) candidates.emplace_back(id);
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        if (parser["-summary"].isParsed()) {
+            zxGraphMgr.get()->printGraph();
+            cout << setw(30) << left << "#T-gate: " << zxGraphMgr.get()->TCount() << "\n";
+            cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr.get()->nonCliffordPlusTCount() << "\n";
+            cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr.get()->nonCliffordCount() << "\n";
+        } else if (parser["-io"].isParsed())
+            zxGraphMgr.get()->printIO();
+        else if (parser["-inputs"].isParsed())
+            zxGraphMgr.get()->printInputs();
+        else if (parser["-outputs"].isParsed())
+            zxGraphMgr.get()->printOutputs();
+        else if (parser["-vertices"].isParsed()) {
+            vector<size_t> vids = parser["-vertices"];
+            if (vids.empty())
+                zxGraphMgr.get()->printVertices();
+            else
+                zxGraphMgr.get()->printVertices(vids);
+        } else if (parser["-edges"].isParsed())
+            zxGraphMgr.get()->printEdges();
+        else if (parser["-qubits"].isParsed()) {
+            vector<int> qids = parser["-qubits"];
+            zxGraphMgr.get()->printQubits(qids);
+        } else if (parser["-neighbors"].isParsed()) {
+            auto v = zxGraphMgr.get()->findVertexById(parser["-neighbors"]);
+            v->printVertex();
+            cout << "----- Neighbors -----" << endl;
+            for (auto [nb, _] : v->getNeighbors()) {
+                nb->printVertex();
             }
-            zxGraphMgr.get()->printVertices(candidates);
-        }
-    } else if (myStrNCmp("-Edges", options[0], 2) == 0)
-        zxGraphMgr.get()->printEdges();
-    else if (myStrNCmp("-Qubits", options[0], 2) == 0) {
-        vector<int> candidates;
-        for (size_t i = 1; i < options.size(); i++) {
-            int qid;
-            if (myStr2Int(options[i], qid))
-                candidates.emplace_back(qid);
-            else {
-                cout << "Warning: " << options[i] << " is not a valid qubit ID!!" << endl;
-            }
-        }
-        zxGraphMgr.get()->printQubits(candidates);
-    } else if (myStrNCmp("-Neighbors", options[0], 2) == 0) {
-        CMD_N_OPTS_EQUAL_OR_RETURN(options, 2);
-
-        unsigned id;
-        ZXVertex *v;
-        ZX_CMD_ID_VALID_OR_RETURN(options[1], id, "Vertex");
-        ZX_CMD_VERTEX_ID_IN_GRAPH_OR_RETURN(id, v);
-
-        v->printVertex();
-        cout << "----- Neighbors -----" << endl;
-        for (auto [nb, _] : v->getNeighbors()) {
-            nb->printVertex();
-        }
-    } else if (myStrNCmp("-Analysis", options[0], 2) == 0) {
-        cout << setw(30) << left << "#T-gate: " << zxGraphMgr.get()->TCount() << "\n";
-        cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr.get()->nonCliffordCount() << "\n";
-        cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr.get()->nonCliffordPlusTCount() << "\n";
+        } else if (parser["-density"].isParsed()) {
+            cout << "Density: " << zxGraphMgr.get()->density() << endl;
+        } else
+            zxGraphMgr.get()->printGraph();
         return CMD_EXEC_DONE;
-    }
+    };
 
-    else
-        return errorOption(CMD_OPT_ILLEGAL, options[0]);
-    return CMD_EXEC_DONE;
-}
-
-void ZXGPrintCmd::usage() const {
-    cout << "Usage: ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis]" << endl;
-}
-
-void ZXGPrintCmd::summary() const {
-    cout << setw(15) << left << "ZXGPrint: "
-         << "print info of ZXGraph" << endl;
+    return cmd;
 }
 
 unique_ptr<ArgParseCmdType> ZXGEditCmd() {
@@ -772,197 +716,156 @@ unique_ptr<ArgParseCmdType> ZX2TSCmd() {
 //----------------------------------------------------------------------
 //    ZXGRead <string Input.(b)zx> [-KEEPid] [-Replace]
 //----------------------------------------------------------------------
-CmdExecStatus
-ZXGReadCmd::exec(std::stop_token, const string &option) {  // check option
-    vector<string> options;
 
-    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
+unique_ptr<ArgParseCmdType> ZXGReadCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXGRead");
 
-    CMD_N_OPTS_BETWEEN_OR_RETURN(options, 1, 3);
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("read a file and construct the corresponding ZXGraph");
 
-    bool doReplace = false;
-    bool doKeepID = false;
-    size_t eraseIndexReplace = 0;
-    size_t eraseIndexBZX = 0;
-    string fileName = "";
-    for (size_t i = 0, n = options.size(); i < n; ++i) {
-        if (myStrNCmp("-Replace", options[i], 2) == 0) {
-            if (doReplace)
-                return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
-            doReplace = true;
-            eraseIndexReplace = i;
-        } else if (myStrNCmp("-KEEPid", options[i], 5) == 0) {
-            if (doKeepID)
-                return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
-            doKeepID = true;
-            eraseIndexBZX = i;
-        } else {
-            if (fileName.size())
-                return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
-            fileName = options[i];
-        }
-    }
-    string replaceStr = options[eraseIndexReplace];
-    string bzxStr = options[eraseIndexBZX];
-    if (doReplace)
-        std::erase(options, replaceStr);
-    if (doKeepID)
-        std::erase(options, bzxStr);
-    if (options.empty())
-        return CmdExec::errorOption(CMD_OPT_MISSING, (eraseIndexBZX > eraseIndexReplace) ? bzxStr : replaceStr);
+        parser.addArgument<string>("filepath")
+            .constraint(file_exists)
+            .constraint(allowed_extension({".zx", ".bzx"}))
+            .help("path to the ZX file. Supported extensions: .zx, .bzx");
 
-    auto bufferGraph = make_unique<ZXGraph>();
-    if (!bufferGraph->readZX(fileName, doKeepID)) {
-        // REVIEW - This error message is not always accurate
-        // cerr << "Error: The format in \"" << fileName << "\" has something wrong!!" << endl;
-        return CMD_EXEC_ERROR;
-    }
+        parser.addArgument<bool>("-keepid")
+            .action(storeTrue)
+            .help("if set, retain the IDs in the ZX file; otherwise the ID is rearranged to be consecutive");
 
-    if (doReplace) {
-        if (zxGraphMgr.empty()) {
-            cout << "Note: ZXGraph list is empty now. Create a new one." << endl;
-            zxGraphMgr.add(zxGraphMgr.getNextID());
-        } else {
-            cout << "Note: original ZXGraph is replaced..." << endl;
-        }
-    } else {
-        zxGraphMgr.add(zxGraphMgr.getNextID());
-    }
-    zxGraphMgr.set(std::move(bufferGraph));
-    return CMD_EXEC_DONE;
-}
+        parser.addArgument<bool>("-replace")
+            .action(storeTrue)
+            .constraint(zxGraphIdNotExist)
+            .help("replace the current ZXGraph");
+    };
 
-void ZXGReadCmd::usage() const {
-    cout << "Usage: ZXGRead <string Input.(b)zx> [-KEEPid] [-Replace]" << endl;
-}
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        string filepath = parser["filepath"];
+        bool doKeepID = parser["-keepid"];
+        bool doReplace = parser["-replace"];
 
-void ZXGReadCmd::summary() const {
-    cout << setw(15) << left << "ZXGRead: "
-         << "read a file and construct the corresponding ZXGraph" << endl;
-}
-
-//----------------------------------------------------------------------
-//    ZXGWrite <string Output.<zx | tikz | tex>> [-Complete]
-//----------------------------------------------------------------------
-CmdExecStatus
-ZXGWriteCmd::exec(std::stop_token, const string &option) {
-    vector<string> options;
-
-    if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
-    if (options.empty()) return CmdExec::errorOption(CMD_OPT_MISSING, "");
-
-    bool doComplete = false;
-    size_t eraseIndexComplete = 0;
-    string fileName;
-    for (size_t i = 0, n = options.size(); i < n; ++i) {
-        if (myStrNCmp("-Complete", options[i], 2) == 0) {
-            if (doComplete)
-                return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
-            doComplete = true;
-            eraseIndexComplete = i;
-        } else {
-            if (fileName.size())
-                return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
-            fileName = options[i];
-        }
-    }
-    string completeStr = options[eraseIndexComplete];
-    if (doComplete)
-        std::erase(options, completeStr);
-    if (options.empty())
-        return CmdExec::errorOption(CMD_OPT_MISSING, completeStr);
-
-    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXWrite");
-
-    size_t extensionPosition = fileName.find_last_of(".");
-    // REVIEW - should we guard the case of no file extension?
-    if (extensionPosition != string::npos) {
-        string extensionString = fileName.substr(extensionPosition);
-        if (
-            myStrNCmp(".zx", extensionString, 3) == 0 ||
-            myStrNCmp(".bzx", extensionString, 4) == 0) {
-            if (!zxGraphMgr.get()->writeZX(fileName, doComplete)) {
-                cerr << "Error: fail to write ZXGraph to \"" << fileName << "\"!!" << endl;
-                return CMD_EXEC_ERROR;
-            }
-        } else if (myStrNCmp(".tikz", extensionString, 5) == 0) {
-            if (!zxGraphMgr.get()->writeTikz(fileName)) {
-                cerr << "Error: fail to write Tikz to \"" << fileName << "\"!!" << endl;
-                return CMD_EXEC_ERROR;
-            }
-        } else if (myStrNCmp(".tex", extensionString, 4) == 0) {
-            if (!zxGraphMgr.get()->writeTex(fileName)) {
-                cerr << "Error: fail to write tex to \"" << fileName << "\"!!" << endl;
-                return CMD_EXEC_ERROR;
-            }
-        }
-    } else {
-        if (!zxGraphMgr.get()->writeZX(fileName, doComplete)) {
-            cerr << "Error: fail to write ZXGraph to \"" << fileName << "\"!!" << endl;
+        auto bufferGraph = make_unique<ZXGraph>();
+        if (!bufferGraph->readZX(filepath, doKeepID)) {
             return CMD_EXEC_ERROR;
         }
-    }
 
-    return CMD_EXEC_DONE;
+        if (doReplace) {
+            if (zxGraphMgr.empty()) {
+                cout << "Note: ZXGraph list is empty now. Create a new one." << endl;
+                zxGraphMgr.add(zxGraphMgr.getNextID());
+            } else {
+                cout << "Note: original ZXGraph is replaced..." << endl;
+            }
+        } else {
+            zxGraphMgr.add(zxGraphMgr.getNextID());
+        }
+        zxGraphMgr.set(std::move(bufferGraph));
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
 }
 
-void ZXGWriteCmd::usage() const {
-    cout << "Usage: ZXGWrite <string Output.<zx | tikz>> [-Complete]" << endl;
-}
+unique_ptr<ArgParseCmdType> ZXGWriteCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXGWrite");
 
-void ZXGWriteCmd::summary() const {
-    cout << setw(15) << left << "ZXGWrite: "
-         << "write a ZXGraph to a file\n";
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.addArgument<string>("filepath")
+            .constraint(dir_for_file_exists)
+            .constraint(allowed_extension({".zx", ".bzx", ".tikz", ".tex", ""}))
+            .help("the path to the output ZX file");
+
+        parser.addArgument<bool>("-complete")
+            .action(storeTrue)
+            .help("if specified, output neighbor information on both vertices of each edge");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        string filepath = parser["filepath"];
+        bool doComplete = parser["-complete"];
+        size_t extensionPos = filepath.find_last_of('.');
+
+        string extension = (extensionPos == string::npos) ? "" : filepath.substr(extensionPos);
+        if (extension == ".zx", extension == ".bzx", extension == "") {
+            if (!zxGraphMgr.get()->writeZX(filepath, doComplete)) {
+                cerr << "Error: fail to write ZXGraph to \"" << filepath << "\"!!\n";
+                return CMD_EXEC_ERROR;
+            }
+        } else if (extension == ".tikz") {
+            if (!zxGraphMgr.get()->writeTikz(filepath)) {
+                cerr << "Error: fail to write Tikz to \"" << filepath << "\"!!\n";
+                return CMD_EXEC_ERROR;
+            }
+        } else if (extension == ".tex") {
+            if (!zxGraphMgr.get()->writeTex(filepath)) {
+                cerr << "Error: fail to write tex to \"" << filepath << "\"!!\n";
+                return CMD_EXEC_ERROR;
+            }
+        }
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
 }
 
 //----------------------------------------------------------------------
 //    ZXGASsign <size_t qubit> <I|O> <VertexType vt> <string Phase>
 //----------------------------------------------------------------------
-CmdExecStatus
-ZXGAssignCmd::exec(std::stop_token, const string &option) {
-    // check option
-    vector<string> options;
-    if (!CmdExec::lexOptions(option, options))
-        return CMD_EXEC_ERROR;
 
-    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGASsign");
+unique_ptr<ArgParseCmdType> ZXGAssignCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("ZXGASsign");
 
-    CMD_N_OPTS_EQUAL_OR_RETURN(options, 4);
-    int qid;
-    ZX_CMD_QUBIT_ID_VALID_OR_RETURN(options[0], qid);
+    cmd->precondition = []() { return zxGraphMgrNotEmpty("ZXGASsign"); };
 
-    bool isInput;
-    if (options[1] == "I") {
-        isInput = true;
-    } else if (options[1] == "O") {
-        isInput = false;
-    } else {
-        cerr << "Error: a boundary must be either \"I\" or \"O\"!!" << endl;
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[1]);
-    }
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("assign quantum states to input/output vertex");
 
-    if (!(isInput ? zxGraphMgr.get()->isInputQubit(qid) : zxGraphMgr.get()->isOutputQubit(qid))) {
-        cerr << "Error: the specified boundary does not exist!!" << endl;
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[1]);
-    }
+        parser.addArgument<size_t>("qubit")
+            .help("the qubit to assign state to");
 
-    VertexType vt;
-    ZX_CMD_VERTEX_TYPE_VALID_OR_RETURN(options[2], vt);
+        parser.addArgument<string>("io")
+            .constraint(choices_allow_prefix({"input", "output"}))
+            .metavar("input/output")
+            .help("add at input or output");
 
-    Phase phase;
-    ZX_CMD_PHASE_VALID_OR_RETURN(options[3], phase);
+        parser.addArgument<string>("vtype")
+            .constraint(choices_allow_prefix({"zspider", "xspider", "hbox"}))
+            .help("the type of ZXVertex");
 
-    zxGraphMgr.get()->assignBoundary(qid, (options[1] == "I"), vt, phase);
-    return CMD_EXEC_DONE;
-}
+        parser.addArgument<Phase>("phase")
+            .help("the phase of the vertex");
+    };
 
-void ZXGAssignCmd::usage() const {
-    cout << "Usage: ZXGASsign <size_t qubit> <I|O> <VertexType vt> <string Phase>" << endl;
-}
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        size_t qid = parser["qubit"];
+        bool isInput = toLowerString(parser.get<string>("io")).starts_with('i');
 
-void ZXGAssignCmd::summary() const {
-    cout << setw(15) << left << "ZXGASsign: "
-         << "assign quantum states to input/output vertex\n";
+        if (!(isInput ? zxGraphMgr.get()->isInputQubit(qid) : zxGraphMgr.get()->isOutputQubit(qid))) {
+            cerr << "Error: the specified boundary does not exist!!" << endl;
+            return CMD_EXEC_ERROR;
+        }
+
+        auto vt = std::invoke([&parser]() {
+            auto vtypeStr = parser.get<std::string>("vtype");
+            switch (std::tolower(vtypeStr[0])) {
+                case 'z':
+                    return VertexType::Z;
+                case 'x':
+                    return VertexType::X;
+                case 'h':
+                    return VertexType::H_BOX;
+                default:
+                    return VertexType::ERRORTYPE;
+            }
+        });
+        assert(vt != VertexType::ERRORTYPE);
+
+        Phase phase = parser["phase"];
+        zxGraphMgr.get()->assignBoundary(qid, isInput, vt, phase);
+
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
 }
 
 //----------------------------------------------------------------------
