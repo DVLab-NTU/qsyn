@@ -1,3 +1,11 @@
+/****************************************************************************
+  FileName     [ jthread.cpp ]
+  PackageName  [ vendor/include/jthread ]
+  Synopsis     [ c++20 std::jthread substitute for Clang compatibility ]
+  Author       [ Nicolai Josuttis & Lewis Baker ]
+  Copyright    [ Creative Commons Attribution 4.0 International License. See README.md for more information ]
+****************************************************************************/
+
 // -----------------------------------------------------
 // cooperative interruptable and joining thread:
 // -----------------------------------------------------
@@ -12,6 +20,10 @@
 
 #include "stop_token.hpp"
 
+/**
+ * @brief Change the namespace from `std` to avoid name clashing with <thread> on GNU c++ compilers
+ * 
+ */
 namespace mythread {
 
 //*****************************************

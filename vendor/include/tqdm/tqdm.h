@@ -1,14 +1,10 @@
-/**
- * @file tqdm.h
- * @author https://github.com/aminnj/cpptqdm/tree/04c733fd38cdc1763d7bc19f8ff3a8fb6e95e2e9
- * @brief Directly copied from the above link
- * @version 0.1
- * @date 2023-03-22
- * 
- * @copyright Copyright (c) 2023
- * 
- */
-
+/****************************************************************************
+  FileName     [ tqdm.h ]
+  PackageName  [ vendor/include/tqdm ]
+  Synopsis     [ c++ tqdm progress bar ]
+  Author       [ Nick Amin ]
+  Copyright    [ Copyright (c) 2018, MIT License ]
+****************************************************************************/
 #ifndef TQDM_H
 #define TQDM_H
 #include <unistd.h>
