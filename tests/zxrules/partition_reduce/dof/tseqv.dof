@@ -1,5 +1,5 @@
 verb 5
-qccread ./benchmark/qft/qft_7.qasm
+qccread ./benchmark/qft/qft_5.qasm
 qc2zx
 zx2ts
 zxcopy

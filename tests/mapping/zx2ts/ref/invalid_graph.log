@@ -29,6 +29,7 @@ Total #Edges: 6
 qsyn> 
 qsyn> // should fail because vertex 0 is a boundary with more than 1 neighbors...
 qsyn> zx2ts
+Error: output 0 has 2 neighbors, expected 1
 Error: The ZXGraph is not valid!!
 
 qsyn> 
@@ -59,6 +60,7 @@ Total #Edges: 4
 qsyn> 
 qsyn> // should fail because vertex 0 is a boundary with no neighbors...
 qsyn> zx2ts
+Error: output 0 has 0 neighbors, expected 1
 Error: The ZXGraph is not valid!!
 
 qsyn> 

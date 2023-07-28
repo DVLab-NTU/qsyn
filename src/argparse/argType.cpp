@@ -143,7 +143,7 @@ ArgType<std::string>::ConstraintType ends_with(std::vector<std::string> const& s
 ArgType<std::string>::ConstraintType allowed_extension(std::vector<std::string> const& extensions) {
     return {
         [extensions](std::string const& str) {
-            return std::ranges::any_of(extensions, [&str](std::string const& ext) { return str.substr(std::min(str.find_first_of('.'), str.size())) == ext; });
+            return std::ranges::any_of(extensions, [&str](std::string const& ext) { return str.substr(std::min(str.find_last_of('.'), str.size())) == ext; });
         },
         [extensions](std::string const& str) {
             std::cerr << "Error: file must have one of the following extension:";
