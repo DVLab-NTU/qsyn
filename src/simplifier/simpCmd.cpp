@@ -11,8 +11,6 @@
 #include <iostream>
 #include <string>
 
-#include "qcirCmd.h"
-#include "qcirMgr.h"
 #include "simplify.h"
 #include "zxCmd.h"
 #include "zxGraphMgr.h"
@@ -67,6 +65,8 @@ ArgType<size_t>::ConstraintType validPreduceIteratoins = {
 //------------------------------------------------------------------------------------------------------------------
 unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXGSimp");
+
+    cmd->precondition = []() { return zxGraphMgrNotEmpty("ZXGSimp"); };
 
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("perform simplification strategies for ZXGraph");
@@ -154,7 +154,6 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
-        ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGSimp");
         Simplifier s(zxGraphMgr.get(), st);
         if (parser["-sreduce"].isParsed())
             s.symbolicReduce();

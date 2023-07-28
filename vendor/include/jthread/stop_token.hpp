@@ -1,3 +1,11 @@
+/****************************************************************************
+  FileName     [ stop_token.cpp ]
+  PackageName  [ vendor/include/jthread ]
+  Synopsis     [ c++20 std::stop_token substitute for Clang compatibility ]
+  Author       [ Nicolai Josuttis & Lewis Baker ]
+  Copyright    [ Creative Commons Attribution 4.0 International License. See README.md for more information ]
+****************************************************************************/
+
 #pragma once
 // <stop_token> header
 
@@ -13,6 +21,10 @@
 #include <immintrin.h>
 #endif
 
+/**
+ * @brief Change the namespace from `std` to avoid name clashing with <thread> on GNU c++ compilers
+ * 
+ */
 namespace mythread {
 inline void __spin_yield() noexcept {
     // TODO: Platform-specific code here

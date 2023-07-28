@@ -6,12 +6,11 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "extractorCmd.h"
-
 #include <cstddef>
 #include <iostream>
 #include <string>
 
+#include "cmdParser.h"
 #include "deviceMgr.h"
 #include "extract.h"
 #include "qcir.h"
@@ -33,10 +32,11 @@ extern DeviceMgr *deviceMgr;
 unique_ptr<ArgParseCmdType> ExtractCmd();
 unique_ptr<ArgParseCmdType> ExtractSetCmd();
 unique_ptr<ArgParseCmdType> ExtractPrintCmd();
+unique_ptr<ArgParseCmdType> ExtractStepCmd();
 
 bool initExtractCmd() {
     if (!(cmdMgr->regCmd("ZX2QC", 5, ExtractCmd()) &&
-          cmdMgr->regCmd("EXTRact", 4, make_unique<ExtractStepCmd>()) &&
+          cmdMgr->regCmd("EXTRact", 4, ExtractStepCmd()) &&
           cmdMgr->regCmd("EXTSet", 4, ExtractSetCmd()) &&
           cmdMgr->regCmd("EXTPrint", 4, ExtractPrintCmd()))) {
         cerr << "Registering \"extract\" commands fails... exiting" << endl;
@@ -52,12 +52,13 @@ bool initExtractCmd() {
 unique_ptr<ArgParseCmdType> ExtractCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZX2QC");
 
+    cmd->precondition = []() { return zxGraphMgrNotEmpty("ZX2QC"); };
+
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("extract QCir from ZXGraph");
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
-        ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZX2QC");
         if (!zxGraphMgr.get()->isGraphLike()) {
             cerr << "Error: ZXGraph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
             return CMD_EXEC_ERROR;
@@ -83,136 +84,117 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
     return cmd;
 }
 
-//----------------------------------------------------------------------
-//    EXTRact <-ZXgraph> <(size_t ZXGraphId)> <-QCir> <(size_t QCirId)> <-Loop> [(size_t #loop)]
-//    EXTRact <-ZXgraph> <(size_t ZXGraphId)> <-QCir> <(size_t QCirId)> <-CX | -CZ | -CLFrontier | -RMGadget| -PHase | -H | -PERmute>
-//----------------------------------------------------------------------
-CmdExecStatus
-ExtractStepCmd::exec(mythread::stop_token, const string &option) {
-    string token;
-    vector<string> options;
-    if (!CmdExec::lexOptions(option, options))
-        return CMD_EXEC_ERROR;
-    if (options.size() == 0) {
-        return CmdExec::errorOption(CMD_OPT_MISSING, "");
-    }
-    if (options.size() < 5) {
-        return CmdExec::errorOption(CMD_OPT_MISSING, options[options.size() - 1]);
-    }
-    if (options.size() > 5) {
-        if (myStrNCmp("-Loop", options[4], 2) == 0) {
-            if (options.size() > 6) return CmdExec::errorOption(CMD_OPT_EXTRA, options[6]);
-        } else
-            return CmdExec::errorOption(CMD_OPT_EXTRA, options[5]);
-    }
-    if (!(myStrNCmp("-ZXgraph", options[0], 3) == 0) || !(myStrNCmp("-QCir", options[2], 3) == 0)) {
-        return CMD_EXEC_ERROR;
-    }
-    ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("EXtract");
-    unsigned id;
-    ZX_CMD_ID_VALID_OR_RETURN(options[1], id, "Graph");
-    ZX_CMD_GRAPH_ID_EXISTS_OR_RETURN(id);
-    zxGraphMgr.checkout(id);
-    if (!zxGraphMgr.get()->isGraphLike()) {
-        cerr << "Error: ZXGraph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
-        return CMD_EXEC_ERROR;
-    }
+unique_ptr<ArgParseCmdType> ExtractStepCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("EXTRact");
 
-    QC_CMD_ID_VALID_OR_RETURN(options[3], id, "QCir");
-    QC_CMD_QCIR_ID_EXISTS_OR_RETURN(id);
-    qcirMgr->checkout2QCir(id);
+    cmd->precondition = []() { return zxGraphMgrNotEmpty("EXTRact"); };
 
-    if (zxGraphMgr.get()->getNumOutputs() != qcirMgr->getQCircuit()->getNQubit()) {
-        cerr << "Error: number of outputs in graph is not equal to number of qubits in circuit" << endl;
-        return CMD_EXEC_ERROR;
-    }
+    cmd->parserDefinition = [](ArgumentParser &parser) {
+        parser.help("perform step(s) in extraction");
+        parser.addArgument<size_t>("-ZXgraph")
+            .required(true)
+            .constraint(validZXGraphId)
+            .metavar("ID")
+            .help("the ID of the ZXGraph to extract from");
 
-    enum class EXTRACT_MODE {
-        LOOP,
-        PHASE,
-        CZ,
-        CLEAN_FRONTIER,
-        RM_GADGET,
-        GAUSSIAN_CX,
-        H,
-        PERMUTE_QUBITS,
-        ERROR
+        parser.addArgument<size_t>("-QCir")
+            .required(true)
+            .constraint(validQCirId)
+            .metavar("ID")
+            .help("the ID of the QCir to extract to");
+
+        auto mutex = parser.addMutuallyExclusiveGroup().required(true);
+
+        mutex.addArgument<bool>("-cx")
+            .action(storeTrue)
+            .help("Extract CX gates");
+
+        mutex.addArgument<bool>("-cz")
+            .action(storeTrue)
+            .help("Extract CZ gates");
+
+        mutex.addArgument<bool>("-phase")
+            .action(storeTrue)
+            .help("Extract Z-rotation gates");
+
+        mutex.addArgument<bool>("-hadamard")
+            .action(storeTrue)
+            .help("Extract Hadamard gates");
+
+        mutex.addArgument<bool>("-clfrontier")
+            .action(storeTrue)
+            .help("Extract Z-rotation and then CZ gates");
+
+        mutex.addArgument<bool>("-rmgadgets")
+            .action(storeTrue)
+            .help("Remove phase gadgets in the neighbor of the frontiers");
+
+        mutex.addArgument<bool>("-permute")
+            .action(storeTrue)
+            .help("Add swap gates to account for ZXGraph I/O permutations");
+
+        mutex.addArgument<size_t>("-loop")
+            .nargs(NArgsOption::OPTIONAL)
+            .metavar("N")
+            .help("Run N iteration of extraction loop. N is defaulted to 1");
     };
-    EXTRACT_MODE mode;
-    unsigned opt;
-    if (myStrNCmp("-Loop", options[4], 2) == 0) {
-        if (options.size() == 5)
-            opt = 1;
-        else
-            QC_CMD_ID_VALID_OR_RETURN(options[5], opt, "option");
-        mode = EXTRACT_MODE::LOOP;
-    } else if (myStrNCmp("-CX", options[4], 3) == 0) {
-        mode = EXTRACT_MODE::GAUSSIAN_CX;
-    } else if (myStrNCmp("-CZ", options[4], 3) == 0) {
-        mode = EXTRACT_MODE::CZ;
-    } else if (myStrNCmp("-CLFrontier", options[4], 4) == 0) {
-        mode = EXTRACT_MODE::CLEAN_FRONTIER;
-    } else if (myStrNCmp("-RMGadget", options[4], 4) == 0) {
-        mode = EXTRACT_MODE::RM_GADGET;
-    } else if (myStrNCmp("-PHase", options[4], 3) == 0) {
-        mode = EXTRACT_MODE::PHASE;
-    } else if (myStrNCmp("-H", options[4], 2) == 0) {
-        mode = EXTRACT_MODE::H;
-    } else if (myStrNCmp("-PERmute", options[4], 4) == 0) {
-        mode = EXTRACT_MODE::PERMUTE_QUBITS;
-    } else {
-        cout << "Error: unsupported option " << options[4] << " !!" << endl;
-        return CMD_EXEC_ERROR;
-    }
 
-    Extractor ext(zxGraphMgr.get(), qcirMgr->getQCircuit());
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
+        zxGraphMgr.checkout(parser["-zxgraph"]);
+        if (!zxGraphMgr.get()->isGraphLike()) {
+            cerr << "Error: ZXGraph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
+            return CMD_EXEC_ERROR;
+        }
 
-    switch (mode) {
-        case EXTRACT_MODE::LOOP:
-            ext.extractionLoop(opt);
-            break;
-        case EXTRACT_MODE::PHASE:
+        qcirMgr->checkout2QCir(parser["-qcir"]);
+
+        if (zxGraphMgr.get()->getNumOutputs() != qcirMgr->getQCircuit()->getNQubit()) {
+            cerr << "Error: number of outputs in graph is not equal to number of qubits in circuit" << endl;
+            return CMD_EXEC_ERROR;
+        }
+
+        Extractor ext(zxGraphMgr.get(), qcirMgr->getQCircuit(), std::nullopt, st);
+
+        if (parser["-loop"].isParsed()) {
+            ext.extractionLoop(parser["-loop"]);
+            return CMD_EXEC_DONE;
+        }
+        if (parser["-phase"].isParsed()) {
             ext.extractSingles();
-            break;
-        case EXTRACT_MODE::CZ:
+            return CMD_EXEC_DONE;
+        }
+        if (parser["-cz"].isParsed()) {
             ext.extractCZs(true);
-            break;
-        case EXTRACT_MODE::CLEAN_FRONTIER:
-            ext.cleanFrontier();
-            break;
-        case EXTRACT_MODE::RM_GADGET:
-            if (ext.removeGadget(true))
-                cout << "Gadget(s) are removed" << endl;
-            else
-                cout << "No gadget(s) are found" << endl;
-            break;
-        case EXTRACT_MODE::GAUSSIAN_CX:
+            return CMD_EXEC_DONE;
+        }
+        if (parser["-cx"].isParsed()) {
             if (ext.biadjacencyElimination(true)) {
                 ext.updateGraphByMatrix();
                 ext.extractCXs();
             }
-            break;
-        case EXTRACT_MODE::H:
+            return CMD_EXEC_DONE;
+        }
+        if (parser["-hadamard"].isParsed()) {
             ext.extractHsFromM2(true);
-            break;
-        case EXTRACT_MODE::PERMUTE_QUBITS:
+            return CMD_EXEC_DONE;
+        }
+        if (parser["-rmgadgets"].isParsed()) {
+            if (ext.removeGadget(true))
+                cout << "Gadget(s) are removed" << endl;
+            else
+                cout << "No gadget(s) are found" << endl;
+            return CMD_EXEC_DONE;
+        }
+
+        if (parser["-permute"].isParsed()) {
             ext.permuteQubit();
-            break;
-        default:
-            break;
-    }
+            return CMD_EXEC_DONE;
+        }
 
-    return CMD_EXEC_DONE;
-}
+        return CMD_EXEC_ERROR;  // should not reach
+    };
 
-void ExtractStepCmd::usage() const {
-    cout << "Usage: EXTRact <-ZXgraph> <(size_t ZXGraphId)> <-QCir> <(size_t QCirId)> <-Loop> [(size_t #loop)]" << endl;
-    cout << "       EXTRact <-ZXgraph> <(size_t ZXGraphId)> <-QCir> <(size_t QCirId)> <-CX | -CZ | -CLFrontier | -RMGadget| -PHase | -H | -PERmute>" << endl;
-}
-
-void ExtractStepCmd::summary() const {
-    cout << setw(15) << left << "EXTRact: "
-         << "perform step(s) in extraction" << endl;
+    return cmd;
 }
 
 //----------------------------------------------------------------------
@@ -221,6 +203,8 @@ void ExtractStepCmd::summary() const {
 
 unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
     auto cmd = make_unique<ArgParseCmdType>("EXTPrint");
+
+    cmd->precondition = []() { return zxGraphMgrNotEmpty("EXTPrint"); };
 
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("print info of extracting ZXGraph");
@@ -254,7 +238,6 @@ unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
             cout << "Filter Duplicated: " << (FILTER_DUPLICATED_CXS == true ? "true" : "false") << endl;
             cout << "Block Size:        " << BLOCK_SIZE << endl;
         } else {
-            ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("EXTPrint");
             if (!zxGraphMgr.get()->isGraphLike()) {
                 cerr << "Error: ZXGraph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
                 return CMD_EXEC_ERROR;
