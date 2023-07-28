@@ -1,4 +1,4 @@
-verb 9
+verb 3
 qccread ./benchmark/qft/qft_7.qasm
 qc2zx 
 zxcopy 1
