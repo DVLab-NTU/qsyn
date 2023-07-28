@@ -9,6 +9,7 @@
 #ifndef ZX_DEF_H
 #define ZX_DEF_H
 
+#include <functional>
 #include <iosfwd>
 #include <unordered_map>
 #include <unordered_set>
