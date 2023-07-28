@@ -65,9 +65,10 @@ endmacro()
 
 subdirlist(INCLUDES ${CMAKE_SOURCE_DIR}/src)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${INCLUDES})
-# for tqdm.h
-target_include_directories(${CMAKE_PROJECT_NAME}
-                           PRIVATE ${CMAKE_SOURCE_DIR}/vendor/include)
+
+# for tqdm and jthread
+subdirlist(VENDOR_INCLUDES ${CMAKE_SOURCE_DIR}/vendor/include)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${VENDOR_INCLUDES})
 
 target_link_libraries(
   ${CMAKE_PROJECT_NAME}
@@ -77,10 +78,11 @@ target_link_libraries(
   lapack
   OpenMP::OpenMP_CXX
   ${BLAS_LIBRARIES}
-  ${LAPACK_LIBRARIES}
- )
+  ${LAPACK_LIBRARIES})
 
-add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${CMAKE_PROJECT_NAME}> ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}
-    COMMENT "Copied executable to ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}"
-)
+add_custom_command(
+  TARGET ${CMAKE_PROJECT_NAME}
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${CMAKE_PROJECT_NAME}>
+          ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}
+  COMMENT "Copied executable to ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}")

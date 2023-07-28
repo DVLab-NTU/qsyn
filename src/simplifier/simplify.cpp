@@ -14,7 +14,10 @@
 
 #include "extract.h"
 #include "gFlow.h"
-#include "zxGraph.h"
+#include "zxDef.h"
+#include "zxGraph.h"  // for ZXGraph
+#include "zxGraphMgr.h"
+#include "zxPartition.h"
 #include "zxoptimizer.h"
 
 using namespace std;
@@ -493,6 +496,28 @@ void Simplifier::symbolicReduce() {
 }
 
 /**
+ * @brief partition the graph into 2^numPartitions partitions and reduce each partition separately
+ *        then merge the partitions together for n rounds
+ *
+ * @param numPartitions number of partitions to create
+ * @param iterations number of iterations
+ */
+void Simplifier::partitionReduce(size_t numPartitions, size_t iterations = 1) {
+    _simpGraph->addProcedure("partitionReduce");
+
+    auto [subgraphs, cuts] = _simpGraph->createSubgraphs(klPartition, numPartitions);
+
+    for (auto& graph : subgraphs) {
+        Simplifier simplifier(graph);
+        simplifier.fullReduce();
+    }
+
+    ZXGraph* newGraph = ZXGraph::fromSubgraphs(subgraphs, cuts);
+    _simpGraph->swap(*newGraph);
+    delete newGraph;
+}
+
+/**
  * @brief Print recipe of Simplifier
  *
  */
@@ -526,34 +551,3 @@ void Simplifier::printRecipe() {
         }
     }
 }
-
-// /**
-//  * @brief Print parameter of optimizer for ZXGraph
-//  *
-//  */
-// void Simplifier::printOptimizer() {
-
-// }
-
-// void Simplifier::getStepInfo(ZXGraph* g){
-//     cout << this->getRule()->getName() << endl;
-//     g->printGraph(); cout << g->TCount() << endl << endl;
-//     // unordered_map<int, int> mp;
-//     // for(auto& v : g->getVertices()){
-//     //     mp[v->getNumNeighbors()]++;
-//     // }
-//     // cout << "Dense: (";
-//     // double ans = 0;
-//     // for(auto& i : mp){
-//     //     ans += (i.first*i.first*i.second);
-//     // }
-//     // ans /= g->getNumVertices();
-//     // double avg = pow((double)2*g->getNumEdges()/g->getNumVertices(), 2);
-//     // cout << ans << ", avg = " << avg << " = " << (double)ans/avg << endl;
-//     // for(auto& i : mp){
-//     //     cout << i.first << ": " << i.second << ", ";
-//     // }
-//     // cout << ")" << endl;
-//     // g->writeZX("../decomposition/zx/"+this->getRule()->getName()+"/full_"+to_string(cnt)+".zx");
-//     // cnt++;
-// }

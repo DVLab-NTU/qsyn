@@ -17,7 +17,7 @@
 #include "myConcepts.h"
 #include "myUsage.h"
 #include "rnGen.h"
-#include "tqdm/tqdm.h"
+#include "tqdm.h"
 
 #if defined(__clang__)
 #define QSYN_ALWAYS_INLINE [[clang::always_inline]]

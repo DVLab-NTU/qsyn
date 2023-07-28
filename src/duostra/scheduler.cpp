@@ -24,7 +24,7 @@ using namespace std;
  * @param tqdm
  * @return unique_ptr<BaseScheduler>
  */
-unique_ptr<BaseScheduler> getScheduler(unique_ptr<CircuitTopo> topo, bool tqdm, stop_token st) {
+unique_ptr<BaseScheduler> getScheduler(unique_ptr<CircuitTopo> topo, bool tqdm, mythread::stop_token st) {
     // 0:base 1:static 2:random 3:greedy 4:search
     if (DUOSTRA_SCHEDULER == 2) {
         return make_unique<RandomScheduler>(std::move(topo), tqdm, st);
@@ -50,7 +50,7 @@ unique_ptr<BaseScheduler> getScheduler(unique_ptr<CircuitTopo> topo, bool tqdm, 
  * @param topo
  * @param tqdm
  */
-BaseScheduler::BaseScheduler(unique_ptr<CircuitTopo> topo, bool tqdm, std::stop_token st) : _circuitTopology(std::move(topo)), _operations({}), _assignOrder({}), _tqdm(tqdm), _stop_token{st} {}
+BaseScheduler::BaseScheduler(unique_ptr<CircuitTopo> topo, bool tqdm, mythread::stop_token st) : _circuitTopology(std::move(topo)), _operations({}), _assignOrder({}), _tqdm(tqdm), _stop_token{st} {}
 
 /**
  * @brief Construct a new Base Scheduler:: Base Scheduler object
@@ -205,7 +205,7 @@ size_t BaseScheduler::routeOneGate(Router& router, size_t gateIdx, bool forget) 
  * @param topo
  * @param tqdm
  */
-RandomScheduler::RandomScheduler(unique_ptr<CircuitTopo> topo, bool tqdm, std::stop_token st) : BaseScheduler(std::move(topo), tqdm, st) {}
+RandomScheduler::RandomScheduler(unique_ptr<CircuitTopo> topo, bool tqdm, mythread::stop_token st) : BaseScheduler(std::move(topo), tqdm, st) {}
 
 /**
  * @brief Construct a new Random Scheduler:: Random Scheduler object
@@ -267,7 +267,7 @@ Device RandomScheduler::assignGates(unique_ptr<Router> router) {
  * @param topo
  * @param tqdm
  */
-StaticScheduler::StaticScheduler(unique_ptr<CircuitTopo> topo, bool tqdm, std::stop_token st) : BaseScheduler(std::move(topo), tqdm, st) {}
+StaticScheduler::StaticScheduler(unique_ptr<CircuitTopo> topo, bool tqdm, mythread::stop_token st) : BaseScheduler(std::move(topo), tqdm, st) {}
 
 /**
  * @brief Construct a new Static Scheduler:: Static Scheduler object

@@ -62,7 +62,7 @@ unique_ptr<ArgParseCmdType> helpCmd() {
             .help("if specified, display help message to a command");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         string command = parser["command"];
         if (command.empty()) {
             cmdMgr->printHelps();
@@ -88,7 +88,7 @@ unique_ptr<ArgParseCmdType> quitCmd() {
             .help("quit without reaffirming");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         bool forced = parser["-force"];
         if (forced) return CMD_EXEC_QUIT;
 
@@ -118,7 +118,7 @@ unique_ptr<ArgParseCmdType> historyCmd() {
             .help("if specified, print the <nprint> latest command history");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         if (parser["nPrint"].isParsed()) {
             cmdMgr->printHistory(parser["nPrint"]);
         } else {
@@ -140,7 +140,7 @@ unique_ptr<ArgParseCmdType> dofileCmd() {
             .help("path to a dofile, i.e., a list of Qsyn commands");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         return cmdMgr->openDofile(parser["file"])
                    ? CMD_EXEC_DONE
                    : CmdExec::errorOption(CMD_OPT_FOPEN_FAIL, parser["file"]);
@@ -168,7 +168,7 @@ unique_ptr<ArgParseCmdType> usageCmd() {
             .help("print memory usage");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         bool repAll = parser["-all"];
         bool repTime = parser["-time"];
         bool repMem = parser["-memory"];
@@ -201,7 +201,7 @@ unique_ptr<ArgParseCmdType> verboseCmd() {
             .help("0: silent, 1-3: normal usage, 4-6: detailed info, 7-9: prolix debug info");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         verbose = parser["level"];
         cout << "Note: verbose level is set to " << parser["level"] << endl;
         return CMD_EXEC_DONE;
@@ -222,7 +222,7 @@ unique_ptr<ArgParseCmdType> seedCmd() {
             .help("random seed value");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         srand(parser["seed"]);
         cout << "Note: seed is set to " << parser["seed"] << endl;
         return CMD_EXEC_DONE;
@@ -242,7 +242,7 @@ unique_ptr<ArgParseCmdType> colorCmd() {
             .help("on: colored printing, off: pure-ascii printing");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         string mode = parser["mode"];
         colorLevel = (mode == "on") ? 1 : 0;
         cout << "Note: color mode is set to " << mode << endl;
@@ -260,7 +260,7 @@ unique_ptr<ArgParseCmdType> clearCmd() {
         parser.help("clear the console");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         clearConsole();
 
         return CMD_EXEC_DONE;

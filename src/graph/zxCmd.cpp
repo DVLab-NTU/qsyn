@@ -704,7 +704,7 @@ unique_ptr<ArgParseCmdType> ZX2TSCmd() {
         parser.help("convert ZXGraph to tensor");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
         ZX2TSMapper mapper{zxGraphMgr.get(), st};
         mapper.map();
         return CMD_EXEC_DONE;

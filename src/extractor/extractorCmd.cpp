@@ -58,7 +58,7 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
         parser.help("extract QCir from ZXGraph");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
         if (!zxGraphMgr.get()->isGraphLike()) {
             cerr << "Error: ZXGraph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
             return CMD_EXEC_ERROR;
@@ -139,7 +139,7 @@ unique_ptr<ArgParseCmdType> ExtractStepCmd() {
             .help("Run N iteration of extraction loop. N is defaulted to 1");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
         zxGraphMgr.checkout(parser["-zxgraph"]);
         if (!zxGraphMgr.get()->isGraphLike()) {
             cerr << "Error: ZXGraph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
@@ -228,7 +228,7 @@ unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
             .help("print biadjancency");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
         if (parser["-settings"].isParsed() || parser.numParsedArguments() == 0) {
             cout << endl;
             cout << "Optimize Level:    " << OPTIMIZE_LEVEL << endl;
@@ -283,7 +283,7 @@ unique_ptr<ArgParseCmdType> ExtractSetCmd() {
             .help("sort neighbors");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
         if (parser["-optimize-level"].isParsed()) {
             OPTIMIZE_LEVEL = parser["-optimize-level"];
         }
