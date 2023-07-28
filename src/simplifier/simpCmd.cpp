@@ -88,12 +88,12 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             .help("perform partition reduce");
 
         parser.addArgument<size_t>("p")
-            .required(false)
+            .nargs(NArgsOption::OPTIONAL)
             .defaultValue(2)
             .constraint(validPreduceSliceRounds)
             .help("the amount of partitions generated for preduce, defaults to 2");
         parser.addArgument<size_t>("n")
-            .required(false)
+            .nargs(NArgsOption::OPTIONAL)
             .defaultValue(1)
             .constraint(validPreduceIteratoins)
             .help("the iterations parameter for preduce, defaults to 1");
