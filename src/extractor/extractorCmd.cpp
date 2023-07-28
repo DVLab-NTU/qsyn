@@ -56,7 +56,7 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
         parser.help("extract QCir from ZXGraph");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
         ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZX2QC");
         if (!zxGraphMgr.get()->isGraphLike()) {
             cerr << "Error: ZXGraph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
@@ -88,7 +88,7 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
 //    EXTRact <-ZXgraph> <(size_t ZXGraphId)> <-QCir> <(size_t QCirId)> <-CX | -CZ | -CLFrontier | -RMGadget| -PHase | -H | -PERmute>
 //----------------------------------------------------------------------
 CmdExecStatus
-ExtractStepCmd::exec(std::stop_token, const string &option) {
+ExtractStepCmd::exec(mythread::stop_token, const string &option) {
     string token;
     vector<string> options;
     if (!CmdExec::lexOptions(option, options))
@@ -244,7 +244,7 @@ unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
             .help("print biadjancency");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
         if (parser["-settings"].isParsed() || parser.numParsedArguments() == 0) {
             cout << endl;
             cout << "Optimize Level:    " << OPTIMIZE_LEVEL << endl;
@@ -300,7 +300,7 @@ unique_ptr<ArgParseCmdType> ExtractSetCmd() {
             .help("sort neighbors");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
         if (parser["-optimize-level"].isParsed()) {
             OPTIMIZE_LEVEL = parser["-optimize-level"];
         }

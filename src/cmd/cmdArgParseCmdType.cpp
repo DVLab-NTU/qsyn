@@ -36,7 +36,7 @@ bool ArgParseCmdType::initialize() {
  * @return true if succeeded
  * @return false if failed
  */
-CmdExecStatus ArgParseCmdType::exec(std::stop_token st, const std::string& option) {
+CmdExecStatus ArgParseCmdType::exec(mythread::stop_token st, const std::string& option) {
     if (precondition && !precondition()) {
         return CMD_EXEC_ERROR;
     }
@@ -57,5 +57,5 @@ void ArgParseCmdType::printMissingParserDefinitionErrorMsg() const {
 
 void ArgParseCmdType::printMissingOnParseSuccessErrorMsg() const {
     cerr << "[ArgParse] Error:   please define on-parse-success action for command \"" << _parser.getName() << "\"!!\n"
-         << "           Syntax:  <cmd>->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) { ... }; " << endl;
+         << "           Syntax:  <cmd>->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) { ... }; " << endl;
 }

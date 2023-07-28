@@ -250,7 +250,7 @@ unique_ptr<ArgParseCmdType> QCirCopyCmd() {
             .help("replace the current focused circuit");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         size_t id = parser["id"].isParsed() ? parser.get<size_t>("id") : qcirMgr->getNextID();
         if (qcirMgr->isID(id)) {
             if (!parser["-Replace"].isParsed()) {
@@ -284,7 +284,7 @@ unique_ptr<ArgParseCmdType> QCirComposeCmd() {
             .help("the ID of the circuit to compose with");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         qcirMgr->getQCircuit()->compose(qcirMgr->findQCirByID(parser["id"]));
         return CMD_EXEC_DONE;
     };
@@ -309,7 +309,7 @@ unique_ptr<ArgParseCmdType> QCirTensorCmd() {
             .help("the ID of the circuit to tensor with");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         qcirMgr->getQCircuit()->tensorProduct(qcirMgr->findQCirByID(parser["id"]));
         return CMD_EXEC_DONE;
     };
@@ -346,7 +346,7 @@ unique_ptr<ArgParseCmdType> QCPrintCmd() {
             .help("print settings of circuit");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         if (parser["-settings"].isParsed()) {
             cout << endl;
             cout << "Delay of Single-qubit gate :     " << SINGLE_DELAY << endl;
@@ -386,7 +386,7 @@ unique_ptr<ArgParseCmdType> QCSetCmd() {
             .help("delay of multiple-qubit gate");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         if (parser["-single-delay"].isParsed()) {
             size_t singleDelay = parser["-single-delay"];
             if (singleDelay == 0)
@@ -440,7 +440,7 @@ unique_ptr<ArgParseCmdType> QCirReadCmd() {
             .help("if specified, replace the current circuit; otherwise store to a new one");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         QCir* bufferQCir = new QCir(0);
         string filepath = parser["filepath"];
         bool replace = parser["-replace"];
@@ -492,7 +492,7 @@ unique_ptr<ArgParseCmdType> QCirGatePrintCmd() {
             .help("print the ZX form of the gate");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         if (parser["-zx-form"].isParsed()) {
             cout << "\n> Gate " << parser["id"] << " (" << qcirMgr->getQCircuit()->getGate(parser["id"])->getTypeStr() << ")";
             qcirMgr->getQCircuit()->getGate(parser["id"])->getZXform().printVertices();
@@ -537,7 +537,7 @@ unique_ptr<ArgParseCmdType> QCirPrintCmd() {
             .help("print the circuit along the qubits");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         if (parser["-analysis"].isParsed())
             qcirMgr->getQCircuit()->countGate(false);
         else if (parser["-detail"].isParsed())
@@ -658,7 +658,7 @@ unique_ptr<ArgParseCmdType> QCirAddGateCmd() {
             .help("the qubits on which the gate applies");
     };
 
-    cmd->onParseSuccess = [=](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [=](mythread::stop_token st, ArgumentParser const& parser) {
         bool doPrepend = parser["-prepend"].isParsed();
 
         string type = parser["type"];
@@ -740,7 +740,7 @@ unique_ptr<ArgParseCmdType> QCirAddQubitCmd() {
             .help("the amount of qubits to be added");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end()) {
             cout << "Note: QCir list is empty now. Create a new one." << endl;
             qcirMgr->addQCir(qcirMgr->getNextID());
@@ -770,7 +770,7 @@ unique_ptr<ArgParseCmdType> QCirDeleteGateCmd() {
             .help("the id to be deleted");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         qcirMgr->getQCircuit()->removeGate(parser["id"]);
         return CMD_EXEC_DONE;
     };
@@ -793,7 +793,7 @@ unique_ptr<ArgParseCmdType> QCirDeleteQubitCmd() {
             .help("the id to be deleted");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         if (!qcirMgr->getQCircuit()->removeQubit(parser["id"]))
             return CMD_EXEC_ERROR;
         else
@@ -823,7 +823,7 @@ unique_ptr<ArgParseCmdType> QCir2ZXCmd() {
             .help("decompose the graph in level 0");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         if (parser["dm"].isParsed())
             dmode = parser["dm"];
         else
@@ -848,7 +848,7 @@ unique_ptr<ArgParseCmdType> QCir2TSCmd() {
         parser.help("convert QCir to tensor");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         qcirMgr->getQCircuit()->tensorMapping(st);
         return CMD_EXEC_DONE;
     };
@@ -873,7 +873,7 @@ unique_ptr<ArgParseCmdType> QCirWriteCmd() {
             .help("the filepath to output file. Supported extension: .qasm");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         if (!qcirMgr->getQCircuit()->writeQASM(parser["output-path.qasm"])) {
             cerr << "Error: path " << parser["output-path.qasm"] << " not found!!" << endl;
             return CMD_EXEC_ERROR;
@@ -907,7 +907,7 @@ unique_ptr<ArgParseCmdType> QCirDrawCmd() {
             .help("if specified, scale the resulting drawing by this factor");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         string drawer = parser["-drawer"];
         string outputPath = parser["output_path"];
         float scale = parser["-scale"];

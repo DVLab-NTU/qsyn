@@ -46,27 +46,19 @@ bool initSimpCmd() {
 }
 
 ArgType<size_t>::ConstraintType validPreduceSliceRounds = {
-    [](ArgType<size_t> &arg) {
-        return [&arg]() {
-            return (arg.getValue() <= 10 && arg.getValue() >= 1);
-        };
+    [](size_t const &arg) {
+        return (arg <= 10 && arg >= 1);
     },
-    [](ArgType<size_t> const &arg) {
-        return [&arg]() {
-            cerr << "The sliceTime parameter in partition reduce should be in the range of [1, 10]" << endl;
-        };
+    [](size_t const &arg) {
+        cerr << "The sliceTime parameter in partition reduce should be in the range of [1, 10]" << endl;
     }};
 
 ArgType<size_t>::ConstraintType validPreduceIteratoins = {
-    [](ArgType<size_t> &arg) {
-        return [&arg]() {
-            return (arg.getValue() <= 10 && arg.getValue() >= 1);
-        };
+    [](size_t const &arg) {
+        return (arg <= 10 && arg >= 1);
     },
-    [](ArgType<size_t> const &arg) {
-        return [&arg]() {
-            cerr << "The rounds parameter in partition reduce should be in the range of [1, 10]" << endl;
-        };
+    [](size_t const &arg) {
+        cerr << "The rounds parameter in partition reduce should be in the range of [1, 10]" << endl;
     }};
 
 //------------------------------------------------------------------------------------------------------------------
@@ -161,7 +153,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             .help("convert to red (X) graph");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
         ZX_CMD_GRAPHMGR_NOT_EMPTY_OR_RETURN("ZXGSimp");
         Simplifier s(zxGraphMgr.get(), st);
         if (parser["-sreduce"].isParsed())
@@ -271,7 +263,7 @@ unique_ptr<ArgParseCmdType> ZXOPTPrintCmd() {
             .action(storeTrue)
             .help("perform clifford");
     };
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
         if (parser["-idremoval"].isParsed())
             opt.printSingle("Identity Removal Rule");
         else if (parser["-lcomp"].isParsed())

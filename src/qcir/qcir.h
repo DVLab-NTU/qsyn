@@ -10,10 +10,11 @@
 #define QCIR_H
 
 #include <cstddef>
-#include <stop_token>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include "stop_token.hpp"
 
 class QCir;
 class QCirGate;
@@ -85,8 +86,8 @@ public:
 
     std::vector<int> countGate(bool detail = false, bool print = true);
 
-    void ZXMapping(std::stop_token st = std::stop_token{});
-    void tensorMapping(std::stop_token st = std::stop_token{});
+    void ZXMapping(mythread::stop_token st = mythread::stop_token{});
+    void tensorMapping(mythread::stop_token st = mythread::stop_token{});
 
     void clearMapping();
     void updateGateTime();

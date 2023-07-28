@@ -444,7 +444,7 @@ unique_ptr<ArgParseCmdType> ZXGTestCmd() {
 // }
 
 CmdExecStatus
-ZXGPrintCmd::exec(std::stop_token, const string &option) {
+ZXGPrintCmd::exec(mythread::stop_token, const string &option) {
     // check option
     vector<string> options;
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
@@ -760,7 +760,7 @@ unique_ptr<ArgParseCmdType> ZX2TSCmd() {
         parser.help("convert ZXGraph to tensor");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
         ZX2TSMapper mapper{zxGraphMgr.get(), st};
         mapper.map();
         return CMD_EXEC_DONE;
@@ -773,7 +773,7 @@ unique_ptr<ArgParseCmdType> ZX2TSCmd() {
 //    ZXGRead <string Input.(b)zx> [-KEEPid] [-Replace]
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGReadCmd::exec(std::stop_token, const string &option) {  // check option
+ZXGReadCmd::exec(mythread::stop_token, const string &option) {  // check option
     vector<string> options;
 
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
@@ -845,7 +845,7 @@ void ZXGReadCmd::summary() const {
 //    ZXGWrite <string Output.<zx | tikz | tex>> [-Complete]
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGWriteCmd::exec(std::stop_token, const string &option) {
+ZXGWriteCmd::exec(mythread::stop_token, const string &option) {
     vector<string> options;
 
     if (!CmdExec::lexOptions(option, options)) return CMD_EXEC_ERROR;
@@ -919,7 +919,7 @@ void ZXGWriteCmd::summary() const {
 //    ZXGASsign <size_t qubit> <I|O> <VertexType vt> <string Phase>
 //----------------------------------------------------------------------
 CmdExecStatus
-ZXGAssignCmd::exec(std::stop_token, const string &option) {
+ZXGAssignCmd::exec(mythread::stop_token, const string &option) {
     // check option
     vector<string> options;
     if (!CmdExec::lexOptions(option, options))

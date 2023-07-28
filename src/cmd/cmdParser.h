@@ -13,12 +13,12 @@
 #include <memory>
 #include <stack>
 #include <string>
-#include <thread>
 #include <utility>
 #include <vector>
 
 #include "argparse.h"
 #include "cmdCharDef.h"
+#include "jthread.hpp"
 
 class CmdParser;
 
@@ -61,7 +61,7 @@ public:
     virtual ~CmdExec() {}
 
     virtual bool initialize() = 0;
-    virtual CmdExecStatus exec(std::stop_token, const std::string&) = 0;
+    virtual CmdExecStatus exec(mythread::stop_token, const std::string&) = 0;
     virtual void usage() const = 0;
     virtual void summary() const = 0;
     virtual void help() const = 0;
@@ -81,19 +81,19 @@ private:
     std::string _optCmd;
 };
 
-#define CmdClass(T)                                              \
-    class T : public CmdExec {                                   \
-    public:                                                      \
-        T() {}                                                   \
-        ~T() {}                                                  \
-        bool initialize() { return true; }                       \
-        CmdExecStatus exec(std::stop_token, std::string const&); \
-        void usage() const;                                      \
-        void summary() const;                                    \
-        void help() const {                                      \
-            summary();                                           \
-            usage();                                             \
-        }                                                        \
+#define CmdClass(T)                                                   \
+    class T : public CmdExec {                                        \
+    public:                                                           \
+        T() {}                                                        \
+        ~T() {}                                                       \
+        bool initialize() { return true; }                            \
+        CmdExecStatus exec(mythread::stop_token, std::string const&); \
+        void usage() const;                                           \
+        void summary() const;                                         \
+        void help() const {                                           \
+            summary();                                                \
+            usage();                                                  \
+        }                                                             \
     }
 
 /**
@@ -105,7 +105,7 @@ class ArgParseCmdType : public CmdExec {
     using ParserDefinition = std::function<void(ArgParse::ArgumentParser&)>;
     using Precondition = std::function<bool()>;
     using Uninterruptible = std::function<CmdExecStatus(ArgParse::ArgumentParser const&)>;
-    using Interruptible = std::function<CmdExecStatus(std::stop_token, ArgParse::ArgumentParser const&)>;
+    using Interruptible = std::function<CmdExecStatus(mythread::stop_token, ArgParse::ArgumentParser const&)>;
     using OnParseSuccess = std::variant<Uninterruptible, Interruptible>;
 
 public:
@@ -113,7 +113,7 @@ public:
     ~ArgParseCmdType() {}
 
     bool initialize() override;
-    CmdExecStatus exec(std::stop_token, std::string const& option) override;
+    CmdExecStatus exec(mythread::stop_token, std::string const& option) override;
     void usage() const override { _parser.printUsage(); }
     void summary() const override { _parser.printSummary(); }
     void help() const override { _parser.printHelp(); }
@@ -219,7 +219,7 @@ private:
                                                               // Reset to false when new command added
     CmdMap _cmdMap;                                           // map from string to command
     std::stack<std::ifstream*> _dofileStack;                  // For recursive dofile calling
-    std::optional<std::jthread> _currCmd;                     // the current (ongoing) command
+    std::optional<mythread::jthread> _currCmd;                // the current (ongoing) command
     std::unordered_map<std::string, std::string> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
     std::vector<std::string> _arguments;                      // stores the extra dofile arguments given when invoking the program
     std::string _dofileName;

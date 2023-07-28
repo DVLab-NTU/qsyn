@@ -57,7 +57,7 @@ unique_ptr<ArgParseCmdType> tsResetCmd() {
         parser.help("reset the tensor manager");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         tensorMgr->reset();
         return CMD_EXEC_DONE;
     };
@@ -80,7 +80,7 @@ unique_ptr<ArgParseCmdType> tsPrintCmd() {
             .help("the ID to the tensor");
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         bool list = parser["-list"];
         if (parser["id"].isParsed()) {
             tensorMgr->printTensor(parser["id"], list);
@@ -103,7 +103,7 @@ unique_ptr<ArgParseCmdType> tsAdjointCmd() {
             .constraint(validTensorId)
             .help("the ID of the tensor");
     };
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         tensorMgr->adjoint(parser["id"]);
         return CMD_EXEC_DONE;
     };
@@ -131,7 +131,7 @@ unique_ptr<ArgParseCmdType> tsEquivCmd() {
             .action(storeTrue);
     };
 
-    cmd->onParseSuccess = [](std::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         size_t id1 = parser["id1"], id2 = parser["id2"];
         double eps = parser["-epsilon"];
         bool strict = parser["-strict"];

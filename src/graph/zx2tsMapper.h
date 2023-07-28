@@ -9,10 +9,10 @@
 #define ZX2TS_MAPPER_H
 
 #include <cstddef>
-#include <stop_token>
 #include <vector>
 
 #include "qtensor.h"
+#include "stop_token.hpp"
 #include "zxDef.h"
 
 class ZXGraph;
@@ -22,7 +22,7 @@ class ZX2TSMapper {
 public:
     using Frontiers = ordered_hashmap<EdgePair, size_t>;
 
-    ZX2TSMapper(ZXGraph* zxg, std::stop_token st = std::stop_token{}) : _zxgraph{zxg}, _stop_token{st} {}
+    ZX2TSMapper(ZXGraph* zxg, mythread::stop_token st = mythread::stop_token{}) : _zxgraph{zxg}, _stop_token{st} {}
 
     class ZX2TSList {
     public:
@@ -62,7 +62,7 @@ private:
     std::vector<EdgePair> _removeEdges;  // Old frontiers to be removed
     std::vector<EdgePair> _addEdges;     // New frontiers to be added
 
-    std::stop_token _stop_token;
+    mythread::stop_token _stop_token;
 
     Frontiers& currFrontiers() { return _zx2tsList.frontiers(_tensorId); }
     QTensor<double>& currTensor() { return _zx2tsList.tensor(_tensorId); }
