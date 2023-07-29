@@ -36,25 +36,21 @@ void QCir::clearMapping() {
 /**
  * @brief Mapping QCir to ZXGraph
  */
-void QCir::ZXMapping(mythread::stop_token st) {
+std::optional<ZXGraph> QCir::toZX(mythread::stop_token st) {
     updateGateTime();
-    ZXGraph bufferGraph;
-
-    bufferGraph.setFileName(_fileName);
-    bufferGraph.addProcedure(_procedures);
-    bufferGraph.addProcedure("QC2ZX");
+    ZXGraph g;
 
     if (verbose >= 5) cout << "Traverse and build the graph... " << endl;
 
     if (verbose >= 5) cout << "\n> Add boundaries" << endl;
     for (size_t i = 0; i < _qubits.size(); i++) {
-        ZXVertex *input = bufferGraph.addInput(_qubits[i]->getId());
-        ZXVertex *output = bufferGraph.addOutput(_qubits[i]->getId());
+        ZXVertex *input = g.addInput(_qubits[i]->getId());
+        ZXVertex *output = g.addOutput(_qubits[i]->getId());
         input->setCol(0);
-        bufferGraph.addEdge(input, output, EdgeType::SIMPLE);
+        g.addEdge(input, output, EdgeType::SIMPLE);
     }
 
-    topoTraverse([st, &bufferGraph](QCirGate *gate) {
+    topoTraverse([st, &g](QCirGate *gate) {
         if (st.stop_requested()) return;
         if (verbose >= 8) cout << "\n";
         if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
@@ -64,28 +60,26 @@ void QCir::ZXMapping(mythread::stop_token st) {
             v->setCol(v->getCol() + gate->getTime() + gate->getDelay());
         }
 
-        bufferGraph.concatenate(tmp);
+        g.concatenate(tmp);
     });
 
     size_t max = 0;
-    for (auto &v : bufferGraph.getOutputs()) {
+    for (auto &v : g.getOutputs()) {
         size_t neighborCol = v->getFirstNeighbor().first->getCol();
         if (neighborCol > max) {
             max = neighborCol;
         }
     }
-    for (auto &v : bufferGraph.getOutputs()) {
+    for (auto &v : g.getOutputs()) {
         v->setCol(max + 1);
     }
 
     if (st.stop_requested()) {
         cerr << "Warning: conversion interrupted." << endl;
+        return std::nullopt;
     }
 
-    ZXGraph *newGraph = zxGraphMgr.add(zxGraphMgr.getNextID());
-    zxGraphMgr.set(std::make_unique<ZXGraph>(std::move(bufferGraph)));
-
-    _ZXGraphList.emplace_back(zxGraphMgr.get());
+    return g;
 }
 
 /**

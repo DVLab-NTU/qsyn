@@ -332,11 +332,6 @@ void Duostra::printAssembly() const {
  *
  */
 void Duostra::buildCircuitByResult() {
-    if (_logicalCircuit != nullptr) {
-        _physicalCircuit->addProcedure(_logicalCircuit->getProcedures());
-        _physicalCircuit->addProcedure("Duostra");
-        _physicalCircuit->setFileName(_logicalCircuit->getFileName());
-    }
     _physicalCircuit->addQubit(_device.getNQubit());
     for (const auto& operation : _result) {
         string gateName{gateType2Str[operation.getType()]};

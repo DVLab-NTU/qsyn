@@ -393,11 +393,6 @@ void Simplifier::fullReduce() {
         if (i + j == 0) break;
     }
     this->printRecipe();
-    if (_stop_token.stop_requested()) {
-        _simpGraph->addProcedure("FR[INT]");
-    } else {
-        _simpGraph->addProcedure("FR");
-    }
 }
 
 /**
@@ -456,11 +451,6 @@ void Simplifier::dynamicReduce(int tOptimal) {
         if (a4 + a6 == 0) break;
     }
     this->printRecipe();
-    if (_stop_token.stop_requested()) {
-        _simpGraph->addProcedure("DR[INT]");
-    } else {
-        _simpGraph->addProcedure("DR");
-    }
 }
 
 void Simplifier::hybridReduce() {
@@ -503,8 +493,6 @@ void Simplifier::symbolicReduce() {
  * @param iterations number of iterations
  */
 void Simplifier::partitionReduce(size_t numPartitions, size_t iterations = 1) {
-    _simpGraph->addProcedure("partitionReduce");
-
     auto [subgraphs, cuts] = _simpGraph->createSubgraphs(klPartition, numPartitions);
 
     for (auto& graph : subgraphs) {

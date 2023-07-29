@@ -139,7 +139,7 @@ public:
     }
 
     void printMgr() const {
-        std::cout << "-> #" << _typeName << ": " << this->size() << std::endl;
+        printListSize();
         if (this->size()) {
             std::cout << "-> ";
             printFocusMsg();
@@ -174,7 +174,7 @@ public:
     }
 
     void printListSize() const {
-        std::cout << "#" << _typeName << size() << std::endl;
+        std::cout << "-> #" << _typeName << ": " << this->size() << std::endl;
     }
 
 private:
@@ -188,7 +188,7 @@ private:
     }
 
     void printIdDoesNotExistErrorMsg() const {
-        std::cerr << "Error: The ID provided does not exist!!" << std::endl;
+        std::cerr << "Error: The ID provided does not exist!!\n";
     }
 
     void printFocusMsg() const {
@@ -196,7 +196,7 @@ private:
     }
 
     void printMgrEmptyErrorMsg() const {
-        std::cerr << "Error: " << _typeName << "Mgr is empty now!!" << std::endl;
+        std::cerr << "Error: " << _typeName << "Mgr is empty now!!\n";
     }
 
     void printCopySuccessMsg(size_t oldID, size_t newID) const {

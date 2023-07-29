@@ -10,16 +10,17 @@
 #define QCIR_H
 
 #include <cstddef>
+#include <span>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 #include "stop_token.hpp"
+#include "zxGraph.h"
 
 class QCir;
 class QCirGate;
 class QCirQubit;
-class ZXGraph;
 class Phase;
 
 struct BitInfo;
@@ -53,9 +54,7 @@ public:
     void incrementZXId() { _ZXNodeId++; }
     void setId(size_t id) { _id = id; }
     void setFileName(std::string f) { _fileName = f; }
-    void addProcedure(std::vector<std::string> const& ps) {
-        for (auto& p : ps) addProcedure(p);
-    }
+    void addProcedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
     void addProcedure(std::string const& p) { _procedures.emplace_back(p); }
     // For Copy
     void setNextGateId(size_t id) { _gateId = id; }
@@ -86,7 +85,7 @@ public:
 
     std::vector<int> countGate(bool detail = false, bool print = true);
 
-    void ZXMapping(mythread::stop_token st = mythread::stop_token{});
+    std::optional<ZXGraph> toZX(mythread::stop_token st = mythread::stop_token{});
     void tensorMapping(mythread::stop_token st = mythread::stop_token{});
 
     void clearMapping();
@@ -117,6 +116,8 @@ public:
     void printSummary();
     void printQubits();
     void printCirInfo();
+
+    void addToZXGraphList(ZXGraph* g) { _ZXGraphList.push_back(g); }
 
 private:
     void DFS(QCirGate*);

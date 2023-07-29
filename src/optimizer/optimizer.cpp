@@ -30,10 +30,6 @@ Optimizer::Optimizer(QCir* c, mythread::stop_token st) {
     _doSwap = false;
     _separateCorrection = false;
     _maxIter = 1000;
-    if (c != nullptr) {
-        _name = _circuit->getFileName();
-        _procedures = _circuit->getProcedures();
-    }
 }
 
 /**

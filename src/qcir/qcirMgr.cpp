@@ -125,7 +125,7 @@ void QCirMgr::copy(size_t id, bool toNew) {
         QCir* copiedCircuit = getQCircuit()->copy();
         copiedCircuit->setId(id);
         copiedCircuit->setFileName(getQCircuit()->getFileName());
-        copiedCircuit->addProcedure(getQCircuit()->getProcedures());
+        copiedCircuit->addProcedures(getQCircuit()->getProcedures());
         if (toNew) {
             _circuitList.emplace_back(copiedCircuit);
             _cListItr = _circuitList.end() - 1;

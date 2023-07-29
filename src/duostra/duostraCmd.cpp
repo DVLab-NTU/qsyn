@@ -70,17 +70,25 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        Duostra duo{qcirMgr->getQCircuit(), deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"], st};
-        if (duo.flow() != ERROR_CODE) {
-            QCir* result = duo.getPhysicalCircuit();
-            if (result != nullptr) {
-                qcirMgr->addQCir(qcirMgr->getNextID());
-                result->setId(qcirMgr->getNextID());
-                qcirMgr->setQCircuit(result);
-            } else {
-                cerr << "Error: Something wrong in Duostra Mapping!!" << endl;
-            }
+        QCir* logicalQCir = qcirMgr->getQCircuit();
+        Duostra duo{logicalQCir, deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"], st};
+        if (duo.flow() == ERROR_CODE) {
+            return CMD_EXEC_ERROR;
         }
+
+        QCir* physicalQCir = duo.getPhysicalCircuit();
+        if (physicalQCir == nullptr) {
+            cerr << "Error: Something wrong in Duostra Mapping!!" << endl;
+        }
+        size_t id = qcirMgr->getNextID();
+        qcirMgr->addQCir(id);
+        qcirMgr->setQCircuit(physicalQCir);
+
+        qcirMgr->getQCircuit()->setId(id);
+        qcirMgr->getQCircuit()->setFileName(logicalQCir->getFileName());
+        qcirMgr->getQCircuit()->addProcedures(logicalQCir->getProcedures());
+        qcirMgr->getQCircuit()->addProcedure("Duostra");
+
         return CMD_EXEC_DONE;
     };
     return cmd;

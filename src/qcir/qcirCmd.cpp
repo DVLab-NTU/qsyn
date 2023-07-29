@@ -19,10 +19,12 @@
 #include "qcirGate.h"
 #include "qcirMgr.h"
 #include "zxGraph.h"
+#include "zxGraphMgr.h"
 
 using namespace std;
 using namespace ArgParse;
 extern QCirMgr* qcirMgr;
+extern ZXGraphMgr zxGraphMgr;
 extern size_t verbose;
 extern size_t dmode;
 extern int effLimit;
@@ -828,7 +830,18 @@ unique_ptr<ArgParseCmdType> QCir2ZXCmd() {
             dmode = parser["dm"];
         else
             dmode = 0;
-        qcirMgr->getQCircuit()->ZXMapping(st);
+        auto g = qcirMgr->getQCircuit()->toZX(st);
+
+        if (g.has_value()) {
+            zxGraphMgr.add(zxGraphMgr.getNextID());
+            zxGraphMgr.set(std::make_unique<ZXGraph>(std::move(g.value())));
+
+            qcirMgr->getQCircuit()->addToZXGraphList(zxGraphMgr.get());
+            zxGraphMgr.get()->setFileName(qcirMgr->getQCircuit()->getFileName());
+            zxGraphMgr.get()->addProcedures(qcirMgr->getQCircuit()->getProcedures());
+            zxGraphMgr.get()->addProcedure("QC2ZX");
+        }
+
         return CMD_EXEC_DONE;
     };
 

@@ -76,7 +76,11 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
             else {
                 cout << "Note: the extracted circuit is up to a qubit permutation." << endl;
                 cout << "      Remaining permutation information is in ZXGraph id " << nextId << "." << endl;
+                zxGraphMgr.get()->addProcedure("ZX2QC");
             }
+
+            qcirMgr->getQCircuit()->addProcedures(zxGraphMgr.get()->getProcedures());
+            qcirMgr->getQCircuit()->setFileName(zxGraphMgr.get()->getFileName());
         }
 
         return CMD_EXEC_DONE;
