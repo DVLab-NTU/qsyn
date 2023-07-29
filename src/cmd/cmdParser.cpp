@@ -744,30 +744,6 @@ CmdParser::getCmd(string cmd) {
 //    Member Function for class CmdExec
 //----------------------------------------------------------------------
 
-CmdExecStatus
-CmdExec::errorOption(CmdOptionError err, const string& opt) {
-    switch (err) {
-        case CMD_OPT_MISSING:
-            cerr << "Error: Missing option";
-            if (opt.size()) cerr << " after (" << opt << ")";
-            cerr << "!!" << endl;
-            break;
-        case CMD_OPT_EXTRA:
-            cerr << "Error: Extra option!! (" << opt << ")" << endl;
-            break;
-        case CMD_OPT_ILLEGAL:
-            cerr << "Error: Illegal option!! (" << opt << ")" << endl;
-            break;
-        case CMD_OPT_FOPEN_FAIL:
-            cerr << "Error: cannot open file \"" << opt << "\"!!" << endl;
-            break;
-        default:
-            cerr << "Error: Unknown option error type!! (" << err << ")" << endl;
-            exit(-1);
-    }
-    return CMD_EXEC_ERROR;
-}
-
 // Called by "getCmd()"
 // Check if "check" is a matched substring of "_optCmd"...
 // if not, return false.

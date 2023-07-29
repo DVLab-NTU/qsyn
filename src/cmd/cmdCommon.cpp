@@ -68,7 +68,10 @@ unique_ptr<ArgParseCmdType> helpCmd() {
             cmdMgr->printHelps();
         } else {
             CmdExec* e = cmdMgr->getCmd(parser["command"]);
-            if (!e) return CmdExec::errorOption(CMD_OPT_ILLEGAL, parser["command"]);
+            if (!e) {
+                cerr << "Error: Illegal command!! (" << parser["command"] << ")\n";
+                return CMD_EXEC_ERROR;
+            }
             e->help();
         }
         return CMD_EXEC_DONE;
@@ -137,13 +140,17 @@ unique_ptr<ArgParseCmdType> dofileCmd() {
         parser.help("execute the commands in the dofile");
 
         parser.addArgument<string>("file")
+            .constraint(file_exists)
             .help("path to a dofile, i.e., a list of Qsyn commands");
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        return cmdMgr->openDofile(parser["file"])
-                   ? CMD_EXEC_DONE
-                   : CmdExec::errorOption(CMD_OPT_FOPEN_FAIL, parser["file"]);
+        if (!cmdMgr->openDofile(parser["file"])) {
+            cerr << "Error: cannot open file \"" << parser["file"] << "\"!!" << endl;
+            return CMD_EXEC_ERROR;
+        }
+
+        return CMD_EXEC_DONE;
     };
 
     return cmd;
