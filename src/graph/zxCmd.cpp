@@ -681,8 +681,8 @@ unique_ptr<ArgParseCmdType> ZXGDrawCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        if (parser["filename"].isParsed()) {
-            if (!zxGraphMgr.get()->writePdf(parser["filename"])) return CMD_EXEC_ERROR;
+        if (parser["filepath"].isParsed()) {
+            if (!zxGraphMgr.get()->writePdf(parser["filepath"])) return CMD_EXEC_ERROR;
         }
         if (parser["-CLI"].isParsed()) {
             zxGraphMgr.get()->draw();
