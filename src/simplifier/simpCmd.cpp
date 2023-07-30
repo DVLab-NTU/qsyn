@@ -43,20 +43,20 @@ bool initSimpCmd() {
     return true;
 }
 
-ArgType<size_t>::ConstraintType validPreduceSliceRounds = {
+ArgType<size_t>::ConstraintType validPreducePartitions = {
     [](size_t const &arg) {
-        return (arg <= 10 && arg >= 1);
+        return (arg > 0);
     },
     [](size_t const &arg) {
-        cerr << "The sliceTime parameter in partition reduce should be in the range of [1, 10]" << endl;
+        cerr << "The paritions parameter in partition reduce should be greater than 0" << endl;
     }};
 
 ArgType<size_t>::ConstraintType validPreduceIteratoins = {
     [](size_t const &arg) {
-        return (arg <= 10 && arg >= 1);
+        return (arg > 0);
     },
     [](size_t const &arg) {
-        cerr << "The rounds parameter in partition reduce should be in the range of [1, 10]" << endl;
+        cerr << "The iterations parameter in partition reduce should be greater than 0" << endl;
     }};
 
 //------------------------------------------------------------------------------------------------------------------
@@ -90,7 +90,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         parser.addArgument<size_t>("p")
             .nargs(NArgsOption::OPTIONAL)
             .defaultValue(2)
-            .constraint(validPreduceSliceRounds)
+            .constraint(validPreducePartitions)
             .help("the amount of partitions generated for preduce, defaults to 2");
         parser.addArgument<size_t>("n")
             .nargs(NArgsOption::OPTIONAL)
