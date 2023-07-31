@@ -1,17 +1,14 @@
-*.o
-.vscode
-bin/*
-include/*
-!vendor/include
-!include/mk
-tests/bin/*
-lib/*
-vendor/engine/* 
-!lib/
-!lib/lib.d
-!lib/libcmd-*
-qsyn*
+# cmake folders
 build/
 debug/
+qsyn*
+
+# vscode configuration files and folders
+.vscode
+
+# mac configuration files and folders
+.DS_Store
+
+# vim configuration files and folders
 .cache/
 compile_commands.json

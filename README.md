@@ -66,42 +66,13 @@ Visualization functionalities of `qsyn` depends at runtime on the following depe
     make -j16
    ```
 
-- `pdflatex` for outputting pdf files
-
-### [deprecated] Compilation with Makefile
-
-`qsyn` can also be built with the old-school "configure-then-make" way. However, note that this way of managing the build is planned to be deprecated in the future.
-
-1. Run `configure.sh`, which checks for lacking dependencies and install them automatically.
-   ```shell!
-   sudo ./configure.sh
-   ```
-2. Then, run `make` to build up the executable.
-   ```shell!
-   make -j16
-   ```
-   or
-   ```shell!
-   gmake -j16
-   ```
-   if you are on MacOS.
-3. If the compilation process ends successfully, you will see
-   ```shell!
-   > building qsyn...
-   ~/qsyn$ _
-   ```
-4. To delete all intermediate files created in the compilation process, please type
-   ```shell!
-   make clean
-   ```
-
 ### Run
 
 - After successful compilation, you can call the command-line interface of `Qsyn` where you can execute commands implemented into `Qsyn`.
 
   ```shell!
    ❯ ./qsyn
-   DV Lab, NTUEE, Qsyn 0.4.0
+   DV Lab, NTUEE, Qsyn 0.5.1
    qsyn>
   ```
 
@@ -109,7 +80,7 @@ Visualization functionalities of `qsyn` depends at runtime on the following depe
 
   ```shell!
   ❯ ./qsyn -f tests/demo/demo/dof/tof_3.dof
-  DV Lab, NTUEE, Qsyn 0.4.0
+  DV Lab, NTUEE, Qsyn 0.5.1
   qsyn> verb 0
   Note: verbose level is set to 0
 
