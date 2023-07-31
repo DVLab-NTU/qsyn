@@ -26,7 +26,7 @@ using namespace ArgParse;
 extern size_t verbose;
 extern int effLimit;
 extern ZXGraphMgr zxGraphMgr;
-extern QCirMgr *qcirMgr;
+extern QCirMgr qcirMgr;
 extern DeviceMgr *deviceMgr;
 
 unique_ptr<ArgParseCmdType> ExtractCmd();
@@ -69,14 +69,18 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
 
         QCir *result = ext.extract();
         if (result != nullptr) {
-            qcirMgr->addQCir(qcirMgr->getNextID());
-            qcirMgr->setQCircuit(result);
+            qcirMgr.add(qcirMgr.getNextID());
+            qcirMgr.set(std::make_unique<QCir>(*result));
             if (PERMUTE_QUBITS)
                 zxGraphMgr.remove(nextId);
             else {
                 cout << "Note: the extracted circuit is up to a qubit permutation." << endl;
                 cout << "      Remaining permutation information is in ZXGraph id " << nextId << "." << endl;
+                zxGraphMgr.get()->addProcedure("ZX2QC");
             }
+
+            qcirMgr.get()->addProcedures(zxGraphMgr.get()->getProcedures());
+            qcirMgr.get()->setFileName(zxGraphMgr.get()->getFileName());
         }
 
         return CMD_EXEC_DONE;
@@ -146,14 +150,14 @@ unique_ptr<ArgParseCmdType> ExtractStepCmd() {
             return CMD_EXEC_ERROR;
         }
 
-        qcirMgr->checkout2QCir(parser["-qcir"]);
+        qcirMgr.checkout(parser["-qcir"]);
 
-        if (zxGraphMgr.get()->getNumOutputs() != qcirMgr->getQCircuit()->getNQubit()) {
+        if (zxGraphMgr.get()->getNumOutputs() != qcirMgr.get()->getNQubit()) {
             cerr << "Error: number of outputs in graph is not equal to number of qubits in circuit" << endl;
             return CMD_EXEC_ERROR;
         }
 
-        Extractor ext(zxGraphMgr.get(), qcirMgr->getQCircuit(), std::nullopt, st);
+        Extractor ext(zxGraphMgr.get(), qcirMgr.get(), std::nullopt, st);
 
         if (parser["-loop"].isParsed()) {
             ext.extractionLoop(parser["-loop"]);

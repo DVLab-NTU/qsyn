@@ -218,8 +218,8 @@ public:
 
     void setInputs(const ZXVertexList& inputs) { _inputs = inputs; }
     void setOutputs(const ZXVertexList& outputs) { _outputs = outputs; }
-    void setFileName(std::string_view f) { _fileName = f; }
-    void addProcedure(std::span<std::string> ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
+    void setFileName(std::string const& f) { _fileName = f; }
+    void addProcedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
     void addProcedure(std::string_view p) { _procedures.emplace_back(p); }
 
     size_t const& getId() const { return _id; }

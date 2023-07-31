@@ -1,7 +1,7 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qcba 3
 Note: QCir list is empty now. Create a new one.
-Create and checkout to QCir 0
+Created and checked out to QCir 0
 
 qsyn> qcga -cx 0 2
 
@@ -14,7 +14,7 @@ Q 0  ---------cx( 0)--rz( 1)-
 Q 2  ---------cx( 0)-
 
 qsyn> qcnew
-Create and checkout to QCir 1
+Created and checked out to QCir 1
 
 qsyn> qcba 4
 
@@ -31,7 +31,7 @@ Q 2  ---------cx( 0)----------cx( 2)-
 Q 3  ---------cx( 1)-
 
 qsyn> qcch 0
-Checkout to QCir 0
+Checked out to QCir 0
 
 qsyn> qccp -q
 Q 0  ---------cx( 0)--rz( 1)-
@@ -88,10 +88,10 @@ qsyn> tseq 0 1
 qsyn> qcr
 
 qsyn> qccread benchmark/benchmark_SABRE/small/qft_4.qasm
-Create and checkout to QCir 0
+Created and checked out to QCir 0
 
 qsyn> qccread benchmark/benchmark_SABRE/small/qft_4.qasm
-Create and checkout to QCir 1
+Created and checked out to QCir 1
 
 qsyn> qccp -q
 Q 0  ---------cx( 0)----------cx( 1)----------cx( 2)-

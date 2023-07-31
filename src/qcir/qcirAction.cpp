@@ -19,61 +19,20 @@ using namespace std;
 extern size_t verbose;
 
 /**
- * @brief Copy a circuit
- *
- * @return QCir*
- */
-QCir* QCir::copy() {
-    updateTopoOrder();
-    QCir* newCircuit = new QCir(0);
-    unordered_map<QCirQubit*, QCirQubit*> oldQ2newQ;
-    unordered_map<QCirGate*, QCirGate*> oldG2newG;
-    newCircuit->addQubit(_qubits.size());
-
-    size_t biggestQubit = 0;
-    size_t biggestGate = 0;
-
-    for (size_t i = 0; i < _qubits.size(); i++) {
-        oldQ2newQ[_qubits[i]] = newCircuit->getQubits()[i];
-        // NOTE - Update Id
-        if (_qubits[i]->getId() > biggestQubit) biggestQubit = _qubits[i]->getId();
-        oldQ2newQ[_qubits[i]]->setId(_qubits[i]->getId());
-    }
-
-    for (const auto& gate : _topoOrder) {
-        string type = gate->getTypeStr();
-        vector<size_t> bits;
-        for (const auto& b : gate->getQubits()) {
-            bits.emplace_back(b._qubit);
-        }
-        oldG2newG[gate] = newCircuit->addGate(gate->getTypeStr(), bits, gate->getPhase(), true);
-    }
-
-    // NOTE - Update Id
-    for (const auto& [oldG, newG] : oldG2newG) {
-        if (oldG->getId() > biggestGate) biggestGate = oldG->getId();
-        newG->setId(oldG->getId());
-    }
-    newCircuit->setNextGateId(biggestGate + 1);
-    newCircuit->setNextQubitId(biggestQubit + 1);
-    return newCircuit;
-}
-
-/**
  * @brief Append the target to current QCir
  *
  * @param target
  * @return QCir*
  */
-QCir* QCir::compose(QCir* target) {
-    QCir* copiedQCir = target->copy();
-    vector<QCirQubit*> targQubits = copiedQCir->getQubits();
+QCir* QCir::compose(QCir const& target) {
+    QCir copiedQCir{target};
+    vector<QCirQubit*> targQubits = copiedQCir.getQubits();
     for (auto& qubit : targQubits) {
         if (getQubit(qubit->getId()) == NULL)
             insertSingleQubit(qubit->getId());
     }
-    copiedQCir->updateTopoOrder();
-    for (auto& targGate : copiedQCir->getTopoOrderdGates()) {
+    copiedQCir.updateTopoOrder();
+    for (auto& targGate : copiedQCir.getTopoOrderdGates()) {
         vector<size_t> bits;
         for (const auto& b : targGate->getQubits()) {
             bits.emplace_back(b._qubit);
@@ -89,16 +48,16 @@ QCir* QCir::compose(QCir* target) {
  * @param target
  * @return QCir*
  */
-QCir* QCir::tensorProduct(QCir* target) {
-    QCir* copiedQCir = target->copy();
+QCir* QCir::tensorProduct(QCir const& target) {
+    QCir copiedQCir{target};
 
     unordered_map<size_t, QCirQubit*> oldQ2NewQ;
-    vector<QCirQubit*> targQubits = copiedQCir->getQubits();
+    vector<QCirQubit*> targQubits = copiedQCir.getQubits();
     for (auto& qubit : targQubits) {
         oldQ2NewQ[qubit->getId()] = addSingleQubit();
     }
-    copiedQCir->updateTopoOrder();
-    for (auto& targGate : copiedQCir->getTopoOrderdGates()) {
+    copiedQCir.updateTopoOrder();
+    for (auto& targGate : copiedQCir.getTopoOrderdGates()) {
         vector<size_t> bits;
         for (const auto& b : targGate->getQubits()) {
             bits.emplace_back(oldQ2NewQ[b._qubit]->getId());
@@ -113,7 +72,7 @@ QCir* QCir::tensorProduct(QCir* target) {
  *
  * @param currentGate the gate to start DFS
  */
-void QCir::DFS(QCirGate* currentGate) {
+void QCir::DFS(QCirGate* currentGate) const {
     stack<pair<bool, QCirGate*>> dfs;
 
     if (!currentGate->isVisited(_globalDFScounter)) {
@@ -147,7 +106,7 @@ void QCir::DFS(QCirGate* currentGate) {
  *
  * @return const vector<QCirGate*>&
  */
-const vector<QCirGate*>& QCir::updateTopoOrder() {
+const vector<QCirGate*>& QCir::updateTopoOrder() const {
     _topoOrder.clear();
     _globalDFScounter++;
     QCirGate* dummy = new HGate(-1);

@@ -9,6 +9,7 @@
 #include "phase_argparse.h"
 // --- include before qcirCmd.h
 #include <cstddef>
+#include <filesystem>
 #include <iostream>
 #include <string>
 
@@ -19,16 +20,19 @@
 #include "qcirGate.h"
 #include "qcirMgr.h"
 #include "zxGraph.h"
+#include "zxGraphMgr.h"
 
-using namespace std;
-using namespace ArgParse;
-extern QCirMgr* qcirMgr;
+QCirMgr qcirMgr{"QCir"};
+extern ZXGraphMgr zxGraphMgr;
 extern size_t verbose;
 extern size_t dmode;
 extern int effLimit;
 
-bool qcirMgrNotEmpty(string const& command) {
-    if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end()) {
+using namespace std;
+using namespace ArgParse;
+
+bool qcirMgrNotEmpty(std::string const& command) {
+    if (qcirMgr.empty()) {
         cerr << "Error: QCir list is empty now. Please QCNEW/QCCRead/QCBAdd before " << command << ".\n";
         return false;
     }
@@ -57,7 +61,6 @@ unique_ptr<ArgParseCmdType> QCirWriteCmd();
 unique_ptr<ArgParseCmdType> QCirDrawCmd();
 
 bool initQCirCmd() {
-    qcirMgr = new QCirMgr;
     if (!(cmdMgr->regCmd("QCCHeckout", 4, QCirCheckOutCmd()) &&
           cmdMgr->regCmd("QCReset", 3, QCirResetCmd()) &&
           cmdMgr->regCmd("QCDelete", 3, QCirDeleteCmd()) &&
@@ -86,7 +89,7 @@ bool initQCirCmd() {
 
 ArgType<size_t>::ConstraintType const validQCirId = {
     [](size_t const& id) {
-        return qcirMgr->isID(id);
+        return qcirMgr.isID(id);
     },
     [](size_t const& id) {
         cerr << "Error: QCir " << id << " does not exist!!\n";
@@ -94,21 +97,21 @@ ArgType<size_t>::ConstraintType const validQCirId = {
 
 ArgType<size_t>::ConstraintType const validQCirGateId = {
     [](size_t const& id) {
-        assert(qcirMgr->getcListItr() != qcirMgr->getQCircuitList().end());
-        return (qcirMgr->getQCircuit()->getGate(id) != nullptr);
+        assert(!qcirMgr.empty());
+        return (qcirMgr.get()->getGate(id) != nullptr);
     },
     [](size_t const& id) {
-        assert(qcirMgr->getcListItr() != qcirMgr->getQCircuitList().end());
+        assert(!qcirMgr.empty());
         cerr << "Error: Gate id " << id << " does not exist!!\n";
     }};
 
 ArgType<size_t>::ConstraintType const validQCirBitId = {
     [](size_t const& id) {
-        assert(qcirMgr->getcListItr() != qcirMgr->getQCircuitList().end());
-        return (qcirMgr->getQCircuit()->getQubit(id) != nullptr);
+        assert(!qcirMgr.empty());
+        return (qcirMgr.get()->getQubit(id) != nullptr);
     },
     [](size_t const& id) {
-        assert(qcirMgr->getcListItr() != qcirMgr->getQCircuitList().end());
+        assert(!qcirMgr.empty());
         cerr << "Error: Qubit id " << id << " does not exist!!\n";
     }};
 
@@ -138,7 +141,7 @@ unique_ptr<ArgParseCmdType> QCirCheckOutCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        qcirMgr->checkout2QCir(parser["id"]);
+        qcirMgr.checkout(parser["id"]);
         return CMD_EXEC_DONE;
     };
 
@@ -157,7 +160,7 @@ unique_ptr<ArgParseCmdType> QCirResetCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        qcirMgr->reset();
+        qcirMgr.reset();
         return CMD_EXEC_DONE;
     };
 
@@ -182,7 +185,7 @@ unique_ptr<ArgParseCmdType> QCirDeleteCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        qcirMgr->removeQCir(parser["id"]);
+        qcirMgr.remove(parser["id"]);
         return CMD_EXEC_DONE;
     };
 
@@ -209,19 +212,19 @@ unique_ptr<ArgParseCmdType> QCirNewCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        size_t id = parser["id"].isParsed() ? parser.get<size_t>("id") : qcirMgr->getNextID();
+        size_t id = parser["id"].isParsed() ? parser.get<size_t>("id") : qcirMgr.getNextID();
 
-        if (qcirMgr->isID(id)) {
+        if (qcirMgr.isID(id)) {
             if (!parser["-Replace"].isParsed()) {
                 cerr << "Error: QCir " << id << " already exists!! Specify `-Replace` if needed.\n";
                 return CMD_EXEC_ERROR;
             }
 
             QCir* qcir = new QCir(id);
-            qcirMgr->setQCircuit(qcir);
+            qcirMgr.set(std::make_unique<QCir>(id));
         }
 
-        qcirMgr->addQCir(id);
+        qcirMgr.add(id);
         return CMD_EXEC_DONE;
     };
 
@@ -251,16 +254,12 @@ unique_ptr<ArgParseCmdType> QCirCopyCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        size_t id = parser["id"].isParsed() ? parser.get<size_t>("id") : qcirMgr->getNextID();
-        if (qcirMgr->isID(id)) {
-            if (!parser["-Replace"].isParsed()) {
-                cerr << "Error: QCir " << id << " already exists!! Specify `-Replace` if needed." << endl;
-                return CMD_EXEC_ERROR;
-            }
-            qcirMgr->copy(id, false);
-        } else {
-            qcirMgr->copy(id, true);
+        size_t id = parser["id"].isParsed() ? parser.get<size_t>("id") : qcirMgr.getNextID();
+        if (qcirMgr.isID(id) && !parser["-Replace"].isParsed()) {
+            cerr << "Error: QCir " << id << " already exists!! Specify `-Replace` if needed." << endl;
+            return CMD_EXEC_ERROR;
         }
+        qcirMgr.copy(id);
 
         return CMD_EXEC_DONE;
     };
@@ -285,7 +284,7 @@ unique_ptr<ArgParseCmdType> QCirComposeCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        qcirMgr->getQCircuit()->compose(qcirMgr->findQCirByID(parser["id"]));
+        qcirMgr.get()->compose(*qcirMgr.findByID(parser["id"]));
         return CMD_EXEC_DONE;
     };
 
@@ -310,7 +309,7 @@ unique_ptr<ArgParseCmdType> QCirTensorCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        qcirMgr->getQCircuit()->tensorProduct(qcirMgr->findQCirByID(parser["id"]));
+        qcirMgr.get()->tensorProduct(*qcirMgr.findByID(parser["id"]));
         return CMD_EXEC_DONE;
     };
 
@@ -354,13 +353,13 @@ unique_ptr<ArgParseCmdType> QCPrintCmd() {
             cout << "Delay of SWAP gate :             " << SWAP_DELAY << ((SWAP_DELAY == 3 * DOUBLE_DELAY) ? " (3 CXs)" : "") << endl;
             cout << "Delay of Multiple-qubit gate :   " << MULTIPLE_DELAY << endl;
         } else if (parser["-focus"].isParsed())
-            qcirMgr->printCListItr();
+            qcirMgr.printFocus();
         else if (parser["-list"].isParsed())
-            qcirMgr->printCList();
+            qcirMgr.printList();
         else if (parser["-number"].isParsed())
-            qcirMgr->printQCircuitListSize();
+            qcirMgr.printListSize();
         else
-            qcirMgr->printQCirMgr();
+            qcirMgr.printMgr();
 
         return CMD_EXEC_DONE;
     };
@@ -441,25 +440,25 @@ unique_ptr<ArgParseCmdType> QCirReadCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        QCir* bufferQCir = new QCir(0);
+        QCir bufferQCir;
         string filepath = parser["filepath"];
         bool replace = parser["-replace"];
-        if (!bufferQCir->readQCirFile(filepath)) {
+        if (!bufferQCir.readQCirFile(filepath)) {
             cerr << "Error: The format in \"" << filepath << "\" has something wrong!!" << endl;
-            delete bufferQCir;
             return CMD_EXEC_ERROR;
         }
-        if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end()) {
+        if (qcirMgr.empty()) {
             // cout << "Note: QCir list is empty now. Create a new one." << endl;
-            qcirMgr->addQCir(qcirMgr->getNextID());
+            qcirMgr.add(qcirMgr.getNextID());
         } else {
             if (replace) {
                 if (verbose >= 1) cout << "Note: original QCir is replaced..." << endl;
             } else {
-                qcirMgr->addQCir(qcirMgr->getNextID());
+                qcirMgr.add(qcirMgr.getNextID());
             }
         }
-        qcirMgr->setQCircuit(bufferQCir);
+        qcirMgr.set(std::make_unique<QCir>(std::move(bufferQCir)));
+        qcirMgr.get()->setFileName(std::filesystem::path{filepath}.stem());
         return CMD_EXEC_DONE;
     };
 
@@ -494,10 +493,10 @@ unique_ptr<ArgParseCmdType> QCirGatePrintCmd() {
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         if (parser["-zx-form"].isParsed()) {
-            cout << "\n> Gate " << parser["id"] << " (" << qcirMgr->getQCircuit()->getGate(parser["id"])->getTypeStr() << ")";
-            qcirMgr->getQCircuit()->getGate(parser["id"])->getZXform().printVertices();
+            cout << "\n> Gate " << parser["id"] << " (" << qcirMgr.get()->getGate(parser["id"])->getTypeStr() << ")";
+            qcirMgr.get()->getGate(parser["id"])->getZXform().printVertices();
         } else {
-            qcirMgr->getQCircuit()->printGateInfo(parser["id"], parser["-time"].isParsed());
+            qcirMgr.get()->printGateInfo(parser["id"], parser["-time"].isParsed());
         }
 
         return CMD_EXEC_DONE;
@@ -539,17 +538,17 @@ unique_ptr<ArgParseCmdType> QCirPrintCmd() {
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
         if (parser["-analysis"].isParsed())
-            qcirMgr->getQCircuit()->countGate(false);
+            qcirMgr.get()->countGate(false);
         else if (parser["-detail"].isParsed())
-            qcirMgr->getQCircuit()->countGate(true);
+            qcirMgr.get()->countGate(true);
         else if (parser["-list"].isParsed())
-            qcirMgr->getQCircuit()->printGates();
+            qcirMgr.get()->printGates();
         else if (parser["-qubit"].isParsed())
-            qcirMgr->getQCircuit()->printQubits();
+            qcirMgr.get()->printQubits();
         else if (parser["-summary"].isParsed())
-            qcirMgr->getQCircuit()->printSummary();
+            qcirMgr.get()->printSummary();
         else
-            qcirMgr->getQCircuit()->printCirInfo();
+            qcirMgr.get()->printCirInfo();
 
         return CMD_EXEC_DONE;
     };
@@ -717,7 +716,7 @@ unique_ptr<ArgParseCmdType> QCirAddGateCmd() {
             }
         }
 
-        qcirMgr->getQCircuit()->addGate(type.substr(1), bits, phase, !doPrepend);
+        qcirMgr.get()->addGate(type.substr(1), bits, phase, !doPrepend);
 
         return CMD_EXEC_DONE;
     };
@@ -741,14 +740,14 @@ unique_ptr<ArgParseCmdType> QCirAddQubitCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end()) {
+        if (qcirMgr.empty()) {
             cout << "Note: QCir list is empty now. Create a new one." << endl;
-            qcirMgr->addQCir(qcirMgr->getNextID());
+            qcirMgr.add(qcirMgr.getNextID());
         }
         if (parser["amount"].isParsed())
-            qcirMgr->getQCircuit()->addQubit(parser["amount"]);
+            qcirMgr.get()->addQubit(parser["amount"]);
         else
-            qcirMgr->getQCircuit()->addQubit(1);
+            qcirMgr.get()->addQubit(1);
         return CMD_EXEC_DONE;
     };
 
@@ -771,7 +770,7 @@ unique_ptr<ArgParseCmdType> QCirDeleteGateCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        qcirMgr->getQCircuit()->removeGate(parser["id"]);
+        qcirMgr.get()->removeGate(parser["id"]);
         return CMD_EXEC_DONE;
     };
 
@@ -794,7 +793,7 @@ unique_ptr<ArgParseCmdType> QCirDeleteQubitCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        if (!qcirMgr->getQCircuit()->removeQubit(parser["id"]))
+        if (!qcirMgr.get()->removeQubit(parser["id"]))
             return CMD_EXEC_ERROR;
         else
             return CMD_EXEC_DONE;
@@ -828,7 +827,18 @@ unique_ptr<ArgParseCmdType> QCir2ZXCmd() {
             dmode = parser["dm"];
         else
             dmode = 0;
-        qcirMgr->getQCircuit()->ZXMapping(st);
+        auto g = qcirMgr.get()->toZX(st);
+
+        if (g.has_value()) {
+            zxGraphMgr.add(zxGraphMgr.getNextID());
+            zxGraphMgr.set(std::make_unique<ZXGraph>(std::move(g.value())));
+
+            qcirMgr.get()->addToZXGraphList(zxGraphMgr.get());
+            zxGraphMgr.get()->setFileName(qcirMgr.get()->getFileName());
+            zxGraphMgr.get()->addProcedures(qcirMgr.get()->getProcedures());
+            zxGraphMgr.get()->addProcedure("QC2ZX");
+        }
+
         return CMD_EXEC_DONE;
     };
 
@@ -849,7 +859,7 @@ unique_ptr<ArgParseCmdType> QCir2TSCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        qcirMgr->getQCircuit()->tensorMapping(st);
+        qcirMgr.get()->tensorMapping(st);
         return CMD_EXEC_DONE;
     };
 
@@ -874,7 +884,7 @@ unique_ptr<ArgParseCmdType> QCirWriteCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        if (!qcirMgr->getQCircuit()->writeQASM(parser["output-path.qasm"])) {
+        if (!qcirMgr.get()->writeQASM(parser["output-path.qasm"])) {
             cerr << "Error: path " << parser["output-path.qasm"] << " not found!!" << endl;
             return CMD_EXEC_ERROR;
         }
@@ -924,7 +934,7 @@ unique_ptr<ArgParseCmdType> QCirDrawCmd() {
             return CMD_EXEC_ERROR;
         }
 
-        if (!qcirMgr->getQCircuit()->draw(drawer, outputPath, scale)) {
+        if (!qcirMgr.get()->draw(drawer, outputPath, scale)) {
             cerr << "Error: could not draw the QCir successfully!!" << endl;
             return CMD_EXEC_ERROR;
         }

@@ -13,7 +13,7 @@ qsyn> ZXPrint -f
 Now focused on: 1
 
 qsyn> ZXPrint -n
-#ZXGraph2
+-> #ZXGraph: 2
 
 qsyn> qq -f
 

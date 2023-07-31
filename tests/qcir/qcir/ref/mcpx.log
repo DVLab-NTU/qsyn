@@ -1,7 +1,7 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qcba 2
 Note: QCir list is empty now. Create a new one.
-Create and checkout to QCir 0
+Created and checked out to QCir 0
 
 qsyn> qcgadd -MCPX -PH pi 0 1
 
@@ -82,7 +82,7 @@ qsyn> tsr
 qsyn> 
 qsyn> qcba 1
 Note: QCir list is empty now. Create a new one.
-Create and checkout to QCir 0
+Created and checked out to QCir 0
 
 qsyn> qcgadd -MCPX -PH pi 0
 

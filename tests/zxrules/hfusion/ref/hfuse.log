@@ -4,7 +4,7 @@ Note: verbose level is set to 9
 
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
-Create and checkout to QCir 0
+Created and checked out to QCir 0
 
 qsyn> qcga -h 0
 
@@ -140,7 +140,7 @@ Note: verbose level is set to 9
 
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
-Create and checkout to QCir 0
+Created and checked out to QCir 0
 
 qsyn> qcga -h 0
 
@@ -284,7 +284,7 @@ Note: verbose level is set to 9
 
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
-Create and checkout to QCir 0
+Created and checked out to QCir 0
 
 qsyn> qcga -h 0
 
@@ -412,7 +412,7 @@ Note: verbose level is set to 9
 
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
-Create and checkout to QCir 0
+Created and checked out to QCir 0
 
 qsyn> qcga -h 0
 
@@ -575,7 +575,7 @@ Note: verbose level is set to 9
 
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
-Create and checkout to QCir 0
+Created and checked out to QCir 0
 
 qsyn> qcga -h 0
 
@@ -720,7 +720,7 @@ Note: verbose level is set to 9
 
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
-Create and checkout to QCir 0
+Created and checked out to QCir 0
 
 qsyn> qcba 
 
@@ -860,7 +860,7 @@ Note: verbose level is set to 9
 
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
-Create and checkout to QCir 0
+Created and checked out to QCir 0
 
 qsyn> qcga -h 0
 

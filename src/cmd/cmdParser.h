@@ -41,16 +41,6 @@ enum CmdExecStatus {
     CMD_EXEC_TOT
 };
 
-enum CmdOptionError {
-    CMD_OPT_MISSING = 0,
-    CMD_OPT_EXTRA = 1,
-    CMD_OPT_ILLEGAL = 2,
-    CMD_OPT_FOPEN_FAIL = 3,
-
-    // dummy
-    CMD_OPT_ERROR_TOT
-};
-
 //----------------------------------------------------------------------
 //    Base class : CmdExec
 //----------------------------------------------------------------------
@@ -70,31 +60,9 @@ public:
     bool checkOptCmd(const std::string& check) const;
     const std::string& getOptCmd() const { return _optCmd; }
 
-    static CmdExecStatus errorOption(CmdOptionError err, const std::string& opt);
-
-protected:
-    bool lexNoOption(const std::string&) const;
-    bool lexSingleOption(const std::string&, std::string&, bool optional = true) const;
-    bool lexOptions(const std::string&, std::vector<std::string>&, size_t nOpts = 0) const;
-
 private:
     std::string _optCmd;
 };
-
-#define CmdClass(T)                                                   \
-    class T : public CmdExec {                                        \
-    public:                                                           \
-        T() {}                                                        \
-        ~T() {}                                                       \
-        bool initialize() { return true; }                            \
-        CmdExecStatus exec(mythread::stop_token, std::string const&); \
-        void usage() const;                                           \
-        void summary() const;                                         \
-        void help() const {                                           \
-            summary();                                                \
-            usage();                                                  \
-        }                                                             \
-    }
 
 /**
  * @brief class specification for commands that uses

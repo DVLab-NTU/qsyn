@@ -110,11 +110,6 @@ QCir* Extractor::extract() {
             _graph->printQubits();
         }
     }
-    // cout << "Iteration of extract CX: " << _cntCXIter << endl;
-    // cout << "Total Filtered CX count: " << _cntCXFiltered << endl;
-    _graph->addProcedure("ZX2QC");
-    _logicalCircuit->addProcedure(_graph->getProcedures());
-    _logicalCircuit->setFileName(_graph->getFileName());
 
     return _logicalCircuit;
 }

@@ -23,7 +23,7 @@ template <typename T>
 class DataStructureManager {
 public:
     DataStructureManager(std::string_view name) : _nextID{0}, _currID{0}, _typeName{name} {}
-    ~DataStructureManager() = default;
+    virtual ~DataStructureManager() = default;
 
     DataStructureManager(DataStructureManager const& other) : _nextID{other._nextID}, _currID{other._currID} {
         for (auto& [id, data] : other._list) {
@@ -106,28 +106,20 @@ public:
         _currID = id;
         if (verbose >= 3) printCheckOutMsg();
     }
-    void copy(size_t id, bool toNew = true) {
+
+    void copy(size_t newID) {
         if (this->empty()) {
             printMgrEmptyErrorMsg();
             return;
         }
-        size_t origID = _currID;
         auto copy = std::make_unique<T>(*get());
-        copy->setId(id);
+        copy->setId(newID);
 
-        if (toNew || !_list.contains(id)) {
-            _list.emplace(id, std::move(copy));
-            _currID = id;
-            if (_nextID <= id) _nextID = id + 1;
-            if (verbose >= 3) {
-                printCopySuccessMsg(origID, id);
-                printCheckOutMsg();
-            }
-        } else {
-            _list.at(id).swap(copy);
-            if (verbose >= 3) printCopySuccessMsg(origID, id);
-            checkout(id);
-        }
+        if (_nextID <= newID) _nextID = newID + 1;
+        _list.insert_or_assign(newID, std::move(copy));
+
+        if (verbose >= 3) printCopySuccessMsg(_currID, newID);
+        checkout(newID);
     }
 
     T* findByID(size_t id) const {
@@ -139,7 +131,7 @@ public:
     }
 
     void printMgr() const {
-        std::cout << "-> #" << _typeName << ": " << this->size() << std::endl;
+        printListSize();
         if (this->size()) {
             std::cout << "-> ";
             printFocusMsg();
@@ -174,7 +166,7 @@ public:
     }
 
     void printListSize() const {
-        std::cout << "#" << _typeName << size() << std::endl;
+        std::cout << "-> #" << _typeName << ": " << this->size() << std::endl;
     }
 
 private:
@@ -188,7 +180,7 @@ private:
     }
 
     void printIdDoesNotExistErrorMsg() const {
-        std::cerr << "Error: The ID provided does not exist!!" << std::endl;
+        std::cerr << "Error: The ID provided does not exist!!\n";
     }
 
     void printFocusMsg() const {
@@ -196,7 +188,7 @@ private:
     }
 
     void printMgrEmptyErrorMsg() const {
-        std::cerr << "Error: " << _typeName << "Mgr is empty now!!" << std::endl;
+        std::cerr << "Error: " << _typeName << "Mgr is empty now!!\n";
     }
 
     void printCopySuccessMsg(size_t oldID, size_t newID) const {

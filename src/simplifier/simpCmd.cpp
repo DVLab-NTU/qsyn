@@ -134,9 +134,6 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         mutex.addArgument<bool>("-pivotgadget")
             .action(storeTrue)
             .help("unfuse the phase and apply pivot rules to form gadgets");
-        // mutex.addArgument<bool>("-degadgetize")
-        //     .action(storeTrue)
-        //     .help("[UNSTABLE!] apply unfusions and pivot rules so that the resulting graph has no gadgets");
         mutex.addArgument<bool>("-spiderfusion")
             .action(storeTrue)
             .help("fuse spiders of the same color");
@@ -155,46 +152,72 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
         Simplifier s(zxGraphMgr.get(), st);
-        if (parser["-sreduce"].isParsed())
+        std::string procedure_str = "";
+        if (parser["-sreduce"].isParsed()) {
             s.symbolicReduce();
-        else if (parser["-dreduce"].isParsed())
+            procedure_str = "SR";
+        } else if (parser["-dreduce"].isParsed()) {
             s.hybridReduce();
-        else if (parser["-preduce"].isParsed()) {
+            procedure_str = "HR";
+        } else if (parser["-preduce"].isParsed()) {
             s.partitionReduce(parser["p"], parser["n"]);
-        } else if (parser["-interclifford"].isParsed())
+            procedure_str = "PR";
+        } else if (parser["-interclifford"].isParsed()) {
             s.interiorCliffordSimp();
-        else if (parser["-clifford"].isParsed())
+            procedure_str = "INTERC";
+        } else if (parser["-clifford"].isParsed()) {
             s.cliffordSimp();
-        else if (parser["-bialgebra"].isParsed())
+            procedure_str = "CLIFF";
+        } else if (parser["-bialgebra"].isParsed()) {
             s.bialgSimp();
-        else if (parser["-gadgetfusion"].isParsed())
+            procedure_str = "BIALG";
+        } else if (parser["-gadgetfusion"].isParsed()) {
             s.gadgetSimp();
-        else if (parser["-hfusion"].isParsed())
+            procedure_str = "GADFUS";
+        } else if (parser["-hfusion"].isParsed()) {
             s.hfusionSimp();
-        else if (parser["-hrule"].isParsed())
+            procedure_str = "HFUSE";
+        } else if (parser["-hrule"].isParsed()) {
             s.hruleSimp();
-        else if (parser["-idremoval"].isParsed())
+            procedure_str = "HRULE";
+        } else if (parser["-idremoval"].isParsed()) {
             s.idSimp();
-        else if (parser["-lcomp"].isParsed())
+            procedure_str = "IDRM";
+        } else if (parser["-lcomp"].isParsed()) {
             s.lcompSimp();
-        else if (parser["-pivotrule"].isParsed())
+            procedure_str = "LCOMP";
+        } else if (parser["-pivotrule"].isParsed()) {
             s.pivotSimp();
-        else if (parser["-pivotboundary"].isParsed())
+            procedure_str = "PIVOT";
+        } else if (parser["-pivotboundary"].isParsed()) {
             s.pivotBoundarySimp();
-        else if (parser["-pivotgadget"].isParsed())
+            procedure_str = "PVBND";
+        } else if (parser["-pivotgadget"].isParsed()) {
             s.pivotGadgetSimp();
-        // else if (parser["-degadgetize"].isParsed())
-        //     s.degadgetizeSimp(st);
-        else if (parser["-spiderfusion"].isParsed())
+            procedure_str = "PVGAD";
+        } else if (parser["-spiderfusion"].isParsed()) {
             s.sfusionSimp();
-        else if (parser["-stcopy"].isParsed())
+            procedure_str = "SPFUSE";
+        } else if (parser["-stcopy"].isParsed()) {
             s.copySimp();
-        else if (parser["-tograph"].isParsed())
+            procedure_str = "STCOPY";
+        } else if (parser["-tograph"].isParsed()) {
             s.toGraph();
-        else if (parser["-torgraph"].isParsed())
+            procedure_str = "TOGRAPH";
+        } else if (parser["-torgraph"].isParsed()) {
             s.toRGraph();
-        else
+            procedure_str = "TORGRAPH";
+        } else {
             s.fullReduce();
+            procedure_str = "FR";
+        }
+
+        if (st.stop_requested()) {
+            procedure_str += "[INT]";
+        }
+
+        zxGraphMgr.get()->addProcedure(procedure_str);
+
         return CMD_EXEC_DONE;
     };
 

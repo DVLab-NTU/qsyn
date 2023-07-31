@@ -26,7 +26,7 @@ using namespace ArgParse;
 namespace TF = TextFormat;
 extern size_t verbose;
 extern int effLimit;
-extern QCirMgr* qcirMgr;
+extern QCirMgr qcirMgr;
 extern DeviceMgr* deviceMgr;
 
 unique_ptr<ArgParseCmdType> duostraCmd();
@@ -70,17 +70,24 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        Duostra duo{qcirMgr->getQCircuit(), deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"], st};
-        if (duo.flow() != ERROR_CODE) {
-            QCir* result = duo.getPhysicalCircuit();
-            if (result != nullptr) {
-                qcirMgr->addQCir(qcirMgr->getNextID());
-                result->setId(qcirMgr->getNextID());
-                qcirMgr->setQCircuit(result);
-            } else {
-                cerr << "Error: Something wrong in Duostra Mapping!!" << endl;
-            }
+        QCir* logicalQCir = qcirMgr.get();
+        Duostra duo{logicalQCir, deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"], st};
+        if (duo.flow() == ERROR_CODE) {
+            return CMD_EXEC_ERROR;
         }
+
+        if (duo.getPhysicalCircuit() == nullptr) {
+            cerr << "Error: Something wrong in Duostra Mapping!!" << endl;
+        }
+        size_t id = qcirMgr.getNextID();
+        qcirMgr.add(id);
+        qcirMgr.set(std::move(duo.getPhysicalCircuit()));
+
+        qcirMgr.get()->setId(id);
+        qcirMgr.get()->setFileName(logicalQCir->getFileName());
+        qcirMgr.get()->addProcedures(logicalQCir->getProcedures());
+        qcirMgr.get()->addProcedure("Duostra");
+
         return CMD_EXEC_DONE;
     };
     return cmd;
@@ -236,10 +243,10 @@ unique_ptr<ArgParseCmdType> mapEQCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        if (qcirMgr->findQCirByID(parser["-physical"]) == nullptr || qcirMgr->findQCirByID(parser["-logical"]) == nullptr) {
+        if (qcirMgr.findByID(parser["-physical"]) == nullptr || qcirMgr.findByID(parser["-logical"]) == nullptr) {
             return CMD_EXEC_ERROR;
         }
-        MappingEQChecker mpeqc(qcirMgr->findQCirByID(parser["-physical"]), qcirMgr->findQCirByID(parser["-logical"]), deviceMgr->getDevice(), {});
+        MappingEQChecker mpeqc(qcirMgr.findByID(parser["-physical"]), qcirMgr.findByID(parser["-logical"]), deviceMgr->getDevice(), {});
         if (mpeqc.check()) {
             cout << TF::BOLD(TF::GREEN("Equivalent up to permutation")) << endl;
         } else {

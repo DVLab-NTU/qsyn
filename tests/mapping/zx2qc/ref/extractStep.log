@@ -1,6 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
-Create and checkout to QCir 0
+Created and checked out to QCir 0
 
 qsyn> exts -op 1
 
@@ -41,13 +41,13 @@ Successfully copied ZXGraph 0 to ZXGraph 1
 Checked out to ZXGraph 1
 
 qsyn> qcn
-Create and checkout to QCir 1
+Created and checked out to QCir 1
 
 qsyn> qcba 3
 
 qsyn> qcp
 -> #QCir: 2
--> Now focus on: 1
+-> Now focused on: 1
 
 qsyn> zxgp -q
 

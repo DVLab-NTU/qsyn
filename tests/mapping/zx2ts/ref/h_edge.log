@@ -221,7 +221,7 @@ Successfully added Tensor 4
 Stored the resulting tensor as tensor id 4
 
 qsyn> qcnew
-Create and checkout to QCir 0
+Created and checked out to QCir 0
 
 qsyn> qcba 1
 

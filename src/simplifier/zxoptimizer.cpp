@@ -24,7 +24,7 @@ using namespace std;
 
 extern size_t verbose;
 extern size_t dmode;
-extern QCirMgr* qcirMgr;
+extern QCirMgr qcirMgr;
 extern ZXGraphMgr zxGraphMgr;
 
 void ZXOPTimizer::init() {
@@ -69,7 +69,7 @@ void ZXOPTimizer::myOptimize() {
     // for(int i = 1; i <= 3; i++){
     //     init();
     //     dmode = i;
-    //     qcirMgr->getQCircuit()->ZXMapping();
+    //     qcirMgr.getQCircuit()->ZXMapping();
     //     _candGraphs.emplace_back(zxGraphMgr->getGraph());
     //     ZXGraph* g = _candGraphs.back();
     //     g->printGraph();

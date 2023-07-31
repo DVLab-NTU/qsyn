@@ -1,6 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qccr benchmark/pseudoSimp/tof2.qasm
-Create and checkout to QCir 0
+Created and checked out to QCir 0
 
 qsyn> qc2ts
 Traverse and build the tensor... 
@@ -126,7 +126,7 @@ Successfully added Tensor 2
 Stored the resulting tensor as tensor id 2
 
 qsyn> qcnew
-Create and checkout to QCir 1
+Created and checked out to QCir 1
 
 qsyn> qcba 2
 

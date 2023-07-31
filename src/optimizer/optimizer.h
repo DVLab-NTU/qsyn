@@ -94,9 +94,6 @@ private:
     size_t CZ2CX;
     size_t CX2CZ;
 
-    // physical
-    std::string _name;
-    std::vector<std::string> _procedures;
     mythread::stop_token _stop_token;
 };
 
