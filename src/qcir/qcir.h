@@ -19,8 +19,8 @@
 #include "zxGraph.h"
 
 class QCir;
-class QCirGate;
-class QCirQubit;
+#include "qcirGate.h"
+#include "qcirQubit.h"
 class Phase;
 
 struct BitInfo;
@@ -32,11 +32,79 @@ extern QCir* qCir;
 
 class QCir {
 public:
-    QCir(size_t id) : _id(id), _gateId(0), _ZXNodeId(0), _qubitId(0) {
+    QCir(size_t id = 0) : _id(id), _gateId(0), _ZXNodeId(0), _qubitId(0) {
         _dirty = true;
         _globalDFScounter = 0;
     }
     ~QCir() {}
+
+    QCir(QCir const& other) {
+        namespace views = std::ranges::views;
+        other.updateTopoOrder();
+        this->addQubit(other._qubits.size());
+
+        for (size_t i = 0; i < _qubits.size(); i++) {
+            _qubits[i]->setId(other._qubits[i]->getId());
+        }
+
+        for (auto& gate : other._topoOrder) {
+            auto bit_range = gate->getQubits() |
+                             views::transform([](BitInfo const& qb) { return qb._qubit; });
+            auto newGate = this->addGate(
+                gate->getTypeStr(), {bit_range.begin(), bit_range.end()},
+                gate->getPhase(), true);
+
+            newGate->setId(gate->getId());
+        }
+
+        this->setNextGateId(1 + std::ranges::max(
+                                    other._topoOrder | views::transform(
+                                                           [](QCirGate* g) { return g->getId(); })));
+        this->setNextQubitId(1 + std::ranges::max(
+                                     other._qubits | views::transform(
+                                                         [](QCirQubit* qb) { return qb->getId(); })));
+    }
+
+    QCir(QCir&& other) noexcept {
+        _id = std::exchange(other._id, 0);
+        _gateId = std::exchange(other._gateId, 0);
+        _ZXNodeId = std::exchange(other._ZXNodeId, 0);
+        _qubitId = std::exchange(other._qubitId, 0);
+        _dirty = std::exchange(other._dirty, false);
+        _globalDFScounter = std::exchange(other._globalDFScounter, 0);
+        _fileName = std::exchange(other._fileName, "");
+        _procedures = std::exchange(other._procedures, {});
+        _qgates = std::exchange(other._qgates, {});
+        _qubits = std::exchange(other._qubits, {});
+        _topoOrder = std::exchange(other._topoOrder, {});
+        _ZXGraphList = std::exchange(other._ZXGraphList, {});
+        _qubit2pin = std::exchange(other._qubit2pin, {});
+    }
+
+    QCir& operator=(QCir copy) {
+        copy.swap(*this);
+        return *this;
+    }
+
+    void swap(QCir& other) noexcept {
+        std::swap(_id, other._id);
+        std::swap(_gateId, other._gateId);
+        std::swap(_ZXNodeId, other._ZXNodeId);
+        std::swap(_qubitId, other._qubitId);
+        std::swap(_dirty, other._dirty);
+        std::swap(_globalDFScounter, other._globalDFScounter);
+        std::swap(_fileName, other._fileName);
+        std::swap(_procedures, other._procedures);
+        std::swap(_qgates, other._qgates);
+        std::swap(_qubits, other._qubits);
+        std::swap(_topoOrder, other._topoOrder);
+        std::swap(_ZXGraphList, other._ZXGraphList);
+        std::swap(_qubit2pin, other._qubit2pin);
+    }
+
+    friend void swap(QCir& a, QCir& b) noexcept {
+        a.swap(b);
+    }
 
     // Access functions
     size_t getId() const { return _id; }
@@ -61,9 +129,8 @@ public:
     void setNextQubitId(size_t id) { _qubitId = id; }
     //
     void reset();
-    QCir* copy();
-    QCir* compose(QCir* target);
-    QCir* tensorProduct(QCir* target);
+    QCir* compose(QCir const& target);
+    QCir* tensorProduct(QCir const& target);
     // Member functions about circuit construction
     QCirQubit* addSingleQubit();
     QCirQubit* insertSingleQubit(size_t);
@@ -106,7 +173,7 @@ public:
 
     // pass a function F (public functions) into for_each
     // lambdaFn such as mappingToZX / updateGateTime
-    const std::vector<QCirGate*>& updateTopoOrder();
+    const std::vector<QCirGate*>& updateTopoOrder() const;
 
     // Member functions about circuit reporting
     void printDepth();
@@ -120,7 +187,7 @@ public:
     void addToZXGraphList(ZXGraph* g) { _ZXGraphList.push_back(g); }
 
 private:
-    void DFS(QCirGate*);
+    void DFS(QCirGate*) const;
     void updateTensorPin(std::vector<BitInfo> const& pins, QTensor<double>& main, QTensor<double> const& gate);
 
     size_t _id;
@@ -128,13 +195,13 @@ private:
     size_t _ZXNodeId;
     size_t _qubitId;
     bool _dirty;
-    unsigned _globalDFScounter;
+    unsigned mutable _globalDFScounter;
     std::string _fileName;
     std::vector<std::string> _procedures;
 
     std::vector<QCirGate*> _qgates;
     std::vector<QCirQubit*> _qubits;
-    std::vector<QCirGate*> _topoOrder;
+    std::vector<QCirGate*> mutable _topoOrder;
     std::vector<ZXGraph*> _ZXGraphList;
     std::unordered_map<size_t, std::pair<size_t, size_t>> _qubit2pin;
 };

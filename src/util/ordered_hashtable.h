@@ -247,6 +247,7 @@ void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::insert(const Inp
 
 /**
  * @brief Emplace a key-value pair to the ordered hashmap in place.
+ *        Note that if the emplacement fails, the values are still moved-from.
  *
  *
  * @param value

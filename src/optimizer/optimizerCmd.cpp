@@ -21,7 +21,7 @@ using namespace std;
 using namespace ArgParse;
 extern size_t verbose;
 extern int effLimit;
-extern QCirMgr *qcirMgr;
+extern QCirMgr qcirMgr;
 
 unique_ptr<ArgParseCmdType> optimizeCmd();
 
@@ -62,7 +62,7 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
-        Optimizer optimizer(qcirMgr->getQCircuit(), st);
+        Optimizer optimizer(qcirMgr.get(), st);
         QCir *result;
         std::string procedure_str{};
         if (parser["-trivial"]) {
@@ -76,22 +76,22 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
             cout << "Error: fail to optimize circuit." << endl;
             return CMD_EXEC_ERROR;
         }
-        auto name = qcirMgr->getQCircuit()->getFileName();
-        auto procedures = qcirMgr->getQCircuit()->getProcedures();
+        auto name = qcirMgr.get()->getFileName();
+        auto procedures = qcirMgr.get()->getProcedures();
 
         if (parser["-copy"]) {
-            qcirMgr->addQCir(qcirMgr->getNextID());
+            qcirMgr.add(qcirMgr.getNextID());
         }
 
         if (st.stop_requested()) {
             procedure_str += "[INT]";
         }
 
-        qcirMgr->setQCircuit(result);
-        qcirMgr->getQCircuit()->printCirInfo();
+        qcirMgr.set(std::make_unique<QCir>(std::move(*result)));
+        qcirMgr.get()->printCirInfo();
 
-        qcirMgr->getQCircuit()->addProcedures(procedures);
-        qcirMgr->getQCircuit()->addProcedure(procedure_str);
+        qcirMgr.get()->addProcedures(procedures);
+        qcirMgr.get()->addProcedure(procedure_str);
 
         return CMD_EXEC_DONE;
     };

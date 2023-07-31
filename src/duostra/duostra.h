@@ -22,7 +22,8 @@ public:
     Duostra(const std::vector<Operation>&, size_t, Device, bool = false, bool = true, bool = false, mythread::stop_token st = mythread::stop_token{});
     ~Duostra() {}
 
-    QCir* getPhysicalCircuit() { return _physicalCircuit; }
+    std::unique_ptr<QCir> const& getPhysicalCircuit() const { return _physicalCircuit; }
+    std::unique_ptr<QCir>&& getPhysicalCircuit() { return std::move(_physicalCircuit); }
     const std::vector<Operation>& getResult() const { return _result; }
     const std::vector<Operation>& getOrder() const { return _order; }
     Device getDevice() const { return _device; }
@@ -36,7 +37,7 @@ public:
 
 private:
     QCir* _logicalCircuit;
-    QCir* _physicalCircuit;
+    std::unique_ptr<QCir> _physicalCircuit;
     Device _device;
     bool _check;
     bool _tqdm;

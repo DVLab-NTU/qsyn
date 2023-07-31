@@ -116,6 +116,59 @@ public:
 
     T& operator[](const Key& key);
     T& operator[](Key&& key);
+
+    /**
+     * @brief If the key does not exist, emplace a key-value pair to the ordered hashmap in place.
+     *        Otherwise, do nothing.
+     *
+     *
+     * @param value
+     * @return std::pair<OrderedHashmap::iterator, bool>. If emplacement succeeds,
+     *         the pair consists of an iterator to the emplaced pair and `true`;
+     *         otherwise, the pair consists of `this->end()` and `false`.
+     *
+     */
+    template <typename... Args>
+    std::pair<iterator, bool> try_emplace(Key&& key, Args&&... args) {
+        auto itr = this->find(key);
+        if (itr != this->end()) {
+            return std::make_pair(itr, false);
+        }
+        this->_data.emplace_back(value_type(key, std::forward<Args>(args)...));
+        this->_key2id.emplace(std::move(key), this->_data.size() - 1);
+        this->_size++;
+
+        return std::make_pair(this->find(std::move(key)), true);
+    }
+
+    template <typename... Args>
+    std::pair<iterator, bool> try_emplace(const Key& key, Args&&... args) {
+        auto itr = this->find(key);
+        if (itr != this->end()) {
+            return std::make_pair(itr, false);
+        }
+        this->_data.emplace_back(value_type(key, std::forward<Args>(args)...));
+        this->_key2id.emplace(key, this->_data.size() - 1);
+        this->_size++;
+
+        return std::make_pair(this->find(key), true);
+    }
+
+    std::pair<iterator, bool> insert_or_assign(Key&& key, T&& obj) {
+        auto ret = try_emplace(std::move(key), std::forward<T>(obj));
+        if (ret.second == false) {
+            ret.first->second = std::forward<T>(obj);
+        }
+        return ret;
+    }
+
+    std::pair<iterator, bool> insert_or_assign(const Key& key, T&& obj) {
+        auto ret = try_emplace(key, std::forward<T>(obj));
+        if (ret.second == false) {
+            ret.first->second = std::forward<T>(obj);
+        }
+        return ret;
+    }
 };
 
 static_assert(std::ranges::bidirectional_range<ordered_hashmap<int, int>>);

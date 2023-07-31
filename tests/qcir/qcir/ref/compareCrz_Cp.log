@@ -1,7 +1,7 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qcba 2
 Note: QCir list is empty now. Create a new one.
-Create and checkout to QCir 0
+Created and checked out to QCir 0
 
 qsyn> qcgadd -mcp -phase pi/2 0 1 
 
@@ -58,7 +58,7 @@ Successfully added Tensor 0
 Stored the resulting tensor as tensor id 0
 
 qsyn> qcnew
-Create and checkout to QCir 1
+Created and checked out to QCir 1
 
 qsyn> qcba 2
 
