@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include <cstddef>
+#include <exception>
 #include <iomanip>
 #include <iostream>
 #include <ranges>
@@ -62,25 +63,6 @@ void ZXVertex::printNeighbors() const {
     cout << endl;
 }
 
-/**
- * @brief Remove all the connection between `this` and `v`. (Overhauled)
- *
- * @param v
- * @param checked
- */
-void ZXVertex::disconnect(ZXVertex* v, bool checked) {
-    if (!checked) {
-        if (!isNeighbor(v)) {
-            cerr << "Error: Vertex " << v->getId() << " is not a neighbor of " << _id << endl;
-            return;
-        }
-    }
-    _neighbors.erase(make_pair(v, EdgeType::SIMPLE));
-    _neighbors.erase(make_pair(v, EdgeType::HADAMARD));
-    v->removeNeighbor(make_pair(this, EdgeType::SIMPLE));
-    v->removeNeighbor(make_pair(this, EdgeType::HADAMARD));
-}
-
 /*****************************************************/
 /*   Vertex Type & Edge Type functions               */
 /*****************************************************/
@@ -93,9 +75,7 @@ void ZXVertex::disconnect(ZXVertex* v, bool checked) {
  * @return EdgeType
  */
 EdgeType toggleEdge(const EdgeType& et) {
-    if (et == EdgeType::SIMPLE) return EdgeType::HADAMARD;
-    if (et == EdgeType::HADAMARD) return EdgeType::SIMPLE;
-    return EdgeType::ERRORTYPE;
+    return (et == EdgeType::SIMPLE) ? EdgeType::HADAMARD : EdgeType::SIMPLE;
 }
 
 /**
@@ -104,12 +84,12 @@ EdgeType toggleEdge(const EdgeType& et) {
  * @param str
  * @return VertexType
  */
-VertexType str2VertexType(const string& str) {
-    if (str == "BOUNDARY") return VertexType::BOUNDARY;
-    if (str == "Z") return VertexType::Z;
-    if (str == "X") return VertexType::X;
-    if (str == "H_BOX") return VertexType::H_BOX;
-    return VertexType::ERRORTYPE;
+std::optional<VertexType> str2VertexType(const string& str) {
+    if ("boundary"s.starts_with(toLowerString(str))) return VertexType::BOUNDARY;
+    if ("zspider"s.starts_with(toLowerString(str))) return VertexType::Z;
+    if ("xspider"s.starts_with(toLowerString(str))) return VertexType::X;
+    if ("hbox"s.starts_with(toLowerString(str))) return VertexType::H_BOX;
+    return std::nullopt;
 }
 
 /**
@@ -119,11 +99,17 @@ VertexType str2VertexType(const string& str) {
  * @return string
  */
 string VertexType2Str(const VertexType& vt) {
-    if (vt == VertexType::X) return TF::BOLD(TF::RED("X"));
-    if (vt == VertexType::Z) return TF::BOLD(TF::GREEN("Z"));
-    if (vt == VertexType::H_BOX) return TF::BOLD(TF::YELLOW("H"));
-    if (vt == VertexType::BOUNDARY) return "●";
-    return "";
+    switch (vt) {
+        case VertexType::X:
+            return TF::BOLD(TF::RED("X"));
+        case VertexType::Z:
+            return TF::BOLD(TF::GREEN("Z"));
+        case VertexType::H_BOX:
+            return TF::BOLD(TF::YELLOW("H"));
+        case VertexType::BOUNDARY:
+        default:
+            return "●";
+    }
 }
 
 /**
@@ -132,10 +118,10 @@ string VertexType2Str(const VertexType& vt) {
  * @param str
  * @return EdgeType
  */
-EdgeType str2EdgeType(const string& str) {
-    if (str == "SIMPLE") return EdgeType::SIMPLE;
-    if (str == "HADAMARD") return EdgeType::HADAMARD;
-    return EdgeType::ERRORTYPE;
+std::optional<EdgeType> str2EdgeType(const string& str) {
+    if ("simple"s.starts_with(toLowerString(str))) return EdgeType::SIMPLE;
+    if ("hadamard"s.starts_with(toLowerString(str))) return EdgeType::HADAMARD;
+    return std::nullopt;
 }
 
 /**
@@ -182,5 +168,5 @@ EdgePair makeEdgePair(EdgePair epair) {
  * @return EdgePair
  */
 EdgePair makeEdgePairDummy() {
-    return make_pair(make_pair(nullptr, nullptr), EdgeType::ERRORTYPE);
+    return make_pair(make_pair(nullptr, nullptr), EdgeType::SIMPLE);
 }

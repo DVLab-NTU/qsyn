@@ -26,14 +26,12 @@ enum class VertexType {
     BOUNDARY,
     Z,
     X,
-    H_BOX,
-    ERRORTYPE  // Never use this
+    H_BOX
 };
 
 enum class EdgeType {
     SIMPLE,
-    HADAMARD,
-    ERRORTYPE  // Never use this
+    HADAMARD
 };
 
 //------------------------------------------------------------------------

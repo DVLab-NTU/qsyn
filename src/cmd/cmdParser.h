@@ -36,9 +36,6 @@ enum CmdExecStatus {
     CMD_EXEC_QUIT = 2,
     CMD_EXEC_NOP = 3,
     CMD_EXEC_EXECUTING = 4,
-
-    // dummy
-    CMD_EXEC_TOT
 };
 
 //----------------------------------------------------------------------

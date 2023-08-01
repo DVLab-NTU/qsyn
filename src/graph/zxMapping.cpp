@@ -83,7 +83,7 @@ void ZXGraph::concatenate(ZXGraph const& other) {
         auto [mainOutputVertex, mainOutputEtype] = this->getOutputByQubit(qubit)->getFirstNeighbor();
 
         this->removeEdge(mainOutputVertex, this->getOutputByQubit(qubit), mainOutputEtype);
-        this->addEdge(mainOutputVertex, otherInputVertex, (mainOutputEtype == EdgeType::HADAMARD) ? toggleEdge(otherInputEtype) : otherInputEtype);
+        this->addEdge(mainOutputVertex, otherInputVertex, concatEdge(mainOutputEtype, otherInputEtype));
         copy.removeVertex(i);
     }
 

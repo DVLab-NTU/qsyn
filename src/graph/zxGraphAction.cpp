@@ -29,7 +29,7 @@ void ZXGraph::sortIOByQubit() {
 }
 
 /**
- * @brief Toggle EdgeType that connected to `v`. ( H -> S / S -> H)
+ * @brief Toggle a vertex between type Z and X, and toggle the edges adjacent to `v`. ( H -> S / S -> H)
  *        Ex: [(3, S), (4, H), (5, S)] -> [(3, H), (4, S), (5, H)]
  *
  * @param v

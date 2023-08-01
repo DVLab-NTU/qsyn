@@ -262,7 +262,6 @@ ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, unsigned int
  * @return EdgePair
  */
 EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
-    assert(et != EdgeType::ERRORTYPE);
     if (vs == vt) {
         Phase phase = (et == EdgeType::HADAMARD) ? Phase(1) : Phase(0);
         if (verbose >= 8) cout << "Note: converting this self-loop to phase " << phase << " on vertex " << vs->getId() << "..." << endl;

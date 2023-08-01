@@ -22,11 +22,17 @@ class ZXVertex;
 class ZXGraph;
 
 // See `zxVertex.cpp` for details
-EdgeType str2EdgeType(const std::string& str);
-VertexType str2VertexType(const std::string& str);
+std::optional<EdgeType> str2EdgeType(const std::string& str);
+std::optional<VertexType> str2VertexType(const std::string& str);
 std::string EdgeType2Str(const EdgeType& et);
 std::string VertexType2Str(const VertexType& vt);
 EdgeType toggleEdge(const EdgeType& et);
+
+inline EdgeType concatEdge(EdgeType const& etype) { return etype; }
+
+inline EdgeType concatEdge(EdgeType const& etype, std::convertible_to<EdgeType> auto... others) {
+    return (etype == EdgeType::HADAMARD) ^ (concatEdge(others...) == EdgeType::HADAMARD) ? EdgeType::HADAMARD : EdgeType::SIMPLE;
+}
 
 EdgePair makeEdgePair(ZXVertex* v1, ZXVertex* v2, EdgeType et);
 EdgePair makeEdgePair(EdgePair epair);
@@ -75,13 +81,11 @@ public:
     void addNeighbor(ZXVertex* v, EdgeType et) { _neighbors.emplace(v, et); }
     size_t removeNeighbor(const NeighborPair& n) { return _neighbors.erase(n); }
     size_t removeNeighbor(ZXVertex* v, EdgeType et) { return removeNeighbor(std::make_pair(v, et)); }
+    size_t removeNeighbor(ZXVertex* v) { return removeNeighbor(v, EdgeType::SIMPLE) + removeNeighbor(v, EdgeType::HADAMARD); }
 
     // Print functions
     void printVertex() const;
     void printNeighbors() const;
-
-    // Action
-    void disconnect(ZXVertex* v, bool checked = false);
 
     // Test
     bool isZ() const { return getType() == VertexType::Z; }
@@ -91,6 +95,12 @@ public:
     bool isNeighbor(ZXVertex* v) const { return _neighbors.contains(std::make_pair(v, EdgeType::SIMPLE)) || _neighbors.contains(std::make_pair(v, EdgeType::HADAMARD)); }
     bool isNeighbor(const NeighborPair& n) const { return _neighbors.contains(n); }
     bool isNeighbor(ZXVertex* v, EdgeType et) const { return isNeighbor(std::make_pair(v, et)); }
+
+    std::optional<EdgeType> getEdgeTypeBetween(ZXVertex* v) const {
+        if (isNeighbor(v, EdgeType::SIMPLE)) return EdgeType::SIMPLE;
+        if (isNeighbor(v, EdgeType::HADAMARD)) return EdgeType::HADAMARD;
+        return std::nullopt;
+    }
     bool hasNPiPhase() const { return _phase.denominator() == 1; }
     bool isClifford() const { return _phase.denominator() <= 2; }
 

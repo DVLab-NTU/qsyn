@@ -563,43 +563,21 @@ unique_ptr<ArgParseCmdType> ZXGEditCmd() {
             auto v1 = zxGraphMgr.get()->findVertexById(ids[1]);
             assert(v0 != nullptr && v1 != nullptr);
 
-            auto etype = std::invoke([&parser]() {
-                auto str = parser.get<std::string>("etype");
-                switch (std::tolower(str[0])) {
-                    case 's':
-                        return EdgeType::SIMPLE;
-                    case 'h':
-                        return EdgeType::HADAMARD;
-                    default:
-                        return EdgeType::ERRORTYPE;
-                }
-            });
+            auto etype = str2EdgeType(parser.get<std::string>("etype"));
 
-            if (etype == EdgeType::ERRORTYPE) {  // corresponds to choice "ALL"
-                zxGraphMgr.get()->removeAllEdgesBetween(v0, v1);
+            if (etype.has_value()) {
+                zxGraphMgr.get()->removeEdge(v0, v1, etype.value());
             } else {
-                zxGraphMgr.get()->removeEdge(v0, v1, etype);
+                zxGraphMgr.get()->removeAllEdgesBetween(v0, v1);
             }
 
             return CMD_EXEC_DONE;
         }
         if (subparser == "-addvertex") {
-            auto vtype = std::invoke([&parser]() {
-                auto vtypeStr = parser.get<std::string>("vtype");
-                switch (std::tolower(vtypeStr[0])) {
-                    case 'z':
-                        return VertexType::Z;
-                    case 'x':
-                        return VertexType::X;
-                    case 'h':
-                        return VertexType::H_BOX;
-                    default:
-                        return VertexType::ERRORTYPE;
-                }
-            });
-            assert(vtype != VertexType::ERRORTYPE);
+            auto vtype = str2VertexType(parser.get<std::string>("vtype"));
+            assert(vtype.has_value());
 
-            zxGraphMgr.get()->addVertex(parser.get<size_t>("qubit"), vtype, parser.get<Phase>("phase"));
+            zxGraphMgr.get()->addVertex(parser.get<size_t>("qubit"), vtype.value(), parser.get<Phase>("phase"));
 
             return CMD_EXEC_DONE;
         }
@@ -617,20 +595,10 @@ unique_ptr<ArgParseCmdType> ZXGEditCmd() {
             auto v1 = zxGraphMgr.get()->findVertexById(ids[1]);
             assert(v0 != nullptr && v1 != nullptr);
 
-            auto etype = std::invoke([&parser]() {
-                auto str = parser.get<std::string>("etype");
-                switch (std::tolower(str[0])) {
-                    case 's':
-                        return EdgeType::SIMPLE;
-                    case 'h':
-                        return EdgeType::HADAMARD;
-                    default:
-                        return EdgeType::ERRORTYPE;
-                }
-            });
-            assert(etype != EdgeType::ERRORTYPE);
+            auto etype = str2EdgeType(parser.get<std::string>("etype"));
+            assert(etype.has_value());
 
-            zxGraphMgr.get()->addEdge(v0, v1, etype);
+            zxGraphMgr.get()->addEdge(v0, v1, etype.value());
 
             return CMD_EXEC_DONE;
         }
@@ -846,23 +814,11 @@ unique_ptr<ArgParseCmdType> ZXGAssignCmd() {
             return CMD_EXEC_ERROR;
         }
 
-        auto vt = std::invoke([&parser]() {
-            auto vtypeStr = parser.get<std::string>("vtype");
-            switch (std::tolower(vtypeStr[0])) {
-                case 'z':
-                    return VertexType::Z;
-                case 'x':
-                    return VertexType::X;
-                case 'h':
-                    return VertexType::H_BOX;
-                default:
-                    return VertexType::ERRORTYPE;
-            }
-        });
-        assert(vt != VertexType::ERRORTYPE);
+        auto vtype = str2VertexType(parser.get<std::string>("vtype"));
+        assert(vtype.has_value());
 
         Phase phase = parser["phase"];
-        zxGraphMgr.get()->assignBoundary(qid, isInput, vt, phase);
+        zxGraphMgr.get()->assignBoundary(qid, isInput, vtype.value(), phase);
 
         return CMD_EXEC_DONE;
     };
