@@ -472,11 +472,9 @@ std::vector<int> QCir::countGate(bool detail, bool print) {
                 cxcnt += 6;
                 break;
             case GateType::MCRY:
+            default:
                 mcry++;
                 analysisMCR(g);
-                break;
-            default:
-                cerr << "Error: the gate type is ERRORTYPE" << endl;
                 break;
         }
     }

@@ -84,8 +84,7 @@ enum class GateType {
     Y,
     PY,
     SY,
-    RY,
-    ERRORTYPE  // Never use this
+    RY
 };
 
 extern std::unordered_map<std::string, GateType> str2GateType;

@@ -74,11 +74,9 @@ bool ZXGraph::writeZX(const string& filename, bool complete) const {
                         ZXFile << "S";
                         break;
                     case EdgeType::HADAMARD:
+                    default:
                         ZXFile << "H";
                         break;
-                    default:
-                        cerr << "Error: The edge type is ERRORTYPE" << endl;
-                        return false;
                 }
                 ZXFile << nb->getId();
             }

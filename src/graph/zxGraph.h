@@ -22,8 +22,8 @@ class ZXVertex;
 class ZXGraph;
 
 // See `zxVertex.cpp` for details
-EdgeType str2EdgeType(const std::string& str);
-VertexType str2VertexType(const std::string& str);
+std::optional<EdgeType> str2EdgeType(const std::string& str);
+std::optional<VertexType> str2VertexType(const std::string& str);
 std::string EdgeType2Str(const EdgeType& et);
 std::string VertexType2Str(const VertexType& vt);
 EdgeType toggleEdge(const EdgeType& et);
