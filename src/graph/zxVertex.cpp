@@ -62,25 +62,6 @@ void ZXVertex::printNeighbors() const {
     cout << endl;
 }
 
-/**
- * @brief Remove all the connection between `this` and `v`. (Overhauled)
- *
- * @param v
- * @param checked
- */
-void ZXVertex::disconnect(ZXVertex* v, bool checked) {
-    if (!checked) {
-        if (!isNeighbor(v)) {
-            cerr << "Error: Vertex " << v->getId() << " is not a neighbor of " << _id << endl;
-            return;
-        }
-    }
-    _neighbors.erase(make_pair(v, EdgeType::SIMPLE));
-    _neighbors.erase(make_pair(v, EdgeType::HADAMARD));
-    v->removeNeighbor(make_pair(this, EdgeType::SIMPLE));
-    v->removeNeighbor(make_pair(this, EdgeType::HADAMARD));
-}
-
 /*****************************************************/
 /*   Vertex Type & Edge Type functions               */
 /*****************************************************/
