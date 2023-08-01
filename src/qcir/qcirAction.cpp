@@ -28,7 +28,7 @@ QCir* QCir::compose(QCir const& target) {
     QCir copiedQCir{target};
     vector<QCirQubit*> targQubits = copiedQCir.getQubits();
     for (auto& qubit : targQubits) {
-        if (getQubit(qubit->getId()) == NULL)
+        if (getQubit(qubit->getId()) == nullptr)
             insertSingleQubit(qubit->getId());
     }
     copiedQCir.updateTopoOrder();
@@ -140,7 +140,7 @@ void QCir::updateGateTime() {
         vector<BitInfo> Info = currentGate->getQubits();
         size_t max_time = 0;
         for (size_t i = 0; i < Info.size(); i++) {
-            if (Info[i]._parent == NULL)
+            if (Info[i]._parent == nullptr)
                 continue;
             if (Info[i]._parent->getTime() > max_time)
                 max_time = Info[i]._parent->getTime();
