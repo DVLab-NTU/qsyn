@@ -503,18 +503,23 @@ void Simplifier::symbolicReduce() {
  * @param iterations number of iterations
  */
 void Simplifier::partitionReduce(size_t numPartitions, size_t iterations = 1) {
-    _simpGraph->addProcedure("partitionReduce");
-
-    auto [subgraphs, cuts] = _simpGraph->createSubgraphs(klPartition, numPartitions);
-
-    for (auto& graph : subgraphs) {
-        Simplifier simplifier(graph);
-        simplifier.fullReduce();
+    for (size_t n = numPartitions; n >= 2; n /= 2) {
+        auto [subgraphs, cuts] = _simpGraph->createSubgraphs(klPartition, n);
+        for (auto& graph : subgraphs) {
+            Simplifier simplifier(graph);
+            simplifier.fullReduce();
+            // simplifier.dynamicReduce();
+        }
+        ZXGraph* newGraph = ZXGraph::fromSubgraphs(subgraphs, cuts);
+        _simpGraph->swap(*newGraph);
+        delete newGraph;
     }
 
-    ZXGraph* newGraph = ZXGraph::fromSubgraphs(subgraphs, cuts);
-    _simpGraph->swap(*newGraph);
-    delete newGraph;
+    if (_stop_token.stop_requested()) {
+        _simpGraph->addProcedure("PR[INT]");
+    } else {
+        _simpGraph->addProcedure("PR");
+    }
 }
 
 /**

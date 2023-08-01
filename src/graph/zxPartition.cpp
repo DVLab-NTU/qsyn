@@ -76,6 +76,7 @@ ZXGraph::createSubgraphs(ZXPartitionStrategy partitionStrategy, size_t numPartit
             for (const auto& [neighbor, edgeType] : vertex->getNeighbors()) {
                 if (!partition.contains(neighbor)) {
                     ZXVertex* boundary = new ZXVertex(nextVertexId++, CUT_BOUNDARY_QUBIT_ID, VertexType::BOUNDARY);
+                    std::cerr << "boundary " << boundary << std::endl;
                     innerCuts.insert({vertex, neighbor, edgeType});
                     cutToBoundary[{vertex, neighbor, edgeType}] = boundary;
 
@@ -142,11 +143,18 @@ ZXGraph* ZXGraph::fromSubgraphs(const std::vector<ZXGraph*>& subgraphs, const st
         vertices.insert(subgraph->getVertices().begin(), subgraph->getVertices().end());
         inputs.insert(subgraph->getInputs().begin(), subgraph->getInputs().end());
         outputs.insert(subgraph->getOutputs().begin(), subgraph->getOutputs().end());
+        subgraph->printVertices();
     }
 
+    std::cerr << "traversing cuts" << std::endl;
+
     for (auto [b1, b2, edgeType] : cuts) {
+        std::cerr << "b1 " << b1 << " b2 " << b2 << std::endl;
+        std::cerr << "cut " << b1->getId() << " and " << b2->getId() << std::endl;
         ZXVertex* v1 = b1->getFirstNeighbor().first;
         ZXVertex* v2 = b2->getFirstNeighbor().first;
+
+        std::cerr << "merging " << v1->getId() << " and " << v2->getId() << std::endl;
 
         vertices.erase(b1);
         vertices.erase(b2);
@@ -154,10 +162,13 @@ ZXGraph* ZXGraph::fromSubgraphs(const std::vector<ZXGraph*>& subgraphs, const st
         inputs.erase(b2);
         outputs.erase(b1);
         outputs.erase(b2);
+        std::cerr << "erased " << b1->getId() << " and " << b2->getId() << std::endl;
         v1->removeNeighbor(b1, edgeType);
         v2->removeNeighbor(b2, edgeType);
+        std::cerr << "removed neighbors " << b1->getId() << " and " << b2->getId() << std::endl;
         v1->addNeighbor(v2, edgeType);
         v2->addNeighbor(v1, edgeType);
+        std::cerr << "added neighbors " << v1->getId() << " and " << v2->getId() << std::endl;
         delete b1;
         delete b2;
     }
