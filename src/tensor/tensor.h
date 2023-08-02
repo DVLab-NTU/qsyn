@@ -20,7 +20,6 @@
 #include <xtensor/xarray.hpp>
 #include <xtensor/xio.hpp>
 
-#include "tensorDef.h"
 #include "tensorUtil.h"
 #include "util.h"
 
@@ -106,7 +105,7 @@ public:
 
     void reshape(const TensorShape& shape);
     Tensor<DT> transpose(const TensorAxisList& perm) const;
-    Tensor<DT> adjoint();
+    void adjoint();
 
 protected:
     InternalType _tensor;
@@ -267,9 +266,9 @@ Tensor<DT> Tensor<DT>::transpose(const TensorAxisList& perm) const {
 }
 
 template <typename DT>
-Tensor<DT> Tensor<DT>::adjoint() {
+void Tensor<DT>::adjoint() {
     assert(dimension() == 2);
-    return xt::conj(xt::transpose(_tensor, {1, 0}));
+    _tensor = xt::conj(xt::transpose(_tensor, {1, 0}));
 }
 //------------------------------
 // Tensor Manipulations:

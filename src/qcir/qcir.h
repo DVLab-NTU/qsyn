@@ -15,18 +15,16 @@
 #include <unordered_map>
 #include <vector>
 
+#include "qcirGate.h"
+#include "qcirQubit.h"
+#include "qtensor.h"
 #include "stop_token.hpp"
 #include "zxGraph.h"
 
 class QCir;
-#include "qcirGate.h"
-#include "qcirQubit.h"
 class Phase;
 
 struct BitInfo;
-
-template <typename T>
-class QTensor;
 
 extern QCir* qCir;
 
@@ -78,7 +76,6 @@ public:
         _qubits = std::exchange(other._qubits, {});
         _topoOrder = std::exchange(other._topoOrder, {});
         _ZXGraphList = std::exchange(other._ZXGraphList, {});
-        _qubit2pin = std::exchange(other._qubit2pin, {});
     }
 
     QCir& operator=(QCir copy) {
@@ -99,7 +96,6 @@ public:
         std::swap(_qubits, other._qubits);
         std::swap(_topoOrder, other._topoOrder);
         std::swap(_ZXGraphList, other._ZXGraphList);
-        std::swap(_qubit2pin, other._qubit2pin);
     }
 
     friend void swap(QCir& a, QCir& b) noexcept {
@@ -153,7 +149,7 @@ public:
     std::vector<int> countGate(bool detail = false, bool print = true);
 
     std::optional<ZXGraph> toZX(mythread::stop_token st = mythread::stop_token{});
-    void tensorMapping(mythread::stop_token st = mythread::stop_token{});
+    std::optional<QTensor<double>> toTensor(mythread::stop_token st = mythread::stop_token{});
 
     void clearMapping();
     void updateGateTime();
@@ -188,7 +184,6 @@ public:
 
 private:
     void DFS(QCirGate*) const;
-    void updateTensorPin(std::vector<BitInfo> const& pins, QTensor<double>& main, QTensor<double> const& gate);
 
     size_t _id;
     size_t _gateId;
@@ -203,7 +198,6 @@ private:
     std::vector<QCirQubit*> _qubits;
     std::vector<QCirGate*> mutable _topoOrder;
     std::vector<ZXGraph*> _ZXGraphList;
-    std::unordered_map<size_t, std::pair<size_t, size_t>> _qubit2pin;
 };
 
 #endif  // QCIR_MGR_H

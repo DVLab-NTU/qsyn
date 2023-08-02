@@ -14,38 +14,37 @@
 #include "zxGraph.h"
 
 extern size_t verbose;
-extern TensorMgr* tensorMgr;
+extern TensorMgr tensorMgr;
 
 using namespace std;
 namespace TF = TextFormat;
 
 /**
- * @brief Map a ZX-diagram to a tensor
+ * @brief convert a zxgraph to a tensor
  *
- * @return true if the tensor is contructed
- * @return false if the ZXGraph is not valid
+ * @return std::optional<QTensor<double>> containing a QTensor<double> if the conversion succeeds
  */
-bool ZX2TSMapper::map() {
-    if (!_zxgraph->isValid()) {
+std::optional<QTensor<double>> ZX2TSMapper::map(ZXGraph const& zxgraph) {
+    if (!zxgraph.isValid()) {
         cerr << "Error: The ZXGraph is not valid!!" << endl;
-        return false;
+        return std::nullopt;
     }
 
-    for (auto& v : _zxgraph->getVertices()) {
+    for (auto& v : zxgraph.getVertices()) {
         v->setPin(unsigned(-1));
     }
 
     if (verbose >= 3) cout << "Traverse and build the tensor... " << endl;
-    _zxgraph->topoTraverse([this](ZXVertex* v) { mapOneVertex(v); });
+    zxgraph.topoTraverse([this](ZXVertex* v) { mapOneVertex(v); });
 
     if (_stop_token.stop_requested()) {
         cerr << "Warning: conversion interrupted. " << endl;
-        return false;
+        return std::nullopt;
     }
-    QTensor<double>* result = new QTensor<double>;
+    QTensor<double> result;
 
     for (size_t i = 0; i < _zx2tsList.size(); ++i) {
-        *result = tensordot(*result, _zx2tsList.tensor(i));
+        result = tensordot(result, _zx2tsList.tensor(i));
     }
 
     for (size_t i = 0; i < _boundaryEdges.size(); ++i) {
@@ -54,7 +53,7 @@ bool ZX2TSMapper::map() {
     }
 
     TensorAxisList inputIds, outputIds;
-    getAxisOrders(inputIds, outputIds);
+    getAxisOrders(zxgraph, inputIds, outputIds);
 
     if (verbose >= 8) {
         cout << "Input  axis ids: ";
@@ -63,15 +62,9 @@ bool ZX2TSMapper::map() {
         printAxisList(outputIds);
     }
 
-    *result = result->toMatrix(inputIds, outputIds);
+    result = result.toMatrix(inputIds, outputIds);
 
-    if (!tensorMgr) tensorMgr = new TensorMgr();
-    size_t id = tensorMgr->nextID();
-    tensorMgr->addTensor(id, "ZX " + to_string(_zxgraph->getId()));
-    tensorMgr->setTensor(id, result);
-    cout << "Stored the resulting tensor as tensor id " << id << endl;
-
-    return true;
+    return result;
 }
 
 /**
@@ -164,11 +157,11 @@ void ZX2TSMapper::printFrontiers(size_t id) const {
  * @param inputAxisList
  * @param outputAxisList
  */
-void ZX2TSMapper::getAxisOrders(TensorAxisList& inputAxisList, TensorAxisList& outputAxisList) {
-    inputAxisList.resize(_zxgraph->getNumInputs());
-    outputAxisList.resize(_zxgraph->getNumOutputs());
+void ZX2TSMapper::getAxisOrders(ZXGraph const& zxgraph, TensorAxisList& inputAxisList, TensorAxisList& outputAxisList) {
+    inputAxisList.resize(zxgraph.getNumInputs());
+    outputAxisList.resize(zxgraph.getNumOutputs());
     std::map<int, size_t> inputTable, outputTable;  // std:: to avoid name collision with ZX2TSMapper::map
-    for (auto v : _zxgraph->getInputs()) {
+    for (auto v : zxgraph.getInputs()) {
         inputTable[v->getQubit()] = 0;
     }
     size_t count = 0;
@@ -177,7 +170,7 @@ void ZX2TSMapper::getAxisOrders(TensorAxisList& inputAxisList, TensorAxisList& o
         ++count;
     }
 
-    for (auto v : _zxgraph->getOutputs()) {
+    for (auto v : zxgraph.getOutputs()) {
         outputTable[v->getQubit()] = 0;
     }
     count = 0;
@@ -192,10 +185,10 @@ void ZX2TSMapper::getAxisOrders(TensorAxisList& inputAxisList, TensorAxisList& o
         bool hasB2BEdge = false;
         for (auto& [epair, axid] : _zx2tsList.frontiers(i)) {
             const auto& [v1, v2] = epair.first;
-            bool v1IsInput = _zxgraph->getInputs().contains(v1);
-            bool v2IsInput = _zxgraph->getInputs().contains(v2);
-            bool v1IsOutput = _zxgraph->getOutputs().contains(v1);
-            bool v2IsOutput = _zxgraph->getOutputs().contains(v2);
+            bool v1IsInput = zxgraph.getInputs().contains(v1);
+            bool v2IsInput = zxgraph.getInputs().contains(v2);
+            bool v1IsOutput = zxgraph.getOutputs().contains(v1);
+            bool v2IsOutput = zxgraph.getOutputs().contains(v2);
 
             if (v1IsInput) inputAxisList[inputTable[v1->getQubit()]] = axid + accFrontierSize;
             if (v2IsInput) inputAxisList[inputTable[v2->getQubit()]] = axid + accFrontierSize;

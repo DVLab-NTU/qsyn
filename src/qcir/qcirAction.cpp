@@ -171,7 +171,6 @@ void QCir::reset() {
     _qubits.clear();
     _topoOrder.clear();
     _ZXGraphList.clear();
-    _qubit2pin.clear();
 
     _gateId = 0;
     _ZXNodeId = 0;

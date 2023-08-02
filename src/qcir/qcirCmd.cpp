@@ -19,11 +19,14 @@
 #include "qcirCmd.h"
 #include "qcirGate.h"
 #include "qcirMgr.h"
+#include "qtensor.h"
+#include "tensorMgr.h"
 #include "zxGraph.h"
 #include "zxGraphMgr.h"
 
 QCirMgr qcirMgr{"QCir"};
 extern ZXGraphMgr zxGraphMgr;
+extern TensorMgr tensorMgr;
 extern size_t verbose;
 extern size_t dmode;
 extern int effLimit;
@@ -859,7 +862,17 @@ unique_ptr<ArgParseCmdType> QCir2TSCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        qcirMgr.get()->tensorMapping(st);
+        auto tensor = qcirMgr.get()->toTensor(st);
+
+        if (tensor.has_value()) {
+            tensorMgr.add(tensorMgr.getNextID());
+            tensorMgr.set(std::make_unique<QTensor<double>>(std::move(tensor.value())));
+
+            tensorMgr.get()->setFileName(qcirMgr.get()->getFileName());
+            tensorMgr.get()->addProcedures(qcirMgr.get()->getProcedures());
+            tensorMgr.get()->addProcedure("QC2TS");
+        }
+
         return CMD_EXEC_DONE;
     };
 

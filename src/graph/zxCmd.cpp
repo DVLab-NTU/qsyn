@@ -15,6 +15,7 @@
 #include <iostream>
 #include <string>
 
+#include "tensorMgr.h"
 #include "textFormat.h"
 #include "zx2tsMapper.h"
 #include "zxCmd.h"
@@ -25,6 +26,7 @@ namespace TF = TextFormat;
 using namespace std;
 
 ZXGraphMgr zxGraphMgr{"ZXGraph"};
+extern TensorMgr tensorMgr;
 using namespace ArgParse;
 extern size_t verbose;
 
@@ -232,10 +234,10 @@ unique_ptr<ArgParseCmdType> ZXPrintCmd() {
             .help("print the info of the ZXGraph in focus");
         mutex.addArgument<bool>("-list")
             .action(storeTrue)
-            .help("print a list of ZXGraph");
+            .help("print a list of ZXGraphs");
         mutex.addArgument<bool>("-number")
             .action(storeTrue)
-            .help("print the number of ZXGraph managed");
+            .help("print the number of ZXGraphs managed");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
@@ -674,8 +676,18 @@ unique_ptr<ArgParseCmdType> ZX2TSCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        ZX2TSMapper mapper{zxGraphMgr.get(), st};
-        mapper.map();
+        ZX2TSMapper mapper{st};
+        auto tensor = mapper.map(*zxGraphMgr.get());
+
+        if (tensor.has_value()) {
+            tensorMgr.add(tensorMgr.getNextID());
+            tensorMgr.set(std::make_unique<QTensor<double>>(std::move(tensor.value())));
+
+            tensorMgr.get()->setFileName(zxGraphMgr.get()->getFileName());
+            tensorMgr.get()->addProcedures(zxGraphMgr.get()->getProcedures());
+            tensorMgr.get()->addProcedure("ZX2TS");
+        }
+
         return CMD_EXEC_DONE;
     };
 

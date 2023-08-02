@@ -13,29 +13,31 @@
 
 #include "cmdParser.h"
 #include "phase.h"
+#include "qtensor.h"
 #include "tensorMgr.h"
 #include "textFormat.h"
 
 using namespace std;
 namespace TF = TextFormat;
 
-extern TensorMgr* tensorMgr;
+TensorMgr tensorMgr{"Tensor"};
 extern size_t verbose;
 
 using namespace ArgParse;
 
-unique_ptr<ArgParseCmdType> tsResetCmd();
-unique_ptr<ArgParseCmdType> tsPrintCmd();
-unique_ptr<ArgParseCmdType> tsAdjointCmd();
-unique_ptr<ArgParseCmdType> tsEquivCmd();
+unique_ptr<ArgParseCmdType> TensorMgrResetCmd();
+unique_ptr<ArgParseCmdType> TensorMgrPrintCmd();
+unique_ptr<ArgParseCmdType> TensorAdjointCmd();
+unique_ptr<ArgParseCmdType> TensorPrintCmd();
+unique_ptr<ArgParseCmdType> TensorEquivalenceCmd();
 
 bool initTensorCmd() {
-    tensorMgr = new TensorMgr{};
     if (!(
-            cmdMgr->regCmd("TSReset", 3, tsResetCmd()) &&
-            cmdMgr->regCmd("TSPrint", 3, tsPrintCmd()) &&
-            cmdMgr->regCmd("TSADJoint", 5, tsAdjointCmd()) &&
-            cmdMgr->regCmd("TSEQuiv", 4, tsEquivCmd()))) {
+            cmdMgr->regCmd("TSReset", 3, TensorMgrResetCmd()) &&
+            cmdMgr->regCmd("TSPrint", 3, TensorMgrPrintCmd()) &&
+            cmdMgr->regCmd("TSADJoint", 5, TensorAdjointCmd()) &&
+            cmdMgr->regCmd("TSTPrint", 4, TensorPrintCmd()) &&
+            cmdMgr->regCmd("TSEQuiv", 4, TensorEquivalenceCmd()))) {
         cerr << "Registering \"tensor\" commands fails... exiting" << endl;
         return false;
     }
@@ -44,13 +46,13 @@ bool initTensorCmd() {
 
 ArgType<size_t>::ConstraintType validTensorId = {
     [](size_t const& id) {
-        return tensorMgr->hasId(id);
+        return tensorMgr.isID(id);
     },
     [](size_t const& id) {
         cerr << "Error: Can't find tensor with ID " << id << "!!" << endl;
     }};
 
-unique_ptr<ArgParseCmdType> tsResetCmd() {
+unique_ptr<ArgParseCmdType> TensorMgrResetCmd() {
     unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSReset");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
@@ -58,34 +60,67 @@ unique_ptr<ArgParseCmdType> tsResetCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        tensorMgr->reset();
+        tensorMgr.reset();
         return CMD_EXEC_DONE;
     };
 
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> tsPrintCmd() {
+unique_ptr<ArgParseCmdType> TensorMgrPrintCmd() {
     unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSPrint");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("print info of stored tensors");
+        parser.help("print info of TensorMgr");
+        auto mutex = parser.addMutuallyExclusiveGroup().required(false);
 
-        parser.addArgument<bool>("-list")
+        mutex.addArgument<bool>("-summary")
             .action(storeTrue)
-            .help("only list summary");
-        parser.addArgument<size_t>("id")
-            .nargs(NArgsOption::OPTIONAL)
-            .constraint(validTensorId)
-            .help("the ID to the tensor");
+            .help("print summary of all Tensors");
+        mutex.addArgument<bool>("-focus")
+            .action(storeTrue)
+            .help("print the info of the Tensor in focus");
+        mutex.addArgument<bool>("-list")
+            .action(storeTrue)
+            .help("print a list of Tensors");
+        mutex.addArgument<bool>("-number")
+            .action(storeTrue)
+            .help("print the number of Tensors managed");
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        bool list = parser["-list"];
+        if (parser["-focus"].isParsed())
+            tensorMgr.printFocus();
+        else if (parser["-number"].isParsed())
+            tensorMgr.printListSize();
+        else if (parser["-list"].isParsed())
+            tensorMgr.printList();
+        else
+            tensorMgr.printMgr();
+
+        return CMD_EXEC_DONE;
+    };
+
+    return cmd;
+}
+
+unique_ptr<ArgParseCmdType> TensorPrintCmd() {
+    unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSTPrint");
+
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("print info of Tensor");
+
+        parser.addArgument<size_t>("id")
+            .constraint(validTensorId)
+            .nargs(NArgsOption::OPTIONAL)
+            .help("if specified, print the tensor with the ID");
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser["id"].isParsed()) {
-            tensorMgr->printTensor(parser["id"], list);
+            cout << *tensorMgr.findByID(parser["id"]) << endl;
         } else {
-            tensorMgr->printTensorMgr();
+            cout << *tensorMgr.get() << endl;
         }
 
         return CMD_EXEC_DONE;
@@ -93,7 +128,8 @@ unique_ptr<ArgParseCmdType> tsPrintCmd() {
 
     return cmd;
 }
-unique_ptr<ArgParseCmdType> tsAdjointCmd() {
+
+unique_ptr<ArgParseCmdType> TensorAdjointCmd() {
     unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSADJoint");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
@@ -101,27 +137,29 @@ unique_ptr<ArgParseCmdType> tsAdjointCmd() {
 
         parser.addArgument<size_t>("id")
             .constraint(validTensorId)
+            .nargs(NArgsOption::OPTIONAL)
             .help("the ID of the tensor");
     };
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        tensorMgr->adjoint(parser["id"]);
+        if (parser["id"].isParsed()) {
+            tensorMgr.findByID(parser["id"])->adjoint();
+        } else {
+            tensorMgr.get()->adjoint();
+        }
         return CMD_EXEC_DONE;
     };
 
     return cmd;
 }
-unique_ptr<ArgParseCmdType> tsEquivCmd() {
+unique_ptr<ArgParseCmdType> TensorEquivalenceCmd() {
     unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSEQuiv");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("check the equivalency of two stored tensors");
-
-        parser.addArgument<size_t>("id1")
-            .help("the ID of the first tensor")
-            .constraint(validTensorId);
-        parser.addArgument<size_t>("id2")
-            .help("the ID of the second tensor")
-            .constraint(validTensorId);
+        parser.addArgument<size_t>("ids")
+            .nargs(1, 2)
+            .constraint(validTensorId)
+            .help("Compare the two tensors. If only one is specified, compare with the tensor on focus");
         parser.addArgument<double>("-epsilon")
             .metavar("eps")
             .defaultValue(1e-6)
@@ -132,13 +170,23 @@ unique_ptr<ArgParseCmdType> tsEquivCmd() {
     };
 
     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
-        size_t id1 = parser["id1"], id2 = parser["id2"];
+        vector<size_t> ids = parser["ids"];
         double eps = parser["-epsilon"];
         bool strict = parser["-strict"];
 
-        bool equiv = tensorMgr->isEquivalent(id1, id2, eps);
-        double norm = tensorMgr->getGlobalNorm(id1, id2);
-        Phase phase = tensorMgr->getGlobalPhase(id1, id2);
+        QTensor<double>* tensor1;
+        QTensor<double>* tensor2;
+        if (ids.size() == 2) {
+            tensor1 = tensorMgr.findByID(ids[0]);
+            tensor2 = tensorMgr.findByID(ids[1]);
+        } else {
+            tensor1 = tensorMgr.get();
+            tensor2 = tensorMgr.findByID(ids[0]);
+        }
+
+        bool equiv = isEquivalent(*tensor1, *tensor2, eps);
+        double norm = globalNorm<double>(*tensor1, *tensor2);
+        Phase phase = globalPhase<double>(*tensor1, *tensor2);
 
         if (strict) {
             if (norm > 1 + eps || norm < 1 - eps || phase != Phase(0)) {

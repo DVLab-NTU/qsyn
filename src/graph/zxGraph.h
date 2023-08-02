@@ -340,10 +340,15 @@ public:
     bool writeTex(std::ostream& texFile) const;
 
     // Traverse (in zxTraverse.cpp)
-    void updateTopoOrder();
-    void updateBreadthLevel();
+    void updateTopoOrder() const;
+    void updateBreadthLevel() const;
     template <typename F>
     void topoTraverse(F lambda) {
+        updateTopoOrder();
+        for_each(_topoOrder.begin(), _topoOrder.end(), lambda);
+    }
+    template <typename F>
+    void topoTraverse(F lambda) const {
         updateTopoOrder();
         for_each(_topoOrder.begin(), _topoOrder.end(), lambda);
     }
@@ -369,13 +374,13 @@ private:
     ZXVertexList _inputs;
     ZXVertexList _outputs;
     ZXVertexList _vertices;
-    std::vector<ZXVertex*> _topoOrder;
     std::unordered_map<size_t, ZXVertex*> _inputList;
     std::unordered_map<size_t, ZXVertex*> _outputList;
-    unsigned _globalTraCounter;
+    std::vector<ZXVertex*> mutable _topoOrder;
+    unsigned mutable _globalTraCounter;
 
-    void DFS(ZXVertex*);
-    void BFS(ZXVertex*);
+    void DFS(ZXVertex*) const;
+    void BFS(ZXVertex*) const;
 
     bool buildGraphFromParserStorage(const ZXParserDetail::StorageType& storage, bool keepID = false);
 
