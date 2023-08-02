@@ -27,8 +27,7 @@ Note: verbose level is set to 3
 
 qsyn> zx2ts
 Traverse and build the tensor... 
-Successfully added Tensor 0
-Stored the resulting tensor as tensor id 0
+Created and checked out to Tensor 0
 
 qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
 Note: original QCir is replaced...
@@ -58,8 +57,7 @@ Note: verbose level is set to 3
 
 qsyn> zx2ts
 Traverse and build the tensor... 
-Successfully added Tensor 1
-Stored the resulting tensor as tensor id 1
+Created and checked out to Tensor 1
 
 qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
 Note: original QCir is replaced...
@@ -89,8 +87,7 @@ Note: verbose level is set to 3
 
 qsyn> zx2ts
 Traverse and build the tensor... 
-Successfully added Tensor 2
-Stored the resulting tensor as tensor id 2
+Created and checked out to Tensor 2
 
 qsyn> tseq 0 1
 [1m[32mEquivalent[0m[0m

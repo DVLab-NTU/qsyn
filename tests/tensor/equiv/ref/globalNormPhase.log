@@ -19,20 +19,17 @@ qsyn> zxge -adde 2 3 SIMPLE
 qsyn> zxge -adde 3 1 SIMPLE
 
 qsyn> zx2ts
-Stored the resulting tensor as tensor id 0
 
 qsyn> zxge -adde 2 3 SIMPLE
 
 qsyn> zx2ts
-Stored the resulting tensor as tensor id 1
 
 qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> tsp -l
-Tensor    0: #Dim:    2	Info: ZX 0
-Tensor    1: #Dim:    2	Info: ZX 0
-Total #Tensor: 2
+  0                        ZX2TS
+★ 1                        ZX2TS
 
 qsyn> tseq 0 1
 [1m[32mEquivalent[0m[0m
@@ -55,7 +52,6 @@ qsyn> qcba
 Note: QCir list is empty now. Create a new one.
 
 qsyn> qc2ts 
-Stored the resulting tensor as tensor id 0
 
 qsyn> qcga -t 0
 
@@ -66,15 +62,13 @@ qsyn> qcga -t 0
 qsyn> qcga -x 0
 
 qsyn> qc2ts
-Stored the resulting tensor as tensor id 1
 
 qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> tsp -l
-Tensor    0: #Dim:    2	Info: QC
-Tensor    1: #Dim:    2	Info: QC
-Total #Tensor: 2
+  0                        QC2TS
+★ 1                        QC2TS
 
 qsyn> tseq 0 1
 [1m[32mEquivalent[0m[0m

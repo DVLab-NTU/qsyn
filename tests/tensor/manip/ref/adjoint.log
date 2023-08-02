@@ -18,15 +18,13 @@ qsyn> zxge -adde 2 3 SIMPLE
 
 qsyn> zx2ts
 Traverse and build the tensor... 
-Successfully added Tensor 0
-Stored the resulting tensor as tensor id 0
+Created and checked out to Tensor 0
 
 qsyn> zxgadj
 
 qsyn> zx2ts
 Traverse and build the tensor... 
-Successfully added Tensor 1
-Stored the resulting tensor as tensor id 1
+Created and checked out to Tensor 1
 
 qsyn> tsadj 0
 

@@ -6,12 +6,10 @@ qsyn> qcba
 Note: QCir list is empty now. Create a new one.
 
 qsyn> qc2ts
-Stored the resulting tensor as tensor id 0
 
 qsyn> qcga -rz -ph 0.001 0
 
 qsyn> qc2ts
-Stored the resulting tensor as tensor id 1
 
 qsyn> ver 3
 Note: verbose level is set to 3

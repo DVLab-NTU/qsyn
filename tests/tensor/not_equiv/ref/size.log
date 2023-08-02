@@ -6,20 +6,17 @@ qsyn> qcba
 Note: QCir list is empty now. Create a new one.
 
 qsyn> qc2ts
-Stored the resulting tensor as tensor id 0
 
 qsyn> qcba
 
 qsyn> qc2ts
-Stored the resulting tensor as tensor id 1
 
 qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> tsp -l
-Tensor    0: #Dim:    2	Info: QC
-Tensor    1: #Dim:    2	Info: QC
-Total #Tensor: 2
+  0                        QC2TS
+★ 1                        QC2TS
 
 qsyn> tseq 0 1 
 [1m[31mNot Equivalent[0m[0m
