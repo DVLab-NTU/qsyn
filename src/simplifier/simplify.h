@@ -55,8 +55,7 @@ public:
     int piCliffordSimp();
     int cliffordSimp();
     void fullReduce();
-    void dynamicReduce(int tOptimal = INT_MAX);
-    void hybridReduce();
+    void dynamicReduce();
     void symbolicReduce();
     // slice_rounds = n means 2^n partitions
     void partitionReduce(size_t sliceTimes, size_t rounds);

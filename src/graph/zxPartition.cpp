@@ -9,6 +9,7 @@
 #include "zxPartition.h"
 
 #include <algorithm>
+#include <climits>
 #include <cstdint>
 #include <iomanip>
 #include <stack>
@@ -24,8 +25,6 @@ extern ZXGraphMgr zxGraphMgr;
 /*****************************************************/
 /*   class ZXGraph partition functions.              */
 /*****************************************************/
-
-const int CUT_BOUNDARY_QUBIT_ID = INT_MIN;
 
 struct DirectionalZXCutHash {
     size_t operator()(const ZXCut& cut) const {
@@ -56,6 +55,9 @@ ZXGraph::createSubgraphs(ZXPartitionStrategy partitionStrategy, size_t numPartit
     ZXVertexList primaryInputs = getInputs();
     ZXVertexList primaryOutputs = getOutputs();
 
+    // by pass the output qubit id collision check in the copy constructor
+    int next_boundary_qubit_id = INT_MIN;
+
     for (auto& partition : partitions) {
         ZXVertexList subgraphInputs;
         ZXVertexList subgraphOutputs;
@@ -75,7 +77,7 @@ ZXGraph::createSubgraphs(ZXPartitionStrategy partitionStrategy, size_t numPartit
             std::vector<NeighborPair> neighborsToAdd;
             for (const auto& [neighbor, edgeType] : vertex->getNeighbors()) {
                 if (!partition.contains(neighbor)) {
-                    ZXVertex* boundary = new ZXVertex(nextVertexId++, CUT_BOUNDARY_QUBIT_ID, VertexType::BOUNDARY);
+                    ZXVertex* boundary = new ZXVertex(nextVertexId++, next_boundary_qubit_id++, VertexType::BOUNDARY);
                     innerCuts.insert({vertex, neighbor, edgeType});
                     cutToBoundary[{vertex, neighbor, edgeType}] = boundary;
 
@@ -112,8 +114,8 @@ ZXGraph::createSubgraphs(ZXPartitionStrategy partitionStrategy, size_t numPartit
     }
 
     for (auto [v1, v2, edgeType] : innerCuts) {
-        ZXVertex* b1 = cutToBoundary[{v1, v2, edgeType}];
-        ZXVertex* b2 = cutToBoundary[{v2, v1, edgeType}];
+        ZXVertex* b1 = cutToBoundary.at({v1, v2, edgeType});
+        ZXVertex* b2 = cutToBoundary.at({v2, v1, edgeType});
         outerCuts.push_back({b1, b2, edgeType});
     }
 
@@ -148,16 +150,22 @@ ZXGraph* ZXGraph::fromSubgraphs(const std::vector<ZXGraph*>& subgraphs, const st
         ZXVertex* v1 = b1->getFirstNeighbor().first;
         ZXVertex* v2 = b2->getFirstNeighbor().first;
 
+        EdgeType e1 = v1->isNeighbor(b1, EdgeType::SIMPLE) ? EdgeType::SIMPLE : EdgeType::HADAMARD;
+        EdgeType e2 = v2->isNeighbor(b2, EdgeType::SIMPLE) ? EdgeType::SIMPLE : EdgeType::HADAMARD;
+        EdgeType new_edge_type = (e1 == EdgeType::HADAMARD) ^ (e2 == EdgeType::HADAMARD) ^ (edgeType == EdgeType::HADAMARD)
+                                     ? EdgeType::HADAMARD
+                                     : EdgeType::SIMPLE;
+
+        v1->removeNeighbor(b1, e1);
+        v2->removeNeighbor(b2, e2);
         vertices.erase(b1);
         vertices.erase(b2);
         inputs.erase(b1);
         inputs.erase(b2);
         outputs.erase(b1);
         outputs.erase(b2);
-        v1->removeNeighbor(b1, edgeType);
-        v2->removeNeighbor(b2, edgeType);
-        v1->addNeighbor(v2, edgeType);
-        v2->addNeighbor(v1, edgeType);
+        v1->addNeighbor(v2, new_edge_type);
+        v2->addNeighbor(v1, new_edge_type);
         delete b1;
         delete b2;
     }
