@@ -1,8 +1,7 @@
 verb 3
-qccread ./benchmark/qft/qft_7.qasm
-qc2zx 
+zxgread benchmark/zx/tof3.zx
 zxcopy 1
-zxgs -preduce 4
+zxgs -dreduce
 zxgadjoint 
 zxcompose 0
 zxgs -freduce
