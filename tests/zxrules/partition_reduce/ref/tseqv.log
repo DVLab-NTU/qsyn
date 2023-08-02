@@ -17,16 +17,75 @@ qsyn> zxcopy
 Successfully copied ZXGraph 0 to ZXGraph 1
 Checked out to ZXGraph 1
 
-qsyn> zxgs -preduce 2 1
+qsyn> zxgs -preduce 4
 
+Full Reduce:
+All rules applied in order:
+
+Dynamic Reduce: (T-optimal: 5)
+All rules applied in order:
+
+Full Reduce:
+All rules applied in order:
+Spider Fusion Rule            2 iterations.
+  1) 2 matches
+  2) 1 matches
+
+Dynamic Reduce: (T-optimal: 1)
+All rules applied in order:
+Spider Fusion Rule            2 iterations.
+  1) 2 matches
+  2) 1 matches
+
+Full Reduce:
 All rules applied in order:
 Spider Fusion Rule            1 iterations.
   1) 2 matches
 
+Dynamic Reduce: (T-optimal: 4)
 All rules applied in order:
-Spider Fusion Rule            2 iterations.
-  1) 4 matches
-  2) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 2 matches
+
+Full Reduce:
+All rules applied in order:
+Spider Fusion Rule            1 iterations.
+  1) 2 matches
+
+Dynamic Reduce: (T-optimal: 0)
+All rules applied in order:
+Spider Fusion Rule            1 iterations.
+  1) 2 matches
+
+Full Reduce:
+All rules applied in order:
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+
+Dynamic Reduce: (T-optimal: 6)
+All rules applied in order:
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+
+Full Reduce:
+All rules applied in order:
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+
+Dynamic Reduce: (T-optimal: 2)
+All rules applied in order:
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+
+Full Reduce:
+All rules applied in order:
+Spider Fusion Rule            1 iterations.
+  1) 3 matches
+
+Dynamic Reduce: (T-optimal: 6)
+All rules applied in order:
+Spider Fusion Rule            1 iterations.
+  1) 3 matches
 
 qsyn> zx2ts
 Traverse and build the tensor... 
