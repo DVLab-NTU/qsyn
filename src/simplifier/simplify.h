@@ -56,9 +56,9 @@ public:
     int cliffordSimp();
     void fullReduce();
     void dynamicReduce();
+    void dynamicReduce(size_t tOptimal);
     void symbolicReduce();
-    // slice_rounds = n means 2^n partitions
-    void partitionReduce(size_t sliceTimes, size_t rounds);
+    void partitionReduce(size_t numPartitions, size_t iterations);
 
     // print function
     void printRecipe();

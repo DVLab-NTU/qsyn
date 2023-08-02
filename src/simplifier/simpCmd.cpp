@@ -83,13 +83,14 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         mutex.addArgument<bool>("-sreduce")
             .action(storeTrue)
             .help("perform symbolic reduce");
+
         mutex.addArgument<bool>("-preduce")
             .action(storeTrue)
             .help("perform partition reduce");
 
         parser.addArgument<size_t>("p")
             .nargs(NArgsOption::OPTIONAL)
-            // .defaultValue(2)
+            .defaultValue(2)
             .constraint(validPreducePartitions)
             .help("the amount of partitions generated for preduce, defaults to 2");
         parser.addArgument<size_t>("n")

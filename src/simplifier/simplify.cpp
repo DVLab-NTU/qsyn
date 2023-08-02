@@ -395,6 +395,11 @@ void Simplifier::fullReduce() {
     this->printRecipe();
 }
 
+/**
+ * @brief Perform a full reduce on the graph to determine the optimal T-count automatically
+ *        and then perform a dynamic reduce
+ *
+ */
 void Simplifier::dynamicReduce() {
     // copy the graph's structure
     ZXGraph _copiedGraph = *_simpGraph;
@@ -403,12 +408,20 @@ void Simplifier::dynamicReduce() {
     // to obtain the T-optimal
     Simplifier simp = Simplifier(&_copiedGraph);
     simp.fullReduce();
-    int tOptimal = _copiedGraph.TCount();
+    size_t tOptimal = _copiedGraph.TCount();
 
     cout << endl
          << "Dynamic Reduce:";
     _recipe.clear();
+    dynamicReduce(tOptimal);
+}
 
+/**
+ * @brief Do full reduce until the T-count is equal to the T-optimal while maintaining the lowest possible density
+ *
+ * @param tOptimal the target optimal T-count
+ */
+void Simplifier::dynamicReduce(size_t tOptimal) {
     cout << " (T-optimal: " << tOptimal << ")";
     opt.init();
     opt.updateParameters(_simpGraph);
@@ -500,7 +513,6 @@ void Simplifier::partitionReduce(size_t numPartitions, size_t iterations = 1) {
         delete newGraph;
     }
 }
-
 /**
  * @brief Print recipe of Simplifier
  *
