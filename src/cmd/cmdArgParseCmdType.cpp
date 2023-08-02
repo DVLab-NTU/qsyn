@@ -21,8 +21,7 @@ bool ArgParseCmdType::initialize() {
         printMissingParserDefinitionErrorMsg();
         return false;
     }
-    if ((std::holds_alternative<Uninterruptible>(onParseSuccess) && !std::get<Uninterruptible>(onParseSuccess)) ||
-        (std::holds_alternative<Interruptible>(onParseSuccess) && !std::get<Interruptible>(onParseSuccess))) {
+    if (!onParseSuccess) {
         printMissingOnParseSuccessErrorMsg();
         return false;
     }
@@ -36,18 +35,15 @@ bool ArgParseCmdType::initialize() {
  * @return true if succeeded
  * @return false if failed
  */
-CmdExecStatus ArgParseCmdType::exec(mythread::stop_token st, const std::string& option) {
+CmdExecStatus ArgParseCmdType::exec(const std::string& option) {
     if (precondition && !precondition()) {
-        return CMD_EXEC_ERROR;
+        return CmdExecStatus::ERROR;
     }
     if (!_parser.parseArgs(option)) {
-        return CMD_EXEC_ERROR;
+        return CmdExecStatus::ERROR;
     }
-    if (std::holds_alternative<Uninterruptible>(onParseSuccess)) {
-        return std::get<Uninterruptible>(onParseSuccess)(_parser);
-    } else {
-        return std::get<Interruptible>(onParseSuccess)(st, _parser);
-    }
+
+    return onParseSuccess(_parser);
 }
 
 void ArgParseCmdType::printMissingParserDefinitionErrorMsg() const {
@@ -57,5 +53,5 @@ void ArgParseCmdType::printMissingParserDefinitionErrorMsg() const {
 
 void ArgParseCmdType::printMissingOnParseSuccessErrorMsg() const {
     cerr << "[ArgParse] Error:   please define on-parse-success action for command \"" << _parser.getName() << "\"!!\n"
-         << "           Syntax:  <cmd>->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) { ... }; " << endl;
+         << "           Syntax:  <cmd>->onParseSuccess = [](ArgumentParser const& parser) { ... }; " << endl;
 }

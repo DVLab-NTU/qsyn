@@ -21,7 +21,7 @@ using namespace std;
 //----------------------------------------------------------------------
 
 void mybeep() {
-    cout << char(BEEP_CHAR);
+    cout << (char)detail::getKeyCode(ParseChar::BEEP_CHAR);
 }
 
 void clearConsole() {
@@ -71,7 +71,7 @@ static auto mygetc(istream& istr) -> char {
     return ch;
 }
 
-static auto returnCh(int ch) -> ParseChar {
+static auto toParseChar(int ch) -> ParseChar {
     return ParseChar(ch);
 };
 
@@ -80,11 +80,13 @@ static auto returnCh(int ch) -> ParseChar {
 ParseChar
 CmdParser::getChar(istream& istr) const {
     using namespace detail;
+    using enum ParseChar;
     char ch = mygetc(istr);
+    ParseChar parseChar{ch};
 
     if (istr.eof())
-        return returnCh(INTERRUPT_KEY);
-    switch (ch) {
+        return INTERRUPT_KEY;
+    switch (parseChar) {
         // Simple keys: one code for one key press
         // -- The following should be platform-independent
         case LINE_BEGIN_KEY:     // Ctrl-a
@@ -93,16 +95,16 @@ CmdParser::getChar(istream& istr) const {
         case TAB_KEY:            // tab('\t') or Ctrl-i
         case NEWLINE_KEY:        // enter('\n') or ctrl-m
         case CLEAR_CONSOLE_KEY:  // Clear console (Ctrl-l)
-            return returnCh(ch);
+            return parseChar;
 
         // -- The following simple/combo keys are platform-dependent
         //    You should test to check the returned codes of these key presses
         // -- You should either modify the "enum ParseChar" definitions in
         //    "cmdCharDef.h", or revise the control flow of the "case ESC" below
         case BACK_SPACE_KEY:
-            return returnCh(ch);
+            return parseChar;
         case BACK_SPACE_CHAR:
-            return returnCh(BACK_SPACE_KEY);
+            return BACK_SPACE_KEY;
 
         // Combo keys: multiple codes for one key press
         // -- Usually starts with ESC key, so we check the "case ESC"
@@ -112,15 +114,15 @@ CmdParser::getChar(istream& istr) const {
             if (combo == char(MOD_KEY_INT)) {
                 char key = mygetc(istr);
                 if ((key >= char(MOD_KEY_BEGIN)) && (key <= char(MOD_KEY_END))) {
-                    if (mygetc(istr) == MOD_KEY_DUMMY)
-                        return returnCh(int(key) + MOD_KEY_FLAG);
+                    if (mygetc(istr) == getKeyCode(MOD_KEY_DUMMY))
+                        return toParseChar(int(key) + getKeyCode(MOD_KEY_FLAG));
                     else
-                        return returnCh(UNDEFINED_KEY);
+                        return UNDEFINED_KEY;
                 } else if ((key >= char(ARROW_KEY_BEGIN)) &&
                            (key <= char(ARROW_KEY_END)))
-                    return returnCh(int(key) + ARROW_KEY_FLAG);
+                    return toParseChar(int(key) + getKeyCode(ARROW_KEY_FLAG));
                 else
-                    return returnCh(UNDEFINED_KEY);
+                    return UNDEFINED_KEY;
             } else {
                 mybeep();
                 return getChar(istr);
@@ -129,10 +131,10 @@ CmdParser::getChar(istream& istr) const {
         // For the remaining printable and undefined keys
         default:
             if (isprint(ch))
-                return returnCh(ch);
+                return parseChar;
             else
-                return returnCh(UNDEFINED_KEY);
+                return UNDEFINED_KEY;
     }
 
-    return returnCh(UNDEFINED_KEY);
+    return UNDEFINED_KEY;
 }

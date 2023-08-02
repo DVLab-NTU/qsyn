@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <thread>
 
+#include "cmdParser.h"
 #include "qcir.h"
 #include "qcirGate.h"
 #include "qcirQubit.h"
@@ -38,7 +39,7 @@ void QCir::clearMapping() {
 /**
  * @brief Mapping QCir to ZXGraph
  */
-std::optional<ZXGraph> QCir::toZX(mythread::stop_token st) {
+std::optional<ZXGraph> QCir::toZX() {
     updateGateTime();
     ZXGraph g;
 
@@ -52,8 +53,8 @@ std::optional<ZXGraph> QCir::toZX(mythread::stop_token st) {
         g.addEdge(input, output, EdgeType::SIMPLE);
     }
 
-    topoTraverse([st, &g](QCirGate *gate) {
-        if (st.stop_requested()) return;
+    topoTraverse([&g](QCirGate *gate) {
+        if (cli.stop_requested()) return;
         if (verbose >= 8) cout << "\n";
         if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
         ZXGraph tmp = gate->getZXform();
@@ -76,7 +77,7 @@ std::optional<ZXGraph> QCir::toZX(mythread::stop_token st) {
         v->setCol(max + 1);
     }
 
-    if (st.stop_requested()) {
+    if (cli.stop_requested()) {
         cerr << "Warning: conversion interrupted." << endl;
         return std::nullopt;
     }
@@ -139,7 +140,7 @@ void updateTensorPin(Qubit2TensorPinMap &qubit2pin, vector<BitInfo> const &pins,
 /**
  * @brief Convert QCir to tensor
  */
-std::optional<QTensor<double>> QCir::toTensor(mythread::stop_token st) {
+std::optional<QTensor<double>> QCir::toTensor() {
     if (verbose >= 3) cout << "Traverse and build the tensor... " << endl;
     updateTopoOrder();
     if (verbose >= 5) cout << "> Add boundary" << endl;
@@ -149,7 +150,7 @@ std::optional<QTensor<double>> QCir::toTensor(mythread::stop_token st) {
     // NOTE: Constucting an identity(_qubit.size()) takes much time and memory.
     //       To make this process interruptible by SIGINT (ctrl-C), we grow the qubit size one by one
     for (size_t i = 0; i < _qubits.size(); ++i) {
-        if (st.stop_requested()) {
+        if (cli.stop_requested()) {
             cerr << "Warning: conversion interrupted." << endl;
             return std::nullopt;
         }
@@ -162,8 +163,8 @@ std::optional<QTensor<double>> QCir::toTensor(mythread::stop_token st) {
         if (verbose >= 8) cout << "  - Add Qubit " << _qubits[i]->getId() << " output port: " << 2 * i + 1 << endl;
     }
 
-    topoTraverse([st, &tensor, &qubit2pin](QCirGate *gate) {
-        if (st.stop_requested()) return;
+    topoTraverse([&tensor, &qubit2pin](QCirGate *gate) {
+        if (cli.stop_requested()) return;
         if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
         QTensor<double> tmp = gate->getTSform();
         vector<size_t> ori_pin;
@@ -179,7 +180,7 @@ std::optional<QTensor<double>> QCir::toTensor(mythread::stop_token st) {
         updateTensorPin(qubit2pin, gate->getQubits(), tensor, tmp);
     });
 
-    if (st.stop_requested()) {
+    if (cli.stop_requested()) {
         cerr << "Warning: conversion interrupted." << endl;
         return std::nullopt;
     }

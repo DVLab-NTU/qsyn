@@ -23,9 +23,8 @@ extern size_t verbose;
  *
  * @param c
  */
-Optimizer::Optimizer(QCir* c, mythread::stop_token st) {
+Optimizer::Optimizer(QCir* c) {
     _circuit = c;
-    _stop_token = st;
     reset();
     _doSwap = false;
     _separateCorrection = false;

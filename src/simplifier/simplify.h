@@ -19,7 +19,7 @@ class ZXGraph;
 
 class Simplifier {
 public:
-    Simplifier(ZXGraph* g, mythread::stop_token st = mythread::stop_token{}) : _rule{nullptr}, _simpGraph{g}, _stop_token{st} {
+    Simplifier(ZXGraph* g) : _rule{nullptr}, _simpGraph{g} {
         hruleSimp();
     }
     Simplifier(std::unique_ptr<ZXRule> rule, ZXGraph* g) : _rule{std::move(rule)}, _simpGraph{g} {}
@@ -45,7 +45,6 @@ public:
     int pivotSimp();
     int pivotBoundarySimp();
     int pivotGadgetSimp();
-    // int degadgetizeSimp(mythread::stop_token);
     int sfusionSimp();
 
     // action
@@ -69,7 +68,6 @@ private:
     std::unique_ptr<ZXRule> _rule;
     ZXGraph* _simpGraph;
     std::vector<std::tuple<std::string, std::vector<int> > > _recipe;
-    mythread::stop_token _stop_token;
 };
 
 #endif

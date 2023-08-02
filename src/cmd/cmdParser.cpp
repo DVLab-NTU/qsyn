@@ -124,7 +124,7 @@ void CmdParser::sigintHandler(int signum) {
         cout << "Command Interrupted" << endl;
     } else {
         // receiving inputs
-        cout << char(NEWLINE_KEY);
+        cout << char(ParseChar::NEWLINE_KEY);
         resetBufAndPrintPrompt();
     }
 }
@@ -139,23 +139,23 @@ CmdParser::execOneCmd() {
         newCmd = readCmd(cin);
 
     // execute the command
-    if (!newCmd) return CMD_EXEC_NOP;
+    if (!newCmd) return CmdExecStatus::NOP;
 
     auto [e, option] = parseCmd();
 
-    if (e == nullptr) return CMD_EXEC_NOP;
+    if (e == nullptr) return CmdExecStatus::NOP;
 
-    std::atomic<CmdExecStatus> result = CMD_EXEC_EXECUTING;
-    _currCmd = mythread::jthread(
-        [this, &e = e, &option = option, &result](mythread::stop_token st) {
-            result = e->exec(st, option);
+    std::atomic<CmdExecStatus> result = CmdExecStatus::EXECUTING;
+    _currCmd = jthread::jthread(
+        [this, &e = e, &option = option, &result]() {
+            result = e->exec(option);
         });
 
     assert(_currCmd.has_value());
 
     _currCmd->join();
 
-    if (result == CMD_EXEC_EXECUTING) {
+    if (result == CmdExecStatus::EXECUTING) {
         cerr << "Command interrupted " << endl;
     }
 

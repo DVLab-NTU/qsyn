@@ -18,8 +18,8 @@ class QCir;
 
 class Duostra {
 public:
-    Duostra(QCir*, Device, bool = false, bool = true, bool = false, mythread::stop_token st = mythread::stop_token{});
-    Duostra(const std::vector<Operation>&, size_t, Device, bool = false, bool = true, bool = false, mythread::stop_token st = mythread::stop_token{});
+    Duostra(QCir*, Device, bool = false, bool = true, bool = false);
+    Duostra(const std::vector<Operation>&, size_t, Device, bool = false, bool = true, bool = false);
     ~Duostra() {}
 
     std::unique_ptr<QCir> const& getPhysicalCircuit() const { return _physicalCircuit; }
@@ -46,8 +46,6 @@ private:
     std::shared_ptr<DependencyGraph> _dependency;
     std::vector<Operation> _result;
     std::vector<Operation> _order;
-
-    mythread::stop_token _stop_token;
 };
 
 std::string getSchedulerTypeStr();

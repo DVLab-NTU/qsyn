@@ -25,7 +25,7 @@ unique_ptr<ArgParseCmdType> latticeSurgeryCompilationCmd();
 
 bool initLTCmd() {
     if (!(
-            cmdMgr->regCmd("LTS", 3, latticeSurgeryCompilationCmd())
+            cli.regCmd("LTS", 3, latticeSurgeryCompilationCmd())
 
                 )) {
         cerr << "Registering \"lts\" commands fails... exiting" << endl;
@@ -50,7 +50,7 @@ unique_ptr<ArgParseCmdType> latticeSurgeryCompilationCmd() {
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         LTContainer lt(1, 1);
         lt.generateLTC(zxGraphMgr.get());
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;

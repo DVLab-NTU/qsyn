@@ -8,6 +8,7 @@
 
 #include <cassert>
 
+#include "cmdParser.h"
 #include "optimizer.h"
 #include "qcir.h"
 #include "qcirGate.h"
@@ -26,7 +27,7 @@ QCir* Optimizer::trivial_optimization() {
     temp->addQubit(_circuit->getNQubit());
     vector<QCirGate*> gateList = _circuit->getTopoOrderdGates();
     for (auto gate : gateList) {
-        if (_stop_token.stop_requested()) {
+        if (cli.stop_requested()) {
             cerr << "Warning: optimization interrupted" << endl;
             return _circuit;
         }

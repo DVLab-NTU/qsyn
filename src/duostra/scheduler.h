@@ -23,7 +23,7 @@
 
 class BaseScheduler {
 public:
-    BaseScheduler(std::unique_ptr<CircuitTopo>, bool = true, mythread::stop_token = mythread::stop_token{});
+    BaseScheduler(std::unique_ptr<CircuitTopo>, bool = true);
     BaseScheduler(BaseScheduler const&);
     BaseScheduler(BaseScheduler&&) = default;
     virtual ~BaseScheduler() {}
@@ -52,14 +52,13 @@ protected:
     std::vector<size_t> _assignOrder;
     bool _sorted = false;
     bool _tqdm = true;
-    mythread::stop_token _stop_token;
     virtual Device assignGates(std::unique_ptr<Router>);
     void sort();
 };
 
 class RandomScheduler : public BaseScheduler {
 public:
-    RandomScheduler(std::unique_ptr<CircuitTopo>, bool = true, mythread::stop_token = mythread::stop_token{});
+    RandomScheduler(std::unique_ptr<CircuitTopo>, bool = true);
     RandomScheduler(const RandomScheduler&);
     RandomScheduler(RandomScheduler&&);
     ~RandomScheduler() override {}
@@ -72,7 +71,7 @@ protected:
 
 class StaticScheduler : public BaseScheduler {
 public:
-    StaticScheduler(std::unique_ptr<CircuitTopo>, bool = true, mythread::stop_token = mythread::stop_token{});
+    StaticScheduler(std::unique_ptr<CircuitTopo>, bool = true);
     StaticScheduler(const StaticScheduler&);
     StaticScheduler(StaticScheduler&&);
     ~StaticScheduler() override {}
@@ -94,7 +93,7 @@ struct GreedyConf {
 
 class GreedyScheduler : public BaseScheduler {
 public:
-    GreedyScheduler(std::unique_ptr<CircuitTopo>, bool = true, mythread::stop_token = mythread::stop_token{});
+    GreedyScheduler(std::unique_ptr<CircuitTopo>, bool = true);
     GreedyScheduler(const GreedyScheduler&);
     GreedyScheduler(GreedyScheduler&&);
     ~GreedyScheduler() override {}
@@ -168,7 +167,7 @@ private:
 
 class SearchScheduler : public GreedyScheduler {
 public:
-    SearchScheduler(std::unique_ptr<CircuitTopo>, bool = true, mythread::stop_token = mythread::stop_token{});
+    SearchScheduler(std::unique_ptr<CircuitTopo>, bool = true);
     SearchScheduler(const SearchScheduler&);
     SearchScheduler(SearchScheduler&&);
     ~SearchScheduler() override {}
@@ -185,6 +184,6 @@ protected:
     void cacheOnlyWhenNecessary();
 };
 
-std::unique_ptr<BaseScheduler> getScheduler(std::unique_ptr<CircuitTopo>, bool = true, mythread::stop_token = mythread::stop_token{});
+std::unique_ptr<BaseScheduler> getScheduler(std::unique_ptr<CircuitTopo>, bool = true);
 
 #endif

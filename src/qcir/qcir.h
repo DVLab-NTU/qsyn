@@ -148,8 +148,8 @@ public:
 
     std::vector<int> countGate(bool detail = false, bool print = true);
 
-    std::optional<ZXGraph> toZX(mythread::stop_token st = mythread::stop_token{});
-    std::optional<QTensor<double>> toTensor(mythread::stop_token st = mythread::stop_token{});
+    std::optional<ZXGraph> toZX();
+    std::optional<QTensor<double>> toTensor();
 
     void clearMapping();
     void updateGateTime();

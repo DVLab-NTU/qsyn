@@ -24,7 +24,7 @@
  * @brief Change the namespace from `std` to avoid name clashing with <thread> on GNU c++ compilers
  * 
  */
-namespace mythread {
+namespace jthread {
 
 //*****************************************
 //* class jthread

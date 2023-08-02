@@ -25,7 +25,7 @@
  * @brief Change the namespace from `std` to avoid name clashing with <thread> on GNU c++ compilers
  * 
  */
-namespace mythread {
+namespace jthread {
 inline void __spin_yield() noexcept {
     // TODO: Platform-specific code here
 #if defined(__x86_64__) || defined(_M_X64)

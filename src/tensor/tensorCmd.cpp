@@ -33,11 +33,11 @@ unique_ptr<ArgParseCmdType> TensorEquivalenceCmd();
 
 bool initTensorCmd() {
     if (!(
-            cmdMgr->regCmd("TSReset", 3, TensorMgrResetCmd()) &&
-            cmdMgr->regCmd("TSPrint", 3, TensorMgrPrintCmd()) &&
-            cmdMgr->regCmd("TSADJoint", 5, TensorAdjointCmd()) &&
-            cmdMgr->regCmd("TSTPrint", 4, TensorPrintCmd()) &&
-            cmdMgr->regCmd("TSEQuiv", 4, TensorEquivalenceCmd()))) {
+            cli.regCmd("TSReset", 3, TensorMgrResetCmd()) &&
+            cli.regCmd("TSPrint", 3, TensorMgrPrintCmd()) &&
+            cli.regCmd("TSADJoint", 5, TensorAdjointCmd()) &&
+            cli.regCmd("TSTPrint", 4, TensorPrintCmd()) &&
+            cli.regCmd("TSEQuiv", 4, TensorEquivalenceCmd()))) {
         cerr << "Registering \"tensor\" commands fails... exiting" << endl;
         return false;
     }
@@ -59,9 +59,9 @@ unique_ptr<ArgParseCmdType> TensorMgrResetCmd() {
         parser.help("reset the tensor manager");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         tensorMgr.reset();
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;
@@ -88,7 +88,7 @@ unique_ptr<ArgParseCmdType> TensorMgrPrintCmd() {
             .help("print the number of Tensors managed");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser["-focus"].isParsed())
             tensorMgr.printFocus();
         else if (parser["-number"].isParsed())
@@ -98,7 +98,7 @@ unique_ptr<ArgParseCmdType> TensorMgrPrintCmd() {
         else
             tensorMgr.printMgr();
 
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;
@@ -123,7 +123,7 @@ unique_ptr<ArgParseCmdType> TensorPrintCmd() {
             cout << *tensorMgr.get() << endl;
         }
 
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;
@@ -140,13 +140,13 @@ unique_ptr<ArgParseCmdType> TensorAdjointCmd() {
             .nargs(NArgsOption::OPTIONAL)
             .help("the ID of the tensor");
     };
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser["id"].isParsed()) {
             tensorMgr.findByID(parser["id"])->adjoint();
         } else {
             tensorMgr.get()->adjoint();
         }
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;
@@ -169,7 +169,7 @@ unique_ptr<ArgParseCmdType> TensorEquivalenceCmd() {
             .action(storeTrue);
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         vector<size_t> ids = parser["ids"];
         double eps = parser["-epsilon"];
         bool strict = parser["-strict"];
@@ -202,7 +202,7 @@ unique_ptr<ArgParseCmdType> TensorEquivalenceCmd() {
             cout << TF::BOLD(TF::RED("Not Equivalent")) << endl;
         }
 
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;

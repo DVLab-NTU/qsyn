@@ -26,7 +26,7 @@ using namespace ArgParse;
 unique_ptr<ArgParseCmdType> argparseCmd();
 
 bool initArgParseCmd() {
-    if (!(cmdMgr->regCmd("Argparse", 1, argparseCmd()))) {
+    if (!(cli.regCmd("Argparse", 1, argparseCmd()))) {
         cerr << "Registering \"argparser\" commands fails... exiting" << endl;
         return false;
     }
@@ -49,7 +49,7 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
             .help("humans' best friend");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         parser.printTokens();
         parser.printArguments();
 
@@ -59,7 +59,7 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
         for (auto& name : cats) cout << " " << name;
         cout << endl;
 
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;

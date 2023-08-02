@@ -22,7 +22,7 @@ class ZX2TSMapper {
 public:
     using Frontiers = ordered_hashmap<EdgePair, size_t>;
 
-    ZX2TSMapper(mythread::stop_token st = mythread::stop_token{}) : _stop_token{st} {}
+    ZX2TSMapper() {}
 
     class ZX2TSList {
     public:
@@ -61,8 +61,6 @@ private:
     std::vector<EdgePair> _removeEdges;  // Old frontiers to be removed
     std::vector<EdgePair> _addEdges;     // New frontiers to be added
 
-    mythread::stop_token _stop_token;
-
     Frontiers& currFrontiers() { return _zx2tsList.frontiers(_tensorId); }
     QTensor<double>& currTensor() { return _zx2tsList.tensor(_tensorId); }
     const Frontiers& currFrontiers() const { return _zx2tsList.frontiers(_tensorId); }
@@ -80,7 +78,11 @@ private:
     bool isFrontier(const NeighborPair& nbr) const;
 
     void printFrontiers(size_t id) const;
-    void getAxisOrders(ZXGraph const& zxgraph, TensorAxisList& inputAxisList, TensorAxisList& outputAxisList);
+    struct InOutAxisList {
+        TensorAxisList inputs;
+        TensorAxisList outputs;
+    };
+    InOutAxisList getAxisOrders(ZXGraph const& zxgraph);
 };
 
 QTensor<double> getTSform(ZXVertex* v);

@@ -26,7 +26,7 @@ extern QCirMgr qcirMgr;
 unique_ptr<ArgParseCmdType> optimizeCmd();
 
 bool initOptimizeCmd() {
-    if (!(cmdMgr->regCmd("OPTimize", 3, optimizeCmd()))) {
+    if (!(cli.regCmd("OPTimize", 3, optimizeCmd()))) {
         cerr << "Registering \"optimize\" commands fails... exiting" << endl;
         return false;
     }
@@ -61,8 +61,8 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
             .help("Use the trivial optimization.");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
-        Optimizer optimizer(qcirMgr.get(), st);
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        Optimizer optimizer(qcirMgr.get());
         QCir *result;
         std::string procedure_str{};
         if (parser["-trivial"]) {
@@ -74,7 +74,7 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
         }
         if (result == nullptr) {
             cout << "Error: fail to optimize circuit." << endl;
-            return CMD_EXEC_ERROR;
+            return CmdExecStatus::ERROR;
         }
         auto name = qcirMgr.get()->getFileName();
         auto procedures = qcirMgr.get()->getProcedures();
@@ -83,7 +83,7 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
             qcirMgr.add(qcirMgr.getNextID());
         }
 
-        if (st.stop_requested()) {
+        if (cli.stop_requested()) {
             procedure_str += "[INT]";
         }
 
@@ -93,7 +93,7 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
         qcirMgr.get()->addProcedures(procedures);
         qcirMgr.get()->addProcedure(procedure_str);
 
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
     return cmd;
 }

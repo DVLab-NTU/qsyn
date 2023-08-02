@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include "cmdParser.h"
+#include "jthread.hpp"
 #include "myUsage.h"
 #include "util.h"
 
@@ -26,7 +27,7 @@ using namespace std;
 //----------------------------------------------------------------------
 //    Global cmd Manager
 //----------------------------------------------------------------------
-CmdParser* cmdMgr = new CmdParser("qsyn> ");
+CmdParser cli{"qsyn> "};
 
 extern bool initArgParseCmd();
 extern bool initCommonCmd();
@@ -61,15 +62,15 @@ myexit() {
 int main(int argc, char** argv) {
     myUsage.reset();
 
-    signal(SIGINT, [](int signum) -> void { cmdMgr->sigintHandler(signum); return; });
+    signal(SIGINT, [](int signum) -> void { cli.sigintHandler(signum); return; });
 
     if (argc >= 3) {  // -file <doFile>
         for (int i = 3; i < argc; ++i) {
-            cmdMgr->addArgument(argv[i]);
+            cli.addArgument(argv[i]);
         }
 
         if (myStrNCmp("-File", argv[1], 2) == 0) {
-            if (!cmdMgr->openDofile(argv[2])) {
+            if (!cli.openDofile(argv[2])) {
                 cerr << "Error: cannot open file \"" << argv[2] << "\"!!\n";
                 myexit();
             }
@@ -101,10 +102,10 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    CmdExecStatus status = CMD_EXEC_DONE;
+    CmdExecStatus status = CmdExecStatus::DONE;
 
-    while (status != CMD_EXEC_QUIT) {  // until "quit" or command error
-        status = cmdMgr->execOneCmd();
+    while (status != CmdExecStatus::QUIT) {  // until "quit" or command error
+        status = cli.execOneCmd();
         cout << endl;  // a blank line between each command
     }
 

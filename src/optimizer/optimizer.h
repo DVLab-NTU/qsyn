@@ -25,7 +25,7 @@ using Qubit2Gates = std::unordered_map<size_t, std::vector<QCirGate*>>;
 
 class Optimizer {
 public:
-    Optimizer(QCir* = nullptr, mythread::stop_token = mythread::stop_token{});
+    Optimizer(QCir* = nullptr);
     ~Optimizer() {}
     void reset();
 
@@ -93,8 +93,6 @@ private:
     size_t DO_SWAP;
     size_t CZ2CX;
     size_t CX2CZ;
-
-    mythread::stop_token _stop_token;
 };
 
 #endif
