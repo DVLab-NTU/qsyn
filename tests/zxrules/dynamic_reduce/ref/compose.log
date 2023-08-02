@@ -1,0 +1,127 @@
+DV Lab, NTUEE, Qsyn 0.5.1
+qsyn> verb 3
+Note: verbose level is set to 3
+
+qsyn> qccread ./benchmark/qft/qft_7.qasm
+Created and checked out to QCir 0
+
+qsyn> qc2zx 
+Created and checked out to ZXGraph 0
+
+qsyn> zxcopy 1
+Successfully copied ZXGraph 0 to ZXGraph 1
+Checked out to ZXGraph 1
+
+qsyn> zxgs -preduce 2 1
+
+All rules applied in order:
+Spider Fusion Rule            4 iterations.
+  1) 7 matches
+  2) 5 matches
+  3) 2 matches
+  4) 1 matches
+
+All rules applied in order:
+Spider Fusion Rule            2 iterations.
+  1) 7 matches
+  2) 3 matches
+
+qsyn> zxgadjoint 
+
+qsyn> zxcompose 0
+
+qsyn> zxgs -freduce
+
+All rules applied in order:
+Hadamard Rule                 1 iterations.
+  1) 7 matches
+Spider Fusion Rule            5 iterations.
+  1) 23 matches
+  2) 15 matches
+  3) 7 matches
+  4) 7 matches
+  5) 2 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Pivot Rule                    1 iterations.
+  1) 5 matches
+Identity Removal Rule         1 iterations.
+  1) 3 matches
+Spider Fusion Rule            1 iterations.
+  1) 3 matches
+Pivot Rule                    1 iterations.
+  1) 2 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 2 matches
+Spider Fusion Rule            1 iterations.
+  1) 2 matches
+Pivot Rule                    1 iterations.
+  1) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 2 matches
+Spider Fusion Rule            1 iterations.
+  1) 2 matches
+Pivot Rule                    1 iterations.
+  1) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 2 matches
+Spider Fusion Rule            1 iterations.
+  1) 2 matches
+Pivot Rule                    1 iterations.
+  1) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 2 matches
+Spider Fusion Rule            1 iterations.
+  1) 2 matches
+Pivot Rule                    1 iterations.
+  1) 2 matches
+Identity Removal Rule         1 iterations.
+  1) 2 matches
+Spider Fusion Rule            1 iterations.
+  1) 2 matches
+Pivot Rule                    1 iterations.
+  1) 2 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Pivot Rule                    1 iterations.
+  1) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Phase Gadget Rule             1 iterations.
+  1) 6 matches
+Pivot Rule                    1 iterations.
+  1) 6 matches
+Identity Removal Rule         1 iterations.
+  1) 7 matches
+
+qsyn> zxgt -id
+The graph is an identity!
+
+qsyn> qq -f
+
