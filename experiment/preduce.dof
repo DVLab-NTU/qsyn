@@ -1,6 +1,6 @@
 //!ARGS 4 QASM_PATH OUTPUT_PATH_1 OUTPUT_PATH_2 P_COUNT
 // verb 0
-qccread ${QASM_PATH}
+qccread "${QASM_PATH}"
 qc2zx 
 
 zxch 0
@@ -8,13 +8,13 @@ zxcopy 1
 zxgs -dr
 zxgp -s
 zxgp -d
-zxgw ${OUTPUT_PATH_2}
+zxgw "${OUTPUT_PATH_2}"
 
 zxch 0
 zxcopy 10
 zxgs -pr ${P_COUNT}
 zxgp -s
 zxgp -d
-zxgw ${OUTPUT_PATH_1}
+zxgw "${OUTPUT_PATH_1}"
 
 qq -f

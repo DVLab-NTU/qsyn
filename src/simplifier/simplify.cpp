@@ -400,11 +400,20 @@ void Simplifier::fullReduce() {
     }
 }
 
-/**
- * @brief
- *
- */
-void Simplifier::dynamicReduce(int tOptimal) {
+void Simplifier::dynamicReduce() {
+    // copy the graph's structure
+    ZXGraph _copiedGraph = *_simpGraph;
+    cout << endl
+         << "Full Reduce:";
+    // to obtain the T-optimal
+    Simplifier simp = Simplifier(&_copiedGraph);
+    simp.fullReduce();
+    int tOptimal = _copiedGraph.TCount();
+
+    cout << endl
+         << "Dynamic Reduce:";
+    _recipe.clear();
+
     cout << " (T-optimal: " << tOptimal << ")";
     opt.init();
     opt.updateParameters(_simpGraph);
@@ -456,24 +465,12 @@ void Simplifier::dynamicReduce(int tOptimal) {
         if (a4 + a6 == 0) break;
     }
     this->printRecipe();
+
     if (_stop_token.stop_requested()) {
         _simpGraph->addProcedure("DR[INT]");
     } else {
         _simpGraph->addProcedure("DR");
     }
-}
-
-void Simplifier::hybridReduce() {
-    ZXGraph _copyGraph = *_simpGraph;
-    cout << endl
-         << "Full Reduce:";
-    this->fullReduce();
-    int tOptimal = _simpGraph->TCount();
-    *_simpGraph = _copyGraph;
-    cout << endl
-         << "Dynamic Reduce:";
-    _recipe.clear();
-    this->dynamicReduce(tOptimal);
 }
 
 /**
@@ -507,8 +504,7 @@ void Simplifier::partitionReduce(size_t numPartitions, size_t iterations = 1) {
         auto [subgraphs, cuts] = _simpGraph->createSubgraphs(klPartition, n);
         for (auto& graph : subgraphs) {
             Simplifier simplifier(graph);
-            simplifier.fullReduce();
-            // simplifier.dynamicReduce();
+            simplifier.dynamicReduce();
         }
         ZXGraph* newGraph = ZXGraph::fromSubgraphs(subgraphs, cuts);
         _simpGraph->swap(*newGraph);

@@ -158,7 +158,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
         if (parser["-sreduce"].isParsed())
             s.symbolicReduce();
         else if (parser["-dreduce"].isParsed())
-            s.hybridReduce();
+            s.dynamicReduce();
         else if (parser["-preduce"].isParsed()) {
             s.partitionReduce(parser["p"], parser["n"]);
         } else if (parser["-interclifford"].isParsed())
