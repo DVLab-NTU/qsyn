@@ -19,7 +19,8 @@
 
 #include "util.h"
 
-using namespace std;
+using std::cout, std::endl, std::cerr;
+using std::string, std::vector;
 namespace fs = std::filesystem;
 
 //----------------------------------------------------------------------
@@ -32,10 +33,10 @@ void mybeep();
 //----------------------------------------------------------------------
 // return false if file cannot be opened
 // Please refer to the comments in "DofileCmd::exec", cmdCommon.cpp
-bool CmdParser::openDofile(const string& dof) {
+bool CmdParser::openDofile(const std::string& dof) {
     if (_dofile != 0)
         if (!pushDofile()) return false;
-    _dofile = new ifstream(dof.c_str());
+    _dofile = new std::ifstream(dof.c_str());
     _dofileName = dof;
     if (!_dofile->is_open()) {
         closeDofile();
@@ -81,7 +82,7 @@ bool CmdParser::popDofile() {
 }
 
 // Return false if registration fails
-bool CmdParser::regCmd(const string& cmd, unsigned nCmp, unique_ptr<CmdExec>&& e) {
+bool CmdParser::regCmd(const string& cmd, unsigned nCmp, std::unique_ptr<CmdExec>&& e) {
     // Make sure cmd hasn't been registered and won't cause ambiguity
     string str = cmd;
     unsigned s = str.size();
@@ -136,7 +137,7 @@ CmdParser::execOneCmd() {
     if (_dofile != 0)
         newCmd = readCmd(*_dofile);
     else
-        newCmd = readCmd(cin);
+        newCmd = readCmd(std::cin);
 
     // execute the command
     if (!newCmd) return CmdExecStatus::NOP;
@@ -184,7 +185,7 @@ void CmdParser::printHistory(size_t nPrint) const {
         return;
     }
     size_t s = _history.size();
-    for (auto i = s - min(s, nPrint); i < s; ++i)
+    for (auto i = s - std::min(s, nPrint); i < s; ++i)
         cout << "   " << i << ": " << _history[i] << endl;
 }
 
@@ -256,11 +257,11 @@ string CmdParser::replaceVariableKeysWithValues(string const& str) const {
     // optional: if inside ${NAME} is an illegal name string,
     // warn the user.
 
-    vector<tuple<size_t, size_t, string>> to_replace;
+    std::vector<std::tuple<size_t, size_t, string>> to_replace;
     // \S means non-whitespace character
-    for (auto re : {regex("\\$[a-zA-Z0-9_]+"), regex("\\$\\{\\S+\\}")}) {
-        smatch match;
-        regex_search(str, match, re);
+    for (auto re : {std::regex("\\$[a-zA-Z0-9_]+"), std::regex("\\$\\{\\S+\\}")}) {
+        std::smatch match;
+        std::regex_search(str, match, re);
         for (size_t i = 0; i < match.size(); ++i) {
             string var = match[i];
             // tell if it is a curly brace variable or not
@@ -643,7 +644,7 @@ bool CmdParser::listCmdDir(const string& cmd) {
             cout << '\b';
         }
 
-        ranges::for_each(autoCompleteStr, [this](char ch) { insertChar(ch); });
+        std::ranges::for_each(autoCompleteStr, [this](char ch) { insertChar(ch); });
 
         if (fs::is_directory(dirname + files[0])) {
             insertChar('/');
@@ -696,16 +697,16 @@ void CmdParser::printAsTable(std::vector<std::string> words, size_t widthLimit) 
                                        return a.size() < b.size();
                                    });
 
-    size_t numWordsPerLine = max(
+    size_t numWordsPerLine = std::max(
         1ul,
-        min(5ul, widthLimit / (longestWord->size() + 2)));
+        std::min(5ul, widthLimit / (longestWord->size() + 2)));
 
     size_t spacing = widthLimit / numWordsPerLine;
 
     size_t count = 0;
     for (auto const& word : words) {
         if ((count++ % numWordsPerLine) == 0) cout << endl;
-        cout << setw(spacing) << left << (word);
+        cout << std::setw(spacing) << std::left << (word);
     }
 }
 
@@ -762,5 +763,5 @@ bool CmdExec::checkOptCmd(const string& check) const {
 }
 
 void CmdParser::printPrompt() const {
-    cout << _prompt << flush;
+    cout << _prompt << std::flush;
 }
