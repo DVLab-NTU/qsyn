@@ -15,7 +15,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "util.h"
 
 using namespace std;
@@ -59,7 +59,7 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
         for (auto& name : cats) cout << " " << name;
         cout << endl;
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;

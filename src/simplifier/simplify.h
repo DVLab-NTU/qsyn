@@ -12,7 +12,6 @@
 #include <memory>
 #include <type_traits>
 
-#include "cmdParser.h"
 #include "stop_token.hpp"
 #include "zxRulesTemplate.hpp"
 

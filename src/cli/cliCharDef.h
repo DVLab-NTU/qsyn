@@ -1,6 +1,6 @@
 /****************************************************************************
-  FileName     [ cmdCharDef.h ]
-  PackageName  [ cmd ]
+  FileName     [ cliCharDef.h ]
+  PackageName  [ cli ]
   Synopsis     [ enum for keyboard mapping ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]

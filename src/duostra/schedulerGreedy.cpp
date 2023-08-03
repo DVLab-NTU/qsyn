@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "scheduler.h"
 #include "variables.h"
 

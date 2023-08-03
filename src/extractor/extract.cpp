@@ -12,7 +12,7 @@
 
 #include <memory>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "duostra.h"
 #include "mappingEQChecker.h"
 #include "qcir.h"

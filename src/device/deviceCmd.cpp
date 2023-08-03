@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "device.h"
 #include "deviceMgr.h"
 
@@ -64,7 +64,7 @@ unique_ptr<ArgParseCmdType> dtCheckOutCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         deviceMgr->checkout2Device(parser["id"]);
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -79,7 +79,7 @@ unique_ptr<ArgParseCmdType> dtResetCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         deviceMgr->reset();
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -98,7 +98,7 @@ unique_ptr<ArgParseCmdType> dtDeleteCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         deviceMgr->removeDevice(parser["id"]);
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -125,7 +125,7 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
 
         if (!bufferTopo.readDevice(filepath)) {
             cerr << "Error: the format in \"" << filepath << "\" has something wrong!!" << endl;
-            return CmdExecStatus::ERROR;
+            return CmdExecResult::ERROR;
         }
 
         if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {
@@ -139,7 +139,7 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
         }
 
         deviceMgr->setDevice(bufferTopo);
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -172,7 +172,7 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
 
 //     cmd->onParseSuccess = [](ArgumentParser const& parser) {
 
-//         return CmdExecStatus::DONE;
+//         return CmdExecResult::DONE;
 //     };
 
 //     return cmd;
@@ -210,7 +210,7 @@ unique_ptr<ArgParseCmdType> dtPrintCmd() {
         else
             deviceMgr->printDeviceMgr();
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -258,20 +258,20 @@ unique_ptr<ArgParseCmdType> dtGraphPrintCmd() {
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser["-edges"].isParsed()) {
             deviceMgr->getDevice().printEdges(parser.get<vector<size_t>>("-edges"));
-            return CmdExecStatus::DONE;
+            return CmdExecResult::DONE;
         }
         if (parser["-qubits"].isParsed()) {
             deviceMgr->getDevice().printQubits(parser.get<vector<size_t>>("-qubits"));
-            return CmdExecStatus::DONE;
+            return CmdExecResult::DONE;
         }
         if (parser["-path"].isParsed()) {
             auto qids = parser.get<vector<size_t>>("-path");
             deviceMgr->getDevice().printPath(qids[0], qids[1]);
-            return CmdExecStatus::DONE;
+            return CmdExecResult::DONE;
         }
 
         deviceMgr->getDevice().printTopology();
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;

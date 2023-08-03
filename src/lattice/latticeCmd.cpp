@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "lattice.h"
 #include "zxCmd.h"
 #include "zxGraphMgr.h"
@@ -50,7 +50,7 @@ unique_ptr<ArgParseCmdType> latticeSurgeryCompilationCmd() {
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         LTContainer lt(1, 1);
         lt.generateLTC(zxGraphMgr.get());
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;

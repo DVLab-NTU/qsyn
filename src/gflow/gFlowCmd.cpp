@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "gFlow.h"
 #include "zxCmd.h"
 #include "zxGraphMgr.h"
@@ -83,7 +83,7 @@ unique_ptr<ArgParseCmdType> ZXGGFlowCmd() {
         gflow.printSummary();
         if (!gflow.isValid()) gflow.printFailedVertices();
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;

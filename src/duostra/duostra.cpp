@@ -10,7 +10,7 @@
 #include "duostra.h"
 
 #include "checker.h"
-#include "cmdParser.h"
+#include "cli.h"
 #include "placer.h"
 #include "qcir.h"
 #include "variables.h"

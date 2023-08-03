@@ -1,6 +1,6 @@
 /****************************************************************************
-  FileName     [ cmdReader.cpp ]
-  PackageName  [ cmd ]
+  FileName     [ cliRead.cpp ]
+  PackageName  [ cli ]
   Synopsis     [ Read the command from the standard input or dofile ]
   Author       [ Design Verification Lab, Chia-Hsu Chuang ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
@@ -11,22 +11,15 @@
 #include <regex>
 #include <sstream>
 
-#include "cmdCharDef.h"
-#include "cmdParser.h"
+#include "cli.h"
+#include "cliCharDef.h"
 
 using namespace std;
 
 //----------------------------------------------------------------------
-//    Extrenal funcitons
-//----------------------------------------------------------------------
-void mybeep();
-
-void clearConsole();
-
-//----------------------------------------------------------------------
 //    Member Function for class CmdParser
 //----------------------------------------------------------------------
-bool CmdParser::readCmd(istream& istr) {
+bool CommandLineInterface::readCmd(istream& istr) {
     using enum ParseChar;
     resetBufAndPrintPrompt();
 
@@ -34,23 +27,18 @@ bool CmdParser::readCmd(istream& istr) {
     // listen for keystrokes
     while (!newCmd) {
         ParseChar pch = getChar(istr);
+
         if (pch == INPUT_END_KEY) {
-            if (_dofile != 0)
-                closeDofile();
             cout << "\nquit" << endl;
-            exit(0);
+            std::exit(0);
         }
-        // Note: actual ctrl-c triggers SIGINT, and is therefore handled by
-        // `void CmdParser::sigintHandler(int signum);`
-        // This INTERRUPT_KEY is sent when EOF of a dofile is reached
-        if (pch == INTERRUPT_KEY) {
-            if (_dofile != 0)
-                closeDofile();
+
+        if (istr.eof()) {
             newCmd = addHistory();
             cout << char(NEWLINE_KEY);
-            // if (!newCmd) resetBufAndPrintPrompt();
             break;
         }
+
         switch (pch) {
             case LINE_BEGIN_KEY:
             case HOME_KEY:
@@ -102,7 +90,7 @@ bool CmdParser::readCmd(istream& istr) {
             }
             case INSERT_KEY:  // not yet supported; fall through to UNDEFINE
             case UNDEFINED_KEY:
-                mybeep();
+                beep();
                 break;
             default:  // printable character
                 insertChar(char(pch));
@@ -124,9 +112,9 @@ bool CmdParser::readCmd(istream& istr) {
 //
 // [Note] This function can also be called by other member functions below
 //        to move the _readBufPtr to proper position.
-bool CmdParser::moveCursor(int idx) {
+bool CommandLineInterface::moveCursor(int idx) {
     if (idx < 0 || (size_t)idx > _readBuf.size()) {
-        mybeep();
+        beep();
         return false;
     }
 
@@ -162,9 +150,9 @@ bool CmdParser::moveCursor(int idx) {
 // cmd> This is he command
 //              ^
 //
-bool CmdParser::deleteChar() {
+bool CommandLineInterface::deleteChar() {
     if (_cursorPosition == _readBuf.size()) {
-        mybeep();
+        beep();
         return false;
     }
     // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
@@ -194,7 +182,7 @@ bool CmdParser::deleteChar() {
 // cmd> This is kkkthe command
 //                 ^
 //
-void CmdParser::insertChar(char ch) {
+void CommandLineInterface::insertChar(char ch) {
     _readBuf.insert(_cursorPosition, 1, ch);
 
     cout << _readBuf.substr(_cursorPosition);
@@ -217,7 +205,7 @@ void CmdParser::insertChar(char ch) {
 // cmd>
 //      ^
 //
-void CmdParser::deleteLine() {
+void CommandLineInterface::deleteLine() {
     moveCursor(_readBuf.size());
     cout << string(_cursorPosition, '\b') << string(_cursorPosition, ' ') << string(_cursorPosition, '\b');
     _readBuf.clear();
@@ -225,7 +213,7 @@ void CmdParser::deleteLine() {
 
 // Reprint the current command to a newline
 // cursor should be restored to the original location
-void CmdParser::reprintCmd() {
+void CommandLineInterface::reprintCmd() {
     cout << endl;
 
     // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
@@ -254,10 +242,10 @@ void CmdParser::reprintCmd() {
 //
 // [Note] index should not = _historyIdx
 //
-void CmdParser::moveToHistory(int index) {
+void CommandLineInterface::moveToHistory(int index) {
     if (index < _historyIdx) {  // move up
         if (_historyIdx == 0) {
-            mybeep();
+            beep();
             return;
         }
         if (size_t(_historyIdx) == _history.size()) {  // mv away from new str
@@ -272,7 +260,7 @@ void CmdParser::moveToHistory(int index) {
         if ((_tempCmdStored &&
              (size_t(_historyIdx) == size_t(_history.size() - 1))) ||
             (!_tempCmdStored && (size_t(_historyIdx) == _history.size()))) {
-            mybeep();
+            beep();
             return;
         }
         if (size_t(index) >= size_t(_history.size() - 1))
@@ -289,9 +277,7 @@ void CmdParser::moveToHistory(int index) {
  *
  * @return `true` if a new command is added to _history, `false` if not
  */
-bool CmdParser::addHistory() {
-    string cmd = stripWhitespaces(stripComments(_readBuf));
-
+bool CommandLineInterface::addHistory() {
     size_t argumentTagPos = _readBuf.find("//!ARGS");
     if (argumentTagPos == 0) {
         saveArgumentsInVariables(_readBuf);
@@ -302,20 +288,19 @@ bool CmdParser::addHistory() {
         _tempCmdStored = false;
     }
 
-    bool newCmd = false;
+    string cmd = stripWhitespaces(stripComments(_readBuf));
+
     if (cmd.size()) {
-        // add to _history
         _history.emplace_back(cmd);
-        newCmd = true;
     }
 
     _historyIdx = int(_history.size());
 
-    return newCmd;
+    return cmd.size() > 0;
 }
 
 // may exit if the check fails
-void CmdParser::saveArgumentsInVariables(std::string const& str) {
+void CommandLineInterface::saveArgumentsInVariables(std::string const& str) {
     // parse the string
     // "//!ARGS n <ARG1> <ARG2> ... <ARGn>"
     // and check if for all k = 1 to n,
@@ -338,7 +323,7 @@ void CmdParser::saveArgumentsInVariables(std::string const& str) {
         if (!regex_match(token, validVariableName)) {
             std::cerr << '\n';
             std::cerr << "Error: Invalid argument name \"" << token << "\" in \"//!ARGS\" directive" << std::endl;
-            exit(-1);
+            std::exit(-1);
         }
         keys.emplace_back(token);
     }
@@ -346,18 +331,18 @@ void CmdParser::saveArgumentsInVariables(std::string const& str) {
     if (keys.size() < n) {
         std::cerr << '\n';
         std::cerr << "Error: Too few arguments declared in \"//!ARGS\" directive, expected " << n << " but got " << keys.size() << std::endl;
-        exit(-1);
+        std::exit(-1);
     } else if (keys.size() > n) {
         std::cerr << '\n';
         std::cerr << "Warning: Too many arguments declared in \"//!ARGS\" directive, expected " << n << " but got " << keys.size() << std::endl;
         std::cerr << "Warning: Ignoring extra arguments" << std::endl;
-        exit(-1);
+        std::exit(-1);
     }
 
     if (_arguments.size() != keys.size()) {
         std::cerr << '\n';
         std::cerr << "Error: Not enough arguments provided, expected " << keys.size() << " but got " << _arguments.size() << std::endl;
-        exit(-1);
+        std::exit(-1);
     }
 
     for (size_t i = 0; i < n; ++i) {
@@ -370,7 +355,7 @@ void CmdParser::saveArgumentsInVariables(std::string const& str) {
 //
 // [Note] Do not change _history.size().
 //
-void CmdParser::retrieveHistory() {
+void CommandLineInterface::retrieveHistory() {
     deleteLine();
     _readBuf = _history[_historyIdx];
     cout << _readBuf;

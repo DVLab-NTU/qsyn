@@ -1,39 +1,20 @@
 /****************************************************************************
-  FileName     [ cmdCharDef.cpp ]
-  PackageName  [ cmd ]
+  FileName     [ cliCharDef.cpp ]
+  PackageName  [ cli ]
   Synopsis     [ Process keyboard inputs ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include "cmdCharDef.h"
+#include "cliCharDef.h"
 
 #include <ctype.h>
 #include <termios.h>
 
 #include <iostream>
 
-#include "cmdParser.h"
+#include "cli.h"
 
 using namespace std;
-
-//----------------------------------------------------------------------
-//    Global funcitons
-//----------------------------------------------------------------------
-
-void mybeep() {
-    cout << (char)detail::getKeyCode(ParseChar::BEEP_CHAR);
-}
-
-void clearConsole() {
-#ifdef _WIN32
-    int result = system("cls");
-#else
-    int result = system("clear");
-#endif
-    if (result != 0) {
-        cerr << "Error clearing the console!!" << endl;
-    }
-}
 
 //----------------------------------------------------------------------
 //    keypress detection details
@@ -78,14 +59,13 @@ static auto toParseChar(int ch) -> ParseChar {
 }  // namespace detail
 
 ParseChar
-CmdParser::getChar(istream& istr) const {
+CommandLineInterface::getChar(istream& istr) const {
     using namespace detail;
     using enum ParseChar;
     char ch = mygetc(istr);
     ParseChar parseChar{ch};
 
-    if (istr.eof())
-        return INTERRUPT_KEY;
+    assert(parseChar != INTERRUPT_KEY);
     switch (parseChar) {
         // Simple keys: one code for one key press
         // -- The following should be platform-independent
@@ -124,7 +104,7 @@ CmdParser::getChar(istream& istr) const {
                 else
                     return UNDEFINED_KEY;
             } else {
-                mybeep();
+                beep();
                 return getChar(istr);
             }
         }

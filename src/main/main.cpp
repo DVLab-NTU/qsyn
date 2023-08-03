@@ -13,7 +13,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "jthread.hpp"
 #include "myUsage.h"
 #include "util.h"
@@ -27,7 +27,7 @@ using namespace std;
 //----------------------------------------------------------------------
 //    Global cmd Manager
 //----------------------------------------------------------------------
-CmdParser cli{"qsyn> "};
+CommandLineInterface cli{"qsyn> "};
 
 extern bool initArgParseCmd();
 extern bool initCommonCmd();
@@ -39,7 +39,6 @@ extern bool initTensorCmd();
 extern bool initExtractCmd();
 extern bool initDeviceCmd();
 extern bool initDuostraCmd();
-extern bool initM2Cmd();
 extern bool initGFlowCmd();
 extern bool initLTCmd();
 size_t verbose = 3;
@@ -93,7 +92,6 @@ int main(int argc, char** argv) {
         !initZXCmd() ||
         !initSimpCmd() ||
         !initTensorCmd() ||
-        // !initM2Cmd() ||
         !initExtractCmd() ||
         !initDeviceCmd() ||
         !initDuostraCmd() ||
@@ -102,9 +100,9 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    CmdExecStatus status = CmdExecStatus::DONE;
+    CmdExecResult status = CmdExecResult::DONE;
 
-    while (status != CmdExecStatus::QUIT) {  // until "quit" or command error
+    while (status != CmdExecResult::QUIT) {  // until "quit" or command error
         status = cli.execOneCmd();
         cout << endl;  // a blank line between each command
     }

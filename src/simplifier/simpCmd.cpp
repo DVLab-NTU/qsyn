@@ -207,7 +207,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
 
         zxGraphMgr.get()->addProcedure(procedure_str);
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;

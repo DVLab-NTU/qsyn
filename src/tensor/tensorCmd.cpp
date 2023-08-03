@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "phase.h"
 #include "qtensor.h"
 #include "tensorMgr.h"
@@ -61,7 +61,7 @@ unique_ptr<ArgParseCmdType> TensorMgrResetCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         tensorMgr.reset();
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -98,7 +98,7 @@ unique_ptr<ArgParseCmdType> TensorMgrPrintCmd() {
         else
             tensorMgr.printMgr();
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -123,7 +123,7 @@ unique_ptr<ArgParseCmdType> TensorPrintCmd() {
             cout << *tensorMgr.get() << endl;
         }
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -146,7 +146,7 @@ unique_ptr<ArgParseCmdType> TensorAdjointCmd() {
         } else {
             tensorMgr.get()->adjoint();
         }
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -202,7 +202,7 @@ unique_ptr<ArgParseCmdType> TensorEquivalenceCmd() {
             cout << TF::BOLD(TF::RED("Not Equivalent")) << endl;
         }
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;

@@ -8,7 +8,7 @@
 
 #include <assert.h>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "optimizer.h"
 #include "phase.h"
 #include "qcir.h"

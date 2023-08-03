@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "deviceMgr.h"
 #include "duostra.h"
 #include "mappingEQChecker.h"
@@ -73,7 +73,7 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
         QCir* logicalQCir = qcirMgr.get();
         Duostra duo{logicalQCir, deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"]};
         if (duo.flow() == ERROR_CODE) {
-            return CmdExecStatus::ERROR;
+            return CmdExecResult::ERROR;
         }
 
         if (duo.getPhysicalCircuit() == nullptr) {
@@ -88,7 +88,7 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
         qcirMgr.get()->addProcedures(logicalQCir->getProcedures());
         qcirMgr.get()->addProcedure("Duostra");
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
     return cmd;
 }
@@ -180,7 +180,7 @@ unique_ptr<ArgParseCmdType> duostraSetCmd() {
             DUOSTRA_EXECUTE_SINGLE = parser["-single-immediately"];
         }
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
     return duostraSetCmd;
 }
@@ -218,7 +218,7 @@ unique_ptr<ArgParseCmdType> duostraPrintCmd() {
                  << "Never Cache:       " << ((DUOSTRA_NEVER_CACHE == 1) ? "true" : "false") << '\n'
                  << "Single Immed.:     " << ((DUOSTRA_EXECUTE_SINGLE == 1) ? "true" : "false") << endl;
         }
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
     return duostraPrintCmd;
 }
@@ -244,7 +244,7 @@ unique_ptr<ArgParseCmdType> mapEQCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (qcirMgr.findByID(parser["-physical"]) == nullptr || qcirMgr.findByID(parser["-logical"]) == nullptr) {
-            return CmdExecStatus::ERROR;
+            return CmdExecResult::ERROR;
         }
         MappingEQChecker mpeqc(qcirMgr.findByID(parser["-physical"]), qcirMgr.findByID(parser["-logical"]), deviceMgr->getDevice(), {});
         if (mpeqc.check()) {
@@ -252,7 +252,7 @@ unique_ptr<ArgParseCmdType> mapEQCmd() {
         } else {
             cout << TF::BOLD(TF::RED("Not Equivalent")) << endl;
         }
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;

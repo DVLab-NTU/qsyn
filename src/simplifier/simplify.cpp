@@ -12,7 +12,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "extract.h"
 #include "gFlow.h"
 #include "zxDef.h"
@@ -24,7 +24,7 @@
 using namespace std;
 extern size_t verbose;
 extern size_t dmode;
-extern CmdParser cli;
+extern CommandLineInterface cli;
 
 /**
  * @brief Perform Bialgebra Rule
