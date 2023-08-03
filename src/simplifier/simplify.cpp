@@ -26,6 +26,12 @@ extern size_t verbose;
 extern size_t dmode;
 extern CommandLineInterface cli;
 
+int cnt = 0;
+bool step = false;
+bool stop = false;
+
+// Basic rules simplification
+
 /**
  * @brief Perform Bialgebra Rule
  *
