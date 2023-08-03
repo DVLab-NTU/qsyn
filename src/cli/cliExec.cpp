@@ -96,7 +96,7 @@ void CommandLineInterface::sigintHandler(int signum) {
         cout << "Command Interrupted" << endl;
     } else {
         // receiving inputs
-        cout << char(ParseChar::NEWLINE_KEY);
+        cout << char(KeyCode::NEWLINE_KEY);
         resetBufAndPrintPrompt();
     }
 }

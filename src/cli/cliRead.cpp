@@ -20,15 +20,15 @@ using namespace std;
 //    Member Function for class CmdParser
 //----------------------------------------------------------------------
 bool CommandLineInterface::readCmd(istream& istr) {
-    using enum ParseChar;
+    using namespace KeyCode;
     resetBufAndPrintPrompt();
 
     bool newCmd = false;
     // listen for keystrokes
     while (!newCmd) {
-        ParseChar pch = getChar(istr);
+        int keycode = getChar(istr);
 
-        if (pch == INPUT_END_KEY) {
+        if (keycode == INPUT_END_KEY) {
             cout << "\nquit" << endl;
             std::exit(0);
         }
@@ -39,7 +39,7 @@ bool CommandLineInterface::readCmd(istream& istr) {
             break;
         }
 
-        switch (pch) {
+        switch (keycode) {
             case LINE_BEGIN_KEY:
             case HOME_KEY:
                 moveCursor(0);
@@ -93,7 +93,7 @@ bool CommandLineInterface::readCmd(istream& istr) {
                 beep();
                 break;
             default:  // printable character
-                insertChar(char(pch));
+                insertChar(char(keycode));
                 break;
         }
     }
@@ -120,7 +120,7 @@ bool CommandLineInterface::moveCursor(int idx) {
 
     // move left
     if (_cursorPosition > (size_t)idx) {
-        cout << string(_cursorPosition - idx, char(ParseChar::BACK_SPACE_CHAR));
+        cout << string(_cursorPosition - idx, char(KeyCode::BACK_SPACE_CHAR));
     }
 
     // move right
@@ -157,8 +157,8 @@ bool CommandLineInterface::deleteChar() {
     }
     // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
 
-    cout << _readBuf.substr(_cursorPosition + 1);     // will move cursor to the end
-    cout << " " << char(ParseChar::BACK_SPACE_CHAR);  // get rid of the last character
+    cout << _readBuf.substr(_cursorPosition + 1);   // will move cursor to the end
+    cout << " " << char(KeyCode::BACK_SPACE_CHAR);  // get rid of the last character
     _readBuf.erase(_cursorPosition, 1);
 
     int idx = _cursorPosition;

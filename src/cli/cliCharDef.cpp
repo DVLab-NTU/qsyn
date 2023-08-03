@@ -52,21 +52,15 @@ static auto mygetc(istream& istr) -> char {
     return ch;
 }
 
-static auto toParseChar(int ch) -> ParseChar {
-    return ParseChar(ch);
-};
-
 }  // namespace detail
 
-ParseChar
-CommandLineInterface::getChar(istream& istr) const {
+int CommandLineInterface::getChar(istream& istr) const {
     using namespace detail;
-    using enum ParseChar;
+    using namespace KeyCode;
     char ch = mygetc(istr);
-    ParseChar parseChar{ch};
 
-    assert(parseChar != INTERRUPT_KEY);
-    switch (parseChar) {
+    assert(ch != INTERRUPT_KEY);
+    switch (ch) {
         // Simple keys: one code for one key press
         // -- The following should be platform-independent
         case LINE_BEGIN_KEY:     // Ctrl-a
@@ -75,14 +69,14 @@ CommandLineInterface::getChar(istream& istr) const {
         case TAB_KEY:            // tab('\t') or Ctrl-i
         case NEWLINE_KEY:        // enter('\n') or ctrl-m
         case CLEAR_CONSOLE_KEY:  // Clear console (Ctrl-l)
-            return parseChar;
+            return ch;
 
         // -- The following simple/combo keys are platform-dependent
         //    You should test to check the returned codes of these key presses
-        // -- You should either modify the "enum ParseChar" definitions in
+        // -- You should either modify the "enum KeyCode" definitions in
         //    "cmdCharDef.h", or revise the control flow of the "case ESC" below
         case BACK_SPACE_KEY:
-            return parseChar;
+            return ch;
         case BACK_SPACE_CHAR:
             return BACK_SPACE_KEY;
 
@@ -94,13 +88,13 @@ CommandLineInterface::getChar(istream& istr) const {
             if (combo == char(MOD_KEY_INT)) {
                 char key = mygetc(istr);
                 if ((key >= char(MOD_KEY_BEGIN)) && (key <= char(MOD_KEY_END))) {
-                    if (mygetc(istr) == getKeyCode(MOD_KEY_DUMMY))
-                        return toParseChar(int(key) + getKeyCode(MOD_KEY_FLAG));
+                    if (mygetc(istr) == MOD_KEY_DUMMY)
+                        return int(key) + MOD_KEY_FLAG;
                     else
                         return UNDEFINED_KEY;
                 } else if ((key >= char(ARROW_KEY_BEGIN)) &&
                            (key <= char(ARROW_KEY_END)))
-                    return toParseChar(int(key) + getKeyCode(ARROW_KEY_FLAG));
+                    return int(key) + ARROW_KEY_FLAG;
                 else
                     return UNDEFINED_KEY;
             } else {
@@ -110,11 +104,6 @@ CommandLineInterface::getChar(istream& istr) const {
         }
         // For the remaining printable and undefined keys
         default:
-            if (isprint(ch))
-                return parseChar;
-            else
-                return UNDEFINED_KEY;
+            return (isprint(ch)) ? ch : UNDEFINED_KEY;
     }
-
-    return UNDEFINED_KEY;
 }

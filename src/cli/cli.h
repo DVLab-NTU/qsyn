@@ -136,7 +136,7 @@ public:
     void sigintHandler(int signum);
     bool stop_requested() const { return _currCmd.has_value() && _currCmd->get_stop_token().stop_requested(); }
 
-    inline void beep() const { std::cout << (char)detail::getKeyCode(ParseChar::BEEP_CHAR); }
+    inline void beep() const { std::cout << (char)KeyCode::BEEP_CHAR; }
 
     void clearConsole() const;
 
@@ -148,7 +148,7 @@ private:
         _tabPressCount = 0;
         printPrompt();
     }
-    ParseChar getChar(std::istream&) const;
+    int getChar(std::istream&) const;
     bool readCmd(std::istream&);
     std::pair<CmdExec*, std::string> parseCmd();
     void listCmd(const std::string&);
