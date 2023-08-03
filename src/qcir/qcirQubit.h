@@ -20,8 +20,8 @@ class QCirGate;
 class QCirQubit {
 public:
     QCirQubit(size_t id) : _id(id) {
-        _bitFirst = NULL;
-        _bitLast = NULL;
+        _bitFirst = nullptr;
+        _bitLast = nullptr;
     }
     ~QCirQubit() {}
 

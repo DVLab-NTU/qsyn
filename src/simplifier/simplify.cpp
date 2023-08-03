@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <iostream>
 
+#include "cmdParser.h"
 #include "extract.h"
 #include "gFlow.h"
 #include "zxDef.h"
@@ -24,6 +25,7 @@ using namespace std;
 extern size_t verbose;
 extern size_t dmode;
 extern ZXOPTimizer opt;
+extern CmdParser cli;
 
 int cnt = 0;
 bool step = false;
@@ -44,7 +46,7 @@ int Simplifier::simp() {
     if (verbose >= 5) cout << setw(30) << left << _rule->getName();
     if (verbose >= 8) cout << endl;
     int r2r = opt.getR2R(_rule->getName());
-    while (!_stop_token.stop_requested() && r2r > 0) {
+    while (!cli.stop_requested() && r2r > 0) {
         _rule->match(_simpGraph, opt.getS2S(_rule->getName()));
         if (r2r < INT_MAX) r2r--;
 
@@ -88,7 +90,7 @@ int Simplifier::hadamardSimp() {
     vector<int> matches;
     if (verbose >= 5) cout << setw(30) << left << _rule->getName();
     if (verbose >= 8) cout << endl;
-    while (!_stop_token.stop_requested()) {
+    while (!cli.stop_requested()) {
         size_t vcount = _simpGraph->getNumVertices();
         _rule->match(_simpGraph);
 
@@ -383,7 +385,7 @@ int Simplifier::cliffordSimp() {
 void Simplifier::fullReduce() {
     this->interiorCliffordSimp();
     this->pivotGadgetSimp();
-    while (!_stop_token.stop_requested()) {
+    while (!cli.stop_requested()) {
         this->cliffordSimp();
         int i = this->gadgetSimp();
         if (i == -1) i = 0;
@@ -441,7 +443,7 @@ void Simplifier::dynamicReduce(size_t tOptimal) {
         return;
     }
 
-    while (!_stop_token.stop_requested()) {
+    while (!cli.stop_requested()) {
         int a3 = this->cliffordSimp();
         if (a3 == -1 && tOptimal == _simpGraph->TCount()) {
             _simpGraph = opt.getLastZXGraph();
@@ -483,7 +485,7 @@ void Simplifier::symbolicReduce() {
     this->interiorCliffordSimp();
     this->pivotGadgetSimp();
     this->copySimp();
-    while (!_stop_token.stop_requested()) {
+    while (!cli.stop_requested()) {
         this->cliffordSimp();
         int i = this->gadgetSimp();
         this->interiorCliffordSimp();

@@ -20,7 +20,7 @@ extern size_t verbose;
  * @brief Update Topological Order
  *
  */
-void ZXGraph::updateTopoOrder() {
+void ZXGraph::updateTopoOrder() const {
     _topoOrder.clear();
     _globalTraCounter++;
     for (const auto& v : _inputs) {
@@ -46,7 +46,7 @@ void ZXGraph::updateTopoOrder() {
  *
  * @param currentVertex
  */
-void ZXGraph::DFS(ZXVertex* currentVertex) {
+void ZXGraph::DFS(ZXVertex* currentVertex) const {
     stack<pair<bool, ZXVertex*>> dfs;
 
     if (!currentVertex->isVisited(_globalTraCounter)) {
@@ -77,7 +77,7 @@ void ZXGraph::DFS(ZXVertex* currentVertex) {
  * @brief Update BFS information
  *
  */
-void ZXGraph::updateBreadthLevel() {
+void ZXGraph::updateBreadthLevel() const {
     for (const auto& v : _inputs) {
         if (!(v->isVisited(_globalTraCounter)))
             BFS(v);
@@ -93,7 +93,7 @@ void ZXGraph::updateBreadthLevel() {
  *
  * @param currentVertex
  */
-void ZXGraph::BFS(ZXVertex* currentVertex) {
+void ZXGraph::BFS(ZXVertex* currentVertex) const {
     list<ZXVertex*> queue;
 
     currentVertex->setVisited(_globalTraCounter);

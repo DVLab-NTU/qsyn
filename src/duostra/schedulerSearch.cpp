@@ -14,6 +14,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "cmdParser.h"
 #include "scheduler.h"
 #include "variables.h"
 
@@ -314,8 +315,8 @@ size_t TreeNode::bestCost() const {
  * @param topo
  * @param tqdm
  */
-SearchScheduler::SearchScheduler(unique_ptr<CircuitTopo> topo, bool tqdm, mythread::stop_token st)
-    : GreedyScheduler(std::move(topo), tqdm, st),
+SearchScheduler::SearchScheduler(unique_ptr<CircuitTopo> topo, bool tqdm)
+    : GreedyScheduler(std::move(topo), tqdm),
       _lookAhead(DUOSTRA_DEPTH),
       _neverCache(DUOSTRA_NEVER_CACHE),
       _executeSingle(DUOSTRA_EXECUTE_SINGLE) {
@@ -381,7 +382,7 @@ Device SearchScheduler::assignGates(unique_ptr<Router> router) {
     TqdmWrapper bar{totalGates + 1, _tqdm};
     do {
         // Update the _candidates.
-        if (this->_stop_token.stop_requested()) {
+        if (cli.stop_requested()) {
             return router->getDevice();
         }
         auto selectedNode = make_unique<TreeNode>(root->bestChild(_lookAhead));

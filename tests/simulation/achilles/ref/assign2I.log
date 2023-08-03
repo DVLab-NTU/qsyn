@@ -36,8 +36,7 @@ Total #Vertices: 4
 
 qsyn> zx2ts
 Traverse and build the tensor... 
-Successfully added Tensor 0
-Stored the resulting tensor as tensor id 0
+Created and checked out to Tensor 0
 
 qsyn> qcnew
 Created and checked out to QCir 1
@@ -46,8 +45,7 @@ qsyn> qcba 2
 
 qsyn> qc2ts
 Traverse and build the tensor... 
-Successfully added Tensor 1
-Stored the resulting tensor as tensor id 1
+Created and checked out to Tensor 1
 
 qsyn> tseq 0 1
 [1m[32mEquivalent[0m[0m

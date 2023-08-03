@@ -12,6 +12,7 @@
 
 #include <memory>
 
+#include "cmdParser.h"
 #include "duostra.h"
 #include "mappingEQChecker.h"
 #include "qcir.h"
@@ -36,7 +37,7 @@ extern size_t verbose;
  * @param c
  * @param d
  */
-Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> d, mythread::stop_token st) : _graph(g), _device(d), _deviceBackup(d), _stop_token{st} {
+Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> d) : _graph(g), _device(d), _deviceBackup(d) {
     _logicalCircuit = (c == nullptr) ? new QCir(-1) : c;
     _physicalCircuit = toPhysical() ? new QCir(-1) : nullptr;
     initialize(c == nullptr);
@@ -91,7 +92,7 @@ QCir* Extractor::extract() {
     if (!extractionLoop(-1)) {
         return nullptr;
     }
-    if (_stop_token.stop_requested()) {
+    if (cli.stop_requested()) {
         cerr << "Warning: conversion is interrupted" << endl;
         return nullptr;
     }
@@ -122,7 +123,7 @@ QCir* Extractor::extract() {
  * @return false if not
  */
 bool Extractor::extractionLoop(size_t max_iter) {
-    while (max_iter > 0 && !_stop_token.stop_requested()) {
+    while (max_iter > 0 && !cli.stop_requested()) {
         cleanFrontier();
         updateNeighbors();
 

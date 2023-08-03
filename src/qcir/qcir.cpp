@@ -32,7 +32,7 @@ QCirGate *QCir::getGate(size_t id) const {
         if (_qgates[i]->getId() == id)
             return _qgates[i];
     }
-    return NULL;
+    return nullptr;
 }
 
 /**
@@ -46,7 +46,7 @@ QCirQubit *QCir::getQubit(size_t id) const {
         if (_qubits[i]->getId() == id)
             return _qubits[i];
     }
-    return NULL;
+    return nullptr;
 }
 
 int QCir::getDepth() {
@@ -79,7 +79,7 @@ QCirQubit *QCir::addSingleQubit() {
  * @return QCirQubit*
  */
 QCirQubit *QCir::insertSingleQubit(size_t id) {
-    assert(getQubit(id) == NULL);
+    assert(getQubit(id) == nullptr);
     QCirQubit *temp = new QCirQubit(id);
     size_t cnt = 0;
     for (size_t i = 0; i < _qubits.size(); i++) {
@@ -117,11 +117,11 @@ void QCir::addQubit(size_t num) {
 bool QCir::removeQubit(size_t id) {
     // Delete the ancilla only if whole line is empty
     QCirQubit *target = getQubit(id);
-    if (target == NULL) {
+    if (target == nullptr) {
         cerr << "Error: id " << id << " not found!!" << endl;
         return false;
     } else {
-        if (target->getLast() != NULL || target->getFirst() != NULL) {
+        if (target->getLast() != nullptr || target->getFirst() != nullptr) {
             cerr << "Error: id " << id << " is not an empty qubit!!" << endl;
             return false;
         } else {
@@ -168,7 +168,7 @@ QCirGate *QCir::addSingleRZ(size_t bit, Phase phase, bool append) {
  * @return QCirGate*
  */
 QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool append) {
-    QCirGate *temp = NULL;
+    QCirGate *temp = nullptr;
     type = toLowerString(type);
     if (type == "h")
         temp = new HGate(_gateId);
@@ -240,7 +240,7 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
             size_t q = bits[k];
             temp->addQubit(q, k == bits.size() - 1);  // target is the last one
             QCirQubit *target = getQubit(q);
-            if (target->getLast() != NULL) {
+            if (target->getLast() != nullptr) {
                 temp->setParent(q, target->getLast());
                 target->getLast()->setChild(q, temp);
                 if ((target->getLast()->getTime()) > max_time)
@@ -256,7 +256,7 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
             size_t q = bits[k];
             temp->addQubit(q, k == bits.size() - 1);  // target is the last one
             QCirQubit *target = getQubit(q);
-            if (target->getFirst() != NULL) {
+            if (target->getFirst() != nullptr) {
                 temp->setChild(q, target->getFirst());
                 target->getFirst()->setParent(q, temp);
             } else {
@@ -281,22 +281,22 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
  */
 bool QCir::removeGate(size_t id) {
     QCirGate *target = getGate(id);
-    if (target == NULL) {
+    if (target == nullptr) {
         cerr << "Error: id " << id << " not found!!" << endl;
         return false;
     } else {
         vector<BitInfo> Info = target->getQubits();
         for (size_t i = 0; i < Info.size(); i++) {
-            if (Info[i]._parent != NULL)
+            if (Info[i]._parent != nullptr)
                 Info[i]._parent->setChild(Info[i]._qubit, Info[i]._child);
             else
                 getQubit(Info[i]._qubit)->setFirst(Info[i]._child);
-            if (Info[i]._child != NULL)
+            if (Info[i]._child != nullptr)
                 Info[i]._child->setParent(Info[i]._qubit, Info[i]._parent);
             else
                 getQubit(Info[i]._qubit)->setLast(Info[i]._parent);
-            Info[i]._parent = NULL;
-            Info[i]._child = NULL;
+            Info[i]._parent = nullptr;
+            Info[i]._child = nullptr;
         }
         std::erase(_qgates, target);
         _dirty = true;

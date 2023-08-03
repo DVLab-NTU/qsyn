@@ -37,12 +37,10 @@ Total #Vertices: 4
 
 
 qsyn> zx2ts
-Stored the resulting tensor as tensor id 0
 
 qsyn> zxgr benchmark/demo/simp/id_2.bzx
 
 qsyn> zx2ts
-Stored the resulting tensor as tensor id 1
 
 qsyn> tseq 0 1
 [1m[32mEquivalent[0m[0m

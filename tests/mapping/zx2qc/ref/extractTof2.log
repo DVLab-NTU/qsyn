@@ -9,8 +9,7 @@ Created and checked out to ZXGraph 0
 
 qsyn> zx2ts
 Traverse and build the tensor... 
-Successfully added Tensor 0
-Stored the resulting tensor as tensor id 0
+Created and checked out to Tensor 0
 
 qsyn> ver 0
 Note: verbose level is set to 0
@@ -248,7 +247,6 @@ qsyn> zxgt -id
 The graph is an identity!
 
 qsyn> qc2ts
-Stored the resulting tensor as tensor id 1
 
 qsyn> tseq 0 1
 Equivalent

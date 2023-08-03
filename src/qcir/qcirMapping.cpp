@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <thread>
 
+#include "cmdParser.h"
 #include "qcir.h"
 #include "qcirGate.h"
 #include "qcirQubit.h"
@@ -21,6 +22,8 @@ using namespace std;
 extern ZXGraphMgr zxGraphMgr;
 extern TensorMgr *tensorMgr;
 extern size_t verbose;
+
+using Qubit2TensorPinMap = std::unordered_map<size_t, std::pair<size_t, size_t>>;
 
 /**
  * @brief Clear mapping
@@ -36,7 +39,7 @@ void QCir::clearMapping() {
 /**
  * @brief Mapping QCir to ZXGraph
  */
-std::optional<ZXGraph> QCir::toZX(mythread::stop_token st) {
+std::optional<ZXGraph> QCir::toZX() {
     updateGateTime();
     ZXGraph g;
 
@@ -50,8 +53,8 @@ std::optional<ZXGraph> QCir::toZX(mythread::stop_token st) {
         g.addEdge(input, output, EdgeType::SIMPLE);
     }
 
-    topoTraverse([st, &g](QCirGate *gate) {
-        if (st.stop_requested()) return;
+    topoTraverse([&g](QCirGate *gate) {
+        if (cli.stop_requested()) return;
         if (verbose >= 8) cout << "\n";
         if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
         ZXGraph tmp = gate->getZXform();
@@ -74,7 +77,7 @@ std::optional<ZXGraph> QCir::toZX(mythread::stop_token st) {
         v->setCol(max + 1);
     }
 
-    if (st.stop_requested()) {
+    if (cli.stop_requested()) {
         cerr << "Warning: conversion interrupted." << endl;
         return std::nullopt;
     }
@@ -83,81 +86,16 @@ std::optional<ZXGraph> QCir::toZX(mythread::stop_token st) {
 }
 
 /**
- * @brief Convert QCir to tensor
- */
-void QCir::tensorMapping(mythread::stop_token st) {
-    if (verbose >= 3) cout << "Traverse and build the tensor... " << endl;
-    updateTopoOrder();
-    if (verbose >= 5) cout << "> Add boundary" << endl;
-
-    QTensor<double> *tensor = new QTensor<double>;
-
-    // NOTE: Constucting an identity(_qubit.size()) takes much time and memory.
-    //       To make this process interruptible by SIGINT (ctrl-C), we grow the qubit size one by one
-    for (size_t i = 0; i < _qubits.size(); ++i) {
-        if (st.stop_requested()) {
-            cerr << "Warning: conversion interrupted." << endl;
-            delete tensor;
-            return;
-        }
-        *tensor = tensordot(*tensor, QTensor<double>::identity(1));
-    }
-
-    _qubit2pin.clear();
-    for (size_t i = 0; i < _qubits.size(); i++) {
-        _qubit2pin[_qubits[i]->getId()] = make_pair(2 * i, 2 * i + 1);
-        if (verbose >= 8) cout << "  - Add Qubit " << _qubits[i]->getId() << " output port: " << 2 * i + 1 << endl;
-    }
-
-    topoTraverse([st, tensor, this](QCirGate *gate) {
-        if (st.stop_requested()) return;
-        if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
-        QTensor<double> tmp = gate->getTSform();
-        vector<size_t> ori_pin;
-        vector<size_t> new_pin;
-        ori_pin.clear();
-        new_pin.clear();
-        for (size_t np = 0; np < gate->getQubits().size(); np++) {
-            new_pin.emplace_back(2 * np);
-            BitInfo info = gate->getQubits()[np];
-            ori_pin.emplace_back(_qubit2pin[info._qubit].second);
-        }
-        *tensor = tensordot(*tensor, tmp, ori_pin, new_pin);
-        updateTensorPin(gate->getQubits(), *tensor, tmp);
-    });
-
-    if (st.stop_requested()) {
-        cerr << "Warning: conversion interrupted." << endl;
-        return;
-    }
-
-    vector<size_t> input_pin, output_pin;
-    for (size_t i = 0; i < _qubits.size(); i++) {
-        input_pin.emplace_back(_qubit2pin[_qubits[i]->getId()].first);
-        output_pin.emplace_back(_qubit2pin[_qubits[i]->getId()].second);
-    }
-    *tensor = tensor->toMatrix(input_pin, output_pin);
-
-    if (!tensorMgr) tensorMgr = new TensorMgr();
-
-    auto id = tensorMgr->nextID();
-    tensorMgr->addTensor(id, "QC");
-    tensorMgr->setTensor(id, tensor);
-
-    cout << "Stored the resulting tensor as tensor id " << id << endl;
-}
-
-/**
  * @brief Update tensor pin
  *
  * @param pins
  * @param tmp
  */
-void QCir::updateTensorPin(vector<BitInfo> const &pins, QTensor<double> &main, QTensor<double> const &gate) {
+void updateTensorPin(Qubit2TensorPinMap &qubit2pin, vector<BitInfo> const &pins, QTensor<double> &main, QTensor<double> const &gate) {
     // size_t count_pin_used = 0;
     // unordered_map<size_t, size_t> table; // qid to pin (pin0 = ctrl 0 pin1 = ctrl 1)
     if (verbose >= 8) cout << "> Pin Permutation" << endl;
-    for (auto it = _qubit2pin.begin(); it != _qubit2pin.end(); ++it) {
+    for (auto it = qubit2pin.begin(); it != qubit2pin.end(); ++it) {
         if (verbose >= 8) {
             // NOTE print old input axis id
             cout << "  - Qubit: " << it->first << " input : " << it->second.first << " -> ";
@@ -197,4 +135,63 @@ void QCir::updateTensorPin(vector<BitInfo> const &pins, QTensor<double> &main, Q
             cout << it->second.second << endl;
         }
     }
+}
+
+/**
+ * @brief Convert QCir to tensor
+ */
+std::optional<QTensor<double>> QCir::toTensor() {
+    if (verbose >= 3) cout << "Traverse and build the tensor... " << endl;
+    updateTopoOrder();
+    if (verbose >= 5) cout << "> Add boundary" << endl;
+
+    QTensor<double> tensor;
+
+    // NOTE: Constucting an identity(_qubit.size()) takes much time and memory.
+    //       To make this process interruptible by SIGINT (ctrl-C), we grow the qubit size one by one
+    for (size_t i = 0; i < _qubits.size(); ++i) {
+        if (cli.stop_requested()) {
+            cerr << "Warning: conversion interrupted." << endl;
+            return std::nullopt;
+        }
+        tensor = tensordot(tensor, QTensor<double>::identity(1));
+    }
+
+    Qubit2TensorPinMap qubit2pin;
+    for (size_t i = 0; i < _qubits.size(); i++) {
+        qubit2pin[_qubits[i]->getId()] = make_pair(2 * i, 2 * i + 1);
+        if (verbose >= 8) cout << "  - Add Qubit " << _qubits[i]->getId() << " output port: " << 2 * i + 1 << endl;
+    }
+
+    topoTraverse([&tensor, &qubit2pin](QCirGate *gate) {
+        if (cli.stop_requested()) return;
+        if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
+        QTensor<double> tmp = gate->getTSform();
+        vector<size_t> ori_pin;
+        vector<size_t> new_pin;
+        ori_pin.clear();
+        new_pin.clear();
+        for (size_t np = 0; np < gate->getQubits().size(); np++) {
+            new_pin.emplace_back(2 * np);
+            BitInfo info = gate->getQubits()[np];
+            ori_pin.emplace_back(qubit2pin[info._qubit].second);
+        }
+        tensor = tensordot(tensor, tmp, ori_pin, new_pin);
+        updateTensorPin(qubit2pin, gate->getQubits(), tensor, tmp);
+    });
+
+    if (cli.stop_requested()) {
+        cerr << "Warning: conversion interrupted." << endl;
+        return std::nullopt;
+    }
+
+    vector<size_t> input_pin, output_pin;
+    for (size_t i = 0; i < _qubits.size(); i++) {
+        input_pin.emplace_back(qubit2pin[_qubits[i]->getId()].first);
+        output_pin.emplace_back(qubit2pin[_qubits[i]->getId()].second);
+    }
+    tensor = tensor.toMatrix(input_pin, output_pin);
+
+    // cout << "Stored the resulting tensor as tensor id " << id << endl;
+    return tensor;
 }

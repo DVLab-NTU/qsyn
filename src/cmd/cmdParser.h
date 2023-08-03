@@ -25,17 +25,17 @@ class CmdParser;
 //----------------------------------------------------------------------
 //    External declaration
 //----------------------------------------------------------------------
-extern CmdParser* cmdMgr;
+extern CmdParser cli;
 
 //----------------------------------------------------------------------
 //    command execution status
 //----------------------------------------------------------------------
-enum CmdExecStatus {
-    CMD_EXEC_DONE = 0,
-    CMD_EXEC_ERROR = 1,
-    CMD_EXEC_QUIT = 2,
-    CMD_EXEC_NOP = 3,
-    CMD_EXEC_EXECUTING = 4,
+enum class CmdExecStatus {
+    DONE = 0,
+    ERROR = 1,
+    QUIT = 2,
+    NOP = 3,
+    EXECUTING = 4,
 };
 
 //----------------------------------------------------------------------
@@ -48,7 +48,7 @@ public:
     virtual ~CmdExec() {}
 
     virtual bool initialize() = 0;
-    virtual CmdExecStatus exec(mythread::stop_token, const std::string&) = 0;
+    virtual CmdExecStatus exec(const std::string&) = 0;
     virtual void usage() const = 0;
     virtual void summary() const = 0;
     virtual void help() const = 0;
@@ -69,16 +69,14 @@ private:
 class ArgParseCmdType : public CmdExec {
     using ParserDefinition = std::function<void(ArgParse::ArgumentParser&)>;
     using Precondition = std::function<bool()>;
-    using Uninterruptible = std::function<CmdExecStatus(ArgParse::ArgumentParser const&)>;
-    using Interruptible = std::function<CmdExecStatus(mythread::stop_token, ArgParse::ArgumentParser const&)>;
-    using OnParseSuccess = std::variant<Uninterruptible, Interruptible>;
+    using OnParseSuccess = std::function<CmdExecStatus(ArgParse::ArgumentParser const&)>;
 
 public:
     ArgParseCmdType(std::string const& name) { _parser.name(name); }
     ~ArgParseCmdType() {}
 
     bool initialize() override;
-    CmdExecStatus exec(mythread::stop_token, std::string const& option) override;
+    CmdExecStatus exec(std::string const& option) override;
     void usage() const override { _parser.printUsage(); }
     void summary() const override { _parser.printSummary(); }
     void help() const override { _parser.printHelp(); }
@@ -131,6 +129,7 @@ public:
     CmdExec* getCmd(std::string);
 
     void sigintHandler(int signum);
+    bool stop_requested() const { return _currCmd.has_value() && _currCmd->get_stop_token().stop_requested(); }
 
 private:
     // Private member functions
@@ -184,7 +183,7 @@ private:
                                                               // Reset to false when new command added
     CmdMap _cmdMap;                                           // map from string to command
     std::stack<std::ifstream*> _dofileStack;                  // For recursive dofile calling
-    std::optional<mythread::jthread> _currCmd;                // the current (ongoing) command
+    std::optional<jthread::jthread> _currCmd;                 // the current (ongoing) command
     std::unordered_map<std::string, std::string> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
     std::vector<std::string> _arguments;                      // stores the extra dofile arguments given when invoking the program
     std::string _dofileName;

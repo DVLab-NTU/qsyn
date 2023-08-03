@@ -32,11 +32,11 @@ unique_ptr<ArgParseCmdType> ZXOPTS2sCmd();
 bool initSimpCmd() {
     // OPTimizer opt;
     if (!(
-            cmdMgr->regCmd("ZXGSimp", 4, ZXGSimpCmd()) &&
-            cmdMgr->regCmd("ZXOPT", 5, ZXOPTCmd()) &&
-            cmdMgr->regCmd("ZXOPTPrint", 6, ZXOPTPrintCmd()) &&
-            cmdMgr->regCmd("ZXOPTR2r", 6, ZXOPTR2rCmd()) &&
-            cmdMgr->regCmd("ZXOPTS2s", 6, ZXOPTS2sCmd()))) {
+            cli.regCmd("ZXGSimp", 4, ZXGSimpCmd()) &&
+            cli.regCmd("ZXOPT", 5, ZXOPTCmd()) &&
+            cli.regCmd("ZXOPTPrint", 6, ZXOPTPrintCmd()) &&
+            cli.regCmd("ZXOPTR2r", 6, ZXOPTR2rCmd()) &&
+            cli.regCmd("ZXOPTS2s", 6, ZXOPTS2sCmd()))) {
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
         return false;
     }
@@ -151,8 +151,8 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             .help("convert to red (X) graph");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
-        Simplifier s(zxGraphMgr.get(), st);
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        Simplifier s(zxGraphMgr.get());
         std::string procedure_str = "";
         if (parser["-sreduce"].isParsed()) {
             s.symbolicReduce();
@@ -213,13 +213,13 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             procedure_str = "FR";
         }
 
-        if (st.stop_requested()) {
+        if (cli.stop_requested()) {
             procedure_str += "[INT]";
         }
 
         zxGraphMgr.get()->addProcedure(procedure_str);
 
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;
@@ -235,7 +235,7 @@ unique_ptr<ArgParseCmdType> ZXOPTCmd() {
     };
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         opt.myOptimize();
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
     return cmd;
 }
@@ -286,7 +286,7 @@ unique_ptr<ArgParseCmdType> ZXOPTPrintCmd() {
             .action(storeTrue)
             .help("perform clifford");
     };
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
         if (parser["-idremoval"].isParsed())
             opt.printSingle("Identity Removal Rule");
         else if (parser["-lcomp"].isParsed())
@@ -307,7 +307,7 @@ unique_ptr<ArgParseCmdType> ZXOPTPrintCmd() {
             opt.printSingle("Clifford Simp");
         else
             opt.print();
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
     return cmd;
 }
@@ -370,9 +370,9 @@ unique_ptr<ArgParseCmdType> ZXOPTS2sCmd() {
             if (parser["-pivotboundary"].isParsed()) opt.setS2S("Pivot Boundary Rule", parser["s2s"]);
             if (parser["-pivotgadget"].isParsed()) opt.setS2S("Pivot Gadget Rule", parser["s2s"]);
             if (parser["-spiderfusion"].isParsed()) opt.setS2S("Spider Fusion Rule", parser["s2s"]);
-            return CMD_EXEC_DONE;
+            return CmdExecStatus::DONE;
         } else
-            return CMD_EXEC_ERROR;
+            return CmdExecStatus::ERROR;
     };
     return cmd;
 }
@@ -445,9 +445,9 @@ unique_ptr<ArgParseCmdType> ZXOPTR2rCmd() {
             if (parser["-spiderfusion"].isParsed()) opt.setR2R("Spider Fusion Rule", parser["r2r"]);
             if (parser["-interclifford"].isParsed()) opt.setR2R("Interior Clifford Simp", parser["r2r"]);
             if (parser["-clifford"].isParsed()) opt.setR2R("Clifford Simp", parser["r2r"]);
-            return CMD_EXEC_DONE;
+            return CmdExecStatus::DONE;
         } else
-            return CMD_EXEC_ERROR;
+            return CmdExecStatus::ERROR;
     };
     return cmd;
 }

@@ -22,7 +22,7 @@ void QCirQubit::printBitLine() const {
     QCirGate *current = _bitFirst;
     size_t last_time = 1;
     cout << "Q" << right << setfill(' ') << setw(2) << _id << "  ";
-    while (current != NULL) {
+    while (current != nullptr) {
         cout << "-";
         while (last_time < current->getTime()) {
             cout << "----";

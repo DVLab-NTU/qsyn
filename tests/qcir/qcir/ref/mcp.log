@@ -18,8 +18,7 @@ Rotate Phase: π/3
 
 qsyn> qc2ts
 Traverse and build the tensor... 
-Successfully added Tensor 0
-Stored the resulting tensor as tensor id 0
+Created and checked out to Tensor 0
 
 qsyn> qc2zx
 Created and checked out to ZXGraph 0
@@ -66,8 +65,7 @@ ID:   5 ([1m[32mZ[0m[0m, π/6)         (Qubit, Col): (1, 4)	  #Neighbors:   
 
 qsyn> zx2ts
 Traverse and build the tensor... 
-Successfully added Tensor 1
-Stored the resulting tensor as tensor id 1
+Created and checked out to Tensor 1
 
 qsyn> tseq 0 1
 [1m[32mEquivalent[0m[0m

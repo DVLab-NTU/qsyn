@@ -31,12 +31,12 @@ unique_ptr<ArgParseCmdType> dtPrintCmd();
 
 bool initDeviceCmd() {
     deviceMgr = new DeviceMgr;
-    if (!(cmdMgr->regCmd("DTCHeckout", 4, dtCheckOutCmd()) &&
-          cmdMgr->regCmd("DTReset", 3, dtResetCmd()) &&
-          cmdMgr->regCmd("DTDelete", 3, dtDeleteCmd()) &&
-          cmdMgr->regCmd("DTGRead", 4, dtGraphReadCmd()) &&
-          cmdMgr->regCmd("DTGPrint", 4, dtGraphPrintCmd()) &&
-          cmdMgr->regCmd("DTPrint", 3, dtPrintCmd()))) {
+    if (!(cli.regCmd("DTCHeckout", 4, dtCheckOutCmd()) &&
+          cli.regCmd("DTReset", 3, dtResetCmd()) &&
+          cli.regCmd("DTDelete", 3, dtDeleteCmd()) &&
+          cli.regCmd("DTGRead", 4, dtGraphReadCmd()) &&
+          cli.regCmd("DTGPrint", 4, dtGraphPrintCmd()) &&
+          cli.regCmd("DTPrint", 3, dtPrintCmd()))) {
         cerr << "Registering \"device topology\" commands fails... exiting" << endl;
         return false;
     }
@@ -62,9 +62,9 @@ unique_ptr<ArgParseCmdType> dtCheckOutCmd() {
             .help("the ID of the device");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         deviceMgr->checkout2Device(parser["id"]);
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;
@@ -77,9 +77,9 @@ unique_ptr<ArgParseCmdType> dtResetCmd() {
         parser.help("reset DeviceMgr");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         deviceMgr->reset();
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;
@@ -96,9 +96,9 @@ unique_ptr<ArgParseCmdType> dtDeleteCmd() {
             .help("the ID of the device");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         deviceMgr->removeDevice(parser["id"]);
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;
@@ -118,14 +118,14 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
             .help("if specified, replace the current device; otherwise store to a new one");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         Device bufferTopo = Device(0);
         string filepath = parser["filepath"];
         bool replace = parser["-replace"];
 
         if (!bufferTopo.readDevice(filepath)) {
             cerr << "Error: the format in \"" << filepath << "\" has something wrong!!" << endl;
-            return CMD_EXEC_ERROR;
+            return CmdExecStatus::ERROR;
         }
 
         if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {
@@ -139,7 +139,7 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
         }
 
         deviceMgr->setDevice(bufferTopo);
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;
@@ -170,9 +170,9 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
 //             .help("qubit of the device graph");
 //     };
 
-//     cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
+//     cmd->onParseSuccess = [](ArgumentParser const& parser) {
 
-//         return CMD_EXEC_DONE;
+//         return CmdExecStatus::DONE;
 //     };
 
 //     return cmd;
@@ -200,7 +200,7 @@ unique_ptr<ArgParseCmdType> dtPrintCmd() {
             .help("print number of devices");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser["-focus"].isParsed())
             deviceMgr->printDeviceListItr();
         else if (parser["-list"].isParsed())
@@ -210,7 +210,7 @@ unique_ptr<ArgParseCmdType> dtPrintCmd() {
         else
             deviceMgr->printDeviceMgr();
 
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;
@@ -258,20 +258,20 @@ unique_ptr<ArgParseCmdType> dtGraphPrintCmd() {
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser["-edges"].isParsed()) {
             deviceMgr->getDevice().printEdges(parser.get<vector<size_t>>("-edges"));
-            return CMD_EXEC_DONE;
+            return CmdExecStatus::DONE;
         }
         if (parser["-qubits"].isParsed()) {
             deviceMgr->getDevice().printQubits(parser.get<vector<size_t>>("-qubits"));
-            return CMD_EXEC_DONE;
+            return CmdExecStatus::DONE;
         }
         if (parser["-path"].isParsed()) {
             auto qids = parser.get<vector<size_t>>("-path");
             deviceMgr->getDevice().printPath(qids[0], qids[1]);
-            return CMD_EXEC_DONE;
+            return CmdExecStatus::DONE;
         }
 
         deviceMgr->getDevice().printTopology();
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;

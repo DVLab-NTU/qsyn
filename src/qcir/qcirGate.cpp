@@ -104,7 +104,7 @@ const BitInfo QCirGate::getQubit(size_t qubit) const {
  * @param isTarget
  */
 void QCirGate::addQubit(size_t qubit, bool isTarget) {
-    BitInfo temp = {._qubit = qubit, ._parent = NULL, ._child = NULL, ._isTarget = isTarget};
+    BitInfo temp = {._qubit = qubit, ._parent = nullptr, ._child = nullptr, ._isTarget = isTarget};
     // _qubits.emplace_back(temp);
     if (isTarget)
         _qubits.emplace_back(temp);
@@ -142,7 +142,7 @@ void QCirGate::setParent(size_t qubit, QCirGate *p) {
  * @param c
  */
 void QCirGate::addDummyChild(QCirGate *c) {
-    BitInfo temp = {._qubit = 0, ._parent = NULL, ._child = c, ._isTarget = false};
+    BitInfo temp = {._qubit = 0, ._parent = nullptr, ._child = c, ._isTarget = false};
     _qubits.emplace_back(temp);
 }
 
@@ -186,12 +186,12 @@ void QCirGate::printSingleQubitGate(string gtype, bool showTime) const {
     BitInfo Info = getQubits()[0];
     string qubitInfo = "Q" + to_string(Info._qubit);
     string parentInfo = "";
-    if (Info._parent == NULL)
+    if (Info._parent == nullptr)
         parentInfo = "Start";
     else
         parentInfo = ("G" + to_string(Info._parent->getId()));
     string childInfo = "";
-    if (Info._child == NULL)
+    if (Info._child == nullptr)
         childInfo = "End";
     else
         childInfo = ("G" + to_string(Info._child->getId()));
@@ -227,7 +227,7 @@ void QCirGate::printMultipleQubitsGate(string gtype, bool showRotate, bool showT
 
     vector<string> parents;
     for (size_t i = 0; i < _qubits.size(); i++) {
-        if (getQubits()[i]._parent == NULL)
+        if (getQubits()[i]._parent == nullptr)
             parents.emplace_back("Start");
         else
             parents.emplace_back("G" + to_string(getQubits()[i]._parent->getId()));
@@ -243,14 +243,14 @@ void QCirGate::printMultipleQubitsGate(string gtype, bool showRotate, bool showT
             qubitInfo += " ";
         qubitInfo += to_string(Info._qubit);
         string parentInfo = "";
-        if (Info._parent == NULL)
+        if (Info._parent == nullptr)
             parentInfo = "Start";
         else
             parentInfo = ("G" + to_string(Info._parent->getId()));
         for (size_t k = 0; k < max_parent.size() - (parents[i].size()); k++)
             parentInfo += " ";
         string childInfo = "";
-        if (Info._child == NULL)
+        if (Info._child == nullptr)
             childInfo = "End";
         else
             childInfo = ("G" + to_string(Info._child->getId()));

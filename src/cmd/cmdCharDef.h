@@ -9,8 +9,9 @@
 #define CMD_CHAR_DEF_H
 
 #include <climits>
+#include <type_traits>
 
-enum ParseChar {
+enum class ParseChar {
     // Simple keys: one code for one key press
     // -- The following should be platform-independent
     LINE_BEGIN_KEY = 1,       // ctrl-a
@@ -75,5 +76,9 @@ enum ParseChar {
     // dummy end
     PARSE_CHAR_END
 };
+
+namespace detail {
+inline int getKeyCode(ParseChar ch) { return static_cast<std::underlying_type<ParseChar>::type>(ch); }
+}  // namespace detail
 
 #endif  // CMD_CHAR_DEF_H

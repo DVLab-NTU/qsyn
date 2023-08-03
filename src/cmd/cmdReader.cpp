@@ -27,6 +27,7 @@ void clearConsole();
 //    Member Function for class CmdParser
 //----------------------------------------------------------------------
 bool CmdParser::readCmd(istream& istr) {
+    using enum ParseChar;
     resetBufAndPrintPrompt();
 
     bool newCmd = false;
@@ -131,7 +132,7 @@ bool CmdParser::moveCursor(int idx) {
 
     // move left
     if (_cursorPosition > (size_t)idx) {
-        cout << string(_cursorPosition - idx, char(BACK_SPACE_CHAR));
+        cout << string(_cursorPosition - idx, char(ParseChar::BACK_SPACE_CHAR));
     }
 
     // move right
@@ -168,8 +169,8 @@ bool CmdParser::deleteChar() {
     }
     // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
 
-    cout << _readBuf.substr(_cursorPosition + 1);  // will move cursor to the end
-    cout << " " << char(BACK_SPACE_CHAR);          // get rid of the last character
+    cout << _readBuf.substr(_cursorPosition + 1);     // will move cursor to the end
+    cout << " " << char(ParseChar::BACK_SPACE_CHAR);  // get rid of the last character
     _readBuf.erase(_cursorPosition, 1);
 
     int idx = _cursorPosition;

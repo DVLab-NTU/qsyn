@@ -69,16 +69,34 @@ public:
     QTensor<T> toQTensor();
 
     template <typename U>
-    friend std::complex<U> globalScalarFactor(const QTensor<U>& t1, const QTensor<U>& t2);
+    friend std::complex<U> globalScalarFactor(QTensor<U> const& t1, QTensor<U> const& t2);
 
     template <typename U>
-    U globalNorm(const QTensor<U>& t1, const QTensor<U>& t2);
+    friend U globalNorm(QTensor<U> const& t1, QTensor<U> const& t2);
 
     template <typename U>
-    Phase globalPhase(const QTensor<U>& t1, const QTensor<U>& t2);
+    friend Phase globalPhase(QTensor<U> const& t1, QTensor<U> const& t2);
+
+    template <typename U>
+    friend bool isEquivalent(QTensor<U> const& t1, QTensor<U> const& t2, double eps /* = 1e-6*/);
+
+    size_t getId() const { return _id; }
+    void setId(size_t id) { _id = id; }
+
+    void setFileName(std::string const& f) { _fileName = f; }
+    void addProcedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
+    void addProcedure(std::string_view p) { _procedures.emplace_back(p); }
+
+    std::string getFileName() const { return _fileName; }
+    std::vector<std::string> const& getProcedures() const { return _procedures; }
 
 private:
     static DataType nuPow(const int& n);
+
+    size_t _id;
+
+    std::string _fileName;
+    std::vector<std::string> _procedures;
 };
 
 //------------------------------
@@ -349,7 +367,7 @@ QTensor<T> QTensor<T>::control(const QTensor<T>& gate, size_t numControls) {
  * @return std::complex<U>
  */
 template <typename U>
-std::complex<U> globalScalarFactor(const QTensor<U>& t1, const QTensor<U>& t2) {
+std::complex<U> globalScalarFactor(QTensor<U> const& t1, QTensor<U> const& t2) {
     return (xt::sum(t2._tensor) / xt::sum(t1._tensor))();
 }
 
@@ -362,7 +380,7 @@ std::complex<U> globalScalarFactor(const QTensor<U>& t1, const QTensor<U>& t2) {
  * @return U
  */
 template <typename U>
-U globalNorm(const QTensor<U>& t1, const QTensor<U>& t2) {
+U globalNorm(QTensor<U> const& t1, QTensor<U> const& t2) {
     return std::abs(globalScalarFactor(t1, t2));
 }
 
@@ -375,8 +393,14 @@ U globalNorm(const QTensor<U>& t1, const QTensor<U>& t2) {
  * @return U
  */
 template <typename U>
-Phase globalPhase(const QTensor<U>& t1, const QTensor<U>& t2) {
+Phase globalPhase(QTensor<U> const& t1, QTensor<U> const& t2) {
     return Phase(std::arg(globalScalarFactor(t1, t2)));
+}
+
+template <typename U>
+bool isEquivalent(QTensor<U> const& t1, QTensor<U> const& t2, double eps = 1e-6) {
+    if (t1.shape() != t2.shape()) return false;
+    return cosineSimilarity(t1, t2) >= (1 - eps);
 }
 
 //------------------------------

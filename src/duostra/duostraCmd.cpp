@@ -35,10 +35,10 @@ unique_ptr<ArgParseCmdType> duostraSetCmd();
 unique_ptr<ArgParseCmdType> mapEQCmd();
 
 bool initDuostraCmd() {
-    if (!(cmdMgr->regCmd("DUOSTRA", 7, duostraCmd()) &&
-          cmdMgr->regCmd("DUOSET", 6, duostraSetCmd()) &&
-          cmdMgr->regCmd("DUOPrint", 4, duostraPrintCmd()) &&
-          cmdMgr->regCmd("MPEQuiv", 4, mapEQCmd()))) {
+    if (!(cli.regCmd("DUOSTRA", 7, duostraCmd()) &&
+          cli.regCmd("DUOSET", 6, duostraSetCmd()) &&
+          cli.regCmd("DUOPrint", 4, duostraPrintCmd()) &&
+          cli.regCmd("MPEQuiv", 4, mapEQCmd()))) {
         cerr << "Registering \"Duostra\" commands fails... exiting" << endl;
         return false;
     }
@@ -69,11 +69,11 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
             .help("mute all messages");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         QCir* logicalQCir = qcirMgr.get();
-        Duostra duo{logicalQCir, deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"], st};
+        Duostra duo{logicalQCir, deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"]};
         if (duo.flow() == ERROR_CODE) {
-            return CMD_EXEC_ERROR;
+            return CmdExecStatus::ERROR;
         }
 
         if (duo.getPhysicalCircuit() == nullptr) {
@@ -88,7 +88,7 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
         qcirMgr.get()->addProcedures(logicalQCir->getProcedures());
         qcirMgr.get()->addProcedure("Duostra");
 
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
     return cmd;
 }
@@ -138,7 +138,7 @@ unique_ptr<ArgParseCmdType> duostraSetCmd() {
             .help("execute the single gates when they are available");
     };
 
-    duostraSetCmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
+    duostraSetCmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser["-scheduler"].isParsed())
             DUOSTRA_SCHEDULER = getSchedulerType(parser["-scheduler"]);
         if (parser["-router"].isParsed())
@@ -180,7 +180,7 @@ unique_ptr<ArgParseCmdType> duostraSetCmd() {
             DUOSTRA_EXECUTE_SINGLE = parser["-single-immediately"];
         }
 
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
     return duostraSetCmd;
 }
@@ -200,7 +200,7 @@ unique_ptr<ArgParseCmdType> duostraPrintCmd() {
             .help("print detailed information");
     };
 
-    duostraPrintCmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
+    duostraPrintCmd->onParseSuccess = [](ArgumentParser const& parser) {
         cout << '\n'
              << "Scheduler:         " << getSchedulerTypeStr() << '\n'
              << "Router:            " << getRouterTypeStr() << '\n'
@@ -218,7 +218,7 @@ unique_ptr<ArgParseCmdType> duostraPrintCmd() {
                  << "Never Cache:       " << ((DUOSTRA_NEVER_CACHE == 1) ? "true" : "false") << '\n'
                  << "Single Immed.:     " << ((DUOSTRA_EXECUTE_SINGLE == 1) ? "true" : "false") << endl;
         }
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
     return duostraPrintCmd;
 }
@@ -242,9 +242,9 @@ unique_ptr<ArgParseCmdType> mapEQCmd() {
             .help("check the circuit reversily, used in extracted circuit");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const& parser) {
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (qcirMgr.findByID(parser["-physical"]) == nullptr || qcirMgr.findByID(parser["-logical"]) == nullptr) {
-            return CMD_EXEC_ERROR;
+            return CmdExecStatus::ERROR;
         }
         MappingEQChecker mpeqc(qcirMgr.findByID(parser["-physical"]), qcirMgr.findByID(parser["-logical"]), deviceMgr->getDevice(), {});
         if (mpeqc.check()) {
@@ -252,7 +252,7 @@ unique_ptr<ArgParseCmdType> mapEQCmd() {
         } else {
             cout << TF::BOLD(TF::RED("Not Equivalent")) << endl;
         }
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;

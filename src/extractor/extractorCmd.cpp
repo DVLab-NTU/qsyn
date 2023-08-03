@@ -35,10 +35,10 @@ unique_ptr<ArgParseCmdType> ExtractPrintCmd();
 unique_ptr<ArgParseCmdType> ExtractStepCmd();
 
 bool initExtractCmd() {
-    if (!(cmdMgr->regCmd("ZX2QC", 5, ExtractCmd()) &&
-          cmdMgr->regCmd("EXTRact", 4, ExtractStepCmd()) &&
-          cmdMgr->regCmd("EXTSet", 4, ExtractSetCmd()) &&
-          cmdMgr->regCmd("EXTPrint", 4, ExtractPrintCmd()))) {
+    if (!(cli.regCmd("ZX2QC", 5, ExtractCmd()) &&
+          cli.regCmd("EXTRact", 4, ExtractStepCmd()) &&
+          cli.regCmd("EXTSet", 4, ExtractSetCmd()) &&
+          cli.regCmd("EXTPrint", 4, ExtractPrintCmd()))) {
         cerr << "Registering \"extract\" commands fails... exiting" << endl;
         return false;
     }
@@ -58,14 +58,14 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
         parser.help("extract QCir from ZXGraph");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
         if (!zxGraphMgr.get()->isGraphLike()) {
             cerr << "Error: ZXGraph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
-            return CMD_EXEC_ERROR;
+            return CmdExecStatus::ERROR;
         }
         size_t nextId = zxGraphMgr.getNextID();
         zxGraphMgr.copy(nextId);
-        Extractor ext(zxGraphMgr.get(), nullptr, nullopt, st);
+        Extractor ext(zxGraphMgr.get(), nullptr, nullopt);
 
         QCir *result = ext.extract();
         if (result != nullptr) {
@@ -83,7 +83,7 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
             qcirMgr.get()->setFileName(zxGraphMgr.get()->getFileName());
         }
 
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
     return cmd;
 }
@@ -143,59 +143,59 @@ unique_ptr<ArgParseCmdType> ExtractStepCmd() {
             .help("Run N iteration of extraction loop. N is defaulted to 1");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
         zxGraphMgr.checkout(parser["-zxgraph"]);
         if (!zxGraphMgr.get()->isGraphLike()) {
             cerr << "Error: ZXGraph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
-            return CMD_EXEC_ERROR;
+            return CmdExecStatus::ERROR;
         }
 
         qcirMgr.checkout(parser["-qcir"]);
 
         if (zxGraphMgr.get()->getNumOutputs() != qcirMgr.get()->getNQubit()) {
             cerr << "Error: number of outputs in graph is not equal to number of qubits in circuit" << endl;
-            return CMD_EXEC_ERROR;
+            return CmdExecStatus::ERROR;
         }
 
-        Extractor ext(zxGraphMgr.get(), qcirMgr.get(), std::nullopt, st);
+        Extractor ext(zxGraphMgr.get(), qcirMgr.get(), std::nullopt);
 
         if (parser["-loop"].isParsed()) {
             ext.extractionLoop(parser["-loop"]);
-            return CMD_EXEC_DONE;
+            return CmdExecStatus::DONE;
         }
         if (parser["-phase"].isParsed()) {
             ext.extractSingles();
-            return CMD_EXEC_DONE;
+            return CmdExecStatus::DONE;
         }
         if (parser["-cz"].isParsed()) {
             ext.extractCZs(true);
-            return CMD_EXEC_DONE;
+            return CmdExecStatus::DONE;
         }
         if (parser["-cx"].isParsed()) {
             if (ext.biadjacencyElimination(true)) {
                 ext.updateGraphByMatrix();
                 ext.extractCXs();
             }
-            return CMD_EXEC_DONE;
+            return CmdExecStatus::DONE;
         }
         if (parser["-hadamard"].isParsed()) {
             ext.extractHsFromM2(true);
-            return CMD_EXEC_DONE;
+            return CmdExecStatus::DONE;
         }
         if (parser["-rmgadgets"].isParsed()) {
             if (ext.removeGadget(true))
                 cout << "Gadget(s) are removed" << endl;
             else
                 cout << "No gadget(s) are found" << endl;
-            return CMD_EXEC_DONE;
+            return CmdExecStatus::DONE;
         }
 
         if (parser["-permute"].isParsed()) {
             ext.permuteQubit();
-            return CMD_EXEC_DONE;
+            return CmdExecStatus::DONE;
         }
 
-        return CMD_EXEC_ERROR;  // should not reach
+        return CmdExecStatus::ERROR;  // should not reach
     };
 
     return cmd;
@@ -232,7 +232,7 @@ unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
             .help("print biadjancency");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
         if (parser["-settings"].isParsed() || parser.numParsedArguments() == 0) {
             cout << endl;
             cout << "Optimize Level:    " << OPTIMIZE_LEVEL << endl;
@@ -244,7 +244,7 @@ unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
         } else {
             if (!zxGraphMgr.get()->isGraphLike()) {
                 cerr << "Error: ZXGraph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
-                return CMD_EXEC_ERROR;
+                return CmdExecStatus::ERROR;
             }
             Extractor ext(zxGraphMgr.get());
             if (parser["-frontier"].isParsed()) {
@@ -259,7 +259,7 @@ unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
             }
         }
 
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
     return cmd;
 }
@@ -287,7 +287,7 @@ unique_ptr<ArgParseCmdType> ExtractSetCmd() {
             .help("sort neighbors");
     };
 
-    cmd->onParseSuccess = [](mythread::stop_token st, ArgumentParser const &parser) {
+    cmd->onParseSuccess = [](ArgumentParser const &parser) {
         if (parser["-optimize-level"].isParsed()) {
             OPTIMIZE_LEVEL = parser["-optimize-level"];
         }
@@ -310,7 +310,7 @@ unique_ptr<ArgParseCmdType> ExtractSetCmd() {
         if (parser["-neighbors-sorted"].isParsed()) {
             SORT_NEIGHBORS = parser["-neighbors-sorted"];
         }
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
     return cmd;
 }

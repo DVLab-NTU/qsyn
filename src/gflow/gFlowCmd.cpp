@@ -25,7 +25,7 @@ extern size_t verbose;
 unique_ptr<ArgParseCmdType> ZXGGFlowCmd();
 
 bool initGFlowCmd() {
-    if (!cmdMgr->regCmd("ZXGGFlow", 5, ZXGGFlowCmd())) {
+    if (!cli.regCmd("ZXGGFlow", 5, ZXGGFlowCmd())) {
         cerr << "Registering \"gflow\" commands fails... exiting" << endl;
         return false;
     }
@@ -83,7 +83,7 @@ unique_ptr<ArgParseCmdType> ZXGGFlowCmd() {
         gflow.printSummary();
         if (!gflow.isValid()) gflow.printFailedVertices();
 
-        return CMD_EXEC_DONE;
+        return CmdExecStatus::DONE;
     };
 
     return cmd;

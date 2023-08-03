@@ -86,13 +86,14 @@ public:
         }
 
         _list.erase(id);
-        _currID = 0;
         if (verbose >= 3) {
             std::cout << "Successfully removed " << _typeName << " " << id << std::endl;
-            if (!this->empty())
-                printCheckOutMsg();
-            else
-                std::cout << "Note: The " << _typeName << " list is empty now" << std::endl;
+        }
+        if (this->size() && _currID == id) {
+            checkout(0);
+        }
+        if (verbose >= 3 && this->empty()) {
+            std::cout << "Note: The " << _typeName << " list is empty now" << std::endl;
         }
         return;
     }

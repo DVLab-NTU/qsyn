@@ -76,7 +76,7 @@ void QCir::printQubits() {
  * @param showTime if true, show the time
  */
 bool QCir::printGateInfo(size_t id, bool showTime) {
-    if (getGate(id) != NULL) {
+    if (getGate(id) != nullptr) {
         if (showTime && _dirty)
             updateGateTime();
         getGate(id)->printGateInfo(showTime);

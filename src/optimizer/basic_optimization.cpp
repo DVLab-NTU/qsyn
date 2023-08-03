@@ -8,6 +8,7 @@
 
 #include <assert.h>
 
+#include "cmdParser.h"
 #include "optimizer.h"
 #include "phase.h"
 #include "qcir.h"
@@ -40,7 +41,7 @@ QCir* Optimizer::basic_optimization(bool doSwap, bool separateCorrection, size_t
     _corrections.clear();
     prev_stats = Optimizer::stats(_circuit);
 
-    while (!_stop_token.stop_requested()) {
+    while (!cli.stop_requested()) {
         _reversed = true;
         _circuit = parseForward();
         for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
@@ -66,7 +67,7 @@ QCir* Optimizer::basic_optimization(bool doSwap, bool separateCorrection, size_t
     for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
     _corrections.clear();
 
-    if (_stop_token.stop_requested()) {
+    if (cli.stop_requested()) {
         cerr << "Warning: optimization interrupted" << endl;
         return _circuit;
     }
