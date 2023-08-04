@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <assert.h>
+#include <cassert>
 
 #include "cli.h"
 #include "optimizer.h"

@@ -8,8 +8,7 @@
 
 #include "qcirGate.h"
 
-#include <assert.h>
-
+#include <cassert>
 #include <string>
 
 using namespace std;

@@ -13,9 +13,6 @@
 #include <sys/times.h>
 #include <unistd.h>
 
-#undef MYCLK_TCK
-#define MYCLK_TCK sysconf(_SC_CLK_TCK)
-
 class MyUsage {
 public:
     MyUsage() { reset(); }
@@ -54,7 +51,7 @@ private:
     void setMemUsage() { _currentMem = checkMem() - _initMem; }
     void setTimeUsage() {
         double thisTick = checkTick();
-        _periodUsedTime = (thisTick - _currentTick) / double(MYCLK_TCK);
+        _periodUsedTime = (thisTick - _currentTick) / double(sysconf(_SC_CLK_TCK));
         _totalUsedTime += _periodUsedTime;
         _currentTick = thisTick;
     }

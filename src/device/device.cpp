@@ -8,9 +8,8 @@
 
 #include "device.h"
 
-#include <stdlib.h>
-
 #include <cassert>
+#include <cstdlib>
 #include <fstream>
 #include <limits>
 #include <string>

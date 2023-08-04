@@ -8,8 +8,7 @@
 
 #include "extract.h"
 
-#include <assert.h>
-
+#include <cassert>
 #include <memory>
 
 #include "cli.h"

@@ -6,9 +6,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <ctype.h>
-
 #include <cassert>
+#include <cctype>
 #include <concepts>
 #include <cstddef>
 #include <stdexcept>
@@ -27,13 +26,13 @@ using namespace std;
  * @return true if quotation marks are paired;
  * @return false if quotation marks are unpaired.
  */
-bool stripQuotes(const std::string& input, std::string& output) {
-    output = input;
+std::optional<std::string> stripQuotes(const std::string& input) {
     if (input == "") {
-        return true;
+        return input;
     }
 
-    const string refStr = input;
+    std::string output = input;
+
     vector<string> outside;
     vector<string> inside;
 
@@ -64,9 +63,9 @@ bool stripQuotes(const std::string& input, std::string& output) {
             size_t closingQuote = findQuote(delim);
 
             if (closingQuote == string::npos) {
-                output = refStr;
-                return false;
+                return std::nullopt;
             }
+
             inside.emplace_back(output.substr(0, closingQuote));
             output = output.substr(closingQuote + 1);
         }
@@ -109,7 +108,7 @@ bool stripQuotes(const std::string& input, std::string& output) {
         }
     }
 
-    return true;
+    return output;
 }
 
 /**
@@ -133,6 +132,18 @@ string stripWhitespaces(string const& str) {
     size_t end = str.find_last_not_of(" \t\n\v\f\r");
     if (start == string::npos && end == string::npos) return "";
     return str.substr(start, end + 1 - start);
+}
+
+/**
+ * @brief Return true if the `pos`th character in `str` is escaped, i.e., preceded by a single backslash
+ *
+ * @param str
+ * @param pos
+ * @return true
+ * @return false
+ */
+bool isEscapedChar(std::string const& str, size_t pos) {
+    return pos > 0 && str[pos - 1] == '\\' && (pos == 1 || str[pos - 2] != '\\');
 }
 
 /**

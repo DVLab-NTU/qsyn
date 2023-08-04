@@ -103,7 +103,7 @@ void CommandLineInterface::sigintHandler(int signum) {
 
 // Return false on "quit" or if exception happens
 CmdExecResult
-CommandLineInterface::execOneCmd() {
+CommandLineInterface::executeOneLine() {
     bool newCmd = false;
     while (_dofileStack.size() && _dofileStack.top().eof()) closeDofile();
 
@@ -115,27 +115,30 @@ CommandLineInterface::execOneCmd() {
     // execute the command
     if (!newCmd) return CmdExecResult::NOP;
 
-    auto [e, option] = parseCmd();
-
-    if (e == nullptr) return CmdExecResult::NOP;
-
     std::atomic<CmdExecResult> result;
 
-    _currCmd = jthread::jthread(
-        [this, &e = e, &option = option, &result]() {
-            result = e->exec(option);
-        });
+    while (_commandQueue.size()) {
+        auto [e, option] = parseOneCommandFromQueue();
 
-    assert(_currCmd.has_value());
+        if (e == nullptr) continue;
 
-    _currCmd->join();
+        _currCmd = jthread::jthread(
+            [this, &e = e, &option = option, &result]() {
+                result = e->exec(option);
+            });
 
-    if (this->stop_requested()) {
-        cerr << "Command interrupted " << endl;
-        result = CmdExecResult::INTERRUPTED;
+        assert(_currCmd.has_value());
+
+        _currCmd->join();
+
+        if (this->stop_requested()) {
+            cerr << "Command interrupted " << endl;
+            while (_commandQueue.size()) _commandQueue.pop();
+            return CmdExecResult::INTERRUPTED;
+        }
+
+        _currCmd = std::nullopt;
     }
-
-    _currCmd = std::nullopt;
 
     return result;
 }
@@ -180,27 +183,21 @@ void CommandLineInterface::printHistory(size_t nPrint) const {
 //    words and beyond) and store them in "option"
 //
 std::pair<CmdExec*, std::string>
-CommandLineInterface::parseCmd() {
+CommandLineInterface::parseOneCommandFromQueue() {
     assert(_tempCmdStored == false);
-    assert(!_history.empty());
-    string buffer = _history.back();
+    string buffer = _commandQueue.front();
+    _commandQueue.pop();
 
-    // TODO...
-    assert(buffer[0] != 0 && buffer[0] != ' ');
-
-    string str;
-    stripQuotes(buffer, str);
-
-    str = replaceVariableKeysWithValues(str);
+    assert(buffer[0] != '\0' && buffer[0] != ' ');
 
     string cmd;
-    size_t n = myStrGetTok2(str, cmd);
+    size_t n = myStrGetTok2(buffer, cmd);
     CmdExec* e = getCmd(cmd);
     string option;
     if (!e) {
         cerr << "Illegal command!! (" << cmd << ")" << endl;
     } else if (n != string::npos) {
-        option = str.substr(n);
+        option = buffer.substr(n);
     }
     return {e, option};
 }
@@ -234,16 +231,18 @@ string CommandLineInterface::replaceVariableKeysWithValues(string const& str) co
 
     std::vector<std::tuple<size_t, size_t, string>> to_replace;
     // \S means non-whitespace character
-    for (auto re : {std::regex("\\$[a-zA-Z0-9_]+"), std::regex("\\$\\{\\S+\\}")}) {
-        std::smatch match;
-        std::regex_search(str, match, re);
-        for (size_t i = 0; i < match.size(); ++i) {
-            string var = match[i];
+    static std::regex const var_without_braces(R"(\$[a-zA-Z0-9_]+)");
+    static std::regex const var_with_braces(R"(\$\{\S+\})");
+    for (auto re : {var_without_braces, var_with_braces}) {
+        std::smatch matches;
+        std::regex_search(str, matches, re);
+        for (size_t i = 0; i < matches.size(); ++i) {
+            string var = matches[i];
             // tell if it is a curly brace variable or not
             bool is_brace = var[1] == '{';
             string var_key = is_brace ? var.substr(2, var.length() - 3) : var.substr(1);
 
-            bool is_defined = _variables.find(var_key) != _variables.end();
+            bool is_defined = _variables.contains(var_key);
             string val = is_defined ? _variables.at(var_key) : "";
 
             if (is_brace && !is_defined) {
@@ -256,8 +255,8 @@ string CommandLineInterface::replaceVariableKeysWithValues(string const& str) co
                 }
             }
 
-            size_t pos = match.position(i);
-            if (pos > 0 && str[pos - 1] == '\\' && (pos == 1 || str[pos - 2] != '\\')) {
+            size_t pos = matches.position(i);
+            if (isEscapedChar(str, pos)) {
                 continue;
             }
             to_replace.emplace_back(pos, var.length(), val);
@@ -526,42 +525,43 @@ CommandLineInterface::getCmdMatches(string const& str) {
  */
 bool CommandLineInterface::listCmdDir(const string& cmd) {
     assert(cmd[0] != ' ');
-    string searchString;
+    std::optional<std::string> searchString;
     string incompleteQuotes;
-    if (stripQuotes(cmd, searchString)) {
+    if (searchString = stripQuotes(cmd); searchString.has_value()) {
         incompleteQuotes = "";
-    } else if (stripQuotes(cmd + "\"", searchString)) {
+    } else if (searchString = stripQuotes(cmd + "\""); searchString.has_value()) {
         incompleteQuotes = "\"";
-    } else if (stripQuotes(cmd + "\'", searchString)) {
+    } else if (searchString = stripQuotes(cmd + "\'"); searchString.has_value()) {
         incompleteQuotes = "\'";
     } else {
         cerr << "Error: unexpected quote stripping result!!" << endl;
         return false;
     }
+    assert(searchString.has_value());
 
     size_t lastSpacePos = std::invoke(
         [&searchString]() -> size_t {
-            size_t pos = searchString.find_last_of(" ");
-            while (pos != string::npos && searchString[pos - 1] == '\\') {
-                pos = searchString.find_last_of(" ", pos - 2);
+            size_t pos = searchString->find_last_of(" ");
+            while (pos != string::npos && (*searchString)[pos - 1] == '\\') {
+                pos = searchString->find_last_of(" ", pos - 2);
             }
             return pos;
         });
     assert(lastSpacePos != string::npos);  // must have ' '
 
-    searchString = searchString.substr(lastSpacePos + 1, searchString.size() - (lastSpacePos + 1));
+    searchString = searchString->substr(lastSpacePos + 1, searchString->size() - (lastSpacePos + 1));
 
     // if the search string ends with a backslash,
     // we will remove it from the search string,
     // but we will flag it to do specialized treatments later
     bool trailingBackslash = false;
-    if (searchString.back() == '\\') {
-        searchString.pop_back();
+    if (searchString->back() == '\\') {
+        searchString->pop_back();
         trailingBackslash = true;
     }
 
     string filename;
-    if (!myStrGetTok2(searchString, filename)) {
+    if (!myStrGetTok2(*searchString, filename)) {
         return false;
     }
 

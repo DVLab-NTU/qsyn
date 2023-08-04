@@ -7,9 +7,9 @@
 ****************************************************************************/
 #include "cliCharDef.h"
 
-#include <ctype.h>
 #include <termios.h>
 
+#include <cctype>
 #include <iostream>
 
 #include "cli.h"

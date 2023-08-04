@@ -11,6 +11,7 @@
 #include <concepts>
 #include <iosfwd>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -59,9 +60,10 @@ private:
 
 // In myString.cpp
 
-bool stripQuotes(const std::string& input, std::string& output);
+std::optional<std::string> stripQuotes(const std::string& str);
 std::string stripLeadingWhitespaces(std::string const& str);
 std::string stripWhitespaces(std::string const& str);
+bool isEscapedChar(std::string const& str, size_t pos);
 /**
  * @brief strip comment, which starts with "//", from a string
  *

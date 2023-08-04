@@ -8,18 +8,15 @@
 #ifndef RN_GEN_H
 #define RN_GEN_H
 
-#include <limits.h>
-#include <stdlib.h>
-
-#define my_srandom srandom
-#define my_random random
+#include <climits>
+#include <cstdlib>
 
 class RandomNumGen {
 public:
-    RandomNumGen() { my_srandom(getpid()); }
-    RandomNumGen(unsigned seed) { my_srandom(seed); }
+    RandomNumGen() { srandom(getpid()); }
+    RandomNumGen(unsigned seed) { srandom(seed); }
     const int operator()(const int range) const {
-        return int(range * (double(my_random()) / INT_MAX));
+        return int(range * (double(random()) / INT_MAX));
     }
 };
 

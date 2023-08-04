@@ -12,6 +12,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <queue>
 #include <stack>
 #include <string>
 #include <utility>
@@ -99,8 +100,8 @@ private:
 //----------------------------------------------------------------------
 
 class CommandLineInterface {
-#define READ_BUF_SIZE 65536
-#define PG_OFFSET 10
+    static const size_t READ_BUF_SIZE = 65536;
+    static const size_t PG_OFFSET = 10;
 
     using CmdMap = std::map<const std::string, std::unique_ptr<CmdExec>>;
     using CmdRegPair = std::pair<const std::string, std::unique_ptr<CmdExec>>;
@@ -120,7 +121,7 @@ public:
     void closeDofile();
 
     bool regCmd(const std::string&, unsigned, std::unique_ptr<CmdExec>&&);
-    CmdExecResult execOneCmd();
+    CmdExecResult executeOneLine();
     void printHelps() const;
 
     void addArgument(std::string const& val) {
@@ -150,7 +151,7 @@ private:
     }
     int getChar(std::istream&) const;
     bool readCmd(std::istream&);
-    std::pair<CmdExec*, std::string> parseCmd();
+    std::pair<CmdExec*, std::string> parseOneCommandFromQueue();
     void listCmd(const std::string&);
     bool listCmdDir(const std::string&);
     void printPrompt() const;
@@ -162,7 +163,7 @@ private:
     void deleteLine();
     void reprintCmd();
     void moveToHistory(int index);
-    bool addHistory();
+    bool addUserInputToHistory();
     void retrieveHistory();
 
     std::string replaceVariableKeysWithValues(std::string const& str) const;
@@ -172,23 +173,26 @@ private:
     std::pair<CmdMap::const_iterator, CmdMap::const_iterator> getCmdMatches(std::string const& str);
     void printAsTable(std::vector<std::string> words, size_t widthLimit) const;
 
+    void askForUserInput(std::istream& istr);
+
     // Data members
-    std::string const _prompt;                                // command prompt
-    std::string const _specialChars = "\"\' ";                // The characters that are identified as special characters when parsing
-    std::string _readBuf;                                     // read buffer
-    size_t _cursorPosition = 0;                               // current cursor postion on the readBuf
-    std::vector<std::string> _history;                        // oldest:_history[0],latest:_hist.back()
-    int _historyIdx = 0;                                      // (1) Position to insert history string
-                                                              //     i.e. _historyIdx = _history.size()
-                                                              // (2) When up/down/pgUp/pgDn is pressed,
-                                                              //     position to history to retrieve
-    size_t _tabPressCount = 0;                                // The number of tab pressed
-    bool _tempCmdStored = false;                              // When up/pgUp is pressed, current line
-                                                              // will be stored in _history and
-                                                              // _tempCmdStored will be true.
-                                                              // Reset to false when new command added
-    CmdMap _cmdMap;                                           // map from string to command
-    std::stack<std::ifstream> _dofileStack;                   // For recursive dofile calling
+    std::string const _prompt;                   // command prompt
+    std::string const _specialChars = "\"\' ;";  // The characters that are identified as special characters when parsing
+    std::string _readBuf;                        // read buffer
+    size_t _cursorPosition = 0;                  // current cursor postion on the readBuf
+    std::vector<std::string> _history;           // oldest:_history[0],latest:_hist.back()
+    int _historyIdx = 0;                         // (1) Position to insert history string
+                                                 //     i.e. _historyIdx = _history.size()
+                                                 // (2) When up/down/pgUp/pgDn is pressed,
+                                                 //     position to history to retrieve
+    size_t _tabPressCount = 0;                   // The number of tab pressed
+    bool _tempCmdStored = false;                 // When up/pgUp is pressed, current line
+                                                 // will be stored in _history and
+                                                 // _tempCmdStored will be true.
+                                                 // Reset to false when new command added
+    CmdMap _cmdMap;                              // map from string to command
+    std::stack<std::ifstream> _dofileStack;      // For recursive dofile calling
+    std::queue<std::string> _commandQueue;
     std::optional<jthread::jthread> _currCmd = std::nullopt;  // the current (ongoing) command
     std::unordered_map<std::string, std::string> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
     std::vector<std::string> _arguments;                      // stores the extra dofile arguments given when invoking the program

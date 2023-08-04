@@ -6,10 +6,9 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <stdlib.h>
-
 #include <csignal>
 #include <cstddef>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 
@@ -103,7 +102,7 @@ int main(int argc, char** argv) {
     CmdExecResult status = CmdExecResult::DONE;
 
     while (status != CmdExecResult::QUIT) {  // until "quit" or command error
-        status = cli.execOneCmd();
+        status = cli.executeOneLine();
         cout << endl;  // a blank line between each command
     }
 

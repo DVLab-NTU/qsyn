@@ -175,15 +175,16 @@ bool ArgumentParser::analyzeOptions() const {
  */
 bool ArgumentParser::tokenize(string const& line) {
     _pimpl->tokens.clear();
-    string buffer, stripped;
-    if (!stripQuotes(line, stripped)) {
+    auto stripped = stripQuotes(line);
+    if (!stripped.has_value()) {
         cerr << "Error: missing ending quote!!" << endl;
         return false;
     }
-    size_t pos = myStrGetTok(stripped, buffer);
-    while (buffer.size()) {
-        _pimpl->tokens.emplace_back(buffer);
-        pos = myStrGetTok(stripped, buffer, pos);
+    string token;
+    size_t pos = myStrGetTok(stripped.value(), token);
+    while (token.size()) {
+        _pimpl->tokens.emplace_back(token);
+        pos = myStrGetTok(stripped.value(), token, pos);
     }
     if (_pimpl->tokens.empty()) return true;
     // concat tokens with '\ ' to a single token with space in it
@@ -191,7 +192,7 @@ bool ArgumentParser::tokenize(string const& line) {
         string& currToken = itr->token;
         string& nextToken = prev(itr)->token;
 
-        if (currToken.ends_with('\\')) {
+        if (currToken.ends_with('\\') && !currToken.ends_with("\\\\")) {
             currToken.back() = ' ';
             currToken += nextToken;
             nextToken = "";

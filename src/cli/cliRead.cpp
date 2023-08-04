@@ -19,27 +19,23 @@ using namespace std;
 //----------------------------------------------------------------------
 //    Member Function for class CmdParser
 //----------------------------------------------------------------------
-bool CommandLineInterface::readCmd(istream& istr) {
-    using namespace KeyCode;
-    resetBufAndPrintPrompt();
 
-    bool newCmd = false;
-    // listen for keystrokes
-    while (!newCmd) {
+void CommandLineInterface::askForUserInput(std::istream& istr) {
+    using namespace KeyCode;
+
+    while (true) {
         int keycode = getChar(istr);
+
+        if (istr.eof()) return;
 
         if (keycode == INPUT_END_KEY) {
             cout << "\nquit" << endl;
             std::exit(0);
         }
 
-        if (istr.eof()) {
-            newCmd = addHistory();
-            cout << char(NEWLINE_KEY);
-            break;
-        }
-
         switch (keycode) {
+            case NEWLINE_KEY:
+                return;
             case LINE_BEGIN_KEY:
             case HOME_KEY:
                 moveCursor(0);
@@ -54,11 +50,6 @@ bool CommandLineInterface::readCmd(istream& istr) {
                 break;
             case DELETE_KEY:
                 deleteChar();
-                break;
-            case NEWLINE_KEY:
-                newCmd = addHistory();
-                cout << char(NEWLINE_KEY);
-                if (!newCmd) resetBufAndPrintPrompt();
                 break;
             case CLEAR_CONSOLE_KEY:
                 clearConsole();
@@ -97,7 +88,47 @@ bool CommandLineInterface::readCmd(istream& istr) {
                 break;
         }
     }
-    return newCmd;
+}
+
+bool CommandLineInterface::readCmd(istream& istr) {
+    resetBufAndPrintPrompt();
+
+    this->askForUserInput(istr);
+    // listen for keystrokes
+
+    bool added = addUserInputToHistory();
+
+    if (added) {
+        auto stripped = stripQuotes(_history.back()).value_or("");
+
+        stripped = replaceVariableKeysWithValues(stripped);
+        std::vector<std::string> tokens;
+        string token;
+        size_t pos = myStrGetTok(stripped, token, 0, ';');
+        while (token.size()) {
+            tokens.emplace_back(token);
+            pos = myStrGetTok(stripped, token, pos, ';');
+        }
+        if (tokens.size()) {
+            // concat tokens with '\;' to a single token
+            for (auto itr = next(tokens.rbegin()); itr != tokens.rend(); ++itr) {
+                string& currToken = *itr;
+                string& nextToken = *prev(itr);
+
+                if (currToken.ends_with('\\') && !currToken.ends_with("\\\\")) {
+                    currToken.back() = ';';
+                    currToken += nextToken;
+                    nextToken = "";
+                }
+            }
+            erase_if(tokens, [](std::string const& token) { return token == ""; });
+            std::ranges::for_each(tokens, [this](std::string& token) { _commandQueue.push(stripWhitespaces(token)); });
+        }
+
+        cout << '\n';
+    }
+
+    return added;
 }
 
 // This function moves _readBufPtr to the "ptr" pointer
@@ -273,11 +304,11 @@ void CommandLineInterface::moveToHistory(int index) {
 }
 
 /**
- * @brief Add the command in buffer to _history. This function trim the comment, leading/trailing whitespace of the entered comments
+ * @brief Add the command in buffer to _history.
+ *        This function trim the comment, leading/trailing whitespace of the entered comments
  *
- * @return `true` if a new command is added to _history, `false` if not
  */
-bool CommandLineInterface::addHistory() {
+bool CommandLineInterface::addUserInputToHistory() {
     size_t argumentTagPos = _readBuf.find("//!ARGS");
     if (argumentTagPos == 0) {
         saveArgumentsInVariables(_readBuf);
