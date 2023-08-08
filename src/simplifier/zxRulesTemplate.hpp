@@ -21,11 +21,11 @@ struct ZXOperation {
 };
 
 template <typename _MatchType>
-class TZXRule {
+class ZXRuleTemplate {
 public:
     using MatchType = _MatchType;
 
-    TZXRule(const std::string& _name) : name(_name) {}
+    ZXRuleTemplate(const std::string& _name) : name(_name) {}
 
     virtual std::vector<MatchType> findMatches(const ZXGraph& graph) const = 0;
     virtual void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const = 0;
@@ -47,12 +47,25 @@ protected:
     }
 };
 
-class IdRemovalRule : public TZXRule<std::tuple<ZXVertex*, ZXVertex*, ZXVertex*, EdgeType>> {
+class IdRemovalRule : public ZXRuleTemplate<std::tuple<ZXVertex*, ZXVertex*, ZXVertex*, EdgeType>> {
 public:
-    using MatchType = TZXRule::MatchType;
+    using MatchType = ZXRuleTemplate::MatchType;
 
-    IdRemovalRule() : TZXRule("Identity Removal Rule") {}
+    IdRemovalRule() : ZXRuleTemplate("Identity Removal Rule") {}
 
     std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+};
+
+class BialgebraRule : public ZXRuleTemplate<EdgePair> {
+public:
+    using MatchType = ZXRuleTemplate::MatchType;
+
+    BialgebraRule() : ZXRuleTemplate("Bialgebra Rule") {}
+
+    std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
+    void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+
+private:
+    bool has_dupicate(std::vector<ZXVertex*> vec) const;
 };

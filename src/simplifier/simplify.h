@@ -16,6 +16,7 @@
 #include "zxRules.h"
 #include "zxoptimizer.h"
 
+extern size_t verbose;
 extern ZXOPTimizer opt;
 extern CmdParser cli;
 
@@ -37,15 +38,39 @@ public:
 
     template <typename Rule>
     size_t new_simp(const Rule& rule) {
+        // Use hadamardSimp() instead
+        assert(rule.name != "Hadamard Rule");
+
+        if (verbose >= 5) std::cout << std::setw(30) << std::left << rule.name;
+        if (verbose >= 8) std::cout << std::endl;
+
+        std::vector<int> match_counts;
+
         size_t iterations = 0;
         for (int r2r = opt.getR2R(rule.name); !cli.stop_requested() && r2r > 0; r2r--) {
             std::vector<typename Rule::MatchType> matches = rule.findMatches(*_simpGraph);
             if (matches.empty()) {
                 break;
             }
-            rule.apply(*_simpGraph, matches);
+            match_counts.emplace_back(matches.size());
             iterations++;
+
+            if (verbose >= 8) std::cout << "\nIteration " << iterations << ":" << std::endl
+                                        << ">>>" << std::endl;
+            rule.apply(*_simpGraph, matches);
+            if (verbose >= 8) std::cout << "<<<" << std::endl;
         }
+
+        _recipe.emplace_back(rule.name, match_counts);
+        if (verbose >= 8) std::cout << "=> ";
+        if (verbose >= 5) {
+            std::cout << iterations << " iterations." << std::endl;
+            for (size_t i = 0; i < match_counts.size(); i++) {
+                std::cout << "  " << i + 1 << ") " << match_counts[i] << " matches" << std::endl;
+            }
+        }
+        if (verbose >= 5) std::cout << "\n";
+
         return iterations;
     }
 

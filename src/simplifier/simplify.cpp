@@ -148,8 +148,9 @@ void Simplifier::amend() {
  * @return int
  */
 int Simplifier::bialgSimp() {
-    this->setRule(make_unique<Bialgebra>());
-    return this->simp();
+    // this->setRule(make_unique<Bialgebra>());
+    // return this->simp();
+    return new_simp(BialgebraRule());
 }
 
 /**
@@ -206,15 +207,6 @@ int Simplifier::hruleSimp() {
  * @return int
  */
 int Simplifier::idSimp() {
-    // this->setRule(make_unique<IdRemoval>());
-    // int i = this->simp();
-    // if (i > 0) {
-    //     if (verbose >= 8) cout << this->getRule()->getName() << endl;
-    //     stop = opt.updateParameters(_simpGraph);
-    // }
-    // if (stop) return -1;
-    // return i;
-
     auto rule = IdRemovalRule();
     int i = new_simp(rule);
     if (i > 0) {
