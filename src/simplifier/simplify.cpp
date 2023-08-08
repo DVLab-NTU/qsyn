@@ -19,6 +19,7 @@
 #include "zxGraph.h"  // for ZXGraph
 #include "zxGraphMgr.h"
 #include "zxPartition.h"
+#include "zxRulesTemplate.hpp"
 #include "zxoptimizer.h"
 
 using namespace std;
@@ -205,10 +206,19 @@ int Simplifier::hruleSimp() {
  * @return int
  */
 int Simplifier::idSimp() {
-    this->setRule(make_unique<IdRemoval>());
-    int i = this->simp();
+    // this->setRule(make_unique<IdRemoval>());
+    // int i = this->simp();
+    // if (i > 0) {
+    //     if (verbose >= 8) cout << this->getRule()->getName() << endl;
+    //     stop = opt.updateParameters(_simpGraph);
+    // }
+    // if (stop) return -1;
+    // return i;
+
+    auto rule = IdRemovalRule();
+    int i = new_simp(rule);
     if (i > 0) {
-        if (verbose >= 8) cout << this->getRule()->getName() << endl;
+        if (verbose >= 8) cout << rule.name << endl;
         stop = opt.updateParameters(_simpGraph);
     }
     if (stop) return -1;
