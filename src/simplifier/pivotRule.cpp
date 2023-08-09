@@ -13,25 +13,12 @@ using MatchType = PivotRule::MatchType;
 extern size_t verbose;
 
 /**
- * @brief Preprocess the matches so that it conforms with the rewrite functions
- *
- * @param graph The graph to be preprocessed
- */
-void PivotRule::preprocess(ZXGraph& graph) const {
-    for (auto& v : _boundaries) {
-        auto& [nb, etype] = v->getFirstNeighbor();
-        graph.addBuffer(v, nb, etype);
-    }
-}
-
-/**
  * @brief Finds matchings of the pivot rule.
  *
  * @param grapg The graph to find matches
  */
 std::vector<MatchType> PivotRule::findMatches(const ZXGraph& graph) const {
     std::vector<MatchType> matches;
-    _boundaries.clear();
 
     std::unordered_set<ZXVertex*> taken;
     graph.forEachEdge([&taken, &matches, this](const EdgePair& epair) {
@@ -51,19 +38,19 @@ std::vector<MatchType> PivotRule::findMatches(const ZXGraph& graph) const {
 
         // 4: Check neighbors of Neighbors
 
-        std::vector<ZXVertex*> boundaries;
+        bool foundOne = false;
         for (auto& v : {vs, vt}) {
             for (auto& [nb, et] : v->getNeighbors()) {
                 if (nb->isZ() && et == EdgeType::HADAMARD) continue;
                 if (nb->isBoundary()) {
-                    boundaries.emplace_back(nb);
+                    if (foundOne) return;
+                    foundOne = true;
                 } else {
                     taken.insert(nb);
                     return;
                 }
             }
         }
-        if (boundaries.size() > 1) return;
 
         // 5: taken
         taken.insert(vs);
@@ -73,8 +60,25 @@ std::vector<MatchType> PivotRule::findMatches(const ZXGraph& graph) const {
 
         // 6: add Epair into _matchTypeVec
         matches.push_back({vs, vt});  // NOTE: cannot emplace_back -- std::array does not have a constructor!;
-        this->_boundaries.insert(this->_boundaries.end(), boundaries.begin(), boundaries.end());
     });
 
     return matches;
+}
+
+void PivotRule::apply(ZXGraph& graph, const std::vector<MatchType>& matches) const {
+    for (const auto& [vs, vt] : matches) {
+        for (auto& v : {vs, vt}) {
+            for (auto& [nb, et] : v->getNeighbors()) {
+                if (nb->isZ() && et == EdgeType::HADAMARD) continue;
+                if (nb->isBoundary()) {
+                    graph.addBuffer(nb, v, et);
+                    goto next_pair;
+                }
+            }
+        }
+    next_pair:
+        continue;
+    }
+
+    PivotRuleInterface::apply(graph, matches);
 }

@@ -270,10 +270,10 @@ int Simplifier::pivotBoundarySimp() {
  * @return int
  */
 int Simplifier::pivotGadgetSimp() {
-    this->setRule(make_unique<PivotGadget>());
-    int i = this->simp();
+    auto rule = PivotGadgetRule();
+    int i = new_simp(rule);
     if (i > 0) {
-        if (verbose >= 8) cout << this->getRule()->getName() << endl;
+        if (verbose >= 8) cout << rule.name << endl;
         stop = opt.updateParameters(_simpGraph);
     }
     if (stop) return -1;

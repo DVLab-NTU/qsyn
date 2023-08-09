@@ -13,8 +13,6 @@ extern size_t verbose;
 void PivotRuleInterface::apply(ZXGraph& graph, const std::vector<MatchType>& matches) const {
     ZXOperation op;
 
-    preprocess(graph);
-
     for (auto& m : matches) {
         if (verbose >= 8) {
             std::cout << "> rewrite...\n";

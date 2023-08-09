@@ -113,10 +113,6 @@ public:
 
     virtual std::vector<MatchType> findMatches(const ZXGraph& graph) const override = 0;
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
-
-protected:
-    virtual void preprocess(ZXGraph& graph) const = 0;
-    mutable std::vector<ZXVertex*> _boundaries;
 };
 
 class PivotRule : public PivotRuleInterface {
@@ -126,12 +122,18 @@ public:
     PivotRule() : PivotRuleInterface("Pivot Rule") {}
 
     std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
-
-protected:
-    void preprocess(ZXGraph& graph) const override;
+    void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
 };
 
-// TODO: PivotGadgetRule
+class PivotGadgetRule : public PivotRuleInterface {
+public:
+    using MatchType = ZXRuleTemplate::MatchType;
+
+    PivotGadgetRule() : PivotRuleInterface("Pivot Gadget Rule") {}
+
+    std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
+    void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+};
 
 // TODO: PivotBoundaryRule
 
