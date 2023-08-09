@@ -12,6 +12,7 @@
 
 #include "zxDef.h"
 #include "zxGraph.h"
+#include "zxRules.h"
 
 struct ZXOperation {
     std::vector<ZXVertex*> verticesToAdd;
@@ -70,6 +71,10 @@ public:
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
 };
 
+// TODO: HboxFusionRule
+
+// TODO: HRule
+
 class IdRemovalRule : public ZXRuleTemplate<std::tuple<ZXVertex*, ZXVertex*, ZXVertex*, EdgeType>> {
 public:
     using MatchType = ZXRuleTemplate::MatchType;
@@ -95,6 +100,24 @@ public:
     using MatchType = ZXRuleTemplate::MatchType;
 
     PhaseGadgetRule() : ZXRuleTemplate("Phase Gadget Rule") {}
+
+    std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
+    void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+};
+
+// TODO: PivotInterface
+
+// TODO: PivotRule
+
+// TODO: PivotGadgetRule
+
+// TODO: PivotBoundaryRule
+
+class SpiderFusionRule : public ZXRuleTemplate<std::pair<ZXVertex*, ZXVertex*>> {
+public:
+    using MatchType = ZXRuleTemplate::MatchType;
+
+    SpiderFusionRule() : ZXRuleTemplate("Spider Fusion Rule") {}
 
     std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;

@@ -296,8 +296,8 @@ int Simplifier::pivotGadgetSimp() {
  * @return int
  */
 int Simplifier::sfusionSimp() {
-    this->setRule(make_unique<SpiderFusion>());
-    int i = this->simp();
+    auto rule = SpiderFusionRule();
+    int i = new_simp(rule);
     if (i > 0) {
         if (verbose >= 8) cout << this->getRule()->getName() << endl;
         stop = opt.updateParameters(_simpGraph);
