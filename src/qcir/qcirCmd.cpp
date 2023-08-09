@@ -433,7 +433,7 @@ unique_ptr<ArgParseCmdType> QCirReadCmd() {
         parser.help("read a circuit and construct the corresponding netlist");
 
         parser.addArgument<string>("filepath")
-            .constraint(file_exists)
+            .constraint(path_readable)
             .constraint(allowed_extension({".qasm", ".qc", ".qsim", ".quipper", ""}))
             .help("the filepath to quantum circuit file. Supported extension: .qasm, .qc, .qsim, .quipper");
 
@@ -891,7 +891,7 @@ unique_ptr<ArgParseCmdType> QCirWriteCmd() {
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("write QCir to a QASM file");
         parser.addArgument<string>("output-path.qasm")
-            .constraint(dir_for_file_exists)
+            .constraint(path_writable)
             .constraint(allowed_extension({".qasm"}))
             .help("the filepath to output file. Supported extension: .qasm");
     };
@@ -916,7 +916,7 @@ unique_ptr<ArgParseCmdType> QCirDrawCmd() {
         parser.help("Draw a QCir. This command relies on qiskit and pdflatex to be present in the system.");
         parser.addArgument<string>("output_path")
             .nargs(NArgsOption::OPTIONAL)
-            .constraint(dir_for_file_exists)
+            .constraint(path_writable)
             .defaultValue("")
             .help(
                 "if specified, output the resulting drawing into this file. "

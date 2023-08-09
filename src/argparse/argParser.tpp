@@ -78,7 +78,7 @@ ArgumentParser::operator_bracket_impl(ArgT&& arg, std::string const& name) {
     } catch (std::out_of_range& e) {
         std::cerr << "Argument name \"" << name
                   << "\" does not exist for command \""
-                  << std::forward<ArgT>(arg)._pimpl->formatter.styledCmdName(std::forward<ArgT>(arg).getName(), std::forward<ArgT>(arg).getNumRequiredChars()) << "\"\n";
+                  << formatter.styledCmdName(std::forward<ArgT>(arg).getName(), std::forward<ArgT>(arg).getNumRequiredChars()) << "\"\n";
         throw e;
     }
 }

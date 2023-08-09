@@ -99,7 +99,7 @@ unique_ptr<ArgParseCmdType> quitCmd() {
         size_t s = ss.find_first_not_of(' ', 0);
         if (s != string::npos) {
             ss = ss.substr(s);
-            if (myStrNCmp("Yes", ss, 1) == 0)
+            if ("Yes"s.starts_with(toLowerString(ss)))
                 return CmdExecResult::QUIT;  // ready to quit
         }
         return CmdExecResult::DONE;  // not yet to quit
@@ -137,7 +137,7 @@ unique_ptr<ArgParseCmdType> dofileCmd() {
         parser.help("execute the commands in the dofile");
 
         parser.addArgument<string>("file")
-            .constraint(file_exists)
+            .constraint(path_readable)
             .help("path to a dofile, i.e., a list of Qsyn commands");
     };
 

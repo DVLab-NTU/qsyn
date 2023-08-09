@@ -6,11 +6,14 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
 
 #include "argparse.h"
+#include "display_width.hpp"
+#include "terminalSize.h"
 #include "textFormat.h"
 
 using namespace std;
@@ -126,6 +129,35 @@ void Formatter::printSummary(ArgumentParser parser) {
  *
  */
 void Formatter::printHelp(ArgumentParser parser) {
+    fort::utf8_table table;
+    table.set_border_style(FT_EMPTY_STYLE);
+    table.set_left_margin(1);
+
+    ft_set_u8strwid_func(
+        [](void const* beg, void const* end, size_t* width) -> int {
+            std::string tmpStr(static_cast<const char*>(beg), static_cast<const char*>(end));
+
+            *width = unicode::display_width(tmpStr);
+
+            return 0;
+        });
+
+    auto [terminal_width, terminal_height] = dvlab_utils::get_terminal_size();
+
+    auto typeStringLength = std::ranges::max(
+        parser._pimpl->arguments | views::values |
+        views::transform([](Argument const& arg) -> size_t { return arg.getTypeString().size(); }));
+
+    auto nameLength = std::ranges::max(
+        parser._pimpl->arguments | views::values |
+        views::transform([](Argument const& arg) -> size_t { return arg.getName().size(); }));
+    auto metavarLength = std::ranges::max(
+        parser._pimpl->arguments | views::values |
+        views::transform([](Argument const& arg) -> size_t { return arg.getMetavar().size(); }));
+
+    // 7 = 1 * left margin (1) + 3 * (left+right cell padding (2))
+    auto max_help_string_width = terminal_width - typeStringLength - nameLength - metavarLength - 7;
+
     printUsage(parser);
     if (parser.getHelp().size()) {
         cout << TF::LIGHT_BLUE("\nDescription:\n  ") << parser.getHelp() << endl;
@@ -146,27 +178,29 @@ void Formatter::printHelp(ArgumentParser parser) {
         cout << TF::LIGHT_BLUE("\nRequired Arguments:\n");
         for (auto const& [_, arg] : arguments) {
             if (arg.isRequired()) {
-                printHelpString(parser, arg);
+                printHelpString(parser, table, max_help_string_width, arg);
             }
         }
     }
 
     if (subparsers.has_value() && subparsers->isRequired()) {
-        printHelpString(parser, subparsers.value());
+        printHelpString(parser, table, max_help_string_width, subparsers.value());
     }
 
     if (count_if(arguments.begin(), arguments.end(), argPairIsOptional)) {
         cout << TF::LIGHT_BLUE("\nOptional Arguments:\n");
         for (auto const& [_, arg] : arguments) {
             if (!arg.isRequired()) {
-                printHelpString(parser, arg);
+                printHelpString(parser, table, max_help_string_width, arg);
             }
         }
     }
 
     if (subparsers.has_value() && !subparsers->isRequired()) {
-        printHelpString(parser, subparsers.value());
+        printHelpString(parser, table, max_help_string_width, subparsers.value());
     }
+
+    cout << table.to_string() << endl;
 }
 
 /**
@@ -223,32 +257,48 @@ string Formatter::optionalArgBracket(std::string const& str) {
     return optionalStyle("[") + str + optionalStyle("]");
 }
 
+std::string insertLineBreaksToString(std::string const& str, size_t max_help_width) {
+    std::vector<std::string> lines = split(str, "\n");
+    for (size_t i = 0; i < lines.size(); ++i) {
+        if (lines[i].size() < max_help_width) continue;
+
+        size_t pos = lines[i].find_last_of(' ', max_help_width);
+
+        if (pos == std::string::npos) {
+            lines.insert(lines.begin() + i + 1, lines[i].substr(max_help_width));
+            lines[i] = lines[i].substr(0, max_help_width);
+        } else {
+            lines.insert(lines.begin() + i + 1, lines[i].substr(pos + 1));
+            lines[i] = lines[i].substr(0, pos);
+        }
+    }
+
+    return join("\n", lines);
+}
+
 /**
  * @brief print the help string of an argument
  *
  * @param arg
  */
-void Formatter::printHelpString(ArgumentParser parser, Argument const& arg) {
-    using dvlab_utils::Tabler;
-    auto& tabl = parser._pimpl->tabl;
-    tabl << (arg.takesArgument() ? typeStyle(arg.getTypeString()) : typeStyle("flag"));
-
+void Formatter::printHelpString(ArgumentParser parser, fort::utf8_table& table, size_t max_help_string_width, Argument const& arg) {
+    table << typeStyle(arg.takesArgument() ? arg.getTypeString() : "flag");
     if (parser.hasOptionPrefix(arg)) {
         if (arg.takesArgument()) {
-            tabl << styledArgName(parser, arg) << metavarStyle(arg.getMetavar());
+            table << styledArgName(parser, arg) << metavarStyle(arg.getMetavar());
         } else {
-            tabl << Tabler::Multicols(styledArgName(parser, arg), 2);
+            table << styledArgName(parser, arg) << "";
         }
     } else {
-        tabl << Tabler::Multicols(metavarStyle(arg.getMetavar()), 2);
+        table << metavarStyle(arg.getMetavar()) << "";
     }
 
-    tabl << arg.getHelp();
+    table << insertLineBreaksToString(arg.getHelp(), max_help_string_width) << fort::endr;
 }
 
-void Formatter::printHelpString(ArgumentParser parser, SubParsers parsers) {
-    using dvlab_utils::Tabler;
-    parser._pimpl->tabl << Tabler::Multicols(getSyntaxString(parsers), 3) << parsers.getHelp();
+void Formatter::printHelpString(ArgumentParser parser, fort::utf8_table& table, size_t max_help_string_width, SubParsers parsers) {
+    table << getSyntaxString(parsers) << ""
+          << "" << insertLineBreaksToString(parsers.getHelp(), max_help_string_width) << fort::endr;
 }
 
 /**

@@ -174,12 +174,12 @@ bool Phase::myStr2Phase(const std::string& str, Phase& p) {
     for (size_t i = 0; i < numberStrings.size(); ++i) {
         doDivision = (i != 0 && operators[i - 1] == '/');
 
-        if (myStrNCmp("PI", numberStrings[i], 2) == 0) {
+        if (toLowerString(numberStrings[i]) == "pi") {
             if (doDivision)
                 numOfPis -= 1;
             else
                 numOfPis += 1;
-        } else if (myStrNCmp("-PI", numberStrings[i], 3) == 0) {
+        } else if (toLowerString(numberStrings[i]) == "-pi") {
             numerator *= -1;
             if (doDivision)
                 numOfPis -= 1;

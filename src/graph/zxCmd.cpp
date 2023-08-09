@@ -643,11 +643,12 @@ unique_ptr<ArgParseCmdType> ZXGDrawCmd() {
 
         parser.addArgument<string>("filepath")
             .nargs(NArgsOption::OPTIONAL)
-            .constraint(dir_for_file_exists)
+            .constraint(path_writable)
             .constraint(allowed_extension({".pdf"}))
             .help("the output path. Supported extension: .pdf");
 
         parser.addArgument<bool>("-CLI")
+            .action(storeTrue)
             .help("print to the console. Note that only horizontal wires will be printed");
     };
 
@@ -705,7 +706,7 @@ unique_ptr<ArgParseCmdType> ZXGReadCmd() {
         parser.help("read a file and construct the corresponding ZXGraph");
 
         parser.addArgument<string>("filepath")
-            .constraint(file_exists)
+            .constraint(path_readable)
             .constraint(allowed_extension({".zx", ".bzx"}))
             .help("path to the ZX file. Supported extensions: .zx, .bzx");
 
@@ -751,8 +752,9 @@ unique_ptr<ArgParseCmdType> ZXGWriteCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXGWrite");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("write the ZXGraph to a file");
         parser.addArgument<string>("filepath")
-            .constraint(dir_for_file_exists)
+            .constraint(path_writable)
             .constraint(allowed_extension({".zx", ".bzx", ".tikz", ".tex", ""}))
             .help("the path to the output ZX file");
 

@@ -43,6 +43,13 @@ FetchContent_Declare(
   GIT_TAG 0.20.0)
 FetchContent_MakeAvailable(xtensor-blas)
 
+FetchContent_Declare(
+  libfort
+  GIT_REPOSITORY https://github.com/seleznevae/libfort.git
+  GIT_TAG v0.4.2)
+FetchContent_MakeAvailable(libfort)
+
+
 file(
   GLOB_RECURSE SOURCES
   RELATIVE ${CMAKE_SOURCE_DIR}
@@ -77,6 +84,7 @@ target_link_libraries(
   xtensor-blas
   lapack
   OpenMP::OpenMP_CXX
+  libfort::fort
   ${BLAS_LIBRARIES}
   ${LAPACK_LIBRARIES})
 

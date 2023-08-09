@@ -102,13 +102,8 @@ bool CommandLineInterface::readCmd(istream& istr) {
         auto stripped = stripQuotes(_history.back()).value_or("");
 
         stripped = replaceVariableKeysWithValues(stripped);
-        std::vector<std::string> tokens;
-        string token;
-        size_t pos = myStrGetTok(stripped, token, 0, ';');
-        while (token.size()) {
-            tokens.emplace_back(token);
-            pos = myStrGetTok(stripped, token, pos, ';');
-        }
+        std::vector<std::string> tokens = split(stripped, ";");
+
         if (tokens.size()) {
             // concat tokens with '\;' to a single token
             for (auto itr = next(tokens.rbegin()); itr != tokens.rend(); ++itr) {
