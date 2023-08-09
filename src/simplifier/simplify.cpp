@@ -169,10 +169,10 @@ int Simplifier::copySimp() {
  * @return int
  */
 int Simplifier::gadgetSimp() {
-    this->setRule(make_unique<PhaseGadget>());
-    int i = this->simp();
+    auto rule = PhaseGadgetRule();
+    int i = new_simp(rule);
     if (i > 0) {
-        if (verbose >= 8) cout << this->getRule()->getName() << endl;
+        if (verbose >= 8) cout << rule.name << endl;
         stop = opt.updateParameters(_simpGraph);
     }
 

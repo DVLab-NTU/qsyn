@@ -91,6 +91,18 @@ using StorageType = ordered_hashmap<size_t, VertexInfo>;
 
 namespace std {
 template <>
+struct hash<vector<ZXVertex*>> {
+    size_t operator()(const vector<ZXVertex*>& k) const {
+        size_t ret = hash<ZXVertex*>()(k[0]);
+        for (size_t i = 1; i < k.size(); i++) {
+            ret ^= hash<ZXVertex*>()(k[i]);
+        }
+
+        return ret;
+    }
+};
+
+template <>
 struct hash<NeighborPair> {
     size_t operator()(const NeighborPair& k) const {
         return (

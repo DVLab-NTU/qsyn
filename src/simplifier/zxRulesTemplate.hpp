@@ -89,3 +89,13 @@ public:
     std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
 };
+
+class PhaseGadgetRule : public ZXRuleTemplate<std::tuple<Phase, std::vector<ZXVertex*>, std::vector<ZXVertex*>>> {
+public:
+    using MatchType = ZXRuleTemplate::MatchType;
+
+    PhaseGadgetRule() : ZXRuleTemplate("Phase Gadget Rule") {}
+
+    std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
+    void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+};
