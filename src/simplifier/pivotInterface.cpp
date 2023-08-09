@@ -32,12 +32,6 @@ void PivotInterface::rewrite(ZXGraph* g) {
             cout << "> rewrite...\n";
             cout << "vs: " << m[0]->getId() << "\tvt: " << m[1]->getId() << endl;
         }
-#ifdef DEBUG
-        if (!m[0]->isNeighbor(m[1])) {
-            cout << "Warning: pivot target {" << m[0]->getId() << ", " << m[1]->getId() << "} are not neighbors!\n";
-            cout << "There's probably something wrong in the match function." << endl;
-        }
-#endif  // DEBUG
 
         vector<ZXVertex*> n0, n1, n2;
         vector<ZXVertex*> tmp0 = m[0]->getCopiedNeighbors();

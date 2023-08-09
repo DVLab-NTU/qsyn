@@ -238,10 +238,10 @@ int Simplifier::lcompSimp() {
  * @return int
  */
 int Simplifier::pivotSimp() {
-    this->setRule(make_unique<Pivot>());
-    int i = this->simp();
+    auto rule = PivotRule();
+    int i = new_simp(rule);
     if (i > 0) {
-        if (verbose >= 8) cout << this->getRule()->getName() << endl;
+        if (verbose >= 8) cout << rule.name << endl;
         stop = opt.updateParameters(_simpGraph);
     }
     if (stop) return -1;

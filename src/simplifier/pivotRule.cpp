@@ -6,43 +6,39 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>
+#include "zxRulesTemplate.hpp"
 
-#include "zxGraph.h"
-#include "zxRules.h"
-
-using namespace std;
+using MatchType = PivotRule::MatchType;
 
 extern size_t verbose;
 
 /**
  * @brief Preprocess the matches so that it conforms with the rewrite functions
  *
- * @param g
+ * @param graph The graph to be preprocessed
  */
-void Pivot::preprocess(ZXGraph* g) {
-    for (auto& v : this->_boundaries) {
+void PivotRule::preprocess(ZXGraph& graph) const {
+    for (auto& v : _boundaries) {
         auto& [nb, etype] = v->getFirstNeighbor();
-        g->addBuffer(v, nb, etype);
+        graph.addBuffer(v, nb, etype);
     }
 }
+
 /**
  * @brief Finds matchings of the pivot rule.
  *
- * @param g
+ * @param grapg The graph to find matches
  */
-void Pivot::match(ZXGraph* g, int upper_bound) {
-    this->_matchTypeVec.clear();
-    this->_boundaries.clear();
+std::vector<MatchType> PivotRule::findMatches(const ZXGraph& graph) const {
+    std::vector<MatchType> matches;
+    _boundaries.clear();
 
-    unordered_set<ZXVertex*> taken;
-    vector<ZXVertex*> boundaries;
-    g->forEachEdge([&taken, &boundaries, this](const EdgePair& epair) {
+    std::unordered_set<ZXVertex*> taken;
+    graph.forEachEdge([&taken, &matches, this](const EdgePair& epair) {
         if (epair.second != EdgeType::HADAMARD) return;
 
         // 2: Get Neighbors
-        ZXVertex* vs = epair.first.first;
-        ZXVertex* vt = epair.first.second;
+        auto [vs, vt] = epair.first;
 
         if (taken.contains(vs) || taken.contains(vt)) return;
         if (!vs->isZ() || !vt->isZ()) return;
@@ -55,7 +51,7 @@ void Pivot::match(ZXGraph* g, int upper_bound) {
 
         // 4: Check neighbors of Neighbors
 
-        boundaries.clear();
+        std::vector<ZXVertex*> boundaries;
         for (auto& v : {vs, vt}) {
             for (auto& [nb, et] : v->getNeighbors()) {
                 if (nb->isZ() && et == EdgeType::HADAMARD) continue;
@@ -67,8 +63,8 @@ void Pivot::match(ZXGraph* g, int upper_bound) {
                 }
             }
         }
-
         if (boundaries.size() > 1) return;
+
         // 5: taken
         taken.insert(vs);
         taken.insert(vt);
@@ -76,9 +72,9 @@ void Pivot::match(ZXGraph* g, int upper_bound) {
         for (auto& [v, _] : vt->getNeighbors()) taken.insert(v);
 
         // 6: add Epair into _matchTypeVec
-        this->_matchTypeVec.push_back({vs, vt});  // NOTE: cannot emplace_back -- std::array does not have a constructor!;
+        matches.push_back({vs, vt});  // NOTE: cannot emplace_back -- std::array does not have a constructor!;
         this->_boundaries.insert(this->_boundaries.end(), boundaries.begin(), boundaries.end());
     });
 
-    setMatchTypeVecNum(this->_matchTypeVec.size());
+    return matches;
 }

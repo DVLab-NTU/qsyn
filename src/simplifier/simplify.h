@@ -47,7 +47,7 @@ public:
         std::vector<int> match_counts;
 
         size_t iterations = 0;
-        for (int r2r = opt.getR2R(rule.name); !cli.stop_requested() && r2r > 0; r2r--) {
+        while (!cli.stop_requested()) {
             std::vector<typename Rule::MatchType> matches = rule.findMatches(*_simpGraph);
             if (matches.empty()) {
                 break;
