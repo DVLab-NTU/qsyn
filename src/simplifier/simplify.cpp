@@ -148,8 +148,6 @@ void Simplifier::amend() {
  * @return int
  */
 int Simplifier::bialgSimp() {
-    // this->setRule(make_unique<Bialgebra>());
-    // return this->simp();
     return new_simp(BialgebraRule());
 }
 
@@ -195,8 +193,7 @@ int Simplifier::hfusionSimp() {
  * @return int
  */
 int Simplifier::hruleSimp() {
-    this->setRule(make_unique<HRule>());
-    return this->hadamardSimp();
+    return new_hadamard_simp(HadamardRule());
 }
 
 /**
