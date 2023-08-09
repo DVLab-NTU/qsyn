@@ -71,7 +71,15 @@ public:
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
 };
 
-// TODO: HboxFusionRule
+class HBoxFusionRule : public ZXRuleTemplate<ZXVertex*> {
+public:
+    using MatchType = ZXRuleTemplate::MatchType;
+
+    HBoxFusionRule() : ZXRuleTemplate("Hadmard Fusion Rule") {}
+
+    std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
+    void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+};
 
 // TODO: HRule
 

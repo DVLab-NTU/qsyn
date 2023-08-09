@@ -186,8 +186,7 @@ int Simplifier::gadgetSimp() {
  * @return int
  */
 int Simplifier::hfusionSimp() {
-    this->setRule(make_unique<HboxFusion>());
-    return this->simp();
+    return new_simp(HBoxFusionRule());
 }
 
 /**
