@@ -160,8 +160,7 @@ int Simplifier::bialgSimp() {
  */
 int Simplifier::copySimp() {
     if (!_simpGraph->isGraphLike()) return 0;
-    this->setRule(make_unique<StateCopy>());
-    return this->simp();
+    return new_simp(StateCopyRule());
 }
 
 /**

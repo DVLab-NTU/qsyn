@@ -47,16 +47,6 @@ protected:
     }
 };
 
-class IdRemovalRule : public ZXRuleTemplate<std::tuple<ZXVertex*, ZXVertex*, ZXVertex*, EdgeType>> {
-public:
-    using MatchType = ZXRuleTemplate::MatchType;
-
-    IdRemovalRule() : ZXRuleTemplate("Identity Removal Rule") {}
-
-    std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
-    void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
-};
-
 class BialgebraRule : public ZXRuleTemplate<EdgePair> {
 public:
     using MatchType = ZXRuleTemplate::MatchType;
@@ -68,6 +58,26 @@ public:
 
 private:
     bool has_dupicate(std::vector<ZXVertex*> vec) const;
+};
+
+class StateCopyRule : public ZXRuleTemplate<std::tuple<ZXVertex*, ZXVertex*, std::vector<ZXVertex*>>> {
+public:
+    using MatchType = ZXRuleTemplate::MatchType;
+
+    StateCopyRule() : ZXRuleTemplate("State Copy Rule") {}
+
+    std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
+    void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+};
+
+class IdRemovalRule : public ZXRuleTemplate<std::tuple<ZXVertex*, ZXVertex*, ZXVertex*, EdgeType>> {
+public:
+    using MatchType = ZXRuleTemplate::MatchType;
+
+    IdRemovalRule() : ZXRuleTemplate("Identity Removal Rule") {}
+
+    std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
+    void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
 };
 
 class LocalComplementRule : public ZXRuleTemplate<std::pair<ZXVertex*, std::vector<ZXVertex*>>> {
