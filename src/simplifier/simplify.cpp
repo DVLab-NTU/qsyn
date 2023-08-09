@@ -254,8 +254,8 @@ int Simplifier::pivotSimp() {
  * @return int
  */
 int Simplifier::pivotBoundarySimp() {
-    this->setRule(make_unique<PivotBoundary>());
-    int i = this->simp();
+    auto rule = PivotBoundaryRule();
+    int i = new_simp(rule);
     if (i > 0) {
         if (verbose >= 8) cout << this->getRule()->getName() << endl;
         stop = opt.updateParameters(_simpGraph);

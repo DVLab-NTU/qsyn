@@ -135,7 +135,15 @@ public:
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
 };
 
-// TODO: PivotBoundaryRule
+class PivotBoundaryRule : public PivotRuleInterface {
+public:
+    using MatchType = ZXRuleTemplate::MatchType;
+
+    PivotBoundaryRule() : PivotRuleInterface("Pivot Boundary Rule") {}
+
+    std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
+    void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+};
 
 class SpiderFusionRule : public ZXRuleTemplate<std::pair<ZXVertex*, ZXVertex*>> {
 public:
