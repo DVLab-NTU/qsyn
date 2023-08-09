@@ -69,3 +69,13 @@ public:
 private:
     bool has_dupicate(std::vector<ZXVertex*> vec) const;
 };
+
+class LocalComplementRule : public ZXRuleTemplate<std::pair<ZXVertex*, std::vector<ZXVertex*>>> {
+public:
+    using MatchType = ZXRuleTemplate::MatchType;
+
+    LocalComplementRule() : ZXRuleTemplate("Local Complementation Rule") {}
+
+    std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
+    void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+};

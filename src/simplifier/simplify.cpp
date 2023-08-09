@@ -223,10 +223,10 @@ int Simplifier::idSimp() {
  * @return int
  */
 int Simplifier::lcompSimp() {
-    this->setRule(make_unique<LComp>());
-    int i = this->simp();
+    auto rule = LocalComplementRule();
+    int i = new_simp(rule);
     if (i > 0) {
-        if (verbose >= 8) cout << this->getRule()->getName() << endl;
+        if (verbose >= 8) cout << rule.name << endl;
         stop = opt.updateParameters(_simpGraph);
     }
     if (stop) return -1;
