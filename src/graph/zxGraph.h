@@ -164,7 +164,10 @@ public:
         _globalTraCounter = std::exchange(other._globalTraCounter, 0);
     }
 
-    // TODO: add comment
+    /**
+     * @brief Construct a new ZXGraph object from its components
+     *
+     */
     ZXGraph(const ZXVertexList& vertices,
             const ZXVertexList& inputs,
             const ZXVertexList& outputs,
@@ -363,7 +366,7 @@ public:
     }
 
     // divide into subgraphs and merge (in zxPartition.cpp)
-    std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> createSubgraphs(ZXPartitionStrategy strategy, size_t numPartitions);
+    std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> createSubgraphs(std::vector<ZXVertexList> vertexLists);
     static ZXGraph* fromSubgraphs(const std::vector<ZXGraph*>& subgraphs, const std::vector<ZXCut>& cuts);
 
 private:

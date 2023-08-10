@@ -34,17 +34,13 @@ struct DirectionalZXCutHash {
 };
 
 /**
- * @brief Creates a list of subgraphs with a ZXPartitionStrategy and the number of partitions
- *        to split the graph into. Transfers ownership of the vertices to the subgraphs.
+ * @brief Creates a list of subgraphs from a list of partitions
  *
- * @param partitionStrategy The partition strategy to use
- * @param numPartitions The number of partitions to split the graph into
+ * @param partitions The list of partitions to split the graph into
  *
  * @return A pair of the list of subgraphs and the list of cuts between the subgraphs
  */
-std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>>
-ZXGraph::createSubgraphs(ZXPartitionStrategy partitionStrategy, size_t numPartitions) {
-    std::vector<ZXVertexList> partitions = partitionStrategy(*this, numPartitions);
+std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::createSubgraphs(std::vector<ZXVertexList> partitions) {
     std::vector<ZXGraph*> subgraphs;
     // stores the two sides of the cut and the edge type
     ZXCutSet innerCuts;

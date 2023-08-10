@@ -314,25 +314,6 @@ void Simplifier::symbolicReduce() {
 }
 
 /**
- * @brief partition the graph into 2^numPartitions partitions and reduce each partition separately
- *        then merge the partitions together for n rounds
- *
- * @param numPartitions number of partitions to create
- * @param iterations number of iterations
- */
-void Simplifier::partitionReduce(size_t numPartitions, size_t iterations = 1) {
-    for (size_t n = numPartitions; n >= 1; n /= 2) {
-        auto [subgraphs, cuts] = _simpGraph->createSubgraphs(klPartition, n);
-        for (auto& graph : subgraphs) {
-            Simplifier simplifier(graph);
-            simplifier.dynamicReduce();
-        }
-        ZXGraph* newGraph = ZXGraph::fromSubgraphs(subgraphs, cuts);
-        _simpGraph->swap(*newGraph);
-        delete newGraph;
-    }
-}
-/**
  * @brief Print recipe of Simplifier
  *
  */
