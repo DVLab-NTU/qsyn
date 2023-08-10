@@ -41,7 +41,6 @@ int Simplifier::bialgSimp() {
  * @return int
  */
 int Simplifier::copySimp() {
-    if (!_simpGraph->isGraphLike()) return 0;
     return new_simp(StateCopyRule());
 }
 
@@ -51,13 +50,7 @@ int Simplifier::copySimp() {
  * @return int
  */
 int Simplifier::gadgetSimp() {
-    auto rule = PhaseGadgetRule();
-    int i = new_simp(rule);
-    if (i > 0) {
-        if (verbose >= 8) cout << rule.name << endl;
-    }
-
-    return i;
+    return new_simp(PhaseGadgetRule());
 }
 
 /**
@@ -84,12 +77,7 @@ int Simplifier::hruleSimp() {
  * @return int
  */
 int Simplifier::idSimp() {
-    auto rule = IdRemovalRule();
-    int i = new_simp(rule);
-    if (i > 0) {
-        if (verbose >= 8) cout << rule.name << endl;
-    }
-    return i;
+    return new_simp(IdRemovalRule());
 }
 
 /**
@@ -98,12 +86,7 @@ int Simplifier::idSimp() {
  * @return int
  */
 int Simplifier::lcompSimp() {
-    auto rule = LocalComplementRule();
-    int i = new_simp(rule);
-    if (i > 0) {
-        if (verbose >= 8) cout << rule.name << endl;
-    }
-    return i;
+    return new_simp(LocalComplementRule());
 }
 
 /**
@@ -112,12 +95,7 @@ int Simplifier::lcompSimp() {
  * @return int
  */
 int Simplifier::pivotSimp() {
-    auto rule = PivotRule();
-    int i = new_simp(rule);
-    if (i > 0) {
-        if (verbose >= 8) cout << rule.name << endl;
-    }
-    return i;
+    return new_simp(PivotRule());
 }
 
 /**
@@ -126,12 +104,7 @@ int Simplifier::pivotSimp() {
  * @return int
  */
 int Simplifier::pivotBoundarySimp() {
-    auto rule = PivotBoundaryRule();
-    int i = new_simp(rule);
-    if (i > 0) {
-        if (verbose >= 8) cout << rule.name << endl;
-    }
-    return i;
+    return new_simp(PivotBoundaryRule());
 }
 
 /**
@@ -140,12 +113,7 @@ int Simplifier::pivotBoundarySimp() {
  * @return int
  */
 int Simplifier::pivotGadgetSimp() {
-    auto rule = PivotGadgetRule();
-    int i = new_simp(rule);
-    if (i > 0) {
-        if (verbose >= 8) cout << rule.name << endl;
-    }
-    return i;
+    return new_simp(PivotGadgetRule());
 }
 
 // /**
@@ -164,12 +132,7 @@ int Simplifier::pivotGadgetSimp() {
  * @return int
  */
 int Simplifier::sfusionSimp() {
-    auto rule = SpiderFusionRule();
-    int i = new_simp(rule);
-    if (i > 0) {
-        if (verbose >= 8) cout << rule.name << endl;
-    }
-    return i;
+    return new_simp(SpiderFusionRule());
 }
 
 // action
