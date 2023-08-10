@@ -32,7 +32,7 @@ extern CmdParser cli;
  * @return int
  */
 int Simplifier::bialgSimp() {
-    return new_simp(BialgebraRule());
+    return simplify(BialgebraRule());
 }
 
 /**
@@ -41,7 +41,7 @@ int Simplifier::bialgSimp() {
  * @return int
  */
 int Simplifier::copySimp() {
-    return new_simp(StateCopyRule());
+    return simplify(StateCopyRule());
 }
 
 /**
@@ -50,7 +50,7 @@ int Simplifier::copySimp() {
  * @return int
  */
 int Simplifier::gadgetSimp() {
-    return new_simp(PhaseGadgetRule());
+    return simplify(PhaseGadgetRule());
 }
 
 /**
@@ -59,7 +59,7 @@ int Simplifier::gadgetSimp() {
  * @return int
  */
 int Simplifier::hfusionSimp() {
-    return new_simp(HBoxFusionRule());
+    return simplify(HBoxFusionRule());
 }
 
 /**
@@ -68,7 +68,7 @@ int Simplifier::hfusionSimp() {
  * @return int
  */
 int Simplifier::hruleSimp() {
-    return new_hadamard_simp(HadamardRule());
+    return hadamard_simplify(HadamardRule());
 }
 
 /**
@@ -77,7 +77,7 @@ int Simplifier::hruleSimp() {
  * @return int
  */
 int Simplifier::idSimp() {
-    return new_simp(IdRemovalRule());
+    return simplify(IdRemovalRule());
 }
 
 /**
@@ -86,7 +86,7 @@ int Simplifier::idSimp() {
  * @return int
  */
 int Simplifier::lcompSimp() {
-    return new_simp(LocalComplementRule());
+    return simplify(LocalComplementRule());
 }
 
 /**
@@ -95,7 +95,7 @@ int Simplifier::lcompSimp() {
  * @return int
  */
 int Simplifier::pivotSimp() {
-    return new_simp(PivotRule());
+    return simplify(PivotRule());
 }
 
 /**
@@ -104,7 +104,7 @@ int Simplifier::pivotSimp() {
  * @return int
  */
 int Simplifier::pivotBoundarySimp() {
-    return new_simp(PivotBoundaryRule());
+    return simplify(PivotBoundaryRule());
 }
 
 /**
@@ -113,7 +113,7 @@ int Simplifier::pivotBoundarySimp() {
  * @return int
  */
 int Simplifier::pivotGadgetSimp() {
-    return new_simp(PivotGadgetRule());
+    return simplify(PivotGadgetRule());
 }
 
 // /**
@@ -132,7 +132,7 @@ int Simplifier::pivotGadgetSimp() {
  * @return int
  */
 int Simplifier::sfusionSimp() {
-    return new_simp(SpiderFusionRule());
+    return simplify(SpiderFusionRule());
 }
 
 // action

@@ -28,7 +28,7 @@ public:
     }
 
     template <typename Rule>
-    size_t new_simp(const Rule& rule) {
+    size_t simplify(const Rule& rule) {
         static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
 
         if (verbose >= 5) std::cout << std::setw(30) << std::left << rule.name;
@@ -65,7 +65,7 @@ public:
     }
 
     template <typename Rule>
-    size_t new_hadamard_simp(Rule rule) {
+    size_t hadamard_simplify(Rule rule) {
         static_assert(std::is_base_of<HZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of HZXRule");
 
         if (verbose >= 5) std::cout << std::setw(30) << std::left << rule.name;
