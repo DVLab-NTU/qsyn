@@ -14,17 +14,19 @@ void PivotRuleInterface::apply(ZXGraph& graph, const std::vector<MatchType>& mat
     ZXOperation op;
 
     for (auto& m : matches) {
+        auto [m0, m1] = m;
+
         if (verbose >= 8) {
             std::cout << "> rewrite...\n";
-            std::cout << "vs: " << m[0]->getId() << "\tvt: " << m[1]->getId() << std::endl;
+            std::cout << "vs: " << m0->getId() << "\tvt: " << m1->getId() << std::endl;
         }
 
         std::vector<ZXVertex*> n0, n1, n2;
-        std::vector<ZXVertex*> m0_neighbors = m[0]->getCopiedNeighbors();
-        std::vector<ZXVertex*> m1_neighbors = m[1]->getCopiedNeighbors();
+        std::vector<ZXVertex*> m0_neighbors = m0->getCopiedNeighbors();
+        std::vector<ZXVertex*> m1_neighbors = m1->getCopiedNeighbors();
 
-        std::erase(m0_neighbors, m[1]);
-        std::erase(m1_neighbors, m[0]);
+        std::erase(m0_neighbors, m1);
+        std::erase(m1_neighbors, m0);
 
         auto vidLessThan = [](ZXVertex* const& a, ZXVertex* const& b) {
             return a->getId() < b->getId();
@@ -57,14 +59,12 @@ void PivotRuleInterface::apply(ZXGraph& graph, const std::vector<MatchType>& mat
         }
 
         // REVIEW - check if not ground
-        for (const auto& v : n0) v->setPhase(v->getPhase() + m[1]->getPhase());
-        for (const auto& v : n1) v->setPhase(v->getPhase() + m[0]->getPhase());
-        for (const auto& v : n2) v->setPhase(v->getPhase() + m[0]->getPhase() + m[1]->getPhase() + Phase(1));
+        for (const auto& v : n0) v->setPhase(v->getPhase() + m1->getPhase());
+        for (const auto& v : n1) v->setPhase(v->getPhase() + m0->getPhase());
+        for (const auto& v : n2) v->setPhase(v->getPhase() + m0->getPhase() + m1->getPhase() + Phase(1));
 
-        for (int i = 0; i < 2; ++i) {
-            op.verticesToRemove.emplace_back(m[i]);
-        }
-        // break;
+        op.verticesToRemove.emplace_back(m0);
+        op.verticesToRemove.emplace_back(m1);
     }
 
     update(graph, op);

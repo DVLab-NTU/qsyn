@@ -115,7 +115,7 @@ public:
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
 };
 
-class PivotRuleInterface : public ZXRuleTemplate<std::array<ZXVertex*, 2>> {
+class PivotRuleInterface : public ZXRuleTemplate<std::pair<ZXVertex*, ZXVertex*>> {
 public:
     PivotRuleInterface(const std::string& _name) : ZXRuleTemplate(_name) {}
 

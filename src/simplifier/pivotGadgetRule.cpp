@@ -84,17 +84,17 @@ std::vector<MatchType> PivotGadgetRule::findMatches(const ZXGraph& graph) const 
         for (auto& [v, _] : vs->getNeighbors()) taken.insert(v);
         for (auto& [v, _] : vt->getNeighbors()) taken.insert(v);
 
-        matches.push_back({vs, vt});  // NOTE: cannot emplace_back -- std::array does not have a constructor!;
+        matches.emplace_back(vs, vt);
     });
 
     return matches;
 }
 
 void PivotGadgetRule::apply(ZXGraph& graph, const std::vector<MatchType>& matches) const {
-    for (auto& m : matches) {
+    for (auto& [_, v] : matches) {
         // REVIEW - scalar add power
-        if (m[1]->getPhase().denominator() != 1) {
-            graph.transferPhase(m[1]);
+        if (v->getPhase().denominator() != 1) {
+            graph.transferPhase(v);
         }
     }
 

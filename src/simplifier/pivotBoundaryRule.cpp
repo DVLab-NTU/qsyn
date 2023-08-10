@@ -58,7 +58,7 @@ std::vector<MatchType> PivotBoundaryRule::findMatches(const ZXGraph& graph) cons
 
         for (auto& [nb, _] : vs->getNeighbors()) taken.insert(nb);
         for (auto& [nb, _] : vt->getNeighbors()) taken.insert(nb);
-        matches.push_back({vs, vt});  // NOTE: cannot emplace_back -- std::array does not have a constructor!;
+        matches.emplace_back(vs, vt);
     };
 
     for (auto& v : graph.getInputs()) matchBoundary(v);
@@ -77,9 +77,9 @@ void PivotBoundaryRule::apply(ZXGraph& graph, const std::vector<MatchType>& matc
             if (!nb->isZ() || etype != EdgeType::HADAMARD) return;
         }
     }
-    for (auto& m : matches) {
-        if (!m[0]->hasNPiPhase()) graph.transferPhase(m[0]);
-        if (!m[1]->hasNPiPhase()) graph.transferPhase(m[1]);
+    for (auto& [v0, v1] : matches) {
+        if (!v0->hasNPiPhase()) graph.transferPhase(v0);
+        if (!v1->hasNPiPhase()) graph.transferPhase(v1);
     }
 
     PivotRuleInterface::apply(graph, matches);

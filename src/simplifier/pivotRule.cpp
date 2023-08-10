@@ -59,7 +59,7 @@ std::vector<MatchType> PivotRule::findMatches(const ZXGraph& graph) const {
         for (auto& [v, _] : vt->getNeighbors()) taken.insert(v);
 
         // 6: add Epair into _matchTypeVec
-        matches.push_back({vs, vt});  // NOTE: cannot emplace_back -- std::array does not have a constructor!;
+        matches.emplace_back(vs, vt);
     });
 
     return matches;
