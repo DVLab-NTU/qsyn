@@ -12,7 +12,6 @@
 
 #include "zxDef.h"
 #include "zxGraph.h"
-#include "zxRules.h"
 
 struct ZXOperation {
     std::vector<ZXVertex*> verticesToAdd;

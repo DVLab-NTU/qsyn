@@ -15,8 +15,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include "zxRules.h"
-
 class ZXGraph;
 
 class ZXOPTimizer {

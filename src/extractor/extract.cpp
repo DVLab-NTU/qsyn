@@ -18,7 +18,6 @@
 #include "qcir.h"
 #include "simplify.h"
 #include "zxGraph.h"
-#include "zxRules.h"
 #include "zxRulesTemplate.hpp"
 
 using namespace std;
