@@ -351,6 +351,9 @@ Edge 0: 37 38
   2) 1 matches
   3) 1 matches
 
+Pivot Gadget Rule
+# 17 vertices, 16 edges, 7 T-gates, Density = 5.29412 -> Stop:0
+
 
 qsyn> zxgp -v
 
@@ -387,6 +390,9 @@ Remove ID: 7
 <<<
 => 1 iterations.
   1) 1 matches
+
+Identity Removal Rule
+# 16 vertices, 15 edges, 7 T-gates, Density = 5.375 -> Stop:0
 
 
 qsyn> zxgp -v

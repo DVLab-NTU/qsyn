@@ -127,7 +127,7 @@ Remove ID: 4
 => 1 iterations.
   1) 1 matches
 
-Hadmard Fusion Rule           
+Hadamard Cancellation Rule    
 => 0 iterations.
 
 
@@ -271,7 +271,7 @@ Remove ID: 4
   2) 1 matches
   3) 1 matches
 
-Hadmard Fusion Rule           
+Hadamard Cancellation Rule    
 => 0 iterations.
 
 
@@ -392,7 +392,7 @@ Remove ID: 3
   1) 1 matches
   2) 1 matches
 
-Hadmard Fusion Rule           
+Hadamard Cancellation Rule    
 => 0 iterations.
 
 
@@ -555,7 +555,7 @@ Remove ID: 4
   2) 1 matches
   3) 1 matches
 
-Hadmard Fusion Rule           
+Hadamard Cancellation Rule    
 => 0 iterations.
 
 
@@ -699,7 +699,7 @@ Remove ID: 4
   1) 1 matches
   2) 1 matches
 
-Hadmard Fusion Rule           
+Hadamard Cancellation Rule    
 => 0 iterations.
 
 
@@ -836,7 +836,7 @@ Remove ID: 7
   1) 1 matches
   2) 1 matches
 
-Hadmard Fusion Rule           
+Hadamard Cancellation Rule    
 => 0 iterations.
 
 
@@ -1059,7 +1059,7 @@ Remove ID: 6
   2) 1 matches
   3) 1 matches
 
-Hadmard Fusion Rule           
+Hadamard Cancellation Rule    
 => 0 iterations.
 
 

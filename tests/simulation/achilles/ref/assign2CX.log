@@ -26,10 +26,10 @@ qsyn> zxgp -v
 
 ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (41, [1m[34mH[0m[0m) 
 ID:   5 (●, 0)           (Qubit, Col): (2, 47)	  #Neighbors:   1     (41, [1m[34mH[0m[0m) 
-ID:   8 (●, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (102, -) 
-ID:   9 (●, 0)           (Qubit, Col): (4, 47)	  #Neighbors:   1     (102, -) 
-ID:  41 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 17)	  #Neighbors:   3     (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (102, [1m[34mH[0m[0m) 
-ID: 102 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 39)	  #Neighbors:   3     (8, -) (9, -) (41, [1m[34mH[0m[0m) 
+ID:   8 (●, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (96, -) 
+ID:   9 (●, 0)           (Qubit, Col): (4, 47)	  #Neighbors:   1     (96, -) 
+ID:  41 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 17)	  #Neighbors:   3     (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (96, [1m[34mH[0m[0m) 
+ID:  96 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 33)	  #Neighbors:   3     (8, -) (9, -) (41, [1m[34mH[0m[0m) 
 Total #Vertices: 6
 
 
