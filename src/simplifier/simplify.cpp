@@ -20,15 +20,11 @@
 #include "zxGraphMgr.h"
 #include "zxPartition.h"
 #include "zxRulesTemplate.hpp"
-#include "zxoptimizer.h"
 
 using namespace std;
 extern size_t verbose;
 extern size_t dmode;
-extern ZXOPTimizer opt;
 extern CmdParser cli;
-
-bool stop = false;
 
 /**
  * @brief Perform Bialgebra Rule
@@ -59,10 +55,8 @@ int Simplifier::gadgetSimp() {
     int i = new_simp(rule);
     if (i > 0) {
         if (verbose >= 8) cout << rule.name << endl;
-        stop = opt.updateParameters(_simpGraph);
     }
 
-    if (stop) return -1;
     return i;
 }
 
@@ -94,9 +88,7 @@ int Simplifier::idSimp() {
     int i = new_simp(rule);
     if (i > 0) {
         if (verbose >= 8) cout << rule.name << endl;
-        stop = opt.updateParameters(_simpGraph);
     }
-    if (stop) return -1;
     return i;
 }
 
@@ -110,9 +102,7 @@ int Simplifier::lcompSimp() {
     int i = new_simp(rule);
     if (i > 0) {
         if (verbose >= 8) cout << rule.name << endl;
-        stop = opt.updateParameters(_simpGraph);
     }
-    if (stop) return -1;
     return i;
 }
 
@@ -126,9 +116,7 @@ int Simplifier::pivotSimp() {
     int i = new_simp(rule);
     if (i > 0) {
         if (verbose >= 8) cout << rule.name << endl;
-        stop = opt.updateParameters(_simpGraph);
     }
-    if (stop) return -1;
     return i;
 }
 
@@ -142,9 +130,7 @@ int Simplifier::pivotBoundarySimp() {
     int i = new_simp(rule);
     if (i > 0) {
         if (verbose >= 8) cout << rule.name << endl;
-        stop = opt.updateParameters(_simpGraph);
     }
-    if (stop) return -1;
     return i;
 }
 
@@ -158,9 +144,7 @@ int Simplifier::pivotGadgetSimp() {
     int i = new_simp(rule);
     if (i > 0) {
         if (verbose >= 8) cout << rule.name << endl;
-        stop = opt.updateParameters(_simpGraph);
     }
-    if (stop) return -1;
     return i;
 }
 
@@ -184,9 +168,7 @@ int Simplifier::sfusionSimp() {
     int i = new_simp(rule);
     if (i > 0) {
         if (verbose >= 8) cout << rule.name << endl;
-        stop = opt.updateParameters(_simpGraph);
     }
-    if (stop) return -1;
     return i;
 }
 
@@ -225,8 +207,7 @@ int Simplifier::interiorCliffordSimp() {
     this->sfusionSimp();
     toGraph();
     int i = 0;
-    int r2r = opt.getR2R("Interior Clifford Simp");
-    while (true && r2r > 0) {
+    while (true) {
         int i1 = this->idSimp();
         if (i1 == -1) return -1;
         int i2 = this->sfusionSimp();
@@ -237,7 +218,6 @@ int Simplifier::interiorCliffordSimp() {
         if (i4 == -1) return -1;
         if (i1 + i2 + i3 + i4 == 0) break;
         i += 1;
-        r2r--;
     }
     return i;
 }
@@ -249,15 +229,13 @@ int Simplifier::interiorCliffordSimp() {
  */
 int Simplifier::cliffordSimp() {
     int i = 0;
-    int r2r = opt.getR2R("Clifford Simp");
-    while (true && r2r > 0) {
+    while (true) {
         int i1 = this->interiorCliffordSimp();
         if (i1 == -1) return -1;
         i += i1;
         int i2 = this->pivotBoundarySimp();
         if (i2 == -1) return -1;
-        if (r2r != INT_MAX) r2r--;
-        if (i2 == 0 || r2r == 0) break;
+        if (i2 == 0) break;
     }
     return i;
 }
@@ -309,20 +287,16 @@ void Simplifier::dynamicReduce() {
  */
 void Simplifier::dynamicReduce(size_t tOptimal) {
     cout << " (T-optimal: " << tOptimal << ")";
-    opt.init();
-    opt.updateParameters(_simpGraph);
 
     int a1 = this->interiorCliffordSimp();
 
     if (a1 == -1) {
-        _simpGraph = opt.getLastZXGraph();
         this->printRecipe();
         return;
     }
 
     int a2 = this->pivotGadgetSimp();
     if (a2 == -1 && tOptimal == _simpGraph->TCount()) {
-        _simpGraph = opt.getLastZXGraph();
         this->printRecipe();
         return;
     }
@@ -330,28 +304,24 @@ void Simplifier::dynamicReduce(size_t tOptimal) {
     while (!cli.stop_requested()) {
         int a3 = this->cliffordSimp();
         if (a3 == -1 && tOptimal == _simpGraph->TCount()) {
-            _simpGraph = opt.getLastZXGraph();
             this->printRecipe();
             return;
         }
 
         int a4 = this->gadgetSimp();
         if (a4 == -1 && tOptimal == _simpGraph->TCount()) {
-            _simpGraph = opt.getLastZXGraph();
             this->printRecipe();
             return;
         }
 
         int a5 = this->interiorCliffordSimp();
         if (a5 == -1 && tOptimal == _simpGraph->TCount()) {
-            _simpGraph = opt.getLastZXGraph();
             this->printRecipe();
             return;
         }
 
         int a6 = this->pivotGadgetSimp();
         if (a6 == -1 && tOptimal == _simpGraph->TCount()) {
-            _simpGraph = opt.getLastZXGraph();
             this->printRecipe();
             return;
         }
