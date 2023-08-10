@@ -116,7 +116,6 @@ Remove ID: 8
   1) 1 matches
   2) 1 matches
 
-Pivot Rule
 
 qsyn> zxgp -v
 
@@ -248,7 +247,6 @@ Remove ID: 8
   1) 1 matches
   2) 1 matches
 
-Pivot Rule
 
 qsyn> zxgp -v
 
@@ -492,7 +490,6 @@ Remove ID: 5
 => 1 iterations.
   1) 1 matches
 
-Pivot Rule
 
 qsyn> zxgp -v
 
@@ -1064,7 +1061,6 @@ Remove ID: 16
 => 1 iterations.
   1) 2 matches
 
-Pivot Rule
 
 qsyn> zxgp -v
 

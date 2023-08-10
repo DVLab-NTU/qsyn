@@ -351,7 +351,6 @@ Edge 0: 37 38
   2) 1 matches
   3) 1 matches
 
-Pivot Gadget Rule
 
 qsyn> zxgp -v
 
@@ -389,7 +388,6 @@ Remove ID: 7
 => 1 iterations.
   1) 1 matches
 
-Identity Removal Rule
 
 qsyn> zxgp -v
 
