@@ -16,6 +16,10 @@
 #include <thread>
 
 #include "cli.h"
+#include "display_width.hpp"
+#include "fort.hpp"
+#include "terminalSize.h"
+#include "textFormat.h"
 #include "util.h"
 
 using std::cout, std::endl, std::cerr;
@@ -486,7 +490,7 @@ void CommandLineInterface::listCmd(const string& str) {
         words.emplace_back(mand + cmd->getOptCmd());
     }
 
-    printAsTable(words, 60);
+    printAsTable(words);
     reprintCmd();
 }
 
@@ -581,6 +585,8 @@ bool CommandLineInterface::listCmdDir(const string& cmd) {
         std::erase_if(files, [this, &basename = basename](string const& file) { return !isSpecialChar(file[basename.size()]); });
     }
 
+    std::erase_if(files, [](std::string const& file) { return file.starts_with("."); });
+
     // no matched file
     if (files.size() == 0) {
         return false;
@@ -660,29 +666,50 @@ bool CommandLineInterface::listCmdDir(const string& cmd) {
         }
     }
 
-    printAsTable(files, 80);
+    std::ranges::sort(files, [](std::string const& a, std::string const& b) { return toLowerString(a) < toLowerString(b); });
+
+    for (auto& file : files) {
+        namespace TF = TextFormat;
+        file = TF::LS_COLOR(file, dirname);
+    }
+
+    printAsTable(files);
 
     return true;
 }
 
-void CommandLineInterface::printAsTable(std::vector<std::string> words, size_t widthLimit) const {
+void CommandLineInterface::printAsTable(std::vector<std::string> words) const {
     // calculate an lower bound to the spacing first
-    auto longestWord = max_element(words.begin(), words.end(),
-                                   [](string const& a, string const& b) {
-                                       return a.size() < b.size();
-                                   });
+    fort::utf8_table table;
+    table.set_border_style(FT_EMPTY_STYLE);
+    table.set_cell_left_padding(0);
+    table.set_cell_right_padding(2);
 
-    size_t numWordsPerLine = std::max(
-        1ul,
-        std::min(5ul, widthLimit / (longestWord->size() + 2)));
+    ft_set_u8strwid_func(
+        [](void const* beg, void const* end, size_t* width) -> int {
+            std::string tmpStr(static_cast<const char*>(beg), static_cast<const char*>(end));
 
-    size_t spacing = widthLimit / numWordsPerLine;
+            *width = unicode::display_width(tmpStr);
 
-    size_t count = 0;
-    for (auto const& word : words) {
-        if ((count++ % numWordsPerLine) == 0) cout << endl;
-        cout << std::setw(spacing) << std::left << (word);
+            return 0;
+        });
+
+    auto longest_word_len = std::ranges::max(words | std::views::transform([](std::string const& str) { return unicode::display_width(str); }));
+    cerr << longest_word_len << endl;
+    size_t num_columns = dvlab_utils::get_terminal_size().width / (longest_word_len + 2);
+    size_t num_rows = 1 + (words.size() - 1) / num_columns;
+
+    cerr << num_columns << ", " << num_rows << endl;
+
+    for (size_t i = 0; i < num_rows; ++i) {
+        for (size_t j = i; j < words.size(); j += num_rows) {
+            table << words[j];
+        }
+        table << fort::endr;
     }
+
+    cout << '\n'
+         << table.to_string() << endl;
 }
 
 // cmd is a copy of the original input

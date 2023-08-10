@@ -23,7 +23,7 @@ struct TerminalSize {
     unsigned height;
 };
 
-TerminalSize get_terminal_size() {
+inline TerminalSize get_terminal_size() {
 #if defined(_WIN32)
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);

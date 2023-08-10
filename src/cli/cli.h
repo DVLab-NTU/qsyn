@@ -171,7 +171,7 @@ private:
 
     inline bool isSpecialChar(char ch) const { return _specialChars.find_first_of(ch) != std::string::npos; }
     std::pair<CmdMap::const_iterator, CmdMap::const_iterator> getCmdMatches(std::string const& str);
-    void printAsTable(std::vector<std::string> words, size_t widthLimit) const;
+    void printAsTable(std::vector<std::string> words) const;
 
     void askForUserInput(std::istream& istr);
 
