@@ -19,6 +19,7 @@
 #include "simplify.h"
 #include "zxGraph.h"
 #include "zxRules.h"
+#include "zxRulesTemplate.hpp"
 
 using namespace std;
 
@@ -380,9 +381,6 @@ bool Extractor::removeGadget(bool check) {
         }
     }
 
-    Simplifier simp(make_unique<PivotBoundary>(), _graph);
-    auto pivotBoundaryRule = static_cast<PivotBoundary*>(simp.getRule());
-
     if (verbose >= 8) _graph->printVertices();
     if (verbose >= 5) {
         printFrontier();
@@ -395,29 +393,24 @@ bool Extractor::removeGadget(bool check) {
         }
         for (auto& [candidate, _] : n->getNeighbors()) {
             if (_frontier.contains(candidate)) {
-                PivotBoundary::MatchTypeVec matches;
-                matches.push_back({n, candidate});  // NOTE - cannot emplace_back: std::array does not have a constructor!
-
-                pivotBoundaryRule->setMatchTypeVec(matches);
+                std::vector<PivotBoundaryRule::MatchType> matches = {
+                    {candidate, n},
+                };
+                _axels.erase(n);
+                _frontier.erase(candidate);
 
                 ZXVertex* targetBoundary = nullptr;
                 for (auto& [boundary, _] : candidate->getNeighbors()) {
                     if (boundary->isBoundary()) {
-                        pivotBoundaryRule->addBoundary(boundary);
                         targetBoundary = boundary;
                         break;
                     }
                 }
-                _axels.erase(n);
-                _frontier.erase(candidate);
 
-                simp.rewrite();
-                simp.amend();
+                PivotBoundaryRule().apply(*_graph, matches);
 
-                pivotBoundaryRule->clearBoundary();
-
-                if (targetBoundary != nullptr)
-                    _frontier.emplace(targetBoundary->getFirstNeighbor().first);
+                assert(targetBoundary != nullptr);
+                _frontier.emplace(targetBoundary->getFirstNeighbor().first);
                 // REVIEW - qubit_map
                 gadgetRemoved = true;
                 break;
