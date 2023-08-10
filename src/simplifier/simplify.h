@@ -10,29 +10,99 @@
 #define SIMPLIFY_H
 
 #include <memory>
+#include <type_traits>
 
+#include "cmdParser.h"
 #include "stop_token.hpp"
-#include "zxRules.h"
-#include "zxoptimizer.h"
+#include "zxRulesTemplate.hpp"
+
+extern size_t verbose;
+extern CmdParser cli;
 
 class ZXGraph;
 
 class Simplifier {
 public:
-    Simplifier(ZXGraph* g) : _rule{nullptr}, _simpGraph{g} {
+    Simplifier(ZXGraph* g) : _simpGraph{g} {
         hruleSimp();
     }
-    Simplifier(std::unique_ptr<ZXRule> rule, ZXGraph* g) : _rule{std::move(rule)}, _simpGraph{g} {}
 
-    ZXRule* getRule() const { return _rule.get(); }
+    template <typename Rule>
+    size_t simplify(const Rule& rule) {
+        static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
 
-    void setRule(std::unique_ptr<ZXRule> rule) { _rule = std::move(rule); }
+        if (verbose >= 5) std::cout << std::setw(30) << std::left << rule.name;
+        if (verbose >= 8) std::cout << std::endl;
 
-    void rewrite() { _rule->rewrite(_simpGraph); };
-    void amend();
-    // Simplification strategies
-    int simp();
-    int hadamardSimp();
+        std::vector<int> match_counts;
+
+        size_t iterations = 0;
+        while (!cli.stop_requested()) {
+            std::vector<typename Rule::MatchType> matches = rule.findMatches(*_simpGraph);
+            if (matches.empty()) {
+                break;
+            }
+            match_counts.emplace_back(matches.size());
+            iterations++;
+
+            if (verbose >= 8) std::cout << "\nIteration " << iterations << ":" << std::endl
+                                        << ">>>" << std::endl;
+            rule.apply(*_simpGraph, matches);
+            if (verbose >= 8) std::cout << "<<<" << std::endl;
+        }
+
+        _recipe.emplace_back(rule.name, match_counts);
+        if (verbose >= 8) std::cout << "=> ";
+        if (verbose >= 5) {
+            std::cout << iterations << " iterations." << std::endl;
+            for (size_t i = 0; i < match_counts.size(); i++) {
+                std::cout << "  " << i + 1 << ") " << match_counts[i] << " matches" << std::endl;
+            }
+        }
+        if (verbose >= 5) std::cout << "\n";
+
+        return iterations;
+    }
+
+    template <typename Rule>
+    size_t hadamard_simplify(Rule rule) {
+        static_assert(std::is_base_of<HZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of HZXRule");
+
+        if (verbose >= 5) std::cout << std::setw(30) << std::left << rule.name;
+        if (verbose >= 8) std::cout << std::endl;
+
+        std::vector<int> match_counts;
+
+        size_t iterations = 0;
+        while (!cli.stop_requested()) {
+            size_t vcount = _simpGraph->getNumVertices();
+
+            std::vector<typename Rule::MatchType> matches = rule.findMatches(*_simpGraph);
+            if (matches.empty()) {
+                break;
+            }
+            match_counts.emplace_back(matches.size());
+            iterations++;
+
+            if (verbose >= 8) std::cout << "\nIteration " << iterations << ":" << std::endl
+                                        << ">>>" << std::endl;
+            rule.apply(*_simpGraph, matches);
+            if (verbose >= 8) std::cout << "<<<" << std::endl;
+            if (_simpGraph->getNumVertices() >= vcount) break;
+        }
+
+        _recipe.emplace_back(rule.name, match_counts);
+        if (verbose >= 8) std::cout << "=> ";
+        if (verbose >= 5) {
+            std::cout << iterations << " iterations." << std::endl;
+            for (size_t i = 0; i < match_counts.size(); i++) {
+                std::cout << "  " << i + 1 << ") " << match_counts[i] << " matches" << std::endl;
+            }
+        }
+        if (verbose >= 5) std::cout << "\n";
+
+        return iterations;
+    }
 
     // Basic rules simplification
     int bialgSimp();
@@ -61,11 +131,8 @@ public:
 
     // print function
     void printRecipe();
-    void printOptimizer();
-    void getStepInfo(ZXGraph* g);
 
 private:
-    std::unique_ptr<ZXRule> _rule;
     ZXGraph* _simpGraph;
     std::vector<std::tuple<std::string, std::vector<int> > > _recipe;
 };

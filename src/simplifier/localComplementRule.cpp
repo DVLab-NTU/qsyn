@@ -1,32 +1,31 @@
 /****************************************************************************
-  FileName     [ lcomp.cpp ]
+  FileName     [ localComplementRule.cpp ]
   PackageName  [ simplifier ]
   Synopsis     [ Local Complementary Rule Definition ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>
+#include <unordered_set>
+#include <utility>
 
-#include "zxGraph.h"
-#include "zxRules.h"
-
-using namespace std;
+#include "zxRulesTemplate.hpp"
 
 extern size_t verbose;
+
+using MatchType = LocalComplementRule::MatchType;
 
 /**
  * @brief Find noninteracting matchings of the local complementation rule.
  *
- * @param g
+ * @param graph The graph to find matches in.
  */
-void LComp::match(ZXGraph* g, int upper_bound) {
-    _matchTypeVec.clear();
+std::vector<MatchType> LocalComplementRule::findMatches(const ZXGraph& graph) const {
+    std::vector<MatchType> matches;
 
-    // Find all Z vertices that connect to all neighb ors with H edge.
-    unordered_set<ZXVertex*> taken;
+    std::unordered_set<ZXVertex*> taken;
 
-    for (const auto& v : g->getVertices()) {
+    for (const auto& v : graph.getVertices()) {
         if (v->getType() == VertexType::Z && (v->getPhase() == Phase(1, 2) || v->getPhase() == Phase(3, 2))) {
             bool matchCondition = true;
             if (taken.contains(v)) continue;
@@ -38,30 +37,26 @@ void LComp::match(ZXGraph* g, int upper_bound) {
                 }
             }
             if (matchCondition) {
-                vector<ZXVertex*> neighbors;
+                std::vector<ZXVertex*> neighbors;
                 for (const auto& [nb, _] : v->getNeighbors()) {
                     if (v == nb) continue;
                     neighbors.emplace_back(nb);
                     taken.insert(nb);
                 }
                 taken.insert(v);
-                _matchTypeVec.emplace_back(make_pair(v, neighbors));
+                matches.emplace_back(make_pair(v, neighbors));
             }
         }
     }
-    setMatchTypeVecNum(_matchTypeVec.size());
+
+    return matches;
 }
 
-/**
- * @brief Remove `first` vertex in _matchType, and connect each two vertices of `second` in _matchType
- *
- * @param g
- */
-void LComp::rewrite(ZXGraph* g) {
-    reset();
+void LocalComplementRule::apply(ZXGraph& graph, const std::vector<MatchType>& matches) const {
+    ZXOperation op;
 
-    for (const auto& [v, neighbors] : _matchTypeVec) {
-        _removeVertices.emplace_back(v);
+    for (const auto& [v, neighbors] : matches) {
+        op.verticesToRemove.emplace_back(v);
         size_t hEdgeCount = 0;
         for (auto& [nb, etype] : v->getNeighbors()) {
             if (nb == v && etype == EdgeType::HADAMARD) {
@@ -69,13 +64,14 @@ void LComp::rewrite(ZXGraph* g) {
             }
         }
         Phase p = v->getPhase() + Phase(hEdgeCount / 2);
-        // TODO - global scalar ignored
+        // TODO: global scalar ignored
         for (size_t n = 0; n < neighbors.size(); n++) {
             neighbors[n]->setPhase(neighbors[n]->getPhase() - p);
             for (size_t j = n + 1; j < neighbors.size(); j++) {
-                _edgeTableKeys.emplace_back(make_pair(neighbors[n], neighbors[j]));
-                _edgeTableValues.emplace_back(make_pair(0, 1));
+                op.edgesToAdd.emplace_back(std::make_pair(neighbors[n], neighbors[j]), EdgeType::HADAMARD);
             }
         }
     }
+
+    update(graph, op);
 }

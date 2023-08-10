@@ -1,37 +1,32 @@
 /****************************************************************************
-  FileName     [ phasegadget.cpp ]
+  FileName     [ phaseGadgetRule.cpp ]
   PackageName  [ simplifier ]
   Synopsis     [ Pivot Gadget Rule Definition ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>
-#include <iostream>
-#include <ranges>
+#include "zxRulesTemplate.hpp"
 
-#include "zxGraph.h"
-#include "zxRules.h"
-
-using namespace std;
+using MatchType = PhaseGadgetRule::MatchType;
 
 extern size_t verbose;
 
 /**
  * @brief Determine which phase gadgets act on the same vertices, so that they can be fused together.
  *
- * @param g
+ * @param graph The graph to find matches in.
  */
-void PhaseGadget::match(ZXGraph* g, int upper_bound) {
-    _matchTypeVec.clear();
+std::vector<MatchType> PhaseGadgetRule::findMatches(const ZXGraph& graph) const {
+    std::vector<MatchType> matches;
 
-    unordered_map<ZXVertex*, ZXVertex*> axel2leaf;
-    unordered_multimap<vector<ZXVertex*>, ZXVertex*> group2axel;
-    unordered_set<vector<ZXVertex*>> done;
+    std::unordered_map<ZXVertex*, ZXVertex*> axel2leaf;
+    std::unordered_multimap<std::vector<ZXVertex*>, ZXVertex*> group2axel;
+    std::unordered_set<std::vector<ZXVertex*>> done;
 
-    vector<ZXVertex*> axels;
-    vector<ZXVertex*> leaves;
-    for (const auto& v : g->getVertices()) {
+    std::vector<ZXVertex*> axels;
+    std::vector<ZXVertex*> leaves;
+    for (const auto& v : graph.getVertices()) {
         if (v->getPhase().denominator() <= 2 || v->getNumNeighbors() != 1) continue;
 
         ZXVertex* nb = v->getFirstNeighbor().first;
@@ -42,7 +37,7 @@ void PhaseGadget::match(ZXGraph* g, int upper_bound) {
 
         axel2leaf[nb] = v;
 
-        vector<ZXVertex*> group;
+        std::vector<ZXVertex*> group;
 
         for (auto& [nb2, _] : nb->getNeighbors()) {
             if (nb2 != v) group.emplace_back(nb2);
@@ -55,9 +50,9 @@ void PhaseGadget::match(ZXGraph* g, int upper_bound) {
 
         if (verbose >= 9) {
             for (auto& vertex : group) {
-                cout << vertex->getId() << " ";
+                std::cout << vertex->getId() << " ";
             }
-            cout << " axel added: " << nb->getId() << endl;
+            std::cout << " axel added: " << nb->getId() << std::endl;
         }
     }
     auto itr = group2axel.begin();
@@ -70,12 +65,7 @@ void PhaseGadget::match(ZXGraph* g, int upper_bound) {
 
         Phase totalPhase = Phase(0);
         bool flipAxel = false;
-#ifdef __APPLE__  // As of 2023-05-25, Apple Clang does not have proper support for ranges library
-        for (auto itr = groupBegin; itr != groupEnd; ++itr) {
-            auto axel = itr->second;
-#else
-        for (auto& [_, axel] : ranges::subrange(groupBegin, groupEnd)) {
-#endif
+        for (auto& [_, axel] : std::ranges::subrange(groupBegin, groupEnd)) {
             ZXVertex* const& leaf = axel2leaf[axel];
             if (axel->getPhase() == Phase(1)) {
                 flipAxel = true;
@@ -88,28 +78,25 @@ void PhaseGadget::match(ZXGraph* g, int upper_bound) {
         }
 
         if (leaves.size() > 1 || flipAxel) {
-            _matchTypeVec.emplace_back(totalPhase, axels, leaves);
+            matches.emplace_back(totalPhase, axels, leaves);
         }
     }
 
-    setMatchTypeVecNum(_matchTypeVec.size());
+    return matches;
 }
 
-/**
- * @brief Generate Rewrite format from `_matchTypeVec`
- *
- * @param g
- */
-void PhaseGadget::rewrite(ZXGraph* g) {
-    reset();
+void PhaseGadgetRule::apply(ZXGraph& graph, const std::vector<MatchType>& matches) const {
+    ZXOperation op;
 
-    for (auto& m : _matchTypeVec) {
-        const Phase& newPhase = get<0>(m);
-        const vector<ZXVertex*>& rmAxels = get<1>(m);
-        const vector<ZXVertex*>& rmLeaves = get<2>(m);
+    for (auto& match : matches) {
+        const Phase& newPhase = get<0>(match);
+        const std::vector<ZXVertex*>& rmAxels = get<1>(match);
+        const std::vector<ZXVertex*>& rmLeaves = get<2>(match);
         ZXVertex* leaf = rmLeaves[0];
         leaf->setPhase(newPhase);
-        _removeVertices.insert(_removeVertices.end(), rmAxels.begin() + 1, rmAxels.end());
-        _removeVertices.insert(_removeVertices.end(), rmLeaves.begin() + 1, rmLeaves.end());
+        op.verticesToRemove.insert(op.verticesToRemove.end(), rmAxels.begin() + 1, rmAxels.end());
+        op.verticesToRemove.insert(op.verticesToRemove.end(), rmLeaves.begin() + 1, rmLeaves.end());
     }
+
+    update(graph, op);
 }

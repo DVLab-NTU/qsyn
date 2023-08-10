@@ -6,44 +6,22 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>
-#include <iostream>
+#include "zxRulesTemplate.hpp"
 
-#include "zxGraph.h"
-#include "zxRules.h"
-
-using namespace std;
+using MatchType = PivotGadgetRule::MatchType;
 
 extern size_t verbose;
 
-/**
- * @brief Preprocess the matches so that it conforms with the rewrite functions
- *
- * @param g
- */
-void PivotGadget::preprocess(ZXGraph* g) {
-    for (auto& m : this->_matchTypeVec) {
-        // REVIEW - scalar add power
-        if (m[1]->getPhase().denominator() != 1) {
-            g->transferPhase(m[1]);
-        }
-    }
-}
+std::vector<MatchType> PivotGadgetRule::findMatches(const ZXGraph& graph) const {
+    std::vector<MatchType> matches;
 
-/**
- * @brief Find matchings of the pivot-gadget rule. Find the targets with non-Clifford and gadgetize them.
- *
- * @param g
- */
-void PivotGadget::match(ZXGraph* g, int upper_bound) {
-    this->_matchTypeVec.clear();
-    if (verbose >= 8) cout << "> match...\n";
+    if (verbose >= 8) std::cout << "> match...\n";
 
-    size_t cnt = 0;
+    size_t count = 0;
 
-    unordered_set<ZXVertex*> taken;
+    std::unordered_set<ZXVertex*> taken;
 
-    g->forEachEdge([&upper_bound, &cnt, &taken, this](const EdgePair& epair) {
+    graph.forEachEdge([&count, &taken, &matches, this](const EdgePair& epair) {
         if (epair.second != EdgeType::HADAMARD) return;
 
         ZXVertex* vs = epair.first.first;
@@ -51,8 +29,8 @@ void PivotGadget::match(ZXGraph* g, int upper_bound) {
 
         if (taken.contains(vs) || taken.contains(vt)) return;
 
-        if (verbose == 9) cout << "\n-----------\n\n"
-                               << "Edge " << cnt << ": " << vs->getId() << " " << vt->getId() << "\n";
+        if (verbose == 9) std::cout << "\n-----------\n\n"
+                                    << "Edge " << count << ": " << vs->getId() << " " << vt->getId() << "\n";
 
         if (!vs->isZ()) {
             taken.insert(vs);
@@ -63,7 +41,7 @@ void PivotGadget::match(ZXGraph* g, int upper_bound) {
             return;
         }
 
-        if (verbose == 9) cout << "(1) type pass\n";
+        if (verbose == 9) std::cout << "(1) type pass\n";
 
         bool vsIsNPi = (vs->getPhase().denominator() == 1);
         bool vtIsNPi = (vt->getPhase().denominator() == 1);
@@ -72,9 +50,9 @@ void PivotGadget::match(ZXGraph* g, int upper_bound) {
         // if both not, --> maybe pivot double-boundary
         if (vsIsNPi == vtIsNPi) return;
 
-        if (!vsIsNPi && vtIsNPi) swap(vs, vt);  // if vs is not n*pi but vt is, should extract vs as gadget instead
+        if (!vsIsNPi && vtIsNPi) std::swap(vs, vt);  // if vs is not n*pi but vt is, should extract vs as gadget instead
 
-        if (verbose == 9) cout << "(2) phase pass\n";
+        if (verbose == 9) std::cout << "(2) phase pass\n";
 
         // REVIEW - check ground conditions
 
@@ -96,22 +74,29 @@ void PivotGadget::match(ZXGraph* g, int upper_bound) {
             if (!v->isZ()) return;  // vt is not internal or not graph-like
         }
 
-        if (verbose == 9) cout << "(3) good match\n";
+        if (verbose == 9) std::cout << "(3) good match\n";
 
         // Both vs and vt are interior
-        if (verbose >= 8) cout << "Both vertices are both interior: " << vs->getId() << " " << vt->getId() << endl;
+        if (verbose >= 8) std::cout << "Both vertices are both interior: " << vs->getId() << " " << vt->getId() << std::endl;
 
         taken.insert(vs);
         taken.insert(vt);
         for (auto& [v, _] : vs->getNeighbors()) taken.insert(v);
         for (auto& [v, _] : vt->getNeighbors()) taken.insert(v);
 
-        this->_matchTypeVec.push_back({vs, vt});  // NOTE: cannot emplace_back -- std::array does not have a constructor!;
-        if ((int)this->_matchTypeVec.size() == upper_bound) {
-            setMatchTypeVecNum(this->_matchTypeVec.size());
-            return;
-        }
+        matches.emplace_back(vs, vt);
     });
 
-    setMatchTypeVecNum(this->_matchTypeVec.size());
+    return matches;
+}
+
+void PivotGadgetRule::apply(ZXGraph& graph, const std::vector<MatchType>& matches) const {
+    for (auto& [_, v] : matches) {
+        // REVIEW - scalar add power
+        if (v->getPhase().denominator() != 1) {
+            graph.transferPhase(v);
+        }
+    }
+
+    PivotRuleInterface::apply(graph, matches);
 }

@@ -6,26 +6,23 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <cstddef>
+#include "zxRulesTemplate.hpp"
 
-#include "zxGraph.h"
-#include "zxRules.h"
-
-using namespace std;
+using MatchType = SpiderFusionRule::MatchType;
 
 extern size_t verbose;
 
 /**
  * @brief Find non-interacting matchings of the spider fusion rule.
  *
- * @param g
+ * @param graph The graph to find matches.
  */
-void SpiderFusion::match(ZXGraph* g, int upper_bound) {
-    _matchTypeVec.clear();
+std::vector<MatchType> SpiderFusionRule::findMatches(const ZXGraph& graph) const {
+    std::vector<MatchType> _matchTypeVec;
 
-    unordered_set<ZXVertex*> taken;
+    std::unordered_set<ZXVertex*> taken;
 
-    g->forEachEdge([&taken, this](const EdgePair& epair) {
+    graph.forEachEdge([&taken, &_matchTypeVec](const EdgePair& epair) {
         if (epair.second != EdgeType::SIMPLE) return;
         ZXVertex* v0 = epair.first.first;
         ZXVertex* v1 = epair.first.second;  // to be merged to v0
@@ -36,15 +33,15 @@ void SpiderFusion::match(ZXGraph* g, int upper_bound) {
             taken.insert(v0);
             taken.insert(v1);
             const Neighbors& v1n = v1->getNeighbors();
-            // NOTE - Cannot choose the vertex connected to the vertices that will be merged
+            // NOTE: Cannot choose the vertex connected to the vertices that will be merged
             for (auto& [nb, etype] : v1n) {
                 taken.insert(nb);
             }
-            _matchTypeVec.emplace_back(make_pair(v0, v1));
+            _matchTypeVec.emplace_back(v0, v1);
         }
     });
 
-    setMatchTypeVecNum(_matchTypeVec.size());
+    return _matchTypeVec;
 }
 
 /**
@@ -52,27 +49,26 @@ void SpiderFusion::match(ZXGraph* g, int upper_bound) {
  *
  * @param g
  */
-void SpiderFusion::rewrite(ZXGraph* g) {
-    reset();
+void SpiderFusionRule::apply(ZXGraph& graph, const std::vector<MatchType>& matches) const {
+    ZXOperation op;
 
-    for (size_t i = 0; i < _matchTypeVec.size(); i++) {
-        ZXVertex* v0 = _matchTypeVec[i].first;
-        ZXVertex* v1 = _matchTypeVec[i].second;
-
+    for (auto [v0, v1] : matches) {
         v0->setPhase(v0->getPhase() + v1->getPhase());
-        Neighbors v1n = v1->getNeighbors();
+        Neighbors v1_neighbors = v1->getNeighbors();
 
-        for (auto& nbp : v1n) {
-            // NOTE - Will become selfloop after merged, only considered hadamard
-            if (nbp.first == v0) {
-                if (nbp.second == EdgeType::HADAMARD)
+        for (auto& [neighbor, edgeType] : v1_neighbors) {
+            // NOTE: Will become selfloop after merged, only considered hadamard
+            if (neighbor == v0) {
+                if (edgeType == EdgeType::HADAMARD) {
                     v0->setPhase(v0->getPhase() + Phase(1));
-                // NOTE - No need to remove edges since v1 will be removed
+                }
+                // NOTE: No need to remove edges since v1 will be removed
             } else {
-                _edgeTableKeys.emplace_back(make_pair(v0, nbp.first));
-                _edgeTableValues.emplace_back(nbp.second == EdgeType::SIMPLE ? make_pair(1, 0) : make_pair(0, 1));
+                op.edgesToAdd.emplace_back(std::make_pair(v0, neighbor), edgeType);
             }
         }
-        _removeVertices.emplace_back(v1);
+        op.verticesToRemove.emplace_back(v1);
     }
+
+    update(graph, op);
 }

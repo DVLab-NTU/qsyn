@@ -19,127 +19,12 @@
 #include "zxGraph.h"  // for ZXGraph
 #include "zxGraphMgr.h"
 #include "zxPartition.h"
-#include "zxoptimizer.h"
+#include "zxRulesTemplate.hpp"
 
 using namespace std;
 extern size_t verbose;
 extern size_t dmode;
-extern ZXOPTimizer opt;
 extern CmdParser cli;
-
-int cnt = 0;
-bool step = false;
-bool stop = false;
-
-/**
- * @brief Helper method for constructing simplification strategies based on the rules.
- *
- * @return int
- */
-int Simplifier::simp() {
-    if (_rule->getName() == "Hadamard Rule") {
-        cerr << "Error: Please use `hadamardSimp` when using HRule." << endl;
-        return 0;
-    }
-    int i = 0;
-    vector<int> matches;
-    if (verbose >= 5) cout << setw(30) << left << _rule->getName();
-    if (verbose >= 8) cout << endl;
-    int r2r = opt.getR2R(_rule->getName());
-    while (!cli.stop_requested() && r2r > 0) {
-        _rule->match(_simpGraph, opt.getS2S(_rule->getName()));
-        if (r2r < INT_MAX) r2r--;
-
-        if (_rule->getMatchTypeVecNum() <= 0)
-            break;
-        else
-            matches.emplace_back(_rule->getMatchTypeVecNum());
-        i += 1;
-
-        if (verbose >= 8) cout << "\nIteration " << i << ":" << endl
-                               << ">>>" << endl;
-        rewrite();
-        amend();
-        if (verbose >= 8) cout << "<<<" << endl;
-        // if(r2r == 0) break;
-    }
-    _recipe.emplace_back(_rule->getName(), matches);
-    if (verbose >= 8) cout << "=> ";
-    if (verbose >= 5) {
-        cout << i << " iterations." << endl;
-        for (size_t m = 0; m < matches.size(); m++) {
-            cout << "  " << m + 1 << ") " << matches[m] << " matches" << endl;
-        }
-    }
-    if (verbose >= 5) cout << "\n";
-    return i;
-}
-
-/**
- *
- * @brief Convert as many Hadamards represented by H-boxes to Hadamard-edges.
- *
- * @return int
- */
-int Simplifier::hadamardSimp() {
-    if (_rule->getName() != "Hadamard Rule") {
-        cerr << "Error: `hadamardSimp` is only for HRule." << endl;
-        return 0;
-    }
-    int i = 0;
-    vector<int> matches;
-    if (verbose >= 5) cout << setw(30) << left << _rule->getName();
-    if (verbose >= 8) cout << endl;
-    while (!cli.stop_requested()) {
-        size_t vcount = _simpGraph->getNumVertices();
-        _rule->match(_simpGraph);
-
-        if (_rule->getMatchTypeVecNum() == 0)
-            break;
-        else
-            matches.emplace_back(_rule->getMatchTypeVecNum());
-        i += 1;
-
-        if (verbose >= 8) cout << "\nIteration " << i << ":" << endl
-                               << ">>>" << endl;
-        rewrite();
-        amend();
-        if (verbose >= 8) cout << "<<<" << endl;
-        if (_simpGraph->getNumVertices() >= vcount) break;
-    }
-    _recipe.emplace_back(_rule->getName(), matches);
-    if (verbose >= 8) cout << "=> ";
-    if (verbose >= 5) {
-        cout << i << " iterations." << endl;
-        for (size_t m = 0; m < matches.size(); m++) {
-            cout << "  " << m + 1 << ") " << matches[m] << " matches" << endl;
-        }
-    }
-    if (verbose >= 5) cout << "\n";
-    return i;
-}
-
-/**
- * @brief Apply rule
- */
-void Simplifier::amend() {
-    // cout << _rule->getEdgeTableKeys().size() << " " << _rule->getRemoveEdges().size() << " " << _rule->getRemoveVertices().size() << endl;
-    for (size_t e = 0; e < _rule->getEdgeTableKeys().size(); e++) {
-        ZXVertex* v = _rule->getEdgeTableKeys()[e].first;
-        ZXVertex* v_n = _rule->getEdgeTableKeys()[e].second;
-        int numSimpleEdges = _rule->getEdgeTableValues()[e].first;
-        int numHadamardEdges = _rule->getEdgeTableValues()[e].second;
-
-        if (numSimpleEdges) _simpGraph->addEdge(v, v_n, EdgeType::SIMPLE);
-        if (numHadamardEdges) _simpGraph->addEdge(v, v_n, EdgeType::HADAMARD);
-    }
-    _simpGraph->removeEdges(_rule->getRemoveEdges());
-    _simpGraph->removeVertices(_rule->getRemoveVertices());
-
-    _simpGraph->removeIsolatedVertices();
-}
-
-// Basic rules simplification
 
 /**
  * @brief Perform Bialgebra Rule
@@ -147,8 +32,7 @@ void Simplifier::amend() {
  * @return int
  */
 int Simplifier::bialgSimp() {
-    this->setRule(make_unique<Bialgebra>());
-    return this->simp();
+    return simplify(BialgebraRule());
 }
 
 /**
@@ -157,9 +41,7 @@ int Simplifier::bialgSimp() {
  * @return int
  */
 int Simplifier::copySimp() {
-    if (!_simpGraph->isGraphLike()) return 0;
-    this->setRule(make_unique<StateCopy>());
-    return this->simp();
+    return simplify(StateCopyRule());
 }
 
 /**
@@ -168,15 +50,7 @@ int Simplifier::copySimp() {
  * @return int
  */
 int Simplifier::gadgetSimp() {
-    this->setRule(make_unique<PhaseGadget>());
-    int i = this->simp();
-    if (i > 0) {
-        if (verbose >= 8) cout << this->getRule()->getName() << endl;
-        stop = opt.updateParameters(_simpGraph);
-    }
-
-    if (stop) return -1;
-    return i;
+    return simplify(PhaseGadgetRule());
 }
 
 /**
@@ -185,8 +59,7 @@ int Simplifier::gadgetSimp() {
  * @return int
  */
 int Simplifier::hfusionSimp() {
-    this->setRule(make_unique<HboxFusion>());
-    return this->simp();
+    return simplify(HBoxFusionRule());
 }
 
 /**
@@ -195,8 +68,7 @@ int Simplifier::hfusionSimp() {
  * @return int
  */
 int Simplifier::hruleSimp() {
-    this->setRule(make_unique<HRule>());
-    return this->hadamardSimp();
+    return hadamard_simplify(HadamardRule());
 }
 
 /**
@@ -205,14 +77,7 @@ int Simplifier::hruleSimp() {
  * @return int
  */
 int Simplifier::idSimp() {
-    this->setRule(make_unique<IdRemoval>());
-    int i = this->simp();
-    if (i > 0) {
-        if (verbose >= 8) cout << this->getRule()->getName() << endl;
-        stop = opt.updateParameters(_simpGraph);
-    }
-    if (stop) return -1;
-    return i;
+    return simplify(IdRemovalRule());
 }
 
 /**
@@ -221,14 +86,7 @@ int Simplifier::idSimp() {
  * @return int
  */
 int Simplifier::lcompSimp() {
-    this->setRule(make_unique<LComp>());
-    int i = this->simp();
-    if (i > 0) {
-        if (verbose >= 8) cout << this->getRule()->getName() << endl;
-        stop = opt.updateParameters(_simpGraph);
-    }
-    if (stop) return -1;
-    return i;
+    return simplify(LocalComplementRule());
 }
 
 /**
@@ -237,14 +95,7 @@ int Simplifier::lcompSimp() {
  * @return int
  */
 int Simplifier::pivotSimp() {
-    this->setRule(make_unique<Pivot>());
-    int i = this->simp();
-    if (i > 0) {
-        if (verbose >= 8) cout << this->getRule()->getName() << endl;
-        stop = opt.updateParameters(_simpGraph);
-    }
-    if (stop) return -1;
-    return i;
+    return simplify(PivotRule());
 }
 
 /**
@@ -253,14 +104,7 @@ int Simplifier::pivotSimp() {
  * @return int
  */
 int Simplifier::pivotBoundarySimp() {
-    this->setRule(make_unique<PivotBoundary>());
-    int i = this->simp();
-    if (i > 0) {
-        if (verbose >= 8) cout << this->getRule()->getName() << endl;
-        stop = opt.updateParameters(_simpGraph);
-    }
-    if (stop) return -1;
-    return i;
+    return simplify(PivotBoundaryRule());
 }
 
 /**
@@ -269,14 +113,7 @@ int Simplifier::pivotBoundarySimp() {
  * @return int
  */
 int Simplifier::pivotGadgetSimp() {
-    this->setRule(make_unique<PivotGadget>());
-    int i = this->simp();
-    if (i > 0) {
-        if (verbose >= 8) cout << this->getRule()->getName() << endl;
-        stop = opt.updateParameters(_simpGraph);
-    }
-    if (stop) return -1;
-    return i;
+    return simplify(PivotGadgetRule());
 }
 
 // /**
@@ -295,14 +132,7 @@ int Simplifier::pivotGadgetSimp() {
  * @return int
  */
 int Simplifier::sfusionSimp() {
-    this->setRule(make_unique<SpiderFusion>());
-    int i = this->simp();
-    if (i > 0) {
-        if (verbose >= 8) cout << this->getRule()->getName() << endl;
-        stop = opt.updateParameters(_simpGraph);
-    }
-    if (stop) return -1;
-    return i;
+    return simplify(SpiderFusionRule());
 }
 
 // action
@@ -340,8 +170,7 @@ int Simplifier::interiorCliffordSimp() {
     this->sfusionSimp();
     toGraph();
     int i = 0;
-    int r2r = opt.getR2R("Interior Clifford Simp");
-    while (true && r2r > 0) {
+    while (true) {
         int i1 = this->idSimp();
         if (i1 == -1) return -1;
         int i2 = this->sfusionSimp();
@@ -350,10 +179,8 @@ int Simplifier::interiorCliffordSimp() {
         if (i3 == -1) return -1;
         int i4 = this->lcompSimp();
         if (i4 == -1) return -1;
-        // if(step && i4) getStepInfo(_simpGraph);
         if (i1 + i2 + i3 + i4 == 0) break;
         i += 1;
-        r2r--;
     }
     return i;
 }
@@ -365,15 +192,13 @@ int Simplifier::interiorCliffordSimp() {
  */
 int Simplifier::cliffordSimp() {
     int i = 0;
-    int r2r = opt.getR2R("Clifford Simp");
-    while (true && r2r > 0) {
+    while (true) {
         int i1 = this->interiorCliffordSimp();
         if (i1 == -1) return -1;
         i += i1;
         int i2 = this->pivotBoundarySimp();
         if (i2 == -1) return -1;
-        if (r2r != INT_MAX) r2r--;
-        if (i2 == 0 || r2r == 0) break;
+        if (i2 == 0) break;
     }
     return i;
 }
@@ -425,20 +250,16 @@ void Simplifier::dynamicReduce() {
  */
 void Simplifier::dynamicReduce(size_t tOptimal) {
     cout << " (T-optimal: " << tOptimal << ")";
-    opt.init();
-    opt.updateParameters(_simpGraph);
 
     int a1 = this->interiorCliffordSimp();
 
     if (a1 == -1) {
-        _simpGraph = opt.getLastZXGraph();
         this->printRecipe();
         return;
     }
 
     int a2 = this->pivotGadgetSimp();
     if (a2 == -1 && tOptimal == _simpGraph->TCount()) {
-        _simpGraph = opt.getLastZXGraph();
         this->printRecipe();
         return;
     }
@@ -446,28 +267,24 @@ void Simplifier::dynamicReduce(size_t tOptimal) {
     while (!cli.stop_requested()) {
         int a3 = this->cliffordSimp();
         if (a3 == -1 && tOptimal == _simpGraph->TCount()) {
-            _simpGraph = opt.getLastZXGraph();
             this->printRecipe();
             return;
         }
 
         int a4 = this->gadgetSimp();
         if (a4 == -1 && tOptimal == _simpGraph->TCount()) {
-            _simpGraph = opt.getLastZXGraph();
             this->printRecipe();
             return;
         }
 
         int a5 = this->interiorCliffordSimp();
         if (a5 == -1 && tOptimal == _simpGraph->TCount()) {
-            _simpGraph = opt.getLastZXGraph();
             this->printRecipe();
             return;
         }
 
         int a6 = this->pivotGadgetSimp();
         if (a6 == -1 && tOptimal == _simpGraph->TCount()) {
-            _simpGraph = opt.getLastZXGraph();
             this->printRecipe();
             return;
         }
@@ -520,29 +337,26 @@ void Simplifier::partitionReduce(size_t numPartitions, size_t iterations = 1) {
  *
  */
 void Simplifier::printRecipe() {
-    if (verbose <= 3) {
-        if (verbose == 0)
-            return;
-        if (verbose == 1) {
-            cout << "\nAll rules applied:\n";
-            unordered_set<string> rules;
-            for (size_t i = 0; i < _recipe.size(); i++) {
-                if (get<1>(_recipe[i]).size() != 0) {
-                    if (rules.find(get<0>(_recipe[i])) == rules.end()) {
-                        cout << "(" << rules.size() + 1 << ") " << get<0>(_recipe[i]) << endl;
-                        rules.insert(get<0>(_recipe[i]));
-                    }
+    if (verbose == 0) return;
+    if (verbose == 1) {
+        cout << "\nAll rules applied:\n";
+        unordered_set<string> rules;
+        for (size_t i = 0; i < _recipe.size(); i++) {
+            if (get<1>(_recipe[i]).size() != 0) {
+                if (rules.find(get<0>(_recipe[i])) == rules.end()) {
+                    cout << "(" << rules.size() + 1 << ") " << get<0>(_recipe[i]) << endl;
+                    rules.insert(get<0>(_recipe[i]));
                 }
             }
-        } else {
-            cout << "\nAll rules applied in order:\n";
-            for (size_t i = 0; i < _recipe.size(); i++) {
-                if (get<1>(_recipe[i]).size() != 0) {
-                    cout << setw(30) << left << get<0>(_recipe[i]) << get<1>(_recipe[i]).size() << " iterations." << endl;
-                    if (verbose == 3) {
-                        for (size_t j = 0; j < get<1>(_recipe[i]).size(); j++) {
-                            cout << "  " << j + 1 << ") " << get<1>(_recipe[i])[j] << " matches" << endl;
-                        }
+        }
+    } else if (verbose <= 3) {
+        cout << "\nAll rules applied in order:\n";
+        for (size_t i = 0; i < _recipe.size(); i++) {
+            if (get<1>(_recipe[i]).size() != 0) {
+                cout << setw(30) << left << get<0>(_recipe[i]) << get<1>(_recipe[i]).size() << " iterations." << endl;
+                if (verbose == 3) {
+                    for (size_t j = 0; j < get<1>(_recipe[i]).size(); j++) {
+                        cout << "  " << j + 1 << ") " << get<1>(_recipe[i])[j] << " matches" << endl;
                     }
                 }
             }
