@@ -694,12 +694,11 @@ void CommandLineInterface::printAsTable(std::vector<std::string> words) const {
             return 0;
         });
 
-    auto longest_word_len = std::ranges::max(words | std::views::transform([](std::string const& str) { return unicode::display_width(str); }));
-    cerr << longest_word_len << endl;
+    auto longest_word_len = std::ranges::max(
+        words | std::views::transform([](std::string const& str) { return unicode::display_width(str); }));
+
     size_t num_columns = dvlab_utils::get_terminal_size().width / (longest_word_len + 2);
     size_t num_rows = 1 + (words.size() - 1) / num_columns;
-
-    cerr << num_columns << ", " << num_rows << endl;
 
     for (size_t i = 0; i < num_rows; ++i) {
         for (size_t j = i; j < words.size(); j += num_rows) {
