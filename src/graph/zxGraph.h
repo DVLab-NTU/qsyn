@@ -10,6 +10,7 @@
 #define ZX_GRAPH_H
 
 #include <cstddef>
+#include <filesystem>
 #include <span>
 #include <string>
 #include <unordered_map>
@@ -331,7 +332,7 @@ public:
     std::unordered_map<size_t, ZXVertex*> const& getOutputList() const { return _outputList; }
 
     // I/O (in zxIO.cpp)
-    bool readZX(const std::string& filename, bool keepID = false);
+    bool readZX(std::filesystem::path const& filepath, bool keepID = false);
     bool writeZX(std::string const& filename, bool complete = false) const;
     bool writeTikz(std::string const& filename) const;
     bool writeTikz(std::ostream& tikzFile) const;

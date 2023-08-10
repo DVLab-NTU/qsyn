@@ -6,14 +6,14 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <stdlib.h>
-
 #include <csignal>
 #include <cstddef>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 
-#include "cmdParser.h"
+#include "argparse.h"
+#include "cli.h"
 #include "jthread.hpp"
 #include "myUsage.h"
 #include "util.h"
@@ -27,7 +27,7 @@ using namespace std;
 //----------------------------------------------------------------------
 //    Global cmd Manager
 //----------------------------------------------------------------------
-CmdParser cli{"qsyn> "};
+CommandLineInterface cli{"qsyn> "};
 
 extern bool initArgParseCmd();
 extern bool initCommonCmd();
@@ -39,7 +39,6 @@ extern bool initTensorCmd();
 extern bool initExtractCmd();
 extern bool initDeviceCmd();
 extern bool initDuostraCmd();
-extern bool initM2Cmd();
 extern bool initGFlowCmd();
 extern bool initLTCmd();
 size_t verbose = 3;
@@ -48,52 +47,65 @@ size_t dmode = 0;
 
 extern MyUsage myUsage;
 
-static void
-usage() {
-    cout << "Usage: ./qsyn [-File < doFile > [arguments...]]" << endl;
-}
-
-static void
-myexit() {
-    usage();
-    exit(-1);
-}
-
 int main(int argc, char** argv) {
+    using namespace ArgParse;
     myUsage.reset();
 
     signal(SIGINT, [](int signum) -> void { cli.sigintHandler(signum); return; });
 
-    if (argc >= 3) {  // -file <doFile>
-        for (int i = 3; i < argc; ++i) {
-            cli.addArgument(argv[i]);
-        }
+    auto parser = ArgumentParser(argv[0]);
 
-        if (myStrNCmp("-File", argv[1], 2) == 0) {
-            if (!cli.openDofile(argv[2])) {
-                cerr << "Error: cannot open file \"" << argv[2] << "\"!!\n";
-                myexit();
-            }
-        } else {
-            cerr << "Error: unknown argument \"" << argv[1] << "\"!!\n";
-            myexit();
-        }
-    } else if (argc != 1) {
-        cerr << "Error: illegal number of argument (" << argc << ")!!\n";
-        myexit();
+    parser.addArgument<string>("-file")
+        .nargs(NArgsOption::ONE_OR_MORE)
+        .help("specify the dofile to run, and optionally pass arguments to the dofiles");
+
+    parser.addArgument<bool>("-help")
+        .action(storeTrue)
+        .help("print this help message and exit");
+
+    parser.addArgument<bool>("-version")
+        .action(storeTrue)
+        .help("print the version and exit");
+
+    std::vector<std::string> arguments{argv + 1, argv + argc};
+
+    if (!parser.parseArgs(arguments)) {
+        parser.printUsage();
+        return -1;
+    }
+
+    if (parser["-help"].isParsed()) {
+        parser.printHelp();
+        return 0;
     }
 
     cout << "DV Lab, NTUEE, Qsyn " << QSYN_VERSION << endl;
 
+    if (parser["-version"].isParsed()) {
+        return 0;
+    }
+
+    if (parser["-file"].isParsed()) {
+        auto args = parser.get<std::vector<string>>("-file");
+
+        if (!cli.openDofile(args[0])) {
+            cerr << "Error: cannot open dofile!!" << endl;
+            return 1;
+        }
+
+        for (auto& arg : ranges::subrange(args.begin() + 1, args.end())) {
+            cli.addArgument(arg);
+        }
+    }
+
     if (
-        // !initArgParseCmd() ||
+        !initArgParseCmd() ||
         !initCommonCmd() ||
         !initQCirCmd() ||
         !initOptimizeCmd() ||
         !initZXCmd() ||
         !initSimpCmd() ||
         !initTensorCmd() ||
-        // !initM2Cmd() ||
         !initExtractCmd() ||
         !initDeviceCmd() ||
         !initDuostraCmd() ||
@@ -102,10 +114,10 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    CmdExecStatus status = CmdExecStatus::DONE;
+    CmdExecResult status = CmdExecResult::DONE;
 
-    while (status != CmdExecStatus::QUIT) {  // until "quit" or command error
-        status = cli.execOneCmd();
+    while (status != CmdExecResult::QUIT) {  // until "quit" or command error
+        status = cli.executeOneLine();
         cout << endl;  // a blank line between each command
     }
 

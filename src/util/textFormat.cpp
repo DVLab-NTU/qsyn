@@ -7,12 +7,21 @@
 ****************************************************************************/
 #include "textFormat.h"
 
+#include <exception>
+#include <filesystem>
+
+#include "util.h"
+
 extern size_t colorLevel;
 
 namespace TextFormat {
 
+std::string decorate(std::string const& str, const std::string& code) {
+    return "\033[" + code + "m" + str + "\033[0m";
+}
+
 std::string decorate(std::string const& str, const size_t& code) {
-    return "\033[" + std::to_string(code) + "m" + str + "\033[0m";
+    return decorate(str, std::to_string(code));
 }
 
 std::string setFormat(const std::string& str, const size_t& code) {
@@ -66,4 +75,86 @@ std::string LIGHT_BG_MAGENTA(const std::string& str) { return setFormat(str, 105
 std::string LIGHT_BG_CYAN(const std::string& str) { return setFormat(str, 106); }
 std::string LIGHT_BG_WHITE(const std::string& str) { return setFormat(str, 107); }
 
+std::string LS_COLOR(const std::string& basename, std::string const& dirname) {
+    static auto const ls_color = [](std::string const& key) -> std::string {
+        static auto ls_color_map = std::invoke([]() {
+            std::unordered_map<std::string, std::string> map;
+            std::string ls_colors{getenv("LS_COLORS")};
+
+            for (auto&& token : split(ls_colors, ":")) {
+                if (token.empty()) continue;
+                size_t pos = token.find('=');
+                map.emplace(token.substr(0, pos), token.substr(pos + 1));
+            }
+
+            return map;
+        });
+
+        if (ls_color_map.contains(key)) return ls_color_map.at(key);
+
+        return "0";
+    };
+
+    namespace fs = std::filesystem;
+    using fs::file_type, fs::perms;
+
+    auto status = fs::status(fs::path(dirname) / fs::path(basename));
+    auto type = status.type();
+    auto permissions = status.permissions();
+    // checks for file types
+
+    switch (type) {
+        case file_type::directory: {
+            bool isSticky = (permissions & perms::sticky_bit) != perms::none;
+            bool isOtherWritable = (permissions & perms::others_write) != perms::none;
+            if (isSticky) {
+                if (isOtherWritable) {
+                    return decorate(basename, ls_color("tw"));
+                }
+                return decorate(basename, ls_color("st"));
+            }
+
+            if (isOtherWritable) {
+                return decorate(basename, ls_color("ow"));
+            }
+            return decorate(basename, ls_color("di"));
+        }
+        case file_type::symlink: {
+            return (fs::read_symlink(basename) != "")
+                       ? decorate(basename, ls_color("ln"))
+                       : decorate(basename, ls_color("or"));
+        }
+        // NOTE - omitting multi-hardlinks (mh) -- don't know how to detect it...
+        case file_type::fifo:
+            return decorate(basename, ls_color("pi"));
+        case file_type::socket:
+            return decorate(basename, ls_color("so"));
+        // NOTE - omitting doors (do) -- basically obsolete
+        case file_type::block:
+            return decorate(basename, ls_color("bd"));
+        case file_type::character:
+            return decorate(basename, ls_color("cd"));
+        case file_type::not_found:
+            return decorate(basename, ls_color("mi"));
+        default:
+            break;
+    }
+
+    if ((permissions & perms::set_uid) != perms::none) {
+        return decorate(basename, ls_color("su"));
+    }
+
+    if ((permissions & perms::set_gid) != perms::none) {
+        return decorate(basename, ls_color("sg"));
+    }
+
+    // NOTE - omitting files with capacities
+
+    // executable files
+    if ((permissions & (perms::owner_exec | perms::group_exec | perms::others_exec)) != perms::none) {
+        return decorate(basename, ls_color("ex"));
+    }
+
+    return decorate(basename, ls_color("*" + fs::path(basename).extension().string()));
+}
 };  // namespace TextFormat

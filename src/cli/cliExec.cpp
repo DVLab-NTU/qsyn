@@ -1,12 +1,10 @@
 /****************************************************************************
-  FileName     [ cmdParser.cpp ]
-  PackageName  [ cmd ]
+  FileName     [ cliParser.cpp ]
+  PackageName  [ cli ]
   Synopsis     [ Define command parsing member functions for class CmdParser ]
   Author       [ Design Verification Lab, Chia-Hsu Chuang ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include "cmdParser.h"
-
 #include <atomic>
 #include <cassert>
 #include <cstddef>
@@ -17,6 +15,11 @@
 #include <regex>
 #include <thread>
 
+#include "cli.h"
+#include "display_width.hpp"
+#include "fort.hpp"
+#include "terminalSize.h"
+#include "textFormat.h"
 #include "util.h"
 
 using std::cout, std::endl, std::cerr;
@@ -24,65 +27,37 @@ using std::string, std::vector;
 namespace fs = std::filesystem;
 
 //----------------------------------------------------------------------
-//    External functions
-//----------------------------------------------------------------------
-void mybeep();
-
-//----------------------------------------------------------------------
 //    Member Function for class cmdParser
 //----------------------------------------------------------------------
 // return false if file cannot be opened
 // Please refer to the comments in "DofileCmd::exec", cmdCommon.cpp
-bool CmdParser::openDofile(const std::string& dof) {
-    if (_dofile != 0)
-        if (!pushDofile()) return false;
-    _dofile = new std::ifstream(dof.c_str());
-    _dofileName = dof;
-    if (!_dofile->is_open()) {
+bool CommandLineInterface::openDofile(const std::string& dof) {
+    constexpr size_t dofile_stack_limit = 1024;
+    if (this->stop_requested()) {
+        return false;
+    }
+    if (_dofileStack.size() >= dofile_stack_limit) {
+        cerr << "Error: dofile stack overflow (" << dofile_stack_limit
+             << ")" << endl;
+        return false;
+    }
+
+    _dofileStack.push(std::move(std::ifstream(dof)));
+
+    if (!_dofileStack.top().is_open()) {
         closeDofile();
         return false;
     }
     return true;
 }
 
-// Must make sure _dofile != 0
-void CmdParser::closeDofile() {
-    assert(_dofile != 0);
-    delete _dofile;
-    _dofile = 0;
-    _dofileName.clear();
-    popDofile();
-}
-
-// return false if stack overflow
-bool CmdParser::pushDofile() {
-#ifdef __APPLE__
-#define DOFILE_STACK_LIMIT 252
-#else
-#define DOFILE_STACK_LIMIT 1024
-#endif
-    if (_dofileStack.size() >= DOFILE_STACK_LIMIT) {
-        cerr << "Error: dofile stack overflow (" << DOFILE_STACK_LIMIT
-             << ")" << endl;
-        return false;
-    }
-    _dofileStack.push(_dofile);
-    _dofile = 0;
-    return true;
-}
-
-// Removed for TODO's
-// return false if stack empty
-bool CmdParser::popDofile() {
-    if (_dofileStack.empty())
-        return false;
-    _dofile = _dofileStack.top();
+void CommandLineInterface::closeDofile() {
+    assert(_dofileStack.size());
     _dofileStack.pop();
-    return true;
 }
 
 // Return false if registration fails
-bool CmdParser::regCmd(const string& cmd, unsigned nCmp, std::unique_ptr<CmdExec>&& e) {
+bool CommandLineInterface::regCmd(const string& cmd, unsigned nCmp, std::unique_ptr<CmdExec>&& e) {
     // Make sure cmd hasn't been registered and won't cause ambiguity
     string str = cmd;
     unsigned s = str.size();
@@ -118,67 +93,74 @@ bool CmdParser::regCmd(const string& cmd, unsigned nCmp, std::unique_ptr<CmdExec
     return (_cmdMap.insert(CmdRegPair(mandCmd, std::move(e)))).second;
 }
 
-void CmdParser::sigintHandler(int signum) {
+void CommandLineInterface::sigintHandler(int signum) {
     if (_currCmd.has_value()) {
         // there is an executing command
         _currCmd->request_stop();
         cout << "Command Interrupted" << endl;
     } else {
         // receiving inputs
-        cout << char(ParseChar::NEWLINE_KEY);
+        cout << char(KeyCode::NEWLINE_KEY);
         resetBufAndPrintPrompt();
     }
 }
 
 // Return false on "quit" or if exception happens
-CmdExecStatus
-CmdParser::execOneCmd() {
+CmdExecResult
+CommandLineInterface::executeOneLine() {
     bool newCmd = false;
-    if (_dofile != 0)
-        newCmd = readCmd(*_dofile);
+    while (_dofileStack.size() && _dofileStack.top().eof()) closeDofile();
+
+    if (_dofileStack.size())
+        newCmd = readCmd(_dofileStack.top());
     else
         newCmd = readCmd(std::cin);
 
     // execute the command
-    if (!newCmd) return CmdExecStatus::NOP;
+    if (!newCmd) return CmdExecResult::NOP;
 
-    auto [e, option] = parseCmd();
+    std::atomic<CmdExecResult> result;
 
-    if (e == nullptr) return CmdExecStatus::NOP;
+    while (_commandQueue.size()) {
+        auto [e, option] = parseOneCommandFromQueue();
 
-    std::atomic<CmdExecStatus> result = CmdExecStatus::EXECUTING;
-    _currCmd = jthread::jthread(
-        [this, &e = e, &option = option, &result]() {
-            result = e->exec(option);
-        });
+        if (e == nullptr) continue;
 
-    assert(_currCmd.has_value());
+        _currCmd = jthread::jthread(
+            [this, &e = e, &option = option, &result]() {
+                result = e->exec(option);
+            });
 
-    _currCmd->join();
+        assert(_currCmd.has_value());
 
-    if (result == CmdExecStatus::EXECUTING) {
-        cerr << "Command interrupted " << endl;
+        _currCmd->join();
+
+        if (this->stop_requested()) {
+            cerr << "Command interrupted " << endl;
+            while (_commandQueue.size()) _commandQueue.pop();
+            return CmdExecResult::INTERRUPTED;
+        }
+
+        _currCmd = std::nullopt;
     }
-
-    _currCmd = std::nullopt;
 
     return result;
 }
 
 // For each CmdExec* in _cmdMap, call its "help()" to print out the help msg.
 // Print an endl at the end.
-void CmdParser::printHelps() const {
+void CommandLineInterface::printHelps() const {
     for (const auto& mi : _cmdMap)
         mi.second->summary();
 
     cout << endl;
 }
 
-void CmdParser::printHistory() const {
+void CommandLineInterface::printHistory() const {
     printHistory(_history.size());
 }
 
-void CmdParser::printHistory(size_t nPrint) const {
+void CommandLineInterface::printHistory(size_t nPrint) const {
     assert(_tempCmdStored == false);
     if (_history.empty()) {
         cout << "Empty command history!!" << endl;
@@ -205,32 +187,26 @@ void CmdParser::printHistory(size_t nPrint) const {
 //    words and beyond) and store them in "option"
 //
 std::pair<CmdExec*, std::string>
-CmdParser::parseCmd() {
+CommandLineInterface::parseOneCommandFromQueue() {
     assert(_tempCmdStored == false);
-    assert(!_history.empty());
-    string buffer = _history.back();
+    string buffer = _commandQueue.front();
+    _commandQueue.pop();
 
-    // TODO...
-    assert(buffer[0] != 0 && buffer[0] != ' ');
-
-    string str;
-    stripQuotes(buffer, str);
-
-    str = replaceVariableKeysWithValues(str);
+    assert(buffer[0] != '\0' && buffer[0] != ' ');
 
     string cmd;
-    size_t n = myStrGetTok2(str, cmd);
+    size_t n = myStrGetTok2(buffer, cmd);
     CmdExec* e = getCmd(cmd);
     string option;
     if (!e) {
         cerr << "Illegal command!! (" << cmd << ")" << endl;
     } else if (n != string::npos) {
-        option = str.substr(n);
+        option = buffer.substr(n);
     }
     return {e, option};
 }
 
-string CmdParser::replaceVariableKeysWithValues(string const& str) const {
+string CommandLineInterface::replaceVariableKeysWithValues(string const& str) const {
     // if `str` contains the some dollar sign '$',
     // try to convert it into variable
     // unless it is preceded by '\'.
@@ -259,16 +235,18 @@ string CmdParser::replaceVariableKeysWithValues(string const& str) const {
 
     std::vector<std::tuple<size_t, size_t, string>> to_replace;
     // \S means non-whitespace character
-    for (auto re : {std::regex("\\$[a-zA-Z0-9_]+"), std::regex("\\$\\{\\S+\\}")}) {
-        std::smatch match;
-        std::regex_search(str, match, re);
-        for (size_t i = 0; i < match.size(); ++i) {
-            string var = match[i];
+    static std::regex const var_without_braces(R"(\$[a-zA-Z0-9_]+)");
+    static std::regex const var_with_braces(R"(\$\{\S+\})");
+    for (auto re : {var_without_braces, var_with_braces}) {
+        std::smatch matches;
+        std::regex_search(str, matches, re);
+        for (size_t i = 0; i < matches.size(); ++i) {
+            string var = matches[i];
             // tell if it is a curly brace variable or not
             bool is_brace = var[1] == '{';
             string var_key = is_brace ? var.substr(2, var.length() - 3) : var.substr(1);
 
-            bool is_defined = _variables.find(var_key) != _variables.end();
+            bool is_defined = _variables.contains(var_key);
             string val = is_defined ? _variables.at(var_key) : "";
 
             if (is_brace && !is_defined) {
@@ -281,8 +259,8 @@ string CmdParser::replaceVariableKeysWithValues(string const& str) const {
                 }
             }
 
-            size_t pos = match.position(i);
-            if (pos > 0 && str[pos - 1] == '\\' && (pos == 1 || str[pos - 2] != '\\')) {
+            size_t pos = matches.position(i);
+            if (isEscapedChar(str, pos)) {
                 continue;
             }
             to_replace.emplace_back(pos, var.length(), val);
@@ -456,7 +434,7 @@ string CmdParser::replaceVariableKeysWithValues(string const& str) const {
 //    [After Tab]
 //    ==> Beep and stay in the same location
 
-void CmdParser::listCmd(const string& str) {
+void CommandLineInterface::listCmd(const string& str) {
     assert(str.empty() || str[0] != ' ');
 
     if (str.size()) {
@@ -469,7 +447,7 @@ void CmdParser::listCmd(const string& str) {
             // [case 6] Singly matched on second+ tab
             // [case 7] no match; cursor not on first word
             if (e == nullptr || (_tabPressCount > 1 && !listCmdDir(str))) {
-                mybeep();
+                beep();
                 return;
             }
 
@@ -490,7 +468,7 @@ void CmdParser::listCmd(const string& str) {
 
     // [case 4] no matching cmd in the first word
     if (matchBegin == matchEnd) {
-        mybeep();
+        beep();
         return;
     }
 
@@ -512,12 +490,12 @@ void CmdParser::listCmd(const string& str) {
         words.emplace_back(mand + cmd->getOptCmd());
     }
 
-    printAsTable(words, 60);
+    printAsTable(words);
     reprintCmd();
 }
 
-std::pair<CmdParser::CmdMap::const_iterator, CmdParser::CmdMap::const_iterator>
-CmdParser::getCmdMatches(string const& str) {
+std::pair<CommandLineInterface::CmdMap::const_iterator, CommandLineInterface::CmdMap::const_iterator>
+CommandLineInterface::getCmdMatches(string const& str) {
     string cmd = toUpperString(str);
 
     // all cmds
@@ -549,44 +527,45 @@ CmdParser::getCmdMatches(string const& str) {
  * @return true if printing files
  * @return false if completing (part of) the word
  */
-bool CmdParser::listCmdDir(const string& cmd) {
+bool CommandLineInterface::listCmdDir(const string& cmd) {
     assert(cmd[0] != ' ');
-    string searchString;
+    std::optional<std::string> searchString;
     string incompleteQuotes;
-    if (stripQuotes(cmd, searchString)) {
+    if (searchString = stripQuotes(cmd); searchString.has_value()) {
         incompleteQuotes = "";
-    } else if (stripQuotes(cmd + "\"", searchString)) {
+    } else if (searchString = stripQuotes(cmd + "\""); searchString.has_value()) {
         incompleteQuotes = "\"";
-    } else if (stripQuotes(cmd + "\'", searchString)) {
+    } else if (searchString = stripQuotes(cmd + "\'"); searchString.has_value()) {
         incompleteQuotes = "\'";
     } else {
         cerr << "Error: unexpected quote stripping result!!" << endl;
         return false;
     }
+    assert(searchString.has_value());
 
     size_t lastSpacePos = std::invoke(
         [&searchString]() -> size_t {
-            size_t pos = searchString.find_last_of(" ");
-            while (pos != string::npos && searchString[pos - 1] == '\\') {
-                pos = searchString.find_last_of(" ", pos - 2);
+            size_t pos = searchString->find_last_of(" ");
+            while (pos != string::npos && (*searchString)[pos - 1] == '\\') {
+                pos = searchString->find_last_of(" ", pos - 2);
             }
             return pos;
         });
     assert(lastSpacePos != string::npos);  // must have ' '
 
-    searchString = searchString.substr(lastSpacePos + 1, searchString.size() - (lastSpacePos + 1));
+    searchString = searchString->substr(lastSpacePos + 1, searchString->size() - (lastSpacePos + 1));
 
     // if the search string ends with a backslash,
     // we will remove it from the search string,
     // but we will flag it to do specialized treatments later
     bool trailingBackslash = false;
-    if (searchString.back() == '\\') {
-        searchString.pop_back();
+    if (searchString->back() == '\\') {
+        searchString->pop_back();
         trailingBackslash = true;
     }
 
     string filename;
-    if (!myStrGetTok2(searchString, filename)) {
+    if (!myStrGetTok2(*searchString, filename)) {
         return false;
     }
 
@@ -605,6 +584,8 @@ bool CmdParser::listCmdDir(const string& cmd) {
         // clang++ does not support structured binding capture by reference with OpenMP
         std::erase_if(files, [this, &basename = basename](string const& file) { return !isSpecialChar(file[basename.size()]); });
     }
+
+    std::erase_if(files, [](std::string const& file) { return file.starts_with("."); });
 
     // no matched file
     if (files.size() == 0) {
@@ -685,29 +666,49 @@ bool CmdParser::listCmdDir(const string& cmd) {
         }
     }
 
-    printAsTable(files, 80);
+    std::ranges::sort(files, [](std::string const& a, std::string const& b) { return toLowerString(a) < toLowerString(b); });
+
+    for (auto& file : files) {
+        namespace TF = TextFormat;
+        file = TF::LS_COLOR(file, dirname);
+    }
+
+    printAsTable(files);
 
     return true;
 }
 
-void CmdParser::printAsTable(std::vector<std::string> words, size_t widthLimit) const {
+void CommandLineInterface::printAsTable(std::vector<std::string> words) const {
     // calculate an lower bound to the spacing first
-    auto longestWord = max_element(words.begin(), words.end(),
-                                   [](string const& a, string const& b) {
-                                       return a.size() < b.size();
-                                   });
+    fort::utf8_table table;
+    table.set_border_style(FT_EMPTY_STYLE);
+    table.set_cell_left_padding(0);
+    table.set_cell_right_padding(2);
 
-    size_t numWordsPerLine = std::max(
-        1ul,
-        std::min(5ul, widthLimit / (longestWord->size() + 2)));
+    ft_set_u8strwid_func(
+        [](void const* beg, void const* end, size_t* width) -> int {
+            std::string tmpStr(static_cast<const char*>(beg), static_cast<const char*>(end));
 
-    size_t spacing = widthLimit / numWordsPerLine;
+            *width = unicode::display_width(tmpStr);
 
-    size_t count = 0;
-    for (auto const& word : words) {
-        if ((count++ % numWordsPerLine) == 0) cout << endl;
-        cout << std::setw(spacing) << std::left << (word);
+            return 0;
+        });
+
+    auto longest_word_len = std::ranges::max(
+        words | std::views::transform([](std::string const& str) { return unicode::display_width(str); }));
+
+    size_t num_columns = dvlab_utils::get_terminal_size().width / (longest_word_len + 2);
+    size_t num_rows = 1 + (words.size() - 1) / num_columns;
+
+    for (size_t i = 0; i < num_rows; ++i) {
+        for (size_t j = i; j < words.size(); j += num_rows) {
+            table << words[j];
+        }
+        table << fort::endr;
     }
+
+    cout << '\n'
+         << table.to_string() << endl;
 }
 
 // cmd is a copy of the original input
@@ -722,7 +723,7 @@ void CmdParser::printAsTable(std::vector<std::string> words, size_t widthLimit) 
 // 3. All string comparison are "case-insensitive".
 //
 CmdExec*
-CmdParser::getCmd(string cmd) {
+CommandLineInterface::getCmd(string cmd) {
     CmdExec* e = nullptr;
 
     for (unsigned i = 0; i < cmd.size(); ++i) {
@@ -762,6 +763,17 @@ bool CmdExec::checkOptCmd(const string& check) const {
     return true;
 }
 
-void CmdParser::printPrompt() const {
+void CommandLineInterface::printPrompt() const {
     cout << _prompt << std::flush;
+}
+
+void CommandLineInterface::clearConsole() const {
+#ifdef _WIN32
+    int result = system("cls");
+#else
+    int result = system("clear");
+#endif
+    if (result != 0) {
+        cerr << "Error clearing the console!!" << endl;
+    }
 }

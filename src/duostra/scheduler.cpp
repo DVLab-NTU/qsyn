@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "variables.h"
 
 using namespace std;

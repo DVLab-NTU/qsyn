@@ -13,9 +13,6 @@
 
 using namespace std;
 
-#undef MYCLK_TCK
-#define MYCLK_TCK sysconf(_SC_CLK_TCK)
-
 void MyUsage::reset() {
     _initMem = checkMem();
     _currentTick = checkTick();

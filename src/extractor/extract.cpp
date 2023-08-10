@@ -8,11 +8,10 @@
 
 #include "extract.h"
 
-#include <assert.h>
-
+#include <cassert>
 #include <memory>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "duostra.h"
 #include "mappingEQChecker.h"
 #include "qcir.h"

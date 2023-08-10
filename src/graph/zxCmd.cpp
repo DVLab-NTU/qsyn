@@ -135,7 +135,7 @@ unique_ptr<ArgParseCmdType> ZXCHeckoutCmd() {
     };
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         zxGraphMgr.checkout(parser["id"]);
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
     return cmd;
 }
@@ -164,14 +164,14 @@ unique_ptr<ArgParseCmdType> ZXNewCmd() {
         if (zxGraphMgr.isID(id)) {
             if (!parser["-Replace"].isParsed()) {
                 cerr << "Error: ZXGraph " << id << " already exists!! Specify `-Replace` if needed." << endl;
-                return CmdExecStatus::ERROR;
+                return CmdExecResult::ERROR;
             }
             zxGraphMgr.set(make_unique<ZXGraph>(id));
-            return CmdExecStatus::DONE;
+            return CmdExecResult::DONE;
         }
 
         zxGraphMgr.add(id);
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
     return cmd;
 }
@@ -188,7 +188,7 @@ unique_ptr<ArgParseCmdType> ZXResetCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         zxGraphMgr.reset();
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -210,7 +210,7 @@ unique_ptr<ArgParseCmdType> ZXDeleteCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         zxGraphMgr.remove(parser["id"]);
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -249,7 +249,7 @@ unique_ptr<ArgParseCmdType> ZXPrintCmd() {
             zxGraphMgr.printList();
         else
             zxGraphMgr.printMgr();
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -281,14 +281,14 @@ unique_ptr<ArgParseCmdType> ZXCopyCmd() {
         if (zxGraphMgr.isID(id)) {
             if (!parser["-Replace"].isParsed()) {
                 cerr << "Error: ZXGraph " << id << " already exists!! Specify `-Replace` if needed." << endl;
-                return CmdExecStatus::ERROR;
+                return CmdExecResult::ERROR;
             }
             zxGraphMgr.copy(id);
-            return CmdExecStatus::DONE;
+            return CmdExecResult::DONE;
         }
 
         zxGraphMgr.copy(id);
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
     return cmd;
 }
@@ -309,7 +309,7 @@ unique_ptr<ArgParseCmdType> ZXComposeCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         zxGraphMgr.get()->compose(*zxGraphMgr.findByID(parser["id"]));
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -328,7 +328,7 @@ unique_ptr<ArgParseCmdType> ZXTensorCmd() {
     };
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         zxGraphMgr.get()->tensorProduct(*zxGraphMgr.findByID(parser["id"]));
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
     return cmd;
 }
@@ -382,7 +382,7 @@ unique_ptr<ArgParseCmdType> ZXGTestCmd() {
             else
                 cout << "The graph is not an identity!" << endl;
         }
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -465,7 +465,7 @@ unique_ptr<ArgParseCmdType> ZXGPrintCmd() {
             cout << "Density: " << zxGraphMgr.get()->density() << endl;
         } else
             zxGraphMgr.get()->printGraph();
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -557,7 +557,7 @@ unique_ptr<ArgParseCmdType> ZXGEditCmd() {
                 cout << "Note: removing isolated vertices..." << endl;
                 zxGraphMgr.get()->removeIsolatedVertices();
             }
-            return CmdExecStatus::DONE;
+            return CmdExecResult::DONE;
         }
         if (subparser == "-rmedge") {
             auto ids = parser.get<std::vector<size_t>>("ids");
@@ -573,7 +573,7 @@ unique_ptr<ArgParseCmdType> ZXGEditCmd() {
                 zxGraphMgr.get()->removeAllEdgesBetween(v0, v1);
             }
 
-            return CmdExecStatus::DONE;
+            return CmdExecResult::DONE;
         }
         if (subparser == "-addvertex") {
             auto vtype = str2VertexType(parser.get<std::string>("vtype"));
@@ -581,15 +581,15 @@ unique_ptr<ArgParseCmdType> ZXGEditCmd() {
 
             zxGraphMgr.get()->addVertex(parser.get<size_t>("qubit"), vtype.value(), parser.get<Phase>("phase"));
 
-            return CmdExecStatus::DONE;
+            return CmdExecResult::DONE;
         }
         if (subparser == "-addinput") {
             zxGraphMgr.get()->addInput(parser.get<size_t>("qubit"));
-            return CmdExecStatus::DONE;
+            return CmdExecResult::DONE;
         }
         if (subparser == "-addoutput") {
             zxGraphMgr.get()->addOutput(parser.get<size_t>("qubit"));
-            return CmdExecStatus::DONE;
+            return CmdExecResult::DONE;
         }
         if (subparser == "-addedge") {
             auto ids = parser.get<std::vector<size_t>>("ids");
@@ -602,9 +602,9 @@ unique_ptr<ArgParseCmdType> ZXGEditCmd() {
 
             zxGraphMgr.get()->addEdge(v0, v1, etype.value());
 
-            return CmdExecStatus::DONE;
+            return CmdExecResult::DONE;
         }
-        return CmdExecStatus::ERROR;
+        return CmdExecResult::ERROR;
     };
 
     return cmd;
@@ -622,7 +622,7 @@ unique_ptr<ArgParseCmdType> ZXGTraverseCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         zxGraphMgr.get()->updateTopoOrder();
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -643,23 +643,24 @@ unique_ptr<ArgParseCmdType> ZXGDrawCmd() {
 
         parser.addArgument<string>("filepath")
             .nargs(NArgsOption::OPTIONAL)
-            .constraint(dir_for_file_exists)
+            .constraint(path_writable)
             .constraint(allowed_extension({".pdf"}))
             .help("the output path. Supported extension: .pdf");
 
         parser.addArgument<bool>("-CLI")
+            .action(storeTrue)
             .help("print to the console. Note that only horizontal wires will be printed");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser["filepath"].isParsed()) {
-            if (!zxGraphMgr.get()->writePdf(parser["filepath"])) return CmdExecStatus::ERROR;
+            if (!zxGraphMgr.get()->writePdf(parser["filepath"])) return CmdExecResult::ERROR;
         }
         if (parser["-CLI"].isParsed()) {
             zxGraphMgr.get()->draw();
         }
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -688,7 +689,7 @@ unique_ptr<ArgParseCmdType> ZX2TSCmd() {
             tensorMgr.get()->addProcedure("ZX2TS");
         }
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -705,7 +706,7 @@ unique_ptr<ArgParseCmdType> ZXGReadCmd() {
         parser.help("read a file and construct the corresponding ZXGraph");
 
         parser.addArgument<string>("filepath")
-            .constraint(file_exists)
+            .constraint(path_readable)
             .constraint(allowed_extension({".zx", ".bzx"}))
             .help("path to the ZX file. Supported extensions: .zx, .bzx");
 
@@ -726,7 +727,7 @@ unique_ptr<ArgParseCmdType> ZXGReadCmd() {
 
         auto bufferGraph = make_unique<ZXGraph>();
         if (!bufferGraph->readZX(filepath, doKeepID)) {
-            return CmdExecStatus::ERROR;
+            return CmdExecResult::ERROR;
         }
 
         if (doReplace) {
@@ -741,7 +742,7 @@ unique_ptr<ArgParseCmdType> ZXGReadCmd() {
         }
         zxGraphMgr.set(std::move(bufferGraph));
         zxGraphMgr.get()->setFileName(std::filesystem::path{filepath}.stem());
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -751,8 +752,9 @@ unique_ptr<ArgParseCmdType> ZXGWriteCmd() {
     auto cmd = make_unique<ArgParseCmdType>("ZXGWrite");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
+        parser.help("write the ZXGraph to a file");
         parser.addArgument<string>("filepath")
-            .constraint(dir_for_file_exists)
+            .constraint(path_writable)
             .constraint(allowed_extension({".zx", ".bzx", ".tikz", ".tex", ""}))
             .help("the path to the output ZX file");
 
@@ -770,20 +772,20 @@ unique_ptr<ArgParseCmdType> ZXGWriteCmd() {
         if (extension == ".zx" || extension == ".bzx" || extension == "") {
             if (!zxGraphMgr.get()->writeZX(filepath, doComplete)) {
                 cerr << "Error: fail to write ZXGraph to \"" << filepath << "\"!!\n";
-                return CmdExecStatus::ERROR;
+                return CmdExecResult::ERROR;
             }
         } else if (extension == ".tikz") {
             if (!zxGraphMgr.get()->writeTikz(filepath)) {
                 cerr << "Error: fail to write Tikz to \"" << filepath << "\"!!\n";
-                return CmdExecStatus::ERROR;
+                return CmdExecResult::ERROR;
             }
         } else if (extension == ".tex") {
             if (!zxGraphMgr.get()->writeTex(filepath)) {
                 cerr << "Error: fail to write tex to \"" << filepath << "\"!!\n";
-                return CmdExecStatus::ERROR;
+                return CmdExecResult::ERROR;
             }
         }
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -823,7 +825,7 @@ unique_ptr<ArgParseCmdType> ZXGAssignCmd() {
 
         if (!(isInput ? zxGraphMgr.get()->isInputQubit(qid) : zxGraphMgr.get()->isOutputQubit(qid))) {
             cerr << "Error: the specified boundary does not exist!!" << endl;
-            return CmdExecStatus::ERROR;
+            return CmdExecResult::ERROR;
         }
 
         auto vtype = str2VertexType(parser.get<std::string>("vtype"));
@@ -832,7 +834,7 @@ unique_ptr<ArgParseCmdType> ZXGAssignCmd() {
         Phase phase = parser["phase"];
         zxGraphMgr.get()->assignBoundary(qid, isInput, vtype.value(), phase);
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -850,7 +852,7 @@ unique_ptr<ArgParseCmdType> ZXGADjointCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         zxGraphMgr.get()->adjoint();
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;

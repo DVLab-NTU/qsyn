@@ -32,22 +32,17 @@ using namespace std;
  * @return true if correctly constructed the graph
  * @return false
  */
-bool ZXGraph::readZX(const string& filename, bool keepID) {
-    size_t extensionPosition = filename.find_last_of(".");
+bool ZXGraph::readZX(std::filesystem::path const& filepath, bool keepID) {
     // REVIEW - should we guard the case of no file extension?
-    if (extensionPosition != string::npos) {
-        string extensionString = filename.substr(extensionPosition);
-        if (
-            myStrNCmp(".zx", extensionString, 3) != 0 &&
-            myStrNCmp(".bzx", extensionString, 4) != 0) {  // backward compatibility
-            cerr << "Error: unsupported file extension \"" << extensionString << "\"!!" << endl;
+    if (filepath.has_extension()) {
+        if (filepath.extension() != ".zx" && filepath.extension() != ".bzx") {
+            cerr << "Error: unsupported file extension \"" << filepath.extension() << "\"!!" << endl;
             return false;
         }
     }
 
     ZXFileParser parser;
-    string lastname = filename.substr(filename.find_last_of('/') + 1);
-    return parser.parse(filename) && buildGraphFromParserStorage(parser.getStorage());
+    return parser.parse(filepath.string()) && buildGraphFromParserStorage(parser.getStorage());
 }
 
 /**

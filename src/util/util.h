@@ -11,6 +11,8 @@
 #include <concepts>
 #include <iosfwd>
 #include <memory>
+#include <optional>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -59,9 +61,10 @@ private:
 
 // In myString.cpp
 
-bool stripQuotes(const std::string& input, std::string& output);
+std::optional<std::string> stripQuotes(const std::string& str);
 std::string stripLeadingWhitespaces(std::string const& str);
 std::string stripWhitespaces(std::string const& str);
+bool isEscapedChar(std::string const& str, size_t pos);
 /**
  * @brief strip comment, which starts with "//", from a string
  *
@@ -70,10 +73,12 @@ std::string stripWhitespaces(std::string const& str);
  */
 inline std::string stripComments(std::string const& line) { return line.substr(0, line.find("//")); }
 std::string removeBracket(const std::string& str, const char left, const char right);
-int myStrNCmp(const std::string& s1, const std::string& s2, unsigned n);
-size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos = 0, const std::string& del = " \t\n\v\f\r");
-size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos, const char del);
-size_t myStrGetTok2(const std::string& str, std::string& tok, size_t pos = 0, const std::string& del = " \t\n\v\f\r");
+size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos = 0, const std::string& delim = " \t\n\v\f\r");
+size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos, const char delim);
+size_t myStrGetTok2(const std::string& str, std::string& tok, size_t pos = 0, const std::string& delim = " \t\n\v\f\r");
+
+std::vector<std::string> split(std::string const& str, std::string const& delim);
+std::string join(std::string const& infix, std::span<std::string> strings);
 
 template <class T>
 requires Arithmetic<T>

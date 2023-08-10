@@ -12,12 +12,12 @@
 #include <memory>
 #include <type_traits>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "stop_token.hpp"
 #include "zxRulesTemplate.hpp"
 
 extern size_t verbose;
-extern CmdParser cli;
+extern CommandLineInterface cli;
 
 class ZXGraph;
 

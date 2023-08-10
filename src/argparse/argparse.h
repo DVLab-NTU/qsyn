@@ -16,10 +16,10 @@
 #include <string>
 #include <variant>
 
+#include "fort.hpp"
 #include "myConcepts.h"
 #include "ordered_hashmap.h"
 #include "ordered_hashset.h"
-#include "tabler.h"
 #include "trie.h"
 #include "util.h"
 
@@ -58,16 +58,13 @@ public:
     static std::string requiredArgBracket(std::string const& str);
     static std::string optionalArgBracket(std::string const& str);
 
-    static void printHelpString(ArgumentParser parser, Argument const& arg);
-    static void printHelpString(ArgumentParser parser, SubParsers parsers);
+private:
+    static void printHelpString(ArgumentParser parser, fort::utf8_table& table, size_t max_help_string_width, Argument const& arg);
+    static void printHelpString(ArgumentParser parser, fort::utf8_table& table, size_t max_help_string_width, SubParsers parsers);
 };
 
 using ActionCallbackType = std::function<bool(TokensView)>;  // perform an action and return if it succeeds
-// using ConditionCallbackType = std::function<bool()>;
-// using ErrorCallbackType = std::function<void()>;                                     // function to call when some action fails
-// using ConstraintCallbackType = std::pair<ConditionCallbackType, ErrorCallbackType>;  // constraints are defined by an ActionCallbackType that
-//                                                                                      // returns true if the constraint is met, and an
-//                                                                                      // ErrorCallbackType that prints the error message if it does not.
+
 struct DummyArgType {
     friend std::ostream& operator<<(std::ostream& os, DummyArgType const& val) { return os << "dummy"; }
 };
@@ -224,8 +221,8 @@ private:
 };
 
 ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::string> choices);
-extern ArgType<std::string>::ConstraintType const file_exists;
-extern ArgType<std::string>::ConstraintType const dir_for_file_exists;
+extern ArgType<std::string>::ConstraintType const path_readable;
+extern ArgType<std::string>::ConstraintType const path_writable;
 ArgType<std::string>::ConstraintType starts_with(std::vector<std::string> const& prefixes);
 ArgType<std::string>::ConstraintType ends_with(std::vector<std::string> const& suffixes);
 ArgType<std::string>::ConstraintType allowed_extension(std::vector<std::string> const& extensions);
@@ -457,7 +454,7 @@ class ArgumentParser {
 
 public:
     ArgumentParser() : _pimpl{std::make_shared<ArgumentParserImpl>()} {}
-    ArgumentParser(std::string const& n) : _pimpl{std::make_shared<ArgumentParserImpl>()} {
+    ArgumentParser(std::string const& n) : ArgumentParser() {
         this->name(n);
     }
 
@@ -478,7 +475,7 @@ public:
         }
         std::cerr << "[ArgParse error] Argument name \"" << name
                   << "\" does not exist for command \""
-                  << _pimpl->formatter.styledCmdName(getName(), getNumRequiredChars()) << "\"\n";
+                  << formatter.styledCmdName(getName(), getNumRequiredChars()) << "\"\n";
         throw std::out_of_range{"Trying to access non-existent arguments"};
     }
 
@@ -497,9 +494,9 @@ public:
 
     void printTokens() const;
     void printArguments() const;
-    void printUsage() const { _pimpl->formatter.printUsage(*this); }
-    void printSummary() const { _pimpl->formatter.printSummary(*this); }
-    void printHelp() const { _pimpl->formatter.printHelp(*this); }
+    void printUsage() const { formatter.printUsage(*this); }
+    void printSummary() const { formatter.printSummary(*this); }
+    void printHelp() const { formatter.printHelp(*this); }
 
     // setters
 
@@ -533,6 +530,10 @@ public:
      * @return false
      */
     bool parseArgs(std::string const& line) { return tokenize(line) && parseArgs(_pimpl->tokens); }
+    bool parseArgs(std::vector<std::string> const& tokens) {
+        auto tmp = std::vector<Token>{tokens.begin(), tokens.end()};
+        return parseArgs(tmp);
+    }
     bool parseArgs(TokensView);
 
     /**
@@ -546,6 +547,10 @@ public:
     std::pair<bool, std::vector<Token>> parseKnownArgs(std::string const& line) {
         if (!tokenize(line)) return {false, {}};
         return parseKnownArgs(_pimpl->tokens);
+    }
+    std::pair<bool, std::vector<Token>> parseKnownArgs(std::vector<std::string> const& tokens) {
+        auto tmp = std::vector<Token>{tokens.begin(), tokens.end()};
+        return parseKnownArgs(tmp);
     }
     std::pair<bool, std::vector<Token>> parseKnownArgs(TokensView);
     bool analyzeOptions() const;
@@ -566,13 +571,12 @@ private:
         std::string help;
         size_t numRequiredChars;
 
-        dvlab_utils::Tabler tabl;
-
         // members for analyzing parser options
         dvlab_utils::Trie mutable trie;
         bool mutable optionsAnalyzed;
-        Formatter formatter;
     };
+
+    static Formatter formatter;
 
     std::shared_ptr<ArgumentParserImpl> _pimpl;
 

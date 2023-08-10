@@ -8,7 +8,7 @@
 
 #include <cassert>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "optimizer.h"
 #include "qcir.h"
 #include "qcirGate.h"

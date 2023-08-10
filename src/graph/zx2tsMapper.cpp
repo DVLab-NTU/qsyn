@@ -9,7 +9,7 @@
 
 #include <cassert>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "tensorMgr.h"
 #include "textFormat.h"
 #include "zxGraph.h"

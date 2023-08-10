@@ -141,27 +141,6 @@ bool ArgumentParser::analyzeOptions() const {
         }
     }
 
-    // calculate tabler info
-
-    vector<size_t> widths = {0, 0, 0, 0};
-
-    for (auto& [name, arg] : _pimpl->arguments) {
-        if (arg.getTypeString().size() >= widths[0]) {
-            widths[0] = arg.getTypeString().size();
-        }
-        if (arg.getName().size() >= widths[1]) {
-            widths[1] = arg.getName().size();
-        }
-        if (arg.getMetavar().size() >= widths[2]) {
-            widths[2] = arg.getMetavar().size();
-        }
-    }
-
-    _pimpl->tabl.presetStyle(dvlab_utils::Tabler::PresetStyle::ASCII_MINIMAL)
-        .indent(1)
-        .rightMargin(2)
-        .widths(widths);
-
     _pimpl->optionsAnalyzed = true;
     return true;
 }
@@ -175,23 +154,23 @@ bool ArgumentParser::analyzeOptions() const {
  */
 bool ArgumentParser::tokenize(string const& line) {
     _pimpl->tokens.clear();
-    string buffer, stripped;
-    if (!stripQuotes(line, stripped)) {
+    auto stripped = stripQuotes(line);
+    if (!stripped.has_value()) {
         cerr << "Error: missing ending quote!!" << endl;
         return false;
     }
-    size_t pos = myStrGetTok(stripped, buffer);
-    while (buffer.size()) {
-        _pimpl->tokens.emplace_back(buffer);
-        pos = myStrGetTok(stripped, buffer, pos);
+
+    for (auto&& tmp : split(line, " ")) {
+        _pimpl->tokens.emplace_back(tmp);
     }
+
     if (_pimpl->tokens.empty()) return true;
     // concat tokens with '\ ' to a single token with space in it
     for (auto itr = next(_pimpl->tokens.rbegin()); itr != _pimpl->tokens.rend(); ++itr) {
         string& currToken = itr->token;
         string& nextToken = prev(itr)->token;
 
-        if (currToken.ends_with('\\')) {
+        if (currToken.ends_with('\\') && !currToken.ends_with("\\\\")) {
             currToken.back() = ' ';
             currToken += nextToken;
             nextToken = "";
@@ -288,7 +267,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::parseKnownArgs(TokensView to
             unrecognized.insert(unrecognized.end(), subparser_unrecognized.begin(), subparser_unrecognized.end());
         } else if (_pimpl->subparsers->isRequired()) {
             cerr << "Error: missing mandatory subparser argument: "
-                 << _pimpl->formatter.getSyntaxString(_pimpl->subparsers.value())
+                 << formatter.getSyntaxString(_pimpl->subparsers.value())
                  << endl;
             return {false, {}};
         }

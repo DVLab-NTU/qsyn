@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "cmdParser.h"
+#include "cli.h"
 
 using namespace std;
 
@@ -35,12 +35,12 @@ bool ArgParseCmdType::initialize() {
  * @return true if succeeded
  * @return false if failed
  */
-CmdExecStatus ArgParseCmdType::exec(const std::string& option) {
+CmdExecResult ArgParseCmdType::exec(const std::string& option) {
     if (precondition && !precondition()) {
-        return CmdExecStatus::ERROR;
+        return CmdExecResult::ERROR;
     }
     if (!_parser.parseArgs(option)) {
-        return CmdExecStatus::ERROR;
+        return CmdExecResult::ERROR;
     }
 
     return onParseSuccess(_parser);

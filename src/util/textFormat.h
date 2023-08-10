@@ -13,6 +13,7 @@
 
 namespace TextFormat {
 
+std::string decorate(std::string const& str, const std::string& code);
 std::string decorate(std::string const& str, const size_t& code);
 std::string setFormat(const std::string& str, const size_t& code);
 
@@ -60,6 +61,8 @@ std::string LIGHT_BG_BLUE(const std::string& str);
 std::string LIGHT_BG_MAGENTA(const std::string& str);
 std::string LIGHT_BG_CYAN(const std::string& str);
 std::string LIGHT_BG_WHITE(const std::string& str);
+
+std::string LS_COLOR(std::string const& basename, std::string const& dirname);
 
 };  // namespace TextFormat
 

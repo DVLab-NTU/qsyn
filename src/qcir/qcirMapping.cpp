@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <thread>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "qcir.h"
 #include "qcirGate.h"
 #include "qcirQubit.h"

@@ -6,9 +6,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <stdlib.h>
-
 #include <cassert>
+#include <cstdlib>
 #include <string>
 
 #include "qcir.h"

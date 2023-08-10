@@ -33,7 +33,7 @@ bool initGFlowCmd() {
 //----------------------------------------------------------------------
 //    ZXGGFlow [-All | -Summary | -Levels | -CorrectionSets] [-Disjoint]
 //----------------------------------------------------------------------
-CmdExecStatus
+CmdExecResult
 ZXGGFlowCmd::exec(const string &option) {
     enum class GFLOW_PRINT_MODE {
         ALL,

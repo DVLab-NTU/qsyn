@@ -1,18 +1,17 @@
 /****************************************************************************
-  FileName     [ cmdCommon.cpp ]
-  PackageName  [ cmd ]
-  Synopsis     [ Define common commands ]
+  FileName     [ cliCmd.cpp ]
+  PackageName  [ cli ]
+  Synopsis     [ Define common commands for any CLI ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include <stdlib.h>
-
 #include <cstddef>
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <string>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "myUsage.h"
 #include "util.h"
 
@@ -20,8 +19,6 @@ using namespace std;
 extern size_t verbose;
 extern size_t colorLevel;
 extern MyUsage myUsage;
-
-void clearConsole();
 
 using namespace ArgParse;
 
@@ -70,11 +67,11 @@ unique_ptr<ArgParseCmdType> helpCmd() {
             CmdExec* e = cli.getCmd(parser["command"]);
             if (!e) {
                 cerr << "Error: Illegal command!! (" << parser["command"] << ")\n";
-                return CmdExecStatus::ERROR;
+                return CmdExecResult::ERROR;
             }
             e->help();
         }
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -93,7 +90,7 @@ unique_ptr<ArgParseCmdType> quitCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         bool forced = parser["-force"];
-        if (forced) return CmdExecStatus::QUIT;
+        if (forced) return CmdExecResult::QUIT;
 
         cout << "Are you sure to quit (Yes/No)? [No] ";
         char str[1024];
@@ -102,10 +99,10 @@ unique_ptr<ArgParseCmdType> quitCmd() {
         size_t s = ss.find_first_not_of(' ', 0);
         if (s != string::npos) {
             ss = ss.substr(s);
-            if (myStrNCmp("Yes", ss, 1) == 0)
-                return CmdExecStatus::QUIT;  // ready to quit
+            if ("Yes"s.starts_with(toLowerString(ss)))
+                return CmdExecResult::QUIT;  // ready to quit
         }
-        return CmdExecStatus::DONE;  // not yet to quit
+        return CmdExecResult::DONE;  // not yet to quit
     };
 
     return cmd;
@@ -127,7 +124,7 @@ unique_ptr<ArgParseCmdType> historyCmd() {
         } else {
             cli.printHistory();
         }
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -140,17 +137,17 @@ unique_ptr<ArgParseCmdType> dofileCmd() {
         parser.help("execute the commands in the dofile");
 
         parser.addArgument<string>("file")
-            .constraint(file_exists)
+            .constraint(path_readable)
             .help("path to a dofile, i.e., a list of Qsyn commands");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (!cli.openDofile(parser["file"])) {
             cerr << "Error: cannot open file \"" << parser["file"] << "\"!!" << endl;
-            return CmdExecStatus::ERROR;
+            return CmdExecResult::ERROR;
         }
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -186,7 +183,7 @@ unique_ptr<ArgParseCmdType> usageCmd() {
 
         myUsage.report(repTime, repMem);
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -211,7 +208,7 @@ unique_ptr<ArgParseCmdType> verboseCmd() {
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         verbose = parser["level"];
         cout << "Note: verbose level is set to " << parser["level"] << endl;
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -232,7 +229,7 @@ unique_ptr<ArgParseCmdType> seedCmd() {
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         srand(parser["seed"]);
         cout << "Note: seed is set to " << parser["seed"] << endl;
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -254,7 +251,7 @@ unique_ptr<ArgParseCmdType> colorCmd() {
         colorLevel = (mode == "on") ? 1 : 0;
         cout << "Note: color mode is set to " << mode << endl;
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -268,9 +265,9 @@ unique_ptr<ArgParseCmdType> clearCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        clearConsole();
+        cli.clearConsole();
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;

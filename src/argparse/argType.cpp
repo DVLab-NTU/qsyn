@@ -41,10 +41,10 @@ std::string typeString(bool) { return "bool"; }
 std::string typeString(DummyArgType) { return "dummy"; }
 
 bool parseFromString(bool& val, std::string const& token) {
-    if (myStrNCmp("true", token, 1) == 0) {
+    if ("true"s.starts_with(toLowerString(token))) {
         val = true;
         return true;
-    } else if (myStrNCmp("false", token, 1) == 0) {
+    } else if ("false"s.starts_with(toLowerString(token))) {
         val = false;
         return true;
     }
@@ -94,15 +94,16 @@ ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::strin
     return {constraint, error};
 }
 
-ArgType<std::string>::ConstraintType const file_exists = {
+ArgType<std::string>::ConstraintType const path_readable = {
     [](std::string const& filepath) {
-        return std::filesystem::exists(filepath);
+        namespace fs = std::filesystem;
+        return fs::exists(filepath);
     },
     [](std::string const& filepath) {
         std::cerr << "Error: the file \"" << filepath << "\" does not exist!!" << std::endl;
     }};
 
-ArgType<std::string>::ConstraintType const dir_for_file_exists = {
+ArgType<std::string>::ConstraintType const path_writable = {
     [](std::string const& filepath) {
         size_t lastSlash = filepath.find_last_of('/');
         if (lastSlash == std::string::npos) return std::filesystem::exists(".");

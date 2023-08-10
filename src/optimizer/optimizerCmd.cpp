@@ -10,7 +10,7 @@
 #include <iostream>
 #include <string>
 
-#include "cmdParser.h"
+#include "cli.h"
 #include "optimizer.h"
 #include "qcir.h"
 #include "qcirCmd.h"
@@ -74,7 +74,7 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
         }
         if (result == nullptr) {
             cout << "Error: fail to optimize circuit." << endl;
-            return CmdExecStatus::ERROR;
+            return CmdExecResult::ERROR;
         }
         auto name = qcirMgr.get()->getFileName();
         auto procedures = qcirMgr.get()->getProcedures();
@@ -93,7 +93,7 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
         qcirMgr.get()->addProcedures(procedures);
         qcirMgr.get()->addProcedure(procedure_str);
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
     return cmd;
 }
