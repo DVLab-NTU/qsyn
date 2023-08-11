@@ -5,8 +5,7 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef Q_TENSOR_H
-#define Q_TENSOR_H
+#pragma once
 
 #include "./tensor.hpp"
 #include "util/phase.hpp"
@@ -419,4 +418,3 @@ typename QTensor<T>::DataType QTensor<T>::nuPow(const int& n) {
     return std::pow(2., -0.25 * n);
 }
 
-#endif  // Q_TENSOR_H

@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef DVLAB_UTILS_TRIE_H
-#define DVLAB_UTILS_TRIE_H
+#pragma once
 
 #include <array>
 #include <memory>
@@ -105,4 +104,3 @@ private:
 
 }  // namespace dvlab_utils
 
-#endif  // DVLAB_UTILS_TRIE_H

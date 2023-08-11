@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ zxIO.cpp ]
-  PackageName  [ graph ]
+  PackageName  [ zx ]
   Synopsis     [ Define class ZXGraph Reader/Writer functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]

@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef DVLAB_TEMP_FILES_H
-#define DVLAB_TEMP_FILES_H
+#pragma once
 
 #include <cassert>
 #include <filesystem>
@@ -52,4 +51,3 @@ private:
 
 }  // namespace dvlab_utils
 
-#endif  // DVLAB_TEMP_FILES_H

@@ -18,9 +18,7 @@
 #include "util/myUsage.hpp"
 #include "util/util.hpp"
 
-#ifndef QSYN_VERSION
-#define QSYN_VERSION "0.5.1"
-#endif
+#pragma once
 
 using namespace std;
 

@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef MPEQCHECKER_H
-#define MPEQCHECKER_H
+#pragma once
 
 #include <cstddef>
 #include <optional>
@@ -38,4 +37,3 @@ private:
     std::unordered_map<size_t, QCirGate*> _dependency;
 };
 
-#endif

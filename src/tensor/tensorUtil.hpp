@@ -5,8 +5,7 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef TENSOR_UTIL_H
-#define TENSOR_UTIL_H
+#pragma once
 
 #include <cstddef>
 #include <vector>
@@ -21,4 +20,3 @@ void printAxisList(const TensorAxisList& ax);
 
 bool isDisjoint(const TensorAxisList& ax1, const TensorAxisList& ax2);
 
-#endif  // TENSOR_UTIL_H

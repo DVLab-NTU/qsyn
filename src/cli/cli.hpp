@@ -5,8 +5,7 @@
   Author       [ Design Verification Lab, Chia-Hsu Chuang ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef CMD_PARSER_H
-#define CMD_PARSER_H
+#pragma once
 
 #include <fstream>
 #include <iostream>
@@ -198,4 +197,4 @@ private:
     std::vector<std::string> _arguments;                      // stores the extra dofile arguments given when invoking the program
 };
 
-#endif  // CMD_PARSER_H
+

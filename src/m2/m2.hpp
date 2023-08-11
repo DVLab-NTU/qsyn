@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef M2_H
-#define M2_H
+#pragma once
 
 #include <cstddef>
 #include <utility>
@@ -98,4 +97,3 @@ private:
     std::vector<Oper> _opStorage;
 };
 
-#endif  // M2_H

@@ -5,8 +5,7 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef TENSOR_BASE_CLASS_H
-#define TENSOR_BASE_CLASS_H
+#pragma once
 
 #include <cassert>
 #include <complex>
@@ -333,4 +332,4 @@ bool isPartition(const Tensor<U>& t, const TensorAxisList& axin, const TensorAxi
     return true;
 }
 
-#endif  // TENSOR_BASE_CLASS_H
+

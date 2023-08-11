@@ -66,8 +66,7 @@
  *
  ****************************************************************************/
 
-#ifndef ORDERED_HASHSET_H
-#define ORDERED_HASHSET_H
+#pragma once
 
 #include "./ordered_hashtable.hpp"
 
@@ -111,4 +110,3 @@ public:
 
 static_assert(std::ranges::bidirectional_range<ordered_hashset<int>>);
 
-#endif  // ORDERED_HASHSET_H

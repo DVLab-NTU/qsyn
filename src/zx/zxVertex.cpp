@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ zxVertex.cpp ]
-  PackageName  [ graph ]
+  PackageName  [ zx ]
   Synopsis     [ Define class ZXVertex member functions and VT/ET functions]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]

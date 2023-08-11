@@ -5,8 +5,7 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef QSYN_UTIL_H
-#define QSYN_UTIL_H
+#pragma once
 
 #include <concepts>
 #include <iosfwd>
@@ -128,5 +127,3 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& v) {
     }
     return os << v.back() << "]";
 }
-
-#endif  // QSYN_UTIL_H

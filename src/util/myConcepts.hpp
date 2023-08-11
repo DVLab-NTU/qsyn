@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef MY_CONCEPTS_H
-#define MY_CONCEPTS_H
+#pragma once
 
 #include <array>
 #include <concepts>
@@ -43,4 +42,3 @@ concept Printable = requires(T t) {
 template <typename T>
 concept PrintableButNotStringLike = Printable<T> && !StringLike<T>;
 
-#endif  // MY_CONCEPTS_H

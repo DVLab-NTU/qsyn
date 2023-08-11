@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef QCIR_QUBIT_H
-#define QCIR_QUBIT_H
+#pragma once
 
 #include <cstddef>
 
@@ -41,4 +40,3 @@ private:
     QCirGate* _bitFirst;
 };
 
-#endif  // QCIR_QUBIT_H

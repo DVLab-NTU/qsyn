@@ -5,8 +5,7 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef GFLOW_H
-#define GFLOW_H
+#pragma once
 
 #include <unordered_map>
 #include <vector>
@@ -90,4 +89,3 @@ private:
 
 std::ostream& operator<<(std::ostream& os, GFlow::MeasurementPlane const& plane);
 
-#endif  // GFLOW_H

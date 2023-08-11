@@ -1,13 +1,12 @@
 /****************************************************************************
   FileName     [ zxFileReader.h ]
-  PackageName  [ graph ]
+  PackageName  [ zx ]
   Synopsis     [ Define zxFileParser structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef ZX_FILE_PARSER_H
-#define ZX_FILE_PARSER_H
+#pragma once
 
 #include <cstddef>
 #include <iosfwd>
@@ -49,4 +48,3 @@ private:
     void printFailedAtLineNum() const;
 };
 
-#endif  // ZX_FILE_PARSER_H

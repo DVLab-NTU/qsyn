@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef DEVICE_MGR_H
-#define DEVICE_MGR_H
+#pragma once
 
 #include <cstddef>
 #include <optional>
@@ -74,4 +73,4 @@ private:
     DeviceList::iterator _topoListItr;
 };
 
-#endif  // DEVICE_MGR_H
+

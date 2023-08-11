@@ -18,8 +18,7 @@
  *
  ****************************************************************************/
 
-#ifndef ORDERED_HASHTABLE_H
-#define ORDERED_HASHTABLE_H
+#pragma once
 
 #include <algorithm>
 #include <iterator>
@@ -345,4 +344,3 @@ void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sort(F lambda) {
     }
 }
 
-#endif  // ORDERED_HASHTABLE_H

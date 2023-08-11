@@ -1,13 +1,12 @@
 /****************************************************************************
   FileName     [ zxDef.h ]
-  PackageName  [ graph ]
+  PackageName  [ zx ]
   Synopsis     [ Define basic data or var for graph package ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef ZX_DEF_H
-#define ZX_DEF_H
+#pragma once
 
 #include <functional>
 #include <iosfwd>
@@ -129,4 +128,4 @@ std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::os
     return stream << static_cast<typename std::underlying_type<T>::type>(e);
 }
 
-#endif  // ZX_DEF_H
+

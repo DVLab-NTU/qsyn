@@ -1,12 +1,11 @@
 /****************************************************************************
   FileName     [ zx2tsMapper.h ]
-  PackageName  [ graph ]
+  PackageName  [ zx ]
   Synopsis     [ Define class ZX-to-Tensor Mapper structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef ZX2TS_MAPPER_H
-#define ZX2TS_MAPPER_H
+#pragma once
 
 #include <cstddef>
 #include <vector>
@@ -87,4 +86,4 @@ private:
 
 QTensor<double> getTSform(ZXVertex* v);
 
-#endif  // ZX2TS_MAPPER_H
+

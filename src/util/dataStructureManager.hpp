@@ -5,8 +5,7 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef DVLAB_DATA_STRUCTURE_MANAGER_H
-#define DVLAB_DATA_STRUCTURE_MANAGER_H
+#pragma once
 
 #include <iomanip>
 #include <iostream>
@@ -201,4 +200,3 @@ private:
 
 }  // namespace dvlab_utils
 
-#endif  // DVLAB_DATA_STRUCTURE_MANAGER_H

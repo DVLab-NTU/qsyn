@@ -7,8 +7,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef PLACER_H
-#define PLACER_H
+#pragma once
 
 #include <memory>
 #include <random>
@@ -58,4 +57,3 @@ private:
 
 std::unique_ptr<BasePlacer> getPlacer();
 
-#endif

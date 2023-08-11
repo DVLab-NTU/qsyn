@@ -7,8 +7,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef ROUTER_H
-#define ROUTER_H
+#pragma once
 
 #include <queue>
 #include <string>
@@ -78,4 +77,3 @@ private:
     std::vector<Operation> traceback([[maybe_unused]] GateType op, size_t, Phase ph, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool, bool);
 };
 
-#endif

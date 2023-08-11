@@ -67,8 +67,7 @@
  *
  ****************************************************************************/
 
-#ifndef ORDERED_HASHMAP_H
-#define ORDERED_HASHMAP_H
+#pragma once
 
 #include <utility>
 
@@ -229,4 +228,3 @@ T& ordered_hashmap<Key, T, Hash, KeyEqual>::operator[](Key&& key) {
     return at(key);
 }
 
-#endif  // ORDERED_HASHMAP_H

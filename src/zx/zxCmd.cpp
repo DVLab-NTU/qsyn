@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ zxCmd.cpp ]
-  PackageName  [ graph ]
+  PackageName  [ zx ]
   Synopsis     [ Define zx package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]

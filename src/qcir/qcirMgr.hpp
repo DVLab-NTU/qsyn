@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef QCIR_MGR_H
-#define QCIR_MGR_H
+#pragma once
 
 #include <cstddef>
 #include <vector>
@@ -21,4 +20,4 @@ extern QCirMgr qcirMgr;
 
 bool qcirMgrNotEmpty(std::string const& command);
 
-#endif  // QCIR_MGR_H
+

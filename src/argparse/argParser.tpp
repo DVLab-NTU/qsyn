@@ -5,8 +5,7 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef ARGPARSE_ARGPARSER_TPP
-#define ARGPARSE_ARGPARSER_TPP
+#pragma once
 
 #include "argparse/argparse.hpp"
 
@@ -84,5 +83,3 @@ ArgumentParser::operator_bracket_impl(ArgT&& arg, std::string const& name) {
 }
 
 }  // namespace ArgParse
-
-#endif

@@ -5,8 +5,7 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef CMD_CHAR_DEF_H
-#define CMD_CHAR_DEF_H
+#pragma once
 
 #include <climits>
 #include <type_traits>
@@ -74,4 +73,4 @@ constexpr int BEEP_CHAR = 7;
 constexpr int BACK_SPACE_CHAR = 8;
 };  // namespace KeyCode
 
-#endif  // CMD_CHAR_DEF_H
+

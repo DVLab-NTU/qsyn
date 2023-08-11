@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef QCIR_GATE_H
-#define QCIR_GATE_H
+#pragma once
 
 #include <cstddef>
 #include <string>
@@ -536,4 +535,3 @@ public:
     virtual void printGateInfo(bool st) const { printSingleQubitGate("RY", st); }
 };
 
-#endif  // QCIR_GATE_H

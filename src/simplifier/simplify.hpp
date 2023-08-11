@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef SIMPLIFY_H
-#define SIMPLIFY_H
+#pragma once
 
 #include <memory>
 #include <type_traits>
@@ -137,4 +136,4 @@ private:
     std::vector<std::tuple<std::string, std::vector<int> > > _recipe;
 };
 
-#endif
+

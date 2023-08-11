@@ -5,8 +5,7 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef TENSOR_MGR_H
-#define TENSOR_MGR_H
+#pragma once
 
 #include <iosfwd>
 #include <map>
@@ -20,4 +19,3 @@ class QTensor;
 
 using TensorMgr = dvlab_utils::DataStructureManager<QTensor<double>>;
 
-#endif  // TENSOR_MGR_H

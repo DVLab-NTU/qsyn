@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef QCIR_OPTIMIZE_H
-#define QCIR_OPTIMIZE_H
+#pragma once
 
 #include <cstddef>
 #include <set>
@@ -95,4 +94,4 @@ private:
     size_t CX2CZ;
 };
 
-#endif
+

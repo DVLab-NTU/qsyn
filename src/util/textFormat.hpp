@@ -5,8 +5,7 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef QSYN_TEXT_FORMAT_H
-#define QSYN_TEXT_FORMAT_H
+#pragma once
 
 #include <functional>
 #include <string>
@@ -66,4 +65,4 @@ std::string LS_COLOR(std::string const& basename, std::string const& dirname);
 
 };  // namespace TextFormat
 
-#endif  // QSYN_TEXT_FORMAT_H
+

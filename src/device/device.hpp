@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef DEVICE_H
-#define DEVICE_H
+#pragma once
 
 #include <cstddef>
 #include <string>
@@ -221,4 +220,3 @@ private:
 
 std::ostream& operator<<(std::ostream&, const Operation&);
 
-#endif  // DEVICE_H

@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ zx2tsMapper.cpp ]
-  PackageName  [ graph ]
+  PackageName  [ zx ]
   Synopsis     [ Define class ZX-to-Tensor Mapper member functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]

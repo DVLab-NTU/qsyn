@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef QCIR_H
-#define QCIR_H
+#pragma once
 
 #include <cstddef>
 #include <span>
@@ -200,4 +199,4 @@ private:
     std::vector<ZXGraph*> _ZXGraphList;
 };
 
-#endif  // QCIR_MGR_H
+

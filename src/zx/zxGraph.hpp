@@ -1,13 +1,12 @@
 /****************************************************************************
   FileName     [ zxGraph.h ]
-  PackageName  [ graph ]
+  PackageName  [ zx ]
   Synopsis     [ Define class ZXGraph structures ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef ZX_GRAPH_H
-#define ZX_GRAPH_H
+#pragma once
 
 #include <cstddef>
 #include <filesystem>
@@ -388,4 +387,4 @@ private:
     void moveVerticesFrom(ZXGraph& g);
 };
 
-#endif  // ZX_GRAPH_H
+

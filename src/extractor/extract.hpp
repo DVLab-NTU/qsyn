@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef EXTRACT_H
-#define EXTRACT_H
+#pragma once
 
 #include <cstddef>
 #include <optional>
@@ -101,4 +100,4 @@ private:
     std::vector<size_t> _initialPlacement;
 };
 
-#endif
+

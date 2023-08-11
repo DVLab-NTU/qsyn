@@ -7,8 +7,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef CHECKER_H
-#define CHECKER_H
+#pragma once
 
 #include "device/device.hpp"
 
@@ -36,4 +35,3 @@ private:
     bool _tqdm;
 };
 
-#endif

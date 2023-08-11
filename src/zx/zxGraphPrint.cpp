@@ -1,6 +1,6 @@
 /****************************************************************************
   FileName     [ zxGraphPrint.cpp ]
-  PackageName  [ graph ]
+  PackageName  [ zx ]
   Synopsis     [ Define class ZXGraph Print functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]

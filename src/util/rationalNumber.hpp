@@ -5,8 +5,7 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef RATIONAL_NUM_H
-#define RATIONAL_NUM_H
+#pragma once
 
 #include <cassert>
 #include <cmath>
@@ -113,4 +112,4 @@ Rational Rational::toRational(T f, T eps) {
     }
 }
 
-#endif  // RATIONAL_NUM_H
+

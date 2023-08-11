@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef QSYN_UTIL_PHASE_H
-#define QSYN_UTIL_PHASE_H
+#pragma once
 
 #include <cmath>
 #include <iosfwd>
@@ -207,4 +206,3 @@ bool Phase::myStr2Phase(const std::string& str, Phase& p) {
     return true;
 }
 
-#endif  // QSYN_UTIL_PHASE_H

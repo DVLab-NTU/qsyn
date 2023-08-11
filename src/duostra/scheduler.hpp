@@ -7,8 +7,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef SCHEDULER_H
-#define SCHEDULER_H
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -186,4 +185,4 @@ protected:
 
 std::unique_ptr<BaseScheduler> getScheduler(std::unique_ptr<CircuitTopo>, bool = true);
 
-#endif
+

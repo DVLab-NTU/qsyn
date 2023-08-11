@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef QSYN_UTIL_PHASE_ARGPARSE_H
-#define QSYN_UTIL_PHASE_ARGPARSE_H
+#pragma once
 
 #include <string>
 
@@ -24,4 +23,3 @@ inline bool parseFromString(Phase& phase, std::string const& token) {
 
 #include "argparse/argparse.hpp"
 
-#endif  // QSYN_UTIL_PHASE_ARGPARSE_H

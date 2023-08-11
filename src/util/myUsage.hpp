@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef MY_USAGE_H
-#define MY_USAGE_H
+#pragma once
 
 #include <sys/resource.h>
 #include <sys/times.h>
@@ -57,4 +56,4 @@ private:
     }
 };
 
-#endif  // MY_USAGE_H
+

@@ -5,8 +5,7 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef ARGPARSE_ARGPARSE_H
-#define ARGPARSE_ARGPARSE_H
+#pragma once
 
 #include <functional>
 #include <iostream>
@@ -624,5 +623,3 @@ private:
 #include "./argParser.tpp"
 #include "./argType.tpp"
 #include "./argument.tpp"
-
-#endif  // ARGPARSE_ARGPARSE_H

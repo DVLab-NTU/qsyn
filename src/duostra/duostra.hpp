@@ -7,8 +7,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef DUOSTRA_H
-#define DUOSTRA_H
+#pragma once
 
 #include "./scheduler.hpp"
 #include "device/device.hpp"
@@ -56,4 +55,4 @@ size_t getSchedulerType(std::string);
 size_t getRouterType(std::string);
 size_t getPlacerType(std::string);
 
-#endif
+

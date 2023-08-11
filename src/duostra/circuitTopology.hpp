@@ -7,8 +7,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef CIRCUIT_TOPOLOGY_H
-#define CIRCUIT_TOPOLOGY_H
+#pragma once
 
 #include <cassert>
 #include <climits>
@@ -97,4 +96,3 @@ protected:
     std::unordered_map<size_t, size_t> _executedGates;
 };
 
-#endif

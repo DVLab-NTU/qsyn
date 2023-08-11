@@ -1,13 +1,12 @@
 /**************************************************
   FileName     [ zxPartition.h ]
-  PackageName  [ graph ]
+  PackageName  [ zx ]
   Synopsis     [ Implements the split function ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef ZX_PARTITION_H
-#define ZX_PARTITION_H
+#pragma once
 
 #include <vector>
 
@@ -15,4 +14,4 @@
 
 std::vector<ZXVertexList> klPartition(const ZXGraph& graph, size_t numPartitions);
 
-#endif
+

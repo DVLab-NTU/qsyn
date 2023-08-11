@@ -6,8 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#ifndef LATTICE_H
-#define LATTICE_H
+#pragma once
 
 #include <cstddef>
 #include <vector>
@@ -81,4 +80,3 @@ struct hash<pair<int, int>> {
 
 }  // namespace std
 
-#endif
