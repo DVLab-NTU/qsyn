@@ -534,4 +534,3 @@ public:
     virtual QTensor<double> getTSform() const { return QTensor<double>::rygate(_rotatePhase); }
     virtual void printGateInfo(bool st) const { printSingleQubitGate("RY", st); }
 };
-

@@ -93,5 +93,3 @@ private:
     size_t CZ2CX;
     size_t CX2CZ;
 };
-
-

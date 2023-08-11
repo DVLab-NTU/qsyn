@@ -11,4 +11,3 @@
 #include "cli/cli.hpp"
 
 extern ArgParse::ArgType<size_t>::ConstraintType const validZXGraphId;
-

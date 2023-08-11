@@ -198,5 +198,3 @@ private:
     std::vector<QCirGate*> mutable _topoOrder;
     std::vector<ZXGraph*> _ZXGraphList;
 };
-
-

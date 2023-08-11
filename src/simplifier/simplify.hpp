@@ -135,5 +135,3 @@ private:
     ZXGraph* _simpGraph;
     std::vector<std::tuple<std::string, std::vector<int> > > _recipe;
 };
-
-

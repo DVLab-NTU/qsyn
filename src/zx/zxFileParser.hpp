@@ -47,4 +47,3 @@ private:
 
     void printFailedAtLineNum() const;
 };
-

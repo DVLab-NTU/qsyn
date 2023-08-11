@@ -55,5 +55,3 @@ private:
         _currentTick = thisTick;
     }
 };
-
-

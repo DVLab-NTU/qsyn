@@ -184,5 +184,3 @@ protected:
 };
 
 std::unique_ptr<BaseScheduler> getScheduler(std::unique_ptr<CircuitTopo>, bool = true);
-
-

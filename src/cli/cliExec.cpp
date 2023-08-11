@@ -10,13 +10,13 @@
 #include <cstddef>
 #include <cstdlib>
 #include <filesystem>
+#include <fort.hpp>
 #include <fstream>
 #include <iostream>
 #include <regex>
 #include <thread>
 
 #include "cli/cli.hpp"
-#include "fort.hpp"
 #include "unicode/display_width.hpp"
 #include "util/terminalSize.hpp"
 #include "util/textFormat.hpp"

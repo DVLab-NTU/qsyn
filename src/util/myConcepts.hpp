@@ -41,4 +41,3 @@ concept Printable = requires(T t) {
 
 template <typename T>
 concept PrintableButNotStringLike = Printable<T> && !StringLike<T>;
-

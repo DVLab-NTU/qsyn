@@ -109,4 +109,3 @@ public:
 };
 
 static_assert(std::ranges::bidirectional_range<ordered_hashset<int>>);
-

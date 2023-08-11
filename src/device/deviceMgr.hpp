@@ -72,5 +72,3 @@ private:
     DeviceList _topoList;
     DeviceList::iterator _topoListItr;
 };
-
-

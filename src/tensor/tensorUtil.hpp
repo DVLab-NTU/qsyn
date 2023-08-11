@@ -19,4 +19,3 @@ TensorAxisList concatAxisList(const TensorAxisList& ax1, const TensorAxisList& a
 void printAxisList(const TensorAxisList& ax);
 
 bool isDisjoint(const TensorAxisList& ax1, const TensorAxisList& ax2);
-

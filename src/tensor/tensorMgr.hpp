@@ -18,4 +18,3 @@ template <typename T>
 class QTensor;
 
 using TensorMgr = dvlab_utils::DataStructureManager<QTensor<double>>;
-

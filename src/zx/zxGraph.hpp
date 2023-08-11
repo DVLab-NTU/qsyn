@@ -386,5 +386,3 @@ private:
 
     void moveVerticesFrom(ZXGraph& g);
 };
-
-

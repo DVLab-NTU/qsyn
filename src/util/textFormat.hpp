@@ -64,5 +64,3 @@ std::string LIGHT_BG_WHITE(const std::string& str);
 std::string LS_COLOR(std::string const& basename, std::string const& dirname);
 
 };  // namespace TextFormat
-
-

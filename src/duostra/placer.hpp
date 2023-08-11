@@ -56,4 +56,3 @@ private:
 };
 
 std::unique_ptr<BasePlacer> getPlacer();
-

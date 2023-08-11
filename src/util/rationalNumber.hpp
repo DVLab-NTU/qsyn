@@ -111,5 +111,3 @@ Rational Rational::toRational(T f, T eps) {
         med = mediant(lower, upper);
     }
 }
-
-

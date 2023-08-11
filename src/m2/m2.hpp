@@ -96,4 +96,3 @@ private:
     std::vector<Row> _matrix;
     std::vector<Oper> _opStorage;
 };
-

@@ -13,5 +13,3 @@
 #include "./zxDef.hpp"
 
 std::vector<ZXVertexList> klPartition(const ZXGraph& graph, size_t numPartitions);
-
-
