@@ -104,6 +104,35 @@ public:
         return iterations;
     }
 
+    template <typename Rule>
+    size_t scopedSimplify(const Rule& rule, const ZXVertexList& scope) {
+        static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
+
+        std::vector<int> match_counts;
+
+        size_t iterations = 0;
+        while (!cli.stop_requested()) {
+            std::vector<typename Rule::MatchType> matches = rule.findMatches(*_simpGraph);
+            std::vector<typename Rule::MatchType> scoped_matches;
+            auto isInScope = [&scope](ZXVertex* v) { return scope.contains(v); };
+            for (auto& match : matches) {
+                std::vector<ZXVertex*> matchVertices = rule.flattenVertices(match);
+                if (std::any_of(matchVertices.begin(), matchVertices.end(), isInScope)) {
+                    scoped_matches.push_back(match);
+                }
+            }
+            if (matches.empty()) {
+                break;
+            }
+            match_counts.emplace_back(matches.size());
+            iterations++;
+
+            rule.apply(*_simpGraph, matches);
+        }
+
+        return iterations;
+    }
+
     // Basic rules simplification
     int bialgSimp();
     int copySimp();

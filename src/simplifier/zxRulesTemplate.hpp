@@ -28,7 +28,9 @@ public:
 
 protected:
     void update(ZXGraph& graph, const ZXOperation& op) const {
-        // TODO: add vertices first
+        // TODO: add vertices is not implemented yet
+        assert(op.verticesToAdd.empty());
+
         for (auto& edge : op.edgesToAdd) {
             auto [v0, v1] = std::get<0>(edge);
             EdgeType edgeType = std::get<1>(edge);
@@ -50,6 +52,7 @@ public:
 
     virtual std::vector<MatchType> findMatches(const ZXGraph& graph) const = 0;
     virtual void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const = 0;
+    virtual std::vector<ZXVertex*> flattenVertices(MatchType match) const = 0;
 };
 
 // H Box related rules have simliar interface but is used differentlu in simplifier
@@ -62,6 +65,7 @@ public:
 
     virtual std::vector<MatchType> findMatches(const ZXGraph& graph) const = 0;
     virtual void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const = 0;
+    virtual std::vector<ZXVertex*> flattenVertices(MatchType match) const = 0;
 };
 
 class BialgebraRule : public ZXRuleTemplate<EdgePair> {
@@ -70,6 +74,10 @@ public:
 
     std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+    std::vector<ZXVertex*> flattenVertices(MatchType match) const override {
+        auto [v0, v1] = match.first;
+        return {v0, v1};
+    }
 
 private:
     bool has_dupicate(std::vector<ZXVertex*> vec) const;
@@ -81,6 +89,12 @@ public:
 
     std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+    std::vector<ZXVertex*> flattenVertices(MatchType match) const override {
+        auto [v0, v1, vertices] = match;
+        vertices.push_back(v0);
+        vertices.push_back(v1);
+        return vertices;
+    }
 };
 
 class HBoxFusionRule : public ZXRuleTemplate<ZXVertex*> {
@@ -89,6 +103,7 @@ public:
 
     std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+    std::vector<ZXVertex*> flattenVertices(MatchType match) const override { return {match}; }
 };
 
 class IdRemovalRule : public ZXRuleTemplate<std::tuple<ZXVertex*, ZXVertex*, ZXVertex*, EdgeType>> {
@@ -97,6 +112,7 @@ public:
 
     std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+    std::vector<ZXVertex*> flattenVertices(MatchType match) const override { return {std::get<0>(match), std::get<1>(match), std::get<2>(match)}; }
 };
 
 class LocalComplementRule : public ZXRuleTemplate<std::pair<ZXVertex*, std::vector<ZXVertex*>>> {
@@ -105,6 +121,11 @@ public:
 
     std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+    std::vector<ZXVertex*> flattenVertices(MatchType match) const override {
+        auto [v0, vertices] = match;
+        vertices.push_back(v0);
+        return vertices;
+    }
 };
 
 class PhaseGadgetRule : public ZXRuleTemplate<std::tuple<Phase, std::vector<ZXVertex*>, std::vector<ZXVertex*>>> {
@@ -113,6 +134,11 @@ public:
 
     std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+    std::vector<ZXVertex*> flattenVertices(MatchType match) const override {
+        auto [_, vertices0, vertices1] = match;
+        vertices0.insert(vertices0.end(), vertices1.begin(), vertices1.end());
+        return vertices0;
+    }
 };
 
 class PivotRuleInterface : public ZXRuleTemplate<std::pair<ZXVertex*, ZXVertex*>> {
@@ -121,6 +147,7 @@ public:
 
     virtual std::vector<MatchType> findMatches(const ZXGraph& graph) const override = 0;
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+    std::vector<ZXVertex*> flattenVertices(MatchType match) const override { return {match.first, match.second}; }
 };
 
 class PivotRule : public PivotRuleInterface {
@@ -153,6 +180,7 @@ public:
 
     std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+    std::vector<ZXVertex*> flattenVertices(MatchType match) const override { return {match.first, match.second}; }
 };
 
 class HadamardRule : public HZXRuleTemplate<ZXVertex*> {
@@ -161,4 +189,5 @@ public:
 
     std::vector<MatchType> findMatches(const ZXGraph& graph) const override;
     void apply(ZXGraph& graph, const std::vector<MatchType>& matches) const override;
+    std::vector<ZXVertex*> flattenVertices(MatchType match) const override { return {match}; }
 };

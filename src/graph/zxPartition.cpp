@@ -16,6 +16,7 @@
 #include <unordered_map>
 #include <utility>
 
+#include "cmdParser.h"
 #include "zxDef.h"
 #include "zxGraph.h"
 #include "zxGraphMgr.h"
@@ -290,7 +291,7 @@ std::pair<ZXVertexList, ZXVertexList> _klBiPartition(ZXVertexList vertices) {
     };
 
     size_t iteration = 0;
-    while (true) {
+    while (!cli.stop_requested()) {
         cumulativeGain = 0;
         swapHistory = std::stack<SwapPair>();
         bestCumulativeGain = INT_MIN;

@@ -194,12 +194,12 @@ size_t ZXGraph::numGadgets() const {
  * @return double
  */
 double ZXGraph::density() {
-    unordered_map<int, int> mp;
-    for (auto& v : this->getVertices()) mp[v->getNumNeighbors()]++;
-    double ans = 0;
-    for (auto& i : mp) ans += (i.first * i.first * i.second);
-    ans /= this->getNumVertices();
-    return ans;
+    double density = 0;
+    for (auto& v : this->getVertices()) {
+        density += v->getNumNeighbors() * v->getNumNeighbors();
+    }
+    density /= this->getNumVertices();
+    return density;
 }
 
 /*****************************************************/
