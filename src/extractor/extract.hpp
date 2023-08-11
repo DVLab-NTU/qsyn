@@ -99,5 +99,3 @@ private:
 
     std::vector<size_t> _initialPlacement;
 };
-
-
