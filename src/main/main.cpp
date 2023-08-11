@@ -18,8 +18,6 @@
 #include "util/myUsage.hpp"
 #include "util/util.hpp"
 
-#pragma once
-
 using namespace std;
 
 //----------------------------------------------------------------------
