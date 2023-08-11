@@ -10,16 +10,16 @@
 #include <iostream>
 #include <string>
 
-#include "cli.h"
-#include "deviceMgr.h"
-#include "extract.h"
-#include "qcir.h"
-#include "qcirCmd.h"
-#include "qcirMgr.h"
-#include "util.h"
-#include "zxCmd.h"
-#include "zxGraph.h"
-#include "zxGraphMgr.h"
+#include "./extract.h"
+#include "cli/cli.h"
+#include "device/deviceMgr.h"
+#include "qcir/qcir.h"
+#include "qcir/qcirCmd.h"
+#include "qcir/qcirMgr.h"
+#include "util/util.h"
+#include "zx/zxCmd.h"
+#include "zx/zxGraph.h"
+#include "zx/zxGraphMgr.h"
 
 using namespace std;
 using namespace ArgParse;

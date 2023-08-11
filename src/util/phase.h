@@ -15,8 +15,8 @@
 #include <string>
 #include <vector>
 
-#include "myConcepts.h"
-#include "util.h"
+#include "./myConcepts.h"
+#include "util/util.h"
 
 class Rational;
 

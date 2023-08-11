@@ -8,8 +8,8 @@
 #ifndef Q_TENSOR_H
 #define Q_TENSOR_H
 
-#include "phase.h"
-#include "tensor.h"
+#include "./tensor.h"
+#include "util/phase.h"
 
 template <typename T>
 class QTensor : public Tensor<std::complex<T>> {

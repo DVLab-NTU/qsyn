@@ -8,11 +8,11 @@
 
 #include <cstddef>
 
-#include "phase.h"
-#include "qcirGate.h"
-#include "rationalNumber.h"
-#include "zxDef.h"
-#include "zxGraph.h"
+#include "qcir/qcirGate.h"
+#include "util/phase.h"
+#include "util/rationalNumber.h"
+#include "zx/zxDef.h"
+#include "zx/zxGraph.h"
 
 using namespace std;
 

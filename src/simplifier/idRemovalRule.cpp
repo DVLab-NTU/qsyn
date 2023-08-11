@@ -6,8 +6,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "zxGraph.h"
-#include "zxRulesTemplate.hpp"
+#include "./zxRulesTemplate.hpp"
+#include "zx/zxGraph.h"
 
 using MatchType = IdRemovalRule::MatchType;
 

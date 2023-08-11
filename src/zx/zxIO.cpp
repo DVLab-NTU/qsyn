@@ -16,9 +16,9 @@
 #include <iostream>
 #include <string>
 
-#include "tmpFiles.h"
-#include "zxFileParser.h"
-#include "zxGraph.h"
+#include "./zxFileParser.h"
+#include "./zxGraph.h"
+#include "util/tmpFiles.h"
 
 extern size_t verbose;
 

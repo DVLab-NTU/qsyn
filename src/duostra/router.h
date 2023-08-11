@@ -13,7 +13,7 @@
 #include <queue>
 #include <string>
 
-#include "device.h"
+#include "device/device.h"
 
 class Gate;
 

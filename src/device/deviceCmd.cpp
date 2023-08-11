@@ -11,9 +11,9 @@
 #include <iostream>
 #include <string>
 
-#include "cli.h"
-#include "device.h"
-#include "deviceMgr.h"
+#include "cli/cli.h"
+#include "device/device.h"
+#include "device/deviceMgr.h"
 
 using namespace std;
 using namespace ArgParse;

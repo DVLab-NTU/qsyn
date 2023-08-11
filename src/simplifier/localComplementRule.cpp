@@ -9,7 +9,7 @@
 #include <unordered_set>
 #include <utility>
 
-#include "zxRulesTemplate.hpp"
+#include "./zxRulesTemplate.hpp"
 
 extern size_t verbose;
 

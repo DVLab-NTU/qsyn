@@ -8,11 +8,11 @@
 
 #include <cassert>
 
-#include "cli.h"
-#include "optimizer.h"
-#include "phase.h"
-#include "qcir.h"
-#include "qcirGate.h"
+#include "cli/cli.h"
+#include "optimizer/optimizer.h"
+#include "qcir/qcir.h"
+#include "qcir/qcirGate.h"
+#include "util/phase.h"
 
 using namespace std;
 

@@ -6,16 +6,16 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "lattice.h"
+#include "./lattice.h"
 
 #include <iomanip>
 #include <iostream>
 #include <unordered_map>
 #include <unordered_set>
 
-#include "gFlow.h"
-#include "textFormat.h"
-#include "zxGraph.h"
+#include "gflow/gFlow.h"
+#include "util/textFormat.h"
+#include "zx/zxGraph.h"
 
 namespace TF = TextFormat;
 

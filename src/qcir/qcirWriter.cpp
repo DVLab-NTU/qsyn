@@ -10,9 +10,9 @@
 #include <fstream>
 #include <string>
 
-#include "qcir.h"
-#include "qcirGate.h"
-#include "tmpFiles.h"
+#include "qcir/qcir.h"
+#include "qcir/qcirGate.h"
+#include "util/tmpFiles.h"
 
 using namespace std;
 

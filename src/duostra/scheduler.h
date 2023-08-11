@@ -16,10 +16,10 @@
 #include <utility>
 #include <vector>
 
-#include "circuitTopology.h"
-#include "device.h"
-#include "router.h"
-#include "stop_token.hpp"
+#include "./circuitTopology.h"
+#include "./router.h"
+#include "device/device.h"
+#include "jthread/stop_token.hpp"
 
 class BaseScheduler {
 public:

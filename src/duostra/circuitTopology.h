@@ -19,8 +19,8 @@
 #include <tuple>
 #include <vector>
 
-#include "phase.h"
-#include "qcirGate.h"
+#include "qcir/qcirGate.h"
+#include "util/phase.h"
 
 class Gate {
 public:

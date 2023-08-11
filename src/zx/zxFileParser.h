@@ -14,7 +14,7 @@
 #include <string>
 #include <utility>
 
-#include "zxDef.h"
+#include "./zxDef.h"
 
 class ZXFileParser {
 public:

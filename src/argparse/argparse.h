@@ -17,11 +17,11 @@
 #include <variant>
 
 #include "fort.hpp"
-#include "myConcepts.h"
-#include "ordered_hashmap.h"
-#include "ordered_hashset.h"
-#include "trie.h"
-#include "util.h"
+#include "util/myConcepts.h"
+#include "util/ordered_hashmap.h"
+#include "util/ordered_hashset.h"
+#include "util/trie.h"
+#include "util/util.h"
 
 namespace ArgParse {
 
@@ -621,8 +621,8 @@ private:
 
 }  // namespace ArgParse
 
-#include "argParser.tpp"
-#include "argType.tpp"
-#include "argument.tpp"
+#include "./argParser.tpp"
+#include "./argType.tpp"
+#include "./argument.tpp"
 
 #endif  // ARGPARSE_ARGPARSE_H

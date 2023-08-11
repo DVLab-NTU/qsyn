@@ -7,9 +7,9 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "checker.h"
+#include "./checker.h"
 
-#include "circuitTopology.h"
+#include "./circuitTopology.h"
 
 using namespace std;
 extern size_t verbose;

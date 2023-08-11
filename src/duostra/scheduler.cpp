@@ -7,13 +7,13 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "scheduler.h"
+#include "./scheduler.h"
 
 #include <algorithm>
 #include <cassert>
 
-#include "cli.h"
-#include "variables.h"
+#include "./variables.h"
+#include "cli/cli.h"
 
 using namespace std;
 

@@ -6,13 +6,13 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "optimizer.h"
+#include "./optimizer.h"
 
 #include <cassert>
 
-#include "qcir.h"
-#include "qcirGate.h"
-#include "qcirQubit.h"
+#include "qcir/qcir.h"
+#include "qcir/qcirGate.h"
+#include "qcir/qcirQubit.h"
 
 using namespace std;
 

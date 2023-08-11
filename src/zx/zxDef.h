@@ -15,9 +15,9 @@
 #include <unordered_set>
 #include <vector>
 
-#include "ordered_hashmap.h"
-#include "ordered_hashset.h"
-#include "phase.h"
+#include "util/ordered_hashmap.h"
+#include "util/ordered_hashset.h"
+#include "util/phase.h"
 
 class ZXVertex;
 class ZXGraph;

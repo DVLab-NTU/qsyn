@@ -5,14 +5,14 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include "cliCharDef.h"
+#include "./cliCharDef.h"
 
 #include <termios.h>
 
 #include <cctype>
 #include <iostream>
 
-#include "cli.h"
+#include "./cli.h"
 
 using namespace std;
 

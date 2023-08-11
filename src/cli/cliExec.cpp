@@ -15,12 +15,12 @@
 #include <regex>
 #include <thread>
 
-#include "cli.h"
-#include "display_width.hpp"
+#include "cli/cli.h"
 #include "fort.hpp"
-#include "terminalSize.h"
-#include "textFormat.h"
-#include "util.h"
+#include "unicode/display_width.hpp"
+#include "util/terminalSize.h"
+#include "util/textFormat.h"
+#include "util/util.h"
 
 using std::cout, std::endl, std::cerr;
 using std::string, std::vector;

@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+    set(CMAKE_BUILD_TYPE Release)
 endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
@@ -15,9 +15,9 @@ include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 
 project(
-  qsyn
-  LANGUAGES CXX
-  VERSION 0.5.1)
+    qsyn
+    LANGUAGES CXX
+    VERSION 0.5.1)
 
 find_package(OpenMP REQUIRED)
 
@@ -26,71 +26,54 @@ find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
 
 FetchContent_Declare(
-  xtl
-  GIT_REPOSITORY https://github.com/xtensor-stack/xtl.git
-  GIT_TAG 0.7.5)
+    xtl
+    GIT_REPOSITORY https://github.com/xtensor-stack/xtl.git
+    GIT_TAG 0.7.5)
 FetchContent_MakeAvailable(xtl)
 
 FetchContent_Declare(
-  xtensor
-  GIT_REPOSITORY https://github.com/xtensor-stack/xtensor.git
-  GIT_TAG 0.24.6)
+    xtensor
+    GIT_REPOSITORY https://github.com/xtensor-stack/xtensor.git
+    GIT_TAG 0.24.6)
 FetchContent_MakeAvailable(xtensor)
 
 FetchContent_Declare(
-  xtensor-blas
-  GIT_REPOSITORY https://github.com/xtensor-stack/xtensor-blas.git
-  GIT_TAG 0.20.0)
+    xtensor-blas
+    GIT_REPOSITORY https://github.com/xtensor-stack/xtensor-blas.git
+    GIT_TAG 0.20.0)
 FetchContent_MakeAvailable(xtensor-blas)
 
 FetchContent_Declare(
-  libfort
-  GIT_REPOSITORY https://github.com/seleznevae/libfort.git
-  GIT_TAG v0.4.2)
+    libfort
+    GIT_REPOSITORY https://github.com/seleznevae/libfort.git
+    GIT_TAG v0.4.2)
 FetchContent_MakeAvailable(libfort)
 
-
 file(
-  GLOB_RECURSE SOURCES
-  RELATIVE ${CMAKE_SOURCE_DIR}
-  "src/**/*.cpp" "src/**/*.h")
+    GLOB_RECURSE SOURCES
+    RELATIVE ${CMAKE_SOURCE_DIR}
+    "src/**/*.cpp" "src/**/*.h")
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
 
 add_definitions(-DQSYN_VERSION="${CMAKE_PROJECT_VERSION}")
 
-# lists all subdirectories of a directory
-macro(SUBDIRLIST result curdir)
-  file(GLOB children ${curdir}/*)
-  set(dirlist "")
-  foreach(child ${children})
-    if(IS_DIRECTORY ${child})
-      list(APPEND dirlist ${child})
-    endif()
-  endforeach()
-  set(${result} ${dirlist})
-endmacro()
-
-subdirlist(INCLUDES ${CMAKE_SOURCE_DIR}/src)
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${INCLUDES})
-
-# for tqdm and jthread
-subdirlist(VENDOR_INCLUDES ${CMAKE_SOURCE_DIR}/vendor/include)
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${VENDOR_INCLUDES})
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor)
 
 target_link_libraries(
-  ${CMAKE_PROJECT_NAME}
-  xtl
-  xtensor
-  xtensor-blas
-  lapack
-  OpenMP::OpenMP_CXX
-  libfort::fort
-  ${BLAS_LIBRARIES}
-  ${LAPACK_LIBRARIES})
+    ${CMAKE_PROJECT_NAME}
+    xtl
+    xtensor
+    xtensor-blas
+    lapack
+    OpenMP::OpenMP_CXX
+    libfort::fort
+    ${BLAS_LIBRARIES}
+    ${LAPACK_LIBRARIES})
 
 add_custom_command(
-  TARGET ${CMAKE_PROJECT_NAME}
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${CMAKE_PROJECT_NAME}>
-          ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}
-  COMMENT "Copied executable to ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}")
+    TARGET ${CMAKE_PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${CMAKE_PROJECT_NAME}>
+    ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}
+    COMMENT "Copied executable to ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}")

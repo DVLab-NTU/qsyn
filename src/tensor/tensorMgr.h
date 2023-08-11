@@ -12,8 +12,8 @@
 #include <map>
 #include <string>
 
-#include "dataStructureManager.h"
-#include "phase.h"
+#include "util/dataStructureManager.h"
+#include "util/phase.h"
 
 template <typename T>
 class QTensor;

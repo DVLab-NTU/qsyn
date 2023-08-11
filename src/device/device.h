@@ -13,8 +13,8 @@
 #include <string>
 #include <unordered_map>
 
-#include "qcirGate.h"
-#include "util.h"
+#include "qcir/qcirGate.h"
+#include "util/util.h"
 
 class Device;
 class Topology;

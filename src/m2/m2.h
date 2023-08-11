@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-#include "zxDef.h"
+#include "zx/zxDef.h"
 
 //------------------------------------------------------------------------
 //   Define classes

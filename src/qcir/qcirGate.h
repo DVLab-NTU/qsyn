@@ -12,10 +12,10 @@
 #include <cstddef>
 #include <string>
 
-#include "phase.h"
-#include "qtensor.h"
-#include "zxDef.h"
-#include "zxGraph.h"
+#include "tensor/qtensor.h"
+#include "util/phase.h"
+#include "zx/zxDef.h"
+#include "zx/zxGraph.h"
 
 extern size_t SINGLE_DELAY;
 extern size_t DOUBLE_DELAY;

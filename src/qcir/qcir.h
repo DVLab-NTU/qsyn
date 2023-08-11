@@ -15,11 +15,11 @@
 #include <unordered_map>
 #include <vector>
 
-#include "qcirGate.h"
-#include "qcirQubit.h"
-#include "qtensor.h"
-#include "stop_token.hpp"
-#include "zxGraph.h"
+#include "jthread/stop_token.hpp"
+#include "qcir/qcirGate.h"
+#include "qcir/qcirQubit.h"
+#include "tensor/qtensor.h"
+#include "zx/zxGraph.h"
 
 class QCir;
 class Phase;

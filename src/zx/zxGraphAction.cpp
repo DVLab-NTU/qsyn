@@ -10,10 +10,10 @@
 #include <iostream>
 #include <queue>
 
-#include "phase.h"
-#include "textFormat.h"
-#include "zxDef.h"
-#include "zxGraph.h"
+#include "./zxDef.h"
+#include "./zxGraph.h"
+#include "util/phase.h"
+#include "util/textFormat.h"
 
 using namespace std;
 namespace TF = TextFormat;

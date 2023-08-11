@@ -7,14 +7,14 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "placer.h"
+#include "./placer.h"
 
 #include <cassert>
 #include <iostream>
 #include <random>
 
-#include "device.h"
-#include "variables.h"
+#include "./variables.h"
+#include "device/device.h"
 
 using namespace std;
 

@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "zxRulesTemplate.hpp"
+#include "./zxRulesTemplate.hpp"
 
 using MatchType = SpiderFusionRule::MatchType;
 

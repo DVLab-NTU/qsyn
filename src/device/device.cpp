@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "device.h"
+#include "device/device.h"
 
 #include <cassert>
 #include <cstdlib>
@@ -14,7 +14,7 @@
 #include <limits>
 #include <string>
 
-#include "textFormat.h"
+#include "util/textFormat.h"
 
 using namespace std;
 namespace TF = TextFormat;

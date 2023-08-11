@@ -20,8 +20,8 @@
 #include <xtensor/xarray.hpp>
 #include <xtensor/xio.hpp>
 
-#include "tensorUtil.h"
-#include "util.h"
+#include "tensor/tensorUtil.h"
+#include "util/util.h"
 
 template <typename DT>
 class Tensor {

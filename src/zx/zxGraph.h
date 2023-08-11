@@ -16,8 +16,8 @@
 #include <unordered_map>
 #include <utility>
 
-#include "phase.h"
-#include "zxDef.h"
+#include "./zxDef.h"
+#include "util/phase.h"
 
 class ZXVertex;
 class ZXGraph;

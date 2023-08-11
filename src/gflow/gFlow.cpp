@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "gFlow.h"
+#include "./gFlow.h"
 
 #include <cassert>
 #include <cstddef>
@@ -14,8 +14,8 @@
 #include <iostream>
 #include <ranges>
 
-#include "simplify.h"
-#include "textFormat.h"
+#include "simplifier/simplify.h"
+#include "util/textFormat.h"
 
 namespace TF = TextFormat;
 

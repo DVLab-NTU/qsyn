@@ -9,8 +9,8 @@
 #ifndef ZX_GRAPH_MGR_H
 #define ZX_GRAPH_MGR_H
 
-#include "dataStructureManager.h"
-#include "zxGraph.h"
+#include "./zxGraph.h"
+#include "util/dataStructureManager.h"
 
 using ZXGraphMgr = dvlab_utils::DataStructureManager<ZXGraph>;
 bool zxGraphMgrNotEmpty(std::string const& command);  // defined in zxCmd.cpp

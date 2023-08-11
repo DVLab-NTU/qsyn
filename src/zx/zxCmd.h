@@ -9,7 +9,7 @@
 #ifndef ZX_CMD_H
 #define ZX_CMD_H
 
-#include "cli.h"
+#include "cli/cli.h"
 
 extern ArgParse::ArgType<size_t>::ConstraintType const validZXGraphId;
 

@@ -18,9 +18,9 @@
 #include <utility>
 #include <vector>
 
-#include "argparse.h"
-#include "cliCharDef.h"
-#include "jthread.hpp"
+#include "argparse/argparse.h"
+#include "cli/cliCharDef.h"
+#include "jthread/jthread.hpp"
 
 class CommandLineInterface;
 

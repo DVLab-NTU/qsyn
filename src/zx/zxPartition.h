@@ -11,7 +11,7 @@
 
 #include <vector>
 
-#include "zxDef.h"
+#include "./zxDef.h"
 
 std::vector<ZXVertexList> klPartition(const ZXGraph& graph, size_t numPartitions);
 

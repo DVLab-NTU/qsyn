@@ -6,18 +6,18 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "extract.h"
+#include "./extract.h"
 
 #include <cassert>
 #include <memory>
 
-#include "cli.h"
-#include "duostra.h"
-#include "mappingEQChecker.h"
-#include "qcir.h"
-#include "simplify.h"
-#include "zxGraph.h"
-#include "zxRulesTemplate.hpp"
+#include "cli/cli.h"
+#include "duostra/duostra.h"
+#include "duostra/mappingEQChecker.h"
+#include "qcir/qcir.h"
+#include "simplifier/simplify.h"
+#include "simplifier/zxRulesTemplate.hpp"
+#include "zx/zxGraph.h"
 
 using namespace std;
 

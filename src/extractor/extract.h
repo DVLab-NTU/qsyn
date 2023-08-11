@@ -13,10 +13,10 @@
 #include <optional>
 #include <set>
 
-#include "device.h"
-#include "m2.h"
-#include "stop_token.hpp"
-#include "zxDef.h"
+#include "device/device.h"
+#include "jthread/stop_token.hpp"
+#include "m2/m2.h"
+#include "zx/zxDef.h"
 
 extern bool SORT_FRONTIER;
 extern bool SORT_NEIGHBORS;

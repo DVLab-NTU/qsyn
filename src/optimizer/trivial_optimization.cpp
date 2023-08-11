@@ -8,10 +8,10 @@
 
 #include <cassert>
 
-#include "cli.h"
-#include "optimizer.h"
-#include "qcir.h"
-#include "qcirGate.h"
+#include "./optimizer.h"
+#include "cli/cli.h"
+#include "qcir/qcir.h"
+#include "qcir/qcirGate.h"
 
 using namespace std;
 

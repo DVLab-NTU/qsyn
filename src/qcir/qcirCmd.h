@@ -9,7 +9,7 @@
 #ifndef QCIR_CMD_H
 #define QCIR_CMD_H
 
-#include "argparse.h"
+#include "argparse/argparse.h"
 
 extern ArgParse::ArgType<size_t>::ConstraintType const validQCirId;
 extern ArgParse::ArgType<size_t>::ConstraintType const validQCirGateId;

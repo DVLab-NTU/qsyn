@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "phase_argparse.h"
+#include "util/phase_argparse.h"
 // --- include before zxCmd.h
 #include <cassert>
 #include <cstddef>
@@ -15,11 +15,11 @@
 #include <iostream>
 #include <string>
 
-#include "tensorMgr.h"
-#include "textFormat.h"
-#include "zx2tsMapper.h"
-#include "zxCmd.h"
-#include "zxGraphMgr.h"
+#include "./zx2tsMapper.h"
+#include "./zxCmd.h"
+#include "./zxGraphMgr.h"
+#include "tensor/tensorMgr.h"
+#include "util/textFormat.h"
 
 namespace TF = TextFormat;
 

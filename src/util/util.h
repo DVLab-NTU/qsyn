@@ -16,10 +16,9 @@
 #include <string>
 #include <vector>
 
-#include "myConcepts.h"
-#include "myUsage.h"
-#include "rnGen.h"
-#include "tqdm.h"
+#include "./myConcepts.h"
+#include "./myUsage.h"
+#include "tqdm/tqdm.h"
 
 #if defined(__clang__)
 #define QSYN_ALWAYS_INLINE [[clang::always_inline]]

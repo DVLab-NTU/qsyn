@@ -13,8 +13,8 @@
 #include <set>
 #include <unordered_map>
 
-#include "ordered_hashset.h"
-#include "stop_token.hpp"
+#include "jthread/stop_token.hpp"
+#include "util/ordered_hashset.h"
 
 class QCir;
 class QCirGate;

@@ -11,7 +11,7 @@
 
 #include <string>
 
-#include "phase.h"
+#include "util/phase.h"
 
 namespace ArgParse {
 
@@ -22,6 +22,6 @@ inline bool parseFromString(Phase& phase, std::string const& token) {
 
 }  // namespace ArgParse
 
-#include "argparse.h"
+#include "argparse/argparse.h"
 
 #endif  // QSYN_UTIL_PHASE_ARGPARSE_H

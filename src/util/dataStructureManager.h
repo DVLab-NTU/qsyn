@@ -13,7 +13,7 @@
 #include <memory>
 #include <string>
 
-#include "ordered_hashmap.h"
+#include "./ordered_hashmap.h"
 
 extern size_t verbose;
 

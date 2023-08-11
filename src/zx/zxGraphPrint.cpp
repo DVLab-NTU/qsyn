@@ -11,8 +11,8 @@
 #include <map>
 #include <string>
 
-#include "textFormat.h"
-#include "zxGraph.h"
+#include "util/textFormat.h"
+#include "zx/zxGraph.h"
 
 using namespace std;
 namespace TF = TextFormat;

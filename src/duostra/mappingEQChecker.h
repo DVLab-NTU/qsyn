@@ -12,7 +12,7 @@
 #include <cstddef>
 #include <optional>
 
-#include "device.h"
+#include "device/device.h"
 
 class QCir;
 

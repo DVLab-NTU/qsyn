@@ -7,7 +7,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "circuitTopology.h"
+#include "./circuitTopology.h"
 
 using namespace std;
 

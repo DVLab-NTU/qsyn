@@ -7,11 +7,11 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "router.h"
+#include "./router.h"
 
-#include "circuitTopology.h"
-#include "util.h"
-#include "variables.h"
+#include "./circuitTopology.h"
+#include "./variables.h"
+#include "util/util.h"
 
 using namespace std;
 extern size_t verbose;

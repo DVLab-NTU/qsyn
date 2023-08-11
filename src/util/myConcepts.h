@@ -15,7 +15,7 @@
 #include <string>
 #include <type_traits>
 
-#include "rationalNumber.h"
+#include "./rationalNumber.h"
 
 template <class A>
 struct is_fixed_array : std::false_type {};

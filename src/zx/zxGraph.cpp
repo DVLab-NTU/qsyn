@@ -6,13 +6,13 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "zxGraph.h"
+#include "./zxGraph.h"
 
 #include <algorithm>
 #include <iostream>
 
-#include "textFormat.h"
-#include "zxDef.h"
+#include "./zxDef.h"
+#include "util/textFormat.h"
 
 using namespace std;
 

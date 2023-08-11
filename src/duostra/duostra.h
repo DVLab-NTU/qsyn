@@ -10,9 +10,9 @@
 #ifndef DUOSTRA_H
 #define DUOSTRA_H
 
-#include "device.h"
-#include "scheduler.h"
-#include "stop_token.hpp"
+#include "./scheduler.h"
+#include "device/device.h"
+#include "jthread/stop_token.hpp"
 
 class QCir;
 

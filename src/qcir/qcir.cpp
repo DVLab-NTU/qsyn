@@ -6,16 +6,16 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "qcir.h"
+#include "./qcir.h"
 
 #include <cassert>
 #include <cstdlib>
 #include <string>
 #include <vector>
 
-#include "qcirGate.h"
-#include "qcirQubit.h"
-#include "textFormat.h"
+#include "./qcirGate.h"
+#include "./qcirQubit.h"
+#include "util/textFormat.h"
 
 using namespace std;
 namespace TF = TextFormat;

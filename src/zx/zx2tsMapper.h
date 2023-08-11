@@ -11,9 +11,9 @@
 #include <cstddef>
 #include <vector>
 
-#include "qtensor.h"
-#include "stop_token.hpp"
-#include "zxDef.h"
+#include "jthread/stop_token.hpp"
+#include "tensor/qtensor.h"
+#include "zx/zxDef.h"
 
 class ZXGraph;
 class ZXVertex;

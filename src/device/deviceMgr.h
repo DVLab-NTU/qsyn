@@ -13,7 +13,7 @@
 #include <optional>
 #include <vector>
 
-#include "device.h"
+#include "device/device.h"
 class DeviceMgr;
 
 extern DeviceMgr* deviceMgr;

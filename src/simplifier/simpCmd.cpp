@@ -11,9 +11,9 @@
 #include <iostream>
 #include <string>
 
-#include "simplify.h"
-#include "zxCmd.h"
-#include "zxGraphMgr.h"
+#include "simplifier/simplify.h"
+#include "zx/zxCmd.h"
+#include "zx/zxGraphMgr.h"
 
 using namespace std;
 using namespace ArgParse;

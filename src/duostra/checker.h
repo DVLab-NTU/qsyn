@@ -10,7 +10,7 @@
 #ifndef CHECKER_H
 #define CHECKER_H
 
-#include "device.h"
+#include "device/device.h"
 
 class CircuitTopo;
 class Gate;

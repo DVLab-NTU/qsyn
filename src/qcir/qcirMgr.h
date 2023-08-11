@@ -12,8 +12,8 @@
 #include <cstddef>
 #include <vector>
 
-#include "dataStructureManager.h"
-#include "qcir.h"
+#include "./qcir.h"
+#include "util/dataStructureManager.h"
 
 using QCirMgr = dvlab_utils::DataStructureManager<QCir>;
 

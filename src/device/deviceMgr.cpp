@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "deviceMgr.h"
+#include "device/deviceMgr.h"
 
 #include <cstddef>
 #include <iostream>

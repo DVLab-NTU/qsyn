@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "qcirGate.h"
+#include "./qcirGate.h"
 
 #include <cassert>
 #include <string>

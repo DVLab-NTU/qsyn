@@ -5,14 +5,14 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include "zx2tsMapper.h"
+#include "./zx2tsMapper.h"
 
 #include <cassert>
 
-#include "cli.h"
-#include "tensorMgr.h"
-#include "textFormat.h"
-#include "zxGraph.h"
+#include "./zxGraph.h"
+#include "cli/cli.h"
+#include "tensor/tensorMgr.h"
+#include "util/textFormat.h"
 
 extern size_t verbose;
 extern TensorMgr tensorMgr;

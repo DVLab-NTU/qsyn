@@ -12,9 +12,9 @@
 #include <memory>
 #include <type_traits>
 
-#include "cli.h"
-#include "stop_token.hpp"
-#include "zxRulesTemplate.hpp"
+#include "./zxRulesTemplate.hpp"
+#include "cli/cli.h"
+#include "jthread/stop_token.hpp"
 
 extern size_t verbose;
 extern CommandLineInterface cli;

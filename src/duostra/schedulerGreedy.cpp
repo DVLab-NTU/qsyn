@@ -10,9 +10,9 @@
 #include <algorithm>
 #include <cassert>
 
-#include "cli.h"
-#include "scheduler.h"
-#include "variables.h"
+#include "./scheduler.h"
+#include "./variables.h"
+#include "cli/cli.h"
 
 using namespace std;
 
