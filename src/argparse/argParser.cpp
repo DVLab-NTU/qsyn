@@ -11,9 +11,9 @@
 #include <iostream>
 #include <numeric>
 
-#include "argparse/argparse.h"
-#include "util/trie.h"
-#include "util/util.h"
+#include "argparse/argparse.hpp"
+#include "util/trie.hpp"
+#include "util/util.hpp"
 
 using namespace std;
 

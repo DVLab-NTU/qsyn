@@ -6,9 +6,9 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "./qcirQubit.h"
+#include "./qcirQubit.hpp"
 
-#include "./qcirGate.h"
+#include "./qcirGate.hpp"
 
 using namespace std;
 

@@ -9,7 +9,7 @@
 #include <cassert>
 #include <memory>
 
-#include "./extract.h"
+#include "./extract.hpp"
 
 using namespace std;
 

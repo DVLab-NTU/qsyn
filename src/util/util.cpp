@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "util/util.h"
+#include "util/util.hpp"
 
 #include <cerrno>
 #include <cstring>
@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-#include "./myUsage.h"
+#include "./myUsage.hpp"
 
 using namespace std;
 

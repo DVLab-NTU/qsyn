@@ -13,9 +13,9 @@
 #include <ranges>
 #include <string>
 
-#include "./zxDef.h"
-#include "./zxGraph.h"
-#include "util/textFormat.h"
+#include "./zxDef.hpp"
+#include "./zxGraph.hpp"
+#include "util/textFormat.hpp"
 
 using namespace std;
 namespace TF = TextFormat;

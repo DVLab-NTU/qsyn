@@ -6,19 +6,19 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "./simplify.h"
+#include "./simplify.hpp"
 
 #include <cstddef>
 #include <iomanip>
 #include <iostream>
 
 #include "./zxRulesTemplate.hpp"
-#include "cli/cli.h"
-#include "gflow/gFlow.h"
-#include "zx/zxDef.h"
-#include "zx/zxGraph.h"
-#include "zx/zxGraphMgr.h"
-#include "zx/zxPartition.h"
+#include "cli/cli.hpp"
+#include "gflow/gFlow.hpp"
+#include "zx/zxDef.hpp"
+#include "zx/zxGraph.hpp"
+#include "zx/zxGraphMgr.hpp"
+#include "zx/zxPartition.hpp"
 
 using namespace std;
 extern size_t verbose;

@@ -8,7 +8,7 @@
 #ifndef ARGPARSE_ARGPARSER_TPP
 #define ARGPARSE_ARGPARSER_TPP
 
-#include "argparse/argparse.h"
+#include "argparse/argparse.hpp"
 
 namespace ArgParse {
 

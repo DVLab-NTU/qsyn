@@ -8,7 +8,7 @@
 
 #include <cstddef>
 
-#include "./zxGraph.h"
+#include "./zxGraph.hpp"
 
 using namespace std;
 extern size_t verbose;

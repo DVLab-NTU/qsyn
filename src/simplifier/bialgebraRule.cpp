@@ -9,7 +9,7 @@
 #include <utility>
 
 #include "./zxRulesTemplate.hpp"
-#include "zx/zxGraph.h"
+#include "zx/zxGraph.hpp"
 
 using MatchType = BialgebraRule::MatchType;
 

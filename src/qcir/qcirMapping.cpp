@@ -9,13 +9,13 @@
 #include <cstddef>
 #include <thread>
 
-#include "./qcir.h"
-#include "./qcirGate.h"
-#include "./qcirQubit.h"
-#include "cli/cli.h"
-#include "tensor/qtensor.h"
-#include "zx/zxGraph.h"
-#include "zx/zxGraphMgr.h"
+#include "./qcir.hpp"
+#include "./qcirGate.hpp"
+#include "./qcirQubit.hpp"
+#include "cli/cli.hpp"
+#include "tensor/qtensor.hpp"
+#include "zx/zxGraph.hpp"
+#include "zx/zxGraphMgr.hpp"
 
 using namespace std;
 extern ZXGraphMgr zxGraphMgr;

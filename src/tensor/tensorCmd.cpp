@@ -11,11 +11,11 @@
 #include <iostream>
 #include <string>
 
-#include "./qtensor.h"
-#include "./tensorMgr.h"
-#include "cli/cli.h"
-#include "util/phase.h"
-#include "util/textFormat.h"
+#include "./qtensor.hpp"
+#include "./tensorMgr.hpp"
+#include "cli/cli.hpp"
+#include "util/phase.hpp"
+#include "util/textFormat.hpp"
 
 using namespace std;
 namespace TF = TextFormat;

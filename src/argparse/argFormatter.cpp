@@ -11,10 +11,10 @@
 #include <iostream>
 #include <numeric>
 
-#include "argparse/argparse.h"
+#include "argparse/argparse.hpp"
 #include "unicode/display_width.hpp"
-#include "util/terminalSize.h"
-#include "util/textFormat.h"
+#include "util/terminalSize.hpp"
+#include "util/textFormat.hpp"
 
 using namespace std;
 

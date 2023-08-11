@@ -9,9 +9,9 @@
 // #include <cstddef>
 // #include <iostream>
 
-// #include "gflow/gFlow.h"
-// #include "zx/zxGraph.h"
-// #include "zx/zxRules.h"
+// #include "gflow/gFlow.hpp"
+// #include "zx/zxGraph.hpp"
+// #include "zx/zxRules.hpp"
 
 // using namespace std;
 

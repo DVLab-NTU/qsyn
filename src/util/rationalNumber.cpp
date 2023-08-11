@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "./rationalNumber.h"
+#include "./rationalNumber.hpp"
 
 #include <iostream>
 #include <numeric>

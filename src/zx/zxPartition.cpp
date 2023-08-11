@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "./zxPartition.h"
+#include "./zxPartition.hpp"
 
 #include <algorithm>
 #include <climits>
@@ -16,9 +16,9 @@
 #include <unordered_map>
 #include <utility>
 
-#include "./zxDef.h"
-#include "./zxGraph.h"
-#include "./zxGraphMgr.h"
+#include "./zxDef.hpp"
+#include "./zxGraph.hpp"
+#include "./zxGraphMgr.hpp"
 
 extern ZXGraphMgr zxGraphMgr;
 

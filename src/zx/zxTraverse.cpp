@@ -11,7 +11,7 @@
 #include <list>
 #include <stack>
 
-#include "./zxGraph.h"
+#include "./zxGraph.hpp"
 
 using namespace std;
 extern size_t verbose;

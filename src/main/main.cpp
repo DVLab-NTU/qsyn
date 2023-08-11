@@ -12,11 +12,11 @@
 #include <fstream>
 #include <iostream>
 
-#include "argparse/argparse.h"
-#include "cli/cli.h"
+#include "argparse/argparse.hpp"
+#include "cli/cli.hpp"
 #include "jthread/jthread.hpp"
-#include "util/myUsage.h"
-#include "util/util.h"
+#include "util/myUsage.hpp"
+#include "util/util.hpp"
 
 #ifndef QSYN_VERSION
 #define QSYN_VERSION "0.5.1"

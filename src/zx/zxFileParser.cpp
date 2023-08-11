@@ -6,13 +6,13 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "./zxFileParser.h"
+#include "./zxFileParser.hpp"
 
 #include <fstream>
 #include <iostream>
 
-#include "util/phase.h"
-#include "util/util.h"
+#include "util/phase.hpp"
+#include "util/util.hpp"
 
 using namespace std;
 

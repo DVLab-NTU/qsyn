@@ -5,12 +5,12 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include "./textFormat.h"
+#include "./textFormat.hpp"
 
 #include <exception>
 #include <filesystem>
 
-#include "./util.h"
+#include "./util.hpp"
 
 extern size_t colorLevel;
 

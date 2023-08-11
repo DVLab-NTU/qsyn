@@ -10,7 +10,7 @@
 
 #include <climits>
 
-#include "./argparse.h"
+#include "./argparse.hpp"
 
 namespace ArgParse {
 

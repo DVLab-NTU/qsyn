@@ -5,14 +5,14 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include "./cliCharDef.h"
+#include "./cliCharDef.hpp"
 
 #include <termios.h>
 
 #include <cctype>
 #include <iostream>
 
-#include "./cli.h"
+#include "./cli.hpp"
 
 using namespace std;
 
@@ -74,7 +74,7 @@ int CommandLineInterface::getChar(istream& istr) const {
         // -- The following simple/combo keys are platform-dependent
         //    You should test to check the returned codes of these key presses
         // -- You should either modify the "enum KeyCode" definitions in
-        //    "cmdCharDef.h", or revise the control flow of the "case ESC" below
+        //    "cmdCharDef.hpp", or revise the control flow of the "case ESC" below
         case BACK_SPACE_KEY:
             return ch;
         case BACK_SPACE_CHAR:

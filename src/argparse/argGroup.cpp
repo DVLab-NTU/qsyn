@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "argparse/argparse.h"
+#include "argparse/argparse.hpp"
 
 namespace ArgParse {
 
