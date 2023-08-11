@@ -18,6 +18,10 @@
 #include "util/myUsage.hpp"
 #include "util/util.hpp"
 
+#ifndef QSYN_VERSION
+#define QSYN_VERSION "[unknown version]"
+#endif
+
 using namespace std;
 
 //----------------------------------------------------------------------
