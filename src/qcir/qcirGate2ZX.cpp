@@ -10,7 +10,7 @@
 
 #include "qcir/qcirGate.hpp"
 #include "util/phase.hpp"
-#include "util/rationalNumber.hpp"
+#include "util/rational.hpp"
 #include "zx/zxDef.hpp"
 #include "zx/zxGraph.hpp"
 

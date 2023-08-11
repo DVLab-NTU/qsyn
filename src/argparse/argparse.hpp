@@ -16,7 +16,6 @@
 #include <string>
 #include <variant>
 
-#include "util/myConcepts.hpp"
 #include "util/ordered_hashmap.hpp"
 #include "util/ordered_hashset.hpp"
 #include "util/trie.hpp"
@@ -69,14 +68,14 @@ struct DummyArgType {
 };
 
 template <typename T>
-requires Arithmetic<T>
+requires std::is_arithmetic_v<T>
 std::string typeString(T);  // explicitly instantiated in apType.cpp
 std::string typeString(std::string const&);
 std::string typeString(bool);
 std::string typeString(DummyArgType);
 
 template <typename T>
-requires Arithmetic<T>
+requires std::is_arithmetic_v<T>
 bool parseFromString(T& val, std::string const& token) { return myStr2Number<T>(token, val); }
 bool parseFromString(std::string& val, std::string const& token);
 bool parseFromString(bool& val, std::string const& token);
@@ -88,6 +87,15 @@ concept ValidArgumentType = requires(T t) {
     { parseFromString(t, std::string{}) } -> std::same_as<bool>;
 };
 
+namespace detail {
+template <class A>
+struct is_fixed_array : std::false_type {};
+
+// only works with arrays by specialization.
+template <class T, std::size_t I>
+struct is_fixed_array<std::array<T, I>> : std::true_type {};
+}  // namespace detail
+
 template <typename T>
 concept IsContainerType = requires(T t) {
     { t.begin() } -> std::same_as<typename T::iterator>;
@@ -96,7 +104,7 @@ concept IsContainerType = requires(T t) {
     { t.size() } -> std::same_as<typename T::size_type>;
     requires !std::same_as<T, std::string>;
     requires !std::same_as<T, std::string_view>;
-    requires !is_fixed_array<T>::value;
+    requires !detail::is_fixed_array<T>::value;
 };
 
 static_assert(IsContainerType<std::vector<int>> == true);

@@ -10,9 +10,10 @@
 #include <cassert>
 
 #include "./zxGraph.hpp"
-#include "cli/cli.hpp"
 #include "tensor/tensorMgr.hpp"
 #include "util/textFormat.hpp"
+
+extern bool stop_requested();
 
 extern size_t verbose;
 extern TensorMgr tensorMgr;
@@ -38,7 +39,7 @@ std::optional<QTensor<double>> ZX2TSMapper::map(ZXGraph const& zxgraph) {
     if (verbose >= 3) cout << "Traverse and build the tensor... " << endl;
     zxgraph.topoTraverse([this](ZXVertex* v) { mapOneVertex(v); });
 
-    if (cli.stop_requested()) {
+    if (stop_requested()) {
         cerr << "Warning: conversion interrupted. " << endl;
         return std::nullopt;
     }
@@ -73,7 +74,7 @@ std::optional<QTensor<double>> ZX2TSMapper::map(ZXGraph const& zxgraph) {
  * @param v the tensor of whom
  */
 void ZX2TSMapper::mapOneVertex(ZXVertex* v) {
-    if (cli.stop_requested()) return;
+    if (stop_requested()) return;
 
     _simplePins.clear();
     _hadamardPins.clear();

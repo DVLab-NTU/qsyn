@@ -18,7 +18,6 @@
 #include "./circuitTopology.hpp"
 #include "./router.hpp"
 #include "device/device.hpp"
-#include "jthread/stop_token.hpp"
 
 class BaseScheduler {
 public:

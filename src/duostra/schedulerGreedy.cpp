@@ -18,6 +18,8 @@ using namespace std;
 
 extern size_t verbose;
 
+extern bool stop_requested();
+
 // SECTION - Class Topology Member Functions
 
 class TopologyCandidate {
@@ -93,7 +95,7 @@ Device GreedyScheduler::assignGates(unique_ptr<Router> router) {
     auto topoWrap = TopologyCandidate(*_circuitTopology, _conf._candidates);
     for (TqdmWrapper bar{_circuitTopology->getNumGates(), _tqdm};
          !topoWrap.getAvailableGates().empty(); ++bar) {
-        if (cli.stop_requested()) {
+        if (stop_requested()) {
             return router->getDevice();
         }
         auto waitlist = topoWrap.getAvailableGates();

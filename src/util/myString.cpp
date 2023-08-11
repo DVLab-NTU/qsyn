@@ -261,7 +261,7 @@ std::string join(std::string const& infix, std::span<std::string> strings) {
  * @return requires
  */
 template <class T>
-requires Arithmetic<T>
+requires std::is_arithmetic_v<T>
 T stoNumber(const string& str, size_t* pos) {
     try {
         // floating point types
@@ -312,7 +312,7 @@ T stoNumber(const string& str, size_t* pos) {
  * @return requires
  */
 template <class T>
-requires Arithmetic<T>
+requires std::is_arithmetic_v<T>
 bool myStr2Number(const string& str, T& f) {
     size_t i;
     try {

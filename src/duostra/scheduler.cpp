@@ -13,7 +13,8 @@
 #include <cassert>
 
 #include "./variables.hpp"
-#include "cli/cli.hpp"
+
+extern bool stop_requested();
 
 using namespace std;
 
@@ -167,7 +168,7 @@ Device BaseScheduler::assignGatesAndSort(unique_ptr<Router> router) {
  */
 Device BaseScheduler::assignGates(unique_ptr<Router> router) {
     for (TqdmWrapper bar{_circuitTopology->getNumGates()}; !bar.done(); ++bar) {
-        if (cli.stop_requested()) {
+        if (stop_requested()) {
             return router->getDevice();
         }
         routeOneGate(*router, bar.idx());
@@ -241,7 +242,7 @@ Device RandomScheduler::assignGates(unique_ptr<Router> router) {
     [[maybe_unused]] size_t count = 0;
 
     for (TqdmWrapper bar{_circuitTopology->getNumGates()}; !bar.done(); ++bar) {
-        if (cli.stop_requested()) {
+        if (stop_requested()) {
             return router->getDevice();
         }
         auto& waitlist = _circuitTopology->getAvailableGates();
@@ -302,7 +303,7 @@ unique_ptr<BaseScheduler> StaticScheduler::clone() const {
 Device StaticScheduler::assignGates(unique_ptr<Router> router) {
     [[maybe_unused]] size_t count = 0;
     for (TqdmWrapper bar{_circuitTopology->getNumGates()}; !bar.done(); ++bar) {
-        if (cli.stop_requested()) {
+        if (stop_requested()) {
             return router->getDevice();
         }
         auto& waitlist = _circuitTopology->getAvailableGates();

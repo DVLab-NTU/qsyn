@@ -7,11 +7,20 @@
 ****************************************************************************/
 #pragma once
 
+#include <cassert>
 #include <climits>
 
 #include "./argparse.hpp"
 
 namespace ArgParse {
+
+namespace detail {
+template <typename T>
+concept Printable = requires(T t) {
+    { std::cout << t } -> std::same_as<std::ostream&>;
+};
+
+}
 
 /**
  * @brief print the value of the argument if it is printable; otherwise, shows "(not representable)"
@@ -25,7 +34,7 @@ template <typename U>
 std::ostream& operator<<(std::ostream& os, ArgType<U> const& arg) {
     if (arg._values.empty()) return os << "(None)";
 
-    if constexpr (Printable<U>) {
+    if constexpr (detail::Printable<U>) {
         if (arg._nargs.upper <= 1)
             os << arg._values.front();
         else {

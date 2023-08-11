@@ -76,7 +76,7 @@ void CommandLineInterface::askForUserInput(std::istream& istr) {
                 break;
             case TAB_KEY: {
                 ++_tabPressCount;
-                listCmd(stripLeadingWhitespaces(_readBuf.substr(0, _cursorPosition)));
+                matchAndComplete(stripLeadingWhitespaces(_readBuf.substr(0, _cursorPosition)));
                 break;
             }
             case INSERT_KEY:  // not yet supported; fall through to UNDEFINE

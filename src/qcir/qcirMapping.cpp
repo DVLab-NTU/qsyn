@@ -12,7 +12,6 @@
 #include "./qcir.hpp"
 #include "./qcirGate.hpp"
 #include "./qcirQubit.hpp"
-#include "cli/cli.hpp"
 #include "tensor/qtensor.hpp"
 #include "zx/zxGraph.hpp"
 #include "zx/zxGraphMgr.hpp"
@@ -20,6 +19,7 @@
 using namespace std;
 extern ZXGraphMgr zxGraphMgr;
 extern size_t verbose;
+extern bool stop_requested();
 
 using Qubit2TensorPinMap = std::unordered_map<size_t, std::pair<size_t, size_t>>;
 
@@ -52,7 +52,7 @@ std::optional<ZXGraph> QCir::toZX() {
     }
 
     topoTraverse([&g](QCirGate *gate) {
-        if (cli.stop_requested()) return;
+        if (stop_requested()) return;
         if (verbose >= 8) cout << "\n";
         if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
         ZXGraph tmp = gate->getZXform();
@@ -75,7 +75,7 @@ std::optional<ZXGraph> QCir::toZX() {
         v->setCol(max + 1);
     }
 
-    if (cli.stop_requested()) {
+    if (stop_requested()) {
         cerr << "Warning: conversion interrupted." << endl;
         return std::nullopt;
     }
@@ -148,7 +148,7 @@ std::optional<QTensor<double>> QCir::toTensor() {
     // NOTE: Constucting an identity(_qubit.size()) takes much time and memory.
     //       To make this process interruptible by SIGINT (ctrl-C), we grow the qubit size one by one
     for (size_t i = 0; i < _qubits.size(); ++i) {
-        if (cli.stop_requested()) {
+        if (stop_requested()) {
             cerr << "Warning: conversion interrupted." << endl;
             return std::nullopt;
         }
@@ -162,7 +162,7 @@ std::optional<QTensor<double>> QCir::toTensor() {
     }
 
     topoTraverse([&tensor, &qubit2pin](QCirGate *gate) {
-        if (cli.stop_requested()) return;
+        if (stop_requested()) return;
         if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
         QTensor<double> tmp = gate->getTSform();
         vector<size_t> ori_pin;
@@ -178,7 +178,7 @@ std::optional<QTensor<double>> QCir::toTensor() {
         updateTensorPin(qubit2pin, gate->getQubits(), tensor, tmp);
     });
 
-    if (cli.stop_requested()) {
+    if (stop_requested()) {
         cerr << "Warning: conversion interrupted." << endl;
         return std::nullopt;
     }

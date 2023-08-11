@@ -15,19 +15,8 @@
 #include <string>
 #include <vector>
 
-#include "./myConcepts.hpp"
-#include "./myUsage.hpp"
+#include "./usage.hpp"
 #include "tqdm/tqdm.hpp"
-
-#if defined(__clang__)
-#define QSYN_ALWAYS_INLINE [[clang::always_inline]]
-#elif defined(__GNUC__) || defined(__GNUG__)
-#define QSYN_ALWAYS_INLINE __always_inline
-#else
-#define QSYN_ALWAYS_INLINE
-#endif
-
-#define IGNORE_UNUSED_RETURN_WARNING [[maybe_unused]] auto shutup =
 
 class tqdm;
 constexpr size_t ERROR_CODE = (size_t)-1;
@@ -79,7 +68,7 @@ std::vector<std::string> split(std::string const& str, std::string const& delim)
 std::string join(std::string const& infix, std::span<std::string> strings);
 
 template <class T>
-requires Arithmetic<T>
+requires std::is_arithmetic_v<T>
 bool myStr2Number(const std::string& str, T& f);
 
 inline bool myStr2Float(const std::string& str, float& num) { return myStr2Number<float>(str, num); };
@@ -101,7 +90,6 @@ std::string toUpperString(std::string const& str);
 size_t countUpperChars(std::string const& str) noexcept;
 
 // In util.cpp
-std::vector<std::string> listDir(std::string const& prefix, std::string const& dir = ".");
 size_t intPow(size_t base, size_t n);
 
 template <typename T>

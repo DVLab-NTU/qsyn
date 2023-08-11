@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#include "./myConcepts.hpp"
+#include "util/rational.hpp"
 #include "util/util.hpp"
 
 class Rational;
@@ -22,6 +22,11 @@ class Rational;
 enum class PhaseUnit {
     PI,
     ONE
+};
+
+template <typename T>
+concept Unitless = requires(T t) {
+    std::is_arithmetic_v<T> == true || std::same_as<T, Rational> == true;
 };
 
 class Phase {

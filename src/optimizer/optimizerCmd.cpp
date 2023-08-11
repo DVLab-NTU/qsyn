@@ -22,6 +22,7 @@ using namespace ArgParse;
 extern size_t verbose;
 extern int effLimit;
 extern QCirMgr qcirMgr;
+extern bool stop_requested();
 
 unique_ptr<ArgParseCmdType> optimizeCmd();
 
@@ -83,7 +84,7 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
             qcirMgr.add(qcirMgr.getNextID());
         }
 
-        if (cli.stop_requested()) {
+        if (stop_requested()) {
             procedure_str += "[INT]";
         }
 

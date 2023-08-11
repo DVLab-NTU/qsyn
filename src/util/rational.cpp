@@ -1,12 +1,12 @@
 /****************************************************************************
-  FileName     [ rationalNumber.cpp ]
+  FileName     [ rational.cpp ]
   PackageName  [ util ]
   Synopsis     [ Implementation of the Rational Number class ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "./rationalNumber.hpp"
+#include "./rational.hpp"
 
 #include <iostream>
 #include <numeric>

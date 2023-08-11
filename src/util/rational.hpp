@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ rationalNumber.h ]
+  FileName     [ rational.h ]
   PackageName  [ util ]
   Synopsis     [ Definition of the Rational Number class.]
   Author       [ Design Verification Lab ]

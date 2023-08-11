@@ -12,7 +12,6 @@
 #include <set>
 #include <unordered_map>
 
-#include "jthread/stop_token.hpp"
 #include "util/ordered_hashset.hpp"
 
 class QCir;

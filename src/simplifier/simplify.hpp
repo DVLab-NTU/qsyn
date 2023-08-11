@@ -12,11 +12,9 @@
 #include <type_traits>
 
 #include "./zxRulesTemplate.hpp"
-#include "cli/cli.hpp"
-#include "jthread/stop_token.hpp"
 
 extern size_t verbose;
-extern CommandLineInterface cli;
+extern bool stop_requested();
 
 class ZXGraph;
 
@@ -36,7 +34,7 @@ public:
         std::vector<int> match_counts;
 
         size_t iterations = 0;
-        while (!cli.stop_requested()) {
+        while (!stop_requested()) {
             std::vector<typename Rule::MatchType> matches = rule.findMatches(*_simpGraph);
             if (matches.empty()) {
                 break;
@@ -73,7 +71,7 @@ public:
         std::vector<int> match_counts;
 
         size_t iterations = 0;
-        while (!cli.stop_requested()) {
+        while (!stop_requested()) {
             size_t vcount = _simpGraph->getNumVertices();
 
             std::vector<typename Rule::MatchType> matches = rule.findMatches(*_simpGraph);

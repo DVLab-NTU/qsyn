@@ -14,7 +14,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "jthread/stop_token.hpp"
 #include "qcir/qcirGate.hpp"
 #include "qcir/qcirQubit.hpp"
 #include "tensor/qtensor.hpp"

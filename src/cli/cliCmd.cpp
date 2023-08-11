@@ -12,13 +12,13 @@
 #include <string>
 
 #include "cli/cli.hpp"
-#include "util/myUsage.hpp"
+#include "util/usage.hpp"
 #include "util/util.hpp"
 
 using namespace std;
 extern size_t verbose;
 extern size_t colorLevel;
-extern MyUsage myUsage;
+extern dvlab_utils::Usage usage;
 
 using namespace ArgParse;
 
@@ -181,7 +181,7 @@ unique_ptr<ArgParseCmdType> usageCmd() {
 
         if (repAll) repTime = true, repMem = true;
 
-        myUsage.report(repTime, repMem);
+        usage.report(repTime, repMem);
 
         return CmdExecResult::DONE;
     };

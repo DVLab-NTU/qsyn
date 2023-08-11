@@ -8,7 +8,7 @@
 
 #include "./phase.hpp"
 
-#include "./rationalNumber.hpp"
+#include "./rational.hpp"
 
 PhaseUnit Phase::_printUnit = PhaseUnit::PI;
 
