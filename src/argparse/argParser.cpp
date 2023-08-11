@@ -6,12 +6,13 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include "./argParser.hpp"
+
 #include <cassert>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
 
-#include "argparse/argparse.hpp"
 #include "util/trie.hpp"
 #include "util/util.hpp"
 
@@ -499,6 +500,25 @@ void ArgumentParser::printRequiredArgumentsMissingErrorMsg() const {
  */
 void ArgumentParser::printDuplicateArgNameErrorMsg(std::string const& name) const {
     std::cerr << "[ArgParse] Error: Duplicate argument name \"" << name << "\"!!" << std::endl;
+}
+
+ArgumentGroup ArgumentParser::addMutuallyExclusiveGroup() {
+    _pimpl->mutuallyExclusiveGroups.emplace_back(*this);
+    return _pimpl->mutuallyExclusiveGroups.back();
+}
+
+ArgumentParser SubParsers::addParser(std::string const& n) {
+    _pimpl->subparsers.emplace(toLowerString(n), ArgumentParser{n});
+    return _pimpl->subparsers.at(toLowerString(n));
+}
+
+SubParsers ArgumentParser::addSubParsers() {
+    if (_pimpl->subparsers.has_value()) {
+        std::cerr << "Error: An ArgumentParser can have only one set of subparsers!!" << std::endl;
+        exit(-1);
+    }
+    _pimpl->subparsers = SubParsers{};
+    return _pimpl->subparsers.value();
 }
 
 }  // namespace ArgParse

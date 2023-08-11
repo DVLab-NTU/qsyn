@@ -1,17 +1,21 @@
 /****************************************************************************
-  FileName     [ argFormatter.cpp ]
+  FileName     [ formatter.cpp ]
   PackageName  [ argparser ]
   Synopsis     [ Define argument parser formatter functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include "argparse/formatter.hpp"
+
 #include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
 
-#include "argparse/argparse.hpp"
+#include "./argGroup.hpp"
+#include "./argparse.hpp"
+#include "./argument.hpp"
 #include "unicode/display_width.hpp"
 #include "util/terminalSize.hpp"
 #include "util/textFormat.hpp"
@@ -53,7 +57,7 @@ string Formatter::styledCmdName(std::string const& name, size_t numRequired) {
  * @brief Print the usage of the command
  *
  */
-void Formatter::printUsage(ArgumentParser parser) {
+void Formatter::printUsage(ArgumentParser const& parser) {
     if (!parser.analyzeOptions()) {
         cerr << "[ArgParse] Failed to generate usage information!!" << endl;
         return;
@@ -115,7 +119,7 @@ void Formatter::printUsage(ArgumentParser parser) {
  * @brief Print the argument name and help message
  *
  */
-void Formatter::printSummary(ArgumentParser parser) {
+void Formatter::printSummary(ArgumentParser const& parser) {
     if (!parser.analyzeOptions()) {
         cerr << "[ArgParse] Failed to generate usage information!!" << endl;
         return;
@@ -128,7 +132,7 @@ void Formatter::printSummary(ArgumentParser parser) {
  * @brief Print the help information for a command
  *
  */
-void Formatter::printHelp(ArgumentParser parser) {
+void Formatter::printHelp(ArgumentParser const& parser) {
     fort::utf8_table table;
     table.set_border_style(FT_EMPTY_STYLE);
     table.set_left_margin(1);
@@ -209,7 +213,7 @@ void Formatter::printHelp(ArgumentParser parser) {
  * @param arg
  * @return string
  */
-string Formatter::getSyntaxString(ArgumentParser parser, Argument const& arg) {
+string Formatter::getSyntaxString(ArgumentParser const& parser, Argument const& arg) {
     string ret = "";
 
     if (arg.takesArgument()) {
@@ -223,7 +227,7 @@ string Formatter::getSyntaxString(ArgumentParser parser, Argument const& arg) {
     return ret;
 }
 
-string Formatter::getSyntaxString(SubParsers parsers) {
+string Formatter::getSyntaxString(SubParsers const& parsers) {
     string ret = "{";
     size_t ctr = 0;
     for (auto const& [name, parser] : parsers.getSubParsers()) {
@@ -281,7 +285,7 @@ std::string insertLineBreaksToString(std::string const& str, size_t max_help_wid
  *
  * @param arg
  */
-void Formatter::printHelpString(ArgumentParser parser, fort::utf8_table& table, size_t max_help_string_width, Argument const& arg) {
+void Formatter::printHelpString(ArgumentParser const& parser, fort::utf8_table& table, size_t max_help_string_width, Argument const& arg) {
     table << typeStyle(arg.takesArgument() ? arg.getTypeString() : "flag");
     if (parser.hasOptionPrefix(arg)) {
         if (arg.takesArgument()) {
@@ -296,7 +300,7 @@ void Formatter::printHelpString(ArgumentParser parser, fort::utf8_table& table, 
     table << insertLineBreaksToString(arg.getHelp(), max_help_string_width) << fort::endr;
 }
 
-void Formatter::printHelpString(ArgumentParser parser, fort::utf8_table& table, size_t max_help_string_width, SubParsers parsers) {
+void Formatter::printHelpString(ArgumentParser const& parser, fort::utf8_table& table, size_t max_help_string_width, SubParsers const& parsers) {
     table << getSyntaxString(parsers) << ""
           << "" << insertLineBreaksToString(parsers.getHelp(), max_help_string_width) << fort::endr;
 }
@@ -307,7 +311,7 @@ void Formatter::printHelpString(ArgumentParser parser, fort::utf8_table& table, 
  * @param arg
  * @return string
  */
-string Formatter::styledArgName(ArgumentParser parser, Argument const& arg) {
+string Formatter::styledArgName(ArgumentParser const& parser, Argument const& arg) {
     if (!parser.hasOptionPrefix(arg)) return metavarStyle(arg.getName());
     if (colorLevel >= 1) {
         string mand = arg.getName().substr(0, arg.getNumRequiredChars());

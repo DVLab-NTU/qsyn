@@ -1,0 +1,187 @@
+/****************************************************************************
+  FileName     [ argument.tpp ]
+  PackageName  [ argparser ]
+  Synopsis     [ Define ArgParse::Argument template implementation ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
+****************************************************************************/
+#pragma once
+
+#include <iosfwd>
+#include <memory>
+
+#include "argType.hpp"
+
+namespace ArgParse {
+
+namespace detail {
+
+extern std::ostream& _cerr;
+
+}
+
+class Argument {
+public:
+    Argument()
+        : _pimpl{std::make_unique<Model<ArgType<DummyArgType>>>(DummyArgType{})} {}
+
+    template <typename T>
+    Argument(T val)
+        : _pimpl{std::make_unique<Model<ArgType<T>>>(std::move(val))}, _parsed{false}, _numRequiredChars{1} {}
+
+    ~Argument() = default;
+
+    Argument(Argument const& other)
+        : _pimpl(other._pimpl->clone()), _parsed{other._parsed}, _numRequiredChars{other._numRequiredChars} {}
+
+    Argument& operator=(Argument copy) noexcept {
+        copy.swap(*this);
+        return *this;
+    }
+    Argument(Argument&& other) noexcept = default;
+
+    void swap(Argument& rhs) noexcept {
+        using std::swap;
+        swap(_pimpl, rhs._pimpl);
+        swap(_parsed, rhs._parsed);
+        swap(_numRequiredChars, rhs._numRequiredChars);
+    }
+
+    friend void swap(Argument& lhs, Argument& rhs) noexcept {
+        lhs.swap(rhs);
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, Argument const& arg) {
+        return arg._pimpl->do_print(os);
+    }
+
+    template <typename T>
+    operator T() const { return get<T>(); }
+
+    template <typename T>
+    T get() const;
+
+    std::string getTypeString() const { return _pimpl->do_getTypeString(); }
+    std::string const& getName() const { return _pimpl->do_getName(); }
+    std::string const& getHelp() const { return _pimpl->do_getHelp(); }
+    size_t getNumRequiredChars() const { return _numRequiredChars; }
+    std::string const& getMetavar() const { return _pimpl->do_getMetavar(); }
+    NArgsRange const& getNArgs() const { return _pimpl->do_getNArgsRange(); }
+    // attributes
+
+    bool hasDefaultValue() const { return _pimpl->do_hasDefaultValue(); }
+    bool isRequired() const { return _pimpl->do_isRequired(); }
+    bool isParsed() const { return _parsed; }
+    bool takesArgument() const { return getNArgs().upper > 0; }
+
+    // setters
+
+    void setNumRequiredChars(size_t n) { _numRequiredChars = n; }
+    void setValueToDefault() { _pimpl->do_setValueToDefault(); }
+
+    // print functions
+
+    void printStatus() const;
+    void printDefaultValue(std::ostream& os) const { _pimpl->do_printDefaultValue(os); }
+
+    // action
+
+    void reset();
+    bool takeAction(TokensView tokens);
+    bool constraintsSatisfied() const { return _pimpl->do_constraintsSatisfied(); }
+
+    void markAsParsed() { _parsed = true; }
+
+private:
+    friend class ArgumentParser;  // shares Argument::Model<T> and _pimpl
+                                  // to ArgumentParser, enabling it to access
+                                  // the underlying ArgType<T>
+
+    struct Concept {
+        virtual ~Concept() {}
+
+        virtual std::unique_ptr<Concept> clone() const = 0;
+
+        virtual std::string do_getTypeString() const = 0;
+        virtual std::string const& do_getName() const = 0;
+        virtual std::string const& do_getHelp() const = 0;
+        virtual std::string const& do_getMetavar() const = 0;
+        virtual NArgsRange const& do_getNArgsRange() const = 0;
+
+        virtual bool do_hasDefaultValue() const = 0;
+        virtual bool do_isRequired() const = 0;
+        virtual bool do_constraintsSatisfied() const = 0;
+
+        virtual std::ostream& do_print(std::ostream&) const = 0;
+        virtual std::ostream& do_printDefaultValue(std::ostream&) const = 0;
+
+        virtual bool do_takeAction(TokensView) = 0;
+        virtual void do_setValueToDefault() = 0;
+        virtual void do_reset() = 0;
+    };
+
+    template <typename ArgT>
+    struct Model final : Concept {
+        ArgT inner;
+
+        Model(ArgT val)
+            : inner(std::move(val)) {}
+        ~Model() {}
+
+        inline std::unique_ptr<Concept> clone() const override { return std::make_unique<Model>(*this); }
+
+        inline std::string do_getTypeString() const override { return typeString(inner._values.front()); }
+        inline std::string const& do_getName() const override { return inner._name; }
+        inline std::string const& do_getHelp() const override { return inner._help; }
+        inline std::string const& do_getMetavar() const override { return inner._metavar; }
+        inline NArgsRange const& do_getNArgsRange() const override { return inner._nargs; }
+
+        inline bool do_hasDefaultValue() const override { return inner._defaultValue.has_value(); }
+        inline bool do_isRequired() const override { return inner._required; };
+        inline bool do_constraintsSatisfied() const override { return inner.constraintsSatisfied(); }
+
+        inline std::ostream& do_print(std::ostream& os) const override { return os << inner; }
+        inline std::ostream& do_printDefaultValue(std::ostream& os) const override { return (inner._defaultValue.has_value() ? os << inner._defaultValue.value() : os << "(none)"); }
+
+        inline bool do_takeAction(TokensView tokens) override { return inner.takeAction(tokens); }
+        inline void do_setValueToDefault() override { return inner.setValueToDefault(); }
+        inline void do_reset() override { inner.reset(); }
+    };
+
+    std::unique_ptr<Concept> _pimpl;
+
+    bool _parsed;
+    size_t _numRequiredChars;
+
+    TokensView getParseRange(TokensView) const;
+    bool tokensEnoughToParse(TokensView) const;
+};
+
+/**
+ * @brief Access the data stored in the argument.
+ *        This function only works when the target type T is
+ *        the same as the stored type; otherwise, this function
+ *        throws an error.
+ *
+ * @tparam T the stored data type
+ * @return T const&
+ */
+template <typename T>
+T Argument::get() const {
+    if constexpr (IsContainerType<T>) {
+        using V = typename std::remove_cv<typename T::value_type>::type;
+        if (auto ptr = dynamic_cast<Model<ArgType<V>>*>(_pimpl.get())) {
+            return ptr->inner.template get<T>();
+        }
+    } else {
+        if (auto ptr = dynamic_cast<Model<ArgType<T>>*>(_pimpl.get())) {
+            return ptr->inner.template get<T>();
+        }
+    }
+
+    detail::_cerr << "[ArgParse] Error: cannot cast argument \""
+                  << getName() << "\" to target type!!\n";
+    throw std::bad_cast{};
+}
+
+}  // namespace ArgParse

@@ -6,14 +6,33 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include "./argType.hpp"
+
 #include <filesystem>
 #include <iostream>
 
-#include "./argparse.hpp"
+#include "util/ordered_hashset.hpp"
+#include "util/trie.hpp"
+#include "util/util.hpp"
 
 using namespace std;
 
 namespace ArgParse {
+
+namespace detail {
+
+ostream& _cout = cout;  // for the definition of printable concept in argType.hpp
+ostream& _cerr = cerr;
+
+}  // namespace detail
+
+static_assert(IsContainerType<std::vector<int>> == true);
+static_assert(IsContainerType<std::vector<std::string>> == true);
+static_assert(IsContainerType<ordered_hashset<float>> == true);
+static_assert(IsContainerType<std::string> == false);
+static_assert(IsContainerType<std::array<int, 3>> == false);
+
+std::ostream& operator<<(std::ostream& os, DummyArgType const& val) { return os << "dummy"; }
 
 template <>
 std::string typeString(int) { return "int"; }

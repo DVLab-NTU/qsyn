@@ -9,18 +9,201 @@
 
 #include <cassert>
 #include <climits>
-
-#include "./argparse.hpp"
+#include <functional>
+#include <iosfwd>
+#include <optional>
+#include <span>
+#include <string>
 
 namespace ArgParse {
 
-namespace detail {
-template <typename T>
-concept Printable = requires(T t) {
-    { std::cout << t } -> std::same_as<std::ostream&>;
+struct Token {
+    Token(std::string const& tok)
+        : token{tok}, parsed{false} {}
+    std::string token;
+    bool parsed;
 };
 
-}
+using TokensView = std::span<Token>;
+
+using ActionCallbackType = std::function<bool(TokensView)>;  // perform an action and return if it succeeds
+
+struct DummyArgType {
+    friend std::ostream& operator<<(std::ostream& os, DummyArgType const& val);
+};
+
+template <typename T>
+requires std::is_arithmetic_v<T>
+std::string typeString(T);  // explicitly instantiated in apType.cpp
+std::string typeString(std::string const&);
+std::string typeString(bool);
+std::string typeString(DummyArgType);
+
+template <typename T>
+requires std::is_arithmetic_v<T>
+bool parseFromString(T& val, std::string const& token) { return myStr2Number<T>(token, val); }
+bool parseFromString(std::string& val, std::string const& token);
+bool parseFromString(bool& val, std::string const& token);
+bool parseFromString(DummyArgType& val, std::string const& token);
+
+template <typename T>
+concept ValidArgumentType = requires(T t) {
+    { typeString(t) } -> std::same_as<std::string>;
+    { parseFromString(t, std::string{}) } -> std::same_as<bool>;
+};
+
+namespace detail {
+template <class A>
+struct is_fixed_array : std::false_type {};
+
+// only works with arrays by specialization.
+template <class T, std::size_t I>
+struct is_fixed_array<std::array<T, I>> : std::true_type {};
+}  // namespace detail
+
+template <typename T>
+concept IsContainerType = requires(T t) {
+    { t.begin() } -> std::same_as<typename T::iterator>;
+    { t.end() } -> std::same_as<typename T::iterator>;
+    std::constructible_from<typename T::iterator, typename T::iterator>;
+    { t.size() } -> std::same_as<typename T::size_type>;
+    requires !std::same_as<T, std::string>;
+    requires !std::same_as<T, std::string_view>;
+    requires !detail::is_fixed_array<T>::value;
+};
+
+// SECTION - On-parse actions for ArgType<T>
+
+template <typename T>
+requires ValidArgumentType<T>
+class ArgType;
+
+template <typename T>
+requires ValidArgumentType<T>
+ActionCallbackType store(ArgType<T>& arg);
+
+template <typename T>
+requires ValidArgumentType<T>
+typename ArgType<T>::ActionType storeConst(T const& constValue);
+ActionCallbackType storeTrue(ArgType<bool>& arg);
+ActionCallbackType storeFalse(ArgType<bool>& arg);
+
+struct NArgsRange {
+    size_t lower;
+    size_t upper;
+};
+
+enum class NArgsOption {
+    OPTIONAL,
+    ONE_OR_MORE,
+    ZERO_OR_MORE
+};
+
+template <typename T>
+requires ValidArgumentType<T>
+class ArgType {
+public:
+    using ActionType = std::function<ActionCallbackType(ArgType<T>&)>;
+    using ConditionType = std::function<bool(T const&)>;
+    using ErrorType = std::function<void(T const&)>;
+    using ConstraintType = std::pair<ConditionType, ErrorType>;
+
+    ArgType(T val)
+        : _values{std::move(val)}, _name{}, _help{}, _defaultValue{std::nullopt},
+          _actionCallback{}, _metavar{}, _nargs{1, 1},
+          _required{false}, _append{false} {}
+
+    // defined in argType.tpp
+    template <typename U>
+    friend std::ostream& operator<<(std::ostream&, ArgType<U> const&);
+
+    // argument decorators
+    // defined in argType.tpp
+
+    ArgType& name(std::string const& name);
+    ArgType& help(std::string const& help);
+    ArgType& required(bool isReq);
+    ArgType& defaultValue(T const& val);
+    ArgType& action(ActionType const& action);
+    ArgType& metavar(std::string const& metavar);
+    ArgType& constraint(ConstraintType const& constraint_error);
+    ArgType& constraint(ConditionType const& constraint, ErrorType const& onerror = nullptr);
+    ArgType& choices(std::vector<T> const& choices);
+    ArgType& nargs(size_t n);
+    ArgType& nargs(size_t l, size_t u);
+    ArgType& nargs(NArgsOption opt);
+
+    inline bool takeAction(TokensView tokens);
+    inline void reset();
+
+    // getters
+    // NOTE - only giving the first argument in ArgType<T>
+    //      - might need to revisit later
+    template <typename Ret>
+    Ret get() const {
+        if constexpr (IsContainerType<Ret>) {
+            return Ret{_values.begin(), _values.end()};
+        } else {
+            return _values.front();
+        }
+    }
+
+    inline std::string const& getName() const { return _name; }
+    void appendValue(T const& val) { _values.push_back(val); }
+
+    void setValueToDefault() {
+        if (_defaultValue.has_value()) {
+            _values.clear();
+            _values.emplace_back(_defaultValue.value());
+        }
+    }
+
+    bool constraintsSatisfied() const {
+        for (auto& [condition, onerror] : _constraints) {
+            for (auto const& val : _values) {
+                if (!condition(val)) {
+                    onerror(val);
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+private:
+    friend class Argument;
+    friend class ArgumentGroup;
+    std::vector<T> _values;
+    std::string _name;
+    std::string _help;
+    std::optional<T> _defaultValue;
+    ActionCallbackType _actionCallback;
+    std::string _metavar;
+    std::vector<ConstraintType> _constraints;
+    NArgsRange _nargs;
+
+    bool _required : 1;
+    bool _append : 1;
+};
+
+ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::string> choices);
+extern ArgType<std::string>::ConstraintType const path_readable;
+extern ArgType<std::string>::ConstraintType const path_writable;
+ArgType<std::string>::ConstraintType starts_with(std::vector<std::string> const& prefixes);
+ArgType<std::string>::ConstraintType ends_with(std::vector<std::string> const& suffixes);
+ArgType<std::string>::ConstraintType allowed_extension(std::vector<std::string> const& extensions);
+
+namespace detail {
+
+extern std::ostream& _cout;
+extern std::ostream& _cerr;
+
+template <typename T>
+concept Printable = requires(T t) {
+    { _cout << t } -> std::same_as<std::ostream&>;
+};
+
+}  // namespace detail
 
 /**
  * @brief print the value of the argument if it is printable; otherwise, shows "(not representable)"
@@ -169,16 +352,16 @@ template <typename T>
 requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConditionType const& condition, ArgType<T>::ErrorType const& onerror) {
     if (condition == nullptr) {
-        std::cerr << "[ArgParse] Failed to add constraint to argument \"" << _name
-                  << "\": condition cannot be nullptr!!" << std::endl;
+        detail::_cerr << "[ArgParse] Failed to add constraint to argument \"" << _name
+                      << "\": condition cannot be nullptr!!" << std::endl;
         return *this;
     }
 
     _constraints.emplace_back(
         condition,
         (onerror != nullptr) ? onerror : [this](T const& val) -> void {
-            std::cerr << "Error: invalid value \"" << val << "\" for argument \""
-                      << _name << "\": fail to satisfy constraint(s)!!" << std::endl;
+            detail::_cerr << "Error: invalid value \"" << val << "\" for argument \""
+                          << _name << "\": fail to satisfy constraint(s)!!" << std::endl;
         });
     return *this;
 }
@@ -192,15 +375,15 @@ ArgType<T>& ArgType<T>::choices(std::vector<T> const& choices) {
         });
     };
     auto error = [choices, this](T const& arg) -> void {
-        std::cerr << "Error: invalid choice for argument \"" << this->_name << "\": "
-                  << "please choose from {";
+        detail::_cerr << "Error: invalid choice for argument \"" << this->_name << "\": "
+                      << "please choose from {";
         size_t ctr = 0;
         for (auto& choice : choices) {
-            if (ctr > 0) std::cerr << ", ";
-            std::cerr << choice;
+            if (ctr > 0) detail::_cerr << ", ";
+            detail::_cerr << choice;
             ctr++;
         }
-        std::cerr << "}!!\n";
+        detail::_cerr << "}!!\n";
     };
 
     return this->constraint(constraint, error);
@@ -281,8 +464,8 @@ ActionCallbackType store(ArgType<T>& arg) {
         T tmp;
         for (auto& [token, parsed] : tokens) {
             if (!parseFromString(tmp, token)) {
-                std::cerr << "Error: invalid " << typeString(tmp)
-                          << " value \"" << token << "\" for argument \"" << arg.getName() << "\"!!" << std::endl;
+                detail::_cerr << "Error: invalid " << typeString(tmp)
+                              << " value \"" << token << "\" for argument \"" << arg.getName() << "\"!!" << std::endl;
                 return false;
             }
             arg.appendValue(tmp);
