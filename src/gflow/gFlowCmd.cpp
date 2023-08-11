@@ -11,10 +11,10 @@
 #include <iostream>
 #include <string>
 
-#include "cli.h"
-#include "gFlow.h"
-#include "zxCmd.h"
-#include "zxGraphMgr.h"
+#include "./gFlow.hpp"
+#include "cli/cli.hpp"
+#include "zx/zxCmd.hpp"
+#include "zx/zxGraphMgr.hpp"
 
 using namespace std;
 using namespace ArgParse;

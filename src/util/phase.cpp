@@ -6,9 +6,9 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "phase.h"
+#include "./phase.hpp"
 
-#include "rationalNumber.h"
+#include "./rationalNumber.hpp"
 
 PhaseUnit Phase::_printUnit = PhaseUnit::PI;
 

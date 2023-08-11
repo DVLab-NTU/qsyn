@@ -10,12 +10,12 @@
 #include <iostream>
 #include <string>
 
-#include "cli.h"
-#include "optimizer.h"
-#include "qcir.h"
-#include "qcirCmd.h"
-#include "qcirMgr.h"
-#include "util.h"
+#include "./optimizer.hpp"
+#include "cli/cli.hpp"
+#include "qcir/qcir.hpp"
+#include "qcir/qcirCmd.hpp"
+#include "qcir/qcirMgr.hpp"
+#include "util/util.hpp"
 
 using namespace std;
 using namespace ArgParse;

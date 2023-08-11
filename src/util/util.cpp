@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "util.h"
+#include "util/util.hpp"
 
 #include <cerrno>
 #include <cstring>
@@ -15,8 +15,7 @@
 #include <string>
 #include <vector>
 
-#include "myUsage.h"
-#include "rnGen.h"
+#include "./myUsage.hpp"
 
 using namespace std;
 
@@ -24,7 +23,6 @@ using namespace std;
 //    Global variables in util
 //----------------------------------------------------------------------
 
-RandomNumGen rnGen(0);  // use random seed = 0
 MyUsage myUsage;
 
 //----------------------------------------------------------------------

@@ -6,11 +6,11 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "mappingEQChecker.h"
+#include "./mappingEQChecker.hpp"
 
-#include "placer.h"
-#include "qcir.h"
-#include "qcirQubit.h"
+#include "./placer.hpp"
+#include "qcir/qcir.hpp"
+#include "qcir/qcirQubit.hpp"
 
 using namespace std;
 

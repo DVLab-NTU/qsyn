@@ -5,12 +5,11 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef ARGPARSE_ARGTYPE_TPP
-#define ARGPARSE_ARGTYPE_TPP
+#pragma once
 
 #include <climits>
 
-#include "argparse.h"
+#include "./argparse.hpp"
 
 namespace ArgParse {
 
@@ -301,5 +300,3 @@ typename ArgType<T>::ActionType storeConst(T const& constValue) {
 }
 
 }  // namespace ArgParse
-
-#endif

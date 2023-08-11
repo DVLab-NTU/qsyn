@@ -10,10 +10,10 @@
 #include <cstdlib>
 #include <string>
 
-#include "qcir.h"
-#include "qcirGate.h"
-#include "qcirQubit.h"
-#include "textFormat.h"
+#include "./qcir.hpp"
+#include "./qcirGate.hpp"
+#include "./qcirQubit.hpp"
+#include "util/textFormat.hpp"
 
 using namespace std;
 namespace TF = TextFormat;

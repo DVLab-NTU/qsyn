@@ -9,7 +9,7 @@
 #include <filesystem>
 #include <iostream>
 
-#include "argparse.h"
+#include "./argparse.hpp"
 
 using namespace std;
 

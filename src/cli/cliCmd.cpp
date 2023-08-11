@@ -11,9 +11,9 @@
 #include <iostream>
 #include <string>
 
-#include "cli.h"
-#include "myUsage.h"
-#include "util.h"
+#include "cli/cli.hpp"
+#include "util/myUsage.hpp"
+#include "util/util.hpp"
 
 using namespace std;
 extern size_t verbose;

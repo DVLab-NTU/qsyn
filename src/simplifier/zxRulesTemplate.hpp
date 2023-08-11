@@ -10,8 +10,8 @@
 
 #include <vector>
 
-#include "zxDef.h"
-#include "zxGraph.h"
+#include "zx/zxDef.hpp"
+#include "zx/zxGraph.hpp"
 
 struct ZXOperation {
     std::vector<ZXVertex*> verticesToAdd;

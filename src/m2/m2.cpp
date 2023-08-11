@@ -6,7 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "m2.h"
+#include "./m2.hpp"
 
 #include <cassert>
 #include <cmath>
@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "zxGraph.h"
+#include "zx/zxGraph.hpp"
 
 extern size_t verbose;
 using namespace std;

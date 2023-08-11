@@ -10,10 +10,10 @@
 #include <cstddef>
 #include <stack>
 
-#include "qcir.h"
-#include "qcirGate.h"
-#include "qcirQubit.h"
-#include "zxGraph.h"
+#include "qcir/qcir.hpp"
+#include "qcir/qcirGate.hpp"
+#include "qcir/qcirQubit.hpp"
+#include "zx/zxGraph.hpp"
 
 using namespace std;
 extern size_t verbose;

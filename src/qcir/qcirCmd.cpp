@@ -6,23 +6,23 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "phase_argparse.h"
+#include "util/phase_argparse.hpp"
 // --- include before qcirCmd.h
 #include <cstddef>
 #include <filesystem>
 #include <iostream>
 #include <string>
 
-#include "cli.h"
-#include "phase.h"
-#include "qcir.h"
-#include "qcirCmd.h"
-#include "qcirGate.h"
-#include "qcirMgr.h"
-#include "qtensor.h"
-#include "tensorMgr.h"
-#include "zxGraph.h"
-#include "zxGraphMgr.h"
+#include "cli/cli.hpp"
+#include "qcir/qcir.hpp"
+#include "qcir/qcirCmd.hpp"
+#include "qcir/qcirGate.hpp"
+#include "qcir/qcirMgr.hpp"
+#include "tensor/qtensor.hpp"
+#include "tensor/tensorMgr.hpp"
+#include "util/phase.hpp"
+#include "zx/zxGraph.hpp"
+#include "zx/zxGraphMgr.hpp"
 
 QCirMgr qcirMgr{"QCir"};
 extern ZXGraphMgr zxGraphMgr;

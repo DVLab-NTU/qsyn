@@ -11,10 +11,10 @@
 #include <iostream>
 #include <string>
 
-#include "cli.h"
-#include "lattice.h"
-#include "zxCmd.h"
-#include "zxGraphMgr.h"
+#include "./lattice.hpp"
+#include "cli/cli.hpp"
+#include "zx/zxCmd.hpp"
+#include "zx/zxGraphMgr.hpp"
 
 using namespace std;
 using namespace ArgParse;

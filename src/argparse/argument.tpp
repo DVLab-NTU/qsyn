@@ -5,10 +5,9 @@
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#ifndef ARGPARSE_ARGUMENT_TPP
-#define ARGPARSE_ARGUMENT_TPP
+#pragma once
 
-#include "argparse.h"
+#include "./argparse.hpp"
 
 namespace ArgParse {
 /**
@@ -39,5 +38,3 @@ T Argument::get() const {
 }
 
 }  // namespace ArgParse
-
-#endif  // AP_ARGUMENT_TPP

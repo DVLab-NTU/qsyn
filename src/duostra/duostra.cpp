@@ -7,13 +7,13 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "duostra.h"
+#include "./duostra.hpp"
 
-#include "checker.h"
-#include "cli.h"
-#include "placer.h"
-#include "qcir.h"
-#include "variables.h"
+#include "./checker.hpp"
+#include "./placer.hpp"
+#include "./variables.hpp"
+#include "cli/cli.hpp"
+#include "qcir/qcir.hpp"
 
 using namespace std;
 extern size_t verbose;

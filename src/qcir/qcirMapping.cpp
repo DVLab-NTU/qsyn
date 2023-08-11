@@ -9,18 +9,16 @@
 #include <cstddef>
 #include <thread>
 
-#include "cli.h"
-#include "qcir.h"
-#include "qcirGate.h"
-#include "qcirQubit.h"
-#include "qtensor.h"
-#include "tensorMgr.h"
-#include "zxGraph.h"
-#include "zxGraphMgr.h"
+#include "./qcir.hpp"
+#include "./qcirGate.hpp"
+#include "./qcirQubit.hpp"
+#include "cli/cli.hpp"
+#include "tensor/qtensor.hpp"
+#include "zx/zxGraph.hpp"
+#include "zx/zxGraphMgr.hpp"
 
 using namespace std;
 extern ZXGraphMgr zxGraphMgr;
-extern TensorMgr *tensorMgr;
 extern size_t verbose;
 
 using Qubit2TensorPinMap = std::unordered_map<size_t, std::pair<size_t, size_t>>;

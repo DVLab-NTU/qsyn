@@ -6,7 +6,7 @@
   Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "myUsage.h"
+#include "./myUsage.hpp"
 
 #include <iomanip>
 #include <iostream>

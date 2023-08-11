@@ -11,15 +11,15 @@
 #include <iostream>
 #include <string>
 
-#include "cli.h"
-#include "deviceMgr.h"
-#include "duostra.h"
-#include "mappingEQChecker.h"
-#include "qcir.h"
-#include "qcirCmd.h"
-#include "qcirMgr.h"
-#include "textFormat.h"
-#include "variables.h"
+#include "./duostra.hpp"
+#include "./mappingEQChecker.hpp"
+#include "./variables.hpp"
+#include "cli/cli.hpp"
+#include "device/deviceMgr.hpp"
+#include "qcir/qcir.hpp"
+#include "qcir/qcirCmd.hpp"
+#include "qcir/qcirMgr.hpp"
+#include "util/textFormat.hpp"
 
 using namespace std;
 using namespace ArgParse;

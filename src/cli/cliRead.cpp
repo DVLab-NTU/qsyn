@@ -11,8 +11,8 @@
 #include <regex>
 #include <sstream>
 
-#include "cli.h"
-#include "cliCharDef.h"
+#include "cli/cli.hpp"
+#include "cli/cliCharDef.hpp"
 
 using namespace std;
 

@@ -15,8 +15,8 @@
 #include <unordered_set>
 #include <vector>
 
-#include "cli.h"
-#include "util.h"
+#include "cli/cli.hpp"
+#include "util/util.hpp"
 
 using namespace std;
 using namespace ArgParse;

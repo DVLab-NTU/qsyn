@@ -12,14 +12,14 @@
 #include <fstream>
 #include <iostream>
 
-#include "argparse.h"
-#include "cli.h"
-#include "jthread.hpp"
-#include "myUsage.h"
-#include "util.h"
+#include "argparse/argparse.hpp"
+#include "cli/cli.hpp"
+#include "jthread/jthread.hpp"
+#include "util/myUsage.hpp"
+#include "util/util.hpp"
 
 #ifndef QSYN_VERSION
-#define QSYN_VERSION "0.5.1"
+#define QSYN_VERSION "[unknown version]"
 #endif
 
 using namespace std;
