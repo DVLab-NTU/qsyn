@@ -85,5 +85,3 @@ private:
 };
 
 QTensor<double> getTSform(ZXVertex* v);
-
-

@@ -14,5 +14,3 @@ extern ArgParse::ArgType<size_t>::ConstraintType const validQCirId;
 extern ArgParse::ArgType<size_t>::ConstraintType const validQCirGateId;
 extern ArgParse::ArgType<size_t>::ConstraintType const validQCirBitId;
 extern ArgParse::ArgType<size_t>::ConstraintType const validDMode;
-
-

@@ -76,4 +76,3 @@ private:
     std::tuple<bool, size_t> touchAdjacency(PhysicalQubit& qubit, PriorityQueue& pq, bool swtch);  // return <if touch target, target id>, swtch: false q0 propagate, true q1 propagate
     std::vector<Operation> traceback([[maybe_unused]] GateType op, size_t, Phase ph, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool, bool);
 };
-

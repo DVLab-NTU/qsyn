@@ -34,4 +34,3 @@ private:
     const std::vector<Operation>& _ops;
     bool _tqdm;
 };
-

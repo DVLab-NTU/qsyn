@@ -417,4 +417,3 @@ template <typename T>
 typename QTensor<T>::DataType QTensor<T>::nuPow(const int& n) {
     return std::pow(2., -0.25 * n);
 }
-

@@ -79,4 +79,3 @@ struct hash<pair<int, int>> {
 };
 
 }  // namespace std
-

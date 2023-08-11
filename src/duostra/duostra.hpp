@@ -54,5 +54,3 @@ std::string getPlacerTypeStr();
 size_t getSchedulerType(std::string);
 size_t getRouterType(std::string);
 size_t getPlacerType(std::string);
-
-

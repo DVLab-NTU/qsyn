@@ -72,5 +72,3 @@ constexpr int UNDEFINED_KEY = INT_MAX;
 constexpr int BEEP_CHAR = 7;
 constexpr int BACK_SPACE_CHAR = 8;
 };  // namespace KeyCode
-
-

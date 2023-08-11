@@ -227,4 +227,3 @@ T& ordered_hashmap<Key, T, Hash, KeyEqual>::operator[](Key&& key) {
     if (!this->contains(key)) this->emplace(key, T());
     return at(key);
 }
-

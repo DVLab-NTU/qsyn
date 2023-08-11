@@ -343,4 +343,3 @@ void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sort(F lambda) {
         }
     }
 }
-

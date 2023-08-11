@@ -22,4 +22,3 @@ inline bool parseFromString(Phase& phase, std::string const& token) {
 }  // namespace ArgParse
 
 #include "argparse/argparse.hpp"
-

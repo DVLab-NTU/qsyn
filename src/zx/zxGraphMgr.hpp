@@ -13,5 +13,3 @@
 
 using ZXGraphMgr = dvlab_utils::DataStructureManager<ZXGraph>;
 bool zxGraphMgrNotEmpty(std::string const& command);  // defined in zxCmd.cpp
-
-

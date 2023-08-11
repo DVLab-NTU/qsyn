@@ -331,5 +331,3 @@ bool isPartition(const Tensor<U>& t, const TensorAxisList& axin, const TensorAxi
     if (axin.size() + axout.size() != t._tensor.dimension()) return false;
     return true;
 }
-
-

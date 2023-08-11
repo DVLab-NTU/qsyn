@@ -36,4 +36,3 @@ private:
     // <qubit, gate to execute (from back)> for logical circuit
     std::unordered_map<size_t, QCirGate*> _dependency;
 };
-

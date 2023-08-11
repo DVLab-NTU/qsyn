@@ -39,4 +39,3 @@ private:
     QCirGate* _bitLast;
     QCirGate* _bitFirst;
 };
-

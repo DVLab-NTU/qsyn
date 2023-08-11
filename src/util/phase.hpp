@@ -205,4 +205,3 @@ bool Phase::myStr2Phase(const std::string& str, Phase& p) {
 
     return true;
 }
-

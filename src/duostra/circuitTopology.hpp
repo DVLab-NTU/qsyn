@@ -95,4 +95,3 @@ protected:
     // NOTE - Executed gates is a countable set. <Gate Index, #next executed>
     std::unordered_map<size_t, size_t> _executedGates;
 };
-
