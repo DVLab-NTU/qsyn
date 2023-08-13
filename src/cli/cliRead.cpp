@@ -29,7 +29,7 @@ void CommandLineInterface::askForUserInput(std::istream& istr) {
         if (istr.eof()) return;
 
         if (keycode == INPUT_END_KEY) {
-            cout << "\nquit" << endl;
+            fmt::println("\nquit");
             std::exit(0);
         }
 
@@ -53,7 +53,7 @@ void CommandLineInterface::askForUserInput(std::istream& istr) {
                 break;
             case CLEAR_CONSOLE_KEY:
                 clearConsole();
-                cout << char(NEWLINE_KEY);
+                fmt::print("\n");
                 resetBufAndPrintPrompt();
                 break;
             case ARROW_UP_KEY:
@@ -94,7 +94,6 @@ bool CommandLineInterface::readCmd(istream& istr) {
     resetBufAndPrintPrompt();
 
     this->askForUserInput(istr);
-    // listen for keystrokes
 
     bool added = addUserInputToHistory();
 
@@ -120,7 +119,8 @@ bool CommandLineInterface::readCmd(istream& istr) {
             std::ranges::for_each(tokens, [this](std::string& token) { _commandQueue.push(stripWhitespaces(token)); });
         }
 
-        cout << '\n';
+        fmt::print("\n");
+        fflush(stdout);
     }
 
     return added;
@@ -146,12 +146,12 @@ bool CommandLineInterface::moveCursor(int idx) {
 
     // move left
     if (_cursorPosition > (size_t)idx) {
-        cout << string(_cursorPosition - idx, char(KeyCode::BACK_SPACE_CHAR));
+        fmt::print("{}", string(_cursorPosition - idx, '\b'));
     }
 
     // move right
     if (_cursorPosition < (size_t)idx) {
-        cout << _readBuf.substr(_cursorPosition, idx - _cursorPosition);
+        fmt::print("{}", _readBuf.substr(_cursorPosition, idx - _cursorPosition));
     }
     _cursorPosition = idx;
     return true;
@@ -182,9 +182,9 @@ bool CommandLineInterface::deleteChar() {
         return false;
     }
     // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
+    fmt::print("{}", _readBuf.substr(_cursorPosition + 1));  // move cursor to the end
+    fmt::print(" \b");                                       // get rid of the last character
 
-    cout << _readBuf.substr(_cursorPosition + 1);   // will move cursor to the end
-    cout << " " << char(KeyCode::BACK_SPACE_CHAR);  // get rid of the last character
     _readBuf.erase(_cursorPosition, 1);
 
     int idx = _cursorPosition;
@@ -210,8 +210,7 @@ bool CommandLineInterface::deleteChar() {
 //
 void CommandLineInterface::insertChar(char ch) {
     _readBuf.insert(_cursorPosition, 1, ch);
-
-    cout << _readBuf.substr(_cursorPosition);
+    fmt::print("{}", _readBuf.substr(_cursorPosition));
     int idx = _cursorPosition + 1;
     _cursorPosition = _readBuf.size();
     moveCursor(idx);
@@ -233,20 +232,22 @@ void CommandLineInterface::insertChar(char ch) {
 //
 void CommandLineInterface::deleteLine() {
     moveCursor(_readBuf.size());
-    cout << string(_cursorPosition, '\b') << string(_cursorPosition, ' ') << string(_cursorPosition, '\b');
+    fmt::print("{}", string(_cursorPosition, '\b'));
+    fmt::print("{}", string(_cursorPosition, ' '));
+    fmt::print("{}", string(_cursorPosition, '\b'));
     _readBuf.clear();
 }
 
 // Reprint the current command to a newline
 // cursor should be restored to the original location
 void CommandLineInterface::reprintCmd() {
-    cout << endl;
+    fmt::print("\n");
 
     // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
     int idx = _cursorPosition;
     _cursorPosition = _readBuf.size();  // before moving cursor, reflect the change in actual cursor location
     printPrompt();
-    cout << _readBuf;
+    fmt::print("{}", _readBuf);
     moveCursor(idx);  // move the cursor back to where it should be
 }
 
@@ -340,38 +341,24 @@ void CommandLineInterface::saveArgumentsInVariables(std::string const& str) {
     iss >> token;  // skip the first token "//!ARGS"
     assert(token == "//!ARGS");
 
-    size_t n;
-    iss >> n;
-
     regex validVariableName("[a-zA-Z_][a-zA-Z0-9_]*");
     std::vector<std::string> keys;
     while (iss >> token) {
         if (!regex_match(token, validVariableName)) {
-            std::cerr << '\n';
-            std::cerr << "Error: Invalid argument name \"" << token << "\" in \"//!ARGS\" directive" << std::endl;
+            fmt::print(stderr, "\n");
+            fmt::println(stderr, "Error: invalid argument name \"{}\" in \"//!ARGS\" directive", token);
             std::exit(-1);
         }
         keys.emplace_back(token);
     }
 
-    if (keys.size() < n) {
-        std::cerr << '\n';
-        std::cerr << "Error: Too few arguments declared in \"//!ARGS\" directive, expected " << n << " but got " << keys.size() << std::endl;
-        std::exit(-1);
-    } else if (keys.size() > n) {
-        std::cerr << '\n';
-        std::cerr << "Warning: Too many arguments declared in \"//!ARGS\" directive, expected " << n << " but got " << keys.size() << std::endl;
-        std::cerr << "Warning: Ignoring extra arguments" << std::endl;
-        std::exit(-1);
-    }
-
     if (_arguments.size() != keys.size()) {
-        std::cerr << '\n';
-        std::cerr << "Error: Not enough arguments provided, expected " << keys.size() << " but got " << _arguments.size() << std::endl;
+        fmt::print(stderr, "\n");
+        fmt::println(stderr, "Error: wrong number of arguments provided, expected {} but got {}!!", keys.size(), _arguments.size());
         std::exit(-1);
     }
 
-    for (size_t i = 0; i < n; ++i) {
+    for (size_t i = 0; i < keys.size(); ++i) {
         _variables.emplace(keys[i], _arguments[i]);
     }
 }
@@ -384,6 +371,6 @@ void CommandLineInterface::saveArgumentsInVariables(std::string const& str) {
 void CommandLineInterface::retrieveHistory() {
     deleteLine();
     _readBuf = _history[_historyIdx];
-    cout << _readBuf;
+    fmt::print("{}", _readBuf);
     _cursorPosition = _history[_historyIdx].size();
 }

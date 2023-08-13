@@ -1,0 +1,81 @@
+DV Lab, NTUEE, Qsyn 0.5.1
+qsyn> logger
+Logger Level: warning
+
+qsyn> logger level debug
+[[38;2;000;128;000mDebug[0m] Setting logger level to debug
+
+qsyn> logger
+Logger Level: debug
+
+qsyn> logger test
+[[38;2;000;000;000m[48;2;255;000;000mFatal[0m] Test fatal log
+[[38;2;255;000;000mError[0m] Test fatal log
+[[38;2;255;255;000mWarning[0m] Test warning log
+[Info] Test info log
+[[38;2;000;128;000mDebug[0m] Test debug log
+
+qsyn> logger mask -error -warning
+[[38;2;000;128;000mDebug[0m] Masked logger level: error
+[[38;2;000;128;000mDebug[0m] Masked logger level: warning
+
+qsyn> logger
+Logger Level: debug
+Masked logging levels: error, warning
+
+qsyn> logger test
+[[38;2;000;000;000m[48;2;255;000;000mFatal[0m] Test fatal log
+[Info] Test info log
+[[38;2;000;128;000mDebug[0m] Test debug log
+
+qsyn> logger mask +warning
+[[38;2;000;128;000mDebug[0m] Unmasked logger level: warning
+
+qsyn> logger
+Logger Level: debug
+Masked logging levels: error
+
+qsyn> logger test
+[[38;2;000;000;000m[48;2;255;000;000mFatal[0m] Test fatal log
+[[38;2;255;255;000mWarning[0m] Test warning log
+[Info] Test info log
+[[38;2;000;128;000mDebug[0m] Test debug log
+
+qsyn> logger level error
+
+qsyn> logger test
+[[38;2;000;000;000m[48;2;255;000;000mFatal[0m] Test fatal log
+
+qsyn> logger history
+[[38;2;000;128;000mDebug[0m] Setting logger level to debug
+[[38;2;000;000;000m[48;2;255;000;000mFatal[0m] Test fatal log
+[[38;2;255;000;000mError[0m] Test fatal log
+[[38;2;255;255;000mWarning[0m] Test warning log
+[Info] Test info log
+[[38;2;000;128;000mDebug[0m] Test debug log
+[[38;2;000;255;255mTrace[0m] Test trace log
+[[38;2;000;128;000mDebug[0m] Masked logger level: error
+[[38;2;000;128;000mDebug[0m] Masked logger level: warning
+[[38;2;000;000;000m[48;2;255;000;000mFatal[0m] Test fatal log
+[[38;2;255;000;000mError[0m] Test fatal log
+[[38;2;255;255;000mWarning[0m] Test warning log
+[Info] Test info log
+[[38;2;000;128;000mDebug[0m] Test debug log
+[[38;2;000;255;255mTrace[0m] Test trace log
+[[38;2;000;128;000mDebug[0m] Unmasked logger level: warning
+[[38;2;000;000;000m[48;2;255;000;000mFatal[0m] Test fatal log
+[[38;2;255;000;000mError[0m] Test fatal log
+[[38;2;255;255;000mWarning[0m] Test warning log
+[Info] Test info log
+[[38;2;000;128;000mDebug[0m] Test debug log
+[[38;2;000;255;255mTrace[0m] Test trace log
+[[38;2;000;128;000mDebug[0m] Setting logger level to error
+[[38;2;000;000;000m[48;2;255;000;000mFatal[0m] Test fatal log
+[[38;2;255;000;000mError[0m] Test fatal log
+[[38;2;255;255;000mWarning[0m] Test warning log
+[Info] Test info log
+[[38;2;000;128;000mDebug[0m] Test debug log
+[[38;2;000;255;255mTrace[0m] Test trace log
+
+qsyn> qq -f
+

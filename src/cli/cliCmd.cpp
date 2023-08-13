@@ -31,6 +31,7 @@ unique_ptr<ArgParseCmdType> seedCmd();
 unique_ptr<ArgParseCmdType> colorCmd();
 unique_ptr<ArgParseCmdType> historyCmd();
 unique_ptr<ArgParseCmdType> clearCmd();
+unique_ptr<ArgParseCmdType> loggerCmd();
 
 bool initCommonCmd() {
     if (!(cli.regCmd("QQuit", 2, quitCmd()) &&
@@ -41,8 +42,9 @@ bool initCommonCmd() {
           cli.regCmd("VERbose", 3, verboseCmd()) &&
           cli.regCmd("SEED", 4, seedCmd()) &&
           cli.regCmd("CLEAR", 5, clearCmd()) &&
+          cli.regCmd("LOGger", 3, loggerCmd()) &&
           cli.regCmd("COLOR", 5, colorCmd()))) {
-        cerr << "Registering \"init\" commands fails... exiting" << endl;
+        logger.fatal("Registering \"cli\" commands fails... exiting");
         return false;
     }
     return true;
@@ -66,7 +68,7 @@ unique_ptr<ArgParseCmdType> helpCmd() {
         } else {
             CmdExec* e = cli.getCmd(parser["command"]);
             if (!e) {
-                cerr << "Error: Illegal command!! (" << parser["command"] << ")\n";
+                fmt::println(stderr, "Error: illegal command!! ({})", parser.get<std::string>("command"));
                 return CmdExecResult::ERROR;
             }
             e->help();
@@ -92,15 +94,20 @@ unique_ptr<ArgParseCmdType> quitCmd() {
         bool forced = parser["-force"];
         if (forced) return CmdExecResult::QUIT;
 
-        cout << "Are you sure to quit (Yes/No)? [No] ";
-        char str[1024];
-        cin.getline(str, 1024);
-        string ss = string(str);
-        size_t s = ss.find_first_not_of(' ', 0);
-        if (s != string::npos) {
+        fmt::print("Are you sure to quit (Yes/No)? [No] ");
+        fflush(stdout);
+        string ss;
+        std::getline(std::cin, ss);
+
+        if (std::cin.eof()) {
+            fmt::print("EOF [assumed Yes]");
+            return CmdExecResult::QUIT;
+        }
+
+        if (size_t s = ss.find_first_not_of(' '); s != string::npos) {
             ss = ss.substr(s);
-            if ("Yes"s.starts_with(toLowerString(ss)))
-                return CmdExecResult::QUIT;  // ready to quit
+            if ("yes"s.starts_with(toLowerString(ss)))
+                return CmdExecResult::QUIT;
         }
         return CmdExecResult::DONE;  // not yet to quit
     };
@@ -143,7 +150,7 @@ unique_ptr<ArgParseCmdType> dofileCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (!cli.openDofile(parser["file"])) {
-            cerr << "Error: cannot open file \"" << parser["file"] << "\"!!" << endl;
+            fmt::println("Error: cannot open file \"{}\"!!", parser.get<std::string>("file"));
             return CmdExecResult::ERROR;
         }
 
@@ -200,14 +207,125 @@ unique_ptr<ArgParseCmdType> verboseCmd() {
                              return val <= 9 || val == 353;
                          },
                          [](size_t const& val) {
-                             cerr << "Error: verbose level should be 0-9!!\n";
+                             fmt::println(stderr, "Error: verbose level should be 0-9!!");
                          }})
             .help("0: silent, 1-3: normal usage, 4-6: detailed info, 7-9: prolix debug info");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         verbose = parser["level"];
-        cout << "Note: verbose level is set to " << parser["level"] << endl;
+        fmt::println("Note: verbose level is set to {}", verbose);
+
+        return CmdExecResult::DONE;
+    };
+
+    return cmd;
+}
+
+unique_ptr<ArgParseCmdType> loggerCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("LOGger");
+
+    cmd->parserDefinition = [](ArgumentParser& parser) {
+        vector<string> logLevels = {"none", "fatal", "error", "warning", "info", "debug", "trace"};
+        parser.help("display and set the logger's status");
+
+        auto parsers = parser.addSubParsers();
+
+        auto testParser = parsers.addParser("test");
+        testParser.help("Test out logger setting");
+
+        auto levelParser = parsers.addParser("level");
+        levelParser.help("set logger level");
+        levelParser.addArgument<string>("level")
+            .constraint(choices_allow_prefix(logLevels))
+            .help("set log levels. Levels (ascending): None, Fatal, Error, Warning, Info, Debug, Trace");
+
+        auto historyParser = parsers.addParser("history");
+        historyParser.help("print logger history");
+        historyParser.addArgument<size_t>("num_history")
+            .nargs(NArgsOption::OPTIONAL)
+            .metavar("N")
+            .help("print log history. If specified, print the lastest N logs");
+
+        auto maskParser = parsers.addParser("mask");
+        maskParser.help("set logger mask");
+        maskParser.setOptionPrefix("+-");
+        auto addFilterGroup = [&maskParser](std::string const& groupName) {
+            auto group = maskParser.addMutuallyExclusiveGroup();
+            group.addArgument<bool>("+" + groupName)
+                .action(storeTrue)
+                .help("unmask " + groupName + " logs");
+            group.addArgument<bool>("-" + groupName)
+                .action(storeTrue)
+                .help("mask " + groupName + " logs");
+        };
+
+        for (auto& group : logLevels) {
+            if (group == "none") continue;
+            addFilterGroup(group);
+        }
+    };
+
+    cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        using dvlab_utils::Logger;
+
+        if (parser.usedSubParser("test")) {
+            logger.fatal("Test fatal log");
+            logger.error("Test fatal log");
+            logger.warning("Test warning log");
+            logger.info("Test info log");
+            logger.debug("Test debug log");
+            logger.trace("Test trace log");
+            return CmdExecResult::DONE;
+        }
+
+        if (parser.usedSubParser("level")) {
+            auto level = Logger::str2LogLevel(parser["level"]);
+            assert(level.has_value());
+            logger.setLogLevel(*level);
+            logger.debug("Setting logger level to {}", Logger::logLevel2Str(*level));
+            return CmdExecResult::DONE;
+        }
+
+        if (parser.usedSubParser("mask")) {
+            vector<string> logLevels = {"fatal", "error", "warning", "info", "debug", "trace"};
+
+            for (auto& group : logLevels) {
+                auto level = Logger::str2LogLevel(group);
+                assert(level.has_value());
+                if (parser["+" + group].isParsed()) {
+                    logger.unmask(*level);
+                    logger.debug("Unmasked logger level: {}", Logger::logLevel2Str(*level));
+                } else if (parser["-" + group].isParsed()) {
+                    logger.mask(*level);
+                    logger.debug("Masked logger level: {}", Logger::logLevel2Str(*level));
+                }
+            }
+            return CmdExecResult::DONE;
+        }
+
+        if (parser.usedSubParser("history")) {
+            if (parser["num_history"].isParsed()) {
+                logger.printLogs(parser.get<size_t>("num_history"));
+            } else {
+                logger.printLogs();
+            }
+            return CmdExecResult::DONE;
+        }
+
+        fmt::println("Logger Level: {}", Logger::logLevel2Str(logger.getLogLevel()));
+        vector<string> masked;
+        vector<string> logLevels = {"fatal", "error", "warning", "info", "debug", "trace"};
+        for (auto& level : logLevels) {
+            if (logger.isMasked(*Logger::str2LogLevel(level))) {
+                masked.push_back(level);
+            }
+        }
+
+        if (masked.size()) {
+            fmt::println("Masked logging levels: {}", fmt::join(masked, ", "));
+        }
+
         return CmdExecResult::DONE;
     };
 
@@ -228,7 +346,7 @@ unique_ptr<ArgParseCmdType> seedCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         srand(parser["seed"]);
-        cout << "Note: seed is set to " << parser["seed"] << endl;
+        fmt::println("Note: seed is set to {}", parser.get<unsigned>("seed"));
         return CmdExecResult::DONE;
     };
 
@@ -249,8 +367,7 @@ unique_ptr<ArgParseCmdType> colorCmd() {
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         string mode = parser["mode"];
         colorLevel = (mode == "on") ? 1 : 0;
-        cout << "Note: color mode is set to " << mode << endl;
-
+        fmt::println("Note: color mode is set to {}", mode);
         return CmdExecResult::DONE;
     };
 

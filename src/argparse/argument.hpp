@@ -14,12 +14,6 @@
 
 namespace ArgParse {
 
-namespace detail {
-
-extern std::ostream& _cerr;
-
-}
-
 class Argument {
 public:
     Argument()
@@ -178,9 +172,7 @@ T Argument::get() const {
             return ptr->inner.template get<T>();
         }
     }
-
-    detail::_cerr << "[ArgParse] Error: cannot cast argument \""
-                  << getName() << "\" to target type!!\n";
+    fmt::println(stderr, "[ArgParse] Error: cannot cast argument \"{}\" to target type!!", getName());
     throw std::bad_cast{};
 }
 

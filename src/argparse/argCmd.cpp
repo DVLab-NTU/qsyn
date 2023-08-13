@@ -27,7 +27,7 @@ unique_ptr<ArgParseCmdType> argparseCmd();
 
 bool initArgParseCmd() {
     if (!(cli.regCmd("Argparse", 1, argparseCmd()))) {
-        cerr << "Registering \"argparser\" commands fails... exiting" << endl;
+        fmt::println(stderr, "Registering \"argparse\" commands fails... exiting");
         return false;
     }
     return true;

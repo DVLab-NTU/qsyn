@@ -544,9 +544,7 @@ unique_ptr<ArgParseCmdType> ZXGEditCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        std::string subparser = parser.getActivatedSubParserName();
-
-        if (subparser == "-rmvertex") {
+        if (parser.usedSubParser("-rmvertex")) {
             auto ids = parser.get<vector<size_t>>("ids");
             auto vertices_range = ids |
                                   views::transform([](size_t id) { return zxGraphMgr.get()->findVertexById(id); }) |
@@ -559,7 +557,7 @@ unique_ptr<ArgParseCmdType> ZXGEditCmd() {
             }
             return CmdExecResult::DONE;
         }
-        if (subparser == "-rmedge") {
+        if (parser.usedSubParser("-rmedge")) {
             auto ids = parser.get<std::vector<size_t>>("ids");
             auto v0 = zxGraphMgr.get()->findVertexById(ids[0]);
             auto v1 = zxGraphMgr.get()->findVertexById(ids[1]);
@@ -575,7 +573,7 @@ unique_ptr<ArgParseCmdType> ZXGEditCmd() {
 
             return CmdExecResult::DONE;
         }
-        if (subparser == "-addvertex") {
+        if (parser.usedSubParser("-addvertex")) {
             auto vtype = str2VertexType(parser.get<std::string>("vtype"));
             assert(vtype.has_value());
 
@@ -583,15 +581,15 @@ unique_ptr<ArgParseCmdType> ZXGEditCmd() {
 
             return CmdExecResult::DONE;
         }
-        if (subparser == "-addinput") {
+        if (parser.usedSubParser("-addinput")) {
             zxGraphMgr.get()->addInput(parser.get<size_t>("qubit"));
             return CmdExecResult::DONE;
         }
-        if (subparser == "-addoutput") {
+        if (parser.usedSubParser("-addoutput")) {
             zxGraphMgr.get()->addOutput(parser.get<size_t>("qubit"));
             return CmdExecResult::DONE;
         }
-        if (subparser == "-addedge") {
+        if (parser.usedSubParser("-addedge")) {
             auto ids = parser.get<std::vector<size_t>>("ids");
             auto v0 = zxGraphMgr.get()->findVertexById(ids[0]);
             auto v1 = zxGraphMgr.get()->findVertexById(ids[1]);

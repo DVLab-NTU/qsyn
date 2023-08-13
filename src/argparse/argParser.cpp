@@ -8,6 +8,8 @@
 
 #include "./argParser.hpp"
 
+#include <fmt/format.h>
+
 #include <cassert>
 #include <iomanip>
 #include <iostream>
@@ -27,9 +29,8 @@ namespace ArgParse {
 void ArgumentParser::printTokens() const {
     size_t i = 0;
     for (auto& [token, parsed] : _pimpl->tokens) {
-        cout << "Token #" << ++i << ":\t"
-             << left << setw(8) << token << " (" << (parsed ? "parsed" : "unparsed") << ")  "
-             << "Frequency: " << right << setw(3) << _pimpl->trie.frequency(token) << endl;
+        fmt::println("Token #{:<8}:\t{} ({}) Frequency: {:>3}",
+                     ++i, token, (parsed ? "parsed" : "unparsed"), _pimpl->trie.frequency(token));
     }
 }
 
@@ -115,7 +116,7 @@ bool ArgumentParser::analyzeOptions() const {
     for (auto const& group : _pimpl->mutuallyExclusiveGroups) {
         for (auto const& name : group.getArguments()) {
             if (_pimpl->arguments.at(name).isRequired()) {
-                cerr << "[ArgParse] Error: Mutually exclusive argument \"" << name << "\" must be optional!!" << endl;
+                fmt::println(stderr, "[ArgParse] Errpr: Mutually exclusive argument \"{}\" must be optional!!", name);
                 return false;
             }
             _pimpl->conflictGroups.emplace(name, group);
@@ -157,7 +158,7 @@ bool ArgumentParser::tokenize(string const& line) {
     _pimpl->tokens.clear();
     auto stripped = stripQuotes(line);
     if (!stripped.has_value()) {
-        cerr << "Error: missing ending quote!!" << endl;
+        fmt::println(stderr, "Error: missing ending quote!!");
         return false;
     }
 
@@ -209,11 +210,8 @@ bool ArgumentParser::parseArgs(TokensView tokens) {
     if (!success) return false;
 
     if (unrecognized.size()) {
-        cerr << "Error: unrecognized arguments:";
-        for (auto& [token, _] : unrecognized) {
-            cerr << " \"" << token << "\"";
-        }
-        cerr << "!!" << endl;
+        auto quotedView = unrecognized | std::views::transform([](Token const& tok) { return '"' + tok.token + '"'; });
+        fmt::println(stderr, "Error: unrecognized arguments: {:}!!", fmt::join(quotedView, " "));
         return false;
     }
 
@@ -229,6 +227,8 @@ bool ArgumentParser::parseArgs(TokensView tokens) {
  */
 std::pair<bool, std::vector<Token>> ArgumentParser::parseKnownArgs(TokensView tokens) {
     if (!analyzeOptions()) return {false, {}};
+
+    _pimpl->activatedSubParser = std::nullopt;
 
     auto subparserTokenPos = std::invoke([this, tokens]() -> size_t {
         if (!_pimpl->subparsers.has_value())
@@ -262,8 +262,8 @@ std::pair<bool, std::vector<Token>> ArgumentParser::parseKnownArgs(TokensView to
     fillUnparsedArgumentsWithDefaults();
     if (hasSubParsers()) {
         TokensView subparser_tokens = tokens.subspan(subparserTokenPos + 1);
-        if (getActivatedSubParserName().size()) {
-            auto [success, subparser_unrecognized] = getActivatedSubParser().parseKnownArgs(subparser_tokens);
+        if (_pimpl->activatedSubParser) {
+            auto [success, subparser_unrecognized] = getActivatedSubParser()->parseKnownArgs(subparser_tokens);
             if (!success) return {false, {}};
             unrecognized.insert(unrecognized.end(), subparser_unrecognized.begin(), subparser_unrecognized.end());
         } else if (_pimpl->subparsers->isRequired()) {
@@ -499,7 +499,7 @@ void ArgumentParser::printRequiredArgumentsMissingErrorMsg() const {
  * @param name
  */
 void ArgumentParser::printDuplicateArgNameErrorMsg(std::string const& name) const {
-    std::cerr << "[ArgParse] Error: Duplicate argument name \"" << name << "\"!!" << std::endl;
+    fmt::println(stderr, "[ArgParse] Error: Duplicate argument name \"{}\"!!", name);
 }
 
 ArgumentGroup ArgumentParser::addMutuallyExclusiveGroup() {
@@ -514,7 +514,7 @@ ArgumentParser SubParsers::addParser(std::string const& n) {
 
 SubParsers ArgumentParser::addSubParsers() {
     if (_pimpl->subparsers.has_value()) {
-        std::cerr << "Error: An ArgumentParser can have only one set of subparsers!!" << std::endl;
+        fmt::println(stderr, "Error: An ArgumentParser can only have one set of subparsers!!");
         exit(-1);
     }
     _pimpl->subparsers = SubParsers{};

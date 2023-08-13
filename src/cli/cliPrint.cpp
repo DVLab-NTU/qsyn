@@ -14,7 +14,7 @@ void CommandLineInterface::printHelps() const {
     for (const auto& mi : _cmdMap)
         mi.second->summary();
 
-    cout << endl;
+    fmt::print("\n");
 }
 
 void CommandLineInterface::printHistory() const {
@@ -24,16 +24,18 @@ void CommandLineInterface::printHistory() const {
 void CommandLineInterface::printHistory(size_t nPrint) const {
     assert(_tempCmdStored == false);
     if (_history.empty()) {
-        cout << "Empty command history!!" << endl;
+        fmt::println(("Empty command history!!"));
         return;
     }
     size_t s = _history.size();
-    for (auto i = s - std::min(s, nPrint); i < s; ++i)
-        cout << "   " << i << ": " << _history[i] << endl;
+    for (auto i = s - std::min(s, nPrint); i < s; ++i) {
+        fmt::println("{:>4}: {}", i, _history[i]);
+    }
 }
 
 void CommandLineInterface::printPrompt() const {
-    cout << _prompt << std::flush;
+    fmt::print("{}", _prompt);
+    fflush(stdout);
 }
 
 void CommandLineInterface::resetBufAndPrintPrompt() {
@@ -44,7 +46,7 @@ void CommandLineInterface::resetBufAndPrintPrompt() {
 }
 
 void CommandLineInterface::beep() const {
-    cout << (char)KeyCode::BEEP_CHAR;
+    fmt::print("{}", (char)KeyCode::BEEP_CHAR);
 }
 
 void CommandLineInterface::clearConsole() const {
@@ -54,6 +56,6 @@ void CommandLineInterface::clearConsole() const {
     int result = system("clear");
 #endif
     if (result != 0) {
-        cerr << "Error clearing the console!!" << endl;
+        fmt::println(stderr, "Error clearing the console!!");
     }
 }

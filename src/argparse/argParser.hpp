@@ -27,7 +27,6 @@ class SubParsers {
 private:
     struct SubParsersImpl {
         ordered_hashmap<std::string, ArgumentParser> subparsers;
-        std::string activatedSubparser;
         std::string help;
         bool required;
         bool parsed;
@@ -77,8 +76,8 @@ public:
     template <typename T>
     T get(std::string const& name) const {
         auto lower = toLowerString(name);
-        if (_pimpl->activatedSubParser.size()) {
-            auto& subparser = _pimpl->subparsers->getSubParsers().at(_pimpl->activatedSubParser);
+        if (_pimpl->activatedSubParser.has_value()) {
+            auto subparser = getActivatedSubParser().value();
             if (subparser._pimpl->arguments.contains(lower)) {
                 return subparser._pimpl->arguments.at(lower).get<T>();
             }
@@ -124,7 +123,6 @@ public:
     bool hasOptionPrefix(Argument const& arg) const { return hasOptionPrefix(arg.getName()); }
     bool hasSubParsers() const { return _pimpl->subparsers.has_value(); }
     bool usedSubParser(std::string const& name) const { return _pimpl->subparsers.has_value() && _pimpl->activatedSubParser == name; }
-    std::string const& getActivatedSubParserName() const { return _pimpl->activatedSubParser; }
 
     // action
 
@@ -177,7 +175,7 @@ private:
 
         std::vector<ArgumentGroup> mutuallyExclusiveGroups;
         std::optional<SubParsers> subparsers;
-        std::string activatedSubParser;
+        std::optional<std::string> activatedSubParser;
         std::unordered_map<std::string, ArgumentGroup> mutable conflictGroups;  // map an argument name to a mutually-exclusive group if it belongs to one.
 
         std::string name;
@@ -208,9 +206,13 @@ private:
         _pimpl->activatedSubParser = name;
         _pimpl->subparsers->setParsed(true);
     }
-    ArgumentParser getActivatedSubParser() const { return _pimpl->subparsers->getSubParsers().at(_pimpl->activatedSubParser); }
+    std::optional<ArgumentParser> getActivatedSubParser() const {
+        if (!_pimpl->subparsers.has_value() || !_pimpl->activatedSubParser.has_value()) return std::nullopt;
+        return _pimpl->subparsers->getSubParsers().at(*(_pimpl->activatedSubParser));
+    }
 
     // parse subroutine
+    std::string getActivatedSubParserName() const { return _pimpl->activatedSubParser.value_or(""); }
     bool tokenize(std::string const& line);
     bool parseOptions(TokensView, std::vector<Token>&);
     bool parsePositionalArguments(TokensView, std::vector<Token>&);
@@ -289,8 +291,8 @@ template <typename ArgT>
 decltype(auto)
 ArgumentParser::operator_bracket_impl(ArgT&& arg, std::string const& name) {
     if (std::forward<ArgT>(arg)._pimpl->subparsers.has_value() && std::forward<ArgT>(arg)._pimpl->subparsers->isParsed()) {
-        if (std::forward<ArgT>(arg).getActivatedSubParser()._pimpl->arguments.contains(toLowerString(name))) {
-            return std::forward<ArgT>(arg).getActivatedSubParser()._pimpl->arguments.at(toLowerString(name));
+        if (std::forward<ArgT>(arg).getActivatedSubParser()->_pimpl->arguments.contains(toLowerString(name))) {
+            return std::forward<ArgT>(arg).getActivatedSubParser()->_pimpl->arguments.at(toLowerString(name));
         }
     }
     try {

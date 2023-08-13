@@ -6,6 +6,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <fmt/std.h>
+
 #include <filesystem>
 
 #include "./cli.hpp"
@@ -35,7 +37,7 @@ void CommandLineInterface::matchAndComplete(const string& str) {
 
             // [case 5] Singly matched on first tab
             else if (_tabPressCount == 1) {
-                cout << endl;
+                fmt::print("\n");
                 e->usage();
             }
 
@@ -115,7 +117,7 @@ vector<string> CommandLineInterface::getMatchedFiles(fs::path const& path) const
     auto prefix = path.filename().string();
 
     if (!fs::exists(dirname)) {
-        cerr << "Error: failed to open " << path.parent_path() << "!!\n";
+        fmt::println(stderr, "Error: failed to open {}!!", path.parent_path());
         return files;
     }
 
@@ -207,7 +209,7 @@ bool CommandLineInterface::matchFilesAndComplete(const string& cmd) {
     } else if (searchString = stripQuotes(cmd + "\'"); searchString.has_value()) {
         incompleteQuotes = "\'";
     } else {
-        cerr << "Error: unexpected quote stripping result!!" << endl;
+        fmt::println(stderr, "Error: unexpected quote stripping result!!");
         return false;
     }
     assert(searchString.has_value());
@@ -297,7 +299,5 @@ void CommandLineInterface::printAsTable(std::vector<std::string> words) const {
         }
         table << fort::endr;
     }
-
-    cout << '\n'
-         << table.to_string() << endl;
+    fmt::print("\n{}", table.to_string());
 }

@@ -7,13 +7,17 @@
 ****************************************************************************/
 #pragma once
 
+#include <fmt/core.h>
+#include <fmt/ranges.h>
+
 #include <cassert>
 #include <climits>
 #include <functional>
-#include <iosfwd>
 #include <optional>
 #include <span>
 #include <string>
+
+#include "util/util.hpp"
 
 namespace ArgParse {
 
@@ -352,16 +356,14 @@ template <typename T>
 requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConditionType const& condition, ArgType<T>::ErrorType const& onerror) {
     if (condition == nullptr) {
-        detail::_cerr << "[ArgParse] Failed to add constraint to argument \"" << _name
-                      << "\": condition cannot be nullptr!!" << std::endl;
+        fmt::println(stderr, "[ArgParse] Failed to add constraint to argument \"{}\": condition cannot be `nullptr`!!", _name);
         return *this;
     }
 
     _constraints.emplace_back(
         condition,
         (onerror != nullptr) ? onerror : [this](T const& val) -> void {
-            detail::_cerr << "Error: invalid value \"" << val << "\" for argument \""
-                          << _name << "\": fail to satisfy constraint(s)!!" << std::endl;
+            fmt::println(stderr, "Error: invalid value \"{}\" for argument \"{}\": failed to satisfy constraint!!", val, _name);
         });
     return *this;
 }
@@ -375,15 +377,8 @@ ArgType<T>& ArgType<T>::choices(std::vector<T> const& choices) {
         });
     };
     auto error = [choices, this](T const& arg) -> void {
-        detail::_cerr << "Error: invalid choice for argument \"" << this->_name << "\": "
-                      << "please choose from {";
-        size_t ctr = 0;
-        for (auto& choice : choices) {
-            if (ctr > 0) detail::_cerr << ", ";
-            detail::_cerr << choice;
-            ctr++;
-        }
-        detail::_cerr << "}!!\n";
+        fmt::println(stderr, "Error: invalid choice for argument \"{}\": please choose from {{{}}}!!",
+                     this->_name, fmt::join(choices, ", "));
     };
 
     return this->constraint(constraint, error);
@@ -464,8 +459,8 @@ ActionCallbackType store(ArgType<T>& arg) {
         T tmp;
         for (auto& [token, parsed] : tokens) {
             if (!parseFromString(tmp, token)) {
-                detail::_cerr << "Error: invalid " << typeString(tmp)
-                              << " value \"" << token << "\" for argument \"" << arg.getName() << "\"!!" << std::endl;
+                fmt::println(stderr, "Error: invalid {} value \"{}\" for argument \"{}\"!!",
+                             typeString(tmp), token, arg.getName());
                 return false;
             }
             arg.appendValue(tmp);

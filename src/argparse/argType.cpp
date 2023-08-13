@@ -21,8 +21,8 @@ namespace ArgParse {
 
 namespace detail {
 
-ostream& _cout = cout;  // for the definition of printable concept in argType.hpp
-ostream& _cerr = cerr;
+std::ostream& _cout = cout;
+std::ostream& _cerr = cerr;
 
 }  // namespace detail
 

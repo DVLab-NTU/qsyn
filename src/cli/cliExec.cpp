@@ -18,7 +18,6 @@
 #include "cli/cli.hpp"
 #include "util/util.hpp"
 
-using std::cout, std::endl, std::cerr;
 using std::string, std::vector;
 namespace fs = std::filesystem;
 
@@ -33,8 +32,7 @@ bool CommandLineInterface::openDofile(const std::string& dof) {
         return false;
     }
     if (_dofileStack.size() >= dofile_stack_limit) {
-        cerr << "Error: dofile stack overflow (" << dofile_stack_limit
-             << ")" << endl;
+        fmt::println(stderr, "Error: dofile stack overflow ({})!!", dofile_stack_limit);
         return false;
     }
 
@@ -81,10 +79,10 @@ void CommandLineInterface::sigintHandler(int signum) {
     if (_currCmd.has_value()) {
         // there is an executing command
         _currCmd->request_stop();
-        cout << "Command Interrupted" << endl;
+        fmt::println("Command Interrupted");
     } else {
         // receiving inputs
-        cout << char(KeyCode::NEWLINE_KEY);
+        fmt::print("\n");
         resetBufAndPrintPrompt();
     }
 }
@@ -97,8 +95,9 @@ CommandLineInterface::executeOneLine() {
 
     if (_dofileStack.size())
         newCmd = readCmd(_dofileStack.top());
-    else
+    else {
         newCmd = readCmd(std::cin);
+    }
 
     // execute the command
     if (!newCmd) return CmdExecResult::NOP;
@@ -120,7 +119,7 @@ CommandLineInterface::executeOneLine() {
         _currCmd->join();
 
         if (this->stop_requested()) {
-            cerr << "Command interrupted " << endl;
+            fmt::println(stderr, "Command interrupted");
             while (_commandQueue.size()) _commandQueue.pop();
             return CmdExecResult::INTERRUPTED;
         }
@@ -144,7 +143,7 @@ CommandLineInterface::parseOneCommandFromQueue() {
     CmdExec* e = getCmd(cmd);
     string option;
     if (!e) {
-        cerr << "Illegal command!! (" << cmd << ")" << endl;
+        fmt::println(stderr, "Illegal command!! ({})", cmd);
     } else if (n != string::npos) {
         option = buffer.substr(n);
     }
@@ -199,7 +198,7 @@ string CommandLineInterface::replaceVariableKeysWithValues(string const& str) co
                     if (isalnum(ch) || ch == '_') {
                         continue;
                     }
-                    cerr << "Warning: variable name `" << var_key << "` is illegal" << endl;
+                    fmt::println(stderr, "Warning: variable name `{}` is illegal!!", var_key);
                     break;
                 }
             }

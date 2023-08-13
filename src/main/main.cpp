@@ -15,6 +15,7 @@
 #include "argparse/argparse.hpp"
 #include "cli/cli.hpp"
 #include "jthread/jthread.hpp"
+#include "util/logger.hpp"
 #include "util/usage.hpp"
 #include "util/util.hpp"
 
@@ -28,6 +29,7 @@ using namespace std;
 //    Global cmd Manager
 //----------------------------------------------------------------------
 CommandLineInterface cli{"qsyn> "};
+dvlab_utils::Logger logger;
 
 extern bool initArgParseCmd();
 extern bool initCommonCmd();
