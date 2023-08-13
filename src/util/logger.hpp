@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include <fmt/color.h>
 #include <fmt/core.h>
 
 #include <climits>
@@ -17,6 +16,7 @@
 #include <type_traits>
 #include <vector>
 
+#include "textFormat.hpp"
 #include "util/util.hpp"
 
 namespace dvlab_utils {
@@ -103,8 +103,10 @@ public:
      */
     template <typename... Args>
     void fatal(fmt::format_string<Args...> fmt, Args&&... args) {
+        namespace TF = TextFormat;
+
         _log.emplace_back(fmt::format("[{}] {}",
-                                      fmt::styled("Fatal", fmt::bg(fmt::color::red) | fmt::fg(fmt::color::black)),
+                                      TF::BLACK(TF::BG_RED("Fatal")),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::FATAL)) {
             fmt::println(stderr, "{}", _log.back());
@@ -120,8 +122,10 @@ public:
      */
     template <typename... Args>
     void error(fmt::format_string<Args...> fmt, Args&&... args) {
+        namespace TF = TextFormat;
+
         _log.emplace_back(fmt::format("[{}] {}",
-                                      fmt::styled("Error", fmt::fg(fmt::color::red)),
+                                      TF::RED("Error"),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::ERROR)) {
             fmt::println(stderr, "{}", _log.back());
@@ -137,8 +141,10 @@ public:
      */
     template <typename... Args>
     void warning(fmt::format_string<Args...> fmt, Args&&... args) {
+        namespace TF = TextFormat;
+
         _log.emplace_back(fmt::format("[{}] {}",
-                                      fmt::styled("Warning", fmt::fg(fmt::color::yellow)),
+                                      TF::YELLOW("Warning"),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::WARNING)) {
             fmt::println(stderr, "{}", _log.back());
@@ -171,8 +177,10 @@ public:
      */
     template <typename... Args>
     void debug(fmt::format_string<Args...> fmt, Args&&... args) {
+        namespace TF = TextFormat;
+
         _log.emplace_back(fmt::format("[{}] {}",
-                                      fmt::styled("Debug", fmt::fg(fmt::color::green)),
+                                      TF::GREEN("Debug"),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::DEBUG)) {
             fmt::println(stderr, "{}", _log.back());
@@ -188,8 +196,10 @@ public:
      */
     template <typename... Args>
     void trace(fmt::format_string<Args...> fmt, Args&&... args) {
+        namespace TF = TextFormat;
+
         _log.emplace_back(fmt::format("[{}] {}",
-                                      fmt::styled("Trace", fmt::fg(fmt::color::cyan)),
+                                      TF::CYAN("Trace"),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::TRACE)) {
             fmt::println(stderr, "{}", _log.back());

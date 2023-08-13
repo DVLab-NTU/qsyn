@@ -8,11 +8,13 @@
 #pragma once
 
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <fmt/ranges.h>
 
 #include <cassert>
 #include <climits>
 #include <functional>
+#include <iosfwd>
 #include <optional>
 #include <span>
 #include <string>
@@ -32,29 +34,26 @@ using TokensView = std::span<Token>;
 
 using ActionCallbackType = std::function<bool(TokensView)>;  // perform an action and return if it succeeds
 
-struct DummyArgType {
-    friend std::ostream& operator<<(std::ostream& os, DummyArgType const& val);
-};
+struct DummyArgType {};
 
 template <typename T>
-requires std::is_arithmetic_v<T>
-std::string typeString(T);  // explicitly instantiated in apType.cpp
-std::string typeString(std::string const&);
-std::string typeString(bool);
-std::string typeString(DummyArgType);
-
+std::string typeString(T const&);
 template <typename T>
-requires std::is_arithmetic_v<T>
-bool parseFromString(T& val, std::string const& token) { return myStr2Number<T>(token, val); }
-bool parseFromString(std::string& val, std::string const& token);
-bool parseFromString(bool& val, std::string const& token);
-bool parseFromString(DummyArgType& val, std::string const& token);
+bool parseFromString(T& val, std::string const& token);
 
 template <typename T>
 concept ValidArgumentType = requires(T t) {
     { typeString(t) } -> std::same_as<std::string>;
     { parseFromString(t, std::string{}) } -> std::same_as<bool>;
 };
+
+template <typename ArithT>
+requires std::is_arithmetic_v<ArithT>
+bool parseFromString(ArithT& val, std::string const& token) { return myStr2Number<ArithT>(token, val); }
+
+// NOTE - keep in the header to shadow the previous definition (bool is arithmetic type)
+template <>
+bool parseFromString(bool& val, std::string const& token);
 
 namespace detail {
 template <class A>
@@ -117,12 +116,8 @@ public:
           _actionCallback{}, _metavar{}, _nargs{1, 1},
           _required{false}, _append{false} {}
 
-    // defined in argType.tpp
-    template <typename U>
-    friend std::ostream& operator<<(std::ostream&, ArgType<U> const&);
-
-    // argument decorators
-    // defined in argType.tpp
+    std::string toString() const;
+    friend std::ostream& operator<<(std::ostream& os, ArgType const& arg) { return os << arg.toString(); }
 
     ArgType& name(std::string const& name);
     ArgType& help(std::string const& help);
@@ -198,54 +193,28 @@ ArgType<std::string>::ConstraintType ends_with(std::vector<std::string> const& s
 ArgType<std::string>::ConstraintType allowed_extension(std::vector<std::string> const& extensions);
 
 namespace detail {
-
-extern std::ostream& _cout;
-extern std::ostream& _cerr;
-
+extern std::ostream& _os;  // placeholder for the concept to work
 template <typename T>
 concept Printable = requires(T t) {
-    { _cout << t } -> std::same_as<std::ostream&>;
+    { _os << t } -> std::same_as<std::ostream&>;
 };
 
 }  // namespace detail
 
-/**
- * @brief print the value of the argument if it is printable; otherwise, shows "(not representable)"
- *
- * @tparam T
- * @param os
- * @param arg
- * @return std::ostream&
- */
-template <typename U>
-std::ostream& operator<<(std::ostream& os, ArgType<U> const& arg) {
-    if (arg._values.empty()) return os << "(None)";
+template <typename T>
+std::string ArgType<T>::toString() const {
+    std::string result;
+    if (_values.empty()) return "(None)";
 
-    if constexpr (detail::Printable<U>) {
-        if (arg._nargs.upper <= 1)
-            os << arg._values.front();
-        else {
-            size_t i = 0;
-            os << '[';
-            for (auto&& val : arg._values) {
-                if (i > 0) os << ", ";
-                os << val;
-                ++i;
-            }
-            os << ']';
-        }
+    if constexpr (detail::Printable<T>) {
+        return (_nargs.upper <= 1) ? fmt::format("{}", _values.front()) : fmt::format("[{}]", fmt::join(_values, ", "));
     } else {
-        if (arg._nargs.upper <= 1)
-            return os << "(not representable)";
-        else
-            os << "[(not representable)]";
+        return (_nargs.upper <= 1) ? "(not representable)" : "[(not representable)]";
     }
-    return os;
 }
 
 /**
- * @brief set the name of the argument
- *
+ * @brief set the name of the argument*
  * @tparam T
  * @param name
  * @return ArgType<T>&

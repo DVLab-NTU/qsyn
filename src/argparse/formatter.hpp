@@ -38,8 +38,8 @@ public:
     static std::string optionalArgBracket(std::string const& str);
 
 private:
-    static void printHelpString(ArgumentParser const& parser, fort::utf8_table& table, size_t max_help_string_width, Argument const& arg);
-    static void printHelpString(ArgumentParser const& parser, fort::utf8_table& table, size_t max_help_string_width, SubParsers const& parsers);
+    static void tabulateHelpString(ArgumentParser const& parser, fort::utf8_table& table, size_t max_help_string_width, Argument const& arg);
+    static void tabulateHelpString(ArgumentParser const& parser, fort::utf8_table& table, size_t max_help_string_width, SubParsers const& parsers);
 };
 
 }  // namespace ArgParse

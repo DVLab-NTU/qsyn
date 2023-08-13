@@ -11,4 +11,5 @@ logger test
 logger level error
 logger test
 logger history
+logger history 10
 qq -f

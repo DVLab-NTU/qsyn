@@ -11,8 +11,6 @@
 #include <fmt/format.h>
 
 #include <cassert>
-#include <iomanip>
-#include <iostream>
 #include <numeric>
 
 #include "util/trie.hpp"
@@ -116,7 +114,7 @@ bool ArgumentParser::analyzeOptions() const {
     for (auto const& group : _pimpl->mutuallyExclusiveGroups) {
         for (auto const& name : group.getArguments()) {
             if (_pimpl->arguments.at(name).isRequired()) {
-                fmt::println(stderr, "[ArgParse] Errpr: Mutually exclusive argument \"{}\" must be optional!!", name);
+                fmt::println(stderr, "[ArgParse] Error: Mutually exclusive argument \"{}\" must be optional!!", name);
                 return false;
             }
             _pimpl->conflictGroups.emplace(name, group);
@@ -498,7 +496,7 @@ void ArgumentParser::printRequiredArgumentsMissingErrorMsg() const {
  *
  * @param name
  */
-void ArgumentParser::printDuplicateArgNameErrorMsg(std::string const& name) const {
+void ArgumentParser::printDuplicateArgNameErrorMsg(std::string const& name) {
     fmt::println(stderr, "[ArgParse] Error: Duplicate argument name \"{}\"!!", name);
 }
 

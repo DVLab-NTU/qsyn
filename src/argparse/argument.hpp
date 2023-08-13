@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ argument.tpp ]
+  FileName     [ argument.hpp ]
   PackageName  [ argparser ]
   Synopsis     [ Define ArgParse::Argument template implementation ]
   Author       [ Design Verification Lab ]
@@ -7,7 +7,6 @@
 ****************************************************************************/
 #pragma once
 
-#include <iosfwd>
 #include <memory>
 
 #include "argType.hpp"
@@ -61,6 +60,7 @@ public:
     size_t getNumRequiredChars() const { return _numRequiredChars; }
     std::string const& getMetavar() const { return _pimpl->do_getMetavar(); }
     NArgsRange const& getNArgs() const { return _pimpl->do_getNArgsRange(); }
+    std::string toString() const { return _pimpl->do_toString(); }
     // attributes
 
     bool hasDefaultValue() const { return _pimpl->do_hasDefaultValue(); }
@@ -76,7 +76,6 @@ public:
     // print functions
 
     void printStatus() const;
-    void printDefaultValue(std::ostream& os) const { _pimpl->do_printDefaultValue(os); }
 
     // action
 
@@ -107,7 +106,7 @@ private:
         virtual bool do_constraintsSatisfied() const = 0;
 
         virtual std::ostream& do_print(std::ostream&) const = 0;
-        virtual std::ostream& do_printDefaultValue(std::ostream&) const = 0;
+        virtual std::string do_toString() const = 0;
 
         virtual bool do_takeAction(TokensView) = 0;
         virtual void do_setValueToDefault() = 0;
@@ -135,7 +134,7 @@ private:
         inline bool do_constraintsSatisfied() const override { return inner.constraintsSatisfied(); }
 
         inline std::ostream& do_print(std::ostream& os) const override { return os << inner; }
-        inline std::ostream& do_printDefaultValue(std::ostream& os) const override { return (inner._defaultValue.has_value() ? os << inner._defaultValue.value() : os << "(none)"); }
+        inline std::string do_toString() const override { return inner.toString(); }
 
         inline bool do_takeAction(TokensView tokens) override { return inner.takeAction(tokens); }
         inline void do_setValueToDefault() override { return inner.setValueToDefault(); }

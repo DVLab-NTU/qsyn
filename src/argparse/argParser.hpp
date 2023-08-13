@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ apArgParser.tpp ]
+  FileName     [ apArgParser.hpp ]
   PackageName  [ argparser ]
   Synopsis     [ Define ArgParse::ArgType template implementation ]
   Author       [ Design Verification Lab ]
@@ -197,7 +197,7 @@ private:
 
     // addArgument error printing
 
-    void printDuplicateArgNameErrorMsg(std::string const& name) const;
+    static void printDuplicateArgNameErrorMsg(std::string const& name);
 
     // pretty printing helpers
 

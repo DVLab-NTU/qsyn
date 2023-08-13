@@ -7,8 +7,6 @@
 ****************************************************************************/
 #include <cstddef>
 #include <cstdlib>
-#include <iomanip>
-#include <iostream>
 #include <memory>
 #include <set>
 #include <string>
@@ -55,9 +53,7 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
 
         ordered_hashset<string> cats = parser["cat"];
 
-        cout << "# cats = " << cats.size() << ":";
-        for (auto& name : cats) cout << " " << name;
-        cout << endl;
+        fmt::println("# cats = {}: {}", cats.size(), fmt::join(cats, " "));
 
         return CmdExecResult::DONE;
     };

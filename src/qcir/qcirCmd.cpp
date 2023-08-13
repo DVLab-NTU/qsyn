@@ -6,8 +6,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "util/phase_argparse.hpp"
-// --- include before qcirCmd.h
+#include "qcir/qcirCmd.hpp"
+
 #include <cstddef>
 #include <filesystem>
 #include <iostream>
@@ -15,7 +15,6 @@
 
 #include "cli/cli.hpp"
 #include "qcir/qcir.hpp"
-#include "qcir/qcirCmd.hpp"
 #include "qcir/qcirGate.hpp"
 #include "qcir/qcirMgr.hpp"
 #include "tensor/qtensor.hpp"
