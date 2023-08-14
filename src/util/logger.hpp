@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ logger.h ]
+  FileName     [ logger.hpp ]
   PackageName  [ util ]
   Synopsis     [ Define data structure manager template ]
   Author       [ Design Verification Lab ]

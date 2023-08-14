@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ extract.h ]
+  FileName     [ extract.hpp ]
   PackageName  [ extractor ]
   Synopsis     [ Define class Extractor structure ]
   Author       [ Design Verification Lab ]

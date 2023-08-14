@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ zx2tsMapper.h ]
+  FileName     [ zx2tsMapper.hpp ]
   PackageName  [ zx ]
   Synopsis     [ Define class ZX-to-Tensor Mapper structure ]
   Author       [ Design Verification Lab ]

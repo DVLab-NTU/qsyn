@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ qcirMgr.h ]
+  FileName     [ qcirMgr.hpp ]
   PackageName  [ qcir ]
   Synopsis     [ Define class QCir manager structure ]
   Author       [ Design Verification Lab ]

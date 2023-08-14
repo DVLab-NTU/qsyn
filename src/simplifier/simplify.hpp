@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ simplify.h ]
+  FileName     [ simplify.hpp ]
   PackageName  [ simplifier ]
   Synopsis     [ Define class Simplifier structure ]
   Author       [ Design Verification Lab ]

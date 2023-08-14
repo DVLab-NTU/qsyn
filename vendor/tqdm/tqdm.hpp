@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ tqdm.h ]
+  FileName     [ tqdm.hpp ]
   PackageName  [ vendor/include/tqdm ]
   Synopsis     [ c++ tqdm progress bar ]
   Author       [ Nick Amin ]

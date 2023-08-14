@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ argType.h ]
+  FileName     [ argType.hpp ]
   PackageName  [ argparser ]
   Synopsis     [ Define ArgParse::ArgType template implementation ]
   Author       [ Design Verification Lab ]

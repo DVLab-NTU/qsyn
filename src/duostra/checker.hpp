@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ checker.h ]
+  FileName     [ checker.hpp ]
   PackageName  [ duostra ]
   Synopsis     [ Define class Checker structure ]
   Author       [ Chin-Yi Cheng, Chien-Yi Yang, Ren-Chu Wang, Yi-Hsiang Kuo ]

@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ ordered_hashtable.h ]
+  FileName     [ ordered_hashtable.hpp ]
   PackageName  [ util ]
   Synopsis     [ Define ordered_hashtable interface ]
   Author       [ Design Verification Lab ]

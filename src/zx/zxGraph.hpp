@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ zxGraph.h ]
+  FileName     [ zxGraph.hpp ]
   PackageName  [ zx ]
   Synopsis     [ Define class ZXGraph structures ]
   Author       [ Design Verification Lab ]

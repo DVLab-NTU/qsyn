@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ optimizer.h ]
+  FileName     [ optimizer.hpp ]
   PackageName  [ optimizer ]
   Synopsis     [ Define class Optimizer structure ]
   Author       [ Design Verification Lab ]

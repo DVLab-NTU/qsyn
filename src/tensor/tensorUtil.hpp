@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ tensorUtil.h ]
+  FileName     [ tensorUtil.hpp ]
   PackageName  [ tensor ]
   Synopsis     [ Define Tensor base class interface ]
   Author       [ Design Verification Lab ]

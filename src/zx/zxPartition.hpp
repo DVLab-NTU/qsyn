@@ -1,5 +1,5 @@
 /**************************************************
-  FileName     [ zxPartition.h ]
+  FileName     [ zxPartition.hpp ]
   PackageName  [ zx ]
   Synopsis     [ Implements the split function ]
   Author       [ Design Verification Lab ]

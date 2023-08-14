@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ qtensor.h ]
+  FileName     [ qtensor.hpp ]
   PackageName  [ tensor ]
   Synopsis     [ Define class QTensor structure ]
   Author       [ Design Verification Lab ]

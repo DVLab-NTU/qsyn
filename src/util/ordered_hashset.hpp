@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ ordered_hashset.h ]
+  FileName     [ ordered_hashset.hpp ]
   PackageName  [ util ]
   Synopsis     [ Define ordered_hashset ]
   Author       [ Design Verification Lab ]

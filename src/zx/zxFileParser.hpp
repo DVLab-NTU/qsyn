@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ zxFileReader.h ]
+  FileName     [ zxFileReader.hpp ]
   PackageName  [ zx ]
   Synopsis     [ Define zxFileParser structure ]
   Author       [ Design Verification Lab ]

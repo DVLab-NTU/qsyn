@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ tensor.h ]
+  FileName     [ tensor.hpp ]
   PackageName  [ tensor ]
   Synopsis     [ Define class Tensor structure ]
   Author       [ Design Verification Lab ]

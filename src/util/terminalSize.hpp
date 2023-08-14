@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ terminalSize.h ]
+  FileName     [ terminalSize.hpp ]
   PackageName  [ util ]
   Synopsis     [ get the size of terminal ]
   Author       [ Adapted from https://stackoverflow.com/a/62485211 ]

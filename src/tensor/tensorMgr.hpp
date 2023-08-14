@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ tensorMgr.h ]
+  FileName     [ tensorMgr.hpp ]
   PackageName  [ tensor ]
   Synopsis     [ Define class TensorMgr structure ]
   Author       [ Design Verification Lab ]

@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ cliCharDef.h ]
+  FileName     [ cliCharDef.hpp ]
   PackageName  [ cli ]
   Synopsis     [ enum for keyboard mapping ]
   Author       [ Design Verification Lab ]

@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ util.h ]
+  FileName     [ util.hpp ]
   PackageName  [ util ]
   Synopsis     [ Define the prototypes of the exported utility functions ]
   Author       [ Design Verification Lab ]

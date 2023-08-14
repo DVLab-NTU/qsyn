@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ scheduler.h ]
+  FileName     [ scheduler.hpp ]
   PackageName  [ duostra ]
   Synopsis     [ Define class Scheduler structure ]
   Author       [ Chin-Yi Cheng, Chien-Yi Yang, Ren-Chu Wang, Yi-Hsiang Kuo ]

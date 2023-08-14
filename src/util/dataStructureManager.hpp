@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ dataStructureManager.h ]
+  FileName     [ dataStructureManager.hpp ]
   PackageName  [ util ]
   Synopsis     [ Define data structure manager template ]
   Author       [ Design Verification Lab ]

@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ argparse.h ]
+  FileName     [ argparse.hpp ]
   PackageName  [ argparser ]
   Synopsis     [ Define argument parser ]
   Author       [ Design Verification Lab ]

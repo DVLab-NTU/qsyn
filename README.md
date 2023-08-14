@@ -134,13 +134,9 @@ We have provided some DOFILEs, i.e., a sequence of commands, to serve as functio
 
 ## License
 `qsyn` is licensed under the
-[Apache License 2.0](https://github.com/ric2k1/qsyn/blob/main/LICENSE). Certain functionalities are enabled by the following dependencies:
-- [`xtl`](https://github.com/xtensor-stack/xtl), [`xtensor`](https://github.com/xtensor-stack/xtensor), [`xtensor-blas`](https://github.com/xtensor-stack/xtensor-blas) for tensor calculation
-    - BSD-3-Clause License
-- [`aminnj/cpptqdm`](https://github.com/aminnj/cpptqdm/tree/04c733fd38cdc1763d7bc19f8ff3a8fb6e95e2e9) for pretty printing progress bars
-    - MIT License
-- [`josuttis/jthread`](https://github.com/josuttis/jthread/tree/master) as a substitute of `std::jthread` and `std::stop_token` to support `Clang` compilation on macOS
-    - CC By 4.0 License
+[Apache License 2.0](https://github.com/ric2k1/qsyn/blob/main/LICENSE).
+
+Certain functions of `qsyn` is enabled by a series of third-party libraries. For a list of these libraries, as well as their license information, please refer to [this document](/vendor/List-of-Used-Libraries.md).
 
 ## Commands List
 

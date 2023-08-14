@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ router.h ]
+  FileName     [ router.hpp ]
   PackageName  [ duostra ]
   Synopsis     [ Define class Router structure ]
   Author       [ Chin-Yi Cheng, Chien-Yi Yang, Ren-Chu Wang, Yi-Hsiang Kuo ]

@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ qcirCmd.h ]
+  FileName     [ qcirCmd.hpp ]
   PackageName  [ qcir ]
   Synopsis     [ Define qcir package commands ]
   Author       [ Design Verification Lab ]

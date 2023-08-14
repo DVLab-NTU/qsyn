@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ ordered_hashmap.h ]
+  FileName     [ ordered_hashmap.hpp ]
   PackageName  [ util ]
   Synopsis     [ Define ordered_hashmap ]
   Author       [ Design Verification Lab ]

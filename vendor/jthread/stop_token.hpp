@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ stop_token.cpp ]
+  FileName     [ stop_token.hpp ]
   PackageName  [ vendor/include/jthread ]
   Synopsis     [ c++20 std::stop_token substitute for Clang compatibility ]
   Author       [ Nicolai Josuttis & Lewis Baker ]

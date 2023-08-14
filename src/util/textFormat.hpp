@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ textFormat.h ]
+  FileName     [ textFormat.hpp ]
   PackageName  [ util ]
   Synopsis     [ Declare text formatting functions such as colors, bold, etc. ]
   Author       [ Design Verification Lab ]

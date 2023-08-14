@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ trie.h ]
+  FileName     [ trie.hpp ]
   PackageName  [ util ]
   Synopsis     [ User-defined trie data structure for parsing ]
   Author       [ Design Verification Lab ]

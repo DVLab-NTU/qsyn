@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ m2.h ]
+  FileName     [ m2.hpp ]
   PackageName  [ m2 ]
   Synopsis     [ Define class m2 (Boolean Matrix) structure ]
   Author       [ Design Verification Lab ]

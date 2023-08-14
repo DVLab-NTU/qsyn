@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ mappingEQChecker.h ]
+  FileName     [ mappingEQChecker.hpp ]
   PackageName  [ duostra ]
   Synopsis     [ Define class MappingEQChecker structure ]
   Author       [ Design Verification Lab ]

@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ cli.h ]
+  FileName     [ cli.hpp ]
   PackageName  [ cli ]
   Synopsis     [ Define class CommandLineInterface ]
   Author       [ Design Verification Lab, Chia-Hsu Chuang ]

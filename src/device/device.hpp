@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ device.h ]
+  FileName     [ device.hpp ]
   PackageName  [ device ]
   Synopsis     [ Define class Device, Topology, and Operation structure ]
   Author       [ Design Verification Lab ]

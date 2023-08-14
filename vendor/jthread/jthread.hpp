@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ jthread.cpp ]
+  FileName     [ jthread.hpp ]
   PackageName  [ vendor/include/jthread ]
   Synopsis     [ c++20 std::jthread substitute for Clang compatibility ]
   Author       [ Nicolai Josuttis & Lewis Baker ]

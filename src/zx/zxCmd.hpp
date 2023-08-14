@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ zxCmd.h ]
+  FileName     [ zxCmd.hpp ]
   PackageName  [ zx ]
   Synopsis     [ Define zx package commands ]
   Author       [ Design Verification Lab ]

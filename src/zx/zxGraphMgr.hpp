@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ zxGraphMgr.h ]
+  FileName     [ zxGraphMgr.hpp ]
   PackageName  [ zx ]
   Synopsis     [ Define ZXGraph manager ]
   Author       [ Design Verification Lab ]

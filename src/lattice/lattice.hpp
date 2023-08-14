@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ lattice.h ]
+  FileName     [ lattice.hpp ]
   PackageName  [ lattice ]
   Synopsis     [ Define class Lattice and LTContainer structures ]
   Author       [ Design Verification Lab ]

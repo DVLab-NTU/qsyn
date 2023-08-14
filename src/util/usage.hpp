@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ usage.h ]
+  FileName     [ usage.hpp ]
   PackageName  [ util ]
   Synopsis     [ Report the run time and memory usage ]
   Author       [ Design Verification Lab ]

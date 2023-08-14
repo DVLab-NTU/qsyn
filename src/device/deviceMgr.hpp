@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ deviceMgr.h ]
+  FileName     [ deviceMgr.hpp ]
   PackageName  [ device ]
   Synopsis     [ Define class Device manager structure ]
   Author       [ Design Verification Lab ]

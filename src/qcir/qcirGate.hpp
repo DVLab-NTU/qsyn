@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ qcirGate.h ]
+  FileName     [ qcirGate.hpp ]
   PackageName  [ qcir ]
   Synopsis     [ Define class qcirGate structure ]
   Author       [ Design Verification Lab ]

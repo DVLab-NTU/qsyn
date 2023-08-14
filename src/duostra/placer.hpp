@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ placer.h ]
+  FileName     [ placer.hpp ]
   PackageName  [ duostra ]
   Synopsis     [ Define class Placer structure ]
   Author       [ Chin-Yi Cheng, Chien-Yi Yang, Ren-Chu Wang, Yi-Hsiang Kuo ]

@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ tmpFiles.h ]
+  FileName     [ tmpFiles.hpp ]
   PackageName  [ util ]
   Synopsis     [ RAII wrapper for temporary files and directories ]
   Author       [ Design Verification Lab ]

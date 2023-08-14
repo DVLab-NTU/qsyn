@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ zxDef.h ]
+  FileName     [ zxDef.hpp ]
   PackageName  [ zx ]
   Synopsis     [ Define basic data or var for graph package ]
   Author       [ Design Verification Lab ]

@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ qcirQubit.h ]
+  FileName     [ qcirQubit.hpp ]
   PackageName  [ qcir ]
   Synopsis     [ Define class QCirQubit structure ]
   Author       [ Design Verification Lab ]

@@ -1,5 +1,5 @@
 /****************************************************************************
-  FileName     [ gFlow.h ]
+  FileName     [ gFlow.hpp ]
   PackageName  [ gflow ]
   Synopsis     [ Define class GFlow structure ]
   Author       [ Design Verification Lab ]
