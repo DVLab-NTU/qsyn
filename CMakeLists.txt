@@ -49,6 +49,12 @@ FetchContent_Declare(
     GIT_TAG v0.4.2)
 FetchContent_MakeAvailable(libfort)
 
+FetchContent_Declare(
+    fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG 10.0.0)
+FetchContent_MakeAvailable(fmt)
+
 file(
     GLOB_RECURSE SOURCES
     RELATIVE ${CMAKE_SOURCE_DIR}
@@ -68,6 +74,7 @@ target_link_libraries(
     lapack
     OpenMP::OpenMP_CXX
     libfort::fort
+    fmt::fmt
     ${BLAS_LIBRARIES}
     ${LAPACK_LIBRARIES})
 

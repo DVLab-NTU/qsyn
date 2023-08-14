@@ -10,13 +10,15 @@
 #include <omp.h>
 
 #include <algorithm>
+#include <cstdlib>
 #include <functional>
 #include <unordered_set>
 #include <vector>
 
 #include "./scheduler.hpp"
 #include "./variables.hpp"
-#include "cli/cli.hpp"
+
+extern bool stop_requested();
 
 using namespace std;
 
@@ -382,7 +384,7 @@ Device SearchScheduler::assignGates(unique_ptr<Router> router) {
     TqdmWrapper bar{totalGates + 1, _tqdm};
     do {
         // Update the _candidates.
-        if (cli.stop_requested()) {
+        if (stop_requested()) {
             return router->getDevice();
         }
         auto selectedNode = make_unique<TreeNode>(root->bestChild(_lookAhead));

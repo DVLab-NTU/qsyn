@@ -11,7 +11,6 @@
 #include <cassert>
 #include <memory>
 
-#include "cli/cli.hpp"
 #include "duostra/duostra.hpp"
 #include "duostra/mappingEQChecker.hpp"
 #include "qcir/qcir.hpp"
@@ -20,6 +19,8 @@
 #include "zx/zxGraph.hpp"
 
 using namespace std;
+
+extern bool stop_requested();
 
 bool SORT_FRONTIER = 0;
 bool SORT_NEIGHBORS = 1;
@@ -91,7 +92,7 @@ QCir* Extractor::extract() {
     if (!extractionLoop(-1)) {
         return nullptr;
     }
-    if (cli.stop_requested()) {
+    if (stop_requested()) {
         cerr << "Warning: conversion is interrupted" << endl;
         return nullptr;
     }
@@ -122,7 +123,7 @@ QCir* Extractor::extract() {
  * @return false if not
  */
 bool Extractor::extractionLoop(size_t max_iter) {
-    while (max_iter > 0 && !cli.stop_requested()) {
+    while (max_iter > 0 && !stop_requested()) {
         cleanFrontier();
         updateNeighbors();
 

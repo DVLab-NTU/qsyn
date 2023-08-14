@@ -9,6 +9,8 @@
 
 #include "./circuitTopology.hpp"
 
+#include "qcir/gateType.hpp"
+
 using namespace std;
 
 // SECTION - Class Gate Member Functions

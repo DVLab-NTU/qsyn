@@ -123,7 +123,5 @@ struct hash<EdgePair> {
 };
 }  // namespace std
 
-template <typename T>
-std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::ostream>::type& stream, const T& e) {
-    return stream << static_cast<typename std::underlying_type<T>::type>(e);
-}
+std::ostream& operator<<(std::ostream& stream, VertexType const& vt);
+std::ostream& operator<<(std::ostream& stream, EdgeType const& et);

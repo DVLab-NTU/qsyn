@@ -6,9 +6,6 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <iomanip>
-#include <iostream>
-
 #include "./argparse.hpp"
 
 using namespace std;
@@ -20,7 +17,6 @@ namespace ArgParse {
  *
  */
 void Argument::reset() {
-    _parsed = false;
     _pimpl->do_reset();
 }
 
@@ -61,13 +57,8 @@ TokensView Argument::getParseRange(TokensView tokens) const {
 bool Argument::tokensEnoughToParse(TokensView tokens) const {
     auto [lower, upper] = getNArgs();
     if (tokens.size() < lower) {
-        cerr << "Error: missing argument \""
-             << this->getName() << "\": expected ";
-
-        if (lower < upper) {
-            cerr << "at least ";
-        }
-        cerr << lower << " arguments!!\n";
+        fmt::println(stderr, "Error: missing argument \"{}\": expected {}{} arguments!!",
+                     getName(), (lower < upper ? "at least " : ""), lower);
         return false;
     }
     return true;
@@ -79,15 +70,15 @@ bool Argument::tokensEnoughToParse(TokensView tokens) const {
  *
  */
 void Argument::printStatus() const {
-    cout << "  " << left << setw(8) << getName() << "   = ";
-    if (isParsed()) {
-        cout << *this;
-    } else if (hasDefaultValue()) {
-        cout << *this << " (default)";
-    } else {
-        cout << "(unparsed)";
-    }
-    cout << endl;
+    fmt::println("  {:<8}   = {}", getName(), std::invoke([this]() {
+                     if (isParsed()) {
+                         return toString();
+                     } else if (hasDefaultValue()) {
+                         return toString() + " (default)";
+                     } else {
+                         return "(unparsed)"s;
+                     }
+                 }));
 }
 
 }  // namespace ArgParse

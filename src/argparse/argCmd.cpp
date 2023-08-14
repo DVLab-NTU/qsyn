@@ -7,8 +7,6 @@
 ****************************************************************************/
 #include <cstddef>
 #include <cstdlib>
-#include <iomanip>
-#include <iostream>
 #include <memory>
 #include <set>
 #include <string>
@@ -27,7 +25,7 @@ unique_ptr<ArgParseCmdType> argparseCmd();
 
 bool initArgParseCmd() {
     if (!(cli.regCmd("Argparse", 1, argparseCmd()))) {
-        cerr << "Registering \"argparser\" commands fails... exiting" << endl;
+        fmt::println(stderr, "Registering \"argparse\" commands fails... exiting");
         return false;
     }
     return true;
@@ -43,7 +41,7 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
             .nargs(NArgsOption::ZERO_OR_MORE)
             .help("won't eat veggies");
 
-        parser.addArgument<string>("-dog")
+        parser.addArgument<string>("-DOG")
             .action(storeConst("rocky"s))
             .defaultValue("good boi"s)
             .help("humans' best friend");
@@ -55,9 +53,7 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
 
         ordered_hashset<string> cats = parser["cat"];
 
-        cout << "# cats = " << cats.size() << ":";
-        for (auto& name : cats) cout << " " << name;
-        cout << endl;
+        fmt::println("# cats = {}: {}", cats.size(), fmt::join(cats, " "));
 
         return CmdExecResult::DONE;
     };

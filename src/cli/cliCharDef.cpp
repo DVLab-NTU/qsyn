@@ -46,9 +46,6 @@ static auto mygetc(istream& istr) -> char {
     istr >> ch;
     istr.setf(ios_base::skipws);
     reset_keypress();
-#ifdef TEST_ASC
-    cout << left << setw(6) << int(ch);
-#endif  // TEST_ASC
     return ch;
 }
 

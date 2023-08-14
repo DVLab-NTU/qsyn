@@ -7,8 +7,8 @@
 ****************************************************************************/
 #pragma once
 
+#include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <map>
 #include <memory>
 #include <queue>
@@ -20,6 +20,7 @@
 #include "argparse/argparse.hpp"
 #include "cli/cliCharDef.hpp"
 #include "jthread/jthread.hpp"
+#include "util/logger.hpp"
 
 class CommandLineInterface;
 
@@ -27,6 +28,7 @@ class CommandLineInterface;
 //    External declaration
 //----------------------------------------------------------------------
 extern CommandLineInterface cli;
+extern dvlab_utils::Logger logger;
 
 //----------------------------------------------------------------------
 //    command execution status
@@ -121,39 +123,41 @@ public:
 
     bool regCmd(const std::string&, unsigned, std::unique_ptr<CmdExec>&&);
     CmdExecResult executeOneLine();
-    void printHelps() const;
 
     void addArgument(std::string const& val) {
         _arguments.emplace_back(val);
         _variables.emplace(std::to_string(_arguments.size()), val);
     }
 
-    // public helper functions
-    void printHistory() const;
-    void printHistory(size_t nPrint) const;
     CmdExec* getCmd(std::string);
 
     void sigintHandler(int signum);
     bool stop_requested() const { return _currCmd.has_value() && _currCmd->get_stop_token().stop_requested(); }
 
-    inline void beep() const { std::cout << (char)KeyCode::BEEP_CHAR; }
-
+    // printing functions
+    void printHelps() const;
+    void printHistory() const;
+    void printHistory(size_t nPrint) const;
+    void beep() const;
     void clearConsole() const;
 
 private:
     // Private member functions
-    void resetBufAndPrintPrompt() {
-        _readBuf.clear();
-        _cursorPosition = 0;
-        _tabPressCount = 0;
-        printPrompt();
-    }
+    void printPrompt() const;
+    void resetBufAndPrintPrompt();
+
     int getChar(std::istream&) const;
     bool readCmd(std::istream&);
     std::pair<CmdExec*, std::string> parseOneCommandFromQueue();
-    void listCmd(const std::string&);
-    bool listCmdDir(const std::string&);
-    void printPrompt() const;
+
+    // tab-related features features
+    void matchAndComplete(const std::string&);
+    // helper functions
+    std::pair<CmdMap::const_iterator, CmdMap::const_iterator> getCmdMatches(std::string const& str);
+    bool matchFilesAndComplete(const std::string&);
+    std::vector<std::string> getMatchedFiles(std::filesystem::path const& filepath) const;
+    bool completeCommonChars(std::string prefixCopy, std::vector<std::string> const& strs, bool inQuotes);
+    void printAsTable(std::vector<std::string> words) const;
 
     // Helper functions
     bool moveCursor(int);
@@ -169,8 +173,6 @@ private:
     void saveArgumentsInVariables(std::string const& str);
 
     inline bool isSpecialChar(char ch) const { return _specialChars.find_first_of(ch) != std::string::npos; }
-    std::pair<CmdMap::const_iterator, CmdMap::const_iterator> getCmdMatches(std::string const& str);
-    void printAsTable(std::vector<std::string> words) const;
 
     void askForUserInput(std::istream& istr);
 

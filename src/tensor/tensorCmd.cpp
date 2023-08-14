@@ -11,7 +11,6 @@
 #include <iostream>
 #include <string>
 
-#include "./qtensor.hpp"
 #include "./tensorMgr.hpp"
 #include "cli/cli.hpp"
 #include "util/phase.hpp"

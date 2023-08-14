@@ -8,20 +8,23 @@
 
 #pragma once
 
+#include <fmt/core.h>
+
 #include <cmath>
 #include <iosfwd>
 #include <numbers>
 #include <string>
 #include <vector>
 
-#include "./myConcepts.hpp"
+#include "argparse/argDef.hpp"
+#include "util/rational.hpp"
 #include "util/util.hpp"
 
 class Rational;
 
-enum class PhaseUnit {
-    PI,
-    ONE
+template <typename T>
+concept Unitless = requires(T t) {
+    std::is_arithmetic_v<T> == true || std::same_as<T, Rational> == true;
 };
 
 class Phase {
@@ -62,9 +65,9 @@ public:
     T toFloatType()
         const { return std::numbers::pi_v<T> * _rational.toFloatType<T>(); }
 
-    float toFloat() { return toFloatType<float>(); }
-    double toDouble() { return toFloatType<double>(); }
-    long double toLongDouble() { return toFloatType<long double>(); }
+    float toFloat() const { return toFloatType<float>(); }
+    double toDouble() const { return toFloatType<double>(); }
+    long double toLongDouble() const { return toFloatType<long double>(); }
 
     Rational getRational() const { return _rational; }
     int numerator() const { return _rational.numerator(); }
@@ -76,9 +79,6 @@ public:
         Phase p(f, eps);
         return p;
     }
-
-    static PhaseUnit getPrintUnit() { return _printUnit; }
-    static void setPrintUnit(const PhaseUnit& pu) { _printUnit = pu; }
 
     std::string getAsciiString() const;
     std::string getPrintString() const;
@@ -102,18 +102,6 @@ public:
 
 private:
     Rational _rational;
-    static PhaseUnit _printUnit;
-};
-
-class setPhaseUnit {
-public:
-    friend class Phase;
-    explicit setPhaseUnit(PhaseUnit pu) : _printUnit(pu) {}
-    PhaseUnit getPhaseUnit() const { return _printUnit; }
-    friend std::ostream& operator<<(std::ostream& os, const setPhaseUnit& pu);
-
-private:
-    PhaseUnit _printUnit;
 };
 
 Phase& Phase::operator*=(const Unitless auto& rhs) {
@@ -205,3 +193,29 @@ bool Phase::myStr2Phase(const std::string& str, Phase& p) {
 
     return true;
 }
+
+namespace ArgParse {
+template <>
+inline std::string typeString(Phase const&) { return "Phase"; }
+template <>
+inline bool parseFromString(Phase& phase, std::string const& token) {
+    return Phase::myStr2Phase(token, phase);
+}
+}  // namespace ArgParse
+
+template <>
+struct fmt::formatter<Phase> {
+    char presentation = 'f';  // Presentation format: 'f' - fixed, 'e' - scientific.
+
+    constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
+        auto it = ctx.begin(), end = ctx.end();
+        if (it != end && (*it == 'f' || *it == 'e')) presentation = *it++;
+        if (it != end && *it != '}') detail::throw_format_error("invalid format");
+        return it;
+    }
+    auto format(const Phase& p, format_context& ctx) const -> format_context::iterator {
+        return presentation == 'f'
+                   ? fmt::format_to(ctx.out(), "{}", p.toDouble())
+                   : fmt::format_to(ctx.out(), "{}", p.getPrintString());
+    }
+};

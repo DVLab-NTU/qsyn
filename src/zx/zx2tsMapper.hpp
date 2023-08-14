@@ -10,7 +10,6 @@
 #include <cstddef>
 #include <vector>
 
-#include "jthread/stop_token.hpp"
 #include "tensor/qtensor.hpp"
 #include "zx/zxDef.hpp"
 

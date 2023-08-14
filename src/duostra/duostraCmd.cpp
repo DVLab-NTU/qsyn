@@ -70,6 +70,14 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
+#ifdef __GNUC__
+        char const* const ompWaitPolicy = getenv("OMP_WAIT_POLICY");
+
+        if (ompWaitPolicy == nullptr || (strcmp(ompWaitPolicy, "PASSIVE") != 0 && strcmp(ompWaitPolicy, "passive") != 0)) {
+            logger.warning("OMP_WAIT_POLICY is not set to PASSIVE, which may cause performance issues.");
+            logger.warning("You can set it to PASSIVE by running `export OMP_WAIT_POLICY=PASSIVE`.");
+        }
+#endif
         QCir* logicalQCir = qcirMgr.get();
         Duostra duo{logicalQCir, deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"]};
         if (duo.flow() == ERROR_CODE) {

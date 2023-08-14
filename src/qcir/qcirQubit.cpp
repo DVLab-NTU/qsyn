@@ -8,6 +8,8 @@
 
 #include "./qcirQubit.hpp"
 
+#include <iomanip>
+
 #include "./qcirGate.hpp"
 
 using namespace std;

@@ -6,22 +6,20 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "util/phase_argparse.hpp"
-// --- include before qcirCmd.h
+#include "qcir/qcirCmd.hpp"
+
 #include <cstddef>
 #include <filesystem>
 #include <iostream>
 #include <string>
 
+#include "./qcirGate.hpp"
+#include "./qcirMgr.hpp"
+#include "./toTensor.hpp"
+#include "./toZXGraph.hpp"
 #include "cli/cli.hpp"
-#include "qcir/qcir.hpp"
-#include "qcir/qcirCmd.hpp"
-#include "qcir/qcirGate.hpp"
-#include "qcir/qcirMgr.hpp"
-#include "tensor/qtensor.hpp"
 #include "tensor/tensorMgr.hpp"
 #include "util/phase.hpp"
-#include "zx/zxGraph.hpp"
 #include "zx/zxGraphMgr.hpp"
 
 QCirMgr qcirMgr{"QCir"};
@@ -209,7 +207,7 @@ unique_ptr<ArgParseCmdType> QCirNewCmd() {
             .nargs(NArgsOption::OPTIONAL)
             .help("the ID of the circuit");
 
-        parser.addArgument<bool>("-Replace")
+        parser.addArgument<bool>("-replace")
             .action(storeTrue)
             .help("if specified, replace the current circuit; otherwise store to a new one");
     };
@@ -250,7 +248,7 @@ unique_ptr<ArgParseCmdType> QCirCopyCmd() {
             .nargs(NArgsOption::OPTIONAL)
             .help("the ID copied circuit to be stored");
 
-        parser.addArgument<bool>("-Replace")
+        parser.addArgument<bool>("-replace")
             .defaultValue(false)
             .action(storeTrue)
             .help("replace the current focused circuit");
@@ -497,7 +495,7 @@ unique_ptr<ArgParseCmdType> QCirGatePrintCmd() {
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser["-zx-form"].isParsed()) {
             cout << "\n> Gate " << parser["id"] << " (" << qcirMgr.get()->getGate(parser["id"])->getTypeStr() << ")";
-            qcirMgr.get()->getGate(parser["id"])->getZXform().printVertices();
+            toZXGraph(qcirMgr.get()->getGate(parser["id"]))->printVertices();
         } else {
             qcirMgr.get()->printGateInfo(parser["id"], parser["-time"].isParsed());
         }
@@ -644,7 +642,7 @@ unique_ptr<ArgParseCmdType> QCirAddGateCmd() {
             .constraint(choices_allow_prefix(typeChoices));
 
         auto append_or_prepend = parser.addMutuallyExclusiveGroup().required(false);
-        append_or_prepend.addArgument<bool>("-APpend")
+        append_or_prepend.addArgument<bool>("-append")
             .help("append the gate at the end of QCir")
             .action(storeTrue);
         append_or_prepend.addArgument<bool>("-PRepend")
@@ -830,13 +828,12 @@ unique_ptr<ArgParseCmdType> QCir2ZXCmd() {
             dmode = parser["dm"];
         else
             dmode = 0;
-        auto g = qcirMgr.get()->toZX();
+        auto g = toZXGraph(*qcirMgr.get());
 
         if (g.has_value()) {
             zxGraphMgr.add(zxGraphMgr.getNextID());
             zxGraphMgr.set(std::make_unique<ZXGraph>(std::move(g.value())));
 
-            qcirMgr.get()->addToZXGraphList(zxGraphMgr.get());
             zxGraphMgr.get()->setFileName(qcirMgr.get()->getFileName());
             zxGraphMgr.get()->addProcedures(qcirMgr.get()->getProcedures());
             zxGraphMgr.get()->addProcedure("QC2ZX");
@@ -862,7 +859,7 @@ unique_ptr<ArgParseCmdType> QCir2TSCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        auto tensor = qcirMgr.get()->toTensor();
+        auto tensor = toTensor(*qcirMgr.get());
 
         if (tensor.has_value()) {
             tensorMgr.add(tensorMgr.getNextID());

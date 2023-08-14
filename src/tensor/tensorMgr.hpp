@@ -11,6 +11,7 @@
 #include <map>
 #include <string>
 
+#include "./qtensor.hpp"
 #include "util/dataStructureManager.hpp"
 #include "util/phase.hpp"
 

@@ -8,6 +8,8 @@
 
 #include "util/util.hpp"
 
+#include <fmt/core.h>
+
 #include <cerrno>
 #include <cstring>
 #include <filesystem>
@@ -15,47 +17,13 @@
 #include <string>
 #include <vector>
 
-#include "./myUsage.hpp"
+#include "./usage.hpp"
 
 using namespace std;
 
 //----------------------------------------------------------------------
-//    Global variables in util
-//----------------------------------------------------------------------
-
-MyUsage myUsage;
-
-//----------------------------------------------------------------------
 //    Global functions in util
 //----------------------------------------------------------------------
-
-/**
- * @brief
- *
- * @param prefix the filename prefix
- * @param dir the directory to search
- * @return vector<string>
- */
-vector<string> listDir(string const& prefix, string const& dir) {
-    vector<string> files;
-
-    namespace fs = std::filesystem;
-
-    if (!fs::exists(dir)) {
-        cerr << "Error: failed to open " << dir << "!!\n";
-        return files;
-    }
-
-    for (auto& entry : fs::directory_iterator(dir)) {
-        if (prefix.empty() || string(entry.path().filename()).compare(0, prefix.size(), prefix) == 0) {
-            files.emplace_back(entry.path().filename());
-        }
-    }
-
-    sort(files.begin(), files.end());
-
-    return files;
-}
 
 size_t intPow(size_t base, size_t n) {
     if (n == 0) return 1;
@@ -79,3 +47,15 @@ TqdmWrapper::~TqdmWrapper() {
 void TqdmWrapper::add() {
     _tqdm->progress(_counter++, _total);
 }
+
+namespace dvlab_utils {
+bool expect(bool condition, std::string const& msg) {
+    if (!condition) {
+        if (!msg.empty()) {
+            fmt::println(stderr, "{}", msg);
+        }
+        return false;
+    }
+    return true;
+}
+}  // namespace dvlab_utils

@@ -8,7 +8,7 @@
 #pragma once
 
 #include <iomanip>
-#include <iostream>
+#include <iosfwd>
 #include <memory>
 #include <string>
 
@@ -17,6 +17,12 @@
 extern size_t verbose;
 
 namespace dvlab_utils {
+
+namespace detail {
+
+extern std::ostream& _cout;
+extern std::ostream& _cerr;
+}  // namespace detail
 
 template <typename T>
 class DataStructureManager {
@@ -72,7 +78,7 @@ public:
         if (id == _nextID || _nextID < id) _nextID = id + 1;
 
         if (verbose >= 3) {
-            std::cout << "Created and checked out to " << _typeName << " " << id << std::endl;
+            detail::_cout << "Created and checked out to " << _typeName << " " << id << std::endl;
         }
 
         return this->get();
@@ -86,13 +92,13 @@ public:
 
         _list.erase(id);
         if (verbose >= 3) {
-            std::cout << "Successfully removed " << _typeName << " " << id << std::endl;
+            detail::_cout << "Successfully removed " << _typeName << " " << id << std::endl;
         }
         if (this->size() && _currID == id) {
             checkout(0);
         }
         if (verbose >= 3 && this->empty()) {
-            std::cout << "Note: The " << _typeName << " list is empty now" << std::endl;
+            detail::_cout << "Note: The " << _typeName << " list is empty now" << std::endl;
         }
         return;
     }
@@ -133,7 +139,7 @@ public:
     void printMgr() const {
         printListSize();
         if (this->size()) {
-            std::cout << "-> ";
+            detail::_cout << "-> ";
             printFocusMsg();
         }
     }
@@ -141,16 +147,16 @@ public:
     void printList() const {
         if (this->size()) {
             for (auto& [id, data] : _list) {
-                std::cout << (id == this->_currID ? "★ " : "  ")
-                          << id << "    " << std::left << std::setw(20) << data->getFileName().substr(0, 20);
+                detail::_cout << (id == this->_currID ? "★ " : "  ")
+                              << id << "    " << std::left << std::setw(20) << data->getFileName().substr(0, 20);
 
                 size_t i = 0;
                 for (auto& proc : data->getProcedures()) {
-                    if (i != 0) std::cout << " ➔ ";
-                    std::cout << proc;
+                    if (i != 0) detail::_cout << " ➔ ";
+                    detail::_cout << proc;
                     ++i;
                 }
-                std::cout << std::endl;
+                detail::_cout << std::endl;
             }
         } else {
             printMgrEmptyErrorMsg();
@@ -166,7 +172,7 @@ public:
     }
 
     void printListSize() const {
-        std::cout << "-> #" << _typeName << ": " << this->size() << std::endl;
+        detail::_cout << "-> #" << _typeName << ": " << this->size() << std::endl;
     }
 
 private:
@@ -176,25 +182,25 @@ private:
     std::string _typeName;
 
     void printCheckOutMsg() const {
-        std::cout << "Checked out to " << _typeName << " " << this->_currID << std::endl;
+        detail::_cout << "Checked out to " << _typeName << " " << this->_currID << std::endl;
     }
 
     void printIdDoesNotExistErrorMsg() const {
-        std::cerr << "Error: The ID provided does not exist!!\n";
+        detail::_cerr << "Error: The ID provided does not exist!!\n";
     }
 
     void printFocusMsg() const {
-        std::cout << "Now focused on: " << _currID << std::endl;
+        detail::_cout << "Now focused on: " << _currID << std::endl;
     }
 
     void printMgrEmptyErrorMsg() const {
-        std::cerr << "Error: " << _typeName << "Mgr is empty now!!\n";
+        detail::_cerr << "Error: " << _typeName << "Mgr is empty now!!\n";
     }
 
     void printCopySuccessMsg(size_t oldID, size_t newID) const {
-        std::cout << "Successfully copied "
-                  << _typeName << " " << oldID << " to "
-                  << _typeName << " " << newID << std::endl;
+        detail::_cout << "Successfully copied "
+                      << _typeName << " " << oldID << " to "
+                      << _typeName << " " << newID << std::endl;
     }
 };
 

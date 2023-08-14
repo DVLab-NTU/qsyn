@@ -9,6 +9,7 @@
 #include "device/deviceMgr.hpp"
 
 #include <cstddef>
+#include <iomanip>
 #include <iostream>
 
 using namespace std;

@@ -13,8 +13,8 @@
  * except that the elements are ordered.
  *
  * For more details, please see the descriptions in
- *     - src/util/ordered_hashmap.h
- *     - src/util/ordered_hashset.h
+ *     - src/util/ordered_hashmap.hpp
+ *     - src/util/ordered_hashset.hpp
  *
  ****************************************************************************/
 

@@ -9,13 +9,13 @@
 #include <cassert>
 
 #include "./optimizer.hpp"
-#include "cli/cli.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcirGate.hpp"
 
 using namespace std;
 
 extern size_t verbose;
+extern bool stop_requested();
 
 /**
  * @brief Trivial optimization
@@ -27,7 +27,7 @@ QCir* Optimizer::trivial_optimization() {
     temp->addQubit(_circuit->getNQubit());
     vector<QCirGate*> gateList = _circuit->getTopoOrderdGates();
     for (auto gate : gateList) {
-        if (cli.stop_requested()) {
+        if (stop_requested()) {
             cerr << "Warning: optimization interrupted" << endl;
             return _circuit;
         }

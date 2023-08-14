@@ -15,7 +15,8 @@
 #include "argparse/argparse.hpp"
 #include "cli/cli.hpp"
 #include "jthread/jthread.hpp"
-#include "util/myUsage.hpp"
+#include "util/logger.hpp"
+#include "util/usage.hpp"
 #include "util/util.hpp"
 
 #ifndef QSYN_VERSION
@@ -28,6 +29,7 @@ using namespace std;
 //    Global cmd Manager
 //----------------------------------------------------------------------
 CommandLineInterface cli{"qsyn> "};
+dvlab_utils::Logger logger;
 
 extern bool initArgParseCmd();
 extern bool initCommonCmd();
@@ -45,11 +47,16 @@ size_t verbose = 3;
 size_t colorLevel = 1;
 size_t dmode = 0;
 
-extern MyUsage myUsage;
+dvlab_utils::Usage usage;
+
+bool stop_requested() {
+    return cli.stop_requested();
+}
 
 int main(int argc, char** argv) {
     using namespace ArgParse;
-    myUsage.reset();
+
+    usage.reset();
 
     signal(SIGINT, [](int signum) -> void { cli.sigintHandler(signum); return; });
 

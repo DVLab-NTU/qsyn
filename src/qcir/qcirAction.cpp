@@ -13,7 +13,6 @@
 #include "qcir/qcir.hpp"
 #include "qcir/qcirGate.hpp"
 #include "qcir/qcirQubit.hpp"
-#include "zx/zxGraph.hpp"
 
 using namespace std;
 extern size_t verbose;
@@ -134,7 +133,7 @@ bool QCir::printTopoOrder() {
 /**
  * @brief Update execution time of gates
  */
-void QCir::updateGateTime() {
+void QCir::updateGateTime() const {
     updateTopoOrder();
     auto Lambda = [](QCirGate* currentGate) {
         vector<BitInfo> Info = currentGate->getQubits();
@@ -149,19 +148,6 @@ void QCir::updateGateTime() {
     };
     topoTraverse(Lambda);
 }
-
-/**
- * @brief Print ZXGraph of gate following the topological order
- */
-void QCir::printZXTopoOrder() {
-    auto Lambda = [](QCirGate* gate) {
-        cout << "Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
-        ZXGraph tmp = gate->getZXform();
-        tmp.printVertices();
-    };
-    topoTraverse(Lambda);
-}
-
 /**
  * @brief Reset QCir
  *
@@ -170,7 +156,6 @@ void QCir::reset() {
     _qgates.clear();
     _qubits.clear();
     _topoOrder.clear();
-    _ZXGraphList.clear();
 
     _gateId = 0;
     _ZXNodeId = 0;

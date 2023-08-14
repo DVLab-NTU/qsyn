@@ -47,11 +47,11 @@ CmdExecResult ArgParseCmdType::exec(const std::string& option) {
 }
 
 void ArgParseCmdType::printMissingParserDefinitionErrorMsg() const {
-    cerr << "[ArgParse] Error:   please define parser definition for command \"" << _parser.getName() << "\"!!\n"
-         << "           Syntax:  <cmd>->parserDefinition = [](ArgumentParser& parser) { ... }; " << endl;
+    fmt::println(stderr, "[ArgParse] Error:   please define parser definition for command \"{}\"!!", _parser.getName());
+    fmt::println(stderr, "           Syntax:  <cmd>->parserDefinition = [](ArgumentParser& parser) {{ ... }};");
 }
 
 void ArgParseCmdType::printMissingOnParseSuccessErrorMsg() const {
-    cerr << "[ArgParse] Error:   please define on-parse-success action for command \"" << _parser.getName() << "\"!!\n"
-         << "           Syntax:  <cmd>->onParseSuccess = [](ArgumentParser const& parser) { ... }; " << endl;
+    fmt::println(stderr, "[ArgParse] Error:   please define on-parse-success action for command \"{}\"!!", _parser.getName());
+    fmt::println(stderr, "           Syntax:  <cmd>->onParseSuccess = [](ArgumentParser const& parser) {{ ... }};");
 }

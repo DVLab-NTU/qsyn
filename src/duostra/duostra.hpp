@@ -11,7 +11,6 @@
 
 #include "./scheduler.hpp"
 #include "device/device.hpp"
-#include "jthread/stop_token.hpp"
 
 class QCir;
 

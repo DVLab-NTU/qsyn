@@ -201,7 +201,7 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             procedure_str = "FR";
         }
 
-        if (cli.stop_requested()) {
+        if (stop_requested()) {
             procedure_str += "[INT]";
         }
 
