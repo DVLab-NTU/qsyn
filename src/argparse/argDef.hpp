@@ -11,6 +11,8 @@
 #include <span>
 #include <string>
 
+#include "util/util.hpp"
+
 namespace ArgParse {
 
 struct Token {

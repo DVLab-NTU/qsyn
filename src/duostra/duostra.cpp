@@ -9,6 +9,8 @@
 
 #include "./duostra.hpp"
 
+#include <iomanip>
+
 #include "./checker.hpp"
 #include "./placer.hpp"
 #include "./variables.hpp"

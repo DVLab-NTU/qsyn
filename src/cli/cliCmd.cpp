@@ -7,8 +7,6 @@
 ****************************************************************************/
 #include <cstddef>
 #include <cstdlib>
-#include <iomanip>
-#include <iostream>
 #include <string>
 
 #include "cli/cli.hpp"

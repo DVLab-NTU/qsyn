@@ -50,7 +50,7 @@ def dofile_result_same_with_ref(dofile, args):
         unknown_print(f"  ? {dofile}: reference file not found")
         return False, [dofile, " [Reference File Not Found]"]
 
-    run_qsyn = subprocess.Popen(["./qsyn", "-f", dofile], stdout=PIPE, stderr=STDOUT)
+    run_qsyn = subprocess.Popen(["./qsyn", "-f", dofile], stdout=PIPE, stderr=STDOUT, env={"OMP_WAIT_POLICY": "passive"})
 
     diff_result = subprocess.run(
         [diff_cmd, "-", reffile],
@@ -83,7 +83,7 @@ def update_dofile_ref(dofile, args):
         with open(reffile, "a"):
             os.utime(reffile, None)
 
-    run_qsyn = subprocess.Popen(["./qsyn", "-f", dofile], stdout=PIPE, stderr=STDOUT)
+    run_qsyn = subprocess.Popen(["./qsyn", "-f", dofile], stdout=PIPE, stderr=STDOUT, env={"OMP_WAIT_POLICY": "passive"})
 
     diff_result = subprocess.run(
         ["diff", reffile, "-"], stdin=run_qsyn.stdout, stdout=PIPE, text=True

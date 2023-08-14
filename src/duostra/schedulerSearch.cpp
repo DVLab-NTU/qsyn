@@ -10,6 +10,7 @@
 #include <omp.h>
 
 #include <algorithm>
+#include <cstdlib>
 #include <functional>
 #include <unordered_set>
 #include <vector>

@@ -10,6 +10,7 @@
 
 #include <cstddef>
 #include <string>
+#include <unordered_map>
 
 #include "qcir/gateType.hpp"
 #include "util/phase.hpp"

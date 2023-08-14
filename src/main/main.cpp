@@ -55,6 +55,7 @@ bool stop_requested() {
 
 int main(int argc, char** argv) {
     using namespace ArgParse;
+
     usage.reset();
 
     signal(SIGINT, [](int signum) -> void { cli.sigintHandler(signum); return; });

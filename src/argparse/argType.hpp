@@ -165,6 +165,7 @@ concept Printable = requires(T t) {
 }  // namespace detail
 
 template <typename T>
+requires ValidArgumentType<T>
 std::string ArgType<T>::toString() const {
     std::string result;
     if (_values.empty()) return "(None)";
