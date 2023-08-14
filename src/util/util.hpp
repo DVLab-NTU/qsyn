@@ -48,6 +48,10 @@ private:
 
 // In myString.cpp
 
+namespace dvlab_utils {
+bool expect(bool condition, std::string const& msg = "");
+}
+
 std::optional<std::string> stripQuotes(const std::string& str);
 std::string stripLeadingWhitespaces(std::string const& str);
 std::string stripWhitespaces(std::string const& str);

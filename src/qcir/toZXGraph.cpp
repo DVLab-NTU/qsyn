@@ -6,18 +6,19 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include "./toZXGraph.hpp"
+
 #include <cstddef>
 
-#include "qcir/qcirGate.hpp"
+#include "./qcirGate.hpp"
 #include "util/phase.hpp"
 #include "util/rational.hpp"
-#include "zx/zxDef.hpp"
-#include "zx/zxGraph.hpp"
 
 using namespace std;
 
 extern size_t verbose;
 extern size_t dmode;
+extern bool stop_requested();
 
 namespace detail {
 
@@ -121,8 +122,8 @@ void MCP_GenGadgets(ZXGraph& g, vector<ZXVertex*> const& vertices, Phase const& 
     }
 }
 
-ZXGraph MCR_Gen(vector<BitInfo> qubits, size_t id, Phase const& rotatePhase, RotationAxis ax) {
-    ZXGraph g{id};
+ZXGraph MCR_Gen(vector<BitInfo> qubits, Phase const& rotatePhase, RotationAxis ax) {
+    ZXGraph g;
     Phase phase = detail::getGadgetPhase(rotatePhase, qubits.size());
 
     auto [controls, target] = detail::MC_GenBackbone(g, qubits, ax);
@@ -132,8 +133,8 @@ ZXGraph MCR_Gen(vector<BitInfo> qubits, size_t id, Phase const& rotatePhase, Rot
     return g;
 }
 
-ZXGraph MCP_Gen(vector<BitInfo> qubits, size_t id, Phase const& rotatePhase, RotationAxis ax) {
-    ZXGraph g{id};
+ZXGraph MCP_Gen(vector<BitInfo> qubits, Phase const& rotatePhase, RotationAxis ax) {
+    ZXGraph g;
     Phase phase = detail::getGadgetPhase(rotatePhase, qubits.size());
 
     auto [vertices, target] = detail::MC_GenBackbone(g, qubits, ax);
@@ -144,8 +145,6 @@ ZXGraph MCP_Gen(vector<BitInfo> qubits, size_t id, Phase const& rotatePhase, Rot
     return g;
 }
 
-}  // namespace detail
-
 /**
  * @brief Map single qubit gate to ZXGraph
  *
@@ -153,15 +152,15 @@ ZXGraph MCP_Gen(vector<BitInfo> qubits, size_t id, Phase const& rotatePhase, Rot
  * @param ph
  * @return ZXGraph
  */
-ZXGraph QCirGate::mapSingleQubitGate(VertexType vt, Phase ph) {
-    ZXGraph g{_id};
-    size_t qubit = _qubits[0]._qubit;
+ZXGraph mapSingleQubitGate(QCirGate* gate, VertexType vt, Phase ph) {
+    ZXGraph g;
+    size_t qubit = gate->getQubits()[0]._qubit;
 
     ZXVertex* in = g.addInput(qubit);
-    ZXVertex* gate = g.addVertex(qubit, vt, ph);
+    ZXVertex* v = g.addVertex(qubit, vt, ph);
     ZXVertex* out = g.addOutput(qubit);
-    g.addEdge(in, gate, EdgeType::SIMPLE);
-    g.addEdge(gate, out, EdgeType::SIMPLE);
+    g.addEdge(in, v, EdgeType::SIMPLE);
+    g.addEdge(v, out, EdgeType::SIMPLE);
 
     return g;
 }
@@ -173,10 +172,10 @@ ZXGraph QCirGate::mapSingleQubitGate(VertexType vt, Phase ph) {
  *
  * @return ZXGraph
  */
-ZXGraph CXGate::getZXform() {
-    ZXGraph g{_id};
-    size_t ctrl_qubit = _qubits[0]._isTarget ? _qubits[1]._qubit : _qubits[0]._qubit;
-    size_t targ_qubit = _qubits[0]._isTarget ? _qubits[0]._qubit : _qubits[1]._qubit;
+ZXGraph getCXZXform(QCirGate* gate) {
+    ZXGraph g;
+    size_t ctrl_qubit = gate->getQubits()[0]._isTarget ? gate->getQubits()[1]._qubit : gate->getQubits()[0]._qubit;
+    size_t targ_qubit = gate->getQubits()[0]._isTarget ? gate->getQubits()[0]._qubit : gate->getQubits()[1]._qubit;
 
     ZXVertex* in_ctrl = g.addInput(ctrl_qubit);
     ZXVertex* in_targ = g.addInput(targ_qubit);
@@ -199,11 +198,11 @@ ZXGraph CXGate::getZXform() {
  *
  * @return ZXGraph
  */
-ZXGraph CCXGate::getZXform() {
-    ZXGraph g{_id};
-    size_t ctrl_qubit_2 = _qubits[0]._isTarget ? _qubits[1]._qubit : _qubits[0]._qubit;
-    size_t ctrl_qubit_1 = _qubits[0]._isTarget ? _qubits[2]._qubit : (_qubits[1]._isTarget ? _qubits[2]._qubit : _qubits[1]._qubit);
-    size_t targ_qubit = _qubits[0]._isTarget ? _qubits[0]._qubit : (_qubits[1]._isTarget ? _qubits[1]._qubit : _qubits[2]._qubit);
+ZXGraph getCCXZXform(QCirGate* gate) {
+    ZXGraph g;
+    size_t ctrl_qubit_2 = gate->getQubits()[0]._isTarget ? gate->getQubits()[1]._qubit : gate->getQubits()[0]._qubit;
+    size_t ctrl_qubit_1 = gate->getQubits()[0]._isTarget ? gate->getQubits()[2]._qubit : (gate->getQubits()[1]._isTarget ? gate->getQubits()[2]._qubit : gate->getQubits()[1]._qubit);
+    size_t targ_qubit = gate->getQubits()[0]._isTarget ? gate->getQubits()[0]._qubit : (gate->getQubits()[1]._isTarget ? gate->getQubits()[1]._qubit : gate->getQubits()[2]._qubit);
     vector<pair<pair<VertexType, Phase>, size_t>> vertices_info;
     vector<pair<pair<size_t, size_t>, EdgeType>> adj_pair;
     vector<int> vertices_col;
@@ -317,13 +316,14 @@ ZXGraph CCXGate::getZXform() {
     return g;
 }
 
-// TODO - SWAP ZXForm
-ZXGraph SWAPGate::getZXform() {
+ZXGraph getSwapZXform(QCirGate* gate) {
     ZXGraph g;
-    auto i0 = g.addInput(0, 0);
-    auto o0 = g.addOutput(0, 1);
-    auto i1 = g.addInput(1, 0);
-    auto o1 = g.addOutput(1, 1);
+    size_t qb0 = gate->getQubits()[0]._qubit;
+    size_t qb1 = gate->getQubits()[1]._qubit;
+    auto i0 = g.addInput(qb0, 0);
+    auto o0 = g.addOutput(qb0, 1);
+    auto i1 = g.addInput(qb1, 0);
+    auto o1 = g.addOutput(qb1, 1);
     g.addEdge(i0, o1, EdgeType::SIMPLE);
     g.addEdge(i1, o0, EdgeType::SIMPLE);
 
@@ -335,10 +335,10 @@ ZXGraph SWAPGate::getZXform() {
  *
  * @return ZXGraph
  */
-ZXGraph CZGate::getZXform() {
-    ZXGraph g{_id};
-    size_t ctrl_qubit = _qubits[0]._isTarget ? _qubits[1]._qubit : _qubits[0]._qubit;
-    size_t targ_qubit = _qubits[0]._isTarget ? _qubits[0]._qubit : _qubits[1]._qubit;
+ZXGraph getCZZXform(QCirGate* gate) {
+    ZXGraph g;
+    size_t ctrl_qubit = gate->getQubits()[0]._isTarget ? gate->getQubits()[1]._qubit : gate->getQubits()[0]._qubit;
+    size_t targ_qubit = gate->getQubits()[0]._isTarget ? gate->getQubits()[0]._qubit : gate->getQubits()[1]._qubit;
 
     ZXVertex* in_ctrl = g.addInput(ctrl_qubit);
     ZXVertex* in_targ = g.addInput(targ_qubit);
@@ -363,9 +363,9 @@ ZXGraph CZGate::getZXform() {
  *
  * @return ZXGraph
  */
-ZXGraph YGate::getZXform() {
-    ZXGraph g{_id};
-    size_t qubit = _qubits[0]._qubit;
+ZXGraph getYZXform(QCirGate* gate) {
+    ZXGraph g;
+    size_t qubit = gate->getQubits()[0]._qubit;
 
     ZXVertex* in = g.addInput(qubit);
     ZXVertex* X = g.addVertex(qubit, VertexType::X, Phase(1));
@@ -383,13 +383,13 @@ ZXGraph YGate::getZXform() {
  *
  * @return ZXGraph
  */
-ZXGraph SYGate::getZXform() {
-    ZXGraph g{_id};
-    size_t qubit = _qubits[0]._qubit;
+ZXGraph getRYZXform(QCirGate* gate, Phase ph) {
+    ZXGraph g;
+    size_t qubit = gate->getQubits()[0]._qubit;
 
     ZXVertex* in = g.addInput(qubit);
     ZXVertex* S = g.addVertex(qubit, VertexType::Z, Phase(1, 2));
-    ZXVertex* SX = g.addVertex(qubit, VertexType::X, Phase(1, 2));
+    ZXVertex* SX = g.addVertex(qubit, VertexType::X, ph);
     ZXVertex* Sdg = g.addVertex(qubit, VertexType::Z, Phase(-1, 2));
     ZXVertex* out = g.addOutput(qubit);
     g.addEdge(in, S, EdgeType::SIMPLE);
@@ -400,56 +400,117 @@ ZXGraph SYGate::getZXform() {
     return g;
 }
 
-/**
- * @brief Get ZXGraph of MCPX
- *
- * @return ZXGraph
- */
-ZXGraph MCPXGate::getZXform() {
-    return detail::MCP_Gen(_qubits, _id, _rotatePhase, detail::RotationAxis::X);
-}
+}  // namespace detail
+
+std::optional<ZXGraph> toZXGraph(QCirGate* gate) {
+    switch (gate->getType()) {
+        // single-qubit gates
+        case GateType::H:
+            return detail::mapSingleQubitGate(gate, VertexType::H_BOX, Phase(1));
+        case GateType::Z:
+            return detail::mapSingleQubitGate(gate, VertexType::Z, Phase(1));
+        case GateType::P:
+        case GateType::RZ:
+            return detail::mapSingleQubitGate(gate, VertexType::Z, gate->getPhase());
+        case GateType::S:
+            return detail::mapSingleQubitGate(gate, VertexType::Z, Phase(1, 2));
+        case GateType::T:
+            return detail::mapSingleQubitGate(gate, VertexType::Z, Phase(1, 4));
+        case GateType::SDG:
+            return detail::mapSingleQubitGate(gate, VertexType::Z, Phase(-1, 2));
+        case GateType::TDG:
+            return detail::mapSingleQubitGate(gate, VertexType::Z, Phase(-1, 4));
+        case GateType::X:
+            return detail::mapSingleQubitGate(gate, VertexType::X, Phase(1));
+        case GateType::PX:
+        case GateType::RX:
+            return detail::mapSingleQubitGate(gate, VertexType::X, gate->getPhase());
+        case GateType::SX:
+            return detail::mapSingleQubitGate(gate, VertexType::X, Phase(1, 2));
+        case GateType::Y:
+            return detail::getYZXform(gate);
+        case GateType::PY:
+        case GateType::RY:
+            return detail::getRYZXform(gate, gate->getPhase());
+        case GateType::SY:
+            return detail::getRYZXform(gate, Phase(1, 2));
+            // double-qubit gates
+
+        case GateType::CX:
+            return detail::getCXZXform(gate);
+        case GateType::CZ:
+            return detail::getCZZXform(gate);
+        case GateType::SWAP:
+            return detail::getSwapZXform(gate);
+
+        // multi-qubit gates
+        case GateType::MCRZ:
+            return detail::MCR_Gen(gate->getQubits(), gate->getPhase(), detail::RotationAxis::Z);
+        case GateType::MCP:
+        case GateType::CCZ:
+            return detail::MCP_Gen(gate->getQubits(), gate->getPhase(), detail::RotationAxis::Z);
+        case GateType::CCX:
+            return detail::getCCXZXform(gate);
+        case GateType::MCRX:
+            return detail::MCR_Gen(gate->getQubits(), gate->getPhase(), detail::RotationAxis::X);
+        case GateType::MCPX:
+            return detail::MCP_Gen(gate->getQubits(), gate->getPhase(), detail::RotationAxis::X);
+        case GateType::MCRY:
+            return detail::MCR_Gen(gate->getQubits(), gate->getPhase(), detail::RotationAxis::Y);
+        case GateType::MCPY:
+            return detail::MCP_Gen(gate->getQubits(), gate->getPhase(), detail::RotationAxis::Y);
+
+        default:
+            return std::nullopt;
+    }
+};
 
 /**
- * @brief Get ZXGraph of MCPY
- *
- * @return ZXGraph
+ * @brief Mapping QCir to ZXGraph
  */
-ZXGraph MCPYGate::getZXform() {
-    return detail::MCP_Gen(_qubits, _id, _rotatePhase, detail::RotationAxis::Y);
-}
+std::optional<ZXGraph> toZXGraph(QCir const& qcir) {
+    qcir.updateGateTime();
+    ZXGraph g;
 
-/**
- * @brief Get ZXGraph of MCP
- *
- * @return ZXGraph
- */
-ZXGraph MCPGate::getZXform() {
-    return detail::MCP_Gen(_qubits, _id, _rotatePhase, detail::RotationAxis::Z);
-}
+    if (verbose >= 5) cout << "Traverse and build the graph... " << endl;
 
-/**
- * @brief Get ZXGraph of MCRX
- *
- * @return ZXGraph
- */
-ZXGraph MCRXGate::getZXform() {
-    return detail::MCR_Gen(_qubits, _id, _rotatePhase, detail::RotationAxis::X);
-}
+    if (verbose >= 5) cout << "\n> Add boundaries" << endl;
+    for (size_t i = 0; i < qcir.getQubits().size(); i++) {
+        ZXVertex* input = g.addInput(qcir.getQubits()[i]->getId());
+        ZXVertex* output = g.addOutput(qcir.getQubits()[i]->getId());
+        input->setCol(0);
+        g.addEdge(input, output, EdgeType::SIMPLE);
+    }
 
-/**
- * @brief Get ZXGraphof MCRY
- *
- * @return ZXGraph
- */
-ZXGraph MCRYGate::getZXform() {
-    return detail::MCR_Gen(_qubits, _id, _rotatePhase, detail::RotationAxis::Y);
-}
+    qcir.topoTraverse([&g](QCirGate* gate) {
+        if (stop_requested()) return;
+        if (verbose >= 8) cout << "\n";
+        if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
+        auto tmp = toZXGraph(gate);
+        assert(tmp.has_value());
 
-/**
- * @brief Get ZXGraphof MCRZ
- *
- * @return ZXGraph
- */
-ZXGraph MCRZGate::getZXform() {
-    return detail::MCR_Gen(_qubits, _id, _rotatePhase, detail::RotationAxis::Z);
+        for (auto& v : tmp->getVertices()) {
+            v->setCol(v->getCol() + gate->getTime() + gate->getDelay());
+        }
+
+        g.concatenate(*tmp);
+    });
+
+    size_t max = 0;
+    for (auto& v : g.getOutputs()) {
+        size_t neighborCol = v->getFirstNeighbor().first->getCol();
+        if (neighborCol > max) {
+            max = neighborCol;
+        }
+    }
+    for (auto& v : g.getOutputs()) {
+        v->setCol(max + 1);
+    }
+
+    if (stop_requested()) {
+        cerr << "Warning: conversion interrupted." << endl;
+        return std::nullopt;
+    }
+
+    return g;
 }

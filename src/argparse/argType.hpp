@@ -19,41 +19,9 @@
 #include <span>
 #include <string>
 
-#include "util/util.hpp"
+#include "./argDef.hpp"
 
 namespace ArgParse {
-
-struct Token {
-    Token(std::string const& tok)
-        : token{tok}, parsed{false} {}
-    std::string token;
-    bool parsed;
-};
-
-using TokensView = std::span<Token>;
-
-using ActionCallbackType = std::function<bool(TokensView)>;  // perform an action and return if it succeeds
-
-struct DummyArgType {};
-
-template <typename T>
-std::string typeString(T const&);
-template <typename T>
-bool parseFromString(T& val, std::string const& token);
-
-template <typename T>
-concept ValidArgumentType = requires(T t) {
-    { typeString(t) } -> std::same_as<std::string>;
-    { parseFromString(t, std::string{}) } -> std::same_as<bool>;
-};
-
-template <typename ArithT>
-requires std::is_arithmetic_v<ArithT>
-bool parseFromString(ArithT& val, std::string const& token) { return myStr2Number<ArithT>(token, val); }
-
-// NOTE - keep in the header to shadow the previous definition (bool is arithmetic type)
-template <>
-bool parseFromString(bool& val, std::string const& token);
 
 namespace detail {
 template <class A>
@@ -75,22 +43,6 @@ concept IsContainerType = requires(T t) {
     requires !detail::is_fixed_array<T>::value;
 };
 
-// SECTION - On-parse actions for ArgType<T>
-
-template <typename T>
-requires ValidArgumentType<T>
-class ArgType;
-
-template <typename T>
-requires ValidArgumentType<T>
-ActionCallbackType store(ArgType<T>& arg);
-
-template <typename T>
-requires ValidArgumentType<T>
-typename ArgType<T>::ActionType storeConst(T const& constValue);
-ActionCallbackType storeTrue(ArgType<bool>& arg);
-ActionCallbackType storeFalse(ArgType<bool>& arg);
-
 struct NArgsRange {
     size_t lower;
     size_t upper;
@@ -102,6 +54,8 @@ enum class NArgsOption {
     ZERO_OR_MORE
 };
 
+using ActionCallbackType = std::function<bool(TokensView)>;  // perform an action and return if it succeeds
+
 template <typename T>
 requires ValidArgumentType<T>
 class ArgType {
@@ -111,15 +65,12 @@ public:
     using ErrorType = std::function<void(T const&)>;
     using ConstraintType = std::pair<ConditionType, ErrorType>;
 
-    ArgType(T val)
-        : _values{std::move(val)}, _name{}, _help{}, _defaultValue{std::nullopt},
-          _actionCallback{}, _metavar{}, _nargs{1, 1},
-          _required{false}, _append{false} {}
+    ArgType(std::string name, T val)
+        : _values{std::move(val)}, _name{std::move(name)} {}
 
     std::string toString() const;
     friend std::ostream& operator<<(std::ostream& os, ArgType const& arg) { return os << arg.toString(); }
 
-    ArgType& name(std::string const& name);
     ArgType& help(std::string const& help);
     ArgType& required(bool isReq);
     ArgType& defaultValue(T const& val);
@@ -135,9 +86,6 @@ public:
     inline bool takeAction(TokensView tokens);
     inline void reset();
 
-    // getters
-    // NOTE - only giving the first argument in ArgType<T>
-    //      - might need to revisit later
     template <typename Ret>
     Ret get() const {
         if constexpr (IsContainerType<Ret>) {
@@ -173,17 +121,32 @@ private:
     friend class Argument;
     friend class ArgumentGroup;
     std::vector<T> _values;
-    std::string _name;
-    std::string _help;
-    std::optional<T> _defaultValue;
-    ActionCallbackType _actionCallback;
-    std::string _metavar;
-    std::vector<ConstraintType> _constraints;
-    NArgsRange _nargs;
+    std::optional<T> _defaultValue = std::nullopt;
 
-    bool _required : 1;
-    bool _append : 1;
+    std::string _name;
+    std::string _help = "";
+    std::string _metavar = "";
+    ActionCallbackType _actionCallback = nullptr;
+    std::vector<ConstraintType> _constraints = {};
+    NArgsRange _nargs = {1, 1};
+    size_t _numRequiredChars = 1;
+
+    bool _required : 1 = false;
+    bool _append : 1 = false;
+    bool _parsed : 1 = false;
 };
+
+// SECTION - On-parse actions for ArgType<T>
+
+template <typename T>
+requires ValidArgumentType<T>
+ActionCallbackType store(ArgType<T>& arg);
+
+template <typename T>
+requires ValidArgumentType<T>
+typename ArgType<T>::ActionType storeConst(T const& constValue);
+ActionCallbackType storeTrue(ArgType<bool>& arg);
+ActionCallbackType storeFalse(ArgType<bool>& arg);
 
 ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::string> choices);
 extern ArgType<std::string>::ConstraintType const path_readable;
@@ -213,18 +176,18 @@ std::string ArgType<T>::toString() const {
     }
 }
 
-/**
- * @brief set the name of the argument*
- * @tparam T
- * @param name
- * @return ArgType<T>&
- */
-template <typename T>
-requires ValidArgumentType<T>
-ArgType<T>& ArgType<T>::name(std::string const& name) {
-    _name = name;
-    return *this;
-}
+// /**
+//  * @brief set the name of the argument*
+//  * @tparam T
+//  * @param name
+//  * @return ArgType<T>&
+//  */
+// template <typename T>
+// requires ValidArgumentType<T>
+// ArgType<T>& ArgType<T>::name(std::string const& name) {
+//     _name = name;
+//     return *this;
+// }
 
 /**
  * @brief set the help message of the argument
@@ -390,6 +353,7 @@ ArgType<T>& ArgType<T>::nargs(NArgsOption opt) {
 template <typename T>
 requires ValidArgumentType<T>
 void ArgType<T>::reset() {
+    _parsed = false;
     _values.clear();
     if (_actionCallback == nullptr) {
         this->action(store<T>);

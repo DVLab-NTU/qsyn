@@ -16,16 +16,15 @@ namespace ArgParse {
 class Argument {
 public:
     Argument()
-        : _pimpl{std::make_unique<Model<ArgType<DummyArgType>>>(DummyArgType{})} {}
+        : _pimpl{std::make_unique<Model<ArgType<DummyArgType>>>(ArgType<DummyArgType>{"dummy", DummyArgType{}})} {}
 
     template <typename T>
-    Argument(T val)
-        : _pimpl{std::make_unique<Model<ArgType<T>>>(std::move(val))}, _parsed{false}, _numRequiredChars{1} {}
+    Argument(std::string name, T val)
+        : _pimpl{std::make_unique<Model<ArgType<T>>>(ArgType<T>{std::move(name), std::move(val)})} {}
 
     ~Argument() = default;
 
-    Argument(Argument const& other)
-        : _pimpl(other._pimpl->clone()), _parsed{other._parsed}, _numRequiredChars{other._numRequiredChars} {}
+    Argument(Argument const& other) : _pimpl(other._pimpl->clone()) {}
 
     Argument& operator=(Argument copy) noexcept {
         copy.swap(*this);
@@ -36,8 +35,6 @@ public:
     void swap(Argument& rhs) noexcept {
         using std::swap;
         swap(_pimpl, rhs._pimpl);
-        swap(_parsed, rhs._parsed);
-        swap(_numRequiredChars, rhs._numRequiredChars);
     }
 
     friend void swap(Argument& lhs, Argument& rhs) noexcept {
@@ -57,7 +54,7 @@ public:
     std::string getTypeString() const { return _pimpl->do_getTypeString(); }
     std::string const& getName() const { return _pimpl->do_getName(); }
     std::string const& getHelp() const { return _pimpl->do_getHelp(); }
-    size_t getNumRequiredChars() const { return _numRequiredChars; }
+    size_t getNumRequiredChars() const { return _pimpl->do_getNumRequiredChars(); }
     std::string const& getMetavar() const { return _pimpl->do_getMetavar(); }
     NArgsRange const& getNArgs() const { return _pimpl->do_getNArgsRange(); }
     std::string toString() const { return _pimpl->do_toString(); }
@@ -65,12 +62,13 @@ public:
 
     bool hasDefaultValue() const { return _pimpl->do_hasDefaultValue(); }
     bool isRequired() const { return _pimpl->do_isRequired(); }
-    bool isParsed() const { return _parsed; }
-    bool takesArgument() const { return getNArgs().upper > 0; }
+    bool isParsed() const { return _pimpl->do_isParsed(); }
+    bool mayTakeArgument() const { return getNArgs().upper > 0; }
+    bool mustTakeArgument() const { return getNArgs().lower > 0; }
 
     // setters
 
-    void setNumRequiredChars(size_t n) { _numRequiredChars = n; }
+    void setNumRequiredChars(size_t n) { _pimpl->do_setNumRequiredChars(n); }
     void setValueToDefault() { _pimpl->do_setValueToDefault(); }
 
     // print functions
@@ -83,13 +81,12 @@ public:
     bool takeAction(TokensView tokens);
     bool constraintsSatisfied() const { return _pimpl->do_constraintsSatisfied(); }
 
-    void markAsParsed() { _parsed = true; }
+    void markAsParsed() { _pimpl->do_markAsParsed(); }
 
 private:
     friend class ArgumentParser;  // shares Argument::Model<T> and _pimpl
                                   // to ArgumentParser, enabling it to access
                                   // the underlying ArgType<T>
-
     struct Concept {
         virtual ~Concept() {}
 
@@ -100,6 +97,10 @@ private:
         virtual std::string const& do_getHelp() const = 0;
         virtual std::string const& do_getMetavar() const = 0;
         virtual NArgsRange const& do_getNArgsRange() const = 0;
+        virtual size_t do_getNumRequiredChars() const = 0;
+        virtual void do_setNumRequiredChars(size_t) = 0;
+        virtual bool do_isParsed() const = 0;
+        virtual void do_markAsParsed() = 0;
 
         virtual bool do_hasDefaultValue() const = 0;
         virtual bool do_isRequired() const = 0;
@@ -128,6 +129,10 @@ private:
         inline std::string const& do_getHelp() const override { return inner._help; }
         inline std::string const& do_getMetavar() const override { return inner._metavar; }
         inline NArgsRange const& do_getNArgsRange() const override { return inner._nargs; }
+        inline size_t do_getNumRequiredChars() const override { return inner._numRequiredChars; }
+        inline void do_setNumRequiredChars(size_t n) override { inner._numRequiredChars = n; }
+        inline bool do_isParsed() const override { return inner._parsed; }
+        inline void do_markAsParsed() override { inner._parsed = true; }
 
         inline bool do_hasDefaultValue() const override { return inner._defaultValue.has_value(); }
         inline bool do_isRequired() const override { return inner._required; };
@@ -143,11 +148,13 @@ private:
 
     std::unique_ptr<Concept> _pimpl;
 
-    bool _parsed;
-    size_t _numRequiredChars;
-
     TokensView getParseRange(TokensView) const;
     bool tokensEnoughToParse(TokensView) const;
+
+    template <typename T>
+    ArgType<T>& toUnderlyingType() {
+        return dynamic_cast<Model<ArgType<T>>*>(_pimpl.get())->inner;
+    }
 };
 
 /**

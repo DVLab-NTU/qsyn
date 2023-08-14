@@ -41,7 +41,7 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
             .nargs(NArgsOption::ZERO_OR_MORE)
             .help("won't eat veggies");
 
-        parser.addArgument<string>("-dog")
+        parser.addArgument<string>("-DOG")
             .action(storeConst("rocky"s))
             .defaultValue("good boi"s)
             .help("humans' best friend");

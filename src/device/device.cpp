@@ -11,9 +11,11 @@
 #include <cassert>
 #include <cstdlib>
 #include <fstream>
+#include <iomanip>
 #include <limits>
 #include <string>
 
+#include "qcir/qcirGate.hpp"
 #include "util/textFormat.hpp"
 
 using namespace std;

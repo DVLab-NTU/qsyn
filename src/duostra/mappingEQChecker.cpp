@@ -10,6 +10,7 @@
 
 #include "./placer.hpp"
 #include "qcir/qcir.hpp"
+#include "qcir/qcirGate.hpp"
 #include "qcir/qcirQubit.hpp"
 
 using namespace std;

@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-#include "argparse/argType.hpp"
+#include "argparse/argDef.hpp"
 #include "util/rational.hpp"
 #include "util/util.hpp"
 

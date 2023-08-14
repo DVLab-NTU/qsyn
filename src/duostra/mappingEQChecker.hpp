@@ -10,10 +10,13 @@
 
 #include <cstddef>
 #include <optional>
+#include <unordered_set>
 
 #include "device/device.hpp"
 
 class QCir;
+class QCirGate;
+class BitInfo;
 
 class MappingEQChecker {
 public:

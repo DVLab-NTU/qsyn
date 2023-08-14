@@ -9,6 +9,7 @@
 #include "argparse/formatter.hpp"
 
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 
 #include <cstring>
 #include <numeric>
@@ -58,31 +59,31 @@ void Formatter::printUsage(ArgumentParser const& parser) {
 
     for (auto const& [name, arg] : arguments) {
         if (!arg.isRequired() && !conflictGroups.contains(toLowerString(name))) {
-            cout << " " << optionalArgBracket(getSyntaxString(parser, arg));
+            fmt::print(" {}", optionalArgBracket(getSyntaxString(parser, arg)));
         }
     }
 
     for (auto const& group : mutexGroups) {
         if (!group.isRequired()) {
-            cout << " " + optionalStyle("[");
-            size_t ctr = 0;
-            for (auto const& name : group.getArguments()) {
-                cout << getSyntaxString(parser, arguments.at(toLowerString(name)));
-                if (++ctr < group.size()) cout << optionalStyle(" | ");
-            }
-            cout << optionalStyle("]");
+            fmt::print(" {}{}{}", optionalStyle("["),
+                       fmt::join(
+                           group.getArguments() | views::transform([&parser, &arguments](std::string const& name) {
+                               return getSyntaxString(parser, arguments.at(toLowerString(name)));
+                           }),
+                           optionalStyle(" | ")),
+                       optionalStyle("]"));
         }
     }
 
     for (auto const& group : mutexGroups) {
         if (group.isRequired()) {
-            cout << " " + requiredStyle("<");
-            size_t ctr = 0;
-            for (auto const& name : group.getArguments()) {
-                cout << getSyntaxString(parser, arguments.at(toLowerString(name)));
-                if (++ctr < group.size()) cout << requiredStyle(" | ");
-            }
-            cout << requiredStyle(">");
+            fmt::print(" {}{}{}", requiredStyle("<"),
+                       fmt::join(
+                           group.getArguments() | views::transform([&parser, &arguments](std::string const& name) {
+                               return getSyntaxString(parser, arguments.at(toLowerString(name)));
+                           }),
+                           requiredStyle(" | ")),
+                       requiredStyle(">"));
         }
     }
 
@@ -206,12 +207,12 @@ void Formatter::printHelp(ArgumentParser const& parser) {
 string Formatter::getSyntaxString(ArgumentParser const& parser, Argument const& arg) {
     string ret = "";
 
-    if (arg.takesArgument()) {
+    if (arg.mayTakeArgument()) {
         ret += requiredArgBracket(
             typeStyle(arg.getTypeString()) + " " + metavarStyle(arg.getMetavar()));
     }
     if (parser.hasOptionPrefix(arg)) {
-        ret = optionalStyle(styledArgName(parser, arg)) + (arg.takesArgument() ? (" " + ret) : "");
+        ret = optionalStyle(styledArgName(parser, arg)) + (arg.mayTakeArgument() ? (" " + ret) : "");
     }
 
     return ret;
@@ -276,9 +277,9 @@ std::string insertLineBreaksToString(std::string const& str, size_t max_help_wid
  * @param arg
  */
 void Formatter::tabulateHelpString(ArgumentParser const& parser, fort::utf8_table& table, size_t max_help_string_width, Argument const& arg) {
-    table << typeStyle(arg.takesArgument() ? arg.getTypeString() : "flag");
+    table << typeStyle(arg.mayTakeArgument() ? arg.getTypeString() : "flag");
     if (parser.hasOptionPrefix(arg)) {
-        if (arg.takesArgument()) {
+        if (arg.mayTakeArgument()) {
             table << styledArgName(parser, arg) << metavarStyle(arg.getMetavar());
         } else {
             table << styledArgName(parser, arg) << "";

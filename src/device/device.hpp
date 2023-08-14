@@ -12,7 +12,10 @@
 #include <string>
 #include <unordered_map>
 
-#include "qcir/qcirGate.hpp"
+#include "qcir/gateType.hpp"
+#include "util/ordered_hashmap.hpp"
+#include "util/ordered_hashset.hpp"
+#include "util/phase.hpp"
 #include "util/util.hpp"
 
 class Device;

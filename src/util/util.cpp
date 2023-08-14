@@ -8,6 +8,8 @@
 
 #include "util/util.hpp"
 
+#include <fmt/core.h>
+
 #include <cerrno>
 #include <cstring>
 #include <filesystem>
@@ -45,3 +47,15 @@ TqdmWrapper::~TqdmWrapper() {
 void TqdmWrapper::add() {
     _tqdm->progress(_counter++, _total);
 }
+
+namespace dvlab_utils {
+bool expect(bool condition, std::string const& msg) {
+    if (!condition) {
+        if (!msg.empty()) {
+            fmt::println(stderr, "{}", msg);
+        }
+        return false;
+    }
+    return true;
+}
+}  // namespace dvlab_utils

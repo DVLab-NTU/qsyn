@@ -68,7 +68,6 @@ QCirQubit *QCir::addSingleQubit() {
     QCirQubit *temp = new QCirQubit(_qubitId);
     _qubits.emplace_back(temp);
     _qubitId++;
-    clearMapping();
     return temp;
 }
 
@@ -89,7 +88,6 @@ QCirQubit *QCir::insertSingleQubit(size_t id) {
             break;
     }
     _qubits.insert(_qubits.begin() + cnt, temp);
-    clearMapping();
     return temp;
 }
 
@@ -103,7 +101,6 @@ void QCir::addQubit(size_t num) {
         QCirQubit *temp = new QCirQubit(_qubitId);
         _qubits.emplace_back(temp);
         _qubitId++;
-        clearMapping();
     }
 }
 
@@ -126,7 +123,6 @@ bool QCir::removeQubit(size_t id) {
             return false;
         } else {
             std::erase(_qubits, target);
-            clearMapping();
             return true;
         }
     }
@@ -268,7 +264,6 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
     }
     _qgates.emplace_back(temp);
     _gateId++;
-    clearMapping();
     return temp;
 }
 
@@ -300,7 +295,6 @@ bool QCir::removeGate(size_t id) {
         }
         std::erase(_qgates, target);
         _dirty = true;
-        clearMapping();
         return true;
     }
 }

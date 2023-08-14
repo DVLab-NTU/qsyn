@@ -9,6 +9,7 @@
 #pragma once
 
 #include <cstddef>
+#include <ranges>
 #include <span>
 #include <string>
 #include <unordered_map>
@@ -16,15 +17,11 @@
 
 #include "qcir/qcirGate.hpp"
 #include "qcir/qcirQubit.hpp"
-#include "tensor/qtensor.hpp"
-#include "zx/zxGraph.hpp"
 
 class QCir;
 class Phase;
 
 struct BitInfo;
-
-extern QCir* qCir;
 
 class QCir {
 public:
@@ -73,7 +70,6 @@ public:
         _qgates = std::exchange(other._qgates, {});
         _qubits = std::exchange(other._qubits, {});
         _topoOrder = std::exchange(other._topoOrder, {});
-        _ZXGraphList = std::exchange(other._ZXGraphList, {});
     }
 
     QCir& operator=(QCir copy) {
@@ -93,7 +89,6 @@ public:
         std::swap(_qgates, other._qgates);
         std::swap(_qubits, other._qubits);
         std::swap(_topoOrder, other._topoOrder);
-        std::swap(_ZXGraphList, other._ZXGraphList);
     }
 
     friend void swap(QCir& a, QCir& b) noexcept {
@@ -146,16 +141,12 @@ public:
 
     std::vector<int> countGate(bool detail = false, bool print = true);
 
-    std::optional<ZXGraph> toZX();
-    std::optional<QTensor<double>> toTensor();
-
-    void clearMapping();
-    void updateGateTime();
+    void updateGateTime() const;
     void printZXTopoOrder();
 
     // DFS functions
     template <typename F>
-    void topoTraverse(F lambda) {
+    void topoTraverse(F lambda) const {
         if (_dirty) {
             updateTopoOrder();
             _dirty = false;
@@ -178,8 +169,6 @@ public:
     void printQubits();
     void printCirInfo();
 
-    void addToZXGraphList(ZXGraph* g) { _ZXGraphList.push_back(g); }
-
 private:
     void DFS(QCirGate*) const;
 
@@ -187,7 +176,7 @@ private:
     size_t _gateId;
     size_t _ZXNodeId;
     size_t _qubitId;
-    bool _dirty;
+    bool mutable _dirty;
     unsigned mutable _globalDFScounter;
     std::string _fileName;
     std::vector<std::string> _procedures;
@@ -195,5 +184,4 @@ private:
     std::vector<QCirGate*> _qgates;
     std::vector<QCirQubit*> _qubits;
     std::vector<QCirGate*> mutable _topoOrder;
-    std::vector<ZXGraph*> _ZXGraphList;
 };

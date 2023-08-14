@@ -70,25 +70,11 @@ public:
         this->name(n);
     }
 
-    Argument& operator[](std::string const& name);
     Argument const& operator[](std::string const& name) const;
 
     template <typename T>
     T get(std::string const& name) const {
-        auto lower = toLowerString(name);
-        if (_pimpl->activatedSubParser.has_value()) {
-            auto subparser = getActivatedSubParser().value();
-            if (subparser._pimpl->arguments.contains(lower)) {
-                return subparser._pimpl->arguments.at(lower).get<T>();
-            }
-        }
-        if (_pimpl->arguments.contains(lower)) {
-            return _pimpl->arguments.at(lower).get<T>();
-        }
-        std::cerr << "[ArgParse error] Argument name \"" << name
-                  << "\" does not exist for command \""
-                  << formatter.styledCmdName(getName(), getNumRequiredChars()) << "\"\n";
-        throw std::out_of_range{"Trying to access non-existent arguments"};
+        return (*this)[name].get<T>();
     }
 
     ArgumentParser& name(std::string const& name);
@@ -229,9 +215,7 @@ private:
 
     // parsePositionalArguments subroutine
 
-    bool allTokensAreParsed(TokensView) const;
     bool allRequiredArgumentsAreParsed() const;
-    void printRequiredArgumentsMissingErrorMsg() const;
 };
 
 /**
@@ -259,50 +243,24 @@ ArgType<T>& ArgumentGroup::addArgument(std::string const& name) {
 template <typename T>
 requires ValidArgumentType<T>
 ArgType<T>& ArgumentParser::addArgument(std::string const& name) {
-    auto realname = toLowerString(name);
-    if (_pimpl->arguments.contains(realname)) {
+    auto key = toLowerString(name);
+    if (_pimpl->arguments.contains(key)) {
         printDuplicateArgNameErrorMsg(name);
     } else {
-        _pimpl->arguments.emplace(realname, Argument(T{}));
+        _pimpl->arguments.emplace(key, Argument(key, T{}));
     }
 
-    ArgType<T>& returnRef = dynamic_cast<Argument::Model<ArgType<T>>*>(_pimpl->arguments.at(realname)._pimpl.get())->inner;
+    auto& returnRef = _pimpl->arguments.at(key).toUnderlyingType<T>();
 
-    if (!hasOptionPrefix(realname)) {
-        returnRef.required(true).metavar(realname);
+    if (!hasOptionPrefix(key)) {
+        returnRef.required(true).metavar(key);
     } else {
-        returnRef.metavar(toUpperString(realname.substr(realname.find_first_not_of(_pimpl->optionPrefix))));
+        returnRef.metavar(toUpperString(key.substr(key.find_first_not_of(_pimpl->optionPrefix))));
     }
 
     _pimpl->optionsAnalyzed = false;
 
-    return returnRef.name(realname);
-}
-
-/**
- * @brief implements the details of ArgumentParser::operator[]
- *
- * @tparam ArgT ArgType<T>
- * @param arg the ArgType<T> object
- * @param name name of the argument to look up
- * @return decltype(auto)
- */
-template <typename ArgT>
-decltype(auto)
-ArgumentParser::operator_bracket_impl(ArgT&& arg, std::string const& name) {
-    if (std::forward<ArgT>(arg)._pimpl->subparsers.has_value() && std::forward<ArgT>(arg)._pimpl->subparsers->isParsed()) {
-        if (std::forward<ArgT>(arg).getActivatedSubParser()->_pimpl->arguments.contains(toLowerString(name))) {
-            return std::forward<ArgT>(arg).getActivatedSubParser()->_pimpl->arguments.at(toLowerString(name));
-        }
-    }
-    try {
-        return std::forward<ArgT>(arg)._pimpl->arguments.at(toLowerString(name));
-    } catch (std::out_of_range& e) {
-        std::cerr << "Argument name \"" << name
-                  << "\" does not exist for command \""
-                  << formatter.styledCmdName(std::forward<ArgT>(arg).getName(), std::forward<ArgT>(arg).getNumRequiredChars()) << "\"\n";
-        throw e;
-    }
+    return returnRef;
 }
 
 }  // namespace ArgParse

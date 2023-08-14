@@ -21,6 +21,14 @@ using namespace std;
 namespace TF = TextFormat;
 extern size_t verbose;
 
+std::ostream& operator<<(std::ostream& stream, VertexType const& vt) {
+    return stream << static_cast<typename std::underlying_type<VertexType>::type>(vt);
+}
+
+std::ostream& operator<<(std::ostream& stream, EdgeType const& et) {
+    return stream << static_cast<typename std::underlying_type<EdgeType>::type>(et);
+}
+
 /**
  * @brief return a vector of neighbor vertices
  *

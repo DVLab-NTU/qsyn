@@ -17,7 +17,6 @@ namespace ArgParse {
  *
  */
 void Argument::reset() {
-    _parsed = false;
     _pimpl->do_reset();
 }
 
