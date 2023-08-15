@@ -58,13 +58,13 @@ unique_ptr<ArgParseCmdType> helpCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        string command = parser["command"];
+        auto command = parser.get<string>("command");
         if (command.empty()) {
             cli.printHelps();
         } else {
-            CmdExec* e = cli.getCmd(parser["command"]);
+            CmdExec* e = cli.getCmd(command);
             if (!e) {
-                fmt::println(stderr, "Error: illegal command!! ({})", parser.get<std::string>("command"));
+                fmt::println(stderr, "Error: illegal command!! ({})", command);
                 return CmdExecResult::ERROR;
             }
             e->help();
@@ -87,7 +87,7 @@ unique_ptr<ArgParseCmdType> quitCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        bool forced = parser["-force"];
+        auto forced = parser.get<bool>("-force");
         if (forced) return CmdExecResult::QUIT;
 
         fmt::print("Are you sure to quit (Yes/No)? [No] ");
@@ -122,8 +122,8 @@ unique_ptr<ArgParseCmdType> historyCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["nPrint"].isParsed()) {
-            cli.printHistory(parser["nPrint"]);
+        if (parser.parsed("nPrint")) {
+            cli.printHistory(parser.get<size_t>("nPrint"));
         } else {
             cli.printHistory();
         }
@@ -145,7 +145,7 @@ unique_ptr<ArgParseCmdType> dofileCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (!cli.openDofile(parser["file"])) {
+        if (!cli.openDofile(parser.get<string>("file"))) {
             fmt::println("Error: cannot open file \"{}\"!!", parser.get<std::string>("file"));
             return CmdExecResult::ERROR;
         }
@@ -176,9 +176,9 @@ unique_ptr<ArgParseCmdType> usageCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        bool repAll = parser["-all"];
-        bool repTime = parser["-time"];
-        bool repMem = parser["-memory"];
+        auto repAll = parser.get<bool>("-all");
+        auto repTime = parser.get<bool>("-time");
+        auto repMem = parser.get<bool>("-memory");
 
         if (!repAll && !repTime && !repMem) repAll = true;
 
@@ -209,7 +209,7 @@ unique_ptr<ArgParseCmdType> verboseCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        verbose = parser["level"];
+        verbose = parser.get<size_t>("level");
         fmt::println("Note: verbose level is set to {}", verbose);
 
         return CmdExecResult::DONE;
@@ -276,7 +276,7 @@ unique_ptr<ArgParseCmdType> loggerCmd() {
         }
 
         if (parser.usedSubParser("level")) {
-            auto level = Logger::str2LogLevel(parser["level"]);
+            auto level = Logger::str2LogLevel(parser.get<string>("level"));
             assert(level.has_value());
             logger.setLogLevel(*level);
             logger.debug("Setting logger level to {}", Logger::logLevel2Str(*level));
@@ -289,10 +289,10 @@ unique_ptr<ArgParseCmdType> loggerCmd() {
             for (auto& group : logLevels) {
                 auto level = Logger::str2LogLevel(group);
                 assert(level.has_value());
-                if (parser["+" + group].isParsed()) {
+                if (parser.parsed("+" + group)) {
                     logger.unmask(*level);
                     logger.debug("Unmasked logger level: {}", Logger::logLevel2Str(*level));
-                } else if (parser["-" + group].isParsed()) {
+                } else if (parser.parsed("-" + group)) {
                     logger.mask(*level);
                     logger.debug("Masked logger level: {}", Logger::logLevel2Str(*level));
                 }
@@ -301,7 +301,7 @@ unique_ptr<ArgParseCmdType> loggerCmd() {
         }
 
         if (parser.usedSubParser("history")) {
-            if (parser["num_history"].isParsed()) {
+            if (parser.parsed("num_history")) {
                 logger.printLogs(parser.get<size_t>("num_history"));
             } else {
                 logger.printLogs();
@@ -341,7 +341,7 @@ unique_ptr<ArgParseCmdType> seedCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        srand(parser["seed"]);
+        srand(parser.get<unsigned>("seed"));
         fmt::println("Note: seed is set to {}", parser.get<unsigned>("seed"));
         return CmdExecResult::DONE;
     };

@@ -51,7 +51,7 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
         parser.printTokens();
         parser.printArguments();
 
-        ordered_hashset<string> cats = parser["cat"];
+        auto cats = parser.get<ordered_hashset<string>>("cat");
 
         fmt::println("# cats = {}: {}", cats.size(), fmt::join(cats, " "));
 

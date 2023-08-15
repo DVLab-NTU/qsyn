@@ -22,9 +22,9 @@ class ArgumentParser;
  *        All copies of this class represents the same underlying group.
  *
  */
-class ArgumentGroup {
-    struct ArgumentGroupImpl {
-        ArgumentGroupImpl(ArgumentParser& parser)
+class MutuallyExclusiveGroup {
+    struct MutExGroupImpl {
+        MutExGroupImpl(ArgumentParser& parser)
             : _parser{parser}, _required{false}, _parsed{false} {}
         ArgumentParser& _parser;
         ordered_hashset<std::string> _arguments;
@@ -33,15 +33,15 @@ class ArgumentGroup {
     };
 
 public:
-    ArgumentGroup(ArgumentParser& parser)
-        : _pimpl{std::make_shared<ArgumentGroupImpl>(parser)} {}
+    MutuallyExclusiveGroup(ArgumentParser& parser)
+        : _pimpl{std::make_shared<MutExGroupImpl>(parser)} {}
 
     template <typename T>
     requires ValidArgumentType<T>
     ArgType<T>& addArgument(std::string const& name);  // defined in argParser.tpp
 
     bool contains(std::string const& name) const { return _pimpl->_arguments.contains(name); }
-    ArgumentGroup required(bool isReq) {
+    MutuallyExclusiveGroup required(bool isReq) {
         _pimpl->_required = isReq;
         return *this;
     }
@@ -55,7 +55,7 @@ public:
     ordered_hashset<std::string> const& getArguments() const { return _pimpl->_arguments; }
 
 private:
-    std::shared_ptr<ArgumentGroupImpl> _pimpl;
+    std::shared_ptr<MutExGroupImpl> _pimpl;
 };
 
 }  // namespace ArgParse

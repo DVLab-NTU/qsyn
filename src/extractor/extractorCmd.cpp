@@ -144,13 +144,13 @@ unique_ptr<ArgParseCmdType> ExtractStepCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        zxGraphMgr.checkout(parser["-zxgraph"]);
+        zxGraphMgr.checkout(parser.get<size_t>("-zxgraph"));
         if (!zxGraphMgr.get()->isGraphLike()) {
             cerr << "Error: ZXGraph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
             return CmdExecResult::ERROR;
         }
 
-        qcirMgr.checkout(parser["-qcir"]);
+        qcirMgr.checkout(parser.get<size_t>("-qcir"));
 
         if (zxGraphMgr.get()->getNumOutputs() != qcirMgr.get()->getNQubit()) {
             cerr << "Error: number of outputs in graph is not equal to number of qubits in circuit" << endl;
@@ -159,30 +159,30 @@ unique_ptr<ArgParseCmdType> ExtractStepCmd() {
 
         Extractor ext(zxGraphMgr.get(), qcirMgr.get(), std::nullopt);
 
-        if (parser["-loop"].isParsed()) {
-            ext.extractionLoop(parser["-loop"]);
+        if (parser.parsed("-loop")) {
+            ext.extractionLoop(parser.get<size_t>("-loop"));
             return CmdExecResult::DONE;
         }
-        if (parser["-phase"].isParsed()) {
+        if (parser.parsed("-phase")) {
             ext.extractSingles();
             return CmdExecResult::DONE;
         }
-        if (parser["-cz"].isParsed()) {
+        if (parser.parsed("-cz")) {
             ext.extractCZs(true);
             return CmdExecResult::DONE;
         }
-        if (parser["-cx"].isParsed()) {
+        if (parser.parsed("-cx")) {
             if (ext.biadjacencyElimination(true)) {
                 ext.updateGraphByMatrix();
                 ext.extractCXs();
             }
             return CmdExecResult::DONE;
         }
-        if (parser["-hadamard"].isParsed()) {
+        if (parser.parsed("-hadamard")) {
             ext.extractHsFromM2(true);
             return CmdExecResult::DONE;
         }
-        if (parser["-rmgadgets"].isParsed()) {
+        if (parser.parsed("-rmgadgets")) {
             if (ext.removeGadget(true))
                 cout << "Gadget(s) are removed" << endl;
             else
@@ -190,7 +190,7 @@ unique_ptr<ArgParseCmdType> ExtractStepCmd() {
             return CmdExecResult::DONE;
         }
 
-        if (parser["-permute"].isParsed()) {
+        if (parser.parsed("-permute")) {
             ext.permuteQubit();
             return CmdExecResult::DONE;
         }
@@ -233,7 +233,7 @@ unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        if (parser["-settings"].isParsed() || parser.numParsedArguments() == 0) {
+        if (parser.parsed("-settings") || parser.numParsedArguments() == 0) {
             cout << endl;
             cout << "Optimize Level:    " << OPTIMIZE_LEVEL << endl;
             cout << "Sort Frontier:     " << (SORT_FRONTIER == true ? "true" : "false") << endl;
@@ -247,13 +247,13 @@ unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
                 return CmdExecResult::ERROR;
             }
             Extractor ext(zxGraphMgr.get());
-            if (parser["-frontier"].isParsed()) {
+            if (parser.parsed("-frontier")) {
                 ext.printFrontier();
-            } else if (parser["-neighbors"].isParsed()) {
+            } else if (parser.parsed("-neighbors")) {
                 ext.printNeighbors();
-            } else if (parser["-axels"].isParsed()) {
+            } else if (parser.parsed("-axels")) {
                 ext.printAxels();
-            } else if (parser["-matrix"].isParsed()) {
+            } else if (parser.parsed("-matrix")) {
                 ext.createMatrix();
                 ext.printMatrix();
             }
@@ -288,27 +288,27 @@ unique_ptr<ArgParseCmdType> ExtractSetCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        if (parser["-optimize-level"].isParsed()) {
-            OPTIMIZE_LEVEL = parser["-optimize-level"];
+        if (parser.parsed("-optimize-level")) {
+            OPTIMIZE_LEVEL = parser.get<size_t>("-optimize-level");
         }
-        if (parser["-permute-qubit"].isParsed()) {
-            PERMUTE_QUBITS = parser["-permute-qubit"];
+        if (parser.parsed("-permute-qubit")) {
+            PERMUTE_QUBITS = parser.get<bool>("-permute-qubit");
         }
-        if (parser["-block-size"].isParsed()) {
-            size_t blockSize = parser["-block-size"];
+        if (parser.parsed("-block-size")) {
+            size_t blockSize = parser.get<size_t>("-block-size");
             if (blockSize == 0)
                 cerr << "Error: block size value should > 0, skipping this option!!\n";
             else
                 BLOCK_SIZE = blockSize;
         }
-        if (parser["-filter-cx"].isParsed()) {
-            FILTER_DUPLICATED_CXS = parser["-filter-cx"];
+        if (parser.parsed("-filter-cx")) {
+            FILTER_DUPLICATED_CXS = parser.get<bool>("-filter-cx");
         }
-        if (parser["-frontier-sorted"].isParsed()) {
-            SORT_FRONTIER = parser["-frontier-sorted"];
+        if (parser.parsed("-frontier-sorted")) {
+            SORT_FRONTIER = parser.get<bool>("-frontier-sorted");
         }
-        if (parser["-neighbors-sorted"].isParsed()) {
-            SORT_NEIGHBORS = parser["-neighbors-sorted"];
+        if (parser.parsed("-neighbors-sorted")) {
+            SORT_NEIGHBORS = parser.get<bool>("-neighbors-sorted");
         }
         return CmdExecResult::DONE;
     };

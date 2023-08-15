@@ -28,17 +28,18 @@ public:
     static void printSummary(ArgumentParser const& parser);
     static void printHelp(ArgumentParser const& parser);
 
-    static std::string styledArgName(ArgumentParser const& parser, Argument const& arg);
+    static std::string styledArgName(Argument const& arg);
     static std::string styledCmdName(std::string const& name, size_t numRequired);
 
-    static std::string getSyntaxString(ArgumentParser const& parser, Argument const& arg);
+    static std::string getSyntaxString(Argument const& arg);
     static std::string getSyntaxString(SubParsers const& parsers);
+    // static std::string getSyntaxString(MutuallyExclusiveGroup const& group);
 
     static std::string requiredArgBracket(std::string const& str);
     static std::string optionalArgBracket(std::string const& str);
 
 private:
-    static void tabulateHelpString(ArgumentParser const& parser, fort::utf8_table& table, size_t max_help_string_width, Argument const& arg);
+    static void tabulateHelpString(fort::utf8_table& table, size_t max_help_string_width, Argument const& arg);
     static void tabulateHelpString(fort::utf8_table& table, size_t max_help_string_width, SubParsers const& parsers);
 };
 

@@ -130,7 +130,7 @@ unique_ptr<ArgParseCmdType> ZXCHeckoutCmd() {
             .help("the ID of the ZXGraph");
     };
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        zxGraphMgr.checkout(parser["id"]);
+        zxGraphMgr.checkout(parser.get<size_t>("id"));
         return CmdExecResult::DONE;
     };
     return cmd;
@@ -155,10 +155,10 @@ unique_ptr<ArgParseCmdType> ZXNewCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        size_t id = (parser["id"].isParsed()) ? parser.get<size_t>("id") : zxGraphMgr.getNextID();
+        size_t id = (parser.parsed("id")) ? parser.get<size_t>("id") : zxGraphMgr.getNextID();
 
         if (zxGraphMgr.isID(id)) {
-            if (!parser["-Replace"].isParsed()) {
+            if (!parser.parsed("-Replace")) {
                 cerr << "Error: ZXGraph " << id << " already exists!! Specify `-Replace` if needed." << endl;
                 return CmdExecResult::ERROR;
             }
@@ -205,7 +205,7 @@ unique_ptr<ArgParseCmdType> ZXDeleteCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        zxGraphMgr.remove(parser["id"]);
+        zxGraphMgr.remove(parser.get<size_t>("id"));
         return CmdExecResult::DONE;
     };
 
@@ -237,11 +237,11 @@ unique_ptr<ArgParseCmdType> ZXPrintCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["-focus"].isParsed())
+        if (parser.parsed("-focus"))
             zxGraphMgr.printFocus();
-        else if (parser["-number"].isParsed())
+        else if (parser.parsed("-number"))
             zxGraphMgr.printListSize();
-        else if (parser["-list"].isParsed())
+        else if (parser.parsed("-list"))
             zxGraphMgr.printList();
         else
             zxGraphMgr.printMgr();
@@ -273,9 +273,9 @@ unique_ptr<ArgParseCmdType> ZXCopyCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        size_t id = (parser["id"].isParsed()) ? parser.get<size_t>("id") : zxGraphMgr.getNextID();
+        size_t id = (parser.parsed("id")) ? parser.get<size_t>("id") : zxGraphMgr.getNextID();
         if (zxGraphMgr.isID(id)) {
-            if (!parser["-Replace"].isParsed()) {
+            if (!parser.parsed("-Replace")) {
                 cerr << "Error: ZXGraph " << id << " already exists!! Specify `-Replace` if needed." << endl;
                 return CmdExecResult::ERROR;
             }
@@ -304,7 +304,7 @@ unique_ptr<ArgParseCmdType> ZXComposeCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        zxGraphMgr.get()->compose(*zxGraphMgr.findByID(parser["id"]));
+        zxGraphMgr.get()->compose(*zxGraphMgr.findByID(parser.get<size_t>("id")));
         return CmdExecResult::DONE;
     };
 
@@ -323,7 +323,7 @@ unique_ptr<ArgParseCmdType> ZXTensorCmd() {
             .help("the ID of the ZXGraph");
     };
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        zxGraphMgr.get()->tensorProduct(*zxGraphMgr.findByID(parser["id"]));
+        zxGraphMgr.get()->tensorProduct(*zxGraphMgr.findByID(parser.get<size_t>("id")));
         return CmdExecResult::DONE;
     };
     return cmd;
@@ -357,22 +357,22 @@ unique_ptr<ArgParseCmdType> ZXGTestCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["-empty"].isParsed()) {
+        if (parser.parsed("-empty")) {
             if (zxGraphMgr.get()->isEmpty())
                 cout << "The graph is empty!" << endl;
             else
                 cout << "The graph is not empty!" << endl;
-        } else if (parser["-valid"].isParsed()) {
+        } else if (parser.parsed("-valid")) {
             if (zxGraphMgr.get()->isValid())
                 cout << "The graph is valid!" << endl;
             else
                 cout << "The graph is invalid!" << endl;
-        } else if (parser["-glike"].isParsed()) {
+        } else if (parser.parsed("-glike")) {
             if (zxGraphMgr.get()->isGraphLike())
                 cout << "The graph is graph-like!" << endl;
             else
                 cout << "The graph is not graph-like!" << endl;
-        } else if (parser["-identity"].isParsed()) {
+        } else if (parser.parsed("-identity")) {
             if (zxGraphMgr.get()->isIdentity())
                 cout << "The graph is an identity!" << endl;
             else
@@ -428,36 +428,36 @@ unique_ptr<ArgParseCmdType> ZXGPrintCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["-summary"].isParsed()) {
+        if (parser.parsed("-summary")) {
             zxGraphMgr.get()->printGraph();
             cout << setw(30) << left << "#T-gate: " << zxGraphMgr.get()->TCount() << "\n";
             cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr.get()->nonCliffordPlusTCount() << "\n";
             cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr.get()->nonCliffordCount() << "\n";
-        } else if (parser["-io"].isParsed())
+        } else if (parser.parsed("-io"))
             zxGraphMgr.get()->printIO();
-        else if (parser["-inputs"].isParsed())
+        else if (parser.parsed("-inputs"))
             zxGraphMgr.get()->printInputs();
-        else if (parser["-outputs"].isParsed())
+        else if (parser.parsed("-outputs"))
             zxGraphMgr.get()->printOutputs();
-        else if (parser["-vertices"].isParsed()) {
-            vector<size_t> vids = parser["-vertices"];
+        else if (parser.parsed("-vertices")) {
+            auto vids = parser.get<vector<size_t>>("-vertices");
             if (vids.empty())
                 zxGraphMgr.get()->printVertices();
             else
                 zxGraphMgr.get()->printVertices(vids);
-        } else if (parser["-edges"].isParsed())
+        } else if (parser.parsed("-edges"))
             zxGraphMgr.get()->printEdges();
-        else if (parser["-qubits"].isParsed()) {
-            vector<int> qids = parser["-qubits"];
+        else if (parser.parsed("-qubits")) {
+            auto qids = parser.get<vector<int>>("-qubits");
             zxGraphMgr.get()->printQubits(qids);
-        } else if (parser["-neighbors"].isParsed()) {
-            auto v = zxGraphMgr.get()->findVertexById(parser["-neighbors"]);
+        } else if (parser.parsed("-neighbors")) {
+            auto v = zxGraphMgr.get()->findVertexById(parser.get<size_t>("-neighbors"));
             v->printVertex();
             cout << "----- Neighbors -----" << endl;
             for (auto [nb, _] : v->getNeighbors()) {
                 nb->printVertex();
             }
-        } else if (parser["-density"].isParsed()) {
+        } else if (parser.parsed("-density")) {
             cout << "Density: " << zxGraphMgr.get()->density() << endl;
         } else
             zxGraphMgr.get()->printGraph();
@@ -547,7 +547,7 @@ unique_ptr<ArgParseCmdType> ZXGEditCmd() {
                                   views::filter([](ZXVertex* v) { return v != nullptr; });
             zxGraphMgr.get()->removeVertices({vertices_range.begin(), vertices_range.end()});
 
-            if (parser["-isolated"].isParsed()) {
+            if (parser.parsed("-isolated")) {
                 cout << "Note: removing isolated vertices..." << endl;
                 zxGraphMgr.get()->removeIsolatedVertices();
             }
@@ -647,10 +647,10 @@ unique_ptr<ArgParseCmdType> ZXGDrawCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["filepath"].isParsed()) {
-            if (!zxGraphMgr.get()->writePdf(parser["filepath"])) return CmdExecResult::ERROR;
+        if (parser.parsed("filepath")) {
+            if (!zxGraphMgr.get()->writePdf(parser.get<string>("filepath"))) return CmdExecResult::ERROR;
         }
-        if (parser["-CLI"].isParsed()) {
+        if (parser.parsed("-CLI")) {
             zxGraphMgr.get()->draw();
         }
 
@@ -715,9 +715,9 @@ unique_ptr<ArgParseCmdType> ZXGReadCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        string filepath = parser["filepath"];
-        bool doKeepID = parser["-keepid"];
-        bool doReplace = parser["-replace"];
+        auto filepath = parser.get<string>("filepath");
+        auto doKeepID = parser.get<bool>("-keepid");
+        auto doReplace = parser.get<bool>("-replace");
 
         auto bufferGraph = make_unique<ZXGraph>();
         if (!bufferGraph->readZX(filepath, doKeepID)) {
@@ -758,8 +758,8 @@ unique_ptr<ArgParseCmdType> ZXGWriteCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        string filepath = parser["filepath"];
-        bool doComplete = parser["-complete"];
+        auto filepath = parser.get<string>("filepath");
+        auto doComplete = parser.get<bool>("-complete");
         size_t extensionPos = filepath.find_last_of('.');
 
         string extension = (extensionPos == string::npos) ? "" : filepath.substr(extensionPos);
@@ -814,7 +814,7 @@ unique_ptr<ArgParseCmdType> ZXGAssignCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        size_t qid = parser["qubit"];
+        auto qid = parser.get<size_t>("qubit");
         bool isInput = toLowerString(parser.get<string>("io")).starts_with('i');
 
         if (!(isInput ? zxGraphMgr.get()->isInputQubit(qid) : zxGraphMgr.get()->isOutputQubit(qid))) {
@@ -825,7 +825,7 @@ unique_ptr<ArgParseCmdType> ZXGAssignCmd() {
         auto vtype = str2VertexType(parser.get<std::string>("vtype"));
         assert(vtype.has_value());
 
-        Phase phase = parser["phase"];
+        auto phase = parser.get<Phase>("phase");
         zxGraphMgr.get()->assignBoundary(qid, isInput, vtype.value(), phase);
 
         return CmdExecResult::DONE;

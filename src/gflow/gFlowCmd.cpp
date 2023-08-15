@@ -67,16 +67,16 @@ unique_ptr<ArgParseCmdType> ZXGGFlowCmd() {
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         GFlow gflow(zxGraphMgr.get());
 
-        gflow.doExtendedGFlow(parser["-extended"]);
-        gflow.doIndependentLayers(parser["-independent-set"]);
+        gflow.doExtendedGFlow(parser.get<bool>("-extended"));
+        gflow.doIndependentLayers(parser.get<bool>("-independent-set"));
 
         gflow.calculate();
 
-        if (parser["-all"].isParsed()) {
+        if (parser.parsed("-all")) {
             gflow.print();
-        } else if (parser["-levels"].isParsed()) {
+        } else if (parser.parsed("-levels")) {
             gflow.printLevels();
-        } else if (parser["-corrections"].isParsed()) {
+        } else if (parser.parsed("-corrections")) {
             gflow.printXCorrectionSets();
         }
 

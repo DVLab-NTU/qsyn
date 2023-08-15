@@ -66,11 +66,11 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
         Optimizer optimizer(qcirMgr.get());
         QCir *result;
         std::string procedure_str{};
-        if (parser["-trivial"]) {
+        if (parser.get<bool>("-trivial")) {
             result = optimizer.trivial_optimization();
             procedure_str = "Trivial Optimize";
         } else {
-            result = optimizer.basic_optimization(!parser["-physical"], false, 1000, parser["-statistics"]);
+            result = optimizer.basic_optimization(!parser.get<bool>("-physical"), false, 1000, parser.get<bool>("-statistics"));
             procedure_str = "Optimize";
         }
         if (result == nullptr) {
@@ -80,7 +80,7 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
         auto name = qcirMgr.get()->getFileName();
         auto procedures = qcirMgr.get()->getProcedures();
 
-        if (parser["-copy"]) {
+        if (parser.get<bool>("-copy")) {
             qcirMgr.add(qcirMgr.getNextID());
         }
 

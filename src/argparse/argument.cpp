@@ -12,6 +12,10 @@ using namespace std;
 
 namespace ArgParse {
 
+std::ostream& operator<<(std::ostream& os, Argument const& arg) {
+    return os << fmt::format("{}", arg);
+}
+
 /**
  * @brief If the argument has a default value, reset to it.
  *
@@ -72,9 +76,9 @@ bool Argument::tokensEnoughToParse(TokensView tokens) const {
 void Argument::printStatus() const {
     fmt::println("  {:<8}   = {}", getName(), std::invoke([this]() {
                      if (isParsed()) {
-                         return toString();
+                         return fmt::format("{}", *this);
                      } else if (hasDefaultValue()) {
-                         return toString() + " (default)";
+                         return fmt::format("{} (default)", *this);
                      } else {
                          return "(unparsed)"s;
                      }
