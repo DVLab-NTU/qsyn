@@ -10,6 +10,7 @@
 #include <fmt/color.h>
 #include <fmt/core.h>
 
+#include <filesystem>
 #include <functional>
 #include <string>
 
@@ -29,7 +30,7 @@ auto styled_if_ANSI_supported(T const& value, fmt::text_style ts) -> fmt::detail
     return styled_if_ANSI_supported(stdout, value, ts);
 }
 
-fmt::text_style ls_color(std::string const& basename, std::string const& dirname);
+fmt::text_style ls_color(std::filesystem::path const& path);
 
 }  // namespace fmt_ext
 

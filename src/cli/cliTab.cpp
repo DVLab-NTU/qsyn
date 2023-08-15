@@ -263,7 +263,7 @@ bool CommandLineInterface::matchFilesAndComplete(const string& cmd) {
 
     for (auto& file : files) {
         using namespace dvlab_utils;
-        file = fmt::format("{}", fmt_ext::styled_if_ANSI_supported(file, fmt_ext::ls_color(file, dirname.string())));
+        file = fmt::format("{}", fmt_ext::styled_if_ANSI_supported(file, fmt_ext::ls_color(dirname / file)));
     }
 
     printAsTable(files);

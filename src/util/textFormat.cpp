@@ -11,16 +11,17 @@
 
 #include <cassert>
 #include <exception>
-#include <filesystem>
 #include <ranges>
 
 #include "./util.hpp"
+
+namespace fs = std::filesystem;
 
 namespace dvlab_utils {
 
 namespace fmt_ext {
 
-fmt::text_style ls_color(std::string const& basename, std::string const& dirname) {
+fmt::text_style ls_color(fs::path const& path) {
     static auto const ls_color = [](std::string const& key) -> fmt::text_style {
         static auto ls_color_map = std::invoke([]() {
             std::unordered_map<std::string, fmt::text_style> map;
@@ -60,7 +61,7 @@ fmt::text_style ls_color(std::string const& basename, std::string const& dirname
     namespace fs = std::filesystem;
     using fs::file_type, fs::perms;
 
-    auto status = fs::status(fs::path(dirname) / fs::path(basename));
+    auto status = fs::status(path);
     auto type = status.type();
     auto permissions = status.permissions();
     // checks for file types
@@ -75,7 +76,7 @@ fmt::text_style ls_color(std::string const& basename, std::string const& dirname
             return isOtherWritable ? ls_color("ow") : ls_color("di");
         }
         case file_type::symlink: {
-            return (fs::read_symlink(basename) != "")
+            return (fs::read_symlink(path) != "")
                        ? ls_color("ln")
                        : ls_color("or");
         }
@@ -110,7 +111,7 @@ fmt::text_style ls_color(std::string const& basename, std::string const& dirname
         return ls_color("ex");
     }
 
-    return ls_color("*" + fs::path(basename).extension().string());
+    return ls_color("*" + path.extension().string());
 }
 
 }  // namespace fmt_ext
