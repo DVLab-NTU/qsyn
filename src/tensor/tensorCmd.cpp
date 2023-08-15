@@ -17,7 +17,6 @@
 #include "util/textFormat.hpp"
 
 using namespace std;
-namespace TF = TextFormat;
 
 TensorMgr tensorMgr{"Tensor"};
 extern size_t verbose;
@@ -192,13 +191,13 @@ unique_ptr<ArgParseCmdType> TensorEquivalenceCmd() {
                 equiv = false;
             }
         }
-
+        using namespace dvlab_utils;
         if (equiv) {
-            cout << TF::BOLD(TF::GREEN("Equivalent")) << endl
-                 << "- Global Norm : " << norm << endl
-                 << "- Global Phase: " << phase << endl;
+            fmt::println("{}", fmt_ext::styled_if_ANSI_supported("Equivalent", fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
+            fmt::println("- Global Norm : {:.6}", norm);
+            fmt::println("- Global Phase: {}", phase);
         } else {
-            cout << TF::BOLD(TF::RED("Not Equivalent")) << endl;
+            fmt::println("{}", fmt_ext::styled_if_ANSI_supported("Not Equivalent", fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
         }
 
         return CmdExecResult::DONE;

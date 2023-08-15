@@ -24,12 +24,12 @@ qsyn> zxgs -sr
 
 qsyn> zxgp -v
 
-ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (41, [1m[34mH[0m[0m) 
-ID:   5 (●, 0)           (Qubit, Col): (2, 47)	  #Neighbors:   1     (41, [1m[34mH[0m[0m) 
+ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (41, H) 
+ID:   5 (●, 0)           (Qubit, Col): (2, 47)	  #Neighbors:   1     (41, H) 
 ID:   8 (●, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (102, -) 
 ID:   9 (●, 0)           (Qubit, Col): (4, 47)	  #Neighbors:   1     (102, -) 
-ID:  41 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 17)	  #Neighbors:   3     (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (102, [1m[34mH[0m[0m) 
-ID: 102 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 39)	  #Neighbors:   3     (8, -) (9, -) (41, [1m[34mH[0m[0m) 
+ID:  41 (X, 0)           (Qubit, Col): (2, 17)	  #Neighbors:   3     (4, H) (5, H) (102, H) 
+ID: 102 (X, 0)           (Qubit, Col): (4, 39)	  #Neighbors:   3     (8, -) (9, -) (41, H) 
 Total #Vertices: 6
 
 
@@ -52,7 +52,7 @@ Traverse and build the tensor...
 Created and checked out to Tensor 1
 
 qsyn> tseq 0 1
-[1m[32mEquivalent[0m[0m
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 

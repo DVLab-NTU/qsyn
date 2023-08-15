@@ -18,9 +18,6 @@
 #include "./zx2tsMapper.hpp"
 #include "./zxGraphMgr.hpp"
 #include "tensor/tensorMgr.hpp"
-#include "util/textFormat.hpp"
-
-namespace TF = TextFormat;
 
 using namespace std;
 

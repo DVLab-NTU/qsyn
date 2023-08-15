@@ -8,7 +8,6 @@
 #pragma once
 
 #include <fmt/core.h>
-#include <fmt/format.h>
 #include <fmt/ranges.h>
 
 #include <cassert>
@@ -68,8 +67,7 @@ public:
     ArgType(std::string name, T val)
         : _values{std::move(val)}, _name{std::move(name)} {}
 
-    std::string toString() const;
-    friend std::ostream& operator<<(std::ostream& os, ArgType const& arg) { return os << arg.toString(); }
+    friend std::ostream& operator<<(std::ostream& os, ArgType const& arg) { return os << fmt::format("{}", arg); }
 
     ArgType& help(std::string const& help);
     ArgType& required(bool isReq);
@@ -120,6 +118,7 @@ public:
 private:
     friend class Argument;
     friend class ArgumentGroup;
+    friend struct fmt::formatter<ArgType<T>>;
     std::vector<T> _values;
     std::optional<T> _defaultValue = std::nullopt;
 
@@ -164,31 +163,32 @@ concept Printable = requires(T t) {
 
 }  // namespace detail
 
+}  // namespace ArgParse
+
+namespace fmt {
+
 template <typename T>
-requires ValidArgumentType<T>
-std::string ArgType<T>::toString() const {
-    std::string result;
-    if (_values.empty()) return "(None)";
+requires ArgParse::ValidArgumentType<T>
+struct formatter<ArgParse::ArgType<T>> {
+    constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator { return ctx.begin(); }
 
-    if constexpr (detail::Printable<T>) {
-        return (_nargs.upper <= 1) ? fmt::format("{}", _values.front()) : fmt::format("[{}]", fmt::join(_values, ", "));
-    } else {
-        return (_nargs.upper <= 1) ? "(not representable)" : "[(not representable)]";
+    template <typename FormatContext>
+    auto format(ArgParse::ArgType<T> const& arg, FormatContext& ctx) -> format_context::iterator {
+        if (arg._values.empty()) return format_to(ctx.out(), "(None)");
+
+        if constexpr (ArgParse::detail::Printable<T>) {
+            return (arg._nargs.upper <= 1) ? format_to(ctx.out(), "{}", arg._values.front())
+                                           : format_to(ctx.out(), "[{}]", fmt::join(arg._values, ", "));
+        } else {
+            return (arg._nargs.upper <= 1) ? format_to(ctx.out(), "(not representable)")
+                                           : format_to(ctx.out(), "[(not representable)]");
+        }
     }
-}
+};
 
-// /**
-//  * @brief set the name of the argument*
-//  * @tparam T
-//  * @param name
-//  * @return ArgType<T>&
-//  */
-// template <typename T>
-// requires ValidArgumentType<T>
-// ArgType<T>& ArgType<T>::name(std::string const& name) {
-//     _name = name;
-//     return *this;
-// }
+}  // namespace fmt
+
+namespace ArgParse {
 
 /**
  * @brief set the help message of the argument

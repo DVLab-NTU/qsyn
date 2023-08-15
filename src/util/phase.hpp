@@ -16,7 +16,6 @@
 #include <string>
 #include <vector>
 
-#include "argparse/argDef.hpp"
 #include "util/rational.hpp"
 #include "util/util.hpp"
 
@@ -194,18 +193,9 @@ bool Phase::myStr2Phase(const std::string& str, Phase& p) {
     return true;
 }
 
-namespace ArgParse {
-template <>
-inline std::string typeString(Phase const&) { return "Phase"; }
-template <>
-inline bool parseFromString(Phase& phase, std::string const& token) {
-    return Phase::myStr2Phase(token, phase);
-}
-}  // namespace ArgParse
-
 template <>
 struct fmt::formatter<Phase> {
-    char presentation = 'f';  // Presentation format: 'f' - fixed, 'e' - scientific.
+    char presentation = 'e';  // Presentation format: 'f' - fixed, 'e' - scientific.
 
     constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
         auto it = ctx.begin(), end = ctx.end();

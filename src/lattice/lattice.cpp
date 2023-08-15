@@ -14,10 +14,7 @@
 #include <unordered_set>
 
 #include "gflow/gFlow.hpp"
-#include "util/textFormat.hpp"
 #include "zx/zxGraph.hpp"
-
-namespace TF = TextFormat;
 
 using namespace std;
 extern size_t verbose;

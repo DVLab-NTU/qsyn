@@ -7,60 +7,35 @@
 ****************************************************************************/
 #pragma once
 
+#include <fmt/color.h>
+#include <fmt/core.h>
+
 #include <functional>
 #include <string>
 
-namespace TextFormat {
+#include "util/terminalAttributes.hpp"
 
-std::string decorate(std::string const& str, const std::string& code);
-std::string decorate(std::string const& str, const size_t& code);
-std::string setFormat(const std::string& str, const size_t& code);
+namespace dvlab_utils {
 
-size_t tokenSize(std::function<std::string(std::string const&)> F);
+namespace fmt_ext {
 
-std::string BOLD(const std::string& str);
-std::string DIM(const std::string& str);
-std::string ITALIC(const std::string& str);
-std::string ULINE(const std::string& str);
-std::string SWAP(const std::string& str);
-std::string STRIKE(const std::string& str);
+template <typename T>
+auto styled_if_ANSI_supported(FILE* f, T const& value, fmt::text_style ts) -> fmt::detail::styled_arg<std::remove_cvref_t<T>> {
+    return fmt::styled(value, ANSI_supported(f) ? ts : fmt::text_style{});
+}
 
-std::string BLACK(const std::string& str);
-std::string RED(const std::string& str);
-std::string GREEN(const std::string& str);
-std::string YELLOW(const std::string& str);
-std::string BLUE(const std::string& str);
-std::string MAGENTA(const std::string& str);
-std::string CYAN(const std::string& str);
-std::string WHITE(const std::string& str);
+template <typename T>
+auto styled_if_ANSI_supported(T const& value, fmt::text_style ts) -> fmt::detail::styled_arg<std::remove_cvref_t<T>> {
+    return styled_if_ANSI_supported(stdout, value, ts);
+}
 
-std::string BG_BLACK(const std::string& str);
-std::string BG_RED(const std::string& str);
-std::string BG_GREEN(const std::string& str);
-std::string BG_YELLOW(const std::string& str);
-std::string BG_BLUE(const std::string& str);
-std::string BG_MAGENTA(const std::string& str);
-std::string BG_CYAN(const std::string& str);
-std::string BG_WHITE(const std::string& str);
+fmt::text_style ls_color(std::string const& basename, std::string const& dirname);
 
-std::string GRAY(const std::string& str);
-std::string LIGHT_RED(const std::string& str);
-std::string LIGHT_GREEN(const std::string& str);
-std::string LIGHT_YELLOW(const std::string& str);
-std::string LIGHT_BLUE(const std::string& str);
-std::string LIGHT_MAGENTA(const std::string& str);
-std::string LIGHT_CYAN(const std::string& str);
-std::string LIGHT_WHITE(const std::string& str);
+}  // namespace fmt_ext
 
-std::string BG_GRAY(const std::string& str);
-std::string LIGHT_BG_RED(const std::string& str);
-std::string LIGHT_BG_GREEN(const std::string& str);
-std::string LIGHT_BG_YELLOW(const std::string& str);
-std::string LIGHT_BG_BLUE(const std::string& str);
-std::string LIGHT_BG_MAGENTA(const std::string& str);
-std::string LIGHT_BG_CYAN(const std::string& str);
-std::string LIGHT_BG_WHITE(const std::string& str);
+template <typename F>
+size_t ansi_token_size(F const& F_) {
+    return F_("").size();
+}
 
-std::string LS_COLOR(std::string const& basename, std::string const& dirname);
-
-};  // namespace TextFormat
+}  // namespace dvlab_utils

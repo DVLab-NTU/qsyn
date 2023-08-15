@@ -16,10 +16,8 @@
 #include <string>
 
 #include "qcir/qcirGate.hpp"
-#include "util/textFormat.hpp"
 
 using namespace std;
-namespace TF = TextFormat;
 extern size_t verbose;
 
 // SECTION - Struct Info Member Functions

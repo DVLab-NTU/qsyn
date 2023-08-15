@@ -1,4 +1,3 @@
-color off
 exts -op 1
 zxgread benchmark/bzx/tof3.bzx
 zx2ts

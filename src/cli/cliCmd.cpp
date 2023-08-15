@@ -26,7 +26,6 @@ unique_ptr<ArgParseCmdType> dofileCmd();
 unique_ptr<ArgParseCmdType> usageCmd();
 unique_ptr<ArgParseCmdType> verboseCmd();
 unique_ptr<ArgParseCmdType> seedCmd();
-unique_ptr<ArgParseCmdType> colorCmd();
 unique_ptr<ArgParseCmdType> historyCmd();
 unique_ptr<ArgParseCmdType> clearCmd();
 unique_ptr<ArgParseCmdType> loggerCmd();
@@ -40,8 +39,7 @@ bool initCommonCmd() {
           cli.regCmd("VERbose", 3, verboseCmd()) &&
           cli.regCmd("SEED", 4, seedCmd()) &&
           cli.regCmd("CLEAR", 5, clearCmd()) &&
-          cli.regCmd("LOGger", 3, loggerCmd()) &&
-          cli.regCmd("COLOR", 5, colorCmd()))) {
+          cli.regCmd("LOGger", 3, loggerCmd()))) {
         logger.fatal("Registering \"cli\" commands fails... exiting");
         return false;
     }
@@ -269,7 +267,7 @@ unique_ptr<ArgParseCmdType> loggerCmd() {
 
         if (parser.usedSubParser("test")) {
             logger.fatal("Test fatal log");
-            logger.error("Test fatal log");
+            logger.error("Test error log");
             logger.warning("Test warning log");
             logger.info("Test info log");
             logger.debug("Test debug log");
@@ -350,27 +348,6 @@ unique_ptr<ArgParseCmdType> seedCmd() {
 
     return cmd;
 }
-
-unique_ptr<ArgParseCmdType> colorCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("COLOR");
-
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("toggle colored printing");
-
-        parser.addArgument<string>("mode")
-            .choices({"on", "off"})
-            .help("on: colored printing, off: pure-ascii printing");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        string mode = parser["mode"];
-        colorLevel = (mode == "on") ? 1 : 0;
-        fmt::println("Note: color mode is set to {}", mode);
-        return CmdExecResult::DONE;
-    };
-
-    return cmd;
-};
 
 unique_ptr<ArgParseCmdType> clearCmd() {
     auto cmd = make_unique<ArgParseCmdType>("CLEAR");

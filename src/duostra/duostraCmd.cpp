@@ -19,11 +19,9 @@
 #include "qcir/qcir.hpp"
 #include "qcir/qcirCmd.hpp"
 #include "qcir/qcirMgr.hpp"
-#include "util/textFormat.hpp"
 
 using namespace std;
 using namespace ArgParse;
-namespace TF = TextFormat;
 extern size_t verbose;
 extern int effLimit;
 extern QCirMgr qcirMgr;
@@ -73,7 +71,7 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
 #ifdef __GNUC__
         char const* const ompWaitPolicy = getenv("OMP_WAIT_POLICY");
 
-        if (ompWaitPolicy == nullptr || (strcmp(ompWaitPolicy, "PASSIVE") != 0 && strcmp(ompWaitPolicy, "passive") != 0)) {
+        if (ompWaitPolicy == nullptr || (strcasecmp(ompWaitPolicy, "passive") != 0)) {
             logger.warning("OMP_WAIT_POLICY is not set to PASSIVE, which may cause performance issues.");
             logger.warning("You can set it to PASSIVE by running `export OMP_WAIT_POLICY=PASSIVE`.");
         }
@@ -251,14 +249,15 @@ unique_ptr<ArgParseCmdType> mapEQCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        using namespace dvlab_utils;
         if (qcirMgr.findByID(parser["-physical"]) == nullptr || qcirMgr.findByID(parser["-logical"]) == nullptr) {
             return CmdExecResult::ERROR;
         }
         MappingEQChecker mpeqc(qcirMgr.findByID(parser["-physical"]), qcirMgr.findByID(parser["-logical"]), deviceMgr->getDevice(), {});
         if (mpeqc.check()) {
-            cout << TF::BOLD(TF::GREEN("Equivalent up to permutation")) << endl;
+            fmt::println("{}", fmt_ext::styled_if_ANSI_supported("Equivalent up to permutation", fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
         } else {
-            cout << TF::BOLD(TF::RED("Not Equivalent")) << endl;
+            fmt::println("{}", fmt_ext::styled_if_ANSI_supported("Not equivalent", fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
         }
         return CmdExecResult::DONE;
     };

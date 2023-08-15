@@ -18,23 +18,20 @@
 #include "./argparse.hpp"
 #include "./argument.hpp"
 #include "unicode/display_width.hpp"
-#include "util/terminalSize.hpp"
+#include "util/terminalAttributes.hpp"
 #include "util/textFormat.hpp"
 
 using namespace std;
-
-extern size_t colorLevel;
-
-namespace TF = TextFormat;
+using namespace dvlab_utils;
 
 namespace ArgParse {
 
-constexpr auto sectionHeaderStyle = TF::BLUE;
-constexpr auto requiredStyle = TF::CYAN;
-constexpr auto metavarStyle = TF::BOLD;
-constexpr auto optionalStyle = TF::YELLOW;
-constexpr auto typeStyle = [](string const& str) -> string { return TF::CYAN(TF::ITALIC(str)); };
-constexpr auto accentStyle = [](string const& str) -> string { return TF::BOLD(TF::ULINE(str)); };
+constexpr auto sectionHeaderStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::bright_blue))); };
+constexpr auto requiredStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::cyan))); };
+constexpr auto metavarStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::emphasis::bold)); };
+constexpr auto optionalStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::yellow))); };
+constexpr auto typeStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::cyan) | fmt::emphasis::italic)); };
+constexpr auto accentStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::emphasis::bold | fmt::emphasis::underline)); };
 
 /**
  * @brief Print the usage of the command
@@ -53,7 +50,7 @@ void Formatter::printUsage(ArgumentParser const& parser) {
     auto& conflictGroups = parser._pimpl->conflictGroups;
 
     fmt::print("{usage} {cmd}",
-               "usage"_a = TF::LIGHT_BLUE("Usage:"),
+               "usage"_a = sectionHeaderStyle("Usage:"),
                "cmd"_a = styledCmdName(parser.getName(), parser.getNumRequiredChars())  //
     );
 
@@ -115,7 +112,7 @@ void Formatter::printSummary(ArgumentParser const& parser) {
     }
 
     auto cmdName = styledCmdName(fmt::format("{}", parser.getName()), parser.getNumRequiredChars());
-    fmt::println(fmt::runtime("{:<"s + std::to_string(15 + TF::tokenSize(accentStyle)) + "}: {}"), cmdName, parser.getHelp());
+    fmt::println("{0:<{2}}: {1}", cmdName, parser.getHelp(), 15 + dvlab_utils::ansi_token_size(accentStyle));
 }
 
 /**
@@ -154,7 +151,8 @@ void Formatter::printHelp(ArgumentParser const& parser) {
 
     printUsage(parser);
     if (parser.getHelp().size()) {
-        fmt::println("{}", TF::LIGHT_BLUE("\nDescription:"));
+        fmt::println("");
+        fmt::println("{}", sectionHeaderStyle("Description:"));
         fmt::println("  {}", parser.getHelp());
     }
 
@@ -170,7 +168,8 @@ void Formatter::printHelp(ArgumentParser const& parser) {
     };
 
     if (count_if(arguments.begin(), arguments.end(), argPairIsRequired)) {
-        cout << TF::LIGHT_BLUE("\nRequired Arguments:\n");
+        fmt::println("");
+        fmt::println("{}", sectionHeaderStyle("Required Arguments:"));
         for (auto const& [_, arg] : arguments) {
             if (arg.isRequired()) {
                 tabulateHelpString(parser, table, max_help_string_width, arg);
@@ -179,11 +178,12 @@ void Formatter::printHelp(ArgumentParser const& parser) {
     }
 
     if (subparsers.has_value() && subparsers->isRequired()) {
-        tabulateHelpString(parser, table, max_help_string_width, subparsers.value());
+        tabulateHelpString(table, max_help_string_width, subparsers.value());
     }
 
     if (count_if(arguments.begin(), arguments.end(), argPairIsOptional)) {
-        cout << TF::LIGHT_BLUE("\nOptional Arguments:\n");
+        fmt::println("");
+        fmt::println("{}", sectionHeaderStyle("Optional Arguments:"));
         for (auto const& [_, arg] : arguments) {
             if (!arg.isRequired()) {
                 tabulateHelpString(parser, table, max_help_string_width, arg);
@@ -192,10 +192,10 @@ void Formatter::printHelp(ArgumentParser const& parser) {
     }
 
     if (subparsers.has_value() && !subparsers->isRequired()) {
-        tabulateHelpString(parser, table, max_help_string_width, subparsers.value());
+        tabulateHelpString(table, max_help_string_width, subparsers.value());
     }
 
-    cout << table.to_string() << endl;
+    fmt::println("{}", table.to_string());
 }
 
 /**
@@ -291,7 +291,7 @@ void Formatter::tabulateHelpString(ArgumentParser const& parser, fort::utf8_tabl
     table << insertLineBreaksToString(arg.getHelp(), max_help_string_width) << fort::endr;
 }
 
-void Formatter::tabulateHelpString(ArgumentParser const& parser, fort::utf8_table& table, size_t max_help_string_width, SubParsers const& parsers) {
+void Formatter::tabulateHelpString(fort::utf8_table& table, size_t max_help_string_width, SubParsers const& parsers) {
     table << getSyntaxString(parsers) << ""
           << "" << insertLineBreaksToString(parsers.getHelp(), max_help_string_width) << fort::endr;
 }
@@ -303,8 +303,9 @@ void Formatter::tabulateHelpString(ArgumentParser const& parser, fort::utf8_tabl
  * @return string
  */
 string Formatter::styledArgName(ArgumentParser const& parser, Argument const& arg) {
-    if (!parser.hasOptionPrefix(arg)) return metavarStyle(arg.getName());
-    if (colorLevel >= 1) {
+    if (!parser.hasOptionPrefix(arg)) return metavarStyle(arg.getMetavar());
+
+    if (ANSI_supported()) {
         string mand = arg.getName().substr(0, arg.getNumRequiredChars());
         string rest = arg.getName().substr(arg.getNumRequiredChars());
         return optionalStyle(accentStyle(mand)) + optionalStyle(rest);
@@ -323,7 +324,7 @@ string Formatter::styledArgName(ArgumentParser const& parser, Argument const& ar
  * @return string
  */
 string Formatter::styledCmdName(std::string const& name, size_t numRequired) {
-    if (colorLevel >= 1) {
+    if (ANSI_supported()) {
         string mand = name.substr(0, numRequired);
         string rest = name.substr(numRequired);
         return accentStyle(mand) + rest;

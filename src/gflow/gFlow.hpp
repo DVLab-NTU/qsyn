@@ -7,6 +7,8 @@
 ****************************************************************************/
 #pragma once
 
+#include <fmt/core.h>
+
 #include <unordered_map>
 #include <vector>
 
@@ -88,3 +90,26 @@ private:
 };
 
 std::ostream& operator<<(std::ostream& os, GFlow::MeasurementPlane const& plane);
+
+template <>
+struct fmt::formatter<GFlow::MeasurementPlane> {
+    constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
+        return ctx.begin();
+    }
+
+    auto format(const GFlow::MeasurementPlane& plane, format_context& ctx) const -> format_context::iterator {
+        switch (plane) {
+            case GFlow::MeasurementPlane::XY:
+                return format_to(ctx.out(), "XY");
+            case GFlow::MeasurementPlane::YZ:
+                return format_to(ctx.out(), "YZ");
+            case GFlow::MeasurementPlane::XZ:
+                return format_to(ctx.out(), "XZ");
+            case GFlow::MeasurementPlane::NOT_A_QUBIT:
+                return format_to(ctx.out(), "not a qubit");
+            case GFlow::MeasurementPlane::ERROR:
+            default:
+                return format_to(ctx.out(), "ERROR");
+        }
+    }
+};

@@ -11,7 +11,6 @@
 
 #include "./zxGraph.hpp"
 #include "tensor/tensorMgr.hpp"
-#include "util/textFormat.hpp"
 
 extern bool stop_requested();
 
@@ -19,7 +18,6 @@ extern size_t verbose;
 extern TensorMgr tensorMgr;
 
 using namespace std;
-namespace TF = TextFormat;
 
 /**
  * @brief convert a zxgraph to a tensor
@@ -82,16 +80,24 @@ void ZX2TSMapper::mapOneVertex(ZXVertex* v) {
     _addEdges.clear();
     _tensorId = 0;
 
-    if (verbose >= 5) cout << "> Mapping vertex " << v->getId() << " (" << VertexType2Str(v->getType()) << "): ";
+    if (verbose >= 5) {
+        fmt::print("> Mapping vertex {} ({}): ", v->getId(), v->getType());
+    }
     if (isOfNewGraph(v)) {
-        if (verbose >= 5) cout << "New Subgraph" << endl;
+        if (verbose >= 5) {
+            fmt::println("New Subgraph");
+        }
         initSubgraph(v);
-    } else if (v->getType() == VertexType::BOUNDARY) {
-        if (verbose >= 5) cout << "Boundary Node" << endl;
+    } else if (v->isBoundary()) {
+        if (verbose >= 5) {
+            fmt::println("Boundary Node");
+        }
         updatePinsAndFrontiers(v);
         currTensor() = dehadamardize(currTensor());
     } else {
-        if (verbose >= 5) cout << "Tensordot" << endl;
+        if (verbose >= 5) {
+            fmt::println("Tensordot");
+        }
         updatePinsAndFrontiers(v);
         tensorDotVertex(v);
     }
@@ -147,7 +153,7 @@ void ZX2TSMapper::printFrontiers(size_t id) const {
         cout << "    "
              << epair.first.first->getId() << "--"
              << epair.first.second->getId() << " ("
-             << EdgeType2Str(epair.second)
+             << epair.second
              << ") axis id: " << axid << endl;
     }
 }

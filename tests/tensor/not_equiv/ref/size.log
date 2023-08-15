@@ -19,10 +19,10 @@ qsyn> tsp -l
 ★ 1                        QC2TS
 
 qsyn> tseq 0 1 
-[1m[31mNot Equivalent[0m[0m
+Not Equivalent
 
 qsyn> tseq 0 1 -Strict
-[1m[31mNot Equivalent[0m[0m
+Not Equivalent
 
 qsyn> qq -f
 

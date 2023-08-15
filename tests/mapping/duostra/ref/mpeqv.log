@@ -1,7 +1,4 @@
 DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> color off
-Note: color mode is set to off
-
 qsyn> ver 0
 Note: verbose level is set to 0
 

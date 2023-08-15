@@ -15,19 +15,9 @@
 
 #include "./zxDef.hpp"
 #include "./zxGraph.hpp"
-#include "util/textFormat.hpp"
 
 using namespace std;
-namespace TF = TextFormat;
 extern size_t verbose;
-
-std::ostream& operator<<(std::ostream& stream, VertexType const& vt) {
-    return stream << static_cast<typename std::underlying_type<VertexType>::type>(vt);
-}
-
-std::ostream& operator<<(std::ostream& stream, EdgeType const& et) {
-    return stream << static_cast<typename std::underlying_type<EdgeType>::type>(et);
-}
 
 /**
  * @brief return a vector of neighbor vertices
@@ -48,7 +38,7 @@ vector<ZXVertex*> ZXVertex::getCopiedNeighbors() {
  */
 void ZXVertex::printVertex() const {
     cout << "ID:" << right << setw(4) << _id;
-    cout << " (" << VertexType2Str(_type) << ", " << left << setw(12 - ((_phase == Phase(0)) ? 1 : 0)) << (_phase.getPrintString() + ")");
+    cout << " (" << _type << ", " << left << setw(12 - ((_phase == Phase(0)) ? 1 : 0)) << (_phase.getPrintString() + ")");
     cout << "  (Qubit, Col): (" << _qubit << ", " << _col << ")\t"
          << "  #Neighbors: " << right << setw(3) << _neighbors.size() << "     ";
     printNeighbors();
@@ -66,7 +56,7 @@ void ZXVertex::printNeighbors() const {
     });
 
     for (const auto& [nb, etype] : storage) {
-        cout << "(" << nb->getId() << ", " << EdgeType2Str(etype) << ") ";
+        cout << "(" << nb->getId() << ", " << etype << ") ";
     }
     cout << endl;
 }
@@ -100,24 +90,8 @@ std::optional<VertexType> str2VertexType(const string& str) {
     return std::nullopt;
 }
 
-/**
- * @brief Convert `VertexType` to string
- *
- * @param vt
- * @return string
- */
-string VertexType2Str(const VertexType& vt) {
-    switch (vt) {
-        case VertexType::X:
-            return TF::BOLD(TF::RED("X"));
-        case VertexType::Z:
-            return TF::BOLD(TF::GREEN("Z"));
-        case VertexType::H_BOX:
-            return TF::BOLD(TF::YELLOW("H"));
-        case VertexType::BOUNDARY:
-        default:
-            return "●";
-    }
+std::ostream& operator<<(std::ostream& stream, VertexType const& vt) {
+    return stream << fmt::format("{}", vt);
 }
 
 /**
@@ -132,16 +106,8 @@ std::optional<EdgeType> str2EdgeType(const string& str) {
     return std::nullopt;
 }
 
-/**
- * @brief Convert `EdgeType` to string
- *
- * @param et
- * @return string
- */
-string EdgeType2Str(const EdgeType& et) {
-    if (et == EdgeType::SIMPLE) return "-";
-    if (et == EdgeType::HADAMARD) return TF::BOLD(TF::BLUE("H"));
-    return "";
+std::ostream& operator<<(std::ostream& stream, EdgeType const& et) {
+    return stream << fmt::format("{}", et);
 }
 
 /**

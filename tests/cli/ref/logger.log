@@ -3,91 +3,91 @@ qsyn> logger
 Logger Level: warning
 
 qsyn> logger level debug
-[[32mDebug[0m] Setting logger level to debug
+[Debug] Setting logger level to debug
 
 qsyn> logger
 Logger Level: debug
 
 qsyn> logger test
-[[30m[41mFatal[0m[0m] Test fatal log
-[[31mError[0m] Test fatal log
-[[33mWarning[0m] Test warning log
+[Fatal] Test fatal log
+[Error] Test error log
+[Warning] Test warning log
 [Info] Test info log
-[[32mDebug[0m] Test debug log
+[Debug] Test debug log
 
 qsyn> logger mask -error -warning
-[[32mDebug[0m] Masked logger level: error
-[[32mDebug[0m] Masked logger level: warning
+[Debug] Masked logger level: error
+[Debug] Masked logger level: warning
 
 qsyn> logger
 Logger Level: debug
 Masked logging levels: error, warning
 
 qsyn> logger test
-[[30m[41mFatal[0m[0m] Test fatal log
+[Fatal] Test fatal log
 [Info] Test info log
-[[32mDebug[0m] Test debug log
+[Debug] Test debug log
 
 qsyn> logger mask +warning
-[[32mDebug[0m] Unmasked logger level: warning
+[Debug] Unmasked logger level: warning
 
 qsyn> logger
 Logger Level: debug
 Masked logging levels: error
 
 qsyn> logger test
-[[30m[41mFatal[0m[0m] Test fatal log
-[[33mWarning[0m] Test warning log
+[Fatal] Test fatal log
+[Warning] Test warning log
 [Info] Test info log
-[[32mDebug[0m] Test debug log
+[Debug] Test debug log
 
 qsyn> logger level error
 
 qsyn> logger test
-[[30m[41mFatal[0m[0m] Test fatal log
+[Fatal] Test fatal log
 
 qsyn> logger history
-[[32mDebug[0m] Setting logger level to debug
-[[30m[41mFatal[0m[0m] Test fatal log
-[[31mError[0m] Test fatal log
-[[33mWarning[0m] Test warning log
+[Debug] Setting logger level to debug
+[Fatal] Test fatal log
+[Error] Test error log
+[Warning] Test warning log
 [Info] Test info log
-[[32mDebug[0m] Test debug log
-[[36mTrace[0m] Test trace log
-[[32mDebug[0m] Masked logger level: error
-[[32mDebug[0m] Masked logger level: warning
-[[30m[41mFatal[0m[0m] Test fatal log
-[[31mError[0m] Test fatal log
-[[33mWarning[0m] Test warning log
+[Debug] Test debug log
+[Trace] Test trace log
+[Debug] Masked logger level: error
+[Debug] Masked logger level: warning
+[Fatal] Test fatal log
+[Error] Test error log
+[Warning] Test warning log
 [Info] Test info log
-[[32mDebug[0m] Test debug log
-[[36mTrace[0m] Test trace log
-[[32mDebug[0m] Unmasked logger level: warning
-[[30m[41mFatal[0m[0m] Test fatal log
-[[31mError[0m] Test fatal log
-[[33mWarning[0m] Test warning log
+[Debug] Test debug log
+[Trace] Test trace log
+[Debug] Unmasked logger level: warning
+[Fatal] Test fatal log
+[Error] Test error log
+[Warning] Test warning log
 [Info] Test info log
-[[32mDebug[0m] Test debug log
-[[36mTrace[0m] Test trace log
-[[32mDebug[0m] Setting logger level to error
-[[30m[41mFatal[0m[0m] Test fatal log
-[[31mError[0m] Test fatal log
-[[33mWarning[0m] Test warning log
+[Debug] Test debug log
+[Trace] Test trace log
+[Debug] Setting logger level to error
+[Fatal] Test fatal log
+[Error] Test error log
+[Warning] Test warning log
 [Info] Test info log
-[[32mDebug[0m] Test debug log
-[[36mTrace[0m] Test trace log
+[Debug] Test debug log
+[Trace] Test trace log
 
 qsyn> logger history 10
 [Info] Test info log
-[[32mDebug[0m] Test debug log
-[[36mTrace[0m] Test trace log
-[[32mDebug[0m] Setting logger level to error
-[[30m[41mFatal[0m[0m] Test fatal log
-[[31mError[0m] Test fatal log
-[[33mWarning[0m] Test warning log
+[Debug] Test debug log
+[Trace] Test trace log
+[Debug] Setting logger level to error
+[Fatal] Test fatal log
+[Error] Test error log
+[Warning] Test warning log
 [Info] Test info log
-[[32mDebug[0m] Test debug log
-[[36mTrace[0m] Test trace log
+[Debug] Test debug log
+[Trace] Test trace log
 
 qsyn> qq -f
 

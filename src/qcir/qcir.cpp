@@ -18,7 +18,6 @@
 #include "util/textFormat.hpp"
 
 using namespace std;
-namespace TF = TextFormat;
 extern size_t verbose;
 
 /**
@@ -509,21 +508,16 @@ std::vector<int> QCir::countGate(bool detail, bool print) {
         cout << "        └── MCRY: " << mcry << endl;
         cout << endl;
     }
-    // cout << "> Decompose into basic gate set" << endl;
-    // cout << endl;
     if (print) {
-        cout << TF::BOLD(TF::GREEN("Clifford    : " + to_string(clifford))) << endl;
-        cout << "└── " << TF::BOLD(TF::RED("2-qubit : " + to_string(cxcnt))) << endl;
-        cout << TF::BOLD(TF::RED("T-family    : " + to_string(tfamily))) << endl;
-        if (nct > 0)
-            cout << TF::BOLD(TF::RED("Others      : " + to_string(nct))) << endl;
-        else
-            cout << TF::BOLD(TF::GREEN("Others      : " + to_string(nct))) << endl;
+        using namespace dvlab_utils;
+        fmt::println("Clifford    : {}", fmt_ext::styled_if_ANSI_supported(clifford, fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
+        fmt::println("└── 2-qubit : {}", fmt_ext::styled_if_ANSI_supported(cxcnt, fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
+        fmt::println("T-family    : {}", fmt_ext::styled_if_ANSI_supported(tfamily, fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
+        fmt::println("Others      : {}", fmt_ext::styled_if_ANSI_supported(nct, fmt::fg((nct > 0) ? fmt::terminal_color::red : fmt::terminal_color::green) | fmt::emphasis::bold));
     }
     vector<int> info;
     info.emplace_back(clifford);
     info.emplace_back(cxcnt);
     info.emplace_back(tfamily);
     return info;  // [clifford, cxcnt, tfamily]
-    // cout << endl;
 }
