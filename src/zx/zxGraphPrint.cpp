@@ -15,7 +15,6 @@
 #include "zx/zxGraph.hpp"
 
 using namespace std;
-namespace TF = TextFormat;
 extern size_t verbose;
 
 /**
@@ -124,7 +123,7 @@ void ZXGraph::printQubits(vector<int> cand) const {
  */
 void ZXGraph::printEdges() const {
     forEachEdge([](const EdgePair& epair) {
-        cout << "( " << epair.first.first->getId() << ", " << epair.first.second->getId() << " )\tType:\t" << EdgeType2Str(epair.second) << endl;
+        cout << "( " << epair.first.first->getId() << ", " << epair.first.second->getId() << " )\tType:\t" << epair.second << endl;
     });
     cout << "Total #Edges: " << getNumEdges() << endl;
 }
@@ -179,17 +178,16 @@ void ZXGraph::printDifference(ZXGraph* other) const {
  * @param v
  * @return string
  */
-string printColoredVertex(ZXVertex* v) {
+string getColoredVertexString(ZXVertex* v) {
+    using namespace dvlab_utils;
     if (v->getType() == VertexType::BOUNDARY)
-        return to_string(v->getId());
+        return fmt::format("{}", v->getId());
     else if (v->getType() == VertexType::Z)
-        return TF::BOLD(TF::GREEN(to_string(v->getId())));
+        return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(v->getId(), fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
     else if (v->getType() == VertexType::X)
-        return TF::BOLD(TF::RED(to_string(v->getId())));
-    else if (v->getType() == VertexType::H_BOX)
-        return TF::BOLD(TF::YELLOW(to_string(v->getId())));
+        return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(v->getId(), fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
     else
-        return to_string(v->getId());
+        return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(v->getId(), fmt::fg(fmt::terminal_color::yellow) | fmt::emphasis::bold));
 }
 
 /**
@@ -262,7 +260,7 @@ void ZXGraph::draw() const {
         for (size_t j = 0; j <= maxCol; j++) {
             if (i < -offset) {
                 if (colList[j][i] != nullptr) {
-                    cout << "(" << printColoredVertex(colList[j][i]) << ")   ";
+                    cout << "(" << getColoredVertexString(colList[j][i]) << ")   ";
                 } else {
                     if (j == maxCol)
                         cout << endl;
@@ -273,9 +271,9 @@ void ZXGraph::draw() const {
                 }
             } else if (colList[j][i] != nullptr) {
                 if (j == maxCol)
-                    cout << "(" << printColoredVertex(colList[j][i]) << ")" << endl;
+                    cout << "(" << getColoredVertexString(colList[j][i]) << ")" << endl;
                 else
-                    cout << "(" << printColoredVertex(colList[j][i]) << ")---";
+                    cout << "(" << getColoredVertexString(colList[j][i]) << ")---";
 
                 for (size_t k = 0; k < maxLength[j] - to_string(colList[j][i]->getId()).length(); k++) cout << "-";
             } else {

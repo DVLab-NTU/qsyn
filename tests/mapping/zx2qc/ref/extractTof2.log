@@ -1,7 +1,4 @@
 DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> color off
-Note: color mode is set to off
-
 qsyn> exts -op 1
 
 qsyn> zxgread benchmark/bzx/tof3.bzx

@@ -42,7 +42,7 @@ public:
     }
 
     friend std::ostream& operator<<(std::ostream& os, Argument const& arg) {
-        return arg._pimpl->do_print(os);
+        return os << fmt::format("{}", arg);
     }
 
     template <typename T>
@@ -87,6 +87,8 @@ private:
     friend class ArgumentParser;  // shares Argument::Model<T> and _pimpl
                                   // to ArgumentParser, enabling it to access
                                   // the underlying ArgType<T>
+    friend struct fmt::formatter<Argument>;
+
     struct Concept {
         virtual ~Concept() {}
 
@@ -106,7 +108,6 @@ private:
         virtual bool do_isRequired() const = 0;
         virtual bool do_constraintsSatisfied() const = 0;
 
-        virtual std::ostream& do_print(std::ostream&) const = 0;
         virtual std::string do_toString() const = 0;
 
         virtual bool do_takeAction(TokensView) = 0;
@@ -138,8 +139,7 @@ private:
         inline bool do_isRequired() const override { return inner._required; };
         inline bool do_constraintsSatisfied() const override { return inner.constraintsSatisfied(); }
 
-        inline std::ostream& do_print(std::ostream& os) const override { return os << inner; }
-        inline std::string do_toString() const override { return inner.toString(); }
+        inline std::string do_toString() const override { return fmt::format("{}", inner); }
 
         inline bool do_takeAction(TokensView tokens) override { return inner.takeAction(tokens); }
         inline void do_setValueToDefault() override { return inner.setValueToDefault(); }

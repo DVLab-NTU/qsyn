@@ -15,25 +15,25 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> tseq 0 1 -Eps 1e-2
-[1m[32mEquivalent[0m[0m
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
 qsyn> tseq 0 1 -Eps 1e-4
-[1m[32mEquivalent[0m[0m
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
 qsyn> tseq 0 1 -Eps 1e-6
-[1m[32mEquivalent[0m[0m
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
 qsyn> tseq 0 1 -Eps 1e-8
-[1m[31mNot Equivalent[0m[0m
+Not Equivalent
 
 qsyn> tseq 0 1 -Eps 1e-10
-[1m[31mNot Equivalent[0m[0m
+Not Equivalent
 
 qsyn> qq -f
 

@@ -13,10 +13,8 @@
 #include "./zxDef.hpp"
 #include "./zxGraph.hpp"
 #include "util/phase.hpp"
-#include "util/textFormat.hpp"
 
 using namespace std;
-namespace TF = TextFormat;
 extern size_t verbose;
 
 /**

@@ -12,7 +12,7 @@
 
 #include "./cli.hpp"
 #include "unicode/display_width.hpp"
-#include "util/terminalSize.hpp"
+#include "util/terminalAttributes.hpp"
 #include "util/textFormat.hpp"
 
 using namespace std;
@@ -227,7 +227,7 @@ bool CommandLineInterface::matchFilesAndComplete(const string& cmd) {
     searchString = searchString->substr(lastSpacePos + 1);
 
     auto filepath = fs::path(*searchString);
-    auto dirname = filepath.parent_path().string();
+    auto dirname = filepath.parent_path();
     auto prefix = filepath.filename().string();
 
     vector<string> files = getMatchedFiles(filepath);
@@ -239,7 +239,7 @@ bool CommandLineInterface::matchFilesAndComplete(const string& cmd) {
 
     if (completeCommonChars(prefix, files, incompleteQuotes.size())) {
         if (files.size() == 1) {
-            if (fs::is_directory(files[0])) {
+            if (fs::is_directory(dirname / files[0])) {
                 insertChar('/');
             } else {
                 if (!incompleteQuotes.empty()) insertChar(incompleteQuotes[0]);
@@ -262,8 +262,8 @@ bool CommandLineInterface::matchFilesAndComplete(const string& cmd) {
     }
 
     for (auto& file : files) {
-        namespace TF = TextFormat;
-        file = TF::LS_COLOR(file, dirname);
+        using namespace dvlab_utils;
+        file = fmt::format("{}", fmt_ext::styled_if_ANSI_supported(file, fmt_ext::ls_color(dirname / file)));
     }
 
     printAsTable(files);

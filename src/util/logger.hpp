@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <fmt/color.h>
 #include <fmt/core.h>
 
 #include <climits>
@@ -103,10 +104,8 @@ public:
      */
     template <typename... Args>
     void fatal(fmt::format_string<Args...> fmt, Args&&... args) {
-        namespace TF = TextFormat;
-
         _log.emplace_back(fmt::format("[{}] {}",
-                                      TF::BLACK(TF::BG_RED("Fatal")),
+                                      fmt_ext::styled_if_ANSI_supported("Fatal", fmt::fg(fmt::terminal_color::white) | fmt::bg(fmt::terminal_color::red)),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::FATAL)) {
             fmt::println(stderr, "{}", _log.back());
@@ -122,10 +121,8 @@ public:
      */
     template <typename... Args>
     void error(fmt::format_string<Args...> fmt, Args&&... args) {
-        namespace TF = TextFormat;
-
         _log.emplace_back(fmt::format("[{}] {}",
-                                      TF::RED("Error"),
+                                      fmt_ext::styled_if_ANSI_supported("Error", fmt::fg(fmt::terminal_color::red)),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::ERROR)) {
             fmt::println(stderr, "{}", _log.back());
@@ -141,10 +138,8 @@ public:
      */
     template <typename... Args>
     void warning(fmt::format_string<Args...> fmt, Args&&... args) {
-        namespace TF = TextFormat;
-
         _log.emplace_back(fmt::format("[{}] {}",
-                                      TF::YELLOW("Warning"),
+                                      fmt_ext::styled_if_ANSI_supported("Warning", fmt::fg(fmt::terminal_color::yellow)),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::WARNING)) {
             fmt::println(stderr, "{}", _log.back());
@@ -164,7 +159,7 @@ public:
                                       "Info",
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::INFO)) {
-            fmt::println(stderr, "{}", _log.back());
+            fmt::println(stdout, "{}", _log.back());
         }
     }
 
@@ -177,13 +172,11 @@ public:
      */
     template <typename... Args>
     void debug(fmt::format_string<Args...> fmt, Args&&... args) {
-        namespace TF = TextFormat;
-
         _log.emplace_back(fmt::format("[{}] {}",
-                                      TF::GREEN("Debug"),
+                                      fmt_ext::styled_if_ANSI_supported("Debug", fmt::fg(fmt::terminal_color::green)),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::DEBUG)) {
-            fmt::println(stderr, "{}", _log.back());
+            fmt::println(stdout, "{}", _log.back());
         }
     }
 
@@ -196,13 +189,11 @@ public:
      */
     template <typename... Args>
     void trace(fmt::format_string<Args...> fmt, Args&&... args) {
-        namespace TF = TextFormat;
-
         _log.emplace_back(fmt::format("[{}] {}",
-                                      TF::CYAN("Trace"),
+                                      fmt_ext::styled_if_ANSI_supported("Trace", fmt::fg(fmt::terminal_color::cyan)),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::TRACE)) {
-            fmt::println(stderr, "{}", _log.back());
+            fmt::println(stdout, "{}", _log.back());
         }
     }
 

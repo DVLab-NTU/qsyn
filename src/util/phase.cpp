@@ -9,6 +9,7 @@
 #include "./phase.hpp"
 
 #include "./rational.hpp"
+#include "argparse/argDef.hpp"
 
 std::ostream& operator<<(std::ostream& os, const Phase& p) {
     return os << p.getPrintString();
@@ -89,3 +90,12 @@ void Phase::normalize() {
     _rational -= (integralPart * 2);
     if (_rational > 1) _rational -= 2;
 }
+
+namespace ArgParse {
+template <>
+std::string typeString(Phase const&) { return "Phase"; }
+template <>
+bool parseFromString(Phase& phase, std::string const& token) {
+    return Phase::myStr2Phase(token, phase);
+}
+}  // namespace ArgParse

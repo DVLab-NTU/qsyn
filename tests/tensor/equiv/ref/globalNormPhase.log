@@ -32,12 +32,12 @@ qsyn> tsp -l
 ★ 1                        ZX2TS
 
 qsyn> tseq 0 1
-[1m[32mEquivalent[0m[0m
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
 qsyn> tseq 0 1 -Strict
-[1m[32mEquivalent[0m[0m
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
@@ -71,12 +71,12 @@ qsyn> tsp -l
 ★ 1                        QC2TS
 
 qsyn> tseq 0 1
-[1m[32mEquivalent[0m[0m
+Equivalent
 - Global Norm : 1
 - Global Phase: π/4
 
 qsyn> tseq 0 1 -Strict
-[1m[31mNot Equivalent[0m[0m
+Not Equivalent
 
 qsyn> qq -f
 

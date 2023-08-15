@@ -3,7 +3,7 @@ qsyn> zxgr benchmark/zx/tof2_opt.zx
 Created and checked out to ZXGraph 0
 
 qsyn> zxggf -all
-GFlow of the graph: 
+GFlow of the graph:
 Level 0
    1 (XY): (None)
    3 (XY): (None)
@@ -14,10 +14,10 @@ Level 1
   18 (XY): 5
 Level 2
   17 (XY): 18
-[1m[31mNo GFlow exists.
-[0m[0mThe flow breaks at level 3.
+No GFlow exists.
+The flow breaks at level 3.
 No correction sets found for the following vertices:
-0 8 9 13 2 14 16 
+0 8 9 13 2 14 16
 
 qsyn> qq -f 
 

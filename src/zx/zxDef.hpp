@@ -8,6 +8,9 @@
 
 #pragma once
 
+#include <fmt/core.h>
+#include <fmt/format.h>
+
 #include <functional>
 #include <iosfwd>
 #include <unordered_map>
@@ -17,6 +20,7 @@
 #include "util/ordered_hashmap.hpp"
 #include "util/ordered_hashset.hpp"
 #include "util/phase.hpp"
+#include "util/textFormat.hpp"
 
 class ZXVertex;
 class ZXGraph;
@@ -125,3 +129,41 @@ struct hash<EdgePair> {
 
 std::ostream& operator<<(std::ostream& stream, VertexType const& vt);
 std::ostream& operator<<(std::ostream& stream, EdgeType const& et);
+
+template <>
+struct fmt::formatter<VertexType> {
+    constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
+        return ctx.begin();
+    }
+    auto format(const VertexType& vt, format_context& ctx) const -> format_context::iterator {
+        using namespace dvlab_utils;
+        switch (vt) {
+            case VertexType::X:
+                return fmt::format_to(ctx.out(), "{}", fmt_ext::styled_if_ANSI_supported("X", fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
+            case VertexType::Z:
+                return fmt::format_to(ctx.out(), "{}", fmt_ext::styled_if_ANSI_supported("Z", fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
+            case VertexType::H_BOX:
+                return fmt::format_to(ctx.out(), "{}", fmt_ext::styled_if_ANSI_supported("H", fmt::fg(fmt::terminal_color::yellow) | fmt::emphasis::bold));
+            case VertexType::BOUNDARY:
+            default:
+                return fmt::format_to(ctx.out(), "●");
+        }
+    }
+};
+
+template <>
+struct fmt::formatter<EdgeType> {
+    constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
+        return ctx.begin();
+    }
+    auto format(const EdgeType& et, format_context& ctx) const -> format_context::iterator {
+        using namespace dvlab_utils;
+        switch (et) {
+            case EdgeType::HADAMARD:
+                return fmt::format_to(ctx.out(), "{}", fmt_ext::styled_if_ANSI_supported("H", fmt::fg(fmt::terminal_color::blue) | fmt::emphasis::bold));
+            case EdgeType::SIMPLE:
+            default:
+                return fmt::format_to(ctx.out(), "-");
+        }
+    }
+};

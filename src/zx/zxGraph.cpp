@@ -12,7 +12,6 @@
 #include <iostream>
 
 #include "./zxDef.hpp"
-#include "util/textFormat.hpp"
 
 using namespace std;
 
@@ -129,7 +128,7 @@ bool ZXGraph::isGraphLike() const {
     for (const auto& v : _vertices) {
         if (!v->isZ() && !v->isBoundary()) {
             if (verbose >= 5) {
-                cout << "Note: vertex " << v->getId() << " is of type " << VertexType2Str(v->getType()) << endl;
+                cout << "Note: vertex " << v->getId() << " is of type " << v->getType() << endl;
             }
             return false;
         }
@@ -248,7 +247,9 @@ ZXVertex* ZXGraph::addOutput(int qubit, unsigned int col) {
 ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, unsigned int col) {
     ZXVertex* v = new ZXVertex(_nextVId, qubit, vt, phase, col);
     _vertices.emplace(v);
-    if (verbose >= 8) cout << "Add vertex (" << VertexType2Str(vt) << ") " << _nextVId << endl;
+    if (verbose >= 8) {
+        fmt::println("Add vertex ({}) {}", v->getType(), _nextVId);
+    }
     _nextVId++;
     return v;
 }
@@ -398,7 +399,7 @@ size_t ZXGraph::removeEdge(ZXVertex* vs, ZXVertex* vt, EdgeType etype) {
         throw out_of_range("Graph connection error in " + to_string(vs->getId()) + " and " + to_string(vt->getId()));
     }
     if (count == 2) {
-        if (verbose >= 8) cout << "Remove edge (" << vs->getId() << ", " << vt->getId() << "), type: " << EdgeType2Str(etype) << endl;
+        if (verbose >= 8) cout << "Remove edge (" << vs->getId() << ", " << vt->getId() << "), type: " << etype << endl;
     }
     return count / 2;
 }
