@@ -11,9 +11,9 @@
 #include <iostream>
 #include <string>
 
-#include "simplify.h"
-#include "zxCmd.h"
-#include "zxGraphMgr.h"
+#include "simplifier/simplify.hpp"
+#include "zx/zxCmd.hpp"
+#include "zx/zxGraphMgr.hpp"
 
 using namespace std;
 using namespace ArgParse;
@@ -142,58 +142,58 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         Simplifier s(zxGraphMgr.get());
         std::string procedure_str = "";
-        if (parser["-sreduce"].isParsed()) {
+        if (parser.parsed("-sreduce")) {
             s.symbolicReduce();
             procedure_str = "SR";
-        } else if (parser["-dreduce"].isParsed()) {
+        } else if (parser.parsed("-dreduce")) {
             s.dynamicReduce();
             procedure_str = "DR";
-        } else if (parser["-preduce"].isParsed()) {
-            s.partitionReduce(parser["p"], parser["n"]);
+        } else if (parser.parsed("-preduce")) {
+            s.partitionReduce(parser.get<size_t>("p"), parser.get<size_t>("n"));
             procedure_str = "PR";
-        } else if (parser["-interclifford"].isParsed()) {
+        } else if (parser.parsed("-interclifford")) {
             s.interiorCliffordSimp();
             procedure_str = "INTERC";
-        } else if (parser["-clifford"].isParsed()) {
+        } else if (parser.parsed("-clifford")) {
             s.cliffordSimp();
             procedure_str = "CLIFF";
-        } else if (parser["-bialgebra"].isParsed()) {
+        } else if (parser.parsed("-bialgebra")) {
             s.bialgSimp();
             procedure_str = "BIALG";
-        } else if (parser["-gadgetfusion"].isParsed()) {
+        } else if (parser.parsed("-gadgetfusion")) {
             s.gadgetSimp();
             procedure_str = "GADFUS";
-        } else if (parser["-hfusion"].isParsed()) {
+        } else if (parser.parsed("-hfusion")) {
             s.hfusionSimp();
             procedure_str = "HFUSE";
-        } else if (parser["-hrule"].isParsed()) {
+        } else if (parser.parsed("-hrule")) {
             s.hruleSimp();
             procedure_str = "HRULE";
-        } else if (parser["-idremoval"].isParsed()) {
+        } else if (parser.parsed("-idremoval")) {
             s.idSimp();
             procedure_str = "IDRM";
-        } else if (parser["-lcomp"].isParsed()) {
+        } else if (parser.parsed("-lcomp")) {
             s.lcompSimp();
             procedure_str = "LCOMP";
-        } else if (parser["-pivotrule"].isParsed()) {
+        } else if (parser.parsed("-pivotrule")) {
             s.pivotSimp();
             procedure_str = "PIVOT";
-        } else if (parser["-pivotboundary"].isParsed()) {
+        } else if (parser.parsed("-pivotboundary")) {
             s.pivotBoundarySimp();
             procedure_str = "PVBND";
-        } else if (parser["-pivotgadget"].isParsed()) {
+        } else if (parser.parsed("-pivotgadget")) {
             s.pivotGadgetSimp();
             procedure_str = "PVGAD";
-        } else if (parser["-spiderfusion"].isParsed()) {
+        } else if (parser.parsed("-spiderfusion")) {
             s.sfusionSimp();
             procedure_str = "SPFUSE";
-        } else if (parser["-stcopy"].isParsed()) {
+        } else if (parser.parsed("-stcopy")) {
             s.copySimp();
             procedure_str = "STCOPY";
-        } else if (parser["-tograph"].isParsed()) {
+        } else if (parser.parsed("-tograph")) {
             s.toGraph();
             procedure_str = "TOGRAPH";
-        } else if (parser["-torgraph"].isParsed()) {
+        } else if (parser.parsed("-torgraph")) {
             s.toRGraph();
             procedure_str = "TORGRAPH";
         } else {
@@ -201,13 +201,13 @@ unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
             procedure_str = "FR";
         }
 
-        if (cli.stop_requested()) {
+        if (stop_requested()) {
             procedure_str += "[INT]";
         }
 
         zxGraphMgr.get()->addProcedure(procedure_str);
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;

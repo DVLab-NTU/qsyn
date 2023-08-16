@@ -7,7 +7,9 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "circuitTopology.h"
+#include "./circuitTopology.hpp"
+
+#include "qcir/gateType.hpp"
 
 using namespace std;
 

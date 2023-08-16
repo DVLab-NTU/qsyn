@@ -1,8 +1,8 @@
 #include <algorithm>
 
-#include "simplify.h"
-#include "zxPartition.h"
-#include "zxRulesTemplate.hpp"
+#include "./simplify.hpp"
+#include "./zxRulesTemplate.hpp"
+#include "zx/zxPartition.hpp"
 
 void scopedFullReduce(ZXGraph* graph, const ZXVertexList& scope);
 void scopedDynamicReduce(ZXGraph* graph, const ZXVertexList& scope);
@@ -77,7 +77,7 @@ void scopedDynamicReduce(ZXGraph* graph, const ZXVertexList& scope) {
         return;
     }
 
-    while (!cli.stop_requested()) {
+    while (!stop_requested()) {
         int a3 = scopedCliffordSimp(graph, scope);
         if (a3 == -1 && tOptimal == graph->TCount()) {
             return;
@@ -107,7 +107,7 @@ void scopedFullReduce(ZXGraph* graph, const ZXVertexList& scope) {
 
     scopedInteriorCliffordSimp(graph, scope);
     simplifier.scopedSimplify(PivotGadgetRule(), scope);
-    while (!cli.stop_requested()) {
+    while (!stop_requested()) {
         simplifier.cliffordSimp();
         int i = simplifier.scopedSimplify(PhaseGadgetRule(), scope);
         if (i == -1) i = 0;

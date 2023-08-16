@@ -11,14 +11,12 @@
 #include <iostream>
 #include <string>
 
-#include "cmdParser.h"
-#include "phase.h"
-#include "qtensor.h"
-#include "tensorMgr.h"
-#include "textFormat.h"
+#include "./tensorMgr.hpp"
+#include "cli/cli.hpp"
+#include "util/phase.hpp"
+#include "util/textFormat.hpp"
 
 using namespace std;
-namespace TF = TextFormat;
 
 TensorMgr tensorMgr{"Tensor"};
 extern size_t verbose;
@@ -61,7 +59,7 @@ unique_ptr<ArgParseCmdType> TensorMgrResetCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         tensorMgr.reset();
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -89,16 +87,16 @@ unique_ptr<ArgParseCmdType> TensorMgrPrintCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["-focus"].isParsed())
+        if (parser.parsed("-focus"))
             tensorMgr.printFocus();
-        else if (parser["-number"].isParsed())
+        else if (parser.parsed("-number"))
             tensorMgr.printListSize();
-        else if (parser["-list"].isParsed())
+        else if (parser.parsed("-list"))
             tensorMgr.printList();
         else
             tensorMgr.printMgr();
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -117,13 +115,13 @@ unique_ptr<ArgParseCmdType> TensorPrintCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["id"].isParsed()) {
-            cout << *tensorMgr.findByID(parser["id"]) << endl;
+        if (parser.parsed("id")) {
+            cout << *tensorMgr.findByID(parser.get<size_t>("id")) << endl;
         } else {
             cout << *tensorMgr.get() << endl;
         }
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -141,12 +139,12 @@ unique_ptr<ArgParseCmdType> TensorAdjointCmd() {
             .help("the ID of the tensor");
     };
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["id"].isParsed()) {
-            tensorMgr.findByID(parser["id"])->adjoint();
+        if (parser.parsed("id")) {
+            tensorMgr.findByID(parser.get<size_t>("id"))->adjoint();
         } else {
             tensorMgr.get()->adjoint();
         }
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -170,9 +168,9 @@ unique_ptr<ArgParseCmdType> TensorEquivalenceCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        vector<size_t> ids = parser["ids"];
-        double eps = parser["-epsilon"];
-        bool strict = parser["-strict"];
+        auto ids = parser.get<vector<size_t>>("ids");
+        auto eps = parser.get<double>("-epsilon");
+        auto strict = parser.get<bool>("-strict");
 
         QTensor<double>* tensor1;
         QTensor<double>* tensor2;
@@ -193,16 +191,16 @@ unique_ptr<ArgParseCmdType> TensorEquivalenceCmd() {
                 equiv = false;
             }
         }
-
+        using namespace dvlab_utils;
         if (equiv) {
-            cout << TF::BOLD(TF::GREEN("Equivalent")) << endl
-                 << "- Global Norm : " << norm << endl
-                 << "- Global Phase: " << phase << endl;
+            fmt::println("{}", fmt_ext::styled_if_ANSI_supported("Equivalent", fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
+            fmt::println("- Global Norm : {:.6}", norm);
+            fmt::println("- Global Phase: {}", phase);
         } else {
-            cout << TF::BOLD(TF::RED("Not Equivalent")) << endl;
+            fmt::println("{}", fmt_ext::styled_if_ANSI_supported("Not Equivalent", fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
         }
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;

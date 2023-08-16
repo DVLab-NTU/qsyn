@@ -1,7 +1,4 @@
 DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> color off
-Note: color mode is set to off
-
 qsyn> ver 0
 Note: verbose level is set to 0
 
@@ -41,11 +38,12 @@ Description:
   check equivalence of the physical and the logical circuits
 
 Required Arguments:
-  size_t   -Logical    LOGICAL    logical circuit id  
-  size_t   -Physical   PHYSICAL   physical circuit id  
 
 Optional Arguments:
-  flag     -Reverse               check the circuit reversily, used in extracted circuit  
+  size_t  -Logical   LOGICAL   logical circuit id                                     
+  size_t  -Physical  PHYSICAL  physical circuit id                                    
+  flag    -Reverse             check the circuit reversily, used in extracted circuit 
+
 
 qsyn> mpeq -l 0 -p 1
 Equivalent up to permutation

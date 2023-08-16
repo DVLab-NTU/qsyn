@@ -7,16 +7,14 @@
 ****************************************************************************/
 #include <cstddef>
 #include <cstdlib>
-#include <iomanip>
-#include <iostream>
 #include <memory>
 #include <set>
 #include <string>
 #include <unordered_set>
 #include <vector>
 
-#include "cmdParser.h"
-#include "util.h"
+#include "cli/cli.hpp"
+#include "util/util.hpp"
 
 using namespace std;
 using namespace ArgParse;
@@ -27,7 +25,7 @@ unique_ptr<ArgParseCmdType> argparseCmd();
 
 bool initArgParseCmd() {
     if (!(cli.regCmd("Argparse", 1, argparseCmd()))) {
-        cerr << "Registering \"argparser\" commands fails... exiting" << endl;
+        fmt::println(stderr, "Registering \"argparse\" commands fails... exiting");
         return false;
     }
     return true;
@@ -43,7 +41,7 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
             .nargs(NArgsOption::ZERO_OR_MORE)
             .help("won't eat veggies");
 
-        parser.addArgument<string>("-dog")
+        parser.addArgument<string>("-DOG")
             .action(storeConst("rocky"s))
             .defaultValue("good boi"s)
             .help("humans' best friend");
@@ -53,13 +51,11 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
         parser.printTokens();
         parser.printArguments();
 
-        ordered_hashset<string> cats = parser["cat"];
+        auto cats = parser.get<ordered_hashset<string>>("cat");
 
-        cout << "# cats = " << cats.size() << ":";
-        for (auto& name : cats) cout << " " << name;
-        cout << endl;
+        fmt::println("# cats = {}: {}", cats.size(), fmt::join(cats, " "));
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;

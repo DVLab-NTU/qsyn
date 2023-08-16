@@ -10,18 +10,19 @@
 #include <iostream>
 #include <string>
 
-#include "cmdParser.h"
-#include "optimizer.h"
-#include "qcir.h"
-#include "qcirCmd.h"
-#include "qcirMgr.h"
-#include "util.h"
+#include "./optimizer.hpp"
+#include "cli/cli.hpp"
+#include "qcir/qcir.hpp"
+#include "qcir/qcirCmd.hpp"
+#include "qcir/qcirMgr.hpp"
+#include "util/util.hpp"
 
 using namespace std;
 using namespace ArgParse;
 extern size_t verbose;
 extern int effLimit;
 extern QCirMgr qcirMgr;
+extern bool stop_requested();
 
 unique_ptr<ArgParseCmdType> optimizeCmd();
 
@@ -65,25 +66,25 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
         Optimizer optimizer(qcirMgr.get());
         QCir *result;
         std::string procedure_str{};
-        if (parser["-trivial"]) {
+        if (parser.get<bool>("-trivial")) {
             result = optimizer.trivial_optimization();
             procedure_str = "Trivial Optimize";
         } else {
-            result = optimizer.basic_optimization(!parser["-physical"], false, 1000, parser["-statistics"]);
+            result = optimizer.basic_optimization(!parser.get<bool>("-physical"), false, 1000, parser.get<bool>("-statistics"));
             procedure_str = "Optimize";
         }
         if (result == nullptr) {
             cout << "Error: fail to optimize circuit." << endl;
-            return CmdExecStatus::ERROR;
+            return CmdExecResult::ERROR;
         }
         auto name = qcirMgr.get()->getFileName();
         auto procedures = qcirMgr.get()->getProcedures();
 
-        if (parser["-copy"]) {
+        if (parser.get<bool>("-copy")) {
             qcirMgr.add(qcirMgr.getNextID());
         }
 
-        if (cli.stop_requested()) {
+        if (stop_requested()) {
             procedure_str += "[INT]";
         }
 
@@ -93,7 +94,7 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
         qcirMgr.get()->addProcedures(procedures);
         qcirMgr.get()->addProcedure(procedure_str);
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
     return cmd;
 }

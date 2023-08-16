@@ -6,19 +6,18 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "qcir.h"
+#include "./qcir.hpp"
 
 #include <cassert>
 #include <cstdlib>
 #include <string>
 #include <vector>
 
-#include "qcirGate.h"
-#include "qcirQubit.h"
-#include "textFormat.h"
+#include "./qcirGate.hpp"
+#include "./qcirQubit.hpp"
+#include "util/textFormat.hpp"
 
 using namespace std;
-namespace TF = TextFormat;
 extern size_t verbose;
 
 /**
@@ -68,7 +67,6 @@ QCirQubit *QCir::addSingleQubit() {
     QCirQubit *temp = new QCirQubit(_qubitId);
     _qubits.emplace_back(temp);
     _qubitId++;
-    clearMapping();
     return temp;
 }
 
@@ -89,7 +87,6 @@ QCirQubit *QCir::insertSingleQubit(size_t id) {
             break;
     }
     _qubits.insert(_qubits.begin() + cnt, temp);
-    clearMapping();
     return temp;
 }
 
@@ -103,7 +100,6 @@ void QCir::addQubit(size_t num) {
         QCirQubit *temp = new QCirQubit(_qubitId);
         _qubits.emplace_back(temp);
         _qubitId++;
-        clearMapping();
     }
 }
 
@@ -126,7 +122,6 @@ bool QCir::removeQubit(size_t id) {
             return false;
         } else {
             std::erase(_qubits, target);
-            clearMapping();
             return true;
         }
     }
@@ -268,7 +263,6 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
     }
     _qgates.emplace_back(temp);
     _gateId++;
-    clearMapping();
     return temp;
 }
 
@@ -300,7 +294,6 @@ bool QCir::removeGate(size_t id) {
         }
         std::erase(_qgates, target);
         _dirty = true;
-        clearMapping();
         return true;
     }
 }
@@ -515,21 +508,16 @@ std::vector<int> QCir::countGate(bool detail, bool print) {
         cout << "        └── MCRY: " << mcry << endl;
         cout << endl;
     }
-    // cout << "> Decompose into basic gate set" << endl;
-    // cout << endl;
     if (print) {
-        cout << TF::BOLD(TF::GREEN("Clifford    : " + to_string(clifford))) << endl;
-        cout << "└── " << TF::BOLD(TF::RED("2-qubit : " + to_string(cxcnt))) << endl;
-        cout << TF::BOLD(TF::RED("T-family    : " + to_string(tfamily))) << endl;
-        if (nct > 0)
-            cout << TF::BOLD(TF::RED("Others      : " + to_string(nct))) << endl;
-        else
-            cout << TF::BOLD(TF::GREEN("Others      : " + to_string(nct))) << endl;
+        using namespace dvlab_utils;
+        fmt::println("Clifford    : {}", fmt_ext::styled_if_ANSI_supported(clifford, fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
+        fmt::println("└── 2-qubit : {}", fmt_ext::styled_if_ANSI_supported(cxcnt, fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
+        fmt::println("T-family    : {}", fmt_ext::styled_if_ANSI_supported(tfamily, fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
+        fmt::println("Others      : {}", fmt_ext::styled_if_ANSI_supported(nct, fmt::fg((nct > 0) ? fmt::terminal_color::red : fmt::terminal_color::green) | fmt::emphasis::bold));
     }
     vector<int> info;
     info.emplace_back(clifford);
     info.emplace_back(cxcnt);
     info.emplace_back(tfamily);
     return info;  // [clifford, cxcnt, tfamily]
-    // cout << endl;
 }

@@ -6,25 +6,28 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "simplify.h"
+#include "./simplify.hpp"
 
 #include <cstddef>
 #include <iomanip>
 #include <iostream>
 
-#include "cmdParser.h"
-#include "extract.h"
-#include "gFlow.h"
-#include "zxDef.h"
-#include "zxGraph.h"  // for ZXGraph
-#include "zxGraphMgr.h"
-#include "zxPartition.h"
-#include "zxRulesTemplate.hpp"
+#include "./zxRulesTemplate.hpp"
+#include "gflow/gFlow.hpp"
+#include "zx/zxDef.hpp"
+#include "zx/zxGraph.hpp"
+#include "zx/zxGraphMgr.hpp"
+#include "zx/zxPartition.hpp"
 
 using namespace std;
 extern size_t verbose;
 extern size_t dmode;
-extern CmdParser cli;
+
+int cnt = 0;
+bool step = false;
+bool stop = false;
+
+// Basic rules simplification
 
 /**
  * @brief Perform Bialgebra Rule
@@ -210,7 +213,7 @@ int Simplifier::cliffordSimp() {
 void Simplifier::fullReduce() {
     this->interiorCliffordSimp();
     this->pivotGadgetSimp();
-    while (!cli.stop_requested()) {
+    while (!stop_requested()) {
         this->cliffordSimp();
         int i = this->gadgetSimp();
         if (i == -1) i = 0;
@@ -264,7 +267,7 @@ void Simplifier::dynamicReduce(size_t tOptimal) {
         return;
     }
 
-    while (!cli.stop_requested()) {
+    while (!stop_requested()) {
         int a3 = this->cliffordSimp();
         if (a3 == -1 && tOptimal == _simpGraph->TCount()) {
             this->printRecipe();
@@ -302,7 +305,7 @@ void Simplifier::symbolicReduce() {
     this->interiorCliffordSimp();
     this->pivotGadgetSimp();
     this->copySimp();
-    while (!cli.stop_requested()) {
+    while (!stop_requested()) {
         this->cliffordSimp();
         int i = this->gadgetSimp();
         this->interiorCliffordSimp();

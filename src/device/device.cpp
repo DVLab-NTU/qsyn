@@ -6,19 +6,18 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "device.h"
-
-#include <stdlib.h>
+#include "device/device.hpp"
 
 #include <cassert>
+#include <cstdlib>
 #include <fstream>
+#include <iomanip>
 #include <limits>
 #include <string>
 
-#include "textFormat.h"
+#include "qcir/qcirGate.hpp"
 
 using namespace std;
-namespace TF = TextFormat;
 extern size_t verbose;
 
 // SECTION - Struct Info Member Functions

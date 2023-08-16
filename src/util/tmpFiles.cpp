@@ -6,13 +6,13 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "tmpFiles.h"
+#include "./tmpFiles.hpp"
 
 #include <cerrno>
 #include <cstring>
 #include <iostream>
 
-#include "util.h"
+#include "./util.hpp"
 
 using namespace std;
 
@@ -32,7 +32,7 @@ std::filesystem::path createTmpDir(std::string_view prefix) {
     for (int i = 0; i < 6; i++) TEMPLATE[prefix.size() + i] = 'X';
     TEMPLATE[prefix.size() + 6] = '\0';
 
-    IGNORE_UNUSED_RETURN_WARNING mkdtemp(TEMPLATE);
+    [[maybe_unused]] auto _ = mkdtemp(TEMPLATE);
 
     // NOTE - Don't change! `errno < 0` is the correct condition to check here
     if (errno < 0) {
@@ -58,7 +58,7 @@ std::filesystem::path createTmpFile(std::string_view prefix) {
     prefix.copy(TEMPLATE, prefix.size());
     for (int i = 0; i < 6; i++) TEMPLATE[prefix.size() + i] = 'X';
 
-    IGNORE_UNUSED_RETURN_WARNING mkstemp(TEMPLATE);
+    [[maybe_unused]] auto _ = mkstemp(TEMPLATE);
 
     // NOTE - Don't change! `errno < 0` is the correct condition to check here
     if (errno < 0) {

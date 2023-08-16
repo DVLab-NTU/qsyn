@@ -8,12 +8,11 @@
 
 #include <cstddef>
 #include <iomanip>
-#include <iostream>
 #include <string>
 
-#include "cmdParser.h"
-#include "device.h"
-#include "deviceMgr.h"
+#include "cli/cli.hpp"
+#include "device/device.hpp"
+#include "device/deviceMgr.hpp"
 
 using namespace std;
 using namespace ArgParse;
@@ -63,8 +62,8 @@ unique_ptr<ArgParseCmdType> dtCheckOutCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        deviceMgr->checkout2Device(parser["id"]);
-        return CmdExecStatus::DONE;
+        deviceMgr->checkout2Device(parser.get<size_t>("id"));
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -79,7 +78,7 @@ unique_ptr<ArgParseCmdType> dtResetCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         deviceMgr->reset();
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -97,8 +96,8 @@ unique_ptr<ArgParseCmdType> dtDeleteCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        deviceMgr->removeDevice(parser["id"]);
-        return CmdExecStatus::DONE;
+        deviceMgr->removeDevice(parser.get<size_t>("id"));
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -120,12 +119,12 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         Device bufferTopo = Device(0);
-        string filepath = parser["filepath"];
-        bool replace = parser["-replace"];
+        auto filepath = parser.get<string>("filepath");
+        auto replace = parser.get<bool>("-replace");
 
         if (!bufferTopo.readDevice(filepath)) {
             cerr << "Error: the format in \"" << filepath << "\" has something wrong!!" << endl;
-            return CmdExecStatus::ERROR;
+            return CmdExecResult::ERROR;
         }
 
         if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {
@@ -139,7 +138,7 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
         }
 
         deviceMgr->setDevice(bufferTopo);
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -172,7 +171,7 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
 
 //     cmd->onParseSuccess = [](ArgumentParser const& parser) {
 
-//         return CmdExecStatus::DONE;
+//         return CmdExecResult::DONE;
 //     };
 
 //     return cmd;
@@ -201,16 +200,16 @@ unique_ptr<ArgParseCmdType> dtPrintCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["-focus"].isParsed())
+        if (parser.parsed("-focus"))
             deviceMgr->printDeviceListItr();
-        else if (parser["-list"].isParsed())
+        else if (parser.parsed("-list"))
             deviceMgr->printDeviceList();
-        else if (parser["-number"].isParsed())
+        else if (parser.parsed("-number"))
             deviceMgr->printDeviceListSize();
         else
             deviceMgr->printDeviceMgr();
 
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;
@@ -256,22 +255,22 @@ unique_ptr<ArgParseCmdType> dtGraphPrintCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["-edges"].isParsed()) {
+        if (parser.parsed("-edges")) {
             deviceMgr->getDevice().printEdges(parser.get<vector<size_t>>("-edges"));
-            return CmdExecStatus::DONE;
+            return CmdExecResult::DONE;
         }
-        if (parser["-qubits"].isParsed()) {
+        if (parser.parsed("-qubits")) {
             deviceMgr->getDevice().printQubits(parser.get<vector<size_t>>("-qubits"));
-            return CmdExecStatus::DONE;
+            return CmdExecResult::DONE;
         }
-        if (parser["-path"].isParsed()) {
+        if (parser.parsed("-path")) {
             auto qids = parser.get<vector<size_t>>("-path");
             deviceMgr->getDevice().printPath(qids[0], qids[1]);
-            return CmdExecStatus::DONE;
+            return CmdExecResult::DONE;
         }
 
         deviceMgr->getDevice().printTopology();
-        return CmdExecStatus::DONE;
+        return CmdExecResult::DONE;
     };
 
     return cmd;

@@ -1,4 +1,3 @@
-color off
 qccr benchmark/qft/qft_10dec.qasm
 qc2zx
 zxggf -all

@@ -91,7 +91,7 @@ Traverse and build the tensor...
 Created and checked out to Tensor 1
 
 qsyn> tseq 0 1
-[1m[32mEquivalent[0m[0m
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 

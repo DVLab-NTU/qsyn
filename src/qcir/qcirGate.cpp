@@ -6,10 +6,10 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "qcirGate.h"
+#include "./qcirGate.hpp"
 
-#include <assert.h>
-
+#include <cassert>
+#include <iomanip>
 #include <string>
 
 using namespace std;
@@ -20,6 +20,10 @@ size_t SINGLE_DELAY = 1;
 size_t DOUBLE_DELAY = 2;
 size_t SWAP_DELAY = 6;
 size_t MULTIPLE_DELAY = 5;
+
+std::ostream& operator<<(std::ostream& stream, GateType const& type) {
+    return stream << static_cast<typename std::underlying_type<GateType>::type>(type);
+}
 
 std::unordered_map<std::string, GateType> str2GateType = {
     {"x", GateType::X},
@@ -127,7 +131,7 @@ void QCirGate::setTargetBit(size_t qubit) {
  * @param qubit
  * @param p
  */
-void QCirGate::setParent(size_t qubit, QCirGate *p) {
+void QCirGate::setParent(size_t qubit, QCirGate* p) {
     for (size_t i = 0; i < _qubits.size(); i++) {
         if (_qubits[i]._qubit == qubit) {
             _qubits[i]._parent = p;
@@ -141,7 +145,7 @@ void QCirGate::setParent(size_t qubit, QCirGate *p) {
  *
  * @param c
  */
-void QCirGate::addDummyChild(QCirGate *c) {
+void QCirGate::addDummyChild(QCirGate* c) {
     BitInfo temp = {._qubit = 0, ._parent = nullptr, ._child = c, ._isTarget = false};
     _qubits.emplace_back(temp);
 }
@@ -152,7 +156,7 @@ void QCirGate::addDummyChild(QCirGate *c) {
  * @param qubit
  * @param c
  */
-void QCirGate::setChild(size_t qubit, QCirGate *c) {
+void QCirGate::setChild(size_t qubit, QCirGate* c) {
     for (size_t i = 0; i < _qubits.size(); i++) {
         if (_qubits[i]._qubit == qubit) {
             _qubits[i]._child = c;

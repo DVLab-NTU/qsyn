@@ -6,17 +6,17 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <assert.h>
+#include <cassert>
 
-#include "cmdParser.h"
-#include "optimizer.h"
-#include "phase.h"
-#include "qcir.h"
-#include "qcirGate.h"
+#include "optimizer/optimizer.hpp"
+#include "qcir/qcir.hpp"
+#include "qcir/qcirGate.hpp"
+#include "util/phase.hpp"
 
 using namespace std;
 
 extern size_t verbose;
+extern bool stop_requested();
 
 /**
  * @brief Parse the circuit and forward and backward iteratively and optimize it
@@ -41,7 +41,7 @@ QCir* Optimizer::basic_optimization(bool doSwap, bool separateCorrection, size_t
     _corrections.clear();
     prev_stats = Optimizer::stats(_circuit);
 
-    while (!cli.stop_requested()) {
+    while (!stop_requested()) {
         _reversed = true;
         _circuit = parseForward();
         for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
@@ -67,7 +67,7 @@ QCir* Optimizer::basic_optimization(bool doSwap, bool separateCorrection, size_t
     for (auto& g : _corrections) Optimizer::_addGate2Circuit(_circuit, g);
     _corrections.clear();
 
-    if (cli.stop_requested()) {
+    if (stop_requested()) {
         cerr << "Warning: optimization interrupted" << endl;
         return _circuit;
     }

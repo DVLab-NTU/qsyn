@@ -20,7 +20,7 @@ jobs:
         with:
           sources: './src'
           exclude: './vendor ./tests'
-          extensions: 'h,cpp'
+          extensions: 'h,cpp,hpp,tpp'
           clangFormatVersion: 16
     
 

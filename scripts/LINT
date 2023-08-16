@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-find ./src -regex ".*\.\(h\|cpp\|tpp\)" -type f | xargs clang-format -i
+find ./src -regex ".*\.\(h\|hpp\|cpp\|tpp\)" -type f | xargs clang-format -i

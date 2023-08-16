@@ -8,8 +8,8 @@
 
 #include <utility>
 
-#include "zxGraph.h"
-#include "zxRulesTemplate.hpp"
+#include "./zxRulesTemplate.hpp"
+#include "zx/zxGraph.hpp"
 
 using MatchType = BialgebraRule::MatchType;
 

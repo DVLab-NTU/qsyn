@@ -6,9 +6,10 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "deviceMgr.h"
+#include "device/deviceMgr.hpp"
 
 #include <cstddef>
+#include <iomanip>
 #include <iostream>
 
 using namespace std;

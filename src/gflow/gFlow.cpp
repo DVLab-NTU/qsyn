@@ -6,21 +6,19 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "gFlow.h"
+#include "./gFlow.hpp"
 
 #include <cassert>
 #include <cstddef>
-#include <iomanip>
-#include <iostream>
 #include <ranges>
 
-#include "simplify.h"
-#include "textFormat.h"
-
-namespace TF = TextFormat;
+#include "simplifier/simplify.hpp"
+#include "util/textFormat.hpp"
 
 using namespace std;
 extern size_t verbose;
+
+constexpr auto vertex2id = [](ZXVertex* v) { return v->getId(); };
 
 /**
  * @brief Calculate the Z correction set of a vertex,
@@ -116,7 +114,7 @@ bool GFlow::calculate() {
                     return this->_levels.back().contains(nbpair.first);
                 })) {
                 if (verbose >= 8) {
-                    cout << "Skipping vertex " << v->getId() << ": connected to current level" << endl;
+                    fmt::println("Skipping vertex {} : connected to current level", v->getId());
                 }
                 continue;
             }
@@ -124,23 +122,23 @@ bool GFlow::calculate() {
             M2 augmentedMatrix = prepareMatrix(v, i);
 
             if (verbose >= 8) {
-                cout << "Before solving: " << endl;
+                fmt::println("Before solving:");
                 augmentedMatrix.printMatrix();
             }
 
             if (augmentedMatrix.gaussianElimAugmented(false)) {
                 if (verbose >= 8) {
-                    cout << "Solved, adding " << v->getId() << " to this level" << endl;
+                    fmt::println("Solved, adding {} to this level", v->getId());
                 }
                 _taken.insert(v);
                 _levels.back().insert(v);
                 setCorrectionSetFromMatrix(v, augmentedMatrix);
             } else if (verbose >= 8) {
-                cout << "No solution for " << v->getId() << "." << endl;
+                fmt::println("No solution for {}.", v->getId());
             }
 
             if (verbose >= 8) {
-                cout << "After solving: " << endl;
+                fmt::println("After solving:");
                 augmentedMatrix.printMatrix();
             }
             ++i;
@@ -241,10 +239,6 @@ void GFlow::setCorrectionSetFromMatrix(ZXVertex* v, const M2& matrix) {
  *
  */
 M2 GFlow::prepareMatrix(ZXVertex* v, size_t i) {
-    // cout << "preparing matrix: v = " << v->getId() << ", i = " << i << endl;
-    // printFrontier();
-    // printNeighbors();
-
     M2 augmentedMatrix = _coefficientMatrix;
     augmentedMatrix.pushColumn();
 
@@ -301,9 +295,9 @@ void GFlow::updateFrontier() {
  *
  */
 void GFlow::print() const {
-    cout << "GFlow of the graph: \n";
+    fmt::println("GFlow of the graph:");
     for (size_t i = 0; i < _levels.size(); ++i) {
-        cout << "Level " << i << endl;
+        fmt::println("Level {}", i);
         for (const auto& v : _levels[i]) {
             printXCorrectionSet(v);
         }
@@ -315,13 +309,9 @@ void GFlow::print() const {
  *
  */
 void GFlow::printLevels() const {
-    cout << "GFlow levels of the graph: \n";
+    fmt::println("GFlow levels of the graph:");
     for (size_t i = 0; i < _levels.size(); ++i) {
-        cout << "Level " << right << setw(4) << i << ":";
-        for (auto& v : _levels[i]) {
-            cout << " " << v->getId();
-        }
-        cout << endl;
+        fmt::println("Level {:>4}: {}", i, fmt::join(_levels[i] | views::transform(vertex2id), " "));
     }
 }
 
@@ -331,19 +321,16 @@ void GFlow::printLevels() const {
  * @param v correction set of whom
  */
 void GFlow::printXCorrectionSet(ZXVertex* v) const {
-    cout << right << setw(4) << v->getId() << " (" << _measurementPlanes.at(v) << "):";
+    fmt::print("{:>4} ({}): ", v->getId(), _measurementPlanes.at(v));
     if (_xCorrectionSets.contains(v)) {
         if (_xCorrectionSets.at(v).empty()) {
-            cout << " (None)";
+            fmt::println("(None)");
         } else {
-            for (const auto& w : _xCorrectionSets.at(v)) {
-                cout << " " << w->getId();
-            }
+            fmt::println("{}", fmt::join(_xCorrectionSets.at(v) | views::transform(vertex2id), " "));
         }
     } else {
-        cout << " Does not exist";
+        fmt::println("Does not exist");
     }
-    cout << endl;
 }
 
 /**
@@ -361,12 +348,13 @@ void GFlow::printXCorrectionSets() const {
  *
  */
 void GFlow::printSummary() const {
+    using namespace dvlab_utils;
     if (_valid) {
-        cout << TF::BOLD(TF::GREEN("GFlow exists.\n"))
-             << "#Levels: " << _levels.size() << endl;
+        fmt::println("{}", fmt_ext::styled_if_ANSI_supported("GFlow exists.", fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
+        fmt::println("#Levels: {}", _levels.size());
     } else {
-        cout << TF::BOLD(TF::RED("No GFlow exists.\n"))
-             << "The flow breaks at level " << _levels.size() << "." << endl;
+        fmt::println("{}", fmt_ext::styled_if_ANSI_supported("No GFlow exists.", fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
+        fmt::println("The flow breaks at level {}.", _levels.size());
     }
 }
 
@@ -375,11 +363,7 @@ void GFlow::printSummary() const {
  *
  */
 void GFlow::printFrontier() const {
-    cout << "Frontier :";
-    for (auto& v : _frontier) {
-        cout << " " << v->getId();
-    }
-    cout << endl;
+    fmt::println("Frontier: {}", fmt::join(_frontier | views::transform(vertex2id), " "));
 }
 
 /**
@@ -387,11 +371,7 @@ void GFlow::printFrontier() const {
  *
  */
 void GFlow::printNeighbors() const {
-    cout << "Neighbors:";
-    for (auto& v : _neighbors) {
-        cout << " " << v->getId();
-    }
-    cout << endl;
+    fmt::println("Neighbors: {}", fmt::join(_neighbors | views::transform(vertex2id), " "));
 }
 
 /**
@@ -399,26 +379,10 @@ void GFlow::printNeighbors() const {
  *
  */
 void GFlow::printFailedVertices() const {
-    cout << "No correction sets found for the following vertices:" << endl;
-    for (auto& v : _neighbors) {
-        cout << v->getId() << " ";
-    }
-    cout << endl;
+    fmt::println("No correction sets found for the following vertices:");
+    fmt::println("{}", fmt::join(_neighbors | views::transform(vertex2id), " "));
 }
 
 std::ostream& operator<<(std::ostream& os, GFlow::MeasurementPlane const& plane) {
-    using MP = GFlow::MeasurementPlane;
-    switch (plane) {
-        case MP::XY:
-            return os << "XY";
-        case MP::YZ:
-            return os << "YZ";
-        case MP::XZ:
-            return os << "XZ";
-        case MP::NOT_A_QUBIT:
-            return os << "not a qubit";
-        case MP::ERROR:
-        default:
-            return os << "ERROR";
-    }
+    return os << fmt::format("{}", plane);
 }

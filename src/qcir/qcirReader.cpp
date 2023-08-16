@@ -11,9 +11,9 @@
 #include <iostream>
 #include <string>
 
-#include "phase.h"
-#include "qcir.h"
-#include "util.h"
+#include "qcir/qcir.hpp"
+#include "util/phase.hpp"
+#include "util/util.hpp"
 
 using namespace std;
 

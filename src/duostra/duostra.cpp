@@ -7,16 +7,19 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "duostra.h"
+#include "./duostra.hpp"
 
-#include "checker.h"
-#include "cmdParser.h"
-#include "placer.h"
-#include "qcir.h"
-#include "variables.h"
+#include <iomanip>
+
+#include "./checker.hpp"
+#include "./placer.hpp"
+#include "./variables.hpp"
+#include "qcir/qcir.hpp"
 
 using namespace std;
 extern size_t verbose;
+
+extern bool stop_requested();
 
 // SECTION - Global settings for Duostra mapper
 
@@ -256,7 +259,7 @@ size_t Duostra::flow(bool useDeviceAsPlacement) {
     if (!_silent) cout << "Routing..." << endl;
     _device = sched->assignGatesAndSort(std::move(router));
 
-    if (cli.stop_requested()) {
+    if (stop_requested()) {
         cerr << "Warning: mapping interrupted" << endl;
         return ERROR_CODE;
     }

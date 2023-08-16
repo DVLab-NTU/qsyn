@@ -1,7 +1,4 @@
 DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> color off
-Note: color mode is set to off
-
 qsyn> qccr benchmark/qft/qft_10dec.qasm
 Created and checked out to QCir 0
 
@@ -9,7 +6,7 @@ qsyn> qc2zx
 Created and checked out to ZXGraph 0
 
 qsyn> zxggf -all
-GFlow of the graph: 
+GFlow of the graph:
 Level 0
    1 (XY): (None)
    3 (XY): (None)
@@ -424,7 +421,7 @@ GFlow exists.
 qsyn> zxgs -interclifford
 
 qsyn> zxggf -all
-GFlow of the graph: 
+GFlow of the graph:
 Level 0
    1 (XY): (None)
    3 (XY): (None)
