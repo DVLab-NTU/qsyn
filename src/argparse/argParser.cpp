@@ -119,6 +119,7 @@ bool ArgumentParser::analyzeOptions() const {
     for (auto const& [name, arg] : _pimpl->arguments) {
         if (!hasOptionPrefix(name)) continue;
         _pimpl->trie.insert(name);
+        arg._isOption = true;
     }
 
     for (auto& [name, arg] : _pimpl->arguments) {
@@ -414,7 +415,7 @@ bool ArgumentParser::allRequiredOptionsAreParsed() const {
  * @return true or false
  */
 bool ArgumentParser::allRequiredMutexGroupsAreParsed() const {
-    return ranges::all_of(_pimpl->mutuallyExclusiveGroups, [](ArgumentGroup const& group) {
+    return ranges::all_of(_pimpl->mutuallyExclusiveGroups, [](MutuallyExclusiveGroup const& group) {
         return dvlab_utils::expect(!group.isRequired() || group.isParsed(),
                                    fmt::format("Error: One of the options are required: {}!!", fmt::join(group.getArguments(), ", ")));
     });
@@ -446,7 +447,7 @@ void ArgumentParser::printDuplicateArgNameErrorMsg(std::string const& name) {
     fmt::println(stderr, "[ArgParse] Error: Duplicate argument name \"{}\"!!", name);
 }
 
-ArgumentGroup ArgumentParser::addMutuallyExclusiveGroup() {
+MutuallyExclusiveGroup ArgumentParser::addMutuallyExclusiveGroup() {
     _pimpl->mutuallyExclusiveGroups.emplace_back(*this);
     return _pimpl->mutuallyExclusiveGroups.back();
 }

@@ -142,7 +142,7 @@ unique_ptr<ArgParseCmdType> QCirCheckOutCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        qcirMgr.checkout(parser["id"]);
+        qcirMgr.checkout(parser.get<size_t>("id"));
         return CmdExecResult::DONE;
     };
 
@@ -186,7 +186,7 @@ unique_ptr<ArgParseCmdType> QCirDeleteCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        qcirMgr.remove(parser["id"]);
+        qcirMgr.remove(parser.get<size_t>("id"));
         return CmdExecResult::DONE;
     };
 
@@ -213,10 +213,10 @@ unique_ptr<ArgParseCmdType> QCirNewCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        size_t id = parser["id"].isParsed() ? parser.get<size_t>("id") : qcirMgr.getNextID();
+        size_t id = parser.parsed("id") ? parser.get<size_t>("id") : qcirMgr.getNextID();
 
         if (qcirMgr.isID(id)) {
-            if (!parser["-Replace"].isParsed()) {
+            if (!parser.parsed("-Replace")) {
                 cerr << "Error: QCir " << id << " already exists!! Specify `-Replace` if needed.\n";
                 return CmdExecResult::ERROR;
             }
@@ -255,8 +255,8 @@ unique_ptr<ArgParseCmdType> QCirCopyCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        size_t id = parser["id"].isParsed() ? parser.get<size_t>("id") : qcirMgr.getNextID();
-        if (qcirMgr.isID(id) && !parser["-Replace"].isParsed()) {
+        size_t id = parser.parsed("id") ? parser.get<size_t>("id") : qcirMgr.getNextID();
+        if (qcirMgr.isID(id) && !parser.parsed("-Replace")) {
             cerr << "Error: QCir " << id << " already exists!! Specify `-Replace` if needed." << endl;
             return CmdExecResult::ERROR;
         }
@@ -285,7 +285,7 @@ unique_ptr<ArgParseCmdType> QCirComposeCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        qcirMgr.get()->compose(*qcirMgr.findByID(parser["id"]));
+        qcirMgr.get()->compose(*qcirMgr.findByID(parser.get<size_t>("id")));
         return CmdExecResult::DONE;
     };
 
@@ -310,7 +310,7 @@ unique_ptr<ArgParseCmdType> QCirTensorCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        qcirMgr.get()->tensorProduct(*qcirMgr.findByID(parser["id"]));
+        qcirMgr.get()->tensorProduct(*qcirMgr.findByID(parser.get<size_t>("id")));
         return CmdExecResult::DONE;
     };
 
@@ -347,17 +347,17 @@ unique_ptr<ArgParseCmdType> QCPrintCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["-settings"].isParsed()) {
+        if (parser.parsed("-settings")) {
             cout << endl;
             cout << "Delay of Single-qubit gate :     " << SINGLE_DELAY << endl;
             cout << "Delay of Double-qubit gate :     " << DOUBLE_DELAY << endl;
             cout << "Delay of SWAP gate :             " << SWAP_DELAY << ((SWAP_DELAY == 3 * DOUBLE_DELAY) ? " (3 CXs)" : "") << endl;
             cout << "Delay of Multiple-qubit gate :   " << MULTIPLE_DELAY << endl;
-        } else if (parser["-focus"].isParsed())
+        } else if (parser.parsed("-focus"))
             qcirMgr.printFocus();
-        else if (parser["-list"].isParsed())
+        else if (parser.parsed("-list"))
             qcirMgr.printList();
-        else if (parser["-number"].isParsed())
+        else if (parser.parsed("-number"))
             qcirMgr.printListSize();
         else
             qcirMgr.printMgr();
@@ -387,29 +387,29 @@ unique_ptr<ArgParseCmdType> QCSetCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["-single-delay"].isParsed()) {
-            size_t singleDelay = parser["-single-delay"];
+        if (parser.parsed("-single-delay")) {
+            auto singleDelay = parser.get<size_t>("-single-delay");
             if (singleDelay == 0)
                 cerr << "Error: single delay value should > 0, skipping this option!!\n";
             else
                 SINGLE_DELAY = singleDelay;
         }
-        if (parser["-double-delay"].isParsed()) {
-            size_t doubleDelay = parser["-double-delay"];
+        if (parser.parsed("-double-delay")) {
+            auto doubleDelay = parser.get<size_t>("-double-delay");
             if (doubleDelay == 0)
                 cerr << "Error: double delay value should > 0, skipping this option!!\n";
             else
                 DOUBLE_DELAY = doubleDelay;
         }
-        if (parser["-swap-delay"].isParsed()) {
-            size_t swapDelay = parser["-swap-delay"];
+        if (parser.parsed("-swap-delay")) {
+            auto swapDelay = parser.get<size_t>("-swap-delay");
             if (swapDelay == 0)
                 cerr << "Error: swap delay value should > 0, skipping this option!!\n";
             else
                 SWAP_DELAY = swapDelay;
         }
-        if (parser["-multiple-delay"].isParsed()) {
-            size_t multiDelay = parser["-multiple-delay"];
+        if (parser.parsed("-multiple-delay")) {
+            auto multiDelay = parser.get<size_t>("-multiple-delay");
             if (multiDelay == 0)
                 cerr << "Error: multiple delay value should > 0, skipping this option!!\n";
             else
@@ -442,8 +442,8 @@ unique_ptr<ArgParseCmdType> QCirReadCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         QCir bufferQCir;
-        string filepath = parser["filepath"];
-        bool replace = parser["-replace"];
+        auto filepath = parser.get<string>("filepath");
+        auto replace = parser.get<bool>("-replace");
         if (!bufferQCir.readQCirFile(filepath)) {
             cerr << "Error: The format in \"" << filepath << "\" has something wrong!!" << endl;
             return CmdExecResult::ERROR;
@@ -493,11 +493,11 @@ unique_ptr<ArgParseCmdType> QCirGatePrintCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["-zx-form"].isParsed()) {
-            cout << "\n> Gate " << parser.get<size_t>("id") << " (" << qcirMgr.get()->getGate(parser["id"])->getTypeStr() << ")";
-            toZXGraph(qcirMgr.get()->getGate(parser["id"]))->printVertices();
+        if (parser.parsed("-zx-form")) {
+            cout << "\n> Gate " << parser.get<size_t>("id") << " (" << qcirMgr.get()->getGate(parser.get<size_t>("id"))->getTypeStr() << ")";
+            toZXGraph(qcirMgr.get()->getGate(parser.get<size_t>("id")))->printVertices();
         } else {
-            qcirMgr.get()->printGateInfo(parser["id"], parser["-time"].isParsed());
+            qcirMgr.get()->printGateInfo(parser.get<size_t>("id"), parser.parsed("-time"));
         }
 
         return CmdExecResult::DONE;
@@ -538,15 +538,15 @@ unique_ptr<ArgParseCmdType> QCirPrintCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["-analysis"].isParsed())
+        if (parser.parsed("-analysis"))
             qcirMgr.get()->countGate(false);
-        else if (parser["-detail"].isParsed())
+        else if (parser.parsed("-detail"))
             qcirMgr.get()->countGate(true);
-        else if (parser["-list"].isParsed())
+        else if (parser.parsed("-list"))
             qcirMgr.get()->printGates();
-        else if (parser["-qubit"].isParsed())
+        else if (parser.parsed("-qubit"))
             qcirMgr.get()->printQubits();
-        else if (parser["-summary"].isParsed())
+        else if (parser.parsed("-summary"))
             qcirMgr.get()->printSummary();
         else
             qcirMgr.get()->printCirInfo();
@@ -659,9 +659,9 @@ unique_ptr<ArgParseCmdType> QCirAddGateCmd() {
     };
 
     cmd->onParseSuccess = [=](ArgumentParser const& parser) {
-        bool doPrepend = parser["-prepend"].isParsed();
+        bool doPrepend = parser.parsed("-prepend");
 
-        string type = parser["type"];
+        auto type = parser.get<string>("type");
         type = toLowerString(type);
 
         auto isGateCategory = [&](auto& category) {
@@ -674,17 +674,17 @@ unique_ptr<ArgParseCmdType> QCirAddGateCmd() {
         Phase phase{1};
         if (isGateCategory(single_qubit_gates_with_phase) ||
             isGateCategory(multi_qubit_gates_with_phase)) {
-            if (!parser["-phase"].isParsed()) {
+            if (!parser.parsed("-phase")) {
                 cerr << "Error: phase must be specified for gate type " << type << "!!\n";
                 return CmdExecResult::ERROR;
             }
-            phase = parser["-phase"];
-        } else if (parser["-phase"].isParsed()) {
+            phase = parser.get<Phase>("-phase");
+        } else if (parser.parsed("-phase")) {
             cerr << "Error: phase is incompatible with gate type " << type << "!!\n";
             return CmdExecResult::ERROR;
         }
 
-        vector<size_t> bits = parser["qubits"];
+        auto bits = parser.get<vector<size_t>>("qubits");
 
         if (isGateCategory(single_qubit_gates_no_phase) ||
             isGateCategory(single_qubit_gates_with_phase)) {
@@ -745,8 +745,8 @@ unique_ptr<ArgParseCmdType> QCirAddQubitCmd() {
             cout << "Note: QCir list is empty now. Create a new one." << endl;
             qcirMgr.add(qcirMgr.getNextID());
         }
-        if (parser["amount"].isParsed())
-            qcirMgr.get()->addQubit(parser["amount"]);
+        if (parser.parsed("amount"))
+            qcirMgr.get()->addQubit(parser.get<size_t>("amount"));
         else
             qcirMgr.get()->addQubit(1);
         return CmdExecResult::DONE;
@@ -771,7 +771,7 @@ unique_ptr<ArgParseCmdType> QCirDeleteGateCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        qcirMgr.get()->removeGate(parser["id"]);
+        qcirMgr.get()->removeGate(parser.get<size_t>("id"));
         return CmdExecResult::DONE;
     };
 
@@ -794,7 +794,7 @@ unique_ptr<ArgParseCmdType> QCirDeleteQubitCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (!qcirMgr.get()->removeQubit(parser["id"]))
+        if (!qcirMgr.get()->removeQubit(parser.get<size_t>("id")))
             return CmdExecResult::ERROR;
         else
             return CmdExecResult::DONE;
@@ -824,8 +824,8 @@ unique_ptr<ArgParseCmdType> QCir2ZXCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["dm"].isParsed())
-            dmode = parser["dm"];
+        if (parser.parsed("dm"))
+            dmode = parser.get<size_t>("dm");
         else
             dmode = 0;
         auto g = toZXGraph(*qcirMgr.get());
@@ -894,8 +894,8 @@ unique_ptr<ArgParseCmdType> QCirWriteCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (!qcirMgr.get()->writeQASM(parser["output-path.qasm"])) {
-            cerr << "Error: path " << parser["output-path.qasm"] << " not found!!" << endl;
+        if (!qcirMgr.get()->writeQASM(parser.get<string>("output-path.qasm"))) {
+            cerr << "Error: path " << parser.get<string>("output-path.qasm") << " not found!!" << endl;
             return CmdExecResult::ERROR;
         }
         return CmdExecResult::DONE;
@@ -928,9 +928,9 @@ unique_ptr<ArgParseCmdType> QCirDrawCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        string drawer = parser["-drawer"];
-        string outputPath = parser["output_path"];
-        float scale = parser["-scale"];
+        auto drawer = parser.get<string>("-drawer");
+        auto outputPath = parser.get<string>("output_path");
+        auto scale = parser.get<float>("-scale");
 
         if (drawer == "latex" || drawer == "mpl") {
             if (outputPath.empty()) {
@@ -939,7 +939,7 @@ unique_ptr<ArgParseCmdType> QCirDrawCmd() {
             }
         }
 
-        if (drawer == "text" && parser["-scale"].isParsed()) {
+        if (drawer == "text" && parser.parsed("-scale")) {
             cerr << "Error: Cannot set scale for \'text\' drawer!!" << endl;
             return CmdExecResult::ERROR;
         }

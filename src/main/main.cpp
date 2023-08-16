@@ -80,18 +80,18 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    if (parser["-help"].isParsed()) {
+    if (parser.parsed("-help")) {
         parser.printHelp();
         return 0;
     }
 
     cout << "DV Lab, NTUEE, Qsyn " << QSYN_VERSION << endl;
 
-    if (parser["-version"].isParsed()) {
+    if (parser.parsed("-version")) {
         return 0;
     }
 
-    if (parser["-file"].isParsed()) {
+    if (parser.parsed("-file")) {
         auto args = parser.get<std::vector<string>>("-file");
 
         if (!cli.openDofile(args[0])) {

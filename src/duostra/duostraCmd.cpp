@@ -77,7 +77,10 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
         }
 #endif
         QCir* logicalQCir = qcirMgr.get();
-        Duostra duo{logicalQCir, deviceMgr->getDevice(), parser["-check"], !parser["-mute-tqdm"], parser["-silent"]};
+        Duostra duo{logicalQCir, deviceMgr->getDevice(),
+                    parser.get<bool>("-check"),
+                    !parser.get<bool>("-mute-tqdm"),
+                    parser.get<bool>("-silent")};
         if (duo.flow() == ERROR_CODE) {
             return CmdExecResult::ERROR;
         }
@@ -145,45 +148,41 @@ unique_ptr<ArgParseCmdType> duostraSetCmd() {
     };
 
     duostraSetCmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser["-scheduler"].isParsed())
-            DUOSTRA_SCHEDULER = getSchedulerType(parser["-scheduler"]);
-        if (parser["-router"].isParsed())
-            DUOSTRA_ROUTER = getRouterType(parser["-router"]);
-        if (parser["-placer"].isParsed())
-            DUOSTRA_PLACER = getPlacerType(parser["-placer"]);
-        if (parser["-orient"].isParsed())
-            DUOSTRA_ORIENT = parser["-orient"];
+        if (parser.parsed("-scheduler"))
+            DUOSTRA_SCHEDULER = getSchedulerType(parser.get<string>("-scheduler"));
+        if (parser.parsed("-router"))
+            DUOSTRA_ROUTER = getRouterType(parser.get<string>("-router"));
+        if (parser.parsed("-placer"))
+            DUOSTRA_PLACER = getPlacerType(parser.get<string>("-placer"));
+        if (parser.parsed("-orient"))
+            DUOSTRA_ORIENT = parser.get<bool>("-orient");
 
-        if (parser["-candidates"].isParsed()) {
-            int resCand = parser["-candidates"];
-            DUOSTRA_CANDIDATES = (size_t)resCand;
+        if (parser.parsed("-candidates")) {
+            DUOSTRA_CANDIDATES = (size_t)parser.get<int>("-candidates");
         }
 
-        if (parser["-apsp-coeff"].isParsed()) {
-            DUOSTRA_APSP_COEFF = parser["-apsp-coeff"];
+        if (parser.parsed("-apsp-coeff")) {
+            DUOSTRA_APSP_COEFF = parser.get<size_t>("-apsp-coeff");
         }
 
-        if (parser["-available"].isParsed()) {
-            string resAvail = parser["-available"];
-            DUOSTRA_AVAILABLE = (resAvail == "min") ? false : true;
+        if (parser.parsed("-available")) {
+            DUOSTRA_AVAILABLE = (parser.get<string>("-available") == "min") ? false : true;
         }
 
-        if (parser["-cost"].isParsed()) {
-            string resCost = parser["-cost"];
-            DUOSTRA_COST = (resCost == "min") ? false : true;
+        if (parser.parsed("-cost")) {
+            DUOSTRA_COST = (parser.get<string>("-cost") == "min") ? false : true;
         }
 
-        if (parser["-depth"].isParsed()) {
-            int resDepth = parser["-depth"];
-            DUOSTRA_DEPTH = (size_t)resDepth;
+        if (parser.parsed("-depth")) {
+            DUOSTRA_DEPTH = (size_t)parser.get<int>("-depth");
         }
 
-        if (parser["-never-cache"].isParsed()) {
-            DUOSTRA_NEVER_CACHE = parser["-never-cache"];
+        if (parser.parsed("-never-cache")) {
+            DUOSTRA_NEVER_CACHE = parser.get<bool>("-never-cache");
         }
 
-        if (parser["-single-immediately"].isParsed()) {
-            DUOSTRA_EXECUTE_SINGLE = parser["-single-immediately"];
+        if (parser.parsed("-single-immediately")) {
+            DUOSTRA_EXECUTE_SINGLE = parser.get<bool>("-single-immediately");
         }
 
         return CmdExecResult::DONE;
@@ -212,7 +211,7 @@ unique_ptr<ArgParseCmdType> duostraPrintCmd() {
              << "Router:            " << getRouterTypeStr() << '\n'
              << "Placer:            " << getPlacerTypeStr() << endl;
 
-        if (parser["-detail"]) {
+        if (parser.parsed("-detail")) {
             cout << '\n'
                  << "Candidates:        " << ((DUOSTRA_CANDIDATES == size_t(-1)) ? "-1" : to_string(DUOSTRA_CANDIDATES)) << '\n'
                  << "Search Depth:      " << DUOSTRA_DEPTH << '\n'
@@ -250,10 +249,12 @@ unique_ptr<ArgParseCmdType> mapEQCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         using namespace dvlab_utils;
-        if (qcirMgr.findByID(parser["-physical"]) == nullptr || qcirMgr.findByID(parser["-logical"]) == nullptr) {
+        auto physicalQC = qcirMgr.findByID(parser.get<size_t>("-physical"));
+        auto logicalQC = qcirMgr.findByID(parser.get<size_t>("-logical"));
+        if (physicalQC == nullptr || logicalQC == nullptr) {
             return CmdExecResult::ERROR;
         }
-        MappingEQChecker mpeqc(qcirMgr.findByID(parser["-physical"]), qcirMgr.findByID(parser["-logical"]), deviceMgr->getDevice(), {});
+        MappingEQChecker mpeqc(physicalQC, logicalQC, deviceMgr->getDevice(), {});
         if (mpeqc.check()) {
             fmt::println("{}", fmt_ext::styled_if_ANSI_supported("Equivalent up to permutation", fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
         } else {

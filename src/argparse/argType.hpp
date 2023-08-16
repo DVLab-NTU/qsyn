@@ -117,7 +117,7 @@ public:
 
 private:
     friend class Argument;
-    friend class ArgumentGroup;
+    friend class MutuallyExclusiveGroup;
     friend struct fmt::formatter<ArgType<T>>;
     std::vector<T> _values;
     std::optional<T> _defaultValue = std::nullopt;

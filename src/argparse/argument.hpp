@@ -7,6 +7,9 @@
 ****************************************************************************/
 #pragma once
 
+#include <fmt/core.h>
+#include <fmt/ranges.h>
+
 #include <memory>
 
 #include "argType.hpp"
@@ -14,6 +17,12 @@
 namespace ArgParse {
 
 class Argument {
+    friend class ArgumentParser;  // shares Argument::Model<T> and _pimpl
+                                  // to ArgumentParser, enabling it to access
+                                  // the underlying ArgType<T>
+    friend struct fmt::formatter<Argument>;
+    friend class Formatter;
+
 public:
     Argument()
         : _pimpl{std::make_unique<Model<ArgType<DummyArgType>>>(ArgType<DummyArgType>{"dummy", DummyArgType{}})} {}
@@ -41,13 +50,9 @@ public:
         lhs.swap(rhs);
     }
 
-    friend std::ostream& operator<<(std::ostream& os, Argument const& arg) {
-        return os << fmt::format("{}", arg);
-    }
+    friend std::ostream& operator<<(std::ostream& os, Argument const& arg);
 
-    template <typename T>
-    operator T() const { return get<T>(); }
-
+private:
     template <typename T>
     T get() const;
 
@@ -58,36 +63,26 @@ public:
     std::string const& getMetavar() const { return _pimpl->do_getMetavar(); }
     NArgsRange const& getNArgs() const { return _pimpl->do_getNArgsRange(); }
     std::string toString() const { return _pimpl->do_toString(); }
-    // attributes
 
+    // attributes
     bool hasDefaultValue() const { return _pimpl->do_hasDefaultValue(); }
     bool isRequired() const { return _pimpl->do_isRequired(); }
-    bool isParsed() const { return _pimpl->do_isParsed(); }
+    bool isOption() const { return _isOption; }
     bool mayTakeArgument() const { return getNArgs().upper > 0; }
     bool mustTakeArgument() const { return getNArgs().lower > 0; }
 
     // setters
-
     void setNumRequiredChars(size_t n) { _pimpl->do_setNumRequiredChars(n); }
     void setValueToDefault() { _pimpl->do_setValueToDefault(); }
 
     // print functions
-
     void printStatus() const;
 
     // action
-
     void reset();
     bool takeAction(TokensView tokens);
     bool constraintsSatisfied() const { return _pimpl->do_constraintsSatisfied(); }
-
     void markAsParsed() { _pimpl->do_markAsParsed(); }
-
-private:
-    friend class ArgumentParser;  // shares Argument::Model<T> and _pimpl
-                                  // to ArgumentParser, enabling it to access
-                                  // the underlying ArgType<T>
-    friend struct fmt::formatter<Argument>;
 
     struct Concept {
         virtual ~Concept() {}
@@ -147,7 +142,9 @@ private:
     };
 
     std::unique_ptr<Concept> _pimpl;
+    bool mutable _isOption = false;
 
+    bool isParsed() const { return _pimpl->do_isParsed(); }
     TokensView getParseRange(TokensView) const;
     bool tokensEnoughToParse(TokensView) const;
 
@@ -183,3 +180,17 @@ T Argument::get() const {
 }
 
 }  // namespace ArgParse
+
+namespace fmt {
+
+template <>
+struct formatter<ArgParse::Argument> {
+    constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(ArgParse::Argument const& arg, FormatContext& ctx) -> format_context::iterator {
+        return format_to(ctx.out(), "{}", arg.toString());
+    }
+};
+
+}  // namespace fmt

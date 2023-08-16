@@ -14,15 +14,25 @@
 #include <cstring>
 #include <numeric>
 
-#include "./argGroup.hpp"
 #include "./argparse.hpp"
-#include "./argument.hpp"
 #include "unicode/display_width.hpp"
 #include "util/terminalAttributes.hpp"
 #include "util/textFormat.hpp"
 
 using namespace std;
 using namespace dvlab_utils;
+
+// namespace fmt {
+// template <>
+// struct formatter<ArgParse::Argument> {
+//     constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+//     template <typename FormatContext>
+//     auto format(ArgParse::Argument const& arg, FormatContext& ctx) {
+//         return format_to(ctx.out(), "{}", "Argument");
+//     }
+// };
+// };
 
 namespace ArgParse {
 
@@ -56,7 +66,7 @@ void Formatter::printUsage(ArgumentParser const& parser) {
 
     for (auto const& [name, arg] : arguments) {
         if (!arg.isRequired() && !conflictGroups.contains(toLowerString(name))) {
-            fmt::print(" {}", optionalArgBracket(getSyntaxString(parser, arg)));
+            fmt::print(" {}", optionalArgBracket(getSyntaxString(arg)));
         }
     }
 
@@ -64,8 +74,8 @@ void Formatter::printUsage(ArgumentParser const& parser) {
         if (!group.isRequired()) {
             fmt::print(" {}{}{}", optionalStyle("["),
                        fmt::join(
-                           group.getArguments() | views::transform([&parser, &arguments](std::string const& name) {
-                               return getSyntaxString(parser, arguments.at(toLowerString(name)));
+                           group.getArguments() | views::transform([&arguments](std::string const& name) {
+                               return getSyntaxString(arguments.at(toLowerString(name)));
                            }),
                            optionalStyle(" | ")),
                        optionalStyle("]"));
@@ -77,7 +87,7 @@ void Formatter::printUsage(ArgumentParser const& parser) {
             fmt::print(" {}{}{}", requiredStyle("<"),
                        fmt::join(
                            group.getArguments() | views::transform([&parser, &arguments](std::string const& name) {
-                               return getSyntaxString(parser, arguments.at(toLowerString(name)));
+                               return getSyntaxString(arguments.at(toLowerString(name)));
                            }),
                            requiredStyle(" | ")),
                        requiredStyle(">"));
@@ -86,7 +96,7 @@ void Formatter::printUsage(ArgumentParser const& parser) {
 
     for (auto const& [name, arg] : arguments) {
         if (arg.isRequired() && !conflictGroups.contains(toLowerString(name))) {
-            cout << " " << getSyntaxString(parser, arg);
+            cout << " " << getSyntaxString(arg);
         }
     }
 
@@ -172,7 +182,7 @@ void Formatter::printHelp(ArgumentParser const& parser) {
         fmt::println("{}", sectionHeaderStyle("Required Arguments:"));
         for (auto const& [_, arg] : arguments) {
             if (arg.isRequired()) {
-                tabulateHelpString(parser, table, max_help_string_width, arg);
+                tabulateHelpString(table, max_help_string_width, arg);
             }
         }
     }
@@ -186,7 +196,7 @@ void Formatter::printHelp(ArgumentParser const& parser) {
         fmt::println("{}", sectionHeaderStyle("Optional Arguments:"));
         for (auto const& [_, arg] : arguments) {
             if (!arg.isRequired()) {
-                tabulateHelpString(parser, table, max_help_string_width, arg);
+                tabulateHelpString(table, max_help_string_width, arg);
             }
         }
     }
@@ -204,30 +214,22 @@ void Formatter::printHelp(ArgumentParser const& parser) {
  * @param arg
  * @return string
  */
-string Formatter::getSyntaxString(ArgumentParser const& parser, Argument const& arg) {
+string Formatter::getSyntaxString(Argument const& arg) {
     string ret = "";
 
     if (arg.mayTakeArgument()) {
         ret += requiredArgBracket(
             typeStyle(arg.getTypeString()) + " " + metavarStyle(arg.getMetavar()));
     }
-    if (parser.hasOptionPrefix(arg)) {
-        ret = optionalStyle(styledArgName(parser, arg)) + (arg.mayTakeArgument() ? (" " + ret) : "");
+    if (arg.isOption()) {
+        ret = optionalStyle(styledArgName(arg)) + (arg.mayTakeArgument() ? (" " + ret) : "");
     }
 
     return ret;
 }
 
 string Formatter::getSyntaxString(SubParsers const& parsers) {
-    string ret = "{";
-    size_t ctr = 0;
-    for (auto const& [name, parser] : parsers.getSubParsers()) {
-        ret += styledCmdName(parser.getName(), parser.getNumRequiredChars());
-        if (++ctr < parsers.getSubParsers().size()) ret += ", ";
-    }
-    ret += "}";
-
-    return ret;
+    return fmt::format("{{{}}}", fmt::join(parsers.getSubParsers() | views::values | views::transform([](ArgumentParser const& parser) { return styledCmdName(parser.getName(), parser.getNumRequiredChars()); }), ", "));
 }
 
 // printing helpers
@@ -276,13 +278,13 @@ std::string insertLineBreaksToString(std::string const& str, size_t max_help_wid
  *
  * @param arg
  */
-void Formatter::tabulateHelpString(ArgumentParser const& parser, fort::utf8_table& table, size_t max_help_string_width, Argument const& arg) {
+void Formatter::tabulateHelpString(fort::utf8_table& table, size_t max_help_string_width, Argument const& arg) {
     table << typeStyle(arg.mayTakeArgument() ? arg.getTypeString() : "flag");
-    if (parser.hasOptionPrefix(arg)) {
+    if (arg.isOption()) {
         if (arg.mayTakeArgument()) {
-            table << styledArgName(parser, arg) << metavarStyle(arg.getMetavar());
+            table << styledArgName(arg) << metavarStyle(arg.getMetavar());
         } else {
-            table << styledArgName(parser, arg) << "";
+            table << styledArgName(arg) << "";
         }
     } else {
         table << metavarStyle(arg.getMetavar()) << "";
@@ -302,8 +304,8 @@ void Formatter::tabulateHelpString(fort::utf8_table& table, size_t max_help_stri
  * @param arg
  * @return string
  */
-string Formatter::styledArgName(ArgumentParser const& parser, Argument const& arg) {
-    if (!parser.hasOptionPrefix(arg)) return metavarStyle(arg.getMetavar());
+string Formatter::styledArgName(Argument const& arg) {
+    if (!arg.isOption()) return metavarStyle(arg.getMetavar());
 
     if (ANSI_supported()) {
         string mand = arg.getName().substr(0, arg.getNumRequiredChars());

@@ -105,6 +105,7 @@ public:
     std::string const& getName() const { return _pimpl->name; }
     std::string const& getHelp() const { return _pimpl->help; }
     size_t getNumRequiredChars() const { return _pimpl->numRequiredChars; }
+    bool parsed(std::string const& key) const { return (*this)[toLowerString(key)].isParsed(); }
     bool hasOptionPrefix(std::string const& str) const { return str.find_first_of(_pimpl->optionPrefix) == 0UL; }
     bool hasOptionPrefix(Argument const& arg) const { return hasOptionPrefix(arg.getName()); }
     bool hasSubParsers() const { return _pimpl->subparsers.has_value(); }
@@ -116,7 +117,7 @@ public:
     requires ValidArgumentType<T>
     ArgType<T>& addArgument(std::string const& name);
 
-    ArgumentGroup addMutuallyExclusiveGroup();
+    MutuallyExclusiveGroup addMutuallyExclusiveGroup();
     SubParsers addSubParsers();
 
     /**
@@ -153,16 +154,17 @@ public:
     bool analyzeOptions() const;
 
 private:
+    friend class Argument;
     struct ArgumentParserImpl {
-        ArgumentParserImpl() : optionPrefix("-"), optionsAnalyzed(false) {}
+        ArgumentParserImpl() {}
         ordered_hashmap<std::string, Argument> arguments;
-        std::string optionPrefix;
+        std::string optionPrefix = "-";
         std::vector<Token> tokens;
 
-        std::vector<ArgumentGroup> mutuallyExclusiveGroups;
+        std::vector<MutuallyExclusiveGroup> mutuallyExclusiveGroups;
         std::optional<SubParsers> subparsers;
         std::optional<std::string> activatedSubParser;
-        std::unordered_map<std::string, ArgumentGroup> mutable conflictGroups;  // map an argument name to a mutually-exclusive group if it belongs to one.
+        std::unordered_map<std::string, MutuallyExclusiveGroup> mutable conflictGroups;  // map an argument name to a mutually-exclusive group if it belongs to one.
 
         std::string name;
         std::string help;
@@ -170,7 +172,7 @@ private:
 
         // members for analyzing parser options
         dvlab_utils::Trie mutable trie;
-        bool mutable optionsAnalyzed;
+        bool mutable optionsAnalyzed = false;
     };
 
     static Formatter formatter;
@@ -219,7 +221,7 @@ private:
 };
 
 /**
- * @brief add an argument with the name to the ArgumentGroup
+ * @brief add an argument with the name to the MutuallyExclusiveGroup
  *
  * @tparam T the type of argument
  * @param name the name of the argument
@@ -227,7 +229,7 @@ private:
  */
 template <typename T>
 requires ValidArgumentType<T>
-ArgType<T>& ArgumentGroup::addArgument(std::string const& name) {
+ArgType<T>& MutuallyExclusiveGroup::addArgument(std::string const& name) {
     ArgType<T>& returnRef = _pimpl->_parser.addArgument<T>(name);
     _pimpl->_arguments.insert(returnRef._name);
     return returnRef;
