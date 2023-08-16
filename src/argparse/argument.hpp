@@ -120,7 +120,10 @@ private:
 
         inline std::unique_ptr<Concept> clone() const override { return std::make_unique<Model>(*this); }
 
-        inline std::string do_getTypeString() const override { return typeString(inner._values.front()); }
+        inline std::string do_getTypeString() const override { 
+            using V = typename std::remove_cv<typename decltype(inner._values)::value_type>::type;
+            return typeString(V{}); 
+        }
         inline std::string const& do_getName() const override { return inner._name; }
         inline std::string const& do_getHelp() const override { return inner._help; }
         inline std::string const& do_getMetavar() const override { return inner._metavar; }

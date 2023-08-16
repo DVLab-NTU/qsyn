@@ -177,7 +177,8 @@ struct formatter<ArgParse::ArgType<T>> {
         if (arg._values.empty()) return format_to(ctx.out(), "(None)");
 
         if constexpr (ArgParse::detail::Printable<T>) {
-            return (arg._nargs.upper <= 1) ? format_to(ctx.out(), "{}", arg._values.front())
+            //                                                          vvv force the typing when T = bool (std::vector<bool> is weird)
+            return (arg._nargs.upper <= 1) ? format_to(ctx.out(), "{}", static_cast<T>(arg._values.front()))
                                            : format_to(ctx.out(), "[{}]", fmt::join(arg._values, ", "));
         } else {
             return (arg._nargs.upper <= 1) ? format_to(ctx.out(), "(not representable)")
