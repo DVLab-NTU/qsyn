@@ -34,7 +34,7 @@ void Simplifier::partitionReduce(size_t numPartitions, size_t iterations = 1) {
     }
 
     for (auto& graph : subgraphs) {
-        Simplifier simplifier(graph);
+        Simplifier simplifier = Simplifier(graph);
         simplifier.dynamicReduce();
     }
     ZXGraph* tempGraph = ZXGraph::fromSubgraphs(subgraphs, cuts);
@@ -64,7 +64,7 @@ void scopedDynamicReduce(ZXGraph* graph, const ZXVertexList& scope) {
     scopedFullReduce(&_copiedGraph, scope);
     size_t tOptimal = _copiedGraph.TCount();
 
-    Simplifier simplifier(graph);
+    Simplifier simplifier = Simplifier(graph);
 
     int a1 = scopedInteriorCliffordSimp(graph, scope);
 
@@ -103,7 +103,7 @@ void scopedDynamicReduce(ZXGraph* graph, const ZXVertexList& scope) {
 }
 
 void scopedFullReduce(ZXGraph* graph, const ZXVertexList& scope) {
-    Simplifier simplifier(graph);
+    Simplifier simplifier = Simplifier(graph);
 
     scopedInteriorCliffordSimp(graph, scope);
     simplifier.scopedSimplify(PivotGadgetRule(), scope);
@@ -119,7 +119,7 @@ void scopedFullReduce(ZXGraph* graph, const ZXVertexList& scope) {
 }
 
 int scopedInteriorCliffordSimp(ZXGraph* graph, const ZXVertexList& scope) {
-    Simplifier simplifier(graph);
+    Simplifier simplifier = Simplifier(graph);
 
     simplifier.scopedSimplify(SpiderFusionRule(), scope);
     simplifier.toGraph();
@@ -140,7 +140,7 @@ int scopedInteriorCliffordSimp(ZXGraph* graph, const ZXVertexList& scope) {
 }
 
 int scopedCliffordSimp(ZXGraph* graph, const ZXVertexList& scope) {
-    Simplifier simplifier(graph);
+    Simplifier simplifier = Simplifier(graph);
 
     int i = 0;
     while (true) {
