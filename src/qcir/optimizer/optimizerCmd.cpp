@@ -9,11 +9,11 @@
 #include <cstddef>
 #include <string>
 
-#include "./optimizer.hpp"
-#include "cli/cli.hpp"
 #include "../qcir.hpp"
 #include "../qcirCmd.hpp"
 #include "../qcirMgr.hpp"
+#include "./optimizer.hpp"
+#include "cli/cli.hpp"
 #include "util/util.hpp"
 
 using namespace std;

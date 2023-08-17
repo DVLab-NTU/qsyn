@@ -8,9 +8,9 @@
 
 #include <cassert>
 
-#include "./optimizer.hpp"
 #include "../qcir.hpp"
 #include "../qcirGate.hpp"
+#include "./optimizer.hpp"
 #include "util/logger.hpp"
 
 extern dvlab_utils::Logger logger;
@@ -29,7 +29,7 @@ std::optional<QCir> Optimizer::trivial_optimization(QCir const& qcir) {
     result.setFileName(qcir.getFileName());
     result.addProcedures(qcir.getProcedures());
     result.addQubit(qcir.getNQubit());
-    
+
     std::vector<QCirGate*> gateList = qcir.getTopoOrderedGates();
     for (auto gate : gateList) {
         if (stop_requested()) {
