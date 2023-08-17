@@ -19,6 +19,15 @@
 using namespace std;
 extern size_t verbose;
 
+struct PairIntHash {
+    size_t operator()(const std::pair<int, int>& k) const {
+        return (
+            (std::hash<int>()(k.first) ^
+             (std::hash<int>()(k.second) << 1)) >>
+            1);
+    }
+};
+
 /**
  * @brief Print the map
  *
@@ -213,7 +222,7 @@ void LTContainer::generateLTC(ZXGraph* g) {
         // Start mapping to LTC
         resize(end.size() + 1, start.size() + 1);
 
-        unordered_map<qStartEnd, lsCoord> set;  // (qs, qe) -> (row, col)
+        unordered_map<qStartEnd, lsCoord, PairIntHash> set;  // (qs, qe) -> (row, col)
         int count = 0;
         for (auto& [start_i, start_set] : start) {
             // cout << "Start i: " << start_i << endl;

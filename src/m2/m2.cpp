@@ -17,21 +17,19 @@
 #include "zx/zxGraph.hpp"
 
 extern size_t verbose;
-using namespace std;
 
-namespace std {
-template <>
-struct hash<vector<unsigned char>> {
-    size_t operator()(const vector<unsigned char>& k) const {
-        size_t ret = hash<unsigned char>()(k[0]);
+struct UCharVectorHash {
+    size_t operator()(const std::vector<unsigned char>& k) const {
+        size_t ret = std::hash<unsigned char>()(k[0]);
         for (size_t i = 1; i < k.size(); i++) {
-            ret ^= hash<unsigned char>()(k[i] << (i % sizeof(size_t)));
+            ret ^= std::hash<unsigned char>()(k[i] << (i % sizeof(size_t)));
         }
 
         return ret;
     }
 };
-}  // namespace std
+
+using namespace std;
 
 /**
  * @brief Overload operator + for Row
@@ -208,7 +206,7 @@ size_t M2::gaussianElimSkip(size_t blockSize, bool fullReduced, bool track) {
         size_t start = section * blockSize;
         size_t end = min(numCols(), (section + 1) * blockSize);
 
-        unordered_map<vector<unsigned char>, size_t> duplicated;
+        unordered_map<vector<unsigned char>, size_t, UCharVectorHash> duplicated;
         for (size_t i = pivot_row; i < numRows(); i++) {
             vector<unsigned char>::const_iterator first = _matrix[i].getRow().begin() + start;
             vector<unsigned char>::const_iterator last = _matrix[i].getRow().begin() + end;
@@ -261,7 +259,7 @@ size_t M2::gaussianElimSkip(size_t blockSize, bool fullReduced, bool track) {
             size_t start = section * blockSize;
             size_t end = min(numCols(), (section + 1) * blockSize);
 
-            unordered_map<vector<unsigned char>, size_t> duplicated;
+            unordered_map<vector<unsigned char>, size_t, UCharVectorHash> duplicated;
             for (int i = pivot_row; i >= 0; i--) {
                 vector<unsigned char>::const_iterator first = _matrix[i].getRow().begin() + start;
                 vector<unsigned char>::const_iterator last = _matrix[i].getRow().begin() + end;

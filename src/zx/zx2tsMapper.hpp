@@ -18,7 +18,7 @@ class ZXVertex;
 
 class ZX2TSMapper {
 public:
-    using Frontiers = ordered_hashmap<EdgePair, size_t>;
+    using Frontiers = ordered_hashmap<EdgePair, size_t, EdgePairHash>;
 
     ZX2TSMapper() {}
 
