@@ -7,7 +7,6 @@
 ****************************************************************************/
 
 #include <cstddef>
-#include <iostream>
 #include <string>
 
 #include "./optimizer.hpp"
@@ -28,7 +27,7 @@ unique_ptr<ArgParseCmdType> optimizeCmd();
 
 bool initOptimizeCmd() {
     if (!(cli.regCmd("OPTimize", 3, optimizeCmd()))) {
-        cerr << "Registering \"optimize\" commands fails... exiting" << endl;
+        logger.fatal("Registering \"optimize\" commands fails... exiting");
         return false;
     }
     return true;
@@ -63,23 +62,26 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        if (parser.get<bool>("-copy")) {
-            qcirMgr.copy(qcirMgr.getNextID());
-        }
-
-        Optimizer optimizer(qcirMgr.get());
-        QCir *result;
+        Optimizer optimizer;
+        std::optional<QCir> result;
         std::string procedure_str{};
         if (parser.get<bool>("-trivial")) {
-            result = optimizer.trivial_optimization();
+            result = optimizer.trivial_optimization(*qcirMgr.get());
             procedure_str = "Trivial Optimize";
         } else {
-            result = optimizer.basic_optimization(!parser.get<bool>("-physical"), false, 1000, parser.get<bool>("-statistics"));
+            result = optimizer.basic_optimization(*qcirMgr.get(), {.doSwap = !parser.get<bool>("-physical"),
+                                                                   .separateCorrection = false,
+                                                                   .maxIter = 1000,
+                                                                   .printStatistics = parser.get<bool>("-statistics")});
             procedure_str = "Optimize";
         }
-        if (result == nullptr) {
-            cout << "Error: fail to optimize circuit." << endl;
+        if (result == std::nullopt) {
+            logger.error("Fail to optimize circuit.");
             return CmdExecResult::ERROR;
+        }
+
+        if (parser.get<bool>("-copy")) {
+            qcirMgr.add(qcirMgr.getNextID());
         }
 
         if (stop_requested()) {
@@ -87,7 +89,6 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
         }
 
         qcirMgr.set(std::make_unique<QCir>(std::move(*result)));
-        qcirMgr.get()->printCirInfo();
         qcirMgr.get()->addProcedure(procedure_str);
 
         return CmdExecResult::DONE;

@@ -36,8 +36,6 @@ public:
 
     using LogFilter = std::underlying_type<LogLevel>::type;
 
-    inline Logger() noexcept(false) : _logLevel{LogLevel::WARNING}, _logFilter{0} {}
-
     inline LogLevel getLogLevel() const noexcept { return _logLevel; }
 
     inline void setLogLevel(LogLevel level) noexcept { _logLevel = level; }
@@ -47,6 +45,15 @@ public:
     inline bool isMasked(LogLevel level) const noexcept { return (_logFilter & static_cast<LogFilter>(level)) != 0; }
     inline bool isPrinting(LogLevel level) const noexcept {
         return !isMasked(level) && _logLevel >= level;
+    }
+
+    inline Logger& indent() noexcept {
+        ++indentLevel;
+        return *this;
+    }
+    inline Logger& unindent() noexcept {
+        if (indentLevel) --indentLevel;
+        return *this;
     }
 
     inline void printLogs(std::optional<size_t> nLogs = std::nullopt) {
@@ -103,13 +110,15 @@ public:
      * @param args
      */
     template <typename... Args>
-    void fatal(fmt::format_string<Args...> fmt, Args&&... args) {
-        _log.emplace_back(fmt::format("[{}] {}",
+    Logger& fatal(fmt::format_string<Args...> fmt, Args&&... args) {
+        _log.emplace_back(fmt::format("[{}]{} {}",
                                       fmt_ext::styled_if_ANSI_supported("Fatal", fmt::fg(fmt::terminal_color::white) | fmt::bg(fmt::terminal_color::red)),
+                                      std::string(indentLevel * indentWidth, ' '),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::FATAL)) {
             fmt::println(stderr, "{}", _log.back());
         }
+        return *this;
     }
 
     /**
@@ -120,13 +129,15 @@ public:
      * @param args
      */
     template <typename... Args>
-    void error(fmt::format_string<Args...> fmt, Args&&... args) {
-        _log.emplace_back(fmt::format("[{}] {}",
+    Logger& error(fmt::format_string<Args...> fmt, Args&&... args) {
+        _log.emplace_back(fmt::format("[{}]{} {}",
                                       fmt_ext::styled_if_ANSI_supported("Error", fmt::fg(fmt::terminal_color::red)),
+                                      std::string(indentLevel * indentWidth, ' '),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::ERROR)) {
             fmt::println(stderr, "{}", _log.back());
         }
+        return *this;
     }
 
     /**
@@ -137,13 +148,15 @@ public:
      * @param args
      */
     template <typename... Args>
-    void warning(fmt::format_string<Args...> fmt, Args&&... args) {
-        _log.emplace_back(fmt::format("[{}] {}",
+    Logger& warning(fmt::format_string<Args...> fmt, Args&&... args) {
+        _log.emplace_back(fmt::format("[{}]{} {}",
                                       fmt_ext::styled_if_ANSI_supported("Warning", fmt::fg(fmt::terminal_color::yellow)),
+                                      std::string(indentLevel * indentWidth, ' '),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::WARNING)) {
             fmt::println(stderr, "{}", _log.back());
         }
+        return *this;
     }
 
     /**
@@ -154,13 +167,15 @@ public:
      * @param args
      */
     template <typename... Args>
-    void info(fmt::format_string<Args...> fmt, Args&&... args) {
-        _log.emplace_back(fmt::format("[{}] {}",
+    Logger& info(fmt::format_string<Args...> fmt, Args&&... args) {
+        _log.emplace_back(fmt::format("[{}]{} {}",
                                       "Info",
+                                      std::string(indentLevel * indentWidth, ' '),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::INFO)) {
             fmt::println(stdout, "{}", _log.back());
         }
+        return *this;
     }
 
     /**
@@ -171,13 +186,15 @@ public:
      * @param args
      */
     template <typename... Args>
-    void debug(fmt::format_string<Args...> fmt, Args&&... args) {
-        _log.emplace_back(fmt::format("[{}] {}",
+    Logger& debug(fmt::format_string<Args...> fmt, Args&&... args) {
+        _log.emplace_back(fmt::format("[{}]{} {}",
                                       fmt_ext::styled_if_ANSI_supported("Debug", fmt::fg(fmt::terminal_color::green)),
+                                      std::string(indentLevel * indentWidth, ' '),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::DEBUG)) {
             fmt::println(stdout, "{}", _log.back());
         }
+        return *this;
     }
 
     /**
@@ -188,19 +205,23 @@ public:
      * @param args
      */
     template <typename... Args>
-    void trace(fmt::format_string<Args...> fmt, Args&&... args) {
-        _log.emplace_back(fmt::format("[{}] {}",
+    Logger& trace(fmt::format_string<Args...> fmt, Args&&... args) {
+        _log.emplace_back(fmt::format("[{}]{} {}",
                                       fmt_ext::styled_if_ANSI_supported("Trace", fmt::fg(fmt::terminal_color::cyan)),
+                                      std::string(indentLevel * indentWidth, ' '),
                                       fmt::format(fmt, std::forward<Args>(args)...)));
         if (isPrinting(LogLevel::TRACE)) {
             fmt::println(stdout, "{}", _log.back());
         }
+        return *this;
     }
 
 private:
     std::vector<std::string> mutable _log;
-    LogLevel _logLevel;
-    LogFilter _logFilter;
+    LogLevel _logLevel = LogLevel::WARNING;
+    LogFilter _logFilter = 0;
+    size_t indentLevel = 0;
+    size_t indentWidth = 2;
 };
 
 }  // namespace dvlab_utils

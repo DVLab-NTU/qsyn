@@ -8,34 +8,18 @@
 
 #include "./optimizer.hpp"
 
+#include <algorithm>
 #include <cassert>
 
 #include "qcir/qcir.hpp"
 #include "qcir/qcirGate.hpp"
 #include "qcir/qcirQubit.hpp"
 
-using namespace std;
-
-extern size_t verbose;
-
-/**
- * @brief Construct a new Optimizer:: Optimizer object
- *
- * @param c
- */
-Optimizer::Optimizer(QCir* c) {
-    _circuit = c;
-    reset();
-    _doSwap = false;
-    _separateCorrection = false;
-    _maxIter = 1000;
-}
-
 /**
  * @brief Reset the storage
  *
  */
-void Optimizer::reset() {
+void Optimizer::reset(QCir const& qcir) {
     _gates.clear();
     _available.clear();
     _availty.clear();
@@ -43,23 +27,21 @@ void Optimizer::reset() {
     _xs.clear();
     _zs.clear();
     _swaps.clear();
-    _corrections.clear();
     _gateCnt = 0;
-    FUSE_PHASE = 0;
-    X_CANCEL = 0;
-    CNOT_CANCEL = 0;
-    CZ_CANCEL = 0;
-    HS_EXCHANGE = 0;
-    CRZ_TRACSFORM = 0;
-    CX2CZ = 0;
-    CZ2CX = 0;
-    DO_SWAP = 0;
-    for (size_t i = 0; i < _circuit->getQubits().size(); i++) {
+    _statistics = {};
+    for (size_t i = 0; i < qcir.getQubits().size(); i++) {
         _availty.emplace_back(false);
-        _available.emplace(i, vector<QCirGate*>{});
-        _gates.emplace(i, vector<QCirGate*>{});
-        _permutation[i] = _circuit->getQubits()[i]->getId();
+        _available.emplace(i, std::vector<QCirGate*>{});
+        _gates.emplace(i, std::vector<QCirGate*>{});
+        _permutation[i] = qcir.getQubits()[i]->getId();
     }
+}
+
+QCir Optimizer::parseForward(QCir const& qcir, bool minimizeCZ, BasicOptimizationConfig const& config) {
+    return parseOnce(qcir, false, minimizeCZ, config);
+}
+QCir Optimizer::parseBackward(QCir const& qcir, bool minimizeCZ, BasicOptimizationConfig const& config) {
+    return parseOnce(qcir, true, minimizeCZ, config);
 }
 
 /**
@@ -68,18 +50,18 @@ void Optimizer::reset() {
  * @param type 0: _hadamards, 1: _xs, and 2: _zs
  * @param element
  */
-void Optimizer::toggleElement(size_t type, size_t element) {
-    if (type == 0) {
+void Optimizer::toggleElement(GateType const& type, size_t element) {
+    if (type == GateType::H) {
         if (_hadamards.contains(element))
             _hadamards.erase(element);
         else
             _hadamards.emplace(element);
-    } else if (type == 1) {
+    } else if (type == GateType::X) {
         if (_xs.contains(element))
             _xs.erase(element);
         else
             _xs.emplace(element);
-    } else if (type == 2) {
+    } else if (type == GateType::Z) {
         if (_zs.contains(element))
             _zs.erase(element);
         else
@@ -193,11 +175,9 @@ QCirGate* Optimizer::getAvailableRotateZ(size_t target) {
  * @param QCir* circuit to add
  * @param QCirGate* The gate to be add
  */
-void Optimizer::_addGate2Circuit(QCir* circuit, QCirGate* gate) {
-    vector<size_t> qubit_list;
-    if (gate->getType() == GateType::CX || gate->getType() == GateType::CZ) {
-        qubit_list.emplace_back(gate->getControl()._qubit);
-    }
-    qubit_list.emplace_back(gate->getTarget()._qubit);
-    circuit->addGate(gate->getTypeStr(), qubit_list, gate->getPhase(), !_reversed);
+void Optimizer::_addGate2Circuit(QCir& circuit, QCirGate* gate, bool prepend) {
+    auto bit_range = gate->getQubits() |
+                     std::views::transform([](BitInfo const& qb) { return qb._qubit; });
+
+    circuit.addGate(gate->getTypeStr(), {bit_range.begin(), bit_range.end()}, gate->getPhase(), !prepend);
 }

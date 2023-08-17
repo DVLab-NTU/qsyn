@@ -269,15 +269,13 @@ Created and checked out to QCir 1
 Successfully removed ZXGraph 1
 Checked out to ZXGraph 0
 
-qsyn> optimize -c -t
-Successfully copied QCir 1 to QCir 2
-Checked out to QCir 2
-QCir 2( 0 gates, 0 2-qubits gates, 0 T-gates, 0 depths)
+qsyn> optimize -c
+Created and checked out to QCir 2
 
 qsyn> qcp -l
   0    adr4_197            
   1    adr4_197            QC2ZX ➔ FR ➔ ZX2QC
-★ 2    adr4_197            QC2ZX ➔ FR ➔ ZX2QC ➔ Trivial Optimize
+★ 2    adr4_197            QC2ZX ➔ FR ➔ ZX2QC ➔ Optimize
 
 qsyn> qcp -f
 -> Now focused on: QCir 2 (adr4_197)
