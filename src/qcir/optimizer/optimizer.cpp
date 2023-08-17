@@ -11,9 +11,9 @@
 #include <algorithm>
 #include <cassert>
 
-#include "qcir/qcir.hpp"
-#include "qcir/qcirGate.hpp"
-#include "qcir/qcirQubit.hpp"
+#include "../qcir.hpp"
+#include "../qcirGate.hpp"
+#include "../qcirQubit.hpp"
 
 /**
  * @brief Reset the storage

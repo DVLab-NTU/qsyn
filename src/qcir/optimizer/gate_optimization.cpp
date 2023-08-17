@@ -11,8 +11,8 @@
 #include <cassert>
 
 #include "./optimizer.hpp"
-#include "qcir/gateType.hpp"
-#include "qcir/qcirGate.hpp"
+#include "../gateType.hpp"
+#include "../qcirGate.hpp"
 #include "util/logger.hpp"
 
 extern dvlab_utils::Logger logger;

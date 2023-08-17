@@ -11,9 +11,9 @@
 
 #include "./optimizer.hpp"
 #include "cli/cli.hpp"
-#include "qcir/qcir.hpp"
-#include "qcir/qcirCmd.hpp"
-#include "qcir/qcirMgr.hpp"
+#include "../qcir.hpp"
+#include "../qcirCmd.hpp"
+#include "../qcirMgr.hpp"
 #include "util/util.hpp"
 
 using namespace std;

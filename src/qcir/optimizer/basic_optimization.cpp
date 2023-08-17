@@ -11,10 +11,10 @@
 #include <iterator>
 
 #include "fmt/core.h"
-#include "optimizer/optimizer.hpp"
-#include "qcir/gateType.hpp"
-#include "qcir/qcir.hpp"
-#include "qcir/qcirGate.hpp"
+#include "./optimizer.hpp"
+#include "../gateType.hpp"
+#include "../qcir.hpp"
+#include "../qcirGate.hpp"
 #include "util/logger.hpp"
 #include "util/phase.hpp"
 #include "util/util.hpp"
