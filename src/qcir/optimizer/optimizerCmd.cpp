@@ -7,14 +7,13 @@
 ****************************************************************************/
 
 #include <cstddef>
-#include <iostream>
 #include <string>
 
+#include "../qcir.hpp"
+#include "../qcirCmd.hpp"
+#include "../qcirMgr.hpp"
 #include "./optimizer.hpp"
 #include "cli/cli.hpp"
-#include "qcir/qcir.hpp"
-#include "qcir/qcirCmd.hpp"
-#include "qcir/qcirMgr.hpp"
 #include "util/util.hpp"
 
 using namespace std;
@@ -24,11 +23,11 @@ extern int effLimit;
 extern QCirMgr qcirMgr;
 extern bool stop_requested();
 
-unique_ptr<ArgParseCmdType> optimizeCmd();
+unique_ptr<ArgParseCmdType> QCirOptimizeCmd();
 
 bool initOptimizeCmd() {
-    if (!(cli.regCmd("OPTimize", 3, optimizeCmd()))) {
-        cerr << "Registering \"optimize\" commands fails... exiting" << endl;
+    if (!(cli.regCmd("QCCOPTimize", 6, QCirOptimizeCmd()))) {
+        logger.fatal("Registering \"optimize\" commands fails... exiting");
         return false;
     }
     return true;
@@ -37,10 +36,10 @@ bool initOptimizeCmd() {
 //----------------------------------------------------------------------
 //    Optimize
 //----------------------------------------------------------------------
-unique_ptr<ArgParseCmdType> optimizeCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("OPTimize");
+unique_ptr<ArgParseCmdType> QCirOptimizeCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("QCCOPTimize");
 
-    cmd->precondition = []() { return qcirMgrNotEmpty("OPTimize"); };
+    cmd->precondition = []() { return qcirMgrNotEmpty("QCCOPTimize"); };
 
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("optimize QCir");
@@ -63,22 +62,23 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        Optimizer optimizer(qcirMgr.get());
-        QCir *result;
+        Optimizer optimizer;
+        std::optional<QCir> result;
         std::string procedure_str{};
         if (parser.get<bool>("-trivial")) {
-            result = optimizer.trivial_optimization();
+            result = optimizer.trivial_optimization(*qcirMgr.get());
             procedure_str = "Trivial Optimize";
         } else {
-            result = optimizer.basic_optimization(!parser.get<bool>("-physical"), false, 1000, parser.get<bool>("-statistics"));
+            result = optimizer.basic_optimization(*qcirMgr.get(), {.doSwap = !parser.get<bool>("-physical"),
+                                                                   .separateCorrection = false,
+                                                                   .maxIter = 1000,
+                                                                   .printStatistics = parser.get<bool>("-statistics")});
             procedure_str = "Optimize";
         }
-        if (result == nullptr) {
-            cout << "Error: fail to optimize circuit." << endl;
+        if (result == std::nullopt) {
+            logger.error("Fail to optimize circuit.");
             return CmdExecResult::ERROR;
         }
-        auto name = qcirMgr.get()->getFileName();
-        auto procedures = qcirMgr.get()->getProcedures();
 
         if (parser.get<bool>("-copy")) {
             qcirMgr.add(qcirMgr.getNextID());
@@ -89,9 +89,6 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
         }
 
         qcirMgr.set(std::make_unique<QCir>(std::move(*result)));
-        qcirMgr.get()->printCirInfo();
-
-        qcirMgr.get()->addProcedures(procedures);
         qcirMgr.get()->addProcedure(procedure_str);
 
         return CmdExecResult::DONE;

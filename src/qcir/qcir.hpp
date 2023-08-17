@@ -57,6 +57,8 @@ public:
         this->setNextQubitId(1 + std::ranges::max(
                                      other._qubits | views::transform(
                                                          [](QCirQubit* qb) { return qb->getId(); })));
+        this->setFileName(other._fileName);
+        this->addProcedures(other._procedures);
     }
 
     QCir(QCir&& other) noexcept {
@@ -102,7 +104,7 @@ public:
     size_t getNQubit() const { return _qubits.size(); }
     int getDepth();
     const std::vector<QCirQubit*>& getQubits() const { return _qubits; }
-    const std::vector<QCirGate*>& getTopoOrderdGates() const { return _topoOrder; }
+    const std::vector<QCirGate*>& getTopoOrderedGates() const { return _topoOrder; }
     const std::vector<QCirGate*>& getGates() const { return _qgates; }
     QCirGate* getGate(size_t gid) const;
     QCirQubit* getQubit(size_t qid) const;
@@ -126,7 +128,7 @@ public:
     QCirQubit* insertSingleQubit(size_t);
     void addQubit(size_t num);
     bool removeQubit(size_t q);
-    QCirGate* addGate(std::string, std::vector<size_t>, Phase, bool);
+    QCirGate* addGate(std::string gateType, std::vector<size_t> bits, Phase, bool);
     QCirGate* addSingleRZ(size_t, Phase, bool);
     bool removeGate(size_t id);
 

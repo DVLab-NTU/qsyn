@@ -25,7 +25,7 @@ using namespace ArgParse;
 extern size_t verbose;
 extern int effLimit;
 extern QCirMgr qcirMgr;
-extern DeviceMgr* deviceMgr;
+extern DeviceMgr deviceMgr;
 
 unique_ptr<ArgParseCmdType> duostraCmd();
 unique_ptr<ArgParseCmdType> duostraPrintCmd();
@@ -77,7 +77,7 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
         }
 #endif
         QCir* logicalQCir = qcirMgr.get();
-        Duostra duo{logicalQCir, deviceMgr->getDevice(),
+        Duostra duo{logicalQCir, *deviceMgr.get(),
                     parser.get<bool>("-check"),
                     !parser.get<bool>("-mute-tqdm"),
                     parser.get<bool>("-silent")};
@@ -254,7 +254,7 @@ unique_ptr<ArgParseCmdType> mapEQCmd() {
         if (physicalQC == nullptr || logicalQC == nullptr) {
             return CmdExecResult::ERROR;
         }
-        MappingEQChecker mpeqc(physicalQC, logicalQC, deviceMgr->getDevice(), {});
+        MappingEQChecker mpeqc(physicalQC, logicalQC, *deviceMgr.get(), {});
         if (mpeqc.check()) {
             fmt::println("{}", fmt_ext::styled_if_ANSI_supported("Equivalent up to permutation", fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
         } else {

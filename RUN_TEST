@@ -3,6 +3,7 @@ import glob
 import itertools
 import multiprocessing
 import os
+import sys
 import shutil
 import subprocess
 import textwrap
@@ -11,6 +12,9 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 def cprint(*args, color=None, attrs=[], sep=" ", end="\n"):
     """Print colored text"""
+    if not sys.stdout.isatty():
+        print(*args, sep=sep, end=end)
+        return
     if color is not None:
         args = [getattr(Colors, color.upper()), *args, Colors.END]
     if len(attrs) > 0:
@@ -50,7 +54,8 @@ def dofile_result_same_with_ref(dofile, args):
         unknown_print(f"  ? {dofile}: reference file not found")
         return False, [dofile, " [Reference File Not Found]"]
 
-    run_qsyn = subprocess.Popen(["./qsyn", "-f", dofile], stdout=PIPE, stderr=STDOUT, env={"OMP_WAIT_POLICY": "passive"})
+    run_qsyn = subprocess.Popen(
+        ["./qsyn", "-f", dofile], stdout=PIPE, stderr=STDOUT, env={"OMP_WAIT_POLICY": "passive"})
 
     diff_result = subprocess.run(
         [diff_cmd, "-", reffile],
@@ -83,7 +88,8 @@ def update_dofile_ref(dofile, args):
         with open(reffile, "a"):
             os.utime(reffile, None)
 
-    run_qsyn = subprocess.Popen(["./qsyn", "-f", dofile], stdout=PIPE, stderr=STDOUT, env={"OMP_WAIT_POLICY": "passive"})
+    run_qsyn = subprocess.Popen(
+        ["./qsyn", "-f", dofile], stdout=PIPE, stderr=STDOUT, env={"OMP_WAIT_POLICY": "passive"})
 
     diff_result = subprocess.run(
         ["diff", reffile, "-"], stdin=run_qsyn.stdout, stdout=PIPE, text=True
@@ -112,7 +118,8 @@ def update_test_refs(dofiles, args):
 
     threads = multiprocessing.Pool(4)
 
-    results = threads.starmap(update_dofile_ref, zip(dofiles, itertools.repeat(args)))
+    results = threads.starmap(update_dofile_ref, zip(
+        dofiles, itertools.repeat(args)))
     results = list(filter(lambda x: x[0] == True, results))
 
     pass_print(f"Updated {len(results)} of {len(dofiles)} dofiles.")
@@ -258,7 +265,8 @@ def main():
         if os.path.isfile(path):
             dofiles.append(path)
         elif os.path.isdir(path):
-            dofiles.extend(glob.glob(os.path.join(path, "**/*.dof"), recursive=True))
+            dofiles.extend(glob.glob(os.path.join(
+                path, "**/*.dof"), recursive=True))
         else:
             print(f"Warning: ignoring path '{path}': not a file nor a dir!!")
 

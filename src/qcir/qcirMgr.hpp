@@ -14,6 +14,17 @@
 #include "./qcir.hpp"
 #include "util/dataStructureManager.hpp"
 
+template <>
+inline std::string dvlab_utils::dataInfoString(QCir* qc) {
+    return fmt::format("{:<19} {}", qc->getFileName().substr(0, 19),
+                       fmt::join(qc->getProcedures(), " ➔ "));
+}
+
+template <>
+inline std::string dvlab_utils::dataName(QCir* qc) {
+    return qc->getFileName();
+}
+
 using QCirMgr = dvlab_utils::DataStructureManager<QCir>;
 
 extern QCirMgr qcirMgr;

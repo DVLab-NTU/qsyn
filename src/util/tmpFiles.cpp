@@ -8,13 +8,12 @@
 
 #include "./tmpFiles.hpp"
 
+#include <fmt/core.h>
+
 #include <cerrno>
 #include <cstring>
-#include <iostream>
 
 #include "./util.hpp"
-
-using namespace std;
 
 namespace dvlab_utils {
 
@@ -36,7 +35,7 @@ std::filesystem::path createTmpDir(std::string_view prefix) {
 
     // NOTE - Don't change! `errno < 0` is the correct condition to check here
     if (errno < 0) {
-        cerr << "Error: " << std::strerror(errno) << endl;
+        fmt::println("Error: {}", std::strerror(errno));
         return "";
     }
 
@@ -62,7 +61,7 @@ std::filesystem::path createTmpFile(std::string_view prefix) {
 
     // NOTE - Don't change! `errno < 0` is the correct condition to check here
     if (errno < 0) {
-        cerr << "Error: " << std::strerror(errno) << endl;
+        fmt::println("Error: {}", std::strerror(errno));
         return "";
     }
 

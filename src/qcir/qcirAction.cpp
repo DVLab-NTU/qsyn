@@ -31,7 +31,7 @@ QCir* QCir::compose(QCir const& target) {
             insertSingleQubit(qubit->getId());
     }
     copiedQCir.updateTopoOrder();
-    for (auto& targGate : copiedQCir.getTopoOrderdGates()) {
+    for (auto& targGate : copiedQCir.getTopoOrderedGates()) {
         vector<size_t> bits;
         for (const auto& b : targGate->getQubits()) {
             bits.emplace_back(b._qubit);
@@ -56,7 +56,7 @@ QCir* QCir::tensorProduct(QCir const& target) {
         oldQ2NewQ[qubit->getId()] = addSingleQubit();
     }
     copiedQCir.updateTopoOrder();
-    for (auto& targGate : copiedQCir.getTopoOrderdGates()) {
+    for (auto& targGate : copiedQCir.getTopoOrderedGates()) {
         vector<size_t> bits;
         for (const auto& b : targGate->getQubits()) {
             bits.emplace_back(oldQ2NewQ[b._qubit]->getId());

@@ -35,7 +35,7 @@ Total #Vertices: 6
 
 qsyn> zxprint
 -> #ZXGraph: 2
--> Now focused on: 1
+-> Now focused on: ZXGraph 1 (cnot)
 
 qsyn> zxgr benchmark/zx/cnot.zx
 Created and checked out to ZXGraph 2

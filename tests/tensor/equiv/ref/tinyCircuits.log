@@ -21,8 +21,8 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> tsp -l
-  0                        QC2TS
-★ 1    swap                ZX2TS
+  0                        #Dim: 2   QC2TS
+★ 1    swap                #Dim: 2   ZX2TS
 
 qsyn> tseq 0 1 -Strict
 Equivalent
@@ -48,8 +48,8 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> tsp -l
-  0    tof3                ZX2TS
-★ 1    tof3_ZH             ZX2TS
+  0    tof3                #Dim: 2   ZX2TS
+★ 1    tof3_ZH             #Dim: 2   ZX2TS
 
 qsyn> tseq 0 1 
 Equivalent

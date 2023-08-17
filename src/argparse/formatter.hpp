@@ -35,6 +35,7 @@ public:
     static std::string getSyntaxString(SubParsers const& parsers);
     // static std::string getSyntaxString(MutuallyExclusiveGroup const& group);
 
+    static std::string getUsageString(Argument const& arg);
     static std::string requiredArgBracket(std::string const& str);
     static std::string optionalArgBracket(std::string const& str);
 

@@ -12,7 +12,6 @@
 
 #include "./extract.hpp"
 #include "cli/cli.hpp"
-#include "device/deviceMgr.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcirCmd.hpp"
 #include "qcir/qcirMgr.hpp"
@@ -27,7 +26,6 @@ extern size_t verbose;
 extern int effLimit;
 extern ZXGraphMgr zxGraphMgr;
 extern QCirMgr qcirMgr;
-extern DeviceMgr *deviceMgr;
 
 unique_ptr<ArgParseCmdType> ExtractCmd();
 unique_ptr<ArgParseCmdType> ExtractSetCmd();
@@ -80,6 +78,7 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
             }
 
             qcirMgr.get()->addProcedures(zxGraphMgr.get()->getProcedures());
+            qcirMgr.get()->addProcedure("ZX2QC");
             qcirMgr.get()->setFileName(zxGraphMgr.get()->getFileName());
         }
 

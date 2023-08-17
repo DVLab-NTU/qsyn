@@ -8,6 +8,7 @@
 
 #include <cstddef>
 #include <iomanip>
+#include <memory>
 #include <string>
 
 #include "cli/cli.hpp"
@@ -17,7 +18,7 @@
 using namespace std;
 using namespace ArgParse;
 
-extern DeviceMgr* deviceMgr;
+DeviceMgr deviceMgr{"Device"};
 extern size_t verbose;
 extern int effLimit;
 
@@ -28,8 +29,11 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd();
 unique_ptr<ArgParseCmdType> dtGraphPrintCmd();  // requires subparsers
 unique_ptr<ArgParseCmdType> dtPrintCmd();
 
+bool deviceMgrNotEmpty() {
+    return dvlab_utils::expect(!deviceMgr.empty(), "Device list is empty now. Please DTRead first.");
+}
+
 bool initDeviceCmd() {
-    deviceMgr = new DeviceMgr;
     if (!(cli.regCmd("DTCHeckout", 4, dtCheckOutCmd()) &&
           cli.regCmd("DTReset", 3, dtResetCmd()) &&
           cli.regCmd("DTDelete", 3, dtDeleteCmd()) &&
@@ -44,7 +48,7 @@ bool initDeviceCmd() {
 
 ArgType<size_t>::ConstraintType validDeviceId = {
     [](size_t const& id) {
-        return deviceMgr->isID(id);
+        return deviceMgr.isID(id);
     },
     [](size_t const& id) {
         cerr << "Error: Device " << id << " does not exist!!\n";
@@ -62,7 +66,7 @@ unique_ptr<ArgParseCmdType> dtCheckOutCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        deviceMgr->checkout2Device(parser.get<size_t>("id"));
+        deviceMgr.checkout(parser.get<size_t>("id"));
         return CmdExecResult::DONE;
     };
 
@@ -77,7 +81,7 @@ unique_ptr<ArgParseCmdType> dtResetCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        deviceMgr->reset();
+        deviceMgr.reset();
         return CmdExecResult::DONE;
     };
 
@@ -96,7 +100,7 @@ unique_ptr<ArgParseCmdType> dtDeleteCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        deviceMgr->removeDevice(parser.get<size_t>("id"));
+        deviceMgr.remove(parser.get<size_t>("id"));
         return CmdExecResult::DONE;
     };
 
@@ -118,26 +122,26 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        Device bufferTopo = Device(0);
+        Device bufferDevice = Device(0);
         auto filepath = parser.get<string>("filepath");
         auto replace = parser.get<bool>("-replace");
 
-        if (!bufferTopo.readDevice(filepath)) {
+        if (!bufferDevice.readDevice(filepath)) {
             cerr << "Error: the format in \"" << filepath << "\" has something wrong!!" << endl;
             return CmdExecResult::ERROR;
         }
 
-        if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {
-            deviceMgr->addDevice(deviceMgr->getNextID());
+        if (deviceMgr.empty()) {
+            deviceMgr.add(deviceMgr.getNextID());
         } else {
             if (replace) {
                 if (verbose >= 1) cout << "Note: original Device is replaced..." << endl;
             } else {
-                deviceMgr->addDevice(deviceMgr->getNextID());
+                deviceMgr.add(deviceMgr.getNextID());
             }
         }
 
-        deviceMgr->setDevice(bufferTopo);
+        deviceMgr.set(std::make_unique<Device>(std::move(bufferDevice)));
         return CmdExecResult::DONE;
     };
 
@@ -201,13 +205,13 @@ unique_ptr<ArgParseCmdType> dtPrintCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser.parsed("-focus"))
-            deviceMgr->printDeviceListItr();
+            deviceMgr.printFocus();
         else if (parser.parsed("-list"))
-            deviceMgr->printDeviceList();
+            deviceMgr.printList();
         else if (parser.parsed("-number"))
-            deviceMgr->printDeviceListSize();
+            deviceMgr.printListSize();
         else
-            deviceMgr->printDeviceMgr();
+            deviceMgr.printMgr();
 
         return CmdExecResult::DONE;
     };
@@ -256,20 +260,20 @@ unique_ptr<ArgParseCmdType> dtGraphPrintCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser.parsed("-edges")) {
-            deviceMgr->getDevice().printEdges(parser.get<vector<size_t>>("-edges"));
+            deviceMgr.get()->printEdges(parser.get<vector<size_t>>("-edges"));
             return CmdExecResult::DONE;
         }
         if (parser.parsed("-qubits")) {
-            deviceMgr->getDevice().printQubits(parser.get<vector<size_t>>("-qubits"));
+            deviceMgr.get()->printQubits(parser.get<vector<size_t>>("-qubits"));
             return CmdExecResult::DONE;
         }
         if (parser.parsed("-path")) {
             auto qids = parser.get<vector<size_t>>("-path");
-            deviceMgr->getDevice().printPath(qids[0], qids[1]);
+            deviceMgr.get()->printPath(qids[0], qids[1]);
             return CmdExecResult::DONE;
         }
 
-        deviceMgr->getDevice().printTopology();
+        deviceMgr.get()->printTopology();
         return CmdExecResult::DONE;
     };
 

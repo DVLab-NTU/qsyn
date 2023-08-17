@@ -319,7 +319,16 @@ bool ArgumentParser::parsePositionalArguments(TokensView tokens, std::vector<Tok
         if (arg.isParsed() || hasOptionPrefix(name)) continue;
 
         auto parse_range = arg.getParseRange(tokens);
-        if (!arg.tokensEnoughToParse(parse_range)) return false;
+        auto [lower, upper] = arg.getNArgs();
+
+        if (parse_range.size() < arg.getNArgs().lower) {
+            if (arg.isRequired()) {
+                fmt::println(stderr, "Error: missing argument \"{}\": expected {}{} arguments!!",
+                             getName(), (lower < upper ? "at least " : ""), lower);
+                return false;
+            } else
+                continue;
+        }
         if (!arg.takeAction(parse_range)) return false;
 
         // only mark as parsed if at least some tokens is associated with this argument
@@ -400,11 +409,11 @@ void ArgumentParser::printAmbiguousOptionErrorMsg(std::string const& token) cons
 bool ArgumentParser::allRequiredOptionsAreParsed() const {
     return dvlab_utils::expect(
         ranges::all_of(_pimpl->arguments | views::values, [this](Argument const& arg) {
-            return !hasOptionPrefix(arg) || !arg.isRequired() || arg.isParsed();
+            return !arg.isOption() || !arg.isRequired() || arg.isParsed();
         }),
         fmt::format("Error: Missing option(s)!! The following options are required: {}",  // intentional linebreak
                     fmt::join(_pimpl->arguments | views::values | views::filter([this](Argument const& arg) {
-                                  return !hasOptionPrefix(arg) || !arg.isRequired() || arg.isParsed();
+                                  return !arg.isOption() || !arg.isRequired() || arg.isParsed();
                               }) | views::transform([](Argument const& arg) { return arg.getName(); }),
                               ", ")));
 }
@@ -429,11 +438,11 @@ bool ArgumentParser::allRequiredMutexGroupsAreParsed() const {
 bool ArgumentParser::allRequiredArgumentsAreParsed() const {
     return dvlab_utils::expect(
         ranges::all_of(_pimpl->arguments | views::values, [this](Argument const& arg) {
-            return hasOptionPrefix(arg) || !arg.mustTakeArgument() || arg.isParsed();
+            return arg.isOption() || arg.getNArgs().lower == 0 || !arg.isRequired() || arg.isParsed();
         }),
         fmt::format("Error: Missing argument(s)!! The following arguments are required: {}",  // intentional linebreak
                     fmt::join(_pimpl->arguments | views::values | views::filter([this](Argument const& arg) {
-                                  return hasOptionPrefix(arg) || !arg.mustTakeArgument() || arg.isParsed();
+                                  return arg.isOption() || arg.getNArgs().lower == 0 || !arg.isRequired() || arg.isParsed();
                               }) | views::transform([](Argument const& arg) { return arg.getName(); }),
                               ", ")));
 }

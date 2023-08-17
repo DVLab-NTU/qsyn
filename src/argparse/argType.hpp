@@ -13,7 +13,6 @@
 #include <cassert>
 #include <climits>
 #include <functional>
-#include <iosfwd>
 #include <optional>
 #include <span>
 #include <string>
@@ -67,8 +66,7 @@ public:
     ArgType(std::string name, T val)
         : _values{std::move(val)}, _name{std::move(name)} {}
 
-    friend std::ostream& operator<<(std::ostream& os, ArgType const& arg) { return os << fmt::format("{}", arg); }
-
+    ArgType& usage(std::string const& usage);
     ArgType& help(std::string const& help);
     ArgType& required(bool isReq);
     ArgType& defaultValue(T const& val);
@@ -125,6 +123,7 @@ private:
     std::string _name;
     std::string _help = "";
     std::string _metavar = "";
+    std::optional<std::string> _usage = std::nullopt;
     ActionCallbackType _actionCallback = nullptr;
     std::vector<ConstraintType> _constraints = {};
     NArgsRange _nargs = {1, 1};
@@ -154,15 +153,6 @@ ArgType<std::string>::ConstraintType starts_with(std::vector<std::string> const&
 ArgType<std::string>::ConstraintType ends_with(std::vector<std::string> const& suffixes);
 ArgType<std::string>::ConstraintType allowed_extension(std::vector<std::string> const& extensions);
 
-namespace detail {
-extern std::ostream& _os;  // placeholder for the concept to work
-template <typename T>
-concept Printable = requires(T t) {
-    { _os << t } -> std::same_as<std::ostream&>;
-};
-
-}  // namespace detail
-
 }  // namespace ArgParse
 
 namespace fmt {
@@ -176,7 +166,7 @@ struct formatter<ArgParse::ArgType<T>> {
     auto format(ArgParse::ArgType<T> const& arg, FormatContext& ctx) -> format_context::iterator {
         if (arg._values.empty()) return format_to(ctx.out(), "(None)");
 
-        if constexpr (ArgParse::detail::Printable<T>) {
+        if constexpr (fmt::is_formattable<T, char>::value) {
             //                                                          vvv force the typing when T = bool (std::vector<bool> is weird)
             return (arg._nargs.upper <= 1) ? format_to(ctx.out(), "{}", static_cast<T>(arg._values.front()))
                                            : format_to(ctx.out(), "[{}]", fmt::join(arg._values, ", "));
@@ -190,6 +180,20 @@ struct formatter<ArgParse::ArgType<T>> {
 }  // namespace fmt
 
 namespace ArgParse {
+
+/**
+ * @brief set the usage message of the argument when printing usage of command
+ *
+ * @tparam T
+ * @param help
+ * @return ArgType<T>&
+ */
+template <typename T>
+requires ValidArgumentType<T>
+ArgType<T>& ArgType<T>::usage(std::string const& usage) {
+    _usage = usage;
+    return *this;
+}
 
 /**
  * @brief set the help message of the argument
@@ -328,7 +332,7 @@ template <typename T>
 requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::nargs(size_t l, size_t u) {
     _nargs = {l, u};
-    return (l > 0) ? *this : this->required(false);
+    return *this;
 }
 
 template <typename T>

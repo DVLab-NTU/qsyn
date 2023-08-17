@@ -66,6 +66,7 @@ public:
     size_t getDelay() const;
     Phase getPhase() const { return _rotatePhase; }
     const std::vector<BitInfo>& getQubits() const { return _qubits; }
+    void setQubits(std::vector<BitInfo> const& qubits) { _qubits = qubits; }
     const BitInfo getQubit(size_t qubit) const;
     size_t getNQubit() { return _qubits.size(); }
     const BitInfo getTarget() const { return _qubits[_qubits.size() - 1]; }

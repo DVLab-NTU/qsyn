@@ -11,10 +11,14 @@
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
+#include <algorithm>
 #include <cstring>
 #include <numeric>
+#include <ranges>
 
+#include "./argType.hpp"
 #include "./argparse.hpp"
+#include "fmt/core.h"
 #include "unicode/display_width.hpp"
 #include "util/terminalAttributes.hpp"
 #include "util/textFormat.hpp"
@@ -22,26 +26,166 @@
 using namespace std;
 using namespace dvlab_utils;
 
-// namespace fmt {
-// template <>
-// struct formatter<ArgParse::Argument> {
-//     constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
-
-//     template <typename FormatContext>
-//     auto format(ArgParse::Argument const& arg, FormatContext& ctx) {
-//         return format_to(ctx.out(), "{}", "Argument");
-//     }
-// };
-// };
-
 namespace ArgParse {
 
 constexpr auto sectionHeaderStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::bright_blue))); };
 constexpr auto requiredStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::cyan))); };
 constexpr auto metavarStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::emphasis::bold)); };
-constexpr auto optionalStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::yellow))); };
+constexpr auto optionStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::yellow))); };
 constexpr auto typeStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::cyan) | fmt::emphasis::italic)); };
 constexpr auto accentStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::emphasis::bold | fmt::emphasis::underline)); };
+
+/**
+ * @brief circumfix the string with the required argument bracket (<...>)
+ *
+ * @param str
+ * @return string
+ */
+string Formatter::requiredArgBracket(std::string const& str) {
+    return requiredStyle("<") + str + requiredStyle(">");
+}
+
+/**
+ * @brief circumfix the string with the optional argument bracket ([]...])
+ *
+ * @param str
+ * @return string
+ */
+string Formatter::optionalArgBracket(std::string const& str) {
+    return optionStyle("[") + str + optionStyle("]");
+}
+
+/**
+ * @brief get the syntax representation string of an argument.
+ *
+ * @param arg
+ * @return string
+ */
+string Formatter::getSyntaxString(Argument const& arg) {
+    string ret = "";
+    NArgsRange nargs = arg.getNArgs();
+    auto usageString = arg.getUsage().has_value()
+                           ? arg.getUsage().value()
+                           : requiredArgBracket(fmt::format("{} {}", typeStyle(arg.getTypeString()), metavarStyle(arg.getMetavar())));
+
+    if (nargs.upper == SIZE_MAX) {
+        if (nargs.lower == 0)
+            ret = optionalArgBracket(usageString) + "...";
+        else {
+            auto repeat_view = views::iota(0u, nargs.lower) | views::transform([&usageString](size_t i) { return usageString; });
+            ret = fmt::format("{}...", fmt::join(repeat_view, " "));
+        }
+    } else {
+        auto repeat_view = views::iota(0u, nargs.upper) | views::transform([&usageString, &nargs](size_t i) { return (i < nargs.lower) ? usageString : optionalArgBracket(usageString); });
+        ret = fmt::format("{}", fmt::join(repeat_view, " "));
+    }
+    if (arg.isOption()) {
+        ret = optionStyle(styledArgName(arg)) + (ret.size() ? (" " + ret) : "");
+    }
+
+    return ret;
+}
+
+string Formatter::getSyntaxString(SubParsers const& parsers) {
+    return fmt::format("{{{}}}", fmt::join(parsers.getSubParsers() | views::values | views::transform([](ArgumentParser const& parser) { return styledCmdName(parser.getName(), parser.getNumRequiredChars()); }), " | "));
+}
+
+/**
+ * @brief insert line breaks to the string to make it fit the terminal width
+ *
+ * @param str
+ * @param max_help_width
+ * @return string
+ */
+std::string insertLineBreaksToString(std::string const& str, size_t max_help_width) {
+    std::vector<std::string> lines = split(str, "\n");
+    for (size_t i = 0; i < lines.size(); ++i) {
+        if (lines[i].size() < max_help_width) continue;
+
+        size_t pos = lines[i].find_last_of(' ', max_help_width);
+
+        if (pos == std::string::npos) {
+            lines.insert(lines.begin() + i + 1, lines[i].substr(max_help_width));
+            lines[i] = lines[i].substr(0, max_help_width);
+        } else {
+            lines.insert(lines.begin() + i + 1, lines[i].substr(pos + 1));
+            lines[i] = lines[i].substr(0, pos);
+        }
+    }
+
+    return fmt::format("{}", fmt::join(lines, "\n"));
+}
+
+/**
+ * @brief print the help string of an argument
+ *
+ * @param arg
+ */
+void Formatter::tabulateHelpString(fort::utf8_table& table, size_t max_help_string_width, Argument const& arg) {
+    auto usageString = arg.getUsage().has_value() ? arg.getUsage().value() : metavarStyle(arg.getMetavar());
+
+    table << typeStyle(arg.mayTakeArgument() ? arg.getTypeString() : "flag");
+    if (arg.isOption()) {
+        if (arg.mayTakeArgument()) {
+            table << styledArgName(arg) << usageString;
+        } else {
+            table << styledArgName(arg) << "";
+        }
+    } else {
+        table << usageString << "";
+    }
+
+    table << insertLineBreaksToString(arg.getHelp(), max_help_string_width) << fort::endr;
+}
+
+void Formatter::tabulateHelpString(fort::utf8_table& table, size_t max_help_string_width, SubParsers const& parsers) {
+    table << getSyntaxString(parsers)
+          << ""
+          << ""
+          << insertLineBreaksToString(parsers.getHelp(), max_help_string_width)
+          << fort::endr;
+}
+
+/**
+ * @brief print the styled argument name.
+ *
+ * @param arg
+ * @return string
+ */
+string Formatter::styledArgName(Argument const& arg) {
+    if (!arg.isOption()) return metavarStyle(arg.getMetavar());
+
+    if (ANSI_supported()) {
+        string mand = arg.getName().substr(0, arg.getNumRequiredChars());
+        string rest = arg.getName().substr(arg.getNumRequiredChars());
+        return optionStyle(accentStyle(mand)) + optionStyle(rest);
+    } else {
+        string tmp = arg.getName();
+        for (size_t i = 0; i < tmp.size(); ++i) {
+            tmp[i] = (i < arg.getNumRequiredChars()) ? ::toupper(tmp[i]) : ::tolower(tmp[i]);
+        }
+        return tmp;
+    }
+}
+
+/**
+ * @brief return a string of styled command name. The mandatory part is accented.
+ *
+ * @return string
+ */
+string Formatter::styledCmdName(std::string const& name, size_t numRequired) {
+    if (ANSI_supported()) {
+        string mand = name.substr(0, numRequired);
+        string rest = name.substr(numRequired);
+        return accentStyle(mand) + rest;
+    } else {
+        string tmp = name;
+        for (size_t i = 0; i < tmp.size(); ++i) {
+            tmp[i] = (i < numRequired) ? ::toupper(tmp[i]) : ::tolower(tmp[i]);
+        }
+        return tmp;
+    }
+}
 
 /**
  * @brief Print the usage of the command
@@ -72,13 +216,13 @@ void Formatter::printUsage(ArgumentParser const& parser) {
 
     for (auto const& group : mutexGroups) {
         if (!group.isRequired()) {
-            fmt::print(" {}{}{}", optionalStyle("["),
+            fmt::print(" {}{}{}", optionStyle("["),
                        fmt::join(
                            group.getArguments() | views::transform([&arguments](std::string const& name) {
                                return getSyntaxString(arguments.at(toLowerString(name)));
                            }),
-                           optionalStyle(" | ")),
-                       optionalStyle("]"));
+                           optionStyle(" | ")),
+                       optionStyle("]"));
         }
     }
 
@@ -96,17 +240,18 @@ void Formatter::printUsage(ArgumentParser const& parser) {
 
     for (auto const& [name, arg] : arguments) {
         if (arg.isRequired() && !conflictGroups.contains(toLowerString(name))) {
-            cout << " " << getSyntaxString(arg);
+            fmt::print(" {}", getSyntaxString(arg));
         }
     }
 
     if (subparsers.has_value()) {
-        cout << " " << (subparsers->isRequired() ? requiredStyle("<") : optionalStyle("["))
-             << getSyntaxString(subparsers.value())
-             << (subparsers->isRequired() ? requiredStyle(">") : optionalStyle("]")) << " ...";
+        fmt::print(" {}{} ...{}",
+                   subparsers->isRequired() ? "" : optionStyle("["),
+                   getSyntaxString(subparsers.value()),
+                   subparsers->isRequired() ? "" : optionStyle("]"));
     }
 
-    cout << endl;
+    fmt::println("");
 }
 
 /**
@@ -143,30 +288,26 @@ void Formatter::printHelp(ArgumentParser const& parser) {
             return 0;
         });
 
-    auto [terminal_width, terminal_height] = dvlab_utils::get_terminal_size();
-
-    auto typeStringLength = std::ranges::max(
-        parser._pimpl->arguments | views::values |
-        views::transform([](Argument const& arg) -> size_t { return arg.getTypeString().size(); }));
-
-    auto nameLength = std::ranges::max(
-        parser._pimpl->arguments | views::values |
-        views::transform([](Argument const& arg) -> size_t { return arg.getName().size(); }));
-    auto metavarLength = std::ranges::max(
-        parser._pimpl->arguments | views::values |
-        views::transform([](Argument const& arg) -> size_t { return arg.getMetavar().size(); }));
-
-    // 7 = 1 * left margin (1) + 3 * (left+right cell padding (2))
-    auto max_help_string_width = terminal_width - typeStringLength - nameLength - metavarLength - 7;
-
     printUsage(parser);
+
     if (parser.getHelp().size()) {
-        fmt::println("");
-        fmt::println("{}", sectionHeaderStyle("Description:"));
+        fmt::println("\n{}", sectionHeaderStyle("Description:"));
         fmt::println("  {}", parser.getHelp());
     }
 
     auto& arguments = parser._pimpl->arguments;
+
+    auto [terminal_width, terminal_height] = dvlab_utils::get_terminal_size();
+
+    auto typeStringLength = arguments.empty() ? 0 : std::ranges::max(arguments | views::values | views::transform([](Argument const& arg) -> size_t { return arg.getTypeString().size(); }));
+
+    auto nameLength = arguments.empty() ? 0 : std::ranges::max(arguments | views::values | views::transform([](Argument const& arg) -> size_t { return arg.getName().size(); }));
+
+    auto metavarLength = arguments.empty() ? 0 : std::ranges::max(arguments | views::values | views::transform([](Argument const& arg) -> size_t { return arg.getMetavar().size(); }));
+
+    // 7 = 1 * left margin (1) + 3 * (left+right cell padding (2))
+    auto max_help_string_width = terminal_width - typeStringLength - nameLength - metavarLength - 7;
+
     auto& subparsers = parser._pimpl->subparsers;
 
     auto argPairIsRequired = [](pair<string, Argument> const& argPair) {
@@ -177,9 +318,16 @@ void Formatter::printHelp(ArgumentParser const& parser) {
         return !argPair.second.isRequired();
     };
 
-    if (count_if(arguments.begin(), arguments.end(), argPairIsRequired)) {
-        fmt::println("");
-        fmt::println("{}", sectionHeaderStyle("Required Arguments:"));
+    bool hasRequiredArguments = find_if(arguments.begin(), arguments.end(), argPairIsRequired) != arguments.end();
+    bool hasOptionalArguments = find_if(arguments.begin(), arguments.end(), argPairIsOptional) != arguments.end();
+    bool hasRequiredSubparsers = subparsers.has_value() && subparsers->isRequired();
+    bool hasOptionalSubparsers = subparsers.has_value() && !subparsers->isRequired();
+
+    if (hasRequiredArguments || hasRequiredSubparsers) {
+        fmt::println("\n{}", sectionHeaderStyle("Required Arguments:"));
+    }
+
+    if (hasRequiredArguments) {
         for (auto const& [_, arg] : arguments) {
             if (arg.isRequired()) {
                 tabulateHelpString(table, max_help_string_width, arg);
@@ -187,13 +335,15 @@ void Formatter::printHelp(ArgumentParser const& parser) {
         }
     }
 
-    if (subparsers.has_value() && subparsers->isRequired()) {
+    if (hasRequiredSubparsers) {
         tabulateHelpString(table, max_help_string_width, subparsers.value());
     }
 
-    if (count_if(arguments.begin(), arguments.end(), argPairIsOptional)) {
-        fmt::println("");
-        fmt::println("{}", sectionHeaderStyle("Optional Arguments:"));
+    if (hasOptionalArguments || hasOptionalSubparsers) {
+        fmt::println("\n{}", sectionHeaderStyle("Optional Arguments:"));
+    }
+
+    if (hasOptionalArguments) {
         for (auto const& [_, arg] : arguments) {
             if (!arg.isRequired()) {
                 tabulateHelpString(table, max_help_string_width, arg);
@@ -201,142 +351,11 @@ void Formatter::printHelp(ArgumentParser const& parser) {
         }
     }
 
-    if (subparsers.has_value() && !subparsers->isRequired()) {
+    if (hasOptionalSubparsers) {
         tabulateHelpString(table, max_help_string_width, subparsers.value());
     }
 
     fmt::println("{}", table.to_string());
-}
-
-/**
- * @brief get the syntax representation string of an argument.
- *
- * @param arg
- * @return string
- */
-string Formatter::getSyntaxString(Argument const& arg) {
-    string ret = "";
-
-    if (arg.mayTakeArgument()) {
-        ret += requiredArgBracket(
-            typeStyle(arg.getTypeString()) + " " + metavarStyle(arg.getMetavar()));
-    }
-    if (arg.isOption()) {
-        ret = optionalStyle(styledArgName(arg)) + (arg.mayTakeArgument() ? (" " + ret) : "");
-    }
-
-    return ret;
-}
-
-string Formatter::getSyntaxString(SubParsers const& parsers) {
-    return fmt::format("{{{}}}", fmt::join(parsers.getSubParsers() | views::values | views::transform([](ArgumentParser const& parser) { return styledCmdName(parser.getName(), parser.getNumRequiredChars()); }), ", "));
-}
-
-// printing helpers
-
-/**
- * @brief circumfix the string with the required argument bracket (<...>)
- *
- * @param str
- * @return string
- */
-string Formatter::requiredArgBracket(std::string const& str) {
-    return requiredStyle("<") + str + requiredStyle(">");
-}
-
-/**
- * @brief circumfix the string with the optional argument bracket ([]...])
- *
- * @param str
- * @return string
- */
-string Formatter::optionalArgBracket(std::string const& str) {
-    return optionalStyle("[") + str + optionalStyle("]");
-}
-
-std::string insertLineBreaksToString(std::string const& str, size_t max_help_width) {
-    std::vector<std::string> lines = split(str, "\n");
-    for (size_t i = 0; i < lines.size(); ++i) {
-        if (lines[i].size() < max_help_width) continue;
-
-        size_t pos = lines[i].find_last_of(' ', max_help_width);
-
-        if (pos == std::string::npos) {
-            lines.insert(lines.begin() + i + 1, lines[i].substr(max_help_width));
-            lines[i] = lines[i].substr(0, max_help_width);
-        } else {
-            lines.insert(lines.begin() + i + 1, lines[i].substr(pos + 1));
-            lines[i] = lines[i].substr(0, pos);
-        }
-    }
-
-    return join("\n", lines);
-}
-
-/**
- * @brief print the help string of an argument
- *
- * @param arg
- */
-void Formatter::tabulateHelpString(fort::utf8_table& table, size_t max_help_string_width, Argument const& arg) {
-    table << typeStyle(arg.mayTakeArgument() ? arg.getTypeString() : "flag");
-    if (arg.isOption()) {
-        if (arg.mayTakeArgument()) {
-            table << styledArgName(arg) << metavarStyle(arg.getMetavar());
-        } else {
-            table << styledArgName(arg) << "";
-        }
-    } else {
-        table << metavarStyle(arg.getMetavar()) << "";
-    }
-
-    table << insertLineBreaksToString(arg.getHelp(), max_help_string_width) << fort::endr;
-}
-
-void Formatter::tabulateHelpString(fort::utf8_table& table, size_t max_help_string_width, SubParsers const& parsers) {
-    table << getSyntaxString(parsers) << ""
-          << "" << insertLineBreaksToString(parsers.getHelp(), max_help_string_width) << fort::endr;
-}
-
-/**
- * @brief print the styled argument name.
- *
- * @param arg
- * @return string
- */
-string Formatter::styledArgName(Argument const& arg) {
-    if (!arg.isOption()) return metavarStyle(arg.getMetavar());
-
-    if (ANSI_supported()) {
-        string mand = arg.getName().substr(0, arg.getNumRequiredChars());
-        string rest = arg.getName().substr(arg.getNumRequiredChars());
-        return optionalStyle(accentStyle(mand)) + optionalStyle(rest);
-    } else {
-        string tmp = arg.getName();
-        for (size_t i = 0; i < tmp.size(); ++i) {
-            tmp[i] = (i < arg.getNumRequiredChars()) ? ::toupper(tmp[i]) : ::tolower(tmp[i]);
-        }
-        return tmp;
-    }
-}
-
-/**
- * @brief return a string of styled command name. The mandatory part is accented.
- *
- * @return string
- */
-string Formatter::styledCmdName(std::string const& name, size_t numRequired) {
-    if (ANSI_supported()) {
-        string mand = name.substr(0, numRequired);
-        string rest = name.substr(numRequired);
-        return accentStyle(mand) + rest;
-    } else {
-        string tmp = name;
-        for (size_t i = 0; i < tmp.size(); ++i) {
-            tmp[i] = (i < numRequired) ? ::toupper(tmp[i]) : ::tolower(tmp[i]);
-        }
-        return tmp;
-    }
 }
 
 }  // namespace ArgParse
