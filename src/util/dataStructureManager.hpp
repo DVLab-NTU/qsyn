@@ -9,6 +9,7 @@
 
 #include <fmt/core.h>
 #include <fmt/format.h>
+
 #include <memory>
 #include <string>
 
@@ -19,6 +20,18 @@ extern size_t verbose;
 namespace dvlab_utils {
 
 template <typename T>
+std::string dataInfoString(T* t);
+
+template <typename T>
+std::string dataName(T* t);
+
+template <typename T>
+requires requires(T t) {
+    { dataInfoString(&t) } -> std::convertible_to<std::string>;
+    { dataName(&t) } -> std::convertible_to<std::string>;
+    { t.setId(size_t{}) } -> std::same_as<void>;
+    { t.getId() } -> std::convertible_to<size_t>;
+}
 class DataStructureManager {
 public:
     DataStructureManager(std::string_view name) : _nextID{0}, _currID{0}, _typeName{name} {}
@@ -31,7 +44,7 @@ public:
     }
     DataStructureManager(DataStructureManager&& other) noexcept = default;
 
-    DataStructureManager& operator=(DataStructureManager copy) {
+    virtual DataStructureManager& operator=(DataStructureManager copy) {
         copy.swap(*this);
         return *this;
     }
@@ -140,8 +153,7 @@ public:
     void printList() const {
         if (this->size()) {
             for (auto& [id, data] : _list) {
-                fmt::println("{} {}    {:<19} {}", (id == _currID ? "★" : " "), id, data->getFileName().substr(0, 19),
-                             fmt::join(data->getProcedures(), " ➔ "));
+                fmt::println("{} {}    {}", (id == _currID ? "★" : " "), id, dataInfoString(data.get()));
             }
         } else {
             printMgrEmptyErrorMsg();
@@ -175,7 +187,8 @@ private:
     }
 
     void printFocusMsg() const {
-        fmt::println("-> Now focused on: {} {}", _typeName, _currID);
+        auto name = dataName(get());
+        fmt::println("-> Now focused on: {} {}{}", _typeName, _currID, name.empty() ? "" : fmt::format(" ({})", name));
     }
 
     void printMgrEmptyErrorMsg() const {

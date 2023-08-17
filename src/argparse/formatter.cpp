@@ -16,8 +16,8 @@
 #include <numeric>
 #include <ranges>
 
-#include "./argparse.hpp"
 #include "./argType.hpp"
+#include "./argparse.hpp"
 #include "fmt/core.h"
 #include "unicode/display_width.hpp"
 #include "util/terminalAttributes.hpp"
@@ -246,9 +246,9 @@ void Formatter::printUsage(ArgumentParser const& parser) {
 
     if (subparsers.has_value()) {
         fmt::print(" {}{} ...{}",
-                     subparsers->isRequired() ? "" : optionStyle("["),
-                     getSyntaxString(subparsers.value()),
-                     subparsers->isRequired() ? "" : optionStyle("]"));
+                   subparsers->isRequired() ? "" : optionStyle("["),
+                   getSyntaxString(subparsers.value()),
+                   subparsers->isRequired() ? "" : optionStyle("]"));
     }
 
     fmt::println("");
@@ -299,17 +299,11 @@ void Formatter::printHelp(ArgumentParser const& parser) {
 
     auto [terminal_width, terminal_height] = dvlab_utils::get_terminal_size();
 
-    auto typeStringLength = arguments.empty() ? 0 : std::ranges::max(
-        arguments | views::values |
-        views::transform([](Argument const& arg) -> size_t { return arg.getTypeString().size(); }));
+    auto typeStringLength = arguments.empty() ? 0 : std::ranges::max(arguments | views::values | views::transform([](Argument const& arg) -> size_t { return arg.getTypeString().size(); }));
 
-    auto nameLength = arguments.empty() ? 0 : std::ranges::max(
-        arguments | views::values |
-        views::transform([](Argument const& arg) -> size_t { return arg.getName().size(); }));
+    auto nameLength = arguments.empty() ? 0 : std::ranges::max(arguments | views::values | views::transform([](Argument const& arg) -> size_t { return arg.getName().size(); }));
 
-    auto metavarLength = arguments.empty() ? 0 : std::ranges::max(
-        arguments | views::values |
-        views::transform([](Argument const& arg) -> size_t { return arg.getMetavar().size(); }));
+    auto metavarLength = arguments.empty() ? 0 : std::ranges::max(arguments | views::values | views::transform([](Argument const& arg) -> size_t { return arg.getMetavar().size(); }));
 
     // 7 = 1 * left margin (1) + 3 * (left+right cell padding (2))
     auto max_help_string_width = terminal_width - typeStringLength - nameLength - metavarLength - 7;
@@ -328,7 +322,7 @@ void Formatter::printHelp(ArgumentParser const& parser) {
     bool hasOptionalArguments = find_if(arguments.begin(), arguments.end(), argPairIsOptional) != arguments.end();
     bool hasRequiredSubparsers = subparsers.has_value() && subparsers->isRequired();
     bool hasOptionalSubparsers = subparsers.has_value() && !subparsers->isRequired();
-    
+
     if (hasRequiredArguments || hasRequiredSubparsers) {
         fmt::println("\n{}", sectionHeaderStyle("Required Arguments:"));
     }
@@ -344,7 +338,7 @@ void Formatter::printHelp(ArgumentParser const& parser) {
     if (hasRequiredSubparsers) {
         tabulateHelpString(table, max_help_string_width, subparsers.value());
     }
-    
+
     if (hasOptionalArguments || hasOptionalSubparsers) {
         fmt::println("\n{}", sectionHeaderStyle("Optional Arguments:"));
     }

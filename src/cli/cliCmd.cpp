@@ -102,8 +102,8 @@ unique_ptr<ArgParseCmdType> quitCmd() {
         if (input.empty()) return CmdExecResult::DONE;
 
         return ("yes"s.starts_with(input))
-            ? CmdExecResult::QUIT 
-            : CmdExecResult::DONE;  // not yet to quit
+                   ? CmdExecResult::QUIT
+                   : CmdExecResult::DONE;  // not yet to quit
     };
 
     return cmd;

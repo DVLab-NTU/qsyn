@@ -5,11 +5,12 @@
   Author       [ Design Verification Lab, Chia-Hsu Chuang ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
+#include <termios.h>
+
 #include <cassert>
 #include <cstring>
 #include <regex>
 #include <sstream>
-#include <termios.h>
 
 #include "cli/cli.hpp"
 #include "cli/cliCharDef.hpp"
@@ -25,9 +26,9 @@ namespace detail {
 
 /**
  * @brief restores the terminal settings
- * 
- * @param stored_settings 
- * @return auto 
+ *
+ * @param stored_settings
+ * @return auto
  */
 static auto reset_keypress(termios const& stored_settings) {
     tcsetattr(0, TCSANOW, &stored_settings);
@@ -35,7 +36,7 @@ static auto reset_keypress(termios const& stored_settings) {
 
 /**
  * @brief enables the terminal to read one char at a time, and don't echo the input to terminal
- * 
+ *
  * @return termios the original terminal settings. This is used to restore the terminal settings
  */
 [[nodiscard]] static auto set_keypress() -> termios {
@@ -50,7 +51,7 @@ static auto reset_keypress(termios const& stored_settings) {
 
     return stored_settings;
 }
-}
+}  // namespace detail
 
 CmdExecResult CommandLineInterface::listen_to_input(std::istream& istr, CLI_ListenConfig const& config) {
     using namespace KeyCode;

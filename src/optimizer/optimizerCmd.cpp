@@ -63,6 +63,10 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
+        if (parser.get<bool>("-copy")) {
+            qcirMgr.copy(qcirMgr.getNextID());
+        }
+
         Optimizer optimizer(qcirMgr.get());
         QCir *result;
         std::string procedure_str{};
@@ -77,12 +81,6 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
             cout << "Error: fail to optimize circuit." << endl;
             return CmdExecResult::ERROR;
         }
-        auto name = qcirMgr.get()->getFileName();
-        auto procedures = qcirMgr.get()->getProcedures();
-
-        if (parser.get<bool>("-copy")) {
-            qcirMgr.add(qcirMgr.getNextID());
-        }
 
         if (stop_requested()) {
             procedure_str += "[INT]";
@@ -90,8 +88,6 @@ unique_ptr<ArgParseCmdType> optimizeCmd() {
 
         qcirMgr.set(std::make_unique<QCir>(std::move(*result)));
         qcirMgr.get()->printCirInfo();
-
-        qcirMgr.get()->addProcedures(procedures);
         qcirMgr.get()->addProcedure(procedure_str);
 
         return CmdExecResult::DONE;

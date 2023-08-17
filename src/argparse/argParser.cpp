@@ -320,14 +320,14 @@ bool ArgumentParser::parsePositionalArguments(TokensView tokens, std::vector<Tok
 
         auto parse_range = arg.getParseRange(tokens);
         auto [lower, upper] = arg.getNArgs();
-        
+
         if (parse_range.size() < arg.getNArgs().lower) {
             if (arg.isRequired()) {
                 fmt::println(stderr, "Error: missing argument \"{}\": expected {}{} arguments!!",
-                     getName(), (lower < upper ? "at least " : ""), lower);
+                             getName(), (lower < upper ? "at least " : ""), lower);
                 return false;
-            }
-            else continue;
+            } else
+                continue;
         }
         if (!arg.takeAction(parse_range)) return false;
 

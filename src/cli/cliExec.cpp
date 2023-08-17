@@ -23,10 +23,10 @@ using std::string, std::vector;
 //----------------------------------------------------------------------
 
 /**
-    * @brief Construct a new Command Line Interface object
-    *
-    * @param prompt the prompt of the CLI
-    */
+ * @brief Construct a new Command Line Interface object
+ *
+ * @param prompt the prompt of the CLI
+ */
 CommandLineInterface::CommandLineInterface(const std::string& prompt) : _prompt{prompt} {
     _readBuf.reserve(READ_BUF_SIZE);
 }

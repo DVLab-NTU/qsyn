@@ -57,6 +57,8 @@ public:
         this->setNextQubitId(1 + std::ranges::max(
                                      other._qubits | views::transform(
                                                          [](QCirQubit* qb) { return qb->getId(); })));
+        this->setFileName(other._fileName);
+        this->addProcedures(other._procedures);
     }
 
     QCir(QCir&& other) noexcept {

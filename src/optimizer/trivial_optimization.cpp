@@ -24,6 +24,8 @@ extern bool stop_requested();
  */
 QCir* Optimizer::trivial_optimization() {
     QCir* temp = new QCir(-1);
+    temp->setFileName(_circuit->getFileName());
+    temp->addProcedures(_circuit->getProcedures());
     temp->addQubit(_circuit->getNQubit());
     vector<QCirGate*> gateList = _circuit->getTopoOrderdGates();
     for (auto gate : gateList) {

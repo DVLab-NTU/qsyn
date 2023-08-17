@@ -175,7 +175,6 @@ private:
 
     inline bool isSpecialChar(char ch) const { return _specialChars.find_first_of(ch) != std::string::npos; }
 
-
     // Data members
     std::string const _prompt;                   // command prompt
     std::string const _specialChars = "\"\' ;";  // The characters that are identified as special characters when parsing

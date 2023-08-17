@@ -108,6 +108,8 @@ QCir* Optimizer::parseForward() {
     }
 
     QCir* tmp = new QCir(-1);
+    tmp->setFileName(_circuit->getFileName());
+    tmp->addProcedures(_circuit->getProcedures());
     // NOTE - Below function will add the gate to tmp -
     topologicalSort(tmp);
     // ------------------------------------------------
