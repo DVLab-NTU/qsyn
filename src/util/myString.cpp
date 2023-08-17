@@ -182,28 +182,6 @@ myStrGetTok(const string& str, string& tok, size_t pos, const char delim) {
     return myStrGetTok(str, tok, pos, string(1, delim));
 }
 
-// Parse the string "str" for the token "tok", beginning at position "pos",
-// with delimiter "del". The leading "del" will be skipped.
-// Return "string::npos" if not found. Return the past to the end of "tok"
-// (i.e. "del" or string::npos) if found.
-// This function will treat '\ ' as a space in the token. That is, "a\ b" is one token ("a b") and not two
-size_t
-myStrGetTok2(const string& str, string& tok, size_t pos, const std::string& delim) {
-    size_t begin = str.find_first_not_of(delim, pos);
-    if (begin == string::npos) {
-        tok = "";
-        return begin;
-    }
-    size_t end = str.find_first_of(delim, begin);
-    tok = str.substr(begin, end - begin);
-    if (tok.back() == '\\') {
-        string tok2;
-        end = myStrGetTok2(str, tok2, end);
-        tok = tok.substr(0, tok.size() - 1) + ' ' + tok2;
-    }
-    return end;
-}
-
 std::string toLowerString(std::string const& str) {
     std::string ret = str;
     for_each(ret.begin(), ret.end(), [](char& ch) { ch = ::tolower(ch); });

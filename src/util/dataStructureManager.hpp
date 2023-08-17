@@ -17,7 +17,9 @@
 
 extern size_t verbose;
 
-namespace dvlab_utils {
+namespace dvlab {
+
+namespace utils {
 
 template <typename T>
 std::string dataInfoString(T* t);
@@ -200,4 +202,6 @@ private:
     }
 };
 
-}  // namespace dvlab_utils
+}  // namespace utils
+
+}  // namespace dvlab

@@ -16,7 +16,7 @@
 using namespace std;
 extern size_t verbose;
 extern size_t colorLevel;
-extern dvlab_utils::Usage usage;
+extern dvlab::utils::Usage usage;
 
 using namespace ArgParse;
 
@@ -261,7 +261,7 @@ unique_ptr<ArgParseCmdType> loggerCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        using dvlab_utils::Logger;
+        using dvlab::utils::Logger;
 
         if (parser.usedSubParser("test")) {
             logger.fatal("Test fatal log");

@@ -62,7 +62,7 @@ bool QCir::writeQASM(string filename) {
  * @return false if not.
  */
 bool QCir::draw(std::string const& drawer, std::string const& outputPath, float scale) {
-    namespace dv = dvlab_utils;
+    namespace dv = dvlab::utils;
     namespace fs = std::filesystem;
 
     dv::TmpDir tmpDir;

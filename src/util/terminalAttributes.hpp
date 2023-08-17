@@ -10,7 +10,9 @@
 
 #include <cstdio>
 
-namespace dvlab_utils {
+namespace dvlab {
+
+namespace utils {
 
 struct TerminalSize {
     unsigned width;
@@ -21,4 +23,6 @@ bool is_terminal(FILE* f = stdout);
 bool ANSI_supported(FILE* f = stdout);
 TerminalSize get_terminal_size();
 
-}  // namespace dvlab_utils
+}  // namespace utils
+
+}  // namespace dvlab

@@ -48,7 +48,10 @@ void TqdmWrapper::add() {
     _tqdm->progress(_counter++, _total);
 }
 
-namespace dvlab_utils {
+namespace dvlab {
+
+namespace utils {
+
 bool expect(bool condition, std::string const& msg) {
     if (!condition) {
         if (!msg.empty()) {
@@ -58,4 +61,7 @@ bool expect(bool condition, std::string const& msg) {
     }
     return true;
 }
-}  // namespace dvlab_utils
+
+}  // namespace utils
+
+}  // namespace dvlab

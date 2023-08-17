@@ -248,7 +248,7 @@ unique_ptr<ArgParseCmdType> mapEQCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        using namespace dvlab_utils;
+        using namespace dvlab;
         auto physicalQC = qcirMgr.findByID(parser.get<size_t>("-physical"));
         auto logicalQC = qcirMgr.findByID(parser.get<size_t>("-logical"));
         if (physicalQC == nullptr || logicalQC == nullptr) {

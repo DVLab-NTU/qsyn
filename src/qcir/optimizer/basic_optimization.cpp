@@ -20,7 +20,7 @@
 #include "util/util.hpp"
 
 extern bool stop_requested();
-extern dvlab_utils::Logger logger;
+extern dvlab::utils::Logger logger;
 
 /**
  * @brief Parse the circuit and forward and backward iteratively and optimize it

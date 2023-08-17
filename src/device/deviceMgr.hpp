@@ -16,18 +16,18 @@
 #include "util/dataStructureManager.hpp"
 
 template <>
-inline std::string dvlab_utils::dataInfoString(Device* dev) {
+inline std::string dvlab::utils::dataInfoString(Device* dev) {
     return fmt::format("{:<19} #Q: {:>4}",
                        dev->getName().substr(0, 19),
                        dev->getNQubit());
 }
 
 template <>
-inline std::string dvlab_utils::dataName(Device* dev) {
+inline std::string dvlab::utils::dataName(Device* dev) {
     return dev->getName();
 }
 
-using DeviceMgr = dvlab_utils::DataStructureManager<Device>;
+using DeviceMgr = dvlab::utils::DataStructureManager<Device>;
 extern DeviceMgr deviceMgr;
 
 bool deviceMgrNotEmpty();

@@ -119,7 +119,7 @@ struct fmt::formatter<VertexType> {
         return ctx.begin();
     }
     auto format(const VertexType& vt, format_context& ctx) const -> format_context::iterator {
-        using namespace dvlab_utils;
+        using namespace dvlab;
         switch (vt) {
             case VertexType::X:
                 return fmt::format_to(ctx.out(), "{}", fmt_ext::styled_if_ANSI_supported("X", fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
@@ -140,7 +140,7 @@ struct fmt::formatter<EdgeType> {
         return ctx.begin();
     }
     auto format(const EdgeType& et, format_context& ctx) const -> format_context::iterator {
-        using namespace dvlab_utils;
+        using namespace dvlab;
         switch (et) {
             case EdgeType::HADAMARD:
                 return fmt::format_to(ctx.out(), "{}", fmt_ext::styled_if_ANSI_supported("H", fmt::fg(fmt::terminal_color::blue) | fmt::emphasis::bold));

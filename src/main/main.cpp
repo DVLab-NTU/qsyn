@@ -29,7 +29,7 @@ using namespace std;
 //    Global cmd Manager
 //----------------------------------------------------------------------
 CommandLineInterface cli{"qsyn> "};
-dvlab_utils::Logger logger;
+dvlab::utils::Logger logger;
 
 extern bool initArgParseCmd();
 extern bool initCommonCmd();
@@ -46,7 +46,7 @@ extern bool initLTCmd();
 size_t verbose = 3;
 size_t dmode = 0;
 
-dvlab_utils::Usage usage;
+dvlab::utils::Usage usage;
 
 bool stop_requested() {
     return cli.stop_requested();

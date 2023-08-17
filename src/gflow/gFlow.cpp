@@ -348,7 +348,7 @@ void GFlow::printXCorrectionSets() const {
  *
  */
 void GFlow::printSummary() const {
-    using namespace dvlab_utils;
+    using namespace dvlab;
     if (_valid) {
         fmt::println("{}", fmt_ext::styled_if_ANSI_supported("GFlow exists.", fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
         fmt::println("#Levels: {}", _levels.size());

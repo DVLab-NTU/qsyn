@@ -296,7 +296,7 @@ bool ZXGraph::writeTikz(std::ostream& tikzFile) const {
  */
 bool ZXGraph::writePdf(string const& filename) const {
     namespace fs = std::filesystem;
-    namespace dv = dvlab_utils;
+    namespace dv = dvlab::utils;
     fs::path filepath{filename};
 
     if (filepath.extension() == "") {

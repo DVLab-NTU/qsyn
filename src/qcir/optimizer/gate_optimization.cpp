@@ -15,7 +15,7 @@
 #include "./optimizer.hpp"
 #include "util/logger.hpp"
 
-extern dvlab_utils::Logger logger;
+extern dvlab::utils::Logger logger;
 
 void Optimizer::permuteGate(QCirGate* gate) {
     auto qubits = gate->getQubits();

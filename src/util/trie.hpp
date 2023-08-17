@@ -15,7 +15,9 @@
 #include <unordered_map>
 #include <vector>
 
-namespace dvlab_utils {
+namespace dvlab {
+
+namespace utils {
 
 struct TrieNode {
 public:
@@ -102,4 +104,6 @@ private:
     std::unique_ptr<TrieNode> _root;
 };
 
-}  // namespace dvlab_utils
+}  // namespace utils
+
+}  // namespace dvlab

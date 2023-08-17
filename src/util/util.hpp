@@ -15,11 +15,29 @@
 #include <string>
 #include <vector>
 
-#include "./usage.hpp"
 #include "tqdm/tqdm.hpp"
 
 class tqdm;
 constexpr size_t ERROR_CODE = (size_t)-1;
+
+namespace dvlab {
+
+namespace utils {
+
+bool expect(bool condition, std::string const& msg = "");
+
+}
+
+namespace str {
+
+template <typename F>
+size_t ansi_token_size(F const& F_) {
+    return F_("").size();
+}
+
+}  // namespace str
+
+}  // namespace dvlab
 
 class TqdmWrapper {
 public:
@@ -48,10 +66,6 @@ private:
 
 // In myString.cpp
 
-namespace dvlab_utils {
-bool expect(bool condition, std::string const& msg = "");
-}
-
 std::optional<std::string> stripQuotes(const std::string& str);
 std::string stripLeadingWhitespaces(std::string const& str);
 std::string stripWhitespaces(std::string const& str);
@@ -66,7 +80,6 @@ inline std::string stripComments(std::string const& line) { return line.substr(0
 std::string removeBracket(const std::string& str, const char left, const char right);
 size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos = 0, const std::string& delim = " \t\n\v\f\r");
 size_t myStrGetTok(const std::string& str, std::string& tok, size_t pos, const char delim);
-size_t myStrGetTok2(const std::string& str, std::string& tok, size_t pos = 0, const std::string& delim = " \t\n\v\f\r");
 
 std::vector<std::string> split(std::string const& str, std::string const& delim);
 std::string join(std::string const& infix, std::span<std::string> strings);

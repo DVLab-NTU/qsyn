@@ -28,7 +28,7 @@ class CommandLineInterface;
 //    External declaration
 //----------------------------------------------------------------------
 extern CommandLineInterface cli;
-extern dvlab_utils::Logger logger;
+extern dvlab::utils::Logger logger;
 
 //----------------------------------------------------------------------
 //    command execution status

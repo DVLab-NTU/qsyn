@@ -16,7 +16,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace dvlab_utils;
+using namespace dvlab::utils;
 
 void Usage::reset() {
     _initMem = checkMem();

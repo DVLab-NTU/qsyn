@@ -191,7 +191,7 @@ unique_ptr<ArgParseCmdType> TensorEquivalenceCmd() {
                 equiv = false;
             }
         }
-        using namespace dvlab_utils;
+        using namespace dvlab;
         if (equiv) {
             fmt::println("{}", fmt_ext::styled_if_ANSI_supported("Equivalent", fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
             fmt::println("- Global Norm : {:.6}", norm);

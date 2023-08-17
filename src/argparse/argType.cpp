@@ -26,7 +26,7 @@ static_assert(IsContainerType<std::array<int, 3>> == false);
 
 ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::string> choices) {
     ranges::for_each(choices, [](std::string& str) { str = toLowerString(str); });
-    dvlab_utils::Trie trie{choices.begin(), choices.end()};
+    dvlab::utils::Trie trie{choices.begin(), choices.end()};
 
     auto constraint = [choices, trie](std::string const& val) -> bool {
         return trie.frequency(toLowerString(val)) == 1 ||
