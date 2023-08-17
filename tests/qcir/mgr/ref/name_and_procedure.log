@@ -269,7 +269,7 @@ Created and checked out to QCir 1
 Successfully removed ZXGraph 1
 Checked out to ZXGraph 0
 
-qsyn> optimize -c
+qsyn> qccoptimize -c
 Created and checked out to QCir 2
 
 qsyn> qcp -l

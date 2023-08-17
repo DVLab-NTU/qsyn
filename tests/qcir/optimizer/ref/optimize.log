@@ -13,7 +13,7 @@ Others      : 0
 qsyn> logger level trace
 [Debug] Setting logger level to trace
 
-qsyn> optimize
+qsyn> qccoptimize
 [Info] Start basic optimization
 [Debug] Start parsing forward
 [Trace] Transform X gate into Z gate
@@ -244,7 +244,7 @@ Others      : 0
 
 qsyn> logger level info
 
-qsyn> optimize -stat
+qsyn> qccoptimize -stat
 [Info] Start basic optimization
   ParseForward No.0 iteration done.
   Operated rule numbers in this forward are: 

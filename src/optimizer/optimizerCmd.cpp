@@ -23,10 +23,10 @@ extern int effLimit;
 extern QCirMgr qcirMgr;
 extern bool stop_requested();
 
-unique_ptr<ArgParseCmdType> optimizeCmd();
+unique_ptr<ArgParseCmdType> QCirOptimizeCmd();
 
 bool initOptimizeCmd() {
-    if (!(cli.regCmd("OPTimize", 3, optimizeCmd()))) {
+    if (!(cli.regCmd("QCCOPTimize", 6, QCirOptimizeCmd()))) {
         logger.fatal("Registering \"optimize\" commands fails... exiting");
         return false;
     }
@@ -36,10 +36,10 @@ bool initOptimizeCmd() {
 //----------------------------------------------------------------------
 //    Optimize
 //----------------------------------------------------------------------
-unique_ptr<ArgParseCmdType> optimizeCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("OPTimize");
+unique_ptr<ArgParseCmdType> QCirOptimizeCmd() {
+    auto cmd = make_unique<ArgParseCmdType>("QCCOPTimize");
 
-    cmd->precondition = []() { return qcirMgrNotEmpty("OPTimize"); };
+    cmd->precondition = []() { return qcirMgrNotEmpty("QCCOPTimize"); };
 
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("optimize QCir");
