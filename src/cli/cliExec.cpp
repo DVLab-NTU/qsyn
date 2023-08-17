@@ -10,7 +10,6 @@
 #include <cstddef>
 #include <cstdlib>
 #include <fort.hpp>
-#include <fstream>
 #include <regex>
 #include <thread>
 
@@ -18,11 +17,20 @@
 #include "util/util.hpp"
 
 using std::string, std::vector;
-namespace fs = std::filesystem;
 
 //----------------------------------------------------------------------
 //    Member Function for class cmdParser
 //----------------------------------------------------------------------
+
+/**
+    * @brief Construct a new Command Line Interface object
+    *
+    * @param prompt the prompt of the CLI
+    */
+CommandLineInterface::CommandLineInterface(const std::string& prompt) : _prompt{prompt} {
+    _readBuf.reserve(READ_BUF_SIZE);
+}
+
 // return false if file cannot be opened
 // Please refer to the comments in "DofileCmd::exec", cmdCommon.cpp
 bool CommandLineInterface::openDofile(const std::string& dof) {
@@ -89,17 +97,13 @@ void CommandLineInterface::sigintHandler(int signum) {
 // Return false on "quit" or if exception happens
 CmdExecResult
 CommandLineInterface::executeOneLine() {
-    bool newCmd = false;
     while (_dofileStack.size() && _dofileStack.top().eof()) closeDofile();
 
-    if (_dofileStack.size())
-        newCmd = readCmd(_dofileStack.top());
-    else {
-        newCmd = readCmd(std::cin);
+    if (auto result = (_dofileStack.size() ? readCmd(_dofileStack.top()) : readCmd(std::cin)); result != CmdExecResult::DONE) {
+        return result;
     }
 
     // execute the command
-    if (!newCmd) return CmdExecResult::NOP;
 
     std::atomic<CmdExecResult> result;
 

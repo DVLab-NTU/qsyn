@@ -7,8 +7,8 @@
 ****************************************************************************/
 #pragma once
 
-#include <iomanip>
-#include <iosfwd>
+#include <fmt/core.h>
+#include <fmt/format.h>
 #include <memory>
 #include <string>
 
@@ -17,12 +17,6 @@
 extern size_t verbose;
 
 namespace dvlab_utils {
-
-namespace detail {
-
-extern std::ostream& _cout;
-extern std::ostream& _cerr;
-}  // namespace detail
 
 template <typename T>
 class DataStructureManager {
@@ -78,7 +72,7 @@ public:
         if (id == _nextID || _nextID < id) _nextID = id + 1;
 
         if (verbose >= 3) {
-            detail::_cout << "Created and checked out to " << _typeName << " " << id << std::endl;
+            fmt::println("Created and checked out to {} {}", _typeName, id);
         }
 
         return this->get();
@@ -92,13 +86,13 @@ public:
 
         _list.erase(id);
         if (verbose >= 3) {
-            detail::_cout << "Successfully removed " << _typeName << " " << id << std::endl;
+            fmt::println("Successfully removed {} {}", _typeName, id);
         }
         if (this->size() && _currID == id) {
             checkout(0);
         }
         if (verbose >= 3 && this->empty()) {
-            detail::_cout << "Note: The " << _typeName << " list is empty now" << std::endl;
+            fmt::println("Note: The {} list is empty now", _typeName);
         }
         return;
     }
@@ -139,7 +133,6 @@ public:
     void printMgr() const {
         printListSize();
         if (this->size()) {
-            detail::_cout << "-> ";
             printFocusMsg();
         }
     }
@@ -147,16 +140,8 @@ public:
     void printList() const {
         if (this->size()) {
             for (auto& [id, data] : _list) {
-                detail::_cout << (id == this->_currID ? "★ " : "  ")
-                              << id << "    " << std::left << std::setw(20) << data->getFileName().substr(0, 20);
-
-                size_t i = 0;
-                for (auto& proc : data->getProcedures()) {
-                    if (i != 0) detail::_cout << " ➔ ";
-                    detail::_cout << proc;
-                    ++i;
-                }
-                detail::_cout << std::endl;
+                fmt::println("{} {}    {:<19} {}", (id == _currID ? "★" : " "), id, data->getFileName().substr(0, 19),
+                             fmt::join(data->getProcedures(), " ➔ "));
             }
         } else {
             printMgrEmptyErrorMsg();
@@ -172,7 +157,7 @@ public:
     }
 
     void printListSize() const {
-        detail::_cout << "-> #" << _typeName << ": " << this->size() << std::endl;
+        fmt::println("-> #{}: {}", _typeName, this->size());
     }
 
 private:
@@ -182,25 +167,23 @@ private:
     std::string _typeName;
 
     void printCheckOutMsg() const {
-        detail::_cout << "Checked out to " << _typeName << " " << this->_currID << std::endl;
+        fmt::println("Checked out to {} {}", _typeName, _currID);
     }
 
     void printIdDoesNotExistErrorMsg() const {
-        detail::_cerr << "Error: The ID provided does not exist!!\n";
+        fmt::println(stderr, "Error: The ID provided does not exist!!");
     }
 
     void printFocusMsg() const {
-        detail::_cout << "Now focused on: " << _currID << std::endl;
+        fmt::println("-> Now focused on: {} {}", _typeName, _currID);
     }
 
     void printMgrEmptyErrorMsg() const {
-        detail::_cerr << "Error: " << _typeName << "Mgr is empty now!!\n";
+        fmt::println(stderr, "Error: {}Mgr is empty now!!", _typeName);
     }
 
     void printCopySuccessMsg(size_t oldID, size_t newID) const {
-        detail::_cout << "Successfully copied "
-                      << _typeName << " " << oldID << " to "
-                      << _typeName << " " << newID << std::endl;
+        fmt::println("Successfully copied {0} {1} to {0} {2}", _typeName, oldID, newID);
     }
 };
 

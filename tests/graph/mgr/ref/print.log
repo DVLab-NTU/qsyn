@@ -7,10 +7,10 @@ Created and checked out to ZXGraph 1
 
 qsyn> ZXPrint
 -> #ZXGraph: 2
--> Now focused on: 1
+-> Now focused on: ZXGraph 1
 
 qsyn> ZXPrint -f
-Now focused on: 1
+-> Now focused on: ZXGraph 1
 
 qsyn> ZXPrint -n
 -> #ZXGraph: 2

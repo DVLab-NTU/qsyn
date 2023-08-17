@@ -47,7 +47,7 @@ qsyn> qcba 3
 
 qsyn> qcp
 -> #QCir: 2
--> Now focused on: 1
+-> Now focused on: QCir 1
 
 qsyn> zxgp -q
 

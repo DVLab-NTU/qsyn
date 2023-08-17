@@ -108,14 +108,7 @@ class CommandLineInterface {
     using CmdRegPair = std::pair<const std::string, std::unique_ptr<CmdExec>>;
 
 public:
-    /**
-     * @brief Construct a new Command Line Interface object
-     *
-     * @param prompt the prompt of the CLI
-     */
-    CommandLineInterface(const std::string& prompt) : _prompt{prompt} {
-        _readBuf.reserve(READ_BUF_SIZE);
-    }
+    CommandLineInterface(const std::string& prompt);
     virtual ~CommandLineInterface() {}
 
     bool openDofile(const std::string& dof);
@@ -141,13 +134,21 @@ public:
     void beep() const;
     void clearConsole() const;
 
+    struct CLI_ListenConfig {
+        bool allowBrowseHistory = true;
+        bool allowTabCompletion = true;
+    };
+
+    CmdExecResult listen_to_input(std::istream& istr, CLI_ListenConfig const& config = {true, true});
+    std::string const& getReadBuf() const { return _readBuf; }
+
 private:
     // Private member functions
     void printPrompt() const;
     void resetBufAndPrintPrompt();
 
     int getChar(std::istream&) const;
-    bool readCmd(std::istream&);
+    CmdExecResult readCmd(std::istream&);
     std::pair<CmdExec*, std::string> parseOneCommandFromQueue();
 
     // tab-related features features
@@ -174,7 +175,6 @@ private:
 
     inline bool isSpecialChar(char ch) const { return _specialChars.find_first_of(ch) != std::string::npos; }
 
-    void askForUserInput(std::istream& istr);
 
     // Data members
     std::string const _prompt;                   // command prompt

@@ -7,10 +7,7 @@
 ****************************************************************************/
 #include "./cliCharDef.hpp"
 
-#include <termios.h>
-
 #include <cctype>
-#include <iostream>
 
 #include "./cli.hpp"
 
@@ -21,31 +18,10 @@ using namespace std;
 //----------------------------------------------------------------------
 
 namespace detail {
-static struct termios stored_settings;
-
-static auto reset_keypress(void) {
-    tcsetattr(0, TCSANOW, &stored_settings);
-}
-
-static auto set_keypress(void) {
-    struct termios new_settings;
-    tcgetattr(0, &stored_settings);
-    new_settings = stored_settings;
-    new_settings.c_lflag &= (~ICANON);
-    new_settings.c_lflag &= (~ECHO);
-    new_settings.c_cc[VTIME] = 0;
-    tcgetattr(0, &stored_settings);
-    new_settings.c_cc[VMIN] = 1;
-    tcsetattr(0, TCSANOW, &new_settings);
-}
 
 static auto mygetc(istream& istr) -> char {
     char ch;
-    set_keypress();
-    istr.unsetf(ios_base::skipws);
-    istr >> ch;
-    istr.setf(ios_base::skipws);
-    reset_keypress();
+    istr.get(ch);
     return ch;
 }
 

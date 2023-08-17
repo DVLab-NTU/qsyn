@@ -12,10 +12,6 @@ using namespace std;
 
 namespace ArgParse {
 
-std::ostream& operator<<(std::ostream& os, Argument const& arg) {
-    return os << fmt::format("{}", arg);
-}
-
 /**
  * @brief If the argument has a default value, reset to it.
  *
@@ -59,15 +55,8 @@ TokensView Argument::getParseRange(TokensView tokens) const {
 }
 
 bool Argument::tokensEnoughToParse(TokensView tokens) const {
-    auto [lower, upper] = getNArgs();
-    if (tokens.size() < lower) {
-        fmt::println(stderr, "Error: missing argument \"{}\": expected {}{} arguments!!",
-                     getName(), (lower < upper ? "at least " : ""), lower);
-        return false;
-    }
-    return true;
+    return (tokens.size() >= getNArgs().lower);
 }
-
 /**
  * @brief If the argument is parsed, print out the parsed value. If not,
  *        print the default value if it has one, or "(unparsed)" if not.

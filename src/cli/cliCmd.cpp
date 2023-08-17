@@ -87,25 +87,23 @@ unique_ptr<ArgParseCmdType> quitCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        auto forced = parser.get<bool>("-force");
-        if (forced) return CmdExecResult::QUIT;
+        if (parser.get<bool>("-force")) return CmdExecResult::QUIT;
 
-        fmt::print("Are you sure to quit (Yes/No)? [No] ");
+        fmt::print("Are you sure to quit (Yes/[No])? ");
         fflush(stdout);
-        string ss;
-        std::getline(std::cin, ss);
 
-        if (std::cin.eof()) {
+        if (cli.listen_to_input(std::cin, {.allowBrowseHistory = false, .allowTabCompletion = false}) == CmdExecResult::QUIT) {
             fmt::print("EOF [assumed Yes]");
             return CmdExecResult::QUIT;
         }
 
-        if (size_t s = ss.find_first_not_of(' '); s != string::npos) {
-            ss = ss.substr(s);
-            if ("yes"s.starts_with(toLowerString(ss)))
-                return CmdExecResult::QUIT;
-        }
-        return CmdExecResult::DONE;  // not yet to quit
+        auto input = toLowerString(stripLeadingWhitespaces(cli.getReadBuf()));
+
+        if (input.empty()) return CmdExecResult::DONE;
+
+        return ("yes"s.starts_with(input))
+            ? CmdExecResult::QUIT 
+            : CmdExecResult::DONE;  // not yet to quit
     };
 
     return cmd;

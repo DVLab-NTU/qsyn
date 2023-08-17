@@ -7,12 +7,13 @@
 ****************************************************************************/
 #include <cassert>
 #include <cstring>
-#include <iostream>
 #include <regex>
 #include <sstream>
+#include <termios.h>
 
 #include "cli/cli.hpp"
 #include "cli/cliCharDef.hpp"
+#include "fmt/core.h"
 
 using namespace std;
 
@@ -20,22 +21,61 @@ using namespace std;
 //    Member Function for class CmdParser
 //----------------------------------------------------------------------
 
-void CommandLineInterface::askForUserInput(std::istream& istr) {
+namespace detail {
+
+/**
+ * @brief restores the terminal settings
+ * 
+ * @param stored_settings 
+ * @return auto 
+ */
+static auto reset_keypress(termios const& stored_settings) {
+    tcsetattr(0, TCSANOW, &stored_settings);
+}
+
+/**
+ * @brief enables the terminal to read one char at a time, and don't echo the input to terminal
+ * 
+ * @return termios the original terminal settings. This is used to restore the terminal settings
+ */
+[[nodiscard]] static auto set_keypress() -> termios {
+    struct termios new_settings, stored_settings;
+    tcgetattr(0, &stored_settings);
+    new_settings = stored_settings;
+    new_settings.c_lflag &= (~ICANON);  // make sure we can read one char at a time
+    new_settings.c_lflag &= (~ECHO);    // don't print input characters. We would like to handle them ourselves
+    new_settings.c_cc[VTIME] = 0;       // start reading immediately
+    new_settings.c_cc[VMIN] = 1;        // ...and wait until we get one char to return
+    tcsetattr(0, TCSANOW, &new_settings);
+
+    return stored_settings;
+}
+}
+
+CmdExecResult CommandLineInterface::listen_to_input(std::istream& istr, CLI_ListenConfig const& config) {
     using namespace KeyCode;
 
+    _readBuf.clear();
+    _cursorPosition = 0;
+    _tabPressCount = 0;
+    auto stored_settings = detail::set_keypress();
     while (true) {
         int keycode = getChar(istr);
 
-        if (istr.eof()) return;
+        if (istr.eof()) {
+            detail::reset_keypress(stored_settings);
+            return CmdExecResult::DONE;
+        }
 
         if (keycode == INPUT_END_KEY) {
-            fmt::println("\nquit");
-            std::exit(0);
+            detail::reset_keypress(stored_settings);
+            return CmdExecResult::QUIT;
         }
 
         switch (keycode) {
             case NEWLINE_KEY:
-                return;
+                detail::reset_keypress(stored_settings);
+                return CmdExecResult::DONE;
             case LINE_BEGIN_KEY:
             case HOME_KEY:
                 moveCursor(0);
@@ -57,10 +97,10 @@ void CommandLineInterface::askForUserInput(std::istream& istr) {
                 resetBufAndPrintPrompt();
                 break;
             case ARROW_UP_KEY:
-                moveToHistory(_historyIdx - 1);
+                (config.allowBrowseHistory) ? moveToHistory(_historyIdx - 1) : beep();
                 break;
             case ARROW_DOWN_KEY:
-                moveToHistory(_historyIdx + 1);
+                (config.allowBrowseHistory) ? moveToHistory(_historyIdx + 1) : beep();
                 break;
             case ARROW_RIGHT_KEY:
                 moveCursor(_cursorPosition + 1);
@@ -69,14 +109,18 @@ void CommandLineInterface::askForUserInput(std::istream& istr) {
                 moveCursor((int)_cursorPosition - 1);
                 break;
             case PG_UP_KEY:
-                moveToHistory(_historyIdx - PG_OFFSET);
+                (config.allowBrowseHistory) ? moveToHistory(_historyIdx - PG_OFFSET) : beep();
                 break;
             case PG_DOWN_KEY:
-                moveToHistory(_historyIdx + PG_OFFSET);
+                (config.allowBrowseHistory) ? moveToHistory(_historyIdx + PG_OFFSET) : beep();
                 break;
             case TAB_KEY: {
-                ++_tabPressCount;
-                matchAndComplete(stripLeadingWhitespaces(_readBuf.substr(0, _cursorPosition)));
+                if (config.allowTabCompletion) {
+                    ++_tabPressCount;
+                    matchAndComplete(stripLeadingWhitespaces(_readBuf.substr(0, _cursorPosition)));
+                } else {
+                    beep();
+                }
                 break;
             }
             case INSERT_KEY:  // not yet supported; fall through to UNDEFINE
@@ -90,40 +134,44 @@ void CommandLineInterface::askForUserInput(std::istream& istr) {
     }
 }
 
-bool CommandLineInterface::readCmd(istream& istr) {
+CmdExecResult CommandLineInterface::readCmd(istream& istr) {
     resetBufAndPrintPrompt();
 
-    this->askForUserInput(istr);
+    auto result = this->listen_to_input(istr);
 
-    bool added = addUserInputToHistory();
-
-    if (added) {
-        auto stripped = stripQuotes(_history.back()).value_or("");
-
-        stripped = replaceVariableKeysWithValues(stripped);
-        std::vector<std::string> tokens = split(stripped, ";");
-
-        if (tokens.size()) {
-            // concat tokens with '\;' to a single token
-            for (auto itr = next(tokens.rbegin()); itr != tokens.rend(); ++itr) {
-                string& currToken = *itr;
-                string& nextToken = *prev(itr);
-
-                if (currToken.ends_with('\\') && !currToken.ends_with("\\\\")) {
-                    currToken.back() = ';';
-                    currToken += nextToken;
-                    nextToken = "";
-                }
-            }
-            erase_if(tokens, [](std::string const& token) { return token == ""; });
-            std::ranges::for_each(tokens, [this](std::string& token) { _commandQueue.push(stripWhitespaces(token)); });
-        }
-
-        fmt::print("\n");
-        fflush(stdout);
+    if (result == CmdExecResult::QUIT) {
+        return CmdExecResult::QUIT;
     }
 
-    return added;
+    if (!addUserInputToHistory()) {
+        return CmdExecResult::NOP;
+    }
+
+    auto stripped = stripQuotes(_history.back()).value_or("");
+
+    stripped = replaceVariableKeysWithValues(stripped);
+    std::vector<std::string> tokens = split(stripped, ";");
+
+    if (tokens.size()) {
+        // concat tokens with '\;' to a single token
+        for (auto itr = next(tokens.rbegin()); itr != tokens.rend(); ++itr) {
+            string& currToken = *itr;
+            string& nextToken = *prev(itr);
+
+            if (currToken.ends_with('\\') && !currToken.ends_with("\\\\")) {
+                currToken.back() = ';';
+                currToken += nextToken;
+                nextToken = "";
+            }
+        }
+        erase_if(tokens, [](std::string const& token) { return token == ""; });
+        std::ranges::for_each(tokens, [this](std::string& token) { _commandQueue.push(stripWhitespaces(token)); });
+    }
+
+    fmt::print("\n");
+    fflush(stdout);
+
+    return CmdExecResult::DONE;
 }
 
 // This function moves _readBufPtr to the "ptr" pointer

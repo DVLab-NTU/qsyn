@@ -13,6 +13,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "argparse/argType.hpp"
 #include "cli/cli.hpp"
 #include "util/util.hpp"
 
@@ -37,8 +38,10 @@ unique_ptr<ArgParseCmdType> argparseCmd() {
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("ArgParse package sandbox");
 
-        parser.addArgument<string>("cat")
-            .nargs(NArgsOption::ZERO_OR_MORE)
+        parser.addArgument<string>("-cat")
+            .nargs(2, 4)
+            .required(true)
+            .usage("meow")
             .help("won't eat veggies");
 
         parser.addArgument<string>("-DOG")

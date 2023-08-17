@@ -20,25 +20,19 @@ class Argument {
     friend class ArgumentParser;  // shares Argument::Model<T> and _pimpl
                                   // to ArgumentParser, enabling it to access
                                   // the underlying ArgType<T>
+
     friend struct fmt::formatter<Argument>;
     friend class Formatter;
 
 public:
-    Argument()
-        : _pimpl{std::make_unique<Model<ArgType<DummyArgType>>>(ArgType<DummyArgType>{"dummy", DummyArgType{}})} {}
-
-    template <typename T>
-    Argument(std::string name, T val)
-        : _pimpl{std::make_unique<Model<ArgType<T>>>(ArgType<T>{std::move(name), std::move(val)})} {}
-
     ~Argument() = default;
-
     Argument(Argument const& other) : _pimpl(other._pimpl->clone()) {}
 
     Argument& operator=(Argument copy) noexcept {
         copy.swap(*this);
         return *this;
     }
+
     Argument(Argument&& other) noexcept = default;
 
     void swap(Argument& rhs) noexcept {
@@ -50,14 +44,20 @@ public:
         lhs.swap(rhs);
     }
 
-    friend std::ostream& operator<<(std::ostream& os, Argument const& arg);
-
 private:
+    Argument()
+        : _pimpl{std::make_unique<Model<ArgType<DummyArgType>>>(ArgType<DummyArgType>{"dummy", DummyArgType{}})} {}
+
+    template <typename T>
+    Argument(std::string name, T val)
+        : _pimpl{std::make_unique<Model<ArgType<T>>>(ArgType<T>{std::move(name), std::move(val)})} {}
+
     template <typename T>
     T get() const;
 
     std::string getTypeString() const { return _pimpl->do_getTypeString(); }
     std::string const& getName() const { return _pimpl->do_getName(); }
+    std::optional<std::string> const& getUsage() const { return _pimpl->do_getUsage(); }
     std::string const& getHelp() const { return _pimpl->do_getHelp(); }
     size_t getNumRequiredChars() const { return _pimpl->do_getNumRequiredChars(); }
     std::string const& getMetavar() const { return _pimpl->do_getMetavar(); }
@@ -91,6 +91,7 @@ private:
 
         virtual std::string do_getTypeString() const = 0;
         virtual std::string const& do_getName() const = 0;
+        virtual std::optional<std::string> const& do_getUsage() const = 0;
         virtual std::string const& do_getHelp() const = 0;
         virtual std::string const& do_getMetavar() const = 0;
         virtual NArgsRange const& do_getNArgsRange() const = 0;
@@ -125,6 +126,7 @@ private:
             return typeString(V{});
         }
         inline std::string const& do_getName() const override { return inner._name; }
+        inline std::optional<std::string> const& do_getUsage() const override { return inner._usage; }
         inline std::string const& do_getHelp() const override { return inner._help; }
         inline std::string const& do_getMetavar() const override { return inner._metavar; }
         inline NArgsRange const& do_getNArgsRange() const override { return inner._nargs; }
@@ -188,7 +190,9 @@ namespace fmt {
 
 template <>
 struct formatter<ArgParse::Argument> {
-    constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator { return ctx.begin(); }
+    constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
+        return ctx.begin();
+    }
 
     template <typename FormatContext>
     auto format(ArgParse::Argument const& arg, FormatContext& ctx) -> format_context::iterator {
