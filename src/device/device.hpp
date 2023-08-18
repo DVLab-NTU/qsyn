@@ -24,22 +24,19 @@ class PhysicalQubit;
 class Operation;
 struct Info;
 
-using Adjacencies = ordered_hashset<size_t>;
-using PhyQubitList = ordered_hashmap<size_t, PhysicalQubit>;
-using AdjacenciesInfo = std::unordered_map<std::pair<size_t, size_t>, Info>;
-using QubitInfo = std::unordered_map<size_t, Info>;
-
-namespace std {
-template <>
-struct hash<std::pair<size_t, size_t>> {
+struct PairSizeTHash {
     size_t operator()(const std::pair<size_t, size_t>& k) const {
         return (
-            (hash<size_t>()(k.first) ^
-             (hash<size_t>()(k.second) << 1)) >>
+            (std::hash<size_t>()(k.first) ^
+             (std::hash<size_t>()(k.second) << 1)) >>
             1);
     }
 };
-}  // namespace std
+
+using Adjacencies = ordered_hashset<size_t>;
+using PhyQubitList = ordered_hashmap<size_t, PhysicalQubit>;
+using AdjacenciesInfo = std::unordered_map<std::pair<size_t, size_t>, Info, PairSizeTHash>;
+using QubitInfo = std::unordered_map<size_t, Info>;
 
 struct Info {
     float _time;

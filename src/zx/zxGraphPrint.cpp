@@ -179,7 +179,7 @@ void ZXGraph::printDifference(ZXGraph* other) const {
  * @return string
  */
 string getColoredVertexString(ZXVertex* v) {
-    using namespace dvlab_utils;
+    using namespace dvlab;
     if (v->getType() == VertexType::BOUNDARY)
         return fmt::format("{}", v->getId());
     else if (v->getType() == VertexType::Z)

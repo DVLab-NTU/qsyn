@@ -12,7 +12,9 @@
 
 using namespace std;
 
-namespace dvlab_utils {
+namespace dvlab {
+
+namespace utils {
 
 bool Trie::insert(string const& word) {
     auto itr = _root.get();
@@ -85,4 +87,6 @@ optional<string> Trie::findWithPrefix(string const& word) const {
     return retStr;
 }
 
-}  // namespace dvlab_utils
+}  // namespace utils
+
+}  // namespace dvlab

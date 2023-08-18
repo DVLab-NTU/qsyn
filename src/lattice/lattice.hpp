@@ -66,16 +66,3 @@ public:
 private:
     std::vector<std::vector<Lattice>> _container;
 };
-
-namespace std {
-template <>
-struct hash<pair<int, int>> {
-    size_t operator()(const pair<int, int>& k) const {
-        return (
-            (hash<int>()(k.first) ^
-             (hash<int>()(k.second) << 1)) >>
-            1);
-    }
-};
-
-}  // namespace std

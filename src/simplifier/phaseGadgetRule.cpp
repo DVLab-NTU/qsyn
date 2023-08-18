@@ -12,6 +12,17 @@ using MatchType = PhaseGadgetRule::MatchType;
 
 extern size_t verbose;
 
+struct ZXVerticesHash {
+    size_t operator()(const std::vector<ZXVertex*>& k) const {
+        size_t ret = std::hash<ZXVertex*>()(k[0]);
+        for (size_t i = 1; i < k.size(); i++) {
+            ret ^= std::hash<ZXVertex*>()(k[i]);
+        }
+
+        return ret;
+    }
+};
+
 /**
  * @brief Determine which phase gadgets act on the same vertices, so that they can be fused together.
  *
@@ -21,8 +32,8 @@ std::vector<MatchType> PhaseGadgetRule::findMatches(const ZXGraph& graph) const 
     std::vector<MatchType> matches;
 
     std::unordered_map<ZXVertex*, ZXVertex*> axel2leaf;
-    std::unordered_multimap<std::vector<ZXVertex*>, ZXVertex*> group2axel;
-    std::unordered_set<std::vector<ZXVertex*>> done;
+    std::unordered_multimap<std::vector<ZXVertex*>, ZXVertex*, ZXVerticesHash> group2axel;
+    std::unordered_set<std::vector<ZXVertex*>, ZXVerticesHash> done;
 
     std::vector<ZXVertex*> axels;
     std::vector<ZXVertex*> leaves;

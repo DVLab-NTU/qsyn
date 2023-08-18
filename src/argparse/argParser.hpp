@@ -171,7 +171,7 @@ private:
         size_t numRequiredChars;
 
         // members for analyzing parser options
-        dvlab_utils::Trie mutable trie;
+        dvlab::utils::Trie mutable trie;
         bool mutable optionsAnalyzed = false;
     };
 

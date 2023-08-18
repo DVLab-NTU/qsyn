@@ -15,7 +15,9 @@
 
 #include "./util.hpp"
 
-namespace dvlab_utils {
+namespace dvlab {
+
+namespace utils {
 
 namespace detail {
 /**
@@ -74,4 +76,6 @@ std::filesystem::path createTmpFile(std::string_view prefix) {
 
 }  // namespace detail
 
-}  // namespace dvlab_utils
+}  // namespace utils
+
+}  // namespace dvlab

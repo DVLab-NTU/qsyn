@@ -24,7 +24,7 @@
 #include "util/textFormat.hpp"
 
 using namespace std;
-using namespace dvlab_utils;
+using namespace dvlab;
 
 namespace ArgParse {
 
@@ -155,7 +155,7 @@ void Formatter::tabulateHelpString(fort::utf8_table& table, size_t max_help_stri
 string Formatter::styledArgName(Argument const& arg) {
     if (!arg.isOption()) return metavarStyle(arg.getMetavar());
 
-    if (ANSI_supported()) {
+    if (utils::ANSI_supported()) {
         string mand = arg.getName().substr(0, arg.getNumRequiredChars());
         string rest = arg.getName().substr(arg.getNumRequiredChars());
         return optionStyle(accentStyle(mand)) + optionStyle(rest);
@@ -174,7 +174,7 @@ string Formatter::styledArgName(Argument const& arg) {
  * @return string
  */
 string Formatter::styledCmdName(std::string const& name, size_t numRequired) {
-    if (ANSI_supported()) {
+    if (utils::ANSI_supported()) {
         string mand = name.substr(0, numRequired);
         string rest = name.substr(numRequired);
         return accentStyle(mand) + rest;
@@ -267,7 +267,7 @@ void Formatter::printSummary(ArgumentParser const& parser) {
     }
 
     auto cmdName = styledCmdName(fmt::format("{}", parser.getName()), parser.getNumRequiredChars());
-    fmt::println("{0:<{2}}: {1}", cmdName, parser.getHelp(), 15 + dvlab_utils::ansi_token_size(accentStyle));
+    fmt::println("{0:<{2}}: {1}", cmdName, parser.getHelp(), 15 + dvlab::str::ansi_token_size(accentStyle));
 }
 
 /**
@@ -297,7 +297,7 @@ void Formatter::printHelp(ArgumentParser const& parser) {
 
     auto& arguments = parser._pimpl->arguments;
 
-    auto [terminal_width, terminal_height] = dvlab_utils::get_terminal_size();
+    auto [terminal_width, terminal_height] = dvlab::utils::get_terminal_size();
 
     auto typeStringLength = arguments.empty() ? 0 : std::ranges::max(arguments | views::values | views::transform([](Argument const& arg) -> size_t { return arg.getTypeString().size(); }));
 

@@ -17,7 +17,7 @@
 
 namespace fs = std::filesystem;
 
-namespace dvlab_utils {
+namespace dvlab {
 
 namespace fmt_ext {
 
@@ -115,4 +115,4 @@ fmt::text_style ls_color(fs::path const& path) {
 }
 
 }  // namespace fmt_ext
-}  // namespace dvlab_utils
+}  // namespace dvlab

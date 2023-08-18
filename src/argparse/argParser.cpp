@@ -407,7 +407,7 @@ void ArgumentParser::printAmbiguousOptionErrorMsg(std::string const& token) cons
  * @return true or false
  */
 bool ArgumentParser::allRequiredOptionsAreParsed() const {
-    return dvlab_utils::expect(
+    return dvlab::utils::expect(
         ranges::all_of(_pimpl->arguments | views::values, [this](Argument const& arg) {
             return !arg.isOption() || !arg.isRequired() || arg.isParsed();
         }),
@@ -425,8 +425,8 @@ bool ArgumentParser::allRequiredOptionsAreParsed() const {
  */
 bool ArgumentParser::allRequiredMutexGroupsAreParsed() const {
     return ranges::all_of(_pimpl->mutuallyExclusiveGroups, [](MutuallyExclusiveGroup const& group) {
-        return dvlab_utils::expect(!group.isRequired() || group.isParsed(),
-                                   fmt::format("Error: One of the options are required: {}!!", fmt::join(group.getArguments(), ", ")));
+        return dvlab::utils::expect(!group.isRequired() || group.isParsed(),
+                                    fmt::format("Error: One of the options are required: {}!!", fmt::join(group.getArguments(), ", ")));
     });
 }
 
@@ -436,7 +436,7 @@ bool ArgumentParser::allRequiredMutexGroupsAreParsed() const {
  * @return true or false
  */
 bool ArgumentParser::allRequiredArgumentsAreParsed() const {
-    return dvlab_utils::expect(
+    return dvlab::utils::expect(
         ranges::all_of(_pimpl->arguments | views::values, [this](Argument const& arg) {
             return arg.isOption() || arg.getNArgs().lower == 0 || !arg.isRequired() || arg.isParsed();
         }),

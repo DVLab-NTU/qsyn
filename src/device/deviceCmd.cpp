@@ -30,7 +30,7 @@ unique_ptr<ArgParseCmdType> dtGraphPrintCmd();  // requires subparsers
 unique_ptr<ArgParseCmdType> dtPrintCmd();
 
 bool deviceMgrNotEmpty() {
-    return dvlab_utils::expect(!deviceMgr.empty(), "Device list is empty now. Please DTRead first.");
+    return dvlab::utils::expect(!deviceMgr.empty(), "Device list is empty now. Please DTRead first.");
 }
 
 bool initDeviceCmd() {

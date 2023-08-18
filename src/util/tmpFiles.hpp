@@ -13,7 +13,9 @@
 #include <fstream>
 #include <string>
 
-namespace dvlab_utils {
+namespace dvlab {
+
+namespace utils {
 
 namespace detail {
 
@@ -49,4 +51,6 @@ private:
     std::fstream _stream;
 };
 
-}  // namespace dvlab_utils
+}  // namespace utils
+
+}  // namespace dvlab

@@ -8,7 +8,9 @@
 
 #pragma once
 
-namespace dvlab_utils {
+namespace dvlab {
+
+namespace utils {
 
 class Usage {
 public:
@@ -35,4 +37,6 @@ private:
     void setTimeUsage();
 };
 
-}  // namespace dvlab_utils
+}  // namespace utils
+
+}  // namespace dvlab

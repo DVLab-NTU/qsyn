@@ -20,7 +20,9 @@
 #include "textFormat.hpp"
 #include "util/util.hpp"
 
-namespace dvlab_utils {
+namespace dvlab {
+
+namespace utils {
 
 class Logger {
 public:
@@ -224,4 +226,6 @@ private:
     size_t indentWidth = 2;
 };
 
-}  // namespace dvlab_utils
+}  // namespace utils
+
+}  // namespace dvlab
