@@ -51,14 +51,37 @@ static auto reset_keypress(termios const& stored_settings) {
 
     return stored_settings;
 }
+
 }  // namespace detail
 
-CmdExecResult CommandLineInterface::listen_to_input(std::istream& istr, CLI_ListenConfig const& config) {
-    using namespace KeyCode;
-
+/**
+ * @brief reset the read buffer
+ *
+ */
+void CommandLineInterface::resetBuffer() {
     _readBuf.clear();
     _cursorPosition = 0;
     _tabPressCount = 0;
+}
+
+/**
+ * @brief listen to input from istr and store the input in _readBuf
+ *
+ * @param istr
+ * @param config
+ * @return CmdExecResult
+ */
+CmdExecResult CommandLineInterface::listenToInput(std::istream& istr, std::string const& prompt, CLI_ListenConfig const& config) {
+    using namespace KeyCode;
+
+    auto stored_prompt = _prompt;  // save the original _prompt. We do this because signal handlers cannot take extra arguments
+
+    _prompt = prompt;
+    _listeningForInputs = true;
+
+    resetBuffer();
+    printPrompt();
+
     auto stored_settings = detail::set_keypress();
     while (true) {
         int keycode = getChar(istr);
@@ -76,6 +99,8 @@ CmdExecResult CommandLineInterface::listen_to_input(std::istream& istr, CLI_List
         switch (keycode) {
             case NEWLINE_KEY:
                 detail::reset_keypress(stored_settings);
+                _prompt = stored_prompt;
+                _listeningForInputs = false;
                 return CmdExecResult::DONE;
             case LINE_BEGIN_KEY:
             case HOME_KEY:
@@ -95,7 +120,8 @@ CmdExecResult CommandLineInterface::listen_to_input(std::istream& istr, CLI_List
             case CLEAR_CONSOLE_KEY:
                 clearConsole();
                 fmt::print("\n");
-                resetBufAndPrintPrompt();
+                resetBuffer();
+                printPrompt();
                 break;
             case ARROW_UP_KEY:
                 (config.allowBrowseHistory) ? moveToHistory(_historyIdx - 1) : beep();
@@ -118,7 +144,7 @@ CmdExecResult CommandLineInterface::listen_to_input(std::istream& istr, CLI_List
             case TAB_KEY: {
                 if (config.allowTabCompletion) {
                     ++_tabPressCount;
-                    matchAndComplete(stripLeadingWhitespaces(_readBuf.substr(0, _cursorPosition)));
+                    onTabPressed();
                 } else {
                     beep();
                 }
@@ -135,10 +161,8 @@ CmdExecResult CommandLineInterface::listen_to_input(std::istream& istr, CLI_List
     }
 }
 
-CmdExecResult CommandLineInterface::readCmd(istream& istr) {
-    resetBufAndPrintPrompt();
-
-    auto result = this->listen_to_input(istr);
+CmdExecResult CommandLineInterface::readOneLine(istream& istr) {
+    auto result = this->listenToInput(istr, _prompt);
 
     if (result == CmdExecResult::QUIT) {
         return CmdExecResult::QUIT;
@@ -206,25 +230,6 @@ bool CommandLineInterface::moveCursor(int idx) {
     return true;
 }
 
-// [Notes]
-// 1. Delete the char at _readBufPtr
-// 2. mybeep() and return false if at _readBufEnd
-// 3. Move the remaining string left for one character
-// 4. The cursor should stay at the same position
-// 5. Remember to update _readBufEnd accordingly.
-// 6. Don't leave the tailing character.
-// 7. Call "moveBufPtr(...)" if needed.
-//
-// For example,
-//
-// cmd> This is the command
-//              ^                (^ is the cursor position)
-//
-// After calling deleteChar()---
-//
-// cmd> This is he command
-//              ^
-//
 bool CommandLineInterface::deleteChar() {
     if (_cursorPosition == _readBuf.size()) {
         beep();
@@ -242,21 +247,6 @@ bool CommandLineInterface::deleteChar() {
     return true;
 }
 
-// 1. Insert character 'ch' for "repeat" times at _readBufPtr
-// 2. Move the remaining string right for "repeat" characters
-// 3. The cursor should move right for "repeats" positions afterwards
-// 4. Default value for "repeat" is 1. You should assert that (repeat >= 1).
-//
-// For example,
-//
-// cmd> This is the command
-//              ^                (^ is the cursor position)
-//
-// After calling insertChar('k', 3) ---
-//
-// cmd> This is kkkthe command
-//                 ^
-//
 void CommandLineInterface::insertChar(char ch) {
     _readBuf.insert(_cursorPosition, 1, ch);
     fmt::print("{}", _readBuf.substr(_cursorPosition));
@@ -289,12 +279,11 @@ void CommandLineInterface::deleteLine() {
 
 // Reprint the current command to a newline
 // cursor should be restored to the original location
-void CommandLineInterface::reprintCmd() {
-    fmt::print("\n");
-
+void CommandLineInterface::reprintCommand() {
     // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
     int idx = _cursorPosition;
     _cursorPosition = _readBuf.size();  // before moving cursor, reflect the change in actual cursor location
+    fmt::println("");
     printPrompt();
     fmt::print("{}", _readBuf);
     moveCursor(idx);  // move the cursor back to where it should be
@@ -354,11 +343,6 @@ void CommandLineInterface::moveToHistory(int index) {
  *
  */
 bool CommandLineInterface::addUserInputToHistory() {
-    size_t argumentTagPos = _readBuf.find("//!ARGS");
-    if (argumentTagPos == 0) {
-        saveArgumentsInVariables(_readBuf);
-    }
-
     if (_tempCmdStored) {
         _history.pop_back();
         _tempCmdStored = false;
@@ -375,41 +359,69 @@ bool CommandLineInterface::addUserInputToHistory() {
     return cmd.size() > 0;
 }
 
-// may exit if the check fails
-void CommandLineInterface::saveArgumentsInVariables(std::string const& str) {
+bool CommandLineInterface::saveVariables(std::string const& filepath, std::span<std::string> arguments) {
     // parse the string
-    // "//!ARGS n <ARG1> <ARG2> ... <ARGn>"
+    // "//!ARGS <ARG1> <ARG2> ... <ARGn>"
     // and check if for all k = 1 to n,
     // _variables[to_string(k)] is mapped to a valid value
 
     // To enable keyword arguments, also map the names <ARGk>
     // to _variables[to_string(k)]
 
-    std::istringstream iss(str);
-    std::string token;
-    iss >> token;  // skip the first token "//!ARGS"
-    assert(token == "//!ARGS");
+    std::ifstream dofile(filepath);
+    std::string line;
 
-    regex validVariableName("[a-zA-Z_][a-zA-Z0-9_]*");
-    std::vector<std::string> keys;
-    while (iss >> token) {
-        if (!regex_match(token, validVariableName)) {
-            fmt::print(stderr, "\n");
-            fmt::println(stderr, "Error: invalid argument name \"{}\" in \"//!ARGS\" directive", token);
-            std::exit(-1);
+    if (!dofile.is_open()) {
+        logger.error("cannot open file \"{}\"!!", filepath);
+        return false;
+    }
+
+    if (dofile.peek() == std::ifstream::traits_type::eof()) {
+        logger.error("file \"{}\" is empty!!", filepath);
+        return false;
+    }
+
+    do {
+        std::getline(dofile, line);
+    } while (line == "");  // skip empty lines
+
+    dofile.close();
+
+    std::vector<std::string> tokens = split(line, " ");
+
+    std::erase_if(tokens, [](std::string const& token) { return token == ""; });
+
+    if (tokens.empty()) return true;
+
+    if (tokens[0] == "//!ARGS") {
+        tokens.erase(tokens.begin());
+        static regex const validVariableName(R"([a-zA-Z_][\w]*)");
+
+        std::vector<std::string> keys;
+        for (auto const& token : tokens) {
+            if (!regex_match(token, validVariableName)) {
+                logger.error("invalid argument name \"{}\" in \"//!ARGS\" directive", token);
+                return false;
+            }
+            keys.emplace_back(token);
         }
-        keys.emplace_back(token);
+
+        if (arguments.size() != keys.size()) {
+            logger.error("wrong number of arguments provided, expected {} but got {}!!", keys.size(), arguments.size());
+            logger.error("Usage: ... {} <{}>", filepath, fmt::join(keys, "> <"));
+            return false;
+        }
+
+        for (size_t i = 0; i < keys.size(); ++i) {
+            _variables.insert_or_assign(keys[i], arguments[i]);
+        }
     }
 
-    if (_arguments.size() != keys.size()) {
-        fmt::print(stderr, "\n");
-        fmt::println(stderr, "Error: wrong number of arguments provided, expected {} but got {}!!", keys.size(), _arguments.size());
-        std::exit(-1);
+    for (size_t i = 0; i < arguments.size(); ++i) {
+        _variables.insert_or_assign(to_string(i + 1), arguments[i]);
     }
 
-    for (size_t i = 0; i < keys.size(); ++i) {
-        _variables.emplace(keys[i], _arguments[i]);
-    }
+    return true;
 }
 
 // 1. Replace current line with _history[_historyIdx] on the screen

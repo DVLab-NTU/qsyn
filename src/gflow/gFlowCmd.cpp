@@ -22,20 +22,20 @@ using namespace ArgParse;
 extern ZXGraphMgr zxGraphMgr;
 extern size_t verbose;
 
-unique_ptr<ArgParseCmdType> ZXGGFlowCmd();
+unique_ptr<Command> ZXGGFlowCmd();
 
 bool initGFlowCmd() {
-    if (!cli.regCmd("ZXGGFlow", 5, ZXGGFlowCmd())) {
+    if (!cli.registerCommand("ZXGGFlow", 5, ZXGGFlowCmd())) {
         cerr << "Registering \"gflow\" commands fails... exiting" << endl;
         return false;
     }
     return true;
 }
 
-unique_ptr<ArgParseCmdType> ZXGGFlowCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("ZXGGFlow");
+unique_ptr<Command> ZXGGFlowCmd() {
+    auto cmd = make_unique<Command>("ZXGGFlow");
 
-    cmd->precondition = []() { return zxGraphMgrNotEmpty("ZXGGFlow"); };
+    cmd->precondition = zxGraphMgrNotEmpty;
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("calculate and print the generalized flow of a ZXGraph");

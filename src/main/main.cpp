@@ -7,14 +7,9 @@
 ****************************************************************************/
 
 #include <csignal>
-#include <cstddef>
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
 
 #include "argparse/argparse.hpp"
 #include "cli/cli.hpp"
-#include "jthread/jthread.hpp"
 #include "util/logger.hpp"
 #include "util/usage.hpp"
 #include "util/util.hpp"
@@ -30,6 +25,7 @@ using namespace std;
 //----------------------------------------------------------------------
 CommandLineInterface cli{"qsyn> "};
 dvlab::utils::Logger logger;
+dvlab::utils::Usage usage;
 
 extern bool initArgParseCmd();
 extern bool initCommonCmd();
@@ -46,10 +42,8 @@ extern bool initLTCmd();
 size_t verbose = 3;
 size_t dmode = 0;
 
-dvlab::utils::Usage usage;
-
 bool stop_requested() {
-    return cli.stop_requested();
+    return cli.stopRequested();
 }
 
 int main(int argc, char** argv) {
@@ -93,14 +87,13 @@ int main(int argc, char** argv) {
 
     if (parser.parsed("-file")) {
         auto args = parser.get<std::vector<string>>("-file");
-
         if (!cli.openDofile(args[0])) {
-            cerr << "Error: cannot open dofile!!" << endl;
+            logger.fatal("cannot open dofile!!");
             return 1;
         }
 
-        for (auto& arg : ranges::subrange(args.begin() + 1, args.end())) {
-            cli.addArgument(arg);
+        if (!cli.saveVariables(args[0], std::ranges::subrange(arguments.begin() + 2, arguments.end()))) {
+            return 1;
         }
     }
 
@@ -124,7 +117,7 @@ int main(int argc, char** argv) {
 
     while (status != CmdExecResult::QUIT) {  // until "quit" or command error
         status = cli.executeOneLine();
-        cout << endl;  // a blank line between each command
+        fmt::print("\n");
     }
 
     return 0;

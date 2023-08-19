@@ -1,0 +1,21 @@
+DV Lab, NTUEE, Qsyn 0.5.1
+qsyn> zxgr benchmark/zx/cnot.zx
+
+qsyn> zxgedit -adde 0 5 SIMPLE
+
+qsyn> zx2ts // invalid graph 1: boundary has too more than one neighbors
+[Error] The ZXGraph is not valid!!
+Error: output 0 has 2 neighbors, expected 1
+
+qsyn> 
+qsyn> zxgr benchmark/zx/cnot.zx
+
+qsyn> zxgedit -rme 0 2 ALL
+
+qsyn> zx2ts // invalid graph 2: boundary has no neighbors
+[Error] The ZXGraph is not valid!!
+Error: output 0 has 0 neighbors, expected 1
+
+qsyn> 
+qsyn> qq -f
+

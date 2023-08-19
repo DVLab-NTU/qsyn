@@ -21,10 +21,10 @@ extern size_t verbose;
 
 extern ZXGraphMgr zxGraphMgr;
 
-unique_ptr<ArgParseCmdType> ZXGSimpCmd();
+unique_ptr<Command> ZXGSimpCmd();
 
 bool initSimpCmd() {
-    if (!cli.regCmd("ZXGSimp", 4, ZXGSimpCmd())) {
+    if (!cli.registerCommand("ZXGSimp", 4, ZXGSimpCmd())) {
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
         return false;
     }
@@ -51,10 +51,10 @@ ArgType<size_t>::ConstraintType validPreduceIteratoins = {
 //    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion |
 //             -HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -PIVOTBoundary | -CLIFford | -FReduce | -SReduce | -DReduce]
 //------------------------------------------------------------------------------------------------------------------
-unique_ptr<ArgParseCmdType> ZXGSimpCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("ZXGSimp");
+unique_ptr<Command> ZXGSimpCmd() {
+    auto cmd = make_unique<Command>("ZXGSimp");
 
-    cmd->precondition = []() { return zxGraphMgrNotEmpty("ZXGSimp"); };
+    cmd->precondition = zxGraphMgrNotEmpty;
 
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("perform simplification strategies for ZXGraph");

@@ -3,11 +3,8 @@ qsyn> verb 3
 Note: verbose level is set to 3
 
 qsyn> zxgread benchmark/zx/tof3.zx
-Created and checked out to ZXGraph 0
 
 qsyn> zxcopy 1
-Successfully copied ZXGraph 0 to ZXGraph 1
-Checked out to ZXGraph 1
 
 qsyn> zxgs -dreduce
 

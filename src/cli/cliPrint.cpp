@@ -10,17 +10,30 @@
 
 using namespace std;
 
-void CommandLineInterface::printHelps() const {
+/**
+ * @brief print a summary of all commands
+ *
+ */
+void CommandLineInterface::listAllCommands() const {
     for (const auto& mi : _cmdMap)
         mi.second->summary();
 
     fmt::print("\n");
 }
 
+/**
+ * @brief print all CLI history
+ *
+ */
 void CommandLineInterface::printHistory() const {
     printHistory(_history.size());
 }
 
+/**
+ * @brief print the last nPrint commands in CLI history
+ *
+ * @param nPrint
+ */
 void CommandLineInterface::printHistory(size_t nPrint) const {
     assert(_tempCmdStored == false);
     if (_history.empty()) {
@@ -36,13 +49,6 @@ void CommandLineInterface::printHistory(size_t nPrint) const {
 void CommandLineInterface::printPrompt() const {
     fmt::print("{}", _prompt);
     fflush(stdout);
-}
-
-void CommandLineInterface::resetBufAndPrintPrompt() {
-    _readBuf.clear();
-    _cursorPosition = 0;
-    _tabPressCount = 0;
-    printPrompt();
 }
 
 void CommandLineInterface::beep() const {

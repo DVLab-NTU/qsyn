@@ -41,56 +41,36 @@ enum class CmdExecResult {
     INTERRUPTED = 4,
 };
 
-//----------------------------------------------------------------------
-//    Base class : CmdExec
-//----------------------------------------------------------------------
-
-class CmdExec {
-public:
-    CmdExec() {}
-    virtual ~CmdExec() {}
-
-    virtual bool initialize() = 0;
-    virtual CmdExecResult exec(const std::string&) = 0;
-    virtual void usage() const = 0;
-    virtual void summary() const = 0;
-    virtual void help() const = 0;
-
-    void setOptCmd(const std::string& str) { _optCmd = str; }
-    bool checkOptCmd(const std::string& check) const;
-    const std::string& getOptCmd() const { return _optCmd; }
-
-private:
-    std::string _optCmd;
-};
-
 /**
  * @brief class specification for commands that uses
  *        ArgParse::ArgumentParser to parse and generate help messages.
  *
  */
-class ArgParseCmdType : public CmdExec {
+class Command {
     using ParserDefinition = std::function<void(ArgParse::ArgumentParser&)>;
     using Precondition = std::function<bool()>;
     using OnParseSuccess = std::function<CmdExecResult(ArgParse::ArgumentParser const&)>;
 
 public:
-    ArgParseCmdType(std::string const& name) { _parser.name(name); }
-    ~ArgParseCmdType() {}
+    Command(std::string const& name) { _parser.name(name); }
+    ~Command() {}
 
-    bool initialize() override;
-    CmdExecResult exec(std::string const& option) override;
-    void usage() const override { _parser.printUsage(); }
-    void summary() const override { _parser.printSummary(); }
-    void help() const override { _parser.printHelp(); }
+    bool initialize();
+    CmdExecResult exec(std::string const& option);
+    void usage() const { _parser.printUsage(); }
+    void summary() const { _parser.printSummary(); }
+    void help() const { _parser.printHelp(); }
+    void setOptCmd(const std::string& str) { _optCmd = str; }
+    bool checkOptCmd(const std::string& check) const;
+    const std::string& getOptCmd() const { return _optCmd; }
 
     ParserDefinition parserDefinition;  // define the parser's arguments and traits
     Precondition precondition;          // define the parsing precondition
-
-    OnParseSuccess onParseSuccess;  // define the action to take on parse success
+    OnParseSuccess onParseSuccess;      // define the action to take on parse success
 
 private:
     ArgParse::ArgumentParser _parser;
+    std::string _optCmd;
 
     void printMissingParserDefinitionErrorMsg() const;
     void printMissingOnParseSuccessErrorMsg() const;
@@ -104,31 +84,28 @@ class CommandLineInterface {
     static const size_t READ_BUF_SIZE = 65536;
     static const size_t PG_OFFSET = 10;
 
-    using CmdMap = std::map<const std::string, std::unique_ptr<CmdExec>>;
-    using CmdRegPair = std::pair<const std::string, std::unique_ptr<CmdExec>>;
+    using CmdMap = std::map<const std::string, std::unique_ptr<Command>>;
+    using CmdRegPair = std::pair<const std::string, std::unique_ptr<Command>>;
 
 public:
     CommandLineInterface(const std::string& prompt);
     virtual ~CommandLineInterface() {}
 
-    bool openDofile(const std::string& dof);
+    bool openDofile(const std::string& filepath);
     void closeDofile();
 
-    bool regCmd(const std::string&, unsigned, std::unique_ptr<CmdExec>&&);
+    bool registerCommand(const std::string& name, unsigned nMandChars, std::unique_ptr<Command>&& cmd);
+    Command* getCommand(std::string const& cmd) const;
+
     CmdExecResult executeOneLine();
 
-    void addArgument(std::string const& val) {
-        _arguments.emplace_back(val);
-        _variables.emplace(std::to_string(_arguments.size()), val);
-    }
-
-    CmdExec* getCmd(std::string);
+    bool saveVariables(std::string const& filepath, std::span<std::string> arguments);
 
     void sigintHandler(int signum);
-    bool stop_requested() const { return _currCmd.has_value() && _currCmd->get_stop_token().stop_requested(); }
+    bool stopRequested() const { return _currCmd.has_value() && _currCmd->get_stop_token().stop_requested(); }
 
     // printing functions
-    void printHelps() const;
+    void listAllCommands() const;
     void printHistory() const;
     void printHistory(size_t nPrint) const;
     void beep() const;
@@ -139,25 +116,34 @@ public:
         bool allowTabCompletion = true;
     };
 
-    CmdExecResult listen_to_input(std::istream& istr, CLI_ListenConfig const& config = {true, true});
+    CmdExecResult listenToInput(std::istream& istr, std::string const& prompt, CLI_ListenConfig const& config = {true, true});
     std::string const& getReadBuf() const { return _readBuf; }
 
 private:
     // Private member functions
+    void resetBuffer();
     void printPrompt() const;
-    void resetBufAndPrintPrompt();
 
     int getChar(std::istream&) const;
-    CmdExecResult readCmd(std::istream&);
-    std::pair<CmdExec*, std::string> parseOneCommandFromQueue();
+    CmdExecResult readOneLine(std::istream&);
+    std::pair<Command*, std::string> parseOneCommandFromQueue();
 
+    enum TabActionResult {
+        AUTOCOMPLETE,
+        LIST_OPTIONS,
+        NO_OP
+    };
     // tab-related features features
-    void matchAndComplete(const std::string&);
+    void onTabPressed();
+    // onTabPressed subroutines
+    TabActionResult matchCommandsAndAliases(std::string const& str);
+    TabActionResult matchVariables(std::string const& str);
+    TabActionResult matchFiles(std::string const& str);
+
     // helper functions
-    std::pair<CmdMap::const_iterator, CmdMap::const_iterator> getCmdMatches(std::string const& str);
-    bool matchFilesAndComplete(const std::string&);
-    std::vector<std::string> getMatchedFiles(std::filesystem::path const& filepath) const;
-    bool completeCommonChars(std::string prefixCopy, std::vector<std::string> const& strs, bool inQuotes);
+    std::pair<CmdMap::const_iterator, CmdMap::const_iterator> getCommandMatches(std::string const& str) const;
+    std::vector<std::string> getFileMatches(std::filesystem::path const& filepath) const;
+    bool autocomplete(std::string prefixCopy, std::vector<std::string> const& strs, bool inQuotes);
     void printAsTable(std::vector<std::string> words) const;
 
     // Helper functions
@@ -165,35 +151,35 @@ private:
     bool deleteChar();
     void insertChar(char);
     void deleteLine();
-    void reprintCmd();
+    void reprintCommand();
     void moveToHistory(int index);
     bool addUserInputToHistory();
     void retrieveHistory();
 
     std::string replaceVariableKeysWithValues(std::string const& str) const;
-    void saveArgumentsInVariables(std::string const& str);
 
     inline bool isSpecialChar(char ch) const { return _specialChars.find_first_of(ch) != std::string::npos; }
 
     // Data members
-    std::string const _prompt;                   // command prompt
-    std::string const _specialChars = "\"\' ;";  // The characters that are identified as special characters when parsing
-    std::string _readBuf;                        // read buffer
-    size_t _cursorPosition = 0;                  // current cursor postion on the readBuf
-    std::vector<std::string> _history;           // oldest:_history[0],latest:_hist.back()
-    int _historyIdx = 0;                         // (1) Position to insert history string
-                                                 //     i.e. _historyIdx = _history.size()
-                                                 // (2) When up/down/pgUp/pgDn is pressed,
-                                                 //     position to history to retrieve
-    size_t _tabPressCount = 0;                   // The number of tab pressed
-    bool _tempCmdStored = false;                 // When up/pgUp is pressed, current line
-                                                 // will be stored in _history and
-                                                 // _tempCmdStored will be true.
-                                                 // Reset to false when new command added
-    CmdMap _cmdMap;                              // map from string to command
-    std::stack<std::ifstream> _dofileStack;      // For recursive dofile calling
+    std::string _prompt;                          // command prompt
+    std::string const _specialChars = "\"\' ;$";  // The characters that are identified as special characters when parsing
+    std::string _readBuf;                         // read buffer
+    size_t _cursorPosition = 0;                   // current cursor postion on the readBuf
+    bool _listeningForInputs;                     // whether the CLI is listening for inputs
+
+    std::vector<std::string> _history;       // oldest:_history[0],latest:_hist.back()
+    int _historyIdx = 0;                     // (1) Position to insert history string
+                                             //     i.e. _historyIdx = _history.size()
+                                             // (2) When up/down/pgUp/pgDn is pressed,
+                                             //     position to history to retrieve
+    size_t _tabPressCount = 0;               // The number of tab pressed
+    bool _tempCmdStored = false;             // When up/pgUp is pressed, current line
+                                             // will be stored in _history and
+                                             // _tempCmdStored will be true.
+                                             // Reset to false when new command added
+    CmdMap _cmdMap;                          // map from string to command
+    std::stack<std::ifstream> _dofileStack;  // For recursive dofile calling
     std::queue<std::string> _commandQueue;
     std::optional<jthread::jthread> _currCmd = std::nullopt;  // the current (ongoing) command
     std::unordered_map<std::string, std::string> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
-    std::vector<std::string> _arguments;                      // stores the extra dofile arguments given when invoking the program
 };

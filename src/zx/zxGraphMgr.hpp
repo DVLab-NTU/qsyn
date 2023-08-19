@@ -23,4 +23,4 @@ inline std::string dvlab::utils::dataName(ZXGraph* zx) {
 }
 
 using ZXGraphMgr = dvlab::utils::DataStructureManager<ZXGraph>;
-bool zxGraphMgrNotEmpty(std::string const& command);  // defined in zxCmd.cpp
+bool zxGraphMgrNotEmpty();  // defined in zxCmd.cpp

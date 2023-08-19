@@ -27,16 +27,16 @@ extern int effLimit;
 extern ZXGraphMgr zxGraphMgr;
 extern QCirMgr qcirMgr;
 
-unique_ptr<ArgParseCmdType> ExtractCmd();
-unique_ptr<ArgParseCmdType> ExtractSetCmd();
-unique_ptr<ArgParseCmdType> ExtractPrintCmd();
-unique_ptr<ArgParseCmdType> ExtractStepCmd();
+unique_ptr<Command> ExtractCmd();
+unique_ptr<Command> ExtractSetCmd();
+unique_ptr<Command> ExtractPrintCmd();
+unique_ptr<Command> ExtractStepCmd();
 
 bool initExtractCmd() {
-    if (!(cli.regCmd("ZX2QC", 5, ExtractCmd()) &&
-          cli.regCmd("EXTRact", 4, ExtractStepCmd()) &&
-          cli.regCmd("EXTSet", 4, ExtractSetCmd()) &&
-          cli.regCmd("EXTPrint", 4, ExtractPrintCmd()))) {
+    if (!(cli.registerCommand("ZX2QC", 5, ExtractCmd()) &&
+          cli.registerCommand("EXTRact", 4, ExtractStepCmd()) &&
+          cli.registerCommand("EXTSet", 4, ExtractSetCmd()) &&
+          cli.registerCommand("EXTPrint", 4, ExtractPrintCmd()))) {
         cerr << "Registering \"extract\" commands fails... exiting" << endl;
         return false;
     }
@@ -47,10 +47,10 @@ bool initExtractCmd() {
 //    ZX2QC
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> ExtractCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("ZX2QC");
+unique_ptr<Command> ExtractCmd() {
+    auto cmd = make_unique<Command>("ZX2QC");
 
-    cmd->precondition = []() { return zxGraphMgrNotEmpty("ZX2QC"); };
+    cmd->precondition = zxGraphMgrNotEmpty;
 
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("extract QCir from ZXGraph");
@@ -87,10 +87,10 @@ unique_ptr<ArgParseCmdType> ExtractCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> ExtractStepCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("EXTRact");
+unique_ptr<Command> ExtractStepCmd() {
+    auto cmd = make_unique<Command>("EXTRact");
 
-    cmd->precondition = []() { return zxGraphMgrNotEmpty("EXTRact"); };
+    cmd->precondition = zxGraphMgrNotEmpty;
 
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("perform step(s) in extraction");
@@ -204,10 +204,10 @@ unique_ptr<ArgParseCmdType> ExtractStepCmd() {
 //    EXTPrint [ -Settings | -Frontier | -Neighbors | -Axels | -Matrix ]
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("EXTPrint");
+unique_ptr<Command> ExtractPrintCmd() {
+    auto cmd = make_unique<Command>("EXTPrint");
 
-    cmd->precondition = []() { return zxGraphMgrNotEmpty("EXTPrint"); };
+    cmd->precondition = zxGraphMgrNotEmpty;
 
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("print info of extracting ZXGraph");
@@ -267,8 +267,8 @@ unique_ptr<ArgParseCmdType> ExtractPrintCmd() {
 //    EXTSet ...
 //------------------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> ExtractSetCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("EXTSet");
+unique_ptr<Command> ExtractSetCmd() {
+    auto cmd = make_unique<Command>("EXTSet");
     cmd->parserDefinition = [](ArgumentParser &parser) {
         parser.help("set extractor parameters");
         parser.addArgument<size_t>("-optimize-level")

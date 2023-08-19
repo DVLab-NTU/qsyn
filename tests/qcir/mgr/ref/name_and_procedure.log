@@ -1,9 +1,7 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qccr benchmark/benchmark_SABRE/large/adr4_197.qasm
-Created and checked out to QCir 0
 
 qsyn> qc2zx
-Created and checked out to ZXGraph 0
 
 qsyn> zxgs -fr
 
@@ -262,15 +260,9 @@ Pivot Rule                    1 iterations.
   1) 1 matches
 
 qsyn> zx2qc
-Successfully copied ZXGraph 0 to ZXGraph 1
-Checked out to ZXGraph 1
 Finish extracting!
-Created and checked out to QCir 1
-Successfully removed ZXGraph 1
-Checked out to ZXGraph 0
 
 qsyn> qccoptimize -c
-Created and checked out to QCir 2
 
 qsyn> qcp -l
   0    adr4_197            

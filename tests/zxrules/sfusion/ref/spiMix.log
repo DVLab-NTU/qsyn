@@ -1,6 +1,5 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> zxn
-Created and checked out to ZXGraph 0
 
 qsyn> zxgedit -addi 0
 
@@ -61,7 +60,6 @@ Total #Edges: 2
 qsyn> zxr
 
 qsyn> zxn
-Created and checked out to ZXGraph 0
 
 qsyn> zxgedit -addi 0
 
@@ -154,7 +152,6 @@ Total #Edges: 6
 qsyn> zxr
 
 qsyn> zxn
-Created and checked out to ZXGraph 0
 
 qsyn> zxgedit -addi 0
 

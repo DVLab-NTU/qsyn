@@ -1,0 +1,236 @@
+DV Lab, NTUEE, Qsyn 0.5.1
+qsyn> zxnew
+
+qsyn> zxgedit -addi 0
+
+qsyn> zxgedit -addo 0
+
+qsyn> zxgedit -addv 0 Z
+
+qsyn> 
+qsyn> // out-edge are H-edge
+qsyn> zxgedit -adde 0 2 SIMPLE
+
+qsyn> zxgedit -adde 2 1 HADAMARD
+
+qsyn> 
+qsyn> logger level trace
+[Debug] Setting logger level to trace
+
+qsyn> zx2ts
+[Info] Converting ZXGraph 0 to Tensor 0...
+[Debug] Mapping vertex    0 (●): New Subgraph
+[Debug] Done. Current tensor dimension: 2
+[Trace] Current frontiers:
+[Trace]   0--2 (-) axis id: 1
+[Debug] Mapping vertex    2 (Z): Tensordot
+[Debug] Done. Current tensor dimension: 2
+[Trace] Current frontiers:
+[Trace]   1--2 (H) axis id: 1
+[Debug] Mapping vertex    1 (●): Boundary
+[Debug] Done. Current tensor dimension: 2
+[Trace] Current frontiers:
+[Trace]   1--2 (H) axis id: 1
+[Trace] Input  Axis IDs: 0
+[Trace] Output Axis IDs: 1
+[Info] Successfully created and checked out to Tensor 0
+
+qsyn> logger level warning
+
+qsyn> 
+qsyn> // both edges are S-edge
+qsyn> zxgedit -rme 2 1 ALL
+
+qsyn> zxgedit -adde 2 1 SIMPLE
+
+qsyn> 
+qsyn> logger level trace
+[Debug] Setting logger level to trace
+
+qsyn> zx2ts
+[Info] Converting ZXGraph 0 to Tensor 1...
+[Debug] Mapping vertex    0 (●): New Subgraph
+[Debug] Done. Current tensor dimension: 2
+[Trace] Current frontiers:
+[Trace]   0--2 (-) axis id: 1
+[Debug] Mapping vertex    2 (Z): Tensordot
+[Debug] Done. Current tensor dimension: 2
+[Trace] Current frontiers:
+[Trace]   1--2 (-) axis id: 1
+[Debug] Mapping vertex    1 (●): Boundary
+[Debug] Done. Current tensor dimension: 2
+[Trace] Current frontiers:
+[Trace]   1--2 (-) axis id: 1
+[Trace] Input  Axis IDs: 0
+[Trace] Output Axis IDs: 1
+[Info] Successfully created and checked out to Tensor 1
+
+qsyn> logger level warning
+
+qsyn> 
+qsyn> // in-edge are H-edge
+qsyn> zxgedit -rme 0 2 ALL
+
+qsyn> zxgedit -adde 2 0 HADAMARD
+
+qsyn> 
+qsyn> logger level trace
+[Debug] Setting logger level to trace
+
+qsyn> zx2ts
+[Info] Converting ZXGraph 0 to Tensor 2...
+[Debug] Mapping vertex    0 (●): New Subgraph
+[Debug] Done. Current tensor dimension: 2
+[Trace] Current frontiers:
+[Trace]   0--2 (H) axis id: 1
+[Debug] Mapping vertex    2 (Z): Tensordot
+[Debug] Done. Current tensor dimension: 2
+[Trace] Current frontiers:
+[Trace]   1--2 (-) axis id: 1
+[Debug] Mapping vertex    1 (●): Boundary
+[Debug] Done. Current tensor dimension: 2
+[Trace] Current frontiers:
+[Trace]   1--2 (-) axis id: 1
+[Trace] Input  Axis IDs: 0
+[Trace] Output Axis IDs: 1
+[Info] Successfully created and checked out to Tensor 2
+
+qsyn> logger level warning
+
+qsyn> 
+qsyn> // Both edges are H-edge
+qsyn> zxgedit -rme 1 2 ALL
+
+qsyn> zxgedit -adde 2 1 HADAMARD
+
+qsyn> 
+qsyn> logger level trace
+[Debug] Setting logger level to trace
+
+qsyn> zx2ts
+[Info] Converting ZXGraph 0 to Tensor 3...
+[Debug] Mapping vertex    0 (●): New Subgraph
+[Debug] Done. Current tensor dimension: 2
+[Trace] Current frontiers:
+[Trace]   0--2 (H) axis id: 1
+[Debug] Mapping vertex    2 (Z): Tensordot
+[Debug] Done. Current tensor dimension: 2
+[Trace] Current frontiers:
+[Trace]   1--2 (H) axis id: 1
+[Debug] Mapping vertex    1 (●): Boundary
+[Debug] Done. Current tensor dimension: 2
+[Trace] Current frontiers:
+[Trace]   1--2 (H) axis id: 1
+[Trace] Input  Axis IDs: 0
+[Trace] Output Axis IDs: 1
+[Info] Successfully created and checked out to Tensor 3
+
+qsyn> logger level warning
+
+qsyn> 
+qsyn> zxn
+
+qsyn> zxge -addi 0
+
+qsyn> zxge -addo 0
+
+qsyn> zxge -addi 1
+
+qsyn> zxge -addo 1
+
+qsyn> zxge -addv 0 Z
+
+qsyn> zxge -addv 0 Z
+
+qsyn> zxge -addv 0 Z
+
+qsyn> zxge -addv 0 Z
+
+qsyn> zxge -adde 0 4 SIMPLE
+
+qsyn> zxge -adde 1 4 SIMPLE
+
+qsyn> zxge -adde 2 5 HADAMARD
+
+qsyn> zxge -adde 3 5 HADAMARD
+
+qsyn> zxge -adde 6 5 HADAMARD
+
+qsyn> zxge -adde 6 4 HADAMARD
+
+qsyn> zxge -adde 6 7 HADAMARD
+
+qsyn> logger level trace
+[Debug] Setting logger level to trace
+
+qsyn> zx2ts
+[Info] Converting ZXGraph 1 to Tensor 4...
+[Debug] Mapping vertex    0 (●): New Subgraph
+[Debug] Done. Current tensor dimension: 2
+[Trace] Current frontiers:
+[Trace]   0--4 (-) axis id: 1
+[Debug] Mapping vertex    4 (Z): Tensordot
+[Debug] Done. Current tensor dimension: 3
+[Trace] Current frontiers:
+[Trace]   1--4 (-) axis id: 1
+[Trace]   4--6 (H) axis id: 2
+[Debug] Mapping vertex    1 (●): Boundary
+[Debug] Done. Current tensor dimension: 3
+[Trace] Current frontiers:
+[Trace]   1--4 (-) axis id: 1
+[Trace]   4--6 (H) axis id: 2
+[Debug] Mapping vertex    6 (Z): Tensordot
+[Debug] Done. Current tensor dimension: 4
+[Trace] Current frontiers:
+[Trace]   1--4 (-) axis id: 1
+[Trace]   5--6 (H) axis id: 2
+[Trace]   6--7 (H) axis id: 3
+[Debug] Mapping vertex    5 (Z): Tensordot
+[Debug] Done. Current tensor dimension: 5
+[Trace] Current frontiers:
+[Trace]   1--4 (-) axis id: 1
+[Trace]   6--7 (H) axis id: 2
+[Trace]   2--5 (H) axis id: 3
+[Trace]   3--5 (H) axis id: 4
+[Debug] Mapping vertex    2 (●): Boundary
+[Debug] Done. Current tensor dimension: 5
+[Trace] Current frontiers:
+[Trace]   1--4 (-) axis id: 1
+[Trace]   6--7 (H) axis id: 2
+[Trace]   2--5 (H) axis id: 4
+[Trace]   3--5 (H) axis id: 3
+[Debug] Mapping vertex    3 (●): Boundary
+[Debug] Done. Current tensor dimension: 5
+[Trace] Current frontiers:
+[Trace]   1--4 (-) axis id: 1
+[Trace]   6--7 (H) axis id: 2
+[Trace]   2--5 (H) axis id: 3
+[Trace]   3--5 (H) axis id: 4
+[Debug] Mapping vertex    7 (Z): Tensordot
+[Debug] Done. Current tensor dimension: 4
+[Trace] Current frontiers:
+[Trace]   1--4 (-) axis id: 1
+[Trace]   2--5 (H) axis id: 2
+[Trace]   3--5 (H) axis id: 3
+[Trace] Input  Axis IDs: 0 2
+[Trace] Output Axis IDs: 1 3
+[Info] Successfully created and checked out to Tensor 4
+
+qsyn> logger level warning
+
+qsyn> qcnew
+
+qsyn> qcba 1
+
+qsyn> qcga -h 0
+
+qsyn> qc2ts
+Traverse and build the tensor... 
+
+qsyn> tseq 0 5
+Equivalent
+- Global Norm : 1
+- Global Phase: 0
+
+qsyn> qq -f 
+

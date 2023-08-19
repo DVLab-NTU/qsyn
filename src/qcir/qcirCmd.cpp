@@ -40,48 +40,48 @@ bool qcirMgrNotEmpty(std::string const& command) {
     return true;
 }
 
-unique_ptr<ArgParseCmdType> QCirCheckOutCmd();
-unique_ptr<ArgParseCmdType> QCirResetCmd();
-unique_ptr<ArgParseCmdType> QCirDeleteCmd();
-unique_ptr<ArgParseCmdType> QCirNewCmd();
-unique_ptr<ArgParseCmdType> QCirCopyCmd();
-unique_ptr<ArgParseCmdType> QCirComposeCmd();
-unique_ptr<ArgParseCmdType> QCirTensorCmd();
-unique_ptr<ArgParseCmdType> QCPrintCmd();
-unique_ptr<ArgParseCmdType> QCSetCmd();
-unique_ptr<ArgParseCmdType> QCirReadCmd();
-unique_ptr<ArgParseCmdType> QCirPrintCmd();
-unique_ptr<ArgParseCmdType> QCirGatePrintCmd();
-unique_ptr<ArgParseCmdType> QCirAddGateCmd();
-unique_ptr<ArgParseCmdType> QCirAddQubitCmd();
-unique_ptr<ArgParseCmdType> QCirDeleteGateCmd();
-unique_ptr<ArgParseCmdType> QCirDeleteQubitCmd();
-unique_ptr<ArgParseCmdType> QCir2ZXCmd();
-unique_ptr<ArgParseCmdType> QCir2TSCmd();
-unique_ptr<ArgParseCmdType> QCirWriteCmd();
-unique_ptr<ArgParseCmdType> QCirDrawCmd();
+unique_ptr<Command> QCirCheckOutCmd();
+unique_ptr<Command> QCirResetCmd();
+unique_ptr<Command> QCirDeleteCmd();
+unique_ptr<Command> QCirNewCmd();
+unique_ptr<Command> QCirCopyCmd();
+unique_ptr<Command> QCirComposeCmd();
+unique_ptr<Command> QCirTensorCmd();
+unique_ptr<Command> QCPrintCmd();
+unique_ptr<Command> QCSetCmd();
+unique_ptr<Command> QCirReadCmd();
+unique_ptr<Command> QCirPrintCmd();
+unique_ptr<Command> QCirGatePrintCmd();
+unique_ptr<Command> QCirAddGateCmd();
+unique_ptr<Command> QCirAddQubitCmd();
+unique_ptr<Command> QCirDeleteGateCmd();
+unique_ptr<Command> QCirDeleteQubitCmd();
+unique_ptr<Command> QCir2ZXCmd();
+unique_ptr<Command> QCir2TSCmd();
+unique_ptr<Command> QCirWriteCmd();
+unique_ptr<Command> QCirDrawCmd();
 
 bool initQCirCmd() {
-    if (!(cli.regCmd("QCCHeckout", 4, QCirCheckOutCmd()) &&
-          cli.regCmd("QCReset", 3, QCirResetCmd()) &&
-          cli.regCmd("QCDelete", 3, QCirDeleteCmd()) &&
-          cli.regCmd("QCNew", 3, QCirNewCmd()) &&
-          cli.regCmd("QCCOPy", 5, QCirCopyCmd()) &&
-          cli.regCmd("QCCOMpose", 5, QCirComposeCmd()) &&
-          cli.regCmd("QCTensor", 3, QCirTensorCmd()) &&
-          cli.regCmd("QCPrint", 3, QCPrintCmd()) &&
-          cli.regCmd("QCSet", 3, QCSetCmd()) &&
-          cli.regCmd("QCCRead", 4, QCirReadCmd()) &&
-          cli.regCmd("QCCPrint", 4, QCirPrintCmd()) &&
-          cli.regCmd("QCGAdd", 4, QCirAddGateCmd()) &&
-          cli.regCmd("QCBAdd", 4, QCirAddQubitCmd()) &&
-          cli.regCmd("QCGDelete", 4, QCirDeleteGateCmd()) &&
-          cli.regCmd("QCBDelete", 4, QCirDeleteQubitCmd()) &&
-          cli.regCmd("QCGPrint", 4, QCirGatePrintCmd()) &&
-          cli.regCmd("QC2ZX", 5, QCir2ZXCmd()) &&
-          cli.regCmd("QC2TS", 5, QCir2TSCmd()) &&
-          cli.regCmd("QCCDraw", 4, QCirDrawCmd()) &&
-          cli.regCmd("QCCWrite", 4, QCirWriteCmd()))) {
+    if (!(cli.registerCommand("QCCHeckout", 4, QCirCheckOutCmd()) &&
+          cli.registerCommand("QCReset", 3, QCirResetCmd()) &&
+          cli.registerCommand("QCDelete", 3, QCirDeleteCmd()) &&
+          cli.registerCommand("QCNew", 3, QCirNewCmd()) &&
+          cli.registerCommand("QCCOPy", 5, QCirCopyCmd()) &&
+          cli.registerCommand("QCCOMpose", 5, QCirComposeCmd()) &&
+          cli.registerCommand("QCTensor", 3, QCirTensorCmd()) &&
+          cli.registerCommand("QCPrint", 3, QCPrintCmd()) &&
+          cli.registerCommand("QCSet", 3, QCSetCmd()) &&
+          cli.registerCommand("QCCRead", 4, QCirReadCmd()) &&
+          cli.registerCommand("QCCPrint", 4, QCirPrintCmd()) &&
+          cli.registerCommand("QCGAdd", 4, QCirAddGateCmd()) &&
+          cli.registerCommand("QCBAdd", 4, QCirAddQubitCmd()) &&
+          cli.registerCommand("QCGDelete", 4, QCirDeleteGateCmd()) &&
+          cli.registerCommand("QCBDelete", 4, QCirDeleteQubitCmd()) &&
+          cli.registerCommand("QCGPrint", 4, QCirGatePrintCmd()) &&
+          cli.registerCommand("QC2ZX", 5, QCir2ZXCmd()) &&
+          cli.registerCommand("QC2TS", 5, QCir2TSCmd()) &&
+          cli.registerCommand("QCCDraw", 4, QCirDrawCmd()) &&
+          cli.registerCommand("QCCWrite", 4, QCirWriteCmd()))) {
         cerr << "Registering \"qcir\" commands fails... exiting" << endl;
         return false;
     }
@@ -128,8 +128,8 @@ ArgType<size_t>::ConstraintType const validDMode = {
 //    QCCHeckout <(size_t id)>
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirCheckOutCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCCHeckout");
+unique_ptr<Command> QCirCheckOutCmd() {
+    auto cmd = make_unique<Command>("QCCHeckout");
 
     cmd->precondition = []() { return qcirMgrNotEmpty("QCCHeckout"); };
 
@@ -153,8 +153,8 @@ unique_ptr<ArgParseCmdType> QCirCheckOutCmd() {
 //    QCReset
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirResetCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCReset");
+unique_ptr<Command> QCirResetCmd() {
+    auto cmd = make_unique<Command>("QCReset");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("reset QCirMgr");
@@ -172,8 +172,8 @@ unique_ptr<ArgParseCmdType> QCirResetCmd() {
 //    QCDelete <(size_t id)>
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirDeleteCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCDelete");
+unique_ptr<Command> QCirDeleteCmd() {
+    auto cmd = make_unique<Command>("QCDelete");
 
     cmd->precondition = []() { return qcirMgrNotEmpty("QCDelete"); };
 
@@ -197,8 +197,8 @@ unique_ptr<ArgParseCmdType> QCirDeleteCmd() {
 //    QCNew [(size_t id)]
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirNewCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCNew");
+unique_ptr<Command> QCirNewCmd() {
+    auto cmd = make_unique<Command>("QCNew");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("create a new QCir to QCirMgr");
@@ -236,8 +236,8 @@ unique_ptr<ArgParseCmdType> QCirNewCmd() {
 //    QCCOPy [size_t id] [-Replace]
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirCopyCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCCOPy");
+unique_ptr<Command> QCirCopyCmd() {
+    auto cmd = make_unique<Command>("QCCOPy");
 
     cmd->precondition = []() { return qcirMgrNotEmpty("QCCOPy"); };
 
@@ -271,8 +271,8 @@ unique_ptr<ArgParseCmdType> QCirCopyCmd() {
 //    QCCOMpose <size_t id>
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirComposeCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCCOMpose");
+unique_ptr<Command> QCirComposeCmd() {
+    auto cmd = make_unique<Command>("QCCOMpose");
 
     cmd->precondition = []() { return qcirMgrNotEmpty("QCCOMpose"); };
 
@@ -296,8 +296,8 @@ unique_ptr<ArgParseCmdType> QCirComposeCmd() {
 //    QCTensor <size_t id>
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirTensorCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCTensor");
+unique_ptr<Command> QCirTensorCmd() {
+    auto cmd = make_unique<Command>("QCTensor");
 
     cmd->precondition = []() { return qcirMgrNotEmpty("QCTensor"); };
 
@@ -321,26 +321,20 @@ unique_ptr<ArgParseCmdType> QCirTensorCmd() {
 //    QCPrint [-SUmmary | -Focus | -Num | -SEttings]
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCPrintCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCPrint");
+unique_ptr<Command> QCPrintCmd() {
+    auto cmd = make_unique<Command>("QCPrint");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("print info of QCirMgr or settings");
+        parser.help("print info about QCirs or settings");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
 
-        mutex.addArgument<bool>("-summary")
-            .action(storeTrue)
-            .help("print summary of all circuits");
         mutex.addArgument<bool>("-focus")
             .action(storeTrue)
             .help("print the info of circuit in focus");
         mutex.addArgument<bool>("-list")
             .action(storeTrue)
             .help("print a list of circuits");
-        mutex.addArgument<bool>("-number")
-            .action(storeTrue)
-            .help("print number of circuits");
         mutex.addArgument<bool>("-settings")
             .action(storeTrue)
             .help("print settings of circuit");
@@ -357,10 +351,8 @@ unique_ptr<ArgParseCmdType> QCPrintCmd() {
             qcirMgr.printFocus();
         else if (parser.parsed("-list"))
             qcirMgr.printList();
-        else if (parser.parsed("-number"))
-            qcirMgr.printListSize();
         else
-            qcirMgr.printMgr();
+            qcirMgr.printManager();
 
         return CmdExecResult::DONE;
     };
@@ -372,8 +364,8 @@ unique_ptr<ArgParseCmdType> QCPrintCmd() {
 //    QCSet ...
 //------------------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCSetCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCSet");
+unique_ptr<Command> QCSetCmd() {
+    auto cmd = make_unique<Command>("QCSet");
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("set QCir parameters");
         parser.addArgument<size_t>("-single-delay")
@@ -424,8 +416,8 @@ unique_ptr<ArgParseCmdType> QCSetCmd() {
 //    QCCRead <(string fileName)> [-Replace]
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirReadCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCCRead");
+unique_ptr<Command> QCirReadCmd() {
+    auto cmd = make_unique<Command>("QCCRead");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("read a circuit and construct the corresponding netlist");
@@ -470,8 +462,8 @@ unique_ptr<ArgParseCmdType> QCirReadCmd() {
 //    QCGPrint <(size_t gateID)> [-Time | -ZXform]
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirGatePrintCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCGPrint");
+unique_ptr<Command> QCirGatePrintCmd() {
+    auto cmd = make_unique<Command>("QCGPrint");
 
     cmd->precondition = []() { return qcirMgrNotEmpty("QCGPrint"); };
 
@@ -510,8 +502,8 @@ unique_ptr<ArgParseCmdType> QCirGatePrintCmd() {
 //    QCCPrint [-Summary | -Analysis | -Detail | -List | -Qubit]
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirPrintCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCCPrint");
+unique_ptr<Command> QCirPrintCmd() {
+    auto cmd = make_unique<Command>("QCCPrint");
 
     cmd->precondition = []() { return qcirMgrNotEmpty("QCCPrint"); };
 
@@ -565,9 +557,9 @@ unique_ptr<ArgParseCmdType> QCirPrintCmd() {
 //     QCGAdd <-MCP | -MCPX | -MCRZ| -MCRX> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirAddGateCmd() {
+unique_ptr<Command> QCirAddGateCmd() {
     constexpr auto commandName = "QCGAdd";
-    auto cmd = make_unique<ArgParseCmdType>(commandName);
+    auto cmd = make_unique<Command>(commandName);
 
     cmd->precondition = [=]() {
         return qcirMgrNotEmpty(commandName);
@@ -729,8 +721,8 @@ unique_ptr<ArgParseCmdType> QCirAddGateCmd() {
 //    QCBAdd [size_t addNum]
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirAddQubitCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCBAdd");
+unique_ptr<Command> QCirAddQubitCmd() {
+    auto cmd = make_unique<Command>("QCBAdd");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("add qubit(s)");
@@ -759,8 +751,8 @@ unique_ptr<ArgParseCmdType> QCirAddQubitCmd() {
 //    QCGDelete <(size_t gateID)>
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirDeleteGateCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCGDelete");
+unique_ptr<Command> QCirDeleteGateCmd() {
+    auto cmd = make_unique<Command>("QCGDelete");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("delete gate");
@@ -782,8 +774,8 @@ unique_ptr<ArgParseCmdType> QCirDeleteGateCmd() {
 //    QCBDelete <(size_t qubitID)>
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirDeleteQubitCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCBDelete");
+unique_ptr<Command> QCirDeleteQubitCmd() {
+    auto cmd = make_unique<Command>("QCBDelete");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("delete qubit");
@@ -807,8 +799,8 @@ unique_ptr<ArgParseCmdType> QCirDeleteQubitCmd() {
 //    QC2ZX
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCir2ZXCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QC2ZX");
+unique_ptr<Command> QCir2ZXCmd() {
+    auto cmd = make_unique<Command>("QC2ZX");
 
     cmd->precondition = []() { return qcirMgrNotEmpty("QC2ZX"); };
 
@@ -849,8 +841,8 @@ unique_ptr<ArgParseCmdType> QCir2ZXCmd() {
 //    QC2TS
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCir2TSCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QC2TS");
+unique_ptr<Command> QCir2TSCmd() {
+    auto cmd = make_unique<Command>("QC2TS");
 
     cmd->precondition = []() { return qcirMgrNotEmpty("QC2TS"); };
 
@@ -880,8 +872,8 @@ unique_ptr<ArgParseCmdType> QCir2TSCmd() {
 //    QCCWrite
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirWriteCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCCWrite");
+unique_ptr<Command> QCirWriteCmd() {
+    auto cmd = make_unique<Command>("QCCWrite");
 
     cmd->precondition = []() { return qcirMgrNotEmpty("QCCWrite"); };
 
@@ -904,8 +896,8 @@ unique_ptr<ArgParseCmdType> QCirWriteCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> QCirDrawCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCCDraw");
+unique_ptr<Command> QCirDrawCmd() {
+    auto cmd = make_unique<Command>("QCCDraw");
 
     cmd->precondition = []() { return qcirMgrNotEmpty("QCCDraw"); };
 

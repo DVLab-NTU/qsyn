@@ -9,51 +9,70 @@
 #include <fmt/std.h>
 
 #include <filesystem>
+#include <ranges>
+#include <regex>
 
 #include "./cli.hpp"
 #include "unicode/display_width.hpp"
 #include "util/terminalAttributes.hpp"
 #include "util/textFormat.hpp"
+#include "util/util.hpp"
 
 using namespace std;
 namespace fs = std::filesystem;
 
-void CommandLineInterface::matchAndComplete(const string& str) {
+void CommandLineInterface::onTabPressed() {
+    assert(_tabPressCount != 0);
+    std::string str = _readBuf.substr(0, _cursorPosition);
+    str = stripComments(str);
+    str = str.substr(str.find_last_of(';') + 1);
+    str = stripLeadingWhitespaces(str);
+
     assert(str.empty() || str[0] != ' ');
 
-    if (str.size()) {
-        assert(!str.empty());
+    // if we are at the first token, we should list all commands and aliases
+    bool listCommands = str.empty() || str.find_first_of(" =") == string::npos;
+    if (listCommands) {
+        matchCommandsAndAliases(str);
+        return;
+    }
 
-        if (size_t firstSpacePos = str.find_first_of(' '); firstSpacePos != string::npos) {  // already has ' '; Cursor NOT on first word
-            assert(_tabPressCount != 0);
-            CmdExec* e = getCmd(str.substr(0, firstSpacePos));  // first word
+    Command* cmd = getCommand(str.substr(0, str.find_first_of(' ')) /* first word*/);
 
-            // [case 6] Singly matched on second+ tab
-            // [case 7] no match; cursor not on first word
-            if (e == nullptr || (_tabPressCount > 1 && !matchFilesAndComplete(str))) {
-                beep();
-                return;
-            }
+    // [case 5] Singly matched on first tab
+    if (cmd != nullptr && _tabPressCount == 1) {
+        fmt::print("\n");
+        cmd->usage();
+        reprintCommand();
 
-            // [case 5] Singly matched on first tab
-            else if (_tabPressCount == 1) {
-                fmt::print("\n");
-                e->usage();
-            }
+        return;
+    }
 
-            reprintCmd();
-            return;  // from cases 5, 6, 7
-        }
-    }  // end of cmd string processing
+    bool definingVariables = str.back() == '=';
+    if (definingVariables) _tabPressCount = 0;
 
+    assert(str[0] != ' ');
+    if (auto result = matchVariables(str); result != NO_OP) {
+        return;
+    }
+
+    if (auto result = matchFiles(str); result != NO_OP) {
+        return;
+    }
+
+    // nothing to do
+    beep();
+}
+
+CommandLineInterface::TabActionResult CommandLineInterface::matchCommandsAndAliases(std::string const& str) {
     _tabPressCount = 0;
 
-    auto [matchBegin, matchEnd] = getCmdMatches(str);
+    auto [matchBegin, matchEnd] = getCommandMatches(str);
 
     // [case 4] no matching cmd in the first word
     if (matchBegin == matchEnd) {
         beep();
-        return;
+        return NO_OP;
     }
 
     // cases 1, 2, 3 go here
@@ -63,7 +82,7 @@ void CommandLineInterface::matchAndComplete(const string& str) {
         for (size_t i = str.size(); i < ss.size(); ++i)
             insertChar(ss[i]);
         insertChar(' ');
-        return;
+        return AUTOCOMPLETE;
     }
 
     // [case 1, 2] multiple matches
@@ -75,18 +94,20 @@ void CommandLineInterface::matchAndComplete(const string& str) {
     }
 
     printAsTable(words);
-    reprintCmd();
+    reprintCommand();
+
+    return LIST_OPTIONS;
 }
 
 std::pair<CommandLineInterface::CmdMap::const_iterator, CommandLineInterface::CmdMap::const_iterator>
-CommandLineInterface::getCmdMatches(string const& str) {
+CommandLineInterface::getCommandMatches(string const& str) const {
     string cmd = toUpperString(str);
 
     // all cmds
     if (cmd.empty()) return {_cmdMap.begin(), _cmdMap.end()};
 
     // singly matched
-    if (getCmd(cmd)) {  // cmd is enough to determine a single cmd
+    if (getCommand(cmd)) {  // cmd is enough to determine a single cmd
         auto [bi, ei] = _cmdMap.equal_range(cmd);
         if (!_cmdMap.contains(cmd)) {
             --bi;
@@ -104,20 +125,168 @@ CommandLineInterface::getCmdMatches(string const& str) {
     return {bi, ei};
 }
 
+CommandLineInterface::TabActionResult CommandLineInterface::matchVariables(std::string const& str) {
+    // if there is a complete variable names trailing the string, replace it with its values
+    static const regex var_matcher(R"((\$[\w]+$|\$\{[\w]+\}$))");
+    std::smatch matches;
+
+    if (std::regex_search(str, matches, var_matcher) && matches.prefix().str().back() != '\\') {
+        string var = matches[0];
+        bool is_brace = (var[1] == '{');
+        string var_key = is_brace ? var.substr(2, var.size() - 3) : var.substr(1);
+        if (_variables.contains(var_key)) {
+            string val = _variables.at(var_key);
+
+            size_t pos = _readBuf.find(var);
+            moveCursor(_readBuf.size());
+            moveCursor(pos);
+
+            for (size_t i = 0; i < var.size(); ++i) {
+                deleteChar();
+            }
+
+            for (auto ch : val) {
+                insertChar(ch);
+            }
+
+            return AUTOCOMPLETE;
+        }
+    }
+
+    // if there are incomplete variable name, tries to complete for the user
+    static const regex var_prefix_matcher(R"(\$\{?[\w]*$)");
+
+    if (!std::regex_search(str, matches, var_prefix_matcher) || matches.prefix().str().back() == '\\') return NO_OP;
+
+    string var_prefix = matches[0];
+    bool is_brace = (var_prefix[1] == '{');
+    string var_key = var_prefix.substr(is_brace ? 2 : 1);
+
+    std::vector<std::string> matching_variables;
+
+    for (auto& [key, val] : _variables) {
+        if (key.starts_with(var_key)) {
+            matching_variables.emplace_back(key);
+        }
+    }
+
+    if (matching_variables.size() == 0) {
+        return NO_OP;
+    }
+
+    if (autocomplete(var_key, matching_variables, false /* does not matter */)) {
+        if (matching_variables.size() == 1 && is_brace) {
+            insertChar('}');
+        }
+        return AUTOCOMPLETE;
+    }
+
+    std::ranges::sort(matching_variables, [](std::string const& a, std::string const& b) { return toLowerString(a) < toLowerString(b); });
+
+    printAsTable(matching_variables);
+
+    reprintCommand();
+
+    return LIST_OPTIONS;
+}
+
+CommandLineInterface::TabActionResult CommandLineInterface::matchFiles(std::string const& str) {
+    std::optional<std::string> searchString;
+    string incompleteQuotes;
+    if (searchString = stripQuotes(str); searchString.has_value()) {
+        incompleteQuotes = "";
+    } else if (searchString = stripQuotes(str + "\""); searchString.has_value()) {
+        incompleteQuotes = "\"";
+    } else if (searchString = stripQuotes(str + "\'"); searchString.has_value()) {
+        incompleteQuotes = "\'";
+    } else {
+        logger.fatal("unexpected quote stripping result!!");
+        return NO_OP;
+    }
+    assert(searchString.has_value());
+
+    size_t lastSpacePos = std::invoke(
+        [&searchString]() -> size_t {
+            size_t pos = searchString->find_last_of(" =");
+            while (pos != string::npos && (*searchString)[pos - 1] == '\\') {
+                pos = searchString->find_last_of(" =", pos - 2);
+            }
+            return pos;
+        });
+    assert(lastSpacePos != string::npos);  // there must be a ' ' or '=' in cmd
+
+    auto filepath = fs::path(searchString->substr(lastSpacePos + 1));
+    auto dirname = filepath.parent_path();
+    auto prefix = filepath.filename().string();
+
+    for (size_t i = 1; i < prefix.size(); ++i) {
+        if (isSpecialChar(prefix[i])) {
+            if (prefix[i - 1] == '\\') {
+                prefix.erase(i - 1, 1);
+                --i;
+            }
+        }
+    }
+
+    filepath = dirname / prefix;
+
+    vector<string> files = getFileMatches(filepath);
+
+    // no matched file
+    if (files.size() == 0) {
+        return NO_OP;
+    }
+
+    if (autocomplete(prefix, files, incompleteQuotes.size())) {
+        if (files.size() == 1) {
+            if (fs::is_directory(dirname / files[0])) {
+                insertChar('/');
+            } else {
+                if (!incompleteQuotes.empty()) insertChar(incompleteQuotes[0]);
+                insertChar(' ');
+            }
+        }
+
+        return AUTOCOMPLETE;
+    }
+
+    // no auto complete : list matched files
+
+    for (auto& file : files) {
+        for (size_t i = 0; i < file.size(); ++i) {
+            if (isSpecialChar(file[i])) {
+                file.insert(i, "\\");
+                ++i;
+            }
+        }
+    }
+
+    for (auto& file : files) {
+        using namespace dvlab;
+        file = fmt::format("{}", fmt_ext::styled_if_ANSI_supported(file, fmt_ext::ls_color(dirname / file)));
+    }
+
+    printAsTable(files);
+
+    reprintCommand();
+
+    return LIST_OPTIONS;
+}
+
 /**
  * @brief returns the all filenames the matches `path`. Note that directory name is not contained in the returned list!
  *
  * @param path
  * @return vector<string>
  */
-vector<string> CommandLineInterface::getMatchedFiles(fs::path const& path) const {
+vector<string> CommandLineInterface::getFileMatches(fs::path const& path) const {
     vector<string> files;
 
     auto dirname = path.parent_path().empty() ? "." : path.parent_path();
     auto prefix = path.filename().string();
 
     if (!fs::exists(dirname)) {
-        fmt::println(stderr, "Error: failed to open {}!!", path.parent_path());
+        logger.error("Error: failed to open {}!!", path.parent_path());
         return files;
     }
 
@@ -146,11 +315,12 @@ vector<string> CommandLineInterface::getMatchedFiles(fs::path const& path) const
  *
  * @param prefix The part of strings that is already on console
  * @param strs The strings to autocomplete the common characters for
- * @param hasTrailingBackslash
- * @return true if some characters are auto-inserted, and
+ * @param inQuotes Whether the prefix is in a pair of quotes
+ * @return true if able to autocomplete
  * @return false if not
  */
-bool CommandLineInterface::completeCommonChars(std::string prefixCopy, std::vector<std::string> const& strs, bool inQuotes) {
+bool CommandLineInterface::autocomplete(std::string prefixCopy, std::vector<std::string> const& strs, bool inQuotes) {
+    if (strs.size() == 1 && prefixCopy == strs[0]) return true;  // edge case: completing a file/dir name that is already complete
     bool trailingBackslash = false;
     if (prefixCopy.back() == '\\') {
         prefixCopy.pop_back();
@@ -162,7 +332,7 @@ bool CommandLineInterface::completeCommonChars(std::string prefixCopy, std::vect
         strs | std::views::transform([](std::string const& str) { return str.size(); }));
 
     string autocompleteStr = "";
-    for (size_t i : std::views::iota(prefixCopy.size(), shortestFileLen)) {
+    for (size_t i = prefixCopy.size(); i < shortestFileLen; ++i) {
         if (std::ranges::adjacent_find(strs, [&i](std::string const& a, std::string const& b) {
                 return a[i] != b[i];
             }) != strs.end()) break;
@@ -189,86 +359,6 @@ bool CommandLineInterface::completeCommonChars(std::string prefixCopy, std::vect
     }
 
     return autocompleteStr.size() > 0;
-}
-
-/**
- * @brief list the files that match the last word in `cmd`.
- *
- * @param cmd the command line with leading ' ' removed; there must be a ' ' in cmd
- * @return true if printing files
- * @return false if completing (part of) the word
- */
-bool CommandLineInterface::matchFilesAndComplete(const string& cmd) {
-    assert(cmd[0] != ' ');
-    std::optional<std::string> searchString;
-    string incompleteQuotes;
-    if (searchString = stripQuotes(cmd); searchString.has_value()) {
-        incompleteQuotes = "";
-    } else if (searchString = stripQuotes(cmd + "\""); searchString.has_value()) {
-        incompleteQuotes = "\"";
-    } else if (searchString = stripQuotes(cmd + "\'"); searchString.has_value()) {
-        incompleteQuotes = "\'";
-    } else {
-        fmt::println(stderr, "Error: unexpected quote stripping result!!");
-        return false;
-    }
-    assert(searchString.has_value());
-
-    size_t lastSpacePos = std::invoke(
-        [&searchString]() -> size_t {
-            size_t pos = searchString->find_last_of(" ");
-            while (pos != string::npos && (*searchString)[pos - 1] == '\\') {
-                pos = searchString->find_last_of(" ", pos - 2);
-            }
-            return pos;
-        });
-    assert(lastSpacePos != string::npos);  // must have ' '
-
-    searchString = searchString->substr(lastSpacePos + 1);
-
-    auto filepath = fs::path(*searchString);
-    auto dirname = filepath.parent_path();
-    auto prefix = filepath.filename().string();
-
-    vector<string> files = getMatchedFiles(filepath);
-
-    // no matched file
-    if (files.size() == 0) {
-        return false;
-    }
-
-    if (completeCommonChars(prefix, files, incompleteQuotes.size())) {
-        if (files.size() == 1) {
-            if (fs::is_directory(dirname / files[0])) {
-                insertChar('/');
-            } else {
-                if (!incompleteQuotes.empty()) insertChar(incompleteQuotes[0]);
-                insertChar(' ');
-            }
-        }
-
-        return false;
-    }
-
-    // no auto complete : list matched files
-
-    for (auto& file : files) {
-        for (size_t i = 0; i < file.size(); ++i) {
-            if (isSpecialChar(file[i])) {
-                file.insert(i, "\\");
-                ++i;
-            }
-        }
-    }
-
-    for (auto& file : files) {
-        using namespace dvlab;
-        file = fmt::format("{}", fmt_ext::styled_if_ANSI_supported(file, fmt_ext::ls_color(dirname / file)));
-    }
-
-    printAsTable(files);
-
-    return true;
 }
 
 void CommandLineInterface::printAsTable(std::vector<std::string> words) const {

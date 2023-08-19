@@ -1,0 +1,21 @@
+// testing empty dofiles
+
+dofile tests/cli/helper/empty_dof
+
+// Testing dofile arguments
+
+dofile tests/cli/helper/param_dof
+help $1 // should print all help messages
+dofile tests/cli/helper/param_dof dofile
+help $1 // should print help message of dofile command
+
+dofile tests/cli/helper/param_dof_kw // should error and print usage
+dofile tests/cli/helper/param_dof_kw haha1 haha2 haha3 // should error and print usage
+
+dofile tests/cli/helper/param_dof_kw qquit dofile
+help ${input1} // print help message of qquit
+help $input2   // print help message of dofile
+help $1        // print help message of qquit
+help ${2}      // print help message of dofile
+
+qq -f

@@ -7,6 +7,7 @@
 ****************************************************************************/
 #include <atomic>
 #include <cassert>
+#include <csignal>
 #include <cstddef>
 #include <cstdlib>
 #include <fort.hpp>
@@ -31,19 +32,24 @@ CommandLineInterface::CommandLineInterface(const std::string& prompt) : _prompt{
     _readBuf.reserve(READ_BUF_SIZE);
 }
 
-// return false if file cannot be opened
-// Please refer to the comments in "DofileCmd::exec", cmdCommon.cpp
-bool CommandLineInterface::openDofile(const std::string& dof) {
+/**
+ * @brief open a dofile and push it to the dofile stack.
+ *
+ * @param filepath the file to be opened
+ * @return true
+ * @return false
+ */
+bool CommandLineInterface::openDofile(const std::string& filepath) {
     constexpr size_t dofile_stack_limit = 1024;
-    if (this->stop_requested()) {
+    if (this->stopRequested()) {
         return false;
     }
     if (_dofileStack.size() >= dofile_stack_limit) {
-        fmt::println(stderr, "Error: dofile stack overflow ({})!!", dofile_stack_limit);
+        logger.error("Error: dofile stack overflow ({})!!", dofile_stack_limit);
         return false;
     }
 
-    _dofileStack.push(std::move(std::ifstream(dof)));
+    _dofileStack.push(std::move(std::ifstream(filepath)));
 
     if (!_dofileStack.top().is_open()) {
         closeDofile();
@@ -52,54 +58,77 @@ bool CommandLineInterface::openDofile(const std::string& dof) {
     return true;
 }
 
+/**
+ * @brief close the top dofile in the dofile stack.
+ *
+ */
 void CommandLineInterface::closeDofile() {
     assert(_dofileStack.size());
     _dofileStack.pop();
 }
 
-// Return false if registration fails
-bool CommandLineInterface::regCmd(const string& cmd, unsigned nCmp, std::unique_ptr<CmdExec>&& e) {
+/**
+ * @brief register a command to the CLI.
+ *
+ * @param name the command name
+ * @param nMandChars the number of characters to be matched.
+ * @param cmd the command to be registered
+ * @return true
+ * @return false
+ */
+bool CommandLineInterface::registerCommand(const string& name, unsigned nMandChars, std::unique_ptr<Command>&& cmd) {
     // Make sure cmd hasn't been registered and won't cause ambiguity
-    string str = cmd;
+    string str = name;
     unsigned s = str.size();
-    if (!e->initialize()) return false;
-    if (s < nCmp) return false;
+    if (!cmd->initialize()) return false;
+    if (s < nMandChars) return false;
     while (true) {
-        if (getCmd(str)) return false;
-        if (s == nCmp) break;
+        if (getCommand(str)) return false;
+        if (s == nMandChars) break;
         str.resize(--s);
     }
 
-    assert(str.size() == nCmp);  // str is now mandCmd
+    assert(str.size() == nMandChars);  // str is now mandCmd
     string& mandCmd = str;
-    for (unsigned i = 0; i < nCmp; ++i)
+    for (unsigned i = 0; i < nMandChars; ++i)
         mandCmd[i] = toupper(mandCmd[i]);
-    string optCmd = cmd.substr(nCmp);
-    assert(e != 0);
-    e->setOptCmd(optCmd);
+    string optCmd = name.substr(nMandChars);
+    assert(cmd != 0);
+    cmd->setOptCmd(optCmd);
 
     // insert (mandCmd, e) to _cmdMap; return false if insertion fails.
-    return (_cmdMap.insert(CmdRegPair(mandCmd, std::move(e)))).second;
+    return (_cmdMap.insert(CmdRegPair(mandCmd, std::move(cmd)))).second;
 }
 
+/**
+ * @brief handle the SIGINT signal. Wrap the handler in a static function so that it can be passed to the signal function.
+ *
+ * @param signum
+ */
 void CommandLineInterface::sigintHandler(int signum) {
-    if (_currCmd.has_value()) {
+    if (_listeningForInputs) {
+        resetBuffer();
+        fmt::print("\n");
+        printPrompt();
+    } else if (_currCmd.has_value()) {
         // there is an executing command
         _currCmd->request_stop();
-        fmt::println("Command Interrupted");
     } else {
-        // receiving inputs
-        fmt::print("\n");
-        resetBufAndPrintPrompt();
+        // not listening and no executing command
+        // CLI cannot handler the signal, so just raise it again
+        raise(signum);
     }
 }
 
-// Return false on "quit" or if exception happens
+/**
+ * @brief execute one line of commands.
+ *
+ * @return CmdExecResult
+ */
 CmdExecResult
 CommandLineInterface::executeOneLine() {
     while (_dofileStack.size() && _dofileStack.top().eof()) closeDofile();
-
-    if (auto result = (_dofileStack.size() ? readCmd(_dofileStack.top()) : readCmd(std::cin)); result != CmdExecResult::DONE) {
+    if (auto result = (_dofileStack.size() ? readOneLine(_dofileStack.top()) : readOneLine(std::cin)); result != CmdExecResult::DONE) {
         return result;
     }
 
@@ -121,8 +150,8 @@ CommandLineInterface::executeOneLine() {
 
         _currCmd->join();
 
-        if (this->stop_requested()) {
-            fmt::println(stderr, "Command interrupted");
+        if (this->stopRequested()) {
+            logger.warning("Command interrupted");
             while (_commandQueue.size()) _commandQueue.pop();
             return CmdExecResult::INTERRUPTED;
         }
@@ -133,7 +162,12 @@ CommandLineInterface::executeOneLine() {
     return result;
 }
 
-std::pair<CmdExec*, std::string>
+/**
+ * @brief parse one command from the command queue.
+ *
+ * @return std::pair<Command*, std::string> command object and the arguments for the command.
+ */
+std::pair<Command*, std::string>
 CommandLineInterface::parseOneCommandFromQueue() {
     assert(_tempCmdStored == false);
     string buffer = _commandQueue.front();
@@ -142,33 +176,46 @@ CommandLineInterface::parseOneCommandFromQueue() {
     assert(buffer[0] != '\0' && buffer[0] != ' ');
 
     string cmd;
+
     size_t n = myStrGetTok(buffer, cmd);
-    CmdExec* e = getCmd(cmd);
+
+    if (auto pos = cmd.find_first_of('='); pos != string::npos && pos != 0) {
+        string var_key = cmd.substr(0, pos);
+        string var_val = cmd.substr(pos + 1);
+        if (var_val.empty()) {
+            logger.error("Error: variable `{}` is not assigned a value!!", var_key);
+            return {nullptr, ""};
+        }
+        _variables.insert_or_assign(var_key, var_val);
+        return {nullptr, ""};
+    }
+
+    Command* command = getCommand(cmd);
+
+    if (!command) {
+        logger.error("Illegal command!! ({})", cmd);
+        return {nullptr, ""};
+    }
+
     string option;
-    if (!e) {
-        fmt::println(stderr, "Illegal command!! ({})", cmd);
-    } else if (n != string::npos) {
+    if (n != string::npos) {
         option = buffer.substr(n);
     }
-    return {e, option};
+
+    return {command, option};
 }
 
+/**
+ * @brief if `str` contains the some dollar sign '$', try to convert it into variable unless it is preceded by '\'.
+ *
+ * @param str the string to be converted
+ * @return string a string with all variables substituted with their value.
+ */
 string CommandLineInterface::replaceVariableKeysWithValues(string const& str) const {
-    // if `str` contains the some dollar sign '$',
-    // try to convert it into variable
-    // unless it is preceded by '\'.
+    static std::regex const var_without_braces(R"(\$[\w]+)");  // if no curly braces, the variable name is until some illegal characters for a name appears
 
-    // Variables are in the form of `$NAME` or `${NAME}`,
-    // where the name should consists of only alphabets, numbers,
-    // and the underscore '_'.
-
-    // If curly braces are used (${NAME}),
-    // the text inside the curly braces is the variable name.
-
-    // If otherwise no curly braces are used ($NAME),
-    // the variable name is until some illegal characters for a name appears.
-
-    // if a variable is existent, replace the $NAME or ${NAME} syntax with their value. Otherwise, replace the syntax with an empty string
+    static std::regex const var_with_braces(R"(\$\{\S+\})");  // if curly braces are used, the text inside the curly braces is the variable name
+                                                              // \S means non-whitespace character
 
     // e.g., suppose foo_bar=apple, foo=banana
     //       "$foo_bar"     --> "apple"
@@ -177,13 +224,8 @@ string CommandLineInterface::replaceVariableKeysWithValues(string const& str) co
     //       "foo_$bar"     --> "foo_"
     //       "${foo}${bar}" --> "banana"
 
-    // optional: if inside ${NAME} is an illegal name string,
-    // warn the user.
-
     std::vector<std::tuple<size_t, size_t, string>> to_replace;
-    // \S means non-whitespace character
-    static std::regex const var_without_braces(R"(\$[a-zA-Z0-9_]+)");
-    static std::regex const var_with_braces(R"(\$\{\S+\})");
+
     for (auto re : {var_without_braces, var_with_braces}) {
         std::smatch matches;
         std::regex_search(str, matches, re);
@@ -201,7 +243,7 @@ string CommandLineInterface::replaceVariableKeysWithValues(string const& str) co
                     if (isalnum(ch) || ch == '_') {
                         continue;
                     }
-                    fmt::println(stderr, "Warning: variable name `{}` is illegal!!", var_key);
+                    logger.warning("Warning: variable name `{}` is illegal!!", var_key);
                     break;
                 }
             }
@@ -223,30 +265,25 @@ string CommandLineInterface::replaceVariableKeysWithValues(string const& str) co
     }
     result += str.substr(cursor);
 
-    // return a string with all variables substituted with their value.
     return result;
 }
 
-// cmd is a copy of the original input
-//
-// return the corresponding CmdExec* if "cmd" matches any command in _cmdMap
-// return 0 if not found.
-//
-// Please note:
-// ------------
-// 1. The mandatory part of the command string (stored in _cmdMap) must match
-// 2. The optional part can be partially omitted.
-// 3. All string comparison are "case-insensitive".
-//
-CmdExec*
-CommandLineInterface::getCmd(string cmd) {
-    CmdExec* e = nullptr;
+/**
+ * @brief return a command if and only if `cmd` is a prefix of the input string.
+ *
+ * @param cmd
+ * @return Command*
+ */
+Command* CommandLineInterface::getCommand(string const& cmd) const {
+    Command* e = nullptr;
 
-    for (unsigned i = 0; i < cmd.size(); ++i) {
-        cmd[i] = toupper(cmd[i]);
-        string check = cmd.substr(0, i + 1);
+    std::string copy = cmd;
+
+    for (unsigned i = 0; i < copy.size(); ++i) {
+        copy[i] = toupper(cmd[i]);
+        string check = copy.substr(0, i + 1);
         if (_cmdMap.find(check) != _cmdMap.end())
-            e = _cmdMap[check].get();
+            e = _cmdMap.at(check).get();
         if (e != nullptr) {
             string optCheck = cmd.substr(i + 1);
             if (e->checkOptCmd(optCheck))
@@ -258,17 +295,14 @@ CommandLineInterface::getCmd(string cmd) {
     return e;
 }
 
-//----------------------------------------------------------------------
-//    Member Function for class CmdExec
-//----------------------------------------------------------------------
-
-// Called by "getCmd()"
-// Check if "check" is a matched substring of "_optCmd"...
-// if not, return false.
-//
-// Perform case-insensitive checks
-//
-bool CmdExec::checkOptCmd(const string& check) const {
+/**
+ * @brief return if `check` is a prefix of `_optCmd`. This command performs case-insensitive checks.
+ *
+ * @param check
+ * @return true
+ * @return false
+ */
+bool Command::checkOptCmd(const string& check) const {
     if (check.size() > _optCmd.size()) return false;
     for (unsigned i = 0, n = _optCmd.size(); i < n; ++i) {
         if (!check[i]) return true;

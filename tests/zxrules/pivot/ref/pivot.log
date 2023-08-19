@@ -3,7 +3,6 @@ qsyn> ver 9
 Note: verbose level is set to 9
 
 qsyn> zxnew
-Created and checked out to ZXGraph 0
 
 qsyn> zxge -addi 0
 Add vertex (●) 0
@@ -151,7 +150,6 @@ qsyn> ver 9
 Note: verbose level is set to 9
 
 qsyn> zxnew
-Created and checked out to ZXGraph 0
 
 qsyn> zxge -addi 0
 Add vertex (●) 0
@@ -278,7 +276,6 @@ qsyn> ver 9
 Note: verbose level is set to 9
 
 qsyn> zxnew
-Created and checked out to ZXGraph 0
 
 qsyn> zxge -addi 0
 Add vertex (●) 0
@@ -573,7 +570,6 @@ qsyn> ver 9
 Note: verbose level is set to 9
 
 qsyn> zxnew
-Created and checked out to ZXGraph 0
 
 qsyn> zxge -addi 0
 Add vertex (●) 0
@@ -1244,7 +1240,6 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> zxnew
-Created and checked out to ZXGraph 0
 
 qsyn> zxge -addi 0
 
@@ -1482,11 +1477,8 @@ Total #Vertices: 8
 
 
 qsyn> zx2ts
-Traverse and build the tensor... 
-Created and checked out to Tensor 0
 
 qsyn> zxnew
-Created and checked out to ZXGraph 1
 
 qsyn> zxge -addi 0
 
@@ -1513,8 +1505,6 @@ qsyn> zxge -adde 4 5 SIMPLE
 qsyn> zxge -adde 6 7 SIMPLE
 
 qsyn> zx2ts
-Traverse and build the tensor... 
-Created and checked out to Tensor 1
 
 qsyn> tseq 0 1
 Equivalent

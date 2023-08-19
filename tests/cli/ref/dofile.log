@@ -1,0 +1,158 @@
+DV Lab, NTUEE, Qsyn 0.5.1
+qsyn> // testing empty dofiles
+qsyn> 
+qsyn> dofile tests/cli/helper/empty_dof
+[Error] file "tests/cli/helper/empty_dof" is empty!!
+
+qsyn> 
+qsyn> // Testing dofile arguments
+qsyn> 
+qsyn> dofile tests/cli/helper/param_dof
+
+qsyn> // placeholder
+qsyn> help $1 // should print all help messages
+Argparse       : ArgParse package sandbox
+CLEAR          : clear the console
+DOfile         : execute the commands in the dofile
+DTCHeckout     : checkout to Device <id> in DeviceMgr
+DTDelete       : remove a Device from DeviceMgr
+DTGPrint       : print info of device topology
+DTGRead        : read a device topology
+DTPrint        : print info about Devices
+DTReset        : reset DeviceMgr
+DUOPrint       : print Duostra parameters
+DUOSET         : set Duostra parameter(s)
+DUOSTRA        : map logical circuit to physical circuit
+EXTPrint       : print info of extracting ZXGraph
+EXTRact        : perform step(s) in extraction
+EXTSet         : set extractor parameters
+HELp           : shows helping message to commands
+HIStory        : print command history
+LOGger         : display and set the logger's status
+LTS            : (experimental) perform mapping from ZXGraph to corresponding lattice surgery
+MPEQuiv        : check equivalence of the physical and the logical circuits
+QC2TS          : convert QCir to tensor
+QC2ZX          : convert QCir to ZXGraph
+QCBAdd         : add qubit(s)
+QCBDelete      : delete qubit
+QCCDraw        : Draw a QCir. This command relies on qiskit and pdflatex to be present in the system.
+QCCHeckout     : checkout to QCir <id> in QCirMgr
+QCCOMpose      : compose a QCir
+QCCOPy         : copy a QCir to QCirMgr
+QCCOPTimize    : optimize QCir
+QCCPrint       : print info of QCir
+QCCRead        : read a circuit and construct the corresponding netlist
+QCCWrite       : write QCir to a QASM file
+QCDelete       : remove a QCir from QCirMgr
+QCGAdd         : add quantum gate
+QCGDelete      : delete gate
+QCGPrint       : print gate info in QCir
+QCNew          : create a new QCir to QCirMgr
+QCPrint        : print info about QCirs or settings
+QCReset        : reset QCirMgr
+QCSet          : set QCir parameters
+QCTensor       : tensor a QCir
+QQuit          : quit Qsyn
+SEED           : set the random seed
+TSADJoint      : adjoint the specified tensor
+TSEQuiv        : check the equivalency of two stored tensors
+TSPrint        : print info about Tensors
+TSReset        : reset the tensor manager
+TSTPrint       : print info of Tensor
+USAGE          : report the runtime and/or memory usage
+VERbose        : set verbose level to 0-9 (default: 3)
+ZX2QC          : extract QCir from ZXGraph
+ZX2TS          : convert ZXGraph to tensor
+ZXCHeckout     : checkout to Graph <id> in ZXGraphMgr
+ZXCOMpose      : compose a ZXGraph
+ZXCOPy         : copy a ZXGraph to ZXGraphMgr
+ZXDelete       : remove a ZXGraph from ZXGraphMgr
+ZXGADjoint     : adjoint ZXGraph
+ZXGASsign      : assign quantum states to input/output vertex
+ZXGDraw        : draw ZXGraph
+ZXGEdit        : edit ZXGraph
+ZXGGFlow       : calculate and print the generalized flow of a ZXGraph
+ZXGPrint       : print info of ZXGraph
+ZXGRead        : read a file and construct the corresponding ZXGraph
+ZXGSimp        : perform simplification strategies for ZXGraph
+ZXGTest        : test ZXGraph structures and functions
+ZXGTRaverse    : traverse ZXGraph and update topological order of vertices
+ZXGWrite       : write the ZXGraph to a file
+ZXNew          : create a new ZXGraph to ZXGraphMgr
+ZXPrint        : print info about ZXGraphs
+ZXReset        : reset ZXGraphMgr
+ZXTensor       : tensor a ZXGraph
+
+
+qsyn> dofile tests/cli/helper/param_dof dofile
+
+qsyn> // placeholder
+qsyn> help $1 // should print help message of dofile command
+Usage: DOfile <string file> [<string arguments>]...
+
+Description:
+  execute the commands in the dofile
+
+Required Arguments:
+  string  file         path to a dofile, i.e., a list of Qsyn commands 
+  string  arguments    arguments to the dofile                         
+
+
+qsyn> 
+qsyn> dofile tests/cli/helper/param_dof_kw // should error and print usage
+[Error] wrong number of arguments provided, expected 2 but got 0!!
+[Error] Usage: ... tests/cli/helper/param_dof_kw <input1> <input2>
+
+qsyn> dofile tests/cli/helper/param_dof_kw haha1 haha2 haha3 // should error and print usage
+[Error] wrong number of arguments provided, expected 2 but got 3!!
+[Error] Usage: ... tests/cli/helper/param_dof_kw <input1> <input2>
+
+qsyn> 
+qsyn> dofile tests/cli/helper/param_dof_kw qquit dofile
+
+qsyn> //!ARGS input1 input2
+qsyn> help ${input1} // print help message of qquit
+Usage: QQuit [-Force]
+
+Description:
+  quit Qsyn
+
+Optional Arguments:
+  flag  -Force    quit without reaffirming 
+
+
+qsyn> help $input2   // print help message of dofile
+Usage: DOfile <string file> [<string arguments>]...
+
+Description:
+  execute the commands in the dofile
+
+Required Arguments:
+  string  file         path to a dofile, i.e., a list of Qsyn commands 
+  string  arguments    arguments to the dofile                         
+
+
+qsyn> help $1        // print help message of qquit
+Usage: QQuit [-Force]
+
+Description:
+  quit Qsyn
+
+Optional Arguments:
+  flag  -Force    quit without reaffirming 
+
+
+qsyn> help ${2}      // print help message of dofile
+Usage: DOfile <string file> [<string arguments>]...
+
+Description:
+  execute the commands in the dofile
+
+Required Arguments:
+  string  file         path to a dofile, i.e., a list of Qsyn commands 
+  string  arguments    arguments to the dofile                         
+
+
+qsyn> 
+qsyn> qq -f
+

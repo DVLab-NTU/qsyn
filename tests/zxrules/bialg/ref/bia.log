@@ -3,7 +3,6 @@ qsyn> ver 9
 Note: verbose level is set to 9
 
 qsyn> zxnew 10
-Created and checked out to ZXGraph 10
 
 qsyn> zxge -addi 0
 Add vertex (●) 0
@@ -108,7 +107,6 @@ Total #Edges: 8
 qsyn> zxr
 
 qsyn> zxnew 
-Created and checked out to ZXGraph 0
 
 qsyn> zxge -addi 0
 Add vertex (●) 0
@@ -271,56 +269,10 @@ qsyn> zxgprint -e
 Total #Edges: 8
 
 qsyn> zx2ts
-Traverse and build the tensor... 
 Topological order from first input: 0 4 15 3 6 2 13 14 1 
 Size of topological order: 9
-> Mapping vertex 0 (●): New Subgraph
-  - Current frontiers: 
-    0--4 (-) axis id: 1
-> Mapping vertex 4 (X): Tensordot
-  - Current frontiers: 
-    4--15 (-) axis id: 1
-> Mapping vertex 15 (Z): Tensordot
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    6--15 (-) axis id: 2
-    13--15 (-) axis id: 3
-> Mapping vertex 3 (●): Boundary Node
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    6--15 (-) axis id: 2
-    13--15 (-) axis id: 3
-> Mapping vertex 6 (X): Tensordot
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    13--15 (-) axis id: 2
-    2--6 (-) axis id: 3
-> Mapping vertex 2 (●): Boundary Node
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    13--15 (-) axis id: 2
-    2--6 (-) axis id: 3
-> Mapping vertex 13 (X): Tensordot
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    2--6 (-) axis id: 2
-    13--14 (-) axis id: 3
-> Mapping vertex 14 (Z): Tensordot
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    2--6 (-) axis id: 2
-    1--14 (-) axis id: 3
-> Mapping vertex 1 (●): Boundary Node
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    2--6 (-) axis id: 2
-    1--14 (-) axis id: 3
-Input  axis ids: 0 2
-Output axis ids: 3 1
-Created and checked out to Tensor 0
 
 qsyn> zxnew
-Created and checked out to ZXGraph 1
 
 qsyn> zxge -addi 0
 Add vertex (●) 0
@@ -367,38 +319,8 @@ Total #Vertices: 6
 
 
 qsyn> zx2ts
-Traverse and build the tensor... 
 Topological order from first input: 0 4 2 5 1 3 
 Size of topological order: 6
-> Mapping vertex 0 (●): New Subgraph
-  - Current frontiers: 
-    0--4 (-) axis id: 1
-> Mapping vertex 4 (Z): Tensordot
-  - Current frontiers: 
-    2--4 (-) axis id: 1
-    4--5 (-) axis id: 2
-> Mapping vertex 2 (●): Boundary Node
-  - Current frontiers: 
-    2--4 (-) axis id: 1
-    4--5 (-) axis id: 2
-> Mapping vertex 5 (Z): Tensordot
-  - Current frontiers: 
-    2--4 (-) axis id: 1
-    1--5 (-) axis id: 2
-    3--5 (-) axis id: 3
-> Mapping vertex 1 (●): Boundary Node
-  - Current frontiers: 
-    2--4 (-) axis id: 1
-    1--5 (-) axis id: 2
-    3--5 (-) axis id: 3
-> Mapping vertex 3 (●): Boundary Node
-  - Current frontiers: 
-    2--4 (-) axis id: 1
-    1--5 (-) axis id: 2
-    3--5 (-) axis id: 3
-Input  axis ids: 0 1
-Output axis ids: 2 3
-Created and checked out to Tensor 1
 
 qsyn> tseq 0 1
 Equivalent
@@ -408,7 +330,6 @@ Equivalent
 qsyn> zxr
 
 qsyn> zxnew 
-Created and checked out to ZXGraph 0
 
 qsyn> zxge -addi 0
 Add vertex (●) 0

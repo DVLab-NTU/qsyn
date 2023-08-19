@@ -21,11 +21,11 @@ using namespace ArgParse;
 extern size_t verbose;
 extern ZXGraphMgr zxGraphMgr;
 
-unique_ptr<ArgParseCmdType> latticeSurgeryCompilationCmd();
+unique_ptr<Command> latticeSurgeryCompilationCmd();
 
 bool initLTCmd() {
     if (!(
-            cli.regCmd("LTS", 3, latticeSurgeryCompilationCmd())
+            cli.registerCommand("LTS", 3, latticeSurgeryCompilationCmd())
 
                 )) {
         cerr << "Registering \"lts\" commands fails... exiting" << endl;
@@ -38,10 +38,10 @@ bool initLTCmd() {
 //    LT [ -p ]
 //------------------------------------------------------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> latticeSurgeryCompilationCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("LTS");
+unique_ptr<Command> latticeSurgeryCompilationCmd() {
+    auto cmd = make_unique<Command>("LTS");
 
-    cmd->precondition = []() { return zxGraphMgrNotEmpty("LTS"); };
+    cmd->precondition = zxGraphMgrNotEmpty;
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("(experimental) perform mapping from ZXGraph to corresponding lattice surgery");

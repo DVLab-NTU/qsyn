@@ -22,18 +22,18 @@ using namespace ArgParse;
 
 // init
 
-unique_ptr<ArgParseCmdType> argparseCmd();
+unique_ptr<Command> argparseCmd();
 
 bool initArgParseCmd() {
-    if (!(cli.regCmd("Argparse", 1, argparseCmd()))) {
+    if (!(cli.registerCommand("Argparse", 1, argparseCmd()))) {
         fmt::println(stderr, "Registering \"argparse\" commands fails... exiting");
         return false;
     }
     return true;
 }
 
-unique_ptr<ArgParseCmdType> argparseCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("Argparse");
+unique_ptr<Command> argparseCmd() {
+    auto cmd = make_unique<Command>("Argparse");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("ArgParse package sandbox");

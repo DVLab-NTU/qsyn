@@ -20,34 +20,34 @@ extern dvlab::utils::Usage usage;
 
 using namespace ArgParse;
 
-unique_ptr<ArgParseCmdType> helpCmd();
-unique_ptr<ArgParseCmdType> quitCmd();
-unique_ptr<ArgParseCmdType> dofileCmd();
-unique_ptr<ArgParseCmdType> usageCmd();
-unique_ptr<ArgParseCmdType> verboseCmd();
-unique_ptr<ArgParseCmdType> seedCmd();
-unique_ptr<ArgParseCmdType> historyCmd();
-unique_ptr<ArgParseCmdType> clearCmd();
-unique_ptr<ArgParseCmdType> loggerCmd();
+unique_ptr<Command> helpCmd();
+unique_ptr<Command> quitCmd();
+unique_ptr<Command> dofileCmd();
+unique_ptr<Command> usageCmd();
+unique_ptr<Command> verboseCmd();
+unique_ptr<Command> seedCmd();
+unique_ptr<Command> historyCmd();
+unique_ptr<Command> clearCmd();
+unique_ptr<Command> loggerCmd();
 
 bool initCommonCmd() {
-    if (!(cli.regCmd("QQuit", 2, quitCmd()) &&
-          cli.regCmd("HIStory", 3, historyCmd()) &&
-          cli.regCmd("HELp", 3, helpCmd()) &&
-          cli.regCmd("DOfile", 2, dofileCmd()) &&
-          cli.regCmd("USAGE", 5, usageCmd()) &&
-          cli.regCmd("VERbose", 3, verboseCmd()) &&
-          cli.regCmd("SEED", 4, seedCmd()) &&
-          cli.regCmd("CLEAR", 5, clearCmd()) &&
-          cli.regCmd("LOGger", 3, loggerCmd()))) {
+    if (!(cli.registerCommand("QQuit", 2, quitCmd()) &&
+          cli.registerCommand("HIStory", 3, historyCmd()) &&
+          cli.registerCommand("HELp", 3, helpCmd()) &&
+          cli.registerCommand("DOfile", 2, dofileCmd()) &&
+          cli.registerCommand("USAGE", 5, usageCmd()) &&
+          cli.registerCommand("VERbose", 3, verboseCmd()) &&
+          cli.registerCommand("SEED", 4, seedCmd()) &&
+          cli.registerCommand("CLEAR", 5, clearCmd()) &&
+          cli.registerCommand("LOGger", 3, loggerCmd()))) {
         logger.fatal("Registering \"cli\" commands fails... exiting");
         return false;
     }
     return true;
 }
 
-unique_ptr<ArgParseCmdType> helpCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("HELp");
+unique_ptr<Command> helpCmd() {
+    auto cmd = make_unique<Command>("HELp");
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("shows helping message to commands");
 
@@ -60,9 +60,9 @@ unique_ptr<ArgParseCmdType> helpCmd() {
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         auto command = parser.get<string>("command");
         if (command.empty()) {
-            cli.printHelps();
+            cli.listAllCommands();
         } else {
-            CmdExec* e = cli.getCmd(command);
+            Command* e = cli.getCommand(command);
             if (!e) {
                 fmt::println(stderr, "Error: illegal command!! ({})", command);
                 return CmdExecResult::ERROR;
@@ -75,8 +75,8 @@ unique_ptr<ArgParseCmdType> helpCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> quitCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QQuit");
+unique_ptr<Command> quitCmd() {
+    auto cmd = make_unique<Command>("QQuit");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("quit Qsyn");
@@ -89,10 +89,9 @@ unique_ptr<ArgParseCmdType> quitCmd() {
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser.get<bool>("-force")) return CmdExecResult::QUIT;
 
-        fmt::print("Are you sure to quit (Yes/[No])? ");
-        fflush(stdout);
+        std::string const prompt = "Are you sure to quit (Yes/[No])? ";
 
-        if (cli.listen_to_input(std::cin, {.allowBrowseHistory = false, .allowTabCompletion = false}) == CmdExecResult::QUIT) {
+        if (cli.listenToInput(std::cin, prompt, {.allowBrowseHistory = false, .allowTabCompletion = false}) == CmdExecResult::QUIT) {
             fmt::print("EOF [assumed Yes]");
             return CmdExecResult::QUIT;
         }
@@ -109,8 +108,8 @@ unique_ptr<ArgParseCmdType> quitCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> historyCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("HIStory");
+unique_ptr<Command> historyCmd() {
+    auto cmd = make_unique<Command>("HIStory");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("print command history");
@@ -131,8 +130,8 @@ unique_ptr<ArgParseCmdType> historyCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> dofileCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DOfile");
+unique_ptr<Command> dofileCmd() {
+    auto cmd = make_unique<Command>("DOfile");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("execute the commands in the dofile");
@@ -140,11 +139,20 @@ unique_ptr<ArgParseCmdType> dofileCmd() {
         parser.addArgument<string>("file")
             .constraint(path_readable)
             .help("path to a dofile, i.e., a list of Qsyn commands");
+
+        parser.addArgument<string>("arguments")
+            .nargs(NArgsOption::ZERO_OR_MORE)
+            .help("arguments to the dofile");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        auto arguments = parser.get<std::vector<string>>("arguments");
+        if (!cli.saveVariables(parser.get<string>("file"), arguments)) {
+            return CmdExecResult::ERROR;
+        }
+
         if (!cli.openDofile(parser.get<string>("file"))) {
-            fmt::println("Error: cannot open file \"{}\"!!", parser.get<std::string>("file"));
+            logger.error("cannot open file \"{}\"!!", parser.get<std::string>("file"));
             return CmdExecResult::ERROR;
         }
 
@@ -154,8 +162,8 @@ unique_ptr<ArgParseCmdType> dofileCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> usageCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("USAGE");
+unique_ptr<Command> usageCmd() {
+    auto cmd = make_unique<Command>("USAGE");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("report the runtime and/or memory usage");
@@ -190,8 +198,8 @@ unique_ptr<ArgParseCmdType> usageCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> verboseCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("VERbose");
+unique_ptr<Command> verboseCmd() {
+    auto cmd = make_unique<Command>("VERbose");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("set verbose level to 0-9 (default: 3)");
@@ -216,8 +224,8 @@ unique_ptr<ArgParseCmdType> verboseCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> loggerCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("LOGger");
+unique_ptr<Command> loggerCmd() {
+    auto cmd = make_unique<Command>("LOGger");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         vector<string> logLevels = {"none", "fatal", "error", "warning", "info", "debug", "trace"};
@@ -326,8 +334,8 @@ unique_ptr<ArgParseCmdType> loggerCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> seedCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("SEED");
+unique_ptr<Command> seedCmd() {
+    auto cmd = make_unique<Command>("SEED");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("set the random seed");
@@ -347,8 +355,8 @@ unique_ptr<ArgParseCmdType> seedCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> clearCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("CLEAR");
+unique_ptr<Command> clearCmd() {
+    auto cmd = make_unique<Command>("CLEAR");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("clear the console");

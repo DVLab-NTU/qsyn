@@ -22,24 +22,24 @@ DeviceMgr deviceMgr{"Device"};
 extern size_t verbose;
 extern int effLimit;
 
-unique_ptr<ArgParseCmdType> dtCheckOutCmd();
-unique_ptr<ArgParseCmdType> dtResetCmd();
-unique_ptr<ArgParseCmdType> dtDeleteCmd();
-unique_ptr<ArgParseCmdType> dtGraphReadCmd();
-unique_ptr<ArgParseCmdType> dtGraphPrintCmd();  // requires subparsers
-unique_ptr<ArgParseCmdType> dtPrintCmd();
+unique_ptr<Command> dtCheckOutCmd();
+unique_ptr<Command> dtResetCmd();
+unique_ptr<Command> dtDeleteCmd();
+unique_ptr<Command> dtGraphReadCmd();
+unique_ptr<Command> dtGraphPrintCmd();  // requires subparsers
+unique_ptr<Command> dtPrintCmd();
 
 bool deviceMgrNotEmpty() {
     return dvlab::utils::expect(!deviceMgr.empty(), "Device list is empty now. Please DTRead first.");
 }
 
 bool initDeviceCmd() {
-    if (!(cli.regCmd("DTCHeckout", 4, dtCheckOutCmd()) &&
-          cli.regCmd("DTReset", 3, dtResetCmd()) &&
-          cli.regCmd("DTDelete", 3, dtDeleteCmd()) &&
-          cli.regCmd("DTGRead", 4, dtGraphReadCmd()) &&
-          cli.regCmd("DTGPrint", 4, dtGraphPrintCmd()) &&
-          cli.regCmd("DTPrint", 3, dtPrintCmd()))) {
+    if (!(cli.registerCommand("DTCHeckout", 4, dtCheckOutCmd()) &&
+          cli.registerCommand("DTReset", 3, dtResetCmd()) &&
+          cli.registerCommand("DTDelete", 3, dtDeleteCmd()) &&
+          cli.registerCommand("DTGRead", 4, dtGraphReadCmd()) &&
+          cli.registerCommand("DTGPrint", 4, dtGraphPrintCmd()) &&
+          cli.registerCommand("DTPrint", 3, dtPrintCmd()))) {
         cerr << "Registering \"device topology\" commands fails... exiting" << endl;
         return false;
     }
@@ -54,8 +54,8 @@ ArgType<size_t>::ConstraintType validDeviceId = {
         cerr << "Error: Device " << id << " does not exist!!\n";
     }};
 
-unique_ptr<ArgParseCmdType> dtCheckOutCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DTCHeckout");
+unique_ptr<Command> dtCheckOutCmd() {
+    auto cmd = make_unique<Command>("DTCHeckout");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("checkout to Device <id> in DeviceMgr");
@@ -73,8 +73,8 @@ unique_ptr<ArgParseCmdType> dtCheckOutCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> dtResetCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DTReset");
+unique_ptr<Command> dtResetCmd() {
+    auto cmd = make_unique<Command>("DTReset");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("reset DeviceMgr");
@@ -88,8 +88,8 @@ unique_ptr<ArgParseCmdType> dtResetCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> dtDeleteCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DTDelete");
+unique_ptr<Command> dtDeleteCmd() {
+    auto cmd = make_unique<Command>("DTDelete");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("remove a Device from DeviceMgr");
@@ -107,8 +107,8 @@ unique_ptr<ArgParseCmdType> dtDeleteCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DTGRead");
+unique_ptr<Command> dtGraphReadCmd() {
+    auto cmd = make_unique<Command>("DTGRead");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("read a device topology");
@@ -148,59 +148,20 @@ unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
     return cmd;
 }
 
-// unique_ptr<ArgParseCmdType> dtGraphPrintCmd() {
-//     auto cmd = make_unique<ArgParseCmdType>("DTGPrint");
-
-//     cmd->parserDefinition = [](ArgumentParser & parser) {
-//         parser.help("print info of device topology");
-
-//         auto mutex = parser.addMutuallyExclusiveGroup();
-
-//         mutex.addArgument<bool>("-summary")
-//             .action(storeTrue)
-//             .help("summary of the device graph");
-
-//         mutex.addArgument<bool>("-edges")
-//             .action(storeTrue)
-//             .help("edges of the device graph");
-
-//         mutex.addArgument<bool>("-path")
-//             .action(storeTrue)
-//             .help("path of the device graph");
-
-//         mutex.addArgument<bool>("-qubit")
-//             .action(storeTrue)
-//             .help("qubit of the device graph");
-//     };
-
-//     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-
-//         return CmdExecResult::DONE;
-//     };
-
-//     return cmd;
-// }
-
-unique_ptr<ArgParseCmdType> dtPrintCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DTPrint");
+unique_ptr<Command> dtPrintCmd() {
+    auto cmd = make_unique<Command>("DTPrint");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("print info of DeviceMgr");
+        parser.help("print info about Devices");
 
         auto mutex = parser.addMutuallyExclusiveGroup();
 
-        mutex.addArgument<bool>("-summary")
-            .action(storeTrue)
-            .help("print summary of all devices");
         mutex.addArgument<bool>("-focus")
             .action(storeTrue)
             .help("print the info of device in focus");
         mutex.addArgument<bool>("-list")
             .action(storeTrue)
             .help("print a list of devices");
-        mutex.addArgument<bool>("-number")
-            .action(storeTrue)
-            .help("print number of devices");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
@@ -208,10 +169,8 @@ unique_ptr<ArgParseCmdType> dtPrintCmd() {
             deviceMgr.printFocus();
         else if (parser.parsed("-list"))
             deviceMgr.printList();
-        else if (parser.parsed("-number"))
-            deviceMgr.printListSize();
         else
-            deviceMgr.printMgr();
+            deviceMgr.printManager();
 
         return CmdExecResult::DONE;
     };
@@ -223,8 +182,8 @@ unique_ptr<ArgParseCmdType> dtPrintCmd() {
 //    DTGPrint [-Summary | -Edges | -Path | -Qubit]
 //-----------------------------------------------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> dtGraphPrintCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DTGPrint");
+unique_ptr<Command> dtGraphPrintCmd() {
+    auto cmd = make_unique<Command>("DTGPrint");
 
     cmd->precondition = deviceMgrNotEmpty;
 

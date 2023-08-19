@@ -13,9 +13,10 @@
 #include <memory>
 #include <string>
 
+#include "./logger.hpp"
 #include "./ordered_hashmap.hpp"
 
-extern size_t verbose;
+extern dvlab::utils::Logger logger;
 
 namespace dvlab {
 
@@ -86,9 +87,7 @@ public:
         _currID = id;
         if (id == _nextID || _nextID < id) _nextID = id + 1;
 
-        if (verbose >= 3) {
-            fmt::println("Created and checked out to {} {}", _typeName, id);
-        }
+        logger.info("Successfully created and checked out to {0} {1}", _typeName, id);
 
         return this->get();
     }
@@ -100,13 +99,12 @@ public:
         }
 
         _list.erase(id);
-        if (verbose >= 3) {
-            fmt::println("Successfully removed {} {}", _typeName, id);
-        }
+        logger.info("Successfully removed {0} {1}", _typeName, id);
+
         if (this->size() && _currID == id) {
             checkout(0);
         }
-        if (verbose >= 3 && this->empty()) {
+        if (this->empty()) {
             fmt::println("Note: The {} list is empty now", _typeName);
         }
         return;
@@ -119,12 +117,12 @@ public:
         }
 
         _currID = id;
-        if (verbose >= 3) printCheckOutMsg();
+        logger.info("Checked out to {} {}", _typeName, _currID);
     }
 
     void copy(size_t newID) {
         if (this->empty()) {
-            printMgrEmptyErrorMsg();
+            logger.error("Cannot copy {0}: The {0} list is empty!!", _typeName);
             return;
         }
         auto copy = std::make_unique<T>(*get());
@@ -133,7 +131,7 @@ public:
         if (_nextID <= newID) _nextID = newID + 1;
         _list.insert_or_assign(newID, std::move(copy));
 
-        if (verbose >= 3) printCopySuccessMsg(_currID, newID);
+        logger.info("Successfully copied {0} {1} to {0} {2}", _typeName, _currID, newID);
         checkout(newID);
     }
 
@@ -145,10 +143,11 @@ public:
         return _list.at(id).get();
     }
 
-    void printMgr() const {
-        printListSize();
+    void printManager() const {
+        fmt::println("-> #{}: {}", _typeName, this->size());
         if (this->size()) {
-            printFocusMsg();
+            auto name = dataName(get());
+            fmt::println("-> Now focused on: {} {}{}", _typeName, _currID, name.empty() ? "" : fmt::format(" ({})", name));
         }
     }
 
@@ -158,20 +157,17 @@ public:
                 fmt::println("{} {}    {}", (id == _currID ? "★" : " "), id, dataInfoString(data.get()));
             }
         } else {
-            printMgrEmptyErrorMsg();
+            fmt::println("The {} list is empty", _typeName);
         }
     }
 
     void printFocus() const {
         if (this->size()) {
-            printFocusMsg();
+            auto name = dataName(get());
+            fmt::println("-> Now focused on: {} {}{}", _typeName, _currID, name.empty() ? "" : fmt::format(" ({})", name));
         } else {
-            printMgrEmptyErrorMsg();
+            fmt::println("The {} list is empty", _typeName);
         }
-    }
-
-    void printListSize() const {
-        fmt::println("-> #{}: {}", _typeName, this->size());
     }
 
 private:
@@ -180,25 +176,8 @@ private:
     ordered_hashmap<size_t, std::unique_ptr<T>> _list;
     std::string _typeName;
 
-    void printCheckOutMsg() const {
-        fmt::println("Checked out to {} {}", _typeName, _currID);
-    }
-
     void printIdDoesNotExistErrorMsg() const {
         fmt::println(stderr, "Error: The ID provided does not exist!!");
-    }
-
-    void printFocusMsg() const {
-        auto name = dataName(get());
-        fmt::println("-> Now focused on: {} {}{}", _typeName, _currID, name.empty() ? "" : fmt::format(" ({})", name));
-    }
-
-    void printMgrEmptyErrorMsg() const {
-        fmt::println(stderr, "Error: {}Mgr is empty now!!", _typeName);
-    }
-
-    void printCopySuccessMsg(size_t oldID, size_t newID) const {
-        fmt::println("Successfully copied {0} {1} to {0} {2}", _typeName, oldID, newID);
     }
 };
 

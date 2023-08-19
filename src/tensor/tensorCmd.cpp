@@ -23,19 +23,19 @@ extern size_t verbose;
 
 using namespace ArgParse;
 
-unique_ptr<ArgParseCmdType> TensorMgrResetCmd();
-unique_ptr<ArgParseCmdType> TensorMgrPrintCmd();
-unique_ptr<ArgParseCmdType> TensorAdjointCmd();
-unique_ptr<ArgParseCmdType> TensorPrintCmd();
-unique_ptr<ArgParseCmdType> TensorEquivalenceCmd();
+unique_ptr<Command> TensorMgrResetCmd();
+unique_ptr<Command> TensorMgrPrintCmd();
+unique_ptr<Command> TensorAdjointCmd();
+unique_ptr<Command> TensorPrintCmd();
+unique_ptr<Command> TensorEquivalenceCmd();
 
 bool initTensorCmd() {
     if (!(
-            cli.regCmd("TSReset", 3, TensorMgrResetCmd()) &&
-            cli.regCmd("TSPrint", 3, TensorMgrPrintCmd()) &&
-            cli.regCmd("TSADJoint", 5, TensorAdjointCmd()) &&
-            cli.regCmd("TSTPrint", 4, TensorPrintCmd()) &&
-            cli.regCmd("TSEQuiv", 4, TensorEquivalenceCmd()))) {
+            cli.registerCommand("TSReset", 3, TensorMgrResetCmd()) &&
+            cli.registerCommand("TSPrint", 3, TensorMgrPrintCmd()) &&
+            cli.registerCommand("TSADJoint", 5, TensorAdjointCmd()) &&
+            cli.registerCommand("TSTPrint", 4, TensorPrintCmd()) &&
+            cli.registerCommand("TSEQuiv", 4, TensorEquivalenceCmd()))) {
         cerr << "Registering \"tensor\" commands fails... exiting" << endl;
         return false;
     }
@@ -50,8 +50,8 @@ ArgType<size_t>::ConstraintType validTensorId = {
         cerr << "Error: Can't find tensor with ID " << id << "!!" << endl;
     }};
 
-unique_ptr<ArgParseCmdType> TensorMgrResetCmd() {
-    unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSReset");
+unique_ptr<Command> TensorMgrResetCmd() {
+    unique_ptr<Command> cmd = make_unique<Command>("TSReset");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("reset the tensor manager");
@@ -65,36 +65,28 @@ unique_ptr<ArgParseCmdType> TensorMgrResetCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> TensorMgrPrintCmd() {
-    unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSPrint");
+unique_ptr<Command> TensorMgrPrintCmd() {
+    unique_ptr<Command> cmd = make_unique<Command>("TSPrint");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("print info of TensorMgr");
+        parser.help("print info about Tensors");
         auto mutex = parser.addMutuallyExclusiveGroup().required(false);
 
-        mutex.addArgument<bool>("-summary")
-            .action(storeTrue)
-            .help("print summary of all Tensors");
         mutex.addArgument<bool>("-focus")
             .action(storeTrue)
             .help("print the info of the Tensor in focus");
         mutex.addArgument<bool>("-list")
             .action(storeTrue)
             .help("print a list of Tensors");
-        mutex.addArgument<bool>("-number")
-            .action(storeTrue)
-            .help("print the number of Tensors managed");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser.parsed("-focus"))
             tensorMgr.printFocus();
-        else if (parser.parsed("-number"))
-            tensorMgr.printListSize();
         else if (parser.parsed("-list"))
             tensorMgr.printList();
         else
-            tensorMgr.printMgr();
+            tensorMgr.printManager();
 
         return CmdExecResult::DONE;
     };
@@ -102,8 +94,8 @@ unique_ptr<ArgParseCmdType> TensorMgrPrintCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> TensorPrintCmd() {
-    unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSTPrint");
+unique_ptr<Command> TensorPrintCmd() {
+    unique_ptr<Command> cmd = make_unique<Command>("TSTPrint");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("print info of Tensor");
@@ -127,8 +119,8 @@ unique_ptr<ArgParseCmdType> TensorPrintCmd() {
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> TensorAdjointCmd() {
-    unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSADJoint");
+unique_ptr<Command> TensorAdjointCmd() {
+    unique_ptr<Command> cmd = make_unique<Command>("TSADJoint");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("adjoint the specified tensor");
@@ -149,8 +141,8 @@ unique_ptr<ArgParseCmdType> TensorAdjointCmd() {
 
     return cmd;
 }
-unique_ptr<ArgParseCmdType> TensorEquivalenceCmd() {
-    unique_ptr<ArgParseCmdType> cmd = make_unique<ArgParseCmdType>("TSEQuiv");
+unique_ptr<Command> TensorEquivalenceCmd() {
+    unique_ptr<Command> cmd = make_unique<Command>("TSEQuiv");
 
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("check the equivalency of two stored tensors");

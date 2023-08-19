@@ -27,16 +27,16 @@ extern int effLimit;
 extern QCirMgr qcirMgr;
 extern DeviceMgr deviceMgr;
 
-unique_ptr<ArgParseCmdType> duostraCmd();
-unique_ptr<ArgParseCmdType> duostraPrintCmd();
-unique_ptr<ArgParseCmdType> duostraSetCmd();
-unique_ptr<ArgParseCmdType> mapEQCmd();
+unique_ptr<Command> duostraCmd();
+unique_ptr<Command> duostraPrintCmd();
+unique_ptr<Command> duostraSetCmd();
+unique_ptr<Command> mapEQCmd();
 
 bool initDuostraCmd() {
-    if (!(cli.regCmd("DUOSTRA", 7, duostraCmd()) &&
-          cli.regCmd("DUOSET", 6, duostraSetCmd()) &&
-          cli.regCmd("DUOPrint", 4, duostraPrintCmd()) &&
-          cli.regCmd("MPEQuiv", 4, mapEQCmd()))) {
+    if (!(cli.registerCommand("DUOSTRA", 7, duostraCmd()) &&
+          cli.registerCommand("DUOSET", 6, duostraSetCmd()) &&
+          cli.registerCommand("DUOPrint", 4, duostraPrintCmd()) &&
+          cli.registerCommand("MPEQuiv", 4, mapEQCmd()))) {
         cerr << "Registering \"Duostra\" commands fails... exiting" << endl;
         return false;
     }
@@ -46,8 +46,8 @@ bool initDuostraCmd() {
 //------------------------------------------------------------------------------
 //    DUOSTRA
 //------------------------------------------------------------------------------
-unique_ptr<ArgParseCmdType> duostraCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DUOSTRA");
+unique_ptr<Command> duostraCmd() {
+    auto cmd = make_unique<Command>("DUOSTRA");
 
     cmd->precondition = []() { return qcirMgrNotEmpty("DUOSTRA") && deviceMgrNotEmpty(); };
 
@@ -105,8 +105,8 @@ unique_ptr<ArgParseCmdType> duostraCmd() {
 //------------------------------------------------------------------------------
 //    DUOSET  ..... neglect
 //------------------------------------------------------------------------------
-unique_ptr<ArgParseCmdType> duostraSetCmd() {
-    auto duostraSetCmd = make_unique<ArgParseCmdType>("DUOSET");
+unique_ptr<Command> duostraSetCmd() {
+    auto duostraSetCmd = make_unique<Command>("DUOSET");
     duostraSetCmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("set Duostra parameter(s)");
 
@@ -193,10 +193,10 @@ unique_ptr<ArgParseCmdType> duostraSetCmd() {
 //------------------------------------------------------------------------------
 //    DUOPrint [-detail]
 //------------------------------------------------------------------------------
-unique_ptr<ArgParseCmdType> duostraPrintCmd() {
+unique_ptr<Command> duostraPrintCmd() {
     // SECTION - DUOPrint
 
-    auto duostraPrintCmd = make_unique<ArgParseCmdType>("DUOPrint");
+    auto duostraPrintCmd = make_unique<Command>("DUOPrint");
     duostraPrintCmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("print Duostra parameters");
         parser.addArgument<bool>("-detail")
@@ -228,8 +228,8 @@ unique_ptr<ArgParseCmdType> duostraPrintCmd() {
     return duostraPrintCmd;
 }
 
-unique_ptr<ArgParseCmdType> mapEQCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("MPEQuiv");
+unique_ptr<Command> mapEQCmd() {
+    auto cmd = make_unique<Command>("MPEQuiv");
 
     cmd->precondition = []() { return qcirMgrNotEmpty("MPEQuiv") && deviceMgrNotEmpty(); };
 

@@ -1,6 +1,5 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> zxgr benchmark/zx/tof2_opt.zx
-Created and checked out to ZXGraph 0
 
 qsyn> zxggf -all
 GFlow of the graph:

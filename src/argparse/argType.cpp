@@ -73,8 +73,8 @@ ArgType<std::string>::ConstraintType starts_with(std::vector<std::string> const&
             return std::ranges::any_of(prefixes, [&str](std::string const& prefix) { return str.starts_with(prefix); });
         },
         [prefixes](std::string const& str) {
-            fmt::println(stderr, "Error: string \"{}\" should start with one of {}!!",
-                         str, fmt::join(prefixes | views::transform([](std::string const& str) { return "\"" + str + "\""; }), " "));
+            fmt::println(stderr, "Error: string \"{}\" should start with one of \"{}\"!!",
+                         str, fmt::join(prefixes, "\", \""));
         }};
 }
 
@@ -84,8 +84,8 @@ ArgType<std::string>::ConstraintType ends_with(std::vector<std::string> const& s
             return std::ranges::any_of(suffixes, [&str](std::string const& suffix) { return str.ends_with(suffix); });
         },
         [suffixes](std::string const& str) {
-            fmt::println(stderr, "Error: string \"{}\" should start end one of {}!!",
-                         str, fmt::join(suffixes | views::transform([](std::string const& str) { return "\"" + str + "\""; }), " "));
+            fmt::println(stderr, "Error: string \"{}\" should start end one of \"{}\"!!",
+                         str, fmt::join(suffixes, "\", \""));
         }};
 }
 
@@ -95,8 +95,8 @@ ArgType<std::string>::ConstraintType allowed_extension(std::vector<std::string> 
             return std::ranges::any_of(extensions, [&str](std::string const& ext) { return str.substr(std::min(str.find_last_of('.'), str.size())) == ext; });
         },
         [extensions](std::string const& str) {
-            fmt::println(stderr, "Error: file must have one of the following extension: {}!!",
-                         fmt::join(extensions | views::transform([](std::string const& str) { return "\"" + str + "\""; }), " "));
+            fmt::println(stderr, "Error: file must have one of the following extension: \"{}\"!!",
+                         fmt::join(extensions, "\", \""));
         }};
 }
 

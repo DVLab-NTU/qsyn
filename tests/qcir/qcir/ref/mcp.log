@@ -1,7 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qcba 2
 Note: QCir list is empty now. Create a new one.
-Created and checked out to QCir 0
 
 qsyn> qcgadd -MCP -PH pi/3 0 1
 
@@ -18,10 +17,8 @@ Rotate Phase: π/3
 
 qsyn> qc2ts
 Traverse and build the tensor... 
-Created and checked out to Tensor 0
 
 qsyn> qc2zx
-Created and checked out to ZXGraph 0
 
 qsyn> zxgp -Q
 
@@ -64,8 +61,6 @@ ID:   5 (Z, π/6)         (Qubit, Col): (1, 4)	  #Neighbors:   3     (2, -) (3, 
 
 
 qsyn> zx2ts
-Traverse and build the tensor... 
-Created and checked out to Tensor 1
 
 qsyn> tseq 0 1
 Equivalent
@@ -81,7 +76,6 @@ qsyn> tsr
 qsyn> 
 qsyn> qcba 1
 Note: QCir list is empty now. Create a new one.
-Created and checked out to QCir 0
 
 qsyn> qcgadd -MCP -PH pi/3 0
 
@@ -92,7 +86,6 @@ Q0 Start ─┤ P ├─ End
 Rotate Phase: π/3
 
 qsyn> qc2zx
-Created and checked out to ZXGraph 0
 
 qsyn> zxgp -v
 
