@@ -26,7 +26,7 @@ class Argument {
 
 public:
     ~Argument() = default;
-    Argument(Argument const& other) : _pimpl(other._pimpl->clone()) {}
+    Argument(Argument const& other) : _pimpl(other._pimpl->clone()), _isOption(other._isOption) {}
 
     Argument& operator=(Argument copy) noexcept {
         copy.swap(*this);
@@ -36,8 +36,7 @@ public:
     Argument(Argument&& other) noexcept = default;
 
     void swap(Argument& rhs) noexcept {
-        using std::swap;
-        swap(_pimpl, rhs._pimpl);
+        std::swap(_pimpl, rhs._pimpl);
     }
 
     friend void swap(Argument& lhs, Argument& rhs) noexcept {

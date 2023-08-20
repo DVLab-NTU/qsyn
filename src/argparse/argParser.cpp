@@ -13,6 +13,7 @@
 #include <cassert>
 #include <numeric>
 
+#include "fmt/core.h"
 #include "util/trie.hpp"
 #include "util/util.hpp"
 
@@ -223,6 +224,9 @@ std::pair<bool, std::vector<Token>> ArgumentParser::parseKnownArgs(TokensView to
     if (!analyzeOptions()) return {false, {}};
 
     _pimpl->activatedSubParser = std::nullopt;
+    for (auto& mutex : _pimpl->mutuallyExclusiveGroups) {
+        mutex.setParsed(false);
+    }
 
     auto subparserTokenPos = std::invoke([this, tokens]() -> size_t {
         if (!_pimpl->subparsers.has_value())
@@ -302,10 +306,10 @@ bool ArgumentParser::parseOptions(TokensView tokens, std::vector<Token>& unrecog
 
         if (!arg.takeAction(tokens.subspan(i + 1, std::min(arg.getNArgs().upper, tokens.size() - (i + 1))))) return false;
         tokens[i].parsed = true;
-        arg.markAsParsed();
+        arg.markAsParsed(); // if the options is present, no matter if there's any argument the follows, mark it as parsed
     }
 
-    return allRequiredOptionsAreParsed() && allRequiredMutexGroupsAreParsed();
+    return allRequiredOptionsAreParsed();
 }
 
 /**
@@ -329,14 +333,21 @@ bool ArgumentParser::parsePositionalArguments(TokensView tokens, std::vector<Tok
             } else
                 continue;
         }
+        if (parse_range.size()) {
+            if (conflictWithParsedArguments(arg)) return false;
+        }
+
         if (!arg.takeAction(parse_range)) return false;
 
+        if (parse_range.size()) {
+            arg.markAsParsed();
+        }
+
         // only mark as parsed if at least some tokens is associated with this argument
-        if (parse_range.size()) arg.markAsParsed();
     }
     ranges::copy_if(tokens, back_inserter(unrecognized), [](Token const& token) { return !token.parsed; });
 
-    return allRequiredArgumentsAreParsed();
+    return allRequiredArgumentsAreParsed() && allRequiredMutexGroupsAreParsed();
 }
 
 void ArgumentParser::fillUnparsedArgumentsWithDefaults() {
@@ -369,13 +380,13 @@ variant<string, size_t> ArgumentParser::matchOption(std::string const& token) co
 bool ArgumentParser::conflictWithParsedArguments(Argument const& arg) const {
     if (!_pimpl->conflictGroups.contains(arg.getName())) return false;
 
-    auto& conflictGroup = _pimpl->conflictGroups.at(arg.getName());
-    if (!conflictGroup.isParsed()) {
-        conflictGroup.setParsed(true);
+    auto& mutexGroup = _pimpl->conflictGroups.at(arg.getName());
+    if (!mutexGroup.isParsed()) {
+        mutexGroup.setParsed(true);
         return false;
     }
 
-    for (auto const& conflict : conflictGroup.getArguments()) {
+    for (auto const& conflict : mutexGroup.getArguments()) {
         if (_pimpl->arguments.at(conflict).isParsed()) {
             fmt::println(stderr, "Error: argument \"{}\" cannot occur with \"{}\"!!", arg.getName(), conflict);
             return true;
@@ -445,15 +456,6 @@ bool ArgumentParser::allRequiredArgumentsAreParsed() const {
                                   return arg.isOption() || arg.getNArgs().lower == 0 || !arg.isRequired() || arg.isParsed();
                               }) | views::transform([](Argument const& arg) { return arg.getName(); }),
                               ", ")));
-}
-
-/**
- * @brief print the error message when duplicated argument name is detected
- *
- * @param name
- */
-void ArgumentParser::printDuplicateArgNameErrorMsg(std::string const& name) {
-    fmt::println(stderr, "[ArgParse] Error: Duplicate argument name \"{}\"!!", name);
 }
 
 MutuallyExclusiveGroup ArgumentParser::addMutuallyExclusiveGroup() {

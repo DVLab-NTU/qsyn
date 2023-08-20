@@ -480,6 +480,7 @@ unique_ptr<Command> ZXGEditCmd() {
 
         removeVertexParser.addArgument<size_t>("ids")
             .constraint(validZXVertexId)
+            .required(false)
             .nargs(NArgsOption::ZERO_OR_MORE)
             .help("the IDs of vertices to remove");
 
@@ -540,14 +541,14 @@ unique_ptr<Command> ZXGEditCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser.usedSubParser("-rmvertex")) {
-            auto ids = parser.get<vector<size_t>>("ids");
-            auto vertices_range = ids |
-                                  views::transform([](size_t id) { return zxGraphMgr.get()->findVertexById(id); }) |
-                                  views::filter([](ZXVertex* v) { return v != nullptr; });
-            zxGraphMgr.get()->removeVertices({vertices_range.begin(), vertices_range.end()});
-
-            if (parser.parsed("-isolated")) {
-                cout << "Note: removing isolated vertices..." << endl;
+            if (parser.parsed("ids")) {
+                auto ids = parser.get<vector<size_t>>("ids");
+                auto vertices_range = ids |
+                                    views::transform([](size_t id) { return zxGraphMgr.get()->findVertexById(id); }) |
+                                    views::filter([](ZXVertex* v) { return v != nullptr; });
+                zxGraphMgr.get()->removeVertices({vertices_range.begin(), vertices_range.end()});
+            } else if (parser.parsed("-isolated")) {
+                logger.info("Removing isolated vertices...");
                 zxGraphMgr.get()->removeIsolatedVertices();
             }
             return CmdExecResult::DONE;

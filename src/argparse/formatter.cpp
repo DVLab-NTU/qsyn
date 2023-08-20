@@ -18,22 +18,23 @@
 
 #include "./argType.hpp"
 #include "./argparse.hpp"
+#include "argparse/argGroup.hpp"
 #include "fmt/core.h"
 #include "unicode/display_width.hpp"
 #include "util/terminalAttributes.hpp"
 #include "util/textFormat.hpp"
+#include "util/util.hpp"
 
-using namespace std;
 using namespace dvlab;
 
 namespace ArgParse {
 
-constexpr auto sectionHeaderStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::bright_blue))); };
-constexpr auto requiredStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::cyan))); };
-constexpr auto metavarStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::emphasis::bold)); };
-constexpr auto optionStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::yellow))); };
-constexpr auto typeStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::cyan) | fmt::emphasis::italic)); };
-constexpr auto accentStyle = [](string const& str) -> string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::emphasis::bold | fmt::emphasis::underline)); };
+constexpr auto sectionHeaderStyle = [](std::string const& str) -> std::string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::bright_blue))); };
+constexpr auto requiredStyle = [](std::string const& str) -> std::string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::cyan))); };
+constexpr auto metavarStyle = [](std::string const& str) -> std::string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::emphasis::bold)); };
+constexpr auto optionStyle = [](std::string const& str) -> std::string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::yellow))); };
+constexpr auto typeStyle = [](std::string const& str) -> std::string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::fg(fmt::terminal_color::cyan) | fmt::emphasis::italic)); };
+constexpr auto accentStyle = [](std::string const& str) -> std::string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::emphasis::bold | fmt::emphasis::underline)); };
 
 /**
  * @brief circumfix the string with the required argument bracket (<...>)
@@ -41,7 +42,7 @@ constexpr auto accentStyle = [](string const& str) -> string { return fmt::forma
  * @param str
  * @return string
  */
-string Formatter::requiredArgBracket(std::string const& str) {
+std::string Formatter::requiredArgBracket(std::string const& str) {
     return requiredStyle("<") + str + requiredStyle(">");
 }
 
@@ -51,7 +52,7 @@ string Formatter::requiredArgBracket(std::string const& str) {
  * @param str
  * @return string
  */
-string Formatter::optionalArgBracket(std::string const& str) {
+std::string Formatter::optionalArgBracket(std::string const& str) {
     return optionStyle("[") + str + optionStyle("]");
 }
 
@@ -61,8 +62,8 @@ string Formatter::optionalArgBracket(std::string const& str) {
  * @param arg
  * @return string
  */
-string Formatter::getSyntaxString(Argument const& arg) {
-    string ret = "";
+std::string Formatter::getSyntaxString(Argument const& arg) {
+    std::string ret = "";
     NArgsRange nargs = arg.getNArgs();
     auto usageString = arg.getUsage().has_value()
                            ? arg.getUsage().value()
@@ -72,11 +73,11 @@ string Formatter::getSyntaxString(Argument const& arg) {
         if (nargs.lower == 0)
             ret = optionalArgBracket(usageString) + "...";
         else {
-            auto repeat_view = views::iota(0u, nargs.lower) | views::transform([&usageString](size_t i) { return usageString; });
+            auto repeat_view = std::views::iota(0u, nargs.lower) | std::views::transform([&usageString](size_t i) { return usageString; });
             ret = fmt::format("{}...", fmt::join(repeat_view, " "));
         }
     } else {
-        auto repeat_view = views::iota(0u, nargs.upper) | views::transform([&usageString, &nargs](size_t i) { return (i < nargs.lower) ? usageString : optionalArgBracket(usageString); });
+        auto repeat_view = std::views::iota(0u, nargs.upper) | std::views::transform([&usageString, &nargs](size_t i) { return (i < nargs.lower) ? usageString : optionalArgBracket(usageString); });
         ret = fmt::format("{}", fmt::join(repeat_view, " "));
     }
     if (arg.isOption()) {
@@ -86,8 +87,12 @@ string Formatter::getSyntaxString(Argument const& arg) {
     return ret;
 }
 
-string Formatter::getSyntaxString(SubParsers const& parsers) {
-    return fmt::format("{{{}}}", fmt::join(parsers.getSubParsers() | views::values | views::transform([](ArgumentParser const& parser) { return styledCmdName(parser.getName(), parser.getNumRequiredChars()); }), " | "));
+std::string Formatter::getSyntaxString(SubParsers const& parsers) {
+    return fmt::format("{}", fmt::join(parsers.getSubParsers() | std::views::values | std::views::transform([](ArgumentParser const& parser) { return styledCmdName(parser.getName(), parser.getNumRequiredChars()); }), " | "));
+}
+
+std::string Formatter::getSyntaxString(ArgumentParser parser, MutuallyExclusiveGroup const& group) {
+    return fmt::format("{}", fmt::join(group.getArguments() | std::views::transform([&parser](std::string const& name) { return getSyntaxString(parser._pimpl->arguments.at(toLowerString(name))); }), " | "));
 }
 
 /**
@@ -138,29 +143,21 @@ void Formatter::tabulateHelpString(fort::utf8_table& table, size_t max_help_stri
     table << insertLineBreaksToString(arg.getHelp(), max_help_string_width) << fort::endr;
 }
 
-void Formatter::tabulateHelpString(fort::utf8_table& table, size_t max_help_string_width, SubParsers const& parsers) {
-    table << getSyntaxString(parsers)
-          << ""
-          << ""
-          << insertLineBreaksToString(parsers.getHelp(), max_help_string_width)
-          << fort::endr;
-}
-
 /**
  * @brief print the styled argument name.
  *
  * @param arg
  * @return string
  */
-string Formatter::styledArgName(Argument const& arg) {
+std::string Formatter::styledArgName(Argument const& arg) {
     if (!arg.isOption()) return metavarStyle(arg.getMetavar());
 
     if (utils::ANSI_supported()) {
-        string mand = arg.getName().substr(0, arg.getNumRequiredChars());
-        string rest = arg.getName().substr(arg.getNumRequiredChars());
+        std::string mand = arg.getName().substr(0, arg.getNumRequiredChars());
+        std::string rest = arg.getName().substr(arg.getNumRequiredChars());
         return optionStyle(accentStyle(mand)) + optionStyle(rest);
     } else {
-        string tmp = arg.getName();
+        std::string tmp = arg.getName();
         for (size_t i = 0; i < tmp.size(); ++i) {
             tmp[i] = (i < arg.getNumRequiredChars()) ? ::toupper(tmp[i]) : ::tolower(tmp[i]);
         }
@@ -173,13 +170,13 @@ string Formatter::styledArgName(Argument const& arg) {
  *
  * @return string
  */
-string Formatter::styledCmdName(std::string const& name, size_t numRequired) {
+std::string Formatter::styledCmdName(std::string const& name, size_t numRequired) {
     if (utils::ANSI_supported()) {
-        string mand = name.substr(0, numRequired);
-        string rest = name.substr(numRequired);
+        std::string mand = name.substr(0, numRequired);
+        std::string rest = name.substr(numRequired);
         return accentStyle(mand) + rest;
     } else {
-        string tmp = name;
+        std::string tmp = name;
         for (size_t i = 0; i < tmp.size(); ++i) {
             tmp[i] = (i < numRequired) ? ::toupper(tmp[i]) : ::tolower(tmp[i]);
         }
@@ -216,39 +213,27 @@ void Formatter::printUsage(ArgumentParser const& parser) {
 
     for (auto const& group : mutexGroups) {
         if (!group.isRequired()) {
-            fmt::print(" {}{}{}", optionStyle("["),
-                       fmt::join(
-                           group.getArguments() | views::transform([&arguments](std::string const& name) {
-                               return getSyntaxString(arguments.at(toLowerString(name)));
-                           }),
-                           optionStyle(" | ")),
-                       optionStyle("]"));
+            fmt::print(" {}{}{}", optionStyle("["), getSyntaxString(parser, group), optionStyle("]"));
         }
     }
 
     for (auto const& group : mutexGroups) {
         if (group.isRequired()) {
-            fmt::print(" {}{}{}", requiredStyle("<"),
-                       fmt::join(
-                           group.getArguments() | views::transform([&parser, &arguments](std::string const& name) {
-                               return getSyntaxString(arguments.at(toLowerString(name)));
-                           }),
-                           requiredStyle(" | ")),
-                       requiredStyle(">"));
+            fmt::print(" ({})", getSyntaxString(parser, group));
         }
     }
 
     for (auto const& [name, arg] : arguments) {
         if (arg.isRequired() && !conflictGroups.contains(toLowerString(name))) {
-            fmt::print(" {}", getSyntaxString(arg));
+            fmt::print(" {}{}{}", arg.isOption() ? "(" : "", getSyntaxString(arg), arg.isOption() ? ")" : "");
         }
     }
 
     if (subparsers.has_value()) {
-        fmt::print(" {}{} ...{}",
-                   subparsers->isRequired() ? "" : optionStyle("["),
+        fmt::print(" {}{}{} ...",
+                   subparsers->isRequired() ? "(" : optionStyle("["),
                    getSyntaxString(subparsers.value()),
-                   subparsers->isRequired() ? "" : optionStyle("]"));
+                   subparsers->isRequired() ? ")" : optionStyle("]"));
     }
 
     fmt::println("");
@@ -299,63 +284,63 @@ void Formatter::printHelp(ArgumentParser const& parser) {
 
     auto [terminal_width, terminal_height] = dvlab::utils::get_terminal_size();
 
-    auto typeStringLength = arguments.empty() ? 0 : std::ranges::max(arguments | views::values | views::transform([](Argument const& arg) -> size_t { return arg.getTypeString().size(); }));
+    auto typeStringLength = arguments.empty() ? 0 : std::ranges::max(arguments | std::views::values | std::views::transform([](Argument const& arg) -> size_t { return arg.getTypeString().size(); }));
 
-    auto nameLength = arguments.empty() ? 0 : std::ranges::max(arguments | views::values | views::transform([](Argument const& arg) -> size_t { return arg.getName().size(); }));
+    auto nameLength = arguments.empty() ? 0 : std::ranges::max(arguments | std::views::values | std::views::transform([](Argument const& arg) -> size_t { return arg.getName().size(); }));
 
-    auto metavarLength = arguments.empty() ? 0 : std::ranges::max(arguments | views::values | views::transform([](Argument const& arg) -> size_t { return arg.getMetavar().size(); }));
+    auto metavarLength = arguments.empty() ? 0 : std::ranges::max(arguments | std::views::values | std::views::transform([](Argument const& arg) -> size_t { return arg.getMetavar().size(); }));
 
     // 7 = 1 * left margin (1) + 3 * (left+right cell padding (2))
     auto max_help_string_width = terminal_width - typeStringLength - nameLength - metavarLength - 7;
 
     auto& subparsers = parser._pimpl->subparsers;
 
-    auto argPairIsRequired = [](pair<string, Argument> const& argPair) {
-        return argPair.second.isRequired();
+    auto argPairIsPositional = [](std::pair<std::string, Argument> const& argPair) {
+        return !argPair.second.isOption();
     };
 
-    auto argPairIsOptional = [](pair<string, Argument> const& argPair) {
-        return !argPair.second.isRequired();
+    auto argPairIsOptions = [](std::pair<std::string, Argument> const& argPair) {
+        return argPair.second.isOption();
     };
 
-    bool hasRequiredArguments = find_if(arguments.begin(), arguments.end(), argPairIsRequired) != arguments.end();
-    bool hasOptionalArguments = find_if(arguments.begin(), arguments.end(), argPairIsOptional) != arguments.end();
-    bool hasRequiredSubparsers = subparsers.has_value() && subparsers->isRequired();
-    bool hasOptionalSubparsers = subparsers.has_value() && !subparsers->isRequired();
+    bool hasPositionalArguments = find_if(arguments.begin(), arguments.end(), argPairIsPositional) != arguments.end();
+    bool hasOptions = find_if(arguments.begin(), arguments.end(), argPairIsOptions) != arguments.end();
 
-    if (hasRequiredArguments || hasRequiredSubparsers) {
-        fmt::println("\n{}", sectionHeaderStyle("Required Arguments:"));
+    if (hasPositionalArguments) {
+        fmt::println("\n{}", sectionHeaderStyle("Positional Arguments:"));
+        for (auto const& [_, arg] : arguments) {
+            if (!arg.isOption()) {
+                tabulateHelpString(table, max_help_string_width, arg);
+            }
+        }
+
+        fmt::println("{}", table.to_string());
+        table = fort::utf8_table();
+        table.set_border_style(FT_EMPTY_STYLE);
+        table.set_left_margin(1);
     }
 
-    if (hasRequiredArguments) {
+    if (hasOptions) {
+        fmt::println("\n{}", sectionHeaderStyle("Options:"));
         for (auto const& [_, arg] : arguments) {
-            if (arg.isRequired()) {
+            if (arg.isOption()) {
                 tabulateHelpString(table, max_help_string_width, arg);
+            }
+        }
+        fmt::println("{}", table.to_string());
+    }
+
+    if (subparsers.has_value()) {
+        fmt::println("\n{}", sectionHeaderStyle("Subcommands:"));
+        fmt::println("({})", getSyntaxString(subparsers.value()));
+        for (auto& [name, parser] : subparsers->getSubParsers()) {
+            if (parser.getHelp().size()) {
+                fmt::print("  ");
+                printSummary(parser);
             }
         }
     }
 
-    if (hasRequiredSubparsers) {
-        tabulateHelpString(table, max_help_string_width, subparsers.value());
-    }
-
-    if (hasOptionalArguments || hasOptionalSubparsers) {
-        fmt::println("\n{}", sectionHeaderStyle("Optional Arguments:"));
-    }
-
-    if (hasOptionalArguments) {
-        for (auto const& [_, arg] : arguments) {
-            if (!arg.isRequired()) {
-                tabulateHelpString(table, max_help_string_width, arg);
-            }
-        }
-    }
-
-    if (hasOptionalSubparsers) {
-        tabulateHelpString(table, max_help_string_width, subparsers.value());
-    }
-
-    fmt::println("{}", table.to_string());
 }
 
 }  // namespace ArgParse

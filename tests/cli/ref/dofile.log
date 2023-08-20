@@ -93,7 +93,7 @@ Usage: DOfile <string file> [<string arguments>]...
 Description:
   execute the commands in the dofile
 
-Required Arguments:
+Positional Arguments:
   string  file         path to a dofile, i.e., a list of Qsyn commands 
   string  arguments    arguments to the dofile                         
 
@@ -117,7 +117,7 @@ Usage: QQuit [-Force]
 Description:
   quit Qsyn
 
-Optional Arguments:
+Options:
   flag  -Force    quit without reaffirming 
 
 
@@ -127,7 +127,7 @@ Usage: DOfile <string file> [<string arguments>]...
 Description:
   execute the commands in the dofile
 
-Required Arguments:
+Positional Arguments:
   string  file         path to a dofile, i.e., a list of Qsyn commands 
   string  arguments    arguments to the dofile                         
 
@@ -138,7 +138,7 @@ Usage: QQuit [-Force]
 Description:
   quit Qsyn
 
-Optional Arguments:
+Options:
   flag  -Force    quit without reaffirming 
 
 
@@ -148,7 +148,7 @@ Usage: DOfile <string file> [<string arguments>]...
 Description:
   execute the commands in the dofile
 
-Required Arguments:
+Positional Arguments:
   string  file         path to a dofile, i.e., a list of Qsyn commands 
   string  arguments    arguments to the dofile                         
 

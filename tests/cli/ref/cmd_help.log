@@ -1,0 +1,70 @@
+DV Lab, NTUEE, Qsyn 0.5.1
+qsyn> help logger
+Usage: LOGger [Test | Level | History | Mask ...]
+
+Description:
+  display and set the logger's status
+
+Subcommands:
+(Test | Level | History | Mask)
+  Test           : Test out logger setting
+  Level          : set logger level
+  History        : print logger history
+  Mask           : set logger mask
+
+qsyn> help dofile
+Usage: DOfile <string file> [<string arguments>]...
+
+Description:
+  execute the commands in the dofile
+
+Positional Arguments:
+  string  file         path to a dofile, i.e., a list of Qsyn commands 
+  string  arguments    arguments to the dofile                         
+
+
+qsyn> help zxge
+Usage: ZXGEdit (-RMVertex | -RMEdge | -ADDVertex | -ADDInput | -ADDOutput | -ADDEdge ...)
+
+Description:
+  edit ZXGraph
+
+Subcommands:
+(-RMVertex | -RMEdge | -ADDVertex | -ADDInput | -ADDOutput | -ADDEdge)
+
+qsyn> help extract
+Usage: EXTRact (-CX | -CZ | -PHase | -Hadamard | -CLfrontier | -Rmgadgets | -PErmute | -Loop [<size_t N>]) (-Zxgraph <size_t ID>) (-Qcir <size_t ID>)
+
+Description:
+  perform step(s) in extraction
+
+Options:
+  size_t  -Zxgraph     ID  the ID of the ZXGraph to extract from                   
+  size_t  -Qcir        ID  the ID of the QCir to extract to                        
+  flag    -CX              Extract CX gates                                        
+  flag    -CZ              Extract CZ gates                                        
+  flag    -PHase           Extract Z-rotation gates                                
+  flag    -Hadamard        Extract Hadamard gates                                  
+  flag    -CLfrontier      Extract Z-rotation and then CZ gates                    
+  flag    -Rmgadgets       Remove phase gadgets in the neighbor of the frontiers   
+  flag    -PErmute         Add swap gates to account for ZXGraph I/O permutations  
+  size_t  -Loop        N   Run N iteration of extraction loop. N is defaulted to 1 
+
+
+qsyn> help zxgr
+Usage: ZXGRead [-Keepid] [-Replace] <string filepath>
+
+Description:
+  read a file and construct the corresponding ZXGraph
+
+Positional Arguments:
+  string  filepath    path to the ZX file. Supported extensions: .zx, .bzx 
+
+
+Options:
+  flag  -Keepid     if set, retain the IDs in the ZX file; otherwise the ID is rearranged to be consecutive 
+  flag  -Replace    replace the current ZXGraph                                                             
+
+
+qsyn> qq -f
+

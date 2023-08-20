@@ -18,6 +18,7 @@ namespace ArgParse {
 class Argument;
 class ArgumentParser;
 class SubParsers;
+class MutuallyExclusiveGroup;
 /**
  * @brief Pretty printer for the command usages and helps.
  *
@@ -33,7 +34,7 @@ public:
 
     static std::string getSyntaxString(Argument const& arg);
     static std::string getSyntaxString(SubParsers const& parsers);
-    // static std::string getSyntaxString(MutuallyExclusiveGroup const& group);
+    static std::string getSyntaxString(ArgumentParser parser, MutuallyExclusiveGroup const& group);
 
     static std::string getUsageString(Argument const& arg);
     static std::string requiredArgBracket(std::string const& str);
@@ -41,7 +42,6 @@ public:
 
 private:
     static void tabulateHelpString(fort::utf8_table& table, size_t max_help_string_width, Argument const& arg);
-    static void tabulateHelpString(fort::utf8_table& table, size_t max_help_string_width, SubParsers const& parsers);
 };
 
 }  // namespace ArgParse

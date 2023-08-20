@@ -179,14 +179,6 @@ private:
 
     std::shared_ptr<ArgumentParserImpl> _pimpl;
 
-    template <typename ArgT>
-    static decltype(auto)
-    operator_bracket_impl(ArgT&& t, std::string const& name);
-
-    // addArgument error printing
-
-    static void printDuplicateArgNameErrorMsg(std::string const& name);
-
     // pretty printing helpers
 
     void setNumRequiredChars(size_t num) { _pimpl->numRequiredChars = num; }
@@ -247,7 +239,7 @@ requires ValidArgumentType<T>
 ArgType<T>& ArgumentParser::addArgument(std::string const& name) {
     auto key = toLowerString(name);
     if (_pimpl->arguments.contains(key)) {
-        printDuplicateArgNameErrorMsg(name);
+        fmt::println(stderr, "[ArgParse] Error: Duplicate argument name \"{}\"!!", name);
     } else {
         _pimpl->arguments.emplace(key, Argument(key, T{}));
     }

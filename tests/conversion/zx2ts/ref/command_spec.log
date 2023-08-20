@@ -9,7 +9,7 @@ Usage: ZX2TS [-Zx <size_t id>] [-Ts <size_t id>] [-Replace]
 Description:
   convert ZXGraph to tensor
 
-Optional Arguments:
+Options:
   size_t  -Zx       id  the ID of the ZXGraph to be converted. If not specified, the focused ZXGraph is used 
   size_t  -Ts       id  the ID of the target tensor. If not specified, an ID is automatically assigned       
   flag    -Replace      replace the target tensor if the tensor ID is occupied                               
