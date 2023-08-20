@@ -47,18 +47,14 @@ std::ostream& operator<<(std::ostream& os, const Info& info);
 
 class Topology {
 public:
-    Topology(size_t id) : _id(id) {
-    }
+    Topology() {}
     ~Topology() {}
-
-    size_t getId() const { return _id; }
 
     std::string getName() const { return _name; }
     const std::vector<GateType>& getGateSet() const { return _gateSet; }
     const Info& getAdjPairInfo(size_t, size_t);
     const Info& getQubitInfo(size_t);
     size_t getAdjSize() const { return _adjInfo.size(); }
-    void setId(size_t id) { _id = id; }
     void setNQubit(size_t n) { _nQubit = n; }
     void setName(std::string n) { _name = n; }
     void addGateType(GateType gt) { _gateSet.emplace_back(gt); }
@@ -68,7 +64,6 @@ public:
     void printSingleEdge(size_t a, size_t b) const;
 
 private:
-    size_t _id;
     std::string _name;
     size_t _nQubit;
     std::vector<GateType> _gateSet;
@@ -128,10 +123,9 @@ private:
 
 class Device {
 public:
-    Device(size_t);
+    Device();
     ~Device() {}
 
-    size_t getId() const { return _id; }
     std::string getName() const { return _topology->getName(); }
     size_t getNQubit() const { return _nQubit; }
     const PhyQubitList& getPhyQubitList() const { return _qubitList; }
@@ -140,7 +134,6 @@ public:
     std::tuple<size_t, size_t> getNextSwapCost(size_t source, size_t target);
     bool qubitIdExist(size_t id) { return _qubitList.contains(id); }
 
-    void setId(size_t id) { _id = id; }
     void setNQubit(size_t n) { _nQubit = n; }
     void addPhyQubit(PhysicalQubit q) { _qubitList[q.getId()] = q; }
     void addAdjacency(size_t a, size_t b);
@@ -169,7 +162,6 @@ public:
     void printStatus() const;
 
 private:
-    size_t _id;
     size_t _nQubit;
     std::shared_ptr<Topology> _topology;
     PhyQubitList _qubitList;

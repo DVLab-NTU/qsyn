@@ -77,10 +77,7 @@ unique_ptr<Command> duostraCmd() {
         }
 #endif
         QCir* logicalQCir = qcirMgr.get();
-        Duostra duo{logicalQCir, *deviceMgr.get(),
-                    parser.get<bool>("-check"),
-                    !parser.get<bool>("-mute-tqdm"),
-                    parser.get<bool>("-silent")};
+        Duostra duo{logicalQCir, *deviceMgr.get(), {.verifyResult = parser.get<bool>("-check"), .silent = parser.get<bool>("-silent"), .useTqdm = !parser.get<bool>("-mute-tqdm")}};
         if (duo.flow() == ERROR_CODE) {
             return CmdExecResult::ERROR;
         }
@@ -92,7 +89,6 @@ unique_ptr<Command> duostraCmd() {
         qcirMgr.add(id);
         qcirMgr.set(std::move(duo.getPhysicalCircuit()));
 
-        qcirMgr.get()->setId(id);
         qcirMgr.get()->setFileName(logicalQCir->getFileName());
         qcirMgr.get()->addProcedures(logicalQCir->getProcedures());
         qcirMgr.get()->addProcedure("Duostra");

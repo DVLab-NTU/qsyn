@@ -58,7 +58,7 @@ unique_ptr<Command> ExtractCmd() {
 
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         if (!zxGraphMgr.get()->isGraphLike()) {
-            cerr << "Error: ZXGraph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
+            logger.error("ZXGraph {0} is not graph-like. Not extractable!!", zxGraphMgr.focusedID());
             return CmdExecResult::ERROR;
         }
         size_t nextId = zxGraphMgr.getNextID();
@@ -145,7 +145,7 @@ unique_ptr<Command> ExtractStepCmd() {
     cmd->onParseSuccess = [](ArgumentParser const &parser) {
         zxGraphMgr.checkout(parser.get<size_t>("-zxgraph"));
         if (!zxGraphMgr.get()->isGraphLike()) {
-            cerr << "Error: ZXGraph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
+            logger.error("ZXGraph {0} is not graph-like. Not extractable!!", zxGraphMgr.focusedID());
             return CmdExecResult::ERROR;
         }
 
@@ -242,7 +242,7 @@ unique_ptr<Command> ExtractPrintCmd() {
             cout << "Block Size:        " << BLOCK_SIZE << endl;
         } else {
             if (!zxGraphMgr.get()->isGraphLike()) {
-                cerr << "Error: ZXGraph (id: " << zxGraphMgr.get()->getId() << ") is not graph-like. Not extractable!!" << endl;
+                logger.error("ZXGraph {0} is not graph-like. Not extractable!!", zxGraphMgr.focusedID());
                 return CmdExecResult::ERROR;
             }
             Extractor ext(zxGraphMgr.get());

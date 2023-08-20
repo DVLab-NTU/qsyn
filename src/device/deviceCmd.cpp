@@ -122,7 +122,7 @@ unique_ptr<Command> dtGraphReadCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        Device bufferDevice = Device(0);
+        Device bufferDevice;
         auto filepath = parser.get<string>("filepath");
         auto replace = parser.get<bool>("-replace");
 

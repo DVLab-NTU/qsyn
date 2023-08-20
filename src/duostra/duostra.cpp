@@ -141,9 +141,9 @@ size_t getPlacerType(string str) {
  * @param tqdm
  * @param silent
  */
-Duostra::Duostra(QCir* cir, Device dev, bool check, bool tqdm, bool silent)
-    : _logicalCircuit(cir), _physicalCircuit(new QCir(0)), _device(dev), _check(check),
-      _tqdm{(silent == true) ? false : tqdm}, _silent{silent} {
+Duostra::Duostra(QCir* cir, Device dev, DuostraConfig const& config)
+    : _logicalCircuit(cir), _device(dev), _check(config.verifyResult),
+      _tqdm{!config.silent && config.useTqdm}, _silent{config.silent} {
     if (verbose > 3) cout << "Creating dependency of quantum circuit..." << endl;
     makeDependency();
 }
@@ -157,9 +157,9 @@ Duostra::Duostra(QCir* cir, Device dev, bool check, bool tqdm, bool silent)
  * @param tqdm
  * @param silent
  */
-Duostra::Duostra(const vector<Operation>& cir, size_t nQubit, Device dev, bool check, bool tqdm, bool silent)
-    : _logicalCircuit(nullptr), _physicalCircuit(new QCir(0)), _device(dev), _check(check),
-      _tqdm{(silent == true) ? false : tqdm}, _silent{silent} {
+Duostra::Duostra(vector<Operation> const& cir, size_t nQubit, Device dev, DuostraConfig const& config)
+    : _logicalCircuit(nullptr), _device(dev), _check(config.verifyResult),
+      _tqdm{!config.silent && config.useTqdm}, _silent{config.silent} {
     if (verbose > 3) cout << "Creating dependency of quantum circuit..." << endl;
     makeDependency(cir, nQubit);
 }

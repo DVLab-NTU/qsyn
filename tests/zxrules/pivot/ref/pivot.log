@@ -131,17 +131,17 @@ Total #Vertices: 9
 
 
 qsyn> zxgp -e
-( 0, 11 )	Type:	H
-( 1, 12 )	Type:	H
-( 2, 5 )	Type:	-
-( 3, 9 )	Type:	-
-( 5, 10 )	Type:	-
-( 5, 11 )	Type:	H
-( 9, 10 )	Type:	-
-( 9, 12 )	Type:	H
-( 10, 11 )	Type:	H
-( 10, 12 )	Type:	H
-( 11, 12 )	Type:	H
+(0, 11)      Type: H
+(1, 12)      Type: H
+(2, 5)       Type: -
+(3, 9)       Type: -
+(5, 10)      Type: -
+(5, 11)      Type: H
+(9, 10)      Type: -
+(9, 12)      Type: H
+(10, 11)     Type: H
+(10, 12)     Type: H
+(11, 12)     Type: H
 Total #Edges: 11
 
 qsyn> zxr
@@ -260,13 +260,13 @@ Total #Vertices: 8
 
 
 qsyn> zxgp -e
-( 0, 10 )	Type:	H
-( 1, 11 )	Type:	H
-( 2, 5 )	Type:	-
-( 3, 9 )	Type:	-
-( 5, 10 )	Type:	H
-( 9, 11 )	Type:	H
-( 10, 11 )	Type:	H
+(0, 10)      Type: H
+(1, 11)      Type: H
+(2, 5)       Type: -
+(3, 9)       Type: -
+(5, 10)      Type: H
+(9, 11)      Type: H
+(10, 11)     Type: H
 Total #Edges: 7
 
 qsyn> zxr
@@ -518,49 +518,49 @@ Total #Vertices: 24
 
 
 qsyn> zxgp -e
-( 0, 10 )	Type:	-
-( 1, 11 )	Type:	-
-( 2, 7 )	Type:	-
-( 3, 11 )	Type:	-
-( 6, 16 )	Type:	-
-( 6, 7 )	Type:	H
-( 6, 8 )	Type:	H
-( 6, 9 )	Type:	H
-( 6, 10 )	Type:	H
-( 6, 11 )	Type:	H
-( 6, 12 )	Type:	H
-( 6, 13 )	Type:	H
-( 6, 14 )	Type:	H
-( 6, 15 )	Type:	H
-( 7, 17 )	Type:	-
-( 7, 12 )	Type:	H
-( 7, 13 )	Type:	H
-( 7, 14 )	Type:	H
-( 7, 15 )	Type:	H
-( 8, 18 )	Type:	-
-( 8, 12 )	Type:	H
-( 8, 13 )	Type:	H
-( 8, 14 )	Type:	H
-( 8, 15 )	Type:	H
-( 9, 19 )	Type:	-
-( 9, 12 )	Type:	H
-( 9, 13 )	Type:	H
-( 9, 14 )	Type:	H
-( 9, 15 )	Type:	H
-( 10, 20 )	Type:	-
-( 10, 12 )	Type:	H
-( 10, 13 )	Type:	H
-( 10, 14 )	Type:	H
-( 10, 15 )	Type:	H
-( 11, 21 )	Type:	-
-( 11, 12 )	Type:	H
-( 11, 13 )	Type:	H
-( 11, 14 )	Type:	H
-( 11, 15 )	Type:	H
-( 12, 22 )	Type:	-
-( 13, 23 )	Type:	-
-( 14, 24 )	Type:	-
-( 15, 25 )	Type:	-
+(0, 10)      Type: -
+(1, 11)      Type: -
+(2, 7)       Type: -
+(3, 11)      Type: -
+(6, 16)      Type: -
+(6, 7)       Type: H
+(6, 8)       Type: H
+(6, 9)       Type: H
+(6, 10)      Type: H
+(6, 11)      Type: H
+(6, 12)      Type: H
+(6, 13)      Type: H
+(6, 14)      Type: H
+(6, 15)      Type: H
+(7, 17)      Type: -
+(7, 12)      Type: H
+(7, 13)      Type: H
+(7, 14)      Type: H
+(7, 15)      Type: H
+(8, 18)      Type: -
+(8, 12)      Type: H
+(8, 13)      Type: H
+(8, 14)      Type: H
+(8, 15)      Type: H
+(9, 19)      Type: -
+(9, 12)      Type: H
+(9, 13)      Type: H
+(9, 14)      Type: H
+(9, 15)      Type: H
+(10, 20)     Type: -
+(10, 12)     Type: H
+(10, 13)     Type: H
+(10, 14)     Type: H
+(10, 15)     Type: H
+(11, 21)     Type: -
+(11, 12)     Type: H
+(11, 13)     Type: H
+(11, 14)     Type: H
+(11, 15)     Type: H
+(12, 22)     Type: -
+(13, 23)     Type: -
+(14, 24)     Type: -
+(15, 25)     Type: -
 Total #Edges: 43
 
 qsyn> zxr
@@ -1108,130 +1108,130 @@ Total #Vertices: 44
 
 
 qsyn> zxgp -e
-( 0, 10 )	Type:	-
-( 1, 43 )	Type:	-
-( 2, 22 )	Type:	-
-( 3, 45 )	Type:	-
-( 6, 28 )	Type:	-
-( 6, 7 )	Type:	H
-( 6, 8 )	Type:	H
-( 6, 9 )	Type:	H
-( 6, 10 )	Type:	H
-( 6, 11 )	Type:	H
-( 6, 12 )	Type:	H
-( 6, 13 )	Type:	H
-( 6, 14 )	Type:	H
-( 6, 15 )	Type:	H
-( 6, 24 )	Type:	H
-( 6, 25 )	Type:	H
-( 6, 26 )	Type:	H
-( 6, 27 )	Type:	H
-( 7, 29 )	Type:	-
-( 7, 12 )	Type:	H
-( 7, 13 )	Type:	H
-( 7, 14 )	Type:	H
-( 7, 15 )	Type:	H
-( 7, 24 )	Type:	H
-( 7, 25 )	Type:	H
-( 7, 26 )	Type:	H
-( 7, 27 )	Type:	H
-( 8, 30 )	Type:	-
-( 8, 12 )	Type:	H
-( 8, 13 )	Type:	H
-( 8, 14 )	Type:	H
-( 8, 15 )	Type:	H
-( 8, 24 )	Type:	H
-( 8, 25 )	Type:	H
-( 8, 26 )	Type:	H
-( 8, 27 )	Type:	H
-( 9, 31 )	Type:	-
-( 9, 12 )	Type:	H
-( 9, 13 )	Type:	H
-( 9, 14 )	Type:	H
-( 9, 15 )	Type:	H
-( 9, 24 )	Type:	H
-( 9, 25 )	Type:	H
-( 9, 26 )	Type:	H
-( 9, 27 )	Type:	H
-( 10, 32 )	Type:	-
-( 10, 18 )	Type:	-
-( 10, 12 )	Type:	H
-( 10, 13 )	Type:	H
-( 10, 14 )	Type:	H
-( 10, 15 )	Type:	H
-( 10, 24 )	Type:	H
-( 10, 25 )	Type:	H
-( 10, 26 )	Type:	H
-( 10, 27 )	Type:	H
-( 11, 33 )	Type:	-
-( 11, 18 )	Type:	-
-( 11, 12 )	Type:	H
-( 11, 13 )	Type:	H
-( 11, 14 )	Type:	H
-( 11, 15 )	Type:	H
-( 11, 24 )	Type:	H
-( 11, 25 )	Type:	H
-( 11, 26 )	Type:	H
-( 11, 27 )	Type:	H
-( 12, 34 )	Type:	-
-( 12, 24 )	Type:	-
-( 12, 25 )	Type:	-
-( 12, 26 )	Type:	-
-( 12, 27 )	Type:	-
-( 13, 35 )	Type:	-
-( 13, 24 )	Type:	-
-( 13, 25 )	Type:	-
-( 13, 26 )	Type:	-
-( 13, 27 )	Type:	-
-( 14, 36 )	Type:	-
-( 14, 24 )	Type:	-
-( 14, 25 )	Type:	-
-( 14, 26 )	Type:	-
-( 14, 27 )	Type:	-
-( 15, 37 )	Type:	-
-( 15, 24 )	Type:	-
-( 15, 25 )	Type:	-
-( 15, 26 )	Type:	-
-( 15, 27 )	Type:	-
-( 18, 38 )	Type:	-
-( 18, 19 )	Type:	H
-( 18, 20 )	Type:	H
-( 18, 21 )	Type:	H
-( 18, 22 )	Type:	H
-( 18, 23 )	Type:	H
-( 18, 24 )	Type:	H
-( 18, 25 )	Type:	H
-( 18, 26 )	Type:	H
-( 18, 27 )	Type:	H
-( 19, 39 )	Type:	-
-( 19, 24 )	Type:	H
-( 19, 25 )	Type:	H
-( 19, 26 )	Type:	H
-( 19, 27 )	Type:	H
-( 20, 40 )	Type:	-
-( 20, 24 )	Type:	H
-( 20, 25 )	Type:	H
-( 20, 26 )	Type:	H
-( 20, 27 )	Type:	H
-( 21, 41 )	Type:	-
-( 21, 24 )	Type:	H
-( 21, 25 )	Type:	H
-( 21, 26 )	Type:	H
-( 21, 27 )	Type:	H
-( 22, 42 )	Type:	-
-( 22, 24 )	Type:	H
-( 22, 25 )	Type:	H
-( 22, 26 )	Type:	H
-( 22, 27 )	Type:	H
-( 23, 43 )	Type:	-
-( 23, 24 )	Type:	H
-( 23, 25 )	Type:	H
-( 23, 26 )	Type:	H
-( 23, 27 )	Type:	H
-( 24, 44 )	Type:	-
-( 25, 45 )	Type:	-
-( 26, 46 )	Type:	-
-( 27, 47 )	Type:	-
+(0, 10)      Type: -
+(1, 43)      Type: -
+(2, 22)      Type: -
+(3, 45)      Type: -
+(6, 28)      Type: -
+(6, 7)       Type: H
+(6, 8)       Type: H
+(6, 9)       Type: H
+(6, 10)      Type: H
+(6, 11)      Type: H
+(6, 12)      Type: H
+(6, 13)      Type: H
+(6, 14)      Type: H
+(6, 15)      Type: H
+(6, 24)      Type: H
+(6, 25)      Type: H
+(6, 26)      Type: H
+(6, 27)      Type: H
+(7, 29)      Type: -
+(7, 12)      Type: H
+(7, 13)      Type: H
+(7, 14)      Type: H
+(7, 15)      Type: H
+(7, 24)      Type: H
+(7, 25)      Type: H
+(7, 26)      Type: H
+(7, 27)      Type: H
+(8, 30)      Type: -
+(8, 12)      Type: H
+(8, 13)      Type: H
+(8, 14)      Type: H
+(8, 15)      Type: H
+(8, 24)      Type: H
+(8, 25)      Type: H
+(8, 26)      Type: H
+(8, 27)      Type: H
+(9, 31)      Type: -
+(9, 12)      Type: H
+(9, 13)      Type: H
+(9, 14)      Type: H
+(9, 15)      Type: H
+(9, 24)      Type: H
+(9, 25)      Type: H
+(9, 26)      Type: H
+(9, 27)      Type: H
+(10, 32)     Type: -
+(10, 18)     Type: -
+(10, 12)     Type: H
+(10, 13)     Type: H
+(10, 14)     Type: H
+(10, 15)     Type: H
+(10, 24)     Type: H
+(10, 25)     Type: H
+(10, 26)     Type: H
+(10, 27)     Type: H
+(11, 33)     Type: -
+(11, 18)     Type: -
+(11, 12)     Type: H
+(11, 13)     Type: H
+(11, 14)     Type: H
+(11, 15)     Type: H
+(11, 24)     Type: H
+(11, 25)     Type: H
+(11, 26)     Type: H
+(11, 27)     Type: H
+(12, 34)     Type: -
+(12, 24)     Type: -
+(12, 25)     Type: -
+(12, 26)     Type: -
+(12, 27)     Type: -
+(13, 35)     Type: -
+(13, 24)     Type: -
+(13, 25)     Type: -
+(13, 26)     Type: -
+(13, 27)     Type: -
+(14, 36)     Type: -
+(14, 24)     Type: -
+(14, 25)     Type: -
+(14, 26)     Type: -
+(14, 27)     Type: -
+(15, 37)     Type: -
+(15, 24)     Type: -
+(15, 25)     Type: -
+(15, 26)     Type: -
+(15, 27)     Type: -
+(18, 38)     Type: -
+(18, 19)     Type: H
+(18, 20)     Type: H
+(18, 21)     Type: H
+(18, 22)     Type: H
+(18, 23)     Type: H
+(18, 24)     Type: H
+(18, 25)     Type: H
+(18, 26)     Type: H
+(18, 27)     Type: H
+(19, 39)     Type: -
+(19, 24)     Type: H
+(19, 25)     Type: H
+(19, 26)     Type: H
+(19, 27)     Type: H
+(20, 40)     Type: -
+(20, 24)     Type: H
+(20, 25)     Type: H
+(20, 26)     Type: H
+(20, 27)     Type: H
+(21, 41)     Type: -
+(21, 24)     Type: H
+(21, 25)     Type: H
+(21, 26)     Type: H
+(21, 27)     Type: H
+(22, 42)     Type: -
+(22, 24)     Type: H
+(22, 25)     Type: H
+(22, 26)     Type: H
+(22, 27)     Type: H
+(23, 43)     Type: -
+(23, 24)     Type: H
+(23, 25)     Type: H
+(23, 26)     Type: H
+(23, 27)     Type: H
+(24, 44)     Type: -
+(25, 45)     Type: -
+(26, 46)     Type: -
+(27, 47)     Type: -
 Total #Edges: 124
 
 qsyn> zxr

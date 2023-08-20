@@ -114,9 +114,8 @@ void CommandLineInterface::sigintHandler(int signum) {
         // there is an executing command
         _currCmd->request_stop();
     } else {
-        // not listening and no executing command
-        // CLI cannot handler the signal, so just raise it again
-        raise(signum);
+        logger.fatal("Failed to handle the SIGINT signal. Exiting...");
+        exit(signum);
     }
 }
 

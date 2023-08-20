@@ -158,7 +158,6 @@ void QCir::reset() {
     _topoOrder.clear();
 
     _gateId = 0;
-    _ZXNodeId = 0;
     _qubitId = 0;
     _dirty = true;
     _globalDFScounter = 1;

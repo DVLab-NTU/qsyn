@@ -18,16 +18,16 @@ Total #Vertices: 11
 
 
 qsyn> zxgp -e
-( 0, 3 )	Type:	-
-( 1, 4 )	Type:	H
-( 2, 10 )	Type:	-
-( 3, 5 )	Type:	H
-( 4, 6 )	Type:	H
-( 5, 7 )	Type:	H
-( 6, 7 )	Type:	H
-( 7, 8 )	Type:	H
-( 7, 9 )	Type:	H
-( 9, 10 )	Type:	H
+(0, 3)       Type: -
+(1, 4)       Type: H
+(2, 10)      Type: -
+(3, 5)       Type: H
+(4, 6)       Type: H
+(5, 7)       Type: H
+(6, 7)       Type: H
+(7, 8)       Type: H
+(7, 9)       Type: H
+(9, 10)      Type: H
 Total #Edges: 10
 
 qsyn> zxgs -stco
@@ -47,12 +47,12 @@ Total #Vertices: 9
 
 
 qsyn> zxgp -e
-( 0, 3 )	Type:	-
-( 1, 4 )	Type:	H
-( 2, 10 )	Type:	-
-( 3, 5 )	Type:	H
-( 4, 6 )	Type:	H
-( 9, 10 )	Type:	H
+(0, 3)       Type: -
+(1, 4)       Type: H
+(2, 10)      Type: -
+(3, 5)       Type: H
+(4, 6)       Type: H
+(9, 10)      Type: H
 Total #Edges: 6
 
 qsyn> zxgr -r benchmark/zx/stcopy_boundary.zx
@@ -73,14 +73,14 @@ Total #Vertices: 9
 
 
 qsyn> zxgp -e
-( 0, 3 )	Type:	-
-( 1, 5 )	Type:	H
-( 2, 8 )	Type:	-
-( 3, 4 )	Type:	H
-( 4, 5 )	Type:	H
-( 5, 6 )	Type:	H
-( 5, 7 )	Type:	H
-( 7, 8 )	Type:	H
+(0, 3)       Type: -
+(1, 5)       Type: H
+(2, 8)       Type: -
+(3, 4)       Type: H
+(4, 5)       Type: H
+(5, 6)       Type: H
+(5, 7)       Type: H
+(7, 8)       Type: H
 Total #Edges: 8
 
 qsyn> zxgs -stco
@@ -99,11 +99,11 @@ Total #Vertices: 8
 
 
 qsyn> zxgp -e
-( 0, 3 )	Type:	-
-( 1, 9 )	Type:	-
-( 2, 8 )	Type:	-
-( 3, 4 )	Type:	H
-( 7, 8 )	Type:	H
+(0, 3)       Type: -
+(1, 9)       Type: -
+(2, 8)       Type: -
+(3, 4)       Type: H
+(7, 8)       Type: H
 Total #Edges: 5
 
 qsyn> qq -f

@@ -2,14 +2,14 @@ DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> dtgr benchmark/topology/ithaca.layout
 
 qsyn> dtgp
-Topology  0: ibm_ithaca( 65 qubits, 72 edges )
-Gate Set   : CX, ID, RZ, SX, X
+Topology: ibm_ithaca (65 qubits, 72 edges)
+Gate Set: CX, ID, RZ, SX, X
 
 qsyn> dtgr benchmark/topology/example.layout
 
 qsyn> dtgp
-Topology  1: example_topology( 3 qubits, 2 edges )
-Gate Set   : X, RZ, H, ID, SX, CX
+Topology: example_topology (3 qubits, 2 edges)
+Gate Set: X, RZ, H, ID, SX, CX
 
 qsyn> dtch 0
 

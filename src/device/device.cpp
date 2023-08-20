@@ -13,8 +13,10 @@
 #include <fstream>
 #include <iomanip>
 #include <limits>
+#include <ranges>
 #include <string>
 
+#include "fmt/ranges.h"
 #include "qcir/qcirGate.hpp"
 
 using namespace std;
@@ -235,9 +237,9 @@ void PhysicalQubit::reset() {
  *
  * @param id
  */
-Device::Device(size_t id) : _id(id) {
+Device::Device() {
     _maxDist = 100000;
-    _topology = make_shared<Topology>(id);
+    _topology = make_shared<Topology>();
 }
 
 /**
@@ -816,16 +818,8 @@ void Device::printEdges(vector<size_t> cand) const {
  *
  */
 void Device::printTopology() const {
-    cout << "Topology " << right << setw(2) << _id << ": " << getName() << "( "
-         << _qubitList.size() << " qubits, "
-         << _topology->getAdjSize() << " edges )\n";
-
-    cout << "Gate Set   : ";
-    for (size_t i = 0; i < _topology->getGateSet().size(); i++) {
-        cout << gateType2Str[_topology->getGateSet()[i]];
-        if (i != _topology->getGateSet().size() - 1) cout << ", ";
-    }
-    cout << endl;
+    fmt::println("Topology: {} ({} qubits, {} edges)", getName(), _qubitList.size(), _topology->getAdjSize());
+    fmt::println("Gate Set: {}", fmt::join(_topology->getGateSet() | std::views::transform([this](GateType gtype) { return gateType2Str.at(gtype); }), ", "));
 }
 
 /**

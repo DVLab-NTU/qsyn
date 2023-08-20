@@ -165,7 +165,7 @@ unique_ptr<Command> ZXNewCmd() {
                 cerr << "Error: ZXGraph " << id << " already exists!! Specify `-Replace` if needed." << endl;
                 return CmdExecResult::ERROR;
             }
-            zxGraphMgr.set(make_unique<ZXGraph>(id));
+            zxGraphMgr.set(make_unique<ZXGraph>());
             return CmdExecResult::DONE;
         }
 
@@ -427,9 +427,9 @@ unique_ptr<Command> ZXGPrintCmd() {
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         if (parser.parsed("-summary")) {
             zxGraphMgr.get()->printGraph();
-            cout << setw(30) << left << "#T-gate: " << zxGraphMgr.get()->TCount() << "\n";
-            cout << setw(30) << left << "#Non-(Clifford+T)-gate: " << zxGraphMgr.get()->nonCliffordPlusTCount() << "\n";
-            cout << setw(30) << left << "#Non-Clifford-gate: " << zxGraphMgr.get()->nonCliffordCount() << "\n";
+            fmt::println("{:<29} {}", "#T-gate:", zxGraphMgr.get()->TCount());
+            fmt::println("{:<29} {}", "#Non-(Clifford+T)-gate: ", zxGraphMgr.get()->nonCliffordPlusTCount());
+            fmt::println("{:<29} {}", "#Non-Clifford-gate: ", zxGraphMgr.get()->nonCliffordCount());
         } else if (parser.parsed("-io"))
             zxGraphMgr.get()->printIO();
         else if (parser.parsed("-list"))
@@ -685,7 +685,8 @@ unique_ptr<Command> ZX2TSCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        auto zx = parser.parsed("-zx") ? zxGraphMgr.findByID(parser.get<size_t>("-zx")) : zxGraphMgr.get();
+        auto zxID = parser.parsed("-zx") ? parser.get<size_t>("-zx") : zxGraphMgr.focusedID();
+        auto zx = zxGraphMgr.findByID(zxID);
 
         auto tsID = parser.parsed("-ts") ? parser.get<size_t>("-ts") : tensorMgr.getNextID();
 
@@ -693,7 +694,7 @@ unique_ptr<Command> ZX2TSCmd() {
             logger.error("Tensor {} already exists!! Specify `-Replace` if you intend to replace the current one.", tsID);
             return CmdExecResult::ERROR;
         }
-        logger.info("Converting ZXGraph {} to Tensor {}...", zx->getId(), tsID);
+        logger.info("Converting ZXGraph {} to Tensor {}...", zxID, tsID);
         auto tensor = toTensor(*zx);
 
         if (tensor.has_value()) {

@@ -39,16 +39,8 @@ EdgePair makeEdgePairDummy();
 class ZXVertex {
     // See `zxVertex.cpp` for details
 public:
-    ZXVertex(size_t id, int qubit, VertexType vt, Phase phase = Phase(), unsigned int col = 0) {
-        _id = id;
-        _type = vt;
-        _qubit = qubit;
-        _phase = phase;
-        _col = col;
-        _DFSCounter = 0;
-        _pin = unsigned(-1);
-        _neighbors.clear();
-    }
+    ZXVertex(size_t id, int qubit, VertexType vt, Phase phase = Phase(), size_t col = 0)
+        : _id{std::move(id)}, _type{std::move(vt)}, _qubit{std::move(qubit)}, _phase{std::move(phase)}, _col{std::move((float)col)} {}
     ~ZXVertex() {}
 
     // Getter and Setter
@@ -108,20 +100,18 @@ public:
 
 private:
     size_t _id;
-    int _qubit;
-    size_t _pin;
-    Phase _phase;
-    unsigned _DFSCounter;
-    Neighbors _neighbors;
     VertexType _type;
+    int _qubit;
+    Phase _phase;
     float _col;
+    Neighbors _neighbors;
+    unsigned _DFSCounter = 0;
+    size_t _pin = UINT_MAX;
 };
 
 class ZXGraph {
 public:
-    ZXGraph(size_t id = 0) : _id(id), _nextVId(0) {
-        _globalTraCounter = 1;
-    }
+    ZXGraph() {}
 
     ~ZXGraph() {
         for (auto& v : _vertices) {
@@ -129,7 +119,7 @@ public:
         }
     }
 
-    ZXGraph(ZXGraph const& other) : _id{other._id}, _nextVId{0}, _fileName{other._fileName}, _procedures{other._procedures} {
+    ZXGraph(ZXGraph const& other) : _fileName{other._fileName}, _procedures{other._procedures} {
         std::unordered_map<ZXVertex*, ZXVertex*> oldV2newVMap;
 
         for (auto& v : other._vertices) {
@@ -149,7 +139,6 @@ public:
     }
 
     ZXGraph(ZXGraph&& other) noexcept {
-        _id = std::exchange(other._id, 0);
         _nextVId = std::exchange(other._nextVId, 0);
         _fileName = std::exchange(other._fileName, "");
         _procedures = std::exchange(other._procedures, {});
@@ -162,11 +151,18 @@ public:
         _globalTraCounter = std::exchange(other._globalTraCounter, 0);
     }
 
-    // TODO: add comment
+    /**
+     * @brief Construct a new ZXGraph object from a list of vertices.
+     *
+     * @param vertices the vertices
+     * @param inputs the inputs. Note that the inputs must be a subset of the vertices.
+     * @param outputs the outputs. Note that the outputs must be a subset of the vertices.
+     * @param id
+     */
     ZXGraph(const ZXVertexList& vertices,
             const ZXVertexList& inputs,
             const ZXVertexList& outputs,
-            size_t id) : _id(id), _globalTraCounter(1) {
+            size_t id) {
         _vertices = vertices;
         _inputs = inputs;
         _outputs = outputs;
@@ -204,7 +200,6 @@ public:
     }
 
     void swap(ZXGraph& other) noexcept {
-        std::swap(_id, other._id);
         std::swap(_nextVId, other._nextVId);
         std::swap(_fileName, other._fileName);
         std::swap(_procedures, other._procedures);
@@ -222,7 +217,6 @@ public:
     }
 
     // Getter and Setter
-    void setId(size_t id) { _id = id; }
 
     void setInputs(const ZXVertexList& inputs) { _inputs = inputs; }
     void setOutputs(const ZXVertexList& outputs) { _outputs = outputs; }
@@ -230,7 +224,6 @@ public:
     void addProcedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
     void addProcedure(std::string_view p) { _procedures.emplace_back(p); }
 
-    size_t const& getId() const { return _id; }
     size_t const& getNextVId() const { return _nextVId; }
     ZXVertexList const& getInputs() const { return _inputs; }
     ZXVertexList const& getOutputs() const { return _outputs; }
@@ -365,8 +358,7 @@ public:
     static ZXGraph* fromSubgraphs(const std::vector<ZXGraph*>& subgraphs, const std::vector<ZXCut>& cuts);
 
 private:
-    size_t _id;
-    size_t _nextVId;
+    size_t _nextVId = 0;
     std::string _fileName;
     std::vector<std::string> _procedures;
     ZXVertexList _inputs;
@@ -375,7 +367,7 @@ private:
     std::unordered_map<size_t, ZXVertex*> _inputList;
     std::unordered_map<size_t, ZXVertex*> _outputList;
     std::vector<ZXVertex*> mutable _topoOrder;
-    unsigned mutable _globalTraCounter;
+    unsigned mutable _globalTraCounter = 1;
 
     void DFS(ZXVertex*) const;
     void BFS(ZXVertex*) const;

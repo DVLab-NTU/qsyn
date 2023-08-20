@@ -32,15 +32,13 @@ template <typename T>
 requires requires(T t) {
     { dataInfoString(&t) } -> std::convertible_to<std::string>;
     { dataName(&t) } -> std::convertible_to<std::string>;
-    { t.setId(size_t{}) } -> std::same_as<void>;
-    { t.getId() } -> std::convertible_to<size_t>;
 }
 class DataStructureManager {
 public:
-    DataStructureManager(std::string_view name) : _nextID{0}, _currID{0}, _typeName{name} {}
+    DataStructureManager(std::string_view name) : _nextID{0}, _focusedID{0}, _typeName{name} {}
     virtual ~DataStructureManager() = default;
 
-    DataStructureManager(DataStructureManager const& other) : _nextID{other._nextID}, _currID{other._currID} {
+    DataStructureManager(DataStructureManager const& other) : _nextID{other._nextID}, _focusedID{other._focusedID} {
         for (auto& [id, data] : other._list) {
             _list.emplace(id, std::make_unique<T>(*data));
         }
@@ -54,7 +52,7 @@ public:
 
     void swap(DataStructureManager& other) noexcept {
         std::swap(_nextID, other._nextID);
-        std::swap(_currID, other._currID);
+        std::swap(_focusedID, other._focusedID);
         std::swap(_list, other._list);
     }
 
@@ -64,7 +62,7 @@ public:
 
     void reset() {
         _nextID = 0;
-        _currID = 0;
+        _focusedID = 0;
         _list.clear();
     }
 
@@ -72,19 +70,19 @@ public:
 
     size_t getNextID() const { return _nextID; }
 
-    T* get() const { return _list.at(_currID).get(); }
+    T* get() const { return _list.at(_focusedID).get(); }
 
     void set(std::unique_ptr<T> t) {
-        t->setId(_currID);
-        _list.at(_currID).swap(t);
+        _list.at(_focusedID).swap(t);
     }
 
     bool empty() const { return _list.empty(); }
     size_t size() const { return _list.size(); }
+    size_t focusedID() const { return _focusedID; }
 
     T* add(size_t id) {
-        _list.emplace(id, std::make_unique<T>(id));
-        _currID = id;
+        _list.emplace(id, std::make_unique<T>());
+        _focusedID = id;
         if (id == _nextID || _nextID < id) _nextID = id + 1;
 
         logger.info("Successfully created and checked out to {0} {1}", _typeName, id);
@@ -101,7 +99,7 @@ public:
         _list.erase(id);
         logger.info("Successfully removed {0} {1}", _typeName, id);
 
-        if (this->size() && _currID == id) {
+        if (this->size() && _focusedID == id) {
             checkout(0);
         }
         if (this->empty()) {
@@ -116,8 +114,8 @@ public:
             return;
         }
 
-        _currID = id;
-        logger.info("Checked out to {} {}", _typeName, _currID);
+        _focusedID = id;
+        logger.info("Checked out to {} {}", _typeName, _focusedID);
     }
 
     void copy(size_t newID) {
@@ -126,12 +124,11 @@ public:
             return;
         }
         auto copy = std::make_unique<T>(*get());
-        copy->setId(newID);
 
         if (_nextID <= newID) _nextID = newID + 1;
         _list.insert_or_assign(newID, std::move(copy));
 
-        logger.info("Successfully copied {0} {1} to {0} {2}", _typeName, _currID, newID);
+        logger.info("Successfully copied {0} {1} to {0} {2}", _typeName, _focusedID, newID);
         checkout(newID);
     }
 
@@ -147,14 +144,14 @@ public:
         fmt::println("-> #{}: {}", _typeName, this->size());
         if (this->size()) {
             auto name = dataName(get());
-            fmt::println("-> Now focused on: {} {}{}", _typeName, _currID, name.empty() ? "" : fmt::format(" ({})", name));
+            fmt::println("-> Now focused on: {} {}{}", _typeName, _focusedID, name.empty() ? "" : fmt::format(" ({})", name));
         }
     }
 
     void printList() const {
         if (this->size()) {
             for (auto& [id, data] : _list) {
-                fmt::println("{} {}    {}", (id == _currID ? "★" : " "), id, dataInfoString(data.get()));
+                fmt::println("{} {}    {}", (id == _focusedID ? "★" : " "), id, dataInfoString(data.get()));
             }
         } else {
             fmt::println("The {} list is empty", _typeName);
@@ -164,7 +161,7 @@ public:
     void printFocus() const {
         if (this->size()) {
             auto name = dataName(get());
-            fmt::println("-> Now focused on: {} {}{}", _typeName, _currID, name.empty() ? "" : fmt::format(" ({})", name));
+            fmt::println("-> Now focused on: {} {}{}", _typeName, _focusedID, name.empty() ? "" : fmt::format(" ({})", name));
         } else {
             fmt::println("The {} list is empty", _typeName);
         }
@@ -172,7 +169,7 @@ public:
 
 private:
     size_t _nextID;
-    size_t _currID;
+    size_t _focusedID;
     ordered_hashmap<size_t, std::unique_ptr<T>> _list;
     std::string _typeName;
 

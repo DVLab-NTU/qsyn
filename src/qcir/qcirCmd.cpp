@@ -221,8 +221,7 @@ unique_ptr<Command> QCirNewCmd() {
                 return CmdExecResult::ERROR;
             }
 
-            QCir* qcir = new QCir(id);
-            qcirMgr.set(std::make_unique<QCir>(id));
+            qcirMgr.set(std::make_unique<QCir>());
         }
 
         qcirMgr.add(id);

@@ -106,11 +106,11 @@ qsyn> zxge -addo 2
 qsyn> zxge -addo 1
 
 qsyn> zxgp -inputs
-Input ( 0 1 2 )
+Input:  (0, 1, 2)
 Total #Inputs: 3
 
 qsyn> zxgp -o
-Output ( 3 4 5 )
+Output: (3, 4, 5)
 Total #Outputs: 3
 
 qsyn> zxgp -v

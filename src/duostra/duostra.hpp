@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "./scheduler.hpp"
 #include "device/device.hpp"
 
@@ -16,8 +18,13 @@ class QCir;
 
 class Duostra {
 public:
-    Duostra(QCir*, Device, bool = false, bool = true, bool = false);
-    Duostra(const std::vector<Operation>&, size_t, Device, bool = false, bool = true, bool = false);
+    struct DuostraConfig {
+        bool verifyResult = false;
+        bool silent = false;
+        bool useTqdm = true;
+    };
+    Duostra(QCir* qcir, Device dev, DuostraConfig const& config = {.verifyResult = false, .silent = false, .useTqdm = true});
+    Duostra(std::vector<Operation> const& cir, size_t nQubit, Device dev, DuostraConfig const& config = {.verifyResult = false, .silent = false, .useTqdm = true});
     ~Duostra() {}
 
     std::unique_ptr<QCir> const& getPhysicalCircuit() const { return _physicalCircuit; }
@@ -35,7 +42,7 @@ public:
 
 private:
     QCir* _logicalCircuit;
-    std::unique_ptr<QCir> _physicalCircuit;
+    std::unique_ptr<QCir> _physicalCircuit = std::make_unique<QCir>();
     Device _device;
     bool _check;
     bool _tqdm;

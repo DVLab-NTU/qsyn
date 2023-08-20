@@ -2,44 +2,44 @@ DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> zxgr benchmark/zx/cnot.zx
 
 qsyn> zxgp
-Graph 0( 2 inputs, 2 outputs, 6 vertices, 5 edges )
+Graph (2 inputs, 2 outputs, 6 vertices, 5 edges)
 
 qsyn> zxcopy
 
 qsyn> zxgp
-Graph 1( 2 inputs, 2 outputs, 6 vertices, 5 edges )
+Graph (2 inputs, 2 outputs, 6 vertices, 5 edges)
 
 qsyn> zxge -rmv 1
 
 qsyn> zxgp
-Graph 1( 1 inputs, 2 outputs, 5 vertices, 4 edges )
+Graph (1 inputs, 2 outputs, 5 vertices, 4 edges)
 
 qsyn> zxch 0
 
 qsyn> zxgp
-Graph 0( 2 inputs, 2 outputs, 6 vertices, 5 edges )
+Graph (2 inputs, 2 outputs, 6 vertices, 5 edges)
 
 qsyn> zxr
 
 qsyn> zxgr benchmark/zx/cnot.zx
 
 qsyn> zxgp
-Graph 0( 2 inputs, 2 outputs, 6 vertices, 5 edges )
+Graph (2 inputs, 2 outputs, 6 vertices, 5 edges)
 
 qsyn> zxcopy
 
 qsyn> zxgp
-Graph 1( 2 inputs, 2 outputs, 6 vertices, 5 edges )
+Graph (2 inputs, 2 outputs, 6 vertices, 5 edges)
 
 qsyn> zxge -rmv 1
 
 qsyn> zxgp
-Graph 1( 1 inputs, 2 outputs, 5 vertices, 4 edges )
+Graph (1 inputs, 2 outputs, 5 vertices, 4 edges)
 
 qsyn> zxcop -r 0
 
 qsyn> zxgp
-Graph 0( 1 inputs, 2 outputs, 5 vertices, 4 edges )
+Graph (1 inputs, 2 outputs, 5 vertices, 4 edges)
 
 qsyn> zxr
 
