@@ -7,8 +7,6 @@
 ****************************************************************************/
 
 #include <cstddef>
-#include <iomanip>
-#include <iostream>
 #include <string>
 
 #include "./lattice.hpp"
@@ -18,7 +16,6 @@
 
 using namespace std;
 using namespace ArgParse;
-extern size_t verbose;
 extern ZXGraphMgr zxGraphMgr;
 
 unique_ptr<Command> latticeSurgeryCompilationCmd();

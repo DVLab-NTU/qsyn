@@ -16,13 +16,13 @@
 #include "./toTensor.hpp"
 #include "./zxGraphMgr.hpp"
 #include "tensor/tensorMgr.hpp"
+#include "zx/zxDef.hpp"
 
 using namespace std;
 
 ZXGraphMgr zxGraphMgr{"ZXGraph"};
 extern TensorMgr tensorMgr;
 using namespace ArgParse;
-extern size_t verbose;
 
 unique_ptr<Command> ZXCHeckoutCmd();
 unique_ptr<Command> ZXNewCmd();
@@ -167,9 +167,10 @@ unique_ptr<Command> ZXNewCmd() {
             }
             zxGraphMgr.set(make_unique<ZXGraph>());
             return CmdExecResult::DONE;
+        } else {
+            zxGraphMgr.add(id);
         }
 
-        zxGraphMgr.add(id);
         return CmdExecResult::DONE;
     };
     return cmd;
@@ -478,13 +479,14 @@ unique_ptr<Command> ZXGEditCmd() {
 
         auto removeVertexParser = subparsers.addParser("-rmvertex");
 
-        removeVertexParser.addArgument<size_t>("ids")
+        auto rmv_mutex = removeVertexParser.addMutuallyExclusiveGroup().required(true);
+
+        rmv_mutex.addArgument<size_t>("ids")
             .constraint(validZXVertexId)
-            .required(false)
             .nargs(NArgsOption::ZERO_OR_MORE)
             .help("the IDs of vertices to remove");
 
-        removeVertexParser.addArgument<bool>("-isolated")
+        rmv_mutex.addArgument<bool>("-isolated")
             .action(storeTrue)
             .help("if set, remove all isolated vertices");
 
@@ -544,8 +546,12 @@ unique_ptr<Command> ZXGEditCmd() {
             if (parser.parsed("ids")) {
                 auto ids = parser.get<vector<size_t>>("ids");
                 auto vertices_range = ids |
-                                    views::transform([](size_t id) { return zxGraphMgr.get()->findVertexById(id); }) |
-                                    views::filter([](ZXVertex* v) { return v != nullptr; });
+                                      views::transform([](size_t id) { return zxGraphMgr.get()->findVertexById(id); }) |
+                                      views::filter([](ZXVertex* v) { return v != nullptr; });
+                for (auto&& v : vertices_range) {
+                    logger.info("Removing vertex {}...", v->getId());
+                }
+
                 zxGraphMgr.get()->removeVertices({vertices_range.begin(), vertices_range.end()});
             } else if (parser.parsed("-isolated")) {
                 logger.info("Removing isolated vertices...");
@@ -562,8 +568,10 @@ unique_ptr<Command> ZXGEditCmd() {
             auto etype = str2EdgeType(parser.get<std::string>("etype"));
 
             if (etype.has_value()) {
+                logger.info("Removing edge ({}, {}), edge type: {}...", v0->getId(), v1->getId(), etype.value());
                 zxGraphMgr.get()->removeEdge(v0, v1, etype.value());
             } else {
+                logger.info("Removing all edges between ({}, {})...", v0->getId(), v1->getId());
                 zxGraphMgr.get()->removeAllEdgesBetween(v0, v1);
             }
 
@@ -573,28 +581,50 @@ unique_ptr<Command> ZXGEditCmd() {
             auto vtype = str2VertexType(parser.get<std::string>("vtype"));
             assert(vtype.has_value());
 
-            zxGraphMgr.get()->addVertex(parser.get<size_t>("qubit"), vtype.value(), parser.get<Phase>("phase"));
-
+            auto v = zxGraphMgr.get()->addVertex(parser.get<size_t>("qubit"), vtype.value(), parser.get<Phase>("phase"));
+            logger.info("Adding vertex {}...", v->getId());
             return CmdExecResult::DONE;
         }
         if (parser.usedSubParser("-addinput")) {
-            zxGraphMgr.get()->addInput(parser.get<size_t>("qubit"));
+            auto i = zxGraphMgr.get()->addInput(parser.get<size_t>("qubit"));
+            logger.info("Adding input {}...", i->getId());
             return CmdExecResult::DONE;
         }
         if (parser.usedSubParser("-addoutput")) {
-            zxGraphMgr.get()->addOutput(parser.get<size_t>("qubit"));
+            auto o = zxGraphMgr.get()->addOutput(parser.get<size_t>("qubit"));
+            logger.info("Adding output {}...", o->getId());
             return CmdExecResult::DONE;
         }
         if (parser.usedSubParser("-addedge")) {
             auto ids = parser.get<std::vector<size_t>>("ids");
-            auto v0 = zxGraphMgr.get()->findVertexById(ids[0]);
-            auto v1 = zxGraphMgr.get()->findVertexById(ids[1]);
-            assert(v0 != nullptr && v1 != nullptr);
+            auto vs = zxGraphMgr.get()->findVertexById(ids[0]);
+            auto vt = zxGraphMgr.get()->findVertexById(ids[1]);
+            assert(vs != nullptr && vt != nullptr);
 
             auto etype = str2EdgeType(parser.get<std::string>("etype"));
             assert(etype.has_value());
 
-            zxGraphMgr.get()->addEdge(v0, v1, etype.value());
+            if (vs->isNeighbor(vt, etype.value()) && (vs->isBoundary() || vt->isBoundary())) {
+                logger.fatal("Cannot add edge between boundary vertices {} and {}", vs->getId(), vt->getId());
+                return CmdExecResult::ERROR;
+            }
+
+            bool hadEdge = vs->isNeighbor(vt, etype.value());
+
+            zxGraphMgr.get()->addEdge(vs, vt, etype.value());
+
+            if (vs == vt) {
+                logger.info("Note: converting this self-loop to phase {} on vertex {}...", etype.value() == EdgeType::HADAMARD ? Phase(1) : Phase(0), vs->getId());
+            } else if (hadEdge) {
+                bool hasEdge = vs->isNeighbor(vt, etype.value());
+                if (hasEdge) {
+                    logger.info("Note: redundant edge; merging into existing edge ({}, {})...", vs->getId(), vt->getId());
+                } else {
+                    logger.info("Note: Hopf edge; cancelling out with existing edge ({}, {})...", vs->getId(), vt->getId());
+                }
+            } else {
+                logger.info("Adding edge ({}, {}), edge type: {}...", vs->getId(), vt->getId(), etype.value());
+            }
 
             return CmdExecResult::DONE;
         }
@@ -700,11 +730,11 @@ unique_ptr<Command> ZX2TSCmd() {
 
         if (tensor.has_value()) {
             if (!tensorMgr.isID(tsID)) {
-                tensorMgr.add(tsID);
+                tensorMgr.add(tsID, std::make_unique<QTensor<double>>(std::move(tensor.value())));
             } else {
                 tensorMgr.checkout(tsID);
+                tensorMgr.set(std::make_unique<QTensor<double>>(std::move(tensor.value())));
             }
-            tensorMgr.set(std::make_unique<QTensor<double>>(std::move(tensor.value())));
 
             tensorMgr.get()->setFileName(zx->getFileName());
             tensorMgr.get()->addProcedures(zx->getProcedures());
@@ -759,10 +789,10 @@ unique_ptr<Command> ZXGReadCmd() {
             } else {
                 cout << "Note: original ZXGraph is replaced..." << endl;
             }
+            zxGraphMgr.set(std::move(bufferGraph));
         } else {
-            zxGraphMgr.add(zxGraphMgr.getNextID());
+            zxGraphMgr.add(zxGraphMgr.getNextID(), std::move(bufferGraph));
         }
-        zxGraphMgr.set(std::move(bufferGraph));
         zxGraphMgr.get()->setFileName(std::filesystem::path{filepath}.stem());
         return CmdExecResult::DONE;
     };

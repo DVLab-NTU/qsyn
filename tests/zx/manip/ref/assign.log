@@ -2,7 +2,6 @@ DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qccr benchmark/pseudoSimp/tof2.qasm
 
 qsyn> qc2ts
-Traverse and build the tensor... 
 
 qsyn> qc2zx
 
@@ -122,7 +121,6 @@ qsyn> qcba 2
 qsyn> qcga -cx 0 1
 
 qsyn> qc2ts
-Traverse and build the tensor... 
 
 qsyn> tseq 2 3
 Equivalent

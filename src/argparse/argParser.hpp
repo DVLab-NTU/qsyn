@@ -205,7 +205,7 @@ private:
     bool allRequiredOptionsAreParsed() const;
     bool allRequiredMutexGroupsAreParsed() const;
 
-    bool conflictWithParsedArguments(Argument const&) const;
+    bool noConflictWithParsedArguments(Argument const&) const;
 
     // parsePositionalArguments subroutine
 

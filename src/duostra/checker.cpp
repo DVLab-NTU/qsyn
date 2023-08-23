@@ -10,9 +10,11 @@
 #include "./checker.hpp"
 
 #include "./circuitTopology.hpp"
+#include "util/logger.hpp"
 
 using namespace std;
 extern size_t verbose;
+extern dvlab::utils::Logger logger;
 
 /**
  * @brief Construct a new Checker:: Checker object

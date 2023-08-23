@@ -5,61 +5,42 @@ Note: verbose level is set to 9
 qsyn> zxnew 10
 
 qsyn> zxge -addi 0
-Add vertex (●) 0
 
 qsyn> zxge -addo 0
-Add vertex (●) 1
 
 qsyn> zxge -addi 1
-Add vertex (●) 2
 
 qsyn> zxge -addo 1
-Add vertex (●) 3
 
 qsyn> zxge -addv 0 X
-Add vertex (X) 4
 
 qsyn> zxge -addv 0 Z
-Add vertex (Z) 5
 
 qsyn> zxge -addv 1 X
-Add vertex (X) 6
 
 qsyn> zxge -addv 0 X
-Add vertex (X) 7
 
 qsyn> zxge -addv 0 Z
-Add vertex (Z) 8
 
 qsyn> zxge -addv 1 Z
-Add vertex (Z) 9
 
 qsyn> zxge -adde 5 7 SIMPLE
-Add edge (5, 7)
 
 qsyn> zxge -adde 0 4 SIMPLE
-Add edge (0, 4)
 
 qsyn> zxge -adde 1 8 SIMPLE
-Add edge (1, 8)
 
 qsyn> zxge -adde 2 6 SIMPLE
-Add edge (2, 6)
 
 qsyn> zxge -adde 3 9 SIMPLE
-Add edge (3, 9)
 
 qsyn> zxge -adde 4 5 SIMPLE
-Add edge (4, 5)
 
 qsyn> zxge -adde 5 6 SIMPLE
-Add edge (5, 6)
 
 qsyn> zxge -adde 7 8 SIMPLE
-Add edge (7, 8)
 
 qsyn> zxge -adde 7 9 SIMPLE
-Add edge (7, 9)
 
 qsyn> zxgsimp -bia
 Hadamard Rule                 
@@ -69,12 +50,6 @@ Bialgebra Rule
 
 Iteration 1:
 >>>
-Add edge (4, 8)
-Add edge (4, 9)
-Add edge (6, 8)
-Add edge (6, 9)
-Remove ID: 5
-Remove ID: 7
 <<<
 => 1 iterations.
   1) 1 matches
@@ -109,100 +84,68 @@ qsyn> zxr
 qsyn> zxnew 
 
 qsyn> zxge -addi 0
-Add vertex (●) 0
 
 qsyn> zxge -addo 0
-Add vertex (●) 1
 
 qsyn> zxge -addi 1
-Add vertex (●) 2
 
 qsyn> zxge -addo 1
-Add vertex (●) 3
 
 qsyn> zxge -addv 0 X
-Add vertex (X) 4
 
 qsyn> zxge -addv 0 Z
-Add vertex (Z) 5
 
 qsyn> zxge -addv 1 X
-Add vertex (X) 6
 
 qsyn> zxge -addv 0 X
-Add vertex (X) 7
 
 qsyn> zxge -addv 0 Z
-Add vertex (Z) 8
 
 qsyn> zxge -addv 1 Z
-Add vertex (Z) 9
 
 qsyn> zxge -addv 0 X
-Add vertex (X) 10
 
 qsyn> zxge -addv 0 Z
-Add vertex (Z) 11
 
 qsyn> zxge -addv 1 X
-Add vertex (X) 12
 
 qsyn> zxge -addv 0 X
-Add vertex (X) 13
 
 qsyn> zxge -addv 0 Z
-Add vertex (Z) 14
 
 qsyn> zxge -addv 0 Z
-Add vertex (Z) 15
 
 qsyn> zxge -adde 0 4 SIMPLE
-Add edge (0, 4)
 
 qsyn> zxge -adde 1 14 SIMPLE
-Add edge (1, 14)
 
 qsyn> zxge -adde 2 6 SIMPLE
-Add edge (2, 6)
 
 qsyn> zxge -adde 3 15 SIMPLE
-Add edge (3, 15)
 
 qsyn> zxge -adde 4 5 SIMPLE
-Add edge (4, 5)
 
 qsyn> zxge -adde 5 7 SIMPLE
-Add edge (5, 7)
 
 qsyn> zxge -adde 5 6 SIMPLE
-Add edge (5, 6)
 
 qsyn> zxge -adde 7 8 SIMPLE
-Add edge (7, 8)
 
 qsyn> zxge -adde 7 9 SIMPLE
-Add edge (7, 9)
 
 qsyn> zxge -adde 8 10 SIMPLE
-Add edge (8, 10)
 
 qsyn> zxge -adde 10 9 SIMPLE
-Add edge (9, 10)
 
 qsyn> zxge -adde 10 11 SIMPLE
-Add edge (10, 11)
 
 qsyn> zxge -adde 11 12 SIMPLE
-Add edge (11, 12)
 
 qsyn> zxge -adde 11 13 SIMPLE
-Add edge (11, 13)
 
 qsyn> zxge -adde 14 13 SIMPLE
-Add edge (13, 14)
 
 qsyn> zxge -adde 12 15 SIMPLE
-Add edge (12, 15)
 
 qsyn> zxgsimp -bia
 Hadamard Rule                 
@@ -212,31 +155,10 @@ Bialgebra Rule
 
 Iteration 1:
 >>>
-Add edge (4, 8)
-Add edge (4, 9)
-Add edge (6, 8)
-Add edge (6, 9)
-Add edge (8, 12)
-Add edge (8, 13)
-Add edge (9, 12)
-Add edge (9, 13)
-Remove ID: 7
-Remove ID: 5
-Remove ID: 11
-Remove ID: 10
 <<<
 
 Iteration 2:
 >>>
-Add edge (4, 15)
-Note: Hopf edge; cancelling out with existing edge (4, 9)...
-Add edge (6, 15)
-Note: Hopf edge; cancelling out with existing edge (6, 9)...
-Add edge (13, 15)
-Note: Hopf edge; cancelling out with existing edge (9, 13)...
-Remove ID: 8
-Remove ID: 12
-Remove ID: 9
 <<<
 => 2 iterations.
   1) 2 matches
@@ -269,43 +191,30 @@ qsyn> zxgprint -e
 Total #Edges: 8
 
 qsyn> zx2ts
-Topological order from first input: 0 4 15 3 6 2 13 14 1 
-Size of topological order: 9
 
 qsyn> zxnew
 
 qsyn> zxge -addi 0
-Add vertex (●) 0
 
 qsyn> zxge -addo 0
-Add vertex (●) 1
 
 qsyn> zxge -addi 1
-Add vertex (●) 2
 
 qsyn> zxge -addo 1
-Add vertex (●) 3
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 4
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 5
 
 qsyn> zxge -adde 0 4 SIMPLE
-Add edge (0, 4)
 
 qsyn> zxge -adde 2 4 SIMPLE
-Add edge (2, 4)
 
 qsyn> zxge -adde 1 5 SIMPLE
-Add edge (1, 5)
 
 qsyn> zxge -adde 3 5 SIMPLE
-Add edge (3, 5)
 
 qsyn> zxge -adde 4 5 SIMPLE
-Add edge (4, 5)
 
 qsyn> zxgp -v
 
@@ -319,8 +228,6 @@ Total #Vertices: 6
 
 
 qsyn> zx2ts
-Topological order from first input: 0 4 2 5 1 3 
-Size of topological order: 6
 
 qsyn> tseq 0 1
 Equivalent
@@ -332,100 +239,68 @@ qsyn> zxr
 qsyn> zxnew 
 
 qsyn> zxge -addi 0
-Add vertex (●) 0
 
 qsyn> zxge -addo 0
-Add vertex (●) 1
 
 qsyn> zxge -addi 1
-Add vertex (●) 2
 
 qsyn> zxge -addo 1
-Add vertex (●) 3
 
 qsyn> zxge -addv 0 X
-Add vertex (X) 4
 
 qsyn> zxge -addv 0 Z
-Add vertex (Z) 5
 
 qsyn> zxge -addv 1 X
-Add vertex (X) 6
 
 qsyn> zxge -addv 0 X
-Add vertex (X) 7
 
 qsyn> zxge -addv 0 Z
-Add vertex (Z) 8
 
 qsyn> zxge -addv 1 Z
-Add vertex (Z) 9
 
 qsyn> zxge -addv 0 X
-Add vertex (X) 10
 
 qsyn> zxge -addv 0 Z
-Add vertex (Z) 11
 
 qsyn> zxge -addv 1 X
-Add vertex (X) 12
 
 qsyn> zxge -addv 0 X
-Add vertex (X) 13
 
 qsyn> zxge -addv 0 Z
-Add vertex (Z) 14
 
 qsyn> zxge -addv 0 Z
-Add vertex (Z) 15
 
 qsyn> zxge -adde 0 4 SIMPLE
-Add edge (0, 4)
 
 qsyn> zxge -adde 1 14 HADAMARD
-Add edge (1, 14)
 
 qsyn> zxge -adde 2 6 SIMPLE
-Add edge (2, 6)
 
 qsyn> zxge -adde 3 15 SIMPLE
-Add edge (3, 15)
 
 qsyn> zxge -adde 4 5 SIMPLE
-Add edge (4, 5)
 
 qsyn> zxge -adde 5 7 SIMPLE
-Add edge (5, 7)
 
 qsyn> zxge -adde 5 6 HADAMARD
-Add edge (5, 6)
 
 qsyn> zxge -adde 7 8 SIMPLE
-Add edge (7, 8)
 
 qsyn> zxge -adde 7 9 SIMPLE
-Add edge (7, 9)
 
 qsyn> zxge -adde 8 10 HADAMARD
-Add edge (8, 10)
 
 qsyn> zxge -adde 10 9 SIMPLE
-Add edge (9, 10)
 
 qsyn> zxge -adde 10 11 SIMPLE
-Add edge (10, 11)
 
 qsyn> zxge -adde 11 12 HADAMARD
-Add edge (11, 12)
 
 qsyn> zxge -adde 11 13 HADAMARD
-Add edge (11, 13)
 
 qsyn> zxge -adde 14 13 SIMPLE
-Add edge (13, 14)
 
 qsyn> zxge -adde 12 15 SIMPLE
-Add edge (12, 15)
 
 qsyn> zxgsimp -bia
 Hadamard Rule                 
@@ -435,10 +310,6 @@ Bialgebra Rule
 
 Iteration 1:
 >>>
-Add edge (5, 10)
-Add edge (8, 10)
-Remove ID: 7
-Remove ID: 9
 <<<
 => 1 iterations.
   1) 1 matches

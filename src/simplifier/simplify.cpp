@@ -9,8 +9,6 @@
 #include "./simplify.hpp"
 
 #include <cstddef>
-#include <iomanip>
-#include <iostream>
 
 #include "./zxRulesTemplate.hpp"
 #include "gflow/gFlow.hpp"
@@ -21,7 +19,6 @@
 
 using namespace std;
 extern size_t verbose;
-extern size_t dmode;
 
 int cnt = 0;
 bool step = false;

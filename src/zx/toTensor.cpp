@@ -15,7 +15,6 @@
 
 extern bool stop_requested();
 
-extern size_t verbose;
 extern dvlab::utils::Logger logger;
 extern TensorMgr tensorMgr;
 

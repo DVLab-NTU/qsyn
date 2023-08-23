@@ -7,7 +7,7 @@
 ****************************************************************************/
 
 #include <cstddef>
-#include <iostream>
+#include <memory>
 #include <string>
 
 #include "./extract.hpp"
@@ -22,8 +22,6 @@
 
 using namespace std;
 using namespace ArgParse;
-extern size_t verbose;
-extern int effLimit;
 extern ZXGraphMgr zxGraphMgr;
 extern QCirMgr qcirMgr;
 
@@ -67,8 +65,7 @@ unique_ptr<Command> ExtractCmd() {
 
         QCir *result = ext.extract();
         if (result != nullptr) {
-            qcirMgr.add(qcirMgr.getNextID());
-            qcirMgr.set(std::make_unique<QCir>(*result));
+            qcirMgr.add(qcirMgr.getNextID(), std::make_unique<QCir>(*result));
             if (PERMUTE_QUBITS)
                 zxGraphMgr.remove(nextId);
             else {

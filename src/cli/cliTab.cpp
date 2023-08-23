@@ -286,7 +286,7 @@ vector<string> CommandLineInterface::getFileMatches(fs::path const& path) const 
     auto prefix = path.filename().string();
 
     if (!fs::exists(dirname)) {
-        logger.error("Error: failed to open {}!!", path.parent_path());
+        logger.error("failed to open {}!!", path.parent_path());
         return files;
     }
 

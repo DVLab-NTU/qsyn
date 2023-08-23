@@ -16,7 +16,6 @@ Q1 Start ─┤  PX ├─ End
 Rotate Phase: π
 
 qsyn> qc2ts
-Traverse and build the tensor... 
 
 qsyn> qc2zx
 

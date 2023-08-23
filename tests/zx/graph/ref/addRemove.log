@@ -53,7 +53,6 @@ Total #Vertices: 5
 
 
 qsyn> zxge -rmv -i
-Note: removing isolated vertices...
 
 qsyn> zxgp -v
 

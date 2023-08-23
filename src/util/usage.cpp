@@ -8,14 +8,11 @@
 
 #include "./usage.hpp"
 
+#include <fmt/core.h>
 #include <sys/resource.h>
 #include <sys/times.h>
 #include <unistd.h>
 
-#include <iomanip>
-#include <iostream>
-
-using namespace std;
 using namespace dvlab::utils;
 
 void Usage::reset() {
@@ -27,15 +24,12 @@ void Usage::reset() {
 void Usage::report(bool repTime, bool repMem) {
     if (repTime) {
         setTimeUsage();
-        cout << "Period time used : " << setprecision(4)
-             << _periodUsedTime << " seconds" << endl;
-        cout << "Total time used  : " << setprecision(4)
-             << _totalUsedTime << " seconds" << endl;
+        fmt::println("Period time used : {:.4f} seconds", _periodUsedTime);
+        fmt::println("Total time used  : {:.4f} seconds", _totalUsedTime);
     }
     if (repMem) {
         setMemUsage();
-        cout << "Total memory used: " << setprecision(4)
-             << _currentMem << " M Bytes" << endl;
+        fmt::println("Total memory used: {:.4f} M Bytes", _currentMem);
     }
 }
 

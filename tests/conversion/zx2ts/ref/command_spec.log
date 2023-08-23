@@ -14,7 +14,6 @@ Options:
   size_t  -Ts       id  the ID of the target tensor. If not specified, an ID is automatically assigned       
   flag    -Replace      replace the target tensor if the tensor ID is occupied                               
 
-
 qsyn> 
 qsyn> //-------------------------
 qsyn> //  Command Behavior Test
@@ -78,6 +77,8 @@ qsyn> logger level trace
 
 qsyn> zx2ts
 [Info] Converting ZXGraph 2 to Tensor 4...
+[Trace] Topological order from first input: 0 2 3 1 5 4
+[Trace] Size of topological order: 6
 [Debug] Mapping vertex    0 (●): New Subgraph
 [Debug] Done. Current tensor dimension: 2
 [Trace] Current frontiers:

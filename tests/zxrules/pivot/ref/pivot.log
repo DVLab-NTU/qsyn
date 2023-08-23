@@ -5,76 +5,52 @@ Note: verbose level is set to 9
 qsyn> zxnew
 
 qsyn> zxge -addi 0
-Add vertex (●) 0
 
 qsyn> zxge -addo 0
-Add vertex (●) 1
 
 qsyn> zxge -addi 1
-Add vertex (●) 2
 
 qsyn> zxge -addo 1
-Add vertex (●) 3
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 4
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 5
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 6
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 7
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 8
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 9
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 10
 
 qsyn> zxge -adde 4 6 HADAMARD
-Add edge (4, 6)
 
 qsyn> zxge -adde 5 6 HADAMARD
-Add edge (5, 6)
 
 qsyn> zxge -adde 6 7 HADAMARD
-Add edge (6, 7)
 
 qsyn> zxge -adde 7 8 HADAMARD
-Add edge (7, 8)
 
 qsyn> zxge -adde 7 9 HADAMARD
-Add edge (7, 9)
 
 qsyn> zxge -adde 6 10 HADAMARD
-Add edge (6, 10)
 
 qsyn> zxge -adde 7 10 HADAMARD
-Add edge (7, 10)
 
 qsyn> zxge -adde 5 10 SIMPLE
-Add edge (5, 10)
 
 qsyn> zxge -adde 9 10 SIMPLE
-Add edge (9, 10)
 
 qsyn> zxge -adde 0 4 SIMPLE
-Add edge (0, 4)
 
 qsyn> zxge -adde 2 5 SIMPLE
-Add edge (2, 5)
 
 qsyn> zxge -adde 1 8 SIMPLE
-Add edge (1, 8)
 
 qsyn> zxge -adde 3 9 SIMPLE
-Add edge (3, 9)
 
 qsyn> zxgs -pivotr
 Hadamard Rule                 
@@ -84,32 +60,14 @@ Pivot Rule
 
 Iteration 1:
 >>>
-Add vertex (Z) 11
-Add edge (0, 11)
-Add edge (4, 11)
-Remove edge (0, 4), type: -
 > rewrite...
 vs: 4	vt: 6
-Add edge (5, 11)
-Add edge (7, 11)
-Add edge (10, 11)
-Remove ID: 4
-Remove ID: 6
 <<<
 
 Iteration 2:
 >>>
-Add vertex (Z) 12
-Add edge (1, 12)
-Add edge (8, 12)
-Remove edge (1, 8), type: -
 > rewrite...
 vs: 7	vt: 8
-Add edge (9, 12)
-Add edge (10, 12)
-Add edge (11, 12)
-Remove ID: 7
-Remove ID: 8
 <<<
 => 2 iterations.
   1) 1 matches
@@ -152,61 +110,42 @@ Note: verbose level is set to 9
 qsyn> zxnew
 
 qsyn> zxge -addi 0
-Add vertex (●) 0
 
 qsyn> zxge -addo 0
-Add vertex (●) 1
 
 qsyn> zxge -addi 1
-Add vertex (●) 2
 
 qsyn> zxge -addo 1
-Add vertex (●) 3
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 4
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 5
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 6
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 7
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 8
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 9
 
 qsyn> zxge -adde 4 6 HADAMARD
-Add edge (4, 6)
 
 qsyn> zxge -adde 5 6 HADAMARD
-Add edge (5, 6)
 
 qsyn> zxge -adde 6 7 HADAMARD
-Add edge (6, 7)
 
 qsyn> zxge -adde 7 8 HADAMARD
-Add edge (7, 8)
 
 qsyn> zxge -adde 7 9 HADAMARD
-Add edge (7, 9)
 
 qsyn> zxge -adde 0 4 SIMPLE
-Add edge (0, 4)
 
 qsyn> zxge -adde 2 5 SIMPLE
-Add edge (2, 5)
 
 qsyn> zxge -adde 1 8 SIMPLE
-Add edge (1, 8)
 
 qsyn> zxge -adde 3 9 SIMPLE
-Add edge (3, 9)
 
 qsyn> zxgs -pivotr
 Hadamard Rule                 
@@ -216,30 +155,14 @@ Pivot Rule
 
 Iteration 1:
 >>>
-Add vertex (Z) 10
-Add edge (0, 10)
-Add edge (4, 10)
-Remove edge (0, 4), type: -
 > rewrite...
 vs: 4	vt: 6
-Add edge (5, 10)
-Add edge (7, 10)
-Remove ID: 4
-Remove ID: 6
 <<<
 
 Iteration 2:
 >>>
-Add vertex (Z) 11
-Add edge (1, 11)
-Add edge (8, 11)
-Remove edge (1, 8), type: -
 > rewrite...
 vs: 7	vt: 8
-Add edge (9, 11)
-Add edge (10, 11)
-Remove ID: 7
-Remove ID: 8
 <<<
 => 2 iterations.
   1) 1 matches
@@ -278,169 +201,114 @@ Note: verbose level is set to 9
 qsyn> zxnew
 
 qsyn> zxge -addi 0
-Add vertex (●) 0
 
 qsyn> zxge -addo 0
-Add vertex (●) 1
 
 qsyn> zxge -addi 1
-Add vertex (●) 2
 
 qsyn> zxge -addo 1
-Add vertex (●) 3
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 4
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 5
 
 qsyn> zxge -adde 4 5 HADAMARD
-Add edge (4, 5)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 6
 
 qsyn> zxge -adde 4 6 HADAMARD
-Add edge (4, 6)
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 7
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 8
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 9
 
 qsyn> zxge -adde 5 7 HADAMARD
-Add edge (5, 7)
 
 qsyn> zxge -adde 5 8 HADAMARD
-Add edge (5, 8)
 
 qsyn> zxge -adde 5 9 HADAMARD
-Add edge (5, 9)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 10
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 11
 
 qsyn> zxge -adde 5 10 HADAMARD
-Add edge (5, 10)
 
 qsyn> zxge -adde 5 11 HADAMARD
-Add edge (5, 11)
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 12
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 13
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 14
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 15
 
 qsyn> zxge -adde 4 12 HADAMARD
-Add edge (4, 12)
 
 qsyn> zxge -adde 4 13 HADAMARD
-Add edge (4, 13)
 
 qsyn> zxge -adde 4 14 HADAMARD
-Add edge (4, 14)
 
 qsyn> zxge -adde 4 15 HADAMARD
-Add edge (4, 15)
 
 qsyn> zxge -adde 5 12 HADAMARD
-Add edge (5, 12)
 
 qsyn> zxge -adde 5 13 HADAMARD
-Add edge (5, 13)
 
 qsyn> zxge -adde 5 14 HADAMARD
-Add edge (5, 14)
 
 qsyn> zxge -adde 5 15 HADAMARD
-Add edge (5, 15)
 
 qsyn> zxge -adde 0 10 SIMPLE
-Add edge (0, 10)
 
 qsyn> zxge -adde 2 7 SIMPLE
-Add edge (2, 7)
 
 qsyn> zxge -adde 1 11 SIMPLE
-Add edge (1, 11)
 
 qsyn> zxge -adde 3 11 SIMPLE
-Add edge (3, 11)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 16
 
 qsyn> zxge -adde 6 16 SIMPLE
-Add edge (6, 16)
 
 qsyn> zxge -addv 0 X 0
-Add vertex (X) 17
 
 qsyn> zxge -adde 7 17 SIMPLE
-Add edge (7, 17)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 18
 
 qsyn> zxge -adde 8 18 SIMPLE
-Add edge (8, 18)
 
 qsyn> zxge -addv 0 X 0
-Add vertex (X) 19
 
 qsyn> zxge -adde 9 19 SIMPLE
-Add edge (9, 19)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 20
 
 qsyn> zxge -adde 10 20 SIMPLE
-Add edge (10, 20)
 
 qsyn> zxge -addv 0 X 0
-Add vertex (X) 21
 
 qsyn> zxge -adde 11 21 SIMPLE
-Add edge (11, 21)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 22
 
 qsyn> zxge -adde 12 22 SIMPLE
-Add edge (12, 22)
 
 qsyn> zxge -addv 0 X 0
-Add vertex (X) 23
 
 qsyn> zxge -adde 13 23 SIMPLE
-Add edge (13, 23)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 24
 
 qsyn> zxge -adde 14 24 SIMPLE
-Add edge (14, 24)
 
 qsyn> zxge -addv 0 X 0
-Add vertex (X) 25
 
 qsyn> zxge -adde 15 25 SIMPLE
-Add edge (15, 25)
 
 qsyn> zxgs -pivotr
 Hadamard Rule                 
@@ -452,37 +320,6 @@ Iteration 1:
 >>>
 > rewrite...
 vs: 4	vt: 5
-Add edge (6, 7)
-Add edge (6, 8)
-Add edge (6, 9)
-Add edge (6, 10)
-Add edge (6, 11)
-Add edge (6, 12)
-Add edge (6, 13)
-Add edge (6, 14)
-Add edge (6, 15)
-Add edge (7, 12)
-Add edge (7, 13)
-Add edge (7, 14)
-Add edge (7, 15)
-Add edge (8, 12)
-Add edge (8, 13)
-Add edge (8, 14)
-Add edge (8, 15)
-Add edge (9, 12)
-Add edge (9, 13)
-Add edge (9, 14)
-Add edge (9, 15)
-Add edge (10, 12)
-Add edge (10, 13)
-Add edge (10, 14)
-Add edge (10, 15)
-Add edge (11, 12)
-Add edge (11, 13)
-Add edge (11, 14)
-Add edge (11, 15)
-Remove ID: 4
-Remove ID: 5
 <<<
 => 1 iterations.
   1) 1 matches
@@ -572,388 +409,260 @@ Note: verbose level is set to 9
 qsyn> zxnew
 
 qsyn> zxge -addi 0
-Add vertex (●) 0
 
 qsyn> zxge -addo 0
-Add vertex (●) 1
 
 qsyn> zxge -addi 1
-Add vertex (●) 2
 
 qsyn> zxge -addo 1
-Add vertex (●) 3
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 4
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 5
 
 qsyn> zxge -adde 4 5 HADAMARD
-Add edge (4, 5)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 6
 
 qsyn> zxge -adde 4 6 HADAMARD
-Add edge (4, 6)
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 7
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 8
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 9
 
 qsyn> zxge -adde 5 7 HADAMARD
-Add edge (5, 7)
 
 qsyn> zxge -adde 5 8 HADAMARD
-Add edge (5, 8)
 
 qsyn> zxge -adde 5 9 HADAMARD
-Add edge (5, 9)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 10
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 11
 
 qsyn> zxge -adde 5 10 HADAMARD
-Add edge (5, 10)
 
 qsyn> zxge -adde 5 11 HADAMARD
-Add edge (5, 11)
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 12
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 13
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 14
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 15
 
 qsyn> zxge -adde 4 12 HADAMARD
-Add edge (4, 12)
 
 qsyn> zxge -adde 4 13 HADAMARD
-Add edge (4, 13)
 
 qsyn> zxge -adde 4 14 HADAMARD
-Add edge (4, 14)
 
 qsyn> zxge -adde 4 15 HADAMARD
-Add edge (4, 15)
 
 qsyn> zxge -adde 5 12 HADAMARD
-Add edge (5, 12)
 
 qsyn> zxge -adde 5 13 HADAMARD
-Add edge (5, 13)
 
 qsyn> zxge -adde 5 14 HADAMARD
-Add edge (5, 14)
 
 qsyn> zxge -adde 5 15 HADAMARD
-Add edge (5, 15)
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 16
 
 qsyn> zxge -addv 0 Z 3.14159
-Add vertex (Z) 17
 
 qsyn> zxge -adde 16 17 HADAMARD
-Add edge (16, 17)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 18
 
 qsyn> zxge -adde 16 18 HADAMARD
-Add edge (16, 18)
 
 qsyn> zxge -addv 0 Z 0.1
-Add vertex (Z) 19
 
 qsyn> zxge -addv 0 Z 0.1
-Add vertex (Z) 20
 
 qsyn> zxge -addv 0 Z 0.1
-Add vertex (Z) 21
 
 qsyn> zxge -adde 17 19 HADAMARD
-Add edge (17, 19)
 
 qsyn> zxge -adde 17 20 HADAMARD
-Add edge (17, 20)
 
 qsyn> zxge -adde 17 21 HADAMARD
-Add edge (17, 21)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 22
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 23
 
 qsyn> zxge -adde 17 22 HADAMARD
-Add edge (17, 22)
 
 qsyn> zxge -adde 17 23 HADAMARD
-Add edge (17, 23)
 
 qsyn> zxge -addv 0 Z 1.2
-Add vertex (Z) 24
 
 qsyn> zxge -addv 0 Z 1.2
-Add vertex (Z) 25
 
 qsyn> zxge -addv 0 Z 1.2
-Add vertex (Z) 26
 
 qsyn> zxge -addv 0 Z 1.2
-Add vertex (Z) 27
 
 qsyn> zxge -adde 4 24 HADAMARD
-Add edge (4, 24)
 
 qsyn> zxge -adde 4 25 HADAMARD
-Add edge (4, 25)
 
 qsyn> zxge -adde 4 26 HADAMARD
-Add edge (4, 26)
 
 qsyn> zxge -adde 4 27 HADAMARD
-Add edge (4, 27)
 
 qsyn> zxge -adde 5 24 HADAMARD
-Add edge (5, 24)
 
 qsyn> zxge -adde 5 25 HADAMARD
-Add edge (5, 25)
 
 qsyn> zxge -adde 5 26 HADAMARD
-Add edge (5, 26)
 
 qsyn> zxge -adde 5 27 HADAMARD
-Add edge (5, 27)
 
 qsyn> zxge -adde 16 24 HADAMARD
-Add edge (16, 24)
 
 qsyn> zxge -adde 16 25 HADAMARD
-Add edge (16, 25)
 
 qsyn> zxge -adde 16 26 HADAMARD
-Add edge (16, 26)
 
 qsyn> zxge -adde 16 27 HADAMARD
-Add edge (16, 27)
 
 qsyn> zxge -adde 17 24 HADAMARD
-Add edge (17, 24)
 
 qsyn> zxge -adde 17 25 HADAMARD
-Add edge (17, 25)
 
 qsyn> zxge -adde 17 26 HADAMARD
-Add edge (17, 26)
 
 qsyn> zxge -adde 17 27 HADAMARD
-Add edge (17, 27)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 28
 
 qsyn> zxge -adde 6 28 SIMPLE
-Add edge (6, 28)
 
 qsyn> zxge -addv 0 X 0
-Add vertex (X) 29
 
 qsyn> zxge -adde 7 29 SIMPLE
-Add edge (7, 29)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 30
 
 qsyn> zxge -adde 8 30 SIMPLE
-Add edge (8, 30)
 
 qsyn> zxge -addv 0 X 0
-Add vertex (X) 31
 
 qsyn> zxge -adde 9 31 SIMPLE
-Add edge (9, 31)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 32
 
 qsyn> zxge -adde 10 32 SIMPLE
-Add edge (10, 32)
 
 qsyn> zxge -addv 0 X 0
-Add vertex (X) 33
 
 qsyn> zxge -adde 11 33 SIMPLE
-Add edge (11, 33)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 34
 
 qsyn> zxge -adde 12 34 SIMPLE
-Add edge (12, 34)
 
 qsyn> zxge -addv 0 X 0
-Add vertex (X) 35
 
 qsyn> zxge -adde 13 35 SIMPLE
-Add edge (13, 35)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 36
 
 qsyn> zxge -adde 14 36 SIMPLE
-Add edge (14, 36)
 
 qsyn> zxge -addv 0 X 0
-Add vertex (X) 37
 
 qsyn> zxge -adde 15 37 SIMPLE
-Add edge (15, 37)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 38
 
 qsyn> zxge -adde 18 38 SIMPLE
-Add edge (18, 38)
 
 qsyn> zxge -addv 0 X 0
-Add vertex (X) 39
 
 qsyn> zxge -adde 19 39 SIMPLE
-Add edge (19, 39)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 40
 
 qsyn> zxge -adde 20 40 SIMPLE
-Add edge (20, 40)
 
 qsyn> zxge -addv 0 X 0
-Add vertex (X) 41
 
 qsyn> zxge -adde 21 41 SIMPLE
-Add edge (21, 41)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 42
 
 qsyn> zxge -adde 22 42 SIMPLE
-Add edge (22, 42)
 
 qsyn> zxge -addv 0 X 0
-Add vertex (X) 43
 
 qsyn> zxge -adde 23 43 SIMPLE
-Add edge (23, 43)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 44
 
 qsyn> zxge -adde 24 44 SIMPLE
-Add edge (24, 44)
 
 qsyn> zxge -addv 0 X 0
-Add vertex (X) 45
 
 qsyn> zxge -adde 25 45 SIMPLE
-Add edge (25, 45)
 
 qsyn> zxge -addv 0 Z 0
-Add vertex (Z) 46
 
 qsyn> zxge -adde 26 46 SIMPLE
-Add edge (26, 46)
 
 qsyn> zxge -addv 0 X 0
-Add vertex (X) 47
 
 qsyn> zxge -adde 27 47 SIMPLE
-Add edge (27, 47)
 
 qsyn> zxge -adde 10 18 SIMPLE
-Add edge (10, 18)
 
 qsyn> zxge -adde 11 18 SIMPLE
-Add edge (11, 18)
 
 qsyn> zxge -adde 12 24 SIMPLE
-Add edge (12, 24)
 
 qsyn> zxge -adde 12 25 SIMPLE
-Add edge (12, 25)
 
 qsyn> zxge -adde 12 26 SIMPLE
-Add edge (12, 26)
 
 qsyn> zxge -adde 12 27 SIMPLE
-Add edge (12, 27)
 
 qsyn> zxge -adde 13 24 SIMPLE
-Add edge (13, 24)
 
 qsyn> zxge -adde 13 25 SIMPLE
-Add edge (13, 25)
 
 qsyn> zxge -adde 13 26 SIMPLE
-Add edge (13, 26)
 
 qsyn> zxge -adde 13 27 SIMPLE
-Add edge (13, 27)
 
 qsyn> zxge -adde 14 24 SIMPLE
-Add edge (14, 24)
 
 qsyn> zxge -adde 14 25 SIMPLE
-Add edge (14, 25)
 
 qsyn> zxge -adde 14 26 SIMPLE
-Add edge (14, 26)
 
 qsyn> zxge -adde 14 27 SIMPLE
-Add edge (14, 27)
 
 qsyn> zxge -adde 15 24 SIMPLE
-Add edge (15, 24)
 
 qsyn> zxge -adde 15 25 SIMPLE
-Add edge (15, 25)
 
 qsyn> zxge -adde 15 26 SIMPLE
-Add edge (15, 26)
 
 qsyn> zxge -adde 15 27 SIMPLE
-Add edge (15, 27)
 
 qsyn> zxge -adde 0 10 SIMPLE
-Add edge (0, 10)
 
 qsyn> zxge -adde 2 22 SIMPLE
-Add edge (2, 22)
 
 qsyn> zxge -adde 1 43 SIMPLE
-Add edge (1, 43)
 
 qsyn> zxge -adde 3 45 SIMPLE
-Add edge (3, 45)
 
 qsyn> zxgs -pivotr
 Hadamard Rule                 
@@ -967,92 +676,6 @@ Iteration 1:
 vs: 4	vt: 5
 > rewrite...
 vs: 16	vt: 17
-Add edge (6, 7)
-Add edge (6, 8)
-Add edge (6, 9)
-Add edge (6, 10)
-Add edge (6, 11)
-Add edge (6, 12)
-Add edge (6, 13)
-Add edge (6, 14)
-Add edge (6, 15)
-Add edge (6, 24)
-Add edge (6, 25)
-Add edge (6, 26)
-Add edge (6, 27)
-Add edge (7, 12)
-Add edge (7, 13)
-Add edge (7, 14)
-Add edge (7, 15)
-Add edge (7, 24)
-Add edge (7, 25)
-Add edge (7, 26)
-Add edge (7, 27)
-Add edge (8, 12)
-Add edge (8, 13)
-Add edge (8, 14)
-Add edge (8, 15)
-Add edge (8, 24)
-Add edge (8, 25)
-Add edge (8, 26)
-Add edge (8, 27)
-Add edge (9, 12)
-Add edge (9, 13)
-Add edge (9, 14)
-Add edge (9, 15)
-Add edge (9, 24)
-Add edge (9, 25)
-Add edge (9, 26)
-Add edge (9, 27)
-Add edge (10, 12)
-Add edge (10, 13)
-Add edge (10, 14)
-Add edge (10, 15)
-Add edge (10, 24)
-Add edge (10, 25)
-Add edge (10, 26)
-Add edge (10, 27)
-Add edge (11, 12)
-Add edge (11, 13)
-Add edge (11, 14)
-Add edge (11, 15)
-Add edge (11, 24)
-Add edge (11, 25)
-Add edge (11, 26)
-Add edge (11, 27)
-Add edge (18, 19)
-Add edge (18, 20)
-Add edge (18, 21)
-Add edge (18, 22)
-Add edge (18, 23)
-Add edge (18, 24)
-Add edge (18, 25)
-Add edge (18, 26)
-Add edge (18, 27)
-Add edge (19, 24)
-Add edge (19, 25)
-Add edge (19, 26)
-Add edge (19, 27)
-Add edge (20, 24)
-Add edge (20, 25)
-Add edge (20, 26)
-Add edge (20, 27)
-Add edge (21, 24)
-Add edge (21, 25)
-Add edge (21, 26)
-Add edge (21, 27)
-Add edge (22, 24)
-Add edge (22, 25)
-Add edge (22, 26)
-Add edge (22, 27)
-Add edge (23, 24)
-Add edge (23, 25)
-Add edge (23, 26)
-Add edge (23, 27)
-Remove ID: 5
-Remove ID: 4
-Remove ID: 17
-Remove ID: 16
 <<<
 => 1 iterations.
   1) 2 matches

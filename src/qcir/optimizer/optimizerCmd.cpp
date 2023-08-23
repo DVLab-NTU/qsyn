@@ -18,8 +18,6 @@
 
 using namespace std;
 using namespace ArgParse;
-extern size_t verbose;
-extern int effLimit;
 extern QCirMgr qcirMgr;
 extern bool stop_requested();
 
@@ -81,14 +79,15 @@ unique_ptr<Command> QCirOptimizeCmd() {
         }
 
         if (parser.get<bool>("-copy")) {
-            qcirMgr.add(qcirMgr.getNextID());
+            qcirMgr.add(qcirMgr.getNextID(), std::make_unique<QCir>(std::move(*result)));
+        } else {
+            qcirMgr.set(std::make_unique<QCir>(std::move(*result)));
         }
 
         if (stop_requested()) {
             procedure_str += "[INT]";
         }
 
-        qcirMgr.set(std::make_unique<QCir>(std::move(*result)));
         qcirMgr.get()->addProcedure(procedure_str);
 
         return CmdExecResult::DONE;

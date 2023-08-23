@@ -65,7 +65,7 @@ private:
 
     // attributes
     bool hasDefaultValue() const { return _pimpl->do_hasDefaultValue(); }
-    bool isRequired() const { return _pimpl->do_isRequired(); }
+    bool isRequired() const { return _pimpl->do_isRequired() && (_isOption || getNArgs().lower > 0); }
     bool isOption() const { return _isOption; }
     bool mayTakeArgument() const { return getNArgs().upper > 0; }
     bool mustTakeArgument() const { return getNArgs().lower > 0; }
@@ -146,7 +146,7 @@ private:
     };
 
     std::unique_ptr<Concept> _pimpl;
-    bool mutable _isOption = false;
+    bool _isOption = false;
 
     bool isParsed() const { return _pimpl->do_isParsed(); }
     TokensView getParseRange(TokensView) const;

@@ -12,5 +12,5 @@
 #include "./qcirGate.hpp"
 #include "zx/zxGraph.hpp"
 
-std::optional<ZXGraph> toZXGraph(QCirGate* gate);
-std::optional<ZXGraph> toZXGraph(QCir const& qcir);
+std::optional<ZXGraph> toZXGraph(QCirGate* gate, size_t decomposition_mode = 0);
+std::optional<ZXGraph> toZXGraph(QCir const& qcir, size_t decomposition_mode = 0);

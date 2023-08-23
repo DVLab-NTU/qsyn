@@ -73,6 +73,9 @@ public:
     T* get() const { return _list.at(_focusedID).get(); }
 
     void set(std::unique_ptr<T> t) {
+        if (_list.contains(_focusedID)) {
+            logger.info("Note: Replacing {} {}...", _typeName, _focusedID);
+        }
         _list.at(_focusedID).swap(t);
     }
 
@@ -82,6 +85,16 @@ public:
 
     T* add(size_t id) {
         _list.emplace(id, std::make_unique<T>());
+        _focusedID = id;
+        if (id == _nextID || _nextID < id) _nextID = id + 1;
+
+        logger.info("Successfully created and checked out to {0} {1}", _typeName, id);
+
+        return this->get();
+    }
+
+    T* add(size_t id, std::unique_ptr<T> t) {
+        _list.emplace(id, std::move(t));
         _focusedID = id;
         if (id == _nextID || _nextID < id) _nextID = id + 1;
 

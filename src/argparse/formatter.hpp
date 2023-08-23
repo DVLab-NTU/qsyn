@@ -32,16 +32,14 @@ public:
     static std::string styledArgName(Argument const& arg);
     static std::string styledCmdName(std::string const& name, size_t numRequired);
 
-    static std::string getSyntaxString(Argument const& arg);
-    static std::string getSyntaxString(SubParsers const& parsers);
-    static std::string getSyntaxString(ArgumentParser parser, MutuallyExclusiveGroup const& group);
+    static std::string getSyntax(SubParsers const& parsers);
+    static std::string getSyntax(ArgumentParser parser, MutuallyExclusiveGroup const& group);
 
     static std::string getUsageString(Argument const& arg);
-    static std::string requiredArgBracket(std::string const& str);
-    static std::string optionalArgBracket(std::string const& str);
 
 private:
     static void tabulateHelpString(fort::utf8_table& table, size_t max_help_string_width, Argument const& arg);
+    static std::string getSyntax_Internal(Argument const& arg);
 };
 
 }  // namespace ArgParse

@@ -44,7 +44,6 @@ qsyn> qcba 3
 Note: QCir list is empty now. Create a new one.
 
 qsyn> qc2ts
-Traverse and build the tensor... 
 
 qsyn> tseq 0 1 -Strict
 Equivalent

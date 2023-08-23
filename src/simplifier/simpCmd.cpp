@@ -7,8 +7,6 @@
 ****************************************************************************/
 
 #include <cstddef>
-#include <iomanip>
-#include <iostream>
 #include <string>
 
 #include "simplifier/simplify.hpp"

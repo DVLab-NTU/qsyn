@@ -38,25 +38,21 @@ unique_ptr<Command> argparseCmd() {
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("ArgParse package sandbox");
 
-        parser.addArgument<string>("-cat")
-            .nargs(2, 4)
-            .required(true)
-            .usage("meow")
-            .help("won't eat veggies");
+        auto mutex1 = parser.addMutuallyExclusiveGroup();
+        auto mutex2 = parser.addMutuallyExclusiveGroup();
 
-        parser.addArgument<string>("-DOG")
-            .action(storeConst("rocky"s))
-            .defaultValue("good boi"s)
-            .help("humans' best friend");
+        mutex2.addArgument<int>("c")
+            .nargs(NArgsOption::OPTIONAL);
+        mutex1.addArgument<int>("a")
+            .nargs(NArgsOption::OPTIONAL);
+
+        mutex1.addArgument<string>("-b");
+        mutex2.addArgument<string>("-d");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
         parser.printTokens();
         parser.printArguments();
-
-        auto cats = parser.get<ordered_hashset<string>>("cat");
-
-        fmt::println("# cats = {}: {}", cats.size(), fmt::join(cats, " "));
 
         return CmdExecResult::DONE;
     };

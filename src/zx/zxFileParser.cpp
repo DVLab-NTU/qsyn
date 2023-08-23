@@ -9,7 +9,6 @@
 #include "./zxFileParser.hpp"
 
 #include <fstream>
-#include <iostream>
 
 #include "util/phase.hpp"
 #include "util/util.hpp"

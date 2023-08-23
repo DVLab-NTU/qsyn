@@ -13,10 +13,11 @@
 #include <ranges>
 
 #include "simplifier/simplify.hpp"
+#include "util/logger.hpp"
 #include "util/textFormat.hpp"
 
 using namespace std;
-extern size_t verbose;
+extern dvlab::utils::Logger logger;
 
 constexpr auto vertex2id = [](ZXVertex* v) { return v->getId(); };
 
@@ -105,41 +106,27 @@ bool GFlow::calculate() {
         _coefficientMatrix.fromZXVertices(_neighbors, _frontier);
 
         size_t i = 0;
-        if (verbose >= 8) printFrontier();
-        if (verbose >= 8) printNeighbors();
+        logger.trace("Frontier: {}", fmt::join(_frontier | views::transform(vertex2id), " "));
+        logger.trace("Neighbors: {}", fmt::join(_neighbors | views::transform(vertex2id), " "));
 
         for (auto& v : _neighbors) {
             if (_doIndependentLayers &&
                 any_of(v->getNeighbors().begin(), v->getNeighbors().end(), [this](const NeighborPair& nbpair) {
                     return this->_levels.back().contains(nbpair.first);
                 })) {
-                if (verbose >= 8) {
-                    fmt::println("Skipping vertex {} : connected to current level", v->getId());
-                }
+                logger.trace("Skipping vertex {} : connected to current level", v->getId());
                 continue;
             }
 
             M2 augmentedMatrix = prepareMatrix(v, i);
 
-            if (verbose >= 8) {
-                fmt::println("Before solving:");
-                augmentedMatrix.printMatrix();
-            }
-
             if (augmentedMatrix.gaussianElimAugmented(false)) {
-                if (verbose >= 8) {
-                    fmt::println("Solved, adding {} to this level", v->getId());
-                }
+                logger.trace("Solved {}, adding to this level", v->getId());
                 _taken.insert(v);
                 _levels.back().insert(v);
                 setCorrectionSetFromMatrix(v, augmentedMatrix);
-            } else if (verbose >= 8) {
-                fmt::println("No solution for {}.", v->getId());
-            }
-
-            if (verbose >= 8) {
-                fmt::println("After solving:");
-                augmentedMatrix.printMatrix();
+            } else {
+                logger.trace("No solution for {}.", v->getId());
             }
             ++i;
         }
@@ -356,22 +343,6 @@ void GFlow::printSummary() const {
         fmt::println("{}", fmt_ext::styled_if_ANSI_supported("No GFlow exists.", fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
         fmt::println("The flow breaks at level {}.", _levels.size());
     }
-}
-
-/**
- * @brief Print frontier
- *
- */
-void GFlow::printFrontier() const {
-    fmt::println("Frontier: {}", fmt::join(_frontier | views::transform(vertex2id), " "));
-}
-
-/**
- * @brief Print neighbors
- *
- */
-void GFlow::printNeighbors() const {
-    fmt::println("Neighbors: {}", fmt::join(_neighbors | views::transform(vertex2id), " "));
 }
 
 /**

@@ -7,8 +7,6 @@
 ****************************************************************************/
 
 #include <cstddef>
-#include <iomanip>
-#include <iostream>
 #include <string>
 
 #include "./tensorMgr.hpp"
@@ -19,7 +17,6 @@
 using namespace std;
 
 TensorMgr tensorMgr{"Tensor"};
-extern size_t verbose;
 
 using namespace ArgParse;
 

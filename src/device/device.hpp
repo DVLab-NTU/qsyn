@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <fmt/core.h>
+
 #include <cstddef>
 #include <string>
 #include <unordered_map>
@@ -41,6 +43,16 @@ using QubitInfo = std::unordered_map<size_t, Info>;
 struct Info {
     float _time;
     float _error;
+};
+
+template <>
+struct fmt::formatter<Info> {
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(const Info& info, FormatContext& ctx) {
+        return format_to(ctx.out(), "Delay: {:>7.3}    Error: {:7.3}    ", info._time, info._error);
+    }
 };
 
 std::ostream& operator<<(std::ostream& os, const Info& info);
@@ -209,5 +221,3 @@ private:
     std::tuple<size_t, size_t> _duration;  // <from, to>
     size_t _id;
 };
-
-std::ostream& operator<<(std::ostream&, const Operation&);

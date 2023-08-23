@@ -58,17 +58,7 @@ public:
         this->addProcedures(other._procedures);
     }
 
-    QCir(QCir&& other) noexcept {
-        _gateId = std::exchange(other._gateId, 0);
-        _qubitId = std::exchange(other._qubitId, 0);
-        _dirty = std::exchange(other._dirty, false);
-        _globalDFScounter = std::exchange(other._globalDFScounter, 0);
-        _fileName = std::exchange(other._fileName, "");
-        _procedures = std::exchange(other._procedures, {});
-        _qgates = std::exchange(other._qgates, {});
-        _qubits = std::exchange(other._qubits, {});
-        _topoOrder = std::exchange(other._topoOrder, {});
-    }
+    QCir(QCir&& other) noexcept = default;
 
     QCir& operator=(QCir copy) {
         copy.swap(*this);

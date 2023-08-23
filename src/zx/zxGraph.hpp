@@ -238,7 +238,6 @@ public:
     // For testings
     bool isEmpty() const;
     bool isValid() const;
-    void generateCNOT();
     bool isId(size_t id) const;
     bool isGraphLike() const;
     bool isIdentity() const;
@@ -263,7 +262,7 @@ public:
     ZXVertex* addInput(int qubit, unsigned int col = 0);
     ZXVertex* addOutput(int qubit, unsigned int col = 0);
     ZXVertex* addVertex(int qubit, VertexType vt, Phase phase = Phase(), unsigned int col = 0);
-    EdgePair addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
+    void addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
 
     size_t removeIsolatedVertices();
     size_t removeVertex(ZXVertex* v);
@@ -283,7 +282,6 @@ public:
     ZXVertex* addBuffer(ZXVertex* toProtect, ZXVertex* fromVertex, EdgeType etype);
 
     // Find functions
-    size_t findNextId() const;
     ZXVertex* findVertexById(const size_t& id) const;
 
     // Action functions (zxGraphAction.cpp)

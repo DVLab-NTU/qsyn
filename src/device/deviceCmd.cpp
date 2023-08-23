@@ -14,13 +14,12 @@
 #include "cli/cli.hpp"
 #include "device/device.hpp"
 #include "device/deviceMgr.hpp"
+#include "fmt/core.h"
 
 using namespace std;
 using namespace ArgParse;
 
 DeviceMgr deviceMgr{"Device"};
-extern size_t verbose;
-extern int effLimit;
 
 unique_ptr<Command> dtCheckOutCmd();
 unique_ptr<Command> dtResetCmd();
@@ -40,7 +39,7 @@ bool initDeviceCmd() {
           cli.registerCommand("DTGRead", 4, dtGraphReadCmd()) &&
           cli.registerCommand("DTGPrint", 4, dtGraphPrintCmd()) &&
           cli.registerCommand("DTPrint", 3, dtPrintCmd()))) {
-        cerr << "Registering \"device topology\" commands fails... exiting" << endl;
+        logger.fatal("Registering \"device topology\" commands fails... exiting");
         return false;
     }
     return true;
@@ -51,7 +50,7 @@ ArgType<size_t>::ConstraintType validDeviceId = {
         return deviceMgr.isID(id);
     },
     [](size_t const& id) {
-        cerr << "Error: Device " << id << " does not exist!!\n";
+        logger.error("Device {} does not exist!!", id);
     }};
 
 unique_ptr<Command> dtCheckOutCmd() {
@@ -127,21 +126,16 @@ unique_ptr<Command> dtGraphReadCmd() {
         auto replace = parser.get<bool>("-replace");
 
         if (!bufferDevice.readDevice(filepath)) {
-            cerr << "Error: the format in \"" << filepath << "\" has something wrong!!" << endl;
+            logger.error("the format in \"{}\" has something wrong!!", filepath);
             return CmdExecResult::ERROR;
         }
 
-        if (deviceMgr.empty()) {
-            deviceMgr.add(deviceMgr.getNextID());
+        if (deviceMgr.empty() || !replace) {
+            deviceMgr.add(deviceMgr.getNextID(), std::make_unique<Device>(std::move(bufferDevice)));
         } else {
-            if (replace) {
-                if (verbose >= 1) cout << "Note: original Device is replaced..." << endl;
-            } else {
-                deviceMgr.add(deviceMgr.getNextID());
-            }
+            deviceMgr.set(std::make_unique<Device>(std::move(bufferDevice)));
         }
 
-        deviceMgr.set(std::make_unique<Device>(std::move(bufferDevice)));
         return CmdExecResult::DONE;
     };
 

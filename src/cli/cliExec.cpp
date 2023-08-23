@@ -45,7 +45,7 @@ bool CommandLineInterface::openDofile(const std::string& filepath) {
         return false;
     }
     if (_dofileStack.size() >= dofile_stack_limit) {
-        logger.error("Error: dofile stack overflow ({})!!", dofile_stack_limit);
+        logger.error("dofile stack overflow ({})!!", dofile_stack_limit);
         return false;
     }
 
@@ -128,6 +128,7 @@ CmdExecResult
 CommandLineInterface::executeOneLine() {
     while (_dofileStack.size() && _dofileStack.top().eof()) closeDofile();
     if (auto result = (_dofileStack.size() ? readOneLine(_dofileStack.top()) : readOneLine(std::cin)); result != CmdExecResult::DONE) {
+        if (_dofileStack.empty() && std::cin.eof()) return CmdExecResult::QUIT;
         return result;
     }
 
@@ -182,7 +183,7 @@ CommandLineInterface::parseOneCommandFromQueue() {
         string var_key = cmd.substr(0, pos);
         string var_val = cmd.substr(pos + 1);
         if (var_val.empty()) {
-            logger.error("Error: variable `{}` is not assigned a value!!", var_key);
+            logger.error("variable `{}` is not assigned a value!!", var_key);
             return {nullptr, ""};
         }
         _variables.insert_or_assign(var_key, var_val);

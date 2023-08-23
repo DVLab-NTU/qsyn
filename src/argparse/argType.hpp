@@ -234,6 +234,7 @@ template <typename T>
 requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::defaultValue(T const& val) {
     _defaultValue = val;
+    _required = false;
     return *this;
 }
 

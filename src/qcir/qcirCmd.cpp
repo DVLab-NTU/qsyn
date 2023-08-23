@@ -10,7 +10,6 @@
 
 #include <cstddef>
 #include <filesystem>
-#include <iostream>
 #include <string>
 
 #include "./qcirGate.hpp"
@@ -25,9 +24,6 @@
 QCirMgr qcirMgr{"QCir"};
 extern ZXGraphMgr zxGraphMgr;
 extern TensorMgr tensorMgr;
-extern size_t verbose;
-extern size_t dmode;
-extern int effLimit;
 
 using namespace std;
 using namespace ArgParse;
@@ -116,12 +112,12 @@ ArgType<size_t>::ConstraintType const validQCirBitId = {
         cerr << "Error: Qubit id " << id << " does not exist!!\n";
     }};
 
-ArgType<size_t>::ConstraintType const validDMode = {
+ArgType<size_t>::ConstraintType const validDecompositionMode = {
     [](size_t const& val) {
         return (val >= 0 && val <= 4);
     },
     [](size_t const& val) {
-        cerr << "Error: DMode " << val << " does not exist!!\n";
+        cerr << "Error: Decomposition Mode " << val << " is not valid!!\n";
     }};
 
 //----------------------------------------------------------------------
@@ -222,9 +218,10 @@ unique_ptr<Command> QCirNewCmd() {
             }
 
             qcirMgr.set(std::make_unique<QCir>());
+        } else {
+            qcirMgr.add(id);
         }
 
-        qcirMgr.add(id);
         return CmdExecResult::DONE;
     };
 
@@ -439,17 +436,11 @@ unique_ptr<Command> QCirReadCmd() {
             cerr << "Error: The format in \"" << filepath << "\" has something wrong!!" << endl;
             return CmdExecResult::ERROR;
         }
-        if (qcirMgr.empty()) {
-            // cout << "Note: QCir list is empty now. Create a new one." << endl;
-            qcirMgr.add(qcirMgr.getNextID());
+        if (qcirMgr.empty() || !replace) {
+            qcirMgr.add(qcirMgr.getNextID(), std::make_unique<QCir>(std::move(bufferQCir)));
         } else {
-            if (replace) {
-                if (verbose >= 1) cout << "Note: original QCir is replaced..." << endl;
-            } else {
-                qcirMgr.add(qcirMgr.getNextID());
-            }
+            qcirMgr.set(std::make_unique<QCir>(std::move(bufferQCir)));
         }
-        qcirMgr.set(std::make_unique<QCir>(std::move(bufferQCir)));
         qcirMgr.get()->setFileName(std::filesystem::path{filepath}.stem());
         return CmdExecResult::DONE;
     };
@@ -806,24 +797,18 @@ unique_ptr<Command> QCir2ZXCmd() {
     cmd->parserDefinition = [](ArgumentParser& parser) {
         parser.help("convert QCir to ZXGraph");
 
-        // auto mutex = parser.addMutuallyExclusiveGroup();
-
-        parser.addArgument<size_t>("dm")
-            .nargs(NArgsOption::OPTIONAL)
-            .constraint(validDMode)
-            .help("decompose the graph in level 0");
+        parser.addArgument<size_t>("decomp_mode")
+            .defaultValue(0)
+            .constraint(validDecompositionMode)
+            .help("specify the decomposition mode (default: 0). The higher the number, the more aggressive the decomposition is.");
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser.parsed("dm"))
-            dmode = parser.get<size_t>("dm");
-        else
-            dmode = 0;
-        auto g = toZXGraph(*qcirMgr.get());
+        logger.info("Converting to QCir {} to ZXGraph {}...", qcirMgr.focusedID(), zxGraphMgr.getNextID());
+        auto g = toZXGraph(*qcirMgr.get(), parser.get<size_t>("decomp_mode"));
 
         if (g.has_value()) {
-            zxGraphMgr.add(zxGraphMgr.getNextID());
-            zxGraphMgr.set(std::make_unique<ZXGraph>(std::move(g.value())));
+            zxGraphMgr.add(zxGraphMgr.getNextID(), std::make_unique<ZXGraph>(std::move(g.value())));
 
             zxGraphMgr.get()->setFileName(qcirMgr.get()->getFileName());
             zxGraphMgr.get()->addProcedures(qcirMgr.get()->getProcedures());
@@ -850,6 +835,7 @@ unique_ptr<Command> QCir2TSCmd() {
     };
 
     cmd->onParseSuccess = [](ArgumentParser const& parser) {
+        logger.info("Converting to QCir {} to tensor {}...", qcirMgr.focusedID(), tensorMgr.getNextID());
         auto tensor = toTensor(*qcirMgr.get());
 
         if (tensor.has_value()) {

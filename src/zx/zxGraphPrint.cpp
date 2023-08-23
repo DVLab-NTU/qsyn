@@ -7,7 +7,6 @@
 ****************************************************************************/
 
 #include <cstddef>
-#include <iostream>
 #include <map>
 #include <ranges>
 #include <string>
@@ -17,7 +16,6 @@
 #include "zx/zxGraph.hpp"
 
 using namespace std;
-extern size_t verbose;
 
 /**
  * @brief Print information of ZXGraph

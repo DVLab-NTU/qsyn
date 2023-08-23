@@ -1,16 +1,16 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> help logger
-Usage: LOGger [Test | Level | History | Mask ...]
+Usage: LOGger [Test | Level | History | Mask] ...
 
 Description:
   display and set the logger's status
 
 Subcommands:
-(Test | Level | History | Mask)
-  Test           : Test out logger setting
-  Level          : set logger level
-  History        : print logger history
-  Mask           : set logger mask
+  [Test | Level | History | Mask]  subcommands for logger  
+    Test                           Test out logger setting 
+    Level                          set logger level        
+    History                        print logger history    
+    Mask                           set logger mask         
 
 qsyn> help dofile
 Usage: DOfile <string file> [<string arguments>]...
@@ -22,18 +22,17 @@ Positional Arguments:
   string  file         path to a dofile, i.e., a list of Qsyn commands 
   string  arguments    arguments to the dofile                         
 
-
 qsyn> help zxge
-Usage: ZXGEdit (-RMVertex | -RMEdge | -ADDVertex | -ADDInput | -ADDOutput | -ADDEdge ...)
+Usage: ZXGEdit (-RMVertex | -RMEdge | -ADDVertex | -ADDInput | -ADDOutput | -ADDEdge) ...
 
 Description:
   edit ZXGraph
 
 Subcommands:
-(-RMVertex | -RMEdge | -ADDVertex | -ADDInput | -ADDOutput | -ADDEdge)
+  (-RMVertex | -RMEdge | -ADDVertex | -ADDInput | -ADDOutput | -ADDEdge)   
 
 qsyn> help extract
-Usage: EXTRact (-CX | -CZ | -PHase | -Hadamard | -CLfrontier | -Rmgadgets | -PErmute | -Loop [<size_t N>]) (-Zxgraph <size_t ID>) (-Qcir <size_t ID>)
+Usage: EXTRact (-Zxgraph <size_t ID>) (-Qcir <size_t ID>) (-CX | -CZ | -PHase | -Hadamard | -CLfrontier | -Rmgadgets | -PErmute | -Loop [<size_t N>])
 
 Description:
   perform step(s) in extraction
@@ -50,7 +49,6 @@ Options:
   flag    -PErmute         Add swap gates to account for ZXGraph I/O permutations  
   size_t  -Loop        N   Run N iteration of extraction loop. N is defaulted to 1 
 
-
 qsyn> help zxgr
 Usage: ZXGRead [-Keepid] [-Replace] <string filepath>
 
@@ -60,11 +58,9 @@ Description:
 Positional Arguments:
   string  filepath    path to the ZX file. Supported extensions: .zx, .bzx 
 
-
 Options:
   flag  -Keepid     if set, retain the IDs in the ZX file; otherwise the ID is rearranged to be consecutive 
   flag  -Replace    replace the current ZXGraph                                                             
-
 
 qsyn> qq -f
 

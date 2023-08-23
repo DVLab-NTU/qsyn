@@ -8,7 +8,6 @@
 
 #include <cstddef>
 #include <fstream>
-#include <iostream>
 #include <string>
 
 #include "qcir/qcir.hpp"

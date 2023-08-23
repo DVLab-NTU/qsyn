@@ -12,6 +12,7 @@
 
 #include <cassert>
 #include <numeric>
+#include <ranges>
 
 #include "fmt/core.h"
 #include "util/trie.hpp"
@@ -117,7 +118,7 @@ bool ArgumentParser::analyzeOptions() const {
         }
     }
 
-    for (auto const& [name, arg] : _pimpl->arguments) {
+    for (auto& [name, arg] : _pimpl->arguments) {
         if (!hasOptionPrefix(name)) continue;
         _pimpl->trie.insert(name);
         arg._isOption = true;
@@ -204,13 +205,9 @@ bool ArgumentParser::parseArgs(TokensView tokens) {
 
     if (!success) return false;
 
-    if (unrecognized.size()) {
-        auto quotedView = unrecognized | std::views::transform([](Token const& tok) { return '"' + tok.token + '"'; });
-        fmt::println(stderr, "Error: unrecognized arguments: {:}!!", fmt::join(quotedView, " "));
-        return false;
-    }
-
-    return true;
+    return dvlab::utils::expect(unrecognized.empty(),
+                                fmt::format("Error: unrecognized arguments: \"{}\"!!",
+                                            fmt::join(unrecognized | std::views::transform([](Token const& tok) { return tok.token; }), "\" \"")));
 }
 
 /**
@@ -265,8 +262,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::parseKnownArgs(TokensView to
             if (!success) return {false, {}};
             unrecognized.insert(unrecognized.end(), subparser_unrecognized.begin(), subparser_unrecognized.end());
         } else if (_pimpl->subparsers->isRequired()) {
-            fmt::println(stderr, "Error: missing mandatory subparser argument: {}",
-                         formatter.getSyntaxString(_pimpl->subparsers.value()));
+            fmt::println(stderr, "Error: missing mandatory subparser argument: {}", formatter.getSyntax(_pimpl->subparsers.value()));
             return {false, {}};
         }
     }
@@ -299,14 +295,14 @@ bool ArgumentParser::parseOptions(TokensView tokens, std::vector<Token>& unrecog
 
         Argument& arg = _pimpl->arguments[std::get<string>(match)];
 
-        if (conflictWithParsedArguments(arg)) return false;
+        if (!noConflictWithParsedArguments(arg)) return false;
 
         auto parse_range = arg.getParseRange(tokens);
         if (!arg.tokensEnoughToParse(parse_range)) return false;
 
         if (!arg.takeAction(tokens.subspan(i + 1, std::min(arg.getNArgs().upper, tokens.size() - (i + 1))))) return false;
         tokens[i].parsed = true;
-        arg.markAsParsed(); // if the options is present, no matter if there's any argument the follows, mark it as parsed
+        arg.markAsParsed();  // if the options is present, no matter if there's any argument the follows, mark it as parsed
     }
 
     return allRequiredOptionsAreParsed();
@@ -333,9 +329,7 @@ bool ArgumentParser::parsePositionalArguments(TokensView tokens, std::vector<Tok
             } else
                 continue;
         }
-        if (parse_range.size()) {
-            if (conflictWithParsedArguments(arg)) return false;
-        }
+        if (parse_range.size() && !noConflictWithParsedArguments(arg)) return false;
 
         if (!arg.takeAction(parse_range)) return false;
 
@@ -377,23 +371,18 @@ variant<string, size_t> ArgumentParser::matchOption(std::string const& token) co
     return _pimpl->trie.frequency(key);
 }
 
-bool ArgumentParser::conflictWithParsedArguments(Argument const& arg) const {
-    if (!_pimpl->conflictGroups.contains(arg.getName())) return false;
+bool ArgumentParser::noConflictWithParsedArguments(Argument const& arg) const {
+    if (!_pimpl->conflictGroups.contains(arg.getName())) return true;
 
     auto& mutexGroup = _pimpl->conflictGroups.at(arg.getName());
     if (!mutexGroup.isParsed()) {
         mutexGroup.setParsed(true);
-        return false;
+        return true;
     }
 
-    for (auto const& conflict : mutexGroup.getArguments()) {
-        if (_pimpl->arguments.at(conflict).isParsed()) {
-            fmt::println(stderr, "Error: argument \"{}\" cannot occur with \"{}\"!!", arg.getName(), conflict);
-            return true;
-        }
-    }
-
-    return false;
+    return std::ranges::all_of(mutexGroup.getArguments(), [this, &arg](string const& name) {
+        return dvlab::utils::expect(name == arg.getName() || !_pimpl->arguments.at(name).isParsed(), fmt::format("Error: argument \"{}\" cannot occur with \"{}\"!!", arg.getName(), name));
+    });
 }
 
 /**
@@ -418,14 +407,15 @@ void ArgumentParser::printAmbiguousOptionErrorMsg(std::string const& token) cons
  * @return true or false
  */
 bool ArgumentParser::allRequiredOptionsAreParsed() const {
+    auto requiredOptionRange = _pimpl->arguments | views::values |
+                               views::filter([](Argument const& arg) { return arg.isOption(); }) |
+                               views::filter([](Argument const& arg) { return arg.isRequired(); });
     return dvlab::utils::expect(
-        ranges::all_of(_pimpl->arguments | views::values, [this](Argument const& arg) {
-            return !arg.isOption() || !arg.isRequired() || arg.isParsed();
-        }),
+        ranges::all_of(requiredOptionRange, [this](Argument const& arg) { return arg.isParsed(); }),
         fmt::format("Error: Missing option(s)!! The following options are required: {}",  // intentional linebreak
-                    fmt::join(_pimpl->arguments | views::values | views::filter([this](Argument const& arg) {
-                                  return !arg.isOption() || !arg.isRequired() || arg.isParsed();
-                              }) | views::transform([](Argument const& arg) { return arg.getName(); }),
+                    fmt::join(requiredOptionRange |
+                                  views::filter([](Argument const& arg) { return !arg.isParsed(); }) |
+                                  views::transform([](Argument const& arg) { return arg.getName(); }),
                               ", ")));
 }
 
@@ -447,14 +437,14 @@ bool ArgumentParser::allRequiredMutexGroupsAreParsed() const {
  * @return true or false
  */
 bool ArgumentParser::allRequiredArgumentsAreParsed() const {
+    auto requiredArgRange = _pimpl->arguments | views::values |
+                            views::filter([](Argument const& arg) { return arg.isRequired(); });
     return dvlab::utils::expect(
-        ranges::all_of(_pimpl->arguments | views::values, [this](Argument const& arg) {
-            return arg.isOption() || arg.getNArgs().lower == 0 || !arg.isRequired() || arg.isParsed();
-        }),
+        ranges::all_of(requiredArgRange, [this](Argument const& arg) { return arg.isParsed(); }),
         fmt::format("Error: Missing argument(s)!! The following arguments are required: {}",  // intentional linebreak
-                    fmt::join(_pimpl->arguments | views::values | views::filter([this](Argument const& arg) {
-                                  return arg.isOption() || arg.getNArgs().lower == 0 || !arg.isRequired() || arg.isParsed();
-                              }) | views::transform([](Argument const& arg) { return arg.getName(); }),
+                    fmt::join(requiredArgRange |
+                                  views::filter([](Argument const& arg) { return !arg.isParsed(); }) |
+                                  views::transform([](Argument const& arg) { return arg.getName(); }),
                               ", ")));
 }
 

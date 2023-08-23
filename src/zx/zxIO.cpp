@@ -13,16 +13,16 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
-#include <iostream>
 #include <string>
 
 #include "./zxFileParser.hpp"
 #include "./zxGraph.hpp"
+#include "util/logger.hpp"
 #include "util/tmpFiles.hpp"
 
-extern size_t verbose;
-
 using namespace std;
+
+extern dvlab::utils::Logger logger;
 
 /**
  * @brief Read a ZXGraph
@@ -36,7 +36,7 @@ bool ZXGraph::readZX(std::filesystem::path const& filepath, bool keepID) {
     // REVIEW - should we guard the case of no file extension?
     if (filepath.has_extension()) {
         if (filepath.extension() != ".zx" && filepath.extension() != ".bzx") {
-            cerr << "Error: unsupported file extension \"" << filepath.extension() << "\"!!" << endl;
+            fmt::println("unsupported file extension \"{}\"!!", filepath.extension().string());
             return false;
         }
     }
@@ -57,7 +57,7 @@ bool ZXGraph::writeZX(const string& filename, bool complete) const {
     ofstream ZXFile;
     ZXFile.open(filename);
     if (!ZXFile.is_open()) {
-        cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
+        logger.error("Cannot open the file \"{}\"!!", filename);
         return false;
     }
     auto writeNeighbors = [&ZXFile, complete](ZXVertex* v) {
@@ -150,7 +150,7 @@ bool ZXGraph::buildGraphFromParserStorage(const ZXParserDetail::StorageType& sto
     for (auto& [vid, info] : storage) {
         for (auto& [type, nbid] : info.neighbors) {
             if (!id2Vertex.contains(nbid)) {
-                cerr << "Error: Failed to build the graph: cannot find vertex with ID " << nbid << "!!" << endl;
+                logger.error("failed to build the graph: cannot find vertex with ID {}!!", nbid);
                 return false;
             }
 
@@ -172,7 +172,7 @@ bool ZXGraph::buildGraphFromParserStorage(const ZXParserDetail::StorageType& sto
 bool ZXGraph::writeTikz(string const& filename) const {
     fstream tikzFile{filename, ios::out};
     if (!tikzFile.is_open()) {
-        cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
+        logger.error("Cannot open the file \"{}\"!!", filename);
         return false;
     }
 
@@ -274,7 +274,7 @@ bool ZXGraph::writeTikz(std::ostream& tikzFile) const {
         for (auto& [n, e] : v->getNeighbors()) {
             if (n->getId() > v->getId()) {
                 if (n->getCol() == v->getCol() && n->getQubit() == v->getQubit()) {
-                    cerr << "Warning: " << v->getId() << " and " << n->getId() << " are connected but they have same coordinates." << endl;
+                    logger.warning("{} and {} are connected but they have same coordinates.", v->getId(), n->getId());
                     tikzFile << "    % \\draw[" << et2s.at(e) << "] (" << to_string(v->getId()) << ") -- (" << to_string(n->getId()) << ");\n";
                 } else
                     tikzFile << "    \\draw[" << et2s.at(e) << "] (" << to_string(v->getId()) << ") -- (" << to_string(n->getId()) << ");\n";
@@ -300,12 +300,12 @@ bool ZXGraph::writePdf(string const& filename) const {
     fs::path filepath{filename};
 
     if (filepath.extension() == "") {
-        cerr << "Error: no file extension!!" << endl;
+        logger.error("no file extension!!");
         return false;
     }
 
     if (filepath.extension() != ".pdf") {
-        cerr << "Error: unsupported file extension \"" << filepath.extension() << "\"!!" << endl;
+        logger.error("unsupported file extension \"{}\"!!", filepath.extension().string());
         return false;
     }
 
@@ -317,8 +317,8 @@ bool ZXGraph::writePdf(string const& filename) const {
     std::error_code ec;
     fs::create_directory(filepath.parent_path(), ec);
     if (ec) {
-        cerr << "Error: fail to create the directory" << endl;
-        cerr << ec.message() << endl;
+        logger.error("failed to create the directory");
+        logger.error("{}", ec.message());
         return false;
     }
 
@@ -328,7 +328,7 @@ bool ZXGraph::writePdf(string const& filename) const {
 
     fstream texFile{tempTexPath, ios::out};
     if (!texFile.is_open()) {
-        cerr << "Error: cannot open the file \"" << filepath << "\"!!" << endl;
+        logger.error("Cannot open the file \"{}\"!!", filepath.string());
         return false;
     }
 
@@ -338,7 +338,7 @@ bool ZXGraph::writePdf(string const& filename) const {
     // NOTE - Linux cmd: pdflatex -halt-on-error -output-directory <path/to/dir> <path/to/tex>
     string cmd = "pdflatex -halt-on-error -output-directory " + tempTexPath.parent_path().string() + " " + tempTexPath.string() + " >/dev/null 2>&1 ";
     if (system(cmd.c_str()) == -1) {
-        cerr << "Error: fail to generate PDF" << endl;
+        logger.error("failed to generate PDF");
         return false;
     }
 
@@ -366,12 +366,12 @@ bool ZXGraph::writeTex(string const& filename) const {
     fs::path filepath{filename};
 
     if (filepath.extension() == "") {
-        cerr << "Error: no file extension!!" << endl;
+        logger.error("no file extension!!");
         return false;
     }
 
     if (filepath.extension() != ".tex") {
-        cerr << "Error: unsupported file extension \"" << filepath.extension() << "\"!!" << endl;
+        logger.error("unsupported file extension \"{}\"!!", filepath.extension().string());
         return false;
     }
 
@@ -379,15 +379,15 @@ bool ZXGraph::writeTex(string const& filename) const {
         std::error_code ec;
         fs::create_directory(filepath.parent_path(), ec);
         if (ec) {
-            cerr << "Error: fail to create the directory" << endl;
-            cerr << ec.message() << endl;
+            logger.error("failed to create the directory");
+            logger.error("{}", ec.message());
             return false;
         }
     }
 
     fstream texFile{filepath, ios::out};
     if (!texFile.is_open()) {
-        cerr << "Error: cannot open the file \"" << filepath << "\"!!" << endl;
+        logger.error("Cannot open the file \"{}\"!!", filepath.string());
         return false;
     }
 
@@ -416,7 +416,7 @@ bool ZXGraph::writeTex(ostream& texFile) const {
     texFile << includes;
     texFile << "\\begin{document}\n";
     if (!writeTikz(texFile)) {
-        cout << "Failed" << endl;
+        logger.error("Failed to write tikz");
         return false;
     }
     texFile << "\\end{document}\n";

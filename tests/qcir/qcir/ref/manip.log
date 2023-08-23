@@ -17430,7 +17430,6 @@ Q14
 Q15  
 
 qsyn> qccr benchmark/benchmark_SABRE/small/4gt13_92.qasm -R
-Note: original QCir is replaced...
 
 qsyn> qccprint -l
 Listed by gate ID

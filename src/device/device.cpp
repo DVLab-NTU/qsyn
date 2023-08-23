@@ -9,6 +9,7 @@
 #include "device/device.hpp"
 
 #include <cassert>
+#include <cstdint>
 #include <cstdlib>
 #include <fstream>
 #include <iomanip>
@@ -18,9 +19,11 @@
 
 #include "fmt/ranges.h"
 #include "qcir/qcirGate.hpp"
+#include "util/logger.hpp"
 
 using namespace std;
 extern size_t verbose;
+extern dvlab::utils::Logger logger;
 
 // SECTION - Struct Info Member Functions
 
@@ -34,8 +37,7 @@ Info defaultInfo = {._time = 0.0, ._error = 0.0};
  * @return ostream&
  */
 ostream& operator<<(ostream& os, const Info& info) {
-    os << "Delay:" << right << setw(8) << fixed << setprecision(3) << info._time << "    ";
-    return os << "Error:" << right << setw(8) << fixed << setprecision(5) << info._error << "    ";
+    return os << fmt::format("{}", info);
 }
 
 // SECTION - Class Topology Member Functions
@@ -93,12 +95,9 @@ void Topology::addQubitInfo(size_t a, Info info) {
 void Topology::printSingleEdge(size_t a, size_t b) const {
     pair<size_t, size_t> query = (a < b) ? make_pair(a, b) : make_pair(b, a);
     if (_adjInfo.contains(query)) {
-        const auto& adjp = _adjInfo.at(query);
-        cout << "(" << right << setw(3) << a << ", " << right << setw(3) << b << ")    ";
-        cout << "Delay:" << right << setw(8) << fixed << setprecision(3) << adjp._time << "    ";
-        cout << "Error:" << right << setw(8) << fixed << setprecision(5) << adjp._error << endl;
+        fmt::println("({:>3}, {:>3})    Delay: {:>8.3f}    Error: {:>8.5f}", a, b, _adjInfo.at(query)._time, _adjInfo.at(query)._error);
     } else {
-        cout << "No connection between " << a << " and " << b << "." << endl;
+        fmt::println("No connection between {:>3} and {:>3}.", a, b);
     }
 }
 
@@ -185,6 +184,16 @@ PhysicalQubit& PhysicalQubit::operator=(PhysicalQubit&& other) {
     return *this;
 }
 
+template <>
+struct fmt::formatter<PhysicalQubit> {
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(const PhysicalQubit& q, FormatContext& ctx) {
+        return format_to(ctx.out(), "Q{:>2}, logical: {:>2}, lock until {}", q.getId(), q.getLogicalQubit(), q.getOccupiedTime());
+    }
+};
+
 /**
  * @brief Operator overloading
  *
@@ -193,7 +202,7 @@ PhysicalQubit& PhysicalQubit::operator=(PhysicalQubit&& other) {
  * @return ostream&
  */
 ostream& operator<<(ostream& os, const PhysicalQubit& q) {
-    return os << "Q" << right << setw(2) << q.getId() << ", logical: " << right << setw(2) << q.getLogicalQubit() << ", lock until " << q.getOccupiedTime();
+    return os << fmt::format("{}", q);
 }
 
 /**
@@ -422,9 +431,16 @@ void Device::initFloydWarshall() {
             }
         }
     }
-    if (verbose >= 5) {
-        printPredecessor();
-        printDistance();
+
+    logger.debug("Predecessor Matrix:");
+    for (auto& row : _predecessor) {
+        logger.debug("{:5}", fmt::join(
+                                 row | views::transform([](size_t j) { return (j == SIZE_MAX) ? "/"s : to_string(j); }), ""));
+    }
+    logger.debug("Distance Matrix:");
+    for (auto& row : _distance) {
+        logger.debug("{:5}", fmt::join(
+                                 row | views::transform([this](int j) { return (j == _maxDist) ? "X"s : to_string(j); }), ""));
     }
 }
 
@@ -450,7 +466,7 @@ void Device::FloydWarshall() {
     setWeight();
     initFloydWarshall();
     for (size_t k = 0; k < _nQubit; k++) {
-        if (verbose >= 5) cout << "Including vertex(" << k << "):" << endl;
+        logger.debug("Including vertex({}):", k);
         for (size_t i = 0; i < _nQubit; i++) {
             for (size_t j = 0; j < _nQubit; j++) {
                 if ((_distance[i][j] > _distance[i][k] + _distance[k][j]) && (_distance[i][k] != _maxDist)) {
@@ -459,9 +475,16 @@ void Device::FloydWarshall() {
                 }
             }
         }
-        if (verbose >= 5) {
-            printPredecessor();
-            printDistance();
+
+        logger.debug("Predecessor Matrix:");
+        for (auto& row : _predecessor) {
+            logger.debug("{:5}", fmt::join(
+                                     row | views::transform([](size_t j) { return (j == SIZE_MAX) ? "/"s : to_string(j); }), ""));
+        }
+        logger.debug("Distance Matrix:");
+        for (auto& row : _distance) {
+            logger.debug("{:5}", fmt::join(
+                                     row | views::transform([this](int j) { return (j == _maxDist) ? "X"s : to_string(j); }), ""));
         }
     }
 }
@@ -497,7 +520,7 @@ vector<PhysicalQubit> Device::getPath(size_t s, size_t t) const {
 bool Device::readDevice(const string& filename) {
     ifstream topoFile(filename);
     if (!topoFile.is_open()) {
-        cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
+        logger.error("Cannot open the file \"{}\"!!", filename);
         return false;
     }
     string str = "", token = "", data = "";
@@ -523,7 +546,7 @@ bool Device::readDevice(const string& filename) {
     data = str.substr(token_end + 1);
     data = stripWhitespaces(data);
     if (!myStr2Uns(data, qbn)) {
-        cout << "Error: The number of qubit is not a positive integer!!\n";
+        logger.error("The number of qubit is not a positive integer!!");
         return false;
     }
     _nQubit = size_t(qbn);
@@ -565,10 +588,12 @@ bool Device::readDevice(const string& filename) {
             }
         }
     }
+
     assert(sgErr.size() == sgDelay.size());
     for (size_t i = 0; i < sgErr.size(); i++) {
         _topology->addQubitInfo(i, {._time = sgDelay[i], ._error = sgErr[i]});
     }
+
     calculatePath();
     return true;
 }
@@ -592,7 +617,7 @@ bool Device::parseGateSet(string str) {
         gt = stripWhitespaces(gt);
         for_each(gt.begin(), gt.end(), [](char& c) { c = ::tolower(c); });
         if (!str2GateType.contains(gt)) {
-            cout << "Error: unsupported gate type " << gt << "!!" << endl;
+            logger.error("unsupported gate type \"{}\"!!", gt);
             return false;
         }
         _topology->addGateType(str2GateType[gt]);
@@ -662,7 +687,7 @@ bool Device::parseSingles(string data, vector<float>& container) {
         m = myStrGetTok(str, num, m, ',');
         num = stripWhitespaces(num);
         if (!myStr2Float(num, fl)) {
-            cout << "Error: The number `" << num << "` is not a float!!\n";
+            logger.error("The number `{}` is not a float!!", num);
             return false;
         }
         container.emplace_back(fl);
@@ -691,7 +716,7 @@ bool Device::parsePairsFloat(string data, vector<vector<float>>& container) {
             m = myStrGetTok(str, num, m, ',');
             num = stripWhitespaces(num);
             if (!myStr2Float(num, fl)) {
-                cout << "Error: The number `" << num << "` is not a float!!\n";
+                logger.error("The number `{}` is not a float!!", num);
                 return false;
             }
             singleFl.emplace_back(fl);
@@ -722,7 +747,7 @@ bool Device::parsePairsSizeT(string data, vector<vector<size_t>>& container) {
             m = myStrGetTok(str, num, m, ',');
             num = stripWhitespaces(num);
             if (!myStr2Uns(num, qbn) || qbn >= _nQubit) {
-                cout << "Error: The number of qubit `" << num << "` is not a positive integer or not in the legal range!!\n";
+                logger.error("The number of qubit `{}` is not a positive integer or not in the legal range!!", num);
                 return false;
             }
             single.emplace_back(size_t(qbn));
@@ -740,11 +765,11 @@ bool Device::parsePairsSizeT(string data, vector<vector<size_t>>& container) {
 void Device::printQubits(vector<size_t> cand) const {
     for (auto& c : cand) {
         if (c >= _nQubit) {
-            cout << "Error: the maximum qubit id is " << _nQubit - 1 << "!!" << endl;
+            logger.error("Error: the maximum qubit id is {}!!", _nQubit - 1);
             return;
         }
     }
-    cout << endl;
+    fmt::println("");
     vector<PhysicalQubit> qubits;
     qubits.resize(_nQubit);
     for (const auto& [idx, info] : _qubitList) {
@@ -752,23 +777,13 @@ void Device::printQubits(vector<size_t> cand) const {
     }
     if (cand.empty()) {
         for (size_t i = 0; i < qubits.size(); i++) {
-            cout << "ID:" << right << setw(4) << i << "    ";
-            cout << _topology->getQubitInfo(i) << "Adjs:";
-            for (auto& q : qubits[i].getAdjacencies()) {
-                cout << right << setw(3) << q << " ";
-            }
-            cout << endl;
+            fmt::println("ID: {:>3}    {}Adjs: {:>3}", i, _topology->getQubitInfo(i), fmt::join(qubits[i].getAdjacencies(), " "));
         }
-        cout << "Total #Qubits: " << _nQubit << endl;
+        fmt::println("Total #Qubits: {}", _nQubit);
     } else {
         sort(cand.begin(), cand.end());
         for (auto& p : cand) {
-            cout << "ID:" << right << setw(4) << p << "    ";
-            cout << _topology->getQubitInfo(p) << "Adjs:";
-            for (auto& q : qubits[p].getAdjacencies()) {
-                cout << right << setw(3) << q << " ";
-            }
-            cout << endl;
+            fmt::println("ID: {:>3}    {}Adjs: {:>3}", p, _topology->getQubitInfo(p), fmt::join(qubits[p].getAdjacencies(), " "));
         }
     }
 }
@@ -781,11 +796,11 @@ void Device::printQubits(vector<size_t> cand) const {
 void Device::printEdges(vector<size_t> cand) const {
     for (auto& c : cand) {
         if (c >= _nQubit) {
-            cout << "Error: the maximum qubit id is " << _nQubit - 1 << "!!" << endl;
+            logger.error("the maximum qubit id is {}!!", _nQubit - 1);
             return;
         }
     }
-    cout << endl;
+    fmt::println("");
     vector<PhysicalQubit> qubits;
     qubits.resize(_nQubit);
     for (const auto& [idx, info] : _qubitList) {
@@ -802,12 +817,12 @@ void Device::printEdges(vector<size_t> cand) const {
             }
         }
         assert(cnt == _topology->getAdjSize());
-        cout << "Total #Edges: " << cnt << endl;
+        fmt::println("Total #Edges: {}", cnt);
     } else if (cand.size() == 1) {
         for (auto& q : qubits[cand[0]].getAdjacencies()) {
             _topology->printSingleEdge(cand[0], q);
         }
-        cout << "Total #Edges: " << qubits[cand[0]].getAdjacencies().size() << endl;
+        fmt::println("Total #Edges: {}", qubits[cand[0]].getAdjacencies().size());
     } else if (cand.size() == 2) {
         _topology->printSingleEdge(cand[0], cand[1]);
     }
@@ -827,15 +842,9 @@ void Device::printTopology() const {
  *
  */
 void Device::printPredecessor() const {
-    cout << "Predecessor Matrix:" << endl;
-    for (size_t i = 0; i < _nQubit; i++) {
-        for (size_t j = 0; j < _nQubit; j++) {
-            if (_predecessor[i][j] == size_t(-1)) {
-                cout << setw(5) << "/";
-            } else
-                cout << setw(5) << _predecessor[i][j];
-        }
-        cout << endl;
+    fmt::println("Predecessor Matrix:");
+    for (auto& row : _predecessor) {
+        fmt::println("{:5}", fmt::join(row | views::transform([this](size_t pred) { return (pred == SIZE_MAX) ? "/" : to_string(pred); }), ""));
     }
 }
 
@@ -844,15 +853,9 @@ void Device::printPredecessor() const {
  *
  */
 void Device::printDistance() const {
-    cout << "Distance Matrix:" << endl;
-    for (size_t i = 0; i < _nQubit; i++) {
-        for (size_t j = 0; j < _nQubit; j++) {
-            if (_distance[i][j] == _maxDist) {
-                cout << setw(5) << "X";
-            } else
-                cout << setw(5) << _distance[i][j];
-        }
-        cout << endl;
+    fmt::println("Distance Matrix:");
+    for (auto& row : _distance) {
+        fmt::println("{:5}", fmt::join(row | views::transform([this](int dist) { return (dist == _maxDist) ? "X" : to_string(dist); }), ""));
     }
 }
 
@@ -863,23 +866,22 @@ void Device::printDistance() const {
  * @param t terminate
  */
 void Device::printPath(size_t s, size_t t) const {
-    cout << endl;
+    fmt::println("");
     for (auto& c : {s, t}) {
         if (c >= _nQubit) {
-            cout << "Error: the maximum qubit id is " << _nQubit - 1 << "!!" << endl;
+            logger.error("the maximum qubit id is {}!!", _nQubit - 1);
             return;
         }
     }
     const vector<PhysicalQubit>& path = getPath(s, t);
     if (path.front().getId() != s && path.back().getId() != t)
-        cout << "No path between " << s << "and " << t;
+        fmt::println("No path between {} and {}", s, t);
     else {
-        cout << "Path from " << s << " to " << t << ":" << endl;
-        size_t cnt = 1;
+        fmt::println("Path from {} to {}:", s, t);
+        size_t cnt = 0;
         for (auto& v : path) {
-            cout << setw(4) << v.getId() << " ";
-            if (cnt % 10 == 0) cout << endl;
-            cnt++;
+            fmt::print("{:4} ", v.getId());
+            if (++cnt % 10 == 0) fmt::println("");
         }
     }
 }
@@ -889,9 +891,9 @@ void Device::printPath(size_t s, size_t t) const {
  *
  */
 void Device::printMapping() {
-    cout << "----------Mapping---------" << endl;
+    fmt::println("----------Mapping---------");
     for (size_t i = 0; i < _nQubit; i++) {
-        cout << left << setw(5) << i << " : " << getPhysicalQubit(i).getLogicalQubit() << endl;
+        fmt::println("{:<5} : {}", i, _qubitList[i].getLogicalQubit());
     }
 }
 
@@ -900,17 +902,16 @@ void Device::printMapping() {
  *
  */
 void Device::printStatus() const {
-    cout << endl;
-    cout << "Device Status:" << endl;
+    fmt::println("Device Status:");
     vector<PhysicalQubit> qubits;
     qubits.resize(_nQubit);
     for (const auto& [idx, info] : _qubitList) {
         qubits[idx] = info;
     }
     for (size_t i = 0; i < qubits.size(); ++i) {
-        cout << qubits[i] << "\n";
+        fmt::println("{}", qubits[i]);
     }
-    cout << "\n";
+    fmt::println("");
 }
 
 // SECTION - Class Operation Member Functions

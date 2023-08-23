@@ -8,7 +8,6 @@
 ****************************************************************************/
 
 #include <cstddef>
-#include <iostream>
 #include <string>
 
 #include "./duostra.hpp"
@@ -22,8 +21,6 @@
 
 using namespace std;
 using namespace ArgParse;
-extern size_t verbose;
-extern int effLimit;
 extern QCirMgr qcirMgr;
 extern DeviceMgr deviceMgr;
 
@@ -86,8 +83,7 @@ unique_ptr<Command> duostraCmd() {
             cerr << "Error: Something wrong in Duostra Mapping!!" << endl;
         }
         size_t id = qcirMgr.getNextID();
-        qcirMgr.add(id);
-        qcirMgr.set(std::move(duo.getPhysicalCircuit()));
+        qcirMgr.add(id, std::move(duo.getPhysicalCircuit()));
 
         qcirMgr.get()->setFileName(logicalQCir->getFileName());
         qcirMgr.get()->addProcedures(logicalQCir->getProcedures());

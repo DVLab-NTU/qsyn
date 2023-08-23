@@ -14,8 +14,6 @@
 
 using namespace std;
 
-extern size_t verbose;
-
 /**
  * @brief Print qubit info
  *

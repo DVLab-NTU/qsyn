@@ -39,7 +39,6 @@ qsyn> qcga -cx -pr 0 1
 qsyn> qc2zx
 
 qsyn> qccr -r benchmark/benchmark_SABRE/small/3_17_13.qasm
-Note: original QCir is replaced...
 
 qsyn> qc2zx
 
@@ -61,7 +60,6 @@ qsyn> qcga -Sdg 1
 qsyn> qc2zx
 
 qsyn> qccr benchmark/qsim/circuits/circuit_q24 -R
-Note: original QCir is replaced...
 
 qsyn> qc2zx
 

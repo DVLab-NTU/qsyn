@@ -43,7 +43,6 @@ qsyn> qcba 2
 qsyn> qcga -cx 0 1
 
 qsyn> qc2ts
-Traverse and build the tensor... 
 
 qsyn> tseq 0 1
 Equivalent

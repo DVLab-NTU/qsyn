@@ -84,9 +84,6 @@ private:
     M2 prepareMatrix(ZXVertex* v, size_t i);
     void setCorrectionSetFromMatrix(ZXVertex* v, const M2& matrix);
     void updateFrontier();
-
-    void printFrontier() const;
-    void printNeighbors() const;
 };
 
 std::ostream& operator<<(std::ostream& os, GFlow::MeasurementPlane const& plane);

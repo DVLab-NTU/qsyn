@@ -7,8 +7,6 @@
 ****************************************************************************/
 
 #include <cstddef>
-#include <iomanip>
-#include <iostream>
 #include <string>
 
 #include "./gFlow.hpp"
@@ -20,7 +18,6 @@ using namespace std;
 using namespace ArgParse;
 
 extern ZXGraphMgr zxGraphMgr;
-extern size_t verbose;
 
 unique_ptr<Command> ZXGGFlowCmd();
 

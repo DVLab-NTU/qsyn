@@ -15,7 +15,6 @@
 #include "qcir/qcirQubit.hpp"
 
 using namespace std;
-extern size_t verbose;
 
 /**
  * @brief Append the target to current QCir

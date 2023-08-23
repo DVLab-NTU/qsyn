@@ -7,14 +7,14 @@
 ****************************************************************************/
 
 #include <cstddef>
-#include <iostream>
 #include <list>
 #include <stack>
 
 #include "./zxGraph.hpp"
+#include "util/logger.hpp"
 
 using namespace std;
-extern size_t verbose;
+extern dvlab::utils::Logger logger;
 
 /**
  * @brief Update Topological Order
@@ -32,13 +32,8 @@ void ZXGraph::updateTopoOrder() const {
             DFS(v);
     }
     reverse(_topoOrder.begin(), _topoOrder.end());
-    if (verbose >= 7) {
-        cout << "Topological order from first input: ";
-        for (size_t j = 0; j < _topoOrder.size(); j++) {
-            cout << _topoOrder[j]->getId() << " ";
-        }
-        cout << "\nSize of topological order: " << _topoOrder.size() << endl;
-    }
+    logger.trace("Topological order from first input: {}", fmt::join(_topoOrder | views::transform([](auto const& v) { return v->getId(); }), " "));
+    logger.trace("Size of topological order: {}", _topoOrder.size());
 }
 
 /**

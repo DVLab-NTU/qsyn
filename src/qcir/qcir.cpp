@@ -18,7 +18,6 @@
 #include "util/textFormat.hpp"
 
 using namespace std;
-extern size_t verbose;
 
 /**
  * @brief Get Gate.

@@ -15,7 +15,6 @@
 
 using namespace std;
 extern size_t verbose;
-extern size_t colorLevel;
 extern dvlab::utils::Usage usage;
 
 using namespace ArgParse;
@@ -231,7 +230,8 @@ unique_ptr<Command> loggerCmd() {
         vector<string> logLevels = {"none", "fatal", "error", "warning", "info", "debug", "trace"};
         parser.help("display and set the logger's status");
 
-        auto parsers = parser.addSubParsers();
+        auto parsers = parser.addSubParsers()
+                           .help("subcommands for logger");
 
         auto testParser = parsers.addParser("test");
         testParser.help("Test out logger setting");

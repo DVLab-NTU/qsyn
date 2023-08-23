@@ -97,7 +97,6 @@ Positional Arguments:
   string  file         path to a dofile, i.e., a list of Qsyn commands 
   string  arguments    arguments to the dofile                         
 
-
 qsyn> 
 qsyn> dofile tests/cli/helper/param_dof_kw // should error and print usage
 [Error] wrong number of arguments provided, expected 2 but got 0!!
@@ -120,7 +119,6 @@ Description:
 Options:
   flag  -Force    quit without reaffirming 
 
-
 qsyn> help $input2   // print help message of dofile
 Usage: DOfile <string file> [<string arguments>]...
 
@@ -131,7 +129,6 @@ Positional Arguments:
   string  file         path to a dofile, i.e., a list of Qsyn commands 
   string  arguments    arguments to the dofile                         
 
-
 qsyn> help $1        // print help message of qquit
 Usage: QQuit [-Force]
 
@@ -140,7 +137,6 @@ Description:
 
 Options:
   flag  -Force    quit without reaffirming 
-
 
 qsyn> help ${2}      // print help message of dofile
 Usage: DOfile <string file> [<string arguments>]...
@@ -151,7 +147,6 @@ Description:
 Positional Arguments:
   string  file         path to a dofile, i.e., a list of Qsyn commands 
   string  arguments    arguments to the dofile                         
-
 
 qsyn> 
 qsyn> qq -f

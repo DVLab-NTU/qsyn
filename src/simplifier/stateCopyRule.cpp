@@ -10,8 +10,6 @@
 
 using MatchType = StateCopyRule::MatchType;
 
-extern size_t verbose;
-
 /**
  * @brief Find spiders with a 0 or pi phase that have a single neighbor, and copies them through. Assumes that all the spiders are green and maximally fused.
  *

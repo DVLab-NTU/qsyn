@@ -40,6 +40,8 @@ qsyn> logger level trace
 
 qsyn> zx2ts
 [Info] Converting ZXGraph 0 to Tensor 0...
+[Trace] Topological order from first input: 8 9 6 7 2 5 3 0 4 1
+[Trace] Size of topological order: 10
 [Debug] Mapping vertex    8 (●): New Subgraph
 [Debug] Done. Current tensor dimension: 2
 [Trace] Current frontiers:
@@ -101,6 +103,8 @@ qsyn> logger level trace
 
 qsyn> zx2ts
 [Info] Converting ZXGraph 0 to Tensor 1...
+[Trace] Topological order from first input: 10 12 13 11 15 14 8 9 6 7 2 5 3 0 4 1
+[Trace] Size of topological order: 16
 [Debug] Mapping vertex   10 (●): New Subgraph
 [Debug] Done. Current tensor dimension: 2
 [Trace] Current frontiers:
@@ -250,6 +254,8 @@ qsyn> logger level trace
 
 qsyn> zx2ts
 [Info] Converting ZXGraph 3 to Tensor 2...
+[Trace] Topological order from first input: 15 17 3 11 14 16 8 13 7 9 4 12 5 6 2 10 0 1
+[Trace] Size of topological order: 18
 [Debug] Mapping vertex   15 (●): New Subgraph
 [Debug] Done. Current tensor dimension: 2
 [Trace] Current frontiers:

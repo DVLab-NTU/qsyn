@@ -10,8 +10,6 @@
 
 using MatchType = PivotBoundaryRule::MatchType;
 
-extern size_t verbose;
-
 std::vector<MatchType> PivotBoundaryRule::findMatches(const ZXGraph& graph) const {
     std::vector<MatchType> matches;
 

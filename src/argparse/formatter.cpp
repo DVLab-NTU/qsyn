@@ -8,9 +8,6 @@
 
 #include "argparse/formatter.hpp"
 
-#include <fmt/format.h>
-#include <fmt/ranges.h>
-
 #include <algorithm>
 #include <cstring>
 #include <numeric>
@@ -37,62 +34,48 @@ constexpr auto typeStyle = [](std::string const& str) -> std::string { return fm
 constexpr auto accentStyle = [](std::string const& str) -> std::string { return fmt::format("{}", fmt_ext::styled_if_ANSI_supported(str, fmt::emphasis::bold | fmt::emphasis::underline)); };
 
 /**
- * @brief circumfix the string with the required argument bracket (<...>)
- *
- * @param str
- * @return string
- */
-std::string Formatter::requiredArgBracket(std::string const& str) {
-    return requiredStyle("<") + str + requiredStyle(">");
-}
-
-/**
- * @brief circumfix the string with the optional argument bracket ([]...])
- *
- * @param str
- * @return string
- */
-std::string Formatter::optionalArgBracket(std::string const& str) {
-    return optionStyle("[") + str + optionStyle("]");
-}
-
-/**
  * @brief get the syntax representation string of an argument.
  *
  * @param arg
  * @return string
  */
-std::string Formatter::getSyntaxString(Argument const& arg) {
+std::string Formatter::getSyntax_Internal(Argument const& arg) {
     std::string ret = "";
     NArgsRange nargs = arg.getNArgs();
     auto usageString = arg.getUsage().has_value()
                            ? arg.getUsage().value()
-                           : requiredArgBracket(fmt::format("{} {}", typeStyle(arg.getTypeString()), metavarStyle(arg.getMetavar())));
+                           : fmt::format("{}{} {}{}", requiredStyle("<"), typeStyle(arg.getTypeString()), metavarStyle(arg.getMetavar()), requiredStyle(">"));
 
     if (nargs.upper == SIZE_MAX) {
         if (nargs.lower == 0)
-            ret = optionalArgBracket(usageString) + "...";
+            ret = optionStyle("[") + usageString + optionStyle("]") + "...";
         else {
             auto repeat_view = std::views::iota(0u, nargs.lower) | std::views::transform([&usageString](size_t i) { return usageString; });
             ret = fmt::format("{}...", fmt::join(repeat_view, " "));
         }
     } else {
-        auto repeat_view = std::views::iota(0u, nargs.upper) | std::views::transform([&usageString, &nargs](size_t i) { return (i < nargs.lower) ? usageString : optionalArgBracket(usageString); });
+        auto repeat_view = std::views::iota(0u, nargs.upper) | std::views::transform([&usageString, &nargs](size_t i) { return (i < nargs.lower) ? usageString : (optionStyle("[") + usageString + optionStyle("]")); });
         ret = fmt::format("{}", fmt::join(repeat_view, " "));
     }
     if (arg.isOption()) {
-        ret = optionStyle(styledArgName(arg)) + (ret.size() ? (" " + ret) : "");
+        ret = styledArgName(arg) + (ret.size() ? (" " + ret) : "");
     }
 
     return ret;
 }
 
-std::string Formatter::getSyntaxString(SubParsers const& parsers) {
-    return fmt::format("{}", fmt::join(parsers.getSubParsers() | std::views::values | std::views::transform([](ArgumentParser const& parser) { return styledCmdName(parser.getName(), parser.getNumRequiredChars()); }), " | "));
+std::string Formatter::getSyntax(SubParsers const& parsers) {
+    return fmt::format("{}{}{}",
+                       parsers.isRequired() ? "(" : optionStyle("["),
+                       fmt::join(parsers.getSubParsers() | std::views::values | std::views::transform([](ArgumentParser const& parser) { return styledCmdName(parser.getName(), parser.getNumRequiredChars()); }), " | "),
+                       parsers.isRequired() ? ")" : optionStyle("]"));
 }
 
-std::string Formatter::getSyntaxString(ArgumentParser parser, MutuallyExclusiveGroup const& group) {
-    return fmt::format("{}", fmt::join(group.getArguments() | std::views::transform([&parser](std::string const& name) { return getSyntaxString(parser._pimpl->arguments.at(toLowerString(name))); }), " | "));
+std::string Formatter::getSyntax(ArgumentParser parser, MutuallyExclusiveGroup const& group) {
+    return fmt::format("{}{}{}",
+                       group.isRequired() ? "(" : optionStyle("["),
+                       fmt::join(group.getArguments() | std::views::transform([&parser](std::string const& name) { return getSyntax_Internal(parser._pimpl->arguments.at(toLowerString(name))); }), group.isRequired() ? " | " : optionStyle(" | ")),
+                       group.isRequired() ? ")" : optionStyle("]"));
 }
 
 /**
@@ -195,45 +178,35 @@ void Formatter::printUsage(ArgumentParser const& parser) {
         return;
     }
 
-    auto& arguments = parser._pimpl->arguments;
-    auto& subparsers = parser._pimpl->subparsers;
-    auto& mutexGroups = parser._pimpl->mutuallyExclusiveGroups;
-    auto& conflictGroups = parser._pimpl->conflictGroups;
+    auto const& arguments = parser._pimpl->arguments;
+    auto const& subparsers = parser._pimpl->subparsers;
+    auto const& mutexGroups = parser._pimpl->mutuallyExclusiveGroups;
+    auto const& conflictGroups = parser._pimpl->conflictGroups;
 
-    fmt::print("{usage} {cmd}",
-               "usage"_a = sectionHeaderStyle("Usage:"),
-               "cmd"_a = styledCmdName(parser.getName(), parser.getNumRequiredChars())  //
-    );
+    fmt::print("{} {}",
+               sectionHeaderStyle("Usage:"),
+               styledCmdName(parser.getName(), parser.getNumRequiredChars()));
 
     for (auto const& [name, arg] : arguments) {
-        if (!arg.isRequired() && !conflictGroups.contains(toLowerString(name))) {
-            fmt::print(" {}", optionalArgBracket(getSyntaxString(arg)));
+        if (arg.isOption() && !conflictGroups.contains(toLowerString(name))) {
+            fmt::print(" {}{}{}", arg.isRequired() ? "(" : optionStyle("["),
+                       getSyntax_Internal(arg),
+                       arg.isRequired() ? ")" : optionStyle("]"));
         }
     }
 
     for (auto const& group : mutexGroups) {
-        if (!group.isRequired()) {
-            fmt::print(" {}{}{}", optionStyle("["), getSyntaxString(parser, group), optionStyle("]"));
-        }
-    }
-
-    for (auto const& group : mutexGroups) {
-        if (group.isRequired()) {
-            fmt::print(" ({})", getSyntaxString(parser, group));
-        }
+        fmt::print(" {}", getSyntax(parser, group));
     }
 
     for (auto const& [name, arg] : arguments) {
-        if (arg.isRequired() && !conflictGroups.contains(toLowerString(name))) {
-            fmt::print(" {}{}{}", arg.isOption() ? "(" : "", getSyntaxString(arg), arg.isOption() ? ")" : "");
+        if (!arg.isOption() && !conflictGroups.contains(toLowerString(name))) {
+            fmt::print(" {}", getSyntax_Internal(arg));
         }
     }
 
     if (subparsers.has_value()) {
-        fmt::print(" {}{}{} ...",
-                   subparsers->isRequired() ? "(" : optionStyle("["),
-                   getSyntaxString(subparsers.value()),
-                   subparsers->isRequired() ? ")" : optionStyle("]"));
+        fmt::print(" {} ...", getSyntax(subparsers.value()));
     }
 
     fmt::println("");
@@ -314,33 +287,36 @@ void Formatter::printHelp(ArgumentParser const& parser) {
             }
         }
 
-        fmt::println("{}", table.to_string());
-        table = fort::utf8_table();
-        table.set_border_style(FT_EMPTY_STYLE);
-        table.set_left_margin(1);
+        fmt::print("{}", table.to_string());
     }
 
     if (hasOptions) {
+        table = fort::utf8_table();
+        table.set_border_style(FT_EMPTY_STYLE);
+        table.set_left_margin(1);
         fmt::println("\n{}", sectionHeaderStyle("Options:"));
         for (auto const& [_, arg] : arguments) {
             if (arg.isOption()) {
                 tabulateHelpString(table, max_help_string_width, arg);
             }
         }
-        fmt::println("{}", table.to_string());
+        fmt::print("{}", table.to_string());
     }
 
     if (subparsers.has_value()) {
+        table = fort::utf8_table();
+        table.set_border_style(FT_EMPTY_STYLE);
+        table.set_left_margin(1);
         fmt::println("\n{}", sectionHeaderStyle("Subcommands:"));
-        fmt::println("({})", getSyntaxString(subparsers.value()));
+        table << getSyntax(subparsers.value()) << insertLineBreaksToString(subparsers.value().getHelp(), max_help_string_width) << fort::endr;
         for (auto& [name, parser] : subparsers->getSubParsers()) {
             if (parser.getHelp().size()) {
-                fmt::print("  ");
-                printSummary(parser);
+                table << "  " + styledCmdName(name, parser.getNumRequiredChars()) << insertLineBreaksToString(parser.getHelp(), max_help_string_width) << fort::endr;
             }
         }
-    }
 
+        fmt::print("{}", table.to_string());
+    }
 }
 
 }  // namespace ArgParse
