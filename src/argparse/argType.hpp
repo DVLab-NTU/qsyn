@@ -113,6 +113,8 @@ public:
         return true;
     }
 
+    void markAsHelpAction() { _isHelpAction = true; }
+
 private:
     friend class Argument;
     friend class MutuallyExclusiveGroup;
@@ -132,6 +134,7 @@ private:
     bool _required : 1 = false;
     bool _append : 1 = false;
     bool _parsed : 1 = false;
+    bool _isHelpAction : 1 = false;
 };
 
 // SECTION - On-parse actions for ArgType<T>
@@ -145,6 +148,8 @@ requires ValidArgumentType<T>
 typename ArgType<T>::ActionType storeConst(T const& constValue);
 ActionCallbackType storeTrue(ArgType<bool>& arg);
 ActionCallbackType storeFalse(ArgType<bool>& arg);
+
+ActionCallbackType help(ArgType<bool>& arg);
 
 ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::string> choices);
 extern ArgType<std::string>::ConstraintType const path_readable;

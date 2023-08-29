@@ -5,11 +5,11 @@ Note: verbose level is set to 2
 qsyn> qcba 2
 Note: QCir list is empty now. Create a new one.
 
-qsyn> qcga -cx 0 1
+qsyn> qcga cx 0 1
 
-qsyn> qcga -cx 1 0
+qsyn> qcga cx 1 0
 
-qsyn> qcga -cx 0 1
+qsyn> qcga cx 0 1
 
 qsyn> qc2ts
 
@@ -24,7 +24,7 @@ qsyn> tsp -l
   0                        #Dim: 2   QC2TS
 ★ 1    swap                #Dim: 2   ZX2TS
 
-qsyn> tseq 0 1 -Strict
+qsyn> tseq 0 1 -strict
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
@@ -56,7 +56,7 @@ Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> tseq 0 1 -Strict
+qsyn> tseq 0 1 -strict
 Equivalent
 - Global Norm : 1
 - Global Phase: 0

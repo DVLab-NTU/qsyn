@@ -2,7 +2,7 @@ DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qcba 2
 Note: QCir list is empty now. Create a new one.
 
-qsyn> qcgadd -MCP -PH pi/3 0 1
+qsyn> qcgadd mcp -ph pi/3 0 1
 
 qsyn> qccp -q
 Q 0  ---------cp( 0)-
@@ -19,7 +19,7 @@ qsyn> qc2ts
 
 qsyn> qc2zx
 
-qsyn> zxgp -Q
+qsyn> zxgp -q
 
 ID:   7 (Z, -π/6)        (Qubit, Col): (-2, 4)	  #Neighbors:   1     (6, H) 
 
@@ -41,7 +41,7 @@ qsyn> zxgs -fr
 
 All rules applied in order:
 
-qsyn> zxgp -Q
+qsyn> zxgp -q
 
 ID:   7 (Z, -π/6)        (Qubit, Col): (-2, 4)	  #Neighbors:   1     (6, H) 
 
@@ -76,7 +76,7 @@ qsyn>
 qsyn> qcba 1
 Note: QCir list is empty now. Create a new one.
 
-qsyn> qcgadd -MCP -PH pi/3 0
+qsyn> qcgadd mcp -ph pi/3 0
 
 qsyn> qcgp 0
           ┌───┐ 

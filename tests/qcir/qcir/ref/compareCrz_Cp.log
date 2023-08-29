@@ -2,11 +2,11 @@ DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qcba 2
 Note: QCir list is empty now. Create a new one.
 
-qsyn> qcgadd -mcp -phase pi/2 0 1 
+qsyn> qcgadd mcp -phase pi/2 0 1 
 
-qsyn> qcgadd -mcrz -phase -pi/2 0 1
+qsyn> qcgadd mcrz -phase -pi/2 0 1
 
-qsyn> qcgadd -tdg 0
+qsyn> qcgadd tdg 0
 
 qsyn> qcgp 0 -t
 Q0 Start ───●─── G1

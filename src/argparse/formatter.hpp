@@ -30,7 +30,7 @@ public:
     static void printHelp(ArgumentParser const& parser);
 
     static std::string styledArgName(Argument const& arg);
-    static std::string styledCmdName(std::string const& name, size_t numRequired);
+    static std::string styledParserName(ArgumentParser const& parser);
 
     static std::string getSyntax(SubParsers const& parsers);
     static std::string getSyntax(ArgumentParser parser, MutuallyExclusiveGroup const& group);
@@ -39,7 +39,7 @@ public:
 
 private:
     static void tabulateHelpString(fort::utf8_table& table, size_t max_help_string_width, Argument const& arg);
-    static std::string getSyntax_Internal(Argument const& arg);
+    static std::string getSyntax(Argument const& arg);
 };
 
 }  // namespace ArgParse

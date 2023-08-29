@@ -21,7 +21,7 @@ Note: verbose level is set to 3
 
 qsyn> zx2ts
 
-qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
+qsyn> qccr -r benchmark/pseudoSimp/achilles.qasm
 
 qsyn> qc2zx
 
@@ -43,7 +43,7 @@ Note: verbose level is set to 3
 
 qsyn> zx2ts
 
-qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
+qsyn> qccr -r benchmark/pseudoSimp/achilles.qasm
 
 qsyn> qc2zx
 

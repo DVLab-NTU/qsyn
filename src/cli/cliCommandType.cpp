@@ -10,13 +10,34 @@
 
 using namespace std;
 
+void Command::addSubCommand(Command const& cmd) {
+    auto oldDefinition = this->parserDefinition;
+    auto oldOnParseSuccess = this->onParseSuccess;
+    this->parserDefinition = [cmd, oldDefinition](ArgParse::ArgumentParser& parser) {
+        oldDefinition(parser);
+        if (!parser.hasSubParsers()) parser.addSubParsers();
+        auto subparsers = parser.getSubParsers().value();
+        auto subparser = subparsers.addParser(cmd._parser.getName());
+
+        cmd.parserDefinition(subparser);
+    };
+
+    this->onParseSuccess = [cmd, oldOnParseSuccess](ArgParse::ArgumentParser const& parser) {
+        if (parser.usedSubParser(cmd._parser.getName())) {
+            return cmd.onParseSuccess(parser);
+        }
+
+        return oldOnParseSuccess(parser);
+    };
+}
+
 /**
  * @brief Check the soundness of the parser before initializing the command with parserDefinition;
  *
  * @return true if succeeded
  * @return false if failed
  */
-bool Command::initialize() {
+bool Command::initialize(size_t numRequiredChars) {
     if (!parserDefinition) {
         printMissingParserDefinitionErrorMsg();
         return false;
@@ -26,6 +47,7 @@ bool Command::initialize() {
         return false;
     }
     parserDefinition(_parser);
+    _parser.numRequiredChars(numRequiredChars);
     return _parser.analyzeOptions();
 }
 

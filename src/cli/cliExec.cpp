@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <fort.hpp>
+#include <memory>
 #include <regex>
 #include <thread>
 
@@ -76,28 +77,36 @@ void CommandLineInterface::closeDofile() {
  * @return true
  * @return false
  */
-bool CommandLineInterface::registerCommand(const string& name, unsigned nMandChars, std::unique_ptr<Command>&& cmd) {
+bool CommandLineInterface::registerCommand(const string& name, unsigned nReqChars, Command cmd) {
     // Make sure cmd hasn't been registered and won't cause ambiguity
     string str = name;
     unsigned s = str.size();
-    if (!cmd->initialize()) return false;
-    if (s < nMandChars) return false;
+    if (s < nReqChars) {
+        logger.error("Command name `{}` is shorter than number of required characters ({})!!", name, nReqChars);
+        return false;
+    }
     while (true) {
-        if (getCommand(str)) return false;
-        if (s == nMandChars) break;
+        if (getCommand(str)) {
+            logger.error("Command name `{}` conflicts with existing command `{}`!!", name, str);
+            return false;
+        }
+        if (s == nReqChars) break;
         str.resize(--s);
     }
 
-    assert(str.size() == nMandChars);  // str is now mandCmd
+    if (!cmd.initialize(nReqChars)) {
+        logger.error("Failed to initialize command `{}`!!", name);
+        return false;
+    }
+
+    assert(str.size() == nReqChars);  // str is now mandCmd
     string& mandCmd = str;
-    for (unsigned i = 0; i < nMandChars; ++i)
-        mandCmd[i] = toupper(mandCmd[i]);
-    string optCmd = name.substr(nMandChars);
-    assert(cmd != 0);
-    cmd->setOptCmd(optCmd);
+
+    string optCmd = name.substr(nReqChars);
+    cmd.setOptCmd(optCmd);
 
     // insert (mandCmd, e) to _cmdMap; return false if insertion fails.
-    return (_cmdMap.insert(CmdRegPair(mandCmd, std::move(cmd)))).second;
+    return (_cmdMap.emplace(mandCmd, std::make_unique<Command>(std::move(cmd)))).second;
 }
 
 /**
@@ -280,7 +289,6 @@ Command* CommandLineInterface::getCommand(string const& cmd) const {
     std::string copy = cmd;
 
     for (unsigned i = 0; i < copy.size(); ++i) {
-        copy[i] = toupper(cmd[i]);
         string check = copy.substr(0, i + 1);
         if (_cmdMap.find(check) != _cmdMap.end())
             e = _cmdMap.at(check).get();

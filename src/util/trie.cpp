@@ -76,7 +76,9 @@ optional<string> Trie::findWithPrefix(string const& word) const {
         retStr.push_back(ch);
     }
 
-    if (itr->frequency > 1) return nullopt;
+    if (itr->frequency > 1) {
+        return (itr->isWord) ? std::make_optional<string>(retStr) : nullopt;
+    }
 
     while (!itr->isWord) {
         assert(!itr->children.empty());

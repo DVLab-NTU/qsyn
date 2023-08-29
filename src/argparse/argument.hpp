@@ -67,6 +67,7 @@ private:
     bool hasDefaultValue() const { return _pimpl->do_hasDefaultValue(); }
     bool isRequired() const { return _pimpl->do_isRequired() && (_isOption || getNArgs().lower > 0); }
     bool isOption() const { return _isOption; }
+    bool isHelpAction() const { return _pimpl->do_isHelpAction(); }
     bool mayTakeArgument() const { return getNArgs().upper > 0; }
     bool mustTakeArgument() const { return getNArgs().lower > 0; }
 
@@ -101,6 +102,7 @@ private:
 
         virtual bool do_hasDefaultValue() const = 0;
         virtual bool do_isRequired() const = 0;
+        virtual bool do_isHelpAction() const = 0;
         virtual bool do_constraintsSatisfied() const = 0;
 
         virtual std::string do_toString() const = 0;
@@ -135,7 +137,8 @@ private:
         inline void do_markAsParsed() override { inner._parsed = true; }
 
         inline bool do_hasDefaultValue() const override { return inner._defaultValue.has_value(); }
-        inline bool do_isRequired() const override { return inner._required; };
+        inline bool do_isRequired() const override { return inner._required; }
+        inline bool do_isHelpAction() const override { return inner._isHelpAction; }
         inline bool do_constraintsSatisfied() const override { return inner.constraintsSatisfied(); }
 
         inline std::string do_toString() const override { return fmt::format("{}", inner); }

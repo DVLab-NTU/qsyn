@@ -55,13 +55,13 @@ void CommandLineInterface::beep() const {
     fmt::print("{}", (char)KeyCode::BEEP_CHAR);
 }
 
-void CommandLineInterface::clearConsole() const {
+void CommandLineInterface::clearTerminal() const {
 #ifdef _WIN32
     int result = system("cls");
 #else
     int result = system("clear");
 #endif
     if (result != 0) {
-        fmt::println(stderr, "Error clearing the console!!");
+        fmt::println(stderr, "Error clearing the terminal!!");
     }
 }

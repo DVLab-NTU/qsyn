@@ -11,7 +11,7 @@ zxgp -v
 zx2ts
 qcnew
 qcba 2
-qcga -cx 0 1
+qcga cx 0 1
 qc2ts
 tseq 2 3
 qq -f

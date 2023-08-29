@@ -284,7 +284,7 @@ qsyn> qcnew
 
 qsyn> qcba 1
 
-qsyn> qcga -x 0
+qsyn> qcga x 0
 
 qsyn> qc2ts
 

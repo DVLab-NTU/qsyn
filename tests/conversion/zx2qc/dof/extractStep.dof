@@ -12,26 +12,26 @@ ver 0
 extp -f
 extp -n
 extp -a
-extr -zx 1 -qc 1 -PH
+extr -zx 1 -qc 1 -ph
 qccp -q
-extr -zx 1 -qc 1 -CZ
+extr -zx 1 -qc 1 -cz
 qccp -q
-extr -zx 1 -qc 1 -RMG
+extr -zx 1 -qc 1 -rmg
 qccp -q
 extp -f
 extp -n
 extp -m
-extr -zx 1 -qc 1 -CX
+extr -zx 1 -qc 1 -cx
 qccp -q
-extr -zx 1 -qc 1 -H
+extr -zx 1 -qc 1 -h
 qccp -q
-extr -zx 1 -qc 1 -L 2
+extr -zx 1 -qc 1 -l 2
 qccp -q
-extr -zx 1 -qc 1 -L 100
+extr -zx 1 -qc 1 -l 100
 qccp -q
 qc2zx
 zxgadj
 zxcomp 0
 zxgs -fr  
 zxgp -q
-qq -F
+qq -f

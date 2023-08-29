@@ -93,10 +93,10 @@ ID:  84 (H, π)           (Qubit, Col): (3, 17)	  #Neighbors:   2     (7, -) (83
 Total #Vertices: 85
 
 
-qsyn> zxgt -GL
+qsyn> zxgt -gl
 The graph is not graph-like!
 
-qsyn> zxgsimp -FR
+qsyn> zxgsimp -fr
 
 All rules applied in order:
 Hadamard Rule                 2 iterations.
@@ -126,7 +126,7 @@ Local Complementation Rule    2 iterations.
   1) 1 matches
   2) 1 matches
 
-qsyn> zxgt -GL
+qsyn> zxgt -gl
 The graph is graph-like!
 
 qsyn> qq -f

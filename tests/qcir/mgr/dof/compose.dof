@@ -1,13 +1,13 @@
 qcba 3
-qcga -cx 0 2
-qcga -rz -ph pi 0
+qcga cx 0 2
+qcga rz -ph pi 0
 qcbd 1
 qccp -q
 qcnew
 qcba 4
-qcga -cx 1 2
-qcga -cx 0 3
-qcga -cx 0 2
+qcga cx 1 2
+qcga cx 0 3
+qcga cx 0 2
 qccp -q
 qcch 0
 qccp -q

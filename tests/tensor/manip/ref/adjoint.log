@@ -23,7 +23,7 @@ qsyn> zx2ts
 
 qsyn> tsadj 0
 
-qsyn> tseq 0 1 -Strict
+qsyn> tseq 0 1 -strict
 Equivalent
 - Global Norm : 1
 - Global Phase: 0

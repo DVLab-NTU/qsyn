@@ -21,7 +21,7 @@ qsyn> tsp -l
 qsyn> tseq 0 1 
 Not Equivalent
 
-qsyn> tseq 0 1 -Strict
+qsyn> tseq 0 1 -strict
 Not Equivalent
 
 qsyn> qq -f

@@ -7,32 +7,32 @@ Note: QCir list is empty now. Create a new one.
 
 qsyn> qc2ts
 
-qsyn> qcga -rz -ph 0.001 0
+qsyn> qcga rz -ph 0.001 0
 
 qsyn> qc2ts
 
 qsyn> ver 3
 Note: verbose level is set to 3
 
-qsyn> tseq 0 1 -Eps 1e-2
+qsyn> tseq 0 1 -eps 1e-2
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> tseq 0 1 -Eps 1e-4
+qsyn> tseq 0 1 -eps 1e-4
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> tseq 0 1 -Eps 1e-6
+qsyn> tseq 0 1 -eps 1e-6
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> tseq 0 1 -Eps 1e-8
+qsyn> tseq 0 1 -eps 1e-8
 Not Equivalent
 
-qsyn> tseq 0 1 -Eps 1e-10
+qsyn> tseq 0 1 -eps 1e-10
 Not Equivalent
 
 qsyn> qq -f

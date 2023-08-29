@@ -1,13 +1,13 @@
 DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> ZXNew
+qsyn> zxnew
 
-qsyn> ZXNew
+qsyn> zxnew
 
-qsyn> ZXPrint
+qsyn> zxprint
 -> #ZXGraph: 2
 -> Now focused on: ZXGraph 1
 
-qsyn> ZXPrint -f
+qsyn> zxprint -f
 -> Now focused on: ZXGraph 1
 
 qsyn> qq -f

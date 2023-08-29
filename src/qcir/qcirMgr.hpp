@@ -29,4 +29,4 @@ using QCirMgr = dvlab::utils::DataStructureManager<QCir>;
 
 extern QCirMgr qcirMgr;
 
-bool qcirMgrNotEmpty(std::string const& command);
+bool qcirMgrNotEmpty();

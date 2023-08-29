@@ -6,7 +6,7 @@ qsyn> qccread ./benchmark/benchmark_SABRE/small/rd32-v1_68.qasm
 
 qsyn> qc2zx
 
-qsyn> zxgp -Q
+qsyn> zxgp -q
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (8, -) 
 ID:   1 (●, 0)           (Qubit, Col): (0, 39)	  #Neighbors:   1     (35, -) 
@@ -76,7 +76,7 @@ ID:  54 (H, π)           (Qubit, Col): (3, 34)	  #Neighbors:   2     (53, -) (5
 ID:  55 (X, π)           (Qubit, Col): (3, 35)	  #Neighbors:   2     (7, -) (54, -) 
 
 
-qsyn> zxgs -FR
+qsyn> zxgs -fr
 
 All rules applied:
 (1) Hadamard Rule
@@ -87,7 +87,7 @@ All rules applied:
 (6) Pivot Boundary Rule
 (7) Phase Gadget Rule
 
-qsyn> zxgp -Q
+qsyn> zxgp -q
 
 ID:  61 (Z, -π/4)        (Qubit, Col): (-2, 7)	  #Neighbors:   1     (62, H) 
 ID:  67 (Z, -π/4)        (Qubit, Col): (-2, 29)	  #Neighbors:   1     (68, H) 

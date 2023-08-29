@@ -117,8 +117,8 @@ CmdExecResult CommandLineInterface::listenToInput(std::istream& istr, std::strin
             case DELETE_KEY:
                 deleteChar();
                 break;
-            case CLEAR_CONSOLE_KEY:
-                clearConsole();
+            case CLEAR_TERMINAL_KEY:
+                clearTerminal();
                 fmt::print("\n");
                 resetBuffer();
                 printPrompt();

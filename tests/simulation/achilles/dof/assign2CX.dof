@@ -13,7 +13,7 @@ ver 3
 zx2ts
 qcnew
 qcba 2
-qcga -cx 0 1
+qcga cx 0 1
 qc2ts
 tseq 0 1
 qq -f

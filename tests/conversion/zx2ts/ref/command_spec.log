@@ -4,15 +4,15 @@ qsyn> //  Help Message
 qsyn> //-------------------------
 qsyn> 
 qsyn> help zx2ts
-Usage: ZX2TS [-Zx <size_t id>] [-Ts <size_t id>] [-Replace]
+Usage: zx2ts [-zx <size_t id>] [-ts <size_t id>] [-replace]
 
 Description:
   convert ZXGraph to tensor
 
 Options:
-  size_t  -Zx       id  the ID of the ZXGraph to be converted. If not specified, the focused ZXGraph is used 
-  size_t  -Ts       id  the ID of the target tensor. If not specified, an ID is automatically assigned       
-  flag    -Replace      replace the target tensor if the tensor ID is occupied                               
+  size_t  -zx       id  the ID of the ZXGraph to be converted. If not specified, the focused ZXGraph is used 
+  size_t  -ts       id  the ID of the target tensor. If not specified, an ID is automatically assigned       
+  flag    -replace      replace the target tensor if the tensor ID is occupied                               
 
 qsyn> 
 qsyn> //-------------------------

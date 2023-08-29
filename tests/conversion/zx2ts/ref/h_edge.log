@@ -232,7 +232,7 @@ qsyn> qcnew
 
 qsyn> qcba 1
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
 qsyn> qc2ts
 

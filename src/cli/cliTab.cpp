@@ -100,9 +100,7 @@ CommandLineInterface::TabActionResult CommandLineInterface::matchCommandsAndAlia
 }
 
 std::pair<CommandLineInterface::CmdMap::const_iterator, CommandLineInterface::CmdMap::const_iterator>
-CommandLineInterface::getCommandMatches(string const& str) const {
-    string cmd = toUpperString(str);
-
+CommandLineInterface::getCommandMatches(string const& cmd) const {
     // all cmds
     if (cmd.empty()) return {_cmdMap.begin(), _cmdMap.end()};
 
@@ -313,7 +311,7 @@ vector<string> CommandLineInterface::getFileMatches(fs::path const& path) const 
 /**
  * @brief complete the input by the common characters of a list of strings for user.
  *
- * @param prefix The part of strings that is already on console
+ * @param prefix The part of strings that is already on terminal
  * @param strs The strings to autocomplete the common characters for
  * @param inQuotes Whether the prefix is in a pair of quotes
  * @return true if able to autocomplete

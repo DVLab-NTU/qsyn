@@ -56,7 +56,7 @@ zx2ts
 logger level warning
 qcnew
 qcba 1
-qcga -h 0
+qcga h 0
 qc2ts
 tseq 0 5
 qq -f 

@@ -270,7 +270,7 @@ qsyn> qcnew
 
 qsyn> qcba 2
 
-qsyn> qcga -cx 0 1
+qsyn> qcga cx 0 1
 
 qsyn> qc2ts
 

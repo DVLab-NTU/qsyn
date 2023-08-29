@@ -18,11 +18,11 @@ using namespace std;
 using namespace ArgParse;
 extern ZXGraphMgr zxGraphMgr;
 
-unique_ptr<Command> latticeSurgeryCompilationCmd();
+Command latticeSurgeryCompilationCmd();
 
 bool initLTCmd() {
     if (!(
-            cli.registerCommand("LTS", 3, latticeSurgeryCompilationCmd())
+            cli.registerCommand("lts", 3, latticeSurgeryCompilationCmd())
 
                 )) {
         cerr << "Registering \"lts\" commands fails... exiting" << endl;
@@ -35,20 +35,19 @@ bool initLTCmd() {
 //    LT [ -p ]
 //------------------------------------------------------------------------------------------------------------------
 
-unique_ptr<Command> latticeSurgeryCompilationCmd() {
-    auto cmd = make_unique<Command>("LTS");
+Command latticeSurgeryCompilationCmd() {
+    return {"lts",
+            zxGraphMgrNotEmpty,
+            [](ArgumentParser& parser) {
+                parser.help("(experimental) perform mapping from ZXGraph to corresponding lattice surgery");
 
-    cmd->precondition = zxGraphMgrNotEmpty;
-
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("(experimental) perform mapping from ZXGraph to corresponding lattice surgery");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        LTContainer lt(1, 1);
-        lt.generateLTC(zxGraphMgr.get());
-        return CmdExecResult::DONE;
-    };
-
-    return cmd;
+                parser.addArgument<bool>("-p")
+                    .action(storeTrue)
+                    .help("print the lattice surgery circuit");
+            },
+            [](ArgumentParser const& parser) {
+                LTContainer lt(1, 1);
+                lt.generateLTC(zxGraphMgr.get());
+                return CmdExecResult::DONE;
+            }};
 }

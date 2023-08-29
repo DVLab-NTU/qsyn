@@ -22,40 +22,31 @@ using namespace ArgParse;
 
 // init
 
-unique_ptr<Command> argparseCmd();
+Command argparseCmd();
 
 bool initArgParseCmd() {
-    if (!(cli.registerCommand("Argparse", 1, argparseCmd()))) {
+    if (!(cli.registerCommand("argparse", 1, argparseCmd()))) {
         fmt::println(stderr, "Registering \"argparse\" commands fails... exiting");
         return false;
     }
     return true;
 }
 
-unique_ptr<Command> argparseCmd() {
-    auto cmd = make_unique<Command>("Argparse");
+Command argparseCmd() {
+    return {"argparse",
+            [](ArgumentParser& parser) {
+                parser.help("ArgParse package sandbox");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("ArgParse package sandbox");
+                parser.addArgument<bool>("-h")
+                    .action(storeTrue);
 
-        auto mutex1 = parser.addMutuallyExclusiveGroup();
-        auto mutex2 = parser.addMutuallyExclusiveGroup();
+                parser.addArgument<bool>("-help")
+                    .action(help);
+            },
+            [](ArgumentParser const& parser) {
+                parser.printTokens();
+                parser.printArguments();
 
-        mutex2.addArgument<int>("c")
-            .nargs(NArgsOption::OPTIONAL);
-        mutex1.addArgument<int>("a")
-            .nargs(NArgsOption::OPTIONAL);
-
-        mutex1.addArgument<string>("-b");
-        mutex2.addArgument<string>("-d");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        parser.printTokens();
-        parser.printArguments();
-
-        return CmdExecResult::DONE;
-    };
-
-    return cmd;
+                return CmdExecResult::DONE;
+            }};
 }

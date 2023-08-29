@@ -2,9 +2,9 @@ DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qcba 3
 Note: QCir list is empty now. Create a new one.
 
-qsyn> qcga -cx 0 2
+qsyn> qcga cx 0 2
 
-qsyn> qcga -rz -ph pi 0
+qsyn> qcga rz -ph pi 0
 
 qsyn> qcbd 1
 
@@ -16,11 +16,11 @@ qsyn> qcnew
 
 qsyn> qcba 4
 
-qsyn> qcga -cx 1 2
+qsyn> qcga cx 1 2
 
-qsyn> qcga -cx 0 3
+qsyn> qcga cx 0 3
 
-qsyn> qcga -cx 0 2
+qsyn> qcga cx 0 2
 
 qsyn> qccp -q
 Q 0  ---------cx( 1)----------cx( 2)-

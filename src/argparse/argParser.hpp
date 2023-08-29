@@ -70,15 +70,14 @@ public:
         this->name(n);
     }
 
-    Argument const& operator[](std::string const& name) const;
-
     template <typename T>
     T get(std::string const& name) const {
-        return (*this)[name].get<T>();
+        return this->getArgument(name).get<T>();
     }
 
     ArgumentParser& name(std::string const& name);
     ArgumentParser& help(std::string const& help);
+    ArgumentParser& numRequiredChars(size_t num);
 
     size_t numParsedArguments() const {
         return std::count_if(
@@ -105,14 +104,14 @@ public:
     std::string const& getName() const { return _pimpl->name; }
     std::string const& getHelp() const { return _pimpl->help; }
     size_t getNumRequiredChars() const { return _pimpl->numRequiredChars; }
-    bool parsed(std::string const& key) const { return (*this)[toLowerString(key)].isParsed(); }
+    std::optional<SubParsers> const& getSubParsers() const { return _pimpl->subparsers; }
+    bool parsed(std::string const& key) const { return this->getArgument(key).isParsed(); }
     bool hasOptionPrefix(std::string const& str) const { return str.find_first_of(_pimpl->optionPrefix) == 0UL; }
     bool hasOptionPrefix(Argument const& arg) const { return hasOptionPrefix(arg.getName()); }
     bool hasSubParsers() const { return _pimpl->subparsers.has_value(); }
     bool usedSubParser(std::string const& name) const { return _pimpl->subparsers.has_value() && _pimpl->activatedSubParser == name; }
 
     // action
-
     template <typename T>
     requires ValidArgumentType<T>
     ArgType<T>& addArgument(std::string const& name);
@@ -120,37 +119,14 @@ public:
     MutuallyExclusiveGroup addMutuallyExclusiveGroup();
     SubParsers addSubParsers();
 
-    /**
-     * @brief tokenize the line and parse the arguments
-     *
-     * @param line
-     * @return true
-     * @return false
-     */
-    bool parseArgs(std::string const& line) { return tokenize(line) && parseArgs(_pimpl->tokens); }
-    bool parseArgs(std::vector<std::string> const& tokens) {
-        auto tmp = std::vector<Token>{tokens.begin(), tokens.end()};
-        return parseArgs(tmp);
-    }
+    bool parseArgs(std::string const& line);
+    bool parseArgs(std::vector<std::string> const& tokens);
     bool parseArgs(TokensView);
 
-    /**
-     * @brief tokenize the line and parse the arguments known by the parser
-     *
-     * @param line
-     * @return std::pair<bool, std::vector<Token>>, where
-     *         the first return value specifies whether the parse has succeeded, and
-     *         the second one specifies the unrecognized tokens
-     */
-    std::pair<bool, std::vector<Token>> parseKnownArgs(std::string const& line) {
-        if (!tokenize(line)) return {false, {}};
-        return parseKnownArgs(_pimpl->tokens);
-    }
-    std::pair<bool, std::vector<Token>> parseKnownArgs(std::vector<std::string> const& tokens) {
-        auto tmp = std::vector<Token>{tokens.begin(), tokens.end()};
-        return parseKnownArgs(tmp);
-    }
+    std::pair<bool, std::vector<Token>> parseKnownArgs(std::string const& line);
+    std::pair<bool, std::vector<Token>> parseKnownArgs(std::vector<std::string> const& tokens);
     std::pair<bool, std::vector<Token>> parseKnownArgs(TokensView);
+
     bool analyzeOptions() const;
 
 private:
@@ -168,7 +144,7 @@ private:
 
         std::string name;
         std::string help;
-        size_t numRequiredChars;
+        size_t numRequiredChars = 1;
 
         // members for analyzing parser options
         dvlab::utils::Trie mutable trie;
@@ -181,11 +157,12 @@ private:
 
     // pretty printing helpers
 
-    void setNumRequiredChars(size_t num) { _pimpl->numRequiredChars = num; }
     void setSubParser(std::string const& name) {
         _pimpl->activatedSubParser = name;
         _pimpl->subparsers->setParsed(true);
     }
+    Argument const& getArgument(std::string const& name) const;
+
     std::optional<ArgumentParser> getActivatedSubParser() const {
         if (!_pimpl->subparsers.has_value() || !_pimpl->activatedSubParser.has_value()) return std::nullopt;
         return _pimpl->subparsers->getSubParsers().at(*(_pimpl->activatedSubParser));
@@ -237,19 +214,18 @@ ArgType<T>& MutuallyExclusiveGroup::addArgument(std::string const& name) {
 template <typename T>
 requires ValidArgumentType<T>
 ArgType<T>& ArgumentParser::addArgument(std::string const& name) {
-    auto key = toLowerString(name);
-    if (_pimpl->arguments.contains(key)) {
+    if (_pimpl->arguments.contains(name)) {
         fmt::println(stderr, "[ArgParse] Error: Duplicate argument name \"{}\"!!", name);
     } else {
-        _pimpl->arguments.emplace(key, Argument(key, T{}));
+        _pimpl->arguments.emplace(name, Argument(name, T{}));
     }
 
-    auto& returnRef = _pimpl->arguments.at(key).toUnderlyingType<T>();
+    auto& returnRef = _pimpl->arguments.at(name).toUnderlyingType<T>();
 
-    if (!hasOptionPrefix(key)) {
-        returnRef.required(true).metavar(key);
+    if (!hasOptionPrefix(name)) {
+        returnRef.required(true).metavar(name);
     } else {
-        returnRef.metavar(toUpperString(key.substr(key.find_first_not_of(_pimpl->optionPrefix))));
+        returnRef.metavar(toUpperString(name.substr(name.find_first_not_of(_pimpl->optionPrefix))));
     }
 
     _pimpl->optionsAnalyzed = false;

@@ -52,10 +52,15 @@ class Command {
     using OnParseSuccess = std::function<CmdExecResult(ArgParse::ArgumentParser const&)>;
 
 public:
-    Command(std::string const& name) { _parser.name(name); }
+    Command(std::string const& name, Precondition prec, ParserDefinition defn, OnParseSuccess on)
+        : precondition{prec}, parserDefinition{defn}, onParseSuccess{on} { _parser.name(name); }
+    Command(std::string const& name)
+        : Command(name, nullptr, nullptr, nullptr) {}
+    Command(std::string const& name, ParserDefinition defn, OnParseSuccess on)
+        : Command(name, nullptr, defn, on) {}
     ~Command() {}
 
-    bool initialize();
+    bool initialize(size_t numRequiredChars);
     CmdExecResult exec(std::string const& option);
     void usage() const { _parser.printUsage(); }
     void summary() const { _parser.printSummary(); }
@@ -63,6 +68,8 @@ public:
     void setOptCmd(const std::string& str) { _optCmd = str; }
     bool checkOptCmd(const std::string& check) const;
     const std::string& getOptCmd() const { return _optCmd; }
+
+    void addSubCommand(Command const& cmd);
 
     ParserDefinition parserDefinition;  // define the parser's arguments and traits
     Precondition precondition;          // define the parsing precondition
@@ -94,7 +101,7 @@ public:
     bool openDofile(const std::string& filepath);
     void closeDofile();
 
-    bool registerCommand(const std::string& name, unsigned nMandChars, std::unique_ptr<Command>&& cmd);
+    bool registerCommand(const std::string& name, unsigned nMandChars, Command cmd);
     Command* getCommand(std::string const& cmd) const;
 
     CmdExecResult executeOneLine();
@@ -109,7 +116,7 @@ public:
     void printHistory() const;
     void printHistory(size_t nPrint) const;
     void beep() const;
-    void clearConsole() const;
+    void clearTerminal() const;
 
     struct CLI_ListenConfig {
         bool allowBrowseHistory = true;

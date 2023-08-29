@@ -126,4 +126,12 @@ ActionCallbackType storeFalse(ArgType<bool>& arg) {
     return [&arg](TokensView) { arg.appendValue(false); return true; };
 }
 
+ActionCallbackType help(ArgType<bool>& arg) {
+    arg.markAsHelpAction();
+    arg.nargs(0ul);
+    return [&arg](TokensView) -> bool {
+        return true;
+    };
+}
+
 }  // namespace ArgParse

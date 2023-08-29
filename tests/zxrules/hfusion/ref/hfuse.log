@@ -5,9 +5,9 @@ Note: verbose level is set to 9
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
 qsyn> qccp -l
 Listed by gate ID
@@ -89,11 +89,11 @@ Note: verbose level is set to 9
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
 qsyn> qccp -l
 Listed by gate ID
@@ -164,9 +164,9 @@ Note: verbose level is set to 9
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
 qsyn> qccp -l
 Listed by gate ID
@@ -240,11 +240,11 @@ Note: verbose level is set to 9
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
 qsyn> qccp -l
 Listed by gate ID
@@ -330,11 +330,11 @@ Note: verbose level is set to 9
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
-qsyn> qcga -z 0
+qsyn> qcga z 0
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
 qsyn> qccp -l
 Listed by gate ID
@@ -410,9 +410,9 @@ Note: QCir list is empty now. Create a new one.
 
 qsyn> qcba 
 
-qsyn> qcga -z 0
+qsyn> qcga z 0
 
-qsyn> qcga -z 1
+qsyn> qcga z 1
 
 qsyn> qccp -l
 Listed by gate ID
@@ -494,17 +494,17 @@ Note: verbose level is set to 9
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
-qsyn> qcga -z 0
+qsyn> qcga z 0
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
-qsyn> qcga -z 0
+qsyn> qcga z 0
 
 qsyn> qccp -l
 Listed by gate ID
