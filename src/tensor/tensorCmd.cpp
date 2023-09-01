@@ -50,7 +50,7 @@ ArgType<size_t>::ConstraintType validTensorId = {
 Command TensorMgrResetCmd() {
     return {"tsreset",
             [](ArgumentParser& parser) {
-                parser.help("reset the tensor manager");
+                parser.description("reset the tensor manager");
             },
             [](ArgumentParser const& parser) {
                 tensorMgr.reset();
@@ -61,7 +61,7 @@ Command TensorMgrResetCmd() {
 Command TensorMgrPrintCmd() {
     return {"tsprint",
             [](ArgumentParser& parser) {
-                parser.help("print info about Tensors");
+                parser.description("print info about Tensors");
                 auto mutex = parser.addMutuallyExclusiveGroup().required(false);
 
                 mutex.addArgument<bool>("-focus")
@@ -86,7 +86,7 @@ Command TensorMgrPrintCmd() {
 Command TensorPrintCmd() {
     return {"tstprint",
             [](ArgumentParser& parser) {
-                parser.help("print info of Tensor");
+                parser.description("print info of Tensor");
 
                 parser.addArgument<size_t>("id")
                     .constraint(validTensorId)
@@ -107,7 +107,7 @@ Command TensorPrintCmd() {
 Command TensorAdjointCmd() {
     return {"tsadjoint",
             [](ArgumentParser& parser) {
-                parser.help("adjoint the specified tensor");
+                parser.description("adjoint the specified tensor");
 
                 parser.addArgument<size_t>("id")
                     .constraint(validTensorId)
@@ -126,7 +126,7 @@ Command TensorAdjointCmd() {
 Command TensorEquivalenceCmd() {
     return {"tsequiv",
             [](ArgumentParser& parser) {
-                parser.help("check the equivalency of two stored tensors");
+                parser.description("check the equivalency of two stored tensors");
 
                 parser.addArgument<size_t>("ids")
                     .nargs(1, 2)

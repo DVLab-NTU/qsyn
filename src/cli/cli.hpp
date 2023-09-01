@@ -53,7 +53,7 @@ class Command {
 
 public:
     Command(std::string const& name, Precondition prec, ParserDefinition defn, OnParseSuccess on)
-        : precondition{prec}, parserDefinition{defn}, onParseSuccess{on} { _parser.name(name); }
+        : _parser{name, {.exitOnFailure = false}}, precondition{prec}, parserDefinition{defn}, onParseSuccess{on} {}
     Command(std::string const& name)
         : Command(name, nullptr, nullptr, nullptr) {}
     Command(std::string const& name, ParserDefinition defn, OnParseSuccess on)

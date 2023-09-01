@@ -35,13 +35,9 @@ bool initArgParseCmd() {
 Command argparseCmd() {
     return {"argparse",
             [](ArgumentParser& parser) {
-                parser.help("ArgParse package sandbox");
+                parser.description("ArgParse package sandbox");
 
-                parser.addArgument<bool>("-h")
-                    .action(storeTrue);
-
-                parser.addArgument<bool>("-help")
-                    .action(help);
+                // parser.addArgument<bool>("-name", "-alias");
             },
             [](ArgumentParser const& parser) {
                 parser.printTokens();

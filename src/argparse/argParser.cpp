@@ -11,6 +11,7 @@
 #include <fmt/format.h>
 
 #include <cassert>
+#include <cstdlib>
 #include <numeric>
 #include <ranges>
 
@@ -21,6 +22,32 @@
 using namespace std;
 
 namespace ArgParse {
+
+ArgumentParser::ArgumentParser(std::string const& n, ParserConfig config) : ArgumentParser() {
+    this->name(n);
+
+    if (config.addHelpAction) {
+        this->addArgument<bool>("-h", "--help")
+            .action(help)
+            .help("show this help message and exit");
+    }
+    if (config.addVersionAction) {
+        this->addArgument<bool>("-V", "--version")
+            .action(version)
+            .help("show program's version number and exit");
+    }
+
+    _pimpl->exitOnFailure = config.exitOnFailure;
+    _pimpl->version = config.version;
+}
+
+size_t ArgumentParser::numParsedArguments() const {
+    return ranges::count_if(
+        _pimpl->arguments | views::values,
+        [](Argument& arg) {
+            return arg.isParsed();
+        });
+}
 
 /**
  * @brief Print the tokens and their parse states
@@ -44,20 +71,27 @@ void ArgumentParser::printArguments() const {
     }
 }
 
+Argument& ArgumentParser::getArgument(std::string const& name) {
+    return const_cast<Argument&>(const_cast<ArgumentParser const&>(*this).getArgument(name));
+}
+
 Argument const& ArgumentParser::getArgument(std::string const& name) const {
     if (_pimpl->subparsers.has_value() && _pimpl->subparsers->isParsed()) {
-        if (getActivatedSubParser()->_pimpl->arguments.contains(name)) {
-            return getActivatedSubParser()->_pimpl->arguments.at(name);
+        if (getActivatedSubParser()->hasArgument(name)) {
+            return getActivatedSubParser()->getArgument(name);
         }
+    }
+    if (_pimpl->aliasForwardMap.contains(name)) {
+        return _pimpl->arguments.at(_pimpl->aliasForwardMap.at(name));
     }
     if (_pimpl->arguments.contains(name)) {
         return _pimpl->arguments.at(name);
     }
 
-    fmt::println(stderr, "[ArgParse error] Argument name \"{}\" does not exist for command \"{}\"",
+    fmt::println(stderr, "[ArgParse] Error: argument name \"{}\" does not exist for command \"{}\"",
                  name,
-                 formatter.styledParserName(*this));
-    throw std::out_of_range{"Trying to access non-existent arguments"};
+                 this->getName());
+    exit(1);
 }
 
 /**
@@ -77,14 +111,23 @@ ArgumentParser& ArgumentParser::name(std::string const& name) {
  * @param name
  * @return ArgumentParser&
  */
-ArgumentParser& ArgumentParser::help(std::string const& help) {
-    _pimpl->help = help;
+ArgumentParser& ArgumentParser::description(std::string const& help) {
+    _pimpl->description = help;
     return *this;
 }
 
 ArgumentParser& ArgumentParser::numRequiredChars(size_t num) {
     _pimpl->numRequiredChars = num;
     return *this;
+}
+
+size_t ArgumentParser::getArgNumRequiredChars(std::string const& name) const {
+    assert(_pimpl->arguments.contains(name) || _pimpl->aliasForwardMap.contains(name));
+    auto nReq = _pimpl->trie.shortestUniquePrefix(name).value().size();
+    while (_pimpl->optionPrefix.find_first_of(name[nReq - 1]) != std::string::npos) {
+        ++nReq;
+    }
+    return nReq;
 }
 
 // Parser subroutine
@@ -113,7 +156,8 @@ bool ArgumentParser::analyzeOptions() const {
     for (auto const& group : _pimpl->mutuallyExclusiveGroups) {
         for (auto const& name : group.getArguments()) {
             if (_pimpl->arguments.at(name).isRequired()) {
-                fmt::println(stderr, "[ArgParse] Error: Mutually exclusive argument \"{}\" must be optional!!", name);
+                fmt::println(stderr, "[ArgParse] Error: mutually exclusive argument \"{}\" must be optional!!", name);
+                exit(1);
                 return false;
             }
             _pimpl->conflictGroups.emplace(name, group);
@@ -126,11 +170,9 @@ bool ArgumentParser::analyzeOptions() const {
         arg._isOption = true;
     }
 
-    for (auto& [name, arg] : _pimpl->arguments) {
-        if (!hasOptionPrefix(name)) continue;
-        size_t prefixSize = _pimpl->trie.shortestUniquePrefix(name).value().size();
-        while (!isalpha(name[prefixSize - 1])) ++prefixSize;
-        arg.setNumRequiredChars(max(prefixSize, arg.getNumRequiredChars()));
+    for (auto& alias : _pimpl->aliasForwardMap | views::keys) {
+        assert(hasOptionPrefix(alias));
+        _pimpl->trie.insert(alias);
     }
 
     if (_pimpl->subparsers.has_value()) {
@@ -266,6 +308,21 @@ std::pair<bool, std::vector<Token>> ArgumentParser::parseKnownArgs(std::vector<s
  *         the second one specifies the unrecognized tokens
  */
 std::pair<bool, std::vector<Token>> ArgumentParser::parseKnownArgs(TokensView tokens) {
+    auto result = parseKnownArgsImpl(tokens);
+    if (!result.first && _pimpl->exitOnFailure) {
+        exit(0);
+    }
+
+    return result;
+}
+
+/**
+ * @brief the internal implementation of parseKnownArgs
+ *
+ * @param tokens
+ * @return std::pair<bool, std::vector<Token>>
+ */
+std::pair<bool, std::vector<Token>> ArgumentParser::parseKnownArgsImpl(TokensView tokens) {
     if (!analyzeOptions()) return {false, {}};
 
     _pimpl->activatedSubParser = std::nullopt;
@@ -310,7 +367,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::parseKnownArgs(TokensView to
             if (!success) return {false, {}};
             unrecognized.insert(unrecognized.end(), subparser_unrecognized.begin(), subparser_unrecognized.end());
         } else if (_pimpl->subparsers->isRequired()) {
-            fmt::println(stderr, "Error: missing mandatory subparser argument: {}", formatter.getSyntax(_pimpl->subparsers.value()));
+            fmt::println(stderr, "Error: missing mandatory subparser argument: ({})", fmt::join(_pimpl->subparsers->getSubParsers() | views::keys, ", "));
             return {false, {}};
         }
     }
@@ -340,10 +397,15 @@ bool ArgumentParser::parseOptions(TokensView tokens, std::vector<Token>& unrecog
             printAmbiguousOptionErrorMsg(tokens[i].token);
             return false;
         }
+        Argument& arg = getArgument(std::get<std::string>(match));
 
-        Argument& arg = _pimpl->arguments[std::get<string>(match)];
         if (arg.isHelpAction()) {
             this->printHelp();
+            return false;  // break the parsing
+        }
+
+        if (arg.isVersionAction()) {
+            this->printVersion();
             return false;  // break the parsing
         }
 
@@ -416,7 +478,7 @@ void ArgumentParser::fillUnparsedArgumentsWithDefaults() {
 variant<string, size_t> ArgumentParser::matchOption(std::string const& token) const {
     auto match = _pimpl->trie.findWithPrefix(token);
     if (match.has_value()) {
-        if (token.size() < _pimpl->arguments.at(match.value()).getNumRequiredChars()) {
+        if (token.size() < getArgNumRequiredChars(match.value())) {
             return 0u;
         }
         return match.value();
@@ -446,7 +508,7 @@ bool ArgumentParser::noConflictWithParsedArguments(Argument const& arg) const {
  *
  */
 void ArgumentParser::printAmbiguousOptionErrorMsg(std::string const& token) const {
-    fmt::println(stderr, "[ArgParse] Error: ambiguous option: \"{}\" could match {}",
+    fmt::println(stderr, "Error: ambiguous option: \"{}\" could match {}",
                  token,
                  fmt::join(_pimpl->arguments | views::keys | views::filter([this, token](string const& name) {
                                return hasOptionPrefix(name) && name.starts_with(token);
@@ -465,7 +527,7 @@ bool ArgumentParser::allRequiredOptionsAreParsed() const {
                                views::filter([](Argument const& arg) { return arg.isRequired(); });
     return dvlab::utils::expect(
         ranges::all_of(requiredOptionRange, [this](Argument const& arg) { return arg.isParsed(); }),
-        fmt::format("Error: Missing option(s)!! The following options are required: {}",  // intentional linebreak
+        fmt::format("Error: missing option(s)!! The following options are required: {}",  // intentional linebreak
                     fmt::join(requiredOptionRange |
                                   views::filter([](Argument const& arg) { return !arg.isParsed(); }) |
                                   views::transform([](Argument const& arg) { return arg.getName(); }),
@@ -480,7 +542,7 @@ bool ArgumentParser::allRequiredOptionsAreParsed() const {
 bool ArgumentParser::allRequiredMutexGroupsAreParsed() const {
     return ranges::all_of(_pimpl->mutuallyExclusiveGroups, [](MutuallyExclusiveGroup const& group) {
         return dvlab::utils::expect(!group.isRequired() || group.isParsed(),
-                                    fmt::format("Error: One of the options are required: {}!!", fmt::join(group.getArguments(), ", ")));
+                                    fmt::format("Error: one of the options are required: {}!!", fmt::join(group.getArguments(), ", ")));
     });
 }
 
@@ -494,7 +556,7 @@ bool ArgumentParser::allRequiredArgumentsAreParsed() const {
                             views::filter([](Argument const& arg) { return arg.isRequired(); });
     return dvlab::utils::expect(
         ranges::all_of(requiredArgRange, [this](Argument const& arg) { return arg.isParsed(); }),
-        fmt::format("Error: Missing argument(s)!! The following arguments are required: {}",  // intentional linebreak
+        fmt::format("Error: missing argument(s)!! The following arguments are required: {}",  // intentional linebreak
                     fmt::join(requiredArgRange |
                                   views::filter([](Argument const& arg) { return !arg.isParsed(); }) |
                                   views::transform([](Argument const& arg) { return arg.getName(); }),
@@ -513,7 +575,7 @@ ArgumentParser SubParsers::addParser(std::string const& name) {
 
 SubParsers ArgumentParser::addSubParsers() {
     if (_pimpl->subparsers.has_value()) {
-        fmt::println(stderr, "Error: An ArgumentParser can only have one set of subparsers!!");
+        fmt::println(stderr, "Error: an ArgumentParser can only have one set of subparsers!!");
         exit(-1);
     }
     _pimpl->subparsers = SubParsers{};

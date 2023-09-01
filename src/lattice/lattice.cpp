@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "gflow/gFlow.hpp"
+#include "zx/gflow/gFlow.hpp"
 #include "zx/zxGraph.hpp"
 
 using namespace std;

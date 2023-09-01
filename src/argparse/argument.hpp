@@ -43,6 +43,22 @@ public:
         lhs.swap(rhs);
     }
 
+    // getters
+    std::string getTypeString() const { return _pimpl->do_getTypeString(); }
+    std::string const& getName() const { return _pimpl->do_getName(); }
+    std::optional<std::string> const& getUsage() const { return _pimpl->do_getUsage(); }
+    std::string const& getHelp() const { return _pimpl->do_getHelp(); }
+    std::string const& getMetavar() const { return _pimpl->do_getMetavar(); }
+    NArgsRange const& getNArgs() const { return _pimpl->do_getNArgsRange(); }
+    std::string toString() const { return _pimpl->do_toString(); }
+
+    // attributes
+    bool hasDefaultValue() const { return _pimpl->do_hasDefaultValue(); }
+    bool isRequired() const { return _pimpl->do_isRequired() && (_isOption || getNArgs().lower > 0); }
+    bool isOption() const { return _isOption; }
+    bool isHelpAction() const { return _pimpl->do_isHelpAction(); }
+    bool isVersionAction() const { return _pimpl->do_isVersionAction(); }
+
 private:
     Argument()
         : _pimpl{std::make_unique<Model<ArgType<DummyArgType>>>(ArgType<DummyArgType>{"dummy", DummyArgType{}})} {}
@@ -54,25 +70,7 @@ private:
     template <typename T>
     T get() const;
 
-    std::string getTypeString() const { return _pimpl->do_getTypeString(); }
-    std::string const& getName() const { return _pimpl->do_getName(); }
-    std::optional<std::string> const& getUsage() const { return _pimpl->do_getUsage(); }
-    std::string const& getHelp() const { return _pimpl->do_getHelp(); }
-    size_t getNumRequiredChars() const { return _pimpl->do_getNumRequiredChars(); }
-    std::string const& getMetavar() const { return _pimpl->do_getMetavar(); }
-    NArgsRange const& getNArgs() const { return _pimpl->do_getNArgsRange(); }
-    std::string toString() const { return _pimpl->do_toString(); }
-
-    // attributes
-    bool hasDefaultValue() const { return _pimpl->do_hasDefaultValue(); }
-    bool isRequired() const { return _pimpl->do_isRequired() && (_isOption || getNArgs().lower > 0); }
-    bool isOption() const { return _isOption; }
-    bool isHelpAction() const { return _pimpl->do_isHelpAction(); }
-    bool mayTakeArgument() const { return getNArgs().upper > 0; }
-    bool mustTakeArgument() const { return getNArgs().lower > 0; }
-
     // setters
-    void setNumRequiredChars(size_t n) { _pimpl->do_setNumRequiredChars(n); }
     void setValueToDefault() { _pimpl->do_setValueToDefault(); }
 
     // print functions
@@ -95,14 +93,13 @@ private:
         virtual std::string const& do_getHelp() const = 0;
         virtual std::string const& do_getMetavar() const = 0;
         virtual NArgsRange const& do_getNArgsRange() const = 0;
-        virtual size_t do_getNumRequiredChars() const = 0;
-        virtual void do_setNumRequiredChars(size_t) = 0;
         virtual bool do_isParsed() const = 0;
         virtual void do_markAsParsed() = 0;
 
         virtual bool do_hasDefaultValue() const = 0;
         virtual bool do_isRequired() const = 0;
         virtual bool do_isHelpAction() const = 0;
+        virtual bool do_isVersionAction() const = 0;
         virtual bool do_constraintsSatisfied() const = 0;
 
         virtual std::string do_toString() const = 0;
@@ -131,14 +128,13 @@ private:
         inline std::string const& do_getHelp() const override { return inner._help; }
         inline std::string const& do_getMetavar() const override { return inner._metavar; }
         inline NArgsRange const& do_getNArgsRange() const override { return inner._nargs; }
-        inline size_t do_getNumRequiredChars() const override { return inner._numRequiredChars; }
-        inline void do_setNumRequiredChars(size_t n) override { inner._numRequiredChars = n; }
         inline bool do_isParsed() const override { return inner._parsed; }
         inline void do_markAsParsed() override { inner._parsed = true; }
 
         inline bool do_hasDefaultValue() const override { return inner._defaultValue.has_value(); }
         inline bool do_isRequired() const override { return inner._required; }
         inline bool do_isHelpAction() const override { return inner._isHelpAction; }
+        inline bool do_isVersionAction() const override { return inner._isVersionAction; }
         inline bool do_constraintsSatisfied() const override { return inner.constraintsSatisfied(); }
 
         inline std::string do_toString() const override { return fmt::format("{}", inner); }
@@ -183,7 +179,7 @@ T Argument::get() const {
         }
     }
     fmt::println(stderr, "[ArgParse] Error: cannot cast argument \"{}\" to target type!!", getName());
-    throw std::bad_cast{};
+    exit(1);
 }
 
 }  // namespace ArgParse

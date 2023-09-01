@@ -125,7 +125,7 @@ Command ZXCHeckoutCmd() {
     return {"zxcheckout",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("checkout to Graph <id> in ZXGraphMgr");
+                parser.description("checkout to Graph <id> in ZXGraphMgr");
                 parser.addArgument<size_t>("id")
                     .constraint(validZXGraphId)
                     .help("the ID of the ZXGraph");
@@ -142,7 +142,7 @@ Command ZXCHeckoutCmd() {
 Command ZXNewCmd() {
     return {"zxnew",
             [](ArgumentParser& parser) {
-                parser.help("create a new ZXGraph to ZXGraphMgr");
+                parser.description("create a new ZXGraph to ZXGraphMgr");
 
                 parser.addArgument<size_t>("id")
                     .nargs(NArgsOption::OPTIONAL)
@@ -176,7 +176,7 @@ Command ZXNewCmd() {
 Command ZXResetCmd() {
     return {"zxreset",
             [](ArgumentParser& parser) {
-                parser.help("reset ZXGraphMgr");
+                parser.description("reset ZXGraphMgr");
             },
             [](ArgumentParser const& parser) {
                 zxGraphMgr.reset();
@@ -191,7 +191,7 @@ Command ZXDeleteCmd() {
     return {"zxdelete",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("remove a ZXGraph from ZXGraphMgr");
+                parser.description("remove a ZXGraph from ZXGraphMgr");
 
                 parser.addArgument<size_t>("id")
                     .constraint(validZXGraphId)
@@ -209,7 +209,7 @@ Command ZXDeleteCmd() {
 Command ZXPrintCmd() {
     return {"zxprint",
             [](ArgumentParser& parser) {
-                parser.help("print info about ZXGraphs");
+                parser.description("print info about ZXGraphs");
                 auto mutex = parser.addMutuallyExclusiveGroup().required(false);
 
                 mutex.addArgument<bool>("-focus")
@@ -237,7 +237,7 @@ Command ZXCopyCmd() {
     return {"zxcopy",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("copy a ZXGraph to ZXGraphMgr");
+                parser.description("copy a ZXGraph to ZXGraphMgr");
 
                 parser.addArgument<size_t>("id")
                     .nargs(NArgsOption::OPTIONAL)
@@ -270,7 +270,7 @@ Command ZXComposeCmd() {
     return {"zxcompose",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("compose a ZXGraph");
+                parser.description("compose a ZXGraph");
 
                 parser.addArgument<size_t>("id")
                     .constraint(validZXGraphId)
@@ -289,7 +289,7 @@ Command ZXTensorCmd() {
     return {"zxtensor",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("tensor a ZXGraph");
+                parser.description("tensor a ZXGraph");
 
                 parser.addArgument<size_t>("id")
                     .constraint(validZXGraphId)
@@ -308,7 +308,7 @@ Command ZXGTestCmd() {
     return {"zxgtest",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("test ZXGraph structures and functions");
+                parser.description("test ZXGraph structures and functions");
 
                 auto mutex = parser.addMutuallyExclusiveGroup().required(true);
 
@@ -358,7 +358,7 @@ Command ZXGPrintCmd() {
     return {"zxgprint",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("print info of ZXGraph");
+                parser.description("print info of ZXGraph");
 
                 auto mutex = parser.addMutuallyExclusiveGroup();
                 mutex.addArgument<bool>("-list")
@@ -438,7 +438,7 @@ Command ZXGEditCmd() {
     return {"zxgedit",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("edit ZXGraph");
+                parser.description("edit ZXGraph");
 
                 auto subparsers = parser.addSubParsers().required(true);
 
@@ -603,7 +603,7 @@ Command ZXGTraverseCmd() {
     return {"zxgtraverse",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("traverse ZXGraph and update topological order of vertices");
+                parser.description("traverse ZXGraph and update topological order of vertices");
             },
             [](ArgumentParser const& parser) {
                 zxGraphMgr.get()->updateTopoOrder();
@@ -620,7 +620,7 @@ Command ZXGDrawCmd() {
     return {"zxgdraw",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("draw ZXGraph");
+                parser.description("draw ZXGraph");
 
                 parser.addArgument<string>("filepath")
                     .nargs(NArgsOption::OPTIONAL)
@@ -651,7 +651,7 @@ Command ZX2TSCmd() {
     return {"zx2ts",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("convert ZXGraph to tensor");
+                parser.description("convert ZXGraph to tensor");
 
                 parser.addArgument<size_t>("-zx")
                     .metavar("id")
@@ -703,7 +703,7 @@ Command ZX2TSCmd() {
 Command ZXGReadCmd() {
     return {"zxgread",
             [](ArgumentParser& parser) {
-                parser.help("read a file and construct the corresponding ZXGraph");
+                parser.description("read a file and construct the corresponding ZXGraph");
 
                 parser.addArgument<string>("filepath")
                     .constraint(path_readable)
@@ -749,7 +749,7 @@ Command ZXGWriteCmd() {
     return {"zxgwrite",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("write the ZXGraph to a file");
+                parser.description("write the ZXGraph to a file");
 
                 parser.addArgument<string>("filepath")
                     .constraint(path_writable)
@@ -794,7 +794,7 @@ Command ZXGAssignCmd() {
     return {"zxgassign",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("assign quantum states to input/output vertex");
+                parser.description("assign quantum states to input/output vertex");
 
                 parser.addArgument<size_t>("qubit")
                     .help("the qubit to assign state to");
@@ -837,7 +837,7 @@ Command ZXGADjointCmd() {
     return {"zxgadjoint",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("adjoint ZXGraph");
+                parser.description("adjoint ZXGraph");
             },
             [](ArgumentParser const& parser) {
                 zxGraphMgr.get()->adjoint();

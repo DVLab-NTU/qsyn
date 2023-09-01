@@ -49,7 +49,7 @@ Command ExtractCmd() {
     return {"zx2qc",
             zxGraphMgrNotEmpty,
             [](ArgumentParser &parser) {
-                parser.help("extract QCir from ZXGraph");
+                parser.description("extract QCir from ZXGraph");
             },
             [](ArgumentParser const &parser) {
                 if (!zxGraphMgr.get()->isGraphLike()) {
@@ -84,7 +84,7 @@ Command ExtractStepCmd() {
     return {"extract",
             zxGraphMgrNotEmpty,
             [](ArgumentParser &parser) {
-                parser.help("perform step(s) in extraction");
+                parser.description("perform step(s) in extraction");
                 parser.addArgument<size_t>("-zxgraph")
                     .required(true)
                     .constraint(validZXGraphId)
@@ -111,15 +111,15 @@ Command ExtractStepCmd() {
                     .action(storeTrue)
                     .help("Extract Z-rotation gates");
 
-                mutex.addArgument<bool>("-hadamard")
+                mutex.addArgument<bool>("-H", "--hadamard")
                     .action(storeTrue)
                     .help("Extract Hadamard gates");
 
-                mutex.addArgument<bool>("-clfrontier")
+                mutex.addArgument<bool>("-clf", "--clear-frontier")
                     .action(storeTrue)
                     .help("Extract Z-rotation and then CZ gates");
 
-                mutex.addArgument<bool>("-rmgadgets")
+                mutex.addArgument<bool>("-rmg", "--remove-gadgets")
                     .action(storeTrue)
                     .help("Remove phase gadgets in the neighbor of the frontiers");
 
@@ -152,6 +152,13 @@ Command ExtractStepCmd() {
                     ext.extractionLoop(parser.get<size_t>("-loop"));
                     return CmdExecResult::DONE;
                 }
+
+                if (parser.parsed("-clf")) {
+                    ext.extractSingles();
+                    ext.extractCZs(true);
+                    return CmdExecResult::DONE;
+                }
+
                 if (parser.parsed("-phase")) {
                     ext.extractSingles();
                     return CmdExecResult::DONE;
@@ -167,11 +174,11 @@ Command ExtractStepCmd() {
                     }
                     return CmdExecResult::DONE;
                 }
-                if (parser.parsed("-hadamard")) {
+                if (parser.parsed("-H")) {
                     ext.extractHsFromM2(true);
                     return CmdExecResult::DONE;
                 }
-                if (parser.parsed("-rmgadgets")) {
+                if (parser.parsed("-rmg")) {
                     if (ext.removeGadget(true))
                         cout << "Gadget(s) are removed" << endl;
                     else
@@ -196,7 +203,7 @@ Command ExtractPrintCmd() {
     return {"extprint",
             zxGraphMgrNotEmpty,
             [](ArgumentParser &parser) {
-                parser.help("print info of extracting ZXGraph");
+                parser.description("print info of extracting ZXGraph");
 
                 auto mutex = parser.addMutuallyExclusiveGroup();
 
@@ -253,7 +260,7 @@ Command ExtractPrintCmd() {
 Command ExtractSetCmd() {
     return {"extset",
             [](ArgumentParser &parser) {
-                parser.help("set extractor parameters");
+                parser.description("set extractor parameters");
                 parser.addArgument<size_t>("-optimize-level")
                     .choices({0, 1, 2, 3})
                     .help("optimization level");

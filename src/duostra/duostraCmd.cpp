@@ -49,7 +49,7 @@ Command duostraCmd() {
             []() { return qcirMgrNotEmpty() && deviceMgrNotEmpty(); },
 
             [](ArgumentParser& parser) {
-                parser.help("map logical circuit to physical circuit");
+                parser.description("map logical circuit to physical circuit");
                 parser.addArgument<bool>("-check")
                     .defaultValue(false)
                     .action(storeTrue)
@@ -83,7 +83,7 @@ Command duostraCmd() {
                 }
 
                 if (duo.getPhysicalCircuit() == nullptr) {
-                    cerr << "Error: Something wrong in Duostra Mapping!!" << endl;
+                    cerr << "Error: something wrong in Duostra Mapping!!" << endl;
                 }
                 size_t id = qcirMgr.getNextID();
                 qcirMgr.add(id, std::move(duo.getPhysicalCircuit()));
@@ -102,7 +102,7 @@ Command duostraCmd() {
 Command duostraSetCmd() {
     return {"duoset",
             [](ArgumentParser& parser) {
-                parser.help("set Duostra parameter(s)");
+                parser.description("set Duostra parameter(s)");
 
                 parser.addArgument<string>("-scheduler")
                     .choices({"base", "static", "random", "greedy", "search"})
@@ -189,7 +189,7 @@ Command duostraSetCmd() {
 Command duostraPrintCmd() {
     return {"duoprint",
             [](ArgumentParser& parser) {
-                parser.help("print Duostra parameters");
+                parser.description("print Duostra parameters");
                 parser.addArgument<bool>("-detail")
                     .defaultValue(false)
                     .action(storeTrue)
@@ -221,7 +221,7 @@ Command mapEQCmd() {
     return {
         "mpequiv",
         [](ArgumentParser& parser) {
-            parser.help("check equivalence of the physical and the logical circuits");
+            parser.description("check equivalence of the physical and the logical circuits");
             parser.addArgument<size_t>("-logical")
                 .required(true)
                 .help("logical circuit id");

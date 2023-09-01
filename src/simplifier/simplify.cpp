@@ -11,7 +11,7 @@
 #include <cstddef>
 
 #include "./zxRulesTemplate.hpp"
-#include "gflow/gFlow.hpp"
+#include "zx/gflow/gFlow.hpp"
 #include "zx/zxDef.hpp"
 #include "zx/zxGraph.hpp"
 #include "zx/zxGraphMgr.hpp"

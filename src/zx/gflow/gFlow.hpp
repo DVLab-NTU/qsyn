@@ -12,8 +12,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../zxGraph.hpp"
 #include "m2/m2.hpp"
-#include "zx/zxGraph.hpp"
 
 class GFlow {
 public:

@@ -23,7 +23,7 @@ extp -n
 extp -m
 extr -zx 1 -qc 1 -cx
 qccp -q
-extr -zx 1 -qc 1 -h
+extr -zx 1 -qc 1 -H
 qccp -q
 extr -zx 1 -qc 1 -l 2
 qccp -q

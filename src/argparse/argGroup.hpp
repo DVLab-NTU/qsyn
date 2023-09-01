@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <concepts>
 #include <memory>
 
 #include "./argType.hpp"
@@ -38,7 +39,7 @@ public:
 
     template <typename T>
     requires ValidArgumentType<T>
-    ArgType<T>& addArgument(std::string const& name);  // defined in argParser.tpp
+    ArgType<T>& addArgument(std::string const& name, std::convertible_to<std::string> auto... alias);  // defined in argParser.tpp
 
     bool contains(std::string const& name) const { return _pimpl->_arguments.contains(name); }
     MutuallyExclusiveGroup required(bool isReq) {

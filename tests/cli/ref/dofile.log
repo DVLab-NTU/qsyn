@@ -88,7 +88,7 @@ qsyn> dofile tests/cli/helper/param_dof dofile
 
 qsyn> // placeholder
 qsyn> help $1 // should print help message of dofile command
-Usage: dofile <string file> [<string arguments>]...
+Usage: dofile [-h] <string file> [<string arguments>]...
 
 Description:
   execute the commands in the dofile
@@ -96,6 +96,9 @@ Description:
 Positional Arguments:
   string  file         path to a dofile, i.e., a list of Qsyn commands 
   string  arguments    arguments to the dofile                         
+
+Options:
+  flag  -h, --help    show this help message and exit 
 
 qsyn> 
 qsyn> dofile tests/cli/helper/param_dof_kw // should error and print usage
@@ -111,16 +114,17 @@ qsyn> dofile tests/cli/helper/param_dof_kw qquit dofile
 
 qsyn> //!ARGS input1 input2
 qsyn> help ${input1} // print help message of qquit
-Usage: QQuit [-force]
+Usage: QQuit [-h] [-force]
 
 Description:
   quit Qsyn
 
 Options:
-  flag  -force    quit without reaffirming 
+  flag  -h, --help    show this help message and exit 
+  flag  -force        quit without reaffirming        
 
 qsyn> help $input2   // print help message of dofile
-Usage: dofile <string file> [<string arguments>]...
+Usage: dofile [-h] <string file> [<string arguments>]...
 
 Description:
   execute the commands in the dofile
@@ -129,17 +133,21 @@ Positional Arguments:
   string  file         path to a dofile, i.e., a list of Qsyn commands 
   string  arguments    arguments to the dofile                         
 
+Options:
+  flag  -h, --help    show this help message and exit 
+
 qsyn> help $1        // print help message of qquit
-Usage: QQuit [-force]
+Usage: QQuit [-h] [-force]
 
 Description:
   quit Qsyn
 
 Options:
-  flag  -force    quit without reaffirming 
+  flag  -h, --help    show this help message and exit 
+  flag  -force        quit without reaffirming        
 
 qsyn> help ${2}      // print help message of dofile
-Usage: dofile <string file> [<string arguments>]...
+Usage: dofile [-h] <string file> [<string arguments>]...
 
 Description:
   execute the commands in the dofile
@@ -147,6 +155,9 @@ Description:
 Positional Arguments:
   string  file         path to a dofile, i.e., a list of Qsyn commands 
   string  arguments    arguments to the dofile                         
+
+Options:
+  flag  -h, --help    show this help message and exit 
 
 qsyn> 
 qsyn> qq -f

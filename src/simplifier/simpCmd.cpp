@@ -53,22 +53,22 @@ Command ZXGSimpCmd() {
     return {"zxgsimp",
             zxGraphMgrNotEmpty,
             [](ArgumentParser &parser) {
-                parser.help("perform simplification strategies for ZXGraph");
+                parser.description("perform simplification strategies for ZXGraph");
 
                 auto mutex = parser.addMutuallyExclusiveGroup();
-                mutex.addArgument<bool>("-dreduce")
+                mutex.addArgument<bool>("-dreduce", "--dynamic-reduce")
                     .action(storeTrue)
                     .help("perform dynamic full reduce");
 
-                mutex.addArgument<bool>("-freduce")
+                mutex.addArgument<bool>("-freduce", "--full-reduce")
                     .action(storeTrue)
                     .help("perform full reduce");
 
-                mutex.addArgument<bool>("-sreduce")
+                mutex.addArgument<bool>("-sreduce", "--symbolic-reduce")
                     .action(storeTrue)
                     .help("perform symbolic reduce");
 
-                mutex.addArgument<bool>("-preduce")
+                mutex.addArgument<bool>("-preduce", "--partition-reduce")
                     .action(storeTrue)
                     .help("perform partition reduce");
 
@@ -83,7 +83,7 @@ Command ZXGSimpCmd() {
                     .constraint(validPreduceIteratoins)
                     .help("the iterations parameter for preduce, defaults to 1");
 
-                mutex.addArgument<bool>("-interclifford")
+                mutex.addArgument<bool>("-interclifford", "--interior-clifford")
                     .action(storeTrue)
                     .help("perform inter-clifford");
 
@@ -98,16 +98,16 @@ Command ZXGSimpCmd() {
                 mutex.addArgument<bool>("-gadgetfusion")
                     .action(storeTrue)
                     .help("fuse phase gadgets connected to the same set of vertices");
-                mutex.addArgument<bool>("-hfusion")
+                mutex.addArgument<bool>("-hfusion", "--hadamard-fusion")
                     .action(storeTrue)
                     .help("remove adjacent H-boxes or H-edges");
-                mutex.addArgument<bool>("-hrule")
+                mutex.addArgument<bool>("-hrule", "--hadamard-rule")
                     .action(storeTrue)
                     .help("convert H-boxes to H-edges");
-                mutex.addArgument<bool>("-idremoval")
+                mutex.addArgument<bool>("-idremoval", "--identity-removal")
                     .action(storeTrue)
                     .help("remove Z/X-spiders with no phase and arity of 2");
-                mutex.addArgument<bool>("-lcomp")
+                mutex.addArgument<bool>("-lcomp", "--local-complementation")
                     .action(storeTrue)
                     .help("apply local complementations to vertices with phase ±π/2");
                 mutex.addArgument<bool>("-pivotrule")
@@ -122,7 +122,7 @@ Command ZXGSimpCmd() {
                 mutex.addArgument<bool>("-spiderfusion")
                     .action(storeTrue)
                     .help("fuse spiders of the same color");
-                mutex.addArgument<bool>("-stcopy")
+                mutex.addArgument<bool>("-stcopy", "--state-copy")
                     .action(storeTrue)
                     .help("apply state copy rules");
 

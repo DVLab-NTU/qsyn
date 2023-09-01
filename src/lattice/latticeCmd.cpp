@@ -39,7 +39,7 @@ Command latticeSurgeryCompilationCmd() {
     return {"lts",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("(experimental) perform mapping from ZXGraph to corresponding lattice surgery");
+                parser.description("(experimental) perform mapping from ZXGraph to corresponding lattice surgery");
 
                 parser.addArgument<bool>("-p")
                     .action(storeTrue)

@@ -1,9 +1,12 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> help logger
-Usage: LOGger [test | level | history | mask] ...
+Usage: LOGger [-h] [test | level | history | mask] ...
 
 Description:
   display and set the logger's status
+
+Options:
+  flag  -h, --help    show this help message and exit 
 
 Subcommands:
   [test | level | history | mask]  subcommands for logger  
@@ -13,7 +16,7 @@ Subcommands:
     mask                           set logger mask         
 
 qsyn> help dofile
-Usage: dofile <string file> [<string arguments>]...
+Usage: dofile [-h] <string file> [<string arguments>]...
 
 Description:
   execute the commands in the dofile
@@ -22,35 +25,42 @@ Positional Arguments:
   string  file         path to a dofile, i.e., a list of Qsyn commands 
   string  arguments    arguments to the dofile                         
 
+Options:
+  flag  -h, --help    show this help message and exit 
+
 qsyn> help zxge
-Usage: zxgedit (-rmvertex | -rmedge | -addvertex | -addinput | -addoutput | -addedge) ...
+Usage: zxgedit [-h] (-rmvertex | -rmedge | -addvertex | -addinput | -addoutput | -addedge) ...
 
 Description:
   edit ZXGraph
+
+Options:
+  flag  -h, --help    show this help message and exit 
 
 Subcommands:
   (-rmvertex | -rmedge | -addvertex | -addinput | -addoutput | -addedge)   
 
 qsyn> help extract
-Usage: extract (-zxgraph <size_t ID>) (-qcir <size_t ID>) (-cx | -cz | -phase | -hadamard | -clfrontier | -rmgadgets | -permute | -loop [<size_t N>])
+Usage: extract [-h] (-zxgraph <size_t ID>) (-qcir <size_t ID>) (-cx | -cz | -phase | -H | -clf | -rmg | -permute | -loop [<size_t N>])
 
 Description:
   perform step(s) in extraction
 
 Options:
-  size_t  -zxgraph     ID  the ID of the ZXGraph to extract from                   
-  size_t  -qcir        ID  the ID of the QCir to extract to                        
-  flag    -cx              Extract CX gates                                        
-  flag    -cz              Extract CZ gates                                        
-  flag    -phase           Extract Z-rotation gates                                
-  flag    -hadamard        Extract Hadamard gates                                  
-  flag    -clfrontier      Extract Z-rotation and then CZ gates                    
-  flag    -rmgadgets       Remove phase gadgets in the neighbor of the frontiers   
-  flag    -permute         Add swap gates to account for ZXGraph I/O permutations  
-  size_t  -loop        N   Run N iteration of extraction loop. N is defaulted to 1 
+  flag    -h, --help                  show this help message and exit                         
+  size_t  -zxgraph                ID  the ID of the ZXGraph to extract from                   
+  size_t  -qcir                   ID  the ID of the QCir to extract to                        
+  flag    -cx                         Extract CX gates                                        
+  flag    -cz                         Extract CZ gates                                        
+  flag    -phase                      Extract Z-rotation gates                                
+  flag    -H, --hadamard              Extract Hadamard gates                                  
+  flag    -clf, --clear-frontier      Extract Z-rotation and then CZ gates                    
+  flag    -rmg, --remove-gadgets      Remove phase gadgets in the neighbor of the frontiers   
+  flag    -permute                    Add swap gates to account for ZXGraph I/O permutations  
+  size_t  -loop                   N   Run N iteration of extraction loop. N is defaulted to 1 
 
 qsyn> help zxgr
-Usage: zxgread [-keepid] [-replace] <string filepath>
+Usage: zxgread [-h] [-keepid] [-replace] <string filepath>
 
 Description:
   read a file and construct the corresponding ZXGraph
@@ -59,8 +69,9 @@ Positional Arguments:
   string  filepath    path to the ZX file. Supported extensions: .zx, .bzx 
 
 Options:
-  flag  -keepid     if set, retain the IDs in the ZX file; otherwise the ID is rearranged to be consecutive 
-  flag  -replace    replace the current ZXGraph                                                             
+  flag  -h, --help    show this help message and exit                                                         
+  flag  -keepid       if set, retain the IDs in the ZX file; otherwise the ID is rearranged to be consecutive 
+  flag  -replace      replace the current ZXGraph                                                             
 
 qsyn> qq -f
 

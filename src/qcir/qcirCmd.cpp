@@ -100,7 +100,7 @@ ArgType<size_t>::ConstraintType const validQCirGateId = {
     },
     [](size_t const& id) {
         assert(!qcirMgr.empty());
-        cerr << "Error: Gate id " << id << " does not exist!!\n";
+        cerr << "Error: gate id " << id << " does not exist!!\n";
     }};
 
 ArgType<size_t>::ConstraintType const validQCirBitId = {
@@ -110,7 +110,7 @@ ArgType<size_t>::ConstraintType const validQCirBitId = {
     },
     [](size_t const& id) {
         assert(!qcirMgr.empty());
-        cerr << "Error: Qubit id " << id << " does not exist!!\n";
+        cerr << "Error: qubit id " << id << " does not exist!!\n";
     }};
 
 ArgType<size_t>::ConstraintType const validDecompositionMode = {
@@ -118,7 +118,7 @@ ArgType<size_t>::ConstraintType const validDecompositionMode = {
         return (val >= 0 && val <= 4);
     },
     [](size_t const& val) {
-        cerr << "Error: Decomposition Mode " << val << " is not valid!!\n";
+        cerr << "Error: decomposition Mode " << val << " is not valid!!\n";
     }};
 
 //----------------------------------------------------------------------
@@ -129,7 +129,7 @@ Command QCirCheckOutCmd() {
     return {"qccheckout",
             qcirMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("checkout to QCir <id> in QCirMgr");
+                parser.description("checkout to QCir <id> in QCirMgr");
 
                 parser.addArgument<size_t>("id")
                     .constraint(validQCirId)
@@ -148,7 +148,7 @@ Command QCirCheckOutCmd() {
 Command QCirResetCmd() {
     return {"qcreset",
             [](ArgumentParser& parser) {
-                parser.help("reset QCirMgr");
+                parser.description("reset QCirMgr");
             },
             [](ArgumentParser const& parser) {
                 qcirMgr.reset();
@@ -164,7 +164,7 @@ Command QCirDeleteCmd() {
     return {"qcdelete",
             qcirMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("remove a QCir from QCirMgr");
+                parser.description("remove a QCir from QCirMgr");
 
                 parser.addArgument<size_t>("id")
                     .constraint(validQCirId)
@@ -183,7 +183,7 @@ Command QCirDeleteCmd() {
 Command QCirNewCmd() {
     return {"qcnew",
             [](ArgumentParser& parser) {
-                parser.help("create a new QCir to QCirMgr");
+                parser.description("create a new QCir to QCirMgr");
 
                 parser.addArgument<size_t>("id")
                     .nargs(NArgsOption::OPTIONAL)
@@ -219,7 +219,7 @@ Command QCirCopyCmd() {
     return {"qccopy",
             qcirMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("copy a QCir to QCirMgr");
+                parser.description("copy a QCir to QCirMgr");
 
                 parser.addArgument<size_t>("id")
                     .nargs(NArgsOption::OPTIONAL)
@@ -250,7 +250,7 @@ Command QCirComposeCmd() {
     return {"qccompose",
             qcirMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("compose a QCir");
+                parser.description("compose a QCir");
 
                 parser.addArgument<size_t>("id")
                     .constraint(validQCirId)
@@ -270,7 +270,7 @@ Command QCirTensorCmd() {
     return {"qctensor",
             qcirMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("tensor a QCir");
+                parser.description("tensor a QCir");
 
                 parser.addArgument<size_t>("id")
                     .constraint(validQCirId)
@@ -289,7 +289,7 @@ Command QCirTensorCmd() {
 Command QCPrintCmd() {
     return {"qcprint",
             [](ArgumentParser& parser) {
-                parser.help("print info about QCirs or settings");
+                parser.description("print info about QCirs or settings");
 
                 auto mutex = parser.addMutuallyExclusiveGroup();
 
@@ -328,7 +328,7 @@ Command QCPrintCmd() {
 Command QCSetCmd() {
     return {"qcset",
             [](ArgumentParser& parser) {
-                parser.help("set QCir parameters");
+                parser.description("set QCir parameters");
 
                 parser.addArgument<size_t>("-single-delay")
                     .help("delay of single-qubit gate");
@@ -379,7 +379,7 @@ Command QCSetCmd() {
 Command QCirReadCmd() {
     return {"qccread",
             [](ArgumentParser& parser) {
-                parser.help("read a circuit and construct the corresponding netlist");
+                parser.description("read a circuit and construct the corresponding netlist");
 
                 parser.addArgument<string>("filepath")
                     .constraint(path_readable)
@@ -395,7 +395,7 @@ Command QCirReadCmd() {
                 auto filepath = parser.get<string>("filepath");
                 auto replace = parser.get<bool>("-replace");
                 if (!bufferQCir.readQCirFile(filepath)) {
-                    cerr << "Error: The format in \"" << filepath << "\" has something wrong!!" << endl;
+                    cerr << "Error: the format in \"" << filepath << "\" has something wrong!!" << endl;
                     return CmdExecResult::ERROR;
                 }
                 if (qcirMgr.empty() || !replace) {
@@ -416,7 +416,7 @@ Command QCirGatePrintCmd() {
     return {"qcgprint",
             qcirMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("print gate info in QCir");
+                parser.description("print gate info in QCir");
 
                 parser.addArgument<size_t>("id")
                     .constraint(validQCirGateId)
@@ -451,7 +451,7 @@ Command QCirPrintCmd() {
     return {"qccprint",
             qcirMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("print info of QCir");
+                parser.description("print info of QCir");
 
                 auto mutex = parser.addMutuallyExclusiveGroup();
 
@@ -545,7 +545,7 @@ Command QCirAddGateCmd() {
         "QCGAdd",
         qcirMgrNotEmpty,
         [=](ArgumentParser& parser) {
-            parser.help("add quantum gate");
+            parser.description("add quantum gate");
 
             vector<string> typeChoices;
             std::string typeHelp =
@@ -657,7 +657,7 @@ Command QCirAddGateCmd() {
 Command QCirAddQubitCmd() {
     return {"qcbadd",
             [](ArgumentParser& parser) {
-                parser.help("add qubit(s)");
+                parser.description("add qubit(s)");
 
                 parser.addArgument<size_t>("amount")
                     .nargs(NArgsOption::OPTIONAL)
@@ -684,7 +684,7 @@ Command QCirDeleteGateCmd() {
     return {"qcgdelete",
             qcirMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("delete gate");
+                parser.description("delete gate");
 
                 parser.addArgument<size_t>("id")
                     .constraint(validQCirGateId)
@@ -704,7 +704,7 @@ Command QCirDeleteQubitCmd() {
     return {"qcbdelete",
             qcirMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("delete qubit");
+                parser.description("delete qubit");
 
                 parser.addArgument<size_t>("id")
                     .constraint(validQCirBitId)
@@ -726,7 +726,7 @@ Command QCir2ZXCmd() {
     return {"qc2zx",
             qcirMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("convert QCir to ZXGraph");
+                parser.description("convert QCir to ZXGraph");
 
                 parser.addArgument<size_t>("decomp_mode")
                     .defaultValue(0)
@@ -757,7 +757,7 @@ Command QCir2TSCmd() {
     return {"qc2ts",
             qcirMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("convert QCir to tensor");
+                parser.description("convert QCir to tensor");
             },
             [](ArgumentParser const& parser) {
                 logger.info("Converting to QCir {} to tensor {}...", qcirMgr.focusedID(), tensorMgr.getNextID());
@@ -784,7 +784,7 @@ Command QCirWriteCmd() {
     return {"qccwrite",
             qcirMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("write QCir to a QASM file");
+                parser.description("write QCir to a QASM file");
 
                 parser.addArgument<string>("output_path")
                     .constraint(path_writable)
@@ -804,7 +804,7 @@ Command QCirDrawCmd() {
     return {"qccdraw",
             qcirMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("draw a QCir. This command relies on qiskit and pdflatex to be present in the system");
+                parser.description("draw a QCir. This command relies on qiskit and pdflatex to be present in the system");
 
                 parser.addArgument<string>("output_path")
                     .nargs(NArgsOption::OPTIONAL)

@@ -11,8 +11,11 @@
 #include <string>
 
 #include "qcir/qcir.hpp"
+#include "util/logger.hpp"
 #include "util/phase.hpp"
 #include "util/util.hpp"
+
+extern dvlab::utils::Logger logger;
 
 using namespace std;
 
@@ -40,7 +43,7 @@ bool QCir::readQCirFile(string filename) {
         fstream verify;
         verify.open(filename.c_str(), ios::in);
         if (!verify.is_open()) {
-            cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
+            logger.error("Cannot open the file \"{}\"!!", filename);
             return false;
         }
         string first_item;
@@ -51,12 +54,12 @@ bool QCir::readQCirFile(string filename) {
         else if (isdigit(first_item[0]))
             return readQSIM(filename);
         else {
-            cerr << "Do not support the file" << filename << endl;
+            logger.error("Cannot derive the type of file \"{}\"!!", filename);
             return false;
         }
         return true;
     } else {
-        cerr << "Do not support the file extension " << extension << endl;
+        logger.error("File format \"{}\" is not supported!!", extension);
         return false;
     }
 }
@@ -77,7 +80,7 @@ bool QCir::readQASM(string filename) {
     vector<string> record;
     qasm_file.open(filename.c_str(), ios::in);
     if (!qasm_file.is_open()) {
-        cerr << "Cannot open QASM \"" << filename << "\"!!" << endl;
+        logger.error("Cannot open the QASM file \"{}\"!!", filename);
         return false;
     }
     string str;
@@ -113,7 +116,7 @@ bool QCir::readQASM(string filename) {
             myStrGetTok(tmp, qub, myStrGetTok(tmp, qub, 0, '[') + 1, ']');
             unsigned qub_n;
             if (!myStr2Uns(qub, qub_n) || qub_n >= nqubit) {
-                cerr << "Error line: " << str << endl;
+                logger.error("invalid qubit id on line {}!!", str);
                 return false;
             }
             pin_id.emplace_back(qub_n);
@@ -140,7 +143,7 @@ bool QCir::readQC(string filename) {
     fstream qc_file;
     qc_file.open(filename.c_str(), ios::in);
     if (!qc_file.is_open()) {
-        cerr << "Cannot open QC file \"" << filename << "\"!!" << endl;
+        logger.error("Cannot open the QC file \"{}\"!!", filename);
         return false;
     }
 
@@ -186,7 +189,7 @@ bool QCir::readQC(string filename) {
                     size_t qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), qubit_label));
                     pin_id.emplace_back(qubit_id);
                 } else {
-                    cerr << "Error: Find a undefined qubit " << qubit_label << endl;
+                    logger.error("encountered a undefined qubit ({})!!", qubit_label);
                     return false;
                 }
             }
@@ -198,7 +201,7 @@ bool QCir::readQC(string filename) {
                 else if (pin_id.size() == 3)
                     addGate("ccx", pin_id, Phase(0), true);
                 else {
-                    cerr << "Error: Do not support Tof gate with more than 2 controls" << endl;
+                    logger.error("Toffoli gates with more than 2 controls are not supported!!");
                     return false;
                 }
             } else
@@ -220,7 +223,7 @@ bool QCir::readQSIM(string filename) {
     fstream qsim_file;
     qsim_file.open(filename.c_str(), ios::in);
     if (!qsim_file.is_open()) {
-        cerr << "Cannot open QSIM file \"" << filename << "\"!!" << endl;
+        logger.error("Cannot open the QSIM file \"{}\"!!", filename);
         return false;
     }
 
@@ -263,7 +266,7 @@ bool QCir::readQSIM(string filename) {
             pin_id.emplace_back(stoul(qubit_id));
             addGate(type, pin_id, Phase(0), true);
         } else {
-            cerr << "Error: Do not support gate type " << type << endl;
+            logger.error("Gate type {} is not supported!!", type);
             return false;
         }
     }
@@ -282,7 +285,7 @@ bool QCir::readQUIPPER(string filename) {
     fstream quipper_file;
     quipper_file.open(filename.c_str(), ios::in);
     if (!quipper_file.is_open()) {
-        cerr << "Cannot open QUIPPER file \"" << filename << "\"!!" << endl;
+        logger.error("Cannot open the QUIPPER file \"{}\"!!", filename);
         return false;
     }
 
@@ -310,14 +313,14 @@ bool QCir::readQUIPPER(string filename) {
                     ctrls_info = line.substr(line.find_last_of("[") + 1, line.find_last_of("]") - line.find_last_of("[") - 1);
 
                     if (ctrls_info.find(to_string(qubit_target)) != string::npos) {
-                        cerr << "Error: Control qubit and target are the same." << endl;
+                        logger.error("Control qubit and target cannot be the same!!");
                         return false;
                     }
 
                     if (count(line.begin(), line.end(), '+') == 1) {
                         // one control
                         if (type != "not" && type != "X" && type != "Z") {
-                            cerr << "Error: Control gate only support on \'cnot\', \'CX\' and \'CZ\'" << endl;
+                            logger.error("Unsupported controlled gate type!! Only `cnot`, `CX` and `CZ` are supported.");
                             return false;
                         }
                         size_t qubit_control = stoul(ctrls_info.substr(1));
@@ -328,7 +331,7 @@ bool QCir::readQUIPPER(string filename) {
                     } else if (count(line.begin(), line.end(), '+') == 2) {
                         // 2 controls
                         if (type != "not" && type != "X" && type != "Z") {
-                            cerr << "Error: Toffoli gate only support \'ccx\'and \'ccz\'" << endl;
+                            logger.error("Unsupported doubly-controlled gate type!! Only `ccx` and `ccz` are supported.");
                             return false;
                         }
                         size_t qubit_control1, qubit_control2;
@@ -340,7 +343,7 @@ bool QCir::readQUIPPER(string filename) {
                         type.insert(0, "CC");
                         addGate(type, pin_id, Phase(0), true);
                     } else {
-                        cerr << "Error: Unsupport more than 2 controls gate." << endl;
+                        logger.error("Controlled gates with more than 2 controls are not supported!!");
                         return false;
                     }
                 } else {
@@ -350,7 +353,7 @@ bool QCir::readQUIPPER(string filename) {
                 }
 
             } else {
-                cerr << "Find a undefined gate: " << type << endl;
+                logger.error("Unsupported gate type {}!!", type);
                 return false;
             }
             continue;
@@ -359,13 +362,13 @@ bool QCir::readQUIPPER(string filename) {
         } else if (line.find("Comment") == 0 || line.find("QTerm0") == 0 || line.find("QMeas") == 0 || line.find("QDiscard") == 0)
             continue;
         else if (line.find("QInit0") == 0) {
-            cerr << "Unsupported expression: QInit0" << endl;
+            logger.error("Unsupported expression: QInit0");
             return false;
         } else if (line.find("QRot") == 0) {
-            cerr << "Unsupported expression: QRot" << endl;
+            logger.error("Unsupported expression: QRot");
             return false;
         } else {
-            cerr << "Unsupported expression: " << line << endl;
+            logger.error("Unsupported expression: {}", line);
         }
     }
     return true;

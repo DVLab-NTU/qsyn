@@ -38,7 +38,7 @@ Command QCirOptimizeCmd() {
     return {"qccoptimize",
             qcirMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("optimize QCir");
+                parser.description("optimize QCir");
 
                 parser.addArgument<bool>("-physical")
                     .defaultValue(false)

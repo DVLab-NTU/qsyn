@@ -32,15 +32,16 @@ qsyn> qcp -l
 ★ 1    3_17_13             Duostra
 
 qsyn> help mpeq
-Usage: mpequiv (-logical <size_t LOGICAL>) (-physical <size_t PHYSICAL>) [-reverse]
+Usage: mpequiv [-h] (-logical <size_t LOGICAL>) (-physical <size_t PHYSICAL>) [-reverse]
 
 Description:
   check equivalence of the physical and the logical circuits
 
 Options:
-  size_t  -logical   LOGICAL   logical circuit id                                     
-  size_t  -physical  PHYSICAL  physical circuit id                                    
-  flag    -reverse             check the circuit reversily, used in extracted circuit 
+  flag    -h, --help            show this help message and exit                        
+  size_t  -logical    LOGICAL   logical circuit id                                     
+  size_t  -physical   PHYSICAL  physical circuit id                                    
+  flag    -reverse              check the circuit reversily, used in extracted circuit 
 
 qsyn> mpeq -l 0 -p 1
 Equivalent up to permutation

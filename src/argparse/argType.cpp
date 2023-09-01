@@ -134,4 +134,12 @@ ActionCallbackType help(ArgType<bool>& arg) {
     };
 }
 
+ActionCallbackType version(ArgType<bool>& arg) {
+    arg.markAsVersionAction();
+    arg.nargs(0ul);
+    return [&arg](TokensView) -> bool {
+        return true;
+    };
+}
+
 }  // namespace ArgParse

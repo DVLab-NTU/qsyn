@@ -51,37 +51,18 @@ int main(int argc, char** argv) {
     usage.reset();
 
     signal(SIGINT, [](int signum) -> void { cli.sigintHandler(signum); return; });
-
-    auto parser = ArgumentParser(argv[0]);
+    constexpr auto versionStr = "DV Lab, NTUEE, Qsyn " QSYN_VERSION;
+    auto parser = ArgumentParser(argv[0], {.addHelpAction = true, .addVersionAction = true, .exitOnFailure = true, .version = versionStr});
 
     parser.addArgument<string>("-file")
         .nargs(NArgsOption::ONE_OR_MORE)
         .help("specify the dofile to run, and optionally pass arguments to the dofiles");
-
-    parser.addArgument<bool>("-help")
-        .action(storeTrue)
-        .help("print this help message and exit");
-
-    parser.addArgument<bool>("-version")
-        .action(storeTrue)
-        .help("print the version and exit");
 
     std::vector<std::string> arguments{argv + 1, argv + argc};
 
     if (!parser.parseArgs(arguments)) {
         parser.printUsage();
         return -1;
-    }
-
-    if (parser.parsed("-help")) {
-        parser.printHelp();
-        return 0;
-    }
-
-    cout << "DV Lab, NTUEE, Qsyn " << QSYN_VERSION << endl;
-
-    if (parser.parsed("-version")) {
-        return 0;
     }
 
     if (parser.parsed("-file")) {
@@ -95,6 +76,8 @@ int main(int argc, char** argv) {
             return 1;
         }
     }
+
+    fmt::println("{}", versionStr);
 
     if (
         !initArgParseCmd() ||

@@ -11,6 +11,7 @@
 #include <fmt/core.h>
 
 #include <cerrno>
+#include <cstdio>
 #include <cstring>
 #include <filesystem>
 #include <string>
@@ -23,6 +24,16 @@ using namespace std;
 //----------------------------------------------------------------------
 //    Global functions in util
 //----------------------------------------------------------------------
+#ifndef NDEBUG
+void dvlab::detail::dvlab_assert_impl(const char* expr_str, bool expr, const char* file, int line, const char* msg) {
+    if (!expr) {
+        fprintf(stderr, "Assertion failed:\t%s\n", msg);
+        fprintf(stderr, "Expected:\t%s\n", expr_str);
+        fprintf(stderr, "Source:\t\t%s, line %d\n", file, line);
+        abort();
+    }
+}
+#endif
 
 size_t intPow(size_t base, size_t n) {
     if (n == 0) return 1;

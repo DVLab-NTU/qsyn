@@ -170,7 +170,7 @@ Q 0  -------------------------cz( 4)-- h( 0)-
 Q 1  ---------cz( 5)-- h( 1)-
 Q 2  ---------cz( 5)----------cz( 4)--td( 3)-- h( 2)-
 
-qsyn> extr -zx 1 -qc 1 -h
+qsyn> extr -zx 1 -qc 1 -H
 Note: frontier is dirty, please clean it first.
 
 qsyn> qccp -q

@@ -56,7 +56,7 @@ ArgType<size_t>::ConstraintType validDeviceId = {
 Command dtCheckOutCmd() {
     return {"dtcheckout",
             [](ArgumentParser& parser) {
-                parser.help("checkout to Device <id> in DeviceMgr");
+                parser.description("checkout to Device <id> in DeviceMgr");
 
                 parser.addArgument<size_t>("id")
                     .constraint(validDeviceId)
@@ -71,7 +71,7 @@ Command dtCheckOutCmd() {
 Command dtResetCmd() {
     return {"dtreset",
             [](ArgumentParser& parser) {
-                parser.help("reset DeviceMgr");
+                parser.description("reset DeviceMgr");
             },
             [](ArgumentParser const& parser) {
                 deviceMgr.reset();
@@ -83,7 +83,7 @@ Command dtResetCmd() {
 Command dtDeleteCmd() {
     return {"dtdelete",
             [](ArgumentParser& parser) {
-                parser.help("remove a Device from DeviceMgr");
+                parser.description("remove a Device from DeviceMgr");
 
                 parser.addArgument<size_t>("id")
                     .constraint(validDeviceId)
@@ -98,7 +98,7 @@ Command dtDeleteCmd() {
 Command dtGraphReadCmd() {
     return {"dtgread",
             [](ArgumentParser& parser) {
-                parser.help("read a device topology");
+                parser.description("read a device topology");
 
                 parser.addArgument<string>("filepath")
                     .help("the filepath to device file");
@@ -130,7 +130,7 @@ Command dtGraphReadCmd() {
 Command dtPrintCmd() {
     return {"dtprint",
             [](ArgumentParser& parser) {
-                parser.help("print info about Devices");
+                parser.description("print info about Devices");
 
                 auto mutex = parser.addMutuallyExclusiveGroup();
 
@@ -161,7 +161,7 @@ Command dtGraphPrintCmd() {
     return {"dtgprint",
             deviceMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("print info of device topology");
+                parser.description("print info of device topology");
 
                 auto mutex = parser.addMutuallyExclusiveGroup().required(false);
 

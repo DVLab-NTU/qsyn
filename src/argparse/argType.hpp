@@ -114,6 +114,7 @@ public:
     }
 
     void markAsHelpAction() { _isHelpAction = true; }
+    void markAsVersionAction() { _isVersionAction = true; }
 
 private:
     friend class Argument;
@@ -129,12 +130,12 @@ private:
     ActionCallbackType _actionCallback = nullptr;
     std::vector<ConstraintType> _constraints = {};
     NArgsRange _nargs = {1, 1};
-    size_t _numRequiredChars = 1;
 
     bool _required : 1 = false;
     bool _append : 1 = false;
     bool _parsed : 1 = false;
     bool _isHelpAction : 1 = false;
+    bool _isVersionAction : 1 = false;
 };
 
 // SECTION - On-parse actions for ArgType<T>
@@ -148,8 +149,8 @@ requires ValidArgumentType<T>
 typename ArgType<T>::ActionType storeConst(T const& constValue);
 ActionCallbackType storeTrue(ArgType<bool>& arg);
 ActionCallbackType storeFalse(ArgType<bool>& arg);
-
 ActionCallbackType help(ArgType<bool>& arg);
+ActionCallbackType version(ArgType<bool>& arg);
 
 ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::string> choices);
 extern ArgType<std::string>::ConstraintType const path_readable;
@@ -300,8 +301,8 @@ template <typename T>
 requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConditionType const& condition, ArgType<T>::ErrorType const& onerror) {
     if (condition == nullptr) {
-        fmt::println(stderr, "[ArgParse] Failed to add constraint to argument \"{}\": condition cannot be `nullptr`!!", _name);
-        return *this;
+        fmt::println(stderr, "[ArgParse] Error: failed to add constraint to argument \"{}\": condition cannot be `nullptr`!!", _name);
+        exit(1);
     }
 
     _constraints.emplace_back(

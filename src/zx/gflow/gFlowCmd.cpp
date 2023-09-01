@@ -33,7 +33,7 @@ Command ZXGGFlowCmd() {
     return {"zxggflow",
             zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
-                parser.help("calculate and print the generalized flow of a ZXGraph");
+                parser.description("calculate and print the generalized flow of a ZXGraph");
 
                 auto mutex = parser.addMutuallyExclusiveGroup().required(false);
 

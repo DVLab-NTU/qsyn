@@ -50,7 +50,7 @@ Command helpCmd() {
     return {
         "HELp",
         [](ArgumentParser& parser) {
-            parser.help("shows helping message to commands");
+            parser.description("shows helping message to commands");
 
             parser.addArgument<string>("command")
                 .defaultValue("")
@@ -78,7 +78,7 @@ Command quitCmd() {
     return {
         "QQuit",
         [](ArgumentParser& parser) {
-            parser.help("quit Qsyn");
+            parser.description("quit Qsyn");
 
             parser.addArgument<bool>("-force")
                 .action(storeTrue)
@@ -107,13 +107,13 @@ Command quitCmd() {
 Command historyCmd() {
     return {"history",
             [](ArgumentParser& parser) {
-                parser.help("print command history");
+                parser.description("print command history");
                 parser.addArgument<size_t>("num")
                     .nargs(NArgsOption::OPTIONAL)
                     .help("if specified, print the `num` latest command history");
             },
             [](ArgumentParser const& parser) {
-                if (parser.parsed("nPrint")) {
+                if (parser.parsed("num")) {
                     cli.printHistory(parser.get<size_t>("num"));
                 } else {
                     cli.printHistory();
@@ -125,7 +125,7 @@ Command historyCmd() {
 Command dofileCmd() {
     return {"dofile",
             [](ArgumentParser& parser) {
-                parser.help("execute the commands in the dofile");
+                parser.description("execute the commands in the dofile");
 
                 parser.addArgument<string>("file")
                     .constraint(path_readable)
@@ -154,7 +154,7 @@ Command dofileCmd() {
 Command usageCmd() {
     return {"usage",
             [](ArgumentParser& parser) {
-                parser.help("report the runtime and/or memory usage");
+                parser.description("report the runtime and/or memory usage");
 
                 auto mutex = parser.addMutuallyExclusiveGroup();
 
@@ -186,7 +186,7 @@ Command usageCmd() {
 Command verboseCmd() {
     return {"verbose",
             [](ArgumentParser& parser) {
-                parser.help("set verbose level to 0-9 (default: 3)");
+                parser.description("set verbose level to 0-9 (default: 3)");
 
                 parser.addArgument<size_t>("level")
                     .constraint({[](size_t const& val) {
@@ -211,7 +211,7 @@ Command loggerCmd() {
         "LOGger",
         [](ArgumentParser& parser) {
             vector<string> logLevels = {"none", "fatal", "error", "warning", "info", "debug", "trace"};
-            parser.help("display and set the logger's status");
+            parser.description("display and set the logger's status");
 
             auto parsers = parser.addSubParsers()
                                .help("subcommands for logger");
@@ -238,7 +238,7 @@ Command loggerCmd() {
     cmd.addSubCommand(
         {"test",
          [](ArgumentParser& parser) {
-             parser.help("Test out logger setting");
+             parser.description("Test out logger setting");
          },
          [](ArgumentParser const& parser) {
              using namespace dvlab::utils;
@@ -254,7 +254,7 @@ Command loggerCmd() {
     cmd.addSubCommand(
         {"level",
          [](ArgumentParser& parser) {
-             parser.help("set logger level");
+             parser.description("set logger level");
              parser.addArgument<string>("level")
                  .constraint(choices_allow_prefix(vector<string>{"none", "fatal", "error", "warning", "info", "debug", "trace"}))
                  .help("set log levels. Levels (ascending): None, Fatal, Error, Warning, Info, Debug, Trace");
@@ -271,7 +271,7 @@ Command loggerCmd() {
     cmd.addSubCommand(
         {"history",
          [](ArgumentParser& parser) {
-             parser.help("print logger history");
+             parser.description("print logger history");
              parser.addArgument<size_t>("num_history")
                  .nargs(NArgsOption::OPTIONAL)
                  .metavar("N")
@@ -290,7 +290,7 @@ Command loggerCmd() {
     cmd.addSubCommand(
         {"mask",
          [](ArgumentParser& parser) {
-             parser.help("set logger mask");
+             parser.description("set logger mask");
              parser.setOptionPrefix("+-");
              auto addFilterGroup = [&parser](std::string const& groupName) {
                  auto group = parser.addMutuallyExclusiveGroup();
@@ -335,7 +335,7 @@ Command seedCmd() {
     return {"seed",
 
             [](ArgumentParser& parser) {
-                parser.help("set the random seed");
+                parser.description("set the random seed");
 
                 parser.addArgument<unsigned>("seed")
                     .defaultValue(353)
@@ -353,7 +353,7 @@ Command seedCmd() {
 Command clearCmd() {
     return {"clear",
             [](ArgumentParser& parser) {
-                parser.help("clear the terminal");
+                parser.description("clear the terminal");
             },
 
             [](ArgumentParser const& parser) {
