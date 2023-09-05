@@ -30,10 +30,10 @@ Command duostraSetCmd();
 Command mapEQCmd();
 
 bool initDuostraCmd() {
-    if (!(cli.registerCommand("duostra", 7, duostraCmd()) &&
-          cli.registerCommand("duoset", 6, duostraSetCmd()) &&
-          cli.registerCommand("duoprint", 4, duostraPrintCmd()) &&
-          cli.registerCommand("mpequiv", 4, mapEQCmd()))) {
+    if (!(cli.registerCommand(duostraCmd()) &&
+          cli.registerCommand(duostraSetCmd()) &&
+          cli.registerCommand(duostraPrintCmd()) &&
+          cli.registerCommand(mapEQCmd()))) {
         cerr << "Registering \"Duostra\" commands fails... exiting" << endl;
         return false;
     }

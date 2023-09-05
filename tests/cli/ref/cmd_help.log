@@ -1,6 +1,6 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> help logger
-Usage: LOGger [-h] [test | level | history | mask] ...
+Usage: logger [-h] [test | level | history | mask] ...
 
 Description:
   display and set the logger's status

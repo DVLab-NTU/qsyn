@@ -94,10 +94,13 @@ public:
 
     void clear() { _root = std::make_unique<TrieNode>(); }
     bool insert(std::string const& word);
-    std::optional<std::string> shortestUniquePrefix(std::string const& word) const;
+    bool contains(std::string const& word) const { return frequency(word) > 0; }
+    std::string shortestUniquePrefix(std::string const& word) const;
     size_t frequency(std::string const& word) const;
 
-    std::optional<std::string> findWithPrefix(std::string const& word) const;
+    std::optional<std::string> findWithPrefix(std::string const& prefix) const;
+
+    std::vector<std::string> findAllStringsWithPrefix(std::string const& prefix) const;
 
 private:
     std::unique_ptr<TrieNode> _root;

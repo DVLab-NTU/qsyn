@@ -35,7 +35,13 @@ bool Trie::insert(string const& word) {
     return true;
 }
 
-optional<string> Trie::shortestUniquePrefix(string const& word) const {
+/**
+ * @brief Find the shortest unique prefix of a word in the trie. If the word is not in the trie, return as if it were in the trie.
+ * 
+ * @param word 
+ * @return string 
+ */
+string Trie::shortestUniquePrefix(string const& word) const {
     auto itr = _root.get();
 
     assert(itr != nullptr);
@@ -44,7 +50,7 @@ optional<string> Trie::shortestUniquePrefix(string const& word) const {
     for (auto& ch : word) {
         pos++;
         itr = itr->children[(size_t)ch].get();
-        if (itr == nullptr) return nullopt;
+        if (itr == nullptr) break;
         if (itr->frequency == 1) break;
     }
 
@@ -64,13 +70,13 @@ size_t Trie::frequency(string const& word) const {
     return itr->frequency;
 }
 
-optional<string> Trie::findWithPrefix(string const& word) const {
+optional<string> Trie::findWithPrefix(string const& prefix) const {
     auto itr = _root.get();
 
     assert(itr != nullptr);
     string retStr = "";
 
-    for (auto& ch : word) {
+    for (auto& ch : prefix) {
         itr = itr->children[(size_t)ch].get();
         if (itr == nullptr) return nullopt;
         retStr.push_back(ch);
@@ -87,6 +93,45 @@ optional<string> Trie::findWithPrefix(string const& word) const {
     }
 
     return retStr;
+}
+
+namespace detail {
+
+void findAllStringsWithPrefixHelper(TrieNode const* itr, vector<string>& ret, string& retStr) {
+    if (itr->isWord) ret.push_back(retStr);
+
+#ifndef NDEBUG
+    std::string copy = retStr;
+#endif
+    for (auto& [ch, child] : itr->children) {
+        retStr.push_back(ch);
+        findAllStringsWithPrefixHelper(child.get(), ret, retStr);
+        retStr.pop_back();
+    }
+#ifndef NDEBUG
+    assert(copy == retStr);
+#endif
+}
+
+}
+
+vector<string> Trie::findAllStringsWithPrefix(string const& prefix) const {
+    auto itr = _root.get();
+
+    assert(itr != nullptr);
+    string retStr = "";
+
+    for (auto& ch : prefix) {
+        itr = itr->children[(size_t)ch].get();
+        if (itr == nullptr) return {};
+        retStr.push_back(ch);
+    }
+
+    vector<string> ret;
+
+    detail::findAllStringsWithPrefixHelper(itr, ret, retStr);
+
+    return ret;
 }
 
 }  // namespace utils

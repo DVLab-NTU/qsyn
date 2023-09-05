@@ -196,7 +196,7 @@ Pivot Rule                    1 iterations.
 Identity Removal Rule         1 iterations.
   1) 7 matches
 
-qsyn> zxgt -id
+qsyn> zxgtest -id
 The graph is an identity!
 
 qsyn> qq -f

@@ -44,24 +44,24 @@ Command ZXGWriteCmd();
 Command ZXGAssignCmd();
 
 bool initZXCmd() {
-    if (!(cli.registerCommand("zxcheckout", 4, ZXCHeckoutCmd()) &&
-          cli.registerCommand("zxnew", 3, ZXNewCmd()) &&
-          cli.registerCommand("zxreset", 3, ZXResetCmd()) &&
-          cli.registerCommand("zxdelete", 3, ZXDeleteCmd()) &&
-          cli.registerCommand("zxcopy", 5, ZXCopyCmd()) &&
-          cli.registerCommand("zxcompose", 5, ZXComposeCmd()) &&
-          cli.registerCommand("zxtensor", 3, ZXTensorCmd()) &&
-          cli.registerCommand("zxprint", 3, ZXPrintCmd()) &&
-          cli.registerCommand("zxgprint", 4, ZXGPrintCmd()) &&
-          cli.registerCommand("zxgtest", 4, ZXGTestCmd()) &&
-          cli.registerCommand("zxgedit", 4, ZXGEditCmd()) &&
-          cli.registerCommand("zxgadjoint", 6, ZXGADjointCmd()) &&
-          cli.registerCommand("zxgassign", 5, ZXGAssignCmd()) &&
-          cli.registerCommand("zxgtraverse", 5, ZXGTraverseCmd()) &&
-          cli.registerCommand("zxgdraw", 4, ZXGDrawCmd()) &&
-          cli.registerCommand("zx2ts", 5, ZX2TSCmd()) &&
-          cli.registerCommand("zxgread", 4, ZXGReadCmd()) &&
-          cli.registerCommand("zxgwrite", 4, ZXGWriteCmd()))) {
+    if (!(cli.registerCommand(ZXCHeckoutCmd()) &&
+          cli.registerCommand(ZXNewCmd()) &&
+          cli.registerCommand(ZXResetCmd()) &&
+          cli.registerCommand(ZXDeleteCmd()) &&
+          cli.registerCommand(ZXCopyCmd()) &&
+          cli.registerCommand(ZXComposeCmd()) &&
+          cli.registerCommand(ZXTensorCmd()) &&
+          cli.registerCommand(ZXPrintCmd()) &&
+          cli.registerCommand(ZXGPrintCmd()) &&
+          cli.registerCommand(ZXGTestCmd()) &&
+          cli.registerCommand(ZXGEditCmd()) &&
+          cli.registerCommand(ZXGADjointCmd()) &&
+          cli.registerCommand(ZXGAssignCmd()) &&
+          cli.registerCommand(ZXGTraverseCmd()) &&
+          cli.registerCommand(ZXGDrawCmd()) &&
+          cli.registerCommand(ZX2TSCmd()) &&
+          cli.registerCommand(ZXGReadCmd()) &&
+          cli.registerCommand(ZXGWriteCmd()))) {
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
         return false;
     }

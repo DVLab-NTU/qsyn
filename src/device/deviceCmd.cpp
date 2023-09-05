@@ -33,12 +33,12 @@ bool deviceMgrNotEmpty() {
 }
 
 bool initDeviceCmd() {
-    if (!(cli.registerCommand("dtcheckout", 4, dtCheckOutCmd()) &&
-          cli.registerCommand("dtreset", 3, dtResetCmd()) &&
-          cli.registerCommand("dtdelete", 3, dtDeleteCmd()) &&
-          cli.registerCommand("dtgread", 4, dtGraphReadCmd()) &&
-          cli.registerCommand("dtgprint", 4, dtGraphPrintCmd()) &&
-          cli.registerCommand("dtprint", 3, dtPrintCmd()))) {
+    if (!(cli.registerCommand(dtCheckOutCmd()) &&
+          cli.registerCommand(dtResetCmd()) &&
+          cli.registerCommand(dtDeleteCmd()) &&
+          cli.registerCommand(dtGraphReadCmd()) &&
+          cli.registerCommand(dtGraphPrintCmd()) &&
+          cli.registerCommand(dtPrintCmd()))) {
         logger.fatal("Registering \"device topology\" commands fails... exiting");
         return false;
     }

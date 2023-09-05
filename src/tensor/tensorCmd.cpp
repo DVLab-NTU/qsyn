@@ -28,11 +28,11 @@ Command TensorEquivalenceCmd();
 
 bool initTensorCmd() {
     if (!(
-            cli.registerCommand("tsreset", 3, TensorMgrResetCmd()) &&
-            cli.registerCommand("tsprint", 3, TensorMgrPrintCmd()) &&
-            cli.registerCommand("tsadjoint", 5, TensorAdjointCmd()) &&
-            cli.registerCommand("tstprint", 4, TensorPrintCmd()) &&
-            cli.registerCommand("tsequiv", 4, TensorEquivalenceCmd()))) {
+            cli.registerCommand(TensorMgrResetCmd()) &&
+            cli.registerCommand(TensorMgrPrintCmd()) &&
+            cli.registerCommand(TensorAdjointCmd()) &&
+            cli.registerCommand(TensorPrintCmd()) &&
+            cli.registerCommand(TensorEquivalenceCmd()))) {
         cerr << "Registering \"tensor\" commands fails... exiting" << endl;
         return false;
     }

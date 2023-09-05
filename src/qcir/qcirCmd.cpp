@@ -59,26 +59,26 @@ Command QCirWriteCmd();
 Command QCirDrawCmd();
 
 bool initQCirCmd() {
-    if (!(cli.registerCommand("qccheckout", 4, QCirCheckOutCmd()) &&
-          cli.registerCommand("qcreset", 3, QCirResetCmd()) &&
-          cli.registerCommand("qcdelete", 3, QCirDeleteCmd()) &&
-          cli.registerCommand("qcnew", 3, QCirNewCmd()) &&
-          cli.registerCommand("qccopy", 5, QCirCopyCmd()) &&
-          cli.registerCommand("qccompose", 5, QCirComposeCmd()) &&
-          cli.registerCommand("qctensor", 3, QCirTensorCmd()) &&
-          cli.registerCommand("qcprint", 3, QCPrintCmd()) &&
-          cli.registerCommand("qcset", 3, QCSetCmd()) &&
-          cli.registerCommand("qccread", 4, QCirReadCmd()) &&
-          cli.registerCommand("qccprint", 4, QCirPrintCmd()) &&
-          cli.registerCommand("qcgadd", 4, QCirAddGateCmd()) &&
-          cli.registerCommand("qcbadd", 4, QCirAddQubitCmd()) &&
-          cli.registerCommand("qcgdelete", 4, QCirDeleteGateCmd()) &&
-          cli.registerCommand("qcbdelete", 4, QCirDeleteQubitCmd()) &&
-          cli.registerCommand("qcgprint", 4, QCirGatePrintCmd()) &&
-          cli.registerCommand("qc2zx", 5, QCir2ZXCmd()) &&
-          cli.registerCommand("qc2ts", 5, QCir2TSCmd()) &&
-          cli.registerCommand("qccdraw", 4, QCirDrawCmd()) &&
-          cli.registerCommand("qccwrite", 4, QCirWriteCmd()))) {
+    if (!(cli.registerCommand(QCirCheckOutCmd()) &&
+          cli.registerCommand(QCirResetCmd()) &&
+          cli.registerCommand(QCirDeleteCmd()) &&
+          cli.registerCommand(QCirNewCmd()) &&
+          cli.registerCommand(QCirCopyCmd()) &&
+          cli.registerCommand(QCirComposeCmd()) &&
+          cli.registerCommand(QCirTensorCmd()) &&
+          cli.registerCommand(QCPrintCmd()) &&
+          cli.registerCommand(QCSetCmd()) &&
+          cli.registerCommand(QCirReadCmd()) &&
+          cli.registerCommand(QCirPrintCmd()) &&
+          cli.registerCommand(QCirAddGateCmd()) &&
+          cli.registerCommand(QCirAddQubitCmd()) &&
+          cli.registerCommand(QCirDeleteGateCmd()) &&
+          cli.registerCommand(QCirDeleteQubitCmd()) &&
+          cli.registerCommand(QCirGatePrintCmd()) &&
+          cli.registerCommand(QCir2ZXCmd()) &&
+          cli.registerCommand(QCir2TSCmd()) &&
+          cli.registerCommand(QCirDrawCmd()) &&
+          cli.registerCommand(QCirWriteCmd()))) {
         cerr << "Registering \"qcir\" commands fails... exiting" << endl;
         return false;
     }
@@ -538,7 +538,7 @@ Command QCirAddGateCmd() {
     };
 
     return {
-        "QCGAdd",
+        "qcgadd",
         [=](ArgumentParser& parser) {
             parser.description("add quantum gate");
 

@@ -108,7 +108,7 @@ ArgumentParser& ArgumentParser::numRequiredChars(size_t num) {
 
 size_t ArgumentParser::getArgNumRequiredChars(std::string const& name) const {
     assert(_pimpl->arguments.contains(name) || _pimpl->aliasForwardMap.contains(name));
-    auto nReq = _pimpl->trie.shortestUniquePrefix(name).value().size();
+    auto nReq = _pimpl->trie.shortestUniquePrefix(name).size();
     while (_pimpl->optionPrefix.find_first_of(name[nReq - 1]) != std::string::npos) {
         ++nReq;
     }
@@ -162,7 +162,7 @@ bool ArgumentParser::analyzeOptions() const {
 
     if (_pimpl->subparsers.has_value()) {
         for (auto& [name, parser] : _pimpl->subparsers->getSubParsers()) {
-            size_t prefixSize = _pimpl->trie.shortestUniquePrefix(name).value().size();
+            size_t prefixSize = _pimpl->trie.shortestUniquePrefix(name).size();
             while (!isalpha(name[prefixSize - 1])) ++prefixSize;
             parser.numRequiredChars(max(prefixSize, parser.getNumRequiredChars()));
         }

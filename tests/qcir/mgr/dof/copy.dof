@@ -1,11 +1,11 @@
 qccr benchmark/benchmark_SABRE/small/rd32-v1_68.qasm
 qccp -q
-qccop
+qccopy
 qccp -q
 qccr benchmark/benchmark_SABRE/small/qft_4.qasm
 qc2zx
 qccp -q
-qccop 0 -r
+qccopy 0 -r
 qccp -q
 qc2zx
 zxgp -v
@@ -48,7 +48,7 @@ qcgd 8
 qcgd 7
 qcbd 1
 qccp -q
-qccop
+qccopy
 qcba
 qccp -q
 qcga -pr cx 0 4

@@ -31,10 +31,10 @@ Command ExtractPrintCmd();
 Command ExtractStepCmd();
 
 bool initExtractCmd() {
-    if (!(cli.registerCommand("zx2qc", 5, ExtractCmd()) &&
-          cli.registerCommand("extract", 4, ExtractStepCmd()) &&
-          cli.registerCommand("extset", 4, ExtractSetCmd()) &&
-          cli.registerCommand("extprint", 4, ExtractPrintCmd()))) {
+    if (!(cli.registerCommand(ExtractCmd()) &&
+          cli.registerCommand(ExtractStepCmd()) &&
+          cli.registerCommand(ExtractSetCmd()) &&
+          cli.registerCommand(ExtractPrintCmd()))) {
         cerr << "Registering \"extract\" commands fails... exiting" << endl;
         return false;
     }

@@ -25,7 +25,7 @@ using namespace ArgParse;
 Command argparseCmd();
 
 bool initArgParseCmd() {
-    if (!(cli.registerCommand("argparse", 1, argparseCmd()))) {
+    if (!(cli.registerCommand(argparseCmd()))) {
         fmt::println(stderr, "Registering \"argparse\" commands fails... exiting");
         return false;
     }

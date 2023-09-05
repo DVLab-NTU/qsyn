@@ -14,6 +14,7 @@
 #include <queue>
 #include <stack>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -59,12 +60,10 @@ public:
 
     bool initialize(size_t numRequiredChars);
     CmdExecResult exec(std::string const& option);
+    std::string const& getName() const { return _parser.getName(); }
     void usage() const { _parser.printUsage(); }
     void summary() const { _parser.printSummary(); }
     void help() const { _parser.printHelp(); }
-    void setOptCmd(const std::string& str) { _optCmd = str; }
-    bool checkOptCmd(const std::string& check) const;
-    const std::string& getOptCmd() const { return _optCmd; }
 
     void addSubCommand(Command const& cmd);
 
@@ -72,7 +71,6 @@ private:
     ParserDefinition _parserDefinition;  // define the parser's arguments and traits
     OnParseSuccess _onParseSuccess;      // define the action to take on parse success
     ArgParse::ArgumentParser _parser;
-    std::string _optCmd;
 
     void printMissingParserDefinitionErrorMsg() const;
     void printMissingOnParseSuccessErrorMsg() const;
@@ -102,7 +100,8 @@ public:
     bool openDofile(const std::string& filepath);
     void closeDofile();
 
-    bool registerCommand(const std::string& name, unsigned nMandChars, Command cmd);
+    bool registerCommand(Command cmd);
+    bool registerAlias(const std::string& alias, const std::string& cmd);
     Command* getCommand(std::string const& cmd) const;
 
     CmdExecResult executeOneLine();
@@ -149,7 +148,6 @@ private:
     TabActionResult matchFiles(std::string const& str);
 
     // helper functions
-    std::pair<CmdMap::const_iterator, CmdMap::const_iterator> getCommandMatches(std::string const& str) const;
     std::vector<std::string> getFileMatches(std::filesystem::path const& filepath) const;
     bool autocomplete(std::string prefixCopy, std::vector<std::string> const& strs, bool inQuotes);
     void printAsTable(std::vector<std::string> words) const;
@@ -190,4 +188,6 @@ private:
     std::queue<std::string> _commandQueue;
     std::optional<jthread::jthread> _currCmd = std::nullopt;  // the current (ongoing) command
     std::unordered_map<std::string, std::string> _variables;  // stores the variables key-value pairs, e.g., $1, $INPUT_FILE, etc...
+    dvlab::utils::Trie _identifiers;
+    std::unordered_map<std::string, std::string> _aliases;
 };

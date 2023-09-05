@@ -26,9 +26,9 @@ duostra        : map logical circuit to physical circuit
 extprint       : print info of extracting ZXGraph
 extract        : perform step(s) in extraction
 extset         : set extractor parameters
-HELp           : shows helping message to commands
+help           : shows helping message to commands
 history        : print command history
-LOGger         : display and set the logger's status
+logger         : display and set the logger's status
 mpequiv        : check equivalence of the physical and the logical circuits
 qc2ts          : convert QCir to tensor
 qc2zx          : convert QCir to ZXGraph
@@ -37,13 +37,13 @@ qcbdelete      : delete qubit
 qccdraw        : draw a QCir. This command relies on qiskit and pdflatex to be present in the system
 qccheckout     : checkout to QCir <id> in QCirMgr
 qccompose      : compose a QCir
-qccopy         : copy a QCir to QCirMgr
 qccoptimize    : optimize QCir
+qccopy         : copy a QCir to QCirMgr
 qccprint       : print info of QCir
 qccread        : read a circuit and construct the corresponding netlist
 qccwrite       : write QCir to a QASM file
 qcdelete       : remove a QCir from QCirMgr
-QCGAdd         : add quantum gate
+qcgadd         : add quantum gate
 qcgdelete      : delete gate
 qcgprint       : print gate info in QCir
 qcnew          : create a new QCir to QCirMgr
@@ -51,7 +51,7 @@ qcprint        : print info about QCirs or settings
 qcreset        : reset QCirMgr
 qcset          : set QCir parameters
 qctensor       : tensor a QCir
-QQuit          : quit Qsyn
+qquit          : quit Qsyn
 seed           : set the random seed
 tsadjoint      : adjoint the specified tensor
 tsequiv        : check the equivalency of two stored tensors
@@ -113,7 +113,7 @@ qsyn> dofile tests/cli/helper/param_dof_kw qquit dofile
 
 qsyn> //!ARGS input1 input2
 qsyn> help ${input1} // print help message of qquit
-Usage: QQuit [-h] [-force]
+Usage: qquit [-h] [-force]
 
 Description:
   quit Qsyn
@@ -136,7 +136,7 @@ Options:
   flag  -h, --help    show this help message and exit 
 
 qsyn> help $1        // print help message of qquit
-Usage: QQuit [-h] [-force]
+Usage: qquit [-h] [-force]
 
 Description:
   quit Qsyn

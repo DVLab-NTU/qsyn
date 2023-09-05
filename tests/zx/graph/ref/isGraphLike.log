@@ -93,7 +93,7 @@ ID:  84 (H, π)           (Qubit, Col): (3, 17)	  #Neighbors:   2     (7, -) (83
 Total #Vertices: 85
 
 
-qsyn> zxgt -gl
+qsyn> zxgtest -gl
 The graph is not graph-like!
 
 qsyn> zxgsimp -fr
@@ -126,7 +126,7 @@ Local Complementation Rule    2 iterations.
   1) 1 matches
   2) 1 matches
 
-qsyn> zxgt -gl
+qsyn> zxgtest -gl
 The graph is graph-like!
 
 qsyn> qq -f

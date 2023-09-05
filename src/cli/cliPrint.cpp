@@ -15,8 +15,8 @@ using namespace std;
  *
  */
 void CommandLineInterface::listAllCommands() const {
-    for (const auto& mi : _cmdMap)
-        mi.second->summary();
+    for (const auto& cmd : _cmdMap | std::views::values)
+        cmd->summary();
 
     fmt::print("\n");
 }

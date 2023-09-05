@@ -31,15 +31,15 @@ Command clearCmd();
 Command loggerCmd();
 
 bool initCommonCmd() {
-    if (!(cli.registerCommand("qquit", 2, quitCmd()) &&
-          cli.registerCommand("history", 3, historyCmd()) &&
-          cli.registerCommand("help", 3, helpCmd()) &&
-          cli.registerCommand("dofile", 2, dofileCmd()) &&
-          cli.registerCommand("usage", 5, usageCmd()) &&
-          cli.registerCommand("verbose", 3, verboseCmd()) &&
-          cli.registerCommand("seed", 4, seedCmd()) &&
-          cli.registerCommand("clear", 5, clearCmd()) &&
-          cli.registerCommand("logger", 3, loggerCmd()))) {
+    if (!(cli.registerCommand(quitCmd()) &&
+          cli.registerCommand(historyCmd()) &&
+          cli.registerCommand(helpCmd()) &&
+          cli.registerCommand(dofileCmd()) &&
+          cli.registerCommand(usageCmd()) &&
+          cli.registerCommand(verboseCmd()) &&
+          cli.registerCommand(seedCmd()) &&
+          cli.registerCommand(clearCmd()) &&
+          cli.registerCommand(loggerCmd()))) {
         logger.fatal("Registering \"cli\" commands fails... exiting");
         return false;
     }
@@ -48,7 +48,7 @@ bool initCommonCmd() {
 
 Command helpCmd() {
     return {
-        "HELp",
+        "help",
         [](ArgumentParser& parser) {
             parser.description("shows helping message to commands");
 
@@ -76,7 +76,7 @@ Command helpCmd() {
 
 Command quitCmd() {
     return {
-        "QQuit",
+        "qquit",
         [](ArgumentParser& parser) {
             parser.description("quit Qsyn");
 
@@ -207,7 +207,7 @@ Command verboseCmd() {
 
 Command loggerCmd() {
     Command cmd{
-        "LOGger",
+        "logger",
         [](ArgumentParser& parser) {
             vector<string> logLevels = {"none", "fatal", "error", "warning", "info", "debug", "trace"};
             parser.description("display and set the logger's status");

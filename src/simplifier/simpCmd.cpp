@@ -22,7 +22,7 @@ extern ZXGraphMgr zxGraphMgr;
 Command ZXGSimpCmd();
 
 bool initSimpCmd() {
-    if (!cli.registerCommand("zxgsimp", 4, ZXGSimpCmd())) {
+    if (!cli.registerCommand(ZXGSimpCmd())) {
         cerr << "Registering \"zx\" commands fails... exiting" << endl;
         return false;
     }

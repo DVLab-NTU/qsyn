@@ -70,36 +70,23 @@ void CommandLineInterface::closeDofile() {
  * @return true
  * @return false
  */
-bool CommandLineInterface::registerCommand(const string& name, unsigned nReqChars, Command cmd) {
+bool CommandLineInterface::registerCommand(Command cmd) {
     // Make sure cmd hasn't been registered and won't cause ambiguity
-    string str = name;
-    unsigned s = str.size();
-    if (s < nReqChars) {
-        logger.error("Command name `{}` is shorter than number of required characters ({})!!", name, nReqChars);
-        return false;
-    }
-    while (true) {
-        if (getCommand(str)) {
-            logger.error("Command name `{}` conflicts with existing command `{}`!!", name, str);
-            return false;
-        }
-        if (s == nReqChars) break;
-        str.resize(--s);
-    }
-
+    auto name = cmd.getName();
+    auto nReqChars = _identifiers.shortestUniquePrefix(cmd.getName()).size();
     if (!cmd.initialize(nReqChars)) {
         logger.error("Failed to initialize command `{}`!!", name);
         return false;
     }
 
-    assert(str.size() == nReqChars);  // str is now mandCmd
-    string& mandCmd = str;
+    if (_cmdMap.contains(name) || _identifiers.contains(name)) {
+        logger.error("Command name `{}` conflicts with existing commands or aliases!!", name);
+        return false;
+    }
+    _identifiers.insert(name);
+    _cmdMap.emplace(name, std::make_unique<Command>(std::move(cmd)));
 
-    string optCmd = name.substr(nReqChars);
-    cmd.setOptCmd(optCmd);
-
-    // insert (mandCmd, e) to _cmdMap; return false if insertion fails.
-    return (_cmdMap.emplace(mandCmd, std::make_unique<Command>(std::move(cmd)))).second;
+    return true;
 }
 
 /**
@@ -281,33 +268,10 @@ Command* CommandLineInterface::getCommand(string const& cmd) const {
 
     std::string copy = cmd;
 
-    for (unsigned i = 0; i < copy.size(); ++i) {
-        string check = copy.substr(0, i + 1);
-        if (_cmdMap.find(check) != _cmdMap.end())
-            e = _cmdMap.at(check).get();
-        if (e != nullptr) {
-            string optCheck = cmd.substr(i + 1);
-            if (e->checkOptCmd(optCheck))
-                return e;  // match found!!
-            else
-                e = nullptr;
-        }
-    }
-    return e;
-}
+    auto match = _identifiers.findWithPrefix(cmd);
+    if (match.has_value()) {
+        return _cmdMap.at(*match).get();
+    } 
 
-/**
- * @brief return if `check` is a prefix of `_optCmd`. This command performs case-insensitive checks.
- *
- * @param check
- * @return true
- * @return false
- */
-bool Command::checkOptCmd(const string& check) const {
-    if (check.size() > _optCmd.size()) return false;
-    for (unsigned i = 0, n = _optCmd.size(); i < n; ++i) {
-        if (!check[i]) return true;
-        if (tolower(_optCmd[i]) != tolower(check[i])) return false;
-    }
-    return true;
+    return nullptr;
 }

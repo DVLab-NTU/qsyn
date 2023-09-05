@@ -6,5 +6,5 @@ zxgs -preduce 4
 zxgadjoint 
 zxcompose 0
 zxgs -freduce
-zxgt -id
+zxgtest -id
 qq -f

@@ -14,7 +14,7 @@ zxgs -fr
 zxgp -q
 qccp
 qccp -q
-zxgt -id
+zxgtest -id
 qc2ts
 tseq 0 1
 qq -f

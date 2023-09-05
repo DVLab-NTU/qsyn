@@ -5,5 +5,5 @@ zxgs -dreduce
 zxgadjoint 
 zxcompose 0
 zxgs -freduce
-zxgt -id
+zxgtest -id
 qq -f

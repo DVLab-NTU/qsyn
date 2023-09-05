@@ -22,7 +22,7 @@ extern ZXGraphMgr zxGraphMgr;
 Command ZXGGFlowCmd();
 
 bool initGFlowCmd() {
-    if (!cli.registerCommand("zxggflow", 5, ZXGGFlowCmd())) {
+    if (!cli.registerCommand(ZXGGFlowCmd())) {
         cerr << "Registering \"gflow\" commands fails... exiting" << endl;
         return false;
     }

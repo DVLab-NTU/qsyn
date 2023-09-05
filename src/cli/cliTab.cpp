@@ -6,6 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <ranges>
 #include <fmt/std.h>
 
 #include <filesystem>
@@ -68,60 +69,30 @@ void CommandLineInterface::onTabPressed() {
 CommandLineInterface::TabActionResult CommandLineInterface::matchCommandsAndAliases(std::string const& str) {
     _tabPressCount = 0;
 
-    auto [matchBegin, matchEnd] = getCommandMatches(str);
+    auto matches = _identifiers.findAllStringsWithPrefix(str);
 
-    // [case 4] no matching cmd in the first word
-    if (matchBegin == matchEnd) {
+    std::ranges::sort(matches);
+
+    // [case 4] no matching cmd/alias in the first word
+    if (matches.empty()) {
         beep();
         return NO_OP;
     }
 
     // cases 1, 2, 3 go here
     // [case 3] single command; insert ' '
-    if (std::next(matchBegin) == matchEnd) {
-        string ss = matchBegin->first + matchBegin->second->getOptCmd();
-        for (size_t i = str.size(); i < ss.size(); ++i)
-            insertChar(ss[i]);
+    if (matches.size() == 1) {
+        for (size_t i = str.size(); i < matches[0].size(); ++i)
+            insertChar(matches[0][i]);
         insertChar(' ');
         return AUTOCOMPLETE;
     }
 
     // [case 1, 2] multiple matches
-    vector<string> words;
-
-    for (auto itr = matchBegin; itr != matchEnd; ++itr) {
-        auto const& [mand, cmd] = *itr;
-        words.emplace_back(mand + cmd->getOptCmd());
-    }
-
-    printAsTable(words);
+    printAsTable(matches);
     reprintCommand();
 
     return LIST_OPTIONS;
-}
-
-std::pair<CommandLineInterface::CmdMap::const_iterator, CommandLineInterface::CmdMap::const_iterator>
-CommandLineInterface::getCommandMatches(string const& cmd) const {
-    // all cmds
-    if (cmd.empty()) return {_cmdMap.begin(), _cmdMap.end()};
-
-    // singly matched
-    if (getCommand(cmd)) {  // cmd is enough to determine a single cmd
-        auto [bi, ei] = _cmdMap.equal_range(cmd);
-        if (!_cmdMap.contains(cmd)) {
-            --bi;
-        }
-        return {bi, ei};
-    }
-
-    // multiple matches / no matches
-    string cmdNext = cmd;
-    cmdNext.back()++;
-
-    auto bi = _cmdMap.lower_bound(cmd);
-    auto ei = _cmdMap.lower_bound(cmdNext);
-
-    return {bi, ei};
 }
 
 CommandLineInterface::TabActionResult CommandLineInterface::matchVariables(std::string const& str) {

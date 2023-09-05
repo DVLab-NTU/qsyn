@@ -24,7 +24,7 @@ extern bool stop_requested();
 Command QCirOptimizeCmd();
 
 bool initOptimizeCmd() {
-    if (!(cli.registerCommand("qccoptimize", 6, QCirOptimizeCmd()))) {
+    if (!(cli.registerCommand(QCirOptimizeCmd()))) {
         logger.fatal("Registering \"optimize\" commands fails... exiting");
         return false;
     }
