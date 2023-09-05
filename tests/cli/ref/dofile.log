@@ -11,6 +11,7 @@ qsyn> dofile tests/cli/helper/param_dof
 
 qsyn> // placeholder
 qsyn> help $1 // should print all help messages
+alias          : alias a command to another name
 argparse       : ArgParse package sandbox
 clear          : clear the terminal
 dofile         : execute the commands in the dofile

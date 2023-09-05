@@ -67,7 +67,6 @@ CmdExecResult Command::execute(const std::string& option) {
         return CmdExecResult::ERROR;
     }
 
-    std::atomic<CmdExecResult> result{CmdExecResult::DONE};
     return _onParseSuccess(_parser);
 }
 

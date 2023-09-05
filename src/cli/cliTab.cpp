@@ -43,7 +43,7 @@ void CommandLineInterface::onTabPressed() {
     // [case 5] Singly matched on first tab
     if (cmd != nullptr && _tabPressCount == 1) {
         fmt::print("\n");
-        cmd->usage();
+        cmd->printUsage();
         reprintCommand();
 
         return;

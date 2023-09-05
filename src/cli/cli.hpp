@@ -62,9 +62,11 @@ public:
     bool initialize(size_t numRequiredChars);
     CmdExecResult execute(std::string const& option);
     std::string const& getName() const { return _parser.getName(); }
-    void usage() const { _parser.printUsage(); }
-    void summary() const { _parser.printSummary(); }
-    void help() const { _parser.printHelp(); }
+    size_t getNumRequiredChars() const { return _parser.getNumRequiredChars(); }
+    void setNumRequiredChars(size_t numRequiredChars) { _parser.numRequiredChars(numRequiredChars); }
+    void printUsage() const { _parser.printUsage(); }
+    void printSummary() const { _parser.printSummary(); }
+    void printHelp() const { _parser.printHelp(); }
 
     void addSubCommand(Command const& cmd);
 
@@ -85,8 +87,8 @@ class CommandLineInterface {
     static constexpr size_t READ_BUF_SIZE = 65536;
     static constexpr size_t PG_OFFSET = 10;
 
-    using CmdMap = std::map<const std::string, std::unique_ptr<Command>>;
-    using CmdRegPair = std::pair<const std::string, std::unique_ptr<Command>>;
+    using CmdMap = std::unordered_map<std::string, std::unique_ptr<Command>>;
+    using CmdRegPair = std::pair<std::string, std::unique_ptr<Command>>;
 
 public:
     /**
@@ -102,7 +104,8 @@ public:
     void closeDofile();
 
     bool registerCommand(Command cmd);
-    bool registerAlias(const std::string& alias, const std::string& cmd);
+    bool registerAlias(const std::string& alias, const std::string& replaceStr);
+    bool deleteAlias(const std::string& alias);
     Command* getCommand(std::string const& cmd) const;
 
     CmdExecResult executeOneLine();
@@ -184,7 +187,7 @@ private:
                                              // will be stored in _history and
                                              // _tempCmdStored will be true.
                                              // Reset to false when new command added
-    CmdMap _cmdMap;                          // map from string to command
+    CmdMap _commands;                        // map from string to command
     std::stack<std::ifstream> _dofileStack;  // For recursive dofile calling
     std::queue<std::string> _commandQueue;
     std::optional<jthread::jthread> _currCmd = std::nullopt;  // the current (ongoing) command

@@ -94,9 +94,11 @@ public:
 
     void clear() { _root = std::make_unique<TrieNode>(); }
     bool insert(std::string const& word);
-    bool contains(std::string const& word) const { return frequency(word) > 0; }
+    bool erase(std::string const& word);
+    bool contains(std::string const& word) const;
+    bool empty() const { return _root->children.empty(); }
     std::string shortestUniquePrefix(std::string const& word) const;
-    size_t frequency(std::string const& word) const;
+    size_t frequency(std::string const& prefix) const;
 
     std::optional<std::string> findWithPrefix(std::string const& prefix) const;
 

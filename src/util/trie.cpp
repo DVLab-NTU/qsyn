@@ -23,16 +23,62 @@ bool Trie::insert(string const& word) {
 
     for (auto& ch : word) {
         size_t idx = ch;
-        if (itr->children[idx].get() == nullptr) {
-            itr->children[idx] = make_unique<TrieNode>();
+        if (!itr->children.contains(idx)) {
+            itr->children.emplace(idx, make_unique<TrieNode>());
         }
-        itr = itr->children[idx].get();
+        itr = itr->children.at(idx).get();
         itr->frequency++;
     }
     if (itr->isWord) return false;
 
     itr->isWord = true;
     return true;
+}
+
+bool Trie::erase(std::string const& word) {
+    if (!contains(word)) return false;
+    auto itr = _root.get();
+
+    assert(itr != nullptr);
+    for (auto& ch : word) {
+        size_t idx = ch;
+        itr = itr->children.at(idx).get();
+        assert(itr != nullptr);
+        itr->frequency--;
+    }
+
+    assert(itr->isWord);
+
+    itr->isWord = false;
+
+    itr = _root.get();
+
+    for (auto& ch : word) {
+        size_t idx = ch;
+        if (itr->children.at(idx)->frequency == 0) {
+            itr->children.erase(idx);
+            break;
+        }
+        itr = itr->children.at(idx).get();
+        assert(itr != nullptr);
+    }
+
+    return true;
+}
+
+bool Trie::contains(std::string const& word) const {
+    auto itr = _root.get();
+
+    assert(itr != nullptr);
+
+    for (auto& ch : word) {
+        size_t idx = ch;
+        if (!itr->children.contains(idx)) return false;
+        itr = itr->children.at(idx).get();
+        assert(itr != nullptr);
+    }
+
+    return itr->isWord;
 }
 
 /**
@@ -49,22 +95,26 @@ string Trie::shortestUniquePrefix(string const& word) const {
     size_t pos = 0;
     for (auto& ch : word) {
         pos++;
-        itr = itr->children[(size_t)ch].get();
-        if (itr == nullptr) break;
+        size_t idx = ch;
+        if (!itr->children.contains(idx)) break;
+        itr = itr->children.at(idx).get();
+        assert(itr != nullptr);
         if (itr->frequency == 1) break;
     }
 
     return word.substr(0, pos);
 }
 
-size_t Trie::frequency(string const& word) const {
+size_t Trie::frequency(string const& prefix) const {
     auto itr = _root.get();
 
     assert(itr != nullptr);
 
-    for (auto& ch : word) {
-        itr = itr->children[(size_t)ch].get();
-        if (itr == nullptr) return 0;
+    for (auto& ch : prefix) {
+        size_t idx = ch;
+        if (!itr->children.contains(idx)) return 0;
+        itr = itr->children.at(idx).get();
+        assert(itr != nullptr);
     }
 
     return itr->frequency;
@@ -77,8 +127,10 @@ optional<string> Trie::findWithPrefix(string const& prefix) const {
     string retStr = "";
 
     for (auto& ch : prefix) {
-        itr = itr->children[(size_t)ch].get();
-        if (itr == nullptr) return nullopt;
+        size_t idx = ch;
+        if (!itr->children.contains(idx)) return nullopt;
+        itr = itr->children.at(idx).get();
+        assert(itr != nullptr);
         retStr.push_back(ch);
     }
 
@@ -122,8 +174,10 @@ vector<string> Trie::findAllStringsWithPrefix(string const& prefix) const {
     string retStr = "";
 
     for (auto& ch : prefix) {
-        itr = itr->children[(size_t)ch].get();
-        if (itr == nullptr) return {};
+        size_t idx = ch;
+        if (!itr->children.contains(idx)) return {};
+        itr = itr->children.at(idx).get();
+        assert(itr != nullptr);
         retStr.push_back(ch);
     }
 

@@ -206,15 +206,12 @@ bool ArgumentParser::tokenize(string const& line) {
 
     // convert "abc=def", "abc:def" to "abc def"
 
-    size_t nTokens = _pimpl->tokens.size();
-    for (auto tokenItr = _pimpl->tokens.begin(); tokenItr != _pimpl->tokens.end(); ++tokenItr) {
-        string& currToken = tokenItr->token;
-        size_t pos = currToken.find_first_of("=:");
+    for (auto i = 0; i < _pimpl->tokens.size(); ++i) {
+        size_t pos = _pimpl->tokens[i].token.find_first_of("=:");
 
         if (pos != string::npos && pos != 0) {
-            _pimpl->tokens.emplace(std::next(tokenItr), currToken.substr(pos + 1));
-            nTokens++;
-            currToken = currToken.substr(0, pos);
+            _pimpl->tokens.emplace(std::next(_pimpl->tokens.begin(), i + 1), _pimpl->tokens[i].token.substr(pos + 1));
+            _pimpl->tokens[i].token = _pimpl->tokens[i].token.substr(0, pos);
         }
     }
 

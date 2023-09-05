@@ -79,12 +79,61 @@ bool CommandLineInterface::registerCommand(Command cmd) {
         return false;
     }
 
-    if (_cmdMap.contains(name) || _identifiers.contains(name)) {
+    if (_identifiers.contains(name)) {
         logger.error("Command name `{}` conflicts with existing commands or aliases!!", name);
         return false;
     }
     _identifiers.insert(name);
-    _cmdMap.emplace(name, std::make_unique<Command>(std::move(cmd)));
+    _commands.emplace(name, std::make_unique<Command>(std::move(cmd)));
+
+    for (auto& [name, c] : _commands) {
+        if (auto nReq = _identifiers.shortestUniquePrefix(name).size(); nReq != c->getNumRequiredChars()) {
+            c->setNumRequiredChars(nReq);
+        }
+    }
+    return true;
+}
+
+bool CommandLineInterface::registerAlias(const std::string& alias, const std::string& replaceStr) {
+    if (_identifiers.contains(alias)) {
+        logger.error("Alias `{}` conflicts with existing commands or aliases!!", alias);
+        return false;
+    }
+
+    string firstToken;
+    size_t n = myStrGetTok(replaceStr, firstToken);
+    if (auto freq = _identifiers.frequency(firstToken); freq != 1) {
+        if (freq > 1) {
+            logger.error("Ambiguous command or alias `{}`!!", firstToken);
+        } else {
+            logger.error("Unknown command or alias `{}`!!", firstToken);
+        }
+        return false;
+    }
+
+    _identifiers.insert(alias);
+    _aliases.emplace(alias, replaceStr);
+
+    for (auto& [name, c] : _commands) {
+        if (auto nReq = _identifiers.shortestUniquePrefix(name).size(); nReq != c->getNumRequiredChars()) {
+            c->setNumRequiredChars(nReq);
+        }
+    }
+
+    return true;
+}
+
+bool CommandLineInterface::deleteAlias(const std::string& alias) {
+    if (!_identifiers.erase(alias)) {
+        return false;
+    }
+    auto n = _aliases.erase(alias);
+
+    for (auto& [name, c] : _commands) {
+        if (auto nReq = _identifiers.shortestUniquePrefix(name).size(); nReq != c->getNumRequiredChars()) {
+            c->setNumRequiredChars(nReq);
+        }
+    }
 
     return true;
 }
@@ -164,13 +213,17 @@ CommandLineInterface::parseOneCommandFromQueue() {
 
     assert(buffer[0] != '\0' && buffer[0] != ' ');
 
-    string cmd;
+    string firstToken;
+    string option;
 
-    size_t n = myStrGetTok(buffer, cmd);
+    size_t n = myStrGetTok(buffer, firstToken);
+    if (n != string::npos) {
+        option = buffer.substr(n);
+    }
 
-    if (auto pos = cmd.find_first_of('='); pos != string::npos && pos != 0) {
-        string var_key = cmd.substr(0, pos);
-        string var_val = cmd.substr(pos + 1);
+    if (auto pos = firstToken.find_first_of('='); pos != string::npos && pos != 0) {
+        string var_key = firstToken.substr(0, pos);
+        string var_val = firstToken.substr(pos + 1);
         if (var_val.empty()) {
             logger.error("variable `{}` is not assigned a value!!", var_key);
             return {nullptr, ""};
@@ -179,16 +232,42 @@ CommandLineInterface::parseOneCommandFromQueue() {
         return {nullptr, ""};
     }
 
-    Command* command = getCommand(cmd);
-
-    if (!command) {
-        logger.error("Illegal command!! ({})", cmd);
+    if (auto freq = _identifiers.frequency(firstToken); freq != 1) {
+        if (freq > 1) {
+            logger.error("Ambiguous command or alias `{}`!!", firstToken);
+        } else {
+            logger.error("Unknown command or alias `{}`!!", firstToken);
+        }
         return {nullptr, ""};
     }
 
-    string option;
-    if (n != string::npos) {
-        option = buffer.substr(n);
+    auto identifier = _identifiers.findWithPrefix(firstToken);
+    if (!identifier.has_value()) {
+        if (_identifiers.frequency(firstToken) > 0) {
+            logger.error("Ambiguous command or alias `{}`!!", firstToken);
+        } else {
+            logger.error("Unknown command or alias `{}`!!", firstToken);
+        }
+        return {nullptr, ""};
+    }
+    assert(_commands.contains(*identifier) || _aliases.contains(*identifier));
+
+    if (_aliases.contains(*identifier)) {
+        auto alias = _aliases.at(*identifier);
+        size_t pos = myStrGetTok(alias, firstToken);
+        if (pos != string::npos) {
+            option = alias.substr(pos) + " " + option;
+            firstToken = alias.substr(0, pos);
+        } else {
+            firstToken = alias;
+        }
+    }
+
+    Command* command = getCommand(firstToken);
+
+    if (!command) {
+        logger.error("Illegal command!! ({})", firstToken);
+        return {nullptr, ""};
     }
 
     return {command, option};
@@ -270,7 +349,7 @@ Command* CommandLineInterface::getCommand(string const& cmd) const {
 
     auto match = _identifiers.findWithPrefix(cmd);
     if (match.has_value()) {
-        return _cmdMap.at(*match).get();
+        return _commands.at(*match).get();
     }
 
     return nullptr;

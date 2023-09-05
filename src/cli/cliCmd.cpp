@@ -11,6 +11,7 @@
 
 #include "argparse/argGroup.hpp"
 #include "cli/cli.hpp"
+#include "fmt/color.h"
 #include "util/usage.hpp"
 #include "util/util.hpp"
 
@@ -20,6 +21,7 @@ extern dvlab::utils::Usage usage;
 
 using namespace ArgParse;
 
+Command aliasCmd();
 Command helpCmd();
 Command quitCmd();
 Command dofileCmd();
@@ -31,7 +33,8 @@ Command clearCmd();
 Command loggerCmd();
 
 bool initCommonCmd() {
-    if (!(cli.registerCommand(quitCmd()) &&
+    if (!(cli.registerCommand(aliasCmd()) &&
+          cli.registerCommand(quitCmd()) &&
           cli.registerCommand(historyCmd()) &&
           cli.registerCommand(helpCmd()) &&
           cli.registerCommand(dofileCmd()) &&
@@ -44,6 +47,52 @@ bool initCommonCmd() {
         return false;
     }
     return true;
+}
+
+Command aliasCmd() {
+    return {
+        "alias",
+        [](ArgumentParser& parser) {
+            parser.description("alias a command to another name");
+
+            parser.addArgument<string>("alias")
+                .required(false)
+                .help("the alias to add");
+
+            parser.addArgument<string>("replace-str")
+                .required(false)
+                .help("the string to alias to");
+
+            parser.addArgument<string>("-d", "--delete")
+                .metavar("alias")
+                .help("delete the alias");
+        },
+
+        [](ArgumentParser const& parser) {
+            if (parser.parsed("-d")) {
+                if (parser.parsed("alias") || parser.parsed("replace-str")) {
+                    fmt::println(stderr, "Error: cannot specify alias and replace-str when deleting alias!!");
+                    return CmdExecResult::ERROR;
+                }
+                if (!cli.deleteAlias(parser.get<string>("-d"))) {
+                    return CmdExecResult::ERROR;
+                }
+                return CmdExecResult::DONE;
+            }
+
+            auto alias = parser.get<string>("alias");
+            auto replaceStr = parser.get<string>("replace-str");
+
+            if (std::ranges::any_of(alias, [](char ch) { return isspace(ch); })) {
+                fmt::println(stderr, "Error: alias cannot contain whitespaces!!");
+                return CmdExecResult::ERROR;
+            }
+            if (cli.registerAlias(alias, replaceStr)) {
+                return CmdExecResult::ERROR;
+            }
+
+            return CmdExecResult::DONE;
+        }};
 }
 
 Command helpCmd() {
@@ -68,7 +117,7 @@ Command helpCmd() {
                     fmt::println(stderr, "Error: illegal command!! ({})", command);
                     return CmdExecResult::ERROR;
                 }
-                e->help();
+                e->printHelp();
             }
             return CmdExecResult::DONE;
         }};

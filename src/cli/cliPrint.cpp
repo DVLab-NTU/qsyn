@@ -6,6 +6,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <ranges>
+
 #include "./cli.hpp"
 
 using namespace std;
@@ -15,10 +17,13 @@ using namespace std;
  *
  */
 void CommandLineInterface::listAllCommands() const {
-    for (const auto& cmd : _cmdMap | std::views::values)
-        cmd->summary();
+    auto cmdRange = _commands | std::views::keys;
+    std::vector<std::string> cmdVec(cmdRange.begin(), cmdRange.end());
+    std::ranges::sort(cmdVec);
+    for (const auto& cmd : cmdVec)
+        _commands.at(cmd)->printSummary();
 
-    fmt::print("\n");
+    fmt::println("");
 }
 
 /**
