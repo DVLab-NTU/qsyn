@@ -26,8 +26,8 @@ class ArgumentParser;
 class MutuallyExclusiveGroup {
     struct MutExGroupImpl {
         MutExGroupImpl(ArgumentParser& parser)
-            : _parser{parser}, _required{false}, _parsed{false} {}
-        ArgumentParser& _parser;
+            : _parser{&parser}, _required{false}, _parsed{false} {}
+        ArgumentParser* _parser;
         ordered_hashset<std::string> _arguments;
         bool _required;
         bool _parsed;

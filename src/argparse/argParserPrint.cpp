@@ -37,7 +37,6 @@ namespace detail {
 
 std::string styledOptionNameAndAliases(ArgumentParser parser, Argument const& arg) {
     assert(arg.isOption());
-    auto nReqChars = parser.getArgNumRequiredChars(arg.getName());
 
     static const auto decorate = [](std::string const& str, size_t nReq) -> std::string {
         if (utils::ANSI_supported()) {
@@ -151,17 +150,17 @@ std::string getSyntax(ArgumentParser parser, MutuallyExclusiveGroup const& group
  */
 std::string wrapText(std::string const& str, size_t max_help_width) {
     std::vector<std::string> lines = split(str, "\n");
-    for (size_t i = 0; i < lines.size(); ++i) {
-        if (lines[i].size() < max_help_width) continue;
+    for (auto lineItr = lines.begin(); lineItr != lines.end(); ++lineItr) {
+        if (lineItr->size() < max_help_width) continue;
 
-        size_t pos = lines[i].find_last_of(' ', max_help_width);
+        size_t pos = lineItr->find_last_of(' ', max_help_width);
 
         if (pos == std::string::npos) {
-            lines.insert(lines.begin() + i + 1, lines[i].substr(max_help_width));
-            lines[i] = lines[i].substr(0, max_help_width);
+            lines.insert(std::next(lineItr), lineItr->substr(max_help_width));
+            *lineItr = lineItr->substr(0, max_help_width);
         } else {
-            lines.insert(lines.begin() + i + 1, lines[i].substr(pos + 1));
-            lines[i] = lines[i].substr(0, pos);
+            lines.insert(std::next(lineItr), lineItr->substr(pos + 1));
+            *lineItr = lineItr->substr(0, pos);
         }
     }
 
@@ -245,7 +244,8 @@ void ArgumentParser::printSummary() const {
     analyzeOptions();
 
     auto cmdName = detail::styledParserName(*this);
-    fmt::println("{0:<{2}}: {1}", cmdName, getDescription(), 15 + dvlab::str::ansi_token_size(accentStyle));
+    constexpr auto cmd_name_width = 15;
+    fmt::println("{0:<{2}}: {1}", cmdName, getDescription(), cmd_name_width + dvlab::str::ansi_token_size(accentStyle));
 }
 
 /**
@@ -273,12 +273,15 @@ void ArgumentParser::printHelp() const {
         return _pimpl->arguments.empty() ? 0 : std::ranges::max(_pimpl->arguments | std::views::values | std::views::transform([](Argument const& arg) -> size_t { return arg.getTypeString().size(); }));
     };
 
+    constexpr auto left_margin = 1;
+    constexpr auto left_right_cell_padding = 2;
+    constexpr auto total_padding = left_margin + 3 * left_right_cell_padding;
     auto max_help_string_width =
         dvlab::utils::get_terminal_size().width -
         getMaxLength([](Argument const& arg) -> size_t { return arg.getTypeString().size(); }) -
         getMaxLength([](Argument const& arg) -> size_t { return arg.getName().size(); }) -
         getMaxLength([](Argument const& arg) -> size_t { return arg.getMetavar().size(); }) -
-        7;  // 7 = 1 * left margin (1) + 3 * (left+right cell padding (2))
+        total_padding;
 
     if (std::ranges::any_of(_pimpl->arguments | std::views::values, [](Argument const& arg) { return !arg.isOption(); })) {
         auto table = detail::getParserHelpTabler();

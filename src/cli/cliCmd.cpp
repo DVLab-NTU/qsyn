@@ -190,7 +190,7 @@ Command verboseCmd() {
 
                 parser.addArgument<size_t>("level")
                     .constraint({[](size_t const& val) {
-                                     return val <= 9 || val == 353;
+                                     return val <= 9 || val == 353;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
                                  },
                                  [](size_t const& val) {
                                      fmt::println(stderr, "Error: verbose level should be 0-9!!");
@@ -338,7 +338,7 @@ Command seedCmd() {
                 parser.description("set the random seed");
 
                 parser.addArgument<unsigned>("seed")
-                    .defaultValue(353)
+                    .defaultValue(353)  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
                     .nargs(NArgsOption::OPTIONAL)
                     .help("random seed value");
             },

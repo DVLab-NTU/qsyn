@@ -53,12 +53,11 @@ class Command {
 
 public:
     Command(std::string const& name, Precondition prec, ParserDefinition defn, OnParseSuccess on)
-        : _parser{name, {.exitOnFailure = false}}, precondition{prec}, parserDefinition{defn}, onParseSuccess{on} {}
+        : _parser{name, {.exitOnFailure = false}}, _precondition{prec}, _parserDefinition{defn}, _onParseSuccess{on} {}
     Command(std::string const& name)
         : Command(name, nullptr, nullptr, nullptr) {}
     Command(std::string const& name, ParserDefinition defn, OnParseSuccess on)
         : Command(name, nullptr, defn, on) {}
-    ~Command() {}
 
     bool initialize(size_t numRequiredChars);
     CmdExecResult exec(std::string const& option);
@@ -71,11 +70,10 @@ public:
 
     void addSubCommand(Command const& cmd);
 
-    ParserDefinition parserDefinition;  // define the parser's arguments and traits
-    Precondition precondition;          // define the parsing precondition
-    OnParseSuccess onParseSuccess;      // define the action to take on parse success
-
 private:
+    ParserDefinition _parserDefinition;  // define the parser's arguments and traits
+    Precondition _precondition;          // define the parsing precondition
+    OnParseSuccess _onParseSuccess;      // define the action to take on parse success
     ArgParse::ArgumentParser _parser;
     std::string _optCmd;
 
@@ -95,8 +93,14 @@ class CommandLineInterface {
     using CmdRegPair = std::pair<const std::string, std::unique_ptr<Command>>;
 
 public:
-    CommandLineInterface(const std::string& prompt);
-    virtual ~CommandLineInterface() {}
+    /**
+     * @brief Construct a new Command Line Interface object
+     *
+     * @param prompt the prompt of the CLI
+     */
+    CommandLineInterface(const std::string& prompt) : _prompt{prompt} {
+        _readBuf.reserve(READ_BUF_SIZE);
+    }
 
     bool openDofile(const std::string& filepath);
     void closeDofile();
@@ -154,12 +158,12 @@ private:
     void printAsTable(std::vector<std::string> words) const;
 
     // Helper functions
-    bool moveCursor(int);
+    bool moveCursorTo(size_t pos);
     bool deleteChar();
     void insertChar(char);
     void deleteLine();
     void reprintCommand();
-    void moveToHistory(int index);
+    void moveToHistory(size_t index);
     bool addUserInputToHistory();
     void retrieveHistory();
 
@@ -167,19 +171,19 @@ private:
 
     inline bool isSpecialChar(char ch) const { return _specialChars.find_first_of(ch) != std::string::npos; }
 
+    static std::string const _specialChars;  // The characters that are identified as special characters when parsing
     // Data members
-    std::string _prompt;                          // command prompt
-    std::string const _specialChars = "\"\' ;$";  // The characters that are identified as special characters when parsing
-    std::string _readBuf;                         // read buffer
-    size_t _cursorPosition = 0;                   // current cursor postion on the readBuf
-    bool _listeningForInputs;                     // whether the CLI is listening for inputs
+    std::string _prompt;         // command prompt
+    std::string _readBuf;        // read buffer
+    size_t _cursorPosition = 0;  // current cursor position on the readBuf. This variable is signed
 
     std::vector<std::string> _history;       // oldest:_history[0],latest:_hist.back()
-    int _historyIdx = 0;                     // (1) Position to insert history string
+    size_t _historyIdx = 0;                  // (1) Position to insert history string
                                              //     i.e. _historyIdx = _history.size()
                                              // (2) When up/down/pgUp/pgDn is pressed,
                                              //     position to history to retrieve
     size_t _tabPressCount = 0;               // The number of tab pressed
+    bool _listeningForInputs = false;        // whether the CLI is listening for inputs
     bool _tempCmdStored = false;             // When up/pgUp is pressed, current line
                                              // will be stored in _history and
                                              // _tempCmdStored will be true.

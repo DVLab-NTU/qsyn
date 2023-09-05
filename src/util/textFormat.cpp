@@ -25,7 +25,9 @@ fmt::text_style ls_color(fs::path const& path) {
     static auto const ls_color = [](std::string const& key) -> fmt::text_style {
         static auto ls_color_map = std::invoke([]() {
             std::unordered_map<std::string, fmt::text_style> map;
-            std::string ls_colors{getenv("LS_COLORS")};
+            char const* const ls_colors_str = getenv("LS_COLORS");
+            if (ls_colors_str == nullptr) return map;
+            std::string ls_colors{ls_colors_str};
 
             for (auto&& token : split(ls_colors, ":")) {
                 if (token.empty()) continue;

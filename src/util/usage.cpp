@@ -34,7 +34,7 @@ void Usage::report(bool repTime, bool repMem) {
 }
 
 double Usage::checkMem() const {
-    struct rusage usage;
+    rusage usage{};
     if (0 == getrusage(RUSAGE_SELF, &usage))
 #ifdef __APPLE__
         return usage.ru_maxrss / double(1 << 20);  // bytes
@@ -45,7 +45,7 @@ double Usage::checkMem() const {
         return 0;
 }
 double Usage::checkTick() const {
-    tms tBuffer;
+    tms tBuffer{};
     times(&tBuffer);
     return tBuffer.tms_utime;
 }

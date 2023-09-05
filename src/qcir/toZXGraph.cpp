@@ -35,7 +35,7 @@ enum class RotationAxis {
 pair<vector<ZXVertex*>, ZXVertex*>
 MC_GenBackbone(ZXGraph& g, vector<BitInfo> const& qubits, RotationAxis ax) {
     vector<ZXVertex*> controls;
-    ZXVertex* target;
+    ZXVertex* target = nullptr;
     for (auto const& bitinfo : qubits) {
         size_t qubit = bitinfo._qubit;
         ZXVertex* in = g.addInput(qubit);

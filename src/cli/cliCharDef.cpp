@@ -20,7 +20,7 @@ using namespace std;
 namespace detail {
 
 static auto mygetc(istream& istr) -> char {
-    char ch;
+    char ch = 0;
     istr.get(ch);
     return ch;
 }

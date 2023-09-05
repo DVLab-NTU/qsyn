@@ -20,10 +20,6 @@
 using namespace std;
 extern size_t verbose;
 
-int cnt = 0;
-bool step = false;
-bool stop = false;
-
 // Basic rules simplification
 
 /**

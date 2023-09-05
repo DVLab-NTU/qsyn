@@ -137,8 +137,8 @@ CommandLineInterface::TabActionResult CommandLineInterface::matchVariables(std::
             string val = _variables.at(var_key);
 
             size_t pos = _readBuf.find(var);
-            moveCursor(_readBuf.size());
-            moveCursor(pos);
+            moveCursorTo(_readBuf.size());
+            moveCursorTo(pos);
 
             for (size_t i = 0; i < var.size(); ++i) {
                 deleteChar();

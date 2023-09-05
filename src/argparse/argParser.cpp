@@ -72,26 +72,11 @@ void ArgumentParser::printArguments() const {
 }
 
 Argument& ArgumentParser::getArgument(std::string const& name) {
-    return const_cast<Argument&>(const_cast<ArgumentParser const&>(*this).getArgument(name));
+    return getArgumentImpl(*this, name);
 }
 
 Argument const& ArgumentParser::getArgument(std::string const& name) const {
-    if (_pimpl->subparsers.has_value() && _pimpl->subparsers->isParsed()) {
-        if (getActivatedSubParser()->hasArgument(name)) {
-            return getActivatedSubParser()->getArgument(name);
-        }
-    }
-    if (_pimpl->aliasForwardMap.contains(name)) {
-        return _pimpl->arguments.at(_pimpl->aliasForwardMap.at(name));
-    }
-    if (_pimpl->arguments.contains(name)) {
-        return _pimpl->arguments.at(name);
-    }
-
-    fmt::println(stderr, "[ArgParse] Error: argument name \"{}\" does not exist for command \"{}\"",
-                 name,
-                 this->getName());
-    exit(1);
+    return getArgumentImpl(*this, name);
 }
 
 /**
@@ -223,12 +208,12 @@ bool ArgumentParser::tokenize(string const& line) {
     // convert "abc=def", "abc:def" to "abc def"
 
     size_t nTokens = _pimpl->tokens.size();
-    for (size_t i = 0; i < nTokens; ++i) {
-        string& currToken = _pimpl->tokens[i].token;
+    for (auto tokenItr = _pimpl->tokens.begin(); tokenItr != _pimpl->tokens.end(); ++tokenItr) {
+        string& currToken = tokenItr->token;
         size_t pos = currToken.find_first_of("=:");
 
         if (pos != string::npos && pos != 0) {
-            _pimpl->tokens.emplace(_pimpl->tokens.begin() + i + 1, currToken.substr(pos + 1));
+            _pimpl->tokens.emplace(std::next(tokenItr), currToken.substr(pos + 1));
             nTokens++;
             currToken = currToken.substr(0, pos);
         }
@@ -387,7 +372,7 @@ bool ArgumentParser::parseOptions(TokensView tokens, std::vector<Token>& unrecog
         if (!hasOptionPrefix(tokens[i].token) || tokens[i].parsed) continue;
         auto match = matchOption(tokens[i].token);
         if (std::holds_alternative<size_t>(match)) {
-            if (float tmp; myStr2Float(tokens[i].token, tmp))  // if the argument is a number, skip to the next arg
+            if (float tmp = 0; myStr2Float(tokens[i].token, tmp))  // if the argument is a number, skip to the next arg
                 continue;
             auto frequency = std::get<size_t>(match);
             assert(frequency != 1);

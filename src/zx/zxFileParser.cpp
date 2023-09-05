@@ -130,7 +130,7 @@ bool ZXFileParser::tokenize(const string& line, vector<string>& tokens) {
             }
             tokens.emplace_back(token);
 
-            pos = myStrGetTok(line, token, pos + 1, ')');
+            myStrGetTok(line, token, pos + 1, ')');
 
             token = stripWhitespaces(token);
             if (token == "") {

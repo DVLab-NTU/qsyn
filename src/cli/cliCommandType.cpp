@@ -11,20 +11,20 @@
 using namespace std;
 
 void Command::addSubCommand(Command const& cmd) {
-    auto oldDefinition = this->parserDefinition;
-    auto oldOnParseSuccess = this->onParseSuccess;
-    this->parserDefinition = [cmd, oldDefinition](ArgParse::ArgumentParser& parser) {
+    auto oldDefinition = this->_parserDefinition;
+    auto oldOnParseSuccess = this->_onParseSuccess;
+    this->_parserDefinition = [cmd, oldDefinition](ArgParse::ArgumentParser& parser) {
         oldDefinition(parser);
         if (!parser.hasSubParsers()) parser.addSubParsers();
         auto subparsers = parser.getSubParsers().value();
         auto subparser = subparsers.addParser(cmd._parser.getName());
 
-        cmd.parserDefinition(subparser);
+        cmd._parserDefinition(subparser);
     };
 
-    this->onParseSuccess = [cmd, oldOnParseSuccess](ArgParse::ArgumentParser const& parser) {
+    this->_onParseSuccess = [cmd, oldOnParseSuccess](ArgParse::ArgumentParser const& parser) {
         if (parser.usedSubParser(cmd._parser.getName())) {
-            return cmd.onParseSuccess(parser);
+            return cmd._onParseSuccess(parser);
         }
 
         return oldOnParseSuccess(parser);
@@ -38,15 +38,15 @@ void Command::addSubCommand(Command const& cmd) {
  * @return false if failed
  */
 bool Command::initialize(size_t numRequiredChars) {
-    if (!parserDefinition) {
+    if (!_parserDefinition) {
         printMissingParserDefinitionErrorMsg();
         return false;
     }
-    if (!onParseSuccess) {
+    if (!_onParseSuccess) {
         printMissingOnParseSuccessErrorMsg();
         return false;
     }
-    parserDefinition(_parser);
+    _parserDefinition(_parser);
     _parser.numRequiredChars(numRequiredChars);
     return _parser.analyzeOptions();
 }
@@ -58,14 +58,14 @@ bool Command::initialize(size_t numRequiredChars) {
  * @return false if failed
  */
 CmdExecResult Command::exec(const std::string& option) {
-    if (precondition && !precondition()) {
+    if (_precondition && !_precondition()) {
         return CmdExecResult::ERROR;
     }
     if (!_parser.parseArgs(option)) {
         return CmdExecResult::ERROR;
     }
 
-    return onParseSuccess(_parser);
+    return _onParseSuccess(_parser);
 }
 
 void Command::printMissingParserDefinitionErrorMsg() const {

@@ -75,7 +75,6 @@ public:
     }
 
     ~Trie() = default;
-
     Trie(Trie const& other) : _root{std::make_unique<TrieNode>(*other._root)} {}
 
     Trie(Trie&&) noexcept = default;

@@ -218,6 +218,9 @@ private:
     // parsePositionalArguments subroutine
 
     bool allRequiredArgumentsAreParsed() const;
+
+    template <typename T>
+    static auto& getArgumentImpl(T& t, std::string const& name);
 };
 
 /**
@@ -230,7 +233,7 @@ private:
 template <typename T>
 requires ValidArgumentType<T>
 ArgType<T>& MutuallyExclusiveGroup::addArgument(std::string const& name, std::convertible_to<std::string> auto... alias) {
-    ArgType<T>& returnRef = _pimpl->_parser.addArgument<T>(name, alias...);
+    ArgType<T>& returnRef = _pimpl->_parser->addArgument<T>(name, alias...);
     _pimpl->_arguments.insert(returnRef._name);
     return returnRef;
 }
@@ -336,6 +339,26 @@ ArgType<T>& ArgumentParser::addOption(std::string const& name, std::convertible_
 
     return _pimpl->arguments.at(name).toUnderlyingType<T>()  //
         .metavar(toUpperString(name.substr(name.find_first_not_of(_pimpl->optionPrefix))));
+}
+
+template <typename T>
+auto& ArgumentParser::getArgumentImpl(T& t, std::string const& name) {
+    if (t._pimpl->subparsers.has_value() && t._pimpl->subparsers->isParsed()) {
+        if (t.getActivatedSubParser()->hasArgument(name)) {
+            return t.getActivatedSubParser()->getArgument(name);
+        }
+    }
+    if (t._pimpl->aliasForwardMap.contains(name)) {
+        return t._pimpl->arguments.at(t._pimpl->aliasForwardMap.at(name));
+    }
+    if (t._pimpl->arguments.contains(name)) {
+        return t._pimpl->arguments.at(name);
+    }
+
+    fmt::println(stderr, "[ArgParse] Error: argument name \"{}\" does not exist for command \"{}\"",
+                 name,
+                 t.getName());
+    exit(1);
 }
 
 }  // namespace ArgParse

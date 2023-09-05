@@ -249,7 +249,7 @@ bool QCir::readQSIM(string filename) {
             // add 2 qubit gate
             pos = myStrGetTok(line, qubit_id, pos);
             pin_id.emplace_back(stoul(qubit_id));
-            pos = myStrGetTok(line, qubit_id, pos);
+            myStrGetTok(line, qubit_id, pos);
             pin_id.emplace_back(stoul(qubit_id));
             addGate(type, pin_id, Phase(0), true);
         } else if (type == "rx" || type == "rz") {
@@ -257,12 +257,12 @@ bool QCir::readQSIM(string filename) {
             Phase phase;
             pos = myStrGetTok(line, qubit_id, pos);
             pin_id.emplace_back(stoul(qubit_id));
-            pos = myStrGetTok(line, phaseStr, pos);
+            myStrGetTok(line, phaseStr, pos);
             Phase::fromString(phaseStr, phase);
             addGate(type, pin_id, phase, true);
         } else if (count(single_gate_list.begin(), single_gate_list.end(), type)) {
             // add single qubit gate
-            pos = myStrGetTok(line, qubit_id, pos);
+            myStrGetTok(line, qubit_id, pos);
             pin_id.emplace_back(stoul(qubit_id));
             addGate(type, pin_id, Phase(0), true);
         } else {

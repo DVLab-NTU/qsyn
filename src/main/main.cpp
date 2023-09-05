@@ -26,6 +26,7 @@ using namespace std;
 CommandLineInterface cli{"qsyn> "};
 dvlab::utils::Logger logger;
 dvlab::utils::Usage usage;
+size_t verbose = 3;
 
 extern bool initArgParseCmd();
 extern bool initCommonCmd();
@@ -39,7 +40,6 @@ extern bool initDeviceCmd();
 extern bool initDuostraCmd();
 extern bool initGFlowCmd();
 extern bool initLTCmd();
-size_t verbose = 3;
 
 bool stop_requested() {
     return cli.stopRequested();
@@ -52,13 +52,15 @@ int main(int argc, char** argv) {
 
     signal(SIGINT, [](int signum) -> void { cli.sigintHandler(signum); return; });
     constexpr auto versionStr = "DV Lab, NTUEE, Qsyn " QSYN_VERSION;
+
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     auto parser = ArgumentParser(argv[0], {.addHelpAction = true, .addVersionAction = true, .exitOnFailure = true, .version = versionStr});
 
     parser.addArgument<string>("-file")
         .nargs(NArgsOption::ONE_OR_MORE)
         .help("specify the dofile to run, and optionally pass arguments to the dofiles");
 
-    std::vector<std::string> arguments{argv + 1, argv + argc};
+    std::vector<std::string> arguments{std::next(argv), std::next(argv, argc)};
 
     if (!parser.parseArgs(arguments)) {
         parser.printUsage();

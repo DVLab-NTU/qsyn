@@ -147,7 +147,7 @@ bool Extractor::extractionLoop(size_t max_iter) {
             extractCXs();
         }
         if (extractHsFromM2() == 0) {
-            cerr << "Error: No Candidate Found!! in extractHsFromM2" << endl;
+            cerr << "Error: no candidate found in extractHsFromM2!!" << endl;
             _biAdjacency.printMatrix();
             return false;
         }
@@ -662,7 +662,7 @@ bool Extractor::biadjacencyElimination(bool check) {
                 }
             }
         } else {
-            cerr << "Error: Wrong Optimize Level" << endl;
+            cerr << "Error: wrong optimize level" << endl;
             abort();
         }
 

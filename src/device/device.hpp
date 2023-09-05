@@ -60,7 +60,6 @@ std::ostream& operator<<(std::ostream& os, const Info& info);
 class Topology {
 public:
     Topology() {}
-    ~Topology() {}
 
     std::string getName() const { return _name; }
     const std::vector<GateType>& getGateSet() const { return _gateSet; }
@@ -77,7 +76,7 @@ public:
 
 private:
     std::string _name;
-    size_t _nQubit;
+    size_t _nQubit = 0;
     std::vector<GateType> _gateSet;
     QubitInfo _qubitInfo;
     AdjacenciesInfo _adjInfo;
@@ -86,13 +85,8 @@ private:
 class PhysicalQubit {
 public:
     PhysicalQubit() {}
-    PhysicalQubit(const size_t id);
-    PhysicalQubit(const PhysicalQubit& other);
-    PhysicalQubit(PhysicalQubit&& other);
-    PhysicalQubit& operator=(const PhysicalQubit& other);
-    PhysicalQubit& operator=(PhysicalQubit&& other);
+    PhysicalQubit(const size_t id) : _id(id) {}
 
-    ~PhysicalQubit() {}
     void setId(size_t id) { _id = id; }
     void setOccupiedTime(size_t t) { _occupiedTime = t; }
     void setLogicalQubit(size_t id) { _logicalQubit = id; }
@@ -118,25 +112,25 @@ public:
 
 private:
     // NOTE - Device information
-    size_t _id;
+    size_t _id = ERROR_CODE;
     Adjacencies _adjacencies;
 
     // NOTE - Duostra parameter
-    size_t _logicalQubit;
-    size_t _occupiedTime;
+    size_t _logicalQubit = ERROR_CODE;
+    size_t _occupiedTime = 0;
 
-    bool _marked;
-    size_t _pred;
-    size_t _cost;
-    size_t _swapTime;
-    bool _source;  // false:0, true:1
-    bool _taken;
+    bool _marked = false;
+    size_t _pred = 0;
+    size_t _cost = 0;
+    size_t _swapTime = 0;
+    bool _source = false;  // false:0, true:1
+    bool _taken = false;
 };
 
 class Device {
 public:
-    Device();
-    ~Device() {}
+    constexpr static size_t MAX_DIST = 100000;
+    Device() : _maxDist{MAX_DIST}, _topology{std::make_shared<Topology>()} {}
 
     std::string getName() const { return _topology->getName(); }
     size_t getNQubit() const { return _nQubit; }
@@ -174,7 +168,7 @@ public:
     void printStatus() const;
 
 private:
-    size_t _nQubit;
+    size_t _nQubit = 0;
     std::shared_ptr<Topology> _topology;
     PhyQubitList _qubitList;
 
@@ -200,9 +194,6 @@ public:
     friend std::ostream& operator<<(std::ostream&, const Operation&);
 
     Operation(GateType, Phase, std::tuple<size_t, size_t>, std::tuple<size_t, size_t>);
-    Operation(const Operation&);
-
-    Operation& operator=(const Operation&);
 
     GateType getType() const { return _oper; }
     Phase getPhase() const { return _phase; }

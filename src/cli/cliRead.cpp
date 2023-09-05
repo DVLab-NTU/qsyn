@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <limits>
 #include <regex>
 #include <sstream>
 
@@ -40,9 +41,9 @@ static auto reset_keypress(termios const& stored_settings) {
  * @return termios the original terminal settings. This is used to restore the terminal settings
  */
 [[nodiscard]] static auto set_keypress() -> termios {
-    struct termios new_settings, stored_settings;
+    termios stored_settings{};
     tcgetattr(0, &stored_settings);
-    new_settings = stored_settings;
+    termios new_settings = stored_settings;
     new_settings.c_lflag &= (~ICANON);  // make sure we can read one char at a time
     new_settings.c_lflag &= (~ECHO);    // don't print input characters. We would like to handle them ourselves
     new_settings.c_cc[VTIME] = 0;       // start reading immediately
@@ -104,15 +105,19 @@ CmdExecResult CommandLineInterface::listenToInput(std::istream& istr, std::strin
                 return CmdExecResult::DONE;
             case LINE_BEGIN_KEY:
             case HOME_KEY:
-                moveCursor(0);
+                moveCursorTo(0);
                 break;
             case LINE_END_KEY:
             case END_KEY:
-                moveCursor(_readBuf.size());
+                moveCursorTo(_readBuf.size());
                 break;
             case BACK_SPACE_KEY:
-                if (moveCursor(_cursorPosition - 1))
+                if (_cursorPosition == 0) {
+                    beep();
+                } else {
+                    moveCursorTo(_cursorPosition - 1);
                     deleteChar();
+                }
                 break;
             case DELETE_KEY:
                 deleteChar();
@@ -124,19 +129,27 @@ CmdExecResult CommandLineInterface::listenToInput(std::istream& istr, std::strin
                 printPrompt();
                 break;
             case ARROW_UP_KEY:
-                (config.allowBrowseHistory) ? moveToHistory(_historyIdx - 1) : beep();
+                if (!config.allowBrowseHistory || _historyIdx == 0) {
+                    beep();
+                } else {
+                    moveToHistory(_historyIdx - 1);
+                }
                 break;
             case ARROW_DOWN_KEY:
                 (config.allowBrowseHistory) ? moveToHistory(_historyIdx + 1) : beep();
                 break;
             case ARROW_RIGHT_KEY:
-                moveCursor(_cursorPosition + 1);
+                if (_cursorPosition == _readBuf.size()) {
+                    beep();
+                } else {
+                    moveCursorTo(_cursorPosition + 1);
+                }
                 break;
             case ARROW_LEFT_KEY:
-                moveCursor((int)_cursorPosition - 1);
+                moveCursorTo((int)_cursorPosition - 1);
                 break;
             case PG_UP_KEY:
-                (config.allowBrowseHistory) ? moveToHistory(_historyIdx - PG_OFFSET) : beep();
+                (config.allowBrowseHistory) ? moveToHistory(_historyIdx - std::min(PG_OFFSET, _historyIdx)) : beep();
                 break;
             case PG_DOWN_KEY:
                 (config.allowBrowseHistory) ? moveToHistory(_historyIdx + PG_OFFSET) : beep();
@@ -211,22 +224,22 @@ CmdExecResult CommandLineInterface::readOneLine(istream& istr) {
 //
 // [Note] This function can also be called by other member functions below
 //        to move the _readBufPtr to proper position.
-bool CommandLineInterface::moveCursor(int idx) {
-    if (idx < 0 || (size_t)idx > _readBuf.size()) {
+bool CommandLineInterface::moveCursorTo(size_t pos) {
+    if (pos > _readBuf.size()) {  // since pos is unsigned, this should also checks if pos < 0
         beep();
         return false;
     }
 
     // move left
-    if (_cursorPosition > (size_t)idx) {
-        fmt::print("{}", string(_cursorPosition - idx, '\b'));
+    if (_cursorPosition > (size_t)pos) {
+        fmt::print("{}", string(_cursorPosition - pos, '\b'));
     }
 
     // move right
-    if (_cursorPosition < (size_t)idx) {
-        fmt::print("{}", _readBuf.substr(_cursorPosition, idx - _cursorPosition));
+    if (_cursorPosition < (size_t)pos) {
+        fmt::print("{}", _readBuf.substr(_cursorPosition, pos - _cursorPosition));
     }
-    _cursorPosition = idx;
+    _cursorPosition = pos;
     return true;
 }
 
@@ -241,18 +254,22 @@ bool CommandLineInterface::deleteChar() {
 
     _readBuf.erase(_cursorPosition, 1);
 
-    int idx = _cursorPosition;
+    size_t idx = _cursorPosition;
     _cursorPosition = _readBuf.size();  // before moving cursor, reflect the change in actual cursor location
-    moveCursor(idx);                    // move the cursor back to where it should be
+    moveCursorTo(idx);                  // move the cursor back to where it should be
     return true;
 }
 
 void CommandLineInterface::insertChar(char ch) {
+    if (_readBuf.size() >= std::numeric_limits<int>::max()) {
+        beep();
+        return;
+    }
     _readBuf.insert(_cursorPosition, 1, ch);
     fmt::print("{}", _readBuf.substr(_cursorPosition));
-    int idx = _cursorPosition + 1;
+    size_t idx = _cursorPosition + 1;
     _cursorPosition = _readBuf.size();
-    moveCursor(idx);
+    moveCursorTo(idx);
 }
 
 // 1. Delete the line that is currently shown on the screen
@@ -270,7 +287,7 @@ void CommandLineInterface::insertChar(char ch) {
 //      ^
 //
 void CommandLineInterface::deleteLine() {
-    moveCursor(_readBuf.size());
+    moveCursorTo(_readBuf.size());
     fmt::print("{}", string(_cursorPosition, '\b'));
     fmt::print("{}", string(_cursorPosition, ' '));
     fmt::print("{}", string(_cursorPosition, '\b'));
@@ -281,12 +298,12 @@ void CommandLineInterface::deleteLine() {
 // cursor should be restored to the original location
 void CommandLineInterface::reprintCommand() {
     // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
-    int idx = _cursorPosition;
+    size_t idx = _cursorPosition;
     _cursorPosition = _readBuf.size();  // before moving cursor, reflect the change in actual cursor location
     fmt::println("");
     printPrompt();
     fmt::print("{}", _readBuf);
-    moveCursor(idx);  // move the cursor back to where it should be
+    moveCursorTo(idx);  // move the cursor back to where it should be
 }
 
 // This functions moves _historyIdx to index and display _history[index]
@@ -307,31 +324,23 @@ void CommandLineInterface::reprintCommand() {
 //
 // [Note] index should not = _historyIdx
 //
-void CommandLineInterface::moveToHistory(int index) {
-    if (index < _historyIdx) {  // move up
-        if (_historyIdx == 0) {
-            beep();
-            return;
-        }
-        if (size_t(_historyIdx) == _history.size()) {  // mv away from new str
+void CommandLineInterface::moveToHistory(size_t index) {
+    if (index == _historyIdx) return;
+
+    if (index < _historyIdx) {                 // move up
+        if (_historyIdx == _history.size()) {  // move away from new input
             _tempCmdStored = true;
             _history.emplace_back(_readBuf);
-        } else if (_tempCmdStored &&  // the last _history is a stored temp cmd
-                   size_t(_historyIdx) == size_t(_history.size() - 1))
+        } else if (_tempCmdStored && _historyIdx == _history.size() - 1)
             _history.back() = _readBuf;  // => update it
-        if (index < 0)
-            index = 0;
-    } else if (index > _historyIdx) {  // move down
-        if ((_tempCmdStored &&
-             (size_t(_historyIdx) == size_t(_history.size() - 1))) ||
-            (!_tempCmdStored && (size_t(_historyIdx) == _history.size()))) {
+    } else if (index > _historyIdx) {    // move down
+        if (_historyIdx == _history.size() - _tempCmdStored ? 1 : 0) {
             beep();
             return;
         }
-        if (size_t(index) >= size_t(_history.size() - 1))
-            index = int(_history.size() - 1);
-    } else                             // index == _historyIdx
-        assert(index != _historyIdx);  // must fail!!
+        if (index >= _history.size() - 1)
+            index = _history.size() - 1;
+    }
 
     _historyIdx = index;
     retrieveHistory();
@@ -369,7 +378,6 @@ bool CommandLineInterface::saveVariables(std::string const& filepath, std::span<
     // to _variables[to_string(k)]
 
     std::ifstream dofile(filepath);
-    std::string line;
 
     if (!dofile.is_open()) {
         logger.error("cannot open file \"{}\"!!", filepath);
@@ -380,10 +388,10 @@ bool CommandLineInterface::saveVariables(std::string const& filepath, std::span<
         logger.error("file \"{}\" is empty!!", filepath);
         return false;
     }
-
-    do {
+    std::string line{""};
+    while (line == "") {  // skip empty lines
         std::getline(dofile, line);
-    } while (line == "");  // skip empty lines
+    };
 
     dofile.close();
 

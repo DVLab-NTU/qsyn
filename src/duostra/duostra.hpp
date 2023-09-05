@@ -13,6 +13,7 @@
 
 #include "./scheduler.hpp"
 #include "device/device.hpp"
+#include "qcir/qcir.hpp"
 
 class QCir;
 

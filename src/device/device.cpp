@@ -8,6 +8,8 @@
 
 #include "device/device.hpp"
 
+#include <math.h>
+
 #include <cassert>
 #include <cstdint>
 #include <cstdlib>
@@ -26,8 +28,6 @@ extern size_t verbose;
 extern dvlab::utils::Logger logger;
 
 // SECTION - Struct Info Member Functions
-
-Info defaultInfo = {._time = 0.0, ._error = 0.0};
 
 /**
  * @brief Print overloading
@@ -103,87 +103,6 @@ void Topology::printSingleEdge(size_t a, size_t b) const {
 
 // SECTION - Class PhysicalQubit Member Functions
 
-/**
- * @brief Construct a new Physical Qubit:: Physical Qubit object
- *
- * @param id
- */
-PhysicalQubit::PhysicalQubit(const size_t id) : _id(id), _adjacencies({}), _logicalQubit(ERROR_CODE), _occupiedTime(0), _marked(false), _pred(0), _cost(0), _swapTime(0), _source(false), _taken(false) {}
-
-/**
- * @brief Construct a new Physical Qubit:: Physical Qubit object
- *
- * @param other
- */
-PhysicalQubit::PhysicalQubit(const PhysicalQubit& other)
-    : _id(other._id),
-      _adjacencies(other._adjacencies),
-      _logicalQubit(other._logicalQubit),
-      _occupiedTime(other._occupiedTime),
-      _marked(other._marked),
-      _pred(other._pred),
-      _cost(other._cost),
-      _swapTime(other._swapTime),
-      _source(other._source),
-      _taken(other._taken) {}
-
-/**
- * @brief Construct a new Physical Qubit:: Physical Qubit object
- *
- * @param other
- */
-PhysicalQubit::PhysicalQubit(PhysicalQubit&& other)
-    : _id(other._id),
-      _adjacencies(std::move(other._adjacencies)),
-      _logicalQubit(other._logicalQubit),
-      _occupiedTime(other._occupiedTime),
-      _marked(other._marked),
-      _pred(other._pred),
-      _cost(other._cost),
-      _swapTime(other._swapTime),
-      _source(other._source),
-      _taken(other._taken) {}
-
-/**
- * @brief Assignment operator overloading for PhysicalQubit
- *
- * @param other
- * @return PhysicalQubit&
- */
-PhysicalQubit& PhysicalQubit::operator=(const PhysicalQubit& other) {
-    _id = other._id;
-    _adjacencies = other._adjacencies;
-    _logicalQubit = other._logicalQubit;
-    _occupiedTime = other._occupiedTime;
-    _marked = other._marked;
-    _pred = other._pred;
-    _cost = other._cost;
-    _swapTime = other._swapTime;
-    _source = other._source;
-    _taken = other._taken;
-    return *this;
-}
-
-/**
- * @brief Assignment operator overloading for PhysicalQubit
- *
- * @param other
- * @return PhysicalQubit&
- */
-PhysicalQubit& PhysicalQubit::operator=(PhysicalQubit&& other) {
-    _id = other._id;
-    _adjacencies = std::move(other._adjacencies);
-    _logicalQubit = other._logicalQubit;
-    _occupiedTime = other._occupiedTime;
-    _marked = other._marked;
-    _pred = other._pred;
-    _cost = other._cost;
-    _swapTime = other._swapTime;
-    _source = other._source;
-    _taken = other._taken;
-    return *this;
-}
-
 template <>
 struct fmt::formatter<PhysicalQubit> {
     constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
@@ -242,16 +161,6 @@ void PhysicalQubit::reset() {
 // SECTION - Class Device Member Functions
 
 /**
- * @brief Construct a new Device:: Device object
- *
- * @param id
- */
-Device::Device() {
-    _maxDist = 100000;
-    _topology = make_shared<Topology>();
-}
-
-/**
  * @brief Get next swap cost
  *
  * @param source
@@ -301,7 +210,7 @@ void Device::addAdjacency(size_t a, size_t b) {
     }
     _qubitList[a].addAdjacency(_qubitList[b].getId());
     _qubitList[b].addAdjacency(_qubitList[a].getId());
-
+    constexpr Info defaultInfo = {._time = 0.0, ._error = 0.0};
     _topology->addAdjacencyInfo(a, b, defaultInfo);
 }
 
@@ -537,7 +446,7 @@ bool Device::readDevice(const string& filename) {
 
     // NOTE - Qubit num
     str = "", token = "", data = "";
-    unsigned qbn;
+    unsigned qbn = 0;
     while (str == "") {
         getline(topoFile, str);
         str = stripWhitespaces(stripComments(str));
@@ -615,7 +524,7 @@ bool Device::parseGateSet(string str) {
     while (m < data.size()) {
         m = myStrGetTok(data, gt, m, ',');
         gt = stripWhitespaces(gt);
-        for_each(gt.begin(), gt.end(), [](char& c) { c = ::tolower(c); });
+        for_each(gt.begin(), gt.end(), [](char& c) { c = static_cast<char>(::tolower(c)); });
         if (!str2GateType.contains(gt)) {
             logger.error("unsupported gate type \"{}\"!!", gt);
             return false;
@@ -677,7 +586,7 @@ bool Device::parseInfo(std::ifstream& f, vector<vector<float>>& cxErr, vector<ve
  */
 bool Device::parseSingles(string data, vector<float>& container) {
     string str, num;
-    float fl;
+    float fl = 0.;
     size_t m = 0;
 
     str = removeBracket(data, '[', ']');
@@ -705,7 +614,7 @@ bool Device::parseSingles(string data, vector<float>& container) {
  */
 bool Device::parsePairsFloat(string data, vector<vector<float>>& container) {
     string str, num;
-    float fl;
+    float fl = 0.;
     size_t n = 0, m = 0;
     while (n < data.size()) {
         n = myStrGetTok(data, str, n, '[');
@@ -736,7 +645,7 @@ bool Device::parsePairsFloat(string data, vector<vector<float>>& container) {
  */
 bool Device::parsePairsSizeT(string data, vector<vector<size_t>>& container) {
     string str, num;
-    unsigned qbn;
+    unsigned qbn = 0;
     size_t n = 0, m = 0;
     while (n < data.size()) {
         n = myStrGetTok(data, str, n, '[');
@@ -880,8 +789,9 @@ void Device::printPath(size_t s, size_t t) const {
         fmt::println("Path from {} to {}:", s, t);
         size_t cnt = 0;
         for (auto& v : path) {
+            constexpr size_t numCols = 10;
             fmt::print("{:4} ", v.getId());
-            if (++cnt % 10 == 0) fmt::println("");
+            if (++cnt % numCols == 0) fmt::println("");
         }
     }
 }
@@ -927,10 +837,12 @@ ostream& operator<<(ostream& os, Operation& op) {
     os << left;
     size_t from = get<0>(op._duration);
     size_t to = get<1>(op._duration);
+    // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
     os << setw(20) << "Operation: " + gateType2Str[op._oper];
     os << "Q" << get<0>(op._qubits);
     if (get<1>(op._qubits) != ERROR_CODE) os << " Q" << get<1>(op._qubits);
     os << "    from: " << left << setw(10) << from << "to: " << to;
+    // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
     return os;
 }
 
@@ -945,9 +857,11 @@ ostream& operator<<(ostream& os, const Operation& op) {
     os << left;
     size_t from = get<0>(op._duration);
     size_t to = get<1>(op._duration);
+    // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
     os << setw(20) << "Operation: " + gateType2Str[op._oper];
     os << "Q" << get<0>(op._qubits) << " Q" << get<1>(op._qubits)
        << "    from: " << left << setw(10) << from << "to: " << to;
+    // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
     return os;
 }
 
@@ -967,31 +881,4 @@ Operation::Operation(GateType oper, Phase ph, tuple<size_t, size_t> qs, tuple<si
     assert(a != b);
     // if (a > b)
     //     _qubits = make_tuple(b, a);
-}
-
-/**
- * @brief Construct a new Operation:: Operation object
- *
- * @param other
- */
-Operation::Operation(const Operation& other)
-    : _oper(other._oper),
-      _phase(other._phase),
-      _qubits(other._qubits),
-      _duration(other._duration),
-      _id(other._id) {}
-
-/**
- * @brief Assignment operator overloading for Operation
- *
- * @param other
- * @return Operation&
- */
-Operation& Operation::operator=(const Operation& other) {
-    _oper = other._oper;
-    _phase = other._phase;
-    _qubits = other._qubits;
-    _duration = other._duration;
-    _id = other._id;
-    return *this;
 }

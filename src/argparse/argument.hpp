@@ -16,7 +16,7 @@
 
 namespace ArgParse {
 
-class Argument {
+class Argument {                  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
     friend class ArgumentParser;  // shares Argument::Model<T> and _pimpl
                                   // to ArgumentParser, enabling it to access
                                   // the underlying ArgType<T>
@@ -82,7 +82,7 @@ private:
     bool constraintsSatisfied() const { return _pimpl->do_constraintsSatisfied(); }
     void markAsParsed() { _pimpl->do_markAsParsed(); }
 
-    struct Concept {
+    struct Concept {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : pure-virtual interface
         virtual ~Concept() {}
 
         virtual std::unique_ptr<Concept> clone() const = 0;
@@ -115,7 +115,6 @@ private:
 
         Model(ArgT val)
             : inner(std::move(val)) {}
-        ~Model() {}
 
         inline std::unique_ptr<Concept> clone() const override { return std::make_unique<Model>(*this); }
 

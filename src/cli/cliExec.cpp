@@ -20,18 +20,11 @@
 
 using std::string, std::vector;
 
+std::string const CommandLineInterface::_specialChars = "\"\' ;$";
+
 //----------------------------------------------------------------------
 //    Member Function for class cmdParser
 //----------------------------------------------------------------------
-
-/**
- * @brief Construct a new Command Line Interface object
- *
- * @param prompt the prompt of the CLI
- */
-CommandLineInterface::CommandLineInterface(const std::string& prompt) : _prompt{prompt} {
-    _readBuf.reserve(READ_BUF_SIZE);
-}
 
 /**
  * @brief open a dofile and push it to the dofile stack.
@@ -314,9 +307,7 @@ bool Command::checkOptCmd(const string& check) const {
     if (check.size() > _optCmd.size()) return false;
     for (unsigned i = 0, n = _optCmd.size(); i < n; ++i) {
         if (!check[i]) return true;
-        char ch1 = tolower(_optCmd[i]);
-        char ch2 = tolower(check[i]);
-        if (ch1 != ch2) return false;
+        if (tolower(_optCmd[i]) != tolower(check[i])) return false;
     }
     return true;
 }
