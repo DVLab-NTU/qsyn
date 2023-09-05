@@ -150,17 +150,17 @@ std::string getSyntax(ArgumentParser parser, MutuallyExclusiveGroup const& group
  */
 std::string wrapText(std::string const& str, size_t max_help_width) {
     std::vector<std::string> lines = split(str, "\n");
-    for (auto lineItr = lines.begin(); lineItr != lines.end(); ++lineItr) {
-        if (lineItr->size() < max_help_width) continue;
+    for (auto i = 0; i < lines.size(); ++i) {
+        if (lines[i].size() < max_help_width) continue;
 
-        size_t pos = lineItr->find_last_of(' ', max_help_width);
+        size_t pos = lines[i].find_last_of(' ', max_help_width);
 
         if (pos == std::string::npos) {
-            lines.insert(std::next(lineItr), lineItr->substr(max_help_width));
-            *lineItr = lineItr->substr(0, max_help_width);
+            lines.insert(std::next(lines.begin(), i + 1), lines[i].substr(max_help_width));
+            lines[i] = lines[i].substr(0, max_help_width);
         } else {
-            lines.insert(std::next(lineItr), lineItr->substr(pos + 1));
-            *lineItr = lineItr->substr(0, pos);
+            lines.insert(std::next(lines.begin(), i + 1), lines[i].substr(pos + 1));
+            lines[i] = lines[i].substr(0, pos);
         }
     }
 
@@ -325,7 +325,7 @@ void ArgumentParser::printHelp() const {
  *
  */
 void ArgumentParser::printVersion() const {
-    fmt::println("{}", _pimpl->version);
+    fmt::println("{}", _pimpl->config.version);
 }
 
 }  // namespace ArgParse

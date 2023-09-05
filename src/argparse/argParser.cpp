@@ -23,7 +23,7 @@ using namespace std;
 
 namespace ArgParse {
 
-ArgumentParser::ArgumentParser(std::string const& n, ParserConfig config) : ArgumentParser() {
+ArgumentParser::ArgumentParser(std::string const& n, ArgumentParserConfig config) : ArgumentParser() {
     this->name(n);
 
     if (config.addHelpAction) {
@@ -37,8 +37,7 @@ ArgumentParser::ArgumentParser(std::string const& n, ParserConfig config) : Argu
             .help("show program's version number and exit");
     }
 
-    _pimpl->exitOnFailure = config.exitOnFailure;
-    _pimpl->version = config.version;
+    _pimpl->config = config;
 }
 
 size_t ArgumentParser::numParsedArguments() const {
@@ -294,7 +293,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::parseKnownArgs(std::vector<s
  */
 std::pair<bool, std::vector<Token>> ArgumentParser::parseKnownArgs(TokensView tokens) {
     auto result = parseKnownArgsImpl(tokens);
-    if (!result.first && _pimpl->exitOnFailure) {
+    if (!result.first && _pimpl->config.exitOnFailure) {
         exit(0);
     }
 
@@ -548,22 +547,43 @@ bool ArgumentParser::allRequiredArgumentsAreParsed() const {
                               ", ")));
 }
 
-MutuallyExclusiveGroup ArgumentParser::addMutuallyExclusiveGroup() {
+[[nodiscard]] MutuallyExclusiveGroup ArgumentParser::addMutuallyExclusiveGroup() {
     _pimpl->mutuallyExclusiveGroups.emplace_back(*this);
     return _pimpl->mutuallyExclusiveGroups.back();
 }
 
+/**
+ * @brief add a parser to the subparser group. The parser will be initialized with the parent parser's config.
+ *
+ * @param name
+ * @return ArgumentParser
+ */
 ArgumentParser SubParsers::addParser(std::string const& name) {
-    _pimpl->subparsers.emplace(name, ArgumentParser{name});
-    return _pimpl->subparsers.at(name);
+    return addParser(name, _pimpl->parentConfig);
 }
 
-SubParsers ArgumentParser::addSubParsers() {
+/**
+ * @brief add a parser to the subparser group with a custom config.
+ *
+ * @param name
+ * @param config
+ * @return ArgumentParser
+ */
+ArgumentParser SubParsers::addParser(std::string const& name, ArgumentParserConfig const& config) {
+    _pimpl->subparsers.emplace(name, ArgumentParser{name, config});
+    return _pimpl->subparsers.at(name);
+}
+/**
+ * @brief
+ *
+ * @return SubParsers
+ */
+[[nodiscard]] SubParsers ArgumentParser::addSubParsers() {
     if (_pimpl->subparsers.has_value()) {
         fmt::println(stderr, "Error: an ArgumentParser can only have one set of subparsers!!");
         exit(-1);
     }
-    _pimpl->subparsers = SubParsers{};
+    _pimpl->subparsers = SubParsers{this->_pimpl->config};
     return _pimpl->subparsers.value();
 }
 

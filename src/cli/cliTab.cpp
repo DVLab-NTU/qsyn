@@ -6,7 +6,6 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <ranges>
 #include <fmt/std.h>
 
 #include <filesystem>

@@ -40,6 +40,26 @@ Options:
 Subcommands:
   (-rmvertex | -rmedge | -addvertex | -addinput | -addoutput | -addedge)   
 
+qsyn> zxge -rmvertex -h
+Usage: -rmvertex [-h] ([<size_t ids>]... | -isolated)
+
+Positional Arguments:
+  size_t  ids    the IDs of vertices to remove 
+
+Options:
+  flag  -h, --help    show this help message and exit      
+  flag  -isolated     if set, remove all isolated vertices 
+
+qsyn> zxge -rmedge -h
+Usage: -rmedge [-h] <size_t (vs, vt)> <size_t (vs, vt)> <string etype>
+
+Positional Arguments:
+  size_t  (vs, vt)    the IDs to the two vertices to remove edges in between                      
+  string  etype       the edge type to remove. Options: simple, hadamard, all (i.e., remove both) 
+
+Options:
+  flag  -h, --help    show this help message and exit 
+
 qsyn> help extract
 Usage: extract [-h] (-zxgraph <size_t ID>) (-qcir <size_t ID>) (-cx | -cz | -phase | -H | -clf | -rmg | -permute | -loop [<size_t N>])
 

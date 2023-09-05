@@ -126,13 +126,13 @@ CommandLineInterface::executeOneLine() {
     std::atomic<CmdExecResult> result;
 
     while (_commandQueue.size()) {
-        auto [e, option] = parseOneCommandFromQueue();
+        auto [cmd, option] = parseOneCommandFromQueue();
 
-        if (e == nullptr) continue;
+        if (cmd == nullptr) continue;
 
         _currCmd = jthread::jthread(
-            [this, &e = e, &option = option, &result]() {
-                result = e->exec(option);
+            [this, &cmd = cmd, &option = option, &result]() {
+                result = cmd->execute(option);
             });
 
         assert(_currCmd.has_value());
@@ -271,7 +271,7 @@ Command* CommandLineInterface::getCommand(string const& cmd) const {
     auto match = _identifiers.findWithPrefix(cmd);
     if (match.has_value()) {
         return _cmdMap.at(*match).get();
-    } 
+    }
 
     return nullptr;
 }

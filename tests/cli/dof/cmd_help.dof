@@ -1,6 +1,8 @@
 help logger
 help dofile
 help zxge
+zxge -rmvertex -h
+zxge -rmedge -h
 help extract
 help zxgr
 qq -f

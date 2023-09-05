@@ -15,8 +15,13 @@ void Command::addSubCommand(Command const& cmd) {
     auto oldOnParseSuccess = this->_onParseSuccess;
     this->_parserDefinition = [cmd, oldDefinition](ArgParse::ArgumentParser& parser) {
         oldDefinition(parser);
-        if (!parser.hasSubParsers()) parser.addSubParsers();
-        auto subparsers = parser.getSubParsers().value();
+        auto subparsers = std::invoke(
+            [&parser]() {
+                if (!parser.hasSubParsers()) {
+                    return parser.addSubParsers();
+                }
+                return parser.getSubParsers().value();
+            });
         auto subparser = subparsers.addParser(cmd._parser.getName());
 
         cmd._parserDefinition(subparser);
@@ -57,11 +62,12 @@ bool Command::initialize(size_t numRequiredChars) {
  * @return true if succeeded
  * @return false if failed
  */
-CmdExecResult Command::exec(const std::string& option) {
+CmdExecResult Command::execute(const std::string& option) {
     if (!_parser.parseArgs(option)) {
         return CmdExecResult::ERROR;
     }
 
+    std::atomic<CmdExecResult> result{CmdExecResult::DONE};
     return _onParseSuccess(_parser);
 }
 

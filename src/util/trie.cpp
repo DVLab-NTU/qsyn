@@ -37,9 +37,9 @@ bool Trie::insert(string const& word) {
 
 /**
  * @brief Find the shortest unique prefix of a word in the trie. If the word is not in the trie, return as if it were in the trie.
- * 
- * @param word 
- * @return string 
+ *
+ * @param word
+ * @return string
  */
 string Trie::shortestUniquePrefix(string const& word) const {
     auto itr = _root.get();
@@ -113,7 +113,7 @@ void findAllStringsWithPrefixHelper(TrieNode const* itr, vector<string>& ret, st
 #endif
 }
 
-}
+}  // namespace detail
 
 vector<string> Trie::findAllStringsWithPrefix(string const& prefix) const {
     auto itr = _root.get();

@@ -18,6 +18,7 @@
 #include <utility>
 #include <vector>
 
+#include "argparse/argGroup.hpp"
 #include "argparse/argparse.hpp"
 #include "cli/cliCharDef.hpp"
 #include "jthread/jthread.hpp"
@@ -59,7 +60,7 @@ public:
         : Command(name, nullptr, nullptr) {}
 
     bool initialize(size_t numRequiredChars);
-    CmdExecResult exec(std::string const& option);
+    CmdExecResult execute(std::string const& option);
     std::string const& getName() const { return _parser.getName(); }
     void usage() const { _parser.printUsage(); }
     void summary() const { _parser.printSummary(); }
@@ -81,8 +82,8 @@ private:
 //----------------------------------------------------------------------
 
 class CommandLineInterface {
-    static const size_t READ_BUF_SIZE = 65536;
-    static const size_t PG_OFFSET = 10;
+    static constexpr size_t READ_BUF_SIZE = 65536;
+    static constexpr size_t PG_OFFSET = 10;
 
     using CmdMap = std::map<const std::string, std::unique_ptr<Command>>;
     using CmdRegPair = std::pair<const std::string, std::unique_ptr<Command>>;

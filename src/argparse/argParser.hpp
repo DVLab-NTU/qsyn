@@ -20,6 +20,13 @@
 
 namespace ArgParse {
 
+struct ArgumentParserConfig {
+    bool addHelpAction = true;
+    bool addVersionAction = false;
+    bool exitOnFailure = true;
+    std::string_view version = "";
+};
+
 /**
  * @brief A view for adding subparsers.
  *        All copies of this class represents the same underlying group of subparsers.
@@ -32,11 +39,12 @@ private:
         std::string help;
         bool required;
         bool parsed;
+        ArgumentParserConfig parentConfig;
     };
     std::shared_ptr<SubParsersImpl> _pimpl;
 
 public:
-    SubParsers() : _pimpl{std::make_shared<SubParsersImpl>()} {}
+    SubParsers(ArgumentParserConfig const& parentConfig) : _pimpl{std::make_shared<SubParsersImpl>()} { _pimpl->parentConfig = parentConfig; }
     void setParsed(bool isParsed) { _pimpl->parsed = isParsed; }
     SubParsers required(bool isReq) {
         _pimpl->required = isReq;
@@ -47,7 +55,8 @@ public:
         return *this;
     }
 
-    ArgumentParser addParser(std::string const& n);
+    ArgumentParser addParser(std::string const& name);
+    ArgumentParser addParser(std::string const& name, ArgumentParserConfig const& config);
 
     size_t size() const noexcept { return _pimpl->subparsers.size(); }
 
@@ -74,14 +83,8 @@ class ArgumentParser {
     friend class Formatter;
 
 public:
-    struct ParserConfig {
-        bool addHelpAction = true;
-        bool addVersionAction = false;
-        bool exitOnFailure = true;
-        std::string_view version = "";
-    };
     ArgumentParser() : _pimpl{std::make_shared<ArgumentParserImpl>()} {}
-    ArgumentParser(std::string const& n, ParserConfig config = {
+    ArgumentParser(std::string const& n, ArgumentParserConfig config = {
                                              .addHelpAction = true,
                                              .addVersionAction = false,
                                              .exitOnFailure = true,
@@ -130,8 +133,8 @@ public:
     requires ValidArgumentType<T>
     ArgType<T>& addArgument(std::string const& name, std::convertible_to<std::string> auto... alias);
 
-    MutuallyExclusiveGroup addMutuallyExclusiveGroup();
-    SubParsers addSubParsers();
+    [[nodiscard]] MutuallyExclusiveGroup addMutuallyExclusiveGroup();
+    [[nodiscard]] SubParsers addSubParsers();
 
     bool parseArgs(std::string const& line);
     bool parseArgs(std::vector<std::string> const& tokens);
@@ -160,14 +163,13 @@ private:
         std::unordered_map<std::string, MutuallyExclusiveGroup> mutable conflictGroups;  // map an argument name to a mutually-exclusive group if it belongs to one.
 
         std::string name;
-        std::string version;
         std::string description;
         size_t numRequiredChars = 1;
 
         // members for analyzing parser options
         dvlab::utils::Trie mutable trie;
         bool mutable optionsAnalyzed = false;
-        bool exitOnFailure = false;
+        ArgumentParserConfig config;
     };
 
     std::shared_ptr<ArgumentParserImpl> _pimpl;
