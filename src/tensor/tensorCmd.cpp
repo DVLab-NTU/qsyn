@@ -39,13 +39,12 @@ bool initTensorCmd() {
     return true;
 }
 
-ArgType<size_t>::ConstraintType validTensorId = {
+ArgType<size_t>::ConstraintType validTensorId =
     [](size_t const& id) {
-        return tensorMgr.isID(id);
-    },
-    [](size_t const& id) {
+        if (tensorMgr.isID(id)) return true;
         cerr << "Error: Can't find tensor with ID " << id << "!!" << endl;
-    }};
+        return false;
+    };
 
 Command TensorMgrResetCmd() {
     return {"tsreset",

@@ -29,7 +29,6 @@ extset         : set extractor parameters
 HELp           : shows helping message to commands
 history        : print command history
 LOGger         : display and set the logger's status
-lts            : (experimental) perform mapping from ZXGraph to corresponding lattice surgery
 mpequiv        : check equivalence of the physical and the logical circuits
 qc2ts          : convert QCir to tensor
 qc2zx          : convert QCir to ZXGraph

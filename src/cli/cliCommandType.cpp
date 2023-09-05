@@ -58,9 +58,6 @@ bool Command::initialize(size_t numRequiredChars) {
  * @return false if failed
  */
 CmdExecResult Command::exec(const std::string& option) {
-    if (_precondition && !_precondition()) {
-        return CmdExecResult::ERROR;
-    }
     if (!_parser.parseArgs(option)) {
         return CmdExecResult::ERROR;
     }

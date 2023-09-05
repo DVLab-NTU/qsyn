@@ -45,9 +45,6 @@ bool initDuostraCmd() {
 //------------------------------------------------------------------------------
 Command duostraCmd() {
     return {"duostra",
-
-            []() { return qcirMgrNotEmpty() && deviceMgrNotEmpty(); },
-
             [](ArgumentParser& parser) {
                 parser.description("map logical circuit to physical circuit");
                 parser.addArgument<bool>("-check")
@@ -65,6 +62,7 @@ Command duostraCmd() {
             },
 
             [](ArgumentParser const& parser) {
+                if (!qcirMgrNotEmpty() || !deviceMgrNotEmpty()) return CmdExecResult::ERROR;
 #ifdef __GNUC__
                 char const* const ompWaitPolicy = getenv("OMP_WAIT_POLICY");
 

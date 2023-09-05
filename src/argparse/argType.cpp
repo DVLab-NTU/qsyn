@@ -28,32 +28,34 @@ ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::strin
     ranges::for_each(choices, [](std::string& str) { str = toLowerString(str); });
     dvlab::utils::Trie trie{choices.begin(), choices.end()};
 
-    auto constraint = [choices, trie](std::string const& val) -> bool {
-        return trie.frequency(toLowerString(val)) == 1 ||
-               any_of(choices.begin(), choices.end(), [&val, &trie](std::string const& choice) -> bool {
-                   return toLowerString(val) == choice;
-               });
-    };
-    auto error = [choices, trie](std::string const& val) -> void {
-        if (trie.frequency(val) > 1) {
-            fmt::println(stderr, "Error: ambiguous choice \"{}\": could match {}!!\n",
-                         val, fmt::join(choices | views::filter([&val](std::string const& choice) { return choice.starts_with(toLowerString(val)); }), " "));
-        } else {
-            fmt::println(stderr, "Error: ambiguous choice \"{}\": please choose from {{{}}}!!\n",
-                         val, fmt::join(choices, " "));
-        }
-    };
+    return [choices, trie](std::string const& val) -> bool {
+        auto isExactMatchToChoice = [&val, &trie](std::string const& choice) -> bool {
+            return toLowerString(val) == choice;
+        };
+        auto freq = trie.frequency(toLowerString(val));
 
-    return {constraint, error};
+        if (freq == 1) return true;
+        if (std::ranges::any_of(choices, isExactMatchToChoice)) return true;
+
+        if (freq > 1) {
+            fmt::println(stderr, "Error: ambiguous choice \"{}\": could match {}!!\n",
+                         val, fmt::join(choices | views::filter([&val](std::string const& choice) { return choice.starts_with(toLowerString(val)); }), ", "));
+        } else {
+            fmt::println(stderr, "Error: invalid choice \"{}\": please choose from {{{}}}!!\n",
+                         val, fmt::join(choices, ", "));
+        }
+        return false;
+    };
 }
 
 ArgType<std::string>::ConstraintType const path_readable = {
     [](std::string const& filepath) {
         namespace fs = std::filesystem;
-        return fs::exists(filepath);
-    },
-    [](std::string const& filepath) {
-        fmt::println(stderr, "Error: the file \"{}\" does not exist!!", filepath);
+        if (!fs::exists(filepath)) {
+            fmt::println(stderr, "Error: the file \"{}\" does not exist!!", filepath);
+            return false;
+        }
+        return true;
     }};
 
 ArgType<std::string>::ConstraintType const path_writable = {
@@ -61,43 +63,44 @@ ArgType<std::string>::ConstraintType const path_writable = {
         namespace fs = std::filesystem;
         auto dir = fs::path{filepath}.parent_path();
         if (dir.empty()) dir = ".";
-        return fs::exists(dir);
-    },
-    [](std::string const& filepath) {
-        fmt::println(stderr, "Error: the directory for file \"{}\" does not exist!!", filepath);
+        if (!fs::exists(dir)) {
+            fmt::println(stderr, "Error: the directory for file \"{}\" does not exist!!", filepath);
+            return false;
+        }
+        return true;
     }};
 
 ArgType<std::string>::ConstraintType starts_with(std::vector<std::string> const& prefixes) {
-    return {
-        [prefixes](std::string const& str) {
-            return std::ranges::any_of(prefixes, [&str](std::string const& prefix) { return str.starts_with(prefix); });
-        },
-        [prefixes](std::string const& str) {
+    return [prefixes](std::string const& str) {
+        if (std::ranges::none_of(prefixes, [&str](std::string const& prefix) { return str.starts_with(prefix); })) {
             fmt::println(stderr, "Error: string \"{}\" should start with one of \"{}\"!!",
                          str, fmt::join(prefixes, "\", \""));
-        }};
+            return false;
+        }
+        return true;
+    };
 }
 
 ArgType<std::string>::ConstraintType ends_with(std::vector<std::string> const& suffixes) {
-    return {
-        [suffixes](std::string const& str) {
-            return std::ranges::any_of(suffixes, [&str](std::string const& suffix) { return str.ends_with(suffix); });
-        },
-        [suffixes](std::string const& str) {
+    return [suffixes](std::string const& str) {
+        if (std::ranges::none_of(suffixes, [&str](std::string const& suffix) { return str.ends_with(suffix); })) {
             fmt::println(stderr, "Error: string \"{}\" should start end one of \"{}\"!!",
                          str, fmt::join(suffixes, "\", \""));
-        }};
+            return false;
+        }
+        return true;
+    };
 }
 
 ArgType<std::string>::ConstraintType allowed_extension(std::vector<std::string> const& extensions) {
-    return {
-        [extensions](std::string const& str) {
-            return std::ranges::any_of(extensions, [&str](std::string const& ext) { return str.substr(std::min(str.find_last_of('.'), str.size())) == ext; });
-        },
-        [extensions](std::string const& str) {
-            fmt::println(stderr, "Error: file must have one of the following extension: \"{}\"!!",
-                         fmt::join(extensions, "\", \""));
-        }};
+    return [extensions](std::string const& str) {
+        if (std::ranges::none_of(extensions, [&str](std::string const& ext) { return str.substr(std::min(str.find_last_of('.'), str.size())) == ext; })) {
+            fmt::println(stderr, "Error: file \"{}\" must have one of the following extension: \"{}\"!!",
+                         str, fmt::join(extensions, "\", \""));
+            return false;
+        }
+        return true;
+    };
 }
 
 /**

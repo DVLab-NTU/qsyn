@@ -36,7 +36,6 @@ bool initOptimizeCmd() {
 //----------------------------------------------------------------------
 Command QCirOptimizeCmd() {
     return {"qccoptimize",
-            qcirMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("optimize QCir");
 
@@ -58,6 +57,7 @@ Command QCirOptimizeCmd() {
                     .help("Use the trivial optimization.");
             },
             [](ArgumentParser const& parser) {
+                if (!qcirMgrNotEmpty()) return CmdExecResult::ERROR;
                 Optimizer optimizer;
                 std::optional<QCir> result;
                 std::string procedure_str{};

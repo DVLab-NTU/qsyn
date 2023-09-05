@@ -189,12 +189,11 @@ Command verboseCmd() {
                 parser.description("set verbose level to 0-9 (default: 3)");
 
                 parser.addArgument<size_t>("level")
-                    .constraint({[](size_t const& val) {
-                                     return val <= 9 || val == 353;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-                                 },
-                                 [](size_t const& val) {
-                                     fmt::println(stderr, "Error: verbose level should be 0-9!!");
-                                 }})
+                    .constraint([](size_t const& val) {
+                        if (val == 353 || 0 <= val && val <= 9) return true;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+                        fmt::println(stderr, "Error: verbose level should be 0-9!!");
+                        return false;
+                    })
                     .help("0: silent, 1-3: normal usage, 4-6: detailed info, 7-9: prolix debug info");
             },
 

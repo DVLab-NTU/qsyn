@@ -39,7 +39,6 @@ extern bool initExtractCmd();
 extern bool initDeviceCmd();
 extern bool initDuostraCmd();
 extern bool initGFlowCmd();
-extern bool initLTCmd();
 
 bool stop_requested() {
     return cli.stopRequested();
@@ -92,8 +91,7 @@ int main(int argc, char** argv) {
         !initExtractCmd() ||
         !initDeviceCmd() ||
         !initDuostraCmd() ||
-        !initGFlowCmd() ||
-        !initLTCmd()) {
+        !initGFlowCmd()) {
         return 1;
     }
 

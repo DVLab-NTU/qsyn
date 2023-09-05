@@ -319,14 +319,14 @@ void Duostra::printAssembly() const {
     for (size_t i = 0; i < _result.size(); ++i) {
         const auto& op = _result.at(i);
         string gateName{gateType2Str[op.getType()]};
-        cout << left << setw(5) << gateName << " "; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+        cout << left << setw(5) << gateName << " ";  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         tuple<size_t, size_t> qubits = op.getQubits();
         string res = "q[" + to_string(get<0>(qubits)) + "]";
         if (get<1>(qubits) != ERROR_CODE) {
             res = res + ",q[" + to_string(get<1>(qubits)) + "]";
         }
         res += ";";
-        cout << left << setw(20) << res; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+        cout << left << setw(20) << res;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         cout << " // (" << op.getOperationTime() << "," << op.getCost() << ")   Origin gate: " << op.getId() << "\n";
     }
 }

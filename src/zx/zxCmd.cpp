@@ -68,46 +68,41 @@ bool initZXCmd() {
     return true;
 }
 
-ArgType<size_t>::ConstraintType const validZXGraphId = {
+ArgType<size_t>::ConstraintType const validZXGraphId =
     [](size_t const& id) {
-        return zxGraphMgr.isID(id);
-    },
-    [](size_t const& id) {
+        if (zxGraphMgr.isID(id)) return true;
         logger.error("ZXGraph {} does not exist!!", id);
-    }};
+        return false;
+    };
 
-ArgType<size_t>::ConstraintType const zxGraphIdNotExist = {
+ArgType<size_t>::ConstraintType const zxGraphIdNotExist =
     [](size_t const& id) {
-        return !zxGraphMgr.isID(id);
-    },
-    [](size_t const& id) {
+        if (!zxGraphMgr.isID(id)) return true;
         logger.error("ZXGraph {} already exists!!", id);
         logger.info("Use `-Replace` if you want to overwrite it.");
-    }};
+        return false;
+    };
 
-ArgType<size_t>::ConstraintType const validZXVertexId = {
+ArgType<size_t>::ConstraintType const validZXVertexId =
     [](size_t const& id) {
-        return zxGraphMgr.get()->isId(id);
-    },
-    [](size_t const& id) {
+        if (zxGraphMgr.get()->isId(id)) return true;
         logger.error("Cannot find vertex with ID {} in the ZXGraph!!", id);
-    }};
+        return false;
+    };
 
-ArgType<size_t>::ConstraintType const notExistingZXInputQubitId = {
+ArgType<size_t>::ConstraintType const notExistingZXInputQubitId =
     [](size_t const& qid) {
-        return !zxGraphMgr.get()->isInputQubit(qid);
-    },
-    [](size_t const& qid) {
+        if (!zxGraphMgr.get()->isInputQubit(qid)) return true;
         logger.error("This qubit's input already exists!!");
-    }};
+        return false;
+    };
 
-ArgType<size_t>::ConstraintType const notExistingZXOutputQubitId = {
+ArgType<size_t>::ConstraintType const notExistingZXOutputQubitId =
     [](size_t const& qid) {
-        return !zxGraphMgr.get()->isOutputQubit(qid);
-    },
-    [](size_t const& qid) {
+        if (!zxGraphMgr.get()->isOutputQubit(qid)) return true;
         logger.error("This qubit's output already exists!!");
-    }};
+        return false;
+    };
 
 bool zxGraphMgrNotEmpty() {
     if (zxGraphMgr.empty()) {
@@ -123,7 +118,6 @@ bool zxGraphMgrNotEmpty() {
 //----------------------------------------------------------------------
 Command ZXCHeckoutCmd() {
     return {"zxcheckout",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("checkout to Graph <id> in ZXGraphMgr");
                 parser.addArgument<size_t>("id")
@@ -131,6 +125,7 @@ Command ZXCHeckoutCmd() {
                     .help("the ID of the ZXGraph");
             },
             [](ArgumentParser const& parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 zxGraphMgr.checkout(parser.get<size_t>("id"));
                 return CmdExecResult::DONE;
             }};
@@ -189,7 +184,6 @@ Command ZXResetCmd() {
 //----------------------------------------------------------------------
 Command ZXDeleteCmd() {
     return {"zxdelete",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("remove a ZXGraph from ZXGraphMgr");
 
@@ -198,6 +192,7 @@ Command ZXDeleteCmd() {
                     .help("the ID of the ZXGraph");
             },
             [](ArgumentParser const& parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 zxGraphMgr.remove(parser.get<size_t>("id"));
                 return CmdExecResult::DONE;
             }};
@@ -235,7 +230,6 @@ Command ZXPrintCmd() {
 //----------------------------------------------------------------------
 Command ZXCopyCmd() {
     return {"zxcopy",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("copy a ZXGraph to ZXGraphMgr");
 
@@ -248,6 +242,7 @@ Command ZXCopyCmd() {
                     .help("replace the current focused ZXGraph");
             },
             [](ArgumentParser const& parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 size_t id = (parser.parsed("id")) ? parser.get<size_t>("id") : zxGraphMgr.getNextID();
                 if (zxGraphMgr.isID(id)) {
                     if (!parser.parsed("-replace")) {
@@ -268,7 +263,6 @@ Command ZXCopyCmd() {
 //----------------------------------------------------------------------
 Command ZXComposeCmd() {
     return {"zxcompose",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("compose a ZXGraph");
 
@@ -277,6 +271,7 @@ Command ZXComposeCmd() {
                     .help("the ID of the ZXGraph to compose with");
             },
             [](ArgumentParser const& parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 zxGraphMgr.get()->compose(*zxGraphMgr.findByID(parser.get<size_t>("id")));
                 return CmdExecResult::DONE;
             }};
@@ -287,7 +282,6 @@ Command ZXComposeCmd() {
 //----------------------------------------------------------------------
 Command ZXTensorCmd() {
     return {"zxtensor",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("tensor a ZXGraph");
 
@@ -296,6 +290,7 @@ Command ZXTensorCmd() {
                     .help("the ID of the ZXGraph");
             },
             [](ArgumentParser const& parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 zxGraphMgr.get()->tensorProduct(*zxGraphMgr.findByID(parser.get<size_t>("id")));
                 return CmdExecResult::DONE;
             }};
@@ -306,7 +301,6 @@ Command ZXTensorCmd() {
 //----------------------------------------------------------------------
 Command ZXGTestCmd() {
     return {"zxgtest",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("test ZXGraph structures and functions");
 
@@ -326,6 +320,7 @@ Command ZXGTestCmd() {
                     .help("check if the ZXGraph is equivalent to identity");
             },
             [](ArgumentParser const& parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 if (parser.parsed("-empty")) {
                     if (zxGraphMgr.get()->isEmpty())
                         cout << "The graph is empty!" << endl;
@@ -356,7 +351,6 @@ Command ZXGTestCmd() {
 //-----------------------------------------------------------------------------------------------------------
 Command ZXGPrintCmd() {
     return {"zxgprint",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("print info of ZXGraph");
 
@@ -395,6 +389,7 @@ Command ZXGPrintCmd() {
             },
 
             [](ArgumentParser const& parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 if (parser.parsed("-summary")) {
                     zxGraphMgr.get()->printGraph();
                     fmt::println("{:<29} {}", "#T-gate:", zxGraphMgr.get()->TCount());
@@ -436,7 +431,6 @@ Command ZXGPrintCmd() {
 
 Command ZXGEditCmd() {
     return {"zxgedit",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("edit ZXGraph");
 
@@ -506,6 +500,7 @@ Command ZXGEditCmd() {
                     .help("the edge type to add. Options: simple, hadamard");
             },
             [](ArgumentParser const& parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 if (parser.usedSubParser("-rmvertex")) {
                     if (parser.parsed("ids")) {
                         auto ids = parser.get<vector<size_t>>("ids");
@@ -601,11 +596,11 @@ Command ZXGEditCmd() {
 //----------------------------------------------------------------------
 Command ZXGTraverseCmd() {
     return {"zxgtraverse",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("traverse ZXGraph and update topological order of vertices");
             },
             [](ArgumentParser const& parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 zxGraphMgr.get()->updateTopoOrder();
                 return CmdExecResult::DONE;
             }};
@@ -618,7 +613,6 @@ Command ZXGTraverseCmd() {
 
 Command ZXGDrawCmd() {
     return {"zxgdraw",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("draw ZXGraph");
 
@@ -633,6 +627,7 @@ Command ZXGDrawCmd() {
                     .help("print to the terminal. Note that only horizontal wires will be printed");
             },
             [](ArgumentParser const& parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 if (parser.parsed("filepath")) {
                     if (!zxGraphMgr.get()->writePdf(parser.get<string>("filepath"))) return CmdExecResult::ERROR;
                 }
@@ -649,7 +644,6 @@ Command ZXGDrawCmd() {
 //----------------------------------------------------------------------
 Command ZX2TSCmd() {
     return {"zx2ts",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("convert ZXGraph to tensor");
 
@@ -667,6 +661,7 @@ Command ZX2TSCmd() {
                     .help("replace the target tensor if the tensor ID is occupied");
             },
             [](ArgumentParser const& parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 auto zxID = parser.parsed("-zx") ? parser.get<size_t>("-zx") : zxGraphMgr.focusedID();
                 auto zx = zxGraphMgr.findByID(zxID);
 
@@ -747,7 +742,6 @@ Command ZXGReadCmd() {
 
 Command ZXGWriteCmd() {
     return {"zxgwrite",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("write the ZXGraph to a file");
 
@@ -761,6 +755,7 @@ Command ZXGWriteCmd() {
                     .help("if specified, output neighbor information on both vertices of each edge");
             },
             [](ArgumentParser const& parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 auto filepath = parser.get<string>("filepath");
                 auto doComplete = parser.get<bool>("-complete");
                 size_t extensionPos = filepath.find_last_of('.');
@@ -792,7 +787,6 @@ Command ZXGWriteCmd() {
 
 Command ZXGAssignCmd() {
     return {"zxgassign",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("assign quantum states to input/output vertex");
 
@@ -812,6 +806,7 @@ Command ZXGAssignCmd() {
                     .help("the phase of the vertex");
             },
             [](ArgumentParser const& parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 auto qid = parser.get<size_t>("qubit");
                 bool isInput = toLowerString(parser.get<string>("io")).starts_with('i');
 
@@ -835,11 +830,11 @@ Command ZXGAssignCmd() {
 //----------------------------------------------------------------------
 Command ZXGADjointCmd() {
     return {"zxgadjoint",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("adjoint ZXGraph");
             },
             [](ArgumentParser const& parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 zxGraphMgr.get()->adjoint();
                 return CmdExecResult::DONE;
             }};

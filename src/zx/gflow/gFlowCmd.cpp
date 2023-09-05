@@ -31,7 +31,6 @@ bool initGFlowCmd() {
 
 Command ZXGGFlowCmd() {
     return {"zxggflow",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("calculate and print the generalized flow of a ZXGraph");
 
@@ -59,6 +58,7 @@ Command ZXGGFlowCmd() {
                     .help("force each GFlow level to be an independent set");
             },
             [](ArgumentParser const& parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 GFlow gflow(zxGraphMgr.get());
 
                 gflow.doExtendedGFlow(parser.get<bool>("-extended"));

@@ -45,13 +45,12 @@ bool initDeviceCmd() {
     return true;
 }
 
-ArgType<size_t>::ConstraintType const validDeviceId = {
+ArgType<size_t>::ConstraintType const validDeviceId =
     [](size_t const& id) {
-        return deviceMgr.isID(id);
-    },
-    [](size_t const& id) {
+        if (deviceMgr.isID(id)) return true;
         logger.error("Device {} does not exist!!", id);
-    }};
+        return false;
+    };
 
 Command dtCheckOutCmd() {
     return {"dtcheckout",
@@ -159,7 +158,6 @@ Command dtPrintCmd() {
 
 Command dtGraphPrintCmd() {
     return {"dtgprint",
-            deviceMgrNotEmpty,
             [](ArgumentParser& parser) {
                 parser.description("print info of device topology");
 
@@ -191,6 +189,8 @@ Command dtGraphPrintCmd() {
                         "print routing paths between q1 and q2");
             },
             [](ArgumentParser const& parser) {
+                if (!deviceMgrNotEmpty()) return CmdExecResult::ERROR;
+
                 if (parser.parsed("-edges")) {
                     deviceMgr.get()->printEdges(parser.get<vector<size_t>>("-edges"));
                     return CmdExecResult::DONE;

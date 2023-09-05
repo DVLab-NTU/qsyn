@@ -25,7 +25,7 @@ using ZXVertexList = ordered_hashset<ZXVertex*>;
 class Row {
 public:
     Row(size_t id, const std::vector<unsigned char>& r) : _row(r) {}
-    
+
     const std::vector<unsigned char>& getRow() const { return _row; }
     void setRow(std::vector<unsigned char> row) { _row = row; }
     size_t size() const { return _row.size(); }

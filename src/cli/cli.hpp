@@ -52,12 +52,10 @@ class Command {
     using OnParseSuccess = std::function<CmdExecResult(ArgParse::ArgumentParser const&)>;
 
 public:
-    Command(std::string const& name, Precondition prec, ParserDefinition defn, OnParseSuccess on)
-        : _parser{name, {.exitOnFailure = false}}, _precondition{prec}, _parserDefinition{defn}, _onParseSuccess{on} {}
-    Command(std::string const& name)
-        : Command(name, nullptr, nullptr, nullptr) {}
     Command(std::string const& name, ParserDefinition defn, OnParseSuccess on)
-        : Command(name, nullptr, defn, on) {}
+        : _parser{name, {.exitOnFailure = false}}, _parserDefinition{defn}, _onParseSuccess{on} {}
+    Command(std::string const& name)
+        : Command(name, nullptr, nullptr) {}
 
     bool initialize(size_t numRequiredChars);
     CmdExecResult exec(std::string const& option);
@@ -72,7 +70,6 @@ public:
 
 private:
     ParserDefinition _parserDefinition;  // define the parser's arguments and traits
-    Precondition _precondition;          // define the parsing precondition
     OnParseSuccess _onParseSuccess;      // define the action to take on parse success
     ArgParse::ArgumentParser _parser;
     std::string _optCmd;

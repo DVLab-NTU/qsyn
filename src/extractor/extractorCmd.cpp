@@ -47,11 +47,11 @@ bool initExtractCmd() {
 
 Command ExtractCmd() {
     return {"zx2qc",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser &parser) {
                 parser.description("extract QCir from ZXGraph");
             },
             [](ArgumentParser const &parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 if (!zxGraphMgr.get()->isGraphLike()) {
                     logger.error("ZXGraph {0} is not graph-like. Not extractable!!", zxGraphMgr.focusedID());
                     return CmdExecResult::ERROR;
@@ -82,7 +82,6 @@ Command ExtractCmd() {
 
 Command ExtractStepCmd() {
     return {"extract",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser &parser) {
                 parser.description("perform step(s) in extraction");
                 parser.addArgument<size_t>("-zxgraph")
@@ -133,6 +132,7 @@ Command ExtractStepCmd() {
                     .help("Run N iteration of extraction loop. N is defaulted to 1");
             },
             [](ArgumentParser const &parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 zxGraphMgr.checkout(parser.get<size_t>("-zxgraph"));
                 if (!zxGraphMgr.get()->isGraphLike()) {
                     logger.error("ZXGraph {0} is not graph-like. Not extractable!!", zxGraphMgr.focusedID());
@@ -201,7 +201,6 @@ Command ExtractStepCmd() {
 
 Command ExtractPrintCmd() {
     return {"extprint",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser &parser) {
                 parser.description("print info of extracting ZXGraph");
 
@@ -224,6 +223,7 @@ Command ExtractPrintCmd() {
                     .help("print biadjancency");
             },
             [](ArgumentParser const &parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 if (parser.parsed("-settings") || parser.numParsedArguments() == 0) {
                     cout << endl;
                     cout << "Optimize Level:    " << OPTIMIZE_LEVEL << endl;

@@ -29,21 +29,19 @@ bool initSimpCmd() {
     return true;
 }
 
-ArgType<size_t>::ConstraintType validPreducePartitions = {
+ArgType<size_t>::ConstraintType validPreducePartitions =
     [](size_t const &arg) {
-        return (arg > 0);
-    },
-    [](size_t const &arg) {
+        if (arg > 0) return true;
         cerr << "The paritions parameter in partition reduce should be greater than 0" << endl;
-    }};
+        return false;
+    };
 
-ArgType<size_t>::ConstraintType validPreduceIteratoins = {
+ArgType<size_t>::ConstraintType validPreduceIteratoins =
     [](size_t const &arg) {
-        return (arg > 0);
-    },
-    [](size_t const &arg) {
+        if (arg > 0) return true;
         cerr << "The iterations parameter in partition reduce should be greater than 0" << endl;
-    }};
+        return false;
+    };
 
 //------------------------------------------------------------------------------------------------------------------
 //    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion |
@@ -51,7 +49,6 @@ ArgType<size_t>::ConstraintType validPreduceIteratoins = {
 //------------------------------------------------------------------------------------------------------------------
 Command ZXGSimpCmd() {
     return {"zxgsimp",
-            zxGraphMgrNotEmpty,
             [](ArgumentParser &parser) {
                 parser.description("perform simplification strategies for ZXGraph");
 
@@ -135,6 +132,7 @@ Command ZXGSimpCmd() {
                     .help("convert to red (X) graph");
             },
             [](ArgumentParser const &parser) {
+                if (!zxGraphMgrNotEmpty()) return CmdExecResult::ERROR;
                 Simplifier s(zxGraphMgr.get());
                 std::string procedure_str = "";
                 if (parser.parsed("-sreduce")) {
