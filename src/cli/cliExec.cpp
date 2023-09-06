@@ -34,7 +34,7 @@ std::string const CommandLineInterface::_specialChars = "\"\' ;$";
  * @return false
  */
 bool CommandLineInterface::openDofile(const std::string& filepath) {
-    constexpr size_t dofile_stack_limit = 1024;
+    constexpr size_t dofile_stack_limit = 256;
     if (this->stopRequested()) {
         return false;
     }
