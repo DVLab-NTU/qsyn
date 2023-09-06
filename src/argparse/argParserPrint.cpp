@@ -149,6 +149,8 @@ std::string getSyntax(ArgumentParser parser, MutuallyExclusiveGroup const& group
  * @return string
  */
 std::string wrapText(std::string const& str, size_t max_help_width) {
+    if (!dvlab::utils::is_terminal()) return str;
+
     std::vector<std::string> lines = split(str, "\n");
     for (auto i = 0; i < lines.size(); ++i) {
         if (lines[i].size() < max_help_width) continue;
