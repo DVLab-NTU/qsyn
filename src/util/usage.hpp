@@ -22,13 +22,13 @@ public:
 
 private:
     // for Memory usage (in MB)
-    double _initMem;
-    double _currentMem;
+    double _initMem = 0.0;
+    double _currentMem = 0.0;
 
     // for CPU time usage
-    double _currentTick;
-    double _periodUsedTime;
-    double _totalUsedTime;
+    double _currentTick = 0.0;
+    double _periodUsedTime = 0.0;
+    double _totalUsedTime = 0.0;
 
     // private functions
     double checkMem() const;

@@ -10,8 +10,6 @@
 
 using MatchType = HadamardRule::MatchType;
 
-extern size_t verbose;
-
 std::vector<MatchType> HadamardRule::findMatches(const ZXGraph& graph) const {
     std::vector<MatchType> matches;
 

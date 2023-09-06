@@ -11,13 +11,13 @@
 #include <cstddef>
 
 #include "./qcirGate.hpp"
+#include "util/logger.hpp"
 #include "util/phase.hpp"
 #include "util/rational.hpp"
 
 using namespace std;
 
-extern size_t verbose;
-extern size_t dmode;
+extern dvlab::utils::Logger logger;
 extern bool stop_requested();
 
 namespace detail {
@@ -35,7 +35,7 @@ enum class RotationAxis {
 pair<vector<ZXVertex*>, ZXVertex*>
 MC_GenBackbone(ZXGraph& g, vector<BitInfo> const& qubits, RotationAxis ax) {
     vector<ZXVertex*> controls;
-    ZXVertex* target;
+    ZXVertex* target = nullptr;
     for (auto const& bitinfo : qubits) {
         size_t qubit = bitinfo._qubit;
         ZXVertex* in = g.addInput(qubit);
@@ -198,7 +198,7 @@ ZXGraph getCXZXform(QCirGate* gate) {
  *
  * @return ZXGraph
  */
-ZXGraph getCCXZXform(QCirGate* gate) {
+ZXGraph getCCXZXform(QCirGate* gate, size_t decomposition_mode) {
     ZXGraph g;
     size_t ctrl_qubit_2 = gate->getQubits()[0]._isTarget ? gate->getQubits()[1]._qubit : gate->getQubits()[0]._qubit;
     size_t ctrl_qubit_1 = gate->getQubits()[0]._isTarget ? gate->getQubits()[2]._qubit : (gate->getQubits()[1]._isTarget ? gate->getQubits()[2]._qubit : gate->getQubits()[1]._qubit);
@@ -213,7 +213,7 @@ ZXGraph getCCXZXform(QCirGate* gate) {
     ZXVertex* out_ctrl_1;
     ZXVertex* out_ctrl_2;
     ZXVertex* out_targ;
-    if (dmode == 1) {
+    if (decomposition_mode == 1) {
         vertices_info = {{{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(-1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_1}, {{VertexType::Z, Phase(0)}, ctrl_qubit_1}};
         adj_pair = {{{0, 1}, EdgeType::HADAMARD}, {{1, 10}, EdgeType::HADAMARD}, {{1, 2}, EdgeType::HADAMARD}, {{2, 3}, EdgeType::HADAMARD}, {{3, 16}, EdgeType::HADAMARD}, {{3, 4}, EdgeType::HADAMARD}, {{4, 5}, EdgeType::HADAMARD}, {{5, 11}, EdgeType::HADAMARD}, {{5, 6}, EdgeType::HADAMARD}, {{6, 7}, EdgeType::HADAMARD}, {{7, 17}, EdgeType::HADAMARD}, {{7, 8}, EdgeType::HADAMARD}, {{8, 9}, EdgeType::HADAMARD}, {{10, 11}, EdgeType::SIMPLE}, {{11, 12}, EdgeType::SIMPLE}, {{12, 13}, EdgeType::HADAMARD}, {{13, 18}, EdgeType::HADAMARD}, {{13, 14}, EdgeType::HADAMARD}, {{14, 15}, EdgeType::HADAMARD}, {{15, 20}, EdgeType::HADAMARD}, {{16, 17}, EdgeType::SIMPLE}, {{17, 18}, EdgeType::SIMPLE}, {{18, 19}, EdgeType::SIMPLE}, {{19, 20}, EdgeType::SIMPLE}};
 
@@ -237,7 +237,7 @@ ZXGraph getCCXZXform(QCirGate* gate) {
         g.addEdge(out_ctrl_1, vertices_list[20], EdgeType::SIMPLE);
         g.addEdge(out_ctrl_2, vertices_list[15], EdgeType::HADAMARD);
         g.addEdge(out_targ, vertices_list[9], EdgeType::SIMPLE);
-    } else if (dmode == 2) {
+    } else if (decomposition_mode == 2) {
         vertices_info = {{{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(-1, 4)}, targ_qubit}, {{VertexType::Z, Phase(0)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(-1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(0)}, ctrl_qubit_2}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_1}};
         adj_pair = {{{0, 1}, EdgeType::HADAMARD}, {{0, 8}, EdgeType::HADAMARD}, {{1, 2}, EdgeType::HADAMARD}, {{2, 12}, EdgeType::HADAMARD}, {{2, 3}, EdgeType::HADAMARD}, {{3, 4}, EdgeType::HADAMARD}, {{4, 8}, EdgeType::HADAMARD}, {{4, 5}, EdgeType::HADAMARD}, {{5, 6}, EdgeType::HADAMARD}, {{6, 12}, EdgeType::HADAMARD}, {{6, 7}, EdgeType::HADAMARD}, {{8, 9}, EdgeType::HADAMARD}, {{9, 12}, EdgeType::HADAMARD}, {{9, 10}, EdgeType::HADAMARD}, {{10, 11}, EdgeType::HADAMARD}, {{11, 12}, EdgeType::HADAMARD}};
 
@@ -261,7 +261,7 @@ ZXGraph getCCXZXform(QCirGate* gate) {
         g.addEdge(out_ctrl_1, vertices_list[12], EdgeType::SIMPLE);
         g.addEdge(out_ctrl_2, vertices_list[11], EdgeType::HADAMARD);
         g.addEdge(out_targ, vertices_list[7], EdgeType::HADAMARD);
-    } else if (dmode == 3) {
+    } else if (decomposition_mode == 3) {
         vertices_info = {{{VertexType::Z, Phase(1, 4)}, targ_qubit}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_2}, {{VertexType::Z, Phase(1, 4)}, ctrl_qubit_1}, {{VertexType::Z, Phase(1, 4)}, -2}, {{VertexType::Z, Phase(0)}, -1}, {{VertexType::Z, Phase(-1, 4)}, -2}, {{VertexType::Z, Phase(0)}, -1}, {{VertexType::Z, Phase(-1, 4)}, -2}, {{VertexType::Z, Phase(0)}, -1}, {{VertexType::Z, Phase(-1, 4)}, -2}, {{VertexType::Z, Phase(0)}, -1}};
         adj_pair = {{{0, 4}, EdgeType::HADAMARD}, {{0, 6}, EdgeType::HADAMARD}, {{0, 8}, EdgeType::HADAMARD}, {{1, 4}, EdgeType::HADAMARD}, {{1, 6}, EdgeType::HADAMARD}, {{1, 10}, EdgeType::HADAMARD}, {{2, 4}, EdgeType::HADAMARD}, {{2, 8}, EdgeType::HADAMARD}, {{2, 10}, EdgeType::HADAMARD}, {{3, 4}, EdgeType::HADAMARD}, {{5, 6}, EdgeType::HADAMARD}, {{7, 8}, EdgeType::HADAMARD}, {{9, 10}, EdgeType::HADAMARD}};
         vertices_col = {5, 5, 5, 1, 1, 2, 2, 3, 3, 4, 4};
@@ -402,7 +402,7 @@ ZXGraph getRYZXform(QCirGate* gate, Phase ph) {
 
 }  // namespace detail
 
-std::optional<ZXGraph> toZXGraph(QCirGate* gate) {
+std::optional<ZXGraph> toZXGraph(QCirGate* gate, size_t decomposition_mode) {
     switch (gate->getType()) {
         // single-qubit gates
         case GateType::H:
@@ -450,7 +450,7 @@ std::optional<ZXGraph> toZXGraph(QCirGate* gate) {
         case GateType::CCZ:
             return detail::MCP_Gen(gate->getQubits(), gate->getPhase(), detail::RotationAxis::Z);
         case GateType::CCX:
-            return detail::getCCXZXform(gate);
+            return detail::getCCXZXform(gate, decomposition_mode);
         case GateType::MCRX:
             return detail::MCR_Gen(gate->getQubits(), gate->getPhase(), detail::RotationAxis::X);
         case GateType::MCPX:
@@ -468,13 +468,10 @@ std::optional<ZXGraph> toZXGraph(QCirGate* gate) {
 /**
  * @brief Mapping QCir to ZXGraph
  */
-std::optional<ZXGraph> toZXGraph(QCir const& qcir) {
+std::optional<ZXGraph> toZXGraph(QCir const& qcir, size_t decomposition_mode) {
     qcir.updateGateTime();
     ZXGraph g;
-
-    if (verbose >= 5) cout << "Traverse and build the graph... " << endl;
-
-    if (verbose >= 5) cout << "\n> Add boundaries" << endl;
+    logger.debug("Add boundaries");
     for (size_t i = 0; i < qcir.getQubits().size(); i++) {
         ZXVertex* input = g.addInput(qcir.getQubits()[i]->getId());
         ZXVertex* output = g.addOutput(qcir.getQubits()[i]->getId());
@@ -482,11 +479,11 @@ std::optional<ZXGraph> toZXGraph(QCir const& qcir) {
         g.addEdge(input, output, EdgeType::SIMPLE);
     }
 
-    qcir.topoTraverse([&g](QCirGate* gate) {
+    qcir.topoTraverse([&g, &decomposition_mode](QCirGate* gate) {
         if (stop_requested()) return;
-        if (verbose >= 8) cout << "\n";
-        if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
-        auto tmp = toZXGraph(gate);
+        logger.debug("Gate {} ({})", gate->getId(), gate->getTypeStr());
+
+        auto tmp = toZXGraph(gate, decomposition_mode);
         assert(tmp.has_value());
 
         for (auto& v : tmp->getVertices()) {
@@ -508,7 +505,7 @@ std::optional<ZXGraph> toZXGraph(QCir const& qcir) {
     }
 
     if (stop_requested()) {
-        cerr << "Warning: conversion interrupted." << endl;
+        logger.warning("Conversion interrupted.");
         return std::nullopt;
     }
 

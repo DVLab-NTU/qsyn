@@ -221,6 +221,7 @@ qsyn> qccoptimize
 [Info]   Two-qubit gates: 1498 → 1498
 [Info]   Hadamard gates : 428 → 210
 [Info]   Non-Pauli gates: 1498 → 1491
+[Info] Note: Replacing QCir 0...
 
 qsyn> logger level warning
 
@@ -376,6 +377,7 @@ qsyn> qccoptimize -stat
 [Info]   Two-qubit gates: 1433 → 1327
 [Info]   Hadamard gates : 1210 → 210
 [Info]   Non-Pauli gates: 694 → 742
+[Info] Note: Replacing QCir 1...
 
 qsyn> logger level warning
 

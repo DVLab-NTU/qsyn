@@ -26,10 +26,7 @@ struct BitInfo;
 
 class QCir {
 public:
-    QCir(size_t id = 0) : _id(id), _gateId(0), _ZXNodeId(0), _qubitId(0) {
-        _dirty = true;
-        _globalDFScounter = 0;
-    }
+    QCir() {}
     ~QCir() {}
 
     QCir(QCir const& other) {
@@ -61,19 +58,7 @@ public:
         this->addProcedures(other._procedures);
     }
 
-    QCir(QCir&& other) noexcept {
-        _id = std::exchange(other._id, 0);
-        _gateId = std::exchange(other._gateId, 0);
-        _ZXNodeId = std::exchange(other._ZXNodeId, 0);
-        _qubitId = std::exchange(other._qubitId, 0);
-        _dirty = std::exchange(other._dirty, false);
-        _globalDFScounter = std::exchange(other._globalDFScounter, 0);
-        _fileName = std::exchange(other._fileName, "");
-        _procedures = std::exchange(other._procedures, {});
-        _qgates = std::exchange(other._qgates, {});
-        _qubits = std::exchange(other._qubits, {});
-        _topoOrder = std::exchange(other._topoOrder, {});
-    }
+    QCir(QCir&& other) noexcept = default;
 
     QCir& operator=(QCir copy) {
         copy.swap(*this);
@@ -81,9 +66,7 @@ public:
     }
 
     void swap(QCir& other) noexcept {
-        std::swap(_id, other._id);
         std::swap(_gateId, other._gateId);
-        std::swap(_ZXNodeId, other._ZXNodeId);
         std::swap(_qubitId, other._qubitId);
         std::swap(_dirty, other._dirty);
         std::swap(_globalDFScounter, other._globalDFScounter);
@@ -99,8 +82,6 @@ public:
     }
 
     // Access functions
-    size_t getId() const { return _id; }
-    size_t getZXId() const { return _ZXNodeId; }
     size_t getNQubit() const { return _qubits.size(); }
     int getDepth();
     const std::vector<QCirQubit*>& getQubits() const { return _qubits; }
@@ -111,8 +92,6 @@ public:
     std::string getFileName() const { return _fileName; }
     const std::vector<std::string>& getProcedures() const { return _procedures; }
 
-    void incrementZXId() { _ZXNodeId++; }
-    void setId(size_t id) { _id = id; }
     void setFileName(std::string f) { _fileName = f; }
     void addProcedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
     void addProcedure(std::string const& p) { _procedures.emplace_back(p); }
@@ -175,12 +154,10 @@ public:
 private:
     void DFS(QCirGate*) const;
 
-    size_t _id;
-    size_t _gateId;
-    size_t _ZXNodeId;
-    size_t _qubitId;
-    bool mutable _dirty;
-    unsigned mutable _globalDFScounter;
+    size_t _gateId = 0;
+    size_t _qubitId = 0;
+    bool mutable _dirty = true;
+    unsigned mutable _globalDFScounter = 0;
     std::string _fileName;
     std::vector<std::string> _procedures;
 

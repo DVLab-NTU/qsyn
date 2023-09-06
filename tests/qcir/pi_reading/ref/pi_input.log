@@ -1,24 +1,22 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
-Created and checked out to QCir 0
 
-qsyn> qcga -rz -ph 11*pi/17 0 
+qsyn> qcga rz -ph 11*pi/17 0 
 
-qsyn> qcga -rz -ph 1l*pi/17 0 
+qsyn> qcga rz -ph 1l*pi/17 0 
 Error: invalid Phase value "1l*pi/17" for argument "-phase"!!
 
-qsyn> qcga -rz -ph 3*3*PI/4/3 0
+qsyn> qcga rz -ph 3*3*PI/4/3 0
 
-qsyn> qcga -rz -ph 3*4/PI 0
+qsyn> qcga rz -ph 3*4/PI 0
 
-qsyn> qcga -rz -ph PI*PI/pi 0
+qsyn> qcga rz -ph PI*PI/pi 0
 
-qsyn> qcga -rz -ph PI*3PI/pi 0
+qsyn> qcga rz -ph PI*3PI/pi 0
 Error: invalid Phase value "PI*3PI/pi" for argument "-phase"!!
 
 qsyn> qc2zx
-Created and checked out to ZXGraph 0
 
 qsyn> qq -f
 

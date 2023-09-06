@@ -19,7 +19,7 @@ constexpr int INTERRUPT_KEY = 3;        // ctrl-d
 constexpr int INPUT_END_KEY = 4;        // ctrl-d
 constexpr int TAB_KEY = int('\t');      // tab('\t') or Ctrl-i
 constexpr int NEWLINE_KEY = int('\n');  // enter('\n') or ctrl-m
-constexpr int CLEAR_CONSOLE_KEY = 12;   // ctrl-l
+constexpr int CLEAR_TERMINAL_KEY = 12;  // ctrl-l
 constexpr int ESC_KEY = 27;             // Not printable; used for combo keys
 
 // -- The following simple/combo keys are platform-dependent

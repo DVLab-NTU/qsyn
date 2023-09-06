@@ -1,11 +1,10 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qcba 3
 Note: QCir list is empty now. Create a new one.
-Created and checked out to QCir 0
 
-qsyn> qcga -cx 0 2
+qsyn> qcga cx 0 2
 
-qsyn> qcga -rz -ph pi 0
+qsyn> qcga rz -ph pi 0
 
 qsyn> qcbd 1
 
@@ -14,15 +13,14 @@ Q 0  ---------cx( 0)--rz( 1)-
 Q 2  ---------cx( 0)-
 
 qsyn> qcnew
-Created and checked out to QCir 1
 
 qsyn> qcba 4
 
-qsyn> qcga -cx 1 2
+qsyn> qcga cx 1 2
 
-qsyn> qcga -cx 0 3
+qsyn> qcga cx 0 3
 
-qsyn> qcga -cx 0 2
+qsyn> qcga cx 0 2
 
 qsyn> qccp -q
 Q 0  ---------cx( 1)----------cx( 2)-
@@ -31,7 +29,6 @@ Q 2  ---------cx( 0)----------cx( 2)-
 Q 3  ---------cx( 1)-
 
 qsyn> qcch 0
-Checked out to QCir 0
 
 qsyn> qccp -q
 Q 0  ---------cx( 0)--rz( 1)-
@@ -46,7 +43,6 @@ Q 2  ---------cx( 0)----------cx( 2)------------------cx( 4)-
 Q 3  ---------------------------------cx( 3)-
 
 qsyn> qc2zx
-Created and checked out to ZXGraph 0
 
 qsyn> zxgp -v
 
@@ -71,12 +67,8 @@ Total #Vertices: 17
 
 
 qsyn> qc2ts
-Traverse and build the tensor... 
-Created and checked out to Tensor 0
 
 qsyn> zx2ts
-Traverse and build the tensor... 
-Created and checked out to Tensor 1
 
 qsyn> tseq 0 1
 Equivalent
@@ -86,10 +78,8 @@ Equivalent
 qsyn> qcr
 
 qsyn> qccread benchmark/benchmark_SABRE/small/qft_4.qasm
-Created and checked out to QCir 0
 
 qsyn> qccread benchmark/benchmark_SABRE/small/qft_4.qasm
-Created and checked out to QCir 1
 
 qsyn> qccp -q
 Q 0  ---------cx( 0)----------cx( 1)----------cx( 2)-

@@ -10,7 +10,6 @@
 #include "./placer.hpp"
 
 #include <cassert>
-#include <iostream>
 #include <random>
 
 #include "./variables.hpp"

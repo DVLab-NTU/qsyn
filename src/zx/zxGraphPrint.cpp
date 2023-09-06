@@ -7,26 +7,22 @@
 ****************************************************************************/
 
 #include <cstddef>
-#include <iostream>
 #include <map>
+#include <ranges>
 #include <string>
 
+#include "fmt/core.h"
 #include "util/textFormat.hpp"
 #include "zx/zxGraph.hpp"
 
 using namespace std;
-extern size_t verbose;
 
 /**
  * @brief Print information of ZXGraph
  *
  */
 void ZXGraph::printGraph() const {
-    cout << "Graph " << _id << "( "
-         << getNumInputs() << " inputs, "
-         << getNumOutputs() << " outputs, "
-         << getNumVertices() << " vertices, "
-         << getNumEdges() << " edges )\n";
+    fmt::println("Graph ({} inputs, {} outputs, {} vertices, {} edges)", getNumInputs(), getNumOutputs(), getNumVertices(), getNumEdges());
 }
 
 /**
@@ -34,9 +30,8 @@ void ZXGraph::printGraph() const {
  *
  */
 void ZXGraph::printInputs() const {
-    cout << "Input ( ";
-    for (const auto& v : _inputs) cout << v->getId() << " ";
-    cout << ")\nTotal #Inputs: " << getNumInputs() << endl;
+    fmt::println("Input:  ({})", fmt::join(_inputs | views::transform([](auto const& v) { return v->getId(); }), ", "));
+    fmt::println("Total #Inputs: {}", getNumInputs());
 }
 
 /**
@@ -44,9 +39,8 @@ void ZXGraph::printInputs() const {
  *
  */
 void ZXGraph::printOutputs() const {
-    cout << "Output ( ";
-    for (const auto& v : _outputs) cout << v->getId() << " ";
-    cout << ")\nTotal #Outputs: " << getNumOutputs() << endl;
+    fmt::println("Output: ({})", fmt::join(_outputs | views::transform([](auto const& v) { return v->getId(); }), ", "));
+    fmt::println("Total #Outputs: {}", getNumOutputs());
 }
 
 /**
@@ -54,11 +48,9 @@ void ZXGraph::printOutputs() const {
  *
  */
 void ZXGraph::printIO() const {
-    cout << "Input ( ";
-    for (const auto& v : _inputs) cout << v->getId() << " ";
-    cout << ")\nOutput ( ";
-    for (const auto& v : _outputs) cout << v->getId() << " ";
-    cout << ")\nTotal #(I,O): (" << getNumInputs() << "," << getNumOutputs() << ")\n";
+    fmt::println("Input:  ({})", fmt::join(_inputs | views::transform([](auto const& v) { return v->getId(); }), ", "));
+    fmt::println("Output: ({})", fmt::join(_outputs | views::transform([](auto const& v) { return v->getId(); }), ", "));
+    fmt::println("Total #(I,O): ({}, {})", getNumInputs(), getNumOutputs());
 }
 
 /**
@@ -123,9 +115,9 @@ void ZXGraph::printQubits(vector<int> cand) const {
  */
 void ZXGraph::printEdges() const {
     forEachEdge([](const EdgePair& epair) {
-        cout << "( " << epair.first.first->getId() << ", " << epair.first.second->getId() << " )\tType:\t" << epair.second << endl;
+        fmt::println("{:<12} Type: {}", fmt::format("({}, {})", epair.first.first->getId(), epair.first.second->getId()), epair.second);
     });
-    cout << "Total #Edges: " << getNumEdges() << endl;
+    fmt::println("Total #Edges: {}", getNumEdges());
 }
 
 /**

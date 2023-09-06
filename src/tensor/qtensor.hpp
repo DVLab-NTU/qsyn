@@ -79,9 +79,6 @@ public:
     template <typename U>
     friend bool isEquivalent(QTensor<U> const& t1, QTensor<U> const& t2, double eps /* = 1e-6*/);
 
-    size_t getId() const { return _id; }
-    void setId(size_t id) { _id = id; }
-
     void setFileName(std::string const& f) { _fileName = f; }
     void addProcedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
     void addProcedure(std::string_view p) { _procedures.emplace_back(p); }
@@ -91,8 +88,6 @@ public:
 
 private:
     static DataType nuPow(const int& n);
-
-    size_t _id;
 
     std::string _fileName;
     std::vector<std::string> _procedures;

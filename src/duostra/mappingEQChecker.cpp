@@ -127,9 +127,8 @@ bool MappingEQChecker::executeSwap(QCirGate* first, unordered_set<QCirGate*>& sw
     bool connect = _device.getPhysicalQubit(first->getQubits()[0]._qubit).isAdjacency(_device.getPhysicalQubit(first->getQubits()[1]._qubit));
     if (!connect) return false;
 
-    QCirGate* next;
     swaps.emplace(first);
-    next = getNext(first->getQubits()[0]);
+    QCirGate* next = getNext(first->getQubits()[0]);
     swaps.emplace(next);
     next = getNext(next->getQubits()[0]);
     swaps.emplace(next);

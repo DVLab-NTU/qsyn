@@ -11,7 +11,6 @@
 #include "./zxGraph.hpp"
 
 using namespace std;
-extern size_t verbose;
 
 /**
  * @brief Get non-boundary vertices

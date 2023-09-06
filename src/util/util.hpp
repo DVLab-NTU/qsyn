@@ -20,6 +20,21 @@
 class tqdm;
 constexpr size_t ERROR_CODE = (size_t)-1;
 
+#include <iostream>
+
+#ifndef NDEBUG
+namespace dvlab {
+namespace detail {
+void dvlab_assert_impl(const char* expr_str, bool expr, const char* file, int line, const char* msg);
+}
+}  // namespace dvlab
+#define dvlab_assert(Expr, Msg) \
+    dvlab::detail::dvlab_assert_impl(#Expr, Expr, __FILE__, __LINE__, Msg)
+
+#else
+#define M_Assert(Expr, Msg) ;
+#endif
+
 namespace dvlab {
 
 namespace utils {

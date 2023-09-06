@@ -141,7 +141,7 @@ inline jthread& jthread::operator=(jthread&& t) noexcept {
 
 // destructor:
 inline jthread::~jthread() {
-    if (joinable()) {  // if not joined/detached, signal stop and wait for end:
+    if (joinable()) {  // if not joined/detached, signal stop and wait for end: 
         request_stop();
         join();
     }

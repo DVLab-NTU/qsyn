@@ -13,6 +13,7 @@
 #include "./qcir.hpp"
 #include "./qcirGate.hpp"
 #include "./qcirQubit.hpp"
+#include "fmt/core.h"
 
 using namespace std;
 extern size_t verbose;
@@ -41,9 +42,7 @@ void QCir::printDepth() {
  * @brief Print QCir
  */
 void QCir::printCircuit() {
-    cout << "QCir " << _id << "( "
-         << _qubits.size() << " qubits, "
-         << _qgates.size() << " gates)\n";
+    fmt::println("QCir ({} qubits, {} gates)", _qubits.size(), _qgates.size());
 }
 
 /**
@@ -86,9 +85,5 @@ bool QCir::printGateInfo(size_t id, bool showTime) {
 
 void QCir::printCirInfo() {
     vector<int> info = countGate(false, false);
-    cout << "QCir " << _id << "( "
-         << _qgates.size() << " gates, "
-         << info[1] << " 2-qubits gates, "
-         << info[2] << " T-gates, "
-         << getDepth() << " depths)\n";
+    fmt::println("QCir ({} qubits, {} gates, {} 2-qubits gates, {} T-gates, {} depths)", _qubits.size(), _qgates.size(), info[1], info[2], getDepth());
 }

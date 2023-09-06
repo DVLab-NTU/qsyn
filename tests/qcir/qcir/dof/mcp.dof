@@ -1,12 +1,12 @@
 qcba 2
-qcgadd -MCP -PH pi/3 0 1
+qcgadd mcp -ph pi/3 0 1
 qccp -q
 qcgp 0
 qc2ts
 qc2zx
-zxgp -Q
+zxgp -q
 zxgs -fr
-zxgp -Q
+zxgp -q
 zx2ts
 tseq 0 1
 qcr
@@ -14,7 +14,7 @@ zxr
 tsr
 
 qcba 1
-qcgadd -MCP -PH pi/3 0
+qcgadd mcp -ph pi/3 0
 qcgp 0
 qc2zx
 zxgp -v

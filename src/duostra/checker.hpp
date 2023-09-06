@@ -16,7 +16,7 @@ class Gate;
 
 class Checker {
 public:
-    Checker(CircuitTopo&, Device&, const std::vector<Operation>&, const std::vector<size_t>&, bool = true);
+    Checker(CircuitTopo&, Device&, std::vector<Operation> const& ops, const std::vector<size_t>&, bool = true);
 
     size_t getCycle(GateType);
 
@@ -29,8 +29,8 @@ public:
     bool testOperations();
 
 private:
-    CircuitTopo& _topo;
-    Device& _device;
-    const std::vector<Operation>& _ops;
+    CircuitTopo* _topo;
+    Device* _device;
+    std::vector<Operation> const& _ops;
     bool _tqdm;
 };

@@ -20,6 +20,7 @@
 #include "./zxGraph.hpp"
 #include "./zxGraphMgr.hpp"
 
+extern size_t verbose;
 extern ZXGraphMgr zxGraphMgr;
 
 /*****************************************************/

@@ -38,8 +38,8 @@ extern size_t verbose;
  * @param d
  */
 Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> d) : _graph(g), _device(d), _deviceBackup(d) {
-    _logicalCircuit = (c == nullptr) ? new QCir(-1) : c;
-    _physicalCircuit = toPhysical() ? new QCir(-1) : nullptr;
+    _logicalCircuit = (c == nullptr) ? new QCir : c;
+    _physicalCircuit = toPhysical() ? new QCir() : nullptr;
     initialize(c == nullptr);
     _cntCXFiltered = 0;
     _cntCXIter = 0;
@@ -147,7 +147,7 @@ bool Extractor::extractionLoop(size_t max_iter) {
             extractCXs();
         }
         if (extractHsFromM2() == 0) {
-            cerr << "Error: No Candidate Found!! in extractHsFromM2" << endl;
+            cerr << "Error: no candidate found in extractHsFromM2!!" << endl;
             _biAdjacency.printMatrix();
             return false;
         }
@@ -662,7 +662,7 @@ bool Extractor::biadjacencyElimination(bool check) {
                 }
             }
         } else {
-            cerr << "Error: Wrong Optimize Level" << endl;
+            cerr << "Error: wrong optimize level" << endl;
             abort();
         }
 
@@ -728,7 +728,7 @@ void Extractor::blockElimination(size_t& bestBlock, M2& bestMatrix, size_t& minC
     }
 
     // NOTE - Get Mapping result, Device is passed by copy
-    Duostra duo(ops, _graph->getNumOutputs(), _device.value(), false, false, true);
+    Duostra duo(ops, _graph->getNumOutputs(), _device.value(), {.verifyResult = false, .silent = true, .useTqdm = false});
     size_t depth = duo.flow(true);
     if (verbose > 4) cout << blockSize << ", depth:" << depth << ", #cx: " << ops.size() << endl;
     if (depth < minCost) {

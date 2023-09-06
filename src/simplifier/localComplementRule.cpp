@@ -11,8 +11,6 @@
 
 #include "./zxRulesTemplate.hpp"
 
-extern size_t verbose;
-
 using MatchType = LocalComplementRule::MatchType;
 
 /**

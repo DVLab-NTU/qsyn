@@ -75,7 +75,6 @@ public:
     }
 
     ~Trie() = default;
-
     Trie(Trie const& other) : _root{std::make_unique<TrieNode>(*other._root)} {}
 
     Trie(Trie&&) noexcept = default;
@@ -95,10 +94,15 @@ public:
 
     void clear() { _root = std::make_unique<TrieNode>(); }
     bool insert(std::string const& word);
-    std::optional<std::string> shortestUniquePrefix(std::string const& word) const;
-    size_t frequency(std::string const& word) const;
+    bool erase(std::string const& word);
+    bool contains(std::string const& word) const;
+    bool empty() const { return _root->children.empty(); }
+    std::string shortestUniquePrefix(std::string const& word) const;
+    size_t frequency(std::string const& prefix) const;
 
-    std::optional<std::string> findWithPrefix(std::string const& word) const;
+    std::optional<std::string> findWithPrefix(std::string const& prefix) const;
+
+    std::vector<std::string> findAllStringsWithPrefix(std::string const& prefix) const;
 
 private:
     std::unique_ptr<TrieNode> _root;

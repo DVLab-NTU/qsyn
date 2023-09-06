@@ -13,9 +13,12 @@
 
 #include "./qcir.hpp"
 #include "./qcirQubit.hpp"
+#include "fmt/core.h"
+#include "util/logger.hpp"
 
 using namespace std;
-extern size_t verbose;
+
+extern dvlab::utils::Logger logger;
 extern bool stop_requested();
 
 using Qubit2TensorPinMap = std::unordered_map<size_t, std::pair<size_t, size_t>>;
@@ -27,27 +30,17 @@ using Qubit2TensorPinMap = std::unordered_map<size_t, std::pair<size_t, size_t>>
  * @param tmp
  */
 void updateTensorPin(Qubit2TensorPinMap &qubit2pin, vector<BitInfo> const &pins, QTensor<double> &main, QTensor<double> const &gate) {
-    // size_t count_pin_used = 0;
-    // unordered_map<size_t, size_t> table; // qid to pin (pin0 = ctrl 0 pin1 = ctrl 1)
-    if (verbose >= 8) cout << "> Pin Permutation" << endl;
-    for (auto it = qubit2pin.begin(); it != qubit2pin.end(); ++it) {
-        if (verbose >= 8) {
-            // NOTE print old input axis id
-            cout << "  - Qubit: " << it->first << " input : " << it->second.first << " -> ";
-        }
-        it->second.first = main.getNewAxisId(it->second.first);
-        if (verbose >= 8) {
-            // NOTE print new input axis id
-            cout << it->second.first << " | ";
-            // NOTE print new output axis id
-            cout << " output: " << it->second.second << " -> ";
-        }
+    logger.trace("Pin Permutation");
+    for (auto &[qubit, pin] : qubit2pin) {
+        std::string trace = fmt::format("  - Qubit: {} input : {} -> ", qubit, pin.first);
+        pin.first = main.getNewAxisId(pin.first);
+        trace += fmt::format("{} output: {} -> ", pin.first, pin.second);
 
         bool connected = false;
         bool target = false;
         size_t ithCtrl = 0;
         for (size_t i = 0; i < pins.size(); i++) {
-            if (pins[i]._qubit == it->first) {
+            if (pins[i]._qubit == qubit) {
                 connected = true;
                 if (pins[i]._isTarget)
                     target = true;
@@ -58,17 +51,15 @@ void updateTensorPin(Qubit2TensorPinMap &qubit2pin, vector<BitInfo> const &pins,
         }
         if (connected) {
             if (target)
-                it->second.second = main.getNewAxisId(main.dimension() + gate.dimension() - 1);
+                pin.second = main.getNewAxisId(main.dimension() + gate.dimension() - 1);
 
             else
-                it->second.second = main.getNewAxisId(main.dimension() + 2 * ithCtrl + 1);
+                pin.second = main.getNewAxisId(main.dimension() + 2 * ithCtrl + 1);
         } else
-            it->second.second = main.getNewAxisId(it->second.second);
+            pin.second = main.getNewAxisId(pin.second);
 
-        if (verbose >= 8) {
-            // NOTE print new axis id
-            cout << it->second.second << endl;
-        }
+        trace += fmt::format("{}", pin.second);
+        logger.trace("{}", trace);
     }
 }
 
@@ -143,9 +134,8 @@ std::optional<QTensor<double>> toTensor(QCirGate *gate) {
  * @brief Convert QCir to tensor
  */
 std::optional<QTensor<double>> toTensor(QCir const &qcir) {
-    if (verbose >= 3) cout << "Traverse and build the tensor... " << endl;
     qcir.updateTopoOrder();
-    if (verbose >= 5) cout << "> Add boundary" << endl;
+    logger.debug("Add boundary");
 
     QTensor<double> tensor;
 
@@ -162,12 +152,12 @@ std::optional<QTensor<double>> toTensor(QCir const &qcir) {
     Qubit2TensorPinMap qubit2pin;
     for (size_t i = 0; i < qcir.getQubits().size(); i++) {
         qubit2pin[qcir.getQubits()[i]->getId()] = make_pair(2 * i, 2 * i + 1);
-        if (verbose >= 8) cout << "  - Add Qubit " << qcir.getQubits()[i]->getId() << " output port: " << 2 * i + 1 << endl;
+        logger.trace("  - Add Qubit {} input port: {}", qcir.getQubits()[i]->getId(), 2 * i);
     }
 
     qcir.topoTraverse([&tensor, &qubit2pin](QCirGate *gate) {
         if (stop_requested()) return;
-        if (verbose >= 5) cout << "> Gate " << gate->getId() << " (" << gate->getTypeStr() << ")" << endl;
+        logger.debug("Gate {} ({})", gate->getId(), gate->getTypeStr());
         auto tmp = toTensor(gate);
         assert(tmp.has_value());
         vector<size_t> ori_pin;

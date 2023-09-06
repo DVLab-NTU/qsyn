@@ -8,8 +8,6 @@
 
 #include "./tensorUtil.hpp"
 
-#include <iostream>
-
 //------------------------------
 // Helper functions
 //------------------------------

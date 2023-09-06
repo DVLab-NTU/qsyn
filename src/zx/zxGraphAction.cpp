@@ -7,15 +7,15 @@
 ****************************************************************************/
 
 #include <cstddef>
-#include <iostream>
 #include <queue>
 
 #include "./zxDef.hpp"
 #include "./zxGraph.hpp"
+#include "util/logger.hpp"
 #include "util/phase.hpp"
 
 using namespace std;
-extern size_t verbose;
+extern dvlab::utils::Logger logger;
 
 /**
  * @brief Sort _inputs and _outputs of graph by qubit (ascending)
@@ -167,15 +167,11 @@ ZXGraph& ZXGraph::tensorProduct(ZXGraph const& target) {
  * @return false
  */
 bool ZXGraph::isGadgetLeaf(ZXVertex* v) const {
-    if (v->getType() != VertexType::Z ||
-        v->getNumNeighbors() != 1 ||
-        v->getFirstNeighbor().first->getType() != VertexType::Z ||
-        v->getFirstNeighbor().second != EdgeType::HADAMARD ||
-        !v->getFirstNeighbor().first->hasNPiPhase()) {
-        if (verbose >= 5) cout << "Note: (" << v->getId() << ") is not a gadget leaf vertex!" << endl;
-        return false;
-    }
-    return true;
+    return v->getType() == VertexType::Z &&
+           v->getNumNeighbors() == 1 &&
+           v->getFirstNeighbor().first->getType() == VertexType::Z &&
+           v->getFirstNeighbor().second == EdgeType::HADAMARD &&
+           v->getFirstNeighbor().first->hasNPiPhase();
 }
 
 /**
@@ -217,7 +213,6 @@ void ZXGraph::addGadget(Phase p, const vector<ZXVertex*>& verVec) {
 
     addEdge(axel, leaf, EdgeType::HADAMARD);
     for (const auto& v : verVec) addEdge(v, axel, EdgeType::HADAMARD);
-    if (verbose >= 5) cout << "Add phase gadget (" << leaf->getId() << ") to graph!" << endl;
 }
 
 /**

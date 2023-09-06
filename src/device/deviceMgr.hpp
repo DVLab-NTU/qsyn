@@ -18,7 +18,7 @@
 template <>
 inline std::string dvlab::utils::dataInfoString(Device* dev) {
     return fmt::format("{:<19} #Q: {:>4}",
-                       dev->getName().substr(0, 19),
+                       dev->getName().substr(0, 19),  // NOLINT(cppcoreguidelines-avoid-magic-numbers)
                        dev->getNQubit());
 }
 
