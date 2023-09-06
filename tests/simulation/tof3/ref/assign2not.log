@@ -1,9 +1,7 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qccr benchmark/pseudoSimp/tof_3.qasm
-Created and checked out to QCir 0
 
 qsyn> qc2zx
-Created and checked out to ZXGraph 0
 
 qsyn> zxgp -v
 
@@ -281,19 +279,14 @@ Total #Vertices: 3
 
 
 qsyn> zx2ts
-Traverse and build the tensor... 
-Created and checked out to Tensor 0
 
 qsyn> qcnew
-Created and checked out to QCir 1
 
 qsyn> qcba 1
 
-qsyn> qcga -x 0
+qsyn> qcga x 0
 
 qsyn> qc2ts
-Traverse and build the tensor... 
-Created and checked out to Tensor 1
 
 qsyn> tseq 0 1
 Equivalent

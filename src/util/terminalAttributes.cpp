@@ -20,7 +20,9 @@
 #include <cstdlib>
 #include <cstring>
 
-namespace dvlab_utils {
+namespace dvlab {
+
+namespace utils {
 
 /**
  * @brief check if the file is terminal
@@ -63,4 +65,6 @@ TerminalSize get_terminal_size() {
 #endif  // Windows/Linux
 }
 
-}  // namespace dvlab_utils
+}  // namespace utils
+
+}  // namespace dvlab

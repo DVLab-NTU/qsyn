@@ -12,10 +12,6 @@ using namespace std;
 
 namespace ArgParse {
 
-std::ostream& operator<<(std::ostream& os, Argument const& arg) {
-    return os << fmt::format("{}", arg);
-}
-
 /**
  * @brief If the argument has a default value, reset to it.
  *
@@ -45,29 +41,19 @@ bool Argument::takeAction(TokensView tokens) {
  * @return TokensView
  */
 TokensView Argument::getParseRange(TokensView tokens) const {
-    size_t parse_start = std::find_if(
-                             tokens.begin(), tokens.end(),
-                             [](Token& token) { return token.parsed == false; }) -
-                         tokens.begin();
+    auto parse_start = std::find_if(
+        tokens.begin(), tokens.end(),
+        [](Token& token) { return token.parsed == false; });
 
-    size_t parse_end = std::find_if(
-                           tokens.begin() + parse_start, tokens.end(),
-                           [](Token& token) { return token.parsed == true; }) -
-                       tokens.begin();
-
-    return tokens.subspan(parse_start, std::min(getNArgs().upper, parse_end - parse_start));
+    auto parse_end = std::find_if(
+        parse_start, tokens.end(),
+        [](Token& token) { return token.parsed == true; });
+    return tokens.subspan(parse_start - tokens.begin(), std::min(getNArgs().upper, static_cast<size_t>(parse_end - parse_start)));
 }
 
 bool Argument::tokensEnoughToParse(TokensView tokens) const {
-    auto [lower, upper] = getNArgs();
-    if (tokens.size() < lower) {
-        fmt::println(stderr, "Error: missing argument \"{}\": expected {}{} arguments!!",
-                     getName(), (lower < upper ? "at least " : ""), lower);
-        return false;
-    }
-    return true;
+    return (tokens.size() >= getNArgs().lower);
 }
-
 /**
  * @brief If the argument is parsed, print out the parsed value. If not,
  *        print the default value if it has one, or "(unparsed)" if not.

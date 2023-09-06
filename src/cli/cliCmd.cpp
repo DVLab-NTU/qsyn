@@ -9,358 +9,403 @@
 #include <cstdlib>
 #include <string>
 
+#include "argparse/argGroup.hpp"
 #include "cli/cli.hpp"
+#include "fmt/color.h"
 #include "util/usage.hpp"
 #include "util/util.hpp"
 
 using namespace std;
 extern size_t verbose;
-extern size_t colorLevel;
-extern dvlab_utils::Usage usage;
+extern dvlab::utils::Usage usage;
 
 using namespace ArgParse;
 
-unique_ptr<ArgParseCmdType> helpCmd();
-unique_ptr<ArgParseCmdType> quitCmd();
-unique_ptr<ArgParseCmdType> dofileCmd();
-unique_ptr<ArgParseCmdType> usageCmd();
-unique_ptr<ArgParseCmdType> verboseCmd();
-unique_ptr<ArgParseCmdType> seedCmd();
-unique_ptr<ArgParseCmdType> historyCmd();
-unique_ptr<ArgParseCmdType> clearCmd();
-unique_ptr<ArgParseCmdType> loggerCmd();
+Command aliasCmd();
+Command helpCmd();
+Command quitCmd();
+Command dofileCmd();
+Command usageCmd();
+Command verboseCmd();
+Command seedCmd();
+Command historyCmd();
+Command clearCmd();
+Command loggerCmd();
 
 bool initCommonCmd() {
-    if (!(cli.regCmd("QQuit", 2, quitCmd()) &&
-          cli.regCmd("HIStory", 3, historyCmd()) &&
-          cli.regCmd("HELp", 3, helpCmd()) &&
-          cli.regCmd("DOfile", 2, dofileCmd()) &&
-          cli.regCmd("USAGE", 5, usageCmd()) &&
-          cli.regCmd("VERbose", 3, verboseCmd()) &&
-          cli.regCmd("SEED", 4, seedCmd()) &&
-          cli.regCmd("CLEAR", 5, clearCmd()) &&
-          cli.regCmd("LOGger", 3, loggerCmd()))) {
+    if (!(cli.registerCommand(aliasCmd()) &&
+          cli.registerCommand(quitCmd()) &&
+          cli.registerCommand(historyCmd()) &&
+          cli.registerCommand(helpCmd()) &&
+          cli.registerCommand(dofileCmd()) &&
+          cli.registerCommand(usageCmd()) &&
+          cli.registerCommand(verboseCmd()) &&
+          cli.registerCommand(seedCmd()) &&
+          cli.registerCommand(clearCmd()) &&
+          cli.registerCommand(loggerCmd()))) {
         logger.fatal("Registering \"cli\" commands fails... exiting");
         return false;
     }
     return true;
 }
 
-unique_ptr<ArgParseCmdType> helpCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("HELp");
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("shows helping message to commands");
+Command aliasCmd() {
+    return {
+        "alias",
+        [](ArgumentParser& parser) {
+            parser.description("alias a command to another name");
 
-        parser.addArgument<string>("command")
-            .defaultValue("")
-            .nargs(NArgsOption::OPTIONAL)
-            .help("if specified, display help message to a command");
-    };
+            parser.addArgument<string>("alias")
+                .required(false)
+                .help("the alias to add");
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        auto command = parser.get<string>("command");
-        if (command.empty()) {
-            cli.printHelps();
-        } else {
-            CmdExec* e = cli.getCmd(command);
-            if (!e) {
-                fmt::println(stderr, "Error: illegal command!! ({})", command);
+            parser.addArgument<string>("replace-str")
+                .required(false)
+                .help("the string to alias to");
+
+            parser.addArgument<string>("-d", "--delete")
+                .metavar("alias")
+                .help("delete the alias");
+        },
+
+        [](ArgumentParser const& parser) {
+            if (parser.parsed("-d")) {
+                if (parser.parsed("alias") || parser.parsed("replace-str")) {
+                    fmt::println(stderr, "Error: cannot specify alias and replace-str when deleting alias!!");
+                    return CmdExecResult::ERROR;
+                }
+                if (!cli.deleteAlias(parser.get<string>("-d"))) {
+                    return CmdExecResult::ERROR;
+                }
+                return CmdExecResult::DONE;
+            }
+
+            auto alias = parser.get<string>("alias");
+            auto replaceStr = parser.get<string>("replace-str");
+
+            if (std::ranges::any_of(alias, [](char ch) { return isspace(ch); })) {
+                fmt::println(stderr, "Error: alias cannot contain whitespaces!!");
                 return CmdExecResult::ERROR;
             }
-            e->help();
-        }
-        return CmdExecResult::DONE;
-    };
+            if (cli.registerAlias(alias, replaceStr)) {
+                return CmdExecResult::ERROR;
+            }
 
-    return cmd;
+            return CmdExecResult::DONE;
+        }};
 }
 
-unique_ptr<ArgParseCmdType> quitCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QQuit");
+Command helpCmd() {
+    return {
+        "help",
+        [](ArgumentParser& parser) {
+            parser.description("shows helping message to commands");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("quit Qsyn");
+            parser.addArgument<string>("command")
+                .defaultValue("")
+                .nargs(NArgsOption::OPTIONAL)
+                .help("if specified, display help message to a command");
+        },
 
-        parser.addArgument<bool>("-force")
-            .action(storeTrue)
-            .help("quit without reaffirming");
-    };
+        [](ArgumentParser const& parser) {
+            auto command = parser.get<string>("command");
+            if (command.empty()) {
+                cli.listAllCommands();
+            } else {
+                Command* e = cli.getCommand(command);
+                if (!e) {
+                    fmt::println(stderr, "Error: illegal command!! ({})", command);
+                    return CmdExecResult::ERROR;
+                }
+                e->printHelp();
+            }
+            return CmdExecResult::DONE;
+        }};
+}
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        auto forced = parser.get<bool>("-force");
-        if (forced) return CmdExecResult::QUIT;
+Command quitCmd() {
+    return {
+        "qquit",
+        [](ArgumentParser& parser) {
+            parser.description("quit Qsyn");
 
-        fmt::print("Are you sure to quit (Yes/No)? [No] ");
-        fflush(stdout);
-        string ss;
-        std::getline(std::cin, ss);
+            parser.addArgument<bool>("-force")
+                .action(storeTrue)
+                .help("quit without reaffirming");
+        },
+        [](ArgumentParser const& parser) {
+            if (parser.get<bool>("-force")) return CmdExecResult::QUIT;
 
-        if (std::cin.eof()) {
-            fmt::print("EOF [assumed Yes]");
-            return CmdExecResult::QUIT;
-        }
+            std::string const prompt = "Are you sure to quit (Yes/[No])? ";
 
-        if (size_t s = ss.find_first_not_of(' '); s != string::npos) {
-            ss = ss.substr(s);
-            if ("yes"s.starts_with(toLowerString(ss)))
+            if (cli.listenToInput(std::cin, prompt, {.allowBrowseHistory = false, .allowTabCompletion = false}) == CmdExecResult::QUIT) {
+                fmt::print("EOF [assumed Yes]");
                 return CmdExecResult::QUIT;
-        }
-        return CmdExecResult::DONE;  // not yet to quit
-    };
+            }
 
-    return cmd;
+            auto input = toLowerString(stripLeadingWhitespaces(cli.getReadBuf()));
+
+            if (input.empty()) return CmdExecResult::DONE;
+
+            return ("yes"s.starts_with(input))
+                       ? CmdExecResult::QUIT
+                       : CmdExecResult::DONE;  // not yet to quit
+        }};
 }
 
-unique_ptr<ArgParseCmdType> historyCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("HIStory");
-
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("print command history");
-        parser.addArgument<size_t>("nPrint")
-            .nargs(NArgsOption::OPTIONAL)
-            .help("if specified, print the <nprint> latest command history");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser.parsed("nPrint")) {
-            cli.printHistory(parser.get<size_t>("nPrint"));
-        } else {
-            cli.printHistory();
-        }
-        return CmdExecResult::DONE;
-    };
-
-    return cmd;
+Command historyCmd() {
+    return {"history",
+            [](ArgumentParser& parser) {
+                parser.description("print command history");
+                parser.addArgument<size_t>("num")
+                    .nargs(NArgsOption::OPTIONAL)
+                    .help("if specified, print the `num` latest command history");
+            },
+            [](ArgumentParser const& parser) {
+                if (parser.parsed("num")) {
+                    cli.printHistory(parser.get<size_t>("num"));
+                } else {
+                    cli.printHistory();
+                }
+                return CmdExecResult::DONE;
+            }};
 }
 
-unique_ptr<ArgParseCmdType> dofileCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DOfile");
+Command dofileCmd() {
+    return {"dofile",
+            [](ArgumentParser& parser) {
+                parser.description("execute the commands in the dofile");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("execute the commands in the dofile");
+                parser.addArgument<string>("file")
+                    .constraint(path_readable)
+                    .help("path to a dofile, i.e., a list of Qsyn commands");
 
-        parser.addArgument<string>("file")
-            .constraint(path_readable)
-            .help("path to a dofile, i.e., a list of Qsyn commands");
-    };
+                parser.addArgument<string>("arguments")
+                    .nargs(NArgsOption::ZERO_OR_MORE)
+                    .help("arguments to the dofile");
+            },
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (!cli.openDofile(parser.get<string>("file"))) {
-            fmt::println("Error: cannot open file \"{}\"!!", parser.get<std::string>("file"));
-            return CmdExecResult::ERROR;
-        }
+            [](ArgumentParser const& parser) {
+                auto arguments = parser.get<std::vector<string>>("arguments");
+                if (!cli.saveVariables(parser.get<string>("file"), arguments)) {
+                    return CmdExecResult::ERROR;
+                }
 
-        return CmdExecResult::DONE;
-    };
+                if (!cli.openDofile(parser.get<string>("file"))) {
+                    logger.error("cannot open file \"{}\"!!", parser.get<std::string>("file"));
+                    return CmdExecResult::ERROR;
+                }
 
-    return cmd;
+                return CmdExecResult::DONE;
+            }};
 }
 
-unique_ptr<ArgParseCmdType> usageCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("USAGE");
+Command usageCmd() {
+    return {"usage",
+            [](ArgumentParser& parser) {
+                parser.description("report the runtime and/or memory usage");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("report the runtime and/or memory usage");
+                auto mutex = parser.addMutuallyExclusiveGroup();
 
-        auto mutex = parser.addMutuallyExclusiveGroup();
+                mutex.addArgument<bool>("-all")
+                    .action(storeTrue)
+                    .help("print both time and memory usage");
+                mutex.addArgument<bool>("-time")
+                    .action(storeTrue)
+                    .help("print time usage");
+                mutex.addArgument<bool>("-memory")
+                    .action(storeTrue)
+                    .help("print memory usage");
+            },
+            [](ArgumentParser const& parser) {
+                auto repAll = parser.get<bool>("-all");
+                auto repTime = parser.get<bool>("-time");
+                auto repMem = parser.get<bool>("-memory");
 
-        mutex.addArgument<bool>("-all")
-            .action(storeTrue)
-            .help("print both time and memory usage");
-        mutex.addArgument<bool>("-time")
-            .action(storeTrue)
-            .help("print time usage");
-        mutex.addArgument<bool>("-memory")
-            .action(storeTrue)
-            .help("print memory usage");
-    };
+                if (!repAll && !repTime && !repMem) repAll = true;
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        auto repAll = parser.get<bool>("-all");
-        auto repTime = parser.get<bool>("-time");
-        auto repMem = parser.get<bool>("-memory");
+                if (repAll) repTime = true, repMem = true;
 
-        if (!repAll && !repTime && !repMem) repAll = true;
+                usage.report(repTime, repMem);
 
-        if (repAll) repTime = true, repMem = true;
-
-        usage.report(repTime, repMem);
-
-        return CmdExecResult::DONE;
-    };
-
-    return cmd;
+                return CmdExecResult::DONE;
+            }};
 }
 
-unique_ptr<ArgParseCmdType> verboseCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("VERbose");
+Command verboseCmd() {
+    return {"verbose",
+            [](ArgumentParser& parser) {
+                parser.description("set verbose level to 0-9 (default: 3)");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("set verbose level to 0-9 (default: 3)");
+                parser.addArgument<size_t>("level")
+                    .constraint([](size_t const& val) {
+                        if (val == 353 || 0 <= val && val <= 9) return true;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+                        fmt::println(stderr, "Error: verbose level should be 0-9!!");
+                        return false;
+                    })
+                    .help("0: silent, 1-3: normal usage, 4-6: detailed info, 7-9: prolix debug info");
+            },
 
-        parser.addArgument<size_t>("level")
-            .constraint({[](size_t const& val) {
-                             return val <= 9 || val == 353;
-                         },
-                         [](size_t const& val) {
-                             fmt::println(stderr, "Error: verbose level should be 0-9!!");
-                         }})
-            .help("0: silent, 1-3: normal usage, 4-6: detailed info, 7-9: prolix debug info");
-    };
+            [](ArgumentParser const& parser) {
+                verbose = parser.get<size_t>("level");
+                fmt::println("Note: verbose level is set to {}", verbose);
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        verbose = parser.get<size_t>("level");
-        fmt::println("Note: verbose level is set to {}", verbose);
-
-        return CmdExecResult::DONE;
-    };
-
-    return cmd;
+                return CmdExecResult::DONE;
+            }};
 }
 
-unique_ptr<ArgParseCmdType> loggerCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("LOGger");
+Command loggerCmd() {
+    Command cmd{
+        "logger",
+        [](ArgumentParser& parser) {
+            vector<string> logLevels = {"none", "fatal", "error", "warning", "info", "debug", "trace"};
+            parser.description("display and set the logger's status");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        vector<string> logLevels = {"none", "fatal", "error", "warning", "info", "debug", "trace"};
-        parser.help("display and set the logger's status");
+            auto parsers = parser.addSubParsers()
+                               .help("subcommands for logger");
+        },
+        [](ArgumentParser const& parser) {
+            using dvlab::utils::Logger;
 
-        auto parsers = parser.addSubParsers();
-
-        auto testParser = parsers.addParser("test");
-        testParser.help("Test out logger setting");
-
-        auto levelParser = parsers.addParser("level");
-        levelParser.help("set logger level");
-        levelParser.addArgument<string>("level")
-            .constraint(choices_allow_prefix(logLevels))
-            .help("set log levels. Levels (ascending): None, Fatal, Error, Warning, Info, Debug, Trace");
-
-        auto historyParser = parsers.addParser("history");
-        historyParser.help("print logger history");
-        historyParser.addArgument<size_t>("num_history")
-            .nargs(NArgsOption::OPTIONAL)
-            .metavar("N")
-            .help("print log history. If specified, print the lastest N logs");
-
-        auto maskParser = parsers.addParser("mask");
-        maskParser.help("set logger mask");
-        maskParser.setOptionPrefix("+-");
-        auto addFilterGroup = [&maskParser](std::string const& groupName) {
-            auto group = maskParser.addMutuallyExclusiveGroup();
-            group.addArgument<bool>("+" + groupName)
-                .action(storeTrue)
-                .help("unmask " + groupName + " logs");
-            group.addArgument<bool>("-" + groupName)
-                .action(storeTrue)
-                .help("mask " + groupName + " logs");
-        };
-
-        for (auto& group : logLevels) {
-            if (group == "none") continue;
-            addFilterGroup(group);
-        }
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        using dvlab_utils::Logger;
-
-        if (parser.usedSubParser("test")) {
-            logger.fatal("Test fatal log");
-            logger.error("Test error log");
-            logger.warning("Test warning log");
-            logger.info("Test info log");
-            logger.debug("Test debug log");
-            logger.trace("Test trace log");
-            return CmdExecResult::DONE;
-        }
-
-        if (parser.usedSubParser("level")) {
-            auto level = Logger::str2LogLevel(parser.get<string>("level"));
-            assert(level.has_value());
-            logger.setLogLevel(*level);
-            logger.debug("Setting logger level to {}", Logger::logLevel2Str(*level));
-            return CmdExecResult::DONE;
-        }
-
-        if (parser.usedSubParser("mask")) {
+            fmt::println("Logger Level: {}", Logger::logLevel2Str(logger.getLogLevel()));
+            vector<string> masked;
             vector<string> logLevels = {"fatal", "error", "warning", "info", "debug", "trace"};
-
-            for (auto& group : logLevels) {
-                auto level = Logger::str2LogLevel(group);
-                assert(level.has_value());
-                if (parser.parsed("+" + group)) {
-                    logger.unmask(*level);
-                    logger.debug("Unmasked logger level: {}", Logger::logLevel2Str(*level));
-                } else if (parser.parsed("-" + group)) {
-                    logger.mask(*level);
-                    logger.debug("Masked logger level: {}", Logger::logLevel2Str(*level));
+            for (auto& level : logLevels) {
+                if (logger.isMasked(*Logger::str2LogLevel(level))) {
+                    masked.push_back(level);
                 }
             }
-            return CmdExecResult::DONE;
-        }
 
-        if (parser.usedSubParser("history")) {
-            if (parser.parsed("num_history")) {
-                logger.printLogs(parser.get<size_t>("num_history"));
-            } else {
-                logger.printLogs();
+            if (masked.size()) {
+                fmt::println("Masked logging levels: {}", fmt::join(masked, ", "));
             }
+
             return CmdExecResult::DONE;
-        }
+        }};
 
-        fmt::println("Logger Level: {}", Logger::logLevel2Str(logger.getLogLevel()));
-        vector<string> masked;
-        vector<string> logLevels = {"fatal", "error", "warning", "info", "debug", "trace"};
-        for (auto& level : logLevels) {
-            if (logger.isMasked(*Logger::str2LogLevel(level))) {
-                masked.push_back(level);
-            }
-        }
+    cmd.addSubCommand(
+        {"test",
+         [](ArgumentParser& parser) {
+             parser.description("Test out logger setting");
+         },
+         [](ArgumentParser const& parser) {
+             using namespace dvlab::utils;
+             logger.fatal("Test fatal log");
+             logger.error("Test error log");
+             logger.warning("Test warning log");
+             logger.info("Test info log");
+             logger.debug("Test debug log");
+             logger.trace("Test trace log");
+             return CmdExecResult::DONE;
+         }});
 
-        if (masked.size()) {
-            fmt::println("Masked logging levels: {}", fmt::join(masked, ", "));
-        }
+    cmd.addSubCommand(
+        {"level",
+         [](ArgumentParser& parser) {
+             parser.description("set logger level");
+             parser.addArgument<string>("level")
+                 .constraint(choices_allow_prefix(vector<string>{"none", "fatal", "error", "warning", "info", "debug", "trace"}))
+                 .help("set log levels. Levels (ascending): None, Fatal, Error, Warning, Info, Debug, Trace");
+         },
+         [](ArgumentParser const& parser) {
+             using namespace dvlab::utils;
+             auto level = Logger::str2LogLevel(parser.get<string>("level"));
+             assert(level.has_value());
+             logger.setLogLevel(*level);
+             logger.debug("Setting logger level to {}", Logger::logLevel2Str(*level));
+             return CmdExecResult::DONE;
+         }});
 
-        return CmdExecResult::DONE;
-    };
+    cmd.addSubCommand(
+        {"history",
+         [](ArgumentParser& parser) {
+             parser.description("print logger history");
+             parser.addArgument<size_t>("num_history")
+                 .nargs(NArgsOption::OPTIONAL)
+                 .metavar("N")
+                 .help("print log history. If specified, print the lastest N logs");
+         },
+         [](ArgumentParser const& parser) {
+             using dvlab::utils::Logger;
+             if (parser.parsed("num_history")) {
+                 logger.printLogs(parser.get<size_t>("num_history"));
+             } else {
+                 logger.printLogs();
+             }
+             return CmdExecResult::DONE;
+         }});
+
+    cmd.addSubCommand(
+        {"mask",
+         [](ArgumentParser& parser) {
+             parser.description("set logger mask");
+             parser.setOptionPrefix("+-");
+             auto addFilterGroup = [&parser](std::string const& groupName) {
+                 auto group = parser.addMutuallyExclusiveGroup();
+                 group.addArgument<bool>("+" + groupName)
+                     .action(storeTrue)
+                     .help("unmask " + groupName + " logs");
+                 group.addArgument<bool>("-" + groupName)
+                     .action(storeTrue)
+                     .help("mask " + groupName + " logs");
+             };
+
+             vector<string> logLevels = {"fatal", "error", "warning", "info", "debug", "trace"};
+
+             for (auto& group : logLevels) {
+                 if (group == "none") continue;
+                 addFilterGroup(group);
+             }
+         },
+         [](ArgumentParser const& parser) {
+             using dvlab::utils::Logger;
+
+             vector<string> logLevels = {"fatal", "error", "warning", "info", "debug", "trace"};
+
+             for (auto& group : logLevels) {
+                 auto level = Logger::str2LogLevel(group);
+                 assert(level.has_value());
+                 if (parser.parsed("+" + group)) {
+                     logger.unmask(*level);
+                     logger.debug("Unmasked logger level: {}", Logger::logLevel2Str(*level));
+                 } else if (parser.parsed("-" + group)) {
+                     logger.mask(*level);
+                     logger.debug("Masked logger level: {}", Logger::logLevel2Str(*level));
+                 }
+             }
+             return CmdExecResult::DONE;
+         }});
 
     return cmd;
 }
 
-unique_ptr<ArgParseCmdType> seedCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("SEED");
+Command seedCmd() {
+    return {"seed",
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("set the random seed");
+            [](ArgumentParser& parser) {
+                parser.description("set the random seed");
 
-        parser.addArgument<unsigned>("seed")
-            .defaultValue(353)
-            .nargs(NArgsOption::OPTIONAL)
-            .help("random seed value");
-    };
+                parser.addArgument<unsigned>("seed")
+                    .defaultValue(353)  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+                    .nargs(NArgsOption::OPTIONAL)
+                    .help("random seed value");
+            },
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        srand(parser.get<unsigned>("seed"));
-        fmt::println("Note: seed is set to {}", parser.get<unsigned>("seed"));
-        return CmdExecResult::DONE;
-    };
-
-    return cmd;
+            [](ArgumentParser const& parser) {
+                srand(parser.get<unsigned>("seed"));
+                fmt::println("Note: seed is set to {}", parser.get<unsigned>("seed"));
+                return CmdExecResult::DONE;
+            }};
 }
 
-unique_ptr<ArgParseCmdType> clearCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("CLEAR");
+Command clearCmd() {
+    return {"clear",
+            [](ArgumentParser& parser) {
+                parser.description("clear the terminal");
+            },
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("clear the console");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        cli.clearConsole();
-
-        return CmdExecResult::DONE;
-    };
-
-    return cmd;
+            [](ArgumentParser const& parser) {
+                cli.clearTerminal();
+                return CmdExecResult::DONE;
+            }};
 };

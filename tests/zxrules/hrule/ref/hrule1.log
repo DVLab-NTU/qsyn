@@ -42,15 +42,15 @@ Total #Vertices: 9
 
 
 qsyn> zxgp -e
-( 0, 4 )	Type:	-
-( 1, 9 )	Type:	-
-( 2, 5 )	Type:	-
-( 3, 8 )	Type:	-
-( 4, 5 )	Type:	-
-( 4, 6 )	Type:	-
-( 5, 8 )	Type:	-
-( 6, 9 )	Type:	H
-( 8, 9 )	Type:	-
+(0, 4)       Type: -
+(1, 9)       Type: -
+(2, 5)       Type: -
+(3, 8)       Type: -
+(4, 5)       Type: -
+(4, 6)       Type: -
+(5, 8)       Type: -
+(6, 9)       Type: H
+(8, 9)       Type: -
 Total #Edges: 9
 
 qsyn> qq -f

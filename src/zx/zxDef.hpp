@@ -44,10 +44,28 @@ enum class EdgeType {
 using ZXVertexList = ordered_hashset<ZXVertex*>;
 using EdgePair = std::pair<std::pair<ZXVertex*, ZXVertex*>, EdgeType>;
 using NeighborPair = std::pair<ZXVertex*, EdgeType>;
-using Neighbors = ordered_hashset<NeighborPair>;
 
 // two boundary vertices from different ZXGraph and the edge type between them
 using ZXCut = std::tuple<ZXVertex*, ZXVertex*, EdgeType>;
+
+struct NeighborPairHash {
+    size_t operator()(const NeighborPair& k) const {
+        return (
+            (std::hash<ZXVertex*>()(k.first) ^
+             (std::hash<EdgeType>()(k.second) << 1)) >>
+            1);
+    }
+};
+struct EdgePairHash {
+    size_t operator()(const EdgePair& k) const {
+        return (
+                   (std::hash<ZXVertex*>()(k.first.first) ^
+                    (std::hash<ZXVertex*>()(k.first.second) << 1)) >>
+                   1) ^
+               (std::hash<EdgeType>()(k.second) << 1);
+    }
+};
+using Neighbors = ordered_hashset<NeighborPair, NeighborPairHash>;
 
 struct ZXCutHash {
     size_t operator()(const ZXCut& cut) const {
@@ -91,41 +109,6 @@ using StorageType = ordered_hashmap<size_t, VertexInfo>;
 //   Define hashes
 //------------------------------------------------------------------------
 
-namespace std {
-template <>
-struct hash<vector<ZXVertex*>> {
-    size_t operator()(const vector<ZXVertex*>& k) const {
-        size_t ret = hash<ZXVertex*>()(k[0]);
-        for (size_t i = 1; i < k.size(); i++) {
-            ret ^= hash<ZXVertex*>()(k[i]);
-        }
-
-        return ret;
-    }
-};
-
-template <>
-struct hash<NeighborPair> {
-    size_t operator()(const NeighborPair& k) const {
-        return (
-            (hash<ZXVertex*>()(k.first) ^
-             (hash<EdgeType>()(k.second) << 1)) >>
-            1);
-    }
-};
-
-template <>
-struct hash<EdgePair> {
-    size_t operator()(const EdgePair& k) const {
-        return (
-                   (hash<ZXVertex*>()(k.first.first) ^
-                    (hash<ZXVertex*>()(k.first.second) << 1)) >>
-                   1) ^
-               (hash<EdgeType>()(k.second) << 1);
-    }
-};
-}  // namespace std
-
 std::ostream& operator<<(std::ostream& stream, VertexType const& vt);
 std::ostream& operator<<(std::ostream& stream, EdgeType const& et);
 
@@ -135,7 +118,7 @@ struct fmt::formatter<VertexType> {
         return ctx.begin();
     }
     auto format(const VertexType& vt, format_context& ctx) const -> format_context::iterator {
-        using namespace dvlab_utils;
+        using namespace dvlab;
         switch (vt) {
             case VertexType::X:
                 return fmt::format_to(ctx.out(), "{}", fmt_ext::styled_if_ANSI_supported("X", fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
@@ -156,7 +139,7 @@ struct fmt::formatter<EdgeType> {
         return ctx.begin();
     }
     auto format(const EdgeType& et, format_context& ctx) const -> format_context::iterator {
-        using namespace dvlab_utils;
+        using namespace dvlab;
         switch (et) {
             case EdgeType::HADAMARD:
                 return fmt::format_to(ctx.out(), "{}", fmt_ext::styled_if_ANSI_supported("H", fmt::fg(fmt::terminal_color::blue) | fmt::emphasis::bold));

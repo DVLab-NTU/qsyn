@@ -1,9 +1,7 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qccread benchmark/benchmark_SABRE/small/3_17_13.qasm
-Created and checked out to QCir 0
 
 qsyn> qccread benchmark/benchmark_SABRE/small/3_17_13.qasm
-Created and checked out to QCir 1
 
 qsyn> qccp -q
 Q 0  -----------------cx( 1)-- h( 3)-- t( 6)----------------------------------cx( 8)----------cx( 9)-- t(14)--------------------------cx(15)----------cx(16)-- h(18)-- t(20)------------------cx(23)--------------------------cx(25)----------cx(27)--td(28)--------------------------cx(32)----------cx(33)-

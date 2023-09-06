@@ -9,11 +9,9 @@
 #include "./simplify.hpp"
 
 #include <cstddef>
-#include <iomanip>
-#include <iostream>
 
 #include "./zxRulesTemplate.hpp"
-#include "gflow/gFlow.hpp"
+#include "zx/gflow/gFlow.hpp"
 #include "zx/zxDef.hpp"
 #include "zx/zxGraph.hpp"
 #include "zx/zxGraphMgr.hpp"
@@ -21,11 +19,6 @@
 
 using namespace std;
 extern size_t verbose;
-extern size_t dmode;
-
-int cnt = 0;
-bool step = false;
-bool stop = false;
 
 // Basic rules simplification
 

@@ -3,7 +3,7 @@ qc2zx
 zxgs -fr
 zx2qc
 qccp
-optimize
+qccoptimize
 qccp
 qccw $2
 qq -f

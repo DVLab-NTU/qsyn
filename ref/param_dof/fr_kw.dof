@@ -1,8 +1,8 @@
-//!ARGS 2 INPUT_PATH OUTPUT_PATH
+//!ARGS INPUT_PATH OUTPUT_PATH
 qccr ${INPUT_PATH}
 qc2zx
 zxgs -fr
 zx2qc
-optimize
+qccoptimize
 qccw ${OUTPUT_PATH}
 qq -f

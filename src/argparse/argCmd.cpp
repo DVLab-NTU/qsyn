@@ -13,6 +13,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "argparse/argType.hpp"
 #include "cli/cli.hpp"
 #include "util/util.hpp"
 
@@ -21,42 +22,27 @@ using namespace ArgParse;
 
 // init
 
-unique_ptr<ArgParseCmdType> argparseCmd();
+Command argparseCmd();
 
 bool initArgParseCmd() {
-    if (!(cli.regCmd("Argparse", 1, argparseCmd()))) {
+    if (!(cli.registerCommand(argparseCmd()))) {
         fmt::println(stderr, "Registering \"argparse\" commands fails... exiting");
         return false;
     }
     return true;
 }
 
-unique_ptr<ArgParseCmdType> argparseCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("Argparse");
+Command argparseCmd() {
+    return {"argparse",
+            [](ArgumentParser& parser) {
+                parser.description("ArgParse package sandbox");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("ArgParse package sandbox");
+                // parser.addArgument<bool>("-name", "-alias");
+            },
+            [](ArgumentParser const& parser) {
+                parser.printTokens();
+                parser.printArguments();
 
-        parser.addArgument<string>("cat")
-            .nargs(NArgsOption::ZERO_OR_MORE)
-            .help("won't eat veggies");
-
-        parser.addArgument<string>("-DOG")
-            .action(storeConst("rocky"s))
-            .defaultValue("good boi"s)
-            .help("humans' best friend");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        parser.printTokens();
-        parser.printArguments();
-
-        auto cats = parser.get<ordered_hashset<string>>("cat");
-
-        fmt::println("# cats = {}: {}", cats.size(), fmt::join(cats, " "));
-
-        return CmdExecResult::DONE;
-    };
-
-    return cmd;
+                return CmdExecResult::DONE;
+            }};
 }

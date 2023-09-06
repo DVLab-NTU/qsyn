@@ -8,8 +8,6 @@
 
 #include <cstddef>
 #include <exception>
-#include <iomanip>
-#include <iostream>
 #include <ranges>
 #include <string>
 
@@ -17,7 +15,6 @@
 #include "./zxGraph.hpp"
 
 using namespace std;
-extern size_t verbose;
 
 /**
  * @brief return a vector of neighbor vertices

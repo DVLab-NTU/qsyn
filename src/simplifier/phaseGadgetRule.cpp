@@ -6,11 +6,26 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <ranges>
+
 #include "./zxRulesTemplate.hpp"
+#include "util/logger.hpp"
+#include "zx/zxGraph.hpp"
 
 using MatchType = PhaseGadgetRule::MatchType;
 
-extern size_t verbose;
+extern dvlab::utils::Logger logger;
+
+struct ZXVerticesHash {
+    size_t operator()(const std::vector<ZXVertex*>& k) const {
+        size_t ret = std::hash<ZXVertex*>()(k[0]);
+        for (size_t i = 1; i < k.size(); i++) {
+            ret ^= std::hash<ZXVertex*>()(k[i]);
+        }
+
+        return ret;
+    }
+};
 
 /**
  * @brief Determine which phase gadgets act on the same vertices, so that they can be fused together.
@@ -21,8 +36,8 @@ std::vector<MatchType> PhaseGadgetRule::findMatches(const ZXGraph& graph) const 
     std::vector<MatchType> matches;
 
     std::unordered_map<ZXVertex*, ZXVertex*> axel2leaf;
-    std::unordered_multimap<std::vector<ZXVertex*>, ZXVertex*> group2axel;
-    std::unordered_set<std::vector<ZXVertex*>> done;
+    std::unordered_multimap<std::vector<ZXVertex*>, ZXVertex*, ZXVerticesHash> group2axel;
+    std::unordered_set<std::vector<ZXVertex*>, ZXVerticesHash> done;
 
     std::vector<ZXVertex*> axels;
     std::vector<ZXVertex*> leaves;
@@ -48,12 +63,7 @@ std::vector<MatchType> PhaseGadgetRule::findMatches(const ZXGraph& graph) const 
             group2axel.emplace(group, nb);
         }
 
-        if (verbose >= 9) {
-            for (auto& vertex : group) {
-                std::cout << vertex->getId() << " ";
-            }
-            std::cout << " axel added: " << nb->getId() << std::endl;
-        }
+        logger.trace("{} axel added: {}", fmt::join(group | std::views::transform([](ZXVertex* v) { return v->getId(); }), " "), nb->getId());
     }
     auto itr = group2axel.begin();
     while (itr != group2axel.end()) {

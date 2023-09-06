@@ -43,7 +43,7 @@ MappingEQChecker::MappingEQChecker(QCir* phy, QCir* log, Device dev, std::vector
  * @return false
  */
 bool MappingEQChecker::check() {
-    vector<QCirGate*> executeOrder = _physical->getTopoOrderdGates();
+    vector<QCirGate*> executeOrder = _physical->getTopoOrderedGates();
     if (_reverse) reverse(executeOrder.begin(), executeOrder.end());  // NOTE - Now the order starts from back
     // NOTE - Traverse all physical gates, should match dependency of logical gate
     unordered_set<QCirGate*> swaps;
@@ -127,9 +127,8 @@ bool MappingEQChecker::executeSwap(QCirGate* first, unordered_set<QCirGate*>& sw
     bool connect = _device.getPhysicalQubit(first->getQubits()[0]._qubit).isAdjacency(_device.getPhysicalQubit(first->getQubits()[1]._qubit));
     if (!connect) return false;
 
-    QCirGate* next;
     swaps.emplace(first);
-    next = getNext(first->getQubits()[0]);
+    QCirGate* next = getNext(first->getQubits()[0]);
     swaps.emplace(next);
     next = getNext(next->getQubits()[0]);
     swaps.emplace(next);

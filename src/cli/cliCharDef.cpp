@@ -7,10 +7,7 @@
 ****************************************************************************/
 #include "./cliCharDef.hpp"
 
-#include <termios.h>
-
 #include <cctype>
-#include <iostream>
 
 #include "./cli.hpp"
 
@@ -21,31 +18,10 @@ using namespace std;
 //----------------------------------------------------------------------
 
 namespace detail {
-static struct termios stored_settings;
-
-static auto reset_keypress(void) {
-    tcsetattr(0, TCSANOW, &stored_settings);
-}
-
-static auto set_keypress(void) {
-    struct termios new_settings;
-    tcgetattr(0, &stored_settings);
-    new_settings = stored_settings;
-    new_settings.c_lflag &= (~ICANON);
-    new_settings.c_lflag &= (~ECHO);
-    new_settings.c_cc[VTIME] = 0;
-    tcgetattr(0, &stored_settings);
-    new_settings.c_cc[VMIN] = 1;
-    tcsetattr(0, TCSANOW, &new_settings);
-}
 
 static auto mygetc(istream& istr) -> char {
-    char ch;
-    set_keypress();
-    istr.unsetf(ios_base::skipws);
-    istr >> ch;
-    istr.setf(ios_base::skipws);
-    reset_keypress();
+    char ch = 0;
+    istr.get(ch);
     return ch;
 }
 
@@ -60,12 +36,12 @@ int CommandLineInterface::getChar(istream& istr) const {
     switch (ch) {
         // Simple keys: one code for one key press
         // -- The following should be platform-independent
-        case LINE_BEGIN_KEY:     // Ctrl-a
-        case LINE_END_KEY:       // Ctrl-e
-        case INPUT_END_KEY:      // Ctrl-d
-        case TAB_KEY:            // tab('\t') or Ctrl-i
-        case NEWLINE_KEY:        // enter('\n') or ctrl-m
-        case CLEAR_CONSOLE_KEY:  // Clear console (Ctrl-l)
+        case LINE_BEGIN_KEY:      // Ctrl-a
+        case LINE_END_KEY:        // Ctrl-e
+        case INPUT_END_KEY:       // Ctrl-d
+        case TAB_KEY:             // tab('\t') or Ctrl-i
+        case NEWLINE_KEY:         // enter('\n') or ctrl-m
+        case CLEAR_TERMINAL_KEY:  // Clear terminal (Ctrl-l)
             return ch;
 
         // -- The following simple/combo keys are platform-dependent

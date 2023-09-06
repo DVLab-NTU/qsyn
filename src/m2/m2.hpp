@@ -12,17 +12,20 @@
 #include <utility>
 #include <vector>
 
-#include "zx/zxDef.hpp"
+#include "util/ordered_hashset.hpp"
 
 //------------------------------------------------------------------------
 //   Define classes
 //------------------------------------------------------------------------
 
+class ZXVertex;
+using ZXVertexList = ordered_hashset<ZXVertex*>;
+
 // REVIEW - Change if bit > 64
 class Row {
 public:
     Row(size_t id, const std::vector<unsigned char>& r) : _row(r) {}
-    ~Row() {}
+
     const std::vector<unsigned char>& getRow() const { return _row; }
     void setRow(std::vector<unsigned char> row) { _row = row; }
     size_t size() const { return _row.size(); }

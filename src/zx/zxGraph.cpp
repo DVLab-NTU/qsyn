@@ -9,13 +9,15 @@
 #include "./zxGraph.hpp"
 
 #include <algorithm>
-#include <iostream>
+#include <numeric>
+#include <ranges>
 
 #include "./zxDef.hpp"
+#include "util/logger.hpp"
 
 using namespace std;
 
-extern size_t verbose;
+extern dvlab::utils::Logger logger;
 
 /*****************************************************/
 /*   class ZXGraph Getter and setter functions       */
@@ -27,11 +29,10 @@ extern size_t verbose;
  * @return size_t
  */
 size_t ZXGraph::getNumEdges() const {
-    size_t n = 0;
-    for (auto& v : _vertices) {
-        n += v->getNumNeighbors();
-    }
-    return n / 2;
+    return std::accumulate(_vertices.begin(), _vertices.end(), 0, [](size_t sum, ZXVertex* v) {
+               return sum + v->getNumNeighbors();
+           }) /
+           2;
 }
 
 /*****************************************************/
@@ -57,17 +58,13 @@ bool ZXGraph::isEmpty() const {
 bool ZXGraph::isValid() const {
     for (auto& v : _inputs) {
         if (v->getNumNeighbors() != 1) {
-            if (verbose >= 3) {
-                cout << "Error: output " << v->getId() << " has " << v->getNumNeighbors() << " neighbors, expected 1\n";
-            }
+            logger.debug("Error: input {} has {} neighbors, expected 1", v->getId(), v->getNumNeighbors());
             return false;
         }
     }
     for (auto& v : _outputs) {
         if (v->getNumNeighbors() != 1) {
-            if (verbose >= 3) {
-                cout << "Error: output " << v->getId() << " has " << v->getNumNeighbors() << " neighbors, expected 1\n";
-            }
+            logger.debug("Error: output {} has {} neighbors, expected 1", v->getId(), v->getNumNeighbors());
             return false;
         }
     }
@@ -80,30 +77,6 @@ bool ZXGraph::isValid() const {
 }
 
 /**
- * @brief Generate a CNOT subgraph to the ZXGraph (testing)
- *
- */
-void ZXGraph::generateCNOT() {
-    if (isEmpty()) {
-        if (verbose >= 5) cout << "Generate a 2-qubit CNOT graph for testing\n";
-        ZXVertex* i0 = addInput(0, 0);
-        ZXVertex* i1 = addInput(1, 0);
-        ZXVertex* vz = addVertex(0, VertexType::Z, Phase(), 1);
-        ZXVertex* vx = addVertex(1, VertexType::X, Phase(), 1);
-        ZXVertex* o0 = addOutput(0, 2);
-        ZXVertex* o1 = addOutput(1, 2);
-
-        addEdge(i0, vz, EdgeType::SIMPLE);
-        addEdge(i1, vx, EdgeType::SIMPLE);
-        addEdge(vz, vx, EdgeType::SIMPLE);
-        addEdge(o0, vz, EdgeType::SIMPLE);
-        addEdge(o1, vx, EdgeType::SIMPLE);
-    } else {
-        if (verbose >= 3) cout << "Note: The graph is not empty! Generation failed!\n";
-    }
-}
-
-/**
  * @brief Check if `id` exists
  *
  * @param id
@@ -111,10 +84,7 @@ void ZXGraph::generateCNOT() {
  * @return false
  */
 bool ZXGraph::isId(size_t id) const {
-    for (auto v : _vertices) {
-        if (v->getId() == id) return true;
-    }
-    return false;
+    return ranges::any_of(_vertices, [id](ZXVertex* v) { return v->getId() == id; });
 }
 
 /**
@@ -127,43 +97,31 @@ bool ZXGraph::isGraphLike() const {
     // all internal edges are hadamard edges
     for (const auto& v : _vertices) {
         if (!v->isZ() && !v->isBoundary()) {
-            if (verbose >= 5) {
-                cout << "Note: vertex " << v->getId() << " is of type " << v->getType() << endl;
-            }
+            logger.debug("Note: vertex {} is of type {}", v->getId(), v->getType());
             return false;
         }
         for (const auto& [nb, etype] : v->getNeighbors()) {
             if (v->isBoundary() || nb->isBoundary()) continue;
             if (etype != EdgeType::HADAMARD) {
-                if (verbose >= 5) {
-                    cout << "Note: internal simple edge (" << v->getId() << ", " << nb->getId() << ")" << endl;
-                }
+                logger.debug("Note: internal edge ({}, {}) is of type {}", v->getId(), nb->getId(), etype);
                 return false;
             }
         }
     }
 
-    // 4. B-Z-B and B has only an edge
+    // 4. Boundary vertices only has an edge
     for (const auto& v : _inputs) {
         if (v->getNumNeighbors() != 1) {
-            if (verbose >= 5) {
-                cout << "Note: boundary " << v->getId() << " has "
-                     << v->getNumNeighbors() << " neighbors; expected 1" << endl;
-            }
+            logger.debug("Note: boundary {} has {} neighbors; expected 1", v->getId(), v->getNumNeighbors());
             return false;
         }
     }
     for (const auto& v : _outputs) {
         if (v->getNumNeighbors() != 1) {
-            if (verbose >= 5) {
-                cout << "Note: boundary " << v->getId() << " has "
-                     << v->getNumNeighbors() << " neighbors; expected 1" << endl;
-            }
+            logger.debug("Note: boundary {} has {} neighbors; expected 1", v->getId(), v->getNumNeighbors());
             return false;
         }
     }
-
-    // guard B-B edge?
     return true;
 }
 
@@ -247,9 +205,6 @@ ZXVertex* ZXGraph::addOutput(int qubit, unsigned int col) {
 ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, unsigned int col) {
     ZXVertex* v = new ZXVertex(_nextVId, qubit, vt, phase, col);
     _vertices.emplace(v);
-    if (verbose >= 8) {
-        fmt::println("Add vertex ({}) {}", v->getType(), _nextVId);
-    }
     _nextVId++;
     return v;
 }
@@ -262,40 +217,51 @@ ZXVertex* ZXGraph::addVertex(int qubit, VertexType vt, Phase phase, unsigned int
  * @param et
  * @return EdgePair
  */
-EdgePair ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
+void ZXGraph::addEdge(ZXVertex* vs, ZXVertex* vt, EdgeType et) {
     if (vs == vt) {
-        Phase phase = (et == EdgeType::HADAMARD) ? Phase(1) : Phase(0);
-        if (verbose >= 8) cout << "Note: converting this self-loop to phase " << phase << " on vertex " << vs->getId() << "..." << endl;
-        vs->setPhase(vs->getPhase() + phase);
-        return makeEdgePairDummy();
+        vs->setPhase(vs->getPhase() + (et == EdgeType::HADAMARD ? Phase(1) : Phase(0)));
+        return;
     }
 
     if (vs->getId() > vt->getId()) std::swap(vs, vt);
 
+    // in case an edge already exists
     if (vs->isNeighbor(vt, et)) {
+        // if vs or vt (or both) is H-box,
+        // there isn't a way to merge or cancel out with the current edge
+        // To circumvent this, we add a new vertex in the middle of the edge
+        // and connect the new vertex to both vs and vt
+        if (vs->isHBox() || vt->isHBox()) {
+            ZXVertex* v = addVertex(
+                (vs->getQubit() + vt->getQubit()) / 2,
+                et == EdgeType::HADAMARD ? VertexType::H_BOX : VertexType::Z,
+                et == EdgeType::HADAMARD ? Phase(1) : Phase(0),
+                (vs->getCol() + vt->getCol()) / 2);
+            vs->addNeighbor(v, EdgeType::SIMPLE);
+            v->addNeighbor(vs, EdgeType::SIMPLE);
+            vt->addNeighbor(v, EdgeType::SIMPLE);
+            v->addNeighbor(vt, EdgeType::SIMPLE);
+
+            return;
+        }
+
+        // Z and X vertices: merge or cancel out
         if (
-            (vs->isZ() && vt->isX() && et == EdgeType::HADAMARD) ||
-            (vs->isX() && vt->isZ() && et == EdgeType::HADAMARD) ||
-            (vs->isZ() && vt->isZ() && et == EdgeType::SIMPLE) ||
-            (vs->isX() && vt->isX() && et == EdgeType::SIMPLE)) {
-            if (verbose >= 8) cout << "Note: redundant edge; merging into existing edge (" << vs->getId() << ", " << vt->getId() << ")..." << endl;
-        } else if (
             (vs->isZ() && vt->isX() && et == EdgeType::SIMPLE) ||
             (vs->isX() && vt->isZ() && et == EdgeType::SIMPLE) ||
             (vs->isZ() && vt->isZ() && et == EdgeType::HADAMARD) ||
             (vs->isX() && vt->isX() && et == EdgeType::HADAMARD)) {
-            if (verbose >= 8) cout << "Note: Hopf edge; cancelling out with existing edge (" << vs->getId() << ", " << vt->getId() << ")..." << endl;
             vs->removeNeighbor(vt, et);
             vt->removeNeighbor(vs, et);
-        }
-        // REVIEW - similar conditions for H-Boxes and boundaries?
-    } else {
-        vs->addNeighbor(vt, et);
-        vt->addNeighbor(vs, et);
-        if (verbose >= 8) cout << "Add edge (" << vs->getId() << ", " << vt->getId() << ")" << endl;
+        }  // else do nothing
+
+        return;
     }
 
-    return makeEdgePair(vs, vt, et);
+    vs->addNeighbor(vt, et);
+    vt->addNeighbor(vs, et);
+
+    return;
 }
 
 /**
@@ -359,7 +325,6 @@ size_t ZXGraph::removeVertex(ZXVertex* v) {
         _outputs.erase(v);
     }
 
-    if (verbose >= 8) cout << "Remove ID: " << v->getId() << endl;
     // deallocate ZXVertex
     delete v;
     return 1;
@@ -398,9 +363,7 @@ size_t ZXGraph::removeEdge(ZXVertex* vs, ZXVertex* vt, EdgeType etype) {
     if (count == 1) {
         throw out_of_range("Graph connection error in " + to_string(vs->getId()) + " and " + to_string(vt->getId()));
     }
-    if (count == 2) {
-        if (verbose >= 8) cout << "Remove edge (" << vs->getId() << ", " << vt->getId() << "), type: " << etype << endl;
-    }
+
     return count / 2;
 }
 
@@ -514,27 +477,12 @@ ZXVertex* ZXGraph::addBuffer(ZXVertex* toProtect, ZXVertex* fromVertex, EdgeType
 /*****************************************************/
 
 /**
- * @brief Find the next id that is never been used.
- *`
- * @return size_t
- */
-size_t ZXGraph::findNextId() const {
-    size_t nextId = 0;
-    for (auto& v : _vertices) {
-        if (v->getId() >= nextId) nextId = v->getId() + 1;
-    }
-    return nextId;
-}
-
-/**
  * @brief Find Vertex by vertex's id.
  *
  * @param id
  * @return ZXVertex*
  */
 ZXVertex* ZXGraph::findVertexById(const size_t& id) const {
-    for (const auto& v : _vertices) {
-        if (v->getId() == id) return v;
-    }
-    return nullptr;
+    auto it = ranges::find_if(_vertices, [id](ZXVertex* v) { return v->getId() == id; });
+    return it == _vertices.end() ? nullptr : *it;
 }

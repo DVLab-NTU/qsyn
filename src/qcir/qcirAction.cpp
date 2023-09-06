@@ -15,7 +15,6 @@
 #include "qcir/qcirQubit.hpp"
 
 using namespace std;
-extern size_t verbose;
 
 /**
  * @brief Append the target to current QCir
@@ -31,7 +30,7 @@ QCir* QCir::compose(QCir const& target) {
             insertSingleQubit(qubit->getId());
     }
     copiedQCir.updateTopoOrder();
-    for (auto& targGate : copiedQCir.getTopoOrderdGates()) {
+    for (auto& targGate : copiedQCir.getTopoOrderedGates()) {
         vector<size_t> bits;
         for (const auto& b : targGate->getQubits()) {
             bits.emplace_back(b._qubit);
@@ -56,7 +55,7 @@ QCir* QCir::tensorProduct(QCir const& target) {
         oldQ2NewQ[qubit->getId()] = addSingleQubit();
     }
     copiedQCir.updateTopoOrder();
-    for (auto& targGate : copiedQCir.getTopoOrderdGates()) {
+    for (auto& targGate : copiedQCir.getTopoOrderedGates()) {
         vector<size_t> bits;
         for (const auto& b : targGate->getQubits()) {
             bits.emplace_back(oldQ2NewQ[b._qubit]->getId());
@@ -158,7 +157,6 @@ void QCir::reset() {
     _topoOrder.clear();
 
     _gateId = 0;
-    _ZXNodeId = 0;
     _qubitId = 0;
     _dirty = true;
     _globalDFScounter = 1;

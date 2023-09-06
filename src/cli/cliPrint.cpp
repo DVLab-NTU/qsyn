@@ -6,21 +6,39 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <ranges>
+
 #include "./cli.hpp"
 
 using namespace std;
 
-void CommandLineInterface::printHelps() const {
-    for (const auto& mi : _cmdMap)
-        mi.second->summary();
+/**
+ * @brief print a summary of all commands
+ *
+ */
+void CommandLineInterface::listAllCommands() const {
+    auto cmdRange = _commands | std::views::keys;
+    std::vector<std::string> cmdVec(cmdRange.begin(), cmdRange.end());
+    std::ranges::sort(cmdVec);
+    for (const auto& cmd : cmdVec)
+        _commands.at(cmd)->printSummary();
 
-    fmt::print("\n");
+    fmt::println("");
 }
 
+/**
+ * @brief print all CLI history
+ *
+ */
 void CommandLineInterface::printHistory() const {
     printHistory(_history.size());
 }
 
+/**
+ * @brief print the last nPrint commands in CLI history
+ *
+ * @param nPrint
+ */
 void CommandLineInterface::printHistory(size_t nPrint) const {
     assert(_tempCmdStored == false);
     if (_history.empty()) {
@@ -38,24 +56,17 @@ void CommandLineInterface::printPrompt() const {
     fflush(stdout);
 }
 
-void CommandLineInterface::resetBufAndPrintPrompt() {
-    _readBuf.clear();
-    _cursorPosition = 0;
-    _tabPressCount = 0;
-    printPrompt();
-}
-
 void CommandLineInterface::beep() const {
     fmt::print("{}", (char)KeyCode::BEEP_CHAR);
 }
 
-void CommandLineInterface::clearConsole() const {
+void CommandLineInterface::clearTerminal() const {
 #ifdef _WIN32
     int result = system("cls");
 #else
     int result = system("clear");
 #endif
     if (result != 0) {
-        fmt::println(stderr, "Error clearing the console!!");
+        fmt::println(stderr, "Error clearing the terminal!!");
     }
 }

@@ -8,270 +8,204 @@
 
 #include <cstddef>
 #include <iomanip>
+#include <memory>
 #include <string>
 
 #include "cli/cli.hpp"
 #include "device/device.hpp"
 #include "device/deviceMgr.hpp"
+#include "fmt/core.h"
 
 using namespace std;
 using namespace ArgParse;
 
-extern DeviceMgr* deviceMgr;
-extern size_t verbose;
-extern int effLimit;
+DeviceMgr deviceMgr{"Device"};
 
-unique_ptr<ArgParseCmdType> dtCheckOutCmd();
-unique_ptr<ArgParseCmdType> dtResetCmd();
-unique_ptr<ArgParseCmdType> dtDeleteCmd();
-unique_ptr<ArgParseCmdType> dtGraphReadCmd();
-unique_ptr<ArgParseCmdType> dtGraphPrintCmd();  // requires subparsers
-unique_ptr<ArgParseCmdType> dtPrintCmd();
+Command dtCheckOutCmd();
+Command dtResetCmd();
+Command dtDeleteCmd();
+Command dtGraphReadCmd();
+Command dtGraphPrintCmd();
+Command dtPrintCmd();
+
+bool deviceMgrNotEmpty() {
+    return dvlab::utils::expect(!deviceMgr.empty(), "Device list is empty now. Please DTRead first.");
+}
 
 bool initDeviceCmd() {
-    deviceMgr = new DeviceMgr;
-    if (!(cli.regCmd("DTCHeckout", 4, dtCheckOutCmd()) &&
-          cli.regCmd("DTReset", 3, dtResetCmd()) &&
-          cli.regCmd("DTDelete", 3, dtDeleteCmd()) &&
-          cli.regCmd("DTGRead", 4, dtGraphReadCmd()) &&
-          cli.regCmd("DTGPrint", 4, dtGraphPrintCmd()) &&
-          cli.regCmd("DTPrint", 3, dtPrintCmd()))) {
-        cerr << "Registering \"device topology\" commands fails... exiting" << endl;
+    if (!(cli.registerCommand(dtCheckOutCmd()) &&
+          cli.registerCommand(dtResetCmd()) &&
+          cli.registerCommand(dtDeleteCmd()) &&
+          cli.registerCommand(dtGraphReadCmd()) &&
+          cli.registerCommand(dtGraphPrintCmd()) &&
+          cli.registerCommand(dtPrintCmd()))) {
+        logger.fatal("Registering \"device topology\" commands fails... exiting");
         return false;
     }
     return true;
 }
 
-ArgType<size_t>::ConstraintType validDeviceId = {
+ArgType<size_t>::ConstraintType const validDeviceId =
     [](size_t const& id) {
-        return deviceMgr->isID(id);
-    },
-    [](size_t const& id) {
-        cerr << "Error: Device " << id << " does not exist!!\n";
-    }};
-
-unique_ptr<ArgParseCmdType> dtCheckOutCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DTCHeckout");
-
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("checkout to Device <id> in DeviceMgr");
-
-        parser.addArgument<size_t>("id")
-            .constraint(validDeviceId)
-            .help("the ID of the device");
+        if (deviceMgr.isID(id)) return true;
+        logger.error("Device {} does not exist!!", id);
+        return false;
     };
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        deviceMgr->checkout2Device(parser.get<size_t>("id"));
-        return CmdExecResult::DONE;
-    };
+Command dtCheckOutCmd() {
+    return {"dtcheckout",
+            [](ArgumentParser& parser) {
+                parser.description("checkout to Device <id> in DeviceMgr");
 
-    return cmd;
+                parser.addArgument<size_t>("id")
+                    .constraint(validDeviceId)
+                    .help("the ID of the device");
+            },
+            [](ArgumentParser const& parser) {
+                deviceMgr.checkout(parser.get<size_t>("id"));
+                return CmdExecResult::DONE;
+            }};
 }
 
-unique_ptr<ArgParseCmdType> dtResetCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DTReset");
-
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("reset DeviceMgr");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        deviceMgr->reset();
-        return CmdExecResult::DONE;
-    };
-
-    return cmd;
+Command dtResetCmd() {
+    return {"dtreset",
+            [](ArgumentParser& parser) {
+                parser.description("reset DeviceMgr");
+            },
+            [](ArgumentParser const& parser) {
+                deviceMgr.reset();
+                return CmdExecResult::DONE;
+            }};
+    auto cmd = make_unique<Command>("DTReset");
 }
 
-unique_ptr<ArgParseCmdType> dtDeleteCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DTDelete");
+Command dtDeleteCmd() {
+    return {"dtdelete",
+            [](ArgumentParser& parser) {
+                parser.description("remove a Device from DeviceMgr");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("remove a Device from DeviceMgr");
-
-        parser.addArgument<size_t>("id")
-            .constraint(validDeviceId)
-            .help("the ID of the device");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        deviceMgr->removeDevice(parser.get<size_t>("id"));
-        return CmdExecResult::DONE;
-    };
-
-    return cmd;
+                parser.addArgument<size_t>("id")
+                    .constraint(validDeviceId)
+                    .help("the ID of the device");
+            },
+            [](ArgumentParser const& parser) {
+                deviceMgr.remove(parser.get<size_t>("id"));
+                return CmdExecResult::DONE;
+            }};
 }
 
-unique_ptr<ArgParseCmdType> dtGraphReadCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DTGRead");
+Command dtGraphReadCmd() {
+    return {"dtgread",
+            [](ArgumentParser& parser) {
+                parser.description("read a device topology");
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("read a device topology");
+                parser.addArgument<string>("filepath")
+                    .help("the filepath to device file");
 
-        parser.addArgument<string>("filepath")
-            .help("the filepath to device file");
+                parser.addArgument<bool>("-replace")
+                    .action(storeTrue)
+                    .help("if specified, replace the current device; otherwise store to a new one");
+            },
+            [](ArgumentParser const& parser) {
+                Device bufferDevice;
+                auto filepath = parser.get<string>("filepath");
+                auto replace = parser.get<bool>("-replace");
 
-        parser.addArgument<bool>("-replace")
-            .action(storeTrue)
-            .help("if specified, replace the current device; otherwise store to a new one");
-    };
+                if (!bufferDevice.readDevice(filepath)) {
+                    logger.error("the format in \"{}\" has something wrong!!", filepath);
+                    return CmdExecResult::ERROR;
+                }
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        Device bufferTopo = Device(0);
-        auto filepath = parser.get<string>("filepath");
-        auto replace = parser.get<bool>("-replace");
+                if (deviceMgr.empty() || !replace) {
+                    deviceMgr.add(deviceMgr.getNextID(), std::make_unique<Device>(std::move(bufferDevice)));
+                } else {
+                    deviceMgr.set(std::make_unique<Device>(std::move(bufferDevice)));
+                }
 
-        if (!bufferTopo.readDevice(filepath)) {
-            cerr << "Error: the format in \"" << filepath << "\" has something wrong!!" << endl;
-            return CmdExecResult::ERROR;
-        }
-
-        if (deviceMgr->getDTListItr() == deviceMgr->getDeviceList().end()) {
-            deviceMgr->addDevice(deviceMgr->getNextID());
-        } else {
-            if (replace) {
-                if (verbose >= 1) cout << "Note: original Device is replaced..." << endl;
-            } else {
-                deviceMgr->addDevice(deviceMgr->getNextID());
-            }
-        }
-
-        deviceMgr->setDevice(bufferTopo);
-        return CmdExecResult::DONE;
-    };
-
-    return cmd;
+                return CmdExecResult::DONE;
+            }};
 }
 
-// unique_ptr<ArgParseCmdType> dtGraphPrintCmd() {
-//     auto cmd = make_unique<ArgParseCmdType>("DTGPrint");
+Command dtPrintCmd() {
+    return {"dtprint",
+            [](ArgumentParser& parser) {
+                parser.description("print info about Devices");
 
-//     cmd->parserDefinition = [](ArgumentParser & parser) {
-//         parser.help("print info of device topology");
+                auto mutex = parser.addMutuallyExclusiveGroup();
 
-//         auto mutex = parser.addMutuallyExclusiveGroup();
+                mutex.addArgument<bool>("-focus")
+                    .action(storeTrue)
+                    .help("print the info of device in focus");
+                mutex.addArgument<bool>("-list")
+                    .action(storeTrue)
+                    .help("print a list of devices");
+            },
+            [](ArgumentParser const& parser) {
+                if (parser.parsed("-focus"))
+                    deviceMgr.printFocus();
+                else if (parser.parsed("-list"))
+                    deviceMgr.printList();
+                else
+                    deviceMgr.printManager();
 
-//         mutex.addArgument<bool>("-summary")
-//             .action(storeTrue)
-//             .help("summary of the device graph");
-
-//         mutex.addArgument<bool>("-edges")
-//             .action(storeTrue)
-//             .help("edges of the device graph");
-
-//         mutex.addArgument<bool>("-path")
-//             .action(storeTrue)
-//             .help("path of the device graph");
-
-//         mutex.addArgument<bool>("-qubit")
-//             .action(storeTrue)
-//             .help("qubit of the device graph");
-//     };
-
-//     cmd->onParseSuccess = [](ArgumentParser const& parser) {
-
-//         return CmdExecResult::DONE;
-//     };
-
-//     return cmd;
-// }
-
-unique_ptr<ArgParseCmdType> dtPrintCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DTPrint");
-
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("print info of DeviceMgr");
-
-        auto mutex = parser.addMutuallyExclusiveGroup();
-
-        mutex.addArgument<bool>("-summary")
-            .action(storeTrue)
-            .help("print summary of all devices");
-        mutex.addArgument<bool>("-focus")
-            .action(storeTrue)
-            .help("print the info of device in focus");
-        mutex.addArgument<bool>("-list")
-            .action(storeTrue)
-            .help("print a list of devices");
-        mutex.addArgument<bool>("-number")
-            .action(storeTrue)
-            .help("print number of devices");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser.parsed("-focus"))
-            deviceMgr->printDeviceListItr();
-        else if (parser.parsed("-list"))
-            deviceMgr->printDeviceList();
-        else if (parser.parsed("-number"))
-            deviceMgr->printDeviceListSize();
-        else
-            deviceMgr->printDeviceMgr();
-
-        return CmdExecResult::DONE;
-    };
-
-    return cmd;
+                return CmdExecResult::DONE;
+            }};
 }
 
 //-----------------------------------------------------------------------------------------------------------
 //    DTGPrint [-Summary | -Edges | -Path | -Qubit]
 //-----------------------------------------------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> dtGraphPrintCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("DTGPrint");
+Command dtGraphPrintCmd() {
+    return {"dtgprint",
+            [](ArgumentParser& parser) {
+                parser.description("print info of device topology");
 
-    cmd->precondition = deviceMgrNotEmpty;
+                auto mutex = parser.addMutuallyExclusiveGroup().required(false);
 
-    cmd->parserDefinition = [](ArgumentParser& parser) {
-        parser.help("print info of device topology");
-        auto mutex = parser.addMutuallyExclusiveGroup().required(false);
+                mutex.addArgument<bool>("-summary")
+                    .action(storeTrue)
+                    .help("print basic information of the topology");
 
-        mutex.addArgument<bool>("-summary")
-            .action(storeTrue)
-            .help("print basic information of the topology");
+                mutex.addArgument<size_t>("-edges")
+                    .nargs(0, 2)
+                    .help(
+                        "print information of edges. "
+                        "If no qubit ID is specified, print for all edges; "
+                        "if one qubit ID specified, list the adjacent edges to the qubit; "
+                        "if two qubit IDs are specified, list the edge between them");
 
-        mutex.addArgument<size_t>("-edges")
-            .nargs(0, 2)
-            .help(
-                "print information of edges. "
-                "If no qubit ID is specified, print for all edges; "
-                "if one qubit ID specified, list the adjacent edges to the qubit; "
-                "if two qubit IDs are specified, list the edge between them");
+                mutex.addArgument<size_t>("-qubits")
+                    .nargs(NArgsOption::ZERO_OR_MORE)
+                    .help(
+                        "print information of qubits. "
+                        "If no qubit ID is specified, print for all qubits;"
+                        "otherwise, print information of the specified qubit IDs");
 
-        mutex.addArgument<size_t>("-qubits")
-            .nargs(NArgsOption::ZERO_OR_MORE)
-            .help(
-                "print information of qubits. "
-                "If no qubit ID is specified, print for all qubits;"
-                "otherwise, print information of the specified qubit IDs");
+                mutex.addArgument<size_t>("-path")
+                    .nargs(2)
+                    .metavar("(q1, q2)")
+                    .help(
+                        "print routing paths between q1 and q2");
+            },
+            [](ArgumentParser const& parser) {
+                if (!deviceMgrNotEmpty()) return CmdExecResult::ERROR;
 
-        mutex.addArgument<size_t>("-path")
-            .nargs(2)
-            .metavar("(q1, q2)")
-            .help(
-                "print routing paths between q1 and q2");
-    };
+                if (parser.parsed("-edges")) {
+                    deviceMgr.get()->printEdges(parser.get<vector<size_t>>("-edges"));
+                    return CmdExecResult::DONE;
+                }
+                if (parser.parsed("-qubits")) {
+                    deviceMgr.get()->printQubits(parser.get<vector<size_t>>("-qubits"));
+                    return CmdExecResult::DONE;
+                }
+                if (parser.parsed("-path")) {
+                    auto qids = parser.get<vector<size_t>>("-path");
+                    deviceMgr.get()->printPath(qids[0], qids[1]);
+                    return CmdExecResult::DONE;
+                }
 
-    cmd->onParseSuccess = [](ArgumentParser const& parser) {
-        if (parser.parsed("-edges")) {
-            deviceMgr->getDevice().printEdges(parser.get<vector<size_t>>("-edges"));
-            return CmdExecResult::DONE;
-        }
-        if (parser.parsed("-qubits")) {
-            deviceMgr->getDevice().printQubits(parser.get<vector<size_t>>("-qubits"));
-            return CmdExecResult::DONE;
-        }
-        if (parser.parsed("-path")) {
-            auto qids = parser.get<vector<size_t>>("-path");
-            deviceMgr->getDevice().printPath(qids[0], qids[1]);
-            return CmdExecResult::DONE;
-        }
-
-        deviceMgr->getDevice().printTopology();
-        return CmdExecResult::DONE;
-    };
-
-    return cmd;
+                deviceMgr.get()->printTopology();
+                return CmdExecResult::DONE;
+            }};
 }

@@ -27,30 +27,35 @@ find_package(LAPACK REQUIRED)
 
 FetchContent_Declare(
     xtl
+    SYSTEM
     GIT_REPOSITORY https://github.com/xtensor-stack/xtl.git
     GIT_TAG 0.7.5)
 FetchContent_MakeAvailable(xtl)
 
 FetchContent_Declare(
     xtensor
+    SYSTEM
     GIT_REPOSITORY https://github.com/xtensor-stack/xtensor.git
     GIT_TAG 0.24.6)
 FetchContent_MakeAvailable(xtensor)
 
 FetchContent_Declare(
     xtensor-blas
+    SYSTEM
     GIT_REPOSITORY https://github.com/xtensor-stack/xtensor-blas.git
     GIT_TAG 0.20.0)
 FetchContent_MakeAvailable(xtensor-blas)
 
 FetchContent_Declare(
     libfort
+    SYSTEM
     GIT_REPOSITORY https://github.com/seleznevae/libfort.git
     GIT_TAG v0.4.2)
 FetchContent_MakeAvailable(libfort)
 
 FetchContent_Declare(
     fmt
+    SYSTEM
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
     GIT_TAG 10.0.0)
 FetchContent_MakeAvailable(fmt)

@@ -18,4 +18,17 @@
 template <typename T>
 class QTensor;
 
-using TensorMgr = dvlab_utils::DataStructureManager<QTensor<double>>;
+template <>
+inline std::string dvlab::utils::dataInfoString(QTensor<double>* tensor) {
+    return fmt::format("{:<19} #Dim: {}   {}",
+                       tensor->getFileName().substr(0, 19),
+                       tensor->dimension(),
+                       fmt::join(tensor->getProcedures(), " ➔ "));
+}
+
+template <>
+inline std::string dvlab::utils::dataName(QTensor<double>* tensor) {
+    return tensor->getFileName();
+}
+
+using TensorMgr = dvlab::utils::DataStructureManager<QTensor<double>>;

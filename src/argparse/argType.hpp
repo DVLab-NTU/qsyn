@@ -13,7 +13,6 @@
 #include <cassert>
 #include <climits>
 #include <functional>
-#include <iosfwd>
 #include <optional>
 #include <span>
 #include <string>
@@ -60,22 +59,18 @@ requires ValidArgumentType<T>
 class ArgType {
 public:
     using ActionType = std::function<ActionCallbackType(ArgType<T>&)>;
-    using ConditionType = std::function<bool(T const&)>;
-    using ErrorType = std::function<void(T const&)>;
-    using ConstraintType = std::pair<ConditionType, ErrorType>;
+    using ConstraintType = std::function<bool(T const&)>;
 
     ArgType(std::string name, T val)
         : _values{std::move(val)}, _name{std::move(name)} {}
 
-    friend std::ostream& operator<<(std::ostream& os, ArgType const& arg) { return os << fmt::format("{}", arg); }
-
+    ArgType& usage(std::string const& usage);
     ArgType& help(std::string const& help);
     ArgType& required(bool isReq);
     ArgType& defaultValue(T const& val);
     ArgType& action(ActionType const& action);
     ArgType& metavar(std::string const& metavar);
-    ArgType& constraint(ConstraintType const& constraint_error);
-    ArgType& constraint(ConditionType const& constraint, ErrorType const& onerror = nullptr);
+    ArgType& constraint(ConstraintType const& constraint);
     ArgType& choices(std::vector<T> const& choices);
     ArgType& nargs(size_t n);
     ArgType& nargs(size_t l, size_t u);
@@ -104,16 +99,15 @@ public:
     }
 
     bool constraintsSatisfied() const {
-        for (auto& [condition, onerror] : _constraints) {
-            for (auto const& val : _values) {
-                if (!condition(val)) {
-                    onerror(val);
-                    return false;
-                }
-            }
-        }
-        return true;
+        return std::ranges::all_of(_constraints, [this](ConstraintType const& condition) -> bool {
+            return std::ranges::all_of(_values, [&condition](T const& val) -> bool {
+                return condition(val);
+            });
+        });
     }
+
+    void markAsHelpAction() { _isHelpAction = true; }
+    void markAsVersionAction() { _isVersionAction = true; }
 
 private:
     friend class Argument;
@@ -125,14 +119,16 @@ private:
     std::string _name;
     std::string _help = "";
     std::string _metavar = "";
+    std::optional<std::string> _usage = std::nullopt;
     ActionCallbackType _actionCallback = nullptr;
     std::vector<ConstraintType> _constraints = {};
     NArgsRange _nargs = {1, 1};
-    size_t _numRequiredChars = 1;
 
     bool _required : 1 = false;
     bool _append : 1 = false;
     bool _parsed : 1 = false;
+    bool _isHelpAction : 1 = false;
+    bool _isVersionAction : 1 = false;
 };
 
 // SECTION - On-parse actions for ArgType<T>
@@ -146,6 +142,8 @@ requires ValidArgumentType<T>
 typename ArgType<T>::ActionType storeConst(T const& constValue);
 ActionCallbackType storeTrue(ArgType<bool>& arg);
 ActionCallbackType storeFalse(ArgType<bool>& arg);
+ActionCallbackType help(ArgType<bool>& arg);
+ActionCallbackType version(ArgType<bool>& arg);
 
 ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::string> choices);
 extern ArgType<std::string>::ConstraintType const path_readable;
@@ -153,15 +151,6 @@ extern ArgType<std::string>::ConstraintType const path_writable;
 ArgType<std::string>::ConstraintType starts_with(std::vector<std::string> const& prefixes);
 ArgType<std::string>::ConstraintType ends_with(std::vector<std::string> const& suffixes);
 ArgType<std::string>::ConstraintType allowed_extension(std::vector<std::string> const& extensions);
-
-namespace detail {
-extern std::ostream& _os;  // placeholder for the concept to work
-template <typename T>
-concept Printable = requires(T t) {
-    { _os << t } -> std::same_as<std::ostream&>;
-};
-
-}  // namespace detail
 
 }  // namespace ArgParse
 
@@ -176,7 +165,7 @@ struct formatter<ArgParse::ArgType<T>> {
     auto format(ArgParse::ArgType<T> const& arg, FormatContext& ctx) -> format_context::iterator {
         if (arg._values.empty()) return format_to(ctx.out(), "(None)");
 
-        if constexpr (ArgParse::detail::Printable<T>) {
+        if constexpr (fmt::is_formattable<T, char>::value) {
             //                                                          vvv force the typing when T = bool (std::vector<bool> is weird)
             return (arg._nargs.upper <= 1) ? format_to(ctx.out(), "{}", static_cast<T>(arg._values.front()))
                                            : format_to(ctx.out(), "[{}]", fmt::join(arg._values, ", "));
@@ -190,6 +179,20 @@ struct formatter<ArgParse::ArgType<T>> {
 }  // namespace fmt
 
 namespace ArgParse {
+
+/**
+ * @brief set the usage message of the argument when printing usage of command
+ *
+ * @tparam T
+ * @param help
+ * @return ArgType<T>&
+ */
+template <typename T>
+requires ValidArgumentType<T>
+ArgType<T>& ArgType<T>::usage(std::string const& usage) {
+    _usage = usage;
+    return *this;
+}
 
 /**
  * @brief set the help message of the argument
@@ -230,6 +233,7 @@ template <typename T>
 requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::defaultValue(T const& val) {
     _defaultValue = val;
+    _required = false;
     return *this;
 }
 
@@ -268,54 +272,34 @@ ArgType<T>& ArgType<T>::metavar(std::string const& metavar) {
  * @brief Add constraint to the argument.
  *
  * @tparam T
- * @param constraint_error a pair of constraint generator and on-error callback generator.
- *        The constraint generator takes a `ArgType<T> const&` and returns a ActionType,
- *        while takes a `ArgType<T> const&` and returns a ErrorCallbackType.
- * @return ArgType<T>&
- */
-template <typename T>
-requires ValidArgumentType<T>
-ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConstraintType const& constraint_error) {
-    return this->constraint(constraint_error.first, constraint_error.second);
-}
-
-/**
- * @brief Add constraint to the argument.
- *
- * @tparam T
  * @param condition takes a `ArgType<T> const&` and returns a ActionCallbackType
  * @param onerror takes a `ArgType<T> const&` and returns a ErrorCallbackType
  */
 template <typename T>
 requires ValidArgumentType<T>
-ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConditionType const& condition, ArgType<T>::ErrorType const& onerror) {
+ArgType<T>& ArgType<T>::constraint(ArgType<T>::ConstraintType const& condition) {
     if (condition == nullptr) {
-        fmt::println(stderr, "[ArgParse] Failed to add constraint to argument \"{}\": condition cannot be `nullptr`!!", _name);
-        return *this;
+        fmt::println(stderr, "[ArgParse] Error: failed to add constraint to argument \"{}\": condition cannot be `nullptr`!!", _name);
+        exit(1);
     }
 
-    _constraints.emplace_back(
-        condition,
-        (onerror != nullptr) ? onerror : [this](T const& val) -> void {
-            fmt::println(stderr, "Error: invalid value \"{}\" for argument \"{}\": failed to satisfy constraint!!", val, _name);
-        });
+    _constraints.emplace_back(condition);
     return *this;
 }
 
 template <typename T>
 requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::choices(std::vector<T> const& choices) {
-    auto constraint = [choices](T const& val) -> bool {
-        return any_of(choices.begin(), choices.end(), [&val](T const& choice) -> bool {
-            return val == choice;
-        });
-    };
-    auto error = [choices, this](T const& arg) -> void {
+    auto constraint = [choices, this](T const& val) -> bool {
+        if (any_of(choices.begin(), choices.end(), [&val](T const& choice) -> bool {
+                return val == choice;
+            })) return true;
         fmt::println(stderr, "Error: invalid choice for argument \"{}\": please choose from {{{}}}!!",
                      this->_name, fmt::join(choices, ", "));
+        return false;
     };
 
-    return this->constraint(constraint, error);
+    return this->constraint(constraint);
 }
 
 template <typename T>
@@ -328,7 +312,7 @@ template <typename T>
 requires ValidArgumentType<T>
 ArgType<T>& ArgType<T>::nargs(size_t l, size_t u) {
     _nargs = {l, u};
-    return (l > 0) ? *this : this->required(false);
+    return *this;
 }
 
 template <typename T>

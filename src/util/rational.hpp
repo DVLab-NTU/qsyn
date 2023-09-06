@@ -7,6 +7,8 @@
 ****************************************************************************/
 #pragma once
 
+#include <fmt/core.h>
+
 #include <cassert>
 #include <cmath>
 #include <concepts>
@@ -77,6 +79,16 @@ public:
 protected:
     double _numer, _denom;
     static Rational mediant(const Rational& lhs, const Rational& rhs);
+};
+
+template <>
+struct fmt::formatter<Rational> {
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(const Rational& q, FormatContext& ctx) {
+        return (q.denominator() == 1) ? format_to(ctx.out(), "{}", q.numerator()) : format_to(ctx.out(), "{}/{}", q.numerator(), q.denominator());
+    }
 };
 
 template <class T>

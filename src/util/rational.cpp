@@ -8,17 +8,15 @@
 
 #include "./rational.hpp"
 
-#include <iostream>
 #include <numeric>
 #include <stdexcept>
+#include <string>
 
 //----------------------------------------
 // Operator Overloading
 //----------------------------------------
 std::ostream& operator<<(std::ostream& os, const Rational& q) {
-    os << q._numer;
-    if (q._denom != 1) os << "/" << q._denom;
-    return os;
+    return os << fmt::format("{}", q);
 }
 
 Rational Rational::operator+() const {

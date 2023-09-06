@@ -15,13 +15,13 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> tsp -l
-  0                        QC2TS
-★ 1                        QC2TS
+  0                        #Dim: 2   QC2TS
+★ 1                        #Dim: 2   QC2TS
 
 qsyn> tseq 0 1 
 Not Equivalent
 
-qsyn> tseq 0 1 -Strict
+qsyn> tseq 0 1 -strict
 Not Equivalent
 
 qsyn> qq -f

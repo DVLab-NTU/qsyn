@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <fmt/core.h>
+
 #include <cstddef>
 #include <string>
 #include <unordered_map>
@@ -24,44 +26,46 @@ class PhysicalQubit;
 class Operation;
 struct Info;
 
-using Adjacencies = ordered_hashset<size_t>;
-using PhyQubitList = ordered_hashmap<size_t, PhysicalQubit>;
-using AdjacenciesInfo = std::unordered_map<std::pair<size_t, size_t>, Info>;
-using QubitInfo = std::unordered_map<size_t, Info>;
-
-namespace std {
-template <>
-struct hash<std::pair<size_t, size_t>> {
+struct PairSizeTHash {
     size_t operator()(const std::pair<size_t, size_t>& k) const {
         return (
-            (hash<size_t>()(k.first) ^
-             (hash<size_t>()(k.second) << 1)) >>
+            (std::hash<size_t>()(k.first) ^
+             (std::hash<size_t>()(k.second) << 1)) >>
             1);
     }
 };
-}  // namespace std
+
+using Adjacencies = ordered_hashset<size_t>;
+using PhyQubitList = ordered_hashmap<size_t, PhysicalQubit>;
+using AdjacenciesInfo = std::unordered_map<std::pair<size_t, size_t>, Info, PairSizeTHash>;
+using QubitInfo = std::unordered_map<size_t, Info>;
 
 struct Info {
     float _time;
     float _error;
 };
 
+template <>
+struct fmt::formatter<Info> {
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(const Info& info, FormatContext& ctx) {
+        return format_to(ctx.out(), "Delay: {:>7.3}    Error: {:7.3}    ", info._time, info._error);
+    }
+};
+
 std::ostream& operator<<(std::ostream& os, const Info& info);
 
 class Topology {
 public:
-    Topology(size_t id) : _id(id) {
-    }
-    ~Topology() {}
-
-    size_t getId() const { return _id; }
+    Topology() {}
 
     std::string getName() const { return _name; }
     const std::vector<GateType>& getGateSet() const { return _gateSet; }
     const Info& getAdjPairInfo(size_t, size_t);
     const Info& getQubitInfo(size_t);
     size_t getAdjSize() const { return _adjInfo.size(); }
-    void setId(size_t id) { _id = id; }
     void setNQubit(size_t n) { _nQubit = n; }
     void setName(std::string n) { _name = n; }
     void addGateType(GateType gt) { _gateSet.emplace_back(gt); }
@@ -71,9 +75,8 @@ public:
     void printSingleEdge(size_t a, size_t b) const;
 
 private:
-    size_t _id;
     std::string _name;
-    size_t _nQubit;
+    size_t _nQubit = 0;
     std::vector<GateType> _gateSet;
     QubitInfo _qubitInfo;
     AdjacenciesInfo _adjInfo;
@@ -82,13 +85,8 @@ private:
 class PhysicalQubit {
 public:
     PhysicalQubit() {}
-    PhysicalQubit(const size_t id);
-    PhysicalQubit(const PhysicalQubit& other);
-    PhysicalQubit(PhysicalQubit&& other);
-    PhysicalQubit& operator=(const PhysicalQubit& other);
-    PhysicalQubit& operator=(PhysicalQubit&& other);
+    PhysicalQubit(const size_t id) : _id(id) {}
 
-    ~PhysicalQubit() {}
     void setId(size_t id) { _id = id; }
     void setOccupiedTime(size_t t) { _occupiedTime = t; }
     void setLogicalQubit(size_t id) { _logicalQubit = id; }
@@ -114,27 +112,26 @@ public:
 
 private:
     // NOTE - Device information
-    size_t _id;
+    size_t _id = ERROR_CODE;
     Adjacencies _adjacencies;
 
     // NOTE - Duostra parameter
-    size_t _logicalQubit;
-    size_t _occupiedTime;
+    size_t _logicalQubit = ERROR_CODE;
+    size_t _occupiedTime = 0;
 
-    bool _marked;
-    size_t _pred;
-    size_t _cost;
-    size_t _swapTime;
-    bool _source;  // false:0, true:1
-    bool _taken;
+    bool _marked = false;
+    size_t _pred = 0;
+    size_t _cost = 0;
+    size_t _swapTime = 0;
+    bool _source = false;  // false:0, true:1
+    bool _taken = false;
 };
 
 class Device {
 public:
-    Device(size_t);
-    ~Device() {}
+    constexpr static size_t MAX_DIST = 100000;
+    Device() : _maxDist{MAX_DIST}, _topology{std::make_shared<Topology>()} {}
 
-    size_t getId() const { return _id; }
     std::string getName() const { return _topology->getName(); }
     size_t getNQubit() const { return _nQubit; }
     const PhyQubitList& getPhyQubitList() const { return _qubitList; }
@@ -143,7 +140,6 @@ public:
     std::tuple<size_t, size_t> getNextSwapCost(size_t source, size_t target);
     bool qubitIdExist(size_t id) { return _qubitList.contains(id); }
 
-    void setId(size_t id) { _id = id; }
     void setNQubit(size_t n) { _nQubit = n; }
     void addPhyQubit(PhysicalQubit q) { _qubitList[q.getId()] = q; }
     void addAdjacency(size_t a, size_t b);
@@ -172,8 +168,7 @@ public:
     void printStatus() const;
 
 private:
-    size_t _id;
-    size_t _nQubit;
+    size_t _nQubit = 0;
     std::shared_ptr<Topology> _topology;
     PhyQubitList _qubitList;
 
@@ -199,9 +194,6 @@ public:
     friend std::ostream& operator<<(std::ostream&, const Operation&);
 
     Operation(GateType, Phase, std::tuple<size_t, size_t>, std::tuple<size_t, size_t>);
-    Operation(const Operation&);
-
-    Operation& operator=(const Operation&);
 
     GateType getType() const { return _oper; }
     Phase getPhase() const { return _phase; }
@@ -220,5 +212,3 @@ private:
     std::tuple<size_t, size_t> _duration;  // <from, to>
     size_t _id;
 };
-
-std::ostream& operator<<(std::ostream&, const Operation&);

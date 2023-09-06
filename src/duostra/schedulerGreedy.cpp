@@ -12,7 +12,6 @@
 
 #include "./scheduler.hpp"
 #include "./variables.hpp"
-#include "cli/cli.hpp"
 
 using namespace std;
 

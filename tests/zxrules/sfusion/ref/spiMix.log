@@ -1,6 +1,5 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> zxn
-Created and checked out to ZXGraph 0
 
 qsyn> zxgedit -addi 0
 
@@ -36,11 +35,11 @@ Total #Vertices: 4
 
 
 qsyn> zxgp -e
-( 0, 2 )	Type:	-
-( 1, 2 )	Type:	-
-( 1, 3 )	Type:	-
-( 2, 3 )	Type:	-
-( 2, 3 )	Type:	H
+(0, 2)       Type: -
+(1, 2)       Type: -
+(1, 3)       Type: -
+(2, 3)       Type: -
+(2, 3)       Type: H
 Total #Edges: 5
 
 qsyn> zxgsimp -spi
@@ -54,14 +53,13 @@ Total #Vertices: 3
 
 
 qsyn> zxgp -e
-( 0, 2 )	Type:	-
-( 1, 2 )	Type:	-
+(0, 2)       Type: -
+(1, 2)       Type: -
 Total #Edges: 2
 
 qsyn> zxr
 
 qsyn> zxn
-Created and checked out to ZXGraph 0
 
 qsyn> zxgedit -addi 0
 
@@ -117,17 +115,17 @@ Total #Vertices: 8
 
 
 qsyn> zxgp -e
-( 0, 3 )	Type:	-
-( 1, 3 )	Type:	-
-( 2, 5 )	Type:	-
-( 2, 7 )	Type:	-
-( 3, 4 )	Type:	-
-( 3, 4 )	Type:	H
-( 3, 6 )	Type:	H
-( 4, 5 )	Type:	-
-( 4, 6 )	Type:	-
-( 5, 7 )	Type:	H
-( 6, 7 )	Type:	-
+(0, 3)       Type: -
+(1, 3)       Type: -
+(2, 5)       Type: -
+(2, 7)       Type: -
+(3, 4)       Type: -
+(3, 4)       Type: H
+(3, 6)       Type: H
+(4, 5)       Type: -
+(4, 6)       Type: -
+(5, 7)       Type: H
+(6, 7)       Type: -
 Total #Edges: 11
 
 qsyn> zxgsimp -spi
@@ -143,18 +141,17 @@ Total #Vertices: 5
 
 
 qsyn> zxgp -e
-( 0, 3 )	Type:	-
-( 1, 3 )	Type:	-
-( 2, 3 )	Type:	-
-( 2, 6 )	Type:	-
-( 3, 6 )	Type:	H
-( 3, 6 )	Type:	-
+(0, 3)       Type: -
+(1, 3)       Type: -
+(2, 3)       Type: -
+(2, 6)       Type: -
+(3, 6)       Type: H
+(3, 6)       Type: -
 Total #Edges: 6
 
 qsyn> zxr
 
 qsyn> zxn
-Created and checked out to ZXGraph 0
 
 qsyn> zxgedit -addi 0
 
@@ -186,9 +183,9 @@ Total #Vertices: 4
 
 
 qsyn> zxgp -e
-( 0, 3 )	Type:	-
-( 1, 3 )	Type:	-
-( 2, 3 )	Type:	-
+(0, 3)       Type: -
+(1, 3)       Type: -
+(2, 3)       Type: -
 Total #Edges: 3
 
 qsyn> zxgsimp -spi
@@ -203,9 +200,9 @@ Total #Vertices: 4
 
 
 qsyn> zxgp -e
-( 0, 3 )	Type:	-
-( 1, 3 )	Type:	-
-( 2, 3 )	Type:	-
+(0, 3)       Type: -
+(1, 3)       Type: -
+(2, 3)       Type: -
 Total #Edges: 3
 
 qsyn> qq -f

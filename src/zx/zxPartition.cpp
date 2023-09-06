@@ -19,9 +19,11 @@
 #include "./zxDef.hpp"
 #include "./zxGraph.hpp"
 #include "./zxGraphMgr.hpp"
-#include "cli/cli.hpp"
 
+extern size_t verbose;
 extern ZXGraphMgr zxGraphMgr;
+
+bool stop_requested();
 
 /*****************************************************/
 /*   class ZXGraph partition functions.              */
@@ -291,7 +293,7 @@ std::pair<ZXVertexList, ZXVertexList> _klBiPartition(ZXVertexList vertices) {
     };
 
     size_t iteration = 0;
-    while (!cli.stop_requested()) {
+    while (!stop_requested()) {
         cumulativeGain = 0;
         swapHistory = std::stack<SwapPair>();
         bestCumulativeGain = INT_MIN;

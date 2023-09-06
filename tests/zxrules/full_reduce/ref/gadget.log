@@ -1,17 +1,13 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qccr benchmark/pseudoSimp/tof2.qasm
-Created and checked out to QCir 0
 
 qsyn> qc2zx
-Created and checked out to ZXGraph 0
 
 qsyn> zxgas 1 I X pi
 
 qsyn> zxgas 1 O X pi
 
 qsyn> zx2ts
-Traverse and build the tensor... 
-Created and checked out to Tensor 0
 
 qsyn> zxgp -v
 
@@ -151,42 +147,12 @@ Both vertices are both interior: 19 20
 
 Iteration 1:
 >>>
-Add vertex (Z) 29
-Add vertex (Z) 30
-Add edge (29, 30)
-Add edge (8, 30)
-Add vertex (Z) 31
-Add vertex (Z) 32
-Add edge (31, 32)
-Add edge (12, 32)
-Add vertex (Z) 33
-Add vertex (Z) 34
-Add edge (33, 34)
-Add edge (20, 34)
 > rewrite...
 vs: 9	vt: 8
 > rewrite...
 vs: 11	vt: 12
 > rewrite...
 vs: 19	vt: 20
-Add edge (7, 10)
-Add edge (10, 30)
-Add edge (7, 22)
-Add edge (22, 30)
-Add edge (10, 13)
-Add edge (10, 32)
-Add edge (13, 16)
-Add edge (16, 32)
-Add edge (16, 21)
-Add edge (16, 34)
-Note: Hopf edge; cancelling out with existing edge (21, 22)...
-Add edge (22, 34)
-Remove ID: 8
-Remove ID: 9
-Remove ID: 12
-Remove ID: 11
-Remove ID: 19
-Remove ID: 20
 <<<
 > match...
 
@@ -234,26 +200,8 @@ Edge 0: 33 34
 
 Iteration 2:
 >>>
-Add vertex (Z) 35
-Add vertex (Z) 36
-Add edge (35, 36)
-Add edge (10, 36)
 > rewrite...
 vs: 13	vt: 10
-Add edge (7, 14)
-Add edge (14, 30)
-Add edge (14, 32)
-Add edge (14, 36)
-Note: Hopf edge; cancelling out with existing edge (7, 16)...
-Add edge (16, 30)
-Note: Hopf edge; cancelling out with existing edge (16, 32)...
-Add edge (16, 36)
-Note: Hopf edge; cancelling out with existing edge (7, 22)...
-Note: Hopf edge; cancelling out with existing edge (22, 30)...
-Add edge (22, 32)
-Add edge (22, 36)
-Remove ID: 13
-Remove ID: 10
 <<<
 > match...
 
@@ -295,15 +243,8 @@ Both vertices are both interior: 27 16
 
 Iteration 3:
 >>>
-Add vertex (Z) 37
-Add vertex (Z) 38
-Add edge (37, 38)
-Add edge (16, 38)
 > rewrite...
 vs: 27	vt: 16
-Remove ID: 27
-Remove ID: 16
-Remove ID: 21
 <<<
 > match...
 
@@ -382,8 +323,6 @@ Identity Removal Rule
 
 Iteration 1:
 >>>
-Add edge (4, 14)
-Remove ID: 7
 <<<
 => 1 iterations.
   1) 1 matches
@@ -411,96 +350,6 @@ Total #Vertices: 16
 
 
 qsyn> zx2ts
-Traverse and build the tensor... 
-Topological order from first input: 0 22 1 34 33 36 35 14 5 30 29 32 31 4 
-Size of topological order: 14
-> Mapping vertex 0 (●): New Subgraph
-  - Current frontiers: 
-    0--22 (-) axis id: 1
-> Mapping vertex 22 (Z): Tensordot
-  - Current frontiers: 
-    1--22 (-) axis id: 1
-    22--34 (H) axis id: 2
-    22--32 (H) axis id: 3
-    22--36 (H) axis id: 4
-> Mapping vertex 1 (●): Boundary Node
-  - Current frontiers: 
-    1--22 (-) axis id: 1
-    22--34 (H) axis id: 2
-    22--32 (H) axis id: 3
-    22--36 (H) axis id: 4
-> Mapping vertex 34 (Z): Tensordot
-  - Current frontiers: 
-    1--22 (-) axis id: 1
-    22--32 (H) axis id: 2
-    22--36 (H) axis id: 3
-    33--34 (H) axis id: 4
-> Mapping vertex 33 (Z): Tensordot
-  - Current frontiers: 
-    1--22 (-) axis id: 1
-    22--32 (H) axis id: 2
-    22--36 (H) axis id: 3
-> Mapping vertex 36 (Z): Tensordot
-  - Current frontiers: 
-    1--22 (-) axis id: 1
-    22--32 (H) axis id: 2
-    35--36 (H) axis id: 3
-    14--36 (H) axis id: 4
-> Mapping vertex 35 (Z): Tensordot
-  - Current frontiers: 
-    1--22 (-) axis id: 1
-    22--32 (H) axis id: 2
-    14--36 (H) axis id: 3
-> Mapping vertex 14 (Z): Tensordot
-  - Current frontiers: 
-    1--22 (-) axis id: 1
-    22--32 (H) axis id: 2
-    5--14 (H) axis id: 3
-    14--30 (H) axis id: 4
-    14--32 (H) axis id: 5
-    4--14 (H) axis id: 6
-> Mapping vertex 5 (●): Boundary Node
-  - Current frontiers: 
-    1--22 (-) axis id: 1
-    22--32 (H) axis id: 2
-    5--14 (H) axis id: 6
-    14--30 (H) axis id: 3
-    14--32 (H) axis id: 4
-    4--14 (H) axis id: 5
-> Mapping vertex 30 (Z): Tensordot
-  - Current frontiers: 
-    1--22 (-) axis id: 1
-    22--32 (H) axis id: 2
-    5--14 (H) axis id: 5
-    14--32 (H) axis id: 3
-    4--14 (H) axis id: 4
-    29--30 (H) axis id: 6
-> Mapping vertex 29 (Z): Tensordot
-  - Current frontiers: 
-    1--22 (-) axis id: 1
-    22--32 (H) axis id: 2
-    5--14 (H) axis id: 5
-    14--32 (H) axis id: 3
-    4--14 (H) axis id: 4
-> Mapping vertex 32 (Z): Tensordot
-  - Current frontiers: 
-    1--22 (-) axis id: 1
-    5--14 (H) axis id: 3
-    4--14 (H) axis id: 2
-    31--32 (H) axis id: 4
-> Mapping vertex 31 (Z): Tensordot
-  - Current frontiers: 
-    1--22 (-) axis id: 1
-    5--14 (H) axis id: 3
-    4--14 (H) axis id: 2
-> Mapping vertex 4 (●): Boundary Node
-  - Current frontiers: 
-    1--22 (-) axis id: 1
-    5--14 (H) axis id: 2
-    4--14 (H) axis id: 3
-Input  axis ids: 0 3
-Output axis ids: 1 2
-Created and checked out to Tensor 1
 
 qsyn> tseq 0 1
 Equivalent

@@ -5,14 +5,17 @@
   Author       [ Design Verification Lab, Chia-Hsu Chuang ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
+#include <termios.h>
+
 #include <cassert>
 #include <cstring>
-#include <iostream>
+#include <limits>
 #include <regex>
 #include <sstream>
 
 #include "cli/cli.hpp"
 #include "cli/cliCharDef.hpp"
+#include "fmt/core.h"
 
 using namespace std;
 
@@ -20,63 +23,144 @@ using namespace std;
 //    Member Function for class CmdParser
 //----------------------------------------------------------------------
 
-void CommandLineInterface::askForUserInput(std::istream& istr) {
+namespace detail {
+
+/**
+ * @brief restores the terminal settings
+ *
+ * @param stored_settings
+ * @return auto
+ */
+static auto reset_keypress(termios const& stored_settings) {
+    tcsetattr(0, TCSANOW, &stored_settings);
+}
+
+/**
+ * @brief enables the terminal to read one char at a time, and don't echo the input to terminal
+ *
+ * @return termios the original terminal settings. This is used to restore the terminal settings
+ */
+[[nodiscard]] static auto set_keypress() -> termios {
+    termios stored_settings{};
+    tcgetattr(0, &stored_settings);
+    termios new_settings = stored_settings;
+    new_settings.c_lflag &= (~ICANON);  // make sure we can read one char at a time
+    new_settings.c_lflag &= (~ECHO);    // don't print input characters. We would like to handle them ourselves
+    new_settings.c_cc[VTIME] = 0;       // start reading immediately
+    new_settings.c_cc[VMIN] = 1;        // ...and wait until we get one char to return
+    tcsetattr(0, TCSANOW, &new_settings);
+
+    return stored_settings;
+}
+
+}  // namespace detail
+
+/**
+ * @brief reset the read buffer
+ *
+ */
+void CommandLineInterface::resetBuffer() {
+    _readBuf.clear();
+    _cursorPosition = 0;
+    _tabPressCount = 0;
+}
+
+/**
+ * @brief listen to input from istr and store the input in _readBuf
+ *
+ * @param istr
+ * @param config
+ * @return CmdExecResult
+ */
+CmdExecResult CommandLineInterface::listenToInput(std::istream& istr, std::string const& prompt, CLI_ListenConfig const& config) {
     using namespace KeyCode;
 
+    auto stored_prompt = _prompt;  // save the original _prompt. We do this because signal handlers cannot take extra arguments
+
+    _prompt = prompt;
+    _listeningForInputs = true;
+
+    resetBuffer();
+    printPrompt();
+
+    auto stored_settings = detail::set_keypress();
     while (true) {
         int keycode = getChar(istr);
 
-        if (istr.eof()) return;
+        if (istr.eof()) {
+            detail::reset_keypress(stored_settings);
+            return CmdExecResult::DONE;
+        }
 
         if (keycode == INPUT_END_KEY) {
-            fmt::println("\nquit");
-            std::exit(0);
+            detail::reset_keypress(stored_settings);
+            return CmdExecResult::QUIT;
         }
 
         switch (keycode) {
             case NEWLINE_KEY:
-                return;
+                detail::reset_keypress(stored_settings);
+                _prompt = stored_prompt;
+                _listeningForInputs = false;
+                return CmdExecResult::DONE;
             case LINE_BEGIN_KEY:
             case HOME_KEY:
-                moveCursor(0);
+                moveCursorTo(0);
                 break;
             case LINE_END_KEY:
             case END_KEY:
-                moveCursor(_readBuf.size());
+                moveCursorTo(_readBuf.size());
                 break;
             case BACK_SPACE_KEY:
-                if (moveCursor(_cursorPosition - 1))
+                if (_cursorPosition == 0) {
+                    beep();
+                } else {
+                    moveCursorTo(_cursorPosition - 1);
                     deleteChar();
+                }
                 break;
             case DELETE_KEY:
                 deleteChar();
                 break;
-            case CLEAR_CONSOLE_KEY:
-                clearConsole();
+            case CLEAR_TERMINAL_KEY:
+                clearTerminal();
                 fmt::print("\n");
-                resetBufAndPrintPrompt();
+                resetBuffer();
+                printPrompt();
                 break;
             case ARROW_UP_KEY:
-                moveToHistory(_historyIdx - 1);
+                if (!config.allowBrowseHistory || _historyIdx == 0) {
+                    beep();
+                } else {
+                    moveToHistory(_historyIdx - 1);
+                }
                 break;
             case ARROW_DOWN_KEY:
-                moveToHistory(_historyIdx + 1);
+                (config.allowBrowseHistory) ? moveToHistory(_historyIdx + 1) : beep();
                 break;
             case ARROW_RIGHT_KEY:
-                moveCursor(_cursorPosition + 1);
+                if (_cursorPosition == _readBuf.size()) {
+                    beep();
+                } else {
+                    moveCursorTo(_cursorPosition + 1);
+                }
                 break;
             case ARROW_LEFT_KEY:
-                moveCursor((int)_cursorPosition - 1);
+                moveCursorTo((int)_cursorPosition - 1);
                 break;
             case PG_UP_KEY:
-                moveToHistory(_historyIdx - PG_OFFSET);
+                (config.allowBrowseHistory) ? moveToHistory(_historyIdx - std::min(PG_OFFSET, _historyIdx)) : beep();
                 break;
             case PG_DOWN_KEY:
-                moveToHistory(_historyIdx + PG_OFFSET);
+                (config.allowBrowseHistory) ? moveToHistory(_historyIdx + PG_OFFSET) : beep();
                 break;
             case TAB_KEY: {
-                ++_tabPressCount;
-                matchAndComplete(stripLeadingWhitespaces(_readBuf.substr(0, _cursorPosition)));
+                if (config.allowTabCompletion) {
+                    ++_tabPressCount;
+                    onTabPressed();
+                } else {
+                    beep();
+                }
                 break;
             }
             case INSERT_KEY:  // not yet supported; fall through to UNDEFINE
@@ -90,40 +174,42 @@ void CommandLineInterface::askForUserInput(std::istream& istr) {
     }
 }
 
-bool CommandLineInterface::readCmd(istream& istr) {
-    resetBufAndPrintPrompt();
+CmdExecResult CommandLineInterface::readOneLine(istream& istr) {
+    auto result = this->listenToInput(istr, _prompt);
 
-    this->askForUserInput(istr);
-
-    bool added = addUserInputToHistory();
-
-    if (added) {
-        auto stripped = stripQuotes(_history.back()).value_or("");
-
-        stripped = replaceVariableKeysWithValues(stripped);
-        std::vector<std::string> tokens = split(stripped, ";");
-
-        if (tokens.size()) {
-            // concat tokens with '\;' to a single token
-            for (auto itr = next(tokens.rbegin()); itr != tokens.rend(); ++itr) {
-                string& currToken = *itr;
-                string& nextToken = *prev(itr);
-
-                if (currToken.ends_with('\\') && !currToken.ends_with("\\\\")) {
-                    currToken.back() = ';';
-                    currToken += nextToken;
-                    nextToken = "";
-                }
-            }
-            erase_if(tokens, [](std::string const& token) { return token == ""; });
-            std::ranges::for_each(tokens, [this](std::string& token) { _commandQueue.push(stripWhitespaces(token)); });
-        }
-
-        fmt::print("\n");
-        fflush(stdout);
+    if (result == CmdExecResult::QUIT) {
+        return CmdExecResult::QUIT;
     }
 
-    return added;
+    if (!addUserInputToHistory()) {
+        return CmdExecResult::NOP;
+    }
+
+    auto stripped = stripQuotes(_history.back()).value_or("");
+
+    stripped = replaceVariableKeysWithValues(stripped);
+    std::vector<std::string> tokens = split(stripped, ";");
+
+    if (tokens.size()) {
+        // concat tokens with '\;' to a single token
+        for (auto itr = next(tokens.rbegin()); itr != tokens.rend(); ++itr) {
+            string& currToken = *itr;
+            string& nextToken = *prev(itr);
+
+            if (currToken.ends_with('\\') && !currToken.ends_with("\\\\")) {
+                currToken.back() = ';';
+                currToken += nextToken;
+                nextToken = "";
+            }
+        }
+        erase_if(tokens, [](std::string const& token) { return token == ""; });
+        std::ranges::for_each(tokens, [this](std::string& token) { _commandQueue.push(stripWhitespaces(token)); });
+    }
+
+    fmt::print("\n");
+    fflush(stdout);
+
+    return CmdExecResult::DONE;
 }
 
 // This function moves _readBufPtr to the "ptr" pointer
@@ -138,44 +224,25 @@ bool CommandLineInterface::readCmd(istream& istr) {
 //
 // [Note] This function can also be called by other member functions below
 //        to move the _readBufPtr to proper position.
-bool CommandLineInterface::moveCursor(int idx) {
-    if (idx < 0 || (size_t)idx > _readBuf.size()) {
+bool CommandLineInterface::moveCursorTo(size_t pos) {
+    if (pos > _readBuf.size()) {  // since pos is unsigned, this should also checks if pos < 0
         beep();
         return false;
     }
 
     // move left
-    if (_cursorPosition > (size_t)idx) {
-        fmt::print("{}", string(_cursorPosition - idx, '\b'));
+    if (_cursorPosition > (size_t)pos) {
+        fmt::print("{}", string(_cursorPosition - pos, '\b'));
     }
 
     // move right
-    if (_cursorPosition < (size_t)idx) {
-        fmt::print("{}", _readBuf.substr(_cursorPosition, idx - _cursorPosition));
+    if (_cursorPosition < (size_t)pos) {
+        fmt::print("{}", _readBuf.substr(_cursorPosition, pos - _cursorPosition));
     }
-    _cursorPosition = idx;
+    _cursorPosition = pos;
     return true;
 }
 
-// [Notes]
-// 1. Delete the char at _readBufPtr
-// 2. mybeep() and return false if at _readBufEnd
-// 3. Move the remaining string left for one character
-// 4. The cursor should stay at the same position
-// 5. Remember to update _readBufEnd accordingly.
-// 6. Don't leave the tailing character.
-// 7. Call "moveBufPtr(...)" if needed.
-//
-// For example,
-//
-// cmd> This is the command
-//              ^                (^ is the cursor position)
-//
-// After calling deleteChar()---
-//
-// cmd> This is he command
-//              ^
-//
 bool CommandLineInterface::deleteChar() {
     if (_cursorPosition == _readBuf.size()) {
         beep();
@@ -187,33 +254,22 @@ bool CommandLineInterface::deleteChar() {
 
     _readBuf.erase(_cursorPosition, 1);
 
-    int idx = _cursorPosition;
+    size_t idx = _cursorPosition;
     _cursorPosition = _readBuf.size();  // before moving cursor, reflect the change in actual cursor location
-    moveCursor(idx);                    // move the cursor back to where it should be
+    moveCursorTo(idx);                  // move the cursor back to where it should be
     return true;
 }
 
-// 1. Insert character 'ch' for "repeat" times at _readBufPtr
-// 2. Move the remaining string right for "repeat" characters
-// 3. The cursor should move right for "repeats" positions afterwards
-// 4. Default value for "repeat" is 1. You should assert that (repeat >= 1).
-//
-// For example,
-//
-// cmd> This is the command
-//              ^                (^ is the cursor position)
-//
-// After calling insertChar('k', 3) ---
-//
-// cmd> This is kkkthe command
-//                 ^
-//
 void CommandLineInterface::insertChar(char ch) {
+    if (_readBuf.size() >= std::numeric_limits<int>::max()) {
+        beep();
+        return;
+    }
     _readBuf.insert(_cursorPosition, 1, ch);
     fmt::print("{}", _readBuf.substr(_cursorPosition));
-    int idx = _cursorPosition + 1;
+    size_t idx = _cursorPosition + 1;
     _cursorPosition = _readBuf.size();
-    moveCursor(idx);
+    moveCursorTo(idx);
 }
 
 // 1. Delete the line that is currently shown on the screen
@@ -231,7 +287,7 @@ void CommandLineInterface::insertChar(char ch) {
 //      ^
 //
 void CommandLineInterface::deleteLine() {
-    moveCursor(_readBuf.size());
+    moveCursorTo(_readBuf.size());
     fmt::print("{}", string(_cursorPosition, '\b'));
     fmt::print("{}", string(_cursorPosition, ' '));
     fmt::print("{}", string(_cursorPosition, '\b'));
@@ -240,15 +296,14 @@ void CommandLineInterface::deleteLine() {
 
 // Reprint the current command to a newline
 // cursor should be restored to the original location
-void CommandLineInterface::reprintCmd() {
-    fmt::print("\n");
-
+void CommandLineInterface::reprintCommand() {
     // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
-    int idx = _cursorPosition;
+    size_t idx = _cursorPosition;
     _cursorPosition = _readBuf.size();  // before moving cursor, reflect the change in actual cursor location
+    fmt::println("");
     printPrompt();
     fmt::print("{}", _readBuf);
-    moveCursor(idx);  // move the cursor back to where it should be
+    moveCursorTo(idx);  // move the cursor back to where it should be
 }
 
 // This functions moves _historyIdx to index and display _history[index]
@@ -269,31 +324,23 @@ void CommandLineInterface::reprintCmd() {
 //
 // [Note] index should not = _historyIdx
 //
-void CommandLineInterface::moveToHistory(int index) {
-    if (index < _historyIdx) {  // move up
-        if (_historyIdx == 0) {
-            beep();
-            return;
-        }
-        if (size_t(_historyIdx) == _history.size()) {  // mv away from new str
+void CommandLineInterface::moveToHistory(size_t index) {
+    if (index == _historyIdx) return;
+
+    if (index < _historyIdx) {                 // move up
+        if (_historyIdx == _history.size()) {  // move away from new input
             _tempCmdStored = true;
             _history.emplace_back(_readBuf);
-        } else if (_tempCmdStored &&  // the last _history is a stored temp cmd
-                   size_t(_historyIdx) == size_t(_history.size() - 1))
+        } else if (_tempCmdStored && _historyIdx == _history.size() - 1)
             _history.back() = _readBuf;  // => update it
-        if (index < 0)
-            index = 0;
-    } else if (index > _historyIdx) {  // move down
-        if ((_tempCmdStored &&
-             (size_t(_historyIdx) == size_t(_history.size() - 1))) ||
-            (!_tempCmdStored && (size_t(_historyIdx) == _history.size()))) {
+    } else if (index > _historyIdx) {    // move down
+        if (_historyIdx == _history.size() - _tempCmdStored ? 1 : 0) {
             beep();
             return;
         }
-        if (size_t(index) >= size_t(_history.size() - 1))
-            index = int(_history.size() - 1);
-    } else                             // index == _historyIdx
-        assert(index != _historyIdx);  // must fail!!
+        if (index >= _history.size() - 1)
+            index = _history.size() - 1;
+    }
 
     _historyIdx = index;
     retrieveHistory();
@@ -305,11 +352,6 @@ void CommandLineInterface::moveToHistory(int index) {
  *
  */
 bool CommandLineInterface::addUserInputToHistory() {
-    size_t argumentTagPos = _readBuf.find("//!ARGS");
-    if (argumentTagPos == 0) {
-        saveArgumentsInVariables(_readBuf);
-    }
-
     if (_tempCmdStored) {
         _history.pop_back();
         _tempCmdStored = false;
@@ -326,41 +368,68 @@ bool CommandLineInterface::addUserInputToHistory() {
     return cmd.size() > 0;
 }
 
-// may exit if the check fails
-void CommandLineInterface::saveArgumentsInVariables(std::string const& str) {
+bool CommandLineInterface::saveVariables(std::string const& filepath, std::span<std::string> arguments) {
     // parse the string
-    // "//!ARGS n <ARG1> <ARG2> ... <ARGn>"
+    // "//!ARGS <ARG1> <ARG2> ... <ARGn>"
     // and check if for all k = 1 to n,
     // _variables[to_string(k)] is mapped to a valid value
 
     // To enable keyword arguments, also map the names <ARGk>
     // to _variables[to_string(k)]
 
-    std::istringstream iss(str);
-    std::string token;
-    iss >> token;  // skip the first token "//!ARGS"
-    assert(token == "//!ARGS");
+    std::ifstream dofile(filepath);
 
-    regex validVariableName("[a-zA-Z_][a-zA-Z0-9_]*");
-    std::vector<std::string> keys;
-    while (iss >> token) {
-        if (!regex_match(token, validVariableName)) {
-            fmt::print(stderr, "\n");
-            fmt::println(stderr, "Error: invalid argument name \"{}\" in \"//!ARGS\" directive", token);
-            std::exit(-1);
+    if (!dofile.is_open()) {
+        logger.error("cannot open file \"{}\"!!", filepath);
+        return false;
+    }
+
+    if (dofile.peek() == std::ifstream::traits_type::eof()) {
+        logger.error("file \"{}\" is empty!!", filepath);
+        return false;
+    }
+    std::string line{""};
+    while (line == "") {  // skip empty lines
+        std::getline(dofile, line);
+    };
+
+    dofile.close();
+
+    std::vector<std::string> tokens = split(line, " ");
+
+    std::erase_if(tokens, [](std::string const& token) { return token == ""; });
+
+    if (tokens.empty()) return true;
+
+    if (tokens[0] == "//!ARGS") {
+        tokens.erase(tokens.begin());
+        static regex const validVariableName(R"([a-zA-Z_][\w]*)");
+
+        std::vector<std::string> keys;
+        for (auto const& token : tokens) {
+            if (!regex_match(token, validVariableName)) {
+                logger.error("invalid argument name \"{}\" in \"//!ARGS\" directive", token);
+                return false;
+            }
+            keys.emplace_back(token);
         }
-        keys.emplace_back(token);
+
+        if (arguments.size() != keys.size()) {
+            logger.error("wrong number of arguments provided, expected {} but got {}!!", keys.size(), arguments.size());
+            logger.error("Usage: ... {} <{}>", filepath, fmt::join(keys, "> <"));
+            return false;
+        }
+
+        for (size_t i = 0; i < keys.size(); ++i) {
+            _variables.insert_or_assign(keys[i], arguments[i]);
+        }
     }
 
-    if (_arguments.size() != keys.size()) {
-        fmt::print(stderr, "\n");
-        fmt::println(stderr, "Error: wrong number of arguments provided, expected {} but got {}!!", keys.size(), _arguments.size());
-        std::exit(-1);
+    for (size_t i = 0; i < arguments.size(); ++i) {
+        _variables.insert_or_assign(to_string(i + 1), arguments[i]);
     }
 
-    for (size_t i = 0; i < keys.size(); ++i) {
-        _variables.emplace(keys[i], _arguments[i]);
-    }
+    return true;
 }
 
 // 1. Replace current line with _history[_historyIdx] on the screen

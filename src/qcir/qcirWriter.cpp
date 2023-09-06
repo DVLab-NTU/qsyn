@@ -54,15 +54,15 @@ bool QCir::writeQASM(string filename) {
 }
 
 /**
- * @brief Draw a quantum circuit onto console or into a file using Qiskit
+ * @brief Draw a quantum circuit onto terminal or into a file using Qiskit
  *
  * @param drawer `text`, `mpl`, `latex`, or `latex_source`. Here `mpl` means Python's MatPlotLib
- * @param outputPath If specified, output to this path; else output to console. Must be specified for `mpl` and `latex` drawer.
+ * @param outputPath If specified, output to this path; else output to terminal. Must be specified for `mpl` and `latex` drawer.
  * @return true if succeeds drawing;
  * @return false if not.
  */
 bool QCir::draw(std::string const& drawer, std::string const& outputPath, float scale) {
-    namespace dv = dvlab_utils;
+    namespace dv = dvlab::utils;
     namespace fs = std::filesystem;
 
     dv::TmpDir tmpDir;

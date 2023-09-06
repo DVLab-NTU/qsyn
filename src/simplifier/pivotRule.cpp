@@ -10,8 +10,6 @@
 
 using MatchType = PivotRule::MatchType;
 
-extern size_t verbose;
-
 /**
  * @brief Finds matchings of the pivot rule.
  *

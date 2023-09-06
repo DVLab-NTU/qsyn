@@ -10,8 +10,6 @@
 
 using MatchType = SpiderFusionRule::MatchType;
 
-extern size_t verbose;
-
 /**
  * @brief Find non-interacting matchings of the spider fusion rule.
  *

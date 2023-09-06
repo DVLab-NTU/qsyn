@@ -13,8 +13,6 @@
 
 using MatchType = BialgebraRule::MatchType;
 
-extern size_t verbose;
-
 /**
  * @brief Check if the vexter of vertices has duplicate
  *

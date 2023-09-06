@@ -28,15 +28,15 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> tsp -l
-  0                        ZX2TS
-★ 1                        ZX2TS
+  0                        #Dim: 2   ZX2TS
+★ 1                        #Dim: 2   ZX2TS
 
 qsyn> tseq 0 1
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> tseq 0 1 -Strict
+qsyn> tseq 0 1 -strict
 Equivalent
 - Global Norm : 1
 - Global Phase: 0
@@ -53,13 +53,13 @@ Note: QCir list is empty now. Create a new one.
 
 qsyn> qc2ts 
 
-qsyn> qcga -t 0
+qsyn> qcga t 0
 
-qsyn> qcga -x 0
+qsyn> qcga x 0
 
-qsyn> qcga -t 0
+qsyn> qcga t 0
 
-qsyn> qcga -x 0
+qsyn> qcga x 0
 
 qsyn> qc2ts
 
@@ -67,15 +67,15 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> tsp -l
-  0                        QC2TS
-★ 1                        QC2TS
+  0                        #Dim: 2   QC2TS
+★ 1                        #Dim: 2   QC2TS
 
 qsyn> tseq 0 1
 Equivalent
 - Global Norm : 1
 - Global Phase: π/4
 
-qsyn> tseq 0 1 -Strict
+qsyn> tseq 0 1 -strict
 Not Equivalent
 
 qsyn> qq -f

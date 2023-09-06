@@ -18,7 +18,6 @@
 #include "util/textFormat.hpp"
 
 using namespace std;
-extern size_t verbose;
 
 /**
  * @brief Get Gate.
@@ -97,8 +96,7 @@ QCirQubit *QCir::insertSingleQubit(size_t id) {
  */
 void QCir::addQubit(size_t num) {
     for (size_t i = 0; i < num; i++) {
-        QCirQubit *temp = new QCirQubit(_qubitId);
-        _qubits.emplace_back(temp);
+        _qubits.emplace_back(new QCirQubit(_qubitId));
         _qubitId++;
     }
 }
@@ -225,7 +223,7 @@ QCirGate *QCir::addGate(string type, vector<size_t> bits, Phase phase, bool appe
         temp = new MCRYGate(_gateId);
         temp->setRotatePhase(phase);
     } else {
-        cerr << "Error: The gate " << type << " is not implemented!!" << endl;
+        cerr << "Error: the gate " << type << " is not implemented!!" << endl;
         abort();
         return nullptr;
     }
@@ -509,7 +507,7 @@ std::vector<int> QCir::countGate(bool detail, bool print) {
         cout << endl;
     }
     if (print) {
-        using namespace dvlab_utils;
+        using namespace dvlab;
         fmt::println("Clifford    : {}", fmt_ext::styled_if_ANSI_supported(clifford, fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
         fmt::println("└── 2-qubit : {}", fmt_ext::styled_if_ANSI_supported(cxcnt, fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
         fmt::println("T-family    : {}", fmt_ext::styled_if_ANSI_supported(tfamily, fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));

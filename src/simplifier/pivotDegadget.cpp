@@ -7,15 +7,12 @@
 // ****************************************************************************/
 
 // #include <cstddef>
-// #include <iostream>
 
 // #include "gflow/gFlow.hpp"
 // #include "zx/zxGraph.hpp"
 // #include "zx/zxRules.hpp"
 
 // using namespace std;
-
-// extern size_t verbose;
 
 // /**
 //  * @brief Preprocess the matches so that it conforms with the rewrite functions

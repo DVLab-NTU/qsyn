@@ -10,8 +10,6 @@
 
 using MatchType = HBoxFusionRule::MatchType;
 
-extern size_t verbose;
-
 std::vector<MatchType> HBoxFusionRule::findMatches(const ZXGraph& graph) const {
     std::vector<MatchType> matches;
 

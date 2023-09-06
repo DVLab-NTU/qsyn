@@ -1,6 +1,5 @@
 DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qccr benchmark/benchmark_SABRE/small/rd32-v1_68.qasm
-Created and checked out to QCir 0
 
 qsyn> qccp -q
 Q 0  - t( 3)----------cx( 5)----------cx( 6)--td( 8)------------------cx( 9)--td(11)----------cx(13)--------------------------cx(15)----------cx(17)-
@@ -8,9 +7,7 @@ Q 1  - t( 2)----------cx( 5)--------------------------cx( 7)----------cx( 9)--td
 Q 2  - t(19)----------------------------------------------------------------------------------------------------------------------------------------------------------cx(22)--------------------------cx(24)----------cx(26)--td(27)--------------------------cx(31)----------cx(32)----------cx(35)-
 Q 3  - x( 0)-- h( 1)-- t( 4)----------cx( 6)----------cx( 7)-- t(12)--------------------------cx(13)----------cx(14)-- h(16)-- h(18)-- t(21)------------------------------------------cx(23)----------cx(24)-- t(29)--------------------------cx(30)----------cx(31)-- h(33)-- x(34)-
 
-qsyn> qccop
-Successfully copied QCir 0 to QCir 1
-Checked out to QCir 1
+qsyn> qccopy
 
 qsyn> qccp -q
 Q 0  - t( 3)----------cx( 5)----------cx( 6)--td( 8)------------------cx( 9)--td(11)----------cx(13)--------------------------cx(15)----------cx(17)-
@@ -19,10 +16,8 @@ Q 2  - t(19)--------------------------------------------------------------------
 Q 3  - x( 0)-- h( 1)-- t( 4)----------cx( 6)----------cx( 7)-- t(12)--------------------------cx(13)----------cx(14)-- h(16)-- h(18)-- t(21)------------------------------------------cx(23)----------cx(24)-- t(29)--------------------------cx(30)----------cx(31)-- h(33)-- x(34)-
 
 qsyn> qccr benchmark/benchmark_SABRE/small/qft_4.qasm
-Created and checked out to QCir 2
 
 qsyn> qc2zx
-Created and checked out to ZXGraph 0
 
 qsyn> qccp -q
 Q 0  ---------cx( 0)----------cx( 1)----------cx( 2)-
@@ -30,9 +25,7 @@ Q 1  ---------cx( 0)--------------------------cx( 3)----------cx( 4)-
 Q 2  -------------------------cx( 1)----------cx( 3)--------------------------cx( 5)-
 Q 3  -----------------------------------------cx( 2)----------cx( 4)----------cx( 5)-
 
-qsyn> qccop 0 -R
-Successfully copied QCir 2 to QCir 0
-Checked out to QCir 0
+qsyn> qccopy 0 -r
 
 qsyn> qccp -q
 Q 0  ---------cx( 0)----------cx( 1)----------cx( 2)-
@@ -41,7 +34,6 @@ Q 2  -------------------------cx( 1)----------cx( 3)--------------------------cx
 Q 3  -----------------------------------------cx( 2)----------cx( 4)----------cx( 5)-
 
 qsyn> qc2zx
-Created and checked out to ZXGraph 1
 
 qsyn> zxgp -v
 
@@ -155,28 +147,27 @@ qsyn> qcr
 qsyn> zxr
 
 qsyn> qccp -q
-Error: QCir list is empty now. Please QCNEW/QCCRead/QCBAdd before QCCPrint.
+[Error] QCir list is empty. Please create a QCir first!!
 
-qsyn> qcga -cx 0 1
-Error: QCir list is empty now. Please QCNEW/QCCRead/QCBAdd before QCGAdd.
+qsyn> qcga cx 0 1
+[Error] QCir list is empty. Please create a QCir first!!
 
 qsyn> qcba
 Note: QCir list is empty now. Create a new one.
-Created and checked out to QCir 0
 
 qsyn> qccp -q
 Q 0  
 
-qsyn> qcga -h
-Error: too few qubits are supplied for gate -h!!
+qsyn> qcga h
+Error: too few qubits are supplied for gate h!!
 
-qsyn> qcga -h 0
+qsyn> qcga h 0
 
 qsyn> qccp -q
 Q 0  - h( 0)-
 
-qsyn> qcga -cx 0 1
-Error: Qubit id 1 does not exist!!
+qsyn> qcga cx 0 1
+[Error] Qubit ID 1 does not exist!!
 
 qsyn> qcba 3
 
@@ -186,7 +177,7 @@ Q 1
 Q 2  
 Q 3  
 
-qsyn> qcga -cx 0 2
+qsyn> qcga cx 0 2
 
 qsyn> qccp -q
 Q 0  - h( 0)----------cx( 1)-
@@ -194,7 +185,7 @@ Q 1
 Q 2  -----------------cx( 1)-
 Q 3  
 
-qsyn> qcga -cx 1 3
+qsyn> qcga cx 1 3
 
 qsyn> qccp -q
 Q 0  - h( 0)----------cx( 1)-
@@ -202,17 +193,17 @@ Q 1  ---------cx( 2)-
 Q 2  -----------------cx( 1)-
 Q 3  ---------cx( 2)-
 
-qsyn> qcga -t 2
+qsyn> qcga t 2
 
-qsyn> qcga -cx 2 1
+qsyn> qcga cx 2 1
 
-qsyn> qcga -x 3
+qsyn> qcga x 3
 
-qsyn> qcga -t 3
+qsyn> qcga t 3
 
-qsyn> qcga -cx 3 2
+qsyn> qcga cx 3 2
 
-qsyn> qcga -cx 0 1
+qsyn> qcga cx 0 1
 
 qsyn> qccp -q
 Q 0  - h( 0)----------cx( 1)----------------------------------cx( 8)-
@@ -220,9 +211,9 @@ Q 1  ---------cx( 2)--------------------------cx( 4)----------cx( 8)-
 Q 2  -----------------cx( 1)-- t( 3)----------cx( 4)----------cx( 7)-
 Q 3  ---------cx( 2)-- x( 5)-- t( 6)--------------------------cx( 7)-
 
-qsyn> qcga -pr -rz -ph 0.00001 0
+qsyn> qcga -pr rz -ph 0.00001 0
 
-qsyn> qcga -pr -rz -ph 1.2345 0
+qsyn> qcga -pr rz -ph 1.2345 0
 
 qsyn> qcgp 10
           ┌────┐ 
@@ -258,9 +249,7 @@ Q 0  -rz(10)--rz( 9)-- h( 0)----------cx( 1)-
 Q 2  ---------------------------------cx( 1)-- t( 3)-
 Q 3  - x( 5)-- t( 6)-
 
-qsyn> qccop
-Successfully copied QCir 0 to QCir 1
-Checked out to QCir 1
+qsyn> qccopy
 
 qsyn> qcba
 
@@ -270,11 +259,11 @@ Q 2  ---------------------------------cx( 1)-- t( 3)-
 Q 3  - x( 5)-- t( 6)-
 Q 4  
 
-qsyn> qcga -pr -cx 0 4
+qsyn> qcga -pr cx 0 4
 
-qsyn> qcga -cx 2 4
+qsyn> qcga cx 2 4
 
-qsyn> qcga -pr -rz -ph 1.2345 0
+qsyn> qcga -pr rz -ph 1.2345 0
 
 qsyn> qccp -q
 Q 0  -rz(13)----------cx(11)--rz(10)--rz( 9)-- h( 0)----------cx( 1)-
@@ -283,10 +272,9 @@ Q 3  - x( 5)-- t( 6)-
 Q 4  -----------------cx(11)----------------------------------------------------------cx(12)-
 
 qsyn> qc2zx
-Created and checked out to ZXGraph 0
 
 qsyn> zxgp
-Graph 0( 4 inputs, 4 outputs, 21 vertices, 20 edges )
+Graph (4 inputs, 4 outputs, 21 vertices, 20 edges)
 
 qsyn> qq -f
 

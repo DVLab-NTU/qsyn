@@ -422,7 +422,9 @@ public:
 
     ~stop_source() {
         if (__state_ != nullptr) {
+            //NOLINTBEGIN(clang-analyzer-cplusplus.NewDelete)
             __state_->__remove_source_reference();
+            //NOLINTEND(clang-analyzer-cplusplus.NewDelete)
         }
     }
 
