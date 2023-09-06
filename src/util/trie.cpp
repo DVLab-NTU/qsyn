@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ trie.cpp ]
   PackageName  [ util ]
   Synopsis     [ User-defined trie data structure for parsing ]
   Author       [ Design Verification Lab ]
@@ -29,9 +28,9 @@ bool Trie::insert(string const& word) {
         itr = itr->children.at(idx).get();
         itr->frequency++;
     }
-    if (itr->isWord) return false;
+    if (itr->is_word) return false;
 
-    itr->isWord = true;
+    itr->is_word = true;
     return true;
 }
 
@@ -47,9 +46,9 @@ bool Trie::erase(std::string const& word) {
         itr->frequency--;
     }
 
-    assert(itr->isWord);
+    assert(itr->is_word);
 
-    itr->isWord = false;
+    itr->is_word = false;
 
     itr = _root.get();
 
@@ -78,7 +77,7 @@ bool Trie::contains(std::string const& word) const {
         assert(itr != nullptr);
     }
 
-    return itr->isWord;
+    return itr->is_word;
 }
 
 /**
@@ -87,7 +86,7 @@ bool Trie::contains(std::string const& word) const {
  * @param word
  * @return string
  */
-string Trie::shortestUniquePrefix(string const& word) const {
+string Trie::shortest_unique_prefix(string const& word) const {
     auto itr = _root.get();
 
     assert(itr != nullptr);
@@ -120,70 +119,70 @@ size_t Trie::frequency(string const& prefix) const {
     return itr->frequency;
 }
 
-optional<string> Trie::findWithPrefix(string const& prefix) const {
+optional<string> Trie::find_with_prefix(string const& prefix) const {
     auto itr = _root.get();
 
     assert(itr != nullptr);
-    string retStr = "";
+    string ret_str = "";
 
     for (auto& ch : prefix) {
         size_t idx = ch;
         if (!itr->children.contains(idx)) return nullopt;
         itr = itr->children.at(idx).get();
         assert(itr != nullptr);
-        retStr.push_back(ch);
+        ret_str.push_back(ch);
     }
 
     if (itr->frequency > 1) {
-        return (itr->isWord) ? std::make_optional<string>(retStr) : nullopt;
+        return (itr->is_word) ? std::make_optional<string>(ret_str) : nullopt;
     }
 
-    while (!itr->isWord) {
+    while (!itr->is_word) {
         assert(!itr->children.empty());
-        retStr.push_back(itr->children.begin()->first);
+        ret_str.push_back(itr->children.begin()->first);
         itr = itr->children.begin()->second.get();
     }
 
-    return retStr;
+    return ret_str;
 }
 
 namespace detail {
 
-void findAllStringsWithPrefixHelper(TrieNode const* itr, vector<string>& ret, string& retStr) {
-    if (itr->isWord) ret.push_back(retStr);
+void find_all_with_prefix_helper(TrieNode const* itr, vector<string>& ret, string& return_str) {
+    if (itr->is_word) ret.push_back(return_str);
 
 #ifndef NDEBUG
-    std::string copy = retStr;
+    std::string copy = return_str;
 #endif
     for (auto& [ch, child] : itr->children) {
-        retStr.push_back(ch);
-        findAllStringsWithPrefixHelper(child.get(), ret, retStr);
-        retStr.pop_back();
+        return_str.push_back(ch);
+        find_all_with_prefix_helper(child.get(), ret, return_str);
+        return_str.pop_back();
     }
 #ifndef NDEBUG
-    assert(copy == retStr);
+    assert(copy == return_str);
 #endif
 }
 
 }  // namespace detail
 
-vector<string> Trie::findAllStringsWithPrefix(string const& prefix) const {
+vector<string> Trie::find_all_with_prefix(string const& prefix) const {
     auto itr = _root.get();
 
     assert(itr != nullptr);
-    string retStr = "";
+    string ret_str = "";
 
     for (auto& ch : prefix) {
         size_t idx = ch;
         if (!itr->children.contains(idx)) return {};
         itr = itr->children.at(idx).get();
         assert(itr != nullptr);
-        retStr.push_back(ch);
+        ret_str.push_back(ch);
     }
 
     vector<string> ret;
 
-    detail::findAllStringsWithPrefixHelper(itr, ret, retStr);
+    detail::find_all_with_prefix_helper(itr, ret, ret_str);
 
     return ret;
 }

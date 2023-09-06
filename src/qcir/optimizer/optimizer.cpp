@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ optimizer.cpp ]
   PackageName  [ optimizer ]
   Synopsis     [ Define class Optimizer member functions ]
   Author       [ Design Verification Lab ]
@@ -12,8 +11,8 @@
 #include <cassert>
 
 #include "../qcir.hpp"
-#include "../qcirGate.hpp"
-#include "../qcirQubit.hpp"
+#include "../qcir_gate.hpp"
+#include "../qcir_qubit.hpp"
 
 /**
  * @brief Reset the storage
@@ -27,21 +26,21 @@ void Optimizer::reset(QCir const& qcir) {
     _xs.clear();
     _zs.clear();
     _swaps.clear();
-    _gateCnt = 0;
+    _gate_count = 0;
     _statistics = {};
-    for (size_t i = 0; i < qcir.getQubits().size(); i++) {
+    for (size_t i = 0; i < qcir.get_qubits().size(); i++) {
         _availty.emplace_back(false);
         _available.emplace(i, std::vector<QCirGate*>{});
         _gates.emplace(i, std::vector<QCirGate*>{});
-        _permutation[i] = qcir.getQubits()[i]->getId();
+        _permutation[i] = qcir.get_qubits()[i]->get_id();
     }
 }
 
-QCir Optimizer::parseForward(QCir const& qcir, bool minimizeCZ, BasicOptimizationConfig const& config) {
-    return parseOnce(qcir, false, minimizeCZ, config);
+QCir Optimizer::parse_forward(QCir const& qcir, bool do_minimize_czs, BasicOptimizationConfig const& config) {
+    return _parse_once(qcir, false, do_minimize_czs, config);
 }
-QCir Optimizer::parseBackward(QCir const& qcir, bool minimizeCZ, BasicOptimizationConfig const& config) {
-    return parseOnce(qcir, true, minimizeCZ, config);
+QCir Optimizer::parse_backward(QCir const& qcir, bool do_minimize_czs, BasicOptimizationConfig const& config) {
+    return _parse_once(qcir, true, do_minimize_czs, config);
 }
 
 /**
@@ -50,18 +49,18 @@ QCir Optimizer::parseBackward(QCir const& qcir, bool minimizeCZ, BasicOptimizati
  * @param type 0: _hadamards, 1: _xs, and 2: _zs
  * @param element
  */
-void Optimizer::toggleElement(GateType const& type, size_t element) {
-    if (type == GateType::H) {
+void Optimizer::_toggle_element(GateType const& type, size_t element) {
+    if (type == GateType::h) {
         if (_hadamards.contains(element))
             _hadamards.erase(element);
         else
             _hadamards.emplace(element);
-    } else if (type == GateType::X) {
+    } else if (type == GateType::x) {
         if (_xs.contains(element))
             _xs.erase(element);
         else
             _xs.emplace(element);
-    } else if (type == GateType::Z) {
+    } else if (type == GateType::z) {
         if (_zs.contains(element))
             _zs.erase(element);
         else
@@ -75,7 +74,7 @@ void Optimizer::toggleElement(GateType const& type, size_t element) {
  * @param type 0: _hadamards, 1: _xs, and 2: _zs
  * @param element
  */
-void Optimizer::swapElement(size_t type, size_t e1, size_t e2) {
+void Optimizer::_swap_element(size_t type, size_t e1, size_t e2) {
     if (type == 0) {
         if (_hadamards.contains(e1) && !_hadamards.contains(e2)) {
             _hadamards.erase(e1);
@@ -110,14 +109,14 @@ void Optimizer::swapElement(size_t type, size_t e1, size_t e2) {
  * @return true
  * @return false
  */
-bool Optimizer::isSingleRotateZ(QCirGate* g) {
-    if (g->getType() == GateType::P ||
-        g->getType() == GateType::Z ||
-        g->getType() == GateType::S ||
-        g->getType() == GateType::SDG ||
-        g->getType() == GateType::T ||
-        g->getType() == GateType::TDG ||
-        g->getType() == GateType::RZ)
+bool Optimizer::is_single_z_rotation(QCirGate* g) {
+    if (g->get_type() == GateType::p ||
+        g->get_type() == GateType::z ||
+        g->get_type() == GateType::s ||
+        g->get_type() == GateType::sdg ||
+        g->get_type() == GateType::t ||
+        g->get_type() == GateType::tdg ||
+        g->get_type() == GateType::rz)
         return true;
     else
         return false;
@@ -130,10 +129,10 @@ bool Optimizer::isSingleRotateZ(QCirGate* g) {
  * @return true
  * @return false
  */
-bool Optimizer::isSingleRotateX(QCirGate* g) {
-    if (g->getType() == GateType::X ||
-        g->getType() == GateType::SX ||
-        g->getType() == GateType::RX)
+bool Optimizer::is_single_x_rotation(QCirGate* g) {
+    if (g->get_type() == GateType::x ||
+        g->get_type() == GateType::sx ||
+        g->get_type() == GateType::rx)
         return true;
     else
         return false;
@@ -146,9 +145,9 @@ bool Optimizer::isSingleRotateX(QCirGate* g) {
  * @return true
  * @return false
  */
-bool Optimizer::isDoubleQubitGate(QCirGate* g) {
-    if (g->getType() == GateType::CX ||
-        g->getType() == GateType::CZ)
+bool Optimizer::is_double_qubit_gate(QCirGate* g) {
+    if (g->get_type() == GateType::cx ||
+        g->get_type() == GateType::cz)
         return true;
     else
         return false;
@@ -160,9 +159,9 @@ bool Optimizer::isDoubleQubitGate(QCirGate* g) {
  * @param target which qubit
  * @return QCirGate*
  */
-QCirGate* Optimizer::getAvailableRotateZ(size_t target) {
+QCirGate* Optimizer::get_available_z_rotation(size_t target) {
     for (auto& g : _available[target]) {
-        if (isSingleRotateZ(g)) {
+        if (is_single_z_rotation(g)) {
             return g;
         }
     }
@@ -175,9 +174,9 @@ QCirGate* Optimizer::getAvailableRotateZ(size_t target) {
  * @param QCir* circuit to add
  * @param QCirGate* The gate to be add
  */
-void Optimizer::_addGate2Circuit(QCir& circuit, QCirGate* gate, bool prepend) {
-    auto bit_range = gate->getQubits() |
-                     std::views::transform([](BitInfo const& qb) { return qb._qubit; });
+void Optimizer::_add_gate_to_circuit(QCir& circuit, QCirGate* gate, bool prepend) {
+    auto bit_range = gate->get_qubits() |
+                     std::views::transform([](QubitInfo const& qb) { return qb._qubit; });
 
-    circuit.addGate(gate->getTypeStr(), {bit_range.begin(), bit_range.end()}, gate->getPhase(), !prepend);
+    circuit.add_gate(gate->get_type_str(), {bit_range.begin(), bit_range.end()}, gate->get_phase(), !prepend);
 }

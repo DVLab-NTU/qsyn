@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ util.cpp ]
   PackageName  [ util ]
   Synopsis     [ Define global utility functions ]
   Author       [ Design Verification Lab ]
@@ -25,24 +24,17 @@ using namespace std;
 //    Global functions in util
 //----------------------------------------------------------------------
 #ifndef NDEBUG
-void dvlab::detail::dvlab_assert_impl(const char* expr_str, bool expr, const char* file, int line, const char* msg) {
-    if (!expr) {
-        fprintf(stderr, "Assertion failed:\t%s\n", msg);
-        fprintf(stderr, "Expected:\t%s\n", expr_str);
-        fprintf(stderr, "Source:\t\t%s, line %d\n", file, line);
-        abort();
-    }
-}
 #endif
 
-size_t intPow(size_t base, size_t n) {
-    if (n == 0) return 1;
-    if (n == 1) return base;
-    size_t tmp = intPow(base, n / 2);
-    if (n % 2 == 0)
-        return tmp * tmp;
-    else
-        return base * tmp * tmp;
+namespace dvlab {
+
+void detail::dvlab_assert_impl(char const* expr_str, bool expr, char const* file, int line, char const* msg) {
+    if (!expr) {
+        fmt::println(stderr, "Assertion failed:\t{}", msg);
+        fmt::println(stderr, "Expected:\t{}", expr_str);
+        fmt::println(stderr, "Source:\t\t{}, line {}\n", file, line);
+        abort();
+    }
 }
 
 TqdmWrapper::TqdmWrapper(size_t total, bool show)
@@ -58,8 +50,6 @@ void TqdmWrapper::add() {
     _tqdm->progress(_counter++, _total);
 }
 
-namespace dvlab {
-
 namespace utils {
 
 bool expect(bool condition, std::string const& msg) {
@@ -70,6 +60,16 @@ bool expect(bool condition, std::string const& msg) {
         return false;
     }
     return true;
+}
+
+size_t int_pow(size_t base, size_t n) {
+    if (n == 0) return 1;
+    if (n == 1) return base;
+    size_t tmp = int_pow(base, n / 2);
+    if (n % 2 == 0)
+        return tmp * tmp;
+    else
+        return base * tmp * tmp;
 }
 
 }  // namespace utils

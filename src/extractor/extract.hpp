@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ extract.hpp ]
   PackageName  [ extractor ]
   Synopsis     [ Define class Extractor structure ]
   Author       [ Design Verification Lab ]
@@ -13,8 +12,8 @@
 #include <set>
 
 #include "device/device.hpp"
-#include "m2/m2.hpp"
-#include "zx/zxDef.hpp"
+#include "util/boolean_matrix.hpp"
+#include "zx/zx_def.hpp"
 
 extern bool SORT_FRONTIER;
 extern bool SORT_NEIGHBORS;
@@ -33,68 +32,68 @@ public:
     Extractor(ZXGraph*, QCir* = nullptr, std::optional<Device> = std::nullopt);
     ~Extractor() {}
 
-    bool toPhysical() { return _device.has_value(); }
-    QCir* getLogical() { return _logicalCircuit; }
+    bool to_physical() { return _device.has_value(); }
+    QCir* get_logical() { return _logical_circuit; }
 
-    void initialize(bool fromEmpty = true);
+    void initialize(bool from_empty_qcir = true);
     QCir* extract();
-    bool extractionLoop(size_t = size_t(-1));
-    bool removeGadget(bool check = false);
-    bool biadjacencyElimination(bool check = false);
-    void columnOptimalSwap();
-    void extractSingles();
-    bool extractCZs(bool check = false);
-    void extractCXs(size_t = 1);
-    size_t extractHsFromM2(bool check = false);
-    void cleanFrontier();
-    void permuteQubit();
+    bool extraction_loop(size_t = size_t(-1));
+    bool remove_gadget(bool check = false);
+    bool biadjacency_eliminations(bool check = false);
+    void column_optimal_swap();
+    void extract_singles();
+    bool extract_czs(bool check = false);
+    void extract_cxs(size_t = 1);
+    size_t extract_hadamards_from_matrix(bool check = false);
+    void clean_frontier();
+    void permute_qubits();
 
-    void updateNeighbors();
-    void updateGraphByMatrix(EdgeType = EdgeType::HADAMARD);
-    void createMatrix();
+    void update_neighbors();
+    void update_graph_by_matrix(EdgeType = EdgeType::hadamard);
+    void create_matrix();
 
-    void prependSingleQubitGate(std::string, size_t, Phase);
-    void prependDoubleQubitGate(std::string, const std::vector<size_t>&, Phase);
-    void prependSeriesGates(const std::vector<Operation>&, const std::vector<Operation>& = {});
-    void prependSwapGate(size_t, size_t, QCir*);
-    bool frontierIsCleaned();
-    bool axelInNeighbors();
-    bool containSingleNeighbor();
-    void printCXs();
-    void printFrontier();
-    void printNeighbors();
-    void printAxels();
-    void printMatrix() { _biAdjacency.printMatrix(); }
+    void prepend_single_qubit_gate(std::string, size_t, Phase);
+    void prepend_double_qubit_gate(std::string, std::vector<size_t> const&, Phase);
+    void prepend_series_gates(std::vector<Operation> const&, std::vector<Operation> const& = {});
+    void prepend_swap_gate(size_t, size_t, QCir*);
+    bool frontier_is_cleaned();
+    bool axel_in_neighbors();
+    bool contains_single_neighbor();
+    void print_cxs();
+    void print_frontier();
+    void print_neighbors();
+    void print_axels();
+    void print_matrix() { _biadjacency.print_matrix(); }
 
-    std::vector<size_t> findMinimalSums(M2&, bool = false);
-    std::vector<M2::Oper> greedyReduction(M2&);
+    std::vector<size_t> find_minimal_sums(BooleanMatrix& matrix, bool do_reversed_search = false);
+    std::vector<BooleanMatrix::RowOperation> greedy_reduction(BooleanMatrix&);
 
 private:
-    size_t _cntCXIter;
+    size_t _num_cx_iterations = 0;
     ZXGraph* _graph;
-    QCir* _logicalCircuit;
-    QCir* _physicalCircuit;
+    QCir* _logical_circuit;
+    QCir* _physical_circuit;
     std::optional<Device> _device;
-    std::optional<Device> _deviceBackup;
+    std::optional<Device> _device_backup;
     ZXVertexList _frontier;
     ZXVertexList _neighbors;
     ZXVertexList _axels;
-    std::unordered_map<size_t, size_t> _qubitMap;  // zx to qc
+    std::unordered_map<size_t, size_t> _qubit_map;  // zx to qc
 
-    M2 _biAdjacency;
-    std::vector<M2::Oper> _cnots;
+    BooleanMatrix _biadjacency;
+    std::vector<BooleanMatrix::RowOperation> _cnots;
 
-    void blockElimination(M2&, size_t&, size_t);
-    void blockElimination(size_t&, M2&, size_t&, size_t);
-    std::vector<Operation> _DuostraAssigned;
-    std::vector<Operation> _DuostraMapped;
+    void _block_elimination(BooleanMatrix& matrix, size_t& min_n_cxs, size_t block_size);
+    void _block_elimination(size_t& best_block, BooleanMatrix& best_matrix, size_t& min_cost, size_t block_size);
+    std::vector<Operation> _duostra_assigned;
+    std::vector<Operation> _duostra_mapped;
     // NOTE - Use only in column optimal swap
-    Target findColumnSwap(Target);
-    ConnectInfo _rowInfo;
-    ConnectInfo _colInfo;
+    Target _find_column_swap(Target);
+    ConnectInfo _row_info;
+    ConnectInfo _col_info;
 
-    size_t _cntCXFiltered;
-    size_t _cntSwap;
+    size_t _num_cx_filtered = 0;
+    size_t _num_swaps = 0;
 
-    std::vector<size_t> _initialPlacement;
+    std::vector<size_t> _initial_placement;
 };

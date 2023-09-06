@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ router.cpp ]
   PackageName  [ duostra ]
   Synopsis     [ Define class Router member functions ]
   Author       [ Chin-Yi Cheng, Chien-Yi Yang, Ren-Chu Wang, Yi-Hsiang Kuo ]
@@ -9,12 +8,12 @@
 
 #include "./router.hpp"
 
-#include "./circuitTopology.hpp"
+#include "./circuit_topology.hpp"
 #include "./variables.hpp"
 #include "util/util.hpp"
 
 using namespace std;
-extern size_t verbose;
+extern size_t VERBOSE;
 
 // SECTION - Class AStarNode Member Functions
 
@@ -26,15 +25,15 @@ extern size_t verbose;
  * @param source
  */
 AStarNode::AStarNode(size_t cost, size_t id, bool source)
-    : _estimatedCost(cost), _id(id), _source(source) {}
+    : _estimated_cost(cost), _id(id), _source(source) {}
 
 /**
  * @brief Construct a new AStarNode::AStarNode object
  *
  * @param other
  */
-AStarNode::AStarNode(const AStarNode& other)
-    : _estimatedCost(other._estimatedCost), _id(other._id), _source(other._source) {}
+AStarNode::AStarNode(AStarNode const& other)
+    : _estimated_cost(other._estimated_cost), _id(other._id), _source(other._source) {}
 
 /**
  * @brief Assignment operator overloading for AStarNode
@@ -42,8 +41,8 @@ AStarNode::AStarNode(const AStarNode& other)
  * @param other
  * @return AStarNode&
  */
-AStarNode& AStarNode::operator=(const AStarNode& other) {
-    _estimatedCost = other._estimatedCost;
+AStarNode& AStarNode::operator=(AStarNode const& other) {
+    _estimated_cost = other._estimated_cost;
     _id = other._id;
     _source = other._source;
     return *this;
@@ -58,14 +57,14 @@ AStarNode& AStarNode::operator=(const AStarNode& other) {
  * @param cost
  * @param orient
  */
-Router::Router(Device&& device, const string& cost, bool orient) noexcept
-    : _greedyType(false),
+Router::Router(Device&& device, string const& cost, bool orient) noexcept
+    : _greedy_type(false),
       _duostra(false),
       _orient(orient),
-      _APSP(false),
+      _apsp(false),
       _device(device),
-      _logical2Physical({}) {
-    init(cost);
+      _logical_to_physical({}) {
+    _initialize(cost);
 }
 
 /**
@@ -73,13 +72,13 @@ Router::Router(Device&& device, const string& cost, bool orient) noexcept
  *
  * @param other
  */
-Router::Router(const Router& other) noexcept
-    : _greedyType(other._greedyType),
+Router::Router(Router const& other) noexcept
+    : _greedy_type(other._greedy_type),
       _duostra(other._duostra),
       _orient(other._orient),
-      _APSP(other._APSP),
+      _apsp(other._apsp),
       _device(other._device),
-      _logical2Physical(other._logical2Physical) {}
+      _logical_to_physical(other._logical_to_physical) {}
 
 /**
  * @brief Construct a new Router:: Router object
@@ -87,12 +86,12 @@ Router::Router(const Router& other) noexcept
  * @param other
  */
 Router::Router(Router&& other) noexcept
-    : _greedyType(other._greedyType),
+    : _greedy_type(other._greedy_type),
       _duostra(other._duostra),
       _orient(other._orient),
-      _APSP(other._APSP),
+      _apsp(other._apsp),
       _device(std::move(other._device)),
-      _logical2Physical(std::move(other._logical2Physical)) {}
+      _logical_to_physical(std::move(other._logical_to_physical)) {}
 
 /**
  * @brief Clone router
@@ -109,10 +108,10 @@ unique_ptr<Router> Router::clone() const {
  * @param type
  * @param cost
  */
-void Router::init(const string& cost) {
+void Router::_initialize(string const& cost) {
     // DUOSTRA_ROUTER 0:apsp 1:duostra
     if (DUOSTRA_ROUTER == 0) {
-        _APSP = true;
+        _apsp = true;
         _duostra = false;
     } else if (DUOSTRA_ROUTER == 1) {
         _duostra = true;
@@ -122,23 +121,23 @@ void Router::init(const string& cost) {
     }
 
     if (cost == "end") {
-        _greedyType = true;
-        _APSP = true;
+        _greedy_type = true;
+        _apsp = true;
     } else if (cost == "start") {
-        _greedyType = false;
+        _greedy_type = false;
     } else {
         cerr << cost << " is not a cost type" << endl;
         abort();
     }
 
-    if (_APSP) {
-        _device.calculatePath();
+    if (_apsp) {
+        _device.calculate_path();
     }
 
-    size_t numQubits = _device.getNQubit();
-    _logical2Physical.resize(numQubits);
-    for (size_t i = 0; i < numQubits; ++i) {
-        _logical2Physical[_device.getPhysicalQubit(i).getLogicalQubit()] = i;
+    size_t num_qubits = _device.get_num_qubits();
+    _logical_to_physical.resize(num_qubits);
+    for (size_t i = 0; i < num_qubits; ++i) {
+        _logical_to_physical[_device.get_physical_qubit(i).get_logical_qubit()] = i;
     }
 }
 
@@ -146,20 +145,20 @@ void Router::init(const string& cost) {
  * @brief Get physical qubits of gate
  *
  * @param gate
- * @return tuple<size_t, size_t> Note: (_, ERROR_CODE) if single-qubit gate
+ * @return tuple<size_t, size_t> Note: (_, SIZE_MAX) if single-qubit gate
  */
-tuple<size_t, size_t> Router::getPhysicalQubits(const Gate& gate) const {
+tuple<size_t, size_t> Router::_get_physical_qubits(Gate const& gate) const {
     // NOTE - Only for 1- or 2-qubit gates
-    size_t logicalId0 = get<0>(gate.getQubits());        // get logical qubit index of gate in topology
-    size_t physicalId0 = _logical2Physical[logicalId0];  // get physical qubit index of the gate
-    size_t physicalId1 = ERROR_CODE;
+    size_t logical_id0 = get<0>(gate.get_qubits());           // get logical qubit index of gate in topology
+    size_t physical_id0 = _logical_to_physical[logical_id0];  // get physical qubit index of the gate
+    size_t physical_id1 = SIZE_MAX;
 
-    if ((gate.getType() == GateType::CX || gate.getType() == GateType::CZ)) {
-        size_t logicalId1 = get<1>(gate.getQubits());  // get logical qubit index of gate in topology
-        assert(logicalId1 != ERROR_CODE);
-        physicalId1 = _logical2Physical[logicalId1];  // get physical qubit index of the gate
+    if ((gate.get_type() == GateType::cx || gate.get_type() == GateType::cz)) {
+        size_t logical_id1 = get<1>(gate.get_qubits());  // get logical qubit index of gate in topology
+        assert(logical_id1 != SIZE_MAX);
+        physical_id1 = _logical_to_physical[logical_id1];  // get physical qubit index of the gate
     }
-    return make_tuple(physicalId0, physicalId1);
+    return make_tuple(physical_id0, physical_id1);
 }
 
 /**
@@ -170,24 +169,24 @@ tuple<size_t, size_t> Router::getPhysicalQubits(const Gate& gate) const {
  * @param APSPCoeff
  * @return size_t
  */
-size_t Router::getGateCost(const Gate& gate, bool minMax, size_t APSPCoeff) {
-    tuple<size_t, size_t> physicalQubitsIds = getPhysicalQubits(gate);
+size_t Router::get_gate_cost(Gate const& gate, bool min_max, size_t apsp_coeff) {
+    tuple<size_t, size_t> physical_qubits_ids = _get_physical_qubits(gate);
 
-    if (!(gate.getType() == GateType::CX || gate.getType() == GateType::CZ)) {
-        assert(get<1>(physicalQubitsIds) == ERROR_CODE);
-        return _device.getPhysicalQubit(get<0>(physicalQubitsIds)).getOccupiedTime();
+    if (!(gate.get_type() == GateType::cx || gate.get_type() == GateType::cz)) {
+        assert(get<1>(physical_qubits_ids) == SIZE_MAX);
+        return _device.get_physical_qubit(get<0>(physical_qubits_ids)).get_occupied_time();
     }
 
-    size_t q0Id = get<0>(physicalQubitsIds);
-    size_t q1Id = get<1>(physicalQubitsIds);
-    const PhysicalQubit& q0 = _device.getPhysicalQubit(q0Id);
-    const PhysicalQubit& q1 = _device.getPhysicalQubit(q1Id);
-    size_t apspCost = 0;
-    if (_APSP)
-        apspCost = 1 * _device.getPath(q0Id, q1Id).size();  // NOTE - 1 for coefficient
+    size_t q0_id = get<0>(physical_qubits_ids);
+    size_t q1_id = get<1>(physical_qubits_ids);
+    PhysicalQubit const& q0 = _device.get_physical_qubit(q0_id);
+    PhysicalQubit const& q1 = _device.get_physical_qubit(q1_id);
+    size_t apsp_cost = 0;
+    if (_apsp)
+        apsp_cost = 1 * _device.get_path(q0_id, q1_id).size();  // NOTE - 1 for coefficient
 
-    size_t avail = minMax ? max(q0.getOccupiedTime(), q1.getOccupiedTime()) : min(q0.getOccupiedTime(), q1.getOccupiedTime());
-    return avail + apspCost / APSPCoeff;
+    size_t avail = min_max ? max(q0.get_occupied_time(), q1.get_occupied_time()) : min(q0.get_occupied_time(), q1.get_occupied_time());
+    return avail + apsp_cost / apsp_coeff;
 }
 
 /**
@@ -197,17 +196,17 @@ size_t Router::getGateCost(const Gate& gate, bool minMax, size_t APSPCoeff) {
  * @return true
  * @return false
  */
-bool Router::isExecutable(const Gate& gate) {
-    if (!(gate.getType() == GateType::CX || gate.getType() == GateType::CZ)) {
-        assert(get<1>(gate.getQubits()) == ERROR_CODE);
+bool Router::is_executable(Gate const& gate) {
+    if (!(gate.get_type() == GateType::cx || gate.get_type() == GateType::cz)) {
+        assert(get<1>(gate.get_qubits()) == SIZE_MAX);
         return true;
     }
 
-    tuple<size_t, size_t> physicalQubitsIds{getPhysicalQubits(gate)};
-    assert(get<1>(physicalQubitsIds) != ERROR_CODE);
-    const PhysicalQubit& q0 = _device.getPhysicalQubit(get<0>(physicalQubitsIds));
-    const PhysicalQubit& q1 = _device.getPhysicalQubit(get<1>(physicalQubitsIds));
-    return q0.isAdjacency(q1);
+    tuple<size_t, size_t> physical_qubits_ids{_get_physical_qubits(gate)};
+    assert(get<1>(physical_qubits_ids) != SIZE_MAX);
+    PhysicalQubit const& q0 = _device.get_physical_qubit(get<0>(physical_qubits_ids));
+    PhysicalQubit const& q1 = _device.get_physical_qubit(get<1>(physical_qubits_ids));
+    return q0.is_adjacency(q1);
 }
 
 /**
@@ -218,14 +217,14 @@ bool Router::isExecutable(const Gate& gate) {
  * @param q
  * @return Operation
  */
-Operation Router::executeSingle(GateType gate, Phase phase, size_t q) {
-    PhysicalQubit& qubit = _device.getPhysicalQubit(q);
-    size_t startTime = qubit.getOccupiedTime();
-    size_t endTime = startTime + SINGLE_DELAY;
-    qubit.setOccupiedTime(endTime);
+Operation Router::execute_single(GateType gate, Phase phase, size_t q) {
+    PhysicalQubit& qubit = _device.get_physical_qubit(q);
+    size_t start_time = qubit.get_occupied_time();
+    size_t end_time = start_time + SINGLE_DELAY;
+    qubit.set_occupied_time(end_time);
     qubit.reset();
-    Operation op(gate, phase, make_tuple(q, ERROR_CODE), make_tuple(startTime, endTime));
-    if (verbose > 3) cout << op << endl;
+    Operation op(gate, phase, make_tuple(q, SIZE_MAX), make_tuple(start_time, end_time));
+    if (VERBOSE > 3) cout << op << endl;
     return op;
 }
 
@@ -239,97 +238,97 @@ Operation Router::executeSingle(GateType gate, Phase phase, size_t q) {
  * @param swapped if the qubits of gate are swapped when added into Duostra
  * @return vector<Operation>
  */
-vector<Operation> Router::duostraRouting(GateType gate, size_t gateId, Phase phase, tuple<size_t, size_t> qubitPair, bool orient, bool swapped) {
-    assert(gate == GateType::CX || gate == GateType::CZ);
-    size_t q0Id = get<0>(qubitPair);  // source 0
-    size_t q1Id = get<1>(qubitPair);  // source 1
-    bool swapIds = false;
+vector<Operation> Router::duostra_routing(GateType gate, size_t gate_id, Phase phase, tuple<size_t, size_t> qubit_pair, bool orient, bool swapped) {
+    assert(gate == GateType::cx || gate == GateType::cz);
+    size_t q0_id = get<0>(qubit_pair);  // source 0
+    size_t q1_id = get<1>(qubit_pair);  // source 1
+    bool swap_ids = false;
     // If two sources compete for the same qubit, the one with smaller occupied time goes first
-    if (_device.getPhysicalQubit(q0Id).getOccupiedTime() >
-        _device.getPhysicalQubit(q1Id).getOccupiedTime()) {
-        swap(q0Id, q1Id);
-        swapIds = true;
-    } else if (_device.getPhysicalQubit(q0Id).getOccupiedTime() ==
-               _device.getPhysicalQubit(q1Id).getOccupiedTime()) {
+    if (_device.get_physical_qubit(q0_id).get_occupied_time() >
+        _device.get_physical_qubit(q1_id).get_occupied_time()) {
+        swap(q0_id, q1_id);
+        swap_ids = true;
+    } else if (_device.get_physical_qubit(q0_id).get_occupied_time() ==
+               _device.get_physical_qubit(q1_id).get_occupied_time()) {
         // orientation means qubit with smaller logical idx has a little priority
-        if (orient && _device.getPhysicalQubit(q0Id).getLogicalQubit() >
-                          _device.getPhysicalQubit(q1Id).getLogicalQubit()) {
-            swap(q0Id, q1Id);
-            swapIds = true;
+        if (orient && _device.get_physical_qubit(q0_id).get_logical_qubit() >
+                          _device.get_physical_qubit(q1_id).get_logical_qubit()) {
+            swap(q0_id, q1_id);
+            swap_ids = true;
         }
     }
 
-    PhysicalQubit& t0 = _device.getPhysicalQubit(q0Id);  // target 0
-    PhysicalQubit& t1 = _device.getPhysicalQubit(q1Id);  // target 1
+    PhysicalQubit& t0 = _device.get_physical_qubit(q0_id);  // target 0
+    PhysicalQubit& t1 = _device.get_physical_qubit(q1_id);  // target 1
     // priority queue: pop out the node with the smallest cost from both the sources
     PriorityQueue pq;
 
     // init conditions for the sources
-    t0.mark(false, t0.getId());
-    t0.takeRoute(t0.getCost(), 0);
-    t1.mark(true, t1.getId());
-    t1.takeRoute(t1.getCost(), 0);
-    tuple<bool, size_t> touch0 = touchAdjacency(t0, pq, false);
-    bool isAdjacent = get<0>(touch0);
+    t0.mark(false, t0.get_id());
+    t0.take_route(t0.get_cost(), 0);
+    t1.mark(true, t1.get_id());
+    t1.take_route(t1.get_cost(), 0);
+    tuple<bool, size_t> touch0 = _touch_adjacency(t0, pq, false);
+    bool is_adjacent = get<0>(touch0);
 #ifdef DEBUG
     tuple<bool, size_t> touch1 = touchAdjacency(t1, pq, true);
     assert(isAdjacent == get<0>(touch1));
 #else
-    touchAdjacency(t1, pq, true);
+    _touch_adjacency(t1, pq, true);
 #endif
 
     // the two paths from the two sources propagate until the two paths meet each other
-    while (!isAdjacent) {
+    while (!is_adjacent) {
         // each iteration gets an element from the priority queue
         AStarNode next(pq.top());
         pq.pop();
-        size_t qNextId = next.getId();
-        PhysicalQubit& qNext = _device.getPhysicalQubit(qNextId);
+        size_t q_next_id = next.get_id();
+        PhysicalQubit& q_next = _device.get_physical_qubit(q_next_id);
         // FIXME - swtch to source
-        assert(qNext.getSource() == next.getSource());
+        assert(q_next.get_source() == next.get_source());
 
         // mark the element as visited and check its neighbors
-        size_t cost = next.getCost();
+        size_t cost = next.get_cost();
         assert(cost >= SWAP_DELAY);
-        size_t operationTime = cost - SWAP_DELAY;
-        qNext.takeRoute(cost, operationTime);
-        tuple<bool, size_t> touch = touchAdjacency(qNext, pq, next.getSource());
-        isAdjacent = get<0>(touch);
-        if (isAdjacent) {
-            if (next.getSource())  // 0 get true means touch 1's set
+        size_t operation_time = cost - SWAP_DELAY;
+        q_next.take_route(cost, operation_time);
+        tuple<bool, size_t> touch = _touch_adjacency(q_next, pq, next.get_source());
+        is_adjacent = get<0>(touch);
+        if (is_adjacent) {
+            if (next.get_source())  // 0 get true means touch 1's set
             {
-                q0Id = get<1>(touch);
-                q1Id = qNextId;
+                q0_id = get<1>(touch);
+                q1_id = q_next_id;
             } else {
-                q0Id = qNextId;
-                q1Id = get<1>(touch);
+                q0_id = q_next_id;
+                q1_id = get<1>(touch);
             }
         }
     }
-    vector<Operation> operationList =
-        traceback(gate, gateId, phase, _device.getPhysicalQubit(q0Id), _device.getPhysicalQubit(q1Id), t0, t1, swapIds, swapped);
+    vector<Operation> operation_list =
+        _traceback(gate, gate_id, phase, _device.get_physical_qubit(q0_id), _device.get_physical_qubit(q1_id), t0, t1, swap_ids, swapped);
 
-    if (verbose > 3) {
-        for (size_t i = 0; i < operationList.size(); ++i) {
-            cout << operationList[i] << endl;
+    if (VERBOSE > 3) {
+        for (size_t i = 0; i < operation_list.size(); ++i) {
+            cout << operation_list[i] << endl;
         }
     }
 
 #ifdef DEBUG
     vector<bool> checker(_device.getNQubit(), false);
 #endif
-    for (size_t i = 0; i < _device.getNQubit(); ++i) {
-        PhysicalQubit& qubit = _device.getPhysicalQubit(i);
+    for (size_t i = 0; i < _device.get_num_qubits(); ++i) {
+        PhysicalQubit& qubit = _device.get_physical_qubit(i);
         qubit.reset();
-        assert(qubit.getLogicalQubit() < _device.getNQubit());
+        assert(qubit.get_logical_qubit() < _device.get_num_qubits());
 #ifdef DEBUG
-        if (i != ERROR_CODE) {
+        if (i != SIZE_MAX) {
             assert(checker[i] == false);
             checker[i] = true;
         }
 #endif
     }
-    return operationList;
+    return operation_list;
 }
 
 /**
@@ -342,51 +341,51 @@ vector<Operation> Router::duostraRouting(GateType gate, size_t gateId, Phase pha
  * @param swapped if the qubits of gate are swapped when added into Duostra
  * @return vector<Operation>
  */
-vector<Operation> Router::apspRouting(GateType gate, size_t gateId, Phase phase, tuple<size_t, size_t> qs, bool orient, bool swapped) {
-    vector<Operation> operationList;
-    size_t s0Id = get<0>(qs);
-    size_t s1Id = get<1>(qs);
-    size_t q0Id = s0Id;
-    size_t q1Id = s1Id;
+vector<Operation> Router::apsp_routing(GateType gate, size_t gate_id, Phase phase, tuple<size_t, size_t> qs, bool orient, bool swapped) {
+    vector<Operation> operation_list;
+    size_t s0_id = get<0>(qs);
+    size_t s1_id = get<1>(qs);
+    size_t q0_id = s0_id;
+    size_t q1_id = s1_id;
 
-    while (!_device.getPhysicalQubit(q0Id).isAdjacency(_device.getPhysicalQubit(q1Id))) {
-        tuple<size_t, size_t> q0NextCost = _device.getNextSwapCost(q0Id, s1Id);
-        tuple<size_t, size_t> q1NextCost = _device.getNextSwapCost(q1Id, s0Id);
+    while (!_device.get_physical_qubit(q0_id).is_adjacency(_device.get_physical_qubit(q1_id))) {
+        tuple<size_t, size_t> q0_next_cost = _device.get_next_swap_cost(q0_id, s1_id);
+        tuple<size_t, size_t> q1_next_cost = _device.get_next_swap_cost(q1_id, s0_id);
 
-        size_t q0Next = get<0>(q0NextCost);
-        size_t q0Cost = get<1>(q0NextCost);
-        size_t q1Next = get<0>(q1NextCost);
-        size_t q1Cost = get<1>(q1NextCost);
+        size_t q0_next = get<0>(q0_next_cost);
+        size_t q0_cost = get<1>(q0_next_cost);
+        size_t q1_next = get<0>(q1_next_cost);
+        size_t q1_cost = get<1>(q1_next_cost);
 
-        if ((q0Cost < q1Cost) || ((q0Cost == q1Cost) && orient &&
-                                  _device.getPhysicalQubit(q0Id).getLogicalQubit() <
-                                      _device.getPhysicalQubit(q1Id).getLogicalQubit())) {
-            Operation oper(GateType::SWAP, Phase(0), make_tuple(q0Id, q0Next),
-                           make_tuple(q0Cost, q0Cost + SWAP_DELAY));
-            _device.applyGate(oper);
-            operationList.emplace_back(std::move(oper));
-            q0Id = q0Next;
+        if ((q0_cost < q1_cost) || ((q0_cost == q1_cost) && orient &&
+                                    _device.get_physical_qubit(q0_id).get_logical_qubit() <
+                                        _device.get_physical_qubit(q1_id).get_logical_qubit())) {
+            Operation oper(GateType::swap, Phase(0), make_tuple(q0_id, q0_next),
+                           make_tuple(q0_cost, q0_cost + SWAP_DELAY));
+            _device.apply_gate(oper);
+            operation_list.emplace_back(std::move(oper));
+            q0_id = q0_next;
         } else {
-            Operation oper(GateType::SWAP, Phase(0), make_tuple(q1Id, q1Next),
-                           make_tuple(q0Cost, q0Cost + SWAP_DELAY));
-            _device.applyGate(oper);
-            operationList.emplace_back(std::move(oper));
-            q1Id = q1Next;
+            Operation oper(GateType::swap, Phase(0), make_tuple(q1_id, q1_next),
+                           make_tuple(q0_cost, q0_cost + SWAP_DELAY));
+            _device.apply_gate(oper);
+            operation_list.emplace_back(std::move(oper));
+            q1_id = q1_next;
         }
     }
-    assert(_device.getPhysicalQubit(q1Id).isAdjacency(_device.getPhysicalQubit(q0Id)));
+    assert(_device.get_physical_qubit(q1_id).is_adjacency(_device.get_physical_qubit(q0_id)));
 
-    size_t gateCost = max(_device.getPhysicalQubit(q0Id).getOccupiedTime(),
-                          _device.getPhysicalQubit(q1Id).getOccupiedTime());
+    size_t gate_cost = max(_device.get_physical_qubit(q0_id).get_occupied_time(),
+                           _device.get_physical_qubit(q1_id).get_occupied_time());
     // REVIEW - CZ Issue
-    assert(gate == GateType::CX || gate == GateType::CZ);
-    Operation CXGate(gate, phase, swapped ? make_tuple(q1Id, q0Id) : make_tuple(q0Id, q1Id),
-                     make_tuple(gateCost, gateCost + DOUBLE_DELAY));
-    _device.applyGate(CXGate);
-    CXGate.setId(gateId);
-    operationList.emplace_back(CXGate);
+    assert(gate == GateType::cx || gate == GateType::cz);
+    Operation cx_gate(gate, phase, swapped ? make_tuple(q1_id, q0_id) : make_tuple(q0_id, q1_id),
+                      make_tuple(gate_cost, gate_cost + DOUBLE_DELAY));
+    _device.apply_gate(cx_gate);
+    cx_gate.set_id(gate_id);
+    operation_list.emplace_back(cx_gate);
 
-    return operationList;
+    return operation_list;
 }
 
 /**
@@ -397,31 +396,31 @@ vector<Operation> Router::apspRouting(GateType gate, size_t gateId, Phase phase,
  * @param source
  * @return tuple<bool, size_t>
  */
-tuple<bool, size_t> Router::touchAdjacency(PhysicalQubit& qubit, PriorityQueue& pq, bool source) {
+tuple<bool, size_t> Router::_touch_adjacency(PhysicalQubit& qubit, PriorityQueue& pq, bool source) {
     // mark all the adjacent qubits as seen and push them into the priority queue
-    for (auto& i : qubit.getAdjacencies()) {
-        PhysicalQubit& adj = _device.getPhysicalQubit(i);
+    for (auto& i : qubit.get_adjacencies()) {
+        PhysicalQubit& adj = _device.get_physical_qubit(i);
         // see if already in the queue
-        if (adj.isMarked()) {
+        if (adj.is_marked()) {
             // see if the taken one is from different path from the original qubit
             // if yes, means the two paths meet each other
-            if (adj.isTaken()) {
+            if (adj.is_taken()) {
                 // touch target
-                if (adj.getSource() != source) {
-                    assert(adj.getId() == i);
-                    return make_tuple(true, adj.getId());
+                if (adj.get_source() != source) {
+                    assert(adj.get_id() == i);
+                    return make_tuple(true, adj.get_id());
                 }
             }
             continue;
         }
 
         // push the node into the priority queue
-        size_t cost = max(qubit.getCost(), adj.getOccupiedTime()) + SWAP_DELAY;
-        adj.mark(source, qubit.getId());
+        size_t cost = max(qubit.get_cost(), adj.get_occupied_time()) + SWAP_DELAY;
+        adj.mark(source, qubit.get_id());
 
-        pq.push(AStarNode(cost, adj.getId(), source));
+        pq.push(AStarNode(cost, adj.get_id(), source));
     }
-    return make_tuple(false, ERROR_CODE);
+    return make_tuple(false, SIZE_MAX);
 }
 
 /**
@@ -437,63 +436,63 @@ tuple<bool, size_t> Router::touchAdjacency(PhysicalQubit& qubit, PriorityQueue& 
  * @param swapped if the qubits of gate are swapped when added into Duostra
  * @return vector<Operation>
  */
-vector<Operation> Router::traceback([[maybe_unused]] GateType gt, size_t gateId, Phase ph, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swapIds, bool swapped) {
-    assert(t0.getId() == t0.getPred());
-    assert(t1.getId() == t1.getPred());
+vector<Operation> Router::_traceback([[maybe_unused]] GateType gt, size_t gate_id, Phase ph, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swap_ids, bool swapped) {
+    assert(t0.get_id() == t0.get_predecessor());
+    assert(t1.get_id() == t1.get_predecessor());
 
-    assert(q0.isAdjacency(q1));
-    vector<Operation> operationList;
+    assert(q0.is_adjacency(q1));
+    vector<Operation> operation_list;
 
-    size_t operationTime = max(q0.getCost(), q1.getCost());
+    size_t operation_time = max(q0.get_cost(), q1.get_cost());
     // REVIEW - CZ issue (need decompose?)
-    assert(gt == GateType::CX || gt == GateType::CZ);
+    assert(gt == GateType::cx || gt == GateType::cz);
     // REVIEW - Order of qubits in CX matters
-    tuple<size_t, size_t> qids = swapIds ? make_tuple(q1.getId(), q0.getId()) : make_tuple(q0.getId(), q1.getId());
+    tuple<size_t, size_t> qids = swap_ids ? make_tuple(q1.get_id(), q0.get_id()) : make_tuple(q0.get_id(), q1.get_id());
     if (swapped) {
         qids = make_tuple(get<1>(qids), get<0>(qids));
     }
-    Operation CXGate(gt, ph, qids, make_tuple(operationTime, operationTime + DOUBLE_DELAY));
-    CXGate.setId(gateId);
-    operationList.emplace_back(CXGate);
+    Operation cx_gate(gt, ph, qids, make_tuple(operation_time, operation_time + DOUBLE_DELAY));
+    cx_gate.set_id(gate_id);
+    operation_list.emplace_back(cx_gate);
 
     // traceback by tracing the parent iteratively
-    size_t trace0 = q0.getId();
-    size_t trace1 = q1.getId();
+    size_t trace0 = q0.get_id();
+    size_t trace1 = q1.get_id();
     // traceback by tracing the parent iteratively
     // trace 0
-    while (trace0 != t0.getId()) {
-        PhysicalQubit& qTrace0 = _device.getPhysicalQubit(trace0);
-        size_t tracePred0 = qTrace0.getPred();
+    while (trace0 != t0.get_id()) {
+        PhysicalQubit& q_trace0 = _device.get_physical_qubit(trace0);
+        size_t trace_pred0 = q_trace0.get_predecessor();
 
-        size_t swapTime = qTrace0.getSwapTime();
-        Operation swapGate(GateType::SWAP, Phase(0), make_tuple(trace0, tracePred0),
-                           make_tuple(swapTime, swapTime + SWAP_DELAY));
-        operationList.emplace_back(swapGate);
+        size_t swap_time = q_trace0.get_swap_time();
+        Operation swap_gate(GateType::swap, Phase(0), make_tuple(trace0, trace_pred0),
+                            make_tuple(swap_time, swap_time + SWAP_DELAY));
+        operation_list.emplace_back(swap_gate);
 
-        trace0 = tracePred0;
+        trace0 = trace_pred0;
     }
-    while (trace1 != t1.getId())  // trace 1
+    while (trace1 != t1.get_id())  // trace 1
     {
-        PhysicalQubit& qTrace1 = _device.getPhysicalQubit(trace1);
-        size_t tracePred1 = qTrace1.getPred();
+        PhysicalQubit& q_trace1 = _device.get_physical_qubit(trace1);
+        size_t trace_pred1 = q_trace1.get_predecessor();
 
-        size_t swapTime = qTrace1.getSwapTime();
-        Operation swapGate(GateType::SWAP, Phase(0), make_tuple(trace1, tracePred1),
-                           make_tuple(swapTime, swapTime + SWAP_DELAY));
-        operationList.emplace_back(swapGate);
+        size_t swap_time = q_trace1.get_swap_time();
+        Operation swap_gate(GateType::swap, Phase(0), make_tuple(trace1, trace_pred1),
+                            make_tuple(swap_time, swap_time + SWAP_DELAY));
+        operation_list.emplace_back(swap_gate);
 
-        trace1 = tracePred1;
+        trace1 = trace_pred1;
     }
     // REVIEW - Check time, now the start time
-    sort(operationList.begin(), operationList.end(), [](const Operation& a, const Operation& b) -> bool {
-        return a.getOperationTime() < b.getOperationTime();
+    sort(operation_list.begin(), operation_list.end(), [](Operation const& a, Operation const& b) -> bool {
+        return a.get_operation_time() < b.get_operation_time();
     });
 
-    for (size_t i = 0; i < operationList.size(); ++i) {
-        _device.applyGate(operationList[i]);
+    for (size_t i = 0; i < operation_list.size(); ++i) {
+        _device.apply_gate(operation_list[i]);
     }
 
-    return operationList;
+    return operation_list;
 }
 
 /**
@@ -502,29 +501,29 @@ vector<Operation> Router::traceback([[maybe_unused]] GateType gt, size_t gateId,
  * @param gate
  * @return vector<Operation>
  */
-vector<Operation> Router::assignGate(const Gate& gate) {
-    tuple<size_t, size_t> physicalQubitsIds = getPhysicalQubits(gate);
+vector<Operation> Router::assign_gate(Gate const& gate) {
+    tuple<size_t, size_t> physical_qubits_ids = _get_physical_qubits(gate);
 
-    if (!(gate.getType() == GateType::CX || gate.getType() == GateType::CZ)) {
-        assert(get<1>(physicalQubitsIds) == ERROR_CODE);
-        Operation op = executeSingle(gate.getType(), gate.getPhase(), get<0>(physicalQubitsIds));
-        op.setId(gate.getId());
+    if (!(gate.get_type() == GateType::cx || gate.get_type() == GateType::cz)) {
+        assert(get<1>(physical_qubits_ids) == SIZE_MAX);
+        Operation op = execute_single(gate.get_type(), gate.get_phase(), get<0>(physical_qubits_ids));
+        op.set_id(gate.get_id());
         return vector<Operation>(1, op);
     }
-    vector<Operation> operationList =
+    vector<Operation> operation_list =
         _duostra
-            ? duostraRouting(gate.getType(), gate.getId(), gate.getPhase(), physicalQubitsIds, _orient, gate.isSwapped())
-            : apspRouting(gate.getType(), gate.getId(), gate.getPhase(), physicalQubitsIds, _orient, gate.isSwapped());
-    vector<size_t> changeList = _device.mapping();
-    vector<bool> checker(_logical2Physical.size(), false);
+            ? duostra_routing(gate.get_type(), gate.get_id(), gate.get_phase(), physical_qubits_ids, _orient, gate.is_swapped())
+            : apsp_routing(gate.get_type(), gate.get_id(), gate.get_phase(), physical_qubits_ids, _orient, gate.is_swapped());
+    vector<size_t> change_list = _device.mapping();
+    vector<bool> checker(_logical_to_physical.size(), false);
 
     // i is the idx of device qubit
-    for (size_t i = 0; i < changeList.size(); ++i) {
-        size_t logicalQubitId = changeList[i];
-        if (logicalQubitId == ERROR_CODE) {
+    for (size_t i = 0; i < change_list.size(); ++i) {
+        size_t logical_qubit_id = change_list[i];
+        if (logical_qubit_id == SIZE_MAX) {
             continue;
         }
-        _logical2Physical[logicalQubitId] = i;
+        _logical_to_physical[logical_qubit_id] = i;
     }
-    return operationList;
+    return operation_list;
 }

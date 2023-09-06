@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ ordered_hashtable.hpp ]
   PackageName  [ util ]
   Synopsis     [ Define ordered_hashtable interface ]
   Author       [ Design Verification Lab ]
@@ -29,7 +28,7 @@
 #include <vector>
 
 template <typename Key, typename Value, typename StoredType, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
-class ordered_hashtable {
+class ordered_hashtable {  // NOLINT(readability-identifier-naming) : ordered_hashtable intentionally mimics std containers
 public:
     // class OTableIterator;
     using key_type = Key;
@@ -54,8 +53,8 @@ public:
         using difference_type = std::ptrdiff_t;
         using iterator_category = std::bidirectional_iterator_tag;
         OTableIterator() {}
-        OTableIterator(const VecIterType& itr, const VecIterType& begin, const VecIterType& end) : _itr(itr), _begin(begin), _end(end) {}
-        OTableIterator(const OTableIterator<VecIterType>& o_itr) = default;
+        OTableIterator(VecIterType const& itr, VecIterType const& begin, VecIterType const& end) : _itr(itr), _begin(begin), _end(end) {}
+        OTableIterator(OTableIterator<VecIterType> const& o_itr) = default;
 
         OTableIterator& operator++() noexcept {
             do {
@@ -83,10 +82,10 @@ public:
             return tmp;
         }
 
-        bool operator==(const OTableIterator& rhs) const noexcept { return this->_itr == rhs._itr; }
-        bool operator!=(const OTableIterator& rhs) const noexcept { return !(*this == rhs); }
+        bool operator==(OTableIterator const& rhs) const noexcept { return this->_itr == rhs._itr; }
+        bool operator!=(OTableIterator const& rhs) const noexcept { return !(*this == rhs); }
 
-        bool isValid() const noexcept { return *(this->_itr) != std::nullopt; }
+        bool is_valid() const noexcept { return *(this->_itr) != std::nullopt; }
 
         value_type& operator*() noexcept { return (value_type&)this->_itr->value(); }
         value_type& operator*() const noexcept { return (value_type&)this->_itr->value(); }
@@ -128,7 +127,7 @@ public:
      * @param key
      * @return size_type
      */
-    inline iterator find(const Key& key) {
+    inline iterator find(Key const& key) {
         return this->contains(key) ? iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()) : this->end();
     }
 
@@ -141,7 +140,7 @@ public:
      * @param key
      * @return size_type
      */
-    inline const_iterator find(const Key& key) const {
+    inline const_iterator find(Key const& key) const {
         return this->contains(key) ? iterator(this->_data.begin() + this->id(key), this->_data.begin(), this->_data.end()) : this->end();
     }
     /**
@@ -153,37 +152,37 @@ public:
      * @param key
      * @return size_type
      */
-    inline size_type id(const Key& key) const { return this->_key2id.at(key); }
-    bool contains(const Key& key) const;
-    virtual const Key& key(const stored_type& value) const = 0;
+    inline size_type id(Key const& key) const { return this->_key2id.at(key); }
+    bool contains(Key const& key) const;
+    virtual Key const& key(stored_type const& value) const = 0;
 
     // properties
     size_t size() const { return _size; }
     bool empty() const { return (this->size() == 0); }
-    bool operator==(const ordered_hashtable& rhs) const {
+    bool operator==(ordered_hashtable const& rhs) const {
         if (_size != rhs._size) return false;
 
         return any_of(this->begin(), this->end(), [&rhs](auto const& item) {
             return rhs.contains(item);
         });
     }
-    bool operator!=(const ordered_hashtable& rhs) const { return !(*this == rhs); }
+    bool operator!=(ordered_hashtable const& rhs) const { return !(*this == rhs); }
 
     // container manipulation
     void clear();
     std::pair<iterator, bool> insert(value_type&& value);
-    std::pair<iterator, bool> insert(const value_type& value) { return this->insert(std::move(value)); }
+    std::pair<iterator, bool> insert(value_type const& value) { return this->insert(std::move(value)); }
 
     template <typename InputIt>
-    void insert(const InputIt& first, const InputIt& last);
+    void insert(InputIt const& first, InputIt const& last);
 
     template <typename... Args>
     std::pair<iterator, bool> emplace(Args&&... args);
 
     void sweep();
 
-    size_t erase(const Key& key);
-    size_t erase(const iterator& itr);
+    size_t erase(Key const& key);
+    size_t erase(iterator const& itr);
 
     template <typename F>
     void sort(F lambda);
@@ -205,7 +204,7 @@ protected:
  * @return bool
  */
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
-bool ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::contains(const Key& key) const {
+bool ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::contains(Key const& key) const {
     return (this->_key2id.contains(key) && this->_data[id(key)].has_value());
 }
 
@@ -238,7 +237,7 @@ ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::insert(value_type&& v
 
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
 template <typename InputIt>
-void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::insert(const InputIt& first, const InputIt& last) {
+void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::insert(InputIt const& first, InputIt const& last) {
     for (auto itr = first; itr != last; ++itr) {
         emplace(std::move(*itr));
     }
@@ -261,14 +260,14 @@ std::pair<typename ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::it
 ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::emplace(Args&&... args) {
     this->_data.emplace_back(value_type(std::forward<Args>(args)...));
     const key_type key = this->key(this->_data.back().value());
-    bool hasItem = this->_key2id.contains(key);
-    if (hasItem) {
+    bool has_item = this->_key2id.contains(key);
+    if (has_item) {
         this->_data.pop_back();
     } else {
         this->_key2id.emplace(key, this->_data.size() - 1);
         this->_size++;
     }
-    return std::make_pair(this->find(key), !hasItem);
+    return std::make_pair(this->find(key), !has_item);
 }
 
 /**
@@ -299,7 +298,7 @@ void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sweep() {
  * @return size_t : the number of element deleted
  */
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
-size_t ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::erase(const Key& key) {
+size_t ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::erase(Key const& key) {
     if (!this->contains(key)) return 0;
 
     this->_data[this->id(key)] = std::nullopt;
@@ -330,7 +329,7 @@ size_t ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::erase(
 template <typename Key, typename Value, typename StoredType, typename Hash, typename KeyEqual>
 template <typename F>
 void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sort(F lambda) {
-    std::sort(this->_data.begin(), this->_data.end(), [&lambda](const std::optional<stored_type>& a, const std::optional<stored_type>& b) {
+    std::sort(this->_data.begin(), this->_data.end(), [&lambda](std::optional<stored_type> const& a, std::optional<stored_type> const& b) {
         if (!a.has_value()) return false;
         if (!b.has_value()) return true;
         return lambda(a.value(), b.value());

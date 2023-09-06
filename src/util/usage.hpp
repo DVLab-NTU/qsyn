@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ usage.hpp ]
   PackageName  [ util ]
   Synopsis     [ Report the run time and memory usage ]
   Author       [ Design Verification Lab ]
@@ -18,23 +17,23 @@ public:
 
     void reset();
 
-    void report(bool repTime, bool repMem);
+    void report(bool report_time, bool report_mem);
 
 private:
     // for Memory usage (in MB)
-    double _initMem = 0.0;
-    double _currentMem = 0.0;
+    double _initial_memory = 0.0;
+    double _current_memory = 0.0;
 
     // for CPU time usage
-    double _currentTick = 0.0;
-    double _periodUsedTime = 0.0;
-    double _totalUsedTime = 0.0;
+    double _current_tick = 0.0;
+    double _period_used_time = 0.0;
+    double _total_used_time = 0.0;
 
     // private functions
-    double checkMem() const;
-    double checkTick() const;
-    void setMemUsage();
-    void setTimeUsage();
+    double _check_memory() const;
+    double _check_tick() const;
+    void _set_memory_usage();
+    void _set_time_usage();
 };
 
 }  // namespace utils
