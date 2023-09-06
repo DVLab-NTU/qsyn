@@ -163,15 +163,15 @@ struct formatter<ArgParse::ArgType<T>> {
 
     template <typename FormatContext>
     auto format(ArgParse::ArgType<T> const& arg, FormatContext& ctx) -> format_context::iterator {
-        if (arg._values.empty()) return format_to(ctx.out(), "(None)");
+        if (arg._values.empty()) return fmt::format_to(ctx.out(), "(None)");
 
         if constexpr (fmt::is_formattable<T, char>::value) {
             //                                                          vvv force the typing when T = bool (std::vector<bool> is weird)
-            return (arg._nargs.upper <= 1) ? format_to(ctx.out(), "{}", static_cast<T>(arg._values.front()))
-                                           : format_to(ctx.out(), "[{}]", fmt::join(arg._values, ", "));
+            return (arg._nargs.upper <= 1) ? fmt::format_to(ctx.out(), "{}", static_cast<T>(arg._values.front()))
+                                           : fmt::format_to(ctx.out(), "[{}]", fmt::join(arg._values, ", "));
         } else {
-            return (arg._nargs.upper <= 1) ? format_to(ctx.out(), "(not representable)")
-                                           : format_to(ctx.out(), "[(not representable)]");
+            return (arg._nargs.upper <= 1) ? fmt::format_to(ctx.out(), "(not representable)")
+                                           : fmt::format_to(ctx.out(), "[(not representable)]");
         }
     }
 };

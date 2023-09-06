@@ -109,7 +109,7 @@ struct fmt::formatter<PhysicalQubit> {
 
     template <typename FormatContext>
     auto format(const PhysicalQubit& q, FormatContext& ctx) {
-        return format_to(ctx.out(), "Q{:>2}, logical: {:>2}, lock until {}", q.getId(), q.getLogicalQubit(), q.getOccupiedTime());
+        return fmt::format_to(ctx.out(), "Q{:>2}, logical: {:>2}, lock until {}", q.getId(), q.getLogicalQubit(), q.getOccupiedTime());
     }
 };
 

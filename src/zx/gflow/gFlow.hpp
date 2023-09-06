@@ -97,16 +97,16 @@ struct fmt::formatter<GFlow::MeasurementPlane> {
     auto format(const GFlow::MeasurementPlane& plane, format_context& ctx) const -> format_context::iterator {
         switch (plane) {
             case GFlow::MeasurementPlane::XY:
-                return format_to(ctx.out(), "XY");
+                return fmt::format_to(ctx.out(), "XY");
             case GFlow::MeasurementPlane::YZ:
-                return format_to(ctx.out(), "YZ");
+                return fmt::format_to(ctx.out(), "YZ");
             case GFlow::MeasurementPlane::XZ:
-                return format_to(ctx.out(), "XZ");
+                return fmt::format_to(ctx.out(), "XZ");
             case GFlow::MeasurementPlane::NOT_A_QUBIT:
-                return format_to(ctx.out(), "not a qubit");
+                return fmt::format_to(ctx.out(), "not a qubit");
             case GFlow::MeasurementPlane::ERROR:
             default:
-                return format_to(ctx.out(), "ERROR");
+                return fmt::format_to(ctx.out(), "ERROR");
         }
     }
 };

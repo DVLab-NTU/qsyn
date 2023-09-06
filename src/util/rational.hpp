@@ -87,7 +87,7 @@ struct fmt::formatter<Rational> {
 
     template <typename FormatContext>
     auto format(const Rational& q, FormatContext& ctx) {
-        return (q.denominator() == 1) ? format_to(ctx.out(), "{}", q.numerator()) : format_to(ctx.out(), "{}/{}", q.numerator(), q.denominator());
+        return (q.denominator() == 1) ? fmt::format_to(ctx.out(), "{}", q.numerator()) : fmt::format_to(ctx.out(), "{}/{}", q.numerator(), q.denominator());
     }
 };
 
