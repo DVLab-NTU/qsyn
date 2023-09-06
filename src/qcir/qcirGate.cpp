@@ -6,20 +6,67 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "qcirGate.h"
+#include "./qcirGate.hpp"
 
-#include <assert.h>  // for assert
-
-#include <string>  // for string
+#include <cassert>
+#include <iomanip>
+#include <string>
 
 using namespace std;
 
-extern size_t verbose;
-
 size_t SINGLE_DELAY = 1;
-size_t DOUBLE_DELAY = 1;
-size_t SWAP_DELAY = 3;
+size_t DOUBLE_DELAY = 2;
+size_t SWAP_DELAY = 6;
 size_t MULTIPLE_DELAY = 5;
+
+std::ostream& operator<<(std::ostream& stream, GateType const& type) {
+    return stream << static_cast<typename std::underlying_type<GateType>::type>(type);
+}
+
+std::unordered_map<std::string, GateType> str2GateType = {
+    {"x", GateType::X},
+    {"rz", GateType::RZ},
+    {"h", GateType::H},
+    {"sx", GateType::SX},
+    {"cnot", GateType::CX},
+    {"cx", GateType::CX},
+    {"id", GateType::ID},
+};
+
+std::unordered_map<GateType, std::string> gateType2Str = {
+    {GateType::ID, "ID"},
+    // NOTE - Multi-control rotate
+    {GateType::MCP, "MCP"},
+    {GateType::MCRZ, "MCRZ"},
+    {GateType::MCPX, "MCPX"},
+    {GateType::MCRX, "MCRX"},
+    {GateType::MCPY, "MCPY"},
+    {GateType::MCRY, "MCRY"},
+    {GateType::H, "H"},
+    // NOTE - MCP(Z)
+    {GateType::CCZ, "CCZ"},
+    {GateType::CZ, "CZ"},
+    {GateType::P, "P"},
+    {GateType::Z, "Z"},
+    {GateType::S, "S"},
+    {GateType::SDG, "SDG"},
+    {GateType::T, "T"},
+    {GateType::TDG, "TDG"},
+    {GateType::RZ, "RZ"},
+    // NOTE - MCPX
+    {GateType::CCX, "CCX"},
+    {GateType::CX, "CX"},
+    {GateType::SWAP, "SWAP"},
+    {GateType::PX, "PX"},
+    {GateType::X, "X"},
+    {GateType::SX, "SX"},
+    {GateType::RX, "RX"},
+    // NOTE - MCPY
+    {GateType::Y, "Y"},
+    {GateType::PY, "PY"},
+    {GateType::SY, "SY"},
+    {GateType::RY, "RY"},
+};
 
 /**
  * @brief Get delay of gate
@@ -59,7 +106,7 @@ const BitInfo QCirGate::getQubit(size_t qubit) const {
  * @param isTarget
  */
 void QCirGate::addQubit(size_t qubit, bool isTarget) {
-    BitInfo temp = {._qubit = qubit, ._parent = NULL, ._child = NULL, ._isTarget = isTarget};
+    BitInfo temp = {._qubit = qubit, ._parent = nullptr, ._child = nullptr, ._isTarget = isTarget};
     // _qubits.emplace_back(temp);
     if (isTarget)
         _qubits.emplace_back(temp);
@@ -82,7 +129,7 @@ void QCirGate::setTargetBit(size_t qubit) {
  * @param qubit
  * @param p
  */
-void QCirGate::setParent(size_t qubit, QCirGate *p) {
+void QCirGate::setParent(size_t qubit, QCirGate* p) {
     for (size_t i = 0; i < _qubits.size(); i++) {
         if (_qubits[i]._qubit == qubit) {
             _qubits[i]._parent = p;
@@ -96,9 +143,9 @@ void QCirGate::setParent(size_t qubit, QCirGate *p) {
  *
  * @param c
  */
-void QCirGate::addDummyChild(QCirGate *c) {
-    BitInfo temp = {._qubit = 0, ._parent = NULL, ._child = c, ._isTarget = false};
-    _qubits.push_back(temp);
+void QCirGate::addDummyChild(QCirGate* c) {
+    BitInfo temp = {._qubit = 0, ._parent = nullptr, ._child = c, ._isTarget = false};
+    _qubits.emplace_back(temp);
 }
 
 /**
@@ -107,7 +154,7 @@ void QCirGate::addDummyChild(QCirGate *c) {
  * @param qubit
  * @param c
  */
-void QCirGate::setChild(size_t qubit, QCirGate *c) {
+void QCirGate::setChild(size_t qubit, QCirGate* c) {
     for (size_t i = 0; i < _qubits.size(); i++) {
         if (_qubits[i]._qubit == qubit) {
             _qubits[i]._child = c;
@@ -141,12 +188,12 @@ void QCirGate::printSingleQubitGate(string gtype, bool showTime) const {
     BitInfo Info = getQubits()[0];
     string qubitInfo = "Q" + to_string(Info._qubit);
     string parentInfo = "";
-    if (Info._parent == NULL)
+    if (Info._parent == nullptr)
         parentInfo = "Start";
     else
         parentInfo = ("G" + to_string(Info._parent->getId()));
     string childInfo = "";
-    if (Info._child == NULL)
+    if (Info._child == nullptr)
         childInfo = "End";
     else
         childInfo = ("G" + to_string(Info._child->getId()));
@@ -182,10 +229,10 @@ void QCirGate::printMultipleQubitsGate(string gtype, bool showRotate, bool showT
 
     vector<string> parents;
     for (size_t i = 0; i < _qubits.size(); i++) {
-        if (getQubits()[i]._parent == NULL)
-            parents.push_back("Start");
+        if (getQubits()[i]._parent == nullptr)
+            parents.emplace_back("Start");
         else
-            parents.push_back("G" + to_string(getQubits()[i]._parent->getId()));
+            parents.emplace_back("G" + to_string(getQubits()[i]._parent->getId()));
     }
     string max_parent = *max_element(parents.begin(), parents.end(), [](string const a, string const b) {
         return a.size() < b.size();
@@ -198,14 +245,14 @@ void QCirGate::printMultipleQubitsGate(string gtype, bool showRotate, bool showT
             qubitInfo += " ";
         qubitInfo += to_string(Info._qubit);
         string parentInfo = "";
-        if (Info._parent == NULL)
+        if (Info._parent == nullptr)
             parentInfo = "Start";
         else
             parentInfo = ("G" + to_string(Info._parent->getId()));
         for (size_t k = 0; k < max_parent.size() - (parents[i].size()); k++)
             parentInfo += " ";
         string childInfo = "";
-        if (Info._child == NULL)
+        if (Info._child == nullptr)
             childInfo = "End";
         else
             childInfo = ("G" + to_string(Info._child->getId()));

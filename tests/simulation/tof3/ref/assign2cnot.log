@@ -1,97 +1,95 @@
-DV Lab, NTUEE, Qsyn 0.4.2
+DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qccr benchmark/pseudoSimp/tof_3.qasm
-Create and checkout to QCir 0
 
 qsyn> qc2zx
-Create and checkout to Graph 0
 
 qsyn> zxgp -v
 
-ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (15, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 27)	  #Neighbors:   1     (82, -) 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (18, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 27)	  #Neighbors:   1     (81, -) 
-ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (38, -) 
-ID:   5 (●, 0)           (Qubit, Col): (2, 27)	  #Neighbors:   1     (57, -) 
-ID:   6 (●, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   1     (12, -) 
-ID:   7 (●, 0)           (Qubit, Col): (3, 27)	  #Neighbors:   1     (59, -) 
-ID:   8 (●, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (10, -) 
-ID:   9 (●, 0)           (Qubit, Col): (4, 27)	  #Neighbors:   1     (84, -) 
-ID:  10 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 2)	  #Neighbors:   2     (8, -) (11, -) 
-ID:  11 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 3)	  #Neighbors:   2     (10, -) (14, -) 
-ID:  12 ([1m[33mH[0m[0m, π)           (Qubit, Col): (3, 2)	  #Neighbors:   2     (6, -) (13, -) 
-ID:  13 ([1m[33mH[0m[0m, π)           (Qubit, Col): (3, 3)	  #Neighbors:   2     (12, -) (37, -) 
-ID:  14 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 12)	  #Neighbors:   2     (11, -) (16, -) 
-ID:  15 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 12)	  #Neighbors:   3     (0, -) (16, -) (21, -) 
-ID:  16 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 12)	  #Neighbors:   3     (14, -) (15, -) (17, -) 
-ID:  17 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (4, 12)	  #Neighbors:   2     (16, -) (19, -) 
-ID:  18 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 12)	  #Neighbors:   3     (2, -) (19, -) (24, -) 
-ID:  19 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 12)	  #Neighbors:   3     (17, -) (18, -) (20, -) 
-ID:  20 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (4, 12)	  #Neighbors:   2     (19, -) (22, -) 
-ID:  21 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 12)	  #Neighbors:   3     (15, -) (22, -) (26, -) 
-ID:  22 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 12)	  #Neighbors:   3     (20, -) (21, -) (23, -) 
-ID:  23 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (4, 12)	  #Neighbors:   2     (22, -) (25, -) 
-ID:  24 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 12)	  #Neighbors:   3     (18, -) (25, -) (28, -) 
-ID:  25 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 12)	  #Neighbors:   3     (23, -) (24, -) (27, -) 
-ID:  26 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 12)	  #Neighbors:   2     (21, -) (29, -) 
-ID:  27 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (4, 12)	  #Neighbors:   2     (25, -) (30, -) 
-ID:  28 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 12)	  #Neighbors:   3     (24, -) (29, -) (31, -) 
-ID:  29 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 12)	  #Neighbors:   3     (26, -) (28, -) (32, -) 
-ID:  30 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 12)	  #Neighbors:   2     (27, -) (35, -) 
-ID:  31 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (1, 12)	  #Neighbors:   2     (28, -) (33, -) 
-ID:  32 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (1, 12)	  #Neighbors:   2     (29, -) (34, -) 
-ID:  33 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 12)	  #Neighbors:   3     (31, -) (34, -) (66, -) 
-ID:  34 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 12)	  #Neighbors:   3     (32, -) (33, -) (63, -) 
-ID:  35 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 9)	  #Neighbors:   2     (30, -) (36, -) 
-ID:  36 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 10)	  #Neighbors:   2     (35, -) (41, -) 
-ID:  37 ([1m[33mH[0m[0m, π)           (Qubit, Col): (3, 19)	  #Neighbors:   2     (13, -) (39, -) 
-ID:  38 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 19)	  #Neighbors:   3     (4, -) (39, -) (44, -) 
-ID:  39 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 19)	  #Neighbors:   3     (37, -) (38, -) (40, -) 
-ID:  40 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (3, 19)	  #Neighbors:   2     (39, -) (42, -) 
-ID:  41 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (4, 19)	  #Neighbors:   3     (36, -) (42, -) (47, -) 
-ID:  42 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 19)	  #Neighbors:   3     (40, -) (41, -) (43, -) 
-ID:  43 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (3, 19)	  #Neighbors:   2     (42, -) (45, -) 
-ID:  44 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 19)	  #Neighbors:   3     (38, -) (45, -) (49, -) 
-ID:  45 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 19)	  #Neighbors:   3     (43, -) (44, -) (46, -) 
-ID:  46 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (3, 19)	  #Neighbors:   2     (45, -) (48, -) 
-ID:  47 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (4, 19)	  #Neighbors:   3     (41, -) (48, -) (51, -) 
-ID:  48 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 19)	  #Neighbors:   3     (46, -) (47, -) (50, -) 
-ID:  49 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 19)	  #Neighbors:   2     (44, -) (52, -) 
-ID:  50 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (3, 19)	  #Neighbors:   2     (48, -) (53, -) 
-ID:  51 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (4, 19)	  #Neighbors:   3     (47, -) (52, -) (54, -) 
-ID:  52 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 19)	  #Neighbors:   3     (49, -) (51, -) (55, -) 
-ID:  53 ([1m[33mH[0m[0m, π)           (Qubit, Col): (3, 19)	  #Neighbors:   2     (50, -) (58, -) 
-ID:  54 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (4, 19)	  #Neighbors:   2     (51, -) (56, -) 
-ID:  55 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (4, 19)	  #Neighbors:   2     (52, -) (57, -) 
-ID:  56 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (4, 19)	  #Neighbors:   3     (54, -) (57, -) (60, -) 
-ID:  57 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 19)	  #Neighbors:   3     (5, -) (55, -) (56, -) 
-ID:  58 ([1m[33mH[0m[0m, π)           (Qubit, Col): (3, 16)	  #Neighbors:   2     (53, -) (59, -) 
-ID:  59 ([1m[33mH[0m[0m, π)           (Qubit, Col): (3, 17)	  #Neighbors:   2     (7, -) (58, -) 
-ID:  60 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 16)	  #Neighbors:   2     (56, -) (61, -) 
-ID:  61 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 17)	  #Neighbors:   2     (60, -) (62, -) 
-ID:  62 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 26)	  #Neighbors:   2     (61, -) (64, -) 
-ID:  63 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 26)	  #Neighbors:   3     (34, -) (64, -) (69, -) 
-ID:  64 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 26)	  #Neighbors:   3     (62, -) (63, -) (65, -) 
-ID:  65 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (4, 26)	  #Neighbors:   2     (64, -) (67, -) 
-ID:  66 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 26)	  #Neighbors:   3     (33, -) (67, -) (72, -) 
-ID:  67 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 26)	  #Neighbors:   3     (65, -) (66, -) (68, -) 
-ID:  68 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (4, 26)	  #Neighbors:   2     (67, -) (70, -) 
-ID:  69 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 26)	  #Neighbors:   3     (63, -) (70, -) (74, -) 
-ID:  70 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 26)	  #Neighbors:   3     (68, -) (69, -) (71, -) 
-ID:  71 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (4, 26)	  #Neighbors:   2     (70, -) (73, -) 
-ID:  72 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 26)	  #Neighbors:   3     (66, -) (73, -) (76, -) 
-ID:  73 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 26)	  #Neighbors:   3     (71, -) (72, -) (75, -) 
-ID:  74 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 26)	  #Neighbors:   2     (69, -) (77, -) 
-ID:  75 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (4, 26)	  #Neighbors:   2     (73, -) (78, -) 
-ID:  76 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 26)	  #Neighbors:   3     (72, -) (77, -) (79, -) 
-ID:  77 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 26)	  #Neighbors:   3     (74, -) (76, -) (80, -) 
-ID:  78 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 26)	  #Neighbors:   2     (75, -) (83, -) 
-ID:  79 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (1, 26)	  #Neighbors:   2     (76, -) (81, -) 
-ID:  80 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (1, 26)	  #Neighbors:   2     (77, -) (82, -) 
-ID:  81 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 26)	  #Neighbors:   3     (3, -) (79, -) (82, -) 
-ID:  82 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 26)	  #Neighbors:   3     (1, -) (80, -) (81, -) 
-ID:  83 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 23)	  #Neighbors:   2     (78, -) (84, -) 
-ID:  84 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 24)	  #Neighbors:   2     (9, -) (83, -) 
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (30, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 38)	  #Neighbors:   1     (80, -) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (24, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 38)	  #Neighbors:   1     (75, -) 
+ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (53, -) 
+ID:   5 (●, 0)           (Qubit, Col): (2, 38)	  #Neighbors:   1     (57, -) 
+ID:   6 (●, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   1     (10, -) 
+ID:   7 (●, 0)           (Qubit, Col): (3, 38)	  #Neighbors:   1     (84, -) 
+ID:   8 (●, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (12, -) 
+ID:   9 (●, 0)           (Qubit, Col): (4, 38)	  #Neighbors:   1     (82, -) 
+ID:  10 (H, π)           (Qubit, Col): (3, 2)	  #Neighbors:   2     (6, -) (11, -) 
+ID:  11 (H, π)           (Qubit, Col): (3, 3)	  #Neighbors:   2     (10, -) (37, H) 
+ID:  12 (H, π)           (Qubit, Col): (4, 2)	  #Neighbors:   2     (8, -) (13, -) 
+ID:  13 (H, π)           (Qubit, Col): (4, 3)	  #Neighbors:   2     (12, -) (14, H) 
+ID:  14 (Z, 0)           (Qubit, Col): (4, 13)	  #Neighbors:   2     (13, H) (15, -) 
+ID:  15 (X, 0)           (Qubit, Col): (4, 14)	  #Neighbors:   3     (14, -) (16, -) (24, -) 
+ID:  16 (Z, -π/4)        (Qubit, Col): (4, 15)	  #Neighbors:   2     (15, -) (17, -) 
+ID:  17 (X, 0)           (Qubit, Col): (4, 16)	  #Neighbors:   3     (16, -) (18, -) (30, -) 
+ID:  18 (Z, π/4)         (Qubit, Col): (4, 17)	  #Neighbors:   2     (17, -) (19, -) 
+ID:  19 (X, 0)           (Qubit, Col): (4, 18)	  #Neighbors:   3     (18, -) (20, -) (25, -) 
+ID:  20 (Z, -π/4)        (Qubit, Col): (4, 19)	  #Neighbors:   2     (19, -) (21, -) 
+ID:  21 (X, 0)           (Qubit, Col): (4, 20)	  #Neighbors:   3     (20, -) (22, -) (31, -) 
+ID:  22 (Z, π/4)         (Qubit, Col): (4, 21)	  #Neighbors:   2     (21, -) (23, H) 
+ID:  23 (Z, 0)           (Qubit, Col): (4, 22)	  #Neighbors:   2     (22, H) (35, -) 
+ID:  24 (Z, 0)           (Qubit, Col): (1, 14)	  #Neighbors:   3     (2, -) (15, -) (25, -) 
+ID:  25 (Z, 0)           (Qubit, Col): (1, 18)	  #Neighbors:   3     (19, -) (24, -) (26, -) 
+ID:  26 (Z, π/4)         (Qubit, Col): (1, 19)	  #Neighbors:   2     (25, -) (27, -) 
+ID:  27 (X, 0)           (Qubit, Col): (1, 21)	  #Neighbors:   3     (26, -) (28, -) (32, -) 
+ID:  28 (Z, -π/4)        (Qubit, Col): (1, 22)	  #Neighbors:   2     (27, -) (29, -) 
+ID:  29 (X, 0)           (Qubit, Col): (1, 23)	  #Neighbors:   3     (28, -) (34, -) (70, -) 
+ID:  30 (Z, 0)           (Qubit, Col): (0, 16)	  #Neighbors:   3     (0, -) (17, -) (31, -) 
+ID:  31 (Z, 0)           (Qubit, Col): (0, 20)	  #Neighbors:   3     (21, -) (30, -) (32, -) 
+ID:  32 (Z, 0)           (Qubit, Col): (0, 21)	  #Neighbors:   3     (27, -) (31, -) (33, -) 
+ID:  33 (Z, π/4)         (Qubit, Col): (0, 22)	  #Neighbors:   2     (32, -) (34, -) 
+ID:  34 (Z, 0)           (Qubit, Col): (0, 23)	  #Neighbors:   3     (29, -) (33, -) (76, -) 
+ID:  35 (H, π)           (Qubit, Col): (4, 9)	  #Neighbors:   2     (23, -) (36, -) 
+ID:  36 (H, π)           (Qubit, Col): (4, 10)	  #Neighbors:   2     (35, -) (47, -) 
+ID:  37 (Z, 0)           (Qubit, Col): (3, 20)	  #Neighbors:   2     (11, H) (38, -) 
+ID:  38 (X, 0)           (Qubit, Col): (3, 21)	  #Neighbors:   3     (37, -) (39, -) (47, -) 
+ID:  39 (Z, -π/4)        (Qubit, Col): (3, 22)	  #Neighbors:   2     (38, -) (40, -) 
+ID:  40 (X, 0)           (Qubit, Col): (3, 23)	  #Neighbors:   3     (39, -) (41, -) (53, -) 
+ID:  41 (Z, π/4)         (Qubit, Col): (3, 24)	  #Neighbors:   2     (40, -) (42, -) 
+ID:  42 (X, 0)           (Qubit, Col): (3, 25)	  #Neighbors:   3     (41, -) (43, -) (48, -) 
+ID:  43 (Z, -π/4)        (Qubit, Col): (3, 26)	  #Neighbors:   2     (42, -) (44, -) 
+ID:  44 (X, 0)           (Qubit, Col): (3, 27)	  #Neighbors:   3     (43, -) (45, -) (54, -) 
+ID:  45 (Z, π/4)         (Qubit, Col): (3, 28)	  #Neighbors:   2     (44, -) (46, H) 
+ID:  46 (Z, 0)           (Qubit, Col): (3, 29)	  #Neighbors:   2     (45, H) (83, -) 
+ID:  47 (Z, 0)           (Qubit, Col): (4, 21)	  #Neighbors:   3     (36, -) (38, -) (48, -) 
+ID:  48 (Z, 0)           (Qubit, Col): (4, 25)	  #Neighbors:   3     (42, -) (47, -) (49, -) 
+ID:  49 (Z, π/4)         (Qubit, Col): (4, 26)	  #Neighbors:   2     (48, -) (50, -) 
+ID:  50 (X, 0)           (Qubit, Col): (4, 28)	  #Neighbors:   3     (49, -) (51, -) (55, -) 
+ID:  51 (Z, -π/4)        (Qubit, Col): (4, 29)	  #Neighbors:   2     (50, -) (52, -) 
+ID:  52 (X, 0)           (Qubit, Col): (4, 30)	  #Neighbors:   3     (51, -) (57, -) (58, -) 
+ID:  53 (Z, 0)           (Qubit, Col): (2, 23)	  #Neighbors:   3     (4, -) (40, -) (54, -) 
+ID:  54 (Z, 0)           (Qubit, Col): (2, 27)	  #Neighbors:   3     (44, -) (53, -) (55, -) 
+ID:  55 (Z, 0)           (Qubit, Col): (2, 28)	  #Neighbors:   3     (50, -) (54, -) (56, -) 
+ID:  56 (Z, π/4)         (Qubit, Col): (2, 29)	  #Neighbors:   2     (55, -) (57, -) 
+ID:  57 (Z, 0)           (Qubit, Col): (2, 30)	  #Neighbors:   3     (5, -) (52, -) (56, -) 
+ID:  58 (H, π)           (Qubit, Col): (4, 16)	  #Neighbors:   2     (52, -) (59, -) 
+ID:  59 (H, π)           (Qubit, Col): (4, 17)	  #Neighbors:   2     (58, -) (60, H) 
+ID:  60 (Z, 0)           (Qubit, Col): (4, 27)	  #Neighbors:   2     (59, H) (61, -) 
+ID:  61 (X, 0)           (Qubit, Col): (4, 28)	  #Neighbors:   3     (60, -) (62, -) (70, -) 
+ID:  62 (Z, -π/4)        (Qubit, Col): (4, 29)	  #Neighbors:   2     (61, -) (63, -) 
+ID:  63 (X, 0)           (Qubit, Col): (4, 30)	  #Neighbors:   3     (62, -) (64, -) (76, -) 
+ID:  64 (Z, π/4)         (Qubit, Col): (4, 31)	  #Neighbors:   2     (63, -) (65, -) 
+ID:  65 (X, 0)           (Qubit, Col): (4, 32)	  #Neighbors:   3     (64, -) (66, -) (71, -) 
+ID:  66 (Z, -π/4)        (Qubit, Col): (4, 33)	  #Neighbors:   2     (65, -) (67, -) 
+ID:  67 (X, 0)           (Qubit, Col): (4, 34)	  #Neighbors:   3     (66, -) (68, -) (77, -) 
+ID:  68 (Z, π/4)         (Qubit, Col): (4, 35)	  #Neighbors:   2     (67, -) (69, H) 
+ID:  69 (Z, 0)           (Qubit, Col): (4, 36)	  #Neighbors:   2     (68, H) (81, -) 
+ID:  70 (Z, 0)           (Qubit, Col): (1, 28)	  #Neighbors:   3     (29, -) (61, -) (71, -) 
+ID:  71 (Z, 0)           (Qubit, Col): (1, 32)	  #Neighbors:   3     (65, -) (70, -) (72, -) 
+ID:  72 (Z, π/4)         (Qubit, Col): (1, 33)	  #Neighbors:   2     (71, -) (73, -) 
+ID:  73 (X, 0)           (Qubit, Col): (1, 35)	  #Neighbors:   3     (72, -) (74, -) (78, -) 
+ID:  74 (Z, -π/4)        (Qubit, Col): (1, 36)	  #Neighbors:   2     (73, -) (75, -) 
+ID:  75 (X, 0)           (Qubit, Col): (1, 37)	  #Neighbors:   3     (3, -) (74, -) (80, -) 
+ID:  76 (Z, 0)           (Qubit, Col): (0, 30)	  #Neighbors:   3     (34, -) (63, -) (77, -) 
+ID:  77 (Z, 0)           (Qubit, Col): (0, 34)	  #Neighbors:   3     (67, -) (76, -) (78, -) 
+ID:  78 (Z, 0)           (Qubit, Col): (0, 35)	  #Neighbors:   3     (73, -) (77, -) (79, -) 
+ID:  79 (Z, π/4)         (Qubit, Col): (0, 36)	  #Neighbors:   2     (78, -) (80, -) 
+ID:  80 (Z, 0)           (Qubit, Col): (0, 37)	  #Neighbors:   3     (1, -) (75, -) (79, -) 
+ID:  81 (H, π)           (Qubit, Col): (4, 23)	  #Neighbors:   2     (69, -) (82, -) 
+ID:  82 (H, π)           (Qubit, Col): (4, 24)	  #Neighbors:   2     (9, -) (81, -) 
+ID:  83 (H, π)           (Qubit, Col): (3, 16)	  #Neighbors:   2     (46, -) (84, -) 
+ID:  84 (H, π)           (Qubit, Col): (3, 17)	  #Neighbors:   2     (7, -) (83, -) 
 Total #Vertices: 85
 
 
@@ -109,116 +107,123 @@ qsyn> zxgas 4 O X 0
 
 qsyn> zxgp -v
 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (18, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 27)	  #Neighbors:   1     (81, -) 
-ID:   6 (●, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   1     (12, -) 
-ID:   7 (●, 0)           (Qubit, Col): (3, 27)	  #Neighbors:   1     (59, -) 
-ID:  10 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 2)	  #Neighbors:   2     (11, -) (89, -) 
-ID:  11 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 3)	  #Neighbors:   2     (10, -) (14, -) 
-ID:  12 ([1m[33mH[0m[0m, π)           (Qubit, Col): (3, 2)	  #Neighbors:   2     (6, -) (13, -) 
-ID:  13 ([1m[33mH[0m[0m, π)           (Qubit, Col): (3, 3)	  #Neighbors:   2     (12, -) (37, -) 
-ID:  14 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 12)	  #Neighbors:   2     (11, -) (16, -) 
-ID:  15 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 12)	  #Neighbors:   3     (16, -) (21, -) (85, -) 
-ID:  16 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 12)	  #Neighbors:   3     (14, -) (15, -) (17, -) 
-ID:  17 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (4, 12)	  #Neighbors:   2     (16, -) (19, -) 
-ID:  18 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 12)	  #Neighbors:   3     (2, -) (19, -) (24, -) 
-ID:  19 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 12)	  #Neighbors:   3     (17, -) (18, -) (20, -) 
-ID:  20 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (4, 12)	  #Neighbors:   2     (19, -) (22, -) 
-ID:  21 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 12)	  #Neighbors:   3     (15, -) (22, -) (26, -) 
-ID:  22 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 12)	  #Neighbors:   3     (20, -) (21, -) (23, -) 
-ID:  23 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (4, 12)	  #Neighbors:   2     (22, -) (25, -) 
-ID:  24 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 12)	  #Neighbors:   3     (18, -) (25, -) (28, -) 
-ID:  25 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 12)	  #Neighbors:   3     (23, -) (24, -) (27, -) 
-ID:  26 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 12)	  #Neighbors:   2     (21, -) (29, -) 
-ID:  27 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (4, 12)	  #Neighbors:   2     (25, -) (30, -) 
-ID:  28 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 12)	  #Neighbors:   3     (24, -) (29, -) (31, -) 
-ID:  29 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 12)	  #Neighbors:   3     (26, -) (28, -) (32, -) 
-ID:  30 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 12)	  #Neighbors:   2     (27, -) (35, -) 
-ID:  31 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (1, 12)	  #Neighbors:   2     (28, -) (33, -) 
-ID:  32 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (1, 12)	  #Neighbors:   2     (29, -) (34, -) 
-ID:  33 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 12)	  #Neighbors:   3     (31, -) (34, -) (66, -) 
-ID:  34 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 12)	  #Neighbors:   3     (32, -) (33, -) (63, -) 
-ID:  35 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 9)	  #Neighbors:   2     (30, -) (36, -) 
-ID:  36 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 10)	  #Neighbors:   2     (35, -) (41, -) 
-ID:  37 ([1m[33mH[0m[0m, π)           (Qubit, Col): (3, 19)	  #Neighbors:   2     (13, -) (39, -) 
-ID:  38 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 19)	  #Neighbors:   3     (39, -) (44, -) (87, -) 
-ID:  39 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 19)	  #Neighbors:   3     (37, -) (38, -) (40, -) 
-ID:  40 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (3, 19)	  #Neighbors:   2     (39, -) (42, -) 
-ID:  41 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (4, 19)	  #Neighbors:   3     (36, -) (42, -) (47, -) 
-ID:  42 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 19)	  #Neighbors:   3     (40, -) (41, -) (43, -) 
-ID:  43 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (3, 19)	  #Neighbors:   2     (42, -) (45, -) 
-ID:  44 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (2, 19)	  #Neighbors:   3     (38, -) (45, -) (49, -) 
-ID:  45 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 19)	  #Neighbors:   3     (43, -) (44, -) (46, -) 
-ID:  46 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (3, 19)	  #Neighbors:   2     (45, -) (48, -) 
-ID:  47 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (4, 19)	  #Neighbors:   3     (41, -) (48, -) (51, -) 
-ID:  48 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (3, 19)	  #Neighbors:   3     (46, -) (47, -) (50, -) 
-ID:  49 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (2, 19)	  #Neighbors:   2     (44, -) (52, -) 
-ID:  50 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (3, 19)	  #Neighbors:   2     (48, -) (53, -) 
-ID:  51 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (4, 19)	  #Neighbors:   3     (47, -) (52, -) (54, -) 
-ID:  52 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 19)	  #Neighbors:   3     (49, -) (51, -) (55, -) 
-ID:  53 ([1m[33mH[0m[0m, π)           (Qubit, Col): (3, 19)	  #Neighbors:   2     (50, -) (58, -) 
-ID:  54 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (4, 19)	  #Neighbors:   2     (51, -) (56, -) 
-ID:  55 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (4, 19)	  #Neighbors:   2     (52, -) (57, -) 
-ID:  56 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (4, 19)	  #Neighbors:   3     (54, -) (57, -) (60, -) 
-ID:  57 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 19)	  #Neighbors:   3     (55, -) (56, -) (88, -) 
-ID:  58 ([1m[33mH[0m[0m, π)           (Qubit, Col): (3, 16)	  #Neighbors:   2     (53, -) (59, -) 
-ID:  59 ([1m[33mH[0m[0m, π)           (Qubit, Col): (3, 17)	  #Neighbors:   2     (7, -) (58, -) 
-ID:  60 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 16)	  #Neighbors:   2     (56, -) (61, -) 
-ID:  61 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 17)	  #Neighbors:   2     (60, -) (62, -) 
-ID:  62 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 26)	  #Neighbors:   2     (61, -) (64, -) 
-ID:  63 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 26)	  #Neighbors:   3     (34, -) (64, -) (69, -) 
-ID:  64 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 26)	  #Neighbors:   3     (62, -) (63, -) (65, -) 
-ID:  65 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (4, 26)	  #Neighbors:   2     (64, -) (67, -) 
-ID:  66 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 26)	  #Neighbors:   3     (33, -) (67, -) (72, -) 
-ID:  67 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 26)	  #Neighbors:   3     (65, -) (66, -) (68, -) 
-ID:  68 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (4, 26)	  #Neighbors:   2     (67, -) (70, -) 
-ID:  69 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 26)	  #Neighbors:   3     (63, -) (70, -) (74, -) 
-ID:  70 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 26)	  #Neighbors:   3     (68, -) (69, -) (71, -) 
-ID:  71 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (4, 26)	  #Neighbors:   2     (70, -) (73, -) 
-ID:  72 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 26)	  #Neighbors:   3     (66, -) (73, -) (76, -) 
-ID:  73 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 26)	  #Neighbors:   3     (71, -) (72, -) (75, -) 
-ID:  74 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (0, 26)	  #Neighbors:   2     (69, -) (77, -) 
-ID:  75 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (4, 26)	  #Neighbors:   2     (73, -) (78, -) 
-ID:  76 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 26)	  #Neighbors:   3     (72, -) (77, -) (79, -) 
-ID:  77 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 26)	  #Neighbors:   3     (74, -) (76, -) (80, -) 
-ID:  78 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 26)	  #Neighbors:   2     (75, -) (83, -) 
-ID:  79 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (1, 26)	  #Neighbors:   2     (76, -) (81, -) 
-ID:  80 ([1m[32mZ[0m[0m, -π/4)        (Qubit, Col): (1, 26)	  #Neighbors:   2     (77, -) (82, -) 
-ID:  81 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 26)	  #Neighbors:   3     (3, -) (79, -) (82, -) 
-ID:  82 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 26)	  #Neighbors:   3     (80, -) (81, -) (86, -) 
-ID:  83 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 23)	  #Neighbors:   2     (78, -) (84, -) 
-ID:  84 ([1m[33mH[0m[0m, π)           (Qubit, Col): (4, 24)	  #Neighbors:   2     (83, -) (90, -) 
-ID:  85 ([1m[31mX[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (15, -) 
-ID:  86 ([1m[31mX[0m[0m, π)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (82, -) 
-ID:  87 ([1m[31mX[0m[0m, π)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (38, -) 
-ID:  88 ([1m[31mX[0m[0m, π)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (57, -) 
-ID:  89 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (10, -) 
-ID:  90 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (84, -) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (24, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 38)	  #Neighbors:   1     (75, -) 
+ID:   6 (●, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   1     (10, -) 
+ID:   7 (●, 0)           (Qubit, Col): (3, 38)	  #Neighbors:   1     (84, -) 
+ID:  10 (H, π)           (Qubit, Col): (3, 2)	  #Neighbors:   2     (6, -) (11, -) 
+ID:  11 (H, π)           (Qubit, Col): (3, 3)	  #Neighbors:   2     (10, -) (37, H) 
+ID:  12 (H, π)           (Qubit, Col): (4, 2)	  #Neighbors:   2     (13, -) (89, -) 
+ID:  13 (H, π)           (Qubit, Col): (4, 3)	  #Neighbors:   2     (12, -) (14, H) 
+ID:  14 (Z, 0)           (Qubit, Col): (4, 13)	  #Neighbors:   2     (13, H) (15, -) 
+ID:  15 (X, 0)           (Qubit, Col): (4, 14)	  #Neighbors:   3     (14, -) (16, -) (24, -) 
+ID:  16 (Z, -π/4)        (Qubit, Col): (4, 15)	  #Neighbors:   2     (15, -) (17, -) 
+ID:  17 (X, 0)           (Qubit, Col): (4, 16)	  #Neighbors:   3     (16, -) (18, -) (30, -) 
+ID:  18 (Z, π/4)         (Qubit, Col): (4, 17)	  #Neighbors:   2     (17, -) (19, -) 
+ID:  19 (X, 0)           (Qubit, Col): (4, 18)	  #Neighbors:   3     (18, -) (20, -) (25, -) 
+ID:  20 (Z, -π/4)        (Qubit, Col): (4, 19)	  #Neighbors:   2     (19, -) (21, -) 
+ID:  21 (X, 0)           (Qubit, Col): (4, 20)	  #Neighbors:   3     (20, -) (22, -) (31, -) 
+ID:  22 (Z, π/4)         (Qubit, Col): (4, 21)	  #Neighbors:   2     (21, -) (23, H) 
+ID:  23 (Z, 0)           (Qubit, Col): (4, 22)	  #Neighbors:   2     (22, H) (35, -) 
+ID:  24 (Z, 0)           (Qubit, Col): (1, 14)	  #Neighbors:   3     (2, -) (15, -) (25, -) 
+ID:  25 (Z, 0)           (Qubit, Col): (1, 18)	  #Neighbors:   3     (19, -) (24, -) (26, -) 
+ID:  26 (Z, π/4)         (Qubit, Col): (1, 19)	  #Neighbors:   2     (25, -) (27, -) 
+ID:  27 (X, 0)           (Qubit, Col): (1, 21)	  #Neighbors:   3     (26, -) (28, -) (32, -) 
+ID:  28 (Z, -π/4)        (Qubit, Col): (1, 22)	  #Neighbors:   2     (27, -) (29, -) 
+ID:  29 (X, 0)           (Qubit, Col): (1, 23)	  #Neighbors:   3     (28, -) (34, -) (70, -) 
+ID:  30 (Z, 0)           (Qubit, Col): (0, 16)	  #Neighbors:   3     (17, -) (31, -) (85, -) 
+ID:  31 (Z, 0)           (Qubit, Col): (0, 20)	  #Neighbors:   3     (21, -) (30, -) (32, -) 
+ID:  32 (Z, 0)           (Qubit, Col): (0, 21)	  #Neighbors:   3     (27, -) (31, -) (33, -) 
+ID:  33 (Z, π/4)         (Qubit, Col): (0, 22)	  #Neighbors:   2     (32, -) (34, -) 
+ID:  34 (Z, 0)           (Qubit, Col): (0, 23)	  #Neighbors:   3     (29, -) (33, -) (76, -) 
+ID:  35 (H, π)           (Qubit, Col): (4, 9)	  #Neighbors:   2     (23, -) (36, -) 
+ID:  36 (H, π)           (Qubit, Col): (4, 10)	  #Neighbors:   2     (35, -) (47, -) 
+ID:  37 (Z, 0)           (Qubit, Col): (3, 20)	  #Neighbors:   2     (11, H) (38, -) 
+ID:  38 (X, 0)           (Qubit, Col): (3, 21)	  #Neighbors:   3     (37, -) (39, -) (47, -) 
+ID:  39 (Z, -π/4)        (Qubit, Col): (3, 22)	  #Neighbors:   2     (38, -) (40, -) 
+ID:  40 (X, 0)           (Qubit, Col): (3, 23)	  #Neighbors:   3     (39, -) (41, -) (53, -) 
+ID:  41 (Z, π/4)         (Qubit, Col): (3, 24)	  #Neighbors:   2     (40, -) (42, -) 
+ID:  42 (X, 0)           (Qubit, Col): (3, 25)	  #Neighbors:   3     (41, -) (43, -) (48, -) 
+ID:  43 (Z, -π/4)        (Qubit, Col): (3, 26)	  #Neighbors:   2     (42, -) (44, -) 
+ID:  44 (X, 0)           (Qubit, Col): (3, 27)	  #Neighbors:   3     (43, -) (45, -) (54, -) 
+ID:  45 (Z, π/4)         (Qubit, Col): (3, 28)	  #Neighbors:   2     (44, -) (46, H) 
+ID:  46 (Z, 0)           (Qubit, Col): (3, 29)	  #Neighbors:   2     (45, H) (83, -) 
+ID:  47 (Z, 0)           (Qubit, Col): (4, 21)	  #Neighbors:   3     (36, -) (38, -) (48, -) 
+ID:  48 (Z, 0)           (Qubit, Col): (4, 25)	  #Neighbors:   3     (42, -) (47, -) (49, -) 
+ID:  49 (Z, π/4)         (Qubit, Col): (4, 26)	  #Neighbors:   2     (48, -) (50, -) 
+ID:  50 (X, 0)           (Qubit, Col): (4, 28)	  #Neighbors:   3     (49, -) (51, -) (55, -) 
+ID:  51 (Z, -π/4)        (Qubit, Col): (4, 29)	  #Neighbors:   2     (50, -) (52, -) 
+ID:  52 (X, 0)           (Qubit, Col): (4, 30)	  #Neighbors:   3     (51, -) (57, -) (58, -) 
+ID:  53 (Z, 0)           (Qubit, Col): (2, 23)	  #Neighbors:   3     (40, -) (54, -) (87, -) 
+ID:  54 (Z, 0)           (Qubit, Col): (2, 27)	  #Neighbors:   3     (44, -) (53, -) (55, -) 
+ID:  55 (Z, 0)           (Qubit, Col): (2, 28)	  #Neighbors:   3     (50, -) (54, -) (56, -) 
+ID:  56 (Z, π/4)         (Qubit, Col): (2, 29)	  #Neighbors:   2     (55, -) (57, -) 
+ID:  57 (Z, 0)           (Qubit, Col): (2, 30)	  #Neighbors:   3     (52, -) (56, -) (88, -) 
+ID:  58 (H, π)           (Qubit, Col): (4, 16)	  #Neighbors:   2     (52, -) (59, -) 
+ID:  59 (H, π)           (Qubit, Col): (4, 17)	  #Neighbors:   2     (58, -) (60, H) 
+ID:  60 (Z, 0)           (Qubit, Col): (4, 27)	  #Neighbors:   2     (59, H) (61, -) 
+ID:  61 (X, 0)           (Qubit, Col): (4, 28)	  #Neighbors:   3     (60, -) (62, -) (70, -) 
+ID:  62 (Z, -π/4)        (Qubit, Col): (4, 29)	  #Neighbors:   2     (61, -) (63, -) 
+ID:  63 (X, 0)           (Qubit, Col): (4, 30)	  #Neighbors:   3     (62, -) (64, -) (76, -) 
+ID:  64 (Z, π/4)         (Qubit, Col): (4, 31)	  #Neighbors:   2     (63, -) (65, -) 
+ID:  65 (X, 0)           (Qubit, Col): (4, 32)	  #Neighbors:   3     (64, -) (66, -) (71, -) 
+ID:  66 (Z, -π/4)        (Qubit, Col): (4, 33)	  #Neighbors:   2     (65, -) (67, -) 
+ID:  67 (X, 0)           (Qubit, Col): (4, 34)	  #Neighbors:   3     (66, -) (68, -) (77, -) 
+ID:  68 (Z, π/4)         (Qubit, Col): (4, 35)	  #Neighbors:   2     (67, -) (69, H) 
+ID:  69 (Z, 0)           (Qubit, Col): (4, 36)	  #Neighbors:   2     (68, H) (81, -) 
+ID:  70 (Z, 0)           (Qubit, Col): (1, 28)	  #Neighbors:   3     (29, -) (61, -) (71, -) 
+ID:  71 (Z, 0)           (Qubit, Col): (1, 32)	  #Neighbors:   3     (65, -) (70, -) (72, -) 
+ID:  72 (Z, π/4)         (Qubit, Col): (1, 33)	  #Neighbors:   2     (71, -) (73, -) 
+ID:  73 (X, 0)           (Qubit, Col): (1, 35)	  #Neighbors:   3     (72, -) (74, -) (78, -) 
+ID:  74 (Z, -π/4)        (Qubit, Col): (1, 36)	  #Neighbors:   2     (73, -) (75, -) 
+ID:  75 (X, 0)           (Qubit, Col): (1, 37)	  #Neighbors:   3     (3, -) (74, -) (80, -) 
+ID:  76 (Z, 0)           (Qubit, Col): (0, 30)	  #Neighbors:   3     (34, -) (63, -) (77, -) 
+ID:  77 (Z, 0)           (Qubit, Col): (0, 34)	  #Neighbors:   3     (67, -) (76, -) (78, -) 
+ID:  78 (Z, 0)           (Qubit, Col): (0, 35)	  #Neighbors:   3     (73, -) (77, -) (79, -) 
+ID:  79 (Z, π/4)         (Qubit, Col): (0, 36)	  #Neighbors:   2     (78, -) (80, -) 
+ID:  80 (Z, 0)           (Qubit, Col): (0, 37)	  #Neighbors:   3     (75, -) (79, -) (86, -) 
+ID:  81 (H, π)           (Qubit, Col): (4, 23)	  #Neighbors:   2     (69, -) (82, -) 
+ID:  82 (H, π)           (Qubit, Col): (4, 24)	  #Neighbors:   2     (81, -) (90, -) 
+ID:  83 (H, π)           (Qubit, Col): (3, 16)	  #Neighbors:   2     (46, -) (84, -) 
+ID:  84 (H, π)           (Qubit, Col): (3, 17)	  #Neighbors:   2     (7, -) (83, -) 
+ID:  85 (X, π)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (30, -) 
+ID:  86 (X, π)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (80, -) 
+ID:  87 (X, π)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (53, -) 
+ID:  88 (X, π)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (57, -) 
+ID:  89 (X, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (12, -) 
+ID:  90 (X, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (82, -) 
 Total #Vertices: 85
 
 
 qsyn> zxgs -fr
 
 All rules applied in order:
-Hadamard Rule                 3 iterations.
+Hadamard Rule                 2 iterations.
   1) 6 matches
   2) 6 matches
-  3) 6 matches
 Spider Fusion Rule            5 iterations.
-  1) 9 matches
-  2) 7 matches
-  3) 3 matches
+  1) 8 matches
+  2) 6 matches
+  3) 4 matches
   4) 1 matches
   5) 1 matches
-Spider Fusion Rule            1 iterations.
-  1) 2 matches
-Pivot Rule                    1 iterations.
-  1) 1 matches
-Pivot Gadget Rule             3 iterations.
-  1) 9 matches
-  2) 3 matches
-  3) 1 matches
 Identity Removal Rule         1 iterations.
+  1) 5 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Pivot Rule                    1 iterations.
+  1) 2 matches
+Local Complementation Rule    2 iterations.
+  1) 1 matches
+  2) 1 matches
+Pivot Gadget Rule             4 iterations.
+  1) 4 matches
+  2) 5 matches
+  3) 3 matches
+  4) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 3 matches
+Spider Fusion Rule            1 iterations.
   1) 1 matches
 Phase Gadget Rule             1 iterations.
   1) 8 matches
@@ -235,53 +240,42 @@ Local Complementation Rule    5 iterations.
 
 qsyn> zxgp -v
 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (18, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 27)	  #Neighbors:   1     (18, -) 
-ID:   6 (●, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   1     (50, [1m[34mH[0m[0m) 
-ID:   7 (●, 0)           (Qubit, Col): (3, 27)	  #Neighbors:   1     (50, [1m[34mH[0m[0m) 
-ID:  18 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 12)	  #Neighbors:   3     (2, -) (3, -) (50, [1m[34mH[0m[0m) 
-ID:  50 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (3, 19)	  #Neighbors:   3     (6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) 
-ID:  91 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (-2, 12)	  #Neighbors:   1     (92, [1m[34mH[0m[0m) 
-ID:  92 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 12)	  #Neighbors:   1     (91, [1m[34mH[0m[0m) 
-ID:  97 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (-2, 19)	  #Neighbors:   1     (98, [1m[34mH[0m[0m) 
-ID:  98 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 19)	  #Neighbors:   1     (97, [1m[34mH[0m[0m) 
-ID: 115 ([1m[32mZ[0m[0m, π/4)         (Qubit, Col): (-2, 26)	  #Neighbors:   1     (116, [1m[34mH[0m[0m) 
-ID: 116 ([1m[32mZ[0m[0m, π)           (Qubit, Col): (-1, 26)	  #Neighbors:   1     (115, [1m[34mH[0m[0m) 
-Total #Vertices: 12
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (24, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 38)	  #Neighbors:   1     (24, -) 
+ID:   6 (●, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   1     (45, H) 
+ID:   7 (●, 0)           (Qubit, Col): (3, 38)	  #Neighbors:   1     (45, H) 
+ID:  24 (Z, 0)           (Qubit, Col): (1, 14)	  #Neighbors:   3     (2, -) (3, -) (45, H) 
+ID:  45 (Z, 0)           (Qubit, Col): (3, 28)	  #Neighbors:   3     (6, H) (7, H) (24, H) 
+ID: 115 (Z, -3π/4)       (Qubit, Col): (-2, 23)	  #Neighbors:   1     (116, H) 
+ID: 116 (Z, π)           (Qubit, Col): (-1, 23)	  #Neighbors:   1     (115, H) 
+Total #Vertices: 8
 
 
 qsyn> zxgs -stco
 
 qsyn> zxgp -v
 
-ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (18, -) 
-ID:   3 (●, 0)           (Qubit, Col): (1, 27)	  #Neighbors:   1     (18, -) 
-ID:   6 (●, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   1     (50, [1m[34mH[0m[0m) 
-ID:   7 (●, 0)           (Qubit, Col): (3, 27)	  #Neighbors:   1     (50, [1m[34mH[0m[0m) 
-ID:  18 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 12)	  #Neighbors:   3     (2, -) (3, -) (50, [1m[34mH[0m[0m) 
-ID:  50 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (3, 19)	  #Neighbors:   3     (6, [1m[34mH[0m[0m) (7, [1m[34mH[0m[0m) (18, [1m[34mH[0m[0m) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (24, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 38)	  #Neighbors:   1     (24, -) 
+ID:   6 (●, 0)           (Qubit, Col): (3, 0)	  #Neighbors:   1     (45, H) 
+ID:   7 (●, 0)           (Qubit, Col): (3, 38)	  #Neighbors:   1     (45, H) 
+ID:  24 (Z, 0)           (Qubit, Col): (1, 14)	  #Neighbors:   3     (2, -) (3, -) (45, H) 
+ID:  45 (Z, 0)           (Qubit, Col): (3, 28)	  #Neighbors:   3     (6, H) (7, H) (24, H) 
 Total #Vertices: 6
 
 
 qsyn> zx2ts
-Traverse and build the tensor... 
-Successfully added Tensor 0
-Stored the resulting tensor as tensor id 0
 
 qsyn> qcnew
-Create and checkout to QCir 1
 
 qsyn> qcba 2
 
-qsyn> qcga -cx 0 1
+qsyn> qcga cx 0 1
 
 qsyn> qc2ts
-Traverse and build the tensor... 
-Successfully added Tensor 1
-Stored the resulting tensor as tensor id 1
 
 qsyn> tseq 0 1
-[1m[32mEquivalent[0m[0m
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 

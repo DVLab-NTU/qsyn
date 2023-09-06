@@ -1,0 +1,12 @@
+color off
+qccread ./benchmark/benchmark_SABRE/large/9symml_195.qasm
+qccp
+qc2zx
+qcoptimize -trivial -copy
+qccp
+qc2zx
+//zxgadjoint
+//zxcompose 0
+//zxgs -fr
+//zxgt -id
+qq -f

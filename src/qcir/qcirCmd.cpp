@@ -6,540 +6,483 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "qcirCmd.h"
+#include "qcir/qcirCmd.hpp"
 
-#include <cstddef>   // for size_t, NULL
-#include <iostream>  // for ostream
-#include <string>    // for string
+#include <cstddef>
+#include <filesystem>
+#include <string>
 
-#include "apCmd.h"
-#include "cmdMacros.h"  // for CMD_N_OPTS_AT_MOST_OR_RETURN
-#include "phase.h"      // for Phase
-#include "qcir.h"       // for QCir
-#include "qcirGate.h"   // for QCirGate
-#include "qcirMgr.h"    // for QCirMgr
-#include "zxGraph.h"    // for ZXGraph
+#include "./qcirGate.hpp"
+#include "./qcirMgr.hpp"
+#include "./toTensor.hpp"
+#include "./toZXGraph.hpp"
+#include "cli/cli.hpp"
+#include "tensor/tensorMgr.hpp"
+#include "util/phase.hpp"
+#include "zx/zxGraphMgr.hpp"
+
+QCirMgr qcirMgr{"QCir"};
+extern ZXGraphMgr zxGraphMgr;
+extern TensorMgr tensorMgr;
 
 using namespace std;
 using namespace ArgParse;
-extern QCirMgr *qcirMgr;
-extern size_t verbose;
-extern int effLimit;
 
-unique_ptr<ArgParseCmdType> QCirCheckOutCmd();
-unique_ptr<ArgParseCmdType> QCirResetCmd();
-unique_ptr<ArgParseCmdType> QCirDeleteCmd();
-unique_ptr<ArgParseCmdType> QCirNewCmd();
-unique_ptr<ArgParseCmdType> QCirCopyCmd();
-unique_ptr<ArgParseCmdType> QCirComposeCmd();
-unique_ptr<ArgParseCmdType> QCirTensorCmd();
-unique_ptr<ArgParseCmdType> QCPrintCmd();
-unique_ptr<ArgParseCmdType> QCSetCmd();
-unique_ptr<ArgParseCmdType> QCirReadCmd();
-unique_ptr<ArgParseCmdType> QCirPrintCmd();
-unique_ptr<ArgParseCmdType> QCirGatePrintCmd();
-unique_ptr<ArgParseCmdType> QCirAddQubitCmd();
-unique_ptr<ArgParseCmdType> QCirDeleteGateCmd();
-unique_ptr<ArgParseCmdType> QCirDeleteQubitCmd();
-unique_ptr<ArgParseCmdType> QCir2ZXCmd();
-unique_ptr<ArgParseCmdType> QCir2TSCmd();
-unique_ptr<ArgParseCmdType> QCirWriteCmd();
+bool qcirMgrNotEmpty() {
+    if (qcirMgr.empty()) {
+        logger.error("QCir list is empty. Please create a QCir first!!");
+        logger.info("Use QCNew/QCBAdd to add a new QCir, or QCCRead to read a QCir from a file.");
+        return false;
+    }
+    return true;
+}
+
+Command QCirCheckOutCmd();
+Command QCirResetCmd();
+Command QCirDeleteCmd();
+Command QCirNewCmd();
+Command QCirCopyCmd();
+Command QCirComposeCmd();
+Command QCirTensorCmd();
+Command QCPrintCmd();
+Command QCSetCmd();
+Command QCirReadCmd();
+Command QCirPrintCmd();
+Command QCirGatePrintCmd();
+Command QCirAddGateCmd();
+Command QCirAddQubitCmd();
+Command QCirDeleteGateCmd();
+Command QCirDeleteQubitCmd();
+Command QCir2ZXCmd();
+Command QCir2TSCmd();
+Command QCirWriteCmd();
+Command QCirDrawCmd();
 
 bool initQCirCmd() {
-    qcirMgr = new QCirMgr;
-    if (!(cmdMgr->regCmd("QCCHeckout", 4, QCirCheckOutCmd()) &&
-          cmdMgr->regCmd("QCReset", 3, QCirResetCmd()) &&
-          cmdMgr->regCmd("QCDelete", 3, QCirDeleteCmd()) &&
-          cmdMgr->regCmd("QCNew", 3, QCirNewCmd()) &&
-          cmdMgr->regCmd("QCCOPy", 5, QCirCopyCmd()) &&
-          cmdMgr->regCmd("QCCOMpose", 5, QCirComposeCmd()) &&
-          cmdMgr->regCmd("QCTensor", 3, QCirTensorCmd()) &&
-          cmdMgr->regCmd("QCPrint", 3, QCPrintCmd()) &&
-          cmdMgr->regCmd("QCSet", 3, QCSetCmd()) &&
-          cmdMgr->regCmd("QCCRead", 4, QCirReadCmd()) &&
-          cmdMgr->regCmd("QCCPrint", 4, QCirPrintCmd()) &&
-          cmdMgr->regCmd("QCGAdd", 4, make_unique<QCirAddGateCmd>()) &&
-          cmdMgr->regCmd("QCBAdd", 4, QCirAddQubitCmd()) &&
-          cmdMgr->regCmd("QCGDelete", 4, QCirDeleteGateCmd()) &&
-          cmdMgr->regCmd("QCBDelete", 4, QCirDeleteQubitCmd()) &&
-          cmdMgr->regCmd("QCGPrint", 4, QCirGatePrintCmd()) &&
-          cmdMgr->regCmd("QC2ZX", 5, QCir2ZXCmd()) &&
-          cmdMgr->regCmd("QC2TS", 5, QCir2TSCmd()) &&
-          cmdMgr->regCmd("QCCWrite", 4, QCirWriteCmd()))) {
+    if (!(cli.registerCommand(QCirCheckOutCmd()) &&
+          cli.registerCommand(QCirResetCmd()) &&
+          cli.registerCommand(QCirDeleteCmd()) &&
+          cli.registerCommand(QCirNewCmd()) &&
+          cli.registerCommand(QCirCopyCmd()) &&
+          cli.registerCommand(QCirComposeCmd()) &&
+          cli.registerCommand(QCirTensorCmd()) &&
+          cli.registerCommand(QCPrintCmd()) &&
+          cli.registerCommand(QCSetCmd()) &&
+          cli.registerCommand(QCirReadCmd()) &&
+          cli.registerCommand(QCirPrintCmd()) &&
+          cli.registerCommand(QCirAddGateCmd()) &&
+          cli.registerCommand(QCirAddQubitCmd()) &&
+          cli.registerCommand(QCirDeleteGateCmd()) &&
+          cli.registerCommand(QCirDeleteQubitCmd()) &&
+          cli.registerCommand(QCirGatePrintCmd()) &&
+          cli.registerCommand(QCir2ZXCmd()) &&
+          cli.registerCommand(QCir2TSCmd()) &&
+          cli.registerCommand(QCirDrawCmd()) &&
+          cli.registerCommand(QCirWriteCmd()))) {
         cerr << "Registering \"qcir\" commands fails... exiting" << endl;
         return false;
     }
     return true;
 }
 
-ArgType<size_t>::ConstraintType validQCirId = {
-    [](ArgType<size_t> &arg) {
-        return [&arg]() {
-            return qcirMgr->isID(arg.getValue());
-        };
-    },
-    [](ArgType<size_t> const &arg) {
-        return [&arg]() {
-            cerr << "Error: QCir " << arg.getValue() << " does not exist!!\n";
-        };
-    }};
+ArgType<size_t>::ConstraintType const validQCirId =
+    [](size_t const& id) {
+        if (qcirMgr.isID(id)) return true;
+        cerr << "Error: QCir " << id << " does not exist!!\n";
+        return false;
+    };
 
-ArgType<size_t>::ConstraintType validQCirGateId = {
-    [](ArgType<size_t> &arg) {
-        return [&arg]() {
-            if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end())
-                return false;
-            else
-                return (qcirMgr->getQCircuit()->getGate(arg.getValue()) != nullptr);
-        };
-    },
-    [](ArgType<size_t> const &arg) {
-        return [&arg]() {
-            if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end())
-                cerr << "Error: QCir list is empty now. Please QCNew/QCCRead/QCBAdd first.\n";
-            else
-                cerr << "Error: Gate id " << arg.getValue() << " does not exist!!\n";
-        };
-    }};
+ArgType<size_t>::ConstraintType const validQCirGateId =
+    [](size_t const& id) {
+        if (!qcirMgrNotEmpty()) return false;
+        if (qcirMgr.get()->getGate(id) != nullptr) return true;
+        cerr << "Error: gate id " << id << " does not exist!!\n";
+        return false;
+    };
 
-ArgType<size_t>::ConstraintType validQCirBitId = {
-    [](ArgType<size_t> &arg) {
-        return [&arg]() {
-            if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end())
-                return false;
-            else
-                return (qcirMgr->getQCircuit()->getQubit(arg.getValue()) != nullptr);
-        };
-    },
-    [](ArgType<size_t> const &arg) {
-        return [&arg]() {
-            if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end())
-                cerr << "Error: QCir list is empty now. Please QCNew/QCCRead/QCBAdd first.\n";
-            else
-                cerr << "Error: Qubit id " << arg.getValue() << " does not exist!!\n";
-        };
-    }};
+ArgType<size_t>::ConstraintType const validQCirBitId =
+    [](size_t const& id) {
+        if (!qcirMgrNotEmpty()) return false;
+        if (qcirMgr.get()->getQubit(id) == nullptr) {
+            logger.error("Qubit ID {} does not exist!!", id);
+            return false;
+        }
+        return true;
+    };
+
+ArgType<size_t>::ConstraintType const validDecompositionMode =
+    [](size_t const& val) {
+        if (0 <= val && val <= 4) return true;
+        cerr << "Error: decomposition Mode " << val << " is not valid!!\n";
+        return false;
+    };
 
 //----------------------------------------------------------------------
 //    QCCHeckout <(size_t id)>
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirCheckOutCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCCHeckout");
+Command QCirCheckOutCmd() {
+    return {"qccheckout",
+            [](ArgumentParser& parser) {
+                parser.description("checkout to QCir <id> in QCirMgr");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("checkout to QCir <id> in QCirMgr");
-
-        parser.addArgument<size_t>("id")
-            .constraint(validQCirId)
-            .help("the ID of the circuit");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        qcirMgr->checkout2QCir(parser["id"]);
-        return CMD_EXEC_DONE;
-    };
-
-    return cmd;
+                parser.addArgument<size_t>("id")
+                    .constraint(validQCirId)
+                    .help("the ID of the circuit");
+            },
+            [](ArgumentParser const& parser) {
+                if (!qcirMgrNotEmpty()) return CmdExecResult::ERROR;
+                qcirMgr.checkout(parser.get<size_t>("id"));
+                return CmdExecResult::DONE;
+            }};
 }
 
 //----------------------------------------------------------------------
 //    QCReset
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirResetCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCReset");
-
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("reset QCirMgr");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        qcirMgr->reset();
-        return CMD_EXEC_DONE;
-    };
-
-    return cmd;
+Command QCirResetCmd() {
+    return {"qcreset",
+            [](ArgumentParser& parser) {
+                parser.description("reset QCirMgr");
+            },
+            [](ArgumentParser const& parser) {
+                qcirMgr.reset();
+                return CmdExecResult::DONE;
+            }};
 }
 
 //----------------------------------------------------------------------
 //    QCDelete <(size_t id)>
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirDeleteCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCDelete");
+Command QCirDeleteCmd() {
+    return {"qcdelete",
+            [](ArgumentParser& parser) {
+                parser.description("remove a QCir from QCirMgr");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("remove a QCir from QCirMgr");
-
-        parser.addArgument<size_t>("id")
-            .constraint(validQCirId)
-            .help("the ID of the circuit");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        qcirMgr->removeQCir(parser["id"]);
-        return CMD_EXEC_DONE;
-    };
-
-    return cmd;
+                parser.addArgument<size_t>("id")
+                    .constraint(validQCirId)
+                    .help("the ID of the circuit");
+            },
+            [](ArgumentParser const& parser) {
+                if (!qcirMgrNotEmpty()) return CmdExecResult::ERROR;
+                qcirMgr.remove(parser.get<size_t>("id"));
+                return CmdExecResult::DONE;
+            }};
 }
 
 //----------------------------------------------------------------------
 //    QCNew [(size_t id)]
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirNewCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCNew");
+Command QCirNewCmd() {
+    return {"qcnew",
+            [](ArgumentParser& parser) {
+                parser.description("create a new QCir to QCirMgr");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("create a new QCir to QCirMgr");
+                parser.addArgument<size_t>("id")
+                    .nargs(NArgsOption::OPTIONAL)
+                    .help("the ID of the circuit");
 
-        parser.addArgument<size_t>("id")
-            .required(false)
-            .help("the ID of the circuit");
+                parser.addArgument<bool>("-replace")
+                    .action(storeTrue)
+                    .help("if specified, replace the current circuit; otherwise store to a new one");
+            },
+            [](ArgumentParser const& parser) {
+                size_t id = parser.parsed("id") ? parser.get<size_t>("id") : qcirMgr.getNextID();
 
-        parser.addArgument<bool>("-Replace")
-            .action(storeTrue)
-            .help("if specified, replace the current circuit; otherwise store to a new one");
-    };
+                if (qcirMgr.isID(id)) {
+                    if (!parser.parsed("-Replace")) {
+                        cerr << "Error: QCir " << id << " already exists!! Specify `-Replace` if needed.\n";
+                        return CmdExecResult::ERROR;
+                    }
 
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        if (parser["id"].isParsed()) {
-            if (qcirMgr->isID(parser["id"])) {
-                if (parser["-Replace"].isParsed()) {
-                    size_t repId = parser["id"];
-                    QCir *qcir = new QCir(repId);
-                    qcirMgr->setQCircuit(qcir);
-                } else
-                    cerr << "Error: QCir " << parser["id"] << " already exists!! Specify `-Replace` if needed." << endl;
-            } else
-                qcirMgr->addQCir(parser["id"]);
-        } else {
-            qcirMgr->addQCir(qcirMgr->getNextID());
-        }
-        return CMD_EXEC_DONE;
-    };
+                    qcirMgr.set(std::make_unique<QCir>());
+                } else {
+                    qcirMgr.add(id);
+                }
 
-    return cmd;
+                return CmdExecResult::DONE;
+            }};
 }
 
 //----------------------------------------------------------------------
 //    QCCOPy [size_t id] [-Replace]
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirCopyCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCCOPy");
+Command QCirCopyCmd() {
+    return {"qccopy",
+            [](ArgumentParser& parser) {
+                parser.description("copy a QCir to QCirMgr");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("copy a QCir to QCirMgr");
+                parser.addArgument<size_t>("id")
+                    .nargs(NArgsOption::OPTIONAL)
+                    .help("the ID copied circuit to be stored");
 
-        parser.addArgument<size_t>("id")
-            .required(false)
-            .help("the ID copied circuit to be stored");
+                parser.addArgument<bool>("-replace")
+                    .defaultValue(false)
+                    .action(storeTrue)
+                    .help("replace the current focused circuit");
+            },
+            [](ArgumentParser const& parser) {
+                if (!qcirMgrNotEmpty()) return CmdExecResult::ERROR;
+                size_t id = parser.parsed("id") ? parser.get<size_t>("id") : qcirMgr.getNextID();
+                if (qcirMgr.isID(id) && !parser.parsed("-replace")) {
+                    cerr << "Error: QCir " << id << " already exists!! Specify `-Replace` if needed." << endl;
+                    return CmdExecResult::ERROR;
+                }
+                qcirMgr.copy(id);
 
-        parser.addArgument<bool>("-Replace")
-            .defaultValue(false)
-            .action(storeTrue)
-            .help("replace the current focused circuit");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCCOPy");
-        if (parser["id"].isParsed()) {
-            if (qcirMgr->isID(parser["id"])) {
-                if (parser["-Replace"].isParsed()) {
-                    qcirMgr->copy(parser["id"], false);
-                } else
-                    cerr << "Error: QCir " << parser["id"] << " already exists!! Specify `-Replace` if needed." << endl;
-            } else
-                qcirMgr->copy(parser["id"]);
-        } else {
-            qcirMgr->copy(qcirMgr->getNextID());
-        }
-        return CMD_EXEC_DONE;
-    };
-    return cmd;
+                return CmdExecResult::DONE;
+            }};
 }
 
 //----------------------------------------------------------------------
 //    QCCOMpose <size_t id>
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirComposeCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCCOMpose");
+Command QCirComposeCmd() {
+    return {"qccompose",
+            [](ArgumentParser& parser) {
+                parser.description("compose a QCir");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("compose a QCir");
-
-        parser.addArgument<size_t>("id")
-            .constraint(validQCirId)
-            .help("the ID of the circuit to compose with");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        qcirMgr->getQCircuit()->compose(qcirMgr->findQCirByID(parser["id"]));
-        return CMD_EXEC_DONE;
-    };
-
-    return cmd;
+                parser.addArgument<size_t>("id")
+                    .constraint(validQCirId)
+                    .help("the ID of the circuit to compose with");
+            },
+            [](ArgumentParser const& parser) {
+                if (!qcirMgrNotEmpty()) return CmdExecResult::ERROR;
+                qcirMgr.get()->compose(*qcirMgr.findByID(parser.get<size_t>("id")));
+                return CmdExecResult::DONE;
+            }};
 }
 
 //----------------------------------------------------------------------
 //    QCTensor <size_t id>
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirTensorCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCTensor");
+Command QCirTensorCmd() {
+    return {"qctensor",
+            [](ArgumentParser& parser) {
+                parser.description("tensor a QCir");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("tensor a QCir");
-
-        parser.addArgument<size_t>("id")
-            .constraint(validQCirId)
-            .help("the ID of the circuit to tensor with");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        qcirMgr->getQCircuit()->tensorProduct(qcirMgr->findQCirByID(parser["id"]));
-        return CMD_EXEC_DONE;
-    };
-
-    return cmd;
+                parser.addArgument<size_t>("id")
+                    .constraint(validQCirId)
+                    .help("the ID of the circuit to tensor with");
+            },
+            [](ArgumentParser const& parser) {
+                if (!qcirMgrNotEmpty()) return CmdExecResult::ERROR;
+                qcirMgr.get()->tensorProduct(*qcirMgr.findByID(parser.get<size_t>("id")));
+                return CmdExecResult::DONE;
+            }};
 }
 
 //----------------------------------------------------------------------
 //    QCPrint [-SUmmary | -Focus | -Num | -SEttings]
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCPrintCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCPrint");
+Command QCPrintCmd() {
+    return {"qcprint",
+            [](ArgumentParser& parser) {
+                parser.description("print info about QCirs or settings");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("print info of QCirMgr or settings");
+                auto mutex = parser.addMutuallyExclusiveGroup();
 
-        auto mutex = parser.addMutuallyExclusiveGroup();
+                mutex.addArgument<bool>("-focus")
+                    .action(storeTrue)
+                    .help("print the info of circuit in focus");
+                mutex.addArgument<bool>("-list")
+                    .action(storeTrue)
+                    .help("print a list of circuits");
+                mutex.addArgument<bool>("-settings")
+                    .action(storeTrue)
+                    .help("print settings of circuit");
+            },
+            [](ArgumentParser const& parser) {
+                if (parser.parsed("-settings")) {
+                    cout << endl;
+                    cout << "Delay of Single-qubit gate :     " << SINGLE_DELAY << endl;
+                    cout << "Delay of Double-qubit gate :     " << DOUBLE_DELAY << endl;
+                    cout << "Delay of SWAP gate :             " << SWAP_DELAY << ((SWAP_DELAY == 3 * DOUBLE_DELAY) ? " (3 CXs)" : "") << endl;
+                    cout << "Delay of Multiple-qubit gate :   " << MULTIPLE_DELAY << endl;
+                } else if (parser.parsed("-focus"))
+                    qcirMgr.printFocus();
+                else if (parser.parsed("-list"))
+                    qcirMgr.printList();
+                else
+                    qcirMgr.printManager();
 
-        mutex.addArgument<bool>("-summary")
-            .action(storeTrue)
-            .help("print summary of all circuits");
-        mutex.addArgument<bool>("-focus")
-            .action(storeTrue)
-            .help("print the info of circuit in focus");
-        mutex.addArgument<bool>("-list")
-            .action(storeTrue)
-            .help("print a list of circuits");
-        mutex.addArgument<bool>("-number")
-            .action(storeTrue)
-            .help("print number of circuits");
-        mutex.addArgument<bool>("-settings")
-            .action(storeTrue)
-            .help("print settings of circuit");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        if (parser["-settings"].isParsed()) {
-            cout << endl;
-            cout << "Delay of Single-qubit gate :     " << SINGLE_DELAY << endl;
-            cout << "Delay of Double-qubit gate :     " << DOUBLE_DELAY << endl;
-            cout << "Delay of SWAP gate :             " << SWAP_DELAY << ((SWAP_DELAY == 3 * DOUBLE_DELAY) ? " (3 CXs)" : "") << endl;
-            cout << "Delay of Multiple-qubit gate :   " << MULTIPLE_DELAY << endl;
-        } else if (parser["-focus"].isParsed())
-            qcirMgr->printCListItr();
-        else if (parser["-list"].isParsed())
-            qcirMgr->printCList();
-        else if (parser["-number"].isParsed())
-            qcirMgr->printQCircuitListSize();
-        else
-            qcirMgr->printQCirMgr();
-
-        return CMD_EXEC_DONE;
-    };
-
-    return cmd;
+                return CmdExecResult::DONE;
+            }};
 }
 
 //------------------------------------------------------------------------------
 //    QCSet ...
 //------------------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCSetCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCSet");
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("set QCir parameters");
-        parser.addArgument<size_t>("-single-delay")
-            .help("delay of single-qubit gate");
-        parser.addArgument<size_t>("-double-delay")
-            .help("delay of double-qubit gate, SWAP excluded");
-        parser.addArgument<size_t>("-swap-delay")
-            .help("delay of SWAP gate, used to be 3x double-qubit gate");
-        parser.addArgument<size_t>("-multiple-delay")
-            .help("delay of multiple-qubit gate");
-    };
+Command QCSetCmd() {
+    return {"qcset",
+            [](ArgumentParser& parser) {
+                parser.description("set QCir parameters");
 
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        if (parser["-single-delay"].isParsed()) {
-            size_t singleDelay = parser["-single-delay"];
-            if (singleDelay == 0)
-                cerr << "Error: single delay value should > 0, skipping this option!!\n";
-            else
-                SINGLE_DELAY = singleDelay;
-        }
-        if (parser["-double-delay"].isParsed()) {
-            size_t doubleDelay = parser["-double-delay"];
-            if (doubleDelay == 0)
-                cerr << "Error: double delay value should > 0, skipping this option!!\n";
-            else
-                DOUBLE_DELAY = doubleDelay;
-        }
-        if (parser["-swap-delay"].isParsed()) {
-            size_t swapDelay = parser["-swap-delay"];
-            if (swapDelay == 0)
-                cerr << "Error: swap delay value should > 0, skipping this option!!\n";
-            else
-                SWAP_DELAY = swapDelay;
-        }
-        if (parser["-multiple-delay"].isParsed()) {
-            size_t multiDelay = parser["-multiple-delay"];
-            if (multiDelay == 0)
-                cerr << "Error: multiple delay value should > 0, skipping this option!!\n";
-            else
-                MULTIPLE_DELAY = multiDelay;
-        }
-        return CMD_EXEC_DONE;
-    };
-    return cmd;
+                parser.addArgument<size_t>("-single-delay")
+                    .help("delay of single-qubit gate");
+                parser.addArgument<size_t>("-double-delay")
+                    .help("delay of double-qubit gate, SWAP excluded");
+                parser.addArgument<size_t>("-swap-delay")
+                    .help("delay of SWAP gate, used to be 3x double-qubit gate");
+                parser.addArgument<size_t>("-multiple-delay")
+                    .help("delay of multiple-qubit gate");
+            },
+            [](ArgumentParser const& parser) {
+                if (parser.parsed("-single-delay")) {
+                    auto singleDelay = parser.get<size_t>("-single-delay");
+                    if (singleDelay == 0)
+                        cerr << "Error: single delay value should > 0, skipping this option!!\n";
+                    else
+                        SINGLE_DELAY = singleDelay;
+                }
+                if (parser.parsed("-double-delay")) {
+                    auto doubleDelay = parser.get<size_t>("-double-delay");
+                    if (doubleDelay == 0)
+                        cerr << "Error: double delay value should > 0, skipping this option!!\n";
+                    else
+                        DOUBLE_DELAY = doubleDelay;
+                }
+                if (parser.parsed("-swap-delay")) {
+                    auto swapDelay = parser.get<size_t>("-swap-delay");
+                    if (swapDelay == 0)
+                        cerr << "Error: swap delay value should > 0, skipping this option!!\n";
+                    else
+                        SWAP_DELAY = swapDelay;
+                }
+                if (parser.parsed("-multiple-delay")) {
+                    auto multiDelay = parser.get<size_t>("-multiple-delay");
+                    if (multiDelay == 0)
+                        cerr << "Error: multiple delay value should > 0, skipping this option!!\n";
+                    else
+                        MULTIPLE_DELAY = multiDelay;
+                }
+                return CmdExecResult::DONE;
+            }};
 }
 
 //----------------------------------------------------------------------
 //    QCCRead <(string fileName)> [-Replace]
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirReadCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCCRead");
+Command QCirReadCmd() {
+    return {"qccread",
+            [](ArgumentParser& parser) {
+                parser.description("read a circuit and construct the corresponding netlist");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("read a circuit and construct the corresponding netlist");
+                parser.addArgument<string>("filepath")
+                    .constraint(path_readable)
+                    .constraint(allowed_extension({".qasm", ".qc", ".qsim", ".quipper", ""}))
+                    .help("the filepath to quantum circuit file. Supported extension: .qasm, .qc, .qsim, .quipper");
 
-        parser.addArgument<string>("filepath")
-            .help("the filepath to quantum circuit file");
-
-        parser.addArgument<bool>("-replace")
-            .action(storeTrue)
-            .help("if specified, replace the current circuit; otherwise store to a new one");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        QCir *bufferQCir = new QCir(0);
-        string filepath = parser["filepath"];
-        bool replace = parser["-replace"];
-        if (!bufferQCir->readQCirFile(filepath)) {
-            cerr << "Error: The format in \"" << filepath << "\" has something wrong!!" << endl;
-            delete bufferQCir;
-            return CMD_EXEC_ERROR;
-        }
-        if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end()) {
-            // cout << "Note: QCir list is empty now. Create a new one." << endl;
-            qcirMgr->addQCir(qcirMgr->getNextID());
-        } else {
-            if (replace) {
-                if (verbose >= 1) cout << "Note: original QCir is replaced..." << endl;
-            } else {
-                qcirMgr->addQCir(qcirMgr->getNextID());
-            }
-        }
-        qcirMgr->setQCircuit(bufferQCir);
-        return CMD_EXEC_DONE;
-    };
-
-    return cmd;
+                parser.addArgument<bool>("-replace")
+                    .action(storeTrue)
+                    .help("if specified, replace the current circuit; otherwise store to a new one");
+            },
+            [](ArgumentParser const& parser) {
+                QCir bufferQCir;
+                auto filepath = parser.get<string>("filepath");
+                auto replace = parser.get<bool>("-replace");
+                if (!bufferQCir.readQCirFile(filepath)) {
+                    cerr << "Error: the format in \"" << filepath << "\" has something wrong!!" << endl;
+                    return CmdExecResult::ERROR;
+                }
+                if (qcirMgr.empty() || !replace) {
+                    qcirMgr.add(qcirMgr.getNextID(), std::make_unique<QCir>(std::move(bufferQCir)));
+                } else {
+                    qcirMgr.set(std::make_unique<QCir>(std::move(bufferQCir)));
+                }
+                qcirMgr.get()->setFileName(std::filesystem::path{filepath}.stem());
+                return CmdExecResult::DONE;
+            }};
 }
 
 //----------------------------------------------------------------------
 //    QCGPrint <(size_t gateID)> [-Time | -ZXform]
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirGatePrintCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCGPrint");
+Command QCirGatePrintCmd() {
+    return {"qcgprint",
+            [](ArgumentParser& parser) {
+                parser.description("print gate info in QCir");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("print gate info in QCir");
+                parser.addArgument<size_t>("id")
+                    .constraint(validQCirGateId)
+                    .help("the id of the gate");
 
-        parser.addArgument<size_t>("id")
-            .constraint(validQCirGateId)
-            .help("the id of the gate");
+                auto mutex = parser.addMutuallyExclusiveGroup();
 
-        auto mutex = parser.addMutuallyExclusiveGroup();
+                mutex.addArgument<bool>("-time")
+                    .action(storeTrue)
+                    .help("print the execution time of the gate");
+                mutex.addArgument<bool>("-zx-form")
+                    .action(storeTrue)
+                    .help("print the ZX form of the gate");
+            },
+            [](ArgumentParser const& parser) {
+                if (!qcirMgrNotEmpty()) return CmdExecResult::ERROR;
+                if (parser.parsed("-zx-form")) {
+                    cout << "\n> Gate " << parser.get<size_t>("id") << " (" << qcirMgr.get()->getGate(parser.get<size_t>("id"))->getTypeStr() << ")";
+                    toZXGraph(qcirMgr.get()->getGate(parser.get<size_t>("id")))->printVertices();
+                } else {
+                    qcirMgr.get()->printGateInfo(parser.get<size_t>("id"), parser.parsed("-time"));
+                }
 
-        mutex.addArgument<bool>("-time")
-            .action(storeTrue)
-            .help("print the execution time of the gate");
-        mutex.addArgument<bool>("-zx-form")
-            .action(storeTrue)
-            .help("print the ZX form of the gate");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCGPrint");
-        if (parser["-zx-form"].isParsed()) {
-            cout << "\n> Gate " << parser["id"] << " (" << qcirMgr->getQCircuit()->getGate(parser["id"])->getTypeStr() << ")";
-            qcirMgr->getQCircuit()->getGate(parser["id"])->getZXform()->printVertices();
-        } else {
-            qcirMgr->getQCircuit()->printGateInfo(parser["id"], parser["-time"].isParsed());
-        }
-
-        return CMD_EXEC_DONE;
-    };
-
-    return cmd;
+                return CmdExecResult::DONE;
+            }};
 }
 
 //----------------------------------------------------------------------
 //    QCCPrint [-Summary | -Analysis | -Detail | -List | -Qubit]
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirPrintCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCCPrint");
+Command QCirPrintCmd() {
+    return {"qccprint",
+            [](ArgumentParser& parser) {
+                parser.description("print info of QCir");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("print info of QCir");
+                auto mutex = parser.addMutuallyExclusiveGroup();
 
-        auto mutex = parser.addMutuallyExclusiveGroup();
+                mutex.addArgument<bool>("-summary")
+                    .action(storeTrue)
+                    .help("print summary of the circuit");
+                mutex.addArgument<bool>("-analysis")
+                    .action(storeTrue)
+                    .help("virtually decompose the circuit and print information");
+                mutex.addArgument<bool>("-detail")
+                    .action(storeTrue)
+                    .help("print the constitution of the circuit");
+                mutex.addArgument<bool>("-list")
+                    .action(storeTrue)
+                    .help("print a list of gates in the circuit");
+                mutex.addArgument<bool>("-qubit")
+                    .action(storeTrue)
+                    .help("print the circuit along the qubits");
+            },
+            [](ArgumentParser const& parser) {
+                if (!qcirMgrNotEmpty()) return CmdExecResult::ERROR;
+                if (parser.parsed("-analysis"))
+                    qcirMgr.get()->countGate(false);
+                else if (parser.parsed("-detail"))
+                    qcirMgr.get()->countGate(true);
+                else if (parser.parsed("-list"))
+                    qcirMgr.get()->printGates();
+                else if (parser.parsed("-qubit"))
+                    qcirMgr.get()->printQubits();
+                else if (parser.parsed("-summary"))
+                    qcirMgr.get()->printSummary();
+                else
+                    qcirMgr.get()->printCirInfo();
 
-        mutex.addArgument<bool>("-summary")
-            .action(storeTrue)
-            .help("print summary of the circuit");
-        mutex.addArgument<bool>("-analysis")
-            .action(storeTrue)
-            .help("virtually decompose the circuit and print information");
-        mutex.addArgument<bool>("-detail")
-            .action(storeTrue)
-            .help("print the constitution of the circuit");
-        mutex.addArgument<bool>("-list")
-            .action(storeTrue)
-            .help("print a list of gates in the circuit");
-        mutex.addArgument<bool>("-qubit")
-            .action(storeTrue)
-            .help("print the circuit along the qubits");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCCPrint");
-        if (parser["-analysis"].isParsed())
-            qcirMgr->getQCircuit()->analysis();
-        else if (parser["-detail"].isParsed())
-            qcirMgr->getQCircuit()->analysis(true);
-        else if (parser["-list"].isParsed())
-            qcirMgr->getQCircuit()->printGates();
-        else if (parser["-qubit"].isParsed())
-            qcirMgr->getQCircuit()->printQubits();
-        else
-            qcirMgr->getQCircuit()->printSummary();
-
-        return CMD_EXEC_DONE;
-    };
-
-    return cmd;
+                return CmdExecResult::DONE;
+            }};
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -549,335 +492,353 @@ unique_ptr<ArgParseCmdType> QCirPrintCmd() {
 //     QCGAdd <-P | -PX | -RZ | -RX> <-PHase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend] /
 //     QCGAdd <-MCP | -MCPX | -MCRZ| -MCRX> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]
 //-----------------------------------------------------------------------------------------------------------------------------------------------
-CmdExecStatus
-QCirAddGateCmd::exec(const string &option) {
-    QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCGAdd");
-    // check option
-    vector<string> options;
-    if (!CmdExec::lexOptions(option, options))
-        return CMD_EXEC_ERROR;
-    if (options.empty())
-        return CmdExec::errorOption(CMD_OPT_MISSING, "");
 
-    bool flag = false;
-    bool appendGate = true;
-    size_t eraseIndex = 0;
-    for (size_t i = 0, n = options.size(); i < n; ++i) {
-        if (myStrNCmp("-APpend", options[i], 3) == 0) {
-            if (flag)
-                return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
-            flag = true;
-            eraseIndex = i;
-        } else if (myStrNCmp("-PRepend", options[i], 3) == 0) {
-            if (flag)
-                return CmdExec::errorOption(CMD_OPT_EXTRA, options[i]);
-            appendGate = false;
-            flag = true;
-            eraseIndex = i;
-        }
-    }
-    string flagStr = options[eraseIndex];
-    if (flag)
-        options.erase(options.begin() + eraseIndex);
-    if (options.empty())
-        return CmdExec::errorOption(CMD_OPT_MISSING, flagStr);
-    string type = options[0];
-    vector<size_t> qubits;
-    // <-H | -X | -Z | -TG | -TDg | -S | -V | -Y | -SY | -SDG>
-    if (myStrNCmp("-H", type, 2) == 0 || myStrNCmp("-X", type, 2) == 0 || myStrNCmp("-Z", type, 2) == 0 || myStrNCmp("-T", type, 2) == 0 ||
-        myStrNCmp("-TDG", type, 4) == 0 || myStrNCmp("-S", type, 2) == 0 || myStrNCmp("-SX", type, 2) == 0 || myStrNCmp("-Y", type, 2) == 0 ||
-        myStrNCmp("-SY", type, 3) == 0 || myStrNCmp("-SDG", type, 4) == 0) {
-        if (options.size() == 1)
-            return CmdExec::errorOption(CMD_OPT_MISSING, type);
-        if (options.size() > 2)
-            return CmdExec::errorOption(CMD_OPT_EXTRA, options[2]);
-        unsigned id;
-        if (!myStr2Uns(options[1], id)) {
-            cerr << "Error: target ID should be a positive integer!!" << endl;
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[1]);
-        }
-        if (qcirMgr->getQCircuit()->getQubit(id) == NULL) {
-            cerr << "Error: qubit ID is not in current circuit!!" << endl;
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[1]);
-        }
-        qubits.push_back(id);
-        type = type.erase(0, 1);
-        qcirMgr->getQCircuit()->addGate(type, qubits, Phase(0), appendGate);
-    } else if (myStrNCmp("-CX", type, 3) == 0 || myStrNCmp("-CZ", type, 3) == 0) {
-        if (options.size() < 3)
-            return CmdExec::errorOption(CMD_OPT_MISSING, options[options.size() - 1]);
-        if (options.size() > 3)
-            return CmdExec::errorOption(CMD_OPT_EXTRA, options[3]);
-        for (size_t i = 1; i < options.size(); i++) {
-            unsigned id;
-            if (!myStr2Uns(options[i], id)) {
-                cerr << "Error: target ID should be a positive integer!!" << endl;
-                return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
-            }
-            if (qcirMgr->getQCircuit()->getQubit(id) == NULL) {
-                cerr << "Error: qubit ID is not in current circuit!!" << endl;
-                return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
-            }
-            qubits.push_back(id);
-        }
-        type = type.erase(0, 1);
-        qcirMgr->getQCircuit()->addGate(type, qubits, Phase(0), appendGate);
-    } else if (myStrNCmp("-RZ", type, 3) == 0 || myStrNCmp("-P", type, 2) == 0 || myStrNCmp("-PX", type, 3) == 0 || myStrNCmp("-RX", type, 3) == 0) {
-        Phase phase;
-        if (options.size() == 1) {
-            cerr << "Error: missing -PHase flag!!" << endl;
-            return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
-        } else {
-            if (myStrNCmp("-PHase", options[1], 3) != 0) {
-                cerr << "Error: missing -PHase flag before (" << options[1] << ")!!" << endl;
-                return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
-            } else {
-                if (options.size() == 2) {
-                    cerr << "Error: missing phase after -PHase flag!!" << endl;
-                    return CmdExec::errorOption(CMD_OPT_MISSING, options[1]);
-                } else {
-                    // Check Phase Legal
-                    if (!Phase::fromString(options[2], phase)) {
-                        cerr << "Error: not a legal phase!!" << endl;
-                        return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[2]);
-                    }
+Command QCirAddGateCmd() {
+    static ordered_hashmap<std::string, std::string> single_qubit_gates_no_phase = {
+        {"h", "Hadamard gate"},
+        {"x", "Pauli-X gate"},
+        {"y", "Pauli-Y gate"},
+        {"z", "Pauli-Z gate"},
+        {"t", "T gate"},
+        {"tdg", "T† gate"},
+        {"s", "S gate"},
+        {"sdg", "S† gate"},
+        {"sx", "√X gate"},
+        {"sy", "√Y gate"}};
+
+    static ordered_hashmap<std::string, std::string> single_qubit_gates_with_phase = {
+        {"rz", "Rz(θ) gate"},
+        {"ry", "Rx(θ) gate"},
+        {"rx", "Ry(θ) gate"},
+        {"p", "P = (e^iθ/2)Rz gate"},
+        {"pz", "Pz = (e^iθ/2)Rz gate"},
+        {"px", "Px = (e^iθ/2)Rx gate"},
+        {"py", "Py = (e^iθ/2)Ry gate"}  //
+    };
+
+    static ordered_hashmap<std::string, std::string> double_qubit_gates_no_phase = {
+        {"cx", "CX (CNOT) gate"},
+        {"cz", "CZ gate"},
+        // {"swap", "SWAP gate"}
+    };
+
+    static ordered_hashmap<std::string, std::string> three_qubit_gates_no_phase = {
+        {"ccx", "CCX (CCNOT, Toffoli) gate"},
+        {"ccz", "CCZ gate"}  //
+    };
+
+    static ordered_hashmap<std::string, std::string> multi_qubit_gates_with_phase = {
+        {"mcrz", "Multi-Controlled Rz(θ) gate"},
+        {"mcrx", "Multi-Controlled Rx(θ) gate"},
+        {"mcry", "Multi-Controlled Ry(θ) gate"},
+        {"mcp", "Multi-Controlled P(θ) gate"},
+        {"mcpz", "Multi-Controlled Pz(θ) gate"},
+        {"mcpx", "Multi-Controlled Px(θ) gate"},
+        {"mcpy", "Multi-Controlled Py(θ) gate"}  //
+    };
+
+    return {
+        "qcgadd",
+        [=](ArgumentParser& parser) {
+            parser.description("add quantum gate");
+
+            vector<string> typeChoices;
+            std::string typeHelp =
+                "the quantum gate type.\n"
+                "For control gates, the control qubits comes before the target qubits.";
+
+            for (auto& category : {
+                     single_qubit_gates_no_phase,
+                     single_qubit_gates_with_phase,
+                     double_qubit_gates_no_phase,
+                     three_qubit_gates_no_phase,
+                     multi_qubit_gates_with_phase}) {
+                for (auto& [name, help] : category) {
+                    typeChoices.emplace_back(name);
+                    typeHelp += '\n' + name + ": ";
+                    if (name.size() < 4) typeHelp += string(4 - name.size(), ' ');
+                    typeHelp += help;
                 }
             }
-        }
-        if (options.size() < 4)
-            return CmdExec::errorOption(CMD_OPT_MISSING, options[2]);
-        if (options.size() > 4)
-            return CmdExec::errorOption(CMD_OPT_EXTRA, options[4]);
-        unsigned id;
-        if (!myStr2Uns(options[3], id)) {
-            cerr << "Error: target ID should be a positive integer!!" << endl;
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
-        }
-        if (qcirMgr->getQCircuit()->getQubit(id) == NULL) {
-            cerr << "Error: qubit ID is not in current circuit!!" << endl;
-            return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[3]);
-        }
-        qubits.push_back(id);
-        type = type.erase(0, 1);
-        qcirMgr->getQCircuit()->addGate(type, qubits, phase, appendGate);
-    } else if (myStrNCmp("-MCP", type, 4) == 0 || myStrNCmp("-MCPX", type, 5) == 0 || myStrNCmp("-MCPY", type, 5) == 0 ||
-               myStrNCmp("-MCRZ", type, 5) == 0 || myStrNCmp("-MCRX", type, 5) == 0 || myStrNCmp("-MCRY", type, 5) == 0) {
-        Phase phase;
-        if (options.size() == 1) {
-            cerr << "Error: missing -PHase flag!!" << endl;
-            return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
-        } else {
-            if (myStrNCmp("-PHase", options[1], 3) != 0) {
-                cerr << "Error: missing -PHase flag before (" << options[1] << ")!!" << endl;
-                return CmdExec::errorOption(CMD_OPT_MISSING, options[0]);
-            } else {
-                if (options.size() == 2) {
-                    cerr << "Error: missing phase after -PHase flag!!" << endl;
-                    return CmdExec::errorOption(CMD_OPT_MISSING, options[1]);
-                } else {
-                    // Check Phase Legal
-                    if (!Phase::fromString(options[2], phase)) {
-                        cerr << "Error: not a legal phase!!" << endl;
-                        return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[2]);
-                    }
+            parser.addArgument<string>("type")
+                .help(typeHelp)
+                .constraint(choices_allow_prefix(typeChoices));
+
+            auto append_or_prepend = parser.addMutuallyExclusiveGroup().required(false);
+            append_or_prepend.addArgument<bool>("-append")
+                .help("append the gate at the end of QCir")
+                .action(storeTrue);
+            append_or_prepend.addArgument<bool>("-prepend")
+                .help("prepend the gate at the start of QCir")
+                .action(storeTrue);
+
+            parser.addArgument<Phase>("-phase")
+                .help("The rotation angle θ (default = π). This option must be specified if and only if the gate type takes a phase parameter.");
+
+            parser.addArgument<size_t>("qubits")
+                .nargs(NArgsOption::ZERO_OR_MORE)
+                .constraint(validQCirBitId)
+                .help("the qubits on which the gate applies");
+        },
+        [=](ArgumentParser const& parser) {
+            if (!qcirMgrNotEmpty()) return CmdExecResult::ERROR;
+            bool doPrepend = parser.parsed("-prepend");
+
+            auto type = parser.get<string>("type");
+            type = toLowerString(type);
+
+            auto isGateCategory = [&](auto& category) {
+                return any_of(category.begin(), category.end(),
+                              [&](auto& name_help) {
+                                  return type == name_help.first;
+                              });
+            };
+
+            Phase phase{1};
+            if (isGateCategory(single_qubit_gates_with_phase) ||
+                isGateCategory(multi_qubit_gates_with_phase)) {
+                if (!parser.parsed("-phase")) {
+                    cerr << "Error: phase must be specified for gate type " << type << "!!\n";
+                    return CmdExecResult::ERROR;
+                }
+                phase = parser.get<Phase>("-phase");
+            } else if (parser.parsed("-phase")) {
+                cerr << "Error: phase is incompatible with gate type " << type << "!!\n";
+                return CmdExecResult::ERROR;
+            }
+
+            auto bits = parser.get<vector<size_t>>("qubits");
+
+            if (isGateCategory(single_qubit_gates_no_phase) ||
+                isGateCategory(single_qubit_gates_with_phase)) {
+                if (bits.size() < 1) {
+                    cerr << "Error: too few qubits are supplied for gate " << type << "!!\n";
+                    return CmdExecResult::ERROR;
+                } else if (bits.size() > 1) {
+                    cerr << "Error: too many qubits are supplied for gate " << type << "!!\n";
+                    return CmdExecResult::ERROR;
                 }
             }
-        }
-        if (options.size() < 4)
-            return CmdExec::errorOption(CMD_OPT_MISSING, options[2]);
-        for (size_t i = 3; i < options.size(); i++) {
-            unsigned id;
-            if (!myStr2Uns(options[i], id)) {
-                cerr << "Error: target ID should be a positive integer!!" << endl;
-                return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
-            }
-            if (qcirMgr->getQCircuit()->getQubit(id) == NULL) {
-                cerr << "Error: qubit ID is not in current circuit!!" << endl;
-                return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
-            }
-            qubits.push_back(id);
-        }
-        type = type.erase(0, 1);
-        qcirMgr->getQCircuit()->addGate(type, qubits, phase, appendGate);
 
-    } else if (myStrNCmp("-CCX", type, 4) == 0 || myStrNCmp("-CCZ", type, 4) == 0) {
-        if (options.size() < 4)
-            return CmdExec::errorOption(CMD_OPT_MISSING, options[options.size() - 1]);
-        if (options.size() > 4)
-            return CmdExec::errorOption(CMD_OPT_EXTRA, options[3]);
-        for (size_t i = 1; i < options.size(); i++) {
-            unsigned id;
-            if (!myStr2Uns(options[i], id)) {
-                cerr << "Error: target ID should be a positive integer!!" << endl;
-                return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
+            if (isGateCategory(double_qubit_gates_no_phase)) {
+                if (bits.size() < 2) {
+                    cerr << "Error: too few qubits are supplied for gate " << type << "!!\n";
+                    return CmdExecResult::ERROR;
+                } else if (bits.size() > 2) {
+                    cerr << "Error: too many qubits are supplied for gate " << type << "!!\n";
+                    return CmdExecResult::ERROR;
+                }
             }
-            if (qcirMgr->getQCircuit()->getQubit(id) == NULL) {
-                cerr << "Error: qubit ID is not in current circuit!!" << endl;
-                return CmdExec::errorOption(CMD_OPT_ILLEGAL, options[i]);
+
+            if (isGateCategory(three_qubit_gates_no_phase)) {
+                if (bits.size() < 3) {
+                    cerr << "Error: too few qubits are supplied for gate " << type << "!!\n";
+                    return CmdExecResult::ERROR;
+                } else if (bits.size() > 3) {
+                    cerr << "Error: too many qubits are supplied for gate " << type << "!!\n";
+                    return CmdExecResult::ERROR;
+                }
             }
-            qubits.push_back(id);
-        }
-        type = type.erase(0, 1);
-        qcirMgr->getQCircuit()->addGate(type, qubits, Phase(0), appendGate);
-    } else {
-        return CmdExec::errorOption(CMD_OPT_ILLEGAL, type);
-    }
 
-    return CMD_EXEC_DONE;
-}
+            qcirMgr.get()->addGate(type, bits, phase, !doPrepend);
 
-void QCirAddGateCmd::usage() const {
-    cout << "QCGAdd <-H | -X | -Z | -T | -TDG | -S | -SDG | -SX | -Y | -SY> <(size_t targ)> [-APpend|-PRepend]" << endl;
-    cout << "QCGAdd <-CX | -CZ> <(size_t ctrl)> <(size_t targ)> [-APpend|-PRepend]" << endl;
-    cout << "QCGAdd <-CCX | -CCZ> <(size_t ctrl1)> <(size_t ctrl2)> <(size_t targ)> [-APpend|-PRepend]" << endl;
-    cout << "QCGAdd <-P | -PX | -RZ | -RX> <-PHase (Phase phase_inp)> <(size_t targ)> [-APpend|-PRepend]" << endl;
-    cout << "QCGAdd <-MCP | -MCPX | -MCRZ| -MCRX> <-PHase (Phase phase_inp)> <(size_t ctrl1)> ... <(size_t ctrln)> <(size_t targ)> [-APpend|-PRepend]" << endl;
-}
-
-void QCirAddGateCmd::summary() const {
-    cout << setw(15) << left << "QCGAdd: "
-         << "add quantum gate\n";
+            return CmdExecResult::DONE;
+        }};
 }
 
 //----------------------------------------------------------------------
 //    QCBAdd [size_t addNum]
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirAddQubitCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCBAdd");
+Command QCirAddQubitCmd() {
+    return {"qcbadd",
+            [](ArgumentParser& parser) {
+                parser.description("add qubit(s)");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("add qubit(s)");
-
-        parser.addArgument<size_t>("amount")
-            .required(false)
-            .help("the amount of qubits to be added");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        if (qcirMgr->getcListItr() == qcirMgr->getQCircuitList().end()) {
-            cout << "Note: QCir list is empty now. Create a new one." << endl;
-            qcirMgr->addQCir(qcirMgr->getNextID());
-        }
-        if (parser["amount"].isParsed())
-            qcirMgr->getQCircuit()->addQubit(parser["amount"]);
-        else
-            qcirMgr->getQCircuit()->addQubit(1);
-        return CMD_EXEC_DONE;
-    };
-
-    return cmd;
+                parser.addArgument<size_t>("amount")
+                    .nargs(NArgsOption::OPTIONAL)
+                    .help("the amount of qubits to be added");
+            },
+            [](ArgumentParser const& parser) {
+                if (qcirMgr.empty()) {
+                    cout << "Note: QCir list is empty now. Create a new one." << endl;
+                    qcirMgr.add(qcirMgr.getNextID());
+                }
+                if (parser.parsed("amount"))
+                    qcirMgr.get()->addQubit(parser.get<size_t>("amount"));
+                else
+                    qcirMgr.get()->addQubit(1);
+                return CmdExecResult::DONE;
+            }};
 }
 
 //----------------------------------------------------------------------
 //    QCGDelete <(size_t gateID)>
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirDeleteGateCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCGDelete");
+Command QCirDeleteGateCmd() {
+    return {"qcgdelete",
+            [](ArgumentParser& parser) {
+                parser.description("delete gate");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("delete gate");
-
-        parser.addArgument<size_t>("id")
-            .constraint(validQCirGateId)
-            .help("the id to be deleted");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        qcirMgr->getQCircuit()->removeGate(parser["id"]);
-        return CMD_EXEC_DONE;
-    };
-
-    return cmd;
+                parser.addArgument<size_t>("id")
+                    .constraint(validQCirGateId)
+                    .help("the id to be deleted");
+            },
+            [](ArgumentParser const& parser) {
+                if (!qcirMgrNotEmpty()) return CmdExecResult::ERROR;
+                qcirMgr.get()->removeGate(parser.get<size_t>("id"));
+                return CmdExecResult::DONE;
+            }};
 }
 
 //----------------------------------------------------------------------
 //    QCBDelete <(size_t qubitID)>
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirDeleteQubitCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCBDelete");
+Command QCirDeleteQubitCmd() {
+    return {"qcbdelete",
+            [](ArgumentParser& parser) {
+                parser.description("delete qubit");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("delete qubit");
-
-        parser.addArgument<size_t>("id")
-            .constraint(validQCirBitId)
-            .help("the id to be deleted");
-    };
-
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        if (!qcirMgr->getQCircuit()->removeQubit(parser["id"]))
-            return CMD_EXEC_ERROR;
-        else
-            return CMD_EXEC_DONE;
-    };
-
-    return cmd;
+                parser.addArgument<size_t>("id")
+                    .constraint(validQCirBitId)
+                    .help("the id to be deleted");
+            },
+            [](ArgumentParser const& parser) {
+                if (!qcirMgrNotEmpty()) return CmdExecResult::ERROR;
+                if (!qcirMgr.get()->removeQubit(parser.get<size_t>("id")))
+                    return CmdExecResult::ERROR;
+                else
+                    return CmdExecResult::DONE;
+            }};
 }
 
 //----------------------------------------------------------------------
 //    QC2ZX
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCir2ZXCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QC2ZX");
+Command QCir2ZXCmd() {
+    return {"qc2zx",
+            [](ArgumentParser& parser) {
+                parser.description("convert QCir to ZXGraph");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("convert QCir to ZX-graph");
-    };
+                parser.addArgument<size_t>("decomp_mode")
+                    .defaultValue(0)
+                    .constraint(validDecompositionMode)
+                    .help("specify the decomposition mode (default: 0). The higher the number, the more aggressive the decomposition is.");
+            },
+            [](ArgumentParser const& parser) {
+                if (!qcirMgrNotEmpty()) return CmdExecResult::ERROR;
+                logger.info("Converting to QCir {} to ZXGraph {}...", qcirMgr.focusedID(), zxGraphMgr.getNextID());
+                auto g = toZXGraph(*qcirMgr.get(), parser.get<size_t>("decomp_mode"));
 
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QC2ZX");
-        qcirMgr->getQCircuit()->ZXMapping();
-        return CMD_EXEC_DONE;
-    };
+                if (g.has_value()) {
+                    zxGraphMgr.add(zxGraphMgr.getNextID(), std::make_unique<ZXGraph>(std::move(g.value())));
 
-    return cmd;
+                    zxGraphMgr.get()->setFileName(qcirMgr.get()->getFileName());
+                    zxGraphMgr.get()->addProcedures(qcirMgr.get()->getProcedures());
+                    zxGraphMgr.get()->addProcedure("QC2ZX");
+                }
+
+                return CmdExecResult::DONE;
+            }};
 }
 
 //----------------------------------------------------------------------
 //    QC2TS
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCir2TSCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QC2TS");
+Command QCir2TSCmd() {
+    return {"qc2ts",
+            [](ArgumentParser& parser) {
+                parser.description("convert QCir to tensor");
+            },
+            [](ArgumentParser const& parser) {
+                if (!qcirMgrNotEmpty()) return CmdExecResult::ERROR;
+                logger.info("Converting to QCir {} to tensor {}...", qcirMgr.focusedID(), tensorMgr.getNextID());
+                auto tensor = toTensor(*qcirMgr.get());
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("convert QCir to tensor");
-    };
+                if (tensor.has_value()) {
+                    tensorMgr.add(tensorMgr.getNextID());
+                    tensorMgr.set(std::make_unique<QTensor<double>>(std::move(tensor.value())));
 
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QC2TS");
-        qcirMgr->getQCircuit()->tensorMapping();
-        return CMD_EXEC_DONE;
-    };
+                    tensorMgr.get()->setFileName(qcirMgr.get()->getFileName());
+                    tensorMgr.get()->addProcedures(qcirMgr.get()->getProcedures());
+                    tensorMgr.get()->addProcedure("QC2TS");
+                }
 
-    return cmd;
+                return CmdExecResult::DONE;
+            }};
 }
 
 //----------------------------------------------------------------------
 //    QCCWrite
 //----------------------------------------------------------------------
 
-unique_ptr<ArgParseCmdType> QCirWriteCmd() {
-    auto cmd = make_unique<ArgParseCmdType>("QCCWrite");
+Command QCirWriteCmd() {
+    return {"qccwrite",
+            [](ArgumentParser& parser) {
+                parser.description("write QCir to a QASM file");
 
-    cmd->parserDefinition = [](ArgumentParser &parser) {
-        parser.help("write QCir to a QASM file");
-        parser.addArgument<string>("output-path.qasm")
-            .help("the filepath to output file");
-    };
+                parser.addArgument<string>("output_path")
+                    .constraint(path_writable)
+                    .constraint(allowed_extension({".qasm"}))
+                    .help("the filepath to output file. Supported extension: .qasm");
+            },
+            [](ArgumentParser const& parser) {
+                if (!qcirMgrNotEmpty()) return CmdExecResult::ERROR;
+                if (!qcirMgr.get()->writeQASM(parser.get<string>("output_path"))) {
+                    cerr << "Error: path " << parser.get<string>("output_path") << " not found!!" << endl;
+                    return CmdExecResult::ERROR;
+                }
+                return CmdExecResult::DONE;
+            }};
+}
 
-    cmd->onParseSuccess = [](ArgumentParser const &parser) {
-        QC_CMD_MGR_NOT_EMPTY_OR_RETURN("QCCWrite");
-        if (!qcirMgr->getQCircuit()->writeQASM(parser["output-path.qasm"])) {
-            cerr << "Error: path " << parser["output-path.qasm"] << " not found!!" << endl;
-            return CMD_EXEC_ERROR;
-        }
-        return CMD_EXEC_DONE;
-    };
+Command QCirDrawCmd() {
+    return {"qccdraw",
+            [](ArgumentParser& parser) {
+                parser.description("draw a QCir. This command relies on qiskit and pdflatex to be present in the system");
 
-    return cmd;
+                parser.addArgument<string>("output_path")
+                    .nargs(NArgsOption::OPTIONAL)
+                    .constraint(path_writable)
+                    .defaultValue("")
+                    .help(
+                        "if specified, output the resulting drawing into this file. "
+                        "This argument is mandatory if the drawer is 'mpl' or 'latex'");
+                parser.addArgument<string>("-drawer")
+                    .choices(std::initializer_list<string>{"text", "mpl", "latex", "latex_source"})
+                    .defaultValue("text")
+                    .help("the backend for drawing quantum circuit");
+                parser.addArgument<float>("-scale")
+                    .defaultValue(1.0f)
+                    .help("if specified, scale the resulting drawing by this factor");
+            },
+            [](ArgumentParser const& parser) {
+                if (!qcirMgrNotEmpty()) return CmdExecResult::ERROR;
+                auto drawer = parser.get<string>("-drawer");
+                auto outputPath = parser.get<string>("output_path");
+                auto scale = parser.get<float>("-scale");
+
+                if (drawer == "latex" || drawer == "mpl") {
+                    if (outputPath.empty()) {
+                        cerr << "Error: Using drawer \"" << drawer << "\" requires an output destination!!" << endl;
+                        return CmdExecResult::ERROR;
+                    }
+                }
+
+                if (drawer == "text" && parser.parsed("-scale")) {
+                    cerr << "Error: Cannot set scale for \'text\' drawer!!" << endl;
+                    return CmdExecResult::ERROR;
+                }
+
+                if (!qcirMgr.get()->draw(drawer, outputPath, scale)) {
+                    cerr << "Error: could not draw the QCir successfully!!" << endl;
+                    return CmdExecResult::ERROR;
+                }
+
+                return CmdExecResult::DONE;
+            }};
 }

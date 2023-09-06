@@ -6,49 +6,34 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "util.h"
+#include "util/util.hpp"
 
+#include <fmt/core.h>
+
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
 #include <filesystem>
-#include <iostream>
 #include <string>
 #include <vector>
 
-#include "myUsage.h"  // for MyUsage
-#include "rnGen.h"    // for RandomNumGen
+#include "./usage.hpp"
 
 using namespace std;
 
 //----------------------------------------------------------------------
-//    Global variables in util
-//----------------------------------------------------------------------
-
-RandomNumGen rnGen(0);  // use random seed = 0
-MyUsage myUsage;
-
-//----------------------------------------------------------------------
 //    Global functions in util
 //----------------------------------------------------------------------
-//
-// List all the file names under "dir" with prefix "prefix"
-// Ignore "." and ".."
-//
-int listDir(vector<string>& files, const string& prefix, const string& dir = ".") {
-    namespace fs = std::filesystem;
-    if (!fs::exists(dir)) {
-        cerr << "Error(" << errno << "): failed to open " << dir << "!!\n";
-        return errno;
+#ifndef NDEBUG
+void dvlab::detail::dvlab_assert_impl(const char* expr_str, bool expr, const char* file, int line, const char* msg) {
+    if (!expr) {
+        fprintf(stderr, "Assertion failed:\t%s\n", msg);
+        fprintf(stderr, "Expected:\t%s\n", expr_str);
+        fprintf(stderr, "Source:\t\t%s, line %d\n", file, line);
+        abort();
     }
-
-    for (auto& entry : fs::directory_iterator(dir)) {
-        if (prefix.empty() || string(entry.path().filename()).compare(0, prefix.size(), prefix) == 0) {
-            files.push_back(entry.path().filename());
-        }
-    }
-
-    sort(files.begin(), files.end());
-
-    return 0;
 }
+#endif
 
 size_t intPow(size_t base, size_t n) {
     if (n == 0) return 1;
@@ -72,3 +57,21 @@ TqdmWrapper::~TqdmWrapper() {
 void TqdmWrapper::add() {
     _tqdm->progress(_counter++, _total);
 }
+
+namespace dvlab {
+
+namespace utils {
+
+bool expect(bool condition, std::string const& msg) {
+    if (!condition) {
+        if (!msg.empty()) {
+            fmt::println(stderr, "{}", msg);
+        }
+        return false;
+    }
+    return true;
+}
+
+}  // namespace utils
+
+}  // namespace dvlab

@@ -6,15 +6,13 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "qcirQubit.h"
+#include "./qcirQubit.hpp"
 
-#include "qcirGate.h"  // for QCirGate, BitInfo
-class QCir;
+#include <iomanip>
+
+#include "./qcirGate.hpp"
 
 using namespace std;
-
-extern QCir *qCir;
-extern size_t verbose;
 
 /**
  * @brief Print qubit info
@@ -24,7 +22,7 @@ void QCirQubit::printBitLine() const {
     QCirGate *current = _bitFirst;
     size_t last_time = 1;
     cout << "Q" << right << setfill(' ') << setw(2) << _id << "  ";
-    while (current != NULL) {
+    while (current != nullptr) {
         cout << "-";
         while (last_time < current->getTime()) {
             cout << "----";

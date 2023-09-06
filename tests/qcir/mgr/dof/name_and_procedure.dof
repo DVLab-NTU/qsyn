@@ -1,0 +1,9 @@
+qccr benchmark/benchmark_SABRE/large/adr4_197.qasm
+qc2zx
+zxgs -fr
+zx2qc
+qccoptimize -c
+qcp -l
+qcp -f
+
+qq -f

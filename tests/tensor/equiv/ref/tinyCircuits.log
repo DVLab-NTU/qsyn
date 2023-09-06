@@ -1,34 +1,31 @@
-DV Lab, NTUEE, Qsyn 0.4.2
+DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> ver 2
 Note: verbose level is set to 2
 
 qsyn> qcba 2
 Note: QCir list is empty now. Create a new one.
 
-qsyn> qcga -cx 0 1
+qsyn> qcga cx 0 1
 
-qsyn> qcga -cx 1 0
+qsyn> qcga cx 1 0
 
-qsyn> qcga -cx 0 1
+qsyn> qcga cx 0 1
 
 qsyn> qc2ts
-Stored the resulting tensor as tensor id 0
 
 qsyn> zxgr benchmark/zx/swap.zx
 
 qsyn> zx2ts
-Stored the resulting tensor as tensor id 1
 
 qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> tsp -l
-Tensor    0: #Dim:    2	Info: QC
-Tensor    1: #Dim:    2	Info: ZX 0
-Total #Tensor: 2
+  0                        #Dim: 2   QC2TS
+★ 1    swap                #Dim: 2   ZX2TS
 
-qsyn> tseq 0 1 -Strict
-[1m[32mEquivalent[0m[0m
+qsyn> tseq 0 1 -strict
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
@@ -42,28 +39,25 @@ Note: verbose level is set to 2
 qsyn> zxgr benchmark/zx/tof3.zx
 
 qsyn> zx2ts
-Stored the resulting tensor as tensor id 0
 
 qsyn> zxgr benchmark/zx/tof3_ZH.zx
 
 qsyn> zx2ts
-Stored the resulting tensor as tensor id 1
 
 qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> tsp -l
-Tensor    0: #Dim:    2	Info: ZX 0
-Tensor    1: #Dim:    2	Info: ZX 1
-Total #Tensor: 2
+  0    tof3                #Dim: 2   ZX2TS
+★ 1    tof3_ZH             #Dim: 2   ZX2TS
 
 qsyn> tseq 0 1 
-[1m[32mEquivalent[0m[0m
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
-qsyn> tseq 0 1 -Strict
-[1m[32mEquivalent[0m[0m
+qsyn> tseq 0 1 -strict
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 

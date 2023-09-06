@@ -1,0 +1,118 @@
+DV Lab, NTUEE, Qsyn 0.5.1
+qsyn> ver 0
+Note: verbose level is set to 0
+
+qsyn> qcp -se
+
+Delay of Single-qubit gate :     1
+Delay of Double-qubit gate :     2
+Delay of SWAP gate :             6 (3 CXs)
+Delay of Multiple-qubit gate :   5
+
+qsyn> qcset -double 2 -sw 6
+
+qsyn> qcp -se
+
+Delay of Single-qubit gate :     1
+Delay of Double-qubit gate :     2
+Delay of SWAP gate :             6 (3 CXs)
+Delay of Multiple-qubit gate :   5
+
+qsyn> qccr benchmark/benchmark_SABRE/large/cm82a_208.qasm
+
+qsyn> dtgr benchmark/topology/guadalupe.layout 
+
+qsyn> qccp -a
+Clifford    : 370
+└── 2-qubit : 283
+T-family    : 280
+Others      : 0
+
+qsyn> duoprint -d
+
+Scheduler:         search
+Router:            duostra
+Placer:            dfs
+
+Candidates:        -1
+Search Depth:      4
+
+Orient:            true
+APSP Coeff.:       1
+Available Time:    max
+Prefer Cost:       min
+Never Cache:       true
+Single Immed.:     false
+
+qsyn> duoset -depth 2 -si true
+
+qsyn> duoprint -d
+
+Scheduler:         search
+Router:            duostra
+Placer:            dfs
+
+Candidates:        -1
+Search Depth:      2
+
+Orient:            true
+APSP Coeff.:       1
+Available Time:    max
+Prefer Cost:       min
+Never Cache:       true
+Single Immed.:     true
+
+qsyn> duostra -c
+Routing...
+
+Checking...
+
+Duostra Result: 
+
+Scheduler:      search
+Router:         duostra
+Placer:         dfs
+
+Mapping Depth:  1603
+Total Time:     3633
+#SWAP:          450
+
+
+qsyn> qccp -a
+Clifford    : 1720
+└── 2-qubit : 1633
+T-family    : 280
+Others      : 0
+
+qsyn> duoset -sc greedy
+
+qsyn> duoprint
+
+Scheduler:         greedy
+Router:            duostra
+Placer:            dfs
+
+qsyn> duostra -c
+Routing...
+
+Checking...
+
+Duostra Result: 
+
+Scheduler:      greedy
+Router:         duostra
+Placer:         dfs
+
+Mapping Depth:  2441
+Total Time:     6753
+#SWAP:          520
+
+
+qsyn> qccp -a
+Clifford    : 3280
+└── 2-qubit : 3193
+T-family    : 280
+Others      : 0
+
+qsyn> qq -f
+

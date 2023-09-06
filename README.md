@@ -3,7 +3,7 @@
 ![contributors](https://img.shields.io/github/contributors/ric2k1/qsyn?style=plastic)
 ![pr-welcome](https://img.shields.io/badge/PRs-welcome-green?style=plastic)
 ![g++-10](https://img.shields.io/badge/g++-≥10-blue?style=plastic)
-![gfortran-10](https://img.shields.io/badge/gfortran-≥10-blueviolet?style=plastic)
+![clang++-16](https://img.shields.io/badge/clang++-≥16-blueviolet?style=plastic)
 
 # Qsyn: An End-to-End Quantum Circuit Synthesis Framework
 
@@ -16,17 +16,14 @@
 
 ## Introduction
 
-Qsyn is a C++ based growing software system for synthesis, optimization and verification of quantum circuits appearing in quantum computers. Qsyn implements scalable quantum circuits optimization by combining ZX-Calculus and technology mapping.
+`qsyn` is a `C++`-based growing software system for synthesis, optimization and verification of quantum circuits for to aid the development of quantum computing. `qsyn` implements scalable quantum circuits optimization by combining ZX-Calculus and technology mapping.
 
-Qsyn provides an experimental implementation of optimization algorithms and a programming environment for simulation or building similar applications. Future development will focus on enhancing the algorithms, and visualization of ZX-graphs.
-
-## Third party dependencies
-
-- `xtensor`, `xtensor-blas` for tensor calculation
-- `tqdm` for progress bar pretty-printing
-- `pdflatex` for outputting pdf files
+`qsyn` provides an experimental implementation of optimization algorithms and a programming environment for simulation or building similar applications. Future development will focus on enhancing the optimization and qubit mapping routines, adding support to synthesize from arbitrary unitaries, as well as adding in verification functionalities.
 
 ## Getting Started
+
+### System Requirements
+`qsyn` requires `c++-20` to build. We support compilation with (1) `g++-10` or above, or (2) `clang++-16` or above. We regularly perform build tests for the two compilers.
 
 ### Installation
 
@@ -35,22 +32,18 @@ git clone https://github.com/ric2k1/qsyn.git
 cd qsyn
 ```
 
-#### Visualization (optional for ZXGDraw)
-
-```shell
-sudo apt-get install texlive-latex-base
-```
-
-### System Requirements
-
-- Linux (recommended): `Qsyn` requires `g++-10` and `gfortran-10` to compile. The two compilers should also be on the same version.
-- MacOS: `Qsyn` can also be compiled with Apple Clang (which, by default, is what gets called when invoking `g++`) with version 13.1.7 and up. However, note the following caveats:
-  - You may need to install `OpenMP` via HomeBrew or MacPort, and link/add the headers and libraries into compiler search path.
-  - Due to differences in c++ standard implementation, there might be some deviations in the output of Apple Clang-compiled program from their g++-compiled counterparts.
+### Optional Dependencies for Visualization
+Visualization functionalities of `qsyn` depends at runtime on the following dependencies. Please refer to the linked pages for installation instructions:
+* `qiskit`, `qiskit[visualization]` for drawing quantum circuits
+    * Please refer to [this page](https://qiskit.org/documentation/getting_started.html)
+* `texlive` for drawing ZX-diagrams.
+    * For Ubuntu:
+        ```shell
+        sudo apt-get install texlive-latex-base
+        ```
+    * Other Platforms: please refer to [this page](https://tug.org/texlive/quickinstall.html) 
 
 ### Compilation
-
-#### CMake
 
 `qsyn` uses CMake manage the dependencies:
 
@@ -73,41 +66,13 @@ sudo apt-get install texlive-latex-base
     make -j16
    ```
 
-
-#### Makefile (to be deprecated)
-
-`qsyn` can also be built with the old-school "configure-then-make" way. However, note that this way of managing the build is planned to be deprecated in the future.
-
-1. Qsyn depends on `xtensor` and `xtensor-blas`. To install these dependencies, run `configure.sh`, which checks for lacking dependencies and install them automatically.
-   ```shell!
-   sudo ./configure.sh
-   ```
-2. Then, run `make` to build up the executable.
-   ```shell!
-   make -j16
-   ```
-   or
-   ```shell!
-   gmake -j16
-   ```
-   if you are on MacOS.
-3. If the compilation process ends successfully, you will see
-   ```shell!
-   > building qsyn...
-   ~/qsyn$ _
-   ```
-4. To delete all intermediate files created in the compilation process, please type
-   ```shell!
-   make clean
-   ```
-
 ### Run
 
 - After successful compilation, you can call the command-line interface of `Qsyn` where you can execute commands implemented into `Qsyn`.
 
   ```shell!
    ❯ ./qsyn
-   DV Lab, NTUEE, Qsyn 0.4.0
+   DV Lab, NTUEE, Qsyn 0.5.1
    qsyn>
   ```
 
@@ -115,7 +80,7 @@ sudo apt-get install texlive-latex-base
 
   ```shell!
   ❯ ./qsyn -f tests/demo/demo/dof/tof_3.dof
-  DV Lab, NTUEE, Qsyn 0.4.0
+  DV Lab, NTUEE, Qsyn 0.5.1
   qsyn> verb 0
   Note: verbose level is set to 0
 
@@ -155,21 +120,23 @@ We have provided some DOFILEs, i.e., a sequence of commands, to serve as functio
 
 - To run a DOFILE and compare the result to the reference, type
   ```shell!
-  ./DOFILE.sh <path/to/test> -d
+  ./RUN_TEST <path/to/test> -d
   ```
 - To update the reference to a dofile, type
   ```shell!
-  ./DOFILE.sh <path/to/test> -up
+  ./RUN_TEST <path/to/test> -u
   ```
 - You may also run all DOFILEs by running
-  `bash!
-./RUN_ALL_TEST.sh
-`
-  Notice that if you use Apple Clang to compile `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
+  ```bash!
+  ./RUN_TEST
+  ```
+  Notice that if you use `clang` to compile `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
 
 ## License
+`qsyn` is licensed under the
+[Apache License 2.0](https://github.com/ric2k1/qsyn/blob/main/LICENSE).
 
-[Apache License 2.0](https://github.com/ric2k1/qsyn/blob/main/LICENSE)
+Certain functions of `qsyn` is enabled by a series of third-party libraries. For a list of these libraries, as well as their license information, please refer to [this document](/vendor/List-of-Used-Libraries.md).
 
 ## Commands List
 

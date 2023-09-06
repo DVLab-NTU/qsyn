@@ -1,0 +1,97 @@
+DV Lab, NTUEE, Qsyn 0.5.1
+qsyn> help logger
+Usage: logger [-h] [test | level | history | mask] ...
+
+Description:
+  display and set the logger's status
+
+Options:
+  flag  -h, --help    show this help message and exit 
+
+Subcommands:
+  [test | level | history | mask]  subcommands for logger  
+    test                           Test out logger setting 
+    level                          set logger level        
+    history                        print logger history    
+    mask                           set logger mask         
+
+qsyn> help dofile
+Usage: dofile [-h] <string file> [<string arguments>]...
+
+Description:
+  execute the commands in the dofile
+
+Positional Arguments:
+  string  file         path to a dofile, i.e., a list of Qsyn commands 
+  string  arguments    arguments to the dofile                         
+
+Options:
+  flag  -h, --help    show this help message and exit 
+
+qsyn> help zxge
+Usage: zxgedit [-h] (-rmvertex | -rmedge | -addvertex | -addinput | -addoutput | -addedge) ...
+
+Description:
+  edit ZXGraph
+
+Options:
+  flag  -h, --help    show this help message and exit 
+
+Subcommands:
+  (-rmvertex | -rmedge | -addvertex | -addinput | -addoutput | -addedge)   
+
+qsyn> zxge -rmvertex -h
+Usage: -rmvertex [-h] ([<size_t ids>]... | -isolated)
+
+Positional Arguments:
+  size_t  ids    the IDs of vertices to remove 
+
+Options:
+  flag  -h, --help    show this help message and exit      
+  flag  -isolated     if set, remove all isolated vertices 
+
+qsyn> zxge -rmedge -h
+Usage: -rmedge [-h] <size_t (vs, vt)> <size_t (vs, vt)> <string etype>
+
+Positional Arguments:
+  size_t  (vs, vt)    the IDs to the two vertices to remove edges in between                      
+  string  etype       the edge type to remove. Options: simple, hadamard, all (i.e., remove both) 
+
+Options:
+  flag  -h, --help    show this help message and exit 
+
+qsyn> help extract
+Usage: extract [-h] (-zxgraph <size_t ID>) (-qcir <size_t ID>) (-cx | -cz | -phase | -H | -clf | -rmg | -permute | -loop [<size_t N>])
+
+Description:
+  perform step(s) in extraction
+
+Options:
+  flag    -h, --help                  show this help message and exit                         
+  size_t  -zxgraph                ID  the ID of the ZXGraph to extract from                   
+  size_t  -qcir                   ID  the ID of the QCir to extract to                        
+  flag    -cx                         Extract CX gates                                        
+  flag    -cz                         Extract CZ gates                                        
+  flag    -phase                      Extract Z-rotation gates                                
+  flag    -H, --hadamard              Extract Hadamard gates                                  
+  flag    -clf, --clear-frontier      Extract Z-rotation and then CZ gates                    
+  flag    -rmg, --remove-gadgets      Remove phase gadgets in the neighbor of the frontiers   
+  flag    -permute                    Add swap gates to account for ZXGraph I/O permutations  
+  size_t  -loop                   N   Run N iteration of extraction loop. N is defaulted to 1 
+
+qsyn> help zxgr
+Usage: zxgread [-h] [-keepid] [-replace] <string filepath>
+
+Description:
+  read a file and construct the corresponding ZXGraph
+
+Positional Arguments:
+  string  filepath    path to the ZX file. Supported extensions: .zx, .bzx 
+
+Options:
+  flag  -h, --help    show this help message and exit                                                         
+  flag  -keepid       if set, retain the IDs in the ZX file; otherwise the ID is rearranged to be consecutive 
+  flag  -replace      replace the current ZXGraph                                                             
+
+qsyn> qq -f
+

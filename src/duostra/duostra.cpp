@@ -7,12 +7,19 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "duostra.h"
+#include "./duostra.hpp"
 
-#include "checker.h"
-#include "variables.h"
+#include <iomanip>
+
+#include "./checker.hpp"
+#include "./placer.hpp"
+#include "./variables.hpp"
+#include "qcir/qcir.hpp"
+
 using namespace std;
 extern size_t verbose;
+
+extern bool stop_requested();
 
 // SECTION - Global settings for Duostra mapper
 
@@ -134,9 +141,9 @@ size_t getPlacerType(string str) {
  * @param tqdm
  * @param silent
  */
-Duostra::Duostra(QCir* cir, Device dev, bool check, bool tqdm, bool silent) : _logicalCircuit(cir), _physicalCircuit(new QCir(0)), _device(dev), _check(check) {
-    _tqdm = (silent == true) ? false : tqdm;
-    _silent = silent;
+Duostra::Duostra(QCir* cir, Device dev, DuostraConfig const& config)
+    : _logicalCircuit(cir), _device(dev), _check(config.verifyResult),
+      _tqdm{!config.silent && config.useTqdm}, _silent{config.silent} {
     if (verbose > 3) cout << "Creating dependency of quantum circuit..." << endl;
     makeDependency();
 }
@@ -150,9 +157,9 @@ Duostra::Duostra(QCir* cir, Device dev, bool check, bool tqdm, bool silent) : _l
  * @param tqdm
  * @param silent
  */
-Duostra::Duostra(const vector<Operation>& cir, size_t nQubit, Device dev, bool check, bool tqdm, bool silent) : _logicalCircuit(nullptr), _physicalCircuit(new QCir(0)), _device(dev), _check(check) {
-    _tqdm = (silent == true) ? false : tqdm;
-    _silent = silent;
+Duostra::Duostra(vector<Operation> const& cir, size_t nQubit, Device dev, DuostraConfig const& config)
+    : _logicalCircuit(nullptr), _device(dev), _check(config.verifyResult),
+      _tqdm{!config.silent && config.useTqdm}, _silent{config.silent} {
     if (verbose > 3) cout << "Creating dependency of quantum circuit..." << endl;
     makeDependency(cir, nQubit);
 }
@@ -184,9 +191,9 @@ void Duostra::makeDependency() {
             if (second._parent != nullptr) tempGate.addPrev(second._parent->getId());
             if (second._child != nullptr) tempGate.addNext(second._child->getId());
         }
-        allGates.push_back(move(tempGate));
+        allGates.emplace_back(std::move(tempGate));
     }
-    _dependency = make_shared<DependencyGraph>(_logicalCircuit->getNQubit(), move(allGates));
+    _dependency = make_shared<DependencyGraph>(_logicalCircuit->getNQubit(), std::move(allGates));
 }
 
 /**
@@ -212,9 +219,9 @@ void Duostra::makeDependency(const vector<Operation>& oper, size_t nQubit) {
         }
         lastGate[get<0>(oper[i].getQubits())] = i;
         lastGate[get<1>(oper[i].getQubits())] = i;
-        allGates.push_back(move(tempGate));
+        allGates.emplace_back(std::move(tempGate));
     }
-    _dependency = make_shared<DependencyGraph>(nQubit, move(allGates));
+    _dependency = make_shared<DependencyGraph>(nQubit, std::move(allGates));
 }
 
 /**
@@ -241,16 +248,21 @@ size_t Duostra::flow(bool useDeviceAsPlacement) {
     }
     // scheduler
     if (verbose > 3) cout << "Creating Scheduler..." << endl;
-    auto sched = getScheduler(move(topo), _tqdm);
+    auto sched = getScheduler(std::move(topo), _tqdm);
 
     // router
     if (verbose > 3) cout << "Creating Router..." << endl;
     string cost = (DUOSTRA_SCHEDULER == 3) ? "end" : "start";
-    auto router = make_unique<Router>(move(_device), cost, DUOSTRA_ORIENT);
+    auto router = make_unique<Router>(std::move(_device), cost, DUOSTRA_ORIENT);
 
     // routing
     if (!_silent) cout << "Routing..." << endl;
-    _device = sched->assignGatesAndSort(move(router));
+    _device = sched->assignGatesAndSort(std::move(router));
+
+    if (stop_requested()) {
+        cerr << "Warning: mapping interrupted" << endl;
+        return ERROR_CODE;
+    }
 
     if (_check) {
         if (!_silent) cout << "Checking..." << endl;
@@ -307,14 +319,14 @@ void Duostra::printAssembly() const {
     for (size_t i = 0; i < _result.size(); ++i) {
         const auto& op = _result.at(i);
         string gateName{gateType2Str[op.getType()]};
-        cout << left << setw(5) << gateName << " ";
+        cout << left << setw(5) << gateName << " ";  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         tuple<size_t, size_t> qubits = op.getQubits();
         string res = "q[" + to_string(get<0>(qubits)) + "]";
         if (get<1>(qubits) != ERROR_CODE) {
             res = res + ",q[" + to_string(get<1>(qubits)) + "]";
         }
         res += ";";
-        cout << left << setw(20) << res;
+        cout << left << setw(20) << res;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         cout << " // (" << op.getOperationTime() << "," << op.getCost() << ")   Origin gate: " << op.getId() << "\n";
     }
 }
@@ -324,10 +336,6 @@ void Duostra::printAssembly() const {
  *
  */
 void Duostra::buildCircuitByResult() {
-    if (_logicalCircuit != nullptr) {
-        _physicalCircuit->addProcedure("Duostra", _logicalCircuit->getProcedures());
-        _physicalCircuit->setFileName(_logicalCircuit->getFileName());
-    }
     _physicalCircuit->addQubit(_device.getNQubit());
     for (const auto& operation : _result) {
         string gateName{gateType2Str[operation.getType()]};

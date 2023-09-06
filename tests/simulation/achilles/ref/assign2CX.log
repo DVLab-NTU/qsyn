@@ -1,9 +1,7 @@
-DV Lab, NTUEE, Qsyn 0.4.2
+DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qccr benchmark/pseudoSimp/achilles.qasm
-Create and checkout to QCir 0
 
 qsyn> qc2zx
-Create and checkout to Graph 0
 
 qsyn> zxgas 3 I X 0
 
@@ -24,12 +22,12 @@ qsyn> zxgs -sr
 
 qsyn> zxgp -v
 
-ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (35, [1m[34mH[0m[0m) 
-ID:   5 (●, 0)           (Qubit, Col): (2, 36)	  #Neighbors:   1     (35, [1m[34mH[0m[0m) 
-ID:   8 (●, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (107, -) 
-ID:   9 (●, 0)           (Qubit, Col): (4, 36)	  #Neighbors:   1     (107, -) 
-ID:  35 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (2, 15)	  #Neighbors:   3     (4, [1m[34mH[0m[0m) (5, [1m[34mH[0m[0m) (107, [1m[34mH[0m[0m) 
-ID: 107 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (4, 30)	  #Neighbors:   3     (8, -) (9, -) (35, [1m[34mH[0m[0m) 
+ID:   4 (●, 0)           (Qubit, Col): (2, 0)	  #Neighbors:   1     (41, H) 
+ID:   5 (●, 0)           (Qubit, Col): (2, 47)	  #Neighbors:   1     (41, H) 
+ID:   8 (●, 0)           (Qubit, Col): (4, 0)	  #Neighbors:   1     (102, -) 
+ID:   9 (●, 0)           (Qubit, Col): (4, 47)	  #Neighbors:   1     (102, -) 
+ID:  41 (X, 0)           (Qubit, Col): (2, 17)	  #Neighbors:   3     (4, H) (5, H) (102, H) 
+ID: 102 (X, 0)           (Qubit, Col): (4, 39)	  #Neighbors:   3     (8, -) (9, -) (41, H) 
 Total #Vertices: 6
 
 
@@ -37,24 +35,17 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> zx2ts
-Traverse and build the tensor... 
-Successfully added Tensor 0
-Stored the resulting tensor as tensor id 0
 
 qsyn> qcnew
-Create and checkout to QCir 1
 
 qsyn> qcba 2
 
-qsyn> qcga -cx 0 1
+qsyn> qcga cx 0 1
 
 qsyn> qc2ts
-Traverse and build the tensor... 
-Successfully added Tensor 1
-Stored the resulting tensor as tensor id 1
 
 qsyn> tseq 0 1
-[1m[32mEquivalent[0m[0m
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 

@@ -7,9 +7,11 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "router.h"
+#include "./router.hpp"
 
-#include "util.h"
+#include "./circuitTopology.hpp"
+#include "./variables.hpp"
+#include "util/util.hpp"
 
 using namespace std;
 extern size_t verbose;
@@ -89,8 +91,8 @@ Router::Router(Router&& other) noexcept
       _duostra(other._duostra),
       _orient(other._orient),
       _APSP(other._APSP),
-      _device(move(other._device)),
-      _logical2Physical(move(other._logical2Physical)) {}
+      _device(std::move(other._device)),
+      _logical2Physical(std::move(other._logical2Physical)) {}
 
 /**
  * @brief Clone router
@@ -362,13 +364,13 @@ vector<Operation> Router::apspRouting(GateType gate, size_t gateId, Phase phase,
             Operation oper(GateType::SWAP, Phase(0), make_tuple(q0Id, q0Next),
                            make_tuple(q0Cost, q0Cost + SWAP_DELAY));
             _device.applyGate(oper);
-            operationList.push_back(move(oper));
+            operationList.emplace_back(std::move(oper));
             q0Id = q0Next;
         } else {
             Operation oper(GateType::SWAP, Phase(0), make_tuple(q1Id, q1Next),
                            make_tuple(q0Cost, q0Cost + SWAP_DELAY));
             _device.applyGate(oper);
-            operationList.push_back(move(oper));
+            operationList.emplace_back(std::move(oper));
             q1Id = q1Next;
         }
     }
@@ -382,7 +384,7 @@ vector<Operation> Router::apspRouting(GateType gate, size_t gateId, Phase phase,
                      make_tuple(gateCost, gateCost + DOUBLE_DELAY));
     _device.applyGate(CXGate);
     CXGate.setId(gateId);
-    operationList.push_back(CXGate);
+    operationList.emplace_back(CXGate);
 
     return operationList;
 }
@@ -452,7 +454,7 @@ vector<Operation> Router::traceback([[maybe_unused]] GateType gt, size_t gateId,
     }
     Operation CXGate(gt, ph, qids, make_tuple(operationTime, operationTime + DOUBLE_DELAY));
     CXGate.setId(gateId);
-    operationList.push_back(CXGate);
+    operationList.emplace_back(CXGate);
 
     // traceback by tracing the parent iteratively
     size_t trace0 = q0.getId();
@@ -466,7 +468,7 @@ vector<Operation> Router::traceback([[maybe_unused]] GateType gt, size_t gateId,
         size_t swapTime = qTrace0.getSwapTime();
         Operation swapGate(GateType::SWAP, Phase(0), make_tuple(trace0, tracePred0),
                            make_tuple(swapTime, swapTime + SWAP_DELAY));
-        operationList.push_back(swapGate);
+        operationList.emplace_back(swapGate);
 
         trace0 = tracePred0;
     }
@@ -478,7 +480,7 @@ vector<Operation> Router::traceback([[maybe_unused]] GateType gt, size_t gateId,
         size_t swapTime = qTrace1.getSwapTime();
         Operation swapGate(GateType::SWAP, Phase(0), make_tuple(trace1, tracePred1),
                            make_tuple(swapTime, swapTime + SWAP_DELAY));
-        operationList.push_back(swapGate);
+        operationList.emplace_back(swapGate);
 
         trace1 = tracePred1;
     }

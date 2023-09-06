@@ -1,0 +1,26 @@
+zxgr benchmark/zx/cnot.zx
+zxgp
+zxcopy
+zxgp
+zxge -rmv 1
+zxgp
+zxch 0
+zxgp
+zxr
+zxgr benchmark/zx/cnot.zx
+zxgp
+zxcopy
+zxgp
+zxge -rmv 1
+zxgp
+zxcop -r 0
+zxgp
+zxr
+zxgr benchmark/zx/cnot.zx
+zxgp -v
+zxcopy
+zxge -adde 0 5 HADAMARD
+zxgp -v
+zxcheckout 0
+zxgp -v
+qq -f

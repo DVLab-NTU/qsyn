@@ -1,9 +1,7 @@
-DV Lab, NTUEE, Qsyn 0.4.2
+DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qccr benchmark/pseudoSimp/achilles.qasm
-Create and checkout to QCir 0
 
 qsyn> qc2zx
-Create and checkout to Graph 0
 
 qsyn> zxgas 3 I X 0
 
@@ -26,15 +24,10 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> zx2ts
-Traverse and build the tensor... 
-Successfully added Tensor 0
-Stored the resulting tensor as tensor id 0
 
-qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
-Note: original QCir is replaced...
+qsyn> qccr -r benchmark/pseudoSimp/achilles.qasm
 
 qsyn> qc2zx
-Create and checkout to Graph 1
 
 qsyn> zxgas 3 I X 0
 
@@ -57,15 +50,10 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> zx2ts
-Traverse and build the tensor... 
-Successfully added Tensor 1
-Stored the resulting tensor as tensor id 1
 
-qsyn> qccr -R benchmark/pseudoSimp/achilles.qasm
-Note: original QCir is replaced...
+qsyn> qccr -r benchmark/pseudoSimp/achilles.qasm
 
 qsyn> qc2zx
-Create and checkout to Graph 2
 
 qsyn> zxgas 3 I X 0
 
@@ -88,22 +76,19 @@ qsyn> ver 3
 Note: verbose level is set to 3
 
 qsyn> zx2ts
-Traverse and build the tensor... 
-Successfully added Tensor 2
-Stored the resulting tensor as tensor id 2
 
 qsyn> tseq 0 1
-[1m[32mEquivalent[0m[0m
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
 qsyn> tseq 0 2
-[1m[32mEquivalent[0m[0m
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
 qsyn> tseq 1 2
-[1m[32mEquivalent[0m[0m
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 

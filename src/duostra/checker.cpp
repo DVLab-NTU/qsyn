@@ -7,10 +7,14 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "checker.h"
+#include "./checker.hpp"
+
+#include "./circuitTopology.hpp"
+#include "util/logger.hpp"
 
 using namespace std;
 extern size_t verbose;
+extern dvlab::utils::Logger logger;
 
 /**
  * @brief Construct a new Checker:: Checker object
@@ -23,10 +27,10 @@ extern size_t verbose;
  */
 Checker::Checker(CircuitTopo& topo,
                  Device& device,
-                 const vector<Operation>& ops,
+                 std::vector<Operation> const& ops,
                  const vector<size_t>& assign, bool tqdm)
-    : _topo(topo), _device(device), _ops(ops), _tqdm(tqdm) {
-    _device.place(assign);
+    : _topo(&topo), _device(&device), _ops(ops), _tqdm(tqdm) {
+    _device->place(assign);
 }
 
 /**
@@ -113,8 +117,8 @@ void Checker::applySwap(const Operation& op) {
     }
     size_t q0_idx = get<0>(op.getQubits());
     size_t q1_idx = get<1>(op.getQubits());
-    auto& q0 = _device.getPhysicalQubit(q0_idx);
-    auto& q1 = _device.getPhysicalQubit(q1_idx);
+    auto& q0 = _device->getPhysicalQubit(q0_idx);
+    auto& q1 = _device->getPhysicalQubit(q1_idx);
     applyGate(op, q0, q1);
 
     // swap
@@ -138,8 +142,8 @@ bool Checker::applyCX(const Operation& op, const Gate& gate) {
     }
     size_t q0_idx = get<0>(op.getQubits());
     size_t q1_idx = get<1>(op.getQubits());
-    auto& q0 = _device.getPhysicalQubit(q0_idx);
-    auto& q1 = _device.getPhysicalQubit(q1_idx);
+    auto& q0 = _device->getPhysicalQubit(q0_idx);
+    auto& q1 = _device->getPhysicalQubit(q1_idx);
 
     size_t topo_0 = q0.getLogicalQubit();
     if (topo_0 == ERROR_CODE) {
@@ -187,7 +191,7 @@ bool Checker::applySingle(const Operation& op, const Gate& gate) {
              << " has no null second qubit" << endl;
         abort();
     }
-    auto& q0 = _device.getPhysicalQubit(q0_idx);
+    auto& q0 = _device->getPhysicalQubit(q0_idx);
 
     size_t topo_0 = q0.getLogicalQubit();
     if (topo_0 == ERROR_CODE) {
@@ -216,23 +220,23 @@ bool Checker::testOperations() {
         if (op.getType() == GateType::SWAP) {
             applySwap(op);
         } else {
-            auto& availableGates = _topo.getAvailableGates();
+            auto& availableGates = _topo->getAvailableGates();
             bool passCondition = false;
             if (op.getType() == GateType::CX || op.getType() == GateType::CZ) {
                 for (auto gate : availableGates) {
-                    if (applyCX(op, _topo.getGate(gate))) {
+                    if (applyCX(op, _topo->getGate(gate))) {
                         passCondition = true;
-                        _topo.updateAvailableGates(gate);
-                        finishedGates.push_back(gate);
+                        _topo->updateAvailableGates(gate);
+                        finishedGates.emplace_back(gate);
                         break;
                     }
                 }
             } else {
                 for (auto gate : availableGates) {
-                    if (applySingle(op, _topo.getGate(gate))) {
+                    if (applySingle(op, _topo->getGate(gate))) {
                         passCondition = true;
-                        _topo.updateAvailableGates(gate);
-                        finishedGates.push_back(gate);
+                        _topo->updateAvailableGates(gate);
+                        finishedGates.emplace_back(gate);
                         break;
                     }
                 }
@@ -257,10 +261,10 @@ bool Checker::testOperations() {
              << "Num operations:" << _ops.size() << "\n";
     }
 
-    if (finishedGates.size() != _topo.getNumGates()) {
+    if (finishedGates.size() != _topo->getNumGates()) {
         cerr << "Number of finished gates " << finishedGates.size()
              << " different from number of gates "
-             << _topo.getNumGates() << endl;
+             << _topo->getNumGates() << endl;
         return false;
     }
     return true;

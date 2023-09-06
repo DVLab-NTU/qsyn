@@ -1,4 +1,4 @@
-FOLDER=230523-IterativeDFS
+FOLDER=230610-Opt2-IterativeDFS
 mkdir -p ref/${FOLDER}
 ##NOTE - Full Reduced Stats
 for file in cm82a_208 adr4_197 cm42a_207 cycle10_2_110 ham15_107 dc2_222 inc_237 rd84_253 sqn_258 root_255; do
@@ -12,7 +12,7 @@ done
 for file in cm85a_209 mlp4_245 square_root_7 pm1_249 sqrt8_260 z4_268 rd73_252 rd53_251; do
     ../../qsyn -f "dof/${file}.dof" > ref/${FOLDER}/${file}-O3.log 2>&1
 done
-##NOTE - Big cases
+#NOTE - Big cases
 for file in hwb8_113 urf1_149; do
     ../../qsyn -f "dof/${file}.dof" > ref/${FOLDER}/${file}-O3.log 2>&1
 done

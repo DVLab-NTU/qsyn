@@ -6,9 +6,7 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "tensorUtil.h"
-
-#include <iostream>
+#include "./tensorUtil.hpp"
 
 //------------------------------
 // Helper functions

@@ -1,4 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.4.2
+DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> verb 0
 Note: verbose level is set to 0
 
@@ -7,7 +7,7 @@ qsyn> zxgread benchmark/zx/tof3.zx
 qsyn> zxgs -freduce
 
 qsyn> zxgp
-Graph 0( 3 inputs, 3 outputs, 17 vertices, 19 edges )
+Graph (3 inputs, 3 outputs, 17 vertices, 19 edges)
 
 qsyn> qq -f
 

@@ -1,14 +1,16 @@
 color off
 ver 0
 qccr ../../benchmark/benchmark_SABRE/large/adr4_197.qasm
-qccp -a
+qccp 
 qc2zx
 zxgs -fr
 usage
 zx2qc
 usage
 qcp
-qccp -a
+qccp 
+optimize
+qccp 
 qc2zx
 zxgadj
 zxcomp 0

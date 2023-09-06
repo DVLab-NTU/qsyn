@@ -1,66 +1,46 @@
-DV Lab, NTUEE, Qsyn 0.4.2
+DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> ver 9
 Note: verbose level is set to 9
 
 qsyn> zxnew 10
-Create and checkout to Graph 10
 
 qsyn> zxge -addi 0
-Add vertex (●) 0
 
 qsyn> zxge -addo 0
-Add vertex (●) 1
 
 qsyn> zxge -addi 1
-Add vertex (●) 2
 
 qsyn> zxge -addo 1
-Add vertex (●) 3
 
 qsyn> zxge -addv 0 X
-Add vertex ([1m[31mX[0m[0m) 4
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m) 5
 
 qsyn> zxge -addv 1 X
-Add vertex ([1m[31mX[0m[0m) 6
 
 qsyn> zxge -addv 0 X
-Add vertex ([1m[31mX[0m[0m) 7
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m) 8
 
 qsyn> zxge -addv 1 Z
-Add vertex ([1m[32mZ[0m[0m) 9
 
 qsyn> zxge -adde 5 7 SIMPLE
-Add edge (5, 7)
 
 qsyn> zxge -adde 0 4 SIMPLE
-Add edge (0, 4)
 
 qsyn> zxge -adde 1 8 SIMPLE
-Add edge (1, 8)
 
 qsyn> zxge -adde 2 6 SIMPLE
-Add edge (2, 6)
 
 qsyn> zxge -adde 3 9 SIMPLE
-Add edge (3, 9)
 
 qsyn> zxge -adde 4 5 SIMPLE
-Add edge (4, 5)
 
 qsyn> zxge -adde 5 6 SIMPLE
-Add edge (5, 6)
 
 qsyn> zxge -adde 7 8 SIMPLE
-Add edge (7, 8)
 
 qsyn> zxge -adde 7 9 SIMPLE
-Add edge (7, 9)
 
 qsyn> zxgsimp -bia
 Hadamard Rule                 
@@ -70,12 +50,6 @@ Bialgebra Rule
 
 Iteration 1:
 >>>
-Add edge (4, 8)
-Add edge (4, 9)
-Add edge (6, 8)
-Add edge (6, 9)
-Remove ID: 5
-Remove ID: 7
 <<<
 => 1 iterations.
   1) 1 matches
@@ -87,124 +61,91 @@ ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (8, -) 
 ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (6, -) 
 ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (9, -) 
-ID:   4 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (0, -) (8, -) (9, -) 
-ID:   6 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   3     (2, -) (8, -) (9, -) 
-ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (1, -) (4, -) (6, -) 
-ID:   9 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   3     (3, -) (4, -) (6, -) 
+ID:   4 (X, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (0, -) (8, -) (9, -) 
+ID:   6 (X, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   3     (2, -) (8, -) (9, -) 
+ID:   8 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (1, -) (4, -) (6, -) 
+ID:   9 (Z, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   3     (3, -) (4, -) (6, -) 
 Total #Vertices: 8
 
 
 qsyn> zxgp -e
-( 0, 4 )	Type:	-
-( 1, 8 )	Type:	-
-( 2, 6 )	Type:	-
-( 3, 9 )	Type:	-
-( 4, 8 )	Type:	-
-( 4, 9 )	Type:	-
-( 6, 8 )	Type:	-
-( 6, 9 )	Type:	-
+(0, 4)       Type: -
+(1, 8)       Type: -
+(2, 6)       Type: -
+(3, 9)       Type: -
+(4, 8)       Type: -
+(4, 9)       Type: -
+(6, 8)       Type: -
+(6, 9)       Type: -
 Total #Edges: 8
 
 qsyn> zxr
 
 qsyn> zxnew 
-Create and checkout to Graph 0
 
 qsyn> zxge -addi 0
-Add vertex (●) 0
 
 qsyn> zxge -addo 0
-Add vertex (●) 1
 
 qsyn> zxge -addi 1
-Add vertex (●) 2
 
 qsyn> zxge -addo 1
-Add vertex (●) 3
 
 qsyn> zxge -addv 0 X
-Add vertex ([1m[31mX[0m[0m) 4
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m) 5
 
 qsyn> zxge -addv 1 X
-Add vertex ([1m[31mX[0m[0m) 6
 
 qsyn> zxge -addv 0 X
-Add vertex ([1m[31mX[0m[0m) 7
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m) 8
 
 qsyn> zxge -addv 1 Z
-Add vertex ([1m[32mZ[0m[0m) 9
 
 qsyn> zxge -addv 0 X
-Add vertex ([1m[31mX[0m[0m) 10
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m) 11
 
 qsyn> zxge -addv 1 X
-Add vertex ([1m[31mX[0m[0m) 12
 
 qsyn> zxge -addv 0 X
-Add vertex ([1m[31mX[0m[0m) 13
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m) 14
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m) 15
 
 qsyn> zxge -adde 0 4 SIMPLE
-Add edge (0, 4)
 
 qsyn> zxge -adde 1 14 SIMPLE
-Add edge (1, 14)
 
 qsyn> zxge -adde 2 6 SIMPLE
-Add edge (2, 6)
 
 qsyn> zxge -adde 3 15 SIMPLE
-Add edge (3, 15)
 
 qsyn> zxge -adde 4 5 SIMPLE
-Add edge (4, 5)
 
 qsyn> zxge -adde 5 7 SIMPLE
-Add edge (5, 7)
 
 qsyn> zxge -adde 5 6 SIMPLE
-Add edge (5, 6)
 
 qsyn> zxge -adde 7 8 SIMPLE
-Add edge (7, 8)
 
 qsyn> zxge -adde 7 9 SIMPLE
-Add edge (7, 9)
 
 qsyn> zxge -adde 8 10 SIMPLE
-Add edge (8, 10)
 
 qsyn> zxge -adde 10 9 SIMPLE
-Add edge (10, 9)
 
 qsyn> zxge -adde 10 11 SIMPLE
-Add edge (10, 11)
 
 qsyn> zxge -adde 11 12 SIMPLE
-Add edge (11, 12)
 
 qsyn> zxge -adde 11 13 SIMPLE
-Add edge (11, 13)
 
 qsyn> zxge -adde 14 13 SIMPLE
-Add edge (14, 13)
 
 qsyn> zxge -adde 12 15 SIMPLE
-Add edge (12, 15)
 
 qsyn> zxgsimp -bia
 Hadamard Rule                 
@@ -214,31 +155,10 @@ Bialgebra Rule
 
 Iteration 1:
 >>>
-Add edge (4, 8)
-Add edge (4, 9)
-Add edge (6, 8)
-Add edge (6, 9)
-Add edge (8, 12)
-Add edge (8, 13)
-Add edge (9, 12)
-Add edge (9, 13)
-Remove ID: 5
-Remove ID: 7
-Remove ID: 10
-Remove ID: 11
 <<<
 
 Iteration 2:
 >>>
-Add edge (4, 15)
-Note: Hopf edge; cancelling out with existing edge (4, 9)...
-Add edge (6, 15)
-Note: Hopf edge; cancelling out with existing edge (6, 9)...
-Add edge (13, 15)
-Note: Hopf edge; cancelling out with existing edge (9, 13)...
-Remove ID: 8
-Remove ID: 12
-Remove ID: 9
 <<<
 => 2 iterations.
   1) 2 matches
@@ -251,110 +171,50 @@ ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (14, -) 
 ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (6, -) 
 ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (15, -) 
-ID:   4 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (15, -) 
-ID:   6 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (2, -) (15, -) 
-ID:  13 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (14, -) (15, -) 
-ID:  14 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (1, -) (13, -) 
-ID:  15 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (3, -) (4, -) (6, -) (13, -) 
+ID:   4 (X, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (15, -) 
+ID:   6 (X, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (2, -) (15, -) 
+ID:  13 (X, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (14, -) (15, -) 
+ID:  14 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (1, -) (13, -) 
+ID:  15 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (3, -) (4, -) (6, -) (13, -) 
 Total #Vertices: 9
 
 
 qsyn> zxgprint -e
-( 0, 4 )	Type:	-
-( 1, 14 )	Type:	-
-( 2, 6 )	Type:	-
-( 3, 15 )	Type:	-
-( 4, 15 )	Type:	-
-( 6, 15 )	Type:	-
-( 13, 14 )	Type:	-
-( 13, 15 )	Type:	-
+(0, 4)       Type: -
+(1, 14)      Type: -
+(2, 6)       Type: -
+(3, 15)      Type: -
+(4, 15)      Type: -
+(6, 15)      Type: -
+(13, 14)     Type: -
+(13, 15)     Type: -
 Total #Edges: 8
 
 qsyn> zx2ts
-Traverse and build the tensor... 
-Topological order from first input: 0 4 15 13 14 1 6 2 3 
-Size of topological order: 9
-> Mapping vertex 0 (●): New Subgraph
-  - Current frontiers: 
-    0--4 (-) axis id: 1
-> Mapping vertex 4 ([1m[31mX[0m[0m): Tensordot
-  - Current frontiers: 
-    4--15 (-) axis id: 1
-> Mapping vertex 15 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    6--15 (-) axis id: 2
-    13--15 (-) axis id: 3
-> Mapping vertex 13 ([1m[31mX[0m[0m): Tensordot
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    6--15 (-) axis id: 2
-    13--14 (-) axis id: 3
-> Mapping vertex 14 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    6--15 (-) axis id: 2
-    1--14 (-) axis id: 3
-> Mapping vertex 1 (●): Boundary Node
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    6--15 (-) axis id: 2
-    1--14 (-) axis id: 3
-> Mapping vertex 6 ([1m[31mX[0m[0m): Tensordot
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    1--14 (-) axis id: 2
-    2--6 (-) axis id: 3
-> Mapping vertex 2 (●): Boundary Node
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    1--14 (-) axis id: 2
-    2--6 (-) axis id: 3
-> Mapping vertex 3 (●): Boundary Node
-  - Current frontiers: 
-    3--15 (-) axis id: 1
-    1--14 (-) axis id: 2
-    2--6 (-) axis id: 3
-Successfully added Tensor 0
-Input  axis ids: 0 3
-Output axis ids: 2 1
-Stored the resulting tensor as tensor id 0
 
 qsyn> zxnew
-Create and checkout to Graph 1
 
 qsyn> zxge -addi 0
-Add vertex (●) 0
 
 qsyn> zxge -addo 0
-Add vertex (●) 1
 
 qsyn> zxge -addi 1
-Add vertex (●) 2
 
 qsyn> zxge -addo 1
-Add vertex (●) 3
 
 qsyn> zxge -addv 0 Z 0
-Add vertex ([1m[32mZ[0m[0m) 4
 
 qsyn> zxge -addv 0 Z 0
-Add vertex ([1m[32mZ[0m[0m) 5
 
 qsyn> zxge -adde 0 4 SIMPLE
-Add edge (0, 4)
 
 qsyn> zxge -adde 2 4 SIMPLE
-Add edge (2, 4)
 
 qsyn> zxge -adde 1 5 SIMPLE
-Add edge (1, 5)
 
 qsyn> zxge -adde 3 5 SIMPLE
-Add edge (3, 5)
 
 qsyn> zxge -adde 4 5 SIMPLE
-Add edge (4, 5)
 
 qsyn> zxgp -v
 
@@ -362,152 +222,85 @@ ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -)
 ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (5, -) 
 ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (4, -) 
 ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
-ID:   4 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (0, -) (2, -) (5, -) 
-ID:   5 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (1, -) (3, -) (4, -) 
+ID:   4 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (0, -) (2, -) (5, -) 
+ID:   5 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (1, -) (3, -) (4, -) 
 Total #Vertices: 6
 
 
 qsyn> zx2ts
-Traverse and build the tensor... 
-Topological order from first input: 0 4 5 3 1 2 
-Size of topological order: 6
-> Mapping vertex 0 (●): New Subgraph
-  - Current frontiers: 
-    0--4 (-) axis id: 1
-> Mapping vertex 4 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    2--4 (-) axis id: 1
-    4--5 (-) axis id: 2
-> Mapping vertex 5 ([1m[32mZ[0m[0m): Tensordot
-  - Current frontiers: 
-    2--4 (-) axis id: 1
-    1--5 (-) axis id: 2
-    3--5 (-) axis id: 3
-> Mapping vertex 3 (●): Boundary Node
-  - Current frontiers: 
-    2--4 (-) axis id: 1
-    1--5 (-) axis id: 2
-    3--5 (-) axis id: 3
-> Mapping vertex 1 (●): Boundary Node
-  - Current frontiers: 
-    2--4 (-) axis id: 1
-    1--5 (-) axis id: 2
-    3--5 (-) axis id: 3
-> Mapping vertex 2 (●): Boundary Node
-  - Current frontiers: 
-    2--4 (-) axis id: 1
-    1--5 (-) axis id: 2
-    3--5 (-) axis id: 3
-Successfully added Tensor 1
-Input  axis ids: 0 1
-Output axis ids: 2 3
-Stored the resulting tensor as tensor id 1
 
 qsyn> tseq 0 1
-[1m[32mEquivalent[0m[0m
+Equivalent
 - Global Norm : 1
 - Global Phase: 0
 
 qsyn> zxr
 
 qsyn> zxnew 
-Create and checkout to Graph 0
 
 qsyn> zxge -addi 0
-Add vertex (●) 0
 
 qsyn> zxge -addo 0
-Add vertex (●) 1
 
 qsyn> zxge -addi 1
-Add vertex (●) 2
 
 qsyn> zxge -addo 1
-Add vertex (●) 3
 
 qsyn> zxge -addv 0 X
-Add vertex ([1m[31mX[0m[0m) 4
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m) 5
 
 qsyn> zxge -addv 1 X
-Add vertex ([1m[31mX[0m[0m) 6
 
 qsyn> zxge -addv 0 X
-Add vertex ([1m[31mX[0m[0m) 7
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m) 8
 
 qsyn> zxge -addv 1 Z
-Add vertex ([1m[32mZ[0m[0m) 9
 
 qsyn> zxge -addv 0 X
-Add vertex ([1m[31mX[0m[0m) 10
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m) 11
 
 qsyn> zxge -addv 1 X
-Add vertex ([1m[31mX[0m[0m) 12
 
 qsyn> zxge -addv 0 X
-Add vertex ([1m[31mX[0m[0m) 13
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m) 14
 
 qsyn> zxge -addv 0 Z
-Add vertex ([1m[32mZ[0m[0m) 15
 
 qsyn> zxge -adde 0 4 SIMPLE
-Add edge (0, 4)
 
 qsyn> zxge -adde 1 14 HADAMARD
-Add edge (1, 14)
 
 qsyn> zxge -adde 2 6 SIMPLE
-Add edge (2, 6)
 
 qsyn> zxge -adde 3 15 SIMPLE
-Add edge (3, 15)
 
 qsyn> zxge -adde 4 5 SIMPLE
-Add edge (4, 5)
 
 qsyn> zxge -adde 5 7 SIMPLE
-Add edge (5, 7)
 
 qsyn> zxge -adde 5 6 HADAMARD
-Add edge (5, 6)
 
 qsyn> zxge -adde 7 8 SIMPLE
-Add edge (7, 8)
 
 qsyn> zxge -adde 7 9 SIMPLE
-Add edge (7, 9)
 
 qsyn> zxge -adde 8 10 HADAMARD
-Add edge (8, 10)
 
 qsyn> zxge -adde 10 9 SIMPLE
-Add edge (10, 9)
 
 qsyn> zxge -adde 10 11 SIMPLE
-Add edge (10, 11)
 
 qsyn> zxge -adde 11 12 HADAMARD
-Add edge (11, 12)
 
 qsyn> zxge -adde 11 13 HADAMARD
-Add edge (11, 13)
 
 qsyn> zxge -adde 14 13 SIMPLE
-Add edge (14, 13)
 
 qsyn> zxge -adde 12 15 SIMPLE
-Add edge (12, 15)
 
 qsyn> zxgsimp -bia
 Hadamard Rule                 
@@ -517,10 +310,6 @@ Bialgebra Rule
 
 Iteration 1:
 >>>
-Add edge (5, 10)
-Add edge (8, 10)
-Remove ID: 7
-Remove ID: 9
 <<<
 => 1 iterations.
   1) 1 matches
@@ -529,37 +318,37 @@ Remove ID: 9
 qsyn> zxgp -v
 
 ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
-ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (14, [1m[34mH[0m[0m) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (14, H) 
 ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (6, -) 
 ID:   3 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (15, -) 
-ID:   4 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (5, -) 
-ID:   5 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (4, -) (6, [1m[34mH[0m[0m) (10, -) 
-ID:   6 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (2, -) (5, [1m[34mH[0m[0m) 
-ID:   8 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (10, -) (10, [1m[34mH[0m[0m) 
-ID:  10 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (5, -) (8, -) (8, [1m[34mH[0m[0m) (11, -) 
-ID:  11 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (10, -) (12, [1m[34mH[0m[0m) (13, [1m[34mH[0m[0m) 
-ID:  12 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (11, [1m[34mH[0m[0m) (15, -) 
-ID:  13 ([1m[31mX[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (11, [1m[34mH[0m[0m) (14, -) 
-ID:  14 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (1, [1m[34mH[0m[0m) (13, -) 
-ID:  15 ([1m[32mZ[0m[0m, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (3, -) (12, -) 
+ID:   4 (X, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (0, -) (5, -) 
+ID:   5 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (4, -) (6, H) (10, -) 
+ID:   6 (X, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (2, -) (5, H) 
+ID:   8 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (10, -) (10, H) 
+ID:  10 (X, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   4     (5, -) (8, -) (8, H) (11, -) 
+ID:  11 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   3     (10, -) (12, H) (13, H) 
+ID:  12 (X, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   2     (11, H) (15, -) 
+ID:  13 (X, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (11, H) (14, -) 
+ID:  14 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (1, H) (13, -) 
+ID:  15 (Z, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   2     (3, -) (12, -) 
 Total #Vertices: 14
 
 
 qsyn> zxgp -e
-( 0, 4 )	Type:	-
-( 1, 14 )	Type:	[1m[34mH[0m[0m
-( 2, 6 )	Type:	-
-( 3, 15 )	Type:	-
-( 4, 5 )	Type:	-
-( 5, 6 )	Type:	[1m[34mH[0m[0m
-( 5, 10 )	Type:	-
-( 8, 10 )	Type:	[1m[34mH[0m[0m
-( 8, 10 )	Type:	-
-( 10, 11 )	Type:	-
-( 11, 12 )	Type:	[1m[34mH[0m[0m
-( 11, 13 )	Type:	[1m[34mH[0m[0m
-( 12, 15 )	Type:	-
-( 13, 14 )	Type:	-
+(0, 4)       Type: -
+(1, 14)      Type: H
+(2, 6)       Type: -
+(3, 15)      Type: -
+(4, 5)       Type: -
+(5, 6)       Type: H
+(5, 10)      Type: -
+(8, 10)      Type: H
+(8, 10)      Type: -
+(10, 11)     Type: -
+(11, 12)     Type: H
+(11, 13)     Type: H
+(12, 15)     Type: -
+(13, 14)     Type: -
 Total #Edges: 14
 
 qsyn> qq -f

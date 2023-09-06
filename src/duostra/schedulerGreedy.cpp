@@ -10,11 +10,14 @@
 #include <algorithm>
 #include <cassert>
 
-#include "scheduler.h"
+#include "./scheduler.hpp"
+#include "./variables.hpp"
 
 using namespace std;
 
 extern size_t verbose;
+
+extern bool stop_requested();
 
 // SECTION - Class Topology Member Functions
 
@@ -55,7 +58,7 @@ GreedyConf::GreedyConf()
  * @param topo
  * @param tqdm
  */
-GreedyScheduler::GreedyScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : BaseScheduler(move(topo), tqdm) {}
+GreedyScheduler::GreedyScheduler(unique_ptr<CircuitTopo> topo, bool tqdm) : BaseScheduler(std::move(topo), tqdm) {}
 
 /**
  * @brief Construct a new Greedy Scheduler:: Greedy Scheduler object
@@ -69,7 +72,7 @@ GreedyScheduler::GreedyScheduler(const GreedyScheduler& other) : BaseScheduler(o
  *
  * @param other
  */
-GreedyScheduler::GreedyScheduler(GreedyScheduler&& other) : BaseScheduler(move(other)), _conf(other._conf) {}
+GreedyScheduler::GreedyScheduler(GreedyScheduler&& other) : BaseScheduler(std::move(other)), _conf(other._conf) {}
 
 /**
  * @brief Get scheduler
@@ -91,6 +94,9 @@ Device GreedyScheduler::assignGates(unique_ptr<Router> router) {
     auto topoWrap = TopologyCandidate(*_circuitTopology, _conf._candidates);
     for (TqdmWrapper bar{_circuitTopology->getNumGates(), _tqdm};
          !topoWrap.getAvailableGates().empty(); ++bar) {
+        if (stop_requested()) {
+            return router->getDevice();
+        }
         auto waitlist = topoWrap.getAvailableGates();
         assert(waitlist.size() > 0);
 

@@ -6,5 +6,5 @@ qc2ts
 ver 3
 tsp -l
 tseq 0 1 
-tseq 0 1 -Strict
+tseq 0 1 -strict
 qq -f

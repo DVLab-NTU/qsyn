@@ -1,0 +1,9 @@
+verb 3
+zxgread benchmark/zx/tof3.zx
+zxcopy 1
+zxgs -dreduce
+zxgadjoint 
+zxcompose 0
+zxgs -freduce
+zxgtest -id
+qq -f

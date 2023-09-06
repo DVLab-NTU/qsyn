@@ -6,35 +6,44 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include <ctype.h>  // for tolower, etc.
-
 #include <cassert>
+#include <cctype>
 #include <concepts>
 #include <cstddef>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include "util.h"
+#include "util/util.hpp"
 
 using namespace std;
 
-// Remove quotation marks and replace the ' ' between the quotes to be "\ "
-bool stripQuotes(const std::string& input, std::string& output) {
-    output = input;
+/**
+ * @brief
+ *
+ * @param input the string to strip quotes
+ * @param output if the function returns true, output the stripped string; else output the same string as input.
+ * @return true if quotation marks are paired;
+ * @return false if quotation marks are unpaired.
+ */
+std::optional<std::string> stripQuotes(const std::string& input) {
     if (input == "") {
-        return true;
+        return input;
     }
 
-    const string refStr = input;
+    std::string output = input;
+
     vector<string> outside;
     vector<string> inside;
 
     auto findQuote = [&output](char quote) -> size_t {
         size_t pos = 0;
         pos = output.find_first_of(quote);
+        if (pos == string::npos) return pos;
+        // if the quote is after a backslash, it should be read verbatim, so we need to skip it.
         while (pos != 0 && output[pos - 1] == '\\') {
             pos = output.find_first_of(quote, pos + 1);
+            if (pos == string::npos) return pos;
         }
         return pos;
     };
@@ -43,16 +52,18 @@ bool stripQuotes(const std::string& input, std::string& output) {
         size_t doubleQuote = findQuote('\"');
         size_t singleQuote = findQuote('\'');
         size_t pos = min(doubleQuote, singleQuote);
-        char delim = output[pos];
+
         outside.emplace_back(output.substr(0, pos));
         if (pos == string::npos) break;
+
+        char delim = output[pos];
+
         output = output.substr(pos + 1);
         if (pos != string::npos) {
             size_t closingQuote = findQuote(delim);
 
             if (closingQuote == string::npos) {
-                output = refStr;
-                return false;
+                return std::nullopt;
             }
 
             inside.emplace_back(output.substr(0, closingQuote));
@@ -97,7 +108,18 @@ bool stripQuotes(const std::string& input, std::string& output) {
         }
     }
 
-    return true;
+    return output;
+}
+
+/**
+ * @brief strip the leading whitespaces of a string
+ *
+ * @param str
+ */
+string stripLeadingWhitespaces(string const& str) {
+    size_t start = str.find_first_not_of(" \t\n\v\f\r");
+    if (start == string::npos) return "";
+    return str.substr(start);
 }
 
 /**
@@ -105,7 +127,7 @@ bool stripQuotes(const std::string& input, std::string& output) {
  *
  * @param str
  */
-string stripWhitespaces(const string& str) {
+string stripWhitespaces(string const& str) {
     size_t start = str.find_first_not_of(" \t\n\v\f\r");
     size_t end = str.find_last_not_of(" \t\n\v\f\r");
     if (start == string::npos && end == string::npos) return "";
@@ -113,18 +135,15 @@ string stripWhitespaces(const string& str) {
 }
 
 /**
- * @brief Strip leading spaces and comments
+ * @brief Return true if the `pos`th character in `str` is escaped, i.e., preceded by a single backslash
  *
- * @param line
- * @return string
+ * @param str
+ * @param pos
+ * @return true
+ * @return false
  */
-string stripLeadingSpacesAndComments(string& line) {
-    size_t firstNonSpace = line.find_first_not_of(" ");
-    size_t commentStart = line.find("//");
-    if (firstNonSpace == string::npos) return "";
-    if (firstNonSpace == commentStart) return "";
-
-    return line.substr(firstNonSpace, commentStart - firstNonSpace);
+bool isEscapedChar(std::string const& str, size_t pos) {
+    return pos > 0 && str[pos - 1] == '\\' && (pos == 1 || str[pos - 2] != '\\');
 }
 
 /**
@@ -140,72 +159,27 @@ string removeBracket(const std::string& str, const char left, const char right) 
     size_t firstfound = str.find_first_of(left);
     return stripWhitespaces(str.substr(firstfound + 1, lastfound - firstfound - 1));
 }
-// 1. strlen(s1) must >= n
-// 2. The first n characters of s2 are mandatory, they must be case-
-//    insensitively compared to s1. Return less or greater than 0 if unequal.
-// 3. The rest of s2 are optional. Return 0 if EOF of s2 is encountered.
-//    Otherwise, perform case-insensitive comparison until non-equal result
-//    presents.
-//
-int myStrNCmp(const string& s1, const string& s2, unsigned n) {
-    assert(n > 0);
-    unsigned n2 = s2.size();
-    if (n2 == 0) return -1;
-    unsigned n1 = s1.size();
-    assert(n1 >= n);
-    for (unsigned i = 0; i < n1; ++i) {
-        if (i == n2)
-            return (i < n) ? 1 : 0;
-        char ch1 = (isupper(s1[i])) ? tolower(s1[i]) : s1[i];
-        char ch2 = (isupper(s2[i])) ? tolower(s2[i]) : s2[i];
-        if (ch1 != ch2)
-            return (ch1 - ch2);
-    }
-    return (n1 - n2);
-}
 
 // Parse the string "str" for the token "tok", beginning at position "pos",
-// with delimiter "del". The leading "del" will be skipped.
+// with delimiter "delim". The leading "delim" will be skipped.
 // Return "string::npos" if not found. Return the past to the end of "tok"
-// (i.e. "del" or string::npos) if found.
+// (i.e. "delim" or string::npos) if found.
 // This function will not treat '\ ' as a space in the token. That is, "a\ b" is two token ("a\", "b") and not one
 size_t
-myStrGetTok(const string& str, string& tok, size_t pos, const string& del) {
-    size_t begin = str.find_first_not_of(del, pos);
+myStrGetTok(const string& str, string& tok, size_t pos, const string& delim) {
+    size_t begin = str.find_first_not_of(delim, pos);
     if (begin == string::npos) {
         tok = "";
         return begin;
     }
-    size_t end = str.find_first_of(del, begin);
+    size_t end = str.find_first_of(delim, begin);
     tok = str.substr(begin, end - begin);
     return end;
 }
 
 size_t
-myStrGetTok(const string& str, string& tok, size_t pos, const char del) {
-    return myStrGetTok(str, tok, pos, string(1, del));
-}
-
-// Parse the string "str" for the token "tok", beginning at position "pos",
-// with delimiter "del". The leading "del" will be skipped.
-// Return "string::npos" if not found. Return the past to the end of "tok"
-// (i.e. "del" or string::npos) if found.
-// This function will treat '\ ' as a space in the token. That is, "a\ b" is one token ("a b") and not two
-size_t
-myStrGetTok2(const string& str, string& tok, size_t pos, const std::string& del) {
-    size_t begin = str.find_first_not_of(del, pos);
-    if (begin == string::npos) {
-        tok = "";
-        return begin;
-    }
-    size_t end = str.find_first_of(del, begin);
-    tok = str.substr(begin, end - begin);
-    if (tok.back() == '\\') {
-        string tok2;
-        end = myStrGetTok2(str, tok2, end);
-        tok = tok.substr(0, tok.size() - 1) + ' ' + tok2;
-    }
-    return end;
+myStrGetTok(const string& str, string& tok, size_t pos, const char delim) {
+    return myStrGetTok(str, tok, pos, string(1, delim));
 }
 
 std::string toLowerString(std::string const& str) {
@@ -220,7 +194,7 @@ std::string toUpperString(std::string const& str) {
     return ret;
 };
 
-size_t countUpperChars(std::string const& str) {
+size_t countUpperChars(std::string const& str) noexcept {
     size_t cnt = 0;
     for (auto& ch : str) {
         if (::islower(ch)) return cnt;
@@ -228,6 +202,28 @@ size_t countUpperChars(std::string const& str) {
     }
     return str.size();
 };
+
+std::vector<std::string> split(std::string const& str, std::string const& delim = " ") {
+    std::vector<std::string> result;
+    string token;
+    size_t pos = myStrGetTok(str, token, 0, delim);
+    while (token.size()) {
+        result.emplace_back(token);
+        pos = myStrGetTok(str, token, pos, delim);
+    }
+
+    return result;
+}
+
+std::string join(std::string const& infix, std::span<std::string> strings) {
+    std::string result = *strings.begin();
+
+    for (auto& str : strings.subspan(1)) {
+        result += infix + str;
+    }
+
+    return result;
+}
 
 //---------------------------------------------
 // number parsing
@@ -243,7 +239,7 @@ size_t countUpperChars(std::string const& str) {
  * @return requires
  */
 template <class T>
-requires Arithmetic<T>
+requires std::is_arithmetic_v<T>
 T stoNumber(const string& str, size_t* pos) {
     try {
         // floating point types
@@ -294,7 +290,7 @@ T stoNumber(const string& str, size_t* pos) {
  * @return requires
  */
 template <class T>
-requires Arithmetic<T>
+requires std::is_arithmetic_v<T>
 bool myStr2Number(const string& str, T& f) {
     size_t i;
     try {

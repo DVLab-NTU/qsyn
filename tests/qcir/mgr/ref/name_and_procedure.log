@@ -1,0 +1,277 @@
+DV Lab, NTUEE, Qsyn 0.5.1
+qsyn> qccr benchmark/benchmark_SABRE/large/adr4_197.qasm
+
+qsyn> qc2zx
+
+qsyn> zxgs -fr
+
+All rules applied in order:
+Hadamard Rule                 2 iterations.
+  1) 319 matches
+  2) 109 matches
+Spider Fusion Rule            3 iterations.
+  1) 884 matches
+  2) 294 matches
+  3) 214 matches
+Spider Fusion Rule            1 iterations.
+  1) 101 matches
+Pivot Rule                    1 iterations.
+  1) 111 matches
+Pivot Gadget Rule             12 iterations.
+  1) 670 matches
+  2) 292 matches
+  3) 142 matches
+  4) 67 matches
+  5) 51 matches
+  6) 28 matches
+  7) 12 matches
+  8) 8 matches
+  9) 8 matches
+  10) 5 matches
+  11) 2 matches
+  12) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 220 matches
+Spider Fusion Rule            35 iterations.
+  1) 56 matches
+  2) 15 matches
+  3) 12 matches
+  4) 10 matches
+  5) 9 matches
+  6) 8 matches
+  7) 7 matches
+  8) 7 matches
+  9) 7 matches
+  10) 6 matches
+  11) 6 matches
+  12) 6 matches
+  13) 6 matches
+  14) 6 matches
+  15) 6 matches
+  16) 5 matches
+  17) 4 matches
+  18) 3 matches
+  19) 3 matches
+  20) 3 matches
+  21) 3 matches
+  22) 3 matches
+  23) 3 matches
+  24) 3 matches
+  25) 2 matches
+  26) 2 matches
+  27) 2 matches
+  28) 2 matches
+  29) 2 matches
+  30) 2 matches
+  31) 2 matches
+  32) 1 matches
+  33) 1 matches
+  34) 1 matches
+  35) 1 matches
+Pivot Rule                    2 iterations.
+  1) 3 matches
+  2) 1 matches
+Local Complementation Rule    38 iterations.
+  1) 8 matches
+  2) 8 matches
+  3) 5 matches
+  4) 4 matches
+  5) 3 matches
+  6) 3 matches
+  7) 3 matches
+  8) 3 matches
+  9) 3 matches
+  10) 2 matches
+  11) 2 matches
+  12) 2 matches
+  13) 2 matches
+  14) 2 matches
+  15) 2 matches
+  16) 2 matches
+  17) 1 matches
+  18) 3 matches
+  19) 1 matches
+  20) 1 matches
+  21) 2 matches
+  22) 2 matches
+  23) 2 matches
+  24) 1 matches
+  25) 2 matches
+  26) 1 matches
+  27) 2 matches
+  28) 1 matches
+  29) 1 matches
+  30) 1 matches
+  31) 1 matches
+  32) 1 matches
+  33) 1 matches
+  34) 1 matches
+  35) 2 matches
+  36) 1 matches
+  37) 1 matches
+  38) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 54 matches
+Spider Fusion Rule            12 iterations.
+  1) 27 matches
+  2) 5 matches
+  3) 5 matches
+  4) 5 matches
+  5) 4 matches
+  6) 1 matches
+  7) 1 matches
+  8) 1 matches
+  9) 1 matches
+  10) 1 matches
+  11) 1 matches
+  12) 1 matches
+Pivot Rule                    2 iterations.
+  1) 11 matches
+  2) 8 matches
+Local Complementation Rule    9 iterations.
+  1) 1 matches
+  2) 1 matches
+  3) 3 matches
+  4) 2 matches
+  5) 1 matches
+  6) 1 matches
+  7) 1 matches
+  8) 1 matches
+  9) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 14 matches
+Spider Fusion Rule            4 iterations.
+  1) 8 matches
+  2) 2 matches
+  3) 2 matches
+  4) 2 matches
+Pivot Rule                    2 iterations.
+  1) 2 matches
+  2) 1 matches
+Local Complementation Rule    6 iterations.
+  1) 1 matches
+  2) 1 matches
+  3) 1 matches
+  4) 1 matches
+  5) 1 matches
+  6) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 5 matches
+Spider Fusion Rule            1 iterations.
+  1) 5 matches
+Pivot Rule                    2 iterations.
+  1) 3 matches
+  2) 1 matches
+Local Complementation Rule    4 iterations.
+  1) 1 matches
+  2) 1 matches
+  3) 1 matches
+  4) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Pivot Rule                    2 iterations.
+  1) 1 matches
+  2) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Local Complementation Rule    2 iterations.
+  1) 1 matches
+  2) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Pivot Rule                    1 iterations.
+  1) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Local Complementation Rule    2 iterations.
+  1) 1 matches
+  2) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 1 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Pivot Rule                    1 iterations.
+  1) 1 matches
+Identity Removal Rule         1 iterations.
+  1) 2 matches
+Spider Fusion Rule            1 iterations.
+  1) 1 matches
+Phase Gadget Rule             1 iterations.
+  1) 340 matches
+Identity Removal Rule         1 iterations.
+  1) 2 matches
+Spider Fusion Rule            1 iterations.
+  1) 2 matches
+Pivot Rule                    1 iterations.
+  1) 12 matches
+Local Complementation Rule    43 iterations.
+  1) 106 matches
+  2) 16 matches
+  3) 13 matches
+  4) 8 matches
+  5) 9 matches
+  6) 5 matches
+  7) 4 matches
+  8) 3 matches
+  9) 2 matches
+  10) 2 matches
+  11) 2 matches
+  12) 2 matches
+  13) 2 matches
+  14) 2 matches
+  15) 2 matches
+  16) 2 matches
+  17) 2 matches
+  18) 2 matches
+  19) 2 matches
+  20) 2 matches
+  21) 2 matches
+  22) 1 matches
+  23) 1 matches
+  24) 1 matches
+  25) 1 matches
+  26) 1 matches
+  27) 1 matches
+  28) 1 matches
+  29) 1 matches
+  30) 1 matches
+  31) 1 matches
+  32) 1 matches
+  33) 1 matches
+  34) 1 matches
+  35) 1 matches
+  36) 1 matches
+  37) 1 matches
+  38) 1 matches
+  39) 1 matches
+  40) 1 matches
+  41) 1 matches
+  42) 1 matches
+  43) 1 matches
+Pivot Rule                    1 iterations.
+  1) 1 matches
+
+qsyn> zx2qc
+Finish extracting!
+
+qsyn> qccoptimize -c
+
+qsyn> qcp -l
+  0    adr4_197            
+  1    adr4_197            QC2ZX ➔ FR ➔ ZX2QC
+★ 2    adr4_197            QC2ZX ➔ FR ➔ ZX2QC ➔ Optimize
+
+qsyn> qcp -f
+-> Now focused on: QCir 2 (adr4_197)
+
+qsyn> 
+qsyn> qq -f
+
