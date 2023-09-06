@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ trie.hpp ]
   PackageName  [ util ]
   Synopsis     [ User-defined trie data structure for parsing ]
   Author       [ Design Verification Lab ]
@@ -21,10 +20,10 @@ namespace utils {
 
 struct TrieNode {
 public:
-    TrieNode() : isWord(false), frequency(0) {}
+    TrieNode() : is_word(false), frequency(0) {}
     ~TrieNode() = default;
 
-    TrieNode(TrieNode const& other) : isWord{other.isWord}, frequency{other.frequency} {
+    TrieNode(TrieNode const& other) : is_word{other.is_word}, frequency{other.frequency} {
         for (auto&& [ch, node] : other.children) {
             children.emplace(ch, std::make_unique<TrieNode>(*node));
         }
@@ -40,7 +39,7 @@ public:
     void swap(TrieNode& other) {
         using std::swap;
         swap(children, other.children);
-        swap(isWord, other.isWord);
+        swap(is_word, other.is_word);
         swap(frequency, other.frequency);
     }
 
@@ -49,25 +48,25 @@ public:
     }
 
     std::unordered_map<char, std::unique_ptr<TrieNode>> children;
-    bool isWord;
+    bool is_word;
     size_t frequency;
 };
 
 template <typename It>
-concept StringRetrivable = requires {
+concept string_retrivable = requires {
     std::input_iterator<It>;
     std::convertible_to<typename std::iterator_traits<It>::value_type, std::string>;
 };
 
-static_assert(StringRetrivable<std::vector<std::string>::iterator>);
-static_assert(StringRetrivable<std::vector<std::string>::const_iterator>);
+static_assert(string_retrivable<std::vector<std::string>::iterator>);
+static_assert(string_retrivable<std::vector<std::string>::const_iterator>);
 
 class Trie {
 public:
     Trie() : _root(std::make_unique<TrieNode>()) {}
 
     template <typename InputIt>
-    requires StringRetrivable<InputIt>
+    requires string_retrivable<InputIt>
     Trie(InputIt first, InputIt last) : _root(std::make_unique<TrieNode>()) {
         for (; first != last; ++first) {
             insert(*first);
@@ -97,12 +96,11 @@ public:
     bool erase(std::string const& word);
     bool contains(std::string const& word) const;
     bool empty() const { return _root->children.empty(); }
-    std::string shortestUniquePrefix(std::string const& word) const;
     size_t frequency(std::string const& prefix) const;
 
-    std::optional<std::string> findWithPrefix(std::string const& prefix) const;
-
-    std::vector<std::string> findAllStringsWithPrefix(std::string const& prefix) const;
+    std::string shortest_unique_prefix(std::string const& word) const;
+    std::optional<std::string> find_with_prefix(std::string const& prefix) const;
+    std::vector<std::string> find_all_with_prefix(std::string const& prefix) const;
 
 private:
     std::unique_ptr<TrieNode> _root;

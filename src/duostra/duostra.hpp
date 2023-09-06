@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ duostra.hpp ]
   PackageName  [ duostra ]
   Synopsis     [ Define class Duostra structure ]
   Author       [ Chin-Yi Cheng, Chien-Yi Yang, Ren-Chu Wang, Yi-Hsiang Kuo ]
@@ -25,25 +24,25 @@ public:
         bool useTqdm = true;
     };
     Duostra(QCir* qcir, Device dev, DuostraConfig const& config = {.verifyResult = false, .silent = false, .useTqdm = true});
-    Duostra(std::vector<Operation> const& cir, size_t nQubit, Device dev, DuostraConfig const& config = {.verifyResult = false, .silent = false, .useTqdm = true});
+    Duostra(std::vector<Operation> const& cir, size_t n_qubit, Device dev, DuostraConfig const& config = {.verifyResult = false, .silent = false, .useTqdm = true});
     ~Duostra() {}
 
-    std::unique_ptr<QCir> const& getPhysicalCircuit() const { return _physicalCircuit; }
-    std::unique_ptr<QCir>&& getPhysicalCircuit() { return std::move(_physicalCircuit); }
-    const std::vector<Operation>& getResult() const { return _result; }
-    const std::vector<Operation>& getOrder() const { return _order; }
-    Device getDevice() const { return _device; }
+    std::unique_ptr<QCir> const& get_physical_circuit() const { return _physical_circuit; }
+    std::unique_ptr<QCir>&& get_physical_circuit() { return std::move(_physical_circuit); }
+    std::vector<Operation> const& get_result() const { return _result; }
+    std::vector<Operation> const& get_order() const { return _order; }
+    Device get_device() const { return _device; }
 
-    void makeDependency();
-    void makeDependency(const std::vector<Operation>&, size_t);
+    void make_dependency();
+    void make_dependency(std::vector<Operation> const&, size_t);
     size_t flow(bool = false);
-    void storeOrderInfo(const std::vector<size_t>&);
-    void printAssembly() const;
-    void buildCircuitByResult();
+    void store_order_info(std::vector<size_t> const&);
+    void print_assembly() const;
+    void build_circuit_by_result();
 
 private:
-    QCir* _logicalCircuit;
-    std::unique_ptr<QCir> _physicalCircuit = std::make_unique<QCir>();
+    QCir* _logical_circuit;
+    std::unique_ptr<QCir> _physical_circuit = std::make_unique<QCir>();
     Device _device;
     bool _check;
     bool _tqdm;
@@ -54,10 +53,10 @@ private:
     std::vector<Operation> _order;
 };
 
-std::string getSchedulerTypeStr();
-std::string getRouterTypeStr();
-std::string getPlacerTypeStr();
+std::string get_scheduler_type_str();
+std::string get_router_type_str();
+std::string get_placer_type_str();
 
-size_t getSchedulerType(std::string);
-size_t getRouterType(std::string);
-size_t getPlacerType(std::string);
+size_t get_scheduler_type(std::string);
+size_t get_router_type(std::string);
+size_t get_placer_type(std::string);

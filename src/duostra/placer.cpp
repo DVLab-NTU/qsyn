@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ placer.cpp ]
   PackageName  [ duostra ]
   Synopsis     [ Define class Placer member functions ]
   Author       [ Chin-Yi Cheng, Chien-Yi Yang, Ren-Chu Wang, Yi-Hsiang Kuo ]
@@ -22,7 +21,7 @@ using namespace std;
  *
  * @return unique_ptr<BasePlacer>
  */
-unique_ptr<BasePlacer> getPlacer() {
+unique_ptr<BasePlacer> get_placer() {
     // 0:static 1:random 2:dfs
     if (DUOSTRA_PLACER == 0) {
         return make_unique<StaticPlacer>();
@@ -42,8 +41,8 @@ unique_ptr<BasePlacer> getPlacer() {
  *
  * @param device
  */
-vector<size_t> BasePlacer::placeAndAssign(Device& device) {
-    auto assign = place(device);
+vector<size_t> BasePlacer::place_and_assign(Device& device) {
+    auto assign = _place(device);
     device.place(assign);
     return assign;
 }
@@ -56,9 +55,9 @@ vector<size_t> BasePlacer::placeAndAssign(Device& device) {
  * @param device
  * @return vector<size_t>
  */
-vector<size_t> RandomPlacer::place(Device& device) const {
+vector<size_t> RandomPlacer::_place(Device& device) const {
     vector<size_t> assign;
-    for (size_t i = 0; i < device.getNQubit(); ++i)
+    for (size_t i = 0; i < device.get_num_qubits(); ++i)
         assign.emplace_back(i);
 
     size_t seed = chrono::system_clock::now().time_since_epoch().count();
@@ -74,9 +73,9 @@ vector<size_t> RandomPlacer::place(Device& device) const {
  * @param device
  * @return vector<size_t>
  */
-vector<size_t> StaticPlacer::place(Device& device) const {
+vector<size_t> StaticPlacer::_place(Device& device) const {
     vector<size_t> assign;
-    for (size_t i = 0; i < device.getNQubit(); ++i)
+    for (size_t i = 0; i < device.get_num_qubits(); ++i)
         assign.emplace_back(i);
 
     return assign;
@@ -90,11 +89,11 @@ vector<size_t> StaticPlacer::place(Device& device) const {
  * @param device
  * @return vector<size_t>
  */
-vector<size_t> DFSPlacer::place(Device& device) const {
+vector<size_t> DFSPlacer::_place(Device& device) const {
     vector<size_t> assign;
-    vector<bool> qubitMark(device.getNQubit(), false);
-    DFSDevice(0, device, assign, qubitMark);
-    assert(assign.size() == device.getNQubit());
+    vector<bool> qubit_mark(device.get_num_qubits(), false);
+    _dfs_device(0, device, assign, qubit_mark);
+    assert(assign.size() == device.get_num_qubits());
     return assign;
 }
 
@@ -106,34 +105,34 @@ vector<size_t> DFSPlacer::place(Device& device) const {
  * @param assign
  * @param qubitMark
  */
-void DFSPlacer::DFSDevice(size_t current, Device& device, vector<size_t>& assign, vector<bool>& qubitMark) const {
-    if (qubitMark[current]) {
+void DFSPlacer::_dfs_device(size_t current, Device& device, vector<size_t>& assign, vector<bool>& qubit_marks) const {
+    if (qubit_marks[current]) {
         cout << current << endl;
     }
-    assert(!qubitMark[current]);
-    qubitMark[current] = true;
+    assert(!qubit_marks[current]);
+    qubit_marks[current] = true;
     assign.emplace_back(current);
 
-    const PhysicalQubit& q = device.getPhysicalQubit(current);
-    vector<size_t> adjacencyWaitlist;
+    PhysicalQubit const& q = device.get_physical_qubit(current);
+    vector<size_t> adjacency_waitlist;
 
-    for (auto& adj : q.getAdjacencies()) {
+    for (auto& adj : q.get_adjacencies()) {
         // already marked
-        if (qubitMark[adj])
+        if (qubit_marks[adj])
             continue;
-        assert(q.getAdjacencies().size() > 0);
+        assert(q.get_adjacencies().size() > 0);
         // corner
-        if (q.getAdjacencies().size() == 1)
-            DFSDevice(adj, device, assign, qubitMark);
+        if (q.get_adjacencies().size() == 1)
+            _dfs_device(adj, device, assign, qubit_marks);
         else
-            adjacencyWaitlist.emplace_back(adj);
+            adjacency_waitlist.emplace_back(adj);
     }
 
-    for (size_t i = 0; i < adjacencyWaitlist.size(); ++i) {
-        size_t adj = adjacencyWaitlist[i];
-        if (qubitMark[adj])
+    for (size_t i = 0; i < adjacency_waitlist.size(); ++i) {
+        size_t adj = adjacency_waitlist[i];
+        if (qubit_marks[adj])
             continue;
-        DFSDevice(adj, device, assign, qubitMark);
+        _dfs_device(adj, device, assign, qubit_marks);
     }
     return;
 }

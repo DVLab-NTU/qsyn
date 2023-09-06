@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ ordered_hashmap.hpp ]
   PackageName  [ util ]
   Synopsis     [ Define ordered_hashmap ]
   Author       [ Design Verification Lab ]
@@ -74,24 +73,24 @@
 #include "util/ordered_hashtable.hpp"
 
 template <typename Key, typename T, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
-class ordered_hashmap final : public ordered_hashtable<Key, std::pair<const Key, T>, std::pair<Key, T>, Hash, KeyEqual> {
-    using __OrderedHashTable = ordered_hashtable<Key, std::pair<const Key, T>, std::pair<Key, T>, Hash, KeyEqual>;
+class ordered_hashmap final : public ordered_hashtable<Key, std::pair<const Key, T>, std::pair<Key, T>, Hash, KeyEqual> {  // NOLINT(readability-identifier-naming) : ordered_hashmap intentionally mimics std::unordered_map
+    using _Table_t = ordered_hashtable<Key, std::pair<const Key, T>, std::pair<Key, T>, Hash, KeyEqual>;
 
 public:
-    using key_type = typename __OrderedHashTable::key_type;
+    using key_type = typename _Table_t::key_type;
     using mapped_type = T;
-    using value_type = typename __OrderedHashTable::value_type;
-    using stored_type = typename __OrderedHashTable::stored_type;
-    using size_type = typename __OrderedHashTable::size_type;
-    using difference_type = typename __OrderedHashTable::difference_type;
-    using hasher = typename __OrderedHashTable::hasher;
-    using key_equal = typename __OrderedHashTable::key_equal;
-    using iterator = typename __OrderedHashTable::iterator;
-    using const_iterator = typename __OrderedHashTable::const_iterator;
+    using value_type = typename _Table_t::value_type;
+    using stored_type = typename _Table_t::stored_type;
+    using size_type = typename _Table_t::size_type;
+    using difference_type = typename _Table_t::difference_type;
+    using hasher = typename _Table_t::hasher;
+    using key_equal = typename _Table_t::key_equal;
+    using iterator = typename _Table_t::iterator;
+    using const_iterator = typename _Table_t::const_iterator;
 
-    ordered_hashmap() : __OrderedHashTable() {}
-    ordered_hashmap(const std::initializer_list<value_type>& il) : __OrderedHashTable() {
-        for (const value_type& item : il) {
+    ordered_hashmap() : _Table_t() {}
+    ordered_hashmap(std::initializer_list<value_type> const& il) : _Table_t() {
+        for (value_type const& item : il) {
             this->_key2id.emplace(key(item), this->_data.size());
             this->_data.emplace_back(item);
         }
@@ -108,12 +107,12 @@ public:
     }
 
     // lookup
-    virtual const Key& key(const stored_type& value) const override { return value.first; }
+    virtual Key const& key(stored_type const& value) const override { return value.first; }
 
-    T& at(const Key& key);
-    const T& at(const Key& key) const;
+    T& at(Key const& key);
+    T const& at(Key const& key) const;
 
-    T& operator[](const Key& key);
+    T& operator[](Key const& key);
     T& operator[](Key&& key);
 
     /**
@@ -141,7 +140,7 @@ public:
     }
 
     template <typename... Args>
-    std::pair<iterator, bool> try_emplace(const Key& key, Args&&... args) {
+    std::pair<iterator, bool> try_emplace(Key const& key, Args&&... args) {
         auto itr = this->find(key);
         if (itr != this->end()) {
             return std::make_pair(itr, false);
@@ -161,7 +160,7 @@ public:
         return ret;
     }
 
-    std::pair<iterator, bool> insert_or_assign(const Key& key, T&& obj) {
+    std::pair<iterator, bool> insert_or_assign(Key const& key, T&& obj) {
         auto ret = try_emplace(key, std::forward<T>(obj));
         if (ret.second == false) {
             ret.first->second = std::forward<T>(obj);
@@ -184,8 +183,11 @@ static_assert(std::ranges::bidirectional_range<ordered_hashmap<int, int>>);
  * @return T&
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
-T& ordered_hashmap<Key, T, Hash, KeyEqual>::at(const Key& key) {
-    return const_cast<T&>(std::as_const(*this).at(key));
+T& ordered_hashmap<Key, T, Hash, KeyEqual>::at(Key const& key) {
+    if (!this->contains(key)) {
+        throw std::out_of_range("no value corresponding to the key");
+    }
+    return this->_data[this->id(key)].value().second;
 }
 
 /**
@@ -196,7 +198,7 @@ T& ordered_hashmap<Key, T, Hash, KeyEqual>::at(const Key& key) {
  * @return cosnt T&
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
-const T& ordered_hashmap<Key, T, Hash, KeyEqual>::at(const Key& key) const {
+T const& ordered_hashmap<Key, T, Hash, KeyEqual>::at(Key const& key) const {
     if (!this->contains(key)) {
         throw std::out_of_range("no value corresponding to the key");
     }
@@ -211,7 +213,7 @@ const T& ordered_hashmap<Key, T, Hash, KeyEqual>::at(const Key& key) const {
  * @return T&
  */
 template <typename Key, typename T, typename Hash, typename KeyEqual>
-T& ordered_hashmap<Key, T, Hash, KeyEqual>::operator[](const Key& key) {
+T& ordered_hashmap<Key, T, Hash, KeyEqual>::operator[](Key const& key) {
     return at(std::move(key));
 }
 

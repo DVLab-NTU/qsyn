@@ -1,6 +1,5 @@
 /****************************************************************************
-  FileName     [ argument.cpp ]
-  PackageName  [ argparser ]
+  PackageName  [ argparse ]
   Synopsis     [ Define argument interface for ArgumentParser ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
@@ -10,7 +9,7 @@
 
 using namespace std;
 
-namespace ArgParse {
+namespace argparse {
 
 /**
  * @brief If the argument has a default value, reset to it.
@@ -28,8 +27,8 @@ void Argument::reset() {
  * @return true if action success, or
  * @return false if action failed or < l argument are available
  */
-bool Argument::takeAction(TokensView tokens) {
-    if (!_pimpl->do_takeAction(tokens) || !constraintsSatisfied()) return false;
+bool Argument::take_action(TokensView tokens) {
+    if (!_pimpl->do_take_action(tokens) || !is_constraints_satisfied()) return false;
 
     return true;
 }
@@ -40,7 +39,7 @@ bool Argument::takeAction(TokensView tokens) {
  * @param tokens
  * @return TokensView
  */
-TokensView Argument::getParseRange(TokensView tokens) const {
+TokensView Argument::get_parse_range(TokensView tokens) const {
     auto parse_start = std::find_if(
         tokens.begin(), tokens.end(),
         [](Token& token) { return token.parsed == false; });
@@ -48,22 +47,22 @@ TokensView Argument::getParseRange(TokensView tokens) const {
     auto parse_end = std::find_if(
         parse_start, tokens.end(),
         [](Token& token) { return token.parsed == true; });
-    return tokens.subspan(parse_start - tokens.begin(), std::min(getNArgs().upper, static_cast<size_t>(parse_end - parse_start)));
+    return tokens.subspan(parse_start - tokens.begin(), std::min(get_nargs().upper, static_cast<size_t>(parse_end - parse_start)));
 }
 
-bool Argument::tokensEnoughToParse(TokensView tokens) const {
-    return (tokens.size() >= getNArgs().lower);
+bool Argument::tokens_enough_to_parse(TokensView tokens) const {
+    return (tokens.size() >= get_nargs().lower);
 }
 /**
  * @brief If the argument is parsed, print out the parsed value. If not,
  *        print the default value if it has one, or "(unparsed)" if not.
  *
  */
-void Argument::printStatus() const {
-    fmt::println("  {:<8}   = {}", getName(), std::invoke([this]() {
-                     if (isParsed()) {
+void Argument::print_status() const {
+    fmt::println("  {:<8}   = {}", get_name(), std::invoke([this]() {
+                     if (is_parsed()) {
                          return fmt::format("{}", *this);
-                     } else if (hasDefaultValue()) {
+                     } else if (has_default_value()) {
                          return fmt::format("{} (default)", *this);
                      } else {
                          return "(unparsed)"s;
@@ -71,4 +70,4 @@ void Argument::printStatus() const {
                  }));
 }
 
-}  // namespace ArgParse
+}  // namespace argparse

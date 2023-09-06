@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ phase.cpp ]
   PackageName  [ util ]
   Synopsis     [ Implementation of the Phase class and pertinent classes ]
   Author       [ Design Verification Lab ]
@@ -9,10 +8,10 @@
 #include "./phase.hpp"
 
 #include "./rational.hpp"
-#include "argparse/argDef.hpp"
+#include "argparse/arg_def.hpp"
 
-std::ostream& operator<<(std::ostream& os, const Phase& p) {
-    return os << p.getPrintString();
+std::ostream& operator<<(std::ostream& os, Phase const& p) {
+    return os << p.get_print_string();
 }
 
 Phase Phase::operator+() const {
@@ -22,32 +21,32 @@ Phase Phase::operator-() const {
     return Phase(-_rational.numerator(), _rational.denominator());
 }
 
-Phase& Phase::operator+=(const Phase& rhs) {
+Phase& Phase::operator+=(Phase const& rhs) {
     this->_rational += rhs._rational;
     normalize();
     return *this;
 }
-Phase& Phase::operator-=(const Phase& rhs) {
+Phase& Phase::operator-=(Phase const& rhs) {
     this->_rational -= rhs._rational;
     normalize();
     return *this;
 }
-Phase operator+(Phase lhs, const Phase& rhs) {
+Phase operator+(Phase lhs, Phase const& rhs) {
     lhs += rhs;
     return lhs;
 }
-Phase operator-(Phase lhs, const Phase& rhs) {
+Phase operator-(Phase lhs, Phase const& rhs) {
     lhs -= rhs;
     return lhs;
 }
-Rational operator/(const Phase& lhs, const Phase& rhs) {
+Rational operator/(Phase const& lhs, Phase const& rhs) {
     Rational q = lhs._rational / rhs._rational;
     return q;
 }
-bool Phase::operator==(const Phase& rhs) const {
+bool Phase::operator==(Phase const& rhs) const {
     return _rational == rhs._rational;
 }
-bool Phase::operator!=(const Phase& rhs) const {
+bool Phase::operator!=(Phase const& rhs) const {
     return !(*this == rhs);
 }
 
@@ -56,7 +55,7 @@ bool Phase::operator!=(const Phase& rhs) const {
  *
  * @return std::string
  */
-std::string Phase::getAsciiString() const {
+std::string Phase::get_ascii_string() const {
     std::string str;
     if (_rational.numerator() != 1)
         str += std::to_string(_rational.numerator()) + "*";
@@ -71,7 +70,7 @@ std::string Phase::getAsciiString() const {
  *
  * @return std::string
  */
-std::string Phase::getPrintString() const {
+std::string Phase::get_print_string() const {
     return (
                _rational.numerator() == 1 ? ""
                : _rational.numerator() == -1
@@ -86,16 +85,16 @@ std::string Phase::getPrintString() const {
  */
 void Phase::normalize() {
     Rational factor = (_rational / 2);
-    int integralPart = std::floor(factor.toFloat());
-    _rational -= (integralPart * 2);
+    int integral_part = std::floor(Rational::rational_to_f(factor));
+    _rational -= (integral_part * 2);
     if (_rational > 1) _rational -= 2;
 }
 
-namespace ArgParse {
+namespace argparse {
 template <>
-std::string typeString(Phase const&) { return "Phase"; }
+std::string type_string(Phase const& /*unused*/) { return "Phase"; }
 template <>
-bool parseFromString(Phase& phase, std::string const& token) {
-    return Phase::myStr2Phase(token, phase);
+bool parse_from_string(Phase& val, std::string const& token) {
+    return Phase::str_to_phase(token, val);
 }
-}  // namespace ArgParse
+}  // namespace argparse

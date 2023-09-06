@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ qcir.hpp ]
   PackageName  [ qcir ]
   Synopsis     [ Define class QCir structure ]
   Author       [ Design Verification Lab ]
@@ -16,13 +15,13 @@
 #include <utility>
 #include <vector>
 
-#include "qcir/qcirGate.hpp"
-#include "qcir/qcirQubit.hpp"
+#include "qcir/qcir_gate.hpp"
+#include "qcir/qcir_qubit.hpp"
 
 class QCir;
 class Phase;
 
-struct BitInfo;
+struct QubitInfo;
 
 class QCir {
 public:
@@ -31,31 +30,31 @@ public:
 
     QCir(QCir const& other) {
         namespace views = std::ranges::views;
-        other.updateTopoOrder();
-        this->addQubit(other._qubits.size());
+        other.update_topological_order();
+        this->add_qubits(other._qubits.size());
 
         for (size_t i = 0; i < _qubits.size(); i++) {
-            _qubits[i]->setId(other._qubits[i]->getId());
+            _qubits[i]->set_id(other._qubits[i]->get_id());
         }
 
-        for (auto& gate : other._topoOrder) {
-            auto bit_range = gate->getQubits() |
-                             views::transform([](BitInfo const& qb) { return qb._qubit; });
-            auto newGate = this->addGate(
-                gate->getTypeStr(), {bit_range.begin(), bit_range.end()},
-                gate->getPhase(), true);
+        for (auto& gate : other._topological_order) {
+            auto bit_range = gate->get_qubits() |
+                             views::transform([](QubitInfo const& qb) { return qb._qubit; });
+            auto new_gate = this->add_gate(
+                gate->get_type_str(), {bit_range.begin(), bit_range.end()},
+                gate->get_phase(), true);
 
-            newGate->setId(gate->getId());
+            new_gate->set_id(gate->get_id());
         }
 
-        this->setNextGateId(1 + std::ranges::max(
-                                    other._topoOrder | views::transform(
-                                                           [](QCirGate* g) { return g->getId(); })));
-        this->setNextQubitId(1 + std::ranges::max(
-                                     other._qubits | views::transform(
-                                                         [](QCirQubit* qb) { return qb->getId(); })));
-        this->setFileName(other._fileName);
-        this->addProcedures(other._procedures);
+        this->_set_next_gate_id(1 + std::ranges::max(
+                                        other._topological_order | views::transform(
+                                                                       [](QCirGate* g) { return g->get_id(); })));
+        this->_set_next_qubit_id(1 + std::ranges::max(
+                                         other._qubits | views::transform(
+                                                             [](QCirQubit* qb) { return qb->get_id(); })));
+        this->set_filename(other._filename);
+        this->add_procedures(other._procedures);
     }
 
     QCir(QCir&& other) noexcept = default;
@@ -66,15 +65,15 @@ public:
     }
 
     void swap(QCir& other) noexcept {
-        std::swap(_gateId, other._gateId);
-        std::swap(_qubitId, other._qubitId);
+        std::swap(_gate_id, other._gate_id);
+        std::swap(_qubit_id, other._qubit_id);
         std::swap(_dirty, other._dirty);
-        std::swap(_globalDFScounter, other._globalDFScounter);
-        std::swap(_fileName, other._fileName);
+        std::swap(_global_dfs_counter, other._global_dfs_counter);
+        std::swap(_filename, other._filename);
         std::swap(_procedures, other._procedures);
         std::swap(_qgates, other._qgates);
         std::swap(_qubits, other._qubits);
-        std::swap(_topoOrder, other._topoOrder);
+        std::swap(_topological_order, other._topological_order);
     }
 
     friend void swap(QCir& a, QCir& b) noexcept {
@@ -82,86 +81,88 @@ public:
     }
 
     // Access functions
-    size_t getNQubit() const { return _qubits.size(); }
-    int getDepth();
-    const std::vector<QCirQubit*>& getQubits() const { return _qubits; }
-    const std::vector<QCirGate*>& getTopoOrderedGates() const { return _topoOrder; }
-    const std::vector<QCirGate*>& getGates() const { return _qgates; }
-    QCirGate* getGate(size_t gid) const;
-    QCirQubit* getQubit(size_t qid) const;
-    std::string getFileName() const { return _fileName; }
-    const std::vector<std::string>& getProcedures() const { return _procedures; }
+    size_t get_num_qubits() const { return _qubits.size(); }
+    int get_depth();
+    std::vector<QCirQubit*> const& get_qubits() const { return _qubits; }
+    std::vector<QCirGate*> const& get_topologically_ordered_gates() const { return _topological_order; }
+    std::vector<QCirGate*> const& get_gates() const { return _qgates; }
+    QCirGate* get_gate(size_t gid) const;
+    QCirQubit* get_qubit(size_t qid) const;
+    std::string get_filename() const { return _filename; }
+    std::vector<std::string> const& get_procedures() const { return _procedures; }
 
-    void setFileName(std::string f) { _fileName = f; }
-    void addProcedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
-    void addProcedure(std::string const& p) { _procedures.emplace_back(p); }
-    // For Copy
-    void setNextGateId(size_t id) { _gateId = id; }
-    void setNextQubitId(size_t id) { _qubitId = id; }
+    void set_filename(std::string f) { _filename = f; }
+    void add_procedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
+    void add_procedure(std::string const& p) { _procedures.emplace_back(p); }
+
     //
     void reset();
     QCir* compose(QCir const& target);
-    QCir* tensorProduct(QCir const& target);
+    QCir* tensor_product(QCir const& target);
     // Member functions about circuit construction
-    QCirQubit* addSingleQubit();
-    QCirQubit* insertSingleQubit(size_t);
-    void addQubit(size_t num);
-    bool removeQubit(size_t q);
-    QCirGate* addGate(std::string gateType, std::vector<size_t> bits, Phase, bool);
-    QCirGate* addSingleRZ(size_t, Phase, bool);
-    bool removeGate(size_t id);
+    QCirQubit* push_qubit();
+    QCirQubit* insert_qubit(size_t id);
+    void add_qubits(size_t num);
+    bool remove_qubit(size_t qid);
+    QCirGate* add_gate(std::string type, std::vector<size_t> bits, Phase phase, bool append);
+    QCirGate* add_single_rz(size_t bit, Phase phase, bool append);
+    bool remove_gate(size_t id);
 
-    bool readQCirFile(std::string file);
-    bool readQC(std::string qc_file);
-    bool readQASM(std::string qasm_file);
-    bool readQSIM(std::string qsim_file);
-    bool readQUIPPER(std::string quipper_file);
+    bool read_qcir_file(std::string filename);
+    bool read_qc(std::string filename);
+    bool read_qasm(std::string filename);
+    bool read_qsim(std::string filename);
+    bool read_quipper(std::string filename);
 
-    bool writeQASM(std::string qasm_output);
+    bool write_qasm(std::string filename);
 
-    bool draw(std::string const& drawer, std::string const& outputPath = "", float scale = 1.0f);
+    bool draw(std::string const& drawer, std::string const& output_path = "", float scale = 1.0f);
 
-    std::vector<int> countGate(bool detail = false, bool print = true);
+    std::vector<int> count_gates(bool detail = false, bool print = true);
 
-    void updateGateTime() const;
-    void printZXTopoOrder();
+    void update_gate_time() const;
+    void print_zx_form_topological_order();
 
     // DFS functions
     template <typename F>
-    void topoTraverse(F lambda) const {
+    void topological_traverse(F lambda) const {
         if (_dirty) {
-            updateTopoOrder();
+            update_topological_order();
             _dirty = false;
         }
-        for_each(_topoOrder.begin(), _topoOrder.end(), lambda);
+        for_each(_topological_order.begin(), _topological_order.end(), lambda);
     }
 
-    bool printTopoOrder();
+    bool print_topological_order();
 
     // pass a function F (public functions) into for_each
     // lambdaFn such as mappingToZX / updateGateTime
-    const std::vector<QCirGate*>& updateTopoOrder() const;
+    std::vector<QCirGate*> const& update_topological_order() const;
 
     // Member functions about circuit reporting
-    void printDepth();
-    void printGates();
-    void printCircuit();
-    bool printGateInfo(size_t, bool);
-    void printSummary();
-    void printQubits();
-    void printCirInfo();
+    void print_depth();
+    void print_gates();
+    void print_qcir();
+    bool print_gate_info(size_t, bool);
+    void print_summary();
+    void print_qubits();
+    void print_qcir_info();
 
 private:
-    void DFS(QCirGate*) const;
+    void _dfs(QCirGate* curr_gate) const;
 
-    size_t _gateId = 0;
-    size_t _qubitId = 0;
+    // For Copy
+    void _set_next_gate_id(size_t id) { _gate_id = id; }
+    void _set_next_qubit_id(size_t id) { _qubit_id = id; }
+
+    size_t _gate_id = 0;
+    size_t _qubit_id = 0;
     bool mutable _dirty = true;
-    unsigned mutable _globalDFScounter = 0;
-    std::string _fileName;
+    unsigned mutable _global_dfs_counter = 0;
+    std::string _filename;
     std::vector<std::string> _procedures;
 
     std::vector<QCirGate*> _qgates;
     std::vector<QCirQubit*> _qubits;
-    std::vector<QCirGate*> mutable _topoOrder;
+    std::vector<QCirGate*> mutable _topological_order;
 };
