@@ -1,0 +1,21 @@
+#! /usr/bin/env bash
+
+# cd to the directory of this script
+cd "$(dirname "$0")" || exit
+
+# check if docker is installed
+if ! command -v docker &> /dev/null
+then
+    echo "docker could not be found, running tests locally"
+    echo "some tests may fail due to platform differences"
+    echo "install docker to run tests in a consistent environment"
+    ./run_tests.py "$@"
+    exit
+fi
+
+if [[ "$(docker images -q qsyn-test 2> /dev/null)" == "" ]]; then
+    echo "No docker image found, building..."
+    docker build -t qsyn-test .
+fi
+
+docker run -it --rm -v "$(pwd)":/qsyn qsyn-test echo "Running tests..."
