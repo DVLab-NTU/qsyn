@@ -17,46 +17,26 @@ int scopedCliffordSimp(ZXGraph* graph, const ZXVertexList& scope);
  * @param iterations number of iterations
  */
 void Simplifier::partitionReduce(size_t numPartitions, size_t iterations = 1) {
-    // ZXGraph _copiedGraph = *_simpGraph;
-    // {
-    //     Simplifier simplifier = Simplifier(&_copiedGraph);
-    //     simplifier.fullReduce();
-    // }
-    // size_t tOptimal = _copiedGraph.TCount();
+    ZXGraph _copiedGraph = *_simpGraph;
+    {
+        Simplifier simplifier = Simplifier(&_copiedGraph);
+        simplifier.fullReduce();
+    }
+    size_t tOptimal = _copiedGraph.TCount();
 
     std::vector<ZXVertexList> partitions = klPartition(*_simpGraph, numPartitions);
     auto [subgraphs, cuts] = _simpGraph->createSubgraphs(partitions);
-
-    ZXVertexList cutPartition;
-    for (auto& [b1, b2, _] : cuts) {
-        cutPartition.insert(b1->getFirstNeighbor().first);
-        cutPartition.insert(b2->getFirstNeighbor().first);
-    }
 
     for (auto& graph : subgraphs) {
         Simplifier simplifier = Simplifier(graph);
         simplifier.dynamicReduce();
     }
+
     ZXGraph* tempGraph = ZXGraph::fromSubgraphs(subgraphs, cuts);
     _simpGraph->swap(*tempGraph);
     delete tempGraph;
 
-    {
-        std::vector<ZXVertex*> frontier(cutPartition.begin(), cutPartition.end());
-        for (size_t degree = 0; degree < 1; degree++) {
-            std::vector<ZXVertex*> new_frontier;
-            for (auto& v : frontier) {
-                for (auto& [neighbor, _] : v->getNeighbors()) {
-                    if (cutPartition.contains(neighbor)) continue;
-                    new_frontier.push_back(neighbor);
-                    cutPartition.insert(neighbor);
-                }
-            }
-            frontier = new_frontier;
-        }
-    }
-
-    scopedDynamicReduce(_simpGraph, cutPartition);
+    sfusionSimp();
 }
 
 void scopedDynamicReduce(ZXGraph* graph, const ZXVertexList& scope) {
