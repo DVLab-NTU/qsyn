@@ -193,7 +193,7 @@ struct formatter<ArgParse::Argument> {
 
     template <typename FormatContext>
     auto format(ArgParse::Argument const& arg, FormatContext& ctx) -> format_context::iterator {
-        return format_to(ctx.out(), "{}", arg.toString());
+        return fmt::format_to(ctx.out(), "{}", arg.toString());
     }
 };
 

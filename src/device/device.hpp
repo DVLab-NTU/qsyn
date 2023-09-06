@@ -51,7 +51,7 @@ struct fmt::formatter<Info> {
 
     template <typename FormatContext>
     auto format(const Info& info, FormatContext& ctx) {
-        return format_to(ctx.out(), "Delay: {:>7.3}    Error: {:7.3}    ", info._time, info._error);
+        return fmt::format_to(ctx.out(), "Delay: {:>7.3}    Error: {:7.3}    ", info._time, info._error);
     }
 };
 
