@@ -6,7 +6,8 @@ RUN dnf -y install \
     cmake \
     lapack-devel  \
     openblas-devel \
-    diffutils 
+    diffutils \
+    patch
 
 COPY ./entrypoint.sh /app/entrypoint.sh
 WORKDIR /app
