@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ argparse ]
-  Synopsis     [ Definitions for subparsers of ArgumentParser ]
+  Synopsis     [ Define argument groups ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

@@ -237,7 +237,7 @@ Command mapping_equivalence_check_cmd() {
             if (physical_qc == nullptr || logical_qc == nullptr) {
                 return CmdExecResult::error;
             }
-            MappingEQChecker mpeqc(physical_qc, logical_qc, *DEVICE_MGR.get(), {});
+            MappingEquivalenceChecker mpeqc(physical_qc, logical_qc, *DEVICE_MGR.get(), {});
             if (mpeqc.check()) {
                 fmt::println("{}", fmt_ext::styled_if_ansi_supported("Equivalent up to permutation", fmt::fg(fmt::terminal_color::green) | fmt::emphasis::bold));
             } else {

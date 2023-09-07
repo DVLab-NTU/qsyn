@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ util ]
-  Synopsis     [ User-defined trie data structure for parsing ]
+  Synopsis     [ Trie data structure for prefix-based lookups ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ qcir ]
-  Synopsis     [ Define class qcirGate structure ]
+  Synopsis     [ Define class QCirGate structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

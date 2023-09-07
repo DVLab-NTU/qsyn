@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ qcir ]
-  Synopsis     [ Define class qcirGate member functions ]
+  Synopsis     [ Define class QCirGate member functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

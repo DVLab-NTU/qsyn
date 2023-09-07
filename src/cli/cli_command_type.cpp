@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ cmd ]
-  Synopsis     [ Define cli command behaviour ]
+  Synopsis     [ Define CLI command ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ argparse ]
-  Synopsis     [ Define argument interface for ArgumentParser ]
+  Synopsis     [ Define type-erased argument class to hold ArgType<T> ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

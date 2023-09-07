@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ util ]
-  Synopsis     [ Report the run time and memory usage ]
+  Synopsis     [ Report the runtime and memory usage ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

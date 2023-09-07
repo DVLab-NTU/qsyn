@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ duostra ]
-  Synopsis     [ Define class Searcg Scheduler member functions ]
+  Synopsis     [ Define class Search Scheduler member functions ]
   Author       [ Chin-Yi Cheng, Chien-Yi Yang, Ren-Chu Wang, Yi-Hsiang Kuo ]
   Paper        [ https://arxiv.org/abs/2210.01306 ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]

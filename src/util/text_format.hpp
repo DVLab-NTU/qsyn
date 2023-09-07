@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ util ]
-  Synopsis     [ Declare text formatting functions such as colors, bold, etc. ]
+  Synopsis     [ Declare text formatting-related functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

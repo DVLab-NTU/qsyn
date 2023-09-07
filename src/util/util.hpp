@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ util ]
-  Synopsis     [ Define the prototypes of the exported utility functions ]
+  Synopsis     [ Define global utility functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

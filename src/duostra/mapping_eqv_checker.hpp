@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ duostra ]
-  Synopsis     [ Define class MappingEQChecker structure ]
+  Synopsis     [ Define class MappingEquivalenceChecker structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -17,9 +17,9 @@ class QCir;
 class QCirGate;
 class QubitInfo;
 
-class MappingEQChecker {
+class MappingEquivalenceChecker {
 public:
-    MappingEQChecker(QCir*, QCir*, Device, std::vector<size_t> = {}, bool = false);
+    MappingEquivalenceChecker(QCir*, QCir*, Device, std::vector<size_t> = {}, bool = false);
 
     bool check();
     bool is_swap(QCirGate*);

@@ -1,5 +1,5 @@
 /****************************************************************************
-  PackageName  [ optimizer ]
+  PackageName  [ qcir/optimizer ]
   Synopsis     [ Define class Optimizer member functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]

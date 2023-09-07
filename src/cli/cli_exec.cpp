@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ cli ]
-  Synopsis     [ Define command parsing member functions for class CmdParser ]
+  Synopsis     [ Define command parsing and execution functions for CLI ]
   Author       [ Design Verification Lab, Chia-Hsu Chuang ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

@@ -1,8 +1,8 @@
 /****************************************************************************
   PackageName  [ util ]
-  Synopsis     [ Report the run time and memory usage ]
-  Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
+  Synopsis     [ Report the runtime and memory usage ]
+  Author       [ Design Verification Lab ]
+  Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #include "./usage.hpp"
