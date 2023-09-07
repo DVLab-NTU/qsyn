@@ -8,6 +8,6 @@ RUN dnf -y install \
     openblas-devel \
     diffutils 
 
-# COPY . /qsyn
-# WORKDIR /qsyn
-# RUN rm -rf build && mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++ .. && make -j6
+COPY ./entrypoint.sh /app/entrypoint.sh
+WORKDIR /app
+ENTRYPOINT ["/app/entrypoint.sh"]

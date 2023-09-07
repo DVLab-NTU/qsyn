@@ -1,0 +1,10 @@
+#! /usr/bin/env bash
+mkdir build
+cd build || {
+    echo "Failed to enter build directory"
+    exit 1
+}
+cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCOPY_EXECUTABLE=ON ../qsyn
+make -j"$(nproc)"
+echo ../qsyn/RUN_TESTS "$@" --qsyn ./qsyn
+../qsyn/RUN_TESTS "$@" --qsyn ./qsyn

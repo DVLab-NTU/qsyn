@@ -85,9 +85,13 @@ target_link_libraries(
   ${BLAS_LIBRARIES}
   ${LAPACK_LIBRARIES})
 
-add_custom_command(
-  TARGET ${CMAKE_PROJECT_NAME}
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${CMAKE_PROJECT_NAME}>
-          ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}
-  COMMENT "Copied executable to ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}")
+# default to ON
+option(COPY_EXECUTABLE "Copy executable to project root" ON)
+if(COPY_EXECUTABLE)
+  add_custom_command(
+    TARGET ${CMAKE_PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${CMAKE_PROJECT_NAME}>
+            ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}
+    COMMENT "Copied executable to ${CMAKE_SOURCE_DIR}/${CMAKE_PROJECT_NAME}")
+endif()
