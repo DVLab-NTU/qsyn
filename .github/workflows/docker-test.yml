@@ -12,10 +12,5 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v3
-      - name: Build docker image
-        uses: docker/build-push-action@v4
-        with:
-          push: false
-          file: ./Dockerfile
       - name: Run tests in Docker
         run: ./RUN_TESTS_DOCKER -dv
