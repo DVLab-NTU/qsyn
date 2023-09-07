@@ -17,5 +17,5 @@ jobs:
         with:
           push: false
           file: ./Dockerfile
-      - name: Run tests in Dockur
-        run: RUN_TESTS_DOCKER -dv
+      - name: Run tests in Docker
+        run: ./RUN_TESTS_DOCKER -dv
