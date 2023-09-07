@@ -5,4 +5,4 @@ cd "$(dirname "$0")" || exit
 
 docker build -t qsyn-test .
 
-docker run -it --rm -v "$(pwd)":/app/qsyn qsyn-test "$@"
+docker run --rm -v "$(pwd)":/app/qsyn qsyn-test "$@"
