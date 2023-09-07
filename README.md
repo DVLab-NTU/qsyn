@@ -122,18 +122,30 @@ Visualization functionalities of `qsyn` depends at runtime on the following depe
 We have provided some DOFILEs, i.e., a sequence of commands, to serve as functionality checks as well as demonstration of use. DOFILEs are Located under `tests/<section>/<subsection>/dof/`.
 
 - To run a DOFILE and compare the result to the reference, type
+
   ```shell!
-  ./RUN_TEST <path/to/test> -d
+  ./RUN_TESTS <path/to/test> -d
   ```
+
 - To update the reference to a dofile, type
+
   ```shell!
-  ./RUN_TEST <path/to/test> -u
+  ./RUN_TESTS <path/to/test> -u
   ```
+
 - You may also run all DOFILEs by running
-  ```bash!
-  ./RUN_TEST
+
+  ```shell!
+  ./RUN_TESTS
   ```
-  Notice that if you use `clang` to compile `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
+
+- To run test in a containerized environment, run
+
+  ```shell!
+  ./RUN_TESTS_DOCKER
+  ```
+
+  Notice that if you use a different BLAS or LAPACK inplementation to build `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
 
 ## License
 
