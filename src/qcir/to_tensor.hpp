@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ qcir ]
-  Synopsis     [ Define class QCirGate Mapping functions ]
+  Synopsis     [ Define conversion from QCir to Tensor ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

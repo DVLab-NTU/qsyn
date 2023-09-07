@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ duostra ]
-  Synopsis     [ Define class MappingEQChecker member functions ]
+  Synopsis     [ Define class MappingEquivalenceChecker member functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -23,7 +23,7 @@ using namespace std;
  * @param init
  * @param reverse check reversily if true
  */
-MappingEQChecker::MappingEQChecker(QCir* phy, QCir* log, Device dev, std::vector<size_t> init, bool reverse) : _physical(phy), _logical(log), _device(dev), _reverse(reverse) {
+MappingEquivalenceChecker::MappingEquivalenceChecker(QCir* phy, QCir* log, Device dev, std::vector<size_t> init, bool reverse) : _physical(phy), _logical(log), _device(dev), _reverse(reverse) {
     if (init.empty()) {
         auto placer = get_placer();
         init = placer->place_and_assign(_device);
@@ -41,7 +41,7 @@ MappingEQChecker::MappingEQChecker(QCir* phy, QCir* log, Device dev, std::vector
  * @return true
  * @return false
  */
-bool MappingEQChecker::check() {
+bool MappingEquivalenceChecker::check() {
     vector<QCirGate*> execute_order = _physical->get_topologically_ordered_gates();
     if (_reverse) reverse(execute_order.begin(), execute_order.end());  // NOTE - Now the order starts from back
     // NOTE - Traverse all physical gates, should match dependency of logical gate
@@ -79,7 +79,7 @@ bool MappingEQChecker::check() {
  * @return true
  * @return false
  */
-bool MappingEQChecker::is_swap(QCirGate* candidate) {
+bool MappingEquivalenceChecker::is_swap(QCirGate* candidate) {
     if (candidate->get_type() != GateType::cx) return false;
     QCirGate* q0_gate = get_next(candidate->get_qubits()[0]);
     QCirGate* q1_gate = get_next(candidate->get_qubits()[1]);
@@ -122,7 +122,7 @@ bool MappingEQChecker::is_swap(QCirGate* candidate) {
  * @return true
  * @return false
  */
-bool MappingEQChecker::execute_swap(QCirGate* first, unordered_set<QCirGate*>& swaps) {
+bool MappingEquivalenceChecker::execute_swap(QCirGate* first, unordered_set<QCirGate*>& swaps) {
     bool connect = _device.get_physical_qubit(first->get_qubits()[0]._qubit).is_adjacency(_device.get_physical_qubit(first->get_qubits()[1]._qubit));
     if (!connect) return false;
 
@@ -142,7 +142,7 @@ bool MappingEQChecker::execute_swap(QCirGate* first, unordered_set<QCirGate*>& s
  * @return true
  * @return false
  */
-bool MappingEQChecker::execute_single(QCirGate* gate) {
+bool MappingEquivalenceChecker::execute_single(QCirGate* gate) {
     assert(gate->get_qubits()[0]._isTarget == true);
     size_t phy_id = gate->get_qubits()[0]._qubit;
 
@@ -177,7 +177,7 @@ bool MappingEQChecker::execute_single(QCirGate* gate) {
  * @return true
  * @return false
  */
-bool MappingEQChecker::execute_double(QCirGate* gate) {
+bool MappingEquivalenceChecker::execute_double(QCirGate* gate) {
     assert(gate->get_qubits()[0]._isTarget == false);
     assert(gate->get_qubits()[1]._isTarget == true);
     size_t phy_ctrl_id = gate->get_qubits()[0]._qubit;
@@ -225,7 +225,7 @@ bool MappingEQChecker::execute_double(QCirGate* gate) {
  * @return true
  * @return false
  */
-bool MappingEQChecker::check_remaining() {
+bool MappingEquivalenceChecker::check_remaining() {
     for (auto const& [q, g] : _dependency) {
         if (g != nullptr) {
             cout << "Note: qubit " << q << " has gates remaining" << endl;
@@ -240,7 +240,7 @@ bool MappingEQChecker::check_remaining() {
  * @param info
  * @return QCirGate*
  */
-QCirGate* MappingEQChecker::get_next(QubitInfo const& info) {
+QCirGate* MappingEquivalenceChecker::get_next(QubitInfo const& info) {
     if (_reverse)
         return info._parent;
     else

@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ cli ]
-  Synopsis     [ enum for keyboard mapping ]
+  Synopsis     [ keycodes for keyboard mapping ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

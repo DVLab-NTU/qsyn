@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ argparse ]
-  Synopsis     [ Define parser argument types ]
+  Synopsis     [ Define argparse arg types ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

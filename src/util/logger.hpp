@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ util ]
-  Synopsis     [ Define data structure manager template ]
+  Synopsis     [ A simple ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

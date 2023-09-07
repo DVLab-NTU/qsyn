@@ -1,5 +1,5 @@
 /****************************************************************************
-  PackageName  [ optimizer ]
+  PackageName  [ qcir/optimizer ]
   Synopsis     [ Define optimization of gates ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]

@@ -1,6 +1,6 @@
 /****************************************************************************
-  PackageName  [ m2 ]
-  Synopsis     [ Define class m2 (Boolean Matrix) structure ]
+  PackageName  [ util ]
+  Synopsis     [ Define class BooleanMatrix structure ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/

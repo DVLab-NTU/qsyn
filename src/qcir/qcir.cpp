@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ qcir ]
-  Synopsis     [ Define class QCir Edition functions ]
+  Synopsis     [ Define basic QCir functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
