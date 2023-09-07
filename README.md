@@ -23,6 +23,7 @@
 ## Getting Started
 
 ### System Requirements
+
 `qsyn` requires `c++-20` to build. We support compilation with (1) `g++-10` or above, or (2) `clang++-16` or above. We regularly perform build tests for the two compilers.
 
 ### Installation
@@ -33,15 +34,17 @@ cd qsyn
 ```
 
 ### Optional Dependencies for Visualization
+
 Visualization functionalities of `qsyn` depends at runtime on the following dependencies. Please refer to the linked pages for installation instructions:
-* `qiskit`, `qiskit[visualization]` for drawing quantum circuits
-    * Please refer to [this page](https://qiskit.org/documentation/getting_started.html)
-* `texlive` for drawing ZX-diagrams.
-    * For Ubuntu:
-        ```shell
-        sudo apt-get install texlive-latex-base
-        ```
-    * Other Platforms: please refer to [this page](https://tug.org/texlive/quickinstall.html) 
+
+- `qiskit`, `qiskit[visualization]` for drawing quantum circuits
+  - Please refer to [this page](https://qiskit.org/documentation/getting_started.html)
+- `texlive` for drawing ZX-diagrams.
+  - For Ubuntu:
+    ```shell
+    sudo apt-get install texlive-latex-base
+    ```
+  - Other Platforms: please refer to [this page](https://tug.org/texlive/quickinstall.html)
 
 ### Compilation
 
@@ -119,20 +122,33 @@ Visualization functionalities of `qsyn` depends at runtime on the following depe
 We have provided some DOFILEs, i.e., a sequence of commands, to serve as functionality checks as well as demonstration of use. DOFILEs are Located under `tests/<section>/<subsection>/dof/`.
 
 - To run a DOFILE and compare the result to the reference, type
+
   ```shell!
-  ./RUN_TEST <path/to/test> -d
+  ./RUN_TESTS <path/to/test> -d
   ```
+
 - To update the reference to a dofile, type
+
   ```shell!
-  ./RUN_TEST <path/to/test> -u
+  ./RUN_TESTS <path/to/test> -u
   ```
+
 - You may also run all DOFILEs by running
-  ```bash!
-  ./RUN_TEST
+
+  ```shell!
+  ./RUN_TESTS
   ```
-  Notice that if you use `clang` to compile `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
+
+- To run test in a containerized environment, run
+
+  ```shell!
+  ./RUN_TESTS_DOCKER
+  ```
+
+  Notice that if you use a different BLAS or LAPACK inplementation to build `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
 
 ## License
+
 `qsyn` is licensed under the
 [Apache License 2.0](https://github.com/ric2k1/qsyn/blob/main/LICENSE).
 
