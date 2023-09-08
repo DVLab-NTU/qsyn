@@ -55,14 +55,14 @@ struct fmt::formatter<QCirDrawerType> {
     auto format(QCirDrawerType const& type, format_context& ctx) {
         switch (type) {
             case QCirDrawerType::text:
-                return format_to(ctx.out(), "text");
+                return fmt::format_to(ctx.out(), "text");
             case QCirDrawerType::mpl:
-                return format_to(ctx.out(), "mpl");
+                return fmt::format_to(ctx.out(), "mpl");
             case QCirDrawerType::latex:
-                return format_to(ctx.out(), "latex");
+                return fmt::format_to(ctx.out(), "latex");
             case QCirDrawerType::latex_source:
             default:
-                return format_to(ctx.out(), "latex_source");
+                return fmt::format_to(ctx.out(), "latex_source");
         }
     }
 };
