@@ -53,7 +53,7 @@ int Simplifier::phase_gadget_simp() {
  * @return int
  */
 int Simplifier::hadamard_fusion_simp() {
-    return simplify(HBoxFusionRule());
+    return simplify(HadamardFusionRule());
 }
 
 /**

@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cstddef>
+#include <filesystem>
 #include <ranges>
 #include <span>
 #include <string>
@@ -22,6 +23,49 @@ class QCir;
 class Phase;
 
 struct QubitInfo;
+
+enum class QCirDrawerType {
+    text,
+    mpl,
+    latex,
+    latex_source,
+};
+
+inline std::optional<QCirDrawerType> str_to_qcir_drawer_type(std::string const& str) {
+    if (str == "text") {
+        return QCirDrawerType::text;
+    }
+    if (str == "mpl") {
+        return QCirDrawerType::mpl;
+    }
+    if (str == "latex") {
+        return QCirDrawerType::latex;
+    }
+    if (str == "latex_source") {
+        return QCirDrawerType::latex_source;
+    }
+    return std::nullopt;
+}
+
+template <>
+struct fmt::formatter<QCirDrawerType> {
+    auto parse(format_parse_context& ctx) {
+        return ctx.begin();
+    }
+    auto format(QCirDrawerType const& type, format_context& ctx) {
+        switch (type) {
+            case QCirDrawerType::text:
+                return format_to(ctx.out(), "text");
+            case QCirDrawerType::mpl:
+                return format_to(ctx.out(), "mpl");
+            case QCirDrawerType::latex:
+                return format_to(ctx.out(), "latex");
+            case QCirDrawerType::latex_source:
+            default:
+                return format_to(ctx.out(), "latex_source");
+        }
+    }
+};
 
 class QCir {
 public:
@@ -116,7 +160,7 @@ public:
 
     bool write_qasm(std::string filename);
 
-    bool draw(std::string const& drawer, std::string const& output_path = "", float scale = 1.0f);
+    bool draw(QCirDrawerType drawer, std::filesystem::path const& output_path = "", float scale = 1.0f);
 
     std::vector<int> count_gates(bool detail = false, bool print = true);
 

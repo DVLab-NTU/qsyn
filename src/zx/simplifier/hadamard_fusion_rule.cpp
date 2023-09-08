@@ -7,9 +7,9 @@
 
 #include "./zx_rules_template.hpp"
 
-using MatchType = HBoxFusionRule::MatchType;
+using MatchType = HadamardFusionRule::MatchType;
 
-std::vector<MatchType> HBoxFusionRule::find_matches(ZXGraph const& graph) const {
+std::vector<MatchType> HadamardFusionRule::find_matches(ZXGraph const& graph) const {
     std::vector<MatchType> matches;
 
     std::unordered_map<size_t, size_t> id2idx;
@@ -83,7 +83,7 @@ std::vector<MatchType> HBoxFusionRule::find_matches(ZXGraph const& graph) const 
     return matches;
 }
 
-void HBoxFusionRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) const {
+void HadamardFusionRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) const {
     ZXOperation op = {
         .verticesToRemove = matches,
     };

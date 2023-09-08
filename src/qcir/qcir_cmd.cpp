@@ -16,6 +16,7 @@
 #include "./to_tensor.hpp"
 #include "./to_zxgraph.hpp"
 #include "cli/cli.hpp"
+#include "qcir/qcir.hpp"
 #include "tensor/tensor_mgr.hpp"
 #include "util/phase.hpp"
 #include "zx/zxgraph_mgr.hpp"
@@ -813,23 +814,29 @@ Command qcir_draw_cmd() {
             },
             [](ArgumentParser const& parser) {
                 if (!qcir_mgr_not_empty()) return CmdExecResult::error;
-                auto drawer = parser.get<string>("-drawer");
+                auto drawer = str_to_qcir_drawer_type(parser.get<string>("-drawer"));
                 auto output_path = parser.get<string>("output_path");
                 auto scale = parser.get<float>("-scale");
 
-                if (drawer == "latex" || drawer == "mpl") {
+                if (!drawer.has_value()) {
+                    LOGGER.fatal("Invalid drawer type: {}", parser.get<string>("-drawer"));
+                    LOGGER.fatal("This error should have been unreachable. Please report this bug to the developer.");
+                    return CmdExecResult::error;
+                }
+
+                if (drawer.value() == QCirDrawerType::latex || drawer.value() == QCirDrawerType::latex_source) {
                     if (output_path.empty()) {
-                        cerr << "Error: Using drawer \"" << drawer << "\" requires an output destination!!" << endl;
+                        cerr << "Error: Using drawer \"" << fmt::format("{}", drawer.value()) << "\" requires an output destination!!" << endl;
                         return CmdExecResult::error;
                     }
                 }
 
-                if (drawer == "text" && parser.parsed("-scale")) {
+                if (drawer == QCirDrawerType::text && parser.parsed("-scale")) {
                     cerr << "Error: Cannot set scale for \'text\' drawer!!" << endl;
                     return CmdExecResult::error;
                 }
 
-                if (!QCIR_MGR.get()->draw(drawer, output_path, scale)) {
+                if (!QCIR_MGR.get()->draw(drawer.value(), output_path, scale)) {
                     cerr << "Error: could not draw the QCir successfully!!" << endl;
                     return CmdExecResult::error;
                 }

@@ -6,8 +6,9 @@ Checks: >
   readability-inconsistent-declaration-parameter-name,
   readability-const-return-type,
   cppcoreguidelines-pro-*,
-  cppcoreguidelines-missing-std-forward,
-  cppcoreguidelines-narrowing-conversions,
+#  cppcoreguidelines-macro-usage,
+#  cppcoreguidelines-missing-std-forward,
+#  cppcoreguidelines-narrowing-conversions,
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false
