@@ -95,9 +95,9 @@ public:
     }
 };
 
-class HBoxFusionRule : public ZXRuleTemplate<ZXVertex*> {
+class HadamardFusionRule : public ZXRuleTemplate<ZXVertex*> {
 public:
-    HBoxFusionRule() : ZXRuleTemplate("Hadmard Fusion Rule") {}
+    HadamardFusionRule() : ZXRuleTemplate("Hadmard Fusion Rule") {}
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;

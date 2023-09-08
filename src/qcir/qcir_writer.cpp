@@ -60,9 +60,18 @@ bool QCir::write_qasm(string filename) {
  * @return true if succeeds drawing;
  * @return false if not.
  */
-bool QCir::draw(std::string const& drawer, std::string const& output_path, float scale) {
+bool QCir::draw(QCirDrawerType drawer, std::filesystem::path const& output_path, float scale) {
     namespace dv = dvlab::utils;
     namespace fs = std::filesystem;
+
+    // check if output_path is valid
+    if (output_path.string().size()) {
+        std::ofstream fout{output_path};
+        if (!fout) {
+            std::cerr << "Cannot open file " << output_path << std::endl;
+            return false;
+        }
+    }
 
     dv::TmpDir tmp_dir;
     fs::path tmp_qasm = tmp_dir.path() / "tmp.qasm";
@@ -71,11 +80,11 @@ bool QCir::draw(std::string const& drawer, std::string const& output_path, float
 
     string path_to_script = "scripts/qccdraw_qiskit_interface.py";
 
-    string cmd = "python3 " + path_to_script + " -input " + tmp_qasm.string() + " -drawer " + drawer;
+    string cmd = "python3 " + path_to_script + " -input " + tmp_qasm.string() + " -drawer " + fmt::format("{}", drawer);
     +" -scale " + to_string(scale);
 
-    if (output_path.size()) {
-        cmd += " -output " + output_path;
+    if (output_path.string().size()) {
+        cmd += " -output " + output_path.string();
     }
 
     int status = system(cmd.c_str());
