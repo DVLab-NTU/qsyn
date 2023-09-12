@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ placer.hpp ]
   PackageName  [ duostra ]
   Synopsis     [ Define class Placer structure ]
   Author       [ Chin-Yi Cheng, Chien-Yi Yang, Ren-Chu Wang, Yi-Hsiang Kuo ]
@@ -18,41 +17,39 @@ class Device;
 class BasePlacer {
 public:
     BasePlacer() {}
-    BasePlacer(const BasePlacer&) = delete;
-    BasePlacer(BasePlacer&&) = delete;
-    virtual ~BasePlacer() {}
+    virtual ~BasePlacer() = default;
 
-    std::vector<size_t> placeAndAssign(Device&);
+    std::vector<size_t> place_and_assign(Device &);
 
 protected:
-    virtual std::vector<size_t> place(Device&) const = 0;
+    virtual std::vector<size_t> _place(Device &) const = 0;
 };
 
 class RandomPlacer : public BasePlacer {
 public:
-    ~RandomPlacer() override {}
+    ~RandomPlacer() override = default;
 
 protected:
-    std::vector<size_t> place(Device&) const override;
+    std::vector<size_t> _place(Device & /*unused*/) const override;
 };
 
 class StaticPlacer : public BasePlacer {
 public:
-    ~StaticPlacer() override {}
+    ~StaticPlacer() override = default;
 
 protected:
-    std::vector<size_t> place(Device&) const override;
+    std::vector<size_t> _place(Device & /*unused*/) const override;
 };
 
 class DFSPlacer : public BasePlacer {
 public:
-    ~DFSPlacer() override {}
+    ~DFSPlacer() override = default;
 
 protected:
-    std::vector<size_t> place(Device&) const override;
+    std::vector<size_t> _place(Device & /*unused*/) const override;
 
 private:
-    void DFSDevice(size_t, Device&, std::vector<size_t>&, std::vector<bool>&) const;
+    void _dfs_device(size_t, Device &, std::vector<size_t> &, std::vector<bool> &) const;
 };
 
-std::unique_ptr<BasePlacer> getPlacer();
+std::unique_ptr<BasePlacer> get_placer();
