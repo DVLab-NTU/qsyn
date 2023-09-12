@@ -2,9 +2,13 @@ name: Lint
 
 on:
   push:
-    branches: [ "main", "devt" ]
+    branches:
+      - main
+      - devt
   pull_request:
-    branches: [ "main", "devt" ]
+    branches:
+      - main
+      - devt
 
 jobs:
   run-linters:
@@ -14,15 +18,14 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v3
-      
+
       - name: run clang-format
         uses: DoozyX/clang-format-lint-action@v0.16.2
         with:
-          sources: './src'
-          exclude: './vendor ./tests'
-          extensions: 'h,cpp,hpp,tpp'
+          sources: "./src"
+          exclude: "./vendor ./tests"
+          extensions: "h,cpp,hpp,tpp"
           clangFormatVersion: 16
-    
 
       # - name: clang-format lint
       #   run: |
@@ -37,10 +40,10 @@ jobs:
       #     find . -regex ".*\.\(h\|cpp\)" -type f | xargs -I {} sh -c 'colordiff -u "$1"\ \(Original\) "$1"\ \(Reformatted\)' -- {}
       #     cd ..
       #     rm -rf tmp_
-        # uses: DoozyX/clang-format-lint-action@v0.15
-        # with:
-        #   source: './src'
-        #   exclude: './vender ./tests'
-        #   extensions: 'h,cpp'
-        #   clangFormatVersion: 15
-          # style: '.clang-format'
+      # uses: DoozyX/clang-format-lint-action@v0.15
+      # with:
+      #   source: './src'
+      #   exclude: './vender ./tests'
+      #   extensions: 'h,cpp'
+      #   clangFormatVersion: 15
+      # style: '.clang-format'

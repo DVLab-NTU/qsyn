@@ -2,12 +2,16 @@ name: gcc test
 
 on:
   push:
-    branches: ["main", "devt"]
+    branches:
+      - main
+      - devt
   pull_request:
-    branches: ["main", "devt"]
+    branches:
+      - main
+      - devt
 
 jobs:
-  docker-test:
+  build-and-test:
     runs-on: ubuntu-22.04
     steps:
       - name: Check out Git repository
