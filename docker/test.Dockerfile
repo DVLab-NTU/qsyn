@@ -1,10 +1,10 @@
-FROM qsyn-env
+FROM dvlab/qsyn-env:latest
 
-RUN dnf -y install \
+RUN dnf install -y \
     diffutils \
     patch
 
-COPY ./entrypoint.sh /app/entrypoint.sh
+COPY ./docker/test-entrypoint.sh /app/entrypoint.sh
 
 WORKDIR /app
 
