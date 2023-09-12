@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 lint_one() {
     clang-format -i "$1"
-    clang-tidy "$1" --quiet |& grep -v "warnings generated"
-    # echo "> Linted $1..."
+    clang-tidy "$1" --quiet 2>&1 | grep -v "warnings generated"
 }
 
 export -f lint_one
 
 echo "Linting files..."
-find ./src -regex '.*\.\(h\|hpp\|cpp\|tpp\)' -type f | parallel -j$(nproc) lint_one
+find ./src -regex '.*\.\(h\|hpp\|cpp\|tpp\)' -type f | parallel -j"$(nproc)" lint_one
 echo "Done"
