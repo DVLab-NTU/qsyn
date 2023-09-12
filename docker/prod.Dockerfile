@@ -4,7 +4,10 @@ COPY . /app/qsyn
 
 WORKDIR /app
 
-RUN mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ../qsyn && make -j8
+ENV CC=/usr/bin/gcc
+ENV CXX=/usr/bin/g++
+
+RUN mkdir build && cd build && cmake ../qsyn && make -j8
 
 FROM fedora:38 AS runner
 
