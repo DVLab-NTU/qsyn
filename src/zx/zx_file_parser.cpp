@@ -12,7 +12,9 @@
 #include "util/phase.hpp"
 #include "util/util.hpp"
 
-using namespace std;
+namespace qsyn {
+
+namespace zx {
 
 /**
  * @brief Parse the file
@@ -21,14 +23,14 @@ using namespace std;
  * @return true if the file is successfully parsed
  * @return false if error happens
  */
-bool ZXFileParser::parse(string const& filename) {
+bool ZXFileParser::parse(std::string const& filename) {
     _storage.clear();
     _taken_input_qubits.clear();
     _taken_output_qubits.clear();
 
-    ifstream zx_file(filename);
+    std::ifstream zx_file(filename);
     if (!zx_file.is_open()) {
-        cerr << "Cannot open the file \"" << filename << "\"!!" << endl;
+        std::cerr << "Cannot open the file \"" << filename << "\"!!" << std::endl;
         return false;
     }
 
@@ -42,15 +44,15 @@ bool ZXFileParser::parse(string const& filename) {
  * @return true if the file is successfully parsed
  * @return false if the format of any lines are wrong
  */
-bool ZXFileParser::_parse_internal(ifstream& f) {
+bool ZXFileParser::_parse_internal(std::ifstream& f) {
     // each line should be in the format of
     // <VertexString> [(<Qubit, Column>)] [NeighborString...] [Phase phase]
     _line_no = 1;
-    for (string line; getline(f, line); _line_no++) {
+    for (std::string line; getline(f, line); _line_no++) {
         line = dvlab::str::strip_spaces(dvlab::str::strip_comments(line));
         if (line.empty()) continue;
 
-        vector<string> tokens;
+        std::vector<std::string> tokens;
         if (!_tokenize(line, tokens)) return false;
 
         unsigned id;
@@ -76,7 +78,7 @@ bool ZXFileParser::_parse_internal(ifstream& f) {
                 info.phase = tmp;
             }
 
-            pair<char, size_t> neighbor;
+            std::pair<char, size_t> neighbor;
             for (size_t i = 3; i < tokens.size(); ++i) {
                 if (!_parse_neighbors(tokens[i], neighbor)) return false;
                 info.neighbors.emplace_back(neighbor);
@@ -97,8 +99,8 @@ bool ZXFileParser::_parse_internal(ifstream& f) {
  * @return true
  * @return false
  */
-bool ZXFileParser::_tokenize(string const& line, vector<string>& tokens) {
-    string token;
+bool ZXFileParser::_tokenize(std::string const& line, std::vector<std::string>& tokens) {
+    std::string token;
 
     // parse first token
     size_t pos = dvlab::str::str_get_token(line, token);
@@ -106,25 +108,25 @@ bool ZXFileParser::_tokenize(string const& line, vector<string>& tokens) {
 
     // parsing parenthesis
     size_t left_paren_pos = line.find_first_of('(', pos);
-    size_t right_paren_pos = line.find_first_of(')', left_paren_pos == string::npos ? 0 : left_paren_pos);
-    bool has_left_parenthesis = (left_paren_pos != string::npos);
-    bool has_right_parenthesis = (right_paren_pos != string::npos);
+    size_t right_paren_pos = line.find_first_of(')', left_paren_pos == std::string::npos ? 0 : left_paren_pos);
+    bool has_left_parenthesis = (left_paren_pos != std::string::npos);
+    bool has_right_parenthesis = (right_paren_pos != std::string::npos);
 
     if (has_left_parenthesis) {
         if (has_right_parenthesis) {
             // coordinate string is given
             pos = dvlab::str::str_get_token(line, token, left_paren_pos + 1, ',');
 
-            if (pos == string::npos) {
+            if (pos == std::string::npos) {
                 _print_failed_at_line_no();
-                cerr << "missing comma between declaration of qubit and column!!" << endl;
+                std::cerr << "missing comma between declaration of qubit and column!!" << std::endl;
                 return false;
             }
 
             token = dvlab::str::strip_spaces(token);
             if (token == "") {
                 _print_failed_at_line_no();
-                cerr << "missing argument before comma!!" << endl;
+                std::cerr << "missing argument before comma!!" << std::endl;
                 return false;
             }
             tokens.emplace_back(token);
@@ -134,7 +136,7 @@ bool ZXFileParser::_tokenize(string const& line, vector<string>& tokens) {
             token = dvlab::str::strip_spaces(token);
             if (token == "") {
                 _print_failed_at_line_no();
-                cerr << "missing argument before right parenthesis!!" << endl;
+                std::cerr << "missing argument before right parenthesis!!" << std::endl;
                 return false;
             }
             tokens.emplace_back(token);
@@ -142,13 +144,13 @@ bool ZXFileParser::_tokenize(string const& line, vector<string>& tokens) {
             pos = right_paren_pos + 1;
         } else {
             _print_failed_at_line_no();
-            cerr << "missing closing parenthesis!!" << endl;
+            std::cerr << "missing closing parenthesis!!" << std::endl;
             return false;
         }
     } else {  // if no left parenthesis
         if (has_right_parenthesis) {
             _print_failed_at_line_no();
-            cerr << "missing opening parenthesis!!" << endl;
+            std::cerr << "missing opening parenthesis!!" << std::endl;
             return false;
         } else {
             // coordinate info is left out
@@ -177,38 +179,38 @@ bool ZXFileParser::_tokenize(string const& line, vector<string>& tokens) {
  * @return true
  * @return false
  */
-bool ZXFileParser::_parse_type_and_id(string const& token, char& type, unsigned& id) {
+bool ZXFileParser::_parse_type_and_id(std::string const& token, char& type, unsigned& id) {
     type = toupper(token[0]);
 
     if (type == 'G') {
         _print_failed_at_line_no();
-        cerr << "ground vertices are not supported yet!!" << endl;
+        std::cerr << "ground vertices are not supported yet!!" << std::endl;
         return false;
     }
 
-    if (string("IOZXH").find(type) == string::npos) {
+    if (std::string("IOZXH").find(type) == std::string::npos) {
         _print_failed_at_line_no();
-        cerr << "unsupported vertex type (" << type << ")!!" << endl;
+        std::cerr << "unsupported vertex type (" << type << ")!!" << std::endl;
         return false;
     }
 
-    string id_string = token.substr(1);
+    std::string id_string = token.substr(1);
 
     if (id_string.empty()) {
         _print_failed_at_line_no();
-        cerr << "Missing vertex ID after vertex type declaration (" << type << ")!!" << endl;
+        std::cerr << "Missing vertex ID after vertex type declaration (" << type << ")!!" << std::endl;
         return false;
     }
 
     if (!dvlab::str::str_to_u(id_string, id)) {
         _print_failed_at_line_no();
-        cerr << "vertex ID (" << id_string << ") is not an unsigned integer!!" << endl;
+        std::cerr << "vertex ID (" << id_string << ") is not an unsigned integer!!" << std::endl;
         return false;
     }
 
     if (_storage.contains(id)) {
         _print_failed_at_line_no();
-        cerr << "duplicated vertex ID (" << id << ")!!" << endl;
+        std::cerr << "duplicated vertex ID (" << id << ")!!" << std::endl;
         return false;
     }
 
@@ -222,10 +224,10 @@ bool ZXFileParser::_parse_type_and_id(string const& token, char& type, unsigned&
  * @return true
  * @return false
  */
-bool ZXFileParser::_is_valid_tokens_for_boundary_vertex(vector<string> const& tokens) {
+bool ZXFileParser::_is_valid_tokens_for_boundary_vertex(std::vector<std::string> const& tokens) {
     if (tokens[1] == "-") {
         _print_failed_at_line_no();
-        cerr << "please specify the qubit ID to boundary vertex!!" << endl;
+        std::cerr << "please specify the qubit ID to boundary vertex!!" << std::endl;
         return false;
     }
 
@@ -234,7 +236,7 @@ bool ZXFileParser::_is_valid_tokens_for_boundary_vertex(vector<string> const& to
     Phase tmp;
     if (Phase::from_string(tokens.back(), tmp)) {
         _print_failed_at_line_no();
-        cerr << "cannot assign phase to boundary vertex!!" << endl;
+        std::cerr << "cannot assign phase to boundary vertex!!" << std::endl;
         return false;
     }
     return true;
@@ -247,13 +249,13 @@ bool ZXFileParser::_is_valid_tokens_for_boundary_vertex(vector<string> const& to
  * @return true
  * @return false
  */
-bool ZXFileParser::_is_valid_tokens_for_h_box(vector<string> const& tokens) {
+bool ZXFileParser::_is_valid_tokens_for_h_box(std::vector<std::string> const& tokens) {
     if (tokens.size() <= 3) return true;
 
     Phase tmp;
     if (Phase::from_string(tokens.back(), tmp)) {
         _print_failed_at_line_no();
-        cerr << "cannot assign phase to H-box!!" << endl;
+        std::cerr << "cannot assign phase to H-box!!" << std::endl;
         return false;
     }
     return true;
@@ -268,7 +270,7 @@ bool ZXFileParser::_is_valid_tokens_for_h_box(vector<string> const& tokens) {
  * @return true
  * @return false
  */
-bool ZXFileParser::_parse_qubit(string const& token, char const& type, int& qubit) {
+bool ZXFileParser::_parse_qubit(std::string const& token, char const& type, int& qubit) {
     if (token == "-") {
         qubit = 0;
         return true;
@@ -276,14 +278,14 @@ bool ZXFileParser::_parse_qubit(string const& token, char const& type, int& qubi
 
     if (!dvlab::str::str_to_i(token, qubit)) {
         _print_failed_at_line_no();
-        cerr << "qubit ID (" << token << ") is not an integer in line " << _line_no << "!!" << endl;
+        std::cerr << "qubit ID (" << token << ") is not an integer in line " << _line_no << "!!" << std::endl;
         return false;
     }
 
     if (type == 'I') {
         if (_taken_input_qubits.contains(qubit)) {
             _print_failed_at_line_no();
-            cerr << "duplicated input qubit ID (" << qubit << ")!!" << endl;
+            std::cerr << "duplicated input qubit ID (" << qubit << ")!!" << std::endl;
             return false;
         }
         _taken_input_qubits.insert(qubit);
@@ -292,7 +294,7 @@ bool ZXFileParser::_parse_qubit(string const& token, char const& type, int& qubi
     if (type == 'O') {
         if (_taken_output_qubits.contains(qubit)) {
             _print_failed_at_line_no();
-            cerr << "duplicated output qubit ID (" << qubit << ")!!" << endl;
+            std::cerr << "duplicated output qubit ID (" << qubit << ")!!" << std::endl;
             return false;
         }
         _taken_output_qubits.insert(qubit);
@@ -309,7 +311,7 @@ bool ZXFileParser::_parse_qubit(string const& token, char const& type, int& qubi
  * @return true
  * @return false
  */
-bool ZXFileParser::_parse_column(string const& token, float& column) {
+bool ZXFileParser::_parse_column(std::string const& token, float& column) {
     if (token == "-") {
         column = 0;
         return true;
@@ -317,7 +319,7 @@ bool ZXFileParser::_parse_column(string const& token, float& column) {
 
     if (!dvlab::str::str_to_f(token, column)) {
         _print_failed_at_line_no();
-        cerr << "column ID (" << token << ") is not an unsigned integer!!" << endl;
+        std::cerr << "column ID (" << token << ") is not an unsigned integer!!" << std::endl;
         return false;
     }
 
@@ -332,26 +334,26 @@ bool ZXFileParser::_parse_column(string const& token, float& column) {
  * @return true
  * @return false
  */
-bool ZXFileParser::_parse_neighbors(string const& token, pair<char, size_t>& neighbor) {
+bool ZXFileParser::_parse_neighbors(std::string const& token, std::pair<char, size_t>& neighbor) {
     char type = toupper(token[0]);
     unsigned id;
-    if (string("SH").find(type) == string::npos) {
+    if (std::string("SH").find(type) == std::string::npos) {
         _print_failed_at_line_no();
-        cerr << "unsupported edge type (" << type << ")!!" << endl;
+        std::cerr << "unsupported edge type (" << type << ")!!" << std::endl;
         return false;
     }
 
-    string neighbor_string = token.substr(1);
+    std::string neighbor_string = token.substr(1);
 
     if (neighbor_string.empty()) {
         _print_failed_at_line_no();
-        cerr << "Missing neighbor vertex ID after edge type declaration (" << type << ")!!" << endl;
+        std::cerr << "Missing neighbor vertex ID after edge type declaration (" << type << ")!!" << std::endl;
         return false;
     }
 
     if (!dvlab::str::str_to_u(neighbor_string, id)) {
         _print_failed_at_line_no();
-        cerr << "neighbor vertex ID (" << neighbor_string << ") is not an unsigned integer!!" << endl;
+        std::cerr << "neighbor vertex ID (" << neighbor_string << ") is not an unsigned integer!!" << std::endl;
         return false;
     }
 
@@ -364,5 +366,9 @@ bool ZXFileParser::_parse_neighbors(string const& token, pair<char, size_t>& nei
  *
  */
 void ZXFileParser::_print_failed_at_line_no() const {
-    cerr << "Error: failed to read line " << _line_no << ": ";
+    std::cerr << "Error: failed to read line " << _line_no << ": ";
 }
+
+}  // namespace zx
+
+}  // namespace qsyn

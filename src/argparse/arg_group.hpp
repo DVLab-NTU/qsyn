@@ -13,7 +13,7 @@
 #include "./arg_type.hpp"
 #include "util/ordered_hashset.hpp"
 
-namespace argparse {
+namespace dvlab::argparse {
 
 class ArgumentParser;
 
@@ -27,7 +27,7 @@ class MutuallyExclusiveGroup {
         MutExGroupImpl(ArgumentParser& parser)
             : _parser{&parser}, _required{false}, _parsed{false} {}
         ArgumentParser* _parser;
-        ordered_hashset<std::string> _arguments;
+        dvlab::utils::ordered_hashset<std::string> _arguments;
         bool _required;
         bool _parsed;
     };
@@ -52,10 +52,10 @@ public:
 
     size_t size() const noexcept { return _pimpl->_arguments.size(); }
 
-    ordered_hashset<std::string> const& get_arg_names() const { return _pimpl->_arguments; }
+    dvlab::utils::ordered_hashset<std::string> const& get_arg_names() const { return _pimpl->_arguments; }
 
 private:
     std::shared_ptr<MutExGroupImpl> _pimpl;
 };
 
-}  // namespace argparse
+}  // namespace dvlab::argparse

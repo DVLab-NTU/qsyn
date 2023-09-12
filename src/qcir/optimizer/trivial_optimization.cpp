@@ -15,6 +15,8 @@
 extern dvlab::Logger LOGGER;
 extern bool stop_requested();
 
+namespace qsyn::qcir {
+
 /**
  * @brief Trivial optimization
  *
@@ -102,8 +104,8 @@ std::vector<QCirGate*> Optimizer::_get_first_layer_gates(QCir& qcir, bool from_l
  * @return modified circuit
  */
 void Optimizer::_fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
-    Phase p = prev_gate->get_phase() + gate->get_phase();
-    if (p == Phase(0)) {
+    dvlab::Phase p = prev_gate->get_phase() + gate->get_phase();
+    if (p == dvlab::Phase(0)) {
         qcir.remove_gate(prev_gate->get_id());
         return;
     }
@@ -135,3 +137,5 @@ void Optimizer::_cancel_double_gate(QCir& qcir, QCirGate* prev_gate, QCirGate* g
     else
         Optimizer::_add_gate_to_circuit(qcir, gate, false);
 }
+
+}  // namespace qsyn::qcir

@@ -12,8 +12,9 @@
 #include "./zxgraph.hpp"
 #include "util/logger.hpp"
 
-using namespace std;
 extern dvlab::Logger LOGGER;
+
+namespace qsyn::zx {
 
 /**
  * @brief Update Topological Order
@@ -31,7 +32,7 @@ void ZXGraph::update_topological_order() const {
             _dfs(v);
     }
     reverse(_topological_order.begin(), _topological_order.end());
-    LOGGER.trace("Topological order from first input: {}", fmt::join(_topological_order | views::transform([](auto const& v) { return v->get_id(); }), " "));
+    LOGGER.trace("Topological order from first input: {}", fmt::join(_topological_order | std::views::transform([](auto const& v) { return v->get_id(); }), " "));
     LOGGER.trace("Size of topological order: {}", _topological_order.size());
 }
 
@@ -41,13 +42,13 @@ void ZXGraph::update_topological_order() const {
  * @param currentVertex
  */
 void ZXGraph::_dfs(ZXVertex* curr_vertex) const {
-    stack<pair<bool, ZXVertex*>> dfs;
+    std::stack<std::pair<bool, ZXVertex*>> dfs;
 
     if (!curr_vertex->is_visited(_global_traversal_counter)) {
-        dfs.push(make_pair(false, curr_vertex));
+        dfs.emplace(false, curr_vertex);
     }
     while (!dfs.empty()) {
-        pair<bool, ZXVertex*> node = dfs.top();
+        std::pair<bool, ZXVertex*> node = dfs.top();
         dfs.pop();
         if (node.first) {
             _topological_order.emplace_back(node.second);
@@ -57,11 +58,11 @@ void ZXGraph::_dfs(ZXVertex* curr_vertex) const {
             continue;
         }
         node.second->mark_as_visited(_global_traversal_counter);
-        dfs.push(make_pair(true, node.second));
+        dfs.emplace(true, node.second);
 
         for (auto const& v : node.second->get_neighbors()) {
             if (!(v.first->is_visited(_global_traversal_counter))) {
-                dfs.push(make_pair(false, v.first));
+                dfs.emplace(false, v.first);
             }
         }
     }
@@ -88,7 +89,7 @@ void ZXGraph::update_breadth_level() const {
  * @param currentVertex
  */
 void ZXGraph::_bfs(ZXVertex* curr_vertex) const {
-    list<ZXVertex*> queue;
+    std::list<ZXVertex*> queue;
 
     curr_vertex->mark_as_visited(_global_traversal_counter);
     queue.emplace_back(curr_vertex);
@@ -107,3 +108,5 @@ void ZXGraph::_bfs(ZXVertex* curr_vertex) const {
         }
     }
 }
+
+}  // namespace qsyn::zx

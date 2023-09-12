@@ -21,6 +21,8 @@
 extern bool stop_requested();
 extern dvlab::Logger LOGGER;
 
+namespace qsyn::qcir {
+
 /**
  * @brief Parse the circuit and forward and backward iteratively and optimize it
  *
@@ -98,7 +100,7 @@ QCir Optimizer::_parse_once(QCir const& qcir, bool reversed, bool do_minimize_cz
     }
 
     for (auto& t : _zs) {
-        _add_rotation_gate(t, Phase(1), GateType::p);
+        _add_rotation_gate(t, dvlab::Phase(1), GateType::p);
     }
 
     QCir result = _build_from_storage(qcir.get_num_qubits(), reversed);
@@ -208,7 +210,7 @@ QCir Optimizer::_build_from_storage(size_t n_qubits, bool reversed) {
     circuit.add_qubits(n_qubits);
 
     while (any_of(_gates.begin(), _gates.end(), [](auto& p_g) { return p_g.second.size(); })) {
-        ordered_hashset<size_t> available_id;
+        dvlab::utils::ordered_hashset<size_t> available_id;
         for (auto& [q, gs] : _gates) {
             while (gs.size()) {
                 QCirGate* g = gs[0];
@@ -404,8 +406,6 @@ bool Optimizer::_replace_cx_and_cz_with_s_and_cx(size_t t1, size_t t2) {
     _statistics.CRZ_TRACSFORM++;
     LOGGER.trace("Transform CNOT-CZ into (S* x id)CNOT(S x S)");
     if (_availty[targ] == true) {
-        // REVIEW -  pyzx/optimize/line.339 has a bug
-        //  _availty[targ] = 1;
         _available[targ].clear();
     }
     _available[ctrl].erase(--(find_if(_available[ctrl].rbegin(), _available[ctrl].rend(), [&](QCirGate* g) { return Optimizer::two_qubit_gate_exists(g, GateType::cx, ctrl, targ); })).base());
@@ -517,7 +517,7 @@ bool Optimizer::two_qubit_gate_exists(QCirGate* g, GateType gt, size_t ctrl, siz
  * @param ph Phase of the gate
  * @param type 0: Z-axis, 1: X-axis, 2: Y-axis
  */
-void Optimizer::_add_rotation_gate(size_t target, Phase ph, GateType const& type) {
+void Optimizer::_add_rotation_gate(size_t target, dvlab::Phase ph, GateType const& type) {
     QCirGate* rotate = nullptr;
     if (type == GateType::p) {
         rotate = new PGate(_gate_count);
@@ -549,7 +549,7 @@ std::vector<size_t> Optimizer::_compute_stats(QCir const& circuit) {
             two_qubit++;
         } else if (type == GateType::h) {
             had++;
-        } else if (type != GateType::x && type != GateType::y && type != GateType::z && g->get_phase() != Phase(1)) {
+        } else if (type != GateType::x && type != GateType::y && type != GateType::z && g->get_phase() != dvlab::Phase(1)) {
             non_pauli++;
         }
     }
@@ -580,3 +580,5 @@ std::vector<std::pair<size_t, size_t>> Optimizer::_get_swap_path() {
     }
     return swap_path;
 }
+
+}  // namespace qsyn::qcir

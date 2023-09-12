@@ -12,10 +12,15 @@
 #include <random>
 #include <vector>
 
+namespace qsyn::device {
 class Device;
+}
+
+namespace qsyn::duostra {
 
 class BasePlacer {
 public:
+    using Device = qsyn::device::Device;
     BasePlacer() {}
     virtual ~BasePlacer() = default;
 
@@ -27,6 +32,7 @@ protected:
 
 class RandomPlacer : public BasePlacer {
 public:
+    using Device = BasePlacer::Device;
     ~RandomPlacer() override = default;
 
 protected:
@@ -35,6 +41,7 @@ protected:
 
 class StaticPlacer : public BasePlacer {
 public:
+    using Device = BasePlacer::Device;
     ~StaticPlacer() override = default;
 
 protected:
@@ -43,6 +50,7 @@ protected:
 
 class DFSPlacer : public BasePlacer {
 public:
+    using Device = BasePlacer::Device;
     ~DFSPlacer() override = default;
 
 protected:
@@ -53,3 +61,5 @@ private:
 };
 
 std::unique_ptr<BasePlacer> get_placer();
+
+}  // namespace qsyn::duostra

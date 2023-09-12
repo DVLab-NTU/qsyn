@@ -10,14 +10,19 @@
 
 #include "device/device.hpp"
 
+namespace qsyn::duostra {
+
 class CircuitTopology;
 class Gate;
 
 class Checker {
 public:
+    using Device = qsyn::device::Device;
+    using Operation = qsyn::device::Operation;
+    using PhysicalQubit = qsyn::device::PhysicalQubit;
     Checker(CircuitTopology&, Device&, std::vector<Operation> const& ops, std::vector<size_t> const&, bool = true);
 
-    size_t get_cycle(GateType);
+    size_t get_cycle(qcir::GateType);
 
     void apply_gate(Operation const&, PhysicalQubit&);
     void apply_gate(Operation const&, PhysicalQubit&, PhysicalQubit&);
@@ -33,3 +38,5 @@ private:
     std::vector<Operation> const& _ops;
     bool _tqdm;
 };
+
+}  // namespace qsyn::duostra

@@ -4,6 +4,8 @@
 #include "./zx_rules_template.hpp"
 #include "zx/zx_partition.hpp"
 
+using namespace qsyn::zx;
+
 void scoped_full_reduce(ZXGraph* graph, ZXVertexList const& scope);
 void scoped_dynamic_reduce(ZXGraph* graph, ZXVertexList const& scope);
 int scoped_interior_clifford_simp(ZXGraph* graph, ZXVertexList const& scope);

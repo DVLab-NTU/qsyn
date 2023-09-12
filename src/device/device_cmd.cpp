@@ -6,7 +6,6 @@
 ****************************************************************************/
 
 #include <cstddef>
-#include <iomanip>
 #include <memory>
 #include <string>
 
@@ -15,98 +14,101 @@
 #include "device/device_mgr.hpp"
 #include "fmt/core.h"
 
-using namespace std;
-using namespace argparse;
+using namespace dvlab::argparse;
+using dvlab::CmdExecResult;
+using dvlab::Command;
 
-DeviceMgr DEVICE_MGR{"Device"};
+namespace qsyn::device {
 
-Command device_checkout_cmd();
-Command device_mgr_reset_cmd();
-Command device_delete_cmd();
-Command device_graph_read_cmd();
-Command device_graph_print_cmd();
-Command device_mgr_print_cmd();
-
-bool device_mgr_not_empty() {
-    return dvlab::utils::expect(!DEVICE_MGR.empty(), "Device list is empty now. Please DTRead first.");
+bool device_mgr_not_empty(DeviceMgr const& device_mgr) {
+    return dvlab::utils::expect(!device_mgr.empty(), "Device list is empty now. Please DTRead first.");
 }
 
-bool add_device_cmds() {
-    if (!(CLI.add_command(device_checkout_cmd()) &&
-          CLI.add_command(device_mgr_reset_cmd()) &&
-          CLI.add_command(device_delete_cmd()) &&
-          CLI.add_command(device_graph_read_cmd()) &&
-          CLI.add_command(device_graph_print_cmd()) &&
-          CLI.add_command(device_mgr_print_cmd()))) {
+Command device_checkout_cmd(qsyn::device::DeviceMgr& device_mgr);
+Command device_mgr_reset_cmd(qsyn::device::DeviceMgr& device_mgr);
+Command device_delete_cmd(qsyn::device::DeviceMgr& device_mgr);
+Command device_graph_read_cmd(qsyn::device::DeviceMgr& device_mgr);
+Command device_graph_print_cmd(qsyn::device::DeviceMgr& device_mgr);
+Command device_mgr_print_cmd(qsyn::device::DeviceMgr& device_mgr);
+
+bool add_device_cmds(dvlab::CommandLineInterface& cli, qsyn::device::DeviceMgr& device_mgr) {
+    if (!(cli.add_command(device_checkout_cmd(device_mgr)) &&
+          cli.add_command(device_mgr_reset_cmd(device_mgr)) &&
+          cli.add_command(device_delete_cmd(device_mgr)) &&
+          cli.add_command(device_graph_read_cmd(device_mgr)) &&
+          cli.add_command(device_graph_print_cmd(device_mgr)) &&
+          cli.add_command(device_mgr_print_cmd(device_mgr)))) {
         LOGGER.fatal("Registering \"device topology\" commands fails... exiting");
         return false;
     }
     return true;
 }
 
-bool valid_device_id(size_t const& id) {
-    if (DEVICE_MGR.is_id(id)) return true;
-    LOGGER.error("Device {} does not exist!!", id);
-    return false;
+std::function<bool(size_t const&)> valid_device_id(qsyn::device::DeviceMgr const& device_mgr) {
+    return [&device_mgr](size_t const& id) {
+        if (device_mgr.is_id(id)) return true;
+        LOGGER.error("Device {} does not exist!!", id);
+        return false;
+    };
 };
 
-Command device_checkout_cmd() {
+dvlab::Command device_checkout_cmd(qsyn::device::DeviceMgr& device_mgr) {
     return {"dtcheckout",
-            [](ArgumentParser& parser) {
+            [&device_mgr](ArgumentParser& parser) {
                 parser.description("checkout to Device <id> in DeviceMgr");
 
                 parser.add_argument<size_t>("id")
-                    .constraint(valid_device_id)
+                    .constraint(valid_device_id(device_mgr))
                     .help("the ID of the device");
             },
-            [](ArgumentParser const& parser) {
-                DEVICE_MGR.checkout(parser.get<size_t>("id"));
+            [&device_mgr](ArgumentParser const& parser) {
+                device_mgr.checkout(parser.get<size_t>("id"));
                 return CmdExecResult::done;
             }};
 }
 
-Command device_mgr_reset_cmd() {
+dvlab::Command device_mgr_reset_cmd(qsyn::device::DeviceMgr& device_mgr) {
     return {"dtreset",
             [](ArgumentParser& parser) {
                 parser.description("reset DeviceMgr");
             },
-            [](ArgumentParser const& /*parser*/) {
-                DEVICE_MGR.reset();
+            [&device_mgr](ArgumentParser const& /*parser*/) {
+                device_mgr.reset();
                 return CmdExecResult::done;
             }};
-    auto cmd = make_unique<Command>("DTReset");
+    auto cmd = std::make_unique<dvlab::Command>("DTReset");
 }
 
-Command device_delete_cmd() {
+dvlab::Command device_delete_cmd(qsyn::device::DeviceMgr& device_mgr) {
     return {"dtdelete",
-            [](ArgumentParser& parser) {
+            [&device_mgr](ArgumentParser& parser) {
                 parser.description("remove a Device from DeviceMgr");
 
                 parser.add_argument<size_t>("id")
-                    .constraint(valid_device_id)
+                    .constraint(valid_device_id(device_mgr))
                     .help("the ID of the device");
             },
-            [](ArgumentParser const& parser) {
-                DEVICE_MGR.remove(parser.get<size_t>("id"));
+            [&device_mgr](ArgumentParser const& parser) {
+                device_mgr.remove(parser.get<size_t>("id"));
                 return CmdExecResult::done;
             }};
 }
 
-Command device_graph_read_cmd() {
+dvlab::Command device_graph_read_cmd(qsyn::device::DeviceMgr& device_mgr) {
     return {"dtgread",
             [](ArgumentParser& parser) {
                 parser.description("read a device topology");
 
-                parser.add_argument<string>("filepath")
+                parser.add_argument<std::string>("filepath")
                     .help("the filepath to device file");
 
                 parser.add_argument<bool>("-replace")
                     .action(store_true)
                     .help("if specified, replace the current device; otherwise store to a new one");
             },
-            [](ArgumentParser const& parser) {
-                Device buffer_device;
-                auto filepath = parser.get<string>("filepath");
+            [&device_mgr](ArgumentParser const& parser) {
+                qsyn::device::Device buffer_device;
+                auto filepath = parser.get<std::string>("filepath");
                 auto replace = parser.get<bool>("-replace");
 
                 if (!buffer_device.read_device(filepath)) {
@@ -114,17 +116,17 @@ Command device_graph_read_cmd() {
                     return CmdExecResult::error;
                 }
 
-                if (DEVICE_MGR.empty() || !replace) {
-                    DEVICE_MGR.add(DEVICE_MGR.get_next_id(), std::make_unique<Device>(std::move(buffer_device)));
+                if (device_mgr.empty() || !replace) {
+                    device_mgr.add(device_mgr.get_next_id(), std::make_unique<qsyn::device::Device>(std::move(buffer_device)));
                 } else {
-                    DEVICE_MGR.set(std::make_unique<Device>(std::move(buffer_device)));
+                    device_mgr.set(std::make_unique<qsyn::device::Device>(std::move(buffer_device)));
                 }
 
                 return CmdExecResult::done;
             }};
 }
 
-Command device_mgr_print_cmd() {
+dvlab::Command device_mgr_print_cmd(qsyn::device::DeviceMgr& device_mgr) {
     return {"dtprint",
             [](ArgumentParser& parser) {
                 parser.description("print info about Devices");
@@ -138,13 +140,13 @@ Command device_mgr_print_cmd() {
                     .action(store_true)
                     .help("print a list of devices");
             },
-            [](ArgumentParser const& parser) {
+            [&device_mgr](ArgumentParser const& parser) {
                 if (parser.parsed("-focus"))
-                    DEVICE_MGR.print_focus();
+                    device_mgr.print_focus();
                 else if (parser.parsed("-list"))
-                    DEVICE_MGR.print_list();
+                    device_mgr.print_list();
                 else
-                    DEVICE_MGR.print_manager();
+                    device_mgr.print_manager();
 
                 return CmdExecResult::done;
             }};
@@ -154,7 +156,7 @@ Command device_mgr_print_cmd() {
 //    DTGPrint [-Summary | -Edges | -Path | -Qubit]
 //-----------------------------------------------------------------------------------------------------------
 
-Command device_graph_print_cmd() {
+dvlab::Command device_graph_print_cmd(qsyn::device::DeviceMgr& device_mgr) {
     return {"dtgprint",
             [](ArgumentParser& parser) {
                 parser.description("print info of device topology");
@@ -186,24 +188,26 @@ Command device_graph_print_cmd() {
                     .help(
                         "print routing paths between q1 and q2");
             },
-            [](ArgumentParser const& parser) {
-                if (!device_mgr_not_empty()) return CmdExecResult::error;
+            [&device_mgr](ArgumentParser const& parser) {
+                if (!qsyn::device::device_mgr_not_empty(device_mgr)) return CmdExecResult::error;
 
                 if (parser.parsed("-edges")) {
-                    DEVICE_MGR.get()->print_edges(parser.get<vector<size_t>>("-edges"));
+                    device_mgr.get()->print_edges(parser.get<std::vector<size_t>>("-edges"));
                     return CmdExecResult::done;
                 }
                 if (parser.parsed("-qubits")) {
-                    DEVICE_MGR.get()->print_qubits(parser.get<vector<size_t>>("-qubits"));
+                    device_mgr.get()->print_qubits(parser.get<std::vector<size_t>>("-qubits"));
                     return CmdExecResult::done;
                 }
                 if (parser.parsed("-path")) {
-                    auto qids = parser.get<vector<size_t>>("-path");
-                    DEVICE_MGR.get()->print_path(qids[0], qids[1]);
+                    auto qids = parser.get<std::vector<size_t>>("-path");
+                    device_mgr.get()->print_path(qids[0], qids[1]);
                     return CmdExecResult::done;
                 }
 
-                DEVICE_MGR.get()->print_topology();
+                device_mgr.get()->print_topology();
                 return CmdExecResult::done;
             }};
 }
+
+}  // namespace qsyn::device

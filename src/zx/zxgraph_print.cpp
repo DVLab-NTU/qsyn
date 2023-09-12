@@ -14,7 +14,9 @@
 #include "util/text_format.hpp"
 #include "zx/zxgraph.hpp"
 
-using namespace std;
+namespace qsyn {
+
+namespace zx {
 
 /**
  * @brief Print information of ZXGraph
@@ -29,7 +31,7 @@ void ZXGraph::print_graph() const {
  *
  */
 void ZXGraph::print_inputs() const {
-    fmt::println("Input:  ({})", fmt::join(_inputs | views::transform([](ZXVertex* v) { return v->get_id(); }), ", "));
+    fmt::println("Input:  ({})", fmt::join(_inputs | std::views::transform([](ZXVertex* v) { return v->get_id(); }), ", "));
     fmt::println("Total #Inputs: {}", get_num_inputs());
 }
 
@@ -38,7 +40,7 @@ void ZXGraph::print_inputs() const {
  *
  */
 void ZXGraph::print_outputs() const {
-    fmt::println("Output: ({})", fmt::join(_outputs | views::transform([](ZXVertex* v) { return v->get_id(); }), ", "));
+    fmt::println("Output: ({})", fmt::join(_outputs | std::views::transform([](ZXVertex* v) { return v->get_id(); }), ", "));
     fmt::println("Total #Outputs: {}", get_num_outputs());
 }
 
@@ -47,8 +49,8 @@ void ZXGraph::print_outputs() const {
  *
  */
 void ZXGraph::print_io() const {
-    fmt::println("Input:  ({})", fmt::join(_inputs | views::transform([](ZXVertex* v) { return v->get_id(); }), ", "));
-    fmt::println("Output: ({})", fmt::join(_outputs | views::transform([](ZXVertex* v) { return v->get_id(); }), ", "));
+    fmt::println("Input:  ({})", fmt::join(_inputs | std::views::transform([](ZXVertex* v) { return v->get_id(); }), ", "));
+    fmt::println("Output: ({})", fmt::join(_outputs | std::views::transform([](ZXVertex* v) { return v->get_id(); }), ", "));
     fmt::println("Total #(I,O): ({}, {})", get_num_inputs(), get_num_outputs());
 }
 
@@ -57,9 +59,9 @@ void ZXGraph::print_io() const {
  *
  */
 void ZXGraph::print_vertices() const {
-    cout << "\n";
-    ranges::for_each(_vertices, [](ZXVertex* v) { v->print_vertex(); });
-    cout << "Total #Vertices: " << get_num_vertices() << "\n\n";
+    std::cout << "\n";
+    std::ranges::for_each(_vertices, [](ZXVertex* v) { v->print_vertex(); });
+    std::cout << "Total #Vertices: " << get_num_vertices() << "\n\n";
 }
 
 /**
@@ -67,14 +69,14 @@ void ZXGraph::print_vertices() const {
  *
  * @param cand
  */
-void ZXGraph::print_vertices(vector<size_t> cand) const {
-    unordered_map<size_t, ZXVertex*> id2_vmap = create_id_to_vertex_map();
+void ZXGraph::print_vertices(std::vector<size_t> cand) const {
+    std::unordered_map<size_t, ZXVertex*> id2_vmap = create_id_to_vertex_map();
 
-    cout << "\n";
+    std::cout << "\n";
     for (size_t i = 0; i < cand.size(); i++) {
         if (is_v_id(cand[i])) id2_vmap[cand[i]]->print_vertex();
     }
-    cout << "\n";
+    std::cout << "\n";
 }
 
 /**
@@ -82,28 +84,28 @@ void ZXGraph::print_vertices(vector<size_t> cand) const {
  *
  * @param cand
  */
-void ZXGraph::print_qubits(vector<int> cand) const {
-    map<int, vector<ZXVertex*>> q2_vmap;
+void ZXGraph::print_qubits(std::vector<int> cand) const {
+    std::map<int, std::vector<ZXVertex*>> q2_vmap;
     for (auto const& v : _vertices) {
         if (!q2_vmap.contains(v->get_qubit())) {
-            vector<ZXVertex*> tmp(1, v);
-            q2_vmap[v->get_qubit()] = tmp;
-        } else
+            q2_vmap.emplace(v->get_qubit(), std::vector<ZXVertex*>(1, v));
+        } else {
             q2_vmap[v->get_qubit()].emplace_back(v);
+        }
     }
     if (cand.empty()) {
         for (auto const& [key, vec] : q2_vmap) {
-            cout << "\n";
+            std::cout << "\n";
             for (auto const& v : vec) v->print_vertex();
-            cout << "\n";
+            std::cout << "\n";
         }
     } else {
         for (size_t i = 0; i < cand.size(); i++) {
             if (q2_vmap.contains(cand[i])) {
-                cout << "\n";
+                std::cout << "\n";
                 for (auto const& v : q2_vmap[cand[i]]) v->print_vertex();
             }
-            cout << "\n";
+            std::cout << "\n";
         }
     }
 }
@@ -128,7 +130,7 @@ void ZXGraph::print_edges() const {
 void ZXGraph::print_difference(ZXGraph* other) const {
     assert(other != nullptr);
 
-    size_t n_i_ds = max(_next_v_id, other->_next_v_id);
+    size_t n_i_ds = std::max(_next_v_id, other->_next_v_id);
     ZXVertexList v1s, v2s;
     for (size_t i = 0; i < n_i_ds; ++i) {
         auto v1 = find_vertex_by_id(i);
@@ -152,15 +154,15 @@ void ZXGraph::print_difference(ZXGraph* other) const {
             v2s.insert(v2);
         }
     }
-    cout << ">>>" << endl;
+    std::cout << ">>>" << std::endl;
     for (auto& v : v1s) {
         v->print_vertex();
     }
-    cout << "===" << endl;
+    std::cout << "===" << std::endl;
     for (auto& v : v2s) {
         v->print_vertex();
     }
-    cout << "<<<" << endl;
+    std::cout << "<<<" << std::endl;
 }
 namespace detail {
 
@@ -170,7 +172,7 @@ namespace detail {
  * @param v
  * @return string
  */
-string get_colored_vertex_string(ZXVertex* v) {
+std::string get_colored_vertex_string(ZXVertex* v) {
     using namespace dvlab;
     if (v->get_type() == VertexType::boundary)
         return fmt::format("{}", v->get_id());
@@ -188,10 +190,10 @@ string get_colored_vertex_string(ZXVertex* v) {
  *
  */
 void ZXGraph::draw() const {
-    cout << endl;
+    std::cout << std::endl;
     unsigned int max_col = 0;  // number of columns -1
-    unordered_map<int, int> q_pair;
-    vector<int> qubit_num;  // number of qubit
+    std::unordered_map<int, int> q_pair;
+    std::vector<int> qubit_num;  // number of qubit
 
     // maxCol
     for (auto& o : get_outputs()) {
@@ -199,13 +201,13 @@ void ZXGraph::draw() const {
     }
 
     // qubitNum
-    vector<int> qubit_num_temp;  // number of qubit
+    std::vector<int> qubit_num_temp;  // number of qubit
     for (auto& v : get_vertices()) {
         qubit_num_temp.emplace_back(v->get_qubit());
     }
     sort(qubit_num_temp.begin(), qubit_num_temp.end());
     if (qubit_num_temp.size() == 0) {
-        cout << "Empty graph!!" << endl;
+        std::cout << "Empty graph!!" << std::endl;
         return;
     }
     size_t offset = qubit_num_temp[0];
@@ -220,61 +222,61 @@ void ZXGraph::draw() const {
     qubit_num_temp.clear();
 
     for (size_t i = 0; i < qubit_num.size(); i++) q_pair[i] = qubit_num[i];
-    vector<ZXVertex*> tmp;
+    std::vector<ZXVertex*> tmp;
     tmp.resize(qubit_num.size());
-    vector<vector<ZXVertex*>> col_list(max_col + 1, tmp);
+    std::vector<std::vector<ZXVertex*>> col_list(max_col + 1, tmp);
 
     for (auto& v : get_vertices()) col_list[v->get_col()][q_pair[v->get_qubit() - offset]] = v;
 
-    vector<size_t> max_length(max_col + 1, 0);
+    std::vector<size_t> max_length(max_col + 1, 0);
     for (size_t i = 0; i < col_list.size(); i++) {
         for (size_t j = 0; j < col_list[i].size(); j++) {
             if (col_list[i][j] != nullptr) {
-                if (to_string(col_list[i][j]->get_id()).length() > max_length[i]) max_length[i] = to_string(col_list[i][j]->get_id()).length();
+                if (std::to_string(col_list[i][j]->get_id()).length() > max_length[i]) max_length[i] = std::to_string(col_list[i][j]->get_id()).length();
             }
         }
     }
     size_t max_length_q = 0;
     for (size_t i = 0; i < qubit_num.size(); i++) {
         int temp = offset + i;
-        if (to_string(temp).length() > max_length_q) max_length_q = to_string(temp).length();
+        if (std::to_string(temp).length() > max_length_q) max_length_q = std::to_string(temp).length();
     }
 
     for (size_t i = 0; i < qubit_num.size(); i++) {
         // print qubit
         int temp = offset + i;
-        cout << "[";
-        for (size_t i = 0; i < max_length_q - to_string(temp).length(); i++) {
-            cout << " ";
+        std::cout << "[";
+        for (size_t i = 0; i < max_length_q - std::to_string(temp).length(); i++) {
+            std::cout << " ";
         }
-        cout << temp << "]";
+        std::cout << temp << "]";
 
         // print row
         for (size_t j = 0; j <= max_col; j++) {
             if (i < -offset) {
                 if (col_list[j][i] != nullptr) {
-                    cout << "(" << detail::get_colored_vertex_string(col_list[j][i]) << ")   ";
+                    std::cout << "(" << detail::get_colored_vertex_string(col_list[j][i]) << ")   ";
                 } else {
                     if (j == max_col)
-                        cout << endl;
+                        std::cout << std::endl;
                     else {
-                        cout << "   ";
-                        for (size_t k = 0; k < max_length[j] + 2; k++) cout << " ";
+                        std::cout << "   ";
+                        for (size_t k = 0; k < max_length[j] + 2; k++) std::cout << " ";
                     }
                 }
             } else if (col_list[j][i] != nullptr) {
                 if (j == max_col)
-                    cout << "(" << detail::get_colored_vertex_string(col_list[j][i]) << ")" << endl;
+                    std::cout << "(" << detail::get_colored_vertex_string(col_list[j][i]) << ")" << std::endl;
                 else
-                    cout << "(" << detail::get_colored_vertex_string(col_list[j][i]) << ")---";
+                    std::cout << "(" << detail::get_colored_vertex_string(col_list[j][i]) << ")---";
 
-                for (size_t k = 0; k < max_length[j] - to_string(col_list[j][i]->get_id()).length(); k++) cout << "-";
+                for (size_t k = 0; k < max_length[j] - std::to_string(col_list[j][i]->get_id()).length(); k++) std::cout << "-";
             } else {
-                cout << "---";
-                for (size_t k = 0; k < max_length[j] + 2; k++) cout << "-";
+                std::cout << "---";
+                for (size_t k = 0; k < max_length[j] + 2; k++) std::cout << "-";
             }
         }
-        cout << endl;
+        std::cout << std::endl;
     }
     for (auto& a : col_list) {
         a.clear();
@@ -284,3 +286,7 @@ void ZXGraph::draw() const {
     max_length.clear();
     qubit_num.clear();
 }
+
+}  // namespace zx
+
+}  // namespace qsyn

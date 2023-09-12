@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ cli ]
-  Synopsis     [ Define printing functions of class CommandLineInterface ]
+  Synopsis     [ Define printing functions of class dvlab::CommandLineInterface ]
   Author       [ Design Verification Lab, Chia-Hsu Chuang ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -9,13 +9,13 @@
 
 #include "./cli.hpp"
 
-using namespace std;
+namespace dvlab {
 
 /**
  * @brief print a summary of all commands
  *
  */
-void CommandLineInterface::list_all_commands() const {
+void dvlab::CommandLineInterface::list_all_commands() const {
     auto cmd_range = _commands | std::views::keys;
     std::vector<std::string> cmd_vec(cmd_range.begin(), cmd_range.end());
     std::ranges::sort(cmd_vec);
@@ -29,7 +29,7 @@ void CommandLineInterface::list_all_commands() const {
  * @brief print all CLI history
  *
  */
-void CommandLineInterface::print_history() const {
+void dvlab::CommandLineInterface::print_history() const {
     print_history(_history.size());
 }
 
@@ -38,7 +38,7 @@ void CommandLineInterface::print_history() const {
  *
  * @param nPrint
  */
-void CommandLineInterface::print_history(size_t n_print) const {
+void dvlab::CommandLineInterface::print_history(size_t n_print) const {
     assert(_temp_command_stored == false);
     if (_history.empty()) {
         fmt::println(("Empty command history!!"));
@@ -50,7 +50,9 @@ void CommandLineInterface::print_history(size_t n_print) const {
     }
 }
 
-void CommandLineInterface::_print_prompt() const {
+void dvlab::CommandLineInterface::_print_prompt() const {
     fmt::print("{}", _command_prompt);
     fflush(stdout);
 }
+
+}  // namespace dvlab

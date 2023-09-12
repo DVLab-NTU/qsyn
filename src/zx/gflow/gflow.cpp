@@ -15,10 +15,11 @@
 #include "util/text_format.hpp"
 #include "zx/simplifier/simplify.hpp"
 
-using namespace std;
 extern dvlab::Logger LOGGER;
 
-constexpr auto verte_x2_id = [](ZXVertex* v) { return v->get_id(); };
+using namespace qsyn::zx;
+
+constexpr auto vertex_to_id = [](ZXVertex* v) { return v->get_id(); };
 
 /**
  * @brief Calculate the Z correction set of a vertex,
@@ -30,7 +31,7 @@ constexpr auto verte_x2_id = [](ZXVertex* v) { return v->get_id(); };
 ZXVertexList GFlow::get_z_correction_set(ZXVertex* v) const {
     ZXVertexList out;
 
-    ordered_hashmap<ZXVertex*, size_t> num_occurences;
+    dvlab::utils::ordered_hashmap<ZXVertex*, size_t> num_occurences;
 
     for (auto const& gv : get_x_correction_set(v)) {
         // FIXME - should count neighbor!
@@ -105,8 +106,8 @@ bool GFlow::calculate() {
         _coefficient_matrix.from_zxvertices(_neighbors, _frontier);
 
         size_t i = 0;
-        LOGGER.trace("Frontier: {}", fmt::join(_frontier | views::transform(verte_x2_id), " "));
-        LOGGER.trace("Neighbors: {}", fmt::join(_neighbors | views::transform(verte_x2_id), " "));
+        LOGGER.trace("Frontier: {}", fmt::join(_frontier | std::views::transform(vertex_to_id), " "));
+        LOGGER.trace("Neighbors: {}", fmt::join(_neighbors | std::views::transform(vertex_to_id), " "));
 
         for (auto& v : _neighbors) {
             if (_do_independent_layers &&
@@ -139,7 +140,7 @@ bool GFlow::calculate() {
     _valid = (_taken.size() == _zxgraph->get_num_vertices());
     _levels.pop_back();  // the back is always empty
 
-    vector<pair<size_t, ZXVertex*>> inputs_to_move;
+    std::vector<std::pair<size_t, ZXVertex*>> inputs_to_move;
     for (size_t i = 0; i < _levels.size() - 1; ++i) {
         for (auto& v : _levels[i]) {
             if (_zxgraph->get_inputs().contains(v)) {
@@ -254,7 +255,7 @@ BooleanMatrix GFlow::_prepare_matrix(ZXVertex* v, size_t i) {
  */
 void GFlow::_update_frontier() {
     // remove vertex that are not frontiers anymore
-    vector<ZXVertex*> to_remove;
+    std::vector<ZXVertex*> to_remove;
     for (auto& v : _frontier) {
         if (all_of(v->get_neighbors().begin(), v->get_neighbors().end(),
                    [this](NeighborPair const& nbp) {
@@ -297,7 +298,7 @@ void GFlow::print() const {
 void GFlow::print_levels() const {
     fmt::println("GFlow levels of the graph:");
     for (size_t i = 0; i < _levels.size(); ++i) {
-        fmt::println("Level {:>4}: {}", i, fmt::join(_levels[i] | views::transform(verte_x2_id), " "));
+        fmt::println("Level {:>4}: {}", i, fmt::join(_levels[i] | std::views::transform(vertex_to_id), " "));
     }
 }
 
@@ -312,7 +313,7 @@ void GFlow::print_x_correction_set(ZXVertex* v) const {
         if (_x_correction_sets.at(v).empty()) {
             fmt::println("(None)");
         } else {
-            fmt::println("{}", fmt::join(_x_correction_sets.at(v) | views::transform(verte_x2_id), " "));
+            fmt::println("{}", fmt::join(_x_correction_sets.at(v) | std::views::transform(vertex_to_id), " "));
         }
     } else {
         fmt::println("Does not exist");
@@ -350,7 +351,7 @@ void GFlow::print_summary() const {
  */
 void GFlow::print_failed_vertices() const {
     fmt::println("No correction sets found for the following vertices:");
-    fmt::println("{}", fmt::join(_neighbors | views::transform(verte_x2_id), " "));
+    fmt::println("{}", fmt::join(_neighbors | std::views::transform(vertex_to_id), " "));
 }
 
 std::ostream& operator<<(std::ostream& os, GFlow::MeasurementPlane const& plane) {

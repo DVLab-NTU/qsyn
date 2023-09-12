@@ -10,6 +10,8 @@
 #include "./zx_rules_template.hpp"
 #include "zx/zxgraph.hpp"
 
+using namespace qsyn::zx;
+
 using MatchType = BialgebraRule::MatchType;
 
 /**
@@ -119,8 +121,8 @@ void BialgebraRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches)
         std::vector<ZXVertex*> neighbor_of_left = left->get_copied_neighbors();
         std::vector<ZXVertex*> neighbor_of_right = right->get_copied_neighbors();
 
-        op.verticesToRemove.emplace_back(left);
-        op.verticesToRemove.emplace_back(right);
+        op.vertices_to_remove.emplace_back(left);
+        op.vertices_to_remove.emplace_back(right);
 
         for (auto const& neighbor_left : neighbor_of_left) {
             if (neighbor_left == right) continue;

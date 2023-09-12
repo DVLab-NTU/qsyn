@@ -14,6 +14,10 @@
 
 #include "./zx_def.hpp"
 
+namespace qsyn {
+
+namespace zx {
+
 class ZXFileParser {
 public:
     using VertexInfo = detail::VertexInfo;
@@ -46,3 +50,7 @@ private:
 
     void _print_failed_at_line_no() const;
 };
+
+}  // namespace zx
+
+}  // namespace qsyn

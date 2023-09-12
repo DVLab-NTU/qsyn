@@ -1,11 +1,20 @@
 #!/usr/bin/env bash
-lint_one() {
+format_one() {
     clang-format -i "$1"
-    clang-tidy "$1" --quiet 2>&1 | grep -v "warnings generated"
+}
+
+export -f format_one
+
+lint_one() {
+    clang-tidy "$1" --quiet 2>&1 | grep -v "warnings generated" | grep -v "warning generated"
 }
 
 export -f lint_one
+FILES=$(find ./src -regex '.*\.\(h\|hpp\|cpp\|tpp\)' -type f)
 
+# Format all files first to avoid linting errors
+echo "Formatting files..."
+parallel -j"$(nproc)" format_one ::: $FILES
 echo "Linting files..."
-find ./src -regex '.*\.\(h\|hpp\|cpp\|tpp\)' -type f | parallel -j"$(nproc)" lint_one
+parallel -j"$(nproc)" lint_one ::: $FILES
 echo "Done"

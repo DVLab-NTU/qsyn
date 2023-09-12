@@ -19,9 +19,11 @@
 #include "qcir/qcir_gate.hpp"
 #include "util/phase.hpp"
 
+namespace qsyn::duostra {
+
 class Gate {
 public:
-    Gate(size_t id, GateType type, Phase ph, std::tuple<size_t, size_t> qs);
+    Gate(size_t id, qcir::GateType type, dvlab::Phase ph, std::tuple<size_t, size_t> qs);
     ~Gate() = default;
     Gate(Gate const& other) = delete;
     Gate& operator=(Gate const& other) = delete;
@@ -32,11 +34,11 @@ public:
     std::tuple<size_t, size_t> get_qubits() const { return _qubits; }
     std::vector<size_t> const& get_prevs() const { return _prevs; }
     std::vector<size_t> const& get_nexts() const { return _nexts; }
-    GateType get_type() const { return _type; }
-    Phase get_phase() const { return _phase; }
+    qcir::GateType get_type() const { return _type; }
+    dvlab::Phase get_phase() const { return _phase; }
 
-    void set_type(GateType t) { _type = t; }
-    void set_phase(Phase p) { _phase = p; }
+    void set_type(qcir::GateType t) { _type = t; }
+    void set_phase(dvlab::Phase p) { _phase = p; }
     void add_prev(size_t);
     void add_next(size_t);
 
@@ -47,9 +49,9 @@ public:
 
 private:
     size_t _id;
-    GateType _type;
-    Phase _phase;  // For saving phase information
-    bool _swap;    // qubits is swapped for duostra
+    qcir::GateType _type;
+    dvlab::Phase _phase;  // For saving phase information
+    bool _swap;           // qubits is swapped for duostra
     std::tuple<size_t, size_t> _qubits;
     std::vector<size_t> _prevs;
     std::vector<size_t> _nexts;
@@ -91,7 +93,7 @@ protected:
     std::shared_ptr<DependencyGraph const> _dependency_graph;
     std::vector<size_t> _available_gates;
 
-    // NOTE - Executed gates is a countable set. <Gate Index, #next executed>
-    // REVIEW - what does this mean? everything is a countable set in programming
-    std::unordered_map<size_t, size_t> _executed_gates;
+    std::unordered_map<size_t, size_t> _executed_gates;  //  maps gate index to number of gates executed next
 };
+
+}  // namespace qsyn::duostra

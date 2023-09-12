@@ -9,6 +9,8 @@
 
 #include <cstddef>
 
+namespace qsyn::qcir {
+
 class QCirGate;
 
 //------------------------------------------------------------------------
@@ -37,3 +39,5 @@ private:
     QCirGate* _bit_last;
     QCirGate* _bit_first;
 };
+
+}  // namespace qsyn::qcir

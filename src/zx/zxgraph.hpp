@@ -9,6 +9,7 @@
 
 #include <cstddef>
 #include <filesystem>
+#include <limits>
 #include <span>
 #include <string>
 #include <unordered_map>
@@ -16,6 +17,8 @@
 
 #include "./zx_def.hpp"
 #include "util/phase.hpp"
+
+namespace qsyn::zx {
 
 class ZXVertex;
 class ZXGraph;
@@ -36,11 +39,11 @@ EdgePair make_edge_pair(EdgePair epair);
 EdgePair make_edge_pair_dummy();
 
 class ZXVertex {
-    // See `zxVertex.cpp` for details
-public:
-    ZXVertex(size_t id, int qubit, VertexType vt, Phase phase = Phase(), size_t col = 0)
-        : _id{id}, _type{vt}, _qubit{qubit}, _phase{phase}, _col{(float)col} {}
+    friend class ZXGraph;
 
+public:
+    ZXVertex(size_t id, int qubit, VertexType vt, Phase phase = Phase(), double col = 0)
+        : _id{id}, _type{vt}, _qubit{qubit}, _phase{phase}, _col{col} {}
     // Getter and Setter
 
     size_t const& get_id() const { return _id; }
@@ -48,7 +51,7 @@ public:
     size_t const& get_pin() const { return _pin; }
     Phase const& get_phase() const { return _phase; }
     VertexType const& get_type() const { return _type; }
-    float const& get_col() const { return _col; }
+    double const& get_col() const { return _col; }
     Neighbors const& get_neighbors() const { return _neighbors; }
     NeighborPair const& get_first_neighbor() const { return *(_neighbors.begin()); }
     NeighborPair const& get_second_neighbor() const { return *next((_neighbors.begin())); }
@@ -60,10 +63,8 @@ public:
     void set_qubit(int const& q) { _qubit = q; }
     void set_pin(size_t const& p) { _pin = p; }
     void set_phase(Phase const& p) { _phase = p; }
-    void set_col(float const& c) { _col = c; }
+    void set_col(double const& c) { _col = c; }
     void set_type(VertexType const& vt) { _type = vt; }
-    // REVIEW - seems quite unsafe to me...
-    void set_neighbors(Neighbors const& n) { _neighbors = n; }
 
     // Add and Remove
     void add_neighbor(NeighborPair const& n) { _neighbors.insert(n); }
@@ -102,10 +103,12 @@ private:
     VertexType _type;
     int _qubit;
     Phase _phase;
-    float _col;
+    double _col;
     Neighbors _neighbors;
     unsigned _dfs_counter = 0;
     size_t _pin = UINT_MAX;
+
+    void set_neighbors(Neighbors const& n) { _neighbors = n; }
 };
 
 class ZXGraph {  // NOLINT(cppcoreguidelines-special-member-functions) : copy-swap idiom
@@ -246,9 +249,9 @@ public:
     inline size_t non_clifford_t_count() const { return non_clifford_count() - t_count(); }
 
     // Add and Remove
-    ZXVertex* add_input(int qubit, unsigned int col = 0);
-    ZXVertex* add_output(int qubit, unsigned int col = 0);
-    ZXVertex* add_vertex(int qubit, VertexType vt, Phase phase = Phase(), unsigned int col = 0);
+    ZXVertex* add_input(int qubit, double col = 0);
+    ZXVertex* add_output(int qubit, double col = 0);
+    ZXVertex* add_vertex(int qubit, VertexType vt, Phase phase = Phase(), double col = 0);
     void add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
 
     size_t remove_isolated_vertices();
@@ -361,3 +364,5 @@ private:
 
     void _move_vertices_from(ZXGraph& other);
 };
+
+}  // namespace qsyn::zx

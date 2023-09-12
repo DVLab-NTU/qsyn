@@ -13,11 +13,17 @@
 
 #include "util/ordered_hashset.hpp"
 
+namespace dvlab {
+
+class Phase;
+
+}
+
+namespace qsyn::qcir {
+
 class QCir;
 class QCirGate;
-class Phase;
 enum class GateType;
-
 using Qubit2Gates = std::unordered_map<size_t, std::vector<QCirGate*>>;
 
 class Optimizer {
@@ -55,9 +61,9 @@ private:
     std::vector<bool> _availty;
 
     std::unordered_map<size_t, size_t> _permutation;
-    ordered_hashset<size_t> _hadamards;
-    ordered_hashset<size_t> _xs;
-    ordered_hashset<size_t> _zs;
+    dvlab::utils::ordered_hashset<size_t> _hadamards;
+    dvlab::utils::ordered_hashset<size_t> _xs;
+    dvlab::utils::ordered_hashset<size_t> _zs;
     std::vector<std::pair<size_t, size_t>> _swaps;
 
     size_t _gate_count = 0;
@@ -95,7 +101,7 @@ private:
     bool _replace_cx_and_cz_with_s_and_cx(size_t t1, size_t t2);
     void _add_cz(size_t t1, size_t t2, bool do_minimize_czs);
     void _add_cx(size_t t1, size_t t2, bool do_swap);
-    void _add_rotation_gate(size_t target, Phase ph, GateType const& type);
+    void _add_rotation_gate(size_t target, dvlab::Phase ph, GateType const& type);
 
     QCir _build_from_storage(size_t n_qubits, bool reversed);
 
@@ -108,3 +114,5 @@ private:
     void _cancel_double_gate(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
     void _fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate);
 };
+
+}  // namespace qsyn::qcir

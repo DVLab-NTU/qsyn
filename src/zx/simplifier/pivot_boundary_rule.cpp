@@ -7,6 +7,8 @@
 
 #include "./zx_rules_template.hpp"
 
+using namespace qsyn::zx;
+
 using MatchType = PivotBoundaryRule::MatchType;
 
 std::vector<MatchType> PivotBoundaryRule::find_matches(ZXGraph const& graph) const {
