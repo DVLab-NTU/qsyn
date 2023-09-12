@@ -13,7 +13,7 @@
 #include "qcir/qcir_gate.hpp"
 #include "util/tmp_files.hpp"
 
-using namespace std;
+namespace qsyn::qcir {
 
 /**
  * @brief Write QASM
@@ -22,9 +22,9 @@ using namespace std;
  * @return true if successfully write
  * @return false if path or file not found
  */
-bool QCir::write_qasm(string const& filename) {
+bool QCir::write_qasm(std::string const& filename) {
     update_topological_order();
-    fstream file;
+    std::ofstream file;
     file.open(filename, std::fstream::out);
     if (!file)
         return false;
@@ -40,7 +40,7 @@ bool QCir::write_qasm(string const& filename) {
         } else {
             file << " ";
         }
-        vector<QubitInfo> pins = cur_gate->get_qubits();
+        std::vector<QubitInfo> pins = cur_gate->get_qubits();
         for (size_t qb = 0; qb < pins.size(); qb++) {
             file << "q[" << pins[qb]._qubit << "]";
             if (qb == pins.size() - 1)
@@ -78,10 +78,9 @@ bool QCir::draw(QCirDrawerType drawer, std::filesystem::path const& output_path,
 
     this->write_qasm(tmp_qasm.string());
 
-    string path_to_script = "scripts/qccdraw_qiskit_interface.py";
+    std::string path_to_script = "scripts/qccdraw_qiskit_interface.py";
 
-    string cmd = "python3 " + path_to_script + " -input " + tmp_qasm.string() + " -drawer " + fmt::format("{}", drawer);
-    +" -scale " + to_string(scale);
+    std::string cmd = fmt::format("python3 {} -input {} -drawer {} -scale {}", path_to_script, tmp_qasm.string(), drawer, scale);
 
     if (output_path.string().size()) {
         cmd += " -output " + output_path.string();
@@ -91,3 +90,5 @@ bool QCir::draw(QCirDrawerType drawer, std::filesystem::path const& output_path,
 
     return status == 0;
 }
+
+}  // namespace qsyn::qcir

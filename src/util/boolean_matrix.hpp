@@ -12,53 +12,49 @@
 #include <vector>
 
 #include "util/ordered_hashset.hpp"
+#include "zx/zx_def.hpp"
 
 //------------------------------------------------------------------------
 //   Define classes
 //------------------------------------------------------------------------
 
-class ZXVertex;
-using ZXVertexList = ordered_hashset<ZXVertex*>;
-
-// REVIEW - Change if bit > 64
-class Row {
-public:
-    Row(std::vector<unsigned char> const& r) : _row(r) {}
-
-    std::vector<unsigned char> const& get_row() const { return _row; }
-    void set_row(std::vector<unsigned char> row) { _row = std::move(row); }
-    size_t size() const { return _row.size(); }
-    unsigned char& back() { return _row.back(); }
-    unsigned char const& back() const { return _row.back(); }
-    size_t sum() const;
-
-    bool is_one_hot() const;
-    bool is_zeros() const;
-    void print_row() const;
-
-    void emplace_back(unsigned char i) { _row.emplace_back(i); }
-
-    Row& operator+=(Row const& rhs);
-    friend Row operator+(Row lhs, Row const& rhs);
-
-    unsigned char& operator[](size_t const& i) {
-        return _row[i];
-    }
-    unsigned char const& operator[](size_t const& i) const {
-        return _row[i];
-    }
-
-private:
-    std::vector<unsigned char> _row;
-};
-
 class BooleanMatrix {
 public:
+    class Row {
+    public:
+        Row(std::vector<unsigned char> const& r) : _row(r) {}
+
+        std::vector<unsigned char> const& get_row() const { return _row; }
+        void set_row(std::vector<unsigned char> row) { _row = std::move(row); }
+        size_t size() const { return _row.size(); }
+        unsigned char& back() { return _row.back(); }
+        unsigned char const& back() const { return _row.back(); }
+        size_t sum() const;
+
+        bool is_one_hot() const;
+        bool is_zeros() const;
+        void print_row() const;
+
+        void emplace_back(unsigned char i) { _row.emplace_back(i); }
+
+        Row& operator+=(Row const& rhs);
+        friend Row operator+(Row lhs, Row const& rhs);
+
+        unsigned char& operator[](size_t const& i) {
+            return _row[i];
+        }
+        unsigned char const& operator[](size_t const& i) const {
+            return _row[i];
+        }
+
+    private:
+        std::vector<unsigned char> _row;
+    };
     using RowOperation = std::pair<size_t, size_t>;
     BooleanMatrix() {}
 
     void reset();
-    bool from_zxvertices(ZXVertexList const& frontier, ZXVertexList const& neighbors);
+    bool from_zxvertices(qsyn::zx::ZXVertexList const& frontier, qsyn::zx::ZXVertexList const& neighbors);
     std::vector<Row> const& get_matrix() { return _matrix; }
     std::vector<RowOperation> const& get_row_operations() { return _row_operations; }
     Row const& get_row(size_t r) { return _matrix[r]; }

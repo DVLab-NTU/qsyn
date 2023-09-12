@@ -19,8 +19,15 @@
 #include "qcir/qcir_gate.hpp"
 #include "qcir/qcir_qubit.hpp"
 
-class QCir;
+namespace dvlab {
+
 class Phase;
+
+}
+
+namespace qsyn::qcir {
+
+class QCir;
 
 struct QubitInfo;
 
@@ -47,60 +54,11 @@ inline std::optional<QCirDrawerType> str_to_qcir_drawer_type(std::string const& 
     return std::nullopt;
 }
 
-template <>
-struct fmt::formatter<QCirDrawerType> {
-    auto parse(format_parse_context& ctx) {
-        return ctx.begin();
-    }
-    auto format(QCirDrawerType const& type, format_context& ctx) {
-        switch (type) {
-            case QCirDrawerType::text:
-                return fmt::format_to(ctx.out(), "text");
-            case QCirDrawerType::mpl:
-                return fmt::format_to(ctx.out(), "mpl");
-            case QCirDrawerType::latex:
-                return fmt::format_to(ctx.out(), "latex");
-            case QCirDrawerType::latex_source:
-            default:
-                return fmt::format_to(ctx.out(), "latex_source");
-        }
-    }
-};
-
 class QCir {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     QCir() {}
     ~QCir() = default;
-
-    QCir(QCir const& other) {
-        namespace views = std::ranges::views;
-        other.update_topological_order();
-        this->add_qubits(other._qubits.size());
-
-        for (size_t i = 0; i < _qubits.size(); i++) {
-            _qubits[i]->set_id(other._qubits[i]->get_id());
-        }
-
-        for (auto& gate : other._topological_order) {
-            auto bit_range = gate->get_qubits() |
-                             views::transform([](QubitInfo const& qb) { return qb._qubit; });
-            auto new_gate = this->add_gate(
-                gate->get_type_str(), {bit_range.begin(), bit_range.end()},
-                gate->get_phase(), true);
-
-            new_gate->set_id(gate->get_id());
-        }
-
-        this->_set_next_gate_id(1 + std::ranges::max(
-                                        other._topological_order | views::transform(
-                                                                       [](QCirGate* g) { return g->get_id(); })));
-        this->_set_next_qubit_id(1 + std::ranges::max(
-                                         other._qubits | views::transform(
-                                                             [](QCirQubit* qb) { return qb->get_id(); })));
-        this->set_filename(other._filename);
-        this->add_procedures(other._procedures);
-    }
-
+    QCir(QCir const& other);
     QCir(QCir&& other) noexcept = default;
 
     QCir& operator=(QCir copy) {
@@ -148,8 +106,8 @@ public:
     QCirQubit* insert_qubit(size_t id);
     void add_qubits(size_t num);
     bool remove_qubit(size_t qid);
-    QCirGate* add_gate(std::string type, std::vector<size_t> bits, Phase phase, bool append);
-    QCirGate* add_single_rz(size_t bit, Phase phase, bool append);
+    QCirGate* add_gate(std::string type, std::vector<size_t> bits, dvlab::Phase phase, bool append);
+    QCirGate* add_single_rz(size_t bit, dvlab::Phase phase, bool append);
     bool remove_gate(size_t id);
 
     bool read_qcir_file(std::string const& filename);
@@ -209,4 +167,27 @@ private:
     std::vector<QCirGate*> _qgates;
     std::vector<QCirQubit*> _qubits;
     std::vector<QCirGate*> mutable _topological_order;
+};
+
+}  // namespace qsyn::qcir
+
+template <>
+struct fmt::formatter<qsyn::qcir::QCirDrawerType> {
+    auto parse(format_parse_context& ctx) {
+        return ctx.begin();
+    }
+    auto format(qsyn::qcir::QCirDrawerType const& type, format_context& ctx) {
+        using qsyn::qcir::QCirDrawerType;
+        switch (type) {
+            case QCirDrawerType::text:
+                return fmt::format_to(ctx.out(), "text");
+            case QCirDrawerType::mpl:
+                return fmt::format_to(ctx.out(), "mpl");
+            case QCirDrawerType::latex:
+                return fmt::format_to(ctx.out(), "latex");
+            case QCirDrawerType::latex_source:
+            default:
+                return fmt::format_to(ctx.out(), "latex_source");
+        }
+    }
 };

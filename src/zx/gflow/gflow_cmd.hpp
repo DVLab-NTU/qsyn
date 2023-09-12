@@ -1,15 +1,17 @@
 /****************************************************************************
-  PackageName  [ qcir ]
-  Synopsis     [ Define conversion from QCir to Tensor ]
+  PackageName  [ gflow ]
+  Synopsis     [ Define gflow package commands ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #pragma once
 
-#include "./qcir.hpp"
-#include "./qcir_gate.hpp"
-#include "tensor/qtensor.hpp"
+#include "../zxgraph_mgr.hpp"
+#include "cli/cli.hpp"
 
-std::optional<QTensor<double>> to_tensor(QCirGate* gate);
-std::optional<QTensor<double>> to_tensor(QCir const& qcir);
+namespace qsyn::zx {
+
+bool add_zx_gflow_cmds(dvlab::CommandLineInterface& cli, ZXGraphMgr& zxgraph_mgr);
+
+}  // namespace qsyn::zx

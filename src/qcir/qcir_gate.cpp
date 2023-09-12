@@ -11,7 +11,7 @@
 #include <iomanip>
 #include <string>
 
-using namespace std;
+namespace qsyn::qcir {
 
 size_t SINGLE_DELAY = 1;
 size_t DOUBLE_DELAY = 2;
@@ -94,7 +94,7 @@ QubitInfo QCirGate::get_qubit(size_t qubit) const {
         if (_qubits[i]._qubit == qubit)
             return _qubits[i];
     }
-    cerr << "Not Found" << endl;
+    std::cerr << "Not Found" << std::endl;
     return _qubits[0];
 }
 
@@ -166,15 +166,15 @@ void QCirGate::set_child(size_t qubit, QCirGate* c) {
  * @brief Print Gate brief information
  */
 void QCirGate::print_gate() const {
-    cout << "ID:" << right << setw(4) << _id;
-    cout << " (" << right << setw(3) << get_type_str() << ") ";
-    cout << "     Time: " << right << setw(4) << _time << "     Qubit: ";
+    std::cout << "ID:" << std::right << std::setw(4) << _id;
+    std::cout << " (" << std::right << std::setw(3) << get_type_str() << ") ";
+    std::cout << "     Time: " << std::right << std::setw(4) << _time << "     Qubit: ";
     for (size_t i = 0; i < _qubits.size(); i++) {
-        cout << right << setw(3) << _qubits[i]._qubit << " ";
+        std::cout << std::right << std::setw(3) << _qubits[i]._qubit << " ";
     }
     if (get_type() == GateType::p || get_type() == GateType::rx || get_type() == GateType::ry || get_type() == GateType::rz)
-        cout << "      Phase: " << right << setw(4) << get_phase() << " ";
-    cout << endl;
+        std::cout << "      Phase: " << std::right << std::setw(4) << get_phase() << " ";
+    std::cout << std::endl;
 }
 
 /**
@@ -183,34 +183,34 @@ void QCirGate::print_gate() const {
  * @param gtype
  * @param showTime
  */
-void QCirGate::_print_single_qubit_gate(string const& gtype, bool show_time) const {
+void QCirGate::_print_single_qubit_gate(std::string const& gtype, bool show_time) const {
     QubitInfo info = get_qubits()[0];
-    string qubit_info = "Q" + to_string(info._qubit);
-    string parent_info = "";
+    std::string qubit_info = "Q" + std::to_string(info._qubit);
+    std::string parent_info = "";
     if (info._parent == nullptr)
         parent_info = "Start";
     else
-        parent_info = ("G" + to_string(info._parent->get_id()));
-    string child_info = "";
+        parent_info = ("G" + std::to_string(info._parent->get_id()));
+    std::string child_info = "";
     if (info._child == nullptr)
         child_info = "End";
     else
-        child_info = ("G" + to_string(info._child->get_id()));
+        child_info = ("G" + std::to_string(info._child->get_id()));
     for (size_t i = 0; i < parent_info.size() + qubit_info.size() + 2; i++)
-        cout << " ";
-    cout << " ┌─";
-    for (size_t i = 0; i < gtype.size(); i++) cout << "─";
-    cout << "─┐ " << endl;
-    cout << qubit_info << " " << parent_info << " ─┤ " << gtype << " ├─ " << child_info << endl;
+        std::cout << " ";
+    std::cout << " ┌─";
+    for (size_t i = 0; i < gtype.size(); i++) std::cout << "─";
+    std::cout << "─┐ " << std::endl;
+    std::cout << qubit_info << " " << parent_info << " ─┤ " << gtype << " ├─ " << child_info << std::endl;
     for (size_t i = 0; i < parent_info.size() + qubit_info.size() + 2; i++)
-        cout << " ";
-    cout << " └─";
-    for (size_t i = 0; i < gtype.size(); i++) cout << "─";
-    cout << "─┘ " << endl;
+        std::cout << " ";
+    std::cout << " └─";
+    for (size_t i = 0; i < gtype.size(); i++) std::cout << "─";
+    std::cout << "─┘ " << std::endl;
     if (gtype == "RX" || gtype == "RY" || gtype == "RZ" || gtype == "P")
-        cout << "Rotate Phase: " << _phase << endl;
+        std::cout << "Rotate Phase: " << _phase << std::endl;
     if (show_time)
-        cout << "Execute at t= " << get_time() << endl;
+        std::cout << "Execute at t= " << get_time() << std::endl;
 }
 
 /**
@@ -220,69 +220,71 @@ void QCirGate::_print_single_qubit_gate(string const& gtype, bool show_time) con
  * @param showRotate
  * @param showTime
  */
-void QCirGate::_print_multiple_qubits_gate(string const& gtype, bool show_rotation, bool show_time) const {
+void QCirGate::_print_multiple_qubits_gate(std::string const& gtype, bool show_rotation, bool show_time) const {
     size_t padding_size = (gtype.size() - 1) / 2;
-    string max_qubit = to_string(max_element(_qubits.begin(), _qubits.end(), [](QubitInfo const a, QubitInfo const b) {
-                                     return a._qubit < b._qubit;
-                                 })->_qubit);
+    std::string max_qubit = std::to_string(max_element(_qubits.begin(), _qubits.end(), [](QubitInfo const a, QubitInfo const b) {
+                                               return a._qubit < b._qubit;
+                                           })->_qubit);
 
-    vector<string> parents;
+    std::vector<std::string> parents;
     for (size_t i = 0; i < _qubits.size(); i++) {
         if (get_qubits()[i]._parent == nullptr)
             parents.emplace_back("Start");
         else
-            parents.emplace_back("G" + to_string(get_qubits()[i]._parent->get_id()));
+            parents.emplace_back("G" + std::to_string(get_qubits()[i]._parent->get_id()));
     }
-    string max_parent = *max_element(parents.begin(), parents.end(), [](string const& a, string const& b) {
+    std::string max_parent = *max_element(parents.begin(), parents.end(), [](std::string const& a, std::string const& b) {
         return a.size() < b.size();
     });
 
     for (size_t i = 0; i < _qubits.size(); i++) {
         QubitInfo info = get_qubits()[i];
-        string qubit_info = "Q";
-        for (size_t j = 0; j < max_qubit.size() - to_string(info._qubit).size(); j++)
+        std::string qubit_info = "Q";
+        for (size_t j = 0; j < max_qubit.size() - std::to_string(info._qubit).size(); j++)
             qubit_info += " ";
-        qubit_info += to_string(info._qubit);
-        string parent_info = "";
+        qubit_info += std::to_string(info._qubit);
+        std::string parent_info = "";
         if (info._parent == nullptr)
             parent_info = "Start";
         else
-            parent_info = ("G" + to_string(info._parent->get_id()));
+            parent_info = ("G" + std::to_string(info._parent->get_id()));
         for (size_t k = 0; k < max_parent.size() - (parents[i].size()); k++)
             parent_info += " ";
-        string child_info = "";
+        std::string child_info = "";
         if (info._child == nullptr)
             child_info = "End";
         else
-            child_info = ("G" + to_string(info._child->get_id()));
+            child_info = ("G" + std::to_string(info._child->get_id()));
         if (info._isTarget) {
             for (size_t j = 0; j < max_qubit.size() + max_parent.size() + 3; j++)
-                cout << " ";
-            cout << " ┌─";
-            for (size_t j = 0; j < padding_size; j++) cout << "─";
+                std::cout << " ";
+            std::cout << " ┌─";
+            for (size_t j = 0; j < padding_size; j++) std::cout << "─";
             if (_qubits.size() > 1)
-                cout << "┴";
+                std::cout << "┴";
             else
-                for (size_t j = 0; j < gtype.size(); j++) cout << "─";
+                for (size_t j = 0; j < gtype.size(); j++) std::cout << "─";
 
-            for (size_t j = 0; j < padding_size; j++) cout << "─";
-            cout << "─┐ " << endl;
-            cout << qubit_info << " " << parent_info << " ─┤ " << gtype << " ├─ " << child_info << endl;
+            for (size_t j = 0; j < padding_size; j++) std::cout << "─";
+            std::cout << "─┐ " << std::endl;
+            std::cout << qubit_info << " " << parent_info << " ─┤ " << gtype << " ├─ " << child_info << std::endl;
             for (size_t j = 0; j < max_qubit.size() + max_parent.size() + 3; j++)
-                cout << " ";
-            cout << " └─";
-            for (size_t j = 0; j < gtype.size(); j++) cout << "─";
-            cout << "─┘ " << endl;
+                std::cout << " ";
+            std::cout << " └─";
+            for (size_t j = 0; j < gtype.size(); j++) std::cout << "─";
+            std::cout << "─┘ " << std::endl;
         } else {
-            cout << qubit_info << " " << parent_info << " ──";
-            for (size_t j = 0; j < padding_size; j++) cout << "─";
-            cout << "─●─";
-            for (size_t j = 0; j < padding_size; j++) cout << "─";
-            cout << "── " << child_info << endl;
+            std::cout << qubit_info << " " << parent_info << " ──";
+            for (size_t j = 0; j < padding_size; j++) std::cout << "─";
+            std::cout << "─●─";
+            for (size_t j = 0; j < padding_size; j++) std::cout << "─";
+            std::cout << "── " << child_info << std::endl;
         }
     }
     if (show_rotation)
-        cout << "Rotate Phase: " << _phase << endl;
+        std::cout << "Rotate Phase: " << _phase << std::endl;
     if (show_time)
-        cout << "Execute at t= " << get_time() << endl;
+        std::cout << "Execute at t= " << get_time() << std::endl;
 }
+
+}  // namespace qsyn::qcir

@@ -7,6 +7,8 @@
 
 #include "./zx_rules_template.hpp"
 
+using namespace qsyn::zx;
+
 using MatchType = SpiderFusionRule::MatchType;
 
 /**
@@ -64,7 +66,7 @@ void SpiderFusionRule::apply(ZXGraph& graph, std::vector<MatchType> const& match
                 op.edgesToAdd.emplace_back(std::make_pair(v0, neighbor), edgeType);
             }
         }
-        op.verticesToRemove.emplace_back(v1);
+        op.vertices_to_remove.emplace_back(v1);
     }
 
     _update(graph, op);

@@ -1,26 +1,29 @@
 /****************************************************************************
-  PackageName  [ qcir ]
+  PackageName  [ qsyn ]
   Synopsis     [ Define class QCir Mapping functions ]
   Author       [ Design Verification Lab ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#include "./to_tensor.hpp"
+#include "./qcir_to_tensor.hpp"
 
 #include <cstddef>
 #include <thread>
 
-#include "./qcir.hpp"
-#include "./qcir_qubit.hpp"
 #include "fmt/core.h"
+#include "qcir/qcir.hpp"
+#include "qcir/qcir_qubit.hpp"
+#include "tensor/qtensor.hpp"
 #include "util/logger.hpp"
-
-using namespace std;
 
 extern dvlab::Logger LOGGER;
 extern bool stop_requested();
 
+namespace qsyn {
+
 using Qubit2TensorPinMap = std::unordered_map<size_t, std::pair<size_t, size_t>>;
+
+using qsyn::tensor::QTensor;
 
 /**
  * @brief Update tensor pin
@@ -28,7 +31,7 @@ using Qubit2TensorPinMap = std::unordered_map<size_t, std::pair<size_t, size_t>>
  * @param pins
  * @param tmp
  */
-void update_tensor_pin(Qubit2TensorPinMap &qubit2pin, vector<QubitInfo> const &pins, QTensor<double> &main, QTensor<double> const &gate) {
+void update_tensor_pin(Qubit2TensorPinMap &qubit2pin, std::vector<QubitInfo> const &pins, QTensor<double> &main, QTensor<double> const &gate) {
     LOGGER.trace("Pin Permutation");
     for (auto &[qubit, pin] : qubit2pin) {
         std::string trace = fmt::format("  - Qubit: {} input : {} -> ", qubit, pin.first);
@@ -74,13 +77,13 @@ std::optional<QTensor<double>> to_tensor(QCirGate *gate) {
         case GateType::rz:
             return QTensor<double>::rzgate(gate->get_phase());
         case GateType::s:
-            return QTensor<double>::pzgate(Phase(1, 2));
+            return QTensor<double>::pzgate(dvlab::Phase(1, 2));
         case GateType::t:
-            return QTensor<double>::pzgate(Phase(1, 4));
+            return QTensor<double>::pzgate(dvlab::Phase(1, 4));
         case GateType::sdg:
-            return QTensor<double>::pzgate(Phase(-1, 2));
+            return QTensor<double>::pzgate(dvlab::Phase(-1, 2));
         case GateType::tdg:
-            return QTensor<double>::pzgate(Phase(-1, 4));
+            return QTensor<double>::pzgate(dvlab::Phase(-1, 4));
         case GateType::x:
             return QTensor<double>::xgate();
         case GateType::px:
@@ -88,7 +91,7 @@ std::optional<QTensor<double>> to_tensor(QCirGate *gate) {
         case GateType::rx:
             return QTensor<double>::rxgate(gate->get_phase());
         case GateType::sx:
-            return QTensor<double>::pxgate(Phase(1, 2));
+            return QTensor<double>::pxgate(dvlab::Phase(1, 2));
         case GateType::y:
             return QTensor<double>::ygate();
         case GateType::py:
@@ -96,7 +99,7 @@ std::optional<QTensor<double>> to_tensor(QCirGate *gate) {
         case GateType::ry:
             return QTensor<double>::rygate(gate->get_phase());
         case GateType::sy:
-            return QTensor<double>::pygate(Phase(1, 2));
+            return QTensor<double>::pygate(dvlab::Phase(1, 2));
             // double-qubit gates
 
         case GateType::cx:
@@ -142,7 +145,7 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) {
     //       To make this process interruptible by SIGINT (ctrl-C), we grow the qubit size one by one
     for (size_t i = 0; i < qcir.get_qubits().size(); ++i) {
         if (stop_requested()) {
-            cerr << "Warning: conversion interrupted." << endl;
+            std::cerr << "Warning: conversion interrupted." << std::endl;
             return std::nullopt;
         }
         tensor = tensordot(tensor, QTensor<double>::identity(1));
@@ -150,7 +153,7 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) {
 
     Qubit2TensorPinMap qubit2pin;
     for (size_t i = 0; i < qcir.get_qubits().size(); i++) {
-        qubit2pin[qcir.get_qubits()[i]->get_id()] = make_pair(2 * i, 2 * i + 1);
+        qubit2pin[qcir.get_qubits()[i]->get_id()] = std::make_pair(2 * i, 2 * i + 1);
         LOGGER.trace("  - Add Qubit {} input port: {}", qcir.get_qubits()[i]->get_id(), 2 * i);
     }
 
@@ -159,8 +162,8 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) {
         LOGGER.debug("Gate {} ({})", gate->get_id(), gate->get_type_str());
         auto tmp = to_tensor(gate);
         assert(tmp.has_value());
-        vector<size_t> ori_pin;
-        vector<size_t> new_pin;
+        std::vector<size_t> ori_pin;
+        std::vector<size_t> new_pin;
         for (size_t np = 0; np < gate->get_qubits().size(); np++) {
             new_pin.emplace_back(2 * np);
             QubitInfo info = gate->get_qubits()[np];
@@ -171,11 +174,11 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) {
     });
 
     if (stop_requested()) {
-        cerr << "Warning: conversion interrupted." << endl;
+        std::cerr << "Warning: conversion interrupted." << std::endl;
         return std::nullopt;
     }
 
-    vector<size_t> input_pin, output_pin;
+    std::vector<size_t> input_pin, output_pin;
     for (size_t i = 0; i < qcir.get_qubits().size(); i++) {
         input_pin.emplace_back(qubit2pin[qcir.get_qubits()[i]->get_id()].first);
         output_pin.emplace_back(qubit2pin[qcir.get_qubits()[i]->get_id()].second);
@@ -184,3 +187,5 @@ std::optional<QTensor<double>> to_tensor(QCir const &qcir) {
 
     return tensor;
 }
+
+}  // namespace qsyn

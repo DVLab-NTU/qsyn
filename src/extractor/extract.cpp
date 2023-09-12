@@ -13,13 +13,18 @@
 #include "duostra/duostra.hpp"
 #include "duostra/mapping_eqv_checker.hpp"
 #include "qcir/qcir.hpp"
+#include "util/boolean_matrix.hpp"
 #include "zx/simplifier/simplify.hpp"
 #include "zx/simplifier/zx_rules_template.hpp"
 #include "zx/zxgraph.hpp"
 
-using namespace std;
+using namespace qsyn::zx;
+using namespace qsyn::qcir;
 
 extern bool stop_requested();
+extern size_t VERBOSE;
+
+namespace qsyn::extractor {
 
 bool SORT_FRONTIER = 0;
 bool SORT_NEIGHBORS = 1;
@@ -27,7 +32,6 @@ bool PERMUTE_QUBITS = 1;
 bool FILTER_DUPLICATED_CXS = 1;
 size_t BLOCK_SIZE = 5;
 size_t OPTIMIZE_LEVEL = 2;
-extern size_t VERBOSE;
 
 /**
  * @brief Construct a new Extractor:: Extractor object
@@ -47,7 +51,7 @@ Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> const& d) : _gra
  *
  */
 void Extractor::initialize(bool from_empty_qcir) {
-    if (VERBOSE >= 4) cout << "Initialize" << endl;
+    if (VERBOSE >= 4) std::cout << "Initialize" << std::endl;
     size_t cnt = 0;
     for (auto& o : _graph->get_outputs()) {
         if (!o->get_first_neighbor().first->is_boundary()) {
@@ -89,12 +93,12 @@ QCir* Extractor::extract() {
         return nullptr;
     }
     if (stop_requested()) {
-        cerr << "Warning: conversion is interrupted" << endl;
+        std::cerr << "Warning: conversion is interrupted" << std::endl;
         return nullptr;
     }
 
     if (VERBOSE >= 3)
-        cout << "Finish extracting!" << endl;
+        std::cout << "Finish extracting!" << std::endl;
     if (VERBOSE >= 8) {
         _logical_circuit->print_qubits();
         _graph->print_qubits();
@@ -126,7 +130,7 @@ bool Extractor::extraction_loop(size_t max_iter) {
         if (_frontier.empty()) break;
 
         if (remove_gadget()) {
-            if (VERBOSE >= 4) cout << "Gadget(s) are removed." << endl;
+            if (VERBOSE >= 4) std::cout << "Gadget(s) are removed." << std::endl;
             if (VERBOSE >= 8) {
                 print_frontier();
                 _graph->print_qubits();
@@ -136,14 +140,14 @@ bool Extractor::extraction_loop(size_t max_iter) {
         }
 
         if (contains_single_neighbor()) {
-            if (VERBOSE >= 4) cout << "Construct an easy matrix." << endl;
+            if (VERBOSE >= 4) std::cout << "Construct an easy matrix." << std::endl;
             _biadjacency.from_zxvertices(_frontier, _neighbors);
         } else {
-            if (VERBOSE >= 4) cout << "Perform Gaussian Elimination." << endl;
+            if (VERBOSE >= 4) std::cout << "Perform Gaussian Elimination." << std::endl;
             extract_cxs();
         }
         if (extract_hadamards_from_matrix() == 0) {
-            cerr << "Error: no candidate found in extractHsFromM2!!" << endl;
+            std::cerr << "Error: no candidate found in extractHsFromM2!!" << std::endl;
             _biadjacency.print_matrix();
             return false;
         }
@@ -167,8 +171,8 @@ bool Extractor::extraction_loop(size_t max_iter) {
  *
  */
 void Extractor::clean_frontier() {
-    if (VERBOSE >= 4) cout << "Clean Frontier" << endl;
-    // NOTE - Edge and Phase
+    if (VERBOSE >= 4) std::cout << "Clean Frontier" << std::endl;
+    // NOTE - Edge and dvlab::Phase
     extract_singles();
     // NOTE - CZs
     extract_czs();
@@ -179,17 +183,17 @@ void Extractor::clean_frontier() {
  *
  */
 void Extractor::extract_singles() {
-    if (VERBOSE >= 4) cout << "Extract Singles" << endl;
-    vector<pair<ZXVertex*, ZXVertex*>> toggle_list;
+    if (VERBOSE >= 4) std::cout << "Extract Singles" << std::endl;
+    std::vector<std::pair<ZXVertex*, ZXVertex*>> toggle_list;
     for (ZXVertex* o : _graph->get_outputs()) {
         if (o->get_first_neighbor().second == EdgeType::hadamard) {
-            prepend_single_qubit_gate("h", _qubit_map[o->get_qubit()], Phase(0));
+            prepend_single_qubit_gate("h", _qubit_map[o->get_qubit()], dvlab::Phase(0));
             toggle_list.emplace_back(o, o->get_first_neighbor().first);
         }
-        Phase ph = o->get_first_neighbor().first->get_phase();
-        if (ph != Phase(0)) {
+        dvlab::Phase ph = o->get_first_neighbor().first->get_phase();
+        if (ph != dvlab::Phase(0)) {
             prepend_single_qubit_gate("rotate", _qubit_map[o->get_qubit()], ph);
-            o->get_first_neighbor().first->set_phase(Phase(0));
+            o->get_first_neighbor().first->set_phase(dvlab::Phase(0));
         }
     }
     for (auto& [s, t] : toggle_list) {
@@ -210,24 +214,24 @@ void Extractor::extract_singles() {
  * @return false
  */
 bool Extractor::extract_czs(bool check) {
-    if (VERBOSE >= 4) cout << "Extract CZs" << endl;
+    if (VERBOSE >= 4) std::cout << "Extract CZs" << std::endl;
 
     if (check) {
         for (auto& f : _frontier) {
-            if (f->get_phase() != Phase(0)) {
-                cout << "Note: frontier contains phases, extract them first." << endl;
+            if (f->get_phase() != dvlab::Phase(0)) {
+                std::cout << "Note: frontier contains phases, extract them first." << std::endl;
                 return false;
             }
             for (auto& [n, e] : f->get_neighbors()) {
                 if (_graph->get_outputs().contains(n) && e == EdgeType::hadamard) {
-                    cout << "Note: frontier contains hadamard edge to boundary, extract them first." << endl;
+                    std::cout << "Note: frontier contains hadamard edge to boundary, extract them first." << std::endl;
                     return false;
                 }
             }
         }
     }
 
-    vector<pair<ZXVertex*, ZXVertex*>> remove_list;
+    std::vector<std::pair<ZXVertex*, ZXVertex*>> remove_list;
 
     for (auto itr = _frontier.begin(); itr != _frontier.end(); itr++) {
         for (auto jtr = next(itr); jtr != _frontier.end(); jtr++) {
@@ -236,10 +240,10 @@ bool Extractor::extract_czs(bool check) {
             }
         }
     }
-    vector<Operation> ops;
+    std::vector<Operation> ops;
     for (auto const& [s, t] : remove_list) {
         _graph->remove_edge(s, t, EdgeType::hadamard);
-        Operation op(GateType::cz, Phase(0), {_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]}, {});
+        Operation op(GateType::cz, dvlab::Phase(0), {_qubit_map[s->get_qubit()], _qubit_map[t->get_qubit()]}, {});
         ops.emplace_back(op);
     }
     if (ops.size() > 0) {
@@ -262,8 +266,8 @@ void Extractor::extract_cxs() {
     biadjacency_eliminations();
     update_graph_by_matrix();
 
-    if (VERBOSE >= 4) cout << "Extract CXs" << endl;
-    unordered_map<size_t, ZXVertex*> front_id2_vertex;
+    if (VERBOSE >= 4) std::cout << "Extract CXs" << std::endl;
+    std::unordered_map<size_t, ZXVertex*> front_id2_vertex;
     size_t cnt = 0;
     for (auto& f : _frontier) {
         front_id2_vertex[cnt] = f;
@@ -274,8 +278,8 @@ void Extractor::extract_cxs() {
         // NOTE - targ and ctrl are opposite here
         size_t ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
         size_t targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
-        if (VERBOSE >= 4) cout << "Add CX: " << ctrl << " " << targ << endl;
-        prepend_double_qubit_gate("cx", {ctrl, targ}, Phase(0));
+        if (VERBOSE >= 4) std::cout << "Add CX: " << ctrl << " " << targ << std::endl;
+        prepend_double_qubit_gate("cx", {ctrl, targ}, dvlab::Phase(0));
     }
 }
 
@@ -286,22 +290,22 @@ void Extractor::extract_cxs() {
  * @return size_t
  */
 size_t Extractor::extract_hadamards_from_matrix(bool check) {
-    if (VERBOSE >= 4) cout << "Extract Hs" << endl;
+    if (VERBOSE >= 4) std::cout << "Extract Hs" << std::endl;
 
     if (check) {
         if (!frontier_is_cleaned()) {
-            cout << "Note: frontier is dirty, please clean it first." << endl;
+            std::cout << "Note: frontier is dirty, please clean it first." << std::endl;
             return 0;
         }
         if (axel_in_neighbors()) {
-            cout << "Note: axel(s) are in the neighbors, please remove gadget(s) first." << endl;
+            std::cout << "Note: axel(s) are in the neighbors, please remove gadget(s) first." << std::endl;
             return 0;
         }
         _biadjacency.from_zxvertices(_frontier, _neighbors);
     }
 
-    unordered_map<size_t, ZXVertex*> frontier_id_to_vertex;
-    unordered_map<size_t, ZXVertex*> neighbor_id_to_vertex;
+    std::unordered_map<size_t, ZXVertex*> frontier_id_to_vertex;
+    std::unordered_map<size_t, ZXVertex*> neighbor_id_to_vertex;
     size_t cnt = 0;
     for (auto& f : _frontier) {
         frontier_id_to_vertex[cnt] = f;
@@ -314,7 +318,7 @@ size_t Extractor::extract_hadamards_from_matrix(bool check) {
     }
 
     // NOTE - Store pairs to be modified
-    vector<pair<ZXVertex*, ZXVertex*>> front_neigh_pairs;
+    std::vector<std::pair<ZXVertex*, ZXVertex*>> front_neigh_pairs;
 
     for (size_t row = 0; row < _biadjacency.num_rows(); ++row) {
         if (!_biadjacency[row].is_one_hot()) continue;
@@ -329,7 +333,7 @@ size_t Extractor::extract_hadamards_from_matrix(bool check) {
 
     for (auto& [f, n] : front_neigh_pairs) {
         // NOTE - Add Hadamard according to the v of frontier (row)
-        prepend_single_qubit_gate("h", _qubit_map[f->get_qubit()], Phase(0));
+        prepend_single_qubit_gate("h", _qubit_map[f->get_qubit()], dvlab::Phase(0));
         // NOTE - Set #qubit and #col according to the old frontier
         n->set_qubit(f->get_qubit());
         n->set_col(f->get_col());
@@ -348,7 +352,7 @@ size_t Extractor::extract_hadamards_from_matrix(bool check) {
     }
 
     if (check && front_neigh_pairs.size() == 0) {
-        cerr << "Error: no candidate found!!" << endl;
+        std::cerr << "Error: no candidate found!!" << std::endl;
         print_matrix();
     }
     return front_neigh_pairs.size();
@@ -362,15 +366,15 @@ size_t Extractor::extract_hadamards_from_matrix(bool check) {
  * @return false if not
  */
 bool Extractor::remove_gadget(bool check) {
-    if (VERBOSE >= 4) cout << "Remove Gadget" << endl;
+    if (VERBOSE >= 4) std::cout << "Remove Gadget" << std::endl;
 
     if (check) {
         if (_frontier.empty()) {
-            cout << "Note: no vertex left." << endl;
+            std::cout << "Note: no vertex left." << std::endl;
             return false;
         }
         if (!frontier_is_cleaned()) {
-            cout << "Note: frontier is dirty, please clean it first." << endl;
+            std::cout << "Note: frontier is dirty, please clean it first." << std::endl;
             return false;
         }
     }
@@ -380,7 +384,7 @@ bool Extractor::remove_gadget(bool check) {
         print_frontier();
         print_axels();
     }
-    bool gadget_removed = false;
+    bool removed_some_gadgets = false;
     for (auto& n : _neighbors) {
         if (!_axels.contains(n)) {
             continue;
@@ -406,7 +410,7 @@ bool Extractor::remove_gadget(bool check) {
                 assert(target_boundary != nullptr);
                 _frontier.emplace(target_boundary->get_first_neighbor().first);
                 // REVIEW - qubit_map
-                gadget_removed = true;
+                removed_some_gadgets = true;
                 break;
             }
         }
@@ -416,7 +420,7 @@ bool Extractor::remove_gadget(bool check) {
         print_frontier();
         print_axels();
     }
-    return gadget_removed;
+    return removed_some_gadgets;
 }
 
 /**
@@ -456,8 +460,8 @@ void Extractor::column_optimal_swap() {
 
     std::set_difference(col_set.begin(), col_set.end(), targ_val.begin(), targ_val.end(), inserter(left, left.end()));
     std::set_difference(col_set.begin(), col_set.end(), targ_key.begin(), targ_key.end(), inserter(right, right.end()));
-    vector<size_t> lvec(left.begin(), left.end());
-    vector<size_t> rvec(right.begin(), right.end());
+    std::vector<size_t> lvec(left.begin(), left.end());
+    std::vector<size_t> rvec(right.begin(), right.end());
     for (size_t i = 0; i < lvec.size(); i++) {
         target[rvec[i]] = lvec[i];
     }
@@ -465,8 +469,8 @@ void Extractor::column_optimal_swap() {
     for (auto& [k, v] : target) {
         perm[v] = k;
     }
-    vector<ZXVertex*> neb_vec(_neighbors.begin(), _neighbors.end());
-    vector<ZXVertex*> new_neb_vec = neb_vec;
+    std::vector<ZXVertex*> neb_vec(_neighbors.begin(), _neighbors.end());
+    std::vector<ZXVertex*> new_neb_vec = neb_vec;
     for (size_t i = 0; i < neb_vec.size(); i++) {
         new_neb_vec[i] = neb_vec[perm[i]];
     }
@@ -484,8 +488,8 @@ Extractor::Target Extractor::_find_column_swap(Target target) {
     size_t row_cnt = _row_info.size();
     // size_t colCnt = _colInfo.size();
 
-    set<size_t> claimed_cols;
-    set<size_t> claimed_rows;
+    std::set<size_t> claimed_cols;
+    std::set<size_t> claimed_rows;
     for (auto& [key, value] : target) {
         claimed_cols.emplace(key);
         claimed_rows.emplace(value);
@@ -493,12 +497,12 @@ Extractor::Target Extractor::_find_column_swap(Target target) {
 
     while (true) {
         std::optional<size_t> min_index = std::nullopt;
-        set<size_t> min_options;
+        std::set<size_t> min_options;
         for (size_t i = 0; i < 1000; i++) min_options.emplace(i);
         bool found_col = false;
         for (size_t i = 0; i < row_cnt; i++) {
             if (claimed_rows.contains(i)) continue;
-            set<size_t> free_cols;
+            std::set<size_t> free_cols;
             // NOTE - find the free columns
             set_difference(_row_info[i].begin(), _row_info[i].end(), claimed_cols.begin(), claimed_cols.end(), inserter(free_cols, free_cols.end()));
             if (free_cols.size() == 1) {
@@ -514,13 +518,13 @@ Extractor::Target Extractor::_find_column_swap(Target target) {
             }
 
             if (free_cols.size() == 0) {
-                if (VERBOSE >= 5) cout << "Note: no free column for column optimal swap!!" << endl;
+                if (VERBOSE >= 5) std::cout << "Note: no free column for column optimal swap!!" << std::endl;
                 Target t;
                 return t;  // NOTE - Contradiction
             }
 
             for (auto& j : free_cols) {
-                set<size_t> free_rows;
+                std::set<size_t> free_rows;
                 set_difference(_col_info[j].begin(), _col_info[j].end(), claimed_rows.begin(), claimed_rows.end(), inserter(free_rows, free_rows.end()));
                 if (free_rows.size() == 1) {
                     target[j] = i;  // NOTE - j can only be connected to i
@@ -549,21 +553,21 @@ Extractor::Target Extractor::_find_column_swap(Target target) {
                 return target;
             }
             if (min_index == std::nullopt) {
-                cerr << "Error: this shouldn't happen ever" << endl;
+                std::cerr << "Error: this shouldn't happen ever" << std::endl;
                 assert(false);
             }
             // NOTE -  depth-first search
             Target copied_target = target;
-            if (VERBOSE >= 8) cout << "Backtracking on " << min_index.value() << endl;
+            if (VERBOSE >= 8) std::cout << "Backtracking on " << min_index.value() << std::endl;
 
             for (auto& idx : min_options) {
-                if (VERBOSE >= 8) cout << "> trying option" << idx << endl;
+                if (VERBOSE >= 8) std::cout << "> trying option" << idx << std::endl;
                 copied_target[idx] = min_index.value();
                 Target new_target = _find_column_swap(copied_target);
                 if (!new_target.empty())
                     return new_target;
             }
-            if (VERBOSE >= 8) cout << "Unsuccessful" << endl;
+            if (VERBOSE >= 8) std::cout << "Unsuccessful" << std::endl;
             return target;
         }
     }
@@ -579,11 +583,11 @@ Extractor::Target Extractor::_find_column_swap(Target target) {
 bool Extractor::biadjacency_eliminations(bool check) {
     if (check) {
         if (!frontier_is_cleaned()) {
-            cout << "Note: frontier is dirty, please clean it first." << endl;
+            std::cout << "Note: frontier is dirty, please clean it first." << std::endl;
             return false;
         }
         if (axel_in_neighbors()) {
-            cout << "Note: axel(s) are in the neighbors, please remove gadget(s) first." << endl;
+            std::cout << "Note: axel(s) are in the neighbors, please remove gadget(s) first." << std::endl;
             return false;
         }
     }
@@ -594,13 +598,13 @@ bool Extractor::biadjacency_eliminations(bool check) {
         });
     }
     if (SORT_NEIGHBORS == true) {
-        // REVIEW - Do not know why sort in here would be better
+        // REVIEW - Do not know why sort here would be better
         _neighbors.sort([](ZXVertex const* a, ZXVertex const* b) {
             return a->get_id() < b->get_id();
         });
     }
 
-    vector<BooleanMatrix::RowOperation> greedy_opers;
+    std::vector<BooleanMatrix::RowOperation> greedy_opers;
 
     _biadjacency.from_zxvertices(_frontier, _neighbors);
     BooleanMatrix greedy_mat = _biadjacency;
@@ -627,7 +631,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
                     _num_cx_filtered += reduce;
                     if (reduce == 0) break;
                 }
-                if (VERBOSE >= 4) cout << "Filter " << _num_cx_filtered - old << " CXs. Total: " << _num_cx_filtered << endl;
+                if (VERBOSE >= 4) std::cout << "Filter " << _num_cx_filtered - old << " CXs. Total: " << _num_cx_filtered << std::endl;
             }
             _cnots = _biadjacency.get_row_operations();
         } else if (OPTIMIZE_LEVEL == 1 || OPTIMIZE_LEVEL == 3) {
@@ -642,22 +646,22 @@ bool Extractor::biadjacency_eliminations(bool check) {
             } else {
                 size_t n_gauss_opers = best_matrix.get_row_operations().size();
                 size_t n_single_one_rows = accumulate(best_matrix.get_matrix().begin(), best_matrix.get_matrix().end(), 0,
-                                                      [](size_t acc, Row const& r) { return acc + size_t(r.is_one_hot()); });
+                                                      [](size_t acc, BooleanMatrix::Row const& r) { return acc + size_t(r.is_one_hot()); });
                 // NOTE - opers per extractable rows for Gaussian is bigger than greedy
                 bool select_greedy = float(n_gauss_opers) / float(n_single_one_rows) > float(greedy_opers.size()) - 0.1;
                 if (!greedy_opers.empty() && select_greedy) {
                     _biadjacency = greedy_mat;
                     _cnots = greedy_mat.get_row_operations();
                     _neighbors = backup_neighbors;
-                    if (VERBOSE > 3) cout << "Found greedy reduction with " << _cnots.size() << " CX(s)" << endl;
+                    if (VERBOSE > 3) std::cout << "Found greedy reduction with " << _cnots.size() << " CX(s)" << std::endl;
                 } else {
                     _biadjacency = best_matrix;
                     _cnots = _biadjacency.get_row_operations();
-                    if (VERBOSE > 3) cout << "Gaussian elimination with " << _cnots.size() << " CX(s)" << endl;
+                    if (VERBOSE > 3) std::cout << "Gaussian elimination with " << _cnots.size() << " CX(s)" << std::endl;
                 }
             }
         } else {
-            cerr << "Error: wrong optimize level" << endl;
+            std::cerr << "Error: wrong optimize level" << std::endl;
             abort();
         }
 
@@ -667,7 +671,6 @@ bool Extractor::biadjacency_eliminations(bool check) {
         _cnots = greedy_mat.get_row_operations();
     }
 
-    // TODO - update matrix to correct one
     return true;
 }
 
@@ -706,26 +709,26 @@ void Extractor::_block_elimination(size_t& best_block, BooleanMatrix& best_matri
     }
 
     // NOTE - Construct Duostra Input
-    unordered_map<size_t, ZXVertex*> front_id2_vertex;
+    std::unordered_map<size_t, ZXVertex*> front_id2_vertex;
     size_t cnt = 0;
     for (auto& f : _frontier) {
         front_id2_vertex[cnt] = f;
         cnt++;
     }
-    vector<Operation> ops;
+    std::vector<Operation> ops;
     for (auto& [t, c] : copied_matrix.get_row_operations()) {
         // NOTE - targ and ctrl are opposite here
         size_t ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
         size_t targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
-        if (VERBOSE > 4) cout << "Add CX: " << ctrl << " " << targ << endl;
-        Operation op(GateType::cx, Phase(0), {ctrl, targ}, {});
+        if (VERBOSE > 4) std::cout << "Add CX: " << ctrl << " " << targ << std::endl;
+        Operation op(GateType::cx, dvlab::Phase(0), {ctrl, targ}, {});
         ops.emplace_back(op);
     }
 
     // NOTE - Get Mapping result, Device is passed by copy
-    Duostra duo(ops, _graph->get_num_outputs(), _device.value(), {.verifyResult = false, .silent = true, .useTqdm = false});
+    qsyn::duostra::Duostra duo(ops, _graph->get_num_outputs(), _device.value(), {.verifyResult = false, .silent = true, .useTqdm = false});
     size_t depth = duo.flow(true);
-    if (VERBOSE > 4) cout << block_size << ", depth:" << depth << ", #cx: " << ops.size() << endl;
+    if (VERBOSE > 4) std::cout << block_size << ", depth:" << depth << ", #cx: " << ops.size() << std::endl;
     if (depth < min_cost) {
         min_cost = depth;
         best_matrix = copied_matrix;
@@ -738,19 +741,18 @@ void Extractor::_block_elimination(size_t& best_block, BooleanMatrix& best_matri
  *
  */
 void Extractor::permute_qubits() {
-    if (VERBOSE >= 4) cout << "Permute Qubit" << endl;
-    // REVIEW - ordered_hashmap?
-    unordered_map<size_t, size_t> swap_map;      // o to i
-    unordered_map<size_t, size_t> swap_inv_map;  // i to o
+    if (VERBOSE >= 4) std::cout << "Permute Qubit" << std::endl;
+    std::unordered_map<size_t, size_t> swap_map;      // o to i
+    std::unordered_map<size_t, size_t> swap_inv_map;  // i to o
     bool matched = true;
     for (auto& o : _graph->get_outputs()) {
         if (o->get_num_neighbors() != 1) {
-            cout << "Note: output is not connected to only one vertex" << endl;
+            std::cout << "Note: output is not connected to only one vertex" << std::endl;
             return;
         }
         ZXVertex* i = o->get_first_neighbor().first;
         if (!_graph->get_inputs().contains(i)) {
-            cout << "Note: output is not connected to input" << endl;
+            std::cout << "Note: output is not connected to input" << std::endl;
             return;
         }
         if (i->get_qubit() != o->get_qubit()) {
@@ -790,7 +792,7 @@ void Extractor::permute_qubits() {
  */
 void Extractor::update_neighbors() {
     _neighbors.clear();
-    vector<ZXVertex*> rm_vs;
+    std::vector<ZXVertex*> rm_vs;
 
     for (auto& f : _frontier) {
         size_t num_boundaries = count_if(
@@ -805,7 +807,7 @@ void Extractor::update_neighbors() {
             for (auto& [b, ep] : f->get_neighbors()) {
                 if (_graph->get_inputs().contains(b)) {
                     if (ep == EdgeType::hadamard) {
-                        prepend_single_qubit_gate("h", _qubit_map[f->get_qubit()], Phase(0));
+                        prepend_single_qubit_gate("h", _qubit_map[f->get_qubit()], dvlab::Phase(0));
                     }
                     break;
                 }
@@ -822,7 +824,7 @@ void Extractor::update_neighbors() {
     }
 
     for (auto& v : rm_vs) {
-        if (VERBOSE >= 8) cout << "Remove " << v->get_id() << " (q" << v->get_qubit() << ") from frontiers." << endl;
+        if (VERBOSE >= 8) std::cout << "Remove " << v->get_id() << " (q" << v->get_qubit() << ") from frontiers." << std::endl;
         _frontier.erase(v);
         _graph->add_edge(v->get_first_neighbor().first, v->get_second_neighbor().first, EdgeType::simple);
         _graph->remove_vertex(v);
@@ -843,7 +845,7 @@ void Extractor::update_neighbors() {
  */
 void Extractor::update_graph_by_matrix(EdgeType et) {
     size_t r = 0;
-    if (VERBOSE >= 4) cout << "Update Graph by Matrix" << endl;
+    if (VERBOSE >= 4) std::cout << "Update Graph by Matrix" << std::endl;
     for (auto& f : _frontier) {
         size_t c = 0;
         for (auto& nb : _neighbors) {
@@ -873,25 +875,12 @@ void Extractor::create_matrix() {
  * @param qubit logical
  * @param phase
  */
-void Extractor::prepend_single_qubit_gate(string const& type, size_t qubit, Phase phase) {
+void Extractor::prepend_single_qubit_gate(std::string const& type, size_t qubit, dvlab::Phase phase) {
     if (type == "rotate") {
         _logical_circuit->add_single_rz(qubit, phase, false);
-        // if (toPhysical()) {
-        //     size_t physicalQId = _device.value().getPhysicalbyLogical(qubit);
-        //     assert(physicalQId != SIZE_MAX);
-        //     _device.value().applySingleQubitGate(physicalQId);
-        //     _physicalCircuit->addSingleRZ(physicalQId, phase, false);
-        // }
     } else {
         _logical_circuit->add_gate(type, {qubit}, phase, false);
-        // if (toPhysical()) {
-        //     size_t physicalQId = _device.value().getPhysicalbyLogical(qubit);
-        //     assert(physicalQId != SIZE_MAX);
-        //     _device.value().applySingleQubitGate(physicalQId);
-        //     _physicalCircuit->addGate(type, {physicalQId}, phase, false);
-        // }
     }
-    // if (toPhysical()) _device.value().printStatus();
 }
 
 /**
@@ -901,7 +890,7 @@ void Extractor::prepend_single_qubit_gate(string const& type, size_t qubit, Phas
  * @param qubits
  * @param phase
  */
-void Extractor::prepend_double_qubit_gate(string const& type, vector<size_t> const& qubits, Phase phase) {
+void Extractor::prepend_double_qubit_gate(std::string const& type, std::vector<size_t> const& qubits, dvlab::Phase phase) {
     assert(qubits.size() == 2);
     _logical_circuit->add_gate(type, qubits, phase, false);
 }
@@ -914,12 +903,12 @@ void Extractor::prepend_double_qubit_gate(string const& type, vector<size_t> con
  */
 void Extractor::prepend_series_gates(std::vector<Operation> const& logical, std::vector<Operation> const& physical) {
     for (auto const& gates : logical) {
-        tuple<size_t, size_t> qubits = gates.get_qubits();
+        std::tuple<size_t, size_t> qubits = gates.get_qubits();
         _logical_circuit->add_gate(GATE_TYPE_TO_STR[gates.get_type()], {get<0>(qubits), get<1>(qubits)}, gates.get_phase(), false);
     }
 
     for (auto const& gates : physical) {
-        tuple<size_t, size_t> qubits = gates.get_qubits();
+        std::tuple<size_t, size_t> qubits = gates.get_qubits();
         if (gates.get_type() == GateType::swap) {
             prepend_swap_gate(get<0>(qubits), get<1>(qubits), _physical_circuit);
             _num_swaps++;
@@ -937,9 +926,9 @@ void Extractor::prepend_series_gates(std::vector<Operation> const& logical, std:
  */
 void Extractor::prepend_swap_gate(size_t q0, size_t q1, QCir* circuit) {
     // NOTE - No qubit permutation in Physical Circuit
-    circuit->add_gate("cx", {q0, q1}, Phase(0), false);
-    circuit->add_gate("cx", {q1, q0}, Phase(0), false);
-    circuit->add_gate("cx", {q0, q1}, Phase(0), false);
+    circuit->add_gate("cx", {q0, q1}, dvlab::Phase(0), false);
+    circuit->add_gate("cx", {q1, q0}, dvlab::Phase(0), false);
+    circuit->add_gate("cx", {q0, q1}, dvlab::Phase(0), false);
 }
 
 /**
@@ -950,7 +939,7 @@ void Extractor::prepend_swap_gate(size_t q0, size_t q1, QCir* circuit) {
  */
 bool Extractor::frontier_is_cleaned() {
     for (auto& f : _frontier) {
-        if (f->get_phase() != Phase(0)) return false;
+        if (f->get_phase() != dvlab::Phase(0)) return false;
         for (auto& [n, e] : f->get_neighbors()) {
             if (_frontier.contains(n)) return false;
             if (_graph->get_outputs().contains(n) && e == EdgeType::hadamard) return false;
@@ -993,10 +982,10 @@ bool Extractor::contains_single_neighbor() {
  *
  */
 void Extractor::print_frontier() {
-    cout << "Frontier:" << endl;
+    std::cout << "Frontier:" << std::endl;
     for (auto& f : _frontier)
-        cout << "Qubit:" << f->get_qubit() << ": " << f->get_id() << endl;
-    cout << endl;
+        std::cout << "Qubit:" << f->get_qubit() << ": " << f->get_id() << std::endl;
+    std::cout << std::endl;
 }
 
 /**
@@ -1004,10 +993,10 @@ void Extractor::print_frontier() {
  *
  */
 void Extractor::print_neighbors() {
-    cout << "Neighbors:" << endl;
+    std::cout << "Neighbors:" << std::endl;
     for (auto& n : _neighbors)
-        cout << n->get_id() << endl;
-    cout << endl;
+        std::cout << n->get_id() << std::endl;
+    std::cout << std::endl;
 }
 
 /**
@@ -1015,21 +1004,23 @@ void Extractor::print_neighbors() {
  *
  */
 void Extractor::print_axels() {
-    cout << "Axels:" << endl;
+    std::cout << "Axels:" << std::endl;
     for (auto& n : _axels) {
-        cout << n->get_id() << " (phase gadget: ";
+        std::cout << n->get_id() << " (phase gadget: ";
         for (auto& [pg, _] : n->get_neighbors()) {
             if (_graph->is_gadget_leaf(pg))
-                cout << pg->get_id() << ")" << endl;
+                std::cout << pg->get_id() << ")" << std::endl;
         }
     }
-    cout << endl;
+    std::cout << std::endl;
 }
 
 void Extractor::print_cxs() {
-    cout << "CXs: " << endl;
+    std::cout << "CXs: " << std::endl;
     for (auto& [c, t] : _cnots) {
-        cout << "(" << c << ", " << t << ")  ";
+        std::cout << "(" << c << ", " << t << ")  ";
     }
-    cout << endl;
+    std::cout << std::endl;
 }
+
+}  // namespace qsyn::extractor

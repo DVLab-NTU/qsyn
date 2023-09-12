@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <climits>
 #include <cstdint>
-#include <iomanip>
 #include <stack>
 #include <unordered_map>
 #include <utility>
@@ -21,6 +20,10 @@
 extern size_t VERBOSE;
 
 bool stop_requested();
+
+namespace qsyn {
+
+namespace zx {
 
 /*****************************************************/
 /*   class ZXGraph partition functions.              */
@@ -324,3 +327,7 @@ std::pair<ZXVertexList, ZXVertexList> detail::kl_bipartition(ZXVertexList vertic
 
     return std::make_pair(partition1, partition2);
 }
+
+}  // namespace zx
+
+}  // namespace qsyn

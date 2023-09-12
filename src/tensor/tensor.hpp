@@ -21,6 +21,8 @@
 #include "./tensor_util.hpp"
 #include "util/util.hpp"
 
+namespace qsyn::tensor {
+
 template <typename DT>
 class Tensor {
 protected:
@@ -334,3 +336,5 @@ bool is_partition(Tensor<U> const& t, TensorAxisList const& axin, TensorAxisList
     if (axin.size() + axout.size() != t._tensor.dimension()) return false;
     return true;
 }
+
+}  // namespace qsyn::tensor

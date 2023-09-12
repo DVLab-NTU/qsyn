@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ cli ]
-  Synopsis     [ Define class CommandLineInterface ]
+  Synopsis     [ Define class dvlab::CommandLineInterface ]
   Author       [ Design Verification Lab, Chia-Hsu Chuang ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -22,13 +22,15 @@
 #include "jthread/jthread.hpp"
 #include "util/logger.hpp"
 
+extern dvlab::Logger LOGGER;
+
+namespace dvlab {
+
 class CommandLineInterface;
 
 //----------------------------------------------------------------------
 //    External declaration
 //----------------------------------------------------------------------
-extern CommandLineInterface CLI;
-extern dvlab::Logger LOGGER;
 
 //----------------------------------------------------------------------
 //    command execution status
@@ -64,15 +66,15 @@ inline void clear_terminal() {
  *
  */
 class Command {
-    using ParserDefinition = std::function<void(argparse::ArgumentParser&)>;
+    using ParserDefinition = std::function<void(dvlab::argparse::ArgumentParser&)>;
     using Precondition = std::function<bool()>;
-    using OnParseSuccess = std::function<CmdExecResult(argparse::ArgumentParser const&)>;
+    using OnParseSuccess = std::function<CmdExecResult(dvlab::argparse::ArgumentParser const&)>;
 
 public:
     Command(std::string const& name, ParserDefinition defn, OnParseSuccess on)
         : _parser{name, {.exitOnFailure = false}}, _parser_definition{std::move(defn)}, _on_parse_success{std::move(on)} {}
     Command(std::string const& name)
-        : Command(name, nullptr, nullptr) {}
+        : dvlab::Command(name, nullptr, nullptr) {}
 
     bool initialize(size_t n_req_chars);
     CmdExecResult execute(std::string const& option);
@@ -83,12 +85,12 @@ public:
     void print_summary() const { _parser.print_summary(); }
     void print_help() const { _parser.print_help(); }
 
-    void add_subcommand(Command const& cmd);
+    void add_subcommand(dvlab::Command const& cmd);
 
 private:
     ParserDefinition _parser_definition;  // define the parser's arguments and traits
     OnParseSuccess _on_parse_success;     // define the action to take on parse success
-    argparse::ArgumentParser _parser;
+    dvlab::argparse::ArgumentParser _parser;
 
     void _print_missing_parser_definition_error_msg() const;
     void _print_missing_on_parse_success_error_msg() const;
@@ -102,12 +104,12 @@ class CommandLineInterface {
     static constexpr size_t read_buf_size = 65536;
     static constexpr size_t page_offset = 10;
 
-    using CmdMap = std::unordered_map<std::string, std::unique_ptr<Command>>;
-    using CmdRegPair = std::pair<std::string, std::unique_ptr<Command>>;
+    using CmdMap = std::unordered_map<std::string, std::unique_ptr<dvlab::Command>>;
+    using CmdRegPair = std::pair<std::string, std::unique_ptr<dvlab::Command>>;
 
 public:
     /**
-     * @brief Construct a new Command Line Interface object
+     * @brief Construct a new dvlab::Command Line Interface object
      *
      * @param prompt the prompt of the CLI
      */
@@ -118,10 +120,10 @@ public:
     bool open_dofile(std::string const& filepath);
     void close_dofile();
 
-    bool add_command(Command cmd);
+    bool add_command(dvlab::Command cmd);
     bool add_alias(std::string const& alias, std::string const& replace_str);
     bool remove_alias(std::string const& alias);
-    Command* get_command(std::string const& cmd) const;
+    dvlab::Command* get_command(std::string const& cmd) const;
 
     CmdExecResult execute_one_line();
 
@@ -150,7 +152,7 @@ private:
     void _print_prompt() const;
 
     CmdExecResult _read_one_line(std::istream&);
-    std::pair<Command*, std::string> _parse_one_command_from_queue();
+    std::pair<dvlab::Command*, std::string> _parse_one_command_from_queue();
 
     enum class TabActionResult {
         autocomplete,
@@ -206,3 +208,7 @@ private:
 
     std::optional<jthread::jthread> _command_thread = std::nullopt;  // the current (ongoing) command
 };
+
+bool add_cli_common_cmds(dvlab::CommandLineInterface& cli);
+
+}  // namespace dvlab

@@ -19,16 +19,14 @@
 #include "util/text_format.hpp"
 #include "util/util.hpp"
 
-using namespace dvlab;
+namespace dvlab::argparse {
 
-namespace argparse {
-
-static constexpr auto section_header_styled = [](std::string const& str) -> std::string { return fmt::format("{}", fmt_ext::styled_if_ansi_supported(str, fmt::fg(fmt::terminal_color::bright_blue))); };
-static constexpr auto required_styled = [](std::string const& str) -> std::string { return fmt::format("{}", fmt_ext::styled_if_ansi_supported(str, fmt::fg(fmt::terminal_color::cyan))); };
-static constexpr auto metavar_styled = [](std::string const& str) -> std::string { return fmt::format("{}", fmt_ext::styled_if_ansi_supported(str, fmt::emphasis::bold)); };
-static constexpr auto option_styled = [](std::string const& str) -> std::string { return fmt::format("{}", fmt_ext::styled_if_ansi_supported(str, fmt::fg(fmt::terminal_color::yellow))); };
-static constexpr auto type_styled = [](std::string const& str) -> std::string { return fmt::format("{}", fmt_ext::styled_if_ansi_supported(str, fmt::fg(fmt::terminal_color::cyan) | fmt::emphasis::italic)); };
-static constexpr auto accent_styled = [](std::string const& str) -> std::string { return fmt::format("{}", fmt_ext::styled_if_ansi_supported(str, fmt::emphasis::bold | fmt::emphasis::underline)); };
+static constexpr auto section_header_styled = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::fg(fmt::terminal_color::bright_blue))); };
+static constexpr auto required_styled = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::fg(fmt::terminal_color::cyan))); };
+static constexpr auto metavar_styled = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::emphasis::bold)); };
+static constexpr auto option_styled = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::fg(fmt::terminal_color::yellow))); };
+static constexpr auto type_styled = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::fg(fmt::terminal_color::cyan) | fmt::emphasis::italic)); };
+static constexpr auto accent_styled = [](std::string const& str) -> std::string { return fmt::format("{}", dvlab::fmt_ext::styled_if_ansi_supported(str, fmt::emphasis::bold | fmt::emphasis::underline)); };
 
 namespace detail {
 
@@ -36,7 +34,7 @@ std::string styled_option_name_and_aliases(ArgumentParser parser, Argument const
     assert(arg.is_option());
 
     static auto const decorate = [](std::string const& str, size_t n_req) -> std::string {
-        if (utils::ansi_supported()) {
+        if (dvlab::utils::ansi_supported()) {
             std::string const mand = str.substr(0, n_req);
             std::string const rest = str.substr(n_req);
             return option_styled(accent_styled(mand)) + option_styled(rest);
@@ -69,7 +67,7 @@ std::string styled_option_name_and_aliases(ArgumentParser parser, Argument const
  */
 std::string styled_arg_name(ArgumentParser const& parser, Argument const& arg) {
     if (!arg.is_option()) return metavar_styled(arg.get_metavar());
-    if (utils::ansi_supported()) {
+    if (dvlab::utils::ansi_supported()) {
         std::string const mand = arg.get_name().substr(0, parser.get_arg_num_required_chars(arg.get_name()));
         std::string const rest = arg.get_name().substr(parser.get_arg_num_required_chars(arg.get_name()));
         return option_styled(accent_styled(mand)) + option_styled(rest);
@@ -84,7 +82,7 @@ std::string styled_arg_name(ArgumentParser const& parser, Argument const& arg) {
  * @return string
  */
 std::string styled_parser_name(ArgumentParser const& parser) {
-    if (utils::ansi_supported()) {
+    if (dvlab::utils::ansi_supported()) {
         std::string const mand = parser.get_name().substr(0, parser.get_num_required_chars());
         std::string const rest = parser.get_name().substr(parser.get_num_required_chars());
         return accent_styled(mand) + rest;
@@ -117,6 +115,7 @@ std::string get_syntax(ArgumentParser const& parser, Argument const& arg) {
         auto repeat_view = std::views::iota(0u, nargs.upper) | std::views::transform([&usage_string, &nargs](size_t i) { return (i < nargs.lower) ? usage_string : (option_styled("[") + usage_string + option_styled("]")); });
         ret = fmt::format("{}", fmt::join(repeat_view, " "));
     }
+
     if (arg.is_option()) {
         ret = styled_arg_name(parser, arg) + (ret.size() ? (" " + ret) : "");
     }
@@ -201,7 +200,6 @@ fort::utf8_table create_parser_help_table() {
  *
  */
 void ArgumentParser::print_usage() const {
-    using namespace fmt::literals;
     analyze_options();
 
     fmt::print("{} {}",
@@ -238,8 +236,6 @@ void ArgumentParser::print_usage() const {
  *
  */
 void ArgumentParser::print_summary() const {
-    using namespace std::string_literals;
-
     analyze_options();
 
     auto cmd_name = detail::styled_parser_name(*this);
@@ -327,4 +323,4 @@ void ArgumentParser::print_version() const {
     fmt::println("{}", _pimpl->config.version);
 }
 
-}  // namespace argparse
+}  // namespace dvlab::argparse

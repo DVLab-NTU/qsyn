@@ -9,10 +9,11 @@
 
 #include <span>
 #include <string>
+#include <valarray>
 
 #include "util/util.hpp"
 
-namespace argparse {
+namespace dvlab::argparse {
 
 template <>
 std::string type_string(int const& /*unused*/) { return "int"; }
@@ -45,11 +46,10 @@ std::string type_string(DummyArgType const& /*unused*/) { return "dummy"; }
 template <>
 bool parse_from_string(bool& val, std::string const& token) {
     using namespace std::string_literals;
-    using dvlab::str::to_lower_string;
-    if ("true"s.starts_with(to_lower_string(token))) {
+    if ("true"s.starts_with(dvlab::str::tolower_string(token))) {
         val = true;
         return true;
-    } else if ("false"s.starts_with(to_lower_string(token))) {
+    } else if ("false"s.starts_with(dvlab::str::tolower_string(token))) {
         val = false;
         return true;
     }
@@ -67,4 +67,4 @@ bool parse_from_string(DummyArgType& /*val*/, std::string const& /*token*/) {
     return true;
 }
 
-}  // namespace argparse
+}  // namespace dvlab::argparse

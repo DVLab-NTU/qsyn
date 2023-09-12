@@ -10,9 +10,7 @@
 #include "./rational.hpp"
 #include "argparse/arg_def.hpp"
 
-std::ostream& operator<<(std::ostream& os, Phase const& p) {
-    return os << p.get_print_string();
-}
+namespace dvlab {
 
 Phase Phase::operator+() const {
     return *this;
@@ -90,11 +88,17 @@ void Phase::normalize() {
     if (_rational > 1) _rational -= 2;
 }
 
-namespace argparse {
-template <>
-std::string type_string(Phase const& /*unused*/) { return "Phase"; }
-template <>
-bool parse_from_string(Phase& val, std::string const& token) {
-    return Phase::str_to_phase(token, val);
+std::ostream& operator<<(std::ostream& os, dvlab::Phase const& p) {
+    return os << p.get_print_string();
 }
-}  // namespace argparse
+
+}  // namespace dvlab
+
+namespace dvlab::argparse {
+template <>
+std::string type_string(dvlab::Phase const& /*unused*/) { return "Phase"; }
+template <>
+bool parse_from_string(dvlab::Phase& val, std::string const& token) {
+    return dvlab::Phase::str_to_phase(token, val);
+}
+}  // namespace dvlab::argparse

@@ -11,23 +11,32 @@
 #include <memory>
 
 #include "./scheduler.hpp"
-#include "device/device.hpp"
 #include "qcir/qcir.hpp"
+
+namespace qsyn {
+
+namespace qcir {
 
 class QCir;
 
+}
+
+namespace duostra {
+
 class Duostra {
 public:
+    using Device = qsyn::device::Device;
+    using Operation = qsyn::device::Operation;
     struct DuostraConfig {
         bool verifyResult = false;
         bool silent = false;
         bool useTqdm = true;
     };
-    Duostra(QCir* qcir, Device dev, DuostraConfig const& config = {.verifyResult = false, .silent = false, .useTqdm = true});
+    Duostra(qcir::QCir* qcir, Device dev, DuostraConfig const& config = {.verifyResult = false, .silent = false, .useTqdm = true});
     Duostra(std::vector<Operation> const& cir, size_t n_qubit, Device dev, DuostraConfig const& config = {.verifyResult = false, .silent = false, .useTqdm = true});
 
-    std::unique_ptr<QCir> const& get_physical_circuit() const { return _physical_circuit; }
-    std::unique_ptr<QCir>&& get_physical_circuit() { return std::move(_physical_circuit); }
+    std::unique_ptr<qcir::QCir> const& get_physical_circuit() const { return _physical_circuit; }
+    std::unique_ptr<qcir::QCir>&& get_physical_circuit() { return std::move(_physical_circuit); }
     std::vector<Operation> const& get_result() const { return _result; }
     std::vector<Operation> const& get_order() const { return _order; }
     Device get_device() const { return _device; }
@@ -40,8 +49,8 @@ public:
     void build_circuit_by_result();
 
 private:
-    QCir* _logical_circuit;
-    std::unique_ptr<QCir> _physical_circuit = std::make_unique<QCir>();
+    qcir::QCir* _logical_circuit;
+    std::unique_ptr<qcir::QCir> _physical_circuit = std::make_unique<qcir::QCir>();
     Device _device;
     bool _check;
     bool _tqdm;
@@ -59,3 +68,7 @@ std::string get_placer_type_str();
 size_t get_scheduler_type(std::string const&);
 size_t get_router_type(std::string const&);
 size_t get_placer_type(std::string const&);
+
+}  // namespace duostra
+
+}  // namespace qsyn

@@ -1,6 +1,6 @@
 /****************************************************************************
   PackageName  [ cli ]
-  Synopsis     [ Define the behavior on pressing tabs for CommandLineInterface ]
+  Synopsis     [ Define the behavior on pressing tabs for dvlab::CommandLineInterface ]
   Author       [ Design Verification Lab, Chia-Hsu Chuang ]
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -18,10 +18,17 @@
 #include "util/text_format.hpp"
 #include "util/util.hpp"
 
-using namespace std;
 namespace fs = std::filesystem;
 
-void CommandLineInterface::_on_tab_pressed() {
+namespace {
+bool string_case_insensitive_equal(std::string const& a, std::string const& b) {
+    return dvlab::str::tolower_string(a) == dvlab::str::tolower_string(b);
+}
+}  // namespace
+
+namespace dvlab {
+
+void dvlab::CommandLineInterface::_on_tab_pressed() {
     assert(_tab_press_count != 0);
     std::string str = _read_buffer.substr(0, _cursor_position);
     str = dvlab::str::strip_comments(str);
@@ -31,13 +38,13 @@ void CommandLineInterface::_on_tab_pressed() {
     assert(str.empty() || str[0] != ' ');
 
     // if we are at the first token, we should list all commands and aliases
-    bool listing_cmds = str.empty() || str.find_first_of(" =") == string::npos;
+    bool listing_cmds = str.empty() || str.find_first_of(" =") == std::string::npos;
     if (listing_cmds) {
         _match_identifiers(str);
         return;
     }
 
-    Command* cmd = get_command(str.substr(0, str.find_first_of(' ')) /* first word*/);
+    dvlab::Command* cmd = get_command(str.substr(0, str.find_first_of(' ')) /* first word*/);
 
     // [case 5] Singly matched on first tab
     if (cmd != nullptr && _tab_press_count == 1) {
@@ -64,7 +71,7 @@ void CommandLineInterface::_on_tab_pressed() {
     detail::beep();
 }
 
-CommandLineInterface::TabActionResult CommandLineInterface::_match_identifiers(std::string const& str) {
+dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match_identifiers(std::string const& str) {
     _tab_press_count = 0;
 
     auto matches = _identifiers.find_all_with_prefix(str);
@@ -93,17 +100,17 @@ CommandLineInterface::TabActionResult CommandLineInterface::_match_identifiers(s
     return TabActionResult::list_options;
 }
 
-CommandLineInterface::TabActionResult CommandLineInterface::_match_variables(std::string const& str) {
+dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match_variables(std::string const& str) {
     // if there is a complete variable names trailing the string, replace it with its values
-    static const regex var_matcher(R"((\$[\w]+$|\$\{[\w]+\}$))");
+    static const std::regex var_matcher(R"((\$[\w]+$|\$\{[\w]+\}$))");
     std::smatch matches;
 
     if (std::regex_search(str, matches, var_matcher) && matches.prefix().str().back() != '\\') {
-        string var = matches[0];
+        std::string var = matches[0];
         bool is_brace = (var[1] == '{');
-        string var_key = is_brace ? var.substr(2, var.size() - 3) : var.substr(1);
+        std::string var_key = is_brace ? var.substr(2, var.size() - 3) : var.substr(1);
         if (_variables.contains(var_key)) {
-            string val = _variables.at(var_key);
+            std::string val = _variables.at(var_key);
 
             size_t pos = _read_buffer.find(var);
             _move_cursor_to(_read_buffer.size());
@@ -122,15 +129,15 @@ CommandLineInterface::TabActionResult CommandLineInterface::_match_variables(std
     }
 
     // if there are incomplete variable name, tries to complete for the user
-    static const regex var_prefix_matcher(R"(\$\{?[\w]*$)");
+    static const std::regex var_prefix_matcher(R"(\$\{?[\w]*$)");
 
     if (!std::regex_search(str, matches, var_prefix_matcher) || matches.prefix().str().back() == '\\') {
         return TabActionResult::no_op;
     }
 
-    string var_prefix = matches[0];
+    std::string var_prefix = matches[0];
     bool is_brace = (var_prefix[1] == '{');
-    string var_key = var_prefix.substr(is_brace ? 2 : 1);
+    std::string var_key = var_prefix.substr(is_brace ? 2 : 1);
 
     std::vector<std::string> matching_variables;
 
@@ -151,7 +158,7 @@ CommandLineInterface::TabActionResult CommandLineInterface::_match_variables(std
         return TabActionResult::autocomplete;
     }
 
-    std::ranges::sort(matching_variables, [](std::string const& a, std::string const& b) { return dvlab::str::to_lower_string(a) < dvlab::str::to_lower_string(b); });
+    std::ranges::sort(matching_variables, string_case_insensitive_equal);
 
     _print_as_table(matching_variables);
 
@@ -160,9 +167,9 @@ CommandLineInterface::TabActionResult CommandLineInterface::_match_variables(std
     return TabActionResult::list_options;
 }
 
-CommandLineInterface::TabActionResult CommandLineInterface::_match_files(std::string const& str) {
+dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match_files(std::string const& str) {
     std::optional<std::string> search_string;
-    string incomplete_quotes;
+    std::string incomplete_quotes;
     if (search_string = dvlab::str::strip_quotes(str); search_string.has_value()) {
         incomplete_quotes = "";
     } else if (search_string = dvlab::str::strip_quotes(str + "\""); search_string.has_value()) {
@@ -178,12 +185,12 @@ CommandLineInterface::TabActionResult CommandLineInterface::_match_files(std::st
     size_t last_space_pos = std::invoke(
         [&search_string]() -> size_t {
             size_t pos = search_string->find_last_of(" =");
-            while (pos != string::npos && (*search_string)[pos - 1] == '\\') {
+            while (pos != std::string::npos && (*search_string)[pos - 1] == '\\') {
                 pos = search_string->find_last_of(" =", pos - 2);
             }
             return pos;
         });
-    assert(last_space_pos != string::npos);  // there must be a ' ' or '=' in cmd
+    assert(last_space_pos != std::string::npos);  // there must be a ' ' or '=' in cmd
 
     auto filepath = fs::path(search_string->substr(last_space_pos + 1));
     auto dirname = filepath.parent_path();
@@ -200,7 +207,7 @@ CommandLineInterface::TabActionResult CommandLineInterface::_match_files(std::st
 
     filepath = dirname / prefix;
 
-    vector<string> files = _get_file_matches(filepath);
+    std::vector<std::string> files = _get_file_matches(filepath);
 
     // no matched file
     if (files.size() == 0) {
@@ -249,8 +256,8 @@ CommandLineInterface::TabActionResult CommandLineInterface::_match_files(std::st
  * @param path
  * @return vector<string>
  */
-vector<string> CommandLineInterface::_get_file_matches(fs::path const& path) const {
-    vector<string> files;
+std::vector<std::string> dvlab::CommandLineInterface::_get_file_matches(fs::path const& path) const {
+    std::vector<std::string> files;
 
     auto dirname = path.parent_path().empty() ? "." : path.parent_path();
     auto prefix = path.filename().string();
@@ -269,13 +276,13 @@ vector<string> CommandLineInterface::_get_file_matches(fs::path const& path) con
     }
 
     if (prefix.back() == '\\') {
-        std::erase_if(files, [this, &prefix](string const& file) { return !_is_special_char(file[prefix.size()]); });
+        std::erase_if(files, [this, &prefix](std::string const& file) { return !_is_special_char(file[prefix.size()]); });
     }
 
     // don't show hidden files
     std::erase_if(files, [](std::string const& file) { return file.starts_with("."); });
 
-    std::ranges::sort(files, [](std::string const& a, std::string const& b) { return dvlab::str::to_lower_string(a) < dvlab::str::to_lower_string(b); });
+    std::ranges::sort(files, string_case_insensitive_equal);
 
     return files;
 }
@@ -289,7 +296,7 @@ vector<string> CommandLineInterface::_get_file_matches(fs::path const& path) con
  * @return true if able to autocomplete
  * @return false if not
  */
-bool CommandLineInterface::_autocomplete(std::string prefix_copy, std::vector<std::string> const& strs, bool in_quotes) {
+bool dvlab::CommandLineInterface::_autocomplete(std::string prefix_copy, std::vector<std::string> const& strs, bool in_quotes) {
     if (strs.size() == 1 && prefix_copy == strs[0]) return true;  // edge case: completing a file/dir name that is already complete
     bool trailing_backslash = false;
     if (prefix_copy.back() == '\\') {
@@ -301,7 +308,7 @@ bool CommandLineInterface::_autocomplete(std::string prefix_copy, std::vector<st
     size_t shortest_file_len = std::ranges::min(
         strs | std::views::transform([](std::string const& str) { return str.size(); }));
 
-    string autocomplete_str = "";
+    std::string autocomplete_str = "";
     for (size_t i = prefix_copy.size(); i < shortest_file_len; ++i) {
         if (std::ranges::adjacent_find(strs, [&i](std::string const& a, std::string const& b) {
                 return a[i] != b[i];
@@ -331,7 +338,7 @@ bool CommandLineInterface::_autocomplete(std::string prefix_copy, std::vector<st
     return autocomplete_str.size() > 0;
 }
 
-void CommandLineInterface::_print_as_table(std::vector<std::string> words) const {
+void dvlab::CommandLineInterface::_print_as_table(std::vector<std::string> words) const {
     // calculate an lower bound to the spacing first
     fort::utf8_table table;
     table.set_border_style(FT_EMPTY_STYLE);
@@ -361,3 +368,5 @@ void CommandLineInterface::_print_as_table(std::vector<std::string> words) const
     }
     fmt::print("\n{}", table.to_string());
 }
+
+}  // namespace dvlab

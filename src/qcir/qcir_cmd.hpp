@@ -7,9 +7,16 @@
 
 #pragma once
 
+#include "./qcir_mgr.hpp"
 #include "argparse/argparse.hpp"
+#include "cli/cli.hpp"
 
-bool valid_qcir_id(size_t const& id);
-bool valid_qcir_gate_id(size_t const& id);
-bool valid_qcir_qubit_id(size_t const& id);
-bool valid_decomposition_mode(size_t const& val);
+namespace qsyn::qcir {
+
+std::function<bool(size_t const&)> valid_qcir_id(QCirMgr const& qcir_mgr);
+std::function<bool(size_t const&)> valid_qcir_gate_id(QCirMgr const& qcir_mgr);
+std::function<bool(size_t const&)> valid_qcir_qubit_id(QCirMgr const& qcir_mgr);
+
+bool add_qcir_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr);
+
+}  // namespace qsyn::qcir

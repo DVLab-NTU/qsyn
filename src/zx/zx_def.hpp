@@ -16,10 +16,13 @@
 #include <unordered_set>
 #include <vector>
 
+#include "qsyn/qsyn_type.hpp"
 #include "util/ordered_hashmap.hpp"
 #include "util/ordered_hashset.hpp"
 #include "util/phase.hpp"
 #include "util/text_format.hpp"
+
+namespace qsyn::zx {
 
 class ZXVertex;
 class ZXGraph;
@@ -40,7 +43,7 @@ enum class EdgeType {
 //  Define types
 //------------------------------------------------------------------------
 
-using ZXVertexList = ordered_hashset<ZXVertex*>;
+using ZXVertexList = dvlab::utils::ordered_hashset<ZXVertex*>;
 using EdgePair = std::pair<std::pair<ZXVertex*, ZXVertex*>, EdgeType>;
 using NeighborPair = std::pair<ZXVertex*, EdgeType>;
 
@@ -64,7 +67,7 @@ struct EdgePairHash {
                (std::hash<EdgeType>()(k.second) << 1);
     }
 };
-using Neighbors = ordered_hashset<NeighborPair, NeighborPairHash>;
+using Neighbors = dvlab::utils::ordered_hashset<NeighborPair, NeighborPairHash>;
 
 struct ZXCutHash {
     size_t operator()(ZXCut const& cut) const {
@@ -88,7 +91,7 @@ struct ZXCutEqual {
     }
 };
 
-using ZXCutSet = ordered_hashset<ZXCut, ZXCutHash, ZXCutEqual>;
+using ZXCutSet = dvlab::utils::ordered_hashset<ZXCut, ZXCutHash, ZXCutEqual>;
 
 namespace detail {
 
@@ -100,7 +103,7 @@ struct VertexInfo {
     Phase phase;
 };
 
-using StorageType = ordered_hashmap<size_t, VertexInfo>;
+using StorageType = dvlab::utils::ordered_hashmap<size_t, VertexInfo>;
 
 }  // namespace detail
 
@@ -108,15 +111,18 @@ using StorageType = ordered_hashmap<size_t, VertexInfo>;
 //   Define hashes
 //------------------------------------------------------------------------
 
-std::ostream& operator<<(std::ostream& stream, VertexType const& vt);
-std::ostream& operator<<(std::ostream& stream, EdgeType const& et);
+}  // namespace qsyn::zx
+
+std::ostream& operator<<(std::ostream& stream, qsyn::zx::VertexType const& vt);
+std::ostream& operator<<(std::ostream& stream, qsyn::zx::EdgeType const& et);
 
 template <>
-struct fmt::formatter<VertexType> {
+struct fmt::formatter<qsyn::zx::VertexType> {
+    using VertexType = qsyn::zx::VertexType;
     constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
         return ctx.begin();
     }
-    auto format(VertexType const& vt, format_context& ctx) const -> format_context::iterator {
+    auto format(qsyn::zx::VertexType const& vt, format_context& ctx) const -> format_context::iterator {
         using namespace dvlab;
         switch (vt) {
             case VertexType::x:
@@ -133,7 +139,8 @@ struct fmt::formatter<VertexType> {
 };
 
 template <>
-struct fmt::formatter<EdgeType> {
+struct fmt::formatter<qsyn::zx::EdgeType> {
+    using EdgeType = qsyn::zx::EdgeType;
     constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
         return ctx.begin();
     }

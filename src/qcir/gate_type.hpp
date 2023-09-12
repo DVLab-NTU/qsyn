@@ -9,6 +9,8 @@
 
 #include <iosfwd>
 
+namespace qsyn::qcir {
+
 enum class GateType {
     id,
     // NOTE - Multi-control rotate
@@ -45,3 +47,5 @@ enum class GateType {
 };
 
 std::ostream& operator<<(std::ostream& stream, GateType const& type);
+
+}  // namespace qsyn::qcir

@@ -9,23 +9,20 @@
 
 #include <cassert>
 
-using namespace std;
-
 namespace dvlab {
 
 namespace utils {
 
-bool Trie::insert(string const& word) {
+bool Trie::insert(std::string_view word) {
     auto itr = _root.get();
 
     assert(itr != nullptr);
 
     for (auto& ch : word) {
-        size_t idx = ch;
-        if (!itr->children.contains(idx)) {
-            itr->children.emplace(idx, make_unique<TrieNode>());
+        if (!itr->children.contains(ch)) {
+            itr->children.emplace(ch, std::make_unique<TrieNode>());
         }
-        itr = itr->children.at(idx).get();
+        itr = itr->children.at(ch).get();
         itr->frequency++;
     }
     if (itr->is_word) return false;
@@ -34,14 +31,13 @@ bool Trie::insert(string const& word) {
     return true;
 }
 
-bool Trie::erase(std::string const& word) {
+bool Trie::erase(std::string_view word) {
     if (!contains(word)) return false;
     auto itr = _root.get();
 
     assert(itr != nullptr);
     for (auto& ch : word) {
-        size_t idx = ch;
-        itr = itr->children.at(idx).get();
+        itr = itr->children.at(ch).get();
         assert(itr != nullptr);
         itr->frequency--;
     }
@@ -53,27 +49,25 @@ bool Trie::erase(std::string const& word) {
     itr = _root.get();
 
     for (auto& ch : word) {
-        size_t idx = ch;
-        if (itr->children.at(idx)->frequency == 0) {
-            itr->children.erase(idx);
+        if (itr->children.at(ch)->frequency == 0) {
+            itr->children.erase(ch);
             break;
         }
-        itr = itr->children.at(idx).get();
+        itr = itr->children.at(ch).get();
         assert(itr != nullptr);
     }
 
     return true;
 }
 
-bool Trie::contains(std::string const& word) const {
+bool Trie::contains(std::string_view word) const {
     auto itr = _root.get();
 
     assert(itr != nullptr);
 
     for (auto& ch : word) {
-        size_t idx = ch;
-        if (!itr->children.contains(idx)) return false;
-        itr = itr->children.at(idx).get();
+        if (!itr->children.contains(ch)) return false;
+        itr = itr->children.at(ch).get();
         assert(itr != nullptr);
     }
 
@@ -86,7 +80,7 @@ bool Trie::contains(std::string const& word) const {
  * @param word
  * @return string
  */
-string Trie::shortest_unique_prefix(string const& word) const {
+std::string Trie::shortest_unique_prefix(std::string_view word) const {
     auto itr = _root.get();
 
     assert(itr != nullptr);
@@ -94,47 +88,44 @@ string Trie::shortest_unique_prefix(string const& word) const {
     size_t pos = 0;
     for (auto& ch : word) {
         pos++;
-        size_t idx = ch;
-        if (!itr->children.contains(idx)) break;
-        itr = itr->children.at(idx).get();
+        if (!itr->children.contains(ch)) break;
+        itr = itr->children.at(ch).get();
         assert(itr != nullptr);
         if (itr->frequency == 1) break;
     }
 
-    return word.substr(0, pos);
+    return std::string{word.begin(), word.begin() + pos};
 }
 
-size_t Trie::frequency(string const& prefix) const {
+size_t Trie::frequency(std::string_view prefix) const {
     auto itr = _root.get();
 
     assert(itr != nullptr);
 
     for (auto& ch : prefix) {
-        size_t idx = ch;
-        if (!itr->children.contains(idx)) return 0;
-        itr = itr->children.at(idx).get();
+        if (!itr->children.contains(ch)) return 0;
+        itr = itr->children.at(ch).get();
         assert(itr != nullptr);
     }
 
     return itr->frequency;
 }
 
-optional<string> Trie::find_with_prefix(string const& prefix) const {
+std::optional<std::string> Trie::find_with_prefix(std::string_view prefix) const {
     auto itr = _root.get();
 
     assert(itr != nullptr);
-    string ret_str = "";
+    std::string ret_str = "";
 
     for (auto& ch : prefix) {
-        size_t idx = ch;
-        if (!itr->children.contains(idx)) return nullopt;
-        itr = itr->children.at(idx).get();
+        if (!itr->children.contains(ch)) return std::nullopt;
+        itr = itr->children.at(ch).get();
         assert(itr != nullptr);
         ret_str.push_back(ch);
     }
 
     if (itr->frequency > 1) {
-        return (itr->is_word) ? std::make_optional<string>(ret_str) : nullopt;
+        return (itr->is_word) ? std::make_optional<std::string>(ret_str) : std::nullopt;
     }
 
     while (!itr->is_word) {
@@ -146,9 +137,9 @@ optional<string> Trie::find_with_prefix(string const& prefix) const {
     return ret_str;
 }
 
-namespace detail {
+namespace {
 
-void find_all_with_prefix_helper(TrieNode const* itr, vector<string>& ret, string& return_str) {
+void find_all_with_prefix_helper(TrieNode const* itr, std::vector<std::string>& ret, std::string& return_str) {
     if (itr->is_word) ret.push_back(return_str);
 
 #ifndef NDEBUG
@@ -164,25 +155,24 @@ void find_all_with_prefix_helper(TrieNode const* itr, vector<string>& ret, strin
 #endif
 }
 
-}  // namespace detail
+}  // namespace
 
-vector<string> Trie::find_all_with_prefix(string const& prefix) const {
+std::vector<std::string> Trie::find_all_with_prefix(std::string_view prefix) const {
     auto itr = _root.get();
 
     assert(itr != nullptr);
-    string ret_str = "";
+    std::string ret_str = "";
 
     for (auto& ch : prefix) {
-        size_t idx = ch;
-        if (!itr->children.contains(idx)) return {};
-        itr = itr->children.at(idx).get();
+        if (!itr->children.contains(ch)) return {};
+        itr = itr->children.at(ch).get();
         assert(itr != nullptr);
         ret_str.push_back(ch);
     }
 
-    vector<string> ret;
+    std::vector<std::string> ret;
 
-    detail::find_all_with_prefix_helper(itr, ret, ret_str);
+    find_all_with_prefix_helper(itr, ret, ret_str);
 
     return ret;
 }

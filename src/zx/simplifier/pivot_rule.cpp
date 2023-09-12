@@ -7,6 +7,8 @@
 
 #include "./zx_rules_template.hpp"
 
+using namespace qsyn::zx;
+
 using MatchType = PivotRule::MatchType;
 
 /**

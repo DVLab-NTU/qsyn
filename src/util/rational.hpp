@@ -19,6 +19,8 @@
 // This class implicitly convert floating points to rational approximation when performing arithmetic operations.
 //--- Rational Numbers ----------------------------------
 
+namespace dvlab {
+
 class Rational {
 public:
     // Default constructor for two integral type
@@ -81,16 +83,6 @@ private:
     static Rational _mediant(Rational const& lhs, Rational const& rhs);
 };
 
-template <>
-struct fmt::formatter<Rational> {
-    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
-
-    template <typename FormatContext>
-    auto format(Rational const& q, FormatContext& ctx) {
-        return (q.denominator() == 1) ? fmt::format_to(ctx.out(), "{}", q.numerator()) : fmt::format_to(ctx.out(), "{}/{}", q.numerator(), q.denominator());
-    }
-};
-
 template <class T>
 requires std::floating_point<T>
 Rational Rational::to_rational(T f, T eps) {
@@ -123,3 +115,15 @@ Rational Rational::to_rational(T f, T eps) {
         med = _mediant(lower, upper);
     }
 }
+
+}  // namespace dvlab
+
+template <>
+struct fmt::formatter<dvlab::Rational> {
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(dvlab::Rational const& q, FormatContext& ctx) {
+        return (q.denominator() == 1) ? fmt::format_to(ctx.out(), "{}", q.numerator()) : fmt::format_to(ctx.out(), "{}/{}", q.numerator(), q.denominator());
+    }
+};

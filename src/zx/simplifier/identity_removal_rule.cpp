@@ -8,6 +8,8 @@
 #include "./zx_rules_template.hpp"
 #include "zx/zxgraph.hpp"
 
+using namespace qsyn::zx;
+
 using MatchType = IdentityRemovalRule::MatchType;
 
 /**
@@ -57,7 +59,7 @@ void IdentityRemovalRule::apply(ZXGraph& graph, std::vector<MatchType> const& ma
         ZXVertex* n1 = std::get<2>(match);
         EdgeType edge_type = std::get<3>(match);
 
-        op.verticesToRemove.emplace_back(v);
+        op.vertices_to_remove.emplace_back(v);
         if (n0 == n1) {
             n0->set_phase(n0->get_phase() + Phase(1));
             continue;

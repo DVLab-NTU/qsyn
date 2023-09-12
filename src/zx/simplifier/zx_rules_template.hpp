@@ -11,11 +11,15 @@
 
 #include "../zxgraph.hpp"
 
+namespace qsyn {
+
+namespace zx {
+
 struct ZXOperation {
     std::vector<ZXVertex*> verticesToAdd;
     std::vector<EdgePair> edgesToAdd;
     std::vector<EdgePair> edgesToRemove;
-    std::vector<ZXVertex*> verticesToRemove;
+    std::vector<ZXVertex*> vertices_to_remove;
 };
 
 class ZXRuleBase {
@@ -35,7 +39,7 @@ protected:
             graph.add_edge(v0, v1, edge_type);
         }
         graph.remove_edges(op.edgesToRemove);
-        graph.remove_vertices(op.verticesToRemove);
+        graph.remove_vertices(op.vertices_to_remove);
 
         graph.remove_isolated_vertices();
     }
@@ -198,3 +202,7 @@ public:
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
     std::vector<ZXVertex*> flatten_vertices(MatchType match) const override { return {match}; }
 };
+
+}  // namespace zx
+
+}  // namespace qsyn

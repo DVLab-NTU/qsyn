@@ -5,30 +5,25 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include "./gflow_cmd.hpp"
+
 #include <cstddef>
 #include <string>
 
 #include "./gflow.hpp"
 #include "cli/cli.hpp"
 #include "zx/zx_cmd.hpp"
-#include "zx/zxgraph_mgr.hpp"
+#include "zx/zxgraph.hpp"
 
-using namespace std;
-using namespace argparse;
+using namespace dvlab::argparse;
+using dvlab::CmdExecResult;
+using dvlab::Command;
 
-extern ZXGraphMgr ZXGRAPH_MGR;
+namespace qsyn::zx {
 
-Command zxgraph_gflow_cmd();
+dvlab::Command zxgraph_gflow_cmd();
 
-bool add_zx_gflow_cmds() {
-    if (!CLI.add_command(zxgraph_gflow_cmd())) {
-        cerr << "Registering \"gflow\" commands fails... exiting" << endl;
-        return false;
-    }
-    return true;
-}
-
-Command zxgraph_gflow_cmd() {
+Command zxgraph_gflow_cmd(ZXGraphMgr const& zxgraph_mgr) {
     return {"zxggflow",
             [](ArgumentParser& parser) {
                 parser.description("calculate and print the generalized flow of a ZXGraph");
@@ -56,9 +51,9 @@ Command zxgraph_gflow_cmd() {
                     .action(store_true)
                     .help("force each GFlow level to be an independent set");
             },
-            [](ArgumentParser const& parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
-                GFlow gflow(ZXGRAPH_MGR.get());
+            [&](ArgumentParser const& parser) {
+                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                GFlow gflow(zxgraph_mgr.get());
 
                 gflow.do_extended_gflow(parser.get<bool>("-extended"));
                 gflow.do_independent_layers(parser.get<bool>("-independent-set"));
@@ -79,3 +74,13 @@ Command zxgraph_gflow_cmd() {
                 return CmdExecResult::done;
             }};
 }
+
+bool add_zx_gflow_cmds(dvlab::CommandLineInterface& cli, ZXGraphMgr& zxgraph_mgr) {
+    if (!cli.add_command(zxgraph_gflow_cmd(zxgraph_mgr))) {
+        std::cerr << "Registering \"gflow\" commands fails... exiting" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+}  // namespace qsyn::zx

@@ -167,7 +167,7 @@ qsyn> qccp -q
 Q 0  - h( 0)-
 
 qsyn> qcga cx 0 1
-[Error] Qubit ID 1 does not exist!!
+Error: Qubit ID 1 does not exist!!
 
 qsyn> qcba 3
 

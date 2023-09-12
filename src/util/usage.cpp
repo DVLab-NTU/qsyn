@@ -38,7 +38,7 @@ double Usage::_check_memory() const {
 #ifdef __APPLE__
         return usage.ru_maxrss / double(1 << 20);  // bytes // NOLINT(cppcoreguidelines-pro-type-union-access) : conform to POSIX
 #else
-        return usage.ru_maxrss / double(1 << 10);  // KBytes // NOLINT(cppcoreguidelines-pro-type-union-access) : conform to POSIX
+        return static_cast<double>(usage.ru_maxrss) / double(1 << 10);  // KBytes // NOLINT(cppcoreguidelines-pro-type-union-access) : conform to POSIX
 #endif
     else
         return 0;
@@ -46,7 +46,7 @@ double Usage::_check_memory() const {
 double Usage::_check_tick() const {
     tms buffer{};
     times(&buffer);
-    return buffer.tms_utime;
+    return static_cast<double>(buffer.tms_utime);
 }
 void Usage::_set_memory_usage() { _current_memory = _check_memory() - _initial_memory; }
 void Usage::_set_time_usage() {

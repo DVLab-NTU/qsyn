@@ -14,8 +14,9 @@
 #include "./qcir_qubit.hpp"
 #include "fmt/core.h"
 
-using namespace std;
 extern size_t VERBOSE;
+
+namespace qsyn::qcir {
 
 /**
  * @brief Print QCir Gates
@@ -23,7 +24,7 @@ extern size_t VERBOSE;
 void QCir::print_gates() {
     if (_dirty)
         update_gate_time();
-    cout << "Listed by gate ID" << endl;
+    std::cout << "Listed by gate ID" << std::endl;
     for (size_t i = 0; i < _qgates.size(); i++) {
         _qgates[i]->print_gate();
     }
@@ -34,7 +35,7 @@ void QCir::print_gates() {
  *
  */
 void QCir::print_depth() {
-    cout << "Depth       : " << get_depth() << endl;
+    std::cout << "Depth       : " << get_depth() << std::endl;
 }
 
 /**
@@ -77,12 +78,14 @@ bool QCir::print_gate_info(size_t id, bool show_time) {
         get_gate(id)->print_gate_info(show_time);
         return true;
     } else {
-        cerr << "Error: id " << id << " not found!!" << endl;
+        std::cerr << "Error: id " << id << " not found!!" << std::endl;
         return false;
     }
 }
 
 void QCir::print_qcir_info() {
-    vector<int> info = count_gates(false, false);
+    std::vector<int> info = count_gates(false, false);
     fmt::println("QCir ({} qubits, {} gates, {} 2-qubits gates, {} T-gates, {} depths)", _qubits.size(), _qgates.size(), info[1], info[2], get_depth());
 }
+
+}  // namespace qsyn::qcir

@@ -16,6 +16,8 @@
 
 extern dvlab::Logger LOGGER;
 
+namespace qsyn::qcir {
+
 void Optimizer::_permute_gates(QCirGate* gate) {
     auto qubits = gate->get_qubits();
 
@@ -79,7 +81,7 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
         _statistics.FUSE_PHASE++;
         _zs.erase(qubit);
         if (gate->get_type() == GateType::rz || gate->get_type() == GateType::p) {
-            gate->set_phase(gate->get_phase() + Phase(1));
+            gate->set_phase(gate->get_phase() + dvlab::Phase(1));
         } else if (gate->get_type() == GateType::z) {
             return;
         } else {
@@ -87,11 +89,11 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
             QCirGate* temp = new PGate(_gate_count);
             _gate_count++;
             temp->add_qubit(qubit, true);
-            temp->set_phase(gate->get_phase() + Phase(1));
+            temp->set_phase(gate->get_phase() + dvlab::Phase(1));
             gate = temp;
         }
     }
-    if (gate->get_phase() == Phase(0)) {
+    if (gate->get_phase() == dvlab::Phase(0)) {
         LOGGER.trace("Cancel with previous RZ");
         return;
     }
@@ -99,7 +101,7 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
     if (_xs.contains(qubit)) {
         gate->set_phase(-1 * (gate->get_phase()));
     }
-    if (gate->get_phase() == Phase(1) || gate->get_type() == GateType::z) {
+    if (gate->get_phase() == dvlab::Phase(1) || gate->get_type() == GateType::z) {
         _toggle_element(GateType::z, qubit);
         return;
     }
@@ -111,13 +113,13 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
     if (_availty[qubit] == false && available != nullptr) {
         std::erase(_available[qubit], available);
         std::erase(_gates[qubit], available);
-        Phase ph = available->get_phase() + gate->get_phase();
+        dvlab::Phase ph = available->get_phase() + gate->get_phase();
         _statistics.FUSE_PHASE++;
-        if (ph == Phase(1)) {
+        if (ph == dvlab::Phase(1)) {
             _toggle_element(GateType::z, qubit);
             return;
         }
-        if (ph != Phase(0)) {
+        if (ph != dvlab::Phase(0)) {
             _add_rotation_gate(qubit, ph, GateType::p);
         }
     } else {
@@ -183,3 +185,5 @@ void Optimizer::_match_cxs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
         _add_cx(control_qubit, target_qubit, do_swap);
     }
 }
+
+}  // namespace qsyn::qcir
