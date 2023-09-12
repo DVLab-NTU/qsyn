@@ -50,7 +50,7 @@ double Usage::_check_tick() const {
 }
 void Usage::_set_memory_usage() { _current_memory = _check_memory() - _initial_memory; }
 void Usage::_set_time_usage() {
-    double this_tick = _check_tick();
+    double const this_tick = _check_tick();
     _period_used_time = (this_tick - _current_tick) / double(sysconf(_SC_CLK_TCK));
     _total_used_time += _period_used_time;
     _current_tick = this_tick;

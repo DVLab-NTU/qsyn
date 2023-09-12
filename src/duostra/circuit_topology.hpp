@@ -22,8 +22,11 @@
 class Gate {
 public:
     Gate(size_t id, GateType type, Phase ph, std::tuple<size_t, size_t> qs);
+    ~Gate() = default;
     Gate(Gate const& other) = delete;
-    Gate(Gate&& other);
+    Gate& operator=(Gate const& other) = delete;
+    Gate(Gate&& other) noexcept = default;
+    Gate& operator=(Gate&& other) noexcept = default;
 
     size_t get_id() const { return _id; }
     std::tuple<size_t, size_t> get_qubits() const { return _qubits; }
@@ -55,9 +58,11 @@ private:
 class DependencyGraph {
 public:
     DependencyGraph(size_t n, std::vector<Gate>&& gates) : _num_qubits(n), _gates(std::move(gates)) {}
+    ~DependencyGraph() = default;
     DependencyGraph(DependencyGraph const& other) = delete;
-    DependencyGraph(DependencyGraph&& other)
-        : _num_qubits(other._num_qubits), _gates(std::move(other._gates)) {}
+    DependencyGraph& operator=(DependencyGraph const& other) = delete;
+    DependencyGraph(DependencyGraph&& other) = default;
+    DependencyGraph& operator=(DependencyGraph&& other) = default;
 
     std::vector<Gate> const& get_gates() const { return _gates; }
     Gate const& get_gate(size_t idx) const { return _gates[idx]; }
@@ -70,10 +75,7 @@ private:
 
 class CircuitTopology {
 public:
-    CircuitTopology(std::shared_ptr<DependencyGraph>);
-    CircuitTopology(CircuitTopology const& other);
-    CircuitTopology(CircuitTopology&& other);
-    ~CircuitTopology() {}
+    CircuitTopology(std::shared_ptr<DependencyGraph> const&);
 
     std::unique_ptr<CircuitTopology> clone() const;
 

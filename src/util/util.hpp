@@ -47,6 +47,10 @@ public:
     TqdmWrapper(size_t total, bool = true);
     TqdmWrapper(int total, bool = true);
     ~TqdmWrapper();
+    TqdmWrapper(TqdmWrapper const&) = delete;
+    TqdmWrapper& operator=(TqdmWrapper const&) = delete;
+    TqdmWrapper(TqdmWrapper&&) noexcept = default;
+    TqdmWrapper& operator=(TqdmWrapper&&) noexcept = default;
 
     size_t idx() const { return _counter; }
     bool done() const { return _counter == _total; }

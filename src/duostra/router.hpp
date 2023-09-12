@@ -19,9 +19,6 @@ class AStarNode {
 public:
     friend class AStarComp;
     AStarNode(size_t, size_t, bool);
-    AStarNode(AStarNode const&);
-
-    AStarNode& operator=(AStarNode const&);
 
     bool get_source() const { return _source; }
     size_t get_id() const { return _id; }
@@ -43,9 +40,7 @@ public:
 class Router {
 public:
     using PriorityQueue = std::priority_queue<AStarNode, std::vector<AStarNode>, AStarComp>;
-    Router(Device&&, std::string const&, bool) noexcept;
-    Router(Router const&) noexcept;
-    Router(Router&&) noexcept;
+    Router(Device&&, std::string const&, bool);
 
     std::unique_ptr<Router> clone() const;
 

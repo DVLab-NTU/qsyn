@@ -293,7 +293,7 @@ string CommandLineInterface::_replace_variable_keys_with_values(string const& st
 
     std::vector<std::tuple<size_t, size_t, string>> to_replace;
 
-    for (auto re : {var_without_braces, var_with_braces}) {
+    for (auto const& re : {var_without_braces, var_with_braces}) {
         std::smatch matches;
         std::regex_search(str, matches, re);
         for (size_t i = 0; i < matches.size(); ++i) {
@@ -343,8 +343,6 @@ string CommandLineInterface::_replace_variable_keys_with_values(string const& st
  */
 Command* CommandLineInterface::get_command(string const& cmd) const {
     Command* e = nullptr;
-
-    std::string copy = cmd;
 
     auto match = _identifiers.find_with_prefix(cmd);
     if (match.has_value()) {

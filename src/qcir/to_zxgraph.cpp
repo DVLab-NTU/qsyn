@@ -121,7 +121,7 @@ void create_multi_control_p_gate_gadgets(ZXGraph& g, vector<ZXVertex*> const& ve
     }
 }
 
-ZXGraph create_mcr_zx_form(vector<QubitInfo> qubits, Phase const& phase, RotationAxis ax) {
+ZXGraph create_mcr_zx_form(vector<QubitInfo> const& qubits, Phase const& phase, RotationAxis ax) {
     ZXGraph g;
     Phase gadget_phase = detail::get_gadget_phase(phase, qubits.size());
 
@@ -132,7 +132,7 @@ ZXGraph create_mcr_zx_form(vector<QubitInfo> qubits, Phase const& phase, Rotatio
     return g;
 }
 
-ZXGraph create_mcp_zx_form(vector<QubitInfo> qubits, Phase const& phase, RotationAxis ax) {
+ZXGraph create_mcp_zx_form(vector<QubitInfo> const& qubits, Phase const& phase, RotationAxis ax) {
     ZXGraph g;
     Phase gadget_phase = detail::get_gadget_phase(phase, qubits.size());
 

@@ -54,28 +54,6 @@ GreedyConf::GreedyConf()
 // SECTION - Class GreedyScheduler Member Functions
 
 /**
- * @brief Construct a new Greedy Scheduler:: Greedy Scheduler object
- *
- * @param topo
- * @param tqdm
- */
-GreedyScheduler::GreedyScheduler(unique_ptr<CircuitTopology> topo, bool tqdm) : BaseScheduler(std::move(topo), tqdm) {}
-
-/**
- * @brief Construct a new Greedy Scheduler:: Greedy Scheduler object
- *
- * @param other
- */
-GreedyScheduler::GreedyScheduler(GreedyScheduler const& other) : BaseScheduler(other), _conf(other._conf) {}
-
-/**
- * @brief Construct a new Greedy Scheduler:: Greedy Scheduler object
- *
- * @param other
- */
-GreedyScheduler::GreedyScheduler(GreedyScheduler&& other) : BaseScheduler(std::move(other)), _conf(other._conf) {}
-
-/**
  * @brief Get scheduler
  *
  * @return unique_ptr<BaseScheduler>
@@ -92,8 +70,8 @@ unique_ptr<BaseScheduler> GreedyScheduler::clone() const {
  */
 Device GreedyScheduler::_assign_gates(unique_ptr<Router> router) {
     [[maybe_unused]] size_t count = 0;
-    auto topo_wrap = TopologyCandidate(*_circuit_topology, _conf._candidates);
-    for (dvlab::TqdmWrapper bar{_circuit_topology->get_num_gates(), _tqdm};
+    auto topo_wrap = TopologyCandidate(_circuit_topology, _conf._candidates);
+    for (dvlab::TqdmWrapper bar{_circuit_topology.get_num_gates(), _tqdm};
          !topo_wrap.get_available_gates().empty(); ++bar) {
         if (stop_requested()) {
             return router->get_device();
@@ -110,7 +88,7 @@ Device GreedyScheduler::_assign_gates(unique_ptr<Router> router) {
 
         ++count;
     }
-    assert(count == _circuit_topology->get_num_gates());
+    assert(count == _circuit_topology.get_num_gates());
     return router->get_device();
 }
 
@@ -131,7 +109,7 @@ size_t GreedyScheduler::greedy_fallback(Router& router,
     vector<size_t> cost_list(waitlist.size(), 0);
 
     for (size_t i = 0; i < waitlist.size(); ++i) {
-        auto const& gate = _circuit_topology->get_gate(waitlist[i]);
+        auto const& gate = _circuit_topology.get_gate(waitlist[i]);
         cost_list[i] = router.get_gate_cost(gate, _conf._availableType, _conf._APSPCoeff);
     }
 

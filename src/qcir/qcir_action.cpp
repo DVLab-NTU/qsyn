@@ -18,18 +18,17 @@ using namespace std;
 /**
  * @brief Append the target to current QCir
  *
- * @param target
+ * @param other
  * @return QCir*
  */
-QCir* QCir::compose(QCir const& target) {
-    QCir copied_q_cir{target};
-    vector<QCirQubit*> targ_qubits = copied_q_cir.get_qubits();
+QCir* QCir::compose(QCir const& other) {
+    vector<QCirQubit*> targ_qubits = other.get_qubits();
     for (auto& qubit : targ_qubits) {
         if (get_qubit(qubit->get_id()) == nullptr)
             insert_qubit(qubit->get_id());
     }
-    copied_q_cir.update_topological_order();
-    for (auto& targ_gate : copied_q_cir.get_topologically_ordered_gates()) {
+    other.update_topological_order();
+    for (auto& targ_gate : other.get_topologically_ordered_gates()) {
         vector<size_t> bits;
         for (auto const& b : targ_gate->get_qubits()) {
             bits.emplace_back(b._qubit);
@@ -42,19 +41,17 @@ QCir* QCir::compose(QCir const& target) {
 /**
  * @brief Tensor the target to current tensor of QCir
  *
- * @param target
+ * @param other
  * @return QCir*
  */
-QCir* QCir::tensor_product(QCir const& target) {
-    QCir copied_q_cir{target};
-
+QCir* QCir::tensor_product(QCir const& other) {
     unordered_map<size_t, QCirQubit*> old_q2_new_q;
-    vector<QCirQubit*> targ_qubits = copied_q_cir.get_qubits();
+    vector<QCirQubit*> targ_qubits = other.get_qubits();
     for (auto& qubit : targ_qubits) {
         old_q2_new_q[qubit->get_id()] = push_qubit();
     }
-    copied_q_cir.update_topological_order();
-    for (auto& targ_gate : copied_q_cir.get_topologically_ordered_gates()) {
+    other.update_topological_order();
+    for (auto& targ_gate : other.get_topologically_ordered_gates()) {
         vector<size_t> bits;
         for (auto const& b : targ_gate->get_qubits()) {
             bits.emplace_back(old_q2_new_q[b._qubit]->get_id());

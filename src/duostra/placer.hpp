@@ -17,9 +17,7 @@ class Device;
 class BasePlacer {
 public:
     BasePlacer() {}
-    BasePlacer(BasePlacer const &) = delete;
-    BasePlacer(BasePlacer &&) = delete;
-    virtual ~BasePlacer() {}
+    virtual ~BasePlacer() = default;
 
     std::vector<size_t> place_and_assign(Device &);
 
@@ -29,7 +27,7 @@ protected:
 
 class RandomPlacer : public BasePlacer {
 public:
-    ~RandomPlacer() override {}
+    ~RandomPlacer() override = default;
 
 protected:
     std::vector<size_t> _place(Device & /*unused*/) const override;
@@ -37,7 +35,7 @@ protected:
 
 class StaticPlacer : public BasePlacer {
 public:
-    ~StaticPlacer() override {}
+    ~StaticPlacer() override = default;
 
 protected:
     std::vector<size_t> _place(Device & /*unused*/) const override;
@@ -45,7 +43,7 @@ protected:
 
 class DFSPlacer : public BasePlacer {
 public:
-    ~DFSPlacer() override {}
+    ~DFSPlacer() override = default;
 
 protected:
     std::vector<size_t> _place(Device & /*unused*/) const override;

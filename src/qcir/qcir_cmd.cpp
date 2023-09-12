@@ -142,7 +142,7 @@ Command qcir_mgr_reset_cmd() {
             [](ArgumentParser& parser) {
                 parser.description("reset QCirMgr");
             },
-            [](ArgumentParser const& parser) {
+            [](ArgumentParser const&) {
                 QCIR_MGR.reset();
                 return CmdExecResult::done;
             }};
@@ -223,7 +223,7 @@ Command qcir_copy_cmd() {
             },
             [](ArgumentParser const& parser) {
                 if (!qcir_mgr_not_empty()) return CmdExecResult::error;
-                size_t id = parser.parsed("id") ? parser.get<size_t>("id") : QCIR_MGR.get_next_id();
+                size_t const id = parser.parsed("id") ? parser.get<size_t>("id") : QCIR_MGR.get_next_id();
                 if (QCIR_MGR.is_id(id) && !parser.parsed("-replace")) {
                     cerr << "Error: QCir " << id << " already exists!! Specify `-Replace` if needed." << endl;
                     return CmdExecResult::error;
@@ -578,7 +578,7 @@ Command qcir_gate_add_cmd() {
         },
         [=](ArgumentParser const& parser) {
             if (!qcir_mgr_not_empty()) return CmdExecResult::error;
-            bool do_prepend = parser.parsed("-prepend");
+            bool const do_prepend = parser.parsed("-prepend");
 
             auto type = parser.get<string>("type");
             type = dvlab::str::to_lower_string(type);
@@ -750,7 +750,7 @@ Command qcir_to_tensor_cmd() {
             [](ArgumentParser& parser) {
                 parser.description("convert QCir to tensor");
             },
-            [](ArgumentParser const& parser) {
+            [](ArgumentParser const&) {
                 if (!qcir_mgr_not_empty()) return CmdExecResult::error;
                 LOGGER.info("Converting to QCir {} to tensor {}...", QCIR_MGR.focused_id(), TENSOR_MGR.get_next_id());
                 auto tensor = to_tensor(*QCIR_MGR.get());

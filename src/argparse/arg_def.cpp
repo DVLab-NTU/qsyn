@@ -63,7 +63,7 @@ bool parse_from_string(std::string& val, std::string const& token) {
 }
 
 template <>
-bool parse_from_string(DummyArgType& val, std::string const& token) {
+bool parse_from_string(DummyArgType& /*val*/, std::string const& /*token*/) {
     return true;
 }
 

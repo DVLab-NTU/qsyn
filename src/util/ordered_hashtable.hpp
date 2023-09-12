@@ -54,7 +54,6 @@ public:
         using iterator_category = std::bidirectional_iterator_tag;
         OTableIterator() {}
         OTableIterator(VecIterType const& itr, VecIterType const& begin, VecIterType const& end) : _itr(itr), _begin(begin), _end(end) {}
-        OTableIterator(OTableIterator<VecIterType> const& o_itr) = default;
 
         OTableIterator& operator++() noexcept {
             do {

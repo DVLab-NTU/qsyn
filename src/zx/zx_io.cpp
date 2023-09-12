@@ -41,7 +41,7 @@ bool ZXGraph::read_zx(std::filesystem::path const& filepath, bool keep_id) {
     }
 
     ZXFileParser parser;
-    return parser.parse(filepath.string()) && _build_graph_from_parser_storage(parser.get_storage());
+    return parser.parse(filepath.string()) && _build_graph_from_parser_storage(parser.get_storage(), keep_id);
 }
 
 /**

@@ -18,7 +18,7 @@ namespace dvlab {
 
 namespace utils {
 
-struct TrieNode {
+struct TrieNode {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     TrieNode() : is_word(false), frequency(0) {}
     ~TrieNode() = default;
@@ -61,7 +61,7 @@ concept string_retrivable = requires {
 static_assert(string_retrivable<std::vector<std::string>::iterator>);
 static_assert(string_retrivable<std::vector<std::string>::const_iterator>);
 
-class Trie {
+class Trie {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     Trie() : _root(std::make_unique<TrieNode>()) {}
 

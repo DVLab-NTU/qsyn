@@ -20,15 +20,25 @@
 
 class BaseScheduler {
 public:
-    BaseScheduler(std::unique_ptr<CircuitTopology>, bool = true);
-    BaseScheduler(BaseScheduler const&);
-    BaseScheduler(BaseScheduler&&) = default;
-    virtual ~BaseScheduler() {}
+    BaseScheduler(CircuitTopology topo, bool tqdm)
+        : _circuit_topology(std::move(topo)), _tqdm(tqdm) {}
+    virtual ~BaseScheduler() = default;
+
+    void swap(BaseScheduler& other) noexcept {
+        std::swap(_circuit_topology, other._circuit_topology);
+        std::swap(_operations, other._operations);
+        std::swap(_assign_order, other._assign_order);
+        std::swap(_tqdm, other._tqdm);
+    }
+
+    friend void swap(BaseScheduler& a, BaseScheduler& b) noexcept {
+        a.swap(b);
+    }
 
     virtual std::unique_ptr<BaseScheduler> clone() const;
 
-    CircuitTopology& circuit_topology() { return *_circuit_topology; }
-    CircuitTopology const& circuit_topology() const { return *_circuit_topology; }
+    CircuitTopology& circuit_topology() { return _circuit_topology; }
+    CircuitTopology const& circuit_topology() const { return _circuit_topology; }
 
     size_t get_final_cost() const;
     size_t get_total_time() const;
@@ -36,7 +46,7 @@ public:
     size_t get_executable(Router&) const;
     size_t get_operations_cost() const;
     bool is_sorted() const { return _sorted; }
-    std::vector<size_t> const& get_available_gates() const { return _circuit_topology->get_available_gates(); }
+    std::vector<size_t> const& get_available_gates() const { return _circuit_topology.get_available_gates(); }
     std::vector<Operation> const& get_operations() const { return _operations; }
     std::vector<size_t> const& get_order() const { return _assign_order; }
 
@@ -44,7 +54,7 @@ public:
     size_t route_one_gate(Router&, size_t, bool = false);
 
 protected:
-    std::unique_ptr<CircuitTopology> _circuit_topology;
+    CircuitTopology _circuit_topology;
     std::vector<Operation> _operations;
     std::vector<size_t> _assign_order;
     bool _sorted = false;
@@ -55,10 +65,7 @@ protected:
 
 class RandomScheduler : public BaseScheduler {
 public:
-    RandomScheduler(std::unique_ptr<CircuitTopology>, bool = true);
-    RandomScheduler(RandomScheduler const&);
-    RandomScheduler(RandomScheduler&&);
-    ~RandomScheduler() override {}
+    RandomScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
 
@@ -68,10 +75,7 @@ protected:
 
 class StaticScheduler : public BaseScheduler {
 public:
-    StaticScheduler(std::unique_ptr<CircuitTopology>, bool = true);
-    StaticScheduler(StaticScheduler const&);
-    StaticScheduler(StaticScheduler&&);
-    ~StaticScheduler() override {}
+    StaticScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
 
@@ -88,12 +92,24 @@ struct GreedyConf {
     size_t _APSPCoeff;
 };
 
-class GreedyScheduler : public BaseScheduler {
+class GreedyScheduler : public BaseScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    GreedyScheduler(std::unique_ptr<CircuitTopology>, bool = true);
-    GreedyScheduler(GreedyScheduler const&);
-    GreedyScheduler(GreedyScheduler&&);
-    ~GreedyScheduler() override {}
+    GreedyScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
+    ~GreedyScheduler() = default;
+    GreedyScheduler(GreedyScheduler const& other) : BaseScheduler(other), _conf(other._conf) {}
+    GreedyScheduler(GreedyScheduler&& other) noexcept : BaseScheduler(other) {
+        _conf = std::exchange(other._conf, {});
+    }
+
+    GreedyScheduler& operator=(GreedyScheduler copy) {
+        copy.swap(*this);
+        return *this;
+    }
+
+    void swap(GreedyScheduler& other) noexcept {
+        std::swap(static_cast<BaseScheduler&>(*this), static_cast<BaseScheduler&>(other));
+        std::swap(_conf, other._conf);
+    }
 
     std::unique_ptr<BaseScheduler> clone() const override;
     size_t greedy_fallback(Router&, std::vector<size_t> const&, size_t) const;
@@ -115,15 +131,34 @@ struct TreeNodeConf {
 };
 
 // This is a node of the heuristic search tree.
-class TreeNode {
+class TreeNode {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
+
 public:
     TreeNode(TreeNodeConf, size_t, std::unique_ptr<Router>, std::unique_ptr<BaseScheduler>, size_t);
     TreeNode(TreeNodeConf, std::vector<size_t>&&, std::unique_ptr<Router>, std::unique_ptr<BaseScheduler>, size_t);
-    TreeNode(TreeNode const&);
-    TreeNode(TreeNode&&);
 
-    TreeNode& operator=(TreeNode const&);
-    TreeNode& operator=(TreeNode&&);
+    ~TreeNode() = default;
+
+    TreeNode(TreeNode const&);
+    TreeNode(TreeNode&&) noexcept = default;
+
+    void swap(TreeNode& other) noexcept {
+        std::swap(_conf, other._conf);
+        std::swap(_gate_ids, other._gate_ids);
+        std::swap(_children, other._children);
+        std::swap(_max_cost, other._max_cost);
+        std::swap(_router, other._router);
+        std::swap(_scheduler, other._scheduler);
+    }
+
+    friend void swap(TreeNode& a, TreeNode& b) noexcept {
+        a.swap(b);
+    }
+
+    TreeNode& operator=(TreeNode copy) {
+        copy.swap(*this);
+        return *this;
+    }
 
     bool is_leaf() const { return _children.empty(); }
     void grow_if_needed();
@@ -162,12 +197,26 @@ private:
     void _route_internal_gates();
 };
 
-class SearchScheduler : public GreedyScheduler {
+class SearchScheduler : public GreedyScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    SearchScheduler(std::unique_ptr<CircuitTopology>, bool = true);
+    SearchScheduler(CircuitTopology const&, bool = true);
+    ~SearchScheduler() = default;
     SearchScheduler(SearchScheduler const&);
-    SearchScheduler(SearchScheduler&&);
-    ~SearchScheduler() override {}
+    SearchScheduler(SearchScheduler&&) noexcept;
+
+    SearchScheduler& operator=(SearchScheduler copy) {
+        copy.swap(*this);
+        return *this;
+    }
+
+    void swap(SearchScheduler& other) noexcept {
+        std::swap(static_cast<GreedyScheduler&>(*this), static_cast<GreedyScheduler&>(other));
+        std::swap(_conf, other._conf);
+    }
+
+    friend void swap(SearchScheduler& a, SearchScheduler& b) noexcept {
+        a.swap(b);
+    }
 
     std::unique_ptr<BaseScheduler> clone() const override;
 

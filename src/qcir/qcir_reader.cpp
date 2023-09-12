@@ -25,7 +25,7 @@ using namespace std;
  * @return true if successfully read
  * @return false if error in file or not found
  */
-bool QCir::read_qcir_file(string filename) {
+bool QCir::read_qcir_file(string const& filename) {
     string lastname = filename.substr(filename.find_last_of('/') + 1);
 
     string extension = (lastname.find('.') != string::npos) ? lastname.substr(lastname.find_last_of('.')) : "";
@@ -70,7 +70,7 @@ bool QCir::read_qcir_file(string filename) {
  * @return true if successfully read
  * @return false if error in file or not found
  */
-bool QCir::read_qasm(string filename) {
+bool QCir::read_qasm(string const& filename) {
     using dvlab::str::str_get_token;
     // read file and open
     string lastname = filename.substr(filename.find_last_of('/') + 1);
@@ -93,7 +93,7 @@ bool QCir::read_qasm(string filename) {
     // For netlist
     string tok;
 
-    size_t nqubit = stoul(str.substr(str.find("[") + 1, str.size() - str.find("[") - 3));
+    size_t nqubit = stoul(str.substr(str.find('[') + 1, str.size() - str.find('[') - 3));
     add_qubits(nqubit);
     getline(qasm_file, str);
     while (getline(qasm_file, str)) {
@@ -138,7 +138,7 @@ bool QCir::read_qasm(string filename) {
  * @return true if successfully read
  * @return false if error in file or not found
  */
-bool QCir::read_qc(string filename) {
+bool QCir::read_qc(string const& filename) {
     using dvlab::str::str_get_token;
     // read file and open
     fstream qc_file;
@@ -219,7 +219,7 @@ bool QCir::read_qc(string filename) {
  * @return true if successfully read
  * @return false if error in file or not found
  */
-bool QCir::read_qsim(string filename) {
+bool QCir::read_qsim(string const& filename) {
     // read file and open
     fstream qsim_file;
     qsim_file.open(filename.c_str(), ios::in);
@@ -282,7 +282,7 @@ bool QCir::read_qsim(string filename) {
  * @return true if successfully read
  * @return false if error in file or not found
  */
-bool QCir::read_quipper(string filename) {
+bool QCir::read_quipper(string const& filename) {
     // read file and open
     fstream quipper_file;
     quipper_file.open(filename.c_str(), ios::in);
@@ -303,16 +303,16 @@ bool QCir::read_quipper(string filename) {
     while (getline(quipper_file, line)) {
         if (line.find("QGate") == 0) {
             // addgate
-            string type = line.substr(line.find("[") + 2, line.find("]") - line.find("[") - 3);
+            string type = line.substr(line.find('[') + 2, line.find(']') - line.find('[') - 3);
             size_t qubit_target;
             if (find(single_list.begin(), single_list.end(), type) != single_list.end()) {
-                qubit_target = stoul(line.substr(line.find("(") + 1, line.find(")") - line.find("(") - 1));
+                qubit_target = stoul(line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1));
                 vector<size_t> pin_id;
 
                 if (line.find("controls=") != string::npos) {
                     // have control
                     string ctrls_info;
-                    ctrls_info = line.substr(line.find_last_of("[") + 1, line.find_last_of("]") - line.find_last_of("[") - 1);
+                    ctrls_info = line.substr(line.find_last_of('[') + 1, line.find_last_of(']') - line.find_last_of('[') - 1);
 
                     if (ctrls_info.find(to_string(qubit_target)) != string::npos) {
                         LOGGER.error("Control qubit and target cannot be the same!!");

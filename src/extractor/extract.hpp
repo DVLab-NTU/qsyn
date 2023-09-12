@@ -29,8 +29,7 @@ class Extractor {
 public:
     using Target = std::unordered_map<size_t, size_t>;
     using ConnectInfo = std::vector<std::set<size_t>>;
-    Extractor(ZXGraph*, QCir* = nullptr, std::optional<Device> = std::nullopt);
-    ~Extractor() {}
+    Extractor(ZXGraph*, QCir* = nullptr, std::optional<Device> const& = std::nullopt);
 
     bool to_physical() { return _device.has_value(); }
     QCir* get_logical() { return _logical_circuit; }
@@ -43,7 +42,7 @@ public:
     void column_optimal_swap();
     void extract_singles();
     bool extract_czs(bool check = false);
-    void extract_cxs(size_t = 1);
+    void extract_cxs();
     size_t extract_hadamards_from_matrix(bool check = false);
     void clean_frontier();
     void permute_qubits();
@@ -52,8 +51,8 @@ public:
     void update_graph_by_matrix(EdgeType = EdgeType::hadamard);
     void create_matrix();
 
-    void prepend_single_qubit_gate(std::string, size_t, Phase);
-    void prepend_double_qubit_gate(std::string, std::vector<size_t> const&, Phase);
+    void prepend_single_qubit_gate(std::string const&, size_t, Phase);
+    void prepend_double_qubit_gate(std::string const&, std::vector<size_t> const&, Phase);
     void prepend_series_gates(std::vector<Operation> const&, std::vector<Operation> const& = {});
     void prepend_swap_gate(size_t, size_t, QCir*);
     bool frontier_is_cleaned();
@@ -65,7 +64,7 @@ public:
     void print_axels();
     void print_matrix() { _biadjacency.print_matrix(); }
 
-    std::vector<size_t> find_minimal_sums(BooleanMatrix& matrix, bool do_reversed_search = false);
+    std::vector<size_t> find_minimal_sums(BooleanMatrix& matrix);
     std::vector<BooleanMatrix::RowOperation> greedy_reduction(BooleanMatrix&);
 
 private:

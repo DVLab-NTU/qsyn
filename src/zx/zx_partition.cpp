@@ -17,10 +17,8 @@
 
 #include "./zx_def.hpp"
 #include "./zxgraph.hpp"
-#include "./zxgraph_mgr.hpp"
 
 extern size_t VERBOSE;
-extern ZXGraphMgr ZXGRAPH_MGR;
 
 bool stop_requested();
 
@@ -100,7 +98,7 @@ std::pair<std::vector<ZXGraph*>, std::vector<ZXCut>> ZXGraph::create_subgraphs(s
         for (auto const& vertex : boundary_vertices) {
             partition.insert(vertex);
         }
-        subgraphs.push_back(new ZXGraph(partition, subgraph_inputs, subgraph_outputs, ZXGRAPH_MGR.get_next_id()));
+        subgraphs.push_back(new ZXGraph(partition, subgraph_inputs, subgraph_outputs));
     }
 
     if (VERBOSE >= 5) {
@@ -174,7 +172,7 @@ ZXGraph* ZXGraph::from_subgraphs(std::vector<ZXGraph*> const& subgraphs, std::ve
         delete subgraph;
     }
 
-    return new ZXGraph(vertices, inputs, outputs, ZXGRAPH_MGR.get_next_id());
+    return new ZXGraph(vertices, inputs, outputs);
 }
 
 /*****************************************************/

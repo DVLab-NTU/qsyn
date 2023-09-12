@@ -23,7 +23,7 @@ using namespace std;
  * @param init
  * @param reverse check reversily if true
  */
-MappingEquivalenceChecker::MappingEquivalenceChecker(QCir* phy, QCir* log, Device dev, std::vector<size_t> init, bool reverse) : _physical(phy), _logical(log), _device(dev), _reverse(reverse) {
+MappingEquivalenceChecker::MappingEquivalenceChecker(QCir* phy, QCir* log, Device dev, std::vector<size_t> init, bool reverse) : _physical(phy), _logical(log), _device(std::move(dev)), _reverse(reverse) {
     if (init.empty()) {
         auto placer = get_placer();
         init = placer->place_and_assign(_device);

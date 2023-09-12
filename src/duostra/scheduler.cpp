@@ -28,15 +28,15 @@ using namespace std;
 unique_ptr<BaseScheduler> get_scheduler(unique_ptr<CircuitTopology> topo, bool tqdm) {
     // 0:base 1:static 2:random 3:greedy 4:search
     if (DUOSTRA_SCHEDULER == 2) {
-        return make_unique<RandomScheduler>(std::move(topo), tqdm);
+        return make_unique<RandomScheduler>(*topo.get(), tqdm);
     } else if (DUOSTRA_SCHEDULER == 1) {
-        return make_unique<StaticScheduler>(std::move(topo), tqdm);
+        return make_unique<StaticScheduler>(*topo.get(), tqdm);
     } else if (DUOSTRA_SCHEDULER == 3) {
-        return make_unique<GreedyScheduler>(std::move(topo), tqdm);
+        return make_unique<GreedyScheduler>(*topo.get(), tqdm);
     } else if (DUOSTRA_SCHEDULER == 4) {
-        return make_unique<SearchScheduler>(std::move(topo), tqdm);
+        return make_unique<SearchScheduler>(*topo.get(), tqdm);
     } else if (DUOSTRA_SCHEDULER == 0) {
-        return make_unique<BaseScheduler>(std::move(topo), tqdm);
+        return make_unique<BaseScheduler>(*topo.get(), tqdm);
     } else {
         cerr << "Error: scheduler type not found" << endl;
         abort();
@@ -44,21 +44,6 @@ unique_ptr<BaseScheduler> get_scheduler(unique_ptr<CircuitTopology> topo, bool t
 }
 
 // SECTION - Class BaseScheduler Member Functions
-
-/**
- * @brief Construct a new Base Scheduler:: Base Scheduler object
- *
- * @param topo
- * @param tqdm
- */
-BaseScheduler::BaseScheduler(unique_ptr<CircuitTopology> topo, bool tqdm) : _circuit_topology(std::move(topo)), _operations({}), _assign_order({}), _tqdm(tqdm) {}
-
-/**
- * @brief Construct a new Base Scheduler:: Base Scheduler object
- *
- * @param other
- */
-BaseScheduler::BaseScheduler(BaseScheduler const& other) : _circuit_topology(other._circuit_topology->clone()), _operations(other._operations), _assign_order(other._assign_order), _tqdm(other._tqdm) {}
 
 /**
  * @brief Clone scheduler
@@ -126,8 +111,8 @@ size_t BaseScheduler::get_num_swaps() const {
  * @return size_t
  */
 size_t BaseScheduler::get_executable(Router& router) const {
-    for (size_t gate_idx : _circuit_topology->get_available_gates()) {
-        if (router.is_executable(_circuit_topology->get_gate(gate_idx))) {
+    for (size_t gate_idx : _circuit_topology.get_available_gates()) {
+        if (router.is_executable(_circuit_topology.get_gate(gate_idx))) {
             return gate_idx;
         }
     }
@@ -166,7 +151,7 @@ Device BaseScheduler::assign_gates_and_sort(unique_ptr<Router> router) {
  * @return Device
  */
 Device BaseScheduler::_assign_gates(unique_ptr<Router> router) {
-    for (dvlab::TqdmWrapper bar{_circuit_topology->get_num_gates()}; !bar.done(); ++bar) {
+    for (dvlab::TqdmWrapper bar{_circuit_topology.get_num_gates()}; !bar.done(); ++bar) {
         if (stop_requested()) {
             return router->get_device();
         }
@@ -184,7 +169,7 @@ Device BaseScheduler::_assign_gates(unique_ptr<Router> router) {
  * @return size_t
  */
 size_t BaseScheduler::route_one_gate(Router& router, size_t gate_id, bool forget) {
-    auto const& gate = _circuit_topology->get_gate(gate_id);
+    auto const& gate = _circuit_topology.get_gate(gate_id);
     auto ops{router.assign_gate(gate)};
     size_t max_cost = 0;
     for (auto const& op : ops) {
@@ -194,33 +179,11 @@ size_t BaseScheduler::route_one_gate(Router& router, size_t gate_id, bool forget
     if (!forget)
         _operations.insert(_operations.end(), ops.begin(), ops.end());
     _assign_order.emplace_back(gate_id);
-    _circuit_topology->update_available_gates(gate_id);
+    _circuit_topology.update_available_gates(gate_id);
     return max_cost;
 }
 
 // SECTION - Class RandomScheduler Member Functions
-
-/**
- * @brief Construct a new Random Scheduler:: Random Scheduler object
- *
- * @param topo
- * @param tqdm
- */
-RandomScheduler::RandomScheduler(unique_ptr<CircuitTopology> topo, bool tqdm) : BaseScheduler(std::move(topo), tqdm) {}
-
-/**
- * @brief Construct a new Random Scheduler:: Random Scheduler object
- *
- * @param other
- */
-RandomScheduler::RandomScheduler(RandomScheduler const& other) : BaseScheduler(other) {}
-
-/**
- * @brief Construct a new Random Scheduler:: Random Scheduler object
- *
- * @param other
- */
-RandomScheduler::RandomScheduler(RandomScheduler&& other) : BaseScheduler(std::move(other)) {}
 
 /**
  * @brief Clone scheduler
@@ -240,11 +203,11 @@ unique_ptr<BaseScheduler> RandomScheduler::clone() const {
 Device RandomScheduler::_assign_gates(unique_ptr<Router> router) {
     [[maybe_unused]] size_t count = 0;
 
-    for (dvlab::TqdmWrapper bar{_circuit_topology->get_num_gates()}; !bar.done(); ++bar) {
+    for (dvlab::TqdmWrapper bar{_circuit_topology.get_num_gates()}; !bar.done(); ++bar) {
         if (stop_requested()) {
             return router->get_device();
         }
-        auto& waitlist = _circuit_topology->get_available_gates();
+        auto& waitlist = _circuit_topology.get_available_gates();
         assert(waitlist.size() > 0);
         srand(chrono::system_clock::now().time_since_epoch().count());
 
@@ -256,33 +219,11 @@ Device RandomScheduler::_assign_gates(unique_ptr<Router> router) {
 #endif
         ++count;
     }
-    assert(count == _circuit_topology->get_num_gates());
+    assert(count == _circuit_topology.get_num_gates());
     return router->get_device();
 }
 
 // SECTION - Class StaticScheduler Member Functions
-
-/**
- * @brief Construct a new Static Scheduler:: Static Scheduler object
- *
- * @param topo
- * @param tqdm
- */
-StaticScheduler::StaticScheduler(unique_ptr<CircuitTopology> topo, bool tqdm) : BaseScheduler(std::move(topo), tqdm) {}
-
-/**
- * @brief Construct a new Static Scheduler:: Static Scheduler object
- *
- * @param other
- */
-StaticScheduler::StaticScheduler(StaticScheduler const& other) : BaseScheduler(other) {}
-
-/**
- * @brief Construct a new Static Scheduler:: Static Scheduler object
- *
- * @param other
- */
-StaticScheduler::StaticScheduler(StaticScheduler&& other) : BaseScheduler(std::move(other)) {}
 
 /**
  * @brief Clone scheduler
@@ -301,11 +242,11 @@ unique_ptr<BaseScheduler> StaticScheduler::clone() const {
  */
 Device StaticScheduler::_assign_gates(unique_ptr<Router> router) {
     [[maybe_unused]] size_t count = 0;
-    for (dvlab::TqdmWrapper bar{_circuit_topology->get_num_gates()}; !bar.done(); ++bar) {
+    for (dvlab::TqdmWrapper bar{_circuit_topology.get_num_gates()}; !bar.done(); ++bar) {
         if (stop_requested()) {
             return router->get_device();
         }
-        auto& waitlist = _circuit_topology->get_available_gates();
+        auto& waitlist = _circuit_topology.get_available_gates();
         assert(waitlist.size() > 0);
 
         size_t gate_idx = get_executable(*router);
@@ -315,6 +256,6 @@ Device StaticScheduler::_assign_gates(unique_ptr<Router> router) {
         route_one_gate(*router, gate_idx);
         ++count;
     }
-    assert(count == _circuit_topology->get_num_gates());
+    assert(count == _circuit_topology.get_num_gates());
     return router->get_device();
 }

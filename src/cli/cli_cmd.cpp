@@ -262,7 +262,7 @@ Command logger_cmd() {
             auto parsers = parser.add_subparsers()
                                .help("subcommands for logger");
         },
-        [](ArgumentParser const& parser) {
+        [](ArgumentParser const& /*parser*/) {
             using dvlab::Logger;
 
             fmt::println("Logger Level: {}", Logger::log_level_to_str(LOGGER.get_log_level()));
@@ -286,7 +286,7 @@ Command logger_cmd() {
          [](ArgumentParser& parser) {
              parser.description("Test out logger setting");
          },
-         [](ArgumentParser const& parser) {
+         [](ArgumentParser const& /*parser*/) {
              using namespace dvlab::utils;
              LOGGER.fatal("Test fatal log");
              LOGGER.error("Test error log");
@@ -401,7 +401,7 @@ Command clear_cmd() {
                 parser.description("clear the terminal");
             },
 
-            [](ArgumentParser const& parser) {
+            [](ArgumentParser const& /*parser*/) {
                 ::detail::clear_terminal();
                 return CmdExecResult::done;
             }};

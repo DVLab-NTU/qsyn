@@ -22,7 +22,7 @@ using namespace std;
 //    Member Function for class CmdParser
 //----------------------------------------------------------------------
 
-namespace detail {
+namespace {
 
 /**
  * @brief restores the terminal settings
@@ -30,7 +30,7 @@ namespace detail {
  * @param stored_settings
  * @return auto
  */
-static auto reset_keypress(termios const& stored_settings) {
+auto reset_keypress(termios const& stored_settings) {
     tcsetattr(0, TCSANOW, &stored_settings);
 }
 
@@ -39,7 +39,7 @@ static auto reset_keypress(termios const& stored_settings) {
  *
  * @return termios the original terminal settings. This is used to restore the terminal settings
  */
-[[nodiscard]] static auto set_keypress() -> termios {
+[[nodiscard]] auto set_keypress() -> termios {
     termios stored_settings{};
     tcgetattr(0, &stored_settings);
     termios new_settings = stored_settings;
@@ -52,7 +52,7 @@ static auto reset_keypress(termios const& stored_settings) {
     return stored_settings;
 }
 
-static auto mygetc(istream& istr) -> char {
+auto mygetc(istream& istr) -> char {
     char ch = 0;
     istr.get(ch);
     return ch;
@@ -101,7 +101,7 @@ int get_char(istream& istr) {
                 else
                     return undefined_key;
             } else {
-                beep();
+                detail::beep();
                 return get_char(istr);
             }
         }
@@ -111,7 +111,7 @@ int get_char(istream& istr) {
     }
 }
 
-}  // namespace detail
+}  // namespace
 
 /**
  * @brief reset the read buffer
@@ -141,23 +141,23 @@ CmdExecResult CommandLineInterface::listen_to_input(std::istream& istr, std::str
     _reset_buffer();
     _print_prompt();
 
-    auto stored_settings = detail::set_keypress();
+    auto stored_settings = set_keypress();
     while (true) {
-        int keycode = detail::get_char(istr);
+        int keycode = get_char(istr);
 
         if (istr.eof()) {
-            detail::reset_keypress(stored_settings);
+            reset_keypress(stored_settings);
             return CmdExecResult::done;
         }
 
         if (keycode == input_end_key) {
-            detail::reset_keypress(stored_settings);
+            reset_keypress(stored_settings);
             return CmdExecResult::quit;
         }
 
         switch (keycode) {
             case newline_key:
-                detail::reset_keypress(stored_settings);
+                reset_keypress(stored_settings);
                 _command_prompt = stored_prompt;
                 _listening_for_inputs = false;
                 return CmdExecResult::done;

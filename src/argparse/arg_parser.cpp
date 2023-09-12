@@ -339,7 +339,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
     TokensView main_parser_tokens = tokens.subspan(0, subparser_token_pos);
 
     std::vector<Token> unrecognized;
-    if (!_parse_options(main_parser_tokens, unrecognized) ||
+    if (!_parse_options(main_parser_tokens) ||
         !_parse_positional_arguments(main_parser_tokens, unrecognized)) {
         return {false, {}};
     }
@@ -367,7 +367,7 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
  * @return true if succeeded
  * @return false if failed
  */
-bool ArgumentParser::_parse_options(TokensView tokens, std::vector<Token>& unrecognized) {
+bool ArgumentParser::_parse_options(TokensView tokens) {
     for (size_t i = 0; i < tokens.size(); ++i) {
         if (!has_option_prefix(tokens[i].token) || tokens[i].parsed) continue;
         auto match = _match_option(tokens[i].token);

@@ -37,8 +37,8 @@ std::string styled_option_name_and_aliases(ArgumentParser parser, Argument const
 
     static auto const decorate = [](std::string const& str, size_t n_req) -> std::string {
         if (utils::ansi_supported()) {
-            std::string mand = str.substr(0, n_req);
-            std::string rest = str.substr(n_req);
+            std::string const mand = str.substr(0, n_req);
+            std::string const rest = str.substr(n_req);
             return option_styled(accent_styled(mand)) + option_styled(rest);
         }
 
@@ -67,11 +67,11 @@ std::string styled_option_name_and_aliases(ArgumentParser parser, Argument const
  * @param arg
  * @return string
  */
-std::string styled_arg_name(ArgumentParser parser, Argument const& arg) {
+std::string styled_arg_name(ArgumentParser const& parser, Argument const& arg) {
     if (!arg.is_option()) return metavar_styled(arg.get_metavar());
     if (utils::ansi_supported()) {
-        std::string mand = arg.get_name().substr(0, parser.get_arg_num_required_chars(arg.get_name()));
-        std::string rest = arg.get_name().substr(parser.get_arg_num_required_chars(arg.get_name()));
+        std::string const mand = arg.get_name().substr(0, parser.get_arg_num_required_chars(arg.get_name()));
+        std::string const rest = arg.get_name().substr(parser.get_arg_num_required_chars(arg.get_name()));
         return option_styled(accent_styled(mand)) + option_styled(rest);
     }
 
@@ -85,8 +85,8 @@ std::string styled_arg_name(ArgumentParser parser, Argument const& arg) {
  */
 std::string styled_parser_name(ArgumentParser const& parser) {
     if (utils::ansi_supported()) {
-        std::string mand = parser.get_name().substr(0, parser.get_num_required_chars());
-        std::string rest = parser.get_name().substr(parser.get_num_required_chars());
+        std::string const mand = parser.get_name().substr(0, parser.get_num_required_chars());
+        std::string const rest = parser.get_name().substr(parser.get_num_required_chars());
         return accent_styled(mand) + rest;
     }
 
@@ -99,7 +99,7 @@ std::string styled_parser_name(ArgumentParser const& parser) {
  * @param arg
  * @return string
  */
-std::string get_syntax(ArgumentParser parser, Argument const& arg) {
+std::string get_syntax(ArgumentParser const& parser, Argument const& arg) {
     std::string ret = "";
     NArgsRange nargs = arg.get_nargs();
     auto usage_string = arg.get_usage().has_value()
@@ -110,7 +110,7 @@ std::string get_syntax(ArgumentParser parser, Argument const& arg) {
         if (nargs.lower == 0)
             ret = option_styled("[") + usage_string + option_styled("]") + "...";
         else {
-            auto repeat_view = std::views::iota(0u, nargs.lower) | std::views::transform([&usage_string](size_t i) { return usage_string; });
+            auto repeat_view = std::views::iota(0u, nargs.lower) | std::views::transform([&usage_string](size_t /*i*/) { return usage_string; });
             ret = fmt::format("{}...", fmt::join(repeat_view, " "));
         }
     } else {
@@ -152,7 +152,7 @@ std::string wrap_text(std::string const& str, size_t max_help_width) {
     for (auto i = 0; i < lines.size(); ++i) {
         if (lines[i].size() < max_help_width) continue;
 
-        size_t pos = lines[i].find_last_of(' ', max_help_width);
+        size_t const pos = lines[i].find_last_of(' ', max_help_width);
 
         if (pos == std::string::npos) {
             lines.insert(std::next(lines.begin(), i + 1), lines[i].substr(max_help_width));
@@ -171,7 +171,7 @@ std::string wrap_text(std::string const& str, size_t max_help_width) {
  *
  * @param arg
  */
-void tabulate_help_string(ArgumentParser parser, fort::utf8_table& table, size_t max_help_string_width, Argument const& arg) {
+void tabulate_help_string(ArgumentParser const& parser, fort::utf8_table& table, size_t max_help_string_width, Argument const& arg) {
     auto usage_string = arg.get_usage().has_value() ? arg.get_usage().value() : metavar_styled(arg.get_metavar());
 
     table << type_styled(arg.get_nargs().upper > 0 ? arg.get_type_string() : "flag");
@@ -254,7 +254,7 @@ void ArgumentParser::print_summary() const {
 void ArgumentParser::print_help() const {
     ft_set_u8strwid_func(
         [](void const* beg, void const* end, size_t* width) -> int {
-            std::string tmp_str(static_cast<const char*>(beg), static_cast<const char*>(end));
+            std::string const tmp_str(static_cast<const char*>(beg), static_cast<const char*>(end));
 
             *width = unicode::display_width(tmp_str);
 
@@ -269,7 +269,7 @@ void ArgumentParser::print_help() const {
     }
 
     auto get_max_length = [this](std::function<size_t(Argument const&)>&& fn) {
-        return _pimpl->arguments.empty() ? 0 : std::ranges::max(_pimpl->arguments | std::views::values | std::views::transform([](Argument const& arg) -> size_t { return arg.get_type_string().size(); }));
+        return _pimpl->arguments.empty() ? 0 : std::ranges::max(_pimpl->arguments | std::views::values | std::views::transform(fn));
     };
 
     constexpr auto left_margin = 1;

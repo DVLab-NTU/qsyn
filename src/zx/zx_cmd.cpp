@@ -167,7 +167,7 @@ Command zxgraph_mgr_reset_cmd() {
             [](ArgumentParser& parser) {
                 parser.description("reset ZXGraphMgr");
             },
-            [](ArgumentParser const& parser) {
+            [](ArgumentParser const& /*parser*/) {
                 ZXGRAPH_MGR.reset();
                 return CmdExecResult::done;
             }};
@@ -593,7 +593,7 @@ Command zxgraph_traverse_cmd() {
             [](ArgumentParser& parser) {
                 parser.description("traverse ZXGraph and update topological order of vertices");
             },
-            [](ArgumentParser const& parser) {
+            [](ArgumentParser const& /*parser*/) {
                 if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
                 ZXGRAPH_MGR.get()->update_topological_order();
                 return CmdExecResult::done;
@@ -827,7 +827,7 @@ Command zxgraph_adjoint_cmd() {
             [](ArgumentParser& parser) {
                 parser.description("adjoint ZXGraph");
             },
-            [](ArgumentParser const& parser) {
+            [](ArgumentParser const& /*parser*/) {
                 if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
                 ZXGRAPH_MGR.get()->adjoint();
                 return CmdExecResult::done;
