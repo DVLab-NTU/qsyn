@@ -25,7 +25,6 @@ public:
     };
     Duostra(QCir* qcir, Device dev, DuostraConfig const& config = {.verifyResult = false, .silent = false, .useTqdm = true});
     Duostra(std::vector<Operation> const& cir, size_t n_qubit, Device dev, DuostraConfig const& config = {.verifyResult = false, .silent = false, .useTqdm = true});
-    ~Duostra() {}
 
     std::unique_ptr<QCir> const& get_physical_circuit() const { return _physical_circuit; }
     std::unique_ptr<QCir>&& get_physical_circuit() { return std::move(_physical_circuit); }
@@ -57,6 +56,6 @@ std::string get_scheduler_type_str();
 std::string get_router_type_str();
 std::string get_placer_type_str();
 
-size_t get_scheduler_type(std::string);
-size_t get_router_type(std::string);
-size_t get_placer_type(std::string);
+size_t get_scheduler_type(std::string const&);
+size_t get_router_type(std::string const&);
+size_t get_placer_type(std::string const&);

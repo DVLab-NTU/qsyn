@@ -23,10 +23,10 @@ using ZXVertexList = ordered_hashset<ZXVertex*>;
 // REVIEW - Change if bit > 64
 class Row {
 public:
-    Row(size_t id, std::vector<unsigned char> const& r) : _row(r) {}
+    Row(std::vector<unsigned char> const& r) : _row(r) {}
 
     std::vector<unsigned char> const& get_row() const { return _row; }
-    void set_row(std::vector<unsigned char> row) { _row = row; }
+    void set_row(std::vector<unsigned char> row) { _row = std::move(row); }
     size_t size() const { return _row.size(); }
     unsigned char& back() { return _row.back(); }
     unsigned char const& back() const { return _row.back(); }

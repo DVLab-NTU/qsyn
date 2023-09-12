@@ -21,7 +21,6 @@ public:
         _bit_first = nullptr;
         _bit_last = nullptr;
     }
-    ~QCirQubit() {}
 
     // Basic access method
     void set_id(size_t id) { _id = id; }

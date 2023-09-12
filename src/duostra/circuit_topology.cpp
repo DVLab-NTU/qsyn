@@ -31,14 +31,6 @@ Gate::Gate(size_t id, GateType type, Phase ph, std::tuple<size_t, size_t> qs)
 }
 
 /**
- * @brief Construct a new Gate:: Gate object
- *
- * @param other
- */
-Gate::Gate(Gate&& other)
-    : _id(other._id), _type(other._type), _phase(other._phase), _swap(other._swap), _qubits(other._qubits), _prevs(other._prevs), _nexts(other._nexts) {}
-
-/**
  * @brief Add previous gate
  *
  * @param p
@@ -78,32 +70,12 @@ bool Gate::is_available(unordered_map<size_t, size_t> const& executed_gates) con
  *
  * @param dep
  */
-CircuitTopology::CircuitTopology(shared_ptr<DependencyGraph> dep) : _dependency_graph(dep), _available_gates({}), _executed_gates({}) {
+CircuitTopology::CircuitTopology(shared_ptr<DependencyGraph> const& dep) : _dependency_graph(dep), _available_gates({}), _executed_gates({}) {
     for (size_t i = 0; i < _dependency_graph->get_gates().size(); i++) {
         if (_dependency_graph->get_gate(i).is_available(_executed_gates))
             _available_gates.emplace_back(i);
     }
 }
-
-/**
- * @brief Construct a new Circuit Topo:: Circuit Topo object
- *
- * @param other
- */
-CircuitTopology::CircuitTopology(CircuitTopology const& other)
-    : _dependency_graph(other._dependency_graph),
-      _available_gates(other._available_gates),
-      _executed_gates(other._executed_gates) {}
-
-/**
- * @brief Construct a new Circuit Topo:: Circuit Topo object
- *
- * @param other
- */
-CircuitTopology::CircuitTopology(CircuitTopology&& other)
-    : _dependency_graph(std::move(other._dependency_graph)),
-      _available_gates(std::move(other._available_gates)),
-      _executed_gates(std::move(other._executed_gates)) {}
 
 /**
  * @brief Clone CircuitTopo

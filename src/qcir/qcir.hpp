@@ -67,10 +67,10 @@ struct fmt::formatter<QCirDrawerType> {
     }
 };
 
-class QCir {
+class QCir {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     QCir() {}
-    ~QCir() {}
+    ~QCir() = default;
 
     QCir(QCir const& other) {
         namespace views = std::ranges::views;
@@ -135,14 +135,14 @@ public:
     std::string get_filename() const { return _filename; }
     std::vector<std::string> const& get_procedures() const { return _procedures; }
 
-    void set_filename(std::string f) { _filename = f; }
+    void set_filename(std::string f) { _filename = std::move(f); }
     void add_procedures(std::vector<std::string> const& ps) { _procedures.insert(_procedures.end(), ps.begin(), ps.end()); }
     void add_procedure(std::string const& p) { _procedures.emplace_back(p); }
 
     //
     void reset();
-    QCir* compose(QCir const& target);
-    QCir* tensor_product(QCir const& target);
+    QCir* compose(QCir const& other);
+    QCir* tensor_product(QCir const& other);
     // Member functions about circuit construction
     QCirQubit* push_qubit();
     QCirQubit* insert_qubit(size_t id);
@@ -152,13 +152,13 @@ public:
     QCirGate* add_single_rz(size_t bit, Phase phase, bool append);
     bool remove_gate(size_t id);
 
-    bool read_qcir_file(std::string filename);
-    bool read_qc(std::string filename);
-    bool read_qasm(std::string filename);
-    bool read_qsim(std::string filename);
-    bool read_quipper(std::string filename);
+    bool read_qcir_file(std::string const& filename);
+    bool read_qc(std::string const& filename);
+    bool read_qasm(std::string const& filename);
+    bool read_qsim(std::string const& filename);
+    bool read_quipper(std::string const& filename);
 
-    bool write_qasm(std::string filename);
+    bool write_qasm(std::string const& filename);
 
     bool draw(QCirDrawerType drawer, std::filesystem::path const& output_path = "", float scale = 1.0f);
 

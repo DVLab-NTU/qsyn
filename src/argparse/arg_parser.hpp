@@ -201,8 +201,8 @@ private:
     // parse subroutine
     std::string _get_activated_subparser_name() const { return _pimpl->activated_subparser.value_or(""); }
     bool _tokenize(std::string const& line);
-    bool _parse_options(TokensView, std::vector<Token>&);
-    bool _parse_positional_arguments(TokensView, std::vector<Token>&);
+    bool _parse_options(TokensView tokens);
+    bool _parse_positional_arguments(TokensView tokens, std::vector<Token>& unrecognized);
     void _fill_unparsed_args_with_defaults();
 
     // parseOptions subroutine

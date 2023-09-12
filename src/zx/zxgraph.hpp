@@ -39,8 +39,7 @@ class ZXVertex {
     // See `zxVertex.cpp` for details
 public:
     ZXVertex(size_t id, int qubit, VertexType vt, Phase phase = Phase(), size_t col = 0)
-        : _id{std::move(id)}, _type{std::move(vt)}, _qubit{std::move(qubit)}, _phase{std::move(phase)}, _col{std::move((float)col)} {}
-    ~ZXVertex() {}
+        : _id{id}, _type{vt}, _qubit{qubit}, _phase{phase}, _col{(float)col} {}
 
     // Getter and Setter
 
@@ -109,7 +108,7 @@ private:
     size_t _pin = UINT_MAX;
 };
 
-class ZXGraph {
+class ZXGraph {  // NOLINT(cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     ZXGraph() {}
 
@@ -138,18 +137,7 @@ public:
         });
     }
 
-    ZXGraph(ZXGraph&& other) noexcept {
-        _next_v_id = std::exchange(other._next_v_id, 0);
-        _filename = std::exchange(other._filename, "");
-        _procedures = std::exchange(other._procedures, {});
-        _inputs = std::exchange(other._inputs, ZXVertexList{});
-        _outputs = std::exchange(other._outputs, ZXVertexList{});
-        _vertices = std::exchange(other._vertices, ZXVertexList{});
-        _topological_order = std::exchange(other._topological_order, std::vector<ZXVertex*>{});
-        _input_list = std::exchange(other._input_list, std::unordered_map<size_t, ZXVertex*>{});
-        _output_list = std::exchange(other._output_list, std::unordered_map<size_t, ZXVertex*>{});
-        _global_traversal_counter = std::exchange(other._global_traversal_counter, 0);
-    }
+    ZXGraph(ZXGraph&& other) noexcept = default;
 
     /**
      * @brief Construct a new ZXGraph object from a list of vertices.
@@ -161,8 +149,7 @@ public:
      */
     ZXGraph(ZXVertexList const& vertices,
             ZXVertexList const& inputs,
-            ZXVertexList const& outputs,
-            size_t id) {
+            ZXVertexList const& outputs) {
         _vertices = vertices;
         _inputs = inputs;
         _outputs = outputs;

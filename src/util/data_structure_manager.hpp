@@ -32,7 +32,7 @@ requires requires(T t) {
     { data_structure_info_string(&t) } -> std::convertible_to<std::string>;
     { data_structure_name(&t) } -> std::convertible_to<std::string>;
 }
-class DataStructureManager {
+class DataStructureManager {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
     DataStructureManager(std::string_view name) : _next_id{0}, _focused_id{0}, _type_name{name} {}
     virtual ~DataStructureManager() = default;
@@ -44,7 +44,7 @@ public:
     }
     DataStructureManager(DataStructureManager&& other) noexcept = default;
 
-    virtual DataStructureManager& operator=(DataStructureManager copy) {
+    DataStructureManager& operator=(DataStructureManager copy) {
         copy.swap(*this);
         return *this;
     }

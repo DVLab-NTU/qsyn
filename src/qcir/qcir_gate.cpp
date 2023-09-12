@@ -183,7 +183,7 @@ void QCirGate::print_gate() const {
  * @param gtype
  * @param showTime
  */
-void QCirGate::_print_single_qubit_gate(string gtype, bool show_time) const {
+void QCirGate::_print_single_qubit_gate(string const& gtype, bool show_time) const {
     QubitInfo info = get_qubits()[0];
     string qubit_info = "Q" + to_string(info._qubit);
     string parent_info = "";
@@ -220,7 +220,7 @@ void QCirGate::_print_single_qubit_gate(string gtype, bool show_time) const {
  * @param showRotate
  * @param showTime
  */
-void QCirGate::_print_multiple_qubits_gate(string gtype, bool show_rotation, bool show_time) const {
+void QCirGate::_print_multiple_qubits_gate(string const& gtype, bool show_rotation, bool show_time) const {
     size_t padding_size = (gtype.size() - 1) / 2;
     string max_qubit = to_string(max_element(_qubits.begin(), _qubits.end(), [](QubitInfo const a, QubitInfo const b) {
                                      return a._qubit < b._qubit;
@@ -233,7 +233,7 @@ void QCirGate::_print_multiple_qubits_gate(string gtype, bool show_rotation, boo
         else
             parents.emplace_back("G" + to_string(get_qubits()[i]._parent->get_id()));
     }
-    string max_parent = *max_element(parents.begin(), parents.end(), [](string const a, string const b) {
+    string max_parent = *max_element(parents.begin(), parents.end(), [](string const& a, string const& b) {
         return a.size() < b.size();
     });
 

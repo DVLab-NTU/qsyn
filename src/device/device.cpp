@@ -513,7 +513,7 @@ bool Device::read_device(string const& filename) {
  * @return true
  * @return false
  */
-bool Device::_parse_gate_set(string gate_set_str) {
+bool Device::_parse_gate_set(string const& gate_set_str) {
     string token = "", data = "", gt;
     size_t token_end = dvlab::str::str_get_token(gate_set_str, token, 0, ": ");
     data = gate_set_str.substr(token_end + 1);
@@ -583,7 +583,7 @@ bool Device::_parse_info(std::ifstream& f, vector<vector<float>>& cx_error, vect
  * @return true
  * @return false
  */
-bool Device::_parse_singles(string data, vector<float>& container) {
+bool Device::_parse_singles(string const& data, vector<float>& container) {
     string str, num;
     float fl = 0.;
     size_t m = 0;
@@ -611,13 +611,13 @@ bool Device::_parse_singles(string data, vector<float>& container) {
  * @return true
  * @return false
  */
-bool Device::_parse_float_pairs(string data, vector<vector<float>>& containers) {
+bool Device::_parse_float_pairs(string const& data, vector<vector<float>>& containers) {
     string str, num;
     float fl = 0.;
     size_t n = 0, m = 0;
     while (n < data.size()) {
         n = dvlab::str::str_get_token(data, str, n, '[');
-        str = str.substr(0, str.find_first_of("]"));
+        str = str.substr(0, str.find_first_of(']'));
         m = 0;
         vector<float> single_fl;
         while (m < str.size()) {
@@ -642,13 +642,13 @@ bool Device::_parse_float_pairs(string data, vector<vector<float>>& containers) 
  * @return true
  * @return false
  */
-bool Device::_parse_size_t_pairs(string data, vector<vector<size_t>>& containers) {
+bool Device::_parse_size_t_pairs(string const& data, vector<vector<size_t>>& containers) {
     string str, num;
     unsigned qbn = 0;
     size_t n = 0, m = 0;
     while (n < data.size()) {
         n = dvlab::str::str_get_token(data, str, n, '[');
-        str = str.substr(0, str.find_first_of("]"));
+        str = str.substr(0, str.find_first_of(']'));
         m = 0;
         vector<size_t> single;
         while (m < str.size()) {

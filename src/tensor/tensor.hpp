@@ -28,6 +28,7 @@ protected:
     using InternalType = xt::xarray<DataType>;
 
 public:
+    // NOTE - the initialization of _tensor must use (...) because {...} is list initialization
     Tensor(xt::nested_initializer_list_t<DT, 0> il) : _tensor(il) { reset_axis_history(); }
     Tensor(xt::nested_initializer_list_t<DT, 1> il) : _tensor(il) { reset_axis_history(); }
     Tensor(xt::nested_initializer_list_t<DT, 2> il) : _tensor(il) { reset_axis_history(); }
@@ -35,16 +36,18 @@ public:
     Tensor(xt::nested_initializer_list_t<DT, 4> il) : _tensor(il) { reset_axis_history(); }
     Tensor(xt::nested_initializer_list_t<DT, 5> il) : _tensor(il) { reset_axis_history(); }
 
+    virtual ~Tensor() = default;
+
     Tensor(TensorShape const& shape) : _tensor(shape) { reset_axis_history(); }
     Tensor(TensorShape&& shape) : _tensor(shape) { reset_axis_history(); }
+
     template <typename From>
     requires std::convertible_to<From, InternalType>
     Tensor(From const& internal) : _tensor(internal) { reset_axis_history(); }
+
     template <typename From>
     requires std::convertible_to<From, InternalType>
     Tensor(From&& internal) : _tensor(internal) { reset_axis_history(); }
-
-    virtual ~Tensor() {}
 
     template <typename... Args>
     DT& operator()(Args const&... args);

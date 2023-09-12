@@ -75,7 +75,7 @@ public:
     requires std::floating_point<T>
     static Rational to_rational(T f, T eps = 1e-4);
 
-protected:
+private:
     double _numer = 0;
     double _denom = 1;
     static Rational _mediant(Rational const& lhs, Rational const& rhs);

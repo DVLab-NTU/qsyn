@@ -70,7 +70,7 @@ Command device_mgr_reset_cmd() {
             [](ArgumentParser& parser) {
                 parser.description("reset DeviceMgr");
             },
-            [](ArgumentParser const& parser) {
+            [](ArgumentParser const& /*parser*/) {
                 DEVICE_MGR.reset();
                 return CmdExecResult::done;
             }};

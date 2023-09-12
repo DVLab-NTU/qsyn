@@ -70,7 +70,7 @@ class Command {
 
 public:
     Command(std::string const& name, ParserDefinition defn, OnParseSuccess on)
-        : _parser{name, {.exitOnFailure = false}}, _parser_definition{defn}, _on_parse_success{on} {}
+        : _parser{name, {.exitOnFailure = false}}, _parser_definition{std::move(defn)}, _on_parse_success{std::move(on)} {}
     Command(std::string const& name)
         : Command(name, nullptr, nullptr) {}
 

@@ -36,7 +36,7 @@ extern size_t VERBOSE;
  * @param c
  * @param d
  */
-Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> d) : _graph(g), _device(d), _device_backup(d) {
+Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> const& d) : _graph(g), _device(d), _device_backup(d) {
     _logical_circuit = (c == nullptr) ? new QCir : c;
     _physical_circuit = to_physical() ? new QCir() : nullptr;
     initialize(c == nullptr);
@@ -256,9 +256,8 @@ bool Extractor::extract_czs(bool check) {
 /**
  * @brief Extract CXs
  *
- * @param strategy (0: directly by result of Gaussian Elimination, 1-default: Filter Duplicated CNOT)
  */
-void Extractor::extract_cxs(size_t strategy) {
+void Extractor::extract_cxs() {
     _num_cx_iterations++;
     biadjacency_eliminations();
     update_graph_by_matrix();
@@ -874,7 +873,7 @@ void Extractor::create_matrix() {
  * @param qubit logical
  * @param phase
  */
-void Extractor::prepend_single_qubit_gate(string type, size_t qubit, Phase phase) {
+void Extractor::prepend_single_qubit_gate(string const& type, size_t qubit, Phase phase) {
     if (type == "rotate") {
         _logical_circuit->add_single_rz(qubit, phase, false);
         // if (toPhysical()) {
@@ -902,7 +901,7 @@ void Extractor::prepend_single_qubit_gate(string type, size_t qubit, Phase phase
  * @param qubits
  * @param phase
  */
-void Extractor::prepend_double_qubit_gate(string type, vector<size_t> const& qubits, Phase phase) {
+void Extractor::prepend_double_qubit_gate(string const& type, vector<size_t> const& qubits, Phase phase) {
     assert(qubits.size() == 2);
     _logical_circuit->add_gate(type, qubits, phase, false);
 }

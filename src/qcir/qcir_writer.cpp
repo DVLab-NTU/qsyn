@@ -22,7 +22,7 @@ using namespace std;
  * @return true if successfully write
  * @return false if path or file not found
  */
-bool QCir::write_qasm(string filename) {
+bool QCir::write_qasm(string const& filename) {
     update_topological_order();
     fstream file;
     file.open(filename, std::fstream::out);

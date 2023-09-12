@@ -47,6 +47,7 @@ public:
     using MatchType = T;
 
     ZXRuleTemplate(std::string const& name) : ZXRuleBase(name) {}
+    virtual ~ZXRuleTemplate() = default;
 
     virtual std::vector<MatchType> find_matches(ZXGraph const& graph) const = 0;
     virtual void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const = 0;
@@ -60,6 +61,7 @@ public:
     using MatchType = T;
 
     HZXRuleTemplate(std::string const& name) : ZXRuleBase(name) {}
+    virtual ~HZXRuleTemplate() = default;
 
     virtual std::vector<MatchType> find_matches(ZXGraph const& graph) const = 0;
     virtual void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const = 0;
@@ -84,6 +86,7 @@ private:
 class StateCopyRule : public ZXRuleTemplate<std::tuple<ZXVertex*, ZXVertex*, std::vector<ZXVertex*>>> {
 public:
     StateCopyRule() : ZXRuleTemplate("State Copy Rule") {}
+    virtual ~StateCopyRule() = default;
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
@@ -107,6 +110,7 @@ public:
 class IdentityRemovalRule : public ZXRuleTemplate<std::tuple<ZXVertex*, ZXVertex*, ZXVertex*, EdgeType>> {
 public:
     IdentityRemovalRule() : ZXRuleTemplate("Identity Removal Rule") {}
+    virtual ~IdentityRemovalRule() = default;
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
@@ -129,6 +133,7 @@ public:
 class PhaseGadgetRule : public ZXRuleTemplate<std::tuple<Phase, std::vector<ZXVertex*>, std::vector<ZXVertex*>>> {
 public:
     PhaseGadgetRule() : ZXRuleTemplate("Phase Gadget Rule") {}
+    virtual ~PhaseGadgetRule() = default;
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
@@ -151,6 +156,7 @@ public:
 class PivotRule : public PivotRuleInterface {
 public:
     PivotRule() : PivotRuleInterface("Pivot Rule") {}
+    virtual ~PivotRule() = default;
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
@@ -167,6 +173,7 @@ public:
 class PivotBoundaryRule : public PivotRuleInterface {
 public:
     PivotBoundaryRule() : PivotRuleInterface("Pivot Boundary Rule") {}
+    virtual ~PivotBoundaryRule() = default;
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
@@ -175,6 +182,7 @@ public:
 class SpiderFusionRule : public ZXRuleTemplate<std::pair<ZXVertex*, ZXVertex*>> {
 public:
     SpiderFusionRule() : ZXRuleTemplate("Spider Fusion Rule") {}
+    virtual ~SpiderFusionRule() = default;
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;
@@ -184,6 +192,7 @@ public:
 class HadamardRule : public HZXRuleTemplate<ZXVertex*> {
 public:
     HadamardRule() : HZXRuleTemplate("Hadamard Rule") {}
+    virtual ~HadamardRule() = default;
 
     std::vector<MatchType> find_matches(ZXGraph const& graph) const override;
     void apply(ZXGraph& graph, std::vector<MatchType> const& matches) const override;

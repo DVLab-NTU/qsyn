@@ -88,7 +88,7 @@ string get_placer_type_str() {
  * @param str
  * @return size_t
  */
-size_t get_scheduler_type(string str) {
+size_t get_scheduler_type(string const& str) {
     // 0:base 1:static 2:random 3:greedy 4:search
     if (str == "base") return 0;
     if (str == "static") return 1;
@@ -106,7 +106,7 @@ size_t get_scheduler_type(string str) {
  * @param str
  * @return size_t
  */
-size_t get_router_type(string str) {
+size_t get_router_type(string const& str) {
     // 0:apsp 1:duostra
     if (str == "apsp") return 0;
     if (str == "duostra")
@@ -121,7 +121,7 @@ size_t get_router_type(string str) {
  * @param str
  * @return size_t
  */
-size_t get_placer_type(string str) {
+size_t get_placer_type(string const& str) {
     // 0:static 1:random 2:dfs
     if (str == "static") return 0;
     if (str == "random") return 1;
@@ -141,7 +141,7 @@ size_t get_placer_type(string str) {
  * @param silent
  */
 Duostra::Duostra(QCir* cir, Device dev, DuostraConfig const& config)
-    : _logical_circuit(cir), _device(dev), _check(config.verifyResult),
+    : _logical_circuit(cir), _device(std::move(dev)), _check(config.verifyResult),
       _tqdm{!config.silent && config.useTqdm}, _silent{config.silent} {
     if (VERBOSE > 3) cout << "Creating dependency of quantum circuit..." << endl;
     make_dependency();
@@ -157,7 +157,7 @@ Duostra::Duostra(QCir* cir, Device dev, DuostraConfig const& config)
  * @param silent
  */
 Duostra::Duostra(vector<Operation> const& cir, size_t n_qubit, Device dev, DuostraConfig const& config)
-    : _logical_circuit(nullptr), _device(dev), _check(config.verifyResult),
+    : _logical_circuit(nullptr), _device(std::move(dev)), _check(config.verifyResult),
       _tqdm{!config.silent && config.useTqdm}, _silent{config.silent} {
     if (VERBOSE > 3) cout << "Creating dependency of quantum circuit..." << endl;
     make_dependency(cir, n_qubit);
@@ -322,7 +322,7 @@ void Duostra::print_assembly() const {
         tuple<size_t, size_t> qubits = op.get_qubits();
         string res = "q[" + to_string(get<0>(qubits)) + "]";
         if (get<1>(qubits) != SIZE_MAX) {
-            res = res + ",q[" + to_string(get<1>(qubits)) + "]";
+            res += ",q[" + to_string(get<1>(qubits)) + "]";
         }
         res += ";";
         cout << left << setw(20) << res;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

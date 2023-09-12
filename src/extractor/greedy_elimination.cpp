@@ -19,7 +19,7 @@ using namespace std;
  * @param reversedSearch
  * @return vector<size_t>
  */
-vector<size_t> Extractor::find_minimal_sums(BooleanMatrix& matrix, bool do_reversed_search) {
+vector<size_t> Extractor::find_minimal_sums(BooleanMatrix& matrix) {
     // NOTE - double-check directly extracted candidates and return empty result
     for (size_t i = 0; i < matrix.num_rows(); i++) {
         if (matrix[i].is_one_hot()) return {};
@@ -63,7 +63,7 @@ vector<size_t> Extractor::find_minimal_sums(BooleanMatrix& matrix, bool do_rever
 vector<BooleanMatrix::RowOperation> Extractor::greedy_reduction(BooleanMatrix& m) {
     BooleanMatrix matrix = m;
     vector<BooleanMatrix::RowOperation> result;
-    vector<size_t> indices = Extractor::find_minimal_sums(matrix, false);
+    vector<size_t> indices = Extractor::find_minimal_sums(matrix);
     // Return empty vector if indices do not exist
     if (!indices.size()) return result;
     while (indices.size() > 1) {

@@ -50,7 +50,7 @@ Command tensor_mgr_reset_cmd() {
             [](ArgumentParser& parser) {
                 parser.description("reset the tensor manager");
             },
-            [](ArgumentParser const& parser) {
+            [](ArgumentParser const& /*parser*/) {
                 TENSOR_MGR.reset();
                 return CmdExecResult::done;
             }};

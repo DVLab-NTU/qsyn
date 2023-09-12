@@ -514,7 +514,7 @@ bool BooleanMatrix::from_zxvertices(ZXVertexList const& frontier, ZXVertexList c
         for (auto& [vt, _] : v->get_neighbors()) {
             if (neighbors.contains(vt)) storage[table[vt]] = 1;
         }
-        _matrix.emplace_back(1, storage);
+        _matrix.emplace_back(storage);
     }
 
     return true;

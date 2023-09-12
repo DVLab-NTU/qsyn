@@ -44,9 +44,6 @@ struct fmt::formatter<DeviceInfo> {
 std::ostream& operator<<(std::ostream& os, DeviceInfo const& info);
 
 class Topology {
-public:
-    using AdjacencyPair = std::pair<size_t, size_t>;
-    using PhysicalQubitInfo = std::unordered_map<size_t, DeviceInfo>;
     struct AdjacencyPairHash {
         size_t operator()(std::pair<size_t, size_t> const& k) const {
             return (
@@ -55,6 +52,10 @@ public:
                 1);
         }
     };
+
+public:
+    using AdjacencyPair = std::pair<size_t, size_t>;
+    using PhysicalQubitInfo = std::unordered_map<size_t, DeviceInfo>;
     using AdjacencyMap = std::unordered_map<AdjacencyPair, DeviceInfo, AdjacencyPairHash>;
     Topology() {}
 
@@ -64,7 +65,7 @@ public:
     DeviceInfo const& get_qubit_info(size_t a);
     size_t get_num_adjacencies() const { return _adjacency_info.size(); }
     void set_num_qubits(size_t n) { _num_qubit = n; }
-    void set_name(std::string n) { _name = n; }
+    void set_name(std::string n) { _name = std::move(n); }
     void add_gate_type(GateType gt) { _gate_set.emplace_back(gt); }
     void add_adjacency_info(size_t a, size_t b, DeviceInfo info);
     void add_qubit_info(size_t a, DeviceInfo info);
@@ -141,7 +142,7 @@ public:
     bool qubit_id_exists(size_t id) { return _qubit_list.contains(id); }
 
     void set_num_qubits(size_t n) { _num_qubit = n; }
-    void add_physical_qubit(PhysicalQubit q) { _qubit_list[q.get_id()] = q; }
+    void add_physical_qubit(PhysicalQubit q) { _qubit_list[q.get_id()] = std::move(q); }
     void add_adjacency(size_t a, size_t b);
 
     // NOTE - Duostra
@@ -173,10 +174,10 @@ private:
     PhysicalQubitList _qubit_list;
 
     // NOTE - Internal functions only used in reader
-    bool _parse_gate_set(std::string gate_set_str);
-    bool _parse_singles(std::string data, std::vector<float>& container);
-    bool _parse_float_pairs(std::string data, std::vector<std::vector<float>>& containers);
-    bool _parse_size_t_pairs(std::string data, std::vector<std::vector<size_t>>& containers);
+    bool _parse_gate_set(std::string const& gate_set_str);
+    bool _parse_singles(std::string const& data, std::vector<float>& container);
+    bool _parse_float_pairs(std::string const& data, std::vector<std::vector<float>>& containers);
+    bool _parse_size_t_pairs(std::string const& data, std::vector<std::vector<size_t>>& containers);
     bool _parse_info(std::ifstream& f, std::vector<std::vector<float>>& cx_error, std::vector<std::vector<float>>& cx_delay, std::vector<float>& single_error, std::vector<float>& single_delay);
 
     // NOTE - Containers and helper functions for Floyd-Warshall

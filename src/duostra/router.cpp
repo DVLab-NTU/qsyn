@@ -27,27 +27,6 @@ extern size_t VERBOSE;
 AStarNode::AStarNode(size_t cost, size_t id, bool source)
     : _estimated_cost(cost), _id(id), _source(source) {}
 
-/**
- * @brief Construct a new AStarNode::AStarNode object
- *
- * @param other
- */
-AStarNode::AStarNode(AStarNode const& other)
-    : _estimated_cost(other._estimated_cost), _id(other._id), _source(other._source) {}
-
-/**
- * @brief Assignment operator overloading for AStarNode
- *
- * @param other
- * @return AStarNode&
- */
-AStarNode& AStarNode::operator=(AStarNode const& other) {
-    _estimated_cost = other._estimated_cost;
-    _id = other._id;
-    _source = other._source;
-    return *this;
-}
-
 // SECTION - Class Router Member Functions
 
 /**
@@ -57,7 +36,7 @@ AStarNode& AStarNode::operator=(AStarNode const& other) {
  * @param cost
  * @param orient
  */
-Router::Router(Device&& device, string const& cost, bool orient) noexcept
+Router::Router(Device&& device, string const& cost, bool orient)
     : _greedy_type(false),
       _duostra(false),
       _orient(orient),
@@ -66,32 +45,6 @@ Router::Router(Device&& device, string const& cost, bool orient) noexcept
       _logical_to_physical({}) {
     _initialize(cost);
 }
-
-/**
- * @brief Construct a new Router:: Router object
- *
- * @param other
- */
-Router::Router(Router const& other) noexcept
-    : _greedy_type(other._greedy_type),
-      _duostra(other._duostra),
-      _orient(other._orient),
-      _apsp(other._apsp),
-      _device(other._device),
-      _logical_to_physical(other._logical_to_physical) {}
-
-/**
- * @brief Construct a new Router:: Router object
- *
- * @param other
- */
-Router::Router(Router&& other) noexcept
-    : _greedy_type(other._greedy_type),
-      _duostra(other._duostra),
-      _orient(other._orient),
-      _apsp(other._apsp),
-      _device(std::move(other._device)),
-      _logical_to_physical(std::move(other._logical_to_physical)) {}
 
 /**
  * @brief Clone router

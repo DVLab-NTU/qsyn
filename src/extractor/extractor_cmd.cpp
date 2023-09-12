@@ -49,7 +49,7 @@ Command extraction_cmd() {
             [](ArgumentParser &parser) {
                 parser.description("extract QCir from ZXGraph");
             },
-            [](ArgumentParser const &parser) {
+            [](ArgumentParser const & /*parser*/) {
                 if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
                 if (!ZXGRAPH_MGR.get()->is_graph_like()) {
                     LOGGER.error("ZXGraph {0} is not graph-like. Not extractable!!", ZXGRAPH_MGR.focused_id());

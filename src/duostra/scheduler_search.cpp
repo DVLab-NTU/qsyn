@@ -73,57 +73,12 @@ TreeNode::TreeNode(TreeNodeConf conf,
  * @param other
  */
 TreeNode::TreeNode(TreeNode const& other)
-    : _conf(other._conf),
-      _gate_ids(other._gate_ids),
-      _children(other._children),
-      _max_cost(other._max_cost),
-      _router(other._router->clone()),
-      _scheduler(other._scheduler->clone()) {}
-
-/**
- * @brief Construct a new Tree Node:: Tree Node object
- *
- * @param other
- */
-TreeNode::TreeNode(TreeNode&& other)
-    : _conf(other._conf),
-      _gate_ids(std::move(other._gate_ids)),
-      _children(std::move(other._children)),
-      _max_cost(other._max_cost),
-      _router(std::move(other._router)),
-      _scheduler(std::move(other._scheduler)) {}
-
-/**
- * @brief Assignment operator overloading for TreeNode
- *
- * @param other
- * @return TreeNode&
- */
-TreeNode& TreeNode::operator=(TreeNode const& other) {
-    _conf = other._conf;
-    _gate_ids = other._gate_ids;
-    _children = other._children;
-    _max_cost = other._max_cost;
-    _router = other._router->clone();
-    _scheduler = other._scheduler->clone();
-    return *this;
-}
-
-/**
- * @brief Assignment operator overloading for TreeNode
- *
- * @param other
- * @return TreeNode&
- */
-TreeNode& TreeNode::operator=(TreeNode&& other) {
-    _conf = other._conf;
-    _gate_ids = std::move(other._gate_ids);
-    _children = std::move(other._children);
-    _max_cost = other._max_cost;
-    _router = std::move(other._router);
-    _scheduler = std::move(other._scheduler);
-    return *this;
-}
+    : _conf{other._conf},
+      _gate_ids{other._gate_ids},
+      _children{other._children},
+      _max_cost{other._max_cost},
+      _router{other._router->clone()},
+      _scheduler{other._scheduler->clone()} {}
 
 /**
  * @brief Get children
@@ -317,8 +272,8 @@ size_t TreeNode::best_cost() const {
  * @param topo
  * @param tqdm
  */
-SearchScheduler::SearchScheduler(unique_ptr<CircuitTopology> topo, bool tqdm)
-    : GreedyScheduler(std::move(topo), tqdm),
+SearchScheduler::SearchScheduler(CircuitTopology const& topo, bool tqdm)
+    : GreedyScheduler(topo, tqdm),
       _lookAhead(DUOSTRA_DEPTH),
       _never_cache(DUOSTRA_NEVER_CACHE),
       _execute_single(DUOSTRA_EXECUTE_SINGLE) {
@@ -341,8 +296,8 @@ SearchScheduler::SearchScheduler(SearchScheduler const& other)
  *
  * @param other
  */
-SearchScheduler::SearchScheduler(SearchScheduler&& other)
-    : GreedyScheduler(other),
+SearchScheduler::SearchScheduler(SearchScheduler&& other) noexcept
+    : GreedyScheduler(std::move(other)),
       _lookAhead(other._lookAhead),
       _never_cache(other._never_cache),
       _execute_single(other._execute_single) {}
@@ -374,7 +329,7 @@ void SearchScheduler::_cache_when_necessary() {
  * @return Device
  */
 Device SearchScheduler::_assign_gates(unique_ptr<Router> router) {
-    auto total_gates = _circuit_topology->get_num_gates();
+    auto total_gates = _circuit_topology.get_num_gates();
 
     auto root = make_unique<TreeNode>(
         TreeNodeConf{_never_cache, _execute_single, _conf._candidates},
