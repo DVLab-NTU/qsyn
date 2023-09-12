@@ -202,7 +202,7 @@ ZXGraph create_ccx_zx_form(QCirGate* gate, size_t decomposition_mode) {
     size_t ctrl_qubit_2 = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[1]._qubit : gate->get_qubits()[0]._qubit;
     size_t ctrl_qubit_1 = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[2]._qubit : (gate->get_qubits()[1]._isTarget ? gate->get_qubits()[2]._qubit : gate->get_qubits()[1]._qubit);
     size_t targ_qubit = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[0]._qubit : (gate->get_qubits()[1]._isTarget ? gate->get_qubits()[1]._qubit : gate->get_qubits()[2]._qubit);
-    vector<pair<pair<VertexType, Phase>, size_t>> vertices_info;
+    vector<pair<pair<VertexType, Phase>, int>> vertices_info;
     vector<pair<pair<size_t, size_t>, EdgeType>> adj_pair;
     vector<int> vertices_col;
     vector<ZXVertex*> vertices_list = {};
