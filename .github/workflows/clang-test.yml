@@ -1,0 +1,18 @@
+name: clang test
+
+on:
+  push:
+    branches: ["main", "devt"]
+  pull_request:
+    branches: ["main", "devt"]
+
+jobs:
+  docker-test:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+      - name: Build the test docker image
+        run: docker build -t qsyn-test-clang -f docker/clang-test.Dockerfile .
+      - name: Run the test docker image
+        run: docker run --rm --security-opt seccomp=unconfined -v "$(pwd)":/app/qsyn qsyn-test-clang
