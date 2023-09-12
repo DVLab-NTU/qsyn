@@ -4,7 +4,8 @@ cd build || {
     echo "Failed to enter build directory"
     exit 1
 }
-cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCOPY_EXECUTABLE=ON ../qsyn
+
+cmake ../qsyn
 make -j"$(nproc)"
 echo ../qsyn/RUN_TESTS "$@" --qsyn ./qsyn
 ../qsyn/RUN_TESTS "$@" --qsyn ./qsyn
