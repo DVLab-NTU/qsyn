@@ -33,6 +33,14 @@ git clone https://github.com/DVLab-NTU/qsyn.git
 cd qsyn
 ```
 
+Then, you can follow the instructions below to install the dependencies and build `qsyn`.
+
+Or you can try out `qsyn` in a containerized environment by running
+
+```sh
+docker run -it --rm dvlab/qsyn
+```
+
 ### Optional Dependencies for Visualization
 
 Visualization functionalities of `qsyn` depends at runtime on the following dependencies. Please refer to the linked pages for installation instructions:
@@ -41,39 +49,62 @@ Visualization functionalities of `qsyn` depends at runtime on the following depe
   - Please refer to [this page](https://qiskit.org/documentation/getting_started.html)
 - `texlive` for drawing ZX-diagrams.
   - For Ubuntu:
-    ```shell
+    ```sh
     sudo apt-get install texlive-latex-base
     ```
   - Other Platforms: please refer to [this page](https://tug.org/texlive/quickinstall.html)
 
 ### Compilation
 
-`qsyn` uses CMake manage the dependencies:
+`qsyn` uses CMake to manage dependencies:
 
-1. create a `build` directory to store CMake files
+1. create a `build` directory to store CMake artifacts
 
-   ```shell!
-   mkdir build
-   cd build
-   ```
+```sh
+mkdir build
+cd build
+```
 
-2. run CMake to generate Makefiles, if this step fails, you might have to install `blas` and `lapack` libraries
+2. run CMake to generate Makefiles, if this step fails, you might have to install `blas` and `lapack` libraries.
 
-   ```shell!
-   cmake ..
-   ```
+```sh
+cmake ..
+```
+
+Since we use some C++20 features that are not yet supported by Apple Clang, you'll need to install a the compiler yourself. You can install the `llvm` toolchain with `clang++` by running
+
+```sh
+brew install llvm
+```
+
+Then, run the following command to force `cmake` to use the new `clang++` you installed.
+
+```sh
+cmake .. -DCMAKE_CXX_COMPILER=$(which clang++)
+```
 
 3. run `make` to build up the executable, you would want to crank up the number of threads to speed up the compilation process
 
-   ```shell!
-    make -j16
-   ```
+```sh
+cmake --build . -j16
+# or
+make -j16
+```
+
+You can also build `qsyn` in a containerized environment by running
+
+```sh
+docker run -it --rm -v $(pwd):/qsyn dvlab/qsyn-env
+cd /qsyn
+```
+
+Then, you can follow the instructions above to build `qsyn` in the container.
 
 ### Run
 
 - After successful compilation, you can call the command-line interface of `Qsyn` where you can execute commands implemented into `Qsyn`.
 
-  ```shell!
+  ```sh
    ❯ ./qsyn
    DV Lab, NTUEE, Qsyn 0.5.1
    qsyn>
@@ -81,7 +112,7 @@ Visualization functionalities of `qsyn` depends at runtime on the following depe
 
 - To run the demo program, you can provide a file containing commands. For example:
 
-  ```shell!
+  ```sh
   ❯ ./qsyn -f tests/demo/demo/dof/tof_3.dof
   DV Lab, NTUEE, Qsyn 0.5.1
   qsyn> verb 0
@@ -99,7 +130,7 @@ Visualization functionalities of `qsyn` depends at runtime on the following depe
 
 - The same result can be produced by running in the command-line mode:
 
-  ```shell!
+  ```sh
   ❯ ./qsyn
   DV Lab, NTUEE, Qsyn 0.4.0
   qsyn> dofile tests/demo/demo/dof/tof_3.dof
@@ -123,27 +154,29 @@ We have provided some DOFILEs, i.e., a sequence of commands, to serve as functio
 
 - To run a DOFILE and compare the result to the reference, type
 
-  ```shell!
+  ```sh
   ./RUN_TESTS <path/to/test> -d
   ```
 
 - To update the reference to a dofile, type
 
-  ```shell!
+  ```sh
   ./RUN_TESTS <path/to/test> -u
   ```
 
 - You may also run all DOFILEs by running
 
-  ```shell!
+  ```sh
   ./RUN_TESTS
   ```
 
 - To run test in a containerized environment, run
 
-  ```shell!
+  ```sh
   ./RUN_TESTS_DOCKER
   ```
+
+  All arguments are the same as `RUN_TESTS`.
 
   Notice that if you use a different BLAS or LAPACK inplementation to build `Qsyn`, some of the DOFILEs may produce different results, which is to be expected.
 
@@ -239,3 +272,7 @@ Certain functions of `qsyn` is enabled by a series of third-party libraries. For
 | Command | Description                                                                   | Options |
 | ------- | ----------------------------------------------------------------------------- | ------- |
 | LTS     | (experimental) perform mapping from ZX-graph to corresponding lattice surgery |         |
+
+```
+
+```
