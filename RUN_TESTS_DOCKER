@@ -3,6 +3,16 @@
 # cd to the directory of this script
 cd "$(dirname "$0")" || exit
 
-docker build -t qsyn-test -f docker/test.Dockerfile .
+compiler="$1"
+if [ -z "$1" ]; then
+    compiler="gcc"
+fi
 
-docker run --rm --security-opt seccomp=unconfined -v "$(pwd)":/app/qsyn qsyn-test "$@"
+
+if [ "$compiler" = "clang" ]; then
+    docker build -t qsyn-test-clang -f docker/clang-test.Dockerfile .
+    docker run --rm --security-opt seccomp=unconfined -v "$(pwd)":/app/qsyn qsyn-test-clang "$@"
+elif [ "$compiler" = "gcc" ]; then
+    docker build -t qsyn-test-gcc -f docker/gcc-test.Dockerfile .
+    docker run --rm --security-opt seccomp=unconfined -v "$(pwd)":/app/qsyn qsyn-test-gcc "$@"
+fi
