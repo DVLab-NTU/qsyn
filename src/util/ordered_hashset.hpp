@@ -69,6 +69,10 @@
 
 #include "./ordered_hashtable.hpp"
 
+namespace dvlab {
+
+namespace utils {
+
 template <typename Key, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
 class ordered_hashset final : public ordered_hashtable<Key, const Key, Key, Hash, KeyEqual> {  // NOLINT(readability-identifier-naming) : ordered_hashset intentionally mimics std::unordered_set
     using _Table_t = ordered_hashtable<Key, const Key, Key, Hash, KeyEqual>;
@@ -108,3 +112,7 @@ public:
 };
 
 static_assert(std::ranges::bidirectional_range<ordered_hashset<int>>);
+
+}  // namespace utils
+
+}  // namespace dvlab

@@ -10,6 +10,8 @@
 #include "util/phase.hpp"
 #include "util/util.hpp"
 
+namespace qsyn::tensor {
+
 template <typename T>
 class QTensor : public Tensor<std::complex<T>> {
 protected:
@@ -40,8 +42,8 @@ public:
     QTensor(From&& internal) : Tensor<DataType>(internal) {}
 
     static QTensor<T> identity(size_t const& n_qubits);
-    static QTensor<T> zspider(size_t const& arity, Phase const& phase = Phase(0));
-    static QTensor<T> xspider(size_t const& arity, Phase const& phase = Phase(0));
+    static QTensor<T> zspider(size_t const& arity, dvlab::Phase const& phase = dvlab::Phase(0));
+    static QTensor<T> xspider(size_t const& arity, dvlab::Phase const& phase = dvlab::Phase(0));
     static QTensor<T> hbox(size_t const& arity, DataType const& a = -1.);
     static QTensor<T> xgate() {
         using namespace std::literals;
@@ -55,12 +57,12 @@ public:
         using namespace std::literals;
         return {{1. + 0.i, 0. + 0.i}, {0. + 0.i, -1. + 0.i}};
     }
-    static QTensor<T> rxgate(Phase const& phase = Phase(0));
-    static QTensor<T> rygate(Phase const& phase = Phase(0));
-    static QTensor<T> rzgate(Phase const& phase = Phase(0));
-    static QTensor<T> pxgate(Phase const& phase = Phase(0));
-    static QTensor<T> pygate(Phase const& phase = Phase(0));
-    static QTensor<T> pzgate(Phase const& phase = Phase(0));
+    static QTensor<T> rxgate(dvlab::Phase const& phase = dvlab::Phase(0));
+    static QTensor<T> rygate(dvlab::Phase const& phase = dvlab::Phase(0));
+    static QTensor<T> rzgate(dvlab::Phase const& phase = dvlab::Phase(0));
+    static QTensor<T> pxgate(dvlab::Phase const& phase = dvlab::Phase(0));
+    static QTensor<T> pygate(dvlab::Phase const& phase = dvlab::Phase(0));
+    static QTensor<T> pzgate(dvlab::Phase const& phase = dvlab::Phase(0));
     static QTensor<T> control(QTensor<T> const& gate, size_t n_ctrls = 1);
 
     QTensor<T> self_tensor_dot(TensorAxisList const& ax1 = {}, TensorAxisList const& ax2 = {});
@@ -74,7 +76,7 @@ public:
     friend U global_norm(QTensor<U> const& t1, QTensor<U> const& t2);
 
     template <typename U>
-    friend Phase global_phase(QTensor<U> const& t1, QTensor<U> const& t2);
+    friend dvlab::Phase global_phase(QTensor<U> const& t1, QTensor<U> const& t2);
 
     template <typename U>
     friend bool is_equivalent(QTensor<U> const& t1, QTensor<U> const& t2, double eps /* = 1e-6*/);
@@ -126,14 +128,14 @@ QTensor<T> QTensor<T>::identity(size_t const& n_qubits) {
  * @return QTensor<T>
  */
 template <typename T>
-QTensor<T> QTensor<T>::zspider(size_t const& arity, Phase const& phase) {
+QTensor<T> QTensor<T>::zspider(size_t const& arity, dvlab::Phase const& phase) {
     using namespace std::literals;
     QTensor<T> t = xt::zeros<DataType>(TensorShape(arity, 2));
     if (arity == 0) {
-        t() = 1. + std::exp(1.0i * Phase::phase_to_floating_point<T>(phase));
+        t() = 1. + std::exp(1.0i * dvlab::Phase::phase_to_floating_point<T>(phase));
     } else {
         t[TensorIndex(arity, 0)] = 1.;
-        t[TensorIndex(arity, 1)] = std::exp(1.0i * Phase::phase_to_floating_point<T>(phase));
+        t[TensorIndex(arity, 1)] = std::exp(1.0i * dvlab::Phase::phase_to_floating_point<T>(phase));
     }
     t._tensor *= _nu_pow(2 - arity);
     return t;
@@ -148,14 +150,14 @@ QTensor<T> QTensor<T>::zspider(size_t const& arity, Phase const& phase) {
  * @return QTensor<T>
  */
 template <typename T>
-QTensor<T> QTensor<T>::xspider(size_t const& arity, Phase const& phase) {
+QTensor<T> QTensor<T>::xspider(size_t const& arity, dvlab::Phase const& phase) {
     using namespace std::literals;
     QTensor<T> t = xt::ones<QTensor<T>::DataType>(TensorShape(arity, 2));
     QTensor<T> ket_minus(TensorShape{2});
     ket_minus(0, 0) = 1.;
     ket_minus(0, 1) = -1.;
     QTensor<T> tmp = tensor_product_pow(ket_minus, arity);
-    t._tensor += tmp._tensor * std::exp(1.0i * Phase::phase_to_floating_point<T>(phase));
+    t._tensor += tmp._tensor * std::exp(1.0i * dvlab::Phase::phase_to_floating_point<T>(phase));
     t._tensor /= std::pow(std::sqrt(2), arity);
     t._tensor *= _nu_pow(2 - arity);
     return t;
@@ -189,10 +191,10 @@ QTensor<T> QTensor<T>::hbox(size_t const& arity, QTensor<T>::DataType const& a) 
  * @return QTensor<T>
  */
 template <typename T>
-QTensor<T> QTensor<T>::rxgate(Phase const& phase) {
+QTensor<T> QTensor<T>::rxgate(dvlab::Phase const& phase) {
     using namespace std::literals;
     auto t = QTensor<T>::pxgate(phase);
-    t._tensor *= std::exp(-0.5i * Phase::phase_to_floating_point<T>(phase));
+    t._tensor *= std::exp(-0.5i * dvlab::Phase::phase_to_floating_point<T>(phase));
     return t;
 }
 
@@ -204,10 +206,10 @@ QTensor<T> QTensor<T>::rxgate(Phase const& phase) {
  * @return QTensor<T>
  */
 template <typename T>
-QTensor<T> QTensor<T>::rygate(Phase const& phase) {
+QTensor<T> QTensor<T>::rygate(dvlab::Phase const& phase) {
     using namespace std::literals;
     auto t = QTensor<T>::pygate(phase);
-    t._tensor *= std::exp(-0.5i * Phase::phase_to_floating_point<T>(phase));
+    t._tensor *= std::exp(-0.5i * dvlab::Phase::phase_to_floating_point<T>(phase));
     return t;
 }
 
@@ -219,10 +221,10 @@ QTensor<T> QTensor<T>::rygate(Phase const& phase) {
  * @return QTensor<T>
  */
 template <typename T>
-QTensor<T> QTensor<T>::rzgate(Phase const& phase) {
+QTensor<T> QTensor<T>::rzgate(dvlab::Phase const& phase) {
     using namespace std::literals;
     auto t = QTensor<T>::pzgate(phase);
-    t._tensor *= std::exp(-0.5i * Phase::phase_to_floating_point<T>(phase));
+    t._tensor *= std::exp(-0.5i * dvlab::Phase::phase_to_floating_point<T>(phase));
     return t;
 }
 
@@ -234,7 +236,7 @@ QTensor<T> QTensor<T>::rzgate(Phase const& phase) {
  * @return QTensor<T>
  */
 template <typename T>
-QTensor<T> QTensor<T>::pxgate(Phase const& phase) {
+QTensor<T> QTensor<T>::pxgate(dvlab::Phase const& phase) {
     return QTensor<T>::xspider(2, phase);
 }
 
@@ -246,10 +248,10 @@ QTensor<T> QTensor<T>::pxgate(Phase const& phase) {
  * @return QTensor<T>
  */
 template <typename T>
-QTensor<T> QTensor<T>::pygate(Phase const& phase) {
-    auto sdg = QTensor<T>::pzgate(Phase(-1, 2));
+QTensor<T> QTensor<T>::pygate(dvlab::Phase const& phase) {
+    auto sdg = QTensor<T>::pzgate(dvlab::Phase(-1, 2));
     auto px = QTensor<T>::pxgate(phase);
-    auto s = QTensor<T>::pzgate(Phase(1, 2));
+    auto s = QTensor<T>::pzgate(dvlab::Phase(1, 2));
     return tensordot(s, tensordot(px, sdg, {1}, {0}), {1}, {0});
 }
 
@@ -261,7 +263,7 @@ QTensor<T> QTensor<T>::pygate(Phase const& phase) {
  * @return QTensor<T>
  */
 template <typename T>
-QTensor<T> QTensor<T>::pzgate(Phase const& phase) {
+QTensor<T> QTensor<T>::pzgate(dvlab::Phase const& phase) {
     return QTensor<T>::zspider(2, phase);
 }
 
@@ -389,8 +391,8 @@ U global_norm(QTensor<U> const& t1, QTensor<U> const& t2) {
  * @return U
  */
 template <typename U>
-Phase global_phase(QTensor<U> const& t1, QTensor<U> const& t2) {
-    return Phase(std::arg(global_scalar_factor(t1, t2)));
+dvlab::Phase global_phase(QTensor<U> const& t1, QTensor<U> const& t2) {
+    return dvlab::Phase(std::arg(global_scalar_factor(t1, t2)));
 }
 
 template <typename U>
@@ -414,3 +416,5 @@ template <typename T>
 typename QTensor<T>::DataType QTensor<T>::_nu_pow(int const& n) {
     return std::pow(2., -0.25 * n);
 }
+
+}  // namespace qsyn::tensor

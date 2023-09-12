@@ -13,6 +13,8 @@
 
 #include "device/device.hpp"
 
+namespace qsyn::duostra {
+
 class Gate;
 
 class AStarNode {
@@ -39,6 +41,10 @@ public:
 
 class Router {
 public:
+    using Device = qsyn::device::Device;
+    using Operation = qsyn::device::Operation;
+    using PhysicalQubit = qsyn::device::PhysicalQubit;
+
     using PriorityQueue = std::priority_queue<AStarNode, std::vector<AStarNode>, AStarComp>;
     Router(Device&&, std::string const&, bool);
 
@@ -51,9 +57,9 @@ public:
     bool is_executable(Gate const&);
 
     // Main Router function
-    Operation execute_single(GateType, Phase, size_t);
-    std::vector<Operation> duostra_routing(GateType, size_t, Phase, std::tuple<size_t, size_t>, bool, bool);
-    std::vector<Operation> apsp_routing(GateType, size_t, Phase, std::tuple<size_t, size_t>, bool, bool);
+    Operation execute_single(qcir::GateType, dvlab::Phase, size_t);
+    std::vector<Operation> duostra_routing(qcir::GateType, size_t, dvlab::Phase, std::tuple<size_t, size_t>, bool, bool);
+    std::vector<Operation> apsp_routing(qcir::GateType, size_t, dvlab::Phase, std::tuple<size_t, size_t>, bool, bool);
     std::vector<Operation> assign_gate(Gate const&);
 
 private:
@@ -68,5 +74,7 @@ private:
     std::tuple<size_t, size_t> _get_physical_qubits(Gate const& gate) const;
 
     std::tuple<bool, size_t> _touch_adjacency(PhysicalQubit& qubit, PriorityQueue& pq, bool source);  // return <if touch target, target id>, swtch: false q0 propagate, true q1 propagate
-    std::vector<Operation> _traceback([[maybe_unused]] GateType gt, size_t, Phase ph, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swap_ids, bool swapped);
+    std::vector<Operation> _traceback([[maybe_unused]] qcir::GateType gt, size_t, dvlab::Phase ph, PhysicalQubit& q0, PhysicalQubit& q1, PhysicalQubit& t0, PhysicalQubit& t1, bool swap_ids, bool swapped);
 };
+
+}  // namespace qsyn::duostra

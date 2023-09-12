@@ -16,8 +16,6 @@
 #include "./cli.hpp"
 #include "cli/cli_char_def.hpp"
 
-using namespace std;
-
 //----------------------------------------------------------------------
 //    Member Function for class CmdParser
 //----------------------------------------------------------------------
@@ -52,14 +50,14 @@ auto reset_keypress(termios const& stored_settings) {
     return stored_settings;
 }
 
-auto mygetc(istream& istr) -> char {
+auto mygetc(std::istream& istr) -> char {
     char ch = 0;
     istr.get(ch);
     return ch;
 }
 
-int get_char(istream& istr) {
-    using namespace key_code;
+int get_char(std::istream& istr) {
+    using namespace dvlab::key_code;
     char ch = mygetc(istr);
 
     assert(ch != interrupt_key);
@@ -101,7 +99,7 @@ int get_char(istream& istr) {
                 else
                     return undefined_key;
             } else {
-                detail::beep();
+                dvlab::detail::beep();
                 return get_char(istr);
             }
         }
@@ -113,11 +111,13 @@ int get_char(istream& istr) {
 
 }  // namespace
 
+namespace dvlab {
+
 /**
  * @brief reset the read buffer
  *
  */
-void CommandLineInterface::_reset_buffer() {
+void dvlab::CommandLineInterface::_reset_buffer() {
     _read_buffer.clear();
     _cursor_position = 0;
     _tab_press_count = 0;
@@ -130,7 +130,7 @@ void CommandLineInterface::_reset_buffer() {
  * @param config
  * @return CmdExecResult
  */
-CmdExecResult CommandLineInterface::listen_to_input(std::istream& istr, std::string const& prompt, ListenConfig const& config) {
+CmdExecResult dvlab::CommandLineInterface::listen_to_input(std::istream& istr, std::string const& prompt, ListenConfig const& config) {
     using namespace key_code;
 
     auto stored_prompt = _command_prompt;  // save the original _prompt. We do this because signal handlers cannot take extra arguments
@@ -232,7 +232,7 @@ CmdExecResult CommandLineInterface::listen_to_input(std::istream& istr, std::str
     }
 }
 
-CmdExecResult CommandLineInterface::_read_one_line(istream& istr) {
+CmdExecResult dvlab::CommandLineInterface::_read_one_line(std::istream& istr) {
     auto result = this->listen_to_input(istr, _command_prompt);
 
     if (result == CmdExecResult::quit) {
@@ -251,8 +251,8 @@ CmdExecResult CommandLineInterface::_read_one_line(istream& istr) {
     if (tokens.size()) {
         // concat tokens with '\;' to a single token
         for (auto itr = next(tokens.rbegin()); itr != tokens.rend(); ++itr) {
-            string& curr_token = *itr;
-            string& next_token = *prev(itr);
+            std::string& curr_token = *itr;
+            std::string& next_token = *prev(itr);
 
             if (curr_token.ends_with('\\') && !curr_token.ends_with("\\\\")) {
                 curr_token.back() = ';';
@@ -282,7 +282,7 @@ CmdExecResult CommandLineInterface::_read_one_line(istream& istr) {
 //
 // [Note] This function can also be called by other member functions below
 //        to move the _readBufPtr to proper position.
-bool CommandLineInterface::_move_cursor_to(size_t pos) {
+bool dvlab::CommandLineInterface::_move_cursor_to(size_t pos) {
     if (pos > _read_buffer.size()) {  // since pos is unsigned, this should also checks if pos < 0
         detail::beep();
         return false;
@@ -290,7 +290,7 @@ bool CommandLineInterface::_move_cursor_to(size_t pos) {
 
     // move left
     if (_cursor_position > (size_t)pos) {
-        fmt::print("{}", string(_cursor_position - pos, '\b'));
+        fmt::print("{}", std::string(_cursor_position - pos, '\b'));
     }
 
     // move right
@@ -301,7 +301,7 @@ bool CommandLineInterface::_move_cursor_to(size_t pos) {
     return true;
 }
 
-bool CommandLineInterface::_delete_char() {
+bool dvlab::CommandLineInterface::_delete_char() {
     if (_cursor_position == _read_buffer.size()) {
         detail::beep();
         return false;
@@ -318,7 +318,7 @@ bool CommandLineInterface::_delete_char() {
     return true;
 }
 
-void CommandLineInterface::_insert_char(char ch) {
+void dvlab::CommandLineInterface::_insert_char(char ch) {
     if (_read_buffer.size() >= std::numeric_limits<int>::max()) {
         detail::beep();
         return;
@@ -344,17 +344,17 @@ void CommandLineInterface::_insert_char(char ch) {
 // cmd>
 //      ^
 //
-void CommandLineInterface::_delete_line() {
+void dvlab::CommandLineInterface::_delete_line() {
     _move_cursor_to(_read_buffer.size());
-    fmt::print("{}", string(_cursor_position, '\b'));
-    fmt::print("{}", string(_cursor_position, ' '));
-    fmt::print("{}", string(_cursor_position, '\b'));
+    fmt::print("{}", std::string(_cursor_position, '\b'));
+    fmt::print("{}", std::string(_cursor_position, ' '));
+    fmt::print("{}", std::string(_cursor_position, '\b'));
     _read_buffer.clear();
 }
 
 // Reprint the current command to a newline
 // cursor should be restored to the original location
-void CommandLineInterface::_reprint_command() {
+void dvlab::CommandLineInterface::_reprint_command() {
     // NOTE - DON'T CHANGE - The logic here is as concise as it can be although seemingly redundant.
     size_t idx = _cursor_position;
     _cursor_position = _read_buffer.size();  // before moving cursor, reflect the change in actual cursor location
@@ -382,7 +382,7 @@ void CommandLineInterface::_reprint_command() {
 //
 // [Note] index should not = _historyIdx
 //
-void CommandLineInterface::_retrieve_history(size_t index) {
+void dvlab::CommandLineInterface::_retrieve_history(size_t index) {
     if (index == _history_idx) return;
 
     if (index < _history_idx) {                 // move up
@@ -409,13 +409,13 @@ void CommandLineInterface::_retrieve_history(size_t index) {
  *        This function trim the comment, leading/trailing whitespace of the entered comments
  *
  */
-bool CommandLineInterface::_add_input_to_history() {
+bool dvlab::CommandLineInterface::_add_input_to_history() {
     if (_temp_command_stored) {
         _history.pop_back();
         _temp_command_stored = false;
     }
 
-    string cmd = dvlab::str::strip_spaces(dvlab::str::strip_comments(_read_buffer));
+    std::string cmd = dvlab::str::strip_spaces(dvlab::str::strip_comments(_read_buffer));
 
     if (cmd.size()) {
         _history.emplace_back(cmd);
@@ -426,7 +426,7 @@ bool CommandLineInterface::_add_input_to_history() {
     return cmd.size() > 0;
 }
 
-bool CommandLineInterface::add_variables_from_dofiles(std::string const& filepath, std::span<std::string> arguments) {
+bool dvlab::CommandLineInterface::add_variables_from_dofiles(std::string const& filepath, std::span<std::string> arguments) {
     // parse the string
     // "//!ARGS <ARG1> <ARG2> ... <ARGn>"
     // and check if for all k = 1 to n,
@@ -461,7 +461,7 @@ bool CommandLineInterface::add_variables_from_dofiles(std::string const& filepat
 
     if (tokens[0] == "//!ARGS") {
         tokens.erase(tokens.begin());
-        static regex const valid_variable_name(R"([a-zA-Z_][\w]*)");
+        static std::regex const valid_variable_name(R"([a-zA-Z_][\w]*)");
 
         std::vector<std::string> keys;
         for (auto const& token : tokens) {
@@ -484,7 +484,7 @@ bool CommandLineInterface::add_variables_from_dofiles(std::string const& filepat
     }
 
     for (size_t i = 0; i < arguments.size(); ++i) {
-        _variables.insert_or_assign(to_string(i + 1), arguments[i]);
+        _variables.insert_or_assign(std::to_string(i + 1), arguments[i]);
     }
 
     return true;
@@ -495,9 +495,11 @@ bool CommandLineInterface::add_variables_from_dofiles(std::string const& filepat
 //
 // [Note] Do not change _history.size().
 //
-void CommandLineInterface::_replace_read_buffer_with_history() {
+void dvlab::CommandLineInterface::_replace_read_buffer_with_history() {
     _delete_line();
     _read_buffer = _history[_history_idx];
     fmt::print("{}", _read_buffer);
     _cursor_position = _history[_history_idx].size();
 }
+
+}  // namespace dvlab

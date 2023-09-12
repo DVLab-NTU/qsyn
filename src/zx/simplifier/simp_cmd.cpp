@@ -5,38 +5,34 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include "./simp_cmd.hpp"
+
 #include <cstddef>
 #include <string>
 
 #include "./simplify.hpp"
+#include "cli/cli.hpp"
 #include "zx/zx_cmd.hpp"
+#include "zx/zxgraph.hpp"
 #include "zx/zxgraph_mgr.hpp"
 
-using namespace std;
-using namespace argparse;
+using namespace dvlab::argparse;
+using dvlab::CmdExecResult;
+using dvlab::Command;
+
+namespace qsyn::zx {
+
 extern size_t VERBOSE;
-
-extern ZXGraphMgr ZXGRAPH_MGR;
-
-Command zxgraph_simplify_cmd();
-
-bool add_zx_simplifier_cmds() {
-    if (!CLI.add_command(zxgraph_simplify_cmd())) {
-        cerr << "Registering \"zx\" commands fails... exiting" << endl;
-        return false;
-    }
-    return true;
-}
 
 bool valid_partition_reduce_partitions(size_t const &n_parts) {
     if (n_parts > 0) return true;
-    cerr << "The paritions parameter in partition reduce should be greater than 0" << endl;
+    std::cerr << "The paritions parameter in partition reduce should be greater than 0" << std::endl;
     return false;
 };
 
 bool valid_partition_reduce_iterations(size_t const &arg) {
     if (arg > 0) return true;
-    cerr << "The iterations parameter in partition reduce should be greater than 0" << endl;
+    std::cerr << "The iterations parameter in partition reduce should be greater than 0" << std::endl;
     return false;
 };
 
@@ -44,7 +40,7 @@ bool valid_partition_reduce_iterations(size_t const &arg) {
 //    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion |
 //             -HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -PIVOTBoundary | -CLIFford | -FReduce | -SReduce | -DReduce]
 //------------------------------------------------------------------------------------------------------------------
-Command zxgraph_simplify_cmd() {
+Command zxgraph_simplify_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
     return {"zxgsimp",
             [](ArgumentParser &parser) {
                 parser.description("perform simplification strategies for ZXGraph");
@@ -128,9 +124,9 @@ Command zxgraph_simplify_cmd() {
                     .action(store_true)
                     .help("convert to red (X) graph");
             },
-            [](ArgumentParser const &parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
-                Simplifier s(ZXGRAPH_MGR.get());
+            [&](ArgumentParser const &parser) {
+                if (!zx::zxgraph_mgr_not_empty(zxgraph_mgr)) return dvlab::CmdExecResult::error;
+                zx::Simplifier s(zxgraph_mgr.get());
                 std::string procedure_str = "";
                 if (parser.parsed("-sreduce")) {
                     s.symbolic_reduce();
@@ -195,8 +191,18 @@ Command zxgraph_simplify_cmd() {
                     procedure_str += "[INT]";
                 }
 
-                ZXGRAPH_MGR.get()->add_procedure(procedure_str);
+                zxgraph_mgr.get()->add_procedure(procedure_str);
 
                 return CmdExecResult::done;
             }};
 }
+
+bool add_zx_simplifier_cmds(dvlab::CommandLineInterface &cli, zx::ZXGraphMgr &zxgraph_mgr) {
+    if (!cli.add_command(zxgraph_simplify_cmd(zxgraph_mgr))) {
+        std::cerr << "Registering \"zx\" commands fails... exiting" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+}  // namespace qsyn::zx

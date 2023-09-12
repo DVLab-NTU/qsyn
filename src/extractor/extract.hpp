@@ -12,8 +12,20 @@
 #include <set>
 
 #include "device/device.hpp"
+#include "duostra/duostra.hpp"
 #include "util/boolean_matrix.hpp"
 #include "zx/zx_def.hpp"
+
+namespace qsyn {
+
+namespace qcir {
+class QCir;
+}
+namespace zx {
+class ZXGraph;
+}
+
+namespace extractor {
 
 extern bool SORT_FRONTIER;
 extern bool SORT_NEIGHBORS;
@@ -22,20 +34,20 @@ extern bool FILTER_DUPLICATED_CXS;
 extern size_t BLOCK_SIZE;
 extern size_t OPTIMIZE_LEVEL;
 
-class QCir;
-class ZXGraph;
-
 class Extractor {
 public:
     using Target = std::unordered_map<size_t, size_t>;
     using ConnectInfo = std::vector<std::set<size_t>>;
-    Extractor(ZXGraph*, QCir* = nullptr, std::optional<Device> const& = std::nullopt);
+    using Device = duostra::Duostra::Device;
+    using Operation = duostra::Duostra::Operation;
+
+    Extractor(zx::ZXGraph*, qcir::QCir* = nullptr, std::optional<Device> const& = std::nullopt);
 
     bool to_physical() { return _device.has_value(); }
-    QCir* get_logical() { return _logical_circuit; }
+    qcir::QCir* get_logical() { return _logical_circuit; }
 
     void initialize(bool from_empty_qcir = true);
-    QCir* extract();
+    qcir::QCir* extract();
     bool extraction_loop(size_t = size_t(-1));
     bool remove_gadget(bool check = false);
     bool biadjacency_eliminations(bool check = false);
@@ -48,13 +60,13 @@ public:
     void permute_qubits();
 
     void update_neighbors();
-    void update_graph_by_matrix(EdgeType = EdgeType::hadamard);
+    void update_graph_by_matrix(qsyn::zx::EdgeType = qsyn::zx::EdgeType::hadamard);
     void create_matrix();
 
-    void prepend_single_qubit_gate(std::string const&, size_t, Phase);
-    void prepend_double_qubit_gate(std::string const&, std::vector<size_t> const&, Phase);
+    void prepend_single_qubit_gate(std::string const&, size_t, dvlab::Phase);
+    void prepend_double_qubit_gate(std::string const&, std::vector<size_t> const&, dvlab::Phase);
     void prepend_series_gates(std::vector<Operation> const&, std::vector<Operation> const& = {});
-    void prepend_swap_gate(size_t, size_t, QCir*);
+    void prepend_swap_gate(size_t, size_t, qcir::QCir*);
     bool frontier_is_cleaned();
     bool axel_in_neighbors();
     bool contains_single_neighbor();
@@ -69,14 +81,14 @@ public:
 
 private:
     size_t _num_cx_iterations = 0;
-    ZXGraph* _graph;
-    QCir* _logical_circuit;
-    QCir* _physical_circuit;
+    zx::ZXGraph* _graph;
+    qcir::QCir* _logical_circuit;
+    qcir::QCir* _physical_circuit;
     std::optional<Device> _device;
     std::optional<Device> _device_backup;
-    ZXVertexList _frontier;
-    ZXVertexList _neighbors;
-    ZXVertexList _axels;
+    zx::ZXVertexList _frontier;
+    zx::ZXVertexList _neighbors;
+    zx::ZXVertexList _axels;
     std::unordered_map<size_t, size_t> _qubit_map;  // zx to qc
 
     BooleanMatrix _biadjacency;
@@ -96,3 +108,7 @@ private:
 
     std::vector<size_t> _initial_placement;
 };
+
+}  // namespace extractor
+
+}  // namespace qsyn

@@ -14,6 +14,10 @@
 #include "../zxgraph.hpp"
 #include "util/boolean_matrix.hpp"
 
+namespace qsyn {
+
+namespace zx {
+
 class GFlow {
 public:
     using Levels = std::vector<ZXVertexList>;
@@ -85,25 +89,30 @@ private:
     void _update_frontier();
 };
 
-std::ostream& operator<<(std::ostream& os, GFlow::MeasurementPlane const& plane);
+}  // namespace zx
+
+}  // namespace qsyn
+
+std::ostream& operator<<(std::ostream& os, qsyn::zx::GFlow::MeasurementPlane const& plane);
 
 template <>
-struct fmt::formatter<GFlow::MeasurementPlane> {
+struct fmt::formatter<qsyn::zx::GFlow::MeasurementPlane> {
+    using MeasurementPlane = qsyn::zx::GFlow::MeasurementPlane;
     constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
         return ctx.begin();
     }
 
-    auto format(GFlow::MeasurementPlane const& plane, format_context& ctx) const -> format_context::iterator {
+    auto format(qsyn::zx::GFlow::MeasurementPlane const& plane, format_context& ctx) const -> format_context::iterator {
         switch (plane) {
-            case GFlow::MeasurementPlane::xy:
+            case MeasurementPlane::xy:
                 return fmt::format_to(ctx.out(), "XY");
-            case GFlow::MeasurementPlane::yz:
+            case MeasurementPlane::yz:
                 return fmt::format_to(ctx.out(), "YZ");
-            case GFlow::MeasurementPlane::xz:
+            case MeasurementPlane::xz:
                 return fmt::format_to(ctx.out(), "XZ");
-            case GFlow::MeasurementPlane::not_a_qubit:
+            case MeasurementPlane::not_a_qubit:
                 return fmt::format_to(ctx.out(), "not a qubit");
-            case GFlow::MeasurementPlane::error:
+            case MeasurementPlane::error:
             default:
                 return fmt::format_to(ctx.out(), "ERROR");
         }

@@ -13,8 +13,9 @@
 #include "util/logger.hpp"
 #include "util/phase.hpp"
 
-using namespace std;
 extern dvlab::Logger LOGGER;
+
+namespace qsyn::zx {
 
 /**
  * @brief Sort _inputs and _outputs of graph by qubit (ascending)
@@ -34,10 +35,10 @@ void ZXGraph::sort_io_by_qubit() {
 void ZXGraph::toggle_vertex(ZXVertex* v) {
     if (!v->is_z() && !v->is_x()) return;
     Neighbors toggled_neighbors;
-    for (auto& itr : v->get_neighbors()) {
-        toggled_neighbors.insert(make_pair(itr.first, toggle_edge(itr.second)));
-        itr.first->remove_neighbor(make_pair(v, itr.second));
-        itr.first->add_neighbor(make_pair(v, toggle_edge(itr.second)));
+    for (auto& [nb, etype] : v->get_neighbors()) {
+        toggled_neighbors.insert(std::make_pair(nb, toggle_edge(etype)));
+        nb->remove_neighbor(v, etype);
+        nb->add_neighbor(v, toggle_edge(etype));
     }
     v->set_neighbors(toggled_neighbors);
     v->set_type(v->get_type() == VertexType::z ? VertexType::x : VertexType::z);
@@ -54,16 +55,16 @@ void ZXGraph::lift_qubit(size_t const& n) {
         v->set_qubit(v->get_qubit() + n);
     }
 
-    unordered_map<size_t, ZXVertex*> new_input_list, new_output_list;
+    std::unordered_map<size_t, ZXVertex*> new_input_list, new_output_list;
 
-    for_each(_input_list.begin(), _input_list.end(),
-             [&n, &new_input_list](pair<size_t, ZXVertex*> itr) {
-                 new_input_list[itr.first + n] = itr.second;
-             });
-    for_each(_output_list.begin(), _output_list.end(),
-             [&n, &new_output_list](pair<size_t, ZXVertex*> itr) {
-                 new_output_list[itr.first + n] = itr.second;
-             });
+    std::for_each(_input_list.begin(), _input_list.end(),
+                  [&n, &new_input_list](std::pair<size_t, ZXVertex*> itr) {
+                      new_input_list[itr.first + n] = itr.second;
+                  });
+    std::for_each(_output_list.begin(), _output_list.end(),
+                  [&n, &new_output_list](std::pair<size_t, ZXVertex*> itr) {
+                      new_output_list[itr.first + n] = itr.second;
+                  });
 
     _input_list = new_input_list;
     _output_list = new_output_list;
@@ -78,7 +79,7 @@ void ZXGraph::lift_qubit(size_t const& n) {
 ZXGraph& ZXGraph::compose(ZXGraph const& target) {
     // Check ori-outputNum == target-inputNum
     if (this->get_num_outputs() != target.get_num_inputs()) {
-        cerr << "Error: The composing ZXGraph's #input is not equivalent to the original ZXGraph's #output." << endl;
+        std::cerr << "Error: The composing ZXGraph's #input is not equivalent to the original ZXGraph's #output." << std::endl;
         return *this;
     }
 
@@ -202,7 +203,7 @@ bool ZXGraph::has_dangling_neighbors(ZXVertex* v) const {
  * @param p
  * @param verVec
  */
-void ZXGraph::add_gadget(Phase p, vector<ZXVertex*> const& vertices) {
+void ZXGraph::add_gadget(Phase p, std::vector<ZXVertex*> const& vertices) {
     for (size_t i = 0; i < vertices.size(); i++) {
         if (vertices[i]->get_type() == VertexType::boundary || vertices[i]->get_type() == VertexType::h_box) return;
     }
@@ -231,8 +232,8 @@ void ZXGraph::remove_gadget(ZXVertex* v) {
  *
  * @return unordered_map<size_t, ZXVertex*>
  */
-unordered_map<size_t, ZXVertex*> ZXGraph::create_id_to_vertex_map() const {
-    unordered_map<size_t, ZXVertex*> id2_vertex_map;
+std::unordered_map<size_t, ZXVertex*> ZXGraph::create_id_to_vertex_map() const {
+    std::unordered_map<size_t, ZXVertex*> id2_vertex_map;
     for (auto const& v : _vertices) id2_vertex_map[v->get_id()] = v;
     return id2_vertex_map;
 }
@@ -242,9 +243,9 @@ unordered_map<size_t, ZXVertex*> ZXGraph::create_id_to_vertex_map() const {
  *
  */
 void ZXGraph::normalize() {
-    unordered_map<int, vector<ZXVertex*> > mp;
-    unordered_set<int> vis;
-    queue<ZXVertex*> cand;
+    std::unordered_map<int, std::vector<ZXVertex*> > mp;
+    std::unordered_set<int> vis;
+    std::queue<ZXVertex*> cand;
     for (auto const& i : _inputs) {
         cand.push(i);
         vis.insert(i->get_id());
@@ -268,7 +269,9 @@ void ZXGraph::normalize() {
             col++;
         }
         col--;
-        max_col = max(max_col, col);
+        max_col = std::max(max_col, col);
     }
     for (auto& o : _outputs) o->set_col(max_col);
 }
+
+}  // namespace qsyn::zx

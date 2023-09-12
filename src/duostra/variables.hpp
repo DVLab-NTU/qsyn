@@ -8,6 +8,8 @@
 
 #include <cstddef>
 
+namespace qsyn::duostra {
+
 extern size_t DUOSTRA_SCHEDULER;  // 0:base 1:static 2:random 3:greedy 4:search
 extern size_t DUOSTRA_ROUTER;     // 0:apsp 1:duostra
 extern size_t DUOSTRA_PLACER;     // 0:static 1:random 2:dfs
@@ -23,3 +25,5 @@ extern bool DUOSTRA_COST;          // 0:min 1:max, select min or max cost from t
 extern size_t DUOSTRA_DEPTH;         // depth of searching region
 extern bool DUOSTRA_NEVER_CACHE;     // never cache any children unless children() is called
 extern bool DUOSTRA_EXECUTE_SINGLE;  // execute the single gates when they are available
+
+}  // namespace qsyn::duostra

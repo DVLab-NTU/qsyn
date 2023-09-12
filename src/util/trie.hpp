@@ -92,15 +92,15 @@ public:
     }
 
     void clear() { _root = std::make_unique<TrieNode>(); }
-    bool insert(std::string const& word);
-    bool erase(std::string const& word);
-    bool contains(std::string const& word) const;
+    bool insert(std::string_view word);
+    bool erase(std::string_view word);
+    bool contains(std::string_view word) const;
     bool empty() const { return _root->children.empty(); }
-    size_t frequency(std::string const& prefix) const;
+    size_t frequency(std::string_view prefix) const;
 
-    std::string shortest_unique_prefix(std::string const& word) const;
-    std::optional<std::string> find_with_prefix(std::string const& prefix) const;
-    std::vector<std::string> find_all_with_prefix(std::string const& prefix) const;
+    std::string shortest_unique_prefix(std::string_view word) const;
+    std::optional<std::string> find_with_prefix(std::string_view prefix) const;
+    std::vector<std::string> find_all_with_prefix(std::string_view prefix) const;
 
 private:
     std::unique_ptr<TrieNode> _root;

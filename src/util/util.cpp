@@ -18,8 +18,6 @@
 
 #include "./usage.hpp"
 
-using namespace std;
-
 //----------------------------------------------------------------------
 //    Global functions in util
 //----------------------------------------------------------------------
@@ -38,7 +36,7 @@ void detail::dvlab_assert_impl(char const* expr_str, bool expr, char const* file
 }
 
 TqdmWrapper::TqdmWrapper(size_t total, bool show)
-    : _counter(0), _total(total), _tqdm(make_unique<tqdm>(show)) {}
+    : _counter(0), _total(total), _tqdm(std::make_unique<tqdm>(show)) {}
 
 TqdmWrapper::TqdmWrapper(int total, bool show) : TqdmWrapper(static_cast<size_t>(total), show) {}
 

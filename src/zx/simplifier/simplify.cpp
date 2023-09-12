@@ -15,8 +15,9 @@
 #include "zx/zxgraph.hpp"
 #include "zx/zxgraph_mgr.hpp"
 
-using namespace std;
 extern size_t VERBOSE;
+
+using namespace qsyn::zx;
 
 // Basic rules simplification
 
@@ -214,15 +215,13 @@ void Simplifier::full_reduce() {
 void Simplifier::dynamic_reduce() {
     // copy the graph's structure
     ZXGraph copied_graph = *_simp_graph;
-    cout << endl
-         << "Full Reduce:";
+    std::cout << "\nFull Reduce:";
     // to obtain the T-optimal
     Simplifier simp = Simplifier(&copied_graph);
     simp.full_reduce();
     size_t t_optimal = copied_graph.t_count();
 
-    cout << endl
-         << "Dynamic Reduce:";
+    std::cout << "\nDynamic Reduce:";
     _recipe.clear();
     dynamic_reduce(t_optimal);
 }
@@ -233,7 +232,7 @@ void Simplifier::dynamic_reduce() {
  * @param tOptimal the target optimal T-count
  */
 void Simplifier::dynamic_reduce(size_t optimal_t_count) {
-    cout << " (T-optimal: " << optimal_t_count << ")";
+    std::cout << " (T-optimal: " << optimal_t_count << ")";
 
     int a1 = this->interior_clifford_simp();
 
@@ -304,24 +303,24 @@ void Simplifier::symbolic_reduce() {
 void Simplifier::print_recipe() {
     if (VERBOSE == 0) return;
     if (VERBOSE == 1) {
-        cout << "\nAll rules applied:\n";
-        unordered_set<string> rules;
+        std::cout << "\nAll rules applied:\n";
+        std::unordered_set<std::string> rules;
         for (size_t i = 0; i < _recipe.size(); i++) {
             if (get<1>(_recipe[i]).size() != 0) {
                 if (rules.find(get<0>(_recipe[i])) == rules.end()) {
-                    cout << "(" << rules.size() + 1 << ") " << get<0>(_recipe[i]) << endl;
+                    std::cout << "(" << rules.size() + 1 << ") " << get<0>(_recipe[i]) << std::endl;
                     rules.insert(get<0>(_recipe[i]));
                 }
             }
         }
     } else if (VERBOSE <= 3) {
-        cout << "\nAll rules applied in order:\n";
+        std::cout << "\nAll rules applied in order:\n";
         for (size_t i = 0; i < _recipe.size(); i++) {
             if (get<1>(_recipe[i]).size() != 0) {
-                cout << setw(30) << left << get<0>(_recipe[i]) << get<1>(_recipe[i]).size() << " iterations." << endl;
+                std::cout << std::setw(30) << std::left << get<0>(_recipe[i]) << get<1>(_recipe[i]).size() << " iterations." << std::endl;
                 if (VERBOSE == 3) {
                     for (size_t j = 0; j < get<1>(_recipe[i]).size(); j++) {
-                        cout << "  " << j + 1 << ") " << get<1>(_recipe[i])[j] << " matches" << endl;
+                        std::cout << "  " << j + 1 << ") " << get<1>(_recipe[i])[j] << " matches" << std::endl;
                     }
                 }
             }

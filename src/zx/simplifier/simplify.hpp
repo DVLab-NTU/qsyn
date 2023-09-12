@@ -15,6 +15,10 @@
 extern size_t VERBOSE;
 extern bool stop_requested();
 
+namespace qsyn {
+
+namespace zx {
+
 class ZXGraph;
 
 class Simplifier {
@@ -161,3 +165,7 @@ private:
     ZXGraph* _simp_graph;
     std::vector<std::tuple<std::string, std::vector<int> > > _recipe;
 };
+
+}  // namespace zx
+
+}  // namespace qsyn

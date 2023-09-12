@@ -14,11 +14,17 @@
 #include "util/data_structure_manager.hpp"
 #include "util/phase.hpp"
 
+namespace qsyn::tensor {
+
 template <typename T>
 class QTensor;
 
+using TensorMgr = dvlab::utils::DataStructureManager<QTensor<double>>;
+
+}  // namespace qsyn::tensor
+
 template <>
-inline std::string dvlab::utils::data_structure_info_string(QTensor<double>* tensor) {
+inline std::string dvlab::utils::data_structure_info_string(qsyn::tensor::QTensor<double>* tensor) {
     return fmt::format("{:<19} #Dim: {}   {}",
                        tensor->get_filename().substr(0, 19),
                        tensor->dimension(),
@@ -26,8 +32,6 @@ inline std::string dvlab::utils::data_structure_info_string(QTensor<double>* ten
 }
 
 template <>
-inline std::string dvlab::utils::data_structure_name(QTensor<double>* tensor) {
+inline std::string dvlab::utils::data_structure_name(qsyn::tensor::QTensor<double>* tensor) {
     return tensor->get_filename();
 }
-
-using TensorMgr = dvlab::utils::DataStructureManager<QTensor<double>>;

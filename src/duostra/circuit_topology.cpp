@@ -10,7 +10,9 @@
 
 #include "qcir/gate_type.hpp"
 
-using namespace std;
+using namespace qsyn::qcir;
+
+namespace qsyn::duostra {
 
 // SECTION - Class Gate Member Functions
 
@@ -22,7 +24,7 @@ using namespace std;
  * @param ph
  * @param qs
  */
-Gate::Gate(size_t id, GateType type, Phase ph, std::tuple<size_t, size_t> qs)
+Gate::Gate(size_t id, GateType type, dvlab::Phase ph, std::tuple<size_t, size_t> qs)
     : _id(id), _type(type), _phase(ph), _swap(false), _qubits(qs), _prevs({}), _nexts({}) {
     if (std::get<0>(_qubits) > std::get<1>(_qubits)) {
         _qubits = std::make_tuple(std::get<1>(_qubits), std::get<0>(_qubits));
@@ -57,7 +59,7 @@ void Gate::add_next(size_t n) {
  * @return true : all previous gates are executed,
  * @return false : else
  */
-bool Gate::is_available(unordered_map<size_t, size_t> const& executed_gates) const {
+bool Gate::is_available(std::unordered_map<size_t, size_t> const& executed_gates) const {
     return all_of(_prevs.begin(), _prevs.end(), [&](size_t prev) -> bool {
         return executed_gates.find(prev) != executed_gates.end();
     });
@@ -70,7 +72,7 @@ bool Gate::is_available(unordered_map<size_t, size_t> const& executed_gates) con
  *
  * @param dep
  */
-CircuitTopology::CircuitTopology(shared_ptr<DependencyGraph> const& dep) : _dependency_graph(dep), _available_gates({}), _executed_gates({}) {
+CircuitTopology::CircuitTopology(std::shared_ptr<DependencyGraph> const& dep) : _dependency_graph(dep), _available_gates({}), _executed_gates({}) {
     for (size_t i = 0; i < _dependency_graph->get_gates().size(); i++) {
         if (_dependency_graph->get_gate(i).is_available(_executed_gates))
             _available_gates.emplace_back(i);
@@ -82,7 +84,7 @@ CircuitTopology::CircuitTopology(shared_ptr<DependencyGraph> const& dep) : _depe
  *
  * @return unique_ptr<CircuitTopo>
  */
-unique_ptr<CircuitTopology> CircuitTopology::clone() const {
+std::unique_ptr<CircuitTopology> CircuitTopology::clone() const {
     return std::make_unique<CircuitTopology>(*this);
 }
 
@@ -103,7 +105,7 @@ void CircuitTopology::update_available_gates(size_t executed) {
             _available_gates.emplace_back(next);
     }
 
-    vector<size_t> gates_to_trim;
+    std::vector<size_t> gates_to_trim;
     for (size_t prev_id : gate_executed.get_prevs()) {
         auto const& prev_gate = get_gate(prev_id);
         ++_executed_gates[prev_id];
@@ -119,14 +121,14 @@ void CircuitTopology::update_available_gates(size_t executed) {
  *
  */
 void CircuitTopology::print_gates_with_nexts() {
-    cout << "Successors of each gate" << endl;
+    std::cout << "Successors of each gate" << std::endl;
     auto const& gates = _dependency_graph->get_gates();
     for (size_t i = 0; i < gates.size(); i++) {
-        vector<size_t> temp = gates[i].get_nexts();
-        cout << gates[i].get_id() << "(" << gates[i].get_type() << ") || ";
+        std::vector<size_t> temp = gates[i].get_nexts();
+        std::cout << gates[i].get_id() << "(" << gates[i].get_type() << ") || ";
         for (size_t j = 0; j < temp.size(); j++)
-            cout << temp[j] << " ";
-        cout << endl;
+            std::cout << temp[j] << " ";
+        std::cout << std::endl;
     }
 }
 
@@ -135,13 +137,15 @@ void CircuitTopology::print_gates_with_nexts() {
  *
  */
 void CircuitTopology::print_gates_with_prevs() {
-    cout << "Predecessors of each gate" << endl;
+    std::cout << "Predecessors of each gate" << std::endl;
     auto const& gate = _dependency_graph->get_gates();
     for (size_t i = 0; i < gate.size(); i++) {
         auto const& prevs = gate.at(i).get_prevs();
-        cout << gate.at(i).get_id() << "(" << gate.at(i).get_type() << ") || ";
+        std::cout << gate.at(i).get_id() << "(" << gate.at(i).get_type() << ") || ";
         for (size_t j = 0; j < prevs.size(); j++)
-            cout << prevs[j] << " ";
-        cout << endl;
+            std::cout << prevs[j] << " ";
+        std::cout << std::endl;
     }
 }
+
+}  // namespace qsyn::duostra

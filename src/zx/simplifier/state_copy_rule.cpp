@@ -7,6 +7,8 @@
 
 #include "./zx_rules_template.hpp"
 
+using namespace qsyn::zx;
+
 using MatchType = StateCopyRule::MatchType;
 
 /**
@@ -69,8 +71,8 @@ void StateCopyRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches)
         ZXVertex* npi = get<0>(match);
         ZXVertex* a = get<1>(match);
         std::vector<ZXVertex*> neighbors = get<2>(match);
-        op.verticesToRemove.emplace_back(npi);
-        op.verticesToRemove.emplace_back(a);
+        op.vertices_to_remove.emplace_back(npi);
+        op.vertices_to_remove.emplace_back(a);
         for (auto neighbor : neighbors) {
             if (neighbor->get_type() == VertexType::boundary) {
                 ZXVertex* new_v = graph.add_vertex(neighbor->get_qubit(), VertexType::z, npi->get_phase());

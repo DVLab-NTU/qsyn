@@ -11,6 +11,8 @@
 #include "util/logger.hpp"
 #include "zx/zxgraph.hpp"
 
+using namespace qsyn::zx;
+
 using MatchType = PhaseGadgetRule::MatchType;
 
 extern dvlab::Logger LOGGER;
@@ -103,8 +105,8 @@ void PhaseGadgetRule::apply(ZXGraph& graph, std::vector<MatchType> const& matche
         std::vector<ZXVertex*> const& rm_leaves = get<2>(match);
         ZXVertex* leaf = rm_leaves[0];
         leaf->set_phase(new_phase);
-        op.verticesToRemove.insert(op.verticesToRemove.end(), rm_axels.begin() + 1, rm_axels.end());
-        op.verticesToRemove.insert(op.verticesToRemove.end(), rm_leaves.begin() + 1, rm_leaves.end());
+        op.vertices_to_remove.insert(op.vertices_to_remove.end(), rm_axels.begin() + 1, rm_axels.end());
+        op.vertices_to_remove.insert(op.vertices_to_remove.end(), rm_leaves.begin() + 1, rm_leaves.end());
     }
 
     _update(graph, op);

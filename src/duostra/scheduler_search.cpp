@@ -20,7 +20,7 @@
 
 extern bool stop_requested();
 
-using namespace std;
+namespace qsyn::duostra {
 
 // SECTION - Class TreeNode Member Functions
 
@@ -35,11 +35,11 @@ using namespace std;
  */
 TreeNode::TreeNode(TreeNodeConf conf,
                    size_t gate_id,
-                   unique_ptr<Router> router,
-                   unique_ptr<BaseScheduler> scheduler,
+                   std::unique_ptr<Router> router,
+                   std::unique_ptr<BaseScheduler> scheduler,
                    size_t max_cost)
     : TreeNode(conf,
-               vector<size_t>{gate_id},
+               std::vector<size_t>{gate_id},
                std::move(router),
                std::move(scheduler),
                max_cost) {}
@@ -54,9 +54,9 @@ TreeNode::TreeNode(TreeNodeConf conf,
  * @param maxCost
  */
 TreeNode::TreeNode(TreeNodeConf conf,
-                   vector<size_t>&& gate_ids,
-                   unique_ptr<Router> router,
-                   unique_ptr<BaseScheduler> scheduler,
+                   std::vector<size_t>&& gate_ids,
+                   std::unique_ptr<Router> router,
+                   std::unique_ptr<BaseScheduler> scheduler,
                    size_t max_cost)
     : _conf(conf),
       _gate_ids(std::move(gate_ids)),
@@ -85,7 +85,7 @@ TreeNode::TreeNode(TreeNode const& other)
  *
  * @return vector<TreeNode>&&
  */
-vector<TreeNode>&& TreeNode::_take_children() {
+std::vector<TreeNode>&& TreeNode::_take_children() {
     grow_if_needed();
     return std::move(_children);
 }
@@ -146,7 +146,7 @@ void TreeNode::_route_internal_gates() {
     for (size_t gate_id : _gate_ids) {
         [[maybe_unused]] auto const& avail_gates = scheduler().get_available_gates();
         assert(find(avail_gates.begin(), avail_gates.end(), gate_id) != avail_gates.end());
-        _max_cost = max(_max_cost, _scheduler->route_one_gate(*_router, gate_id, true));
+        _max_cost = std::max(_max_cost, _scheduler->route_one_gate(*_router, gate_id, true));
         assert(find(avail_gates.begin(), avail_gates.end(), gate_id) == avail_gates.end());
     }
 
@@ -156,19 +156,12 @@ void TreeNode::_route_internal_gates() {
 
     size_t gate_id;
     while ((gate_id = _immediate_next()) != SIZE_MAX) {
-        _max_cost = max(_max_cost, _scheduler->route_one_gate(*_router, gate_id, true));
+        _max_cost = std::max(_max_cost, _scheduler->route_one_gate(*_router, gate_id, true));
         _gate_ids.emplace_back(gate_id);
     }
 
-    unordered_set<size_t> executed{_gate_ids.begin(), _gate_ids.end()};
+    std::unordered_set<size_t> executed{_gate_ids.begin(), _gate_ids.end()};
     assert(executed.size() == _gate_ids.size());
-}
-
-template <>
-inline void std::swap<TreeNode>(TreeNode& a, TreeNode& b) {
-    TreeNode c{std::move(a)};
-    a = std::move(b);
-    b = std::move(c);
 }
 
 /**
@@ -219,10 +212,10 @@ size_t TreeNode::best_cost(int depth) {
     auto end = _children.end();
     if (_conf._candidates < _children.size()) {
         end = _children.begin() + static_cast<std::ptrdiff_t>(_conf._candidates);
-        nth_element(_children.begin(), end, _children.end(),
-                    [](TreeNode const& a, TreeNode const& b) {
-                        return a._max_cost < b._max_cost;
-                    });
+        std::nth_element(_children.begin(), end, _children.end(),
+                         [](TreeNode const& a, TreeNode const& b) {
+                             return a._max_cost < b._max_cost;
+                         });
     }
 
     // Calcualtes the best cost for each children.
@@ -307,8 +300,8 @@ SearchScheduler::SearchScheduler(SearchScheduler&& other) noexcept
  *
  * @return unique_ptr<BaseScheduler>
  */
-unique_ptr<BaseScheduler> SearchScheduler::clone() const {
-    return make_unique<SearchScheduler>(*this);
+std::unique_ptr<BaseScheduler> SearchScheduler::clone() const {
+    return std::make_unique<SearchScheduler>(*this);
 }
 
 /**
@@ -317,7 +310,7 @@ unique_ptr<BaseScheduler> SearchScheduler::clone() const {
  */
 void SearchScheduler::_cache_when_necessary() {
     if (!_never_cache && _lookAhead == 1) {
-        cerr << "When _lookAhead = 1, '_neverCache' is used by default.\n";
+        std::cerr << "When _lookAhead = 1, '_neverCache' is used by default.\n";
         _never_cache = true;
     }
 }
@@ -328,12 +321,12 @@ void SearchScheduler::_cache_when_necessary() {
  * @param router
  * @return Device
  */
-Device SearchScheduler::_assign_gates(unique_ptr<Router> router) {
+SearchScheduler::Device SearchScheduler::_assign_gates(std::unique_ptr<Router> router) {
     auto total_gates = _circuit_topology.get_num_gates();
 
     auto root = make_unique<TreeNode>(
         TreeNodeConf{_never_cache, _execute_single, _conf._candidates},
-        vector<size_t>{}, router->clone(), clone(), 0);
+        std::vector<size_t>{}, router->clone(), clone(), 0);
 
     // For each step. (all nodes + 1 dummy)
     dvlab::TqdmWrapper bar{total_gates + 1, _tqdm};
@@ -342,7 +335,7 @@ Device SearchScheduler::_assign_gates(unique_ptr<Router> router) {
         if (stop_requested()) {
             return router->get_device();
         }
-        auto selected_node = make_unique<TreeNode>(root->best_child(static_cast<int>(_lookAhead)));
+        auto selected_node = std::make_unique<TreeNode>(root->best_child(static_cast<int>(_lookAhead)));
         root = std::move(selected_node);
 
         for (size_t gate_id : root->get_executed_gates()) {
@@ -352,3 +345,5 @@ Device SearchScheduler::_assign_gates(unique_ptr<Router> router) {
     } while (!root->done());
     return router->get_device();
 }
+
+}  // namespace qsyn::duostra

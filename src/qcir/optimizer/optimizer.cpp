@@ -14,6 +14,8 @@
 #include "../qcir_gate.hpp"
 #include "../qcir_qubit.hpp"
 
+namespace qsyn::qcir {
+
 /**
  * @brief Reset the storage
  *
@@ -180,3 +182,5 @@ void Optimizer::_add_gate_to_circuit(QCir& circuit, QCirGate* gate, bool prepend
 
     circuit.add_gate(gate->get_type_str(), {bit_range.begin(), bit_range.end()}, gate->get_phase(), !prepend);
 }
+
+}  // namespace qsyn::qcir

@@ -7,6 +7,8 @@
 
 #include "./zx_rules_template.hpp"
 
+using namespace qsyn::zx;
+
 using MatchType = HadamardFusionRule::MatchType;
 
 std::vector<MatchType> HadamardFusionRule::find_matches(ZXGraph const& graph) const {
@@ -85,7 +87,7 @@ std::vector<MatchType> HadamardFusionRule::find_matches(ZXGraph const& graph) co
 
 void HadamardFusionRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches) const {
     ZXOperation op = {
-        .verticesToRemove = matches,
+        .vertices_to_remove = matches,
     };
 
     for (size_t i = 0; i < matches.size(); i++) {

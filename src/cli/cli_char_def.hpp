@@ -9,6 +9,8 @@
 #include <climits>
 #include <type_traits>
 
+namespace dvlab {
+
 namespace key_code {
 // Simple keys: one code for one key press
 // -- The following should be platform-independent
@@ -71,3 +73,5 @@ constexpr int undefined_key = INT_MAX;
 constexpr int beep_char = 7;
 constexpr int back_space_char = 8;
 };  // namespace key_code
+
+}  // namespace dvlab

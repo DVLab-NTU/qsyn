@@ -13,28 +13,41 @@
 
 #include "device/device.hpp"
 
+namespace qsyn {
+
+namespace qcir {
+
 class QCir;
 class QCirGate;
 class QubitInfo;
 
+}  // namespace qcir
+
+namespace duostra {
+
 class MappingEquivalenceChecker {
 public:
-    MappingEquivalenceChecker(QCir*, QCir*, Device, std::vector<size_t> = {}, bool = false);
+    using Device = qsyn::device::Device;
+    MappingEquivalenceChecker(qcir::QCir*, qcir::QCir*, Device, std::vector<size_t> = {}, bool = false);
 
     bool check();
-    bool is_swap(QCirGate*);
-    bool execute_swap(QCirGate*, std::unordered_set<QCirGate*>&);
-    bool execute_single(QCirGate*);
-    bool execute_double(QCirGate*);
+    bool is_swap(qcir::QCirGate*);
+    bool execute_swap(qcir::QCirGate*, std::unordered_set<qcir::QCirGate*>&);
+    bool execute_single(qcir::QCirGate*);
+    bool execute_double(qcir::QCirGate*);
 
-    bool check_remaining();
-    QCirGate* get_next(QubitInfo const&);
+    void check_remaining();
+    qcir::QCirGate* get_next(qcir::QubitInfo const&);
 
 private:
-    QCir* _physical;
-    QCir* _logical;
+    qcir::QCir* _physical;
+    qcir::QCir* _logical;
     Device _device;
     bool _reverse;
     // <qubit, gate to execute (from back)> for logical circuit
-    std::unordered_map<size_t, QCirGate*> _dependency;
+    std::unordered_map<size_t, qcir::QCirGate*> _dependency;
 };
+
+}  // namespace duostra
+
+}  // namespace qsyn

@@ -5,6 +5,8 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <fmt/core.h>
+
 #include <cassert>
 #include <cctype>
 #include <concepts>
@@ -14,8 +16,6 @@
 #include <vector>
 
 #include "util/util.hpp"
-
-using namespace std;
 
 namespace dvlab {
 
@@ -36,34 +36,34 @@ std::optional<std::string> strip_quotes(std::string const& input) {
 
     std::string output = input;
 
-    vector<string> outside;
-    vector<string> inside;
+    std::vector<std::string> outside;
+    std::vector<std::string> inside;
 
     auto find_quote = [&output](char quote) -> size_t {
         size_t pos = 0;
         pos = output.find_first_of(quote);
-        if (pos == string::npos) return pos;
+        if (pos == std::string::npos) return pos;
         // if the quote is after a backslash, it should be read verbatim, so we need to skip it.
         while (pos != 0 && output[pos - 1] == '\\') {
             pos = output.find_first_of(quote, pos + 1);
-            if (pos == string::npos) return pos;
+            if (pos == std::string::npos) return pos;
         }
         return pos;
     };
 
     while (output.size()) {
-        size_t pos = min(find_quote('\"'), find_quote('\''));
+        size_t pos = std::min(find_quote('\"'), find_quote('\''));
 
         outside.emplace_back(output.substr(0, pos));
-        if (pos == string::npos) break;
+        if (pos == std::string::npos) break;
 
         char delim = output[pos];
 
         output = output.substr(pos + 1);
-        if (pos != string::npos) {
+        if (pos != std::string::npos) {
             size_t closing_quote_pos = find_quote(delim);
 
-            if (closing_quote_pos == string::npos) {
+            if (closing_quote_pos == std::string::npos) {
                 return std::nullopt;
             }
 
@@ -75,14 +75,14 @@ std::optional<std::string> strip_quotes(std::string const& input) {
     // 2. inside  ' ' --> "\ "
     //    both side \' --> ' , \" --> "
 
-    auto remove_quotes = [](vector<string>& strs) {
+    auto remove_quotes = [](std::vector<std::string>& strs) {
         for (auto& str : strs) {
             size_t pos = 0;
-            while ((pos = str.find("\\\"", pos)) != string::npos) {
+            while ((pos = str.find("\\\"", pos)) != std::string::npos) {
                 str = str.substr(0, pos) + str.substr(pos + 1);
             }
             pos = 0;
-            while ((pos = str.find("\\\'", pos)) != string::npos) {
+            while ((pos = str.find("\\\'", pos)) != std::string::npos) {
                 str = str.substr(0, pos) + str.substr(pos + 1);
             }
         }
@@ -117,9 +117,9 @@ std::optional<std::string> strip_quotes(std::string const& input) {
  *
  * @param str
  */
-string strip_leading_spaces(string const& str) {
+std::string strip_leading_spaces(std::string const& str) {
     size_t start = str.find_first_not_of(" \t\n\v\f\r");
-    if (start == string::npos) return "";
+    if (start == std::string::npos) return "";
     return str.substr(start);
 }
 
@@ -128,10 +128,10 @@ string strip_leading_spaces(string const& str) {
  *
  * @param str
  */
-string strip_spaces(string const& str) {
+std::string strip_spaces(std::string const& str) {
     size_t start = str.find_first_not_of(" \t\n\v\f\r");
     size_t end = str.find_last_not_of(" \t\n\v\f\r");
-    if (start == string::npos && end == string::npos) return "";
+    if (start == std::string::npos && end == std::string::npos) return "";
     return str.substr(start, end + 1 - start);
 }
 
@@ -155,7 +155,7 @@ bool is_escaped_char(std::string const& str, size_t pos) {
  * @param right }, ], )
  * @return string
  */
-string remove_brackets(std::string const& str, char const left, char const right) {
+std::string remove_brackets(std::string const& str, char const left, char const right) {
     size_t last_found = str.find_last_of(right);
     size_t first_found = str.find_first_of(left);
     return strip_spaces(str.substr(first_found + 1, last_found - first_found - 1));
@@ -167,9 +167,9 @@ string remove_brackets(std::string const& str, char const left, char const right
 // (i.e. "delim" or string::npos) if found.
 // This function will not treat '\ ' as a space in the token. That is, "a\ b" is two token ("a\", "b") and not one
 size_t
-str_get_token(string const& str, string& tok, size_t pos, string const& delim) {
+str_get_token(std::string const& str, std::string& tok, size_t pos, std::string const& delim) {
     size_t begin = str.find_first_not_of(delim, pos);
-    if (begin == string::npos) {
+    if (begin == std::string::npos) {
         tok = "";
         return begin;
     }
@@ -178,25 +178,57 @@ str_get_token(string const& str, string& tok, size_t pos, string const& delim) {
     return end;
 }
 
-size_t str_get_token(string const& str, string& tok, size_t pos, char const delim) {
-    return str_get_token(str, tok, pos, string(1, delim));
+size_t str_get_token(std::string const& str, std::string& tok, size_t pos, char const delim) {
+    return str_get_token(str, tok, pos, std::string(1, delim));
 }
 
-std::string to_lower_string(std::string const& str) {
+/**
+ * @brief type-safe conversion to lower case character
+ *
+ * @param ch
+ * @return char
+ */
+char tolower(char ch) {
+    return static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+}
+
+/**
+ * @brief type-safe conversion to upper case character
+ *
+ * @param ch
+ * @return char
+ */
+char toupper(char ch) {
+    return static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+}
+
+/**
+ * @brief type-safe conversion to lower case string
+ *
+ * @param str
+ * @return std::string
+ */
+std::string tolower_string(std::string const& str) {
     std::string ret = str;
-    for_each(ret.begin(), ret.end(), [](char& ch) { ch = ::tolower(ch); });
+    for_each(ret.begin(), ret.end(), [](char& ch) { ch = dvlab::str::tolower(ch); });
     return ret;
 };
 
-std::string to_upper_string(std::string const& str) {
+/**
+ * @brief type-safe conversion to upper case string
+ *
+ * @param str
+ * @return std::string
+ */
+std::string toupper_string(std::string const& str) {
     std::string ret = str;
-    for_each(ret.begin(), ret.end(), [](char& ch) { ch = ::toupper(ch); });
+    for_each(ret.begin(), ret.end(), [](char& ch) { ch = dvlab::str::toupper(ch); });
     return ret;
 };
 
 std::vector<std::string> split(std::string const& str, std::string const& delim = " ") {
     std::vector<std::string> result;
-    string token;
+    std::string token;
     size_t pos = str_get_token(str, token, 0, delim);
     while (token.size()) {
         result.emplace_back(token);

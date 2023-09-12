@@ -7,13 +7,11 @@
 
 #include "device/device.hpp"
 
-#include <math.h>
-
 #include <cassert>
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
-#include <iomanip>
 #include <limits>
 #include <ranges>
 #include <string>
@@ -22,9 +20,22 @@
 #include "qcir/qcir_gate.hpp"
 #include "util/logger.hpp"
 
-using namespace std;
 extern size_t VERBOSE;
 extern dvlab::Logger LOGGER;
+
+using namespace qsyn::qcir;
+
+template <>
+struct fmt::formatter<qsyn::device::PhysicalQubit> {
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(qsyn::device::PhysicalQubit const& q, FormatContext& ctx) {
+        return fmt::format_to(ctx.out(), "Q{:>2}, logical: {:>2}, lock until {}", q.get_id(), q.get_logical_qubit(), q.get_occupied_time());
+    }
+};
+
+namespace qsyn::device {
 
 // SECTION - Struct Info Member Functions
 
@@ -35,7 +46,7 @@ extern dvlab::Logger LOGGER;
  * @param info
  * @return ostream&
  */
-ostream& operator<<(ostream& os, DeviceInfo const& info) {
+std::ostream& operator<<(std::ostream& os, DeviceInfo const& info) {
     return os << fmt::format("{}", info);
 }
 
@@ -49,8 +60,8 @@ ostream& operator<<(ostream& os, DeviceInfo const& info) {
  * @return Info&
  */
 DeviceInfo const& Topology::get_adjacency_pair_info(size_t a, size_t b) {
-    if (a > b) swap(a, b);
-    return _adjacency_info[make_pair(a, b)];
+    if (a > b) std::swap(a, b);
+    return _adjacency_info[std::make_pair(a, b)];
 }
 
 /**
@@ -71,8 +82,8 @@ DeviceInfo const& Topology::get_qubit_info(size_t a) {
  * @param info Information of this pair
  */
 void Topology::add_adjacency_info(size_t a, size_t b, DeviceInfo info) {
-    if (a > b) swap(a, b);
-    _adjacency_info[make_pair(a, b)] = info;
+    if (a > b) std::swap(a, b);
+    _adjacency_info[std::make_pair(a, b)] = info;
 }
 
 /**
@@ -92,7 +103,7 @@ void Topology::add_qubit_info(size_t a, DeviceInfo info) {
  * @param b Index of second qubit
  */
 void Topology::print_single_edge(size_t a, size_t b) const {
-    pair<size_t, size_t> query = (a < b) ? make_pair(a, b) : make_pair(b, a);
+    auto query = (a < b) ? std::make_pair(a, b) : std::make_pair(b, a);
     if (_adjacency_info.contains(query)) {
         fmt::println("({:>3}, {:>3})    Delay: {:>8.3f}    Error: {:>8.5f}", a, b, _adjacency_info.at(query)._time, _adjacency_info.at(query)._error);
     } else {
@@ -102,16 +113,6 @@ void Topology::print_single_edge(size_t a, size_t b) const {
 
 // SECTION - Class PhysicalQubit Member Functions
 
-template <>
-struct fmt::formatter<PhysicalQubit> {
-    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
-
-    template <typename FormatContext>
-    auto format(PhysicalQubit const& q, FormatContext& ctx) {
-        return fmt::format_to(ctx.out(), "Q{:>2}, logical: {:>2}, lock until {}", q.get_id(), q.get_logical_qubit(), q.get_occupied_time());
-    }
-};
-
 /**
  * @brief Operator overloading
  *
@@ -119,7 +120,7 @@ struct fmt::formatter<PhysicalQubit> {
  * @param q
  * @return ostream&
  */
-ostream& operator<<(ostream& os, PhysicalQubit const& q) {
+std::ostream& operator<<(std::ostream& os, PhysicalQubit const& q) {
     return os << fmt::format("{}", q);
 }
 
@@ -166,14 +167,14 @@ void PhysicalQubit::reset() {
  * @param target
  * @return tuple<size_t, size_t> (index of next qubit, cost)
  */
-tuple<size_t, size_t> Device::get_next_swap_cost(size_t source, size_t target) {
+std::tuple<size_t, size_t> Device::get_next_swap_cost(size_t source, size_t target) {
     size_t next_idx = _predecessor[source][target];
     PhysicalQubit& q_source = get_physical_qubit(source);
     PhysicalQubit& q_next = get_physical_qubit(next_idx);
-    size_t cost = max(q_source.get_occupied_time(), q_next.get_occupied_time());
+    size_t cost = std::max(q_source.get_occupied_time(), q_next.get_occupied_time());
 
     assert(q_source.is_adjacency(q_next));
-    return make_tuple(next_idx, cost);
+    return {next_idx, cost};
 }
 
 /**
@@ -198,7 +199,7 @@ size_t Device::get_physical_by_logical(size_t id) {
  * @param b Id of second qubit
  */
 void Device::add_adjacency(size_t a, size_t b) {
-    if (a > b) swap(a, b);
+    if (a > b) std::swap(a, b);
     if (!qubit_id_exists(a)) {
         PhysicalQubit temp = PhysicalQubit(a);
         add_physical_qubit(temp);
@@ -219,10 +220,10 @@ void Device::add_adjacency(size_t a, size_t b) {
  * @param op
  */
 void Device::apply_gate(Operation const& op) {
-    tuple<size_t, size_t> qubits = op.get_qubits();
-    PhysicalQubit& q0 = get_physical_qubit(get<0>(qubits));
-    PhysicalQubit& q1 = get_physical_qubit(get<1>(qubits));
-    size_t t = op.get_operation_time();
+    auto qubits = op.get_qubits();
+    auto& q0 = get_physical_qubit(std::get<0>(qubits));
+    auto& q1 = get_physical_qubit(std::get<1>(qubits));
+    auto t = op.get_operation_time();
 
     switch (op.get_type()) {
         case GateType::swap: {
@@ -254,12 +255,12 @@ void Device::apply_gate(Operation const& op) {
  * @param op
  */
 void Device::apply_swap_check(size_t qid0, size_t qid1) {
-    PhysicalQubit& q0 = get_physical_qubit(qid0);
-    PhysicalQubit& q1 = get_physical_qubit(qid1);
+    auto& q0 = get_physical_qubit(qid0);
+    auto& q1 = get_physical_qubit(qid1);
     size_t temp = q0.get_logical_qubit();
     q0.set_logical_qubit(q1.get_logical_qubit());
     q1.set_logical_qubit(temp);
-    size_t t = max(q0.get_occupied_time(), q1.get_occupied_time());
+    size_t t = std::max(q0.get_occupied_time(), q1.get_occupied_time());
     q0.set_occupied_time(t + DOUBLE_DELAY);
     q1.set_occupied_time(t + DOUBLE_DELAY);
 }
@@ -280,8 +281,8 @@ void Device::apply_single_qubit_gate(size_t physical_id) {
  *
  * @return vector<size_t> (index of physical qubit)
  */
-vector<size_t> Device::mapping() const {
-    vector<size_t> ret;
+std::vector<size_t> Device::mapping() const {
+    std::vector<size_t> ret;
     ret.resize(_qubit_list.size());
     for (auto const& [id, qubit] : _qubit_list) {
         ret[id] = qubit.get_logical_qubit();
@@ -294,7 +295,7 @@ vector<size_t> Device::mapping() const {
  *
  * @param assign
  */
-void Device::place(vector<size_t> const& assignment) {
+void Device::place(std::vector<size_t> const& assignment) {
     for (size_t i = 0; i < assignment.size(); ++i) {
         assert(_qubit_list[assignment[i]].get_logical_qubit() == SIZE_MAX);
         _qubit_list[assignment[i]].set_logical_qubit(i);
@@ -343,12 +344,12 @@ void Device::_initialize_floyd_warshall() {
     LOGGER.debug("Predecessor Matrix:");
     for (auto& row : _predecessor) {
         LOGGER.debug("{:5}", fmt::join(
-                                 row | views::transform([](size_t j) { return (j == SIZE_MAX) ? "/"s : to_string(j); }), ""));
+                                 row | std::views::transform([](size_t j) { return (j == SIZE_MAX) ? std::string{"/"} : std::to_string(j); }), ""));
     }
     LOGGER.debug("Distance Matrix:");
     for (auto& row : _distance) {
         LOGGER.debug("{:5}", fmt::join(
-                                 row | views::transform([this](int j) { return (j == _max_dist) ? "X"s : to_string(j); }), ""));
+                                 row | std::views::transform([this](int j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
     }
 }
 
@@ -387,12 +388,12 @@ void Device::floyd_warshall() {
         LOGGER.debug("Predecessor Matrix:");
         for (auto& row : _predecessor) {
             LOGGER.debug("{:5}", fmt::join(
-                                     row | views::transform([](size_t j) { return (j == SIZE_MAX) ? "/"s : to_string(j); }), ""));
+                                     row | std::views::transform([](size_t j) { return (j == SIZE_MAX) ? std::string{"/"} : std::to_string(j); }), ""));
         }
         LOGGER.debug("Distance Matrix:");
         for (auto& row : _distance) {
             LOGGER.debug("{:5}", fmt::join(
-                                     row | views::transform([this](int j) { return (j == _max_dist) ? "X"s : to_string(j); }), ""));
+                                     row | std::views::transform([this](int j) { return (j == _max_dist) ? std::string{"X"} : std::to_string(j); }), ""));
         }
     }
 }
@@ -404,8 +405,8 @@ void Device::floyd_warshall() {
  * @param t terminate
  * @return vector<PhyQubit>&
  */
-vector<PhysicalQubit> Device::get_path(size_t s, size_t t) const {
-    vector<PhysicalQubit> path;
+std::vector<PhysicalQubit> Device::get_path(size_t s, size_t t) const {
+    std::vector<PhysicalQubit> path;
     path.emplace_back(_qubit_list.at(s));
     if (s == t) return path;
     size_t new_pred = _predecessor[t][s];
@@ -425,17 +426,17 @@ vector<PhysicalQubit> Device::get_path(size_t s, size_t t) const {
  * @return true
  * @return false
  */
-bool Device::read_device(string const& filename) {
-    ifstream topo_file(filename);
+bool Device::read_device(std::string const& filename) {
+    std::ifstream topo_file(filename);
     if (!topo_file.is_open()) {
         LOGGER.error("Cannot open the file \"{}\"!!", filename);
         return false;
     }
-    string str = "", token = "", data = "";
+    std::string str = "", token = "", data = "";
 
     // NOTE - Device name
     while (str == "") {
-        getline(topo_file, str);
+        std::getline(topo_file, str);
         str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
     }
     size_t token_end = dvlab::str::str_get_token(str, token, 0, ": ");
@@ -447,7 +448,7 @@ bool Device::read_device(string const& filename) {
     str = "", token = "", data = "";
     unsigned qbn = 0;
     while (str == "") {
-        getline(topo_file, str);
+        std::getline(topo_file, str);
         str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
     }
     token_end = dvlab::str::str_get_token(str, token, 0, ": ");
@@ -462,7 +463,7 @@ bool Device::read_device(string const& filename) {
     // NOTE - Gate set
     str = "", token = "", data = "";
     while (str == "") {
-        getline(topo_file, str);
+        std::getline(topo_file, str);
         str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
     }
     if (!_parse_gate_set(str)) return false;
@@ -470,7 +471,7 @@ bool Device::read_device(string const& filename) {
     // NOTE - Coupling map
     str = "", token = "", data = "";
     while (str == "") {
-        getline(topo_file, str);
+        std::getline(topo_file, str);
         str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
     }
 
@@ -478,9 +479,9 @@ bool Device::read_device(string const& filename) {
     data = str.substr(token_end + 1);
     data = dvlab::str::strip_spaces(data);
     data = dvlab::str::remove_brackets(data, '[', ']');
-    vector<vector<float>> cx_err, cx_delay;
-    vector<vector<size_t>> adj_list;
-    vector<float> sg_err, sg_delay;
+    std::vector<std::vector<float>> cx_err, cx_delay;
+    std::vector<std::vector<size_t>> adj_list;
+    std::vector<float> sg_err, sg_delay;
     if (!_parse_size_t_pairs(data, adj_list))
         return false;
 
@@ -513,8 +514,8 @@ bool Device::read_device(string const& filename) {
  * @return true
  * @return false
  */
-bool Device::_parse_gate_set(string const& gate_set_str) {
-    string token = "", data = "", gt;
+bool Device::_parse_gate_set(std::string const& gate_set_str) {
+    std::string token = "", data = "", gt;
     size_t token_end = dvlab::str::str_get_token(gate_set_str, token, 0, ": ");
     data = gate_set_str.substr(token_end + 1);
     data = dvlab::str::strip_spaces(data);
@@ -544,12 +545,12 @@ bool Device::_parse_gate_set(string const& gate_set_str) {
  * @return true
  * @return false
  */
-bool Device::_parse_info(std::ifstream& f, vector<vector<float>>& cx_error, vector<vector<float>>& cx_delay, vector<float>& single_error, vector<float>& single_delay) {
-    string str = "", token = "", data = "";
+bool Device::_parse_info(std::ifstream& f, std::vector<std::vector<float>>& cx_error, std::vector<std::vector<float>>& cx_delay, std::vector<float>& single_error, std::vector<float>& single_delay) {
+    std::string str = "", token = "", data = "";
     while (true) {
         while (str == "") {
             if (f.eof()) break;
-            getline(f, str);
+            std::getline(f, str);
             str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
         }
         size_t token_end = dvlab::str::str_get_token(str, token, 0, ": ");
@@ -568,7 +569,7 @@ bool Device::_parse_info(std::ifstream& f, vector<vector<float>>& cx_error, vect
         if (f.eof()) {
             break;
         }
-        getline(f, str);
+        std::getline(f, str);
         str = dvlab::str::strip_spaces(dvlab::str::strip_comments(str));
     }
 
@@ -583,14 +584,14 @@ bool Device::_parse_info(std::ifstream& f, vector<vector<float>>& cx_error, vect
  * @return true
  * @return false
  */
-bool Device::_parse_singles(string const& data, vector<float>& container) {
-    string str, num;
+bool Device::_parse_singles(std::string const& data, std::vector<float>& container) {
+    std::string str, num;
     float fl = 0.;
     size_t m = 0;
 
     str = dvlab::str::remove_brackets(data, '[', ']');
 
-    vector<float> single_fl;
+    std::vector<float> single_fl;
     while (m < str.size()) {
         m = dvlab::str::str_get_token(str, num, m, ',');
         num = dvlab::str::strip_spaces(num);
@@ -611,15 +612,15 @@ bool Device::_parse_singles(string const& data, vector<float>& container) {
  * @return true
  * @return false
  */
-bool Device::_parse_float_pairs(string const& data, vector<vector<float>>& containers) {
-    string str, num;
+bool Device::_parse_float_pairs(std::string const& data, std::vector<std::vector<float>>& containers) {
+    std::string str, num;
     float fl = 0.;
     size_t n = 0, m = 0;
     while (n < data.size()) {
         n = dvlab::str::str_get_token(data, str, n, '[');
         str = str.substr(0, str.find_first_of(']'));
         m = 0;
-        vector<float> single_fl;
+        std::vector<float> single_fl;
         while (m < str.size()) {
             m = dvlab::str::str_get_token(str, num, m, ',');
             num = dvlab::str::strip_spaces(num);
@@ -642,15 +643,15 @@ bool Device::_parse_float_pairs(string const& data, vector<vector<float>>& conta
  * @return true
  * @return false
  */
-bool Device::_parse_size_t_pairs(string const& data, vector<vector<size_t>>& containers) {
-    string str, num;
+bool Device::_parse_size_t_pairs(std::string const& data, std::vector<std::vector<size_t>>& containers) {
+    std::string str, num;
     unsigned qbn = 0;
     size_t n = 0, m = 0;
     while (n < data.size()) {
         n = dvlab::str::str_get_token(data, str, n, '[');
         str = str.substr(0, str.find_first_of(']'));
         m = 0;
-        vector<size_t> single;
+        std::vector<size_t> single;
         while (m < str.size()) {
             m = dvlab::str::str_get_token(str, num, m, ',');
             num = dvlab::str::strip_spaces(num);
@@ -670,7 +671,7 @@ bool Device::_parse_size_t_pairs(string const& data, vector<vector<size_t>>& con
  *
  * @param cand a vector of qubits to be printed
  */
-void Device::print_qubits(vector<size_t> candidates) const {
+void Device::print_qubits(std::vector<size_t> candidates) const {
     for (auto& c : candidates) {
         if (c >= _num_qubit) {
             LOGGER.error("Error: the maximum qubit id is {}!!", _num_qubit - 1);
@@ -678,7 +679,7 @@ void Device::print_qubits(vector<size_t> candidates) const {
         }
     }
     fmt::println("");
-    vector<PhysicalQubit> qubits;
+    std::vector<PhysicalQubit> qubits;
     qubits.resize(_num_qubit);
     for (auto const& [idx, info] : _qubit_list) {
         qubits[idx] = info;
@@ -701,7 +702,7 @@ void Device::print_qubits(vector<size_t> candidates) const {
  *
  * @param cand Empty: print all. Single element [a]: print edges connecting to a. Two elements [a,b]: print edge (a,b).
  */
-void Device::print_edges(vector<size_t> candidates) const {
+void Device::print_edges(std::vector<size_t> candidates) const {
     for (auto& c : candidates) {
         if (c >= _num_qubit) {
             LOGGER.error("the maximum qubit id is {}!!", _num_qubit - 1);
@@ -709,7 +710,7 @@ void Device::print_edges(vector<size_t> candidates) const {
         }
     }
     fmt::println("");
-    vector<PhysicalQubit> qubits;
+    std::vector<PhysicalQubit> qubits;
     qubits.resize(_num_qubit);
     for (auto const& [idx, info] : _qubit_list) {
         qubits[idx] = info;
@@ -752,7 +753,7 @@ void Device::print_topology() const {
 void Device::print_predecessor() const {
     fmt::println("Predecessor Matrix:");
     for (auto& row : _predecessor) {
-        fmt::println("{:5}", fmt::join(row | views::transform([this](size_t pred) { return (pred == SIZE_MAX) ? "/" : to_string(pred); }), ""));
+        fmt::println("{:5}", fmt::join(row | std::views::transform([this](size_t pred) { return (pred == SIZE_MAX) ? "/" : std::to_string(pred); }), ""));
     }
 }
 
@@ -763,7 +764,7 @@ void Device::print_predecessor() const {
 void Device::print_distance() const {
     fmt::println("Distance Matrix:");
     for (auto& row : _distance) {
-        fmt::println("{:5}", fmt::join(row | views::transform([this](int dist) { return (dist == _max_dist) ? "X" : to_string(dist); }), ""));
+        fmt::println("{:5}", fmt::join(row | std::views::transform([this](int dist) { return (dist == _max_dist) ? "X" : std::to_string(dist); }), ""));
     }
 }
 
@@ -781,7 +782,7 @@ void Device::print_path(size_t source, size_t destination) const {
             return;
         }
     }
-    vector<PhysicalQubit> const& path = get_path(source, destination);
+    std::vector<PhysicalQubit> const& path = get_path(source, destination);
     if (path.front().get_id() != source && path.back().get_id() != destination)
         fmt::println("No path between {} and {}", source, destination);
     else {
@@ -812,7 +813,7 @@ void Device::print_mapping() {
  */
 void Device::print_status() const {
     fmt::println("Device Status:");
-    vector<PhysicalQubit> qubits;
+    std::vector<PhysicalQubit> qubits;
     qubits.resize(_num_qubit);
     for (auto const& [idx, info] : _qubit_list) {
         qubits[idx] = info;
@@ -832,15 +833,15 @@ void Device::print_status() const {
  * @param op
  * @return ostream&
  */
-ostream& operator<<(ostream& os, Operation& op) {
-    os << left;
-    size_t from = get<0>(op._duration);
-    size_t to = get<1>(op._duration);
+std::ostream& operator<<(std::ostream& os, Operation& op) {
+    os << std::left;
+    size_t from = std::get<0>(op._duration);
+    size_t to = std::get<1>(op._duration);
     // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
-    os << setw(20) << "Operation: " + GATE_TYPE_TO_STR[op._oper];
-    os << "Q" << get<0>(op._qubits);
-    if (get<1>(op._qubits) != SIZE_MAX) os << " Q" << get<1>(op._qubits);
-    os << "    from: " << left << setw(10) << from << "to: " << to;
+    os << std::setw(20) << "Operation: " + GATE_TYPE_TO_STR[op._oper];
+    os << "Q" << std::get<0>(op._qubits);
+    if (std::get<1>(op._qubits) != SIZE_MAX) os << " Q" << std::get<1>(op._qubits);
+    os << "    from: " << std::left << std::setw(10) << from << "to: " << to;
     // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
     return os;
 }
@@ -852,14 +853,14 @@ ostream& operator<<(ostream& os, Operation& op) {
  * @param op
  * @return ostream&
  */
-ostream& operator<<(ostream& os, Operation const& op) {
-    os << left;
-    size_t from = get<0>(op._duration);
-    size_t to = get<1>(op._duration);
+std::ostream& operator<<(std::ostream& os, Operation const& op) {
+    os << std::left;
+    size_t from = std::get<0>(op._duration);
+    size_t to = std::get<1>(op._duration);
     // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
-    os << setw(20) << "Operation: " + GATE_TYPE_TO_STR[op._oper];
-    os << "Q" << get<0>(op._qubits) << " Q" << get<1>(op._qubits)
-       << "    from: " << left << setw(10) << from << "to: " << to;
+    os << std::setw(20) << "Operation: " + GATE_TYPE_TO_STR[op._oper];
+    os << "Q" << std::get<0>(op._qubits) << " Q" << std::get<1>(op._qubits)
+       << "    from: " << std::left << std::setw(10) << from << "to: " << to;
     // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
     return os;
 }
@@ -872,12 +873,12 @@ ostream& operator<<(ostream& os, Operation const& op) {
  * @param qs
  * @param du
  */
-Operation::Operation(GateType oper, Phase ph, tuple<size_t, size_t> qs, tuple<size_t, size_t> du)
+Operation::Operation(GateType oper, dvlab::Phase ph, std::tuple<size_t, size_t> qs, std::tuple<size_t, size_t> du)
     : _oper(oper), _phase(ph), _qubits(qs), _duration(du), _id(SIZE_MAX) {
     // sort qs
-    size_t a = get<0>(qs);
-    size_t b = get<1>(qs);
+    size_t a = std::get<0>(qs);
+    size_t b = std::get<1>(qs);
     assert(a != b);
-    // if (a > b)
-    //     _qubits = make_tuple(b, a);
 }
+
+}  // namespace qsyn::device

@@ -11,12 +11,11 @@
 #include <stdexcept>
 #include <string>
 
+namespace dvlab {
+
 //----------------------------------------
 // Operator Overloading
 //----------------------------------------
-std::ostream& operator<<(std::ostream& os, Rational const& q) {
-    return os << fmt::format("{}", q);
-}
 
 Rational Rational::operator+() const {
     return Rational(_numer, _denom);
@@ -116,4 +115,10 @@ void Rational::reduce() {
  */
 Rational Rational::_mediant(Rational const& lhs, Rational const& rhs) {
     return Rational((int)(lhs._numer + rhs._numer), (int)(lhs._denom + rhs._denom));
+}
+
+}  // namespace dvlab
+
+std::ostream& operator<<(std::ostream& os, dvlab::Rational const& q) {
+    return os << fmt::format("{}", q);
 }

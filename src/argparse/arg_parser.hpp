@@ -17,7 +17,7 @@
 #include "util/trie.hpp"
 #include "util/util.hpp"
 
-namespace argparse {
+namespace dvlab::argparse {
 
 struct ArgumentParserConfig {
     bool add_help_action = true;
@@ -34,7 +34,7 @@ struct ArgumentParserConfig {
 class SubParsers {
 private:
     struct SubParsersImpl {
-        ordered_hashmap<std::string, ArgumentParser> subparsers;
+        dvlab::utils::ordered_hashmap<std::string, ArgumentParser> subparsers;
         std::string help;
         bool required = false;
         bool parsed = false;
@@ -148,7 +148,7 @@ private:
     friend std::string detail::get_syntax(ArgumentParser parser, MutuallyExclusiveGroup const& group);
     friend std::string detail::styled_option_name_and_aliases(ArgumentParser parser, Argument const& arg);
     struct ArgumentParserImpl {
-        ordered_hashmap<std::string, Argument> arguments;
+        dvlab::utils::ordered_hashmap<std::string, Argument> arguments;
         std::unordered_map<std::string, std::string> alias_forward_map;
         std::unordered_multimap<std::string, std::string> alias_reverse_map;
         std::string option_prefixes = "-";
@@ -336,7 +336,7 @@ ArgType<T>& ArgumentParser::_add_option(std::string const& name, std::convertibl
     _pimpl->arguments.emplace(name, Argument(name, T{}));
 
     return get_underlying_type<T>(_pimpl->arguments.at(name))  //
-        .metavar(dvlab::str::to_upper_string(name.substr(name.find_first_not_of(_pimpl->option_prefixes))));
+        .metavar(dvlab::str::toupper_string(name.substr(name.find_first_not_of(_pimpl->option_prefixes))));
 }
 
 template <typename T>
@@ -359,4 +359,4 @@ auto& ArgumentParser::_get_arg_impl(T& t, std::string const& name) {
     exit(1);
 }
 
-}  // namespace argparse
+}  // namespace dvlab::argparse
