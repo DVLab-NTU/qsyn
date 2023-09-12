@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ phase.hpp ]
   PackageName  [ util ]
   Synopsis     [ Definition of the Phase class and pertinent classes ]
   Author       [ Design Verification Lab ]
@@ -36,15 +35,15 @@ public:
     requires std::floating_point<T>
     Phase(T f, T eps = 1e-4) : _rational(f / std::numbers::pi_v<T>, eps / std::numbers::pi_v<T>) { normalize(); }
 
-    friend std::ostream& operator<<(std::ostream& os, const Phase& p);
+    friend std::ostream& operator<<(std::ostream& os, Phase const& p);
     Phase operator+() const;
     Phase operator-() const;
 
     // Addition and subtraction are mod 2pi
-    Phase& operator+=(const Phase& rhs);
-    Phase& operator-=(const Phase& rhs);
-    friend Phase operator+(Phase lhs, const Phase& rhs);
-    friend Phase operator-(Phase lhs, const Phase& rhs);
+    Phase& operator+=(Phase const& rhs);
+    Phase& operator-=(Phase const& rhs);
+    friend Phase operator+(Phase lhs, Phase const& rhs);
+    friend Phase operator-(Phase lhs, Phase const& rhs);
 
     // Multiplication / Devision w/ unitless constants
     Phase& operator*=(const Unitless auto& rhs);
@@ -52,43 +51,42 @@ public:
     friend Phase operator*(Phase lhs, const Unitless auto& rhs);
     friend Phase operator*(const Unitless auto& lhs, Phase rhs);
     friend Phase operator/(Phase lhs, const Unitless auto& rhs);
-    friend Rational operator/(const Phase& lhs, const Phase& rhs);
+    friend Rational operator/(Phase const& lhs, Phase const& rhs);
     // Operator *, / between phases are not supported deliberately as they don't make physical sense (Changes unit)
 
-    bool operator==(const Phase& rhs) const;
-    bool operator!=(const Phase& rhs) const;
+    bool operator==(Phase const& rhs) const;
+    bool operator!=(Phase const& rhs) const;
     // Operator <, <=, >, >= are are not supported deliberately as they don't make physical sense (Phases are mod 2pi)
 
     template <class T>
     requires std::floating_point<T>
-    T toFloatType()
-        const { return std::numbers::pi_v<T> * _rational.toFloatType<T>(); }
+    static T phase_to_floating_point(Phase const& p) { return std::numbers::pi_v<T> * Rational::rational_to_floating_point<T>(p._rational); }
 
-    float toFloat() const { return toFloatType<float>(); }
-    double toDouble() const { return toFloatType<double>(); }
-    long double toLongDouble() const { return toFloatType<long double>(); }
+    static float phase_to_f(Phase const& p) { return phase_to_floating_point<float>(p); }
+    static double phase_to_d(Phase const& p) { return phase_to_floating_point<double>(p); }
+    static long double phase_to_ld(Phase const& p) { return phase_to_floating_point<long double>(p); }
 
-    Rational getRational() const { return _rational; }
+    Rational get_rational() const { return _rational; }
     int numerator() const { return _rational.numerator(); }
     int denominator() const { return _rational.denominator(); }
 
     template <class T>
     requires std::floating_point<T>
-    static Phase toPhase(T f, T eps = 1e-4) {
+    static Phase to_phase(T f, T eps = 1e-4) {
         Phase p(f, eps);
         return p;
     }
 
-    std::string getAsciiString() const;
-    std::string getPrintString() const;
+    std::string get_ascii_string() const;
+    std::string get_print_string() const;
 
     void normalize();
 
     template <class T = double>
     requires std::floating_point<T>
     static bool
-    fromString(const std::string& str, Phase& phase) {
-        if (!myStr2Phase<T>(str, phase)) {
+    from_string(std::string const& str, Phase& phase) {
+        if (!str_to_phase<T>(str, phase)) {
             phase = Phase(0);
             return false;
         }
@@ -97,7 +95,7 @@ public:
 
     template <class T = double>
     requires std::floating_point<T>
-    static bool myStr2Phase(const std::string& str, Phase& p);
+    static bool str_to_phase(std::string const& str, Phase& p);
 
 private:
     Rational _rational;
@@ -127,68 +125,68 @@ Phase operator/(Phase lhs, const Unitless auto& rhs) {
 
 template <class T>
 requires std::floating_point<T>
-bool Phase::myStr2Phase(const std::string& str, Phase& p) {
-    std::vector<std::string> numberStrings;
+bool Phase::str_to_phase(std::string const& str, Phase& p) {
+    std::vector<std::string> number_strings;
     std::vector<char> operators;
 
     // string parsing
-    size_t curPos = 0;
-    size_t operatorPos = 0;
-    while (operatorPos != std::string::npos) {
-        operatorPos = str.find_first_of("*/", curPos);
-        if (operatorPos != std::string::npos) {
-            operators.emplace_back(str[operatorPos]);
-            numberStrings.emplace_back(str.substr(curPos, operatorPos - curPos));
+    size_t curr_pos = 0;
+    size_t op_pos = 0;
+    while (op_pos != std::string::npos) {
+        op_pos = str.find_first_of("*/", curr_pos);
+        if (op_pos != std::string::npos) {
+            operators.emplace_back(str[op_pos]);
+            number_strings.emplace_back(str.substr(curr_pos, op_pos - curr_pos));
         } else {
-            numberStrings.emplace_back(str.substr(curPos));
+            number_strings.emplace_back(str.substr(curr_pos));
         }
-        curPos = operatorPos + 1;
+        curr_pos = op_pos + 1;
     }
 
     // Error detection
-    if (operators.size() >= numberStrings.size()) return false;
+    if (operators.size() >= number_strings.size()) return false;
 
-    int numOfPis = 0;
+    int n_pis = 0;
     int numerator = 1, denominator = 1;
-    T tempFloat = 1.0;
+    T temp_float = 1.0;
 
-    int bufferInt;
-    T bufferFloat;
+    int buffer_int;
+    T buffer_float;
 
-    bool doDivision = false;
+    bool do_division = false;
 
-    for (size_t i = 0; i < numberStrings.size(); ++i) {
-        doDivision = (i != 0 && operators[i - 1] == '/');
+    for (size_t i = 0; i < number_strings.size(); ++i) {
+        do_division = (i != 0 && operators[i - 1] == '/');
 
-        if (toLowerString(numberStrings[i]) == "pi") {
-            if (doDivision)
-                numOfPis -= 1;
+        if (dvlab::str::to_lower_string(number_strings[i]) == "pi") {
+            if (do_division)
+                n_pis -= 1;
             else
-                numOfPis += 1;
-        } else if (toLowerString(numberStrings[i]) == "-pi") {
+                n_pis += 1;
+        } else if (dvlab::str::to_lower_string(number_strings[i]) == "-pi") {
             numerator *= -1;
-            if (doDivision)
-                numOfPis -= 1;
+            if (do_division)
+                n_pis -= 1;
             else
-                numOfPis += 1;
-        } else if (myStr2Int(numberStrings[i], bufferInt)) {
-            if (doDivision)
-                denominator *= bufferInt;
+                n_pis += 1;
+        } else if (dvlab::str::str_to_i(number_strings[i], buffer_int)) {
+            if (do_division)
+                denominator *= buffer_int;
             else
-                numerator *= bufferInt;
-        } else if (myStr2Number<T>(numberStrings[i], bufferFloat)) {
-            if (doDivision)
-                tempFloat /= bufferFloat;
+                numerator *= buffer_int;
+        } else if (dvlab::str::str_to_num<T>(number_strings[i], buffer_float)) {
+            if (do_division)
+                temp_float /= buffer_float;
             else
-                tempFloat *= bufferFloat;
+                temp_float *= buffer_float;
         } else {
             return false;
         }
     }
 
-    Rational tempRational(tempFloat * std::pow(std::numbers::pi_v<T>, numOfPis - 1), 1e-4 / std::numbers::pi_v<T>);
+    Rational tmp_rational(temp_float * std::pow(std::numbers::pi_v<T>, n_pis - 1), 1e-4 / std::numbers::pi_v<T>);
 
-    p = Phase(numerator, denominator) * tempRational;
+    p = Phase(numerator, denominator) * tmp_rational;
 
     return true;
 }
@@ -203,9 +201,9 @@ struct fmt::formatter<Phase> {
         if (it != end && *it != '}') detail::throw_format_error("invalid format");
         return it;
     }
-    auto format(const Phase& p, format_context& ctx) const -> format_context::iterator {
+    auto format(Phase const& p, format_context& ctx) const -> format_context::iterator {
         return presentation == 'f'
-                   ? fmt::format_to(ctx.out(), "{}", p.toDouble())
-                   : fmt::format_to(ctx.out(), "{}", p.getPrintString());
+                   ? fmt::format_to(ctx.out(), "{}", Phase::phase_to_d(p))
+                   : fmt::format_to(ctx.out(), "{}", p.get_print_string());
     }
 };

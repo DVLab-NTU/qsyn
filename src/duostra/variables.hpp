@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ variables.hpp ]
   PackageName  [ duostra ]
   Synopsis     [ Define global variables for Duostra ]
   Author       [ Chin-Yi Cheng, Chien-Yi Yang, Ren-Chu Wang, Yi-Hsiang Kuo ]

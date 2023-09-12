@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ main.cpp ]
   PackageName  [ main ]
   Synopsis     [ Define main() ]
   Author       [ Design Verification Lab, Chia-Hsu Chuang ]
@@ -18,87 +17,85 @@
 #define QSYN_VERSION "[unknown version]"
 #endif
 
-using namespace std;
-
 //----------------------------------------------------------------------
 //    Global cmd Manager
 //----------------------------------------------------------------------
-CommandLineInterface cli{"qsyn> "};
-dvlab::utils::Logger logger;
-dvlab::utils::Usage usage;
-size_t verbose = 3;
+CommandLineInterface CLI{"qsyn> "};
+dvlab::Logger LOGGER;
+dvlab::utils::Usage USAGE;
+size_t VERBOSE = 3;
 
-extern bool initArgParseCmd();
-extern bool initCommonCmd();
-extern bool initQCirCmd();
-extern bool initOptimizeCmd();
-extern bool initZXCmd();
-extern bool initSimpCmd();
-extern bool initTensorCmd();
-extern bool initExtractCmd();
-extern bool initDeviceCmd();
-extern bool initDuostraCmd();
-extern bool initGFlowCmd();
+extern bool add_argparse_cmds();
+extern bool add_cli_common_cmds();
+extern bool add_qcir_cmds();
+extern bool add_qcir_optimize_cmds();
+extern bool add_zx_cmds();
+extern bool add_zx_simplifier_cmds();
+extern bool add_tensor_cmds();
+extern bool add_extract_cmds();
+extern bool add_device_cmds();
+extern bool add_duostra_cmds();
+extern bool add_zx_gflow_cmds();
 
 bool stop_requested() {
-    return cli.stopRequested();
+    return CLI.stop_requested();
 }
 
 int main(int argc, char** argv) {
-    using namespace ArgParse;
+    using namespace argparse;
 
-    usage.reset();
+    USAGE.reset();
 
-    signal(SIGINT, [](int signum) -> void { cli.sigintHandler(signum); return; });
-    constexpr auto versionStr = "DV Lab, NTUEE, Qsyn " QSYN_VERSION;
+    signal(SIGINT, [](int signum) -> void { CLI.sigint_handler(signum); return; });
+    constexpr auto version_str = "DV Lab, NTUEE, Qsyn " QSYN_VERSION;
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    auto parser = ArgumentParser(argv[0], {.addHelpAction = true, .addVersionAction = true, .exitOnFailure = true, .version = versionStr});
+    auto parser = ArgumentParser(argv[0], {.add_help_action = true, .add_version_action = true, .exitOnFailure = true, .version = version_str});
 
-    parser.addArgument<string>("-file")
-        .nargs(NArgsOption::ONE_OR_MORE)
+    parser.add_argument<std::string>("-file")
+        .nargs(NArgsOption::one_or_more)
         .help("specify the dofile to run, and optionally pass arguments to the dofiles");
 
     std::vector<std::string> arguments{std::next(argv), std::next(argv, argc)};
 
-    if (!parser.parseArgs(arguments)) {
-        parser.printUsage();
+    if (!parser.parse_args(arguments)) {
+        parser.print_usage();
         return -1;
     }
 
     if (parser.parsed("-file")) {
-        auto args = parser.get<std::vector<string>>("-file");
-        if (!cli.openDofile(args[0])) {
-            logger.fatal("cannot open dofile!!");
+        auto args = parser.get<std::vector<std::string>>("-file");
+        if (!CLI.open_dofile(args[0])) {
+            LOGGER.fatal("cannot open dofile!!");
             return 1;
         }
 
-        if (!cli.saveVariables(args[0], std::ranges::subrange(arguments.begin() + 2, arguments.end()))) {
+        if (!CLI.add_variables_from_dofiles(args[0], std::ranges::subrange(arguments.begin() + 2, arguments.end()))) {
             return 1;
         }
     }
 
-    fmt::println("{}", versionStr);
+    fmt::println("{}", version_str);
 
     if (
-        !initArgParseCmd() ||
-        !initCommonCmd() ||
-        !initQCirCmd() ||
-        !initOptimizeCmd() ||
-        !initZXCmd() ||
-        !initSimpCmd() ||
-        !initTensorCmd() ||
-        !initExtractCmd() ||
-        !initDeviceCmd() ||
-        !initDuostraCmd() ||
-        !initGFlowCmd()) {
+        !add_argparse_cmds() ||
+        !add_cli_common_cmds() ||
+        !add_qcir_cmds() ||
+        !add_qcir_optimize_cmds() ||
+        !add_zx_cmds() ||
+        !add_zx_simplifier_cmds() ||
+        !add_tensor_cmds() ||
+        !add_extract_cmds() ||
+        !add_device_cmds() ||
+        !add_duostra_cmds() ||
+        !add_zx_gflow_cmds()) {
         return 1;
     }
 
-    CmdExecResult status = CmdExecResult::DONE;
+    CmdExecResult status = CmdExecResult::done;
 
-    while (status != CmdExecResult::QUIT) {  // until "quit" or command error
-        status = cli.executeOneLine();
+    while (status != CmdExecResult::quit) {  // until "quit" or command error
+        status = CLI.execute_one_line();
         fmt::print("\n");
     }
 

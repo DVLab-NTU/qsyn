@@ -1,5 +1,4 @@
 /****************************************************************************
-  FileName     [ checker.hpp ]
   PackageName  [ duostra ]
   Synopsis     [ Define class Checker structure ]
   Author       [ Chin-Yi Cheng, Chien-Yi Yang, Ren-Chu Wang, Yi-Hsiang Kuo ]
@@ -11,25 +10,25 @@
 
 #include "device/device.hpp"
 
-class CircuitTopo;
+class CircuitTopology;
 class Gate;
 
 class Checker {
 public:
-    Checker(CircuitTopo&, Device&, std::vector<Operation> const& ops, const std::vector<size_t>&, bool = true);
+    Checker(CircuitTopology&, Device&, std::vector<Operation> const& ops, std::vector<size_t> const&, bool = true);
 
-    size_t getCycle(GateType);
+    size_t get_cycle(GateType);
 
-    void applyGate(const Operation&, PhysicalQubit&);
-    void applyGate(const Operation&, PhysicalQubit&, PhysicalQubit&);
-    void applySwap(const Operation&);
-    bool applyCX(const Operation&, const Gate&);
-    bool applySingle(const Operation&, const Gate&);
+    void apply_gate(Operation const&, PhysicalQubit&);
+    void apply_gate(Operation const&, PhysicalQubit&, PhysicalQubit&);
+    void apply_swap(Operation const&);
+    bool apply_cx(Operation const&, Gate const&);
+    bool apply_single(Operation const&, Gate const&);
 
-    bool testOperations();
+    bool test_operations();
 
 private:
-    CircuitTopo* _topo;
+    CircuitTopology* _topo;
     Device* _device;
     std::vector<Operation> const& _ops;
     bool _tqdm;
