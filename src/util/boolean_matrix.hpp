@@ -68,7 +68,7 @@ public:
     }
 
     bool row_operation(size_t ctrl, size_t targ, bool track = false);
-    size_t gaussian_elimination_skip(size_t block_size, bool fully_reduced, bool track = true);
+    size_t gaussian_elimination_skip(size_t block_size, bool do_fully_reduced, bool track = true);
     bool gaussian_elimination(bool track = false, bool is_augmented_matrix = false);
     bool gaussian_elimination_augmented(bool track = false);
     bool is_solved_form() const;

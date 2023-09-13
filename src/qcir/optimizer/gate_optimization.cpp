@@ -35,7 +35,7 @@ void Optimizer::_permute_gates(QCirGate* gate) {
 
 void Optimizer::_match_hadamards(QCirGate* gate) {
     assert(gate->get_type() == GateType::h);
-    size_t qubit = gate->get_targets()._qubit;
+    auto qubit = gate->get_targets()._qubit;
     if (_xs.contains(qubit) && !_zs.contains(qubit)) {
         LOGGER.trace("Transform X gate into Z gate");
 
@@ -66,7 +66,7 @@ void Optimizer::_match_hadamards(QCirGate* gate) {
 
 void Optimizer::_match_xs(QCirGate* gate) {
     assert(gate->get_type() == GateType::x);
-    size_t qubit = gate->get_targets()._qubit;
+    auto qubit = gate->get_targets()._qubit;
     if (_xs.contains(qubit)) {
         LOGGER.trace("Cancel X-X into Id");
         _statistics.X_CANCEL++;
@@ -76,7 +76,7 @@ void Optimizer::_match_xs(QCirGate* gate) {
 
 void Optimizer::_match_z_rotations(QCirGate* gate) {
     assert(is_single_z_rotation(gate));
-    size_t qubit = gate->get_targets()._qubit;
+    auto qubit = gate->get_targets()._qubit;
     if (_zs.contains(qubit)) {
         _statistics.FUSE_PHASE++;
         _zs.erase(qubit);
@@ -133,10 +133,10 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
 
 void Optimizer::_match_czs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
     assert(gate->get_type() == GateType::cz);
-    size_t control_qubit = gate->get_control()._qubit;
-    size_t target_qubit = gate->get_targets()._qubit;
+    auto control_qubit = gate->get_control()._qubit;
+    auto target_qubit = gate->get_targets()._qubit;
     if (control_qubit > target_qubit) {  // NOTE - Symmetric, let ctrl smaller than targ
-        size_t tmp = control_qubit;
+        auto tmp = control_qubit;
         gate->set_target_qubit(target_qubit);
         gate->set_control_qubit(tmp);
     }
@@ -163,8 +163,8 @@ void Optimizer::_match_czs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
 
 void Optimizer::_match_cxs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
     assert(gate->get_type() == GateType::cx);
-    size_t control_qubit = gate->get_control()._qubit;
-    size_t target_qubit = gate->get_targets()._qubit;
+    auto control_qubit = gate->get_control()._qubit;
+    auto target_qubit = gate->get_targets()._qubit;
 
     if (_xs.contains(control_qubit))
         _toggle_element(GateType::x, target_qubit);

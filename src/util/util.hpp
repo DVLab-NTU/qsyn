@@ -7,7 +7,9 @@
 #pragma once
 
 #include <concepts>
+#include <gsl/narrow>
 #include <iosfwd>
+#include <iterator>
 #include <memory>
 #include <optional>
 #include <span>
@@ -36,25 +38,35 @@ size_t int_pow(size_t base, size_t n);
 
 class TqdmWrapper {
 public:
-    TqdmWrapper(size_t total, bool = true);
-    TqdmWrapper(int total, bool = true);
-    ~TqdmWrapper();
+    using CounterType = int;
+
+    template <typename T>
+    requires std::integral<T>
+    inline TqdmWrapper(T total, bool show = true)
+        : _counter(0), _total{gsl::narrow<CounterType>(total)}, _tqdm{std::make_unique<tqdm>(show)} {}
+
+    inline ~TqdmWrapper() {
+        _tqdm->finish();
+    }
+
     TqdmWrapper(TqdmWrapper const&) = delete;
     TqdmWrapper& operator=(TqdmWrapper const&) = delete;
     TqdmWrapper(TqdmWrapper&&) noexcept = default;
     TqdmWrapper& operator=(TqdmWrapper&&) noexcept = default;
 
-    size_t idx() const { return _counter; }
-    bool done() const { return _counter == _total; }
-    void add();
-    TqdmWrapper& operator++() {
+    inline int idx() const { return _counter; }
+    inline bool done() const { return _counter == _total; }
+    inline void add() {
+        _tqdm->progress(_counter++, _total);
+    }
+    inline TqdmWrapper& operator++() {
         add();
         return *this;
     }
 
 private:
-    size_t _counter;
-    size_t _total;
+    CounterType _counter;
+    CounterType _total;
 
     // Using a pointer so we don't need to know tqdm's size in advance.
     // This way, no need to #include it in the header
@@ -64,6 +76,40 @@ private:
 };
 
 // In dvlab_string.cpp
+
+namespace iterator {
+
+/**
+ * @brief A wrapper for std::next() that throws an exception if the narrowing conversion fails.
+ *
+ * @tparam Iter iterator type. Requires std::random_access_iterator.
+ * @tparam DiffT difference type. Requires std::integral.
+ */
+template <typename Iter, typename DiffT>
+requires requires {
+    std::random_access_iterator<Iter>;
+    std::integral<DiffT>;
+}
+Iter next(Iter iter, DiffT n = 1) {
+    return std::next(iter, gsl::narrow<typename decltype(iter)::difference_type>(n));
+}
+
+/**
+ * @brief A wrapper for std::prev() that throws an exception if the narrowing conversion fails.
+ *
+ * @tparam Iter iterator type. Requires std::random_access_iterator.
+ * @tparam DiffT difference type. Requires std::integral.
+ */
+template <typename Iter, typename DiffT>
+requires requires {
+    std::random_access_iterator<Iter>;
+    std::integral<DiffT>;
+}
+Iter prev(Iter iter, DiffT n = 1) {
+    return std::prev(iter, gsl::narrow<typename decltype(iter)::difference_type>(n));
+}
+
+}  // namespace iterator
 
 namespace str {
 

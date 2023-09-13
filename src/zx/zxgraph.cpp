@@ -150,12 +150,11 @@ size_t ZXGraph::get_num_gadgets() const {
  * @return double
  */
 double ZXGraph::density() {
-    double density = 0;
-    for (auto& v : this->get_vertices()) {
-        density += std::pow(v->get_num_neighbors(), 2);
-    }
-    density /= static_cast<double>(this->get_num_vertices());
-    return density;
+    return std::accumulate(this->get_vertices().begin(), this->get_vertices().end(), 0,
+                           [](double sum, ZXVertex* v) {
+                               return sum + std::pow(v->get_num_neighbors(), 2);
+                           }) /
+           gsl::narrow_cast<double>(this->get_num_vertices());
 }
 
 /*****************************************************/
@@ -169,7 +168,7 @@ double ZXGraph::density() {
  * @param col
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::add_input(int qubit, double col) {
+ZXVertex* ZXGraph::add_input(QubitIdType qubit, double col) {
     assert(!is_input_qubit(qubit));
 
     ZXVertex* v = add_vertex(qubit, VertexType::boundary, Phase(), col);
@@ -184,7 +183,7 @@ ZXVertex* ZXGraph::add_input(int qubit, double col) {
  * @param qubit
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::add_output(int qubit, double col) {
+ZXVertex* ZXGraph::add_output(QubitIdType qubit, double col) {
     assert(!is_output_qubit(qubit));
 
     ZXVertex* v = add_vertex(qubit, VertexType::boundary, Phase(), col);
@@ -201,7 +200,7 @@ ZXVertex* ZXGraph::add_output(int qubit, double col) {
  * @param phase the phase
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::add_vertex(int qubit, VertexType vt, Phase phase, double col) {
+ZXVertex* ZXGraph::add_vertex(QubitIdType qubit, VertexType vt, Phase phase, double col) {
     ZXVertex* v = new ZXVertex(_next_v_id, qubit, vt, phase, col);
     _vertices.emplace(v);
     _next_v_id++;
@@ -419,7 +418,7 @@ void ZXGraph::adjoint() {
  * @param ty
  * @param phase
  */
-void ZXGraph::assign_vertex_to_boundary(int qubit, bool is_input, VertexType vtype, Phase phase) {
+void ZXGraph::assign_vertex_to_boundary(QubitIdType qubit, bool is_input, VertexType vtype, Phase phase) {
     ZXVertex* v = add_vertex(qubit, vtype, phase);
     ZXVertex* boundary = is_input ? _input_list[qubit] : _output_list[qubit];
     for (auto& [nb, etype] : boundary->get_neighbors()) {

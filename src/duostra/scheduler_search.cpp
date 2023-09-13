@@ -170,7 +170,7 @@ void TreeNode::_route_internal_gates() {
  * @param depth
  * @return TreeNode
  */
-TreeNode TreeNode::best_child(int depth) {
+TreeNode TreeNode::best_child(size_t depth) {
     auto next_nodes = _take_children();
     size_t best_id = 0, best = (size_t)-1;
     for (size_t idx = 0; idx < next_nodes.size(); ++idx) {
@@ -191,7 +191,7 @@ TreeNode TreeNode::best_child(int depth) {
  * @param depth
  * @return size_t
  */
-size_t TreeNode::best_cost(int depth) {
+size_t TreeNode::best_cost(size_t depth) {
     // Grow if remaining depth >= 2.
     // Terminates on leaf nodes.
     if (is_leaf()) {

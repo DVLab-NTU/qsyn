@@ -13,6 +13,7 @@
 #include "../qcir.hpp"
 #include "../qcir_gate.hpp"
 #include "../qcir_qubit.hpp"
+#include "qsyn/qsyn_type.hpp"
 
 namespace qsyn::qcir {
 
@@ -30,7 +31,7 @@ void Optimizer::reset(QCir const& qcir) {
     _swaps.clear();
     _gate_count = 0;
     _statistics = {};
-    for (size_t i = 0; i < qcir.get_qubits().size(); i++) {
+    for (int i = 0; i < gsl::narrow<QubitIdType>(qcir.get_qubits().size()); i++) {
         _availty.emplace_back(false);
         _available.emplace(i, std::vector<QCirGate*>{});
         _gates.emplace(i, std::vector<QCirGate*>{});
@@ -51,7 +52,7 @@ QCir Optimizer::parse_backward(QCir const& qcir, bool do_minimize_czs, BasicOpti
  * @param type 0: _hadamards, 1: _xs, and 2: _zs
  * @param element
  */
-void Optimizer::_toggle_element(GateType const& type, size_t element) {
+void Optimizer::_toggle_element(GateType const& type, QubitIdType element) {
     if (type == GateType::h) {
         if (_hadamards.contains(element))
             _hadamards.erase(element);
@@ -76,7 +77,7 @@ void Optimizer::_toggle_element(GateType const& type, size_t element) {
  * @param type 0: _hadamards, 1: _xs, and 2: _zs
  * @param element
  */
-void Optimizer::_swap_element(size_t type, size_t e1, size_t e2) {
+void Optimizer::_swap_element(size_t type, QubitIdType e1, QubitIdType e2) {
     if (type == 0) {
         if (_hadamards.contains(e1) && !_hadamards.contains(e2)) {
             _hadamards.erase(e1);
@@ -161,7 +162,7 @@ bool Optimizer::is_double_qubit_gate(QCirGate* g) {
  * @param target which qubit
  * @return QCirGate*
  */
-QCirGate* Optimizer::get_available_z_rotation(size_t target) {
+QCirGate* Optimizer::get_available_z_rotation(QubitIdType target) {
     for (auto& g : _available[target]) {
         if (is_single_z_rotation(g)) {
             return g;

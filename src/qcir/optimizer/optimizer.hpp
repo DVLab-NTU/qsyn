@@ -11,6 +11,7 @@
 #include <set>
 #include <unordered_map>
 
+#include "qsyn/qsyn_type.hpp"
 #include "util/ordered_hashset.hpp"
 
 namespace dvlab {
@@ -24,7 +25,7 @@ namespace qsyn::qcir {
 class QCir;
 class QCirGate;
 enum class GateType;
-using Qubit2Gates = std::unordered_map<size_t, std::vector<QCirGate*>>;
+using Qubit2Gates = std::unordered_map<QubitIdType, std::vector<QCirGate*>>;
 
 class Optimizer {
 public:
@@ -33,11 +34,11 @@ public:
     void reset(QCir const& qcir);
 
     // Predicate function && Utils
-    bool two_qubit_gate_exists(QCirGate* g, GateType gt, size_t ctrl, size_t targ);
+    bool two_qubit_gate_exists(QCirGate* g, GateType gt, QubitIdType ctrl, QubitIdType targ);
     bool is_single_z_rotation(QCirGate*);
     bool is_single_x_rotation(QCirGate*);
     bool is_double_qubit_gate(QCirGate*);
-    QCirGate* get_available_z_rotation(size_t t);
+    QCirGate* get_available_z_rotation(QubitIdType t);
 
     // basic optimization
     struct BasicOptimizationConfig {
@@ -60,11 +61,11 @@ private:
     Qubit2Gates _available;
     std::vector<bool> _availty;
 
-    std::unordered_map<size_t, size_t> _permutation;
-    dvlab::utils::ordered_hashset<size_t> _hadamards;
-    dvlab::utils::ordered_hashset<size_t> _xs;
-    dvlab::utils::ordered_hashset<size_t> _zs;
-    std::vector<std::pair<size_t, size_t>> _swaps;
+    std::unordered_map<QubitIdType, QubitIdType> _permutation;
+    dvlab::utils::ordered_hashset<QubitIdType> _hadamards;
+    dvlab::utils::ordered_hashset<QubitIdType> _xs;
+    dvlab::utils::ordered_hashset<QubitIdType> _zs;
+    std::vector<std::pair<QubitIdType, QubitIdType>> _swaps;
 
     size_t _gate_count = 0;
 
@@ -81,8 +82,8 @@ private:
     } _statistics;
 
     // Utils
-    void _toggle_element(GateType const& type, size_t element);
-    void _swap_element(size_t type, size_t e1, size_t e2);
+    void _toggle_element(GateType const& type, QubitIdType element);
+    void _swap_element(size_t type, QubitIdType e1, QubitIdType e2);
     static std::vector<size_t> _compute_stats(QCir const& circuit);
 
     QCir _parse_once(QCir const& qcir, bool reversed, bool do_minimize_czs, BasicOptimizationConfig const& config);
@@ -97,15 +98,15 @@ private:
     void _match_czs(QCirGate* gate, bool do_swap, bool do_minimize_czs);
     void _match_cxs(QCirGate* gate, bool do_swap, bool do_minimize_czs);
 
-    void _add_hadamard(size_t, bool erase);
-    bool _replace_cx_and_cz_with_s_and_cx(size_t t1, size_t t2);
-    void _add_cz(size_t t1, size_t t2, bool do_minimize_czs);
-    void _add_cx(size_t t1, size_t t2, bool do_swap);
-    void _add_rotation_gate(size_t target, dvlab::Phase ph, GateType const& type);
+    void _add_hadamard(QubitIdType target, bool erase);
+    bool _replace_cx_and_cz_with_s_and_cx(QubitIdType t1, QubitIdType t2);
+    void _add_cz(QubitIdType t1, QubitIdType t2, bool do_minimize_czs);
+    void _add_cx(QubitIdType t1, QubitIdType t2, bool do_swap);
+    void _add_rotation_gate(QubitIdType target, dvlab::Phase ph, GateType const& type);
 
     QCir _build_from_storage(size_t n_qubits, bool reversed);
 
-    std::vector<std::pair<size_t, size_t>> _get_swap_path();
+    std::vector<std::pair<QubitIdType, QubitIdType>> _get_swap_path();
     void _add_gate_to_circuit(QCir& circuit, QCirGate* gate, bool prepend);
 
     // trivial optimization subroutines

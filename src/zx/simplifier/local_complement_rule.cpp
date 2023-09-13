@@ -62,7 +62,7 @@ void LocalComplementRule::apply(ZXGraph& graph, std::vector<MatchType> const& ma
                 h_edge_count++;
             }
         }
-        Phase p = v->get_phase() + Phase(h_edge_count / 2);
+        Phase p = v->get_phase() + Phase(gsl::narrow<int>(h_edge_count / 2));
         // TODO: global scalar ignored
         for (size_t n = 0; n < neighbors.size(); n++) {
             neighbors[n]->set_phase(neighbors[n]->get_phase() - p);

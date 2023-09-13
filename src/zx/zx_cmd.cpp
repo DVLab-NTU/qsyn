@@ -49,16 +49,16 @@ std::function<bool(size_t const&)> zxgraph_id_not_exist(ZXGraphMgr const& zxgrap
     };
 }
 
-std::function<bool(size_t const&)> zxgraph_input_qubit_not_exist(ZXGraphMgr const& zxgraph_mgr) {
-    return [&](size_t const& qid) {
+std::function<bool(int const&)> zxgraph_input_qubit_not_exist(ZXGraphMgr const& zxgraph_mgr) {
+    return [&](int const& qid) {
         if (!zxgraph_mgr.get()->is_input_qubit(qid)) return true;
         LOGGER.error("This qubit's input already exists!!");
         return false;
     };
 }
 
-std::function<bool(size_t const&)> zxgraph_output_qubit_not_exist(ZXGraphMgr const& zxgraph_mgr) {
-    return [&](size_t const& qid) {
+std::function<bool(int const&)> zxgraph_output_qubit_not_exist(ZXGraphMgr const& zxgraph_mgr) {
+    return [&](int const& qid) {
         if (!zxgraph_mgr.get()->is_output_qubit(qid)) return true;
         LOGGER.error("This qubit's output already exists!!");
         return false;
@@ -424,7 +424,7 @@ Command zxgraph_edit_cmd(ZXGraphMgr& zxgraph_mgr) {
 
                 auto add_vertex_parser = subparsers.add_parser("-addvertex");
 
-                add_vertex_parser.add_argument<size_t>("qubit")
+                add_vertex_parser.add_argument<int>("qubit")
                     .help("the qubit ID the ZXVertex belongs to");
 
                 add_vertex_parser.add_argument<std::string>("vtype")
@@ -438,13 +438,13 @@ Command zxgraph_edit_cmd(ZXGraphMgr& zxgraph_mgr) {
 
                 auto add_input_parser = subparsers.add_parser("-addinput");
 
-                add_input_parser.add_argument<size_t>("qubit")
+                add_input_parser.add_argument<int>("qubit")
                     .constraint(zxgraph_input_qubit_not_exist(zxgraph_mgr))
                     .help("the qubit ID of the input");
 
                 auto add_output_parser = subparsers.add_parser("-addoutput");
 
-                add_output_parser.add_argument<size_t>("qubit")
+                add_output_parser.add_argument<int>("qubit")
                     .constraint(zxgraph_output_qubit_not_exist(zxgraph_mgr))
                     .help("the qubit ID of the output");
 
@@ -501,17 +501,17 @@ Command zxgraph_edit_cmd(ZXGraphMgr& zxgraph_mgr) {
                     auto vtype = str_to_vertex_type(parser.get<std::string>("vtype"));
                     assert(vtype.has_value());
 
-                    auto v = zxgraph_mgr.get()->add_vertex(parser.get<size_t>("qubit"), vtype.value(), parser.get<Phase>("phase"));
+                    auto v = zxgraph_mgr.get()->add_vertex(parser.get<int>("qubit"), vtype.value(), parser.get<Phase>("phase"));
                     LOGGER.info("Adding vertex {}...", v->get_id());
                     return CmdExecResult::done;
                 }
                 if (parser.used_subparser("-addinput")) {
-                    auto i = zxgraph_mgr.get()->add_input(parser.get<size_t>("qubit"));
+                    auto i = zxgraph_mgr.get()->add_input(parser.get<int>("qubit"));
                     LOGGER.info("Adding input {}...", i->get_id());
                     return CmdExecResult::done;
                 }
                 if (parser.used_subparser("-addoutput")) {
-                    auto o = zxgraph_mgr.get()->add_output(parser.get<size_t>("qubit"));
+                    auto o = zxgraph_mgr.get()->add_output(parser.get<int>("qubit"));
                     LOGGER.info("Adding output {}...", o->get_id());
                     return CmdExecResult::done;
                 }
@@ -699,7 +699,7 @@ Command zxgraph_assign_boundary_cmd(ZXGraphMgr& zxgraph_mgr) {
             [](ArgumentParser& parser) {
                 parser.description("assign quantum states to input/output vertex");
 
-                parser.add_argument<size_t>("qubit")
+                parser.add_argument<int>("qubit")
                     .help("the qubit to assign state to");
 
                 parser.add_argument<std::string>("io")
@@ -716,7 +716,7 @@ Command zxgraph_assign_boundary_cmd(ZXGraphMgr& zxgraph_mgr) {
             },
             [&](ArgumentParser const& parser) {
                 if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
-                auto qid = parser.get<size_t>("qubit");
+                auto qid = parser.get<int>("qubit");
                 bool is_input = dvlab::str::tolower_string(parser.get<std::string>("io")).starts_with('i');
 
                 if (!(is_input ? zxgraph_mgr.get()->is_input_qubit(qid) : zxgraph_mgr.get()->is_output_qubit(qid))) {

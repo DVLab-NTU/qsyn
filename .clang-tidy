@@ -2,6 +2,7 @@
 Checks: >
   -*,
   cppcoreguidelines-pro-*,
+  cppcoreguidelines-narrowing-conversions,
   cppcoreguidelines-virtual-class-destructor,
   cppcoreguidelines-special-member-functions,
   performance-noexcept-*,
@@ -16,7 +17,6 @@ Checks: >
   bugprone-assert-side-effect,
   performance-*
   readability-*
-#  cppcoreguidelines-narrowing-conversions,
 #  cppcoreguidelines-macro-usage,
 #  cppcoreguidelines-missing-std-forward,
 #  cppcoreguidelines-narrowing-conversions,

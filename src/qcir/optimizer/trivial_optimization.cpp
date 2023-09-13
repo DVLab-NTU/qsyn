@@ -112,7 +112,7 @@ void Optimizer::_fuse_z_phase(QCir& qcir, QCirGate* prev_gate, QCirGate* gate) {
     if (prev_gate->get_type() == GateType::p)
         prev_gate->set_phase(p);
     else {
-        std::vector<size_t> qubit_list;
+        QubitIdList qubit_list;
         qubit_list.emplace_back(prev_gate->get_targets()._qubit);
         qcir.remove_gate(prev_gate->get_id());
         qcir.add_gate("p", qubit_list, p, true);
