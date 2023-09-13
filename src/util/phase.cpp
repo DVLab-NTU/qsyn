@@ -83,7 +83,7 @@ std::string Phase::get_print_string() const {
  */
 void Phase::normalize() {
     Rational factor = (_rational / 2);
-    int integral_part = std::floor(Rational::rational_to_f(factor));
+    IntegralType integral_part = std::floor(Rational::rational_to_f(factor));
     _rational -= (integral_part * 2);
     if (_rational > 1) _rational -= 2;
 }

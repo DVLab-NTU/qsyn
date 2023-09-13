@@ -15,6 +15,7 @@
 #include <unordered_map>
 
 #include "qcir/gate_type.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "util/ordered_hashmap.hpp"
 #include "util/ordered_hashset.hpp"
 #include "util/phase.hpp"
@@ -193,7 +194,7 @@ public:
     size_t get_cost() const { return std::get<1>(_duration); }
     size_t get_operation_time() const { return std::get<0>(_duration); }
     std::tuple<size_t, size_t> get_duration() const { return _duration; }
-    std::tuple<size_t, size_t> get_qubits() const { return _qubits; }
+    std::tuple<QubitIdType, QubitIdType> get_qubits() const { return _qubits; }
 
     size_t get_id() const { return _id; }
     void set_id(size_t id) { _id = id; }
@@ -201,7 +202,7 @@ public:
 private:
     qcir::GateType _oper;
     dvlab::Phase _phase;
-    std::tuple<size_t, size_t> _qubits;
+    std::tuple<QubitIdType, QubitIdType> _qubits;
     std::tuple<size_t, size_t> _duration;  // <from, to>
     size_t _id;
 };

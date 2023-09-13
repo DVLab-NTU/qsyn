@@ -12,6 +12,7 @@
 #include <unordered_map>
 
 #include "qcir/gate_type.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "util/phase.hpp"
 
 namespace qsyn::qcir {
@@ -45,7 +46,7 @@ class QCirGate;
 //   Define classes
 //------------------------------------------------------------------------
 struct QubitInfo {
-    size_t _qubit;
+    qsyn::QubitIdType _qubit;
     QCirGate* _parent;
     QCirGate* _child;
     bool _isTarget;
@@ -56,6 +57,7 @@ extern std::unordered_map<GateType, std::string> GATE_TYPE_TO_STR;
 
 class QCirGate {
 public:
+    using QubitIdType = qsyn::QubitIdType;
     QCirGate(size_t id, dvlab::Phase ph = dvlab::Phase(0)) : _id(id), _phase(ph) {}
     virtual ~QCirGate() = default;
 
@@ -75,12 +77,12 @@ public:
 
     void set_id(size_t id) { _id = id; }
     void set_time(size_t time) { _time = time; }
-    void set_child(size_t qubit, QCirGate* c);
-    void set_parent(size_t qubit, QCirGate* p);
+    void set_child(QubitIdType qubit, QCirGate* c);
+    void set_parent(QubitIdType qubit, QCirGate* p);
 
-    void add_qubit(size_t qubit, bool is_target);
-    void set_target_qubit(size_t qubit);
-    void set_control_qubit(size_t qubit) {}
+    void add_qubit(QubitIdType qubit, bool is_target);
+    void set_target_qubit(QubitIdType qubit);
+    void set_control_qubit(QubitIdType qubit) {}
     // DFS
     bool is_visited(unsigned global) { return global == _dfs_counter; }
     void set_visited(unsigned global) { _dfs_counter = global; }
@@ -246,7 +248,7 @@ public:
     virtual void print_gate_info(bool st) const { _print_multiple_qubits_gate("Z", false, st); }
 
     QubitInfo get_control() const { return _qubits[0]; }
-    void set_control_qubit(size_t q) { _qubits[0]._qubit = q; }
+    void set_control_qubit(QubitIdType q) { _qubits[0]._qubit = q; }
 };
 
 class PGate : public MCPGate {
@@ -338,7 +340,7 @@ public:
     virtual void print_gate_info(bool st) const { _print_multiple_qubits_gate("X", false, st); }
 
     QubitInfo get_control() const { return _qubits[0]; }
-    void set_control_qubit(size_t q) { _qubits[0]._qubit = q; }
+    void set_control_qubit(QubitIdType q) { _qubits[0]._qubit = q; }
 };
 
 class SWAPGate : public MCPXGate {

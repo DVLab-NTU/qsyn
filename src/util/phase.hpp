@@ -29,10 +29,11 @@ concept unitless = requires(T t) {
 
 class Phase {
 public:
+    using IntegralType = Rational::IntegralType;
     constexpr Phase() : _rational(0, 1) {}
     // explicitly ban `Phase phase = n;` to prevent confusing code
-    constexpr explicit Phase(int n) : _rational(n, 1) { normalize(); }
-    constexpr Phase(int n, int d) : _rational(n, d) { normalize(); }
+    constexpr explicit Phase(IntegralType n) : _rational(n, 1) { normalize(); }
+    constexpr Phase(IntegralType n, IntegralType d) : _rational(n, d) { normalize(); }
     template <class T>
     requires std::floating_point<T>
     Phase(T f, T eps = 1e-4) : _rational(f / std::numbers::pi_v<T>, eps / std::numbers::pi_v<T>) { normalize(); }
@@ -69,8 +70,8 @@ public:
     static long double phase_to_ld(Phase const& p) { return phase_to_floating_point<long double>(p); }
 
     Rational get_rational() const { return _rational; }
-    int numerator() const { return _rational.numerator(); }
-    int denominator() const { return _rational.denominator(); }
+    IntegralType numerator() const { return _rational.numerator(); }
+    IntegralType denominator() const { return _rational.denominator(); }
 
     template <class T>
     requires std::floating_point<T>
@@ -148,11 +149,11 @@ bool Phase::str_to_phase(std::string const& str, Phase& p) {
     // Error detection
     if (operators.size() >= number_strings.size()) return false;
 
-    int n_pis = 0;
-    int numerator = 1, denominator = 1;
+    IntegralType n_pis = 0;
+    IntegralType numerator = 1, denominator = 1;
     T temp_float = 1.0;
 
-    int buffer_int;
+    IntegralType buffer_int;
     T buffer_float;
 
     bool do_division = false;

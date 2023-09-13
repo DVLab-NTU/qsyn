@@ -13,6 +13,7 @@
 
 #include "device/device.hpp"
 #include "duostra/duostra.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "util/boolean_matrix.hpp"
 #include "zx/zx_def.hpp"
 
@@ -63,10 +64,10 @@ public:
     void update_graph_by_matrix(qsyn::zx::EdgeType = qsyn::zx::EdgeType::hadamard);
     void create_matrix();
 
-    void prepend_single_qubit_gate(std::string const&, size_t, dvlab::Phase);
-    void prepend_double_qubit_gate(std::string const&, std::vector<size_t> const&, dvlab::Phase);
+    void prepend_single_qubit_gate(std::string const&, QubitIdType qubit, dvlab::Phase);
+    void prepend_double_qubit_gate(std::string const&, QubitIdList const& qubits, dvlab::Phase);
     void prepend_series_gates(std::vector<Operation> const&, std::vector<Operation> const& = {});
-    void prepend_swap_gate(size_t, size_t, qcir::QCir*);
+    void prepend_swap_gate(QubitIdType q0, QubitIdType q1, qcir::QCir*);
     bool frontier_is_cleaned();
     bool axel_in_neighbors();
     bool contains_single_neighbor();
@@ -89,7 +90,7 @@ private:
     zx::ZXVertexList _frontier;
     zx::ZXVertexList _neighbors;
     zx::ZXVertexList _axels;
-    std::unordered_map<size_t, size_t> _qubit_map;  // zx to qc
+    std::unordered_map<QubitIdType, QubitIdType> _qubit_map;  // zx to qc
 
     BooleanMatrix _biadjacency;
     std::vector<BooleanMatrix::RowOperation> _cnots;

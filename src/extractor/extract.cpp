@@ -52,7 +52,7 @@ Extractor::Extractor(ZXGraph* g, QCir* c, std::optional<Device> const& d) : _gra
  */
 void Extractor::initialize(bool from_empty_qcir) {
     if (VERBOSE >= 4) std::cout << "Initialize" << std::endl;
-    size_t cnt = 0;
+    QubitIdType cnt = 0;
     for (auto& o : _graph->get_outputs()) {
         if (!o->get_first_neighbor().first->is_boundary()) {
             o->get_first_neighbor().first->set_qubit(o->get_qubit());
@@ -61,7 +61,7 @@ void Extractor::initialize(bool from_empty_qcir) {
         _qubit_map[o->get_qubit()] = cnt;
         if (from_empty_qcir)
             _logical_circuit->add_qubits(1);
-        cnt += 1;
+        cnt++;
     }
 
     // NOTE - get zx to qc qubit mapping
@@ -276,8 +276,8 @@ void Extractor::extract_cxs() {
 
     for (auto& [t, c] : _cnots) {
         // NOTE - targ and ctrl are opposite here
-        size_t ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
-        size_t targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
+        QubitIdType ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
+        QubitIdType targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
         if (VERBOSE >= 4) std::cout << "Add CX: " << ctrl << " " << targ << std::endl;
         prepend_double_qubit_gate("cx", {ctrl, targ}, dvlab::Phase(0));
     }
@@ -742,8 +742,8 @@ void Extractor::_block_elimination(size_t& best_block, BooleanMatrix& best_matri
  */
 void Extractor::permute_qubits() {
     if (VERBOSE >= 4) std::cout << "Permute Qubit" << std::endl;
-    std::unordered_map<size_t, size_t> swap_map;      // o to i
-    std::unordered_map<size_t, size_t> swap_inv_map;  // i to o
+    std::unordered_map<QubitIdType, QubitIdType> swap_map;      // o to i
+    std::unordered_map<QubitIdType, QubitIdType> swap_inv_map;  // i to o
     bool matched = true;
     for (auto& o : _graph->get_outputs()) {
         if (o->get_num_neighbors() != 1) {
@@ -768,7 +768,7 @@ void Extractor::permute_qubits() {
     }
     for (auto& [o, i] : swap_map) {
         if (o == i) continue;
-        size_t t2 = swap_inv_map.at(o);
+        auto t2 = swap_inv_map.at(o);
         prepend_swap_gate(_qubit_map[o], _qubit_map[t2], _logical_circuit);
         swap_map[t2] = i;
         swap_inv_map[i] = t2;
@@ -875,7 +875,7 @@ void Extractor::create_matrix() {
  * @param qubit logical
  * @param phase
  */
-void Extractor::prepend_single_qubit_gate(std::string const& type, size_t qubit, dvlab::Phase phase) {
+void Extractor::prepend_single_qubit_gate(std::string const& type, QubitIdType qubit, dvlab::Phase phase) {
     if (type == "rotate") {
         _logical_circuit->add_single_rz(qubit, phase, false);
     } else {
@@ -890,7 +890,7 @@ void Extractor::prepend_single_qubit_gate(std::string const& type, size_t qubit,
  * @param qubits
  * @param phase
  */
-void Extractor::prepend_double_qubit_gate(std::string const& type, std::vector<size_t> const& qubits, dvlab::Phase phase) {
+void Extractor::prepend_double_qubit_gate(std::string const& type, QubitIdList const& qubits, dvlab::Phase phase) {
     assert(qubits.size() == 2);
     _logical_circuit->add_gate(type, qubits, phase, false);
 }
@@ -903,12 +903,12 @@ void Extractor::prepend_double_qubit_gate(std::string const& type, std::vector<s
  */
 void Extractor::prepend_series_gates(std::vector<Operation> const& logical, std::vector<Operation> const& physical) {
     for (auto const& gates : logical) {
-        std::tuple<size_t, size_t> qubits = gates.get_qubits();
+        auto qubits = gates.get_qubits();
         _logical_circuit->add_gate(GATE_TYPE_TO_STR[gates.get_type()], {get<0>(qubits), get<1>(qubits)}, gates.get_phase(), false);
     }
 
     for (auto const& gates : physical) {
-        std::tuple<size_t, size_t> qubits = gates.get_qubits();
+        auto qubits = gates.get_qubits();
         if (gates.get_type() == GateType::swap) {
             prepend_swap_gate(get<0>(qubits), get<1>(qubits), _physical_circuit);
             _num_swaps++;
@@ -924,7 +924,7 @@ void Extractor::prepend_series_gates(std::vector<Operation> const& logical, std:
  * @param q1 logical
  * @param circuit
  */
-void Extractor::prepend_swap_gate(size_t q0, size_t q1, QCir* circuit) {
+void Extractor::prepend_swap_gate(QubitIdType q0, QubitIdType q1, QCir* circuit) {
     // NOTE - No qubit permutation in Physical Circuit
     circuit->add_gate("cx", {q0, q1}, dvlab::Phase(0), false);
     circuit->add_gate("cx", {q1, q0}, dvlab::Phase(0), false);

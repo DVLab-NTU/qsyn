@@ -338,14 +338,14 @@ void Duostra::build_circuit_by_result() {
     for (auto const& operation : _result) {
         std::string gate_name{GATE_TYPE_TO_STR[operation.get_type()]};
         std::tuple<size_t, size_t> qubits = operation.get_qubits();
-        std::vector<size_t> qu;
+        QubitIdList qu;
         qu.emplace_back(get<0>(qubits));
         if (get<1>(qubits) != SIZE_MAX) {
             qu.emplace_back(get<1>(qubits));
         }
         if (operation.get_type() == GateType::swap) {
             // NOTE - Decompose SWAP into three CX
-            std::vector<size_t> qu_reverse;
+            QubitIdList qu_reverse;
             qu_reverse.emplace_back(get<1>(qubits));
             qu_reverse.emplace_back(get<0>(qubits));
             _physical_circuit->add_gate("CX", qu, dvlab::Phase(0), true);

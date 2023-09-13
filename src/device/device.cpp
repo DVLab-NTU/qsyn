@@ -19,6 +19,7 @@
 #include "fmt/ranges.h"
 #include "qcir/qcir_gate.hpp"
 #include "util/logger.hpp"
+#include "util/util.hpp"
 
 extern size_t VERBOSE;
 extern dvlab::Logger LOGGER;
@@ -524,7 +525,8 @@ bool Device::_parse_gate_set(std::string const& gate_set_str) {
     while (m < data.size()) {
         m = dvlab::str::str_get_token(data, gt, m, ',');
         gt = dvlab::str::strip_spaces(gt);
-        for_each(gt.begin(), gt.end(), [](char& c) { c = static_cast<char>(::tolower(c)); });
+        gt = dvlab::str::tolower_string(gt);
+
         if (!STR_TO_GATE_TYPE.contains(gt)) {
             LOGGER.error("unsupported gate type \"{}\"!!", gt);
             return false;

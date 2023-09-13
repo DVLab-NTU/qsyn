@@ -217,17 +217,11 @@ bool ZXGraph::write_tikz(std::ostream& filename) const {
 
     constexpr std::string_view font_size = "\\tiny";
 
-    size_t max = 0;
+    auto max_col = gsl::narrow_cast<int>(std::max(
+        std::ranges::max(_inputs | std::views::transform([](ZXVertex* v) { return v->get_col(); })),
+        std::ranges::max(_outputs | std::views::transform([](ZXVertex* v) { return v->get_col(); }))));
 
-    for (auto& v : _outputs) {
-        if (max < v->get_col())
-            max = v->get_col();
-    }
-    for (auto& v : _inputs) {
-        if (max < v->get_col())
-            max = v->get_col();
-    }
-    double scale = (double)25 / (double)static_cast<int>(max);
+    double scale = 25. / max_col;
     scale = (scale > 3.0) ? 3.0 : scale;
     filename << define_colors;
     filename << "\\scalebox{" << std::to_string(scale) << "}{";
@@ -241,8 +235,8 @@ bool ZXGraph::write_tikz(std::ostream& filename) const {
             return true;
         std::string_view label_style = "[label distance=-2]90:{\\color{phaseColor}";
         filename << ",label={ " << label_style << font_size << " $";
-        int numerator = v->get_phase().numerator();
-        int denominator = v->get_phase().denominator();
+        auto numerator = v->get_phase().numerator();
+        auto denominator = v->get_phase().denominator();
 
         if (denominator != 1) {
             filename << "\\frac{";

@@ -84,8 +84,8 @@ void ZXGraph::print_vertices(std::vector<size_t> cand) const {
  *
  * @param cand
  */
-void ZXGraph::print_qubits(std::vector<int> cand) const {
-    std::map<int, std::vector<ZXVertex*>> q2_vmap;
+void ZXGraph::print_qubits(QubitIdList cand) const {
+    std::map<QubitIdType, std::vector<ZXVertex*>> q2_vmap;
     for (auto const& v : _vertices) {
         if (!q2_vmap.contains(v->get_qubit())) {
             q2_vmap.emplace(v->get_qubit(), std::vector<ZXVertex*>(1, v));
@@ -191,42 +191,41 @@ std::string get_colored_vertex_string(ZXVertex* v) {
  */
 void ZXGraph::draw() const {
     std::cout << std::endl;
-    unsigned int max_col = 0;  // number of columns -1
-    std::unordered_map<int, int> q_pair;
-    std::vector<int> qubit_num;  // number of qubit
+    std::unordered_map<QubitIdType, QubitIdType> q_pair;
+    QubitIdList qubit_ids;  // number of qubit
 
     // maxCol
-    for (auto& o : get_outputs()) {
-        if (o->get_col() > max_col) max_col = o->get_col();
-    }
 
-    // qubitNum
-    std::vector<int> qubit_num_temp;  // number of qubit
+    size_t max_col = gsl::narrow_cast<size_t>(std::ranges::max(this->get_vertices() | std::views::transform([](ZXVertex* v) { return v->get_col(); })));
+
+    QubitIdList qubit_ids_temp;  // number of qubit
     for (auto& v : get_vertices()) {
-        qubit_num_temp.emplace_back(v->get_qubit());
+        qubit_ids_temp.emplace_back(v->get_qubit());
     }
-    sort(qubit_num_temp.begin(), qubit_num_temp.end());
-    if (qubit_num_temp.size() == 0) {
+    sort(qubit_ids_temp.begin(), qubit_ids_temp.end());
+    if (qubit_ids_temp.size() == 0) {
         std::cout << "Empty graph!!" << std::endl;
         return;
     }
-    size_t offset = qubit_num_temp[0];
-    qubit_num.emplace_back(0);
-    for (size_t i = 1; i < qubit_num_temp.size(); i++) {
-        if (qubit_num_temp[i - 1] == qubit_num_temp[i]) {
+    auto offset = qubit_ids_temp[0];
+    qubit_ids.emplace_back(0);
+    for (size_t i = 1; i < qubit_ids_temp.size(); i++) {
+        if (qubit_ids_temp[i - 1] == qubit_ids_temp[i]) {
             continue;
         } else {
-            qubit_num.emplace_back(qubit_num_temp[i] - offset);
+            qubit_ids.emplace_back(qubit_ids_temp[i] - offset);
         }
     }
-    qubit_num_temp.clear();
+    qubit_ids_temp.clear();
 
-    for (size_t i = 0; i < qubit_num.size(); i++) q_pair[i] = qubit_num[i];
+    for (QubitIdType i = 0; i < qubit_ids.size(); i++) q_pair[i] = qubit_ids[i];
     std::vector<ZXVertex*> tmp;
-    tmp.resize(qubit_num.size());
+    tmp.resize(qubit_ids.size());
     std::vector<std::vector<ZXVertex*>> col_list(max_col + 1, tmp);
 
-    for (auto& v : get_vertices()) col_list[v->get_col()][q_pair[v->get_qubit() - offset]] = v;
+    for (auto& v : get_vertices()) {
+        col_list[gsl::narrow_cast<size_t>(v->get_col())][q_pair[v->get_qubit() - offset]] = v;
+    }
 
     std::vector<size_t> max_length(max_col + 1, 0);
     for (size_t i = 0; i < col_list.size(); i++) {
@@ -237,14 +236,14 @@ void ZXGraph::draw() const {
         }
     }
     size_t max_length_q = 0;
-    for (size_t i = 0; i < qubit_num.size(); i++) {
-        int temp = offset + i;
+    for (size_t i = 0; i < qubit_ids.size(); i++) {
+        auto temp = offset + i;
         if (std::to_string(temp).length() > max_length_q) max_length_q = std::to_string(temp).length();
     }
 
-    for (size_t i = 0; i < qubit_num.size(); i++) {
+    for (size_t i = 0; i < qubit_ids.size(); i++) {
         // print qubit
-        int temp = offset + i;
+        auto temp = offset + i;
         std::cout << "[";
         for (size_t i = 0; i < max_length_q - std::to_string(temp).length(); i++) {
             std::cout << " ";
@@ -284,7 +283,7 @@ void ZXGraph::draw() const {
     col_list.clear();
 
     max_length.clear();
-    qubit_num.clear();
+    qubit_ids.clear();
 }
 
 }  // namespace zx
