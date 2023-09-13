@@ -11,7 +11,9 @@
 #include <cassert>
 #include <cmath>
 #include <concepts>
+#include <gsl/util>
 #include <iosfwd>
+#include <limits>
 
 //--- Rational Numbers ----------------------------------
 // This class maintains the canonicity of stored rational numbers by simplifying the numerator/denominator whenever possible.
@@ -24,9 +26,12 @@ namespace dvlab {
 class Rational {
 public:
     // Default constructor for two integral type
+    using IntegralType = int;
+    using FloatingPointType = double;
+
     constexpr Rational() {}
-    constexpr Rational(int n) : _numer(n) {}
-    constexpr Rational(int n, int d) : _numer(n), _denom(d) {
+    constexpr Rational(IntegralType n) : _numer(n) {}
+    constexpr Rational(IntegralType n, IntegralType d) : _numer(n), _denom(d) {
         assert(d != 0);
         reduce();
     }
@@ -62,8 +67,13 @@ public:
 
     // Operations for Rational Numbers
     void reduce();
-    int numerator() const { return (int)_numer; }
-    int denominator() const { return (int)_denom; }
+    //                                      vvv won't lose precision if the following static_assert is satisfied
+    IntegralType numerator() const { return static_cast<IntegralType>(_numer); }
+    IntegralType denominator() const { return static_cast<IntegralType>(_denom); }
+
+    static_assert(
+        std::numeric_limits<IntegralType>::digits <= std::numeric_limits<FloatingPointType>::digits,
+        "IntegralType must have at least as many digits as FloatingPointType");
 
     template <class T>
     requires std::floating_point<T>
@@ -86,7 +96,7 @@ private:
 template <class T>
 requires std::floating_point<T>
 Rational Rational::to_rational(T f, T eps) {
-    int integral_part = static_cast<int>(floor(f));
+    IntegralType integral_part = gsl::narrow_cast<IntegralType>(floor(f));
     f -= integral_part;
     Rational lower(0, 1), upper(1, 1);
     Rational med(1, 2);

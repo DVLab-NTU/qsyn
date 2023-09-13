@@ -106,7 +106,7 @@ bool QCir::read_qasm(std::string const& filename) {
         if (type == "creg" || type == "qreg" || type == "") {
             continue;
         }
-        std::vector<size_t> pin_id;
+        QubitIdList qubit_ids;
         std::string tmp;
         std::string qub;
         size_t n = str_get_token(str, tmp, type_end, ',');
@@ -117,13 +117,13 @@ bool QCir::read_qasm(std::string const& filename) {
                 LOGGER.error("invalid qubit id on line {}!!", str);
                 return false;
             }
-            pin_id.emplace_back(qub_n);
+            qubit_ids.emplace_back(qub_n);
             n = str_get_token(str, tmp, n, ',');
         }
 
         dvlab::Phase phase;
         dvlab::Phase::from_string(phase_str, phase);
-        add_gate(type, pin_id, phase, true);
+        add_gate(type, qubit_ids, phase, true);
     }
     update_gate_time();
     return true;
@@ -178,32 +178,32 @@ bool QCir::read_qc(std::string const& filename) {
         } else  // find a gate
         {
             std::string type, qubit_label;
-            std::vector<size_t> pin_id;
+            QubitIdList qubit_ids;
             size_t pos = 0;
             pos = str_get_token(line, type, pos);
             while (pos != std::string::npos) {
                 pos = str_get_token(line, qubit_label, pos);
                 if (count(qubit_labels.begin(), qubit_labels.end(), qubit_label)) {
                     size_t qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), qubit_label));
-                    pin_id.emplace_back(qubit_id);
+                    qubit_ids.emplace_back(qubit_id);
                 } else {
                     LOGGER.error("encountered a undefined qubit ({})!!", qubit_label);
                     return false;
                 }
             }
             if (type == "Tof" || type == "tof") {
-                if (pin_id.size() == 1)
-                    add_gate("x", pin_id, dvlab::Phase(0), true);
-                else if (pin_id.size() == 2)
-                    add_gate("cx", pin_id, dvlab::Phase(0), true);
-                else if (pin_id.size() == 3)
-                    add_gate("ccx", pin_id, dvlab::Phase(0), true);
+                if (qubit_ids.size() == 1)
+                    add_gate("x", qubit_ids, dvlab::Phase(0), true);
+                else if (qubit_ids.size() == 2)
+                    add_gate("cx", qubit_ids, dvlab::Phase(0), true);
+                else if (qubit_ids.size() == 3)
+                    add_gate("ccx", qubit_ids, dvlab::Phase(0), true);
                 else {
                     LOGGER.error("Toffoli gates with more than 2 controls are not supported!!");
                     return false;
                 }
             } else
-                add_gate(type, pin_id, dvlab::Phase(0), true);
+                add_gate(type, qubit_ids, dvlab::Phase(0), true);
         }
     }
     return true;
@@ -239,30 +239,30 @@ bool QCir::read_qsim(std::string const& filename) {
         using dvlab::str::str_get_token;
         if (line == "") continue;
         std::string time, type, phase_str, qubit_id;
-        std::vector<size_t> pin_id;
+        QubitIdList qubit_ids;
         size_t pos = 0;
         pos = str_get_token(line, time, pos);
         pos = str_get_token(line, type, pos);
         if (type == "cx" || type == "cz") {
             // add 2 qubit gate
             pos = str_get_token(line, qubit_id, pos);
-            pin_id.emplace_back(stoul(qubit_id));
+            qubit_ids.emplace_back(stoul(qubit_id));
             str_get_token(line, qubit_id, pos);
-            pin_id.emplace_back(stoul(qubit_id));
-            add_gate(type, pin_id, dvlab::Phase(0), true);
+            qubit_ids.emplace_back(stoul(qubit_id));
+            add_gate(type, qubit_ids, dvlab::Phase(0), true);
         } else if (type == "rx" || type == "rz") {
             // add phase gate
             dvlab::Phase phase;
             pos = str_get_token(line, qubit_id, pos);
-            pin_id.emplace_back(stoul(qubit_id));
+            qubit_ids.emplace_back(stoul(qubit_id));
             str_get_token(line, phase_str, pos);
             dvlab::Phase::from_string(phase_str, phase);
-            add_gate(type, pin_id, phase, true);
+            add_gate(type, qubit_ids, phase, true);
         } else if (count(single_gate_list.begin(), single_gate_list.end(), type)) {
             // add single qubit gate
             str_get_token(line, qubit_id, pos);
-            pin_id.emplace_back(stoul(qubit_id));
-            add_gate(type, pin_id, dvlab::Phase(0), true);
+            qubit_ids.emplace_back(stoul(qubit_id));
+            add_gate(type, qubit_ids, dvlab::Phase(0), true);
         } else {
             LOGGER.error("Gate type {} is not supported!!", type);
             return false;
@@ -302,7 +302,7 @@ bool QCir::read_quipper(std::string const& filename) {
             size_t qubit_target;
             if (find(single_list.begin(), single_list.end(), type) != single_list.end()) {
                 qubit_target = stoul(line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1));
-                std::vector<size_t> pin_id;
+                QubitIdList qubit_ids;
 
                 if (line.find("controls=") != std::string::npos) {
                     // have control
@@ -321,10 +321,10 @@ bool QCir::read_quipper(std::string const& filename) {
                             return false;
                         }
                         size_t qubit_control = stoul(ctrls_info.substr(1));
-                        pin_id.emplace_back(qubit_control);
-                        pin_id.emplace_back(qubit_target);
+                        qubit_ids.emplace_back(qubit_control);
+                        qubit_ids.emplace_back(qubit_target);
                         type.insert(0, "C");
-                        add_gate(type, pin_id, dvlab::Phase(0), true);
+                        add_gate(type, qubit_ids, dvlab::Phase(0), true);
                     } else if (count(line.begin(), line.end(), '+') == 2) {
                         // 2 controls
                         if (type != "not" && type != "X" && type != "Z") {
@@ -334,19 +334,19 @@ bool QCir::read_quipper(std::string const& filename) {
                         size_t qubit_control1, qubit_control2;
                         qubit_control1 = stoul(ctrls_info.substr(1, ctrls_info.find(',') - 1));
                         qubit_control2 = stoul(ctrls_info.substr(ctrls_info.find(',') + 2));
-                        pin_id.emplace_back(qubit_control1);
-                        pin_id.emplace_back(qubit_control2);
-                        pin_id.emplace_back(qubit_target);
+                        qubit_ids.emplace_back(qubit_control1);
+                        qubit_ids.emplace_back(qubit_control2);
+                        qubit_ids.emplace_back(qubit_target);
                         type.insert(0, "CC");
-                        add_gate(type, pin_id, dvlab::Phase(0), true);
+                        add_gate(type, qubit_ids, dvlab::Phase(0), true);
                     } else {
                         LOGGER.error("Controlled gates with more than 2 controls are not supported!!");
                         return false;
                     }
                 } else {
                     // without control
-                    pin_id.emplace_back(qubit_target);
-                    add_gate(type, pin_id, dvlab::Phase(0), true);
+                    qubit_ids.emplace_back(qubit_target);
+                    add_gate(type, qubit_ids, dvlab::Phase(0), true);
                 }
 
             } else {

@@ -50,8 +50,8 @@ std::function<bool(size_t const&)> valid_qcir_gate_id(QCirMgr const& qcir_mgr) {
     };
 }
 
-std::function<bool(size_t const&)> valid_qcir_qubit_id(QCirMgr const& qcir_mgr) {
-    return [&](size_t const& id) {
+std::function<bool(QubitIdType const&)> valid_qcir_qubit_id(QCirMgr const& qcir_mgr) {
+    return [&](QubitIdType const& id) {
         if (!qcir_mgr_not_empty(qcir_mgr)) return false;
         if (qcir_mgr.get()->get_qubit(id) != nullptr) return true;
         std::cerr << "Error: Qubit ID " << id << " does not exist!!\n";
@@ -507,7 +507,7 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
             parser.add_argument<dvlab::Phase>("-phase")
                 .help("The rotation angle θ (default = π). This option must be specified if and only if the gate type takes a phase parameter.");
 
-            parser.add_argument<size_t>("qubits")
+            parser.add_argument<QubitIdType>("qubits")
                 .nargs(NArgsOption::zero_or_more)
                 .constraint(valid_qcir_qubit_id(qcir_mgr))
                 .help("the qubits on which the gate applies");
@@ -539,7 +539,7 @@ dvlab::Command qcir_gate_add_cmd(QCirMgr& qcir_mgr) {
                 return CmdExecResult::error;
             }
 
-            auto bits = parser.get<std::vector<size_t>>("qubits");
+            auto bits = parser.get<QubitIdList>("qubits");
 
             if (is_gate_category(single_qubit_gates_no_phase) ||
                 is_gate_category(single_qubit_gates_with_phase)) {
@@ -633,13 +633,13 @@ dvlab::Command qcir_qubit_delete_cmd(QCirMgr& qcir_mgr) {
             [&](ArgumentParser& parser) {
                 parser.description("delete qubit");
 
-                parser.add_argument<size_t>("id")
+                parser.add_argument<QubitIdType>("id")
                     .constraint(valid_qcir_qubit_id(qcir_mgr))
                     .help("the id to be deleted");
             },
             [&](ArgumentParser const& parser) {
                 if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
-                if (!qcir_mgr.get()->remove_qubit(parser.get<size_t>("id")))
+                if (!qcir_mgr.get()->remove_qubit(parser.get<QubitIdType>("id")))
                     return CmdExecResult::error;
                 else
                     return CmdExecResult::done;

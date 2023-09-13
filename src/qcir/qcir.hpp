@@ -18,6 +18,7 @@
 
 #include "qcir/qcir_gate.hpp"
 #include "qcir/qcir_qubit.hpp"
+#include "qsyn/qsyn_type.hpp"
 
 namespace dvlab {
 
@@ -56,6 +57,7 @@ inline std::optional<QCirDrawerType> str_to_qcir_drawer_type(std::string const& 
 
 class QCir {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
+    using QubitIdType = qsyn::QubitIdType;
     QCir() {}
     ~QCir() = default;
     QCir(QCir const& other);
@@ -84,7 +86,7 @@ public:
 
     // Access functions
     size_t get_num_qubits() const { return _qubits.size(); }
-    int get_depth();
+    size_t get_depth();
     std::vector<QCirQubit*> const& get_qubits() const { return _qubits; }
     std::vector<QCirGate*> const& get_topologically_ordered_gates() const { return _topological_order; }
     std::vector<QCirGate*> const& get_gates() const { return _qgates; }
@@ -103,11 +105,11 @@ public:
     QCir* tensor_product(QCir const& other);
     // Member functions about circuit construction
     QCirQubit* push_qubit();
-    QCirQubit* insert_qubit(size_t id);
+    QCirQubit* insert_qubit(QubitIdType id);
     void add_qubits(size_t num);
-    bool remove_qubit(size_t qid);
-    QCirGate* add_gate(std::string type, std::vector<size_t> bits, dvlab::Phase phase, bool append);
-    QCirGate* add_single_rz(size_t bit, dvlab::Phase phase, bool append);
+    bool remove_qubit(QubitIdType qid);
+    QCirGate* add_gate(std::string type, QubitIdList bits, dvlab::Phase phase, bool append);
+    QCirGate* add_single_rz(QubitIdType bit, dvlab::Phase phase, bool append);
     bool remove_gate(size_t id);
 
     bool read_qcir_file(std::string const& filename);
@@ -155,10 +157,10 @@ private:
 
     // For Copy
     void _set_next_gate_id(size_t id) { _gate_id = id; }
-    void _set_next_qubit_id(size_t id) { _qubit_id = id; }
+    void _set_next_qubit_id(QubitIdType qid) { _qubit_id = qid; }
 
     size_t _gate_id = 0;
-    size_t _qubit_id = 0;
+    QubitIdType _qubit_id = 0;
     bool mutable _dirty = true;
     unsigned mutable _global_dfs_counter = 0;
     std::string _filename;

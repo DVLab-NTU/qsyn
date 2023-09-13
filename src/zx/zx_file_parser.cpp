@@ -180,7 +180,7 @@ bool ZXFileParser::_tokenize(std::string const& line, std::vector<std::string>& 
  * @return false
  */
 bool ZXFileParser::_parse_type_and_id(std::string const& token, char& type, unsigned& id) {
-    type = toupper(token[0]);
+    type = dvlab::str::toupper(token[0]);
 
     if (type == 'G') {
         _print_failed_at_line_no();
@@ -335,7 +335,7 @@ bool ZXFileParser::_parse_column(std::string const& token, float& column) {
  * @return false
  */
 bool ZXFileParser::_parse_neighbors(std::string const& token, std::pair<char, size_t>& neighbor) {
-    char type = toupper(token[0]);
+    char type = dvlab::str::toupper(token[0]);
     unsigned id;
     if (std::string("SH").find(type) == std::string::npos) {
         _print_failed_at_line_no();

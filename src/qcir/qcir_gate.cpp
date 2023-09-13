@@ -104,7 +104,7 @@ QubitInfo QCirGate::get_qubit(size_t qubit) const {
  * @param qubit
  * @param isTarget
  */
-void QCirGate::add_qubit(size_t qubit, bool is_target) {
+void QCirGate::add_qubit(QubitIdType qubit, bool is_target) {
     QubitInfo temp = {._qubit = qubit, ._parent = nullptr, ._child = nullptr, ._isTarget = is_target};
     // _qubits.emplace_back(temp);
     if (is_target)
@@ -118,7 +118,7 @@ void QCirGate::add_qubit(size_t qubit, bool is_target) {
  *
  * @param qubit
  */
-void QCirGate::set_target_qubit(size_t qubit) {
+void QCirGate::set_target_qubit(QubitIdType qubit) {
     _qubits[_qubits.size() - 1]._qubit = qubit;
 }
 
@@ -128,7 +128,7 @@ void QCirGate::set_target_qubit(size_t qubit) {
  * @param qubit
  * @param p
  */
-void QCirGate::set_parent(size_t qubit, QCirGate* p) {
+void QCirGate::set_parent(QubitIdType qubit, QCirGate* p) {
     for (size_t i = 0; i < _qubits.size(); i++) {
         if (_qubits[i]._qubit == qubit) {
             _qubits[i]._parent = p;
@@ -153,7 +153,7 @@ void QCirGate::add_dummy_child(QCirGate* c) {
  * @param qubit
  * @param c
  */
-void QCirGate::set_child(size_t qubit, QCirGate* c) {
+void QCirGate::set_child(QubitIdType qubit, QCirGate* c) {
     for (size_t i = 0; i < _qubits.size(); i++) {
         if (_qubits[i]._qubit == qubit) {
             _qubits[i]._child = c;

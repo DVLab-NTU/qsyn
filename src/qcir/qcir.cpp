@@ -14,6 +14,7 @@
 
 #include "./qcir_gate.hpp"
 #include "./qcir_qubit.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "util/text_format.hpp"
 
 namespace qsyn::qcir {
@@ -74,7 +75,7 @@ QCirQubit *QCir::get_qubit(size_t id) const {
     return nullptr;
 }
 
-int QCir::get_depth() {
+size_t QCir::get_depth() {
     if (_dirty) update_gate_time();
     _dirty = false;
     return std::ranges::max(_qgates | std::views::transform([](QCirGate *qg) { return qg->get_time(); }));
@@ -98,16 +99,11 @@ QCirQubit *QCir::push_qubit() {
  * @param id
  * @return QCirQubit*
  */
-QCirQubit *QCir::insert_qubit(size_t id) {
+QCirQubit *QCir::insert_qubit(QubitIdType id) {
     assert(get_qubit(id) == nullptr);
     QCirQubit *temp = new QCirQubit(id);
-    size_t cnt = 0;
-    for (size_t i = 0; i < _qubits.size(); i++) {
-        if (_qubits[i]->get_id() < id)
-            cnt++;
-        else
-            break;
-    }
+    auto cnt = std::ranges::count_if(_qubits, [id](QCirQubit *q) { return q->get_id() < id; });
+
     _qubits.insert(_qubits.begin() + cnt, temp);
     return temp;
 }
@@ -131,7 +127,7 @@ void QCir::add_qubits(size_t num) {
  * @return true if succcessfully removed
  * @return false if not found or the qubit is not empty
  */
-bool QCir::remove_qubit(size_t id) {
+bool QCir::remove_qubit(QubitIdType id) {
     // Delete the ancilla only if whole line is empty
     QCirQubit *target = get_qubit(id);
     if (target == nullptr) {
@@ -156,9 +152,8 @@ bool QCir::remove_qubit(size_t id) {
  * @param append if true, append the gate else prepend
  * @return QCirGate*
  */
-QCirGate *QCir::add_single_rz(size_t bit, dvlab::Phase phase, bool append) {
-    std::vector<size_t> qubit;
-    qubit.emplace_back(bit);
+QCirGate *QCir::add_single_rz(QubitIdType bit, dvlab::Phase phase, bool append) {
+    QubitIdList qubit{bit};
     if (phase == dvlab::Phase(1, 4))
         return add_gate("t", qubit, phase, append);
     else if (phase == dvlab::Phase(1, 2))
@@ -183,7 +178,7 @@ QCirGate *QCir::add_single_rz(size_t bit, dvlab::Phase phase, bool append) {
  *
  * @return QCirGate*
  */
-QCirGate *QCir::add_gate(std::string type, std::vector<size_t> bits, dvlab::Phase phase, bool append) {
+QCirGate *QCir::add_gate(std::string type, QubitIdList bits, dvlab::Phase phase, bool append) {
     QCirGate *temp = nullptr;
     type = dvlab::str::tolower_string(type);
     if (type == "h")
@@ -253,7 +248,7 @@ QCirGate *QCir::add_gate(std::string type, std::vector<size_t> bits, dvlab::Phas
     if (append) {
         size_t max_time = 0;
         for (size_t k = 0; k < bits.size(); k++) {
-            size_t q = bits[k];
+            auto q = bits[k];
             temp->add_qubit(q, k == bits.size() - 1);  // target is the last one
             QCirQubit *target = get_qubit(q);
             if (target->get_last() != nullptr) {
@@ -269,7 +264,7 @@ QCirGate *QCir::add_gate(std::string type, std::vector<size_t> bits, dvlab::Phas
         temp->set_time(max_time + temp->get_delay());
     } else {
         for (size_t k = 0; k < bits.size(); k++) {
-            size_t q = bits[k];
+            auto q = bits[k];
             temp->add_qubit(q, k == bits.size() - 1);  // target is the last one
             QCirQubit *target = get_qubit(q);
             if (target->get_first() != nullptr) {

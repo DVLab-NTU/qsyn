@@ -29,11 +29,11 @@ QCir* QCir::compose(QCir const& other) {
     }
     other.update_topological_order();
     for (auto& targ_gate : other.get_topologically_ordered_gates()) {
-        std::vector<size_t> bits;
+        QubitIdList qubits;
         for (auto const& b : targ_gate->get_qubits()) {
-            bits.emplace_back(b._qubit);
+            qubits.emplace_back(b._qubit);
         }
-        add_gate(targ_gate->get_type_str(), bits, targ_gate->get_phase(), true);
+        add_gate(targ_gate->get_type_str(), qubits, targ_gate->get_phase(), true);
     }
     return this;
 }
@@ -52,11 +52,11 @@ QCir* QCir::tensor_product(QCir const& other) {
     }
     other.update_topological_order();
     for (auto& targ_gate : other.get_topologically_ordered_gates()) {
-        std::vector<size_t> bits;
+        QubitIdList qubits;
         for (auto const& b : targ_gate->get_qubits()) {
-            bits.emplace_back(old_q2_new_q[b._qubit]->get_id());
+            qubits.emplace_back(old_q2_new_q[b._qubit]->get_id());
         }
-        add_gate(targ_gate->get_type_str(), bits, targ_gate->get_phase(), true);
+        add_gate(targ_gate->get_type_str(), qubits, targ_gate->get_phase(), true);
     }
     return this;
 }

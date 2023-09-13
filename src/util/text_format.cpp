@@ -38,14 +38,14 @@ fmt::text_style ls_color(fs::path const& path) {
                     fmt::text_style{},
                     std::bit_or<>{},
                     [](std::string const& str) {
-                        int tmp;
-                        if (!dvlab::str::str_to_i(str, tmp) || tmp == 0) return fmt::text_style{};
-                        if (tmp >= 30 && tmp <= 37) return fmt::fg(fmt::terminal_color{static_cast<uint8_t>(tmp)});
-                        if (tmp >= 90 && tmp <= 97) return fmt::fg(fmt::terminal_color{static_cast<uint8_t>(tmp)});
-                        if (tmp >= 40 && tmp <= 47) return fmt::bg(fmt::terminal_color{static_cast<uint8_t>(tmp)});
-                        if (tmp >= 100 && tmp <= 107) return fmt::bg(fmt::terminal_color{static_cast<uint8_t>(tmp)});
+                        uint8_t tmp;
+                        if (!dvlab::str::str_to_num(str, tmp) || tmp == 0) return fmt::text_style{};
+                        if (tmp >= 30 && tmp <= 37) return fmt::fg(fmt::terminal_color{tmp});
+                        if (tmp >= 90 && tmp <= 97) return fmt::fg(fmt::terminal_color{tmp});
+                        if (tmp >= 40 && tmp <= 47) return fmt::bg(fmt::terminal_color{tmp});
+                        if (tmp >= 100 && tmp <= 107) return fmt::bg(fmt::terminal_color{tmp});
                         assert(tmp >= 0 && tmp <= 7);
-                        return fmt::text_style{fmt::emphasis{static_cast<uint8_t>(1 << (tmp - 1))}};
+                        return fmt::text_style{fmt::emphasis{gsl::narrow<uint8_t>(1 << (tmp - 1))}};
                     });
 
                 map.emplace(key, style);

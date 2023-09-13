@@ -29,7 +29,7 @@ using qcir::QCirGate, qcir::GateType, qcir::QubitInfo, qcir::QCir;
 namespace {
 
 dvlab::Phase get_gadget_phase(dvlab::Phase const& phase, size_t n_qubits) {
-    return phase * dvlab::Rational(1, pow(2, n_qubits - 1));
+    return phase * dvlab::Rational(1, static_cast<int>(pow(2, n_qubits - 1)));
 }
 
 enum class RotationAxis {
@@ -43,7 +43,7 @@ create_multi_control_backbone(ZXGraph& g, std::vector<QubitInfo> const& qubits, 
     std::vector<ZXVertex*> controls;
     ZXVertex* target = nullptr;
     for (auto const& bitinfo : qubits) {
-        size_t qubit = bitinfo._qubit;
+        auto qubit = bitinfo._qubit;
         ZXVertex* in = g.add_input(qubit);
         ZXVertex* v = g.add_vertex(qubit, VertexType::z);
         ZXVertex* out = g.add_output(qubit);
@@ -79,12 +79,12 @@ create_multi_control_backbone(ZXGraph& g, std::vector<QubitInfo> const& qubits, 
  * @param left
  * @param k
  */
-void make_combinations_helper(std::vector<std::vector<ZXVertex*>>& comb, std::vector<ZXVertex*>& tmp, std::vector<ZXVertex*> const& vertices, int left, int k) {
+void make_combinations_helper(std::vector<std::vector<ZXVertex*>>& comb, std::vector<ZXVertex*>& tmp, std::vector<ZXVertex*> const& vertices, size_t left, size_t k) {
     if (k == 0) {
         comb.emplace_back(tmp);
         return;
     }
-    for (int i = left; i < (int)vertices.size(); ++i) {
+    for (size_t i = left; i < vertices.size(); ++i) {
         tmp.emplace_back(vertices[i]);
         make_combinations_helper(comb, tmp, vertices, i + 1, k - 1);
         tmp.pop_back();
@@ -98,7 +98,7 @@ void make_combinations_helper(std::vector<std::vector<ZXVertex*>>& comb, std::ve
  * @param k
  * @return vector<vector<ZXVertex* > >
  */
-std::vector<std::vector<ZXVertex*>> make_combinations(std::vector<ZXVertex*> const& vertices, int k) {
+std::vector<std::vector<ZXVertex*>> make_combinations(std::vector<ZXVertex*> const& vertices, size_t k) {
     std::vector<std::vector<ZXVertex*>> comb;
     std::vector<ZXVertex*> tmp;
     make_combinations_helper(comb, tmp, vertices, 0, k);
@@ -160,7 +160,7 @@ ZXGraph create_mcp_zx_form(std::vector<QubitInfo> const& qubits, dvlab::Phase co
  */
 ZXGraph create_single_vertex_zx_form(QCirGate* gate, VertexType vt, dvlab::Phase ph) {
     ZXGraph g;
-    size_t qubit = gate->get_qubits()[0]._qubit;
+    auto qubit = gate->get_qubits()[0]._qubit;
 
     ZXVertex* in = g.add_input(qubit);
     ZXVertex* v = g.add_vertex(qubit, vt, ph);
@@ -180,8 +180,8 @@ ZXGraph create_single_vertex_zx_form(QCirGate* gate, VertexType vt, dvlab::Phase
  */
 ZXGraph create_cx_zx_form(QCirGate* gate) {
     ZXGraph g;
-    size_t ctrl_qubit = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[1]._qubit : gate->get_qubits()[0]._qubit;
-    size_t targ_qubit = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[0]._qubit : gate->get_qubits()[1]._qubit;
+    auto ctrl_qubit = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[1]._qubit : gate->get_qubits()[0]._qubit;
+    auto targ_qubit = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[0]._qubit : gate->get_qubits()[1]._qubit;
 
     ZXVertex* in_ctrl = g.add_input(ctrl_qubit);
     ZXVertex* in_targ = g.add_input(targ_qubit);
@@ -206,10 +206,10 @@ ZXGraph create_cx_zx_form(QCirGate* gate) {
  */
 ZXGraph create_ccx_zx_form(QCirGate* gate, size_t decomposition_mode) {
     ZXGraph g;
-    size_t ctrl_qubit_2 = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[1]._qubit : gate->get_qubits()[0]._qubit;
-    size_t ctrl_qubit_1 = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[2]._qubit : (gate->get_qubits()[1]._isTarget ? gate->get_qubits()[2]._qubit : gate->get_qubits()[1]._qubit);
-    size_t targ_qubit = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[0]._qubit : (gate->get_qubits()[1]._isTarget ? gate->get_qubits()[1]._qubit : gate->get_qubits()[2]._qubit);
-    std::vector<std::pair<std::pair<VertexType, dvlab::Phase>, int>> vertices_info;
+    auto ctrl_qubit_2 = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[1]._qubit : gate->get_qubits()[0]._qubit;
+    auto ctrl_qubit_1 = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[2]._qubit : (gate->get_qubits()[1]._isTarget ? gate->get_qubits()[2]._qubit : gate->get_qubits()[1]._qubit);
+    auto targ_qubit = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[0]._qubit : (gate->get_qubits()[1]._isTarget ? gate->get_qubits()[1]._qubit : gate->get_qubits()[2]._qubit);
+    std::vector<std::pair<std::pair<VertexType, dvlab::Phase>, QubitIdType>> vertices_info;
     std::vector<std::pair<std::pair<size_t, size_t>, EdgeType>> adj_pair;
     std::vector<int> vertices_col;
     std::vector<ZXVertex*> vertices_list = {};
@@ -324,8 +324,8 @@ ZXGraph create_ccx_zx_form(QCirGate* gate, size_t decomposition_mode) {
 
 ZXGraph create_swap_zx_form(QCirGate* gate) {
     ZXGraph g;
-    size_t qb0 = gate->get_qubits()[0]._qubit;
-    size_t qb1 = gate->get_qubits()[1]._qubit;
+    auto qb0 = gate->get_qubits()[0]._qubit;
+    auto qb1 = gate->get_qubits()[1]._qubit;
     auto i0 = g.add_input(qb0, 0);
     auto o0 = g.add_output(qb0, 1);
     auto i1 = g.add_input(qb1, 0);
@@ -343,8 +343,8 @@ ZXGraph create_swap_zx_form(QCirGate* gate) {
  */
 ZXGraph create_cz_zx_form(QCirGate* gate) {
     ZXGraph g;
-    size_t ctrl_qubit = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[1]._qubit : gate->get_qubits()[0]._qubit;
-    size_t targ_qubit = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[0]._qubit : gate->get_qubits()[1]._qubit;
+    auto ctrl_qubit = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[1]._qubit : gate->get_qubits()[0]._qubit;
+    auto targ_qubit = gate->get_qubits()[0]._isTarget ? gate->get_qubits()[0]._qubit : gate->get_qubits()[1]._qubit;
 
     ZXVertex* in_ctrl = g.add_input(ctrl_qubit);
     ZXVertex* in_targ = g.add_input(targ_qubit);
@@ -371,7 +371,7 @@ ZXGraph create_cz_zx_form(QCirGate* gate) {
  */
 ZXGraph create_y_zx_form(QCirGate* gate) {
     ZXGraph g;
-    size_t qubit = gate->get_qubits()[0]._qubit;
+    auto qubit = gate->get_qubits()[0]._qubit;
 
     ZXVertex* in = g.add_input(qubit);
     ZXVertex* x = g.add_vertex(qubit, VertexType::x, dvlab::Phase(1));
@@ -391,7 +391,7 @@ ZXGraph create_y_zx_form(QCirGate* gate) {
  */
 ZXGraph create_ry_zx_form(QCirGate* gate, dvlab::Phase ph) {
     ZXGraph g;
-    size_t qubit = gate->get_qubits()[0]._qubit;
+    auto qubit = gate->get_qubits()[0]._qubit;
 
     ZXVertex* in = g.add_input(qubit);
     ZXVertex* s = g.add_vertex(qubit, VertexType::z, dvlab::Phase(1, 2));
@@ -493,21 +493,15 @@ std::optional<ZXGraph> to_zxgraph(QCir const& qcir, size_t decomposition_mode) {
         assert(tmp.has_value());
 
         for (auto& v : tmp->get_vertices()) {
-            v->set_col(v->get_col() + gate->get_time() + gate->get_delay());
+            v->set_col(v->get_col() + static_cast<double>(gate->get_time() + gate->get_delay()));
         }
 
         g.concatenate(*tmp);
     });
 
-    size_t max = 0;
+    auto max_col = std::ranges::max(g.get_outputs() | std::views::transform([](ZXVertex* v) { return v->get_first_neighbor().first->get_col(); }));
     for (auto& v : g.get_outputs()) {
-        size_t neighbor_col = v->get_first_neighbor().first->get_col();
-        if (neighbor_col > max) {
-            max = neighbor_col;
-        }
-    }
-    for (auto& v : g.get_outputs()) {
-        v->set_col(max + 1);
+        v->set_col(max_col + 1);
     }
 
     if (stop_requested()) {

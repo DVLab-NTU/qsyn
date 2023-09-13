@@ -174,8 +174,8 @@ public:
     void grow_if_needed();
     bool can_grow() const;
 
-    TreeNode best_child(int);
-    size_t best_cost(int);
+    TreeNode best_child(size_t depth);
+    size_t best_cost(size_t depth);
     size_t best_cost() const;
 
     Router const& router() const { return *_router; }

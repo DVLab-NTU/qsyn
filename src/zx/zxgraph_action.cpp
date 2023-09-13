@@ -50,7 +50,7 @@ void ZXGraph::toggle_vertex(ZXVertex* v) {
  *
  * @param n
  */
-void ZXGraph::lift_qubit(size_t const& n) {
+void ZXGraph::lift_qubit(int n) {
     for (auto const& v : _vertices) {
         v->set_qubit(v->get_qubit() + n);
     }
@@ -86,10 +86,7 @@ ZXGraph& ZXGraph::compose(ZXGraph const& target) {
     ZXGraph copied_graph{target};
 
     // Get maximum column in `this`
-    unsigned max_col = 0;
-    for (auto const& o : this->get_outputs()) {
-        if (o->get_col() > max_col) max_col = o->get_col();
-    }
+    auto max_col = gsl::narrow_cast<unsigned>(std::ranges::max(get_vertices() | std::views::transform([](ZXVertex* v) { return v->get_col(); })));
 
     // Update `_col` of copiedGraph to make them unique to the original graph
     for (auto const& v : copied_graph.get_vertices()) {
@@ -128,8 +125,8 @@ ZXGraph& ZXGraph::tensor_product(ZXGraph const& target) {
     ZXGraph copied_graph{target};
 
     // Lift Qubit
-    int ori_max_qubit = INT_MIN, ori_min_qubit = INT_MAX;
-    int copied_min_qubit = INT_MAX;
+    QubitIdType ori_max_qubit = INT_MIN, ori_min_qubit = INT_MAX;
+    QubitIdType copied_min_qubit = INT_MAX;
     for (auto const& i : get_inputs()) {
         if (i->get_qubit() > ori_max_qubit) ori_max_qubit = i->get_qubit();
         if (i->get_qubit() < ori_min_qubit) ori_min_qubit = i->get_qubit();
@@ -145,7 +142,7 @@ ZXGraph& ZXGraph::tensor_product(ZXGraph const& target) {
     for (auto const& i : copied_graph.get_outputs()) {
         if (i->get_qubit() < copied_min_qubit) copied_min_qubit = i->get_qubit();
     }
-    size_t lift_q = (ori_max_qubit - ori_min_qubit + 1) - copied_min_qubit;
+    auto lift_q = (ori_max_qubit - ori_min_qubit + 1) - copied_min_qubit;
     copied_graph.lift_qubit(lift_q);
 
     // Merge copiedGraph to original graph
@@ -243,26 +240,26 @@ std::unordered_map<size_t, ZXVertex*> ZXGraph::create_id_to_vertex_map() const {
  *
  */
 void ZXGraph::normalize() {
-    std::unordered_map<int, std::vector<ZXVertex*> > mp;
-    std::unordered_set<int> vis;
-    std::queue<ZXVertex*> cand;
+    std::unordered_map<QubitIdType, std::vector<ZXVertex*>> qubit_id_to_vertices_map;
+    std::unordered_set<QubitIdType> visited_qubit_ids;
+    std::queue<ZXVertex*> vertex_queue;
     for (auto const& i : _inputs) {
-        cand.push(i);
-        vis.insert(i->get_id());
+        vertex_queue.push(i);
+        visited_qubit_ids.insert(gsl::narrow<QubitIdType>(i->get_id()));
     }
-    while (!cand.empty()) {
-        ZXVertex* node = cand.front();
-        cand.pop();
-        mp[node->get_qubit()].emplace_back(node);
-        for (auto const& n : node->get_neighbors()) {
-            if (vis.find(n.first->get_id()) == vis.end()) {
-                cand.push(n.first);
-                vis.insert(n.first->get_id());
+    while (!vertex_queue.empty()) {
+        ZXVertex* v = vertex_queue.front();
+        vertex_queue.pop();
+        qubit_id_to_vertices_map[v->get_qubit()].emplace_back(v);
+        for (auto const& nb : v->get_neighbors() | std::views::keys) {
+            if (visited_qubit_ids.find(gsl::narrow<QubitIdType>(nb->get_id())) == visited_qubit_ids.end()) {
+                vertex_queue.push(nb);
+                visited_qubit_ids.insert(gsl::narrow<QubitIdType>(nb->get_id()));
             }
         }
     }
     int max_col = 0;
-    for (auto& i : mp) {
+    for (auto& i : qubit_id_to_vertices_map) {
         int col = 0;
         for (auto& v : i.second) {
             v->set_col(col);

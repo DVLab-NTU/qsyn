@@ -16,6 +16,7 @@
 #include <utility>
 
 #include "./zx_def.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "util/phase.hpp"
 
 namespace qsyn::zx {
@@ -42,12 +43,13 @@ class ZXVertex {
     friend class ZXGraph;
 
 public:
-    ZXVertex(size_t id, int qubit, VertexType vt, Phase phase = Phase(), double col = 0)
+    using QubitIdType = qsyn::QubitIdType;
+    ZXVertex(size_t id, QubitIdType qubit, VertexType vt, Phase phase = Phase(), double col = 0)
         : _id{id}, _type{vt}, _qubit{qubit}, _phase{phase}, _col{col} {}
     // Getter and Setter
 
     size_t const& get_id() const { return _id; }
-    int const& get_qubit() const { return _qubit; }
+    QubitIdType const& get_qubit() const { return _qubit; }
     size_t const& get_pin() const { return _pin; }
     Phase const& get_phase() const { return _phase; }
     VertexType const& get_type() const { return _type; }
@@ -60,7 +62,7 @@ public:
     size_t get_num_neighbors() const { return _neighbors.size(); }
 
     void set_id(size_t const& id) { _id = id; }
-    void set_qubit(int const& q) { _qubit = q; }
+    void set_qubit(QubitIdType const& q) { _qubit = q; }
     void set_pin(size_t const& p) { _pin = p; }
     void set_phase(Phase const& p) { _phase = p; }
     void set_col(double const& c) { _col = c; }
@@ -101,18 +103,19 @@ public:
 private:
     size_t _id;
     VertexType _type;
-    int _qubit;
+    QubitIdType _qubit;
     Phase _phase;
     double _col;
     Neighbors _neighbors;
     unsigned _dfs_counter = 0;
-    size_t _pin = UINT_MAX;
+    size_t _pin = SIZE_MAX;
 
     void set_neighbors(Neighbors const& n) { _neighbors = n; }
 };
 
 class ZXGraph {  // NOLINT(cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
+    using QubitIdType = ZXVertex::QubitIdType;
     ZXGraph() {}
 
     ~ZXGraph() {
@@ -232,8 +235,8 @@ public:
     bool is_graph_like() const;
     bool is_identity() const;
     size_t get_num_gadgets() const;
-    bool is_input_qubit(int qubit) const { return (_input_list.contains(qubit)); }
-    bool is_output_qubit(int qubit) const { return (_output_list.contains(qubit)); }
+    bool is_input_qubit(QubitIdType qubit) const { return (_input_list.contains(qubit)); }
+    bool is_output_qubit(QubitIdType qubit) const { return (_output_list.contains(qubit)); }
 
     bool is_gadget_leaf(ZXVertex*) const;
     bool is_gadget_axel(ZXVertex*) const;
@@ -249,9 +252,9 @@ public:
     inline size_t non_clifford_t_count() const { return non_clifford_count() - t_count(); }
 
     // Add and Remove
-    ZXVertex* add_input(int qubit, double col = 0);
-    ZXVertex* add_output(int qubit, double col = 0);
-    ZXVertex* add_vertex(int qubit, VertexType vt, Phase phase = Phase(), double col = 0);
+    ZXVertex* add_input(QubitIdType qubit, double col = 0);
+    ZXVertex* add_output(QubitIdType qubit, double col = 0);
+    ZXVertex* add_vertex(QubitIdType qubit, VertexType vt, Phase phase = Phase(), double col = 0);
     void add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
 
     size_t remove_isolated_vertices();
@@ -265,7 +268,7 @@ public:
 
     // Operation on graph
     void adjoint();
-    void assign_vertex_to_boundary(int qubit, bool is_input, VertexType vtype, Phase phase);
+    void assign_vertex_to_boundary(QubitIdType qubit, bool is_input, VertexType vtype, Phase phase);
 
     // helper functions for simplifiers
     void gadgetize_phase(ZXVertex* v, Phase const& keep_phase = Phase(0));
@@ -277,7 +280,7 @@ public:
     // Action functions (zxGraphAction.cpp)
     void sort_io_by_qubit();
     void toggle_vertex(ZXVertex* v);
-    void lift_qubit(size_t const& n);
+    void lift_qubit(int n);
     void relabel_vertex_ids(size_t id_start) {
         std::ranges::for_each(this->_vertices, [&id_start](ZXVertex* v) { v->set_id(id_start++); });
     }
@@ -295,7 +298,7 @@ public:
     void print_io() const;
     void print_vertices() const;
     void print_vertices(std::vector<size_t> cand) const;
-    void print_qubits(std::vector<int> cand = {}) const;
+    void print_qubits(QubitIdList cand = {}) const;
     void print_edges() const;
 
     void print_difference(ZXGraph* other) const;

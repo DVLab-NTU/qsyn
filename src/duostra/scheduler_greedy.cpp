@@ -25,18 +25,18 @@ namespace qsyn::duostra {
 class TopologyCandidate {
 public:
     TopologyCandidate(CircuitTopology const& topo, size_t candidate)
-        : _circuit_topology(topo), _candidates(candidate) {}
+        : _circuit_topology(topo), _num_candidates(candidate) {}
 
     std::vector<size_t> get_available_gates() const {
         auto& gates = _circuit_topology.get_available_gates();
-        if (gates.size() < _candidates)
+        if (gates.size() < _num_candidates)
             return gates;
-        return std::vector<size_t>(gates.begin(), gates.begin() + _candidates);
+        return std::vector<size_t>(gates.begin(), dvlab::iterator::next(gates.begin(), _num_candidates));
     }
 
 private:
     CircuitTopology const& _circuit_topology;
-    size_t _candidates;
+    size_t _num_candidates;
 };
 
 // SECTION - Struct GreedyConf Member Functions
