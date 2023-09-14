@@ -15,7 +15,8 @@
 
 #include "fmt/core.h"
 #include "util/util.hpp"
-#include "zx/zxgraph.hpp"
+
+namespace dvlab {
 
 struct UCharVectorHash {
     size_t operator()(std::vector<unsigned char> const& k) const {
@@ -518,3 +519,5 @@ float BooleanMatrix::dense_ratio() {
 void BooleanMatrix::push_zeros_column() {
     for_each(_matrix.begin(), _matrix.end(), [](Row& r) { r.emplace_back(0); });
 }
+
+}  // namespace dvlab

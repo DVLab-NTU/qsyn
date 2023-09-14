@@ -77,8 +77,8 @@ public:
     void print_axels();
     void print_matrix() { _biadjacency.print_matrix(); }
 
-    std::vector<size_t> find_minimal_sums(BooleanMatrix& matrix);
-    std::vector<BooleanMatrix::RowOperation> greedy_reduction(BooleanMatrix&);
+    std::vector<size_t> find_minimal_sums(dvlab::BooleanMatrix& matrix);
+    std::vector<dvlab::BooleanMatrix::RowOperation> greedy_reduction(dvlab::BooleanMatrix&);
 
 private:
     size_t _num_cx_iterations = 0;
@@ -92,11 +92,11 @@ private:
     zx::ZXVertexList _axels;
     std::unordered_map<QubitIdType, QubitIdType> _qubit_map;  // zx to qc
 
-    BooleanMatrix _biadjacency;
-    std::vector<BooleanMatrix::RowOperation> _cnots;
+    dvlab::BooleanMatrix _biadjacency;
+    std::vector<dvlab::BooleanMatrix::RowOperation> _cnots;
 
-    void _block_elimination(BooleanMatrix& matrix, size_t& min_n_cxs, size_t block_size);
-    void _block_elimination(size_t& best_block, BooleanMatrix& best_matrix, size_t& min_cost, size_t block_size);
+    void _block_elimination(dvlab::BooleanMatrix& matrix, size_t& min_n_cxs, size_t block_size);
+    void _block_elimination(size_t& best_block, dvlab::BooleanMatrix& best_matrix, size_t& min_cost, size_t block_size);
     std::vector<Operation> _duostra_assigned;
     std::vector<Operation> _duostra_mapped;
     // NOTE - Use only in column optimal swap
