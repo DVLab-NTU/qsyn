@@ -14,7 +14,11 @@
 #include "../zxgraph.hpp"
 #include "util/boolean_matrix.hpp"
 
+namespace dvlab {
+
 class BooleanMatrix;
+
+}
 
 namespace qsyn {
 
@@ -85,8 +89,8 @@ private:
     void _initialize();
     void _calculate_zeroth_layer();
     void _update_neighbors_by_frontier();
-    BooleanMatrix _prepare_matrix(ZXVertex* v, size_t i, BooleanMatrix const& matrix);
-    void _set_correction_set_by_matrix(ZXVertex* v, BooleanMatrix const& matrix);
+    dvlab::BooleanMatrix _prepare_matrix(ZXVertex* v, size_t i, dvlab::BooleanMatrix const& matrix);
+    void _set_correction_set_by_matrix(ZXVertex* v, dvlab::BooleanMatrix const& matrix);
     void _update_frontier();
 };
 

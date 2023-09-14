@@ -331,6 +331,6 @@ private:
     void _move_vertices_from(ZXGraph& other);
 };
 
-BooleanMatrix get_biadjacency_matrix(ZXVertexList const& row_vertices, ZXVertexList const& col_vertices);
+dvlab::BooleanMatrix get_biadjacency_matrix(ZXVertexList const& row_vertices, ZXVertexList const& col_vertices);
 
 }  // namespace qsyn::zx

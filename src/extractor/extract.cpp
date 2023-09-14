@@ -604,10 +604,10 @@ bool Extractor::biadjacency_eliminations(bool check) {
         });
     }
 
-    std::vector<BooleanMatrix::RowOperation> greedy_opers;
+    std::vector<dvlab::BooleanMatrix::RowOperation> greedy_opers;
 
     update_matrix();
-    BooleanMatrix greedy_mat = _biadjacency;
+    dvlab::BooleanMatrix greedy_mat = _biadjacency;
     ZXVertexList backup_neighbors = _neighbors;
     if (OPTIMIZE_LEVEL > 1) {
         // NOTE - opt = 2 or 3
@@ -636,7 +636,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
             _cnots = _biadjacency.get_row_operations();
         } else if (OPTIMIZE_LEVEL == 1 || OPTIMIZE_LEVEL == 3) {
             size_t min_cnots = size_t(-1);
-            BooleanMatrix best_matrix;
+            dvlab::BooleanMatrix best_matrix;
             for (size_t blk = 1; blk < _biadjacency.num_cols(); blk++) {
                 _block_elimination(best_matrix, min_cnots, blk);
             }
@@ -646,7 +646,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
             } else {
                 size_t n_gauss_opers = best_matrix.get_row_operations().size();
                 size_t n_single_one_rows = accumulate(best_matrix.get_matrix().begin(), best_matrix.get_matrix().end(), 0,
-                                                      [](size_t acc, BooleanMatrix::Row const& r) { return acc + size_t(r.is_one_hot()); });
+                                                      [](size_t acc, dvlab::BooleanMatrix::Row const& r) { return acc + size_t(r.is_one_hot()); });
                 // NOTE - opers per extractable rows for Gaussian is bigger than greedy
                 bool select_greedy = float(n_gauss_opers) / float(n_single_one_rows) > float(greedy_opers.size()) - 0.1;
                 if (!greedy_opers.empty() && select_greedy) {
@@ -681,8 +681,8 @@ bool Extractor::biadjacency_eliminations(bool check) {
  * @param minCnots Minimum value
  * @param blockSize
  */
-void Extractor::_block_elimination(BooleanMatrix& best_matrix, size_t& min_n_cxs, size_t block_size) {
-    BooleanMatrix copied_matrix = _biadjacency;
+void Extractor::_block_elimination(dvlab::BooleanMatrix& best_matrix, size_t& min_n_cxs, size_t block_size) {
+    dvlab::BooleanMatrix copied_matrix = _biadjacency;
     copied_matrix.gaussian_elimination_skip(block_size, true, true);
     if (FILTER_DUPLICATED_CXS) {
         while (true) {
@@ -697,8 +697,8 @@ void Extractor::_block_elimination(BooleanMatrix& best_matrix, size_t& min_n_cxs
     }
 }
 
-void Extractor::_block_elimination(size_t& best_block, BooleanMatrix& best_matrix, size_t& min_cost, size_t block_size) {
-    BooleanMatrix copied_matrix = _biadjacency;
+void Extractor::_block_elimination(size_t& best_block, dvlab::BooleanMatrix& best_matrix, size_t& min_cost, size_t block_size) {
+    dvlab::BooleanMatrix copied_matrix = _biadjacency;
     copied_matrix.gaussian_elimination_skip(block_size, true, true);
     if (FILTER_DUPLICATED_CXS) {
         while (true) {

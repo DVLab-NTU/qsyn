@@ -19,12 +19,12 @@ namespace qsyn::extractor {
  * @param reversedSearch
  * @return vector<size_t>
  */
-std::vector<size_t> Extractor::find_minimal_sums(BooleanMatrix& matrix) {
+std::vector<size_t> Extractor::find_minimal_sums(dvlab::BooleanMatrix& matrix) {
     // NOTE - double-check directly extracted candidates and return empty result
     for (size_t i = 0; i < matrix.num_rows(); i++) {
         if (matrix[i].is_one_hot()) return {};
     }
-    std::vector<std::pair<std::vector<size_t>, BooleanMatrix::Row>> row_track_pairs, new_row_track_pairs;
+    std::vector<std::pair<std::vector<size_t>, dvlab::BooleanMatrix::Row>> row_track_pairs, new_row_track_pairs;
 
     for (size_t i = 0; i < matrix.num_rows(); i++)
         row_track_pairs.emplace_back(std::vector<size_t>{i}, matrix[i]);
@@ -35,7 +35,7 @@ std::vector<size_t> Extractor::find_minimal_sums(BooleanMatrix& matrix) {
         for (auto const& [indices, row] : row_track_pairs) {
             size_t max_index = *max_element(indices.begin(), indices.end());
             for (size_t k = max_index + 1; k < matrix.num_rows(); k++) {
-                BooleanMatrix::Row new_row = row + matrix[k];
+                dvlab::BooleanMatrix::Row new_row = row + matrix[k];
                 std::vector<size_t> result = indices;
                 result.emplace_back(k);
                 if (new_row.is_one_hot())
@@ -60,14 +60,14 @@ std::vector<size_t> Extractor::find_minimal_sums(BooleanMatrix& matrix) {
  * @param matrix
  * @return vector<M2::Oper>
  */
-std::vector<BooleanMatrix::RowOperation> Extractor::greedy_reduction(BooleanMatrix& m) {
-    BooleanMatrix matrix = m;
-    std::vector<BooleanMatrix::RowOperation> result;
+std::vector<dvlab::BooleanMatrix::RowOperation> Extractor::greedy_reduction(dvlab::BooleanMatrix& m) {
+    dvlab::BooleanMatrix matrix = m;
+    std::vector<dvlab::BooleanMatrix::RowOperation> result;
     std::vector<size_t> indices = Extractor::find_minimal_sums(matrix);
     // Return empty vector if indices do not exist
     if (!indices.size()) return result;
     while (indices.size() > 1) {
-        BooleanMatrix::RowOperation best_operation(-1, -1);
+        dvlab::BooleanMatrix::RowOperation best_operation(-1, -1);
         long reduction = -1 * static_cast<long>(matrix.num_cols());
 
         for (auto const& i : indices) {
