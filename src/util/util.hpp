@@ -86,10 +86,7 @@ namespace iterator {
  * @tparam DiffT difference type. Requires std::integral.
  */
 template <typename Iter, typename DiffT>
-requires requires {
-    std::random_access_iterator<Iter>;
-    std::integral<DiffT>;
-}
+requires std::random_access_iterator<Iter> && std::integral<DiffT>
 Iter next(Iter iter, DiffT n = 1) {
     return std::next(iter, gsl::narrow<typename decltype(iter)::difference_type>(n));
 }
@@ -101,10 +98,7 @@ Iter next(Iter iter, DiffT n = 1) {
  * @tparam DiffT difference type. Requires std::integral.
  */
 template <typename Iter, typename DiffT>
-requires requires {
-    std::random_access_iterator<Iter>;
-    std::integral<DiffT>;
-}
+requires std::random_access_iterator<Iter> && std::integral<DiffT>
 Iter prev(Iter iter, DiffT n = 1) {
     return std::prev(iter, gsl::narrow<typename decltype(iter)::difference_type>(n));
 }

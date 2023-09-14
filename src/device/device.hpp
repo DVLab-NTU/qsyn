@@ -191,9 +191,10 @@ public:
 
     qcir::GateType get_type() const { return _oper; }
     dvlab::Phase get_phase() const { return _phase; }
-    size_t get_cost() const { return std::get<1>(_duration); }
-    size_t get_operation_time() const { return std::get<0>(_duration); }
-    std::tuple<size_t, size_t> get_duration() const { return _duration; }
+    size_t get_time_end() const { return std::get<1>(_duration); }
+    size_t get_time_begin() const { return std::get<0>(_duration); }
+    std::tuple<size_t, size_t> get_time_range() const { return _duration; }
+    size_t get_duration() const { return std::get<1>(_duration) - std::get<0>(_duration); }
     std::tuple<QubitIdType, QubitIdType> get_qubits() const { return _qubits; }
 
     size_t get_id() const { return _id; }

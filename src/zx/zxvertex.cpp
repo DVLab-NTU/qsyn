@@ -34,7 +34,7 @@ std::vector<ZXVertex*> ZXVertex::get_copied_neighbors() {
 void ZXVertex::print_vertex() const {
     std::cout << "ID:" << std::right << std::setw(4) << _id;
     std::cout << " (" << _type << ", " << std::left << std::setw(12 - ((_phase == Phase(0)) ? 1 : 0)) << (_phase.get_print_string() + ")");
-    std::cout << "  (Qubit, Col): (" << _qubit << ", " << _col << ")\t"
+    std::cout << "  (Qubit, Col): (" << _qubit << ", " << gsl::narrow_cast<int>(_col) << ")\t"
               << "  #Neighbors: " << std::right << std::setw(3) << _neighbors.size() << "     ";
     print_neighbors();
 }

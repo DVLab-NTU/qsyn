@@ -62,7 +62,7 @@ public:
 
     void update_neighbors();
     void update_graph_by_matrix(qsyn::zx::EdgeType = qsyn::zx::EdgeType::hadamard);
-    void create_matrix();
+    void update_matrix();
 
     void prepend_single_qubit_gate(std::string const&, QubitIdType qubit, dvlab::Phase);
     void prepend_double_qubit_gate(std::string const&, QubitIdList const& qubits, dvlab::Phase);
