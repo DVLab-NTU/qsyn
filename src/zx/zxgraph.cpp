@@ -530,8 +530,8 @@ ZXVertex* ZXGraph::find_vertex_by_id(size_t const& id) const {
     return it == _vertices.end() ? nullptr : *it;
 }
 
-BooleanMatrix get_biadjacency_matrix(ZXVertexList const& row_vertices, ZXVertexList const& col_vertices) {
-    BooleanMatrix matrix(row_vertices.size(), col_vertices.size());
+dvlab::BooleanMatrix get_biadjacency_matrix(ZXVertexList const& row_vertices, ZXVertexList const& col_vertices) {
+    dvlab::BooleanMatrix matrix(row_vertices.size(), col_vertices.size());
     for (auto const& [i, v] : row_vertices | tl::views::enumerate) {
         for (auto const& [j, w] : col_vertices | tl::views::enumerate) {
             if (v->is_neighbor(w)) matrix[i][j] = 1;

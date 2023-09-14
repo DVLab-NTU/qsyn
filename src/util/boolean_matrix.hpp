@@ -17,6 +17,8 @@
 //   Define classes
 //------------------------------------------------------------------------
 
+namespace dvlab {
+
 class BooleanMatrix {
 public:
     class Row {
@@ -101,3 +103,5 @@ private:
     std::vector<Row> _matrix;
     std::vector<RowOperation> _row_operations;
 };
+
+}  // namespace dvlab

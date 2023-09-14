@@ -202,7 +202,7 @@ void GFlow::_update_neighbors_by_frontier() {
  * @param v correction set of whom
  * @param matrix
  */
-void GFlow::_set_correction_set_by_matrix(ZXVertex* v, BooleanMatrix const& matrix) {
+void GFlow::_set_correction_set_by_matrix(ZXVertex* v, dvlab::BooleanMatrix const& matrix) {
     assert(!_x_correction_sets.contains(v));
     _x_correction_sets[v] = ZXVertexList();
 
@@ -226,8 +226,8 @@ void GFlow::_set_correction_set_by_matrix(ZXVertex* v, BooleanMatrix const& matr
  * @brief prepare the matrix to solve depending on the measurement plane.
  *
  */
-BooleanMatrix GFlow::_prepare_matrix(ZXVertex* v, size_t i, BooleanMatrix const& matrix) {
-    BooleanMatrix augmented_matrix = matrix;
+dvlab::BooleanMatrix GFlow::_prepare_matrix(ZXVertex* v, size_t i, dvlab::BooleanMatrix const& matrix) {
+    dvlab::BooleanMatrix augmented_matrix = matrix;
     augmented_matrix.push_zeros_column();
 
     auto itr = _neighbors.begin();
