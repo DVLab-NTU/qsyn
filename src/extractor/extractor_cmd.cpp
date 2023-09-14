@@ -19,79 +19,67 @@
 #include "zx/zxgraph.hpp"
 #include "zx/zxgraph_mgr.hpp"
 
-using namespace std;
-using namespace argparse;
-extern ZXGraphMgr ZXGRAPH_MGR;
-extern QCirMgr QCIR_MGR;
+using namespace dvlab::argparse;
+using dvlab::CmdExecResult;
+using dvlab::Command;
 
-Command extraction_cmd();
-Command extraction_settings_cmd();
-Command extraction_print_cmd();
-Command extraction_step_cmd();
+using qsyn::qcir::QCirMgr;
+using qsyn::zx::ZXGraphMgr;
 
-bool add_extract_cmds() {
-    if (!(CLI.add_command(extraction_cmd()) &&
-          CLI.add_command(extraction_step_cmd()) &&
-          CLI.add_command(extraction_settings_cmd()) &&
-          CLI.add_command(extraction_print_cmd()))) {
-        cerr << "Registering \"extract\" commands fails... exiting" << endl;
-        return false;
-    }
-    return true;
-}
+namespace qsyn::extractor {
 
 //----------------------------------------------------------------------
 //    ZX2QC
 //----------------------------------------------------------------------
 
-Command extraction_cmd() {
+Command extraction_cmd(ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr) {
     return {"zx2qc",
-            [](ArgumentParser &parser) {
+            [](ArgumentParser& parser) {
                 parser.description("extract QCir from ZXGraph");
             },
-            [](ArgumentParser const & /*parser*/) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
-                if (!ZXGRAPH_MGR.get()->is_graph_like()) {
-                    LOGGER.error("ZXGraph {0} is not graph-like. Not extractable!!", ZXGRAPH_MGR.focused_id());
+            [&](ArgumentParser const& /*parser*/) {
+                if (!zx::zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                if (!zxgraph_mgr.get()->is_graph_like()) {
+                    LOGGER.error("ZXGraph {0} is not graph-like. Not extractable!!", zxgraph_mgr.focused_id());
                     return CmdExecResult::error;
                 }
-                size_t next_id = ZXGRAPH_MGR.get_next_id();
-                ZXGRAPH_MGR.copy(next_id);
-                Extractor ext(ZXGRAPH_MGR.get(), nullptr, nullopt);
+                size_t next_id = zxgraph_mgr.get_next_id();
+                zxgraph_mgr.copy(next_id);
+                Extractor ext(zxgraph_mgr.get(), nullptr, std::nullopt);
 
-                QCir *result = ext.extract();
+                qcir::QCir* result = ext.extract();
                 if (result != nullptr) {
-                    QCIR_MGR.add(QCIR_MGR.get_next_id(), std::make_unique<QCir>(*result));
+                    qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<qcir::QCir>(*result));
                     if (PERMUTE_QUBITS)
-                        ZXGRAPH_MGR.remove(next_id);
+                        zxgraph_mgr.remove(next_id);
                     else {
-                        cout << "Note: the extracted circuit is up to a qubit permutation." << endl;
-                        cout << "      Remaining permutation information is in ZXGraph id " << next_id << "." << endl;
-                        ZXGRAPH_MGR.get()->add_procedure("ZX2QC");
+                        std::cout << "Note: the extracted circuit is up to a qubit permutation." << std::endl;
+                        std::cout << "      Remaining permutation information is in ZXGraph id " << next_id << "." << std::endl;
+                        zxgraph_mgr.get()->add_procedure("ZX2QC");
                     }
 
-                    QCIR_MGR.get()->add_procedures(ZXGRAPH_MGR.get()->get_procedures());
-                    QCIR_MGR.get()->add_procedure("ZX2QC");
-                    QCIR_MGR.get()->set_filename(ZXGRAPH_MGR.get()->get_filename());
+                    qcir_mgr.get()->add_procedures(zxgraph_mgr.get()->get_procedures());
+                    qcir_mgr.get()->add_procedure("ZX2QC");
+                    qcir_mgr.get()->set_filename(zxgraph_mgr.get()->get_filename());
                 }
 
                 return CmdExecResult::done;
             }};
 }
 
-Command extraction_step_cmd() {
+dvlab::Command extraction_step_cmd(zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr) {
     return {"extract",
-            [](ArgumentParser &parser) {
+            [&](ArgumentParser& parser) {
                 parser.description("perform step(s) in extraction");
                 parser.add_argument<size_t>("-zxgraph")
                     .required(true)
-                    .constraint(valid_zxgraph_id)
+                    .constraint(zx::valid_zxgraph_id(zxgraph_mgr))
                     .metavar("ID")
                     .help("the ID of the ZXGraph to extract from");
 
                 parser.add_argument<size_t>("-qcir")
                     .required(true)
-                    .constraint(valid_qcir_id)
+                    .constraint(valid_qcir_id(qcir_mgr))
                     .metavar("ID")
                     .help("the ID of the QCir to extract to");
 
@@ -130,22 +118,22 @@ Command extraction_step_cmd() {
                     .metavar("N")
                     .help("Run N iteration of extraction loop. N is defaulted to 1");
             },
-            [](ArgumentParser const &parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
-                ZXGRAPH_MGR.checkout(parser.get<size_t>("-zxgraph"));
-                if (!ZXGRAPH_MGR.get()->is_graph_like()) {
-                    LOGGER.error("ZXGraph {0} is not graph-like. Not extractable!!", ZXGRAPH_MGR.focused_id());
+            [&](ArgumentParser const& parser) {
+                if (!zx::zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                zxgraph_mgr.checkout(parser.get<size_t>("-zxgraph"));
+                if (!zxgraph_mgr.get()->is_graph_like()) {
+                    LOGGER.error("ZXGraph {0} is not graph-like. Not extractable!!", zxgraph_mgr.focused_id());
                     return CmdExecResult::error;
                 }
 
-                QCIR_MGR.checkout(parser.get<size_t>("-qcir"));
+                qcir_mgr.checkout(parser.get<size_t>("-qcir"));
 
-                if (ZXGRAPH_MGR.get()->get_num_outputs() != QCIR_MGR.get()->get_num_qubits()) {
-                    cerr << "Error: number of outputs in graph is not equal to number of qubits in circuit" << endl;
+                if (zxgraph_mgr.get()->get_num_outputs() != qcir_mgr.get()->get_num_qubits()) {
+                    std::cerr << "Error: number of outputs in graph is not equal to number of qubits in circuit" << std::endl;
                     return CmdExecResult::error;
                 }
 
-                Extractor ext(ZXGRAPH_MGR.get(), QCIR_MGR.get(), std::nullopt);
+                Extractor ext(zxgraph_mgr.get(), qcir_mgr.get(), std::nullopt);
 
                 if (parser.parsed("-loop")) {
                     ext.extraction_loop(parser.get<size_t>("-loop"));
@@ -179,9 +167,9 @@ Command extraction_step_cmd() {
                 }
                 if (parser.parsed("-rmg")) {
                     if (ext.remove_gadget(true))
-                        cout << "Gadget(s) are removed" << endl;
+                        std::cout << "Gadget(s) are removed" << std::endl;
                     else
-                        cout << "No gadget(s) are found" << endl;
+                        std::cout << "No gadget(s) are found" << std::endl;
                     return CmdExecResult::done;
                 }
 
@@ -198,9 +186,9 @@ Command extraction_step_cmd() {
 //    EXTPrint [ -Settings | -Frontier | -Neighbors | -Axels | -Matrix ]
 //----------------------------------------------------------------------
 
-Command extraction_print_cmd() {
+dvlab::Command extraction_print_cmd(ZXGraphMgr& zxgraph_mgr) {
     return {"extprint",
-            [](ArgumentParser &parser) {
+            [](ArgumentParser& parser) {
                 parser.description("print info of extracting ZXGraph");
 
                 auto mutex = parser.add_mutually_exclusive_group();
@@ -221,22 +209,22 @@ Command extraction_print_cmd() {
                     .action(store_true)
                     .help("print biadjancency");
             },
-            [](ArgumentParser const &parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
+            [&](ArgumentParser const& parser) {
+                if (!zx::zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
                 if (parser.parsed("-settings") || parser.num_parsed_args() == 0) {
-                    cout << endl;
-                    cout << "Optimize Level:    " << OPTIMIZE_LEVEL << endl;
-                    cout << "Sort Frontier:     " << (SORT_FRONTIER == true ? "true" : "false") << endl;
-                    cout << "Sort Neighbors:    " << (SORT_NEIGHBORS == true ? "true" : "false") << endl;
-                    cout << "Permute Qubits:    " << (PERMUTE_QUBITS == true ? "true" : "false") << endl;
-                    cout << "Filter Duplicated: " << (FILTER_DUPLICATED_CXS == true ? "true" : "false") << endl;
-                    cout << "Block Size:        " << BLOCK_SIZE << endl;
+                    std::cout << std::endl;
+                    std::cout << "Optimize Level:    " << OPTIMIZE_LEVEL << std::endl;
+                    std::cout << "Sort Frontier:     " << (SORT_FRONTIER == true ? "true" : "false") << std::endl;
+                    std::cout << "Sort Neighbors:    " << (SORT_NEIGHBORS == true ? "true" : "false") << std::endl;
+                    std::cout << "Permute Qubits:    " << (PERMUTE_QUBITS == true ? "true" : "false") << std::endl;
+                    std::cout << "Filter Duplicated: " << (FILTER_DUPLICATED_CXS == true ? "true" : "false") << std::endl;
+                    std::cout << "Block Size:        " << BLOCK_SIZE << std::endl;
                 } else {
-                    if (!ZXGRAPH_MGR.get()->is_graph_like()) {
-                        LOGGER.error("ZXGraph {0} is not graph-like. Not extractable!!", ZXGRAPH_MGR.focused_id());
+                    if (!zxgraph_mgr.get()->is_graph_like()) {
+                        LOGGER.error("ZXGraph {0} is not graph-like. Not extractable!!", zxgraph_mgr.focused_id());
                         return CmdExecResult::error;
                     }
-                    Extractor ext(ZXGRAPH_MGR.get());
+                    Extractor ext(zxgraph_mgr.get());
                     if (parser.parsed("-frontier")) {
                         ext.print_frontier();
                     } else if (parser.parsed("-neighbors")) {
@@ -244,7 +232,7 @@ Command extraction_print_cmd() {
                     } else if (parser.parsed("-axels")) {
                         ext.print_axels();
                     } else if (parser.parsed("-matrix")) {
-                        ext.create_matrix();
+                        ext.update_matrix();
                         ext.print_matrix();
                     }
                 }
@@ -256,9 +244,9 @@ Command extraction_print_cmd() {
 //    EXTSet ...
 //------------------------------------------------------------------------------
 
-Command extraction_settings_cmd() {
+dvlab::Command extraction_settings_cmd() {
     return {"extset",
-            [](ArgumentParser &parser) {
+            [](ArgumentParser& parser) {
                 parser.description("set extractor parameters");
                 parser.add_argument<size_t>("-optimize-level")
                     .choices({0, 1, 2, 3})
@@ -274,7 +262,7 @@ Command extraction_settings_cmd() {
                 parser.add_argument<bool>("-neighbors-sorted")
                     .help("sort neighbors");
             },
-            [](ArgumentParser const &parser) {
+            [](ArgumentParser const& parser) {
                 if (parser.parsed("-optimize-level")) {
                     OPTIMIZE_LEVEL = parser.get<size_t>("-optimize-level");
                 }
@@ -284,7 +272,7 @@ Command extraction_settings_cmd() {
                 if (parser.parsed("-block-size")) {
                     size_t block_size = parser.get<size_t>("-block-size");
                     if (block_size == 0)
-                        cerr << "Error: block size value should > 0, skipping this option!!\n";
+                        std::cerr << "Error: block size value should > 0, skipping this option!!\n";
                     else
                         BLOCK_SIZE = block_size;
                 }
@@ -300,3 +288,16 @@ Command extraction_settings_cmd() {
                 return CmdExecResult::done;
             }};
 }
+
+bool add_extract_cmds(dvlab::CommandLineInterface& cli, zx::ZXGraphMgr& zxgraph_mgr, QCirMgr& qcir_mgr) {
+    if (!(cli.add_command(extraction_cmd(zxgraph_mgr, qcir_mgr)) &&
+          cli.add_command(extraction_step_cmd(zxgraph_mgr, qcir_mgr)) &&
+          cli.add_command(extraction_settings_cmd()) &&
+          cli.add_command(extraction_print_cmd(zxgraph_mgr)))) {
+        std::cerr << "Registering \"extract\" commands fails... exiting" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+}  // namespace qsyn::extractor

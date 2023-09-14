@@ -7,9 +7,7 @@
 
 #include "./argparse.hpp"
 
-using namespace std;
-
-namespace argparse {
+namespace dvlab::argparse {
 
 /**
  * @brief If the argument has a default value, reset to it.
@@ -59,6 +57,7 @@ bool Argument::tokens_enough_to_parse(TokensView tokens) const {
  *
  */
 void Argument::print_status() const {
+    using namespace std::string_literals;
     fmt::println("  {:<8}   = {}", get_name(), std::invoke([this]() {
                      if (is_parsed()) {
                          return fmt::format("{}", *this);
@@ -70,4 +69,4 @@ void Argument::print_status() const {
                  }));
 }
 
-}  // namespace argparse
+}  // namespace dvlab::argparse

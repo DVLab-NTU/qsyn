@@ -19,9 +19,9 @@
 #include "util/logger.hpp"
 #include "util/tmp_files.hpp"
 
-using namespace std;
-
 extern dvlab::Logger LOGGER;
+
+namespace qsyn::zx {
 
 /**
  * @brief Read a ZXGraph
@@ -52,8 +52,8 @@ bool ZXGraph::read_zx(std::filesystem::path const& filepath, bool keep_id) {
  * @return true if correctly write a graph into .zx
  * @return false
  */
-bool ZXGraph::write_zx(string const& filename, bool complete) const {
-    ofstream zx_file;
+bool ZXGraph::write_zx(std::string const& filename, bool complete) const {
+    std::ofstream zx_file;
     zx_file.open(filename);
     if (!zx_file.is_open()) {
         LOGGER.error("Cannot open the file \"{}\"!!", filename);
@@ -122,7 +122,7 @@ bool ZXGraph::write_zx(string const& filename, bool complete) const {
  * @return false
  */
 bool ZXGraph::_build_graph_from_parser_storage(detail::StorageType const& storage, bool keep_id) {
-    unordered_map<size_t, ZXVertex*> id2_vertex;
+    std::unordered_map<size_t, ZXVertex*> id2_vertex;
 
     for (auto& [id, info] : storage) {
         ZXVertex* v = std::invoke(
@@ -168,8 +168,8 @@ bool ZXGraph::_build_graph_from_parser_storage(detail::StorageType const& storag
  * @return true if the filename is valid
  * @return false if not
  */
-bool ZXGraph::write_tikz(string const& filename) const {
-    fstream tikz_file{filename, ios::out};
+bool ZXGraph::write_tikz(std::string const& filename) const {
+    std::ofstream tikz_file{filename};
     if (!tikz_file.is_open()) {
         LOGGER.error("Cannot open the file \"{}\"!!", filename);
         return false;
@@ -186,13 +186,13 @@ bool ZXGraph::write_tikz(string const& filename) const {
  * @return false if not
  */
 bool ZXGraph::write_tikz(std::ostream& filename) const {
-    constexpr string_view define_colors =
+    constexpr std::string_view define_colors =
         "\\definecolor{zx_red}{RGB}{253, 160, 162}\n"
         "\\definecolor{zx_green}{RGB}{206, 254, 206}\n"
         "\\definecolor{hedgeColor}{RGB}{40, 160, 240}\n"
         "\\definecolor{phaseColor}{RGB}{14, 39, 100}\n";
 
-    constexpr string_view tikz_style =
+    constexpr std::string_view tikz_style =
         "[\n"
         "font = \\sffamily,\n"
         "\t yscale=-1,\n"
@@ -204,33 +204,27 @@ bool ZXGraph::write_tikz(std::ostream& filename) const {
         "\t sedg/.style={draw=black, thick},\n"
         "];\n";
 
-    static unordered_map<VertexType, string> const vt2s = {
+    static std::unordered_map<VertexType, std::string> const vt2s = {
         {VertexType::boundary, "boun"},
         {VertexType::z, "zspi"},
         {VertexType::x, "xspi"},
         {VertexType::h_box, "hbox"}};
 
-    static unordered_map<EdgeType, string> const et2s = {
+    static std::unordered_map<EdgeType, std::string> const et2s = {
         {EdgeType::hadamard, "hedg"},
         {EdgeType::simple, "sedg"},
     };
 
-    constexpr string_view font_size = "\\tiny";
+    constexpr std::string_view font_size = "\\tiny";
 
-    size_t max = 0;
+    auto max_col = gsl::narrow_cast<int>(std::max(
+        std::ranges::max(_inputs | std::views::transform([](ZXVertex* v) { return v->get_col(); })),
+        std::ranges::max(_outputs | std::views::transform([](ZXVertex* v) { return v->get_col(); }))));
 
-    for (auto& v : _outputs) {
-        if (max < v->get_col())
-            max = v->get_col();
-    }
-    for (auto& v : _inputs) {
-        if (max < v->get_col())
-            max = v->get_col();
-    }
-    double scale = (double)25 / (double)static_cast<int>(max);
+    double scale = 25. / max_col;
     scale = (scale > 3.0) ? 3.0 : scale;
     filename << define_colors;
-    filename << "\\scalebox{" << to_string(scale) << "}{";
+    filename << "\\scalebox{" << std::to_string(scale) << "}{";
     filename << "\\begin{tikzpicture}" << tikz_style;
     filename << "    % Vertices\n";
 
@@ -239,20 +233,20 @@ bool ZXGraph::write_tikz(std::ostream& filename) const {
             return true;
         if (v->get_phase() == Phase(1) && v->get_type() == VertexType::h_box)
             return true;
-        string label_style = "[label distance=-2]90:{\\color{phaseColor}";
+        std::string_view label_style = "[label distance=-2]90:{\\color{phaseColor}";
         filename << ",label={ " << label_style << font_size << " $";
-        int numerator = v->get_phase().numerator();
-        int denominator = v->get_phase().denominator();
+        auto numerator = v->get_phase().numerator();
+        auto denominator = v->get_phase().denominator();
 
         if (denominator != 1) {
             filename << "\\frac{";
         }
         if (numerator != 1) {
-            filename << "\\mathsf{" << to_string(numerator) << "}";
+            filename << "\\mathsf{" << std::to_string(numerator) << "}";
         }
         filename << "\\pi";
         if (denominator != 1) {
-            filename << "}{ \\mathsf{" << to_string(denominator) << "}}";
+            filename << "}{ \\mathsf{" << std::to_string(denominator) << "}}";
         }
         filename << "$ }}";
         return true;
@@ -263,8 +257,8 @@ bool ZXGraph::write_tikz(std::ostream& filename) const {
         filename << "    \\node[" << vt2s.at(v->get_type());
         write_phase(v);
         filename << "]";
-        filename << "(" << to_string(v->get_id()) << ")  at (" << to_string(v->get_col()) << "," << to_string(v->get_qubit()) << ") ";
-        filename << "{{" << font_size << " " << to_string(v->get_id()) << "}};\n";
+        filename << "(" << std::to_string(v->get_id()) << ")  at (" << std::to_string(v->get_col()) << "," << std::to_string(v->get_qubit()) << ") ";
+        filename << "{{" << font_size << " " << std::to_string(v->get_id()) << "}};\n";
     }
     // NOTE - Sample: \draw[hedg] (1234) -- (123);
     filename << "    % Edges\n";
@@ -274,9 +268,9 @@ bool ZXGraph::write_tikz(std::ostream& filename) const {
             if (n->get_id() > v->get_id()) {
                 if (n->get_col() == v->get_col() && n->get_qubit() == v->get_qubit()) {
                     LOGGER.warning("{} and {} are connected but they have same coordinates.", v->get_id(), n->get_id());
-                    filename << "    % \\draw[" << et2s.at(e) << "] (" << to_string(v->get_id()) << ") -- (" << to_string(n->get_id()) << ");\n";
+                    filename << "    % \\draw[" << et2s.at(e) << "] (" << std::to_string(v->get_id()) << ") -- (" << std::to_string(n->get_id()) << ");\n";
                 } else
-                    filename << "    \\draw[" << et2s.at(e) << "] (" << to_string(v->get_id()) << ") -- (" << to_string(n->get_id()) << ");\n";
+                    filename << "    \\draw[" << et2s.at(e) << "] (" << std::to_string(v->get_id()) << ") -- (" << std::to_string(n->get_id()) << ");\n";
             }
         }
     }
@@ -293,7 +287,7 @@ bool ZXGraph::write_tikz(std::ostream& filename) const {
  * @return true
  * @return false
  */
-bool ZXGraph::write_pdf(string const& filename) const {
+bool ZXGraph::write_pdf(std::string const& filename) const {
     namespace fs = std::filesystem;
     namespace dv = dvlab::utils;
     fs::path filepath{filename};
@@ -325,7 +319,7 @@ bool ZXGraph::write_pdf(string const& filename) const {
 
     auto temp_tex_path = tmp_dir.path() / filepath.filename();
 
-    fstream tex_file{temp_tex_path, ios::out};
+    std::ofstream tex_file{temp_tex_path};
     if (!tex_file.is_open()) {
         LOGGER.error("Cannot open the file \"{}\"!!", filepath.string());
         return false;
@@ -335,7 +329,7 @@ bool ZXGraph::write_pdf(string const& filename) const {
 
     tex_file.close();
     // NOTE - Linux cmd: pdflatex -halt-on-error -output-directory <path/to/dir> <path/to/tex>
-    string cmd = "pdflatex -halt-on-error -output-directory " + temp_tex_path.parent_path().string() + " " + temp_tex_path.string() + " >/dev/null 2>&1 ";
+    std::string cmd = "pdflatex -halt-on-error -output-directory " + temp_tex_path.parent_path().string() + " " + temp_tex_path.string() + " >/dev/null 2>&1 ";
     if (system(cmd.c_str()) == -1) {
         LOGGER.error("failed to generate PDF");
         return false;
@@ -360,7 +354,7 @@ bool ZXGraph::write_pdf(string const& filename) const {
  * @return true
  * @return false
  */
-bool ZXGraph::write_tex(string const& filename) const {
+bool ZXGraph::write_tex(std::string const& filename) const {
     namespace fs = std::filesystem;
     fs::path filepath{filename};
 
@@ -384,7 +378,7 @@ bool ZXGraph::write_tex(string const& filename) const {
         }
     }
 
-    fstream tex_file{filepath, ios::out};
+    std::ofstream tex_file{filepath};
     if (!tex_file.is_open()) {
         LOGGER.error("Cannot open the file \"{}\"!!", filepath.string());
         return false;
@@ -400,8 +394,8 @@ bool ZXGraph::write_tex(string const& filename) const {
  * @return true if the filename is valid
  * @return false if not
  */
-bool ZXGraph::write_tex(ostream& filename) const {
-    string includes =
+bool ZXGraph::write_tex(std::ostream& filename) const {
+    constexpr std::string_view includes =
         "\\documentclass[a4paper,landscape]{article}\n"
         "\\usepackage[english]{babel}\n"
         "\\usepackage[top=2cm,bottom=2cm,left=1cm,right=1cm,marginparwidth=1.75cm]{geometry}"
@@ -421,3 +415,5 @@ bool ZXGraph::write_tex(ostream& filename) const {
     filename << "\\end{document}\n";
     return true;
 }
+
+}  // namespace qsyn::zx

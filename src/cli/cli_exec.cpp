@@ -19,7 +19,9 @@
 
 using std::string, std::vector;
 
-std::string const CommandLineInterface::special_chars = "\"\' ;$";
+namespace dvlab {
+
+std::string const dvlab::CommandLineInterface::special_chars = "\"\' ;$";
 
 //----------------------------------------------------------------------
 //    Member Function for class cmdParser
@@ -32,7 +34,7 @@ std::string const CommandLineInterface::special_chars = "\"\' ;$";
  * @return true
  * @return false
  */
-bool CommandLineInterface::open_dofile(std::string const& filepath) {
+bool dvlab::CommandLineInterface::open_dofile(std::string const& filepath) {
     constexpr size_t dofile_stack_limit = 256;
     if (this->stop_requested()) {
         return false;
@@ -55,7 +57,7 @@ bool CommandLineInterface::open_dofile(std::string const& filepath) {
  * @brief close the top dofile in the dofile stack.
  *
  */
-void CommandLineInterface::close_dofile() {
+void dvlab::CommandLineInterface::close_dofile() {
     assert(_dofile_stack.size());
     _dofile_stack.pop();
 }
@@ -69,7 +71,7 @@ void CommandLineInterface::close_dofile() {
  * @return true
  * @return false
  */
-bool CommandLineInterface::add_command(Command cmd) {
+bool dvlab::CommandLineInterface::add_command(dvlab::Command cmd) {
     // Make sure cmd hasn't been registered and won't cause ambiguity
     auto name = cmd.get_name();
     auto n_req_chars = _identifiers.shortest_unique_prefix(cmd.get_name()).size();
@@ -79,11 +81,11 @@ bool CommandLineInterface::add_command(Command cmd) {
     }
 
     if (_identifiers.contains(name)) {
-        LOGGER.error("Command name `{}` conflicts with existing commands or aliases!!", name);
+        LOGGER.error("dvlab::Command name `{}` conflicts with existing commands or aliases!!", name);
         return false;
     }
     _identifiers.insert(name);
-    _commands.emplace(name, std::make_unique<Command>(std::move(cmd)));
+    _commands.emplace(name, std::make_unique<dvlab::Command>(std::move(cmd)));
 
     for (auto& [name, c] : _commands) {
         if (auto n_req = _identifiers.shortest_unique_prefix(name).size(); n_req != c->get_num_required_chars()) {
@@ -93,7 +95,7 @@ bool CommandLineInterface::add_command(Command cmd) {
     return true;
 }
 
-bool CommandLineInterface::add_alias(std::string const& alias, std::string const& replace_str) {
+bool dvlab::CommandLineInterface::add_alias(std::string const& alias, std::string const& replace_str) {
     if (_identifiers.contains(alias)) {
         LOGGER.error("Alias `{}` conflicts with existing commands or aliases!!", alias);
         return false;
@@ -122,7 +124,7 @@ bool CommandLineInterface::add_alias(std::string const& alias, std::string const
     return true;
 }
 
-bool CommandLineInterface::remove_alias(std::string const& alias) {
+bool dvlab::CommandLineInterface::remove_alias(std::string const& alias) {
     if (!_identifiers.erase(alias)) {
         return false;
     }
@@ -142,7 +144,7 @@ bool CommandLineInterface::remove_alias(std::string const& alias) {
  *
  * @param signum
  */
-void CommandLineInterface::sigint_handler(int signum) {
+void dvlab::CommandLineInterface::sigint_handler(int signum) {
     if (_listening_for_inputs) {
         _reset_buffer();
         fmt::print("\n");
@@ -162,7 +164,7 @@ void CommandLineInterface::sigint_handler(int signum) {
  * @return CmdExecResult
  */
 CmdExecResult
-CommandLineInterface::execute_one_line() {
+dvlab::CommandLineInterface::execute_one_line() {
     while (_dofile_stack.size() && _dofile_stack.top().eof()) close_dofile();
     if (auto result = (_dofile_stack.size() ? _read_one_line(_dofile_stack.top()) : _read_one_line(std::cin)); result != CmdExecResult::done) {
         if (_dofile_stack.empty() && std::cin.eof()) return CmdExecResult::quit;
@@ -188,7 +190,7 @@ CommandLineInterface::execute_one_line() {
         _command_thread->join();
 
         if (this->stop_requested()) {
-            LOGGER.warning("Command interrupted");
+            LOGGER.warning("dvlab::Command interrupted");
             while (_command_queue.size()) _command_queue.pop();
             return CmdExecResult::interrupted;
         }
@@ -202,10 +204,10 @@ CommandLineInterface::execute_one_line() {
 /**
  * @brief parse one command from the command queue.
  *
- * @return std::pair<Command*, std::string> command object and the arguments for the command.
+ * @return std::pair<dvlab::Command*, std::string> command object and the arguments for the command.
  */
-std::pair<Command*, std::string>
-CommandLineInterface::_parse_one_command_from_queue() {
+std::pair<dvlab::Command*, std::string>
+dvlab::CommandLineInterface::_parse_one_command_from_queue() {
     assert(_temp_command_stored == false);
     string buffer = _command_queue.front();
     _command_queue.pop();
@@ -262,7 +264,7 @@ CommandLineInterface::_parse_one_command_from_queue() {
         }
     }
 
-    Command* command = get_command(first_token);
+    dvlab::Command* command = get_command(first_token);
 
     if (!command) {
         LOGGER.error("Illegal command!! ({})", first_token);
@@ -278,7 +280,7 @@ CommandLineInterface::_parse_one_command_from_queue() {
  * @param str the string to be converted
  * @return string a string with all variables substituted with their value.
  */
-string CommandLineInterface::_replace_variable_keys_with_values(string const& str) const {
+string dvlab::CommandLineInterface::_replace_variable_keys_with_values(string const& str) const {
     static std::regex const var_without_braces(R"(\$[\w]+)");  // if no curly braces, the variable name is until some illegal characters for a name appears
 
     static std::regex const var_with_braces(R"(\$\{\S+\})");  // if curly braces are used, the text inside the curly braces is the variable name
@@ -292,7 +294,7 @@ string CommandLineInterface::_replace_variable_keys_with_values(string const& st
     //       "${foo}${bar}" --> "banana"
 
     std::vector<std::tuple<size_t, size_t, string>> to_replace;
-
+    // FIXME - doesn't work for nested variables and multiple variables in one line
     for (auto const& re : {var_without_braces, var_with_braces}) {
         std::smatch matches;
         std::regex_search(str, matches, re);
@@ -339,10 +341,10 @@ string CommandLineInterface::_replace_variable_keys_with_values(string const& st
  * @brief return a command if and only if `cmd` is a prefix of the input string.
  *
  * @param cmd
- * @return Command*
+ * @return dvlab::Command*
  */
-Command* CommandLineInterface::get_command(string const& cmd) const {
-    Command* e = nullptr;
+dvlab::Command* dvlab::CommandLineInterface::get_command(string const& cmd) const {
+    dvlab::Command* e = nullptr;
 
     auto match = _identifiers.find_with_prefix(cmd);
     if (match.has_value()) {
@@ -351,3 +353,5 @@ Command* CommandLineInterface::get_command(string const& cmd) const {
 
     return nullptr;
 }
+
+}  // namespace dvlab

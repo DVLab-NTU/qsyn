@@ -90,14 +90,14 @@ public:
     inline static std::optional<LogLevel> str_to_log_level(std::string const& str) {
         using enum LogLevel;
         using namespace std::string_literals;
-        using dvlab::str::to_lower_string;
-        if ("none"s.starts_with(to_lower_string(str))) return none;
-        if ("fatal"s.starts_with(to_lower_string(str))) return fatal;
-        if ("error"s.starts_with(to_lower_string(str))) return error;
-        if ("warning"s.starts_with(to_lower_string(str))) return warning;
-        if ("info"s.starts_with(to_lower_string(str))) return info;
-        if ("debug"s.starts_with(to_lower_string(str))) return debug;
-        if ("trace"s.starts_with(to_lower_string(str))) return trace;
+        using dvlab::str::tolower_string;
+        if ("none"s.starts_with(tolower_string(str))) return none;
+        if ("fatal"s.starts_with(tolower_string(str))) return fatal;
+        if ("error"s.starts_with(tolower_string(str))) return error;
+        if ("warning"s.starts_with(tolower_string(str))) return warning;
+        if ("info"s.starts_with(tolower_string(str))) return info;
+        if ("debug"s.starts_with(tolower_string(str))) return debug;
+        if ("trace"s.starts_with(tolower_string(str))) return trace;
 
         return std::nullopt;
     }

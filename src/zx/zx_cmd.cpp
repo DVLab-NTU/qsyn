@@ -10,96 +10,63 @@
 #include <cassert>
 #include <cstddef>
 #include <filesystem>
+#include <functional>
 #include <string>
 
-#include "./to_tensor.hpp"
 #include "./zxgraph_mgr.hpp"
 #include "tensor/tensor_mgr.hpp"
 #include "zx/zx_def.hpp"
+#include "zx/zxgraph.hpp"
 
-using namespace std;
+using namespace dvlab::argparse;
+using dvlab::CmdExecResult;
+using dvlab::Command;
 
-ZXGraphMgr ZXGRAPH_MGR{"ZXGraph"};
-extern TensorMgr TENSOR_MGR;
-using namespace argparse;
+namespace qsyn::zx {
 
-Command zxgraph_checkout_cmd();
-Command zxgraph_new_cmd();
-Command zxgraph_mgr_reset_cmd();
-Command zxgraph_delete_cmd();
-Command zxgraph_mgr_print_cmd();
-Command zxgraph_copy_cmd();
-Command zxgraph_compose_cmd();
-Command zxgraph_tensor_product_cmd();
-Command zxgraph_traverse_cmd();
-Command zxgraph_to_tensor_cmd();
-Command zxgraph_adjoint_cmd();
-Command zxgraph_test_cmd();
-Command zxgraph_draw_cmd();
-Command zxgraph_print_cmd();
-Command zxgraph_edit_cmd();
-Command zxgraph_read_cmd();
-Command zxgraph_write_cmd();
-Command zxgraph_assign_boundary_cmd();
-
-bool add_zx_cmds() {
-    if (!(CLI.add_command(zxgraph_checkout_cmd()) &&
-          CLI.add_command(zxgraph_new_cmd()) &&
-          CLI.add_command(zxgraph_mgr_reset_cmd()) &&
-          CLI.add_command(zxgraph_delete_cmd()) &&
-          CLI.add_command(zxgraph_copy_cmd()) &&
-          CLI.add_command(zxgraph_compose_cmd()) &&
-          CLI.add_command(zxgraph_tensor_product_cmd()) &&
-          CLI.add_command(zxgraph_mgr_print_cmd()) &&
-          CLI.add_command(zxgraph_print_cmd()) &&
-          CLI.add_command(zxgraph_test_cmd()) &&
-          CLI.add_command(zxgraph_edit_cmd()) &&
-          CLI.add_command(zxgraph_adjoint_cmd()) &&
-          CLI.add_command(zxgraph_assign_boundary_cmd()) &&
-          CLI.add_command(zxgraph_traverse_cmd()) &&
-          CLI.add_command(zxgraph_draw_cmd()) &&
-          CLI.add_command(zxgraph_to_tensor_cmd()) &&
-          CLI.add_command(zxgraph_read_cmd()) &&
-          CLI.add_command(zxgraph_write_cmd()))) {
-        cerr << "Registering \"zx\" commands fails... exiting" << endl;
+std::function<bool(size_t const&)> valid_zxgraph_id(ZXGraphMgr const& zxgraph_mgr) {
+    return [&](size_t const& id) {
+        if (zxgraph_mgr.is_id(id)) return true;
+        LOGGER.error("ZXGraph {} does not exist!!", id);
         return false;
-    }
-    return true;
+    };
 }
 
-bool valid_zxgraph_id(size_t const& id) {
-    if (ZXGRAPH_MGR.is_id(id)) return true;
-    LOGGER.error("ZXGraph {} does not exist!!", id);
-    return false;
-};
+std::function<bool(size_t const&)> valid_zxvertex_id(ZXGraphMgr const& zxgraph_mgr) {
+    return [&](size_t const& id) {
+        if (zxgraph_mgr.get()->is_v_id(id)) return true;
+        LOGGER.error("Cannot find vertex with ID {} in the ZXGraph!!", id);
+        return false;
+    };
+}
 
-bool zxgraph_id_not_exist(size_t const& id) {
-    if (!ZXGRAPH_MGR.is_id(id)) return true;
-    LOGGER.error("ZXGraph {} already exists!!", id);
-    LOGGER.info("Use `-Replace` if you want to overwrite it.");
-    return false;
-};
+std::function<bool(size_t const&)> zxgraph_id_not_exist(ZXGraphMgr const& zxgraph_mgr) {
+    return [&](size_t const& id) {
+        if (!zxgraph_mgr.is_id(id)) return true;
+        LOGGER.error("ZXGraph {} already exists!!", id);
+        LOGGER.info("Use `-Replace` if you want to overwrite it.");
+        return false;
+    };
+}
 
-bool valid_zxvertex_id(size_t const& id) {
-    if (ZXGRAPH_MGR.get()->is_v_id(id)) return true;
-    LOGGER.error("Cannot find vertex with ID {} in the ZXGraph!!", id);
-    return false;
-};
+std::function<bool(int const&)> zxgraph_input_qubit_not_exist(ZXGraphMgr const& zxgraph_mgr) {
+    return [&](int const& qid) {
+        if (!zxgraph_mgr.get()->is_input_qubit(qid)) return true;
+        LOGGER.error("This qubit's input already exists!!");
+        return false;
+    };
+}
 
-bool zxgraph_input_qubit_not_exist(size_t const& qid) {
-    if (!ZXGRAPH_MGR.get()->is_input_qubit(qid)) return true;
-    LOGGER.error("This qubit's input already exists!!");
-    return false;
-};
+std::function<bool(int const&)> zxgraph_output_qubit_not_exist(ZXGraphMgr const& zxgraph_mgr) {
+    return [&](int const& qid) {
+        if (!zxgraph_mgr.get()->is_output_qubit(qid)) return true;
+        LOGGER.error("This qubit's output already exists!!");
+        return false;
+    };
+}
 
-bool zxgraph_output_qubit_not_exist(size_t const& qid) {
-    if (!ZXGRAPH_MGR.get()->is_output_qubit(qid)) return true;
-    LOGGER.error("This qubit's output already exists!!");
-    return false;
-};
-
-bool zxgraph_mgr_not_empty() {
-    if (ZXGRAPH_MGR.empty()) {
+bool zxgraph_mgr_not_empty(ZXGraphMgr const& zxgraph_mgr) {
+    if (zxgraph_mgr.empty()) {
         LOGGER.error("ZXGraph list is empty. Please create a ZXGraph first!!");
         LOGGER.info("Use ZXNew to add a new ZXGraph, or ZXGRead to read a ZXGraph from a file.");
         return false;
@@ -110,17 +77,17 @@ bool zxgraph_mgr_not_empty() {
 //----------------------------------------------------------------------
 //    ZXCHeckout <(size_t id)>
 //----------------------------------------------------------------------
-Command zxgraph_checkout_cmd() {
+Command zxgraph_checkout_cmd(ZXGraphMgr& zxgraph_mgr) {
     return {"zxcheckout",
-            [](ArgumentParser& parser) {
+            [&](ArgumentParser& parser) {
                 parser.description("checkout to Graph <id> in ZXGraphMgr");
                 parser.add_argument<size_t>("id")
-                    .constraint(valid_zxgraph_id)
+                    .constraint(valid_zxgraph_id(zxgraph_mgr))
                     .help("the ID of the ZXGraph");
             },
-            [](ArgumentParser const& parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
-                ZXGRAPH_MGR.checkout(parser.get<size_t>("id"));
+            [&](ArgumentParser const& parser) {
+                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                zxgraph_mgr.checkout(parser.get<size_t>("id"));
                 return CmdExecResult::done;
             }};
 }
@@ -128,7 +95,7 @@ Command zxgraph_checkout_cmd() {
 //----------------------------------------------------------------------
 //    ZXNew [(size_t id)]
 //----------------------------------------------------------------------
-Command zxgraph_new_cmd() {
+Command zxgraph_new_cmd(ZXGraphMgr& zxgraph_mgr) {
     return {"zxnew",
             [](ArgumentParser& parser) {
                 parser.description("create a new ZXGraph to ZXGraphMgr");
@@ -141,18 +108,18 @@ Command zxgraph_new_cmd() {
                     .action(store_true)
                     .help("if specified, replace the current ZXGraph; otherwise store to a new one");
             },
-            [](ArgumentParser const& parser) {
-                size_t id = (parser.parsed("id")) ? parser.get<size_t>("id") : ZXGRAPH_MGR.get_next_id();
+            [&](ArgumentParser const& parser) {
+                size_t id = (parser.parsed("id")) ? parser.get<size_t>("id") : zxgraph_mgr.get_next_id();
 
-                if (ZXGRAPH_MGR.is_id(id)) {
+                if (zxgraph_mgr.is_id(id)) {
                     if (!parser.parsed("-Replace")) {
                         LOGGER.error("ZXGraph {} already exists!! Specify `-Replace` if needed.", id);
                         return CmdExecResult::error;
                     }
-                    ZXGRAPH_MGR.set(make_unique<ZXGraph>());
+                    zxgraph_mgr.set(std::make_unique<ZXGraph>());
                     return CmdExecResult::done;
                 } else {
-                    ZXGRAPH_MGR.add(id);
+                    zxgraph_mgr.add(id);
                 }
 
                 return CmdExecResult::done;
@@ -162,13 +129,13 @@ Command zxgraph_new_cmd() {
 //----------------------------------------------------------------------
 //    ZXReset
 //----------------------------------------------------------------------
-Command zxgraph_mgr_reset_cmd() {
+Command zxgraph_mgr_reset_cmd(ZXGraphMgr& zxgraph_mgr) {
     return {"zxreset",
             [](ArgumentParser& parser) {
                 parser.description("reset ZXGraphMgr");
             },
-            [](ArgumentParser const& /*parser*/) {
-                ZXGRAPH_MGR.reset();
+            [&](ArgumentParser const& /*parser*/) {
+                zxgraph_mgr.reset();
                 return CmdExecResult::done;
             }};
 }
@@ -176,18 +143,18 @@ Command zxgraph_mgr_reset_cmd() {
 //----------------------------------------------------------------------
 //    ZXDelete <(size_t id)>
 //----------------------------------------------------------------------
-Command zxgraph_delete_cmd() {
+Command zxgraph_delete_cmd(ZXGraphMgr& zxgraph_mgr) {
     return {"zxdelete",
-            [](ArgumentParser& parser) {
+            [&](ArgumentParser& parser) {
                 parser.description("remove a ZXGraph from ZXGraphMgr");
 
                 parser.add_argument<size_t>("id")
-                    .constraint(valid_zxgraph_id)
+                    .constraint(valid_zxgraph_id(zxgraph_mgr))
                     .help("the ID of the ZXGraph");
             },
-            [](ArgumentParser const& parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
-                ZXGRAPH_MGR.remove(parser.get<size_t>("id"));
+            [&](ArgumentParser const& parser) {
+                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                zxgraph_mgr.remove(parser.get<size_t>("id"));
                 return CmdExecResult::done;
             }};
 }
@@ -195,7 +162,7 @@ Command zxgraph_delete_cmd() {
 //----------------------------------------------------------------------
 //    ZXPrint [-Summary | -Focus | -Num]
 //----------------------------------------------------------------------
-Command zxgraph_mgr_print_cmd() {
+Command zxgraph_mgr_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
     return {"zxprint",
             [](ArgumentParser& parser) {
                 parser.description("print info about ZXGraphs");
@@ -208,13 +175,13 @@ Command zxgraph_mgr_print_cmd() {
                     .action(store_true)
                     .help("print a list of ZXGraphs");
             },
-            [](ArgumentParser const& parser) {
+            [&](ArgumentParser const& parser) {
                 if (parser.parsed("-focus"))
-                    ZXGRAPH_MGR.print_focus();
+                    zxgraph_mgr.print_focus();
                 else if (parser.parsed("-list"))
-                    ZXGRAPH_MGR.print_list();
+                    zxgraph_mgr.print_list();
                 else
-                    ZXGRAPH_MGR.print_manager();
+                    zxgraph_mgr.print_manager();
                 return CmdExecResult::done;
             }};
 }
@@ -222,7 +189,7 @@ Command zxgraph_mgr_print_cmd() {
 //----------------------------------------------------------------------
 //    ZXCOPy [(size_t id)]
 //----------------------------------------------------------------------
-Command zxgraph_copy_cmd() {
+Command zxgraph_copy_cmd(ZXGraphMgr& zxgraph_mgr) {
     return {"zxcopy",
             [](ArgumentParser& parser) {
                 parser.description("copy a ZXGraph to ZXGraphMgr");
@@ -235,19 +202,19 @@ Command zxgraph_copy_cmd() {
                     .action(store_true)
                     .help("replace the current focused ZXGraph");
             },
-            [](ArgumentParser const& parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
-                size_t id = (parser.parsed("id")) ? parser.get<size_t>("id") : ZXGRAPH_MGR.get_next_id();
-                if (ZXGRAPH_MGR.is_id(id)) {
+            [&](ArgumentParser const& parser) {
+                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                size_t id = (parser.parsed("id")) ? parser.get<size_t>("id") : zxgraph_mgr.get_next_id();
+                if (zxgraph_mgr.is_id(id)) {
                     if (!parser.parsed("-replace")) {
                         LOGGER.error("ZXGraph {} already exists!! Specify `-Replace` if needed.", id);
                         return CmdExecResult::error;
                     }
-                    ZXGRAPH_MGR.copy(id);
+                    zxgraph_mgr.copy(id);
                     return CmdExecResult::done;
                 }
 
-                ZXGRAPH_MGR.copy(id);
+                zxgraph_mgr.copy(id);
                 return CmdExecResult::done;
             }};
 }
@@ -255,18 +222,18 @@ Command zxgraph_copy_cmd() {
 //----------------------------------------------------------------------
 //    ZXCOMpose <size_t id>
 //----------------------------------------------------------------------
-Command zxgraph_compose_cmd() {
+Command zxgraph_compose_cmd(ZXGraphMgr& zxgraph_mgr) {
     return {"zxcompose",
-            [](ArgumentParser& parser) {
+            [&](ArgumentParser& parser) {
                 parser.description("compose a ZXGraph");
 
                 parser.add_argument<size_t>("id")
-                    .constraint(valid_zxgraph_id)
+                    .constraint(valid_zxgraph_id(zxgraph_mgr))
                     .help("the ID of the ZXGraph to compose with");
             },
-            [](ArgumentParser const& parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
-                ZXGRAPH_MGR.get()->compose(*ZXGRAPH_MGR.find_by_id(parser.get<size_t>("id")));
+            [&](ArgumentParser const& parser) {
+                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                zxgraph_mgr.get()->compose(*zxgraph_mgr.find_by_id(parser.get<size_t>("id")));
                 return CmdExecResult::done;
             }};
 }
@@ -274,18 +241,18 @@ Command zxgraph_compose_cmd() {
 //----------------------------------------------------------------------
 //    ZXTensor <size_t id>
 //----------------------------------------------------------------------
-Command zxgraph_tensor_product_cmd() {
+Command zxgraph_tensor_product_cmd(ZXGraphMgr& zxgraph_mgr) {
     return {"zxtensor",
-            [](ArgumentParser& parser) {
+            [&](ArgumentParser& parser) {
                 parser.description("tensor a ZXGraph");
 
                 parser.add_argument<size_t>("id")
-                    .constraint(valid_zxgraph_id)
+                    .constraint(valid_zxgraph_id(zxgraph_mgr))
                     .help("the ID of the ZXGraph");
             },
-            [](ArgumentParser const& parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
-                ZXGRAPH_MGR.get()->tensor_product(*ZXGRAPH_MGR.find_by_id(parser.get<size_t>("id")));
+            [&](ArgumentParser const& parser) {
+                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                zxgraph_mgr.get()->tensor_product(*zxgraph_mgr.find_by_id(parser.get<size_t>("id")));
                 return CmdExecResult::done;
             }};
 }
@@ -293,7 +260,7 @@ Command zxgraph_tensor_product_cmd() {
 //----------------------------------------------------------------------
 //    ZXGTest [-Empty | -Valid | -GLike | -IDentity]
 //----------------------------------------------------------------------
-Command zxgraph_test_cmd() {
+Command zxgraph_test_cmd(ZXGraphMgr const& zxgraph_mgr) {
     return {"zxgtest",
             [](ArgumentParser& parser) {
                 parser.description("test ZXGraph structures and functions");
@@ -313,28 +280,28 @@ Command zxgraph_test_cmd() {
                     .action(store_true)
                     .help("check if the ZXGraph is equivalent to identity");
             },
-            [](ArgumentParser const& parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
+            [&](ArgumentParser const& parser) {
+                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
                 if (parser.parsed("-empty")) {
-                    if (ZXGRAPH_MGR.get()->is_empty())
-                        cout << "The graph is empty!" << endl;
+                    if (zxgraph_mgr.get()->is_empty())
+                        std::cout << "The graph is empty!" << std::endl;
                     else
-                        cout << "The graph is not empty!" << endl;
+                        std::cout << "The graph is not empty!" << std::endl;
                 } else if (parser.parsed("-valid")) {
-                    if (ZXGRAPH_MGR.get()->is_valid())
-                        cout << "The graph is valid!" << endl;
+                    if (zxgraph_mgr.get()->is_valid())
+                        std::cout << "The graph is valid!" << std::endl;
                     else
-                        cout << "The graph is invalid!" << endl;
+                        std::cout << "The graph is invalid!" << std::endl;
                 } else if (parser.parsed("-glike")) {
-                    if (ZXGRAPH_MGR.get()->is_graph_like())
-                        cout << "The graph is graph-like!" << endl;
+                    if (zxgraph_mgr.get()->is_graph_like())
+                        std::cout << "The graph is graph-like!" << std::endl;
                     else
-                        cout << "The graph is not graph-like!" << endl;
+                        std::cout << "The graph is not graph-like!" << std::endl;
                 } else if (parser.parsed("-identity")) {
-                    if (ZXGRAPH_MGR.get()->is_identity())
-                        cout << "The graph is an identity!" << endl;
+                    if (zxgraph_mgr.get()->is_identity())
+                        std::cout << "The graph is an identity!" << std::endl;
                     else
-                        cout << "The graph is not an identity!" << endl;
+                        std::cout << "The graph is not an identity!" << std::endl;
                 }
                 return CmdExecResult::done;
             }};
@@ -343,9 +310,9 @@ Command zxgraph_test_cmd() {
 //-----------------------------------------------------------------------------------------------------------
 //    ZXGPrint [-Summary | -Inputs | -Outputs | -Vertices | -Edges | -Qubits | -Neighbors | -Analysis | -Density]
 //-----------------------------------------------------------------------------------------------------------
-Command zxgraph_print_cmd() {
+Command zxgraph_print_cmd(ZXGraphMgr const& zxgraph_mgr) {
     return {"zxgprint",
-            [](ArgumentParser& parser) {
+            [&](ArgumentParser& parser) {
                 parser.description("print info of ZXGraph");
 
                 auto mutex = parser.add_mutually_exclusive_group();
@@ -366,7 +333,7 @@ Command zxgraph_print_cmd() {
                     .help("print the output info of ZXGraph");
                 mutex.add_argument<size_t>("-vertices")
                     .nargs(NArgsOption::zero_or_more)
-                    .constraint(valid_zxvertex_id)
+                    .constraint(valid_zxvertex_id(zxgraph_mgr))
                     .help("print the vertex info of ZXGraph");
                 mutex.add_argument<bool>("-edges")
                     .action(store_true)
@@ -375,57 +342,57 @@ Command zxgraph_print_cmd() {
                     .nargs(NArgsOption::zero_or_more)
                     .help("print the qubit info of ZXGraph");
                 mutex.add_argument<size_t>("-neighbors")
-                    .constraint(valid_zxvertex_id)
+                    .constraint(valid_zxvertex_id(zxgraph_mgr))
                     .help("print the neighbor info of ZXGraph");
                 mutex.add_argument<bool>("-density")
                     .action(store_true)
                     .help("print the density of ZXGraph");
             },
 
-            [](ArgumentParser const& parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
+            [&](ArgumentParser const& parser) {
+                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
                 if (parser.parsed("-summary")) {
-                    ZXGRAPH_MGR.get()->print_graph();
-                    fmt::println("{:<29} {}", "#T-gate:", ZXGRAPH_MGR.get()->t_count());
-                    fmt::println("{:<29} {}", "#Non-(Clifford+T)-gate: ", ZXGRAPH_MGR.get()->non_clifford_t_count());
-                    fmt::println("{:<29} {}", "#Non-Clifford-gate: ", ZXGRAPH_MGR.get()->non_clifford_count());
+                    zxgraph_mgr.get()->print_graph();
+                    fmt::println("{:<29} {}", "#T-gate:", zxgraph_mgr.get()->t_count());
+                    fmt::println("{:<29} {}", "#Non-(Clifford+T)-gate: ", zxgraph_mgr.get()->non_clifford_t_count());
+                    fmt::println("{:<29} {}", "#Non-Clifford-gate: ", zxgraph_mgr.get()->non_clifford_count());
                 } else if (parser.parsed("-io"))
-                    ZXGRAPH_MGR.get()->print_io();
+                    zxgraph_mgr.get()->print_io();
                 else if (parser.parsed("-list"))
-                    ZXGRAPH_MGR.print_list();
+                    zxgraph_mgr.print_list();
                 else if (parser.parsed("-inputs"))
-                    ZXGRAPH_MGR.get()->print_inputs();
+                    zxgraph_mgr.get()->print_inputs();
                 else if (parser.parsed("-outputs"))
-                    ZXGRAPH_MGR.get()->print_outputs();
+                    zxgraph_mgr.get()->print_outputs();
                 else if (parser.parsed("-vertices")) {
-                    auto vids = parser.get<vector<size_t>>("-vertices");
+                    auto vids = parser.get<std::vector<size_t>>("-vertices");
                     if (vids.empty())
-                        ZXGRAPH_MGR.get()->print_vertices();
+                        zxgraph_mgr.get()->print_vertices();
                     else
-                        ZXGRAPH_MGR.get()->print_vertices(vids);
+                        zxgraph_mgr.get()->print_vertices(vids);
                 } else if (parser.parsed("-edges"))
-                    ZXGRAPH_MGR.get()->print_edges();
+                    zxgraph_mgr.get()->print_edges();
                 else if (parser.parsed("-qubits")) {
-                    auto qids = parser.get<vector<int>>("-qubits");
-                    ZXGRAPH_MGR.get()->print_qubits(qids);
+                    auto qids = parser.get<std::vector<int>>("-qubits");
+                    zxgraph_mgr.get()->print_qubits(qids);
                 } else if (parser.parsed("-neighbors")) {
-                    auto v = ZXGRAPH_MGR.get()->find_vertex_by_id(parser.get<size_t>("-neighbors"));
+                    auto v = zxgraph_mgr.get()->find_vertex_by_id(parser.get<size_t>("-neighbors"));
                     v->print_vertex();
-                    cout << "----- Neighbors -----" << endl;
+                    std::cout << "----- Neighbors -----" << std::endl;
                     for (auto [nb, _] : v->get_neighbors()) {
                         nb->print_vertex();
                     }
                 } else if (parser.parsed("-density")) {
-                    cout << "Density: " << ZXGRAPH_MGR.get()->density() << endl;
+                    std::cout << "Density: " << zxgraph_mgr.get()->density() << std::endl;
                 } else
-                    ZXGRAPH_MGR.get()->print_graph();
+                    zxgraph_mgr.get()->print_graph();
                 return CmdExecResult::done;
             }};
 }
 
-Command zxgraph_edit_cmd() {
+Command zxgraph_edit_cmd(ZXGraphMgr& zxgraph_mgr) {
     return {"zxgedit",
-            [](ArgumentParser& parser) {
+            [&](ArgumentParser& parser) {
                 parser.description("edit ZXGraph");
 
                 auto subparsers = parser.add_subparsers().required(true);
@@ -435,7 +402,7 @@ Command zxgraph_edit_cmd() {
                 auto rmv_mutex = remove_vertex_parser.add_mutually_exclusive_group().required(true);
 
                 rmv_mutex.add_argument<size_t>("ids")
-                    .constraint(valid_zxvertex_id)
+                    .constraint(valid_zxvertex_id(zxgraph_mgr))
                     .nargs(NArgsOption::zero_or_more)
                     .help("the IDs of vertices to remove");
 
@@ -447,20 +414,20 @@ Command zxgraph_edit_cmd() {
 
                 remove_edge_parser.add_argument<size_t>("ids")
                     .nargs(2)
-                    .constraint(valid_zxvertex_id)
+                    .constraint(valid_zxvertex_id(zxgraph_mgr))
                     .metavar("(vs, vt)")
                     .help("the IDs to the two vertices to remove edges in between");
 
-                remove_edge_parser.add_argument<string>("etype")
+                remove_edge_parser.add_argument<std::string>("etype")
                     .constraint(choices_allow_prefix({"simple", "hadamard", "all"}))
                     .help("the edge type to remove. Options: simple, hadamard, all (i.e., remove both)");
 
                 auto add_vertex_parser = subparsers.add_parser("-addvertex");
 
-                add_vertex_parser.add_argument<size_t>("qubit")
+                add_vertex_parser.add_argument<int>("qubit")
                     .help("the qubit ID the ZXVertex belongs to");
 
-                add_vertex_parser.add_argument<string>("vtype")
+                add_vertex_parser.add_argument<std::string>("vtype")
                     .constraint(choices_allow_prefix({"zspider", "xspider", "hbox"}))
                     .help("the type of ZXVertex");
 
@@ -471,61 +438,61 @@ Command zxgraph_edit_cmd() {
 
                 auto add_input_parser = subparsers.add_parser("-addinput");
 
-                add_input_parser.add_argument<size_t>("qubit")
-                    .constraint(zxgraph_input_qubit_not_exist)
+                add_input_parser.add_argument<int>("qubit")
+                    .constraint(zxgraph_input_qubit_not_exist(zxgraph_mgr))
                     .help("the qubit ID of the input");
 
                 auto add_output_parser = subparsers.add_parser("-addoutput");
 
-                add_output_parser.add_argument<size_t>("qubit")
-                    .constraint(zxgraph_output_qubit_not_exist)
+                add_output_parser.add_argument<int>("qubit")
+                    .constraint(zxgraph_output_qubit_not_exist(zxgraph_mgr))
                     .help("the qubit ID of the output");
 
                 auto add_edge_parser = subparsers.add_parser("-addedge");
 
                 add_edge_parser.add_argument<size_t>("ids")
                     .nargs(2)
-                    .constraint(valid_zxvertex_id)
+                    .constraint(valid_zxvertex_id(zxgraph_mgr))
                     .metavar("(vs, vt)")
                     .help("the IDs to the two vertices to add edges in between");
 
-                add_edge_parser.add_argument<string>("etype")
+                add_edge_parser.add_argument<std::string>("etype")
                     .constraint(choices_allow_prefix({"simple", "hadamard"}))
                     .help("the edge type to add. Options: simple, hadamard");
             },
-            [](ArgumentParser const& parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
+            [&](ArgumentParser const& parser) {
+                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
                 if (parser.used_subparser("-rmvertex")) {
                     if (parser.parsed("ids")) {
-                        auto ids = parser.get<vector<size_t>>("ids");
+                        auto ids = parser.get<std::vector<size_t>>("ids");
                         auto vertices_range = ids |
-                                              views::transform([](size_t id) { return ZXGRAPH_MGR.get()->find_vertex_by_id(id); }) |
-                                              views::filter([](ZXVertex* v) { return v != nullptr; });
+                                              std::views::transform([&](size_t id) { return zxgraph_mgr.get()->find_vertex_by_id(id); }) |
+                                              std::views::filter([](ZXVertex* v) { return v != nullptr; });
                         for (auto&& v : vertices_range) {
                             LOGGER.info("Removing vertex {}...", v->get_id());
                         }
 
-                        ZXGRAPH_MGR.get()->remove_vertices({vertices_range.begin(), vertices_range.end()});
+                        zxgraph_mgr.get()->remove_vertices({vertices_range.begin(), vertices_range.end()});
                     } else if (parser.parsed("-isolated")) {
                         LOGGER.info("Removing isolated vertices...");
-                        ZXGRAPH_MGR.get()->remove_isolated_vertices();
+                        zxgraph_mgr.get()->remove_isolated_vertices();
                     }
                     return CmdExecResult::done;
                 }
                 if (parser.used_subparser("-rmedge")) {
                     auto ids = parser.get<std::vector<size_t>>("ids");
-                    auto v0 = ZXGRAPH_MGR.get()->find_vertex_by_id(ids[0]);
-                    auto v1 = ZXGRAPH_MGR.get()->find_vertex_by_id(ids[1]);
+                    auto v0 = zxgraph_mgr.get()->find_vertex_by_id(ids[0]);
+                    auto v1 = zxgraph_mgr.get()->find_vertex_by_id(ids[1]);
                     assert(v0 != nullptr && v1 != nullptr);
 
                     auto etype = str_to_edge_type(parser.get<std::string>("etype"));
 
                     if (etype.has_value()) {
                         LOGGER.info("Removing edge ({}, {}), edge type: {}...", v0->get_id(), v1->get_id(), etype.value());
-                        ZXGRAPH_MGR.get()->remove_edge(v0, v1, etype.value());
+                        zxgraph_mgr.get()->remove_edge(v0, v1, etype.value());
                     } else {
                         LOGGER.info("Removing all edges between ({}, {})...", v0->get_id(), v1->get_id());
-                        ZXGRAPH_MGR.get()->remove_all_edges_between(v0, v1);
+                        zxgraph_mgr.get()->remove_all_edges_between(v0, v1);
                     }
 
                     return CmdExecResult::done;
@@ -534,24 +501,24 @@ Command zxgraph_edit_cmd() {
                     auto vtype = str_to_vertex_type(parser.get<std::string>("vtype"));
                     assert(vtype.has_value());
 
-                    auto v = ZXGRAPH_MGR.get()->add_vertex(parser.get<size_t>("qubit"), vtype.value(), parser.get<Phase>("phase"));
+                    auto v = zxgraph_mgr.get()->add_vertex(parser.get<int>("qubit"), vtype.value(), parser.get<Phase>("phase"));
                     LOGGER.info("Adding vertex {}...", v->get_id());
                     return CmdExecResult::done;
                 }
                 if (parser.used_subparser("-addinput")) {
-                    auto i = ZXGRAPH_MGR.get()->add_input(parser.get<size_t>("qubit"));
+                    auto i = zxgraph_mgr.get()->add_input(parser.get<int>("qubit"));
                     LOGGER.info("Adding input {}...", i->get_id());
                     return CmdExecResult::done;
                 }
                 if (parser.used_subparser("-addoutput")) {
-                    auto o = ZXGRAPH_MGR.get()->add_output(parser.get<size_t>("qubit"));
+                    auto o = zxgraph_mgr.get()->add_output(parser.get<int>("qubit"));
                     LOGGER.info("Adding output {}...", o->get_id());
                     return CmdExecResult::done;
                 }
                 if (parser.used_subparser("-addedge")) {
                     auto ids = parser.get<std::vector<size_t>>("ids");
-                    auto vs = ZXGRAPH_MGR.get()->find_vertex_by_id(ids[0]);
-                    auto vt = ZXGRAPH_MGR.get()->find_vertex_by_id(ids[1]);
+                    auto vs = zxgraph_mgr.get()->find_vertex_by_id(ids[0]);
+                    auto vt = zxgraph_mgr.get()->find_vertex_by_id(ids[1]);
                     assert(vs != nullptr && vt != nullptr);
 
                     auto etype = str_to_edge_type(parser.get<std::string>("etype"));
@@ -564,7 +531,7 @@ Command zxgraph_edit_cmd() {
 
                     bool had_edge = vs->is_neighbor(vt, etype.value());
 
-                    ZXGRAPH_MGR.get()->add_edge(vs, vt, etype.value());
+                    zxgraph_mgr.get()->add_edge(vs, vt, etype.value());
 
                     if (vs == vt) {
                         LOGGER.info("Note: converting this self-loop to phase {} on vertex {}...", etype.value() == EdgeType::hadamard ? Phase(1) : Phase(0), vs->get_id());
@@ -588,14 +555,14 @@ Command zxgraph_edit_cmd() {
 //----------------------------------------------------------------------
 //    ZXGTRaverse
 //----------------------------------------------------------------------
-Command zxgraph_traverse_cmd() {
+Command zxgraph_traverse_cmd(ZXGraphMgr& zxgraph_mgr) {
     return {"zxgtraverse",
             [](ArgumentParser& parser) {
                 parser.description("traverse ZXGraph and update topological order of vertices");
             },
-            [](ArgumentParser const& /*parser*/) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
-                ZXGRAPH_MGR.get()->update_topological_order();
+            [&](ArgumentParser const& /*parser*/) {
+                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                zxgraph_mgr.get()->update_topological_order();
                 return CmdExecResult::done;
             }};
 }
@@ -605,12 +572,12 @@ Command zxgraph_traverse_cmd() {
 //    ZXGDraw <string (path.pdf)>
 //----------------------------------------------------------------------
 
-Command zxgraph_draw_cmd() {
+Command zxgraph_draw_cmd(ZXGraphMgr const& zxgraph_mgr) {
     return {"zxgdraw",
             [](ArgumentParser& parser) {
                 parser.description("draw ZXGraph");
 
-                parser.add_argument<string>("filepath")
+                parser.add_argument<std::string>("filepath")
                     .nargs(NArgsOption::optional)
                     .constraint(path_writable)
                     .constraint(allowed_extension({".pdf"}))
@@ -620,65 +587,13 @@ Command zxgraph_draw_cmd() {
                     .action(store_true)
                     .help("print to the terminal. Note that only horizontal wires will be printed");
             },
-            [](ArgumentParser const& parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
+            [&](ArgumentParser const& parser) {
+                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
                 if (parser.parsed("filepath")) {
-                    if (!ZXGRAPH_MGR.get()->write_pdf(parser.get<string>("filepath"))) return CmdExecResult::error;
+                    if (!zxgraph_mgr.get()->write_pdf(parser.get<std::string>("filepath"))) return CmdExecResult::error;
                 }
                 if (parser.parsed("-cli")) {
-                    ZXGRAPH_MGR.get()->draw();
-                }
-
-                return CmdExecResult::done;
-            }};
-}
-
-//----------------------------------------------------------------------
-//    ZX2TS
-//----------------------------------------------------------------------
-Command zxgraph_to_tensor_cmd() {
-    return {"zx2ts",
-            [](ArgumentParser& parser) {
-                parser.description("convert ZXGraph to tensor");
-
-                parser.add_argument<size_t>("-zx")
-                    .metavar("id")
-                    .constraint(valid_zxgraph_id)
-                    .help("the ID of the ZXGraph to be converted. If not specified, the focused ZXGraph is used");
-
-                parser.add_argument<size_t>("-ts")
-                    .metavar("id")
-                    .help("the ID of the target tensor. If not specified, an ID is automatically assigned");
-
-                parser.add_argument<bool>("-replace")
-                    .action(store_true)
-                    .help("replace the target tensor if the tensor ID is occupied");
-            },
-            [](ArgumentParser const& parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
-                auto zx_id = parser.parsed("-zx") ? parser.get<size_t>("-zx") : ZXGRAPH_MGR.focused_id();
-                auto zx = ZXGRAPH_MGR.find_by_id(zx_id);
-
-                auto ts_id = parser.parsed("-ts") ? parser.get<size_t>("-ts") : TENSOR_MGR.get_next_id();
-
-                if (TENSOR_MGR.is_id(ts_id) && !parser.parsed("-replace")) {
-                    LOGGER.error("Tensor {} already exists!! Specify `-Replace` if you intend to replace the current one.", ts_id);
-                    return CmdExecResult::error;
-                }
-                LOGGER.info("Converting ZXGraph {} to Tensor {}...", zx_id, ts_id);
-                auto tensor = to_tensor(*zx);
-
-                if (tensor.has_value()) {
-                    if (!TENSOR_MGR.is_id(ts_id)) {
-                        TENSOR_MGR.add(ts_id, std::make_unique<QTensor<double>>(std::move(tensor.value())));
-                    } else {
-                        TENSOR_MGR.checkout(ts_id);
-                        TENSOR_MGR.set(std::make_unique<QTensor<double>>(std::move(tensor.value())));
-                    }
-
-                    TENSOR_MGR.get()->set_filename(zx->get_filename());
-                    TENSOR_MGR.get()->add_procedures(zx->get_procedures());
-                    TENSOR_MGR.get()->add_procedure("ZX2TS");
+                    zxgraph_mgr.get()->draw();
                 }
 
                 return CmdExecResult::done;
@@ -689,12 +604,12 @@ Command zxgraph_to_tensor_cmd() {
 //    ZXGRead <string Input.(b)zx> [-KEEPid] [-Replace]
 //----------------------------------------------------------------------
 
-Command zxgraph_read_cmd() {
+Command zxgraph_read_cmd(ZXGraphMgr& zxgraph_mgr) {
     return {"zxgread",
-            [](ArgumentParser& parser) {
+            [&](ArgumentParser& parser) {
                 parser.description("read a file and construct the corresponding ZXGraph");
 
-                parser.add_argument<string>("filepath")
+                parser.add_argument<std::string>("filepath")
                     .constraint(path_readable)
                     .constraint(allowed_extension({".zx", ".bzx"}))
                     .help("path to the ZX file. Supported extensions: .zx, .bzx");
@@ -705,41 +620,41 @@ Command zxgraph_read_cmd() {
 
                 parser.add_argument<bool>("-replace")
                     .action(store_true)
-                    .constraint(zxgraph_id_not_exist)
+                    .constraint(zxgraph_id_not_exist(zxgraph_mgr))
                     .help("replace the current ZXGraph");
             },
-            [](ArgumentParser const& parser) {
-                auto filepath = parser.get<string>("filepath");
+            [&](ArgumentParser const& parser) {
+                auto filepath = parser.get<std::string>("filepath");
                 auto do_keep_id = parser.get<bool>("-keepid");
                 auto do_replace = parser.get<bool>("-replace");
 
-                auto buffer_graph = make_unique<ZXGraph>();
+                auto buffer_graph = std::make_unique<ZXGraph>();
                 if (!buffer_graph->read_zx(filepath, do_keep_id)) {
                     return CmdExecResult::error;
                 }
 
                 if (do_replace) {
-                    if (ZXGRAPH_MGR.empty()) {
-                        cout << "Note: ZXGraph list is empty now. Create a new one." << endl;
-                        ZXGRAPH_MGR.add(ZXGRAPH_MGR.get_next_id());
+                    if (zxgraph_mgr.empty()) {
+                        std::cout << "Note: ZXGraph list is empty now. Create a new one." << std::endl;
+                        zxgraph_mgr.add(zxgraph_mgr.get_next_id());
                     } else {
-                        cout << "Note: original ZXGraph is replaced..." << endl;
+                        std::cout << "Note: original ZXGraph is replaced..." << std::endl;
                     }
-                    ZXGRAPH_MGR.set(std::move(buffer_graph));
+                    zxgraph_mgr.set(std::move(buffer_graph));
                 } else {
-                    ZXGRAPH_MGR.add(ZXGRAPH_MGR.get_next_id(), std::move(buffer_graph));
+                    zxgraph_mgr.add(zxgraph_mgr.get_next_id(), std::move(buffer_graph));
                 }
-                ZXGRAPH_MGR.get()->set_filename(std::filesystem::path{filepath}.stem());
+                zxgraph_mgr.get()->set_filename(std::filesystem::path{filepath}.stem());
                 return CmdExecResult::done;
             }};
 }
 
-Command zxgraph_write_cmd() {
+Command zxgraph_write_cmd(ZXGraphMgr const& zxgraph_mgr) {
     return {"zxgwrite",
             [](ArgumentParser& parser) {
                 parser.description("write the ZXGraph to a file");
 
-                parser.add_argument<string>("filepath")
+                parser.add_argument<std::string>("filepath")
                     .constraint(path_writable)
                     .constraint(allowed_extension({".zx", ".bzx", ".tikz", ".tex", ""}))
                     .help("the path to the output ZX file");
@@ -748,26 +663,26 @@ Command zxgraph_write_cmd() {
                     .action(store_true)
                     .help("if specified, output neighbor information on both vertices of each edge");
             },
-            [](ArgumentParser const& parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
-                auto filepath = parser.get<string>("filepath");
+            [&](ArgumentParser const& parser) {
+                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                auto filepath = parser.get<std::string>("filepath");
                 auto do_complete = parser.get<bool>("-complete");
                 size_t extension_pos = filepath.find_last_of('.');
 
-                string extension = (extension_pos == string::npos) ? "" : filepath.substr(extension_pos);
+                std::string extension = (extension_pos == std::string::npos) ? "" : filepath.substr(extension_pos);
                 if (extension == ".zx" || extension == ".bzx" || extension == "") {
-                    if (!ZXGRAPH_MGR.get()->write_zx(filepath, do_complete)) {
-                        cerr << "Error: fail to write ZXGraph to \"" << filepath << "\"!!\n";
+                    if (!zxgraph_mgr.get()->write_zx(filepath, do_complete)) {
+                        std::cerr << "Error: fail to write ZXGraph to \"" << filepath << "\"!!\n";
                         return CmdExecResult::error;
                     }
                 } else if (extension == ".tikz") {
-                    if (!ZXGRAPH_MGR.get()->write_tikz(filepath)) {
-                        cerr << "Error: fail to write Tikz to \"" << filepath << "\"!!\n";
+                    if (!zxgraph_mgr.get()->write_tikz(filepath)) {
+                        std::cerr << "Error: fail to write Tikz to \"" << filepath << "\"!!\n";
                         return CmdExecResult::error;
                     }
                 } else if (extension == ".tex") {
-                    if (!ZXGRAPH_MGR.get()->write_tex(filepath)) {
-                        cerr << "Error: fail to write tex to \"" << filepath << "\"!!\n";
+                    if (!zxgraph_mgr.get()->write_tex(filepath)) {
+                        std::cerr << "Error: fail to write tex to \"" << filepath << "\"!!\n";
                         return CmdExecResult::error;
                     }
                 }
@@ -779,33 +694,33 @@ Command zxgraph_write_cmd() {
 //    ZXGASsign <size_t qubit> <I|O> <VertexType vt> <string Phase>
 //----------------------------------------------------------------------
 
-Command zxgraph_assign_boundary_cmd() {
+Command zxgraph_assign_boundary_cmd(ZXGraphMgr& zxgraph_mgr) {
     return {"zxgassign",
             [](ArgumentParser& parser) {
                 parser.description("assign quantum states to input/output vertex");
 
-                parser.add_argument<size_t>("qubit")
+                parser.add_argument<int>("qubit")
                     .help("the qubit to assign state to");
 
-                parser.add_argument<string>("io")
+                parser.add_argument<std::string>("io")
                     .constraint(choices_allow_prefix({"input", "output"}))
                     .metavar("input/output")
                     .help("add at input or output");
 
-                parser.add_argument<string>("vtype")
+                parser.add_argument<std::string>("vtype")
                     .constraint(choices_allow_prefix({"zspider", "xspider", "hbox"}))
                     .help("the type of ZXVertex");
 
                 parser.add_argument<Phase>("phase")
                     .help("the phase of the vertex");
             },
-            [](ArgumentParser const& parser) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
-                auto qid = parser.get<size_t>("qubit");
-                bool is_input = dvlab::str::to_lower_string(parser.get<string>("io")).starts_with('i');
+            [&](ArgumentParser const& parser) {
+                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                auto qid = parser.get<int>("qubit");
+                bool is_input = dvlab::str::tolower_string(parser.get<std::string>("io")).starts_with('i');
 
-                if (!(is_input ? ZXGRAPH_MGR.get()->is_input_qubit(qid) : ZXGRAPH_MGR.get()->is_output_qubit(qid))) {
-                    cerr << "Error: the specified boundary does not exist!!" << endl;
+                if (!(is_input ? zxgraph_mgr.get()->is_input_qubit(qid) : zxgraph_mgr.get()->is_output_qubit(qid))) {
+                    std::cerr << "Error: the specified boundary does not exist!!" << std::endl;
                     return CmdExecResult::error;
                 }
 
@@ -813,7 +728,7 @@ Command zxgraph_assign_boundary_cmd() {
                 assert(vtype.has_value());
 
                 auto phase = parser.get<Phase>("phase");
-                ZXGRAPH_MGR.get()->assign_vertex_to_boundary(qid, is_input, vtype.value(), phase);
+                zxgraph_mgr.get()->assign_vertex_to_boundary(qid, is_input, vtype.value(), phase);
 
                 return CmdExecResult::done;
             }};
@@ -822,14 +737,40 @@ Command zxgraph_assign_boundary_cmd() {
 //----------------------------------------------------------------------
 //    ZXGADJoint
 //----------------------------------------------------------------------
-Command zxgraph_adjoint_cmd() {
+Command zxgraph_adjoint_cmd(ZXGraphMgr& zxgraph_mgr) {
     return {"zxgadjoint",
             [](ArgumentParser& parser) {
                 parser.description("adjoint ZXGraph");
             },
-            [](ArgumentParser const& /*parser*/) {
-                if (!zxgraph_mgr_not_empty()) return CmdExecResult::error;
-                ZXGRAPH_MGR.get()->adjoint();
+            [&](ArgumentParser const& /*parser*/) {
+                if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
+                zxgraph_mgr.get()->adjoint();
                 return CmdExecResult::done;
             }};
 }
+
+bool add_zx_cmds(dvlab::CommandLineInterface& cli, ZXGraphMgr& zxgraph_mgr) {
+    if (!(cli.add_command(zxgraph_checkout_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_new_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_mgr_reset_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_delete_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_copy_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_compose_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_tensor_product_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_mgr_print_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_print_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_test_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_edit_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_adjoint_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_assign_boundary_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_traverse_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_draw_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_read_cmd(zxgraph_mgr)) &&
+          cli.add_command(zxgraph_write_cmd(zxgraph_mgr)))) {
+        std::cerr << "Registering \"zx\" commands fails... exiting" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+}  // namespace qsyn::zx

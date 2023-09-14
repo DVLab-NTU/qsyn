@@ -11,4 +11,12 @@
 
 #include "./zx_def.hpp"
 
+namespace qsyn {
+
+namespace zx {
+
 std::vector<ZXVertexList> kl_partition(ZXGraph const& graph, size_t n_partitions);
+
+}
+
+}  // namespace qsyn

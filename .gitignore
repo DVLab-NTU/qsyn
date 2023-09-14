@@ -2,6 +2,8 @@
 build/
 debug/
 qsyn*
+!src/qsyn*
+!src/qsyn/qsyn*
 
 # vscode configuration files and folders
 .vscode

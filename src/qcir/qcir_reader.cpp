@@ -16,7 +16,7 @@
 
 extern dvlab::Logger LOGGER;
 
-using namespace std;
+namespace qsyn::qcir {
 
 /**
  * @brief Read QCir file
@@ -25,10 +25,10 @@ using namespace std;
  * @return true if successfully read
  * @return false if error in file or not found
  */
-bool QCir::read_qcir_file(string const& filename) {
-    string lastname = filename.substr(filename.find_last_of('/') + 1);
+bool QCir::read_qcir_file(std::string const& filename) {
+    std::string lastname = filename.substr(filename.find_last_of('/') + 1);
 
-    string extension = (lastname.find('.') != string::npos) ? lastname.substr(lastname.find_last_of('.')) : "";
+    std::string extension = (lastname.find('.') != std::string::npos) ? lastname.substr(lastname.find_last_of('.')) : "";
 
     if (extension == ".qasm")
         return read_qasm(filename);
@@ -39,13 +39,12 @@ bool QCir::read_qcir_file(string const& filename) {
     else if (extension == ".quipper")
         return read_quipper(filename);
     else if (extension == "") {
-        fstream verify;
-        verify.open(filename.c_str(), ios::in);
+        std::ifstream verify{filename};
         if (!verify.is_open()) {
             LOGGER.error("Cannot open the file \"{}\"!!", filename);
             return false;
         }
-        string first_item;
+        std::string first_item;
         verify >> first_item;
 
         if (first_item == "Inputs:")
@@ -70,20 +69,19 @@ bool QCir::read_qcir_file(string const& filename) {
  * @return true if successfully read
  * @return false if error in file or not found
  */
-bool QCir::read_qasm(string const& filename) {
+bool QCir::read_qasm(std::string const& filename) {
     using dvlab::str::str_get_token;
     // read file and open
-    string lastname = filename.substr(filename.find_last_of('/') + 1);
+    std::string lastname = filename.substr(filename.find_last_of('/') + 1);
     _procedures.clear();
-    fstream qasm_file;
-    string tmp;
-    vector<string> record;
-    qasm_file.open(filename.c_str(), ios::in);
+    std::string tmp;
+    std::vector<std::string> record;
+    std::fstream qasm_file{filename};
     if (!qasm_file.is_open()) {
         LOGGER.error("Cannot open the QASM file \"{}\"!!", filename);
         return false;
     }
-    string str;
+    std::string str;
     for (int i = 0; i < 6; i++) {
         // OPENQASM 2.0;
         // include "qelib1.inc";
@@ -91,16 +89,16 @@ bool QCir::read_qasm(string const& filename) {
         qasm_file >> str;
     }
     // For netlist
-    string tok;
+    std::string tok;
 
     size_t nqubit = stoul(str.substr(str.find('[') + 1, str.size() - str.find('[') - 3));
     add_qubits(nqubit);
     getline(qasm_file, str);
     while (getline(qasm_file, str)) {
-        string type;
+        std::string type;
         size_t type_end = str_get_token(str, type);
-        string phase_str = "0";
-        if (str_get_token(str, phase_str, 0, '(') != string::npos) {
+        std::string phase_str = "0";
+        if (str_get_token(str, phase_str, 0, '(') != std::string::npos) {
             size_t stop = str_get_token(str, type, 0, '(');
             str_get_token(str, phase_str, stop + 1, ')');
         } else
@@ -108,9 +106,9 @@ bool QCir::read_qasm(string const& filename) {
         if (type == "creg" || type == "qreg" || type == "") {
             continue;
         }
-        vector<size_t> pin_id;
-        string tmp;
-        string qub;
+        QubitIdList qubit_ids;
+        std::string tmp;
+        std::string qub;
         size_t n = str_get_token(str, tmp, type_end, ',');
         while (tmp.size()) {
             str_get_token(tmp, qub, str_get_token(tmp, qub, 0, '[') + 1, ']');
@@ -119,13 +117,13 @@ bool QCir::read_qasm(string const& filename) {
                 LOGGER.error("invalid qubit id on line {}!!", str);
                 return false;
             }
-            pin_id.emplace_back(qub_n);
+            qubit_ids.emplace_back(qub_n);
             n = str_get_token(str, tmp, n, ',');
         }
 
-        Phase phase;
-        Phase::from_string(phase_str, phase);
-        add_gate(type, pin_id, phase, true);
+        dvlab::Phase phase;
+        dvlab::Phase::from_string(phase_str, phase);
+        add_gate(type, qubit_ids, phase, true);
     }
     update_gate_time();
     return true;
@@ -138,11 +136,10 @@ bool QCir::read_qasm(string const& filename) {
  * @return true if successfully read
  * @return false if error in file or not found
  */
-bool QCir::read_qc(string const& filename) {
+bool QCir::read_qc(std::string const& filename) {
     using dvlab::str::str_get_token;
     // read file and open
-    fstream qc_file;
-    qc_file.open(filename.c_str(), ios::in);
+    std::fstream qc_file{filename};
     if (!qc_file.is_open()) {
         LOGGER.error("Cannot open the QC file \"{}\"!!", filename);
         return false;
@@ -150,9 +147,9 @@ bool QCir::read_qc(string const& filename) {
 
     // ex: qubit_labels = {A,B,C,1,2,3,result}
     //     qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), token));
-    vector<string> qubit_labels;
+    std::vector<std::string> qubit_labels;
     qubit_labels.clear();
-    string line;
+    std::string line;
     size_t n_qubit = 0;
 
     while (getline(qc_file, line)) {
@@ -163,8 +160,8 @@ bool QCir::read_qc(string const& filename) {
             // erase .v .i or .o
             line.erase(0, line.find(' ') + 1);
             size_t pos = 0;
-            while (pos != string::npos) {
-                string token;
+            while (pos != std::string::npos) {
+                std::string token;
 
                 pos = str_get_token(line, token, pos);
                 if (!count(qubit_labels.begin(), qubit_labels.end(), token)) {
@@ -180,33 +177,33 @@ bool QCir::read_qc(string const& filename) {
             return true;
         } else  // find a gate
         {
-            string type, qubit_label;
-            vector<size_t> pin_id;
+            std::string type, qubit_label;
+            QubitIdList qubit_ids;
             size_t pos = 0;
             pos = str_get_token(line, type, pos);
-            while (pos != string::npos) {
+            while (pos != std::string::npos) {
                 pos = str_get_token(line, qubit_label, pos);
                 if (count(qubit_labels.begin(), qubit_labels.end(), qubit_label)) {
                     size_t qubit_id = distance(qubit_labels.begin(), find(qubit_labels.begin(), qubit_labels.end(), qubit_label));
-                    pin_id.emplace_back(qubit_id);
+                    qubit_ids.emplace_back(qubit_id);
                 } else {
                     LOGGER.error("encountered a undefined qubit ({})!!", qubit_label);
                     return false;
                 }
             }
             if (type == "Tof" || type == "tof") {
-                if (pin_id.size() == 1)
-                    add_gate("x", pin_id, Phase(0), true);
-                else if (pin_id.size() == 2)
-                    add_gate("cx", pin_id, Phase(0), true);
-                else if (pin_id.size() == 3)
-                    add_gate("ccx", pin_id, Phase(0), true);
+                if (qubit_ids.size() == 1)
+                    add_gate("x", qubit_ids, dvlab::Phase(0), true);
+                else if (qubit_ids.size() == 2)
+                    add_gate("cx", qubit_ids, dvlab::Phase(0), true);
+                else if (qubit_ids.size() == 3)
+                    add_gate("ccx", qubit_ids, dvlab::Phase(0), true);
                 else {
                     LOGGER.error("Toffoli gates with more than 2 controls are not supported!!");
                     return false;
                 }
             } else
-                add_gate(type, pin_id, Phase(0), true);
+                add_gate(type, qubit_ids, dvlab::Phase(0), true);
         }
     }
     return true;
@@ -219,17 +216,16 @@ bool QCir::read_qc(string const& filename) {
  * @return true if successfully read
  * @return false if error in file or not found
  */
-bool QCir::read_qsim(string const& filename) {
+bool QCir::read_qsim(std::string const& filename) {
     // read file and open
-    fstream qsim_file;
-    qsim_file.open(filename.c_str(), ios::in);
+    std::ifstream qsim_file{filename};
     if (!qsim_file.is_open()) {
         LOGGER.error("Cannot open the QSIM file \"{}\"!!", filename);
         return false;
     }
 
-    string n_qubit_str, line;
-    vector<string> single_gate_list{"x", "y", "z", "h", "t", "x_1_2", "y_1_2", "rx", "rz", "s"};
+    std::string n_qubit_str, line;
+    std::vector<std::string> single_gate_list{"x", "y", "z", "h", "t", "x_1_2", "y_1_2", "rx", "rz", "s"};
     // decide qubit number
     int n_qubit;
     getline(qsim_file, line);
@@ -242,31 +238,31 @@ bool QCir::read_qsim(string const& filename) {
     while (getline(qsim_file, line)) {
         using dvlab::str::str_get_token;
         if (line == "") continue;
-        string time, type, phase_str, qubit_id;
-        vector<size_t> pin_id;
+        std::string time, type, phase_str, qubit_id;
+        QubitIdList qubit_ids;
         size_t pos = 0;
         pos = str_get_token(line, time, pos);
         pos = str_get_token(line, type, pos);
         if (type == "cx" || type == "cz") {
             // add 2 qubit gate
             pos = str_get_token(line, qubit_id, pos);
-            pin_id.emplace_back(stoul(qubit_id));
+            qubit_ids.emplace_back(stoul(qubit_id));
             str_get_token(line, qubit_id, pos);
-            pin_id.emplace_back(stoul(qubit_id));
-            add_gate(type, pin_id, Phase(0), true);
+            qubit_ids.emplace_back(stoul(qubit_id));
+            add_gate(type, qubit_ids, dvlab::Phase(0), true);
         } else if (type == "rx" || type == "rz") {
             // add phase gate
-            Phase phase;
+            dvlab::Phase phase;
             pos = str_get_token(line, qubit_id, pos);
-            pin_id.emplace_back(stoul(qubit_id));
+            qubit_ids.emplace_back(stoul(qubit_id));
             str_get_token(line, phase_str, pos);
-            Phase::from_string(phase_str, phase);
-            add_gate(type, pin_id, phase, true);
+            dvlab::Phase::from_string(phase_str, phase);
+            add_gate(type, qubit_ids, phase, true);
         } else if (count(single_gate_list.begin(), single_gate_list.end(), type)) {
             // add single qubit gate
             str_get_token(line, qubit_id, pos);
-            pin_id.emplace_back(stoul(qubit_id));
-            add_gate(type, pin_id, Phase(0), true);
+            qubit_ids.emplace_back(stoul(qubit_id));
+            add_gate(type, qubit_ids, dvlab::Phase(0), true);
         } else {
             LOGGER.error("Gate type {} is not supported!!", type);
             return false;
@@ -282,18 +278,17 @@ bool QCir::read_qsim(string const& filename) {
  * @return true if successfully read
  * @return false if error in file or not found
  */
-bool QCir::read_quipper(string const& filename) {
+bool QCir::read_quipper(std::string const& filename) {
     // read file and open
-    fstream quipper_file;
-    quipper_file.open(filename.c_str(), ios::in);
+    std::ifstream quipper_file{filename};
     if (!quipper_file.is_open()) {
         LOGGER.error("Cannot open the QUIPPER file \"{}\"!!", filename);
         return false;
     }
 
-    string line;
+    std::string line;
     size_t n_qubit;
-    vector<string> single_list{"X", "T", "S", "H", "Z", "not"};
+    std::vector<std::string> single_list{"X", "T", "S", "H", "Z", "not"};
 
     // Count qubit number
     getline(quipper_file, line);
@@ -303,18 +298,18 @@ bool QCir::read_quipper(string const& filename) {
     while (getline(quipper_file, line)) {
         if (line.find("QGate") == 0) {
             // addgate
-            string type = line.substr(line.find('[') + 2, line.find(']') - line.find('[') - 3);
+            std::string type = line.substr(line.find('[') + 2, line.find(']') - line.find('[') - 3);
             size_t qubit_target;
             if (find(single_list.begin(), single_list.end(), type) != single_list.end()) {
                 qubit_target = stoul(line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1));
-                vector<size_t> pin_id;
+                QubitIdList qubit_ids;
 
-                if (line.find("controls=") != string::npos) {
+                if (line.find("controls=") != std::string::npos) {
                     // have control
-                    string ctrls_info;
+                    std::string ctrls_info;
                     ctrls_info = line.substr(line.find_last_of('[') + 1, line.find_last_of(']') - line.find_last_of('[') - 1);
 
-                    if (ctrls_info.find(to_string(qubit_target)) != string::npos) {
+                    if (ctrls_info.find(std::to_string(qubit_target)) != std::string::npos) {
                         LOGGER.error("Control qubit and target cannot be the same!!");
                         return false;
                     }
@@ -326,10 +321,10 @@ bool QCir::read_quipper(string const& filename) {
                             return false;
                         }
                         size_t qubit_control = stoul(ctrls_info.substr(1));
-                        pin_id.emplace_back(qubit_control);
-                        pin_id.emplace_back(qubit_target);
+                        qubit_ids.emplace_back(qubit_control);
+                        qubit_ids.emplace_back(qubit_target);
                         type.insert(0, "C");
-                        add_gate(type, pin_id, Phase(0), true);
+                        add_gate(type, qubit_ids, dvlab::Phase(0), true);
                     } else if (count(line.begin(), line.end(), '+') == 2) {
                         // 2 controls
                         if (type != "not" && type != "X" && type != "Z") {
@@ -339,19 +334,19 @@ bool QCir::read_quipper(string const& filename) {
                         size_t qubit_control1, qubit_control2;
                         qubit_control1 = stoul(ctrls_info.substr(1, ctrls_info.find(',') - 1));
                         qubit_control2 = stoul(ctrls_info.substr(ctrls_info.find(',') + 2));
-                        pin_id.emplace_back(qubit_control1);
-                        pin_id.emplace_back(qubit_control2);
-                        pin_id.emplace_back(qubit_target);
+                        qubit_ids.emplace_back(qubit_control1);
+                        qubit_ids.emplace_back(qubit_control2);
+                        qubit_ids.emplace_back(qubit_target);
                         type.insert(0, "CC");
-                        add_gate(type, pin_id, Phase(0), true);
+                        add_gate(type, qubit_ids, dvlab::Phase(0), true);
                     } else {
                         LOGGER.error("Controlled gates with more than 2 controls are not supported!!");
                         return false;
                     }
                 } else {
                     // without control
-                    pin_id.emplace_back(qubit_target);
-                    add_gate(type, pin_id, Phase(0), true);
+                    qubit_ids.emplace_back(qubit_target);
+                    add_gate(type, qubit_ids, dvlab::Phase(0), true);
                 }
 
             } else {
@@ -375,3 +370,5 @@ bool QCir::read_quipper(string const& filename) {
     }
     return true;
 }
+
+}  // namespace qsyn::qcir

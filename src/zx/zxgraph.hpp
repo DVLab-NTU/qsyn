@@ -9,13 +9,18 @@
 
 #include <cstddef>
 #include <filesystem>
+#include <limits>
 #include <span>
 #include <string>
 #include <unordered_map>
 #include <utility>
 
 #include "./zx_def.hpp"
+#include "qsyn/qsyn_type.hpp"
+#include "util/boolean_matrix.hpp"
 #include "util/phase.hpp"
+
+namespace qsyn::zx {
 
 class ZXVertex;
 class ZXGraph;
@@ -36,19 +41,21 @@ EdgePair make_edge_pair(EdgePair epair);
 EdgePair make_edge_pair_dummy();
 
 class ZXVertex {
-    // See `zxVertex.cpp` for details
-public:
-    ZXVertex(size_t id, int qubit, VertexType vt, Phase phase = Phase(), size_t col = 0)
-        : _id{id}, _type{vt}, _qubit{qubit}, _phase{phase}, _col{(float)col} {}
+    friend class ZXGraph;
 
+public:
+    using QubitIdType = qsyn::QubitIdType;
+    using ColumnIdType = double;
+
+    ZXVertex(size_t id, QubitIdType qubit, VertexType vt, Phase phase = Phase(), ColumnIdType col = 0)
+        : _id{id}, _type{vt}, _qubit{qubit}, _phase{phase}, _col{col} {}
     // Getter and Setter
 
-    size_t const& get_id() const { return _id; }
-    int const& get_qubit() const { return _qubit; }
-    size_t const& get_pin() const { return _pin; }
+    size_t get_id() const { return _id; }
+    QubitIdType get_qubit() const { return _qubit; }
     Phase const& get_phase() const { return _phase; }
-    VertexType const& get_type() const { return _type; }
-    float const& get_col() const { return _col; }
+    VertexType get_type() const { return _type; }
+    ColumnIdType get_col() const { return _col; }
     Neighbors const& get_neighbors() const { return _neighbors; }
     NeighborPair const& get_first_neighbor() const { return *(_neighbors.begin()); }
     NeighborPair const& get_second_neighbor() const { return *next((_neighbors.begin())); }
@@ -56,14 +63,11 @@ public:
     std::vector<ZXVertex*> get_copied_neighbors();
     size_t get_num_neighbors() const { return _neighbors.size(); }
 
-    void set_id(size_t const& id) { _id = id; }
-    void set_qubit(int const& q) { _qubit = q; }
-    void set_pin(size_t const& p) { _pin = p; }
+    void set_id(size_t id) { _id = id; }
+    void set_qubit(QubitIdType q) { _qubit = q; }
     void set_phase(Phase const& p) { _phase = p; }
-    void set_col(float const& c) { _col = c; }
-    void set_type(VertexType const& vt) { _type = vt; }
-    // REVIEW - seems quite unsafe to me...
-    void set_neighbors(Neighbors const& n) { _neighbors = n; }
+    void set_col(ColumnIdType c) { _col = c; }
+    void set_type(VertexType vt) { _type = vt; }
 
     // Add and Remove
     void add_neighbor(NeighborPair const& n) { _neighbors.insert(n); }
@@ -94,22 +98,29 @@ public:
     bool is_clifford() const { return _phase.denominator() <= 2; }
 
     // DFS
+    size_t get_pin() const { return _pin; }
+    void set_pin(size_t const& p) { _pin = p; }
     bool is_visited(unsigned global) { return global == _dfs_counter; }
     void mark_as_visited(unsigned global) { _dfs_counter = global; }
 
 private:
     size_t _id;
     VertexType _type;
-    int _qubit;
+    QubitIdType _qubit;
     Phase _phase;
-    float _col;
+    ColumnIdType _col;
     Neighbors _neighbors;
     unsigned _dfs_counter = 0;
-    size_t _pin = UINT_MAX;
+    size_t _pin = SIZE_MAX;
+
+    void set_neighbors(Neighbors const& n) { _neighbors = n; }
 };
 
 class ZXGraph {  // NOLINT(cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
+    using QubitIdType = ZXVertex::QubitIdType;
+    using ColumnIdType = ZXVertex::ColumnIdType;
+
     ZXGraph() {}
 
     ~ZXGraph() {
@@ -118,55 +129,13 @@ public:
         }
     }
 
-    ZXGraph(ZXGraph const& other) : _filename{other._filename}, _procedures{other._procedures} {
-        std::unordered_map<ZXVertex*, ZXVertex*> old_v2new_v_map;
-
-        for (auto& v : other._vertices) {
-            if (v->is_boundary()) {
-                if (other._inputs.contains(v))
-                    old_v2new_v_map[v] = this->add_input(v->get_qubit(), v->get_col());
-                else
-                    old_v2new_v_map[v] = this->add_output(v->get_qubit(), v->get_col());
-            } else if (v->is_z() || v->is_x() || v->is_hbox()) {
-                old_v2new_v_map[v] = this->add_vertex(v->get_qubit(), v->get_type(), v->get_phase(), v->get_col());
-            }
-        }
-
-        other.for_each_edge([&old_v2new_v_map, this](EdgePair&& epair) {
-            this->add_edge(old_v2new_v_map[epair.first.first], old_v2new_v_map[epair.first.second], epair.second);
-        });
-    }
+    ZXGraph(ZXGraph const& other);
 
     ZXGraph(ZXGraph&& other) noexcept = default;
 
-    /**
-     * @brief Construct a new ZXGraph object from a list of vertices.
-     *
-     * @param vertices the vertices
-     * @param inputs the inputs. Note that the inputs must be a subset of the vertices.
-     * @param outputs the outputs. Note that the outputs must be a subset of the vertices.
-     * @param id
-     */
     ZXGraph(ZXVertexList const& vertices,
             ZXVertexList const& inputs,
-            ZXVertexList const& outputs) {
-        _vertices = vertices;
-        _inputs = inputs;
-        _outputs = outputs;
-        _next_v_id = 0;
-        for (auto v : _vertices) {
-            v->set_id(_next_v_id);
-            _next_v_id++;
-        }
-        for (auto v : _inputs) {
-            assert(vertices.contains(v));
-            _input_list[v->get_qubit()] = v;
-        }
-        for (auto v : _outputs) {
-            assert(vertices.contains(v));
-            _output_list[v->get_qubit()] = v;
-        }
-    }
+            ZXVertexList const& outputs);
 
     ZXGraph& operator=(ZXGraph copy) {
         copy.swap(*this);
@@ -229,8 +198,8 @@ public:
     bool is_graph_like() const;
     bool is_identity() const;
     size_t get_num_gadgets() const;
-    bool is_input_qubit(int qubit) const { return (_input_list.contains(qubit)); }
-    bool is_output_qubit(int qubit) const { return (_output_list.contains(qubit)); }
+    bool is_input_qubit(QubitIdType qubit) const { return (_input_list.contains(qubit)); }
+    bool is_output_qubit(QubitIdType qubit) const { return (_output_list.contains(qubit)); }
 
     bool is_gadget_leaf(ZXVertex*) const;
     bool is_gadget_axel(ZXVertex*) const;
@@ -246,9 +215,9 @@ public:
     inline size_t non_clifford_t_count() const { return non_clifford_count() - t_count(); }
 
     // Add and Remove
-    ZXVertex* add_input(int qubit, unsigned int col = 0);
-    ZXVertex* add_output(int qubit, unsigned int col = 0);
-    ZXVertex* add_vertex(int qubit, VertexType vt, Phase phase = Phase(), unsigned int col = 0);
+    ZXVertex* add_input(QubitIdType qubit, ColumnIdType col = 0);
+    ZXVertex* add_output(QubitIdType qubit, ColumnIdType col = 0);
+    ZXVertex* add_vertex(QubitIdType qubit, VertexType vt, Phase phase = Phase(), ColumnIdType col = 0);
     void add_edge(ZXVertex* vs, ZXVertex* vt, EdgeType et);
 
     size_t remove_isolated_vertices();
@@ -262,7 +231,7 @@ public:
 
     // Operation on graph
     void adjoint();
-    void assign_vertex_to_boundary(int qubit, bool is_input, VertexType vtype, Phase phase);
+    void assign_vertex_to_boundary(QubitIdType qubit, bool is_input, VertexType vtype, Phase phase);
 
     // helper functions for simplifiers
     void gadgetize_phase(ZXVertex* v, Phase const& keep_phase = Phase(0));
@@ -274,7 +243,7 @@ public:
     // Action functions (zxGraphAction.cpp)
     void sort_io_by_qubit();
     void toggle_vertex(ZXVertex* v);
-    void lift_qubit(size_t const& n);
+    void lift_qubit(int n);
     void relabel_vertex_ids(size_t id_start) {
         std::ranges::for_each(this->_vertices, [&id_start](ZXVertex* v) { v->set_id(id_start++); });
     }
@@ -292,7 +261,7 @@ public:
     void print_io() const;
     void print_vertices() const;
     void print_vertices(std::vector<size_t> cand) const;
-    void print_qubits(std::vector<int> cand = {}) const;
+    void print_qubits(QubitIdList cand = {}) const;
     void print_edges() const;
 
     void print_difference(ZXGraph* other) const;
@@ -361,3 +330,7 @@ private:
 
     void _move_vertices_from(ZXGraph& other);
 };
+
+dvlab::BooleanMatrix get_biadjacency_matrix(ZXVertexList const& row_vertices, ZXVertexList const& col_vertices);
+
+}  // namespace qsyn::zx

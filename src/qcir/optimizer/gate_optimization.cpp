@@ -16,6 +16,8 @@
 
 extern dvlab::Logger LOGGER;
 
+namespace qsyn::qcir {
+
 void Optimizer::_permute_gates(QCirGate* gate) {
     auto qubits = gate->get_qubits();
 
@@ -33,7 +35,7 @@ void Optimizer::_permute_gates(QCirGate* gate) {
 
 void Optimizer::_match_hadamards(QCirGate* gate) {
     assert(gate->get_type() == GateType::h);
-    size_t qubit = gate->get_targets()._qubit;
+    auto qubit = gate->get_targets()._qubit;
     if (_xs.contains(qubit) && !_zs.contains(qubit)) {
         LOGGER.trace("Transform X gate into Z gate");
 
@@ -64,7 +66,7 @@ void Optimizer::_match_hadamards(QCirGate* gate) {
 
 void Optimizer::_match_xs(QCirGate* gate) {
     assert(gate->get_type() == GateType::x);
-    size_t qubit = gate->get_targets()._qubit;
+    auto qubit = gate->get_targets()._qubit;
     if (_xs.contains(qubit)) {
         LOGGER.trace("Cancel X-X into Id");
         _statistics.X_CANCEL++;
@@ -74,12 +76,12 @@ void Optimizer::_match_xs(QCirGate* gate) {
 
 void Optimizer::_match_z_rotations(QCirGate* gate) {
     assert(is_single_z_rotation(gate));
-    size_t qubit = gate->get_targets()._qubit;
+    auto qubit = gate->get_targets()._qubit;
     if (_zs.contains(qubit)) {
         _statistics.FUSE_PHASE++;
         _zs.erase(qubit);
         if (gate->get_type() == GateType::rz || gate->get_type() == GateType::p) {
-            gate->set_phase(gate->get_phase() + Phase(1));
+            gate->set_phase(gate->get_phase() + dvlab::Phase(1));
         } else if (gate->get_type() == GateType::z) {
             return;
         } else {
@@ -87,11 +89,11 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
             QCirGate* temp = new PGate(_gate_count);
             _gate_count++;
             temp->add_qubit(qubit, true);
-            temp->set_phase(gate->get_phase() + Phase(1));
+            temp->set_phase(gate->get_phase() + dvlab::Phase(1));
             gate = temp;
         }
     }
-    if (gate->get_phase() == Phase(0)) {
+    if (gate->get_phase() == dvlab::Phase(0)) {
         LOGGER.trace("Cancel with previous RZ");
         return;
     }
@@ -99,7 +101,7 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
     if (_xs.contains(qubit)) {
         gate->set_phase(-1 * (gate->get_phase()));
     }
-    if (gate->get_phase() == Phase(1) || gate->get_type() == GateType::z) {
+    if (gate->get_phase() == dvlab::Phase(1) || gate->get_type() == GateType::z) {
         _toggle_element(GateType::z, qubit);
         return;
     }
@@ -111,13 +113,13 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
     if (_availty[qubit] == false && available != nullptr) {
         std::erase(_available[qubit], available);
         std::erase(_gates[qubit], available);
-        Phase ph = available->get_phase() + gate->get_phase();
+        dvlab::Phase ph = available->get_phase() + gate->get_phase();
         _statistics.FUSE_PHASE++;
-        if (ph == Phase(1)) {
+        if (ph == dvlab::Phase(1)) {
             _toggle_element(GateType::z, qubit);
             return;
         }
-        if (ph != Phase(0)) {
+        if (ph != dvlab::Phase(0)) {
             _add_rotation_gate(qubit, ph, GateType::p);
         }
     } else {
@@ -131,10 +133,10 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
 
 void Optimizer::_match_czs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
     assert(gate->get_type() == GateType::cz);
-    size_t control_qubit = gate->get_control()._qubit;
-    size_t target_qubit = gate->get_targets()._qubit;
+    auto control_qubit = gate->get_control()._qubit;
+    auto target_qubit = gate->get_targets()._qubit;
     if (control_qubit > target_qubit) {  // NOTE - Symmetric, let ctrl smaller than targ
-        size_t tmp = control_qubit;
+        auto tmp = control_qubit;
         gate->set_target_qubit(target_qubit);
         gate->set_control_qubit(tmp);
     }
@@ -161,8 +163,8 @@ void Optimizer::_match_czs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
 
 void Optimizer::_match_cxs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
     assert(gate->get_type() == GateType::cx);
-    size_t control_qubit = gate->get_control()._qubit;
-    size_t target_qubit = gate->get_targets()._qubit;
+    auto control_qubit = gate->get_control()._qubit;
+    auto target_qubit = gate->get_targets()._qubit;
 
     if (_xs.contains(control_qubit))
         _toggle_element(GateType::x, target_qubit);
@@ -183,3 +185,5 @@ void Optimizer::_match_cxs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
         _add_cx(control_qubit, target_qubit, do_swap);
     }
 }
+
+}  // namespace qsyn::qcir

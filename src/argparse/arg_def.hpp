@@ -12,7 +12,7 @@
 
 #include "util/util.hpp"
 
-namespace argparse {
+namespace dvlab::argparse {
 
 struct Token {
     Token(std::string const& tok)
@@ -44,4 +44,4 @@ bool parse_from_string(bool& val, std::string const& token);
 
 struct DummyArgType {};
 
-}  // namespace argparse
+}  // namespace dvlab::argparse

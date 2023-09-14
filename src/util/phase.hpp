@@ -18,19 +18,22 @@
 #include "util/rational.hpp"
 #include "util/util.hpp"
 
+namespace dvlab {
+
 class Rational;
 
 template <typename T>
-concept Unitless = requires(T t) {
+concept unitless = requires(T t) {
     std::is_arithmetic_v<T> == true || std::same_as<T, Rational> == true;
 };
 
 class Phase {
 public:
+    using IntegralType = Rational::IntegralType;
     constexpr Phase() : _rational(0, 1) {}
     // explicitly ban `Phase phase = n;` to prevent confusing code
-    constexpr explicit Phase(int n) : _rational(n, 1) { normalize(); }
-    constexpr Phase(int n, int d) : _rational(n, d) { normalize(); }
+    constexpr explicit Phase(IntegralType n) : _rational(n, 1) { normalize(); }
+    constexpr Phase(IntegralType n, IntegralType d) : _rational(n, d) { normalize(); }
     template <class T>
     requires std::floating_point<T>
     Phase(T f, T eps = 1e-4) : _rational(f / std::numbers::pi_v<T>, eps / std::numbers::pi_v<T>) { normalize(); }
@@ -46,11 +49,11 @@ public:
     friend Phase operator-(Phase lhs, Phase const& rhs);
 
     // Multiplication / Devision w/ unitless constants
-    Phase& operator*=(const Unitless auto& rhs);
-    Phase& operator/=(const Unitless auto& rhs);
-    friend Phase operator*(Phase lhs, const Unitless auto& rhs);
-    friend Phase operator*(const Unitless auto& lhs, Phase rhs);
-    friend Phase operator/(Phase lhs, const Unitless auto& rhs);
+    Phase& operator*=(const unitless auto& rhs);
+    Phase& operator/=(const unitless auto& rhs);
+    friend Phase operator*(Phase lhs, const unitless auto& rhs);
+    friend Phase operator*(const unitless auto& lhs, Phase rhs);
+    friend Phase operator/(Phase lhs, const unitless auto& rhs);
     friend Rational operator/(Phase const& lhs, Phase const& rhs);
     // Operator *, / between phases are not supported deliberately as they don't make physical sense (Changes unit)
 
@@ -67,8 +70,8 @@ public:
     static long double phase_to_ld(Phase const& p) { return phase_to_floating_point<long double>(p); }
 
     Rational get_rational() const { return _rational; }
-    int numerator() const { return _rational.numerator(); }
-    int denominator() const { return _rational.denominator(); }
+    IntegralType numerator() const { return _rational.numerator(); }
+    IntegralType denominator() const { return _rational.denominator(); }
 
     template <class T>
     requires std::floating_point<T>
@@ -98,27 +101,27 @@ public:
     static bool str_to_phase(std::string const& str, Phase& p);
 
 private:
-    Rational _rational;
+    dvlab::Rational _rational;
 };
 
-Phase& Phase::operator*=(const Unitless auto& rhs) {
+Phase& Phase::operator*=(unitless auto const& rhs) {
     this->_rational *= rhs;
     normalize();
     return *this;
 }
-Phase& Phase::operator/=(const Unitless auto& rhs) {
+Phase& Phase::operator/=(unitless auto const& rhs) {
     this->_rational /= rhs;
     normalize();
     return *this;
 }
-Phase operator*(Phase lhs, const Unitless auto& rhs) {
+Phase operator*(Phase lhs, unitless auto const& rhs) {
     lhs *= rhs;
     return lhs;
 }
-Phase operator*(const Unitless auto& lhs, Phase rhs) {
+Phase operator*(unitless auto const& lhs, Phase rhs) {
     return rhs * lhs;
 }
-Phase operator/(Phase lhs, const Unitless auto& rhs) {
+Phase operator/(Phase lhs, unitless auto const& rhs) {
     lhs /= rhs;
     return lhs;
 }
@@ -146,11 +149,11 @@ bool Phase::str_to_phase(std::string const& str, Phase& p) {
     // Error detection
     if (operators.size() >= number_strings.size()) return false;
 
-    int n_pis = 0;
-    int numerator = 1, denominator = 1;
+    IntegralType n_pis = 0;
+    IntegralType numerator = 1, denominator = 1;
     T temp_float = 1.0;
 
-    int buffer_int;
+    IntegralType buffer_int;
     T buffer_float;
 
     bool do_division = false;
@@ -158,12 +161,12 @@ bool Phase::str_to_phase(std::string const& str, Phase& p) {
     for (size_t i = 0; i < number_strings.size(); ++i) {
         do_division = (i != 0 && operators[i - 1] == '/');
 
-        if (dvlab::str::to_lower_string(number_strings[i]) == "pi") {
+        if (dvlab::str::tolower_string(number_strings[i]) == "pi") {
             if (do_division)
                 n_pis -= 1;
             else
                 n_pis += 1;
-        } else if (dvlab::str::to_lower_string(number_strings[i]) == "-pi") {
+        } else if (dvlab::str::tolower_string(number_strings[i]) == "-pi") {
             numerator *= -1;
             if (do_division)
                 n_pis -= 1;
@@ -184,15 +187,17 @@ bool Phase::str_to_phase(std::string const& str, Phase& p) {
         }
     }
 
-    Rational tmp_rational(temp_float * std::pow(std::numbers::pi_v<T>, n_pis - 1), 1e-4 / std::numbers::pi_v<T>);
+    dvlab::Rational tmp_rational(temp_float * std::pow(std::numbers::pi_v<T>, n_pis - 1), 1e-4 / std::numbers::pi_v<T>);
 
     p = Phase(numerator, denominator) * tmp_rational;
 
     return true;
 }
 
+}  // namespace dvlab
+
 template <>
-struct fmt::formatter<Phase> {
+struct fmt::formatter<dvlab::Phase> {
     char presentation = 'e';  // Presentation format: 'f' - fixed, 'e' - scientific.
 
     constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
@@ -201,9 +206,9 @@ struct fmt::formatter<Phase> {
         if (it != end && *it != '}') detail::throw_format_error("invalid format");
         return it;
     }
-    auto format(Phase const& p, format_context& ctx) const -> format_context::iterator {
+    auto format(dvlab::Phase const& p, format_context& ctx) const -> format_context::iterator {
         return presentation == 'f'
-                   ? fmt::format_to(ctx.out(), "{}", Phase::phase_to_d(p))
+                   ? fmt::format_to(ctx.out(), "{}", dvlab::Phase::phase_to_d(p))
                    : fmt::format_to(ctx.out(), "{}", p.get_print_string());
     }
 };

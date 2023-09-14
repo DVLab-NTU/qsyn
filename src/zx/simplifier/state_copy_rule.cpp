@@ -6,6 +6,9 @@
 ****************************************************************************/
 
 #include "./zx_rules_template.hpp"
+#include "tl/enumerate.hpp"
+
+using namespace qsyn::zx;
 
 using MatchType = StateCopyRule::MatchType;
 
@@ -20,10 +23,8 @@ std::vector<MatchType> StateCopyRule::find_matches(ZXGraph const& graph) const {
     std::unordered_map<ZXVertex*, size_t> vertex2idx;
 
     std::unordered_map<size_t, size_t> id2idx;
-    size_t count = 0;
-    for (auto const& v : graph.get_vertices()) {
+    for (auto const& [count, v] : tl::views::enumerate(graph.get_vertices())) {
         vertex2idx[v] = count;
-        count++;
     }
 
     std::vector<bool> valid_vertex(graph.get_num_vertices(), true);
@@ -69,8 +70,8 @@ void StateCopyRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches)
         ZXVertex* npi = get<0>(match);
         ZXVertex* a = get<1>(match);
         std::vector<ZXVertex*> neighbors = get<2>(match);
-        op.verticesToRemove.emplace_back(npi);
-        op.verticesToRemove.emplace_back(a);
+        op.vertices_to_remove.emplace_back(npi);
+        op.vertices_to_remove.emplace_back(a);
         for (auto neighbor : neighbors) {
             if (neighbor->get_type() == VertexType::boundary) {
                 ZXVertex* new_v = graph.add_vertex(neighbor->get_qubit(), VertexType::z, npi->get_phase());

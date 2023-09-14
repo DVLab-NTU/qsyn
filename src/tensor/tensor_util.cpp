@@ -7,6 +7,8 @@
 
 #include "./tensor_util.hpp"
 
+namespace qsyn::tensor {
+
 //------------------------------
 // Helper functions
 //------------------------------
@@ -48,3 +50,5 @@ void print_axis_list(TensorAxisList const& ax) {
 bool is_disjoint(TensorAxisList const& ax1, TensorAxisList const& ax2) {
     return std::find_first_of(ax1.begin(), ax1.end(), ax2.begin(), ax2.end()) == ax1.end();
 }
+
+}  // namespace qsyn::tensor

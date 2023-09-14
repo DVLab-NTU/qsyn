@@ -13,33 +13,30 @@
 #include "util/trie.hpp"
 #include "util/util.hpp"
 
-using namespace std;
-
-namespace argparse {
+namespace dvlab::argparse {
 
 static_assert(is_container_type<std::vector<int>> == true);
 static_assert(is_container_type<std::vector<std::string>> == true);
-static_assert(is_container_type<ordered_hashset<float>> == true);
+static_assert(is_container_type<dvlab::utils::ordered_hashset<float>> == true);
 static_assert(is_container_type<std::string> == false);
 static_assert(is_container_type<std::array<int, 3>> == false);
 
 ArgType<std::string>::ConstraintType choices_allow_prefix(std::vector<std::string> choices) {
-    using dvlab::str::to_lower_string;
-    ranges::for_each(choices, [](std::string& str) { str = to_lower_string(str); });
+    std::ranges::for_each(choices, [](std::string& str) { str = dvlab::str::tolower_string(str); });
     dvlab::utils::Trie trie{choices.begin(), choices.end()};
 
     return [choices, trie](std::string const& val) -> bool {
         auto is_exact_match_to_choice = [&val, &trie](std::string const& choice) -> bool {
-            return to_lower_string(val) == choice;
+            return dvlab::str::tolower_string(val) == choice;
         };
-        auto freq = trie.frequency(to_lower_string(val));
+        auto freq = trie.frequency(dvlab::str::tolower_string(val));
 
         if (freq == 1) return true;
         if (std::ranges::any_of(choices, is_exact_match_to_choice)) return true;
 
         if (freq > 1) {
             fmt::println(stderr, "Error: ambiguous choice \"{}\": could match {}!!\n",
-                         val, fmt::join(choices | views::filter([&val](std::string const& choice) { return choice.starts_with(to_lower_string(val)); }), ", "));
+                         val, fmt::join(choices | std::views::filter([&val](std::string const& choice) { return choice.starts_with(dvlab::str::tolower_string(val)); }), ", "));
         } else {
             fmt::println(stderr, "Error: invalid choice \"{}\": please choose from {{{}}}!!\n",
                          val, fmt::join(choices, ", "));
@@ -143,4 +140,4 @@ ActionCallbackType version(ArgType<bool>& arg) {
     };
 }
 
-}  // namespace argparse
+}  // namespace dvlab::argparse

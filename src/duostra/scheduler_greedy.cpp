@@ -14,29 +14,29 @@
 #include "./scheduler.hpp"
 #include "./variables.hpp"
 
-using namespace std;
-
 extern size_t VERBOSE;
 
 extern bool stop_requested();
+
+namespace qsyn::duostra {
 
 // SECTION - Class Topology Member Functions
 
 class TopologyCandidate {
 public:
     TopologyCandidate(CircuitTopology const& topo, size_t candidate)
-        : _circuit_topology(topo), _candidates(candidate) {}
+        : _circuit_topology(topo), _num_candidates(candidate) {}
 
-    vector<size_t> get_available_gates() const {
+    std::vector<size_t> get_available_gates() const {
         auto& gates = _circuit_topology.get_available_gates();
-        if (gates.size() < _candidates)
+        if (gates.size() < _num_candidates)
             return gates;
-        return vector<size_t>(gates.begin(), gates.begin() + _candidates);
+        return std::vector<size_t>(gates.begin(), dvlab::iterator::next(gates.begin(), _num_candidates));
     }
 
 private:
     CircuitTopology const& _circuit_topology;
-    size_t _candidates;
+    size_t _num_candidates;
 };
 
 // SECTION - Struct GreedyConf Member Functions
@@ -58,8 +58,8 @@ GreedyConf::GreedyConf()
  *
  * @return unique_ptr<BaseScheduler>
  */
-unique_ptr<BaseScheduler> GreedyScheduler::clone() const {
-    return make_unique<GreedyScheduler>(*this);
+std::unique_ptr<BaseScheduler> GreedyScheduler::clone() const {
+    return std::make_unique<GreedyScheduler>(*this);
 }
 
 /**
@@ -68,7 +68,7 @@ unique_ptr<BaseScheduler> GreedyScheduler::clone() const {
  * @param router
  * @return Device
  */
-Device GreedyScheduler::_assign_gates(unique_ptr<Router> router) {
+GreedyScheduler::Device GreedyScheduler::_assign_gates(std::unique_ptr<Router> router) {
     [[maybe_unused]] size_t count = 0;
     auto topo_wrap = TopologyCandidate(_circuit_topology, _conf._candidates);
     for (dvlab::TqdmWrapper bar{_circuit_topology.get_num_gates(), _tqdm};
@@ -106,7 +106,7 @@ size_t GreedyScheduler::greedy_fallback(Router& router,
     if (gate_id != SIZE_MAX)
         return gate_id;
 
-    vector<size_t> cost_list(waitlist.size(), 0);
+    std::vector<size_t> cost_list(waitlist.size(), 0);
 
     for (size_t i = 0; i < waitlist.size(); ++i) {
         auto const& gate = _circuit_topology.get_gate(waitlist[i]);
@@ -118,3 +118,5 @@ size_t GreedyScheduler::greedy_fallback(Router& router,
                         : min_element(cost_list.begin(), cost_list.end()) - cost_list.begin();
     return waitlist[list_idx];
 }
+
+}  // namespace qsyn::duostra

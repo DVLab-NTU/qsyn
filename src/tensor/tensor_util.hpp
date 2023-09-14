@@ -10,6 +10,8 @@
 #include <vector>
 #include <xtensor/xstorage.hpp>
 
+namespace qsyn::tensor {
+
 using TensorShape = xt::svector<size_t>;
 using TensorIndex = std::vector<size_t>;
 using TensorAxisList = std::vector<size_t>;
@@ -18,3 +20,5 @@ TensorAxisList concat_axis_list(TensorAxisList const& ax1, TensorAxisList const&
 void print_axis_list(TensorAxisList const& ax);
 
 bool is_disjoint(TensorAxisList const& ax1, TensorAxisList const& ax2);
+
+}  // namespace qsyn::tensor

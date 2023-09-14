@@ -60,6 +60,13 @@ FetchContent_Declare(
   GIT_TAG 10.0.0)
 FetchContent_MakeAvailable(fmt)
 
+FetchContent_Declare(
+    GSL
+    GIT_REPOSITORY https://github.com/microsoft/GSL
+    GIT_TAG v4.0.0
+    GIT_SHALLOW ON)
+FetchContent_MakeAvailable(GSL)
+
 file(
   GLOB_RECURSE SOURCES
   RELATIVE ${CMAKE_SOURCE_DIR}
@@ -82,6 +89,7 @@ target_link_libraries(
   OpenMP::OpenMP_CXX
   libfort::fort
   fmt::fmt
+  Microsoft.GSL::GSL
   ${BLAS_LIBRARIES}
   ${LAPACK_LIBRARIES})
 

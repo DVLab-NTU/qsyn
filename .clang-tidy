@@ -2,6 +2,8 @@
 Checks: >
   -*,
   cppcoreguidelines-pro-*,
+  cppcoreguidelines-narrowing-conversions,
+  cppcoreguidelines-virtual-class-destructor,
   cppcoreguidelines-special-member-functions,
   performance-noexcept-*,
   misc-non-copyable-objects,
@@ -13,7 +15,6 @@ Checks: >
   misc-unused-*,
   misc-use-anonymous-namespace,
   bugprone-assert-side-effect,
-  cppcoreguidelines-virtual-class-destructor,
   performance-*
   readability-*
 #  cppcoreguidelines-macro-usage,

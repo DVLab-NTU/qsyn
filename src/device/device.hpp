@@ -15,10 +15,13 @@
 #include <unordered_map>
 
 #include "qcir/gate_type.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "util/ordered_hashmap.hpp"
 #include "util/ordered_hashset.hpp"
 #include "util/phase.hpp"
 #include "util/util.hpp"
+
+namespace qsyn::device {
 
 class Device;
 class Topology;
@@ -29,16 +32,6 @@ struct DeviceInfo;
 struct DeviceInfo {
     float _time;
     float _error;
-};
-
-template <>
-struct fmt::formatter<DeviceInfo> {
-    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
-
-    template <typename FormatContext>
-    auto format(DeviceInfo const& info, FormatContext& ctx) {
-        return fmt::format_to(ctx.out(), "Delay: {:>7.3}    Error: {:7.3}    ", info._time, info._error);
-    }
 };
 
 std::ostream& operator<<(std::ostream& os, DeviceInfo const& info);
@@ -60,13 +53,13 @@ public:
     Topology() {}
 
     std::string get_name() const { return _name; }
-    std::vector<GateType> const& get_gate_set() const { return _gate_set; }
+    std::vector<qcir::GateType> const& get_gate_set() const { return _gate_set; }
     DeviceInfo const& get_adjacency_pair_info(size_t a, size_t b);
     DeviceInfo const& get_qubit_info(size_t a);
     size_t get_num_adjacencies() const { return _adjacency_info.size(); }
     void set_num_qubits(size_t n) { _num_qubit = n; }
     void set_name(std::string n) { _name = std::move(n); }
-    void add_gate_type(GateType gt) { _gate_set.emplace_back(gt); }
+    void add_gate_type(qcir::GateType gt) { _gate_set.emplace_back(gt); }
     void add_adjacency_info(size_t a, size_t b, DeviceInfo info);
     void add_qubit_info(size_t a, DeviceInfo info);
 
@@ -75,14 +68,14 @@ public:
 private:
     std::string _name;
     size_t _num_qubit = 0;
-    std::vector<GateType> _gate_set;
+    std::vector<qcir::GateType> _gate_set;
     PhysicalQubitInfo _qubit_info;
     AdjacencyMap _adjacency_info;
 };
 
 class PhysicalQubit {
 public:
-    using Adjacencies = ordered_hashset<size_t>;
+    using Adjacencies = dvlab::utils::ordered_hashset<size_t>;
     PhysicalQubit() {}
     PhysicalQubit(const size_t id) : _id(id) {}
 
@@ -129,7 +122,7 @@ private:
 
 class Device {
 public:
-    using PhysicalQubitList = ordered_hashmap<size_t, PhysicalQubit>;
+    using PhysicalQubitList = dvlab::utils::ordered_hashmap<size_t, PhysicalQubit>;
     constexpr static size_t max_dist = 100000;
     Device() : _max_dist{max_dist}, _topology{std::make_shared<Topology>()} {}
 
@@ -194,22 +187,35 @@ public:
     friend std::ostream& operator<<(std::ostream&, Operation&);
     friend std::ostream& operator<<(std::ostream&, Operation const&);
 
-    Operation(GateType, Phase, std::tuple<size_t, size_t>, std::tuple<size_t, size_t>);
+    Operation(qcir::GateType, dvlab::Phase, std::tuple<size_t, size_t>, std::tuple<size_t, size_t>);
 
-    GateType get_type() const { return _oper; }
-    Phase get_phase() const { return _phase; }
-    size_t get_cost() const { return std::get<1>(_duration); }
-    size_t get_operation_time() const { return std::get<0>(_duration); }
-    std::tuple<size_t, size_t> get_duration() const { return _duration; }
-    std::tuple<size_t, size_t> get_qubits() const { return _qubits; }
+    qcir::GateType get_type() const { return _oper; }
+    dvlab::Phase get_phase() const { return _phase; }
+    size_t get_time_end() const { return std::get<1>(_duration); }
+    size_t get_time_begin() const { return std::get<0>(_duration); }
+    std::tuple<size_t, size_t> get_time_range() const { return _duration; }
+    size_t get_duration() const { return std::get<1>(_duration) - std::get<0>(_duration); }
+    std::tuple<QubitIdType, QubitIdType> get_qubits() const { return _qubits; }
 
     size_t get_id() const { return _id; }
     void set_id(size_t id) { _id = id; }
 
 private:
-    GateType _oper;
-    Phase _phase;
-    std::tuple<size_t, size_t> _qubits;
+    qcir::GateType _oper;
+    dvlab::Phase _phase;
+    std::tuple<QubitIdType, QubitIdType> _qubits;
     std::tuple<size_t, size_t> _duration;  // <from, to>
     size_t _id;
+};
+
+}  // namespace qsyn::device
+
+template <>
+struct fmt::formatter<qsyn::device::DeviceInfo> {
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(qsyn::device::DeviceInfo const& info, FormatContext& ctx) {
+        return fmt::format_to(ctx.out(), "Delay: {:>7.3}    Error: {:7.3}    ", info._time, info._error);
+    }
 };

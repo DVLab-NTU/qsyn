@@ -18,8 +18,12 @@
 #include "./router.hpp"
 #include "device/device.hpp"
 
+namespace qsyn::duostra {
+
 class BaseScheduler {
 public:
+    using Device = qsyn::device::Device;
+    using Operation = qsyn::device::Operation;
     BaseScheduler(CircuitTopology topo, bool tqdm)
         : _circuit_topology(std::move(topo)), _tqdm(tqdm) {}
     virtual ~BaseScheduler() = default;
@@ -65,6 +69,8 @@ protected:
 
 class RandomScheduler : public BaseScheduler {
 public:
+    using Device = BaseScheduler::Device;
+    using Operation = BaseScheduler::Operation;
     RandomScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
@@ -75,6 +81,8 @@ protected:
 
 class StaticScheduler : public BaseScheduler {
 public:
+    using Device = BaseScheduler::Device;
+    using Operation = BaseScheduler::Operation;
     StaticScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
 
     std::unique_ptr<BaseScheduler> clone() const override;
@@ -94,6 +102,8 @@ struct GreedyConf {
 
 class GreedyScheduler : public BaseScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
+    using Device = BaseScheduler::Device;
+    using Operation = BaseScheduler::Operation;
     GreedyScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
     ~GreedyScheduler() = default;
     GreedyScheduler(GreedyScheduler const& other) : BaseScheduler(other), _conf(other._conf) {}
@@ -161,11 +171,10 @@ public:
     }
 
     bool is_leaf() const { return _children.empty(); }
-    void grow_if_needed();
-    bool can_grow() const;
+    bool can_grow() const { return scheduler().get_available_gates().size(); }
 
-    TreeNode best_child(int);
-    size_t best_cost(int);
+    TreeNode best_child(size_t depth);
+    size_t best_cost(size_t depth);
     size_t best_cost() const;
 
     Router const& router() const { return *_router; }
@@ -190,8 +199,6 @@ private:
     std::unique_ptr<Router> _router;
     std::unique_ptr<BaseScheduler> _scheduler;
 
-    std::vector<TreeNode>&& _take_children();
-
     void _grow();
     size_t _immediate_next() const;
     void _route_internal_gates();
@@ -199,6 +206,8 @@ private:
 
 class SearchScheduler : public GreedyScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
+    using Device = GreedyScheduler::Device;
+    using Operation = GreedyScheduler::Operation;
     SearchScheduler(CircuitTopology const&, bool = true);
     ~SearchScheduler() = default;
     SearchScheduler(SearchScheduler const&);
@@ -231,3 +240,5 @@ protected:
 };
 
 std::unique_ptr<BaseScheduler> get_scheduler(std::unique_ptr<CircuitTopology>, bool = true);
+
+}  // namespace qsyn::duostra

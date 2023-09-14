@@ -14,10 +14,39 @@
 
 #include "./qcir_gate.hpp"
 #include "./qcir_qubit.hpp"
+#include "qsyn/qsyn_type.hpp"
 #include "util/text_format.hpp"
 
-using namespace std;
+namespace qsyn::qcir {
 
+QCir::QCir(QCir const &other) {
+    namespace views = std::ranges::views;
+    other.update_topological_order();
+    this->add_qubits(other._qubits.size());
+
+    for (size_t i = 0; i < _qubits.size(); i++) {
+        _qubits[i]->set_id(other._qubits[i]->get_id());
+    }
+
+    for (auto &gate : other._topological_order) {
+        auto bit_range = gate->get_qubits() |
+                         std::views::transform([](QubitInfo const &qb) { return qb._qubit; });
+        auto new_gate = this->add_gate(
+            gate->get_type_str(), {bit_range.begin(), bit_range.end()},
+            gate->get_phase(), true);
+
+        new_gate->set_id(gate->get_id());
+    }
+
+    this->_set_next_gate_id(1 + std::ranges::max(
+                                    other._topological_order | views::transform(
+                                                                   [](QCirGate *g) { return g->get_id(); })));
+    this->_set_next_qubit_id(1 + std::ranges::max(
+                                     other._qubits | views::transform(
+                                                         [](QCirQubit *qb) { return qb->get_id(); })));
+    this->set_filename(other._filename);
+    this->add_procedures(other._procedures);
+}
 /**
  * @brief Get Gate.
  *
@@ -46,7 +75,7 @@ QCirQubit *QCir::get_qubit(size_t id) const {
     return nullptr;
 }
 
-int QCir::get_depth() {
+size_t QCir::get_depth() {
     if (_dirty) update_gate_time();
     _dirty = false;
     return std::ranges::max(_qgates | std::views::transform([](QCirGate *qg) { return qg->get_time(); }));
@@ -70,16 +99,11 @@ QCirQubit *QCir::push_qubit() {
  * @param id
  * @return QCirQubit*
  */
-QCirQubit *QCir::insert_qubit(size_t id) {
+QCirQubit *QCir::insert_qubit(QubitIdType id) {
     assert(get_qubit(id) == nullptr);
     QCirQubit *temp = new QCirQubit(id);
-    size_t cnt = 0;
-    for (size_t i = 0; i < _qubits.size(); i++) {
-        if (_qubits[i]->get_id() < id)
-            cnt++;
-        else
-            break;
-    }
+    auto cnt = std::ranges::count_if(_qubits, [id](QCirQubit *q) { return q->get_id() < id; });
+
     _qubits.insert(_qubits.begin() + cnt, temp);
     return temp;
 }
@@ -103,15 +127,15 @@ void QCir::add_qubits(size_t num) {
  * @return true if succcessfully removed
  * @return false if not found or the qubit is not empty
  */
-bool QCir::remove_qubit(size_t id) {
+bool QCir::remove_qubit(QubitIdType id) {
     // Delete the ancilla only if whole line is empty
     QCirQubit *target = get_qubit(id);
     if (target == nullptr) {
-        cerr << "Error: id " << id << " not found!!" << endl;
+        std::cerr << "Error: id " << id << " not found!!" << std::endl;
         return false;
     } else {
         if (target->get_last() != nullptr || target->get_first() != nullptr) {
-            cerr << "Error: id " << id << " is not an empty qubit!!" << endl;
+            std::cerr << "Error: id " << id << " is not an empty qubit!!" << std::endl;
             return false;
         } else {
             std::erase(_qubits, target);
@@ -128,18 +152,17 @@ bool QCir::remove_qubit(size_t id) {
  * @param append if true, append the gate else prepend
  * @return QCirGate*
  */
-QCirGate *QCir::add_single_rz(size_t bit, Phase phase, bool append) {
-    vector<size_t> qubit;
-    qubit.emplace_back(bit);
-    if (phase == Phase(1, 4))
+QCirGate *QCir::add_single_rz(QubitIdType bit, dvlab::Phase phase, bool append) {
+    QubitIdList qubit{bit};
+    if (phase == dvlab::Phase(1, 4))
         return add_gate("t", qubit, phase, append);
-    else if (phase == Phase(1, 2))
+    else if (phase == dvlab::Phase(1, 2))
         return add_gate("s", qubit, phase, append);
-    else if (phase == Phase(1))
+    else if (phase == dvlab::Phase(1))
         return add_gate("z", qubit, phase, append);
-    else if (phase == Phase(3, 2))
+    else if (phase == dvlab::Phase(3, 2))
         return add_gate("sdg", qubit, phase, append);
-    else if (phase == Phase(7, 4))
+    else if (phase == dvlab::Phase(7, 4))
         return add_gate("tdg", qubit, phase, append);
     else
         return add_gate("rz", qubit, phase, append);
@@ -155,9 +178,9 @@ QCirGate *QCir::add_single_rz(size_t bit, Phase phase, bool append) {
  *
  * @return QCirGate*
  */
-QCirGate *QCir::add_gate(string type, vector<size_t> bits, Phase phase, bool append) {
+QCirGate *QCir::add_gate(std::string type, QubitIdList bits, dvlab::Phase phase, bool append) {
     QCirGate *temp = nullptr;
-    type = dvlab::str::to_lower_string(type);
+    type = dvlab::str::tolower_string(type);
     if (type == "h")
         temp = new HGate(_gate_id);
     else if (type == "z")
@@ -218,14 +241,14 @@ QCirGate *QCir::add_gate(string type, vector<size_t> bits, Phase phase, bool app
         temp = new MCRYGate(_gate_id);
         temp->set_phase(phase);
     } else {
-        cerr << "Error: the gate " << type << " is not implemented!!" << endl;
+        std::cerr << "Error: the gate " << type << " is not implemented!!" << std::endl;
         abort();
         return nullptr;
     }
     if (append) {
         size_t max_time = 0;
         for (size_t k = 0; k < bits.size(); k++) {
-            size_t q = bits[k];
+            auto q = bits[k];
             temp->add_qubit(q, k == bits.size() - 1);  // target is the last one
             QCirQubit *target = get_qubit(q);
             if (target->get_last() != nullptr) {
@@ -241,7 +264,7 @@ QCirGate *QCir::add_gate(string type, vector<size_t> bits, Phase phase, bool app
         temp->set_time(max_time + temp->get_delay());
     } else {
         for (size_t k = 0; k < bits.size(); k++) {
-            size_t q = bits[k];
+            auto q = bits[k];
             temp->add_qubit(q, k == bits.size() - 1);  // target is the last one
             QCirQubit *target = get_qubit(q);
             if (target->get_first() != nullptr) {
@@ -269,10 +292,10 @@ QCirGate *QCir::add_gate(string type, vector<size_t> bits, Phase phase, bool app
 bool QCir::remove_gate(size_t id) {
     QCirGate *target = get_gate(id);
     if (target == nullptr) {
-        cerr << "Error: id " << id << " not found!!" << endl;
+        std::cerr << "Error: id " << id << " not found!!" << std::endl;
         return false;
     } else {
-        vector<QubitInfo> info = target->get_qubits();
+        std::vector<QubitInfo> info = target->get_qubits();
         for (size_t i = 0; i < info.size(); i++) {
             if (info[i]._parent != nullptr)
                 info[i]._parent->set_child(info[i]._qubit, info[i]._child);
@@ -470,36 +493,36 @@ std::vector<int> QCir::count_gates(bool detail, bool print) {
     // cout << "───── Quantum Circuit Analysis ─────" << endl;
     // cout << endl;
     if (detail) {
-        cout << "├── Single-qubit gate: " << h + single_z + single_x + single_y << endl;
-        cout << "│   ├── H: " << h << endl;
-        cout << "│   ├── Z-family: " << single_z << endl;
-        cout << "│   │   ├── Z   : " << z << endl;
-        cout << "│   │   ├── S   : " << s << endl;
-        cout << "│   │   ├── S†  : " << sdg << endl;
-        cout << "│   │   ├── T   : " << t << endl;
-        cout << "│   │   ├── T†  : " << tdg << endl;
-        cout << "│   │   └── RZ  : " << rz << endl;
-        cout << "│   ├── X-family: " << single_x << endl;
-        cout << "│   │   ├── X   : " << x << endl;
-        cout << "│   │   ├── SX  : " << sx << endl;
-        cout << "│   │   └── RX  : " << rx << endl;
-        cout << "│   └── Y-family: " << single_y << endl;
-        cout << "│       ├── Y   : " << y << endl;
-        cout << "│       ├── SY  : " << sy << endl;
-        cout << "│       └── RY  : " << ry << endl;
-        cout << "└── Multiple-qubit gate: " << crz + mcp + cz + ccz + mcrx + cx + ccx + mcry << endl;
-        cout << "    ├── Z-family: " << cz + ccz + crz + mcp << endl;
-        cout << "    │   ├── CZ  : " << cz << endl;
-        cout << "    │   ├── CCZ : " << ccz << endl;
-        cout << "    │   ├── CRZ : " << crz << endl;
-        cout << "    │   └── MCP : " << mcp << endl;
-        cout << "    ├── X-family: " << cx + ccx + mcrx << endl;
-        cout << "    │   ├── CX  : " << cx << endl;
-        cout << "    │   ├── CCX : " << ccx << endl;
-        cout << "    │   └── MCRX: " << mcrx << endl;
-        cout << "    └── Y family: " << mcry << endl;
-        cout << "        └── MCRY: " << mcry << endl;
-        cout << endl;
+        std::cout << "├── Single-qubit gate: " << h + single_z + single_x + single_y << std::endl;
+        std::cout << "│   ├── H: " << h << std::endl;
+        std::cout << "│   ├── Z-family: " << single_z << std::endl;
+        std::cout << "│   │   ├── Z   : " << z << std::endl;
+        std::cout << "│   │   ├── S   : " << s << std::endl;
+        std::cout << "│   │   ├── S†  : " << sdg << std::endl;
+        std::cout << "│   │   ├── T   : " << t << std::endl;
+        std::cout << "│   │   ├── T†  : " << tdg << std::endl;
+        std::cout << "│   │   └── RZ  : " << rz << std::endl;
+        std::cout << "│   ├── X-family: " << single_x << std::endl;
+        std::cout << "│   │   ├── X   : " << x << std::endl;
+        std::cout << "│   │   ├── SX  : " << sx << std::endl;
+        std::cout << "│   │   └── RX  : " << rx << std::endl;
+        std::cout << "│   └── Y-family: " << single_y << std::endl;
+        std::cout << "│       ├── Y   : " << y << std::endl;
+        std::cout << "│       ├── SY  : " << sy << std::endl;
+        std::cout << "│       └── RY  : " << ry << std::endl;
+        std::cout << "└── Multiple-qubit gate: " << crz + mcp + cz + ccz + mcrx + cx + ccx + mcry << std::endl;
+        std::cout << "    ├── Z-family: " << cz + ccz + crz + mcp << std::endl;
+        std::cout << "    │   ├── CZ  : " << cz << std::endl;
+        std::cout << "    │   ├── CCZ : " << ccz << std::endl;
+        std::cout << "    │   ├── CRZ : " << crz << std::endl;
+        std::cout << "    │   └── MCP : " << mcp << std::endl;
+        std::cout << "    ├── X-family: " << cx + ccx + mcrx << std::endl;
+        std::cout << "    │   ├── CX  : " << cx << std::endl;
+        std::cout << "    │   ├── CCX : " << ccx << std::endl;
+        std::cout << "    │   └── MCRX: " << mcrx << std::endl;
+        std::cout << "    └── Y family: " << mcry << std::endl;
+        std::cout << "        └── MCRY: " << mcry << std::endl;
+        std::cout << std::endl;
     }
     if (print) {
         using namespace dvlab;
@@ -508,9 +531,11 @@ std::vector<int> QCir::count_gates(bool detail, bool print) {
         fmt::println("T-family    : {}", fmt_ext::styled_if_ansi_supported(tfamily, fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold));
         fmt::println("Others      : {}", fmt_ext::styled_if_ansi_supported(nct, fmt::fg((nct > 0) ? fmt::terminal_color::red : fmt::terminal_color::green) | fmt::emphasis::bold));
     }
-    vector<int> info;
+    std::vector<int> info;
     info.emplace_back(clifford);
     info.emplace_back(cxcnt);
     info.emplace_back(tfamily);
     return info;  // [clifford, cxcnt, tfamily]
 }
+
+}  // namespace qsyn::qcir

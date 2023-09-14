@@ -13,7 +13,7 @@
 
 #include "arg_type.hpp"
 
-namespace argparse {
+namespace dvlab::argparse {
 
 class Argument {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
     friend struct fmt::formatter<Argument>;
@@ -178,18 +178,18 @@ ArgType<T>& get_underlying_type(Argument& arg) {
     return dynamic_cast<Argument::Model<ArgType<T>>*>(arg._pimpl.get())->inner;
 }
 
-}  // namespace argparse
+}  // namespace dvlab::argparse
 
 namespace fmt {
 
 template <>
-struct formatter<argparse::Argument> {
+struct formatter<dvlab::argparse::Argument> {
     constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
         return ctx.begin();
     }
 
     template <typename FormatContext>
-    auto format(argparse::Argument const& arg, FormatContext& ctx) -> format_context::iterator {
+    auto format(dvlab::argparse::Argument const& arg, FormatContext& ctx) -> format_context::iterator {
         return fmt::format_to(ctx.out(), "{}", arg.to_string());
     }
 };

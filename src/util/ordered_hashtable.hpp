@@ -27,6 +27,10 @@
 #include <unordered_map>
 #include <vector>
 
+namespace dvlab {
+
+namespace utils {
+
 template <typename Key, typename Value, typename StoredType, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
 class ordered_hashtable {  // NOLINT(readability-identifier-naming) : ordered_hashtable intentionally mimics std containers
 public:
@@ -341,3 +345,6 @@ void ordered_hashtable<Key, Value, StoredType, Hash, KeyEqual>::sort(F lambda) {
         }
     }
 }
+
+}  // namespace utils
+}  // namespace dvlab

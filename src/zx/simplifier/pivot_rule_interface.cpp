@@ -9,6 +9,8 @@
 
 extern size_t VERBOSE;
 
+using namespace qsyn::zx;
+
 void PivotRuleInterface::apply(ZXGraph& graph, std::vector<MatchType> const& matches) const {
     ZXOperation op;
 
@@ -62,8 +64,8 @@ void PivotRuleInterface::apply(ZXGraph& graph, std::vector<MatchType> const& mat
         for (auto const& v : n1) v->set_phase(v->get_phase() + m0->get_phase());
         for (auto const& v : n2) v->set_phase(v->get_phase() + m0->get_phase() + m1->get_phase() + Phase(1));
 
-        op.verticesToRemove.emplace_back(m0);
-        op.verticesToRemove.emplace_back(m1);
+        op.vertices_to_remove.emplace_back(m0);
+        op.vertices_to_remove.emplace_back(m1);
     }
 
     _update(graph, op);

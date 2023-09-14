@@ -12,15 +12,15 @@
 
 #include "./zxgraph.hpp"
 
-using namespace std;
+namespace qsyn::zx {
 
 /**
  * @brief return a vector of neighbor vertices
  *
  * @return vector<ZXVertex*>
  */
-vector<ZXVertex*> ZXVertex::get_copied_neighbors() {
-    vector<ZXVertex*> storage;
+std::vector<ZXVertex*> ZXVertex::get_copied_neighbors() {
+    std::vector<ZXVertex*> storage;
     for (auto const& neighbor : _neighbors) {
         storage.emplace_back(neighbor.first);
     }
@@ -32,10 +32,10 @@ vector<ZXVertex*> ZXVertex::get_copied_neighbors() {
  *
  */
 void ZXVertex::print_vertex() const {
-    cout << "ID:" << right << setw(4) << _id;
-    cout << " (" << _type << ", " << left << setw(12 - ((_phase == Phase(0)) ? 1 : 0)) << (_phase.get_print_string() + ")");
-    cout << "  (Qubit, Col): (" << _qubit << ", " << _col << ")\t"
-         << "  #Neighbors: " << right << setw(3) << _neighbors.size() << "     ";
+    std::cout << "ID:" << std::right << std::setw(4) << _id;
+    std::cout << " (" << _type << ", " << std::left << std::setw(12 - ((_phase == Phase(0)) ? 1 : 0)) << (_phase.get_print_string() + ")");
+    std::cout << "  (Qubit, Col): (" << _qubit << ", " << gsl::narrow_cast<int>(_col) << ")\t"
+              << "  #Neighbors: " << std::right << std::setw(3) << _neighbors.size() << "     ";
     print_neighbors();
 }
 
@@ -44,16 +44,16 @@ void ZXVertex::print_vertex() const {
  *
  */
 void ZXVertex::print_neighbors() const {
-    vector<NeighborPair> storage(_neighbors.begin(), _neighbors.end());
+    std::vector<NeighborPair> storage(_neighbors.begin(), _neighbors.end());
 
-    ranges::sort(storage, [](NeighborPair const& a, NeighborPair const& b) {
+    std::ranges::sort(storage, [](NeighborPair const& a, NeighborPair const& b) {
         return (a.first->get_id() != b.first->get_id()) ? (a.first->get_id() < b.first->get_id()) : (a.second < b.second);
     });
 
     for (auto const& [nb, etype] : storage) {
-        cout << "(" << nb->get_id() << ", " << etype << ") ";
+        std::cout << "(" << nb->get_id() << ", " << etype << ") ";
     }
-    cout << endl;
+    std::cout << std::endl;
 }
 
 /*****************************************************/
@@ -77,17 +77,14 @@ EdgeType toggle_edge(EdgeType const& et) {
  * @param str
  * @return VertexType
  */
-std::optional<VertexType> str_to_vertex_type(string const& str) {
-    using dvlab::str::to_lower_string;
-    if ("boundary"s.starts_with(to_lower_string(str))) return VertexType::boundary;
-    if ("zspider"s.starts_with(to_lower_string(str))) return VertexType::z;
-    if ("xspider"s.starts_with(to_lower_string(str))) return VertexType::x;
-    if ("hbox"s.starts_with(to_lower_string(str))) return VertexType::h_box;
+std::optional<VertexType> str_to_vertex_type(std::string const& str) {
+    using namespace std::string_literals;
+    using dvlab::str::tolower_string;
+    if ("boundary"s.starts_with(tolower_string(str))) return VertexType::boundary;
+    if ("zspider"s.starts_with(tolower_string(str))) return VertexType::z;
+    if ("xspider"s.starts_with(tolower_string(str))) return VertexType::x;
+    if ("hbox"s.starts_with(tolower_string(str))) return VertexType::h_box;
     return std::nullopt;
-}
-
-std::ostream& operator<<(std::ostream& stream, VertexType const& vt) {
-    return stream << fmt::format("{}", vt);
 }
 
 /**
@@ -96,14 +93,11 @@ std::ostream& operator<<(std::ostream& stream, VertexType const& vt) {
  * @param str
  * @return EdgeType
  */
-std::optional<EdgeType> str_to_edge_type(string const& str) {
-    if ("simple"s.starts_with(dvlab::str::to_lower_string(str))) return EdgeType::simple;
-    if ("hadamard"s.starts_with(dvlab::str::to_lower_string(str))) return EdgeType::hadamard;
+std::optional<EdgeType> str_to_edge_type(std::string const& str) {
+    using namespace std::string_literals;
+    if ("simple"s.starts_with(dvlab::str::tolower_string(str))) return EdgeType::simple;
+    if ("hadamard"s.starts_with(dvlab::str::tolower_string(str))) return EdgeType::hadamard;
     return std::nullopt;
-}
-
-std::ostream& operator<<(std::ostream& stream, EdgeType const& et) {
-    return stream << fmt::format("{}", et);
 }
 
 /**
@@ -116,7 +110,7 @@ std::ostream& operator<<(std::ostream& stream, EdgeType const& et) {
  */
 EdgePair make_edge_pair(ZXVertex* v1, ZXVertex* v2, EdgeType et) {
     return make_pair(
-        (v1->get_id() < v2->get_id()) ? make_pair(v1, v2) : make_pair(v2, v1),
+        (v1->get_id() < v2->get_id()) ? std::make_pair(v1, v2) : std::make_pair(v2, v1),
         et);
 }
 
@@ -128,7 +122,7 @@ EdgePair make_edge_pair(ZXVertex* v1, ZXVertex* v2, EdgeType et) {
  */
 EdgePair make_edge_pair(EdgePair epair) {
     return make_pair(
-        (epair.first.first->get_id() < epair.first.second->get_id()) ? make_pair(epair.first.first, epair.first.second) : make_pair(epair.first.second, epair.first.first),
+        (epair.first.first->get_id() < epair.first.second->get_id()) ? std::make_pair(epair.first.first, epair.first.second) : std::make_pair(epair.first.second, epair.first.first),
         epair.second);
 }
 
@@ -138,5 +132,14 @@ EdgePair make_edge_pair(EdgePair epair) {
  * @return EdgePair
  */
 EdgePair make_edge_pair_dummy() {
-    return make_pair(make_pair(nullptr, nullptr), EdgeType::simple);
+    return std::make_pair(std::make_pair(nullptr, nullptr), EdgeType::simple);
+}
+
+}  // namespace qsyn::zx
+
+std::ostream& operator<<(std::ostream& stream, qsyn::zx::VertexType const& vt) {
+    return stream << fmt::format("{}", vt);
+}
+std::ostream& operator<<(std::ostream& stream, qsyn::zx::EdgeType const& et) {
+    return stream << fmt::format("{}", et);
 }

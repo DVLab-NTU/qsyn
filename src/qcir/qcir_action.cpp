@@ -13,7 +13,7 @@
 #include "qcir/qcir_gate.hpp"
 #include "qcir/qcir_qubit.hpp"
 
-using namespace std;
+namespace qsyn::qcir {
 
 /**
  * @brief Append the target to current QCir
@@ -22,18 +22,18 @@ using namespace std;
  * @return QCir*
  */
 QCir* QCir::compose(QCir const& other) {
-    vector<QCirQubit*> targ_qubits = other.get_qubits();
+    std::vector<QCirQubit*> targ_qubits = other.get_qubits();
     for (auto& qubit : targ_qubits) {
         if (get_qubit(qubit->get_id()) == nullptr)
             insert_qubit(qubit->get_id());
     }
     other.update_topological_order();
     for (auto& targ_gate : other.get_topologically_ordered_gates()) {
-        vector<size_t> bits;
+        QubitIdList qubits;
         for (auto const& b : targ_gate->get_qubits()) {
-            bits.emplace_back(b._qubit);
+            qubits.emplace_back(b._qubit);
         }
-        add_gate(targ_gate->get_type_str(), bits, targ_gate->get_phase(), true);
+        add_gate(targ_gate->get_type_str(), qubits, targ_gate->get_phase(), true);
     }
     return this;
 }
@@ -45,18 +45,18 @@ QCir* QCir::compose(QCir const& other) {
  * @return QCir*
  */
 QCir* QCir::tensor_product(QCir const& other) {
-    unordered_map<size_t, QCirQubit*> old_q2_new_q;
-    vector<QCirQubit*> targ_qubits = other.get_qubits();
+    std::unordered_map<size_t, QCirQubit*> old_q2_new_q;
+    std::vector<QCirQubit*> targ_qubits = other.get_qubits();
     for (auto& qubit : targ_qubits) {
         old_q2_new_q[qubit->get_id()] = push_qubit();
     }
     other.update_topological_order();
     for (auto& targ_gate : other.get_topologically_ordered_gates()) {
-        vector<size_t> bits;
+        QubitIdList qubits;
         for (auto const& b : targ_gate->get_qubits()) {
-            bits.emplace_back(old_q2_new_q[b._qubit]->get_id());
+            qubits.emplace_back(old_q2_new_q[b._qubit]->get_id());
         }
-        add_gate(targ_gate->get_type_str(), bits, targ_gate->get_phase(), true);
+        add_gate(targ_gate->get_type_str(), qubits, targ_gate->get_phase(), true);
     }
     return this;
 }
@@ -67,13 +67,13 @@ QCir* QCir::tensor_product(QCir const& other) {
  * @param currentGate the gate to start DFS
  */
 void QCir::_dfs(QCirGate* curr_gate) const {
-    stack<pair<bool, QCirGate*>> dfs;
+    std::stack<std::pair<bool, QCirGate*>> dfs;
 
     if (!curr_gate->is_visited(_global_dfs_counter)) {
-        dfs.push(make_pair(false, curr_gate));
+        dfs.emplace(false, curr_gate);
     }
     while (!dfs.empty()) {
-        pair<bool, QCirGate*> node = dfs.top();
+        auto node = dfs.top();
         dfs.pop();
         if (node.first) {
             _topological_order.emplace_back(node.second);
@@ -83,12 +83,12 @@ void QCir::_dfs(QCirGate* curr_gate) const {
             continue;
         }
         node.second->set_visited(_global_dfs_counter);
-        dfs.push(make_pair(true, node.second));
+        dfs.emplace(true, node.second);
 
         for (auto const& info : node.second->get_qubits()) {
-            if ((info)._child != nullptr) {
-                if (!((info)._child->is_visited(_global_dfs_counter))) {
-                    dfs.push(make_pair(false, (info)._child));
+            if (info._child != nullptr) {
+                if (!(info._child->is_visited(_global_dfs_counter))) {
+                    dfs.emplace(false, info._child);
                 }
             }
         }
@@ -100,7 +100,7 @@ void QCir::_dfs(QCirGate* curr_gate) const {
  *
  * @return const vector<QCirGate*>&
  */
-vector<QCirGate*> const& QCir::update_topological_order() const {
+std::vector<QCirGate*> const& QCir::update_topological_order() const {
     _topological_order.clear();
     _global_dfs_counter++;
     QCirGate* dummy = new HGate(-1);
@@ -120,7 +120,7 @@ vector<QCirGate*> const& QCir::update_topological_order() const {
  * @brief Print topological order
  */
 bool QCir::print_topological_order() {
-    auto test_lambda = [](QCirGate* gate) { cout << gate->get_id() << endl; };
+    auto test_lambda = [](QCirGate* gate) { std::cout << gate->get_id() << std::endl; };
     topological_traverse(test_lambda);
     return true;
 }
@@ -131,7 +131,7 @@ bool QCir::print_topological_order() {
 void QCir::update_gate_time() const {
     update_topological_order();
     auto lambda = [](QCirGate* curr_gate) {
-        vector<QubitInfo> info = curr_gate->get_qubits();
+        std::vector<QubitInfo> info = curr_gate->get_qubits();
         size_t max_time = 0;
         for (size_t i = 0; i < info.size(); i++) {
             if (info[i]._parent == nullptr)
@@ -157,3 +157,5 @@ void QCir::reset() {
     _dirty = true;
     _global_dfs_counter = 1;
 }
+
+}  // namespace qsyn::qcir

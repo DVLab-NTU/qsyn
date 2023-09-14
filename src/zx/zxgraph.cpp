@@ -12,15 +12,65 @@
 #include <ranges>
 
 #include "./zx_def.hpp"
+#include "tl/enumerate.hpp"
+#include "util/boolean_matrix.hpp"
 #include "util/logger.hpp"
 
-using namespace std;
-
 extern dvlab::Logger LOGGER;
+
+namespace qsyn::zx {
 
 /*****************************************************/
 /*   class ZXGraph Getter and setter functions       */
 /*****************************************************/
+
+/**
+ * @brief Construct a new ZXGraph object from a list of vertices.
+ *
+ * @param vertices the vertices
+ * @param inputs the inputs. Note that the inputs must be a subset of the vertices.
+ * @param outputs the outputs. Note that the outputs must be a subset of the vertices.
+ * @param id
+ */
+ZXGraph::ZXGraph(ZXVertexList const& vertices,
+                 ZXVertexList const& inputs,
+                 ZXVertexList const& outputs) {
+    _vertices = vertices;
+    _inputs = inputs;
+    _outputs = outputs;
+    _next_v_id = 0;
+    for (auto v : _vertices) {
+        v->set_id(_next_v_id);
+        _next_v_id++;
+    }
+    for (auto v : _inputs) {
+        assert(vertices.contains(v));
+        _input_list[v->get_qubit()] = v;
+    }
+    for (auto v : _outputs) {
+        assert(vertices.contains(v));
+        _output_list[v->get_qubit()] = v;
+    }
+}
+
+ZXGraph::ZXGraph(ZXGraph const& other) : _filename{other._filename}, _procedures{other._procedures} {
+    std::unordered_map<ZXVertex*, ZXVertex*> old_v2new_v_map;
+
+    for (auto& v : other._vertices) {
+        if (v->is_boundary()) {
+            if (other._inputs.contains(v))
+                old_v2new_v_map[v] = this->add_input(v->get_qubit(), v->get_col());
+            else
+                old_v2new_v_map[v] = this->add_output(v->get_qubit(), v->get_col());
+        } else if (v->is_z() || v->is_x() || v->is_hbox()) {
+            old_v2new_v_map[v] = this->add_vertex(v->get_qubit(), v->get_type(), v->get_phase(), v->get_col());
+        }
+    }
+
+    other.for_each_edge([&old_v2new_v_map, this](EdgePair&& epair) {
+        this->add_edge(old_v2new_v_map[epair.first.first], old_v2new_v_map[epair.first.second], epair.second);
+    });
+}
 
 /**
  * @brief Get the number of edges in ZXGraph
@@ -69,7 +119,7 @@ bool ZXGraph::is_valid() const {
     }
     for (auto& v : _vertices) {
         for (auto& [nb, etype] : v->get_neighbors()) {
-            if (!nb->get_neighbors().contains(make_pair(v, etype))) return false;
+            if (!nb->get_neighbors().contains(std::make_pair(v, etype))) return false;
         }
     }
     return true;
@@ -83,7 +133,7 @@ bool ZXGraph::is_valid() const {
  * @return false
  */
 bool ZXGraph::is_v_id(size_t id) const {
-    return ranges::any_of(_vertices, [id](ZXVertex* v) { return v->get_id() == id; });
+    return std::ranges::any_of(_vertices, [id](ZXVertex* v) { return v->get_id() == id; });
 }
 
 /**
@@ -139,7 +189,7 @@ bool ZXGraph::is_identity() const {
 }
 
 size_t ZXGraph::get_num_gadgets() const {
-    return ranges::count_if(_vertices, [](ZXVertex* v) {
+    return std::ranges::count_if(_vertices, [](ZXVertex* v) {
         return !v->is_boundary() && v->get_num_neighbors() == 1;
     });
 }
@@ -150,12 +200,11 @@ size_t ZXGraph::get_num_gadgets() const {
  * @return double
  */
 double ZXGraph::density() {
-    double density = 0;
-    for (auto& v : this->get_vertices()) {
-        density += v->get_num_neighbors() * v->get_num_neighbors();
-    }
-    density /= this->get_num_vertices();
-    return density;
+    return std::accumulate(this->get_vertices().begin(), this->get_vertices().end(), 0,
+                           [](double sum, ZXVertex* v) {
+                               return sum + std::pow(v->get_num_neighbors(), 2);
+                           }) /
+           gsl::narrow_cast<double>(this->get_num_vertices());
 }
 
 /*****************************************************/
@@ -169,7 +218,7 @@ double ZXGraph::density() {
  * @param col
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::add_input(int qubit, unsigned int col) {
+ZXVertex* ZXGraph::add_input(QubitIdType qubit, ColumnIdType col) {
     assert(!is_input_qubit(qubit));
 
     ZXVertex* v = add_vertex(qubit, VertexType::boundary, Phase(), col);
@@ -184,7 +233,7 @@ ZXVertex* ZXGraph::add_input(int qubit, unsigned int col) {
  * @param qubit
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::add_output(int qubit, unsigned int col) {
+ZXVertex* ZXGraph::add_output(QubitIdType qubit, ColumnIdType col) {
     assert(!is_output_qubit(qubit));
 
     ZXVertex* v = add_vertex(qubit, VertexType::boundary, Phase(), col);
@@ -201,7 +250,7 @@ ZXVertex* ZXGraph::add_output(int qubit, unsigned int col) {
  * @param phase the phase
  * @return ZXVertex*
  */
-ZXVertex* ZXGraph::add_vertex(int qubit, VertexType vt, Phase phase, unsigned int col) {
+ZXVertex* ZXGraph::add_vertex(QubitIdType qubit, VertexType vt, Phase phase, ColumnIdType col) {
     ZXVertex* v = new ZXVertex(_next_v_id, qubit, vt, phase, col);
     _vertices.emplace(v);
     _next_v_id++;
@@ -290,7 +339,7 @@ void ZXGraph::_move_vertices_from(ZXGraph& other) {
  *
  */
 size_t ZXGraph::remove_isolated_vertices() {
-    vector<ZXVertex*> rm_list;
+    std::vector<ZXVertex*> rm_list;
     for (auto const& v : _vertices) {
         if (v->get_num_neighbors() == 0) rm_list.emplace_back(v);
     }
@@ -310,7 +359,7 @@ size_t ZXGraph::remove_vertex(ZXVertex* v) {
         v->remove_neighbor(n);
         ZXVertex* nv = n.first;
         EdgeType ne = n.second;
-        nv->remove_neighbor(make_pair(v, ne));
+        nv->remove_neighbor(std::make_pair(v, ne));
     }
     _vertices.erase(v);
 
@@ -334,7 +383,7 @@ size_t ZXGraph::remove_vertex(ZXVertex* v) {
  *
  * @param vertices
  */
-size_t ZXGraph::remove_vertices(vector<ZXVertex*> const& vertices) {
+size_t ZXGraph::remove_vertices(std::vector<ZXVertex*> const& vertices) {
     return std::transform_reduce(
         vertices.begin(), vertices.end(), 0, std::plus{}, [this](ZXVertex* v) {
             return remove_vertex(v);
@@ -360,7 +409,7 @@ size_t ZXGraph::remove_edge(EdgePair const& ep) {
 size_t ZXGraph::remove_edge(ZXVertex* vs, ZXVertex* vt, EdgeType etype) {
     size_t count = vs->remove_neighbor(vt, etype) + vt->remove_neighbor(vs, etype);
     if (count == 1) {
-        throw out_of_range("Graph connection error in " + to_string(vs->get_id()) + " and " + to_string(vt->get_id()));
+        throw std::out_of_range("Graph connection error in " + std::to_string(vs->get_id()) + " and " + std::to_string(vt->get_id()));
     }
 
     return count / 2;
@@ -372,7 +421,7 @@ size_t ZXGraph::remove_edge(ZXVertex* vs, ZXVertex* vt, EdgeType etype) {
  * @param eps
  * @return size_t
  */
-size_t ZXGraph::remove_edges(vector<EdgePair> const& eps) {
+size_t ZXGraph::remove_edges(std::vector<EdgePair> const& eps) {
     return std::transform_reduce(
         eps.begin(), eps.end(), 0, std::plus{}, [this](EdgePair const& ep) {
             return remove_edge(ep);
@@ -400,12 +449,9 @@ size_t ZXGraph::remove_all_edges_between(ZXVertex* vs, ZXVertex* vt) {
 void ZXGraph::adjoint() {
     std::swap(_inputs, _outputs);
     std::swap(_input_list, _output_list);
-    size_t max_col = (*max_element(
-                          _vertices.begin(), _vertices.end(),
-                          [](ZXVertex* const a, ZXVertex* const b) { return a->get_col() < b->get_col(); }))
-                         ->get_col();
+    auto max_col = std::ranges::max(_vertices | std::views::transform([](ZXVertex* v) { return v->get_col(); }));
 
-    ranges::for_each(_vertices, [&max_col](ZXVertex* v) {
+    std::ranges::for_each(_vertices, [&max_col](ZXVertex* v) {
         v->set_phase(-v->get_phase());
         v->set_col(max_col - v->get_col());
     });
@@ -419,7 +465,7 @@ void ZXGraph::adjoint() {
  * @param ty
  * @param phase
  */
-void ZXGraph::assign_vertex_to_boundary(int qubit, bool is_input, VertexType vtype, Phase phase) {
+void ZXGraph::assign_vertex_to_boundary(QubitIdType qubit, bool is_input, VertexType vtype, Phase phase) {
     ZXVertex* v = add_vertex(qubit, vtype, phase);
     ZXVertex* boundary = is_input ? _input_list[qubit] : _output_list[qubit];
     for (auto& [nb, etype] : boundary->get_neighbors()) {
@@ -447,15 +493,13 @@ void ZXGraph::gadgetize_phase(ZXVertex* v, Phase const& keep_phase) {
     this->add_edge(leaf, buffer, EdgeType::hadamard);
     this->add_edge(buffer, v, EdgeType::hadamard);
 }
-
-// REVIEW - Probably needs better name and description. Helps are appreciated.
 /**
  * @brief Add a Z-spider to buffer a vertex from another vertex, so that they don't come in
  *        contact with each other on the edge with specified edge type. If such edge does not
  *        exists, this function does nothing.
  *
- * @param toProtect the vertex to protect
- * @param fromVertex the vertex to buffer from
+ * @param vertex_to_protect the vertex to protect
+ * @param vertex_other the vertex to buffer from
  * @param etype the edgetype the buffer should be added on
  */
 ZXVertex* ZXGraph::add_buffer(ZXVertex* vertex_to_protect, ZXVertex* vertex_other, EdgeType etype) {
@@ -482,6 +526,18 @@ ZXVertex* ZXGraph::add_buffer(ZXVertex* vertex_to_protect, ZXVertex* vertex_othe
  * @return ZXVertex*
  */
 ZXVertex* ZXGraph::find_vertex_by_id(size_t const& id) const {
-    auto it = ranges::find_if(_vertices, [id](ZXVertex* v) { return v->get_id() == id; });
+    auto it = std::ranges::find_if(_vertices, [id](ZXVertex* v) { return v->get_id() == id; });
     return it == _vertices.end() ? nullptr : *it;
 }
+
+dvlab::BooleanMatrix get_biadjacency_matrix(ZXVertexList const& row_vertices, ZXVertexList const& col_vertices) {
+    dvlab::BooleanMatrix matrix(row_vertices.size(), col_vertices.size());
+    for (auto const& [i, v] : row_vertices | tl::views::enumerate) {
+        for (auto const& [j, w] : col_vertices | tl::views::enumerate) {
+            if (v->is_neighbor(w)) matrix[i][j] = 1;
+        }
+    }
+    return matrix;
+}
+
+}  // namespace qsyn::zx

@@ -18,7 +18,7 @@
 
 #include "./arg_def.hpp"
 
-namespace argparse {
+namespace dvlab::argparse {
 
 namespace detail {
 template <class A>
@@ -151,17 +151,17 @@ ArgType<std::string>::ConstraintType starts_with(std::vector<std::string> const&
 ArgType<std::string>::ConstraintType ends_with(std::vector<std::string> const& suffixes);
 ArgType<std::string>::ConstraintType allowed_extension(std::vector<std::string> const& extensions);
 
-}  // namespace argparse
+}  // namespace dvlab::argparse
 
 namespace fmt {
 
 template <typename T>
-requires argparse::valid_argument_type<T>
-struct formatter<argparse::ArgType<T>> {
+requires dvlab::argparse::valid_argument_type<T>
+struct formatter<dvlab::argparse::ArgType<T>> {
     constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator { return ctx.begin(); }
 
     template <typename FormatContext>
-    auto format(argparse::ArgType<T> const& arg, FormatContext& ctx) -> format_context::iterator {
+    auto format(dvlab::argparse::ArgType<T> const& arg, FormatContext& ctx) -> format_context::iterator {
         if (arg._values.empty()) return fmt::format_to(ctx.out(), "(None)");
 
         if constexpr (fmt::is_formattable<T, char>::value) {
@@ -177,7 +177,7 @@ struct formatter<argparse::ArgType<T>> {
 
 }  // namespace fmt
 
-namespace argparse {
+namespace dvlab::argparse {
 
 /**
  * @brief set the usage message of the argument when printing usage of command
@@ -322,9 +322,9 @@ ArgType<T>& ArgType<T>::nargs(NArgsOption opt) {
         case optional:
             return nargs(0, 1);
         case one_or_more:
-            return nargs(1, SIZE_MAX);
+            return nargs(1, std::numeric_limits<size_t>::max());
         case zero_or_more:
-            return nargs(0, SIZE_MAX);
+            return nargs(0, std::numeric_limits<size_t>::max());
         default:
             return *this;
     }
@@ -404,4 +404,4 @@ typename ArgType<T>::ActionType store_const(T const& const_value) {
     };
 }
 
-}  // namespace argparse
+}  // namespace dvlab::argparse

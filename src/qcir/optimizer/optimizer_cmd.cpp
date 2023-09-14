@@ -15,25 +15,18 @@
 #include "cli/cli.hpp"
 #include "util/util.hpp"
 
-using namespace std;
-using namespace argparse;
-extern QCirMgr QCIR_MGR;
+using namespace dvlab::argparse;
+using dvlab::CmdExecResult;
+using dvlab::Command;
+
 extern bool stop_requested();
 
-Command qcir_optimize_cmd();
-
-bool add_qcir_optimize_cmds() {
-    if (!(CLI.add_command(qcir_optimize_cmd()))) {
-        LOGGER.fatal("Registering \"optimize\" commands fails... exiting");
-        return false;
-    }
-    return true;
-}
+namespace qsyn::qcir {
 
 //----------------------------------------------------------------------
 //    Optimize
 //----------------------------------------------------------------------
-Command qcir_optimize_cmd() {
+Command qcir_optimize_cmd(QCirMgr& qcir_mgr) {
     return {"qccoptimize",
             [](ArgumentParser& parser) {
                 parser.description("optimize QCir");
@@ -55,16 +48,16 @@ Command qcir_optimize_cmd() {
                     .action(store_true)
                     .help("Use the trivial optimization.");
             },
-            [](ArgumentParser const& parser) {
-                if (!qcir_mgr_not_empty()) return CmdExecResult::error;
+            [&](ArgumentParser const& parser) {
+                if (!qcir_mgr_not_empty(qcir_mgr)) return CmdExecResult::error;
                 Optimizer optimizer;
                 std::optional<QCir> result;
                 std::string procedure_str{};
                 if (parser.get<bool>("-trivial")) {
-                    result = optimizer.trivial_optimization(*QCIR_MGR.get());
+                    result = optimizer.trivial_optimization(*qcir_mgr.get());
                     procedure_str = "Trivial Optimize";
                 } else {
-                    result = optimizer.basic_optimization(*QCIR_MGR.get(), {.doSwap = !parser.get<bool>("-physical"),
+                    result = optimizer.basic_optimization(*qcir_mgr.get(), {.doSwap = !parser.get<bool>("-physical"),
                                                                             .separateCorrection = false,
                                                                             .maxIter = 1000,
                                                                             .printStatistics = parser.get<bool>("-statistics")});
@@ -76,17 +69,27 @@ Command qcir_optimize_cmd() {
                 }
 
                 if (parser.get<bool>("-copy")) {
-                    QCIR_MGR.add(QCIR_MGR.get_next_id(), std::make_unique<QCir>(std::move(*result)));
+                    qcir_mgr.add(qcir_mgr.get_next_id(), std::make_unique<QCir>(std::move(*result)));
                 } else {
-                    QCIR_MGR.set(std::make_unique<QCir>(std::move(*result)));
+                    qcir_mgr.set(std::make_unique<QCir>(std::move(*result)));
                 }
 
                 if (stop_requested()) {
                     procedure_str += "[INT]";
                 }
 
-                QCIR_MGR.get()->add_procedure(procedure_str);
+                qcir_mgr.get()->add_procedure(procedure_str);
 
                 return CmdExecResult::done;
             }};
 }
+
+bool add_qcir_optimize_cmds(dvlab::CommandLineInterface& cli, QCirMgr& qcir_mgr) {
+    if (!(cli.add_command(qcir_optimize_cmd(qcir_mgr)))) {
+        LOGGER.fatal("Registering \"optimize\" commands fails... exiting");
+        return false;
+    }
+    return true;
+}
+
+}  // namespace qsyn::qcir

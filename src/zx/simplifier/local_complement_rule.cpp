@@ -10,6 +10,8 @@
 
 #include "./zx_rules_template.hpp"
 
+using namespace qsyn::zx;
+
 using MatchType = LocalComplementRule::MatchType;
 
 /**
@@ -53,14 +55,14 @@ void LocalComplementRule::apply(ZXGraph& graph, std::vector<MatchType> const& ma
     ZXOperation op;
 
     for (auto const& [v, neighbors] : matches) {
-        op.verticesToRemove.emplace_back(v);
+        op.vertices_to_remove.emplace_back(v);
         size_t h_edge_count = 0;
         for (auto& [nb, etype] : v->get_neighbors()) {
             if (nb == v && etype == EdgeType::hadamard) {
                 h_edge_count++;
             }
         }
-        Phase p = v->get_phase() + Phase(h_edge_count / 2);
+        Phase p = v->get_phase() + Phase(gsl::narrow<int>(h_edge_count / 2));
         // TODO: global scalar ignored
         for (size_t n = 0; n < neighbors.size(); n++) {
             neighbors[n]->set_phase(neighbors[n]->get_phase() - p);

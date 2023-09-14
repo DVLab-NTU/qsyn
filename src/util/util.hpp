@@ -7,7 +7,9 @@
 #pragma once
 
 #include <concepts>
+#include <gsl/narrow>
 #include <iosfwd>
+#include <iterator>
 #include <memory>
 #include <optional>
 #include <span>
@@ -20,20 +22,12 @@ class tqdm;
 
 #include <iostream>
 
-#ifndef NDEBUG
 namespace dvlab {
+#ifndef NDEBUG
 namespace detail {
 void dvlab_assert_impl(char const* expr_str, bool expr, char const* file, int line, char const* msg);
 }
-}  // namespace dvlab
-#define dvlab_assert(Expr, Msg) \
-    dvlab::detail::dvlab_assert_impl(#Expr, Expr, __FILE__, __LINE__, Msg)
-
-#else
-#define M_Assert(Expr, Msg) ;
 #endif
-
-namespace dvlab {
 
 namespace utils {
 
@@ -44,25 +38,35 @@ size_t int_pow(size_t base, size_t n);
 
 class TqdmWrapper {
 public:
-    TqdmWrapper(size_t total, bool = true);
-    TqdmWrapper(int total, bool = true);
-    ~TqdmWrapper();
+    using CounterType = int;
+
+    template <typename T>
+    requires std::integral<T>
+    inline TqdmWrapper(T total, bool show = true)
+        : _counter(0), _total{gsl::narrow<CounterType>(total)}, _tqdm{std::make_unique<tqdm>(show)} {}
+
+    inline ~TqdmWrapper() {
+        _tqdm->finish();
+    }
+
     TqdmWrapper(TqdmWrapper const&) = delete;
     TqdmWrapper& operator=(TqdmWrapper const&) = delete;
     TqdmWrapper(TqdmWrapper&&) noexcept = default;
     TqdmWrapper& operator=(TqdmWrapper&&) noexcept = default;
 
-    size_t idx() const { return _counter; }
-    bool done() const { return _counter == _total; }
-    void add();
-    TqdmWrapper& operator++() {
+    inline int idx() const { return _counter; }
+    inline bool done() const { return _counter == _total; }
+    inline void add() {
+        _tqdm->progress(_counter++, _total);
+    }
+    inline TqdmWrapper& operator++() {
         add();
         return *this;
     }
 
 private:
-    size_t _counter;
-    size_t _total;
+    CounterType _counter;
+    CounterType _total;
 
     // Using a pointer so we don't need to know tqdm's size in advance.
     // This way, no need to #include it in the header
@@ -72,6 +76,34 @@ private:
 };
 
 // In dvlab_string.cpp
+
+namespace iterator {
+
+/**
+ * @brief A wrapper for std::next() that throws an exception if the narrowing conversion fails.
+ *
+ * @tparam Iter iterator type. Requires std::random_access_iterator.
+ * @tparam DiffT difference type. Requires std::integral.
+ */
+template <typename Iter, typename DiffT>
+requires std::random_access_iterator<Iter> && std::integral<DiffT>
+Iter next(Iter iter, DiffT n = 1) {
+    return std::next(iter, gsl::narrow<typename decltype(iter)::difference_type>(n));
+}
+
+/**
+ * @brief A wrapper for std::prev() that throws an exception if the narrowing conversion fails.
+ *
+ * @tparam Iter iterator type. Requires std::random_access_iterator.
+ * @tparam DiffT difference type. Requires std::integral.
+ */
+template <typename Iter, typename DiffT>
+requires std::random_access_iterator<Iter> && std::integral<DiffT>
+Iter prev(Iter iter, DiffT n = 1) {
+    return std::prev(iter, gsl::narrow<typename decltype(iter)::difference_type>(n));
+}
+
+}  // namespace iterator
 
 namespace str {
 
@@ -122,12 +154,10 @@ inline bool str_to_ull(std::string const& str, unsigned long long& num) { return
 
 inline bool str_to_size_t(std::string const& str, size_t& num) { return str_to_num<size_t>(str, num); }
 
-std::string to_lower_string(std::string const& str);
-std::string to_upper_string(std::string const& str);
-
-}  // namespace str
-
-}  // namespace dvlab
+char tolower(char ch);
+char toupper(char ch);
+std::string tolower_string(std::string const& str);
+std::string toupper_string(std::string const& str);
 
 /**
  * @brief An indirection layer for std::stoXXX(const string& str, size_t* pos = nullptr).
@@ -140,7 +170,7 @@ std::string to_upper_string(std::string const& str);
  */
 template <class T>
 requires std::is_arithmetic_v<T>
-T dvlab::str::detail::stonum(std::string const& str, size_t* pos) {
+T detail::stonum(std::string const& str, size_t* pos) {
     try {
         // floating point types
         if constexpr (std::is_same<T, double>::value) return std::stod(str, pos);
@@ -191,13 +221,24 @@ T dvlab::str::detail::stonum(std::string const& str, size_t* pos) {
  */
 template <class T>
 requires std::is_arithmetic_v<T>
-bool dvlab::str::str_to_num(std::string const& str, T& f) {
+bool str_to_num(std::string const& str, T& f) {
     size_t i;
     try {
-        f = dvlab::str::detail::stonum<T>(str, &i);
+        f = detail::stonum<T>(str, &i);
     } catch (std::exception const& e) {
         return false;
     }
     // Check if str have un-parsable parts
     return (i == str.size());
 }
+
+}  // namespace str
+
+}  // namespace dvlab
+
+#ifndef NDEBUG
+#define DVLAB_ASSERT(Expr, Msg) \
+    dvlab::detail::dvlab_assert_impl(#Expr, Expr, __FILE__, __LINE__, Msg)
+#else
+#define M_Assert(Expr, Msg) ;
+#endif

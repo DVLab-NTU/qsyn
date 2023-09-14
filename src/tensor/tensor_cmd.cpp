@@ -13,50 +13,32 @@
 #include "util/phase.hpp"
 #include "util/text_format.hpp"
 
-using namespace std;
+using namespace dvlab::argparse;
+using dvlab::CmdExecResult;
+using dvlab::Command;
 
-TensorMgr TENSOR_MGR{"Tensor"};
+namespace qsyn::tensor {
 
-using namespace argparse;
-
-Command tensor_mgr_reset_cmd();
-Command tensor_mgr_print_cmd();
-Command tensor_adjoint_cmd();
-Command tensor_print_cmd();
-Command tensor_equivalence_check_cmd();
-
-bool add_tensor_cmds() {
-    if (!(
-            CLI.add_command(tensor_mgr_reset_cmd()) &&
-            CLI.add_command(tensor_mgr_print_cmd()) &&
-            CLI.add_command(tensor_adjoint_cmd()) &&
-            CLI.add_command(tensor_print_cmd()) &&
-            CLI.add_command(tensor_equivalence_check_cmd()))) {
-        cerr << "Registering \"tensor\" commands fails... exiting" << endl;
-        return false;
-    }
-    return true;
-}
-
-ArgType<size_t>::ConstraintType VALID_TENSOR_ID =
-    [](size_t const& id) {
-        if (TENSOR_MGR.is_id(id)) return true;
-        cerr << "Error: Can't find tensor with ID " << id << "!!" << endl;
+ArgType<size_t>::ConstraintType valid_tensor_id(TensorMgr const& tensor_mgr) {
+    return [&](size_t const& id) {
+        if (tensor_mgr.is_id(id)) return true;
+        std::cerr << "Error: Can't find tensor with ID " << id << "!!" << std::endl;
         return false;
     };
+}
 
-Command tensor_mgr_reset_cmd() {
+Command tensor_mgr_reset_cmd(TensorMgr& tensor_mgr) {
     return {"tsreset",
             [](ArgumentParser& parser) {
                 parser.description("reset the tensor manager");
             },
-            [](ArgumentParser const& /*parser*/) {
-                TENSOR_MGR.reset();
+            [&](ArgumentParser const& /*parser*/) {
+                tensor_mgr.reset();
                 return CmdExecResult::done;
             }};
 }
 
-Command tensor_mgr_print_cmd() {
+Command tensor_mgr_print_cmd(TensorMgr& tensor_mgr) {
     return {"tsprint",
             [](ArgumentParser& parser) {
                 parser.description("print info about Tensors");
@@ -69,66 +51,66 @@ Command tensor_mgr_print_cmd() {
                     .action(store_true)
                     .help("print a list of Tensors");
             },
-            [](ArgumentParser const& parser) {
+            [&](ArgumentParser const& parser) {
                 if (parser.parsed("-focus"))
-                    TENSOR_MGR.print_focus();
+                    tensor_mgr.print_focus();
                 else if (parser.parsed("-list"))
-                    TENSOR_MGR.print_list();
+                    tensor_mgr.print_list();
                 else
-                    TENSOR_MGR.print_manager();
+                    tensor_mgr.print_manager();
 
                 return CmdExecResult::done;
             }};
 }
 
-Command tensor_print_cmd() {
+Command tensor_print_cmd(TensorMgr& tensor_mgr) {
     return {"tstprint",
-            [](ArgumentParser& parser) {
+            [&](ArgumentParser& parser) {
                 parser.description("print info of Tensor");
 
                 parser.add_argument<size_t>("id")
-                    .constraint(VALID_TENSOR_ID)
+                    .constraint(valid_tensor_id(tensor_mgr))
                     .nargs(NArgsOption::optional)
                     .help("if specified, print the tensor with the ID");
             },
-            [](ArgumentParser const& parser) {
+            [&](ArgumentParser const& parser) {
                 if (parser.parsed("id")) {
-                    cout << *TENSOR_MGR.find_by_id(parser.get<size_t>("id")) << endl;
+                    std::cout << *tensor_mgr.find_by_id(parser.get<size_t>("id")) << std::endl;
                 } else {
-                    cout << *TENSOR_MGR.get() << endl;
+                    std::cout << *tensor_mgr.get() << std::endl;
                 }
 
                 return CmdExecResult::done;
             }};
 }
 
-Command tensor_adjoint_cmd() {
+Command tensor_adjoint_cmd(TensorMgr& tensor_mgr) {
     return {"tsadjoint",
-            [](ArgumentParser& parser) {
+            [&](ArgumentParser& parser) {
                 parser.description("adjoint the specified tensor");
 
                 parser.add_argument<size_t>("id")
-                    .constraint(VALID_TENSOR_ID)
+                    .constraint(valid_tensor_id(tensor_mgr))
                     .nargs(NArgsOption::optional)
                     .help("the ID of the tensor");
             },
-            [](ArgumentParser const& parser) {
+            [&](ArgumentParser const& parser) {
                 if (parser.parsed("id")) {
-                    TENSOR_MGR.find_by_id(parser.get<size_t>("id"))->adjoint();
+                    tensor_mgr.find_by_id(parser.get<size_t>("id"))->adjoint();
                 } else {
-                    TENSOR_MGR.get()->adjoint();
+                    tensor_mgr.get()->adjoint();
                 }
                 return CmdExecResult::done;
             }};
 }
-Command tensor_equivalence_check_cmd() {
+Command tensor_equivalence_check_cmd(TensorMgr& tensor_mgr) {
     return {"tsequiv",
-            [](ArgumentParser& parser) {
+            [&](ArgumentParser& parser) {
                 parser.description("check the equivalency of two stored tensors");
 
                 parser.add_argument<size_t>("ids")
                     .nargs(1, 2)
-                    .constraint(VALID_TENSOR_ID)
+                    .constraint(valid_tensor_id(tensor_mgr))
                     .help("Compare the two tensors. If only one is specified, compare with the tensor on focus");
                 parser.add_argument<double>("-epsilon")
                     .metavar("eps")
@@ -138,27 +120,27 @@ Command tensor_equivalence_check_cmd() {
                     .help("requires global scaling factor to be 1")
                     .action(store_true);
             },
-            [](ArgumentParser const& parser) {
-                auto ids = parser.get<vector<size_t>>("ids");
+            [&](ArgumentParser const& parser) {
+                auto ids = parser.get<std::vector<size_t>>("ids");
                 auto eps = parser.get<double>("-epsilon");
                 auto strict = parser.get<bool>("-strict");
 
                 QTensor<double>* tensor1;
                 QTensor<double>* tensor2;
                 if (ids.size() == 2) {
-                    tensor1 = TENSOR_MGR.find_by_id(ids[0]);
-                    tensor2 = TENSOR_MGR.find_by_id(ids[1]);
+                    tensor1 = tensor_mgr.find_by_id(ids[0]);
+                    tensor2 = tensor_mgr.find_by_id(ids[1]);
                 } else {
-                    tensor1 = TENSOR_MGR.get();
-                    tensor2 = TENSOR_MGR.find_by_id(ids[0]);
+                    tensor1 = tensor_mgr.get();
+                    tensor2 = tensor_mgr.find_by_id(ids[0]);
                 }
 
                 bool equiv = is_equivalent(*tensor1, *tensor2, eps);
                 double norm = global_norm<double>(*tensor1, *tensor2);
-                Phase phase = global_phase<double>(*tensor1, *tensor2);
+                dvlab::Phase phase = global_phase<double>(*tensor1, *tensor2);
 
                 if (strict) {
-                    if (norm > 1 + eps || norm < 1 - eps || phase != Phase(0)) {
+                    if (norm > 1 + eps || norm < 1 - eps || phase != dvlab::Phase(0)) {
                         equiv = false;
                     }
                 }
@@ -174,3 +156,18 @@ Command tensor_equivalence_check_cmd() {
                 return CmdExecResult::done;
             }};
 }
+
+bool add_tensor_cmds(dvlab::CommandLineInterface& cli, TensorMgr& tensor_mgr) {
+    if (!(
+            cli.add_command(tensor_mgr_reset_cmd(tensor_mgr)) &&
+            cli.add_command(tensor_mgr_print_cmd(tensor_mgr)) &&
+            cli.add_command(tensor_adjoint_cmd(tensor_mgr)) &&
+            cli.add_command(tensor_print_cmd(tensor_mgr)) &&
+            cli.add_command(tensor_equivalence_check_cmd(tensor_mgr)))) {
+        std::cerr << "Registering \"tensor\" commands fails... exiting" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+}  // namespace qsyn::tensor

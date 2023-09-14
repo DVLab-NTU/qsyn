@@ -56,9 +56,7 @@ qcgp 26 -t
 qcgd 24
 qcgp 24
 qcgp 26
-qcgp 26 -zx
 qcgp 26 -t
-qcgp 23 -zx
 qcr
 qccr benchmark/benchmark_SABRE/large/root_255.qasm
 qccp -l
