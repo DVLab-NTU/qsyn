@@ -4,6 +4,12 @@ This document lists the third-party dependencies that `qsyn` uses as libraries, 
 - [`xtl`](https://github.com/xtensor-stack/xtl), [`xtensor`](https://github.com/xtensor-stack/xtensor), [`xtensor-blas`](https://github.com/xtensor-stack/xtensor-blas): tensor library
     - BSD-3-Clause License
 
+## pseudo-std c++23 ranges library
+- [`TartanLlama/ranges`](https://github.com/TartanLlama/ranges): a pseudo-std c++23 ranges library
+    - CC0 1.0 Universal
+
+
+
 ## Cross-Platform Support
 - [`josuttis/jthread`](https://github.com/josuttis/jthread/tree/master): a substitute of `std::jthread` and `std::stop_token` to support `Clang` compilation on macOS
     - CC By 4.0 License

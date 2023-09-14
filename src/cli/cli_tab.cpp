@@ -87,8 +87,7 @@ dvlab::CommandLineInterface::TabActionResult dvlab::CommandLineInterface::_match
     // cases 1, 2, 3 go here
     // [case 3] single command; insert ' '
     if (matches.size() == 1) {
-        for (size_t i = str.size(); i < matches[0].size(); ++i)
-            _insert_char(matches[0][i]);
+        std::for_each(dvlab::iterator::next(matches[0].begin(), str.size()), matches[0].end(), [this](char ch) { _insert_char(ch); });
         _insert_char(' ');
         return TabActionResult::autocomplete;
     }

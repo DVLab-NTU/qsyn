@@ -17,8 +17,6 @@
 #include "util/util.hpp"
 #include "zx/zxgraph.hpp"
 
-extern size_t VERBOSE;
-
 struct UCharVectorHash {
     size_t operator()(std::vector<unsigned char> const& k) const {
         size_t ret = std::hash<unsigned char>()(k[0]);
@@ -74,14 +72,10 @@ void BooleanMatrix::Row::print_row() const {
  * @return false
  */
 bool BooleanMatrix::Row::is_one_hot() const {
-    size_t cnt = 0;
-    for (auto& i : _row) {
-        if (i == 1) {
-            if (cnt == 1) return false;
-            ++cnt;
-        }
-    }
-    return (cnt == 1);
+    // we don't use count_if here because we want to stop early if we find a second 1
+    auto first_one = std::ranges::find(_row, 1);
+    if (first_one == _row.end()) return false;
+    return std::ranges::find(first_one + 1, _row.end(), 1) == _row.end();
 }
 
 /**
@@ -171,7 +165,7 @@ bool BooleanMatrix::row_operation(size_t ctrl, size_t targ, bool track) {
 }
 
 /**
- * @brief Perform Gaussian Elimination with different block sizes. Skip the column if it is duplicated.
+ * @brief Perform Gaussian Elimination with `block size`. Skip the column if it is duplicated.
  *
  * @param blockSize
  * @param fullReduced if true, performing back-substitution from the echelon form
@@ -276,28 +270,37 @@ size_t BooleanMatrix::gaussian_elimination_skip(size_t block_size, bool do_fully
  * @return size_t
  */
 size_t BooleanMatrix::filter_duplicate_row_operations() {
-    auto ops_copy = _row_operations;
-    std::vector<ssize_t> dups;
-    std::unordered_map<size_t, std::pair<size_t, size_t>> last_used;  // NOTE - bit, (another bit, gateId)
-    for (size_t i = 0; i < ops_copy.size(); i++) {
-        bool first_match = false, second_match = false;
-        if (last_used.contains(ops_copy[i].first) && last_used[ops_copy[i].first].first == ops_copy[i].second && ops_copy[last_used[ops_copy[i].first].second].first == ops_copy[i].first) first_match = true;
-        if (last_used.contains(ops_copy[i].second) && last_used[ops_copy[i].second].first == ops_copy[i].first && ops_copy[last_used[ops_copy[i].second].second].second == ops_copy[i].second) second_match = true;
-        if (first_match && second_match) {
-            dups.emplace_back(i);
-            dups.emplace_back(last_used[ops_copy[i].second].second);
-            last_used.erase(ops_copy[i].first);
-            last_used.erase(ops_copy[i].second);
+    // for self-documentation
+    using RowIdxType = size_t;
+    using OpIdxType = size_t;
+    std::vector<OpIdxType> dups;
+    struct RowAndOp {
+        RowIdxType row_idx;
+        OpIdxType op_idx;
+    };
+    std::unordered_map<RowIdxType, RowAndOp> last_used;  // NOTE - bit, (another bit, gateId)
+    for (size_t ith_row_op = 0; ith_row_op < _row_operations.size(); ith_row_op++) {
+        auto& [row_src, row_dest] = _row_operations[ith_row_op];
+        bool first_match = last_used.contains(row_src) &&
+                           last_used[row_src].row_idx == row_dest;
 
+        bool second_match = last_used.contains(row_dest) &&
+                            last_used[row_dest].row_idx == row_src;
+
+        if (first_match && second_match) {
+            dups.emplace_back(ith_row_op);
+            dups.emplace_back(last_used[row_dest].op_idx);
+            last_used.erase(row_src);
+            last_used.erase(row_dest);
         } else {
-            last_used[ops_copy[i].first] = std::make_pair(ops_copy[i].second, i);
-            last_used[ops_copy[i].second] = std::make_pair(ops_copy[i].first, i);
+            last_used[row_src] = {row_dest, ith_row_op};
+            last_used[row_dest] = {row_src, ith_row_op};
         }
     }
     sort(dups.begin(), dups.end());
 
-    for (ssize_t i = 0; i < dups.size(); i++) {
-        _row_operations.erase(_row_operations.begin() + (dups[i] - i));
+    for (auto const& op : dups | std::views::reverse) {
+        _row_operations.erase(dvlab::iterator::next(_row_operations.begin(), op));
     }
 
     return dups.size();
@@ -312,8 +315,6 @@ size_t BooleanMatrix::filter_duplicate_row_operations() {
  * @return false
  */
 bool BooleanMatrix::gaussian_elimination(bool track, bool is_augmented_matrix) {
-    if (VERBOSE >= 5) std::cout << "Performing Gaussian Elimination..." << std::endl;
-    if (VERBOSE >= 8) print_matrix();
     _row_operations.clear();
 
     size_t num_variables = num_cols() - ((is_augmented_matrix) ? 1 : 0);
@@ -329,10 +330,6 @@ bool BooleanMatrix::gaussian_elimination(bool track, bool is_augmented_matrix) {
         for (size_t j = i + 1; j < num_rows(); j++) {
             if (_matrix[j][i] == 1) {
                 row_operation(j, i, track);
-                if (VERBOSE >= 8) {
-                    std::cout << "Diag Add " << j << " to " << i << std::endl;
-                    print_matrix();
-                }
                 return true;
             }
         }
@@ -348,10 +345,6 @@ bool BooleanMatrix::gaussian_elimination(bool track, bool is_augmented_matrix) {
         for (size_t j = i + 1; j < num_rows(); j++) {
             if (_matrix[j][i] == 1 && _matrix[i][i] == 1) {
                 row_operation(i, j, track);
-                if (VERBOSE >= 8) {
-                    std::cout << "Add " << i << " to " << j << std::endl;
-                    print_matrix();
-                }
             }
         }
     }
@@ -369,10 +362,6 @@ bool BooleanMatrix::gaussian_elimination(bool track, bool is_augmented_matrix) {
         for (size_t j = num_rows() - i; j < num_rows(); j++) {
             if (_matrix[num_rows() - i - 1][j] == 1) {
                 row_operation(j, num_rows() - i - 1, track);
-                if (VERBOSE >= 8) {
-                    std::cout << "Add " << j << " to " << num_rows() - i - 1 << std::endl;
-                    print_matrix();
-                }
             }
         }
     }
@@ -407,8 +396,6 @@ bool BooleanMatrix::is_solved_form() const {
  * @return false
  */
 bool BooleanMatrix::gaussian_elimination_augmented(bool track) {
-    if (VERBOSE >= 5) std::cout << "Performing Gaussian Elimination..." << std::endl;
-    if (VERBOSE >= 9) print_matrix();
     _row_operations.clear();
 
     size_t num_variables = num_cols() - 1;
@@ -437,20 +424,12 @@ bool BooleanMatrix::gaussian_elimination_augmented(bool track) {
             }
 
             row_operation(the_first_row_with_one, cur_row, track);
-            if (VERBOSE >= 9) {
-                std::cout << "Add " << the_first_row_with_one << " to " << cur_row << std::endl;
-                print_matrix();
-            }
         }
 
         // make other elements on the same column 0
         for (size_t r = 0; r < num_rows(); ++r) {
             if (r != cur_row && _matrix[r][cur_col] == 1) {
                 row_operation(cur_row, r, track);
-                if (VERBOSE >= 9) {
-                    std::cout << "Add " << cur_row << " to " << r << std::endl;
-                    print_matrix();
-                }
             }
         }
 
@@ -482,34 +461,6 @@ bool BooleanMatrix::is_augmented_solved_form() const {
         for (size_t j = 0; j < num_cols(); ++j) {
             if (_matrix[i][j] != 0) return false;
         }
-    }
-
-    return true;
-}
-
-/**
- * @brief Build matrix from ZXGraph (according to the given order)
- *
- * @param frontier
- * @param neighbors
- * @return true if successfully built,
- * @return false if not
- */
-bool BooleanMatrix::from_zxvertices(qsyn::zx::ZXVertexList const& frontier, qsyn::zx::ZXVertexList const& neighbors) {
-    // NOTE - assign row by calculating a Frontier's connecting status to Neighbors, e.g. 10010 = connect to qubit 0 and 3.
-    reset();
-    std::unordered_map<qsyn::zx::ZXVertex*, size_t> table;
-    size_t cnt = 0;
-    for (auto& v : neighbors) {
-        table[v] = cnt;
-        cnt++;
-    }
-    for (auto& v : frontier) {
-        auto storage = std::vector<unsigned char>(neighbors.size(), 0);
-        for (auto& [vt, _] : v->get_neighbors()) {
-            if (neighbors.contains(vt)) storage[table[vt]] = 1;
-        }
-        _matrix.emplace_back(storage);
     }
 
     return true;

@@ -294,7 +294,7 @@ string dvlab::CommandLineInterface::_replace_variable_keys_with_values(string co
     //       "${foo}${bar}" --> "banana"
 
     std::vector<std::tuple<size_t, size_t, string>> to_replace;
-
+    // FIXME - doesn't work for nested variables and multiple variables in one line
     for (auto const& re : {var_without_braces, var_with_braces}) {
         std::smatch matches;
         std::regex_search(str, matches, re);

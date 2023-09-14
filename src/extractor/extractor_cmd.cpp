@@ -232,7 +232,7 @@ dvlab::Command extraction_print_cmd(ZXGraphMgr& zxgraph_mgr) {
                     } else if (parser.parsed("-axels")) {
                         ext.print_axels();
                     } else if (parser.parsed("-matrix")) {
-                        ext.create_matrix();
+                        ext.update_matrix();
                         ext.print_matrix();
                     }
                 }

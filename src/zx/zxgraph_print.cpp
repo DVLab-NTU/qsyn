@@ -186,7 +186,7 @@ std::string get_colored_vertex_string(ZXVertex* v) {
 
 }  // namespace detail
 /**
- * @brief Draw ZXGraphin CLI
+ * @brief Draw ZXGraph in CLI
  *
  */
 void ZXGraph::draw() const {
@@ -196,13 +196,13 @@ void ZXGraph::draw() const {
 
     // maxCol
 
-    size_t max_col = gsl::narrow_cast<size_t>(std::ranges::max(this->get_vertices() | std::views::transform([](ZXVertex* v) { return v->get_col(); })));
+    auto max_col = gsl::narrow_cast<size_t>(std::ranges::max(this->get_vertices() | std::views::transform([](ZXVertex* v) { return v->get_col(); })));
 
     QubitIdList qubit_ids_temp;  // number of qubit
     for (auto& v : get_vertices()) {
         qubit_ids_temp.emplace_back(v->get_qubit());
     }
-    sort(qubit_ids_temp.begin(), qubit_ids_temp.end());
+    std::sort(qubit_ids_temp.begin(), qubit_ids_temp.end());
     if (qubit_ids_temp.size() == 0) {
         std::cout << "Empty graph!!" << std::endl;
         return;

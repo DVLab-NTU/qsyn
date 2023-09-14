@@ -8,6 +8,8 @@
 
 #include "./router.hpp"
 
+#include <gsl/util>
+
 #include "./circuit_topology.hpp"
 #include "./variables.hpp"
 #include "util/util.hpp"
@@ -137,9 +139,7 @@ size_t Router::get_gate_cost(Gate const& gate, bool min_max, size_t apsp_coeff) 
     size_t q1_id = get<1>(physical_qubits_ids);
     PhysicalQubit const& q0 = _device.get_physical_qubit(q0_id);
     PhysicalQubit const& q1 = _device.get_physical_qubit(q1_id);
-    size_t apsp_cost = 0;
-    if (_apsp)
-        apsp_cost = 1 * _device.get_path(q0_id, q1_id).size();  // NOTE - 1 for coefficient
+    auto apsp_cost = _apsp ? _device.get_path(q0_id, q1_id).size() : 0;
 
     size_t avail = min_max ? std::max(q0.get_occupied_time(), q1.get_occupied_time()) : std::min(q0.get_occupied_time(), q1.get_occupied_time());
     return avail + apsp_cost / apsp_coeff;
@@ -442,7 +442,7 @@ std::vector<Router::Operation> Router::_traceback([[maybe_unused]] GateType gt, 
     }
     // REVIEW - Check time, now the start time
     sort(operation_list.begin(), operation_list.end(), [](Operation const& a, Operation const& b) -> bool {
-        return a.get_operation_time() < b.get_operation_time();
+        return a.get_time_begin() < b.get_time_begin();
     });
 
     for (size_t i = 0; i < operation_list.size(); ++i) {
@@ -476,7 +476,7 @@ std::vector<Router::Operation> Router::assign_gate(Gate const& gate) {
 
     // i is the idx of device qubit
     for (size_t i = 0; i < change_list.size(); ++i) {
-        size_t logical_qubit_id = change_list[i];
+        auto logical_qubit_id = change_list[i];
         if (logical_qubit_id == SIZE_MAX) {
             continue;
         }

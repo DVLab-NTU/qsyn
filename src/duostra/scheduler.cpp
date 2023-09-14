@@ -60,7 +60,7 @@ std::unique_ptr<BaseScheduler> BaseScheduler::clone() const {
  */
 void BaseScheduler::_sort() {
     std::sort(_operations.begin(), _operations.end(), [](Operation const& a, Operation const& b) -> bool {
-        return a.get_operation_time() < b.get_operation_time();
+        return a.get_time_begin() < b.get_time_begin();
     });
     _sorted = true;
 }
@@ -72,7 +72,7 @@ void BaseScheduler::_sort() {
  */
 size_t BaseScheduler::get_final_cost() const {
     assert(_sorted);
-    return _operations.at(_operations.size() - 1).get_cost();
+    return _operations.at(_operations.size() - 1).get_time_end();
 }
 
 /**
@@ -82,12 +82,10 @@ size_t BaseScheduler::get_final_cost() const {
  */
 size_t BaseScheduler::get_total_time() const {
     assert(_sorted);
-    size_t ret = 0;
-    for (size_t i = 0; i < _operations.size(); ++i) {
-        std::tuple<size_t, size_t> dur = _operations[i].get_duration();
-        ret += std::get<1>(dur) - std::get<0>(dur);
-    }
-    return ret;
+    auto durations_range = _operations | std::views::transform([](Operation const& op) -> size_t {
+                               return op.get_duration();
+                           });
+    return std::reduce(durations_range.begin(), durations_range.end(), 0, std::plus<>{});
 }
 
 /**
@@ -127,9 +125,9 @@ size_t BaseScheduler::get_executable(Router& router) const {
 size_t BaseScheduler::get_operations_cost() const {
     return max_element(_operations.begin(), _operations.end(),
                        [](Operation const& a, Operation const& b) {
-                           return a.get_cost() < b.get_cost();
+                           return a.get_time_end() < b.get_time_end();
                        })
-        ->get_cost();
+        ->get_time_end();
 }
 
 /**
@@ -173,8 +171,8 @@ size_t BaseScheduler::route_one_gate(Router& router, size_t gate_id, bool forget
     auto ops{router.assign_gate(gate)};
     size_t max_cost = 0;
     for (auto const& op : ops) {
-        if (op.get_cost() > max_cost)
-            max_cost = op.get_cost();
+        if (op.get_time_end() > max_cost)
+            max_cost = op.get_time_end();
     }
     if (!forget)
         _operations.insert(_operations.end(), ops.begin(), ops.end());
