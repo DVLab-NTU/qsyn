@@ -224,7 +224,7 @@ void Device::apply_gate(Operation const& op) {
     auto qubits = op.get_qubits();
     auto& q0 = get_physical_qubit(std::get<0>(qubits));
     auto& q1 = get_physical_qubit(std::get<1>(qubits));
-    auto t = op.get_operation_time();
+    auto t = op.get_time_begin();
 
     switch (op.get_type()) {
         case GateType::swap: {

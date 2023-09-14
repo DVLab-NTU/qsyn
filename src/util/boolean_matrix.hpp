@@ -12,7 +12,6 @@
 #include <vector>
 
 #include "util/ordered_hashset.hpp"
-#include "zx/zx_def.hpp"
 
 //------------------------------------------------------------------------
 //   Define classes
@@ -23,6 +22,8 @@ public:
     class Row {
     public:
         Row(std::vector<unsigned char> const& r) : _row(r) {}
+        Row(size_t size, unsigned char val) : _row(size, val) {}
+        Row(size_t size) : _row(size, 0) {}
 
         std::vector<unsigned char> const& get_row() const { return _row; }
         void set_row(std::vector<unsigned char> row) { _row = std::move(row); }
@@ -51,10 +52,15 @@ public:
         std::vector<unsigned char> _row;
     };
     using RowOperation = std::pair<size_t, size_t>;
+
     BooleanMatrix() {}
+    BooleanMatrix(std::vector<Row> const& matrix) : _matrix(matrix) {}
+    BooleanMatrix(std::vector<Row>&& matrix) : _matrix(std::move(matrix)) {}
+    BooleanMatrix(size_t rows, size_t cols, unsigned char val) : _matrix(rows, Row(cols, val)) {}
+    BooleanMatrix(size_t rows, size_t cols) : _matrix(rows, Row(cols)) {}
+    BooleanMatrix(size_t side_length) : _matrix(side_length, Row(side_length)) {}
 
     void reset();
-    bool from_zxvertices(qsyn::zx::ZXVertexList const& frontier, qsyn::zx::ZXVertexList const& neighbors);
     std::vector<Row> const& get_matrix() { return _matrix; }
     std::vector<RowOperation> const& get_row_operations() { return _row_operations; }
     Row const& get_row(size_t r) { return _matrix[r]; }
@@ -80,6 +86,9 @@ public:
     float dense_ratio();
     void append_one_hot_column(size_t idx);
     void push_zeros_column();
+    void push_zeros_row() { _matrix.emplace_back(std::vector<unsigned char>(_matrix[0].size(), 0)); }
+    void push_row(Row const& row) { _matrix.emplace_back(row); }
+    void push_wor(Row&& row) { _matrix.emplace_back(std::move(row)); }
 
     Row& operator[](size_t const& i) {
         return _matrix[i];

@@ -42,7 +42,7 @@ public:
     Device get_device() const { return _device; }
 
     void make_dependency();
-    void make_dependency(std::vector<Operation> const&, size_t);
+    void make_dependency(std::vector<Operation> const& ops, size_t n_qubits);
     size_t flow(bool = false);
     void store_order_info(std::vector<size_t> const&);
     void print_assembly() const;

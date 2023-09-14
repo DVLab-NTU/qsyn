@@ -141,7 +141,7 @@ bool Extractor::extraction_loop(size_t max_iter) {
 
         if (contains_single_neighbor()) {
             if (VERBOSE >= 4) std::cout << "Construct an easy matrix." << std::endl;
-            _biadjacency.from_zxvertices(_frontier, _neighbors);
+            update_matrix();
         } else {
             if (VERBOSE >= 4) std::cout << "Perform Gaussian Elimination." << std::endl;
             extract_cxs();
@@ -301,7 +301,7 @@ size_t Extractor::extract_hadamards_from_matrix(bool check) {
             std::cout << "Note: axel(s) are in the neighbors, please remove gadget(s) first." << std::endl;
             return 0;
         }
-        _biadjacency.from_zxvertices(_frontier, _neighbors);
+        update_matrix();
     }
 
     std::unordered_map<size_t, ZXVertex*> frontier_id_to_vertex;
@@ -606,7 +606,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
 
     std::vector<BooleanMatrix::RowOperation> greedy_opers;
 
-    _biadjacency.from_zxvertices(_frontier, _neighbors);
+    update_matrix();
     BooleanMatrix greedy_mat = _biadjacency;
     ZXVertexList backup_neighbors = _neighbors;
     if (OPTIMIZE_LEVEL > 1) {
@@ -620,7 +620,7 @@ bool Extractor::biadjacency_eliminations(bool check) {
     if (OPTIMIZE_LEVEL != 2) {
         // NOTE - opt = 0, 1 or 3
         column_optimal_swap();
-        _biadjacency.from_zxvertices(_frontier, _neighbors);
+        update_matrix();
 
         if (OPTIMIZE_LEVEL == 0) {
             _biadjacency.gaussian_elimination_skip(BLOCK_SIZE, true, true);
@@ -864,8 +864,8 @@ void Extractor::update_graph_by_matrix(EdgeType et) {
  * @brief Create bi-adjacency matrix fron frontier and neighbors
  *
  */
-void Extractor::create_matrix() {
-    _biadjacency.from_zxvertices(_frontier, _neighbors);
+void Extractor::update_matrix() {
+    _biadjacency = get_biadjacency_matrix(_frontier, _neighbors);
 }
 
 /**

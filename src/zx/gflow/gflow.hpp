@@ -14,6 +14,8 @@
 #include "../zxgraph.hpp"
 #include "util/boolean_matrix.hpp"
 
+class BooleanMatrix;
+
 namespace qsyn {
 
 namespace zx {
@@ -78,13 +80,12 @@ private:
     ZXVertexList _frontier;
     ZXVertexList _neighbors;
     std::unordered_set<ZXVertex*> _taken;
-    BooleanMatrix _coefficient_matrix;
 
     // gflow calculation subroutines
     void _initialize();
     void _calculate_zeroth_layer();
     void _update_neighbors_by_frontier();
-    BooleanMatrix _prepare_matrix(ZXVertex* v, size_t i);
+    BooleanMatrix _prepare_matrix(ZXVertex* v, size_t i, BooleanMatrix const& matrix);
     void _set_correction_set_by_matrix(ZXVertex* v, BooleanMatrix const& matrix);
     void _update_frontier();
 };

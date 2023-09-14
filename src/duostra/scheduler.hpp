@@ -171,8 +171,7 @@ public:
     }
 
     bool is_leaf() const { return _children.empty(); }
-    void grow_if_needed();
-    bool can_grow() const;
+    bool can_grow() const { return scheduler().get_available_gates().size(); }
 
     TreeNode best_child(size_t depth);
     size_t best_cost(size_t depth);
@@ -199,8 +198,6 @@ private:
     size_t _max_cost;
     std::unique_ptr<Router> _router;
     std::unique_ptr<BaseScheduler> _scheduler;
-
-    std::vector<TreeNode>&& _take_children();
 
     void _grow();
     size_t _immediate_next() const;

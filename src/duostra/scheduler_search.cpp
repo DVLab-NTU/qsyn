@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <functional>
+#include <tl/enumerate.hpp>
 #include <unordered_set>
 #include <vector>
 
@@ -81,16 +82,6 @@ TreeNode::TreeNode(TreeNode const& other)
       _scheduler{other._scheduler->clone()} {}
 
 /**
- * @brief Get children
- *
- * @return vector<TreeNode>&&
- */
-std::vector<TreeNode>&& TreeNode::_take_children() {
-    grow_if_needed();
-    return std::move(_children);
-}
-
-/**
  * @brief Grow by adding availalble gates to children.
  *
  */
@@ -100,24 +91,6 @@ void TreeNode::_grow() {
     _children.reserve(avail_gates.size());
     for (size_t gate_id : avail_gates)
         _children.emplace_back(_conf, gate_id, router().clone(), scheduler().clone(), _max_cost);
-}
-
-/**
- * @brief Grow if needed
- *
- */
-inline void TreeNode::grow_if_needed() {
-    if (is_leaf()) _grow();
-}
-
-/**
- * @brief Can grow or not
- *
- * @return true
- * @return false
- */
-inline bool TreeNode::can_grow() const {
-    return !scheduler().get_available_gates().empty();
 }
 
 /**
@@ -171,18 +144,18 @@ void TreeNode::_route_internal_gates() {
  * @return TreeNode
  */
 TreeNode TreeNode::best_child(size_t depth) {
-    auto next_nodes = _take_children();
-    size_t best_id = 0, best = (size_t)-1;
-    for (size_t idx = 0; idx < next_nodes.size(); ++idx) {
-        auto& node = next_nodes[idx];
+    if (is_leaf()) _grow();
+    // NOTE - best_cost(depth) is computationally expensive, so we don't use std::min_element here to avoid calling it twice.
+    size_t best_idx = 0, best_cost = SIZE_MAX;
+    for (auto&& [idx, node] : tl::views::enumerate(_children)) {
         assert(depth >= 1);
-        size_t cost = node.best_cost(depth);
-        if (cost < best) {
-            best_id = idx;
-            best = cost;
+        auto cost = node.best_cost(depth);
+        if (cost < best_cost) {
+            best_idx = idx;
+            best_cost = cost;
         }
     }
-    return next_nodes[best_id];
+    return std::move(_children[best_idx]);
 }
 
 /**
@@ -219,19 +192,16 @@ size_t TreeNode::best_cost(size_t depth) {
     }
 
     // Calcualtes the best cost for each children.
-    size_t best = (size_t)-1;
-    for (auto child = _children.begin(); child < end; ++child) {
-        size_t cost = child->best_cost(depth - 1);
-
-        if (cost < best)
-            best = cost;
+    size_t best_cost = SIZE_MAX;
+    for (auto& child : _children) {
+        best_cost = std::min(best_cost, child.best_cost(depth - 1));
     }
 
     // Clear the cache if specified.
     if (_conf._neverCache)
         _children.clear();
 
-    return best;
+    return best_cost;
 }
 
 /**
@@ -240,20 +210,15 @@ size_t TreeNode::best_cost(size_t depth) {
  * @return size_t
  */
 size_t TreeNode::best_cost() const {
-    size_t best = (size_t)-1;
+    size_t best = SIZE_MAX;
 
-    auto const& avail_gates = scheduler().get_available_gates();
-
-#pragma omp parallel for
-    for (size_t idx = 0; idx < avail_gates.size(); ++idx) {
-        TreeNode child_node{_conf, avail_gates[idx], router().clone(),
+#pragma omp parallel for reduction(min : best)
+    for (auto& gate : scheduler().get_available_gates()) {
+        TreeNode child_node{_conf, gate, router().clone(),
                             scheduler().clone(), _max_cost};
-        size_t cost = child_node._max_cost;
-
-#pragma omp critical
-        if (cost < best)
-            best = cost;
+        best = std::min(best, child_node._max_cost);
     }
+
     return best;
 }
 

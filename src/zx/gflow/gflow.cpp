@@ -11,9 +11,11 @@
 #include <cstddef>
 #include <ranges>
 
+#include "util/boolean_matrix.hpp"
 #include "util/logger.hpp"
 #include "util/text_format.hpp"
 #include "zx/simplifier/simplify.hpp"
+#include "zx/zxgraph.hpp"
 
 extern dvlab::Logger LOGGER;
 
@@ -62,7 +64,6 @@ void GFlow::_initialize() {
     _frontier.clear();
     _neighbors.clear();
     _taken.clear();
-    _coefficient_matrix.clear();
     _vertex2levels.clear();
     using MP = MeasurementPlane;
 
@@ -103,7 +104,7 @@ bool GFlow::calculate() {
 
         _levels.emplace_back();
 
-        _coefficient_matrix.from_zxvertices(_neighbors, _frontier);
+        auto coefficient_matrix = get_biadjacency_matrix(_neighbors, _frontier);
 
         size_t i = 0;
         LOGGER.trace("Frontier: {}", fmt::join(_frontier | std::views::transform(vertex_to_id), " "));
@@ -118,7 +119,7 @@ bool GFlow::calculate() {
                 continue;
             }
 
-            BooleanMatrix augmented_matrix = _prepare_matrix(v, i);
+            auto augmented_matrix = _prepare_matrix(v, i, coefficient_matrix);
 
             if (augmented_matrix.gaussian_elimination_augmented(false)) {
                 LOGGER.trace("Solved {}, adding to this level", v->get_id());
@@ -225,8 +226,8 @@ void GFlow::_set_correction_set_by_matrix(ZXVertex* v, BooleanMatrix const& matr
  * @brief prepare the matrix to solve depending on the measurement plane.
  *
  */
-BooleanMatrix GFlow::_prepare_matrix(ZXVertex* v, size_t i) {
-    BooleanMatrix augmented_matrix = _coefficient_matrix;
+BooleanMatrix GFlow::_prepare_matrix(ZXVertex* v, size_t i, BooleanMatrix const& matrix) {
+    BooleanMatrix augmented_matrix = matrix;
     augmented_matrix.push_zeros_column();
 
     auto itr = _neighbors.begin();

@@ -10,6 +10,7 @@
 
 #include "./circuit_topology.hpp"
 #include "util/logger.hpp"
+#include "util/util.hpp"
 
 extern size_t VERBOSE;
 extern dvlab::Logger LOGGER;
@@ -61,8 +62,8 @@ size_t Checker::get_cycle(GateType type) {
  * @param q0
  */
 void Checker::apply_gate(Checker::Operation const& op, Checker::PhysicalQubit& q0) {
-    size_t start = get<0>(op.get_duration());
-    size_t end = get<1>(op.get_duration());
+    size_t start = get<0>(op.get_time_range());
+    size_t end = get<1>(op.get_time_range());
 
     if (!(start >= q0.get_occupied_time())) {
         std::cerr << op << "\n"
@@ -87,8 +88,8 @@ void Checker::apply_gate(Checker::Operation const& op, Checker::PhysicalQubit& q
 void Checker::apply_gate(Checker::Operation const& op,
                          Checker::PhysicalQubit& q0,
                          Checker::PhysicalQubit& q1) {
-    size_t start = get<0>(op.get_duration());
-    size_t end = get<1>(op.get_duration());
+    size_t start = get<0>(op.get_time_range());
+    size_t end = get<1>(op.get_time_range());
 
     if (!(start >= q0.get_occupied_time() && start >= q1.get_occupied_time())) {
         std::cerr << op << "\n"
@@ -215,10 +216,8 @@ bool Checker::apply_single(Operation const& op, Gate const& gate) {
  */
 bool Checker::test_operations() {
     std::vector<size_t> finished_gates;
-
-    // cout << "Checking..." << endl;
-    dvlab::TqdmWrapper bar{_ops.size(), _tqdm};
-    for (auto const& op : _ops) {
+    for (dvlab::TqdmWrapper bar{_ops.size(), _tqdm}; !bar.done(); ++bar) {
+        auto& op = _ops[bar.idx()];
         if (op.get_type() == GateType::swap) {
             apply_swap(op);
         } else {
@@ -256,7 +255,6 @@ bool Checker::test_operations() {
                 return false;
             }
         }
-        ++bar;
     }
     if (VERBOSE > 3) {
         std::cout << "\nNum gates: " << finished_gates.size() << "\n"

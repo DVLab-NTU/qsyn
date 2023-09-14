@@ -6,6 +6,7 @@
 ****************************************************************************/
 
 #include "./zx_rules_template.hpp"
+#include "tl/enumerate.hpp"
 
 using namespace qsyn::zx;
 
@@ -22,10 +23,8 @@ std::vector<MatchType> StateCopyRule::find_matches(ZXGraph const& graph) const {
     std::unordered_map<ZXVertex*, size_t> vertex2idx;
 
     std::unordered_map<size_t, size_t> id2idx;
-    size_t count = 0;
-    for (auto const& v : graph.get_vertices()) {
+    for (auto const& [count, v] : tl::views::enumerate(graph.get_vertices())) {
         vertex2idx[v] = count;
-        count++;
     }
 
     std::vector<bool> valid_vertex(graph.get_num_vertices(), true);

@@ -15,6 +15,8 @@
 #include <ranges>
 
 #include "fmt/core.h"
+#include "tl/adjacent.hpp"
+#include "tl/enumerate.hpp"
 #include "util/trie.hpp"
 #include "util/util.hpp"
 
@@ -50,10 +52,9 @@ size_t ArgumentParser::num_parsed_args() const {
  *
  */
 void ArgumentParser::print_tokens() const {
-    size_t i = 0;
-    for (auto& [token, parsed] : _pimpl->tokens) {
+    for (auto&& [i, token] : tl::views::enumerate(_pimpl->tokens)) {
         fmt::println("Token #{:<8}:\t{} ({}) Frequency: {:>3}",
-                     ++i, token, (parsed ? "parsed" : "unparsed"), _pimpl->identifiers.frequency(token));
+                     i, token.token, (token.parsed ? "parsed" : "unparsed"), _pimpl->identifiers.frequency(token.token));
     }
 }
 
@@ -194,20 +195,17 @@ bool ArgumentParser::_tokenize(std::string const& line) {
 
     if (_pimpl->tokens.empty()) return true;
     // concat tokens with '\ ' to a single token with space in it
-    for (auto itr = next(_pimpl->tokens.rbegin()); itr != _pimpl->tokens.rend(); ++itr) {
-        std::string& curr_token = itr->token;
-        std::string& next_token = prev(itr)->token;
-
-        if (curr_token.ends_with('\\') && !curr_token.ends_with("\\\\")) {
-            curr_token.back() = ' ';
-            curr_token += next_token;
-            next_token = "";
+    for (auto&& [curr_token, next_token] : _pimpl->tokens | std::views::reverse | tl::views::pairwise) {
+        if (curr_token.token.ends_with('\\') && !curr_token.token.ends_with("\\\\")) {
+            curr_token.token.back() = ' ';
+            curr_token.token += next_token.token;
+            next_token.token = "";
         }
     }
     erase_if(_pimpl->tokens, [](Token const& token) { return token.token == ""; });
 
     // convert "abc=def", "abc:def" to "abc def"
-
+    // this for loop must be index based, because we are inserting elements
     for (auto i = 0; i < _pimpl->tokens.size(); ++i) {
         size_t pos = _pimpl->tokens[i].token.find_first_of("=:");
 
@@ -317,17 +315,15 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
         if (!_pimpl->subparsers.has_value())
             return tokens.size();
 
-        size_t pos = 0;
-        for (auto const& [token, _] : tokens) {
+        for (auto const& [pos, token] : tl::views::enumerate(tokens)) {
             for (auto const& [name, subparser] : _pimpl->subparsers->get_subparsers()) {
-                if (name.starts_with(token)) {
+                if (name.starts_with(token.token)) {
                     _activate_subparser(name);
                     return pos;
                 }
             }
-            ++pos;
         }
-        return pos;
+        return tokens.size();
     });
 
     for (auto& arg : _pimpl->arguments | std::views::values) {
@@ -366,11 +362,11 @@ std::pair<bool, std::vector<Token>> ArgumentParser::_parse_known_args_impl(Token
  * @return false if failed
  */
 bool ArgumentParser::_parse_options(TokensView tokens) {
-    for (size_t i = 0; i < tokens.size(); ++i) {
-        if (!has_option_prefix(tokens[i].token) || tokens[i].parsed) continue;
-        auto match = _match_option(tokens[i].token);
+    for (auto const& [i, token] : tl::views::enumerate(tokens)) {
+        if (!has_option_prefix(token.token) || token.parsed) continue;
+        auto match = _match_option(token.token);
         if (std::holds_alternative<size_t>(match)) {
-            if (float tmp = 0; dvlab::str::str_to_f(tokens[i].token, tmp))  // if the argument is a number, skip to the next arg
+            if (float tmp = 0; dvlab::str::str_to_f(token.token, tmp))  // if the argument is a number, skip to the next arg
                 continue;
             auto frequency = std::get<size_t>(match);
             assert(frequency != 1);
@@ -378,7 +374,7 @@ bool ArgumentParser::_parse_options(TokensView tokens) {
             if (frequency == 0) continue;  // unrecognized; may be positional arguments or errors
             // else this is an error
             fmt::println(stderr, "Error: ambiguous option: \"{}\" could match {}",
-                         tokens[i].token,
+                         token.token,
                          fmt::join(_pimpl->arguments | std::views::keys | std::views::filter([this, &token = tokens[i].token](std::string const& name) {
                                        return has_option_prefix(name) && name.starts_with(token);
                                    }),
@@ -406,7 +402,7 @@ bool ArgumentParser::_parse_options(TokensView tokens) {
 
         if (!_no_conflict_with_parsed_arguments(arg)) return false;
 
-        tokens[i].parsed = true;
+        token.parsed = true;
         arg.mark_as_parsed();  // if the options is present, no matter if there's any argument the follows, mark it as parsed
     }
 

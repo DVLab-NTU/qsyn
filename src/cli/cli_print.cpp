@@ -8,6 +8,7 @@
 #include <ranges>
 
 #include "./cli.hpp"
+#include "tl/enumerate.hpp"
 
 namespace dvlab {
 
@@ -44,9 +45,8 @@ void dvlab::CommandLineInterface::print_history(size_t n_print) const {
         fmt::println(("Empty command history!!"));
         return;
     }
-    size_t s = _history.size();
-    for (auto i = s - std::min(s, n_print); i < s; ++i) {
-        fmt::println("{:>4}: {}", i, _history[i]);
+    for (auto const& [i, history] : _history | std::views::drop(_history.size() - n_print) | tl::views::enumerate) {
+        fmt::println("{:>4}: {}", i, history);
     }
 }
 
