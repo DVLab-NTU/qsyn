@@ -25,7 +25,7 @@ qcgp 10
 qcgp 9 -t
 qccp -q
 qcr
-qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+qccr benchmark/SABRE/small/3_17_13.qasm
 qccp -q
 qcgp 1 -t
 qccp -q
@@ -49,7 +49,7 @@ qcbd 6
 qcbd 7
 qccp -q
 qcr
-qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+qccr benchmark/SABRE/small/3_17_13.qasm
 qccp -q
 qcgp 1
 qcgp 26 -t
@@ -58,10 +58,10 @@ qcgp 24
 qcgp 26
 qcgp 26 -t
 qcr
-qccr benchmark/benchmark_SABRE/large/root_255.qasm
+qccr benchmark/SABRE/large/root_255.qasm
 qccp -l
 qccp -q
-qccr benchmark/benchmark_SABRE/small/4gt13_92.qasm -r
+qccr benchmark/SABRE/small/4gt13_92.qasm -r
 qccprint -l
 qccprint -q
 qcga cx 1 0

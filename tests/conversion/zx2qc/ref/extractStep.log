@@ -1,5 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+qsyn> qccr benchmark/SABRE/small/3_17_13.qasm
 
 qsyn> exts -op 1
 

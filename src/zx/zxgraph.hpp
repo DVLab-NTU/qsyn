@@ -277,12 +277,12 @@ public:
 
     // I/O (in zxIO.cpp)
     bool read_zx(std::filesystem::path const& filepath, bool keep_id = false);
-    bool write_zx(std::string const& filename, bool complete = false) const;
+    bool write_zx(std::filesystem::path const& filename, bool complete = false) const;
     bool write_tikz(std::string const& filename) const;
-    bool write_tikz(std::ostream& filename) const;
+    bool write_tikz(std::ostream& os) const;
     bool write_pdf(std::string const& filename) const;
     bool write_tex(std::string const& filename) const;
-    bool write_tex(std::ostream& filename) const;
+    bool write_tex(std::ostream& os) const;
 
     // Traverse (in zxTraverse.cpp)
     void update_topological_order() const;

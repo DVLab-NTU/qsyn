@@ -1,4 +1,3 @@
-DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> help logger
 Usage: logger [-h] [test | level | history | mask] ...
 

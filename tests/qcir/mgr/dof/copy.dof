@@ -1,8 +1,8 @@
-qccr benchmark/benchmark_SABRE/small/rd32-v1_68.qasm
+qccr benchmark/SABRE/small/rd32-v1_68.qasm
 qccp -q
 qccopy
 qccp -q
-qccr benchmark/benchmark_SABRE/small/qft_4.qasm
+qccr benchmark/SABRE/small/qft_4.qasm
 qc2zx
 qccp -q
 qccopy 0 -r

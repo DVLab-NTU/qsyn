@@ -1,4 +1,3 @@
-DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qccr benchmark/qft/qft_10dec.qasm
 
 qsyn> qc2zx
