@@ -1,5 +1,5 @@
 ver 1
-qccread ./benchmark/benchmark_SABRE/small/rd32-v1_68.qasm
+qccread ./benchmark/SABRE/small/rd32-v1_68.qasm
 qc2zx
 zxgp -q
 zxgs -fr

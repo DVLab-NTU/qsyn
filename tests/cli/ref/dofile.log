@@ -1,4 +1,3 @@
-DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> // testing empty dofiles
 qsyn> 
 qsyn> dofile tests/cli/helper/empty_dof

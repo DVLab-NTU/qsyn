@@ -26,7 +26,7 @@ with open("largecase.dof", "w") as f:
 '''
 color off
 verbose 0
-qccread benchmark/benchmark_SABRE/large/{}.qasm
+qccread benchmark/SABRE/large/{}.qasm
 qc2zx
 zxgsimp -fr
 zx2qc

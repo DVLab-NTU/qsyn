@@ -1,6 +1,6 @@
 color off
 ver 0
-qccr ../../benchmark/benchmark_SABRE/large/life_238.qasm
+qccr ../../benchmark/SABRE/large/life_238.qasm
 qccp 
 qc2zx
 zxgs -fr

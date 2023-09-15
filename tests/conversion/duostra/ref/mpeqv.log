@@ -1,4 +1,3 @@
-DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> ver 0
 Note: verbose level is set to 0
 
@@ -6,7 +5,7 @@ qsyn> dtgr benchmark/topology/guadalupe.layout
 
 qsyn> qcset -d 2 -sw 6
 
-qsyn> qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+qsyn> qccr benchmark/SABRE/small/3_17_13.qasm
 
 qsyn> duostra -c
 Routing...

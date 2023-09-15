@@ -11,7 +11,7 @@ help zx2ts
 zx2ts // don't do anything if there's no ZXGraph
 
 // creates some ZXGraph from a small circuit
-qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+qccr benchmark/SABRE/small/3_17_13.qasm
 qc2zx 
 zxcopy 1
 zxgs -interc

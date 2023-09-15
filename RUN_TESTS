@@ -55,7 +55,7 @@ def dofile_result_same_with_ref(dofile, args):
         return False, [dofile, " [Reference File Not Found]"]
 
     run_qsyn = subprocess.Popen(
-        [args.qsyn, "-f", dofile],
+        [args.qsyn, "--silent", "--file", dofile],
         stdout=PIPE,
         stderr=STDOUT,
         env={"OMP_WAIT_POLICY": "passive"},
@@ -93,7 +93,7 @@ def update_dofile_ref(dofile, args):
             os.utime(reffile, None)
 
     run_qsyn = subprocess.Popen(
-        [args.qsyn, "-f", dofile],
+        [args.qsyn, "--silent", "--file", dofile],
         stdout=PIPE,
         stderr=STDOUT,
         env={"OMP_WAIT_POLICY": "passive"},
@@ -289,7 +289,7 @@ def main():
 
     if args.file:
         for dofile in dofiles:
-            subprocess.run([args.qsyn, "-f", dofile])
+            subprocess.run([args.qsyn, "-s", "-f", dofile])
         return 0
     if args.update:
         update_test_refs(dofiles, args)

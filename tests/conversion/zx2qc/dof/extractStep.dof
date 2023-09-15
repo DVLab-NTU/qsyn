@@ -1,4 +1,4 @@
-qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+qccr benchmark/SABRE/small/3_17_13.qasm
 exts -op 1
 qc2zx
 extp -f

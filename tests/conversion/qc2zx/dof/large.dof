@@ -1,5 +1,5 @@
 ver 2
-qccr benchmark/benchmark_SABRE/large/9symml_195.qasm
+qccr benchmark/SABRE/large/9symml_195.qasm
 qccp -q
 qc2zx
 zxgtr
@@ -9,7 +9,7 @@ qcga x 0
 qc2zx
 qcga cx -pr 0 1
 qc2zx
-qccr -r benchmark/benchmark_SABRE/small/3_17_13.qasm
+qccr -r benchmark/SABRE/small/3_17_13.qasm
 qc2zx
 qccp -q
 qcn

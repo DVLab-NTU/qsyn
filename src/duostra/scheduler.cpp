@@ -94,12 +94,9 @@ size_t BaseScheduler::get_total_time() const {
  * @return size_t
  */
 size_t BaseScheduler::get_num_swaps() const {
-    size_t ret = 0;
-    for (size_t i = 0; i < _operations.size(); ++i) {
-        if (_operations.at(i).get_type() == qsyn::qcir::GateType::swap)
-            ++ret;
-    }
-    return ret;
+    return std::ranges::count_if(_operations, [](Operation const& op) {
+        return op.get_type() == qcir::GateType::swap;
+    });
 }
 
 /**

@@ -1,5 +1,4 @@
-DV Lab, NTUEE, Qsyn 0.5.1
-qsyn> qccr benchmark/benchmark_SABRE/large/adr4_197.qasm
+qsyn> qccr benchmark/SABRE/large/adr4_197.qasm
 
 qsyn> qc2zx
 

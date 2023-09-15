@@ -1,7 +1,7 @@
 ver 0
 dtgr benchmark/topology/guadalupe.layout
 qcset -d 2 -sw 6
-qccr benchmark/benchmark_SABRE/small/3_17_13.qasm
+qccr benchmark/SABRE/small/3_17_13.qasm
 duostra -c
 qccp
 qcp -l

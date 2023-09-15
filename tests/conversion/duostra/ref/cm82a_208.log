@@ -1,4 +1,3 @@
-DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> ver 0
 Note: verbose level is set to 0
 
@@ -18,7 +17,7 @@ Delay of Double-qubit gate :     2
 Delay of SWAP gate :             6 (3 CXs)
 Delay of Multiple-qubit gate :   5
 
-qsyn> qccr benchmark/benchmark_SABRE/large/cm82a_208.qasm
+qsyn> qccr benchmark/SABRE/large/cm82a_208.qasm
 
 qsyn> dtgr benchmark/topology/guadalupe.layout 
 

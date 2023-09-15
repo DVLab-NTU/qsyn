@@ -1,4 +1,3 @@
-DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> qccr benchmark/pseudoSimp/tof2.qasm
 
 qsyn> qc2ts
