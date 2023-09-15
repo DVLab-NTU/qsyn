@@ -1,5 +1,5 @@
 ver 0
-qccr benchmark/benchmark_SABRE/large/adr4_197.qasm
+qccr benchmark/SABRE/large/adr4_197.qasm
 qccp -a
 logger level trace
 qccoptimize

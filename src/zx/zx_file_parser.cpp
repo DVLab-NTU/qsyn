@@ -23,7 +23,7 @@ namespace zx {
  * @return true if the file is successfully parsed
  * @return false if error happens
  */
-bool ZXFileParser::parse(std::string const& filename) {
+bool ZXFileParser::parse(std::filesystem::path const& filename) {
     _storage.clear();
     _taken_input_qubits.clear();
     _taken_output_qubits.clear();

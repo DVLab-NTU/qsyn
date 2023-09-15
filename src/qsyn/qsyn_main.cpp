@@ -5,6 +5,9 @@
   Copyright    [ Copyright(c) 2023 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
+#include <fmt/chrono.h>
+
+#include <chrono>
 #include <csignal>
 
 #include "./conversion_cmd.hpp"
@@ -50,17 +53,21 @@ bool stop_requested() {
 int main(int argc, char** argv) {
     using namespace dvlab::argparse;
 
-    USAGE.reset();
-
-    signal(SIGINT, [](int signum) -> void { cli.sigint_handler(signum); return; });
-    constexpr auto version_str = "DV Lab, NTUEE, Qsyn " QSYN_VERSION;
+    std::string version_str = fmt::format(
+        "qsyn {} - Copyright © 2022-{:%Y}, DVLab NTUEE.\n"
+        "Licensed under Apache 2.0 License.",
+        QSYN_VERSION, std::chrono::system_clock::now());
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     auto parser = ArgumentParser(argv[0], {.add_help_action = true, .add_version_action = true, .exitOnFailure = true, .version = version_str});
 
-    parser.add_argument<std::string>("-file")
+    parser.add_argument<std::string>("-f", "--file")
         .nargs(NArgsOption::one_or_more)
         .help("specify the dofile to run, and optionally pass arguments to the dofiles");
+
+    parser.add_argument<bool>("-s", "--silent")
+        .action(store_true)
+        .help("suppress version information on start up");
 
     std::vector<std::string> arguments{std::next(argv), std::next(argv, argc)};
 
@@ -69,22 +76,23 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    if (parser.parsed("-file")) {
-        auto args = parser.get<std::vector<std::string>>("-file");
+    if (parser.parsed("--file")) {
+        auto args = parser.get<std::vector<std::string>>("--file");
         if (!cli.open_dofile(args[0])) {
             LOGGER.fatal("cannot open dofile!!");
             return 1;
         }
 
-        if (!cli.add_variables_from_dofiles(args[0], std::ranges::subrange(arguments.begin() + 2, arguments.end()))) {
+        if (!cli.add_variables_from_dofiles(args[0], std::ranges::subrange(args.begin() + 1, args.end()))) {
             return 1;
         }
     }
 
-    fmt::println("{}", version_str);
+    if (!parser.parsed("--silent")) {
+        fmt::println("{}", version_str);
+    }
 
-    if (
-        !dvlab::add_cli_common_cmds(cli) ||
+    if (!dvlab::add_cli_common_cmds(cli) ||
         !qsyn::device::add_device_cmds(cli, device_mgr) ||
         !qsyn::duostra::add_duostra_cmds(cli, qcir_mgr, device_mgr) ||
         !qsyn::add_conversion_cmds(cli, qcir_mgr, tensor_mgr, zxgraph_mgr) ||
@@ -97,6 +105,10 @@ int main(int argc, char** argv) {
         !qsyn::zx::add_zx_simplifier_cmds(cli, zxgraph_mgr)) {
         return 1;
     }
+
+    USAGE.reset();
+
+    signal(SIGINT, [](int signum) -> void { cli.sigint_handler(signum); return; });
 
     auto status = dvlab::CmdExecResult::done;
 

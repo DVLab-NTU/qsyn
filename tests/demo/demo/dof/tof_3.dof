@@ -1,5 +1,0 @@
-verb 0
-zxgread benchmark/zx/tof3.zx
-zxgs -freduce
-zxgp
-qq -f

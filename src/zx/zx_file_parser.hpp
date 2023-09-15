@@ -25,7 +25,7 @@ public:
 
     ZXFileParser() : _line_no(1) {}
 
-    bool parse(std::string const& filename);
+    bool parse(std::filesystem::path const& filename);
     StorageType get_storage() const { return _storage; }
 
 private:

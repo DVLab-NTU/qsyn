@@ -1,4 +1,3 @@
-DV Lab, NTUEE, Qsyn 0.5.1
 qsyn> exts -op 1
 
 qsyn> zxgread benchmark/bzx/tof3.bzx
