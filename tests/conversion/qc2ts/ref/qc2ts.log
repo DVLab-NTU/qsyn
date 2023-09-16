@@ -1,19 +1,19 @@
 qsyn> ver 8
 Note: verbose level is set to 8
 
-qsyn> qccr benchmark/qc2ts/circuit/control_z.qasm
+qsyn> qccr benchmark/qasm/qc2ts/control_z.qasm
 
 qsyn> qc2ts
 
-qsyn> qccr benchmark/qc2ts/circuit/control_h.qasm -r
+qsyn> qccr benchmark/qasm/qc2ts/control_h.qasm -r
 
 qsyn> qc2ts
 
-qsyn> qccr benchmark/qc2ts/circuit/toffoli_dec.qasm -r
+qsyn> qccr benchmark/qasm/qc2ts/toffoli_dec.qasm -r
 
 qsyn> qc2ts
 
-qsyn> qccr benchmark/qc2ts/circuit/toffoli_qiskit.qasm -r
+qsyn> qccr benchmark/qasm/qc2ts/toffoli_qiskit.qasm -r
 
 qsyn> qc2ts
 
