@@ -37,11 +37,7 @@ void Usage::report(bool report_time, bool report_mem) {
 double Usage::_check_memory() const {
     rusage usage{};
     if (0 == getrusage(RUSAGE_SELF, &usage))
-#ifdef __APPLE__
-        return usage.ru_maxrss / double(1 << 20);  // bytes // NOLINT(cppcoreguidelines-pro-type-union-access) : conform to POSIX
-#else
         return gsl::narrow_cast<double>(usage.ru_maxrss) / double(1 << 10);  // KBytes // NOLINT(cppcoreguidelines-pro-type-union-access) : conform to POSIX
-#endif
     else
         return 0;
 }
