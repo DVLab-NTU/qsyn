@@ -20,107 +20,49 @@ extern size_t VERBOSE;
 using namespace qsyn::zx;
 
 // Basic rules simplification
-
-/**
- * @brief Perform Bialgebra Rule
- *
- * @return int
- */
-int Simplifier::bialgebra_simp() {
+size_t Simplifier::bialgebra_simp() {
     return simplify(BialgebraRule());
 }
 
-/**
- * @brief Perform State Copy Rule
- *
- * @return int
- */
-int Simplifier::state_copy_simp() {
+size_t Simplifier::state_copy_simp() {
     return simplify(StateCopyRule());
 }
 
-/**
- * @brief Perform Gadget Rule
- *
- * @return int
- */
-int Simplifier::phase_gadget_simp() {
+size_t Simplifier::phase_gadget_simp() {
     return simplify(PhaseGadgetRule());
 }
 
-/**
- * @brief Perform Hadamard Fusion Rule
- *
- * @return int
- */
-int Simplifier::hadamard_fusion_simp() {
+size_t Simplifier::hadamard_fusion_simp() {
     return simplify(HadamardFusionRule());
 }
 
-/**
- * @brief Perform Hadamard Rule
- *
- * @return int
- */
-int Simplifier::hadamard_rule_simp() {
+size_t Simplifier::hadamard_rule_simp() {
     return hadamard_simplify(HadamardRule());
 }
 
-/**
- * @brief Perform Identity Removal Rule
- *
- * @return int
- */
-int Simplifier::identity_removal_simp() {
+size_t Simplifier::identity_removal_simp() {
     return simplify(IdentityRemovalRule());
 }
 
-/**
- * @brief Perform Local Complementation Rule
- *
- * @return int
- */
-int Simplifier::local_complement_simp() {
+size_t Simplifier::local_complement_simp() {
     return simplify(LocalComplementRule());
 }
 
-/**
- * @brief Perform Pivot Rule
- *
- * @return int
- */
-int Simplifier::pivot_simp() {
+size_t Simplifier::pivot_simp() {
     return simplify(PivotRule());
 }
 
-/**
- * @brief Perform Pivot Boundary Rule
- *
- * @return int
- */
-int Simplifier::pivot_boundary_simp() {
+size_t Simplifier::pivot_boundary_simp() {
     return simplify(PivotBoundaryRule());
 }
 
-/**
- * @brief Perform Pivot Gadget Rule
- *
- * @return int
- */
-int Simplifier::pivot_gadget_simp() {
+size_t Simplifier::pivot_gadget_simp() {
     return simplify(PivotGadgetRule());
 }
 
-/**
- * @brief Perform Spider Fusion Rule
- *
- * @return int
- */
-int Simplifier::spider_fusion_simp() {
+size_t Simplifier::spider_fusion_simp() {
     return simplify(SpiderFusionRule());
 }
-
-// action
 
 /**
  * @brief Turn every red node(VertexType::X) into green node(VertexType::Z) by regular simple edges <--> hadamard edges.
@@ -149,25 +91,21 @@ void Simplifier::to_x_graph() {
 /**
  * @brief Keep doing the simplifications `id_removal`, `s_fusion`, `pivot`, `lcomp` until none of them can be applied anymore.
  *
- * @return int
+ * @return the number of iterations
  */
-int Simplifier::interior_clifford_simp() {
+size_t Simplifier::interior_clifford_simp() {
     this->spider_fusion_simp();
-    to_z_graph();
-    int i = 0;
+    this->to_z_graph();
+    size_t iterations = 0;
     while (true) {
-        int i1 = this->identity_removal_simp();
-        if (i1 == -1) return -1;
-        int i2 = this->spider_fusion_simp();
-        if (i2 == -1) return -1;
-        int i3 = this->pivot_simp();
-        if (i3 == -1) return -1;
-        int i4 = this->local_complement_simp();
-        if (i4 == -1) return -1;
+        size_t i1 = this->identity_removal_simp();
+        size_t i2 = this->spider_fusion_simp();
+        size_t i3 = this->pivot_simp();
+        size_t i4 = this->local_complement_simp();
         if (i1 + i2 + i3 + i4 == 0) break;
-        i += 1;
+        iterations++;
     }
-    return i;
+    return iterations;
 }
 
 /**
@@ -175,17 +113,15 @@ int Simplifier::interior_clifford_simp() {
  *
  * @return int
  */
-int Simplifier::clifford_simp() {
-    int i = 0;
+size_t Simplifier::clifford_simp() {
+    size_t iterations = 0;
     while (true) {
-        int i1 = this->interior_clifford_simp();
-        if (i1 == -1) return -1;
-        i += i1;
-        int i2 = this->pivot_boundary_simp();
-        if (i2 == -1) return -1;
+        size_t i1 = this->interior_clifford_simp();
+        iterations += i1;
+        size_t i2 = this->pivot_boundary_simp();
         if (i2 == 0) break;
     }
-    return i;
+    return iterations;
 }
 
 /**
@@ -197,12 +133,10 @@ void Simplifier::full_reduce() {
     this->pivot_gadget_simp();
     while (!stop_requested()) {
         this->clifford_simp();
-        int i = this->phase_gadget_simp();
-        if (i == -1) i = 0;
+        size_t i1 = this->phase_gadget_simp();
         this->interior_clifford_simp();
-        int j = this->pivot_gadget_simp();
-        if (j == -1) j = 0;
-        if (i + j == 0) break;
+        size_t i2 = this->pivot_gadget_simp();
+        if (i1 + i2 == 0) break;
     }
     this->print_recipe();
 }
@@ -234,45 +168,15 @@ void Simplifier::dynamic_reduce() {
 void Simplifier::dynamic_reduce(size_t optimal_t_count) {
     std::cout << " (T-optimal: " << optimal_t_count << ")";
 
-    int a1 = this->interior_clifford_simp();
-
-    if (a1 == -1) {
-        this->print_recipe();
-        return;
-    }
-
-    int a2 = this->pivot_gadget_simp();
-    if (a2 == -1 && optimal_t_count == _simp_graph->t_count()) {
-        this->print_recipe();
-        return;
-    }
+    this->interior_clifford_simp();
+    this->pivot_gadget_simp();
 
     while (!stop_requested()) {
-        int a3 = this->clifford_simp();
-        if (a3 == -1 && optimal_t_count == _simp_graph->t_count()) {
-            this->print_recipe();
-            return;
-        }
-
-        int a4 = this->phase_gadget_simp();
-        if (a4 == -1 && optimal_t_count == _simp_graph->t_count()) {
-            this->print_recipe();
-            return;
-        }
-
-        int a5 = this->interior_clifford_simp();
-        if (a5 == -1 && optimal_t_count == _simp_graph->t_count()) {
-            this->print_recipe();
-            return;
-        }
-
-        int a6 = this->pivot_gadget_simp();
-        if (a6 == -1 && optimal_t_count == _simp_graph->t_count()) {
-            this->print_recipe();
-            return;
-        }
-
-        if (a4 + a6 == 0) break;
+        this->clifford_simp();
+        size_t i1 = this->phase_gadget_simp();
+        this->interior_clifford_simp();
+        size_t i2 = this->pivot_gadget_simp();
+        if (i1 + i2 == 0) break;
     }
     this->print_recipe();
 }
@@ -287,11 +191,11 @@ void Simplifier::symbolic_reduce() {
     this->state_copy_simp();
     while (!stop_requested()) {
         this->clifford_simp();
-        int i = this->phase_gadget_simp();
+        size_t i1 = this->phase_gadget_simp();
         this->interior_clifford_simp();
-        int j = this->pivot_gadget_simp();
+        size_t i2 = this->pivot_gadget_simp();
         this->state_copy_simp();
-        if (i + j == 0) break;
+        if (i1 + i2 == 0) break;
     }
     this->to_x_graph();
 }
