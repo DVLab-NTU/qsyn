@@ -1,4 +1,4 @@
-qccr benchmark/pseudoSimp/tof_3.qasm
+qccr benchmark/qasm/tof3.qasm
 qc2zx
 zxgp -v
 zxgas 0 I X pi

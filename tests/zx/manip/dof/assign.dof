@@ -1,4 +1,4 @@
-qccr benchmark/pseudoSimp/tof2.qasm
+qccr benchmark/qasm/tof2.qasm
 qc2ts
 qc2zx
 zxgp -v

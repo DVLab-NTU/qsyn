@@ -1,0 +1,7 @@
+qccr benchmark/qasm/tof3.qasm
+qc2zx
+zxgp -v
+zxgtest -gl
+zxgsimp -fr
+zxgtest -gl
+qq -f

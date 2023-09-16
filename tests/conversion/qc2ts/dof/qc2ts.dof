@@ -1,11 +1,11 @@
 ver 8
-qccr benchmark/qc2ts/circuit/control_z.qasm
+qccr benchmark/qasm/qc2ts/control_z.qasm
 qc2ts
-qccr benchmark/qc2ts/circuit/control_h.qasm -r
+qccr benchmark/qasm/qc2ts/control_h.qasm -r
 qc2ts
-qccr benchmark/qc2ts/circuit/toffoli_dec.qasm -r
+qccr benchmark/qasm/qc2ts/toffoli_dec.qasm -r
 qc2ts
-qccr benchmark/qc2ts/circuit/toffoli_qiskit.qasm -r
+qccr benchmark/qasm/qc2ts/toffoli_qiskit.qasm -r
 qc2ts
 ver 8
 qccr benchmark/SABRE/small/3_17_13.qasm

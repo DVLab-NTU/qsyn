@@ -1,4 +1,4 @@
-qsyn> qccr benchmark/pseudoSimp/tof2.qasm
+qsyn> qccr benchmark/qasm/tof2.qasm
 
 qsyn> qc2zx
 
