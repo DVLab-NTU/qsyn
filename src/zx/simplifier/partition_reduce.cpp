@@ -19,7 +19,7 @@ size_t scoped_clifford_simp(ZXGraph* graph, ZXVertexList const& scope);
  * @param numPartitions number of partitions to create
  * @param iterations number of iterations
  */
-void Simplifier::partition_reduce(size_t n_partitions, size_t /*iterations*/) {
+void Simplifier::partition_reduce(size_t n_partitions) {
     ZXGraph copied_graph = *_simp_graph;
     {
         Simplifier simplifier = Simplifier(&copied_graph);
