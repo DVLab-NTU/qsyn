@@ -1,5 +1,5 @@
 exts -op 1
-zxgread benchmark/bzx/tof3.bzx
+zxgread benchmark/zx/tof3.zx
 zx2ts
 ver 0
 zxgs -fr

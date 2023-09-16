@@ -1,6 +1,6 @@
 qsyn> exts -op 1
 
-qsyn> zxgread benchmark/bzx/tof3.bzx
+qsyn> zxgread benchmark/zx/tof3.zx
 
 qsyn> zx2ts
 

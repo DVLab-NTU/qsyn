@@ -1,0 +1,56 @@
+qsyn> ver 2
+Note: verbose level is set to 2
+
+qsyn> qccr benchmark/qasm/to_graph2.qasm
+
+qsyn> qccp -q
+Q 0  ---------cx( 0)-- t( 1)-- h( 2)----------cx( 3)-
+Q 1  ---------cx( 0)--------------------------cx( 3)-
+
+qsyn> qc2zx
+
+qsyn> zxgp -v
+
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 9)	  #Neighbors:   1     (9, -) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 9)	  #Neighbors:   1     (8, -) 
+ID:   4 (Z, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   3     (0, -) (5, -) (6, -) 
+ID:   5 (X, 0)           (Qubit, Col): (1, 4)	  #Neighbors:   3     (2, -) (4, -) (8, -) 
+ID:   6 (Z, π/4)         (Qubit, Col): (0, 4)	  #Neighbors:   2     (4, -) (7, -) 
+ID:   7 (H, π)           (Qubit, Col): (0, 5)	  #Neighbors:   2     (6, -) (9, -) 
+ID:   8 (Z, 0)           (Qubit, Col): (1, 8)	  #Neighbors:   3     (3, -) (5, -) (9, -) 
+ID:   9 (X, 0)           (Qubit, Col): (0, 8)	  #Neighbors:   3     (1, -) (7, -) (8, -) 
+Total #Vertices: 10
+
+
+qsyn> zxgs -hrule
+
+qsyn> zxgp -v
+
+ID:   0 (●, 0)           (Qubit, Col): (0, 0)	  #Neighbors:   1     (4, -) 
+ID:   1 (●, 0)           (Qubit, Col): (0, 9)	  #Neighbors:   1     (9, -) 
+ID:   2 (●, 0)           (Qubit, Col): (1, 0)	  #Neighbors:   1     (5, -) 
+ID:   3 (●, 0)           (Qubit, Col): (1, 9)	  #Neighbors:   1     (8, -) 
+ID:   4 (Z, 0)           (Qubit, Col): (0, 4)	  #Neighbors:   3     (0, -) (5, -) (6, -) 
+ID:   5 (X, 0)           (Qubit, Col): (1, 4)	  #Neighbors:   3     (2, -) (4, -) (8, -) 
+ID:   6 (Z, π/4)         (Qubit, Col): (0, 4)	  #Neighbors:   2     (4, -) (9, H) 
+ID:   8 (Z, 0)           (Qubit, Col): (1, 8)	  #Neighbors:   3     (3, -) (5, -) (9, -) 
+ID:   9 (X, 0)           (Qubit, Col): (0, 8)	  #Neighbors:   3     (1, -) (6, H) (8, -) 
+Total #Vertices: 9
+
+
+qsyn> zxgp -e
+(0, 4)       Type: -
+(1, 9)       Type: -
+(2, 5)       Type: -
+(3, 8)       Type: -
+(4, 5)       Type: -
+(4, 6)       Type: -
+(5, 8)       Type: -
+(6, 9)       Type: H
+(8, 9)       Type: -
+Total #Edges: 9
+
+qsyn> qq -f
+
