@@ -170,7 +170,7 @@ public:
     void dynamic_reduce();
     void dynamic_reduce(size_t optimal_t_count);
     void symbolic_reduce();
-    void partition_reduce(size_t n_partitions, size_t iterations = 1);
+    void partition_reduce(size_t n_partitions);
 
     void to_z_graph();
     void to_x_graph();
