@@ -30,12 +30,6 @@ bool valid_partition_reduce_partitions(size_t const &n_parts) {
     return false;
 };
 
-bool valid_partition_reduce_iterations(size_t const &arg) {
-    if (arg > 0) return true;
-    std::cerr << "The iterations parameter in partition reduce should be greater than 0" << std::endl;
-    return false;
-};
-
 //------------------------------------------------------------------------------------------------------------------
 //    ZXGSimp [-TOGraph | -TORGraph | -HRule | -SPIderfusion | -BIAlgebra | -IDRemoval | -STCOpy | -HFusion |
 //             -HOPF | -PIVOT | -LComp | -INTERClifford | -PIVOTGadget | -PIVOTBoundary | -CLIFford | -FReduce | -SReduce | -DReduce]
@@ -67,11 +61,6 @@ Command zxgraph_simplify_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
                     .default_value(2)
                     .constraint(valid_partition_reduce_partitions)
                     .help("the amount of partitions generated for preduce, defaults to 2");
-                parser.add_argument<size_t>("n")
-                    .nargs(NArgsOption::optional)
-                    .default_value(1)
-                    .constraint(valid_partition_reduce_iterations)
-                    .help("the iterations parameter for preduce, defaults to 1");
 
                 mutex.add_argument<bool>("-interclifford", "--interior-clifford")
                     .action(store_true)
@@ -135,7 +124,7 @@ Command zxgraph_simplify_cmd(zx::ZXGraphMgr &zxgraph_mgr) {
                     s.dynamic_reduce();
                     procedure_str = "DR";
                 } else if (parser.parsed("-preduce")) {
-                    s.partition_reduce(parser.get<size_t>("p"), parser.get<size_t>("n"));
+                    s.partition_reduce(parser.get<size_t>("p"));
                     procedure_str = "PR";
                 } else if (parser.parsed("-interclifford")) {
                     s.interior_clifford_simp();

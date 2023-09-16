@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include <memory>
 #include <type_traits>
 
@@ -27,6 +28,11 @@ public:
         hadamard_rule_simp();
     }
 
+    /**
+     * @brief apply the rule on the zx graph
+     *
+     * @return number of iterations
+     */
     template <typename Rule>
     size_t simplify(Rule const& rule) {
         static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
@@ -64,6 +70,11 @@ public:
         return iterations;
     }
 
+    /**
+     * @brief apply the rule on the zx graph
+     *
+     * @return number of iterations
+     */
     template <typename Rule>
     size_t hadamard_simplify(Rule rule) {
         static_assert(std::is_base_of<HZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of HZXRule");
@@ -104,6 +115,11 @@ public:
         return iterations;
     }
 
+    /**
+     * @brief apply the rule on the vertices in the scope
+     *
+     * @return number of iterations
+     */
     template <typename Rule>
     size_t scoped_simplify(Rule const& rule, ZXVertexList const& scope) {
         static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
@@ -134,31 +150,31 @@ public:
     }
 
     // Basic rules simplification
-    int bialgebra_simp();
-    int state_copy_simp();
-    int phase_gadget_simp();
-    int hadamard_fusion_simp();
-    int hadamard_rule_simp();
-    int identity_removal_simp();
-    int local_complement_simp();
-    int pivot_simp();
-    int pivot_boundary_simp();
-    int pivot_gadget_simp();
-    int spider_fusion_simp();
+    size_t bialgebra_simp();
+    size_t state_copy_simp();
+    size_t phase_gadget_simp();
+    size_t hadamard_fusion_simp();
+    size_t hadamard_rule_simp();
+    size_t identity_removal_simp();
+    size_t local_complement_simp();
+    size_t pivot_simp();
+    size_t pivot_boundary_simp();
+    size_t pivot_gadget_simp();
+    size_t spider_fusion_simp();
 
-    // action
-    void to_z_graph();
-    void to_x_graph();
-    int interior_clifford_simp();
-    int pi_clifford_simp();
-    int clifford_simp();
+    // Composite simplification routines
+    size_t interior_clifford_simp();
+    size_t pi_clifford_simp();
+    size_t clifford_simp();
     void full_reduce();
     void dynamic_reduce();
     void dynamic_reduce(size_t optimal_t_count);
     void symbolic_reduce();
-    void partition_reduce(size_t n_partitions, size_t iterations = 1);
+    void partition_reduce(size_t n_partitions);
 
-    // print function
+    void to_z_graph();
+    void to_x_graph();
+
     void print_recipe();
 
 private:
