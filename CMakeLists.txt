@@ -61,23 +61,25 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fmt)
 
 FetchContent_Declare(
-    GSL
-    GIT_REPOSITORY https://github.com/microsoft/GSL
-    GIT_TAG v4.0.0
-    GIT_SHALLOW ON)
+  GSL
+  SYSTEM
+  GIT_REPOSITORY https://github.com/microsoft/GSL
+  GIT_TAG v4.0.0
+  GIT_SHALLOW ON)
 FetchContent_MakeAvailable(GSL)
 
 file(
   GLOB_RECURSE SOURCES
   RELATIVE ${CMAKE_SOURCE_DIR}
-  "src/**/*.cpp" "src/**/*.h")
+  "src/**/*.cpp" "src/**/*.hpp")
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
 
 add_definitions(-DQSYN_VERSION="${CMAKE_PROJECT_VERSION}")
 
 target_include_directories(${CMAKE_PROJECT_NAME}
                            PRIVATE ${CMAKE_SOURCE_DIR}/src)
-target_include_directories(${CMAKE_PROJECT_NAME}
+# specify SYSTEM to suppress warnings from vendor code
+target_include_directories(${CMAKE_PROJECT_NAME} SYSTEM
                            PRIVATE ${CMAKE_SOURCE_DIR}/vendor)
 
 target_link_libraries(
