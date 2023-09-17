@@ -170,12 +170,28 @@ void Simplifier::dynamic_reduce(size_t optimal_t_count) {
 
     this->interior_clifford_simp();
     this->pivot_gadget_simp();
+    if (_simp_graph->t_count() == optimal_t_count) {
+        this->print_recipe();
+        return;
+    }
 
     while (!stop_requested()) {
         this->clifford_simp();
+        if (_simp_graph->t_count() == optimal_t_count) {
+            break;
+        }
         size_t i1 = this->phase_gadget_simp();
+        if (_simp_graph->t_count() == optimal_t_count) {
+            break;
+        }
         this->interior_clifford_simp();
+        if (_simp_graph->t_count() == optimal_t_count) {
+            break;
+        }
         size_t i2 = this->pivot_gadget_simp();
+        if (_simp_graph->t_count() == optimal_t_count) {
+            break;
+        }
         if (i1 + i2 == 0) break;
     }
     this->print_recipe();
