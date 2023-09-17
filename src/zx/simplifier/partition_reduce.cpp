@@ -4,6 +4,7 @@
 #include "./simplify.hpp"
 #include "./zx_rules_template.hpp"
 #include "zx/zx_partition.hpp"
+#include "zx/zxgraph.hpp"
 
 using namespace qsyn::zx;
 
@@ -14,19 +15,12 @@ size_t scoped_clifford_simp(ZXGraph* graph, ZXVertexList const& scope);
 
 /**
  * @brief partition the graph into 2^numPartitions partitions and reduce each partition separately
- *        then merge the partitions together for n rounds
+ *        then merge the partitions together for n rounds (experimental)
  *
  * @param numPartitions number of partitions to create
  * @param iterations number of iterations
  */
 void Simplifier::partition_reduce(size_t n_partitions) {
-    ZXGraph copied_graph = *_simp_graph;
-    {
-        Simplifier simplifier = Simplifier(&copied_graph);
-        simplifier.full_reduce();
-    }
-    size_t t_optimal = copied_graph.t_count();
-
     std::vector<ZXVertexList> partitions = kl_partition(*_simp_graph, n_partitions);
     auto [subgraphs, cuts] = _simp_graph->create_subgraphs(partitions);
 
@@ -51,12 +45,17 @@ void scoped_dynamic_reduce(ZXGraph* graph, ZXVertexList const& scope) {
 
     scoped_interior_clifford_simp(graph, scope);
     simplifier.scoped_simplify(PivotGadgetRule(), scope);
+    if (graph->t_count() <= t_optimal) return;
 
     while (!stop_requested()) {
         scoped_clifford_simp(graph, scope);
+        if (graph->t_count() <= t_optimal) return;
         size_t i1 = simplifier.scoped_simplify(PhaseGadgetRule(), scope);
+        if (graph->t_count() <= t_optimal) return;
         scoped_interior_clifford_simp(graph, scope);
+        if (graph->t_count() <= t_optimal) return;
         size_t i2 = simplifier.scoped_simplify(PivotGadgetRule(), scope);
+        if (graph->t_count() <= t_optimal) return;
         if (i1 + i2 == 0) break;
     }
 }
@@ -67,7 +66,7 @@ void scoped_full_reduce(ZXGraph* graph, ZXVertexList const& scope) {
     scoped_interior_clifford_simp(graph, scope);
     simplifier.scoped_simplify(PivotGadgetRule(), scope);
     while (!stop_requested()) {
-        simplifier.clifford_simp();
+        scoped_clifford_simp(graph, scope);
         size_t i1 = simplifier.scoped_simplify(PhaseGadgetRule(), scope);
         scoped_interior_clifford_simp(graph, scope);
         size_t i2 = simplifier.scoped_simplify(PivotGadgetRule(), scope);

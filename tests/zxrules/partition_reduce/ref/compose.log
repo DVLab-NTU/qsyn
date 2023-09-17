@@ -10,13 +10,6 @@ qsyn> zxcopy 1
 
 qsyn> zxgs -preduce 4
 
-All rules applied in order:
-Spider Fusion Rule            4 iterations.
-  1) 14 matches
-  2) 7 matches
-  3) 7 matches
-  4) 2 matches
-
 Full Reduce:
 All rules applied in order:
 Spider Fusion Rule            3 iterations.
@@ -66,6 +59,12 @@ All rules applied in order:
 Spider Fusion Rule            2 iterations.
   1) 2 matches
   2) 2 matches
+
+qsyn> zxgp -s
+Graph (7 inputs, 7 outputs, 68 vertices, 82 edges)
+#T-gate:                      8
+#Non-(Clifford+T)-gate:       25
+#Non-Clifford-gate:           33
 
 qsyn> zxgadjoint 
 
