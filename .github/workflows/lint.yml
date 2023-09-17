@@ -2,13 +2,10 @@ name: Lint
 
 on:
   push:
-    branches:
-      - main
-      - devt
+    branches: [main, devt]
   pull_request:
-    branches:
-      - main
-      - devt
+    types: [opened, synchronize, reopened]
+    branches: [main, devt]
 
 jobs:
   run-linters:
