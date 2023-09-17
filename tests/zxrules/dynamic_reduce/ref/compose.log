@@ -29,8 +29,12 @@ Spider Fusion Rule            3 iterations.
 Pivot Gadget Rule             2 iterations.
   1) 3 matches
   2) 1 matches
-Identity Removal Rule         1 iterations.
-  1) 2 matches
+
+qsyn> zxgp -s
+Graph (3 inputs, 3 outputs, 19 vertices, 21 edges)
+#T-gate:                      7
+#Non-(Clifford+T)-gate:       0
+#Non-Clifford-gate:           7
 
 qsyn> zxgadjoint 
 
@@ -43,11 +47,11 @@ Hadamard Rule                 1 iterations.
   1) 2 matches
 Spider Fusion Rule            4 iterations.
   1) 6 matches
-  2) 3 matches
+  2) 4 matches
   3) 2 matches
   4) 2 matches
 Identity Removal Rule         1 iterations.
-  1) 1 matches
+  1) 2 matches
 Pivot Rule                    1 iterations.
   1) 1 matches
 Identity Removal Rule         1 iterations.
