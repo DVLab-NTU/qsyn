@@ -1,10 +1,8 @@
 #include <algorithm>
 #include <cstddef>
-#include <unordered_set>
 
 #include "./simplify.hpp"
 #include "./zx_rules_template.hpp"
-#include "zx/zx_def.hpp"
 #include "zx/zx_partition.hpp"
 #include "zx/zxgraph.hpp"
 
