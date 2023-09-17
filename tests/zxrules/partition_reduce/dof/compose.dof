@@ -3,6 +3,7 @@ qccread ./benchmark/qft/qft_7.qasm
 qc2zx 
 zxcopy 1
 zxgs -preduce 4
+zxgp -s
 zxgadjoint 
 zxcompose 0
 zxgs -freduce
