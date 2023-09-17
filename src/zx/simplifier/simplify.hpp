@@ -124,8 +124,6 @@ public:
     size_t scoped_simplify(Rule const& rule, ZXVertexList const& scope) {
         static_assert(std::is_base_of<ZXRuleTemplate<typename Rule::MatchType>, Rule>::value, "Rule must be a subclass of ZXRule");
 
-        std::vector<int> match_counts;
-
         size_t iterations = 0;
         while (!stop_requested()) {
             std::vector<typename Rule::MatchType> matches = rule.find_matches(*_simp_graph);
@@ -137,13 +135,11 @@ public:
                     scoped_matches.push_back(match);
                 }
             }
-            if (matches.empty()) {
+            if (scoped_matches.empty()) {
                 break;
             }
-            match_counts.emplace_back(matches.size());
             iterations++;
-
-            rule.apply(*_simp_graph, matches);
+            rule.apply(*_simp_graph, scoped_matches);
         }
 
         return iterations;
