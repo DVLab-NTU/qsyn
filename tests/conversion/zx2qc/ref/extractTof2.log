@@ -87,7 +87,7 @@ Qubit:2: 22
 Axels:
 10 (phase gadget: 9)
 
-Perform Gaussian Elimination.
+Perform Gaussian elimination.
 Update Graph by Matrix
 Extract CXs
 Add CX: 0 1
@@ -152,7 +152,7 @@ Qubit:0: 9
 
 Axels:
 
-Perform Gaussian Elimination.
+Perform Gaussian elimination.
 Update Graph by Matrix
 Extract CXs
 Add CX: 2 1

@@ -33,13 +33,13 @@ Scheduler:         search
 Router:            duostra
 Placer:            dfs
 
-Candidates:        -1
+# Candidates:      unlimited
 Search Depth:      4
 
-Orient:            true
+Tie breaker:       min
 APSP Coeff.:       1
-Available Time:    max
-Prefer Cost:       min
+2-Qb. Avail. Time: max
+Cost Selector:     min
 Never Cache:       true
 Single Immed.:     false
 
@@ -51,13 +51,13 @@ Scheduler:         search
 Router:            duostra
 Placer:            dfs
 
-Candidates:        -1
+# Candidates:      unlimited
 Search Depth:      2
 
-Orient:            true
+Tie breaker:       min
 APSP Coeff.:       1
-Available Time:    max
-Prefer Cost:       min
+2-Qb. Avail. Time: max
+Cost Selector:     min
 Never Cache:       true
 Single Immed.:     true
 

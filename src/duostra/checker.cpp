@@ -125,7 +125,7 @@ void Checker::apply_swap(Checker::Operation const& op) {
     apply_gate(op, q0, q1);
 
     // swap
-    size_t temp = q0.get_logical_qubit();
+    auto temp = q0.get_logical_qubit();
     q0.set_logical_qubit(q1.get_logical_qubit());
     q1.set_logical_qubit(temp);
 }
@@ -148,13 +148,13 @@ bool Checker::apply_cx(Operation const& op, Gate const& gate) {
     auto& q0 = _device->get_physical_qubit(q0_idx);
     auto& q1 = _device->get_physical_qubit(q1_idx);
 
-    size_t topo_0 = q0.get_logical_qubit();
-    if (topo_0 == SIZE_MAX) {
+    auto topo_0 = q0.get_logical_qubit();
+    if (topo_0 == std::nullopt) {
         std::cerr << "topo_0 is ERROR CODE" << std::endl;
         abort();
     }
-    size_t topo_1 = q1.get_logical_qubit();
-    if (topo_1 == SIZE_MAX) {
+    auto topo_1 = q1.get_logical_qubit();
+    if (topo_1 == std::nullopt) {
         std::cerr << "topo_1 is ERRORCODE" << std::endl;
         abort();
     }
@@ -162,7 +162,7 @@ bool Checker::apply_cx(Operation const& op, Gate const& gate) {
     if (topo_0 > topo_1) {
         std::swap(topo_0, topo_1);
     } else if (topo_0 == topo_1) {
-        std::cerr << "topo_0 == topo_1: " << topo_0 << std::endl;
+        std::cerr << "topo_0 == topo_1: " << *topo_0 << std::endl;
         abort();
     }
     if (topo_0 != std::get<0>(gate.get_qubits()) ||
@@ -196,8 +196,8 @@ bool Checker::apply_single(Operation const& op, Gate const& gate) {
     }
     auto& q0 = _device->get_physical_qubit(q0_idx);
 
-    size_t topo_0 = q0.get_logical_qubit();
-    if (topo_0 == SIZE_MAX) {
+    auto topo_0 = q0.get_logical_qubit();
+    if (topo_0 == std::nullopt) {
         std::cerr << "topo_0 is ERROR CODE" << std::endl;
         abort();
     }

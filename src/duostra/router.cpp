@@ -11,7 +11,8 @@
 #include <gsl/util>
 
 #include "./circuit_topology.hpp"
-#include "./variables.hpp"
+#include "./duostra.hpp"
+#include "duostra/duostra_def.hpp"
 #include "util/util.hpp"
 
 extern size_t VERBOSE;
@@ -41,14 +42,14 @@ AStarNode::AStarNode(size_t cost, size_t id, bool source)
  * @param cost
  * @param orient
  */
-Router::Router(Device&& device, std::string const& cost, bool orient)
+Router::Router(Device&& device, std::string const& cost_strategy, MinMaxOptionType tie_breaking_strategy)
     : _greedy_type(false),
       _duostra(false),
-      _orient(orient),
+      _tie_breaking_strategy(tie_breaking_strategy),
       _apsp(false),
       _device(device),
       _logical_to_physical({}) {
-    _initialize(cost);
+    _initialize(cost_strategy);
 }
 
 /**
@@ -67,11 +68,10 @@ std::unique_ptr<Router> Router::clone() const {
  * @param cost
  */
 void Router::_initialize(std::string const& cost) {
-    // DUOSTRA_ROUTER 0:apsp 1:duostra
-    if (DUOSTRA_ROUTER == 0) {
+    if (DuostraConfig::ROUTER_TYPE == RouterType::shortest_path) {
         _apsp = true;
         _duostra = false;
-    } else if (DUOSTRA_ROUTER == 1) {
+    } else if (DuostraConfig::ROUTER_TYPE == RouterType::duostra) {
         _duostra = true;
     } else {
         std::cerr << "Error: router type not found" << std::endl;
@@ -95,7 +95,9 @@ void Router::_initialize(std::string const& cost) {
     size_t num_qubits = _device.get_num_qubits();
     _logical_to_physical.resize(num_qubits);
     for (size_t i = 0; i < num_qubits; ++i) {
-        _logical_to_physical[_device.get_physical_qubit(i).get_logical_qubit()] = i;
+        auto const& qubit = _device.get_physical_qubit(i).get_logical_qubit();
+        assert(qubit.has_value());
+        _logical_to_physical[qubit.value()] = i;
     }
 }
 
@@ -127,7 +129,7 @@ std::tuple<size_t, size_t> Router::_get_physical_qubits(Gate const& gate) const 
  * @param APSPCoeff
  * @return size_t
  */
-size_t Router::get_gate_cost(Gate const& gate, bool min_max, size_t apsp_coeff) {
+size_t Router::get_gate_cost(Gate const& gate, MinMaxOptionType min_max, size_t apsp_coeff) {
     std::tuple<size_t, size_t> physical_qubits_ids = _get_physical_qubits(gate);
 
     if (!(gate.get_type() == GateType::cx || gate.get_type() == GateType::cz)) {
@@ -141,7 +143,7 @@ size_t Router::get_gate_cost(Gate const& gate, bool min_max, size_t apsp_coeff) 
     PhysicalQubit const& q1 = _device.get_physical_qubit(q1_id);
     auto apsp_cost = _apsp ? _device.get_path(q0_id, q1_id).size() : 0;
 
-    size_t avail = min_max ? std::max(q0.get_occupied_time(), q1.get_occupied_time()) : std::min(q0.get_occupied_time(), q1.get_occupied_time());
+    size_t avail = min_max == MinMaxOptionType::max ? std::max(q0.get_occupied_time(), q1.get_occupied_time()) : std::min(q0.get_occupied_time(), q1.get_occupied_time());
     return avail + apsp_cost / apsp_coeff;
 }
 
@@ -194,7 +196,7 @@ Router::Operation Router::execute_single(GateType gate, dvlab::Phase phase, size
  * @param swapped if the qubits of gate are swapped when added into Duostra
  * @return vector<Operation>
  */
-std::vector<Router::Operation> Router::duostra_routing(GateType gate, size_t gate_id, dvlab::Phase phase, std::tuple<size_t, size_t> qubit_pair, bool orient, bool swapped) {
+std::vector<Router::Operation> Router::duostra_routing(GateType gate, size_t gate_id, dvlab::Phase phase, std::tuple<size_t, size_t> qubit_pair, MinMaxOptionType tie_breaking_strategy, bool swapped) {
     assert(gate == GateType::cx || gate == GateType::cz);
     size_t q0_id = get<0>(qubit_pair);  // source 0
     size_t q1_id = get<1>(qubit_pair);  // source 1
@@ -207,7 +209,7 @@ std::vector<Router::Operation> Router::duostra_routing(GateType gate, size_t gat
     } else if (_device.get_physical_qubit(q0_id).get_occupied_time() ==
                _device.get_physical_qubit(q1_id).get_occupied_time()) {
         // orientation means qubit with smaller logical idx has a little priority
-        if (orient && _device.get_physical_qubit(q0_id).get_logical_qubit() >
+        if (tie_breaking_strategy == MinMaxOptionType::min && _device.get_physical_qubit(q0_id).get_logical_qubit() >
                           _device.get_physical_qubit(q1_id).get_logical_qubit()) {
             std::swap(q0_id, q1_id);
             swap_ids = true;
@@ -297,7 +299,7 @@ std::vector<Router::Operation> Router::duostra_routing(GateType gate, size_t gat
  * @param swapped if the qubits of gate are swapped when added into Duostra
  * @return vector<Operation>
  */
-std::vector<Router::Operation> Router::apsp_routing(GateType gate, size_t gate_id, dvlab::Phase phase, std::tuple<size_t, size_t> qs, bool orient, bool swapped) {
+std::vector<Router::Operation> Router::apsp_routing(GateType gate, size_t gate_id, dvlab::Phase phase, std::tuple<size_t, size_t> qs, MinMaxOptionType tie_breaking_strategy, bool swapped) {
     std::vector<Operation> operation_list;
     size_t s0_id = get<0>(qs);
     size_t s1_id = get<1>(qs);
@@ -313,7 +315,7 @@ std::vector<Router::Operation> Router::apsp_routing(GateType gate, size_t gate_i
         size_t q1_next = get<0>(q1_next_cost);
         size_t q1_cost = get<1>(q1_next_cost);
 
-        if ((q0_cost < q1_cost) || ((q0_cost == q1_cost) && orient &&
+        if ((q0_cost < q1_cost) || ((q0_cost == q1_cost) && (tie_breaking_strategy == MinMaxOptionType::min) &&
                                     _device.get_physical_qubit(q0_id).get_logical_qubit() <
                                         _device.get_physical_qubit(q1_id).get_logical_qubit())) {
             Operation oper(GateType::swap, dvlab::Phase(0), std::make_tuple(q0_id, q0_next),
@@ -459,7 +461,7 @@ std::vector<Router::Operation> Router::_traceback([[maybe_unused]] GateType gt, 
  * @return vector<Operation>
  */
 std::vector<Router::Operation> Router::assign_gate(Gate const& gate) {
-    std::tuple<size_t, size_t> physical_qubits_ids = _get_physical_qubits(gate);
+    auto physical_qubits_ids = _get_physical_qubits(gate);
 
     if (!(gate.get_type() == GateType::cx || gate.get_type() == GateType::cz)) {
         assert(get<1>(physical_qubits_ids) == SIZE_MAX);
@@ -469,18 +471,18 @@ std::vector<Router::Operation> Router::assign_gate(Gate const& gate) {
     }
     std::vector<Operation> operation_list =
         _duostra
-            ? duostra_routing(gate.get_type(), gate.get_id(), gate.get_phase(), physical_qubits_ids, _orient, gate.is_swapped())
-            : apsp_routing(gate.get_type(), gate.get_id(), gate.get_phase(), physical_qubits_ids, _orient, gate.is_swapped());
-    std::vector<size_t> change_list = _device.mapping();
+            ? duostra_routing(gate.get_type(), gate.get_id(), gate.get_phase(), physical_qubits_ids, _tie_breaking_strategy, gate.is_swapped())
+            : apsp_routing(gate.get_type(), gate.get_id(), gate.get_phase(), physical_qubits_ids, _tie_breaking_strategy, gate.is_swapped());
+    std::vector<std::optional<size_t>> change_list = _device.mapping();
     std::vector<bool> checker(_logical_to_physical.size(), false);
 
     // i is the idx of device qubit
     for (size_t i = 0; i < change_list.size(); ++i) {
         auto logical_qubit_id = change_list[i];
-        if (logical_qubit_id == SIZE_MAX) {
+        if (logical_qubit_id == std::nullopt) {
             continue;
         }
-        _logical_to_physical[logical_qubit_id] = i;
+        _logical_to_physical[logical_qubit_id.value()] = i;
     }
     return operation_list;
 }

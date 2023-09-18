@@ -611,8 +611,8 @@ Command zxgraph_read_cmd(ZXGraphMgr& zxgraph_mgr) {
 
                 parser.add_argument<std::string>("filepath")
                     .constraint(path_readable)
-                    .constraint(allowed_extension({".zx", ".bzx"}))
-                    .help("path to the ZX file. Supported extensions: .zx, .bzx");
+                    .constraint(allowed_extension({".zx"}))
+                    .help("path to the ZX file. Supported extensions: .zx");
 
                 parser.add_argument<bool>("-keepid")
                     .action(store_true)
@@ -656,7 +656,7 @@ Command zxgraph_write_cmd(ZXGraphMgr const& zxgraph_mgr) {
 
                 parser.add_argument<std::string>("filepath")
                     .constraint(path_writable)
-                    .constraint(allowed_extension({".zx", ".bzx", ".tikz", ".tex", ""}))
+                    .constraint(allowed_extension({".zx", ".tikz", ".tex"}))
                     .help("the path to the output ZX file");
 
                 parser.add_argument<bool>("-complete")
@@ -670,7 +670,7 @@ Command zxgraph_write_cmd(ZXGraphMgr const& zxgraph_mgr) {
                 size_t extension_pos = filepath.find_last_of('.');
 
                 std::string extension = (extension_pos == std::string::npos) ? "" : filepath.substr(extension_pos);
-                if (extension == ".zx" || extension == ".bzx" || extension == "") {
+                if (extension == ".zx") {
                     if (!zxgraph_mgr.get()->write_zx(filepath, do_complete)) {
                         std::cerr << "Error: fail to write ZXGraph to \"" << filepath << "\"!!\n";
                         return CmdExecResult::error;

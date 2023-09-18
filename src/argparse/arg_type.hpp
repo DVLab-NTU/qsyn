@@ -33,7 +33,7 @@ template <typename T>
 concept is_container_type = requires(T t) {
     { t.begin() } -> std::same_as<typename T::iterator>;
     { t.end() } -> std::same_as<typename T::iterator>;
-    std::constructible_from<typename T::iterator, typename T::iterator>;
+    requires std::constructible_from<typename T::iterator, typename T::iterator>;
     { t.size() } -> std::same_as<typename T::size_type>;
     requires !std::same_as<T, std::string>;
     requires !std::same_as<T, std::string_view>;

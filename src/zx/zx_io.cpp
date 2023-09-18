@@ -37,7 +37,7 @@ namespace qsyn::zx {
 bool ZXGraph::read_zx(std::filesystem::path const& filepath, bool keep_id) {
     // REVIEW - should we guard the case of no file extension?
     if (filepath.has_extension()) {
-        if (filepath.extension() != ".zx" && filepath.extension() != ".bzx") {
+        if (filepath.extension() != ".zx") {
             fmt::println("unsupported file extension \"{}\"!!", filepath.extension().string());
             return false;
         }

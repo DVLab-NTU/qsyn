@@ -289,12 +289,12 @@ bool dvlab::CommandLineInterface::_move_cursor_to(size_t pos) {
     }
 
     // move left
-    if (_cursor_position > (size_t)pos) {
+    if (_cursor_position > pos) {
         fmt::print("{}", std::string(_cursor_position - pos, '\b'));
     }
 
     // move right
-    if (_cursor_position < (size_t)pos) {
+    if (_cursor_position < pos) {
         fmt::print("{}", _read_buffer.substr(_cursor_position, pos - _cursor_position));
     }
     _cursor_position = pos;

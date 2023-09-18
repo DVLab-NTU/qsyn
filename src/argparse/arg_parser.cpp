@@ -206,11 +206,11 @@ bool ArgumentParser::_tokenize(std::string const& line) {
 
     // convert "abc=def", "abc:def" to "abc def"
     // this for loop must be index based, because we are inserting elements
-    for (auto i = 0; i < _pimpl->tokens.size(); ++i) {
+    for (auto i = 0ul; i < _pimpl->tokens.size(); ++i) {
         size_t pos = _pimpl->tokens[i].token.find_first_of("=:");
 
         if (pos != std::string::npos && pos != 0) {
-            _pimpl->tokens.emplace(std::next(_pimpl->tokens.begin(), i + 1), _pimpl->tokens[i].token.substr(pos + 1));
+            _pimpl->tokens.emplace(dvlab::iterator::next(_pimpl->tokens.begin(), i + 1), _pimpl->tokens[i].token.substr(pos + 1));
             _pimpl->tokens[i].token = _pimpl->tokens[i].token.substr(0, pos);
         }
     }
@@ -495,7 +495,7 @@ bool ArgumentParser::_all_required_options_are_parsed() const {
                                  std::views::filter([](Argument const& arg) { return arg.is_option(); }) |
                                  std::views::filter([](Argument const& arg) { return arg.is_required(); });
     return dvlab::utils::expect(
-        std::ranges::all_of(required_option_range, [this](Argument const& arg) { return arg.is_parsed(); }),
+        std::ranges::all_of(required_option_range, [](Argument const& arg) { return arg.is_parsed(); }),
         fmt::format("Error: missing option(s)!! The following options are required: {}",  // intentional linebreak
                     fmt::join(required_option_range |
                                   std::views::filter([](Argument const& arg) { return !arg.is_parsed(); }) |
@@ -524,7 +524,7 @@ bool ArgumentParser::_all_required_args_are_parsed() const {
     auto required_arg_range = _pimpl->arguments | std::views::values |
                               std::views::filter([](Argument const& arg) { return arg.is_required(); });
     return dvlab::utils::expect(
-        std::ranges::all_of(required_arg_range, [this](Argument const& arg) { return arg.is_parsed(); }),
+        std::ranges::all_of(required_arg_range, [](Argument const& arg) { return arg.is_parsed(); }),
         fmt::format("Error: missing argument(s)!! The following arguments are required: {}",  // intentional linebreak
                     fmt::join(required_arg_range |
                                   std::views::filter([](Argument const& arg) { return !arg.is_parsed(); }) |
