@@ -54,8 +54,8 @@ public:
 
 template <typename It>
 concept string_retrivable = requires {
-    std::input_iterator<It>;
-    std::convertible_to<typename std::iterator_traits<It>::value_type, std::string>;
+    requires std::input_iterator<It>;
+    requires std::convertible_to<typename std::iterator_traits<It>::value_type, std::string>;
 };
 
 static_assert(string_retrivable<std::vector<std::string>::iterator>);

@@ -220,7 +220,7 @@ void Tensor<DT>::reset_axis_history() {
 template <typename DT>
 size_t Tensor<DT>::get_new_axis_id(size_t const& old_id) {
     if (!_axis_history.contains(old_id)) {
-        return (size_t)-1;
+        return SIZE_MAX;
     } else {
         return _axis_history[old_id];
     }

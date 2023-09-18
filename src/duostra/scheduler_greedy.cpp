@@ -12,7 +12,7 @@
 #include <cassert>
 
 #include "./scheduler.hpp"
-#include "./variables.hpp"
+#include "./duostra.hpp"
 
 extern size_t VERBOSE;
 
@@ -46,10 +46,10 @@ private:
  *
  */
 GreedyConf::GreedyConf()
-    : _availableType(DUOSTRA_AVAILABLE),
-      _costType(DUOSTRA_COST),
-      _candidates(DUOSTRA_CANDIDATES),
-      _APSPCoeff(DUOSTRA_APSP_COEFF) {}
+    : available_time_strategy(DuostraConfig::AVAILABLE_TIME_STRATEGY),
+      cost_type(DuostraConfig::COST_SELECTION_STRATEGY),
+      num_candidates(DuostraConfig::NUM_CANDIDATES),
+      apsp_coeff(DuostraConfig::APSP_COEFF) {}
 
 // SECTION - Class GreedyScheduler Member Functions
 
@@ -70,7 +70,7 @@ std::unique_ptr<BaseScheduler> GreedyScheduler::clone() const {
  */
 GreedyScheduler::Device GreedyScheduler::_assign_gates(std::unique_ptr<Router> router) {
     [[maybe_unused]] size_t count = 0;
-    auto topo_wrap = TopologyCandidate(_circuit_topology, _conf._candidates);
+    auto topo_wrap = TopologyCandidate(_circuit_topology, _conf.num_candidates);
     for (dvlab::TqdmWrapper bar{_circuit_topology.get_num_gates(), _tqdm};
          !topo_wrap.get_available_gates().empty(); ++bar) {
         if (stop_requested()) {
@@ -79,12 +79,15 @@ GreedyScheduler::Device GreedyScheduler::_assign_gates(std::unique_ptr<Router> r
         auto waitlist = topo_wrap.get_available_gates();
         assert(waitlist.size() > 0);
 
-        size_t gate_idx = get_executable(*router);
-        gate_idx = greedy_fallback(*router, waitlist, gate_idx);
-        route_one_gate(*router, gate_idx);
+        auto gate_idx = get_executable_gate(*router);
+        if (gate_idx == std::nullopt) {
+            gate_idx = greedy_fallback(*router, waitlist);
+        }
+        assert(gate_idx.has_value());
+        route_one_gate(*router, gate_idx.value());
 
         if (VERBOSE > 3)
-            fmt::println("waitlist: [{}] {}\n", fmt::join(waitlist, ", "), gate_idx);
+            fmt::println("waitlist: [{}] {}\n", fmt::join(waitlist, ", "), gate_idx.value());
 
         ++count;
     }
@@ -101,19 +104,15 @@ GreedyScheduler::Device GreedyScheduler::_assign_gates(std::unique_ptr<Router> r
  * @return size_t
  */
 size_t GreedyScheduler::greedy_fallback(Router& router,
-                                        std::vector<size_t> const& waitlist,
-                                        size_t gate_id) const {
-    if (gate_id != SIZE_MAX)
-        return gate_id;
-
+                                        std::vector<size_t> const& waitlist) const {
     std::vector<size_t> cost_list(waitlist.size(), 0);
 
     for (size_t i = 0; i < waitlist.size(); ++i) {
         auto const& gate = _circuit_topology.get_gate(waitlist[i]);
-        cost_list[i] = router.get_gate_cost(gate, _conf._availableType, _conf._APSPCoeff);
+        cost_list[i] = router.get_gate_cost(gate, _conf.available_time_strategy, _conf.apsp_coeff);
     }
 
-    auto list_idx = _conf._costType
+    auto list_idx = _conf.cost_type == MinMaxOptionType::max
                         ? max_element(cost_list.begin(), cost_list.end()) - cost_list.begin()
                         : min_element(cost_list.begin(), cost_list.end()) - cost_list.begin();
     return waitlist[list_idx];

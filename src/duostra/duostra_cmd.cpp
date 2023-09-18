@@ -7,13 +7,14 @@
 ****************************************************************************/
 
 #include <cstddef>
+#include <gsl/util>
 #include <string>
 
 #include "./duostra.hpp"
 #include "./mapping_eqv_checker.hpp"
-#include "./variables.hpp"
 #include "cli/cli.hpp"
 #include "device/device_mgr.hpp"
+#include "duostra/duostra_def.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_cmd.hpp"
 #include "qcir/qcir_mgr.hpp"
@@ -62,8 +63,8 @@ Command duostra_cmd(QCirMgr& qcir_mgr, DeviceMgr& device_mgr) {
                 }
 #endif
                 qcir::QCir* logical_q_cir = qcir_mgr.get();
-                Duostra duo{logical_q_cir, *device_mgr.get(), {.verifyResult = parser.get<bool>("-check"), .silent = parser.get<bool>("-silent"), .useTqdm = !parser.get<bool>("-mute-tqdm")}};
-                if (duo.flow() == SIZE_MAX) {
+                Duostra duo{logical_q_cir, *device_mgr.get(), {.verify_result = parser.get<bool>("-check"), .silent = parser.get<bool>("-silent"), .use_tqdm = !parser.get<bool>("-mute-tqdm")}};
+                if (!duo.map()) {
                     return CmdExecResult::error;
                 }
 
@@ -90,17 +91,18 @@ Command duostra_set_cmd() {
                 parser.description("set Duostra parameter(s)");
 
                 parser.add_argument<std::string>("-scheduler")
-                    .choices({"base", "static", "random", "greedy", "search"})
-                    .help("< base   | static | random | greedy | search >");
+                    .choices({"base", "naive", "random", "greedy", "search"})
+                    .help("<base | naive | random | greedy | search>");
                 parser.add_argument<std::string>("-router")
-                    .choices({"apsp", "duostra"})
-                    .help("< apsp   | duostra >");
+                    .choices({"shortest_path", "duostra"})
+                    .help("<shortest_path | duostra>");
                 parser.add_argument<std::string>("-placer")
-                    .choices({"static", "random", "dfs"})
-                    .help("< static | random | dfs >");
+                    .choices({"naive", "random", "dfs"})
+                    .help("<naive | random | dfs>");
 
-                parser.add_argument<bool>("-orient")
-                    .help("smaller logical qubit index with little priority");
+                parser.add_argument<std::string>("-tie-breaker")
+                    .choices({"min", "max"})
+                    .help("if tied, execute the operation with the min or max logical qubit index");
 
                 parser.add_argument<int>("-candidates")
                     .help("top k candidates");
@@ -127,41 +129,60 @@ Command duostra_set_cmd() {
             },
 
             [](ArgumentParser const& parser) {
-                if (parser.parsed("-scheduler"))
-                    DUOSTRA_SCHEDULER = get_scheduler_type(parser.get<std::string>("-scheduler"));
-                if (parser.parsed("-router"))
-                    DUOSTRA_ROUTER = get_router_type(parser.get<std::string>("-router"));
-                if (parser.parsed("-placer"))
-                    DUOSTRA_PLACER = get_placer_type(parser.get<std::string>("-placer"));
-                if (parser.parsed("-orient"))
-                    DUOSTRA_ORIENT = parser.get<bool>("-orient");
+                if (parser.parsed("-scheduler")) {
+                    auto new_scheduler_type = get_scheduler_type(parser.get<std::string>("-scheduler"));
+                    assert(new_scheduler_type.has_value());
+                    DuostraConfig::SCHEDULER_TYPE = new_scheduler_type.value();
+                }
+
+                if (parser.parsed("-router")) {
+                    auto new_router_type = get_router_type(parser.get<std::string>("-router"));
+                    assert(new_router_type.has_value());
+                    DuostraConfig::ROUTER_TYPE = new_router_type.value();
+                }
+
+                if (parser.parsed("-placer")) {
+                    auto new_placer_type = get_placer_type(parser.get<std::string>("-placer"));
+                    assert(new_placer_type.has_value());
+                    DuostraConfig::PLACER_TYPE = new_placer_type.value();
+                }
+
+                if (parser.parsed("-tie-breaker")) {
+                    auto new_tie_breaking_strategy = get_minmax_type(parser.get<std::string>("-tie-breaker"));
+                    assert(new_tie_breaking_strategy.has_value());
+                    DuostraConfig::TIE_BREAKING_STRATEGY = new_tie_breaking_strategy.value();
+                }
 
                 if (parser.parsed("-candidates")) {
-                    DUOSTRA_CANDIDATES = (size_t)parser.get<int>("-candidates");
+                    DuostraConfig::NUM_CANDIDATES = gsl::narrow_cast<size_t>(parser.get<int>("-candidates"));
                 }
 
                 if (parser.parsed("-apsp-coeff")) {
-                    DUOSTRA_APSP_COEFF = parser.get<size_t>("-apsp-coeff");
+                    DuostraConfig::APSP_COEFF = parser.get<size_t>("-apsp-coeff");
                 }
 
                 if (parser.parsed("-available")) {
-                    DUOSTRA_AVAILABLE = (parser.get<std::string>("-available") == "min") ? false : true;
+                    auto new_available_time_strategy = get_minmax_type(parser.get<std::string>("-available"));
+                    assert(new_available_time_strategy.has_value());
+                    DuostraConfig::AVAILABLE_TIME_STRATEGY = new_available_time_strategy.value();
                 }
 
                 if (parser.parsed("-cost")) {
-                    DUOSTRA_COST = (parser.get<std::string>("-cost") == "min") ? false : true;
+                    auto new_cost_selection_strategy = get_minmax_type(parser.get<std::string>("-cost"));
+                    assert(new_cost_selection_strategy.has_value());
+                    DuostraConfig::COST_SELECTION_STRATEGY = new_cost_selection_strategy.value();
                 }
 
                 if (parser.parsed("-depth")) {
-                    DUOSTRA_DEPTH = (size_t)parser.get<int>("-depth");
+                    DuostraConfig::SEARCH_DEPTH = (size_t) parser.get<int>("-depth");
                 }
 
                 if (parser.parsed("-never-cache")) {
-                    DUOSTRA_NEVER_CACHE = parser.get<bool>("-never-cache");
+                    DuostraConfig::NEVER_CACHE = parser.get<bool>("-never-cache");
                 }
 
                 if (parser.parsed("-single-immediately")) {
-                    DUOSTRA_EXECUTE_SINGLE = parser.get<bool>("-single-immediately");
+                    DuostraConfig::EXECUTE_SINGLE_QUBIT_GATES_ASAP = parser.get<bool>("-single-immediately");
                 }
 
                 return CmdExecResult::done;
@@ -182,21 +203,21 @@ Command duostra_print_cmd() {
             },
             [](ArgumentParser const& parser) {
                 std::cout << '\n'
-                          << "Scheduler:         " << get_scheduler_type_str() << '\n'
-                          << "Router:            " << get_router_type_str() << '\n'
-                          << "Placer:            " << get_placer_type_str() << std::endl;
+                          << "Scheduler:         " << get_scheduler_type_str(DuostraConfig::SCHEDULER_TYPE) << '\n'
+                          << "Router:            " << get_router_type_str(DuostraConfig::ROUTER_TYPE) << '\n'
+                          << "Placer:            " << get_placer_type_str(DuostraConfig::PLACER_TYPE) << std::endl;
 
                 if (parser.parsed("-detail")) {
                     std::cout << '\n'
-                              << "Candidates:        " << ((DUOSTRA_CANDIDATES == size_t(-1)) ? "-1" : std::to_string(DUOSTRA_CANDIDATES)) << '\n'
-                              << "Search Depth:      " << DUOSTRA_DEPTH << '\n'
+                              << "# Candidates:      " << ((DuostraConfig::NUM_CANDIDATES == SIZE_MAX) ? "unlimited" : std::to_string(DuostraConfig::NUM_CANDIDATES)) << '\n'
+                              << "Search Depth:      " << DuostraConfig::SEARCH_DEPTH << '\n'
                               << '\n'
-                              << "Orient:            " << ((DUOSTRA_ORIENT == 1) ? "true" : "false") << '\n'
-                              << "APSP Coeff.:       " << DUOSTRA_APSP_COEFF << '\n'
-                              << "Available Time:    " << ((DUOSTRA_AVAILABLE == 0) ? "min" : "max") << '\n'
-                              << "Prefer Cost:       " << ((DUOSTRA_COST == 0) ? "min" : "max") << '\n'
-                              << "Never Cache:       " << ((DUOSTRA_NEVER_CACHE == 1) ? "true" : "false") << '\n'
-                              << "Single Immed.:     " << ((DUOSTRA_EXECUTE_SINGLE == 1) ? "true" : "false") << std::endl;
+                              << "Tie breaker:       " << get_minmax_type_str(DuostraConfig::TIE_BREAKING_STRATEGY) << '\n'
+                              << "APSP Coeff.:       " << DuostraConfig::APSP_COEFF << '\n'
+                              << "2-Qb. Avail. Time: " << get_minmax_type_str(DuostraConfig::AVAILABLE_TIME_STRATEGY) << '\n'
+                              << "Cost Selector:     " << get_minmax_type_str(DuostraConfig::COST_SELECTION_STRATEGY) << '\n'
+                              << "Never Cache:       " << ((DuostraConfig::NEVER_CACHE == true) ? "true" : "false") << '\n'
+                              << "Single Immed.:     " << ((DuostraConfig::EXECUTE_SINGLE_QUBIT_GATES_ASAP == 1) ? "true" : "false") << std::endl;
                 }
                 return CmdExecResult::done;
             }};

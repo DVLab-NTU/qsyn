@@ -88,9 +88,9 @@ public:
     void add_subcommand(dvlab::Command const& cmd);
 
 private:
+    dvlab::argparse::ArgumentParser _parser;
     ParserDefinition _parser_definition;  // define the parser's arguments and traits
     OnParseSuccess _on_parse_success;     // define the action to take on parse success
-    dvlab::argparse::ArgumentParser _parser;
 
     void _print_missing_parser_definition_error_msg() const;
     void _print_missing_on_parse_success_error_msg() const;
