@@ -209,7 +209,7 @@ Command verbose_cmd() {
 
                 parser.add_argument<size_t>("level")
                     .constraint([](size_t const& val) {
-                        if (val == 353 || 0 <= val && val <= 9) return true;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+                        if (val == 353 || (0 <= val && val <= 9)) return true;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
                         fmt::println(stderr, "Error: verbose level should be 0-9!!");
                         return false;
                     })

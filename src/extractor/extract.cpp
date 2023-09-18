@@ -122,8 +122,8 @@ QCir* Extractor::extract() {
  * @return true if successfully extracted
  * @return false if not
  */
-bool Extractor::extraction_loop(size_t max_iter) {
-    while (max_iter > 0 && !stop_requested()) {
+bool Extractor::extraction_loop(std::optional<size_t> max_iter) {
+    while ((!max_iter.has_value() || *max_iter > 0) && !stop_requested()) {
         clean_frontier();
         update_neighbors();
 
@@ -143,11 +143,11 @@ bool Extractor::extraction_loop(size_t max_iter) {
             if (VERBOSE >= 4) std::cout << "Construct an easy matrix." << std::endl;
             update_matrix();
         } else {
-            if (VERBOSE >= 4) std::cout << "Perform Gaussian Elimination." << std::endl;
+            if (VERBOSE >= 4) std::cout << "Perform Gaussian elimination." << std::endl;
             extract_cxs();
         }
         if (extract_hadamards_from_matrix() == 0) {
-            std::cerr << "Error: no candidate found in extractHsFromM2!!" << std::endl;
+            std::cerr << "Error: no hadamard gates to extract from the matrix!!" << std::endl;
             _biadjacency.print_matrix();
             return false;
         }
@@ -161,7 +161,7 @@ bool Extractor::extraction_loop(size_t max_iter) {
             _logical_circuit->print_qubits();
         }
 
-        if (max_iter != size_t(-1)) max_iter--;
+        if (max_iter.has_value()) (*max_iter)--;
     }
     return true;
 }
@@ -276,8 +276,8 @@ void Extractor::extract_cxs() {
 
     for (auto& [t, c] : _cnots) {
         // NOTE - targ and ctrl are opposite here
-        QubitIdType ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
-        QubitIdType targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
+        auto ctrl = _qubit_map[front_id2_vertex[c]->get_qubit()];
+        auto targ = _qubit_map[front_id2_vertex[t]->get_qubit()];
         if (VERBOSE >= 4) std::cout << "Add CX: " << ctrl << " " << targ << std::endl;
         prepend_double_qubit_gate("cx", {ctrl, targ}, dvlab::Phase(0));
     }
@@ -726,8 +726,8 @@ void Extractor::_block_elimination(size_t& best_block, dvlab::BooleanMatrix& bes
     }
 
     // NOTE - Get Mapping result, Device is passed by copy
-    qsyn::duostra::Duostra duo(ops, _graph->get_num_outputs(), _device.value(), {.verifyResult = false, .silent = true, .useTqdm = false});
-    size_t depth = duo.flow(true);
+    qsyn::duostra::Duostra duo(ops, _graph->get_num_outputs(), _device.value(), {.verify_result = false, .silent = true, .use_tqdm = false});
+    size_t depth = duo.map(true);
     if (VERBOSE > 4) std::cout << block_size << ", depth:" << depth << ", #cx: " << ops.size() << std::endl;
     if (depth < min_cost) {
         min_cost = depth;

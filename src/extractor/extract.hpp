@@ -49,7 +49,7 @@ public:
 
     void initialize(bool from_empty_qcir = true);
     qcir::QCir* extract();
-    bool extraction_loop(size_t = size_t(-1));
+    bool extraction_loop(std::optional<size_t> max_iter = std::nullopt);
     bool remove_gadget(bool check = false);
     bool biadjacency_eliminations(bool check = false);
     void column_optimal_swap();

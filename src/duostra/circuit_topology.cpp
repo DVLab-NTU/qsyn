@@ -37,9 +37,9 @@ Gate::Gate(size_t id, GateType type, dvlab::Phase ph, std::tuple<size_t, size_t>
  *
  * @param p
  */
-void Gate::add_prev(size_t p) {
-    if (p != SIZE_MAX)
-        _prevs.emplace_back(p);
+void Gate::add_prev(size_t prev_gate_id) {
+    assert(prev_gate_id != SIZE_MAX);
+    _prevs.emplace_back(prev_gate_id);
 }
 
 /**
@@ -47,9 +47,9 @@ void Gate::add_prev(size_t p) {
  *
  * @param n
  */
-void Gate::add_next(size_t n) {
-    if (n != SIZE_MAX)
-        _nexts.emplace_back(n);
+void Gate::add_next(size_t next_gate_id) {
+    assert(next_gate_id != SIZE_MAX);
+    _nexts.emplace_back(next_gate_id);
 }
 
 /**

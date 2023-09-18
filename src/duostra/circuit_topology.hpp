@@ -39,8 +39,8 @@ public:
 
     void set_type(qcir::GateType t) { _type = t; }
     void set_phase(dvlab::Phase p) { _phase = p; }
-    void add_prev(size_t);
-    void add_next(size_t);
+    void add_prev(size_t prev_gate_id);
+    void add_next(size_t next_gate_id);
 
     bool is_available(std::unordered_map<size_t, size_t> const&) const;
     bool is_swapped() const { return _swap; }
@@ -67,7 +67,7 @@ public:
     DependencyGraph& operator=(DependencyGraph&& other) = default;
 
     std::vector<Gate> const& get_gates() const { return _gates; }
-    Gate const& get_gate(size_t idx) const { return _gates[idx]; }
+    Gate const& get_gate(size_t idx) const { assert(idx < _gates.size()); return _gates[idx]; }
     size_t get_num_qubits() const { return _num_qubits; }
 
 private:

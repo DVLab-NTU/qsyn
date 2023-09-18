@@ -12,6 +12,7 @@
 #include <string>
 
 #include "device/device.hpp"
+#include "./duostra_def.hpp"
 
 namespace qsyn::duostra {
 
@@ -46,26 +47,26 @@ public:
     using PhysicalQubit = qsyn::device::PhysicalQubit;
 
     using PriorityQueue = std::priority_queue<AStarNode, std::vector<AStarNode>, AStarComp>;
-    Router(Device&&, std::string const&, bool);
+    Router(Device&& device, std::string const& cost_strategy, MinMaxOptionType tie_breaking_strategy);
 
     std::unique_ptr<Router> clone() const;
 
     Device& get_device() { return _device; }
     Device const& get_device() const { return _device; }
 
-    size_t get_gate_cost(Gate const&, bool, size_t);
+    size_t get_gate_cost(Gate const&, MinMaxOptionType min_max, size_t apsp_coeff);
     bool is_executable(Gate const&);
 
     // Main Router function
     Operation execute_single(qcir::GateType, dvlab::Phase, size_t);
-    std::vector<Operation> duostra_routing(qcir::GateType, size_t, dvlab::Phase, std::tuple<size_t, size_t>, bool, bool);
-    std::vector<Operation> apsp_routing(qcir::GateType, size_t, dvlab::Phase, std::tuple<size_t, size_t>, bool, bool);
+    std::vector<Operation> duostra_routing(qcir::GateType, size_t, dvlab::Phase, std::tuple<size_t, size_t>, MinMaxOptionType tie_breaking_strategy, bool swapped);
+    std::vector<Operation> apsp_routing(qcir::GateType, size_t, dvlab::Phase, std::tuple<size_t, size_t>, MinMaxOptionType tie_breaking_strategy, bool swapped);
     std::vector<Operation> assign_gate(Gate const&);
 
 private:
     bool _greedy_type;
     bool _duostra;
-    bool _orient;
+    MinMaxOptionType _tie_breaking_strategy;
     bool _apsp;
     Device _device;
     std::vector<size_t> _logical_to_physical;

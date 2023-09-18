@@ -16,7 +16,8 @@
 #include <ranges>
 #include <string>
 
-#include "fmt/ranges.h"
+#include <fmt/ranges.h>
+#include <fmt/std.h>
 #include "qcir/qcir_gate.hpp"
 #include "util/logger.hpp"
 #include "util/util.hpp"
@@ -228,7 +229,7 @@ void Device::apply_gate(Operation const& op) {
 
     switch (op.get_type()) {
         case GateType::swap: {
-            size_t temp = q0.get_logical_qubit();
+            auto temp = q0.get_logical_qubit();
             q0.set_logical_qubit(q1.get_logical_qubit());
             q1.set_logical_qubit(temp);
             q0.set_occupied_time(t + SWAP_DELAY);
@@ -258,7 +259,7 @@ void Device::apply_gate(Operation const& op) {
 void Device::apply_swap_check(size_t qid0, size_t qid1) {
     auto& q0 = get_physical_qubit(qid0);
     auto& q1 = get_physical_qubit(qid1);
-    size_t temp = q0.get_logical_qubit();
+    auto temp = q0.get_logical_qubit();
     q0.set_logical_qubit(q1.get_logical_qubit());
     q1.set_logical_qubit(temp);
     size_t t = std::max(q0.get_occupied_time(), q1.get_occupied_time());
@@ -282,8 +283,8 @@ void Device::apply_single_qubit_gate(size_t physical_id) {
  *
  * @return vector<size_t> (index of physical qubit)
  */
-std::vector<size_t> Device::mapping() const {
-    std::vector<size_t> ret;
+std::vector<std::optional<size_t>> Device::mapping() const {
+    std::vector<std::optional<size_t>> ret;
     ret.resize(_qubit_list.size());
     for (auto const& [id, qubit] : _qubit_list) {
         ret[id] = qubit.get_logical_qubit();
@@ -298,7 +299,7 @@ std::vector<size_t> Device::mapping() const {
  */
 void Device::place(std::vector<size_t> const& assignment) {
     for (size_t i = 0; i < assignment.size(); ++i) {
-        assert(_qubit_list[assignment[i]].get_logical_qubit() == SIZE_MAX);
+        assert(_qubit_list[assignment[i]].get_logical_qubit() == std::nullopt);
         _qubit_list[assignment[i]].set_logical_qubit(i);
     }
 }
@@ -333,7 +334,7 @@ void Device::_initialize_floyd_warshall() {
 
     for (size_t i = 0; i < _num_qubit; i++) {
         _distance[i].resize(_num_qubit);
-        _predecessor[i].resize(_num_qubit, size_t(-1));
+        _predecessor[i].resize(_num_qubit, SIZE_MAX);
         for (size_t j = 0; j < _num_qubit; j++) {
             _distance[i][j] = _adjacency_matrix[i][j];
             if (_distance[i][j] != 0 && _distance[i][j] != _max_dist) {
@@ -414,7 +415,7 @@ std::vector<PhysicalQubit> Device::get_path(size_t s, size_t t) const {
     path.emplace_back(new_pred);
     while (true) {
         new_pred = _predecessor[t][new_pred];
-        if (new_pred == size_t(-1)) break;
+        if (new_pred == SIZE_MAX) break;
         path.emplace_back(_qubit_list.at(new_pred));
     }
     return path;
@@ -745,7 +746,7 @@ void Device::print_edges(std::vector<size_t> candidates) const {
  */
 void Device::print_topology() const {
     fmt::println("Topology: {} ({} qubits, {} edges)", get_name(), _qubit_list.size(), _topology->get_num_adjacencies());
-    fmt::println("Gate Set: {}", fmt::join(_topology->get_gate_set() | std::views::transform([this](GateType gtype) { return GATE_TYPE_TO_STR.at(gtype); }), ", "));
+    fmt::println("Gate Set: {}", fmt::join(_topology->get_gate_set() | std::views::transform([](GateType gtype) { return GATE_TYPE_TO_STR.at(gtype); }), ", "));
 }
 
 /**
@@ -755,7 +756,7 @@ void Device::print_topology() const {
 void Device::print_predecessor() const {
     fmt::println("Predecessor Matrix:");
     for (auto& row : _predecessor) {
-        fmt::println("{:5}", fmt::join(row | std::views::transform([this](size_t pred) { return (pred == SIZE_MAX) ? "/" : std::to_string(pred); }), ""));
+        fmt::println("{:5}", fmt::join(row | std::views::transform([](size_t pred) { return (pred == SIZE_MAX) ? "/" : std::to_string(pred); }), ""));
     }
 }
 
@@ -840,9 +841,11 @@ std::ostream& operator<<(std::ostream& os, Operation& op) {
     size_t from = std::get<0>(op._duration);
     size_t to = std::get<1>(op._duration);
     // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
-    os << std::setw(20) << "Operation: " + GATE_TYPE_TO_STR[op._oper];
+    os << std::setw(20) << "Operation: " + GATE_TYPE_TO_STR[op._operation];
     os << "Q" << std::get<0>(op._qubits);
-    if (std::get<1>(op._qubits) != SIZE_MAX) os << " Q" << std::get<1>(op._qubits);
+    // FIXME - Qubit ID cannot be SIZE_MAX
+    //if (std::get<1>(op._qubits) != SIZE_MAX) 
+    os << " Q" << std::get<1>(op._qubits);
     os << "    from: " << std::left << std::setw(10) << from << "to: " << to;
     // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
     return os;
@@ -860,7 +863,7 @@ std::ostream& operator<<(std::ostream& os, Operation const& op) {
     size_t from = std::get<0>(op._duration);
     size_t to = std::get<1>(op._duration);
     // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
-    os << std::setw(20) << "Operation: " + GATE_TYPE_TO_STR[op._oper];
+    os << std::setw(20) << "Operation: " + GATE_TYPE_TO_STR[op._operation];
     os << "Q" << std::get<0>(op._qubits) << " Q" << std::get<1>(op._qubits)
        << "    from: " << std::left << std::setw(10) << from << "to: " << to;
     // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
@@ -875,11 +878,11 @@ std::ostream& operator<<(std::ostream& os, Operation const& op) {
  * @param qs
  * @param du
  */
-Operation::Operation(GateType oper, dvlab::Phase ph, std::tuple<size_t, size_t> qs, std::tuple<size_t, size_t> du)
-    : _oper(oper), _phase(ph), _qubits(qs), _duration(du), _id(SIZE_MAX) {
+Operation::Operation(GateType op, dvlab::Phase ph, std::tuple<size_t, size_t> qubits, std::tuple<size_t, size_t> duration)
+    : _operation(op), _phase(ph), _qubits(qubits), _duration(duration) {
     // sort qs
-    size_t a = std::get<0>(qs);
-    size_t b = std::get<1>(qs);
+    size_t a = std::get<0>(qubits);
+    size_t b = std::get<1>(qubits);
     assert(a != b);
 }
 
