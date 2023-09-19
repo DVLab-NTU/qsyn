@@ -61,23 +61,23 @@ void Duostra::make_dependency() {
     for (auto const& g : _logical_circuit->get_gates()) {
         size_t id = g->get_id();
 
-        GateType type = g->get_type();
+        auto rotation_category = g->get_rotation_category();
 
-        size_t q2 = SIZE_MAX;
-        QubitInfo first = g->get_qubits()[0];
+        size_t q2        = SIZE_MAX;
+        QubitInfo first  = g->get_qubits()[0];
         QubitInfo second = {};
         if (g->get_qubits().size() > 1) {
             second = g->get_qubits()[1];
-            q2 = second._qubit;
+            q2     = second._qubit;
         }
 
         std::tuple<size_t, size_t> temp{first._qubit, q2};
-        Gate temp_gate{id, type, g->get_phase(), temp};
-        if (first._parent != nullptr) temp_gate.add_prev(first._parent->get_id());
-        if (first._child != nullptr) temp_gate.add_next(first._child->get_id());
+        Gate temp_gate{id, rotation_category, g->get_phase(), temp};
+        if (first._prev != nullptr) temp_gate.add_prev(first._prev->get_id());
+        if (first._next != nullptr) temp_gate.add_next(first._next->get_id());
         if (g->get_qubits().size() > 1) {
-            if (second._parent != nullptr) temp_gate.add_prev(second._parent->get_id());
-            if (second._child != nullptr) temp_gate.add_next(second._child->get_id());
+            if (second._prev != nullptr) temp_gate.add_prev(second._prev->get_id());
+            if (second._next != nullptr) temp_gate.add_next(second._next->get_id());
         }
         all_gates.emplace_back(std::move(temp_gate));
     }
@@ -119,7 +119,7 @@ void Duostra::make_dependency(std::vector<Operation> const& ops, size_t n_qubits
  */
 bool Duostra::map(bool use_device_as_placement) {
     std::unique_ptr<CircuitTopology> topo;
-    topo = make_unique<CircuitTopology>(_dependency);
+    topo            = make_unique<CircuitTopology>(_dependency);
     auto check_topo = topo->clone();
     auto check_device(_device);
 
@@ -132,7 +132,7 @@ bool Duostra::map(bool use_device_as_placement) {
     if (!use_device_as_placement) {
         if (VERBOSE > 3) std::cout << "Initial placing..." << std::endl;
         auto placer = get_placer();
-        assign = placer->place_and_assign(_device);
+        assign      = placer->place_and_assign(_device);
     }
     // scheduler
     if (VERBOSE > 3) std::cout << "Creating Scheduler..." << std::endl;
@@ -141,7 +141,7 @@ bool Duostra::map(bool use_device_as_placement) {
     // router
     if (VERBOSE > 3) std::cout << "Creating Router..." << std::endl;
     std::string cost = (DuostraConfig::SCHEDULER_TYPE == SchedulerType::greedy) ? "end" : "start";
-    auto router = make_unique<Router>(std::move(_device), cost, DuostraConfig::TIE_BREAKING_STRATEGY);
+    auto router      = make_unique<Router>(std::move(_device), cost, DuostraConfig::TIE_BREAKING_STRATEGY);
 
     // routing
     if (!_silent) std::cout << "Routing..." << std::endl;
@@ -187,7 +187,7 @@ bool Duostra::map(bool use_device_as_placement) {
  */
 void Duostra::store_order_info(std::vector<size_t> const& order) {
     for (auto const& gate_id : order) {
-        Gate const& g = _dependency->get_gate(gate_id);
+        Gate const& g                     = _dependency->get_gate(gate_id);
         std::tuple<size_t, size_t> qubits = g.get_qubits();
         if (g.is_swapped())
             qubits = std::make_tuple(get<1>(qubits), get<0>(qubits));
@@ -205,10 +205,9 @@ void Duostra::print_assembly() const {
     std::cout << "Mapping Result: " << std::endl;
     std::cout << std::endl;
     for (auto const& op : _result) {
-        std::string gate_name{GATE_TYPE_TO_STR[op.get_type()]};
-        std::cout << std::left << std::setw(5) << gate_name << " ";  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+        std::cout << std::left << std::setw(5) << op.get_type_str() << " ";  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         std::tuple<size_t, size_t> qubits = op.get_qubits();
-        std::string res = "q[" + std::to_string(get<0>(qubits)) + "]";
+        std::string res                   = "q[" + std::to_string(get<0>(qubits)) + "]";
         if (get<1>(qubits) != SIZE_MAX) {
             res += ",q[" + std::to_string(get<1>(qubits)) + "]";
         }
@@ -225,23 +224,23 @@ void Duostra::print_assembly() const {
 void Duostra::build_circuit_by_result() {
     _physical_circuit->add_qubits(_device.get_num_qubits());
     for (auto const& operation : _result) {
-        std::string gate_name{GATE_TYPE_TO_STR[operation.get_type()]};
         std::tuple<size_t, size_t> qubits = operation.get_qubits();
         QubitIdList qu;
         qu.emplace_back(get<0>(qubits));
         if (get<1>(qubits) != SIZE_MAX) {
             qu.emplace_back(get<1>(qubits));
         }
-        if (operation.get_type() == GateType::swap) {
+        if (operation.is_swap()) {
             // NOTE - Decompose SWAP into three CX
             QubitIdList qu_reverse;
             qu_reverse.emplace_back(get<1>(qubits));
             qu_reverse.emplace_back(get<0>(qubits));
-            _physical_circuit->add_gate("CX", qu, dvlab::Phase(0), true);
-            _physical_circuit->add_gate("CX", qu_reverse, dvlab::Phase(0), true);
-            _physical_circuit->add_gate("CX", qu, dvlab::Phase(0), true);
-        } else
-            _physical_circuit->add_gate(gate_name, qu, operation.get_phase(), true);
+            _physical_circuit->add_gate("CX", qu, dvlab::Phase(1), true);
+            _physical_circuit->add_gate("CX", qu_reverse, dvlab::Phase(1), true);
+            _physical_circuit->add_gate("CX", qu, dvlab::Phase(1), true);
+        } else if (operation.get_phase() != dvlab::Phase(0)) {
+            _physical_circuit->add_gate(operation.get_type_str(), qu, operation.get_phase(), true);
+        }
     }
 }
 

@@ -34,8 +34,8 @@ std::vector<MatchType> HadamardRule::find_matches(ZXGraph const& graph) const {
             if (!in_matches[n0] && !in_matches[n1]) {
                 matches.emplace_back(v);
                 in_matches[id2idx[v->get_id()]] = true;
-                taken[n0] = true;
-                taken[n1] = true;
+                taken[n0]                       = true;
+                taken[n1]                       = true;
             }
         }
     }

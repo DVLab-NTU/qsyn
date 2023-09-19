@@ -7,11 +7,11 @@
 ****************************************************************************/
 
 #include "./scheduler.hpp"
-#include "./duostra.hpp"
 
 #include <algorithm>
 #include <cassert>
 
+#include "./duostra.hpp"
 
 extern bool stop_requested();
 
@@ -95,7 +95,7 @@ size_t BaseScheduler::get_total_time() const {
  */
 size_t BaseScheduler::get_num_swaps() const {
     return std::ranges::count_if(_operations, [](Operation const& op) {
-        return op.get_type() == qcir::GateType::swap;
+        return op.get_type() == qcir::GateRotationCategory::swap;
     });
 }
 

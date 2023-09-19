@@ -37,10 +37,10 @@ extern size_t OPTIMIZE_LEVEL;
 
 class Extractor {
 public:
-    using Target = std::unordered_map<size_t, size_t>;
+    using Target      = std::unordered_map<size_t, size_t>;
     using ConnectInfo = std::vector<std::set<size_t>>;
-    using Device = duostra::Duostra::Device;
-    using Operation = duostra::Duostra::Operation;
+    using Device      = duostra::Duostra::Device;
+    using Operation   = duostra::Duostra::Operation;
 
     Extractor(zx::ZXGraph*, qcir::QCir* = nullptr, std::optional<Device> const& = std::nullopt);
 
@@ -105,7 +105,7 @@ private:
     ConnectInfo _col_info;
 
     size_t _num_cx_filtered = 0;
-    size_t _num_swaps = 0;
+    size_t _num_swaps       = 0;
 
     std::vector<size_t> _initial_placement;
 };

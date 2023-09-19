@@ -20,7 +20,7 @@ namespace zx {
 
 class ZXFileParser {
 public:
-    using VertexInfo = detail::VertexInfo;
+    using VertexInfo  = detail::VertexInfo;
     using StorageType = detail::StorageType;
 
     ZXFileParser() : _line_no(1) {}

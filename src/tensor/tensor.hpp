@@ -26,7 +26,7 @@ namespace qsyn::tensor {
 template <typename DT>
 class Tensor {
 protected:
-    using DataType = DT;
+    using DataType     = DT;
     using InternalType = xt::xarray<DataType>;
 
 public:
@@ -251,8 +251,8 @@ Tensor<U> direct_sum(Tensor<U> const& t1, Tensor<U> const& t2) {
     }
     shape_t shape1 = t1._tensor.shape();
     shape_t shape2 = t2._tensor.shape();
-    auto tmp1 = xt::hstack(xt::xtuple(t1._tensor, xt::zeros<U>({shape1[0], shape2[1]})));
-    auto tmp2 = xt::hstack(xt::xtuple(xt::zeros<U>({shape2[0], shape1[1]}), t2._tensor));
+    auto tmp1      = xt::hstack(xt::xtuple(t1._tensor, xt::zeros<U>({shape1[0], shape2[1]})));
+    auto tmp2      = xt::hstack(xt::xtuple(xt::zeros<U>({shape2[0], shape1[1]}), t2._tensor));
 
     return xt::vstack(xt::xtuple(tmp1, tmp2));
 }
@@ -301,7 +301,7 @@ Tensor<U> tensordot(Tensor<U> const& t1, Tensor<U> const& t2,
     if (ax1.size() != ax2.size()) {
         throw std::invalid_argument("The two index orders should contain the same number of indices.");
     }
-    Tensor<U> t = xt::linalg::tensordot(t1._tensor, t2._tensor, ax1, ax2);
+    Tensor<U> t        = xt::linalg::tensordot(t1._tensor, t2._tensor, ax1, ax2);
     size_t tmp_axis_id = 0;
     t._axis_history.clear();
     for (size_t i = 0; i < t1._tensor.dimension(); ++i) {

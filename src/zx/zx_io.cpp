@@ -219,7 +219,7 @@ bool ZXGraph::write_tikz(std::ostream& os) const {
         std::ranges::max(_outputs | std::views::transform([](ZXVertex* v) { return v->get_col(); }))));
 
     double scale = 25. / max_col;
-    scale = (scale > 3.0) ? 3.0 : scale;
+    scale        = (scale > 3.0) ? 3.0 : scale;
 
     auto get_attr_string = [](ZXVertex* v) {
         std::string result = vt2s.at(v->get_type());
@@ -230,7 +230,7 @@ bool ZXGraph::write_tikz(std::ostream& os) const {
 
         std::string_view label_style = "[label distance=-2]90:{\\color{phaseColor}";
 
-        auto numerator = v->get_phase().numerator();
+        auto numerator            = v->get_phase().numerator();
         std::string numerator_str = fmt::format("{}\\pi",
                                                 numerator == 1    ? ""
                                                 : numerator == -1 ? "-"
@@ -238,7 +238,7 @@ bool ZXGraph::write_tikz(std::ostream& os) const {
 
         auto sans_serif_styled = [](auto const& val) { return fmt::format("\\mathsf{{{}}}", val); };
 
-        auto denominator = v->get_phase().denominator();
+        auto denominator         = v->get_phase().denominator();
         std::string fraction_str = std::invoke([&]() -> std::string {
             if (denominator == 1) {
                 return sans_serif_styled(numerator_str);

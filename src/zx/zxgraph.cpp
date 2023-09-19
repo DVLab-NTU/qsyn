@@ -35,9 +35,9 @@ namespace qsyn::zx {
 ZXGraph::ZXGraph(ZXVertexList const& vertices,
                  ZXVertexList const& inputs,
                  ZXVertexList const& outputs) {
-    _vertices = vertices;
-    _inputs = inputs;
-    _outputs = outputs;
+    _vertices  = vertices;
+    _inputs    = inputs;
+    _outputs   = outputs;
     _next_v_id = 0;
     for (auto v : _vertices) {
         v->set_id(_next_v_id);
@@ -358,7 +358,7 @@ size_t ZXGraph::remove_vertex(ZXVertex* v) {
     for (auto const& n : v_neighbors) {
         v->remove_neighbor(n);
         ZXVertex* nv = n.first;
-        EdgeType ne = n.second;
+        EdgeType ne  = n.second;
         nv->remove_neighbor(std::make_pair(v, ne));
     }
     _vertices.erase(v);
@@ -466,7 +466,7 @@ void ZXGraph::adjoint() {
  * @param phase
  */
 void ZXGraph::assign_vertex_to_boundary(QubitIdType qubit, bool is_input, VertexType vtype, Phase phase) {
-    ZXVertex* v = add_vertex(qubit, vtype, phase);
+    ZXVertex* v        = add_vertex(qubit, vtype, phase);
     ZXVertex* boundary = is_input ? _input_list[qubit] : _output_list[qubit];
     for (auto& [nb, etype] : boundary->get_neighbors()) {
         add_edge(v, nb, etype);
@@ -483,7 +483,7 @@ void ZXGraph::assign_vertex_to_boundary(QubitIdType qubit, bool is_input, Vertex
  */
 void ZXGraph::gadgetize_phase(ZXVertex* v, Phase const& keep_phase) {
     if (!v->is_z()) return;
-    ZXVertex* leaf = this->add_vertex(-2, VertexType::z, v->get_phase() - keep_phase);
+    ZXVertex* leaf   = this->add_vertex(-2, VertexType::z, v->get_phase() - keep_phase);
     ZXVertex* buffer = this->add_vertex(-1, VertexType::z, Phase(0));
     // REVIEW - No floating, directly take v
     leaf->set_col(v->get_col());

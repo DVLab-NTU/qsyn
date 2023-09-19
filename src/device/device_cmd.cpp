@@ -109,7 +109,7 @@ dvlab::Command device_graph_read_cmd(qsyn::device::DeviceMgr& device_mgr) {
             [&device_mgr](ArgumentParser const& parser) {
                 qsyn::device::Device buffer_device;
                 auto filepath = parser.get<std::string>("filepath");
-                auto replace = parser.get<bool>("-replace");
+                auto replace  = parser.get<bool>("-replace");
 
                 if (!buffer_device.read_device(filepath)) {
                     LOGGER.error("the format in \"{}\" has something wrong!!", filepath);

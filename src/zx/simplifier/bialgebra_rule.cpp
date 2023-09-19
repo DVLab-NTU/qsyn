@@ -118,7 +118,7 @@ void BialgebraRule::apply(ZXGraph& graph, std::vector<MatchType> const& matches)
     for (auto const& match : matches) {
         auto [left, right] = std::get<0>(match);
 
-        std::vector<ZXVertex*> neighbor_of_left = left->get_copied_neighbors();
+        std::vector<ZXVertex*> neighbor_of_left  = left->get_copied_neighbors();
         std::vector<ZXVertex*> neighbor_of_right = right->get_copied_neighbors();
 
         op.vertices_to_remove.emplace_back(left);

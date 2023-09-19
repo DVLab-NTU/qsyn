@@ -34,8 +34,9 @@ void Optimizer::_permute_gates(QCirGate* gate) {
 }
 
 void Optimizer::_match_hadamards(QCirGate* gate) {
-    assert(gate->get_type() == GateType::h);
+    assert(gate->is_h());
     auto qubit = gate->get_targets()._qubit;
+
     if (_xs.contains(qubit) && !_zs.contains(qubit)) {
         LOGGER.trace("Transform X gate into Z gate");
 
@@ -47,31 +48,30 @@ void Optimizer::_match_hadamards(QCirGate* gate) {
         _xs.emplace(qubit);
     }
     // NOTE - H-S-H to Sdg-H-Sdg
-    if (_gates[qubit].size() > 1 && _gates[qubit][_gates[qubit].size() - 2]->get_type() == GateType::h && is_single_z_rotation(_gates[qubit][_gates[qubit].size() - 1])) {
-        QCirGate* g2 = _gates[qubit][_gates[qubit].size() - 1];
+    if (_gates[qubit].size() > 1 && _gates[qubit][_gates[qubit].size() - 2]->is_h() && is_single_z_rotation(_gates[qubit][_gates[qubit].size() - 1])) {
+        auto g2 = _gates[qubit][_gates[qubit].size() - 1];
         if (g2->get_phase().denominator() == 2) {
             _statistics.HS_EXCHANGE++;
             LOGGER.trace("Transform H-S-H into Sdg-H-Sdg");
-            QCirGate* zp = new PGate(_gate_count);
+            auto zp = new QCirGate(_gate_count, GateRotationCategory::pz, -1 * g2->get_phase());
             zp->add_qubit(qubit, true);
             _gate_count++;
-            zp->set_phase(-1 * g2->get_phase());  // NOTE - S to Sdg
-            g2->set_phase(zp->get_phase());       // NOTE - S to Sdg
+            g2->set_phase(zp->get_phase());  // NOTE - S to Sdg
             _gates[qubit].insert(_gates[qubit].end() - 2, zp);
             return;
         }
     }
-    _toggle_element(GateType::h, qubit);
+    _toggle_element(_ElementType::h, qubit);
 }
 
 void Optimizer::_match_xs(QCirGate* gate) {
-    assert(gate->get_type() == GateType::x);
+    assert(gate->is_x());
     auto qubit = gate->get_targets()._qubit;
     if (_xs.contains(qubit)) {
         LOGGER.trace("Cancel X-X into Id");
         _statistics.X_CANCEL++;
     }
-    _toggle_element(GateType::x, qubit);
+    _toggle_element(_ElementType::x, qubit);
 }
 
 void Optimizer::_match_z_rotations(QCirGate* gate) {
@@ -80,18 +80,7 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
     if (_zs.contains(qubit)) {
         _statistics.FUSE_PHASE++;
         _zs.erase(qubit);
-        if (gate->get_type() == GateType::rz || gate->get_type() == GateType::p) {
-            gate->set_phase(gate->get_phase() + dvlab::Phase(1));
-        } else if (gate->get_type() == GateType::z) {
-            return;
-        } else {
-            // NOTE - Trans S/S*/T/T* into PGate
-            QCirGate* temp = new PGate(_gate_count);
-            _gate_count++;
-            temp->add_qubit(qubit, true);
-            temp->set_phase(gate->get_phase() + dvlab::Phase(1));
-            gate = temp;
-        }
+        gate->set_phase(gate->get_phase() + dvlab::Phase(1));
     }
     if (gate->get_phase() == dvlab::Phase(0)) {
         LOGGER.trace("Cancel with previous RZ");
@@ -101,8 +90,8 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
     if (_xs.contains(qubit)) {
         gate->set_phase(-1 * (gate->get_phase()));
     }
-    if (gate->get_phase() == dvlab::Phase(1) || gate->get_type() == GateType::z) {
-        _toggle_element(GateType::z, qubit);
+    if (gate->get_phase() == dvlab::Phase(1)) {
+        _toggle_element(_ElementType::z, qubit);
         return;
     }
     // REVIEW - Neglect adjoint due to S and Sdg is separated
@@ -116,25 +105,25 @@ void Optimizer::_match_z_rotations(QCirGate* gate) {
         dvlab::Phase ph = available->get_phase() + gate->get_phase();
         _statistics.FUSE_PHASE++;
         if (ph == dvlab::Phase(1)) {
-            _toggle_element(GateType::z, qubit);
+            _toggle_element(_ElementType::z, qubit);
             return;
         }
         if (ph != dvlab::Phase(0)) {
-            _add_rotation_gate(qubit, ph, GateType::p);
+            _add_rotation_gate(qubit, ph, GateRotationCategory::pz);
         }
     } else {
         if (_availty[qubit] == true) {
             _availty[qubit] = false;
             _available[qubit].clear();
         }
-        _add_rotation_gate(qubit, gate->get_phase(), GateType::p);
+        _add_rotation_gate(qubit, gate->get_phase(), GateRotationCategory::pz);
     }
 }
 
 void Optimizer::_match_czs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
-    assert(gate->get_type() == GateType::cz);
+    assert(gate->is_cz());
     auto control_qubit = gate->get_control()._qubit;
-    auto target_qubit = gate->get_targets()._qubit;
+    auto target_qubit  = gate->get_targets()._qubit;
     if (control_qubit > target_qubit) {  // NOTE - Symmetric, let ctrl smaller than targ
         auto tmp = control_qubit;
         gate->set_target_qubit(target_qubit);
@@ -143,9 +132,9 @@ void Optimizer::_match_czs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
     // NOTE - Push NOT gates trough the CZ
     // REVIEW - Seems strange
     if (_xs.contains(control_qubit))
-        _toggle_element(GateType::z, target_qubit);
+        _toggle_element(_ElementType::z, target_qubit);
     if (_xs.contains(target_qubit))
-        _toggle_element(GateType::z, control_qubit);
+        _toggle_element(_ElementType::z, control_qubit);
     if (_hadamards.contains(control_qubit) && _hadamards.contains(target_qubit)) {
         _add_hadamard(control_qubit, true);
         _add_hadamard(target_qubit, true);
@@ -162,14 +151,14 @@ void Optimizer::_match_czs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
 }
 
 void Optimizer::_match_cxs(QCirGate* gate, bool do_swap, bool do_minimize_czs) {
-    assert(gate->get_type() == GateType::cx);
+    assert(gate->is_cx());
     auto control_qubit = gate->get_control()._qubit;
-    auto target_qubit = gate->get_targets()._qubit;
+    auto target_qubit  = gate->get_targets()._qubit;
 
     if (_xs.contains(control_qubit))
-        _toggle_element(GateType::x, target_qubit);
+        _toggle_element(_ElementType::x, target_qubit);
     if (_zs.contains(target_qubit))
-        _toggle_element(GateType::z, control_qubit);
+        _toggle_element(_ElementType::z, control_qubit);
     if (_hadamards.contains(control_qubit) && _hadamards.contains(target_qubit)) {
         _add_cx(target_qubit, control_qubit, do_swap);
     } else if (!_hadamards.contains(control_qubit) && !_hadamards.contains(target_qubit)) {

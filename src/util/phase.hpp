@@ -171,7 +171,7 @@ bool Phase::str_to_phase(std::string const& str, Phase& p) {
 
     // string parsing
     size_t curr_pos = 0;
-    size_t op_pos = 0;
+    size_t op_pos   = 0;
     while (op_pos != std::string::npos) {
         op_pos = str.find_first_of("*/", curr_pos);
         if (op_pos != std::string::npos) {
@@ -186,7 +186,7 @@ bool Phase::str_to_phase(std::string const& str, Phase& p) {
     // Error detection
     if (operators.size() >= number_strings.size()) return false;
 
-    IntegralType n_pis = 0;
+    IntegralType n_pis     = 0;
     IntegralType numerator = 1, denominator = 1;
     T temp_float = 1.0;
 
@@ -231,15 +231,13 @@ bool Phase::str_to_phase(std::string const& str, Phase& p) {
     return true;
 }
 
-
 /**
  * @brief Normalize the phase to 0-2pi
  *
  */
 constexpr void Phase::normalize() {
-    Rational factor = (_rational / 2);
-    IntegralType integral_part = std::floor(Rational::rational_to_f(factor));
-    _rational -= (integral_part * 2);
+    constexpr auto floor = [](Rational const& q) -> IntegralType { return (q.numerator() - (q.numerator() >= 0 ? 0 : q.denominator())) / q.denominator(); };
+    _rational -= (floor(_rational / 2) * 2);
     if (_rational > 1) _rational -= 2;
 }
 

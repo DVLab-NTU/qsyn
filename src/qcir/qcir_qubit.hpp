@@ -24,7 +24,7 @@ public:
     using QubitIdType = qsyn::QubitIdType;
     QCirQubit(QubitIdType id) : _id(id) {
         _bit_first = nullptr;
-        _bit_last = nullptr;
+        _bit_last  = nullptr;
     }
 
     // Basic access method
