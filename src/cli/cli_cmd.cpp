@@ -51,7 +51,7 @@ Command alias_cmd(CommandLineInterface& cli) {
                 return CmdExecResult::done;
             }
 
-            auto alias = parser.get<std::string>("alias");
+            auto alias       = parser.get<std::string>("alias");
             auto replace_str = parser.get<std::string>("replace-str");
 
             if (std::ranges::any_of(alias, [](char ch) { return isspace(ch); })) {
@@ -188,9 +188,9 @@ Command usage_cmd() {
                     .help("print memory usage");
             },
             [](ArgumentParser const& parser) {
-                auto rep_all = parser.get<bool>("-all");
+                auto rep_all  = parser.get<bool>("-all");
                 auto rep_time = parser.get<bool>("-time");
-                auto rep_mem = parser.get<bool>("-memory");
+                auto rep_mem  = parser.get<bool>("-memory");
 
                 if (!rep_all && !rep_time && !rep_mem) rep_all = true;
 

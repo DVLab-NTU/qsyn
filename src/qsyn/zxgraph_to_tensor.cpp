@@ -146,7 +146,7 @@ void ZX2TSMapper::_map_one_vertex(zx::ZXVertex* v) {
     _tensor_id = 0;
 
     bool is_new_graph = _is_of_new_graph(v);
-    bool is_boundary = v->is_boundary();
+    bool is_boundary  = v->is_boundary();
 
     LOGGER.debug("Mapping vertex {:>4} ({}): {}", v->get_id(), v->get_type(), is_new_graph ? "New Subgraph" : is_boundary ? "Boundary"
                                                                                                                           : "Tensordot");
@@ -184,7 +184,7 @@ void ZX2TSMapper::_initialize_subgraph(zx::ZXVertex* v) {
     assert(v->is_boundary());
 
     zx::EdgePair edge_key = make_edge_pair(v, nb, etype);
-    _curr_tensor() = tensordot(_curr_tensor(), tensor::QTensor<double>::identity(v->get_num_neighbors()));
+    _curr_tensor()        = tensordot(_curr_tensor(), tensor::QTensor<double>::identity(v->get_num_neighbors()));
     _boundary_edges.emplace_back(edge_key);
     _curr_frontiers().emplace(edge_key, 1);
 }
@@ -241,10 +241,10 @@ ZX2TSMapper::InOutAxisList ZX2TSMapper::_get_axis_orders(zx::ZXGraph const& zxgr
         bool has_boundary2_boundary_edge = false;
         for (auto& [epair, axid] : _zx2ts_list.frontiers(i)) {
             auto const& [v1, v2] = epair.first;
-            bool v1_is_input = zxgraph.get_inputs().contains(v1);
-            bool v2_is_input = zxgraph.get_inputs().contains(v2);
-            bool v1_is_output = zxgraph.get_outputs().contains(v1);
-            bool v2_is_output = zxgraph.get_outputs().contains(v2);
+            bool v1_is_input     = zxgraph.get_inputs().contains(v1);
+            bool v2_is_input     = zxgraph.get_inputs().contains(v2);
+            bool v1_is_output    = zxgraph.get_outputs().contains(v1);
+            bool v2_is_output    = zxgraph.get_outputs().contains(v2);
 
             if (v1_is_input) axis_lists.inputs[input_table[v1->get_qubit()]] = axid + acc_frontier_size;
             if (v2_is_input) axis_lists.inputs[input_table[v2->get_qubit()]] = axid + acc_frontier_size;
@@ -320,7 +320,7 @@ tensor::QTensor<double> ZX2TSMapper::_dehadamardize(tensor::QTensor<double> cons
             axisId = tmp.get_new_axis_id(axisId);
         } else {
             size_t id = std::find(_hadamard_pins.begin(), _hadamard_pins.end(), axisId) - _hadamard_pins.begin();
-            axisId = tmp.get_new_axis_id(ts.dimension() + connect_pin[id] + 1);
+            axisId    = tmp.get_new_axis_id(ts.dimension() + connect_pin[id] + 1);
         }
     }
 

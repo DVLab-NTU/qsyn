@@ -20,9 +20,9 @@
 namespace dvlab::argparse {
 
 struct ArgumentParserConfig {
-    bool add_help_action = true;
-    bool add_version_action = false;
-    bool exitOnFailure = true;
+    bool add_help_action     = true;
+    bool add_version_action  = false;
+    bool exitOnFailure       = true;
     std::string_view version = "";
 };
 
@@ -37,7 +37,7 @@ private:
         dvlab::utils::ordered_hashmap<std::string, ArgumentParser> subparsers;
         std::string help;
         bool required = false;
-        bool parsed = false;
+        bool parsed   = false;
         ArgumentParserConfig parent_config;
     };
     std::shared_ptr<SubParsersImpl> _pimpl;
@@ -84,10 +84,10 @@ class ArgumentParser {
 public:
     ArgumentParser() : _pimpl{std::make_shared<ArgumentParserImpl>()} {}
     ArgumentParser(std::string const& n, ArgumentParserConfig config = {
-                                             .add_help_action = true,
+                                             .add_help_action    = true,
                                              .add_version_action = false,
-                                             .exitOnFailure = true,
-                                             .version = "",
+                                             .exitOnFailure      = true,
+                                             .version            = "",
                                          });
 
     template <typename T>

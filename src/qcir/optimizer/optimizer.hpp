@@ -24,7 +24,7 @@ namespace qsyn::qcir {
 
 class QCir;
 class QCirGate;
-enum class GateType;
+enum class GateRotationCategory;
 using Qubit2Gates = std::unordered_map<QubitIdType, std::vector<QCirGate*>>;
 
 class Optimizer {
@@ -34,7 +34,7 @@ public:
     void reset(QCir const& qcir);
 
     // Predicate function && Utils
-    bool two_qubit_gate_exists(QCirGate* g, GateType gt, QubitIdType ctrl, QubitIdType targ);
+    bool two_qubit_gate_exists(QCirGate* g, GateRotationCategory gt, QubitIdType ctrl, QubitIdType targ);
     bool is_single_z_rotation(QCirGate*);
     bool is_single_x_rotation(QCirGate*);
     bool is_double_qubit_gate(QCirGate*);
@@ -70,20 +70,25 @@ private:
     size_t _gate_count = 0;
 
     struct Statistics {
-        size_t FUSE_PHASE = 0;
-        size_t X_CANCEL = 0;
-        size_t CNOT_CANCEL = 0;
-        size_t CZ_CANCEL = 0;
-        size_t HS_EXCHANGE = 0;
+        size_t FUSE_PHASE    = 0;
+        size_t X_CANCEL      = 0;
+        size_t CNOT_CANCEL   = 0;
+        size_t CZ_CANCEL     = 0;
+        size_t HS_EXCHANGE   = 0;
         size_t CRZ_TRACSFORM = 0;
-        size_t DO_SWAP = 0;
-        size_t CZ2CX = 0;
-        size_t CX2CZ = 0;
+        size_t DO_SWAP       = 0;
+        size_t CZ2CX         = 0;
+        size_t CX2CZ         = 0;
     } _statistics;
 
     // Utils
-    void _toggle_element(GateType const& type, QubitIdType element);
-    void _swap_element(size_t type, QubitIdType e1, QubitIdType e2);
+    enum class _ElementType {
+        h,
+        x,
+        z
+    };
+    void _toggle_element(_ElementType type, QubitIdType element);
+    void _swap_element(_ElementType type, QubitIdType e1, QubitIdType e2);
     static std::vector<size_t> _compute_stats(QCir const& circuit);
 
     QCir _parse_once(QCir const& qcir, bool reversed, bool do_minimize_czs, BasicOptimizationConfig const& config);
@@ -102,7 +107,7 @@ private:
     bool _replace_cx_and_cz_with_s_and_cx(QubitIdType t1, QubitIdType t2);
     void _add_cz(QubitIdType t1, QubitIdType t2, bool do_minimize_czs);
     void _add_cx(QubitIdType t1, QubitIdType t2, bool do_swap);
-    void _add_rotation_gate(QubitIdType target, dvlab::Phase ph, GateType const& type);
+    void _add_rotation_gate(QubitIdType target, dvlab::Phase ph, GateRotationCategory const& type);
 
     QCir _build_from_storage(size_t n_qubits, bool reversed);
 

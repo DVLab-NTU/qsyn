@@ -464,7 +464,7 @@ Command zxgraph_edit_cmd(ZXGraphMgr& zxgraph_mgr) {
                 if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
                 if (parser.used_subparser("-rmvertex")) {
                     if (parser.parsed("ids")) {
-                        auto ids = parser.get<std::vector<size_t>>("ids");
+                        auto ids            = parser.get<std::vector<size_t>>("ids");
                         auto vertices_range = ids |
                                               std::views::transform([&](size_t id) { return zxgraph_mgr.get()->find_vertex_by_id(id); }) |
                                               std::views::filter([](ZXVertex* v) { return v != nullptr; });
@@ -481,8 +481,8 @@ Command zxgraph_edit_cmd(ZXGraphMgr& zxgraph_mgr) {
                 }
                 if (parser.used_subparser("-rmedge")) {
                     auto ids = parser.get<std::vector<size_t>>("ids");
-                    auto v0 = zxgraph_mgr.get()->find_vertex_by_id(ids[0]);
-                    auto v1 = zxgraph_mgr.get()->find_vertex_by_id(ids[1]);
+                    auto v0  = zxgraph_mgr.get()->find_vertex_by_id(ids[0]);
+                    auto v1  = zxgraph_mgr.get()->find_vertex_by_id(ids[1]);
                     assert(v0 != nullptr && v1 != nullptr);
 
                     auto etype = str_to_edge_type(parser.get<std::string>("etype"));
@@ -517,8 +517,8 @@ Command zxgraph_edit_cmd(ZXGraphMgr& zxgraph_mgr) {
                 }
                 if (parser.used_subparser("-addedge")) {
                     auto ids = parser.get<std::vector<size_t>>("ids");
-                    auto vs = zxgraph_mgr.get()->find_vertex_by_id(ids[0]);
-                    auto vt = zxgraph_mgr.get()->find_vertex_by_id(ids[1]);
+                    auto vs  = zxgraph_mgr.get()->find_vertex_by_id(ids[0]);
+                    auto vt  = zxgraph_mgr.get()->find_vertex_by_id(ids[1]);
                     assert(vs != nullptr && vt != nullptr);
 
                     auto etype = str_to_edge_type(parser.get<std::string>("etype"));
@@ -624,7 +624,7 @@ Command zxgraph_read_cmd(ZXGraphMgr& zxgraph_mgr) {
                     .help("replace the current ZXGraph");
             },
             [&](ArgumentParser const& parser) {
-                auto filepath = parser.get<std::string>("filepath");
+                auto filepath   = parser.get<std::string>("filepath");
                 auto do_keep_id = parser.get<bool>("-keepid");
                 auto do_replace = parser.get<bool>("-replace");
 
@@ -665,8 +665,8 @@ Command zxgraph_write_cmd(ZXGraphMgr const& zxgraph_mgr) {
             },
             [&](ArgumentParser const& parser) {
                 if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
-                auto filepath = parser.get<std::string>("filepath");
-                auto do_complete = parser.get<bool>("-complete");
+                auto filepath        = parser.get<std::string>("filepath");
+                auto do_complete     = parser.get<bool>("-complete");
                 size_t extension_pos = filepath.find_last_of('.');
 
                 std::string extension = (extension_pos == std::string::npos) ? "" : filepath.substr(extension_pos);
@@ -716,7 +716,7 @@ Command zxgraph_assign_boundary_cmd(ZXGraphMgr& zxgraph_mgr) {
             },
             [&](ArgumentParser const& parser) {
                 if (!zxgraph_mgr_not_empty(zxgraph_mgr)) return CmdExecResult::error;
-                auto qid = parser.get<int>("qubit");
+                auto qid      = parser.get<int>("qubit");
                 bool is_input = dvlab::str::tolower_string(parser.get<std::string>("io")).starts_with('i');
 
                 if (!(is_input ? zxgraph_mgr.get()->is_input_qubit(qid) : zxgraph_mgr.get()->is_output_qubit(qid))) {

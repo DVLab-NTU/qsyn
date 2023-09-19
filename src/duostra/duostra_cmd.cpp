@@ -174,7 +174,7 @@ Command duostra_set_cmd() {
                 }
 
                 if (parser.parsed("-depth")) {
-                    DuostraConfig::SEARCH_DEPTH = (size_t) parser.get<int>("-depth");
+                    DuostraConfig::SEARCH_DEPTH = (size_t)parser.get<int>("-depth");
                 }
 
                 if (parser.parsed("-never-cache")) {
@@ -242,7 +242,7 @@ Command mapping_equivalence_check_cmd(qcir::QCirMgr& qcir_mgr, device::DeviceMgr
         [&](ArgumentParser const& parser) {
             using dvlab::fmt_ext::styled_if_ansi_supported;
             auto physical_qc = qcir_mgr.find_by_id(parser.get<size_t>("-physical"));
-            auto logical_qc = qcir_mgr.find_by_id(parser.get<size_t>("-logical"));
+            auto logical_qc  = qcir_mgr.find_by_id(parser.get<size_t>("-logical"));
             if (physical_qc == nullptr || logical_qc == nullptr) {
                 return CmdExecResult::error;
             }

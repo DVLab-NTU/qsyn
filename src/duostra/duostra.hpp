@@ -26,12 +26,12 @@ namespace duostra {
 
 class Duostra {
 public:
-    using Device = qsyn::device::Device;
+    using Device    = qsyn::device::Device;
     using Operation = qsyn::device::Operation;
     struct DuostraExecutionOptions {
         bool verify_result = false;
-        bool silent = false;
-        bool use_tqdm = true;
+        bool silent        = false;
+        bool use_tqdm      = true;
     };
     Duostra(qcir::QCir* qcir, Device dev, DuostraExecutionOptions const& config = {.verify_result = false, .silent = false, .use_tqdm = true});
     Duostra(std::vector<Operation> const& cir, size_t n_qubit, Device dev, DuostraExecutionOptions const& config = {.verify_result = false, .silent = false, .use_tqdm = true});
@@ -48,6 +48,7 @@ public:
     void store_order_info(std::vector<size_t> const&);
     void print_assembly() const;
     void build_circuit_by_result();
+
 private:
     qcir::QCir* _logical_circuit;
     std::unique_ptr<qcir::QCir> _physical_circuit = std::make_unique<qcir::QCir>();

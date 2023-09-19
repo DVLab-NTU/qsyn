@@ -80,7 +80,7 @@ void ZXGraph::concatenate(ZXGraph const& other) {
     std::unordered_map<size_t, ZXVertex*> tmp_inputs = copy.get_input_list();
     for (auto& [qubit, i] : tmp_inputs) {
         auto [other_i_vtx, other_i_et] = i->get_first_neighbor();
-        auto [this_o_vtx, this_o_et] = this->get_output_by_qubit(qubit)->get_first_neighbor();
+        auto [this_o_vtx, this_o_et]   = this->get_output_by_qubit(qubit)->get_first_neighbor();
 
         this->remove_edge(this_o_vtx, this->get_output_by_qubit(qubit), this_o_et);
         this->add_edge(this_o_vtx, other_i_vtx, concat_edge(this_o_et, other_i_et));

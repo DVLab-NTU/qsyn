@@ -419,7 +419,7 @@ bool ArgumentParser::_parse_positional_arguments(TokensView tokens, std::vector<
     for (auto& [name, arg] : _pimpl->arguments) {
         if (arg.is_parsed() || has_option_prefix(name)) continue;
 
-        auto parse_range = arg.get_parse_range(tokens);
+        auto parse_range    = arg.get_parse_range(tokens);
         auto [lower, upper] = arg.get_nargs();
 
         if (parse_range.size() < arg.get_nargs().lower) {

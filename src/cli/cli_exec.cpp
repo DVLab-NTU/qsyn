@@ -73,7 +73,7 @@ void dvlab::CommandLineInterface::close_dofile() {
  */
 bool dvlab::CommandLineInterface::add_command(dvlab::Command cmd) {
     // Make sure cmd hasn't been registered and won't cause ambiguity
-    auto name = cmd.get_name();
+    auto name        = cmd.get_name();
     auto n_req_chars = _identifiers.shortest_unique_prefix(cmd.get_name()).size();
     if (!cmd.initialize(n_req_chars)) {
         LOGGER.error("Failed to initialize command `{}`!!", name);
@@ -257,7 +257,7 @@ dvlab::CommandLineInterface::_parse_one_command_from_queue() {
         auto alias = _aliases.at(*identifier);
         size_t pos = dvlab::str::str_get_token(alias, first_token);
         if (pos != string::npos) {
-            option = alias.substr(pos) + " " + option;
+            option      = alias.substr(pos) + " " + option;
             first_token = alias.substr(0, pos);
         } else {
             first_token = alias;
@@ -301,11 +301,11 @@ string dvlab::CommandLineInterface::_replace_variable_keys_with_values(string co
         for (size_t i = 0; i < matches.size(); ++i) {
             string var = matches[i];
             // tell if it is a curly brace variable or not
-            bool is_brace = var[1] == '{';
+            bool is_brace  = var[1] == '{';
             string var_key = is_brace ? var.substr(2, var.length() - 3) : var.substr(1);
 
             bool is_defined = _variables.contains(var_key);
-            string val = is_defined ? _variables.at(var_key) : "";
+            string val      = is_defined ? _variables.at(var_key) : "";
 
             if (is_brace && !is_defined) {
                 for (auto ch : var_key) {

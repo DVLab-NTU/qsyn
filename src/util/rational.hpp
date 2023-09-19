@@ -27,7 +27,7 @@ namespace dvlab {
 class Rational {
 public:
     // Default constructor for two integral type
-    using IntegralType = int;
+    using IntegralType      = int;
     using FloatingPointType = double;
 
     constexpr Rational() {}

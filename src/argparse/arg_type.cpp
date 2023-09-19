@@ -56,7 +56,7 @@ bool path_readable(std::string const& filepath) {
 
 bool path_writable(std::string const& filepath) {
     namespace fs = std::filesystem;
-    auto dir = fs::path{filepath}.parent_path();
+    auto dir     = fs::path{filepath}.parent_path();
     if (dir.empty()) dir = ".";
     if (!fs::exists(dir)) {
         fmt::println(stderr, "Error: the directory for file \"{}\" does not exist!!", filepath);

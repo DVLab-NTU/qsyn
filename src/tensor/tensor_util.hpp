@@ -12,8 +12,8 @@
 
 namespace qsyn::tensor {
 
-using TensorShape = xt::svector<size_t>;
-using TensorIndex = std::vector<size_t>;
+using TensorShape    = xt::svector<size_t>;
+using TensorIndex    = std::vector<size_t>;
 using TensorAxisList = std::vector<size_t>;
 
 TensorAxisList concat_axis_list(TensorAxisList const& ax1, TensorAxisList const& ax2);

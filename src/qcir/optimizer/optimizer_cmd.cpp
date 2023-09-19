@@ -54,13 +54,13 @@ Command qcir_optimize_cmd(QCirMgr& qcir_mgr) {
                 std::optional<QCir> result;
                 std::string procedure_str{};
                 if (parser.get<bool>("-trivial")) {
-                    result = optimizer.trivial_optimization(*qcir_mgr.get());
+                    result        = optimizer.trivial_optimization(*qcir_mgr.get());
                     procedure_str = "Trivial Optimize";
                 } else {
-                    result = optimizer.basic_optimization(*qcir_mgr.get(), {.doSwap = !parser.get<bool>("-physical"),
-                                                                            .separateCorrection = false,
-                                                                            .maxIter = 1000,
-                                                                            .printStatistics = parser.get<bool>("-statistics")});
+                    result        = optimizer.basic_optimization(*qcir_mgr.get(), {.doSwap             = !parser.get<bool>("-physical"),
+                                                                                   .separateCorrection = false,
+                                                                                   .maxIter            = 1000,
+                                                                                   .printStatistics    = parser.get<bool>("-statistics")});
                     procedure_str = "Optimize";
                 }
                 if (result == std::nullopt) {

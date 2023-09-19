@@ -88,26 +88,26 @@ private:
 
         virtual std::unique_ptr<Concept> clone() const = 0;
 
-        virtual std::string do_get_type_string() const = 0;
-        virtual std::string const& do_get_name() const = 0;
+        virtual std::string do_get_type_string() const                 = 0;
+        virtual std::string const& do_get_name() const                 = 0;
         virtual std::optional<std::string> const& do_get_usage() const = 0;
-        virtual std::string const& do_get_help() const = 0;
-        virtual std::string const& do_get_metavar() const = 0;
-        virtual NArgsRange const& do_get_nargs() const = 0;
-        virtual bool do_is_parsed() const = 0;
-        virtual void do_mark_as_parsed() = 0;
+        virtual std::string const& do_get_help() const                 = 0;
+        virtual std::string const& do_get_metavar() const              = 0;
+        virtual NArgsRange const& do_get_nargs() const                 = 0;
+        virtual bool do_is_parsed() const                              = 0;
+        virtual void do_mark_as_parsed()                               = 0;
 
-        virtual bool do_has_default_value() const = 0;
-        virtual bool do_is_required() const = 0;
-        virtual bool do_is_help_action() const = 0;
-        virtual bool do_is_version_action() const = 0;
+        virtual bool do_has_default_value() const        = 0;
+        virtual bool do_is_required() const              = 0;
+        virtual bool do_is_help_action() const           = 0;
+        virtual bool do_is_version_action() const        = 0;
         virtual bool do_is_constraints_satisfied() const = 0;
 
         virtual std::string do_to_string() const = 0;
 
         virtual bool do_take_action(TokensView) = 0;
-        virtual void do_set_value_to_default() = 0;
-        virtual void do_reset() = 0;
+        virtual void do_set_value_to_default()  = 0;
+        virtual void do_reset()                 = 0;
     };
 
     template <typename ArgT>

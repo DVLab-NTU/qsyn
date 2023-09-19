@@ -54,9 +54,9 @@ void IdentityRemovalRule::apply(ZXGraph& graph, std::vector<MatchType> const& ma
     ZXOperation op;
 
     for (auto const& match : matches) {
-        ZXVertex* v = std::get<0>(match);
-        ZXVertex* n0 = std::get<1>(match);
-        ZXVertex* n1 = std::get<2>(match);
+        ZXVertex* v        = std::get<0>(match);
+        ZXVertex* n0       = std::get<1>(match);
+        ZXVertex* n1       = std::get<2>(match);
         EdgeType edge_type = std::get<3>(match);
 
         op.vertices_to_remove.emplace_back(v);

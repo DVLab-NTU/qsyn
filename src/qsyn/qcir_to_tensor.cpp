@@ -11,6 +11,7 @@
 #include <thread>
 
 #include "fmt/core.h"
+#include "qcir/gate_type.hpp"
 #include "qcir/qcir.hpp"
 #include "qcir/qcir_qubit.hpp"
 #include "tensor/qtensor.hpp"
@@ -35,11 +36,11 @@ void update_tensor_pin(Qubit2TensorPinMap &qubit2pin, std::vector<QubitInfo> con
     LOGGER.trace("Pin Permutation");
     for (auto &[qubit, pin] : qubit2pin) {
         std::string trace = fmt::format("  - Qubit: {} input : {} -> ", qubit, pin.first);
-        pin.first = main.get_new_axis_id(pin.first);
+        pin.first         = main.get_new_axis_id(pin.first);
         trace += fmt::format("{} output: {} -> ", pin.first, pin.second);
 
-        bool connected = false;
-        bool target = false;
+        bool connected  = false;
+        bool target     = false;
         size_t ith_ctrl = 0;
         for (size_t i = 0; i < pins.size(); i++) {
             if (pins[i]._qubit == qubit) {
@@ -66,66 +67,32 @@ void update_tensor_pin(Qubit2TensorPinMap &qubit2pin, std::vector<QubitInfo> con
 }
 
 std::optional<QTensor<double>> to_tensor(QCirGate *gate) {
-    switch (gate->get_type()) {
+    switch (gate->get_rotation_category()) {
         // single-qubit gates
-        case GateType::h:
+        case GateRotationCategory::id:
+            return QTensor<double>::identity(1);
+        case GateRotationCategory::h:
             return QTensor<double>::hbox(2);
-        case GateType::z:
-            return QTensor<double>::zgate();
-        case GateType::p:
-            return QTensor<double>::pzgate(gate->get_phase());
-        case GateType::rz:
-            return QTensor<double>::rzgate(gate->get_phase());
-        case GateType::s:
-            return QTensor<double>::pzgate(dvlab::Phase(1, 2));
-        case GateType::t:
-            return QTensor<double>::pzgate(dvlab::Phase(1, 4));
-        case GateType::sdg:
-            return QTensor<double>::pzgate(dvlab::Phase(-1, 2));
-        case GateType::tdg:
-            return QTensor<double>::pzgate(dvlab::Phase(-1, 4));
-        case GateType::x:
-            return QTensor<double>::xgate();
-        case GateType::px:
-            return QTensor<double>::pxgate(gate->get_phase());
-        case GateType::rx:
-            return QTensor<double>::rxgate(gate->get_phase());
-        case GateType::sx:
-            return QTensor<double>::pxgate(dvlab::Phase(1, 2));
-        case GateType::y:
-            return QTensor<double>::ygate();
-        case GateType::py:
-            return QTensor<double>::pygate(gate->get_phase());
-        case GateType::ry:
-            return QTensor<double>::rygate(gate->get_phase());
-        case GateType::sy:
-            return QTensor<double>::pygate(dvlab::Phase(1, 2));
-            // double-qubit gates
-
-        case GateType::cx:
-            return QTensor<double>::control(QTensor<double>::xgate(), 1);
-        case GateType::cz:
-            return QTensor<double>::control(QTensor<double>::zgate(), 1);
-        // case GateType::SWAP:
-        //     return detail::getSwapZXform(gate);
-
-        // multi-qubit gates
-        case GateType::mcrz:
-            return QTensor<double>::control(QTensor<double>::rzgate(gate->get_phase()), gate->get_qubits().size() - 1);
-        case GateType::mcp:
-            return QTensor<double>::control(QTensor<double>::pzgate(gate->get_phase()), gate->get_qubits().size() - 1);
-        case GateType::ccz:
-            return QTensor<double>::control(QTensor<double>::zgate(), 2);
-        case GateType::ccx:
-            return QTensor<double>::control(QTensor<double>::xgate(), 2);
-        case GateType::mcrx:
-            return QTensor<double>::control(QTensor<double>::rxgate(gate->get_phase()), gate->get_qubits().size() - 1);
-        case GateType::mcpx:
-            return QTensor<double>::control(QTensor<double>::pxgate(gate->get_phase()), gate->get_qubits().size() - 1);
-        case GateType::mcry:
-            return QTensor<double>::control(QTensor<double>::rygate(gate->get_phase()), gate->get_qubits().size() - 1);
-        case GateType::mcpy:
-            return QTensor<double>::control(QTensor<double>::pygate(gate->get_phase()), gate->get_qubits().size() - 1);
+        case GateRotationCategory::swap: {
+            auto tensor = QTensor<double>{{1.0, 0.0, 0.0, 0.0},
+                                          {0.0, 0.0, 1.0, 0.0},
+                                          {0.0, 1.0, 0.0, 0.0},
+                                          {0.0, 0.0, 0.0, 1.0}};
+            tensor.reshape({2, 2, 2, 2});
+            return tensor;
+        }
+        case GateRotationCategory::pz:
+            return QTensor<double>::control(QTensor<double>::pzgate(gate->get_phase()), gate->get_num_qubits() - 1);
+        case GateRotationCategory::rz:
+            return QTensor<double>::control(QTensor<double>::rzgate(gate->get_phase()), gate->get_num_qubits() - 1);
+        case GateRotationCategory::px:
+            return QTensor<double>::control(QTensor<double>::pxgate(gate->get_phase()), gate->get_num_qubits() - 1);
+        case GateRotationCategory::rx:
+            return QTensor<double>::control(QTensor<double>::rxgate(gate->get_phase()), gate->get_num_qubits() - 1);
+        case GateRotationCategory::py:
+            return QTensor<double>::control(QTensor<double>::pygate(gate->get_phase()), gate->get_num_qubits() - 1);
+        case GateRotationCategory::ry:
+            return QTensor<double>::control(QTensor<double>::rygate(gate->get_phase()), gate->get_num_qubits() - 1);
 
         default:
             return std::nullopt;

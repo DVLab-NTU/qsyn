@@ -15,7 +15,7 @@ namespace qsyn::tensor {
 template <typename T>
 class QTensor : public Tensor<std::complex<T>> {
 protected:
-    using DataType = typename Tensor<std::complex<T>>::DataType;
+    using DataType     = typename Tensor<std::complex<T>>::DataType;
     using InternalType = typename Tensor<std::complex<T>>::InternalType;
 
 public:
@@ -156,7 +156,7 @@ QTensor<T> QTensor<T>::xspider(size_t const& arity, dvlab::Phase const& phase) {
     QTensor<T> ket_minus(TensorShape{2});
     ket_minus(0, 0) = 1.;
     ket_minus(0, 1) = -1.;
-    QTensor<T> tmp = tensor_product_pow(ket_minus, arity);
+    QTensor<T> tmp  = tensor_product_pow(ket_minus, arity);
     t._tensor += tmp._tensor * std::exp(1.0i * dvlab::Phase::phase_to_floating_point<T>(phase));
     t._tensor /= std::pow(std::sqrt(2), arity);
     t._tensor *= _nu_pow(2 - arity);
@@ -250,8 +250,8 @@ QTensor<T> QTensor<T>::pxgate(dvlab::Phase const& phase) {
 template <typename T>
 QTensor<T> QTensor<T>::pygate(dvlab::Phase const& phase) {
     auto sdg = QTensor<T>::pzgate(dvlab::Phase(-1, 2));
-    auto px = QTensor<T>::pxgate(phase);
-    auto s = QTensor<T>::pzgate(dvlab::Phase(1, 2));
+    auto px  = QTensor<T>::pxgate(phase);
+    auto s   = QTensor<T>::pzgate(dvlab::Phase(1, 2));
     return tensordot(s, tensordot(px, sdg, {1}, {0}), {1}, {0});
 }
 
@@ -288,7 +288,7 @@ QTensor<T> QTensor<T>::self_tensor_dot(TensorAxisList const& ax1, TensorAxisList
         throw std::invalid_argument("The two index orders should be disjoint.");
     }
     if (ax1.empty()) return *this;
-    auto tmp = QTensor<T>::identity(ax1.size());
+    auto tmp       = QTensor<T>::identity(ax1.size());
     auto tmp_order = TensorAxisList(ax1.size() + ax2.size(), 0);
     std::iota(tmp_order.begin(), tmp_order.end(), 0);
     QTensor<T> u = tensordot(*this, tmp, concat_axis_list(ax1, ax2), tmp_order);
@@ -345,10 +345,10 @@ QTensor<T> QTensor<T>::control(QTensor<T> const& gate, size_t n_ctrls) {
         ax.emplace_back(2 * i + 1);
     }
 
-    size_t gate_size = int_pow(2, dim / 2);
+    size_t gate_size     = int_pow(2, dim / 2);
     size_t identity_size = gate_size * (int_pow(2, n_ctrls) - 1);
 
-    QTensor<T> identity = xt::eye({identity_size, identity_size});
+    QTensor<T> identity    = xt::eye({identity_size, identity_size});
     QTensor<T> gate_matrix = gate.transpose(ax);
     gate_matrix.reshape({gate_size, gate_size});
 

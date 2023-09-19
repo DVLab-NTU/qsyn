@@ -14,8 +14,8 @@
 #include <utility>
 #include <vector>
 
-#include "./duostra_def.hpp"
 #include "./circuit_topology.hpp"
+#include "./duostra_def.hpp"
 #include "./router.hpp"
 #include "device/device.hpp"
 
@@ -23,7 +23,7 @@ namespace qsyn::duostra {
 
 class BaseScheduler {
 public:
-    using Device = qsyn::device::Device;
+    using Device    = qsyn::device::Device;
     using Operation = qsyn::device::Operation;
     BaseScheduler(CircuitTopology topo, bool tqdm)
         : _circuit_topology(std::move(topo)), _tqdm(tqdm) {}
@@ -63,14 +63,14 @@ protected:
     std::vector<Operation> _operations;
     std::vector<size_t> _assign_order;
     bool _sorted = false;
-    bool _tqdm = true;
+    bool _tqdm   = true;
     virtual Device _assign_gates(std::unique_ptr<Router>);
     void _sort();
 };
 
 class RandomScheduler : public BaseScheduler {
 public:
-    using Device = BaseScheduler::Device;
+    using Device    = BaseScheduler::Device;
     using Operation = BaseScheduler::Operation;
     RandomScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
 
@@ -82,7 +82,7 @@ protected:
 
 class NaiveScheduler : public BaseScheduler {
 public:
-    using Device = BaseScheduler::Device;
+    using Device    = BaseScheduler::Device;
     using Operation = BaseScheduler::Operation;
     NaiveScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
 
@@ -103,7 +103,7 @@ struct GreedyConf {
 
 class GreedyScheduler : public BaseScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    using Device = BaseScheduler::Device;
+    using Device    = BaseScheduler::Device;
     using Operation = BaseScheduler::Operation;
     GreedyScheduler(CircuitTopology const& topo, bool tqdm) : BaseScheduler(topo, tqdm) {}
     ~GreedyScheduler() = default;
@@ -207,7 +207,7 @@ private:
 
 class SearchScheduler : public GreedyScheduler {  // NOLINT(hicpp-special-member-functions, cppcoreguidelines-special-member-functions) : copy-swap idiom
 public:
-    using Device = GreedyScheduler::Device;
+    using Device    = GreedyScheduler::Device;
     using Operation = GreedyScheduler::Operation;
     SearchScheduler(CircuitTopology const&, bool = true);
     ~SearchScheduler() = default;

@@ -107,9 +107,9 @@ bool ZXFileParser::_tokenize(std::string const& line, std::vector<std::string>& 
     tokens.emplace_back(token);
 
     // parsing parenthesis
-    size_t left_paren_pos = line.find_first_of('(', pos);
-    size_t right_paren_pos = line.find_first_of(')', left_paren_pos == std::string::npos ? 0 : left_paren_pos);
-    bool has_left_parenthesis = (left_paren_pos != std::string::npos);
+    size_t left_paren_pos      = line.find_first_of('(', pos);
+    size_t right_paren_pos     = line.find_first_of(')', left_paren_pos == std::string::npos ? 0 : left_paren_pos);
+    bool has_left_parenthesis  = (left_paren_pos != std::string::npos);
     bool has_right_parenthesis = (right_paren_pos != std::string::npos);
 
     if (has_left_parenthesis) {

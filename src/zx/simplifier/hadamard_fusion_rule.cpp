@@ -37,7 +37,7 @@ std::vector<MatchType> HadamardFusionRule::find_matches(ZXGraph const& graph) co
             taken[n0] = true;
             taken[n1] = true;
 
-            Neighbors nebs = neighbor_left->get_neighbors();
+            Neighbors nebs    = neighbor_left->get_neighbors();
             NeighborPair nbp0 = *(nebs.begin());
             NeighborPair nbp1 = *next(nebs.begin());
             size_t n2 = id2idx[nbp0.first->get_id()], n3 = id2idx[nbp1.first->get_id()];
@@ -51,7 +51,7 @@ std::vector<MatchType> HadamardFusionRule::find_matches(ZXGraph const& graph) co
             taken[n0] = true;
             taken[n1] = true;
 
-            Neighbors nebs = neighbor_left->get_neighbors();
+            Neighbors nebs    = neighbor_left->get_neighbors();
             NeighborPair nbp0 = *(nebs.begin());
             NeighborPair nbp1 = *next(nebs.begin());
             size_t n2 = id2idx[nbp0.first->get_id()], n3 = id2idx[nbp1.first->get_id()];
@@ -68,7 +68,7 @@ std::vector<MatchType> HadamardFusionRule::find_matches(ZXGraph const& graph) co
     graph.for_each_edge([&id2idx, &taken, &matches, this](EdgePair const& epair) {
         if (epair.second == EdgeType::hadamard) return;
 
-        ZXVertex* neighbor_left = epair.first.first;
+        ZXVertex* neighbor_left  = epair.first.first;
         ZXVertex* neighbor_right = epair.first.second;
         size_t n0 = id2idx[neighbor_left->get_id()], n1 = id2idx[neighbor_right->get_id()];
 

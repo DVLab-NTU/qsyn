@@ -15,3 +15,4 @@ PackConstructorInitializers: BinPack
 QualifierAlignment: Right
 PointerAlignment: Left
 ReferenceAlignment: Left
+AlignConsecutiveAssignments: Consecutive

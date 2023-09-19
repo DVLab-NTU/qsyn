@@ -30,10 +30,10 @@ fmt::text_style ls_color(fs::path const& path) {
 
             for (auto&& token : dvlab::str::split(ls_colors, ":")) {
                 if (token.empty()) continue;
-                size_t pos = token.find('=');
-                std::string key = token.substr(0, pos);
+                size_t pos                      = token.find('=');
+                std::string key                 = token.substr(0, pos);
                 std::vector<std::string> values = dvlab::str::split(token.substr(pos + 1), ";");
-                fmt::text_style style = std::transform_reduce(
+                fmt::text_style style           = std::transform_reduce(
                     values.begin(), values.end(),
                     fmt::text_style{},
                     std::bit_or<>{},
@@ -62,14 +62,14 @@ fmt::text_style ls_color(fs::path const& path) {
     namespace fs = std::filesystem;
     using fs::file_type, fs::perms;
 
-    auto status = fs::status(path);
-    auto type = status.type();
+    auto status      = fs::status(path);
+    auto type        = status.type();
     auto permissions = status.permissions();
     // checks for file types
 
     switch (type) {
         case file_type::directory: {
-            bool is_sticky = (permissions & perms::sticky_bit) != perms::none;
+            bool is_sticky         = (permissions & perms::sticky_bit) != perms::none;
             bool is_other_writable = (permissions & perms::others_write) != perms::none;
             if (is_sticky) {
                 return is_other_writable ? ls_color("tw") : ls_color("st");

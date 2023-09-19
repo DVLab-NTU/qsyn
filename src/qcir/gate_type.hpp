@@ -7,45 +7,41 @@
 
 #pragma once
 
+#include <cstdint>
+#include <functional>
+#include <gsl/narrow>
 #include <iosfwd>
+#include <optional>
+#include <type_traits>
+#include <utility>
+
+#include "util/phase.hpp"
+#include "util/util.hpp"
 
 namespace qsyn::qcir {
 
-enum class GateType {
+enum class GateRotationCategory {
     id,
-    // NOTE - Multi-control rotate
-    mcp,
-    mcrz,
-    mcpx,
-    mcrx,
-    mcpy,
-    mcry,
     h,
-    // NOTE - MCP(Z)
-    ccz,
-    cz,
-    p,
-    z,
-    s,
-    sdg,
-    t,
-    tdg,
-    rz,
-    // NOTE - MCPX
-    ccx,
-    cx,
     swap,
+    pz,
+    rz,
     px,
-    x,
-    sx,
     rx,
-    // NOTE - MCPY
-    y,
     py,
-    sy,
     ry
 };
 
-std::ostream& operator<<(std::ostream& stream, GateType const& type);
+using GateType = std::tuple<GateRotationCategory, std::optional<size_t>, std::optional<dvlab::Phase>>;
+
+std::optional<GateType> str_to_gate_type(std::string_view str);
+std::string gate_type_to_str(GateRotationCategory category, std::optional<size_t> num_qubits = std::nullopt, std::optional<dvlab::Phase> phase = std::nullopt);
+std::string gate_type_to_str(GateType const& type);
+
+bool is_fixed_phase_gate(GateRotationCategory category);
+
+dvlab::Phase get_fixed_phase(GateRotationCategory category);
+
+std::ostream& operator<<(std::ostream& stream, GateRotationCategory const& type);
 
 }  // namespace qsyn::qcir

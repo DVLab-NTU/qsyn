@@ -121,8 +121,8 @@ Command tensor_equivalence_check_cmd(TensorMgr& tensor_mgr) {
                     .action(store_true);
             },
             [&](ArgumentParser const& parser) {
-                auto ids = parser.get<std::vector<size_t>>("ids");
-                auto eps = parser.get<double>("-epsilon");
+                auto ids    = parser.get<std::vector<size_t>>("ids");
+                auto eps    = parser.get<double>("-epsilon");
                 auto strict = parser.get<bool>("-strict");
 
                 QTensor<double>* tensor1;
@@ -135,8 +135,8 @@ Command tensor_equivalence_check_cmd(TensorMgr& tensor_mgr) {
                     tensor2 = tensor_mgr.find_by_id(ids[0]);
                 }
 
-                bool equiv = is_equivalent(*tensor1, *tensor2, eps);
-                double norm = global_norm<double>(*tensor1, *tensor2);
+                bool equiv         = is_equivalent(*tensor1, *tensor2, eps);
+                double norm        = global_norm<double>(*tensor1, *tensor2);
                 dvlab::Phase phase = global_phase<double>(*tensor1, *tensor2);
 
                 if (strict) {
